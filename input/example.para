@@ -1,0 +1,48 @@
+VERBOSE		0
+DEBUG		0
+INIT_MODE	0
+ASCII_OUTPUT    1
+SPINUP_MODE	1
+UNSAT_MODE	2
+SAT_MODE	2
+RIV_MODE	2
+SOLVER		2
+GSTYPE		1
+MAXK		0
+DELTA		0
+ABSTOL		1E-4
+RELTOL		1E-3
+INIT_STEP	3E-6
+MAX_STEP	1
+LSM_STEP	1
+START		2008-10-20 00:00
+END		2010-01-01 00:00
+OUTPUT_TYPE	0
+A		1.0
+B		1.0
+###############################################################################
+# OUTPUT CONTROL:                                                             #
+#  All options are listed below.                                              #
+#  Use "#" to comment out the variables you do not want to output, or set     #
+#  the output interval (in minutes) to 0.                                     #
+###############################################################################
+GW		60
+#SURF		60
+SNOW		60
+#RIVSTG		60
+#RECHARGE	60
+#CMC		60
+#UNSAT		60
+EC              60
+ETT             60
+EDIR		60
+#RIVFLX0	60
+RIVFLX1		60
+#RIVFLX2	60
+#RIVFLX3	60
+#RIVFLX4    	60
+#RIVFLX5    	60
+#RIVFLX6    	60
+#RIVFLX7    	60
+#RIVFLX8    	60
+#RIVFLX9    	60
