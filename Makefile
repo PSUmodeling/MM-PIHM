@@ -25,7 +25,7 @@ MSG = "...  Compiling PIHM  ..."
 # FLUX-PIHM
 # BBGC
 
-MODULE = BBGC
+MODULE = FLUX-PIHM
 
 ifeq ($(MODULE), FLUX-PIHM)
   SFLAGS = -D_FLUX_PIHM_ 
