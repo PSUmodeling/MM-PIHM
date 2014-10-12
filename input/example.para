@@ -12,14 +12,14 @@ MAXK		0
 DELTA		0
 ABSTOL		1E-4
 RELTOL		1E-3
-INIT_STEP	3E-6
-MAX_STEP	1
-LSM_STEP	1
+INIT_STEP	1E-6
+MAX_STEP	5
+LSM_STEP	60
 START		2008-10-20 00:00
-END		2010-01-01 00:00
+END		2008-10-20 05:00
 OUTPUT_TYPE	0
 A		1.0
-B		1.0
+B		5.0
 ###############################################################################
 # OUTPUT CONTROL:                                                             #
 #  All options are listed below.                                              #

@@ -93,7 +93,6 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data DS, LSM_STRUCT LSM)
          */
 
         NOAH->DT = (double)(stepsize * 60.);    /* DT: convert from d to s */
-
         /*
          * Read forcing
          */

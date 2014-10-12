@@ -240,18 +240,23 @@ int main (int argc, char *argv[])
                 NextPtr = t + cData.ETStep;
             StepSize = NextPtr - t;
 
+            mData->dt = StepSize;
+
+            if ((int)t % (int)cData.ETStep == 0)
+            {
 #ifdef _FLUX_PIHM_
-            /*
-             * calculate surface energy balance
-             */
-            PIHM2Noah (t, StepSize, mData, LSM, coupling);
-            Noah2PIHM (mData, LSM);
+                /*
+                 * calculate surface energy balance
+                 */
+                PIHM2Noah (t, cData.ETStep, mData, LSM, coupling);
+                Noah2PIHM (mData, LSM);
 #else
-            /*
-             * calculate Interception Storage and ET
-             */
-            is_sm_et (t, StepSize, mData, CV_Y);
+                /*
+                 * calculate Interception Storage and ET
+                 */
+                is_sm_et (t, cData.ETStep, mData, CV_Y);
 #endif
+            }
 
             *rawtime = (int)t *60;
             timestamp = gmtime (rawtime);
@@ -262,6 +267,7 @@ int main (int argc, char *argv[])
 #ifdef COUPLE_I
             t = NextPtr;
 #else
+            flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(StepSize* 500));         /* Added to adatpt to larger time step. YS */
             flag = CVode (cvode_mem, NextPtr, CV_Y, &t, CV_NORMAL);
 #endif
             summary (mData, CV_Y, t - StepSize, StepSize);

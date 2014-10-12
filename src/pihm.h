@@ -18,6 +18,7 @@
 #define PIHM_HEADER
 
 #include "print.h"
+#include "forcing.h"
 /*
  * SUNDIAL Header Files 
  */
@@ -281,15 +282,6 @@ typedef struct river_IC_type
     realtype        value;      /* initial flow depth */
 } river_IC;
 
-typedef struct TSD_type
-{
-    char            name[15];
-    int             index;
-    int             length;     /* length of time series */
-    int             iCounter;   /* interpolation counter */
-    realtype        TSFactor;
-    realtype      **TS;         /* 2D time series data */
-} TSD;
 
 /*
  * Global calibration sturcture
@@ -485,6 +477,8 @@ typedef struct model_data_structure
     realtype       *DummyY;
     //  realtype    *PrintVar[100]; /* Modified by Y. Shi */
     processCal      pcCal;
+
+    realtype        dt;         /* YS: Time step */
 }              *Model_Data;
 
 typedef struct control_data_structure
@@ -550,11 +544,11 @@ void            initialize_output (char *, Model_Data, Control_Data *,
    char *);
 int             f (realtype, N_Vector, N_Vector, void *);
 void            read_alloc (char *, Model_Data, Control_Data *);
-void            update (realtype, void *);
+//void            update (realtype, void *);
 void            f_update (realtype, realtype *, void *);    /* YS */
 //void      PrintData(char *,Control_Data *, Model_Data, N_Vector, realtype, char *);
 void            Free_Data (Model_Data, Control_Data *);
-realtype        Interpolation (TSD *, realtype);
+//realtype        Interpolation (TSD *, realtype);
 //realtype  mod(realtype, realtype);
 void            summary (Model_Data, N_Vector, realtype, realtype); /* YS */
 realtype        returnVal (realtype, realtype, realtype, realtype);

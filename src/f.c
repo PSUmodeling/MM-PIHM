@@ -79,10 +79,13 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
        AquiferDepth, Deficit, elemSatn, satKfunc, effK, effKnabr, TotalY_Ele,
        TotalY_Ele_down;
     realtype       *Y, *DY;
+    realtype        dt;     /* YS */
     Model_Data      MD;
     Y = NV_DATA_S (CV_Y);
     DY = NV_DATA_S (CV_Ydot);
     MD = (Model_Data) DS;
+
+    dt = MD->dt;
 
     /*
      * Initialization of temporary state variables 
@@ -326,23 +329,23 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] +
                      MD->FluxSurf[i][1] +
                      MD->FluxSurf[i][2]) / MD->Ele[i].area -
-                  MD->EleViR[i]) / (UNIT_C) < 0)
+                  MD->EleViR[i]) * dt / (UNIT_C) < 0)
 #else
             if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] +
                      MD->FluxSurf[i][1] +
                      MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i] -
                   (MD->DummyY[i] <
-                     (EPS / 100) ? 0 : MD->EleET[i][2])) / (UNIT_C) < 0)
+                     (EPS / 100) ? 0 : MD->EleET[i][2])) * dt / (UNIT_C) < 0)
 #endif
             {
 #ifdef _FLUX_PIHM_
                 MD->EleViR[i] =
-                   MD->DummyY[i] * (UNIT_C) + MD->EleNetPrep[i] +
+                   MD->DummyY[i] / dt * (UNIT_C) + MD->EleNetPrep[i] +
                    (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] +
                    MD->FluxSurf[i][2]) / MD->Ele[i].area;
 #else
                 MD->EleViR[i] =
-                   MD->DummyY[i] * (UNIT_C) + MD->EleNetPrep[i] +
+                   MD->DummyY[i] / dt * (UNIT_C) + MD->EleNetPrep[i] +
                    (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] +
                    MD->FluxSurf[i][2]) / MD->Ele[i].area - (MD->DummyY[i] <
                    (EPS / 100) ? 0 : MD->EleET[i][2]);
@@ -415,23 +418,23 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] +
                      MD->FluxSurf[i][1] +
                      MD->FluxSurf[i][2]) / MD->Ele[i].area -
-                  MD->EleViR[i]) / (UNIT_C) < 0)
+                  MD->EleViR[i]) * dt / (UNIT_C) < 0)
 #else
             if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] +
                      MD->FluxSurf[i][1] +
                      MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i] -
                   (MD->DummyY[i] <
-                     EPS / 100 ? 0 : MD->EleET[i][2])) / (UNIT_C) < 0)
+                     EPS / 100 ? 0 : MD->EleET[i][2])) * dt / (UNIT_C) < 0)
 #endif
             {
 #ifdef _FLUX_PIHM_
                 MD->EleViR[i] =
-                   MD->DummyY[i] * (UNIT_C) + MD->EleNetPrep[i] +
+                   MD->DummyY[i] / dt * (UNIT_C) + MD->EleNetPrep[i] +
                    (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] +
                    MD->FluxSurf[i][2]) / MD->Ele[i].area;
 #else
                 MD->EleViR[i] =
-                   MD->DummyY[i] * (UNIT_C) + MD->EleNetPrep[i] +
+                   MD->DummyY[i] / dt * (UNIT_C) + MD->EleNetPrep[i] +
                    (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] +
                    MD->FluxSurf[i][2]) / MD->Ele[i].area - (MD->DummyY[i] <
                    EPS / 100 ? 0 : MD->EleET[i][2]);
@@ -889,7 +892,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
                        MD->FluxSurf[MD->Riv[i].LeftEle - 1][j])
                     {
                         MD->FluxRiv[i][2] =
-                           -MD->DummyY[MD->Riv[i].LeftEle - 1] * (UNIT_C);
+                           -MD->DummyY[MD->Riv[i].LeftEle - 1] / dt * (UNIT_C);
                     }
                     MD->FluxSurf[MD->Riv[i].LeftEle - 1][j] =
                        -MD->FluxRiv[i][2];
@@ -1040,7 +1043,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
                        MD->FluxSurf[MD->Riv[i].RightEle - 1][j])
                     {
                         MD->FluxRiv[i][3] =
-                           -MD->DummyY[MD->Riv[i].RightEle - 1] * (UNIT_C);
+                           -MD->DummyY[MD->Riv[i].RightEle - 1] / dt * (UNIT_C);
                     }
                     MD->FluxSurf[MD->Riv[i].RightEle - 1][j] =
                        -MD->FluxRiv[i][3];
@@ -1075,10 +1078,10 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
                DY[i + 2 * MD->NumEle] - MD->FluxSub[i][j] / MD->Ele[i].area;
         }
         DY[i + MD->NumEle] =
-           DY[i + MD->NumEle] / (MD->Ele[i].Porosity * UNIT_C);
+           DY[i + MD->NumEle] *dt / (MD->Ele[i].Porosity * UNIT_C);
         DY[i + 2 * MD->NumEle] =
-           DY[i + 2 * MD->NumEle] / (MD->Ele[i].Porosity * UNIT_C);
-        DY[i] = DY[i] / (UNIT_C);
+           DY[i + 2 * MD->NumEle] *dt / (MD->Ele[i].Porosity * UNIT_C);
+        DY[i] = DY[i] *dt / (UNIT_C);
     }
     for (i = 0; i < MD->NumRiv; i++)
     {
@@ -1095,7 +1098,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
         }
         //      MD->EleEp[i+MD->NumEle] = MD->DummyY[i+3*MD->NumEle]<EPS/100?0:MD->EleEp[i+MD->NumEle];
         //      DY[i+3*MD->NumEle] = DY[i+3*MD->NumEle] + MD->EleNetPrep[i+MD->NumEle] - MD->EleEp[i+MD->NumEle];
-        DY[i + 3 * MD->NumEle] = DY[i + 3 * MD->NumEle] / (UNIT_C);
+        DY[i + 3 * MD->NumEle] = DY[i + 3 * MD->NumEle] *dt / (UNIT_C);
         DY[i + 3 * MD->NumEle + MD->NumRiv] =
            DY[i + 3 * MD->NumEle + MD->NumRiv] - MD->FluxRiv[i][7] -
            MD->FluxRiv[i][8] - MD->FluxRiv[i][9] - MD->FluxRiv[i][10] +
@@ -1104,7 +1107,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
            DY[i + 3 * MD->NumEle + MD->NumRiv] / (MD->Ele[i +
               MD->NumEle].Porosity * MD->Riv[i].Length *
            CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd,
-              MD->Riv[i].depth, MD->Riv[i].coeff, 3) * UNIT_C);
+              MD->Riv[i].depth, MD->Riv[i].coeff, 3) / dt * UNIT_C);
     }
     //  printf("Flux: %f, %f\n", MD->Recharge[120], (MD->FluxSub[120][0] + MD->FluxSub[120][1] + MD->FluxSub[120][2])/ MD->Ele[120].area);
     return 0;

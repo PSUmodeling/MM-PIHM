@@ -160,9 +160,11 @@ void f_update (realtype t, realtype * Y, void *DS)
        AquiferDepth, Deficit, elemSatn, satKfunc, effK, effKnabr, TotalY_Ele,
        TotalY_Ele_down;
     realtype        temp;
+    realtype        dt;
     Model_Data      MD;
     MD = (Model_Data) DS;
 
+    dt = MD->dt;
     /*
      * Initialization of temporary state variables 
      */
@@ -404,23 +406,23 @@ void f_update (realtype t, realtype * Y, void *DS)
             if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] +
                      MD->FluxSurf[i][1] +
                      MD->FluxSurf[i][2]) / MD->Ele[i].area -
-                  MD->EleViR[i]) / (UNIT_C) < 0)
+                  MD->EleViR[i]) *dt / (UNIT_C) < 0)
 #else
             if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] +
                      MD->FluxSurf[i][1] +
                      MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i] -
                   (MD->DummyY[i] <
-                     (EPS / 100) ? 0 : MD->EleET[i][2])) / (UNIT_C) < 0)
+                     (EPS / 100) ? 0 : MD->EleET[i][2])) * dt/ (UNIT_C) < 0)
 #endif
             {
 #ifdef _FLUX_PIHM_
                 MD->EleViR[i] =
-                   MD->DummyY[i] * (UNIT_C) + MD->EleNetPrep[i] +
+                   MD->DummyY[i] /dt * (UNIT_C) + MD->EleNetPrep[i] +
                    (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] +
                    MD->FluxSurf[i][2]) / MD->Ele[i].area;
 #else
                 MD->EleViR[i] =
-                   MD->DummyY[i] * (UNIT_C) + MD->EleNetPrep[i] +
+                   MD->DummyY[i] / dt * (UNIT_C) + MD->EleNetPrep[i] +
                    (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] +
                    MD->FluxSurf[i][2]) / MD->Ele[i].area - (MD->DummyY[i] <
                    (EPS / 100) ? 0 : MD->EleET[i][2]);
@@ -483,23 +485,23 @@ void f_update (realtype t, realtype * Y, void *DS)
             if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] +
                      MD->FluxSurf[i][1] +
                      MD->FluxSurf[i][2]) / MD->Ele[i].area -
-                  MD->EleViR[i]) / (UNIT_C) < 0)
+                  MD->EleViR[i]) * dt / (UNIT_C) < 0)
 #else
             if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] +
                      MD->FluxSurf[i][1] +
                      MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i] -
                   (MD->DummyY[i] <
-                     EPS / 100 ? 0 : MD->EleET[i][2])) / (UNIT_C) < 0)
+                     EPS / 100 ? 0 : MD->EleET[i][2])) * dt / (UNIT_C) < 0)
 #endif
             {
 #ifdef _FLUX_PIHM_
                 MD->EleViR[i] =
-                   MD->DummyY[i] * (UNIT_C) + MD->EleNetPrep[i] +
+                   MD->DummyY[i] / dt * (UNIT_C) + MD->EleNetPrep[i] +
                    (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] +
                    MD->FluxSurf[i][2]) / MD->Ele[i].area;
 #else
                 MD->EleViR[i] =
-                   MD->DummyY[i] * (UNIT_C) + MD->EleNetPrep[i] +
+                   MD->DummyY[i] / dt * (UNIT_C) + MD->EleNetPrep[i] +
                    (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] +
                    MD->FluxSurf[i][2]) / MD->Ele[i].area - (MD->DummyY[i] <
                    EPS / 100 ? 0 : MD->EleET[i][2]);
@@ -928,7 +930,7 @@ void f_update (realtype t, realtype * Y, void *DS)
                        MD->FluxSurf[MD->Riv[i].LeftEle - 1][j])
                     {
                         MD->FluxRiv[i][2] =
-                           -MD->DummyY[MD->Riv[i].LeftEle - 1] * (UNIT_C);
+                           -MD->DummyY[MD->Riv[i].LeftEle - 1] / dt * (UNIT_C);
                     }
                     MD->FluxSurf[MD->Riv[i].LeftEle - 1][j] =
                        -MD->FluxRiv[i][2];
@@ -1079,7 +1081,7 @@ void f_update (realtype t, realtype * Y, void *DS)
                        MD->FluxSurf[MD->Riv[i].RightEle - 1][j])
                     {
                         MD->FluxRiv[i][3] =
-                           -MD->DummyY[MD->Riv[i].RightEle - 1] * (UNIT_C);
+                           -MD->DummyY[MD->Riv[i].RightEle - 1] / dt * (UNIT_C);
                     }
                     MD->FluxSurf[MD->Riv[i].RightEle - 1][j] =
                        -MD->FluxRiv[i][3];

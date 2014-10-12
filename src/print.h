@@ -1,4 +1,3 @@
-
 /******************************************************************************
  * File		: print.h                                                         *
  * Function	: Declaration and Definition of print structures and function     *
