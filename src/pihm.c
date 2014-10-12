@@ -141,7 +141,7 @@ int main (int argc, char *argv[])
     /*
      * Save input files into output directory
      */
-    sprintf (system_cmd, "cp input/%s.calib %s/%s.calib.bak",
+    sprintf (system_cmd, "cp input/%s.para %s/%s.para.bak",
        filename, outputdir, filename);
     system (system_cmd);
 
@@ -240,7 +240,7 @@ int main (int argc, char *argv[])
                 NextPtr = t + cData.ETStep;
             StepSize = NextPtr - t;
 
-            mData->dt = StepSize;
+            mData->dt = 1.;//StepSize;
 
             if ((int)t % (int)cData.ETStep == 0)
             {
