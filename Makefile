@@ -72,6 +72,8 @@ $(EXECUTABLE): $(OBJS) $(MODULE_OBJS)
 %.o: %.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@
 
+tool:
+	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o convert src/tool/convert.c
 #$(OBJS): | $(OBJDIR)
      
 #$(OBJDIR):
