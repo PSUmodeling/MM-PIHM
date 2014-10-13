@@ -24,5 +24,5 @@ typedef struct Print_Ctrl_structure /* YS */
     double         *buffer;
 } Print_Ctrl;
 
-void            PrintData (Print_Ctrl, double, int);
+void            PrintData (Print_Ctrl, double, double, int);
 #endif

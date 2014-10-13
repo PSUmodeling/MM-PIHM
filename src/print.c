@@ -31,7 +31,7 @@
 /*
  * Temporal average of State vectors 
  */
-void PrintData (Print_Ctrl PCtrl, realtype tmpt, int Ascii)
+void PrintData (Print_Ctrl PCtrl, realtype tmpt, realtype dt, int Ascii)
 {
     int             j;
     struct tm      *timestamp;
@@ -69,7 +69,7 @@ void PrintData (Print_Ctrl PCtrl, realtype tmpt, int Ascii)
             for (j = 0; j < PCtrl.NumVar; j++)
             {
                 fprintf (fpin, "%lf\t",
-                   PCtrl.buffer[j] / (realtype) PCtrl.Interval);
+                   PCtrl.buffer[j] / ( (realtype) PCtrl.Interval / dt));
             }
             fprintf (fpin, "\n");
             fflush (fpin);
@@ -86,7 +86,7 @@ void PrintData (Print_Ctrl PCtrl, realtype tmpt, int Ascii)
         fwrite (&outtime, sizeof (realtype), 1, fpin);
         for (j = 0; j < PCtrl.NumVar; j++)
         {
-            outval = PCtrl.buffer[j] / (realtype) PCtrl.Interval;
+            outval = PCtrl.buffer[j] / ( (realtype) PCtrl.Interval / dt);
             //          outval = PCtrl.buffer[j] / (float)PCtrl.Interval; 
             fwrite (&outval, sizeof (realtype), 1, fpin);
             PCtrl.buffer[j] = 0;

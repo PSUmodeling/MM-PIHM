@@ -64,6 +64,9 @@ int main (int argc, char *argv[])
     struct tm      *timestamp;
     time_t         *rawtime;
     realtype        NextPtr, StepSize;  /* stress period & step size */
+    //
+    realtype        cvode_val;
+    long int        cvode_int;
     //  realtype cputime_r, cputime_s;  /* for duration in realtype  */
     //  clock_t start, diff;    /* system clock at points    */
     char           *filename, *outputdir, str[11];
@@ -240,7 +243,7 @@ int main (int argc, char *argv[])
                 NextPtr = t + cData.ETStep;
             StepSize = NextPtr - t;
 
-            mData->dt = 1.;//StepSize;
+            mData->dt = StepSize;
 
             if ((int)t % (int)cData.ETStep == 0)
             {
@@ -261,14 +264,15 @@ int main (int argc, char *argv[])
             *rawtime = (int)t *60;
             timestamp = gmtime (rawtime);
             if ((int)*rawtime % 3600 == 0)
-                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
+                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\t%lf\n",
                    timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-                   timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+                   timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, NextPtr);
 #ifdef COUPLE_I
             t = NextPtr;
 #else
             flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(StepSize* 500));         /* Added to adatpt to larger time step. YS */
             flag = CVode (cvode_mem, NextPtr, CV_Y, &t, CV_NORMAL);
+            flag = CVodeGetCurrentTime(cvode_mem, &cvode_val);
 #endif
             summary (mData, CV_Y, t - StepSize, StepSize);
             update (t, mData);
@@ -278,10 +282,11 @@ int main (int argc, char *argv[])
          * Print outputs 
          */
         for (j = 0; j < cData.NumPrint; j++)
-            PrintData (cData.PCtrl[j], t, cData.Ascii);
+            PrintData (cData.PCtrl[j], t, StepSize, cData.Ascii);
+//        printf("%lf\n", cData.PCtrl[0].
 #ifdef _FLUX_PIHM_
         for (j = 0; j < LSM->NPRINT; j++)
-            PrintData (LSM->PCtrl[j], t, cData.Ascii);
+            PrintData (LSM->PCtrl[j], t, StepSize, cData.Ascii);
 #endif
     }
     if (cData.Spinup)
