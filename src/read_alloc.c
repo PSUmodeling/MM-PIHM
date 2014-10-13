@@ -33,7 +33,7 @@
 void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
 {
     int             i, j, k;
-    int             tempindex;
+    int             ind;
 
     int             NumTout;
     char           *fn[10];
@@ -43,6 +43,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     struct tm      *timeinfo;
     int             ensemble_mode;
     int             NumForcing;
+    int            *count;
 
     char            cmdstr[MAXSTRING];
     char            optstr[MAXSTRING];
@@ -473,7 +474,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
      */
 
     DS->Forcing = (TSD **) malloc (NumForcing * sizeof (TSD *));
-    DS->NumTS = (int *)malloc (NumForcing * sizeof (TSD *));
+    DS->NumTS = (int *)malloc (NumForcing * sizeof (int));
 
     for (i = 0; i < NumForcing; i++)
         fscanf (forc_file, "%*s");
@@ -496,21 +497,105 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     for (i = 0; i < NumForcing; i++)
     {
         DS->Forcing[i] = (TSD *) malloc (DS->NumTS[i] * sizeof (TSD));
+    }
+
+    fgets (cmdstr, MAXSTRING, forc_file);
+
+    while (!feof (forc_file))
+    {
+        if (cmdstr[0] != '\n' && cmdstr[0] != '\0')
+        {
+            sscanf (cmdstr, "%s", optstr);
+
+            if (strcasecmp ("PRCP", optstr) == 0)
+            {
+                sscanf (cmdstr, "%*s %d", &ind);
+                DS->Forcing[0][ind - 1].length = 0;
+                count = &(DS->Forcing[0][ind - 1].length);
+            }
+            else if (strcasecmp ("SFCTMP", optstr) == 0)
+            {
+                sscanf (cmdstr, "%*s %d", &ind);
+                DS->Forcing[1][ind - 1].length = 0;
+                count = &(DS->Forcing[1][ind - 1].length);
+            }
+            else if (strcasecmp ("RH", optstr) == 0)
+            {
+                sscanf (cmdstr, "%*s %d", &ind);
+                DS->Forcing[2][ind - 1].length = 0;
+                count = &(DS->Forcing[2][ind - 1].length);
+            }
+            else if (strcasecmp ("SFCSPD", optstr) == 0)
+            {
+                sscanf (cmdstr, "%*s %d", &ind);
+                DS->Forcing[3][ind - 1].length = 0;
+                count = &(DS->Forcing[3][ind - 1].length);
+            }
+            else if (strcasecmp ("SOLAR", optstr) == 0)
+            {
+                sscanf (cmdstr, "%*s %d", &ind);
+                DS->Forcing[4][ind - 1].length = 0;
+                count = &(DS->Forcing[4][ind - 1].length);
+            }
+            else if (strcasecmp ("LONGWAVE", optstr) == 0)
+            {
+                sscanf (cmdstr, "%*s %d", &ind);
+                DS->Forcing[5][ind - 1].length = 0;
+                count = &(DS->Forcing[5][ind - 1].length);
+            }
+            else if (strcasecmp ("PRES", optstr) == 0)
+            {
+                sscanf (cmdstr, "%*s %d", &ind);
+                DS->Forcing[6][ind - 1].length = 0;
+                count = &(DS->Forcing[6][ind - 1].length);
+            }
+            else if (strcasecmp ("LAI", optstr) == 0)
+            {
+                sscanf (cmdstr, "%*s %d", &ind);
+                DS->Forcing[7][ind - 1].length = 0;
+                count = &(DS->Forcing[7][ind - 1].length);
+            }
+            else if (strcasecmp ("RL", optstr) == 0)
+            {
+                sscanf (cmdstr, "%*s %d", &ind);
+                DS->Forcing[8][ind - 1].length = 0;
+                count = &(DS->Forcing[8][ind - 1].length);
+            }
+            else if (strcasecmp ("MF", optstr) == 0)
+            {
+                sscanf (cmdstr, "%*s %d", &ind);
+                DS->Forcing[9][ind - 1].length = 0;
+                count = &(DS->Forcing[9][ind - 1].length);
+            }
+            else if (strcasecmp ("SS", optstr) == 0)
+            {
+                sscanf (cmdstr, "%*s %d", &ind);
+                DS->Forcing[10][ind - 1].length = 0;
+                count = &(DS->Forcing[10][ind - 1].length);
+            }
+            else
+                (*count)++;
+        }
+        fgets (cmdstr, MAXSTRING, forc_file);
+    }
+
+    rewind(forc_file);
+    
+    for (i = 0; i < NumForcing; i++)
+        fscanf (forc_file, "%*s");
+    for (i = 0; i < NumForcing; i++)
+        fscanf (forc_file, "%*d");
+    for (i = 0; i < NumForcing; i++)
+    {
         for (k = 0; k < DS->NumTS[i]; k++)
         {
             if (i == 3 || i == 7)
-                fscanf (forc_file, "%s %d %d %lf", DS->Forcing[i][k].name,
-                   &DS->Forcing[i][k].index, &DS->Forcing[i][k].length,
-                   &DS->Forcing[i][k].TSFactor);
+                fscanf (forc_file, "%s %d %lf", DS->Forcing[i][k].name, &DS->Forcing[i][k].index, &DS->Forcing[i][k].TSFactor);
             else
-                fscanf (forc_file, "%s %d %d", DS->Forcing[i][k].name,
-                   &DS->Forcing[i][k].index, &DS->Forcing[i][k].length);
-            DS->Forcing[i][k].TS =
-               (realtype **) malloc ((DS->Forcing[i][k].length) *
-               sizeof (realtype *));
+                fscanf (forc_file, "%s %d", DS->Forcing[i][k].name, &DS->Forcing[i][k].index);
+            DS->Forcing[i][k].TS = (realtype **) malloc ((DS->Forcing[i][k].length) * sizeof (realtype *));
             for (j = 0; j < DS->Forcing[i][k].length; j++)
-                DS->Forcing[i][k].TS[j] =
-                   (realtype *) malloc (2 * sizeof (realtype));
+                DS->Forcing[i][k].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
             for (j = 0; j < DS->Forcing[i][k].length; j++)
             {
                 fscanf (forc_file, "%d-%d-%d %d:%d:%d %lf",
