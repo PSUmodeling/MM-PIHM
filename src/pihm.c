@@ -93,9 +93,7 @@ int main (int argc, char *argv[])
         {
             printf ("\tUsage ./pihm project_name\n");
             printf ("\t         OR              \n");
-            printf ("\tUsage ./pihm, and have a file in the current"
-               " directory named projectName.txt with the"
-               " project name in it\n");
+            printf ("\tUsage ./pihm, and have a file in the current directory named projectName.txt with the project name in it\n");
             fclose (iproj);
             exit (0);
         }
@@ -133,9 +131,7 @@ int main (int argc, char *argv[])
     /*
      * Create output directory based on projectname and time
      */
-    sprintf (str, "%2.2d%2.2d%2.2d%2.2d%2.2d",
-       timestamp->tm_year + 1900 - 2000, timestamp->tm_mon + 1,
-       timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+    sprintf (str, "%2.2d%2.2d%2.2d%2.2d%2.2d", timestamp->tm_year + 1900 - 2000, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
     outputdir = (char *)malloc ((strlen (filename) + 20) * sizeof (char));
     sprintf (outputdir, "output/%s.%s/", filename, str);
     printf ("\nOutput directory: %s\n", outputdir);
@@ -144,8 +140,7 @@ int main (int argc, char *argv[])
     /*
      * Save input files into output directory
      */
-    sprintf (system_cmd, "cp input/%s.para %s/%s.para.bak",
-       filename, outputdir, filename);
+    sprintf (system_cmd, "cp input/%s.para %s/%s.para.bak", filename, outputdir, filename);
     system (system_cmd);
 
     /*
@@ -176,9 +171,7 @@ int main (int argc, char *argv[])
          * problem size 
          */
         N = 3 * mData->NumEle + 2 * mData->NumRiv;
-        mData->DummyY =
-           (realtype *) malloc ((3 * mData->NumEle +
-              2 * mData->NumRiv) * sizeof (realtype));
+        mData->DummyY = (realtype *) malloc ((3 * mData->NumEle + 2 * mData->NumRiv) * sizeof (realtype));
     }
     /*
      * initial state variable depending on machine 
@@ -217,8 +210,7 @@ int main (int argc, char *argv[])
     flag = CVodeSetInitStep (cvode_mem, cData.InitStep);
     flag = CVodeSetStabLimDet (cvode_mem, TRUE);
     flag = CVodeSetMaxStep (cvode_mem, cData.MaxStep);
-    flag = CVodeMalloc (cvode_mem, f, cData.StartTime, CV_Y, CV_SS,
-       cData.reltol, &cData.abstol);
+    flag = CVodeMalloc (cvode_mem, f, cData.StartTime, CV_Y, CV_SS, cData.reltol, &cData.abstol);
     flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
     //  flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
 
@@ -261,16 +253,14 @@ int main (int argc, char *argv[])
 #endif
             }
 
-            *rawtime = (int)t *60;
+            *rawtime = (int)t;
             timestamp = gmtime (rawtime);
             if ((int)*rawtime % 3600 == 0)
-                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\t%lf\n",
-                   timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-                   timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, NextPtr);
+                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\t%lf\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, NextPtr);
 #ifdef COUPLE_I
             t = NextPtr;
 #else
-            flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(StepSize* 500));         /* Added to adatpt to larger time step. YS */
+            flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(StepSize* 10));         /* Added to adatpt to larger time step. YS */
             flag = CVode (cvode_mem, NextPtr, CV_Y, &t, CV_NORMAL);
             flag = CVodeGetCurrentTime(cvode_mem, &cvode_val);
 #endif

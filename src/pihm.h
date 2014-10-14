@@ -41,10 +41,10 @@
 #define MINpsi		-70
 #define EPS		    0.05
 #define THRESH		0.0
-#define UNIT_C		1440        /* 60*24 for calculation of yDot in
-                                 * m/min units while forcing is in
-                                 * m/day. */
-#define GRAV		9.8*60*60   /* the dependence on physical units */
+//#define UNIT_C		1440        /* 60*24 for calculation of yDot in
+//                                 * m/min units while forcing is in
+  //                               * m/day. */
+#define GRAV		9.8   /* the dependence on physical units */
 #define PI		    3.14159265
 #define BADVAL		-999
 #define MAXSTRING	1024

@@ -25,15 +25,15 @@
 #include "flux_pihm.h"
 #include "../spa/spa.h"
 
+#define _DEBUG_
+
 void PIHM2Noah (realtype t, realtype stepsize, Model_Data DS, LSM_STRUCT LSM)
 {
     GRID_TYPE      *NOAH;
 
-    double          TRESH = 0.95, A2 = 17.67, A3 = 273.15, A4 = 29.65, T0 =
-       273.16, ELWV = 2.501e6, A23M4, E0 = 611.0, RV = 461.0, EPSILON = 0.622;
+    double          TRESH = 0.95, A2 = 17.67, A3 = 273.15, A4 = 29.65, T0 = 273.16, ELWV = 2.501e6, A23M4, E0 = 611.0, RV = 461.0, EPSILON = 0.622;
     double          E;
-    double          SVP, SVP1 = 611.2, SVP2 = 17.67, SVP3 = 29.65, SVPT0 =
-       273.15;
+    double          SVP, SVP1 = 611.2, SVP2 = 17.67, SVP3 = 29.65, SVPT0 = 273.15;
     double          T1V, TH2V, T2V, RHO, ES, RH;
     double          ZSOIL[LSM->STD_NSOIL + 1];
     int             i, j, KZ;
@@ -46,7 +46,7 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data DS, LSM_STRUCT LSM)
 
     spa_data        spa;
     rawtime = (time_t *) malloc (sizeof (time_t));
-    *rawtime = (int)t *60;
+    *rawtime = (int)t;
     timestamp = gmtime (rawtime);
     free (rawtime);
 
@@ -70,8 +70,7 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data DS, LSM_STRUCT LSM)
     /*
      * Calculate surface pressure based on FAO 1998 method (Narasimhan 2002) 
      */
-    spa.pressure =
-       1013.25 * pow ((293. - 0.0065 * spa.elevation) / 293., 5.26);
+    spa.pressure = 1013.25 * pow ((293. - 0.0065 * spa.elevation) / 293., 5.26);
     spa.temperature = LSM->GENPRMT.TBOT_DATA;
 
     spa.function = SPA_ZA;
@@ -92,63 +91,48 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data DS, LSM_STRUCT LSM)
          * Read time step
          */
 
-        NOAH->DT = (double)(stepsize * 60.);    /* DT: convert from d to s */
+        NOAH->DT = (double)stepsize;    /* DT: convert from d to s */
         /*
          * Read forcing
          */
 
-        NOAH->SFCSPD = Interpolation (&DS->Forcing[3][DS->Ele[i].WindVel - 1], t) / 24. / 3600.;    /* SFCSPD: convert from m day-1 to m s-1 */
-        NOAH->SFCTMP = Interpolation (&DS->Forcing[1][DS->Ele[i].temp - 1], t) + 273.15;    /* SFCTMP: convert from degree C to Kalvain */
-        RH = Interpolation (&DS->Forcing[2][DS->Ele[i].humidity - 1], t) * 100.;    /* RH: convert from 100% to % */
-        NOAH->SFCPRS = Interpolation (&DS->Forcing[6][DS->Ele[i].pressure - 1], t) / 100.;  /* SFCPRS: convert from m day-1 to m s-1 */
-        NOAH->LONGWAVE = Interpolation (&DS->Forcing[5][DS->Ele[i].Ldown - 1], t) / 24. / 3600.;    /* LONGWAVE: convert from J day-1 m-2 to W m-2 */
-        NOAH->PRCP = Interpolation (&DS->Forcing[0][DS->Ele[i].prep - 1], t) * 1000. / 24. / 3600.; /* PRCP: convert from m day-1 to kg m-2 s-1 */
+        NOAH->SFCSPD = Interpolation (&DS->Forcing[3][DS->Ele[i].WindVel - 1], t); /// 24. / 3600.;    /* SFCSPD: convert from m day-1 to m s-1 */
+        NOAH->SFCTMP = Interpolation (&DS->Forcing[1][DS->Ele[i].temp - 1], t);// + 273.15;    /* SFCTMP: convert from degree C to Kalvain */
+        RH = Interpolation (&DS->Forcing[2][DS->Ele[i].humidity - 1], t);// * 100.;    /* RH: convert from 100% to % */
+        NOAH->SFCPRS = Interpolation (&DS->Forcing[6][DS->Ele[i].pressure - 1], t) / 100.;  /* SFCPRS: convert from Pa to hPa */
+        NOAH->LONGWAVE = Interpolation (&DS->Forcing[5][DS->Ele[i].Ldown - 1], t);// / 24. / 3600.;    /* LONGWAVE: convert from J day-1 m-2 to W m-2 */
+        NOAH->PRCP = Interpolation (&DS->Forcing[0][DS->Ele[i].prep - 1], t);// * 1000. / 24. / 3600.; /* PRCP: convert from m day-1 to kg m-2 s-1 */
 
         /*
          * Calculate solar radiation
          */
         if (LSM->RAD_MODE > 0)
         {
-            Sdir =
-               (double)Interpolation (&DS->Forcing[11][DS->Ele[i].Sdown - 1],
-               t);
-            Sdif =
-               (double)Interpolation (&DS->Forcing[12][DS->Ele[i].Sdown - 1],
-               t);
+            Sdir = (double)Interpolation (&DS->Forcing[11][DS->Ele[i].Sdown - 1], t);
+            Sdif = (double)Interpolation (&DS->Forcing[12][DS->Ele[i].Sdown - 1], t);
 
             if (spa.zenith > NOAH->H_PHI[(int)floor (spa.azimuth180 / 10.)])
                 Sdir = 0.;
-            incidence =
-               180. / PI * acos (cos (spa.zenith * PI / 180.) *
-               cos (NOAH->SLOPE * PI / 180.) +
-               sin (spa.zenith * PI / 180.) * sin (NOAH->SLOPE * PI / 180.) *
-               cos ((spa.azimuth180 - NOAH->ASPECT) * PI / 180.));
+            incidence = 180. / PI * acos (cos (spa.zenith * PI / 180.) * cos (NOAH->SLOPE * PI / 180.) + sin (spa.zenith * PI / 180.) * sin (NOAH->SLOPE * PI / 180.) * cos ((spa.azimuth180 - NOAH->ASPECT) * PI / 180.));
             incidence = incidence > 90. ? 90. : incidence;
             gvf = (1. + cos (NOAH->SLOPE * PI / 180.)) / 2. - NOAH->SVF;
             gvf = gvf < 0. ? 0. : gvf;
-            Soldown =
-               Sdir * cos (incidence * PI / 180.) + NOAH->SVF * Sdif +
-               0.2 * gvf * (Sdir * cos (spa.zenith * PI / 180.) + Sdif);
+            Soldown = Sdir * cos (incidence * PI / 180.) + NOAH->SVF * Sdif + 0.2 * gvf * (Sdir * cos (spa.zenith * PI / 180.) + Sdif);
         }
         else
         {
             if (DS->NumTS[11] > 0 && DS->NumTS[12] > 0)
             {
-                Sdir =
-                   (double)Interpolation (&DS->Forcing[11][DS->Ele[i].Sdown -
-                      1], t);
-                Sdif =
-                   (double)Interpolation (&DS->Forcing[12][DS->Ele[i].Sdown -
-                      1], t);
+                Sdir = (double)Interpolation (&DS->Forcing[11][DS->Ele[i].Sdown - 1], t);
+                Sdif = (double)Interpolation (&DS->Forcing[12][DS->Ele[i].Sdown - 1], t);
                 Soldown = Sdir * cos (spa.zenith * PI / 180.);
                 Soldown = Soldown < 0. ? 0. : Soldown;
                 Soldown = Soldown + Sdif;
             }
             else
-                Soldown =
-                   Interpolation (&DS->Forcing[4][DS->Ele[i].Sdown - 1], t);
+                Soldown = Interpolation (&DS->Forcing[4][DS->Ele[i].Sdown - 1], t);
         }
-        NOAH->SOLDN = Soldown / 24. / 3600.;    /* SOLDN: convert from J day-1 m-2 to W m-2 */
+        NOAH->SOLDN = Soldown;// / 24. / 3600.;    /* SOLDN: convert from J day-1 m-2 to W m-2 */
 
         NOAH->SFCPRS = NOAH->SFCPRS * 1.e2;
 
@@ -212,24 +196,21 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data DS, LSM_STRUCT LSM)
 
         NOAH->RUNOFF2 = 0;
         for (j = 0; j < 3; j++)
-            NOAH->RUNOFF2 = NOAH->RUNOFF2 +
-               (double)(DS->FluxSub[i][j] / DS->Ele[i].area / 24. / 3600.);    /* RUNOFF2: convert from m d-1 to m s-1 */
-        NOAH->INF = (double)(DS->EleViR[i] / 24. / 3600.);  /* Infiltration: convert from m d-1 to m s-1 */
-        NOAH->NWTBL =
-           FindLayer (LSM,
-           (double)(DS->Ele[i].zmax - DS->Ele[i].zmin - DS->EleGW[i]));
+            NOAH->RUNOFF2 = NOAH->RUNOFF2 + (double)(DS->FluxSub[i][j] / DS->Ele[i].area );/// 24. / 3600.);    /* RUNOFF2: convert from m d-1 to m s-1 */
+        NOAH->INF = (double)(DS->EleViR[i] );/// 24. / 3600.);  /* Infiltration: convert from m d-1 to m s-1 */
+        NOAH->NWTBL = FindLayer (LSM, (double)(DS->Ele[i].zmax - DS->Ele[i].zmin - DS->EleGW[i]));
         if (NOAH->NWTBL > NOAH->NSOIL)
             NOAH->NWTBL = NOAH->NSOIL;
 
         REDPRM (NOAH, LSM, ZSOIL);
 #ifdef _DEBUG_
-        if (i == CHECKELE * 1000)
+        if (i == 0)
         {
             printf ("\nForcing %d\n", i);
             printf ("DT (s)\t%f\n", NOAH->DT);
             printf ("SFCSPD (m s-1)\t%f\n", NOAH->SFCSPD);
             printf ("SFCTMP (K)\t%f\n", NOAH->SFCTMP);
-            printf ("RH (%)\t%f\n", RH);
+            printf ("RH (100%)\t%f\n", RH);
             printf ("SFCPRS (hPa)\t%f\n", NOAH->SFCPRS);
             printf ("SOLDN (W m-2)\t%f\n", NOAH->SOLDN);
             printf ("LONGWAVE (W m-1)\t%f\n", NOAH->LONGWAVE);
@@ -261,13 +242,13 @@ void Noah2PIHM (Model_Data DS, LSM_STRUCT LSM)
     {
         NOAH = &(LSM->GRID[i]);
 
-        DS->EleNetPrep[i] = (realtype) NOAH->PCPDRP * 24. * 3600.;  /* EleNetPrep: convert from m s-1 to m day-1 */
+        DS->EleNetPrep[i] = (realtype) NOAH->PCPDRP;// * 1000.;// * 24. * 3600.;  /* EleNetPrep: convert from m s-1 to m day-1 */
         /*
          * EleET: convert from W m-2 to m day-1 
          */
-        DS->EleET[i][0] = (realtype) NOAH->EC / LVH2O / 1000. * 24. * 3600.;
-        DS->EleET[i][1] = (realtype) NOAH->ETT / LVH2O / 1000. * 24. * 3600.;
-        DS->EleET[i][2] = (realtype) NOAH->EDIR / LVH2O / 1000. * 24. * 3600.;
+        DS->EleET[i][0] = (realtype) NOAH->EC / LVH2O / 1000. ;//* 24. * 3600.;
+        DS->EleET[i][1] = (realtype) NOAH->ETT / LVH2O / 1000. ;//* 24. * 3600.;
+        DS->EleET[i][2] = (realtype) NOAH->EDIR / LVH2O / 1000. ;//* 24. * 3600.;
 
         /*
          * Calculate transpiration from saturated zone
@@ -278,8 +259,7 @@ void Noah2PIHM (Model_Data DS, LSM_STRUCT LSM)
         {
             if (NOAH->NWTBL <= NOAH->NROOT)
             {
-                for (j = (NOAH->NWTBL <= 0 ? 0 : NOAH->NWTBL - 1);
-                   j < NOAH->NROOT; j++)
+                for (j = (NOAH->NWTBL <= 0 ? 0 : NOAH->NWTBL - 1); j < NOAH->NROOT; j++)
                     ETsat = ETsat + NOAH->ET[j];
                 DS->EleETsat[i] = (realtype) (ETsat / NOAH->ETT);
                 DS->EleETsat[i] = DS->EleETsat[i] > 1. ? 1. : DS->EleETsat[i];
@@ -292,8 +272,7 @@ void Noah2PIHM (Model_Data DS, LSM_STRUCT LSM)
         /*
          * Calculate surface saturation ratio for PIHM infiltration
          */
-        DS->SfcSat[i] =
-           (NOAH->SH2O[0] - NOAH->SMCMIN) / (NOAH->SMCMAX - NOAH->SMCMIN);
+        DS->SfcSat[i] = (NOAH->SH2O[0] - NOAH->SMCMIN) / (NOAH->SMCMAX - NOAH->SMCMIN);
 
         /*
          * Calculate infiltration reduction factor due to frozen soil
@@ -318,5 +297,9 @@ void Noah2PIHM (Model_Data DS, LSM_STRUCT LSM)
             FCR = 1. - exp (-ACRT) * SUM;
         }
         DS->EleFCR[i] = (realtype) FCR;
+#ifdef _DEBUG_
+        if (i==0)
+            printf("Prcp = %lf m d-1, ET = %lf m d-1 (%lf), %lf m d-1 (%lf), %lf m d-1 (%lf)\n", DS->EleNetPrep[i] * 24 * 3600., DS->EleET[i][0]* 24. * 3600.0, NOAH->EC, DS->EleET[i][1]*24. * 3600.0, NOAH->ETT, DS->EleET[i][2]* 24. * 3600.0, NOAH->EDIR);
+#endif
     }
 }

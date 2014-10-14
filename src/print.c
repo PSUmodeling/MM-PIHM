@@ -47,14 +47,13 @@ void PrintData (Print_Ctrl PCtrl, realtype tmpt, realtype dt, int Ascii)
         PCtrl.buffer[j] = PCtrl.buffer[j] + *PCtrl.PrintVar[j];
     if (((int)tmpt % PCtrl.Interval) == 0)
     {
-        *rawtime = (int)tmpt *60;
+        *rawtime = (int)tmpt;
         timestamp = gmtime (rawtime);
         outtime = (realtype) (*rawtime);
 
         if (Ascii)
         {
-            ascii_name =
-               (char *)malloc (strlen (PCtrl.name) + 5 * sizeof (char));
+            ascii_name = (char *)malloc (strlen (PCtrl.name) + 5 * sizeof (char));
             sprintf (ascii_name, "%s.txt", PCtrl.name);
             fpin = fopen (ascii_name, "a");
             if (NULL == fpin)
@@ -63,13 +62,10 @@ void PrintData (Print_Ctrl PCtrl, realtype tmpt, realtype dt, int Ascii)
                 exit (1);
             }
 
-            fprintf (fpin, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",
-               timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-               timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+            fprintf (fpin, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
             for (j = 0; j < PCtrl.NumVar; j++)
             {
-                fprintf (fpin, "%lf\t",
-                   PCtrl.buffer[j] / ( (realtype) PCtrl.Interval / dt));
+                fprintf (fpin, "%lf\t", PCtrl.buffer[j] / ( (realtype) PCtrl.Interval / dt));
             }
             fprintf (fpin, "\n");
             fflush (fpin);
@@ -108,10 +104,8 @@ void PrintInit (Model_Data DS, char *filename)
     free (init_name);
 
     for (i = 0; i < DS->NumEle; i++)
-        fprintf (init_file, "%lf\t%lf\t%lf\t%lf\t%lf\n", DS->EleIS[i],
-           DS->EleSnow[i], DS->EleSurf[i], DS->EleUnsat[i], DS->EleGW[i]);
+        fprintf (init_file, "%lf\t%lf\t%lf\t%lf\t%lf\n", DS->EleIS[i], DS->EleSnow[i], DS->EleSurf[i], DS->EleUnsat[i], DS->EleGW[i]);
     for (i = 0; i < DS->NumRiv; i++)
-        fprintf (init_file, "%lf\t%lf\n", DS->RivStg[i],
-           DS->EleGW[i + DS->NumEle]);
+        fprintf (init_file, "%lf\t%lf\n", DS->RivStg[i], DS->EleGW[i + DS->NumEle]);
     fclose (init_file);
 }

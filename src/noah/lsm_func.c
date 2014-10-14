@@ -168,8 +168,7 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
 }
 
 void
-LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
-   LSM_STRUCT LSM)
+LSM_initialize (char *filename, Model_Data DS, Control_Data * CS, LSM_STRUCT LSM)
 {
     GRID_TYPE      *NOAH;
     int             i, j, k, KZ;
@@ -205,23 +204,19 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
         /*
          * RSTBL: convert from day m-1 to s m-1 
          */
-        LSM->VEGTBL.RSTBL[i] =
-           (double)(CS->Cal.Rmin * DS->LandC[i].Rmin * 24. * 3600.);
+        LSM->VEGTBL.RSTBL[i] = (double)(CS->Cal.Rmin * DS->LandC[i].Rmin);// * 24. * 3600.);
         /*
          * RGLTBL: convert from J day-1 m-2 to W m-2 
          */
-        LSM->VEGTBL.RGLTBL[i] =
-           (double)(CS->Cal.Rs_ref * DS->LandC[i].Rs_ref / 24. / 3600.);
+        LSM->VEGTBL.RGLTBL[i] = (double)(CS->Cal.Rs_ref * DS->LandC[i].Rs_ref);// / 24. / 3600.);
         LSM->VEGTBL.HSTBL[i] = (double)(CS->Cal.h_s * DS->LandC[i].h_s);
         LSM->VEGTBL.SNUPTBL[i] = (double)DS->LandC[i].snup;
         LSM->VEGTBL.LAIMINTBL[i] = (double)(DS->LandC[i].LAImin);
         LSM->VEGTBL.LAIMAXTBL[i] = (double)(DS->LandC[i].LAImax);
         LSM->VEGTBL.EMISSMINTBL[i] = (double)(DS->LandC[i].Emiss_min);
         LSM->VEGTBL.EMISSMAXTBL[i] = (double)(DS->LandC[i].Emiss_max);
-        LSM->VEGTBL.ALBEDOMINTBL[i] =
-           (double)(CS->Cal.Albedo * DS->LandC[i].Albedo_min);
-        LSM->VEGTBL.ALBEDOMAXTBL[i] =
-           (double)(CS->Cal.Albedo * DS->LandC[i].Albedo_max);
+        LSM->VEGTBL.ALBEDOMINTBL[i] = (double)(CS->Cal.Albedo * DS->LandC[i].Albedo_min);
+        LSM->VEGTBL.ALBEDOMAXTBL[i] = (double)(CS->Cal.Albedo * DS->LandC[i].Albedo_max);
         LSM->VEGTBL.Z0MINTBL[i] = (double)DS->LandC[i].z0_min;
         LSM->VEGTBL.Z0MAXTBL[i] = (double)DS->LandC[i].z0_max;
         LSM->VEGTBL.CMCFACTRTBL[i] = (double)(CS->Cal.IS * DS->ISFactor[i]);
@@ -249,7 +244,7 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
     /*
      * TOPT: convert from degree C to Kalvin 
      */
-    LSM->VEGTBL.TOPT_DATA = 273.15 + (double)DS->Tref;
+    LSM->VEGTBL.TOPT_DATA = (double)DS->Tref; // +273.15;
     LSM->VEGTBL.CFACTR_DATA = (double)(CS->Cal.fx_canopy * DS->fx_canopy);
     LSM->VEGTBL.RSMAX_DATA = DS->Rmax;
     LSM->VEGTBL.BARE = DS->bare;
@@ -271,33 +266,22 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
     }
     for (i = 0; i < LSM->SOILTBL.SLCATS; i++)
     {
-        LSM->SOILTBL.DRYSMC[i] =
-           (double)(CS->Cal.ThetaW * (DS->Soil[i].ThetaW -
-              DS->Soil[i].ThetaR) + DS->Soil[i].ThetaR);
-        LSM->SOILTBL.MAXSMC[i] =
-           (double)(CS->Cal.Porosity * (DS->Geol[i].ThetaS -
-              DS->Geol[i].ThetaR) + DS->Geol[i].ThetaR);
-        LSM->SOILTBL.REFSMC[i] =
-           (double)(CS->Cal.ThetaRef * (DS->Soil[i].ThetaRef -
-              DS->Soil[i].ThetaR) + DS->Geol[i].ThetaR);
+        LSM->SOILTBL.DRYSMC[i] = (double)(CS->Cal.ThetaW * (DS->Soil[i].ThetaW - DS->Soil[i].ThetaR) + DS->Soil[i].ThetaR);
+        LSM->SOILTBL.MAXSMC[i] = (double)(CS->Cal.Porosity * (DS->Geol[i].ThetaS - DS->Geol[i].ThetaR) + DS->Geol[i].ThetaR);
+        LSM->SOILTBL.REFSMC[i] = (double)(CS->Cal.ThetaRef * (DS->Soil[i].ThetaRef - DS->Soil[i].ThetaR) + DS->Geol[i].ThetaR);
         /*
          * SATDK: convert from m day-1 to m s-1 
          */
-        LSM->SOILTBL.SATDK[i] =
-           (double)(CS->Cal.KsatV * DS->Geol[i].KsatV / 24. / 3600.);
-        LSM->SOILTBL.WLTSMC[i] =
-           (double)(CS->Cal.ThetaW * (DS->Soil[i].ThetaW -
-              DS->Soil[i].ThetaR) + DS->Soil[i].ThetaR);
+        LSM->SOILTBL.SATDK[i] = (double)(CS->Cal.KsatV * DS->Geol[i].KsatV);// / 24. / 3600.);
+        LSM->SOILTBL.WLTSMC[i] = (double)(CS->Cal.ThetaW * (DS->Soil[i].ThetaW - DS->Soil[i].ThetaR) + DS->Soil[i].ThetaR);
         LSM->SOILTBL.QTZ[i] = (double)DS->Soil[i].qtz;
 
         LSM->SOILTBL.VGA[i] = (double)(CS->Cal.Alpha * DS->Soil[i].Alpha);
         LSM->SOILTBL.VGB[i] = (double)(CS->Cal.Beta * DS->Soil[i].Beta);
         LSM->SOILTBL.MINSMC[i] = (double)DS->Soil[i].ThetaR;
-        LSM->SOILTBL.MACKSAT[i] =
-           (double)(CS->Cal.macKsatV * DS->Soil[i].macKsatV / 24. / 3600.);
+        LSM->SOILTBL.MACKSAT[i] = (double)(CS->Cal.macKsatV * DS->Soil[i].macKsatV );/// 24. / 3600.);
         LSM->SOILTBL.AREAF[i] = (double)(CS->Cal.hAreaF * DS->Soil[i].hAreaF);
-        LSM->SOILTBL.NMACD[i] =
-           FindLayer (LSM, (double)(CS->Cal.macD * DS->Geol[i].macD));
+        LSM->SOILTBL.NMACD[i] = FindLayer (LSM, (double)(CS->Cal.macD * DS->Geol[i].macD));
         if (CS->Verbose)
         {
             printf ("%-3d\t", i + 1);
@@ -317,8 +301,7 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
     }
 
     //  LSM->GENPRMT.SBETA_DATA = LSM->SBETA;
-    LSM->GENPRMT.FXEXP_DATA =
-       (double)CS->Cal.fx_soil * LSM->GENPRMT.FXEXP_DATA;
+    LSM->GENPRMT.FXEXP_DATA = (double)CS->Cal.fx_soil * LSM->GENPRMT.FXEXP_DATA;
     //  LSM->GENPRMT.CSOIL_DATA = ;
     //  LSM->GENPRMT.SALP_DATA = DS->salp;
     //  LSM->GENPRMT.FRZK_DATA = DS->frzk;
@@ -353,8 +336,7 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
         /*
          * Initialize model grid soil depths
          */
-        NOAH->SLDPTH =
-           (double *)malloc ((LSM->STD_NSOIL + 1) * sizeof (double));
+        NOAH->SLDPTH = (double *)malloc ((LSM->STD_NSOIL + 1) * sizeof (double));
         AquiferDepth = (double)(DS->Ele[i].zmax - DS->Ele[i].zmin);
 
         if (AquiferDepth <= ZSOIL[0])
@@ -370,8 +352,7 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
             {
                 if (AquiferDepth <= ZSOIL[j])
                 {
-                    for (k = 0; k < j; k++)
-                        NOAH->SLDPTH[k] = LSM->STD_SLDPTH[k];
+                    for (k = 0; k < j; k++) NOAH->SLDPTH[k] = LSM->STD_SLDPTH[k];
                     NOAH->SLDPTH[j] = AquiferDepth - ZSOIL[j - 1];
                     NOAH->NSOIL = j + 1;
 
@@ -381,8 +362,7 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
                      */
                     if (NOAH->SLDPTH[j] < NOAH->SLDPTH[j - 1])
                     {
-                        NOAH->SLDPTH[j - 1] =
-                           NOAH->SLDPTH[j - 1] + NOAH->SLDPTH[j];
+                        NOAH->SLDPTH[j - 1] = NOAH->SLDPTH[j - 1] + NOAH->SLDPTH[j];
                         NOAH->SLDPTH[j] = BADVAL;
                         NOAH->NSOIL = NOAH->NSOIL - 1;
                     }
@@ -396,15 +376,12 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
         {
             for (j = 0; j < LSM->STD_NSOIL; j++)
                 NOAH->SLDPTH[j] = LSM->STD_SLDPTH[j];
-            NOAH->SLDPTH[LSM->STD_NSOIL] =
-               AquiferDepth - ZSOIL[LSM->STD_NSOIL - 1];
+            NOAH->SLDPTH[LSM->STD_NSOIL] = AquiferDepth - ZSOIL[LSM->STD_NSOIL - 1];
             NOAH->NSOIL = LSM->STD_NSOIL + 1;
             if (NOAH->SLDPTH[LSM->STD_NSOIL] <
                NOAH->SLDPTH[LSM->STD_NSOIL - 1])
             {
-                NOAH->SLDPTH[LSM->STD_NSOIL - 1] =
-                   NOAH->SLDPTH[LSM->STD_NSOIL - 1] +
-                   NOAH->SLDPTH[LSM->STD_NSOIL];
+                NOAH->SLDPTH[LSM->STD_NSOIL - 1] = NOAH->SLDPTH[LSM->STD_NSOIL - 1] + NOAH->SLDPTH[LSM->STD_NSOIL];
                 NOAH->SLDPTH[LSM->STD_NSOIL] = BADVAL;
                 NOAH->NSOIL = NOAH->NSOIL - 1;
             }
@@ -445,12 +422,9 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
             vector2[1] = b_y - c_y;
             vector2[2] = b_zmax - c_zmax;
 
-            normal_vector[0] =
-               vector1[1] * vector2[2] - vector1[2] * vector2[1];
-            normal_vector[1] =
-               vector1[2] * vector2[0] - vector1[0] * vector2[2];
-            normal_vector[2] =
-               vector1[0] * vector2[1] - vector1[1] * vector2[0];
+            normal_vector[0] = vector1[1] * vector2[2] - vector1[2] * vector2[1];
+            normal_vector[1] = vector1[2] * vector2[0] - vector1[0] * vector2[2];
+            normal_vector[2] = vector1[0] * vector2[1] - vector1[1] * vector2[0];
 
             if (normal_vector[2] < 0)
             {
@@ -459,8 +433,7 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
                 normal_vector[2] = -normal_vector[2];
             }
 
-            c = sqrt (normal_vector[0] * normal_vector[0] +
-               normal_vector[1] * normal_vector[1]);
+            c = sqrt (normal_vector[0] * normal_vector[0] + normal_vector[1] * normal_vector[1]);
             NOAH->SLOPE = atan (c / normal_vector[2]) * 180. / PI;
             ce = normal_vector[0] / c;
             se = normal_vector[1] / c;
@@ -516,12 +489,8 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
                     vector2[1] = y2 - (double)DS->Ele[i].y;
                     vector2[2] = z2 - (double)DS->Ele[i].zmax;
 
-                    c1 =
-                       sqrt (vector1[0] * vector1[0] +
-                       vector1[1] * vector1[1]);
-                    c2 =
-                       sqrt (vector2[0] * vector2[0] +
-                       vector2[1] * vector2[1]);
+                    c1 = sqrt (vector1[0] * vector1[0] + vector1[1] * vector1[1]);
+                    c2 = sqrt (vector2[0] * vector2[0] + vector2[1] * vector2[1]);
                     ce1 = vector1[0] / c1;
                     se1 = vector1[1] / c1;
                     phi1 = acos (ce1) * 180. / PI;
@@ -568,21 +537,11 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
 
             for (ind = 0; ind < 36; ind++)
             {
-                NOAH->SVF =
-                   NOAH->SVF +
-                   0.5 / PI * (cos (NOAH->SLOPE * PI / 180.) *
-                   (pow (sin (NOAH->H_PHI[ind] * PI / 180.),
-                         2)) +
-                   sin (NOAH->SLOPE * PI / 180.) * cos ((ind * 10. + 5. -
-                         NOAH->ASPECT) * PI / 180.) * NOAH->H_PHI[ind] * PI /
-                   180. -
-                   sin (NOAH->H_PHI[ind] * PI / 180.) *
-                   cos (NOAH->H_PHI[ind] * PI / 180.)) * 10. / 180. * PI;
+                NOAH->SVF = NOAH->SVF + 0.5 / PI * (cos (NOAH->SLOPE * PI / 180.) * (pow (sin (NOAH->H_PHI[ind] * PI / 180.), 2)) + sin (NOAH->SLOPE * PI / 180.) * cos ((ind * 10. + 5. - NOAH->ASPECT) * PI / 180.) * NOAH->H_PHI[ind] * PI / 180. - sin (NOAH->H_PHI[ind] * PI / 180.) * cos (NOAH->H_PHI[ind] * PI / 180.)) * 10. / 180. * PI;
             }
             if (CS->Verbose)
             {
-                printf ("Ele %d: slope = %lf, aspect = %lf, svf = %lf\t", i,
-                   NOAH->SLOPE, NOAH->ASPECT, NOAH->SVF);
+                printf ("Ele %d: slope = %lf, aspect = %lf, svf = %lf\t", i, NOAH->SLOPE, NOAH->ASPECT, NOAH->SVF);
                 for (ind = 0; ind < 36; ind++)
                     printf ("%lf\t", NOAH->H_PHI[ind]);
                 printf ("\n");
@@ -634,12 +593,17 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
         NOAH->PCPDRP = 0.;
         NOAH->DRIP = 0.;
 
-        NOAH->DT = BADVAL;
+        NOAH->DT = CS->ETStep;
 
         /*
          * TBOT: convert from degree C to K 
          */
-        NOAH->TBOT = NOAH->TBOT + 273.15;
+        NOAH->TBOT = LSM->GENPRMT.TBOT_DATA;
+        NOAH->TBOT = 0.;
+        for (j = 0; j < DS->Forcing[1][DS->Ele[i].temp - 1].length; j++)
+            NOAH->TBOT = NOAH->TBOT + DS->Forcing[1][DS->Ele[i].temp - 1].TS[j][1];
+
+        NOAH->TBOT = NOAH->TBOT / (double) DS->Forcing[1][DS->Ele[i].temp - 1].length;
         NOAH->VEGTYP = DS->Ele[i].LC;
         NOAH->SOILTYP = DS->Ele[i].soil;
         NOAH->SNOALB = 0.75;
@@ -692,18 +656,11 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
             /*
              * T1: convert from degree C to K 
              */
-            NOAH->T1 =
-               (double)Interpolation (&DS->Forcing[1][DS->Ele[i].temp - 1],
-               CS->StartTime) + 273.15;
-            NOAH->STC[0] =
-               NOAH->T1 + (NOAH->T1 -
-               NOAH->TBOT) / LSM->GENPRMT.ZBOT_DATA * NOAH->SLDPTH[0] * 0.5;
+            NOAH->T1 = (double)Interpolation (&DS->Forcing[1][DS->Ele[i].temp - 1], CS->StartTime); //+ 273.15;
+            NOAH->STC[0] = NOAH->T1 + (NOAH->T1 - NOAH->TBOT) / LSM->GENPRMT.ZBOT_DATA * NOAH->SLDPTH[0] * 0.5;
             for (j = 1; j < LSM->STD_NSOIL + 1; j++)
                 if (NOAH->SLDPTH[j] > 0)
-                    NOAH->STC[j] =
-                       NOAH->STC[j - 1] + (NOAH->T1 -
-                       NOAH->TBOT) / LSM->GENPRMT.ZBOT_DATA *
-                       (NOAH->SLDPTH[j - 1] + NOAH->SLDPTH[j]) * 0.5;
+                    NOAH->STC[j] = NOAH->STC[j - 1] + (NOAH->T1 - NOAH->TBOT) / LSM->GENPRMT.ZBOT_DATA * (NOAH->SLDPTH[j - 1] + NOAH->SLDPTH[j]) * 0.5;
                 else
                     NOAH->STC[j] = BADVAL;
             for (j = 0; j < LSM->STD_NSOIL + 1; j++)
@@ -775,9 +732,7 @@ LSM_initialize (char *filename, Model_Data DS, Control_Data * CS,
 
 }
 
-void
-LSM_initialize_output (char *filename, Model_Data DS, LSM_STRUCT LSM,
-   char *outputdir)
+void LSM_initialize_output (char *filename, Model_Data DS, LSM_STRUCT LSM, char *outputdir)
 {
     FILE           *Ofile;
     char           *ofn;
@@ -930,6 +885,11 @@ LSM_initialize_output (char *filename, Model_Data DS, LSM_STRUCT LSM,
 
     for (i = 0; i < LSM->NPRINT; i++)
     {
+        if (LSM->PCtrl[i].Interval < LSM->GRID[0].DT)
+        {
+            printf("\nLSM %s print interval must not be smaller than LSM step size!\n", LSM->PCtrl[i].name);
+            exit(1);
+        }
         Ofile = fopen (LSM->PCtrl[i].name, "w");
         fclose (Ofile);
         LSM->PCtrl[i].buffer =
