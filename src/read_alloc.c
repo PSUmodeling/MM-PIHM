@@ -1,26 +1,16 @@
-
-/******************************************************************************
- * File        : read_alloc.c                                                 *
- * Function    : read parameter files for PIHM 2.0                     	      *
- * Version     : Sep, 2014 (2.0)                                              *
- * Developer of PIHM2.0:	Mukesh Kumar (muk139@psu.edu)		      * 
- * Developer of PIHM1.0:	Yizhong Qu   (quyizhong@gmail.com)	      * 
- *----------------------------------------------------------------------------*
- *..............MODIFICATIONS/ADDITIONS in PIHM 2.0...........................*
- * a) Addition of three new input files: file.calib, file.lc and file.geol    *
- * b) Declaration and allocation  of new variables for new process, shape     *
- *    representations  and calibration (e.g. ET, Infiltration, Macropore,     *
- *    Stormflow, Element beneath river, river shapes, river bed property,     *
- *    thresholds for root zone, infiltration and macropore depths, land cover * 
- *    attributes etc)                                                         *
- *----------------------------------------------------------------------------*
- * For questions or comments, please contact                                  *
- *      --> Mukesh Kumar (muk139@psu.edu)                                     *
- *      --> Prof. Chris Duffy (cxd11@psu.edu)                                 *
- * This code is free for research purpose only.                               *
- * Please provide relevant references if you use this code in your research   *
- * work									      *
- *****************************************************************************/
+/*****************************************************************************
+ * File        : read_alloc.c
+ * Function    : read parameter files
+ * Version     : Sep, 2014
+ *----------------------------------------------------------------------------
+ *..............MODIFICATIONS/ADDITIONS in PIHM 2.0...........................
+ * a) Addition of three new input files: file.calib, file.lc and file.geol
+ * b) Declaration and allocation  of new variables for new process, shape
+ *    representations  and calibration (e.g. ET, Infiltration, Macropore,
+ *    Stormflow, Element beneath river, river shapes, river bed property,
+ *    thresholds for root zone, infiltration and macropore depths, land cover
+ *    attributes etc)                                                      
+ ****************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -57,7 +47,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     FILE           *lc_file;    /* Pointer to .lc file */
     FILE           *para_file;  /* Pointer to .para file */
     FILE           *riv_file;   /* Pointer to .riv file */
-    //  FILE *lsm_file;     /* Pointer to .riv file */
     FILE           *global_calib;   /* Pointer to .calib file */
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
@@ -406,12 +395,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
      * start reading forc_file 
      */
 
-//#ifdef _FLUX_PIHM_
-//    NumForcing = 13;            /* YS: If extra forcing series are needed, change this */
-//#else
-//    NumForcing = 11;
-//#endif
-    NumForcing = 13;
+    NumForcing = 11;
 
     /*
      * Forcing TS:
@@ -437,13 +421,13 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         fscanf (forc_file, "%*s");
     for (i = 0; i < NumForcing; i++)
         fscanf (forc_file, "%d", &DS->NumTS[i]);
-    if (DS->NumTS[7] < DS->NumLC)
+    if (DS->NumTS[LAI_TS] < DS->NumLC)
     {
         printf ("\n  Fatal Error: The number of LAI series (%d) is less than the number of land cover type (%d)! Please check your forcing file!\n", DS->NumTS[7], DS->NumLC);
         exit (1);
     }
 #ifndef _FLUX_PIHM_
-    if (DS->NumTS[8] < DS->NumLC)
+    if (DS->NumTS[RL_TS] < DS->NumLC)
     {
         printf ("\n  Fatal Error: The number of roughness length series is less than the number of land cover type! Please check your forcing file!\n");
         exit (1);
@@ -467,68 +451,68 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
             if (strcasecmp ("PRCP", optstr) == 0)
             {
                 sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[0][ind - 1].length = 0;
-                count = &(DS->Forcing[0][ind - 1].length);
+                DS->Forcing[PRCP_TS][ind - 1].length = 0;
+                count = &(DS->Forcing[PRCP_TS][ind - 1].length);
             }
             else if (strcasecmp ("SFCTMP", optstr) == 0)
             {
                 sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[1][ind - 1].length = 0;
-                count = &(DS->Forcing[1][ind - 1].length);
+                DS->Forcing[SFCTMP_TS][ind - 1].length = 0;
+                count = &(DS->Forcing[SFCTMP_TS][ind - 1].length);
             }
             else if (strcasecmp ("RH", optstr) == 0)
             {
                 sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[2][ind - 1].length = 0;
-                count = &(DS->Forcing[2][ind - 1].length);
+                DS->Forcing[RH_TS][ind - 1].length = 0;
+                count = &(DS->Forcing[RH_TS][ind - 1].length);
             }
             else if (strcasecmp ("SFCSPD", optstr) == 0)
             {
                 sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[3][ind - 1].length = 0;
-                count = &(DS->Forcing[3][ind - 1].length);
+                DS->Forcing[SFCSPD_TS][ind - 1].length = 0;
+                count = &(DS->Forcing[SFCSPD_TS][ind - 1].length);
             }
             else if (strcasecmp ("SOLAR", optstr) == 0)
             {
                 sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[4][ind - 1].length = 0;
-                count = &(DS->Forcing[4][ind - 1].length);
+                DS->Forcing[SOLAR_TS][ind - 1].length = 0;
+                count = &(DS->Forcing[SOLAR_TS][ind - 1].length);
             }
             else if (strcasecmp ("LONGWAVE", optstr) == 0)
             {
                 sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[5][ind - 1].length = 0;
-                count = &(DS->Forcing[5][ind - 1].length);
+                DS->Forcing[LONGWAVE_TS][ind - 1].length = 0;
+                count = &(DS->Forcing[LONGWAVE_TS][ind - 1].length);
             }
             else if (strcasecmp ("PRES", optstr) == 0)
             {
                 sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[6][ind - 1].length = 0;
-                count = &(DS->Forcing[6][ind - 1].length);
+                DS->Forcing[PRES_TS][ind - 1].length = 0;
+                count = &(DS->Forcing[PRES_TS][ind - 1].length);
             }
             else if (strcasecmp ("LAI", optstr) == 0)
             {
                 sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[7][ind - 1].length = 0;
-                count = &(DS->Forcing[7][ind - 1].length);
+                DS->Forcing[LAI_TS][ind - 1].length = 0;
+                count = &(DS->Forcing[LAI_TS][ind - 1].length);
             }
             else if (strcasecmp ("RL", optstr) == 0)
             {
                 sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[8][ind - 1].length = 0;
-                count = &(DS->Forcing[8][ind - 1].length);
+                DS->Forcing[RL_TS][ind - 1].length = 0;
+                count = &(DS->Forcing[RL_TS][ind - 1].length);
             }
             else if (strcasecmp ("MF", optstr) == 0)
             {
                 sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[9][ind - 1].length = 0;
-                count = &(DS->Forcing[9][ind - 1].length);
+                DS->Forcing[MF_TS][ind - 1].length = 0;
+                count = &(DS->Forcing[MF_TS][ind - 1].length);
             }
             else if (strcasecmp ("SS", optstr) == 0)
             {
                 sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[10][ind - 1].length = 0;
-                count = &(DS->Forcing[10][ind - 1].length);
+                DS->Forcing[SS_TS][ind - 1].length = 0;
+                count = &(DS->Forcing[SS_TS][ind - 1].length);
             }
             else
             {
@@ -541,16 +525,12 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     rewind(forc_file);
     
     fgets (cmdstr, MAXSTRING, forc_file);
-//    for (i = 0; i < NumForcing; i++)
-//        sscanf (forc_file, "%*s");
     fgets (cmdstr, MAXSTRING, forc_file);
-//    for (i = 0; i < NumForcing; i++)
-//        sscanf (forc_file, "%*d");
     for (i = 0; i < NumForcing; i++)
     {
         for (k = 0; k < DS->NumTS[i]; k++)
         {
-            if (i == 3 || i == 7)
+            if (i == SFCSPD_TS || i == LAI_TS)
                 fscanf (forc_file, "%s %d %lf", DS->Forcing[i][k].name, &DS->Forcing[i][k].index, &DS->Forcing[i][k].TSFactor);
             else
                 fscanf (forc_file, "%s %d", DS->Forcing[i][k].name, &DS->Forcing[i][k].index);
@@ -569,13 +549,13 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         }
     }
 
-    DS->windH = (realtype *) malloc (DS->NumTS[3] * sizeof (realtype));
-    DS->ISFactor = (realtype *) malloc (DS->NumTS[7] * sizeof (realtype));
+    DS->windH = (realtype *) malloc (DS->NumTS[SFCSPD_TS] * sizeof (realtype));
+    DS->ISFactor = (realtype *) malloc (DS->NumTS[LAI_TS] * sizeof (realtype));
 
     for (i = 0; i < DS->NumTS[3]; i++)
-        DS->windH[i] = DS->Forcing[3][i].TSFactor;
+        DS->windH[i] = DS->Forcing[SFCSPD_TS][i].TSFactor;
     for (i = 0; i < DS->NumTS[7]; i++)
-        DS->ISFactor[i] = DS->Forcing[7][i].TSFactor;
+        DS->ISFactor[i] = DS->Forcing[LAI_TS][i].TSFactor;
 
     fclose (forc_file);
     if (ensemble_mode == 0)
@@ -926,44 +906,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     if (ensemble_mode == 0)
         printf ("done.\n");
 
-    /*========== open *.lsm file ==========*/
-    //  if (ensemble_mode == 0)
-    //      printf(" 10) reading %s.lsm ...\t\t\t", projectname);
-    //  fn[10] = (char *)malloc((strlen(projectname)+11)*sizeof(char));
-    //  strcpy(fn[10],"input/");
-    //  strcat(fn[10], projectname);
-    //  lsm_file = fopen(strcat(fn[10], ".lsm"), "r");
-    //  free(fn[10]);
-    //
-    //  if(lsm_file == NULL)
-    //  {
-    //      printf("\n  Fatal Error: %s.lsm is in use or does not exist!\n", projectname);
-    //      exit(1);
-    //  }
-    //
-    //  /* start reading lsm_file */
-    //  fscanf(lsm_file, "%*s %d", &DS->NumSoilLayer);
-    //  DS->std_dsoil = (realtype *)malloc(DS->NumSoilLayer*sizeof(realtype));
-    //  for (i=0; i<DS->NumSoilLayer; i++)
-    //  {
-    //      fscanf(lsm_file, "%lf", &(DS->std_dsoil[i]));
-    //  }
-    //
-    //  fscanf(lsm_file, "%*s %d", &(DS->RadMode));
-    //  fscanf(lsm_file, "%*s %lf", &(DS->sbeta));
-    //  fscanf(lsm_file, "%*s %lf", &(DS->fx_soil));
-    //  fscanf(lsm_file, "%*s %lf", &(DS->csoil));
-    //  fscanf(lsm_file, "%*s %lf", &(DS->salp));
-    //  fscanf(lsm_file, "%*s %lf", &(DS->frzk));
-    //  fscanf(lsm_file, "%*s %lf", &(DS->zbot));
-    //  fscanf(lsm_file, "%*s %lf", &(DS->Tb));
-    //  fscanf(lsm_file, "%*s %lf", &(DS->Czil));
-    //  fscanf(lsm_file, "%*s %lf", &(DS->lvcoef));
-    //
-    //
-    //  fclose(lsm_file);
-    //  if (ensemble_mode == 0) printf("done.\n");
-    //
     if (ensemble_mode == 0)
         printf ("\nStart reading in calibration file ...\t");
 
@@ -1197,11 +1139,7 @@ void FreeData (Model_Data DS, Control_Data * CS)
     /*
      * free forc
      */
-#ifdef _FLUX_PIHM_
-    for (i = 0; i < 13; i++)
-#else
     for (i = 0; i < 11; i++)
-#endif
     {
         for (j = 0; j < DS->NumTS[i]; j++)
         {
@@ -1214,80 +1152,6 @@ void FreeData (Model_Data DS, Control_Data * CS)
     free (DS->Forcing);
     free (DS->NumTS);
 
-    //  for (i = 0; i < DS->NumPrep; i++)
-    //  {
-    //      for (j = 0; j < DS->TSD_Prep[i].length; j++)free(DS->TSD_Prep[i].TS[j]);
-    //      free(DS->TSD_Prep[i].TS);
-    //  }
-    //  free(DS->TSD_Prep);
-    //  for (i = 0; i < DS->NumTemp; i++)
-    //  {
-    //      for (j = 0; j < DS->TSD_Temp[i].length; j++)free(DS->TSD_Temp[i].TS[j]);
-    //      free(DS->TSD_Temp[i].TS);
-    //  }
-    //  free(DS->TSD_Temp);
-    //  for (i = 0; i < DS->NumHumidity; i++)
-    //  {
-    //      for (j = 0; j < DS->TSD_Humidity[i].length; j++)free(DS->TSD_Humidity[i].TS[j]);
-    //      free(DS->TSD_Humidity[i].TS);
-    //  }
-    //  free(DS->TSD_Humidity);
-    //  for (i = 0; i < DS->NumWindVel; i++)
-    //  {
-    //      for (j = 0; j < DS->TSD_WindVel[i].length; j++)free(DS->TSD_WindVel[i].TS[j]);
-    //      free(DS->TSD_WindVel[i].TS);
-    //  }
-    //  free(DS->TSD_WindVel);
-    //  free(DS->windH);
-    //  for (i = 0; i < DS->NumSdown; i++)
-    //  {
-    //      for (j = 0; j < DS->TSD_Sdown[i].length; j++)
-    //      {
-    //          free(DS->TSD_Sdown[i].TS[j]);
-    //          free(DS->TSD_Sdir[i].TS[j]);
-    //          free(DS->TSD_Sdif[i].TS[j]);
-    //      }
-    //      free(DS->TSD_Sdown[i].TS);
-    //      free(DS->TSD_Sdir[i].TS);
-    //      free(DS->TSD_Sdif[i].TS);
-    //  }
-    //  free(DS->TSD_Sdown);
-    //  free(DS->TSD_Sdir);
-    //  free(DS->TSD_Sdif);
-    //  for (i = 0; i < DS->NumLdown; i++)
-    //  {
-    //      for (j = 0; j < DS->TSD_Ldown[i].length; j++)free(DS->TSD_Ldown[i].TS[j]);
-    //      free(DS->TSD_Ldown[i].TS);
-    //  }
-    //  free(DS->TSD_Ldown);
-    //  for (i = 0; i < DS->NumP; i++)
-    //  {
-    //      for (j = 0; j < DS->TSD_Pressure[i].length; j++)free(DS->TSD_Pressure[i].TS[j]);
-    //      free(DS->TSD_Pressure[i].TS);
-    //  }       
-    //  free(DS->TSD_Pressure);
-    //  for (i = 0; i < DS->NumLC; i++)
-    //  {
-    //      for (j = 0; j < DS->TSD_LAI[i].length; j++)free(DS->TSD_LAI[i].TS[j]);
-    //      for (j=0;j<DS->TSD_RL[i].length; j++)   free(DS->TSD_RL[i].TS[j]);
-    //
-    //      free(DS->TSD_LAI[i].TS);
-    //      free(DS->TSD_RL[i].TS);
-    //  }
-    //  free(DS->TSD_LAI);
-    //  free(DS->TSD_RL);
-    //  for (i = 0; i < DS->NumMeltF; i++)
-    //  {
-    //      for (j = 0; j < DS->TSD_MeltF[i].length; j++)free(DS->TSD_MeltF[i].TS[j]);
-    //      free(DS->TSD_MeltF[i].TS);
-    //  }
-    //  free(DS->TSD_MeltF);
-    //  for (i = 0; i < DS->NumSource; i++)
-    //  {
-    //      for (j = 0; j < DS->TSD_Source[i].length; j++)free(DS->TSD_Source[i].TS[j]);
-    //      free(DS->TSD_Source[i].TS);
-    //  }
-    //  free(DS->TSD_Source);
     free (DS->ISFactor);
     /*
      * free ibc
@@ -1329,26 +1193,7 @@ void FreeData (Model_Data DS, Control_Data * CS)
     for (i = 0; i < DS->NumRiv; i++)
         free (DS->FluxRiv[i]);
     free (DS->FluxRiv);
-    //  for (i = 0; i < DS->NumEle; i++)free(DS->EleTsoil[i]);
-    //  free(DS->EleTsoil);
-    //  for (i = 0; i < DS->NumEle; i++)free(DS->EleSM[i]);
-    //  free(DS->EleSM);
-    //  for (i = 0; i < DS->NumEle; i++)free(DS->EleSFLX[i]);
-    //  free(DS->EleSFLX);
-    //  for (i = 0; i < DS->NumEle; i++)free(DS->dsoil[i]);
-    //  free(DS->dsoil);
-    //  free(DS->std_dsoil);
     free (DS->EleNetPrep);
-    //  free(DS->EleBot);
-    //  free(DS->Tbot);
-    //  free(DS->EleTsfc);
-    //  free(DS->C_m);
-    //  free(DS->C_h);
-    //  free(DS->EleDew);
-    //  free(DS->EleEp);
-    //  free(DS->EleLE);
-    //  free(DS->EleG);
-    //  free(DS->EleH);
     free (DS->windH);
     free (DS->EleSurf);
     free (DS->EleGW);
@@ -1370,7 +1215,6 @@ void FreeData (Model_Data DS, Control_Data * CS)
     free (DS->EleETsat);
     free (DS->EleFCR);
 #endif
-    //  free(DS->EleETloss);
     /*
      * free Print
      */
@@ -1379,7 +1223,6 @@ void FreeData (Model_Data DS, Control_Data * CS)
         free (CS->PCtrl[i].PrintVar);
         free (CS->PCtrl[i].buffer);
     }
-    //  for(i=0;i<100;i++)free(DS->PrintVar[i]);
     /*
      * free DummyY
      */

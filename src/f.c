@@ -77,6 +77,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
     realtype       *Y, *DY;
     realtype        dt;     /* YS */
     Model_Data      MD;
+
     Y = NV_DATA_S (CV_Y);
     DY = NV_DATA_S (CV_Ydot);
     MD = (Model_Data) DS;
@@ -98,9 +99,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
         if (MD->SurfMode == 2 && i < MD->NumEle)
         {
             for (j = 0; j < 3; j++)
-            {
                 MD->Ele[i].surfH[j] = (MD->Ele[i].nabr[j] > 0) ? ((MD->Ele[i].BC[j] > -4) ? (MD->Ele[MD->Ele[i].nabr[j] - 1].zmax + MD->DummyY[MD->Ele[i].nabr[j] - 1]) : ((MD->DummyY[-(MD->Ele[i].BC[j] / 4) - 1 + 3 * MD->NumEle] > MD->Riv[-(MD->Ele[i].BC[j] / 4) - 1].depth) ? MD->Riv[-(MD->Ele[i].BC[j] / 4) - 1].zmin + MD->DummyY[-(MD->Ele[i].BC[j] / 4) - 1 + 3 * MD->NumEle] : MD->Riv[-(MD->Ele[i].BC[j] / 4) - 1].zmax)) : ((MD->Ele[i].BC[j] != 1) ? (MD->Ele[i].zmax + MD->DummyY[i]) : Interpolation (&MD-> TSD_EleBC[(MD->Ele[i].BC[j]) - 1], t));
-            }
             MD->Ele[i].dhBYdx = -1 * (MD->Ele[i].surfY[2] * (MD->Ele[i].surfH[1] - MD->Ele[i].surfH[0]) + MD->Ele[i].surfY[1] * (MD->Ele[i].surfH[0] - MD->Ele[i].surfH[2]) + MD->Ele[i].surfY[0] * (MD->Ele[i].surfH[2] - MD->Ele[i].surfH[1])) / (MD->Ele[i].surfX[2] * (MD->Ele[i].surfY[1] - MD->Ele[i].surfY[0]) + MD->Ele[i].surfX[1] * (MD->Ele[i].surfY[0] - MD->Ele[i].surfY[2]) + MD->Ele[i].surfX[0] * (MD->Ele[i].surfY[2] - MD->Ele[i].surfY[1]));
             MD->Ele[i].dhBYdy = -1 * (MD->Ele[i].surfX[2] * (MD->Ele[i].surfH[1] - MD->Ele[i].surfH[0]) + MD->Ele[i].surfX[1] * (MD->Ele[i].surfH[0] - MD->Ele[i].surfH[2]) + MD->Ele[i].surfX[0] * (MD->Ele[i].surfH[2] - MD->Ele[i].surfH[1])) / (MD->Ele[i].surfY[2] * (MD->Ele[i].surfX[1] - MD->Ele[i].surfX[0]) + MD->Ele[i].surfY[1] * (MD->Ele[i].surfX[0] - MD->Ele[i].surfX[2]) + MD->Ele[i].surfY[0] * (MD->Ele[i].surfX[2] - MD->Ele[i].surfX[1]));
         }
@@ -121,7 +120,6 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
                 /*
                  * Subsurface Lateral Flux Calculation between Triangular elements Follows 
                  */
-
                 Dif_Y_Sub = (MD->DummyY[i + 2 * MD->NumEle] + MD->Ele[i].zmin) - (MD->DummyY[MD->Ele[i].nabr[j] - 1 + 2 * MD->NumEle] + MD->Ele[MD->Ele[i].nabr[j] - 1].zmin);
                 //              Avg_Y_Sub=avgY(MD->Ele[i].zmin,MD->Ele[MD->Ele[i].nabr[j]-1].zmin,MD->DummyY[i+2*MD->NumEle],MD->DummyY[MD->Ele[i].nabr[j]-1 + 2*MD->NumEle]);
                 Avg_Y_Sub = avgY (Dif_Y_Sub, MD->DummyY[i + 2 * MD->NumEle], MD->DummyY[MD->Ele[i].nabr[j] - 1 + 2 * MD->NumEle]);
@@ -143,12 +141,9 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
                  */
                 MD->FluxSub[i][j] = Avg_Ksat * Grad_Y_Sub * Avg_Y_Sub * MD->Ele[i].edge[j];
 
-                /***************************************************************************/
                 /*
                  * Surface Lateral Flux Calculation between Triangular elements Follows    
                  */
-
-                /***************************************************************************/
                 Dif_Y_Surf = (MD->SurfMode == 1) ? (MD->Ele[i].zmax - MD->Ele[MD->Ele[i].nabr[j] - 1].zmax) : ((MD->DummyY[i] + MD->Ele[i].zmax) - (MD->DummyY[MD->Ele[i].nabr[j] - 1] + MD->Ele[MD->Ele[i].nabr[j] - 1].zmax));
                 //              Avg_Y_Surf=avgY(MD->Ele[i].zmax,MD->Ele[MD->Ele[i].nabr[j] - 1].zmax,MD->DummyY[i],MD->DummyY[MD->Ele[i].nabr[j]-1]);
                 Avg_Y_Surf = avgY (Dif_Y_Surf, MD->DummyY[i], MD->DummyY[MD->Ele[i].nabr[j] - 1]);
@@ -249,9 +244,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             //          elemSatn = elemSatn>1?1:elemSatn;
             elemSatn = 1.0;
             satKfunc = pow (elemSatn, 0.5) * pow (-1 + pow (1 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1)), (MD->Ele[i].Beta - 1) / MD->Ele[i].Beta), 2);
-            /*
-             * Note: for psi calculation using van genuchten relation, cutting the psi-sat tail at small saturation can be performed for computational advantage. If you dont' want to perform this, comment the statement that follows 
-             */
+            /* Note: for psi calculation using van genuchten relation, cutting the psi-sat tail at small saturation can be performed for computational advantage. If you dont' want to perform this, comment the statement that follows */
 #ifdef _FLUX_PIHM_
             elemSatn = MD->SfcSat[i];   //(MD->EleSW[i][0]-MD->Ele[i].ThetaR)/(MD->Ele[i].ThetaS - MD->Ele[i].ThetaR);
 #else
@@ -265,8 +258,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             Grad_Y_Sub = (MD->DummyY[i] + MD->Ele[i].zmax - TotalY_Ele) / MD->Ele[i].infD;
             Grad_Y_Sub = ((MD->DummyY[i] < EPS / 100) && (Grad_Y_Sub > 0)) ? 0 : Grad_Y_Sub;
             //          satKfunc = satKfunc<0.13?0.13:satKfunc;
-            effK =
-               (MD->Ele[i].Macropore == 1) ? effKV (satKfunc, Grad_Y_Sub, MD->Ele[i].macKsatV, MD->Ele[i].infKsatV, MD->Ele[i].hAreaF) : MD->Ele[i].infKsatV;
+            effK = (MD->Ele[i].Macropore == 1) ? effKV (satKfunc, Grad_Y_Sub, MD->Ele[i].macKsatV, MD->Ele[i].infKsatV, MD->Ele[i].hAreaF) : MD->Ele[i].infKsatV;
             //          MD->Ele[i].effKV = effK;
             //              MD->EleViR[i] = 0.5*(effK+MD->Ele[i].infKsatV)*Grad_Y_Sub;
 #ifdef _FLUX_PIHM_
@@ -365,12 +357,9 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
              */
             MD->FluxRiv[MD->Riv[i].down - 1][0] = MD->FluxRiv[MD->Riv[i].down - 1][0] - MD->FluxRiv[i][1];
 
-            /************************************************************************/
             /*
              * Lateral Flux Calculation between Element Beneath River (EBR) and EBR 
              */
-
-            /************************************************************************/
             TotalY_Ele = MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[i + MD->NumEle].zmin;
             TotalY_Ele_down = MD->DummyY[MD->Riv[i].down - 1 + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[MD->Riv[i].down - 1 + MD->NumEle].zmin;
             Wid = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->Riv[i].depth, MD->Riv[i].coeff, 3);
@@ -409,8 +398,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
                     /*
                      * Dirichlet boundary condition 
                      */
-                    TotalY_Riv_down =
-                       Interpolation (&MD->TSD_Riv[(MD->Riv[i].BC) - 1], t) + (MD->Node[MD->Riv[i].ToNode - 1].zmax - MD->Riv[i].depth);
+                    TotalY_Riv_down = Interpolation (&MD->TSD_Riv[(MD->Riv[i].BC) - 1], t) + (MD->Node[MD->Riv[i].ToNode - 1].zmax - MD->Riv[i].depth);
                     Distance = sqrt (pow (MD->Riv[i].x - MD->Node[MD->Riv[i].ToNode - 1].x, 2) + pow (MD->Riv[i].y - MD->Node[MD->Riv[i].ToNode - 1].y, 2));
                     Grad_Y_Riv = (TotalY_Riv - TotalY_Riv_down) / Distance;
                     /*
@@ -461,20 +449,14 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
         if (MD->Riv[i].LeftEle > 0)
         {
 
-            /*****************************************************************************/
             /*
              * Lateral Surface Flux Calculation between River-Triangular element Follows 
              */
-
-            /*****************************************************************************/
             OLFeleToriv (MD->DummyY[MD->Riv[i].LeftEle - 1] + MD->Ele[MD->Riv[i].LeftEle - 1].zmax, MD->Ele[MD->Riv[i].LeftEle - 1].zmax, MD->Riv_Mat[MD->Riv[i].material - 1].Cwr, MD->Riv[i].zmax, TotalY_Riv, MD->FluxRiv, i, 2, MD->Riv[i].Length);
 
-            /*********************************************************************************/
             /*
              * Lateral Sub-surface Flux Calculation between River-Triangular element Follows 
              */
-
-            /*********************************************************************************/
             Dif_Y_Sub = (MD->DummyY[i + 3 * MD->NumEle] + MD->Riv[i].zmin) - (MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle] + MD->Ele[MD->Riv[i].LeftEle - 1].zmin);
             //          Avg_Y_Sub=(MD->DummyY[MD->Riv[i].LeftEle-1 + 2*MD->NumEle]+MD->Ele[MD->Riv[i].LeftEle-1].zmin-MD->Riv[i].zmin)>0?MD->DummyY[MD->Riv[i].LeftEle-1 + 2*MD->NumEle]+MD->Ele[MD->Riv[i].LeftEle-1].zmin-MD->Riv[i].zmin:0;
             /*
@@ -499,12 +481,9 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             Avg_Ksat = 0.5 * (effK + effKnabr);
             MD->FluxRiv[i][4] = MD->Riv[i].Length * Avg_Ksat * Grad_Y_Sub * Avg_Y_Sub;
 
-            /***********************************************************************************/
             /*
              * Lateral Flux between rectangular element (beneath river) and triangular element 
              */
-
-            /***********************************************************************************/
             Dif_Y_Sub = (MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[i + MD->NumEle].zmin) - (MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle] + MD->Ele[MD->Riv[i].LeftEle - 1].zmin);
             //          Avg_Y_Sub=((MD->DummyY[MD->Riv[i].LeftEle-1 + 2*MD->NumEle]+MD->Ele[MD->Riv[i].LeftEle-1].zmin-MD->Riv[i].zmin)>0)?MD->Riv[i].zmin-MD->Ele[MD->Riv[i].LeftEle-1].zmin:MD->DummyY[MD->Riv[i].LeftEle-1 + 2*MD->NumEle];
             /*
@@ -535,9 +514,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
                 if (MD->Ele[MD->Riv[i].LeftEle - 1].nabr[j] == MD->Riv[i].RightEle)
                 {
                     if (-MD->FluxRiv[i][2] > 0 && -MD->FluxRiv[i][2] > MD->FluxSurf[MD->Riv[i].LeftEle - 1][j])
-                    {
                         MD->FluxRiv[i][2] = -MD->DummyY[MD->Riv[i].LeftEle - 1] / dt;
-                    }
                     MD->FluxSurf[MD->Riv[i].LeftEle - 1][j] = -MD->FluxRiv[i][2];
                     MD->FluxSub[MD->Riv[i].LeftEle - 1][j] = -MD->FluxRiv[i][4];
                     MD->FluxSub[MD->Riv[i].LeftEle - 1][j] = MD->FluxSub[MD->Riv[i].LeftEle - 1][j] - MD->FluxRiv[i][7];
@@ -548,20 +525,14 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
         if (MD->Riv[i].RightEle > 0)
         {
 
-            /*****************************************************************************/
             /*
              * Lateral Surface Flux Calculation between River-Triangular element Follows 
              */
-
-            /*****************************************************************************/
             OLFeleToriv (MD->DummyY[MD->Riv[i].RightEle - 1] + MD->Ele[MD->Riv[i].RightEle - 1].zmax, MD->Ele[MD->Riv[i].RightEle - 1].zmax, MD->Riv_Mat[MD->Riv[i].material - 1].Cwr, MD->Riv[i].zmax, TotalY_Riv, MD->FluxRiv, i, 3, MD->Riv[i].Length);
 
-            /*********************************************************************************/
             /*
              * Lateral Sub-surface Flux Calculation between River-Triangular element Follows 
              */
-
-            /*********************************************************************************/
             Dif_Y_Sub = (MD->DummyY[i + 3 * MD->NumEle] + MD->Riv[i].zmin) - (MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle] + MD->Ele[MD->Riv[i].RightEle - 1].zmin);
             //          Avg_Y_Sub=(MD->DummyY[MD->Riv[i].RightEle-1 + 2*MD->NumEle]+MD->Ele[MD->Riv[i].RightEle-1].zmin-MD->Riv[i].zmin>0)?MD->DummyY[MD->Riv[i].RightEle-1 + 2*MD->NumEle]+MD->Ele[MD->Riv[i].RightEle-1].zmin-MD->Riv[i].zmin:0;
             /*
@@ -586,12 +557,9 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             Avg_Ksat = 0.5 * (effK + effKnabr);
             MD->FluxRiv[i][5] = MD->Riv[i].Length * Avg_Ksat * Grad_Y_Sub * Avg_Y_Sub;
 
-            /***********************************************************************************/
             /*
              * Lateral Flux between rectangular element (beneath river) and triangular element 
              */
-
-            /***********************************************************************************/
             Dif_Y_Sub = (MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[i + MD->NumEle].zmin) - (MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle] + MD->Ele[MD->Riv[i].RightEle - 1].zmin);
             //          Avg_Y_Sub=((MD->DummyY[MD->Riv[i].RightEle-1 + 2*MD->NumEle]+MD->Ele[MD->Riv[i].RightEle-1].zmin-MD->Riv[i].zmin)>0)?MD->Riv[i].zmin-MD->Ele[MD->Riv[i].RightEle-1].zmin:MD->DummyY[MD->Riv[i].RightEle-1 + 2*MD->NumEle];
             /*
@@ -656,7 +624,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
         }
         //      MD->EleEp[i+MD->NumEle] = MD->DummyY[i+3*MD->NumEle]<EPS/100?0:MD->EleEp[i+MD->NumEle];
         //      DY[i+3*MD->NumEle] = DY[i+3*MD->NumEle] + MD->EleNetPrep[i+MD->NumEle] - MD->EleEp[i+MD->NumEle];
-        DY[i + 3 * MD->NumEle] = DY[i + 3 * MD->NumEle];
+//        DY[i + 3 * MD->NumEle] = DY[i + 3 * MD->NumEle];
         DY[i + 3 * MD->NumEle + MD->NumRiv] = DY[i + 3 * MD->NumEle + MD->NumRiv] - MD->FluxRiv[i][7] - MD->FluxRiv[i][8] - MD->FluxRiv[i][9] - MD->FluxRiv[i][10] + MD->FluxRiv[i][6];
         DY[i + 3 * MD->NumEle + MD->NumRiv] = DY[i + 3 * MD->NumEle + MD->NumRiv] / (MD->Ele[i + MD->NumEle].Porosity * MD->Riv[i].Length * CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->Riv[i].depth, MD->Riv[i].coeff, 3));
     }

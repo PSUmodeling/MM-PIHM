@@ -6,7 +6,6 @@
 
 void SFLX (GRID_TYPE * NOAH)
 {
-
 /*----------------------------------------------------------------------
 * SUBROUTINE SFLX - UNIFIED NOAHLSM VERSION 1.0 JULY 2007
 * ----------------------------------------------------------------------
@@ -43,14 +42,8 @@ void SFLX (GRID_TYPE * NOAH)
     double         *RTDIS;
     double          ZSOIL[NOAH->NSOIL];
 
-    double         *ETA_KINEMATIC, *BETA, *DEW, *DRIP, *EC, *EDIR, *ESNOW,
-       *ETA, *ETP, *FLX1, *FLX2, *FLX3, *SHEAT, *PC, *RUNOFF2, *RUNOFF3, *RC,
-       *RSMIN, *RCQ, *RCS, *RCSOIL, *RCT, *SSOIL, *SMCDRY, *SMCMAX, *SMCREF,
-       *SMCWLT, *SNOMLT, *SOILM, *SOILW, *FDOWN, *Q1;
-    double         *CFACTR, *CMCMAX, *CSOIL, *CZIL, *DF1, *DKSAT, *ETT,
-       *EPSCA, *F1, *FXEXP, *FRZX, *HS, *QUARTZ, *RCH, *RR, *RGL, *RSMAX,
-       *RSNOW, *SNDENS, *SNCOND, *SBETA, *SN_NEW, *SNUP, *SALP, *T1V, *T24,
-       *T2V, *TH2V, *TOPT, *ZBOT, *Z0, *PRCPF, *ETNS, *PTU;
+    double         *ETA_KINEMATIC, *BETA, *DEW, *DRIP, *EC, *EDIR, *ESNOW, *ETA, *ETP, *FLX1, *FLX2, *FLX3, *SHEAT, *PC, *RUNOFF2, *RUNOFF3, *RC, *RSMIN, *RCQ, *RCS, *RCSOIL, *RCT, *SSOIL, *SMCDRY, *SMCMAX, *SMCREF, *SMCWLT, *SNOMLT, *SOILM, *SOILW, *FDOWN, *Q1;
+    double         *CFACTR, *CMCMAX, *CSOIL, *CZIL, *DF1, *DKSAT, *ETT, *EPSCA, *F1, *FXEXP, *FRZX, *HS, *QUARTZ, *RCH, *RR, *RGL, *RSMAX, *RSNOW, *SNDENS, *SNCOND, *SBETA, *SN_NEW, *SNUP, *SALP, *T1V, *T24, *T2V, *TH2V, *TOPT, *ZBOT, *Z0, *PRCPF, *ETNS, *PTU;
     double          DF1H, DF1A, DSOIL, DTOT, FRCSNO, FRCSOI, SOILWM, SOILWW;
     double         *LVCOEF;
     double          INTERP_FRACTION;
@@ -306,15 +299,9 @@ void SFLX (GRID_TYPE * NOAH)
             /*
              * Scale Emissivity and LAI between EMISSMIN and EMISSMAX by INTERP_FRACTION 
              */
-            *EMBRD =
-               ((1.0 - INTERP_FRACTION) * *EMISSMIN) +
-               (INTERP_FRACTION * *EMISSMAX);
-            *ALB =
-               ((1.0 - INTERP_FRACTION) * *ALBEDOMAX) +
-               (INTERP_FRACTION * *ALBEDOMIN);
-            *Z0BRD =
-               ((1.0 - INTERP_FRACTION) * *Z0MIN) +
-               (INTERP_FRACTION * *Z0MAX);
+            *EMBRD = ((1.0 - INTERP_FRACTION) * *EMISSMIN) + (INTERP_FRACTION * *EMISSMAX);
+            *ALB = ((1.0 - INTERP_FRACTION) * *ALBEDOMAX) + (INTERP_FRACTION * *ALBEDOMIN);
+            *Z0BRD = ((1.0 - INTERP_FRACTION) * *Z0MIN) + (INTERP_FRACTION * *Z0MAX);
         }
         else
         {
@@ -324,7 +311,8 @@ void SFLX (GRID_TYPE * NOAH)
         }
     }
 
-    *SHDFAC = 1. - exp (-0.52 * (*XLAI));
+//    *SHDFAC = 1. - exp (-0.52 * (*XLAI));
+      *SHDFAC = 1. - exp (-0.75 * (*XLAI));
 #else
     if (*SHDFAC >= *SHDMAX)
     {
@@ -414,22 +402,13 @@ void SFLX (GRID_TYPE * NOAH)
     }
 
 #ifdef _DEBUG_
-    printf ("NSOIL = %d, ISURBAN = %d, NROOT = %d\n", *NSOIL, *ISURBAN,
-       *NROOT);
+    printf ("NSOIL = %d, ISURBAN = %d, NROOT = %d\n", *NSOIL, *ISURBAN, *NROOT);
     printf ("RDLAI2D = %d, USEMONALB = %d\n", RDLAI2D, USEMONALB);
-    printf
-       ("SHDMIN = %f, SHDMAX = %f, DT = %f, DQSDT2 = %f, LWDN = %f, PRCP = %f, PRCPRAIN = %f, Q2 = %f, Q2SAT = %f, SFCPRS = %f, SFCSPD = %f, SFCTMP = %f, SNOALB = %f, SOLDN = %f, SOLNET = %f, TBOT = %f, TH2, = %f, ZLVL = %f, FFROZP = %f\n",
-       *SHDMIN, *SHDMAX, *DT, *DQSDT2, *LWDN, *PRCP, *PRCPRAIN, *Q2,
-       *Q2SAT, *SFCPRS, *SFCSPD, *SFCTMP, *SNOALB, *SOLDN, *SOLNET, *TBOT,
-       *TH2, *ZLVL, *FFROZP);
-    printf
-       ("CH = %f, CM = %f, CMC = %f, SNEQV = %f, SNCOVR = %f, SNOWH = %f, T1 = %f, XLAI = %f, SHDFAC = %f, Z0BRD = %f, EMISSI = %f, ALB = %f\n",
-       *CH, *CM, *CMC, *SNEQV, *SNCOVR, *SNOWH, *T1, *XLAI, *SHDFAC,
-       *Z0BRD, *EMISSI, *ALB);
+    printf ("SHDMIN = %f, SHDMAX = %f, DT = %f, DQSDT2 = %f, LWDN = %f, PRCP = %f, PRCPRAIN = %f, Q2 = %f, Q2SAT = %f, SFCPRS = %f, SFCSPD = %f, SFCTMP = %f, SNOALB = %f, SOLDN = %f, SOLNET = %f, TBOT = %f, TH2, = %f, ZLVL = %f, FFROZP = %f\n", *SHDMIN, *SHDMAX, *DT, *DQSDT2, *LWDN, *PRCP, *PRCPRAIN, *Q2, *Q2SAT, *SFCPRS, *SFCSPD, *SFCTMP, *SNOALB, *SOLDN, *SOLNET, *TBOT, *TH2, *ZLVL, *FFROZP);
+    printf ("CH = %f, CM = %f, CMC = %f, SNEQV = %f, SNCOVR = %f, SNOWH = %f, T1 = %f, XLAI = %f, SHDFAC = %f, Z0BRD = %f, EMISSI = %f, ALB = %f\n", *CH, *CM, *CMC, *SNEQV, *SNCOVR, *SNOWH, *T1, *XLAI, *SHDFAC, *Z0BRD, *EMISSI, *ALB);
     printf ("SNOTIME1 = %f\n", *SNOTIME1);
     printf ("RIBB = %f\n", *RIBB);
-    for (KZ = 0; KZ < *NSOIL; KZ++)
-        printf ("SLDPTH[%d] = %f ", KZ, SLDPTH[KZ]);
+    for (KZ = 0; KZ < *NSOIL; KZ++) printf ("SLDPTH[%d] = %f ", KZ, SLDPTH[KZ]);
     printf ("\n");
     for (KZ = 0; KZ < *NSOIL; KZ++)
         printf ("SH2O[%d] = %f ", KZ, SH2O[KZ]);
@@ -446,12 +425,7 @@ void SFLX (GRID_TYPE * NOAH)
     for (KZ = 0; KZ < *NSOIL; KZ++)
         printf ("ZSOIL[%d] = %f ", KZ, ZSOIL[KZ]);
     printf ("\n");
-    printf
-       ("VGALPHA = %f, VGBETA = %f, CFACTR = %f, CMCMAX = %f, CSOIL = %f, CZIL = %f, DF1 = %f, DKSAT = %f, FXEXP = %f, FRZX = %f, LVH2O = %f, RGL = %f, RSMAX = %f, SBETA = %f, TOPT = %f, HS = %f, ZBOT = %f, SNUP = %f, SALP = %f, SMCMAX = %f, SMCWLT = %f, SMCREF = %f, SMCDRY = %f, QUARTZ = %f, LAIMIN = %f, LAIMAX = %f, EMISSMIN = %f, EMISSIMAX = %f, ALBEDOMIN = %f, ALBEDOMAX = %f, Z0MIN = %f, Z0MAX = %f\n",
-       *VGALPHA, *VGBETA, *CFACTR, *CMCMAX, *CSOIL, *CZIL, *DF1, *DKSAT,
-       *FXEXP, *FRZX, LVH2O, *RGL, *RSMAX, *SBETA, *TOPT, *HS, *ZBOT,
-       *SNUP, *SALP, *SMCMAX, *SMCWLT, *SMCREF, *SMCDRY, *QUARTZ, *LAIMIN,
-       *LAIMAX, *EMISSMIN, *EMISSMAX, *ALBEDOMIN, *ALBEDOMAX, *Z0MIN, *Z0MAX);
+    printf ("VGALPHA = %f, VGBETA = %f, CFACTR = %f, CMCMAX = %f, CSOIL = %f, CZIL = %f, DF1 = %f, DKSAT = %f, FXEXP = %f, FRZX = %f, LVH2O = %f, RGL = %f, RSMAX = %f, SBETA = %f, TOPT = %f, HS = %f, ZBOT = %f, SNUP = %f, SALP = %f, SMCMAX = %f, SMCWLT = %f, SMCREF = %f, SMCDRY = %f, QUARTZ = %f, LAIMIN = %f, LAIMAX = %f, EMISSMIN = %f, EMISSIMAX = %f, ALBEDOMIN = %f, ALBEDOMAX = %f, Z0MIN = %f, Z0MAX = %f\n", *VGALPHA, *VGBETA, *CFACTR, *CMCMAX, *CSOIL, *CZIL, *DF1, *DKSAT, *FXEXP, *FRZX, LVH2O, *RGL, *RSMAX, *SBETA, *TOPT, *HS, *ZBOT, *SNUP, *SALP, *SMCMAX, *SMCWLT, *SMCREF, *SMCDRY, *QUARTZ, *LAIMIN, *LAIMAX, *EMISSMIN, *EMISSMAX, *ALBEDOMIN, *ALBEDOMAX, *Z0MIN, *Z0MAX);
 #endif
 
 /*----------------------------------------------------------------------
@@ -693,20 +667,13 @@ void SFLX (GRID_TYPE * NOAH)
     if (iout == 1)
     {
         printf ("before penman\n");
-        printf
-           ("SFCTMP = %lf SFCPRS = %lf CH = %lf T2V = %lf TH2 = %lf PRCP = %lf FDOWN = %lf T24 = %lf SSOIL = %lf Q2 = %f Q2SAT = %lf ETP = %lf RCH = %lf EPSCA = %lf RR = %lf SNOWNG = %d FRZGRA = %d DQSDT2 = %lf FLX2 = %lf SNOWH = %lf SNEQV = %lf DSOIL = %lf FRCSNO = %lf SNCOVR = %lf DTOT = %lf ZSOIL(1) = %lf DF1 = %lf T1 = %lf STC1 = %lf ALBEDO = %lf SMC = %lf STC = %lf SH2O = %lf\n",
-           *SFCTMP, *SFCPRS, *CH, *T2V, *TH2, *PRCP, *FDOWN, *T24, *SSOIL,
-           *Q2, *Q2SAT, *ETP, *RCH, *EPSCA, *RR, *SNOWNG, *FRZGRA, *DQSDT2,
-           *FLX2, *SNOWH, *SNEQV, DSOIL, FRCSNO, *SNCOVR, DTOT, ZSOIL[0],
-           *DF1, *T1, STC[0], *ALBEDO, SMC[0], STC[1], SH2O[0]);
+        printf ("SFCTMP = %lf SFCPRS = %lf CH = %lf T2V = %lf TH2 = %lf PRCP = %lf FDOWN = %lf T24 = %lf SSOIL = %lf Q2 = %f Q2SAT = %lf ETP = %lf RCH = %lf EPSCA = %lf RR = %lf SNOWNG = %d FRZGRA = %d DQSDT2 = %lf FLX2 = %lf SNOWH = %lf SNEQV = %lf DSOIL = %lf FRCSNO = %lf SNCOVR = %lf DTOT = %lf ZSOIL(1) = %lf DF1 = %lf T1 = %lf STC1 = %lf ALBEDO = %lf SMC = %lf STC = %lf SH2O = %lf\n", *SFCTMP, *SFCPRS, *CH, *T2V, *TH2, *PRCP, *FDOWN, *T24, *SSOIL, *Q2, *Q2SAT, *ETP, *RCH, *EPSCA, *RR, *SNOWNG, *FRZGRA, *DQSDT2, *FLX2, *SNOWH, *SNEQV, DSOIL, FRCSNO, *SNCOVR, DTOT, ZSOIL[0], *DF1, *T1, STC[0], *ALBEDO, SMC[0], STC[1], SH2O[0]);
         //      for (K = 0; K < *NSOIL; K++)
         //          printf("SH2O = %f, SMC = %f\t", SH2O[K], SMC[K]);
         //      printf("\n");
     }
 
-    PENMAN (SFCTMP, SFCPRS, CH, T2V, TH2, PRCP, FDOWN, T24, SSOIL, Q2, Q2SAT,
-       ETP, RCH, EPSCA, RR, SNOWNG, FRZGRA, DQSDT2, FLX2, EMISSI, SNEQV, T1,
-       SNCOVR);
+    PENMAN (SFCTMP, SFCPRS, CH, T2V, TH2, PRCP, FDOWN, T24, SSOIL, Q2, Q2SAT, ETP, RCH, EPSCA, RR, SNOWNG, FRZGRA, DQSDT2, FLX2, EMISSI, SNEQV, T1, SNCOVR);
 
 /*----------------------------------------------------------------------
 * CALL CANRES TO CALCULATE THE CANOPY RESISTANCE AND CONVERT IT INTO PC
@@ -1076,6 +1043,8 @@ CANRES (double *SOLAR, double *CH, double *SFCTMP, double *Q2, double *SFCPRS,
     FF = 0.55 * 2.0 * *SOLAR / (*RGL * *XLAI);
     *RCS = (FF + *RSMIN / *RSMAX) / (1.0 + FF);
 
+//    printf("SOLAR = %lf, RGL = %lf, XLAI = %lf, FF = %lf, RSMIN = %lf, RSMAX = %lf, RCS = %lf\n", *SOLAR, *RGL, *XLAI, FF, *RSMIN, *RSMAX, *RCS);
+
 /*----------------------------------------------------------------------
 * CONTRIBUTION DUE TO AIR TEMPERATURE AT FIRST MODEL LEVEL ABOVE GROUND
 * RCT EXPRESSION FROM NOILHAN AND PLANTON (1989, MWR).
@@ -1239,6 +1208,7 @@ DEVAP (double *EDIR, double *ETP1, double *SMC, double *ZSOIL, double *SHDFAC,
 * ALLOW FOR THE DIRECT-EVAP-REDUCING EFFECT OF SHADE
 * --------------------------------------------------------------------*/
     *EDIR = FX * (1.0 - *SHDFAC) * *ETP1;
+    printf("SRATIO = %lf, FXEXP = %lf, FX = %lf, SHDFAC = %lf, ETP = %lf, EDIR = %lf\n", SRATIO, *FXEXP, FX, *SHDFAC, *ETP1*1000*LVH2O, *EDIR*1000*LVH2O);
 
 /*----------------------------------------------------------------------
   END SUBROUTINE DEVAP
@@ -2169,12 +2139,7 @@ NOPAC (double *ETP, double *ETA, double *PRCP, double *SMC, double *SMCMAX,
 * --------------------------------------------------------------------*/
 }
 
-void
-PENMAN (double *SFCTMP, double *SFCPRS, double *CH, double *T2V, double *TH2,
-   double *PRCP, double *FDOWN, double *T24, double *SSOIL, double *Q2,
-   double *Q2SAT, double *ETP, double *RCH, double *EPSCA, double *RR,
-   int *SNOWNG, int *FRZGRA, double *DQSDT2, double *FLX2, double *EMISSI_IN,
-   double *SNEQV, double *T1, double *SNCOVR)
+void PENMAN (double *SFCTMP, double *SFCPRS, double *CH, double *T2V, double *TH2, double *PRCP, double *FDOWN, double *T24, double *SSOIL, double *Q2, double *Q2SAT, double *ETP, double *RCH, double *EPSCA, double *RR, int *SNOWNG, int *FRZGRA, double *DQSDT2, double *FLX2, double *EMISSI_IN, double *SNEQV, double *T1, double *SNCOVR)
 {
 
 /*----------------------------------------------------------------------
@@ -2241,6 +2206,7 @@ PENMAN (double *SFCTMP, double *SFCPRS, double *CH, double *T2V, double *TH2,
     *EPSCA = (A * *RR + RAD * DELTA) / (DELTA + *RR);
     //  ETP = EPSCA * RCH / LSUBC;
     *ETP = *EPSCA * *RCH / LVS;
+//    printf("RR = %lf, RAD = %lf, DELTA = %lf, CH = %lf, EPSCA = %f, ETP = %lf\n", *RR, RAD, DELTA, *CH, *EPSCA, *ETP);
 
 /*----------------------------------------------------------------------
   END SUBROUTINE PENMAN
@@ -4726,10 +4692,7 @@ WDFCND (double *WDF, double *WCND, double *SMC, double *SMCMAX, double *BEXP,
 }
 
 
-void
-SFCDIF_off (double *ZLM, double *ZLM_WIND, double *Z0, double *THZ0,
-   double *THLM, double *SFCSPD, double *CZIL, double *AKMS, double *AKHS,
-   int *VEGTYP, int *ISURBAN, int *IZ0TLND)
+void SFCDIF_off (double *ZLM, double *ZLM_WIND, double *Z0, double *THZ0, double *THLM, double *SFCSPD, double *CZIL, double *AKMS, double *AKHS, int *VEGTYP, int *ISURBAN, int *IZ0TLND)
 {
 
 /*----------------------------------------------------------------------
@@ -4781,17 +4744,13 @@ SFCDIF_off (double *ZLM, double *ZLM_WIND, double *Z0, double *THZ0,
 /*--------------------------------------------------------------------*/
     if ((*IZ0TLND == 0) || (*VEGTYP == *ISURBAN))
     {
-        /*
-         * Just use the original CZIL value. 
-         */
+        /* Just use the original CZIL value. */
         ZILFC = -*CZIL * VKRM * SQVISC;
     }
     else
     {
-        /*
-         * Modify CZIL according to Chen & Zhang, 2009
-         * CZIL = 10 ** -0.40 H, ( where H = 10*Zo )
-         */
+        /* Modify CZIL according to Chen & Zhang, 2009
+         * CZIL = 10 ** -0.40 H, ( where H = 10*Zo ) */
         *CZIL = pow (10.0, -0.4 * (*Z0 / 0.07));
         ZILFC = -*CZIL * VKRM * SQVISC;
     }
@@ -4829,6 +4788,7 @@ SFCDIF_off (double *ZLM, double *ZLM_WIND, double *Z0, double *THZ0,
     //     PRINT*,'ZT=',ZT
 
     ZSLT = *ZLM + ZT;
+//    ZSLT = *ZLM_WIND + ZT;
     RLOGU = log (ZSLU / ZU);
 
     RLOGT = log (ZSLT / ZT);
@@ -5018,6 +4978,7 @@ double PSLHS (double ZZ)
     RFAC = RIC / (FHNEU * RFC * RFC);
     //  x = ZZ * RFAC -2.076* (1. -1./ (ZZ +1.));
     x = ZZ * RFAC - 2.076 * (1. - exp (-1.2 * ZZ));
+    printf("now: %lf, before: %lf\n", x, ZZ * RFAC -2.076* (1. -1./ (ZZ +1.)));
     return x;
 }
 
@@ -5059,8 +5020,7 @@ double PSPHS (double YY)
     return x;
 }
 
-double
-EFFKV (double KSATFUNC, double GRADY, double MACKV, double KV, double AREAF)
+double EFFKV (double KSATFUNC, double GRADY, double MACKV, double KV, double AREAF)
 {
     if (KSATFUNC >= 0.98)
         return (MACKV * AREAF + KV * (1. - AREAF) * KSATFUNC);

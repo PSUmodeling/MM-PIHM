@@ -1,34 +1,32 @@
 /*****************************************************************************
- * File		: pihm.c                                                     *
- * Function	: Main program file					                              *
- * Developer of PIHM 2.3    :	Yuning Shi	(yshi@psu.edu)                    *
- * Developer of PIHM 2.2    :	Xuan Yu	    (xxy113@psu.edu)                  *
- * Developer of PIHM 2.0    :	Mukesh Kumar	(muk139@psu.edu)              *
- * Developer of PIHM 1.0    :	Yizhong Qu	(quyizhong@gmail.com)             *
- * Version                  :   September, 2014 (PIHM V2.3)                   *
- *----------------------------------------------------------------------------*
- * This code is free for research purpose only.				                  *
- * Please provide relevant references if you use this code in your research   *
- * 	work								                                      *
- *----------------------------------------------------------------------------*
- * DEVELOPMENT RELATED REFERENCES:                                            *
- * Flux-PIHM:                                                                 *
- * 	a) Shi, Y. et al., 2013, "Development of a coupled land surface	          *
- *      hydrologic model and evaluation at a critical zone observatory",      *
- * 	    Journal of Hydrometeorology, 14, 1401--1420.                          *
- *	b) Shi, Y. et al., 2014, "Evaluation of the parameter sensitivity of      *
- *	    a coupled land surface hydrologic model. Journal of Hydrometeorology, *
- *	    15, 279--299.	                    						          *
- * PIHM V2:								                                      *
- *	a) Kumar, M., 2008, "Development and Implementation of a Multiscale,      *
- *	    Multiprocess Hydrologic Model". PhD Thesis, Penn State University     *
- * PIHM V1:								                                      *
- *	a) Qu, Y., 2005, "An Integrated hydrologic model for multiprocec          *
- *	    simulation using semi-discrete finite volume approach".PhD Thesis,    *
- *	    PSU								                                      *
- *	b) Qu, Y. & C. Duffy, 2007, "A semidiscrete finite volume formulation     *
- *	    for multiprocess watershed simulation". Water Resources Research      *
- *****************************************************************************/
+ * File		: pihm.c
+ * Function	: Main program file
+ * Developer of PIHM 2.2    :	Xuan Yu	    (xxy113@psu.edu)
+ * Developer of PIHM 2.0    :	Mukesh Kumar	(muk139@psu.edu)
+ * Developer of PIHM 1.0    :	Yizhong Qu	(quyizhong@gmail.com)
+ * Version                  :   September, 2014
+ *----------------------------------------------------------------------------
+ * This code is free for research purpose only.
+ * Please provide relevant references if you use this code in your research
+ * 	work
+ *----------------------------------------------------------------------------
+ * DEVELOPMENT RELATED REFERENCES:
+ * Flux-PIHM:
+ *  a) Shi, Y. et al., 2013, "Development of a coupled land surface
+ *      hydrologic model and evaluation at a critical zone observatory",
+ *      Journal of Hydrometeorology, 14, 1401--1420.
+ *  b) Shi, Y. et al., 2014, "Evaluation of the parameter sensitivity of 
+ *	a coupled land surface hydrologic model. Journal of Hydrometeorology,
+ *	15, 279--299.
+ * PIHM V2:
+ *  a) Kumar, M., 2008, "Development and Implementation of a Multiscale, 
+ *	Multiprocess Hydrologic Model". PhD Thesis, Penn State University
+ * PIHM V1:
+ *  a) Qu, Y., 2005, "An Integrated hydrologic model for multiprocec
+ *	simulation using semi-discrete finite volume approach".PhD Thesis, PSU
+ *  b) Qu, Y. & C. Duffy, 2007, "A semidiscrete finite volume formulation
+ *	for multiprocess watershed simulation". Water Resources Research
+ ****************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,8 +40,7 @@
 #ifdef _FLUX_PIHM_
 #include "noah/noah.h"
 #endif
-
-#ifdef _BBGC_
+#ifdef _PIHM_BGC_
 #include "bgc/pihm_bgc.h"
 #endif
 /*
@@ -64,11 +61,8 @@ int main (int argc, char *argv[])
     struct tm      *timestamp;
     time_t         *rawtime;
     realtype        NextPtr, StepSize;  /* stress period & step size */
-    //
     realtype        cvode_val;
     long int        cvode_int;
-    //  realtype cputime_r, cputime_s;  /* for duration in realtype  */
-    //  clock_t start, diff;    /* system clock at points    */
     char           *filename, *outputdir, str[11];
     char            system_cmd[1024];
 #ifdef _FLUX_PIHM_
@@ -109,7 +103,7 @@ int main (int argc, char *argv[])
         /*
          * get user specified file name in command line
          */
-        filename = (char *)malloc (strlen (argv[1]) * sizeof (char));
+        filename = (char *)malloc ((strlen (argv[1]) + 1)* sizeof (char));
         strcpy (filename, argv[1]);
     }
 
@@ -142,6 +136,8 @@ int main (int argc, char *argv[])
      */
     sprintf (system_cmd, "cp input/%s.para %s/%s.para.bak", filename, outputdir, filename);
     system (system_cmd);
+    sprintf (system_cmd, "cp input/%s.calib %s/%s.calib.bak", filename, outputdir, filename);
+    system (system_cmd);
 
     /*
      * Allocate memory for model data structure
@@ -150,7 +146,7 @@ int main (int argc, char *argv[])
 #ifdef _FLUX_PIHM_
     LSM = (LSM_STRUCT) malloc (sizeof *LSM);
 #endif
-#ifdef _BBGC_
+#ifdef _PIHM_BGC__
     BGCM = (bgc_struct) malloc (sizeof *BGCM);
 #endif
 
@@ -158,7 +154,7 @@ int main (int argc, char *argv[])
 #ifdef _FLUX_PIHM_
     LSM_read (filename, LSM);
 #endif
-#ifdef _BBGC_
+#ifdef _PIHM_BGC_
     bbgc_read (filename, BGCM, mData);
 #endif
 
@@ -167,9 +163,7 @@ int main (int argc, char *argv[])
     //}
     if (mData->UnsatMode == 2)
     {
-        /*
-         * problem size 
-         */
+        /* problem size */
         N = 3 * mData->NumEle + 2 * mData->NumRiv;
         mData->DummyY = (realtype *) malloc ((3 * mData->NumEle + 2 * mData->NumRiv) * sizeof (realtype));
     }
@@ -256,7 +250,7 @@ int main (int argc, char *argv[])
             *rawtime = (int)t;
             timestamp = gmtime (rawtime);
             if ((int)*rawtime % 3600 == 0)
-                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\t%lf\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, NextPtr);
+                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
 #ifdef COUPLE_I
             t = NextPtr;
 #else

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*****************************************************************************
  * File		: initialize.c							
  * Function	: Initialization of elemental attributes using relational	
  *		  database							
@@ -11,9 +11,9 @@
  * For questions or comments, please contact					
  *      --> Yuning Shi (yshi@psu.edu)						
  * This code is free for research purpose only.					
- * Please provide relevant references if you use this code in your research work
- *------------------------------------------------------------------------------*
- *********************************************************************************/
+ * Please provide relevant references if you use this code in your research
+ *  work
+ ****************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,9 +59,7 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
         sprintf (CS->PCtrl[icounter].name, "%s%s.GW", outputdir, filename);
         CS->PCtrl[icounter].Interval = CS->PrintGW;
         CS->PCtrl[icounter].NumVar = DS->NumEle + DS->NumRiv;
-        CS->PCtrl[icounter].PrintVar =
-           (realtype **) malloc (CS->PCtrl[icounter].NumVar *
-           sizeof (realtype *));
+        CS->PCtrl[icounter].PrintVar = (realtype **) malloc (CS->PCtrl[icounter].NumVar * sizeof (realtype *));
         for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
             CS->PCtrl[icounter].PrintVar[i] = &(DS->EleGW[i]);
         icounter++;
@@ -71,9 +69,7 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
         sprintf (CS->PCtrl[icounter].name, "%s%s.surf", outputdir, filename);
         CS->PCtrl[icounter].Interval = CS->PrintSurf;
         CS->PCtrl[icounter].NumVar = DS->NumEle;
-        CS->PCtrl[icounter].PrintVar =
-           (realtype **) malloc (CS->PCtrl[icounter].NumVar *
-           sizeof (realtype *));
+        CS->PCtrl[icounter].PrintVar = (realtype **) malloc (CS->PCtrl[icounter].NumVar * sizeof (realtype *));
         for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
             CS->PCtrl[icounter].PrintVar[i] = &(DS->EleSurf[i]);
         icounter++;
@@ -83,9 +79,7 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
         sprintf (CS->PCtrl[icounter].name, "%s%s.snow", outputdir, filename);
         CS->PCtrl[icounter].Interval = CS->PrintSnow;
         CS->PCtrl[icounter].NumVar = DS->NumEle;
-        CS->PCtrl[icounter].PrintVar =
-           (realtype **) malloc (CS->PCtrl[icounter].NumVar *
-           sizeof (realtype *));
+        CS->PCtrl[icounter].PrintVar = (realtype **) malloc (CS->PCtrl[icounter].NumVar * sizeof (realtype *));
         for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
             CS->PCtrl[icounter].PrintVar[i] = &(DS->EleSnow[i]);
         icounter++;
@@ -108,9 +102,7 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
         sprintf (CS->PCtrl[icounter].name, "%s%s.stage", outputdir, filename);
         CS->PCtrl[icounter].Interval = CS->PrintRivStg;
         CS->PCtrl[icounter].NumVar = DS->NumRiv;
-        CS->PCtrl[icounter].PrintVar =
-           (realtype **) malloc (CS->PCtrl[icounter].NumVar *
-           sizeof (realtype *));
+        CS->PCtrl[icounter].PrintVar = (realtype **) malloc (CS->PCtrl[icounter].NumVar * sizeof (realtype *));
         for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
             CS->PCtrl[icounter].PrintVar[i] = &(DS->RivStg[i]);
         icounter++;
@@ -120,9 +112,7 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
         sprintf (CS->PCtrl[icounter].name, "%s%s.Rech", outputdir, filename);
         CS->PCtrl[icounter].Interval = CS->PrintRech;
         CS->PCtrl[icounter].NumVar = DS->NumEle;
-        CS->PCtrl[icounter].PrintVar =
-           (realtype **) malloc (CS->PCtrl[icounter].NumVar *
-           sizeof (realtype *));
+        CS->PCtrl[icounter].PrintVar = (realtype **) malloc (CS->PCtrl[icounter].NumVar * sizeof (realtype *));
         for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
             CS->PCtrl[icounter].PrintVar[i] = &(DS->Recharge[i]);
         icounter++;
@@ -132,9 +122,7 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
         sprintf (CS->PCtrl[icounter].name, "%s%s.IS", outputdir, filename);
         CS->PCtrl[icounter].Interval = CS->PrintIS;
         CS->PCtrl[icounter].NumVar = DS->NumEle;
-        CS->PCtrl[icounter].PrintVar =
-           (realtype **) malloc (CS->PCtrl[icounter].NumVar *
-           sizeof (realtype *));
+        CS->PCtrl[icounter].PrintVar = (realtype **) malloc (CS->PCtrl[icounter].NumVar * sizeof (realtype *));
         for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
             CS->PCtrl[icounter].PrintVar[i] = &(DS->EleIS[i]);
         icounter++;
@@ -144,9 +132,7 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
         sprintf (CS->PCtrl[icounter].name, "%s%s.unsat", outputdir, filename);
         CS->PCtrl[icounter].Interval = CS->PrintUnsat;
         CS->PCtrl[icounter].NumVar = DS->NumEle;
-        CS->PCtrl[icounter].PrintVar =
-           (realtype **) malloc (CS->PCtrl[icounter].NumVar *
-           sizeof (realtype *));
+        CS->PCtrl[icounter].PrintVar = (realtype **) malloc (CS->PCtrl[icounter].NumVar * sizeof (realtype *));
         for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
             CS->PCtrl[icounter].PrintVar[i] = &(DS->EleUnsat[i]);
         icounter++;
@@ -159,9 +145,7 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
                filename, j);
             CS->PCtrl[icounter].Interval = CS->PrintET[j];
             CS->PCtrl[icounter].NumVar = DS->NumEle;
-            CS->PCtrl[icounter].PrintVar =
-               (realtype **) malloc (CS->PCtrl[icounter].NumVar *
-               sizeof (realtype *));
+            CS->PCtrl[icounter].PrintVar = (realtype **) malloc (CS->PCtrl[icounter].NumVar * sizeof (realtype *));
             for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
                 CS->PCtrl[icounter].PrintVar[i] = &(DS->EleET[i][j]);
             icounter++;
@@ -175,116 +159,20 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
                filename, j);
             CS->PCtrl[icounter].Interval = CS->PrintRivFlx[j];
             CS->PCtrl[icounter].NumVar = DS->NumRiv;
-            CS->PCtrl[icounter].PrintVar =
-               (realtype **) malloc (CS->PCtrl[icounter].NumVar *
-               sizeof (realtype *));
+            CS->PCtrl[icounter].PrintVar = (realtype **) malloc (CS->PCtrl[icounter].NumVar * sizeof (realtype *));
             for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
                 CS->PCtrl[icounter].PrintVar[i] = &(DS->FluxRiv[i][j]);
             icounter++;
         }
     }
 
-    /*
-     * if (CS->PrintH > 0)
-     * {
-     * sprintf(CS->PCtrl[icounter].name, "%s%s.SH", outputdir, filename);
-     * CS->PCtrl[icounter].Interval = CS->PrintH;
-     * CS->PCtrl[icounter].NumVar = DS->NumEle;
-     * CS->PCtrl[icounter].PrintVar = (realtype **)malloc(CS->PCtrl[icounter].NumVar * sizeof(realtype *));
-     * for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
-     * CS->PCtrl[icounter].PrintVar[i] = &(DS->EleH[i]);
-     * icounter++;
-     * }
-     * if (CS->PrintLE > 0)
-     * {
-     * sprintf(CS->PCtrl[icounter].name, "%s%sLE", outputdir, filename);
-     * CS->PCtrl[icounter].Interval = CS->PrintLE;
-     * CS->PCtrl[icounter].NumVar = DS->NumEle;
-     * CS->PCtrl[icounter].PrintVar = (realtype **)malloc(CS->PCtrl[icounter].NumVar * sizeof(realtype *));
-     * for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
-     * CS->PCtrl[icounter].PrintVar[i] = &(DS->EleLE[i]);
-     * icounter++;
-     * }
-     * if (CS->PrintT1 > 0)
-     * {
-     * sprintf(CS->PCtrl[icounter].name, "%s%s.Tsfc", outputdir, filename);
-     * CS->PCtrl[icounter].Interval = CS->PrintT1;
-     * CS->PCtrl[icounter].NumVar = DS->NumEle;
-     * CS->PCtrl[icounter].PrintVar = (realtype **)malloc(CS->PCtrl[icounter].NumVar * sizeof(realtype *));
-     * for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
-     * CS->PCtrl[icounter].PrintVar[i] = &(DS->EleTsfc[i]);
-     * icounter++;
-     * }
-     * if (CS->PrintTsoil > 0)
-     * {
-     * for (j = 0; j < DS->NumSoilLayer + 1; j++)
-     * {
-     * sprintf(CS->PCtrl[icounter].name, "%s%s.TSOIL%d", outputdir, filename, j);
-     * CS->PCtrl[icounter].Interval = CS->PrintTsoil;
-     * CS->PCtrl[icounter].NumVar = DS->NumEle;
-     * CS->PCtrl[icounter].PrintVar = (realtype **)malloc(CS->PCtrl[icounter].NumVar * sizeof(realtype *));
-     * for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
-     * CS->PCtrl[icounter].PrintVar[i] = &(DS->EleTsoil[i][j]);
-     * icounter++;
-     * }
-     * }
-     * if (CS->PrintSWC > 0)
-     * {
-     * for (j = 0; j < DS->NumSoilLayer + 1; j++)
-     * {
-     * sprintf(CS->PCtrl[icounter].name, "%s%s.SM%d", outputdir, filename, j);
-     * CS->PCtrl[icounter].Interval = CS->PrintSWC;
-     * CS->PCtrl[icounter].NumVar = DS->NumEle;
-     * CS->PCtrl[icounter].PrintVar = (realtype **)malloc(CS->PCtrl[icounter].NumVar * sizeof(realtype *));
-     * for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
-     * CS->PCtrl[icounter].PrintVar[i] = &(DS->EleSM[i][j]);
-     * icounter++;
-     * }
-     * for (j = 0; j < DS->NumSoilLayer + 1; j++)
-     * {
-     * sprintf(CS->PCtrl[icounter].name, "%s%s.SW%d", outputdir, filename, j);
-     * CS->PCtrl[icounter].Interval = CS->PrintSWC;
-     * CS->PCtrl[icounter].NumVar = DS->NumEle;
-     * CS->PCtrl[icounter].PrintVar = (realtype **)malloc(CS->PCtrl[icounter].NumVar * sizeof(realtype *));
-     * for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
-     * CS->PCtrl[icounter].PrintVar[i] = &(DS->EleSW[i][j]);
-     * icounter++;
-     * }
-     * }
-     * if (CS->PrintAlbedo > 0)
-     * {
-     * sprintf(CS->PCtrl[icounter].name, "%s%s.Albedo", outputdir, filename);
-     * CS->PCtrl[icounter].Interval = CS->PrintAlbedo;
-     * CS->PCtrl[icounter].NumVar = DS->NumEle;
-     * CS->PCtrl[icounter].PrintVar = (realtype **)malloc(CS->PCtrl[icounter].NumVar * sizeof(realtype *));
-     * for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
-     * CS->PCtrl[icounter].PrintVar[i] = &(DS->Albedo[i]);
-     * icounter++;
-     * }
-     * if (CS->PrintETP > 0)
-     * {
-     * sprintf(CS->PCtrl[icounter].name, "%s%s.ETP", outputdir, filename);
-     * CS->PCtrl[icounter].Interval = CS->PrintETP;
-     * CS->PCtrl[icounter].NumVar = DS->NumEle;
-     * CS->PCtrl[icounter].PrintVar = (realtype **)malloc(CS->PCtrl[icounter].NumVar * sizeof(realtype *));
-     * for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
-     * CS->PCtrl[icounter].PrintVar[i] = &(DS->EleETP[i]);
-     * icounter++;
-     * }
-     */
     CS->NumPrint = icounter;
 
     for (i = 0; i < CS->NumPrint; i++)
     {
-        if (CS->PCtrl[i].Interval < CS->b)
-        {
-            printf("Error: %s print inteval must not be smaller than model time step!\n", CS->PCtrl[i].name);
-            exit(1);
-        }
         Ofile = fopen (CS->PCtrl[i].name, "w");
         fclose (Ofile);
-        CS->PCtrl[i].buffer =
-           (realtype *) calloc (CS->PCtrl[i].NumVar, sizeof (realtype));
+        CS->PCtrl[i].buffer = (realtype *) calloc (CS->PCtrl[i].NumVar, sizeof (realtype));
     }
     printf ("done.\n");
 }
@@ -294,17 +182,7 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
     int             i, j, k, tmpBool, BoolBR, BoolR = 0;
     realtype        a_x, a_y, b_x, b_y, c_x, c_y, distX, distY;
     realtype        a_zmin, a_zmax, b_zmin, b_zmax, c_zmin, c_zmax;
-    //  realtype vector1[3], vector2[3], normal_vector[3], vector[3], H, c, se, ce;
-    //  int nodes[2];
-    //  realtype x1, y1, z1, x2, y2, z2, xc, yc, zc;
-    //  realtype c1, c2, ce1, ce2, se1, se2, phi1, phi2;
-    //  int ind, ind1, ind2;
     realtype        tempvalue1, tempvalue2, tempvalue3;
-    //  realtype lapserate,dsoilsum=0;
-    //  realtype AquiferDepth, h, z[DS->NumSoilLayer], hsw, droot;
-    //  realtype elemSatn, Ktemp;
-    //  realtype ThetaS, ThetaR;
-    //  int nlayer, bot, nroot;
     FILE           *init_file;
     char           *fn;
     int             ensemble_mode;
@@ -325,10 +203,8 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
     DS->EleET = (realtype **) malloc (DS->NumEle * sizeof (realtype *));
     DS->Albedo = (realtype *) malloc (DS->NumEle * sizeof (realtype));  /* Expanded by Y. Shi */
     DS->RivStg = (realtype *) malloc (DS->NumRiv * sizeof (realtype));
-    DS->EleSurf =
-       (realtype *) malloc ((DS->NumEle + DS->NumRiv) * sizeof (realtype));
-    DS->EleGW =
-       (realtype *) malloc ((DS->NumEle + DS->NumRiv) * sizeof (realtype));
+    DS->EleSurf = (realtype *) malloc ((DS->NumEle + DS->NumRiv) * sizeof (realtype));
+    DS->EleGW = (realtype *) malloc ((DS->NumEle + DS->NumRiv) * sizeof (realtype));
     DS->EleUnsat = (realtype *) malloc (DS->NumEle * sizeof (realtype));
 #ifdef _FLUX_PIHM_
     DS->SfcSat = (realtype *) calloc (DS->NumEle, sizeof (realtype));
@@ -350,18 +226,6 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
     //  DS->EleETloss = (realtype *)malloc(DS->NumEle*sizeof(realtype));
     DS->EleNetPrep = (realtype *) malloc (DS->NumEle * sizeof (realtype));
 
-    //for (j=0; j<DS->NumSoilLayer; j++)
-    //{
-    //  if (j == 0)
-    //  {
-    //      z[j] = DS->std_dsoil[j];
-    //  }
-    //  else
-    //  {
-    //      z[j] = z[j-1] + DS->std_dsoil[j];
-    //  }
-    //} 
-
     for (i = 0; i < DS->NumSoil; i++)
     {
         /*
@@ -369,7 +233,6 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
          */
         DS->Soil[i].ThetaW = 0.5 * (DS->Soil[i].ThetaS - DS->Soil[i].ThetaR) * pow (1. / (1. + pow (200. * DS->Soil[i].Alpha, DS->Soil[i].Beta)), 1. - 1. / DS->Soil[i].Beta) + DS->Soil[i].ThetaR;
         DS->Soil[i].ThetaRef = FieldCapacity (DS->Soil[i].Alpha, DS->Soil[i].Beta, DS->Geol[i].KsatV, DS->Soil[i].ThetaS, DS->Soil[i].ThetaR) + DS->Soil[i].ThetaR;
-        //      printf("ThetaS %f, ThetaR %f, ThetaRef %f, ThetaW %f\n", DS->Soil[i].ThetaS, DS->Soil[i].ThetaR, DS->Soil[i].ThetaW, DS->Soil[i].ThetaRef);
     }
 
     for (i = 0; i < DS->NumEle; i++)
@@ -491,15 +354,9 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
         DS->Riv[i].KsatV = CS->Cal.rivKsatV * DS->Riv_Mat[DS->Riv[i].material - 1].KsatV;
         DS->Riv[i].bedThick = CS->Cal.rivbedThick * DS->Riv_Mat[DS->Riv[i].material - 1].bedThick;
         DS->Riv[i].Rough = CS->Cal.rivRough * DS->Riv_Mat[DS->Riv[i].material - 1].Rough;
-        /*
-         * Initialization for rectangular cells beneath river 
-         */
-        /*
+        /* Initialization for rectangular cells beneath river
          * Note: Ideally this data should be read from the decomposition itself 
-         */
-        /*
-         * but it is not supported right now in PIHMgis (Bhatt, G and Kumar, M; 2007) 
-         */
+         * but it is not supported right now in PIHMgis (Bhatt, G and Kumar, M; 2007) */
         DS->Ele[i + DS->NumEle].zmax = DS->Riv[i].zmin;
         DS->Ele[i + DS->NumEle].zmin = DS->Riv[i].zmax - (0.5 * (DS->Ele[DS->Riv[i].LeftEle - 1].zmax + DS->Ele[DS->Riv[i].RightEle - 1].zmax) - 0.5 * (DS->Ele[DS->Riv[i].LeftEle - 1].zmin + DS->Ele[DS->Riv[i].RightEle - 1].zmin));
         DS->Ele[i + DS->NumEle].macD = 0.5 * (DS->Ele[DS->Riv[i].LeftEle - 1].macD + DS->Ele[DS->Riv[i].RightEle - 1].macD) > DS->Riv[i].depth ? 0.5 * (DS->Ele[DS->Riv[i].LeftEle - 1].macD + DS->Ele[DS->Riv[i].RightEle - 1].macD) - DS->Riv[i].depth : 0;
@@ -509,16 +366,15 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
         DS->Ele[i + DS->NumEle].Porosity = 0.5 * (DS->Ele[DS->Riv[i].LeftEle - 1].Porosity + DS->Ele[DS->Riv[i].RightEle - 1].Porosity);
     }
 
-
-    for (i = 0; i < DS->NumTS[0]; i++)
+    for (i = 0; i < DS->NumTS[PRCP_TS]; i++)
     {
-        for (j = 0; j < DS->Forcing[0][i].length; j++)
-            DS->Forcing[0][i].TS[j][1] = CS->Cal.Prep * DS->Forcing[0][i].TS[j][1];
+        for (j = 0; j < DS->Forcing[PRCP_TS][i].length; j++)
+            DS->Forcing[PRCP_TS][i].TS[j][1] = CS->Cal.Prep * DS->Forcing[PRCP_TS][i].TS[j][1];
     }
-    for (i = 0; i < DS->NumTS[1]; i++)
+    for (i = 0; i < DS->NumTS[SFCTMP_TS]; i++)
     {
-        for (j = 0; j < DS->Forcing[1][i].length; j++)
-            DS->Forcing[1][i].TS[j][1] = CS->Cal.Temp * DS->Forcing[1][i].TS[j][1];
+        for (j = 0; j < DS->Forcing[SFCTMP_TS][i].length; j++)
+            DS->Forcing[SFCTMP_TS][i].TS[j][1] = CS->Cal.Temp * DS->Forcing[SFCTMP_TS][i].TS[j][1];
     }
 
     if (CS->Debug == 1)
@@ -639,7 +495,6 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
         b_y = DS->Node[DS->Ele[i].node[1] - 1].y;
         c_y = DS->Node[DS->Ele[i].node[2] - 1].y;
 
-
         for (j = 0; j < 3; j++)
         {
             /*
@@ -670,19 +525,14 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
     /*
      * initialize state variable 
      */
-    /*
-     * relax case 
-     */
+    /* relax case */
     if (CS->init_type == 0)
     {
         for (i = 0; i < DS->NumEle; i++)
         {
             DS->EleIS[i] = 0;
             DS->EleSnow[i] = 0;
-            //  DS->EleSnowH[i] = 0;
-            /*
-             * Note Two components can be separately read too 
-             */
+            /* Note Two components can be separately read too */
             DS->EleSnowGrnd[i] = 0;
             DS->EleSnowCanopy[i] = 0;
             NV_Ith_S (CV_Y, i) = 0;
@@ -697,17 +547,16 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
         for (i = 0; i < DS->NumRiv; i++)
         {
             NV_Ith_S (CV_Y, i + 3 * DS->NumEle) = 0;
-            /*
-             * Note once the element beneath river is incorporated in decomposition and .mesh file, initialization should be perfomed based on the location data instead of average of neighbor properties 
-             */
+            /* Note once the element beneath river is incorporated in
+             * decomposition and .mesh file, initialization should be perfomed
+             * based on the location data instead of average of neighbor
+             * properties */
             NV_Ith_S (CV_Y, i + 3 * DS->NumEle + DS->NumRiv) = (DS->Ele[i + DS->NumEle].zmax - DS->Ele[i + DS->NumEle].zmin) - 0.1;
             DS->EleGW[i + DS->NumEle] = DS->Ele[i + DS->NumEle].zmax - DS->Ele[i + DS->NumEle].zmin - 0.1;
             DS->RivStg[i] = 0.0;
         }
     }
-    /*
-     * data initialization mode 
-     */
+    /* data initialization mode */
     else if (CS->init_type == 1)
     {
         if (DS->UnsatMode == 1)
@@ -719,20 +568,14 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
             {
                 DS->EleIS[i] = DS->Ele_IC[i].interception;
                 DS->EleSnow[i] = DS->Ele_IC[i].snow;
-                /*
-                 * Note Two components can be separately read too 
-                 */
+                /* Note Two components can be separately read too */
                 DS->EleSnowGrnd[i] = (1 - DS->Ele[i].VegFrac) * DS->EleSnow[i];
                 DS->EleSnowCanopy[i] = DS->Ele[i].VegFrac * DS->EleSnow[i];
                 NV_Ith_S (CV_Y, i) = DS->Ele_IC[i].surf;
-                /*
-                 * Note: delete 0.1 here 
-                 */
+                /* Note: delete 0.1 here */
                 NV_Ith_S (CV_Y, i + DS->NumEle) = DS->Ele_IC[i].unsat;
                 NV_Ith_S (CV_Y, i + 2 * DS->NumEle) = DS->Ele_IC[i].sat;
-                /*
-                 * Note: delete line below for general
-                 */
+                /* Note: delete line below for general */
                 //                  NV_Ith_S(CV_Y, i + 2*DS->NumEle) = 0*DS->Ele_IC[i].sat+(DS->Ele[i].zmax - DS->Ele[i].zmin)*0.1;
                 if ((NV_Ith_S (CV_Y, i + DS->NumEle) + NV_Ith_S (CV_Y, i + 2 * DS->NumEle)) >= (DS->Ele[i].zmax - DS->Ele[i].zmin))
                 {
@@ -747,9 +590,6 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
             for (i = 0; i < DS->NumRiv; i++)
             {
                 NV_Ith_S (CV_Y, i + 3 * DS->NumEle) = DS->Riv_IC[DS->Riv[i].IC - 1].value;
-                /*
-                 * Note once the element beneath river is incorporated in decomposition and .mesh file, initialization should be perfomed based on the location data instead of average of neighbor properties 
-                 */
                 //              NV_Ith_S(CV_Y, i + 3*DS->NumEle+DS->NumRiv) = 0.5*(DS->Ele_IC[DS->Riv[i].LeftEle-1].sat+DS->Ele_IC[DS->Riv[i].RightEle-1].sat);
                 NV_Ith_S (CV_Y, i + 3 * DS->NumEle + DS->NumRiv) = (DS->Ele[i + DS->NumEle].zmax - DS->Ele[i + DS->NumEle].zmin) - 0.1;
                 DS->EleGW[i + DS->NumEle] = DS->Ele[i + DS->NumEle].zmax - DS->Ele[i + DS->NumEle].zmin - 0.1;
@@ -757,9 +597,7 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
             }
         }
     }
-    /*
-     * hot start mode 
-     */
+    /* hot start mode */
     else
     {
         fn = (char *)malloc ((strlen (filename) + 12) * sizeof (char));

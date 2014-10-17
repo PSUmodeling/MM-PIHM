@@ -7,17 +7,11 @@
 realtype returnVal (realtype rArea, realtype rPerem, realtype eqWid, realtype ap_Bool)
 {
     if (ap_Bool == 1)
-    {
         return rArea;
-    }
     else if (ap_Bool == 2)
-    {
         return rPerem;
-    }
     else
-    {
         return eqWid;
-    }
 }
 
 realtype CS_AreaOrPerem (int rivOrder, realtype rivDepth, realtype rivCoeff, realtype a_pBool)
@@ -41,10 +35,8 @@ realtype CS_AreaOrPerem (int rivOrder, realtype rivDepth, realtype rivCoeff, rea
             eq_Wid = 2.0 * pow (rivDepth + EPS, 1 / (rivOrder - 1)) / pow (rivCoeff, 1 / (rivOrder - 1));
             return returnVal (rivArea, rivPerem, eq_Wid, a_pBool);
         case 4:
-            rivArea =
-               3 * pow (rivDepth, 4.0 / 3.0) / (2 * pow (rivCoeff, 1.0 / 3.0));
-            rivPerem =
-               2 * ((pow (rivDepth * (1 + 9 * pow (rivCoeff, 2.0 / 3.0) * rivDepth), 0.5) / 3) + (log (3 * pow (rivCoeff, 1.0 / 3.0) * pow (rivDepth, 0.5) + pow (1 + 9 * pow (rivCoeff, 2.0 / 3.0) * rivDepth, 0.5)) / (9 * pow (rivCoeff, 1.0 / 3.0))));
+            rivArea = 3 * pow (rivDepth, 4.0 / 3.0) / (2 * pow (rivCoeff, 1.0 / 3.0));
+            rivPerem = 2 * ((pow (rivDepth * (1 + 9 * pow (rivCoeff, 2.0 / 3.0) * rivDepth), 0.5) / 3) + (log (3 * pow (rivCoeff, 1.0 / 3.0) * pow (rivDepth, 0.5) + pow (1 + 9 * pow (rivCoeff, 2.0 / 3.0) * rivDepth, 0.5)) / (9 * pow (rivCoeff, 1.0 / 3.0))));
             eq_Wid = 2.0 * pow (rivDepth + EPS, 1 / (rivOrder - 1)) / pow (rivCoeff, 1 / (rivOrder - 1));
             return returnVal (rivArea, rivPerem, eq_Wid, a_pBool);
         default:
@@ -135,9 +127,7 @@ realtype avgY (realtype diff, realtype yi, realtype yinabr)
             return 1.0 * yi;
         }
         else
-        {
             return 0;
-        }
     }
     else
     {
@@ -148,36 +138,24 @@ realtype avgY (realtype diff, realtype yi, realtype yinabr)
             return 1.0 * yinabr;
         }
         else
-        {
             return 0;
-        }
     }
 }
 
 realtype effKV (realtype ksatFunc, realtype gradY, realtype macKV, realtype KV, realtype areaF)
 {
     if (ksatFunc >= 0.98)
-    {
         return (macKV * areaF + KV * (1 - areaF) * ksatFunc);
-    }
     else
     {
         if (fabs (gradY) * ksatFunc * KV <= 1 * KV * ksatFunc)
-        {
             return KV * ksatFunc;
-        }
         else
         {
-            if (fabs (gradY) * ksatFunc * KV <
-               (macKV * areaF + KV * (1 - areaF) * ksatFunc))
-            {
-                return (macKV * areaF * ksatFunc + KV * (1 -
-                      areaF) * ksatFunc);
-            }
+            if (fabs (gradY) * ksatFunc * KV < (macKV * areaF + KV * (1 - areaF) * ksatFunc))
+                return (macKV * areaF * ksatFunc + KV * (1 - areaF) * ksatFunc);
             else
-            {
                 return (macKV * areaF + KV * (1 - areaF) * ksatFunc);
-            }
         }
     }
 }
@@ -204,18 +182,16 @@ realtype Interpolation (TSD * Data, realtype t)
 {
     int             i, success;
     realtype        result;
+
     i = Data->iCounter;
     success = 0;
+//
 //    t = t / (UNIT_C);
     while (i < Data->length && t > Data->TS[i][0])
-    {
         i++;
-    }
     if (i == 0)
     {
-        /*
-         * t is smaller than the 1st node 
-         */
+        /* t is smaller than the 1st node */
         result = Data->TS[i][1];
     }
     else if (i >= Data->length)
@@ -224,10 +200,7 @@ realtype Interpolation (TSD * Data, realtype t)
     }
     else
     {
-        result =
-           ((Data->TS[i][0] - t) * Data->TS[i - 1][1] + (t - Data->TS[i -
-                 1][0]) * Data->TS[i][1]) / (Data->TS[i][0] - Data->TS[i -
-              1][0]);
+        result = ((Data->TS[i][0] - t) * Data->TS[i - 1][1] + (t - Data->TS[i - 1][0]) * Data->TS[i][1]) / (Data->TS[i][0] - Data->TS[i - 1][0]);
         success = 1;
     }
     if (success == 0)

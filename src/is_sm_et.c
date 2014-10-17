@@ -53,18 +53,18 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 
 	MD = (Model_Data) DS;
 
-	stepsize = stepsize / UNIT_C;
+//	stepsize = stepsize / UNIT_C;
 	for (i = 0; i < MD->NumEle; i++)
 	{
 		/* Note the dependence on physical units */
-		MD->ElePrep[i] = Interpolation(&MD->Forcing[0][MD->Ele[i].prep - 1], t);
+		MD->ElePrep[i] = Interpolation(&MD->Forcing[0][MD->Ele[i].prep - 1], t) / 1000.;
 //		Rn = Interpolation(&MD->Forcing[4][MD->Ele[i].Rn - 1], t);
 		Rn = Interpolation(&MD->Forcing[4][MD->Ele[i].Sdown - 1], t);
 		//G = Interpolation(&MD->TSD_G[MD->Ele[i].G - 1], t);
 		//G = 0.1 * Rn;
-		T = Interpolation(&MD->Forcing[1][MD->Ele[i].temp - 1], t);
+		T = Interpolation(&MD->Forcing[1][MD->Ele[i].temp - 1], t) - 273.15;
 		Vel = Interpolation(&MD->Forcing[3][MD->Ele[i].WindVel - 1], t);
-		RH = Interpolation(&MD->Forcing[2][MD->Ele[i].humidity - 1], t);
+		RH = Interpolation(&MD->Forcing[2][MD->Ele[i].humidity - 1], t) / 100.;
 		//VP = Interpolation(&MD->TSD_Pressure[MD->Ele[i].pressure - 1], t);
 		VP = 611.2 * exp(17.67 * T / (T + 243.5)) * RH;
 		P = 101.325 * pow(10, 3) * pow((293 - 0.0065 * MD->Ele[i].zmax) / 293, 5.26);
@@ -126,7 +126,7 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 		r_a = log(MD->Ele[i].windH / rl) * log(10 * MD->Ele[i].windH / rl) / (Vel * 0.16);
 		//r_a = 12 * 4.72 * log(MD->Ele[i].windH / rl) / (0.54 * Vel / UNIT_C / 60 + 1) / UNIT_C / 60;
 
-		Gamma = 4 * 0.7 * SIGMA * UNIT_C * R_dry / C_air * pow(T + 273.15, 4) / (P / r_a) + 1;
+		Gamma = 4 * 0.7 * SIGMA * R_dry / C_air * pow(T + 273.15, 4) / (P / r_a) + 1;
 		Delta = Lv * Lv * 0.622 / R_v / C_air / pow(T + 273.15, 2) * qv_sat;
 
 		ETp = (Rn * Delta + Gamma * (1.2 * Lv * (qv_sat - qv) / r_a)) / (1000.0 * Lv * (Delta + Gamma));
@@ -148,12 +148,12 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 			MD->EleET[i][0] = MD->pcCal.Et0 * MD->Ele[i].VegFrac * (pow((MD->EleIS[i] < 0 ? 0 : (MD->EleIS[i] > MD->EleISmax[i] ? MD->EleISmax[i] : MD->EleIS[i])) / MD->EleISmax[i], 1.0 / 2.0)) * ETp;
 			MD->EleET[i][0] = MD->EleET[i][0] < 0 ? 0 : MD->EleET[i][0];
 
-			Rmax = MD->Rmax / (60 * UNIT_C);	/* Unit day_per_m */
+			Rmax = MD->Rmax;	/* Unit day_per_m */
 			f_r = 1.1 * Rn / (MD->Ele[i].Rs_ref * LAI);
 			f_r = f_r < 0 ? 0 : f_r;
 			alpha_r = (1 + f_r) / (f_r + (MD->Ele[i].Rmin / Rmax));
 			alpha_r = alpha_r > 10000 ? 10000 : alpha_r;
-			eta_s = 1 - 0.0016 * (pow((MD->Tref - T), 2));
+			eta_s = 1 - 0.0016 * (pow((MD->Tref - 273.15 - T), 2));
 			eta_s = eta_s < 0.0001 ? 0.0001 : eta_s;
 			gamma_s = 1 / (1 + 0.00025 * (VP / RH - VP));
 			gamma_s = (gamma_s < 0.01) ? 0.01 : gamma_s;

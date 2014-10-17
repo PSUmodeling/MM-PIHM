@@ -1,4 +1,4 @@
-VERBOSE		1
+VERBOSE		0
 DEBUG		0
 INIT_MODE	0
 ASCII_OUTPUT    1
@@ -15,11 +15,11 @@ RELTOL		1E-3
 INIT_STEP	5E-5
 MAX_STEP	60
 LSM_STEP	1800
-START		2008-10-20 00:00
-END		2010-01-01 00:00
+START		2009-05-13 00:00
+END		2009-05-17 00:00
 OUTPUT_TYPE	0
 A		1.0
-B		300
+B		60
 ###############################################################################
 # OUTPUT CONTROL:                                                             #
 #  All options are listed below.                                              #

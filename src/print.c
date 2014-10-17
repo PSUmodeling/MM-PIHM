@@ -1,23 +1,14 @@
-
-/********************************************************************************
- * File        : print.c	                                               	*
- * Version     : June, 2014 (Flux-PIHM 2.0)                                     *
- * Function    : print out model results output files                          	*
- * Developer of Flux-PIHM:	Yuning Shi (yshi@psu.edu)			*                            
- * Developer of PIHM2.0:        Mukesh Kumar (muk139@psu.edu)			*
- * Developer of PIHM1.0:        Yizhong Qu   (quyizhong@gmail.com)             	*
- *------------------------------------------------------------------------------*
- * For questions or comments, please contact					*
- *      --> Yuning Shi (yshi@psu.edu)						*
- * This code is free for research purpose only.					*
- * Please provide relevant references if you use this code in your research work*
- *..............MODIFICATIONS/ADDITIONS in PIHM 2.0.............................*
- * a) This file is downgraded from Version 1.0, as no ancillary results are    	*
- *    being output			                                       	*
- * b) Only state variables and flux to/in/accross river and its bed are being  	*
- *    output							               	*
- * c) Addition of Average Function to output average variables at regular time 	*
- *    intervals								       	*
+/*****************************************************************************
+ * File        : print.c
+ * Version     : June, 2014
+ * Function    : print out model results output files
+ *..............MODIFICATIONS/ADDITIONS in PIHM 2.0...........................
+ * a) This file is downgraded from Version 1.0, as no ancillary results are 
+ *    being output
+ * b) Only state variables and flux to/in/accross river and its bed are being 
+ *    output
+ * c) Addition of Average Function to output average variables at regular time
+ *    intervals
  ********************************************************************************/
 
 #include <stdio.h>
@@ -39,7 +30,6 @@ void PrintData (Print_Ctrl PCtrl, realtype tmpt, realtype dt, int Ascii)
     char           *ascii_name;
     FILE           *fpin;
     realtype        outval, outtime;
-    //  float outval, outtime;
 
     rawtime = (time_t *) malloc (sizeof (time_t));
 
@@ -61,11 +51,13 @@ void PrintData (Print_Ctrl PCtrl, realtype tmpt, realtype dt, int Ascii)
                 printf ("\t ERROR: opening output files (%s)!", ascii_name);
                 exit (1);
             }
-
             fprintf (fpin, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
             for (j = 0; j < PCtrl.NumVar; j++)
             {
-                fprintf (fpin, "%lf\t", PCtrl.buffer[j] / ( (realtype) PCtrl.Interval / dt));
+                if ((realtype) PCtrl.Interval > dt)
+                    fprintf (fpin, "%lf\t", PCtrl.buffer[j] / ( (realtype) PCtrl.Interval / dt));
+                else
+                    fprintf (fpin, "%lf\t", PCtrl.buffer[j]);
             }
             fprintf (fpin, "\n");
             fflush (fpin);
@@ -82,8 +74,10 @@ void PrintData (Print_Ctrl PCtrl, realtype tmpt, realtype dt, int Ascii)
         fwrite (&outtime, sizeof (realtype), 1, fpin);
         for (j = 0; j < PCtrl.NumVar; j++)
         {
-            outval = PCtrl.buffer[j] / ( (realtype) PCtrl.Interval / dt);
-            //          outval = PCtrl.buffer[j] / (float)PCtrl.Interval; 
+            if ((realtype) PCtrl.Interval > dt)
+                outval = PCtrl.buffer[j] / ( (realtype) PCtrl.Interval / dt);
+            else
+                outval = PCtrl.buffer[j];
             fwrite (&outval, sizeof (realtype), 1, fpin);
             PCtrl.buffer[j] = 0;
         }
