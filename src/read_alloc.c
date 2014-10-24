@@ -132,7 +132,8 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     for (i = 0; i < DS->NumRivIC; i++)
         fscanf (riv_file, "%d %lf", &DS->Riv_IC[i].index, &DS->Riv_IC[i].value);
 
-    fscanf (riv_file, "%*s %d", &DS->NumRivBC);
+    fscanf (riv_file, "%*s");
+    fscanf (riv_file, "%d", &DS->NumRivBC);
     DS->TSD_Riv = (TSD *) malloc (DS->NumRivBC * sizeof (TSD));
 
     for (i = 0; i < DS->NumRivBC; i++)
@@ -144,13 +145,18 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
             DS->TSD_Riv[i].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
 
         for (j = 0; j < DS->TSD_Riv[i].length; j++)
-            fscanf (riv_file, "%lf %lf", &DS->TSD_Riv[i].TS[j][0], &DS->TSD_Riv[i].TS[j][1]);
+            fscanf (riv_file, "%d-%d-%d %d:%d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &timeinfo->tm_sec, &DS->TSD_Riv[i].TS[j][1]);
+            timeinfo->tm_year = timeinfo->tm_year - 1900;
+            timeinfo->tm_mon = timeinfo->tm_mon - 1;
+            rawtime = timegm (timeinfo);
+            DS->TSD_Riv[i].TS[j][0] = (realtype) rawtime;
     }
 
     /*
      * read in reservoir information 
      */
-    fscanf (riv_file, "%*s %d", &DS->NumRes);
+    fscanf (riv_file, "%*s");
+    fscanf (riv_file, "%d", &DS->NumRes);
     if (DS->NumRes > 0)
     {
         /*
@@ -597,7 +603,13 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
                 DS->TSD_EleBC[i].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
 
             for (j = 0; j < DS->TSD_EleBC[i].length; j++)
-                fscanf (forc_file, "%lf %lf", &DS->TSD_EleBC[i].TS[j][0], &DS->TSD_EleBC[i].TS[j][1]);
+            {
+                fscanf (ibc_file, "%d-%d-%d %d:%d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &timeinfo->tm_sec, &DS->TSD_EleBC[i].TS[j][1]);
+                timeinfo->tm_year = timeinfo->tm_year - 1900;
+                timeinfo->tm_mon = timeinfo->tm_mon - 1;
+                rawtime = timegm (timeinfo);
+                DS->TSD_EleBC[i].TS[j][0] = (realtype) rawtime;
+            }
         }
     }
 
@@ -615,7 +627,13 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
             for (j = 0; j < DS->TSD_EleBC[i].length; j++)
                 DS->TSD_EleBC[i].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
             for (j = 0; j < DS->TSD_EleBC[i].length; j++)
-                fscanf (forc_file, "%lf %lf", &DS->TSD_EleBC[i].TS[j][0], &DS->TSD_EleBC[i].TS[j][1]);
+            {
+                fscanf (ibc_file, "%d-%d-%d %d:%d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &timeinfo->tm_sec, &DS->TSD_EleBC[i].TS[j][1]);
+                timeinfo->tm_year = timeinfo->tm_year - 1900;
+                timeinfo->tm_mon = timeinfo->tm_mon - 1;
+                rawtime = timegm (timeinfo);
+                DS->TSD_EleBC[i].TS[j][0] = (realtype) rawtime;
+            }
         }
     }
     fclose (ibc_file);
@@ -739,9 +757,9 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
                 sscanf (cmdstr, "%*s %lf", &CS->abstol);
             else if (strcasecmp ("RELTOL", optstr) == 0)
                 sscanf (cmdstr, "%*s %lf", &CS->reltol);
-            else if (strcasecmp ("INIT_STEP", optstr) == 0)
+            else if (strcasecmp ("INIT_SOLVER_STEP", optstr) == 0)
                 sscanf (cmdstr, "%*s %lf", &CS->InitStep);
-            else if (strcasecmp ("MAX_STEP", optstr) == 0)
+            else if (strcasecmp ("MAX_SOLVER_STEP", optstr) == 0)
                 sscanf (cmdstr, "%*s %lf", &CS->MaxStep);
             else if (strcasecmp ("LSM_STEP", optstr) == 0)
                 sscanf (cmdstr, "%*s %lf", &CS->ETStep);
@@ -765,9 +783,9 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
             }
             else if (strcasecmp ("OUTPUT_TYPE", optstr) == 0)
                 sscanf (cmdstr, "%*s %d", &CS->outtype);
-            else if (strcasecmp ("A", optstr) == 0)
+            else if (strcasecmp ("STEPSIZE_FACTOR", optstr) == 0)
                 sscanf (cmdstr, "%*s %lf", &CS->a);
-            else if (strcasecmp ("B", optstr) == 0)
+            else if (strcasecmp ("MODEL_STEPSIZE", optstr) == 0)
                 sscanf (cmdstr, "%*s %lf", &CS->b);
             else if (strcasecmp ("GW", optstr) == 0)
                 sscanf (cmdstr, "%*s %d", &CS->PrintGW);

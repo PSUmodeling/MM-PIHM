@@ -23,9 +23,9 @@ MSG = "...  Compiling PIHM  ..."
 
 # Available modules are:
 # FLUX-PIHM
-# BBGC
+# BGC	(Note: When BGC is declared, Flux-PIHM module will also be turned on because soil temperature needs to be simulated)
 
-MODULE = FLUX-PIHM
+#MODULE = BGC
 
 ifeq ($(MODULE), FLUX-PIHM)
   SFLAGS = -D_FLUX_PIHM_ 
@@ -35,10 +35,10 @@ ifeq ($(MODULE), FLUX-PIHM)
   MSG = "... Compiling FLUX-PIHM ..."
 endif
 
-ifeq ($(MODULE), BBGC)
-  SFLAGS = -D_BBGC_ 
-  MODULE_SRCS_ = bgc/coupling.c 
-  MODULE_HEADERS_ =  bgc/pihm_bgc.h 
+ifeq ($(MODULE), BGC)
+  SFLAGS = -D_BGC_ -D_FLUX_PIHM_ 
+  MODULE_SRCS_ = noah/coupling.c noah/module_sf_noahlsm.c spa/spa.c noah/lsm_func.c bgc/BGC_func.c 
+  MODULE_HEADERS_ =  noah/noah.h noah/flux_pihm.h spa/spa.h bgc/bgc.h 
   EXECUTABLE = pihm-bgc
   MSG = "... Compiling PIHM-BGC ..."
 endif

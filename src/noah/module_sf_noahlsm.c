@@ -1208,7 +1208,6 @@ DEVAP (double *EDIR, double *ETP1, double *SMC, double *ZSOIL, double *SHDFAC,
 * ALLOW FOR THE DIRECT-EVAP-REDUCING EFFECT OF SHADE
 * --------------------------------------------------------------------*/
     *EDIR = FX * (1.0 - *SHDFAC) * *ETP1;
-    printf("SRATIO = %lf, FXEXP = %lf, FX = %lf, SHDFAC = %lf, ETP = %lf, EDIR = %lf\n", SRATIO, *FXEXP, FX, *SHDFAC, *ETP1*1000*LVH2O, *EDIR*1000*LVH2O);
 
 /*----------------------------------------------------------------------
   END SUBROUTINE DEVAP

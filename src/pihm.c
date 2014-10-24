@@ -40,8 +40,8 @@
 #ifdef _FLUX_PIHM_
 #include "noah/noah.h"
 #endif
-#ifdef _PIHM_BGC_
-#include "bgc/pihm_bgc.h"
+#ifdef _BGC_
+#include "bgc/bgc.h"
 #endif
 /*
  * Main Function
@@ -69,9 +69,12 @@ int main (int argc, char *argv[])
     LSM_STRUCT      LSM;
 #endif
 
-#ifdef _BBGC_
+#ifdef _BGC_
     bgc_struct      BGCM;
 #endif
+
+    system ("clear");
+
     rawtime = (time_t *) malloc (sizeof (time_t));
 
     if (0 == (mkdir ("output", 0755)))
@@ -107,20 +110,24 @@ int main (int argc, char *argv[])
         strcpy (filename, argv[1]);
     }
 
-#ifdef COUPLE_I
-    coupling = fopen ("coupling.dat", "rb");
-#endif
-
-#ifdef COUPLE_O
-    coupling = fopen ("coupling.dat", "wb");
-#endif
-
     time (rawtime);
     timestamp = localtime (rawtime);
 
-    printf ("\n***********************************\n");
-    printf ("**   ...  PIHM is starting  ...  **\n");
-    printf ("***********************************\n");
+    printf ("\t\t########  #### ##     ## ##     ##\n");
+    printf ("\t\t##     ##  ##  ##     ## ###   ###\n"); 
+    printf ("\t\t##     ##  ##  ##     ## #### ####\n");
+    printf ("\t\t########   ##  ######### ## ### ##\n");
+    printf ("\t\t##         ##  ##     ## ##     ##\n");
+    printf ("\t\t##         ##  ##     ## ##     ##\n"); 
+    printf ("\t\t##        #### ##     ## ##     ##\n");
+    printf ("\n\t    The Penn State Integrated Hydrologic Model\n");
+
+#ifdef _FLUX_PIHM_
+    printf ("\n\t    * Land surface module turned on.\n");
+#endif
+#ifdef _BGC_
+    printf ("\n\t    * Biogeochemistry module turned on.\n");
+#endif
 
     /*
      * Create output directory based on projectname and time
@@ -146,7 +153,7 @@ int main (int argc, char *argv[])
 #ifdef _FLUX_PIHM_
     LSM = (LSM_STRUCT) malloc (sizeof *LSM);
 #endif
-#ifdef _PIHM_BGC__
+#ifdef _BGC_
     BGCM = (bgc_struct) malloc (sizeof *BGCM);
 #endif
 
@@ -154,8 +161,8 @@ int main (int argc, char *argv[])
 #ifdef _FLUX_PIHM_
     LSM_read (filename, LSM);
 #endif
-#ifdef _PIHM_BGC_
-    bbgc_read (filename, BGCM, mData);
+#ifdef _BGC_
+    BGC_read (filename, BGCM);
 #endif
 
     //if(mData->UnsatMode ==1)
@@ -247,10 +254,6 @@ int main (int argc, char *argv[])
 #endif
             }
 
-            *rawtime = (int)t;
-            timestamp = gmtime (rawtime);
-            if ((int)*rawtime % 3600 == 0)
-                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
 #ifdef COUPLE_I
             t = NextPtr;
 #else
@@ -258,6 +261,10 @@ int main (int argc, char *argv[])
             flag = CVode (cvode_mem, NextPtr, CV_Y, &t, CV_NORMAL);
             flag = CVodeGetCurrentTime(cvode_mem, &cvode_val);
 #endif
+            *rawtime = (int)t;
+            timestamp = gmtime (rawtime);
+//            if ((int)*rawtime % 3600 == 0)
+                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
             summary (mData, CV_Y, t - StepSize, StepSize);
             update (t, mData);
         }

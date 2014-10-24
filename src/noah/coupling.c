@@ -164,10 +164,8 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
         if (NOAH->Q1 == BADVAL)
             NOAH->Q1 = NOAH->Q2;
 
-        if (i==0) printf("ZLVL = %lf, ZLVL_WIND = %lf, Z0 = %lf, T1V = %lf, TH2V = %lf, SFCSPD = %lf, CZIL = %lf, CM = %lf, CH = %lf\n", NOAH->ZLVL, NOAH->ZLVL_WIND, NOAH->Z0, T1V, TH2V, NOAH->SFCSPD, NOAH->CZIL, NOAH->CM, NOAH->CH);
         SFCDIF_off (&(NOAH->ZLVL), &(NOAH->ZLVL_WIND), &(NOAH->Z0), &T1V, &TH2V, &(NOAH->SFCSPD), &(NOAH->CZIL), &(NOAH->CM), &(NOAH->CH), &(NOAH->VEGTYP), &(NOAH->ISURBAN), &(NOAH->IZ0TLND));
 //        SFCDIF_off (&(NOAH->ZLVL), &(NOAH->Z0), &(NOAH->Z0), &T1V, &TH2V, &(NOAH->SFCSPD), &(NOAH->CZIL), &(NOAH->CM), &(NOAH->CH), &(NOAH->VEGTYP), &(NOAH->ISURBAN), &(NOAH->IZ0TLND));
-        if (i==0) printf("New: CM = %lf, CH = %lf\n", NOAH->CM, NOAH->CH);
 
         NOAH->SOLNET = NOAH->SOLDN * (1.0 - NOAH->ALBEDO);
         NOAH->LWDN = NOAH->LONGWAVE * NOAH->EMISSI;
