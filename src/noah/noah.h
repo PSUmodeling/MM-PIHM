@@ -2,7 +2,7 @@
 #define NOAH_HEADER
 
 #include "../print.h"
-
+#include "../forcing.h"
 /*
 #ifndef _FLUX_PIHM_
 #define _FLUX_PIHM_
@@ -27,6 +27,7 @@
 #define LSUBS		2.83e6
 #define R		    287.04
 
+enum lsm_forcing_type {SOLAR_DIR_TS, SOLAR_DIF_TS};
 /*
  * VEGETATION PARAMETERS
  */
@@ -380,6 +381,8 @@ typedef struct LSM_STRUCT
     double         *STD_SLDPTH;
     int             RAD_MODE;   /* Radiation mode; 1: topographic, 0: uniform */
     Print_Ctrl      PCtrl[100];
+
+    TSD           **Forcing;
 
     int             NPRINT;
     int             PRINT_T1;

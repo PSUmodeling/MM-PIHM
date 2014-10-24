@@ -1,26 +1,24 @@
-
-/******************************************************************************
- * File		: pihm.h                                                          *
- * Function	: Declaration and Definition of global variables and data         *
- *  structure                                                                 *
- * Developer of PIHM 2.3    :	Yuning Shi	(yshi@psu.edu)                    *
- * Developer of PIHM 2.2    :	Xuan Yu	    (xxy113@psu.edu)                  *
- * Developer of PIHM 2.0    :	Mukesh Kumar	(muk139@psu.edu)              *
- * Developer of PIHM 1.0    :	Yizhong Qu	(quyizhong@gmail.com)             *
- * Version                  :   September, 2014 (PIHM V2.3)                   *
- *----------------------------------------------------------------------------*
- * This code is free for research purpose only.				                  *
- * Please provide relevant references if you use this code in your research   *
- * 	work								                                      *
- *----------------------------------------------------------------------------*
- *****************************************************************************/
+/*****************************************************************************
+ * File		: pihm.h
+ * Function	: Declaration and Definition of global variables and data
+ *  structure
+ * Developer of PIHM-MF     :	Yuning Shi	(yshi@psu.edu)
+ * Developer of PIHM 2.2    :	Xuan Yu	        (xxy113@psu.edu)
+ * Developer of PIHM 2.0    :	Mukesh Kumar	(muk139@psu.edu)
+ * Developer of PIHM 1.0    :	Yizhong Qu	(quyizhong@gmail.com)
+ * Version                  :   September, 2014
+ *----------------------------------------------------------------------------
+ * This code is free for research purpose only.
+ * Please provide relevant references if you use this code in your research 
+ *  work								  
+ ****************************************************************************/
 #ifndef PIHM_HEADER
 #define PIHM_HEADER
 
 #include "print.h"
-/*
- * SUNDIAL Header Files 
- */
+#include "forcing.h"
+
+/* SUNDIAL Header Files */
 #include "sundials_types.h"     /* realtype, integertype, booleantype
                                  * defination */
 #include "cvode.h"              /* CVODE header file */
@@ -32,31 +30,26 @@
 #include "sundials_math.h"      /* contains UnitRoundoff, RSqrt,
                                  * SQR functions  */
 #include "cvode_dense.h"        /* CVDENSE header file */
-
-/*
- * Definition of Global Variable Types 
- */
+/* Definition of global constants */
 #define multF		2
 #define MINpsi		-70
-#define EPS		    0.05
+#define EPS		0.05
 #define THRESH		0.0
-#define UNIT_C		1440        /* 60*24 for calculation of yDot in
-                                 * m/min units while forcing is in
-                                 * m/day. */
-#define GRAV		9.8*60*60   /* the dependence on physical units */
-#define PI		    3.14159265
+#define GRAV		9.80665 /* m s-2 */ 
+#define PI		3.14159265
 #define BADVAL		-999
 #define MAXSTRING	1024
 
-/*
- * Data model for a triangular element
- */
+/* Enumrate type for forcing time series */
+enum forcing_type {PRCP_TS, SFCTMP_TS, RH_TS, SFCSPD_TS, SOLAR_TS, LONGWAVE_TS, PRES_TS, LAI_TS, RL_TS, MF_TS, SS_TS};
 
+/* Data model for a triangular element */
 typedef struct element_type
 {
     int             index;      /* Element No. */
     int             node[3];    /* Counterclock-wise */
-    int             nabr[3];    /* neighbor i shares edge i (0: on boundary) */
+    int             nabr[3];    /* neighbor i shares edge i
+                                 * (0: on boundary) */
 
     realtype        edge[3];    /* edge i is from node i to node i+1 */
     realtype        area;       /* area of element */
@@ -180,8 +173,8 @@ typedef struct soils_type
                                  * horizontal section */
     realtype        macKsatV;   /* macroporous saturated vertical
                                  * conductivity */
-    realtype        infD;       /* depth from ground surface accross which head is
-                                 * calculated during infiltration */
+    realtype        infD;       /* depth from ground surface accross which
+                                 * head is calculated during infiltration */
 } soils;
 
 typedef struct geol_type
@@ -196,7 +189,8 @@ typedef struct geol_type
     realtype        Alpha;      /* van Genuchten parameter */
     realtype        Beta;       /* van Genuchten parameter */
 
-    realtype        vAreaF;     /* macroporous area fraction on vertical section */
+    realtype        vAreaF;     /* macroporous area fraction on vertical
+                                 * section */
     realtype        macKsatH;   /* macroporous saturated
                                  * horizontal conductivity */
     realtype        macD;
@@ -216,9 +210,11 @@ typedef struct lc_type
     realtype        Emiss_max;  /* YS: Maximum emissivity */
     realtype        z0_min;     /* YS: Minimum roughness length */
     realtype        z0_max;     /* YS: Maximum roughness length */
-    realtype        h_s;        /* YS: Vapor pressure deficit stress parameter */
+    realtype        h_s;        /* YS: Vapor pressure deficit stress
+                                 * parameter */
     realtype        snup;       /* YS */
-    realtype        Rs_ref;     /* Visible solar flux used in radiation stress */
+    realtype        Rs_ref;     /* Visible solar flux used in radiation
+                                 * stress */
     realtype        Rmin;       /* Minimum stomatal resistance */
     realtype        Rough;      /* Surface roughness factor  */
     realtype        RzD;        /* RootZone Depth */
@@ -238,7 +234,7 @@ typedef struct river_segment_type
     realtype        KsatV;      /* Bed conductivity */
     realtype        bedThick;
     realtype        coeff;      /* Coefficient c in
-                                 * D=c*pow(B/2, interpOrd), where D is depth */
+                                 * D=c*pow(B/2, interpOrd),where D is depth */
     int             FromNode;   /* Upstream Node no. */
     int             ToNode;     /* Dnstream Node no. */
     int             down;       /* down stream segment */
@@ -281,21 +277,10 @@ typedef struct river_IC_type
     realtype        value;      /* initial flow depth */
 } river_IC;
 
-typedef struct TSD_type
-{
-    char            name[15];
-    int             index;
-    int             length;     /* length of time series */
-    int             iCounter;   /* interpolation counter */
-    realtype        TSFactor;
-    realtype      **TS;         /* 2D time series data */
-} TSD;
 
-/*
- * Global calibration sturcture
+/* Global calibration sturcture
  * For explanation of each calibration variable, look for corresponding
- * variables above
- */
+ * variables above */
 typedef struct global_calib
 {
     realtype        KsatH;
@@ -345,32 +330,27 @@ typedef struct process_control
     realtype        Et2;
 } processCal;
 
-/*
- * Model_data definition
- */
+/* Model_data definition */
 typedef struct model_data_structure
 {
     int             UnsatMode;  /* Unsat Mode */
     int             SurfMode;   /* Surface Overland Flow Mode */
     int             RivMode;    /* River Routing Mode */
 
-    //  int     RadMode;    /* YS: Solar radiation mode */
-    //  int     RadDataMode;    /* YS */
-
     int             NumEle;     /* Number of Elements */
     int             NumNode;    /* Number of Nodes */
     int             NumRiv;     /* Number of Rivere Segments */
 
-    int             NumPrep;    /* Number of Precipatation time series types */
-    int             NumTemp;    /* Number of Temperature time series types */
-    int             NumHumidity;    /* Number of Humidity time series types */
-    int             NumWindVel; /* Number of Wind Velocity time series types */
-    int             NumRn;      /* Number of Net Radiation time series types */
-    int             NumG;       /* Number of Ground Heat time series types */
-    int             NumSdown;   /* YS: Number of downward solar radiation time
-                                 * series types */
-    int             NumLdown;   /* YS: Number of downward longwave radiation time
-                                 * series types */
+    int             NumPrep;    /* Number of Precipatation time series */
+    int             NumTemp;    /* Number of Temperature time series */
+    int             NumHumidity;    /* Number of Humidity time series */
+    int             NumWindVel; /* Number of Wind Velocity time series */
+    int             NumRn;      /* Number of Net Radiation time series */
+    int             NumG;       /* Number of Ground Heat time series */
+//  int             NumSdown;   /* YS: Number of downward solar radiation
+//                                 * time series types */
+//  int             NumLdown;   /* YS: Number of downward longwave radiation
+//                               * time series types */
     int             NumP;       /* Number of Pressure time series types */
     int             NumSource;  /* Number of Source time series types */
     int             NumMeltF;   /* Number of Melt Factor Time series */
@@ -380,9 +360,6 @@ typedef struct model_data_structure
     int             NumRes;     /* Number of Reservoir */
     int             NumLC;      /* Number of Land Cover Index Data */
 
-    //  int     NumSoilLayer;   /* YS */
-    //  realtype    *std_dsoil; /* YS */
-    //  realtype    **dsoil;    /* YS: Soil layer depths for soil temperature calculation, modified by Y. Shi */
 
     int             Num1BC;     /* Number of Dirichlet BC */
     int             Num2BC;     /* Number of Numann BC */
@@ -393,21 +370,10 @@ typedef struct model_data_structure
     int             NumRivIC;   /* Number of River Initial Condition */
     int             NumRivBC;   /* Number of River Boundary Condition */
 
-    //  realtype    TF;     /* YS */
-    //  realtype    IS;     /* YS */
-    //  realtype    Czil;       /* YS */
     realtype        Rmax;       /* YS */
     int             bare;       /* YS */
-    //  realtype    csoil;      /* YS */
-    //  realtype    salp;       /* YS */
-    //  realtype    frzk;       /* YS */
-    //  realtype    lvcoef;     /* YS */
-    //  realtype    zbot;       /* YS */
-    //  realtype    fx_soil;    /* YS */
     realtype        fx_canopy;  /* YS */
     realtype        Tref;       /* YS */
-    //  realtype    Tb;     /* YS */
-    //  realtype    sbeta;      /* YS */
 
     element        *Ele;        /* Store Element Information */
     nodes          *Node;       /* Store Node Information */
@@ -421,46 +387,30 @@ typedef struct model_data_structure
     river_material *Riv_Mat;    /* Store River Bank Material Information */
     river_IC       *Riv_IC;     /* Store River Initial Condition */
 
-    realtype       *ISFactor;   /* ISFactor is used to calculate ISMax from LAI */
-    realtype       *windH;      /* Height at which wind velocity is measured */
+    realtype       *ISFactor;   /* ISFactor is used to calculate ISMax from
+                                 * LAI */
+    realtype       *windH;      /* Height at which wind speed is measured */
 
-    TSD            *TSD_EleBC;  /* Element Boundary Condition Time Series Data */
+    TSD            *TSD_EleBC;  /* Element Boundary Condition Time Series
+                                 * Data */
     TSD           **Forcing;    /* YS */
     int            *NumTS;      /* YS */
-    //  TSD     *TSD_Inc;   /* Infiltration Capacity Time Series Data */
-    //  TSD     *TSD_LAI;   /* Leaves Area Index Time Series Data     */
-    //      TSD     *TSD_DH;    /* Zero plane Displacement Height */  
-    //  TSD     *TSD_RL;    /* Roughness Length */  
-    //  TSD     *TSD_MeltF; /* Monthly Varying Melt Factor for Temperature Index model */  
-
     TSD            *TSD_Riv;    /* River Related Time Series Data  */
-    //  TSD     *TSD_Prep;  /* RainFall Time Series Data       */
-    //  TSD     *TSD_Temp;  /* Temperature Time Series Data    */
-    //  TSD     *TSD_Humidity;  /* Humidity Time Series Data       */
-    //  TSD     *TSD_WindVel;   /* Wind Velocity Time Series Data  */
-    //  TSD     *TSD_Rn;    /* Net Radiation Time Series Data  */
-    //  TSD     *TSD_G;     /* Radiation into Ground Time Series Data */
-    //  TSD     *TSD_Sdown; /* YS: Downward solar radiation Time Series Data, modified by Y. Shi  */
-    //  TSD     *TSD_Sdir;  /* YS */
-    //  TSD     *TSD_Sdif;  /* YS */
-    //  TSD     *TSD_Ldown; /* YS: Longwave solar radiation Time Series Data, modified by Y. Shi */
-    //  TSD     *TSD_Pressure;  /* Vapor Pressure Time Series data       */
-    //  TSD     *TSD_Source;    /* Source (well) Time Series data  */
 
     realtype      **FluxSurf;   /* Overland Flux */
     realtype      **FluxSub;    /* Subsurface Flux */
     realtype      **FluxRiv;    /* River Segement Flux */
 
     realtype       *ElePrep;    /* Precep. on each element */
-    //  realtype    *EleETloss;     
     realtype       *EleNetPrep; /* Net precep. on each elment */
     realtype       *EleViR;     /* Variable infiltration rate */
     realtype       *Recharge;   /* Recharge rate to GW */
-    realtype       *EleSnow;    /* YS: Snow water equivalent on each element */
+    realtype       *EleSnow;    /* YS: Snow water equivalent on each element*/
     realtype       *EleSnowGrnd;    /* Snow depth on ground element */
     realtype       *EleSnowCanopy;  /* Snow depth on canopy element */
     realtype       *EleIS;      /* Interception storage */
-    realtype       *EleISmax;   /* Maximum interception storage (liquid precep) */
+    realtype       *EleISmax;   /* Maximum interception storage
+                                 * (liquid precep) */
     realtype       *EleISsnowmax;   /* Maximum snow interception storage */
     realtype       *EleTF;      /* Through Fall */
     realtype      **EleET;      /* Evapotranspiration (from canopy, ground,
@@ -471,7 +421,8 @@ typedef struct model_data_structure
     realtype       *EleSurf;    /* YS: Stores surface water level of
                                  * last time step */
     realtype       *RivStg;     /* YS: Stores river stage of last time step */
-    realtype       *EleGW;      /* YS: Stores groundwater level of last time step */
+    realtype       *EleGW;      /* YS: Stores groundwater level of last time
+                                 * step */
     realtype       *EleUnsat;   /* YS: Stores unsaturated storage of
                                  * last time step */
 #ifdef _FLUX_PIHM_
@@ -481,30 +432,28 @@ typedef struct model_data_structure
     realtype       *EleFCR;     /* YS: reduction of infiltration caused
                                  * by frozen ground */
 #endif
-    //  realtype Q; 
     realtype       *DummyY;
-    //  realtype    *PrintVar[100]; /* Modified by Y. Shi */
     processCal      pcCal;
-}              *Model_Data;
+
+    realtype        dt;         /* YS: Time step */
+} *Model_Data;
 
 typedef struct control_data_structure
 {
     int             Verbose;
     int             Debug;
-    int             Ascii;      /* YS: Add Ascii output model (default is binary */
-    int             Spinup;     /* YS: Runs model as spinup. Model output at the
-                                 * last step will be saved in .init as IC */
+    int             Ascii;      /* YS: Add Ascii output model
+                                 * (default is binary */
+    int             Spinup;     /* YS: Runs model as spinup. Model output at
+                                 * the last step will be saved in .init */
     int             Solver;     /* Solver type */
     int             NumSteps;   /* Number of external time steps (when
                                  * results can be printed) for the
                                  * whole simulation */
-
     int             NumPrint;   /* YS: Number of variables for output */
 
-    /*
-     * Time interval to output average values of variables
-     * Variables will not be printed if time intervals are set to 0
-     */
+    /* Time interval to output average values of variables
+     * Variables will not be printed if time intervals are set to 0 */
     int             PrintGW;
     int             PrintSurf;
     int             PrintSnow;
@@ -546,31 +495,21 @@ typedef struct control_data_structure
  * Function Declarations
  */
 void            initialize (char *, Model_Data, Control_Data *, N_Vector);
-void            initialize_output (char *, Model_Data, Control_Data *,
-   char *);
+void            initialize_output (char *, Model_Data, Control_Data *, char *);
 int             f (realtype, N_Vector, N_Vector, void *);
 void            read_alloc (char *, Model_Data, Control_Data *);
-void            update (realtype, void *);
 void            f_update (realtype, realtype *, void *);    /* YS */
-//void      PrintData(char *,Control_Data *, Model_Data, N_Vector, realtype, char *);
 void            Free_Data (Model_Data, Control_Data *);
-realtype        Interpolation (TSD *, realtype);
-//realtype  mod(realtype, realtype);
 void            summary (Model_Data, N_Vector, realtype, realtype); /* YS */
 realtype        returnVal (realtype, realtype, realtype, realtype);
 realtype        CS_AreaOrPerem (int, realtype, realtype, realtype);
-void            OverlandFlow (realtype **, int, int, realtype, realtype,
-   realtype, realtype, realtype);
-void            OLFeleToriv (realtype, realtype, realtype, realtype, realtype,
-   realtype **, int, int, realtype);
+void            OverlandFlow (realtype **, int, int, realtype, realtype, realtype, realtype, realtype);
+void            OLFeleToriv (realtype, realtype, realtype, realtype, realtype, realtype **, int, int, realtype);
 realtype        avgY (realtype, realtype, realtype);
 realtype        effKV (realtype, realtype, realtype, realtype, realtype);
-realtype        effKH (int, realtype, realtype, realtype, realtype, realtype,
-   realtype);
-realtype        FieldCapacity (realtype, realtype, realtype, realtype,
-   realtype);
+realtype        effKH (int, realtype, realtype, realtype, realtype, realtype, realtype);
+realtype        FieldCapacity (realtype, realtype, realtype, realtype, realtype);
 void            is_sm_et (realtype, realtype, void *, N_Vector);
 void            PrintInit (Model_Data, char *);
-//void      avgResults(char *filename, realtype *tmpVarCal, realtype *output_val, char *extension, int tmpIntv, realtype tmpt, int tmpNumObj, char *outputdir);
 
 #endif
