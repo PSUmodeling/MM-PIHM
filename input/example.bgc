@@ -1,0 +1,38 @@
+TIME_DEFINE   (keyword - do not remove)
+2009          (yr)        start of spinup met year
+2009          (yr)        end of spinup met year
+6000          (int)       maximum number of spinup years (if spinup simulation)
+
+CO2_CONTROL   (keyword - do not remove)
+0             (flag)    0=constant 1=vary with file 2=constant, file for Ndep
+294.842       (ppm)     constant atmospheric CO2 concentration
+xxxxxxxxxxx   (file)    annual variable CO2 filename
+
+SITE          (keyword) start of site physical constants block
+0.0001        (kgN/m2/yr) wet+dry atmospheric deposition of N
+0.0008        (kgN/m2/yr) symbiotic+asymbiotic fixation of N
+
+RAMP_NDEP     (keyword - do not remove) 
+0             (flag) ramped N-deposition run? 0=no, 1=yes 2=vary with file
+2099          (int)  reference year for industrial N deposition
+0.0001        (kgN/m2/yr) industrial N deposition value
+XXXXXXXXX     (file)    annual variable N filename
+
+C_STATE       (keyword) start of carbon state variable initialization block
+0.001         (kgC/m2)  first-year maximum leaf carbon 
+0.0           (kgC/m2)  first-year maximum stem carbon
+0.0           (kgC/m2)  coarse woody debris carbon
+0.0           (kgC/m2)  litter carbon, labile pool
+0.0           (kgC/m2)  litter carbon, unshielded cellulose pool 
+0.0           (kgC/m2)  litter carbon, shielded cellulose pool
+0.0           (kgC/m2)  litter carbon, lignin pool 
+0.0           (kgC/m2)  soil carbon, fast microbial recycling pool
+0.0           (kgC/m2)  soil carbon, medium microbial recycling pool
+0.0           (kgC/m2)  soil carbon, slow microbial recycling pool
+0.0           (kgC/m2)  soil carbon, recalcitrant SOM (slowest)
+
+N_STATE       (keyword) start of nitrogen state variable initialization block
+0.0           (kgN/m2)  litter nitrogen, labile pool
+0.0           (kgN/m2)  soil nitrogen, mineral pool
+
+DAILY_OUTPUT     (keyword)
