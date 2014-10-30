@@ -25,7 +25,7 @@ MSG = "...  Compiling PIHM  ..."
 # FLUX-PIHM
 # BGC	(Note: When BGC is declared, Flux-PIHM module will also be turned on because soil temperature needs to be simulated)
 
-#MODULE = BGC
+MODULE = BGC
 
 ifeq ($(MODULE), FLUX-PIHM)
   SFLAGS = -D_FLUX_PIHM_ 

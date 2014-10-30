@@ -15,7 +15,7 @@
 //#include "flux_pihm.h"
 #define _DEBUG_
 
-void BGC_read (char *filename, bgc_struct BGCM)
+void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM, Control_Data *CS)
 {
     int             i, j;
     double          t1, t2, t3, t4, r1;
@@ -26,11 +26,17 @@ void BGC_read (char *filename, bgc_struct BGCM)
     FILE           *bgc_file;
     FILE           *co2_file;
     FILE           *ndep_file;
+    FILE           *SWC_file;
+    FILE           *STC_file;
     char            co2_fn[100];
     char            ndep_fn[100];
+    char            SWC_fn[100];
+    char            STC_fn[100];
     int             ensemble_mode;
     char            cmdstr[MAXSTRING];
     char            optstr[MAXSTRING];
+    time_t          rawtime;
+    struct tm      *timeinfo;
     enum EPC_VEGTYPE veg_type;
     epconst_struct *epc;
     control_struct *ctrl;
@@ -41,9 +47,9 @@ void BGC_read (char *filename, bgc_struct BGCM)
     cinit_struct    cinit;
     nstate_struct   ns;
 
-    /*
-     * Detect if model is running in ensemble mode
-     */
+    timeinfo = (struct tm *)malloc (sizeof (struct tm));
+
+    /* Detect if model is running in ensemble mode */
     tempname = (char *)malloc ((strlen (filename) + 1) * sizeof (char));
     strcpy (tempname, filename);
     if (strstr (tempname, ".") != 0)
@@ -290,44 +296,44 @@ void BGC_read (char *filename, bgc_struct BGCM)
         fgets (cmdstr, MAXSTRING, epc_file);
         sscanf (cmdstr, "%lf", &epc->vpd_close);
 
-#ifdef _DEBUG_
-        printf ("WOODY%d\t", epc->woody);
-        printf ("EVERGREEN%d\t", epc->evergreen);
-        printf ("C3%d\t", epc->c3_flag);
-        printf ("TRANSFERDAY%lf\t", epc->transfer_days);
-        printf ("LITFALLDAY%lf\t", epc->litfall_days);
-        printf ("LEAFTURNOVER%lf\t", epc->leaf_turnover);
-	printf ("FROOTTURNOVER%lf\t", epc->froot_turnover);
-        printf ("LIVEWOODTURNOVER%lf\t", epc->livewood_turnover);
-	printf ("DAILYMORTALITYTURNOVER%lf\t", epc->daily_mortality_turnover);
-	printf ("DAILYFIRETURNOVER%lf\t", epc->daily_fire_turnover);
-        printf ("FROOTC/LEAFC%lf\t", epc->alloc_frootc_leafc);
-        printf ("NEWSTEMC/NEWLEAFC%lf\t", epc->alloc_newstemc_newleafc);
-        printf ("NEWLIVEWOODC/NEWWOODC%lf\t", epc->alloc_newlivewoodc_newwoodc);
-        printf ("CROOTC/STEMC%lf\t", epc->alloc_crootc_stemc);
-        printf ("PROP%lf\t", epc->alloc_prop_curgrowth);
-        printf ("LEAFCN%lf\t", epc->leaf_cn);
-        printf ("LEAFLITRCN%lf\t", epc->leaflitr_cn);
-        printf ("FROOTCN%lf\t", epc->froot_cn);
-        printf ("LIVEWOODCN%lf\t", epc->livewood_cn);
-        printf ("DEADWOODCN%lf\t", epc->deadwood_cn);
-        printf ("LEAFLITR %lf %lf %lf\t", epc->leaflitr_fscel, epc->leaflitr_fucel, epc->leaflitr_flig);
-        printf ("FROOTLITR %lf %lf %lf\t", epc->frootlitr_fscel, epc->frootlitr_fucel, epc->frootlitr_flig);
-        printf ("DEADWOOD %lf %lf %lf\t", epc->deadwood_fscel, epc->deadwood_fucel, epc->deadwood_flig);
-        printf ("INTCOEF %lf\t", epc->int_coef);
-        printf ("EXTCOEF %lf\t", epc->ext_coef);
-        printf ("LAIRATIO %lf\t", epc->lai_ratio);
-        printf ("PROJSLA %lf\t", epc->avg_proj_sla);
-        printf ("SLARATIO %lf\t", epc->sla_ratio);
-        printf ("FLNR %lf\t", epc->flnr);
-        printf ("GLMAX %lf\t", epc->gl_smax);
-        printf ("GLC %lf\t", epc->gl_c);
-        printf ("GL_BL %lf\t", epc->gl_bl);
-        printf ("PSIOPEN %lf\t", epc->psi_open);
-        printf ("PSICLOSE %lf\t", epc->psi_close);
-        printf ("VPDOPEN %lf\t", epc->vpd_open);
-        printf ("VPDCLOSE%lf\n", epc->vpd_close);
-#endif
+//#ifdef _DEBUG_
+//        printf ("WOODY%d\t", epc->woody);
+//        printf ("EVERGREEN%d\t", epc->evergreen);
+//        printf ("C3%d\t", epc->c3_flag);
+//        printf ("TRANSFERDAY%lf\t", epc->transfer_days);
+//        printf ("LITFALLDAY%lf\t", epc->litfall_days);
+//        printf ("LEAFTURNOVER%lf\t", epc->leaf_turnover);
+//	printf ("FROOTTURNOVER%lf\t", epc->froot_turnover);
+//        printf ("LIVEWOODTURNOVER%lf\t", epc->livewood_turnover);
+//	printf ("DAILYMORTALITYTURNOVER%lf\t", epc->daily_mortality_turnover);
+//	printf ("DAILYFIRETURNOVER%lf\t", epc->daily_fire_turnover);
+//        printf ("FROOTC/LEAFC%lf\t", epc->alloc_frootc_leafc);
+//        printf ("NEWSTEMC/NEWLEAFC%lf\t", epc->alloc_newstemc_newleafc);
+//        printf ("NEWLIVEWOODC/NEWWOODC%lf\t", epc->alloc_newlivewoodc_newwoodc);
+//        printf ("CROOTC/STEMC%lf\t", epc->alloc_crootc_stemc);
+//        printf ("PROP%lf\t", epc->alloc_prop_curgrowth);
+//        printf ("LEAFCN%lf\t", epc->leaf_cn);
+//        printf ("LEAFLITRCN%lf\t", epc->leaflitr_cn);
+//        printf ("FROOTCN%lf\t", epc->froot_cn);
+//        printf ("LIVEWOODCN%lf\t", epc->livewood_cn);
+//        printf ("DEADWOODCN%lf\t", epc->deadwood_cn);
+//        printf ("LEAFLITR %lf %lf %lf\t", epc->leaflitr_fscel, epc->leaflitr_fucel, epc->leaflitr_flig);
+//        printf ("FROOTLITR %lf %lf %lf\t", epc->frootlitr_fscel, epc->frootlitr_fucel, epc->frootlitr_flig);
+//        printf ("DEADWOOD %lf %lf %lf\t", epc->deadwood_fscel, epc->deadwood_fucel, epc->deadwood_flig);
+//        printf ("INTCOEF %lf\t", epc->int_coef);
+//        printf ("EXTCOEF %lf\t", epc->ext_coef);
+//        printf ("LAIRATIO %lf\t", epc->lai_ratio);
+//        printf ("PROJSLA %lf\t", epc->avg_proj_sla);
+//        printf ("SLARATIO %lf\t", epc->sla_ratio);
+//        printf ("FLNR %lf\t", epc->flnr);
+//        printf ("GLMAX %lf\t", epc->gl_smax);
+//        printf ("GLC %lf\t", epc->gl_c);
+//        printf ("GL_BL %lf\t", epc->gl_bl);
+//        printf ("PSIOPEN %lf\t", epc->psi_open);
+//        printf ("PSICLOSE %lf\t", epc->psi_close);
+//        printf ("VPDOPEN %lf\t", epc->vpd_open);
+//        printf ("VPDCLOSE%lf\n", epc->vpd_close);
+//#endif
     }
 
     /* Read bgc simulation control file */
@@ -362,6 +368,8 @@ void BGC_read (char *filename, bgc_struct BGCM)
                 sscanf (cmdstr, "%d", &ctrl->spinupstart);
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%d", &ctrl->spinupend);
+                fgets (cmdstr, MAXSTRING, bgc_file);
+                sscanf (cmdstr, "%d", &ctrl->spinup);
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%d", &ctrl->maxspinyears);
             }
@@ -434,10 +442,87 @@ void BGC_read (char *filename, bgc_struct BGCM)
             }
             fgets (cmdstr, MAXSTRING, bgc_file);
         }
-        fgets (cmdstr, MAXSTRING, crop_file);
+        fgets (cmdstr, MAXSTRING, bgc_file);
     }
     
     fclose(bgc_file);
+
+    BGCM->Forcing = (TSD **) malloc (4 * sizeof (TSD *));
+
+    /* Read CO2 and Ndep files */
+    if (co2->varco2 == 1)
+    {
+        BGCM->Forcing[CO2_TS] = (TSD *) malloc (sizeof (TSD));
+        co2_file = fopen(co2_fn, "r");
+        BGCM->Forcing[CO2_TS][0].length = 0;
+        /* Count lines */
+        fgets (cmdstr, MAXSTRING, co2_file);
+        while (!feof (co2_file))
+        {
+            if (cmdstr[0] != '\n' && cmdstr[0] != '\0' && cmdstr[0] != '\t')
+                BGCM->Forcing[CO2_TS][0].length = BGCM->Forcing[CO2_TS][0].length + 1;
+            fgets (cmdstr, MAXSTRING, co2_file);
+        }
+        printf ("Number of lines = %d", BGCM->Forcing[CO2_TS][0].length);
+        BGCM->Forcing[CO2_TS][0].TS = (double **) malloc ((BGCM->Forcing[CO2_TS][0].length) * sizeof (double *));
+        for (i = 0; i < BGCM->Forcing[CO2_TS][0].length; i++)
+        {
+            BGCM->Forcing[CO2_TS][0].TS[i] = (double *) malloc (2 * sizeof (double));
+            fscanf (co2_file, "%d", &timeinfo->tm_year, &BGCM->Forcing[CO2_TS][0].TS[i][1]);
+            timeinfo->tm_year = timeinfo->tm_year - 1900;
+            timeinfo->tm_mon = 0;
+            timeinfo->tm_mday = 1;
+            timeinfo->tm_hour = 0;
+            timeinfo->tm_min = 0;
+            timeinfo->tm_sec = 0;
+            BGCM->Forcing[CO2_TS][0].TS[i][0] = (double) rawtime;
+        }
+
+        fclose (co2_file);
+    }
+    if (ramp_ndep->doramp == 2)
+    {
+        BGCM->Forcing[NDEP_TS] = (TSD *) malloc (sizeof (TSD));
+        ndep_file = fopen(ndep_fn, "r");
+        BGCM->Forcing[NDEP_TS][0].length = 0;
+        /* Count lines */
+        fgets (cmdstr, MAXSTRING, ndep_file);
+        while (!feof (ndep_file))
+        {
+            if (cmdstr[0] != '\n' && cmdstr[0] != '\0' && cmdstr[0] != '\t')
+                BGCM->Forcing[NDEP_TS][0].length = BGCM->Forcing[NDEP_TS][0].length + 1;
+            fgets (cmdstr, MAXSTRING, ndep_file);
+        }
+        printf ("Number of lines = %d\n", BGCM->Forcing[NDEP_TS][0].length);
+        BGCM->Forcing[NDEP_TS][0].TS = (double **) malloc ((BGCM->Forcing[NDEP_TS][0].length) * sizeof (double *));
+        for (i = 0; i < BGCM->Forcing[NDEP_TS][0].length; i++)
+        {
+            BGCM->Forcing[NDEP_TS][0].TS[i] = (double *) malloc (2 * sizeof (double));
+            fscanf (ndep_file, "%d", &timeinfo->tm_year, &BGCM->Forcing[NDEP_TS][0].TS[i][1]);
+            timeinfo->tm_year = timeinfo->tm_year - 1900;
+            timeinfo->tm_mon = 0;
+            timeinfo->tm_mday = 1;
+            timeinfo->tm_hour = 0;
+            timeinfo->tm_min = 0;
+            timeinfo->tm_sec = 0;
+            BGCM->Forcing[NDEP_TS][0].TS[i][0] = (double) rawtime;
+        }
+        fclose (ndep_file);
+    }
+    /* Read soil moisture and soil temperature "forcing" */
+    if (ctrl->spinup == 1)
+    {
+        BGCM->Forcing[SWC_TS] = (TSD *)malloc (PIHM->NumEle * sizeof (TSD));
+        sprintf (SWC_fn, "input/%s.SWC", filename);
+        SWC_file = fopen(SWC_fn, "rb");
+        fseek (SWC_file, 0L, SEEK_END);
+        for (i = 0; i < PIHM->NumEle; i++)
+        {
+            BGCM->Forcing[SWC_TS][i].length = (int)(ftell(SWC_file) / (PIHM->NumEle + 1) / 8);  /* 8 is the size of double */
+            BGCM->Forcing[SWC_TS][i].TS = (double **) malloc (BGCM->Forcing[SWC_TS][i].length * sizeof (double *));
+        }
+    }
+
 
     free (projectname);
     if (ensemble_mode == 0)

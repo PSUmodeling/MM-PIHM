@@ -162,7 +162,7 @@ int main (int argc, char *argv[])
     LSM_read (filename, LSM);
 #endif
 #ifdef _BGC_
-    BGC_read (filename, BGCM);
+    BGC_read (filename, BGCM, mData, &cData);
 #endif
 
     //if(mData->UnsatMode ==1)
@@ -195,6 +195,15 @@ int main (int argc, char *argv[])
     LSM_initialize_output (filename, mData, LSM, outputdir);
 #endif
 
+#ifdef _BGC_
+    if (BGCM->ctrl.spinup == 1)
+    {
+        printf ("\n\nRunning BGC model in spin-up mode using prescribed soil moisture and soil temperature\n");
+        printf ("PIHM is not running.\n");
+    }
+    else
+    {
+#endif
     printf ("\n\nSolving ODE system ... \n\n");
 
     /*
@@ -268,7 +277,9 @@ int main (int argc, char *argv[])
             summary (mData, CV_Y, t - StepSize, StepSize);
             update (t, mData);
         }
-
+#ifdef _BGC_
+        }
+#endif
         /*
          * Print outputs 
          */

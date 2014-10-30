@@ -10,6 +10,7 @@
 #include <errno.h>
 
 #include "bgc_constants.h"
+#include "../forcing.h"
 #include "bgc_struct.h"
 #include "bgc_func.h"
 //#include "ini.h"

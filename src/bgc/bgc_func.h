@@ -1,7 +1,7 @@
 #ifndef BGC_FUNC_H
 #define BGC_FUNC_H
 
-void BGC_read (char *filename, bgc_struct BGCM);
+void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM, Control_Data *CS);
 
 //int output_map_init(double** output_map, metvar_struct* metv, wstate_struct* ws,
 //wflux_struct* wf, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns,

@@ -1,6 +1,7 @@
 #ifndef BGC_STRUCT_H
 #define BGC_STRUCT_H
 
+enum bgc_forcing_type {CO2_TS, NDEP_TS, SWC_TS, STC_TS};
 /* simulation control variables */
 typedef struct
 {
@@ -21,6 +22,8 @@ typedef struct
     int             write_restart;  /* flag to write restart file */
     int             keep_metyr; /* (flag) 1=retain restart metyr, 0=reset metyr */
     int             onscreen;   /* (flag) 1=show progress on-screen 0=don't */
+    int             spinupstart;    /* first met year for spinup */
+    int             spinupend;      /* last met year for spinup */
 } control_struct;
 
 /* a structure to hold information about ramped N-deposition scenario */
@@ -912,6 +915,7 @@ typedef struct bgc_struct
     double          spinup_resid_trend; /* kgC/m2/yr remaining trend after spinup */
     int             spinup_years;   /* number of years before reaching steady-state */
     unsigned char   bgc_ascii;  /* ASCII output flag */
+    TSD           **Forcing;
 }              *bgc_struct;
 
 #endif
