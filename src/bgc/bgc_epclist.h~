@@ -1,0 +1,10 @@
+#ifndef BGC_EPCLIST_H
+#define BGC_EPCLIST_H
+
+typedef struct epclist_struct
+{
+	int nvegtypes;         /* number of vegetation types */
+	epconst_struct* epc;   /* pointer to array of epc structures */
+} epclist_struct;
+
+#endif
