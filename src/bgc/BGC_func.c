@@ -15,7 +15,7 @@
 //#include "flux_pihm.h"
 #define _DEBUG_
 
-void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM, Control_Data *CS)
+void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
 {
     int             i, j;
     double          t1, t2, t3, t4, r1;
@@ -454,6 +454,11 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM, Control_Data *C
     {
         BGCM->Forcing[CO2_TS] = (TSD *) malloc (sizeof (TSD));
         co2_file = fopen(co2_fn, "r");
+        if (co2_file == NULL)
+        {
+            printf ("\n  Fatal Error: co2 file %s in use or do not exist!\n", co2_fn);
+            exit (1);
+        }
         BGCM->Forcing[CO2_TS][0].length = 0;
         /* Count lines */
         fgets (cmdstr, MAXSTRING, co2_file);
@@ -484,6 +489,11 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM, Control_Data *C
     {
         BGCM->Forcing[NDEP_TS] = (TSD *) malloc (sizeof (TSD));
         ndep_file = fopen(ndep_fn, "r");
+        if (ndep_file == NULL)
+        {
+            printf ("\n  Fatal Error: N deposition file %s is in use or do not exist!\n", ndep_fn);
+            exit (1);
+        }
         BGCM->Forcing[NDEP_TS][0].length = 0;
         /* Count lines */
         fgets (cmdstr, MAXSTRING, ndep_file);
@@ -512,20 +522,216 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM, Control_Data *C
     /* Read soil moisture and soil temperature "forcing" */
     if (ctrl->spinup == 1)
     {
+        /* Read soil moisture forcing */
         BGCM->Forcing[SWC_TS] = (TSD *)malloc (PIHM->NumEle * sizeof (TSD));
         sprintf (SWC_fn, "input/%s.SWC", filename);
         SWC_file = fopen(SWC_fn, "rb");
+        if (SWC_file == NULL)
+        {
+            printf ("\n  Fatal Error: soil water content file %s is in use or do not exist!\n", SWC_fn);
+            exit (1);
+        }
+        /* Check the length of forcing */
         fseek (SWC_file, 0L, SEEK_END);
         for (i = 0; i < PIHM->NumEle; i++)
         {
             BGCM->Forcing[SWC_TS][i].length = (int)(ftell(SWC_file) / (PIHM->NumEle + 1) / 8);  /* 8 is the size of double */
             BGCM->Forcing[SWC_TS][i].TS = (double **) malloc (BGCM->Forcing[SWC_TS][i].length * sizeof (double *));
         }
-    }
+        /* Read in forcing */
+        rewind (SWC_file);
+        for (j = 0; j < BGCM->Forcing[SWC_TS][0].length; j++)
+        {
+            for (i = 0; i < PIHM->NumEle; i++)
+                BGCM->Forcing[SWC_TS][i].TS[j] = (double *) malloc (2 * sizeof (double));
+            fread (&BGCM->Forcing[SWC_TS][0].TS[j][0], sizeof (double), 1, SWC_file);
+#ifdef _DEBUG_
+            rawtime = (int)BGCM->Forcing[SWC_TS][0].TS[j][0];
+            timeinfo = gmtime (&rawtime);
+            printf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d\t", timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour, timeinfo->tm_min);
+#endif
+            for (i = 0; i < PIHM->NumEle; i++)
+            {
+                BGCM->Forcing[SWC_TS][i].TS[j][0] = BGCM->Forcing[SWC_TS][0].TS[j][0];
+                fread (&BGCM->Forcing[SWC_TS][i].TS[j][1], sizeof (double), 1, SWC_file);
+#ifdef _DEBUG_
+                printf("%lf\t", BGCM->Forcing[SWC_TS][i].TS[j][1]);
+#endif
+            }
+#ifdef _DEBUG_
+            printf("\n");
+#endif
+        }
+        fclose (SWC_file);
 
+        /* Read soil temperature forcing */
+        BGCM->Forcing[STC_TS] = (TSD *)malloc (PIHM->NumEle * sizeof (TSD));
+        sprintf (STC_fn, "input/%s.STC", filename);
+        STC_file = fopen(STC_fn, "rb");
+        if (STC_file == NULL)
+        {
+            printf ("\n  Fatal Error: soil temperature file %s is in use or do not exist!\n", STC_fn);
+            exit (1);
+        }
+        /* Check the length of forcing */
+        fseek (STC_file, 0L, SEEK_END);
+        for (i = 0; i < PIHM->NumEle; i++)
+        {
+            BGCM->Forcing[STC_TS][i].length = (int)(ftell(STC_file) / (PIHM->NumEle + 1) / 8);  /* 8 is the size of double */
+            BGCM->Forcing[STC_TS][i].TS = (double **) malloc (BGCM->Forcing[STC_TS][i].length * sizeof (double *));
+        }
+        /* Read in forcing */
+        rewind (STC_file);
+        for (j = 0; j < BGCM->Forcing[STC_TS][0].length; j++)
+        {
+            for (i = 0; i < PIHM->NumEle; i++)
+                BGCM->Forcing[STC_TS][i].TS[j] = (double *) malloc (2 * sizeof (double));
+            fread (&BGCM->Forcing[STC_TS][0].TS[j][0], sizeof (double), 1, STC_file);
+#ifdef _DEBUG_
+            rawtime = (int)BGCM->Forcing[STC_TS][0].TS[j][0];
+            timeinfo = gmtime (&rawtime);
+            printf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d\t", timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour, timeinfo->tm_min);
+#endif
+            for (i = 0; i < PIHM->NumEle; i++)
+            {
+                BGCM->Forcing[STC_TS][i].TS[j][0] = BGCM->Forcing[STC_TS][0].TS[j][0];
+                fread (&BGCM->Forcing[STC_TS][i].TS[j][1], sizeof (double), 1, STC_file);
+#ifdef _DEBUG_
+                printf("%lf\t", BGCM->Forcing[STC_TS][i].TS[j][1]);
+#endif
+            }
+#ifdef _DEBUG_
+            printf("\n");
+#endif
+        }
+        fclose (STC_file);
+    }
 
     free (projectname);
     if (ensemble_mode == 0)
         printf ("done.\n");
 }
 
+void BGC_presim_state_init (bgc_struct BGCM, Model_Data PIHM)
+{
+    /*
+     * Program to initialize BGC state variables
+     * Adapted from presim_state_init in biome-bgc
+     */
+    int i;
+
+    BGCM->grid = (bgc_grid *) malloc (PIHM->NumEle * sizeof (bgc_grid));
+
+    wstate_struct *ws;
+    cstate_struct *cs;
+    nstate_struct *ns;
+    cinit_struct *cinit;
+
+    for (i = 0; i < PIHM->NumEle; i++)
+    {
+        ws = &BGCM->grid[i].ws;
+        cs = &BGCM->grid[i].cs;
+        ns = &BGCM->grid[i].ns;
+        cinit = &BGCM->grid[i].cinit;
+
+        ws->soilw = 0.0;
+        ws->snoww = 0.0;
+        ws->canopyw = 0.0;
+        ws->prcp_src = 0.0;
+        ws->outflow_snk = 0.0;
+        ws->soilevap_snk = 0.0;
+        ws->snowsubl_snk = 0.0;
+        ws->canopyevap_snk = 0.0;
+        ws->trans_snk = 0.0;
+
+        cinit->max_leafc = 0.0;
+        cinit->max_stemc = 0.0;
+
+        cs->leafc = 0.0;
+        cs->leafc_storage = 0.0;
+        cs->leafc_transfer = 0.0;
+        cs->frootc = 0.0;
+        cs->frootc_storage = 0.0;
+        cs->frootc_transfer = 0.0;
+        cs->livestemc = 0.0;
+        cs->livestemc_storage = 0.0;
+        cs->livestemc_transfer = 0.0;
+        cs->deadstemc = 0.0;
+        cs->deadstemc_storage = 0.0;
+        cs->deadstemc_transfer = 0.0;
+        cs->livecrootc = 0.0;
+        cs->livecrootc_storage = 0.0;
+        cs->livecrootc_transfer = 0.0;
+        cs->deadcrootc = 0.0;
+        cs->deadcrootc_storage = 0.0;
+        cs->deadcrootc_transfer = 0.0;
+        cs->gresp_storage = 0.0;
+        cs->gresp_transfer = 0.0;
+        cs->cwdc = 0.0;
+        cs->litr1c = 0.0;
+        cs->litr2c = 0.0;
+        cs->litr3c = 0.0;
+        cs->litr4c = 0.0;
+        cs->soil1c = 0.0;
+        cs->soil2c = 0.0;
+        cs->soil3c = 0.0;
+        cs->soil4c = 0.0;
+        cs->cpool = 0.0;
+        cs->psnsun_src = 0.0;
+        cs->psnshade_src = 0.0;
+        cs->leaf_mr_snk = 0.0;
+        cs->leaf_gr_snk = 0.0;
+        cs->froot_mr_snk = 0.0;
+        cs->froot_gr_snk = 0.0;
+        cs->livestem_mr_snk = 0.0;
+        cs->livestem_gr_snk = 0.0;
+        cs->deadstem_gr_snk = 0.0;
+        cs->livecroot_mr_snk = 0.0;
+        cs->livecroot_gr_snk = 0.0;
+        cs->deadcroot_gr_snk = 0.0;
+        cs->litr1_hr_snk = 0.0;
+        cs->litr2_hr_snk = 0.0;
+        cs->litr4_hr_snk = 0.0;
+        cs->soil1_hr_snk = 0.0;
+        cs->soil2_hr_snk = 0.0;
+        cs->soil3_hr_snk = 0.0;
+        cs->soil4_hr_snk = 0.0;
+        cs->fire_snk = 0.0;
+
+        ns->leafn = 0.0;
+        ns->leafn_storage = 0.0;
+        ns->leafn_transfer = 0.0;
+        ns->frootn = 0.0;
+        ns->frootn_storage = 0.0;
+        ns->frootn_transfer = 0.0;
+        ns->livestemn = 0.0;
+        ns->livestemn_storage = 0.0;
+        ns->livestemn_transfer = 0.0;
+        ns->deadstemn = 0.0;
+        ns->deadstemn_storage = 0.0;
+        ns->deadstemn_transfer = 0.0;
+        ns->livecrootn = 0.0;
+        ns->livecrootn_storage = 0.0;
+        ns->livecrootn_transfer = 0.0;
+        ns->deadcrootn = 0.0;
+        ns->deadcrootn_storage = 0.0;
+        ns->deadcrootn_transfer = 0.0;
+        ns->cwdn = 0.0;
+        ns->litr1n = 0.0;
+        ns->litr2n = 0.0;
+        ns->litr3n = 0.0;
+        ns->litr4n = 0.0;
+        ns->soil1n = 0.0;
+        ns->soil2n = 0.0;
+        ns->soil3n = 0.0;
+        ns->soil4n = 0.0;
+        ns->sminn = 0.0;
+        ns->retransn = 0.0;
+        ns->npool = 0.0;
+        ns->nfix_src = 0.0;
+        ns->ndep_src = 0.0;
+        ns->nleached_snk = 0.0;
+        ns->nvol_snk = 0.0;
+        ns->fire_snk = 0.0;
+    }
+}

@@ -162,7 +162,8 @@ int main (int argc, char *argv[])
     LSM_read (filename, LSM);
 #endif
 #ifdef _BGC_
-    BGC_read (filename, BGCM, mData, &cData);
+    BGC_presim_state_init (BGCM, mData);
+    BGC_read (filename, BGCM, mData);
 #endif
 
     //if(mData->UnsatMode ==1)
