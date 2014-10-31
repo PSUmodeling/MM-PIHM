@@ -10,15 +10,7 @@ See copyright.txt for Copyright information
 
 #include "bgc.h"
 
-double get_co2(co2control_struct * co2,int simyr)
+double get_co2(TSD co2_ts, double t)
 {
-	int i;
-	for(i = 0;i < co2->co2vals;i++)
-	{
-		if(co2->co2year_array[i] == simyr)
-		{
-			return (co2->co2ppm_array[i]);
-		}
-	}
-	return(-999.9);
+    return Interpolation (&co2_ts, t);
 }

@@ -5,18 +5,14 @@ TIME_DEFINE     (keyword - do not remove)
 6000            (int)       maximum number of spinup years (if spinup simulation)
 
 CO2_CONTROL     (keyword - do not remove)
-1               (flag)    0=constant 1=vary with file 2=constant, file for Ndep
+1               (flag)    0=constant 1=vary with file
 294.842         (ppm)     constant atmospheric CO2 concentration
 input/co2.txt   (file)    annual variable CO2 filename
 
-SITE            (keyword) start of site physical constants block
+NDEP_CONTROL    (keyword - do not remove) 
+1               (flag) 0=constant, 1=vary with file
 0.0001          (kgN/m2/yr) wet+dry atmospheric deposition of N
 0.0008          (kgN/m2/yr) symbiotic+asymbiotic fixation of N
-
-RAMP_NDEP       (keyword - do not remove) 
-2               (flag) ramped N-deposition run? 0=no, 1=yes 2=vary with file
-2099            (int)  reference year for industrial N deposition
-0.0001          (kgN/m2/yr) industrial N deposition value
 input/ndep.txt  (file)    annual variable N filename
 
 C_STATE         (keyword) start of carbon state variable initialization block

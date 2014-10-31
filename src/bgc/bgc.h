@@ -8,6 +8,9 @@
 #include <stdarg.h>
 #include <math.h>
 #include <errno.h>
+#include <time.h>
+
+#include "../pihm.h"
 
 #include "bgc_constants.h"
 #include "../forcing.h"

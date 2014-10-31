@@ -10,15 +10,7 @@ See copyright.txt for Copyright information
 
 #include "bgc.h"
 
-double get_ndep(ndepcontrol_struct * ndepctrl,int simyr)
+double get_ndep(TSD ndep_ts, double t)
 {
-	int i;
-	for(i = 0;i < ndepctrl->ndepvals;i++)
-	{
-		if(ndepctrl->ndepyear_array[i] == simyr)
-		{
-			return (ndepctrl->ndep_array[i]);
-		}
-	}
-	return(-999.9);
+    return Interpolation (&ndep_ts, t);
 }

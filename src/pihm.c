@@ -162,7 +162,6 @@ int main (int argc, char *argv[])
     LSM_read (filename, LSM);
 #endif
 #ifdef _BGC_
-    BGC_presim_state_init (BGCM, mData);
     BGC_read (filename, BGCM, mData);
 #endif
 
@@ -187,6 +186,9 @@ int main (int argc, char *argv[])
 #ifdef _FLUX_PIHM_
     LSM_initialize (filename, mData, &cData, LSM);
 #endif
+#ifdef _BGC_
+    BGC_init (filename, BGCM, mData);
+#endif
 
     /*
      * initialize output files and structures 
@@ -195,6 +197,13 @@ int main (int argc, char *argv[])
 #ifdef _FLUX_PIHM_
     LSM_initialize_output (filename, mData, LSM, outputdir);
 #endif
+
+//#ifdef _DEBUG_
+    t = cData.StartTime;
+
+    for (i = 0; i < mData->NumEle; i++)
+        daily_bgc (BGCM, &BGCM->grid[i], t);
+//#endif
 
 #ifdef _BGC_
     if (BGCM->ctrl.spinup == 1)

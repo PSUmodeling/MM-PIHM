@@ -2,30 +2,22 @@
 #define BGC_FUNC_H
 
 void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM);
-void BGC_presim_state_init (bgc_struct BGCM, Model_Data PIHM);
+void presim_state_init (wstate_struct *ws, cstate_struct *cs, nstate_struct *ns, cinit_struct *cinit);
+void make_zero_flux_struct(wflux_struct *wf, cflux_struct *cf, nflux_struct *nf);
+void restart_input(control_struct *ctrl, wstate_struct *ws, cstate_struct *cs, nstate_struct *ns, epvar_struct *epv, int *metyr, restart_data_struct *restart);
+void firstday (const epconst_struct *epc, const cinit_struct *cinit, epvar_struct *epv, cstate_struct *cs, nstate_struct *ns);
+void zero_srcsnk (cstate_struct *cs, nstate_struct *ns, wstate_struct *ws, summary_struct *summary);
 
-//int output_map_init(double** output_map, metvar_struct* metv, wstate_struct* ws,
-//wflux_struct* wf, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns,
-//nflux_struct* nf, phenology_struct* phen, epvar_struct* epv,
-//psn_struct* psn_sun, psn_struct* psn_shade, summary_struct* summary);
-//int make_zero_flux_struct(wflux_struct* wf, cflux_struct* cf,
-//nflux_struct* nf);
+//int output_map_init(double** output_map, metvar_struct* metv, wstate_struct* ws, //wflux_struct* wf, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, //nflux_struct* nf, phenology_struct* phen, epvar_struct* epv, //psn_struct* psn_sun, psn_struct* psn_shade, summary_struct* summary);
 //int atm_pres(double elev, double* pa);
 //int prephenology(const control_struct* ctrl, const epconst_struct* epc, 
 //const siteconst_struct* sitec, const metarr_struct* metarr,
 //phenarray_struct* phen);
-//int restart_input(control_struct* ctrl, wstate_struct* ws, cstate_struct* cs,
-//	nstate_struct* ns, epvar_struct* epv, int* metyr, 
-//	restart_data_struct* restart);
 //int restart_output(control_struct* ctrl, wstate_struct* ws,cstate_struct* cs,
 //	nstate_struct* ns, epvar_struct* epv, int metyr,
 //	restart_data_struct* restart);
 //int free_phenmem(phenarray_struct* phen);
-//int firstday(const epconst_struct* epc, const cinit_struct* cinit,
-//epvar_struct* epv, phenarray_struct* phen, cstate_struct* cs, nstate_struct* ns);
 //int precision_control(wstate_struct* ws, cstate_struct* cs, nstate_struct* ns);
-//int zero_srcsnk(cstate_struct* cs, nstate_struct* ns, wstate_struct* ws,
-//	summary_struct* summary);
 //int daymet(const metarr_struct* metarr, metvar_struct* metv, int metday);
 //int dayphen(const phenarray_struct* phenarr, phenology_struct* phen, int metday);
 //int phenology(const epconst_struct* epc, const phenology_struct* phen,

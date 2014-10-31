@@ -1,84 +1,82 @@
 /* 
-make_zero_flux_struct.c
-create structures initialized with zero for forcing fluxes to zero
-between simulation days
+   make_zero_flux_struct.c
+   create structures initialized with zero for forcing fluxes to zero
+   between simulation days
 
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-Biome-BGC version 4.2 (final release)
-See copyright.txt for Copyright information
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-*/
+ *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ Biome-BGC version 4.2 (final release)
+ See copyright.txt for Copyright information
+ *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ */
 
 #include "bgc.h"
 
-int make_zero_flux_struct(wflux_struct* wf, cflux_struct* cf,
-nflux_struct* nf)
+void make_zero_flux_struct (wflux_struct *wf, cflux_struct *cf, nflux_struct *nf)
 {
-	int ok=1;
-	/* daily water fluxes */
-	wf->prcp_to_canopyw = 0.0;
-	wf->prcp_to_soilw = 0.0;
-	wf->prcp_to_snoww = 0.0;
-	wf->canopyw_evap = 0.0;
-	wf->canopyw_to_soilw = 0.0;
-	wf->snoww_subl = 0.0;
-	wf->snoww_to_soilw = 0.0;
-	wf->soilw_evap = 0.0;
-	wf->soilw_trans = 0.0;
-	wf->soilw_outflow = 0.0;
-	
-	/* daily carbon fluxes */
-	cf->m_leafc_to_litr1c = 0.0;
-	cf->m_leafc_to_litr2c = 0.0;
-	cf->m_leafc_to_litr3c = 0.0;
-	cf->m_leafc_to_litr4c = 0.0;
-	cf->m_frootc_to_litr1c = 0.0;
-	cf->m_frootc_to_litr2c = 0.0;
-	cf->m_frootc_to_litr3c = 0.0;
-	cf->m_frootc_to_litr4c = 0.0;
-	cf->m_leafc_storage_to_litr1c = 0.0;
-	cf->m_frootc_storage_to_litr1c = 0.0;
-	cf->m_livestemc_storage_to_litr1c = 0.0;
-	cf->m_deadstemc_storage_to_litr1c = 0.0;
-	cf->m_livecrootc_storage_to_litr1c = 0.0;
-	cf->m_deadcrootc_storage_to_litr1c = 0.0;
-	cf->m_leafc_transfer_to_litr1c = 0.0;
-	cf->m_frootc_transfer_to_litr1c = 0.0;
-	cf->m_livestemc_transfer_to_litr1c = 0.0;
-	cf->m_deadstemc_transfer_to_litr1c = 0.0;
-	cf->m_livecrootc_transfer_to_litr1c = 0.0;
-	cf->m_deadcrootc_transfer_to_litr1c = 0.0;
+    /* daily water fluxes */
+    wf->prcp_to_canopyw = 0.0;
+    wf->prcp_to_soilw = 0.0;
+    wf->prcp_to_snoww = 0.0;
+    wf->canopyw_evap = 0.0;
+    wf->canopyw_to_soilw = 0.0;
+    wf->snoww_subl = 0.0;
+    wf->snoww_to_soilw = 0.0;
+    wf->soilw_evap = 0.0;
+    wf->soilw_trans = 0.0;
+    wf->soilw_outflow = 0.0;
+
+    /* daily carbon fluxes */
+    cf->m_leafc_to_litr1c = 0.0;
+    cf->m_leafc_to_litr2c = 0.0;
+    cf->m_leafc_to_litr3c = 0.0;
+    cf->m_leafc_to_litr4c = 0.0;
+    cf->m_frootc_to_litr1c = 0.0;
+    cf->m_frootc_to_litr2c = 0.0;
+    cf->m_frootc_to_litr3c = 0.0;
+    cf->m_frootc_to_litr4c = 0.0;
+    cf->m_leafc_storage_to_litr1c = 0.0;
+    cf->m_frootc_storage_to_litr1c = 0.0;
+    cf->m_livestemc_storage_to_litr1c = 0.0;
+    cf->m_deadstemc_storage_to_litr1c = 0.0;
+    cf->m_livecrootc_storage_to_litr1c = 0.0;
+    cf->m_deadcrootc_storage_to_litr1c = 0.0;
+    cf->m_leafc_transfer_to_litr1c = 0.0;
+    cf->m_frootc_transfer_to_litr1c = 0.0;
+    cf->m_livestemc_transfer_to_litr1c = 0.0;
+    cf->m_deadstemc_transfer_to_litr1c = 0.0;
+    cf->m_livecrootc_transfer_to_litr1c = 0.0;
+    cf->m_deadcrootc_transfer_to_litr1c = 0.0;
     cf->m_livestemc_to_cwdc = 0.0;
     cf->m_deadstemc_to_cwdc = 0.0;
     cf->m_livecrootc_to_cwdc = 0.0;
     cf->m_deadcrootc_to_cwdc = 0.0;
-	cf->m_gresp_storage_to_litr1c = 0.0;
+    cf->m_gresp_storage_to_litr1c = 0.0;
     cf->m_gresp_transfer_to_litr1c = 0.0;
-	cf->m_leafc_to_fire = 0.0;
-	cf->m_frootc_to_fire = 0.0;
-	cf->m_leafc_storage_to_fire = 0.0;
-	cf->m_frootc_storage_to_fire = 0.0;
-	cf->m_livestemc_storage_to_fire = 0.0;
-	cf->m_deadstemc_storage_to_fire = 0.0;
-	cf->m_livecrootc_storage_to_fire = 0.0;
-	cf->m_deadcrootc_storage_to_fire = 0.0;
-	cf->m_leafc_transfer_to_fire = 0.0;
-	cf->m_frootc_transfer_to_fire = 0.0;
-	cf->m_livestemc_transfer_to_fire = 0.0;
-	cf->m_deadstemc_transfer_to_fire = 0.0;
-	cf->m_livecrootc_transfer_to_fire = 0.0;
-	cf->m_deadcrootc_transfer_to_fire = 0.0;
+    cf->m_leafc_to_fire = 0.0;
+    cf->m_frootc_to_fire = 0.0;
+    cf->m_leafc_storage_to_fire = 0.0;
+    cf->m_frootc_storage_to_fire = 0.0;
+    cf->m_livestemc_storage_to_fire = 0.0;
+    cf->m_deadstemc_storage_to_fire = 0.0;
+    cf->m_livecrootc_storage_to_fire = 0.0;
+    cf->m_deadcrootc_storage_to_fire = 0.0;
+    cf->m_leafc_transfer_to_fire = 0.0;
+    cf->m_frootc_transfer_to_fire = 0.0;
+    cf->m_livestemc_transfer_to_fire = 0.0;
+    cf->m_deadstemc_transfer_to_fire = 0.0;
+    cf->m_livecrootc_transfer_to_fire = 0.0;
+    cf->m_deadcrootc_transfer_to_fire = 0.0;
     cf->m_livestemc_to_fire = 0.0;
     cf->m_deadstemc_to_fire = 0.0;
     cf->m_livecrootc_to_fire = 0.0;
     cf->m_deadcrootc_to_fire = 0.0;
-	cf->m_gresp_storage_to_fire = 0.0;
+    cf->m_gresp_storage_to_fire = 0.0;
     cf->m_gresp_transfer_to_fire = 0.0;
-	cf->m_litr1c_to_fire = 0.0;
-	cf->m_litr2c_to_fire = 0.0;
-	cf->m_litr3c_to_fire = 0.0;
-	cf->m_litr4c_to_fire = 0.0;
-	cf->m_cwdc_to_fire = 0.0;
+    cf->m_litr1c_to_fire = 0.0;
+    cf->m_litr2c_to_fire = 0.0;
+    cf->m_litr3c_to_fire = 0.0;
+    cf->m_litr4c_to_fire = 0.0;
+    cf->m_cwdc_to_fire = 0.0;
     cf->leafc_transfer_to_leafc = 0.0;
     cf->frootc_transfer_to_frootc = 0.0;
     cf->livestemc_transfer_to_livestemc = 0.0;
@@ -97,7 +95,7 @@ nflux_struct* nf)
     cf->leaf_night_mr = 0.0;
     cf->froot_mr = 0.0;
     cf->livestem_mr = 0.0;
-	cf->livecroot_mr = 0.0;
+    cf->livecroot_mr = 0.0;
     cf->psnsun_to_cpool = 0.0;
     cf->psnshade_to_cpool = 0.0;
     cf->cwdc_to_litr2c = 0.0;
@@ -157,17 +155,17 @@ nflux_struct* nf)
     cf->gresp_storage_to_gresp_transfer = 0.0;
     cf->livestemc_to_deadstemc = 0.0;
     cf->livecrootc_to_deadcrootc = 0.0;
-	         	
-	/* daily nitrogen fluxes */
-	nf->m_leafn_to_litr1n = 0.0;
-	nf->m_leafn_to_litr2n = 0.0;
-	nf->m_leafn_to_litr3n = 0.0;
-	nf->m_leafn_to_litr4n = 0.0;
-	nf->m_frootn_to_litr1n = 0.0;
-	nf->m_frootn_to_litr2n = 0.0;
-	nf->m_frootn_to_litr3n = 0.0;
-	nf->m_frootn_to_litr4n = 0.0;
-	nf->m_leafn_storage_to_litr1n = 0.0;
+
+    /* daily nitrogen fluxes */
+    nf->m_leafn_to_litr1n = 0.0;
+    nf->m_leafn_to_litr2n = 0.0;
+    nf->m_leafn_to_litr3n = 0.0;
+    nf->m_leafn_to_litr4n = 0.0;
+    nf->m_frootn_to_litr1n = 0.0;
+    nf->m_frootn_to_litr2n = 0.0;
+    nf->m_frootn_to_litr3n = 0.0;
+    nf->m_frootn_to_litr4n = 0.0;
+    nf->m_leafn_storage_to_litr1n = 0.0;
     nf->m_frootn_storage_to_litr1n = 0.0;
     nf->m_livestemn_storage_to_litr1n = 0.0;
     nf->m_deadstemn_storage_to_litr1n = 0.0;
@@ -185,10 +183,10 @@ nflux_struct* nf)
     nf->m_livecrootn_to_litr1n = 0.0;
     nf->m_livecrootn_to_cwdn = 0.0;
     nf->m_deadcrootn_to_cwdn = 0.0;
-	nf->m_retransn_to_litr1n = 0.0;
-	nf->m_leafn_to_fire = 0.0;
-	nf->m_frootn_to_fire = 0.0;
-	nf->m_leafn_storage_to_fire = 0.0;
+    nf->m_retransn_to_litr1n = 0.0;
+    nf->m_leafn_to_fire = 0.0;
+    nf->m_frootn_to_fire = 0.0;
+    nf->m_leafn_storage_to_fire = 0.0;
     nf->m_frootn_storage_to_fire = 0.0;
     nf->m_livestemn_storage_to_fire = 0.0;
     nf->m_deadstemn_storage_to_fire = 0.0;
@@ -204,12 +202,12 @@ nflux_struct* nf)
     nf->m_deadstemn_to_fire = 0.0;
     nf->m_livecrootn_to_fire = 0.0;
     nf->m_deadcrootn_to_fire = 0.0;
-	nf->m_retransn_to_fire = 0.0;
-	nf->m_litr1n_to_fire = 0.0;
-	nf->m_litr2n_to_fire = 0.0;
-	nf->m_litr3n_to_fire = 0.0;
-	nf->m_litr4n_to_fire = 0.0;
-	nf->m_cwdn_to_fire = 0.0;
+    nf->m_retransn_to_fire = 0.0;
+    nf->m_litr1n_to_fire = 0.0;
+    nf->m_litr2n_to_fire = 0.0;
+    nf->m_litr3n_to_fire = 0.0;
+    nf->m_litr4n_to_fire = 0.0;
+    nf->m_cwdn_to_fire = 0.0;
     nf->leafn_transfer_to_leafn = 0.0;
     nf->frootn_transfer_to_frootn = 0.0;
     nf->livestemn_transfer_to_livestemn = 0.0;
@@ -244,16 +242,16 @@ nflux_struct* nf)
     nf->soil3n_to_soil4n = 0.0;
     nf->sminn_to_soil4n_s3 = 0.0;
     nf->soil4n_to_sminn = 0.0;
-	nf->sminn_to_nvol_l1s1 = 0.0;
-	nf->sminn_to_nvol_l2s2 = 0.0;
-	nf->sminn_to_nvol_l4s3 = 0.0;
-	nf->sminn_to_nvol_s1s2 = 0.0;
-	nf->sminn_to_nvol_s2s3 = 0.0;
-	nf->sminn_to_nvol_s3s4 = 0.0;
-	nf->sminn_to_nvol_s4 = 0.0;
-	nf->sminn_to_denitrif = 0.0;
+    nf->sminn_to_nvol_l1s1 = 0.0;
+    nf->sminn_to_nvol_l2s2 = 0.0;
+    nf->sminn_to_nvol_l4s3 = 0.0;
+    nf->sminn_to_nvol_s1s2 = 0.0;
+    nf->sminn_to_nvol_s2s3 = 0.0;
+    nf->sminn_to_nvol_s3s4 = 0.0;
+    nf->sminn_to_nvol_s4 = 0.0;
+    nf->sminn_to_denitrif = 0.0;
     nf->sminn_leached = 0.0; 
-	nf->retransn_to_npool = 0.0;  
+    nf->retransn_to_npool = 0.0;  
     nf->sminn_to_npool = 0.0;
     nf->npool_to_leafn = 0.0;
     nf->npool_to_leafn_storage = 0.0;
@@ -277,6 +275,4 @@ nflux_struct* nf)
     nf->livestemn_to_retransn = 0.0;
     nf->livecrootn_to_deadcrootn = 0.0;
     nf->livecrootn_to_retransn = 0.0;
-	
-	return (!ok);
 }
