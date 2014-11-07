@@ -14,11 +14,23 @@ Revisions from version 4.1.1:
 
 #include "bgc.h"
 
-int daymet(const metarr_struct* metarr, metvar_struct* metv, int metday)
+void daymet(metvar_struct *metv, double t, TSD **Forcing, int spinup)
 {
-	/* generates daily meteorological variables from the metarray struct */
-	int ok=1;
-	double tmax,tmin,tavg,tday;
+    double tmax,tmin,tavg,tday;
+    int     hour;
+
+    metv->prcp = 0.;
+    metv->tmax = -999.;
+    metv->tmin = 999.;
+    metv->tavg = 0.;
+    metv->tday = 0.;
+    metv->tnight = 0.;
+    metv->vpd = 0.;
+    metv->swavgfd = 0.;
+    metv->par = 0.;
+    
+    for (hour = 0; hour < 24; hour++)
+    {
 	
 	/* convert prcp from cm --> kg/m2 */
 	metv->prcp = metarr->prcp[metday] * 10.0;
@@ -49,6 +61,4 @@ int daymet(const metarr_struct* metarr, metvar_struct* metv, int metday)
 
 	/* daylength (s) */
 	metv->dayl = metarr->dayl[metday];
-
-	return (!ok);
 }

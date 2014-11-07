@@ -37,7 +37,7 @@ endif
 
 ifeq ($(MODULE), BGC)
   SFLAGS = -D_BGC_ -D_FLUX_PIHM_ 
-  MODULE_SRCS_ = noah/coupling.c noah/module_sf_noahlsm.c spa/spa.c noah/lsm_func.c bgc/BGC_func.c bgc/presim_state_init.c bgc/make_zero_flux_struct.c bgc/restart_io.c bgc/firstday.c bgc/zero_srcsnk.c bgc/daily_bgc.c bgc/get_co2.c bgc/get_ndep.c
+  MODULE_SRCS_ = noah/coupling.c noah/module_sf_noahlsm.c spa/spa.c noah/lsm_func.c bgc/BGC_func.c bgc/presim_state_init.c bgc/make_zero_flux_struct.c bgc/restart_io.c bgc/firstday.c bgc/zero_srcsnk.c bgc/daily_bgc.c bgc/get_co2.c bgc/get_ndep.c bgc/precision_control.c
   MODULE_HEADERS_ =  noah/noah.h noah/flux_pihm.h spa/spa.h bgc/bgc.h 
   EXECUTABLE = pihm-bgc
   MSG = "... Compiling PIHM-BGC ..."

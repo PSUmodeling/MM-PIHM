@@ -24,6 +24,12 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
     co2control_struct *co2;
     ndepcontrol_struct *ndepctrl;
     control_struct  *ctrl;    
+    wstate_struct *ws;
+    wflux_struct *wf;
+    cstate_struct *cs;
+    cflux_struct *cf;
+    nstate_struct *ns;
+    nflux_struct *nf;
     struct tm      *timestamp;
     time_t          *rawtime;
 
@@ -43,6 +49,12 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
     co2 = &BGCM->co2;
     ndepctrl = &BGCM->ndepctrl;
     ctrl = &BGCM->ctrl;
+    ws = &grid->ws;
+    wf = &grid->wf;
+    cs = &grid->cs;
+    cf = &grid->cf;
+    ns = &grid->ns;
+    nf = &grid->nf;
 
     printf ("BGC daily cycle\n");
     rawtime = (time_t *) malloc (sizeof (time_t));
@@ -102,4 +114,9 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
         }
     }
     printf ("co2 = %lf, ndep = %lf, nfix = %lf\n", metv->co2, daily_ndep, daily_nfix);
+
+    precision_control (ws, cs, ns);
+
+    /* Make zero fluxes */
+    make_zero_flux_struct (wf, cf, nf);
 }

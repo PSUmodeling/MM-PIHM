@@ -661,11 +661,7 @@ void BGC_init (char *filename, bgc_struct BGCM, Model_Data PIHM)
     int metyr;
 
     printf ("Initialize BGC structures\n");
-    /* Make zero fluxes */
-    for (i = 0; i < PIHM->NumEle; i++)
-    {
-        make_zero_flux_struct (&BGCM->grid[i].wf, &BGCM->grid[i].cf, &BGCM->grid[i].nf);
-    }
+
     /* Read initial conditions */
     if (BGCM->ctrl.spinup == 0)
     {

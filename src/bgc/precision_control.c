@@ -11,10 +11,8 @@ See copyright.txt for Copyright information
 
 #include "bgc.h"
 
-int precision_control(wstate_struct* ws, cstate_struct* cs, nstate_struct* ns)
+void precision_control(wstate_struct *ws, cstate_struct *cs, nstate_struct *ns)
 {
-	int ok = 1;
-	
 	/* CARBON AND NITROGEN STATE VARIABLES */
 	/* force very low leaf C to 0.0, to avoid roundoff
 	error in canopy radiation routines. Send excess to litter 1.
@@ -157,6 +155,4 @@ int precision_control(wstate_struct* ws, cstate_struct* cs, nstate_struct* ns)
 		ws->canopyevap_snk += ws->canopyw;
 		ws->canopyw = 0.0;
 	}
-	
-	return(!ok);
 }	
