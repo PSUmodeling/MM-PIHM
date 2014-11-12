@@ -1,5 +1,3 @@
-
-
 /////////////////////////////////////////////
 //          HEADER FILE for SPA.C          //
 //                                         //
@@ -49,8 +47,8 @@
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
-//#ifndef __solar_position_algorithm_header
-//#define __solar_position_algorithm_header
+#ifndef __solar_position_algorithm_header
+#define __solar_position_algorithm_header
 
 
 //enumeration for function codes to select desired final outputs from SPA
@@ -213,4 +211,4 @@ double          topocentric_azimuth_angle_zero_360 (double azimuth180);
 //Calculate SPA output values (in structure) based on input values passed in structure
 int             spa_calculate (spa_data * spa);
 
-//#endif
+#endif

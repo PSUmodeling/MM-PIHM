@@ -164,6 +164,9 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
         sscanf (cmdstr, "%lf", &epc->alloc_crootc_stemc);
         fgets (cmdstr, MAXSTRING, epc_file);
         sscanf (cmdstr, "%lf", &epc->alloc_prop_curgrowth);
+        /* force storage growth to 0.0 if evergreen (following CLM-CN) */
+        if (epc->evergreen)
+            epc->alloc_prop_curgrowth = 1.0;
         fgets (cmdstr, MAXSTRING, epc_file);
         sscanf (cmdstr, "%lf", &epc->leaf_cn);
         fgets (cmdstr, MAXSTRING, epc_file);
@@ -304,44 +307,44 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
         fgets (cmdstr, MAXSTRING, epc_file);
         sscanf (cmdstr, "%lf", &epc->vpd_close);
 
-//#ifdef _DEBUG_
-//        printf ("WOODY%d\t", epc->woody);
-//        printf ("EVERGREEN%d\t", epc->evergreen);
-//        printf ("C3%d\t", epc->c3_flag);
-//        printf ("TRANSFERDAY%lf\t", epc->transfer_days);
-//        printf ("LITFALLDAY%lf\t", epc->litfall_days);
-//        printf ("LEAFTURNOVER%lf\t", epc->leaf_turnover);
-//	printf ("FROOTTURNOVER%lf\t", epc->froot_turnover);
-//        printf ("LIVEWOODTURNOVER%lf\t", epc->livewood_turnover);
-//	printf ("DAILYMORTALITYTURNOVER%lf\t", epc->daily_mortality_turnover);
-//	printf ("DAILYFIRETURNOVER%lf\t", epc->daily_fire_turnover);
-//        printf ("FROOTC/LEAFC%lf\t", epc->alloc_frootc_leafc);
-//        printf ("NEWSTEMC/NEWLEAFC%lf\t", epc->alloc_newstemc_newleafc);
-//        printf ("NEWLIVEWOODC/NEWWOODC%lf\t", epc->alloc_newlivewoodc_newwoodc);
-//        printf ("CROOTC/STEMC%lf\t", epc->alloc_crootc_stemc);
-//        printf ("PROP%lf\t", epc->alloc_prop_curgrowth);
-//        printf ("LEAFCN%lf\t", epc->leaf_cn);
-//        printf ("LEAFLITRCN%lf\t", epc->leaflitr_cn);
-//        printf ("FROOTCN%lf\t", epc->froot_cn);
-//        printf ("LIVEWOODCN%lf\t", epc->livewood_cn);
-//        printf ("DEADWOODCN%lf\t", epc->deadwood_cn);
-//        printf ("LEAFLITR %lf %lf %lf\t", epc->leaflitr_fscel, epc->leaflitr_fucel, epc->leaflitr_flig);
-//        printf ("FROOTLITR %lf %lf %lf\t", epc->frootlitr_fscel, epc->frootlitr_fucel, epc->frootlitr_flig);
-//        printf ("DEADWOOD %lf %lf %lf\t", epc->deadwood_fscel, epc->deadwood_fucel, epc->deadwood_flig);
-//        printf ("INTCOEF %lf\t", epc->int_coef);
-//        printf ("EXTCOEF %lf\t", epc->ext_coef);
-//        printf ("LAIRATIO %lf\t", epc->lai_ratio);
-//        printf ("PROJSLA %lf\t", epc->avg_proj_sla);
-//        printf ("SLARATIO %lf\t", epc->sla_ratio);
-//        printf ("FLNR %lf\t", epc->flnr);
-//        printf ("GLMAX %lf\t", epc->gl_smax);
-//        printf ("GLC %lf\t", epc->gl_c);
-//        printf ("GL_BL %lf\t", epc->gl_bl);
-//        printf ("PSIOPEN %lf\t", epc->psi_open);
-//        printf ("PSICLOSE %lf\t", epc->psi_close);
-//        printf ("VPDOPEN %lf\t", epc->vpd_open);
-//        printf ("VPDCLOSE%lf\n", epc->vpd_close);
-//#endif
+#ifdef _DEBUG_
+        printf ("WOODY%d\t", epc->woody);
+        printf ("EVERGREEN%d\t", epc->evergreen);
+        printf ("C3%d\t", epc->c3_flag);
+        printf ("TRANSFERDAY%lf\t", epc->transfer_days);
+        printf ("LITFALLDAY%lf\t", epc->litfall_days);
+        printf ("LEAFTURNOVER%lf\t", epc->leaf_turnover);
+	printf ("FROOTTURNOVER%lf\t", epc->froot_turnover);
+        printf ("LIVEWOODTURNOVER%lf\t", epc->livewood_turnover);
+	printf ("DAILYMORTALITYTURNOVER%lf\t", epc->daily_mortality_turnover);
+	printf ("DAILYFIRETURNOVER%lf\t", epc->daily_fire_turnover);
+        printf ("FROOTC/LEAFC%lf\t", epc->alloc_frootc_leafc);
+        printf ("NEWSTEMC/NEWLEAFC%lf\t", epc->alloc_newstemc_newleafc);
+        printf ("NEWLIVEWOODC/NEWWOODC%lf\t", epc->alloc_newlivewoodc_newwoodc);
+        printf ("CROOTC/STEMC%lf\t", epc->alloc_crootc_stemc);
+        printf ("PROP%lf\t", epc->alloc_prop_curgrowth);
+        printf ("LEAFCN%lf\t", epc->leaf_cn);
+        printf ("LEAFLITRCN%lf\t", epc->leaflitr_cn);
+        printf ("FROOTCN%lf\t", epc->froot_cn);
+        printf ("LIVEWOODCN%lf\t", epc->livewood_cn);
+        printf ("DEADWOODCN%lf\t", epc->deadwood_cn);
+        printf ("LEAFLITR %lf %lf %lf\t", epc->leaflitr_fscel, epc->leaflitr_fucel, epc->leaflitr_flig);
+        printf ("FROOTLITR %lf %lf %lf\t", epc->frootlitr_fscel, epc->frootlitr_fucel, epc->frootlitr_flig);
+        printf ("DEADWOOD %lf %lf %lf\t", epc->deadwood_fscel, epc->deadwood_fucel, epc->deadwood_flig);
+        printf ("INTCOEF %lf\t", epc->int_coef);
+        printf ("EXTCOEF %lf\t", epc->ext_coef);
+        printf ("LAIRATIO %lf\t", epc->lai_ratio);
+        printf ("PROJSLA %lf\t", epc->avg_proj_sla);
+        printf ("SLARATIO %lf\t", epc->sla_ratio);
+        printf ("FLNR %lf\t", epc->flnr);
+        printf ("GLMAX %lf\t", epc->gl_smax);
+        printf ("GLC %lf\t", epc->gl_c);
+        printf ("GL_BL %lf\t", epc->gl_bl);
+        printf ("PSIOPEN %lf\t", epc->psi_open);
+        printf ("PSICLOSE %lf\t", epc->psi_close);
+        printf ("VPDOPEN %lf\t", epc->vpd_open);
+        printf ("VPDCLOSE%lf\n", epc->vpd_close);
+#endif
     }
 
     /* Read bgc simulation control file */
@@ -653,7 +656,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
         printf ("done.\n");
 }
 
-void BGC_init (char *filename, bgc_struct BGCM, Model_Data PIHM)
+void BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM)
 {
     char            fn[100];
     FILE           *init_file;
@@ -661,6 +664,19 @@ void BGC_init (char *filename, bgc_struct BGCM, Model_Data PIHM)
     int metyr;
 
     printf ("Initialize BGC structures\n");
+
+    for (i = 0; i < PIHM->NumEle; i++)
+    {
+        BGCM->grid[i].sitec.soil_alpha = LSM->GRID[i].VGALPHA;
+        BGCM->grid[i].sitec.soil_beta = LSM->GRID[i].VGBETA;
+        BGCM->grid[i].sitec.vwc_sat = LSM->GRID[i].SMCMAX;
+        BGCM->grid[i].sitec.vwc_min = LSM->GRID[i].SMCMIN;
+        BGCM->grid[i].sitec.vwc_fc = LSM->GRID[i].SMCREF;
+        BGCM->grid[i].sitec.lat = LSM->LATITUDE;
+        BGCM->grid[i].sitec.lon = LSM->LONGITUDE;
+        BGCM->grid[i].sitec.sw_alb = 0.5 * (LSM->GRID[i].ALBEDOMIN + LSM->GRID[i].ALBEDOMAX);
+        BGCM->grid[i].epv.annavg_t2m = LSM->GENPRMT.TBOT_DATA - 273.15;
+    }
 
     /* Read initial conditions */
     if (BGCM->ctrl.spinup == 0)

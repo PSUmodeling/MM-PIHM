@@ -567,6 +567,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     if (ensemble_mode == 0)
         printf ("done.\n");
 
+
     /*========== open *.ibc file ==========*/
     if (ensemble_mode == 0)
         printf ("  8) reading %s.%-5s ...\t\t", projectname, "ibc");

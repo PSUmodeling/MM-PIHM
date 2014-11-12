@@ -5,9 +5,10 @@ enum bgc_forcing_type {CO2_TS, NDEP_TS, SWC_TS, STC_TS};
 /* simulation control variables */
 typedef struct
 {
-    int             metyears;   /* # years of met data */
-    int             simyears;   /* # years of simulation */
-    int             simstartyear;   /* first year of simulation */
+//    int             metyears;   /* # years of met data */
+//    int             simyears;   /* # years of simulation */
+    double             simstarttime;   /* start time of simulation */
+    double             simendtime;     /* end time of simulation */
     int             spinup;     /* (flag) 1=spinup run, 0=normal run */
     int             maxspinyears;   /* maximum number of years for spinup run */
     int             dodaily;    /* flag for daily output */
@@ -26,14 +27,6 @@ typedef struct
     int             spinupend;      /* last met year for spinup */
 } control_struct;
 
-/* a structure to hold information about ramped N-deposition scenario */
-typedef struct
-{
-    int             doramp;     /* (flag) 1=ramped Ndep, 0=constant Ndep */
-    int             ind_year;   /* (int)  reference year for indust. Ndep */
-    double          preind_ndep;    /* (double)  (kgN/m2/yr) preindustrial Ndep (at first metyear) */
-    double          ind_ndep;   /* (double)  (kgN/m2/yr) industrial Ndep at ref yr */
-} ramp_ndep_struct;
 
 /* a structure to hold information on the annual co2 concentration */
 typedef struct
@@ -85,6 +78,7 @@ typedef struct
     double          tday;       /* (deg C) daylight average air temperature */
     double          tnight;     /* (deg C) nightime average air temperature */
     double          tsoil;      /* (deg C) daily soil temperature, avg, top 10 cm */
+    double          swc;
     double          vpd;        /* (Pa)    vapor pressure deficit */
     double          swavgfd;    /* (W/m2)  daylight average shortwave flux */
     double          swabs;      /* (W/m2)  canopy absorbed shortwave flux */
@@ -98,6 +92,7 @@ typedef struct
     double          pa;         /* (Pa)    atmospheric pressure */
     double          co2;        /* (ppm)   atmospheric concentration of CO2 */
     double          dayl;       /* (s)     daylength */
+    double          prev_dayl;  /* daylength from previous timestep (seconds) */
 } metvar_struct;
 
 /* water state variables (including sums for sources and sinks) */
@@ -628,7 +623,6 @@ typedef struct
     double          bglfr;      /* background litterfall rate (1/s) */
     double          bgtr;       /* background transfer growth rate (1/s) */
     //   double dayl;     /* daylength (seconds) */
-    double          prev_dayl;  /* daylength from previous timestep (seconds) */
     double          annavg_t2m; /* annual average 2m air temperature (K) */
     double          tempavg_t2m;    /* temporary average 2m air temperature (K) */
     double          gpp;        /* GPP flux before downregulation (gC/m2/s) */
@@ -659,22 +653,26 @@ typedef struct
     double          rc13_psnsha;    /* C13O2/C12O2 in shaded canopy psn flux */
 } epvar_struct;
 
-///* soil and site constants */
-//typedef struct
-//{
+/* soil and site constants */
+typedef struct
+{
 //    double          soil_depth; /* (m)   effective depth of rooting zone */
 //    double          soil_b;     /* (DIM) Clapp-Hornberger "b" parameter */
-//    double          vwc_sat;    /* (DIM) volumetric water content at saturation */
-//    double          vwc_fc;     /* (DIM) VWC at field capacity ( = -0.015 MPa) */
+    double          soil_alpha; /* van Genuchten Alpha (m-1) */
+    double          soil_beta;  /* van Genuchten Beta (-) */
+    double          vwc_sat;    /* (DIM) volumetric water content at saturation */
+    double          vwc_min;
+    double          vwc_fc;     /* (DIM) VWC at field capacity ( = -0.015 MPa) */
 //    double          psi_sat;    /* (MPa) soil matric potential at saturation */
 //    double          soilw_sat;  /* (kgH2O/m2) soilwater at saturation */
 //    double          soilw_fc;   /* (kgH2O/m2) soilwater at field capacity */
 //    double          elev;       /* (m) site elevation */
-//    double          lat;        /* (degrees) site latitude (negative for south) */
-//    double          sw_alb;     /* (DIM) surface shortwave albedo */
+    double          lon;
+    double          lat;        /* (degrees) site latitude (negative for south) */
+    double          sw_alb;     /* (DIM) surface shortwave albedo */
 //    double          ndep;       /* (kgN/m2/yr) wet+dry atmospheric deposition of N */
 //    double          nfix;       /* (kgN/m2/yr) symbiotic+asymbiotic fixation of N */
-//} siteconst_struct;
+} siteconst_struct;
 
 /* canopy ecophysiological constants */
 typedef struct
@@ -894,6 +892,7 @@ enum EPC_VEGTYPE { EPC_C3GRASS, EPC_C4GRASS, EPC_DBF, EPC_DNF, EPC_EBF, EPC_ENF,
 
 typedef struct bgc_grid
 {
+    siteconst_struct sitec;     /* site constants */
     metvar_struct   metv;
     wstate_struct   ws;         /* water state variables */
     wflux_struct    wf;

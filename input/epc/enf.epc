@@ -12,7 +12,7 @@ ECOPHYS       ENF-cool (evergreen needleleaf forest - cool climate)
 2.2           (ratio)   (ALLOCATION) new stem C : new leaf C
 0.1           (ratio)   (ALLOCATION) new live wood C : new total wood C
 0.3           (ratio)   (ALLOCATION) new croot C : new stem C
-0.5           (prop.)   (ALLOCATION) current growth proportion 
+1.0           (prop.)   (ALLOCATION) current growth proportion 
 42.0          (kgC/kgN) C:N of leaves
 93.0          (kgC/kgN) C:N of leaf litter, after retranslocation
 42.0          (kgC/kgN) C:N of fine roots 

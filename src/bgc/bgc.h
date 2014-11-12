@@ -11,10 +11,13 @@
 #include <time.h>
 
 #include "../pihm.h"
+#include "../noah/noah.h"
+#include "../spa/spa.h"
 
 #include "bgc_constants.h"
 #include "../forcing.h"
 #include "bgc_struct.h"
+#include "../time_func.h"
 #include "bgc_func.h"
 //#include "ini.h"
 //#include "bgc_io.h"

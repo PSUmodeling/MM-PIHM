@@ -187,7 +187,7 @@ int main (int argc, char *argv[])
     LSM_initialize (filename, mData, &cData, LSM);
 #endif
 #ifdef _BGC_
-    BGC_init (filename, BGCM, mData);
+    BGC_init (filename, mData, LSM, BGCM);
 #endif
 
     /*
@@ -200,9 +200,13 @@ int main (int argc, char *argv[])
 
 //#ifdef _DEBUG_
     t = cData.StartTime;
-
+    *rawtime = (time_t) t;
+    daymet (BGCM, mData, LSM, t, BGCM->ctrl.spinup);
+    printf ("DOY = %d\n", t2doy (rawtime));
     for (i = 0; i < mData->NumEle; i++)
+    {
         daily_bgc (BGCM, &BGCM->grid[i], t);
+    }
 //#endif
 
 #ifdef _BGC_

@@ -155,9 +155,9 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
     if (LSM->RAD_MODE == 1)
     {
         if (ensemble_mode == 0)
-            printf ("\n 11) reading %s.%-5s ...\t\t", projectname, "lforc");
+            printf ("\n 11) reading %s.%-5s ...\t\t", projectname, "rad");
         fn = (char *)malloc ((strlen (projectname) + 13) * sizeof (char));
-        sprintf (fn, "input/%s.lforc", projectname);
+        sprintf (fn, "input/%s.rad", projectname);
         lsm_forcing_file = fopen (fn, "r");
         free (fn);
 

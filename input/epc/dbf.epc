@@ -2,8 +2,8 @@ ECOPHYS       DBF  (deciduous broadleaf forest)
 1             (flag)    1 = WOODY             0 = NON-WOODY
 0             (flag)    1 = EVERGREEN         0 = DECIDUOUS
 1             (flag)    1 = C3 PSN            0 = C4 PSN
-15            (day)     transfer growth period
-20            (day)     litterfall period
+30            (day)     transfer growth period
+15            (day)     litterfall period
 1.0           (1/yr)    annual leaf and fine root turnover fraction
 0.70          (1/yr)    annual live wood turnover fraction
 0.005         (1/yr)    annual whole-plant mortality fraction

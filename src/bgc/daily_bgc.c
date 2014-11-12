@@ -20,10 +20,13 @@ Revisions since 4.1.2
 
 void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
 {
+    siteconst_struct *sitec;
     metvar_struct   *metv;
     co2control_struct *co2;
     ndepcontrol_struct *ndepctrl;
     control_struct  *ctrl;    
+    epconst_struct  *epc;
+    epvar_struct    *epv;
     wstate_struct *ws;
     wflux_struct *wf;
     cstate_struct *cs;
@@ -45,10 +48,13 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
     double daily_ndep, daily_nfix, ndep_scalar, ndep_diff, ndep;
     int ind_simyr;
 
+    sitec = &grid->sitec;
     metv = &grid->metv;
     co2 = &BGCM->co2;
     ndepctrl = &BGCM->ndepctrl;
     ctrl = &BGCM->ctrl;
+    epc = &grid->epc;
+    epv = &grid->epv;
     ws = &grid->ws;
     wf = &grid->wf;
     cs = &grid->cs;
@@ -56,12 +62,12 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
     ns = &grid->ns;
     nf = &grid->nf;
 
-    printf ("BGC daily cycle\n");
+//    printf ("BGC daily cycle\n");
     rawtime = (time_t *) malloc (sizeof (time_t));
     *rawtime = (int)t;
     timestamp = gmtime (rawtime);
 
-    printf ("BGC Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+//    printf ("BGC Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
 
     /* Get co2 and ndep */
     if (ctrl->spinup == 1)      /* Spinup mode */
@@ -113,10 +119,16 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
             }
         }
     }
-    printf ("co2 = %lf, ndep = %lf, nfix = %lf\n", metv->co2, daily_ndep, daily_nfix);
+//    printf ("co2 = %lf, ndep = %lf, nfix = %lf\n", metv->co2, daily_ndep, daily_nfix);
 
     precision_control (ws, cs, ns);
 
     /* Make zero fluxes */
     make_zero_flux_struct (wf, cf, nf);
+
+    
+    radtrans(cs, epc, metv, epv, sitec->sw_alb);
+
+    maint_resp (cs, ns, epc, metv, cf, epv);
+
 }

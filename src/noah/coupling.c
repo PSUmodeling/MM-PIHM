@@ -103,15 +103,15 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
         }
         else
         {
-            if (PIHM->NumTS[11] > 0 && PIHM->NumTS[12] > 0)
-            {
-                Sdir = (double)Interpolation (&PIHM->Forcing[11][PIHM->Ele[i].Sdown - 1], t);
-                Sdif = (double)Interpolation (&PIHM->Forcing[12][PIHM->Ele[i].Sdown - 1], t);
-                Soldown = Sdir * cos (spa.zenith * PI / 180.);
-                Soldown = Soldown < 0. ? 0. : Soldown;
-                Soldown = Soldown + Sdif;
-            }
-            else
+//            if (LSM->NumTS[SOLAR_DIR_TS] > 0 && LSM->NumTS[SOLAR_DIF_TS] > 0)
+//            {
+//                Sdir = (double)Interpolation (&LSM->Forcing[SOLAR_DIR_TS][PIHM->Ele[i].Sdown - 1], t);
+//                Sdif = (double)Interpolation (&LSM->Forcing[SOLAR_DIF_TS][PIHM->Ele[i].Sdown - 1], t);
+//                Soldown = Sdir * cos (spa.zenith * PI / 180.);
+//                Soldown = Soldown < 0. ? 0. : Soldown;
+//                Soldown = Soldown + Sdif;
+//            }
+//            else
                 Soldown = Interpolation (&PIHM->Forcing[SOLAR_TS][PIHM->Ele[i].Sdown - 1], t);
         }
         NOAH->SOLDN = Soldown;// / 24. / 3600.;    /* SOLDN: convert from J day-1 m-2 to W m-2 */
