@@ -14,6 +14,10 @@ void precision_control(wstate_struct *ws, cstate_struct *cs, nstate_struct *ns);
 
 void radtrans(const cstate_struct* cs, const epconst_struct* epc, metvar_struct* metv, epvar_struct* epv, double albedo);
 void maint_resp(const cstate_struct* cs, const nstate_struct* ns, const epconst_struct* epc, const metvar_struct* metv, cflux_struct* cf, epvar_struct* epv);
+void phenology(const epconst_struct* epc, const metvar_struct *metv, phenology_struct *phen, epvar_struct* epv, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, nflux_struct* nf);
+void leaf_litfall(const epconst_struct* epc, double litfallc, cflux_struct* cf, nflux_struct* nf);
+void froot_litfall (const epconst_struct* epc, double litfallc, cflux_struct* cf, nflux_struct* nf);
+void soilpsi(const siteconst_struct* sitec, double soilw, double* psi);
 //int output_map_init(double** output_map, metvar_struct* metv, wstate_struct* ws, //wflux_struct* wf, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, //nflux_struct* nf, phenology_struct* phen, epvar_struct* epv, //psn_struct* psn_sun, psn_struct* psn_shade, summary_struct* summary);
 //int atm_pres(double elev, double* pa);
 //int prephenology(const control_struct* ctrl, const epconst_struct* epc, 

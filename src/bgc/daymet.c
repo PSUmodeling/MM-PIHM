@@ -48,7 +48,7 @@ void daymet(bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double t, int spin
 
     /* daylength (s) */
     dayl = (spa.sunset - spa.sunrise) * 3600.;
-    dayl = dayl < 0. ? dayl + 12. * 3600. : dayl;
+    dayl = dayl < 0. ? (dayl + 24. * 3600.) : dayl;
 
     *rawtime = *rawtime - 24. * 3600.;
     timestamp = gmtime (rawtime);
@@ -60,11 +60,12 @@ void daymet(bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double t, int spin
     spa.second = timestamp->tm_sec;
     spa_result = spa_calculate (&spa);
     prev_dayl = (spa.sunset - spa.sunrise) * 3600.;
-    prev_dayl = prev_dayl < 0. ? prev_dayl + 12. * 3600. : prev_dayl;
+    prev_dayl = prev_dayl < 0. ? (prev_dayl + 12. * 3600.) : prev_dayl;
 
     free (rawtime);
 
-    for (i = 0; i < PIHM->NumEle; i++)
+//    for (i = 0; i < PIHM->NumEle; i++)
+    for (i = 0; i < 1; i++)
     {
         metv = &(BGCM->grid[i].metv);
         if (spinup == 1)

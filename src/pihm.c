@@ -71,6 +71,8 @@ int main (int argc, char *argv[])
 
 #ifdef _BGC_
     bgc_struct      BGCM;
+    realtype        spinup_starttime;
+    realtype        spinup_endtime;
 #endif
 
     system ("clear");
@@ -198,22 +200,38 @@ int main (int argc, char *argv[])
     LSM_initialize_output (filename, mData, LSM, outputdir);
 #endif
 
-//#ifdef _DEBUG_
-    t = cData.StartTime;
-    *rawtime = (time_t) t;
-    daymet (BGCM, mData, LSM, t, BGCM->ctrl.spinup);
-    printf ("DOY = %d\n", t2doy (rawtime));
-    for (i = 0; i < mData->NumEle; i++)
-    {
-        daily_bgc (BGCM, &BGCM->grid[i], t);
-    }
-//#endif
-
 #ifdef _BGC_
     if (BGCM->ctrl.spinup == 1)
     {
         printf ("\n\nRunning BGC model in spin-up mode using prescribed soil moisture and soil temperature\n");
         printf ("PIHM is not running.\n");
+        timestamp->tm_year = BGCM->ctrl.spinupstart;
+        timestamp->tm_mon = 1;
+        timestamp->tm_mday = 1;
+        timestamp->tm_hour = 0;
+        timestamp->tm_min = 0;
+        timestamp->tm_sec = 0;
+        timestamp->tm_year = timestamp->tm_year - 1900;
+        timestamp->tm_mon = timestamp->tm_mon - 1;
+        *rawtime = timegm(timestamp);
+        spinup_starttime = (realtype) *rawtime;
+
+        timestamp->tm_year = BGCM->ctrl.spinupend + 1;
+        timestamp->tm_year = timestamp->tm_year - 1900;
+        *rawtime = timegm(timestamp);
+        spinup_endtime = (realtype) *rawtime;
+
+        for (t = spinup_starttime; t < spinup_endtime; t = t + 24 * 3600.)
+        {
+            daymet (BGCM, mData, LSM, t, BGCM->ctrl.spinup);
+            *rawtime = t;
+            printf ("DOY = %d\n", t2doy (rawtime));
+//            for (i = 0; i < mData->NumEle; i++)
+            for (i = 0; i < 1; i++)
+            {
+                daily_bgc (BGCM, &BGCM->grid[i], t);
+            }
+        }
     }
     else
     {

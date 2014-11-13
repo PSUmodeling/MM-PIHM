@@ -23,7 +23,7 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
     double          E;
     double          SVP, SVP1 = 611.2, SVP2 = 17.67, SVP3 = 29.65, SVPT0 = 273.15;
     double          T1V, TH2V, T2V, RHO, ES, RH;
-    double          ZSOIL[LSM->STD_NSOIL + 1];
+//    double          ZSOIL[LSM->STD_NSOIL + 1];
     int             i, j, KZ;
     int             spa_result;
 
@@ -170,9 +170,9 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
         NOAH->SOLNET = NOAH->SOLDN * (1.0 - NOAH->ALBEDO);
         NOAH->LWDN = NOAH->LONGWAVE * NOAH->EMISSI;
 
-        ZSOIL[0] = -NOAH->SLDPTH[0];
-        for (KZ = 1; KZ < NOAH->NSOIL; KZ++)
-            ZSOIL[KZ] = -NOAH->SLDPTH[KZ] + ZSOIL[KZ - 1];
+//        ZSOIL[0] = -NOAH->SLDPTH[0];
+//        for (KZ = 1; KZ < NOAH->NSOIL; KZ++)
+//            ZSOIL[KZ] = -NOAH->SLDPTH[KZ] + ZSOIL[KZ - 1];
 
         NOAH->RUNOFF2 = 0;
         for (j = 0; j < 3; j++)
@@ -182,7 +182,7 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
         if (NOAH->NWTBL > NOAH->NSOIL)
             NOAH->NWTBL = NOAH->NSOIL;
 
-        REDPRM (NOAH, LSM, ZSOIL);
+//        REDPRM (NOAH, LSM, ZSOIL);
 #ifdef _DEBUG_
         if (i == 0)
         {

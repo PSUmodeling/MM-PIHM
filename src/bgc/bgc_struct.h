@@ -1,7 +1,6 @@
 #ifndef BGC_STRUCT_H
 #define BGC_STRUCT_H
 
-enum bgc_forcing_type {CO2_TS, NDEP_TS, SWC_TS, STC_TS};
 /* simulation control variables */
 typedef struct
 {
@@ -888,7 +887,6 @@ typedef struct epclist_struct
     epconst_struct *epc;        /* pointer to array of epc structures */
 } epclist_struct;
 
-enum EPC_VEGTYPE { EPC_C3GRASS, EPC_C4GRASS, EPC_DBF, EPC_DNF, EPC_EBF, EPC_ENF, EPC_SHRUB };
 
 typedef struct bgc_grid
 {

@@ -629,7 +629,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
             BGCM->grid[i].epc = BGCM->epclist.epc[EPC_DBF];
         else if (PIHM->Ele[i].LC == 2 || PIHM->Ele[i].LC == 5 || PIHM->Ele[i].LC == 8)
             BGCM->grid[i].epc = BGCM->epclist.epc[EPC_ENF];
-        else if (PIHM->Ele[i].LC == 1 || PIHM->Ele[i].LC == 4 || PIHM->Ele[i].LC == 7)
+        else if (PIHM->Ele[i].LC == 3 || PIHM->Ele[i].LC == 6 || PIHM->Ele[i].LC == 9)
             BGCM->grid[i].epc = BGCM->epclist.epc[EPC_DBF];
 
         BGCM->grid[i].epv.dormant_flag = 1.;

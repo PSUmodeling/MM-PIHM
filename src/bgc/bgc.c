@@ -114,9 +114,6 @@ int bgc(bgcin_struct* bgcin, bgcout_struct* bgcout, int mode)
 	/* simple annual variables for text output */
 	double annmaxplai,annet,annoutflow,annnpp,annnbp, annprcp,anntavg;
 
-#ifdef _PIHM_BGC_
-        printf("Now running modified BGC\n");
-#endif
 	if (mode != MODE_SPINUP && mode != MODE_MODEL)
 	{
 		bgc_printf(BV_ERROR, "Error: Unknown MODE given when calling bgc()\n");
@@ -223,7 +220,6 @@ int bgc(bgcin_struct* bgcin, bgcout_struct* bgcout, int mode)
 	
 	bgc_printf(BV_DIAG, "done atm_pres\n");
 	
-#ifndef _PIHM_BGC_
 	/* determine phenological signals */
 	if (ok && prephenology(&ctrl, &epc, &sitec, &metarr, &phenarr))
 	{
@@ -232,7 +228,6 @@ int bgc(bgcin_struct* bgcin, bgcout_struct* bgcout, int mode)
 	}
 	
 	bgc_printf(BV_DIAG, "done prephenology\n");
-#endif
 	
 	/* calculate the annual average air temperature for use in soil 
 	temperature corrections. This code added 9 February 1999, in
@@ -417,7 +412,6 @@ int bgc(bgcin_struct* bgcin, bgcout_struct* bgcout, int mode)
 					ind_simyr = ramp_ndep.ind_year - ctrl.simstartyear;
 					ndep_scalar = (ramp_ndep.ind_ndep - ramp_ndep.preind_ndep) / 
 						(co2.co2ppm_array[ind_simyr]-co2.co2ppm_array[0]);
-                                        printf("ramp_ndep.ind_year = %d, ctrl.simstartyear = %d, ramp_ndep.ind_ndep = %lf, ramp_ndep.preind_ndep = %lf\n", ramp_ndep.ind_year, ctrl.simstartyear, ramp_ndep.ind_ndep, ramp_ndep.preind_ndep ); 
 					ndep_diff = (co2.co2ppm_array[simyr] - co2.co2ppm_array[0]) * 
 						ndep_scalar;
 					ndep = ramp_ndep.preind_ndep + ndep_diff;
@@ -456,7 +450,7 @@ int bgc(bgcin_struct* bgcin, bgcout_struct* bgcout, int mode)
 			/* atmospheric concentration of CO2 (ppm) */
 			/* Always assign a fixed CO2 value for spinups */
 			metv.co2 = co2.co2ppm;
-//                        printf("Ndep = %lf\n", daily_ndep);
+
 			/*if (!(co2.varco2)) 
 			else metv.co2 = co2.co2ppm_array[simyr]; */
 		}
@@ -503,13 +497,6 @@ int bgc(bgcin_struct* bgcin, bgcout_struct* bgcout, int mode)
 				metv.tsoil += 0.2 * tdiff;
 			}
 			
-#ifndef _PIHM_BGC_
-                        /* 
-                         * In the no-looking-ahead version,
-                         * phenology needs to be called after CNdecompAlloc, because it
-                         * depends on current time-step fluxes to new growth on the last
-                         * litterfall timestep in deciduous systems
-                         */
 			/* daily phenological variables from phenarrays */
 			if (ok && dayphen(&phenarr, &phen, metday))
 			{
@@ -531,7 +518,6 @@ int bgc(bgcin_struct* bgcin, bgcout_struct* bgcout, int mode)
 			}
 			
 			bgc_printf(BV_DIAG, "%d\t%d\tdone phenology\n",simyr,yday);
-#endif
 	
 			/* calculate leaf area index, sun and shade fractions, and specific
 			leaf area for sun and shade canopy fractions, then calculate
@@ -695,36 +681,6 @@ int bgc(bgcin_struct* bgcin, bgcout_struct* bgcout, int mode)
 			}
 			
 			bgc_printf(BV_DIAG, "%d\t%d\tdone daily_allocation\n",simyr,yday);
-
-#ifdef _PIHM_BGC_
-                        /* 
-                         * In the no-looking-ahead version,
-                         * phenology needs to be called after CNdecompAlloc, because it
-                         * depends on current time-step fluxes to new growth on the last
-                         * litterfall timestep in deciduous systems
-                         */
-			/* daily phenological variables from phenarrays */
-			if (ok && dayphen(&phenarr, &phen, metday))
-			{
-				bgc_printf(BV_ERROR, "Error in dayphen() from bgc()\n");
-				ok=0;
-			}
-			
-			bgc_printf(BV_DIAG, "%d\t%d\tdone dayphen\n",simyr,yday);
-	
-			/* test for the annual allocation day */
-			if (phen.remdays_litfall == 1) annual_alloc = 1;
-			else annual_alloc = 0;
-			
-			/* phenology fluxes */
-			if (ok && phenology(&epc, &phen, &epv, &cs, &cf, &ns, &nf))
-			{
-				bgc_printf(BV_ERROR, "Error in phenology() from bgc()\n");
-				ok=0;
-			}
-			
-			bgc_printf(BV_DIAG, "%d\t%d\tdone phenology\n",simyr,yday);
-#endif
 
 			/* reassess the annual turnover rates for livewood --> deadwood,
 			and for evergreen leaf and fine root litterfall. This happens

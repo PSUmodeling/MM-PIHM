@@ -179,7 +179,7 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data * CS, LSM_STR
     GRID_TYPE      *NOAH;
     int             i, j, k, KZ;
     int             icounter;
-    double          ZSOIL[LSM->STD_NSOIL];
+    double          ZSOIL[LSM->STD_NSOIL + 1];
     double          AquiferDepth;
     double          a_x, a_y, b_x, b_y, c_x, c_y, distX, distY;
     double          a_zmin, a_zmax, b_zmin, b_zmax, c_zmin, c_zmax;
@@ -625,6 +625,16 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data * CS, LSM_STR
         NOAH->CH = 1.e-4;
         NOAH->CM = 1.e-4;
     }
+
+    for (i = 0; i < PIHM->NumEle; i++)
+    {
+        NOAH = &(LSM->GRID[i]);
+        ZSOIL[0] = -NOAH->SLDPTH[0];
+        for (KZ = 1; KZ < NOAH->NSOIL; KZ++)
+            ZSOIL[KZ] = -NOAH->SLDPTH[KZ] + ZSOIL[KZ - 1];
+        REDPRM (NOAH, LSM, ZSOIL);
+    }
+   
 
     /*
      * Set initial conditions for land surface variables
