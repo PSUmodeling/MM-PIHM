@@ -19,6 +19,8 @@ void leaf_litfall(const epconst_struct* epc, double litfallc, cflux_struct* cf, 
 void froot_litfall (const epconst_struct* epc, double litfallc, cflux_struct* cf, nflux_struct* nf);
 void soilpsi(const siteconst_struct* sitec, double soilw, double* psi);
 void canopy_et(const metvar_struct *metv, const epconst_struct *epc, epvar_struct *epv, wflux_struct *wf);
+void total_photosynthesis(const metvar_struct* metv, const epconst_struct* epc, epvar_struct* epv, cflux_struct* cf, psn_struct *psn_sun, psn_struct *psn_shade);
+void photosynthesis(psn_struct* psn);
 //int output_map_init(double** output_map, metvar_struct* metv, wstate_struct* ws, //wflux_struct* wf, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, //nflux_struct* nf, phenology_struct* phen, epvar_struct* epv, //psn_struct* psn_sun, psn_struct* psn_shade, summary_struct* summary);
 //int atm_pres(double elev, double* pa);
 //int prephenology(const control_struct* ctrl, const epconst_struct* epc, 

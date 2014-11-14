@@ -73,7 +73,11 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
 
     /* Get co2 and ndep */
     if (ctrl->spinup == 1)      /* Spinup mode */
+    {
         metv->co2 = co2->co2ppm;
+        daily_ndep = ndepctrl->ndep / 365.0;
+        daily_nfix = ndepctrl->nfix / 365.0;
+    }
     else                /* Model mode */
     {
         /* atmospheric CO2 and Ndep handling */
@@ -153,55 +157,23 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
     maint_resp (cs, ns, epc, metv, cf, epv);
 
     /* begin canopy bio-physical process simulation */
-    /* do canopy ET calculations whenever there is leaf area
-     * displayed, since there may be intercepted water on the
-     * canopy that needs to be dealt with */
     if (cs->leafc && metv->dayl)
     {
         /* conductance */
         canopy_et (metv, epc, epv, wf);
     }
-//    /* do photosynthesis only when it is part of the current
-//       growth season, as defined by the remdays_curgrowth flag.  This
-//       keeps the occurrence of new growth consistent with the treatment
-//       of litterfall and allocation */
-//    if (ok && cs.leafc && phen.remdays_curgrowth && metv.dayl)
-//    {
-//        if (ok && total_photosynthesis(&metv, &epc, &epv, &cf, &psn_sun, &psn_shade))
-//        {
-//            bgc_printf(BV_ERROR, "Error in total_photosynthesis() from bgc()\n");
-//            ok=0;
-//        }
-//
-//    } /* end of photosynthesis calculations */
-//    else
-//    {
-//        epv.assim_sun = epv.assim_shade = 0.0;
-//    }
-//
-//    if (mode == MODE_MODEL)
-//    {
-//        /* nitrogen deposition and fixation */
-//        nf.ndep_to_sminn = daily_ndep;
-//        nf.nfix_to_sminn = daily_nfix;
-//    }
-//    else if (mode == MODE_SPINUP)
-//    {
-//        /* nitrogen deposition and fixation */
-//        nf.ndep_to_sminn = sitec.ndep/365.0;
-//        nf.nfix_to_sminn = sitec.nfix/365.0;
-//    }
-//
-//    /* calculate outflow */
-//    if (ok && outflow(&sitec, &ws, &wf))
-//    {
-//        bgc_printf(BV_ERROR, "Error in outflow() from bgc.c\n");
-//        ok=0;
-//    }
-//
-//    bgc_printf(BV_DIAG, "%d\t%d\tdone outflow\n",simyr,yday);
-//
-//    /* daily litter and soil decomp and nitrogen fluxes */
+    /* do photosynthesis only when it is part of the current growth season, as
+     * defined by the remdays_curgrowth flag.  This keeps the occurrence of
+     * new growth consistent with the treatment of litterfall and allocation */
+    if (cs.leafc && !epv->dormant_flag && metv.dayl)
+        total_photosynthesis (metv, epc, epv, cf, psn_sun, psn_shade);
+    else
+        epv.assim_sun = epv.assim_shade = 0.0;
+
+    nf->ndep_to_sminn = daily_ndep;
+    nf->nfix_to_sminn = daily_nfix;
+    
+    /* daily litter and soil decomp and nitrogen fluxes */
 //    if (ok && decomp(metv.tsoil,&epc,&epv,&sitec,&cs,&cf,&ns,&nf,&nt))
 //    {
 //        bgc_printf(BV_ERROR, "Error in decomp() from bgc.c\n");
