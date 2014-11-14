@@ -27,12 +27,14 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
     control_struct  *ctrl;    
     epconst_struct  *epc;
     epvar_struct    *epv;
+    psn_struct      *psn_sun, *psn_shade;
     wstate_struct *ws;
     wflux_struct *wf;
     cstate_struct *cs;
     cflux_struct *cf;
     nstate_struct *ns;
     nflux_struct *nf;
+    ntemp_struct *nt;
     phenology_struct *phen;
     struct tm      *timestamp;
     time_t          *rawtime;
@@ -62,8 +64,10 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
     cf = &grid->cf;
     ns = &grid->ns;
     nf = &grid->nf;
+    nt = &grid->nt;
     phen = &grid->phen;
-
+    psn_sun = &grid->psn_sun;
+    psn_shade = &grid->psn_shade;
 //    printf ("BGC daily cycle\n");
     rawtime = (time_t *) malloc (sizeof (time_t));
     *rawtime = (int)t;
@@ -165,22 +169,17 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
     /* do photosynthesis only when it is part of the current growth season, as
      * defined by the remdays_curgrowth flag.  This keeps the occurrence of
      * new growth consistent with the treatment of litterfall and allocation */
-    if (cs.leafc && !epv->dormant_flag && metv.dayl)
+    if (cs->leafc && !epv->dormant_flag && metv->dayl)
         total_photosynthesis (metv, epc, epv, cf, psn_sun, psn_shade);
     else
-        epv.assim_sun = epv.assim_shade = 0.0;
+        epv->assim_sun = epv->assim_shade = 0.0;
 
     nf->ndep_to_sminn = daily_ndep;
     nf->nfix_to_sminn = daily_nfix;
     
     /* daily litter and soil decomp and nitrogen fluxes */
-//    if (ok && decomp(metv.tsoil,&epc,&epv,&sitec,&cs,&cf,&ns,&nf,&nt))
-//    {
-//        bgc_printf(BV_ERROR, "Error in decomp() from bgc.c\n");
-//        ok=0;
-//    }
-//
-//    bgc_printf(BV_DIAG, "%d\t%d\tdone decomp\n",simyr,yday);
+    decomp (metv->tsoil, epc, epv, cs, cf, ns, nf, nt);
+
 //
 //    /* Daily allocation gets called whether or not this is a
 //       current growth day, because the competition between decomp
