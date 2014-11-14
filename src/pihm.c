@@ -40,6 +40,7 @@
 #ifdef _FLUX_PIHM_
 #include "noah/noah.h"
 #endif
+
 #ifdef _BGC_
 #include "bgc/bgc.h"
 #endif
@@ -82,9 +83,7 @@ int main (int argc, char *argv[])
     if (0 == (mkdir ("output", 0755)))
         printf (" Output directory was created.\n\n");
 
-    /*
-     * Project Input Name
-     */
+    /* Project input name */
     if (argc != 2)
     {
         iproj = fopen ("input/projectName.txt", "r");
@@ -105,9 +104,7 @@ int main (int argc, char *argv[])
     }
     else
     {
-        /*
-         * get user specified file name in command line
-         */
+        /* Get user specified file name in command line */
         filename = (char *)malloc ((strlen (argv[1]) + 1)* sizeof (char));
         strcpy (filename, argv[1]);
     }
@@ -131,26 +128,20 @@ int main (int argc, char *argv[])
     printf ("\n\t    * Biogeochemistry module turned on.\n");
 #endif
 
-    /*
-     * Create output directory based on projectname and time
-     */
+    /* Create output directory based on projectname and time */
     sprintf (str, "%2.2d%2.2d%2.2d%2.2d%2.2d", timestamp->tm_year + 1900 - 2000, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
     outputdir = (char *)malloc ((strlen (filename) + 20) * sizeof (char));
     sprintf (outputdir, "output/%s.%s/", filename, str);
     printf ("\nOutput directory: %s\n", outputdir);
     mkdir (outputdir, 0755);
 
-    /*
-     * Save input files into output directory
-     */
+    /* Save input files into output directory */
     sprintf (system_cmd, "cp input/%s.para %s/%s.para.bak", filename, outputdir, filename);
     system (system_cmd);
     sprintf (system_cmd, "cp input/%s.calib %s/%s.calib.bak", filename, outputdir, filename);
     system (system_cmd);
 
-    /*
-     * Allocate memory for model data structure
-     */
+    /* Allocate memory for model data structure */
     mData = (Model_Data) malloc (sizeof *mData);
 #ifdef _FLUX_PIHM_
     LSM = (LSM_STRUCT) malloc (sizeof *LSM);
@@ -176,14 +167,10 @@ int main (int argc, char *argv[])
         N = 3 * mData->NumEle + 2 * mData->NumRiv;
         mData->DummyY = (realtype *) malloc ((3 * mData->NumEle + 2 * mData->NumRiv) * sizeof (realtype));
     }
-    /*
-     * initial state variable depending on machine 
-     */
+    /* initial state variable depending on machine */
     CV_Y = N_VNew_Serial (N);
 
-    /*
-     * initialize mode data structure 
-     */
+    /* initialize mode data structure */
     initialize (filename, mData, &cData, CV_Y);
 #ifdef _FLUX_PIHM_
     LSM_initialize (filename, mData, &cData, LSM);
@@ -192,9 +179,7 @@ int main (int argc, char *argv[])
     BGC_init (filename, mData, LSM, BGCM);
 #endif
 
-    /*
-     * initialize output files and structures 
-     */
+    /* initialize output files and structures */
     initialize_output (filename, mData, &cData, outputdir);
 #ifdef _FLUX_PIHM_
     LSM_initialize_output (filename, mData, LSM, outputdir);
@@ -221,7 +206,7 @@ int main (int argc, char *argv[])
         *rawtime = timegm(timestamp);
         spinup_endtime = (realtype) *rawtime;
 
-        for (t = spinup_starttime; t < spinup_endtime; t = t + 24 * 3600.)
+        for (t = spinup_starttime; t < spinup_endtime; t = t + 24. * 3600.)
         {
             daymet (BGCM, mData, LSM, t, BGCM->ctrl.spinup);
             *rawtime = t;

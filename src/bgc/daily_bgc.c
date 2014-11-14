@@ -158,8 +158,8 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
      * canopy that needs to be dealt with */
     if (cs->leafc && metv->dayl)
     {
-        /* conductance and evapo-transpiration */
-        canopy_et(metv, epc, epv, wf, 1)
+        /* conductance */
+        canopy_et (metv, epc, epv, wf);
     }
 //    /* do photosynthesis only when it is part of the current
 //       growth season, as defined by the remdays_curgrowth flag.  This
