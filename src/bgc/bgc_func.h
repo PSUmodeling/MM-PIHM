@@ -31,6 +31,7 @@ void daily_nitrogen_state_update(nflux_struct* nf, nstate_struct* ns, int alloc,
 void mortality(const epconst_struct* epc, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, nflux_struct* nf);
 void check_carbon_balance(cstate_struct* cs, int first_balance);
 void check_nitrogen_balance(nstate_struct* ns, int first_balance);
+void csummary(cflux_struct* cf, cstate_struct* cs, summary_struct* summary);
 //int output_map_init(double** output_map, metvar_struct* metv, wstate_struct* ws, //wflux_struct* wf, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, //nflux_struct* nf, phenology_struct* phen, epvar_struct* epv, //psn_struct* psn_sun, psn_struct* psn_shade, summary_struct* summary);
 //int atm_pres(double elev, double* pa);
 //int prephenology(const control_struct* ctrl, const epconst_struct* epc, 
