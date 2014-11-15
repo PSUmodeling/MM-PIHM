@@ -40,6 +40,6 @@ void soilpsi(const siteconst_struct* sitec, double vwc, double* psi)
 
     /* calculate psi */
     *psi = -(pow (pow (1. / theta, sitec->soil_beta / (sitec->soil_beta - 1.)) - 1., 1. / sitec->soil_beta) / sitec->soil_alpha) * 1000. * 9.81 / 1.e6;
-    printf ("theta = %lf, alpha = %lf, beta = %lf, psi = %lf\n", theta, sitec->soil_alpha, sitec->soil_beta, *psi);
+//    printf ("theta = %lf, alpha = %lf, beta = %lf, psi = %lf\n", theta, sitec->soil_alpha, sitec->soil_beta, *psi);
 }
 

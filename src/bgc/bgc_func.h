@@ -24,6 +24,10 @@ void total_photosynthesis(const metvar_struct* metv, const epconst_struct* epc, 
 void photosynthesis(psn_struct* psn);
 void decomp(double tsoil, const epconst_struct* epc, epvar_struct* epv, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, nflux_struct* nf, ntemp_struct* nt);
 void daily_allocation(cflux_struct *cf, cstate_struct *cs, nflux_struct *nf, nstate_struct *ns, epconst_struct *epc, epvar_struct *epv, ntemp_struct *nt, const double naddfrac, const int spinup);
+void annual_rates(const epconst_struct *epc, epvar_struct *epv);
+void growth_resp(epconst_struct *epc, cflux_struct *cf);
+void daily_carbon_state_update (cflux_struct *cf, cstate_struct *cs, int alloc, int woody, int evergreen);
+void daily_nitrogen_state_update(nflux_struct* nf, nstate_struct* ns, int alloc, int woody, int evergreen);
 //int output_map_init(double** output_map, metvar_struct* metv, wstate_struct* ws, //wflux_struct* wf, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, //nflux_struct* nf, phenology_struct* phen, epvar_struct* epv, //psn_struct* psn_sun, psn_struct* psn_shade, summary_struct* summary);
 //int atm_pres(double elev, double* pa);
 //int prephenology(const control_struct* ctrl, const epconst_struct* epc, 

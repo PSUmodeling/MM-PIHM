@@ -138,8 +138,12 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, const double t, const double nad
 
     /* test for the annual allocation day */
     if (phen->remdays_litfall == 1)
+    {
         annual_alloc = 1;
-    else annual_alloc = 0;
+        printf ("Annual allocation\n");
+    }
+    else
+        annual_alloc = 0;
 
     /* phenology fluxes */
     phenology (epc, metv, phen, epv, cs, cf, ns, nf);
@@ -187,58 +191,20 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, const double t, const double nad
      * allocation occurs, but immobilization fluxes are updated normally */
     daily_allocation (cf, cs, nf, ns, epc, epv, nt, naddfrac, ctrl->spinup);
 
-//    /* reassess the annual turnover rates for livewood --> deadwood,
-//       and for evergreen leaf and fine root litterfall. This happens
-//       once each year, on the annual_alloc day (the last litterfall day) */
-//    if (ok && annual_alloc)
-//    {
-//        if (ok && annual_rates(&epc,&epv))
-//        {
-//            bgc_printf(BV_ERROR, "Error in annual_rates() from bgc()\n");
-//            ok=0;
-//        }
-//
-//        bgc_printf(BV_DIAG, "%d\t%d\tdone annual rates\n",simyr,yday);
-//    } 
-//
-//
-//    /* daily growth respiration */
-//    if (ok && growth_resp(&epc, &cf))
-//    {
-//        bgc_printf(BV_ERROR, "Error in daily_growth_resp() from bgc.c\n");
-//        ok=0;
-//    }
-//
-//    bgc_printf(BV_DIAG, "%d\t%d\tdone growth_resp\n",simyr,yday);
-//
-//    /* daily update of the water state variables */
-//    if (ok && daily_water_state_update(&wf, &ws))
-//    {
-//        bgc_printf(BV_ERROR, "Error in daily_water_state_update() from bgc()\n");
-//        ok=0;
-//    }
-//
-//    bgc_printf(BV_DIAG, "%d\t%d\tdone water state update\n",simyr,yday);
-//
-//    /* daily update of carbon state variables */
-//    if (ok && daily_carbon_state_update(&cf, &cs, annual_alloc,
-//                epc.woody, epc.evergreen))
-//    {
-//        bgc_printf(BV_ERROR, "Error in daily_carbon_state_update() from bgc()\n");
-//        ok=0;
-//    }
-//
-//    bgc_printf(BV_DIAG, "%d\t%d\tdone carbon state update\n",simyr,yday);
-//
-//    /* daily update of nitrogen state variables */
-//    if (ok && daily_nitrogen_state_update(&nf, &ns, annual_alloc,
-//                epc.woody, epc.evergreen))
-//    {
-//        bgc_printf(BV_ERROR, "Error in daily_nitrogen_state_update() from bgc()\n");
-//        ok=0;
-//    }
-//
-//    bgc_printf(BV_DIAG, "%d\t%d\tdone nitrogen state update\n",simyr,yday);
+    /* reassess the annual turnover rates for livewood --> deadwood, and for
+     * evergreen leaf and fine root litterfall. This happens once each year,
+     * on the annual_alloc day (the last litterfall day) */
+    if (annual_alloc)
+        annual_rates(epc, epv);
+
+    /* daily growth respiration */
+    growth_resp (epc, cf);
+
+    /* daily update of carbon state variables */
+    daily_carbon_state_update (cf, cs, annual_alloc, epc->woody, epc->evergreen);
+
+    /* daily update of nitrogen state variables */
+    daily_nitrogen_state_update (nf, ns, annual_alloc, epc->woody, epc->evergreen);
 //
 //    /* calculate N leaching loss.  This is a special state variable
 //       update routine, done after the other fluxes and states are

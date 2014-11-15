@@ -48,7 +48,8 @@ ifeq ($(MODULE), BGC)
 		    bgc/precision_control.c bgc/daymet.c bgc/radtrans.c \
 		    bgc/maint_resp.c bgc/phenology.c bgc/soilpsi.c \
 		    bgc/daily_allocation.c bgc/canopy_et.c \
-		    bgc/photosynthesis.c bgc/decomp.c 
+		    bgc/photosynthesis.c bgc/decomp.c bgc/annual_rates.c \
+		    bgc/growth_resp.c bgc/state_update.c
   MODULE_HEADERS_ =  noah/noah.h noah/flux_pihm.h spa/spa.h bgc/bgc.h 
   EXECUTABLE = pihm-bgc
   MSG = "... Compiling PIHM-BGC ..."

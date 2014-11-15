@@ -572,7 +572,7 @@ void phenology(const epconst_struct* epc, const metvar_struct *metv, phenology_s
 
     } /* end else phenology model block */
 
-    printf ("evergreen = %d, woody = %d, w_s_flag = %1.1d, onset_flag = %1.0lf, dormant_flag = %1.0lf, onset_gddflag = %1.0lf, onset_gdd = %lf, onset_counter = %lf, remdays_transfer = %lf, remdays_litfall = %lf\n", evergreen, woody, ws_flag, epv->onset_flag, epv->dormant_flag, epv->onset_gddflag, epv->onset_gdd, epv->onset_counter, phen->remdays_transfer, phen->remdays_litfall);
+//    printf ("evergreen = %d, woody = %d, w_s_flag = %1.1d, onset_flag = %1.0lf, dormant_flag = %1.0lf, onset_gddflag = %1.0lf, onset_gdd = %lf, onset_counter = %lf, remdays_transfer = %lf, remdays_litfall = %lf\n", evergreen, woody, ws_flag, epv->onset_flag, epv->dormant_flag, epv->onset_gddflag, epv->onset_gdd, epv->onset_counter, phen->remdays_transfer, phen->remdays_litfall);
 
     /* for woody types, find annual maximum value for live stemc and live crootc
        calculation of livewood turnover rates */
