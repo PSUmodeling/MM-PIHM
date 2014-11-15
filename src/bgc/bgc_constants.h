@@ -83,6 +83,11 @@
 #define MODE_MODEL 2
 #define MODE_SPINNGO 3
 
+/* allocation parameters */
+#define DAYSNDEPLOY 365.0
+#define DAYSCRECOVER 365.0
+#define BULK_DENITRIF_PROPORTION 0.5
+
 #define NVEGTYPES   7
 /* output control constants */
 #define NMAP 700

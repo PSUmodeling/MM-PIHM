@@ -15,7 +15,8 @@ SRCDIR = ./src
 
 SUNDIALS_PATH = /gpfs/home/yzs123/work/lib/sundials-2.2.0
 
-SRCS_ =  pihm.c f.c read_alloc.c initialize.c update.c print.c is_sm_et.c f_function.c
+SRCS_ =  pihm.c f.c read_alloc.c initialize.c update.c print.c is_sm_et.c \
+	    f_function.c
 HEADERS_ = pihm.h
 
 EXECUTABLE = pihm
@@ -23,13 +24,15 @@ MSG = "...  Compiling PIHM  ..."
 
 # Available modules are:
 # FLUX-PIHM
-# BGC	(Note: When BGC is declared, Flux-PIHM module will also be turned on because soil temperature needs to be simulated)
+# BGC	(Note: When BGC is declared, Flux-PIHM module will also be turned on
+# 	because soil temperature needs to be simulated)
 
 MODULE = BGC
 
 ifeq ($(MODULE), FLUX-PIHM)
   SFLAGS = -D_FLUX_PIHM_ 
-  MODULE_SRCS_ = noah/coupling.c noah/module_sf_noahlsm.c spa/spa.c noah/lsm_func.c
+  MODULE_SRCS_ = noah/coupling.c noah/module_sf_noahlsm.c spa/spa.c \
+		    noah/lsm_func.c
   MODULE_HEADERS_ =  noah/noah.h noah/flux_pihm.h spa/spa.h
   EXECUTABLE = flux-pihm
   MSG = "... Compiling FLUX-PIHM ..."
@@ -37,9 +40,15 @@ endif
 
 ifeq ($(MODULE), BGC)
   SFLAGS = -D_BGC_ -D_FLUX_PIHM_ 
-  MODULE_SRCS_ = time_func.c noah/coupling.c noah/module_sf_noahlsm.c spa/spa.c noah/lsm_func.c bgc/BGC_func.c bgc/presim_state_init.c bgc/make_zero_flux_struct.c bgc/restart_io.c bgc/firstday.c \
-		    bgc/zero_srcsnk.c bgc/daily_bgc.c bgc/get_co2.c bgc/get_ndep.c bgc/precision_control.c bgc/daymet.c bgc/radtrans.c bgc/maint_resp.c bgc/phenology.c bgc/soilpsi.c \
-		    bgc/canopy_et.c bgc/photosynthesis.c bgc/decomp.c
+  MODULE_SRCS_ = time_func.c noah/coupling.c noah/module_sf_noahlsm.c \
+		    spa/spa.c noah/lsm_func.c bgc/BGC_func.c \
+		    bgc/presim_state_init.c bgc/make_zero_flux_struct.c \
+		    bgc/restart_io.c bgc/firstday.c bgc/zero_srcsnk.c \
+		    bgc/daily_bgc.c bgc/get_co2.c bgc/get_ndep.c \
+		    bgc/precision_control.c bgc/daymet.c bgc/radtrans.c \
+		    bgc/maint_resp.c bgc/phenology.c bgc/soilpsi.c \
+		    bgc/daily_allocation.c bgc/canopy_et.c \
+		    bgc/photosynthesis.c bgc/decomp.c 
   MODULE_HEADERS_ =  noah/noah.h noah/flux_pihm.h spa/spa.h bgc/bgc.h 
   EXECUTABLE = pihm-bgc
   MSG = "... Compiling PIHM-BGC ..."

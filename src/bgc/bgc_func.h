@@ -12,6 +12,7 @@ void firstday (const epconst_struct *epc, const cinit_struct *cinit, epvar_struc
 void zero_srcsnk (cstate_struct *cs, nstate_struct *ns, wstate_struct *ws, summary_struct *summary);
 void precision_control(wstate_struct *ws, cstate_struct *cs, nstate_struct *ns);
 
+void daily_bgc(bgc_struct BGCM, bgc_grid *grid, const double t, const double naddfrac);
 void radtrans(const cstate_struct* cs, const epconst_struct* epc, metvar_struct* metv, epvar_struct* epv, double albedo);
 void maint_resp(const cstate_struct* cs, const nstate_struct* ns, const epconst_struct* epc, const metvar_struct* metv, cflux_struct* cf, epvar_struct* epv);
 void phenology(const epconst_struct* epc, const metvar_struct *metv, phenology_struct *phen, epvar_struct* epv, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, nflux_struct* nf);
@@ -22,6 +23,7 @@ void canopy_et(const metvar_struct *metv, const epconst_struct *epc, epvar_struc
 void total_photosynthesis(const metvar_struct* metv, const epconst_struct* epc, epvar_struct* epv, cflux_struct* cf, psn_struct *psn_sun, psn_struct *psn_shade);
 void photosynthesis(psn_struct* psn);
 void decomp(double tsoil, const epconst_struct* epc, epvar_struct* epv, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, nflux_struct* nf, ntemp_struct* nt);
+void daily_allocation(cflux_struct *cf, cstate_struct *cs, nflux_struct *nf, nstate_struct *ns, epconst_struct *epc, epvar_struct *epv, ntemp_struct *nt, const double naddfrac, const int spinup);
 //int output_map_init(double** output_map, metvar_struct* metv, wstate_struct* ws, //wflux_struct* wf, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, //nflux_struct* nf, phenology_struct* phen, epvar_struct* epv, //psn_struct* psn_sun, psn_struct* psn_shade, summary_struct* summary);
 //int atm_pres(double elev, double* pa);
 //int prephenology(const control_struct* ctrl, const epconst_struct* epc, 

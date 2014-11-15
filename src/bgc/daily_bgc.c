@@ -18,7 +18,7 @@ Revisions since 4.1.2
 
 #include "bgc.h"
 
-void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
+void daily_bgc(bgc_struct BGCM, bgc_grid *grid, const double t, const double naddfrac)
 {
     siteconst_struct *sitec;
     metvar_struct   *metv;
@@ -180,45 +180,13 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, double t)
     /* daily litter and soil decomp and nitrogen fluxes */
     decomp (metv->tsoil, epc, epv, cs, cf, ns, nf, nt);
 
-//
-//    /* Daily allocation gets called whether or not this is a
-//       current growth day, because the competition between decomp
-//       immobilization fluxes and plant growth N demand is resolved
-//       here.  On days with no growth, no allocation occurs, but
-//       immobilization fluxes are updated normally */
-//    if (mode == MODE_MODEL)
-//    {
-//        if (ok && daily_allocation(&cf,&cs,&nf,&ns,&epc,&epv,&nt,1.0,MODE_MODEL))
-//        {
-//            bgc_printf(BV_ERROR, "Error in daily_allocation() from bgc.c\n");
-//            ok=0;
-//        }
-//    }
-//    else if (mode == MODE_SPINUP)
-//    {
-//        /* spinup control */
-//        /* in the rising limb, use the spinup allocation code
-//           that supplements N supply */
-//        if (!steady1 && rising && metcycle == 0)
-//        {
-//            if (ok && daily_allocation(&cf,&cs,&nf,&ns,&epc,&epv,&nt,naddfrac,MODE_SPINUP))
-//            {
-//                bgc_printf(BV_ERROR, "Error in daily_allocation() from bgc.c\n");
-//                ok=0;
-//            }
-//        }
-//        else
-//        {
-//            if (ok && daily_allocation(&cf,&cs,&nf,&ns,&epc,&epv,&nt,1.0,MODE_MODEL))
-//            {
-//                bgc_printf(BV_ERROR, "Error in daily_allocation() from bgc.c\n");
-//                ok=0;
-//            }
-//        }
-//    }
-//
-//    bgc_printf(BV_DIAG, "%d\t%d\tdone daily_allocation\n",simyr,yday);
-//
+
+    /* Daily allocation gets called whether or not this is a current growth
+     * day, because the competition between decomp immobilization fluxes and
+     * plant growth N demand is resolved here.  On days with no growth, no
+     * allocation occurs, but immobilization fluxes are updated normally */
+    daily_allocation (cf, cs, nf, ns, epc, epv, nt, naddfrac, ctrl->spinup);
+
 //    /* reassess the annual turnover rates for livewood --> deadwood,
 //       and for evergreen leaf and fine root litterfall. This happens
 //       once each year, on the annual_alloc day (the last litterfall day) */

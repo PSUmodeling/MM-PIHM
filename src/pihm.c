@@ -74,6 +74,10 @@ int main (int argc, char *argv[])
     bgc_struct      BGCM;
     realtype        spinup_starttime;
     realtype        spinup_endtime;
+    int ntimesmet, nblock;
+    int steady1 = 0, steady2 = 0, rising = 1, metcycle = 0, spinyears = 0;
+    double tally1 = 0.0, tally1b = 0.0, tally2 = 0.0, tally2b = 0.0, t1 = 0.0;
+    double naddfrac = 1.0;
 #endif
 
     system ("clear");
@@ -206,6 +210,11 @@ int main (int argc, char *argv[])
         *rawtime = timegm(timestamp);
         spinup_endtime = (realtype) *rawtime;
 
+//	if (!steady1 && rising && metcycle == 0)
+//            naddfrac = 1. - ((double)simyr/(double)nblock);
+//        else
+//            naddfrac = 0.;
+
         for (t = spinup_starttime; t < spinup_endtime; t = t + 24. * 3600.)
         {
             daymet (BGCM, mData, LSM, t, BGCM->ctrl.spinup);
@@ -214,7 +223,7 @@ int main (int argc, char *argv[])
 //            for (i = 0; i < mData->NumEle; i++)
             for (i = 0; i < 1; i++)
             {
-                daily_bgc (BGCM, &BGCM->grid[i], t);
+                daily_bgc (BGCM, &BGCM->grid[i], t, naddfrac);
             }
         }
     }
