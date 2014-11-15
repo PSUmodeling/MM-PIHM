@@ -205,40 +205,17 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, const double t, const double nad
 
     /* daily update of nitrogen state variables */
     daily_nitrogen_state_update (nf, ns, annual_alloc, epc->woody, epc->evergreen);
-//
-//    /* calculate N leaching loss.  This is a special state variable
-//       update routine, done after the other fluxes and states are
-//       reconciled in order to avoid negative sminn under heavy leaching
-//       potential */
-//    if (ok && nleaching(&ns, &nf, &ws, &wf))
-//    {
-//        bgc_printf(BV_ERROR, "Error in nleaching() from bgc()\n");
-//        ok=0;
-//    }
-//
-//    bgc_printf(BV_DIAG, "%d\t%d\tdone nitrogen leaching\n",simyr,yday);
-//
-//    /* calculate daily mortality fluxes and update state variables */
-//    /* this is done last, with a special state update procedure, to
-//       insure that pools don't go negative due to mortality fluxes
-//       conflicting with other proportional fluxes */
-//    if (ok && mortality(&epc,&cs,&cf,&ns,&nf))
-//    {
-//        bgc_printf(BV_ERROR, "Error in mortality() from bgc()\n");
-//        ok=0;
-//    }
-//
-//    bgc_printf(BV_DIAG, "%d\t%d\tdone mortality\n",simyr,yday);
-//
-//    /* test for water balance */
-//    if (ok && check_water_balance(&ws, first_balance))
-//    {
-//        bgc_printf(BV_ERROR, "Error in check_water_balance() from bgc()\n");
-//        bgc_printf(BV_ERROR, "%d\n",metday);
-//        ok=0;
-//    }
-//
-//    bgc_printf(BV_DIAG, "%d\t%d\tdone water balance\n",simyr,yday);
+
+    /* calculate N leaching loss.  This is a special state variable update
+     * routine, done after the other fluxes and states are reconciled in order
+     * to avoid negative sminn under heavy leaching potential */
+//    nleaching(ns, nf, ws, wf);
+
+    /* calculate daily mortality fluxes and update state variables */
+    /* this is done last, with a special state update procedure, to insure
+     * that pools don't go negative due to mortality fluxes conflicting with
+     * other proportional fluxes */
+//    mortality (epc, cs, cf, ns, nf);
 //
 //    /* test for carbon balance */
 //    if (ok && check_carbon_balance(&cs, first_balance))
