@@ -18,7 +18,7 @@ Revisions since 4.1.2
 
 #include "bgc.h"
 
-void daily_bgc(bgc_struct BGCM, bgc_grid *grid, const double t, const double naddfrac)
+void daily_bgc(bgc_struct BGCM, bgc_grid *grid, const double t, const double naddfrac, int first_balance)
 {
     siteconst_struct *sitec;
     metvar_struct   *metv;
@@ -41,7 +41,6 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, const double t, const double nad
 
     /* miscelaneous variables for program control in main */
     int simyr, yday, metyr, metday;
-    int first_balance;
     int annual_alloc;
     int outv;
     int i, nmetdays;
@@ -215,10 +214,10 @@ void daily_bgc(bgc_struct BGCM, bgc_grid *grid, const double t, const double nad
     /* this is done last, with a special state update procedure, to insure
      * that pools don't go negative due to mortality fluxes conflicting with
      * other proportional fluxes */
-//    mortality (epc, cs, cf, ns, nf);
-//
-//    /* test for carbon balance */
-//    if (ok && check_carbon_balance(&cs, first_balance))
+    mortality (epc, cs, cf, ns, nf);
+
+    /* test for carbon balance */
+    check_carbon_balance(cs, first_balance);
 //    {
 //        bgc_printf(BV_ERROR, "Error in check_carbon_balance() from bgc()\n");
 //        bgc_printf(BV_ERROR, "%d\n",metday);

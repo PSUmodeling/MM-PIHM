@@ -74,6 +74,7 @@ int main (int argc, char *argv[])
     bgc_struct      BGCM;
     realtype        spinup_starttime;
     realtype        spinup_endtime;
+    int first_balance = 1;
     int ntimesmet, nblock;
     int steady1 = 0, steady2 = 0, rising = 1, metcycle = 0, spinyears = 0;
     double tally1 = 0.0, tally1b = 0.0, tally2 = 0.0, tally2b = 0.0, t1 = 0.0;
@@ -223,8 +224,9 @@ int main (int argc, char *argv[])
 //            for (i = 0; i < mData->NumEle; i++)
             for (i = 0; i < 1; i++)
             {
-                daily_bgc (BGCM, &BGCM->grid[i], t, naddfrac);
+                daily_bgc (BGCM, &BGCM->grid[i], t, naddfrac, first_balance);
             }
+            first_balance = 0;
         }
     }
     else

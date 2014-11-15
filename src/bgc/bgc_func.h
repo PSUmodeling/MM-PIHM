@@ -12,7 +12,7 @@ void firstday (const epconst_struct *epc, const cinit_struct *cinit, epvar_struc
 void zero_srcsnk (cstate_struct *cs, nstate_struct *ns, wstate_struct *ws, summary_struct *summary);
 void precision_control(wstate_struct *ws, cstate_struct *cs, nstate_struct *ns);
 
-void daily_bgc(bgc_struct BGCM, bgc_grid *grid, const double t, const double naddfrac);
+void daily_bgc(bgc_struct BGCM, bgc_grid *grid, const double t, const double naddfrac, int first_balance);
 void radtrans(const cstate_struct* cs, const epconst_struct* epc, metvar_struct* metv, epvar_struct* epv, double albedo);
 void maint_resp(const cstate_struct* cs, const nstate_struct* ns, const epconst_struct* epc, const metvar_struct* metv, cflux_struct* cf, epvar_struct* epv);
 void phenology(const epconst_struct* epc, const metvar_struct *metv, phenology_struct *phen, epvar_struct* epv, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, nflux_struct* nf);
@@ -29,6 +29,8 @@ void growth_resp(epconst_struct *epc, cflux_struct *cf);
 void daily_carbon_state_update (cflux_struct *cf, cstate_struct *cs, int alloc, int woody, int evergreen);
 void daily_nitrogen_state_update(nflux_struct* nf, nstate_struct* ns, int alloc, int woody, int evergreen);
 void mortality(const epconst_struct* epc, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, nflux_struct* nf);
+void check_carbon_balance(cstate_struct* cs, int first_balance);
+void check_nitrogen_balance(nstate_struct* ns, int first_balance);
 //int output_map_init(double** output_map, metvar_struct* metv, wstate_struct* ws, //wflux_struct* wf, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, //nflux_struct* nf, phenology_struct* phen, epvar_struct* epv, //psn_struct* psn_sun, psn_struct* psn_shade, summary_struct* summary);
 //int atm_pres(double elev, double* pa);
 //int prephenology(const control_struct* ctrl, const epconst_struct* epc, 
