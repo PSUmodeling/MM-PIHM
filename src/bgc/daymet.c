@@ -1,19 +1,19 @@
 #include "bgc.h"
 
-void daymet(bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double t, int spinup)
+void daymet (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double t, int spinup)
 {
-    double sfctmp;
-    double solar;
-    double dayl, prev_dayl;
-    double  RH;
-    metvar_struct *metv;
-    int     hour;
-    int     i;
-    int     daylight_coutner;
-    spa_data    spa;
-    int     spa_result;
-    time_t      *rawtime;
-    struct tm *timestamp;
+    double          sfctmp;
+    double          solar;
+    double          dayl, prev_dayl;
+    double          RH;
+    metvar_struct  *metv;
+    int             hour;
+    int             i;
+    int             daylight_coutner;
+    spa_data        spa;
+    int             spa_result;
+    time_t         *rawtime;
+    struct tm      *timestamp;
 
     rawtime = (time_t *) malloc (sizeof (time_t));
 
@@ -65,7 +65,7 @@ void daymet(bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double t, int spin
     free (rawtime);
 
 //    for (i = 0; i < PIHM->NumEle; i++)
-    for (i = 0; i < 1; i++)
+    for (i = 0; i < 10; i++)
     {
         metv = &(BGCM->grid[i].metv);
         if (spinup == 1)
@@ -88,7 +88,7 @@ void daymet(bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double t, int spin
 
             for (hour = 0; hour < 24; hour++)
             {
-                metv->prcp = metv->prcp + Interpolation (&PIHM->Forcing[PRCP_TS][PIHM->Ele[i].prep - 1], t + hour * 3600.) * 3600.;  /* Convert from kg m-2 s-1 to kg m-2 */
+                metv->prcp = metv->prcp + Interpolation (&PIHM->Forcing[PRCP_TS][PIHM->Ele[i].prep - 1], t + hour * 3600.) * 3600.; /* Convert from kg m-2 s-1 to kg m-2 */
                 sfctmp = Interpolation (&PIHM->Forcing[SFCTMP_TS][PIHM->Ele[i].temp - 1], t + hour * 3600.) - 273.15;
                 metv->tmax = sfctmp > metv->tmax ? sfctmp : metv->tmax;
                 metv->tmin = sfctmp < metv->tmin ? sfctmp : metv->tmin;
@@ -109,7 +109,7 @@ void daymet(bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double t, int spin
 
             metv->tavg = metv->tavg / 24.;
             metv->tday = metv->tday / (double)daylight_coutner;
-            metv->tnight = metv->tnight / ( 24. - (double)daylight_coutner);
+            metv->tnight = metv->tnight / (24. - (double)daylight_coutner);
 
             metv->swavgfd = metv->swavgfd / 24.;
             metv->par = metv->swavgfd * RAD2PAR;
@@ -124,20 +124,20 @@ void daymet(bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double t, int spin
         {
             metv->dayl = dayl;
             metv->prev_dayl = prev_dayl;
-//        metv->prcp = ;
-//        metv->tmax = ;
-//        metv->tmin = ;
-//        metv->tavg = ;
-//        metv->tday = ;
-//        metv->tnight = ;
-//        metv->tsoil = ;
-//          metv->swc = ;
-//        metv->swavgfd = ;
-//        metv->par = ;
-//        metv->vpd = ;
-//        metv->pa = ;
+            //        metv->prcp = ;
+            //        metv->tmax = ;
+            //        metv->tmin = ;
+            //        metv->tavg = ;
+            //        metv->tday = ;
+            //        metv->tnight = ;
+            //        metv->tsoil = ;
+            //          metv->swc = ;
+            //        metv->swavgfd = ;
+            //        metv->par = ;
+            //        metv->vpd = ;
+            //        metv->pa = ;
         }
-        
-//    printf ("%d: dayl = %lf, prev_dayl = %f, prcp = %lf, tmax = %lf, tmin = %lf, tavg = %lf, tday = %lf, tnight = %lf, tsoil = %lf, swc = %lf, swavgfd = %lf, par = %lf, vpd = %lf, pa = %lf\n", i, metv->dayl, metv->prev_dayl, metv->prcp, metv->tmax, metv->tmin, metv->tavg, metv->tday, metv->tnight, metv->tsoil, metv->swc, metv->swavgfd, metv->par, metv->vpd, metv->pa);
+
+        //    printf ("%d: dayl = %lf, prev_dayl = %f, prcp = %lf, tmax = %lf, tmin = %lf, tavg = %lf, tday = %lf, tnight = %lf, tsoil = %lf, swc = %lf, swavgfd = %lf, par = %lf, vpd = %lf, pa = %lf\n", i, metv->dayl, metv->prev_dayl, metv->prcp, metv->tmax, metv->tmin, metv->tavg, metv->tday, metv->tnight, metv->tsoil, metv->swc, metv->swavgfd, metv->par, metv->vpd, metv->pa);
     }
 }

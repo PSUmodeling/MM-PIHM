@@ -207,6 +207,7 @@ int main (int argc, char *argv[])
         spinup_starttime = (realtype) *rawtime;
 
         timestamp->tm_year = BGCM->ctrl.spinupend + 1;
+        printf ("year = %d\n", timestamp->tm_year);
         timestamp->tm_year = timestamp->tm_year - 1900;
         *rawtime = timegm(timestamp);
         spinup_endtime = (realtype) *rawtime;
@@ -216,14 +217,15 @@ int main (int argc, char *argv[])
 //        else
 //            naddfrac = 0.;
 
+        printf ("%lf %lf\n", spinup_starttime, spinup_endtime);
         for (t = spinup_starttime; t < spinup_endtime; t = t + 24. * 3600.)
         {
             daymet (BGCM, mData, LSM, t, BGCM->ctrl.spinup);
             *rawtime = t;
-            printf ("DOY = %d\n", t2doy (rawtime));
 //            for (i = 0; i < mData->NumEle; i++)
-            for (i = 0; i < 1; i++)
+            for (i = 0; i < 10; i++)
             {
+                printf ("DOY = %d ELE %d\n", t2doy (rawtime), i + 1);
                 daily_bgc (BGCM, &BGCM->grid[i], t, naddfrac, first_balance);
             }
             first_balance = 0;
@@ -300,7 +302,7 @@ int main (int argc, char *argv[])
 #endif
             *rawtime = (int)t;
             timestamp = gmtime (rawtime);
-//            if ((int)*rawtime % 3600 == 0)
+            if ((int)*rawtime % 3600 == 0)
                 printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
             summary (mData, CV_Y, t - StepSize, StepSize);
             update (t, mData);
@@ -313,7 +315,6 @@ int main (int argc, char *argv[])
          */
         for (j = 0; j < cData.NumPrint; j++)
             PrintData (cData.PCtrl[j], t, StepSize, cData.Ascii);
-//        printf("%lf\n", cData.PCtrl[0].
 #ifdef _FLUX_PIHM_
         for (j = 0; j < LSM->NPRINT; j++)
             PrintData (LSM->PCtrl[j], t, StepSize, cData.Ascii);

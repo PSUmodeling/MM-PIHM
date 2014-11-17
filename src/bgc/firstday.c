@@ -1,24 +1,24 @@
 /* 
-firstday.c
-Initializes the state variables for the first day of a simulation that
-is not using a restart file.
-
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-Biome-BGC version 4.2 (final release)
-See copyright.txt for Copyright information
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-*/
+ * firstday.c
+ * Initializes the state variables for the first day of a simulation that
+ * is not using a restart file.
+ * 
+ * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ * Biome-BGC version 4.2 (final release)
+ * See copyright.txt for Copyright information
+ * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ */
 
 #include "bgc.h"
 
-void firstday(const epconst_struct* epc, const cinit_struct* cinit, epvar_struct* epv, cstate_struct* cs, nstate_struct* ns)
+void firstday (const epconst_struct * epc, const cinit_struct * cinit, epvar_struct * epv, cstate_struct * cs, nstate_struct * ns)
 {
-    int woody;
-    int predays,remdays;
-    double max_leafc,max_frootc;
-    double max_stemc,new_stemc;
-    double prop_transfer,transfer;
-    double prop_litfall;
+    int             woody;
+    int             predays, remdays;
+    double          max_leafc, max_frootc;
+    double          max_stemc, new_stemc;
+    double          prop_transfer, transfer;
+    double          prop_litfall;
 
     /* initialize the c and n storage state variables */
     cs->leafc_storage = 0.0;
@@ -43,7 +43,7 @@ void firstday(const epconst_struct* epc, const cinit_struct* cinit, epvar_struct
 
     woody = epc->woody;
     /* establish the initial partitioning between displayed growth
-       and growth ready for transfer */
+     * and growth ready for transfer */
     max_leafc = cinit->max_leafc;
     cs->leafc_transfer = max_leafc * epc->leaf_turnover;
     cs->leafc = max_leafc - cs->leafc_transfer;
@@ -64,10 +64,10 @@ void firstday(const epconst_struct* epc, const cinit_struct* cinit, epvar_struct
         cs->livecrootc = cs->livestemc * epc->alloc_crootc_stemc;
         cs->deadcrootc_transfer = cs->deadstemc_transfer * epc->alloc_crootc_stemc;
         cs->deadcrootc = cs->deadstemc * epc->alloc_crootc_stemc;
-    } 
+    }
 
     /* calculate initial leaf and froot nitrogen pools from carbon pools and
-       user-specified initial C:N for each component */
+     * user-specified initial C:N for each component */
     ns->leafn_transfer = cs->leafc_transfer / epc->leaf_cn;
     ns->leafn = cs->leafc / epc->leaf_cn;
     ns->frootn_transfer = cs->frootc_transfer / epc->froot_cn;
@@ -85,80 +85,79 @@ void firstday(const epconst_struct* epc, const cinit_struct* cinit, epvar_struct
     }
 
     /* use then penology array information to determine, for the first
-       day of simulation, how many days of transfer and litterfall have
-       already occurred for this year */
+     * day of simulation, how many days of transfer and litterfall have
+     * already occurred for this year */
     predays = 0;
     remdays = 0;
 
     if (predays > 0)
     {
-        prop_transfer = (double)predays/(double)(predays+remdays);
+        prop_transfer = (double)predays / (double)(predays + remdays);
         /* perform these transfers */
         transfer = prop_transfer * cs->leafc_transfer;
-        cs->leafc          += transfer;
+        cs->leafc += transfer;
         cs->leafc_transfer -= transfer;
         transfer = prop_transfer * ns->leafn_transfer;
-        ns->leafn          += transfer;
+        ns->leafn += transfer;
         ns->leafn_transfer -= transfer;
         transfer = prop_transfer * cs->frootc_transfer;
-        cs->frootc          += transfer;
+        cs->frootc += transfer;
         cs->frootc_transfer -= transfer;
         transfer = prop_transfer * ns->frootn_transfer;
-        ns->frootn          += transfer;
+        ns->frootn += transfer;
         ns->frootn_transfer -= transfer;
         if (woody)
         {
             transfer = prop_transfer * cs->livestemc_transfer;
-            cs->livestemc          += transfer;
+            cs->livestemc += transfer;
             cs->livestemc_transfer -= transfer;
             transfer = prop_transfer * ns->livestemn_transfer;
-            ns->livestemn          += transfer;
+            ns->livestemn += transfer;
             ns->livestemn_transfer -= transfer;
             transfer = prop_transfer * cs->deadstemc_transfer;
-            cs->deadstemc          += transfer;
+            cs->deadstemc += transfer;
             cs->deadstemc_transfer -= transfer;
             transfer = prop_transfer * ns->deadstemn_transfer;
-            ns->deadstemn          += transfer;
+            ns->deadstemn += transfer;
             ns->deadstemn_transfer -= transfer;
             transfer = prop_transfer * cs->livecrootc_transfer;
-            cs->livecrootc          += transfer;
+            cs->livecrootc += transfer;
             cs->livecrootc_transfer -= transfer;
             transfer = prop_transfer * ns->livecrootn_transfer;
-            ns->livecrootn          += transfer;
+            ns->livecrootn += transfer;
             ns->livecrootn_transfer -= transfer;
             transfer = prop_transfer * cs->deadcrootc_transfer;
-            cs->deadcrootc          += transfer;
+            cs->deadcrootc += transfer;
             cs->deadcrootc_transfer -= transfer;
             transfer = prop_transfer * ns->deadcrootn_transfer;
-            ns->deadcrootn          += transfer;
+            ns->deadcrootn += transfer;
             ns->deadcrootn_transfer -= transfer;
         }
 
         /* only test for litterfall if there has already been some
-           transfer growth this year */
+         * transfer growth this year */
         predays = 0;
         remdays = 0;
 
         if (predays > 0)
         {
             /* some litterfall has already occurred. in this case, just
-               remove material from the displayed compartments, and don't
-               bother with the transfer to litter compartments */
-            prop_litfall = (double)predays/(double)(predays+remdays);
-            cs->leafc  -= prop_litfall * cs->leafc * epc->leaf_turnover;
+             * remove material from the displayed compartments, and don't
+             * bother with the transfer to litter compartments */
+            prop_litfall = (double)predays / (double)(predays + remdays);
+            cs->leafc -= prop_litfall * cs->leafc * epc->leaf_turnover;
             cs->frootc -= prop_litfall * cs->frootc * epc->froot_turnover;
         }
-    } /* end if transfer */
+    }                           /* end if transfer */
 
     /* add the growth respiration requirement for the first year's
-       leaf and fine root growth from transfer pools to the 
-       gresp_transfer pool */
+     * leaf and fine root growth from transfer pools to the 
+     * gresp_transfer pool */
     cs->gresp_transfer = 0.0;
     cs->gresp_transfer += (cs->leafc_transfer + cs->frootc_transfer) * GRPERC;
     if (woody)
     {
-        cs->gresp_transfer += (cs->livestemc_transfer + cs->deadstemc_transfer +
-                cs->livecrootc_transfer + cs->deadcrootc_transfer) * GRPERC;
+        cs->gresp_transfer += (cs->livestemc_transfer + cs->deadstemc_transfer + cs->livecrootc_transfer + cs->deadcrootc_transfer) * GRPERC;
     }
 
     /* set the initial rates of litterfall and live wood turnover */
@@ -171,7 +170,7 @@ void firstday(const epconst_struct* epc, const cinit_struct* cinit, epvar_struct
     else
     {
         /* deciduous: reset the litterfall rates to 0.0 for the start of the
-           next litterfall season */
+         * next litterfall season */
         epv->day_leafc_litfall_increment = 0.0;
         epv->day_frootc_litfall_increment = 0.0;
     }

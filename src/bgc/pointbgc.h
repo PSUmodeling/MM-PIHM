@@ -2,15 +2,15 @@
 #define POINTBGC_H
 
 /*
-pointbgc.h
-header file to hold includes needed for pointbgc.
-
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-Biome-BGC version 4.2 (final release)
-See copyright.txt for Copyright information
-Andrew A Neuschwander, andrew@ntsg.umt.edu
-
-*/
+ * pointbgc.h
+ * header file to hold includes needed for pointbgc.
+ * 
+ * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ * Biome-BGC version 4.2 (final release)
+ * See copyright.txt for Copyright information
+ * Andrew A Neuschwander, andrew@ntsg.umt.edu
+ * 
+ */
 
 #include <time.h>
 
@@ -30,11 +30,11 @@ Andrew A Neuschwander, andrew@ntsg.umt.edu
 #include "pointbgc_func.h"
 
 #ifdef __cplusplus
-extern "C"
+extern          "C"
 {
 #endif
 
-/* non include stuff here */
+    /* non include stuff here */
 
 #ifdef __cplusplus
 }

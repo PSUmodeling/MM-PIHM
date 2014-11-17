@@ -1,17 +1,17 @@
 /* 
-soilpsi.c
-soil water potential as a function of volumetric water content and
-constants related to texture
-
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-Biome-BGC version 4.2 (final release)
-See copyright.txt for Copyright information
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-*/
+ * soilpsi.c
+ * soil water potential as a function of volumetric water content and
+ * constants related to texture
+ * 
+ * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ * Biome-BGC version 4.2 (final release)
+ * See copyright.txt for Copyright information
+ * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ */
 
 #include "bgc.h"
 
-void soilpsi(const siteconst_struct* sitec, double vwc, double* psi)
+void soilpsi (const siteconst_struct * sitec, double vwc, double *psi)
 {
     /*
      * Given a list of site constants and the soil water content,
@@ -29,8 +29,8 @@ void soilpsi(const siteconst_struct* sitec, double vwc, double* psi)
      * psi_s = psi_sat * (vwc/vwc_sat)^b
      */
 
-    double  theta;
-    double  alpha, beta;
+    double          theta;
+    double          alpha, beta;
 
     theta = (vwc - sitec->vwc_min) / (sitec->vwc_sat - sitec->vwc_min);
     theta = theta > 1. ? 1. : theta;
@@ -40,6 +40,5 @@ void soilpsi(const siteconst_struct* sitec, double vwc, double* psi)
 
     /* calculate psi */
     *psi = -(pow (pow (1. / theta, sitec->soil_beta / (sitec->soil_beta - 1.)) - 1., 1. / sitec->soil_beta) / sitec->soil_alpha) * 1000. * 9.81 / 1.e6;
-//    printf ("theta = %lf, alpha = %lf, beta = %lf, psi = %lf\n", theta, sitec->soil_alpha, sitec->soil_beta, *psi);
+    //    printf ("theta = %lf, alpha = %lf, beta = %lf, psi = %lf\n", theta, sitec->soil_alpha, sitec->soil_beta, *psi);
 }
-

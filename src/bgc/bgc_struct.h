@@ -650,6 +650,9 @@ typedef struct
     double          rc13_canair;    /* C13O2/C12O2 in canopy air */
     double          rc13_psnsun;    /* C13O2/C12O2 in sunlit canopy psn flux */
     double          rc13_psnsha;    /* C13O2/C12O2 in shaded canopy psn flux */
+
+    double          old_c_balance;
+    double          old_n_balance;
 } epvar_struct;
 
 /* soil and site constants */

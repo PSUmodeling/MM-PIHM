@@ -1,16 +1,16 @@
 /*
-photosynthesis.c
-C3/C4 photosynthesis model
-
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-Biome-BGC version 4.2 (final release)
-See copyright.txt for Copyright information
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-*/
+ * photosynthesis.c
+ * C3/C4 photosynthesis model
+ * 
+ * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ * Biome-BGC version 4.2 (final release)
+ * See copyright.txt for Copyright information
+ * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ */
 
 #include "bgc.h"
 
-void total_photosynthesis(const metvar_struct* metv, const epconst_struct* epc, epvar_struct* epv, cflux_struct* cf, psn_struct *psn_sun, psn_struct *psn_shade)
+void total_photosynthesis (const metvar_struct * metv, const epconst_struct * epc, epvar_struct * epv, cflux_struct * cf, psn_struct * psn_sun, psn_struct * psn_shade)
 {
     /*
      * This function is a wrapper and replacement for the photosynthesis code
@@ -30,10 +30,13 @@ void total_photosynthesis(const metvar_struct* metv, const epconst_struct* epc, 
     psn_sun->ppfd = metv->ppfd_per_plaisun;
     /* convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
      * water vapor */
-    psn_sun->g = epv->gl_t_wv_sun * 1e6/(1.6*R*(metv->tday+273.15));
+    psn_sun->g = epv->gl_t_wv_sun * 1e6 / (1.6 * 8.3143 * (metv->tday + 273.15));
+    //    printf ("gl_t_wv_sun = %lf, R = %lf, tday = %lf\n", epv->gl_t_wv_sun, R, metv->tday);
     psn_sun->dlmr = epv->dlmr_area_sun;
+
+    //    printf ("c3 = %d, co2 = %lf, pa = %lf, t = %lf, lnc = %lf, flnr = %lf, ppfd = %lf, g = %lf, dlmr = %lf\n", psn_sun->c3, psn_sun->co2, psn_sun->pa, psn_sun->t, psn_sun->lnc, psn_sun->flnr, psn_sun->ppfd, psn_sun->g, psn_sun->dlmr);
     /* Calculate photosynthesis for sunlit leaves */
-    photosynthesis(psn_sun);
+    photosynthesis (psn_sun);
 
     epv->assim_sun = psn_sun->A;
 
@@ -53,10 +56,10 @@ void total_photosynthesis(const metvar_struct* metv, const epconst_struct* epc, 
     psn_shade->ppfd = metv->ppfd_per_plaishade;
     /* convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
      * water vapor */
-    psn_shade->g = epv->gl_t_wv_shade * 1e6/(1.6*R*(metv->tday+273.15));
+    psn_shade->g = epv->gl_t_wv_shade * 1e6 / (1.6 * 8.3143 * (metv->tday + 273.15));
     psn_shade->dlmr = epv->dlmr_area_shade;
     /* Calculate photosynthesis for shaded leaves */
-    photosynthesis(psn_shade);
+    photosynthesis (psn_shade);
 
     epv->assim_shade = psn_shade->A;
 
@@ -68,7 +71,7 @@ void total_photosynthesis(const metvar_struct* metv, const epconst_struct* epc, 
 }
 
 
-void photosynthesis(psn_struct* psn)
+void photosynthesis (psn_struct * psn)
 {
     /*
      * The following variables are assumed to be defined in the psn struct
@@ -103,7 +106,7 @@ void photosynthesis(psn_struct* psn)
      * make up the enzyme, as listed in the Handbook of Biochemistry,
      * Proteins, Vol III, p. 510, which references: Kuehn and McFadden,
      * Biochemistry, 8:2403, 1969 */
-    static double fnr = 7.16;   /* kg Rub/kg NRub */
+    static double   fnr = 7.16; /* kg Rub/kg NRub */
 
     /* the following enzyme kinetic constants are from:
      * Woodrow, I.E., and J.A. Berry, 1980. Enzymatic regulation of
@@ -119,25 +122,25 @@ void photosynthesis(psn_struct* psn)
      * All other parameters, including the q10's for Kc and Ko are the same as
      * in Woodrow and Berry. */
 
-    static double Kc25 = 404.0;   /* (ubar) MM const carboxylase, 25 deg C */ 
-    static double q10Kc = 2.1;    /* (DIM) Q_10 for Kc */
-    static double Ko25 = 248.0;   /* (mbar) MM const oxygenase, 25 deg C */
-    static double q10Ko = 1.2;    /* (DIM) Q_10 for Ko */
-    static double act25 = 3.6;    /* (umol/mgRubisco/min) Rubisco activity */
-    static double q10act = 2.4;   /* (DIM) Q_10 for Rubisco activity */
-    static double pabs = 0.85;    /* (DIM) fPAR effectively absorbed by PSII */
+    static double   Kc25 = 404.0;   /* (ubar) MM const carboxylase, 25 deg C */
+    static double   q10Kc = 2.1;    /* (DIM) Q_10 for Kc */
+    static double   Ko25 = 248.0;   /* (mbar) MM const oxygenase, 25 deg C */
+    static double   q10Ko = 1.2;    /* (DIM) Q_10 for Ko */
+    static double   act25 = 3.6;    /* (umol/mgRubisco/min) Rubisco activity */
+    static double   q10act = 2.4;   /* (DIM) Q_10 for Rubisco activity */
+    static double   pabs = 0.85;    /* (DIM) fPAR effectively absorbed by PSII */
 
     /* local variables */
-    double t;      /* (deg C) temperature */
-    double tk;     /* (K) absolute temperature */
-    double Kc;     /* (Pa) MM constant for carboxylase reaction */
-    double Ko;     /* (Pa) MM constant for oxygenase reaction */
-    double act;    /* (umol CO2/kgRubisco/s) Rubisco activity */
-    double Jmax;   /* (umol/m2/s) max rate electron transport */
-    double ppe;    /* (mol/mol) photons absorbed by PSII per e- transported */
-    double Vmax, J, gamma, Ca, Rd, O2, g;
-    double a,b,c,det;
-    double Av,Aj, A;
+    double          t;          /* (deg C) temperature */
+    double          tk;         /* (K) absolute temperature */
+    double          Kc;         /* (Pa) MM constant for carboxylase reaction */
+    double          Ko;         /* (Pa) MM constant for oxygenase reaction */
+    double          act;        /* (umol CO2/kgRubisco/s) Rubisco activity */
+    double          Jmax;       /* (umol/m2/s) max rate electron transport */
+    double          ppe;        /* (mol/mol) photons absorbed by PSII per e- transported */
+    double          Vmax, J, gamma, Ca, Rd, O2, g;
+    double          a, b, c, det;
+    double          Av, Aj, A;
 
     /* begin by assigning local variables */
     g = psn->g;
@@ -151,28 +154,28 @@ void photosynthesis(psn_struct* psn)
     /* set parameters for C3 vs C4 model */
     if (psn->c3)
         ppe = 2.6;
-    else /* C4 */
+    else                        /* C4 */
     {
         ppe = 3.5;
         Ca *= 10.0;
     }
-    psn->Ca = Ca;		
+    psn->Ca = Ca;
 
     /* calculate atmospheric O2 in Pa, assumes 21% O2 by volume */
     psn->O2 = O2 = 0.21 * psn->pa;
 
     /* correct kinetic constants for temperature, and do unit conversions */
-    Ko = Ko25 * pow(q10Ko, (t-25.0)/10.0);
-    psn->Ko = Ko = Ko * 100.0;   /* mbar --> Pa */
+    Ko = Ko25 * pow (q10Ko, (t - 25.0) / 10.0);
+    psn->Ko = Ko = Ko * 100.0;  /* mbar --> Pa */
     if (t > 15.0)
     {
-        Kc = Kc25 * pow(q10Kc, (t-25.0)/10.0);
-        act = act25 * pow(q10act, (t-25.0)/10.0);
+        Kc = Kc25 * pow (q10Kc, (t - 25.0) / 10.0);
+        act = act25 * pow (q10act, (t - 25.0) / 10.0);
     }
     else
     {
-        Kc = Kc25 * pow(1.8*q10Kc, (t-15.0)/10.0) / q10Kc;
-        act = act25 * pow(1.8*q10act, (t-15.0)/10.0) / q10act;
+        Kc = Kc25 * pow (1.8 * q10Kc, (t - 15.0) / 10.0) / q10Kc;
+        act = act25 * pow (1.8 * q10act, (t - 15.0) / 10.0) / q10act;
     }
     psn->Kc = Kc = Kc * 0.10;   /* ubar --> Pa */
     act = act * 1e6 / 60.0;     /* umol/mg/min --> umol/kg/s */
@@ -193,14 +196,14 @@ void photosynthesis(psn_struct* psn)
      * Wullschleger, S.D., 1993.  Biochemical limitations to carbon
      * assimilation in C3 plants - A retrospective analysis of the A/Ci curves
      * from 109 species. Journal of Experimental Botany, 44:907-920. */
-    psn->Jmax = Jmax = 2.1*Vmax;
+    psn->Jmax = Jmax = 2.1 * Vmax;
 
     /* calculate J = f(Jmax, ppfd), reference:
      * de Pury and Farquhar 1997 Plant Cell and Env. */
     a = 0.7;
-    b = -Jmax - (psn->ppfd*pabs/ppe);
-    c = Jmax * psn->ppfd*pabs/ppe;
-    psn->J = J = (-b - sqrt(b*b - 4.0*a*c))/(2.0*a);
+    b = -Jmax - (psn->ppfd * pabs / ppe);
+    c = Jmax * psn->ppfd * pabs / ppe;
+    psn->J = J = (-b - sqrt (b * b - 4.0 * a * c)) / (2.0 * a);
 
     /* solve for Av and Aj using the quadratic equation, substitution for Ci
      * from A = g(Ca-Ci) into the equations from Farquhar and von Caemmerer:
@@ -214,38 +217,37 @@ void photosynthesis(psn_struct* psn)
      *        4.5 Ci + 10.5 gamma
      */
 
-    /* quadratic solution for Av */    
-    a = -1.0/g;
-    b = Ca + (Vmax - Rd)/g + Kc*(1.0 + O2/Ko);
-    c = Vmax*(gamma - Ca) + Rd*(Ca + Kc*(1.0 + O2/Ko));
+    /* quadratic solution for Av */
+    a = -1.0 / g;
+    b = Ca + (Vmax - Rd) / g + Kc * (1.0 + O2 / Ko);
+    c = Vmax * (gamma - Ca) + Rd * (Ca + Kc * (1.0 + O2 / Ko));
 
-    if ((det = b*b - 4.0*a*c) < 0.0)
+    if ((det = b * b - 4.0 * a * c) < 0.0)
     {
-        printf("ERROR: negative root error in psn routine\n");
+        printf ("ERROR: negative root error in psn routine\n");
         exit (1);
     }
 
-    psn->Av = Av = (-b + sqrt(det)) / (2.0*a);
+    psn->Av = Av = (-b + sqrt (det)) / (2.0 * a);
 
     /* quadratic solution for Aj */
-    a = -4.5/g;    
-    b = 4.5*Ca + 10.5*gamma + J/g - 4.5*Rd/g;
-    c = J*(gamma - Ca) + Rd*(4.5*Ca + 10.5*gamma);
+    a = -4.5 / g;
+    b = 4.5 * Ca + 10.5 * gamma + J / g - 4.5 * Rd / g;
+    c = J * (gamma - Ca) + Rd * (4.5 * Ca + 10.5 * gamma);
 
-    if ((det = b*b - 4.0*a*c) < 0.0)
+    if ((det = b * b - 4.0 * a * c) < 0.0)
     {
-        printf("ERROR: negative root error in psn routine\n");
+        printf ("ERROR: negative root error in psn routine\n");
         exit (1);
     }
 
-    psn->Aj = Aj = (-b + sqrt(det)) / (2.0*a);
+    psn->Aj = Aj = (-b + sqrt (det)) / (2.0 * a);
 
     /* estimate A as the minimum of (Av,Aj) */
     if (Av < Aj)
-        A = Av; 
+        A = Av;
     else
         A = Aj;
     psn->A = A;
-    psn->Ci = Ca - (A/g);
-}	
-
+    psn->Ci = Ca - (A / g);
+}
