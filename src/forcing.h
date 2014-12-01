@@ -11,7 +11,11 @@ typedef struct TSD_type
     double        **TS;         /* 2D time series data */
 } TSD;
 
-double      Interpolation (TSD *, double);
+double monthly_lai (double t, int LC_type);
+double monthly_rl (double t, int LC_type);
+double monthly_mf (double t);
+double Interpolation (TSD * Data, double t);
+void MultiInterpolation (TSD * Data, double t, double *forcing, int num_forcing);
 void        update (double, void *);
 
 #endif

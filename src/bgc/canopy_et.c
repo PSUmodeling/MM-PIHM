@@ -75,6 +75,7 @@ void canopy_et (const metvar_struct *metv, const epconst_struct *epc, epvar_stru
     m_ppfd_shade = metv->ppfd_per_plaishade / (PPFD50 + metv->ppfd_per_plaishade);
 
     /* soil-leaf water potential multiplier */
+    //printf ("%lf %lf %lf\n", psi, psi_open, psi_close);
     if (psi > psi_open)         /* no water stress */
         m_psi = 1.0;
     else if (psi <= psi_close)  /* full water stress */
@@ -101,6 +102,7 @@ void canopy_et (const metvar_struct *metv, const epconst_struct *epc, epvar_stru
     else                        /* partial vpd effect */
         m_vpd = (vpd_close - vpd) / (vpd_close - vpd_open);
 
+    //printf ("m_psi %lf m_co2 %lf m_tmin %lf m_vpd %lf\n", m_psi, m_co2, m_tmin, m_vpd);
     /* apply all multipliers to the maximum stomatal conductance */
     m_final_sun = m_ppfd_sun * m_psi * m_co2 * m_tmin * m_vpd;
     if (m_final_sun < 0.00000001)
@@ -108,6 +110,7 @@ void canopy_et (const metvar_struct *metv, const epconst_struct *epc, epvar_stru
     m_final_shade = m_ppfd_shade * m_psi * m_co2 * m_tmin * m_vpd;
     if (m_final_shade < 0.00000001)
         m_final_shade = 0.00000001;
+    //printf ("m_final_sun = %lf, m_final_shad = %lf\n", m_final_sun, m_final_shade);
     gl_s_sun = epc->gl_smax * m_final_sun * gcorr;
     gl_s_shade = epc->gl_smax * m_final_shade * gcorr;
 

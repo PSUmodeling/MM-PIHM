@@ -1,7 +1,7 @@
 /*****************************************************************************
- * File		: pihm.h
- * Function	: Declaration and Definition of global variables and data
- *  structure
+ * File       : pihm.h
+ * Function   : Declaration and Definition of global variables and data
+ *              structure
  * Developer of PIHM-MF     :	Yuning Shi	(yshi@psu.edu)
  * Developer of PIHM 2.2    :	Xuan Yu	        (xxy113@psu.edu)
  * Developer of PIHM 2.0    :	Mukesh Kumar	(muk139@psu.edu)
@@ -10,8 +10,9 @@
  *----------------------------------------------------------------------------
  * This code is free for research purpose only.
  * Please provide relevant references if you use this code in your research 
- *  work								  
+ * work								  
  ****************************************************************************/
+
 #ifndef PIHM_HEADER
 #define PIHM_HEADER
 
@@ -106,15 +107,18 @@ typedef struct element_type
                                  * 0: Natural BC (no flow);
                                  * 1: Dirichlet BC;
                                  * 2:Neumann BC */
-    int             prep;       /* precipitation (forcing) type */
-    int             temp;       /* temperature (forcing) type   */
-    int             humidity;   /* humidity type */
-    int             WindVel;    /* wind velocity type */
-    int             Rn;         /* net radiation input */
-    int             G;          /* radiation into ground */
-    int             Sdown;      /* YS: downward solar radiation */
-    int             Ldown;      /* YS; downward long wave radiation */
-    int             pressure;   /* pressure type */
+    int             meteo;      /* precipitation (forcing) type */
+    int             LAI;        /* LAI forcing type (0: use climatological
+                                 * values; else: use user provided time
+                                 * series */
+//    int             temp;       /* temperature (forcing) type   */
+//    int             humidity;   /* humidity type */
+//    int             WindVel;    /* wind velocity type */
+//    int             Rn;         /* net radiation input */
+//    int             G;          /* radiation into ground */
+//    int             Sdown;      /* YS: downward solar radiation */
+//    int             Ldown;      /* YS; downward long wave radiation */
+//    int             pressure;   /* pressure type */
     int             source;     /* source (well) type */
     int             meltF;      /* meltFactor */
 
@@ -393,8 +397,12 @@ typedef struct model_data_structure
 
     TSD            *TSD_EleBC;  /* Element Boundary Condition Time Series
                                  * Data */
-    TSD           **Forcing;    /* YS */
-    int            *NumTS;      /* YS */
+    TSD            *TSD_meteo;    /* YS */
+    TSD            *TSD_lai;    /* YS */
+    TSD            *TSD_rl;
+    TSD            *TSD_mf;     /* YS  */
+    TSD            *TSD_ss;     /* YS */
+    int             NumTS;      /* YS */
     TSD            *TSD_Riv;    /* River Related Time Series Data  */
 
     realtype      **FluxSurf;   /* Overland Flux */
@@ -490,6 +498,7 @@ typedef struct control_data_structure
     globalCal       Cal;        /* Convert this to pointer for
                                  * localized calibration */
 } Control_Data;
+
 
 /*
  * Function Declarations

@@ -61,6 +61,7 @@ void daily_bgc (bgc_struct BGCM, bgc_grid *grid, const double t, const double na
     *rawtime = (int)t;
     timestamp = gmtime (rawtime);
 
+
     /* Get co2 and ndep */
     if (ctrl->spinup == 1)      /* Spinup mode */
     {
@@ -157,6 +158,9 @@ void daily_bgc (bgc_struct BGCM, bgc_grid *grid, const double t, const double na
      * defined by the remdays_curgrowth flag.  This keeps the occurrence of
      * new growth consistent with the treatment of litterfall and
      * allocation */
+
+    //printf ("leafc %lf dormant %lf, dayl %lf, soilc = %lf\n", cs->leafc, epv->dormant_flag, metv->dayl, summary->soilc);
+
     if (cs->leafc && !epv->dormant_flag && metv->dayl)
         total_photosynthesis (metv, epc, epv, cf, psn_sun, psn_shade);
     else

@@ -52,9 +52,9 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
      * Open *.lsm file
      */
     if (ensemble_mode == 0)
-        printf ("\n 10) reading %s.%-5s ...\t\t", projectname, "lsm");
-    fn = (char *)malloc ((strlen (projectname) + 11) * sizeof (char));
-    sprintf (fn, "input/%s.lsm", projectname);
+        printf ("\nReading %s.%-5s ...\t\t", projectname, "lsm");
+    fn = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
+    sprintf (fn, "input/%s/%s.lsm", projectname, projectname);
     lsm_file = fopen (fn, "r");
     free (fn);
 
@@ -141,9 +141,7 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
              */
             else
             {
-                printf
-                   ("\n  Parameter:%s cannot be recognized. Please see User's Manual for more details!\n",
-                   optstr);
+                printf ("\n  Parameter:%s cannot be recognized. Please see User's Manual for more details!\n", optstr);
                 exit (1);
             }
         }
@@ -183,11 +181,11 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data * CS, LSM_STR
     double          AquiferDepth;
     double          a_x, a_y, b_x, b_y, c_x, c_y, distX, distY;
     double          a_zmin, a_zmax, b_zmin, b_zmax, c_zmin, c_zmax;
-    double          vector1[3], vector2[3], normal_vector[3], vector[3], H, c,
-       se, ce;
+    double          vector1[3], vector2[3], normal_vector[3], vector[3], H, c, se, ce;
     int             nodes[2];
     double          x1, y1, z1, x2, y2, z2, xc, yc, zc;
     double          c1, c2, ce1, ce2, se1, se2, phi1, phi2;
+    double          *metarr;
     int             ind, ind1, ind2;
     char           *fn;
     FILE           *init_file;
@@ -597,7 +595,7 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data * CS, LSM_STR
         NOAH->SOILTYP = PIHM->Ele[i].soil;
         NOAH->SNOALB = 0.75;
         NOAH->ZLVL = 3.0;
-        NOAH->ZLVL_WIND = PIHM->windH[PIHM->Ele[i].WindVel - 1];
+        NOAH->ZLVL_WIND = PIHM->windH[PIHM->Ele[i].meteo - 1];
         NOAH->ISURBAN = BADVAL;
         NOAH->SHDMIN = 0.01;
         NOAH->SHDMAX = 0.96;
@@ -640,6 +638,7 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data * CS, LSM_STR
      * Set initial conditions for land surface variables
      */
 
+    metarr = (double *) malloc (7 * sizeof (double));
     if (CS->init_type < 3)      /* Relaxation */
     {
         for (i = 0; i < PIHM->NumEle; i++)
@@ -651,7 +650,9 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data * CS, LSM_STR
             /*
              * T1: convert from degree C to K 
              */
-            NOAH->T1 = (double)Interpolation (&PIHM->Forcing[SFCTMP_TS][PIHM->Ele[i].temp - 1], CS->StartTime); //+ 273.15;
+            MultiInterpolation (&PIHM->TSD_meteo[PIHM->Ele[i].meteo - 1], CS->StartTime, metarr, 7);
+            //NOAH->T1 = (double)Interpolation (&PIHM->[SFCTMP_TS][PIHM->Ele[i].temp - 1], CS->StartTime); //+ 273.15;
+            NOAH->T1 = metarr[SFCTMP_TS];
             NOAH->STC[0] = NOAH->T1 + (NOAH->T1 - NOAH->TBOT) / LSM->GENPRMT.ZBOT_DATA * NOAH->SLDPTH[0] * 0.5;
             for (j = 1; j < LSM->STD_NSOIL + 1; j++)
                 if (NOAH->SLDPTH[j] > 0)
@@ -687,9 +688,7 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data * CS, LSM_STR
         free (fn);
         if (init_file == NULL)
         {
-            printf
-               ("\n Fatal Error: %s.lsminit is in use of does not exist!\n",
-               filename);
+            printf ("\n Fatal Error: %s.lsminit is in use of does not exist!\n", filename);
             exit (1);
         }
         for (i = 0; i < PIHM->NumEle; i++)

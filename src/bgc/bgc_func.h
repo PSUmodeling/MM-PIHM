@@ -3,7 +3,10 @@
 
 void            BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM);
 void            BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM);
-void            daymet (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double t, int spinup);
+void            bgc_spinup (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM);
+void daymet(const metarr_struct *metarr, metvar_struct *metv, int metday);
+//void            daymet (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double t, int spinup);
+void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start_time, double end_time);
 
 void            presim_state_init (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns, cinit_struct * cinit);
 void            make_zero_flux_struct (wflux_struct * wf, cflux_struct * cf, nflux_struct * nf);

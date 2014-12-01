@@ -396,7 +396,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
 
     if (ensemble_mode == 0)
         printf (" Read %s.bgc ...", projectname);
-    sprintf (fn, "input/%s.bgc", projectname);
+    sprintf (fn, "input/%s/%s.bgc", projectname, projectname);
     bgc_file = fopen (fn, "r");
 
     if (bgc_file == NULL)
@@ -571,7 +571,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
     {
         /* Read soil moisture forcing */
         BGCM->Forcing[SWC_TS] = (TSD *) malloc (PIHM->NumEle * sizeof (TSD));
-        sprintf (SWC_fn, "input/%s.SWC", filename);
+        sprintf (SWC_fn, "input/%s/%s.SWC", filename, filename);
         SWC_file = fopen (SWC_fn, "rb");
         if (SWC_file == NULL)
         {
@@ -613,7 +613,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
 
         /* Read soil temperature forcing */
         BGCM->Forcing[STC_TS] = (TSD *) malloc (PIHM->NumEle * sizeof (TSD));
-        sprintf (STC_fn, "input/%s.STC", filename);
+        sprintf (STC_fn, "input/%s/%s.STC", filename, filename);
         STC_file = fopen (STC_fn, "rb");
         if (STC_file == NULL)
         {
@@ -665,11 +665,11 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
         BGCM->grid[i].cinit = cinit;
         BGCM->grid[i].cs = cs;
         BGCM->grid[i].ns = ns;
-        if (PIHM->Ele[i].LC == 1 || PIHM->Ele[i].LC == 4 || PIHM->Ele[i].LC == 7)
+        if (PIHM->Ele[i].LC == 4)
             BGCM->grid[i].epc = BGCM->epclist.epc[EPC_DBF];
-        else if (PIHM->Ele[i].LC == 2 || PIHM->Ele[i].LC == 5 || PIHM->Ele[i].LC == 8)
+        else if (PIHM->Ele[i].LC == 1)
             BGCM->grid[i].epc = BGCM->epclist.epc[EPC_ENF];
-        else if (PIHM->Ele[i].LC == 3 || PIHM->Ele[i].LC == 6 || PIHM->Ele[i].LC == 9)
+        else if (PIHM->Ele[i].LC == 5)
             BGCM->grid[i].epc = BGCM->epclist.epc[EPC_DBF];
 
         printf ("ELE %d, woody %d, evergreen %d\n", i + 1, BGCM->grid[i].epc.woody, BGCM->grid[i].epc.evergreen);

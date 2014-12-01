@@ -63,7 +63,13 @@ typedef struct
     double         *swavgfd;    /* (W/m2)  daylight avg shortwave flux density */
     double         *par;        /* (W/m2)  photosynthetically active radiation */
     double         *dayl;       /* (s)     daylength */
+    double         *prev_dayl;
     double         *tavg;       /* (deg C) daily average temperature */
+    double         *tday;
+    double         *tnight;
+    double         *tsoil;
+    double         *swc;
+    double         *pa;
     double         *tavg_ra;    /* (deg C) 11-day running avg of daily avg temp */
 } metarr_struct;
 
@@ -894,6 +900,7 @@ typedef struct epclist_struct
 typedef struct bgc_grid
 {
     siteconst_struct sitec;     /* site constants */
+    metarr_struct   metarr;     /* meteorological data array */
     metvar_struct   metv;
     wstate_struct   ws;         /* water state variables */
     wflux_struct    wf;
@@ -923,7 +930,6 @@ typedef struct bgc_struct
 //    ramp_ndep_struct ramp_ndep; /* ramped Ndep information */
     co2control_struct co2;      /* CO2 concentration information */
     ndepcontrol_struct ndepctrl;    /* Nitrogen deposition control structure */
-    metarr_struct   metarr;     /* meteorological data array */
 //    siteconst_struct sitec;     /* site constants */
     epclist_struct  epclist;
     double          spinup_resid_trend; /* kgC/m2/yr remaining trend after spinup */

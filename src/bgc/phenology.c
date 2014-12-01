@@ -71,6 +71,7 @@ void phenology (const epconst_struct * epc, const metvar_struct * metv, phenolog
      * are constant between years */
     if (evergreen)
     {
+        epv->dormant_flag = 0.;
         epv->day_leafc_litfall_increment = cs->leafc * epc->leaf_turnover / 365.;
         epv->day_frootc_litfall_increment = cs->frootc * epc->froot_turnover / 365.;
 
@@ -525,10 +526,10 @@ void phenology (const epconst_struct * epc, const metvar_struct * metv, phenolog
                  * rates as described above */
                 leaflitfallc = epv->day_leafc_litfall_increment;
                 drate = 2.0 * (cs->leafc - leaflitfallc * ndays) / (ndays * ndays);
-                printf ("drate = 2.0 * (%lf - %lf * %lf) / (%lf * %lf)\n", cs->leafc, epv->day_leafc_litfall_increment, ndays, ndays, ndays);
+                //printf ("drate = 2.0 * (%lf - %lf * %lf) / (%lf * %lf)\n", cs->leafc, epv->day_leafc_litfall_increment, ndays, ndays, ndays);
                 epv->day_leafc_litfall_increment += drate;
                 leaflitfallc = epv->day_leafc_litfall_increment;
-                printf ("days = %lf, phen->remdays_litfall = %lf, drate = %lf, leafc = %lf, litfallc = %lf\n", ndays, phen->remdays_litfall, drate, cs->leafc, leaflitfallc);
+                //printf ("days = %lf, phen->remdays_litfall = %lf, drate = %lf, leafc = %lf, litfallc = %lf\n", ndays, phen->remdays_litfall, drate, cs->leafc, leaflitfallc);
                 frootlitfallc = epv->day_frootc_litfall_increment;
                 drate = 2.0 * (cs->frootc - frootlitfallc * ndays) / (ndays * ndays);
                 epv->day_frootc_litfall_increment += drate;
@@ -538,7 +539,7 @@ void phenology (const epconst_struct * epc, const metvar_struct * metv, phenolog
             if (leaflitfallc > cs->leafc)
                 leaflitfallc = cs->leafc;
             //            if (leaflitfallc)
-            printf ("leafc = %lf, leaflitfallc = %lf\n", cs->leafc, leaflitfallc);
+            //printf ("leafc = %lf, leaflitfallc = %lf\n", cs->leafc, leaflitfallc);
             leaf_litfall (epc, leaflitfallc, cf, nf);
             /* fine root litterfall */
             if (frootlitfallc > cs->frootc)
@@ -643,8 +644,8 @@ void leaf_litfall (const epconst_struct *epc, double litfallc, cflux_struct *cf,
     c4 = litfallc * epc->leaflitr_flig;
     n4 = litfalln * epc->leaflitr_flig;
     nretrans = (litfallc / avg_cn) - (litfalln);
-    printf ("litfallc = %lf, avg_cn = %lf, litfalln = %lf, litr_cn = %lf, nretrans = %lf\n", litfallc, avg_cn, litfalln, epc->leaflitr_cn, nretrans);
-    printf ("litfallc = %lf, c1 = %lf, c2 = %lf, c3 = %lf, c4 = %lf, c1+c2+c3+c4 = %lf\n", litfallc, c1, c2, c3, c4, c1 + c2 + c3 + c4);
+    ////printf ("litfallc = %lf, avg_cn = %lf, litfalln = %lf, litr_cn = %lf, nretrans = %lf\n", litfallc, avg_cn, litfalln, epc->leaflitr_cn, nretrans);
+    //printf ("litfallc = %lf, c1 = %lf, c2 = %lf, c3 = %lf, c4 = %lf, c1+c2+c3+c4 = %lf\n", litfallc, c1, c2, c3, c4, c1 + c2 + c3 + c4);
 
     /* set fluxes in daily flux structure */
     cf->leafc_to_litr1c = c1;

@@ -16,7 +16,7 @@ SRCDIR = ./src
 SUNDIALS_PATH = /gpfs/home/yzs123/work/lib/sundials-2.2.0
 
 SRCS_ =  pihm.c f.c read_alloc.c initialize.c update.c print.c is_sm_et.c \
-	    f_function.c
+	    f_function.c forcing.c
 HEADERS_ = pihm.h
 
 EXECUTABLE = pihm
@@ -24,8 +24,8 @@ MSG = "...  Compiling PIHM  ..."
 
 # Available modules are:
 # FLUX-PIHM
-# BGC	(Note: When BGC is declared, Flux-PIHM module will also be turned on
-# 	because soil temperature needs to be simulated)
+# BGC		(Note: When BGC is declared, Flux-PIHM module will also be
+# 		turned on because soil temperature needs to be simulated)
 
 MODULE = BGC
 
@@ -50,7 +50,8 @@ ifeq ($(MODULE), BGC)
 		    bgc/daily_allocation.c bgc/canopy_et.c \
 		    bgc/photosynthesis.c bgc/decomp.c bgc/annual_rates.c \
 		    bgc/growth_resp.c bgc/state_update.c bgc/mortality.c \
-		    bgc/check_balance.c bgc/summary.c
+		    bgc/check_balance.c bgc/summary.c bgc/metarr_init.c \
+		    bgc/bgc_spinup.c
   MODULE_HEADERS_ =  noah/noah.h noah/flux_pihm.h spa/spa.h bgc/bgc.h 
   EXECUTABLE = pihm-bgc
   MSG = "... Compiling PIHM-BGC ..."
@@ -94,5 +95,5 @@ tool:
 .PHONY: clean
 
 clean:
-	$(RM) $(SRCDIR)/*.o $(SRCDIR)/noah/*.o $(SRCDIR)/spa/*.o *~ pihm flux-pihm
+	$(RM) $(SRCDIR)/*.o $(SRCDIR)/noah/*.o $(SRCDIR)/spa/*.o *~ pihm flux-pihm pihm-bgc
 #	$(RM) $(OBJDIR)/*.o *~ pihm flux-pihm

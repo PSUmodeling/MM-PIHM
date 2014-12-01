@@ -44,9 +44,7 @@
 #ifdef _BGC_
 #include "bgc/bgc.h"
 #endif
-/*
- * Main Function
- */
+
 int main (int argc, char *argv[])
 {
     Model_Data      mData;      /* Model Data */
@@ -66,19 +64,13 @@ int main (int argc, char *argv[])
     long int        cvode_int;
     char           *filename, *outputdir, str[11];
     char            system_cmd[1024];
+
 #ifdef _FLUX_PIHM_
     LSM_STRUCT      LSM;
 #endif
 
 #ifdef _BGC_
     bgc_struct      BGCM;
-    realtype        spinup_starttime;
-    realtype        spinup_endtime;
-    int first_balance = 1;
-    int ntimesmet, nblock;
-    int steady1 = 0, steady2 = 0, rising = 1, metcycle = 0, spinyears = 0;
-    double tally1 = 0.0, tally1b = 0.0, tally2 = 0.0, tally2b = 0.0, t1 = 0.0;
-    double naddfrac = 1.0;
 #endif
 
     system ("clear");
@@ -141,9 +133,9 @@ int main (int argc, char *argv[])
     mkdir (outputdir, 0755);
 
     /* Save input files into output directory */
-    sprintf (system_cmd, "cp input/%s.para %s/%s.para.bak", filename, outputdir, filename);
+    sprintf (system_cmd, "cp input/%s/%s.para %s/%s.para.bak", filename, filename, outputdir, filename);
     system (system_cmd);
-    sprintf (system_cmd, "cp input/%s.calib %s/%s.calib.bak", filename, outputdir, filename);
+    sprintf (system_cmd, "cp input/%s.calib %s/%s/%s.calib.bak", filename, filename, outputdir, filename);
     system (system_cmd);
 
     /* Allocate memory for model data structure */
@@ -193,52 +185,14 @@ int main (int argc, char *argv[])
 #ifdef _BGC_
     if (BGCM->ctrl.spinup == 1)
     {
-        printf ("\n\nRunning BGC model in spin-up mode using prescribed soil moisture and soil temperature\n");
-        printf ("PIHM is not running.\n");
-        timestamp->tm_year = BGCM->ctrl.spinupstart;
-        timestamp->tm_mon = 1;
-        timestamp->tm_mday = 1;
-        timestamp->tm_hour = 0;
-        timestamp->tm_min = 0;
-        timestamp->tm_sec = 0;
-        timestamp->tm_year = timestamp->tm_year - 1900;
-        timestamp->tm_mon = timestamp->tm_mon - 1;
-        *rawtime = timegm(timestamp);
-        spinup_starttime = (realtype) *rawtime;
-
-        timestamp->tm_year = BGCM->ctrl.spinupend + 1;
-        printf ("year = %d\n", timestamp->tm_year);
-        timestamp->tm_year = timestamp->tm_year - 1900;
-        *rawtime = timegm(timestamp);
-        spinup_endtime = (realtype) *rawtime;
-
-//	if (!steady1 && rising && metcycle == 0)
-//            naddfrac = 1. - ((double)simyr/(double)nblock);
-//        else
-//            naddfrac = 0.;
-
-        printf ("%lf %lf\n", spinup_starttime, spinup_endtime);
-        for (t = spinup_starttime; t < spinup_endtime; t = t + 24. * 3600.)
-        {
-            daymet (BGCM, mData, LSM, t, BGCM->ctrl.spinup);
-            *rawtime = t;
-//            for (i = 0; i < mData->NumEle; i++)
-            for (i = 0; i < 10; i++)
-            {
-                printf ("DOY = %d ELE %d\n", t2doy (rawtime), i + 1);
-                daily_bgc (BGCM, &BGCM->grid[i], t, naddfrac, first_balance);
-            }
-            first_balance = 0;
-        }
+        bgc_spinup (BGCM, mData, LSM);
     }
     else
     {
 #endif
     printf ("\n\nSolving ODE system ... \n\n");
 
-    /*
-     * allocate memory for solver 
-     */
+    /* allocate memory for solver */
     cvode_mem = CVodeCreate (CV_BDF, CV_NEWTON);
     if (cvode_mem == NULL)
     {
@@ -254,19 +208,13 @@ int main (int argc, char *argv[])
     flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
     //  flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
 
-    /*
-     * set start time 
-     */
+    /* set start time */
     t = cData.StartTime;
 
-    /*
-     * start solver in loops 
-     */
+    /* start solver in loops */
     for (i = 0; i < cData.NumSteps; i++)
     {
-        /*
-         * inner loops to next output points with ET step size control
-         */
+        /* inner loops to next output points with ET step size control */
         while (t < cData.Tout[i + 1])
         {
             if (t + cData.ETStep >= cData.Tout[i + 1])
@@ -280,15 +228,11 @@ int main (int argc, char *argv[])
             if ((int)t % (int)cData.ETStep == 0)
             {
 #ifdef _FLUX_PIHM_
-                /*
-                 * calculate surface energy balance
-                 */
+                /* calculate surface energy balance */
                 PIHM2Noah (t, cData.ETStep, mData, LSM, coupling);
                 Noah2PIHM (mData, LSM);
 #else
-                /*
-                 * calculate Interception Storage and ET
-                 */
+                /* calculate Interception Storage and ET */
                 is_sm_et (t, cData.ETStep, mData, CV_Y);
 #endif
             }
@@ -310,9 +254,7 @@ int main (int argc, char *argv[])
 #ifdef _BGC_
         }
 #endif
-        /*
-         * Print outputs 
-         */
+        /* Print outputs */
         for (j = 0; j < cData.NumPrint; j++)
             PrintData (cData.PCtrl[j], t, StepSize, cData.Ascii);
 #ifdef _FLUX_PIHM_
@@ -335,14 +277,10 @@ int main (int argc, char *argv[])
 #ifdef COUPLE_O
     fclose (coupling);
 #endif
-    /*
-     * Free memory
-     */
+    /* Free memory */
     N_VDestroy_Serial (CV_Y);
 
-    /*
-     * Free integrator memory
-     */
+    /* Free integrator memory */
     CVodeFree (&cvode_mem);
 
     free (outputdir);

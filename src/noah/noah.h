@@ -382,7 +382,7 @@ typedef struct LSM_STRUCT
     int             RAD_MODE;   /* Radiation mode; 1: topographic, 0: uniform */
     Print_Ctrl      PCtrl[100];
 
-    TSD           **Forcing;
+    TSD            *TSD_rad;
 
     int             NPRINT;
     int             PRINT_T1;

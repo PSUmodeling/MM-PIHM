@@ -31,6 +31,7 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
     double          incidence, azimuth180;
     time_t         *rawtime;
     struct tm      *timestamp;
+    double          metarr[7];
 
     spa_data        spa;
     rawtime = (time_t *) malloc (sizeof (time_t));
@@ -79,19 +80,29 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
         /* Read time step */
         NOAH->DT = (double)stepsize;    /* DT: convert from d to s */
 
+        MultiInterpolation (&PIHM->TSD_meteo[PIHM->Ele[i].meteo - 1], t, &metarr[0], 7);
         /* Read forcing */
-        NOAH->SFCSPD = Interpolation (&PIHM->Forcing[SFCSPD_TS][PIHM->Ele[i].WindVel - 1], t); /// 24. / 3600.;    /* SFCSPD: convert from m day-1 to m s-1 */
-        NOAH->SFCTMP = Interpolation (&PIHM->Forcing[SFCTMP_TS][PIHM->Ele[i].temp - 1], t);// + 273.15;    /* SFCTMP: convert from degree C to Kalvain */
-        RH = Interpolation (&PIHM->Forcing[RH_TS][PIHM->Ele[i].humidity - 1], t);// * 100.;    /* RH: convert from 100% to % */
-        NOAH->SFCPRS = Interpolation (&PIHM->Forcing[PRES_TS][PIHM->Ele[i].pressure - 1], t) / 100.;  /* SFCPRS: convert from Pa to hPa */
-        NOAH->LONGWAVE = Interpolation (&PIHM->Forcing[LONGWAVE_TS][PIHM->Ele[i].Ldown - 1], t);// / 24. / 3600.;    /* LONGWAVE: convert from J day-1 m-2 to W m-2 */
-        NOAH->PRCP = Interpolation (&PIHM->Forcing[PRCP_TS][PIHM->Ele[i].prep - 1], t);// * 1000. / 24. / 3600.; /* PRCP: convert from m day-1 to kg m-2 s-1 */
+//        NOAH->SFCSPD = Interpolation (&PIHM->Forcing[SFCSPD_TS][PIHM->Ele[i].WindVel - 1], t); /// 24. / 3600.;    /* SFCSPD: convert from m day-1 to m s-1 */
+//        NOAH->SFCTMP = Interpolation (&PIHM->Forcing[SFCTMP_TS][PIHM->Ele[i].temp - 1], t);// + 273.15;    /* SFCTMP: convert from degree C to Kalvain */
+//        RH = Interpolation (&PIHM->Forcing[RH_TS][PIHM->Ele[i].humidity - 1], t);// * 100.;    /* RH: convert from 100% to % */
+//        NOAH->SFCPRS = Interpolation (&PIHM->Forcing[PRES_TS][PIHM->Ele[i].pressure - 1], t) / 100.;  /* SFCPRS: convert from Pa to hPa */
+//        NOAH->LONGWAVE = Interpolation (&PIHM->Forcing[LONGWAVE_TS][PIHM->Ele[i].Ldown - 1], t);// / 24. / 3600.;    /* LONGWAVE: convert from J day-1 m-2 to W m-2 */
+//        NOAH->PRCP = Interpolation (&PIHM->Forcing[PRCP_TS][PIHM->Ele[i].prep - 1], t);// * 1000. / 24. / 3600.; /* PRCP: convert from m day-1 to kg m-2 s-1 */
+        NOAH->SFCSPD = metarr[SFCSPD_TS];
+        NOAH->SFCTMP = metarr[SFCTMP_TS];
+        RH = metarr[RH_TS];
+        NOAH->SFCPRS = metarr[PRES_TS] / 100.;
+        NOAH->LONGWAVE = metarr[LONGWAVE_TS];
+        NOAH->PRCP = metarr[PRCP_TS];
 
         /* Calculate solar radiation */
         if (LSM->RAD_MODE > 0)
         {
-            Sdir = (double)Interpolation (&LSM->Forcing[SOLAR_DIR_TS][PIHM->Ele[i].Sdown - 1], t);
-            Sdif = (double)Interpolation (&LSM->Forcing[SOLAR_DIF_TS][PIHM->Ele[i].Sdown - 1], t);
+//            Sdir = (double)Interpolation (&LSM->Forcing[SOLAR_DIR_TS][PIHM->Ele[i].Sdown - 1], t);
+//            Sdif = (double)Interpolation (&LSM->Forcing[SOLAR_DIF_TS][PIHM->Ele[i].Sdown - 1], t);
+            MultiInterpolation (&LSM->TSD_rad[PIHM->Ele[i].meteo - 1], t, &metarr[0], 2);
+            Sdir = metarr[SOLAR_DIR_TS];
+            Sdif = metarr[SOLAR_DIF_TS];
 
             if (spa.zenith > NOAH->H_PHI[(int)floor (spa.azimuth180 / 10.)])
                 Sdir = 0.;
@@ -112,7 +123,8 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
 //                Soldown = Soldown + Sdif;
 //            }
 //            else
-                Soldown = Interpolation (&PIHM->Forcing[SOLAR_TS][PIHM->Ele[i].Sdown - 1], t);
+//                Soldown = Interpolation (&PIHM->Forcing[SOLAR_TS][PIHM->Ele[i].Sdown - 1], t);
+                Soldown = metarr[SOLAR_TS];
         }
         NOAH->SOLDN = Soldown;// / 24. / 3600.;    /* SOLDN: convert from J day-1 m-2 to W m-2 */
 
@@ -159,7 +171,13 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
 
         NOAH->SHDFAC = PIHM->LandC[PIHM->Ele[i].LC - 1].VegFrac;
 
-        NOAH->XLAI = Interpolation (&PIHM->Forcing[LAI_TS][PIHM->Ele[i].LC - 1], t);
+        if (PIHM->Ele[i].LAI > 0)
+        {
+            NOAH->XLAI = Interpolation(&PIHM->TSD_lai[PIHM->Ele[i].LAI - 1], t);
+        }
+        else
+            NOAH->XLAI = monthly_lai (t, PIHM->Ele[i].LC);
+        //NOAH->XLAI = Interpolation (&PIHM->[LAI_TS][PIHM->Ele[i].LC - 1], t);
 
         if (NOAH->Q1 == BADVAL)
             NOAH->Q1 = NOAH->Q2;

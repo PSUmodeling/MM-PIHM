@@ -45,6 +45,7 @@ void total_photosynthesis (const metvar_struct * metv, const epconst_struct * ep
      * projected leaf area in the relevant canopy fraction, and this total
      * converted from umol/m2/s -> kgC/m2/d */
     cf->psnsun_to_cpool = (epv->assim_sun + epv->dlmr_area_sun) * epv->plaisun * metv->dayl * 12.011e-9;
+    //printf ("Photo %lf\n", cf->psnsun_to_cpool);
 
     /* SHADED canopy fraction photosynthesis */
     psn_shade->c3 = epc->c3_flag;
