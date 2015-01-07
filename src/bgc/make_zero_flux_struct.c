@@ -1,17 +1,17 @@
 /* 
-   make_zero_flux_struct.c
-   create structures initialized with zero for forcing fluxes to zero
-   between simulation days
-
- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- Biome-BGC version 4.2 (final release)
- See copyright.txt for Copyright information
- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ * make_zero_flux_struct.c
+ * create structures initialized with zero for forcing fluxes to zero
+ * between simulation days
+ * 
+ * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ * Biome-BGC version 4.2 (final release)
+ * See copyright.txt for Copyright information
+ * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
 #include "bgc.h"
 
-void make_zero_flux_struct (wflux_struct *wf, cflux_struct *cf, nflux_struct *nf)
+void make_zero_flux_struct (wflux_struct * wf, cflux_struct * cf, nflux_struct * nf)
 {
     /* daily water fluxes */
     wf->prcp_to_canopyw = 0.0;
@@ -223,8 +223,8 @@ void make_zero_flux_struct (wflux_struct *wf, cflux_struct *cf, nflux_struct *nf
     nf->frootn_to_litr2n = 0.0;
     nf->frootn_to_litr3n = 0.0;
     nf->frootn_to_litr4n = 0.0;
-    nf->ndep_to_sminn = 0.0; 
-    nf->nfix_to_sminn = 0.0; 
+    nf->ndep_to_sminn = 0.0;
+    nf->nfix_to_sminn = 0.0;
     nf->cwdn_to_litr2n = 0.0;
     nf->cwdn_to_litr3n = 0.0;
     nf->cwdn_to_litr4n = 0.0;
@@ -250,8 +250,8 @@ void make_zero_flux_struct (wflux_struct *wf, cflux_struct *cf, nflux_struct *nf
     nf->sminn_to_nvol_s3s4 = 0.0;
     nf->sminn_to_nvol_s4 = 0.0;
     nf->sminn_to_denitrif = 0.0;
-    nf->sminn_leached = 0.0; 
-    nf->retransn_to_npool = 0.0;  
+    nf->sminn_leached = 0.0;
+    nf->retransn_to_npool = 0.0;
     nf->sminn_to_npool = 0.0;
     nf->npool_to_leafn = 0.0;
     nf->npool_to_leafn_storage = 0.0;

@@ -1,17 +1,17 @@
 /* 
-zero_srcsnk.c
-fill the source and sink variables with 0.0 at the start of the simulation
-
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-Biome-BGC version 4.2 (final release)
-See copyright.txt for Copyright information
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-*/
+ * zero_srcsnk.c
+ * fill the source and sink variables with 0.0 at the start of the simulation
+ * 
+ * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ * Biome-BGC version 4.2 (final release)
+ * See copyright.txt for Copyright information
+ * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ */
 
 #include "bgc.h"
 
 /* zero the source and sink state variables */
-void zero_srcsnk(cstate_struct *cs, nstate_struct *ns, wstate_struct *ws, summary_struct *summary)
+void zero_srcsnk (cstate_struct * cs, nstate_struct * ns, wstate_struct * ws, summary_struct * summary)
 {
     /* zero the water sources and sinks  */
     ws->prcp_src = 0.0;

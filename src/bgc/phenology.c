@@ -624,7 +624,7 @@ int free_phenmem (phenarray_struct * phen)
 //  int ok=1;
 //  
 
-void leaf_litfall (const epconst_struct *epc, double litfallc, cflux_struct *cf, nflux_struct *nf)
+void leaf_litfall (const epconst_struct * epc, double litfallc, cflux_struct * cf, nflux_struct * nf)
 {
     double          c1, c2, c3, c4;
     double          n1, n2, n3, n4;

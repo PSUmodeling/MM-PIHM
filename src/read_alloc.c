@@ -31,6 +31,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     char           *laifn;
     char           *projectname;
     char           *token, *tempname;
+    char            scrn_char[100];
     time_t          rawtime;
     struct tm      *timeinfo;
     int             NumForcing;
@@ -82,7 +83,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
      * .riv file
      */
     if (ensemble_mode == 0)
-        printf ("Reading %s.%-5s ...\t\t", projectname, "riv");
+        printf ("  Reading %s.%s\n", projectname, "riv");
     fn[0] = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
     sprintf (fn[0], "input/%s/%s.riv", projectname, projectname);
     riv_file = fopen (fn[0], "r");
@@ -164,14 +165,12 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     }
 
     fclose (riv_file);
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     /* 
      * .mesh file
      */
     if (ensemble_mode == 0)
-        printf ("Reading %s.%-5s ...\t\t", projectname, "mesh");
+        printf ("  Reading %s.%s\n", projectname, "mesh");
     fn[1] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
     sprintf (fn[1], "input/%s/%s.mesh", projectname, projectname);
     mesh_file = fopen (fn[1], "r");
@@ -206,8 +205,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         fscanf (mesh_file, "%lf %lf", &(DS->Node[i].zmin), &(DS->Node[i].zmax));
     }
 
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     /* finish reading mesh_files */
     fclose (mesh_file);
@@ -216,7 +213,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
      *.att file
      */
     if (ensemble_mode == 0)
-        printf ("Reading %s.%-5s ...\t\t", projectname, "att");
+        printf ("  Reading %s.%s\n", projectname, "att");
     fn[2] = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
     sprintf (fn[2], "input/%s/%s.att", projectname, projectname);
     att_file = fopen (fn[2], "r");
@@ -250,15 +247,13 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         fscanf (att_file, "%d", &(DS->Ele[i].Macropore));
     }
 
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     /* finish reading att_files */
     fclose (att_file);
 
     /*========== open *.soil file ==========*/
     if (ensemble_mode == 0)
-        printf ("Reading %s.%-5s ...\t\t", projectname, "soil");
+        printf ("  Reading %s.%s\n", projectname, "soil");
     fn[3] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
     sprintf (fn[3], "input/%s/%s.soil", projectname, projectname);
     soil_file = fopen (fn[3], "r");
@@ -288,12 +283,10 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     }
 
     fclose (soil_file);
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     /*========== open *.geol file ==========*/
     if (ensemble_mode == 0)
-        printf ("Reading %s.%-5s ...\t\t", projectname, "geol");
+        printf ("  Reading %s.%s\n", projectname, "geol");
     fn[4] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
     sprintf (fn[4], "input/%s/%s.geol", projectname, projectname);
     geol_file = fopen (fn[4], "r");
@@ -321,12 +314,10 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     }
 
     fclose (geol_file);
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     /*========== open *.lc file ==========*/
     if (ensemble_mode == 0)
-        printf ("Reading vegprmt.tbl ...\t\t");
+        printf ("  Reading vegprmt.tbl\n");
     //fn[5] = (char *)malloc ((strlen (projectname) + 10) * sizeof (char));
     //sprintf (fn[5], "input/%s.lc", projectname);
     lc_file = fopen ("input/vegprmt.tbl", "r");
@@ -367,12 +358,9 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     for ( i = 0; i < DS->NumLC; i++)
         DS->ISFactor[i] = 0.0002;
 
-    if (ensemble_mode == 0)
-        printf ("done.\n");
-
     /*========== open *.forc file ==========*/
     if (ensemble_mode == 0)
-        printf ("Reading %s.%-5s ...\t\t", projectname, "forc");
+        printf ("  Reading %s.%s\n", projectname, "forc");
     fn[6] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
     sprintf (fn[6], "input/%s/%s.forc", projectname, projectname);
     forc_file = fopen (fn[6], "r");
@@ -415,7 +403,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
             sscanf (cmdstr, "%s", optstr);
             if (strcasecmp ("METEO_TS", optstr) == 0)
             {
-                printf ("!!!\n");
                 sscanf (cmdstr, "%*s %d %*s %*lf", &ind);
                 DS->TSD_meteo[ind - 1].length = 0;
                 count = &(DS->TSD_meteo[ind - 1].length);
@@ -446,7 +433,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
 
     for (i = 0; i < DS->NumTS; i++)
     {
-        printf ("Length = %d\n", DS->TSD_meteo[i].length);
         DS->TSD_meteo[i].TS = (realtype **) malloc ((DS->TSD_meteo[i].length) * sizeof (realtype *));
         DS->TSD_meteo[i].iCounter = 0;
         for (j = 0; j < DS->TSD_meteo[i].length; j++)
@@ -490,7 +476,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     if (read_lai == 1)
     {
         if (ensemble_mode == 0)
-            printf ("Reading %s.%-5s ...\t\t", projectname, "lai");
+            printf ("  Reading %s.%s\n", projectname, "lai");
         laifn = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
         sprintf (laifn, "input/%s/%s.lai", projectname, projectname);
         lai_file = fopen (laifn, "r");
@@ -571,8 +557,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         }
 
         fclose (lai_file);
-        if (ensemble_mode == 0)
-            printf ("done.\n");
     }
 
     if (read_ss == 1)
@@ -582,7 +566,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
 
     /*========== open *.ibc file ==========*/
     if (ensemble_mode == 0)
-        printf ("Reading %s.%-5s ...\t\t", projectname, "ibc");
+        printf ("  Reading %s.%s\n", projectname, "ibc");
     fn[7] = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
     sprintf (fn[7], "input/%s/%s.ibc", projectname, projectname);
     ibc_file = fopen (fn[7], "r");
@@ -650,12 +634,10 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         }
     }
     fclose (ibc_file);
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     /*========== open *.para file ==========*/
     if (ensemble_mode == 0)
-        printf ("Reading %s.%-5s ...\t\t", projectname, "para");
+        printf ("  Reading %s.%s\n", projectname, "para");
     fn[8] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
     sprintf (fn[8], "input/%s/%s.para", projectname, projectname);
     para_file = fopen (fn[8], "r");
@@ -882,63 +864,52 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         CS->Tout[CS->NumSteps] = CS->EndTime;
     if (CS->abstol == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Absolute Tolerance (ABSTOL) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Absolute Tolerance (ABSTOL) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->reltol == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Relative  Tolerance (RELTOL) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Relative  Tolerance (RELTOL) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->InitStep == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Initial time-step (INIT_STEP) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Initial time-step (INIT_STEP) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->MaxStep == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Maximum time-step (MAX_STEP) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Maximum time-step (MAX_STEP) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->StartTime == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Simulation start time (START yyyy-mm-dd hh:mm) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Simulation start time (START yyyy-mm-dd hh:mm) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->EndTime == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Simulation end time (END yyyy-mm-dd hh:mm) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Simulation end time (END yyyy-mm-dd hh:mm) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->ETStep == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Land surface model time-step (LSM_STEP) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Land surface model time-step (LSM_STEP) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->outtype == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Output step-size type (OUTPUT_TYPE) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Output step-size type (OUTPUT_TYPE) must be defined in .para file!\n");
         exit (1);
     }
     if ((CS->outtype == 0) && (CS->a == BADVAL || CS->b == BADVAL))
     {
-        printf
-           ("\n  Fatal Error: Output step-size factor (A) and base step-size (B) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Output step-size factor (A) and base step-size (B) must be defined in .para file!\n");
         exit (1);
     }
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     if (ensemble_mode == 0)
-        printf ("\nStart reading in calibration file ...\t");
+        printf ("  Reading calibration file\n");
 
     /*========= open *.calib file ==========*/
     fn[9] = (char *)malloc ((2 * strlen (filename) + 14) * sizeof (char));
@@ -1105,8 +1076,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         }
         fgets (cmdstr, MAXSTRING, global_calib);
     }
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     /*
      * finish reading calib file 

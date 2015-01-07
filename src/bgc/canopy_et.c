@@ -11,7 +11,7 @@
 
 #include "bgc.h"
 
-void canopy_et (const metvar_struct *metv, const epconst_struct *epc, epvar_struct * epv, wflux_struct *wf)
+void canopy_et (const metvar_struct * metv, const epconst_struct * epc, epvar_struct * epv, wflux_struct * wf)
 {
     double          gl_bl, gl_c, gl_s_sun, gl_s_shade;
     double          gl_e_wv, gl_t_wv_sun, gl_t_wv_shade, gl_sh;

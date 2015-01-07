@@ -5,7 +5,7 @@
 
 #include "bgc.h"
 
-void daily_bgc (bgc_struct BGCM, bgc_grid *grid, const double t, const double naddfrac, int first_balance)
+void daily_bgc (bgc_struct BGCM, bgc_grid * grid, const double t, const double naddfrac, int first_balance)
 {
     siteconst_struct *sitec;
     metvar_struct  *metv;

@@ -2,7 +2,7 @@ TIME_DEFINE     (keyword - do not remove)
 2009            (yr)        start of spinup met year
 2009            (yr)        end of spinup met year
 1               (flag)      1 = spinup simulation, 0 = normal simulation
-6000            (int)       maximum number of spinup years (if spinup simulation)
+1000            (int)       maximum number of spinup years (if spinup simulation)
 
 CO2_CONTROL     (keyword - do not remove)
 1               (flag)    0=constant 1=vary with file

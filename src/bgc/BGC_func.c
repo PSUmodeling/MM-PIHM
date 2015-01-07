@@ -1,3 +1,4 @@
+
 /*****************************************************************************
  * Function	:   BGC model realted functions
  * Version	:   October, 2014
@@ -32,8 +33,6 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
     control_struct *ctrl;
     co2control_struct *co2;
     ndepcontrol_struct *ndepctrl;
-    //    siteconst_struct *sitec;
-    //    ramp_ndep_struct *ramp_ndep;
 
     /* Templates for model initial conditions */
     wstate_struct   ws;
@@ -62,16 +61,14 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
     free (tempname);
 
     /* Initialize state variables with zeroes */
-
     presim_state_init (&ws, &cs, &ns, &cinit);
 
     /* Read epc files */
-
     BGCM->epclist.nvegtypes = NVEGTYPES;
     BGCM->epclist.epc = (epconst_struct *) malloc (BGCM->epclist.nvegtypes * sizeof (epconst_struct));
 
     if (ensemble_mode == 0)
-        printf ("\n Read ecophysiological constant files\n");
+        printf ("\n  BGC: Reading ecophysiological constant files\n");
 
     for (veg_type = 0; veg_type < BGCM->epclist.nvegtypes; veg_type++)
     {
@@ -103,6 +100,10 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
                 break;
             case EPC_SHRUB:
                 strcpy (fn, "input/epc/shrub.epc");
+                epc_file = fopen (fn, "r");
+                break;
+            case EPC_MIXED:
+                strcpy (fn, "input/epc/mix.epc");
                 epc_file = fopen (fn, "r");
                 break;
         }
@@ -391,11 +392,9 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
     ctrl = &BGCM->ctrl;
     co2 = &BGCM->co2;
     ndepctrl = &BGCM->ndepctrl;
-    //    sitec = &BGCM->sitec;
-    //    ramp_ndep = &BGCM->ramp_ndep;
 
     if (ensemble_mode == 0)
-        printf (" Read %s.bgc ...", projectname);
+        printf ("  BGC: Reading %s.bgc", projectname);
     sprintf (fn, "input/%s/%s.bgc", projectname, projectname);
     bgc_file = fopen (fn, "r");
 
@@ -423,9 +422,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
                 sscanf (cmdstr, "%d", &ctrl->spinup);
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%d", &ctrl->maxspinyears);
-                printf ("%d %d %d %d\n", ctrl->spinupstart, ctrl->spinupend, ctrl->spinup, ctrl->maxspinyears);
-                /* BGC start and end year should be equal to model start year */
-                //                ctrl->
+                //printf ("%d %d %d %d\n", ctrl->spinupstart, ctrl->spinupend, ctrl->spinup, ctrl->maxspinyears);
             }
             else if (strcasecmp ("CO2_CONTROL", optstr) == 0)
             {
@@ -515,7 +512,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
                 BGCM->Forcing[CO2_TS][0].length = BGCM->Forcing[CO2_TS][0].length + 1;
             fgets (cmdstr, MAXSTRING, co2_file);
         }
-        printf ("Number of lines = %d", BGCM->Forcing[CO2_TS][0].length);
+        //printf ("Number of lines = %d", BGCM->Forcing[CO2_TS][0].length);
         BGCM->Forcing[CO2_TS][0].TS = (double **)malloc ((BGCM->Forcing[CO2_TS][0].length) * sizeof (double *));
         for (i = 0; i < BGCM->Forcing[CO2_TS][0].length; i++)
         {
@@ -550,7 +547,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
                 BGCM->Forcing[NDEP_TS][0].length = BGCM->Forcing[NDEP_TS][0].length + 1;
             fgets (cmdstr, MAXSTRING, ndep_file);
         }
-        printf ("Number of lines = %d\n", BGCM->Forcing[NDEP_TS][0].length);
+        //printf ("Number of lines = %d\n", BGCM->Forcing[NDEP_TS][0].length);
         BGCM->Forcing[NDEP_TS][0].TS = (double **)malloc ((BGCM->Forcing[NDEP_TS][0].length) * sizeof (double *));
         for (i = 0; i < BGCM->Forcing[NDEP_TS][0].length; i++)
         {
@@ -570,7 +567,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
     if (ctrl->spinup == 1)
     {
         /* Read soil moisture forcing */
-        BGCM->Forcing[SWC_TS] = (TSD *) malloc (PIHM->NumEle * sizeof (TSD));
+        BGCM->Forcing[SWC_TS] = (TSD *) malloc (sizeof (TSD));
         sprintf (SWC_fn, "input/%s/%s.SWC", filename, filename);
         SWC_file = fopen (SWC_fn, "rb");
         if (SWC_file == NULL)
@@ -580,39 +577,23 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
         }
         /* Check the length of forcing */
         fseek (SWC_file, 0L, SEEK_END);
-        for (i = 0; i < PIHM->NumEle; i++)
-        {
-            BGCM->Forcing[SWC_TS][i].length = (int)(ftell (SWC_file) / (PIHM->NumEle + 1) / 8); /* 8 is the size of double */
-            BGCM->Forcing[SWC_TS][i].TS = (double **)malloc (BGCM->Forcing[SWC_TS][i].length * sizeof (double *));
-        }
+        BGCM->Forcing[SWC_TS][0].length = (int)(ftell (SWC_file) / (PIHM->NumEle + 1) / 8); /* 8 is the size of double */
+        BGCM->Forcing[SWC_TS][0].TS = (double **)malloc (BGCM->Forcing[SWC_TS][0].length * sizeof (double *));
         /* Read in forcing */
         rewind (SWC_file);
         for (j = 0; j < BGCM->Forcing[SWC_TS][0].length; j++)
         {
-            for (i = 0; i < PIHM->NumEle; i++)
-                BGCM->Forcing[SWC_TS][i].TS[j] = (double *)malloc (2 * sizeof (double));
+            BGCM->Forcing[SWC_TS][0].TS[j] = (double *)malloc ((PIHM->NumEle + 1) * sizeof (double));
             fread (&BGCM->Forcing[SWC_TS][0].TS[j][0], sizeof (double), 1, SWC_file);
-            //#ifdef _DEBUG_
-            //            rawtime = (int)BGCM->Forcing[SWC_TS][0].TS[j][0];
-            //            timeinfo = gmtime (&rawtime);
-            //            printf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d\t", timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour, timeinfo->tm_min);
-            //#endif
             for (i = 0; i < PIHM->NumEle; i++)
             {
-                BGCM->Forcing[SWC_TS][i].TS[j][0] = BGCM->Forcing[SWC_TS][0].TS[j][0];
-                fread (&BGCM->Forcing[SWC_TS][i].TS[j][1], sizeof (double), 1, SWC_file);
-                //#ifdef _DEBUG_
-                //                printf("%lf\t", BGCM->Forcing[SWC_TS][i].TS[j][1]);
-                //#endif
+                fread (&BGCM->Forcing[SWC_TS][0].TS[j][1 + i], sizeof (double), 1, SWC_file);
             }
-            //#ifdef _DEBUG_
-            //            printf("\n");
-            //#endif
         }
         fclose (SWC_file);
 
         /* Read soil temperature forcing */
-        BGCM->Forcing[STC_TS] = (TSD *) malloc (PIHM->NumEle * sizeof (TSD));
+        BGCM->Forcing[STC_TS] = (TSD *) malloc (sizeof (TSD));
         sprintf (STC_fn, "input/%s/%s.STC", filename, filename);
         STC_file = fopen (STC_fn, "rb");
         if (STC_file == NULL)
@@ -622,34 +603,18 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
         }
         /* Check the length of forcing */
         fseek (STC_file, 0L, SEEK_END);
-        for (i = 0; i < PIHM->NumEle; i++)
-        {
-            BGCM->Forcing[STC_TS][i].length = (int)(ftell (STC_file) / (PIHM->NumEle + 1) / 8); /* 8 is the size of double */
-            BGCM->Forcing[STC_TS][i].TS = (double **)malloc (BGCM->Forcing[STC_TS][i].length * sizeof (double *));
-        }
+        BGCM->Forcing[STC_TS][0].length = (int)(ftell (STC_file) / (PIHM->NumEle + 1) / 8); /* 8 is the size of double */
+        BGCM->Forcing[STC_TS][0].TS = (double **)malloc (BGCM->Forcing[STC_TS][0].length * sizeof (double *));
         /* Read in forcing */
         rewind (STC_file);
         for (j = 0; j < BGCM->Forcing[STC_TS][0].length; j++)
         {
-            for (i = 0; i < PIHM->NumEle; i++)
-                BGCM->Forcing[STC_TS][i].TS[j] = (double *)malloc (2 * sizeof (double));
+            BGCM->Forcing[STC_TS][0].TS[j] = (double *)malloc ((PIHM->NumEle + 1) * sizeof (double));
             fread (&BGCM->Forcing[STC_TS][0].TS[j][0], sizeof (double), 1, STC_file);
-            //#ifdef _DEBUG_
-            //            rawtime = (int)BGCM->Forcing[STC_TS][0].TS[j][0];
-            //            timeinfo = gmtime (&rawtime);
-            //            printf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d\t", timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday, timeinfo->tm_hour, timeinfo->tm_min);
-            //#endif
             for (i = 0; i < PIHM->NumEle; i++)
             {
-                BGCM->Forcing[STC_TS][i].TS[j][0] = BGCM->Forcing[STC_TS][0].TS[j][0];
-                fread (&BGCM->Forcing[STC_TS][i].TS[j][1], sizeof (double), 1, STC_file);
-                //#ifdef _DEBUG_
-                //                printf("%lf\t", BGCM->Forcing[STC_TS][i].TS[j][1]);
-                //#endif
+                fread (&BGCM->Forcing[STC_TS][0].TS[j][1 + i], sizeof (double), 1, STC_file);
             }
-            //#ifdef _DEBUG_
-            //            printf("\n");
-            //#endif
         }
         fclose (STC_file);
     }
@@ -670,12 +635,15 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
         else if (PIHM->Ele[i].LC == 1)
             BGCM->grid[i].epc = BGCM->epclist.epc[EPC_ENF];
         else if (PIHM->Ele[i].LC == 5)
-            BGCM->grid[i].epc = BGCM->epclist.epc[EPC_DBF];
+            BGCM->grid[i].epc = BGCM->epclist.epc[EPC_MIXED];
 
-        printf ("ELE %d, woody %d, evergreen %d\n", i + 1, BGCM->grid[i].epc.woody, BGCM->grid[i].epc.evergreen);
+        printf ("ELE %d, LC %d, woody %d, evergreen %d, transfer days %lf\n", i + 1, PIHM->Ele[i].LC, BGCM->grid[i].epc.woody, BGCM->grid[i].epc.evergreen, BGCM->grid[i].epc.transfer_days);
 
-        BGCM->grid[i].epv.dormant_flag = 1.;
-        //        BGCM->grid[i].epv.days_active = 0.;
+        if (BGCM->grid[i].epc.evergreen == 1)
+            BGCM->grid[i].epv.dormant_flag = 0.;
+        else
+            BGCM->grid[i].epv.dormant_flag = 1.;
+        //BGCM->grid[i].epv.days_active = 0.;
         BGCM->grid[i].epv.onset_flag = 0.;
         BGCM->grid[i].epv.onset_counter = 0.;
         BGCM->grid[i].epv.onset_gddflag = 0.;
@@ -692,10 +660,6 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
         BGCM->grid[i].epv.annavg_t2m = 280.;
         BGCM->grid[i].epv.tempavg_t2m = 0.;
     }
-
-
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 }
 
 void BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM)
@@ -705,7 +669,7 @@ void BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM)
     int             i;
     int             metyr;
 
-    printf ("Initialize BGC structures\n");
+    printf ("BGC: Initializing BGC structures\n");
 
     for (i = 0; i < PIHM->NumEle; i++)
     {
@@ -723,7 +687,7 @@ void BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM)
     /* Read initial conditions */
     if (BGCM->ctrl.spinup == 0)
     {
-        strcpy (fn, "input/%s.bgcinit");
+        sprintf (fn, "input/%s/%s.bgcinit", filename, filename);
         init_file = fopen (fn, "rb");
         if (init_file == NULL)
         {
@@ -733,8 +697,8 @@ void BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM)
 
         for (i = 0; i < PIHM->NumEle; i++)
         {
-            fread (&(BGCM->grid[i].restart_data), sizeof (restart_data_struct), 1, init_file);
-            restart_input (&BGCM->ctrl, &BGCM->grid[i].ws, &BGCM->grid[i].cs, &BGCM->grid[i].ns, &BGCM->grid[i].epv, &metyr, &BGCM->grid[i].restart_data);
+            fread (&(BGCM->grid[i].restart_input), sizeof (restart_data_struct), 1, init_file);
+            restart_input (&BGCM->grid[i].ws, &BGCM->grid[i].cs, &BGCM->grid[i].ns, &BGCM->grid[i].epv, &BGCM->grid[i].restart_input);
         }
         fclose (init_file);
     }

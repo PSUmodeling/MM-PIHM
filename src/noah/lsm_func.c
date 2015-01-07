@@ -13,7 +13,6 @@
 #include "../pihm.h"               /* Data Model and Variable Declarations     */
 #include "../spa/spa.h"
 #include "noah.h"
-#include "flux_pihm.h"
 
 void LSM_read (char *filename, LSM_STRUCT LSM)
 {
@@ -21,11 +20,18 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
     char           *fn;
     char           *projectname;
     char           *token, *tempname;
+    time_t          rawtime;
+    struct tm      *timeinfo;
     FILE           *lsm_file;
-    FILE           *lsm_forcing_file;
+    FILE           *lsm_forc_file;
     int             ensemble_mode;
     char            cmdstr[MAXSTRING];
     char            optstr[MAXSTRING];
+    int             NumTS;
+    int             ind;
+    int            *count;
+
+    timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
     /*
      * Detect if model is running in ensemble mode
@@ -52,7 +58,7 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
      * Open *.lsm file
      */
     if (ensemble_mode == 0)
-        printf ("\nReading %s.%-5s ...\t\t", projectname, "lsm");
+        printf ("\n  LSM: Reading %s.%s\n", projectname, "lsm");
     fn = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
     sprintf (fn, "input/%s/%s.lsm", projectname, projectname);
     lsm_file = fopen (fn, "r");
@@ -153,23 +159,92 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
     if (LSM->RAD_MODE == 1)
     {
         if (ensemble_mode == 0)
-            printf ("\n 11) reading %s.%-5s ...\t\t", projectname, "rad");
-        fn = (char *)malloc ((strlen (projectname) + 13) * sizeof (char));
-        sprintf (fn, "input/%s.rad", projectname);
-        lsm_forcing_file = fopen (fn, "r");
+            printf ("  LSM: Reading %s.%s\n", projectname, "rad");
+        fn = (char *)malloc ((2 * strlen (projectname) + 14) * sizeof (char));
+        sprintf (fn, "input/%s/%s.rad", projectname, projectname);
+        lsm_forc_file = fopen (fn, "r");
         free (fn);
 
-        if (lsm_forcing_file == NULL)
+        if (lsm_forc_file == NULL)
         {
-            printf ("\n  Warning: %s.flsm is in use or does not exist!", projectname);
+            printf ("\n  Warning: %s.rad is in use or does not exist!", projectname);
             printf (" Topographic model cannot be turned on!\n");
             LSM->RAD_MODE = 0;
         }
+
+        fscanf (lsm_forc_file, "%*s %d", &NumTS);
+        LSM->TSD_rad = (TSD *) malloc (NumTS * sizeof (TSD));
+
+        rewind (lsm_forc_file);
+        fgets (cmdstr, MAXSTRING, lsm_forc_file);
+
+        fgets (cmdstr, MAXSTRING, lsm_forc_file);
+        while (!feof (lsm_forc_file))
+        {
+            if (cmdstr[0] != '\n' && cmdstr[0] != '\0' && cmdstr[0] != '\t')
+            {
+                sscanf (cmdstr, "%s", optstr);
+                if (strcasecmp ("RAD_TS", optstr) == 0)
+                {
+                    sscanf (cmdstr, "%*s %d", &ind);
+                    LSM->TSD_rad[ind - 1].length = 0;
+                    count = &(LSM->TSD_rad[ind - 1].length);
+                }
+                else if (strcasecmp ("TIME", optstr) == 0)
+                {
+                    /* Do nothing */
+                }
+                else if (strcasecmp ("TS", optstr) == 0)
+                {
+                    /* Do nothing */
+                }
+                else
+                {
+                    (*count)++;
+                }
+                //printf ("%s ", optstr);
+                //printf ("count =- %d, ind = %d\n", *count, ind);
+            }
+            fgets (cmdstr, MAXSTRING, lsm_forc_file);
+        }
+
+        if (ind != NumTS)
+        {
+            printf ("ERROR!\n");
+            exit (1);
+        }
+
+        for (i = 0; i < NumTS; i++)
+        {
+            printf ("Length = %d\n", LSM->TSD_rad[i].length);
+            LSM->TSD_rad[i].TS = (double **) malloc ((LSM->TSD_rad[i].length) * sizeof (double *));
+            LSM->TSD_rad[i].iCounter = 0;
+            for (j = 0; j < LSM->TSD_rad[i].length; j++)
+                LSM->TSD_rad[i].TS[j] = (double *) malloc (3 * sizeof (double));
+        }
+
+        rewind(lsm_forc_file);
+        fscanf (lsm_forc_file, "%*s %*d");
+
+        for (i = 0; i < NumTS; i++)
+        {
+            fscanf (lsm_forc_file, "%*s %*d");
+            fscanf (lsm_forc_file, "%*s %*s %*s");
+            fscanf (lsm_forc_file, "%*s %*s %*s");
+
+            for (j = 0; j < LSM->TSD_rad[i].length; j++)
+            {
+                fscanf (lsm_forc_file, "%d-%d-%d %d:%d:%d %lf %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &timeinfo->tm_sec, &LSM->TSD_rad[i].TS[j][1], &LSM->TSD_rad[i].TS[j][2]);
+                timeinfo->tm_year = timeinfo->tm_year - 1900;
+                timeinfo->tm_mon = timeinfo->tm_mon - 1;
+                rawtime = timegm (timeinfo);
+                LSM->TSD_rad[i].TS[j][0] = (double) rawtime;
+            }
+        }
+        fclose (lsm_forc_file);
     }
 
     free (projectname);
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 }
 
 void LSM_initialize (char *filename, Model_Data PIHM, Control_Data * CS, LSM_STRUCT LSM)
@@ -873,7 +948,6 @@ void LSM_initialize_output (char *filename, Model_Data PIHM, LSM_STRUCT LSM, cha
         LSM->PCtrl[i].buffer =
            (double *)calloc (LSM->PCtrl[i].NumVar, sizeof (double));
     }
-    printf ("done.\n");
 }
 
 void LSM_FreeData (Model_Data PIHM, LSM_STRUCT LSM)
@@ -952,5 +1026,24 @@ int FindLayer (LSM_STRUCT LSM, double depth)
 
 double mod (double a, double N)
 {
-    return a - N * floor (a / N);
+    return (a - N * floor (a / N));
+}
+
+double topo_radiation (double Sdir, double Sdif, double zenith, double azimuth180, double slope, double aspect, double *h_phi, double svf)
+{
+    double incidence;
+    double gvf;
+    double  Soldown;
+
+//    printf ("Sdir %lf Sdif %lf zenith %lf azimuth180 %lf slope %lf aspect %lf h_phi %lf svf %lf\n", Sdif, Sdif, zenith, azimuth180, slope, aspect, h_phi[0], svf);
+    if (zenith > h_phi[(int)floor (azimuth180 / 10.)])
+        Sdir = 0.;
+    incidence = 180. / PI * acos (cos (zenith * PI / 180.) * cos (slope * PI / 180.) + sin (zenith * PI / 180.) * sin (slope * PI / 180.) * cos ((azimuth180 - aspect) * PI / 180.));
+    incidence = incidence > 90. ? 90. : incidence;
+    gvf = (1. + cos (slope * PI / 180.)) / 2. - svf;
+    gvf = gvf < 0. ? 0. : gvf;
+    Soldown = Sdir * cos (incidence * PI / 180.) + svf * Sdif + 0.2 * gvf * (Sdir * cos (zenith * PI / 180.) + Sdif);
+    Soldown = Soldown < 0. ? 0. : Soldown;
+
+    return (Soldown);
 }

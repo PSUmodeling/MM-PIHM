@@ -1,6 +1,6 @@
 #include "bgc.h"
 
-void presim_state_init (wstate_struct *ws, cstate_struct *cs, nstate_struct *ns, cinit_struct *cinit)
+void presim_state_init (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns, cinit_struct * cinit)
 {
     ws->soilw = 0.0;
     ws->snoww = 0.0;

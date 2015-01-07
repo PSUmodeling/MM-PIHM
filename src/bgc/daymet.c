@@ -1,6 +1,6 @@
 #include "bgc.h"
 
-void daymet(const metarr_struct *metarr, metvar_struct *metv, int metday)
+void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
 {
     /* convert prcp from cm --> kg/m2 */
     metv->prcp = metarr->prcp[metday];
@@ -23,8 +23,8 @@ void daymet(const metarr_struct *metarr, metvar_struct *metv, int metday)
     /* daylight average vapor pressure deficit (Pa) */
     metv->vpd = metarr->vpd[metday];
 
-    /* daylight average	shortwave flux density (W/m2) */
-    metv->swavgfd =  metarr->swavgfd[metday];
+    /* daylight average shortwave flux density (W/m2) */
+    metv->swavgfd = metarr->swavgfd[metday];
 
     /* PAR (W/m2) */
     metv->par = metarr->par[metday];

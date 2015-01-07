@@ -1,10 +1,10 @@
 /*****************************************************************************
  * File		: pihm.c
  * Function	: Main program file
+ * Developer of PIHM 2.4    :   Yuning Shi  (yshi@psu.edu)
  * Developer of PIHM 2.2    :	Xuan Yu	    (xxy113@psu.edu)
  * Developer of PIHM 2.0    :	Mukesh Kumar	(muk139@psu.edu)
  * Developer of PIHM 1.0    :	Yizhong Qu	(quyizhong@gmail.com)
- * Version                  :   September, 2014
  *----------------------------------------------------------------------------
  * This code is free for research purpose only.
  * Please provide relevant references if you use this code in your research
@@ -28,12 +28,6 @@
  *	for multiprocess watershed simulation". Water Resources Research
  ****************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <time.h>
-#include <sys/stat.h>
 
 #include "pihm.h"               /* Data Model and Variable Declarations */
 
@@ -53,7 +47,6 @@ int main (int argc, char *argv[])
     void           *cvode_mem;  /* Model Data Pointer */
     int             flag;       /* flag to test return value */
     FILE           *iproj;      /* Project File */
-    FILE           *coupling;
     int             N;          /* Problem size */
     int             i, j, k;    /* loop index */
     realtype        t;          /* simulation time */
@@ -135,7 +128,9 @@ int main (int argc, char *argv[])
     /* Save input files into output directory */
     sprintf (system_cmd, "cp input/%s/%s.para %s/%s.para.bak", filename, filename, outputdir, filename);
     system (system_cmd);
-    sprintf (system_cmd, "cp input/%s.calib %s/%s/%s.calib.bak", filename, filename, outputdir, filename);
+    sprintf (system_cmd, "cp input/%s/%s.calib %s/%s.calib.bak", filename, filename, outputdir, filename);
+    system (system_cmd);
+    sprintf (system_cmd, "cp input/%s/%s.init %s/%s.init.bak", filename, filename, outputdir, filename);
     system (system_cmd);
 
     /* Allocate memory for model data structure */
@@ -185,7 +180,7 @@ int main (int argc, char *argv[])
 #ifdef _BGC_
     if (BGCM->ctrl.spinup == 1)
     {
-        bgc_spinup (BGCM, mData, LSM);
+        bgc_spinup (filename, BGCM, mData, LSM);
     }
     else
     {
@@ -229,7 +224,7 @@ int main (int argc, char *argv[])
             {
 #ifdef _FLUX_PIHM_
                 /* calculate surface energy balance */
-                PIHM2Noah (t, cData.ETStep, mData, LSM, coupling);
+                PIHM2Noah (t, cData.ETStep, mData, LSM);
                 Noah2PIHM (mData, LSM);
 #else
                 /* calculate Interception Storage and ET */
@@ -240,7 +235,8 @@ int main (int argc, char *argv[])
 #ifdef COUPLE_I
             t = NextPtr;
 #else
-            flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(StepSize* 10));         /* Added to adatpt to larger time step. YS */
+            /* Added to adatpt to larger time step. YS */
+            flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(StepSize* 10));
             flag = CVode (cvode_mem, NextPtr, CV_Y, &t, CV_NORMAL);
             flag = CVodeGetCurrentTime(cvode_mem, &cvode_val);
 #endif
@@ -271,12 +267,6 @@ int main (int argc, char *argv[])
     }
 
     printf ("\n Done. \n");
-#ifdef COUPLE_I
-    fclose (coupling);
-#endif
-#ifdef COUPLE_O
-    fclose (coupling);
-#endif
     /* Free memory */
     N_VDestroy_Serial (CV_Y);
 
@@ -292,5 +282,6 @@ int main (int argc, char *argv[])
     free (LSM);
 #endif
     free (mData);
+
     return 0;
 }

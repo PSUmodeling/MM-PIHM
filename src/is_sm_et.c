@@ -85,7 +85,7 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
                 if (MD->Ele[i].LAI > 0)
                 {
                     LAI = Interpolation(&MD->TSD_lai[MD->Ele[i].LAI - 1], t);
-                    printf ("LAILAI %lf\n", LAI);
+                    //printf ("LAILAI %lf\n", LAI);
                 }
                 else
                     LAI = monthly_lai (t, MD->Ele[i].LC);
@@ -142,13 +142,13 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 		 * form by multiplication of Area on either side of equation
 		 */
 		MD->EleISmax[i] = multF1 * MD->ISFactor[MD->Ele[i].LC - 1] * LAI * MD->Ele[i].VegFrac;
-                printf ("ISFct %lf, ISMAX = %lf %lf %lf\n", MD->ISFactor[MD->Ele[i].LC - 1], MD->EleISmax[i], LAI, MD->Ele[i].VegFrac);
+                //printf ("ISFct %lf, ISMAX = %lf %lf %lf\n", MD->ISFactor[MD->Ele[i].LC - 1], MD->EleISmax[i], LAI, MD->Ele[i].VegFrac);
 
 
 //		rl = Interpolation(&MD->Forcing[8][MD->Ele[i].LC - 1], t);
 		rl = monthly_rl (t, MD->Ele[i].LC);
 
-                printf ("PREP %lf Rn %lf T %lf Vel %lf RH %lf LAI %lf MF %lf RL %lf\n", MD->ElePrep[i], Rn, T, Vel, RH, LAI, MF, rl);
+                //printf ("PREP %lf Rn %lf T %lf Vel %lf RH %lf LAI %lf MF %lf RL %lf\n", MD->ElePrep[i], Rn, T, Vel, RH, LAI, MF, rl);
 
 		r_a = log(MD->Ele[i].windH / rl) * log(10 * MD->Ele[i].windH / rl) / (Vel * 0.16);
 		//r_a = 12 * 4.72 * log(MD->Ele[i].windH / rl) / (0.54 * Vel / UNIT_C / 60 + 1) / UNIT_C / 60;
@@ -156,11 +156,11 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 		Gamma = 4 * 0.7 * SIGMA * R_dry / C_air * pow(T + 273.15, 4) / (P / r_a) + 1;
 		Delta = Lv * Lv * 0.622 / R_v / C_air / pow(T + 273.15, 2) * qv_sat;
 
-                printf ("%lf %lf\n", Gamma, Delta);
+                //printf ("%lf %lf\n", Gamma, Delta);
 
 		ETp = (Rn * Delta + Gamma * (1.2 * Lv * (qv_sat - qv) / r_a)) / (1000.0 * Lv * (Delta + Gamma));
 
-                printf ("ETp = %lf\n", ETp);
+                //printf ("ETp = %lf\n", ETp);
 
 		if ((MD->Ele[i].zmax - MD->Ele[i].zmin) - MD->EleGW[i] < MD->Ele[i].RzD)
 			elemSatn = 1.0;
@@ -178,7 +178,7 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 
 			MD->EleET[i][0] = MD->pcCal.Et0 * MD->Ele[i].VegFrac * (pow((MD->EleIS[i] < 0 ? 0 : (MD->EleIS[i] > MD->EleISmax[i] ? MD->EleISmax[i] : MD->EleIS[i])) / MD->EleISmax[i], 1.0 / 2.0)) * ETp;
 			MD->EleET[i][0] = MD->EleET[i][0] < 0 ? 0 : MD->EleET[i][0];
-                        printf ("VEGFRAC %lf %lf %lf ET0\n", MD->Ele[i].VegFrac, MD->EleIS[i], MD->EleISmax[i]);
+                        //printf ("VEGFRAC %lf %lf %lf ET0\n", MD->Ele[i].VegFrac, MD->EleIS[i], MD->EleISmax[i]);
 
 			Rmax = MD->Rmax;	/* Unit day_per_m */
 			f_r = 1.1 * Rn / (MD->Ele[i].Rs_ref * LAI);
@@ -250,7 +250,7 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 		MD->EleNetPrep[i] = (1 - MD->Ele[i].VegFrac) * (1 - fracSnow) * MD->ElePrep[i] + ret + MeltRateGrnd;
 		MD->EleTF[i] = ret;
 		MD->EleIS[i] = isval;
-		printf ("%lf %lf %lf %lf\n", MD->EleET[i][0], MD->EleET[i][1], MD->EleET[i][2], MD->EleNetPrep[i]);
+		//printf ("%lf %lf %lf %lf\n", MD->EleET[i][0], MD->EleET[i][1], MD->EleET[i][2], MD->EleNetPrep[i]);
 		//MD->EleNetPrep[i] = MD->ElePrep[i];
 	}
 }

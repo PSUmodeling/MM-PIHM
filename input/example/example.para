@@ -2,7 +2,7 @@ VERBOSE		    0                   # Verbose mode, 0: off, 1: on
 DEBUG		    0                   # Debug mode, 0: off, 1: on
 INIT_MODE	    0                   # Initialization type 0: Relaxation, 1: use .att file, 3: use .init file
 ASCII_OUTPUT        1                   # Write ASCII output? 0: no, 1: yes
-SPINUP_MODE	    0                   # Spin-up mode, 0: Standard model run, 1: Outputs will be writtedn to .init files
+SPINUP_MODE	    1                   # Spin-up mode, 0: Standard model run, 1: Outputs will be writtedn to .init files
 UNSAT_MODE	    2
 SAT_MODE	    2
 RIV_MODE	    2
@@ -14,12 +14,12 @@ ABSTOL		    1E-4
 RELTOL	            1E-3
 INIT_SOLVER_STEP    5E-5
 MAX_SOLVER_STEP	    60                  # Maximum solver step (DANGER ZONE)
-LSM_STEP	    300                # LSM (or ET) step size (unit: s)
+LSM_STEP	    60                # LSM (or ET) step size (unit: s)
 START		    2008-10-20 00:00
-END		    2008-10-20 05:00
+END		    2010-01-01 00:00
 OUTPUT_TYPE	    0
 STEPSIZE_FACTOR	    1.0
-MODEL_STEPSIZE	    300                 # PIHM step size (unit: s)
+MODEL_STEPSIZE	    60                 # PIHM step size (unit: s)
 ###############################################################################
 # OUTPUT CONTROL:                                                             #
 #  All options are listed below.                                              #

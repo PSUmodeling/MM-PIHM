@@ -15,13 +15,13 @@ LVCOEF_DATA	0.5
 ######################
 # Print Control      #
 ######################
-T1              3600
-STC             3600
-SMC             3600
-SH2O            3600
-SNOWH           3600
-ALBEDO          3600
-LE              3600
-SH              3600
-G               3600
-ETP             3600
+T1              86400
+STC             86400
+SMC             86400
+SH2O            86400
+SNOWH           86400
+ALBEDO          86400
+LE              86400
+SH              86400
+G               86400
+ETP             86400

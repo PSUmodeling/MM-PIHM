@@ -10,7 +10,7 @@
 
 #include "bgc.h"
 
-void check_carbon_balance (cstate_struct *cs, double *old_balance, int first_balance)
+void check_carbon_balance (cstate_struct * cs, double *old_balance, int first_balance)
 {
     int             ok = 1;
     double          in, out, store, balance;
@@ -48,7 +48,7 @@ void check_carbon_balance (cstate_struct *cs, double *old_balance, int first_bal
     *old_balance = balance;
 }
 
-void check_nitrogen_balance (nstate_struct *ns, double *old_balance, int first_balance)
+void check_nitrogen_balance (nstate_struct * ns, double *old_balance, int first_balance)
 {
     double          in, out, store, balance;
 

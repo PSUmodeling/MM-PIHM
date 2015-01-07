@@ -4,10 +4,10 @@
 /* simulation control variables */
 typedef struct
 {
-//    int             metyears;   /* # years of met data */
-//    int             simyears;   /* # years of simulation */
-    double             simstarttime;   /* start time of simulation */
-    double             simendtime;     /* end time of simulation */
+    //    int             metyears;   /* # years of met data */
+    //    int             simyears;   /* # years of simulation */
+    double          simstarttime;   /* start time of simulation */
+    double          simendtime; /* end time of simulation */
     int             spinup;     /* (flag) 1=spinup run, 0=normal run */
     int             maxspinyears;   /* maximum number of years for spinup run */
     int             dodaily;    /* flag for daily output */
@@ -23,7 +23,7 @@ typedef struct
     int             keep_metyr; /* (flag) 1=retain restart metyr, 0=reset metyr */
     int             onscreen;   /* (flag) 1=show progress on-screen 0=don't */
     int             spinupstart;    /* first met year for spinup */
-    int             spinupend;      /* last met year for spinup */
+    int             spinupend;  /* last met year for spinup */
 } control_struct;
 
 
@@ -664,22 +664,22 @@ typedef struct
 /* soil and site constants */
 typedef struct
 {
-//    double          soil_depth; /* (m)   effective depth of rooting zone */
-//    double          soil_b;     /* (DIM) Clapp-Hornberger "b" parameter */
+    //    double          soil_depth; /* (m)   effective depth of rooting zone */
+    //    double          soil_b;     /* (DIM) Clapp-Hornberger "b" parameter */
     double          soil_alpha; /* van Genuchten Alpha (m-1) */
     double          soil_beta;  /* van Genuchten Beta (-) */
     double          vwc_sat;    /* (DIM) volumetric water content at saturation */
     double          vwc_min;
     double          vwc_fc;     /* (DIM) VWC at field capacity ( = -0.015 MPa) */
-//    double          psi_sat;    /* (MPa) soil matric potential at saturation */
-//    double          soilw_sat;  /* (kgH2O/m2) soilwater at saturation */
-//    double          soilw_fc;   /* (kgH2O/m2) soilwater at field capacity */
-//    double          elev;       /* (m) site elevation */
+    //    double          psi_sat;    /* (MPa) soil matric potential at saturation */
+    //    double          soilw_sat;  /* (kgH2O/m2) soilwater at saturation */
+    //    double          soilw_fc;   /* (kgH2O/m2) soilwater at field capacity */
+    //    double          elev;       /* (m) site elevation */
     double          lon;
     double          lat;        /* (degrees) site latitude (negative for south) */
     double          sw_alb;     /* (DIM) surface shortwave albedo */
-//    double          ndep;       /* (kgN/m2/yr) wet+dry atmospheric deposition of N */
-//    double          nfix;       /* (kgN/m2/yr) symbiotic+asymbiotic fixation of N */
+    //    double          ndep;       /* (kgN/m2/yr) wet+dry atmospheric deposition of N */
+    //    double          nfix;       /* (kgN/m2/yr) symbiotic+asymbiotic fixation of N */
 } siteconst_struct;
 
 /* canopy ecophysiological constants */
@@ -691,8 +691,8 @@ typedef struct
     int             phenology_flag; /* (flag) 1=phenology model, 0=user defined */
     int             onday;      /* (yday) yearday leaves on */
     int             offday;     /* (yday) yearday leaves off */
-    double          transfer_days; /* (prop.) fraction of growth period for transfer */
-    double          litfall_days;  /* (prop.) fraction of growth period for litfall */
+    double          transfer_days;  /* (prop.) fraction of growth period for transfer */
+    double          litfall_days;   /* (prop.) fraction of growth period for litfall */
     double          leaf_turnover;  /* (1/yr) annual leaf turnover fraction */
     double          froot_turnover; /* (1/yr) annual fine root turnover fraction */
     double          livewood_turnover;  /* (1/yr) annual live wood turnover fraction */
@@ -887,7 +887,7 @@ typedef struct
     double          offset_counter;
     double          offset_fdd;
     double          offset_swi;
-//    int             metyr;
+    //    int             metyr;
 } restart_data_struct;
 
 typedef struct epclist_struct
@@ -918,19 +918,19 @@ typedef struct bgc_grid
 
     epconst_struct  epc;        /* ecophysiological constants */
     epvar_struct    epv;
-    restart_data_struct restart_data; /* output restart data */
+    restart_data_struct restart_input;  /* input restart data */
+    restart_data_struct restart_output;   /* output restart data */
 
 } bgc_grid;
 
 typedef struct bgc_struct
 {
     bgc_grid       *grid;
-    restart_data_struct restart_input;  /* input restart data */
     control_struct  ctrl;       /* bgc control variables */
-//    ramp_ndep_struct ramp_ndep; /* ramped Ndep information */
+    //    ramp_ndep_struct ramp_ndep; /* ramped Ndep information */
     co2control_struct co2;      /* CO2 concentration information */
     ndepcontrol_struct ndepctrl;    /* Nitrogen deposition control structure */
-//    siteconst_struct sitec;     /* site constants */
+    //    siteconst_struct sitec;     /* site constants */
     epclist_struct  epclist;
     double          spinup_resid_trend; /* kgC/m2/yr remaining trend after spinup */
     int             spinup_years;   /* number of years before reaching steady-state */

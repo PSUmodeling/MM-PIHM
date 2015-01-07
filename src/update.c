@@ -19,13 +19,13 @@ void update (realtype t, void *DS)
 
     MD = (Model_Data) DS;
 
-    printf ("iCounter before :%d", MD->TSD_meteo[0].iCounter);
+    //printf ("iCounter before :%d", MD->TSD_meteo[0].iCounter);
     for (k = 0; k < MD->NumTS; k++)
     {
         while (MD->TSD_meteo[k].iCounter < MD->TSD_meteo[k].length && t > MD->TSD_meteo[k].TS[MD->TSD_meteo[k].iCounter + 1][0])
             MD->TSD_meteo[k].iCounter++;
     }
-    printf ("iCounter affter :%d", MD->TSD_meteo[0].iCounter);
+    //printf ("iCounter affter :%d", MD->TSD_meteo[0].iCounter);
 }
 
 void summary (Model_Data DS, N_Vector CV_Y, realtype t, realtype stepsize)

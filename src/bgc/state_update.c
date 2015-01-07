@@ -25,9 +25,9 @@ void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc
 
     /* Phenology fluxes */
     /* leaf and fine root transfer growth */
-//    printf ("leafc = %lf\n", cs->leafc);
+    //    printf ("leafc = %lf\n", cs->leafc);
     cs->leafc += cf->leafc_transfer_to_leafc;
-//    printf ("+ leafc_transfer_to_leafc = %lf\n", cf->leafc_transfer_to_leafc);
+    //    printf ("+ leafc_transfer_to_leafc = %lf\n", cf->leafc_transfer_to_leafc);
     cs->leafc_transfer -= cf->leafc_transfer_to_leafc;
     cs->frootc += cf->frootc_transfer_to_frootc;
     cs->frootc_transfer -= cf->frootc_transfer_to_frootc;

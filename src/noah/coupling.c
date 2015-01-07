@@ -104,13 +104,14 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
             Sdir = metarr[SOLAR_DIR_TS];
             Sdif = metarr[SOLAR_DIF_TS];
 
-            if (spa.zenith > NOAH->H_PHI[(int)floor (spa.azimuth180 / 10.)])
-                Sdir = 0.;
-            incidence = 180. / PI * acos (cos (spa.zenith * PI / 180.) * cos (NOAH->SLOPE * PI / 180.) + sin (spa.zenith * PI / 180.) * sin (NOAH->SLOPE * PI / 180.) * cos ((spa.azimuth180 - NOAH->ASPECT) * PI / 180.));
-            incidence = incidence > 90. ? 90. : incidence;
-            gvf = (1. + cos (NOAH->SLOPE * PI / 180.)) / 2. - NOAH->SVF;
-            gvf = gvf < 0. ? 0. : gvf;
-            Soldown = Sdir * cos (incidence * PI / 180.) + NOAH->SVF * Sdif + 0.2 * gvf * (Sdir * cos (spa.zenith * PI / 180.) + Sdif);
+            Soldown = topo_radiation (Sdir, Sdif, spa.zenith, spa.azimuth180, NOAH->SLOPE, NOAH->ASPECT, NOAH->H_PHI, NOAH->SVF);
+//            if (spa.zenith > NOAH->H_PHI[(int)floor (spa.azimuth180 / 10.)])
+//                Sdir = 0.;
+//            incidence = 180. / PI * acos (cos (spa.zenith * PI / 180.) * cos (NOAH->SLOPE * PI / 180.) + sin (spa.zenith * PI / 180.) * sin (NOAH->SLOPE * PI / 180.) * cos ((spa.azimuth180 - NOAH->ASPECT) * PI / 180.));
+//            incidence = incidence > 90. ? 90. : incidence;
+//            gvf = (1. + cos (NOAH->SLOPE * PI / 180.)) / 2. - NOAH->SVF;
+//            gvf = gvf < 0. ? 0. : gvf;
+//            Soldown = Sdir * cos (incidence * PI / 180.) + NOAH->SVF * Sdif + 0.2 * gvf * (Sdir * cos (spa.zenith * PI / 180.) + Sdif);
         }
         else
         {

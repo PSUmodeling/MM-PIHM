@@ -52,7 +52,7 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
         ensemble_mode = 0;
 
     if (ensemble_mode == 0)
-        printf ("\nInitializing output files ...\t\t");
+        printf ("\nInitializing output files\n");
 
     icounter = 0;
     if (CS->PrintGW > 0)
@@ -175,7 +175,6 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
         fclose (Ofile);
         CS->PCtrl[i].buffer = (realtype *) calloc (CS->PCtrl[i].NumVar, sizeof (realtype));
     }
-    printf ("done.\n");
 }
 
 void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y)
@@ -194,7 +193,7 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
         ensemble_mode = 0;
 
     if (ensemble_mode == 0)
-        printf ("\nInitializing data structure ...\t\t");
+        printf ("\n\nInitializing data structure\n");
 
     /*
      * allocate memory storage to flux terms 
@@ -634,6 +633,4 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
         }
         fclose (init_file);
     }
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 }
