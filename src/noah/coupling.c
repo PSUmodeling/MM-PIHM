@@ -12,7 +12,7 @@
 
 #include "../pihm.h"
 #include "noah.h"
-#include "flux_pihm.h"
+//#include "flux_pihm.h"
 #include "../spa/spa.h"
 
 void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)

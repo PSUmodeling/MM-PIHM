@@ -19,8 +19,5 @@
 #include "bgc_struct.h"
 #include "../time_func.h"
 #include "bgc_func.h"
-//#include "ini.h"
-//#include "bgc_io.h"
-//#include "misc_func.h"
 
 #endif

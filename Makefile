@@ -18,6 +18,7 @@ LIBS = -lm
 INCLUDES = -I${SUNDIALS_PATH}/include -I${SUNDIALS_PATH}/include/cvode \
 	    -I${SUNDIALS_PATH}/include/sundials
 LFLAGS = -L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
+SFLAGS =
 
 SRCS_ =  pihm.c f.c read_alloc.c initialize.c update.c print.c is_sm_et.c \
 	    f_function.c forcing.c
@@ -25,67 +26,78 @@ HEADERS_ = pihm.h
 EXECUTABLE = pihm
 MSG = "...  Compiling PIHM  ..."
 
-FLUX_SFLAGS = -D_FLUX_PIHM_ 
-FLUX_SRCS_ = noah/coupling.c noah/module_sf_noahlsm.c spa/spa.c \
-		noah/lsm_func.c
-FLUX_HEADERS_ =  noah/noah.h spa/spa.h
-FLUX_EXECUTABLE = flux-pihm
-FLUX_MSG = "... Compiling FLUX-PIHM ..."
+ifeq ($(MAKECMDGOALS),flux-pihm)
+  SFLAGS = -D_FLUX_PIHM_ 
+  MODULE_SRCS_ = noah/coupling.c noah/module_sf_noahlsm.c spa/spa.c \
+		    noah/lsm_func.c
+  MODULE_HEADERS_ =  noah/noah.h spa/spa.h
+  EXECUTABLE = flux-pihm
+  MSG = "... Compiling FLUX-PIHM ..."
+endif
 
-BGC_SFLAGS = -D_BGC_ -D_FLUX_PIHM_ 
-BGC_SRCS_ = time_func.c noah/coupling.c noah/module_sf_noahlsm.c spa/spa.c \
-		    noah/lsm_func.c bgc/BGC_func.c bgc/presim_state_init.c \
-		    bgc/make_zero_flux_struct.c bgc/restart_io.c \
-		    bgc/firstday.c bgc/zero_srcsnk.c bgc/daily_bgc.c \
-		    bgc/get_co2.c bgc/get_ndep.c bgc/precision_control.c \
-		    bgc/daymet.c bgc/radtrans.c bgc/maint_resp.c \
-		    bgc/phenology.c bgc/soilpsi.c bgc/daily_allocation.c \
-		    bgc/canopy_et.c bgc/photosynthesis.c bgc/decomp.c \
-		    bgc/annual_rates.c bgc/growth_resp.c bgc/state_update.c \
-		    bgc/mortality.c bgc/check_balance.c bgc/summary.c \
-		    bgc/metarr_init.c bgc/bgc_spinup.c
-BGC_HEADERS_ =  noah/noah.h noah/flux_pihm.h spa/spa.h bgc/bgc.h 
-BGC_EXECUTABLE = pihm-bgc
-BGC_MSG = "... Compiling PIHM-BGC ..."
+ifeq ($(MAKECMDGOALS),pihm-bgc)
+  SFLAGS = -D_BGC_ -D_FLUX_PIHM_ 
+  MODULE_SRCS_ = time_func.c noah/coupling.c noah/module_sf_noahlsm.c \
+		    spa/spa.c noah/lsm_func.c bgc/BGC_func.c \
+		    bgc/presim_state_init.c bgc/make_zero_flux_struct.c \
+		    bgc/restart_io.c bgc/firstday.c bgc/zero_srcsnk.c \
+		    bgc/daily_bgc.c bgc/get_co2.c bgc/get_ndep.c \
+		    bgc/precision_control.c bgc/daymet.c bgc/radtrans.c \
+		    bgc/maint_resp.c bgc/phenology.c bgc/soilpsi.c \
+		    bgc/daily_allocation.c bgc/canopy_et.c \
+		    bgc/photosynthesis.c bgc/decomp.c bgc/annual_rates.c \
+		    bgc/growth_resp.c bgc/state_update.c bgc/mortality.c \
+		    bgc/check_balance.c bgc/summary.c bgc/metarr_init.c \
+		    bgc/bgc_spinup.c
+  MODULE_HEADERS_ =  noah/noah.h spa/spa.h bgc/bgc.h 
+  EXECUTABLE = pihm-bgc
+  MSG = "... Compiling PIHM-BGC ..."
+endif
 
 SRCS = $(patsubst %,$(SRCDIR)/%,$(SRCS_))
 HEADERS = $(patsubst %,$(SRCDIR)/%,$(HEADERS_))
 OBJS = $(SRCS:.c=.o)
 
-FLUX_SRCS = $(patsubst %,$(SRCDIR)/%,$(FLUX_SRCS_))
-FLUX_HEADERS = $(patsubst %,$(SRCDIR)/%,$(FLUX_HEADERS_))
-FLUX_OBJS = $(FLUX_SRCS:.c=.o)
+MODULE_SRCS = $(patsubst %,$(SRCDIR)/%,$(MODULE_SRCS_))
+MODULE_HEADERS = $(patsubst %,$(SRCDIR)/%,$(MODULE_HEADERS_))
+MODULE_OBJS = $(MODULE_SRCS:.c=.o)
 
-BGC_SRCS = $(patsubst %,$(SRCDIR)/%,$(BGC_SRCS_))
-BGC_HEADERS = $(patsubst %,$(SRCDIR)/%,$(BGC_HEADERS_))
-BGC_OBJS = $(BGC_SRCS:.c=.o)
+help:		## Show this help.
+	@echo
+	@echo "Makefile for PIHM V2.4"
+	@echo "USAGE:"
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+	@echo
+	@echo "NOTE: Please always \"make clean\" when switching from one module to another!"
+	@echo
+pihm: 		## Compile PIHM
+pihm:	$(OBJS)
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
 
-pihm: $(OBJS)
+flux-pihm: 	## Complile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
+flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
-	@$(CC) $(CFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-flux-pihm: $(OBJS) $(FLUX_OBJS)
+pihm-bgc: 	## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
+pihm-bgc: $(OBJS) $(MODULE_OBJS)
 	@echo
-	@echo $(FLUX_MSG)
+	@echo $(MSG)
 	@echo
-	@$(CC) $(CFLAGS) $(FLUX_SFLAGS) $(INCLUDES) -o $(FLUX_EXECUTABLE) $(OBJS) $(FLUX_OBJS) $(LFLAGS) $(LIBS)
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
+
 tool:
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o convert src/tool/convert.c
 
-$(OBJS): %.o: %.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-$(FLUX_OBJS): %.o: %.c
-	$(CC) $(CFLAGS) $(FLUX_SFLAGS) $(INCLUDES) -c $< -o $@
+%.o: %.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@
 
 .PHONY: clean
 
-clean:
+clean:		## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
 	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ $(EXECUTABLE) $(FLUX_EXECUTABLE) $(BGC_EXECUTABLE)
-#	$(RM) $(OBJDIR)/*.o *~ pihm flux-pihm
-
