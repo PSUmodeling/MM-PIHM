@@ -12,6 +12,7 @@ CC = gcc
 CFLAGS = -g -O0
 
 SUNDIALS_PATH = /gpfs/home/yzs123/work/lib/sundials-2.2.0
+#SUNDIALS_PATH = ./sundials
 
 SRCDIR = ./src
 LIBS = -lm
@@ -62,14 +63,26 @@ MODULE_SRCS = $(patsubst %,$(SRCDIR)/%,$(MODULE_SRCS_))
 MODULE_HEADERS = $(patsubst %,$(SRCDIR)/%,$(MODULE_HEADERS_))
 MODULE_OBJS = $(MODULE_SRCS:.c=.o)
 
-help:		## Show this help.
+.PHONY: all clean help sundials
+
+help:		## Show this help
 	@echo
 	@echo "Makefile for PIHM V2.4"
+	@echo
 	@echo "USAGE:"
+	@echo
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 	@echo
 	@echo "NOTE: Please always \"make clean\" when switching from one module to another!"
 	@echo
+
+all:		## Install sundials and compile PIHM
+all:	sundials pihm
+
+sundials:	## Install sundials library
+sundials:
+	tar xzf sundials-2.2.0.tar.gz; cd sundials; ./configure; make; make install; cd ../
+	@echo "SUNDIALS library installed."
 pihm: 		## Compile PIHM
 pihm:	$(OBJS)
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
@@ -94,10 +107,9 @@ tool:
 %.o: %.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@
 
-.PHONY: clean
 
 clean:		## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ $(EXECUTABLE) $(FLUX_EXECUTABLE) $(BGC_EXECUTABLE)
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ pihm flux-pihm pihm-bgc
