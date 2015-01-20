@@ -980,8 +980,8 @@ void LSM_PrintInit (Model_Data PIHM, LSM_STRUCT LSM, char *filename)
     FILE           *init_file;
     char           *init_name;
     int             i, j;
-    init_name = (char *)malloc ((strlen (filename) + 15) * sizeof (char));
-    sprintf (init_name, "input/%s.lsminit", filename);
+    init_name = (char *)malloc ((2 * strlen (filename) + 16) * sizeof (char));
+    sprintf (init_name, "input/%s/%s.lsminit", filename);
     init_file = fopen (init_name, "w");
     free (init_name);
 
