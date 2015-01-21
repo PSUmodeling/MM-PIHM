@@ -16,7 +16,7 @@ INIT_SOLVER_STEP    5E-5
 MAX_SOLVER_STEP	    60                  # Maximum solver step (DANGER ZONE)
 LSM_STEP	    60                # LSM (or ET) step size (unit: s)
 START		    2008-10-20 00:00
-END		    2010-01-01 00:00
+END		    2009-01-01 00:00
 OUTPUT_TYPE	    0
 STEPSIZE_FACTOR	    1.0
 MODEL_STEPSIZE	    60                 # PIHM step size (unit: s)

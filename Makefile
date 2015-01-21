@@ -24,6 +24,7 @@ SFLAGS =
 SRCS_ =  pihm.c f.c read_alloc.c initialize.c update.c print.c is_sm_et.c \
 	    f_function.c forcing.c
 HEADERS_ = pihm.h
+MODUE_HEADERS_ =
 EXECUTABLE = pihm
 MSG = "...  Compiling PIHM  ..."
 
@@ -104,7 +105,7 @@ pihm-bgc: $(OBJS) $(MODULE_OBJS)
 tool:
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o convert src/tool/convert.c
 
-%.o: %.c
+%.o: %.c $(HEADERS) $(MODULE_HEADERS)
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@
 
 
