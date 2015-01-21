@@ -1,10 +1,10 @@
 /*****************************************************************************
  * File		: pihm.c
  * Function	: Main program file
+ * Developer of PIHM 2.4    :   Yuning Shi  (yshi@psu.edu)
  * Developer of PIHM 2.2    :	Xuan Yu	    (xxy113@psu.edu)
  * Developer of PIHM 2.0    :	Mukesh Kumar	(muk139@psu.edu)
  * Developer of PIHM 1.0    :	Yizhong Qu	(quyizhong@gmail.com)
- * Version                  :   September, 2014
  *----------------------------------------------------------------------------
  * This code is free for research purpose only.
  * Please provide relevant references if you use this code in your research
@@ -28,24 +28,17 @@
  *	for multiprocess watershed simulation". Water Resources Research
  ****************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <time.h>
-#include <sys/stat.h>
 
 #include "pihm.h"               /* Data Model and Variable Declarations */
 
 #ifdef _FLUX_PIHM_
 #include "noah/noah.h"
 #endif
+
 #ifdef _BGC_
 #include "bgc/bgc.h"
 #endif
-/*
- * Main Function
- */
+
 int main (int argc, char *argv[])
 {
     Model_Data      mData;      /* Model Data */
@@ -54,7 +47,6 @@ int main (int argc, char *argv[])
     void           *cvode_mem;  /* Model Data Pointer */
     int             flag;       /* flag to test return value */
     FILE           *iproj;      /* Project File */
-    FILE           *coupling;
     int             N;          /* Problem size */
     int             i, j, k;    /* loop index */
     realtype        t;          /* simulation time */
@@ -65,6 +57,7 @@ int main (int argc, char *argv[])
     long int        cvode_int;
     char           *filename, *outputdir, str[11];
     char            system_cmd[1024];
+
 #ifdef _FLUX_PIHM_
     LSM_STRUCT      LSM;
 #endif
@@ -80,9 +73,7 @@ int main (int argc, char *argv[])
     if (0 == (mkdir ("output", 0755)))
         printf (" Output directory was created.\n\n");
 
-    /*
-     * Project Input Name
-     */
+    /* Project input name */
     if (argc != 2)
     {
         iproj = fopen ("input/projectName.txt", "r");
@@ -103,9 +94,7 @@ int main (int argc, char *argv[])
     }
     else
     {
-        /*
-         * get user specified file name in command line
-         */
+        /* Get user specified file name in command line */
         filename = (char *)malloc ((strlen (argv[1]) + 1)* sizeof (char));
         strcpy (filename, argv[1]);
     }
@@ -129,26 +118,22 @@ int main (int argc, char *argv[])
     printf ("\n\t    * Biogeochemistry module turned on.\n");
 #endif
 
-    /*
-     * Create output directory based on projectname and time
-     */
+    /* Create output directory based on projectname and time */
     sprintf (str, "%2.2d%2.2d%2.2d%2.2d%2.2d", timestamp->tm_year + 1900 - 2000, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
     outputdir = (char *)malloc ((strlen (filename) + 20) * sizeof (char));
     sprintf (outputdir, "output/%s.%s/", filename, str);
     printf ("\nOutput directory: %s\n", outputdir);
     mkdir (outputdir, 0755);
 
-    /*
-     * Save input files into output directory
-     */
-    sprintf (system_cmd, "cp input/%s.para %s/%s.para.bak", filename, outputdir, filename);
+    /* Save input files into output directory */
+    sprintf (system_cmd, "cp input/%s/%s.para %s/%s.para.bak", filename, filename, outputdir, filename);
     system (system_cmd);
-    sprintf (system_cmd, "cp input/%s.calib %s/%s.calib.bak", filename, outputdir, filename);
+    sprintf (system_cmd, "cp input/%s/%s.calib %s/%s.calib.bak", filename, filename, outputdir, filename);
+    system (system_cmd);
+    sprintf (system_cmd, "cp input/%s/%s.init %s/%s.init.bak", filename, filename, outputdir, filename);
     system (system_cmd);
 
-    /*
-     * Allocate memory for model data structure
-     */
+    /* Allocate memory for model data structure */
     mData = (Model_Data) malloc (sizeof *mData);
 #ifdef _FLUX_PIHM_
     LSM = (LSM_STRUCT) malloc (sizeof *LSM);
@@ -162,7 +147,7 @@ int main (int argc, char *argv[])
     LSM_read (filename, LSM);
 #endif
 #ifdef _BGC_
-    BGC_read (filename, BGCM);
+    BGC_read (filename, BGCM, mData);
 #endif
 
     //if(mData->UnsatMode ==1)
@@ -174,32 +159,35 @@ int main (int argc, char *argv[])
         N = 3 * mData->NumEle + 2 * mData->NumRiv;
         mData->DummyY = (realtype *) malloc ((3 * mData->NumEle + 2 * mData->NumRiv) * sizeof (realtype));
     }
-    /*
-     * initial state variable depending on machine 
-     */
+    /* initial state variable depending on machine */
     CV_Y = N_VNew_Serial (N);
 
-    /*
-     * initialize mode data structure 
-     */
+    /* initialize mode data structure */
     initialize (filename, mData, &cData, CV_Y);
 #ifdef _FLUX_PIHM_
     LSM_initialize (filename, mData, &cData, LSM);
 #endif
+#ifdef _BGC_
+    BGC_init (filename, mData, LSM, BGCM);
+#endif
 
-    /*
-     * initialize output files and structures 
-     */
+    /* initialize output files and structures */
     initialize_output (filename, mData, &cData, outputdir);
 #ifdef _FLUX_PIHM_
     LSM_initialize_output (filename, mData, LSM, outputdir);
 #endif
 
+#ifdef _BGC_
+    if (BGCM->ctrl.spinup == 1)
+    {
+        bgc_spinup (filename, BGCM, mData, LSM);
+    }
+    else
+    {
+#endif
     printf ("\n\nSolving ODE system ... \n\n");
 
-    /*
-     * allocate memory for solver 
-     */
+    /* allocate memory for solver */
     cvode_mem = CVodeCreate (CV_BDF, CV_NEWTON);
     if (cvode_mem == NULL)
     {
@@ -215,19 +203,13 @@ int main (int argc, char *argv[])
     flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
     //  flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
 
-    /*
-     * set start time 
-     */
+    /* set start time */
     t = cData.StartTime;
 
-    /*
-     * start solver in loops 
-     */
+    /* start solver in loops */
     for (i = 0; i < cData.NumSteps; i++)
     {
-        /*
-         * inner loops to next output points with ET step size control
-         */
+        /* inner loops to next output points with ET step size control */
         while (t < cData.Tout[i + 1])
         {
             if (t + cData.ETStep >= cData.Tout[i + 1])
@@ -241,15 +223,11 @@ int main (int argc, char *argv[])
             if ((int)t % (int)cData.ETStep == 0)
             {
 #ifdef _FLUX_PIHM_
-                /*
-                 * calculate surface energy balance
-                 */
-                PIHM2Noah (t, cData.ETStep, mData, LSM, coupling);
+                /* calculate surface energy balance */
+                PIHM2Noah (t, cData.ETStep, mData, LSM);
                 Noah2PIHM (mData, LSM);
 #else
-                /*
-                 * calculate Interception Storage and ET
-                 */
+                /* calculate Interception Storage and ET */
                 is_sm_et (t, cData.ETStep, mData, CV_Y);
 #endif
             }
@@ -257,24 +235,24 @@ int main (int argc, char *argv[])
 #ifdef COUPLE_I
             t = NextPtr;
 #else
-            flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(StepSize* 10));         /* Added to adatpt to larger time step. YS */
+            /* Added to adatpt to larger time step. YS */
+            flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(StepSize* 10));
             flag = CVode (cvode_mem, NextPtr, CV_Y, &t, CV_NORMAL);
             flag = CVodeGetCurrentTime(cvode_mem, &cvode_val);
 #endif
             *rawtime = (int)t;
             timestamp = gmtime (rawtime);
-//            if ((int)*rawtime % 3600 == 0)
+            if ((int)*rawtime % 3600 == 0)
                 printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
             summary (mData, CV_Y, t - StepSize, StepSize);
             update (t, mData);
         }
-
-        /*
-         * Print outputs 
-         */
+#ifdef _BGC_
+        }
+#endif
+        /* Print outputs */
         for (j = 0; j < cData.NumPrint; j++)
             PrintData (cData.PCtrl[j], t, StepSize, cData.Ascii);
-//        printf("%lf\n", cData.PCtrl[0].
 #ifdef _FLUX_PIHM_
         for (j = 0; j < LSM->NPRINT; j++)
             PrintData (LSM->PCtrl[j], t, StepSize, cData.Ascii);
@@ -289,20 +267,10 @@ int main (int argc, char *argv[])
     }
 
     printf ("\n Done. \n");
-#ifdef COUPLE_I
-    fclose (coupling);
-#endif
-#ifdef COUPLE_O
-    fclose (coupling);
-#endif
-    /*
-     * Free memory
-     */
+    /* Free memory */
     N_VDestroy_Serial (CV_Y);
 
-    /*
-     * Free integrator memory
-     */
+    /* Free integrator memory */
     CVodeFree (&cvode_mem);
 
     free (outputdir);
@@ -314,5 +282,6 @@ int main (int argc, char *argv[])
     free (LSM);
 #endif
     free (mData);
+
     return 0;
 }

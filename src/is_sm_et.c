@@ -48,31 +48,52 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 	realtype        isval = 0, etval = 0;
 	realtype        fracSnow, snowRate, MeltRateGrnd, MeltRateCanopy, eltRate,
 	                MF, Ts = -3.0, Tr = 1.0, To = 0.0, ret;
+        realtype        *metarr;
 
 	Model_Data      MD;
 
 	MD = (Model_Data) DS;
 
 //	stepsize = stepsize / UNIT_C;
+
+        metarr = (realtype *) malloc (7 * sizeof (realtype));
 	for (i = 0; i < MD->NumEle; i++)
 	{
+                MultiInterpolation (&MD->TSD_meteo[MD->Ele[i].meteo - 1], t, metarr, 7);
+
 		/* Note the dependence on physical units */
-		MD->ElePrep[i] = Interpolation(&MD->Forcing[0][MD->Ele[i].prep - 1], t) / 1000.;
+//		MD->ElePrep[i] = Interpolation(&MD->Forcing[0][MD->Ele[i].prep - 1], t) / 1000.;
+                MD->ElePrep[i] = metarr[PRCP_TS] / 1000.;
+                Rn = metarr[SOLAR_TS];
+                T = metarr[SFCTMP_TS] - 273.15;
+                Vel = metarr[SFCSPD_TS];
+                RH = metarr[RH_TS] / 100.;
+
+
 //		Rn = Interpolation(&MD->Forcing[4][MD->Ele[i].Rn - 1], t);
-		Rn = Interpolation(&MD->Forcing[4][MD->Ele[i].Sdown - 1], t);
+//		Rn = Interpolation(&MD->Forcing[4][MD->Ele[i].Sdown - 1], t);
 		//G = Interpolation(&MD->TSD_G[MD->Ele[i].G - 1], t);
 		//G = 0.1 * Rn;
-		T = Interpolation(&MD->Forcing[1][MD->Ele[i].temp - 1], t) - 273.15;
-		Vel = Interpolation(&MD->Forcing[3][MD->Ele[i].WindVel - 1], t);
-		RH = Interpolation(&MD->Forcing[2][MD->Ele[i].humidity - 1], t) / 100.;
+//		T = Interpolation(&MD->Forcing[1][MD->Ele[i].temp - 1], t) - 273.15;
+//		Vel = Interpolation(&MD->Forcing[3][MD->Ele[i].WindVel - 1], t);
+//		RH = Interpolation(&MD->Forcing[2][MD->Ele[i].humidity - 1], t) / 100.;
 		//VP = Interpolation(&MD->TSD_Pressure[MD->Ele[i].pressure - 1], t);
 		VP = 611.2 * exp(17.67 * T / (T + 243.5)) * RH;
 		P = 101.325 * pow(10, 3) * pow((293 - 0.0065 * MD->Ele[i].zmax) / 293, 5.26);
 		qv = 0.622 * VP / P;
 		qv_sat = 0.622 * (VP / RH) / P;
-		LAI = Interpolation(&MD->Forcing[7][MD->Ele[i].LC - 1], t);
+                if (MD->Ele[i].LAI > 0)
+                {
+                    LAI = Interpolation(&MD->TSD_lai[MD->Ele[i].LAI - 1], t);
+                    //printf ("LAILAI %lf\n", LAI);
+                }
+                else
+                    LAI = monthly_lai (t, MD->Ele[i].LC);
 
-		MF = multF2 * Interpolation(&MD->Forcing[9][MD->Ele[i].meltF - 1], t);
+
+//		MF = multF2 * Interpolation(&MD->Forcing[9][MD->Ele[i].meltF - 1], t);
+                MF = monthly_mf (t);
+
 		/******************************************************************************************/
 		/* Snow Accumulation/Melt Calculation				  */
 		/******************************************************************************************/
@@ -121,15 +142,25 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 		 * form by multiplication of Area on either side of equation
 		 */
 		MD->EleISmax[i] = multF1 * MD->ISFactor[MD->Ele[i].LC - 1] * LAI * MD->Ele[i].VegFrac;
+                //printf ("ISFct %lf, ISMAX = %lf %lf %lf\n", MD->ISFactor[MD->Ele[i].LC - 1], MD->EleISmax[i], LAI, MD->Ele[i].VegFrac);
 
-		rl = Interpolation(&MD->Forcing[8][MD->Ele[i].LC - 1], t);
+
+//		rl = Interpolation(&MD->Forcing[8][MD->Ele[i].LC - 1], t);
+		rl = monthly_rl (t, MD->Ele[i].LC);
+
+                //printf ("PREP %lf Rn %lf T %lf Vel %lf RH %lf LAI %lf MF %lf RL %lf\n", MD->ElePrep[i], Rn, T, Vel, RH, LAI, MF, rl);
+
 		r_a = log(MD->Ele[i].windH / rl) * log(10 * MD->Ele[i].windH / rl) / (Vel * 0.16);
 		//r_a = 12 * 4.72 * log(MD->Ele[i].windH / rl) / (0.54 * Vel / UNIT_C / 60 + 1) / UNIT_C / 60;
 
 		Gamma = 4 * 0.7 * SIGMA * R_dry / C_air * pow(T + 273.15, 4) / (P / r_a) + 1;
 		Delta = Lv * Lv * 0.622 / R_v / C_air / pow(T + 273.15, 2) * qv_sat;
 
+                //printf ("%lf %lf\n", Gamma, Delta);
+
 		ETp = (Rn * Delta + Gamma * (1.2 * Lv * (qv_sat - qv) / r_a)) / (1000.0 * Lv * (Delta + Gamma));
+
+                //printf ("ETp = %lf\n", ETp);
 
 		if ((MD->Ele[i].zmax - MD->Ele[i].zmin) - MD->EleGW[i] < MD->Ele[i].RzD)
 			elemSatn = 1.0;
@@ -147,6 +178,7 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 
 			MD->EleET[i][0] = MD->pcCal.Et0 * MD->Ele[i].VegFrac * (pow((MD->EleIS[i] < 0 ? 0 : (MD->EleIS[i] > MD->EleISmax[i] ? MD->EleISmax[i] : MD->EleIS[i])) / MD->EleISmax[i], 1.0 / 2.0)) * ETp;
 			MD->EleET[i][0] = MD->EleET[i][0] < 0 ? 0 : MD->EleET[i][0];
+                        //printf ("VEGFRAC %lf %lf %lf ET0\n", MD->Ele[i].VegFrac, MD->EleIS[i], MD->EleISmax[i]);
 
 			Rmax = MD->Rmax;	/* Unit day_per_m */
 			f_r = 1.1 * Rn / (MD->Ele[i].Rs_ref * LAI);
@@ -218,6 +250,7 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 		MD->EleNetPrep[i] = (1 - MD->Ele[i].VegFrac) * (1 - fracSnow) * MD->ElePrep[i] + ret + MeltRateGrnd;
 		MD->EleTF[i] = ret;
 		MD->EleIS[i] = isval;
+		//printf ("%lf %lf %lf %lf\n", MD->EleET[i][0], MD->EleET[i][1], MD->EleET[i][2], MD->EleNetPrep[i]);
 		//MD->EleNetPrep[i] = MD->ElePrep[i];
 	}
 }

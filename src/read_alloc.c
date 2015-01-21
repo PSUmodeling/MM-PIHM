@@ -24,16 +24,21 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
 {
     int             i, j, k;
     int             ind;
+    int             ensemble_mode;
 
     int             NumTout;
     char           *fn[10];
+    char           *laifn;
     char           *projectname;
     char           *token, *tempname;
+    char            scrn_char[100];
     time_t          rawtime;
     struct tm      *timeinfo;
-    int             ensemble_mode;
     int             NumForcing;
     int            *count;
+    int             read_lai;
+    int             read_ss;
+    int             num_lai_ts;
 
     char            cmdstr[MAXSTRING];
     char            optstr[MAXSTRING];
@@ -48,6 +53,8 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     FILE           *para_file;  /* Pointer to .para file */
     FILE           *riv_file;   /* Pointer to .riv file */
     FILE           *global_calib;   /* Pointer to .calib file */
+    FILE           *lai_file;
+
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
@@ -73,12 +80,12 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         printf ("\nStart reading in input files:\n");
 
     /*
-     * open *.riv file
+     * .riv file
      */
     if (ensemble_mode == 0)
-        printf ("  1) reading %s.%-5s ...\t\t", projectname, "riv");
-    fn[0] = (char *)malloc ((strlen (projectname) + 11) * sizeof (char));
-    sprintf (fn[0], "input/%s.riv", projectname);
+        printf ("  Reading %s.%s\n", projectname, "riv");
+    fn[0] = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
+    sprintf (fn[0], "input/%s/%s.riv", projectname, projectname);
     riv_file = fopen (fn[0], "r");
     free (fn[0]);
 
@@ -89,11 +96,8 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         exit (1);
     }
 
-    /*
-     * start reading riv_file
-     */
-    fscanf (riv_file, "%d %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s",
-       &DS->NumRiv);
+    /* start reading riv_file */
+    fscanf (riv_file, "%d %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s", &DS->NumRiv);
     DS->Riv = (river_segment *) malloc (DS->NumRiv * sizeof (river_segment));
 
     for (i = 0; i < DS->NumRiv; i++)
@@ -152,29 +156,23 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
             DS->TSD_Riv[i].TS[j][0] = (realtype) rawtime;
     }
 
-    /*
-     * read in reservoir information 
-     */
+    /* read in reservoir information */
     fscanf (riv_file, "%*s");
     fscanf (riv_file, "%d", &DS->NumRes);
     if (DS->NumRes > 0)
     {
-        /*
-         * read in reservoir information 
-         */
+        /* read in reservoir information */
     }
 
     fclose (riv_file);
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
-    /*
-     * open *.mesh file
+    /* 
+     * .mesh file
      */
     if (ensemble_mode == 0)
-        printf ("  2) reading %s.%-5s ...\t\t", projectname, "mesh");
-    fn[1] = (char *)malloc ((strlen (projectname) + 12) * sizeof (char));
-    sprintf (fn[1], "input/%s.mesh", projectname);
+        printf ("  Reading %s.%s\n", projectname, "mesh");
+    fn[1] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
+    sprintf (fn[1], "input/%s/%s.mesh", projectname, projectname);
     mesh_file = fopen (fn[1], "r");
     free (fn[1]);
 
@@ -185,15 +183,11 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         exit (1);
     }
 
-    /*
-     * start reading mesh_file 
-     */
+    /* start reading mesh_file */
     fscanf (mesh_file, "%d %*s %*s %*s %*s %*s %*s", &DS->NumEle);
     DS->Ele = (element *) malloc ((DS->NumEle + DS->NumRiv) * sizeof (element));
 
-    /*
-     * read in elements information 
-     */
+    /* read in elements information */
     for (i = 0; i < DS->NumEle; i++)
     {
         fscanf (mesh_file, "%d", &(DS->Ele[i].index));
@@ -201,9 +195,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         fscanf (mesh_file, "%d %d %d", &(DS->Ele[i].nabr[0]), &(DS->Ele[i].nabr[1]), &(DS->Ele[i].nabr[2]));
     }
 
-    /*
-     * read in nodes information 
-     */
+    /* read in nodes information */
     fscanf (mesh_file, "%d %*s %*s %*s %*s", &DS->NumNode);
     DS->Node = (nodes *) malloc (DS->NumNode * sizeof (nodes));
     for (i = 0; i < DS->NumNode; i++)
@@ -213,19 +205,17 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         fscanf (mesh_file, "%lf %lf", &(DS->Node[i].zmin), &(DS->Node[i].zmax));
     }
 
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
-    /*
-     * finish reading mesh_files 
-     */
+    /* finish reading mesh_files */
     fclose (mesh_file);
 
-    /*========== open *.att file ==========*/
+    /*
+     *.att file
+     */
     if (ensemble_mode == 0)
-        printf ("  3) reading %s.%-5s ...\t\t", projectname, "att");
-    fn[2] = (char *)malloc ((strlen (projectname) + 11) * sizeof (char));
-    sprintf (fn[2], "input/%s.att", projectname);
+        printf ("  Reading %s.%s\n", projectname, "att");
+    fn[2] = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
+    sprintf (fn[2], "input/%s/%s.att", projectname, projectname);
     att_file = fopen (fn[2], "r");
     free (fn[2]);
 
@@ -236,11 +226,9 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         exit (1);
     }
 
-    /*
-     * start reading att_file 
-     */
+    /* start reading att_file */
     DS->Ele_IC = (element_IC *) malloc (DS->NumEle * sizeof (element_IC));
-    for (i = 0; i < 22; i++)
+    for (i = 0; i < 16; i++)
         fscanf (att_file, "%*s");
     for (i = 0; i < DS->NumEle; i++)
     {
@@ -248,28 +236,26 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         fscanf (att_file, "%d %d %d", &(DS->Ele[i].soil), &(DS->Ele[i].geol), &(DS->Ele[i].LC));
 
         fscanf (att_file, "%lf %lf %lf %lf %lf", &(DS->Ele_IC[i].interception), &(DS->Ele_IC[i].snow), &(DS->Ele_IC[i].surf), &(DS->Ele_IC[i].unsat), &(DS->Ele_IC[i].sat));
-        fscanf (att_file, "%d %d", &(DS->Ele[i].prep), &(DS->Ele[i].temp));
-        fscanf (att_file, "%d %d", &(DS->Ele[i].humidity), &(DS->Ele[i].WindVel));
-        fscanf (att_file, "%d %d", &(DS->Ele[i].Sdown), &(DS->Ele[i].Ldown));
-        fscanf (att_file, "%d %d %d", &(DS->Ele[i].pressure), &(DS->Ele[i].source), &(DS->Ele[i].meltF));
+        fscanf (att_file, "%d %d", &(DS->Ele[i].meteo), &(DS->Ele[i].LAI));
+        //fscanf (att_file, "%d %d", &(DS->Ele[i].prep), &(DS->Ele[i].temp));
+        //fscanf (att_file, "%d %d", &(DS->Ele[i].humidity), &(DS->Ele[i].WindVel));
+        //fscanf (att_file, "%d %d", &(DS->Ele[i].Sdown), &(DS->Ele[i].Ldown));
+        //fscanf (att_file, "%d %d %d", &(DS->Ele[i].pressure), &(DS->Ele[i].source), &(DS->Ele[i].meltF));
+        fscanf (att_file, "%d", &(DS->Ele[i].source));
         for (j = 0; j < 3; j++)
             fscanf (att_file, "%d", &(DS->Ele[i].BC[j]));
         fscanf (att_file, "%d", &(DS->Ele[i].Macropore));
     }
 
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
-    /*
-     * finish reading att_files 
-     */
+    /* finish reading att_files */
     fclose (att_file);
 
     /*========== open *.soil file ==========*/
     if (ensemble_mode == 0)
-        printf ("  4) reading %s.%-5s ...\t\t", projectname, "soil");
-    fn[3] = (char *)malloc ((strlen (projectname) + 12) * sizeof (char));
-    sprintf (fn[3], "input/%s.soil", projectname);
+        printf ("  Reading %s.%s\n", projectname, "soil");
+    fn[3] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
+    sprintf (fn[3], "input/%s/%s.soil", projectname, projectname);
     soil_file = fopen (fn[3], "r");
     free (fn[3]);
 
@@ -280,18 +266,15 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         exit (1);
     }
 
-    /*
-     * start reading soil_file 
-     */
+    /* start reading soil_file */
     fscanf (soil_file, "%d %*s %*s %*s %*s %*s %*s %*s %*s %*s", &DS->NumSoil);
     DS->Soil = (soils *) malloc (DS->NumSoil * sizeof (soils));
 
     for (i = 0; i < DS->NumSoil; i++)
     {
         fscanf (soil_file, "%d", &(DS->Soil[i].index));
-        /*
-         * Note: Soil KsatH and macKsatH is not used in model calculation anywhere 
-         */
+        /* Note: Soil KsatH and macKsatH is not used in model calculation
+         * anywhere */
         fscanf (soil_file, "%lf", &(DS->Soil[i].KsatV));
         fscanf (soil_file, "%lf %lf %lf", &(DS->Soil[i].ThetaS), &(DS->Soil[i].ThetaR), &(DS->Soil[i].infD));
         fscanf (soil_file, "%lf %lf", &(DS->Soil[i].Alpha), &(DS->Soil[i].Beta));
@@ -300,14 +283,12 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     }
 
     fclose (soil_file);
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     /*========== open *.geol file ==========*/
     if (ensemble_mode == 0)
-        printf ("  5) reading %s.%-5s ...\t\t", projectname, "geol");
-    fn[4] = (char *)malloc ((strlen (projectname) + 12) * sizeof (char));
-    sprintf (fn[4], "input/%s.geol", projectname);
+        printf ("  Reading %s.%s\n", projectname, "geol");
+    fn[4] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
+    sprintf (fn[4], "input/%s/%s.geol", projectname, projectname);
     geol_file = fopen (fn[4], "r");
     free (fn[4]);
 
@@ -318,18 +299,14 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         exit (1);
     }
 
-    /*
-     * start reading geol_file 
-     */
+    /* start reading geol_file */
     fscanf (geol_file, "%d %*s %*s %*s %*s %*s %*s %*s %*s %*s", &DS->NumGeol);
     DS->Geol = (geol *) malloc (DS->NumGeol * sizeof (geol));
 
     for (i = 0; i < DS->NumGeol; i++)
     {
         fscanf (geol_file, "%d", &(DS->Geol[i].index));
-        /*
-         * Geol macKsatV is not used in model calculation anywhere 
-         */
+        /* Geol macKsatV is not used in model calculation anywhere */
         fscanf (geol_file, "%lf %lf", &(DS->Geol[i].KsatH), &(DS->Geol[i].KsatV));
         fscanf (geol_file, "%lf %lf", &(DS->Geol[i].ThetaS), &(DS->Geol[i].ThetaR));
         fscanf (geol_file, "%lf %lf", &(DS->Geol[i].Alpha), &(DS->Geol[i].Beta));
@@ -337,28 +314,22 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     }
 
     fclose (geol_file);
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     /*========== open *.lc file ==========*/
     if (ensemble_mode == 0)
-        printf ("  6) reading %s.%-5s ...\t\t", projectname, "lc");
-    fn[5] = (char *)malloc ((strlen (projectname) + 10) * sizeof (char));
-    sprintf (fn[5], "input/%s.lc", projectname);
-    lc_file = fopen (fn[5], "r");
-    free (fn[5]);
+        printf ("  Reading vegprmt.tbl\n");
+    //fn[5] = (char *)malloc ((strlen (projectname) + 10) * sizeof (char));
+    //sprintf (fn[5], "input/%s.lc", projectname);
+    lc_file = fopen ("input/vegprmt.tbl", "r");
+    //free (fn[5]);
 
     if (lc_file == NULL)
     {
-        printf
-           ("\n  Fatal Error: %s.land cover is in use or does not exist!\n",
-           projectname);
+        printf ("\n  Fatal Error: land cover file is in use or does not exist!\n", projectname);
         exit (1);
     }
 
-    /*
-     * start reading land cover file 
-     */
+    /* start reading land cover file */
     fscanf (lc_file, "%d %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s", &DS->NumLC);
 
     DS->LandC = (LC *) malloc (DS->NumLC * sizeof (LC));
@@ -366,27 +337,32 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     for (i = 0; i < DS->NumLC; i++)
     {
         fscanf (lc_file, "%d", &(DS->LandC[i].index));
-        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].LAImin), &(DS->LandC[i].LAImax));
-        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].Rmin), &(DS->LandC[i].Rs_ref));
-        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].Albedo_min), &(DS->LandC[i].Albedo_max));
-        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].Emiss_min), &(DS->LandC[i].Emiss_max));
-        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].z0_min), &(DS->LandC[i].z0_max));
         fscanf (lc_file, "%lf", &(DS->LandC[i].VegFrac));
-        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].Rough), &(DS->LandC[i].RzD));
-        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].h_s), &(DS->LandC[i].snup));
+        fscanf (lc_file, "%lf", &(DS->LandC[i].RzD));
+        fscanf (lc_file, "%lf", &(DS->LandC[i].Rmin));
+        fscanf (lc_file, "%lf", &(DS->LandC[i].Rs_ref));
+        fscanf (lc_file, "%lf", &(DS->LandC[i].h_s));
+        fscanf (lc_file, "%lf", &(DS->LandC[i].snup));
+        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].LAImin), &(DS->LandC[i].LAImax));
+        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].Emiss_min), &(DS->LandC[i].Emiss_max));
+        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].Albedo_min), &(DS->LandC[i].Albedo_max));
+        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].z0_min), &(DS->LandC[i].z0_max));
+        fscanf (lc_file, "%lf", &(DS->LandC[i].Rough));
     }
     fscanf (lc_file, "%*s %lf", &(DS->Tref));
     fscanf (lc_file, "%*s %lf", &(DS->fx_canopy));
     fscanf (lc_file, "%*s %lf", &(DS->Rmax));
     fscanf (lc_file, "%*s %d", &(DS->bare));
-    if (ensemble_mode == 0)
-        printf ("done.\n");
+
+    DS->ISFactor = (realtype *) malloc (DS->NumLC * sizeof (realtype));
+    for ( i = 0; i < DS->NumLC; i++)
+        DS->ISFactor[i] = 0.0002;
 
     /*========== open *.forc file ==========*/
     if (ensemble_mode == 0)
-        printf ("  7) reading %s.%-5s ...\t\t", projectname, "forc");
-    fn[6] = (char *)malloc ((strlen (projectname) + 12) * sizeof (char));
-    sprintf (fn[6], "input/%s.forc", projectname);
+        printf ("  Reading %s.%s\n", projectname, "forc");
+    fn[6] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
+    sprintf (fn[6], "input/%s/%s.forc", projectname, projectname);
     forc_file = fopen (fn[6], "r");
     free (fn[6]);
 
@@ -397,11 +373,9 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         exit (1);
     }
 
-    /*
-     * start reading forc_file 
-     */
+    /* start reading forc_file */
 
-    NumForcing = 11;
+    NumForcing = 7;
 
     /*
      * Forcing TS:
@@ -412,166 +386,189 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
      * 4: Downward solar radiation;
      * 5: Downward longwave radiation (or G in PIHM);
      * 6: Surface air pressure;
-     * 7: LAI;
-     * 8: Roughness length;
-     * 9: Melting factor;
-     * 10: Source/Sink;
-     * 11: Direct solar radiation (For Flux-PIHM);
-     * 12: Diffused solar radiation (For Flux-PIHM);
      */
 
-    DS->Forcing = (TSD **) malloc (NumForcing * sizeof (TSD *));
-    DS->NumTS = (int *)malloc (NumForcing * sizeof (int));
+    fscanf (forc_file, "%*s %d", &DS->NumTS);
 
-    for (i = 0; i < NumForcing; i++)
-        fscanf (forc_file, "%*s");
-    for (i = 0; i < NumForcing; i++)
-        fscanf (forc_file, "%d", &DS->NumTS[i]);
-    if (DS->NumTS[LAI_TS] < DS->NumLC)
-    {
-        printf ("\n  Fatal Error: The number of LAI series (%d) is less than the number of land cover type (%d)! Please check your forcing file!\n", DS->NumTS[7], DS->NumLC);
-        exit (1);
-    }
-#ifndef _FLUX_PIHM_
-    if (DS->NumTS[RL_TS] < DS->NumLC)
-    {
-        printf ("\n  Fatal Error: The number of roughness length series is less than the number of land cover type! Please check your forcing file!\n");
-        exit (1);
-    }
-#endif
-    for (i = 0; i < NumForcing; i++)
-        DS->Forcing[i] = (TSD *) malloc (DS->NumTS[i] * sizeof (TSD));
+    DS->TSD_meteo = (TSD *) malloc (DS->NumTS * sizeof (TSD));
 
-    rewind(forc_file);          /* For safety reasons, rewind and skip top 2 lines */
-    fgets (cmdstr, MAXSTRING, forc_file);
+    rewind(forc_file);          /* For safety reasons, rewind and skip top line */
     fgets (cmdstr, MAXSTRING, forc_file);
 
     fgets (cmdstr, MAXSTRING, forc_file);
-
     while (!feof (forc_file))
     {
         if (cmdstr[0] != '\n' && cmdstr[0] != '\0' && cmdstr[0] != '\t')
         {
             sscanf (cmdstr, "%s", optstr);
-
-            if (strcasecmp ("PRCP", optstr) == 0)
+            if (strcasecmp ("METEO_TS", optstr) == 0)
             {
-                sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[PRCP_TS][ind - 1].length = 0;
-                count = &(DS->Forcing[PRCP_TS][ind - 1].length);
+                sscanf (cmdstr, "%*s %d %*s %*lf", &ind);
+                DS->TSD_meteo[ind - 1].length = 0;
+                count = &(DS->TSD_meteo[ind - 1].length);
             }
-            else if (strcasecmp ("SFCTMP", optstr) == 0)
+            else if (strcasecmp ("TIME", optstr) == 0)
             {
-                sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[SFCTMP_TS][ind - 1].length = 0;
-                count = &(DS->Forcing[SFCTMP_TS][ind - 1].length);
+                /* Do nothing */
             }
-            else if (strcasecmp ("RH", optstr) == 0)
+            else if (strcasecmp ("TS", optstr) == 0)
             {
-                sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[RH_TS][ind - 1].length = 0;
-                count = &(DS->Forcing[RH_TS][ind - 1].length);
-            }
-            else if (strcasecmp ("SFCSPD", optstr) == 0)
-            {
-                sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[SFCSPD_TS][ind - 1].length = 0;
-                count = &(DS->Forcing[SFCSPD_TS][ind - 1].length);
-            }
-            else if (strcasecmp ("SOLAR", optstr) == 0)
-            {
-                sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[SOLAR_TS][ind - 1].length = 0;
-                count = &(DS->Forcing[SOLAR_TS][ind - 1].length);
-            }
-            else if (strcasecmp ("LONGWAVE", optstr) == 0)
-            {
-                sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[LONGWAVE_TS][ind - 1].length = 0;
-                count = &(DS->Forcing[LONGWAVE_TS][ind - 1].length);
-            }
-            else if (strcasecmp ("PRES", optstr) == 0)
-            {
-                sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[PRES_TS][ind - 1].length = 0;
-                count = &(DS->Forcing[PRES_TS][ind - 1].length);
-            }
-            else if (strcasecmp ("LAI", optstr) == 0)
-            {
-                sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[LAI_TS][ind - 1].length = 0;
-                count = &(DS->Forcing[LAI_TS][ind - 1].length);
-            }
-            else if (strcasecmp ("RL", optstr) == 0)
-            {
-                sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[RL_TS][ind - 1].length = 0;
-                count = &(DS->Forcing[RL_TS][ind - 1].length);
-            }
-            else if (strcasecmp ("MF", optstr) == 0)
-            {
-                sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[MF_TS][ind - 1].length = 0;
-                count = &(DS->Forcing[MF_TS][ind - 1].length);
-            }
-            else if (strcasecmp ("SS", optstr) == 0)
-            {
-                sscanf (cmdstr, "%*s %d", &ind);
-                DS->Forcing[SS_TS][ind - 1].length = 0;
-                count = &(DS->Forcing[SS_TS][ind - 1].length);
+                /* Do nothing */
             }
             else
             {
                 (*count)++;
             }
+            //printf ("%s ", optstr);
+            //printf ("count =- %d, ind = %d\n", *count, ind);
         }
         fgets (cmdstr, MAXSTRING, forc_file);
     }
 
-    rewind(forc_file);
-    
-    fgets (cmdstr, MAXSTRING, forc_file);
-    fgets (cmdstr, MAXSTRING, forc_file);
-    for (i = 0; i < NumForcing; i++)
+    if (ind != DS->NumTS)
     {
-        for (k = 0; k < DS->NumTS[i]; k++)
+        printf ("ERROR!\n");
+        exit (1);
+    }
+
+    for (i = 0; i < DS->NumTS; i++)
+    {
+        DS->TSD_meteo[i].TS = (realtype **) malloc ((DS->TSD_meteo[i].length) * sizeof (realtype *));
+        DS->TSD_meteo[i].iCounter = 0;
+        for (j = 0; j < DS->TSD_meteo[i].length; j++)
+            DS->TSD_meteo[i].TS[j] = (realtype *) malloc ((NumForcing + 1)* sizeof (realtype));
+    }
+
+    rewind(forc_file);
+    fscanf (forc_file, "%*s %*d");
+
+    for (i = 0; i < DS->NumTS; i++)
+    {
+        fscanf (forc_file, "%*s %*d %*s %lf", &(DS->TSD_meteo[i].TSFactor));
+        fscanf (forc_file, "%*s %*s %*s %*s %*s %*s %*s %*s");
+        fscanf (forc_file, "%*s %*s %*s %*s %*s %*s %*s %*s");
+
+        for (j = 0; j < DS->TSD_meteo[i].length; j++)
         {
-            if (i == SFCSPD_TS || i == LAI_TS)
-                fscanf (forc_file, "%s %d %lf", DS->Forcing[i][k].name, &DS->Forcing[i][k].index, &DS->Forcing[i][k].TSFactor);
-            else
-                fscanf (forc_file, "%s %d", DS->Forcing[i][k].name, &DS->Forcing[i][k].index);
-            DS->Forcing[i][k].TS = (realtype **) malloc ((DS->Forcing[i][k].length) * sizeof (realtype *));
-            for (j = 0; j < DS->Forcing[i][k].length; j++)
-                DS->Forcing[i][k].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
-            for (j = 0; j < DS->Forcing[i][k].length; j++)
-            {
-                fscanf (forc_file, "%d-%d-%d %d:%d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &timeinfo->tm_sec, &DS->Forcing[i][k].TS[j][1]);
-                timeinfo->tm_year = timeinfo->tm_year - 1900;
-                timeinfo->tm_mon = timeinfo->tm_mon - 1;
-                rawtime = timegm (timeinfo);
-                DS->Forcing[i][k].TS[j][0] = (realtype) rawtime;
-            }
-            DS->Forcing[i][k].iCounter = 0;
+            fscanf (forc_file, "%d-%d-%d %d:%d:%d %lf %lf %lf %lf %lf %lf %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &timeinfo->tm_sec, &DS->TSD_meteo[i].TS[j][1], &DS->TSD_meteo[i].TS[j][2], &DS->TSD_meteo[i].TS[j][3], &DS->TSD_meteo[i].TS[j][4], &DS->TSD_meteo[i].TS[j][5], &DS->TSD_meteo[i].TS[j][6], &DS->TSD_meteo[i].TS[j][7]);
+            timeinfo->tm_year = timeinfo->tm_year - 1900;
+            timeinfo->tm_mon = timeinfo->tm_mon - 1;
+            rawtime = timegm (timeinfo);
+            DS->TSD_meteo[i].TS[j][0] = (realtype) rawtime;
         }
     }
 
-    DS->windH = (realtype *) malloc (DS->NumTS[SFCSPD_TS] * sizeof (realtype));
-    DS->ISFactor = (realtype *) malloc (DS->NumTS[LAI_TS] * sizeof (realtype));
+    DS->windH = (realtype *) malloc (DS->NumTS * sizeof (realtype));
+    for (i = 0; i < DS->NumTS; i++)
+        DS->windH[i] = DS->TSD_meteo[i].TSFactor;
 
-    for (i = 0; i < DS->NumTS[3]; i++)
-        DS->windH[i] = DS->Forcing[SFCSPD_TS][i].TSFactor;
-    for (i = 0; i < DS->NumTS[7]; i++)
-        DS->ISFactor[i] = DS->Forcing[LAI_TS][i].TSFactor;
+    read_lai = 0;
+    read_ss = 0;
 
-    fclose (forc_file);
-    if (ensemble_mode == 0)
-        printf ("done.\n");
+    for (i = 0; i < DS->NumEle; i++)
+    {
+        if (DS->Ele[i].LAI > 0)
+            read_lai = 1;
+        if (DS->Ele[i].source >0)
+            read_ss = 1;
+    }
+
+    if (read_lai == 1)
+    {
+        if (ensemble_mode == 0)
+            printf ("  Reading %s.%s\n", projectname, "lai");
+        laifn = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
+        sprintf (laifn, "input/%s/%s.lai", projectname, projectname);
+        lai_file = fopen (laifn, "r");
+        free (laifn);
+
+        if (lai_file == NULL)
+        {
+            printf ("\n  Fatal Error: %s.lai is in use or does not exist!\n",
+               projectname);
+            exit (1);
+        }
+
+        /* start reading lai_file */
+
+        fscanf (lai_file, "%*s %d", &num_lai_ts);
+
+        DS->TSD_lai = (TSD *) malloc (num_lai_ts * sizeof (TSD));
+
+        rewind(lai_file);          /* For safety reasons, rewind and skip top line */
+        fgets (cmdstr, MAXSTRING, lai_file);
+
+        fgets (cmdstr, MAXSTRING, lai_file);
+        while (!feof (lai_file))
+        {
+            if (cmdstr[0] != '\n' && cmdstr[0] != '\0' && cmdstr[0] != '\t')
+            {
+                sscanf (cmdstr, "%s", optstr);
+                if (strcasecmp ("LAI_TS", optstr) == 0)
+                {
+                    sscanf (cmdstr, "%*s %d", &ind);
+                    DS->TSD_lai[ind - 1].length = 0;
+                    count = &(DS->TSD_lai[ind - 1].length);
+                }
+                else if (strcasecmp ("TIME", optstr) == 0)
+                {
+                    /* Do nothing */
+                }
+                else if (strcasecmp ("TS", optstr) == 0)
+                {
+                    /* Do nothing */
+                }
+                else
+                    (*count)++;
+            }
+            fgets (cmdstr, MAXSTRING, lai_file);
+        }
+
+        if (ind != num_lai_ts)
+        {
+            printf ("ERROR!\n");
+            exit (1);
+        }
+
+        for (i = 0; i < num_lai_ts; i++)
+        {
+            DS->TSD_lai[i].TS = (realtype **) malloc ((DS->TSD_lai[i].length) * sizeof (realtype *));
+            for (j = 0; j < DS->TSD_lai[i].length; j++)
+                DS->TSD_lai[i].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
+        }
+
+        rewind(lai_file);
+
+        fscanf (lai_file, "%*s %*d");
+
+        for (i = 0; i < num_lai_ts; i++)
+        {
+            fscanf (lai_file, "%*s %*d");
+            fscanf (lai_file, "%*s %*s");
+            fscanf (lai_file, "%*s %*s");
+            for (j = 0; j < DS->TSD_lai[i].length; j++)
+            {
+                fscanf (lai_file, "%d-%d-%d %d:%d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &timeinfo->tm_sec, &DS->TSD_lai[i].TS[j][1]);
+                timeinfo->tm_year = timeinfo->tm_year - 1900;
+                timeinfo->tm_mon = timeinfo->tm_mon - 1;
+                rawtime = timegm (timeinfo);
+                DS->TSD_lai[i].TS[j][0] = (realtype) rawtime;
+            }
+        }
+
+        fclose (lai_file);
+    }
+
+    if (read_ss == 1)
+    {
+        /* Read .ss */
+    }
 
     /*========== open *.ibc file ==========*/
     if (ensemble_mode == 0)
-        printf ("  8) reading %s.%-5s ...\t\t", projectname, "ibc");
-    fn[7] = (char *)malloc ((strlen (projectname) + 11) * sizeof (char));
-    sprintf (fn[7], "input/%s.ibc", projectname);
+        printf ("  Reading %s.%s\n", projectname, "ibc");
+    fn[7] = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
+    sprintf (fn[7], "input/%s/%s.ibc", projectname, projectname);
     ibc_file = fopen (fn[7], "r");
     free (fn[7]);
 
@@ -637,14 +634,12 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         }
     }
     fclose (ibc_file);
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     /*========== open *.para file ==========*/
     if (ensemble_mode == 0)
-        printf ("  9) reading %s.%-5s ...\t\t", projectname, "para");
-    fn[8] = (char *)malloc ((strlen (projectname) + 12) * sizeof (char));
-    sprintf (fn[8], "input/%s.para", projectname);
+        printf ("  Reading %s.%s\n", projectname, "para");
+    fn[8] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
+    sprintf (fn[8], "input/%s/%s.para", projectname, projectname);
     para_file = fopen (fn[8], "r");
     free (fn[8]);
 
@@ -869,67 +864,56 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         CS->Tout[CS->NumSteps] = CS->EndTime;
     if (CS->abstol == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Absolute Tolerance (ABSTOL) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Absolute Tolerance (ABSTOL) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->reltol == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Relative  Tolerance (RELTOL) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Relative  Tolerance (RELTOL) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->InitStep == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Initial time-step (INIT_STEP) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Initial time-step (INIT_STEP) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->MaxStep == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Maximum time-step (MAX_STEP) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Maximum time-step (MAX_STEP) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->StartTime == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Simulation start time (START yyyy-mm-dd hh:mm) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Simulation start time (START yyyy-mm-dd hh:mm) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->EndTime == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Simulation end time (END yyyy-mm-dd hh:mm) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Simulation end time (END yyyy-mm-dd hh:mm) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->ETStep == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Land surface model time-step (LSM_STEP) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Land surface model time-step (LSM_STEP) must be defined in .para file!\n");
         exit (1);
     }
     if (CS->outtype == BADVAL)
     {
-        printf
-           ("\n  Fatal Error: Output step-size type (OUTPUT_TYPE) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Output step-size type (OUTPUT_TYPE) must be defined in .para file!\n");
         exit (1);
     }
     if ((CS->outtype == 0) && (CS->a == BADVAL || CS->b == BADVAL))
     {
-        printf
-           ("\n  Fatal Error: Output step-size factor (A) and base step-size (B) must be defined in .para file!\n");
+        printf ("\n  Fatal Error: Output step-size factor (A) and base step-size (B) must be defined in .para file!\n");
         exit (1);
     }
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     if (ensemble_mode == 0)
-        printf ("\nStart reading in calibration file ...\t");
+        printf ("  Reading calibration file\n");
 
     /*========= open *.calib file ==========*/
-    fn[9] = (char *)malloc ((strlen (filename) + 13) * sizeof (char));
-    sprintf (fn[9], "input/%s.calib", projectname);
+    fn[9] = (char *)malloc ((2 * strlen (filename) + 14) * sizeof (char));
+    sprintf (fn[9], "input/%s/%s.calib", projectname, projectname);
     global_calib = fopen (fn[9], "r");
     free (fn[9]);
 
@@ -1092,8 +1076,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         }
         fgets (cmdstr, MAXSTRING, global_calib);
     }
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 
     /*
      * finish reading calib file 
@@ -1157,18 +1139,13 @@ void FreeData (Model_Data DS, Control_Data * CS)
     /*
      * free forc
      */
-    for (i = 0; i < 11; i++)
+    for (j = 0; j < DS->NumTS; j++)
     {
-        for (j = 0; j < DS->NumTS[i]; j++)
-        {
-            for (k = 0; k < DS->Forcing[i][j].length; k++)
-                free (DS->Forcing[i][j].TS[k]);
-            free (DS->Forcing[i][j].TS);
-        }
-        free (DS->Forcing[i]);
+        for (k = 0; k < DS->TSD_meteo[j].length; k++)
+            free (DS->TSD_meteo[j].TS[k]);
+        free (DS->TSD_meteo[j].TS);
     }
-    free (DS->Forcing);
-    free (DS->NumTS);
+    free (DS->TSD_meteo);
 
     free (DS->ISFactor);
     /*

@@ -178,36 +178,3 @@ realtype effKH (int mp, realtype tmpY, realtype aqDepth, realtype MacD, realtype
         return ksatH;
 }
 
-realtype Interpolation (TSD * Data, realtype t)
-{
-    int             i, success;
-    realtype        result;
-
-    i = Data->iCounter;
-    success = 0;
-//
-//    t = t / (UNIT_C);
-    while (i < Data->length && t > Data->TS[i][0])
-        i++;
-    if (i == 0)
-    {
-        /* t is smaller than the 1st node */
-        result = Data->TS[i][1];
-    }
-    else if (i >= Data->length)
-    {
-        result = Data->TS[i - 1][1];
-    }
-    else
-    {
-        result = ((Data->TS[i][0] - t) * Data->TS[i - 1][1] + (t - Data->TS[i - 1][0]) * Data->TS[i][1]) / (Data->TS[i][0] - Data->TS[i - 1][0]);
-        success = 1;
-    }
-    if (success == 0)
-    {
-        /*
-         * printf("\nWarning:  Extrapolation is used ...\n");
-         */
-    }
-    return result;
-}

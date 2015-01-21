@@ -1,31 +1,28 @@
 #ifndef NOAH_HEADER
 #define NOAH_HEADER
 
+#include "../pihm.h"
 #include "../print.h"
 #include "../forcing.h"
-/*
-#ifndef _FLUX_PIHM_
-#define _FLUX_PIHM_
-#endif
-*/
+
 /*
  * Define constants 
  */
 
-#define RD		    287.04
+#define RD	    287.04
 #define SIGMA	    5.67e-8
-#define CP		    1004.6
+#define CP	    1004.6
 #define CPH2O	    4.218e3
 #define CPICE	    2.106e3
-#define LSUBF		3.335e5
-#define EMISSI_S	0.95
-#define NLUS		50
-#define NSLTYPE		30
-#define NSLOPE		30
-#define TFREEZ		273.15
-#define LVH2O		2.501e6
-#define LSUBS		2.83e6
-#define R		    287.04
+#define LSUBF	    3.335e5
+#define EMISSI_S    0.95
+#define NLUS	    50
+#define NSLTYPE	    30
+#define NSLOPE	    30
+#define TFREEZ	    273.15
+#define LVH2O	    2.501e6
+#define LSUBS	    2.83e6
+#define R	    287.04
 
 enum lsm_forcing_type {SOLAR_DIR_TS, SOLAR_DIF_TS};
 /*
@@ -382,7 +379,7 @@ typedef struct LSM_STRUCT
     int             RAD_MODE;   /* Radiation mode; 1: topographic, 0: uniform */
     Print_Ctrl      PCtrl[100];
 
-    TSD           **Forcing;
+    TSD            *TSD_rad;
 
     int             NPRINT;
     int             PRINT_T1;
@@ -402,263 +399,115 @@ typedef struct LSM_STRUCT
 
 void            SFLX (GRID_TYPE *);
 
-void            ALCALC (double *ALB, double *SNOALB, double *EMBRD,
-   double *SHDFAC, double *SHDMIN, double *SNCOVR, double *TSNOW,
-   double *ALBEDO, double *EMISSI, double *DT, int *SNOWNG, double *SNOTIME1,
-   double *LVCOEF);
+void            ALCALC (double *ALB, double *SNOALB, double *EMBRD, double *SHDFAC, double *SHDMIN, double *SNCOVR, double *TSNOW, double *ALBEDO, double *EMISSI, double *DT, int *SNOWNG, double *SNOTIME1, double *LVCOEF);
 
-void            CANRES (double *SOLAR, double *CH, double *SFCTMP, double *Q2,
-   double *SFCPRS, double *SMC, double *ZSOIL, int *NSOIL, double *SMCWLT,
-   double *SMCREF, double *RSMIN, double *RC, double *PC, int *NROOT,
-   double *Q2SAT, double *DQSDT2, double *TOPT, double *RSMAX, double *RGL,
-   double *HS, double *XLAI, double *RCS, double *RCT, double *RCQ,
-   double *RCSOIL, double *EMISSI);
+void            CANRES (double *SOLAR, double *CH, double *SFCTMP, double *Q2, double *SFCPRS, double *SMC, double *ZSOIL, int *NSOIL, double *SMCWLT, double *SMCREF, double *RSMIN, double *RC, double *PC, int *NROOT, double *Q2SAT, double *DQSDT2, double *TOPT, double *RSMAX, double *RGL, double *HS, double *XLAI, double *RCS, double *RCT, double *RCQ, double *RCSOIL, double *EMISSI);
 
 void            CSNOW (double *SNCOND, double *DSNOW);
 
 #ifdef _FLUX_PIHM_
-void            DEVAP (double *EDIR, double *ETP1, double *SMC, double *ZSOIL,
-   double *SHDFAC, double *SMCMAX, double *DKSAT, double *SMCDRY,
-   double *SMCREF, double *SMCWLT, double *FXEXP);
+void            DEVAP (double *EDIR, double *ETP1, double *SMC, double *ZSOIL, double *SHDFAC, double *SMCMAX, double *DKSAT, double *SMCDRY, double *SMCREF, double *SMCWLT, double *FXEXP);
 #else
-void            DEVAP (double *EDIR, double *ETP1, double *SMC, double *ZSOIL,
-   double *SHDFAC, double *SMCMAX, double *BEXP, double *DKSAT, double *DWSAT,
-   double *SMCDRY, double *SMCREF, double *SMCWLT, double *FXEXP);
+void            DEVAP (double *EDIR, double *ETP1, double *SMC, double *ZSOIL, double *SHDFAC, double *SMCMAX, double *BEXP, double *DKSAT, double *DWSAT, double *SMCDRY, double *SMCREF, double *SMCWLT, double *FXEXP);
 #endif
 
 #ifdef _FLUX_PIHM_
-void            EVAPO (double *ETA1, double *SMC, int *NSOIL, double *CMC,
-   double *ETP1, double *DT, double *ZSOIL, double *SH2O, double *SMCMAX,
-   double *PC, double *SMCWLT, double *DKSAT, double *SMCREF, double *SHDFAC,
-   double *CMCMAX, double *SMCDRY, double *CFACTR, double *EDIR, double *EC,
-   double *ET, double *ETT, double *SFCTMP, double *Q2, int *NROOT,
-   double *RTDIS, double *FXEXP);
+void            EVAPO (double *ETA1, double *SMC, int *NSOIL, double *CMC, double *ETP1, double *DT, double *ZSOIL, double *SH2O, double *SMCMAX, double *PC, double *SMCWLT, double *DKSAT, double *SMCREF, double *SHDFAC, double *CMCMAX, double *SMCDRY, double *CFACTR, double *EDIR, double *EC, double *ET, double *ETT, double *SFCTMP, double *Q2, int *NROOT, double *RTDIS, double *FXEXP);
 #else
-void            EVAPO (double *ETA1, double *SMC, int *NSOIL, double *CMC,
-   double *ETP1, double *DT, double *ZSOIL, double *SH2O, double *SMCMAX,
-   double *BEXP, double *PC, double *SMCWLT, double *DKSAT, double *DWSAT,
-   double *SMCREF, double *SHDFAC, double *CMCMAX, double *SMCDRY,
-   double *CFACTR, double *EDIR, double *EC, double *ET, double *ETT,
-   double *SFCTMP, double *Q2, int *NROOT, double *RTDIS, double *FXEXP);
+void            EVAPO (double *ETA1, double *SMC, int *NSOIL, double *CMC, double *ETP1, double *DT, double *ZSOIL, double *SH2O, double *SMCMAX, double *BEXP, double *PC, double *SMCWLT, double *DKSAT, double *DWSAT, double *SMCREF, double *SHDFAC, double *CMCMAX, double *SMCDRY, double *CFACTR, double *EDIR, double *EC, double *ET, double *ETT, double *SFCTMP, double *Q2, int *NROOT, double *RTDIS, double *FXEXP);
 #endif
 
 void            FAC2MIT (double *SMCMAX, double *FLIMIT);
 
 #ifdef _FLUX_PIHM_
-void            FRH2O (double *FREE, double *TKELV, double *SMC, double *SH2O,
-   double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA);
+void            FRH2O (double *FREE, double *TKELV, double *SMC, double *SH2O, double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA);
 #else
-void            FRH2O (double *FREE, double *TKELV, double *SMC, double *SH2O,
-   double *SMCMAX, double *BEXP, double *PSIS);
+void            FRH2O (double *FREE, double *TKELV, double *SMC, double *SH2O, double *SMCMAX, double *BEXP, double *PSIS);
 #endif
 
 #ifdef _FLUX_PIHM_
-void            HRT (double *RHSTS, double *STC, double *SMC, double *SMCMAX,
-   double *SMCMIN, int *NSOIL, double *ZSOIL, double *YY, double *ZZ1,
-   double *TBOT, double *ZBOT, double *SH2O, double *DT, double *VGALPHA,
-   double *VGBETA, double *F1, double *DF1, double *QUARTZ, double *CSOIL,
-   double *AI, double *BI, double *CI, int *VEGTYP, int *ISURBAN);
+void            HRT (double *RHSTS, double *STC, double *SMC, double *SMCMAX, double *SMCMIN, int *NSOIL, double *ZSOIL, double *YY, double *ZZ1, double *TBOT, double *ZBOT, double *SH2O, double *DT, double *VGALPHA, double *VGBETA, double *F1, double *DF1, double *QUARTZ, double *CSOIL, double *AI, double *BI, double *CI, int *VEGTYP, int *ISURBAN);
 #else
-void            HRT (double *RHSTS, double *STC, double *SMC, double *SMCMAX,
-   int *NSOIL, double *ZSOIL, double *YY, double *ZZ1, double *TBOT,
-   double *ZBOT, double *PSISAT, double *SH2O, double *DT, double *BEXP,
-   double *F1, double *DF1, double *QUARTZ, double *CSOIL, double *AI,
-   double *BI, double *CI, int *VEGTYP, int *ISURBAN);
+void            HRT (double *RHSTS, double *STC, double *SMC, double *SMCMAX, int *NSOIL, double *ZSOIL, double *YY, double *ZZ1, double *TBOT, double *ZBOT, double *PSISAT, double *SH2O, double *DT, double *BEXP, double *F1, double *DF1, double *QUARTZ, double *CSOIL, double *AI, double *BI, double *CI, int *VEGTYP, int *ISURBAN);
 #endif
 
-void            HSTEP (double *STCOUT, double *STCIN, double *RHSTS,
-   double *DT, int *NSOIL, double *AI, double *BI, double *CI);
+void            HSTEP (double *STCOUT, double *STCIN, double *RHSTS, double *DT, int *NSOIL, double *AI, double *BI, double *CI);
 
 #ifdef _FLUX_PIHM_
-void            NOPAC (double *ETP, double *ETA, double *PRCP, double *PCPDRP,
-   double *SMC, double *SMCMAX, double *SMCMIN, double *SMCWLT,
-   double *SMCREF, double *SMCDRY, double *CMC, double *CMCMAX, int *NSOIL,
-   double *DT, double *SHDFAC, double *SBETA, double *Q2, double *T1,
-   double *SFCTMP, double *T24, double *TH2, double *FDOWN, double *F1,
-   double *EMISSI, double *SSOIL, double *STC, double *EPSCA, double *VGALPHA,
-   double *VGBETA, double *MACKSAT, double *AREAF, int *NMACD, int *NWTBL,
-   double *PC, double *RCH, double *RR, double *CFACTR, double *SH2O,
-   double *FRZFACT, double *ZSOIL, double *DKSAT, double *TBOT, double *ZBOT,
-   double *INF, double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC,
-   double *ET, double *ETT, int *NROOT, double *RTDIS, double *QUARTZ,
-   double *FXEXP, double *CSOIL, double *BETA, double *DRIP, double *DEW,
-   double *FLX1, double *FLX3, int *VEGTYP, int *ISURBAN);
+void            NOPAC (double *ETP, double *ETA, double *PRCP, double *PCPDRP, double *SMC, double *SMCMAX, double *SMCMIN, double *SMCWLT, double *SMCREF, double *SMCDRY, double *CMC, double *CMCMAX, int *NSOIL, double *DT, double *SHDFAC, double *SBETA, double *Q2, double *T1, double *SFCTMP, double *T24, double *TH2, double *FDOWN, double *F1, double *EMISSI, double *SSOIL, double *STC, double *EPSCA, double *VGALPHA, double *VGBETA, double *MACKSAT, double *AREAF, int *NMACD, int *NWTBL, double *PC, double *RCH, double *RR, double *CFACTR, double *SH2O, double *FRZFACT, double *ZSOIL, double *DKSAT, double *TBOT, double *ZBOT, double *INF, double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET, double *ETT, int *NROOT, double *RTDIS, double *QUARTZ, double *FXEXP, double *CSOIL, double *BETA, double *DRIP, double *DEW, double *FLX1, double *FLX3, int *VEGTYP, int *ISURBAN);
 #else
-void            NOPAC (double *ETP, double *ETA, double *PRCP, double *SMC,
-   double *SMCMAX, double *SMCWLT, double *SMCREF, double *SMCDRY,
-   double *CMC, double *CMCMAX, int *NSOIL, double *DT, double *SHDFAC,
-   double *SBETA, double *Q2, double *T1, double *SFCTMP, double *T24,
-   double *TH2, double *FDOWN, double *F1, double *EMISSI, double *SSOIL,
-   double *STC, double *EPSCA, double *BEXP, double *PC, double *RCH,
-   double *RR, double *CFACTR, double *SH2O, double *SLOPE, double *KDT,
-   double *FRZFACT, double *PSISAT, double *ZSOIL, double *DKSAT,
-   double *DWSAT, double *TBOT, double *ZBOT, double *RUNOFF1,
-   double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET,
-   double *ETT, int *NROOT, double *RTDIS, double *QUARTZ, double *FXEXP,
-   double *CSOIL, double *BETA, double *DRIP, double *DEW, double *FLX1,
-   double *FLX3, int *VEGTYP, int *ISURBAN);
+void            NOPAC (double *ETP, double *ETA, double *PRCP, double *SMC, double *SMCMAX, double *SMCWLT, double *SMCREF, double *SMCDRY, double *CMC, double *CMCMAX, int *NSOIL, double *DT, double *SHDFAC, double *SBETA, double *Q2, double *T1, double *SFCTMP, double *T24, double *TH2, double *FDOWN, double *F1, double *EMISSI, double *SSOIL, double *STC, double *EPSCA, double *BEXP, double *PC, double *RCH, double *RR, double *CFACTR, double *SH2O, double *SLOPE, double *KDT, double *FRZFACT, double *PSISAT, double *ZSOIL, double *DKSAT, double *DWSAT, double *TBOT, double *ZBOT, double *RUNOFF1, double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET, double *ETT, int *NROOT, double *RTDIS, double *QUARTZ, double *FXEXP, double *CSOIL, double *BETA, double *DRIP, double *DEW, double *FLX1, double *FLX3, int *VEGTYP, int *ISURBAN);
 #endif
 
-void            PENMAN (double *SFCTMP, double *SFCPRS, double *CH,
-   double *T2V, double *TH2, double *PRCP, double *FDOWN, double *T24,
-   double *SSOIL, double *Q2, double *Q2SAT, double *ETP, double *RCH,
-   double *EPSCA, double *RR, int *SNOWNG, int *FRZGRA, double *DQSDT2,
-   double *FLX2, double *EMISSI_IN, double *SNEQV, double *T1,
-   double *SNCOVR);
+void            PENMAN (double *SFCTMP, double *SFCPRS, double *CH, double *T2V, double *TH2, double *PRCP, double *FDOWN, double *T24, double *SSOIL, double *Q2, double *Q2SAT, double *ETP, double *RCH, double *EPSCA, double *RR, int *SNOWNG, int *FRZGRA, double *DQSDT2, double *FLX2, double *EMISSI_IN, double *SNEQV, double *T1, double *SNCOVR);
 
 void            REDPRM (GRID_TYPE * NOAH, LSM_STRUCT LSM, double *ZSOIL);
 
-void            ROSR12 (double *P, double *A, double *B, double *C, double *D,
-   double *DELTA, int *NSOIL);
+void            ROSR12 (double *P, double *A, double *B, double *C, double *D, double *DELTA, int *NSOIL);
 
 #ifdef _FLUX_PIHM_
-void            SHFLX (double *SSOIL, double *STC, double *SMC,
-   double *SMCMAX, double *SMCMIN, int *NSOIL, double *T1, double *DT,
-   double *YY, double *ZZ1, double *ZSOIL, double *TBOT, double *ZBOT,
-   double *SMCWLT, double *SH2O, double *VGALPHA, double *VGBETA, double *F1,
-   double *DF1, double *QUARTZ, double *CSOIL, int *VEGTYP, int *ISURBAN);
+void            SHFLX (double *SSOIL, double *STC, double *SMC, double *SMCMAX, double *SMCMIN, int *NSOIL, double *T1, double *DT, double *YY, double *ZZ1, double *ZSOIL, double *TBOT, double *ZBOT, double *SMCWLT, double *SH2O, double *VGALPHA, double *VGBETA, double *F1, double *DF1, double *QUARTZ, double *CSOIL, int *VEGTYP, int *ISURBAN);
 #else
-void            SHFLX (double *SSOIL, double *STC, double *SMC,
-   double *SMCMAX, int *NSOIL, double *T1, double *DT, double *YY,
-   double *ZZ1, double *ZSOIL, double *TBOT, double *ZBOT, double *SMCWLT,
-   double *PSISAT, double *SH2O, double *BEXP, double *F1, double *DF1,
-   double *QUARTZ, double *CSOIL, int *VEGTYP, int *ISURBAN);
+void            SHFLX (double *SSOIL, double *STC, double *SMC, double *SMCMAX, int *NSOIL, double *T1, double *DT, double *YY, double *ZZ1, double *ZSOIL, double *TBOT, double *ZBOT, double *SMCWLT, double *PSISAT, double *SH2O, double *BEXP, double *F1, double *DF1, double *QUARTZ, double *CSOIL, int *VEGTYP, int *ISURBAN);
 #endif
 
 #ifdef _FLUX_PIHM_
-void            SMFLX (double *SMC, int *NSOIL, double *CMC, double *DT,
-   double *PRCP1, double *PCPDRP, double *ZSOIL, double *SH2O,
-   double *FRZFACT, double *SMCMAX, double *SMCMIN, double *VGALPHA,
-   double *VGBETA, double *MACKSAT, double *AREAF, int *NMACD, int *NWTBL,
-   double *SMCWLT, double *DKSAT, double *SHDFAC, double *CMCMAX, double *INF,
-   double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET,
-   double *DRIP);
+void            SMFLX (double *SMC, int *NSOIL, double *CMC, double *DT, double *PRCP1, double *PCPDRP, double *ZSOIL, double *SH2O, double *FRZFACT, double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA, double *MACKSAT, double *AREAF, int *NMACD, int *NWTBL, double *SMCWLT, double *DKSAT, double *SHDFAC, double *CMCMAX, double *INF, double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET, double *DRIP);
 #else
-void            SMFLX (double *SMC, int *NSOIL, double *CMC, double *DT,
-   double *PRCP1, double *ZSOIL, double *SH2O, double *SLOPE, double *KDT,
-   double *FRZFACT, double *SMCMAX, double *BEXP, double *SMCWLT,
-   double *DKSAT, double *DWSAT, double *SHDFAC, double *CMCMAX,
-   double *RUNOFF1, double *RUNOFF2, double *RUNOFF3, double *EDIR,
-   double *EC, double *ET, double *DRIP);
+void            SMFLX (double *SMC, int *NSOIL, double *CMC, double *DT, double *PRCP1, double *ZSOIL, double *SH2O, double *SLOPE, double *KDT, double *FRZFACT, double *SMCMAX, double *BEXP, double *SMCWLT, double *DKSAT, double *DWSAT, double *SHDFAC, double *CMCMAX, double *RUNOFF1, double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET, double *DRIP);
 #endif
 
-void            SNFRAC (double *SNEQV, double *SNUP, double *SALP,
-   double *SNOWH, double *SNCOVR);
+void            SNFRAC (double *SNEQV, double *SNUP, double *SALP, double *SNOWH, double *SNCOVR);
 
 #ifdef _FLUX_PIHM_
-void            SNKSRC (double *TSNSR, double *TAVG, double *SMC,
-   double *SH2O, double *ZSOIL, int *NSOIL, double *SMCMAX, double *SMCMIN,
-   double *VGALPHA, double *VGBETA, double *DT, int K, double *QTOT);
+void            SNKSRC (double *TSNSR, double *TAVG, double *SMC, double *SH2O, double *ZSOIL, int *NSOIL, double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA, double *DT, int K, double *QTOT);
 #else
-void            SNKSRC (double *TSNSR, double *TAVG, double *SMC,
-   double *SH2O, double *ZSOIL, int *NSOIL, double *SMCMAX, double *PSISAT,
-   double *BEXP, double *DT, int K, double *QTOT);
+void            SNKSRC (double *TSNSR, double *TAVG, double *SMC, double *SH2O, double *ZSOIL, int *NSOIL, double *SMCMAX, double *PSISAT, double *BEXP, double *DT, int K, double *QTOT);
 #endif
 
 #ifdef _FLUX_PIHM_
-void            SNOPAC (double *ETP, double *ETA, double *PRCP, double *PRCPF,
-   double *PCPDRP, int *SNOWNG, double *SMC, double *SMCMAX, double *SMCMIN,
-   double *SMCWLT, double *SMCREF, double *SMCDRY, double *CMC,
-   double *CMCMAX, int *NSOIL, double *DT, double *SBETA, double *DF1,
-   double *Q2, double *T1, double *SFCTMP, double *T24, double *TH2,
-   double *FDOWN, double *F1, double *SSOIL, double *STC, double *EPSCA,
-   double *SFCPRS, double *VGALPHA, double *VGBETA, double *MACKSAT,
-   double *AREAF, int *NMACD, int *NWTBL, double *PC, double *RCH, double *RR,
-   double *CFACTR, double *SNCOVR, double *ESD, double *SNDENS, double *SNOWH,
-   double *SH2O, double *FRZFACT, double *ZSOIL, double *DKSAT, double *TBOT,
-   double *ZBOT, double *SHDFAC, double *INF, double *RUNOFF2,
-   double *RUNOFF3, double *EDIR, double *EC, double *ET, double *ETT,
-   int *NROOT, double *SNOMLT, double *RTDIS, double *QUARTZ, double *FXEXP,
-   double *CSOIL, double *BETA, double *DRIP, double *DEW, double *FLX1,
-   double *FLX2, double *FLX3, double *ESNOW, double *ETNS, double *EMISSI,
-   double *RIBB, double *SOLDN, int *ISURBAN, int *VEGTYP);
+void            SNOPAC (double *ETP, double *ETA, double *PRCP, double *PRCPF, double *PCPDRP, int *SNOWNG, double *SMC, double *SMCMAX, double *SMCMIN, double *SMCWLT, double *SMCREF, double *SMCDRY, double *CMC, double *CMCMAX, int *NSOIL, double *DT, double *SBETA, double *DF1, double *Q2, double *T1, double *SFCTMP, double *T24, double *TH2, double *FDOWN, double *F1, double *SSOIL, double *STC, double *EPSCA, double *SFCPRS, double *VGALPHA, double *VGBETA, double *MACKSAT, double *AREAF, int *NMACD, int *NWTBL, double *PC, double *RCH, double *RR, double *CFACTR, double *SNCOVR, double *ESD, double *SNDENS, double *SNOWH, double *SH2O, double *FRZFACT, double *ZSOIL, double *DKSAT, double *TBOT, double *ZBOT, double *SHDFAC, double *INF, double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET, double *ETT, int *NROOT, double *SNOMLT, double *RTDIS, double *QUARTZ, double *FXEXP, double *CSOIL, double *BETA, double *DRIP, double *DEW, double *FLX1, double *FLX2, double *FLX3, double *ESNOW, double *ETNS, double *EMISSI, double *RIBB, double *SOLDN, int *ISURBAN, int *VEGTYP);
 #else
-void            SNOPAC (double *ETP, double *ETA, double *PRCP, double *PRCPF,
-   int *SNOWNG, double *SMC, double *SMCMAX, double *SMCWLT, double *SMCREF,
-   double *SMCDRY, double *CMC, double *CMCMAX, int *NSOIL, double *DT,
-   double *SBETA, double *DF1, double *Q2, double *T1, double *SFCTMP,
-   double *T24, double *TH2, double *FDOWN, double *F1, double *SSOIL,
-   double *STC, double *EPSCA, double *SFCPRS, double *BEXP, double *PC,
-   double *RCH, double *RR, double *CFACTR, double *SNCOVR, double *ESD,
-   double *SNDENS, double *SNOWH, double *SH2O, double *SLOPE, double *KDT,
-   double *FRZFACT, double *PSISAT, double *ZSOIL, double *DWSAT,
-   double *DKSAT, double *TBOT, double *ZBOT, double *SHDFAC, double *RUNOFF1,
-   double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET,
-   double *ETT, int *NROOT, double *SNOMLT, double *RTDIS, double *QUARTZ,
-   double *FXEXP, double *CSOIL, double *BETA, double *DRIP, double *DEW,
-   double *FLX1, double *FLX2, double *FLX3, double *ESNOW, double *ETNS,
-   double *EMISSI, double *RIBB, double *SOLDN, int *ISURBAN, int *VEGTYP);
+void            SNOPAC (double *ETP, double *ETA, double *PRCP, double *PRCPF, int *SNOWNG, double *SMC, double *SMCMAX, double *SMCWLT, double *SMCREF, double *SMCDRY, double *CMC, double *CMCMAX, int *NSOIL, double *DT, double *SBETA, double *DF1, double *Q2, double *T1, double *SFCTMP, double *T24, double *TH2, double *FDOWN, double *F1, double *SSOIL, double *STC, double *EPSCA, double *SFCPRS, double *BEXP, double *PC, double *RCH, double *RR, double *CFACTR, double *SNCOVR, double *ESD, double *SNDENS, double *SNOWH, double *SH2O, double *SLOPE, double *KDT, double *FRZFACT, double *PSISAT, double *ZSOIL, double *DWSAT, double *DKSAT, double *TBOT, double *ZBOT, double *SHDFAC, double *RUNOFF1, double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET, double *ETT, int *NROOT, double *SNOMLT, double *RTDIS, double *QUARTZ, double *FXEXP, double *CSOIL, double *BETA, double *DRIP, double *DEW, double *FLX1, double *FLX2, double *FLX3, double *ESNOW, double *ETNS, double *EMISSI, double *RIBB, double *SOLDN, int *ISURBAN, int *VEGTYP);
 #endif
 
-void            SNOWPACK (double *ESD, double *DTSEC, double *SNOWH,
-   double *SNDENS, double *TSNOW, double *TSOIL);
+void            SNOWPACK (double *ESD, double *DTSEC, double *SNOWH, double *SNDENS, double *TSNOW, double *TSOIL);
 
-void            SNOWZ0 (double *SNCOVR, double *Z0, double *Z0BRD,
-   double *SNOWH);
+void            SNOWZ0 (double *SNCOVR, double *Z0, double *Z0BRD, double *SNOWH);
 
-void            SNOW_NEW (double *TEMP, double *NEWSN, double *SNOWH,
-   double *SNDENS);
+void            SNOW_NEW (double *TEMP, double *NEWSN, double *SNOWH, double *SNDENS);
 
 #ifdef _FLUX_PIHM_
-void            SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O,
-   double *SH2OA, int *NSOIL, double *PCPDRP, double *ZSOIL, double *DKSAT,
-   double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA,
-   double *MACKSAT, double *AREAF, int *NMACD, double *INF, double *RUNOFF2,
-   double *DT, double *SMCWLT, double *FRZX, double *SICE, double *AI,
-   double *BI, double *CI);
+void            SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA, int *NSOIL, double *PCPDRP, double *ZSOIL, double *DKSAT, double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA, double *MACKSAT, double *AREAF, int *NMACD, double *INF, double *RUNOFF2, double *DT, double *SMCWLT, double *FRZX, double *SICE, double *AI, double *BI, double *CI);
 #else
-void            SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O,
-   double *SH2OA, int *NSOIL, double *PCPDRP, double *ZSOIL, double *DWSAT,
-   double *DKSAT, double *SMCMAX, double *BEXP, double *RUNOFF1,
-   double *RUNOFF2, double *DT, double *SMCWLT, double *SLOPE, double *KDT,
-   double *FRZX, double *SICE, double *AI, double *BI, double *CI);
+void            SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA, int *NSOIL, double *PCPDRP, double *ZSOIL, double *DWSAT, double *DKSAT, double *SMCMAX, double *BEXP, double *RUNOFF1, double *RUNOFF2, double *DT, double *SMCWLT, double *SLOPE, double *KDT, double *FRZX, double *SICE, double *AI, double *BI, double *CI);
 #endif
 
 #ifdef _FLUX_PIHM_
-void            SSTEP (double *SH2OOUT, double *SH2OIN, double *CMC,
-   double *RHSTT, double *RHSCT, double *DT, int *NSOIL, double *SMCMAX,
-   double *SMCMIN, double *CMCMAX, double *RUNOFF3, double *ZSOIL,
-   double *SMC, double *SICE, double *AI, double *BI, double *CI);
+void            SSTEP (double *SH2OOUT, double *SH2OIN, double *CMC, double *RHSTT, double *RHSCT, double *DT, int *NSOIL, double *SMCMAX, double *SMCMIN, double *CMCMAX, double *RUNOFF3, double *ZSOIL, double *SMC, double *SICE, double *AI, double *BI, double *CI);
 #else
-void            SSTEP (double *SH2OOUT, double *SH2OIN, double *CMC,
-   double *RHSTT, double *RHSCT, double *DT, int *NSOIL, double *SMCMAX,
-   double *CMCMAX, double *RUNOFF3, double *ZSOIL, double *SMC, double *SICE,
-   double *AI, double *BI, double *CI);
+void            SSTEP (double *SH2OOUT, double *SH2OIN, double *CMC, double *RHSTT, double *RHSCT, double *DT, int *NSOIL, double *SMCMAX, double *CMCMAX, double *RUNOFF3, double *ZSOIL, double *SMC, double *SICE, double *AI, double *BI, double *CI);
 #endif
 
-void            TBND (double *TU, double *TB, double *ZSOIL, double *ZBOT,
-   int K, int *NSOIL, double *TBND1);
+void            TBND (double *TU, double *TB, double *ZSOIL, double *ZBOT, int K, int *NSOIL, double *TBND1);
 
 #ifdef _FLUX_PIHM_
-void            TDFCND (double *DF, double *SMC, double *QZ, double *SMCMAX,
-   double *SMCMIN, double *SH2O);
+void            TDFCND (double *DF, double *SMC, double *QZ, double *SMCMAX, double *SMCMIN, double *SH2O);
 #else
-void            TDFCND (double *DF, double *SMC, double *QZ, double *SMCMAX,
-   double *SH2O);
+void            TDFCND (double *DF, double *SMC, double *QZ, double *SMCMAX, double *SH2O);
 #endif
 
-void            TMPAVG (double *TAVG, double *TUP, double *TM, double *TDN,
-   double *ZSOIL, int *NSOIL, int K);
+void            TMPAVG (double *TAVG, double *TUP, double *TM, double *TDN, double *ZSOIL, int *NSOIL, int K);
 
-void            TRANSP (double *ET, int *NSOIL, double *ETP1, double *SMC,
-   double *CMC, double *ZSOIL, double *SHDFAC, double *SMCWLT, double *CMCMAX,
-   double *PC, double *CFACTR, double *SMCREF, double *SFCTMP, double *Q2,
-   int *NROOT, double *RTDIS);
+void            TRANSP (double *ET, int *NSOIL, double *ETP1, double *SMC, double *CMC, double *ZSOIL, double *SHDFAC, double *SMCWLT, double *CMCMAX, double *PC, double *CFACTR, double *SMCREF, double *SFCTMP, double *Q2, int *NROOT, double *RTDIS);
 
 #ifdef _FLUX_PIHM_
-void            WDFCND (double *WDF, double *WCND, double *SMC,
-   double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA,
-   double *DKSAT, double *MACKSAT, double *AREAF, double *SICEMAX,
-   double *DSMDZ, int *MACPORE);
+void            WDFCND (double *WDF, double *WCND, double *SMC, double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA, double *DKSAT, double *MACKSAT, double *AREAF, double *SICEMAX, double *DSMDZ, int *MACPORE);
 #else
-void            WDFCND (double *WDF, double *WCND, double *SMC,
-   double *SMCMAX, double *BEXP, double *DKSAT, double *DWSAT,
-   double *SICEMAX);
+void            WDFCND (double *WDF, double *WCND, double *SMC, double *SMCMAX, double *BEXP, double *DKSAT, double *DWSAT, double *SICEMAX);
 #endif
 
-void            SFCDIF_off (double *ZLM, double *ZLM_WIND, double *Z0,
-   double *THZ0, double *THLM, double *SFCSPD, double *CZIL, double *AKMS,
-   double *AKHS, int *VEGTYP, int *ISURBAN, int *IZ0TLND);
+void            SFCDIF_off (double *ZLM, double *ZLM_WIND, double *Z0, double *THZ0, double *THLM, double *SFCSPD, double *CZIL, double *AKMS, double *AKHS, int *VEGTYP, int *ISURBAN, int *IZ0TLND);
 
 #ifdef _FLUX_PIHM_
 double          EFFKV (double KSATFUNC, double GRADY, double MACKV, double KV,
@@ -673,4 +522,19 @@ double          PSPMU (double XX);
 double          PSPMS (double YY);
 double          PSPHU (double XX);
 double          PSPHS (double YY);
+
+void            LSM_initialize (char *, Model_Data, Control_Data *, LSM_STRUCT);
+void            LSM_read (char *, LSM_STRUCT);
+void            LSM_initialize_output (char *, Model_Data, LSM_STRUCT,
+   char *);
+void            LSM_PrintInit (Model_Data, LSM_STRUCT, char *);
+void            LSM_FreeData (Model_Data, LSM_STRUCT);
+
+void            PIHM2Noah (realtype, realtype, Model_Data, LSM_STRUCT);
+void            Noah2PIHM (Model_Data, LSM_STRUCT);
+
+int             FindLayer (LSM_STRUCT, double);
+double          mod (double, double);
+
+double topo_radiation (double Sdir, double Sdif, double zenith, double azimuth180, double slope, double aspect, double *h_phi, double svf);
 #endif

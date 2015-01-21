@@ -43,7 +43,8 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
 {
     FILE           *Ofile;
     char           *ofn, str[3];
-    int             i, j, ensemble_mode, icounter;
+    int             i, j, icounter;
+    int             ensemble_mode;
 
     if (strstr (filename, ".") != 0)
         ensemble_mode = 1;
@@ -51,7 +52,7 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
         ensemble_mode = 0;
 
     if (ensemble_mode == 0)
-        printf ("\nInitializing output files ...\t\t");
+        printf ("\nInitializing output files\n");
 
     icounter = 0;
     if (CS->PrintGW > 0)
@@ -174,7 +175,6 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
         fclose (Ofile);
         CS->PCtrl[i].buffer = (realtype *) calloc (CS->PCtrl[i].NumVar, sizeof (realtype));
     }
-    printf ("done.\n");
 }
 
 void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y)
@@ -191,8 +191,9 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
         ensemble_mode = 1;
     else
         ensemble_mode = 0;
+
     if (ensemble_mode == 0)
-        printf ("\nInitializing data structure ...\t\t");
+        printf ("\n\nInitializing data structure\n");
 
     /*
      * allocate memory storage to flux terms 
@@ -327,7 +328,7 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
 
         DS->Ele[i].VegFrac = CS->Cal.VegFrac * DS->LandC[DS->Ele[i].LC - 1].VegFrac;
         DS->Ele[i].Rough = CS->Cal.Rough * DS->LandC[DS->Ele[i].LC - 1].Rough;
-        DS->Ele[i].windH = DS->windH[DS->Ele[i].WindVel - 1];
+        DS->Ele[i].windH = DS->windH[DS->Ele[i].meteo - 1];
     }
 
     for (i = 0; i < DS->NumRiv; i++)
@@ -366,15 +367,13 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
         DS->Ele[i + DS->NumEle].Porosity = 0.5 * (DS->Ele[DS->Riv[i].LeftEle - 1].Porosity + DS->Ele[DS->Riv[i].RightEle - 1].Porosity);
     }
 
-    for (i = 0; i < DS->NumTS[PRCP_TS]; i++)
+    for (i = 0; i < DS->NumTS; i++)
     {
-        for (j = 0; j < DS->Forcing[PRCP_TS][i].length; j++)
-            DS->Forcing[PRCP_TS][i].TS[j][1] = CS->Cal.Prep * DS->Forcing[PRCP_TS][i].TS[j][1];
-    }
-    for (i = 0; i < DS->NumTS[SFCTMP_TS]; i++)
-    {
-        for (j = 0; j < DS->Forcing[SFCTMP_TS][i].length; j++)
-            DS->Forcing[SFCTMP_TS][i].TS[j][1] = CS->Cal.Temp * DS->Forcing[SFCTMP_TS][i].TS[j][1];
+        for (j = 0; j < DS->TSD_meteo[i].length; j++)
+        {
+            DS->TSD_meteo[i].TS[j][PRCP_TS + 1] = CS->Cal.Prep * DS->TSD_meteo[i].TS[j][PRCP_TS + 1];
+            DS->TSD_meteo[i].TS[j][SFCTMP_TS + 1] = CS->Cal.Temp * DS->TSD_meteo[i].TS[j][SFCTMP_TS + 1];
+        }
     }
 
     if (CS->Debug == 1)
@@ -634,6 +633,4 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
         }
         fclose (init_file);
     }
-    if (ensemble_mode == 0)
-        printf ("done.\n");
 }

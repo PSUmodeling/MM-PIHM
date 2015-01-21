@@ -92,8 +92,8 @@ void PrintInit (Model_Data DS, char *filename)
     FILE           *init_file;
     char           *init_name;
     int             i;
-    init_name = (char *)malloc ((strlen (filename) + 12) * sizeof (char));
-    sprintf (init_name, "input/%s.init", filename);
+    init_name = (char *)malloc ((2 * strlen (filename) + 13) * sizeof (char));
+    sprintf (init_name, "input/%s/%s.init", filename);
     init_file = fopen (init_name, "w");
     free (init_name);
 

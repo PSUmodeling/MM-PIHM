@@ -12,7 +12,7 @@
 
 #include "../pihm.h"
 #include "noah.h"
-#include "flux_pihm.h"
+//#include "flux_pihm.h"
 #include "../spa/spa.h"
 
 void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
@@ -23,7 +23,7 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
     double          E;
     double          SVP, SVP1 = 611.2, SVP2 = 17.67, SVP3 = 29.65, SVPT0 = 273.15;
     double          T1V, TH2V, T2V, RHO, ES, RH;
-    double          ZSOIL[LSM->STD_NSOIL + 1];
+//    double          ZSOIL[LSM->STD_NSOIL + 1];
     int             i, j, KZ;
     int             spa_result;
 
@@ -31,6 +31,7 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
     double          incidence, azimuth180;
     time_t         *rawtime;
     struct tm      *timestamp;
+    double          metarr[7];
 
     spa_data        spa;
     rawtime = (time_t *) malloc (sizeof (time_t));
@@ -79,40 +80,52 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
         /* Read time step */
         NOAH->DT = (double)stepsize;    /* DT: convert from d to s */
 
+        MultiInterpolation (&PIHM->TSD_meteo[PIHM->Ele[i].meteo - 1], t, &metarr[0], 7);
         /* Read forcing */
-        NOAH->SFCSPD = Interpolation (&PIHM->Forcing[SFCSPD_TS][PIHM->Ele[i].WindVel - 1], t); /// 24. / 3600.;    /* SFCSPD: convert from m day-1 to m s-1 */
-        NOAH->SFCTMP = Interpolation (&PIHM->Forcing[SFCTMP_TS][PIHM->Ele[i].temp - 1], t);// + 273.15;    /* SFCTMP: convert from degree C to Kalvain */
-        RH = Interpolation (&PIHM->Forcing[RH_TS][PIHM->Ele[i].humidity - 1], t);// * 100.;    /* RH: convert from 100% to % */
-        NOAH->SFCPRS = Interpolation (&PIHM->Forcing[PRES_TS][PIHM->Ele[i].pressure - 1], t) / 100.;  /* SFCPRS: convert from Pa to hPa */
-        NOAH->LONGWAVE = Interpolation (&PIHM->Forcing[LONGWAVE_TS][PIHM->Ele[i].Ldown - 1], t);// / 24. / 3600.;    /* LONGWAVE: convert from J day-1 m-2 to W m-2 */
-        NOAH->PRCP = Interpolation (&PIHM->Forcing[PRCP_TS][PIHM->Ele[i].prep - 1], t);// * 1000. / 24. / 3600.; /* PRCP: convert from m day-1 to kg m-2 s-1 */
+//        NOAH->SFCSPD = Interpolation (&PIHM->Forcing[SFCSPD_TS][PIHM->Ele[i].WindVel - 1], t); /// 24. / 3600.;    /* SFCSPD: convert from m day-1 to m s-1 */
+//        NOAH->SFCTMP = Interpolation (&PIHM->Forcing[SFCTMP_TS][PIHM->Ele[i].temp - 1], t);// + 273.15;    /* SFCTMP: convert from degree C to Kalvain */
+//        RH = Interpolation (&PIHM->Forcing[RH_TS][PIHM->Ele[i].humidity - 1], t);// * 100.;    /* RH: convert from 100% to % */
+//        NOAH->SFCPRS = Interpolation (&PIHM->Forcing[PRES_TS][PIHM->Ele[i].pressure - 1], t) / 100.;  /* SFCPRS: convert from Pa to hPa */
+//        NOAH->LONGWAVE = Interpolation (&PIHM->Forcing[LONGWAVE_TS][PIHM->Ele[i].Ldown - 1], t);// / 24. / 3600.;    /* LONGWAVE: convert from J day-1 m-2 to W m-2 */
+//        NOAH->PRCP = Interpolation (&PIHM->Forcing[PRCP_TS][PIHM->Ele[i].prep - 1], t);// * 1000. / 24. / 3600.; /* PRCP: convert from m day-1 to kg m-2 s-1 */
+        NOAH->SFCSPD = metarr[SFCSPD_TS];
+        NOAH->SFCTMP = metarr[SFCTMP_TS];
+        RH = metarr[RH_TS];
+        NOAH->SFCPRS = metarr[PRES_TS] / 100.;
+        NOAH->LONGWAVE = metarr[LONGWAVE_TS];
+        NOAH->PRCP = metarr[PRCP_TS];
 
         /* Calculate solar radiation */
         if (LSM->RAD_MODE > 0)
         {
-            Sdir = (double)Interpolation (&LSM->Forcing[SOLAR_DIR_TS][PIHM->Ele[i].Sdown - 1], t);
-            Sdif = (double)Interpolation (&LSM->Forcing[SOLAR_DIF_TS][PIHM->Ele[i].Sdown - 1], t);
+//            Sdir = (double)Interpolation (&LSM->Forcing[SOLAR_DIR_TS][PIHM->Ele[i].Sdown - 1], t);
+//            Sdif = (double)Interpolation (&LSM->Forcing[SOLAR_DIF_TS][PIHM->Ele[i].Sdown - 1], t);
+            MultiInterpolation (&LSM->TSD_rad[PIHM->Ele[i].meteo - 1], t, &metarr[0], 2);
+            Sdir = metarr[SOLAR_DIR_TS];
+            Sdif = metarr[SOLAR_DIF_TS];
 
-            if (spa.zenith > NOAH->H_PHI[(int)floor (spa.azimuth180 / 10.)])
-                Sdir = 0.;
-            incidence = 180. / PI * acos (cos (spa.zenith * PI / 180.) * cos (NOAH->SLOPE * PI / 180.) + sin (spa.zenith * PI / 180.) * sin (NOAH->SLOPE * PI / 180.) * cos ((spa.azimuth180 - NOAH->ASPECT) * PI / 180.));
-            incidence = incidence > 90. ? 90. : incidence;
-            gvf = (1. + cos (NOAH->SLOPE * PI / 180.)) / 2. - NOAH->SVF;
-            gvf = gvf < 0. ? 0. : gvf;
-            Soldown = Sdir * cos (incidence * PI / 180.) + NOAH->SVF * Sdif + 0.2 * gvf * (Sdir * cos (spa.zenith * PI / 180.) + Sdif);
+            Soldown = topo_radiation (Sdir, Sdif, spa.zenith, spa.azimuth180, NOAH->SLOPE, NOAH->ASPECT, NOAH->H_PHI, NOAH->SVF);
+//            if (spa.zenith > NOAH->H_PHI[(int)floor (spa.azimuth180 / 10.)])
+//                Sdir = 0.;
+//            incidence = 180. / PI * acos (cos (spa.zenith * PI / 180.) * cos (NOAH->SLOPE * PI / 180.) + sin (spa.zenith * PI / 180.) * sin (NOAH->SLOPE * PI / 180.) * cos ((spa.azimuth180 - NOAH->ASPECT) * PI / 180.));
+//            incidence = incidence > 90. ? 90. : incidence;
+//            gvf = (1. + cos (NOAH->SLOPE * PI / 180.)) / 2. - NOAH->SVF;
+//            gvf = gvf < 0. ? 0. : gvf;
+//            Soldown = Sdir * cos (incidence * PI / 180.) + NOAH->SVF * Sdif + 0.2 * gvf * (Sdir * cos (spa.zenith * PI / 180.) + Sdif);
         }
         else
         {
-            if (PIHM->NumTS[11] > 0 && PIHM->NumTS[12] > 0)
-            {
-                Sdir = (double)Interpolation (&PIHM->Forcing[11][PIHM->Ele[i].Sdown - 1], t);
-                Sdif = (double)Interpolation (&PIHM->Forcing[12][PIHM->Ele[i].Sdown - 1], t);
-                Soldown = Sdir * cos (spa.zenith * PI / 180.);
-                Soldown = Soldown < 0. ? 0. : Soldown;
-                Soldown = Soldown + Sdif;
-            }
-            else
-                Soldown = Interpolation (&PIHM->Forcing[SOLAR_TS][PIHM->Ele[i].Sdown - 1], t);
+//            if (LSM->NumTS[SOLAR_DIR_TS] > 0 && LSM->NumTS[SOLAR_DIF_TS] > 0)
+//            {
+//                Sdir = (double)Interpolation (&LSM->Forcing[SOLAR_DIR_TS][PIHM->Ele[i].Sdown - 1], t);
+//                Sdif = (double)Interpolation (&LSM->Forcing[SOLAR_DIF_TS][PIHM->Ele[i].Sdown - 1], t);
+//                Soldown = Sdir * cos (spa.zenith * PI / 180.);
+//                Soldown = Soldown < 0. ? 0. : Soldown;
+//                Soldown = Soldown + Sdif;
+//            }
+//            else
+//                Soldown = Interpolation (&PIHM->Forcing[SOLAR_TS][PIHM->Ele[i].Sdown - 1], t);
+                Soldown = metarr[SOLAR_TS];
         }
         NOAH->SOLDN = Soldown;// / 24. / 3600.;    /* SOLDN: convert from J day-1 m-2 to W m-2 */
 
@@ -159,7 +172,13 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
 
         NOAH->SHDFAC = PIHM->LandC[PIHM->Ele[i].LC - 1].VegFrac;
 
-        NOAH->XLAI = Interpolation (&PIHM->Forcing[LAI_TS][PIHM->Ele[i].LC - 1], t);
+        if (PIHM->Ele[i].LAI > 0)
+        {
+            NOAH->XLAI = Interpolation(&PIHM->TSD_lai[PIHM->Ele[i].LAI - 1], t);
+        }
+        else
+            NOAH->XLAI = monthly_lai (t, PIHM->Ele[i].LC);
+        //NOAH->XLAI = Interpolation (&PIHM->[LAI_TS][PIHM->Ele[i].LC - 1], t);
 
         if (NOAH->Q1 == BADVAL)
             NOAH->Q1 = NOAH->Q2;
@@ -170,9 +189,9 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
         NOAH->SOLNET = NOAH->SOLDN * (1.0 - NOAH->ALBEDO);
         NOAH->LWDN = NOAH->LONGWAVE * NOAH->EMISSI;
 
-        ZSOIL[0] = -NOAH->SLDPTH[0];
-        for (KZ = 1; KZ < NOAH->NSOIL; KZ++)
-            ZSOIL[KZ] = -NOAH->SLDPTH[KZ] + ZSOIL[KZ - 1];
+//        ZSOIL[0] = -NOAH->SLDPTH[0];
+//        for (KZ = 1; KZ < NOAH->NSOIL; KZ++)
+//            ZSOIL[KZ] = -NOAH->SLDPTH[KZ] + ZSOIL[KZ - 1];
 
         NOAH->RUNOFF2 = 0;
         for (j = 0; j < 3; j++)
@@ -182,7 +201,7 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
         if (NOAH->NWTBL > NOAH->NSOIL)
             NOAH->NWTBL = NOAH->NSOIL;
 
-        REDPRM (NOAH, LSM, ZSOIL);
+//        REDPRM (NOAH, LSM, ZSOIL);
 #ifdef _DEBUG_
         if (i == 0)
         {

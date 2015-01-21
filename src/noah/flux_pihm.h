@@ -17,4 +17,6 @@ void            Noah2PIHM (Model_Data, LSM_STRUCT);
 
 int             FindLayer (LSM_STRUCT, double);
 double          mod (double, double);
+
+double topo_radiation (double Sdir, double Sdif, double zenith, double azimuth180, double slope, double aspect, double *h_phi, double svf);
 #endif
