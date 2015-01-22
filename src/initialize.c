@@ -51,7 +51,7 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
     else
         ensemble_mode = 0;
 
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("\nInitializing output files\n");
 
     icounter = 0;
@@ -192,7 +192,7 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
     else
         ensemble_mode = 0;
 
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("\n\nInitializing data structure\n");
 
     /*

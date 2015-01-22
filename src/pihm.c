@@ -56,7 +56,8 @@ int main (int argc, char *argv[])
     realtype        NextPtr, StepSize;  /* stress period & step size */
     realtype        cvode_val;
     long int        cvode_int;
-    char            filename[20], *outputdir, str[11];
+    char            project[20];
+    char            *filename, *outputdir, str[11];
     char            system_cmd[1024];
     int             overwrite_mode = 0;
     int             c;
@@ -72,16 +73,35 @@ int main (int argc, char *argv[])
 
     system ("clear");
 
+    printf ("\t\t########  #### ##     ## ##     ##\n");
+    printf ("\t\t##     ##  ##  ##     ## ###   ###\n"); 
+    printf ("\t\t##     ##  ##  ##     ## #### ####\n");
+    printf ("\t\t########   ##  ######### ## ### ##\n");
+    printf ("\t\t##         ##  ##     ## ##     ##\n");
+    printf ("\t\t##         ##  ##     ## ##     ##\n"); 
+    printf ("\t\t##        #### ##     ## ##     ##\n");
+    printf ("\n\t    The Penn State Integrated Hydrologic Model\n");
+
+#ifdef _FLUX_PIHM_
+    printf ("\n\t    * Land surface module turned on.\n");
+#endif
+#ifdef _BGC_
+    printf ("\n\t    * Biogeochemistry module turned on.\n");
+#endif
+
     rawtime = (time_t *) malloc (sizeof (time_t));
 
     if (0 == (mkdir ("output", 0755)))
         printf (" Output directory was created.\n\n");
 
-    while((c = getopt(argc, argv, "o")) != -1)
+    cData.Verbose = 0;
+    cData.Debug = 0;
+
+    while((c = getopt(argc, argv, "odv")) != -1)
     {
         if (optind >= argc)
         {
-            printf ("Usage: ./pihm [-o -d -v] <project name>\n");
+            printf ("\nUsage: ./pihm [-o -d -v] <project name>\n");
             printf ("\t-o Output will be written in the \"output\" directory and overwrite existing output.\n");
             printf ("\t-v Verbose mode\n");
             printf ("\t-d Debug mode\n");
@@ -91,6 +111,15 @@ int main (int argc, char *argv[])
         {
             case 'o':
                 overwrite_mode = 1;
+                printf ("Overwrite mode turned on. Output directory is \"./output\".\n");
+                break;
+            case 'd':
+                cData.Debug = 1;
+                printf ("Debug mode turned on.\n");
+                break;
+            case 'v':
+                cData.Verbose = 1;
+                printf ("Verbose mode turned on.\n");
                 break;
             case '?':
                 printf ("Option not recognisable %s\n", argv[optind]);
@@ -102,7 +131,7 @@ int main (int argc, char *argv[])
 
     if (optind >= argc)
     {
-        printf ("You must specify the name of project! %s\n", filename);
+        printf ("\nERROR:You must specify the name of project!\n");
         printf ("Usage: ./pihm [-o -d -v] <project name>\n");
         printf ("\t-o Output will be written in the \"output\" directory and overwrite existing output.\n");
         printf ("\t-v Verbose mode\n");
@@ -110,7 +139,10 @@ int main (int argc, char *argv[])
         exit (1);
     }
     else
-        strcpy (filename, argv[optind]);
+        strcpy (project, argv[optind]);
+
+    filename = (char *) malloc ((strlen (project) + 1) * sizeof (char));
+    strcpy (filename, project);
 
     /* Project input name */
     //if (argc != 2)
@@ -140,22 +172,6 @@ int main (int argc, char *argv[])
 
     time (rawtime);
     timestamp = localtime (rawtime);
-
-    printf ("\t\t########  #### ##     ## ##     ##\n");
-    printf ("\t\t##     ##  ##  ##     ## ###   ###\n"); 
-    printf ("\t\t##     ##  ##  ##     ## #### ####\n");
-    printf ("\t\t########   ##  ######### ## ### ##\n");
-    printf ("\t\t##         ##  ##     ## ##     ##\n");
-    printf ("\t\t##         ##  ##     ## ##     ##\n"); 
-    printf ("\t\t##        #### ##     ## ##     ##\n");
-    printf ("\n\t    The Penn State Integrated Hydrologic Model\n");
-
-#ifdef _FLUX_PIHM_
-    printf ("\n\t    * Land surface module turned on.\n");
-#endif
-#ifdef _BGC_
-    printf ("\n\t    * Biogeochemistry module turned on.\n");
-#endif
 
 
     outputdir = (char *)malloc (8 * sizeof (char));
@@ -231,7 +247,8 @@ int main (int argc, char *argv[])
     else
     {
 #endif
-    printf ("\n\nSolving ODE system ... \n\n");
+    if (cData.Verbose == 1)
+        printf ("\n\nSolving ODE system ... \n\n");
 
     /* allocate memory for solver */
     cvode_mem = CVodeCreate (CV_BDF, CV_NEWTON);
@@ -288,8 +305,12 @@ int main (int argc, char *argv[])
 #endif
             *rawtime = (int)t;
             timestamp = gmtime (rawtime);
-            if ((int)*rawtime % 3600 == 0)
+
+            if (cData.Verbose)
                 printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+            else if ((int)*rawtime % 3600 == 0)
+                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+
             summary (mData, CV_Y, t - StepSize, StepSize);
             update (t, mData);
         }
@@ -321,6 +342,7 @@ int main (int argc, char *argv[])
 
     free (outputdir);
     free (rawtime);
+    free (filename);
     FreeData (mData, &cData);
 #ifdef _FLUX_PIHM_
     LSM_FreeData (mData, LSM);

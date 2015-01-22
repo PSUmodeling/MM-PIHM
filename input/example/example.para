@@ -1,5 +1,5 @@
-VERBOSE		    0                   # Verbose mode, 0: off, 1: on
-DEBUG		    0                   # Debug mode, 0: off, 1: on
+#VERBOSE		    0                   # Verbose mode, 0: off, 1: on
+#DEBUG		    0                   # Debug mode, 0: off, 1: on
 INIT_MODE	    3                   # Initialization type 0: Relaxation, 1: use .att file, 3: use .init file
 ASCII_OUTPUT        1                   # Write ASCII output? 0: no, 1: yes
 SPINUP_MODE	    0                   # Spin-up mode, 0: Standard model run, 1: Outputs will be written to .init files

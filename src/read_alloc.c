@@ -76,13 +76,13 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     }
     free (tempname);
 
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("\nStart reading in input files:\n");
 
     /*
      * .riv file
      */
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("  Reading %s.%s\n", projectname, "riv");
     fn[0] = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
     sprintf (fn[0], "input/%s/%s.riv", projectname, projectname);
@@ -169,7 +169,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     /* 
      * .mesh file
      */
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("  Reading %s.%s\n", projectname, "mesh");
     fn[1] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
     sprintf (fn[1], "input/%s/%s.mesh", projectname, projectname);
@@ -212,7 +212,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     /*
      *.att file
      */
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("  Reading %s.%s\n", projectname, "att");
     fn[2] = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
     sprintf (fn[2], "input/%s/%s.att", projectname, projectname);
@@ -252,7 +252,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     fclose (att_file);
 
     /*========== open *.soil file ==========*/
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("  Reading %s.%s\n", projectname, "soil");
     fn[3] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
     sprintf (fn[3], "input/%s/%s.soil", projectname, projectname);
@@ -285,7 +285,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     fclose (soil_file);
 
     /*========== open *.geol file ==========*/
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("  Reading %s.%s\n", projectname, "geol");
     fn[4] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
     sprintf (fn[4], "input/%s/%s.geol", projectname, projectname);
@@ -316,7 +316,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     fclose (geol_file);
 
     /*========== open *.lc file ==========*/
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("  Reading vegprmt.tbl\n");
     //fn[5] = (char *)malloc ((strlen (projectname) + 10) * sizeof (char));
     //sprintf (fn[5], "input/%s.lc", projectname);
@@ -360,7 +360,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         DS->ISFactor[i] = 0.0002;
 
     /*========== open *.forc file ==========*/
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("  Reading %s.%s\n", projectname, "forc");
     fn[6] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
     sprintf (fn[6], "input/%s/%s.forc", projectname, projectname);
@@ -476,7 +476,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
 
     if (read_lai == 1)
     {
-        if (ensemble_mode == 0)
+        if (CS->Verbose)
             printf ("  Reading %s.%s\n", projectname, "lai");
         laifn = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
         sprintf (laifn, "input/%s/%s.lai", projectname, projectname);
@@ -566,7 +566,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     }
 
     /*========== open *.ibc file ==========*/
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("  Reading %s.%s\n", projectname, "ibc");
     fn[7] = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
     sprintf (fn[7], "input/%s/%s.ibc", projectname, projectname);
@@ -637,7 +637,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     fclose (ibc_file);
 
     /*========== open *.para file ==========*/
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("  Reading %s.%s\n", projectname, "para");
     fn[8] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
     sprintf (fn[8], "input/%s/%s.para", projectname, projectname);
@@ -658,8 +658,8 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     /*
      * Set default values for parameters 
      */
-    CS->Verbose = 0;
-    CS->Debug = 0;
+    //CS->Verbose = 0;
+    //CS->Debug = 0;
     CS->Ascii = 0;              /* YS */
     CS->Spinup = 0;             /* YS */
     CS->init_type = 0;
@@ -725,11 +725,11 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
             /*
              * Get Model Parameters 
              */
-            if (strcasecmp ("VERBOSE", optstr) == 0)
-                sscanf (cmdstr, "%*s %d", &CS->Verbose);
-            else if (strcasecmp ("DEBUG", optstr) == 0)
-                sscanf (cmdstr, "%*s %d", &CS->Debug);
-            else if (strcasecmp ("INIT_MODE", optstr) == 0)
+            //if (strcasecmp ("VERBOSE", optstr) == 0)
+            //    sscanf (cmdstr, "%*s %d", &CS->Verbose);
+            //else if (strcasecmp ("DEBUG", optstr) == 0)
+            //    sscanf (cmdstr, "%*s %d", &CS->Debug);
+            if (strcasecmp ("INIT_MODE", optstr) == 0)
                 sscanf (cmdstr, "%*s %d", &CS->init_type);
             else if (strcasecmp ("ASCII_OUTPUT", optstr) == 0)
                 sscanf (cmdstr, "%*s %d", &CS->Ascii);
@@ -909,7 +909,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         exit (1);
     }
 
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("  Reading calibration file\n");
 
     /*========= open *.calib file ==========*/

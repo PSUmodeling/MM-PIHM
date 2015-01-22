@@ -47,6 +47,8 @@
 #define BADVAL		-999
 #define MAXSTRING	1024
 
+extern char project[20];
+
 /* Enumrate type for forcing time series */
 enum forcing_type {PRCP_TS, SFCTMP_TS, RH_TS, SFCSPD_TS, SOLAR_TS, LONGWAVE_TS, PRES_TS, LAI_TS, RL_TS, MF_TS, SS_TS};
 
