@@ -28,7 +28,8 @@
  *	for multiprocess watershed simulation". Water Resources Research
  ****************************************************************************/
 
-
+#include <ctype.h>
+#include <unistd.h>
 #include "pihm.h"               /* Data Model and Variable Declarations */
 
 #ifdef _FLUX_PIHM_
@@ -55,8 +56,11 @@ int main (int argc, char *argv[])
     realtype        NextPtr, StepSize;  /* stress period & step size */
     realtype        cvode_val;
     long int        cvode_int;
-    char           *filename, *outputdir, str[11];
+    char            filename[20], *outputdir, str[11];
     char            system_cmd[1024];
+    int             overwrite_mode = 0;
+    int             c;
+//    extern int      optind;
 
 #ifdef _FLUX_PIHM_
     LSM_STRUCT      LSM;
@@ -73,31 +77,66 @@ int main (int argc, char *argv[])
     if (0 == (mkdir ("output", 0755)))
         printf (" Output directory was created.\n\n");
 
-    /* Project input name */
-    if (argc != 2)
+    while((c = getopt(argc, argv, "o")) != -1)
     {
-        iproj = fopen ("input/projectName.txt", "r");
-        if (iproj == NULL)
+        if (optind >= argc)
         {
-            printf ("\tUsage ./pihm project_name\n");
-            printf ("\t         OR              \n");
-            printf ("\tUsage ./pihm, and have a file in the current directory named projectName.txt with the project name in it\n");
-            fclose (iproj);
-            exit (0);
+            printf ("Usage: ./pihm [-o -d -v] <project name>\n");
+            printf ("\t-o Output will be written in the \"output\" directory and overwrite existing output.\n");
+            printf ("\t-v Verbose mode\n");
+            printf ("\t-d Debug mode\n");
+            exit (1);
         }
-        else
+        switch(c)
         {
-            filename = (char *)malloc (20 * sizeof (char));
-            fscanf (iproj, "%s", filename);
-            fclose (iproj);
+            case 'o':
+                overwrite_mode = 1;
+                break;
+            case '?':
+                printf ("Option not recognisable %s\n", argv[optind]);
+                break;
+            default:
+                break;
         }
+    }
+
+    if (optind >= argc)
+    {
+        printf ("You must specify the name of project! %s\n", filename);
+        printf ("Usage: ./pihm [-o -d -v] <project name>\n");
+        printf ("\t-o Output will be written in the \"output\" directory and overwrite existing output.\n");
+        printf ("\t-v Verbose mode\n");
+        printf ("\t-d Debug mode\n");
+        exit (1);
     }
     else
-    {
-        /* Get user specified file name in command line */
-        filename = (char *)malloc ((strlen (argv[1]) + 1)* sizeof (char));
-        strcpy (filename, argv[1]);
-    }
+        strcpy (filename, argv[optind]);
+
+    /* Project input name */
+    //if (argc != 2)
+    //{
+    //    iproj = fopen ("input/projectName.txt", "r");
+    //    if (iproj == NULL)
+    //    {
+    //        printf ("\tUsage ./pihm project_name\n");
+    //        printf ("\t         OR              \n");
+    //        printf ("\tUsage ./pihm, and have a file in the current directory named projectName.txt with the project name in it\n");
+    //        fclose (iproj);
+    //        exit (0);
+    //    }
+    //    else
+    //    {
+    //        filename = (char *)malloc (20 * sizeof (char));
+    //        fscanf (iproj, "%s", filename);
+    //        fclose (iproj);
+    //    }
+    //}
+    //else
+    //{
+    //    /* Get user specified file name in command line */
+    //    filename = (char *)malloc ((strlen (argv[1]) + 1)* sizeof (char));
+    //    strcpy (filename, argv[1]);
+    //}
 
     time (rawtime);
     timestamp = localtime (rawtime);
@@ -118,12 +157,19 @@ int main (int argc, char *argv[])
     printf ("\n\t    * Biogeochemistry module turned on.\n");
 #endif
 
-    /* Create output directory based on projectname and time */
-    sprintf (str, "%2.2d%2.2d%2.2d%2.2d%2.2d", timestamp->tm_year + 1900 - 2000, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-    outputdir = (char *)malloc ((strlen (filename) + 20) * sizeof (char));
-    sprintf (outputdir, "output/%s.%s/", filename, str);
-    printf ("\nOutput directory: %s\n", outputdir);
-    mkdir (outputdir, 0755);
+
+    outputdir = (char *)malloc (8 * sizeof (char));
+    if (overwrite_mode == 1)
+        strcpy (outputdir, "output/");
+    else
+    {
+        /* Create output directory based on projectname and time */
+        sprintf (str, "%2.2d%2.2d%2.2d%2.2d%2.2d", timestamp->tm_year + 1900 - 2000, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+        outputdir = (char *)malloc ((strlen (filename) + 20) * sizeof (char));
+        sprintf (outputdir, "output/%s.%s/", filename, str);
+        printf ("\nOutput directory: %s\n", outputdir);
+        mkdir (outputdir, 0755);
+    }
 
     /* Save input files into output directory */
     sprintf (system_cmd, "cp input/%s/%s.para %s/%s.para.bak", filename, filename, outputdir, filename);
@@ -274,7 +320,6 @@ int main (int argc, char *argv[])
     CVodeFree (&cvode_mem);
 
     free (outputdir);
-    free (filename);
     free (rawtime);
     FreeData (mData, &cData);
 #ifdef _FLUX_PIHM_

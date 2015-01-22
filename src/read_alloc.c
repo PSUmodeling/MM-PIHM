@@ -347,8 +347,9 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
         fscanf (lc_file, "%lf %lf", &(DS->LandC[i].Emiss_min), &(DS->LandC[i].Emiss_max));
         fscanf (lc_file, "%lf %lf", &(DS->LandC[i].Albedo_min), &(DS->LandC[i].Albedo_max));
         fscanf (lc_file, "%lf %lf", &(DS->LandC[i].z0_min), &(DS->LandC[i].z0_max));
-        fscanf (lc_file, "%lf", &(DS->LandC[i].Rough));
+        fscanf (lc_file, "%lf%*[^\n]", &(DS->LandC[i].Rough));
     }
+
     fscanf (lc_file, "%*s %lf", &(DS->Tref));
     fscanf (lc_file, "%*s %lf", &(DS->fx_canopy));
     fscanf (lc_file, "%*s %lf", &(DS->Rmax));
