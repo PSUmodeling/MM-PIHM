@@ -757,8 +757,8 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data * CS, LSM_STR
         /*
          * Hot start mode
          */
-        fn = (char *)malloc ((strlen (filename) + 15) * sizeof (char));
-        sprintf (fn, "input/%s.lsminit", filename);
+        fn = (char *)malloc ((2 * strlen (filename) + 16) * sizeof (char));
+        sprintf (fn, "input/%s/%s.lsminit", filename, filename);
         init_file = fopen (fn, "r");
         free (fn);
         if (init_file == NULL)

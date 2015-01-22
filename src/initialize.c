@@ -599,8 +599,8 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
     /* hot start mode */
     else
     {
-        fn = (char *)malloc ((strlen (filename) + 12) * sizeof (char));
-        sprintf (fn, "input/%s.init", filename);
+        fn = (char *)malloc ((2 * strlen (filename) + 13) * sizeof (char));
+        sprintf (fn, "input/%s/%s.init", filename, filename);
         init_file = fopen (fn, "r");
         free (fn);
 
