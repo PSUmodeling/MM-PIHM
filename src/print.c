@@ -43,7 +43,7 @@ void PrintData (Print_Ctrl PCtrl, realtype tmpt, realtype dt, int Ascii)
 
         if (Ascii)
         {
-            ascii_name = (char *)malloc (strlen (PCtrl.name) + 5 * sizeof (char));
+            ascii_name = (char *)malloc ((strlen (PCtrl.name) + 5) * sizeof (char));
             sprintf (ascii_name, "%s.txt", PCtrl.name);
             fpin = fopen (ascii_name, "a");
             if (NULL == fpin)
