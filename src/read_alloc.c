@@ -20,7 +20,7 @@
 
 #include "pihm.h"
 
-void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
+void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
 {
     int             i, j, k;
     int             ind;
@@ -968,6 +968,15 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
     CS->Cal.Rs_ref = 1.;
     CS->Cal.h_s = 1.;
 #endif
+#ifdef _RT_
+    CS->Cal.PCO2 = 1;
+    CS->Cal.Keq  = 1;
+    CS->Cal.Site_den = 1;
+    CS->Cal.SSA  = 1;
+    CS->Cal.Prep_conc = 1;
+#endif
+
+
     fgets (cmdstr, MAXSTRING, global_calib);
 
     while (!feof (global_calib))
@@ -1096,7 +1105,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data * CS)
      */
 }
 
-void FreeData (Model_Data DS, Control_Data * CS)
+void FreeData (Model_Data DS, Control_Data  CS)
 {
 
     /*

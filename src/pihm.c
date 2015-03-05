@@ -36,6 +36,10 @@
 #include "noah/noah.h"
 #endif
 
+#ifdef _RT_
+#include "rt/rt.h"
+#endif
+
 #ifdef _BGC_
 #include "bgc/bgc.h"
 #endif
@@ -67,6 +71,10 @@ int main (int argc, char *argv[])
     LSM_STRUCT      LSM;
 #endif
 
+#ifdef _RT_
+    Chem_Data       chData;
+#endif 
+
 #ifdef _BGC_
     bgc_struct      BGCM;
 #endif
@@ -85,6 +93,9 @@ int main (int argc, char *argv[])
 #ifdef _FLUX_PIHM_
     printf ("\n\t    * Land surface module turned on.\n");
 #endif
+#ifdef _RT_
+    printf ("\n\t    * Reactive transport land surface hydrological mode.\n");
+#endif
 #ifdef _BGC_
     printf ("\n\t    * Biogeochemistry module turned on.\n");
 #endif
@@ -94,8 +105,9 @@ int main (int argc, char *argv[])
     if (0 == (mkdir ("output", 0755)))
         printf (" Output directory was created.\n\n");
 
-    cData.Verbose = 0;
-    cData.Debug = 0;
+    cData = (Control_Data) malloc (sizeof *cData);
+    cData->Verbose = 0;
+    cData->Debug = 0;
 
     while((c = getopt(argc, argv, "odv")) != -1)
     {
@@ -114,11 +126,11 @@ int main (int argc, char *argv[])
                 printf ("Overwrite mode turned on. Output directory is \"./output\".\n");
                 break;
             case 'd':
-                cData.Debug = 1;
+                cData->Debug = 1;
                 printf ("Debug mode turned on.\n");
                 break;
             case 'v':
-                cData.Verbose = 1;
+                cData->Verbose = 1;
                 printf ("Verbose mode turned on.\n");
                 break;
             case '?':
@@ -200,11 +212,13 @@ int main (int argc, char *argv[])
 #ifdef _FLUX_PIHM_
     LSM = (LSM_STRUCT) malloc (sizeof *LSM);
 #endif
+#ifdef _RT_
+    chData = (Chem_Data) malloc (sizeof * chData);
+#endif
 #ifdef _BGC_
     BGCM = (bgc_struct) malloc (sizeof *BGCM);
 #endif
-
-    read_alloc (filename, mData, &cData);
+    read_alloc (filename, mData, cData);
 #ifdef _FLUX_PIHM_
     LSM_read (filename, LSM);
 #endif
@@ -225,16 +239,21 @@ int main (int argc, char *argv[])
     CV_Y = N_VNew_Serial (N);
 
     /* initialize mode data structure */
-    initialize (filename, mData, &cData, CV_Y);
+    initialize (filename, mData, cData, CV_Y);
 #ifdef _FLUX_PIHM_
-    LSM_initialize (filename, mData, &cData, LSM);
+    LSM_initialize (filename, mData, cData, LSM);
+#endif
+#ifdef _RT_
+    chem_alloc(filename, mData, cData, chData, cData->StartTime/60);
+    /* Prepare chem output files */
+    InitialChemFile(filename, chData->NumBTC, chData->BTC_loc);
 #endif
 #ifdef _BGC_
     BGC_init (filename, mData, LSM, BGCM);
 #endif
 
     /* initialize output files and structures */
-    initialize_output (filename, mData, &cData, outputdir);
+    initialize_output (filename, mData, cData, outputdir);
 #ifdef _FLUX_PIHM_
     LSM_initialize_output (filename, mData, LSM, outputdir);
 #endif
@@ -247,7 +266,7 @@ int main (int argc, char *argv[])
     else
     {
 #endif
-    if (cData.Verbose == 1)
+    if (cData->Verbose == 1)
         printf ("\n\nSolving ODE system ... \n\n");
 
     /* allocate memory for solver */
@@ -259,39 +278,39 @@ int main (int argc, char *argv[])
     }
 
     flag = CVodeSetFdata (cvode_mem, mData);
-    flag = CVodeSetInitStep (cvode_mem, cData.InitStep);
+    flag = CVodeSetInitStep (cvode_mem, cData->InitStep);
     flag = CVodeSetStabLimDet (cvode_mem, TRUE);
-    flag = CVodeSetMaxStep (cvode_mem, cData.MaxStep);
-    flag = CVodeMalloc (cvode_mem, f, cData.StartTime, CV_Y, CV_SS, cData.reltol, &cData.abstol);
+    flag = CVodeSetMaxStep (cvode_mem, cData->MaxStep);
+    flag = CVodeMalloc (cvode_mem, f, cData->StartTime, CV_Y, CV_SS, cData->reltol, &cData->abstol);
     flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
     //  flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
 
     /* set start time */
-    t = cData.StartTime;
+    t = cData->StartTime;
 
     /* start solver in loops */
-    for (i = 0; i < cData.NumSteps; i++)
+    for (i = 0; i < cData->NumSteps; i++)
     {
         /* inner loops to next output points with ET step size control */
-        while (t < cData.Tout[i + 1])
+        while (t < cData->Tout[i + 1])
         {
-            if (t + cData.ETStep >= cData.Tout[i + 1])
-                NextPtr = cData.Tout[i + 1];
+            if (t + cData->ETStep >= cData->Tout[i + 1])
+                NextPtr = cData->Tout[i + 1];
             else
-                NextPtr = t + cData.ETStep;
+                NextPtr = t + cData->ETStep;
             StepSize = NextPtr - t;
 
             mData->dt = StepSize;
 
-            if ((int)t % (int)cData.ETStep == 0)
+            if ((int)t % (int)cData->ETStep == 0)
             {
 #ifdef _FLUX_PIHM_
                 /* calculate surface energy balance */
-                PIHM2Noah (t, cData.ETStep, mData, LSM);
+                PIHM2Noah (t, cData->ETStep, mData, LSM);
                 Noah2PIHM (mData, LSM);
 #else
                 /* calculate Interception Storage and ET */
-                is_sm_et (t, cData.ETStep, mData, CV_Y);
+                is_sm_et (t, cData->ETStep, mData, CV_Y);
 #endif
             }
 
@@ -306,26 +325,33 @@ int main (int argc, char *argv[])
             *rawtime = (int)t;
             timestamp = gmtime (rawtime);
 
-            if (cData.Verbose)
+            if (cData->Verbose)
                 printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
             else if ((int)*rawtime % 3600 == 0)
                 printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
 
             summary (mData, CV_Y, t - StepSize, StepSize);
+#ifdef _RT_
+	    fluxtrans(t/60, StepSize/60, mData, chData, CV_Y); /* pihm_rt control file */
+#endif
             update (t, mData);
         }
 #ifdef _BGC_
         }
 #endif
         /* Print outputs */
-        for (j = 0; j < cData.NumPrint; j++)
-            PrintData (cData.PCtrl[j], t, StepSize, cData.Ascii);
+        for (j = 0; j < cData->NumPrint; j++)
+            PrintData (cData->PCtrl[j], t, StepSize, cData->Ascii);
 #ifdef _FLUX_PIHM_
         for (j = 0; j < LSM->NPRINT; j++)
-            PrintData (LSM->PCtrl[j], t, StepSize, cData.Ascii);
+            PrintData (LSM->PCtrl[j], t, StepSize, cData->Ascii);
 #endif
+#ifdef _RT_
+	PrintChem(filename, chData,t/60);  /* pihm_rt output routine */
+#endif
+
     }
-    if (cData.Spinup)
+    if (cData->Spinup)
     {
         PrintInit (mData, filename);
 #ifdef _FLUX_PIHM_
