@@ -1,0 +1,43 @@
+# Object files
+*.o
+*/*.o
+*/*/*.o
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# PIHM executables
+pihm
+pihm-bgc
+flux-pihm
+
+# PBS scripts
+run-*
+
+# Output and logs
+output/
+*.log
