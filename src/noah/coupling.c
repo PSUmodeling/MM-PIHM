@@ -242,7 +242,9 @@ void Noah2PIHM (Model_Data PIHM, LSM_STRUCT LSM)
     for (i = 0; i < PIHM->NumEle; i++)
     {
         NOAH = &(LSM->GRID[i]);
+#ifdef _RT_
 	PIHM->Ele[i].temp   = (realtype) NOAH->STC[2];
+#endif
         PIHM->EleNetPrep[i] = (realtype) NOAH->PCPDRP;// * 1000.;// * 24. * 3600.;  /* EleNetPrep: convert from m s-1 to m day-1 */
         /*
          * EleET: convert from W m-2 to m s-1 

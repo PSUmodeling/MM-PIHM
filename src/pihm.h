@@ -106,7 +106,9 @@ typedef struct element_type
     realtype        Rough;      /* surface roughness of an element */
 
     realtype        windH;      /* wind measurement height */
+#ifdef _RT_
     realtype        temp;       /* temperature   */
+#endif
     int             soil;       /* soil type */
     int             geol;       /* geology type */
     int             LC;         /* Land Cover type  */
@@ -423,7 +425,9 @@ typedef struct model_data_structure
     realtype      **FluxSurf;   /* Overland Flux */
     realtype      **FluxSub;    /* Subsurface Flux */
     realtype      **FluxRiv;    /* River Segement Flux */
+#ifdef _RT_
     realtype      **AreaSub;    /* Area of contact between saturated cells */
+#endif
  
     realtype       *ElePrep;    /* Precep. on each element */
     realtype       *EleNetPrep; /* Net precep. on each elment */

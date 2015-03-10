@@ -205,7 +205,9 @@ void initialize (char *filename, Model_Data DS, Control_Data  CS, N_Vector CV_Y)
      */
     DS->FluxSurf = (realtype **) malloc (DS->NumEle * sizeof (realtype *));
     DS->FluxSub = (realtype **) malloc (DS->NumEle * sizeof (realtype *));
+#ifdef _RT_
     DS->AreaSub = (realtype **) malloc (DS->NumEle * sizeof (realtype *));
+#endif
     DS->FluxRiv = (realtype **) malloc (DS->NumRiv * sizeof (realtype *));
     DS->EleET = (realtype **) malloc (DS->NumEle * sizeof (realtype *));
     DS->Albedo = (realtype *) malloc (DS->NumEle * sizeof (realtype));  /* Expanded by Y. Shi */
