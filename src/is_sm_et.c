@@ -37,17 +37,17 @@
 void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 {
 	int             i;
-	realtype        totEvap;
+	//realtype        totEvap;
 	realtype	elemSatn;
 	realtype	AquiferDepth;
-	realtype	ThetaRef, ThetaW;
+	//realtype	ThetaRef, ThetaW;
 	realtype	beta_s, Rmax, f_r, alpha_r, eta_s, gamma_s, r_s, P_c;
-	realtype        Delta, Gamma, Lambda;
-	realtype        Rn, G, T, Vel, RH, VP, P, LAI, zero_dh, cnpy_h, rl,
-	                r_a, qv_sat, qv, ETp;
-	realtype        isval = 0, etval = 0;
-	realtype        fracSnow, snowRate, MeltRateGrnd, MeltRateCanopy, eltRate,
-	                MF, Ts = -3.0, Tr = 1.0, To = 0.0, ret;
+	realtype        Delta, Gamma;	// Lambda;
+	realtype        Rn, T, Vel, RH, VP, P, LAI; //zero_dh, cnpy_h, G
+	realtype	rl, r_a, qv_sat, qv, ETp;
+	realtype        isval = 0; //etval = 0;
+	realtype        fracSnow, snowRate, MeltRateGrnd, MeltRateCanopy;   //eltRate,
+	realtype	MF, Ts = -3.0, Tr = 1.0, To = 0.0, ret;
         realtype        *metarr;
 
 	Model_Data      MD;

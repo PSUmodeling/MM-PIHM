@@ -41,7 +41,7 @@ realtype CS_AreaOrPerem (int rivOrder, realtype rivDepth, realtype rivCoeff, rea
             return returnVal (rivArea, rivPerem, eq_Wid, a_pBool);
         default:
             printf ("\n Relevant Values entered are wrong");
-            printf ("\n Depth: %lf\tCoeff: %lf\tOrder: %d\t");
+            printf ("\n Depth: %lf\tCoeff: %lf\tOrder: %d\t", rivDepth, rivCoeff, rivOrder);
             return 0;
     }
 }

@@ -51,15 +51,15 @@ int main (int argc, char *argv[])
     N_Vector        CV_Y;       /* State Variables Vector */
     void           *cvode_mem;  /* Model Data Pointer */
     int             flag;       /* flag to test return value */
-    FILE           *iproj;      /* Project File */
+    //FILE           *iproj;      /* Project File */
     int             N;          /* Problem size */
-    int             i, j, k;    /* loop index */
+    int             i, j;    /* loop index */
     realtype        t;          /* simulation time */
     struct tm      *timestamp;
     time_t         *rawtime;
     realtype        NextPtr, StepSize;  /* stress period & step size */
     realtype        cvode_val;
-    long int        cvode_int;
+    //long int        cvode_int;
     char            project[20];
     char            *filename, *outputdir, str[11];
     char            system_cmd[1024];
@@ -369,7 +369,7 @@ int main (int argc, char *argv[])
     free (outputdir);
     free (rawtime);
     free (filename);
-    FreeData (mData, &cData);
+    FreeData (mData, cData);
 #ifdef _FLUX_PIHM_
     LSM_FreeData (mData, LSM);
     free (LSM);

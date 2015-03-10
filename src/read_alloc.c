@@ -22,7 +22,7 @@
 
 void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
 {
-    int             i, j, k;
+    int             i, j;   //k;
     int             ind;
     int             ensemble_mode;
 
@@ -31,7 +31,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
     char           *laifn;
     char           *projectname;
     char           *token, *tempname;
-    char            scrn_char[100];
+    //char            scrn_char[100];
     time_t          rawtime;
     struct tm      *timeinfo;
     int             NumForcing;
@@ -325,7 +325,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
 
     if (lc_file == NULL)
     {
-        printf ("\n  Fatal Error: land cover file is in use or does not exist!\n", projectname);
+        printf ("\n  Fatal Error: land cover file input/vegprmt.tbl is in use or does not exist!\n");
         exit (1);
     }
 
@@ -404,7 +404,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
             sscanf (cmdstr, "%s", optstr);
             if (strcasecmp ("METEO_TS", optstr) == 0)
             {
-                sscanf (cmdstr, "%*s %d %*s %*lf", &ind);
+                sscanf (cmdstr, "%*s %d %*s %*f", &ind);
                 DS->TSD_meteo[ind - 1].length = 0;
                 count = &(DS->TSD_meteo[ind - 1].length);
             }

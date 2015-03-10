@@ -70,9 +70,10 @@
 int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
 {
     int             i, j, inabr;
-    realtype        RivNetPrep;
+    //realtype        RivNetPrep;
     realtype        Avg_Y_Surf, Dif_Y_Surf, Grad_Y_Surf, Avg_Sf, Distance;
-    realtype        Cwr, TotalY_Riv, TotalY_Riv_down, CrossA, CrossAdown, AvgCrossA, Perem, Perem_down, Avg_Rough, Avg_Perem, Avg_Y_Riv, Dif_Y_Riv, Grad_Y_Riv, Wid, Wid_down, Avg_Wid;
+    //realtype        Cwr;
+    realtype	    TotalY_Riv, TotalY_Riv_down, CrossA, CrossAdown, AvgCrossA, Perem, Perem_down, Avg_Rough, Avg_Perem, Avg_Y_Riv, Dif_Y_Riv, Grad_Y_Riv, Wid, Wid_down, Avg_Wid;
     realtype        Avg_Y_Sub, Dif_Y_Sub, Avg_Ksat, Grad_Y_Sub, nabrAqDepth, AquiferDepth, Deficit, elemSatn, satKfunc, effK, effKnabr, TotalY_Ele, TotalY_Ele_down;
     realtype       *Y, *DY;
     realtype        dt;     /* YS */

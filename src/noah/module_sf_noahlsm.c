@@ -1198,8 +1198,8 @@ DEVAP (double *EDIR, double *ETP1, double *SMC, double *ZSOIL, double *SHDFAC,
     if (SRATIO > 0.)
     {
         FX = pow (SRATIO, *FXEXP);
-        FX = FX > 1. ? FX = 1. : FX;
-        FX = FX < 0. ? FX = 0. : FX;
+        FX = FX > 1. ? 1. : FX;
+        FX = FX < 0. ? 0. : FX;
     }
     else
         FX = 0.;

@@ -29,7 +29,7 @@ realtype FieldCapacity (realtype Alpha, realtype Beta, realtype Kv, realtype The
 
     for (elemSatn = 0.005; elemSatn < 1; elemSatn = elemSatn + 0.001)
     {
-        Ktemp = Kv * (elemSatn, 0.5) * pow (-1 + pow (1 - pow (elemSatn, Beta / (Beta - 1)), (Beta - 1) / Beta), 2);
+        Ktemp = Kv * pow (elemSatn, 0.5) * pow (-1 + pow (1 - pow (elemSatn, Beta / (Beta - 1)), (Beta - 1) / Beta), 2);
         if (Ktemp >= 5.79e-9)
         {
             ThetaRef = (1. / 3. + 2. / 3. * elemSatn) * (ThetaS - ThetaR);
@@ -42,7 +42,7 @@ realtype FieldCapacity (realtype Alpha, realtype Beta, realtype Kv, realtype The
 void initialize_output (char *filename, Model_Data DS, Control_Data  CS, char *outputdir)
 {
     FILE           *Ofile;
-    char           *ofn, str[3];
+    //char           *ofn, str[3];
     char           *ascii_name;
     int             i, j, icounter;
     int             ensemble_mode;
@@ -184,7 +184,8 @@ void initialize_output (char *filename, Model_Data DS, Control_Data  CS, char *o
 
 void initialize (char *filename, Model_Data DS, Control_Data  CS, N_Vector CV_Y)
 {
-    int             i, j, k, tmpBool, BoolBR, BoolR = 0;
+    int             i, j;
+    int		    tmpBool, BoolBR, BoolR = 0;
     realtype        a_x, a_y, b_x, b_y, c_x, c_y, distX, distY;
     realtype        a_zmin, a_zmax, b_zmin, b_zmax, c_zmin, c_zmax;
     realtype        tempvalue1, tempvalue2, tempvalue3;
@@ -248,7 +249,9 @@ void initialize (char *filename, Model_Data DS, Control_Data  CS, N_Vector CV_Y)
     {
         DS->FluxSurf[i] = (realtype *) malloc (3 * sizeof (realtype));
         DS->FluxSub[i] = (realtype *) malloc (3 * sizeof (realtype));
+#ifdef _RT_
 	DS->AreaSub[i] = (realtype *) malloc (3 * sizeof (realtype));
+#endif
         DS->EleET[i] = (realtype *) calloc (3, sizeof (realtype));
         a_x = DS->Node[DS->Ele[i].node[0] - 1].x;
         b_x = DS->Node[DS->Ele[i].node[1] - 1].x;

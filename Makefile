@@ -143,7 +143,7 @@ flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-rt-flux-pihm:      ## Complile RT-Flux-PIHM (Reactive Transport Flux PIHM) for hydrogeochemical coupling.
+rt-flux-pihm:	## Complile RT-Flux-PIHM (Reactive Transport Flux PIHM) for hydrogeochemical coupling.
 rt-flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)

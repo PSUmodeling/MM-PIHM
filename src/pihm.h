@@ -528,7 +528,7 @@ void            initialize_output (char *, Model_Data, Control_Data , char *);
 int             f (realtype, N_Vector, N_Vector, void *);
 void            read_alloc (char *, Model_Data, Control_Data );
 void            f_update (realtype, realtype *, void *);    /* YS */
-void            Free_Data (Model_Data, Control_Data );
+void            FreeData (Model_Data, Control_Data );
 void            summary (Model_Data, N_Vector, realtype, realtype); /* YS */
 realtype        returnVal (realtype, realtype, realtype, realtype);
 realtype        CS_AreaOrPerem (int, realtype, realtype, realtype);
