@@ -9,10 +9,10 @@
 # -----------------------------------------------------------------
 
 CC = 		gcc
-CFLAGS = 	-g -O0
+CFLAGS = 	-g -O0 -Wall
 
-SUNDIALS_PATH = /gpfs/home/yzs123/work/lib/sundials-2.2.0
-#SUNDIALS_PATH = ./sundials
+#SUNDIALS_PATH = /gpfs/home/yzs123/work/lib/sundials-2.2.0
+SUNDIALS_PATH = ./sundials
 
 SRCDIR = 	./src
 LIBS =		-lm
@@ -46,6 +46,22 @@ ifeq ($(MAKECMDGOALS),flux-pihm)
 			spa/spa.h
   EXECUTABLE =	flux-pihm
   MSG = 	"... Compiling FLUX-PIHM ..."
+endif
+
+ifeq ($(MAKECMDGOALS),rt-flux-pihm)
+  SFLAGS =      -D_RT_ -D_FLUX_PIHM_
+  MODULE_SRCS_= noah/coupling.c \
+		noah/module_sf_noahlsm.c \
+		spa/spa.c \
+		noah/lsm_func.c \
+		rt/rt.c \
+		rt/react.c \
+		rt/os3d.c
+  MODULE_HEADERS_ =     noah/noah.h \
+			spa/spa.h \
+			rt/rt.h
+  EXECUTABLE =  rt-flux-pihm
+  MSG =         "... Compiling FLUX-PIHM ..."
 endif
 
 ifeq ($(MAKECMDGOALS),pihm-bgc)
@@ -114,7 +130,7 @@ all:	sundials pihm
 
 sundials:	## Install sundials library
 sundials:
-	tar xzf sundials-2.2.0.tar.gz; cd sundials; ./configure; make; make install; cd ../
+	tar -xvf sundials.tar; cd sundials; ./configure; make; make install; cd ../
 	@echo "SUNDIALS library installed."
 pihm: 		## Compile PIHM
 pihm:	$(OBJS)
@@ -126,6 +142,14 @@ flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
+
+rt-flux-pihm:      ## Complile RT-Flux-PIHM (Reactive Transport Flux PIHM) for hydrogeochemical coupling.
+rt-flux-pihm: $(OBJS) $(MODULE_OBJS)
+	@echo
+	@echo $(MSG)
+	@echo
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
+
 
 pihm-bgc: 	## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
 pihm-bgc: $(OBJS) $(MODULE_OBJS)

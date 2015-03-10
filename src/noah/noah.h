@@ -523,7 +523,7 @@ double          PSPMS (double YY);
 double          PSPHU (double XX);
 double          PSPHS (double YY);
 
-void            LSM_initialize (char *, Model_Data, Control_Data *, LSM_STRUCT);
+void            LSM_initialize (char *, Model_Data, Control_Data , LSM_STRUCT);
 void            LSM_read (char *, LSM_STRUCT);
 void            LSM_initialize_output (char *, Model_Data, LSM_STRUCT,
    char *);

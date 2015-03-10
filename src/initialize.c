@@ -39,7 +39,7 @@ realtype FieldCapacity (realtype Alpha, realtype Beta, realtype Kv, realtype The
     return ThetaRef;
 }
 
-void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *outputdir)
+void initialize_output (char *filename, Model_Data DS, Control_Data  CS, char *outputdir)
 {
     FILE           *Ofile;
     char           *ofn, str[3];
@@ -182,7 +182,7 @@ void initialize_output (char *filename, Model_Data DS, Control_Data * CS, char *
     }
 }
 
-void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y)
+void initialize (char *filename, Model_Data DS, Control_Data  CS, N_Vector CV_Y)
 {
     int             i, j, k, tmpBool, BoolBR, BoolR = 0;
     realtype        a_x, a_y, b_x, b_y, c_x, c_y, distX, distY;
@@ -205,6 +205,7 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
      */
     DS->FluxSurf = (realtype **) malloc (DS->NumEle * sizeof (realtype *));
     DS->FluxSub = (realtype **) malloc (DS->NumEle * sizeof (realtype *));
+    DS->AreaSub = (realtype **) malloc (DS->NumEle * sizeof (realtype *));
     DS->FluxRiv = (realtype **) malloc (DS->NumRiv * sizeof (realtype *));
     DS->EleET = (realtype **) malloc (DS->NumEle * sizeof (realtype *));
     DS->Albedo = (realtype *) malloc (DS->NumEle * sizeof (realtype));  /* Expanded by Y. Shi */
@@ -245,6 +246,7 @@ void initialize (char *filename, Model_Data DS, Control_Data * CS, N_Vector CV_Y
     {
         DS->FluxSurf[i] = (realtype *) malloc (3 * sizeof (realtype));
         DS->FluxSub[i] = (realtype *) malloc (3 * sizeof (realtype));
+	DS->AreaSub[i] = (realtype *) malloc (3 * sizeof (realtype));
         DS->EleET[i] = (realtype *) calloc (3, sizeof (realtype));
         a_x = DS->Node[DS->Ele[i].node[0] - 1].x;
         b_x = DS->Node[DS->Ele[i].node[1] - 1].x;

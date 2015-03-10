@@ -106,7 +106,7 @@ typedef struct element_type
     realtype        Rough;      /* surface roughness of an element */
 
     realtype        windH;      /* wind measurement height */
-
+    realtype        temp;       /* temperature   */
     int             soil;       /* soil type */
     int             geol;       /* geology type */
     int             LC;         /* Land Cover type  */
@@ -119,7 +119,7 @@ typedef struct element_type
     int             LAI;        /* LAI forcing type (0: use climatological
                                  * values; else: use user provided time
                                  * series */
-//    int             temp;       /* temperature (forcing) type   */
+
 //    int             humidity;   /* humidity type */
 //    int             WindVel;    /* wind velocity type */
 //    int             Rn;         /* net radiation input */
@@ -333,6 +333,13 @@ typedef struct global_calib
     realtype        Rs_ref;     /* YS */
     realtype        h_s;        /* YS */
 #endif
+#ifdef _RT_
+  realtype   PCO2;
+  realtype   Keq;
+  realtype   SSA;
+  realtype   Site_den;
+  realtype   Prep_conc;
+#endif
 } globalCal;
 
 typedef struct process_control
@@ -416,7 +423,8 @@ typedef struct model_data_structure
     realtype      **FluxSurf;   /* Overland Flux */
     realtype      **FluxSub;    /* Subsurface Flux */
     realtype      **FluxRiv;    /* River Segement Flux */
-
+    realtype      **AreaSub;    /* Area of contact between saturated cells */
+ 
     realtype       *ElePrep;    /* Precep. on each element */
     realtype       *EleNetPrep; /* Net precep. on each elment */
     realtype       *EleViR;     /* Variable infiltration rate */
@@ -505,18 +513,18 @@ typedef struct control_data_structure
 
     globalCal       Cal;        /* Convert this to pointer for
                                  * localized calibration */
-} Control_Data;
+} * Control_Data;
 
 
 /*
  * Function Declarations
  */
-void            initialize (char *, Model_Data, Control_Data *, N_Vector);
-void            initialize_output (char *, Model_Data, Control_Data *, char *);
+void            initialize (char *, Model_Data, Control_Data , N_Vector);
+void            initialize_output (char *, Model_Data, Control_Data , char *);
 int             f (realtype, N_Vector, N_Vector, void *);
-void            read_alloc (char *, Model_Data, Control_Data *);
+void            read_alloc (char *, Model_Data, Control_Data );
 void            f_update (realtype, realtype *, void *);    /* YS */
-void            Free_Data (Model_Data, Control_Data *);
+void            Free_Data (Model_Data, Control_Data );
 void            summary (Model_Data, N_Vector, realtype, realtype); /* YS */
 realtype        returnVal (realtype, realtype, realtype, realtype);
 realtype        CS_AreaOrPerem (int, realtype, realtype, realtype);

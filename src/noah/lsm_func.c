@@ -247,7 +247,7 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
     free (projectname);
 }
 
-void LSM_initialize (char *filename, Model_Data PIHM, Control_Data * CS, LSM_STRUCT LSM)
+void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRUCT LSM)
 {
     GRID_TYPE      *NOAH;
     int             i, j, k, KZ;
@@ -797,7 +797,7 @@ void LSM_initialize_output (char *filename, Model_Data PIHM, LSM_STRUCT LSM, cha
         ensemble_mode = 0;
 
     if (ensemble_mode == 0)
-        printf ("\nInitializing LSM output files ...\t");
+        printf ("\nInitializing LSM output files ...\n");
 
     icounter = 0;
     if (LSM->PRINT_T1 > 0)
@@ -824,7 +824,7 @@ void LSM_initialize_output (char *filename, Model_Data PIHM, LSM_STRUCT LSM, cha
                (double **)malloc (LSM->PCtrl[icounter].NumVar *
                sizeof (double *));
             for (i = 0; i < LSM->PCtrl[icounter].NumVar; i++)
-                LSM->PCtrl[icounter].PrintVar[i] = &(LSM->GRID[i].STC[j]);
+	      LSM->PCtrl[icounter].PrintVar[i] = &(LSM->GRID[i].STC[j]);
             icounter++;
         }
     }
