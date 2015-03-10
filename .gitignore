@@ -38,6 +38,10 @@ flux-pihm
 # PBS scripts
 run-*
 
+# Indent temp files
+src/*~
+src/*/*~
+
 # Output and logs
 output/
 *.log
