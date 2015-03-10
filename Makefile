@@ -11,8 +11,8 @@
 CC = 		gcc
 CFLAGS = 	-g -O0 -Wall
 
-#SUNDIALS_PATH = /gpfs/home/yzs123/work/lib/sundials-2.2.0
-SUNDIALS_PATH = ./sundials
+SUNDIALS_PATH = /gpfs/home/yzs123/work/lib/sundials-2.2.0
+#SUNDIALS_PATH = ./sundials
 
 SRCDIR = 	./src
 LIBS =		-lm
@@ -169,4 +169,4 @@ clean:		## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ pihm flux-pihm pihm-bgc
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ pihm flux-pihm pihm-bgc rt-flux-pihm
