@@ -20,7 +20,6 @@ INCLUDES =	-I${SUNDIALS_PATH}/include \
 		-I${SUNDIALS_PATH}/include/cvode \
 		-I${SUNDIALS_PATH}/include/sundials
 LFLAGS = 	-L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
-SFLAGS =
 
 SRCS_ =  	pihm.c \
 		f.c \

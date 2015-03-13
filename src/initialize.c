@@ -220,8 +220,19 @@ void initialize (char *filename, Model_Data DS, Control_Data  CS, N_Vector CV_Y)
     DS->SfcSat = (realtype *) calloc (DS->NumEle, sizeof (realtype));
     DS->EleETsat = (realtype *) calloc (DS->NumEle, sizeof (realtype)); /* YS */
     DS->EleFCR = (realtype *) malloc (DS->NumEle * sizeof (realtype));  /* YS */
+    DS->avg_inf = (realtype *) malloc (DS->NumEle * sizeof (realtype));  /* YS */
+    DS->avg_rech = (realtype *) malloc (DS->NumEle * sizeof (realtype));  /* YS */
+    DS->avg_subflux = (realtype **) malloc (DS->NumEle * sizeof (realtype *));  /* YS */
     for (i = 0; i < DS->NumEle; i++)
+    {
         DS->EleFCR[i] = 1.;
+	DS->avg_inf[i] = 0.0;
+	DS->avg_rech[i] = 0.0;
+	DS->avg_subflux[i] = (realtype *) malloc (3 * sizeof (realtype));
+	DS->avg_subflux[i][0] = 0.0;
+	DS->avg_subflux[i][1] = 0.0;
+	DS->avg_subflux[i][2] = 0.0;
+    }
 #endif
     DS->ElePrep = (realtype *) malloc (DS->NumEle * sizeof (realtype));
     DS->EleViR = (realtype *) calloc (DS->NumEle, sizeof (realtype));

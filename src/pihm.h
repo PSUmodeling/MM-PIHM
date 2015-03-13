@@ -459,6 +459,11 @@ typedef struct model_data_structure
                                  * extracts from the saturated zone */
     realtype       *EleFCR;     /* YS: reduction of infiltration caused
                                  * by frozen ground */
+    realtype	   *avg_inf;	/* YS: average infiltration over an ET time
+				 * interval */ 
+    realtype	   *avg_rech;	/* YS: average recharge over an ET time interval */
+    realtype	  **avg_subflux;/* YS: average subsurfae flux over an ET time
+				     * interval */
 #endif
     realtype       *DummyY;
     processCal      pcCal;

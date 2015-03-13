@@ -50,7 +50,7 @@ void summary (Model_Data DS, N_Vector CV_Y, realtype t, realtype stepsize)
         Yc[i + 3 * DS->NumEle + DS->NumRiv] = 0.5 * (Y[i + 3 * DS->NumEle + DS->NumRiv] + DS->EleGW[i + DS->NumEle]);
     }
 
-    f_update (t, Yc, DS);
+    //f_update (t, Yc, DS);
     for (i = 0; i < 3 * DS->NumEle + 2 * DS->NumRiv; i++)
         DS->DummyY[i] = Y[i] >= 0. ? Y[i] : 0.;
 

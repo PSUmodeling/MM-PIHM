@@ -44,6 +44,7 @@
 #include "bgc/bgc.h"
 #endif
 
+
 int main (int argc, char *argv[])
 {
     Model_Data      mData;      /* Model Data */
@@ -305,14 +306,42 @@ int main (int argc, char *argv[])
             if ((int)t % (int)cData->ETStep == 0)
             {
 #ifdef _FLUX_PIHM_
+		for (j = 0; j < mData->NumEle; j++)
+		{
+		    mData->avg_inf[j] = (mData->avg_inf[j] + mData->EleViR[j]) / (cData->ETStep / StepSize);
+		    mData->avg_subflux[j][0] = (mData->avg_subflux[j][0] + mData->FluxSub[j][0]) / (cData->ETStep / StepSize);
+		    mData->avg_subflux[j][1] = (mData->avg_subflux[j][1] + mData->FluxSub[j][1]) / (cData->ETStep / StepSize);
+		    mData->avg_subflux[j][2] = (mData->avg_subflux[j][2] + mData->FluxSub[j][2]) / (cData->ETStep / StepSize);
+		}
+
+
                 /* calculate surface energy balance */
                 PIHM2Noah (t, cData->ETStep, mData, LSM);
                 Noah2PIHM (mData, LSM);
+
+		for (j = 0; j < mData->NumEle; j++)
+		{
+		    mData->avg_inf[j] = 0.0; 
+		    mData->avg_subflux[j][0] = 0.0;
+		    mData->avg_subflux[j][1] = 0.0;
+		    mData->avg_subflux[j][2] = 0.0;
+		}
+	    }
+	    else
+	    {
+		for (j = 0; j < mData->NumEle; j++)
+		{
+		    mData->avg_inf[j] = mData->avg_inf[j] + mData->EleViR[j];
+		    mData->avg_subflux[j][0] = mData->avg_subflux[j][0] + mData->FluxSub[j][0];
+		    mData->avg_subflux[j][1] = mData->avg_subflux[j][1] + mData->FluxSub[j][1];
+		    mData->avg_subflux[j][2] = mData->avg_subflux[j][2] + mData->FluxSub[j][2];
+		}
 #else
                 /* calculate Interception Storage and ET */
                 is_sm_et (t, cData->ETStep, mData, CV_Y);
 #endif
             }
+
 
 #ifdef COUPLE_I
             t = NextPtr;

@@ -15,7 +15,7 @@ RELTOL	            1E-3
 INIT_SOLVER_STEP    5E-5
 MAX_SOLVER_STEP	    60                  # Maximum solver step (DANGER ZONE)
 LSM_STEP	    1800                # LSM (or ET) step size (unit: s)
-START		    2008-06-01 00:00
+START		    2009-06-20 12:00
 END		    2010-01-01 00:00
 OUTPUT_TYPE	    0
 STEPSIZE_FACTOR	    1.0
