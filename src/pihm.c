@@ -256,7 +256,7 @@ int main (int argc, char *argv[])
     /* initialize output files and structures */
     initialize_output (filename, mData, cData, outputdir);
 #ifdef _FLUX_PIHM_
-    LSM_initialize_output (filename, mData, LSM, outputdir);
+    LSM_initialize_output (filename, mData, cData, LSM, outputdir);
 #endif
 
 #ifdef _BGC_

@@ -525,8 +525,7 @@ double          PSPHS (double YY);
 
 void            LSM_initialize (char *, Model_Data, Control_Data , LSM_STRUCT);
 void            LSM_read (char *, LSM_STRUCT);
-void            LSM_initialize_output (char *, Model_Data, LSM_STRUCT,
-   char *);
+void            LSM_initialize_output (char *, Model_Data, Control_Data, LSM_STRUCT, char *);
 void            LSM_PrintInit (Model_Data, LSM_STRUCT, char *);
 void            LSM_FreeData (Model_Data, LSM_STRUCT);
 

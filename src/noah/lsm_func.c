@@ -785,10 +785,11 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
     }
 }
 
-void LSM_initialize_output (char *filename, Model_Data PIHM, LSM_STRUCT LSM, char *outputdir)
+void LSM_initialize_output (char *filename, Model_Data PIHM, Control_Data CS, LSM_STRUCT LSM, char *outputdir)
 {
     FILE           *Ofile;
     char           *ofn;
+    char           *ascii_name;
     int             i, j, ensemble_mode, icounter;
 
     if (strstr (filename, ".") != 0)
@@ -945,8 +946,16 @@ void LSM_initialize_output (char *filename, Model_Data PIHM, LSM_STRUCT LSM, cha
         }
         Ofile = fopen (LSM->PCtrl[i].name, "w");
         fclose (Ofile);
-        LSM->PCtrl[i].buffer =
-           (double *)calloc (LSM->PCtrl[i].NumVar, sizeof (double));
+
+	if (CS->Ascii)
+	{
+	    ascii_name = (char *)malloc ((strlen (LSM->PCtrl[i].name) + 5) * sizeof (char));
+	    sprintf (ascii_name, "%s.txt", LSM->PCtrl[i].name);
+	    Ofile = fopen (ascii_name, "w");
+	    fclose (Ofile);
+	}
+
+        LSM->PCtrl[i].buffer = (double *)calloc (LSM->PCtrl[i].NumVar, sizeof (double));
     }
 }
 
