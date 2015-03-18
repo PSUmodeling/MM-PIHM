@@ -174,10 +174,15 @@ void initialize_output (char *filename, Model_Data DS, Control_Data  CS, char *o
     {
         Ofile = fopen (CS->PCtrl[i].name, "w");
         fclose (Ofile);
-        ascii_name = (char *)malloc ((strlen (CS->PCtrl[i].name) + 5) * sizeof (char));
-        sprintf (ascii_name, "%s.txt", CS->PCtrl[i].name);
-        Ofile = fopen (ascii_name, "w");
-        fclose (Ofile);
+
+	if (CS->Ascii)
+	{
+	    ascii_name = (char *)malloc ((strlen (CS->PCtrl[i].name) + 5) * sizeof (char));
+	    sprintf (ascii_name, "%s.txt", CS->PCtrl[i].name);
+	    Ofile = fopen (ascii_name, "w");
+	    fclose (Ofile);
+	}
+
         CS->PCtrl[i].buffer = (realtype *) calloc (CS->PCtrl[i].NumVar, sizeof (realtype));
     }
 }
