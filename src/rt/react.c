@@ -38,6 +38,13 @@
 
 int keymatch (char *, char *, double *, char **);
 int React (realtype, realtype, Chem_Data, int, int *);
+void wrap (char *);
+void ReportError (vol_conc , Chem_Data);
+int  SpeciationType (FILE * , char *);
+void Lookup (FILE * , Chem_Data , int );
+int Speciation (Chem_Data , int );
+int React (realtype , realtype , Chem_Data , int , int *);
+
 void
 wrap (char *str)
 {
