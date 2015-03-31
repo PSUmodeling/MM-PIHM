@@ -1,0 +1,200 @@
+#########################################################
+# FILE       : PIHM_RT CHEM INPUT FILE EXAMPLE          #
+# DEVELOPPER : Chen Bao (baochen.d.s@gmail.com          #
+#########################################################
+
+
+TITLE
+shp
+END
+
+RUNTIME
+# runtime variables
+tvd        true
+# whether to use tvd in calculation the advective concentration flux
+output     24
+# set output interval to # hours
+activity   1
+# enable the correction of activity using Debye-Huckel Equaion (1) or using no correction (0)
+act_coe_delay 0
+# define whether to delay the calculation of activity coefficients (0) for delay and (1) for no delay
+thermo     0
+# whether (1) or not (0) to couple the thermo modeling of pihm
+relmin     1
+# whether mineral volume fraction is relative (1) or absolute (0)
+effads     0
+# whether (1) or not (0) to use the effective adsorption model (MIM + ADSORPTION + RT)
+transport_only  0
+# whether (0) or not (1) to include the reactive calculation. 0 for turn on reactions and 1 for turn off. Suitable for stable tracer transport problem.
+precipitation  1
+# whether (1) or not (0) precipitation will be specified.
+RT_delay   2
+# how many days should reaction module wait 
+Condensation	1.5
+# what is the concentration multiplier in infiltration
+AvgScl     15
+# how many steps should react wait for transport
+SUFEFF     1
+# whether (1) or not (0) to have kinetic dependency on water availability
+Mobile_exchange     1
+# the ratio of exchange species that are immobile.
+END
+
+GLOBAL
+t_species    16
+# total species including 1) primary speices, 2) primary minerals, 3) primary adsorptions. The number of species that are put into the condition blocks
+s_species    7
+# the number of species that are put into the secondary_species block.
+minerals     8
+# the number of species that are minerals in the condition blocks. 
+adsorption   1
+# the number of species that are !primary! surface complexation, note that secondary surface complexation goes to secondary species
+cation_exchange 0
+# the nubmer of species that are !primary! cation exchange
+mineral_kinetic  5
+# the number of mineral kinetic reactions
+aqueous_kinetic  0
+# the number of aqueous kinetic reactions
+diffusion    1E-5
+# fixed diffusion coefficient, in cm2/s
+dispersion   0.1
+# fixed dispersion coefficient, in m
+cementation  1
+# cementation factor
+temperature  25
+# assumed temperature for thermo decouple mode
+END
+
+OUTPUT   3
+1110
+1109
+420
+END
+
+
+PUMP    1
+# position  species  total_influx  influx_concentration
+# unit               moles/year    mole/L  
+1100        Mg++     0.0           300E-6
+END
+
+
+INITIAL_CONDITIONS FILE example.cini
+RT      1-1070
+# Assign the conditions to blocks, supported separators are "," and "-". Named condition need be specified using Condition keyword
+MS      1071-1112
+VF      1050
+END
+
+Condition RT
+# concentrations and names of species of condition X.
+# recommanded order: aqueous primary, adsorption, cation exchange, mineral
+pH	      4.56
+HCO3-	      0.28
+!H2	      1.48E-4
+!O18	      1.985E-3
+Mg++	      9.49E-5
+Ca++          52.2E-6
+Cl-	      3.69E-5
+H4SiO4	      1.00E-4
+K+	      2.19E-5
+!Na+           19.0E-6
+shillite	0.2845	-ssa	0.80
+shchlorite      0.0690	-ssa	0.01
+CO2(*g)      1.00E-3    -ssa    70.0
+Dolomite      1.00E-10  -ssa    0.02
+Calcite       1.00E-10  -ssa    2E-4
+Kaolinite     0.0266	-ssa	1.48
+Quartz	      0.6199	-ssa	1.48
+FeOOH	      1.00E-5	-ssa	1.48
+>SOH	      0.2800
+END
+
+Condition MS
+pH            4.48
+HCO3-         0.28
+!H2            1.48E-4
+!O18           1.985E-3
+Mg++          15.41E-5
+Ca++          49.7E-6
+Cl-           3.12E-5
+H4SiO4        1.00E-4
+K+            1.53E-5
+!Na+           18.5E-6
+shillite        0.2690    -ssa    0.80
+shchlorite      0.0669    -ssa    0.01
+CO2(*g)      1.00E-3	-ssa	70.0
+Dolomite      1.00E-10  -ssa    0.02
+Calcite       0.001  -ssa    5.0E-4
+Kaolinite     0.0283    -ssa    1.48
+Quartz        0.6348    -ssa    1.48
+FeOOH         1.00E-5  -ssa    1.48
+>SOH	      0.100
+END
+
+Condition VF
+pH            4.70
+HCO3-         0.28
+!H2            1.48E-4
+!O18           1.985E-3
+Mg++           35.61E-5
+Ca++          84.9E-6
+Cl-           3.93E-5
+H4SiO4        1.00E-4
+K+            2.33E-5
+!Na+           26.7E-6
+shillite        0.4068    -ssa    0.80
+shchlorite      0.0668    -ssa    0.01
+CO2(*g)      1.00E-3    -ssa    70.0
+Dolomite      1.00E-10  -ssa    0.02
+Calcite       0.01000  -ssa    5.0E-4
+Kaolinite     0.0149    -ssa    1.48
+Quartz        0.5014    -ssa    1.48
+FeOOH         1.00E-5  -ssa    1.48
+>SOH	      0.1800
+END
+
+PRECIPITATION
+pH            4.3
+HCO3-         8.0E-4
+!H2            1.48E-4
+!O18           1.985E-3
+Mg++           0.75E-6
+Ca++           2.91E-6
+Cl-            1.23E-5
+H4SiO4        1.00E-4
+K+            1.53E-6
+!Na+           2.00E-6
+shillite      1.00E-10    -ssa    2.5
+shchlorite    1.00E-10    -ssa    0.15
+CO2(*g)      1.00E-10	-ssa	70.0
+Dolomite      1.00E-10  -ssa    0.02
+Calcite       1.00E-10  -ssa    0.01
+Kaolinite     1.00E-10    -ssa    1.48
+Quartz        1.00E-10    -ssa    1.48
+FeOOH         1.00E-10  -ssa    1.48
+>SOH          1.00E-3
+END
+
+
+SECONDARY_SPECIES
+OH-
+CO2(aq)
+CO3--
+>SOMg+
+MgCO3(aq)
+MgCl+
+MgHCO3+
+# Basis switching is not supported in this version of PIHM_RT
+END
+
+MINERALS
+# rate constant log10(rate, units mol/m^2/s)
+!Calcite -label default 
+shillite	 -label default
+shchlorite       -label default
+CO2(*g)  	 -label default
+Dolomite         -label default
+Calcite          -label default
+END
+
