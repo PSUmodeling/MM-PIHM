@@ -23,10 +23,6 @@
 
 #include "pihm.h"
 
-#define multF1	1
-#define multF2	5//??
-#define multF3	1
-#define multF4	1.0
 #define C_air 1004.0
 #define Lv (2.503*pow(10,6))
 #define SIGMA (5.67*pow(10,-8)*60)
@@ -107,7 +103,7 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 		MD->EleSnowGrnd[i] = MD->EleSnowGrnd[i] + (1 - MD->Ele[i].VegFrac) * snowRate * stepsize;
 		MD->EleSnowCanopy[i] = MD->EleSnowCanopy[i] + MD->Ele[i].VegFrac * snowRate * stepsize;
 		MD->EleISsnowmax[i] = MD->EleSnowCanopy[i] > 0 ? 0.003 * LAI * MD->Ele[i].VegFrac : 0;
-		MD->EleISsnowmax[i] = multF1 * MD->EleISsnowmax[i];
+		MD->EleISsnowmax[i] = MD->EleISsnowmax[i];
 		if (MD->EleSnowCanopy[i] > MD->EleISsnowmax[i])
 		{
 			MD->EleSnowGrnd[i] = MD->EleSnowGrnd[i] + MD->EleSnowCanopy[i] - MD->EleISsnowmax[i];
@@ -141,7 +137,7 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 		 * element. Logistics are simpler if assumed in volumetric
 		 * form by multiplication of Area on either side of equation
 		 */
-		MD->EleISmax[i] = multF1 * MD->ISFactor[MD->Ele[i].LC - 1] * LAI * MD->Ele[i].VegFrac;
+		MD->EleISmax[i] = MD->ISFactor[MD->Ele[i].LC - 1] * LAI * MD->Ele[i].VegFrac;
                 //printf ("ISFct %lf, ISMAX = %lf %lf %lf\n", MD->ISFactor[MD->Ele[i].LC - 1], MD->EleISmax[i], LAI, MD->Ele[i].VegFrac);
 
 
@@ -197,7 +193,7 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 			MD->EleET[i][1] = ((MD->DummyY[i + 2 * MD->NumEle] < (AquiferDepth - MD->Ele[i].RzD)) && MD->DummyY[i + MD->NumEle] <= 0) ? 0 : MD->EleET[i][1];
 
 			MD->EleTF[i] = MD->EleIS[i] <= 0 ? 0 : 5.65 * pow(10, -2) * MD->EleISmax[i] * exp(3.89 * (MD->EleIS[i] < 0 ? 0 : MD->EleIS[i]) / MD->EleISmax[i]);	/* Note the dependece on  physical units */
-			MD->EleTF[i] = multF3 * MD->EleTF[i];
+			//MD->EleTF[i] = multF3 * MD->EleTF[i];
 		}
 		else
 		{
