@@ -46,25 +46,43 @@ realtype returnVal (realtype rArea, realtype rPerem, realtype eqWid,
 		    realtype ap_Bool);
 realtype CS_AreaOrPerem (int rivOrder, realtype rivDepth,
 			 realtype rivCoeff, realtype a_pBool);
-void chem_alloc (char *, const void *, const Control_Data , Chem_Data,
-		 realtype);
-void fluxtrans (realtype, realtype, const void *, Chem_Data, N_Vector);
-void chem_updater (Chem_Data, void *);
-void OS3D (realtype, realtype, Chem_Data);
-int React (realtype, realtype, Chem_Data, int, int *);
-void Lookup (FILE *, Chem_Data, int);
-int Speciation (Chem_Data, int);
+static double timer ();
+// timer, system function called to time subroutines
+void Monitor (realtype, realtype, void *, Chem_Data);
+// adjust unphysical PIHM flux outputs by mass balance
+int upstream (element, element, const void *);
+// locate upstream nodes for TVD calculation
+int realcheck (const char *);
+// check real number or real number range
 int keymatch (const char *, const char *, double *, char **);
+// keyword matching and data reading
+void ConditionAssign (int, char *, int *);
+// Assign conditions to different cells
+void chem_alloc (char *, const void *, const Control_Data, Chem_Data,
+		 realtype);
+// chemical component initialization
+void fluxtrans (realtype, realtype, const void *, Chem_Data, N_Vector);
+// translational function to take PIHM outputs to RT calculation
+void chem_updater (Chem_Data, void *);
+// unused subroutine to update field properties from chemical reactions
+void OS3D (realtype, realtype, Chem_Data);
+// operator splitting 3D (finite volume) for transport
+int React (realtype, realtype, Chem_Data, int, int *);
+// kinetic reaction component
+void Lookup (FILE *, Chem_Data, int);
+// database fetching
+int Speciation (Chem_Data, int);
+// chemical condition initialization from 1) total concentration. 2) total concentration with pH
 int SpeciationType (FILE *, char *);
+// determine the type of solutes from database
 void AdptTime (Chem_Data, realtype, double, double, double *, int);
+// adaptive time stepping
 void Reset (Chem_Data, int);
+// unused subroutine to reset chemical conditions for failed cell. Not used anymore given successful time control
 
 /* Fucntion declarations finished   */
-
 // Timer
-
-static double
-timer ()
+     static double timer ()
 {
   struct timeval tp;
   gettimeofday (&tp, NULL);
@@ -76,7 +94,6 @@ Monitor (realtype t, realtype stepsize, void *DS, Chem_Data CD)
 {
   /* unit of t and stepsize: min */
   /* DS: model data              */
-  //    FILE*        logfile = fopen("logfile/pihmlog.out","w");
 
   // this is to obtain the infiltration rate that can not be obtained from reading f.c 
   // f.c outputs the last trial value, rather the best values of infiltration
@@ -89,7 +106,7 @@ Monitor (realtype t, realtype stepsize, void *DS, Chem_Data CD)
     imrecharge, flux, A;
   realtype MF_CONVERT;
 
-  MF_CONVERT = (realtype) (24*60*60);
+  MF_CONVERT = (realtype) (24 * 60 * 60);
 
   Model_Data MD;
   MD = (Model_Data) DS;
@@ -491,7 +508,7 @@ ConditionAssign (int condition, char *str, int *index)
 
 
 void
-chem_alloc (char *filename, const void *DS, const Control_Data  CS,
+chem_alloc (char *filename, const void *DS, const Control_Data CS,
 	    Chem_Data CD, realtype t)
 {
 
@@ -1348,15 +1365,18 @@ chem_alloc (char *filename, const void *DS, const Control_Data  CS,
       fscanf (prepconc, "%s %d %d", &(CD->TSD_prepconc->name),
 	      &(CD->TSD_prepconc->index), &(CD->TSD_prepconc->length));
 
-      CD->prepconcindex = (int *) malloc(CD->TSD_prepconc->index * sizeof(int));
+      CD->prepconcindex =
+	(int *) malloc (CD->TSD_prepconc->index * sizeof (int));
       // here prepconc.index is used to save the number of primary species. Must be equal to the number of primary species specified before.
-      for (i = 0; i < CD->TSD_prepconc->index; i ++)
+      for (i = 0; i < CD->TSD_prepconc->index; i++)
 	{
-	  fscanf(prepconc, "%d", &(CD->prepconcindex[i]) );
-	  if ( CD->prepconcindex[i] > 0) 
+	  fscanf (prepconc, "%d", &(CD->prepconcindex[i]));
+	  if (CD->prepconcindex[i] > 0)
 	    {
 	      assert (CD->prepconcindex[i] <= CD->NumSpc);
-	      fprintf(stderr, " Concentration of %s specified in input file is a time series\n", CD->chemtype[CD->prepconcindex[i]-1].ChemName);
+	      fprintf (stderr,
+		       " Concentration of %s specified in input file is a time series\n",
+		       CD->chemtype[CD->prepconcindex[i] - 1].ChemName);
 	    }
 	}
 
@@ -1383,9 +1403,9 @@ chem_alloc (char *filename, const void *DS, const Control_Data  CS,
 	  /*
 	     fprintf(stderr, " %8.4f\t", CD->TSD_prepconc->TS[i][0] );
 	     for ( j = 1 ; j <= CD->TSD_prepconc->index; j ++)
-	       fprintf(stderr, " %d %6.4g\t", j , CD->TSD_prepconc->TS[i][j]);
+	     fprintf(stderr, " %d %6.4g\t", j , CD->TSD_prepconc->TS[i][j]);
 	     fprintf(stderr, "\n");
-	  */
+	   */
 	}
 
       CD->TSD_prepconc->iCounter = 0;
@@ -2500,19 +2520,23 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
 		 (realtype) * rawtime)
 	    CD->TSD_prepconc->iCounter++;
 	  CD->TSD_prepconc->iCounter--;
-	  //	  fprintf(stderr, " %d %6.4f time %6.4f\n", CD->TSD_prepconc->iCounter, CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][0], (realtype) * rawtime);
+	  //      fprintf(stderr, " %d %6.4f time %6.4f\n", CD->TSD_prepconc->iCounter, CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][0], (realtype) * rawtime);
 	  for (i = 0; i < CD->TSD_prepconc->index; i++)
 	    {
-	      if( CD->prepconcindex[i] > 0 )
+	      if (CD->prepconcindex[i] > 0)
 		{
-		  j  = CD->prepconcindex[i] - 1;
-		  if ( CD->Precipitation.t_conc[j] != CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][i+1]){
-		    CD->Precipitation.t_conc[j] =
-		      CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][i+1];
-		    fprintf (stderr, " %s in precipitation is changed to %6.4g\n",
-			     CD->chemtype[j].ChemName,
-			     CD->Precipitation.t_conc[j]);
-		  }
+		  j = CD->prepconcindex[i] - 1;
+		  if (CD->Precipitation.t_conc[j] !=
+		      CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][i + 1])
+		    {
+		      CD->Precipitation.t_conc[j] =
+			CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][i +
+									 1];
+		      fprintf (stderr,
+			       " %s in precipitation is changed to %6.4g\n",
+			       CD->chemtype[j].ChemName,
+			       CD->Precipitation.t_conc[j]);
+		    }
 		}
 	    }
 	}
@@ -2705,18 +2729,19 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
 		    &rt_step, NumEle * 2);
 	  // AdptTime(CD, CD->TimLst, stepsize * (double)CD->AvgScl , stepsize * (double)CD->AvgScl, &rt_step, NumEle * 2);
 
-	  if ( (int)CD->TimLst % 60 == 0){
-	    tmpconc = 0.0;
-	    for (i = 0; i < NumEle; i++)
-	      {
-		tmpval = MD->Ele[i].temp;
-		CD->Vcele[i].temperature = tmpval;
-		CD->Vcele[i+NumEle].temperature = tmpval;
-	        tmpconc += tmpval;
-	      }
-	    tmpconc *= 1 / ((realtype) NumEle);
-	    CD->Temperature_avg = tmpconc;
-	  }
+	  if ((int) CD->TimLst % 60 == 0)
+	    {
+	      tmpconc = 0.0;
+	      for (i = 0; i < NumEle; i++)
+		{
+		  tmpval = MD->Ele[i].temp;
+		  CD->Vcele[i].temperature = tmpval;
+		  CD->Vcele[i + NumEle].temperature = tmpval;
+		  tmpconc += tmpval;
+		}
+	      tmpconc *= 1 / ((realtype) NumEle);
+	      CD->Temperature_avg = tmpconc;
+	    }
 
 	  for (i = 0; i < NumEle; i++)
 	    for (j = 0; j < CD->NumStc; j++)
@@ -3107,7 +3132,7 @@ AdptTime (Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
 		      CD->Vcele[i].t_conc[j] =
 			CD->Vcele[i].t_conc[j] + CD->Totalconc[j][k +
 								  CD->NumStc]
-			* CD->Vcele[i].s_conc[k] * CD->TimRiv ;
+			* CD->Vcele[i].s_conc[k] * CD->TimRiv;
 		      //              if ( CD->Vcele[i].t_conc[j] < 0.0) fprintf( stderr, " Mixed mobility error! %s %f\n", CD->chemtype[j].ChemName, CD->Vcele[i].t_conc[j]);
 		    }
 	      }
