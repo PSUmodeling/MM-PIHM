@@ -11,7 +11,7 @@
 CC = gcc
 CFLAGS = -g -O0 -Wall
 
-SUNDIALS_PATH = /gpfs/home/yzs123/work/lib/sundials-2.2.0
+SUNDIALS_PATH = ~/work/lib/sundials-2.2.0
 #SUNDIALS_PATH = ./sundials
 
 SRCDIR = ./src
