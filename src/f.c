@@ -70,9 +70,7 @@
 int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
 {
     int             i, j, inabr;
-    //realtype        RivNetPrep;
     realtype        Avg_Y_Surf, Dif_Y_Surf, Grad_Y_Surf, Avg_Sf, Distance;
-    //realtype        Cwr;
     realtype	    TotalY_Riv, TotalY_Riv_down, CrossA, CrossAdown, AvgCrossA, Perem, Perem_down, Avg_Rough, Avg_Perem, Avg_Y_Riv, Dif_Y_Riv, Grad_Y_Riv, Wid, Wid_down, Avg_Wid;
     realtype        Avg_Y_Sub, Dif_Y_Sub, Avg_Ksat, Grad_Y_Sub, nabrAqDepth, AquiferDepth, Deficit, elemSatn, satKfunc, effK, effKnabr, TotalY_Ele, TotalY_Ele_down;
     realtype       *Y, *DY;
@@ -90,19 +88,19 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
      */
     for (i = 0; i < 3 * MD->NumEle + 2 * MD->NumRiv; i++)
     {
-        MD->DummyY[i] = (Y[i] >= 0) ? Y[i] : 0;
+        MD->DummyY[i] = (Y[i] >= 0.0) ? Y[i] : 0.0;
         DY[i] = 0;
         if (i < MD->NumRiv)
         {
-            MD->FluxRiv[i][0] = 0;
-            MD->FluxRiv[i][10] = 0;
+            MD->FluxRiv[i][0] = 0.0;
+            MD->FluxRiv[i][10] = 0.0;
         }
         if (MD->SurfMode == 2 && i < MD->NumEle)
         {
             for (j = 0; j < 3; j++)
                 MD->Ele[i].surfH[j] = (MD->Ele[i].nabr[j] > 0) ? ((MD->Ele[i].BC[j] > -4) ? (MD->Ele[MD->Ele[i].nabr[j] - 1].zmax + MD->DummyY[MD->Ele[i].nabr[j] - 1]) : ((MD->DummyY[-(MD->Ele[i].BC[j] / 4) - 1 + 3 * MD->NumEle] > MD->Riv[-(MD->Ele[i].BC[j] / 4) - 1].depth) ? MD->Riv[-(MD->Ele[i].BC[j] / 4) - 1].zmin + MD->DummyY[-(MD->Ele[i].BC[j] / 4) - 1 + 3 * MD->NumEle] : MD->Riv[-(MD->Ele[i].BC[j] / 4) - 1].zmax)) : ((MD->Ele[i].BC[j] != 1) ? (MD->Ele[i].zmax + MD->DummyY[i]) : Interpolation (&MD-> TSD_EleBC[(MD->Ele[i].BC[j]) - 1], t));
-            MD->Ele[i].dhBYdx = -1 * (MD->Ele[i].surfY[2] * (MD->Ele[i].surfH[1] - MD->Ele[i].surfH[0]) + MD->Ele[i].surfY[1] * (MD->Ele[i].surfH[0] - MD->Ele[i].surfH[2]) + MD->Ele[i].surfY[0] * (MD->Ele[i].surfH[2] - MD->Ele[i].surfH[1])) / (MD->Ele[i].surfX[2] * (MD->Ele[i].surfY[1] - MD->Ele[i].surfY[0]) + MD->Ele[i].surfX[1] * (MD->Ele[i].surfY[0] - MD->Ele[i].surfY[2]) + MD->Ele[i].surfX[0] * (MD->Ele[i].surfY[2] - MD->Ele[i].surfY[1]));
-            MD->Ele[i].dhBYdy = -1 * (MD->Ele[i].surfX[2] * (MD->Ele[i].surfH[1] - MD->Ele[i].surfH[0]) + MD->Ele[i].surfX[1] * (MD->Ele[i].surfH[0] - MD->Ele[i].surfH[2]) + MD->Ele[i].surfX[0] * (MD->Ele[i].surfH[2] - MD->Ele[i].surfH[1])) / (MD->Ele[i].surfY[2] * (MD->Ele[i].surfX[1] - MD->Ele[i].surfX[0]) + MD->Ele[i].surfY[1] * (MD->Ele[i].surfX[0] - MD->Ele[i].surfX[2]) + MD->Ele[i].surfY[0] * (MD->Ele[i].surfX[2] - MD->Ele[i].surfX[1]));
+            MD->Ele[i].dhBYdx = -1.0 * (MD->Ele[i].surfY[2] * (MD->Ele[i].surfH[1] - MD->Ele[i].surfH[0]) + MD->Ele[i].surfY[1] * (MD->Ele[i].surfH[0] - MD->Ele[i].surfH[2]) + MD->Ele[i].surfY[0] * (MD->Ele[i].surfH[2] - MD->Ele[i].surfH[1])) / (MD->Ele[i].surfX[2] * (MD->Ele[i].surfY[1] - MD->Ele[i].surfY[0]) + MD->Ele[i].surfX[1] * (MD->Ele[i].surfY[0] - MD->Ele[i].surfY[2]) + MD->Ele[i].surfX[0] * (MD->Ele[i].surfY[2] - MD->Ele[i].surfY[1]));
+            MD->Ele[i].dhBYdy = -1.0 * (MD->Ele[i].surfX[2] * (MD->Ele[i].surfH[1] - MD->Ele[i].surfH[0]) + MD->Ele[i].surfX[1] * (MD->Ele[i].surfH[0] - MD->Ele[i].surfH[2]) + MD->Ele[i].surfX[0] * (MD->Ele[i].surfH[2] - MD->Ele[i].surfH[1])) / (MD->Ele[i].surfY[2] * (MD->Ele[i].surfX[1] - MD->Ele[i].surfX[0]) + MD->Ele[i].surfY[1] * (MD->Ele[i].surfX[0] - MD->Ele[i].surfX[2]) + MD->Ele[i].surfY[0] * (MD->Ele[i].surfX[2] - MD->Ele[i].surfX[1]));
         }
     }
     /*
@@ -151,7 +149,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
                 Grad_Y_Surf = Dif_Y_Surf / Distance;
                 Avg_Sf = 0.5 * (sqrt (pow (MD->Ele[i].dhBYdx, 2) + pow (MD->Ele[i].dhBYdy, 2)) + sqrt (pow (MD->Ele[MD->Ele[i].nabr[j] - 1].dhBYdx, 2) + pow (MD->Ele[MD->Ele[i].nabr[j] - 1].dhBYdy, 2))); //?? Xuan Weighting needed
                 //              Avg_Sf=sqrt(pow(MD->Ele[i].dhBYdx,2)+pow(MD->Ele[i].dhBYdy,2));
-                Avg_Sf = (MD->SurfMode == 1) ? (Grad_Y_Surf > 0 ? Grad_Y_Surf : EPS / pow (10.0, 6)) : (Avg_Sf > EPS / pow (10.0, 6) ? Avg_Sf : EPS / pow (10.0, 6));
+                Avg_Sf = (MD->SurfMode == 1) ? (Grad_Y_Surf > 0.0 ? Grad_Y_Surf : EPS / 1.0e6) : (Avg_Sf > EPS / 1.0e6 ? Avg_Sf : EPS / 1.0e6);
                 /*
                  * Weighting needed 
                  */
@@ -170,22 +168,22 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
                  */
                 if (MD->Ele[i].BC[j] == 0)
                 {
-                    MD->FluxSurf[i][j] = 0;
-                    MD->FluxSub[i][j] = 0;
+                    MD->FluxSurf[i][j] = 0.0;
+                    MD->FluxSub[i][j] = 0.0;
                 }
                 else if (MD->Ele[i].BC[j] == 1) /* Note: ideally different boundary conditions need to be incorporated  for surf and subsurf respectively */
                     /*
                      * Note: the formulation assumes only dirichlet TS right now 
                      */
                 {
-                    MD->FluxSurf[i][j] = 0; /* Note the assumption here is no flow for surface */
+                    MD->FluxSurf[i][j] = 0.0; /* Note the assumption here is no flow for surface */
                     Dif_Y_Sub = (MD->DummyY[i + 2 * MD->NumEle] + MD->Ele[i].zmin) - Interpolation (&MD->TSD_EleBC[(MD->Ele[i].BC[j]) - 1], t);
                     Avg_Y_Sub = avgY (Dif_Y_Sub, MD->DummyY[i + 2 * MD->NumEle], (Interpolation (&MD->TSD_EleBC[(MD->Ele[i].BC[j]) - 1], t) - MD->Ele[i].zmin));
                     //                          Avg_Y_Sub = (MD->DummyY[i+2*MD->NumEle] + (Interpolation(&MD->TSD_EleBC[(MD->Ele[i].BC[j])-1], t) - MD->Ele[i].zmin))/2;
                     /*
                      * Minimum Distance from circumcenter to the edge of the triangle on which BDD. condition is defined
                      */
-                    Distance = sqrt (pow (MD->Ele[i].edge[0] * MD->Ele[i].edge[1] * MD->Ele[i].edge[2] / (4 * MD->Ele[i].area), 2) - pow (MD->Ele[i].edge[j] / 2, 2));
+                    Distance = sqrt (pow (MD->Ele[i].edge[0] * MD->Ele[i].edge[1] * MD->Ele[i].edge[2] / (4.0 * MD->Ele[i].area), 2) - pow (MD->Ele[i].edge[j] / 2.0, 2));
                     effK = effKH (MD->Ele[i].Macropore, MD->DummyY[i + 2 * MD->NumEle], AquiferDepth, MD->Ele[i].macD, MD->Ele[i].macKsatH, MD->Ele[i].vAreaF, MD->Ele[i].KsatH);
                     Avg_Ksat = effK;
                     Grad_Y_Sub = Dif_Y_Sub / Distance;
