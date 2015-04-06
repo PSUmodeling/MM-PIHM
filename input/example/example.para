@@ -1,6 +1,6 @@
 #VERBOSE		    0                   # Verbose mode, 0: off, 1: on
 #DEBUG		    0                   # Debug mode, 0: off, 1: on
-INIT_MODE	    3                   # Initialization type 0: Relaxation, 1: use .att file, 3: use .init file
+INIT_MODE	    0                   # Initialization type 0: Relaxation, 1: use .att file, 3: use .init file
 ASCII_OUTPUT        1                   # Write ASCII output? 0: no, 1: yes
 SPINUP_MODE	    0                   # Spin-up mode, 0: Standard model run, 1: Outputs will be written to .init files
 UNSAT_MODE	    2
@@ -15,7 +15,7 @@ RELTOL	            1E-3
 INIT_SOLVER_STEP    5E-5
 MAX_SOLVER_STEP	    60                  # Maximum solver step (DANGER ZONE)
 LSM_STEP	    1800                # LSM (or ET) step size (unit: s)
-START		    2009-06-20 12:00
+START		    2009-06-01 12:00
 END		    2010-01-01 00:00
 OUTPUT_TYPE	    0
 STEPSIZE_FACTOR	    1.0
@@ -26,9 +26,9 @@ MODEL_STEPSIZE	    60                 # PIHM step size (unit: s)
 #  Use "#" to comment out the variables you do not want to output, or set     #
 #  the output interval (in minutes) to 0.                                     #
 ###############################################################################
-GW		    86400
-SURF		    86400
-SNOW		    86400
+GW		    3600
+SURF		    0
+SNOW		    0
 #RIVSTG		    86400
 #RECHARGE	    86400
 #CMC		    86400
@@ -36,8 +36,8 @@ SNOW		    86400
 #EC                  86400
 #ETT                 86400
 #EDIR		    86400
-RIVFLX0             86400
-RIVFLX1	    	    86400
+#RIVFLX0             86400
+RIVFLX1	    	    3600
 #RIVFLX2             86400
 #RIVFLX3	            86400
 #RIVFLX4    	    86400
