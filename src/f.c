@@ -206,9 +206,9 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
              * Assumption: infD<macD 
              */
             Grad_Y_Sub = (MD->DummyY[i] + MD->Ele[i].zmax - (MD->DummyY[i + 2 * MD->NumEle] + MD->Ele[i].zmin)) / MD->Ele[i].infD;
-            Grad_Y_Sub = ((MD->DummyY[i] < EPS / 100) && (Grad_Y_Sub > 0)) ? 0 : Grad_Y_Sub;
+            Grad_Y_Sub = ((MD->DummyY[i] < EPS / 100.0) && (Grad_Y_Sub > 0.0)) ? 0.0 : Grad_Y_Sub;
             elemSatn = 1.0;
-            satKfunc = pow (elemSatn, 0.5) * pow (-1 + pow (1 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1)), (MD->Ele[i].Beta - 1) / MD->Ele[i].Beta), 2);
+            satKfunc = pow (elemSatn, 0.5) * pow (-1.0 + pow (1.0 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)), (MD->Ele[i].Beta - 1.0) / MD->Ele[i].Beta), 2);
             effK = (MD->Ele[i].Macropore == 1) ? effKV (satKfunc, Grad_Y_Sub, MD->Ele[i].macKsatV, MD->Ele[i].infKsatV, MD->Ele[i].hAreaF) : MD->Ele[i].infKsatV;
 #ifdef _FLUX_PIHM_
             MD->EleViR[i] = MD->EleFCR[i] * effK * Grad_Y_Sub;
@@ -217,24 +217,24 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
 #endif
 
 #ifdef _FLUX_PIHM_
-            if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i]) * dt < 0)
+            if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i]) * dt < 0.0)
 #else
-            if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i] - (MD->DummyY[i] < (EPS / 100) ? 0 : MD->EleET[i][2])) * dt < 0)
+            if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i] - (MD->DummyY[i] < (EPS / 100.0) ? 0.0 : MD->EleET[i][2])) * dt < 0.0)
 #endif
             {
 #ifdef _FLUX_PIHM_
                 MD->EleViR[i] = MD->DummyY[i] / dt + MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area;
 #else
-                MD->EleViR[i] = MD->DummyY[i] / dt + MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - (MD->DummyY[i] < (EPS / 100) ? 0 : MD->EleET[i][2]);
+                MD->EleViR[i] = MD->DummyY[i] / dt + MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - (MD->DummyY[i] < (EPS / 100.0) ? 0.0 : MD->EleET[i][2]);
 #endif
-                MD->EleViR[i] = MD->EleViR[i] < 0 ? 0 : MD->EleViR[i];
+                MD->EleViR[i] = MD->EleViR[i] < 0.0 ? 0.0 : MD->EleViR[i];
             }
             MD->Recharge[i] = MD->EleViR[i];
             DY[i + MD->NumEle] = DY[i + MD->NumEle] + MD->EleViR[i] - MD->Recharge[i];
 #ifdef _FLUX_PIHM_
             DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] + MD->Recharge[i] - MD->EleET[i][2];
 #else
-            DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] + MD->Recharge[i] - (MD->DummyY[i] < (EPS / 100) ? MD->EleET[i][2] : 0);
+            DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] + MD->Recharge[i] - (MD->DummyY[i] < (EPS / 100.0) ? MD->EleET[i][2] : 0.0);
 #endif
         }
         else
@@ -242,20 +242,20 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             Deficit = AquiferDepth - MD->DummyY[i + 2 * MD->NumEle];
             //          elemSatn = elemSatn>1?1:elemSatn;
             elemSatn = 1.0;
-            satKfunc = pow (elemSatn, 0.5) * pow (-1 + pow (1 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1)), (MD->Ele[i].Beta - 1) / MD->Ele[i].Beta), 2);
+            satKfunc = pow (elemSatn, 0.5) * pow (-1.0 + pow (1.0 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)), (MD->Ele[i].Beta - 1.0) / MD->Ele[i].Beta), 2);
             /* Note: for psi calculation using van genuchten relation, cutting the psi-sat tail at small saturation can be performed for computational advantage. If you dont' want to perform this, comment the statement that follows */
 #ifdef _FLUX_PIHM_
             elemSatn = MD->SfcSat[i];   //(MD->EleSW[i][0]-MD->Ele[i].ThetaR)/(MD->Ele[i].ThetaS - MD->Ele[i].ThetaR);
 #else
-            elemSatn = ((MD->DummyY[i + MD->NumEle] / Deficit) > 1) ? 1 : ((MD->DummyY[i + MD->NumEle] <= 0) ? EPS / 1000.0 : MD->DummyY[i + MD->NumEle] / Deficit);
+            elemSatn = ((MD->DummyY[i + MD->NumEle] / Deficit) > 1.0) ? 1.0 : ((MD->DummyY[i + MD->NumEle] <= 0.0) ? EPS / 1000.0 : MD->DummyY[i + MD->NumEle] / Deficit);
 #endif
             //          printf("elemSatn = %f, SW = %f, ThetaS = %f, ThetaR = %f, soiltype = %d\n", elemSatn, MD->EleSW[i][0], MD->Ele[i].ThetaS, MD->Ele[i].ThetaR, MD->Ele[i].geol);
-            elemSatn = elemSatn > 1. ? 1. : elemSatn;
+            elemSatn = elemSatn > 1.0 ? 1.0 : elemSatn;
             elemSatn = (elemSatn < multF * EPS) ? (multF * EPS) : elemSatn;
-            Avg_Y_Sub = (-(pow (pow (1 / elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1)) - 1, 1 / MD->Ele[i].Beta) / MD->Ele[i].Alpha) < MINpsi) ? MINpsi : (-(pow (pow (1 / elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1)) - 1, 1 / MD->Ele[i].Beta) / MD->Ele[i].Alpha));
+            Avg_Y_Sub = (-(pow (pow (1.0 / elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)) - 1.0, 1.0 / MD->Ele[i].Beta) / MD->Ele[i].Alpha) < MINpsi) ? MINpsi : (-(pow (pow (1.0 / elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)) - 1.0, 1.0 / MD->Ele[i].Beta) / MD->Ele[i].Alpha));
             TotalY_Ele = Avg_Y_Sub + MD->Ele[i].zmin + AquiferDepth - MD->Ele[i].infD;
             Grad_Y_Sub = (MD->DummyY[i] + MD->Ele[i].zmax - TotalY_Ele) / MD->Ele[i].infD;
-            Grad_Y_Sub = ((MD->DummyY[i] < EPS / 100) && (Grad_Y_Sub > 0)) ? 0 : Grad_Y_Sub;
+            Grad_Y_Sub = ((MD->DummyY[i] < EPS / 100.0) && (Grad_Y_Sub > 0.0)) ? 0.0 : Grad_Y_Sub;
             //          satKfunc = satKfunc<0.13?0.13:satKfunc;
             effK = (MD->Ele[i].Macropore == 1) ? effKV (satKfunc, Grad_Y_Sub, MD->Ele[i].macKsatV, MD->Ele[i].infKsatV, MD->Ele[i].hAreaF) : MD->Ele[i].infKsatV;
             //          MD->Ele[i].effKV = effK;
@@ -267,17 +267,17 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
 #endif
 
 #ifdef _FLUX_PIHM_
-            if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i]) * dt < 0)
+            if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i]) * dt < 0.0)
 #else
-            if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i] - (MD->DummyY[i] < EPS / 100 ? 0 : MD->EleET[i][2])) * dt < 0)
+            if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i] - (MD->DummyY[i] < EPS / 100.0 ? 0.0 : MD->EleET[i][2])) * dt < 0.0)
 #endif
             {
 #ifdef _FLUX_PIHM_
                 MD->EleViR[i] = MD->DummyY[i] / dt + MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area;
 #else
-                MD->EleViR[i] = MD->DummyY[i] / dt + MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - (MD->DummyY[i] < EPS / 100 ? 0 : MD->EleET[i][2]);
+                MD->EleViR[i] = MD->DummyY[i] / dt + MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - (MD->DummyY[i] < EPS / 100.0 ? 0.0 : MD->EleET[i][2]);
 #endif
-                MD->EleViR[i] = MD->EleViR[i] < 0 ? 0 : MD->EleViR[i];
+                MD->EleViR[i] = MD->EleViR[i] < 0.0 ? 0.0 : MD->EleViR[i];
             }
             /*
              * Harmonic mean formulation. Note that if unsaturated zone has low saturation, satKfunc becomes very small. Use arithmetic mean instead
@@ -286,27 +286,27 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             /*
              * Arithmetic Mean Formulation 
              */
-            elemSatn = ((MD->DummyY[i + MD->NumEle] / Deficit) > 1) ? 1 : ((MD->DummyY[i + MD->NumEle] <= 0) ? (EPS / 100.0) : (MD->DummyY[i + MD->NumEle] / Deficit));
+            elemSatn = ((MD->DummyY[i + MD->NumEle] / Deficit) > 1.0) ? 1.0 : ((MD->DummyY[i + MD->NumEle] <= 0.0) ? (EPS / 100.0) : (MD->DummyY[i + MD->NumEle] / Deficit));
             elemSatn = (elemSatn < multF * EPS) ? (multF * EPS) : elemSatn;
-            satKfunc = pow (elemSatn, 0.5) * pow (-1 + pow (1 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1)), (MD->Ele[i].Beta - 1) / MD->Ele[i].Beta), 2);
+            satKfunc = pow (elemSatn, 0.5) * pow (-1.0 + pow (1.0 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)), (MD->Ele[i].Beta - 1.0) / MD->Ele[i].Beta), 2);
             satKfunc = satKfunc < 0.13 ? 0.13 : satKfunc;
             //          effK=(MD->Ele[i].Macropore==1)?((MD->DummyY[i+2*MD->NumEle]>AquiferDepth-MD->Ele[i].macD)?effK:(MD->Ele[i].KsatV*satKfunc)):(MD->Ele[i].KsatV*satKfunc);
-            Avg_Y_Sub = (-(pow (pow (1 / elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1)) - 1, 1 / MD->Ele[i].Beta) / MD->Ele[i].Alpha) < MINpsi) ? MINpsi : (-(pow (pow (1 / elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1)) - 1, 1 / MD->Ele[i].Beta) / MD->Ele[i].Alpha));
+            Avg_Y_Sub = (-(pow (pow (1.0 / elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)) - 1.0, 1.0 / MD->Ele[i].Beta) / MD->Ele[i].Alpha) < MINpsi) ? MINpsi : (-(pow (pow (1.0 / elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)) - 1.0, 1.0 / MD->Ele[i].Beta) / MD->Ele[i].Alpha));
             TotalY_Ele = Avg_Y_Sub + MD->Ele[i].zmax - 0.5 * Deficit;
             Grad_Y_Sub = (TotalY_Ele - (MD->Ele[i].zmax - Deficit)) / (0.5 * AquiferDepth);
             //(MD->DummyY[i]+MD->Ele[i].zmax-TotalY_Ele)/MD->Ele[i].infD;
             //          Grad_Y_Sub=((MD->DummyY[i]<EPS/100)&&(Grad_Y_Sub>0))?0:Grad_Y_Sub;
             effK = (MD->Ele[i].Macropore == 1) ? ((MD->DummyY[i + 2 * MD->NumEle] > AquiferDepth - MD->Ele[i].macD) ? effKV (satKfunc, Grad_Y_Sub, MD->Ele[i].macKsatV, MD->Ele[i].KsatV, MD->Ele[i].hAreaF) : (MD->Ele[i].KsatV * satKfunc)) : (MD->Ele[i].KsatV * satKfunc);
 
-            MD->Recharge[i] = (elemSatn == 0.0) ? 0 : ((Deficit <= 0) ? 0 : (MD->Ele[i].KsatV * MD->DummyY[i + 2 * MD->NumEle] + effK * Deficit) * (MD->Ele[i].Alpha * Deficit - 2 * pow (-1 + pow (elemSatn, MD->Ele[i].Beta / (-MD->Ele[i].Beta + 1)), 1 / MD->Ele[i].Beta)) / (MD->Ele[i].Alpha * pow (Deficit + MD->DummyY[i + 2 * MD->NumEle], 2)));
-            MD->Recharge[i] = (MD->Recharge[i] > 0 && MD->DummyY[i + MD->NumEle] <= 0) ? 0 : MD->Recharge[i];   //??BHATT
-            MD->Recharge[i] = (MD->Recharge[i] < 0 && MD->DummyY[i + 2 * MD->NumEle] <= 0) ? 0 : MD->Recharge[i];   //??BHATT
+            MD->Recharge[i] = (elemSatn == 0.0) ? 0.0 : ((Deficit <= 0.0) ? 0.0 : (MD->Ele[i].KsatV * MD->DummyY[i + 2 * MD->NumEle] + effK * Deficit) * (MD->Ele[i].Alpha * Deficit - 2.0 * pow (-1.0 + pow (elemSatn, MD->Ele[i].Beta / (-MD->Ele[i].Beta + 1.0)), 1.0 / MD->Ele[i].Beta)) / (MD->Ele[i].Alpha * pow (Deficit + MD->DummyY[i + 2 * MD->NumEle], 2)));
+            MD->Recharge[i] = (MD->Recharge[i] > 0.0 && MD->DummyY[i + MD->NumEle] <= 0.0) ? 0.0 : MD->Recharge[i];   //??BHATT
+            MD->Recharge[i] = (MD->Recharge[i] < 0.0 && MD->DummyY[i + 2 * MD->NumEle] <= 0.0) ? 0.0 : MD->Recharge[i];   //??BHATT
 
             //          MD->EleET[i][2]=(MD->DummyY[i]<EPS/100)?elemSatn*MD->EleET[i][2]:MD->EleET[i][2];
 #ifdef _FLUX_PIHM_
             DY[i + MD->NumEle] = DY[i + MD->NumEle] + MD->EleViR[i] - MD->Recharge[i] - MD->EleET[i][2];
 #else
-            DY[i + MD->NumEle] = DY[i + MD->NumEle] + MD->EleViR[i] - MD->Recharge[i] - ((MD->DummyY[i] < EPS / 100) ? MD->EleET[i][2] : 0);
+            DY[i + MD->NumEle] = DY[i + MD->NumEle] + MD->EleViR[i] - MD->Recharge[i] - ((MD->DummyY[i] < EPS / 100.0) ? MD->EleET[i][2] : 0.0);
 #endif
             DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] + MD->Recharge[i];
         }
@@ -315,7 +315,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
         DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] - MD->EleETsat[i] * MD->EleET[i][1];
         DY[i + MD->NumEle] = DY[i + MD->NumEle] - (1 - MD->EleETsat[i]) * MD->EleET[i][1];
 #else
-        DY[i] = DY[i] + MD->EleNetPrep[i] - MD->EleViR[i] - ((MD->DummyY[i] < EPS / 100) ? 0 : MD->EleET[i][2]);
+        DY[i] = DY[i] + MD->EleNetPrep[i] - MD->EleViR[i] - ((MD->DummyY[i] < EPS / 100.0) ? 0.0 : MD->EleET[i][2]);
         if (MD->DummyY[i + 2 * MD->NumEle] > AquiferDepth - MD->Ele[i].RzD)
             DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] - MD->EleET[i][1];
         else
@@ -331,13 +331,9 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
         Perem = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->DummyY[i + 3 * MD->NumEle], MD->Riv[i].coeff, 2);
         if (MD->Riv[i].down > 0)
         {
-
-            /****************************************************************/
             /*
              * Lateral Flux Calculation between River-River element Follows 
              */
-
-            /****************************************************************/
             TotalY_Riv_down = MD->DummyY[MD->Riv[i].down - 1 + 3 * MD->NumEle] + MD->Riv[MD->Riv[i].down - 1].zmin;
             Perem_down = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[MD->Riv[i].down - 1].shape - 1].interpOrd, MD->DummyY[MD->Riv[i].down - 1 + 3 * MD->NumEle], MD->Riv[MD->Riv[i].down - 1].coeff, 2);
             Avg_Perem = (Perem + Perem_down) / 2.0;
@@ -345,11 +341,11 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             Distance = 0.5 * (MD->Riv[i].Length + MD->Riv[MD->Riv[i].down - 1].Length);
             Dif_Y_Riv = (MD->RivMode == 1) ? (MD->Riv[i].zmin - MD->Riv[MD->Riv[i].down - 1].zmin) : (TotalY_Riv - TotalY_Riv_down);
             Grad_Y_Riv = Dif_Y_Riv / Distance;
-            Avg_Sf = (Grad_Y_Riv > 0) ? Grad_Y_Riv : EPS;
+            Avg_Sf = (Grad_Y_Riv > 0.0) ? Grad_Y_Riv : EPS;
             CrossA = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->DummyY[i + 3 * MD->NumEle], MD->Riv[i].coeff, 1);
             CrossAdown = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[MD->Riv[i].down - 1].shape - 1].interpOrd, MD->DummyY[MD->Riv[i].down - 1 + 3 * MD->NumEle], MD->Riv[MD->Riv[i].down - 1].coeff, 1);
             AvgCrossA = 0.5 * (CrossA + CrossAdown);
-            Avg_Y_Riv = (Avg_Perem == 0) ? 0 : (AvgCrossA / Avg_Perem);
+            Avg_Y_Riv = (Avg_Perem == 0.0) ? 0.0 : (AvgCrossA / Avg_Perem);
             OverlandFlow (MD->FluxRiv, i, 1, Avg_Y_Riv, Grad_Y_Riv, Avg_Sf, CrossA, Avg_Rough);
             /*
              * accumulate to get in-flow for down segments: [0] for inflow, [1] for outflow 
@@ -408,7 +404,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
                     Avg_Y_Riv = avgY (Grad_Y_Riv, MD->DummyY[i + 3 * MD->NumEle], Interpolation (&MD->TSD_Riv[(MD->Riv[i].BC) - 1], t));
                     Avg_Perem = Perem;
                     CrossA = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->DummyY[i + 3 * MD->NumEle], MD->Riv[i].coeff, 1);
-                    Avg_Y_Riv = (Perem == 0) ? 0 : (CrossA / Avg_Perem);
+                    Avg_Y_Riv = (Perem == 0.0) ? 0.0 : (CrossA / Avg_Perem);
                     OverlandFlow (MD->FluxRiv, i, 1, Avg_Y_Riv, Grad_Y_Riv, Avg_Sf, CrossA, Avg_Rough);
                     break;
                 case -2:
@@ -427,7 +423,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
                     Avg_Y_Riv = MD->DummyY[i + 3 * MD->NumEle];
                     Avg_Perem = Perem;
                     CrossA = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->DummyY[i + 3 * MD->NumEle], MD->Riv[i].coeff, 1);
-                    MD->FluxRiv[i][1] = sqrt (Grad_Y_Riv) * CrossA * ((Avg_Perem > 0) ? pow (CrossA / Avg_Perem, 2.0 / 3.0) : 0) / Avg_Rough;
+                    MD->FluxRiv[i][1] = sqrt (Grad_Y_Riv) * CrossA * ((Avg_Perem > 0.0) ? pow (CrossA / Avg_Perem, 2.0 / 3.0) : 0.0) / Avg_Rough;
                     break;
                 case -4:
                     /*
@@ -443,7 +439,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             /*
              * Note: bdd condition for subsurface element can be changed. Assumption: No flow condition 
              */
-            MD->FluxRiv[i][9] = 0;
+            MD->FluxRiv[i][9] = 0.0;
         }
         if (MD->Riv[i].LeftEle > 0)
         {
@@ -465,7 +461,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             /*
              * This is head in neighboring cell represention 
              */
-            Avg_Y_Sub = MD->Ele[MD->Riv[i].LeftEle - 1].zmin > MD->Riv[i].zmin ? MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle] : ((MD->Ele[MD->Riv[i].LeftEle - 1].zmin + MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle]) > MD->Riv[i].zmin ? (MD->Ele[MD->Riv[i].LeftEle - 1].zmin + MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle] - MD->Riv[i].zmin) : 0);
+            Avg_Y_Sub = MD->Ele[MD->Riv[i].LeftEle - 1].zmin > MD->Riv[i].zmin ? MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle] : ((MD->Ele[MD->Riv[i].LeftEle - 1].zmin + MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle]) > MD->Riv[i].zmin ? (MD->Ele[MD->Riv[i].LeftEle - 1].zmin + MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle] - MD->Riv[i].zmin) : 0.0);
             //          Avg_Y_Sub=avgY(MD->Riv[i].zmin,MD->Riv[i].zmin,MD->DummyY[i+3*MD->NumEle],Avg_Y_Sub);
             Avg_Y_Sub = avgY (Dif_Y_Sub, MD->DummyY[i + 3 * MD->NumEle], Avg_Y_Sub);
             effK = MD->Riv[i].KsatH;
@@ -512,7 +508,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             {
                 if (MD->Ele[MD->Riv[i].LeftEle - 1].nabr[j] == MD->Riv[i].RightEle)
                 {
-                    if (-MD->FluxRiv[i][2] > 0 && -MD->FluxRiv[i][2] > MD->FluxSurf[MD->Riv[i].LeftEle - 1][j])
+                    if (-MD->FluxRiv[i][2] > 0.0 && -MD->FluxRiv[i][2] > MD->FluxSurf[MD->Riv[i].LeftEle - 1][j])
                         MD->FluxRiv[i][2] = -MD->DummyY[MD->Riv[i].LeftEle - 1] / dt;
                     MD->FluxSurf[MD->Riv[i].LeftEle - 1][j] = -MD->FluxRiv[i][2];
                     MD->FluxSub[MD->Riv[i].LeftEle - 1][j] = -MD->FluxRiv[i][4];
@@ -541,7 +537,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             /*
              * This is head in neighboring cell represention 
              */
-            Avg_Y_Sub = MD->Ele[MD->Riv[i].RightEle - 1].zmin > MD->Riv[i].zmin ? MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle] : ((MD->Ele[MD->Riv[i].RightEle - 1].zmin + MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle]) > MD->Riv[i].zmin ? (MD->Ele[MD->Riv[i].RightEle - 1].zmin + MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle] - MD->Riv[i].zmin) : 0);
+            Avg_Y_Sub = MD->Ele[MD->Riv[i].RightEle - 1].zmin > MD->Riv[i].zmin ? MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle] : ((MD->Ele[MD->Riv[i].RightEle - 1].zmin + MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle]) > MD->Riv[i].zmin ? (MD->Ele[MD->Riv[i].RightEle - 1].zmin + MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle] - MD->Riv[i].zmin) : 0.0);
             //          Avg_Y_Sub=avgY(MD->Riv[i].zmin,MD->Riv[i].zmin,MD->DummyY[i+3*MD->NumEle],Avg_Y_Sub);
             Avg_Y_Sub = avgY (Dif_Y_Sub, MD->DummyY[i + 3 * MD->NumEle], Avg_Y_Sub);
             effK = MD->Riv[i].KsatH;
@@ -568,7 +564,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             /*
              * This is head in neighboring cell represention 
              */
-            Avg_Y_Sub = MD->Ele[MD->Riv[i].RightEle - 1].zmin > MD->Riv[i].zmin ? 0 : ((MD->Ele[MD->Riv[i].RightEle - 1].zmin + MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle]) > MD->Riv[i].zmin ? (MD->Riv[i].zmin - MD->Ele[MD->Riv[i].RightEle - 1].zmin) : MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle]);
+            Avg_Y_Sub = MD->Ele[MD->Riv[i].RightEle - 1].zmin > MD->Riv[i].zmin ? 0.0 : ((MD->Ele[MD->Riv[i].RightEle - 1].zmin + MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle]) > MD->Riv[i].zmin ? (MD->Riv[i].zmin - MD->Ele[MD->Riv[i].RightEle - 1].zmin) : MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle]);
             //          Avg_Y_Sub=avgY(MD->Ele[i+MD->NumEle].zmin,MD->Ele[MD->Riv[i].RightEle-1].zmin,MD->DummyY[i+3*MD->NumEle+MD->NumRiv],Avg_Y_Sub); 
             Avg_Y_Sub = avgY (Dif_Y_Sub, MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv], Avg_Y_Sub);
             AquiferDepth = (MD->Ele[i + MD->NumEle].zmax - MD->Ele[i + MD->NumEle].zmin);
@@ -587,7 +583,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             {
                 if (MD->Ele[MD->Riv[i].RightEle - 1].nabr[j] == MD->Riv[i].LeftEle)
                 {
-                    if (-MD->FluxRiv[i][3] > 0 && -MD->FluxRiv[i][3] > MD->FluxSurf[MD->Riv[i].RightEle - 1][j])
+                    if (-MD->FluxRiv[i][3] > 0.0 && -MD->FluxRiv[i][3] > MD->FluxSurf[MD->Riv[i].RightEle - 1][j])
                         MD->FluxRiv[i][3] = -MD->DummyY[MD->Riv[i].RightEle - 1] / dt;
                     MD->FluxSurf[MD->Riv[i].RightEle - 1][j] = -MD->FluxRiv[i][3];
                     MD->FluxSub[MD->Riv[i].RightEle - 1][j] = -MD->FluxRiv[i][5];
@@ -597,7 +593,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             }
         }
         Avg_Wid = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->DummyY[i + 3 * MD->NumEle], MD->Riv[i].coeff, 3);
-        Dif_Y_Riv = (MD->Riv[i].zmin - (MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[i + MD->NumEle].zmin)) > 0 ? MD->DummyY[i + 3 * MD->NumEle] : MD->DummyY[i + 3 * MD->NumEle] + MD->Riv[i].zmin - (MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[i + MD->NumEle].zmin);
+        Dif_Y_Riv = (MD->Riv[i].zmin - (MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[i + MD->NumEle].zmin)) > 0.0 ? MD->DummyY[i + 3 * MD->NumEle] : MD->DummyY[i + 3 * MD->NumEle] + MD->Riv[i].zmin - (MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[i + MD->NumEle].zmin);
         Grad_Y_Riv = Dif_Y_Riv / MD->Riv[i].bedThick;
         MD->FluxRiv[i][6] = MD->Riv[i].KsatV * Avg_Wid * MD->Riv[i].Length * Grad_Y_Riv;
     }
