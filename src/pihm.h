@@ -541,6 +541,7 @@ void            OverlandFlow (realtype **, int, int, realtype, realtype, realtyp
 void            OLFeleToriv (realtype, realtype, realtype, realtype, realtype, realtype **, int, int, realtype);
 realtype        avgY (realtype, realtype, realtype);
 realtype        effKV (realtype, realtype, realtype, realtype, realtype);
+realtype        effKV_new (realtype ksatFunc, realtype elemSatn, realtype gradY, realtype macKV, realtype KV, realtype areaF);
 realtype        effKH (int, realtype, realtype, realtype, realtype, realtype, realtype);
 realtype        FieldCapacity (realtype, realtype, realtype, realtype, realtype);
 void            is_sm_et (realtype, realtype, void *, N_Vector);

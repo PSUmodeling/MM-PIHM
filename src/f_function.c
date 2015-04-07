@@ -26,18 +26,18 @@ realtype CS_AreaOrPerem (int rivOrder, realtype rivDepth, realtype rivCoeff, rea
             return returnVal (rivArea, rivPerem, eq_Wid, a_pBool);
         case 2:
             rivArea = pow (rivDepth, 2) / rivCoeff;
-            rivPerem = 2.0 * rivDepth * pow (1 + pow (rivCoeff, 2), 0.5) / rivCoeff;
-            eq_Wid = 2.0 * pow (rivDepth + EPS, 1 / (rivOrder - 1)) / pow (rivCoeff, 1 / (rivOrder - 1));
+            rivPerem = 2.0 * rivDepth * pow (1.0 + pow (rivCoeff, 2), 0.5) / rivCoeff;
+            eq_Wid = 2.0 * pow (rivDepth + EPS, 1.0 / (rivOrder - 1)) / pow (rivCoeff, 1.0 / (rivOrder - 1));
             return returnVal (rivArea, rivPerem, eq_Wid, a_pBool);
         case 3:
-            rivArea = 4 * pow (rivDepth, 1.5) / (3 * pow (rivCoeff, 0.5));
-            rivPerem = (pow (rivDepth * (1 + 4 * rivCoeff * rivDepth) / rivCoeff, 0.5)) + (log (2 * pow (rivCoeff * rivDepth, 0.5) + pow (1 + 4 * rivCoeff * rivDepth, 0.5)) / (2 * rivCoeff));
-            eq_Wid = 2.0 * pow (rivDepth + EPS, 1 / (rivOrder - 1)) / pow (rivCoeff, 1 / (rivOrder - 1));
+            rivArea = 4.0 * pow (rivDepth, 1.5) / (3.0 * pow (rivCoeff, 0.5));
+            rivPerem = (pow (rivDepth * (1.0 + 4.0 * rivCoeff * rivDepth) / rivCoeff, 0.5)) + (log (2.0 * pow (rivCoeff * rivDepth, 0.5) + pow (1.0 + 4.0 * rivCoeff * rivDepth, 0.5)) / (2.0 * rivCoeff));
+            eq_Wid = 2.0 * pow (rivDepth + EPS, 1.0 / (rivOrder - 1)) / pow (rivCoeff, 1.0 / (rivOrder - 1));
             return returnVal (rivArea, rivPerem, eq_Wid, a_pBool);
         case 4:
-            rivArea = 3 * pow (rivDepth, 4.0 / 3.0) / (2 * pow (rivCoeff, 1.0 / 3.0));
-            rivPerem = 2 * ((pow (rivDepth * (1 + 9 * pow (rivCoeff, 2.0 / 3.0) * rivDepth), 0.5) / 3) + (log (3 * pow (rivCoeff, 1.0 / 3.0) * pow (rivDepth, 0.5) + pow (1 + 9 * pow (rivCoeff, 2.0 / 3.0) * rivDepth, 0.5)) / (9 * pow (rivCoeff, 1.0 / 3.0))));
-            eq_Wid = 2.0 * pow (rivDepth + EPS, 1 / (rivOrder - 1)) / pow (rivCoeff, 1 / (rivOrder - 1));
+            rivArea = 3.0 * pow (rivDepth, 4.0 / 3.0) / (2.0 * pow (rivCoeff, 1.0 / 3.0));
+            rivPerem = 2.0 * ((pow (rivDepth * (1.0 + 9.0 * pow (rivCoeff, 2.0 / 3.0) * rivDepth), 0.5) / 3.0) + (log (3.0 * pow (rivCoeff, 1.0 / 3.0) * pow (rivDepth, 0.5) + pow (1.0 + 9.0 * pow (rivCoeff, 2.0 / 3.0) * rivDepth, 0.5)) / (9.0 * pow (rivCoeff, 1.0 / 3.0))));
+            eq_Wid = 2.0 * pow (rivDepth + EPS, 1.0/ (rivOrder - 1)) / pow (rivCoeff, 1.0 / (rivOrder - 1));
             return returnVal (rivArea, rivPerem, eq_Wid, a_pBool);
         default:
             printf ("\n Relevant Values entered are wrong");
@@ -62,11 +62,11 @@ void OLFeleToriv (realtype eleYtot, realtype EleZ, realtype cwr, realtype rivZma
     if (rivYtot > eleYtot)
     {
         if (eleYtot > threshEle)
-            fluxriv[loci][locj] = cwr * 2.0 * sqrt (2 * GRAV ) * length * sqrt (rivYtot - eleYtot) * (rivYtot - threshEle) / 3.0;
+            fluxriv[loci][locj] = cwr * 2.0 * sqrt (2.0 * GRAV ) * length * sqrt (rivYtot - eleYtot) * (rivYtot - threshEle) / 3.0;
         else
         {
             if (threshEle < rivYtot)
-                fluxriv[loci][locj] = cwr * 2.0 * sqrt (2 * GRAV) * length * sqrt (rivYtot - threshEle) * (rivYtot - threshEle) / 3.0;
+                fluxriv[loci][locj] = cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (rivYtot - threshEle) * (rivYtot - threshEle) / 3.0;
             else
                 fluxriv[loci][locj] = 0.0;
         }
@@ -74,11 +74,11 @@ void OLFeleToriv (realtype eleYtot, realtype EleZ, realtype cwr, realtype rivZma
     else
     {
         if (rivYtot > threshEle)
-            fluxriv[loci][locj] = -cwr * 2.0 * sqrt (2 * GRAV) * length * sqrt (eleYtot - rivYtot) * (eleYtot - threshEle) / 3.0;
+            fluxriv[loci][locj] = -cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (eleYtot - rivYtot) * (eleYtot - threshEle) / 3.0;
         else
         {
             if (threshEle < eleYtot)
-                fluxriv[loci][locj] = -cwr * 2.0 * sqrt (2 * GRAV) * length * sqrt (eleYtot - threshEle) * (eleYtot - threshEle) / 3.0;
+                fluxriv[loci][locj] = -cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (eleYtot - threshEle) * (eleYtot - threshEle) / 3.0;
             else
                 fluxriv[loci][locj] = 0.0;
         }
@@ -118,44 +118,62 @@ void OLFeleToriv (realtype eleYtot, realtype EleZ, realtype cwr, realtype rivZma
  */
 realtype avgY (realtype diff, realtype yi, realtype yinabr)
 {
-    if (diff > 0)
+    if (diff > 0.0)
     {
-        if (yi > 1 * EPS / 100)
+        if (yi > 1.0 * EPS / 100.0)
         {
             //          return 0.5*(yi+yinabr);
             //          return ((yinabr>yi)?0:1.0*yi);  /* Note the if-else TRUE case can be possible only for Kinematic case */
             return 1.0 * yi;
         }
         else
-            return 0;
+            return 0.0;
     }
     else
     {
-        if (yinabr > 1 * EPS / 100)
+        if (yinabr > 1.0 * EPS / 100.0)
         {
             //          return 0.5*(yi+yinabr);
             //          return ((yi>yinabr)?0:1.0*yinabr);  /* Note the if-else TRUE case can be possible only for Kinematic case */
             return 1.0 * yinabr;
         }
         else
-            return 0;
+            return 0.0;
     }
 }
 
 realtype effKV (realtype ksatFunc, realtype gradY, realtype macKV, realtype KV, realtype areaF)
 {
     if (ksatFunc >= 0.98)
-        return (macKV * areaF + KV * (1 - areaF) * ksatFunc);
+        return (macKV * areaF + KV * (1.0 - areaF) * ksatFunc);
     else
     {
-        if (fabs (gradY) * ksatFunc * KV <= 1 * KV * ksatFunc)
+        if (fabs (gradY) * ksatFunc * KV <= 1.0 * KV * ksatFunc)
             return KV * ksatFunc;
         else
         {
-            if (fabs (gradY) * ksatFunc * KV < (macKV * areaF + KV * (1 - areaF) * ksatFunc))
-                return (macKV * areaF * ksatFunc + KV * (1 - areaF) * ksatFunc);
+            if (fabs (gradY) * ksatFunc * KV < (macKV * areaF + KV * (1.0 - areaF) * ksatFunc))
+                return (macKV * areaF * ksatFunc + KV * (1.0 - areaF) * ksatFunc);
             else
-                return (macKV * areaF + KV * (1 - areaF) * ksatFunc);
+                return (macKV * areaF + KV * (1.0 - areaF) * ksatFunc);
+        }
+    }
+}
+
+realtype effKV_new (realtype ksatFunc, realtype elemSatn, realtype gradY, realtype macKV, realtype KV, realtype areaF)
+{
+    if (elemSatn >= 0.98)
+        return (macKV * areaF + KV * (1.0 - areaF) * ksatFunc);
+    else
+    {
+        if (fabs (gradY) * ksatFunc * KV <= 1.0 * KV * ksatFunc)
+            return KV * ksatFunc;
+        else
+        {
+            if (fabs (gradY) * ksatFunc * KV < (macKV * areaF + KV * (1.0 - areaF) * ksatFunc))
+                return (macKV * areaF * elemSatn + KV * (1.0 - areaF) * ksatFunc);
+            else
+                return (macKV * areaF + KV * (1.0 - areaF) * ksatFunc);
         }
     }
 }
@@ -169,7 +187,7 @@ realtype effKH (int mp, realtype tmpY, realtype aqDepth, realtype MacD, realtype
             if (tmpY > aqDepth)
                 return (MacKsatH * MacD * areaF + ksatH * (aqDepth - MacD * areaF)) / aqDepth;
             else
-                return (MacKsatH * (tmpY - (aqDepth - MacD)) * areaF + ksatH * (aqDepth - MacD + (tmpY - (aqDepth - MacD)) * (1 - areaF))) / tmpY;
+                return (MacKsatH * (tmpY - (aqDepth - MacD)) * areaF + ksatH * (aqDepth - MacD + (tmpY - (aqDepth - MacD)) * (1.0 - areaF))) / tmpY;
         }
         else
             return ksatH;
