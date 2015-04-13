@@ -160,17 +160,35 @@ realtype effKV (realtype ksatFunc, realtype gradY, realtype macKV, realtype KV, 
     }
 }
 
-realtype effKV_new (realtype ksatFunc, realtype elemSatn, realtype gradY, realtype macKV, realtype KV, realtype areaF)
+int macpore_status (realtype ksatFunc, realtype elemSatn, realtype gradY, realtype macKV, realtype KV, realtype areaF)
 {
     if (elemSatn >= 0.98)
+        return SAT_CTRL;
+    else
+    {
+        if (gradY * KV <= 1.0 * KV * ksatFunc)
+            return MAT_CTRL;
+        else
+        {
+            if (gradY * KV < (macKV * areaF + KV * (1.0 - areaF) * ksatFunc))
+                return APP_CTRL;
+            else
+                return MAC_CTRL;
+        }
+    }
+}
+
+realtype effKV_new (realtype ksatFunc, realtype elemSatn, int status, realtype macKV, realtype KV, realtype areaF)
+{
+    if (status == SAT_CTRL)
         return (macKV * areaF + KV * (1.0 - areaF) * ksatFunc);
     else
     {
-        if (fabs (gradY) * ksatFunc * KV <= 1.0 * KV * ksatFunc)
+        if (status == MAT_CTRL)
             return KV * ksatFunc;
         else
         {
-            if (fabs (gradY) * ksatFunc * KV < (macKV * areaF + KV * (1.0 - areaF) * ksatFunc))
+            if (status == APP_CTRL)
                 return (macKV * areaF * elemSatn + KV * (1.0 - areaF) * ksatFunc);
             else
                 return (macKV * areaF + KV * (1.0 - areaF) * ksatFunc);

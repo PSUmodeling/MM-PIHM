@@ -241,8 +241,8 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
         {
             Deficit = AquiferDepth - MD->DummyY[i + 2 * MD->NumEle];
             //          elemSatn = elemSatn>1?1:elemSatn;
-            elemSatn = 1.0;
-            satKfunc = pow (elemSatn, 0.5) * pow (-1.0 + pow (1.0 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)), (MD->Ele[i].Beta - 1.0) / MD->Ele[i].Beta), 2);
+            //elemSatn = 1.0;
+            //satKfunc = pow (elemSatn, 0.5) * pow (-1.0 + pow (1.0 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)), (MD->Ele[i].Beta - 1.0) / MD->Ele[i].Beta), 2);
             /* Note: for psi calculation using van genuchten relation, cutting the psi-sat tail at small saturation can be performed for computational advantage. If you dont' want to perform this, comment the statement that follows */
 #ifdef _FLUX_PIHM_
             elemSatn = MD->SfcSat[i];   //(MD->EleSW[i][0]-MD->Ele[i].ThetaR)/(MD->Ele[i].ThetaS - MD->Ele[i].ThetaR);
@@ -256,8 +256,18 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             TotalY_Ele = Avg_Y_Sub + MD->Ele[i].zmin + AquiferDepth - MD->Ele[i].infD;
             Grad_Y_Sub = (MD->DummyY[i] + MD->Ele[i].zmax - TotalY_Ele) / MD->Ele[i].infD;
             Grad_Y_Sub = ((MD->DummyY[i] < EPS / 100.0) && (Grad_Y_Sub > 0.0)) ? 0.0 : Grad_Y_Sub;
-            //          satKfunc = satKfunc<0.13?0.13:satKfunc;
-            effK = (MD->Ele[i].Macropore == 1) ? effKV (satKfunc, Grad_Y_Sub, MD->Ele[i].macKsatV, MD->Ele[i].infKsatV, MD->Ele[i].hAreaF) : MD->Ele[i].infKsatV;
+            satKfunc = pow (elemSatn, 0.5) * pow (-1.0 + pow (1.0 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)), (MD->Ele[i].Beta - 1.0) / MD->Ele[i].Beta), 2);
+            //satKfunc = satKfunc<0.13?0.13:satKfunc;
+            if (MD->Ele[i].Macropore == 1)
+            {
+                MD->EleMacAct[i] = macpore_status (satKfunc, elemSatn, Grad_Y_Sub, MD->Ele[i].macKsatV, MD->Ele[i].infKsatV, MD->Ele[i].hAreaF);
+                //printf ("status = %d\n", MD->EleMacAct[i]);
+                effK = effKV_new (satKfunc, elemSatn, MD->EleMacAct[i], MD->Ele[i].macKsatV, MD->Ele[i].infKsatV, MD->Ele[i].hAreaF);
+            }
+            else
+                effK = MD->Ele[i].infKsatV;
+
+            //effK = (MD->Ele[i].Macropore == 1) ? effKV (satKfunc, Grad_Y_Sub, MD->Ele[i].macKsatV, MD->Ele[i].infKsatV, MD->Ele[i].hAreaF) : MD->Ele[i].infKsatV;
             //          MD->Ele[i].effKV = effK;
             //              MD->EleViR[i] = 0.5*(effK+MD->Ele[i].infKsatV)*Grad_Y_Sub;
 #ifdef _FLUX_PIHM_
@@ -289,14 +299,15 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *DS)
             elemSatn = ((MD->DummyY[i + MD->NumEle] / Deficit) > 1.0) ? 1.0 : ((MD->DummyY[i + MD->NumEle] <= 0.0) ? (EPS / 100.0) : (MD->DummyY[i + MD->NumEle] / Deficit));
             elemSatn = (elemSatn < multF * EPS) ? (multF * EPS) : elemSatn;
             satKfunc = pow (elemSatn, 0.5) * pow (-1.0 + pow (1.0 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)), (MD->Ele[i].Beta - 1.0) / MD->Ele[i].Beta), 2);
-            satKfunc = satKfunc < 0.13 ? 0.13 : satKfunc;
+            //satKfunc = satKfunc < 0.13 ? 0.13 : satKfunc;
             //          effK=(MD->Ele[i].Macropore==1)?((MD->DummyY[i+2*MD->NumEle]>AquiferDepth-MD->Ele[i].macD)?effK:(MD->Ele[i].KsatV*satKfunc)):(MD->Ele[i].KsatV*satKfunc);
             Avg_Y_Sub = (-(pow (pow (1.0 / elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)) - 1.0, 1.0 / MD->Ele[i].Beta) / MD->Ele[i].Alpha) < MINpsi) ? MINpsi : (-(pow (pow (1.0 / elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)) - 1.0, 1.0 / MD->Ele[i].Beta) / MD->Ele[i].Alpha));
             TotalY_Ele = Avg_Y_Sub + MD->Ele[i].zmax - 0.5 * Deficit;
             Grad_Y_Sub = (TotalY_Ele - (MD->Ele[i].zmax - Deficit)) / (0.5 * AquiferDepth);
             //(MD->DummyY[i]+MD->Ele[i].zmax-TotalY_Ele)/MD->Ele[i].infD;
             //          Grad_Y_Sub=((MD->DummyY[i]<EPS/100)&&(Grad_Y_Sub>0))?0:Grad_Y_Sub;
-            effK = (MD->Ele[i].Macropore == 1) ? ((MD->DummyY[i + 2 * MD->NumEle] > AquiferDepth - MD->Ele[i].macD) ? effKV (satKfunc, Grad_Y_Sub, MD->Ele[i].macKsatV, MD->Ele[i].KsatV, MD->Ele[i].hAreaF) : (MD->Ele[i].KsatV * satKfunc)) : (MD->Ele[i].KsatV * satKfunc);
+            //effK = (MD->Ele[i].Macropore == 1) ? ((MD->DummyY[i + 2 * MD->NumEle] > AquiferDepth - MD->Ele[i].macD) ? effKV (satKfunc, Grad_Y_Sub, MD->Ele[i].macKsatV, MD->Ele[i].KsatV, MD->Ele[i].hAreaF) : (MD->Ele[i].KsatV * satKfunc)) : (MD->Ele[i].KsatV * satKfunc);
+            effK = (MD->Ele[i].Macropore == 1) ? ((MD->DummyY[i + 2 * MD->NumEle] > AquiferDepth - MD->Ele[i].macD) ? effKV_new (satKfunc, elemSatn, MD->EleMacAct[i], MD->Ele[i].macKsatV, MD->Ele[i].KsatV, MD->Ele[i].hAreaF) : (MD->Ele[i].KsatV * satKfunc)) : (MD->Ele[i].KsatV * satKfunc);
 
             MD->Recharge[i] = (elemSatn == 0.0) ? 0.0 : ((Deficit <= 0.0) ? 0.0 : (MD->Ele[i].KsatV * MD->DummyY[i + 2 * MD->NumEle] + effK * Deficit) * (MD->Ele[i].Alpha * Deficit - 2.0 * pow (-1.0 + pow (elemSatn, MD->Ele[i].Beta / (-MD->Ele[i].Beta + 1.0)), 1.0 / MD->Ele[i].Beta)) / (MD->Ele[i].Alpha * pow (Deficit + MD->DummyY[i + 2 * MD->NumEle], 2)));
             MD->Recharge[i] = (MD->Recharge[i] > 0.0 && MD->DummyY[i + MD->NumEle] <= 0.0) ? 0.0 : MD->Recharge[i];   //??BHATT

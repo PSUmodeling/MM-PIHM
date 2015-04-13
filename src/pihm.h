@@ -47,6 +47,11 @@
 #define BADVAL		-999
 #define MAXSTRING	1024
 
+#define MAT_CTRL        0
+#define APP_CTRL        1
+#define MAC_CTRL        2
+#define SAT_CTRL        3
+
 extern char project[20];
 
 /* Enumrate type for forcing time series */
@@ -459,6 +464,7 @@ typedef struct model_data_structure
                                  * extracts from the saturated zone */
     realtype       *EleFCR;     /* YS: reduction of infiltration caused
                                  * by frozen ground */
+    int            *EleMacAct;
     realtype	   *avg_inf;	/* YS: average infiltration over an ET time
 				 * interval */ 
     realtype	   *avg_rech;	/* YS: average recharge over an ET time interval */
@@ -541,10 +547,12 @@ void            OverlandFlow (realtype **, int, int, realtype, realtype, realtyp
 void            OLFeleToriv (realtype, realtype, realtype, realtype, realtype, realtype **, int, int, realtype);
 realtype        avgY (realtype, realtype, realtype);
 realtype        effKV (realtype, realtype, realtype, realtype, realtype);
-realtype        effKV_new (realtype ksatFunc, realtype elemSatn, realtype gradY, realtype macKV, realtype KV, realtype areaF);
+realtype effKV_new (realtype ksatFunc, realtype elemSatn, int status, realtype macKV, realtype KV, realtype areaF);
 realtype        effKH (int, realtype, realtype, realtype, realtype, realtype, realtype);
 realtype        FieldCapacity (realtype, realtype, realtype, realtype, realtype);
 void            is_sm_et (realtype, realtype, void *, N_Vector);
 void            PrintInit (Model_Data, char *);
+
+int macpore_status (realtype ksatFunc, realtype elemSatn, realtype gradY, realtype macKV, realtype KV, realtype areaF);
 
 #endif
