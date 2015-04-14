@@ -21,6 +21,8 @@
 #include <string.h>
 #include <time.h>
 #include <sys/stat.h>
+#include <ctype.h>
+#include <unistd.h>
 
 #include "print.h"
 #include "forcing.h"

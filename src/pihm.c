@@ -1,7 +1,7 @@
 /*****************************************************************************
  * File		: pihm.c
  * Function	: Main program file
- * Developer of PIHM 2.4    :   Yuning Shi  (yshi@psu.edu)
+ * Developer of PIHM-MF     :   Yuning Shi  (yshi@psu.edu)
  * Developer of PIHM 2.2    :	Xuan Yu	    (xxy113@psu.edu)
  * Developer of PIHM 2.0    :	Mukesh Kumar	(muk139@psu.edu)
  * Developer of PIHM 1.0    :	Yizhong Qu	(quyizhong@gmail.com)
@@ -28,22 +28,19 @@
  *	for multiprocess watershed simulation". Water Resources Research
  ****************************************************************************/
 
-#include <ctype.h>
-#include <unistd.h>
 #include "pihm.h"               /* Data Model and Variable Declarations */
 
 #ifdef _FLUX_PIHM_
-#include "noah/noah.h"
+#include "noah.h"
 #endif
 
 #ifdef _RT_
-#include "rt/rt.h"
+#include "rt.h"
 #endif
 
 #ifdef _BGC_
-#include "bgc/bgc.h"
+#include "bgc.h"
 #endif
-
 
 int main (int argc, char *argv[])
 {
@@ -52,21 +49,21 @@ int main (int argc, char *argv[])
     N_Vector        CV_Y;       /* State Variables Vector */
     void           *cvode_mem;  /* Model Data Pointer */
     int             flag;       /* flag to test return value */
-    //FILE           *iproj;      /* Project File */
     int             N;          /* Problem size */
-    int             i, j;    /* loop index */
+    int             i, j;       /* loop index */
     realtype        t;          /* simulation time */
     struct tm      *timestamp;
     time_t         *rawtime;
-    realtype        NextPtr, StepSize;  /* stress period & step size */
+    realtype        NextPtr;
+    realtype        StepSize;   /* stress period & step size */
     realtype        cvode_val;
-    //long int        cvode_int;
     char            project[20];
-    char            *filename, *outputdir, str[11];
+    char           *filename;
+    char           *outputdir;
+    char            str[11];
     char            system_cmd[1024];
     int             overwrite_mode = 0;
     int             c;
-//    extern int      optind;
 
 #ifdef _FLUX_PIHM_
     LSM_STRUCT      LSM;
@@ -79,8 +76,6 @@ int main (int argc, char *argv[])
 #ifdef _BGC_
     bgc_struct      BGCM;
 #endif
-
-    system ("clear");
 
     printf ("\t\t########  #### ##     ## ##     ##\n");
     printf ("\t\t##     ##  ##  ##     ## ###   ###\n"); 
@@ -157,35 +152,8 @@ int main (int argc, char *argv[])
     filename = (char *) malloc ((strlen (project) + 1) * sizeof (char));
     strcpy (filename, project);
 
-    /* Project input name */
-    //if (argc != 2)
-    //{
-    //    iproj = fopen ("input/projectName.txt", "r");
-    //    if (iproj == NULL)
-    //    {
-    //        printf ("\tUsage ./pihm project_name\n");
-    //        printf ("\t         OR              \n");
-    //        printf ("\tUsage ./pihm, and have a file in the current directory named projectName.txt with the project name in it\n");
-    //        fclose (iproj);
-    //        exit (0);
-    //    }
-    //    else
-    //    {
-    //        filename = (char *)malloc (20 * sizeof (char));
-    //        fscanf (iproj, "%s", filename);
-    //        fclose (iproj);
-    //    }
-    //}
-    //else
-    //{
-    //    /* Get user specified file name in command line */
-    //    filename = (char *)malloc ((strlen (argv[1]) + 1)* sizeof (char));
-    //    strcpy (filename, argv[1]);
-    //}
-
     time (rawtime);
     timestamp = localtime (rawtime);
-
 
     outputdir = (char *)malloc (8 * sizeof (char));
     if (overwrite_mode == 1)
@@ -227,9 +195,6 @@ int main (int argc, char *argv[])
     BGC_read (filename, BGCM, mData);
 #endif
 
-    //if(mData->UnsatMode ==1)
-    //{    
-    //}
     if (mData->UnsatMode == 2)
     {
         /* problem size */
@@ -284,7 +249,7 @@ int main (int argc, char *argv[])
     flag = CVodeSetMaxStep (cvode_mem, cData->MaxStep);
     flag = CVodeMalloc (cvode_mem, f, cData->StartTime, CV_Y, CV_SS, cData->reltol, &cData->abstol);
     flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
-    //  flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
+    //flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
 
     /* set start time */
     t = cData->StartTime;
@@ -313,7 +278,6 @@ int main (int argc, char *argv[])
 		    mData->avg_subflux[j][1] = (mData->avg_subflux[j][1] + mData->FluxSub[j][1]) / (cData->ETStep / StepSize);
 		    mData->avg_subflux[j][2] = (mData->avg_subflux[j][2] + mData->FluxSub[j][2]) / (cData->ETStep / StepSize);
 		}
-
 
                 /* calculate surface energy balance */
                 PIHM2Noah (t, cData->ETStep, mData, LSM);
@@ -361,7 +325,8 @@ int main (int argc, char *argv[])
 
             summary (mData, CV_Y, t - StepSize, StepSize);
 #ifdef _RT_
-	    fluxtrans(t/60, StepSize/60, mData, chData, CV_Y); /* pihm_rt control file */
+            /* PIHM-rt control file */
+	    fluxtrans(t / 60.0, StepSize / 60.0, mData, chData, CV_Y);
 #endif
             update (t, mData);
         }
@@ -376,10 +341,11 @@ int main (int argc, char *argv[])
             PrintData (LSM->PCtrl[j], t, StepSize, cData->Ascii);
 #endif
 #ifdef _RT_
-	PrintChem(filename, chData,t/60);  /* pihm_rt output routine */
+        /* PIHM-rt output routine */
+	PrintChem(filename, chData,t/60);
 #endif
-
     }
+
     if (cData->Spinup)
     {
         PrintInit (mData, filename);
