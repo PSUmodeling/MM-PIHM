@@ -1,6 +1,5 @@
 /*****************************************************************************
  * File        : print.c
- * Version     : June, 2014
  * Function    : print out model results output files
  *..............MODIFICATIONS/ADDITIONS in PIHM 2.0...........................
  * a) This file is downgraded from Version 1.0, as no ancillary results are 
@@ -11,17 +10,9 @@
  *    intervals
  ********************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <time.h>
-
 #include "pihm.h"
 
-/*
- * Temporal average of State vectors 
- */
+/* Temporal average of State vectors */
 void PrintData (Print_Ctrl PCtrl, realtype tmpt, realtype dt, int Ascii)
 {
     int             j;
@@ -29,12 +20,14 @@ void PrintData (Print_Ctrl PCtrl, realtype tmpt, realtype dt, int Ascii)
     time_t         *rawtime;
     char           *ascii_name;
     FILE           *fpin;
-    realtype        outval, outtime;
+    realtype        outval;
+    realtype        outtime;
 
     rawtime = (time_t *) malloc (sizeof (time_t));
 
     for (j = 0; j < PCtrl.NumVar; j++)
         PCtrl.buffer[j] = PCtrl.buffer[j] + *PCtrl.PrintVar[j];
+
     if (((int)tmpt % PCtrl.Interval) == 0)
     {
         *rawtime = (int)tmpt;
@@ -79,7 +72,7 @@ void PrintData (Print_Ctrl PCtrl, realtype tmpt, realtype dt, int Ascii)
             else
                 outval = PCtrl.buffer[j];
             fwrite (&outval, sizeof (realtype), 1, fpin);
-            PCtrl.buffer[j] = 0;
+            PCtrl.buffer[j] = 0.0;
         }
         fflush (fpin);
         fclose (fpin);
@@ -92,6 +85,7 @@ void PrintInit (Model_Data DS, char *filename)
     FILE           *init_file;
     char           *init_name;
     int             i;
+
     init_name = (char *)malloc ((2 * strlen (filename) + 13) * sizeof (char));
     sprintf (init_name, "input/%s/%s.init", filename, filename);
     init_file = fopen (init_name, "w");
