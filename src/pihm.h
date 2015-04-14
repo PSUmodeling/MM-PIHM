@@ -53,6 +53,12 @@
 #define MAC_CTRL        2
 #define SAT_CTRL        3
 
+#define C_air           1004.0
+#define Lv              2.503e6
+#define SIGMA           5.67e-8
+#define R_dry           287.04
+#define R_v             461.5
+
 extern char project[20];
 
 /* Enumrate type for forcing time series */

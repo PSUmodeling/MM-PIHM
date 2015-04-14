@@ -416,7 +416,7 @@ void initialize (char *filename, Model_Data DS, Control_Data  CS, N_Vector CV_Y)
                 {
                     if (DS->Ele[i].nabr[j] > 0)
                     {
-                        tempvalue1 = DS->Ele[i].BC[j] > -4 ? DS->Ele[DS->Ele[i].nabr[j] - 1].zmin : DS->Ele[-(DS->Ele[i].BC[j] / 4) - 1.0 + DS->NumEle].zmin;
+                        tempvalue1 = DS->Ele[i].BC[j] > -4 ? DS->Ele[DS->Ele[i].nabr[j] - 1].zmin : DS->Ele[-(DS->Ele[i].BC[j] / 4) - 1 + DS->NumEle].zmin;
                         if (DS->Ele[i].zmin - tempvalue1 >= 0.0)
                         {
                             tmpBool = 0;
@@ -434,9 +434,9 @@ void initialize (char *filename, Model_Data DS, Control_Data  CS, N_Vector CV_Y)
                     {
                         if (DS->Ele[i].nabr[j] > 0)
                         {
-                            DS->Ele[i].zmin = (DS->Ele[i].BC[j] > -4 ? DS->Ele[DS->Ele[i].nabr[j] - 1].zmin : DS->Ele[-(DS->Ele[i].BC[j] / 4) - 1.0 + DS->NumEle].zmin);
+                            DS->Ele[i].zmin = (DS->Ele[i].BC[j] > -4 ? DS->Ele[DS->Ele[i].nabr[j] - 1].zmin : DS->Ele[-(DS->Ele[i].BC[j] / 4) - 1 + DS->NumEle].zmin);
                             tempvalue1 = tempvalue1 > DS->Ele[i].zmin ? DS->Ele[i].zmin : tempvalue1;
-                            printf ("(%d)%lf  ", j + 1, (DS->Ele[i].BC[j] > -4 ? DS->Ele[DS->Ele[i].nabr[j] - 1].zmin : DS->Ele[-(DS->Ele[i].BC[j] / 4) - 1.0 + DS->NumEle].zmin));
+                            printf ("(%d)%lf  ", j + 1, (DS->Ele[i].BC[j] > -4 ? DS->Ele[DS->Ele[i].nabr[j] - 1].zmin : DS->Ele[-(DS->Ele[i].BC[j] / 4) - 1 + DS->NumEle].zmin));
                         }
                     }
                     DS->Ele[i].zmin = tempvalue1;
