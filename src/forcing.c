@@ -1,9 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <time.h>
-#include <sys/stat.h>
 #include "pihm.h"
 
 realtype monthly_lai (realtype t, int LC_type)
@@ -86,18 +80,15 @@ realtype monthly_mf (realtype t)
     return (mf_tbl[timestamp->tm_mon]);
 }
 
-
-
-
-realtype Interpolation (TSD * Data, realtype t)
+realtype Interpolation (TSD *Data, realtype t)
 {
-    int             i, success;
+    int             i;
+    int             success;
     realtype        result;
 
     i = Data->iCounter;
     success = 0;
 
-//    t = t / (UNIT_C);
     while (i < Data->length && t > Data->TS[i][0])
         i++;
     if (i == 0)
@@ -123,15 +114,15 @@ realtype Interpolation (TSD * Data, realtype t)
     return result;
 }
 
-void MultiInterpolation (TSD * Data, realtype t, realtype *forcing, int num_forcing)
+void MultiInterpolation (TSD *Data, realtype t, realtype *forcing, int num_forcing)
 {
-    int             i, success;
+    int             i;
+    int             success;
     int             j;
 
     i = Data->iCounter;
     success = 0;
-//
-//    t = t / (UNIT_C);
+
     while (i < Data->length && t > Data->TS[i][0])
         i++;
     if (i == 0)
