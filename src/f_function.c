@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
 #include "pihm.h"
 
 realtype returnVal (realtype rArea, realtype rPerem, realtype eqWid, realtype ap_Bool)
@@ -16,7 +12,10 @@ realtype returnVal (realtype rArea, realtype rPerem, realtype eqWid, realtype ap
 
 realtype CS_AreaOrPerem (int rivOrder, realtype rivDepth, realtype rivCoeff, realtype a_pBool)
 {
-    realtype        rivArea, rivPerem, eq_Wid;
+    realtype        rivArea;
+    realtype        rivPerem;
+    realtype        eq_Wid;
+
     switch (rivOrder)
     {
         case 1:
@@ -40,25 +39,26 @@ realtype CS_AreaOrPerem (int rivOrder, realtype rivDepth, realtype rivCoeff, rea
             eq_Wid = 2.0 * pow (rivDepth + EPS, 1.0/ (rivOrder - 1)) / pow (rivCoeff, 1.0 / (rivOrder - 1));
             return returnVal (rivArea, rivPerem, eq_Wid, a_pBool);
         default:
-            printf ("\n Relevant Values entered are wrong");
-            printf ("\n Depth: %lf\tCoeff: %lf\tOrder: %d\t", rivDepth, rivCoeff, rivOrder);
+            printf ("\n Relevant Values entered are wrong\n");
+            printf (" Depth: %lf\tCoeff: %lf\tOrder: %d\t\n", rivDepth, rivCoeff, rivOrder);
             return 0;
     }
 }
 
-void OverlandFlow (realtype ** flux, int loci, int locj, realtype avg_y, realtype grad_y, realtype avg_sf, realtype crossA, realtype avg_rough)
+void OverlandFlow (realtype **flux, int loci, int locj, realtype avg_y, realtype grad_y, realtype avg_sf, realtype crossA, realtype avg_rough)
 {
     flux[loci][locj] = crossA * pow (avg_y, 2.0 / 3.0) * grad_y / (sqrt (fabs (avg_sf)) * avg_rough);
-    //  flux[loci][locj] = (grad_y>0?1:-1)*crossA*pow(avg_y, 2.0/3.0)*sqrt(fabs(grad_y))/(avg_rough);
 }
 
-void OLFeleToriv (realtype eleYtot, realtype EleZ, realtype cwr, realtype rivZmax, realtype rivYtot, realtype ** fluxriv, int loci, int locj, realtype length)
+void OLFeleToriv (realtype eleYtot, realtype EleZ, realtype cwr, realtype rivZmax, realtype rivYtot, realtype **fluxriv, int loci, int locj, realtype length)
 {
     realtype        threshEle;
+
     if (rivZmax < EleZ)
         threshEle = EleZ;
     else
         threshEle = rivZmax;
+
     if (rivYtot > eleYtot)
     {
         if (eleYtot > threshEle)
@@ -85,58 +85,19 @@ void OLFeleToriv (realtype eleYtot, realtype EleZ, realtype cwr, realtype rivZma
     }
 }
 
-/*
- * realtype avgY(realtype zi,realtype zinabr,realtype yi,realtype yinabr)
- * {
- * if(zinabr>zi)
- * {
- * if(zinabr>zi+yi)
- * {
- * return yinabr/2;
- * }
- * else
- * {
- * return (yi+zi-zinabr+yinabr)/2;
- * }
- * }
- * else
- * {
- * if(zi>zinabr+yinabr)
- * {
- * return yi/2;
- * }
- * else
- * {
- * return (yi+yinabr+zinabr-zi)/2;
- * }
- * }    
- * }
- */
-
-/*
- * Note: above formulation doesnt' satisfies upwind/downwind scheme.
- */
 realtype avgY (realtype diff, realtype yi, realtype yinabr)
 {
     if (diff > 0.0)
     {
         if (yi > 1.0 * EPS / 100.0)
-        {
-            //          return 0.5*(yi+yinabr);
-            //          return ((yinabr>yi)?0:1.0*yi);  /* Note the if-else TRUE case can be possible only for Kinematic case */
             return 1.0 * yi;
-        }
         else
             return 0.0;
     }
     else
     {
         if (yinabr > 1.0 * EPS / 100.0)
-        {
-            //          return 0.5*(yi+yinabr);
-            //          return ((yi>yinabr)?0:1.0*yinabr);  /* Note the if-else TRUE case can be possible only for Kinematic case */
             return 1.0 * yinabr;
-        }
         else
             return 0.0;
     }
