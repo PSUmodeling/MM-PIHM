@@ -168,6 +168,9 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
         if (NOAH->NWTBL > NOAH->NSOIL)
             NOAH->NWTBL = NOAH->NSOIL;
 
+        NOAH->MAC_STATUS = PIHM->EleMacAct[i];
+        //printf ("ELE %d: macropore active status %d\n", i + 1, NOAH->MAC_STATUS);
+
 #ifdef _DEBUG_
         if (i == 0)
         {

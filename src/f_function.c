@@ -166,11 +166,11 @@ int macpore_status (realtype ksatFunc, realtype elemSatn, realtype gradY, realty
         return SAT_CTRL;
     else
     {
-        if (gradY * KV <= 1.0 * KV * ksatFunc)
+        if (gradY * ksatFunc * KV <= 1.0 * KV * ksatFunc)
             return MAT_CTRL;
         else
         {
-            if (gradY * KV < (macKV * areaF + KV * (1.0 - areaF) * ksatFunc))
+            if (gradY * ksatFunc * KV < (macKV * areaF + KV * (1.0 - areaF) * ksatFunc))
                 return APP_CTRL;
             else
                 return MAC_CTRL;

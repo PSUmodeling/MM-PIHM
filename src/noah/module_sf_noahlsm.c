@@ -56,6 +56,7 @@ void SFLX (GRID_TYPE * NOAH)
     double         *VGALPHA, *VGBETA, *SMCMIN, *MACKSAT, *AREAF, *INF;
     double         *PCPDRP;
     int            *NMACD, *NWTBL;
+    int            *MAC_STATUS;
 #else
     double         *RUNOFF1, *BEXP, *DWSAT, *KDT, *PSISAT, *REFKDT, *SLOPE;
 #endif
@@ -193,6 +194,7 @@ void SFLX (GRID_TYPE * NOAH)
     AREAF = &(NOAH->AREAF);
     INF = &(NOAH->INF);
     NMACD = &(NOAH->NMACD);
+    MAC_STATUS = &(NOAH->MAC_STATUS);
     NWTBL = &(NOAH->NWTBL);
     PCPDRP = &(NOAH->PCPDRP);
 #else
@@ -702,7 +704,7 @@ void SFLX (GRID_TYPE * NOAH)
         NOPAC (ETP, ETA, PRCP, PCPDRP, SMC, SMCMAX, SMCMIN, SMCWLT, SMCREF,
            SMCDRY, CMC, CMCMAX, NSOIL, DT, SHDFAC, SBETA, Q2, T1, SFCTMP, T24,
            TH2, FDOWN, F1, EMISSI, SSOIL, STC, EPSCA, VGALPHA, VGBETA,
-           MACKSAT, AREAF, NMACD, NWTBL, PC, RCH, RR, CFACTR, SH2O, FRZX,
+           MACKSAT, AREAF, NMACD, MAC_STATUS, NWTBL, PC, RCH, RR, CFACTR, SH2O, FRZX,
            ZSOIL, DKSAT, TBOT, ZBOT, INF, RUNOFF2, RUNOFF3, EDIR, EC, ET, ETT,
            NROOT, RTDIS, QUARTZ, FXEXP, CSOIL, BETA, DRIP, DEW, FLX1, FLX3,
            VEGTYP, ISURBAN);
@@ -722,7 +724,7 @@ void SFLX (GRID_TYPE * NOAH)
         SNOPAC (ETP, ETA, PRCP, PRCPF, PCPDRP, SNOWNG, SMC, SMCMAX, SMCMIN,
            SMCWLT, SMCREF, SMCDRY, CMC, CMCMAX, NSOIL, DT, SBETA, DF1, Q2, T1,
            SFCTMP, T24, TH2, FDOWN, F1, SSOIL, STC, EPSCA, SFCPRS, VGALPHA,
-           VGBETA, MACKSAT, AREAF, NMACD, NWTBL, PC, RCH, RR, CFACTR, SNCOVR,
+           VGBETA, MACKSAT, AREAF, NMACD, MAC_STATUS, NWTBL, PC, RCH, RR, CFACTR, SNCOVR,
            SNEQV, SNDENS, SNOWH, SH2O, FRZX, ZSOIL, DKSAT, TBOT, ZBOT, SHDFAC,
            INF, RUNOFF2, RUNOFF3, EDIR, EC, ET, ETT, NROOT, SNOMLT, RTDIS,
            QUARTZ, FXEXP, CSOIL, BETA, DRIP, DEW, FLX1, FLX2, FLX3, ESNOW,
@@ -1916,7 +1918,7 @@ NOPAC (double *ETP, double *ETA, double *PRCP, double *PCPDRP, double *SMC,
    double *SHDFAC, double *SBETA, double *Q2, double *T1, double *SFCTMP,
    double *T24, double *TH2, double *FDOWN, double *F1, double *EMISSI,
    double *SSOIL, double *STC, double *EPSCA, double *VGALPHA, double *VGBETA,
-   double *MACKSAT, double *AREAF, int *NMACD, int *NWTBL, double *PC,
+   double *MACKSAT, double *AREAF, int *NMACD, int *MAC_STATUS, int *NWTBL, double *PC,
    double *RCH, double *RR, double *CFACTR, double *SH2O, double *FRZFACT,
    double *ZSOIL, double *DKSAT, double *TBOT, double *ZBOT, double *INF,
    double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET,
@@ -1995,7 +1997,7 @@ NOPAC (double *ETP, double *ETA, double *PRCP, double *SMC, double *SMCMAX,
            SMCWLT, DKSAT, SMCREF, SHDFAC, CMCMAX, SMCDRY, CFACTR, EDIR1, EC1,
            ET1, ETT1, SFCTMP, Q2, NROOT, RTDIS, FXEXP);
         SMFLX (SMC, NSOIL, CMC, DT, PRCP1, PCPDRP, ZSOIL, SH2O, FRZFACT,
-           SMCMAX, SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, NWTBL,
+           SMCMAX, SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, MAC_STATUS, NWTBL,
            SMCWLT, DKSAT, SHDFAC, CMCMAX, INF, RUNOFF2, RUNOFF3, EDIR1, EC1,
            ET1, DRIP);
 #else
@@ -2029,7 +2031,7 @@ NOPAC (double *ETP, double *ETA, double *PRCP, double *SMC, double *SMCMAX,
         *PRCP1 = *PRCP1 + *DEW;
 #ifdef _FLUX_PIHM_
         SMFLX (SMC, NSOIL, CMC, DT, PRCP1, PCPDRP, ZSOIL, SH2O, FRZFACT,
-           SMCMAX, SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, NWTBL,
+           SMCMAX, SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, MAC_STATUS, NWTBL,
            SMCWLT, DKSAT, SHDFAC, CMCMAX, INF, RUNOFF2, RUNOFF3, EDIR1, EC1,
            ET1, DRIP);
 #else
@@ -2571,7 +2573,7 @@ void
 SMFLX (double *SMC, int *NSOIL, double *CMC, double *DT, double *PRCP1,
    double *PCPDRP, double *ZSOIL, double *SH2O, double *FRZFACT,
    double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA,
-   double *MACKSAT, double *AREAF, int *NMACD, int *NWTBL, double *SMCWLT,
+   double *MACKSAT, double *AREAF, int *NMACD, int *MAC_STATUS, int *NWTBL, double *SMCWLT,
    double *DKSAT, double *SHDFAC, double *CMCMAX, double *INF,
    double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET,
    double *DRIP)
@@ -2728,7 +2730,7 @@ SMFLX (double *SMC, int *NSOIL, double *CMC, double *DT, double *PRCP1,
         //          SSTEP (SH2O, SH2O, CMC, RHSTT, RHSCT, DT, NWTBL, SMCMAX, SMCMIN, CMCMAX, RUNOFF3, ZSOIL, SMC, SICE, AI, BI, CI);
         //      }
         SRT (RHSTT, EDIR, ET, SH2O, SH2O, NWTBL, PCPDRP, ZSOIL, DKSAT, SMCMAX,
-           SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, INF, RUNOFF2, DT,
+           SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, MAC_STATUS, INF, RUNOFF2, DT,
            SMCWLT, FRZFACT, SICE, AI, BI, CI);
         SSTEP (SH2O, SH2O, CMC, RHSTT, RHSCT, DT, NWTBL, SMCMAX, SMCMIN,
            CMCMAX, RUNOFF3, ZSOIL, SMC, SICE, AI, BI, CI);
@@ -2949,7 +2951,7 @@ SNOPAC (double *ETP, double *ETA, double *PRCP, double *PRCPF, double *PCPDRP,
    double *DT, double *SBETA, double *DF1, double *Q2, double *T1,
    double *SFCTMP, double *T24, double *TH2, double *FDOWN, double *F1,
    double *SSOIL, double *STC, double *EPSCA, double *SFCPRS, double *VGALPHA,
-   double *VGBETA, double *MACKSAT, double *AREAF, int *NMACD, int *NWTBL,
+   double *VGBETA, double *MACKSAT, double *AREAF, int *NMACD, int *MAC_STATUS, int *NWTBL,
    double *PC, double *RCH, double *RR, double *CFACTR, double *SNCOVR,
    double *ESD, double *SNDENS, double *SNOWH, double *SH2O, double *FRZFACT,
    double *ZSOIL, double *DKSAT, double *TBOT, double *ZBOT, double *SHDFAC,
@@ -3296,7 +3298,7 @@ SNOPAC (double *ETP, double *ETA, double *PRCP, double *PRCPF, int *SNOWNG,
     }
 #ifdef _FLUX_PIHM_
     SMFLX (SMC, NSOIL, CMC, DT, PRCP1, PCPDRP, ZSOIL, SH2O, FRZFACT, SMCMAX,
-       SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, NWTBL, SMCWLT, DKSAT,
+       SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, MAC_STATUS, NWTBL, SMCWLT, DKSAT,
        SHDFAC, CMCMAX, INF, RUNOFF2, RUNOFF3, EDIR1, EC1, ET1, DRIP);
 #else
     SMFLX (SMC, NSOIL, CMC, DT, PRCP1, ZSOIL, SH2O, SLOPE, KDT, FRZFACT,
@@ -3592,7 +3594,7 @@ void
 SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
    int *NSOIL, double *PCPDRP, double *ZSOIL, double *DKSAT, double *SMCMAX,
    double *SMCMIN, double *VGALPHA, double *VGBETA, double *MACKSAT,
-   double *AREAF, int *NMACD, double *INF, double *RUNOFF2, double *DT,
+   double *AREAF, int *NMACD, int *MAC_STATUS, double *INF, double *RUNOFF2, double *DT,
    double *SMCWLT, double *FRZX, double *SICE, double *AI, double *BI,
    double *CI)
 #else
@@ -3686,7 +3688,7 @@ SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
     *DSMDZ = (SH2O[*NSOIL - 2] - SH2O[*NSOIL - 1]) / (DENOM * 0.5);
 
     WDFCND (WDF, WCND, SH2OA + *NSOIL - 2, SMCMAX, SMCMIN, VGALPHA, VGBETA,
-       DKSAT, MACKSAT, AREAF, SICEMAX, DSMDZ, MACPORE + *NSOIL - 2);
+       DKSAT, MACKSAT, AREAF, MAC_STATUS, SICEMAX, DSMDZ, MACPORE + *NSOIL - 2);
 
     if (*RUNOFF2 < 0
        && (*SMCMAX - SH2O[*NSOIL - 1]) / *DT * DENOM2 <
@@ -3700,7 +3702,7 @@ SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
 
     *DSMDZ = (SH2O[0] - SH2O[1]) / (-0.5 * ZSOIL[1]);
     WDFCND (WDF, WCND, MXSMC, SMCMAX, SMCMIN, VGALPHA, VGBETA, DKSAT, MACKSAT,
-       AREAF, SICEMAX, DSMDZ, MACPORE);
+       AREAF, MAC_STATUS, SICEMAX, DSMDZ, MACPORE);
 
 /*----------------------------------------------------------------------
 * CALC THE MATRIX COEFFICIENTS AI, BI, AND CI FOR THE TOP LAYER
@@ -3740,7 +3742,7 @@ SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
             DENOM = (ZSOIL[K - 1] - ZSOIL[K + 1]);
             *DSMDZ2 = (SH2O[K] - SH2O[K + 1]) / (DENOM * 0.5);
             WDFCND (WDF2, WCND2, MXSMC2, SMCMAX, SMCMIN, VGALPHA, VGBETA,
-               DKSAT, MACKSAT, AREAF, SICEMAX, DSMDZ2, MACPORE + K);
+               DKSAT, MACKSAT, AREAF, MAC_STATUS, SICEMAX, DSMDZ2, MACPORE + K);
 
 /*-----------------------------------------------------------------------
 * CALC SOME PARTIAL PRODUCTS FOR LATER USE IN CALC'NG RHSTT
@@ -4559,14 +4561,10 @@ TRANSP (double *ET, int *NSOIL, double *ETP1, double *SMC, double *CMC,
 
 #ifdef _FLUX_PIHM_
 void
-WDFCND (double *WDF, double *WCND, double *SMC, double *SMCMAX,
-   double *SMCMIN, double *VGALPHA, double *VGBETA, double *DKSAT,
-   double *MACKSAT, double *AREAF, double *SICEMAX, double *DSMDZ,
-   int *MACPORE)
+WDFCND (double *WDF, double *WCND, double *SMC, double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA, double *DKSAT, double *MACKSAT, double *AREAF, int *MAC_STATUS, double *SICEMAX, double *DSMDZ, int *MACPORE)
 #else
 void
-WDFCND (double *WDF, double *WCND, double *SMC, double *SMCMAX, double *BEXP,
-   double *DKSAT, double *DWSAT, double *SICEMAX)
+WDFCND (double *WDF, double *WCND, double *SMC, double *SMCMAX, double *BEXP, double *DKSAT, double *DWSAT, double *SICEMAX)
 #endif
 {
 
@@ -4607,7 +4605,7 @@ WDFCND (double *WDF, double *WCND, double *SMC, double *SMCMAX, double *BEXP,
        0. - EXPON) * pow (FACTR2, -(1. / EXPON + 1.));
 
     if (*MACPORE == 1)
-        *WCND = EFFKV (SATKFUNC, DPSIDSM * *DSMDZ, *MACKSAT, *DKSAT, *AREAF);
+        *WCND = EFFKV (SATKFUNC, FACTR2, *MAC_STATUS, *MACKSAT, *DKSAT, *AREAF);
     else
         *WCND = *DKSAT * SATKFUNC;
 
@@ -4642,8 +4640,7 @@ WDFCND (double *WDF, double *WCND, double *SMC, double *SMCMAX, double *BEXP,
            0. - EXPON) * pow (FACTR1, -(1. / EXPON + 1.));
         if (*MACPORE == 1)
             *WDF =
-               VKWGT * *WDF + (1. - VKWGT) * DPSIDSM * EFFKV (SATKFUNC,
-               DPSIDSM * *DSMDZ, *MACKSAT, *DKSAT, *AREAF);
+               VKWGT * *WDF + (1. - VKWGT) * DPSIDSM * EFFKV (SATKFUNC, FACTR1, *MAC_STATUS, *MACKSAT, *DKSAT, *AREAF);
         else
             *WDF = VKWGT * *WDF + (1. - VKWGT) * DPSIDSM * SATKFUNC * *DKSAT;
     }
@@ -5019,20 +5016,19 @@ double PSPHS (double YY)
     return x;
 }
 
-double EFFKV (double KSATFUNC, double GRADY, double MACKV, double KV, double AREAF)
+double EFFKV (double KSATFUNC, double ELEMSATN, int STATUS, double MACKV, double KV, double AREAF)
 {
-    if (KSATFUNC >= 0.98)
+    //return (KV * KSATFUNC);
+    if (STATUS == SAT_CTRL)
         return (MACKV * AREAF + KV * (1. - AREAF) * KSATFUNC);
     else
     {
-        if (fabs (GRADY) * KSATFUNC * KV <= 1. * KV * KSATFUNC)
+        if (STATUS == MAT_CTRL)
             return KV * KSATFUNC;
         else
         {
-            if (fabs (GRADY) * KSATFUNC * KV <
-               (MACKV * AREAF + KV * (1. - AREAF) * KSATFUNC))
-                return (MACKV * AREAF * KSATFUNC + KV * (1. -
-                      AREAF) * KSATFUNC);
+            if (STATUS == APP_CTRL)
+                return (MACKV * AREAF * KSATFUNC + KV * (1. - AREAF) * KSATFUNC);
             else
                 return (MACKV * AREAF + KV * (1. - AREAF) * KSATFUNC);
         }
