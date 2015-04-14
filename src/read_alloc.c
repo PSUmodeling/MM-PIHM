@@ -1,7 +1,6 @@
 /*****************************************************************************
  * File        : read_alloc.c
  * Function    : read parameter files
- * Version     : Sep, 2014
  *----------------------------------------------------------------------------
  *..............MODIFICATIONS/ADDITIONS in PIHM 2.0...........................
  * a) Addition of three new input files: file.calib, file.lc and file.geol
@@ -12,17 +11,11 @@
  *    attributes etc)                                                      
  ****************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <time.h>
-
 #include "pihm.h"
 
 void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
 {
-    int             i, j;   //k;
+    int             i, j;
     int             ind;
     int             ensemble_mode;
 
@@ -31,7 +24,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
     char           *laifn;
     char           *projectname;
     char           *token, *tempname;
-    //char            scrn_char[100];
     time_t          rawtime;
     struct tm      *timeinfo;
     int             NumForcing;
@@ -54,7 +46,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
     FILE           *riv_file;   /* Pointer to .riv file */
     FILE           *global_calib;   /* Pointer to .calib file */
     FILE           *lai_file;
-
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
@@ -237,10 +228,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
 
         fscanf (att_file, "%lf %lf %lf %lf %lf", &(DS->Ele_IC[i].interception), &(DS->Ele_IC[i].snow), &(DS->Ele_IC[i].surf), &(DS->Ele_IC[i].unsat), &(DS->Ele_IC[i].sat));
         fscanf (att_file, "%d %d", &(DS->Ele[i].meteo), &(DS->Ele[i].LAI));
-        //fscanf (att_file, "%d %d", &(DS->Ele[i].prep), &(DS->Ele[i].temp));
-        //fscanf (att_file, "%d %d", &(DS->Ele[i].humidity), &(DS->Ele[i].WindVel));
-        //fscanf (att_file, "%d %d", &(DS->Ele[i].Sdown), &(DS->Ele[i].Ldown));
-        //fscanf (att_file, "%d %d %d", &(DS->Ele[i].pressure), &(DS->Ele[i].source), &(DS->Ele[i].meltF));
         fscanf (att_file, "%d", &(DS->Ele[i].source));
         for (j = 0; j < 3; j++)
             fscanf (att_file, "%d", &(DS->Ele[i].BC[j]));
@@ -318,10 +305,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
     /*========== open *.lc file ==========*/
     if (CS->Verbose)
         printf ("  Reading vegprmt.tbl\n");
-    //fn[5] = (char *)malloc ((strlen (projectname) + 10) * sizeof (char));
-    //sprintf (fn[5], "input/%s.lc", projectname);
     lc_file = fopen ("input/vegprmt.tbl", "r");
-    //free (fn[5]);
 
     if (lc_file == NULL)
     {
@@ -420,8 +404,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
             {
                 (*count)++;
             }
-            //printf ("%s ", optstr);
-            //printf ("count =- %d, ind = %d\n", *count, ind);
         }
         fgets (cmdstr, MAXSTRING, forc_file);
     }
@@ -491,7 +473,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         }
 
         /* start reading lai_file */
-
         fscanf (lai_file, "%*s %d", &num_lai_ts);
 
         DS->TSD_lai = (TSD *) malloc (num_lai_ts * sizeof (TSD));
@@ -556,7 +537,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
                 DS->TSD_lai[i].TS[j][0] = (realtype) rawtime;
             }
         }
-
         fclose (lai_file);
     }
 
@@ -590,9 +570,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
 
     if (DS->Num1BC > 0)
     {
-        /*
-         * For elements with Dirichilet Boundary Conditions 
-         */
+        /* For elements with Dirichilet Boundary Conditions */
         for (i = 0; i < DS->Num1BC; i++)
         {
             fscanf (ibc_file, "%s %d %d", DS->TSD_EleBC[i].name, &DS->TSD_EleBC[i].index, &DS->TSD_EleBC[i].length);
@@ -613,9 +591,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
 
     if (DS->Num2BC > 0)
     {
-        /*
-         * For elements with Neumann (non-natural) Boundary Conditions 
-         */
+        /* For elements with Neumann (non-natural) Boundary Conditions */
         for (i = DS->Num1BC; i < DS->Num1BC + DS->Num2BC; i++)
         {
             fscanf (ibc_file, "%s %d %d", DS->TSD_EleBC[i].name, &DS->TSD_EleBC[i].index, &DS->TSD_EleBC[i].length);
@@ -651,15 +627,8 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         exit (1);
     }
 
-    /*
-     * start reading para_file 
-     */
-
-    /*
-     * Set default values for parameters 
-     */
-    //CS->Verbose = 0;
-    //CS->Debug = 0;
+    /* start reading para_file */
+    /* Set default values for parameters */
     CS->Ascii = 0;              /* YS */
     CS->Spinup = 0;             /* YS */
     CS->init_type = 0;
@@ -692,19 +661,8 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         CS->PrintET[j] = 0;
     for (j = 0; j < 10; j++)
         CS->PrintRivFlx[j] = 0;
-    //  CS->PrintH = 0;
-    //  CS->PrintLE = 0;
-    //  CS->PrintG = 0;
-    //  CS->PrintT1 = 0;
-    //  CS->PrintTsoil = 0;
-    //  CS->PrintAlbedo = 0;
-    //  CS->PrintSWC = 0;
-    //  CS->PrintETP = 0;
 
-    /*
-     * Read through parameter file to find parameters 
-     */
-
+    /* Read through parameter file to find parameters */
     fgets (cmdstr, MAXSTRING, para_file);
 
     while (!feof (para_file))
@@ -713,22 +671,14 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         {
             sscanf (cmdstr, "%s", optstr);
 
-            /*
-             * Handle case of comment line in which '#' is indented 
-             */
+            /* Handle case of comment line in which '#' is indented */
             if (optstr[0] == '#')
             {
                 fgets (cmdstr, MAXSTRING, para_file);
                 continue;
             }
 
-            /*
-             * Get Model Parameters 
-             */
-            //if (strcasecmp ("VERBOSE", optstr) == 0)
-            //    sscanf (cmdstr, "%*s %d", &CS->Verbose);
-            //else if (strcasecmp ("DEBUG", optstr) == 0)
-            //    sscanf (cmdstr, "%*s %d", &CS->Debug);
+            /* Get Model Parameters */
             if (strcasecmp ("INIT_MODE", optstr) == 0)
                 sscanf (cmdstr, "%*s %d", &CS->init_type);
             else if (strcasecmp ("ASCII_OUTPUT", optstr) == 0)
@@ -823,9 +773,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
                 sscanf (cmdstr, "%*s %d", &CS->PrintRivFlx[8]);
             else if (strcasecmp ("RIVFLX9", optstr) == 0)
                 sscanf (cmdstr, "%*s %d", &CS->PrintRivFlx[9]);
-            /*
-             * Unrecognized Parameter Flag 
-             */
+            /* Unrecognized Parameter Flag */
             else
             {
                 printf
@@ -925,57 +873,54 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         exit (1);
     }
 
-    /*
-     * start reading calib_file 
-     */
-    CS->Cal.KsatH = 1.;
-    CS->Cal.KsatV = 1.;
-    CS->Cal.infKsatV = 1.;
-    CS->Cal.macKsatH = 1.;
-    CS->Cal.macKsatV = 1.;
-    CS->Cal.infD = 1.;
-    CS->Cal.RzD = 1.;
-    CS->Cal.macD = 1.;
-    CS->Cal.Porosity = 1.;
-    CS->Cal.Alpha = 1.;
-    CS->Cal.Beta = 1.;
-    CS->Cal.vAreaF = 1.;
-    CS->Cal.hAreaF = 1.;
-    CS->Cal.VegFrac = 1.;
-    CS->Cal.Albedo = 1.;
-    CS->Cal.Rough = 1.;
-    CS->Cal.Prep = 1.;
-    CS->Cal.Temp = 1.;
-    DS->pcCal.Et0 = 1.;
-    DS->pcCal.Et1 = 1.;
-    DS->pcCal.Et2 = 1.;
-    CS->Cal.rivRough = 1.;
-    CS->Cal.rivKsatH = 1.;
-    CS->Cal.rivKsatV = 1.;
-    CS->Cal.rivbedThick = 1.;
-    CS->Cal.rivDepth = 1.;
-    CS->Cal.rivShapeCoeff = 1.;
+    /* start reading calib_file */
+    CS->Cal.KsatH = 1.0;
+    CS->Cal.KsatV = 1.0;
+    CS->Cal.infKsatV = 1.0;
+    CS->Cal.macKsatH = 1.0;
+    CS->Cal.macKsatV = 1.0;
+    CS->Cal.infD = 1.0;
+    CS->Cal.RzD = 1.0;
+    CS->Cal.macD = 1.0;
+    CS->Cal.Porosity = 1.0;
+    CS->Cal.Alpha = 1.0;
+    CS->Cal.Beta = 1.0;
+    CS->Cal.vAreaF = 1.0;
+    CS->Cal.hAreaF = 1.0;
+    CS->Cal.VegFrac = 1.0;
+    CS->Cal.Albedo = 1.0;
+    CS->Cal.Rough = 1.0;
+    CS->Cal.Prep = 1.0;
+    CS->Cal.Temp = 1.0;
+    DS->pcCal.Et0 = 1.0;
+    DS->pcCal.Et1 = 1.0;
+    DS->pcCal.Et2 = 1.0;
+    CS->Cal.rivRough = 1.0;
+    CS->Cal.rivKsatH = 1.0;
+    CS->Cal.rivKsatV = 1.0;
+    CS->Cal.rivbedThick = 1.0;
+    CS->Cal.rivDepth = 1.0;
+    CS->Cal.rivShapeCoeff = 1.0;
 
-    CS->Cal.Rmin = 1.;
-    CS->Cal.ThetaRef = 1.;
-    CS->Cal.ThetaW = 1.;
+    CS->Cal.Rmin = 1.0;
+    CS->Cal.ThetaRef = 1.0;
+    CS->Cal.ThetaW = 1.0;
 #ifdef _FLUX_PIHM_
-    CS->Cal.TF = 1.;
-    CS->Cal.IS = 1.;
-    CS->Cal.Czil = 1.;
-    CS->Cal.fx_soil = 1.;
-    CS->Cal.fx_canopy = 1.;
-    CS->Cal.Rs_ref = 1.;
-    CS->Cal.h_s = 1.;
+    CS->Cal.TF = 1.0;
+    CS->Cal.IS = 1.0;
+    CS->Cal.Czil = 1.0;
+    CS->Cal.fx_soil = 1.0;
+    CS->Cal.fx_canopy = 1.0;
+    CS->Cal.Rs_ref = 1.0;
+    CS->Cal.h_s = 1.0;
 #endif
 #ifdef _RT_
-    CS->Cal.PCO2 = 1;
-    CS->Cal.Keq  = 1;
-    CS->Cal.Site_den = 1;
-    CS->Cal.SSA  = 1;
-    CS->Cal.Prep_conc = 1;
+    CS->Cal.PCO2 = 1.0;
+    CS->Cal.Keq  = 1.0;
+    CS->Cal.Site_den = 1.0;
+    CS->Cal.SSA  = 1.0;
+    CS->Cal.Prep_conc = 1.0;
 #endif
-
 
     fgets (cmdstr, MAXSTRING, global_calib);
 
@@ -984,19 +929,13 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         if (cmdstr[0] != '#' && cmdstr[0] != '\n' && cmdstr[0] != '\0')
         {
             sscanf (cmdstr, "%s", optstr);
-
-            /*
-             * Handle case of comment line in which '#' is indented 
-             */
+            /* Handle case of comment line in which '#' is indented */
             if (optstr[0] == '#')
             {
                 fgets (cmdstr, MAXSTRING, para_file);
                 continue;
             }
-
-            /*
-             * Get Model Parameters 
-             */
+            /* Get calibration coefficients */
             if (strcasecmp ("KSATH", optstr) == 0)
                 sscanf (cmdstr, "%*s %lf", &CS->Cal.KsatH);
             else if (strcasecmp ("KSATV", optstr) == 0)
@@ -1073,9 +1012,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
             else if (strcasecmp ("HS", optstr) == 0)
                 sscanf (cmdstr, "%*s %lf", &CS->Cal.h_s);
 #endif
-            /*
-             * Unrecognized Parameter Flag 
-             */
+            /* Unrecognized Parameter Flag */
             else
             {
                 printf
@@ -1087,31 +1024,20 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         fgets (cmdstr, MAXSTRING, global_calib);
     }
 
-    /*
-     * finish reading calib file 
-     */
+    /* finish reading calib file */
     fclose (global_calib);
+
     free (timeinfo);
-
-
     free (projectname);
-
-    /*
-     * if(DS->RadMode>0 && DS->RadDataMode == 0)
-     * {
-     * printf("\n  Fatal Error: Direct and diffuse solar radiation forcing must be provided when topographic solar radiation model is turned on!\n");
-     * exit(1);
-     * }
-     */
 }
 
 void FreeData (Model_Data DS, Control_Data  CS)
 {
+    int             i, j, k;
 
     /*
      * free river
      */
-    int             i, j, k;
     for (i = 0; i < DS->NumRivBC; i++)
     {
         for (j = 0; j < DS->TSD_Riv[i].length; j++)
