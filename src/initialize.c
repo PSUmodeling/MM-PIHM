@@ -193,11 +193,11 @@ void initialize (char *filename, Model_Data DS, Control_Data  CS, N_Vector CV_Y)
     DS->EleSurf = (realtype *) malloc ((DS->NumEle + DS->NumRiv) * sizeof (realtype));
     DS->EleGW = (realtype *) malloc ((DS->NumEle + DS->NumRiv) * sizeof (realtype));
     DS->EleUnsat = (realtype *) malloc (DS->NumEle * sizeof (realtype));
+    DS->EleMacAct = (int *) malloc (DS->NumEle * sizeof (int));
 #ifdef _FLUX_PIHM_
     DS->SfcSat = (realtype *) calloc (DS->NumEle, sizeof (realtype));
     DS->EleETsat = (realtype *) calloc (DS->NumEle, sizeof (realtype)); /* YS */
     DS->EleFCR = (realtype *) malloc (DS->NumEle * sizeof (realtype));  /* YS */
-    DS->EleMacAct = (int *) malloc (DS->NumEle * sizeof (int));
     DS->avg_inf = (realtype *) malloc (DS->NumEle * sizeof (realtype));  /* YS */
     DS->avg_rech = (realtype *) malloc (DS->NumEle * sizeof (realtype));  /* YS */
     DS->avg_subflux = (realtype **) malloc (DS->NumEle * sizeof (realtype *));  /* YS */

@@ -1,20 +1,13 @@
 /*****************************************************************************
  * File		:   lsm_func.c 
  * Function	:   LSM related functions
- * Version	:   September, 2014
  ****************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <time.h>
-
-#include "../pihm.h"               /* Data Model and Variable Declarations     */
-#include "../spa/spa.h"
+#include "pihm.h"
+#include "spa.h"
 #include "noah.h"
 
-void LSM_read (char *filename, LSM_STRUCT LSM)
+void LSM_read (char *filename, LSM_STRUCT LSM, Control_Data CS)
 {
     int             i, j;
     char           *fn;
@@ -33,9 +26,7 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
-    /*
-     * Detect if model is running in ensemble mode
-     */
+    /* Detect if model is running in ensemble mode */
     tempname = (char *)malloc ((strlen (filename) + 1) * sizeof (char));
     strcpy (tempname, filename);
     if (strstr (tempname, ".") != 0)
@@ -57,7 +48,7 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
     /*
      * Open *.lsm file
      */
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("\n  LSM: Reading %s.%s\n", projectname, "lsm");
     fn = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
     sprintf (fn, "input/%s/%s.lsm", projectname, projectname);
@@ -110,18 +101,14 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
         {
             sscanf (cmdstr, "%s", optstr);
 
-            /*
-             * Handle case of comment line in which '#' is indented 
-             */
+            /* Handle case of comment line in which '#' is indented */
             if (optstr[0] == '#')
             {
                 fgets (cmdstr, MAXSTRING, lsm_file);
                 continue;
             }
 
-            /*
-             * Get Model Parameters 
-             */
+            /* Get Model Parameters */
             if (strcasecmp ("T1", optstr) == 0)
                 sscanf (cmdstr, "%*s %d", &LSM->PRINT_T1);
             else if (strcasecmp ("STC", optstr) == 0)
@@ -142,9 +129,7 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
                 sscanf (cmdstr, "%*s %d", &LSM->PRINT_G);
             else if (strcasecmp ("ETP", optstr) == 0)
                 sscanf (cmdstr, "%*s %d", &LSM->PRINT_ETP);
-            /*
-             * Unrecognized Parameter Flag 
-             */
+            /** Unrecognized Parameter Flag */
             else
             {
                 printf ("\n  Parameter:%s cannot be recognized. Please see User's Manual for more details!\n", optstr);
@@ -202,8 +187,6 @@ void LSM_read (char *filename, LSM_STRUCT LSM)
                 {
                     (*count)++;
                 }
-                //printf ("%s ", optstr);
-                //printf ("count =- %d, ind = %d\n", *count, ind);
             }
             fgets (cmdstr, MAXSTRING, lsm_forc_file);
         }
@@ -251,10 +234,9 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
 {
     GRID_TYPE      *NOAH;
     int             i, j, k, KZ;
-    int             icounter;
     double          ZSOIL[LSM->STD_NSOIL + 1];
     double          AquiferDepth;
-    double          a_x, a_y, b_x, b_y, c_x, c_y, distX, distY;
+    double          a_x, a_y, b_x, b_y, c_x, c_y;
     double          a_zmin, a_zmax, b_zmin, b_zmax, c_zmin, c_zmax;
     double          vector1[3], vector2[3], normal_vector[3], vector[3], H, c, se, ce;
     int             nodes[2];
@@ -276,18 +258,10 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
     LSM->VEGTBL.LUCATS = PIHM->NumLC;
     for (i = 0; i < LSM->VEGTBL.LUCATS; i++)
     {
-        LSM->VEGTBL.SHDTBL[i] =
-           (double)(CS->Cal.VegFrac * PIHM->LandC[i].VegFrac);
-        LSM->VEGTBL.NROTBL[i] =
-           FindLayer (LSM, (double)(CS->Cal.RzD * PIHM->LandC[i].RzD));
-        /*
-         * RSTBL: convert from day m-1 to s m-1 
-         */
-        LSM->VEGTBL.RSTBL[i] = (double)(CS->Cal.Rmin * PIHM->LandC[i].Rmin);// * 24. * 3600.);
-        /*
-         * RGLTBL: convert from J day-1 m-2 to W m-2 
-         */
-        LSM->VEGTBL.RGLTBL[i] = (double)(CS->Cal.Rs_ref * PIHM->LandC[i].Rs_ref);// / 24. / 3600.);
+        LSM->VEGTBL.SHDTBL[i] = (double)(CS->Cal.VegFrac * PIHM->LandC[i].VegFrac);
+        LSM->VEGTBL.NROTBL[i] = FindLayer (LSM, (double)(CS->Cal.RzD * PIHM->LandC[i].RzD));
+        LSM->VEGTBL.RSTBL[i] = (double)(CS->Cal.Rmin * PIHM->LandC[i].Rmin);
+        LSM->VEGTBL.RGLTBL[i] = (double)(CS->Cal.Rs_ref * PIHM->LandC[i].Rs_ref);
         LSM->VEGTBL.HSTBL[i] = (double)(CS->Cal.h_s * PIHM->LandC[i].h_s);
         LSM->VEGTBL.SNUPTBL[i] = (double)PIHM->LandC[i].snup;
         LSM->VEGTBL.LAIMINTBL[i] = (double)(PIHM->LandC[i].LAImin);
@@ -320,10 +294,7 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
         }
     }
 
-    /*
-     * TOPT: convert from degree C to Kalvin 
-     */
-    LSM->VEGTBL.TOPT_DATA = (double)PIHM->Tref; // +273.15;
+    LSM->VEGTBL.TOPT_DATA = (double)PIHM->Tref;
     LSM->VEGTBL.CFACTR_DATA = (double)(CS->Cal.fx_canopy * PIHM->fx_canopy);
     LSM->VEGTBL.RSMAX_DATA = PIHM->Rmax;
     LSM->VEGTBL.BARE = PIHM->bare;
@@ -348,17 +319,14 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
         LSM->SOILTBL.DRYSMC[i] = (double)(CS->Cal.ThetaW * (PIHM->Soil[i].ThetaW - PIHM->Soil[i].ThetaR) + PIHM->Soil[i].ThetaR);
         LSM->SOILTBL.MAXSMC[i] = (double)(CS->Cal.Porosity * (PIHM->Geol[i].ThetaS - PIHM->Geol[i].ThetaR) + PIHM->Geol[i].ThetaR);
         LSM->SOILTBL.REFSMC[i] = (double)(CS->Cal.ThetaRef * (PIHM->Soil[i].ThetaRef - PIHM->Soil[i].ThetaR) + PIHM->Geol[i].ThetaR);
-        /*
-         * SATDK: convert from m day-1 to m s-1 
-         */
-        LSM->SOILTBL.SATDK[i] = (double)(CS->Cal.KsatV * PIHM->Geol[i].KsatV);// / 24. / 3600.);
+        LSM->SOILTBL.SATDK[i] = (double)(CS->Cal.KsatV * PIHM->Geol[i].KsatV);
         LSM->SOILTBL.WLTSMC[i] = (double)(CS->Cal.ThetaW * (PIHM->Soil[i].ThetaW - PIHM->Soil[i].ThetaR) + PIHM->Soil[i].ThetaR);
         LSM->SOILTBL.QTZ[i] = (double)PIHM->Soil[i].qtz;
 
         LSM->SOILTBL.VGA[i] = (double)(CS->Cal.Alpha * PIHM->Soil[i].Alpha);
         LSM->SOILTBL.VGB[i] = (double)(CS->Cal.Beta * PIHM->Soil[i].Beta);
         LSM->SOILTBL.MINSMC[i] = (double)PIHM->Soil[i].ThetaR;
-        LSM->SOILTBL.MACKSAT[i] = (double)(CS->Cal.macKsatV * PIHM->Soil[i].macKsatV );/// 24. / 3600.);
+        LSM->SOILTBL.MACKSAT[i] = (double)(CS->Cal.macKsatV * PIHM->Soil[i].macKsatV );
         LSM->SOILTBL.AREAF[i] = (double)(CS->Cal.hAreaF * PIHM->Soil[i].hAreaF);
         LSM->SOILTBL.NMACD[i] = FindLayer (LSM, (double)(CS->Cal.macD * PIHM->Geol[i].macD));
         if (CS->Verbose)
@@ -381,7 +349,6 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
 
     LSM->GENPRMT.FXEXP_DATA = (double)CS->Cal.fx_soil * LSM->GENPRMT.FXEXP_DATA;
     LSM->GENPRMT.CZIL_DATA = (double)(CS->Cal.Czil) * LSM->GENPRMT.CZIL_DATA;
-    //  LSM->GENPRMT.LVCOEF_DATA = ;
 
     if (CS->Verbose)
     {
@@ -405,9 +372,7 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
     for (i = 0; i < PIHM->NumEle; i++)
     {
         NOAH = &(LSM->GRID[i]);
-        /*
-         * Initialize model grid soil depths
-         */
+        /* Initialize model grid soil depths */
         NOAH->SLDPTH = (double *)malloc ((LSM->STD_NSOIL + 1) * sizeof (double));
         AquiferDepth = (double)(PIHM->Ele[i].zmax - PIHM->Ele[i].zmin);
 
@@ -459,9 +424,7 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
             }
         }
 
-        /*
-         * Initialize topographic radiation related parameters
-         */
+        /* Initialize topographic radiation related parameters */
         if (LSM->RAD_MODE == 1)
         {
             a_x = (double)PIHM->Node[PIHM->Ele[i].node[0] - 1].x;
@@ -489,7 +452,7 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
             normal_vector[1] = vector1[2] * vector2[0] - vector1[0] * vector2[2];
             normal_vector[2] = vector1[0] * vector2[1] - vector1[1] * vector2[0];
 
-            if (normal_vector[2] < 0)
+            if (normal_vector[2] < 0.0)
             {
                 normal_vector[0] = -normal_vector[0];
                 normal_vector[1] = -normal_vector[1];
@@ -497,16 +460,16 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
             }
 
             c = sqrt (normal_vector[0] * normal_vector[0] + normal_vector[1] * normal_vector[1]);
-            NOAH->SLOPE = atan (c / normal_vector[2]) * 180. / PI;
+            NOAH->SLOPE = atan (c / normal_vector[2]) * 180.0 / PI;
             ce = normal_vector[0] / c;
             se = normal_vector[1] / c;
-            NOAH->ASPECT = acos (ce) * 180. / PI;
-            if (se < 0)
-                NOAH->ASPECT = 360. - NOAH->ASPECT;
-            NOAH->ASPECT = mod (360. - NOAH->ASPECT + 270., 360.);
-            NOAH->SVF = 0.;
+            NOAH->ASPECT = acos (ce) * 180.0 / PI;
+            if (se < 0.0)
+                NOAH->ASPECT = 360.0 - NOAH->ASPECT;
+            NOAH->ASPECT = mod (360.0 - NOAH->ASPECT + 270.0, 360.0);
+            NOAH->SVF = 0.0;
             for (j = 0; j < 36; j++)
-                NOAH->H_PHI[j] = 90.;
+                NOAH->H_PHI[j] = 90.0;
 
             for (j = 0; j < PIHM->NumEle; j++)
             {
@@ -542,8 +505,8 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
                     vector[1] = yc - PIHM->Ele[i].y;
                     vector[2] = zc - PIHM->Ele[i].zmax;
                     c = sqrt (vector[0] * vector[0] + vector[1] * vector[1]);
-                    H = atan (c / vector[2]) * 180. / PI;
-                    H = H < 0. ? 90. : H;
+                    H = atan (c / vector[2]) * 180.0 / PI;
+                    H = H < 0.0 ? 90.0 : H;
 
                     vector1[0] = x1 - (double)PIHM->Ele[i].x;
                     vector1[1] = y1 - (double)PIHM->Ele[i].y;
@@ -557,27 +520,27 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
                     ce1 = vector1[0] / c1;
                     se1 = vector1[1] / c1;
                     phi1 = acos (ce1) * 180. / PI;
-                    if (se1 < 0)
-                        phi1 = 360. - phi1;
-                    phi1 = mod (360. - phi1 + 270., 360.);
+                    if (se1 < 0.0)
+                        phi1 = 360.0 - phi1;
+                    phi1 = mod (360.0 - phi1 + 270.0, 360.0);
 
                     ce2 = vector2[0] / c2;
                     se2 = vector2[1] / c2;
-                    phi2 = acos (ce2) * 180. / PI;
-                    if (se2 < 0)
-                        phi2 = 360. - phi2;
-                    phi2 = mod (360. - phi2 + 270., 360.);
+                    phi2 = acos (ce2) * 180.0 / PI;
+                    if (se2 < 0.0)
+                        phi2 = 360.0 - phi2;
+                    phi2 = mod (360.0 - phi2 + 270.0, 360.0);
 
-                    if (fabs (phi1 - phi2) > 180.)
+                    if (fabs (phi1 - phi2) > 180.0)
                     {
-                        ind1 = 0.;
-                        ind2 = (int)floor ((phi1 < phi2 ? phi1 : phi2) / 10.);
+                        ind1 = 0.0;
+                        ind2 = (int)floor ((phi1 < phi2 ? phi1 : phi2) / 10.0);
                         for (ind = ind1; ind <= ind2; ind++)
                         {
                             if (H < NOAH->H_PHI[ind])
                                 NOAH->H_PHI[ind] = H;
                         }
-                        ind1 = (int)floor ((phi1 > phi2 ? phi1 : phi2) / 10.);
+                        ind1 = (int)floor ((phi1 > phi2 ? phi1 : phi2) / 10.0);
                         ind2 = 35;
                         for (ind = ind1; ind <= ind2; ind++)
                         {
@@ -587,8 +550,8 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
                     }
                     else
                     {
-                        ind1 = (int)floor ((phi1 < phi2 ? phi1 : phi2) / 10.);
-                        ind2 = (int)floor ((phi1 > phi2 ? phi1 : phi2) / 10.);
+                        ind1 = (int)floor ((phi1 < phi2 ? phi1 : phi2) / 10.0);
+                        ind2 = (int)floor ((phi1 > phi2 ? phi1 : phi2) / 10.0);
                         for (ind = ind1; ind <= ind2; ind++)
                         {
                             if (H < NOAH->H_PHI[ind])
@@ -600,7 +563,7 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
 
             for (ind = 0; ind < 36; ind++)
             {
-                NOAH->SVF = NOAH->SVF + 0.5 / PI * (cos (NOAH->SLOPE * PI / 180.) * (pow (sin (NOAH->H_PHI[ind] * PI / 180.), 2)) + sin (NOAH->SLOPE * PI / 180.) * cos ((ind * 10. + 5. - NOAH->ASPECT) * PI / 180.) * NOAH->H_PHI[ind] * PI / 180. - sin (NOAH->H_PHI[ind] * PI / 180.) * cos (NOAH->H_PHI[ind] * PI / 180.)) * 10. / 180. * PI;
+                NOAH->SVF = NOAH->SVF + 0.5 / PI * (cos (NOAH->SLOPE * PI / 180.0) * (pow (sin (NOAH->H_PHI[ind] * PI / 180.0), 2)) + sin (NOAH->SLOPE * PI / 180.0) * cos ((ind * 10.0 + 5.0 - NOAH->ASPECT) * PI / 180.0) * NOAH->H_PHI[ind] * PI / 180.0 - sin (NOAH->H_PHI[ind] * PI / 180.0) * cos (NOAH->H_PHI[ind] * PI / 180.0)) * 10.0 / 180.0 * PI;
             }
             if (CS->Verbose)
             {
@@ -653,18 +616,11 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
         NOAH->RSMIN = BADVAL;
         NOAH->NROOT = BADVAL;
 
-        NOAH->PCPDRP = 0.;
-        NOAH->DRIP = 0.;
+        NOAH->PCPDRP = 0.0;
+        NOAH->DRIP = 0.0;
 
         NOAH->DT = CS->ETStep;
 
-        /*
-         * TBOT: convert from degree C to K 
-         */
-//        NOAH->TBOT = 0.;
-//        for (j = 0; j < PIHM->Forcing[1][PIHM->Ele[i].temp - 1].length; j++)
-//            NOAH->TBOT = NOAH->TBOT + PIHM->Forcing[1][PIHM->Ele[i].temp - 1].TS[j][1];
-//        NOAH->TBOT = NOAH->TBOT / (double) PIHM->Forcing[1][PIHM->Ele[i].temp - 1].length;
         NOAH->TBOT = LSM->GENPRMT.TBOT_DATA;
         NOAH->VEGTYP = PIHM->Ele[i].LC;
         NOAH->SOILTYP = PIHM->Ele[i].soil;
@@ -695,8 +651,8 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
 
         NOAH->CZIL = LSM->GENPRMT.CZIL_DATA;
 
-        NOAH->CH = 1.e-4;
-        NOAH->CM = 1.e-4;
+        NOAH->CH = 1.0e-4;
+        NOAH->CM = 1.0e-4;
     }
 
     for (i = 0; i < PIHM->NumEle; i++)
@@ -709,10 +665,7 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
     }
    
 
-    /*
-     * Set initial conditions for land surface variables
-     */
-
+    /* Set initial conditions for land surface variables */
     metarr = (double *) malloc (7 * sizeof (double));
     if (CS->init_type < 3)      /* Relaxation */
     {
@@ -722,11 +675,8 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
             NOAH->STC = (double *)malloc ((LSM->STD_NSOIL + 1) * sizeof (double));
             NOAH->SMC = (double *)malloc ((LSM->STD_NSOIL + 1) * sizeof (double));
             NOAH->SH2O = (double *)malloc ((LSM->STD_NSOIL + 1) * sizeof (double));
-            /*
-             * T1: convert from degree C to K 
-             */
+
             MultiInterpolation (&PIHM->TSD_meteo[PIHM->Ele[i].meteo - 1], CS->StartTime, metarr, 7);
-            //NOAH->T1 = (double)Interpolation (&PIHM->[SFCTMP_TS][PIHM->Ele[i].temp - 1], CS->StartTime); //+ 273.15;
             NOAH->T1 = metarr[SFCTMP_TS];
             NOAH->STC[0] = NOAH->T1 + (NOAH->T1 - NOAH->TBOT) / LSM->GENPRMT.ZBOT_DATA * NOAH->SLDPTH[0] * 0.5;
             for (j = 1; j < LSM->STD_NSOIL + 1; j++)
@@ -736,7 +686,7 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
                     NOAH->STC[j] = BADVAL;
             for (j = 0; j < LSM->STD_NSOIL + 1; j++)
             {
-                if (NOAH->SLDPTH[j] > 0)
+                if (NOAH->SLDPTH[j] > 0.0)
                 {
                     NOAH->SMC[j] = PIHM->Ele[i].ThetaS;
                     NOAH->SH2O[j] = PIHM->Ele[i].ThetaS;
@@ -747,16 +697,14 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
                     NOAH->SH2O[j] = BADVAL;
                 }
             }
-            NOAH->SNOWH = 0.;
+            NOAH->SNOWH = 0.0;
             NOAH->CMC = (double)PIHM->EleIS[i];
             NOAH->SNEQV = (double)PIHM->EleSnow[i];
         }
     }
     else
     {
-        /*
-         * Hot start mode
-         */
+        /* Hot start mode */
         fn = (char *)malloc ((2 * strlen (filename) + 16) * sizeof (char));
         sprintf (fn, "input/%s/%s.lsminit", filename, filename);
         init_file = fopen (fn, "r");
@@ -788,7 +736,6 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
 void LSM_initialize_output (char *filename, Model_Data PIHM, Control_Data CS, LSM_STRUCT LSM, char *outputdir)
 {
     FILE           *Ofile;
-    char           *ofn;
     char           *ascii_name;
     int             i, j, ensemble_mode, icounter;
 
@@ -797,7 +744,7 @@ void LSM_initialize_output (char *filename, Model_Data PIHM, Control_Data CS, LS
     else
         ensemble_mode = 0;
 
-    if (ensemble_mode == 0)
+    if (CS->Verbose)
         printf ("\nInitializing LSM output files ...\n");
 
     icounter = 0;
@@ -1021,7 +968,7 @@ int FindLayer (LSM_STRUCT LSM, double depth)
     {
         while (dsum < depth)
         {
-            if (LSM->STD_SLDPTH[j] < 0)
+            if (LSM->STD_SLDPTH[j] < 0.0)
                 break;
             dsum = dsum + LSM->STD_SLDPTH[j];
             ind = j;
@@ -1044,15 +991,14 @@ double topo_radiation (double Sdir, double Sdif, double zenith, double azimuth18
     double gvf;
     double  Soldown;
 
-//    printf ("Sdir %lf Sdif %lf zenith %lf azimuth180 %lf slope %lf aspect %lf h_phi %lf svf %lf\n", Sdif, Sdif, zenith, azimuth180, slope, aspect, h_phi[0], svf);
-    if (zenith > h_phi[(int)floor (azimuth180 / 10.)])
-        Sdir = 0.;
-    incidence = 180. / PI * acos (cos (zenith * PI / 180.) * cos (slope * PI / 180.) + sin (zenith * PI / 180.) * sin (slope * PI / 180.) * cos ((azimuth180 - aspect) * PI / 180.));
-    incidence = incidence > 90. ? 90. : incidence;
-    gvf = (1. + cos (slope * PI / 180.)) / 2. - svf;
-    gvf = gvf < 0. ? 0. : gvf;
-    Soldown = Sdir * cos (incidence * PI / 180.) + svf * Sdif + 0.2 * gvf * (Sdir * cos (zenith * PI / 180.) + Sdif);
-    Soldown = Soldown < 0. ? 0. : Soldown;
+    if (zenith > h_phi[(int)floor (azimuth180 / 10.0)])
+        Sdir = 0.0;
+    incidence = 180.0 / PI * acos (cos (zenith * PI / 180.0) * cos (slope * PI / 180.0) + sin (zenith * PI / 180.0) * sin (slope * PI / 180.0) * cos ((azimuth180 - aspect) * PI / 180.0));
+    incidence = incidence > 90.0 ? 90.0 : incidence;
+    gvf = (1.0 + cos (slope * PI / 180.0)) / 2.0 - svf;
+    gvf = gvf < 0.0 ? 0.0 : gvf;
+    Soldown = Sdir * cos (incidence * PI / 180.0) + svf * Sdif + 0.2 * gvf * (Sdir * cos (zenith * PI / 180.0) + Sdif);
+    Soldown = Soldown < 0.0 ? 0.0 : Soldown;
 
     return (Soldown);
 }

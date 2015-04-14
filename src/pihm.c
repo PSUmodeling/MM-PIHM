@@ -189,7 +189,7 @@ int main (int argc, char *argv[])
 #endif
     read_alloc (filename, mData, cData);
 #ifdef _FLUX_PIHM_
-    LSM_read (filename, LSM);
+    LSM_read (filename, LSM, cData);
 #endif
 #ifdef _BGC_
     BGC_read (filename, BGCM, mData);

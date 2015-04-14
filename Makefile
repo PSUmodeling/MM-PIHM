@@ -21,6 +21,7 @@ INCLUDES = -I${SUNDIALS_PATH}/include \
 	-I${SUNDIALS_PATH}/include/sundials\
 	-I${SRCDIR}\
 	-I${SRCDIR}/noah\
+	-I${SRCDIR}/spa\
 	-I${SRCDIR}/bgc\
 	-I${SRCDIR}/rt
 

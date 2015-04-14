@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
 #include "noah.h"
 
 void SFLX (GRID_TYPE * NOAH)
@@ -18,7 +14,7 @@ void SFLX (GRID_TYPE * NOAH)
 * --------------------------------------------------------------------*/
     int            *FRZGRA, *SNOWNG;
 
-    int            *NSOIL, *VEGTYP, *SLOPETYP, *SOILTYP;
+    int            *NSOIL, *VEGTYP;
     int            *ISURBAN;
     int            *NROOT;
     int             KZ, K, iout;
@@ -43,7 +39,7 @@ void SFLX (GRID_TYPE * NOAH)
     double          ZSOIL[NOAH->NSOIL];
 
     double         *ETA_KINEMATIC, *BETA, *DEW, *DRIP, *EC, *EDIR, *ESNOW, *ETA, *ETP, *FLX1, *FLX2, *FLX3, *SHEAT, *PC, *RUNOFF2, *RUNOFF3, *RC, *RSMIN, *RCQ, *RCS, *RCSOIL, *RCT, *SSOIL, *SMCDRY, *SMCMAX, *SMCREF, *SMCWLT, *SNOMLT, *SOILM, *SOILW, *FDOWN, *Q1;
-    double         *CFACTR, *CMCMAX, *CSOIL, *CZIL, *DF1, *DKSAT, *ETT, *EPSCA, *F1, *FXEXP, *FRZX, *HS, *QUARTZ, *RCH, *RR, *RGL, *RSMAX, *RSNOW, *SNDENS, *SNCOND, *SBETA, *SN_NEW, *SNUP, *SALP, *T1V, *T24, *T2V, *TH2V, *TOPT, *ZBOT, *Z0, *PRCPF, *ETNS, *PTU;
+    double         *CFACTR, *CMCMAX, *CSOIL, *CZIL, *DF1, *DKSAT, *ETT, *EPSCA, *F1, *FXEXP, *FRZX, *HS, *QUARTZ, *RCH, *RR, *RGL, *RSMAX, *SNDENS, *SNCOND, *SBETA, *SN_NEW, *SNUP, *SALP, *T24, *T2V, *TOPT, *ZBOT, *Z0, *PRCPF, *ETNS, *PTU;
     double          DF1H, DF1A, DSOIL, DTOT, FRCSNO, FRCSOI, SOILWM, SOILWW;
     double         *LVCOEF;
     double          INTERP_FRACTION;
@@ -404,30 +400,30 @@ void SFLX (GRID_TYPE * NOAH)
     }
 
 #ifdef _DEBUG_
-    printf ("NSOIL = %d, ISURBAN = %d, NROOT = %d\n", *NSOIL, *ISURBAN, *NROOT);
-    printf ("RDLAI2D = %d, USEMONALB = %d\n", RDLAI2D, USEMONALB);
-    printf ("SHDMIN = %f, SHDMAX = %f, DT = %f, DQSDT2 = %f, LWDN = %f, PRCP = %f, PRCPRAIN = %f, Q2 = %f, Q2SAT = %f, SFCPRS = %f, SFCSPD = %f, SFCTMP = %f, SNOALB = %f, SOLDN = %f, SOLNET = %f, TBOT = %f, TH2, = %f, ZLVL = %f, FFROZP = %f\n", *SHDMIN, *SHDMAX, *DT, *DQSDT2, *LWDN, *PRCP, *PRCPRAIN, *Q2, *Q2SAT, *SFCPRS, *SFCSPD, *SFCTMP, *SNOALB, *SOLDN, *SOLNET, *TBOT, *TH2, *ZLVL, *FFROZP);
-    printf ("CH = %f, CM = %f, CMC = %f, SNEQV = %f, SNCOVR = %f, SNOWH = %f, T1 = %f, XLAI = %f, SHDFAC = %f, Z0BRD = %f, EMISSI = %f, ALB = %f\n", *CH, *CM, *CMC, *SNEQV, *SNCOVR, *SNOWH, *T1, *XLAI, *SHDFAC, *Z0BRD, *EMISSI, *ALB);
-    printf ("SNOTIME1 = %f\n", *SNOTIME1);
-    printf ("RIBB = %f\n", *RIBB);
-    for (KZ = 0; KZ < *NSOIL; KZ++) printf ("SLDPTH[%d] = %f ", KZ, SLDPTH[KZ]);
-    printf ("\n");
-    for (KZ = 0; KZ < *NSOIL; KZ++)
-        printf ("SH2O[%d] = %f ", KZ, SH2O[KZ]);
-    printf ("\n");
-    for (KZ = 0; KZ < *NSOIL; KZ++)
-        printf ("SMC[%d] = %f ", KZ, SMC[KZ]);
-    printf ("\n");
-    for (KZ = 0; KZ < *NSOIL; KZ++)
-        printf ("STC[%d] = %f ", KZ, STC[KZ]);
-    printf ("\n");
-    for (KZ = 0; KZ < *NSOIL; KZ++)
-        printf ("RTDIS[%d] = %f ", KZ, RTDIS[KZ]);
-    printf ("\n");
-    for (KZ = 0; KZ < *NSOIL; KZ++)
-        printf ("ZSOIL[%d] = %f ", KZ, ZSOIL[KZ]);
-    printf ("\n");
-    printf ("VGALPHA = %f, VGBETA = %f, CFACTR = %f, CMCMAX = %f, CSOIL = %f, CZIL = %f, DF1 = %f, DKSAT = %f, FXEXP = %f, FRZX = %f, LVH2O = %f, RGL = %f, RSMAX = %f, SBETA = %f, TOPT = %f, HS = %f, ZBOT = %f, SNUP = %f, SALP = %f, SMCMAX = %f, SMCWLT = %f, SMCREF = %f, SMCDRY = %f, QUARTZ = %f, LAIMIN = %f, LAIMAX = %f, EMISSMIN = %f, EMISSIMAX = %f, ALBEDOMIN = %f, ALBEDOMAX = %f, Z0MIN = %f, Z0MAX = %f\n", *VGALPHA, *VGBETA, *CFACTR, *CMCMAX, *CSOIL, *CZIL, *DF1, *DKSAT, *FXEXP, *FRZX, LVH2O, *RGL, *RSMAX, *SBETA, *TOPT, *HS, *ZBOT, *SNUP, *SALP, *SMCMAX, *SMCWLT, *SMCREF, *SMCDRY, *QUARTZ, *LAIMIN, *LAIMAX, *EMISSMIN, *EMISSMAX, *ALBEDOMIN, *ALBEDOMAX, *Z0MIN, *Z0MAX);
+    //printf ("NSOIL = %d, ISURBAN = %d, NROOT = %d\n", *NSOIL, *ISURBAN, *NROOT);
+    //printf ("RDLAI2D = %d, USEMONALB = %d\n", RDLAI2D, USEMONALB);
+    //printf ("SHDMIN = %f, SHDMAX = %f, DT = %f, DQSDT2 = %f, LWDN = %f, PRCP = %f, PRCPRAIN = %f, Q2 = %f, Q2SAT = %f, SFCPRS = %f, SFCSPD = %f, SFCTMP = %f, SNOALB = %f, SOLDN = %f, SOLNET = %f, TBOT = %f, TH2, = %f, ZLVL = %f, FFROZP = %f\n", *SHDMIN, *SHDMAX, *DT, *DQSDT2, *LWDN, *PRCP, *PRCPRAIN, *Q2, *Q2SAT, *SFCPRS, *SFCSPD, *SFCTMP, *SNOALB, *SOLDN, *SOLNET, *TBOT, *TH2, *ZLVL, *FFROZP);
+    //printf ("CH = %f, CM = %f, CMC = %f, SNEQV = %f, SNCOVR = %f, SNOWH = %f, T1 = %f, XLAI = %f, SHDFAC = %f, Z0BRD = %f, EMISSI = %f, ALB = %f\n", *CH, *CM, *CMC, *SNEQV, *SNCOVR, *SNOWH, *T1, *XLAI, *SHDFAC, *Z0BRD, *EMISSI, *ALB);
+    //printf ("SNOTIME1 = %f\n", *SNOTIME1);
+    //printf ("RIBB = %f\n", *RIBB);
+    //for (KZ = 0; KZ < *NSOIL; KZ++) printf ("SLDPTH[%d] = %f ", KZ, SLDPTH[KZ]);
+    //printf ("\n");
+    //for (KZ = 0; KZ < *NSOIL; KZ++)
+    //    printf ("SH2O[%d] = %f ", KZ, SH2O[KZ]);
+    //printf ("\n");
+    //for (KZ = 0; KZ < *NSOIL; KZ++)
+    //    printf ("SMC[%d] = %f ", KZ, SMC[KZ]);
+    //printf ("\n");
+    //for (KZ = 0; KZ < *NSOIL; KZ++)
+    //    printf ("STC[%d] = %f ", KZ, STC[KZ]);
+    //printf ("\n");
+    //for (KZ = 0; KZ < *NSOIL; KZ++)
+    //    printf ("RTDIS[%d] = %f ", KZ, RTDIS[KZ]);
+    //printf ("\n");
+    //for (KZ = 0; KZ < *NSOIL; KZ++)
+    //    printf ("ZSOIL[%d] = %f ", KZ, ZSOIL[KZ]);
+    //printf ("\n");
+    //printf ("VGALPHA = %f, VGBETA = %f, CFACTR = %f, CMCMAX = %f, CSOIL = %f, CZIL = %f, DF1 = %f, DKSAT = %f, FXEXP = %f, FRZX = %f, LVH2O = %f, RGL = %f, RSMAX = %f, SBETA = %f, TOPT = %f, HS = %f, ZBOT = %f, SNUP = %f, SALP = %f, SMCMAX = %f, SMCWLT = %f, SMCREF = %f, SMCDRY = %f, QUARTZ = %f, LAIMIN = %f, LAIMAX = %f, EMISSMIN = %f, EMISSIMAX = %f, ALBEDOMIN = %f, ALBEDOMAX = %f, Z0MIN = %f, Z0MAX = %f\n", *VGALPHA, *VGBETA, *CFACTR, *CMCMAX, *CSOIL, *CZIL, *DF1, *DKSAT, *FXEXP, *FRZX, LVH2O, *RGL, *RSMAX, *SBETA, *TOPT, *HS, *ZBOT, *SNUP, *SALP, *SMCMAX, *SMCWLT, *SMCREF, *SMCDRY, *QUARTZ, *LAIMIN, *LAIMAX, *EMISSMIN, *EMISSMAX, *ALBEDOMIN, *ALBEDOMAX, *Z0MIN, *Z0MAX);
 #endif
 
 /*----------------------------------------------------------------------
@@ -666,14 +662,14 @@ void SFLX (GRID_TYPE * NOAH)
 #else
     iout = 0;
 #endif
-    if (iout == 1)
-    {
-        printf ("before penman\n");
-        printf ("SFCTMP = %lf SFCPRS = %lf CH = %lf T2V = %lf TH2 = %lf PRCP = %lf FDOWN = %lf T24 = %lf SSOIL = %lf Q2 = %f Q2SAT = %lf ETP = %lf RCH = %lf EPSCA = %lf RR = %lf SNOWNG = %d FRZGRA = %d DQSDT2 = %lf FLX2 = %lf SNOWH = %lf SNEQV = %lf DSOIL = %lf FRCSNO = %lf SNCOVR = %lf DTOT = %lf ZSOIL(1) = %lf DF1 = %lf T1 = %lf STC1 = %lf ALBEDO = %lf SMC = %lf STC = %lf SH2O = %lf\n", *SFCTMP, *SFCPRS, *CH, *T2V, *TH2, *PRCP, *FDOWN, *T24, *SSOIL, *Q2, *Q2SAT, *ETP, *RCH, *EPSCA, *RR, *SNOWNG, *FRZGRA, *DQSDT2, *FLX2, *SNOWH, *SNEQV, DSOIL, FRCSNO, *SNCOVR, DTOT, ZSOIL[0], *DF1, *T1, STC[0], *ALBEDO, SMC[0], STC[1], SH2O[0]);
-        //      for (K = 0; K < *NSOIL; K++)
-        //          printf("SH2O = %f, SMC = %f\t", SH2O[K], SMC[K]);
-        //      printf("\n");
-    }
+    //if (iout == 1)
+    //{
+    //    printf ("before penman\n");
+    //    printf ("SFCTMP = %lf SFCPRS = %lf CH = %lf T2V = %lf TH2 = %lf PRCP = %lf FDOWN = %lf T24 = %lf SSOIL = %lf Q2 = %f Q2SAT = %lf ETP = %lf RCH = %lf EPSCA = %lf RR = %lf SNOWNG = %d FRZGRA = %d DQSDT2 = %lf FLX2 = %lf SNOWH = %lf SNEQV = %lf DSOIL = %lf FRCSNO = %lf SNCOVR = %lf DTOT = %lf ZSOIL(1) = %lf DF1 = %lf T1 = %lf STC1 = %lf ALBEDO = %lf SMC = %lf STC = %lf SH2O = %lf\n", *SFCTMP, *SFCPRS, *CH, *T2V, *TH2, *PRCP, *FDOWN, *T24, *SSOIL, *Q2, *Q2SAT, *ETP, *RCH, *EPSCA, *RR, *SNOWNG, *FRZGRA, *DQSDT2, *FLX2, *SNOWH, *SNEQV, DSOIL, FRCSNO, *SNCOVR, DTOT, ZSOIL[0], *DF1, *T1, STC[0], *ALBEDO, SMC[0], STC[1], SH2O[0]);
+    //    //      for (K = 0; K < *NSOIL; K++)
+    //    //          printf("SH2O = %f, SMC = %f\t", SH2O[K], SMC[K]);
+    //    //      printf("\n");
+    //}
 
     PENMAN (SFCTMP, SFCPRS, CH, T2V, TH2, PRCP, FDOWN, T24, SSOIL, Q2, Q2SAT, ETP, RCH, EPSCA, RR, SNOWNG, FRZGRA, DQSDT2, FLX2, EMISSI, SNEQV, T1, SNCOVR);
 
@@ -874,9 +870,8 @@ ALCALC (double *ALB, double *SNOALB, double *EMBRD, double *SHDFAC,
 * (1985, JCAM, VOL 24, 402-411)
 * --------------------------------------------------------------------*/
     double          SNOALB2;
-    double          TM, SNOALB1;
-    double          SNACCA = 0.94, SNACCB = 0.58, SNTHWA = 0.82, SNTHWB =
-       0.46;
+    double          SNOALB1;
+    double          SNACCA = 0.94, SNACCB = 0.58;
 
     /*
      * turn of vegetation effect 
@@ -1026,7 +1021,7 @@ CANRES (double *SOLAR, double *CH, double *SFCTMP, double *Q2, double *SFCPRS,
 * --------------------------------------------------------------------*/
 
     int             K;
-    double          DELTA, FF, GX, P, RR;
+    double          DELTA, FF, GX, RR;
     double          PART[*NSOIL];
     double          SLV = 2.501000e6;
 
@@ -1244,7 +1239,7 @@ EVAPO (double *ETA1, double *SMC, int *NSOIL, double *CMC, double *ETP1,
 * FROZEN GROUND VERSION:  NEW STATES ADDED: SH2O, AND FROZEN GROUND
 * CORRECTION FACTOR, FRZFACT AND PARAMETER SLOPE.
 * --------------------------------------------------------------------*/
-    int             I, K;
+    int             K;
     double          CMC2MS;
 
 /*----------------------------------------------------------------------
@@ -1374,11 +1369,10 @@ FRH2O (double *FREE, double *TKELV, double *SMC, double *SH2O, double *SMCMAX,
 * OUTPUT:
 *   FREE..........SUPERCOOLED LIQUID WATER CONTENT
 * --------------------------------------------------------------------*/
-    double          BX, DENOM, DF, DSWL, FK, SWL, SWLK;
+    double          DENOM, DF, DSWL, FK, SWL, SWLK;
     int             NLOG, KCOUNT;
     //      PARAMETER(CK = 0.0)
-    double          CK = 8.0, BLIM = 5.5, ERROR = 0.005, HLICE = 3.335e5, GS =
-       9.81, DICE = 920.0, DH2O = 1000.0, T0 = 273.15;
+    double          CK = 8.0, ERROR = 0.005, HLICE = 3.335e5, GS = 9.81, T0 = 273.15;
 
 #ifdef _FLUX_PIHM_
     double          MX;
@@ -1560,7 +1554,7 @@ HRT (double *RHSTS, double *STC, double *SMC, double *SMCMAX, int *NSOIL,
 * COEFFICIENTS FOR THE TRI-DIAGONAL MATRIX OF THE IMPLICIT TIME SCHEME.
 * --------------------------------------------------------------------*/
     int             ITAVG;
-    int             I, K;
+    int             K;
 
     double          DDZ, DDZ2, DENOM, DF1K, DTSDZ, DTSDZ2, HCPCT, SSOIL, SICE,
        CSOIL_LOC;
@@ -2166,10 +2160,10 @@ void PENMAN (double *SFCTMP, double *SFCPRS, double *CH, double *T2V, double *TH
     LVS = (1.0 - *SNCOVR) * LSUBC + *SNCOVR * LSUBS;
 
     *FLX2 = 0.0;
-    //      DELTA = ELCP * DQSDT2
+    //DELTA = ELCP * DQSDT2
     DELTA = ELCP1 * *DQSDT2;
     *T24 = *SFCTMP * *SFCTMP * *SFCTMP * *SFCTMP;
-    //  RR = T24 * 6.48E-8 / (SFCPRS * CH) + 1.0
+    //RR = T24 * 6.48E-8 / (SFCPRS * CH) + 1.0
     *RR = EMISSI * *T24 * 6.48e-8 / (*SFCPRS * *CH) + 1.0;
     RHO = *SFCPRS / (RD * *T2V);
 
@@ -2207,7 +2201,9 @@ void PENMAN (double *SFCTMP, double *SFCPRS, double *CH, double *T2V, double *TH
     *EPSCA = (A * *RR + RAD * DELTA) / (DELTA + *RR);
     //  ETP = EPSCA * RCH / LSUBC;
     *ETP = *EPSCA * *RCH / LVS;
-//    printf("RR = %lf, RAD = %lf, DELTA = %lf, CH = %lf, EPSCA = %f, ETP = %lf\n", *RR, RAD, DELTA, *CH, *EPSCA, *ETP);
+#ifdef _DEBUG_
+    printf("RR = %lf, RAD = %lf, DELTA = %lf, CH = %lf, EPSCA = %f, ETP = %lg, DQSDT2 = %lf\n", *RR, RAD, DELTA, *CH, *EPSCA, *ETP, *DQSDT2);
+#endif
 
 /*----------------------------------------------------------------------
   END SUBROUTINE PENMAN
@@ -2294,7 +2290,7 @@ void REDPRM (GRID_TYPE * NOAH, LSM_STRUCT LSM, double *ZSOIL)
 
     int             I;
 
-    double          FRZFACT, FRZK, REFDK;
+    double          FRZFACT;
 
     /*
      * SAVE
@@ -2526,7 +2522,6 @@ SHFLX (double *SSOIL, double *STC, double *SMC, double *SMCMAX, int *NSOIL,
 
     double          AI[*NSOIL], BI[*NSOIL], CI[*NSOIL], STCF[*NSOIL],
        RHSTS[*NSOIL];
-    double          T0 = 273.15;
 
 /*----------------------------------------------------------------------
 * HRT ROUTINE CALCS THE RIGHT HAND SIDE OF THE SOIL TEMP DIF EQN
@@ -2597,15 +2592,18 @@ SMFLX (double *SMC, int *NSOIL, double *CMC, double *DT, double *PRCP1,
 * CORRECTION FACTOR, FRZFACT AND PARAMETER SLOPE.
 * --------------------------------------------------------------------*/
 
-    int             I, K;
-    double          AI[*NSOIL], BI[*NSOIL], CI[*NSOIL], STCF[*NSOIL],
-       RHSTS[*NSOIL], RHSTT[*NSOIL], SICE[*NSOIL], SH2OA[*NSOIL],
-       SH2OFG[*NSOIL];
-    double         *DUMMY, EXCESS, *RHSCT, TRHSCT;
+    int             I;
+    double          AI[*NSOIL], BI[*NSOIL], CI[*NSOIL];
+    double          RHSTT[*NSOIL];
+    double          SICE[*NSOIL];
+    double         *DUMMY;
+    double          EXCESS;
+    double         *RHSCT;
+    double          TRHSCT;
 #ifndef _FLUX_PIHM_
     double         *PCPDRP;
 #endif
-    double          FAC2;
+    //double          FAC2;
     double         *FLIMIT;
 #ifdef _FLUX_PIHM_
     double          KD = 6.54e-7, BFACTR = 3.89;
@@ -2805,7 +2803,7 @@ SNFRAC (double *SNEQV, double *SNUP, double *SALP, double *SNOWH,
 * SNCOVR  FRACTIONAL SNOW COVER
 * --------------------------------------------------------------------*/
 
-    double          RSNOW, Z0N;
+    double          RSNOW;
 
 /*----------------------------------------------------------------------
 * SNUP IS VEG-CLASS DEPENDENT SNOWDEPTH THRESHHOLD (SET IN ROUTINE
@@ -2858,7 +2856,7 @@ SNKSRC (double *TSNSR, double *TAVG, double *SMC, double *SH2O, double *ZSOIL,
 
     double          DZ, *FREE, XH2O;
 
-    double          DH2O = 1.0000e3, HLICE = 3.3350e5, T0 = 2.7315e2;
+    double          DH2O = 1.0000e3, HLICE = 3.3350e5;
 
     FREE = (double *)malloc (sizeof (double));
 
@@ -2991,21 +2989,35 @@ SNOPAC (double *ETP, double *ETA, double *PRCP, double *PRCPF, int *SNOWNG,
 
     int             K;
 
-    /*
-     * kmh 09/03/2006 add IT16 for surface temperature iteration
-     */
-    int             IT16;
     double          ET1[*NSOIL];
-    double          DENOM, DSOIL, DTOT, ESNOW1, ESNOW2, ETP2, ETP3, ETANRG,
-       EX, SEH, SNCOND, T12, T12A, T12B, T14;
-    double         *EC1, *EDIR1, *ETT1, *ETP1, *ETNS1, *PRCP1, *SSOIL1, *T11,
-       *YY, *ZZ1;
-
-    /*
-     * kmh 01/11/2007 add T15, T16, and DTOT2 for SFC T iteration and snow heat flux
-     */
-    double          T15, T16, DTOT2;
-    double          ESDMIN = 1.e-6, LSUBC = 2.501000e6, SNOEXP = 2.0;
+    double          DENOM;
+    double          DSOIL;
+    double          DTOT;
+    double          ESNOW1;
+    double          ESNOW2;
+    //double          ETP2;
+    double          ETP3;
+    double          ETANRG;
+    double          EX;
+    double          SEH;
+    double          SNCOND;
+    double          T12;
+    double          T12A;
+    double          T12B;
+    double          T14;
+    double         *EC1;
+    double         *EDIR1;
+    double         *ETT1;
+    double         *ETP1;
+    double         *ETNS1;
+    double         *PRCP1;
+    double         *SSOIL1;
+    double         *T11;
+    double         *YY;
+    double         *ZZ1;
+    double          ESDMIN = 1.0e-6;
+    double          LSUBC = 2.501e6;
+    double          SNOEXP = 2.0;
 
     EC1 = (double *)malloc (sizeof (double));
     EDIR1 = (double *)malloc (sizeof (double));
@@ -3369,11 +3381,8 @@ SNOPAC (double *ETP, double *ETA, double *PRCP, double *PRCPF, int *SNOWNG,
 * --------------------------------------------------------------------*/
 }
 
-void
-SNOWPACK (double *ESD, double *DTSEC, double *SNOWH, double *SNDENS,
-   double *TSNOW, double *TSOIL)
+void SNOWPACK (double *ESD, double *DTSEC, double *SNOWH, double *SNDENS, double *TSNOW, double *TSOIL)
 {
-
 /*----------------------------------------------------------------------
 * SUBROUTINE SNOWPACK
 * ----------------------------------------------------------------------
@@ -3392,17 +3401,28 @@ SNOWPACK (double *ESD, double *DTSEC, double *SNOWH, double *SNDENS,
 * SUBROUTINE WILL RETURN NEW VALUES OF SNOWH AND SNDENS
 * --------------------------------------------------------------------*/
 
-    int             IPOL, J;
-    double          BFAC, DSX, DTHR, DW, SNOWHC, PEXP, TAVGC, TSNOWC, TSOILC,
-       ESDC, ESDCX;
-    double          C1 = 0.01, C2 = 21.0, G = 9.81, KN = 4000.0;
+    int             IPOL;
+    int             J;
+    double          BFAC;
+    double          DSX;
+    double          DTHR;
+    double          DW;
+    double          SNOWHC;
+    double          PEXP;
+    double          TAVGC;
+    double          TSNOWC;
+    double          TSOILC;
+    double          ESDC;
+    double          ESDCX;
+    double          C1 = 0.01;
+    double          C2 = 21.0;
 
 /*----------------------------------------------------------------------
 * CONVERSION INTO SIMULATION UNITS
 * --------------------------------------------------------------------*/
-    SNOWHC = *SNOWH * 100.;
-    ESDC = *ESD * 100.;
-    DTHR = *DTSEC / 3600.;
+    SNOWHC = *SNOWH * 100.0;
+    ESDC = *ESD * 100.0;
+    DTHR = *DTSEC / 3600.0;
     TSNOWC = *TSNOW - 273.15;
     TSOILC = *TSOIL - 273.15;
 
@@ -3614,18 +3634,28 @@ SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
 * WATER DIFFUSION EQUATION.  ALSO TO COMPUTE ( PREPARE ) THE MATRIX
 * COEFFICIENTS FOR THE TRI-DIAGONAL MATRIX OF THE IMPLICIT TIME SCHEME.
 * --------------------------------------------------------------------*/
-    int             IALP1, IOHINF, J, JJ, K, KS;
-    double          DMAX[*NSOIL];
-    double          ACRT, DD, DDT, DDZ, DDZ2, DENOM, DENOM2, DICE, DT1, FCR,
-       INFMAX, NUMER, PDDUM, PX, SLOPX, SMCAV, SSTT, SUM, VAL;
-    double         *MXSMC, *MXSMC2, *SICEMAX, *WCND, *WCND2, *WDF, *WDF2;
+    int             IOHINF;
+    int             K, KS;
+    double          DDZ;
+    double          DDZ2;
+    double          DENOM;
+    double          DENOM2;
+    double          NUMER;
+    double          PDDUM;
+    double          SSTT;
+    double         *MXSMC, *MXSMC2;
+    double         *SICEMAX;
+    double         *WCND;
+    double         *WCND2;
+    double         *WDF;
+    double         *WDF2;
 #ifdef _FLUX_PIHM_
     double         *DSMDZ, *DSMDZ2;
-    int             RFLAG, MACPORE[*NSOIL];
+    int             RFLAG;
+    int             MACPORE[*NSOIL];
 #else
     double          DSMDZ, DSMDZ2;
 #endif
-    int             CVFRZ = 3;
 
 /*----------------------------------------------------------------------
 * FROZEN GROUND VERSION:
@@ -4054,7 +4084,7 @@ SSTEP (double *SH2OOUT, double *SH2OIN, double *CMC, double *RHSTT,
 * CALCULATE/UPDATE SOIL MOISTURE CONTENT VALUES AND CANOPY MOISTURE
 * CONTENT VALUES.
 * --------------------------------------------------------------------*/
-    int             I, K, KK11;
+    int             K, KK11;
 
     double          RHSTTin[*NSOIL], CIin[*NSOIL];
     double          DDZ, STOT, WPLUS;
@@ -4150,7 +4180,6 @@ TBND (double *TU, double *TB, double *ZSOIL, double *ZBOT, int K, int *NSOIL,
 * THE MIDDLE LAYER TEMPERATURES
 * --------------------------------------------------------------------*/
     double          ZB, ZUP;
-    double          T0 = 273.15;
 
 /*----------------------------------------------------------------------
 * USE SURFACE TEMPERATURE ON THE TOP OF THE FIRST LAYER
@@ -4611,20 +4640,6 @@ WDFCND (double *WDF, double *WCND, double *SMC, double *SMCMAX, double *BEXP, do
 
     *WDF = *WCND * DPSIDSM;
 
-#ifdef _DEBUG
-    if (*MACPORE == 1)
-    {
-        printf ("WDF_new = %f, WDF_old = %f\n", *WDF,
-           (1. - EXPON) * (*DKSAT * (1. - *AREAF) +
-              *MACKSAT * *AREAF) / *VGALPHA / EXPON / (*SMCMAX -
-              *SMCMIN) * pow (FACTR2,
-              0.5 - 1. / EXPON) * (pow (1. - pow (FACTR2, 1. / EXPON),
-                 -EXPON) + pow (1. - pow (FACTR2, 1. / EXPON), EXPON) - 2.));
-        printf ("WCND_new = %f, WCND_old = %f\n", *WCND,
-           sqrt (FACTR2) * pow (1. - pow (1. - pow (FACTR2, 1. / EXPON),
-                 EXPON), 2.) * (*DKSAT * (1. - *AREAF) + *MACKSAT * *AREAF));
-    }
-#endif
     //  *WDF = (1. - EXPON) * (*DKSAT * (1. - *AREAF) + *MACKSAT * *AREAF) / *VGALPHA / EXPON / (*SMCMAX - *SMCMIN) * pow(FACTR2, 0.5 - 1. / EXPON) * (pow(1. - pow(FACTR2, 1. / EXPON) ,-EXPON) + pow(1. - pow(FACTR2, 1. / EXPON) ,EXPON) - 2.);
     //  *WCND = sqrt(FACTR2) * pow(1. - pow(1. - pow(FACTR2, 1. / EXPON), EXPON), 2.) * (*DKSAT * (1. - *AREAF) + *MACKSAT * *AREAF);
 
@@ -4718,7 +4733,6 @@ void SFCDIF_off (double *ZLM, double *ZLM_WIND, double *Z0, double *THZ0, double
 
     double          EPSU2 = 1.e-4;
     double          EPSUST = 0.07;
-    double          EPSIT = 1.e-4;
     //  double EPSA = 1.e-8;
     double          ZTMIN = -5.;
     double          ZTMAX = 1.;
