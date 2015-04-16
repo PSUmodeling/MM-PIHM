@@ -382,6 +382,9 @@ typedef struct model_data_structure
     int             NumWindVel; /* Number of Wind Velocity time series */
     int             NumRn;      /* Number of Net Radiation time series */
     int             NumG;       /* Number of Ground Heat time series */
+
+    int             NumLAI;
+
 //  int             NumSdown;   /* YS: Number of downward solar radiation
 //                                 * time series types */
 //  int             NumLdown;   /* YS: Number of downward longwave radiation

@@ -30,7 +30,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
     int            *count;
     int             read_lai;
     int             read_ss;
-    int             num_lai_ts;
 
     char            cmdstr[MAXSTRING];
     char            optstr[MAXSTRING];
@@ -342,6 +341,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
     DS->ISFactor = (realtype *) malloc (DS->NumLC * sizeof (realtype));
     for ( i = 0; i < DS->NumLC; i++)
         DS->ISFactor[i] = 0.0002;
+    fclose (lc_file);
 
     /*========== open *.forc file ==========*/
     if (CS->Verbose)
@@ -441,6 +441,8 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         }
     }
 
+    fclose (forc_file);
+
     DS->windH = (realtype *) malloc (DS->NumTS * sizeof (realtype));
     for (i = 0; i < DS->NumTS; i++)
         DS->windH[i] = DS->TSD_meteo[i].TSFactor;
@@ -456,6 +458,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
             read_ss = 1;
     }
 
+    DS->NumLAI = 0;
     if (read_lai == 1)
     {
         if (CS->Verbose)
@@ -473,9 +476,9 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         }
 
         /* start reading lai_file */
-        fscanf (lai_file, "%*s %d", &num_lai_ts);
+        fscanf (lai_file, "%*s %d", &(DS->NumLAI));
 
-        DS->TSD_lai = (TSD *) malloc (num_lai_ts * sizeof (TSD));
+        DS->TSD_lai = (TSD *) malloc (DS->NumLAI * sizeof (TSD));
 
         rewind(lai_file);          /* For safety reasons, rewind and skip top line */
         fgets (cmdstr, MAXSTRING, lai_file);
@@ -506,13 +509,13 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
             fgets (cmdstr, MAXSTRING, lai_file);
         }
 
-        if (ind != num_lai_ts)
+        if (ind != DS->NumLAI)
         {
             printf ("ERROR!\n");
             exit (1);
         }
 
-        for (i = 0; i < num_lai_ts; i++)
+        for (i = 0; i < DS->NumLAI; i++)
         {
             DS->TSD_lai[i].TS = (realtype **) malloc ((DS->TSD_lai[i].length) * sizeof (realtype *));
             for (j = 0; j < DS->TSD_lai[i].length; j++)
@@ -523,7 +526,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
 
         fscanf (lai_file, "%*s %*d");
 
-        for (i = 0; i < num_lai_ts; i++)
+        for (i = 0; i < DS->NumLAI; i++)
         {
             fscanf (lai_file, "%*s %*d");
             fscanf (lai_file, "%*s %*s");
@@ -1072,6 +1075,15 @@ void FreeData (Model_Data DS, Control_Data  CS)
      * free lc
      */
     free (DS->LandC);
+
+    for (j = 0; j < DS->NumLAI; j++)
+    {
+        for (k = 0; k < DS->TSD_lai[j].length; k++)
+            free (DS->TSD_lai[j].TS[k]);
+        free (DS->TSD_lai[j].TS);
+    }
+    free (DS->TSD_lai);
+
     /*
      * free forc
      */
@@ -1129,6 +1141,7 @@ void FreeData (Model_Data DS, Control_Data  CS)
     free (DS->EleSurf);
     free (DS->EleGW);
     free (DS->EleUnsat);
+    free (DS->EleMacAct);
     free (DS->RivStg);
     free (DS->ElePrep);
     free (DS->EleViR);
@@ -1145,6 +1158,11 @@ void FreeData (Model_Data DS, Control_Data  CS)
     free (DS->SfcSat);
     free (DS->EleETsat);
     free (DS->EleFCR);
+    free (DS->avg_inf);
+    free (DS->avg_rech);
+    for (i = 0; i < DS->NumEle; i++)
+        free (DS->avg_subflux[i]);
+    free (DS->avg_subflux);
 #endif
     /*
      * free Print

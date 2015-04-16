@@ -227,6 +227,7 @@ void LSM_read (char *filename, LSM_STRUCT LSM, Control_Data CS)
         fclose (lsm_forc_file);
     }
 
+    free (timeinfo);
     free (projectname);
 }
 
@@ -731,6 +732,8 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
             NOAH->SNEQV = (double)PIHM->EleSnow[i];
         }
     }
+
+    free (metarr);
 }
 
 void LSM_initialize_output (char *filename, Model_Data PIHM, Control_Data CS, LSM_STRUCT LSM, char *outputdir)

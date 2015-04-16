@@ -218,4 +218,6 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
             MD->EleTF[i] = ret;
             MD->EleIS[i] = isval;
         }
+
+    free (metarr);
 }

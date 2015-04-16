@@ -155,9 +155,11 @@ int main (int argc, char *argv[])
     time (rawtime);
     timestamp = localtime (rawtime);
 
-    outputdir = (char *)malloc (8 * sizeof (char));
     if (overwrite_mode == 1)
+    {
+        outputdir = (char *)malloc (8 * sizeof (char));
         strcpy (outputdir, "output/");
+    }
     else
     {
         /* Create output directory based on projectname and time */
@@ -370,6 +372,7 @@ int main (int argc, char *argv[])
     free (LSM);
 #endif
     free (mData);
+    free (cData);
 
     return 0;
 }

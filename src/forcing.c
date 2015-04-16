@@ -62,6 +62,7 @@ realtype monthly_rl (realtype t, int LC_type)
     rawtime = (time_t *) malloc (sizeof (time_t));
     *rawtime = (int) t;
     timestamp = gmtime (rawtime);
+    free (rawtime);
 
     return (rl_tbl[LC_type - 1][timestamp->tm_mon]);
 }
@@ -76,6 +77,7 @@ realtype monthly_mf (realtype t)
     rawtime = (time_t *) malloc (sizeof (time_t));
     *rawtime = (int) t;
     timestamp = gmtime (rawtime);
+    free (rawtime);
 
     return (mf_tbl[timestamp->tm_mon]);
 }
