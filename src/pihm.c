@@ -282,6 +282,7 @@ int main (int argc, char *argv[])
 		}
 
                 /* calculate surface energy balance */
+                printf ("t %lf\n", t);
                 PIHM2Noah (t, cData->ETStep, mData, LSM);
                 Noah2PIHM (mData, LSM);
 
