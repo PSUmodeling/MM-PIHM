@@ -139,11 +139,13 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
             DS->TSD_Riv[i].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
 
         for (j = 0; j < DS->TSD_Riv[i].length; j++)
+        {
             fscanf (riv_file, "%d-%d-%d %d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &DS->TSD_Riv[i].TS[j][1]);
             timeinfo->tm_year = timeinfo->tm_year - 1900;
             timeinfo->tm_mon = timeinfo->tm_mon - 1;
             rawtime = timegm (timeinfo);
             DS->TSD_Riv[i].TS[j][0] = (realtype) rawtime;
+        }
     }
 
     /* read in reservoir information */
