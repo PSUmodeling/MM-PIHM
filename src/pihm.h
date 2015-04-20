@@ -2,14 +2,6 @@
  * File       : pihm.h
  * Function   : Declaration and Definition of global variables and data
  *              structure
- * Developer of PIHM 2.4    :	Yuning Shi	(yshi@psu.edu)
- * Developer of PIHM 2.2    :	Xuan Yu	        (xxy113@psu.edu)
- * Developer of PIHM 2.0    :	Mukesh Kumar	(muk139@psu.edu)
- * Developer of PIHM 1.0    :	Yizhong Qu	(quyizhong@gmail.com)
- *----------------------------------------------------------------------------
- * This code is free for research purpose only.
- * Please provide relevant references if you use this code in your research 
- * work								  
  ****************************************************************************/
 
 #ifndef PIHM_HEADER
@@ -41,11 +33,11 @@
 #include "cvode_dense.h"        /* CVDENSE header file */
 
 /* Definition of global constants */
-#define multF		2
-#define MINpsi		-70
+#define multF		2.0
+#define MINpsi		-70.0
 #define EPS		0.05
 #define THRESH		0.0
-#define GRAV		9.80665 /* m s-2 */ 
+#define GRAV		9.80665
 #define PI		3.14159265
 #define BADVAL		-999
 #define MAXSTRING	1024
@@ -135,14 +127,6 @@ typedef struct element_type
     int             LAI;        /* LAI forcing type (0: use climatological
                                  * values; else: use user provided time
                                  * series */
-
-//    int             humidity;   /* humidity type */
-//    int             WindVel;    /* wind velocity type */
-//    int             Rn;         /* net radiation input */
-//    int             G;          /* radiation into ground */
-//    int             Sdown;      /* YS: downward solar radiation */
-//    int             Ldown;      /* YS; downward long wave radiation */
-//    int             pressure;   /* pressure type */
     int             source;     /* source (well) type */
     int             meltF;      /* meltFactor */
 
@@ -376,20 +360,7 @@ typedef struct model_data_structure
     int             NumNode;    /* Number of Nodes */
     int             NumRiv;     /* Number of Rivere Segments */
 
-    int             NumPrep;    /* Number of Precipatation time series */
-    int             NumTemp;    /* Number of Temperature time series */
-    int             NumHumidity;    /* Number of Humidity time series */
-    int             NumWindVel; /* Number of Wind Velocity time series */
-    int             NumRn;      /* Number of Net Radiation time series */
-    int             NumG;       /* Number of Ground Heat time series */
-
     int             NumLAI;
-
-//  int             NumSdown;   /* YS: Number of downward solar radiation
-//                                 * time series types */
-//  int             NumLdown;   /* YS: Number of downward longwave radiation
-//                               * time series types */
-    int             NumP;       /* Number of Pressure time series types */
     int             NumSource;  /* Number of Source time series types */
     int             NumMeltF;   /* Number of Melt Factor Time series */
 
@@ -559,7 +530,7 @@ void            OverlandFlow (realtype **, int, int, realtype, realtype, realtyp
 void            OLFeleToriv (realtype, realtype, realtype, realtype, realtype, realtype **, int, int, realtype);
 realtype        avgY (realtype, realtype, realtype);
 realtype        effKV (realtype, realtype, realtype, realtype, realtype);
-realtype effKV_new (realtype ksatFunc, realtype elemSatn, int status, realtype macKV, realtype KV, realtype areaF);
+realtype        effKV_new (realtype ksatFunc, realtype elemSatn, int status, realtype macKV, realtype KV, realtype areaF);
 realtype        effKH (int, realtype, realtype, realtype, realtype, realtype, realtype);
 realtype        FieldCapacity (realtype, realtype, realtype, realtype, realtype);
 void            is_sm_et (realtype, realtype, void *, N_Vector);
