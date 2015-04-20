@@ -126,6 +126,8 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
 
             ETp = (Rn * Delta + Gamma * (1.2 * Lv * (qv_sat - qv) / r_a)) / (1000.0 * Lv * (Delta + Gamma));
 
+            AquiferDepth = MD->Ele[i].zmax - MD->Ele[i].zmin;
+            
             if ((MD->Ele[i].zmax - MD->Ele[i].zmin) - MD->EleGW[i] < MD->Ele[i].RzD)
                 elemSatn = 1.0;
             else
@@ -155,7 +157,6 @@ void is_sm_et(realtype t, realtype stepsize, void *DS, N_Vector VY)
                 P_c = (1.0 + Delta / Gamma) / (1.0 + r_s / r_a + Delta / Gamma);
                 MD->EleET[i][1] = MD->pcCal.Et1 * MD->Ele[i].VegFrac * P_c * (1.0 - pow(((MD->EleIS[i] + MD->EleSnowCanopy[i] < 0.0) ? 0.0 : (MD->EleIS[i] + MD->EleSnowCanopy[i])) / (MD->EleISmax[i] + MD->EleISsnowmax[i]), MD->fx_canopy)) * ETp;
                 MD->EleET[i][1] = MD->EleET[i][1] < 0.0 ? 0.0 : MD->EleET[i][1];
-                AquiferDepth = MD->Ele[i].zmax - MD->Ele[i].zmin;
                 MD->EleET[i][1] = ((MD->DummyY[i + 2 * MD->NumEle] < (AquiferDepth - MD->Ele[i].RzD)) && MD->DummyY[i + MD->NumEle] <= 0.0) ? 0.0 : MD->EleET[i][1];
 
                 MD->EleTF[i] = MD->EleIS[i] <= 0.0 ? 0.0 : 5.65e-2 * MD->EleISmax[i] * exp (3.89 * (MD->EleIS[i] < 0.0 ? 0.0 : MD->EleIS[i]) / MD->EleISmax[i]);
