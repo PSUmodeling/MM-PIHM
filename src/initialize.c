@@ -12,7 +12,11 @@ realtype FieldCapacity (realtype Alpha, realtype Beta, realtype Kv, realtype The
     realtype        Ktemp;
     realtype        ThetaRef;
 
-    for (elemSatn = 0.005; elemSatn < 1; elemSatn = elemSatn + 0.001)
+    /* Set default value of field capacity, in case a valid value cannot be
+     * found using the defination */
+    ThetaRef = 0.75 * ThetaS;
+
+    for (elemSatn = 0.005; elemSatn < 1.0; elemSatn = elemSatn + 0.001)
     {
         Ktemp = Kv * pow (elemSatn, 0.5) * pow (-1.0 + pow (1.0 - pow (elemSatn, Beta / (Beta - 1.0)), (Beta - 1.0) / Beta), 2);
         if (Ktemp >= 5.79e-9)
