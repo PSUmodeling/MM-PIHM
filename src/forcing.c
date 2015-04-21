@@ -28,6 +28,7 @@ realtype monthly_lai (realtype t, int LC_type)
     rawtime = (time_t *) malloc (sizeof (time_t));
     *rawtime = (int) t;
     timestamp = gmtime (rawtime);
+    free (rawtime);
 
     return (lai_tbl[LC_type - 1][timestamp->tm_mon]);
 }
