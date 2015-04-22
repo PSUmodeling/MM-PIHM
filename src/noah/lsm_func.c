@@ -628,7 +628,7 @@ void LSM_initialize (char *filename, Model_Data PIHM, Control_Data  CS, LSM_STRU
         NOAH->SNOALB = 0.75;
         NOAH->ZLVL = 3.0;
         NOAH->ZLVL_WIND = PIHM->windH[PIHM->Ele[i].meteo - 1];
-        NOAH->ISURBAN = BADVAL;
+        NOAH->ISURBAN = 13;
         NOAH->SHDMIN = 0.01;
         NOAH->SHDMAX = 0.96;
 
