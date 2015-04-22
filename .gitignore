@@ -42,6 +42,8 @@ run-*
 src/*~
 src/*/*~
 
-# Output and logs
+# Input, output and logs
+input/
+!input/sh
 output/
 *.log

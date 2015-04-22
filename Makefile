@@ -1,11 +1,5 @@
 #-----------------------------------------------------------------
-# PIHM Makefile
-# Version: 2.4
-# Date: Jan 10, 2014 
-# -----------------------------------------------------------------
-# Programmer: Yuning Shi (yshi@psu.edu)
-# -----------------------------------------------------------------
-# Makefile for PIHM 
+# MM-PIHM Makefile
 # -----------------------------------------------------------------
 
 CC = gcc
@@ -19,10 +13,10 @@ LIBS =	-lm
 INCLUDES = -I${SUNDIALS_PATH}/include \
 	-I${SUNDIALS_PATH}/include/cvode \
 	-I${SUNDIALS_PATH}/include/sundials\
-	-I${SRCDIR}\
-	-I${SRCDIR}/noah\
-	-I${SRCDIR}/spa\
-	-I${SRCDIR}/bgc\
+	-I${SRCDIR} \
+	-I${SRCDIR}/noah \
+	-I${SRCDIR}/spa \
+	-I${SRCDIR}/bgc \
 	-I${SRCDIR}/rt
 
 LFLAGS = -L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
@@ -122,7 +116,7 @@ MODULE_OBJS = $(MODULE_SRCS:.c=.o)
 
 help:		## Show this help
 	@echo
-	@echo "Makefile for PIHM V2.4"
+	@echo "Makefile for MM-PIHM"
 	@echo
 	@echo "USAGE:"
 	@echo

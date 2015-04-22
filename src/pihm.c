@@ -313,7 +313,7 @@ int main (int argc, char *argv[])
             t = NextPtr;
 #else
             /* Added to adatpt to larger time step. YS */
-            flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(StepSize* 10));
+            flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(StepSize* 20));
             flag = CVode (cvode_mem, NextPtr, CV_Y, &t, CV_NORMAL);
             flag = CVodeGetCurrentTime(cvode_mem, &cvode_val);
 #endif
