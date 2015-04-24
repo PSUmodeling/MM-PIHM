@@ -92,6 +92,7 @@ void LSM_read (char *filename, LSM_STRUCT LSM, Control_Data CS)
     LSM->PRINT_SH = 0;
     LSM->PRINT_G = 0;
     LSM->PRINT_ETP = 0;
+    LSM->PRINT_ESNOW = 0;
 
     fgets (cmdstr, MAXSTRING, lsm_file);
 
@@ -129,7 +130,9 @@ void LSM_read (char *filename, LSM_STRUCT LSM, Control_Data CS)
                 sscanf (cmdstr, "%*s %d", &LSM->PRINT_G);
             else if (strcasecmp ("ETP", optstr) == 0)
                 sscanf (cmdstr, "%*s %d", &LSM->PRINT_ETP);
-            /** Unrecognized Parameter Flag */
+            else if (strcasecmp ("ESNOW", optstr) == 0)
+                sscanf (cmdstr, "%*s %d", &LSM->PRINT_ESNOW);
+            /* Unrecognized Parameter Flag */
             else
             {
                 printf ("\n  Parameter:%s cannot be recognized. Please see User's Manual for more details!\n", optstr);
@@ -883,6 +886,18 @@ void LSM_initialize_output (char *filename, Model_Data PIHM, Control_Data CS, LS
            sizeof (double *));
         for (i = 0; i < LSM->PCtrl[icounter].NumVar; i++)
             LSM->PCtrl[icounter].PrintVar[i] = &(LSM->GRID[i].ETP);
+        icounter++;
+    }
+    if (LSM->PRINT_ESNOW > 0)
+    {
+        sprintf (LSM->PCtrl[icounter].name, "%s%s.ESNOW", outputdir, filename);
+        LSM->PCtrl[icounter].Interval = LSM->PRINT_ESNOW;
+        LSM->PCtrl[icounter].NumVar = PIHM->NumEle;
+        LSM->PCtrl[icounter].PrintVar =
+           (double **)malloc (LSM->PCtrl[icounter].NumVar *
+           sizeof (double *));
+        for (i = 0; i < LSM->PCtrl[icounter].NumVar; i++)
+            LSM->PCtrl[icounter].PrintVar[i] = &(LSM->GRID[i].ESNOW);
         icounter++;
     }
     LSM->NPRINT = icounter;

@@ -393,6 +393,7 @@ typedef struct LSM_STRUCT
     int             PRINT_SH;
     int             PRINT_G;
     int             PRINT_ETP;
+    int             PRINT_ESNOW;
 #endif
     double          LONGITUDE;
     double          LATITUDE;
