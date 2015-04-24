@@ -28,15 +28,9 @@ void daily_bgc (bgc_struct BGCM, bgc_grid * grid, const double t, const double n
     time_t         *rawtime;
 
     /* miscelaneous variables for program control in main */
-    int             simyr, yday, metyr, metday;
     int             annual_alloc;
-    int             outv;
-    int             i, nmetdays;
-    double          tair_avg, tdiff;
-    int             dayout;
 
-    double          daily_ndep, daily_nfix, ndep_scalar, ndep_diff, ndep;
-    int             ind_simyr;
+    double          daily_ndep, daily_nfix;
 
     sitec = &grid->sitec;
     metv = &grid->metv;

@@ -12,46 +12,12 @@
 
 void phenology (const epconst_struct * epc, const metvar_struct * metv, phenology_struct * phen, epvar_struct * epv, cstate_struct * cs, cflux_struct * cf, nstate_struct * ns, nflux_struct * nf)
 {
-    int             woody, evergreen, south;
-    double          t1;
-    char            round[80];
-    int             i, pday, py;
+    int             woody, evergreen;
     double          ndays;
-    int             nyears, phenyears;
-    int             ngrowthdays, ntransferdays, nlitfalldays;
-    int             onday, offday;
-    int             counter;
     /* phenology model variables */
-    int            *onday_arr, *offday_arr;
     int             ws_flag;
-    int             fall_tavg_count;
-    int             onset_day, offset_day;
-    double          mean_tavg, fall_tavg;
-    double          phensoilt, phendayl;
-    double          onset_critsum, sum_soilt;
+    double          onset_critsum;
     double          critdayl = 39300.0; /* seconds */
-    /* grass model parameters */
-    double          ann_prcp;
-    double          sum_prcp, phenprcp;
-    double          grass_stsumcrit;
-    double          grass_prcpcrit;
-    double          grass_stsummax = 1380.0;
-    double          grass_stsummid = 900.0;
-    double          grass_stsummin = 418.0;
-    double          grass_a = 32.9;
-    double          grass_k = 0.15;
-    double          grass_tmid = 9.0;
-    double          grass_prcpyear[365];
-    double          grass_prcpprevcrit = 1.14;
-    double          grass_prcpprev;
-    double          grass_prcpnextcrit = 0.97;
-    double          grass_prcpnext;
-    double          grass_tmaxyear[365];
-    double          grass_tminyear[365];
-    double          grass_3daytmin[365];
-    int             psum_startday, psum_stopday;
-    double          tmax_ann, tmax, new_tmax;
-    double          tmin_annavg;
 
     double          leaflitfallc, frootlitfallc;
     double          livestemtovrc, livestemtovrn;

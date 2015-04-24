@@ -5,8 +5,8 @@
 #include <time.h>
 #include <sys/stat.h>
 
-#include "../pihm.h"            /* Data Model and Variable Declarations */
-#include "../noah/noah.h"
+#include "pihm.h"            /* Data Model and Variable Declarations */
+#include "noah.h"
 #include "bgc.h"
 
 void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM)
@@ -15,18 +15,18 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
     FILE           *vegc_file;
     FILE           *restart_file;
     char            restart_fn[100];
-    int             i, j, k;
+    int             i, j;   //k;
     struct tm      *timestamp;
     time_t         *rawtime;
-    int             simyr, yday, metyr, metday;
-    int             ind_simyr;
-    int             nmetdays;
+    int             metyr;//simyr, yday, metyr, metday;
+    //int             ind_simyr;
+    //int             nmetdays;
     double          spinup_starttime;
     double          spinup_endtime;
     double          t;
-    int             tmpyears;
+    //int             tmpyears;
     int             first_balance = 1;
-    int             ntimesmet, nblock;
+    //int             ntimesmet, nblock;
     int             metyears;
     int             steady1[PIHM->NumEle], steady2[PIHM->NumEle], rising[PIHM->NumEle], metcycle = 0, spinyears = 0;
     double          tally1[PIHM->NumEle], tally1b[PIHM->NumEle], tally2[PIHM->NumEle], tally2b[PIHM->NumEle], t1;

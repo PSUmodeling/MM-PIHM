@@ -12,7 +12,6 @@
 
 void check_carbon_balance (cstate_struct * cs, double *old_balance, int first_balance)
 {
-    int             ok = 1;
     double          in, out, store, balance;
 
     /* DAILY CHECK ON CARBON BALANCE */

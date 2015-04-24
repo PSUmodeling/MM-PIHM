@@ -10,14 +10,14 @@
 #include <errno.h>
 #include <time.h>
 
-#include "../pihm.h"
-#include "../noah/noah.h"
-#include "../spa/spa.h"
+#include "pihm.h"
+#include "noah.h"
+#include "spa.h"
 
 #include "bgc_constants.h"
-#include "../forcing.h"
+#include "forcing.h"
 #include "bgc_struct.h"
-#include "../time_func.h"
+//#include "../time_func.h"
 #include "bgc_func.h"
 
 #endif

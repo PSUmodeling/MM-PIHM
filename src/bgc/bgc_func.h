@@ -36,6 +36,8 @@ void            mortality (const epconst_struct * epc, cstate_struct * cs, cflux
 void            check_carbon_balance (cstate_struct * cs, double *old_balance, int first_balance);
 void            check_nitrogen_balance (nstate_struct * ns, double *old_balance, int first_balance);
 void            csummary (cflux_struct * cf, cstate_struct * cs, summary_struct * summary);
+double          get_co2(TSD co2_ts, double t);        /* Added WMJ 03/16/2005 */
+double          get_ndep(TSD ndep_ts, double t); /* Added WMJ 03/16/2005 */
 //int output_map_init(double** output_map, metvar_struct* metv, wstate_struct* ws, //wflux_struct* wf, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, //nflux_struct* nf, phenology_struct* phen, epvar_struct* epv, //psn_struct* psn_sun, psn_struct* psn_shade, summary_struct* summary);
 //int atm_pres(double elev, double* pa);
 //int prephenology(const control_struct* ctrl, const epconst_struct* epc, 
@@ -98,7 +100,5 @@ void            csummary (cflux_struct * cf, cstate_struct * cs, summary_struct 
 //int csummary(cflux_struct* cf, cstate_struct* cs, summary_struct* summary);
 //int wsummary(wstate_struct* ws,wflux_struct* wf, summary_struct* summary);
 //int output_ascii(float arr[],int nvars, FILE *ptr); 
-//double get_co2(co2control_struct * co2,int simyr);        /* Added WMJ 03/16/2005 */
-//double get_ndep(ndepcontrol_struct * ndep,int simyr); /* Added WMJ 03/16/2005 */
 
 #endif

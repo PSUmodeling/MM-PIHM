@@ -64,7 +64,7 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
   MSG = "... Compiling FLUX-PIHM ..."
 endif
 
-ifeq ($(MAKECMDGOALS),pihm-bgc)
+ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
   SFLAGS = -D_BGC_ -D_FLUX_PIHM_ 
   MODULE_SRCS_=	noah/coupling.c \
 	noah/module_sf_noahlsm.c \
@@ -100,8 +100,8 @@ ifeq ($(MAKECMDGOALS),pihm-bgc)
   MODULE_HEADERS_ = noah/noah.h \
 	spa/spa.h \
 	bgc/bgc.h 
-  EXECUTABLE = pihm-bgc
-  MSG = "... Compiling PIHM-BGC ..."
+  EXECUTABLE = flux-pihm-bgc
+  MSG = "... Compiling Flux-PIHM-BGC ..."
 endif
 
 SRCS = $(patsubst %,$(SRCDIR)/%,$(SRCS_))
@@ -151,8 +151,8 @@ rt-flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
 
-pihm-bgc: 	## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
-pihm-bgc: $(OBJS) $(MODULE_OBJS)
+flux-pihm-bgc: 	## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
+flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo

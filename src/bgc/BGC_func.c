@@ -431,7 +431,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%lf", &co2->co2ppm);
                 fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%s", &co2_fn);
+                sscanf (cmdstr, "%s", co2_fn);
             }
             else if (strcasecmp ("NDEP_CONTROL", optstr) == 0)
             {
@@ -442,7 +442,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%lf", &ndepctrl->nfix);
                 fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%s", &ndep_fn);
+                sscanf (cmdstr, "%s", ndep_fn);
             }
             else if (strcasecmp ("C_STATE", optstr) == 0)
             {
@@ -517,13 +517,14 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
         for (i = 0; i < BGCM->Forcing[CO2_TS][0].length; i++)
         {
             BGCM->Forcing[CO2_TS][0].TS[i] = (double *)malloc (2 * sizeof (double));
-            fscanf (co2_file, "%d", &timeinfo->tm_year, &BGCM->Forcing[CO2_TS][0].TS[i][1]);
+            fscanf (co2_file, "%d %lf", &timeinfo->tm_year, &BGCM->Forcing[CO2_TS][0].TS[i][1]);
             timeinfo->tm_year = timeinfo->tm_year - 1900;
             timeinfo->tm_mon = 0;
             timeinfo->tm_mday = 1;
             timeinfo->tm_hour = 0;
             timeinfo->tm_min = 0;
             timeinfo->tm_sec = 0;
+            rawtime = timegm (timeinfo);
             BGCM->Forcing[CO2_TS][0].TS[i][0] = (double)rawtime;
         }
 
@@ -552,13 +553,14 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
         for (i = 0; i < BGCM->Forcing[NDEP_TS][0].length; i++)
         {
             BGCM->Forcing[NDEP_TS][0].TS[i] = (double *)malloc (2 * sizeof (double));
-            fscanf (ndep_file, "%d", &timeinfo->tm_year, &BGCM->Forcing[NDEP_TS][0].TS[i][1]);
+            fscanf (ndep_file, "%d %lf", &timeinfo->tm_year, &BGCM->Forcing[NDEP_TS][0].TS[i][1]);
             timeinfo->tm_year = timeinfo->tm_year - 1900;
             timeinfo->tm_mon = 0;
             timeinfo->tm_mday = 1;
             timeinfo->tm_hour = 0;
             timeinfo->tm_min = 0;
             timeinfo->tm_sec = 0;
+            rawtime = timegm (timeinfo);
             BGCM->Forcing[NDEP_TS][0].TS[i][0] = (double)rawtime;
         }
         fclose (ndep_file);
@@ -667,7 +669,6 @@ void BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM)
     char            fn[100];
     FILE           *init_file;
     int             i;
-    int             metyr;
 
     printf ("BGC: Initializing BGC structures\n");
 
