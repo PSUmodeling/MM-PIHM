@@ -4,8 +4,6 @@
 /* simulation control variables */
 typedef struct
 {
-    //    int             metyears;   /* # years of met data */
-    //    int             simyears;   /* # years of simulation */
     double          simstarttime;   /* start time of simulation */
     double          simendtime; /* end time of simulation */
     int             spinup;     /* (flag) 1=spinup run, 0=normal run */
@@ -41,7 +39,6 @@ typedef struct
 typedef struct
 {
     int             varndep;    /* (flag) 0=const 1=use file  */
-    //double          ndep;       /* (kgN m-2 yr-1)  constant ndep value */
     double         *ndep_array; /* (kgN m-2 yr-1)  annual ndep array */
     int            *ndepyear_array; /* (year) year corresponding to the ndep value in ndep_array */
     int             ndepvals;   /* (num)  The number of ndep values in the ndep_array */
@@ -68,7 +65,7 @@ typedef struct
     double         *tday;
     double         *tnight;
     double         *tsoil;
-    double         *swc;
+    double        **swc;
     double         *pa;
     double         *tavg_ra;    /* (deg C) 11-day running avg of daily avg temp */
 } metarr_struct;
@@ -83,7 +80,7 @@ typedef struct
     double          tday;       /* (deg C) daylight average air temperature */
     double          tnight;     /* (deg C) nightime average air temperature */
     double          tsoil;      /* (deg C) daily soil temperature, avg, top 10 cm */
-    double          swc;
+    double         *swc;
     double          vpd;        /* (Pa)    vapor pressure deficit */
     double          swavgfd;    /* (W/m2)  daylight average shortwave flux */
     double          swabs;      /* (W/m2)  canopy absorbed shortwave flux */
@@ -375,6 +372,7 @@ typedef struct
     double          nleached_snk;   /* (kgN/m2) SUM of N leached */
     double          nvol_snk;   /* (kgN/m2) SUM of N lost to volatilization */
     double          fire_snk;   /* (kgN/m2) SUM of N lost to fire */
+    double          soilwater_nconc;
 } nstate_struct;
 
 /* daily nitrogen flux variables */
@@ -887,7 +885,6 @@ typedef struct
     double          offset_counter;
     double          offset_fdd;
     double          offset_swi;
-    //    int             metyr;
 } restart_data_struct;
 
 typedef struct epclist_struct
@@ -927,10 +924,8 @@ typedef struct bgc_struct
 {
     bgc_grid       *grid;
     control_struct  ctrl;       /* bgc control variables */
-    //    ramp_ndep_struct ramp_ndep; /* ramped Ndep information */
     co2control_struct co2;      /* CO2 concentration information */
     ndepcontrol_struct ndepctrl;    /* Nitrogen deposition control structure */
-    //    siteconst_struct sitec;     /* site constants */
     epclist_struct  epclist;
     double          spinup_resid_trend; /* kgC/m2/yr remaining trend after spinup */
     int             spinup_years;   /* number of years before reaching steady-state */
