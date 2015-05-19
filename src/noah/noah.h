@@ -17,8 +17,8 @@
 #define LSUBF	    3.335e5
 #define EMISSI_S    0.95
 #define NLUS	    50
-#define NSLTYPE	    30
-#define NSLOPE	    30
+#define NSLTYPE	    32767
+#define NSLOPE	    32767
 #define TFREEZ	    273.15
 #define LVH2O	    2.501e6
 #define LSUBS	    2.83e6
