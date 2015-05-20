@@ -517,6 +517,7 @@ typedef struct control_data_structure
 /*
  * Function Declarations
  */
+void pihm (char *project, int verbose, int debug, char *output_dir);
 void            initialize (char *, Model_Data, Control_Data , N_Vector);
 void            initialize_output (char *, Model_Data, Control_Data , char *);
 int             f (realtype, N_Vector, N_Vector, void *);

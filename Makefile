@@ -21,7 +21,7 @@ INCLUDES = -I${SUNDIALS_PATH}/include \
 
 LFLAGS = -L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
 
-SRCS_ =  pihm.c \
+SRCS_ = pihm.c \
 	f.c \
 	read_alloc.c \
 	initialize.c \

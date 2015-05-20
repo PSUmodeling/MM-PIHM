@@ -1,7 +1,9 @@
 /*****************************************************************************
  * File		: pihm.c
  * Function	: Main program file
- * Developer of PIHM-MF     :   Yuning Shi  (yshi@psu.edu)
+ * Developer of MM-PIHM     :   Yuning Shi  (yshi@psu.edu)
+ *                              Chen Bao    (cub200@psu.edu)
+ *                              Yu Zhang    (yzz120@psu.edu)
  * Developer of PIHM 2.2    :	Xuan Yu	    (xxy113@psu.edu)
  * Developer of PIHM 2.0    :	Mukesh Kumar	(muk139@psu.edu)
  * Developer of PIHM 1.0    :	Yizhong Qu	(quyizhong@gmail.com)
@@ -44,19 +46,8 @@
 
 int main (int argc, char *argv[])
 {
-    Model_Data      mData;      /* Model Data */
-    Control_Data    cData;      /* Solver Control Data */
-    N_Vector        CV_Y;       /* State Variables Vector */
-    void           *cvode_mem;  /* Model Data Pointer */
-    int             flag;       /* flag to test return value */
-    int             N;          /* Problem size */
-    int             i, j;       /* loop index */
-    realtype        t;          /* simulation time */
     struct tm      *timestamp;
     time_t         *rawtime;
-    realtype        NextPtr;
-    realtype        StepSize;   /* stress period & step size */
-    realtype        cvode_val;
     char            project[20];
     char           *filename;
     char           *outputdir;
@@ -64,19 +55,10 @@ int main (int argc, char *argv[])
     char            system_cmd[1024];
     int             overwrite_mode = 0;
     int             c;
+    int             verbose;
+    int             debug;
 
-#ifdef _FLUX_PIHM_
-    LSM_STRUCT      LSM;
-#endif
-
-#ifdef _RT_
-    Chem_Data       chData;
-#endif 
-
-#ifdef _BGC_
-    bgc_struct      BGCM;
-#endif
-
+    printf ("\n");
     printf ("\t\t########  #### ##     ## ##     ##\n");
     printf ("\t\t##     ##  ##  ##     ## ###   ###\n"); 
     printf ("\t\t##     ##  ##  ##     ## #### ####\n");
@@ -101,9 +83,8 @@ int main (int argc, char *argv[])
     if (0 == (mkdir ("output", 0755)))
         printf (" Output directory was created.\n\n");
 
-    cData = (Control_Data) malloc (sizeof *cData);
-    cData->Verbose = 0;
-    cData->Debug = 0;
+    verbose = 0;
+    debug = 0;
 
     while((c = getopt(argc, argv, "odv")) != -1)
     {
@@ -122,11 +103,11 @@ int main (int argc, char *argv[])
                 printf ("Overwrite mode turned on. Output directory is \"./output\".\n");
                 break;
             case 'd':
-                cData->Debug = 1;
+                debug = 1;
                 printf ("Debug mode turned on.\n");
                 break;
             case 'v':
-                cData->Verbose = 1;
+                verbose = 1;
                 printf ("Verbose mode turned on.\n");
                 break;
             case '?':
@@ -178,8 +159,54 @@ int main (int argc, char *argv[])
     sprintf (system_cmd, "cp input/%s/%s.init %s/%s.init.bak", filename, filename, outputdir, filename);
     system (system_cmd);
 
+    pihm (project, verbose, debug, outputdir);
+
+    return 0;
+}
+
+void pihm (char *project, int verbose, int debug, char *output_dir)
+{
+    Model_Data      mData;      /* Model Data */
+    Control_Data    cData;      /* Solver Control Data */
+    N_Vector        CV_Y;       /* State Variables Vector */
+    void           *cvode_mem;  /* Model Data Pointer */
+    int             flag;       /* flag to test return value */
+    int             N;          /* Problem size */
+    int             i, j;       /* loop index */
+    realtype        t;          /* simulation time */
+    struct tm      *timestamp;
+    time_t         *rawtime;
+    realtype        NextPtr;
+    realtype        StepSize;   /* stress period & step size */
+    realtype        cvode_val;
+    char           *filename;
+
+#ifdef _FLUX_PIHM_
+    LSM_STRUCT      LSM;
+#endif
+
+#ifdef _RT_
+    Chem_Data       chData;
+#endif 
+
+#ifdef _BGC_
+    bgc_struct      BGCM;
+#endif
+
+
+    rawtime = (time_t *) malloc (sizeof (time_t));
+    filename = (char *) malloc ((strlen (project) + 1) * sizeof (char));
+    strcpy (filename, project);
+
+
     /* Allocate memory for model data structure */
     mData = (Model_Data) malloc (sizeof *mData);
+
+    cData = (Control_Data) malloc (sizeof *cData);
+
+    cData->Verbose = verbose;
+    cData->Debug = debug;
+
 #ifdef _FLUX_PIHM_
     LSM = (LSM_STRUCT) malloc (sizeof *LSM);
 #endif
@@ -221,9 +248,9 @@ int main (int argc, char *argv[])
 #endif
 
     /* initialize output files and structures */
-    initialize_output (filename, mData, cData, outputdir);
+    initialize_output (filename, mData, cData, output_dir);
 #ifdef _FLUX_PIHM_
-    LSM_initialize_output (filename, mData, cData, LSM, outputdir);
+    LSM_initialize_output (filename, mData, cData, LSM, output_dir);
 #endif
 
 #ifdef _BGC_
@@ -242,7 +269,7 @@ int main (int argc, char *argv[])
     if (cvode_mem == NULL)
     {
         printf ("Fatal error: CVodeMalloc failed. \n");
-        return (1);
+        exit (1);
     }
 
     flag = CVodeSetFdata (cvode_mem, mData);
@@ -363,7 +390,6 @@ int main (int argc, char *argv[])
     /* Free integrator memory */
     CVodeFree (&cvode_mem);
 
-    free (outputdir);
     free (rawtime);
     free (filename);
     FreeData (mData, cData);
@@ -373,6 +399,4 @@ int main (int argc, char *argv[])
 #endif
     free (mData);
     free (cData);
-
-    return 0;
 }
