@@ -1,4 +1,5 @@
-PIHM-MF
+MM-PIHM
 =======
 
-The Penn State Integrated Hydrologic Model with multi-functional modules
+The Penn State Integrated Hydrologic Model with multi-modules
+The sweetest PIHM, ever!
