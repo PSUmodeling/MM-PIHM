@@ -44,19 +44,32 @@
 #include "bgc.h"
 #endif
 
+#ifdef _ENKF_
+#include "EnKF.h"
+#endif
+
 int main (int argc, char *argv[])
 {
     struct tm      *timestamp;
     time_t         *rawtime;
-    char            project[20];
-    char           *filename;
+    char            project[50];
+    char           *simulation;
     char           *outputdir;
     char            str[11];
     char            system_cmd[1024];
+    char            source_file[1024];
     int             overwrite_mode = 0;
     int             c;
-    int             verbose;
-    int             debug;
+    int             verbose = 0;
+    int             debug = 0;
+    int             first_cycle = 1;
+
+#ifdef _ENKF_
+    MPI_Status      status;
+    ensemble_struct ensemble;
+#endif
+
+    rawtime = (time_t *) malloc (sizeof (time_t));
 
     printf ("\n");
     printf ("\t\t########  #### ##     ## ##     ##\n");
@@ -78,13 +91,8 @@ int main (int argc, char *argv[])
     printf ("\n\t    * Biogeochemistry module turned on.\n");
 #endif
 
-    rawtime = (time_t *) malloc (sizeof (time_t));
-
     if (0 == (mkdir ("output", 0755)))
         printf (" Output directory was created.\n\n");
-
-    verbose = 0;
-    debug = 0;
 
     while((c = getopt(argc, argv, "odv")) != -1)
     {
@@ -130,8 +138,8 @@ int main (int argc, char *argv[])
     else
         strcpy (project, argv[optind]);
 
-    filename = (char *) malloc ((strlen (project) + 1) * sizeof (char));
-    strcpy (filename, project);
+    simulation = (char *) malloc ((strlen (project) + 1) * sizeof (char));
+    strcpy (simulation, project);
 
     time (rawtime);
     timestamp = localtime (rawtime);
@@ -145,26 +153,40 @@ int main (int argc, char *argv[])
     {
         /* Create output directory based on projectname and time */
         sprintf (str, "%2.2d%2.2d%2.2d%2.2d%2.2d", timestamp->tm_year + 1900 - 2000, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-        outputdir = (char *)malloc ((strlen (filename) + 20) * sizeof (char));
-        sprintf (outputdir, "output/%s.%s/", filename, str);
+        outputdir = (char *)malloc ((strlen (project) + 20) * sizeof (char));
+        sprintf (outputdir, "output/%s.%s/", project, str);
         printf ("\nOutput directory: %s\n", outputdir);
         mkdir (outputdir, 0755);
     }
 
     /* Save input files into output directory */
-    sprintf (system_cmd, "cp input/%s/%s.para %s/%s.para.bak", filename, filename, outputdir, filename);
-    system (system_cmd);
-    sprintf (system_cmd, "cp input/%s/%s.calib %s/%s.calib.bak", filename, filename, outputdir, filename);
-    system (system_cmd);
-    sprintf (system_cmd, "cp input/%s/%s.init %s/%s.init.bak", filename, filename, outputdir, filename);
-    system (system_cmd);
+    sprintf (source_file, "input/%s/%s.para", project, project);
+    if (access (source_file, F_OK) != -1)
+    {
+        sprintf (system_cmd, "cp %s %s/%s.para.bak", source_file, outputdir, project);
+        system (system_cmd);
+    }
+    sprintf (source_file, "input/%s/%s.calib", project, simulation);
+    if (access (source_file, F_OK) != -1)
+    {
+        sprintf (system_cmd, "cp %s %s/%s.calib.bak", source_file, outputdir, simulation);
+        system (system_cmd);
+    }
+    sprintf (source_file, "input/%s/%s.init", project, project);
+    if (access (source_file, F_OK) != -1)
+    {
+        sprintf (system_cmd, "cp %s %s/%s.init.bak", source_file, outputdir, simulation);
+        system (system_cmd);
+    }
 
-    pihm (project, verbose, debug, outputdir);
+    pihm (project, verbose, debug, outputdir, first_cycle);
+
+    first_cycle = 0;
 
     return 0;
 }
 
-void pihm (char *project, int verbose, int debug, char *output_dir)
+void pihm (char *project, int verbose, int debug, char *output_dir, int first_cycle)
 {
     Model_Data      mData;      /* Model Data */
     Control_Data    cData;      /* Solver Control Data */
@@ -247,11 +269,14 @@ void pihm (char *project, int verbose, int debug, char *output_dir)
     BGC_init (filename, mData, LSM, BGCM);
 #endif
 
-    /* initialize output files and structures */
-    initialize_output (filename, mData, cData, output_dir);
-#ifdef _FLUX_PIHM_
-    LSM_initialize_output (filename, mData, cData, LSM, output_dir);
-#endif
+    if (first_cycle == 1)
+    {
+        /* initialize output files and structures */
+        initialize_output (filename, mData, cData, output_dir);
+    #ifdef _FLUX_PIHM_
+        LSM_initialize_output (filename, mData, cData, LSM, output_dir);
+    #endif
+    }
 
 #ifdef _BGC_
     if (BGCM->ctrl.spinup == 1)
