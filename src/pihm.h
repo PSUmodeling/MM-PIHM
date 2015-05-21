@@ -522,6 +522,17 @@ void            initialize (char *, Model_Data, Control_Data , N_Vector);
 void            initialize_output (char *, Model_Data, Control_Data , char *);
 int             f (realtype, N_Vector, N_Vector, void *);
 void            read_alloc (char *, Model_Data, Control_Data );
+void ReadRiv (char *simulation, Model_Data DS, Control_Data CS);
+void ReadMesh (char *simulation, Model_Data DS, Control_Data CS);
+void ReadAtt (char *simulation, Model_Data DS, Control_Data CS);
+void ReadSoil (char *simulation, Model_Data DS, Control_Data CS);
+void ReadGeol (char *simulation, Model_Data DS, Control_Data CS);
+void ReadLC (char *simulation, Model_Data DS, Control_Data CS);
+void ReadForc (char *simulation, Model_Data DS, Control_Data CS);
+void ReadIbc (char *simulation, Model_Data DS, Control_Data CS);
+void ReadPara (char *simulation, Model_Data DS, Control_Data CS);
+void ReadCalib (char *simulation, Model_Data DS, Control_Data CS);
+
 void            f_update (realtype, realtype *, void *);    /* YS */
 void            FreeData (Model_Data, Control_Data );
 void            summary (Model_Data, N_Vector, realtype, realtype); /* YS */

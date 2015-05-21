@@ -13,76 +13,73 @@
 
 #include "pihm.h"
 
-void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
+void read_alloc (char *project, Model_Data DS, Control_Data  CS)
 {
-    int             i, j;
-    int             ind;
-    int             ensemble_mode;
-
-    int             NumTout;
-    char           *fn[10];
-    char           *laifn;
-    char           *projectname;
+    char           *simulation;
     char           *token, *tempname;
-    time_t          rawtime;
     struct tm      *timeinfo;
-    int             NumForcing;
-    int            *count;
-    int             read_lai;
-    int             read_ss;
 
-    char            cmdstr[MAXSTRING];
-    char            optstr[MAXSTRING];
-
-    FILE           *mesh_file;  /* Pointer to .mesh file */
-    FILE           *att_file;   /* Pointer to .att file */
-    FILE           *forc_file;  /* Pointer to .forc file */
-    FILE           *ibc_file;   /* Pointer to .ibc file */
-    FILE           *soil_file;  /* Pointer to .soil file */
-    FILE           *geol_file;  /* Pointer to .geol file */
-    FILE           *lc_file;    /* Pointer to .lc file */
-    FILE           *para_file;  /* Pointer to .para file */
-    FILE           *riv_file;   /* Pointer to .riv file */
-    FILE           *global_calib;   /* Pointer to .calib file */
-    FILE           *lai_file;
-
-    timeinfo = (struct tm *)malloc (sizeof (struct tm));
-
-    tempname = (char *)malloc ((strlen (filename) + 1) * sizeof (char));
-    strcpy (tempname, filename);
+    tempname = (char *)malloc ((strlen (project) + 1) * sizeof (char));
+    strcpy (tempname, project);
     if (strstr (tempname, ".") != 0)
     {
         token = strtok (tempname, ".");
-        projectname = (char *)malloc ((strlen (token) + 1) * sizeof (char));
-        strcpy (projectname, token);
-        ensemble_mode = 1;
+        simulation = (char *)malloc ((strlen (token) + 1) * sizeof (char));
+        strcpy (simulation, token);
     }
     else
     {
-        projectname = (char *)malloc ((strlen (filename) + 1)
+        simulation = (char *)malloc ((strlen (project) + 1)
            * sizeof (char));
-        strcpy (projectname, filename);
-        ensemble_mode = 0;
+        strcpy (simulation, project);
     }
     free (tempname);
 
     if (CS->Verbose)
         printf ("\nStart reading in input files:\n");
 
-    /*
-     * .riv file
-     */
+    ReadRiv (project, DS, CS);
+
+    ReadMesh (project, DS, CS);
+
+    ReadAtt (project, DS, CS);
+
+    ReadSoil (project, DS, CS);
+
+    ReadGeol (project, DS, CS);
+
+    ReadLC (project, DS, CS);
+
+    ReadForc (project, DS, CS);
+
+    ReadIbc (project, DS, CS);
+
+    ReadPara (project, DS, CS);
+
+    ReadCalib (simulation, DS, CS);
+}
+
+void ReadRiv (char *simulation, Model_Data DS, Control_Data CS)
+{
+    int             i, j;
+    char           *fn;
+    FILE           *riv_file;   /* Pointer to .riv file */
+    struct tm      *timeinfo;
+    time_t          rawtime;
+
+    timeinfo = (struct tm *)malloc (sizeof (struct tm));
+
     if (CS->Verbose)
-        printf ("  Reading %s.%s\n", projectname, "riv");
-    fn[0] = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
-    sprintf (fn[0], "input/%s/%s.riv", projectname, projectname);
-    riv_file = fopen (fn[0], "r");
-    free (fn[0]);
+        printf ("  Reading %s.%s\n", simulation, "riv");
+    fn = (char *)malloc ((2 * strlen (simulation) + 12) * sizeof (char));
+    sprintf (fn, "input/%s/%s.riv", simulation, simulation);
+    riv_file = fopen (fn, "r");
+    free (fn);
 
     if (riv_file == NULL)
     {
         printf ("\n Fatal Error: %s.riv is in use or does not exist!\n",
-           projectname);
+           simulation);
         exit (1);
     }
 
@@ -157,21 +154,25 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
     }
 
     fclose (riv_file);
+}
 
-    /* 
-     * .mesh file
-     */
+void ReadMesh (char *simulation, Model_Data DS, Control_Data CS)
+{
+    FILE           *mesh_file;  /* Pointer to .mesh file */
+    char           *fn;
+    int             i;
+
     if (CS->Verbose)
-        printf ("  Reading %s.%s\n", projectname, "mesh");
-    fn[1] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
-    sprintf (fn[1], "input/%s/%s.mesh", projectname, projectname);
-    mesh_file = fopen (fn[1], "r");
-    free (fn[1]);
+        printf ("  Reading %s.%s\n", simulation, "mesh");
+    fn = (char *)malloc ((2 * strlen (simulation) + 13) * sizeof (char));
+    sprintf (fn, "input/%s/%s.mesh", simulation, simulation);
+    mesh_file = fopen (fn, "r");
+    free (fn);
 
     if (mesh_file == NULL)
     {
         printf ("\n  Fatal Error: %s.mesh is in use or does not exist!\n",
-           projectname);
+           simulation);
         exit (1);
     }
 
@@ -200,21 +201,25 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
 
     /* finish reading mesh_files */
     fclose (mesh_file);
+}
 
-    /*
-     *.att file
-     */
+void ReadAtt (char *simulation, Model_Data DS, Control_Data CS)
+{
+    char           *fn;
+    int             i, j;
+    FILE           *att_file;   /* Pointer to .att file */
+
     if (CS->Verbose)
-        printf ("  Reading %s.%s\n", projectname, "att");
-    fn[2] = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
-    sprintf (fn[2], "input/%s/%s.att", projectname, projectname);
-    att_file = fopen (fn[2], "r");
-    free (fn[2]);
+        printf ("  Reading %s.%s\n", simulation, "att");
+    fn = (char *)malloc ((2 * strlen (simulation) + 12) * sizeof (char));
+    sprintf (fn, "input/%s/%s.att", simulation, simulation);
+    att_file = fopen (fn, "r");
+    free (fn);
 
     if (att_file == NULL)
     {
         printf ("\n  Fatal Error: %s.att is in use or does not exist!\n",
-           projectname);
+           simulation);
         exit (1);
     }
 
@@ -238,19 +243,25 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
 
     /* finish reading att_files */
     fclose (att_file);
+}
 
-    /*========== open *.soil file ==========*/
+void ReadSoil (char *simulation, Model_Data DS, Control_Data CS)
+{
+    FILE           *soil_file;  /* Pointer to .soil file */
+    char           *fn;
+    int             i;
+
     if (CS->Verbose)
-        printf ("  Reading %s.%s\n", projectname, "soil");
-    fn[3] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
-    sprintf (fn[3], "input/%s/%s.soil", projectname, projectname);
-    soil_file = fopen (fn[3], "r");
-    free (fn[3]);
+        printf ("  Reading %s.%s\n", simulation, "soil");
+    fn = (char *)malloc ((2 * strlen (simulation) + 13) * sizeof (char));
+    sprintf (fn, "input/%s/%s.soil", simulation, simulation);
+    soil_file = fopen (fn, "r");
+    free (fn);
 
     if (soil_file == NULL)
     {
         printf ("\n  Fatal Error: %s.soil is in use or does not exist!\n",
-           projectname);
+           simulation);
         exit (1);
     }
 
@@ -271,19 +282,25 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
     }
 
     fclose (soil_file);
+}
 
-    /*========== open *.geol file ==========*/
+void ReadGeol (char *simulation, Model_Data DS, Control_Data CS)
+{
+    char           *fn;
+    FILE           *geol_file;  /* Pointer to .geol file */
+    int             i;
+
     if (CS->Verbose)
-        printf ("  Reading %s.%s\n", projectname, "geol");
-    fn[4] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
-    sprintf (fn[4], "input/%s/%s.geol", projectname, projectname);
-    geol_file = fopen (fn[4], "r");
-    free (fn[4]);
+        printf ("  Reading %s.%s\n", simulation, "geol");
+    fn = (char *)malloc ((2 * strlen (simulation) + 13) * sizeof (char));
+    sprintf (fn, "input/%s/%s.geol", simulation, simulation);
+    geol_file = fopen (fn, "r");
+    free (fn);
 
     if (geol_file == NULL)
     {
         printf ("\n  Fatal Error: %s.geol is in use or does not exist!\n",
-           projectname);
+           simulation);
         exit (1);
     }
 
@@ -303,7 +320,14 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
 
     fclose (geol_file);
 
-    /*========== open *.lc file ==========*/
+
+}
+
+void ReadLC (char *simulation, Model_Data DS, Control_Data CS)
+{
+    FILE           *lc_file;    /* Pointer to .lc file */
+    int             i;
+
     if (CS->Verbose)
         printf ("  Reading vegprmt.tbl\n");
     lc_file = fopen ("input/vegprmt.tbl", "r");
@@ -345,18 +369,39 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         DS->ISFactor[i] = 0.0002;
     fclose (lc_file);
 
-    /*========== open *.forc file ==========*/
+
+}
+
+void ReadForc (char *simulation, Model_Data DS, Control_Data CS)
+{
+    char           *fn;
+    FILE           *forc_file;  /* Pointer to .forc file */
+    char            cmdstr[MAXSTRING];
+    char            optstr[MAXSTRING];
+    int             ind;
+    int            *count;
+    int             i, j;
+    struct tm      *timeinfo;
+    time_t          rawtime;
+    int             read_lai;
+    int             read_ss;
+    FILE           *lai_file;
+    int             NumForcing;
+    char           *laifn;
+
+    timeinfo = (struct tm *)malloc (sizeof (struct tm));
+
     if (CS->Verbose)
-        printf ("  Reading %s.%s\n", projectname, "forc");
-    fn[6] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
-    sprintf (fn[6], "input/%s/%s.forc", projectname, projectname);
-    forc_file = fopen (fn[6], "r");
-    free (fn[6]);
+        printf ("  Reading %s.%s\n", simulation, "forc");
+    fn = (char *)malloc ((2 * strlen (simulation) + 13) * sizeof (char));
+    sprintf (fn, "input/%s/%s.forc", simulation, simulation);
+    forc_file = fopen (fn, "r");
+    free (fn);
 
     if (forc_file == NULL)
     {
         printf ("\n  Fatal Error: %s.forc is in use or does not exist!\n",
-           projectname);
+           simulation);
         exit (1);
     }
 
@@ -465,16 +510,16 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
     if (read_lai == 1)
     {
         if (CS->Verbose)
-            printf ("  Reading %s.%s\n", projectname, "lai");
-        laifn = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
-        sprintf (laifn, "input/%s/%s.lai", projectname, projectname);
+            printf ("  Reading %s.%s\n", simulation, "lai");
+        laifn = (char *)malloc ((2 * strlen (simulation) + 12) * sizeof (char));
+        sprintf (laifn, "input/%s/%s.lai", simulation, simulation);
         lai_file = fopen (laifn, "r");
         free (laifn);
 
         if (lai_file == NULL)
         {
             printf ("\n  Fatal Error: %s.lai is in use or does not exist!\n",
-               projectname);
+               simulation);
             exit (1);
         }
 
@@ -552,18 +597,29 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         /* Read .ss */
     }
 
-    /*========== open *.ibc file ==========*/
+}
+
+void ReadIbc (char *simulation, Model_Data DS, Control_Data CS)
+{
+    char           *fn;
+    int             i, j;
+    time_t          rawtime;
+    struct tm      *timeinfo;
+    FILE           *ibc_file;   /* Pointer to .ibc file */
+
+    timeinfo = (struct tm *)malloc (sizeof (struct tm));
+
     if (CS->Verbose)
-        printf ("  Reading %s.%s\n", projectname, "ibc");
-    fn[7] = (char *)malloc ((2 * strlen (projectname) + 12) * sizeof (char));
-    sprintf (fn[7], "input/%s/%s.ibc", projectname, projectname);
-    ibc_file = fopen (fn[7], "r");
-    free (fn[7]);
+        printf ("  Reading %s.%s\n", simulation, "ibc");
+    fn = (char *)malloc ((2 * strlen (simulation) + 12) * sizeof (char));
+    sprintf (fn, "input/%s/%s.ibc", simulation, simulation);
+    ibc_file = fopen (fn, "r");
+    free (fn);
 
     if (ibc_file == NULL)
     {
         printf ("\n  Fatal Error: %s.ibc is in use or does not exist!\n",
-           projectname);
+           simulation);
         exit (1);
     }
 
@@ -620,19 +676,33 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         }
     }
     fclose (ibc_file);
+}
 
-    /*========== open *.para file ==========*/
+void ReadPara (char *simulation, Model_Data DS, Control_Data CS)
+{
+    char           *fn;
+    FILE           *para_file;  /* Pointer to .para file */
+    int             i, j;
+    char            cmdstr[MAXSTRING];
+    char            optstr[MAXSTRING];
+    time_t          rawtime;
+    struct tm      *timeinfo;
+
+    int             NumTout;
+
+    timeinfo = (struct tm *)malloc (sizeof (struct tm));
+
     if (CS->Verbose)
-        printf ("  Reading %s.%s\n", projectname, "para");
-    fn[8] = (char *)malloc ((2 * strlen (projectname) + 13) * sizeof (char));
-    sprintf (fn[8], "input/%s/%s.para", projectname, projectname);
-    para_file = fopen (fn[8], "r");
-    free (fn[8]);
+        printf ("  Reading %s.%s\n", simulation, "para");
+    fn = (char *)malloc ((2 * strlen (simulation) + 13) * sizeof (char));
+    sprintf (fn, "input/%s/%s.para", simulation, simulation);
+    para_file = fopen (fn, "r");
+    free (fn);
 
     if (para_file == NULL)
     {
         printf ("\n  Fatal Error: %s.para is in use or does not exist!\n",
-           projectname);
+           simulation);
         exit (1);
     }
 
@@ -865,20 +935,26 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
         printf ("\n  Fatal Error: Output step-size factor (A) and base step-size (B) must be defined in .para file!\n");
         exit (1);
     }
+}
+
+void ReadCalib (char *simulation, Model_Data DS, Control_Data CS)
+{
+    char           *fn;
+    char            cmdstr[MAXSTRING];
+    char            optstr[MAXSTRING];
+    FILE           *global_calib;   /* Pointer to .calib file */
 
     if (CS->Verbose)
         printf ("  Reading calibration file\n");
 
-    /*========= open *.calib file ==========*/
-    fn[9] = (char *)malloc ((2 * strlen (filename) + 14) * sizeof (char));
-    sprintf (fn[9], "input/%s/%s.calib", projectname, projectname);
-    global_calib = fopen (fn[9], "r");
-    free (fn[9]);
+    fn = (char *)malloc ((2 * strlen (simulation) + 14) * sizeof (char));
+    sprintf (fn, "input/%s/%s.calib", simulation, simulation);
+    global_calib = fopen (fn, "r");
+    free (fn);
 
     if (global_calib == NULL)
     {
-        printf ("\n  Fatal Error: %s.calib is in use or does not exist!\n",
-           filename);
+        printf ("\n  Fatal Error: %s.calib is in use or does not exist!\n", simulation);
         exit (1);
     }
 
@@ -941,7 +1017,7 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
             /* Handle case of comment line in which '#' is indented */
             if (optstr[0] == '#')
             {
-                fgets (cmdstr, MAXSTRING, para_file);
+                fgets (cmdstr, MAXSTRING, global_calib);
                 continue;
             }
             /* Get calibration coefficients */
@@ -1035,9 +1111,6 @@ void read_alloc (char *filename, Model_Data DS, Control_Data  CS)
 
     /* finish reading calib file */
     fclose (global_calib);
-
-    free (timeinfo);
-    free (projectname);
 }
 
 void FreeData (Model_Data DS, Control_Data  CS)
