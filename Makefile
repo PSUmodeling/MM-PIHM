@@ -31,7 +31,11 @@ SRCS_ = pihm.c \
 	f_function.c \
 	forcing.c
 
-HEADERS_ = pihm.h
+HEADERS_ = pihm.h \
+	pihm_const.h \
+	pihm_struct.h \
+	pihm_func.h
+
 MODULE_HEADERS_ =
 EXECUTABLE = pihm
 MSG = "...  Compiling PIHM  ..."

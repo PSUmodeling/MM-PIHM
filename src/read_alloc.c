@@ -17,7 +17,6 @@ void read_alloc (char *project, Model_Data DS, Control_Data  CS)
 {
     char           *simulation;
     char           *token, *tempname;
-    struct tm      *timeinfo;
 
     tempname = (char *)malloc ((strlen (project) + 1) * sizeof (char));
     strcpy (tempname, project);
