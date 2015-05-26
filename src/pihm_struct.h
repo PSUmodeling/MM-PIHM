@@ -1,8 +1,6 @@
 #ifndef PIHM_STRUCT_HEADER
 #define PIHM_STRUCT_HEADER
 
-extern char project[20];
-
 /* Data model for a triangular element */
 typedef struct element_type
 {
