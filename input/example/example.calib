@@ -1,14 +1,14 @@
-KSATH		0.5	# Horizontal saturated hydraulic conductivity
+KSATH		5.0	# Horizontal saturated hydraulic conductivity
 KSATV		3.5	# Vertital saturated hydraulic conductivity 
 KINF		5.0	# Infiltration conductivity
-KMACSATH	18.0	# Horizontal saturated macropore hydraulic conductivity
-KMACSATV	0.8	# Vertital saturated macropore hydraulic conductivity
+KMACSATH	20.0	# Horizontal saturated macropore hydraulic conductivity
+KMACSATV	0.25	# Vertital saturated macropore hydraulic conductivity
 DINF		1.0	# Infiltration depth
 DROOT		1.0	# Rooting depth
-DMAC		1.65	# Macropore depth
-POROSITY	0.85
-ALPHA		1.5
-BETA		1.15
+DMAC		1.6	# Macropore depth
+POROSITY	0.78
+ALPHA		1.0
+BETA		1.14
 MACVF		10.0
 MACHF		10.0
 VEGFRAC		1.0
@@ -20,22 +20,23 @@ EC		1.0
 ETT		1.0     
 EDIR		1.0
 ROUGH_RIV	5.0
-KRIVH		5.0
+KRIVH		1.0
 KRIVV		1.0
 BEDTHCK		1.0
 RIV_DPTH	1.0
 RIV_WDTH	1.0
+
 ###############################################################################
 # LSM calibration:                                                            #
 #  Use "#" to comment out the variables if you are not using the LSM module   #
 ###############################################################################
-#DRIP		1.0
-#CMCMAX		2.0
-#RS		0.5
-#CZIL		0.5
-#FXEXP		1.0
-#CFACTR		1.0
-#RGL		1.0
-#HS		1.0
-#REFSMC		1.0
-#WLTSMC		1.0
+DRIP		1.0
+CMCMAX		2.0
+RS		0.5
+CZIL		0.5
+FXEXP		1.0
+CFACTR		1.0
+RGL		1.0
+HS		1.0
+REFSMC		1.0
+WLTSMC		1.0

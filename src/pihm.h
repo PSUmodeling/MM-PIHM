@@ -15,6 +15,8 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <stdarg.h>
+
 
 #include "print.h"
 #include "forcing.h"

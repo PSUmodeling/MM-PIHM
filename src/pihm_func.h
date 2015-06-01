@@ -20,6 +20,13 @@ void ReadIbc (char *simulation, Model_Data DS, Control_Data CS);
 void ReadPara (char *simulation, Model_Data DS, Control_Data CS);
 void ReadCalib (char *simulation, Model_Data DS, Control_Data CS);
 
+int Readable (char *token);
+int FindLine (FILE *fid, char *token);
+void NextLine (FILE *fid, char *cmdstr);
+int CountLine (FILE *fid, int num_arg, ...);
+int CountOccurance (FILE *fid, char *token);
+
+
 void            f_update (realtype, realtype *, void *);    /* YS */
 void            FreeData (Model_Data, Control_Data );
 void            summary (Model_Data, N_Vector, realtype, realtype); /* YS */

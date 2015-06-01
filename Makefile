@@ -24,6 +24,7 @@ LFLAGS = -L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
 SRCS_ = pihm.c \
 	f.c \
 	read_alloc.c \
+	ReadFunc.c \
 	initialize.c \
 	update.c \
 	print.c \

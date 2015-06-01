@@ -315,6 +315,7 @@ typedef struct model_data_structure
 
     int             Num1BC;     /* Number of Dirichlet BC */
     int             Num2BC;     /* Number of Numann BC */
+    int             NumBC;
     int             NumEleIC;   /* Number of Element Initial Condtion */
 
     int             NumRivShape;    /* Number of River Shape */

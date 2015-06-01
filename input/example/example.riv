@@ -32,7 +32,5 @@ MATERIAL
 IC
 1	HRIV
 1	0.25
-BC
-0
-RES
-0
+BC      0
+RES     0

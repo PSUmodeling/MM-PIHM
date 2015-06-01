@@ -65,6 +65,8 @@ void ReadRiv (char *simulation, Model_Data DS, Control_Data CS)
     FILE           *riv_file;   /* Pointer to .riv file */
     struct tm      *timeinfo;
     time_t          rawtime;
+    char            cmdstr[MAXSTRING];
+    int             match;
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
@@ -82,61 +84,180 @@ void ReadRiv (char *simulation, Model_Data DS, Control_Data CS)
         exit (1);
     }
 
-    /* start reading riv_file */
-    fscanf (riv_file, "%d %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s", &DS->NumRiv);
-    DS->Riv = (river_segment *) malloc (DS->NumRiv * sizeof (river_segment));
+    /*
+     * Read river segment block
+     */
 
-    for (i = 0; i < DS->NumRiv; i++)
+    /* Read number of river segments */
+    FindLine (riv_file, "BOF");
+    NextLine (riv_file, cmdstr);
+    match = sscanf (cmdstr, "%d", &DS->NumRiv);
+    if (match != 1)
     {
-        fscanf (riv_file, "%d", &(DS->Riv[i].index));
-        fscanf (riv_file, "%d %d", &(DS->Riv[i].FromNode), &(DS->Riv[i].ToNode));
-        fscanf (riv_file, "%d", &(DS->Riv[i].down));
-        fscanf (riv_file, "%d %d", &(DS->Riv[i].LeftEle), &(DS->Riv[i].RightEle));
-        fscanf (riv_file, "%d %d", &(DS->Riv[i].shape), &(DS->Riv[i].material));
-        fscanf (riv_file, "%d %d", &(DS->Riv[i].IC), &(DS->Riv[i].BC));
-        fscanf (riv_file, "%d", &(DS->Riv[i].reservoir));
+        printf ("Cannot read number of river segments!\n");
+        printf (".riv file format error!\n");
+        exit (1);
     }
 
-    fscanf (riv_file, "%*s");
-    fscanf (riv_file, "%d %*s %*s %*s", &DS->NumRivShape);
+    /* Allocate */
+    DS->Riv = (river_segment *) malloc (DS->NumRiv * sizeof (river_segment));
+
+    /* Read river segment information */
+    for (i = 0; i < DS->NumRiv; i++)
+    {
+        NextLine (riv_file, cmdstr);
+        match = sscanf (cmdstr, "%d %d %d %d %d %d %d %d %d %d %d",
+            &DS->Riv[i].index, &DS->Riv[i].FromNode, &DS->Riv[i].ToNode,
+            &DS->Riv[i].down, &DS->Riv[i].LeftEle, &DS->Riv[i].RightEle,
+            &DS->Riv[i].shape, &DS->Riv[i].material, &DS->Riv[i].IC,
+            &DS->Riv[i].BC, &DS->Riv[i].reservoir);
+        if (match != 11 || i != DS->Riv[i].index - 1)
+        {
+            printf ("Cannot read river segment information for the %dth segment!\n", i + 1);
+            printf (".riv file format error!\n");
+            exit (1);
+        }
+    }
+
+    /*
+     * Read river shape information
+     */
+    FindLine (riv_file, "SHAPE");
+    NextLine (riv_file, cmdstr);
+    match = sscanf (cmdstr, "%d", &DS->NumRivShape);
+    if (match != 1)
+    {
+        printf ("Cannot read number of river shapes!\n");
+        printf (".riv file format error!\n");
+        exit (1);
+    }
+
+    /* Allocate */
     DS->Riv_Shape = (river_shape *) malloc (DS->NumRivShape * sizeof (river_shape));
 
     for (i = 0; i < DS->NumRivShape; i++)
     {
-        fscanf (riv_file, "%d", &DS->Riv_Shape[i].index);
-        fscanf (riv_file, "%lf", &DS->Riv_Shape[i].depth);
-        fscanf (riv_file, "%d %lf", &DS->Riv_Shape[i].interpOrd, &DS->Riv_Shape[i].coeff);
+        NextLine (riv_file, cmdstr);
+        match = sscanf (cmdstr, "%d %lf %d %lf",
+            &DS->Riv_Shape[i].index, &DS->Riv_Shape[i].depth,
+            &DS->Riv_Shape[i].interpOrd, &DS->Riv_Shape[i].coeff);
+        if (match != 4 || i != DS->Riv_Shape[i].index -1 )
+        {
+            printf ("Cannot read river shape information for the %dth shape!\n", i + 1);
+            printf (".riv file format error!\n");
+            exit (1);
+        }
     }
 
-    fscanf (riv_file, "%*s");
-    fscanf (riv_file, "%d %*s %*s %*s %*s %*s", &DS->NumRivMaterial);
+    /*
+     * Read river material information
+     */
+    FindLine (riv_file, "MATERIAL");
+    NextLine (riv_file, cmdstr);
+    match = sscanf (cmdstr, "%d", &DS->NumRivMaterial);
+    if (match != 1)
+    {
+        printf ("Cannot read number of river materials!\n");
+        printf (".riv file format error!\n");
+        exit (1);
+    }
+
+    /* Allocate */
     DS->Riv_Mat = (river_material *) malloc (DS->NumRivMaterial * sizeof (river_material));
 
     for (i = 0; i < DS->NumRivMaterial; i++)
-        fscanf (riv_file, "%d %lf %lf %lf %lf %lf", &DS->Riv_Mat[i].index, &DS->Riv_Mat[i].Rough, &DS->Riv_Mat[i].Cwr, &DS->Riv_Mat[i].KsatH, &DS->Riv_Mat[i].KsatV, &DS->Riv_Mat[i].bedThick);
+    {
+        NextLine (riv_file, cmdstr);
+        match = sscanf (cmdstr, "%d %lf %lf %lf %lf %lf",
+            &DS->Riv_Mat[i].index, &DS->Riv_Mat[i].Rough,
+            &DS->Riv_Mat[i].Cwr, &DS->Riv_Mat[i].KsatH,
+            &DS->Riv_Mat[i].KsatV, &DS->Riv_Mat[i].bedThick);
+        if (match != 6 || i != DS->Riv_Mat[i].index - 1)
+        {
+            printf ("Cannot read information for the %dth material!\n", i + 1);
+            printf (".riv file format error!\n");
+            exit (1);
+        }
+    }
 
-    fscanf (riv_file, "%*s");
-    fscanf (riv_file, "%d %*s", &DS->NumRivIC);
+    /*
+     * Read river initial condition information
+     */
+    FindLine (riv_file, "IC");
+    NextLine (riv_file, cmdstr);
+    match = sscanf (cmdstr, "%d", &DS->NumRivIC);
+    if (match != 1)
+    {
+        printf ("Cannot read number of river materials!\n");
+        printf (".riv file format error!\n");
+        exit (1);
+    }
+
+    /* Allocate */
     DS->Riv_IC = (river_IC *) malloc (DS->NumRivIC * sizeof (river_IC));
 
+    /* Rewind and read river initial condition information */
     for (i = 0; i < DS->NumRivIC; i++)
-        fscanf (riv_file, "%d %lf", &DS->Riv_IC[i].index, &DS->Riv_IC[i].value);
+    {
+        NextLine (riv_file, cmdstr);
+        match = sscanf (cmdstr, "%d %lf", &DS->Riv_IC[i].index, &DS->Riv_IC[i].value);
+        if (match != 2 || i != DS->Riv_IC[i].index - 1)
+        {
+            printf ("Cannot read information for the %dth initial condition!\n", i + 1);
+            printf (".riv file format error!\n");
+            exit (1);
+        }
+    }
 
-    fscanf (riv_file, "%*s");
-    fscanf (riv_file, "%d", &DS->NumRivBC);
+    /*
+     * Read river boundary condition block
+     */
+    NextLine (riv_file, cmdstr);
+    match = sscanf (cmdstr, "%*s %d", &DS->NumRivBC);
+    if (match != 1)
+    {
+        printf ("Cannot read number of river boundary conditions!\n");
+        printf (".riv file format error!\n");
+        exit (1);
+    }
+
     DS->TSD_Riv = (TSD *) malloc (DS->NumRivBC * sizeof (TSD));
 
     for (i = 0; i < DS->NumRivBC; i++)
     {
-        fscanf (riv_file, "%s %d %d", DS->TSD_Riv[i].name, &DS->TSD_Riv[i].index, &DS->TSD_Riv[i].length);
+        NextLine (riv_file, cmdstr);
+        match = sscanf (cmdstr, "%*s %d", &DS->TSD_Riv[i].index);
+        if (match != 1 || i != DS->TSD_Riv[i].index - 1)
+        {
+            printf ("Cannot read information of the %dth river boudnary condition!\n", i);
+            printf (".riv file format error!\n");
+            exit (1);
+        }
+        NextLine (riv_file, cmdstr);
+        NextLine (riv_file, cmdstr);
+        DS->TSD_Riv[i].length = CountLine (riv_file, 2, "RIV_TS", "RES");
+    }
+
+    FindLine (riv_file, "BC");
+    for (i = 0; i < DS->NumRivBC; i++)
+    {
+        NextLine (riv_file, cmdstr);
+        NextLine (riv_file, cmdstr);
+        NextLine (riv_file, cmdstr);
 
         DS->TSD_Riv[i].TS = (realtype **) malloc ((DS->TSD_Riv[i].length) * sizeof (realtype *));
-        for (j = 0; j < DS->TSD_Riv[i].length; j++)
-            DS->TSD_Riv[i].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
-
+        DS->TSD_Riv[i].iCounter = 0;
         for (j = 0; j < DS->TSD_Riv[i].length; j++)
         {
-            fscanf (riv_file, "%d-%d-%d %d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &DS->TSD_Riv[i].TS[j][1]);
+            DS->TSD_Riv[i].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
+            NextLine (riv_file, cmdstr);
+            match = sscanf (cmdstr, "%d-%d-%d %d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &DS->TSD_Riv[i].TS[j][1]);
+            if (match != 6)
+            {
+                printf (".riv file format error!\n");
+                exit (1);
+            }
+
             timeinfo->tm_year = timeinfo->tm_year - 1900;
             timeinfo->tm_mon = timeinfo->tm_mon - 1;
             rawtime = timegm (timeinfo);
@@ -144,13 +265,9 @@ void ReadRiv (char *simulation, Model_Data DS, Control_Data CS)
         }
     }
 
-    /* read in reservoir information */
-    fscanf (riv_file, "%*s");
-    fscanf (riv_file, "%d", &DS->NumRes);
-    if (DS->NumRes > 0)
-    {
-        /* read in reservoir information */
-    }
+    NextLine (riv_file, cmdstr);
+    sscanf (cmdstr, "%*s %d", &DS->NumRes);
+    /* Read Reservoir information */
 
     fclose (riv_file);
 }
@@ -160,6 +277,8 @@ void ReadMesh (char *simulation, Model_Data DS, Control_Data CS)
     FILE           *mesh_file;  /* Pointer to .mesh file */
     char           *fn;
     int             i;
+    char            cmdstr[MAXSTRING];
+    int             match;
 
     if (CS->Verbose)
         printf ("  Reading %s.%s\n", simulation, "mesh");
@@ -176,27 +295,56 @@ void ReadMesh (char *simulation, Model_Data DS, Control_Data CS)
     }
 
     /* start reading mesh_file */
-    fscanf (mesh_file, "%d %*s %*s %*s %*s %*s %*s", &DS->NumEle);
+    NextLine (mesh_file, cmdstr);
+    match = sscanf (cmdstr, "%d", &DS->NumEle);
+    if (match != 1)
+    {
+        printf ("Cannot read number of elements!\n");
+        printf (".mesh file format error!\n");
+        exit (1);
+    }
+
     DS->Ele = (element *) malloc ((DS->NumEle + DS->NumRiv) * sizeof (element));
 
     /* read in elements information */
     for (i = 0; i < DS->NumEle; i++)
     {
-        fscanf (mesh_file, "%d", &(DS->Ele[i].index));
-        fscanf (mesh_file, "%d %d %d", &(DS->Ele[i].node[0]), &(DS->Ele[i].node[1]), &(DS->Ele[i].node[2]));
-        fscanf (mesh_file, "%d %d %d", &(DS->Ele[i].nabr[0]), &(DS->Ele[i].nabr[1]), &(DS->Ele[i].nabr[2]));
+        NextLine (mesh_file, cmdstr);
+        match = sscanf (cmdstr, "%d %d %d %d %d %d %d", &DS->Ele[i].index,
+            &DS->Ele[i].node[0], &DS->Ele[i].node[1], &DS->Ele[i].node[2],
+            &DS->Ele[i].nabr[0], &DS->Ele[i].nabr[1], &DS->Ele[i].nabr[2]);
+        if (match != 7 || i != DS->Ele[i].index - 1)
+        {
+            printf ("Cannot read information of the %dth element!\n", i + 1);
+            printf (".mesh file format error!\n");
+            exit (1);
+        }
     }
 
     /* read in nodes information */
-    fscanf (mesh_file, "%d %*s %*s %*s %*s", &DS->NumNode);
+    NextLine (mesh_file, cmdstr);
+    match = sscanf (cmdstr, "%d", &DS->NumNode);
+    if (match != 1)
+    {
+        printf ("Cannot read number of nodes!\n");
+        printf (".mesh file format error!\n");
+        exit (1);
+    }
+
     DS->Node = (nodes *) malloc (DS->NumNode * sizeof (nodes));
     for (i = 0; i < DS->NumNode; i++)
     {
-        fscanf (mesh_file, "%d", &(DS->Node[i].index));
-        fscanf (mesh_file, "%lf %lf", &(DS->Node[i].x), &(DS->Node[i].y));
-        fscanf (mesh_file, "%lf %lf", &(DS->Node[i].zmin), &(DS->Node[i].zmax));
+        NextLine (mesh_file, cmdstr);
+        match = sscanf (cmdstr, "%d %lf %lf %lf %lf", &(DS->Node[i].index),
+            &DS->Node[i].x, &DS->Node[i].y,
+            &DS->Node[i].zmin, &DS->Node[i].zmax);
+        if (match != 5 || i != DS->Node[i].index - 1)
+        {
+            printf ("Cannot read information of the %dth node!\n", i + 1);
+            printf (".mesh file format error!\n");
+            exit (1);
+        }
     }
-
 
     /* finish reading mesh_files */
     fclose (mesh_file);
@@ -205,8 +353,10 @@ void ReadMesh (char *simulation, Model_Data DS, Control_Data CS)
 void ReadAtt (char *simulation, Model_Data DS, Control_Data CS)
 {
     char           *fn;
-    int             i, j;
+    int             i;
     FILE           *att_file;   /* Pointer to .att file */
+    char            cmdstr[MAXSTRING];
+    int             match;
 
     if (CS->Verbose)
         printf ("  Reading %s.%s\n", simulation, "att");
@@ -224,21 +374,26 @@ void ReadAtt (char *simulation, Model_Data DS, Control_Data CS)
 
     /* start reading att_file */
     DS->Ele_IC = (element_IC *) malloc (DS->NumEle * sizeof (element_IC));
-    for (i = 0; i < 16; i++)
-        fscanf (att_file, "%*s");
+
+    NextLine (att_file, cmdstr);
     for (i = 0; i < DS->NumEle; i++)
     {
-        fscanf (att_file, "%*d");
-        fscanf (att_file, "%d %d %d", &(DS->Ele[i].soil), &(DS->Ele[i].geol), &(DS->Ele[i].LC));
-
-        fscanf (att_file, "%lf %lf %lf %lf %lf", &(DS->Ele_IC[i].interception), &(DS->Ele_IC[i].snow), &(DS->Ele_IC[i].surf), &(DS->Ele_IC[i].unsat), &(DS->Ele_IC[i].sat));
-        fscanf (att_file, "%d %d", &(DS->Ele[i].meteo), &(DS->Ele[i].LAI));
-        fscanf (att_file, "%d", &(DS->Ele[i].source));
-        for (j = 0; j < 3; j++)
-            fscanf (att_file, "%d", &(DS->Ele[i].BC[j]));
-        fscanf (att_file, "%d", &(DS->Ele[i].Macropore));
+        NextLine (att_file, cmdstr);
+        match = sscanf (cmdstr, "%*d %d %d %d %lf %lf %lf %lf %lf %d %d %d %d %d %d %d",
+            &DS->Ele[i].soil, &DS->Ele[i].geol, &DS->Ele[i].LC,
+            &DS->Ele_IC[i].interception, &DS->Ele_IC[i].snow, &DS->Ele_IC[i].surf,
+            &DS->Ele_IC[i].unsat, &DS->Ele_IC[i].sat,
+            &DS->Ele[i].meteo, &DS->Ele[i].LAI,
+            &DS->Ele[i].source,
+            &DS->Ele[i].BC[0], &DS->Ele[i].BC[1], &DS->Ele[i].BC[2],
+            &DS->Ele[i].Macropore);
+        if (match != 15)
+        {
+            printf ("Cannot read information of the %dth element!\n", i + 1);
+            printf (".att file format error!\n");
+            exit (1);
+        }
     }
-
 
     /* finish reading att_files */
     fclose (att_file);
@@ -249,6 +404,8 @@ void ReadSoil (char *simulation, Model_Data DS, Control_Data CS)
     FILE           *soil_file;  /* Pointer to .soil file */
     char           *fn;
     int             i;
+    char            cmdstr[MAXSTRING];
+    int             match;
 
     if (CS->Verbose)
         printf ("  Reading %s.%s\n", simulation, "soil");
@@ -265,19 +422,34 @@ void ReadSoil (char *simulation, Model_Data DS, Control_Data CS)
     }
 
     /* start reading soil_file */
-    fscanf (soil_file, "%d %*s %*s %*s %*s %*s %*s %*s %*s %*s", &DS->NumSoil);
+    NextLine (soil_file, cmdstr);
+    match = sscanf (cmdstr, "%d", &DS->NumSoil);
+    if (match != 1)
+    {
+        printf ("Cannot read number of soil types!\n");
+        printf (".soil file format error!\n");
+        exit (1);
+    }
+
     DS->Soil = (soils *) malloc (DS->NumSoil * sizeof (soils));
 
     for (i = 0; i < DS->NumSoil; i++)
     {
-        fscanf (soil_file, "%d", &(DS->Soil[i].index));
-        /* Note: Soil KsatH and macKsatH is not used in model calculation
-         * anywhere */
-        fscanf (soil_file, "%lf", &(DS->Soil[i].KsatV));
-        fscanf (soil_file, "%lf %lf %lf", &(DS->Soil[i].ThetaS), &(DS->Soil[i].ThetaR), &(DS->Soil[i].infD));
-        fscanf (soil_file, "%lf %lf", &(DS->Soil[i].Alpha), &(DS->Soil[i].Beta));
-        fscanf (soil_file, "%lf %lf", &(DS->Soil[i].hAreaF), &(DS->Soil[i].macKsatV));
-        fscanf (soil_file, "%lf", &(DS->Soil[i].qtz));
+        NextLine (soil_file, cmdstr);
+        match = sscanf (cmdstr, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+            &DS->Soil[i].index,
+            &DS->Soil[i].KsatV,
+            &DS->Soil[i].ThetaS, &DS->Soil[i].ThetaR,
+            &DS->Soil[i].infD,
+            &DS->Soil[i].Alpha, &DS->Soil[i].Beta,
+            &DS->Soil[i].hAreaF, &DS->Soil[i].macKsatV,
+            &DS->Soil[i].qtz);
+        if (match != 10 || i != DS->Soil[i].index - 1)
+        {
+            printf ("Cannot read information of the %dth soil type!\n", i + 1);
+            printf (".soil file format error!\n");
+            exit (1);
+        }
     }
 
     fclose (soil_file);
@@ -288,6 +460,8 @@ void ReadGeol (char *simulation, Model_Data DS, Control_Data CS)
     char           *fn;
     FILE           *geol_file;  /* Pointer to .geol file */
     int             i;
+    char            cmdstr[MAXSTRING];
+    int             match;
 
     if (CS->Verbose)
         printf ("  Reading %s.%s\n", simulation, "geol");
@@ -304,28 +478,43 @@ void ReadGeol (char *simulation, Model_Data DS, Control_Data CS)
     }
 
     /* start reading geol_file */
-    fscanf (geol_file, "%d %*s %*s %*s %*s %*s %*s %*s %*s %*s", &DS->NumGeol);
+    NextLine (geol_file, cmdstr);
+    match = sscanf (cmdstr, "%d", &DS->NumGeol);
+    if (match != 1)
+    {
+        printf ("Cannot read number of geology types!\n");
+        printf (".geol file format error!\n");
+        exit (1);
+    }
+
     DS->Geol = (geol *) malloc (DS->NumGeol * sizeof (geol));
 
     for (i = 0; i < DS->NumGeol; i++)
     {
-        fscanf (geol_file, "%d", &(DS->Geol[i].index));
-        /* Geol macKsatV is not used in model calculation anywhere */
-        fscanf (geol_file, "%lf %lf", &(DS->Geol[i].KsatH), &(DS->Geol[i].KsatV));
-        fscanf (geol_file, "%lf %lf", &(DS->Geol[i].ThetaS), &(DS->Geol[i].ThetaR));
-        fscanf (geol_file, "%lf %lf", &(DS->Geol[i].Alpha), &(DS->Geol[i].Beta));
-        fscanf (geol_file, "%lf %lf %lf", &(DS->Geol[i].vAreaF), &(DS->Geol[i].macKsatH), &(DS->Geol[i].macD));
+        NextLine (geol_file, cmdstr);
+        match = sscanf (cmdstr, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+            &DS->Geol[i].index,
+            &DS->Geol[i].KsatH, &DS->Geol[i].KsatV,
+            &DS->Geol[i].ThetaS, &DS->Geol[i].ThetaR,
+            &DS->Geol[i].Alpha, &DS->Geol[i].Beta,
+            &DS->Geol[i].vAreaF, &DS->Geol[i].macKsatH, &DS->Geol[i].macD);
+        if (match != 10 || i != DS->Geol[i].index - 1)
+        {
+            printf ("Cannot read information of the %dth geology type!\n", i + 1);
+            printf (".geol file format error!\n");
+            exit (1);
+        }
     }
 
     fclose (geol_file);
-
-
 }
 
 void ReadLC (char *simulation, Model_Data DS, Control_Data CS)
 {
     FILE           *lc_file;    /* Pointer to .lc file */
     int             i;
+    char            cmdstr[MAXSTRING];
+    int             match;
 
     if (CS->Verbose)
         printf ("  Reading vegprmt.tbl\n");
@@ -338,34 +527,76 @@ void ReadLC (char *simulation, Model_Data DS, Control_Data CS)
     }
 
     /* start reading land cover file */
-    fscanf (lc_file, "%d %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s", &DS->NumLC);
+    NextLine (lc_file, cmdstr);
+    match = sscanf (cmdstr, "%d", &DS->NumLC);
+    if (match != 1)
+    {
+        printf ("Cannot read number of landcover types!\n");
+        printf ("Land cover file format error!\n");
+        exit (1);
+    }
 
     DS->LandC = (LC *) malloc (DS->NumLC * sizeof (LC));
 
     for (i = 0; i < DS->NumLC; i++)
     {
-        fscanf (lc_file, "%d", &(DS->LandC[i].index));
-        fscanf (lc_file, "%lf", &(DS->LandC[i].VegFrac));
-        fscanf (lc_file, "%lf", &(DS->LandC[i].RzD));
-        fscanf (lc_file, "%lf", &(DS->LandC[i].Rmin));
-        fscanf (lc_file, "%lf", &(DS->LandC[i].Rs_ref));
-        fscanf (lc_file, "%lf", &(DS->LandC[i].h_s));
-        fscanf (lc_file, "%lf", &(DS->LandC[i].snup));
-        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].LAImin), &(DS->LandC[i].LAImax));
-        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].Emiss_min), &(DS->LandC[i].Emiss_max));
-        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].Albedo_min), &(DS->LandC[i].Albedo_max));
-        fscanf (lc_file, "%lf %lf", &(DS->LandC[i].z0_min), &(DS->LandC[i].z0_max));
-        fscanf (lc_file, "%lf%*[^\n]", &(DS->LandC[i].Rough));
+        NextLine (lc_file, cmdstr);
+        match = sscanf (cmdstr, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+            &DS->LandC[i].index,
+            &DS->LandC[i].VegFrac, &DS->LandC[i].RzD, 
+            &DS->LandC[i].Rmin, &DS->LandC[i].Rs_ref,
+            &DS->LandC[i].h_s,
+            &DS->LandC[i].snup, 
+            &DS->LandC[i].LAImin, &DS->LandC[i].LAImax,
+            &DS->LandC[i].Emiss_min, &DS->LandC[i].Emiss_max,
+            &DS->LandC[i].Albedo_min, &DS->LandC[i].Albedo_max,
+            &DS->LandC[i].z0_min, &DS->LandC[i].z0_max,
+            &DS->LandC[i].Rough);
+        if (match != 16 || i != DS->LandC[i].index - 1)
+        {
+            printf ("Cannot read information of the %dth landcover type!\n", i + 1);
+            printf ("Landcover file format error!\n");
+            exit (1);
+        }
     }
 
-    fscanf (lc_file, "%*s %lf", &(DS->Tref));
-    fscanf (lc_file, "%*s %lf", &(DS->fx_canopy));
-    fscanf (lc_file, "%*s %lf", &(DS->Rmax));
-    fscanf (lc_file, "%*s %d", &(DS->bare));
+    NextLine (lc_file, cmdstr);
+    match = sscanf (cmdstr, "%*s %lf", &DS->Tref);
+    if (match != 1)
+    {
+        printf ("Cannot read information of optimal temperature!\n");
+        printf ("Landcover file format error!\n");
+        exit (1);
+    }
+    NextLine (lc_file, cmdstr);
+    match = sscanf (cmdstr, "%*s %lf", &DS->fx_canopy);
+    if (match != 1)
+    {
+        printf ("Cannot read information of canopy evaporation rate!\n");
+        printf ("Landcover file format error!\n");
+        exit (1);
+    }
+    NextLine (lc_file, cmdstr);
+    match = sscanf (cmdstr, "%*s %lf", &DS->Rmax);
+    if (match != 1)
+    {
+        printf ("Cannot read information of canopy cuticular resistance!\n");
+        printf ("Landcover file format error!\n");
+        exit (1);
+    }
+    NextLine (lc_file, cmdstr);
+    match = sscanf (cmdstr, "%*s %d", &(DS->bare));
+    if (match != 1)
+    {
+        printf ("Cannot read information of Bare soil type!\n");
+        printf ("Landcover file format error!\n");
+        exit (1);
+    }
 
     DS->ISFactor = (realtype *) malloc (DS->NumLC * sizeof (realtype));
     for ( i = 0; i < DS->NumLC; i++)
         DS->ISFactor[i] = 0.0002;
+
     fclose (lc_file);
 
 
@@ -387,6 +618,7 @@ void ReadForc (char *simulation, Model_Data DS, Control_Data CS)
     FILE           *lai_file;
     int             NumForcing;
     char           *laifn;
+    int             match;
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
@@ -419,67 +651,53 @@ void ReadForc (char *simulation, Model_Data DS, Control_Data CS)
      * 6: Surface air pressure;
      */
 
-    fscanf (forc_file, "%*s %d", &DS->NumTS);
-
-    DS->TSD_meteo = (TSD *) malloc (DS->NumTS * sizeof (TSD));
-
-    rewind(forc_file);          /* For safety reasons, rewind and skip top line */
-    fgets (cmdstr, MAXSTRING, forc_file);
-
-    fgets (cmdstr, MAXSTRING, forc_file);
-    while (!feof (forc_file))
+    FindLine (forc_file, "BOF");
+    NextLine (forc_file, cmdstr);
+    match = sscanf (cmdstr, "%*s %d", &DS->NumTS);
+    if (match != 1)
     {
-        if (cmdstr[0] != '\n' && cmdstr[0] != '\0' && cmdstr[0] != '\t')
-        {
-            sscanf (cmdstr, "%s", optstr);
-            if (strcasecmp ("METEO_TS", optstr) == 0)
-            {
-                sscanf (cmdstr, "%*s %d %*s %*f", &ind);
-                DS->TSD_meteo[ind - 1].length = 0;
-                count = &(DS->TSD_meteo[ind - 1].length);
-            }
-            else if (strcasecmp ("TIME", optstr) == 0)
-            {
-                /* Do nothing */
-            }
-            else if (strcasecmp ("TS", optstr) == 0)
-            {
-                /* Do nothing */
-            }
-            else
-            {
-                (*count)++;
-            }
-        }
-        fgets (cmdstr, MAXSTRING, forc_file);
-    }
-
-    if (ind != DS->NumTS)
-    {
-        printf ("ERROR!\n");
+        printf ("Cannot read number of meteorological forcing time series!\n");
+        printf (".forc file format error!\n");
         exit (1);
     }
 
+    DS->TSD_meteo = (TSD *) malloc (DS->NumTS * sizeof (TSD));
+    DS->windH = (realtype *) malloc (DS->NumTS * sizeof (realtype));
+
     for (i = 0; i < DS->NumTS; i++)
     {
+        NextLine (forc_file, cmdstr);
+        match = sscanf (cmdstr, "%*s %d %*s %lf", &DS->TSD_meteo[i].index, &DS->windH[i]);
+        if (match != 2 || i != DS->TSD_meteo[i].index - 1)
+        {
+            printf ("Cannot read information of the %dth forcing series!\n", i);
+            printf (".forc file format error!\n");
+            exit (1);
+        }
+        NextLine (forc_file, cmdstr);
+        NextLine (forc_file, cmdstr);
+        DS->TSD_meteo[i].length = CountLine (forc_file, 1, "METEO_TS");
+    }
+
+    FindLine (forc_file, "NUM_METEO_TS");
+    for (i = 0; i < DS->NumTS; i++)
+    {
+        NextLine (forc_file, cmdstr);
+        NextLine (forc_file, cmdstr);
+        NextLine (forc_file, cmdstr);
+
         DS->TSD_meteo[i].TS = (realtype **) malloc ((DS->TSD_meteo[i].length) * sizeof (realtype *));
         DS->TSD_meteo[i].iCounter = 0;
         for (j = 0; j < DS->TSD_meteo[i].length; j++)
-            DS->TSD_meteo[i].TS[j] = (realtype *) malloc ((NumForcing + 1)* sizeof (realtype));
-    }
-
-    rewind(forc_file);
-    fscanf (forc_file, "%*s %*d");
-
-    for (i = 0; i < DS->NumTS; i++)
-    {
-        fscanf (forc_file, "%*s %*d %*s %lf", &(DS->TSD_meteo[i].TSFactor));
-        fscanf (forc_file, "%*s %*s %*s %*s %*s %*s %*s %*s");
-        fscanf (forc_file, "%*s %*s %*s %*s %*s %*s %*s %*s");
-
-        for (j = 0; j < DS->TSD_meteo[i].length; j++)
         {
-            fscanf (forc_file, "%d-%d-%d %d:%d %lf %lf %lf %lf %lf %lf %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &DS->TSD_meteo[i].TS[j][1], &DS->TSD_meteo[i].TS[j][2], &DS->TSD_meteo[i].TS[j][3], &DS->TSD_meteo[i].TS[j][4], &DS->TSD_meteo[i].TS[j][5], &DS->TSD_meteo[i].TS[j][6], &DS->TSD_meteo[i].TS[j][7]);
+            DS->TSD_meteo[i].TS[j] = (realtype *) malloc ((NumForcing + 1)* sizeof (realtype));
+            NextLine (forc_file, cmdstr);
+            match = sscanf (cmdstr, "%d-%d-%d %d:%d %lf %lf %lf %lf %lf %lf %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &DS->TSD_meteo[i].TS[j][1], &DS->TSD_meteo[i].TS[j][2], &DS->TSD_meteo[i].TS[j][3], &DS->TSD_meteo[i].TS[j][4], &DS->TSD_meteo[i].TS[j][5], &DS->TSD_meteo[i].TS[j][6], &DS->TSD_meteo[i].TS[j][7]);
+            if (match != 12)
+            {
+                printf (".forc file format error (Line %d)!\n", j + 1);
+                exit (1);
+            }
             timeinfo->tm_year = timeinfo->tm_year - 1900;
             timeinfo->tm_mon = timeinfo->tm_mon - 1;
             timeinfo->tm_sec = 0;
@@ -489,10 +707,6 @@ void ReadForc (char *simulation, Model_Data DS, Control_Data CS)
     }
 
     fclose (forc_file);
-
-    DS->windH = (realtype *) malloc (DS->NumTS * sizeof (realtype));
-    for (i = 0; i < DS->NumTS; i++)
-        DS->windH[i] = DS->TSD_meteo[i].TSFactor;
 
     read_lai = 0;
     read_ss = 0;
@@ -523,64 +737,53 @@ void ReadForc (char *simulation, Model_Data DS, Control_Data CS)
         }
 
         /* start reading lai_file */
-        fscanf (lai_file, "%*s %d", &(DS->NumLAI));
-
-        DS->TSD_lai = (TSD *) malloc (DS->NumLAI * sizeof (TSD));
-
-        rewind(lai_file);          /* For safety reasons, rewind and skip top line */
-        fgets (cmdstr, MAXSTRING, lai_file);
-
-        fgets (cmdstr, MAXSTRING, lai_file);
-        while (!feof (lai_file))
+        FindLine (lai_file, "BOF");
+        NextLine (lai_file, cmdstr);
+        match = sscanf (cmdstr, "%*s %d", &DS->NumLAI);
+        if (match != 1)
         {
-            if (cmdstr[0] != '\n' && cmdstr[0] != '\0' && cmdstr[0] != '\t')
-            {
-                sscanf (cmdstr, "%s", optstr);
-                if (strcasecmp ("LAI_TS", optstr) == 0)
-                {
-                    sscanf (cmdstr, "%*s %d", &ind);
-                    DS->TSD_lai[ind - 1].length = 0;
-                    count = &(DS->TSD_lai[ind - 1].length);
-                }
-                else if (strcasecmp ("TIME", optstr) == 0)
-                {
-                    /* Do nothing */
-                }
-                else if (strcasecmp ("TS", optstr) == 0)
-                {
-                    /* Do nothing */
-                }
-                else
-                    (*count)++;
-            }
-            fgets (cmdstr, MAXSTRING, lai_file);
-        }
-
-        if (ind != DS->NumLAI)
-        {
-            printf ("ERROR!\n");
+            printf ("Cannot read number of LAI time series!\n");
+            printf (".lai file format error!\n");
             exit (1);
         }
 
+
+        DS->TSD_lai = (TSD *) malloc (DS->NumLAI * sizeof (TSD));
+
         for (i = 0; i < DS->NumLAI; i++)
         {
-            DS->TSD_lai[i].TS = (realtype **) malloc ((DS->TSD_lai[i].length) * sizeof (realtype *));
-            for (j = 0; j < DS->TSD_lai[i].length; j++)
-                DS->TSD_lai[i].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
+            NextLine (lai_file, cmdstr);
+            match = sscanf (cmdstr, "%*s %d", &DS->TSD_lai[i].index);
+            if (match != 1 || i != DS->TSD_lai[i].index - 1)
+            {
+                printf ("Cannot read information of the %dth LAI series!\n", i);
+                printf (".lai file format error!\n");
+                exit (1);
+            }
+            NextLine (lai_file, cmdstr);
+            NextLine (lai_file, cmdstr);
+            DS->TSD_lai[i].length = CountLine (lai_file, 1, "LAI_TS");
         }
 
-        rewind(lai_file);
-
-        fscanf (lai_file, "%*s %*d");
-
+        FindLine (lai_file, "NUM_LAI_TS");
         for (i = 0; i < DS->NumLAI; i++)
         {
-            fscanf (lai_file, "%*s %*d");
-            fscanf (lai_file, "%*s %*s");
-            fscanf (lai_file, "%*s %*s");
+            NextLine (lai_file, cmdstr);
+            NextLine (lai_file, cmdstr);
+            NextLine (lai_file, cmdstr);
+
+            DS->TSD_lai[i].TS = (realtype **) malloc ((DS->TSD_lai[i].length) * sizeof (realtype *));
+            DS->TSD_lai[i].iCounter = 0;
             for (j = 0; j < DS->TSD_lai[i].length; j++)
             {
-                fscanf (lai_file, "%d-%d-%d %d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &DS->TSD_lai[i].TS[j][1]);
+                DS->TSD_lai[i].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
+                NextLine (lai_file, cmdstr);
+                match = sscanf (cmdstr, "%d-%d-%d %d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &DS->TSD_lai[i].TS[j][1]);
+                if (match != 6)
+                {
+                    printf (".forc file format error!\n");
+                    exit (1);
+                }
                 timeinfo->tm_year = timeinfo->tm_year - 1900;
                 timeinfo->tm_mon = timeinfo->tm_mon - 1;
                 timeinfo->tm_sec = 0;
@@ -605,6 +808,8 @@ void ReadIbc (char *simulation, Model_Data DS, Control_Data CS)
     time_t          rawtime;
     struct tm      *timeinfo;
     FILE           *ibc_file;   /* Pointer to .ibc file */
+    char            cmdstr[MAXSTRING];
+    int             match;
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
@@ -625,55 +830,61 @@ void ReadIbc (char *simulation, Model_Data DS, Control_Data CS)
     /*
      * start reading ibc_file 
      */
-    fscanf (ibc_file, "%d %d", &DS->Num1BC, &DS->Num2BC);
-
-    if (DS->Num1BC + DS->Num2BC > 0)
-        DS->TSD_EleBC = (TSD *) malloc ((DS->Num1BC + DS->Num2BC) * sizeof (TSD));
-
-    if (DS->Num1BC > 0)
+    FindLine (ibc_file, "BOF");
+    NextLine (ibc_file, cmdstr);
+    match = sscanf (cmdstr, "%*s %d", &DS->NumBC);
+    if (match != 1)
     {
-        /* For elements with Dirichilet Boundary Conditions */
-        for (i = 0; i < DS->Num1BC; i++)
-        {
-            fscanf (ibc_file, "%s %d %d", DS->TSD_EleBC[i].name, &DS->TSD_EleBC[i].index, &DS->TSD_EleBC[i].length);
-            DS->TSD_EleBC[i].TS = (realtype **) malloc ((DS->TSD_EleBC[i].length) * sizeof (realtype *));
-            for (j = 0; j < DS->TSD_EleBC[i].length; j++)
-                DS->TSD_EleBC[i].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
+        printf ("Cannot read number of boundary condition time series!\n");
+        printf (".ibc file format error!\n");
+        exit (1);
+    }
+        
+    DS->TSD_EleBC = (TSD *) malloc (DS->NumBC * sizeof (TSD));
 
-            for (j = 0; j < DS->TSD_EleBC[i].length; j++)
+    for (i = 0; i < DS->Num1BC; i++)
+    {
+        NextLine (ibc_file, cmdstr);
+        match = sscanf (cmdstr, "%*s %d", &DS->TSD_EleBC[i].index);
+        if (match != 1 || i != DS->TSD_EleBC[i].index - 1)
+        {
+            printf ("Cannot read information of the %dth boundary condition series!\n", i);
+            printf (".ibc file format error!\n");
+            exit (1);
+        }
+        NextLine (ibc_file, cmdstr);
+        NextLine (ibc_file, cmdstr);
+
+        DS->TSD_EleBC[i].length = CountLine (ibc_file, 1, "BC_TS");
+    }
+
+    FindLine (ibc_file, "NUM_BC_TS");
+    for (i = 0; i < DS->NumBC; i++)
+    {
+        NextLine (ibc_file, cmdstr);
+        NextLine (ibc_file, cmdstr);
+        NextLine (ibc_file, cmdstr);
+
+        DS->TSD_EleBC[i].TS = (realtype **) malloc ((DS->TSD_EleBC[i].length) * sizeof (realtype *));
+        DS->TSD_EleBC[i].iCounter = 0;
+        for (j = 0; j < DS->TSD_EleBC[i].length; j++)
+        {
+            DS->TSD_EleBC[i].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
+            NextLine (ibc_file, cmdstr);
+            match = sscanf (cmdstr, "%d-%d-%d %d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &DS->TSD_EleBC[i].TS[j][1]);
+            if (match != 6)
             {
-                fscanf (ibc_file, "%d-%d-%d %d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &DS->TSD_EleBC[i].TS[j][1]);
-                timeinfo->tm_year = timeinfo->tm_year - 1900;
-                timeinfo->tm_mon = timeinfo->tm_mon - 1;
-                timeinfo->tm_sec = 0;
-                rawtime = timegm (timeinfo);
-                DS->TSD_EleBC[i].TS[j][0] = (realtype) rawtime;
+                printf (".ibc file format error (Line %d)!\n", j + 1);
+                exit (1);
             }
+            timeinfo->tm_year = timeinfo->tm_year - 1900;
+            timeinfo->tm_mon = timeinfo->tm_mon - 1;
+            timeinfo->tm_sec = 0;
+            rawtime = timegm (timeinfo);
+            DS->TSD_EleBC[i].TS[j][0] = (realtype) rawtime;
         }
     }
 
-    if (DS->Num2BC > 0)
-    {
-        /* For elements with Neumann (non-natural) Boundary Conditions */
-        for (i = DS->Num1BC; i < DS->Num1BC + DS->Num2BC; i++)
-        {
-            fscanf (ibc_file, "%s %d %d", DS->TSD_EleBC[i].name, &DS->TSD_EleBC[i].index, &DS->TSD_EleBC[i].length);
-
-            DS->TSD_EleBC[i].TS = (realtype **) malloc ((DS->TSD_EleBC[i].length) * sizeof (realtype *));
-
-            for (j = 0; j < DS->TSD_EleBC[i].length; j++)
-                DS->TSD_EleBC[i].TS[j] = (realtype *) malloc (2 * sizeof (realtype));
-            for (j = 0; j < DS->TSD_EleBC[i].length; j++)
-            {
-                fscanf (ibc_file, "%d-%d-%d %d:%d %lf", &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour, &timeinfo->tm_min, &DS->TSD_EleBC[i].TS[j][1]);
-                timeinfo->tm_year = timeinfo->tm_year - 1900;
-                timeinfo->tm_mon = timeinfo->tm_mon - 1;
-                timeinfo->tm_sec = 0;
-                rawtime = timegm (timeinfo);
-                DS->TSD_EleBC[i].TS[j][0] = (realtype) rawtime;
-            }
-        }
-    }
     fclose (ibc_file);
 }
 
