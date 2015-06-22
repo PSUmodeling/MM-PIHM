@@ -946,6 +946,7 @@ void ReadPara (char *simulation, Model_Data DS, Control_Data CS)
     CS->PrintRech = 0;
     CS->PrintIS = 0;
     CS->PrintUnsat = 0;
+    CS->PrintSubFlx = 0;
     for (j = 0; j < 3; j++)
         CS->PrintET[j] = 0;
     for (j = 0; j < 10; j++)
@@ -1062,6 +1063,8 @@ void ReadPara (char *simulation, Model_Data DS, Control_Data CS)
                 sscanf (cmdstr, "%*s %d", &CS->PrintRivFlx[8]);
             else if (strcasecmp ("RIVFLX9", optstr) == 0)
                 sscanf (cmdstr, "%*s %d", &CS->PrintRivFlx[9]);
+            else if (strcasecmp ("SUBFLX", optstr) == 0)
+                sscanf (cmdstr, "%*s %d", &CS->PrintSubFlx);
             /* Unrecognized Parameter Flag */
             else
             {

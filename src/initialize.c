@@ -142,6 +142,20 @@ void initialize_output (char *filename, Model_Data DS, Control_Data  CS, char *o
             icounter++;
         }
     }
+    if (CS->PrintSubFlx > 0)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            sprintf (CS->PCtrl[icounter].name, "%s%s.subFlx%d", outputdir,
+               filename, j);
+            CS->PCtrl[icounter].Interval = CS->PrintSubFlx;
+            CS->PCtrl[icounter].NumVar = DS->NumEle;
+            CS->PCtrl[icounter].PrintVar = (realtype **) malloc (CS->PCtrl[icounter].NumVar * sizeof (realtype *));
+            for (i = 0; i < CS->PCtrl[icounter].NumVar; i++)
+                CS->PCtrl[icounter].PrintVar[i] = &(DS->FluxSub[i][j]);
+            icounter++;
+        }
+    }
 
     CS->NumPrint = icounter;
 

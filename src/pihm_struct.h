@@ -429,6 +429,7 @@ typedef struct control_data_structure
     int             PrintUnsat;
     int             PrintET[3];
     int             PrintRivFlx[11];
+    int             PrintSubFlx;
 
     Print_Ctrl      PCtrl[100]; /* YS */
 
