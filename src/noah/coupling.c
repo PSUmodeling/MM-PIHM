@@ -138,6 +138,8 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
         else
             NOAH->XLAI = monthly_lai (t, PIHM->Ele[i].LC);
 
+        NOAH->CMCMAX = PIHM->ISFactor[PIHM->Ele[i].LC - 1] * NOAH->XLAI;
+
         if (NOAH->Q1 == BADVAL)
             NOAH->Q1 = NOAH->Q2;
 
