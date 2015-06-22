@@ -480,7 +480,7 @@ void            SNOWZ0 (double *SNCOVR, double *Z0, double *Z0BRD, double *SNOWH
 void            SNOW_NEW (double *TEMP, double *NEWSN, double *SNOWH, double *SNDENS);
 
 #ifdef _FLUX_PIHM_
-void            SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA, int *NSOIL, double *PCPDRP, double *ZSOIL, double *DKSAT, double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA, double *MACKSAT, double *AREAF, int *NMACD, int *MAC_STATUS, double *INF, double *RUNOFF2, double *DT, double *SMCWLT, double *FRZX, double *SICE, double *AI, double *BI, double *CI);
+void            SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA, int *NSOIL, int *NWTBL, double *PCPDRP, double *ZSOIL, double *DKSAT, double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA, double *MACKSAT, double *AREAF, int *NMACD, int *MAC_STATUS, double *INF, double *RUNOFF2, double *DT, double *SMCWLT, double *FRZX, double *SICE, double *AI, double *BI, double *CI);
 #else
 void            SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA, int *NSOIL, double *PCPDRP, double *ZSOIL, double *DWSAT, double *DKSAT, double *SMCMAX, double *BEXP, double *RUNOFF1, double *RUNOFF2, double *DT, double *SMCWLT, double *SLOPE, double *KDT, double *FRZX, double *SICE, double *AI, double *BI, double *CI);
 #endif

@@ -2702,13 +2702,10 @@ SMFLX (double *SMC, int *NSOIL, double *CMC, double *DT, double *PRCP1,
     if (*NWTBL == 0)
     {
         for (I = 0; I < *NSOIL; I++)
-            SH2O[I] = *SMCMAX;
-    }
-    else if (*NWTBL == 1)
-    {
-        SH2O[0] =
-           SH2O[0] + (*INF - *RUNOFF2 - *EDIR - ET[0]) * *DT / (-ZSOIL[0]);
-        SH2O[0] = SH2O[0] > *SMCMAX ? *SMCMAX : SH2O[0];
+        {
+            SMC[I] = *SMCMAX;
+            SH2O[I] = SMC[I] - SICE[I];
+        }
     }
     else
     {
@@ -2727,10 +2724,10 @@ SMFLX (double *SMC, int *NSOIL, double *CMC, double *DT, double *PRCP1,
         //          SRT(RHSTT, EDIR, ET, SH2O, SH2O, NWTBL, PCPDRP, ZSOIL, DKSAT, SMCMAX, SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, INF, RUNOFF2, DT, SMCWLT, FRZFACT, SICE, AI, BI, CI);
         //          SSTEP (SH2O, SH2O, CMC, RHSTT, RHSCT, DT, NWTBL, SMCMAX, SMCMIN, CMCMAX, RUNOFF3, ZSOIL, SMC, SICE, AI, BI, CI);
         //      }
-        SRT (RHSTT, EDIR, ET, SH2O, SH2O, NWTBL, PCPDRP, ZSOIL, DKSAT, SMCMAX,
+        SRT (RHSTT, EDIR, ET, SH2O, SH2O, NSOIL, NWTBL, PCPDRP, ZSOIL, DKSAT, SMCMAX,
            SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, MAC_STATUS, INF, RUNOFF2, DT,
            SMCWLT, FRZFACT, SICE, AI, BI, CI);
-        SSTEP (SH2O, SH2O, CMC, RHSTT, RHSCT, DT, NWTBL, SMCMAX, SMCMIN,
+        SSTEP (SH2O, SH2O, CMC, RHSTT, RHSCT, DT, NSOIL, SMCMAX, SMCMIN,
            CMCMAX, RUNOFF3, ZSOIL, SMC, SICE, AI, BI, CI);
     }
 
@@ -3612,7 +3609,7 @@ void SNOW_NEW (double *TEMP, double *NEWSN, double *SNOWH, double *SNDENS)
 #ifdef _FLUX_PIHM_
 void
 SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
-   int *NSOIL, double *PCPDRP, double *ZSOIL, double *DKSAT, double *SMCMAX,
+   int *NSOIL, int *NWTBL, double *PCPDRP, double *ZSOIL, double *DKSAT, double *SMCMAX,
    double *SMCMIN, double *VGALPHA, double *VGBETA, double *MACKSAT,
    double *AREAF, int *NMACD, int *MAC_STATUS, double *INF, double *RUNOFF2, double *DT,
    double *SMCWLT, double *FRZX, double *SICE, double *AI, double *BI,
@@ -3651,7 +3648,6 @@ SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
     double         *WDF2;
 #ifdef _FLUX_PIHM_
     double         *DSMDZ, *DSMDZ2;
-    int             RFLAG;
     int             MACPORE[*NSOIL];
 #else
     double          DSMDZ, DSMDZ2;
@@ -3689,7 +3685,6 @@ SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
     {
         if (SICE[KS] > *SICEMAX)
             *SICEMAX = SICE[KS];
-
 /*----------------------------------------------------------------------
 * DETERMINE RAINFALL INFILTRATION RATE AND RUNOFF
 * --------------------------------------------------------------------*/
@@ -3699,35 +3694,36 @@ SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
     DSMDZ = (double *)malloc (sizeof (double));
     DSMDZ2 = (double *)malloc (sizeof (double));
 
+    PDDUM = *INF;
+
     for (K = 0; K < *NSOIL; K++)
         MACPORE[K] = 0;
     for (K = 0; K < *NMACD - 1; K++)
         MACPORE[K] = 1;
 
-/*----------------------------------------------------------------------
-* YS: IF LATERAL RUNOFF (RUNOFF2) IS NEGATIVE (GRID IS A SINK) AND THE
-* INTERFACE LAYER IS CLOSE TO SATURATION, LATERAL RUNOFF IS ADDED TO THE
-* LAYER ABOVE
-* --------------------------------------------------------------------*/
-    DENOM2 = ZSOIL[*NSOIL - 2] - ZSOIL[*NSOIL - 1];
-    if (*NSOIL == 2)
-        DENOM = -ZSOIL[*NSOIL - 1];
-    else
-        DENOM = ZSOIL[*NSOIL - 3] - ZSOIL[*NSOIL - 1];
+///*----------------------------------------------------------------------
+//* YS: IF LATERAL RUNOFF (RUNOFF2) IS NEGATIVE (GRID IS A SINK) AND THE
+//* INTERFACE LAYER IS CLOSE TO SATURATION, LATERAL RUNOFF IS ADDED TO THE
+//* LAYER ABOVE
+//* --------------------------------------------------------------------*/
+//    DENOM2 = ZSOIL[*NSOIL - 2] - ZSOIL[*NSOIL - 1];
+//    if (*NSOIL == 2)
+//        DENOM = -ZSOIL[*NSOIL - 1];
+//    else
+//        DENOM = ZSOIL[*NSOIL - 3] - ZSOIL[*NSOIL - 1];
+//
+//    *DSMDZ = (SH2O[*NSOIL - 2] - SH2O[*NSOIL - 1]) / (DENOM * 0.5);
+//
+//    WDFCND (WDF, WCND, SH2OA + *NSOIL - 2, SMCMAX, SMCMIN, VGALPHA, VGBETA,
+//       DKSAT, MACKSAT, AREAF, MAC_STATUS, SICEMAX, DSMDZ, MACPORE + *NSOIL - 2);
+//
+//    if (*RUNOFF2 < 0
+//       && (*SMCMAX - SH2O[*NSOIL - 1]) / *DT * DENOM2 <
+//       *WDF * *DSMDZ + *WCND - ET[*NSOIL - 1] - *RUNOFF2)
+//        RFLAG = 1;
+//    else
+//        RFLAG = 0;
 
-    *DSMDZ = (SH2O[*NSOIL - 2] - SH2O[*NSOIL - 1]) / (DENOM * 0.5);
-
-    WDFCND (WDF, WCND, SH2OA + *NSOIL - 2, SMCMAX, SMCMIN, VGALPHA, VGBETA,
-       DKSAT, MACKSAT, AREAF, MAC_STATUS, SICEMAX, DSMDZ, MACPORE + *NSOIL - 2);
-
-    if (*RUNOFF2 < 0
-       && (*SMCMAX - SH2O[*NSOIL - 1]) / *DT * DENOM2 <
-       *WDF * *DSMDZ + *WCND - ET[*NSOIL - 1] - *RUNOFF2)
-        RFLAG = 1;
-    else
-        RFLAG = 0;
-
-    PDDUM = *INF;
     MXSMC = SH2OA;
 
     *DSMDZ = (SH2O[0] - SH2O[1]) / (-0.5 * ZSOIL[1]);
@@ -3747,6 +3743,9 @@ SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
 * --------------------------------------------------------------------*/
     CI[0] = -BI[0];
     RHSTT[0] = (*WDF * *DSMDZ + *WCND - PDDUM + *EDIR + ET[0]) / ZSOIL[0];
+
+    if (*NWTBL == 1)
+        RHSTT[0] += *RUNOFF2 / ZSOIL[0];
 
 /*----------------------------------------------------------------------
 * INITIALIZE DDZ2
@@ -3814,16 +3813,8 @@ SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
         }
 
         NUMER = (*WDF2 * *DSMDZ2) + *WCND2 - (*WDF * *DSMDZ) - *WCND + ET[K];
-        if (K == *NSOIL - 1)
-        {
-            if (RFLAG == 0)
+        if (K == *NWTBL - 1)
                 NUMER = NUMER + *RUNOFF2;
-        }
-        else if (K == *NSOIL - 2)
-        {
-            if (RFLAG == 1)
-                NUMER = NUMER + *RUNOFF2;
-        }
 
 /*----------------------------------------------------------------------
 * CALC MATRIX COEFS, AI, AND BI FOR THIS LAYER
@@ -4087,6 +4078,7 @@ SSTEP (double *SH2OOUT, double *SH2OIN, double *CMC, double *RHSTT,
     int             K, KK11;
 
     double          RHSTTin[*NSOIL], CIin[*NSOIL];
+    double          SH2Omid[*NSOIL];
     double          DDZ, STOT, WPLUS;
 
 /*----------------------------------------------------------------------
@@ -4122,12 +4114,44 @@ SSTEP (double *SH2OOUT, double *SH2OIN, double *CMC, double *RHSTT,
     WPLUS = 0.0;
     *RUNOFF3 = 0.;
 
+    for (K = *NSOIL - 1; K >= 0; K--)
+    {
+        if (K != 0)
+            DDZ = ZSOIL[K - 1] - ZSOIL[K];
+        else
+            DDZ = -ZSOIL[0];
+
+        SH2Omid[K] = SH2OIN[K] + CI[K] + WPLUS / DDZ;
+        STOT = SH2Omid[K] + SICE[K];
+
+        if (STOT > *SMCMAX)
+        {
+            if (K == 0)
+                DDZ = -ZSOIL[0];
+            else
+            {
+                KK11 = K - 1;
+                DDZ = -ZSOIL[K] + ZSOIL[KK11];
+            }
+            WPLUS = (STOT - *SMCMAX) * DDZ;
+        }
+        else
+            WPLUS = 0.0;
+
+        if (STOT < *SMCMAX)
+            SMC[K] = STOT;
+        else
+            SMC[K] = *SMCMAX;
+
+        SH2Omid[K] = SMC[K] - SICE[K];
+    }
+
     DDZ = -ZSOIL[0];
     for (K = 0; K < *NSOIL; K++)
     {
         if (K != 0)
             DDZ = ZSOIL[K - 1] - ZSOIL[K];
-        SH2OOUT[K] = SH2OIN[K] + CI[K] + WPLUS / DDZ;
+        SH2OOUT[K] = SH2Omid[K] + WPLUS / DDZ;
         STOT = SH2OOUT[K] + SICE[K];
         if (STOT > *SMCMAX)
         {
