@@ -734,6 +734,10 @@ typedef struct
     double          deadwood_fucel; /* (DIM) dead wood unshileded cellulose fraction */
     double          deadwood_fscel; /* (DIM) dead wood shielded cellulose fraction */
     double          deadwood_flig;  /* (DIM) dead wood lignin fraction */
+
+    double          topt;
+    double          rgl;
+    double          hs;
 } epconst_struct;
 
 /* structure for the photosynthesis routine */

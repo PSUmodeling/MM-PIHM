@@ -753,6 +753,12 @@ void BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM)
         BGCM->grid[i].sitec.lon = LSM->LONGITUDE;
         BGCM->grid[i].sitec.sw_alb = 0.5 * (LSM->GRID[i].ALBEDOMIN + LSM->GRID[i].ALBEDOMAX);
         BGCM->grid[i].epv.annavg_t2m = LSM->GENPRMT.TBOT_DATA - 273.15;
+
+        BGCM->grid[i].epc.topt = LSM->GRID[i].TOPT;
+        BGCM->grid[i].epc.rgl = LSM->GRID[i].RGL;
+        BGCM->grid[i].epc.hs = LSM->GRID[i].HS;
+        BGCM->grid[i].epc.gl_smax = 1.0 / LSM->GRID[i].RSMIN;
+        BGCM->grid[i].epc.gl_c = 1.0 / LSM->GRID[i].RSMAX;
     }
 
     /* Read initial conditions */
