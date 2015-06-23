@@ -185,13 +185,13 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
                 else
                     solar = PIHM_forcing[PIHM->Ele[i].meteo - 1][hour][SOLAR_TS];
 
-                metarr->swavgfd[j] = metarr->swavgfd[j] + solar;
                 if (PIHM_forcing[PIHM->Ele[i].meteo - 1][hour][SOLAR_TS] > 0)
                 {
                     metarr->tday[j] = metarr->tday[j] + sfctmp;
                     RH = PIHM_forcing[PIHM->Ele[i].meteo - 1][hour][RH_TS] / 100.;
                     metarr->vpd[j] = metarr->vpd[j] + (1. - RH) * 611.2 * exp (17.67 * sfctmp / (sfctmp + 243.5));
                     metarr->pa[j] = metarr->pa[j] + PIHM_forcing[PIHM->Ele[i].meteo - 1][hour][PRES_TS];
+                    metarr->swavgfd[j] = metarr->swavgfd[j] + solar;
                     daylight_coutner++;
                 }
                 else
@@ -203,8 +203,8 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
             metarr->tnight[j] = metarr->tnight[j] / (24. - (double)daylight_coutner);
             metarr->vpd[j] = metarr->vpd[j] / (double)daylight_coutner;
             metarr->pa[j] = metarr->pa[j] / (double)daylight_coutner;
+            metarr->swavgfd[j] = metarr->swavgfd[j] / (double)daylight_coutner;
 
-            metarr->swavgfd[j] = metarr->swavgfd[j] / 24.;
             metarr->par[j] = metarr->swavgfd[j] * RAD2PAR;
 
 
