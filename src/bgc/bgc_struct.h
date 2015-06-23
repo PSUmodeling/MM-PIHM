@@ -65,9 +65,11 @@ typedef struct
     double         *tday;
     double         *tnight;
     double         *tsoil;
-    double        **swc;
+    double         *swc;
     double         *pa;
     double         *tavg_ra;    /* (deg C) 11-day running avg of daily avg temp */
+    double        **subflux;
+    double         *soilw;
 } metarr_struct;
 
 /* daily values that are passed to daily model subroutines */
@@ -80,7 +82,9 @@ typedef struct
     double          tday;       /* (deg C) daylight average air temperature */
     double          tnight;     /* (deg C) nightime average air temperature */
     double          tsoil;      /* (deg C) daily soil temperature, avg, top 10 cm */
-    double         *swc;
+    double          swc;
+    double          soilw;
+    double          subflux[3];
     double          vpd;        /* (Pa)    vapor pressure deficit */
     double          swavgfd;    /* (W/m2)  daylight average shortwave flux */
     double          swabs;      /* (W/m2)  canopy absorbed shortwave flux */

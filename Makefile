@@ -75,7 +75,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	noah/module_sf_noahlsm.c \
 	spa/spa.c \
 	noah/lsm_func.c \
-	bgc/BGC_func.c \
+	bgc/bgc_func.c \
 	bgc/presim_state_init.c \
 	bgc/make_zero_flux_struct.c \
 	bgc/restart_io.c \
@@ -174,4 +174,4 @@ clean:		## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ pihm flux-pihm pihm-bgc rt-flux-pihm
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ pihm flux-pihm flux-pihm-bgc rt-flux-pihm

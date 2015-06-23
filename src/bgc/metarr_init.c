@@ -21,12 +21,10 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
     int             daylight_coutner;
     spa_data        spa;
     int             spa_result;
-    time_t         *rawtime;
+    time_t          rawtime;
     struct tm      *timestamp;
     double          swc[PIHM->NumEle];
     double          stc[PIHM->NumEle];
-
-    rawtime = (time_t *) malloc (sizeof (time_t));
 
     printf ("Initialize meteorological forcing array for model spin-up ...\n");
 
@@ -56,8 +54,8 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
     {
         //printf ("DAY %d\n", j);
         t = start_time + j * 24. * 3600.;
-        *rawtime = (int)t;
-        timestamp = gmtime (rawtime);
+        rawtime = (int)t;
+        timestamp = gmtime (&rawtime);
         spa.year = timestamp->tm_year + 1900;
         spa.month = timestamp->tm_mon + 1;
         spa.day = timestamp->tm_mday;
@@ -91,8 +89,8 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
 
         if (j == 0)
         {
-            *rawtime = *rawtime - 24. * 3600.;
-            timestamp = gmtime (rawtime);
+            rawtime = rawtime - 24. * 3600.;
+            timestamp = gmtime (&rawtime);
             spa.year = timestamp->tm_year + 1900;
             spa.month = timestamp->tm_mon + 1;
             spa.day = timestamp->tm_mday;
@@ -110,8 +108,8 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
                 MultiInterpolation (&PIHM->TSD_meteo[k], t + hour * 3600., &PIHM_forcing[k][hour][0], 7);
             if (LSM->RAD_MODE > 0)
             {
-                *rawtime = (int) (t + hour * 3600.);
-                timestamp = gmtime (rawtime);
+                rawtime = (int) (t + hour * 3600.);
+                timestamp = gmtime (&rawtime);
                 spa.year = timestamp->tm_year + 1900;
                 spa.month = timestamp->tm_mon + 1;
                 spa.day = timestamp->tm_mday;
@@ -206,5 +204,4 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
         }
         //printf ("\n");
     }
-    free (rawtime);
 }

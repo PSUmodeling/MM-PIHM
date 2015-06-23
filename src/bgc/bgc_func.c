@@ -6,7 +6,7 @@
 
 #include "bgc.h"
 
-void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM)
+void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
 {
     int             i, j, k;
     double          t1, t2, t3, t4, r1;
@@ -19,10 +19,14 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM)
     FILE           *ndep_file;
     FILE           *SWC_file;
     FILE           *STC_file;
+    FILE           *SOILM_file;
+    FILE           *SUBFLX_file;
     char            co2_fn[100];
     char            ndep_fn[100];
     char            SWC_fn[100];
     char            STC_fn[100];
+    char            SOILM_fn[100];
+    char            SUBFLX_fn[100];
     int             ensemble_mode;
     char            cmdstr[MAXSTRING];
     char            optstr[MAXSTRING];
@@ -491,7 +495,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM)
 
     fclose (bgc_file);
 
-    BGCM->Forcing = (TSD **) malloc (4 * sizeof (TSD *));
+    BGCM->Forcing = (TSD **) malloc (6 * sizeof (TSD *));
 
     /* Read CO2 and Ndep files */
     if (co2->varco2 == 1)
@@ -568,34 +572,57 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM)
     /* Read soil moisture and soil temperature "forcing" */
     if (ctrl->spinup == 1)
     {
-        /* Read soil moisture forcing */
-        BGCM->Forcing[SWC_TS] = (TSD *) malloc ((LSM->STD_NSOIL + 1) * sizeof (TSD));
-        for (k = 0; k < LSM->STD_NSOIL + 1; k++)
+        /* Read root zone soil water content forcing */
+        BGCM->Forcing[SWC_TS] = (TSD *) malloc (sizeof (TSD));
+        sprintf (SWC_fn, "input/%s/%s.ROOTW", filename, filename);
+        SWC_file = fopen (SWC_fn, "rb");
+        if (SWC_file == NULL)
         {
-            sprintf (SWC_fn, "input/%s/%s.SW%d", filename, filename, k);
-            SWC_file = fopen (SWC_fn, "rb");
-            if (SWC_file == NULL)
-            {
-                printf ("\n  Fatal Error: soil water content file %s is in use or do not exist!\n", SWC_fn);
-                exit (1);
-            }
-            /* Check the length of forcing */
-            fseek (SWC_file, 0L, SEEK_END);
-            BGCM->Forcing[SWC_TS][k].length = (int)(ftell (SWC_file) / (PIHM->NumEle + 1) / 8); /* 8 is the size of double */
-            BGCM->Forcing[SWC_TS][k].TS = (double **)malloc (BGCM->Forcing[SWC_TS][k].length * sizeof (double *));
-            /* Read in forcing */
-            rewind (SWC_file);
-            for (j = 0; j < BGCM->Forcing[SWC_TS][k].length; j++)
-            {
-                BGCM->Forcing[SWC_TS][k].TS[j] = (double *)malloc ((PIHM->NumEle + 1) * sizeof (double));
-                fread (&BGCM->Forcing[SWC_TS][k].TS[j][0], sizeof (double), 1, SWC_file);
-                for (i = 0; i < PIHM->NumEle; i++)
-                {
-                    fread (&BGCM->Forcing[SWC_TS][k].TS[j][1 + i], sizeof (double), 1, SWC_file);
-                }
-            }
-            fclose (SWC_file);
+            printf ("\n  Fatal Error: soil water content file %s is in use or do not exist!\n", SWC_fn);
+            exit (1);
         }
+        /* Check the length of forcing */
+        fseek (SWC_file, 0L, SEEK_END);
+        BGCM->Forcing[SWC_TS][0].length = (int)(ftell (SWC_file) / (PIHM->NumEle + 1) / 8); /* 8 is the size of double */
+        BGCM->Forcing[SWC_TS][0].TS = (double **)malloc (BGCM->Forcing[SWC_TS][0].length * sizeof (double *));
+        /* Read in forcing */
+        rewind (SWC_file);
+        for (j = 0; j < BGCM->Forcing[SWC_TS][0].length; j++)
+        {
+            BGCM->Forcing[SWC_TS][0].TS[j] = (double *)malloc ((PIHM->NumEle + 1) * sizeof (double));
+            fread (&BGCM->Forcing[SWC_TS][0].TS[j][0], sizeof (double), 1, SWC_file);
+            for (i = 0; i < PIHM->NumEle; i++)
+            {
+                fread (&BGCM->Forcing[SWC_TS][0].TS[j][1 + i], sizeof (double), 1, SWC_file);
+            }
+        }
+        fclose (SWC_file);
+
+        /* Read total soil water storage forcing */
+        BGCM->Forcing[SOILM_TS] = (TSD *) malloc (sizeof (TSD));
+        sprintf (SOILM_fn, "input/%s/%s.SOILM", filename, filename);
+        SOILM_file = fopen (SOILM_fn, "rb");
+        if (SOILM_file == NULL)
+        {
+            printf ("\n  Fatal Error: soil water content file %s is in use or do not exist!\n", SWC_fn);
+            exit (1);
+        }
+        /* Check the length of forcing */
+        fseek (SOILM_file, 0L, SEEK_END);
+        BGCM->Forcing[SOILM_TS][0].length = (int)(ftell (SOILM_file) / (PIHM->NumEle + 1) / 8); /* 8 is the size of double */
+        BGCM->Forcing[SOILM_TS][0].TS = (double **)malloc (BGCM->Forcing[SOILM_TS][0].length * sizeof (double *));
+        /* Read in forcing */
+        rewind (SOILM_file);
+        for (j = 0; j < BGCM->Forcing[SOILM_TS][0].length; j++)
+        {
+            BGCM->Forcing[SOILM_TS][0].TS[j] = (double *)malloc ((PIHM->NumEle + 1) * sizeof (double));
+            fread (&BGCM->Forcing[SOILM_TS][0].TS[j][0], sizeof (double), 1, SOILM_file);
+            for (i = 0; i < PIHM->NumEle; i++)
+            {
+                fread (&BGCM->Forcing[SOILM_TS][0].TS[j][1 + i], sizeof (double), 1, SOILM_file);
+            }
+        }
+        fclose (SOILM_file);
 
         /* Read soil temperature forcing */
         BGCM->Forcing[STC_TS] = (TSD *) malloc (sizeof (TSD));
@@ -622,6 +649,37 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM)
             }
         }
         fclose (STC_file);
+
+        /* Read subsurface flux forcing */
+        BGCM->Forcing[SUBFLX_TS] = (TSD *) malloc (3 * sizeof (TSD));
+        for (k = 0; k < 3; k++)
+        {
+            sprintf (SUBFLX_fn, "input/%s/%s.subFlx%d", filename, filename, k);
+            SUBFLX_file = fopen (SUBFLX_fn, "rb");
+            if (SUBFLX_file == NULL)
+            {
+                printf ("\n  Fatal Error: subsurface flux file %s is in use or do not exist!\n", SUBFLX_fn);
+                exit (1);
+            }
+            /* Check the length of forcing */
+            fseek (SUBFLX_file, 0L, SEEK_END);
+            BGCM->Forcing[SUBFLX_TS][k].length = (int)(ftell (SUBFLX_file) / (PIHM->NumEle + 1) / 8); /* 8 is the size of double */
+            BGCM->Forcing[SUBFLX_TS][k].TS = (double **)malloc (BGCM->Forcing[SUBFLX_TS][k].length * sizeof (double *));
+            /* Read in forcing */
+            rewind (SUBFLX_file);
+            for (j = 0; j < BGCM->Forcing[SUBFLX_TS][k].length; j++)
+            {
+                BGCM->Forcing[SUBFLX_TS][k].TS[j] = (double *)malloc ((PIHM->NumEle + 1) * sizeof (double));
+                fread (&BGCM->Forcing[SUBFLX_TS][k].TS[j][0], sizeof (double), 1, SUBFLX_file);
+                for (i = 0; i < PIHM->NumEle; i++)
+                {
+                    fread (&BGCM->Forcing[SUBFLX_TS][k].TS[j][1 + i], sizeof (double), 1, SUBFLX_file);
+                    if (PIHM->Ele[i].BC[k] < 0)
+                        BGCM->Forcing[SUBFLX_TS][k].TS[j][1 + i] = 0.0;
+                }
+            }
+            fclose (SUBFLX_file);
+        }
     }
 
     free (projectname);

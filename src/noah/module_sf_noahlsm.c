@@ -792,31 +792,42 @@ void SFLX (GRID_TYPE * NOAH)
 #ifndef _FLUX_PIHM_
     *RUNOFF2 = *RUNOFF2 + *RUNOFF3;
 #endif
-    *SOILM = -1.0 * SMC[0] * ZSOIL[0];
+    /* Definitions of SOILM and SOILW have been changed in Flux-PIHM for
+     * coupling purpose */
+    *SOILM = -1.0 * SH2O[0] * ZSOIL[0];
     for (K = 1; K < *NSOIL; K++)
-        *SOILM = *SOILM + SMC[K] * (ZSOIL[K - 1] - ZSOIL[K]);
-    SOILWM = -1.0 * (*SMCMAX - *SMCWLT) * ZSOIL[0];
-    SOILWW = -1.0 * (SMC[0] - *SMCWLT) * ZSOIL[0];
+        *SOILM += SH2O[K] * (ZSOIL[K - 1] - ZSOIL[K]);
 
-    for (K = 0; K < *NSOIL; K++)
-        SMAV[K] = (SMC[K] - *SMCWLT) / (*SMCMAX - *SMCWLT);
+    *SOILW = -1.0 * SH2O[0] * ZSOIL[0];
+    for (K = 1; K < *NROOT; K++)
+        *SOILW += SH2O[K] * (ZSOIL[K - 1] - ZSOIL[K]);
+    *SOILW /= -ZSOIL[*NROOT - 1];
 
-    if (*NROOT > 0)
-    {
-        for (K = 1; K < *NROOT; K++)
-        {
-            SOILWM = SOILWM + (*SMCMAX - *SMCWLT) * (ZSOIL[K - 1] - ZSOIL[K]);
-            SOILWW = SOILWW + (SMC[K] - *SMCWLT) * (ZSOIL[K - 1] - ZSOIL[K]);
-        }
-    }
-    if (SOILWM < 1.e-6)
-    {
-        SOILWM = 0.0;
-        *SOILW = 0.0;
-        *SOILM = 0.0;
-    }
-    else
-        *SOILW = SOILWW / SOILWM;
+    //*SOILM = -1.0 * SMC[0] * ZSOIL[0];
+    //for (K = 1; K < *NSOIL; K++)
+    //    *SOILM = *SOILM + SMC[K] * (ZSOIL[K - 1] - ZSOIL[K]);
+    //SOILWM = -1.0 * (*SMCMAX - *SMCWLT) * ZSOIL[0];
+    //SOILWW = -1.0 * (SMC[0] - *SMCWLT) * ZSOIL[0];
+
+    //for (K = 0; K < *NSOIL; K++)
+    //    SMAV[K] = (SMC[K] - *SMCWLT) / (*SMCMAX - *SMCWLT);
+
+    //if (*NROOT > 0)
+    //{
+    //    for (K = 1; K < *NROOT; K++)
+    //    {
+    //        SOILWM = SOILWM + (*SMCMAX - *SMCWLT) * (ZSOIL[K - 1] - ZSOIL[K]);
+    //        SOILWW = SOILWW + (SMC[K] - *SMCWLT) * (ZSOIL[K - 1] - ZSOIL[K]);
+    //    }
+    //}
+    //if (SOILWM < 1.e-6)
+    //{
+    //    SOILWM = 0.0;
+    //    *SOILW = 0.0;
+    //    *SOILM = 0.0;
+    //}
+    //else
+    //    *SOILW = SOILWW / SOILWM;
 
     /*
      * #ifdef _DEBUG_

@@ -93,6 +93,8 @@ void LSM_read (char *filename, LSM_STRUCT LSM, Control_Data CS)
     LSM->PRINT_G = 0;
     LSM->PRINT_ETP = 0;
     LSM->PRINT_ESNOW = 0;
+    LSM->PRINT_ROOTW = 0;
+    LSM->PRINT_SOILM = 0;
 
     fgets (cmdstr, MAXSTRING, lsm_file);
 
@@ -132,6 +134,10 @@ void LSM_read (char *filename, LSM_STRUCT LSM, Control_Data CS)
                 sscanf (cmdstr, "%*s %d", &LSM->PRINT_ETP);
             else if (strcasecmp ("ESNOW", optstr) == 0)
                 sscanf (cmdstr, "%*s %d", &LSM->PRINT_ESNOW);
+            else if (strcasecmp ("ROOTW", optstr) == 0)
+                sscanf (cmdstr, "%*s %d", &LSM->PRINT_ROOTW);
+            else if (strcasecmp ("SOILM", optstr) == 0)
+                sscanf (cmdstr, "%*s %d", &LSM->PRINT_SOILM);
             /* Unrecognized Parameter Flag */
             else
             {
@@ -898,6 +904,30 @@ void LSM_initialize_output (char *filename, Model_Data PIHM, Control_Data CS, LS
            sizeof (double *));
         for (i = 0; i < LSM->PCtrl[icounter].NumVar; i++)
             LSM->PCtrl[icounter].PrintVar[i] = &(LSM->GRID[i].ESNOW);
+        icounter++;
+    }
+    if (LSM->PRINT_ROOTW > 0)
+    {
+        sprintf (LSM->PCtrl[icounter].name, "%s%s.ROOTW", outputdir, filename);
+        LSM->PCtrl[icounter].Interval = LSM->PRINT_ROOTW;
+        LSM->PCtrl[icounter].NumVar = PIHM->NumEle;
+        LSM->PCtrl[icounter].PrintVar =
+           (double **)malloc (LSM->PCtrl[icounter].NumVar *
+           sizeof (double *));
+        for (i = 0; i < LSM->PCtrl[icounter].NumVar; i++)
+            LSM->PCtrl[icounter].PrintVar[i] = &(LSM->GRID[i].SOILW);
+        icounter++;
+    }
+    if (LSM->PRINT_SOILM > 0)
+    {
+        sprintf (LSM->PCtrl[icounter].name, "%s%s.SOILM", outputdir, filename);
+        LSM->PCtrl[icounter].Interval = LSM->PRINT_SOILM;
+        LSM->PCtrl[icounter].NumVar = PIHM->NumEle;
+        LSM->PCtrl[icounter].PrintVar =
+           (double **)malloc (LSM->PCtrl[icounter].NumVar *
+           sizeof (double *));
+        for (i = 0; i < LSM->PCtrl[icounter].NumVar; i++)
+            LSM->PCtrl[icounter].PrintVar[i] = &(LSM->GRID[i].SOILM);
         icounter++;
     }
     LSM->NPRINT = icounter;

@@ -394,6 +394,8 @@ typedef struct LSM_STRUCT
     int             PRINT_G;
     int             PRINT_ETP;
     int             PRINT_ESNOW;
+    int             PRINT_ROOTW;
+    int             PRINT_SOILM;
 #endif
     double          LONGITUDE;
     double          LATITUDE;
