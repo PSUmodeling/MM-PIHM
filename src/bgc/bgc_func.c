@@ -759,6 +759,8 @@ void BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM)
         BGCM->grid[i].epc.hs = LSM->GRID[i].HS;
         BGCM->grid[i].epc.gl_smax = 1.0 / LSM->GRID[i].RSMIN;
         BGCM->grid[i].epc.gl_c = 1.0 / LSM->GRID[i].RSMAX;
+        BGCM->grid[i].epc.smcref = LSM->GRID[i].SMCREF;
+        BGCM->grid[i].epc.smcwlt = LSM->GRID[i].SMCWLT;
     }
 
     /* Read initial conditions */

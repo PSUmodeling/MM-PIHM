@@ -738,6 +738,8 @@ typedef struct
     double          topt;
     double          rgl;
     double          hs;
+    double          smcref;
+    double          smcwlt;
 } epconst_struct;
 
 /* structure for the photosynthesis routine */
