@@ -456,7 +456,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
                 sscanf (cmdstr, "%lf", &cinit.max_stemc);
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%lf", &cs.cwdc);
-                ns.cwdn = cs.cwdc / epc->deadwood_cn;
+                ns.cwdn = BADVAL;
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%lf", &cs.litr1c);
                 fgets (cmdstr, MAXSTRING, bgc_file);
@@ -465,21 +465,21 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
                 sscanf (cmdstr, "%lf", &cs.litr3c);
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%lf", &cs.litr4c);
-                ns.litr2n = cs.litr2c / epc->leaflitr_cn;
-                ns.litr3n = cs.litr3c / epc->leaflitr_cn;
-                ns.litr4n = cs.litr4c / epc->leaflitr_cn;
+                ns.litr2n = BADVAL;
+                ns.litr3n = BADVAL;
+                ns.litr4n = BADVAL;
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%lf", &cs.soil1c);
-                ns.soil1n = cs.soil1c / SOIL1_CN;
+                ns.soil1n = BADVAL;
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%lf", &cs.soil2c);
-                ns.soil2n = cs.soil2c / SOIL2_CN;
+                ns.soil2n = BADVAL;
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%lf", &cs.soil3c);
-                ns.soil3n = cs.soil3c / SOIL3_CN;
+                ns.soil3n = BADVAL;
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%lf", &cs.soil4c);
-                ns.soil4n = cs.soil4c / SOIL4_CN;
+                ns.soil4n = BADVAL;
                 fgets (cmdstr, MAXSTRING, bgc_file);
             }
             else if (strcasecmp ("N_STATE", optstr) == 0)
@@ -699,6 +699,15 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
             BGCM->grid[i].epc = BGCM->epclist.epc[EPC_ENF];
         else if (PIHM->Ele[i].LC == 5)
             BGCM->grid[i].epc = BGCM->epclist.epc[EPC_MIXED];
+
+        BGCM->grid[i].ns.cwdn = cs.cwdc / BGCM->grid[i].epc.deadwood_cn;
+        BGCM->grid[i].ns.litr2n = cs.litr2c / BGCM->grid[i].epc.leaflitr_cn;
+        BGCM->grid[i].ns.litr3n = cs.litr3c / BGCM->grid[i].epc.leaflitr_cn;
+        BGCM->grid[i].ns.litr4n = cs.litr4c / BGCM->grid[i].epc.leaflitr_cn;
+        BGCM->grid[i].ns.soil1n = cs.soil1c / SOIL1_CN;
+        BGCM->grid[i].ns.soil2n = cs.soil2c / SOIL2_CN;
+        BGCM->grid[i].ns.soil3n = cs.soil3c / SOIL3_CN;
+        BGCM->grid[i].ns.soil4n = cs.soil4c / SOIL4_CN;
 
         printf ("ELE %d, LC %d, woody %d, evergreen %d, transfer days %lf\n", i + 1, PIHM->Ele[i].LC, BGCM->grid[i].epc.woody, BGCM->grid[i].epc.evergreen, BGCM->grid[i].epc.transfer_days);
 
