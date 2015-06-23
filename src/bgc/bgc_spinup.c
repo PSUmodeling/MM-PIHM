@@ -13,6 +13,7 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
 {
     FILE           *soilc_file;
     FILE           *vegc_file;
+    FILE           *spinyr_file;
     FILE           *restart_file;
     char            restart_fn[100];
     int             i, j;   //k;
@@ -31,6 +32,7 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
     int             steady1[PIHM->NumEle], steady2[PIHM->NumEle], rising[PIHM->NumEle], metcycle = 0, spinyears = 0;
     double          tally1[PIHM->NumEle], tally1b[PIHM->NumEle], tally2[PIHM->NumEle], tally2b[PIHM->NumEle], t1;
     int             spinup_complete[PIHM->NumEle];
+    int             spinup_year[PIHM->NumEle];
     int             total_complete;
     double          naddfrac = 1.0;
 
@@ -163,7 +165,10 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
             if (steady1[i] && steady2[i])
             {
                 if (spinup_complete[i] == 0)
+                {
                     printf ("Ele %d spinup %d Avg daily soilc = %lf (%lf)\n", i, steady1[i] && steady2[i], tally1[i], BGCM->grid[i].summary.soilc);
+                    spinup_year[i] = spinyears;
+                }
                 spinup_complete[i] = 1;
             }
         }
@@ -188,6 +193,7 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
 
     soilc_file = fopen ("soilc.dat", "w");
     vegc_file = fopen("vegc.dat", "w");
+    spinyr_file = fopen ("spinyr.dat", "w");
     sprintf (restart_fn, "input/%s/%s.bgcinit", filename, filename);
     restart_file = fopen (restart_fn, "wb");
     for (i = 0; i < PIHM->NumEle; i++)
@@ -196,8 +202,10 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
 	fwrite(&(BGCM->grid[i].restart_output), sizeof(restart_data_struct), 1, restart_file);
         fprintf (soilc_file, "%lf\t", BGCM->grid[i].summary.soilc);
         fprintf (vegc_file, "%lf\t", BGCM->grid[i].summary.vegc);
+        fprintf (spinyr_file, "%d\t", spinup_year[i]);
     }
     fclose (soilc_file);
     fclose (vegc_file);
     fclose (restart_file);
+    fclose (spinyr_file);
 }
