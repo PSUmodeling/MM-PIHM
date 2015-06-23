@@ -89,7 +89,8 @@ realtype Interpolation (TSD *Data, realtype t)
     int             success;
     realtype        result;
 
-    i = Data->iCounter;
+    //i = Data->iCounter;
+    i = 0;
     success = 0;
 
     while (i < Data->length && t > Data->TS[i][0])
@@ -123,7 +124,8 @@ void MultiInterpolation (TSD *Data, realtype t, realtype *forcing, int num_forci
     int             success;
     int             j;
 
-    i = Data->iCounter;
+    //i = Data->iCounter;
+    i = 0;
     success = 0;
 
     while (i < Data->length && t > Data->TS[i][0])

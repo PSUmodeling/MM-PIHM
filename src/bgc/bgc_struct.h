@@ -68,7 +68,7 @@ typedef struct
     double         *swc;
     double         *pa;
     double         *tavg_ra;    /* (deg C) 11-day running avg of daily avg temp */
-    double        **subflux;
+    double         *subflux[3];
     double         *soilw;
 } metarr_struct;
 

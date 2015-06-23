@@ -25,6 +25,8 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
     struct tm      *timestamp;
     double          swc[PIHM->NumEle];
     double          stc[PIHM->NumEle];
+    double          soilw[PIHM->NumEle];
+    double          subflux[3][PIHM->NumEle];
 
     printf ("Initialize meteorological forcing array for model spin-up ...\n");
 
@@ -48,6 +50,11 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
         BGCM->grid[i].metarr.tsoil = (double *)malloc (length * sizeof (double));
         BGCM->grid[i].metarr.swc = (double *)malloc (length * sizeof (double));
         BGCM->grid[i].metarr.pa = (double *)malloc (length * sizeof (double));
+        BGCM->grid[i].metarr.soilw = (double *)malloc (length * sizeof (double));
+        for (j = 0; j < 3; j++)
+        {
+            BGCM->grid[i].metarr.subflux[j] = (double *)malloc (length * sizeof (double));
+        }
     }
 
     for (j = 0; j < length; j++)
@@ -138,6 +145,11 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
 
         MultiInterpolation (&BGCM->Forcing[SWC_TS][0], t + 24. * 3600., &swc[0], PIHM->NumEle);
         MultiInterpolation (&BGCM->Forcing[STC_TS][0], t + 24. * 3600., &stc[0], PIHM->NumEle);
+        MultiInterpolation (&BGCM->Forcing[SOILM_TS][0], t + 24. * 3600., &soilw[0], PIHM->NumEle);
+        for (k = 0; k < 3; k++)
+        {
+            MultiInterpolation (&BGCM->Forcing[SUBFLX_TS][k], t + 24. * 3600., &subflux[k][0], PIHM->NumEle);
+        }
 
         for (i = 0; i < PIHM->NumEle; i++)
         {
@@ -198,6 +210,11 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
 
             metarr->tsoil[j] = stc[i] - 273.15;
             metarr->swc[j] = swc[i];
+            metarr->soilw[j] = soilw[j] * 1000.0;
+            for (k = 0; k < 3; k++)
+            {
+                metarr->subflux[k][j] = subflux[k][j];
+            }
             //if (i==0) printf ("%lf %lf\t", metarr->tsoil[j], metarr->swc[j]);
             //metarr->tsoil[j] = Interpolation (&BGCM->Forcing[STC_TS][i], t) - 273.15;
             //metarr->swc[j] = Interpolation (&BGCM->Forcing[SWC_TS][i], t);
