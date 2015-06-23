@@ -22,6 +22,7 @@ void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
 
     /* daylight average vapor pressure deficit (Pa) */
     metv->vpd = metarr->vpd[metday];
+    metv->q2d = metarr->q2d[metday];
 
     /* daylight average shortwave flux density (W/m2) */
     metv->swavgfd = metarr->swavgfd[metday];

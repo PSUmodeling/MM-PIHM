@@ -27,6 +27,8 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
     double          stc[PIHM->NumEle];
     double          soilw[PIHM->NumEle];
     double          subflux[3][PIHM->NumEle];
+    double          e, es;
+    double          pres;
 
     printf ("Initialize meteorological forcing array for model spin-up ...\n");
 
@@ -40,6 +42,7 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
         BGCM->grid[i].metarr.tmin = (double *)malloc (length * sizeof (double));
         BGCM->grid[i].metarr.prcp = (double *)malloc (length * sizeof (double));
         BGCM->grid[i].metarr.vpd = (double *)malloc (length * sizeof (double));
+        BGCM->grid[i].metarr.q2d = (double *)malloc (length * sizeof (double));
         BGCM->grid[i].metarr.swavgfd = (double *)malloc (length * sizeof (double));
         BGCM->grid[i].metarr.par = (double *)malloc (length * sizeof (double));
         BGCM->grid[i].metarr.dayl = (double *)malloc (length * sizeof (double));
@@ -167,6 +170,7 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
             metarr->tday[j] = 0.;
             metarr->tnight[j] = 0.;
             metarr->vpd[j] = 0.;
+            metarr->q2d[j] = 0.;
             metarr->swavgfd[j] = 0.;
             metarr->par[j] = 0.;
             metarr->pa[j] = 0.;
@@ -190,6 +194,9 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
                     metarr->tday[j] = metarr->tday[j] + sfctmp;
                     RH = PIHM_forcing[PIHM->Ele[i].meteo - 1][hour][RH_TS] / 100.;
                     metarr->vpd[j] = metarr->vpd[j] + (1. - RH) * 611.2 * exp (17.67 * sfctmp / (sfctmp + 243.5));
+                    es = 611.2 * exp (17.67 * sfctmp / (sfctmp + 243.5));
+                    pres = PIHM_forcing[PIHM->Ele[i].meteo - 1][hour][PRES_TS];
+                    metarr->q2d[j] += (0.622 * es) / (pres - (1.0 - 0.622) * es) - (0.622 * e * RH) / (pres - (1.0 - 0.622) * es * RH);
                     metarr->pa[j] = metarr->pa[j] + PIHM_forcing[PIHM->Ele[i].meteo - 1][hour][PRES_TS];
                     metarr->swavgfd[j] = metarr->swavgfd[j] + solar;
                     daylight_coutner++;

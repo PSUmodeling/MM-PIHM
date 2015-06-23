@@ -57,6 +57,7 @@ typedef struct
     double         *tmin;       /* (deg C) daily minimum air temperature */
     double         *prcp;       /* (cm)    precipitation */
     double         *vpd;        /* (Pa)    vapor pressure deficit */
+    double         *q2d;        /* (m3/m3) mixing ratio deficit */
     double         *swavgfd;    /* (W/m2)  daylight avg shortwave flux density */
     double         *par;        /* (W/m2)  photosynthetically active radiation */
     double         *dayl;       /* (s)     daylength */
@@ -86,6 +87,7 @@ typedef struct
     double          soilw;
     double          subflux[3];
     double          vpd;        /* (Pa)    vapor pressure deficit */
+    double          q2d;        /* (m3/m3) mixing ratio deficit */
     double          swavgfd;    /* (W/m2)  daylight average shortwave flux */
     double          swabs;      /* (W/m2)  canopy absorbed shortwave flux */
     double          swtrans;    /* (W/m2)  transmitted shortwave flux */
