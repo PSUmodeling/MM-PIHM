@@ -34,7 +34,7 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
     int             spinup_complete[PIHM->NumEle];
     int             spinup_year[PIHM->NumEle];
     int             total_complete;
-    double          naddfrac = 1.0;
+    double          naddfrac[PIHM->NumEle];
 
     rawtime = (time_t *) malloc (sizeof (time_t));
     timestamp = (struct tm *)malloc (sizeof (struct tm));
@@ -98,23 +98,23 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
 
 
             //printf ("%lf %lf\n", spinup_starttime, spinup_endtime);
-            for (i = 0; i < PIHM->NumEle; i++)
-                //for (i = 0; i < 10; i++)
+            //for (i = 0; i < PIHM->NumEle; i++)
+            for (i = 0; i < 1; i++)
             {
+                naddfrac[i] = 1.0;
+
                 if (!steady1[i] && rising[i] && metcycle == 0)
-                    naddfrac = 1. - ((double)j / (double)metyears / 365.);
+                    naddfrac[i] = 1. - ((double)j / (double)metyears / 365.);
                 else
-                    naddfrac = 0.;
+                    naddfrac[i] = 0.;
 
-
-                //printf ("metday = %d ELE %d\n", j + 1, i + 1);
                 daymet (&BGCM->grid[i].metarr, &BGCM->grid[i].metv, j);
-                //printf ("prcp %lf tnight %lf tmax %lf tmin %lf tavg %lf tday %lf tsoil %lf swc %lf vpd %lf swavgfd %lf par %lf dayl %lf prev_dayl %lf pa %lf\n", BGCM->grid[i].metv.prcp, BGCM->grid[i].metv.tnight, BGCM->grid[i].metv.tmax, BGCM->grid[i].metv.tmin, BGCM->grid[i].metv.tavg, BGCM->grid[i].metv.tday, BGCM->grid[i].metv.tsoil, BGCM->grid[i].metv.swc, BGCM->grid[i].metv.vpd, BGCM->grid[i].metv.swavgfd, BGCM->grid[i].metv.par, BGCM->grid[i].metv.dayl, BGCM->grid[i].metv.prev_dayl, BGCM->grid[i].metv.pa);
-                //printf ("tnight = %lf in main \n", BGCM->grid[0].metarr.tnight[1]);
-                daily_bgc (BGCM, &BGCM->grid[i], t, naddfrac, first_balance);
-                //printf ("leafc = %lf\n", BGCM->grid[i].cs.leafc);
-                //printf ("tnight = %lf in main \n", BGCM->grid[0].metarr.tnight[1]);
+            }
 
+            daily_bgc (BGCM, PIHM->NumEle, t, naddfrac, first_balance);
+
+            for (i = 0; i < PIHM->NumEle; i++)
+            {
                 if (metcycle == 1)
                 {
                     tally1[i] += BGCM->grid[i].summary.soilc;

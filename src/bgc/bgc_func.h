@@ -16,7 +16,7 @@ void            firstday (const epconst_struct * epc, const cinit_struct * cinit
 void            zero_srcsnk (cstate_struct * cs, nstate_struct * ns, wstate_struct * ws, summary_struct * summary);
 void            precision_control (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns);
 
-void            daily_bgc (bgc_struct BGCM, bgc_grid * grid, const double t, const double naddfrac, int first_balance);
+void            daily_bgc (bgc_struct BGCM, int num_ele, const double t, const double *naddfrac, int first_balance);
 void            radtrans (const cstate_struct * cs, const epconst_struct * epc, metvar_struct * metv, epvar_struct * epv, double albedo);
 void            maint_resp (const cstate_struct * cs, const nstate_struct * ns, const epconst_struct * epc, const metvar_struct * metv, cflux_struct * cf, epvar_struct * epv);
 void            phenology (const epconst_struct * epc, const metvar_struct * metv, phenology_struct * phen, epvar_struct * epv, cstate_struct * cs, cflux_struct * cf, nstate_struct * ns, nflux_struct * nf);

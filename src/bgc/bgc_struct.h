@@ -684,6 +684,8 @@ typedef struct
     double          sw_alb;     /* (DIM) surface shortwave albedo */
     //    double          ndep;       /* (kgN/m2/yr) wet+dry atmospheric deposition of N */
     //    double          nfix;       /* (kgN/m2/yr) symbiotic+asymbiotic fixation of N */
+    double          area;
+    int             nabr[3];
 } siteconst_struct;
 
 /* canopy ecophysiological constants */

@@ -119,6 +119,7 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
         ES = E0 * exp (ELWV / RV * (1.0 / A3 - 1.0 / NOAH->SFCTMP));
         NOAH->Q2SAT = EPSILON * ES / (NOAH->SFCPRS - (1.0 - EPSILON) * ES);
 
+        if (i == 0) printf ("Q2 = %lf, Q2STA = %lf\n", NOAH->Q2, NOAH->Q2SAT);
         NOAH->DQSDT2 = NOAH->Q2SAT * A23M4 / pow (NOAH->SFCTMP - A4, 2);
 
         if (NOAH->USEMONALB)

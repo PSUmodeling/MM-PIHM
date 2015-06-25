@@ -18,7 +18,7 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
     double          t;
     int             i, j, k;
     int             length;
-    int             daylight_coutner;
+    int             daylight_counter;
     spa_data        spa;
     int             spa_result;
     time_t          rawtime;
@@ -175,7 +175,7 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
             metarr->par[j] = 0.;
             metarr->pa[j] = 0.;
             RH = 0.;
-            daylight_coutner = 0;
+            daylight_counter = 0;
 
             for (hour = 0; hour < 24; hour++)
             {
@@ -199,18 +199,19 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
                     metarr->q2d[j] += (0.622 * es) / (pres - (1.0 - 0.622) * es) - (0.622 * e * RH) / (pres - (1.0 - 0.622) * es * RH);
                     metarr->pa[j] = metarr->pa[j] + PIHM_forcing[PIHM->Ele[i].meteo - 1][hour][PRES_TS];
                     metarr->swavgfd[j] = metarr->swavgfd[j] + solar;
-                    daylight_coutner++;
+                    daylight_counter++;
                 }
                 else
                     metarr->tnight[j] = metarr->tnight[j] + sfctmp;
             }
 
             metarr->tavg[j] = metarr->tavg[j] / 24.;
-            metarr->tday[j] = metarr->tday[j] / (double)daylight_coutner;
-            metarr->tnight[j] = metarr->tnight[j] / (24. - (double)daylight_coutner);
-            metarr->vpd[j] = metarr->vpd[j] / (double)daylight_coutner;
-            metarr->pa[j] = metarr->pa[j] / (double)daylight_coutner;
-            metarr->swavgfd[j] = metarr->swavgfd[j] / (double)daylight_coutner;
+            metarr->tday[j] = metarr->tday[j] / (double)daylight_counter;
+            metarr->tnight[j] = metarr->tnight[j] / (24. - (double)daylight_counter);
+            metarr->vpd[j] = metarr->vpd[j] / (double)daylight_counter;
+            metarr->q2d[j] = metarr->q2d[j] / (double) daylight_counter;
+            metarr->pa[j] = metarr->pa[j] / (double)daylight_counter;
+            metarr->swavgfd[j] = metarr->swavgfd[j] / (double)daylight_counter;
 
             metarr->par[j] = metarr->swavgfd[j] * RAD2PAR;
 
@@ -220,7 +221,8 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
             metarr->soilw[j] = soilw[j] * 1000.0;
             for (k = 0; k < 3; k++)
             {
-                metarr->subflux[k][j] = subflux[k][j];
+                /* Convert from m3/s to kg/m2/d */
+                metarr->subflux[k][j] = 1000.0 * subflux[k][j] * 24.0 * 3600.0 / PIHM->Ele[i].area;
             }
             //if (i==0) printf ("%lf %lf\t", metarr->tsoil[j], metarr->swc[j]);
             //metarr->tsoil[j] = Interpolation (&BGCM->Forcing[STC_TS][i], t) - 273.15;

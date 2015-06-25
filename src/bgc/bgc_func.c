@@ -738,7 +738,7 @@ void BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM)
 {
     char            fn[100];
     FILE           *init_file;
-    int             i;
+    int             i, j;
 
     printf ("BGC: Initializing BGC structures\n");
 
@@ -752,6 +752,10 @@ void BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM)
         BGCM->grid[i].sitec.lat = LSM->LATITUDE;
         BGCM->grid[i].sitec.lon = LSM->LONGITUDE;
         BGCM->grid[i].sitec.sw_alb = 0.5 * (LSM->GRID[i].ALBEDOMIN + LSM->GRID[i].ALBEDOMAX);
+        BGCM->grid[i].sitec.area = PIHM->Ele[i].area;
+        for (j = 0; j < 3; j++)
+            BGCM->grid[i].sitec.nabr[j] = PIHM->Ele[i].nabr;
+
         BGCM->grid[i].epv.annavg_t2m = LSM->GENPRMT.TBOT_DATA - 273.15;
 
         BGCM->grid[i].epc.topt = LSM->GRID[i].TOPT;
