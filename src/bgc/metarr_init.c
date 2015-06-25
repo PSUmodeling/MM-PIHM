@@ -26,7 +26,7 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
     double          swc[PIHM->NumEle];
     double          stc[PIHM->NumEle];
     double          soilw[PIHM->NumEle];
-    double          subflux[3][PIHM->NumEle];
+    double         *fluxsub[3];
     double          e, es;
     double          pres;
 
@@ -34,7 +34,10 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
 
     length = (int)((end_time - start_time) / 24. / 3600.);
 
-    //printf ("length = %d\n", length);
+    for (k = 0; k < 3; k++)
+    {
+        fluxsub[k] = (double *) malloc (PIHM->NumEle * sizeof (double));
+    }
 
     for (i = 0; i < PIHM->NumEle; i++)
     {
@@ -151,7 +154,7 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
         MultiInterpolation (&BGCM->Forcing[SOILM_TS][0], t + 24. * 3600., &soilw[0], PIHM->NumEle);
         for (k = 0; k < 3; k++)
         {
-            MultiInterpolation (&BGCM->Forcing[SUBFLX_TS][k], t + 24. * 3600., &subflux[k][0], PIHM->NumEle);
+            MultiInterpolation (&BGCM->Forcing[SUBFLX_TS][k], t + 24. * 3600., &fluxsub[k][0], PIHM->NumEle);
         }
 
         for (i = 0; i < PIHM->NumEle; i++)
@@ -218,11 +221,14 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
 
             metarr->tsoil[j] = stc[i] - 273.15;
             metarr->swc[j] = swc[i];
-            metarr->soilw[j] = soilw[j] * 1000.0;
+            metarr->soilw[j] = soilw[i] * 1000.0;
             for (k = 0; k < 3; k++)
             {
                 /* Convert from m3/s to kg/m2/d */
-                metarr->subflux[k][j] = 1000.0 * subflux[k][j] * 24.0 * 3600.0 / PIHM->Ele[i].area;
+                if (PIHM->Ele[i].BC[k] < 0.0 && fluxsub[k][i] < 0.0)
+                    metarr->subflux[k][j] = 0.0;
+                else
+                    metarr->subflux[k][j] = 1000.0 * fluxsub[k][i] * 24.0 * 3600.0 / PIHM->Ele[i].area;
             }
             //if (i==0) printf ("%lf %lf\t", metarr->tsoil[j], metarr->swc[j]);
             //metarr->tsoil[j] = Interpolation (&BGCM->Forcing[STC_TS][i], t) - 273.15;

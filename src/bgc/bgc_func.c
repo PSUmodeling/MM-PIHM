@@ -754,7 +754,7 @@ void BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM)
         BGCM->grid[i].sitec.sw_alb = 0.5 * (LSM->GRID[i].ALBEDOMIN + LSM->GRID[i].ALBEDOMAX);
         BGCM->grid[i].sitec.area = PIHM->Ele[i].area;
         for (j = 0; j < 3; j++)
-            BGCM->grid[i].sitec.nabr[j] = PIHM->Ele[i].nabr;
+            BGCM->grid[i].sitec.nabr[j] = PIHM->Ele[i].nabr[j];
 
         BGCM->grid[i].epv.annavg_t2m = LSM->GENPRMT.TBOT_DATA - 273.15;
 

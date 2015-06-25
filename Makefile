@@ -101,7 +101,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/check_balance.c \
 	bgc/summary.c \
 	bgc/metarr_init.c \
-	bgc/bgc_spinup.c
+	bgc/bgc_spinup.c \
+	bgc/nleaching.c
   MODULE_HEADERS_ = noah/noah.h \
 	spa/spa.h \
 	bgc/bgc.h 

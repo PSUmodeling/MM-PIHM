@@ -15,6 +15,7 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
     FILE           *vegc_file;
     FILE           *spinyr_file;
     FILE           *restart_file;
+    FILE           *sminn_file;
     char            restart_fn[100];
     int             i, j;   //k;
     struct tm      *timestamp;
@@ -96,10 +97,11 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
             t = spinup_starttime + j * 24. * 3600.;
             *rawtime = t;
 
+            //printf ("Day %d\n", j);
 
             //printf ("%lf %lf\n", spinup_starttime, spinup_endtime);
             //for (i = 0; i < PIHM->NumEle; i++)
-            for (i = 0; i < 1; i++)
+            for (i = 0; i < PIHM->NumEle; i++)
             {
                 naddfrac[i] = 1.0;
 
@@ -109,6 +111,8 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
                     naddfrac[i] = 0.;
 
                 daymet (&BGCM->grid[i].metarr, &BGCM->grid[i].metv, j);
+                BGCM->grid[i].ws.soilw = BGCM->grid[i].metv.soilw;
+                BGCM->grid[i].epv.vwc = BGCM->grid[i].metv.swc;
             }
 
             daily_bgc (BGCM, PIHM->NumEle, t, naddfrac, first_balance);
@@ -194,6 +198,7 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
     soilc_file = fopen ("soilc.dat", "w");
     vegc_file = fopen("vegc.dat", "w");
     spinyr_file = fopen ("spinyr.dat", "w");
+    sminn_file = fopen ("sminn.dat", "w");
     sprintf (restart_fn, "input/%s/%s.bgcinit", filename, filename);
     restart_file = fopen (restart_fn, "wb");
     for (i = 0; i < PIHM->NumEle; i++)
@@ -203,7 +208,9 @@ void bgc_spinup (char *filename, bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LS
         fprintf (soilc_file, "%lf\t", BGCM->grid[i].summary.soilc);
         fprintf (vegc_file, "%lf\t", BGCM->grid[i].summary.vegc);
         fprintf (spinyr_file, "%d\t", spinup_year[i]);
+        fprintf (sminn_file, "%lf\t", BGCM->grid[i].ns.sminn);
     }
+    fclose (sminn_file);
     fclose (soilc_file);
     fclose (vegc_file);
     fclose (restart_file);

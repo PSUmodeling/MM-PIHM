@@ -2,6 +2,7 @@
 
 void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
 {
+    int k;
     /* convert prcp from cm --> kg/m2 */
     metv->prcp = metarr->prcp[metday];
 
@@ -19,6 +20,7 @@ void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
 
     metv->tsoil = metarr->tsoil[metday];
     metv->swc = metarr->swc[metday];
+    metv->soilw = metarr->soilw[metday];
 
     /* daylight average vapor pressure deficit (Pa) */
     metv->vpd = metarr->vpd[metday];
@@ -35,6 +37,9 @@ void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
     metv->prev_dayl = metarr->prev_dayl[metday];
 
     metv->pa = metarr->pa[metday];
+
+    for (k = 0; k < 3; k++)
+        metv->subflux[k] = metarr->subflux[k][metday];
 
     //printf ("prcp %lf tmax %lf tmin %lf tavg %lf tday %lf tnight %lf tsoil %lf swc %lf vpd %lf swavgfd %lf par %lf dayl %lf prev_dayl %lf pa %lf\n", metv->prcp, metv->tmax, metv->tmin, metv->tavg, metv->tday, metv->tnight, metv->tsoil, metv->swc, metv->vpd, metv->swavgfd, metv->par, metv->dayl, metv->prev_dayl, metv->pa);
 }
