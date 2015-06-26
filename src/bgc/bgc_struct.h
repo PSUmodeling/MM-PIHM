@@ -22,6 +22,19 @@ typedef struct
     int             onscreen;   /* (flag) 1=show progress on-screen 0=don't */
     int             spinupstart;    /* first met year for spinup */
     int             spinupend;  /* last met year for spinup */
+
+    int             print_lai;
+    int             print_vegc;
+    int             print_litrc;
+    int             print_soilc;
+    int             print_totalc;
+    int             print_npp;
+    int             print_nep;
+    int             print_nee;
+    int             print_gpp;
+
+    Print_Ctrl      PCtrl[100];
+    int             nprint;
 } control_struct;
 
 

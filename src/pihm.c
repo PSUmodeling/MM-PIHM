@@ -395,6 +395,9 @@ void pihm (char *project, int verbose, int debug, char *output_dir, int first_cy
 #ifdef _FLUX_PIHM_
         LSM_initialize_output (filename, mData, cData, LSM, output_dir);
 #endif
+#ifdef _BGC_
+        bgc_initialize_output (filename, mData, cData, BGCM, output_dir);
+#endif
     }
 
 #ifdef _BGC_
@@ -456,8 +459,9 @@ void pihm (char *project, int verbose, int debug, char *output_dir, int first_cy
                     PIHM2Noah (t, cData->ETStep, mData, LSM);
                     Noah2PIHM (mData, LSM);
 
+#ifdef _BGC_
                     BgcCoupling ((int) t, (int) cData->StartTime, mData, LSM, BGCM);
-
+#endif
                     for (j = 0; j < mData->NumEle; j++)
                     {
                         mData->avg_inf[j] = 0.0; 
@@ -505,19 +509,22 @@ void pihm (char *project, int verbose, int debug, char *output_dir, int first_cy
 #endif
                 update (t, mData);
             }
-#ifdef _BGC_
-        }
-#endif
-        /* Print outputs */
-        for (j = 0; j < cData->NumPrint; j++)
-            PrintData (cData->PCtrl[j], t, StepSize, cData->Ascii);
+
+            /* Print outputs */
+            for (j = 0; j < cData->NumPrint; j++)
+                PrintData (cData->PCtrl[j], t, StepSize, cData->Ascii);
 #ifdef _FLUX_PIHM_
-        for (j = 0; j < LSM->NPRINT; j++)
-            PrintData (LSM->PCtrl[j], t, StepSize, cData->Ascii);
+            for (j = 0; j < LSM->NPRINT; j++)
+                PrintData (LSM->PCtrl[j], t, StepSize, cData->Ascii);
+#endif
+#ifdef _BGC_
 #endif
 #ifdef _RT_
-        /* PIHM-rt output routine */
-        PrintChem(filename, chData,t/60);
+            /* PIHM-rt output routine */
+            PrintChem(filename, chData,t/60);
+#endif
+#ifdef _BGC_
+        }
 #endif
     }
 

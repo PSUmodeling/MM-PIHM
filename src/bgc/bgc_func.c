@@ -480,13 +480,32 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%lf", &cs.soil4c);
                 ns.soil4n = BADVAL;
-                fgets (cmdstr, MAXSTRING, bgc_file);
             }
             else if (strcasecmp ("N_STATE", optstr) == 0)
             {
+                fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%lf", &ns.litr1n);
                 fgets (cmdstr, MAXSTRING, bgc_file);
                 sscanf (cmdstr, "%lf", &ns.sminn);
+            }
+            else if (strcasecmp ("DAILY_OUTPUT", optstr) == 0)
+            {
+                fgets (cmdstr, MAXSTRING, bgc_file);
+                sscanf (cmdstr, "%*s %d", &ctrl->print_lai);
+                fgets (cmdstr, MAXSTRING, bgc_file);
+                sscanf (cmdstr, "%*s %d", &ctrl->print_vegc);
+                fgets (cmdstr, MAXSTRING, bgc_file);
+                sscanf (cmdstr, "%*s %d", &ctrl->print_litrc);
+                fgets (cmdstr, MAXSTRING, bgc_file);
+                sscanf (cmdstr, "%*s %d", &ctrl->print_soilc);
+                fgets (cmdstr, MAXSTRING, bgc_file);
+                sscanf (cmdstr, "%*s %d", &ctrl->print_totalc);
+                fgets (cmdstr, MAXSTRING, bgc_file);
+                sscanf (cmdstr, "%*s %d", &ctrl->print_npp);
+                fgets (cmdstr, MAXSTRING, bgc_file);
+                sscanf (cmdstr, "%*s %d", &ctrl->print_nee);
+                fgets (cmdstr, MAXSTRING, bgc_file);
+                sscanf (cmdstr, "%*s %d", &ctrl->print_gpp);
             }
             fgets (cmdstr, MAXSTRING, bgc_file);
         }
@@ -518,6 +537,8 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
         }
         //printf ("Number of lines = %d", BGCM->Forcing[CO2_TS][0].length);
         BGCM->Forcing[CO2_TS][0].TS = (double **)malloc ((BGCM->Forcing[CO2_TS][0].length) * sizeof (double *));
+
+        rewind (co2_file);
         for (i = 0; i < BGCM->Forcing[CO2_TS][0].length; i++)
         {
             BGCM->Forcing[CO2_TS][0].TS[i] = (double *)malloc (2 * sizeof (double));
@@ -553,6 +574,7 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
             fgets (cmdstr, MAXSTRING, ndep_file);
         }
         //printf ("Number of lines = %d\n", BGCM->Forcing[NDEP_TS][0].length);
+        rewind (ndep_file);
         BGCM->Forcing[NDEP_TS][0].TS = (double **)malloc ((BGCM->Forcing[NDEP_TS][0].length) * sizeof (double *));
         for (i = 0; i < BGCM->Forcing[NDEP_TS][0].length; i++)
         {
@@ -811,7 +833,7 @@ void BgcCoupling (int t, int start_time, Model_Data pihm, LSM_STRUCT noah, bgc_s
     struct tm      *timestamp;
     double          sfctmp;
     double          solar;
-    int             i, k;
+    int             i, j, k;
     double          dummy[pihm->NumEle];
     metvar_struct  *metv;
     static int      first_balance;
@@ -946,6 +968,21 @@ void BgcCoupling (int t, int start_time, Model_Data pihm, LSM_STRUCT noah, bgc_s
             metv->swavgfd /= (double) daylight_counter[i];
             metv->par /= (double) daylight_counter[i];
             metv->tnight /= (double) (counter[i] - daylight_counter[i]);
+        }
+
+        daily_bgc (bgc, pihm->NumEle, t, dummy, first_balance);
+        first_balance = 0;
+
+        for (j = 0; j < bgc->ctrl.nprint; j++)
+            PrintData (bgc->ctrl.PCtrl[j], t, 86400, 1);
+
+        
+        for (i = 0; i < pihm->NumEle; i++)
+        {
+            noah->GRID[i].XLAI = bgc->grid[i].epv.proj_lai;
+            noah->GRID[i].CMCMAX = pihm->ISFactor[pihm->Ele[i].LC - 1] * noah->GRID[i].XLAI;
+
+            metv = &(bgc->grid[i].metv);
 
             counter[i] = 0;
             daylight_counter[i] = 0;
@@ -965,14 +1002,137 @@ void BgcCoupling (int t, int start_time, Model_Data pihm, LSM_STRUCT noah, bgc_s
             metv->par = 0.0;
             metv->tnight = 0.0;
         }
+    }
+}
 
-        daily_bgc (bgc, pihm->NumEle, t, dummy, first_balance);
-        first_balance = 0;
-        
-        for (i = 0; i < pihm->NumEle; i++)
-        {
-            noah->GRID[i].XLAI = bgc->grid[i].epv.proj_lai;
-            noah->GRID[i].CMCMAX = pihm->ISFactor[pihm->Ele[i].LC - 1] * noah->GRID[i].XLAI;
-        }
+void bgc_initialize_output (char *filename, Model_Data PIHM, Control_Data CS, bgc_struct bgc, char *outputdir)
+{
+    FILE           *Ofile;
+    char           *ascii_name;
+    int             i, j, ensemble_mode, icounter;
+
+    if (strstr (filename, ".") != 0)
+        ensemble_mode = 1;
+    else
+        ensemble_mode = 0;
+
+    if (CS->Verbose)
+        printf ("\nInitializing LSM output files ...\n");
+
+    icounter = 0;
+    if (bgc->ctrl.print_lai > 0)
+    {
+        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.lai", outputdir, filename);
+        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_lai;
+        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
+        bgc->ctrl.PCtrl[icounter].PrintVar =
+           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
+           sizeof (double *));
+        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
+            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].epv.proj_lai);
+        icounter++;
+    }
+    if (bgc->ctrl.print_vegc > 0)
+    {
+        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.vegc", outputdir, filename);
+        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_vegc;
+        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
+        bgc->ctrl.PCtrl[icounter].PrintVar =
+           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
+           sizeof (double *));
+        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
+            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.vegc);
+        icounter++;
+    }
+    if (bgc->ctrl.print_litrc > 0)
+    {
+        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.litrc", outputdir, filename);
+        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_litrc;
+        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
+        bgc->ctrl.PCtrl[icounter].PrintVar =
+           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
+           sizeof (double *));
+        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
+            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.litrc);
+        icounter++;
+    }
+    if (bgc->ctrl.print_soilc > 0)
+    {
+        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.soilc", outputdir, filename);
+        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_soilc;
+        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
+        bgc->ctrl.PCtrl[icounter].PrintVar =
+           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
+           sizeof (double *));
+        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
+            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.soilc);
+        icounter++;
+    }
+    if (bgc->ctrl.print_totalc > 0)
+    {
+        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.totalc", outputdir, filename);
+        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_totalc;
+        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
+        bgc->ctrl.PCtrl[icounter].PrintVar =
+           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
+           sizeof (double *));
+        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
+            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.totalc);
+        icounter++;
+    }
+    if (bgc->ctrl.print_npp > 0)
+    {
+        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.npp", outputdir, filename);
+        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_npp;
+        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
+        bgc->ctrl.PCtrl[icounter].PrintVar =
+           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
+           sizeof (double *));
+        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
+            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.daily_npp);
+        icounter++;
+    }
+    if (bgc->ctrl.print_nee > 0)
+    {
+        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.nee", outputdir, filename);
+        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_nee;
+        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
+        bgc->ctrl.PCtrl[icounter].PrintVar =
+           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
+           sizeof (double *));
+        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
+            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.daily_nee);
+        icounter++;
+    }
+    if (bgc->ctrl.print_gpp > 0)
+    {
+        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.gpp", outputdir, filename);
+        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_gpp;
+        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
+        bgc->ctrl.PCtrl[icounter].PrintVar =
+           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
+           sizeof (double *));
+        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
+            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.daily_gpp);
+        icounter++;
+    }
+
+    bgc->ctrl.nprint = icounter;
+
+    for (i = 0; i < bgc->ctrl.nprint; i++)
+    {
+        Ofile = fopen (bgc->ctrl.PCtrl[i].name, "w");
+        fclose (Ofile);
+
+	if (CS->Ascii)
+	{
+	    ascii_name = (char *)malloc ((strlen (bgc->ctrl.PCtrl[i].name) + 5) * sizeof (char));
+	    sprintf (ascii_name, "%s.txt", bgc->ctrl.PCtrl[i].name);
+	    Ofile = fopen (ascii_name, "w");
+	    fclose (Ofile);
+            free (ascii_name);
+	}
+
+        bgc->ctrl.PCtrl[i].buffer = (double *)calloc (bgc->ctrl.PCtrl[i].NumVar, sizeof (double));
     }
 }

@@ -948,6 +948,7 @@ void LSM_initialize_output (char *filename, Model_Data PIHM, Control_Data CS, LS
 	    sprintf (ascii_name, "%s.txt", LSM->PCtrl[i].name);
 	    Ofile = fopen (ascii_name, "w");
 	    fclose (Ofile);
+            free (ascii_name);
 	}
 
         LSM->PCtrl[i].buffer = (double *)calloc (LSM->PCtrl[i].NumVar, sizeof (double));
