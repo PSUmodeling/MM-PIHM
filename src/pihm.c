@@ -456,6 +456,8 @@ void pihm (char *project, int verbose, int debug, char *output_dir, int first_cy
                     PIHM2Noah (t, cData->ETStep, mData, LSM);
                     Noah2PIHM (mData, LSM);
 
+                    BgcCoupling ((int) t, (int) cData->StartTime, mData, LSM, BGCM);
+
                     for (j = 0; j < mData->NumEle; j++)
                     {
                         mData->avg_inf[j] = 0.0; 

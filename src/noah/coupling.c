@@ -119,7 +119,6 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
         ES = E0 * exp (ELWV / RV * (1.0 / A3 - 1.0 / NOAH->SFCTMP));
         NOAH->Q2SAT = EPSILON * ES / (NOAH->SFCPRS - (1.0 - EPSILON) * ES);
 
-        if (i == 0) printf ("Q2 = %lf, Q2STA = %lf\n", NOAH->Q2, NOAH->Q2SAT);
         NOAH->DQSDT2 = NOAH->Q2SAT * A23M4 / pow (NOAH->SFCTMP - A4, 2);
 
         if (NOAH->USEMONALB)
@@ -129,18 +128,19 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
 
         if (NOAH->RDLAI2D)
             NOAH->XLAI = 2.0;
-        else
-            NOAH->XLAI = BADVAL;
+        //else
+        //    NOAH->XLAI = BADVAL;
 
         NOAH->SHDFAC = PIHM->LandC[PIHM->Ele[i].LC - 1].VegFrac;
 
+#ifndef _BGC_
         if (PIHM->Ele[i].LAI > 0)
             NOAH->XLAI = Interpolation(&PIHM->TSD_lai[PIHM->Ele[i].LAI - 1], t);
         else
             NOAH->XLAI = monthly_lai (t, PIHM->Ele[i].LC);
 
         NOAH->CMCMAX = PIHM->ISFactor[PIHM->Ele[i].LC - 1] * NOAH->XLAI;
-
+#endif
         if (NOAH->Q1 == BADVAL)
             NOAH->Q1 = NOAH->Q2;
 

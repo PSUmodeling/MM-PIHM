@@ -399,24 +399,6 @@ typedef struct model_data_structure
 				     * interval */
 #endif
 
-#ifdef _BGC_
-    realtype       *daily_tmax;
-    realtype       *daily_tmin;
-    realtype       *daily_tnight;
-    realtype       *daily_tavg;
-    realtype       *daily_tday;
-    realtype       *daily_tsoil;
-    realtype       *daily_swc;
-    realtype       *daily_soilw;
-    realtype       *daily_q2d;
-    realtype       *daily_swavgfd;
-    realtype       *daily_par;
-    realtype       *daily_pa;
-    realtype      **daily_subflux;
-    realtype       *daily_albedo;
-    realtype       *daily_ch;
-#endif
-
     realtype       *DummyY;
     processCal      pcCal;
 

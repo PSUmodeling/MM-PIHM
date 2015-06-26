@@ -39,6 +39,8 @@ void            csummary (cflux_struct * cf, cstate_struct * cs, summary_struct 
 double          get_co2(TSD co2_ts, double t);        /* Added WMJ 03/16/2005 */
 double          get_ndep(TSD ndep_ts, double t); /* Added WMJ 03/16/2005 */
 void nleaching (nstate_struct * ns, nflux_struct * nf, wstate_struct * ws, const double *nabr_nconc, const metvar_struct *metv);
+
+void BgcCoupling (int t, int start_time, Model_Data pihm, LSM_STRUCT noah, bgc_struct bgc);
 //int output_map_init(double** output_map, metvar_struct* metv, wstate_struct* ws, //wflux_struct* wf, cstate_struct* cs, cflux_struct* cf, nstate_struct* ns, //nflux_struct* nf, phenology_struct* phen, epvar_struct* epv, //psn_struct* psn_sun, psn_struct* psn_shade, summary_struct* summary);
 //int atm_pres(double elev, double* pa);
 //int prephenology(const control_struct* ctrl, const epconst_struct* epc, 

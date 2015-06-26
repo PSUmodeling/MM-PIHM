@@ -143,7 +143,6 @@ void metarr_init (bgc_struct BGCM, Model_Data PIHM, LSM_STRUCT LSM, double start
                 {
                     MultiInterpolation (&LSM->TSD_rad[k], t + hour * 3600., &rad_forcing[k][hour][0], 2);
                     rad_forcing[k][hour][3] = spa.azimuth180;
-                    //printf ("Azimuth %lf\n", rad_forcing[k][hour][3]);
                     rad_forcing[k][hour][2] = spa.zenith;
                 }
             }

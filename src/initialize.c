@@ -230,6 +230,7 @@ void initialize (char *filename, Model_Data DS, Control_Data  CS, N_Vector CV_Y)
 	DS->avg_subflux[i][2] = 0.0;
     }
 #endif
+
     DS->ElePrep = (realtype *) malloc (DS->NumEle * sizeof (realtype));
     DS->EleViR = (realtype *) calloc (DS->NumEle, sizeof (realtype));
     DS->Recharge = (realtype *) calloc (DS->NumEle, sizeof (realtype));
