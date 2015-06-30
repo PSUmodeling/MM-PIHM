@@ -10,9 +10,13 @@ typedef struct topo_struct
     double          zmax;       /* z_max of centroid */
     double          zbed;
     double          edge[3];    /* edge i is from node i to node i+1 */
-    double          surf_x[3];
-    double          surf_y[3];
+    double          surfx[3];
+    double          surfy[3];
     double          node_zmax;
+
+#ifdef _RT_
+    double          areasub[3];
+#endif
 } topo_struct;
 
 typedef struct soil_struct
@@ -22,7 +26,7 @@ typedef struct soil_struct
                                  * hydraulic conductivity */
     double          ksatv;     /* vertical geologic saturated
                                  * hydraulic conductivity */
-    double          ksatinf;   /* vertical surface saturated hydraulic
+    double          kinfv;   /* vertical surface saturated hydraulic
                                  * conductivity */
     double          porosity;
     double          dinf;       /* depth from ground surface accross
@@ -35,9 +39,9 @@ typedef struct soil_struct
     double          thetaref;  /* YS: Soil field capacity */
     double          thetaw;    /* YS: Soil wilting point */
     double          dmac;       /* macropore Depth */
-    double          ksathmac; /* macropore horizontal saturated
+    double          kmach; /* macropore horizontal saturated
                                  * hydraulic conductivity */
-    double          ksatvmac; /* macropore vertical saturated
+    double          kmacv; /* macropore vertical saturated
                                  * hydraulic conductivity */
     double          areafv;    /* macropore area fraction on a
                                  * vertical cross-section */
@@ -136,7 +140,7 @@ typedef struct elem_struct
     double        temp;       /* temperature   */
 #endif
 
-} element_struct;
+} elem_struct;
 
 typedef struct shp_struct
 {
@@ -187,7 +191,7 @@ typedef struct ic_struct
     double       *surf;       /* Overland flow depth */
     double       *unsat;      /* unsaturated zone depth */
     double       *gw;        /* saturated zone depth */
-    double       *riv_gw;
+    double       *rivgw;
     double      *stage;
 } ic_struct;
 
@@ -295,6 +299,8 @@ typedef struct pihm_struct
     int             numele;     /* number of elements */
     int             numriv;     /* number of rivere segments */
 
+    double          dt;
+
     /* Input */
     mesh_tbl_struct     mesh_tbl;
     attrib_tbl_struct   attrib_tbl;
@@ -309,7 +315,7 @@ typedef struct pihm_struct
     riv_ic_tbl_struct   riv_ic_tbl;
     //riv_rsvr_tbl_struct riv_rsvr_tbl;
 
-    element_struct *elem;        /* Store Element Information */
+    elem_struct *elem;        /* Store Element Information */
     river_struct   *riv;
 
     calib_struct    cal;

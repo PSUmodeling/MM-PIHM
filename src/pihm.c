@@ -140,8 +140,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     int             nsv;          /* Problem size */
     int             i, j;       /* loop index */
     int             t;          /* simulation time */
+    realtype        solvert;
     struct tm      *timestamp;
-    time_t         *rawtime;
+    time_t          rawtime;
     realtype        nextptr;
     realtype        stepsize;   /* stress period & step size */
     realtype        cvode_val;
@@ -180,17 +181,25 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 //    BGC_read (filename, BGCM, mData);
 //#endif
 //
-//    if (mData->UnsatMode == 2)
-//    {
-//        /* problem size */
-//        N = 3 * mData->NumEle + 2 * mData->NumRiv;
-//        mData->DummyY = (realtype *) malloc ((3 * mData->NumEle + 2 * mData->NumRiv) * sizeof (realtype));
-//    }
-//    /* initial state variable depending on machine */
-//    CV_Y = N_VNew_Serial (N);
-//
-//    /* initialize mode data structure */
-//    initialize (filename, mData, cData, CV_Y);
+    if (pihm->ctrl.unsat_mode == 2)
+    {
+        /* problem size */
+        nsv = 3 * pihm->numele + 2 * pihm->numriv;
+    }
+
+    /* Initial state variable depending on machine */
+    CV_Y = N_VNew_Serial (nsv);
+
+    /* Initialize PIHM model structure */
+    Initialize (pihm, CV_Y);
+
+    /* Allocate memory for solver */
+    cvode_mem = CVodeCreate (CV_BDF, CV_NEWTON);
+    if (cvode_mem == NULL)
+    {
+        printf ("Fatal error: CVodeMalloc failed. \n");
+        exit (1);
+    }
 //#ifdef _FLUX_PIHM_
 //    LSM_initialize (filename, mData, cData, LSM);
 //#endif
@@ -203,17 +212,19 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 //    BGC_init (filename, mData, LSM, BGCM);
 //#endif
 //
-//    if (first_cycle == 1)
-//    {
-//        /* initialize output files and structures */
-//        initialize_output (filename, mData, cData, output_dir);
+    MapOutput (simulation, pihm, outputdir);
+
+    if (first_cycle == 1)
+    {
+        /* initialize output files and structures */
+        InitOutputFile (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii);
 //#ifdef _FLUX_PIHM_
 //        LSM_initialize_output (filename, mData, cData, LSM, output_dir);
 //#endif
 //#ifdef _BGC_
 //        bgc_initialize_output (filename, mData, cData, BGCM, output_dir);
 //#endif
-//    }
+    }
 //
 //#ifdef _BGC_
 //    if (BGCM->ctrl.spinup == 1)
@@ -223,43 +234,35 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 //    else
 //    {
 //#endif
-//        if (cData->Verbose == 1)
+//        if (verbose_mode)
 //            printf ("\n\nSolving ODE system ... \n\n");
 //
-//        /* allocate memory for solver */
-//        cvode_mem = CVodeCreate (CV_BDF, CV_NEWTON);
-//        if (cvode_mem == NULL)
-//        {
-//            printf ("Fatal error: CVodeMalloc failed. \n");
-//            exit (1);
-//        }
-//
-//        flag = CVodeSetFdata (cvode_mem, mData);
-//        flag = CVodeSetInitStep (cvode_mem, cData->InitStep);
+//        flag = CVodeSetFdata (cvode_mem, pihm);
+//        flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
 //        flag = CVodeSetStabLimDet (cvode_mem, TRUE);
-//        flag = CVodeSetMaxStep (cvode_mem, cData->MaxStep);
-//        flag = CVodeMalloc (cvode_mem, f, cData->StartTime, CV_Y, CV_SS, cData->reltol, &cData->abstol);
+//        flag = CVodeSetMaxStep (cvode_mem, (realtype) pihm->ctrl.maxstep);
+//        flag = CVodeMalloc (cvode_mem, f, (realtype ) pihm->ctrl.starttime,
+//            CV_Y, CV_SS, (realtype) pihm->ctrl.reltol, &pihm->ctrl.abstol);
 //        flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
-//        //flag = CVSpgmrSetGSType(cvode_mem, MODIFIED_GS);
 //
 //        /* set start time */
 //        t = cData->StartTime;
 //
 //        /* start solver in loops */
-//        for (i = 0; i < cData->NumSteps; i++)
+//        for (i = 0; i < pihm->ctrl.nstep; i++)
 //        {
 //            /* inner loops to next output points with ET step size control */
-//            while (t < cData->Tout[i + 1])
+//            while (t < pihm->ctrl.tout[i + 1])
 //            {
-//                if (t + cData->ETStep >= cData->Tout[i + 1])
-//                    NextPtr = cData->Tout[i + 1];
+//                if (t + pihm->ctrl.etstep >= pihm->ctrl.tout[i + 1])
+//                    nextptr = pihm->ctrl.tout[i + 1];
 //                else
-//                    NextPtr = t + cData->ETStep;
-//                StepSize = NextPtr - t;
+//                    nextptr = t + pihm->ctrl.etstep;
+//                stepsize = nextptr - (realtype) t;
 //
-//                mData->dt = StepSize;
+//                pihm->dt = (double) stepsize;
 //
-//                if ((int)t % (int)cData->ETStep == 0)
+//                if (t % pihm->ctrl.etStep == 0)
 //                {
 //#ifdef _FLUX_PIHM_
 //                    for (j = 0; j < mData->NumEle; j++)
@@ -305,16 +308,17 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 //                t = NextPtr;
 //#else
 //                /* Added to adatpt to larger time step. YS */
-//                flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(StepSize* 20));
-//                flag = CVode (cvode_mem, NextPtr, CV_Y, &t, CV_NORMAL);
+//                flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(stepsize* 20));
+//                solvert = (realtype) t;
+//                flag = CVode (cvode_mem, nextptr, CV_Y, &solvert, CV_NORMAL);
 //                flag = CVodeGetCurrentTime(cvode_mem, &cvode_val);
 //#endif
-//                *rawtime = (int)t;
-//                timestamp = gmtime (rawtime);
+//                rawtime = t;
+//                timestamp = gmtime (&rawtime);
 //
-//                if (cData->Verbose)
+//                if (verbose_mode)
 //                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-//                else if ((int)*rawtime % 3600 == 0)
+//                else if (rawtime % 3600 == 0)
 //                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
 //
 //                summary (mData, CV_Y, t - StepSize, StepSize);

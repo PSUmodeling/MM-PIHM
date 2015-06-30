@@ -36,7 +36,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     }
 
     ReadRiv (project, &pihm->riv_att_tbl, &pihm->riv_shp_tbl,
-        &pihm->riv_matl_tbl, &pihm->riv_ic_tbl, &pihm->forcing);
+        &pihm->riv_matl_tbl, &pihm->riv_ic_tbl, &pihm->ic, &pihm->forcing);
     pihm->numriv = pihm->riv_att_tbl.number;
 
     ReadMesh (project, &pihm->mesh_tbl);
@@ -59,9 +59,14 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     ReadPara (project, &pihm->ctrl);
 
     ReadCalib (project, simulation, &pihm->cal);
+
+    if (pihm->ctrl.init_type == 3)
+    {
+        ReadInit (project, simulation, &pihm->ic, pihm->numele, pihm->numriv);
+    }
 }
 
-void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct *riv_shp_tbl, riv_matl_tbl_struct *riv_matl_tbl, riv_ic_tbl_struct *riv_ic_tbl, forcing_ts_struct *forcing)
+void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct *riv_shp_tbl, riv_matl_tbl_struct *riv_matl_tbl, riv_ic_tbl_struct *riv_ic_tbl, ic_struct *ic, forcing_ts_struct *forcing)
 {
     int             i, j;
     char            fn[MAXSTRING];
@@ -208,7 +213,6 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
     /* Allocate */
     riv_ic_tbl->stage = (double *) malloc (riv_ic_tbl->number * sizeof (double));
 
-    /* Rewind and read river initial condition information */
     for (i = 0; i < riv_ic_tbl->number; i++)
     {
         NextLine (riv_file, cmdstr);
@@ -219,6 +223,14 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
             printf (".riv file format error!\n");
             exit (1);
         }
+    }
+
+    ic->rivgw = (double *) malloc (riv_att_tbl->number * sizeof (double));
+    ic->stage = (double *) malloc (riv_att_tbl->number * sizeof (double));
+
+    for (i = 0; i < riv_att_tbl->number; i++)
+    {
+        ic->stage[i] = riv_ic_tbl->stage[riv_att_tbl->ic[i] - 1];
     }
 
     /*
@@ -818,8 +830,6 @@ void ReadPara (char *project, ctrl_struct *ctrl)
 
     /* start reading para_file */
     /* Read through parameter file to find parameters */
-    fgets (cmdstr, MAXSTRING, para_file);
-
     NextLine (para_file, cmdstr);
     ReadKeywordInt (cmdstr, "INIT_MODE", &ctrl->init_type);
 
@@ -1124,6 +1134,43 @@ void ReadCalib (char *project, char *simulation, calib_struct *cal)
     fclose (global_calib);
 }
 
+void ReadInit (char *project, char *simulation, ic_struct *ic, int numele, int numriv)
+{
+    char            fn[MAXSTRING];
+    FILE           *init_file;
+    char            cmdstr[MAXSTRING];
+    int             i;
+    int             match;
+
+    sprintf (fn, "input/%s/%s.init", project, simulation);
+    init_file = fopen (fn, "r");
+    CheckFile (init_file, fn);
+
+    for (i = 0; i < numele; i++)
+    {
+        NextLine (init_file, cmdstr);
+        match = sscanf (cmdstr, "%lf %lf %lf %lf %lf",
+            &ic->intcp[i], &ic->snow[i],
+            &ic->surf[i], &ic->unsat[i], &ic->gw[i]);
+        if (match != 5)
+        {
+            printf ("ERROR: .init format error!\n");
+            exit (1);
+        }
+    }
+    for (i = 0; i < numriv; i++)
+    {
+        NextLine (init_file, cmdstr);
+        match = sscanf (cmdstr, "%lf %lf",
+            &ic->stage[i], &ic->rivgw[i]);
+        if (match != 2)
+        {
+            printf ("ERROR: .init format error!\n");
+            exit (1);
+        }
+    }
+}
+
 void FreeData (pihm_struct pihm)
 {
     int             i, j, k;
@@ -1200,6 +1247,15 @@ void FreeData (pihm_struct pihm)
     free (pihm->geol_tbl.areafv);
     free (pihm->geol_tbl.kmach);
     free (pihm->geol_tbl.dmac);
+
+    /* Free initial condition */
+    free (pihm->ic.intcp);
+    free (pihm->ic.snow);
+    free (pihm->ic.surf);
+    free (pihm->ic.unsat);
+    free (pihm->ic.gw);
+    free (pihm->ic.rivgw);
+    free (pihm->ic.stage);
 
     /* Free landcover input structure */
     free (pihm->lc_tbl.laimax);
