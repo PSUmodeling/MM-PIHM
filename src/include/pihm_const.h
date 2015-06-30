@@ -15,11 +15,11 @@
 #define MAC_CTRL        2
 #define SAT_CTRL        3
 
-#define C_air           1004.0
-#define Lv              2.503e6
+#define CP           1004.0
+#define LVH2O              2.503e6
 #define SIGMA           5.67e-8
-#define R_dry           287.04
-#define R_v             461.5
+#define RD           287.04
+#define RV             461.5
 
 #define NUM_TS          5
 #define NUM_METEO_TS    7

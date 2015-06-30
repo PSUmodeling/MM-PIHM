@@ -44,7 +44,8 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     InitLC (pihm->elem, pihm->numele, pihm->attrib_tbl, pihm->lc_tbl,
         pihm->cal);
 
-    InitForcing (pihm->elem, pihm->numele, pihm->attrib_tbl, &pihm->forcing, pihm->cal);
+    InitForcing (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
+        pihm->attrib_tbl, pihm->riv_att_tbl, &pihm->forcing, pihm->cal);
 
     InitRiver (pihm->riv, pihm->numriv, pihm->elem, pihm->riv_att_tbl, pihm->riv_shp_tbl, pihm->riv_matl_tbl, pihm->mesh_tbl, pihm->cal);
 
@@ -262,9 +263,9 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem, riv_att_tbl_st
         {
             /* Note: Strategy to use BC < -4 for river identification */
             if (elem[riv[i].leftele - 1].nabr[j] == riv[i].rightele)
-                elem[riv[i].leftele - 1].forcing.bc_type[j] = -4 * (i + 1);
+                elem[riv[i].leftele - 1].forc.bc_type[j] = -4 * (i + 1);
             if (elem[riv[i].rightele - 1].nabr[j] == riv[i].leftele)
-                elem[riv[i].rightele - 1].forcing.bc_type[j] = -4 * (i + 1);
+                elem[riv[i].rightele - 1].forc.bc_type[j] = -4 * (i + 1);
         }
 
         riv[i].topo.x = (mesh_tbl.x[riv[i].fromnode - 1] + mesh_tbl.x[riv[i].tonode - 1]) / 2.0;
@@ -289,21 +290,9 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem, riv_att_tbl_st
     }
 }
 
-void InitForcing (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl, forcing_ts_struct *forcing, calib_struct cal)
+void InitForcing (elem_struct *elem, int numele, river_struct *riv, int numriv, attrib_tbl_struct attrib_tbl, riv_att_tbl_struct riv_att_tbl, forcing_ts_struct *forcing, calib_struct cal)
 {
     int             i, j;
-
-    for (i = 0; i < numele; i++)
-    {
-        for (j = 0; j < 3; j++)
-        {
-            elem[i].forcing.bc_type[j] = attrib_tbl.bc[i][j];
-        }
-
-        elem[i].forcing.lai_type = attrib_tbl.lai[i];
-
-        elem[i].forcing.zlvl_wind = forcing->zlvl_wind[attrib_tbl.meteo[i] - 1];
-    }
 
     for (i = 0; i < forcing->nts[METEO_TS]; i++)
     {
@@ -311,6 +300,53 @@ void InitForcing (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl, f
         {
             forcing->ts[METEO_TS][i].data[j][PRCP_TS] *= cal.prcp;
             forcing->ts[METEO_TS][i].data[j][SFCTMP_TS] *= cal.sfctmp;
+        }
+    }
+
+    forcing->bc = (double *) malloc (forcing->nts[BC_TS] * sizeof (double));
+    for (i = 0; i < NUM_METEO_TS; i++)
+    {
+        forcing->meteo[i] = (double *) malloc (forcing->nts[METEO_TS] * sizeof (double));
+    }
+    forcing->lai = (double *) malloc (forcing->nts[LAI_TS] * sizeof (double));
+    forcing->riverbc = (double *) malloc (forcing->nts[RIV_TS] * sizeof (double));
+    forcing->source = (double *) malloc (forcing->nts[SS_TS] * sizeof (double));
+
+    for (i = 0; i < numele; i++)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            elem[i].forc.bc_type[j] = attrib_tbl.bc[i][j];
+            if (elem[i].forc.bc_type[j] > 0)
+            {
+                elem[i].forc.bc[j] = &forcing->bc[elem[i].forc.bc_type[j] - 1];
+            }
+        }
+
+        for (j = 0; j < NUM_METEO_TS; j++)
+        {
+            elem[i].forc.meteo[j] = &forcing->meteo[j][attrib_tbl.meteo[i] - 1];
+        }
+        elem[i].forc.zlvl_wind = forcing->zlvl_wind[attrib_tbl.meteo[i] - 1];
+
+        elem[i].forc.lai_type = attrib_tbl.lai[i];
+        if (elem[i].forc.lai_type > 0)
+        {
+            elem[i].forc.lai = &forcing->lai[attrib_tbl.lai[i] - 1];
+        }
+
+        if (attrib_tbl.source[i] > 0)
+        {
+            elem[i].forc.source = &forcing->source[attrib_tbl.source[i] - 1];
+        }
+
+    }
+
+    for (i = 0; i < numriv; i++)
+    {
+        if (riv_att_tbl.bc[i] > 0)
+        {
+            riv[i].forc.riverbc = &forcing->riverbc[riv_att_tbl.bc[i] - 1];
         }
     }
 }
@@ -333,7 +369,7 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv, int num
         {
             if (elem[i].nabr[j] > 0)
             {
-                new_elevation = elem[i].forcing.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmax : riv[-(elem[i].forcing.bc_type[j] / 4) - 1].topo.zmax;
+                new_elevation = elem[i].forc.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmax : riv[-(elem[i].forc.bc_type[j] / 4) - 1].topo.zmax;
                 if (elem[i].topo.zmax - new_elevation >= 0)
                 {
                     sink = 0;
@@ -353,9 +389,9 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv, int num
             {
                 if (elem[i].nabr[j] > 0)
                 {
-                    elem[i].topo.zmax = (elem[i].forcing.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmax : riv[-(elem[i].forcing.bc_type[j] / 4) - 1].topo.zmax);
+                    elem[i].topo.zmax = (elem[i].forc.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmax : riv[-(elem[i].forc.bc_type[j] / 4) - 1].topo.zmax);
                     new_elevation = new_elevation > elem[i].topo.zmax ? elem[i].topo.zmax : new_elevation;
-                    printf ("(%d)%lf  ", j + 1, (elem[i].forcing.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmax : riv[-(elem[i].forcing.bc_type[j] / 4) - 1].topo.zmax));
+                    printf ("(%d)%lf  ", j + 1, (elem[i].forc.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmax : riv[-(elem[i].forc.bc_type[j] / 4) - 1].topo.zmax));
                 }
             }
             elem[i].topo.zmax = new_elevation;
@@ -374,7 +410,7 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv, int num
             {
                 if (elem[i].nabr[j] > 0)
                 {
-                    new_elevation = elem[i].forcing.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmin : riv[-(elem[i].forcing.bc_type[j] / 4) - 1].topo.zmin;
+                    new_elevation = elem[i].forc.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmin : riv[-(elem[i].forc.bc_type[j] / 4) - 1].topo.zmin;
                     if (elem[i].topo.zmin - new_elevation >= 0.0)
                     {
                         sink = 0;
@@ -392,9 +428,9 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv, int num
                 {
                     if (elem[i].nabr[j] > 0)
                     {
-                        elem[i].topo.zmin = (elem[i].forcing.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmin : riv[-(elem[i].forcing.bc_type[j] / 4) - 1].topo.zmin);
+                        elem[i].topo.zmin = (elem[i].forc.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmin : riv[-(elem[i].forc.bc_type[j] / 4) - 1].topo.zmin);
                         new_elevation = new_elevation > elem[i].topo.zmin ? elem[i].topo.zmin : new_elevation;
-                        printf ("(%d)%lf  ", j + 1, (elem[i].forcing.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmin : riv[-(elem[i].forcing.bc_type[j] / 4) - 1].topo.zmin));
+                        printf ("(%d)%lf  ", j + 1, (elem[i].forc.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmin : riv[-(elem[i].forc.bc_type[j] / 4) - 1].topo.zmin));
                     }
                 }
                 elem[i].topo.zmin = new_elevation;
@@ -460,8 +496,8 @@ void InitSurfL (elem_struct *ele, int numele, river_struct *riv, mesh_tbl_struct
                     disty = (ele[i].topo.y - 0.5 * (y[0] + y[1]));
                     break;
             }
-            ele[i].topo.surfx[j] = ele[i].nabr[j] > 0 ? (ele[i].forcing.bc_type[j] > -4 ? ele[ele[i].nabr[j] - 1].topo.x : riv[-(ele[i].forcing.bc_type[j] / 4) - 1].topo.x) : (ele[i].topo.x - 2.0 * distx);
-            ele[i].topo.surfy[j] = ele[i].nabr[j] > 0 ? (ele[i].forcing.bc_type[j] > -4 ? ele[ele[i].nabr[j] - 1].topo.y : riv[-(ele[i].forcing.bc_type[j] / 4) - 1].topo.y) : (ele[i].topo.y - 2.0 * disty);
+            ele[i].topo.surfx[j] = ele[i].nabr[j] > 0 ? (ele[i].forc.bc_type[j] > -4 ? ele[ele[i].nabr[j] - 1].topo.x : riv[-(ele[i].forc.bc_type[j] / 4) - 1].topo.x) : (ele[i].topo.x - 2.0 * distx);
+            ele[i].topo.surfy[j] = ele[i].nabr[j] > 0 ? (ele[i].forc.bc_type[j] > -4 ? ele[ele[i].nabr[j] - 1].topo.y : riv[-(ele[i].forc.bc_type[j] / 4) - 1].topo.y) : (ele[i].topo.y - 2.0 * disty);
         }
     }
 }

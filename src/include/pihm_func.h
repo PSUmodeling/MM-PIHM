@@ -46,7 +46,7 @@ double FieldCapacity (double alpha, double beta, double kv, double thetas, doubl
 double WiltingPoint (double thetas, double thetar, double alpha, double beta);
 void InitLC (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl, lc_tbl_struct lc_tbl, calib_struct calibration);
 void InitRiver (river_struct *riv, int numriv, elem_struct *elem, riv_att_tbl_struct riv_att_tbl, riv_shp_tbl_struct riv_shp_tbl, riv_matl_tbl_struct riv_matl_tbl, mesh_tbl_struct mesh_tbl, calib_struct cal);
-void InitForcing (elem_struct *ele, int numele, attrib_tbl_struct attrib_tbl, forcing_ts_struct *forcing, calib_struct cal);
+void InitForcing (elem_struct *elem, int numele, river_struct *riv, int numriv, attrib_tbl_struct attrib_tbl, riv_att_tbl_struct riv_att_tbl, forcing_ts_struct *forcing, calib_struct cal);
 void CorrectElevation (elem_struct *elem, int numele, river_struct *riv, int numriv);
 void InitSurfL (elem_struct *ele, int numele, river_struct *riv, mesh_tbl_struct mesh_tbl);
 void SaturationIC (const elem_struct *ele, int numele, const river_struct *riv, int numriv, ic_struct *ic);
@@ -55,6 +55,16 @@ void CalcModelStep (ctrl_struct *ctrl);
 
 void MapOutput (char *simulation, pihm_struct pihm, char *outputdir);
 void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii);
+
+void ApplyForcing (forcing_ts_struct *forcing, int t);
+
+void IntcpSnowET (int t, double stepsize, pihm_struct pihm);
+
+int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data);
+void IntrplForcing (ts_struct ts, int t, int nvrbl, double *vrbl);
+double MonthlyLAI (int t, int lc_type);
+double MonthlyRL (int t, int lc_type);
+double MonthlyMF (int t);
 
 //void            f_update (realtype, realtype *, void *);    /* YS */
 //void            summary (Model_Data, N_Vector, realtype, realtype); /* YS */

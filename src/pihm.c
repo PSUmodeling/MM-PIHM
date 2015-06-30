@@ -224,6 +224,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 //#ifdef _BGC_
 //        bgc_initialize_output (filename, mData, cData, BGCM, output_dir);
 //#endif
+        first_cycle = 0;
     }
 //
 //#ifdef _BGC_
@@ -234,100 +235,105 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 //    else
 //    {
 //#endif
-//        if (verbose_mode)
-//            printf ("\n\nSolving ODE system ... \n\n");
-//
-//        flag = CVodeSetFdata (cvode_mem, pihm);
-//        flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
-//        flag = CVodeSetStabLimDet (cvode_mem, TRUE);
-//        flag = CVodeSetMaxStep (cvode_mem, (realtype) pihm->ctrl.maxstep);
-//        flag = CVodeMalloc (cvode_mem, f, (realtype ) pihm->ctrl.starttime,
-//            CV_Y, CV_SS, (realtype) pihm->ctrl.reltol, &pihm->ctrl.abstol);
-//        flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
-//
-//        /* set start time */
-//        t = cData->StartTime;
-//
-//        /* start solver in loops */
-//        for (i = 0; i < pihm->ctrl.nstep; i++)
-//        {
-//            /* inner loops to next output points with ET step size control */
-//            while (t < pihm->ctrl.tout[i + 1])
-//            {
-//                if (t + pihm->ctrl.etstep >= pihm->ctrl.tout[i + 1])
-//                    nextptr = pihm->ctrl.tout[i + 1];
-//                else
-//                    nextptr = t + pihm->ctrl.etstep;
-//                stepsize = nextptr - (realtype) t;
-//
-//                pihm->dt = (double) stepsize;
-//
-//                if (t % pihm->ctrl.etStep == 0)
-//                {
-//#ifdef _FLUX_PIHM_
-//                    for (j = 0; j < mData->NumEle; j++)
-//                    {
-//                        mData->avg_inf[j] = (mData->avg_inf[j] + mData->EleViR[j]) / (cData->ETStep / StepSize);
-//                        mData->avg_subflux[j][0] = (mData->avg_subflux[j][0] + mData->FluxSub[j][0]) / (cData->ETStep / StepSize);
-//                        mData->avg_subflux[j][1] = (mData->avg_subflux[j][1] + mData->FluxSub[j][1]) / (cData->ETStep / StepSize);
-//                        mData->avg_subflux[j][2] = (mData->avg_subflux[j][2] + mData->FluxSub[j][2]) / (cData->ETStep / StepSize);
-//                    }
-//
-//                    /* calculate surface energy balance */
-//                    PIHM2Noah (t, cData->ETStep, mData, LSM);
-//                    Noah2PIHM (mData, LSM);
-//
-//#ifdef _BGC_
-//                    BgcCoupling ((int) t, (int) cData->StartTime, mData, LSM, BGCM);
-//#endif
-//                    for (j = 0; j < mData->NumEle; j++)
-//                    {
-//                        mData->avg_inf[j] = 0.0; 
-//                        mData->avg_subflux[j][0] = 0.0;
-//                        mData->avg_subflux[j][1] = 0.0;
-//                        mData->avg_subflux[j][2] = 0.0;
-//                    }
-//                }
-//                else
-//                {
-//                    for (j = 0; j < mData->NumEle; j++)
-//                    {
-//                        mData->avg_inf[j] = mData->avg_inf[j] + mData->EleViR[j];
-//                        mData->avg_subflux[j][0] = mData->avg_subflux[j][0] + mData->FluxSub[j][0];
-//                        mData->avg_subflux[j][1] = mData->avg_subflux[j][1] + mData->FluxSub[j][1];
-//                        mData->avg_subflux[j][2] = mData->avg_subflux[j][2] + mData->FluxSub[j][2];
-//                    }
-//#else
-//                    /* calculate Interception Storage and ET */
-//                    is_sm_et (t, cData->ETStep, mData, CV_Y);
-//#endif
-//                }
-//
-//
-//#ifdef COUPLE_I
-//                t = NextPtr;
-//#else
-//                /* Added to adatpt to larger time step. YS */
-//                flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(stepsize* 20));
-//                solvert = (realtype) t;
-//                flag = CVode (cvode_mem, nextptr, CV_Y, &solvert, CV_NORMAL);
-//                flag = CVodeGetCurrentTime(cvode_mem, &cvode_val);
-//#endif
-//                rawtime = t;
-//                timestamp = gmtime (&rawtime);
-//
-//                if (verbose_mode)
-//                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-//                else if (rawtime % 3600 == 0)
-//                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-//
-//                summary (mData, CV_Y, t - StepSize, StepSize);
-//#ifdef _RT_
-//                /* PIHM-rt control file */
-//                fluxtrans(t / 60.0, StepSize / 60.0, mData, chData, CV_Y);
-//#endif
-//                update (t, mData);
-//            }
+        if (verbose_mode)
+            printf ("\n\nSolving ODE system ... \n\n");
+
+        /* Set solver parameters */
+        flag = CVodeSetFdata (cvode_mem, pihm);
+        flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
+        flag = CVodeSetStabLimDet (cvode_mem, TRUE);
+        flag = CVodeSetMaxStep (cvode_mem, (realtype) pihm->ctrl.maxstep);
+        flag = CVodeMalloc (cvode_mem, f, (realtype ) pihm->ctrl.starttime,
+            CV_Y, CV_SS, (realtype) pihm->ctrl.reltol, &pihm->ctrl.abstol);
+        flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
+
+        /* set start time */
+        t = pihm->ctrl.starttime;
+
+        /* start solver in loops */
+        for (i = 0; i < pihm->ctrl.nstep; i++)
+        {
+            /* inner loops to next output points with ET step size control */
+            while (t < pihm->ctrl.tout[i + 1])
+            {
+                if (t + pihm->ctrl.etstep >= pihm->ctrl.tout[i + 1])
+                {
+                    nextptr = pihm->ctrl.tout[i + 1];
+                }
+                else
+                {
+                    nextptr = t + pihm->ctrl.etstep;
+                }
+
+                stepsize = nextptr - (realtype) t;
+
+                pihm->dt = (double) stepsize;
+
+                ApplyForcing (&pihm->forcing, t);
+
+                if (t % pihm->ctrl.etstep == 0)
+                {
+#ifdef _FLUX_PIHM_
+                    for (j = 0; j < mData->NumEle; j++)
+                    {
+                        mData->avg_inf[j] = (mData->avg_inf[j] + mData->EleViR[j]) / (cData->ETStep / StepSize);
+                        mData->avg_subflux[j][0] = (mData->avg_subflux[j][0] + mData->FluxSub[j][0]) / (cData->ETStep / StepSize);
+                        mData->avg_subflux[j][1] = (mData->avg_subflux[j][1] + mData->FluxSub[j][1]) / (cData->ETStep / StepSize);
+                        mData->avg_subflux[j][2] = (mData->avg_subflux[j][2] + mData->FluxSub[j][2]) / (cData->ETStep / StepSize);
+                    }
+
+                    /* calculate surface energy balance */
+                    PIHM2Noah (t, cData->ETStep, mData, LSM);
+                    Noah2PIHM (mData, LSM);
+
+#ifdef _BGC_
+                    BgcCoupling ((int) t, (int) cData->StartTime, mData, LSM, BGCM);
+#endif
+                    for (j = 0; j < mData->NumEle; j++)
+                    {
+                        mData->avg_inf[j] = 0.0; 
+                        mData->avg_subflux[j][0] = 0.0;
+                        mData->avg_subflux[j][1] = 0.0;
+                        mData->avg_subflux[j][2] = 0.0;
+                    }
+                }
+                else
+                {
+                    for (j = 0; j < mData->NumEle; j++)
+                    {
+                        mData->avg_inf[j] = mData->avg_inf[j] + mData->EleViR[j];
+                        mData->avg_subflux[j][0] = mData->avg_subflux[j][0] + mData->FluxSub[j][0];
+                        mData->avg_subflux[j][1] = mData->avg_subflux[j][1] + mData->FluxSub[j][1];
+                        mData->avg_subflux[j][2] = mData->avg_subflux[j][2] + mData->FluxSub[j][2];
+                    }
+#else
+                    /* calculate Interception Storage and ET */
+                    IntcpSnowET (t, (double) pihm->ctrl.etstep, pihm);
+#endif
+                }
+
+                /* Added to adatpt to larger time step. */
+                flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(stepsize* 20));
+                solvert = (realtype) t;
+                flag = CVode (cvode_mem, nextptr, CV_Y, &solvert, CV_NORMAL);
+                flag = CVodeGetCurrentTime(cvode_mem, &cvode_val);
+
+                t = (int) solvert;
+                rawtime = t;
+                timestamp = gmtime (&rawtime);
+
+                if (verbose_mode)
+                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+                else if (rawtime % 3600 == 0)
+                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+
+                //summary (mData, CV_Y, t - StepSize, StepSize);
+#ifdef _RT_
+                /* PIHM-rt control file */
+                fluxtrans(t / 60.0, StepSize / 60.0, mData, chData, CV_Y);
+#endif
+                //update (t, mData);
+            }
 //
 //            /* Print outputs */
 //            for (j = 0; j < cData->NumPrint; j++)
@@ -343,7 +349,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 //            PrintChem(filename, chData,t/60);
 //#endif
 //#ifdef _BGC_
-//        }
+        }
 //#endif
 //    }
 //

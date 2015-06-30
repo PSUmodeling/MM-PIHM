@@ -21,14 +21,13 @@ SRCS_ = pihm.c \
 	read_alloc.c \
 	read_func.c \
 	f_function.c \
-	initialize.c
-	#f.c \
-	#read_alloc.c \
+	initialize.c \
+	hydrol.c \
+	is_sm_et.c \
+	forcing.c
 	#initialize.c \
 	#update.c \
 	#print.c \
-	#is_sm_et.c \
-	#forcing.c
 
 HEADERS_ = include/pihm.h \
 	include/pihm_input_struct.h \

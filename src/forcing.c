@@ -1,11 +1,75 @@
 #include "pihm.h"
 
-realtype monthly_lai (realtype t, int LC_type)
+void ApplyForcing (forcing_ts_struct *forcing, int t)
 {
-    time_t         *rawtime;
+    int         i, j;
+    double      meteo[NUM_METEO_TS];
+
+    /* Boundary conditions */
+    for (i = 0; i < forcing->nts[BC_TS]; i++)
+        IntrplForcing (forcing->ts[BC_TS][i], t, 1, &forcing->bc[i]);
+
+    /* Meteorological forcing */
+    for (i = 0; i < forcing->nts[METEO_TS]; i++)
+    {
+        IntrplForcing (forcing->ts[METEO_TS][i], t, NUM_METEO_TS, meteo);
+
+        for (j = 0; j < NUM_METEO_TS; j++)
+            forcing->meteo[j][i] = meteo[j];
+    }
+
+    /* LAI forcing */
+    for (i = 0; i < forcing->nts[LAI_TS]; i++)
+        IntrplForcing (forcing->ts[LAI_TS][i], t, 1, &forcing->lai[i]);
+
+    /* River boundary condition */
+    for (i = 0; i < forcing->nts[RIV_TS]; i++)
+        IntrplForcing (forcing->ts[RIV_TS][i], t, 1, &forcing->riverbc[i]);
+}
+
+void IntrplForcing (ts_struct ts, int t, int nvrbl, double *vrbl)
+{
+    int             j;
+    int             first, middle, last;
+
+    if (t <= ts.ftime[0])
+    {
+        for (j = 0; j < nvrbl; j++)
+            vrbl[j] = ts.data[0][j];
+    }
+    else if (t >= ts.ftime[ts.length - 1])
+    {
+        for (j = 0; j < nvrbl; j++)
+            vrbl[j] = ts.data[ts.length - 1][j];
+    }
+    else
+    {
+        first = 1;
+        last = ts.length - 1;
+
+        while (first <= last)
+        {
+            middle = (first + last) / 2;
+            if (t >= ts.ftime[middle - 1] && t <= ts.ftime[middle])
+            {
+                for (j = 0; j < nvrbl; j++)
+                    vrbl[j] = ((double) (ts.ftime[middle] - t) * ts.data[middle - 1][j] + (double) (t - ts.ftime[middle - 1]) * ts.data[middle][j]) / (double) (ts.ftime[middle] - ts.ftime[middle - 1]);
+                break;
+            }
+            else if (ts.ftime[middle] > t)
+                last = middle - 1;
+            else
+                first = middle + 1;
+        }
+    }
+}
+        
+double MonthlyLAI (int t, int lc_type)
+{
+    time_t         rawtime;
     struct tm      *timestamp;
 
-    realtype        lai_tbl[20][12] = {
+    double        lai_tbl[20][12] = {
                     {8.760, 9.160, 9.827, 10.09, 10.36, 10.76, 10.49, 10.23, 10.09, 9.827, 9.160, 8.760},
                     {5.117, 5.117, 5.117, 5.117, 5.117, 5.117, 5.117, 5.117, 5.117, 5.117, 5.117, 5.117},
                     {8.760, 9.160, 9.827, 10.09, 10.36, 10.76, 10.49, 10.23, 10.09, 9.827, 9.160, 8.760},
@@ -25,20 +89,18 @@ realtype monthly_lai (realtype t, int LC_type)
                     {999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0},
                     {999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0}};
 
-    rawtime = (time_t *) malloc (sizeof (time_t));
-    *rawtime = (int) t;
-    timestamp = gmtime (rawtime);
-    free (rawtime);
+    rawtime = t;
+    timestamp = gmtime (&rawtime);
 
-    return (lai_tbl[LC_type - 1][timestamp->tm_mon]);
+    return (lai_tbl[lc_type - 1][timestamp->tm_mon]);
 }
 
-realtype monthly_rl (realtype t, int LC_type)
+double MonthlyRL (int t, int lc_type)
 {
-    time_t         *rawtime;
+    time_t          rawtime;
     struct tm      *timestamp;
 
-    realtype        rl_tbl[20][12] = {
+    double        rl_tbl[20][12] = {
                     {1.112, 1.103, 1.088, 1.082, 1.076, 1.068, 1.073, 1.079, 1.082, 1.088, 1.103, 1.112},
                     {2.653, 2.653, 2.653, 2.653, 2.653, 2.653, 2.653, 2.653, 2.653, 2.653, 2.653, 2.653},
                     {1.112, 1.103, 1.088, 1.082, 1.076, 1.068, 1.073, 1.079, 1.082, 1.088, 1.103, 1.112},
@@ -60,98 +122,22 @@ realtype monthly_rl (realtype t, int LC_type)
                     {999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0},
                     {999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0}};
 
-    rawtime = (time_t *) malloc (sizeof (time_t));
-    *rawtime = (int) t;
-    timestamp = gmtime (rawtime);
-    free (rawtime);
+    rawtime = t;
+    timestamp = gmtime (&rawtime);
 
-    return (rl_tbl[LC_type - 1][timestamp->tm_mon]);
+    return (rl_tbl[lc_type - 1][timestamp->tm_mon]);
 }
 
-realtype monthly_mf (realtype t)
+double MonthlyMF (int t)
 {
-    time_t         *rawtime;
+    time_t         rawtime;
     struct tm      *timestamp;
 
-    realtype        mf_tbl[12] = { 0.001308019, 0.001633298, 0.002131198, 0.002632776, 0.003031171, 0.003197325, 0.003095839, 0.002745240, 0.002260213, 0.001759481, 0.001373646, 0.001202083};
+    double        mf_tbl[12] = { 0.001308019, 0.001633298, 0.002131198, 0.002632776, 0.003031171, 0.003197325, 0.003095839, 0.002745240, 0.002260213, 0.001759481, 0.001373646, 0.001202083};
 
-    rawtime = (time_t *) malloc (sizeof (time_t));
-    *rawtime = (int) t;
-    timestamp = gmtime (rawtime);
-    free (rawtime);
+    rawtime = t;
+    timestamp = gmtime (&rawtime);
 
     return (mf_tbl[timestamp->tm_mon]);
-}
-
-realtype Interpolation (TSD *Data, realtype t)
-{
-    int             i;
-    int             success;
-    realtype        result;
-
-    //i = Data->iCounter;
-    i = 0;
-    success = 0;
-
-    while (i < Data->length && t > Data->TS[i][0])
-        i++;
-    if (i == 0)
-    {
-        /* t is smaller than the 1st node */
-        result = Data->TS[i][1];
-    }
-    else if (i >= Data->length)
-    {
-        result = Data->TS[i - 1][1];
-    }
-    else
-    {
-        result = ((Data->TS[i][0] - t) * Data->TS[i - 1][1] + (t - Data->TS[i - 1][0]) * Data->TS[i][1]) / (Data->TS[i][0] - Data->TS[i - 1][0]);
-        success = 1;
-    }
-    if (success == 0)
-    {
-        /*
-         * printf("\nWarning:  Extrapolation is used ...\n");
-         */
-    }
-    return result;
-}
-
-void MultiInterpolation (TSD *Data, realtype t, realtype *forcing, int num_forcing)
-{
-    int             i;
-    int             success;
-    int             j;
-
-    //i = Data->iCounter;
-    i = 0;
-    success = 0;
-
-    while (i < Data->length && t > Data->TS[i][0])
-        i++;
-    if (i == 0)
-    {
-        /* t is smaller than the 1st node */
-        for (j = 0; j < num_forcing; j++)
-            forcing[j] = Data->TS[i][j + 1];
-    }
-    else if (i >= Data->length)
-    {
-        for (j = 0; j < num_forcing; j++)
-            forcing[j] = Data->TS[i-1][j + 1];
-    }
-    else
-    {
-        for (j = 0; j < num_forcing; j++)
-            forcing[j] = ((Data->TS[i][0] - t) * Data->TS[i - 1][j + 1] + (t - Data->TS[i - 1][0]) * Data->TS[i][j + 1]) / (Data->TS[i][0] - Data->TS[i - 1][0]);
-        success = 1;
-    }
-    if (success == 0)
-    {
-        /*
-         * printf("\nWarning:  Extrapolation is used ...\n");
-         */
-    }
 }
 

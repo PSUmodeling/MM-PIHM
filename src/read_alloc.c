@@ -867,10 +867,10 @@ void ReadPara (char *project, ctrl_struct *ctrl)
     ReadKeywordInt (cmdstr, "LSM_STEP", &ctrl->etstep);
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "START", &ctrl->starttime);
+    ReadKeywordTime (cmdstr, "START", &ctrl->starttime);
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "END", &ctrl->endtime);
+    ReadKeywordTime (cmdstr, "END", &ctrl->endtime);
 
     NextLine (para_file, cmdstr);
     ReadKeywordInt (cmdstr, "MODEL_STEPSIZE", &ctrl->stepsize);

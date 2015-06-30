@@ -103,7 +103,7 @@ typedef struct elem_struct
     topo_struct     topo;
     soil_struct     soil;
     lc_struct       lc;
-    forc_struct     forcing;
+    forc_struct     forc;
 
     double          surf0;      /* YS: Stores surface water level of
                                  * last time step */
@@ -128,6 +128,7 @@ typedef struct elem_struct
 
     int             macropore_status;
 
+    double          albedo;
 #ifdef _NOAH_
     double          sfcsat;    /* YS: Surface saturation */
     double          et_from_sat;        /* YS: Fraction of Transpiration that
@@ -165,7 +166,7 @@ typedef struct river_struct
     topo_struct     topo;
     shp_struct      shp;
     matl_struct     matl;
-    forc_struct     forcing;
+    forc_struct     forc;
 
     int             leftele;   /* Left neighboring element */
     int             rightele;  /* Right neighboring element */
