@@ -17,10 +17,6 @@
 #include <unistd.h>
 #include <stdarg.h>
 
-
-#include "print.h"
-#include "forcing.h"
-
 /* SUNDIAL Header Files */
 #include "sundials_types.h"     /* realtype, integertype, booleantype
                                  * defination */
@@ -35,6 +31,7 @@
 #include "cvode_dense.h"        /* CVDENSE header file */
 
 #include "pihm_const.h"
+#include "pihm_input_struct.h"
 #include "pihm_struct.h"
 #include "pihm_func.h"
 

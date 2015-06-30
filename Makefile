@@ -13,29 +13,27 @@ LIBS =	-lm
 INCLUDES = -I${SUNDIALS_PATH}/include \
 	-I${SUNDIALS_PATH}/include/cvode \
 	-I${SUNDIALS_PATH}/include/sundials\
-	-I${SRCDIR} \
-	-I${SRCDIR}/noah \
-	-I${SRCDIR}/spa \
-	-I${SRCDIR}/bgc \
-	-I${SRCDIR}/rt
+	-I${SRCDIR}/include
 
 LFLAGS = -L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
 
 SRCS_ = pihm.c \
-	f.c \
 	read_alloc.c \
-	ReadFunc.c \
-	initialize.c \
-	update.c \
-	print.c \
-	is_sm_et.c \
-	f_function.c \
-	forcing.c
+	read_func.c
+	#f.c \
+	#read_alloc.c \
+	#initialize.c \
+	#update.c \
+	#print.c \
+	#is_sm_et.c \
+	#f_function.c \
+	#forcing.c
 
-HEADERS_ = pihm.h \
-	pihm_const.h \
-	pihm_struct.h \
-	pihm_func.h
+HEADERS_ = include/pihm.h \
+	include/pihm_input_struct.h \
+	include/pihm_const.h \
+	include/pihm_struct.h \
+	include/pihm_func.h
 
 MODULE_HEADERS_ =
 EXECUTABLE = pihm
