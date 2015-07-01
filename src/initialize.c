@@ -589,259 +589,262 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
 
     for (i = 0; i < NUM_PRINT; i++)
     {
-        switch (i)
+        if (pihm->ctrl.prtvrbl[i] > 0)
         {
-            case GW_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.gw", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numele + pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].gw0;
-                }
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j + pihm->numele] = &pihm->riv[j].gw0;
-                }
-                n++;
-                break;
-            case SURF_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.surf", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].surf0;
-                }
-                n++;
-                break;
-            case SNOW_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.snow", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].snow;
-                }
-                n++;
-                break;
-            case RIVSTG_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.stage", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].stage0;
-                }
-                n++;
-                break;
-            case RECHARGE_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.recharge", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].rechg;
-                }
-                n++;
-                break;
-            case CMC_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.is", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].intcp;
-                }
-                n++;
-                break;
-            case UNSAT_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.unsat", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].unsat0;
-                }
-                n++;
-                break;
-            case EC_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.et0", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].et[0];
-                }
-                n++;
-                break;
-            case ETT_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.et1", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].et[1];
-                }
-                n++;
-                break;
-            case EDIR_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.et2", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].et[2];
-                }
-                n++;
-                break;
-            case RIVFLX0_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivflx0", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[0];
-                }
-                n++;
-                break;
-            case RIVFLX1_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivflx1", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[1];
-                }
-                n++;
-                break;
-            case RIVFLX2_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivflx2", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[2];
-                }
-                n++;
-                break;
-            case RIVFLX3_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivflx3", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[3];
-                }
-                n++;
-                break;
-            case RIVFLX4_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivflx4", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[4];
-                }
-                n++;
-                break;
-            case RIVFLX5_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivflx5", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[5];
-                }
-                n++;
-                break;
-            case RIVFLX6_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivflx6", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[6];
-                }
-                n++;
-                break;
-            case RIVFLX7_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivflx7", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[7];
-                }
-                n++;
-                break;
-            case RIVFLX8_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivflx8", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[8];
-                }
-                n++;
-                break;
-            case RIVFLX9_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivflx9", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[9];
-                }
-                n++;
-                break;
-            case RIVFLX10_CTRL:
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivflx10", outputdir, simulation);
-                pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[10];
-                }
-                n++;
-                break;
-            case SUBFLX_CTRL:
-                for (k = 0; k < 3; k++)
-                {
-                    sprintf (pihm->prtctrl[n].name, "%s%s.subflx%d", outputdir, simulation, k);
+            switch (i)
+            {
+                case GW_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.gw", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele + pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].gw0;
+                    }
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j + pihm->numele] = &pihm->riv[j].gw0;
+                    }
+                    n++;
+                    break;
+                case SURF_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.surf", outputdir, simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numele;
                     pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].fluxsub[k];
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].surf0;
                     }
                     n++;
-                }
-                break;
-            default:
-                break;
+                    break;
+                case SNOW_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.snow", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].snow;
+                    }
+                    n++;
+                    break;
+                case RIVSTG_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.stage", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].stage0;
+                    }
+                    n++;
+                    break;
+                case RECHARGE_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.recharge", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].rechg;
+                    }
+                    n++;
+                    break;
+                case CMC_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.is", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].intcp;
+                    }
+                    n++;
+                    break;
+                case UNSAT_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.unsat", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].unsat0;
+                    }
+                    n++;
+                    break;
+                case EC_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.et0", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].et[0];
+                    }
+                    n++;
+                    break;
+                case ETT_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.et1", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].et[1];
+                    }
+                    n++;
+                    break;
+                case EDIR_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.et2", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].et[2];
+                    }
+                    n++;
+                    break;
+                case RIVFLX0_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx0", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[0];
+                    }
+                    n++;
+                    break;
+                case RIVFLX1_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx1", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[1];
+                    }
+                    n++;
+                    break;
+                case RIVFLX2_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx2", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[2];
+                    }
+                    n++;
+                    break;
+                case RIVFLX3_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx3", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[3];
+                    }
+                    n++;
+                    break;
+                case RIVFLX4_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx4", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[4];
+                    }
+                    n++;
+                    break;
+                case RIVFLX5_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx5", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[5];
+                    }
+                    n++;
+                    break;
+                case RIVFLX6_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx6", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[6];
+                    }
+                    n++;
+                    break;
+                case RIVFLX7_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx7", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[7];
+                    }
+                    n++;
+                    break;
+                case RIVFLX8_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx8", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[8];
+                    }
+                    n++;
+                    break;
+                case RIVFLX9_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx9", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[9];
+                    }
+                    n++;
+                    break;
+                case RIVFLX10_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx10", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[10];
+                    }
+                    n++;
+                    break;
+                case SUBFLX_CTRL:
+                    for (k = 0; k < 3; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name, "%s%s.subflx%d", outputdir, simulation, k);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].nvrbl = pihm->numele;
+                        pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                        for (j = 0; j < pihm->numele; j++)
+                        {
+                            pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].fluxsub[k];
+                        }
+                        n++;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

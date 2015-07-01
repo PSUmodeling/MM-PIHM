@@ -1,99 +1,92 @@
-/*****************************************************************************
- * File        : print.c
- * Function    : print out model results output files
- *..............MODIFICATIONS/ADDITIONS in PIHM 2.0...........................
- * a) This file is downgraded from Version 1.0, as no ancillary results are 
- *    being output
- * b) Only state variables and flux to/in/accross river and its bed are being 
- *    output
- * c) Addition of Average Function to output average variables at regular time
- *    intervals
- ********************************************************************************/
-
 #include "pihm.h"
 
-/* Temporal average of State vectors */
-void PrintData (Print_Ctrl PCtrl, realtype tmpt, realtype dt, int Ascii)
+void PrintData (prtctrl_struct *prtctrl, int t, int dt, int ascii)
 {
     int             j;
     struct tm      *timestamp;
-    time_t         *rawtime;
-    char           *ascii_name;
-    FILE           *fpin;
-    realtype        outval;
-    realtype        outtime;
+    time_t          rawtime;
+    char            ascii_fn[MAXSTRING];
+    FILE           *fid;
+    double        outval;
+    double          outtime;
 
-    rawtime = (time_t *) malloc (sizeof (time_t));
-
-    for (j = 0; j < PCtrl.NumVar; j++)
-        PCtrl.buffer[j] = PCtrl.buffer[j] + *PCtrl.PrintVar[j];
-
-    if (((int)tmpt % PCtrl.Interval) == 0)
+    for (j = 0; j < prtctrl->nvrbl; j++)
     {
-        *rawtime = (int)tmpt;
-        timestamp = gmtime (rawtime);
-        outtime = (realtype) (*rawtime);
+        prtctrl->buffer[j] += *prtctrl->vrbl[j];
+    }
 
-        if (Ascii)
+    if (t % prtctrl->intvl == 0)
+    {
+        rawtime = t;
+        timestamp = gmtime (&rawtime);
+
+        if (ascii)
         {
-            ascii_name = (char *)malloc ((strlen (PCtrl.name) + 5) * sizeof (char));
-            sprintf (ascii_name, "%s.txt", PCtrl.name);
-            fpin = fopen (ascii_name, "a");
-            if (NULL == fpin)
+            sprintf (ascii_fn, "%s.txt", prtctrl->name);
+            fid = fopen (ascii_fn, "a");
+            if (NULL == fid)
             {
-                printf ("\t ERROR: opening output files (%s)!", ascii_name);
+                printf ("ERROR: opening output files (%s)!\n", ascii_fn);
                 exit (1);
             }
-            fprintf (fpin, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-            for (j = 0; j < PCtrl.NumVar; j++)
+            fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+            for (j = 0; j < prtctrl->nvrbl; j++)
             {
-                if ((realtype) PCtrl.Interval > dt)
-                    fprintf (fpin, "%lf\t", PCtrl.buffer[j] / ( (realtype) PCtrl.Interval / dt));
+                if (prtctrl->intvl > dt)
+                {
+                    fprintf (fid, "\t%lf", prtctrl->buffer[j] / ( (double) (prtctrl->intvl / dt)));
+                }
                 else
-                    fprintf (fpin, "%lf\t", PCtrl.buffer[j]);
+                {
+                    fprintf (fid, "\t%lf", prtctrl->buffer[j]);
+                }
             }
-            fprintf (fpin, "\n");
-            fflush (fpin);
-            fclose (fpin);
-            free (ascii_name);
+            fprintf (fid, "\n");
+            fflush (fid);
+            fclose (fid);
         }
-        fpin = fopen (PCtrl.name, "ab");
-        if (NULL == fpin)
+
+        fid = fopen (prtctrl->name, "ab");
+        if (NULL == fid)
         {
-            printf ("\t ERROR: opening output files (.%s)!", PCtrl.name);
+            printf ("ERROR: opening output files (.%s)!\n", prtctrl->name);
             exit (1);
         }
 
-        fwrite (&outtime, sizeof (realtype), 1, fpin);
-        for (j = 0; j < PCtrl.NumVar; j++)
+        outtime = (double) t;
+        fwrite (&outtime, sizeof (double), 1, fid);
+        for (j = 0; j < prtctrl->nvrbl; j++)
         {
-            if ((realtype) PCtrl.Interval > dt)
-                outval = PCtrl.buffer[j] / ( (realtype) PCtrl.Interval / dt);
+            if (prtctrl->intvl > dt)
+            {
+                outval = prtctrl->buffer[j] / ((realtype) (prtctrl->intvl / dt));
+            }
             else
-                outval = PCtrl.buffer[j];
-            fwrite (&outval, sizeof (realtype), 1, fpin);
-            PCtrl.buffer[j] = 0.0;
+            {
+                outval = prtctrl->buffer[j];
+            }
+            fwrite (&outval, sizeof (double), 1, fid);
+            prtctrl->buffer[j] = 0.0;
         }
-        fflush (fpin);
-        fclose (fpin);
+        fflush (fid);
+        fclose (fid);
     }
-    free (rawtime);
 }
 
-void PrintInit (Model_Data DS, char *filename)
-{
-    FILE           *init_file;
-    char           *init_name;
-    int             i;
-
-    init_name = (char *)malloc ((2 * strlen (filename) + 13) * sizeof (char));
-    sprintf (init_name, "input/%s/%s.init", filename, filename);
-    init_file = fopen (init_name, "w");
-    free (init_name);
-
-    for (i = 0; i < DS->NumEle; i++)
-        fprintf (init_file, "%lf\t%lf\t%lf\t%lf\t%lf\n", DS->EleIS[i], DS->EleSnow[i], DS->EleSurf[i], DS->EleUnsat[i], DS->EleGW[i]);
-    for (i = 0; i < DS->NumRiv; i++)
-        fprintf (init_file, "%lf\t%lf\n", DS->RivStg[i], DS->EleGW[i + DS->NumEle]);
-    fclose (init_file);
-}
+//void PrintInit (Model_Data DS, char *filename)
+//{
+//    FILE           *init_file;
+//    char           *init_name;
+//    int             i;
+//
+//    init_name = (char *)malloc ((2 * strlen (filename) + 13) * sizeof (char));
+//    sprintf (init_name, "input/%s/%s.init", filename, filename);
+//    init_file = fopen (init_name, "w");
+//    free (init_name);
+//
+//    for (i = 0; i < DS->NumEle; i++)
+//        fprintf (init_file, "%lf\t%lf\t%lf\t%lf\t%lf\n", DS->EleIS[i], DS->EleSnow[i], DS->EleSurf[i], DS->EleUnsat[i], DS->EleGW[i]);
+//    for (i = 0; i < DS->NumRiv; i++)
+//        fprintf (init_file, "%lf\t%lf\n", DS->RivStg[i], DS->EleGW[i + DS->NumEle]);
+//    fclose (init_file);
+//}

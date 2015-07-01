@@ -60,27 +60,33 @@ void ApplyForcing (forcing_ts_struct *forcing, int t);
 
 void IntcpSnowET (int t, double stepsize, pihm_struct pihm);
 
-int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data);
 void IntrplForcing (ts_struct ts, int t, int nvrbl, double *vrbl);
 double MonthlyLAI (int t, int lc_type);
 double MonthlyRL (int t, int lc_type);
 double MonthlyMF (int t);
 
+int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data);
+void LateralFlow (pihm_struct pihm);
+void VerticalFlow (pihm_struct pihm);
+void RiverFlow (pihm_struct pihm);
+void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank, int side, double *fluxsurf, double *fluxriv, double *fluxsub, double dt);
+
+double DhByDl (double *l1, double *l2, double *surfh);
+double RivArea (int riv_order, double riv_depth, double riv_coeff);
+double RivPerim (int riv_order, double riv_depth, double riv_coeff);
+double EqWid (int riv_order, double riv_depth, double riv_coeff);
+double OLFEleToRiv (double eleYtot, double EleZ, double cwr, double rivZmax, double rivYtot, double length);
+double OverlandFlow (double avg_y, double grad_y, double avg_sf, double cross, double avg_rough);
+double AvgY (double diff, double yi, double yinabr);
 //void            f_update (realtype, realtype *, void *);    /* YS */
 //void            summary (Model_Data, N_Vector, realtype, realtype); /* YS */
-//realtype        returnVal (realtype, realtype, realtype, realtype);
-//realtype        CS_AreaOrPerem (int, realtype, realtype, realtype);
-//void            OverlandFlow (realtype **, int, int, realtype, realtype, realtype, realtype, realtype);
-//void            OLFeleToriv (realtype, realtype, realtype, realtype, realtype, realtype **, int, int, realtype);
-//realtype        avgY (realtype, realtype, realtype);
-//realtype        effKV (realtype, realtype, realtype, realtype, realtype);
-//realtype        effKV_new (realtype ksatFunc, realtype elemSatn, int status, realtype macKV, realtype KV, realtype areaF);
-//realtype        effKH (int, realtype, realtype, realtype, realtype, realtype, realtype);
-//realtype        FieldCapacity (realtype, realtype, realtype, realtype, realtype);
-//void            is_sm_et (realtype, realtype, void *, N_Vector);
+double EffKV (double ksatfunc, double elemsatn, int status, double mackv, double kv, double areaf);
+double EffKH (int mp, double tmpy, double aqdepth, double macd, double macksath, double areaf, double ksath);
 //void            PrintInit (Model_Data, char *);
 //
-//int macpore_status (realtype ksatFunc, realtype elemSatn, realtype gradY, realtype macKV, realtype KV, realtype areaF);
+void PrintData (prtctrl_struct *prtctrl, int t, int dt, int ascii);
+int MacroporeStatus (double ksatfunc, double elemsatn, double grady, double mackv, double kv, double areaf);
 double          KrFunc (double alpha, double beta, double satn);
+double Psi (double satn, double alpha, double beta);
 
 #endif

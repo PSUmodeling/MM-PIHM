@@ -126,7 +126,7 @@ typedef struct elem_struct
     double          et[3];      /* Evapotranspiration (from canopy, ground,
                                  * transpiration) */
 
-    int             macropore_status;
+    int             macpore_status;
 
     double          albedo;
 #ifdef _NOAH_

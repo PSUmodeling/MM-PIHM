@@ -39,437 +39,610 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         pihm->riv[i].fluxriv[0] = 0.0;
         pihm->riv[i].fluxriv[10] = 0.0;
     }
-//        if (MD->SurfMode == 2 && i < MD->NumEle)
-//        {
-//            for (j = 0; j < 3; j++)
-//                MD->Ele[i].surfH[j] = (MD->Ele[i].nabr[j] > 0) ? ((MD->Ele[i].BC[j] > -4) ? (MD->Ele[MD->Ele[i].nabr[j] - 1].zmax + MD->DummyY[MD->Ele[i].nabr[j] - 1]) : ((MD->DummyY[-(MD->Ele[i].BC[j] / 4) - 1 + 3 * MD->NumEle] > MD->Riv[-(MD->Ele[i].BC[j] / 4) - 1].depth) ? MD->Riv[-(MD->Ele[i].BC[j] / 4) - 1].zmin + MD->DummyY[-(MD->Ele[i].BC[j] / 4) - 1 + 3 * MD->NumEle] : MD->Riv[-(MD->Ele[i].BC[j] / 4) - 1].zmax)) : ((MD->Ele[i].BC[j] != 1) ? (MD->Ele[i].zmax + MD->DummyY[i]) : Interpolation (&MD-> TSD_EleBC[(MD->Ele[i].BC[j]) - 1], t));
-//            MD->Ele[i].dhBYdx = -1.0 * (MD->Ele[i].surfY[2] * (MD->Ele[i].surfH[1] - MD->Ele[i].surfH[0]) + MD->Ele[i].surfY[1] * (MD->Ele[i].surfH[0] - MD->Ele[i].surfH[2]) + MD->Ele[i].surfY[0] * (MD->Ele[i].surfH[2] - MD->Ele[i].surfH[1])) / (MD->Ele[i].surfX[2] * (MD->Ele[i].surfY[1] - MD->Ele[i].surfY[0]) + MD->Ele[i].surfX[1] * (MD->Ele[i].surfY[0] - MD->Ele[i].surfY[2]) + MD->Ele[i].surfX[0] * (MD->Ele[i].surfY[2] - MD->Ele[i].surfY[1]));
-//            MD->Ele[i].dhBYdy = -1.0 * (MD->Ele[i].surfX[2] * (MD->Ele[i].surfH[1] - MD->Ele[i].surfH[0]) + MD->Ele[i].surfX[1] * (MD->Ele[i].surfH[0] - MD->Ele[i].surfH[2]) + MD->Ele[i].surfX[0] * (MD->Ele[i].surfH[2] - MD->Ele[i].surfH[1])) / (MD->Ele[i].surfY[2] * (MD->Ele[i].surfX[1] - MD->Ele[i].surfX[0]) + MD->Ele[i].surfY[1] * (MD->Ele[i].surfX[0] - MD->Ele[i].surfX[2]) + MD->Ele[i].surfY[0] * (MD->Ele[i].surfX[2] - MD->Ele[i].surfX[1]));
-//        }
-//    }
-//
-//    for (i = 0; i < MD->NumEle; i++)
-//    {
-//        AquiferDepth = (MD->Ele[i].zmax - MD->Ele[i].zmin);
-//        if (AquiferDepth < MD->Ele[i].macD)
-//            MD->Ele[i].macD = AquiferDepth;
-//
-//        /*
-//         * Lateral Flux Calculation between Triangular elements Follows  
-//         */
-//        for (j = 0; j < 3; j++)
-//        {
-//            if (MD->Ele[i].nabr[j] > 0)
-//            {
-//
-//                /* Subsurface Lateral Flux Calculation between Triangular elements Follows */
-//                Dif_Y_Sub = (MD->DummyY[i + 2 * MD->NumEle] + MD->Ele[i].zmin) - (MD->DummyY[MD->Ele[i].nabr[j] - 1 + 2 * MD->NumEle] + MD->Ele[MD->Ele[i].nabr[j] - 1].zmin);
-//                Avg_Y_Sub = avgY (Dif_Y_Sub, MD->DummyY[i + 2 * MD->NumEle], MD->DummyY[MD->Ele[i].nabr[j] - 1 + 2 * MD->NumEle]);
-//                Distance = sqrt (pow ((MD->Ele[i].x - MD->Ele[MD->Ele[i].nabr[j] - 1].x), 2) + pow ((MD->Ele[i].y - MD->Ele[MD->Ele[i].nabr[j] - 1].y), 2));
-//                Grad_Y_Sub = Dif_Y_Sub / Distance;
-//                /* Take care of macropore effect */
-//                effK = effKH (MD->Ele[i].Macropore, MD->DummyY[i + 2 * MD->NumEle], AquiferDepth, MD->Ele[i].macD, MD->Ele[i].macKsatH, MD->Ele[i].vAreaF, MD->Ele[i].KsatH);
-//                inabr = MD->Ele[i].nabr[j] - 1;
-//                nabrAqDepth = (MD->Ele[inabr].zmax - MD->Ele[inabr].zmin);
-//                effKnabr = effKH (MD->Ele[inabr].Macropore, MD->DummyY[inabr + 2 * MD->NumEle], nabrAqDepth, MD->Ele[inabr].macD, MD->Ele[inabr].macKsatH, MD->Ele[inabr].vAreaF, MD->Ele[inabr].KsatH);
-//                /* It should be weighted average. However, there is an ambiguity about distance used */
-//                Avg_Ksat = 0.5 * (effK + effKnabr);
-//                /* Groundwater flow modeled by Darcy's law */
-//                MD->FluxSub[i][j] = Avg_Ksat * Grad_Y_Sub * Avg_Y_Sub * MD->Ele[i].edge[j];
-//
-//                /* Surface Lateral Flux Calculation between Triangular elements Follows */
-//                Dif_Y_Surf = (MD->SurfMode == 1) ? (MD->Ele[i].zmax - MD->Ele[MD->Ele[i].nabr[j] - 1].zmax) : ((MD->DummyY[i] + MD->Ele[i].zmax) - (MD->DummyY[MD->Ele[i].nabr[j] - 1] + MD->Ele[MD->Ele[i].nabr[j] - 1].zmax));
-//                Avg_Y_Surf = avgY (Dif_Y_Surf, MD->DummyY[i], MD->DummyY[MD->Ele[i].nabr[j] - 1]);
-//                Grad_Y_Surf = Dif_Y_Surf / Distance;
-//                Avg_Sf = 0.5 * (sqrt (pow (MD->Ele[i].dhBYdx, 2) + pow (MD->Ele[i].dhBYdy, 2)) + sqrt (pow (MD->Ele[MD->Ele[i].nabr[j] - 1].dhBYdx, 2) + pow (MD->Ele[MD->Ele[i].nabr[j] - 1].dhBYdy, 2)));
-//                Avg_Sf = (MD->SurfMode == 1) ? (Grad_Y_Surf > 0.0 ? Grad_Y_Surf : EPS / 1.0e6) : (Avg_Sf > EPS / 1.0e6 ? Avg_Sf : EPS / 1.0e6);
-//                /* Weighting needed */
-//                Avg_Rough = 0.5 * (MD->Ele[i].Rough + MD->Ele[MD->Ele[i].nabr[j] - 1].Rough);
-//                CrossA = Avg_Y_Surf * MD->Ele[i].edge[j];
-//                OverlandFlow (MD->FluxSurf, i, j, Avg_Y_Surf, Grad_Y_Surf, Avg_Sf, CrossA, Avg_Rough);
-//            }
-//            /* Boundary condition Flux Calculations Follows */
-//            else
-//            {
-//                /* No flow (natural) boundary condition is default */
-//                if (MD->Ele[i].BC[j] == 0)
-//                {
-//                    MD->FluxSurf[i][j] = 0.0;
-//                    MD->FluxSub[i][j] = 0.0;
-//                }
-//                /* Note: ideally different boundary conditions need to be
-//                 * incorporated for surf and subsurf respectively */
-//                else if (MD->Ele[i].BC[j] == 1)
-//                {
-//                    /* Note: the formulation assumes only dirichlet TS right
-//                     * now */
-//                    /* Note the assumption here is no flow for surface */
-//                    MD->FluxSurf[i][j] = 0.0;
-//                    Dif_Y_Sub = (MD->DummyY[i + 2 * MD->NumEle] + MD->Ele[i].zmin) - Interpolation (&MD->TSD_EleBC[(MD->Ele[i].BC[j]) - 1], t);
-//                    Avg_Y_Sub = avgY (Dif_Y_Sub, MD->DummyY[i + 2 * MD->NumEle], (Interpolation (&MD->TSD_EleBC[(MD->Ele[i].BC[j]) - 1], t) - MD->Ele[i].zmin));
-//                    /* Minimum Distance from circumcenter to the edge of the
-//                     * triangle on which BDD. condition is defined */
-//                    Distance = sqrt (pow (MD->Ele[i].edge[0] * MD->Ele[i].edge[1] * MD->Ele[i].edge[2] / (4.0 * MD->Ele[i].area), 2) - pow (MD->Ele[i].edge[j] / 2.0, 2));
-//                    effK = effKH (MD->Ele[i].Macropore, MD->DummyY[i + 2 * MD->NumEle], AquiferDepth, MD->Ele[i].macD, MD->Ele[i].macKsatH, MD->Ele[i].vAreaF, MD->Ele[i].KsatH);
-//                    Avg_Ksat = effK;
-//                    Grad_Y_Sub = Dif_Y_Sub / Distance;
-//                    MD->FluxSub[i][j] = Avg_Ksat * Grad_Y_Sub * Avg_Y_Sub * MD->Ele[i].edge[j];
-//                }
-//                else
-//                {
-//                    /* Neumann BC (Note: MD->Ele[i].BC[j] value has to be
-//                     * = 2+(index of neumann boundary TS) */
-//                    MD->FluxSurf[i][j] = Interpolation (&MD->TSD_EleBC[(MD->Ele[i].BC[j]) - 1], t);
-//                    MD->FluxSub[i][j] = Interpolation (&MD->TSD_EleBC[(-MD->Ele[i].BC[j]) - 1], t);
-//                }
-//            }
-//        }
-//
-//        /*
-//         * Vertical flux of infiltration and recharge calculation follows
-//         * Note: Assumption is OVL flow depth less than EPS/100 is immobile water 
-//         */
-//        if (MD->DummyY[i + 2 * MD->NumEle] > AquiferDepth - MD->Ele[i].infD)
-//        {
-//            /* Assumption: infD<macD */
-//            Grad_Y_Sub = (MD->DummyY[i] + MD->Ele[i].zmax - (MD->DummyY[i + 2 * MD->NumEle] + MD->Ele[i].zmin)) / MD->Ele[i].infD;
-//            Grad_Y_Sub = ((MD->DummyY[i] < EPS / 100.0) && (Grad_Y_Sub > 0.0)) ? 0.0 : Grad_Y_Sub;
-//            elemSatn = 1.0;
-//            satKfunc = pow (elemSatn, 0.5) * pow (-1.0 + pow (1.0 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)), (MD->Ele[i].Beta - 1.0) / MD->Ele[i].Beta), 2);
-//            effK = (MD->Ele[i].Macropore == 1) ? effKV (satKfunc, Grad_Y_Sub, MD->Ele[i].macKsatV, MD->Ele[i].infKsatV, MD->Ele[i].hAreaF) : MD->Ele[i].infKsatV;
-//#ifdef _FLUX_PIHM_
-//            MD->EleViR[i] = MD->EleFCR[i] * effK * Grad_Y_Sub;
-//#else
-//            MD->EleViR[i] = effK * Grad_Y_Sub;
-//#endif
-//
-//#ifdef _FLUX_PIHM_
-//            if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i]) * dt < 0.0)
-//#else
-//            if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i] - (MD->DummyY[i] < (EPS / 100.0) ? 0.0 : MD->EleET[i][2])) * dt < 0.0)
-//#endif
-//            {
-//#ifdef _FLUX_PIHM_
-//                MD->EleViR[i] = MD->DummyY[i] / dt + MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area;
-//#else
-//                MD->EleViR[i] = MD->DummyY[i] / dt + MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - (MD->DummyY[i] < (EPS / 100.0) ? 0.0 : MD->EleET[i][2]);
-//#endif
-//                MD->EleViR[i] = MD->EleViR[i] < 0.0 ? 0.0 : MD->EleViR[i];
-//            }
-//            MD->Recharge[i] = MD->EleViR[i];
-//            DY[i + MD->NumEle] = DY[i + MD->NumEle] + MD->EleViR[i] - MD->Recharge[i];
-//#ifdef _FLUX_PIHM_
-//            DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] + MD->Recharge[i] - MD->EleET[i][2];
-//#else
-//            DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] + MD->Recharge[i] - (MD->DummyY[i] < (EPS / 100.0) ? MD->EleET[i][2] : 0.0);
-//#endif
-//        }
-//        else
-//        {
-//            Deficit = AquiferDepth - MD->DummyY[i + 2 * MD->NumEle];
-//#ifdef _FLUX_PIHM_
-//            elemSatn = MD->SfcSat[i];
-//#else
-//            elemSatn = ((MD->DummyY[i + MD->NumEle] / Deficit) > 1.0) ? 1.0 : ((MD->DummyY[i + MD->NumEle] <= 0.0) ? EPS / 1000.0 : MD->DummyY[i + MD->NumEle] / Deficit);
-//#endif
-//            elemSatn = elemSatn > 1.0 ? 1.0 : elemSatn;
-//            elemSatn = (elemSatn < multF * EPS) ? (multF * EPS) : elemSatn;
-//            /* Note: for psi calculation using van genuchten relation, cutting
-//             * the psi-sat tail at small saturation can be performed for
-//             * computational advantage. If you dont' want to perform this,
-//             * comment the statement that follows */
-//            Avg_Y_Sub = (-(pow (pow (1.0 / elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)) - 1.0, 1.0 / MD->Ele[i].Beta) / MD->Ele[i].Alpha) < MINpsi) ? MINpsi : (-(pow (pow (1.0 / elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)) - 1.0, 1.0 / MD->Ele[i].Beta) / MD->Ele[i].Alpha));
-//            TotalY_Ele = Avg_Y_Sub + MD->Ele[i].zmin + AquiferDepth - MD->Ele[i].infD;
-//            Grad_Y_Sub = (MD->DummyY[i] + MD->Ele[i].zmax - TotalY_Ele) / MD->Ele[i].infD;
-//            Grad_Y_Sub = ((MD->DummyY[i] < EPS / 100.0) && (Grad_Y_Sub > 0.0)) ? 0.0 : Grad_Y_Sub;
-//            satKfunc = pow (elemSatn, 0.5) * pow (-1.0 + pow (1.0 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)), (MD->Ele[i].Beta - 1.0) / MD->Ele[i].Beta), 2);
-//            if (MD->Ele[i].Macropore == 1)
-//            {
-//                MD->EleMacAct[i] = macpore_status (satKfunc, elemSatn, Grad_Y_Sub, MD->Ele[i].macKsatV, MD->Ele[i].infKsatV, MD->Ele[i].hAreaF);
-//                effK = effKV_new (satKfunc, elemSatn, MD->EleMacAct[i], MD->Ele[i].macKsatV, MD->Ele[i].infKsatV, MD->Ele[i].hAreaF);
-//            }
-//            else
-//                effK = MD->Ele[i].infKsatV;
-//#ifdef _FLUX_PIHM_
-//            MD->EleViR[i] = MD->EleFCR[i] * 0.5 * (effK) * Grad_Y_Sub;
-//#else
-//            MD->EleViR[i] = 0.5 * (effK) * Grad_Y_Sub;
-//#endif
-//
-//#ifdef _FLUX_PIHM_
-//            if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i]) * dt < 0.0)
-//#else
-//            if (MD->DummyY[i] + (MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - MD->EleViR[i] - (MD->DummyY[i] < EPS / 100.0 ? 0.0 : MD->EleET[i][2])) * dt < 0.0)
-//#endif
-//            {
-//#ifdef _FLUX_PIHM_
-//                MD->EleViR[i] = MD->DummyY[i] / dt + MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area;
-//#else
-//                MD->EleViR[i] = MD->DummyY[i] / dt + MD->EleNetPrep[i] + (MD->FluxSurf[i][0] + MD->FluxSurf[i][1] + MD->FluxSurf[i][2]) / MD->Ele[i].area - (MD->DummyY[i] < EPS / 100.0 ? 0.0 : MD->EleET[i][2]);
-//#endif
-//                MD->EleViR[i] = MD->EleViR[i] < 0.0 ? 0.0 : MD->EleViR[i];
-//            }
-//            /* Harmonic mean formulation. Note that if unsaturated zone has low saturation, satKfunc becomes very small. Use arithmetic mean instead */
-//            //MD->Recharge[i] = (elemSatn==0.0)?0:(Deficit<=0)?0:(MD->Ele[i].KsatV*satKfunc*(MD->Ele[i].Alpha*Deficit-2*pow(-1+pow(elemSatn,MD->Ele[i].Beta/(-MD->Ele[i].Beta+1)),1/MD->Ele[i].Beta))/(MD->Ele[i].Alpha*((Deficit+MD->DummyY[i+2*MD->NumEle]*satKfunc))));
-//            /* Arithmetic Mean Formulation */
-//            elemSatn = ((MD->DummyY[i + MD->NumEle] / Deficit) > 1.0) ? 1.0 : ((MD->DummyY[i + MD->NumEle] <= 0.0) ? (EPS / 100.0) : (MD->DummyY[i + MD->NumEle] / Deficit));
-//            elemSatn = (elemSatn < multF * EPS) ? (multF * EPS) : elemSatn;
-//            satKfunc = pow (elemSatn, 0.5) * pow (-1.0 + pow (1.0 - pow (elemSatn, MD->Ele[i].Beta / (MD->Ele[i].Beta - 1.0)), (MD->Ele[i].Beta - 1.0) / MD->Ele[i].Beta), 2);
-//            effK = (MD->Ele[i].Macropore == 1) ? ((MD->DummyY[i + 2 * MD->NumEle] > AquiferDepth - MD->Ele[i].macD) ? effKV_new (satKfunc, elemSatn, MD->EleMacAct[i], MD->Ele[i].macKsatV, MD->Ele[i].KsatV, MD->Ele[i].hAreaF) : (MD->Ele[i].KsatV * satKfunc)) : (MD->Ele[i].KsatV * satKfunc);
-//            MD->Recharge[i] = (elemSatn == 0.0) ? 0.0 : ((Deficit <= 0.0) ? 0.0 : (MD->Ele[i].KsatV * MD->DummyY[i + 2 * MD->NumEle] + effK * Deficit) * (MD->Ele[i].Alpha * Deficit - 2.0 * pow (-1.0 + pow (elemSatn, MD->Ele[i].Beta / (-MD->Ele[i].Beta + 1.0)), 1.0 / MD->Ele[i].Beta)) / (MD->Ele[i].Alpha * pow (Deficit + MD->DummyY[i + 2 * MD->NumEle], 2)));
-//            MD->Recharge[i] = (MD->Recharge[i] > 0.0 && MD->DummyY[i + MD->NumEle] <= 0.0) ? 0.0 : MD->Recharge[i];
-//            MD->Recharge[i] = (MD->Recharge[i] < 0.0 && MD->DummyY[i + 2 * MD->NumEle] <= 0.0) ? 0.0 : MD->Recharge[i];
-//#ifdef _FLUX_PIHM_
-//            DY[i + MD->NumEle] = DY[i + MD->NumEle] + MD->EleViR[i] - MD->Recharge[i] - MD->EleET[i][2];
-//#else
-//            DY[i + MD->NumEle] = DY[i + MD->NumEle] + MD->EleViR[i] - MD->Recharge[i] - ((MD->DummyY[i] < EPS / 100.0) ? MD->EleET[i][2] : 0.0);
-//#endif
-//            DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] + MD->Recharge[i];
-//        }
-//#ifdef _FLUX_PIHM_
-//        DY[i] = DY[i] + MD->EleNetPrep[i] - MD->EleViR[i];
-//        DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] - MD->EleETsat[i] * MD->EleET[i][1];
-//        DY[i + MD->NumEle] = DY[i + MD->NumEle] - (1 - MD->EleETsat[i]) * MD->EleET[i][1];
-//#else
-//        DY[i] = DY[i] + MD->EleNetPrep[i] - MD->EleViR[i] - ((MD->DummyY[i] < EPS / 100.0) ? 0.0 : MD->EleET[i][2]);
-//        if (MD->DummyY[i + 2 * MD->NumEle] > AquiferDepth - MD->Ele[i].RzD)
-//            DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] - MD->EleET[i][1];
-//        else
-//            DY[i + MD->NumEle] = DY[i + MD->NumEle] - MD->EleET[i][1];
-//#endif
-//    }
-//
-//    /*
-//     * Lateral flux calculation between river-river and river-triangular
-//     * elements follows 
-//     */
-//    for (i = 0; i < MD->NumRiv; i++)
-//    {
-//        TotalY_Riv = MD->DummyY[i + 3 * MD->NumEle] + MD->Riv[i].zmin;
-//        Perem = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->DummyY[i + 3 * MD->NumEle], MD->Riv[i].coeff, 2);
-//        if (MD->Riv[i].down > 0)
-//        {
-//            /* Lateral flux calculation between river-river element follows */
-//            TotalY_Riv_down = MD->DummyY[MD->Riv[i].down - 1 + 3 * MD->NumEle] + MD->Riv[MD->Riv[i].down - 1].zmin;
-//            Perem_down = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[MD->Riv[i].down - 1].shape - 1].interpOrd, MD->DummyY[MD->Riv[i].down - 1 + 3 * MD->NumEle], MD->Riv[MD->Riv[i].down - 1].coeff, 2);
-//            Avg_Perem = (Perem + Perem_down) / 2.0;
-//            Avg_Rough = (MD->Riv_Mat[MD->Riv[i].material - 1].Rough + MD->Riv_Mat[MD->Riv[MD->Riv[i].down - 1].material - 1].Rough) / 2.0;
-//            Distance = 0.5 * (MD->Riv[i].Length + MD->Riv[MD->Riv[i].down - 1].Length);
-//            Dif_Y_Riv = (MD->RivMode == 1) ? (MD->Riv[i].zmin - MD->Riv[MD->Riv[i].down - 1].zmin) : (TotalY_Riv - TotalY_Riv_down);
-//            Grad_Y_Riv = Dif_Y_Riv / Distance;
-//            Avg_Sf = (Grad_Y_Riv > 0.0) ? Grad_Y_Riv : EPS;
-//            CrossA = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->DummyY[i + 3 * MD->NumEle], MD->Riv[i].coeff, 1);
-//            CrossAdown = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[MD->Riv[i].down - 1].shape - 1].interpOrd, MD->DummyY[MD->Riv[i].down - 1 + 3 * MD->NumEle], MD->Riv[MD->Riv[i].down - 1].coeff, 1);
-//            AvgCrossA = 0.5 * (CrossA + CrossAdown);
-//            Avg_Y_Riv = (Avg_Perem == 0.0) ? 0.0 : (AvgCrossA / Avg_Perem);
-//            OverlandFlow (MD->FluxRiv, i, 1, Avg_Y_Riv, Grad_Y_Riv, Avg_Sf, CrossA, Avg_Rough);
-//            /* Accumulate to get in-flow for down segments:
-//             * [0] for inflow, [1] for outflow */
-//            MD->FluxRiv[MD->Riv[i].down - 1][0] = MD->FluxRiv[MD->Riv[i].down - 1][0] - MD->FluxRiv[i][1];
-//
-//            /* Lateral Flux Calculation between Element Beneath River (EBR)
-//             * and EBR */
-//            TotalY_Ele = MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[i + MD->NumEle].zmin;
-//            TotalY_Ele_down = MD->DummyY[MD->Riv[i].down - 1 + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[MD->Riv[i].down - 1 + MD->NumEle].zmin;
-//            Wid = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->Riv[i].depth, MD->Riv[i].coeff, 3);
-//            Wid_down = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[MD->Riv[i].down - 1].shape - 1].interpOrd, MD->Riv[MD->Riv[i].down - 1].depth, MD->Riv[MD->Riv[i].down - 1].coeff, 3);
-//            Avg_Wid = (Wid + Wid_down) / 2.0;
-//            Distance = 0.5 * (MD->Riv[i].Length + MD->Riv[MD->Riv[i].down - 1].Length);
-//            Dif_Y_Sub = TotalY_Ele - TotalY_Ele_down;
-//            Avg_Y_Sub = avgY (Dif_Y_Sub, MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv], MD->DummyY[MD->Riv[i].down - 1 + 3 * MD->NumEle + MD->NumRiv]);
-//            Grad_Y_Sub = Dif_Y_Sub / Distance;
-//            /* Take care of macropore effect */
-//            AquiferDepth = MD->Ele[i + MD->NumEle].zmax - MD->Ele[i + MD->NumEle].zmin;
-//            effK = 0.5 * (effKH (MD->Ele[MD->Riv[i].LeftEle - 1].Macropore, MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle], MD->Ele[MD->Riv[i].LeftEle - 1].zmax - MD->Ele[MD->Riv[i].LeftEle - 1].zmin, MD->Ele[MD->Riv[i].LeftEle - 1].macD, MD->Ele[MD->Riv[i].LeftEle - 1].macKsatH, MD->Ele[MD->Riv[i].LeftEle - 1].vAreaF, MD->Ele[MD->Riv[i].LeftEle - 1].KsatH) + effKH (MD->Ele[MD->Riv[i].RightEle - 1].Macropore, MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle], MD->Ele[MD->Riv[i].RightEle - 1].zmax - MD->Ele[MD->Riv[i].RightEle - 1].zmin, MD->Ele[MD->Riv[i].RightEle - 1].macD, MD->Ele[MD->Riv[i].RightEle - 1].macKsatH, MD->Ele[MD->Riv[i].RightEle - 1].vAreaF, MD->Ele[MD->Riv[i].RightEle - 1].KsatH));
-//            inabr = MD->Riv[i].down - 1;
-//            nabrAqDepth = (MD->Ele[inabr].zmax - MD->Ele[inabr].zmin);
-//            effKnabr = 0.5 * (effKH (MD->Ele[MD->Riv[inabr].LeftEle - 1].Macropore, MD->DummyY[MD->Riv[inabr].LeftEle - 1 + 2 * MD->NumEle], MD->Ele[MD->Riv[inabr].LeftEle - 1].zmax - MD->Ele[MD->Riv[inabr].LeftEle - 1].zmin, MD->Ele[MD->Riv[inabr].LeftEle - 1].macD, MD->Ele[MD->Riv[inabr].LeftEle - 1].macKsatH, MD->Ele[MD->Riv[inabr].LeftEle - 1].vAreaF, MD->Ele[MD->Riv[inabr].LeftEle - 1].KsatH) + effKH (MD->Ele[MD->Riv[inabr].RightEle - 1].Macropore, MD->DummyY[MD->Riv[inabr].RightEle - 1 + 2 * MD->NumEle], MD->Ele[MD->Riv[inabr].RightEle - 1].zmax - MD->Ele[MD->Riv[inabr].RightEle - 1].zmin, MD->Ele[MD->Riv[inabr].RightEle - 1].macD, MD->Ele[MD->Riv[inabr].RightEle - 1].macKsatH, MD->Ele[MD->Riv[inabr].RightEle - 1].vAreaF, MD->Ele[MD->Riv[inabr].RightEle - 1].KsatH));
-//            Avg_Ksat = 0.5 * (effK + effKnabr);
-//            /* Groundwater flow modeled by Darcy's law */
-//            MD->FluxRiv[i][9] = Avg_Ksat * Grad_Y_Sub * Avg_Y_Sub * Avg_Wid;
-//            /* Accumulate to get in-flow for down segments:
-//             * [10] for inflow, [9] for outflow */
-//            MD->FluxRiv[MD->Riv[i].down - 1][10] = MD->FluxRiv[MD->Riv[i].down - 1][10] - MD->FluxRiv[i][9];
-//        }
-//        else
-//        {
-//            switch (MD->Riv[i].down)
-//            {
-//                case -1:
-//                    /* Dirichlet boundary condition */
-//                    TotalY_Riv_down = Interpolation (&MD->TSD_Riv[(MD->Riv[i].BC) - 1], t) + (MD->Node[MD->Riv[i].ToNode - 1].zmax - MD->Riv[i].depth);
-//                    Distance = sqrt (pow (MD->Riv[i].x - MD->Node[MD->Riv[i].ToNode - 1].x, 2) + pow (MD->Riv[i].y - MD->Node[MD->Riv[i].ToNode - 1].y, 2));
-//                    Grad_Y_Riv = (TotalY_Riv - TotalY_Riv_down) / Distance;
-//                    Avg_Sf = (MD->RivMode == 1) ? Grad_Y_Riv : Grad_Y_Riv;
-//                    Avg_Rough = MD->Riv_Mat[MD->Riv[i].material - 1].Rough;
-//                    Avg_Y_Riv = avgY (Grad_Y_Riv, MD->DummyY[i + 3 * MD->NumEle], Interpolation (&MD->TSD_Riv[(MD->Riv[i].BC) - 1], t));
-//                    Avg_Perem = Perem;
-//                    CrossA = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->DummyY[i + 3 * MD->NumEle], MD->Riv[i].coeff, 1);
-//                    Avg_Y_Riv = (Perem == 0.0) ? 0.0 : (CrossA / Avg_Perem);
-//                    OverlandFlow (MD->FluxRiv, i, 1, Avg_Y_Riv, Grad_Y_Riv, Avg_Sf, CrossA, Avg_Rough);
-//                    break;
-//                case -2:
-//                    /* Neumann boundary condition */
-//                    MD->FluxRiv[i][1] = Interpolation (&MD->TSD_Riv[MD->Riv[i].BC - 1], t);
-//                    break;
-//                case -3:
-//                    /* Zero-depth-gradient boundary conditions */
-//                    Distance = sqrt (pow (MD->Riv[i].x - MD->Node[MD->Riv[i].ToNode - 1].x, 2) + pow (MD->Riv[i].y - MD->Node[MD->Riv[i].ToNode - 1].y, 2));
-//                    Grad_Y_Riv = (MD->Riv[i].zmin - (MD->Node[MD->Riv[i].ToNode - 1].zmax - MD->Riv[i].depth)) / Distance;
-//                    Avg_Rough = MD->Riv_Mat[MD->Riv[i].material - 1].Rough;
-//                    Avg_Y_Riv = MD->DummyY[i + 3 * MD->NumEle];
-//                    Avg_Perem = Perem;
-//                    CrossA = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->DummyY[i + 3 * MD->NumEle], MD->Riv[i].coeff, 1);
-//                    MD->FluxRiv[i][1] = sqrt (Grad_Y_Riv) * CrossA * ((Avg_Perem > 0.0) ? pow (CrossA / Avg_Perem, 2.0 / 3.0) : 0.0) / Avg_Rough;
-//                    break;
-//                case -4:
-//                    /* Critical Depth boundary conditions */
-//                    CrossA = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->DummyY[i + 3 * MD->NumEle], MD->Riv[i].coeff, 1);
-//                    MD->FluxRiv[i][1] = CrossA * sqrt (GRAV * MD->DummyY[i + 3 * MD->NumEle]);
-//                    break;
-//                default:
-//                    printf ("Fatal Error: River Routing Boundary Condition Type Is Wrong!");
-//                    exit (1);
-//            }
-//            /* Note: bdd condition for subsurface element can be changed.
-//             * Assumption: No flow condition */
-//            MD->FluxRiv[i][9] = 0.0;
-//        }
-//
-//        if (MD->Riv[i].LeftEle > 0)
-//        {
-//            /* Lateral surface flux calculation between river-triangular
-//             * element follows */
-//            OLFeleToriv (MD->DummyY[MD->Riv[i].LeftEle - 1] + MD->Ele[MD->Riv[i].LeftEle - 1].zmax, MD->Ele[MD->Riv[i].LeftEle - 1].zmax, MD->Riv_Mat[MD->Riv[i].material - 1].Cwr, MD->Riv[i].zmax, TotalY_Riv, MD->FluxRiv, i, 2, MD->Riv[i].Length);
-//            /* Lateral sub-surface flux calculation between river-triangular
-//             * element follows */
-//            Dif_Y_Sub = (MD->DummyY[i + 3 * MD->NumEle] + MD->Riv[i].zmin) - (MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle] + MD->Ele[MD->Riv[i].LeftEle - 1].zmin);
-//            /* This is head at river edge representation */
-//            //Avg_Y_Sub = ((MD->Riv[i].zmax-(MD->Ele[MD->Riv[i].LeftEle-1].zmax-MD->Ele[MD->Riv[i].LeftEle-1].zmin)+MD->DummyY[MD->Riv[i].LeftEle-1 + 2*MD->NumEle])>MD->Riv[i].zmin)?((MD->Riv[i].zmax-(MD->Ele[MD->Riv[i].LeftEle-1].zmax-MD->Ele[MD->Riv[i].LeftEle-1].zmin)+MD->DummyY[MD->Riv[i].LeftEle-1 + 2*MD->NumEle])-MD->Riv[i].zmin):0;
-//            /* This is head in neighboring cell represention */
-//            Avg_Y_Sub = MD->Ele[MD->Riv[i].LeftEle - 1].zmin > MD->Riv[i].zmin ? MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle] : ((MD->Ele[MD->Riv[i].LeftEle - 1].zmin + MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle]) > MD->Riv[i].zmin ? (MD->Ele[MD->Riv[i].LeftEle - 1].zmin + MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle] - MD->Riv[i].zmin) : 0.0);
-//            Avg_Y_Sub = avgY (Dif_Y_Sub, MD->DummyY[i + 3 * MD->NumEle], Avg_Y_Sub);
-//            effK = MD->Riv[i].KsatH;
-//            Distance = sqrt (pow ((MD->Riv[i].x - MD->Ele[MD->Riv[i].LeftEle - 1].x), 2) + pow ((MD->Riv[i].y - MD->Ele[MD->Riv[i].LeftEle - 1].y), 2));
-//            Grad_Y_Sub = Dif_Y_Sub / Distance;
-//            /* Take care of macropore effect */
-//            inabr = MD->Riv[i].LeftEle - 1;
-//            AquiferDepth = (MD->Ele[inabr].zmax - MD->Ele[inabr].zmin);
-//            effKnabr = effKH (MD->Ele[inabr].Macropore, MD->DummyY[inabr + 2 * MD->NumEle], AquiferDepth, MD->Ele[inabr].macD, MD->Ele[inabr].macKsatH, MD->Ele[inabr].vAreaF, MD->Ele[inabr].KsatH);
-//            Avg_Ksat = 0.5 * (effK + effKnabr);
-//            MD->FluxRiv[i][4] = MD->Riv[i].Length * Avg_Ksat * Grad_Y_Sub * Avg_Y_Sub;
-//
-//            /* Lateral Flux between rectangular element (beneath river) and triangular element */
-//            Dif_Y_Sub = (MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[i + MD->NumEle].zmin) - (MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle] + MD->Ele[MD->Riv[i].LeftEle - 1].zmin);
-//            /* This is head at river edge representation */
-//            //Avg_Y_Sub = ((MD->Riv[i].zmax-(MD->Ele[MD->Riv[i].LeftEle-1].zmax-MD->Ele[MD->Riv[i].LeftEle-1].zmin)+MD->DummyY[MD->Riv[i].LeftEle-1 + 2*MD->NumEle])>MD->Riv[i].zmin)?MD->Riv[i].zmin-(MD->Riv[i].zmax-(MD->Ele[MD->Riv[i].LeftEle-1].zmax-MD->Ele[MD->Riv[i].LeftEle-1].zmin)):MD->DummyY[MD->Riv[i].LeftEle-1 + 2*MD->NumEle];
-//            /* This is head in neighboring cell represention */
-//            Avg_Y_Sub = MD->Ele[MD->Riv[i].LeftEle - 1].zmin > MD->Riv[i].zmin ? 0 : ((MD->Ele[MD->Riv[i].LeftEle - 1].zmin + MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle]) > MD->Riv[i].zmin ? (MD->Riv[i].zmin - MD->Ele[MD->Riv[i].LeftEle - 1].zmin) : MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle]);
-//            Avg_Y_Sub = avgY (Dif_Y_Sub, MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv], Avg_Y_Sub);
-//            AquiferDepth = (MD->Ele[i + MD->NumEle].zmax - MD->Ele[i + MD->NumEle].zmin);
-//            effK = 0.5 * (effKH (MD->Ele[MD->Riv[i].LeftEle - 1].Macropore, MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle], MD->Ele[MD->Riv[i].LeftEle - 1].zmax - MD->Ele[MD->Riv[i].LeftEle - 1].zmin, MD->Ele[MD->Riv[i].LeftEle - 1].macD, MD->Ele[MD->Riv[i].LeftEle - 1].macKsatH, MD->Ele[MD->Riv[i].LeftEle - 1].vAreaF, MD->Ele[MD->Riv[i].LeftEle - 1].KsatH) + effKH (MD->Ele[MD->Riv[i].RightEle - 1].Macropore, MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle], MD->Ele[MD->Riv[i].RightEle - 1].zmax - MD->Ele[MD->Riv[i].RightEle - 1].zmin, MD->Ele[MD->Riv[i].RightEle - 1].macD, MD->Ele[MD->Riv[i].RightEle - 1].macKsatH, MD->Ele[MD->Riv[i].RightEle - 1].vAreaF, MD->Ele[MD->Riv[i].RightEle - 1].KsatH));
-//            inabr = MD->Riv[i].LeftEle - 1;
-//            nabrAqDepth = (MD->Ele[inabr].zmax - MD->Ele[inabr].zmin);
-//            effKnabr = effKH (MD->Ele[inabr].Macropore, MD->DummyY[inabr + 2 * MD->NumEle], nabrAqDepth, MD->Ele[inabr].macD, MD->Ele[inabr].macKsatH, MD->Ele[inabr].vAreaF, MD->Ele[inabr].KsatH);
-//            Avg_Ksat = 0.5 * (effK + effKnabr);
-//            Grad_Y_Sub = Dif_Y_Sub / Distance;
-//            /* Take care of macropore effect */
-//            MD->FluxRiv[i][7] = MD->Riv[i].Length * Avg_Ksat * Grad_Y_Sub * Avg_Y_Sub;
-//
-//            /* Replace flux term */
-//            for (j = 0; j < 3; j++)
-//            {
-//                if (MD->Ele[MD->Riv[i].LeftEle - 1].nabr[j] == MD->Riv[i].RightEle)
-//                {
-//                    if (-MD->FluxRiv[i][2] > 0.0 && -MD->FluxRiv[i][2] > MD->FluxSurf[MD->Riv[i].LeftEle - 1][j])
-//                        MD->FluxRiv[i][2] = -MD->DummyY[MD->Riv[i].LeftEle - 1] / dt;
-//                    MD->FluxSurf[MD->Riv[i].LeftEle - 1][j] = -MD->FluxRiv[i][2];
-//                    MD->FluxSub[MD->Riv[i].LeftEle - 1][j] = -MD->FluxRiv[i][4];
-//                    MD->FluxSub[MD->Riv[i].LeftEle - 1][j] = MD->FluxSub[MD->Riv[i].LeftEle - 1][j] - MD->FluxRiv[i][7];
-//                    break;
-//                }
-//            }
-//        }
-//
-//        if (MD->Riv[i].RightEle > 0)
-//        {
-//            /* Lateral Surface Flux Calculation between River-Triangular element Follows */
-//            OLFeleToriv (MD->DummyY[MD->Riv[i].RightEle - 1] + MD->Ele[MD->Riv[i].RightEle - 1].zmax, MD->Ele[MD->Riv[i].RightEle - 1].zmax, MD->Riv_Mat[MD->Riv[i].material - 1].Cwr, MD->Riv[i].zmax, TotalY_Riv, MD->FluxRiv, i, 3, MD->Riv[i].Length);
-//            /* Lateral Sub-surface Flux Calculation between River-Triangular element Follows */
-//            Dif_Y_Sub = (MD->DummyY[i + 3 * MD->NumEle] + MD->Riv[i].zmin) - (MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle] + MD->Ele[MD->Riv[i].RightEle - 1].zmin);
-//            /* This is head at river edge representation */
-//            //Avg_Y_Sub = ((MD->Riv[i].zmax-(MD->Ele[MD->Riv[i].RightEle-1].zmax-MD->Ele[MD->Riv[i].RightEle-1].zmin)+MD->DummyY[MD->Riv[i].RightEle-1 + 2*MD->NumEle])>MD->Riv[i].zmin)?((MD->Riv[i].zmax-(MD->Ele[MD->Riv[i].RightEle-1].zmax-MD->Ele[MD->Riv[i].RightEle-1].zmin)+MD->DummyY[MD->Riv[i].RightEle-1 + 2*MD->NumEle])-MD->Riv[i].zmin):0;
-//            /* This is head in neighboring cell represention */
-//            Avg_Y_Sub = MD->Ele[MD->Riv[i].RightEle - 1].zmin > MD->Riv[i].zmin ? MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle] : ((MD->Ele[MD->Riv[i].RightEle - 1].zmin + MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle]) > MD->Riv[i].zmin ? (MD->Ele[MD->Riv[i].RightEle - 1].zmin + MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle] - MD->Riv[i].zmin) : 0.0);
-//            Avg_Y_Sub = avgY (Dif_Y_Sub, MD->DummyY[i + 3 * MD->NumEle], Avg_Y_Sub);
-//            effK = MD->Riv[i].KsatH;
-//            Distance = sqrt (pow ((MD->Riv[i].x - MD->Ele[MD->Riv[i].RightEle - 1].x), 2) + pow ((MD->Riv[i].y - MD->Ele[MD->Riv[i].RightEle - 1].y), 2));
-//            Grad_Y_Sub = Dif_Y_Sub / Distance;
-//            /* Take care of macropore effect */
-//            inabr = MD->Riv[i].RightEle - 1;
-//            AquiferDepth = (MD->Ele[inabr].zmax - MD->Ele[inabr].zmin);
-//            effKnabr = effKH (MD->Ele[inabr].Macropore, MD->DummyY[inabr + 2 * MD->NumEle], AquiferDepth, MD->Ele[inabr].macD, MD->Ele[inabr].macKsatH, MD->Ele[inabr].vAreaF, MD->Ele[inabr].KsatH);
-//            Avg_Ksat = 0.5 * (effK + effKnabr);
-//            MD->FluxRiv[i][5] = MD->Riv[i].Length * Avg_Ksat * Grad_Y_Sub * Avg_Y_Sub;
-//
-//            /* Lateral Flux between rectangular element (beneath river) and triangular element */
-//            Dif_Y_Sub = (MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[i + MD->NumEle].zmin) - (MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle] + MD->Ele[MD->Riv[i].RightEle - 1].zmin);
-//            /* This is head at river edge representation */
-//            //Avg_Y_Sub = ((MD->Riv[i].zmax-(MD->Ele[MD->Riv[i].RightEle-1].zmax-MD->Ele[MD->Riv[i].RightEle-1].zmin)+MD->DummyY[MD->Riv[i].RightEle-1 + 2*MD->NumEle])>MD->Riv[i].zmin)?MD->Riv[i].zmin-(MD->Riv[i].zmax-(MD->Ele[MD->Riv[i].RightEle-1].zmax-MD->Ele[MD->Riv[i].RightEle-1].zmin)):MD->DummyY[MD->Riv[i].RightEle-1 + 2*MD->NumEle];
-//            /* This is head in neighboring cell represention */
-//            Avg_Y_Sub = MD->Ele[MD->Riv[i].RightEle - 1].zmin > MD->Riv[i].zmin ? 0.0 : ((MD->Ele[MD->Riv[i].RightEle - 1].zmin + MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle]) > MD->Riv[i].zmin ? (MD->Riv[i].zmin - MD->Ele[MD->Riv[i].RightEle - 1].zmin) : MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle]);
-//            Avg_Y_Sub = avgY (Dif_Y_Sub, MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv], Avg_Y_Sub);
-//            AquiferDepth = (MD->Ele[i + MD->NumEle].zmax - MD->Ele[i + MD->NumEle].zmin);
-//            effK = 0.5 * (effKH (MD->Ele[MD->Riv[i].LeftEle - 1].Macropore, MD->DummyY[MD->Riv[i].LeftEle - 1 + 2 * MD->NumEle], MD->Ele[MD->Riv[i].LeftEle - 1].zmax - MD->Ele[MD->Riv[i].LeftEle - 1].zmin, MD->Ele[MD->Riv[i].LeftEle - 1].macD, MD->Ele[MD->Riv[i].LeftEle - 1].macKsatH, MD->Ele[MD->Riv[i].LeftEle - 1].vAreaF, MD->Ele[MD->Riv[i].LeftEle - 1].KsatH) + effKH (MD->Ele[MD->Riv[i].RightEle - 1].Macropore, MD->DummyY[MD->Riv[i].RightEle - 1 + 2 * MD->NumEle], MD->Ele[MD->Riv[i].RightEle - 1].zmax - MD->Ele[MD->Riv[i].RightEle - 1].zmin, MD->Ele[MD->Riv[i].RightEle - 1].macD, MD->Ele[MD->Riv[i].RightEle - 1].macKsatH, MD->Ele[MD->Riv[i].RightEle - 1].vAreaF, MD->Ele[MD->Riv[i].RightEle - 1].KsatH));
-//            inabr = MD->Riv[i].RightEle - 1;
-//            nabrAqDepth = (MD->Ele[inabr].zmax - MD->Ele[inabr].zmin);
-//            effKnabr = effKH (MD->Ele[inabr].Macropore, MD->DummyY[inabr + 2 * MD->NumEle], nabrAqDepth, MD->Ele[inabr].macD, MD->Ele[inabr].macKsatH, MD->Ele[inabr].vAreaF, MD->Ele[inabr].KsatH);
-//            Avg_Ksat = 0.5 * (effK + effKnabr);
-//            Grad_Y_Sub = Dif_Y_Sub / Distance;
-//            /* Take care of macropore effect */
-//            MD->FluxRiv[i][8] = MD->Riv[i].Length * Avg_Ksat * Grad_Y_Sub * Avg_Y_Sub;
-//            /* Replace flux item */
-//            for (j = 0; j < 3; j++)
-//            {
-//                if (MD->Ele[MD->Riv[i].RightEle - 1].nabr[j] == MD->Riv[i].LeftEle)
-//                {
-//                    if (-MD->FluxRiv[i][3] > 0.0 && -MD->FluxRiv[i][3] > MD->FluxSurf[MD->Riv[i].RightEle - 1][j])
-//                        MD->FluxRiv[i][3] = -MD->DummyY[MD->Riv[i].RightEle - 1] / dt;
-//                    MD->FluxSurf[MD->Riv[i].RightEle - 1][j] = -MD->FluxRiv[i][3];
-//                    MD->FluxSub[MD->Riv[i].RightEle - 1][j] = -MD->FluxRiv[i][5];
-//                    MD->FluxSub[MD->Riv[i].RightEle - 1][j] = MD->FluxSub[MD->Riv[i].RightEle - 1][j] - MD->FluxRiv[i][8];
-//                    break;
-//                }
-//            }
-//        }
-//        Avg_Wid = CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->DummyY[i + 3 * MD->NumEle], MD->Riv[i].coeff, 3);
-//        Dif_Y_Riv = (MD->Riv[i].zmin - (MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[i + MD->NumEle].zmin)) > 0.0 ? MD->DummyY[i + 3 * MD->NumEle] : MD->DummyY[i + 3 * MD->NumEle] + MD->Riv[i].zmin - (MD->DummyY[i + 3 * MD->NumEle + MD->NumRiv] + MD->Ele[i + MD->NumEle].zmin);
-//        Grad_Y_Riv = Dif_Y_Riv / MD->Riv[i].bedThick;
-//        MD->FluxRiv[i][6] = MD->Riv[i].KsatV * Avg_Wid * MD->Riv[i].Length * Grad_Y_Riv;
-//    }
-//
-//    for (i = 0; i < MD->NumEle; i++)
-//    {
-//        for (j = 0; j < 3; j++)
-//        {
-//            DY[i] = DY[i] - MD->FluxSurf[i][j] / MD->Ele[i].area;
-//            DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] - MD->FluxSub[i][j] / MD->Ele[i].area;
-//        }
-//        DY[i + MD->NumEle] = DY[i + MD->NumEle] / MD->Ele[i].Porosity;
-//        DY[i + 2 * MD->NumEle] = DY[i + 2 * MD->NumEle] / MD->Ele[i].Porosity;
-//    }
-//
-//    for (i = 0; i < MD->NumRiv; i++)
-//    {
-//        for (j = 0; j <= 6; j++)
-//        {
-//            /* Note the limitation due to d(v)/dt=a*dy/dt+y*da/dt for CS other
-//             * than rectangle */
-//            DY[i + 3 * MD->NumEle] = DY[i + 3 * MD->NumEle] - MD->FluxRiv[i][j] / (MD->Riv[i].Length * CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->Riv[i].depth, MD->Riv[i].coeff, 3));
-//        }
-//        DY[i + 3 * MD->NumEle + MD->NumRiv] = DY[i + 3 * MD->NumEle + MD->NumRiv] - MD->FluxRiv[i][7] - MD->FluxRiv[i][8] - MD->FluxRiv[i][9] - MD->FluxRiv[i][10] + MD->FluxRiv[i][6];
-//        DY[i + 3 * MD->NumEle + MD->NumRiv] = DY[i + 3 * MD->NumEle + MD->NumRiv] / (MD->Ele[i + MD->NumEle].Porosity * MD->Riv[i].Length * CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[i].shape - 1].interpOrd, MD->Riv[i].depth, MD->Riv[i].coeff, 3));
-//    }
+
+    LateralFlow (pihm);
+
+    VerticalFlow (pihm);
+
+    RiverFlow (pihm);
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        elem = &pihm->elem[i];
+
+        if (elem->gw > elem->soil.depth - elem->soil.dinf)
+        {
+            dy[i + pihm->numele] += elem->infil - elem->rechg;
+#ifdef _NOAH_
+            dy[i + 2 * pihm->numele] += elem->rechg - elem->et[2];
+#else
+            dy[i + 2 * pihm->numele] += elem->rechg - ((elem->surf < EPS / 100.0) ? elem->et[2] : 0.0);
+#endif
+        }
+        else
+        {
+#ifdef _NOAH_
+            dy[i + pihm->numele] += elem->infil - elem->rechg - elem->et[2];
+#else
+            dy[i + pihm->numele] += elem->infil - elem->rechg - ((elem->surf < EPS / 100.0) ? elem->et[2] : 0.0);
+#endif
+            dy[i + 2 * pihm->numele] += elem->rechg;
+        }
+
+#ifdef _NOAH_
+        dy[i] += elem->netprcp - elem->infil;
+        dy[i + 2 * pihm->numele] -= elem->et_from_sat * elem->et[1];
+        dy[i + pihm->numele] -= (1.0 - elem->et_from_sat) * elem->et[1];
+#else
+        dy[i] += elem->netprcp - elem->infil - ((elem->surf < EPS / 100.0) ? 0.0 : elem->et[2]);
+        if (elem->gw > elem->soil.depth - elem->lc.rzd)
+        {
+            dy[i + 2 * pihm->numele] -= elem->et[1];
+        }
+        else
+        {
+            dy[i + pihm->numele] -= elem->et[1];
+        }
+#endif
+
+        for (j = 0; j < 3; j++)
+        {
+            dy[i] -= elem->fluxsurf[j] / elem->topo.area;
+            dy[i + 2 * pihm->numele] -= elem->fluxsub[j] / elem->topo.area;
+        }
+
+        dy[i + pihm->numele] /= elem->soil.porosity;
+        dy[i + 2 * pihm->numele] /= elem->soil.porosity;
+    }
+
+    for (i = 0; i < pihm->numriv; i++)
+    {
+        riv = &(pihm->riv[i]);
+
+        for (j = 0; j <= 6; j++)
+        {
+            /* Note the limitation due to
+             * d(v)/dt=a*dy/dt+y*da/dt
+             * for cs other than rectangle */
+            dy[i + 3 * pihm->numele] -= riv->fluxriv[j] / (riv->shp.length * EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff));
+        }
+        dy[i + 3 * pihm->numele + pihm->numriv] += -riv->fluxriv[7] - riv->fluxriv[8] - riv->fluxriv[9] - riv->fluxriv[10] + riv->fluxriv[6];
+        dy[i + 3 * pihm->numele + pihm->numriv] /= riv->matl.porosity * riv->shp.length * EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff);
+    }
 
     return 0;
+}
+
+void LateralFlow (pihm_struct pihm)
+{
+    int             i, j;
+    double          dif_y_sub;
+    double          avg_y_sub;
+    double          distance;
+    double          grad_y_sub;
+    double          surfh[3];
+    double          dhbydx[pihm->numele];
+    double          dhbydy[pihm->numele];
+    double          effk;
+    double          effk_nabr;
+    double          avg_ksat;
+    double          dif_y_surf;
+    double          avg_y_surf;
+    double          grad_y_surf;
+    double          avg_sf;
+    double          avg_rough;
+    double          crossa;
+
+    elem_struct    *elem;
+    elem_struct    *nabr;
+    river_struct   *riv;
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        elem = &pihm->elem[i];
+
+        if (pihm->ctrl.surf_mode == 2)
+        {
+            for (j = 0; j < 3; j++)
+            {
+                if (elem->nabr[j] > 0)
+                {
+                    nabr = &pihm->elem[elem->nabr[j] - 1];
+
+                    if (elem->forc.bc_type[j] > -4)
+                    {
+                        surfh[j] = nabr->topo.zmax + nabr->surf;
+                    }
+                    else
+                    {
+                        riv = &pihm->riv[-elem->forc.bc_type[j] / 4 - 1];
+
+                        if (riv->stage > riv->shp.depth)
+                        {
+                            surfh[j] = riv->topo.zbed + riv->stage;
+                        }
+                        else
+                        {
+                            surfh[j] = riv->topo.zmax;
+                        }
+                    }
+                }
+                else
+                {
+                    if (elem->forc.bc_type[j] != 1)
+                    {
+                        surfh[j] = elem->topo.zmax + elem->surf;
+                    }
+                    else
+                    {
+                        surfh[j] = *elem->forc.bc[j];
+                    }
+                }
+            }
+
+            dhbydx[i] = DhByDl (elem->topo.surfy, elem->topo.surfx, surfh);
+            dhbydy[i] = DhByDl (elem->topo.surfx, elem->topo.surfy, surfh);
+        }
+    }
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        elem = &pihm->elem[i];
+
+        for (j = 0; j < 3; j++)
+        {
+            if (elem->nabr[j] > 0)
+            {
+                nabr = &pihm->elem[elem->nabr[j] - 1];
+
+                /*
+                 * Subsurface lateral flux calculation between triangular
+                 * elements
+                 */
+                dif_y_sub = (elem->gw + elem->topo.zmin) - (nabr->gw + nabr->topo.zmin);
+                avg_y_sub = AvgY (dif_y_sub, elem->gw, nabr->gw);
+                distance = sqrt (pow (elem->topo.x - nabr->topo.x, 2) + pow (elem->topo.y - nabr->topo.y, 2));
+                grad_y_sub = dif_y_sub / distance;
+                /* Take into account macropore effect */
+                effk = EffKH (elem->soil.macropore, elem->gw, elem->soil.depth, elem->soil.dmac, elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
+                effk_nabr = EffKH (nabr->soil.macropore, nabr->gw, nabr->soil.depth, nabr->soil.dmac, nabr->soil.kmach, nabr->soil.areafv, nabr->soil.ksath);
+                avg_ksat = 0.5 * (effk + effk_nabr);
+                /* Groundwater flow modeled by Darcy's Law */
+                elem->fluxsub[j] = avg_ksat * grad_y_sub * avg_y_sub * elem->topo.edge[j];
+
+                /*
+                 * Surface lateral flux calculation between triangular
+                 * elements
+                 */
+                if (pihm->ctrl.surf_mode == 1)
+                {
+                    dif_y_surf = elem->topo.zmax - nabr->topo.zmax;
+                }
+                else
+                {
+                    dif_y_surf = (elem->surf + elem->topo.zmax) - (nabr->surf + nabr->topo.zmax);
+                }
+                avg_y_surf = AvgY (dif_y_surf, elem->surf, nabr->surf);
+                grad_y_surf = dif_y_surf / distance;
+                avg_sf = 0.5 * (sqrt (pow (dhbydx[i], 2) + pow (dhbydy[i], 2)) + sqrt (pow (dhbydx[elem->nabr[j] - 1], 2) + pow (dhbydy[elem->nabr[j] -1], 2)));
+                if (pihm->ctrl.surf_mode == 1)
+                {
+                    avg_sf = (grad_y_surf > 0.0) ? grad_y_surf : EPS / 1.0E6;
+                }
+                else
+                {
+                    avg_sf = (avg_sf > EPS / 1.0E6) ? avg_sf : EPS / 1.0E6;
+                }
+                /* Weighting needed */
+                avg_rough = 0.5 * (elem->lc.rough + nabr->lc.rough);
+                crossa = avg_y_surf * elem->topo.edge[j];
+                elem->fluxsurf[j] = OverlandFlow (avg_y_surf, grad_y_surf, avg_sf, crossa, avg_rough);
+            }
+            else    /* Boundary condition flux */
+            {
+                /* No flow (natural) boundary condition is default */
+                if (elem->forc.bc_type[j] == 0)
+                {
+                    elem->fluxsurf[j] = 0.0;
+                    elem->fluxsub[j] = 0.0;
+                }
+                /* Note: ideally different boundary conditions need to be
+                 * incorporated for surf and subsurf respectively */
+                else if (elem->forc.bc_type[j] == 1)
+                {
+                    /* Note: the formulation assumes only Dirichlet TS right
+                     * now */
+                    /* note the assumption here is no flow for surface */
+                    elem->fluxsurf[j] = 0.0;
+                    dif_y_sub = elem->gw + elem->topo.zmin - *elem->forc.bc[j];
+                    avg_y_sub = AvgY (dif_y_sub, elem->gw, *elem->forc.bc[j] - elem->topo.zmin);
+                    /* Minimum distance from circumcenter to the edge of the
+                     * triangle on which boundary condition is defined */
+                    distance = sqrt (pow (elem->topo.edge[0] * elem->topo.edge[1] * elem->topo.edge[2] / (4.0 * elem->topo.area), 2) - pow (elem->topo.edge[j] / 2.0, 2));
+                    effk = EffKH (elem->soil.macropore, elem->gw, elem->soil.depth, elem->soil.dmac, elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
+                    avg_ksat = effk;
+                    grad_y_sub = dif_y_sub / distance;
+                    elem->fluxsub[j] = avg_ksat * grad_y_sub * avg_y_sub * elem->topo.edge[j];
+                }
+                else
+                {
+                    /* Neumann bc (note: md->ele[i].bc[j] value has to be
+                     * = 2+(index of neumann boundary ts) */
+                    elem->fluxsurf[j] = *elem->forc.bc[j];
+                    elem->fluxsub[j] = *elem->forc.bc[j];
+                }
+            } /* End of specified boundary condition */
+        }   /* End of neighbor loop */
+    }   /* End of element loop */
+}
+
+void VerticalFlow (pihm_struct pihm)
+{
+    int             i;
+    double          grad_y_sub;
+    double          satn;
+    double          satkfunc;
+    double          effk;
+    double          dt;
+    double          deficit;
+    double          avg_y_sub;
+    double          total_y;
+    double          qmax;
+    elem_struct    *elem;
+
+    dt = pihm->dt;
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        elem = &pihm->elem[i];
+
+        if (elem->gw > elem->soil.depth - elem->soil.dinf)
+        {
+            /* Assumption: Dinf < Dmac */
+            grad_y_sub = (elem->surf + elem->topo.zmax - (elem->gw + elem->topo.zmin)) / elem->soil.dinf;
+            grad_y_sub = (elem->surf < EPS / 100.0 && grad_y_sub > 0.0) ? 0.0 : grad_y_sub;
+            satn = 1.0;
+            satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
+            effk = (elem->soil.macropore == 1) ? EffKV (satkfunc, grad_y_sub, SAT_CTRL, elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh) : elem->soil.kinfv;
+#ifdef _NOAH_
+            elem->infil = elem->fcr * effk * grad_y_sub;
+#else
+            elem->infil = effk * grad_y_sub;
+#endif
+
+#ifdef _NOAH_
+            qmax = elem->surf / dt + elem->netprcp + (elem->fluxsurf[0] + elem->fluxsurf[1] + elem->fluxsurf[2]) / elem->topo.area;
+#else
+            qmax = elem->surf / dt + elem->netprcp + (elem->fluxsurf[0] + elem->fluxsurf[1] + elem->fluxsurf[2]) / elem->topo.area - ((elem->surf < EPS / 100.0) ? 0.0 : elem->et[2]);
+#endif
+            qmax = (qmax > 0.0) ? qmax : 0.0;
+            elem->infil = (elem->infil < qmax) ? elem->infil : qmax;
+
+            elem->rechg = elem->infil;
+        }
+        else
+        {
+            deficit = elem->soil.depth - elem->gw;
+#ifdef _NOAH_
+            satn = elem->sfcsat;
+#else
+            satn = elem->unsat / deficit;
+#endif
+            satn = (satn > 1.0) ? 1.0 : satn;
+            satn = (satn < MULTF * EPS) ? (MULTF * EPS) : satn;
+            /* note: for psi calculation using van genuchten relation, cutting
+             * the psi-sat tail at small saturation can be performed for
+             * computational advantage. if you dont' want to perform this,
+             * comment the statement that follows */
+            avg_y_sub = Psi (satn, elem->soil.alpha, elem->soil.beta);
+            avg_y_sub = (avg_y_sub > PSIMIN) ? avg_y_sub : PSIMIN;
+            
+            total_y = avg_y_sub + elem->topo.zmin + elem->soil.depth - elem->soil.dinf;
+            grad_y_sub = (elem->surf + elem->topo.zmax - total_y) / elem->soil.dinf;
+            grad_y_sub = (elem->surf < EPS / 100.0 && grad_y_sub > 0.0) ? 0.0 : grad_y_sub;
+            satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
+            if (elem->soil.macropore == 1)
+            {
+                elem->macpore_status = MacroporeStatus (satkfunc, satn, grad_y_sub, elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
+                effk = EffKV (satkfunc, satn, elem->macpore_status, elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
+            }
+            else
+            {
+                effk = elem->soil.kinfv;
+            }
+#ifdef _NOAH_
+            elem->infil = elem->fcr * 0.5 * effk * grad_y_sub;
+#else
+            elem->infil = 0.5 * effk * grad_y_sub;
+#endif
+
+#ifdef _NOAH_
+            qmax = elem->surf / dt + elem->netprcp + (elem->fluxsurf[0] + elem->fluxsurf[1] + elem->fluxsurf[2]) / elem->topo.area;
+#else
+            qmax = elem->surf / dt + elem->netprcp + (elem->fluxsurf[0] + elem->fluxsurf[1] + elem->fluxsurf[2]) / elem->topo.area - ((elem->surf < EPS / 100.0) ? 0.0 : elem->et[2]);
+#endif
+            qmax = (qmax > 0.0) ? qmax : 0.0;
+            elem->infil = (elem->infil < qmax) ? elem->infil : qmax;
+
+            /* Harmonic mean formulation.
+             * Note that if unsaturated zone has low saturation, satkfunc
+             * becomes very small. use arithmetic mean instead */
+            //elem->rechg = (satn==0.0)?0:(deficit<=0)?0:(md->ele[i].ksatv*satkfunc*(md->ele[i].alpha*deficit-2*pow(-1+pow(satn,md->ele[i].beta/(-md->ele[i].beta+1)),1/md->ele[i].beta))/(md->ele[i].alpha*((deficit+md->dummyy[i+2*md->numele]*satkfunc))));
+            /* Arithmetic mean formulation */
+            satn = elem->unsat / deficit;
+            satn = (satn < MULTF * EPS) ? (MULTF * EPS) : satn;
+            satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
+            effk = (elem->soil.macropore == 1 && elem->gw > elem->soil.depth - elem->soil.dmac) ? EffKV (satkfunc, satn, elem->macpore_status, elem->soil.kmacv, elem->soil.ksatv, elem->soil.areafh) : elem->soil.ksatv * satkfunc;
+
+            elem->rechg = (deficit <= 0.0) ? 0.0 : (elem->soil.ksatv * elem->gw + effk * deficit) * (elem->soil.alpha * deficit - 2.0 * pow (-1.0 + pow (satn, elem->soil.beta / (1.0 - elem->soil.beta)), 1.0 / elem->soil.beta)) / (elem->soil.alpha * pow (deficit + elem->gw, 2));
+            elem->rechg = (elem->rechg > 0.0 && elem->unsat <= 0.0) ? 0.0 : elem->rechg;
+            elem->rechg = (elem->rechg < 0.0 && elem->gw <= 0.0) ? 0.0 : elem->rechg;
+        }
+    }
+}
+
+void RiverFlow (pihm_struct pihm)
+{
+    river_struct   *riv;
+    river_struct   *down;
+    elem_struct    *left;
+    elem_struct    *right;
+
+    int             i;
+    double          total_y;
+    double          perim;
+    double          total_y_down;
+    double          perim_down;
+    double          avg_perim;
+    double          avg_rough;
+    double          distance;
+    double          dif_y;
+    double          grad_y;
+    double          avg_sf;
+    double          crossa;
+    double          crossa_down;
+    double          avg_crossa;
+    double          avg_y;
+    double          wid;
+    double          avg_ksat;
+    double          effk_nabr;
+    double          effk;
+    double          aquifer_depth;
+    double          grad_y_sub;
+    double          avg_y_sub;
+    double          dif_y_sub;
+    double          wid_down;
+    double          avg_wid;
+    double          dt;
+
+    dt = pihm->dt;
+
+    /*
+     * Lateral flux calculation between river-river and river-triangular
+     * elements
+     */
+    for (i = 0; i < pihm->numriv; i++)
+    {
+        riv = &pihm->riv[i];
+
+        total_y = riv->stage + riv->topo.zbed;
+        perim = RivPerim (riv->shp.intrpl_ord, riv->stage, riv->shp.coeff);
+
+        if (riv->down > 0)
+        {
+            down = &pihm->riv[riv->down - 1];
+
+            /* Lateral flux calculation between river-river element */
+            total_y_down = down->stage + down->topo.zbed;
+            perim_down = RivPerim (down->shp.intrpl_ord, down->stage, down->shp.coeff);
+            avg_perim = (perim + perim_down) / 2.0;
+            avg_rough = (riv->matl.rough + down->matl.rough) / 2.0;
+            distance = 0.5 * (riv->shp.length + down->shp.length);
+            dif_y = (pihm->ctrl.riv_mode == 1) ? (riv->topo.zbed - down->topo.zbed) : (total_y - total_y_down);
+            grad_y = dif_y / distance;
+            avg_sf = (grad_y > 0.0) ? grad_y : EPS;
+            crossa = RivArea (riv->shp.intrpl_ord, riv->stage, riv->shp.coeff);
+            crossa_down = RivArea (down->shp.intrpl_ord, down->stage, down->shp.coeff);
+            avg_crossa = 0.5 * (crossa + crossa_down);
+            avg_y = (avg_perim == 0.0) ? 0.0 : (avg_crossa / avg_perim);
+            riv->fluxriv[1] = OverlandFlow (avg_y, grad_y, avg_sf, crossa, avg_rough);
+            /* Accumulate to get in-flow for down segments:
+             * [0] for inflow, [1] for outflow */
+            down->fluxriv[0] -= riv->fluxriv[1];
+
+            /* Lateral flux calculation between element beneath river (ebr)
+             * and ebr */
+            total_y = riv->gw + riv->topo.zmin;
+            total_y_down = down->gw + down->topo.zmin;
+            wid = EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff);
+            wid_down = EqWid (down->shp.intrpl_ord, down->shp.depth, down->shp.coeff);
+            avg_wid = (wid + wid_down) / 2.0;
+            distance = 0.5 * (riv->shp.length + down->shp.length);
+            dif_y_sub = total_y - total_y_down;
+            avg_y_sub = AvgY (dif_y_sub, riv->gw, down->gw);
+            grad_y_sub = dif_y_sub / distance;
+            /* take care of macropore effect */
+            aquifer_depth = riv->topo.zbed - riv->topo.zmin;
+            left = &pihm->elem[riv->leftele - 1];
+            right = &pihm->elem[riv->rightele - 1];
+            effk = 0.5 * (EffKH (left->soil.macropore, left->gw, left->soil.depth, left->soil.dmac, left->soil.kmach, left->soil.areafv, left->soil.ksath)
+                + EffKH (right->soil.macropore, right->gw, right->soil.depth, right->soil.dmac, right->soil.kmach, left->soil.areafv, right->soil.ksath));
+            left = &pihm->elem[down->leftele - 1];
+            right = &pihm->elem[down->rightele - 1];
+            effk_nabr = 0.5 * (EffKH (left->soil.macropore, left->gw, left->soil.depth, left->soil.dmac, left->soil.kmach, left->soil.areafv, left->soil.ksath)
+                + EffKH (right->soil.macropore, right->gw, right->soil.depth, right->soil.dmac, right->soil.kmach, left->soil.areafv, right->soil.ksath));
+            avg_ksat = 0.5 * (effk + effk_nabr);
+            /* Groundwater flow modeled by Darcy's law */
+            riv->fluxriv[9] = avg_ksat * grad_y_sub * avg_y_sub * avg_wid;
+            /* Accumulate to get in-flow for down segments:
+             * [10] for inflow, [9] for outflow */
+            down->fluxriv[10] -= riv->fluxriv[9];
+        }
+        else
+        {
+            switch (riv->down)
+            {
+                case -1:
+                    /* Dirichlet boundary condition */
+                    total_y_down = *riv->forc.riverbc + (riv->topo.node_zmax - riv->shp.depth);
+                    distance = 0.5 * riv->shp.length;
+                    grad_y = (total_y - total_y_down) / distance;
+                    avg_sf = grad_y;
+                    avg_rough = riv->matl.rough;
+                    avg_y = AvgY (grad_y, riv->stage, *riv->forc.riverbc);
+                    avg_perim = perim;
+                    crossa = RivArea (riv->shp.intrpl_ord, riv->stage, riv->shp.coeff);
+                    avg_y = (avg_perim == 0.0) ? 0.0 : (crossa / avg_perim);
+                    riv->fluxriv[1] = OverlandFlow (avg_y, grad_y, avg_sf, crossa, avg_rough);
+                    break;
+                case -2:
+                    /* Neumann boundary condition */
+                    riv->fluxriv[1] = *riv->forc.riverbc;
+                    break;
+                case -3:
+                    /* Zero-depth-gradient boundary conditions */
+                    distance = 0.5 * riv->shp.length;
+                    grad_y = (riv->topo.zbed - (riv->topo.node_zmax - riv->shp.depth)) / distance;
+                    avg_rough = riv->matl.rough;
+                    avg_y = riv->stage;
+                    avg_perim = perim;
+                    crossa = RivArea (riv->shp.intrpl_ord, riv->stage, riv->shp.coeff);
+                    riv->fluxriv[1] = sqrt (grad_y) * crossa * ((avg_perim > 0.0) ? pow (crossa / avg_perim, 2.0 / 3.0) : 0.0) / avg_rough;
+                    break;
+                case -4:
+                    /* Critical depth boundary conditions */
+                    crossa = RivArea (riv->shp.intrpl_ord, riv->stage, riv->shp.coeff);
+                    riv->fluxriv[1] = crossa * sqrt (GRAV * riv->stage);
+                    break;
+                default:
+                    printf ("Error: river routing boundary condition type is wrong!\n");
+                    exit (1);
+            }
+            /* Note: boundary condition for subsurface element can be changed.
+             * Assumption: no flow condition */
+            riv->fluxriv[9] = 0.0;
+        }
+
+        left = &pihm->elem[riv->leftele - 1];
+        right = &pihm->elem[riv->rightele - 1];
+
+        if (riv->leftele > 0)
+        {
+            RiverToEle (riv, left, right, LEFT_SIDE, &riv->fluxriv[2], &riv->fluxriv[4], &riv->fluxriv[7], dt);
+        }
+
+        if (riv->rightele > 0)
+        {
+            RiverToEle (riv, right, left, RIGHT_SIDE, &riv->fluxriv[3], &riv->fluxriv[5], &riv->fluxriv[8], dt);
+        }
+
+        avg_wid = EqWid (riv->shp.intrpl_ord, riv->stage, riv->shp.coeff);
+        if (riv->topo.zbed - (riv->gw + riv->topo.zmin) > 0.0)
+        {
+            dif_y = riv->stage;
+        }
+        else
+        {
+            dif_y = riv->stage + riv->topo.zbed - (riv->gw + riv->topo.zmin);
+        }
+        grad_y = dif_y / riv->matl.bedthick;
+        riv->fluxriv[6] = riv->matl.ksatv * avg_wid * riv->shp.length * grad_y;
+    }
+}
+
+void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank, int side, double *fluxsurf, double *fluxriv, double *fluxsub, double dt)
+{
+    double          total_y;
+    double          dif_y_sub;
+    double          avg_y_sub;
+    double          effk;
+    double          distance;
+    double          grad_y_sub;
+    double          effk_nabr;
+    double          avg_ksat;
+    double          aquifer_depth;
+    int             j;
+    int             replace;
+
+    total_y = riv->stage + riv->topo.zbed;
+
+    /* Lateral surface flux calculation between river-triangular element */
+    *fluxsurf = OLFEleToRiv (elem->surf + elem->topo.zmax, elem->topo.zmax, riv->matl.cwr, riv->topo.zmax, total_y, riv->shp.length);
+
+    /* Lateral subsurface flux calculation between river-triangular element */
+    dif_y_sub = (riv->stage + riv->topo.zbed) - (elem->gw + elem->topo.zmin);
+    /* This is head at river edge representation */
+    //avg_y_sub = ((md->riv[i].zmax-(md->ele[md->riv[i].leftele-1].zmax-md->ele[md->riv[i].leftele-1].zmin)+md->dummyy[md->riv[i].leftele-1 + 2*md->numele])>md->riv[i].zmin)?((md->riv[i].zmax-(md->ele[md->riv[i].leftele-1].zmax-md->ele[md->riv[i].leftele-1].zmin)+md->dummyy[md->riv[i].leftele-1 + 2*md->numele])-md->riv[i].zmin):0;
+    /* This is head in neighboring cell represention */
+    if (elem->topo.zmin > riv->topo.zbed)
+    {
+        avg_y_sub = elem->gw;
+    }
+    else if (elem->topo.zmin + elem->gw > riv->topo.zbed)
+    {
+        avg_y_sub = elem->topo.zmin + elem->gw - riv->topo.zbed;
+    }
+    else
+    {
+        avg_y_sub = 0.0;
+    }
+    avg_y_sub = AvgY (dif_y_sub, riv->stage, avg_y_sub);
+    effk = riv->matl.ksath;
+    distance = sqrt (pow (riv->topo.x - elem->topo.x, 2) + pow (riv->topo.y - elem->topo.y, 2));
+    grad_y_sub = dif_y_sub / distance;
+    /* Take into account macropore effect */
+    effk_nabr = EffKH (elem->soil.macropore, elem->gw, elem->soil.depth, elem->soil.dmac, elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
+    avg_ksat = 0.5 * (effk + effk_nabr);
+    *fluxriv = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
+
+    /* Lateral flux between rectangular element (beneath river) and triangular
+     * element */
+    dif_y_sub = (riv->gw + riv->topo.zmin) - (elem->gw + elem->topo.zmin);
+    /* This is head at river edge representation */
+    //avg_y_sub = ((md->riv[i].zmax-(md->ele[md->riv[i].leftele-1].zmax-md->ele[md->riv[i].leftele-1].zmin)+md->dummyy[md->riv[i].leftele-1 + 2*md->numele])>md->riv[i].zmin)?md->riv[i].zmin-(md->riv[i].zmax-(md->ele[md->riv[i].leftele-1].zmax-md->ele[md->riv[i].leftele-1].zmin)):md->dummyy[md->riv[i].leftele-1 + 2*md->numele];
+    /* this is head in neighboring cell represention */
+    if (elem->topo.zmin > riv->topo.zbed)
+    {
+        avg_y_sub = 0.0;
+    }
+    else if (elem->topo.zmin + elem->gw > riv->topo.zbed)
+    {
+        avg_y_sub = riv->topo.zbed - elem->topo.zmin;
+    }
+    else
+    {
+        avg_y_sub = elem->gw;
+    }
+    avg_y_sub = AvgY (dif_y_sub, riv->gw, avg_y_sub);
+    aquifer_depth = riv->topo.zbed - riv->topo.zmin;
+    effk = 0.5 * (EffKH (elem->soil.macropore, elem->gw, elem->soil.depth, elem->soil.dmac, elem->soil.kmach, elem->soil.areafv, elem->soil.ksath)
+        + EffKH (oppbank->soil.macropore, oppbank->gw, oppbank->soil.depth, oppbank->soil.dmac, oppbank->soil.kmach, oppbank->soil.areafv, oppbank->soil.ksath));
+    effk_nabr = EffKH (elem->soil.macropore, elem->gw, elem->soil.depth, elem->soil.dmac, elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
+    avg_ksat = 0.5 * (effk + effk_nabr);
+    grad_y_sub = dif_y_sub / distance;
+    /* Take into account macropore effect */
+    *fluxsub = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
+
+    /* Replace flux term */
+    if (side == LEFT_SIDE)
+    {
+        replace = riv->rightele;
+    }
+    else
+    {
+        replace = riv->leftele;
+    }
+    for (j = 0; j < 3; j++)
+    {
+        if (elem->nabr[j] == replace)
+        {
+            if (*fluxsurf < 0.0 && *fluxsurf < elem->fluxsurf[j])
+            {
+                *fluxsurf = -elem->surf / dt;
+            }
+            elem->fluxsurf[j] = -(*fluxsurf);
+            elem->fluxsub[j] = -(*fluxriv + *fluxsub);
+            break;
+        }
+    }
 }

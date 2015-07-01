@@ -20,14 +20,13 @@ LFLAGS = -L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
 SRCS_ = pihm.c \
 	read_alloc.c \
 	read_func.c \
-	f_function.c \
+	hydrol_func.c \
 	initialize.c \
 	hydrol.c \
 	is_sm_et.c \
+	print.c \
 	forcing.c
-	#initialize.c \
 	#update.c \
-	#print.c \
 
 HEADERS_ = include/pihm.h \
 	include/pihm_input_struct.h \

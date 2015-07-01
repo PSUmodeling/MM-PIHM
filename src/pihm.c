@@ -243,7 +243,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
         flag = CVodeSetStabLimDet (cvode_mem, TRUE);
         flag = CVodeSetMaxStep (cvode_mem, (realtype) pihm->ctrl.maxstep);
-        flag = CVodeMalloc (cvode_mem, f, (realtype ) pihm->ctrl.starttime,
+        flag = CVodeMalloc (cvode_mem, f, (realtype) pihm->ctrl.starttime,
             CV_Y, CV_SS, (realtype) pihm->ctrl.reltol, &pihm->ctrl.abstol);
         flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
 
@@ -335,9 +335,11 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                 //update (t, mData);
             }
 //
-//            /* Print outputs */
-//            for (j = 0; j < cData->NumPrint; j++)
-//                PrintData (cData->PCtrl[j], t, StepSize, cData->Ascii);
+            /* Print outputs */
+            for (j = 0; j < pihm->ctrl.nprint; j++)
+            {
+                PrintData (&pihm->prtctrl[j], t, stepsize, pihm->ctrl.ascii);
+            }
 //#ifdef _FLUX_PIHM_
 //            for (j = 0; j < LSM->NPRINT; j++)
 //                PrintData (LSM->PCtrl[j], t, StepSize, cData->Ascii);

@@ -1,8 +1,8 @@
 #ifndef PIHM_CONST_HEADER
 #define PIHM_CONST_HEADER
 
-#define multF		2.0
-#define MINpsi		-70.0
+#define MULTF		2.0
+#define PSIMIN		-70.0
 #define EPS		0.05
 #define THRESH		0.0
 #define GRAV		9.80665
@@ -14,6 +14,9 @@
 #define APP_CTRL        1
 #define MAC_CTRL        2
 #define SAT_CTRL        3
+
+#define RIGHT_SIDE      0
+#define LEFT_SIDE       1
 
 #define CP           1004.0
 #define LVH2O              2.503e6
