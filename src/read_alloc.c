@@ -888,6 +888,9 @@ void ReadPara (char *project, ctrl_struct *ctrl)
     ReadKeywordInt (cmdstr, "RIVSTG", &ctrl->prtvrbl[RIVSTG_CTRL]);
 
     NextLine (para_file, cmdstr);
+    ReadKeywordInt (cmdstr, "INFIL", &ctrl->prtvrbl[INFIL_CTRL]);
+
+    NextLine (para_file, cmdstr);
     ReadKeywordInt (cmdstr, "RECHARGE", &ctrl->prtvrbl[RECHARGE_CTRL]);
 
     NextLine (para_file, cmdstr);

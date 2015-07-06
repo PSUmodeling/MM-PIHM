@@ -79,7 +79,6 @@ double OLFEleToRiv (double eleYtot, double EleZ, double cwr, double rivZmax, dou
 double OverlandFlow (double avg_y, double grad_y, double avg_sf, double cross, double avg_rough);
 double AvgY (double diff, double yi, double yinabr);
 //void            f_update (realtype, realtype *, void *);    /* YS */
-//void            summary (Model_Data, N_Vector, realtype, realtype); /* YS */
 double EffKV (double ksatfunc, double elemsatn, int status, double mackv, double kv, double areaf);
 double EffKH (int mp, double tmpy, double aqdepth, double macd, double macksath, double areaf, double ksath);
 //void            PrintInit (Model_Data, char *);
@@ -88,5 +87,7 @@ void PrintData (prtctrl_struct *prtctrl, int t, int dt, int ascii);
 int MacroporeStatus (double ksatfunc, double elemsatn, double grady, double mackv, double kv, double areaf);
 double          KrFunc (double alpha, double beta, double satn);
 double Psi (double satn, double alpha, double beta);
+
+void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize);
 
 #endif

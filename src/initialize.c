@@ -271,7 +271,8 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem, riv_att_tbl_st
         riv[i].topo.x = (mesh_tbl.x[riv[i].fromnode - 1] + mesh_tbl.x[riv[i].tonode - 1]) / 2.0;
         riv[i].topo.y = (mesh_tbl.y[riv[i].fromnode - 1] + mesh_tbl.y[riv[i].tonode - 1]) / 2.0;
         riv[i].topo.zmax = (mesh_tbl.zmax[riv[i].fromnode - 1] + mesh_tbl.zmax[riv[i].tonode - 1]) / 2.0;
-        riv[i].topo.zmin = riv[i].topo.zmax - (0.5 * elem[riv[i].leftele - 1].soil.depth + 0.5 * elem[riv[i].rightele - 1].soil.depth);
+        riv[i].topo.zmin = riv[i].topo.zmax - (0.5 * (elem[riv[i].leftele - 1].topo.zmax + elem[riv[i].rightele - 1].topo.zmax)
+            - 0.5 * (elem[riv[i].leftele - 1].topo.zmin + elem[riv[i].rightele - 1].topo.zmin));
         riv[i].topo.node_zmax = mesh_tbl.zmax[riv[i].tonode - 1];
 
         riv[i].shp.depth = cal.rivdepth * riv_shp_tbl.depth[riv_att_tbl.shp[i] - 1];
@@ -638,6 +639,17 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].stage0;
+                    }
+                    n++;
+                    break;
+                case INFIL_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.infil", outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].infil;
                     }
                     n++;
                     break;

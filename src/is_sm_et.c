@@ -118,7 +118,7 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
         if (elem->soil.depth - elem->gw0 < elem->lc.rzd)
             satn = 1.0;
         else
-            satn = ((elem->unsat0 / (elem->soil.depth - elem->gw0)) > 1.0) ? 1.0 : ((elem->unsat0 / (elem->soil.depth - elem->gw0)) < 0.0) ? 0.0 : 0.5 * (1.0 - cos (PI * (elem->unsat0 / (elem->soil.depth - elem->gw0))));
+            satn = ((elem->unsat0 / (elem->soil.depth - elem->gw0)) > 1.0) ? 1.0 : ((elem->unsat0 / (elem->soil.depth - elem->gw0)) < 0.0) ? 0.0 : 0.5 * (1.0 - cos (3.14 * (elem->unsat0 / (elem->soil.depth - elem->gw0))));
 
         betas = (satn * elem->soil.porosity + elem->soil.thetar - elem->soil.thetaw) / (elem->soil.thetaref - elem->soil.thetaw);
         betas = (betas < 0.0001) ? 0.0001 : (betas > 1.0 ? 1.0 : betas);

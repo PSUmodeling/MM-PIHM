@@ -25,8 +25,8 @@ SRCS_ = pihm.c \
 	hydrol.c \
 	is_sm_et.c \
 	print.c \
-	forcing.c
-	#update.c \
+	forcing.c \
+	update.c
 
 HEADERS_ = include/pihm.h \
 	include/pihm_input_struct.h \

@@ -323,11 +323,11 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                 timestamp = gmtime (&rawtime);
 
                 if (verbose_mode)
-                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, t);
                 else if (rawtime % 3600 == 0)
                     printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
 
-                //summary (mData, CV_Y, t - StepSize, StepSize);
+                Summary (pihm, CV_Y, (double) stepsize);
 #ifdef _RT_
                 /* PIHM-rt control file */
                 fluxtrans(t / 60.0, StepSize / 60.0, mData, chData, CV_Y);

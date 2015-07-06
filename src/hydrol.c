@@ -10,6 +10,8 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     elem_struct    *elem;
     river_struct   *riv;
 
+    FILE           *fid;
+
     y = NV_DATA_S (CV_Y);
     dy = NV_DATA_S (CV_Ydot);
     pihm = (pihm_struct) pihm_data;
@@ -34,7 +36,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     for (i = 0; i < pihm->numriv; i++)
     {
         pihm->riv[i].stage = (y[i + 3 * pihm->numele] >= 0.0) ? y[i + 3 * pihm->numele] : 0.0;
-        pihm->riv[i].gw = (y[i + 3 * pihm->numele + 2 * pihm->numriv] >= 0.0) ? y[i + 3 * pihm->numele + 2 * pihm->numriv] : 0.0;
+        pihm->riv[i].gw = (y[i + 3 * pihm->numele + pihm->numriv] >= 0.0) ? y[i + 3 * pihm->numele + pihm->numriv] : 0.0;
 
         pihm->riv[i].fluxriv[0] = 0.0;
         pihm->riv[i].fluxriv[10] = 0.0;
@@ -93,6 +95,25 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         dy[i + pihm->numele] /= elem->soil.porosity;
         dy[i + 2 * pihm->numele] /= elem->soil.porosity;
+        
+        if (isnan (dy[i]))
+        {
+            printf ("ERROR: NAN error for Element %d (surface water) at %lf\n",
+                i + 1, t);
+            exit (1);
+        }
+        if (isnan (dy[i + pihm->numele]))
+        {
+            printf ("ERROR: NAN error for Element %d (unsat water) at %lf\n",
+                i + 1, t);
+            exit (1);
+        }
+        if (isnan (dy[i + 2 * pihm->numele]))
+        {
+            printf ("ERROR: NAN error for Element %d (groundwater) at %lf\n",
+                i + 1, t);
+            exit (1);
+        }
     }
 
     for (i = 0; i < pihm->numriv; i++)
@@ -108,9 +129,44 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         }
         dy[i + 3 * pihm->numele + pihm->numriv] += -riv->fluxriv[7] - riv->fluxriv[8] - riv->fluxriv[9] - riv->fluxriv[10] + riv->fluxriv[6];
         dy[i + 3 * pihm->numele + pihm->numriv] /= riv->matl.porosity * riv->shp.length * EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff);
+
+        if (isnan (dy[i + 3 * pihm->numele]))
+        {
+            printf ("ERROR: NAN error for River Segment %d (river) at %lf\n",
+                i + 1, t);
+            exit (1);
+        }
+        if (isnan (dy[i + 3 * pihm->numele + pihm->numriv]))
+        {
+            printf ("ERROR: NAN error for River Segment %d (groundwater) at %lf\n",
+                i + 1, t);
+            exit (1);
+        }
     }
 
-    return 0;
+    //fid = fopen ("dy.txt", "a");
+
+    //fprintf (fid, "tt = %lf\n", t);
+    //for (i = 0; i < pihm->numele; i++)
+    //{
+    //    fprintf (fid, "%lf %d surf %20.17lf\n", t, i, dy[i]);
+    //}
+    //for (i = 0; i < pihm->numele; i++)
+    //{
+    //    fprintf (fid, "%lf %d unsat %20.17lf\n", t, i, dy[i + pihm->numele]);
+    //}
+    //for (i = 0; i < pihm->numele; i++)
+    //{
+    //    fprintf (fid, "%lf %d GW %20.17lf\n", t, i, dy[i + 2 * pihm->numele]);
+    //}
+    //for (i = 0; i < 2 * pihm->numriv; i++)
+    //{
+    //    fprintf (fid, "%lf %d riv %25.22lf\n", t, i, dy[i + 3 * pihm->numele]);
+    //}
+
+    //fclose (fid);
+    
+    return (0);
 }
 
 void LateralFlow (pihm_struct pihm)
@@ -315,8 +371,8 @@ void VerticalFlow (pihm_struct pihm)
 #else
             qmax = elem->surf / dt + elem->netprcp + (elem->fluxsurf[0] + elem->fluxsurf[1] + elem->fluxsurf[2]) / elem->topo.area - ((elem->surf < EPS / 100.0) ? 0.0 : elem->et[2]);
 #endif
-            qmax = (qmax > 0.0) ? qmax : 0.0;
             elem->infil = (elem->infil < qmax) ? elem->infil : qmax;
+            elem->infil = (elem->infil > 0.0) ? elem->infil : 0.0;
 
             elem->rechg = elem->infil;
         }
@@ -361,8 +417,8 @@ void VerticalFlow (pihm_struct pihm)
 #else
             qmax = elem->surf / dt + elem->netprcp + (elem->fluxsurf[0] + elem->fluxsurf[1] + elem->fluxsurf[2]) / elem->topo.area - ((elem->surf < EPS / 100.0) ? 0.0 : elem->et[2]);
 #endif
-            qmax = (qmax > 0.0) ? qmax : 0.0;
             elem->infil = (elem->infil < qmax) ? elem->infil : qmax;
+            elem->infil = (elem->infil > 0.0) ? elem->infil : 0.0;
 
             /* Harmonic mean formulation.
              * Note that if unsaturated zone has low saturation, satkfunc
@@ -370,6 +426,7 @@ void VerticalFlow (pihm_struct pihm)
             //elem->rechg = (satn==0.0)?0:(deficit<=0)?0:(md->ele[i].ksatv*satkfunc*(md->ele[i].alpha*deficit-2*pow(-1+pow(satn,md->ele[i].beta/(-md->ele[i].beta+1)),1/md->ele[i].beta))/(md->ele[i].alpha*((deficit+md->dummyy[i+2*md->numele]*satkfunc))));
             /* Arithmetic mean formulation */
             satn = elem->unsat / deficit;
+            satn = (satn > 1.0) ? 1.0 : satn;
             satn = (satn < MULTF * EPS) ? (MULTF * EPS) : satn;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
             effk = (elem->soil.macropore == 1 && elem->gw > elem->soil.depth - elem->soil.dmac) ? EffKV (satkfunc, satn, elem->macpore_status, elem->soil.kmacv, elem->soil.ksatv, elem->soil.areafh) : elem->soil.ksatv * satkfunc;
@@ -485,7 +542,8 @@ void RiverFlow (pihm_struct pihm)
                 case -1:
                     /* Dirichlet boundary condition */
                     total_y_down = *riv->forc.riverbc + (riv->topo.node_zmax - riv->shp.depth);
-                    distance = 0.5 * riv->shp.length;
+                    //distance = 0.5 * riv->shp.length;
+                    distance = sqrt (pow (riv->topo.x - pihm->mesh_tbl.x[riv->tonode - 1], 2) + pow (riv->topo.y - pihm->mesh_tbl.y[riv->tonode - 1], 2));
                     grad_y = (total_y - total_y_down) / distance;
                     avg_sf = grad_y;
                     avg_rough = riv->matl.rough;
@@ -501,7 +559,8 @@ void RiverFlow (pihm_struct pihm)
                     break;
                 case -3:
                     /* Zero-depth-gradient boundary conditions */
-                    distance = 0.5 * riv->shp.length;
+                    //distance = 0.5 * riv->shp.length;
+                    distance = sqrt (pow (riv->topo.x - pihm->mesh_tbl.x[riv->tonode - 1], 2) + pow (riv->topo.y - pihm->mesh_tbl.y[riv->tonode - 1], 2));
                     grad_y = (riv->topo.zbed - (riv->topo.node_zmax - riv->shp.depth)) / distance;
                     avg_rough = riv->matl.rough;
                     avg_y = riv->stage;
