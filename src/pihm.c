@@ -151,12 +151,11 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #endif 
 
 #ifdef _BGC_
-    bgc_struct      BGCM;
+    bgc_struct      bgc;
 #endif
 
     /* Allocate memory for model data structure */
     pihm = (pihm_struct) malloc (sizeof *pihm);
-
 #ifdef _NOAH_
     noah = (lsm_struct) malloc (sizeof *noah);
 #endif
@@ -164,18 +163,12 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     chData = (Chem_Data) malloc (sizeof * chData);
 #endif
 #ifdef _BGC_
-    BGCM = (bgc_struct) malloc (sizeof *BGCM);
+    bgc = (bgc_struct) malloc (sizeof *bgc);
 #endif
 
     /* Read PIHM input files */
     ReadAlloc (simulation, pihm);
-#ifdef _NOAH_
-    LsmRead (simulation, noah, pihm);
-#endif
-//#ifdef _BGC_
-//    BGC_read (filename, BGCM, mData);
-//#endif
-//
+
     if (pihm->ctrl.unsat_mode == 2)
     {
         /* problem size */
@@ -195,21 +188,31 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         printf ("Fatal error: CVodeMalloc failed. \n");
         exit (1);
     }
+
 #ifdef _NOAH_
+    /* Read LSM input and initialize LSM structure */
+    LsmRead (simulation, noah, pihm);
     LsmInitialize (simulation, pihm, noah);
 #endif
-#ifdef _RT_
-    chem_alloc(filename, mData, cData, chData, cData->StartTime/60);
-    /* Prepare chem output files */
-    InitialChemFile(filename, chData->NumBTC, chData->BTC_loc);
-#endif
 #ifdef _BGC_
-    BGC_init (filename, mData, LSM, BGCM);
+    /* Read BGC input and initialize BGC structure */
+    BgcRead (simulation, bgc, pihm);
+    BgcInit (simulation, pihm, noah, bgc);
 #endif
 
+//#ifdef _RT_
+//    chem_alloc(filename, mData, cData, chData, cData->StartTime/60);
+//    /* Prepare chem output files */
+//    InitialChemFile(filename, chData->NumBTC, chData->BTC_loc);
+//#endif
+
+    /* Create output structures */
     MapOutput (simulation, pihm, outputdir);
 #ifdef _NOAH_
     MapLsmOutput (simulation, noah, pihm->numele, outputdir);
+#endif
+#ifdef _BGC_
+    MapBgcOutput (simulation, bgc, pihm->numele, outputdir);
 #endif
 
     if (first_cycle == 1)
@@ -220,19 +223,19 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         InitOutputFile (noah->prtctrl, noah->nprint, pihm->ctrl.ascii);
 #endif
 #ifdef _BGC_
-        bgc_initialize_output (filename, mData, cData, BGCM, output_dir);
+        InitOutputFile (bgc->prtctrl, bgc->ctrl.nprint, pihm->ctrl.ascii);
 #endif
         first_cycle = 0;
     }
-//
-//#ifdef _BGC_
-//    if (BGCM->ctrl.spinup == 1)
-//    {
-//        bgc_spinup (filename, BGCM, mData, LSM);
-//    }
-//    else
-//    {
-//#endif
+
+#ifdef _BGC_
+    if (bgc->ctrl.spinup == 1)
+    {
+        BgcSpinup (simulation, bgc, pihm, noah);
+    }
+    else
+    {
+#endif
         if (verbose_mode)
             printf ("\n\nSolving ODE system ... \n\n");
 
@@ -284,7 +287,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 //                    BgcCoupling ((int) t, (int) cData->StartTime, mData, LSM, BGCM);
 //#endif
 #else
-                    /* calculate Interception Storage and ET */
+                    /* Calculate Interception Storage and ET */
                     IntcpSnowET (t, (double) pihm->ctrl.etstep, pihm);
 #endif
                 }
@@ -300,9 +303,17 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                 timestamp = gmtime (&rawtime);
 
                 if (verbose_mode)
-                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, t);
+                {
+                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
+                        timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday,
+                        timestamp->tm_hour, timestamp->tm_min, t);
+                }
                 else if (rawtime % 3600 == 0)
-                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+                {
+                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
+                        timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday,
+                        timestamp->tm_hour, timestamp->tm_min);
+                }
 
                 Summary (pihm, CV_Y, (double) stepsize);
 #ifdef _NOAH_
@@ -312,9 +323,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                 /* PIHM-rt control file */
                 fluxtrans(t / 60.0, StepSize / 60.0, mData, chData, CV_Y);
 #endif
-                //update (t, mData);
             }
-//
+
             /* Print outputs */
             for (j = 0; j < pihm->ctrl.nprint; j++)
             {
@@ -324,9 +334,10 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             /* PIHM-rt output routine */
             PrintChem(filename, chData,t/60);
 #endif
-//#ifdef _BGC_
         }
-//#endif
+#ifdef _BGC_
+    }
+#endif
 //    }
 //
 //    if (cData->Spinup)

@@ -10,7 +10,11 @@
 
 #include "bgc.h"
 
-double get_co2 (TSD co2_ts, double t)
+double GetCO2 (ts_struct co2_ts, int t)
 {
-    return Interpolation (&co2_ts, t);
+    double          co2;
+
+    IntrplForcing (co2_ts, t, 1, &co2);
+
+    return (co2);
 }

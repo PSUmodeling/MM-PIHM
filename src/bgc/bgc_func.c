@@ -1,38 +1,20 @@
-
-/*****************************************************************************
- * Function	:   BGC model realted functions
- * Version	:   October, 2014
- ****************************************************************************/
-
 #include "bgc.h"
 
-void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
+void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
 {
-    int             i, j, k;
+    int             i, k;
     double          t1, t2, t3, t4, r1;
-    char            fn[100];
-    char           *projectname;
-    char           *token, *tempname;
+    char            fn[MAXSTRING];
+    char            project[MAXSTRING];
+    char           *token;
+    char            tempname[MAXSTRING];
     FILE           *epc_file;
     FILE           *bgc_file;
-    FILE           *co2_file;
-    FILE           *ndep_file;
-    FILE           *SWC_file;
-    FILE           *STC_file;
-    FILE           *SOILM_file;
-    FILE           *SUBFLX_file;
-    char            co2_fn[100];
-    char            ndep_fn[100];
-    char            SWC_fn[100];
-    char            STC_fn[100];
-    char            SOILM_fn[100];
-    char            SUBFLX_fn[100];
-    int             ensemble_mode;
+    char            co2_fn[MAXSTRING];
+    char            ndep_fn[MAXSTRING];
     char            cmdstr[MAXSTRING];
-    char            optstr[MAXSTRING];
-    time_t          rawtime;
     struct tm      *timeinfo;
-    enum EPC_VEGTYPE veg_type;
+    enum epc_vegtype veg_type;
     epconst_struct *epc;
     control_struct *ctrl;
     co2control_struct *co2;
@@ -47,34 +29,30 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
     /* Detect if model is running in ensemble mode */
-    tempname = (char *)malloc ((strlen (filename) + 1) * sizeof (char));
-    strcpy (tempname, filename);
+    strcpy (tempname, simulation);
     if (strstr (tempname, ".") != 0)
     {
         token = strtok (tempname, ".");
-        projectname = (char *)malloc ((strlen (token) + 1) * sizeof (char));
-        strcpy (projectname, token);
-        ensemble_mode = 1;
+        strcpy (project, token);
     }
     else
     {
-        projectname = (char *)malloc ((strlen (filename) + 1) * sizeof (char));
-        strcpy (projectname, filename);
-        ensemble_mode = 0;
+        strcpy (project, simulation);
     }
-    free (tempname);
 
     /* Initialize state variables with zeroes */
     presim_state_init (&ws, &cs, &ns, &cinit);
 
     /* Read epc files */
-    BGCM->epclist.nvegtypes = NVEGTYPES;
-    BGCM->epclist.epc = (epconst_struct *) malloc (BGCM->epclist.nvegtypes * sizeof (epconst_struct));
+    bgc->epclist.nvegtypes = NVEGTYPES;
+    bgc->epclist.epc = (epconst_struct *) malloc (bgc->epclist.nvegtypes * sizeof (epconst_struct));
 
-    if (ensemble_mode == 0)
-        printf ("\n  BGC: Reading ecophysiological constant files\n");
+    if (verbose_mode)
+    {
+        printf ("\nRead ecophysiological constant files\n");
+    }
 
-    for (veg_type = 0; veg_type < BGCM->epclist.nvegtypes; veg_type++)
+    for (veg_type = 0; veg_type < bgc->epclist.nvegtypes; veg_type++)
     {
         switch (veg_type)
         {
@@ -113,11 +91,11 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
         }
         if (epc_file == NULL)
         {
-            printf ("\n  Fatal Error: epc files are in use or do not exist!\n");
+            printf ("\nFatal Error: epc file %s are in use or do not exist!\n", fn);
             exit (1);
         }
 
-        epc = &(BGCM->epclist.epc[veg_type]);
+        epc = &(bgc->epclist.epc[veg_type]);
 
         /* Skip header file */
         fgets (cmdstr, MAXSTRING, epc_file);
@@ -393,746 +371,638 @@ void BGC_read (char *filename, bgc_struct BGCM, Model_Data PIHM)
 
     /* Read bgc simulation control file */
 
-    ctrl = &BGCM->ctrl;
-    co2 = &BGCM->co2;
-    ndepctrl = &BGCM->ndepctrl;
+    ctrl = &bgc->ctrl;
+    co2 = &bgc->co2;
+    ndepctrl = &bgc->ndepctrl;
 
-    if (ensemble_mode == 0)
-        printf ("  BGC: Reading %s.bgc", projectname);
-    sprintf (fn, "input/%s/%s.bgc", projectname, projectname);
+    sprintf (fn, "input/%s/%s.bgc", project, project);
     bgc_file = fopen (fn, "r");
+    CheckFile (bgc_file, fn);
 
-    if (bgc_file == NULL)
-    {
-        printf ("\n  Fatal Error: %s.bgc is in use or does not exist!\n", projectname);
-        exit (1);
-    }
+    FindLine (bgc_file, "TIME_DEFINE");
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%d", &ctrl->spinupstart);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%d", &ctrl->spinupend);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%d", &ctrl->spinup);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%d", &ctrl->maxspinyears);
 
-    fgets (cmdstr, MAXSTRING, bgc_file);
+    FindLine (bgc_file, "CO2_CONTROL");
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%d", &co2->varco2);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &co2->co2ppm);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%s", co2_fn);
 
-    while (!feof (bgc_file))
-    {
-        if (cmdstr[0] != '#' && cmdstr[0] != '\n' && cmdstr[0] != '\0')
-        {
-            sscanf (cmdstr, "%s", optstr);
+    FindLine (bgc_file, "NDEP_CONTROL");
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%d", &ndepctrl->varndep);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ndepctrl->ndep);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ndepctrl->nfix);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%s", ndep_fn);
 
-            if (strcasecmp ("TIME_DEFINE", optstr) == 0)
-            {
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%d", &ctrl->spinupstart);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%d", &ctrl->spinupend);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%d", &ctrl->spinup);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%d", &ctrl->maxspinyears);
-                //printf ("%d %d %d %d\n", ctrl->spinupstart, ctrl->spinupend, ctrl->spinup, ctrl->maxspinyears);
-            }
-            else if (strcasecmp ("CO2_CONTROL", optstr) == 0)
-            {
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%d", &co2->varco2);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &co2->co2ppm);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%s", co2_fn);
-            }
-            else if (strcasecmp ("NDEP_CONTROL", optstr) == 0)
-            {
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%d", &ndepctrl->varndep);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &ndepctrl->ndep);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &ndepctrl->nfix);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%s", ndep_fn);
-            }
-            else if (strcasecmp ("C_STATE", optstr) == 0)
-            {
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &cinit.max_leafc);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &cinit.max_stemc);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &cs.cwdc);
-                ns.cwdn = BADVAL;
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &cs.litr1c);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &cs.litr2c);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &cs.litr3c);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &cs.litr4c);
-                ns.litr2n = BADVAL;
-                ns.litr3n = BADVAL;
-                ns.litr4n = BADVAL;
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &cs.soil1c);
-                ns.soil1n = BADVAL;
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &cs.soil2c);
-                ns.soil2n = BADVAL;
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &cs.soil3c);
-                ns.soil3n = BADVAL;
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &cs.soil4c);
-                ns.soil4n = BADVAL;
-            }
-            else if (strcasecmp ("N_STATE", optstr) == 0)
-            {
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &ns.litr1n);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%lf", &ns.sminn);
-            }
-            else if (strcasecmp ("DAILY_OUTPUT", optstr) == 0)
-            {
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%*s %d", &ctrl->print_lai);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%*s %d", &ctrl->print_vegc);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%*s %d", &ctrl->print_litrc);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%*s %d", &ctrl->print_soilc);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%*s %d", &ctrl->print_totalc);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%*s %d", &ctrl->print_npp);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%*s %d", &ctrl->print_nee);
-                fgets (cmdstr, MAXSTRING, bgc_file);
-                sscanf (cmdstr, "%*s %d", &ctrl->print_gpp);
-            }
-            fgets (cmdstr, MAXSTRING, bgc_file);
-        }
-        fgets (cmdstr, MAXSTRING, bgc_file);
-    }
+    FindLine (bgc_file, "C_STATE");
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &cinit.max_leafc);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &cinit.max_stemc);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &cs.cwdc);
+    ns.cwdn = BADVAL;
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &cs.litr1c);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &cs.litr2c);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &cs.litr3c);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &cs.litr4c);
+    ns.litr2n = BADVAL;
+    ns.litr3n = BADVAL;
+    ns.litr4n = BADVAL;
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &cs.soil1c);
+    ns.soil1n = BADVAL;
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &cs.soil2c);
+    ns.soil2n = BADVAL;
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &cs.soil3c);
+    ns.soil3n = BADVAL;
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &cs.soil4c);
+    ns.soil4n = BADVAL;
+
+    FindLine (bgc_file, "N_STATE");
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ns.litr1n);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ns.sminn);
+
+    FindLine (bgc_file, "DAILY_OUTPUT");
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL]);
 
     fclose (bgc_file);
-
-    BGCM->Forcing = (TSD **) malloc (6 * sizeof (TSD *));
 
     /* Read CO2 and Ndep files */
     if (co2->varco2 == 1)
     {
-        BGCM->Forcing[CO2_TS] = (TSD *) malloc (sizeof (TSD));
-        co2_file = fopen (co2_fn, "r");
-        if (co2_file == NULL)
-        {
-            printf ("\n  Fatal Error: co2 file %s in use or do not exist!\n", co2_fn);
-            exit (1);
-        }
-        BGCM->Forcing[CO2_TS][0].length = 0;
-        /* Count lines */
-        fgets (cmdstr, MAXSTRING, co2_file);
-        while (!feof (co2_file))
-        {
-            if (cmdstr[0] != '\n' && cmdstr[0] != '\0' && cmdstr[0] != '\t')
-                BGCM->Forcing[CO2_TS][0].length = BGCM->Forcing[CO2_TS][0].length + 1;
-            fgets (cmdstr, MAXSTRING, co2_file);
-        }
-        //printf ("Number of lines = %d", BGCM->Forcing[CO2_TS][0].length);
-        BGCM->Forcing[CO2_TS][0].TS = (double **)malloc ((BGCM->Forcing[CO2_TS][0].length) * sizeof (double *));
-
-        rewind (co2_file);
-        for (i = 0; i < BGCM->Forcing[CO2_TS][0].length; i++)
-        {
-            BGCM->Forcing[CO2_TS][0].TS[i] = (double *)malloc (2 * sizeof (double));
-            fscanf (co2_file, "%d %lf", &timeinfo->tm_year, &BGCM->Forcing[CO2_TS][0].TS[i][1]);
-            timeinfo->tm_year = timeinfo->tm_year - 1900;
-            timeinfo->tm_mon = 0;
-            timeinfo->tm_mday = 1;
-            timeinfo->tm_hour = 0;
-            timeinfo->tm_min = 0;
-            timeinfo->tm_sec = 0;
-            rawtime = timegm (timeinfo);
-            BGCM->Forcing[CO2_TS][0].TS[i][0] = (double)rawtime;
-        }
-
-        fclose (co2_file);
+        bgc->forcing.ts[CO2_TS] = (ts_struct *) malloc (sizeof (ts_struct));
+        ReadAnnFile (&bgc->forcing.ts[CO2_TS][0], co2_fn);
     }
     if (ndepctrl->varndep == 1)
     {
-        BGCM->Forcing[NDEP_TS] = (TSD *) malloc (sizeof (TSD));
-        ndep_file = fopen (ndep_fn, "r");
-        if (ndep_file == NULL)
-        {
-            printf ("\n  Fatal Error: N deposition file %s is in use or do not exist!\n", ndep_fn);
-            exit (1);
-        }
-        BGCM->Forcing[NDEP_TS][0].length = 0;
-        /* Count lines */
-        fgets (cmdstr, MAXSTRING, ndep_file);
-        while (!feof (ndep_file))
-        {
-            if (cmdstr[0] != '\n' && cmdstr[0] != '\0' && cmdstr[0] != '\t')
-                BGCM->Forcing[NDEP_TS][0].length = BGCM->Forcing[NDEP_TS][0].length + 1;
-            fgets (cmdstr, MAXSTRING, ndep_file);
-        }
-        //printf ("Number of lines = %d\n", BGCM->Forcing[NDEP_TS][0].length);
-        rewind (ndep_file);
-        BGCM->Forcing[NDEP_TS][0].TS = (double **)malloc ((BGCM->Forcing[NDEP_TS][0].length) * sizeof (double *));
-        for (i = 0; i < BGCM->Forcing[NDEP_TS][0].length; i++)
-        {
-            BGCM->Forcing[NDEP_TS][0].TS[i] = (double *)malloc (2 * sizeof (double));
-            fscanf (ndep_file, "%d %lf", &timeinfo->tm_year, &BGCM->Forcing[NDEP_TS][0].TS[i][1]);
-            timeinfo->tm_year = timeinfo->tm_year - 1900;
-            timeinfo->tm_mon = 0;
-            timeinfo->tm_mday = 1;
-            timeinfo->tm_hour = 0;
-            timeinfo->tm_min = 0;
-            timeinfo->tm_sec = 0;
-            rawtime = timegm (timeinfo);
-            BGCM->Forcing[NDEP_TS][0].TS[i][0] = (double)rawtime;
-        }
-        fclose (ndep_file);
+        bgc->forcing.ts[NDEP_TS] = (ts_struct *) malloc (sizeof (ts_struct));
+        ReadAnnFile (&bgc->forcing.ts[NDEP_TS][0], ndep_fn);
     }
+
     /* Read soil moisture and soil temperature "forcing" */
     if (ctrl->spinup == 1)
     {
         /* Read root zone soil water content forcing */
-        BGCM->Forcing[SWC_TS] = (TSD *) malloc (sizeof (TSD));
-        sprintf (SWC_fn, "input/%s/%s.ROOTW", filename, filename);
-        SWC_file = fopen (SWC_fn, "rb");
-        if (SWC_file == NULL)
-        {
-            printf ("\n  Fatal Error: soil water content file %s is in use or do not exist!\n", SWC_fn);
-            exit (1);
-        }
-        /* Check the length of forcing */
-        fseek (SWC_file, 0L, SEEK_END);
-        BGCM->Forcing[SWC_TS][0].length = (int)(ftell (SWC_file) / (PIHM->NumEle + 1) / 8); /* 8 is the size of double */
-        BGCM->Forcing[SWC_TS][0].TS = (double **)malloc (BGCM->Forcing[SWC_TS][0].length * sizeof (double *));
-        /* Read in forcing */
-        rewind (SWC_file);
-        for (j = 0; j < BGCM->Forcing[SWC_TS][0].length; j++)
-        {
-            BGCM->Forcing[SWC_TS][0].TS[j] = (double *)malloc ((PIHM->NumEle + 1) * sizeof (double));
-            fread (&BGCM->Forcing[SWC_TS][0].TS[j][0], sizeof (double), 1, SWC_file);
-            for (i = 0; i < PIHM->NumEle; i++)
-            {
-                fread (&BGCM->Forcing[SWC_TS][0].TS[j][1 + i], sizeof (double), 1, SWC_file);
-            }
-        }
-        fclose (SWC_file);
+        bgc->forcing.ts[SWC_TS] = (ts_struct *) malloc (sizeof (ts_struct));
+        sprintf (fn, "input/%s/%s.rootw", project, project);
+        ReadBinFile (&bgc->forcing.ts[SWC_TS][0], fn, pihm->numele);
 
         /* Read total soil water storage forcing */
-        BGCM->Forcing[SOILM_TS] = (TSD *) malloc (sizeof (TSD));
-        sprintf (SOILM_fn, "input/%s/%s.SOILM", filename, filename);
-        SOILM_file = fopen (SOILM_fn, "rb");
-        if (SOILM_file == NULL)
-        {
-            printf ("\n  Fatal Error: soil water content file %s is in use or do not exist!\n", SWC_fn);
-            exit (1);
-        }
-        /* Check the length of forcing */
-        fseek (SOILM_file, 0L, SEEK_END);
-        BGCM->Forcing[SOILM_TS][0].length = (int)(ftell (SOILM_file) / (PIHM->NumEle + 1) / 8); /* 8 is the size of double */
-        BGCM->Forcing[SOILM_TS][0].TS = (double **)malloc (BGCM->Forcing[SOILM_TS][0].length * sizeof (double *));
-        /* Read in forcing */
-        rewind (SOILM_file);
-        for (j = 0; j < BGCM->Forcing[SOILM_TS][0].length; j++)
-        {
-            BGCM->Forcing[SOILM_TS][0].TS[j] = (double *)malloc ((PIHM->NumEle + 1) * sizeof (double));
-            fread (&BGCM->Forcing[SOILM_TS][0].TS[j][0], sizeof (double), 1, SOILM_file);
-            for (i = 0; i < PIHM->NumEle; i++)
-            {
-                fread (&BGCM->Forcing[SOILM_TS][0].TS[j][1 + i], sizeof (double), 1, SOILM_file);
-            }
-        }
-        fclose (SOILM_file);
+        bgc->forcing.ts[SOILM_TS] = (ts_struct *) malloc (sizeof (ts_struct));
+        sprintf (fn, "input/%s/%s.soilm", project, project);
+        ReadBinFile (&bgc->forcing.ts[SOILM_TS][0], fn, pihm->numele);
 
         /* Read soil temperature forcing */
-        BGCM->Forcing[STC_TS] = (TSD *) malloc (sizeof (TSD));
-        sprintf (STC_fn, "input/%s/%s.STC", filename, filename);
-        STC_file = fopen (STC_fn, "rb");
-        if (STC_file == NULL)
-        {
-            printf ("\n  Fatal Error: soil temperature file %s is in use or do not exist!\n", STC_fn);
-            exit (1);
-        }
-        /* Check the length of forcing */
-        fseek (STC_file, 0L, SEEK_END);
-        BGCM->Forcing[STC_TS][0].length = (int)(ftell (STC_file) / (PIHM->NumEle + 1) / 8); /* 8 is the size of double */
-        BGCM->Forcing[STC_TS][0].TS = (double **)malloc (BGCM->Forcing[STC_TS][0].length * sizeof (double *));
-        /* Read in forcing */
-        rewind (STC_file);
-        for (j = 0; j < BGCM->Forcing[STC_TS][0].length; j++)
-        {
-            BGCM->Forcing[STC_TS][0].TS[j] = (double *)malloc ((PIHM->NumEle + 1) * sizeof (double));
-            fread (&BGCM->Forcing[STC_TS][0].TS[j][0], sizeof (double), 1, STC_file);
-            for (i = 0; i < PIHM->NumEle; i++)
-            {
-                fread (&BGCM->Forcing[STC_TS][0].TS[j][1 + i], sizeof (double), 1, STC_file);
-            }
-        }
-        fclose (STC_file);
+        bgc->forcing.ts[STC_TS] = (ts_struct *) malloc (sizeof (ts_struct));
+        sprintf (fn, "input/%s/%s.stc", project, project);
+        ReadBinFile (&bgc->forcing.ts[STC_TS][0], fn, pihm->numele);
 
         /* Read subsurface flux forcing */
-        BGCM->Forcing[SUBFLX_TS] = (TSD *) malloc (3 * sizeof (TSD));
+        bgc->forcing.ts[SUBFLX_TS] = (ts_struct *) malloc (3 * sizeof (ts_struct));
         for (k = 0; k < 3; k++)
         {
-            sprintf (SUBFLX_fn, "input/%s/%s.subFlx%d", filename, filename, k);
-            SUBFLX_file = fopen (SUBFLX_fn, "rb");
-            if (SUBFLX_file == NULL)
-            {
-                printf ("\n  Fatal Error: subsurface flux file %s is in use or do not exist!\n", SUBFLX_fn);
-                exit (1);
-            }
-            /* Check the length of forcing */
-            fseek (SUBFLX_file, 0L, SEEK_END);
-            BGCM->Forcing[SUBFLX_TS][k].length = (int)(ftell (SUBFLX_file) / (PIHM->NumEle + 1) / 8); /* 8 is the size of double */
-            BGCM->Forcing[SUBFLX_TS][k].TS = (double **)malloc (BGCM->Forcing[SUBFLX_TS][k].length * sizeof (double *));
-            /* Read in forcing */
-            rewind (SUBFLX_file);
-            for (j = 0; j < BGCM->Forcing[SUBFLX_TS][k].length; j++)
-            {
-                BGCM->Forcing[SUBFLX_TS][k].TS[j] = (double *)malloc ((PIHM->NumEle + 1) * sizeof (double));
-                fread (&BGCM->Forcing[SUBFLX_TS][k].TS[j][0], sizeof (double), 1, SUBFLX_file);
-                for (i = 0; i < PIHM->NumEle; i++)
-                {
-                    fread (&BGCM->Forcing[SUBFLX_TS][k].TS[j][1 + i], sizeof (double), 1, SUBFLX_file);
-                    if (PIHM->Ele[i].BC[k] < 0)
-                        BGCM->Forcing[SUBFLX_TS][k].TS[j][1 + i] = 0.0;
-                }
-            }
-            fclose (SUBFLX_file);
+            sprintf (fn, "input/%s/%s.subflx%d", project, project, k);
+            ReadBinFile (&bgc->forcing.ts[SUBFLX_TS][k], fn, pihm->numele);
         }
     }
 
-    free (projectname);
-
     /* Copy initial conditions to every model grid */
-    BGCM->grid = (bgc_grid *) malloc (PIHM->NumEle * sizeof (bgc_grid));
+    bgc->grid = (bgc_grid *) malloc (pihm->numele * sizeof (bgc_grid));
 
-    for (i = 0; i < PIHM->NumEle; i++)
+    for (i = 0; i < pihm->numele; i++)
     {
-        BGCM->grid[i].ws = ws;
-        BGCM->grid[i].cinit = cinit;
-        BGCM->grid[i].cs = cs;
-        BGCM->grid[i].ns = ns;
-        if (PIHM->Ele[i].LC == 4)
-            BGCM->grid[i].epc = BGCM->epclist.epc[EPC_DBF];
-        else if (PIHM->Ele[i].LC == 1)
-            BGCM->grid[i].epc = BGCM->epclist.epc[EPC_ENF];
-        else if (PIHM->Ele[i].LC == 5)
-            BGCM->grid[i].epc = BGCM->epclist.epc[EPC_MIXED];
+        bgc->grid[i].ws = ws;
+        bgc->grid[i].cinit = cinit;
+        bgc->grid[i].cs = cs;
+        bgc->grid[i].ns = ns;
+        if (pihm->attrib_tbl.lc[i] == 4)
+        {
+            bgc->grid[i].epc = bgc->epclist.epc[EPC_DBF];
+        }
+        else if (pihm->attrib_tbl.lc[i] == 1)
+        {
+            bgc->grid[i].epc = bgc->epclist.epc[EPC_ENF];
+        }
+        else if (pihm->attrib_tbl.lc[i] == 5)
+        {
+            bgc->grid[i].epc = bgc->epclist.epc[EPC_MIXED];
+        }
 
-        BGCM->grid[i].ns.cwdn = cs.cwdc / BGCM->grid[i].epc.deadwood_cn;
-        BGCM->grid[i].ns.litr2n = cs.litr2c / BGCM->grid[i].epc.leaflitr_cn;
-        BGCM->grid[i].ns.litr3n = cs.litr3c / BGCM->grid[i].epc.leaflitr_cn;
-        BGCM->grid[i].ns.litr4n = cs.litr4c / BGCM->grid[i].epc.leaflitr_cn;
-        BGCM->grid[i].ns.soil1n = cs.soil1c / SOIL1_CN;
-        BGCM->grid[i].ns.soil2n = cs.soil2c / SOIL2_CN;
-        BGCM->grid[i].ns.soil3n = cs.soil3c / SOIL3_CN;
-        BGCM->grid[i].ns.soil4n = cs.soil4c / SOIL4_CN;
+        bgc->grid[i].ns.cwdn = cs.cwdc / bgc->grid[i].epc.deadwood_cn;
+        bgc->grid[i].ns.litr2n = cs.litr2c / bgc->grid[i].epc.leaflitr_cn;
+        bgc->grid[i].ns.litr3n = cs.litr3c / bgc->grid[i].epc.leaflitr_cn;
+        bgc->grid[i].ns.litr4n = cs.litr4c / bgc->grid[i].epc.leaflitr_cn;
+        bgc->grid[i].ns.soil1n = cs.soil1c / SOIL1_CN;
+        bgc->grid[i].ns.soil2n = cs.soil2c / SOIL2_CN;
+        bgc->grid[i].ns.soil3n = cs.soil3c / SOIL3_CN;
+        bgc->grid[i].ns.soil4n = cs.soil4c / SOIL4_CN;
 
-        printf ("ELE %d, LC %d, woody %d, evergreen %d, transfer days %lf\n", i + 1, PIHM->Ele[i].LC, BGCM->grid[i].epc.woody, BGCM->grid[i].epc.evergreen, BGCM->grid[i].epc.transfer_days);
-
-        if (BGCM->grid[i].epc.evergreen == 1)
-            BGCM->grid[i].epv.dormant_flag = 0.;
+        if (bgc->grid[i].epc.evergreen == 1)
+        {
+            bgc->grid[i].epv.dormant_flag = 0.0;
+        }
         else
-            BGCM->grid[i].epv.dormant_flag = 1.;
-        //BGCM->grid[i].epv.days_active = 0.;
-        BGCM->grid[i].epv.onset_flag = 0.;
-        BGCM->grid[i].epv.onset_counter = 0.;
-        BGCM->grid[i].epv.onset_gddflag = 0.;
-        BGCM->grid[i].epv.onset_fdd = 0.;
-        BGCM->grid[i].epv.onset_gdd = 0.;
-        BGCM->grid[i].epv.onset_swi = 0.0;
-        BGCM->grid[i].epv.offset_flag = 0.;
-        BGCM->grid[i].epv.offset_counter = 0.;
-        BGCM->grid[i].epv.offset_fdd = 0.;
-        BGCM->grid[i].epv.offset_swi = 0.;
-        BGCM->grid[i].epv.lgsf = 0.;
-        BGCM->grid[i].epv.bglfr = 0.;
-        BGCM->grid[i].epv.bgtr = 0.;
-        BGCM->grid[i].epv.annavg_t2m = 280.;
-        BGCM->grid[i].epv.tempavg_t2m = 0.;
+        {
+            bgc->grid[i].epv.dormant_flag = 1.0;
+        }
+        //bgc->grid[i].epv.days_active = 0.;
+        bgc->grid[i].epv.onset_flag = 0.0;
+        bgc->grid[i].epv.onset_counter = 0.0;
+        bgc->grid[i].epv.onset_gddflag = 0.0;
+        bgc->grid[i].epv.onset_fdd = 0.0;
+        bgc->grid[i].epv.onset_gdd = 0.0;
+        bgc->grid[i].epv.onset_swi = 0.0;
+        bgc->grid[i].epv.offset_flag = 0.0;
+        bgc->grid[i].epv.offset_counter = 0.0;
+        bgc->grid[i].epv.offset_fdd = 0.0;
+        bgc->grid[i].epv.offset_swi = 0.0;
+        bgc->grid[i].epv.lgsf = 0.0;
+        bgc->grid[i].epv.bglfr = 0.0;
+        bgc->grid[i].epv.bgtr = 0.0;
+        bgc->grid[i].epv.annavg_t2m = 280.0;
+        bgc->grid[i].epv.tempavg_t2m = 0.0;
     }
 }
 
-void BGC_init (char *filename, Model_Data PIHM, LSM_STRUCT LSM, bgc_struct BGCM)
+void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bgc)
 {
-    char            fn[100];
+    char            fn[MAXSTRING];
+    char            project[MAXSTRING];
     FILE           *init_file;
     int             i, j;
+    char           *token;
+    char            tempname[MAXSTRING];
 
-    printf ("BGC: Initializing BGC structures\n");
-
-    for (i = 0; i < PIHM->NumEle; i++)
+    /* Detect if model is running in ensemble mode */
+    strcpy (tempname, simulation);
+    if (strstr (tempname, ".") != 0)
     {
-        BGCM->grid[i].sitec.soil_alpha = LSM->GRID[i].VGALPHA;
-        BGCM->grid[i].sitec.soil_beta = LSM->GRID[i].VGBETA;
-        BGCM->grid[i].sitec.vwc_sat = LSM->GRID[i].SMCMAX;
-        BGCM->grid[i].sitec.vwc_min = LSM->GRID[i].SMCMIN;
-        BGCM->grid[i].sitec.vwc_fc = LSM->GRID[i].SMCREF;
-        BGCM->grid[i].sitec.lat = LSM->LATITUDE;
-        BGCM->grid[i].sitec.lon = LSM->LONGITUDE;
-        BGCM->grid[i].sitec.sw_alb = 0.5 * (LSM->GRID[i].ALBEDOMIN + LSM->GRID[i].ALBEDOMAX);
-        BGCM->grid[i].sitec.area = PIHM->Ele[i].area;
+        token = strtok (tempname, ".");
+        strcpy (project, token);
+    }
+    else
+    {
+        strcpy (project, simulation);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("BGC: Initializing BGC structures\n");
+    }
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        bgc->grid[i].sitec.soil_alpha = noah->grid[i].vgalpha;
+        bgc->grid[i].sitec.soil_beta = noah->grid[i].vgbeta;
+        bgc->grid[i].sitec.vwc_sat = noah->grid[i].smcmax;
+        bgc->grid[i].sitec.vwc_min = noah->grid[i].smcmin;
+        bgc->grid[i].sitec.vwc_fc = noah->grid[i].smcref;
+        bgc->grid[i].sitec.lat = noah->latitude;
+        bgc->grid[i].sitec.lon = noah->longitude;
+        bgc->grid[i].sitec.sw_alb = 0.5 * (noah->grid[i].albedomin + noah->grid[i].albedomax);
+        bgc->grid[i].sitec.area = pihm->elem[i].topo.area;
         for (j = 0; j < 3; j++)
-            BGCM->grid[i].sitec.nabr[j] = PIHM->Ele[i].nabr[j];
+        {
+            bgc->grid[i].sitec.nabr[j] = pihm->elem[i].nabr[j];
+        }
 
-        BGCM->grid[i].epv.annavg_t2m = LSM->GENPRMT.TBOT_DATA - 273.15;
+        bgc->grid[i].epv.annavg_t2m = noah->genprmt.tbot_data - 273.15;
 
-        BGCM->grid[i].epc.topt = LSM->GRID[i].TOPT;
-        BGCM->grid[i].epc.rgl = LSM->GRID[i].RGL;
-        BGCM->grid[i].epc.hs = LSM->GRID[i].HS;
-        BGCM->grid[i].epc.gl_smax = 1.0 / LSM->GRID[i].RSMIN;
-        BGCM->grid[i].epc.gl_c = 1.0 / LSM->GRID[i].RSMAX;
-        BGCM->grid[i].epc.smcref = LSM->GRID[i].SMCREF;
-        BGCM->grid[i].epc.smcwlt = LSM->GRID[i].SMCWLT;
+        bgc->grid[i].epc.topt = noah->grid[i].topt;
+        bgc->grid[i].epc.rgl = noah->grid[i].rgl;
+        bgc->grid[i].epc.hs = noah->grid[i].hs;
+        bgc->grid[i].epc.gl_smax = 1.0 / noah->grid[i].rsmin;
+        bgc->grid[i].epc.gl_c = 1.0 / noah->grid[i].rsmax;
+        bgc->grid[i].epc.smcref = noah->grid[i].smcref;
+        bgc->grid[i].epc.smcwlt = noah->grid[i].smcwlt;
     }
 
     /* Read initial conditions */
-    if (BGCM->ctrl.spinup == 0)
+    if (bgc->ctrl.spinup == 0)
     {
-        sprintf (fn, "input/%s/%s.bgcinit", filename, filename);
+        sprintf (fn, "input/%s/%s.bgcinit", project, simulation);
         init_file = fopen (fn, "rb");
-        if (init_file == NULL)
-        {
-            printf ("\n  Fatal Error: BGC restart file %s is in use or do not exist!\n", fn);
-            exit (1);
-        }
+        CheckFile (init_file, fn);
 
-        for (i = 0; i < PIHM->NumEle; i++)
+        for (i = 0; i < pihm->numele; i++)
         {
-            fread (&(BGCM->grid[i].restart_input), sizeof (restart_data_struct), 1, init_file);
-            restart_input (&BGCM->grid[i].ws, &BGCM->grid[i].cs, &BGCM->grid[i].ns, &BGCM->grid[i].epv, &BGCM->grid[i].restart_input);
+            fread (&(bgc->grid[i].restart_input), sizeof (restart_data_struct), 1, init_file);
+            restart_input (&bgc->grid[i].ws, &bgc->grid[i].cs, &bgc->grid[i].ns, &bgc->grid[i].epv, &bgc->grid[i].restart_input);
 
-            LSM->GRID[i].XLAI = BGCM->grid[i].cs.leafc * BGCM->grid[i].epc.avg_proj_sla;
-            LSM->GRID[i].CMCMAX = PIHM->ISFactor[PIHM->Ele[i].LC - 1] * LSM->GRID[i].XLAI;
+            noah->grid[i].xlai = bgc->grid[i].cs.leafc * bgc->grid[i].epc.avg_proj_sla;
+            noah->grid[i].cmcmax = noah->grid[i].cmcfactr * noah->grid[i].xlai;
         }
         fclose (init_file);
     }
     else
     {
-        for (i = 0; i < PIHM->NumEle; i++)
+        for (i = 0; i < pihm->numele; i++)
         {
-            firstday (&BGCM->grid[i].epc, &BGCM->grid[i].cinit, &BGCM->grid[i].epv, &BGCM->grid[i].cs, &BGCM->grid[i].ns);
+            firstday (&bgc->grid[i].epc, &bgc->grid[i].cinit, &bgc->grid[i].epv, &bgc->grid[i].cs, &bgc->grid[i].ns);
         }
     }
 
-    for (i = 0; i < PIHM->NumEle; i++)
-        zero_srcsnk (&BGCM->grid[i].cs, &BGCM->grid[i].ns, &BGCM->grid[i].ws, &BGCM->grid[i].summary);
+    for (i = 0; i < pihm->numele; i++)
+    {
+        zero_srcsnk (&bgc->grid[i].cs, &bgc->grid[i].ns, &bgc->grid[i].ws, &bgc->grid[i].summary);
+    }
 }
 
-void BgcCoupling (int t, int start_time, Model_Data pihm, LSM_STRUCT noah, bgc_struct bgc)
+//void BgcCoupling (int t, int start_time, Model_Data pihm, LSM_STRUCT noah, bgc_struct bgc)
+//{
+//    static int      counter[5000];
+//    static int      daylight_counter[5000];
+//    double          dayl, prev_dayl;
+//    spa_data        spa;
+//    int             spa_result;
+//    time_t          rawtime;
+//    struct tm      *timestamp;
+//    double          sfctmp;
+//    double          solar;
+//    int             i, j, k;
+//    double          dummy[pihm->NumEle];
+//    metvar_struct  *metv;
+//    static int      first_balance;
+//
+//    if (t == start_time)
+//    {
+//        for (i = 0; i < pihm->NumEle; i++)
+//        {
+//            counter[i] = 0;
+//            daylight_counter[i] = 0;
+//
+//            metv = &(bgc->grid[i].metv);
+//            metv->tmax = -999.0;
+//            metv->tmin = 999.0;
+//            metv->tavg = 0.0;
+//            metv->tsoil = 0.0;
+//            metv->swc = 0.0;
+//            metv->soilw = 0.0;
+//            for (k = 0; k < 3; k++)
+//                metv->subflux[k] = 0.0;
+//            metv->tday = 0.0;
+//            metv->q2d = 0.0;
+//            metv->pa = 0.0;
+//            metv->swavgfd = 0.0;
+//            metv->par = 0.0;
+//            metv->tnight = 0.0;
+//        }
+//        first_balance = 1;
+//    }
+//
+//    for (i = 0; i < pihm->NumEle; i++)
+//    {
+//        metv = &(bgc->grid[i].metv);
+//
+//        sfctmp = noah->GRID[i].SFCTMP - 273.15;
+//        metv->tmax = (metv->tmax > sfctmp) ? metv->tmax : sfctmp;
+//        metv->tmin = (metv->tmin < sfctmp) ? metv->tmin : sfctmp;
+//        metv->tavg += sfctmp;
+//        solar = noah->GRID[i].SOLDN;
+//        metv->tsoil += noah->GRID[i].STC[0] - 273.15;
+//        metv->swc += noah->GRID[i].SOILW;
+//        metv->soilw += noah->GRID[i].SOILM;
+//        for (k = 0; k < 3; k++)
+//        {
+//            if (pihm->Ele[i].BC[k] < 0.0 && pihm->avg_subflux[i][k] < 0.0)
+//                metv->subflux[k] = 0.0;
+//            else
+//                metv->subflux[k] += pihm->avg_subflux[i][k] * 1000.0 * 24.0 * 3600.0 / pihm->Ele[i].area;
+//        }
+//
+//        if (solar > 1.0)
+//        {
+//            metv->tday += sfctmp;
+//            metv->q2d += noah->GRID[i].Q2SAT - noah->GRID[i].Q2;
+//            metv->pa += noah->GRID[i].SFCPRS;
+//            metv->swavgfd += solar;
+//            metv->par += solar * RAD2PAR;
+//            daylight_counter[i]++;
+//        }
+//        else
+//            metv->tnight += sfctmp;
+//
+//        counter[i]++;
+//    }
+//
+//    if ((t - start_time) % 86400 == 0 && t > start_time)
+//    {
+//        rawtime = (int) (t - 86400);
+//        timestamp = gmtime (&rawtime);
+//        spa.year = timestamp->tm_year + 1900;
+//        spa.month = timestamp->tm_mon + 1;
+//        spa.day = timestamp->tm_mday;
+//        spa.hour = timestamp->tm_hour;
+//        spa.minute = timestamp->tm_min;
+//        spa.second = timestamp->tm_sec;
+//
+//        spa.timezone = 0;
+//        spa.delta_t = 67;
+//        spa.delta_ut1 = 0;
+//        spa.atmos_refract = 0.5667;
+//
+//        spa.longitude = bgc->grid[0].sitec.lon;
+//        spa.latitude = bgc->grid[0].sitec.lat;
+//        spa.elevation = 0.;
+//        for (i = 0; i < pihm->NumEle; i++)
+//            spa.elevation = spa.elevation + (double)pihm->Ele[i].zmax;
+//        spa.elevation = spa.elevation / (double)pihm->NumEle;
+//        /*
+//         * Calculate surface pressure based on FAO 1998 method (Narasimhan 2002) 
+//         */
+//        spa.pressure = 1013.25 * pow ((293. - 0.0065 * spa.elevation) / 293., 5.26);
+//        spa.temperature = noah->GENPRMT.TBOT_DATA;
+//
+//        spa.function = SPA_ZA_RTS;
+//        spa_result = spa_calculate (&spa);
+//
+//        /* daylength (s) */
+//        dayl = (spa.sunset - spa.sunrise) * 3600.;
+//        dayl = dayl < 0. ? (dayl + 24. * 3600.) : dayl;
+//
+//        rawtime = rawtime - 24 * 3600;
+//        timestamp = gmtime (&rawtime);
+//        spa.year = timestamp->tm_year + 1900;
+//        spa.month = timestamp->tm_mon + 1;
+//        spa.day = timestamp->tm_mday;
+//        spa.hour = timestamp->tm_hour;
+//        spa.minute = timestamp->tm_min;
+//        spa.second = timestamp->tm_sec;
+//        spa_result = spa_calculate (&spa);
+//        prev_dayl = (spa.sunset - spa.sunrise) * 3600.;
+//        prev_dayl = prev_dayl < 0. ? (prev_dayl + 12. * 3600.) : prev_dayl;
+//
+//        for (i = 0; i < pihm->NumEle; i++)
+//        {
+//            metv = &(bgc->grid[i].metv);
+//
+//            metv->dayl = dayl;
+//            metv->prev_dayl = prev_dayl;
+//
+//            metv->tavg /= (double) counter[i];
+//            metv->tsoil /= (double) counter[i];
+//            metv->swc /= (double) counter[i];
+//            metv->soilw /= (double) counter[i];
+//            for (k = 0; k < 3; k++)
+//            {
+//                metv->subflux[k] /= (double) counter[i];
+//            }
+//
+//            metv->tday /= (double) daylight_counter[i];
+//            metv->q2d /= (double) daylight_counter[i];
+//            metv->pa /= (double) daylight_counter[i];
+//            metv->swavgfd /= (double) daylight_counter[i];
+//            metv->par /= (double) daylight_counter[i];
+//            metv->tnight /= (double) (counter[i] - daylight_counter[i]);
+//        }
+//
+//        daily_bgc (bgc, pihm->NumEle, t, dummy, first_balance);
+//        first_balance = 0;
+//
+//        for (j = 0; j < bgc->ctrl.nprint; j++)
+//            PrintData (bgc->ctrl.PCtrl[j], t, 86400, 1);
+//
+//        
+//        for (i = 0; i < pihm->NumEle; i++)
+//        {
+//            noah->GRID[i].XLAI = bgc->grid[i].epv.proj_lai;
+//            noah->GRID[i].CMCMAX = pihm->ISFactor[pihm->Ele[i].LC - 1] * noah->GRID[i].XLAI;
+//
+//            metv = &(bgc->grid[i].metv);
+//
+//            counter[i] = 0;
+//            daylight_counter[i] = 0;
+//
+//            metv->tmax = -999.0;
+//            metv->tmin = 999.0;
+//            metv->tavg = 0.0;
+//            metv->tsoil = 0.0;
+//            metv->swc = 0.0;
+//            metv->soilw = 0.0;
+//            for (k = 0; k < 3; k++)
+//                metv->subflux[k] = 0.0;
+//            metv->tday = 0.0;
+//            metv->q2d = 0.0;
+//            metv->pa = 0.0;
+//            metv->swavgfd = 0.0;
+//            metv->par = 0.0;
+//            metv->tnight = 0.0;
+//        }
+//    }
+//}
+//
+void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir)
 {
-    static int      counter[5000];
-    static int      daylight_counter[5000];
-    double          dayl, prev_dayl;
-    spa_data        spa;
-    int             spa_result;
-    time_t          rawtime;
-    struct tm      *timestamp;
-    double          sfctmp;
-    double          solar;
-    int             i, j, k;
-    double          dummy[pihm->NumEle];
-    metvar_struct  *metv;
-    static int      first_balance;
+    int             i, j;
+    int             n;
 
-    if (t == start_time)
+    n = 0;
+
+    for (i = 0; i < NUM_PRINT; i++)
     {
-        for (i = 0; i < pihm->NumEle; i++)
+        if (bgc->ctrl.prtvrbl[i] > 0)
         {
-            counter[i] = 0;
-            daylight_counter[i] = 0;
-
-            metv = &(bgc->grid[i].metv);
-            metv->tmax = -999.0;
-            metv->tmin = 999.0;
-            metv->tavg = 0.0;
-            metv->tsoil = 0.0;
-            metv->swc = 0.0;
-            metv->soilw = 0.0;
-            for (k = 0; k < 3; k++)
-                metv->subflux[k] = 0.0;
-            metv->tday = 0.0;
-            metv->q2d = 0.0;
-            metv->pa = 0.0;
-            metv->swavgfd = 0.0;
-            metv->par = 0.0;
-            metv->tnight = 0.0;
-        }
-        first_balance = 1;
-    }
-
-    for (i = 0; i < pihm->NumEle; i++)
-    {
-        metv = &(bgc->grid[i].metv);
-
-        sfctmp = noah->GRID[i].SFCTMP - 273.15;
-        metv->tmax = (metv->tmax > sfctmp) ? metv->tmax : sfctmp;
-        metv->tmin = (metv->tmin < sfctmp) ? metv->tmin : sfctmp;
-        metv->tavg += sfctmp;
-        solar = noah->GRID[i].SOLDN;
-        metv->tsoil += noah->GRID[i].STC[0] - 273.15;
-        metv->swc += noah->GRID[i].SOILW;
-        metv->soilw += noah->GRID[i].SOILM;
-        for (k = 0; k < 3; k++)
-        {
-            if (pihm->Ele[i].BC[k] < 0.0 && pihm->avg_subflux[i][k] < 0.0)
-                metv->subflux[k] = 0.0;
-            else
-                metv->subflux[k] += pihm->avg_subflux[i][k] * 1000.0 * 24.0 * 3600.0 / pihm->Ele[i].area;
-        }
-
-        if (solar > 1.0)
-        {
-            metv->tday += sfctmp;
-            metv->q2d += noah->GRID[i].Q2SAT - noah->GRID[i].Q2;
-            metv->pa += noah->GRID[i].SFCPRS;
-            metv->swavgfd += solar;
-            metv->par += solar * RAD2PAR;
-            daylight_counter[i]++;
-        }
-        else
-            metv->tnight += sfctmp;
-
-        counter[i]++;
-    }
-
-    if ((t - start_time) % 86400 == 0 && t > start_time)
-    {
-        rawtime = (int) (t - 86400);
-        timestamp = gmtime (&rawtime);
-        spa.year = timestamp->tm_year + 1900;
-        spa.month = timestamp->tm_mon + 1;
-        spa.day = timestamp->tm_mday;
-        spa.hour = timestamp->tm_hour;
-        spa.minute = timestamp->tm_min;
-        spa.second = timestamp->tm_sec;
-
-        spa.timezone = 0;
-        spa.delta_t = 67;
-        spa.delta_ut1 = 0;
-        spa.atmos_refract = 0.5667;
-
-        spa.longitude = bgc->grid[0].sitec.lon;
-        spa.latitude = bgc->grid[0].sitec.lat;
-        spa.elevation = 0.;
-        for (i = 0; i < pihm->NumEle; i++)
-            spa.elevation = spa.elevation + (double)pihm->Ele[i].zmax;
-        spa.elevation = spa.elevation / (double)pihm->NumEle;
-        /*
-         * Calculate surface pressure based on FAO 1998 method (Narasimhan 2002) 
-         */
-        spa.pressure = 1013.25 * pow ((293. - 0.0065 * spa.elevation) / 293., 5.26);
-        spa.temperature = noah->GENPRMT.TBOT_DATA;
-
-        spa.function = SPA_ZA_RTS;
-        spa_result = spa_calculate (&spa);
-
-        /* daylength (s) */
-        dayl = (spa.sunset - spa.sunrise) * 3600.;
-        dayl = dayl < 0. ? (dayl + 24. * 3600.) : dayl;
-
-        rawtime = rawtime - 24 * 3600;
-        timestamp = gmtime (&rawtime);
-        spa.year = timestamp->tm_year + 1900;
-        spa.month = timestamp->tm_mon + 1;
-        spa.day = timestamp->tm_mday;
-        spa.hour = timestamp->tm_hour;
-        spa.minute = timestamp->tm_min;
-        spa.second = timestamp->tm_sec;
-        spa_result = spa_calculate (&spa);
-        prev_dayl = (spa.sunset - spa.sunrise) * 3600.;
-        prev_dayl = prev_dayl < 0. ? (prev_dayl + 12. * 3600.) : prev_dayl;
-
-        for (i = 0; i < pihm->NumEle; i++)
-        {
-            metv = &(bgc->grid[i].metv);
-
-            metv->dayl = dayl;
-            metv->prev_dayl = prev_dayl;
-
-            metv->tavg /= (double) counter[i];
-            metv->tsoil /= (double) counter[i];
-            metv->swc /= (double) counter[i];
-            metv->soilw /= (double) counter[i];
-            for (k = 0; k < 3; k++)
+            switch (i)
             {
-                metv->subflux[k] /= (double) counter[i];
+                case LAI_CTRL:
+                    sprintf (bgc->prtctrl[n].name, "%s%s.lai", outputdir, simulation);
+                    bgc->prtctrl[n].intvl = 86400;
+                    bgc->prtctrl[n].nvrbl = numele;
+                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
+                    {
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].epv.proj_lai;
+                    }
+                    n++;
+                    break;
+                case VEGC_CTRL:
+                    sprintf (bgc->prtctrl[n].name, "%s%s.vegc", outputdir, simulation);
+                    bgc->prtctrl[n].intvl = 86400;
+                    bgc->prtctrl[n].nvrbl = numele;
+                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
+                    {
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.vegc;
+                    }
+                    n++;
+                    break;
+                case LITRC_CTRL:
+                    sprintf (bgc->prtctrl[n].name, "%s%s.litrc", outputdir, simulation);
+                    bgc->prtctrl[n].intvl = 86400;
+                    bgc->prtctrl[n].nvrbl = numele;
+                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
+                    {
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.litrc;
+                    }
+                    n++;
+                    break;
+                case SOILC_CTRL:
+                    sprintf (bgc->prtctrl[n].name, "%s%s.soilc", outputdir, simulation);
+                    bgc->prtctrl[n].intvl = 86400;
+                    bgc->prtctrl[n].nvrbl = numele;
+                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
+                    {
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.soilc;
+                    }
+                    n++;
+                    break;
+                case TOTALC_CTRL:
+                    sprintf (bgc->prtctrl[n].name, "%s%s.totalc", outputdir, simulation);
+                    bgc->prtctrl[n].intvl = 86400;
+                    bgc->prtctrl[n].nvrbl = numele;
+                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
+                    {
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.totalc;
+                    }
+                    n++;
+                    break;
+                case NPP_CTRL:
+                    sprintf (bgc->prtctrl[n].name, "%s%s.npp", outputdir, simulation);
+                    bgc->prtctrl[n].intvl = 86400;
+                    bgc->prtctrl[n].nvrbl = numele;
+                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
+                    {
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.daily_npp;
+                    }
+                    n++;
+                    break;
+                case NEE_CTRL:
+                    sprintf (bgc->prtctrl[n].name, "%s%s.nee", outputdir, simulation);
+                    bgc->prtctrl[n].intvl = 86400;
+                    bgc->prtctrl[n].nvrbl = numele;
+                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
+                    {
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.daily_nee;
+                    }
+                    n++;
+                    break;
+                case GPP_CTRL:
+                    sprintf (bgc->prtctrl[n].name, "%s%s.gpp", outputdir, simulation);
+                    bgc->prtctrl[n].intvl = 86400;
+                    bgc->prtctrl[n].nvrbl = numele;
+                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
+                    {
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.daily_gpp;
+                    }
+                    n++;
+                    break;
             }
-
-            metv->tday /= (double) daylight_counter[i];
-            metv->q2d /= (double) daylight_counter[i];
-            metv->pa /= (double) daylight_counter[i];
-            metv->swavgfd /= (double) daylight_counter[i];
-            metv->par /= (double) daylight_counter[i];
-            metv->tnight /= (double) (counter[i] - daylight_counter[i]);
-        }
-
-        daily_bgc (bgc, pihm->NumEle, t, dummy, first_balance);
-        first_balance = 0;
-
-        for (j = 0; j < bgc->ctrl.nprint; j++)
-            PrintData (bgc->ctrl.PCtrl[j], t, 86400, 1);
-
-        
-        for (i = 0; i < pihm->NumEle; i++)
-        {
-            noah->GRID[i].XLAI = bgc->grid[i].epv.proj_lai;
-            noah->GRID[i].CMCMAX = pihm->ISFactor[pihm->Ele[i].LC - 1] * noah->GRID[i].XLAI;
-
-            metv = &(bgc->grid[i].metv);
-
-            counter[i] = 0;
-            daylight_counter[i] = 0;
-
-            metv->tmax = -999.0;
-            metv->tmin = 999.0;
-            metv->tavg = 0.0;
-            metv->tsoil = 0.0;
-            metv->swc = 0.0;
-            metv->soilw = 0.0;
-            for (k = 0; k < 3; k++)
-                metv->subflux[k] = 0.0;
-            metv->tday = 0.0;
-            metv->q2d = 0.0;
-            metv->pa = 0.0;
-            metv->swavgfd = 0.0;
-            metv->par = 0.0;
-            metv->tnight = 0.0;
         }
     }
+
+    bgc->ctrl.nprint = n;
 }
 
-void bgc_initialize_output (char *filename, Model_Data PIHM, Control_Data CS, bgc_struct bgc, char *outputdir)
+void ReadBinFile (ts_struct *ts, char *fn, int numele)
 {
-    FILE           *Ofile;
-    char           *ascii_name;
-    int             i, j, ensemble_mode, icounter;
+    FILE           *fid;
+    double          dtime;
+    int             i, j;
 
-    if (strstr (filename, ".") != 0)
-        ensemble_mode = 1;
-    else
-        ensemble_mode = 0;
+    fid = fopen (fn, "rb");
+    CheckFile (fid, fn);
 
-    if (CS->Verbose)
-        printf ("\nInitializing LSM output files ...\n");
+    fseek (fid, 0L, SEEK_END);
+    ts->length = (int) (ftell (fid) / (numele + 1) / 8);
+    ts->ftime = (int *) malloc (ts->length * sizeof (int));
+    ts->data = (double **) malloc (ts->length * sizeof (double *));
 
-    icounter = 0;
-    if (bgc->ctrl.print_lai > 0)
+    rewind (fid);
+    for (j = 0; j < ts->length; j++)
     {
-        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.lai", outputdir, filename);
-        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_lai;
-        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
-        bgc->ctrl.PCtrl[icounter].PrintVar =
-           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
-           sizeof (double *));
-        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
-            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].epv.proj_lai);
-        icounter++;
-    }
-    if (bgc->ctrl.print_vegc > 0)
-    {
-        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.vegc", outputdir, filename);
-        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_vegc;
-        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
-        bgc->ctrl.PCtrl[icounter].PrintVar =
-           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
-           sizeof (double *));
-        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
-            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.vegc);
-        icounter++;
-    }
-    if (bgc->ctrl.print_litrc > 0)
-    {
-        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.litrc", outputdir, filename);
-        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_litrc;
-        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
-        bgc->ctrl.PCtrl[icounter].PrintVar =
-           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
-           sizeof (double *));
-        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
-            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.litrc);
-        icounter++;
-    }
-    if (bgc->ctrl.print_soilc > 0)
-    {
-        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.soilc", outputdir, filename);
-        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_soilc;
-        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
-        bgc->ctrl.PCtrl[icounter].PrintVar =
-           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
-           sizeof (double *));
-        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
-            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.soilc);
-        icounter++;
-    }
-    if (bgc->ctrl.print_totalc > 0)
-    {
-        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.totalc", outputdir, filename);
-        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_totalc;
-        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
-        bgc->ctrl.PCtrl[icounter].PrintVar =
-           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
-           sizeof (double *));
-        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
-            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.totalc);
-        icounter++;
-    }
-    if (bgc->ctrl.print_npp > 0)
-    {
-        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.npp", outputdir, filename);
-        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_npp;
-        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
-        bgc->ctrl.PCtrl[icounter].PrintVar =
-           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
-           sizeof (double *));
-        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
-            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.daily_npp);
-        icounter++;
-    }
-    if (bgc->ctrl.print_nee > 0)
-    {
-        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.nee", outputdir, filename);
-        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_nee;
-        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
-        bgc->ctrl.PCtrl[icounter].PrintVar =
-           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
-           sizeof (double *));
-        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
-            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.daily_nee);
-        icounter++;
-    }
-    if (bgc->ctrl.print_gpp > 0)
-    {
-        sprintf (bgc->ctrl.PCtrl[icounter].name, "%s%s.gpp", outputdir, filename);
-        bgc->ctrl.PCtrl[icounter].Interval = bgc->ctrl.print_gpp;
-        bgc->ctrl.PCtrl[icounter].NumVar = PIHM->NumEle;
-        bgc->ctrl.PCtrl[icounter].PrintVar =
-           (double **)malloc (bgc->ctrl.PCtrl[icounter].NumVar *
-           sizeof (double *));
-        for (i = 0; i < bgc->ctrl.PCtrl[icounter].NumVar; i++)
-            bgc->ctrl.PCtrl[icounter].PrintVar[i] = &(bgc->grid[i].summary.daily_gpp);
-        icounter++;
+        ts->data[j] = (double *) malloc (numele * sizeof (double));
+        fread (&dtime, sizeof (double), 1, fid);
+        ts->ftime[j] = (int) dtime;
+        for (i = 0; i < numele; i++)
+        {
+            fread (&ts->data[j][i], sizeof (double), 1, fid);
+        }
     }
 
-    bgc->ctrl.nprint = icounter;
-
-    for (i = 0; i < bgc->ctrl.nprint; i++)
-    {
-        Ofile = fopen (bgc->ctrl.PCtrl[i].name, "w");
-        fclose (Ofile);
-
-	if (CS->Ascii)
-	{
-	    ascii_name = (char *)malloc ((strlen (bgc->ctrl.PCtrl[i].name) + 5) * sizeof (char));
-	    sprintf (ascii_name, "%s.txt", bgc->ctrl.PCtrl[i].name);
-	    Ofile = fopen (ascii_name, "w");
-	    fclose (Ofile);
-            free (ascii_name);
-	}
-
-        bgc->ctrl.PCtrl[i].buffer = (double *)calloc (bgc->ctrl.PCtrl[i].NumVar, sizeof (double));
-    }
+    fclose (fid);
 }
+
+void ReadAnnFile (ts_struct *ts, char *fn)
+{
+    FILE           *fid;
+    time_t          rawtime;
+    struct tm      *timeinfo;
+    char            cmdstr[MAXSTRING];
+    int             i;
+
+    timeinfo = (struct tm *)malloc (sizeof (struct tm));
+
+    fid = fopen (fn, "r");
+    CheckFile (fid, fn);
+
+    ts->length = CountLine (fid, 1, "EOF");
+    ts->ftime = (int *) malloc (ts->length * sizeof (int));
+    ts->data = (double **) malloc (ts->length * sizeof (double *));
+
+    FindLine (fid, "BOF");
+    for (i = 0; i < ts->length; i++)
+    {
+        ts->data[i] = (double *) malloc (sizeof (double));
+        NextLine (fid, cmdstr);
+        sscanf (cmdstr, "%d %lf", &timeinfo->tm_year, &ts->data[i][0]);
+        timeinfo->tm_year = timeinfo->tm_year - 1900;
+        timeinfo->tm_mon = 0;
+        timeinfo->tm_mday = 1;
+        timeinfo->tm_hour = 0;
+        timeinfo->tm_min = 0;
+        timeinfo->tm_sec = 0;
+        rawtime = timegm (timeinfo);
+        ts->ftime[i] = (int) rawtime;
+    }
+    
+    fclose (fid);
+}
+
+
+

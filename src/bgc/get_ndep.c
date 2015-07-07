@@ -10,7 +10,11 @@
 
 #include "bgc.h"
 
-double get_ndep (TSD ndep_ts, double t)
+double GetNdep (ts_struct ndep_ts, int t)
 {
-    return Interpolation (&ndep_ts, t);
+    double          ndep;
+
+    IntrplForcing (ndep_ts, t, 1, &ndep);
+
+    return (ndep);
 }

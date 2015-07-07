@@ -15,9 +15,7 @@
 #include "spa.h"
 
 #include "bgc_constants.h"
-#include "forcing.h"
 #include "bgc_struct.h"
-//#include "../time_func.h"
 #include "bgc_func.h"
 
 #endif

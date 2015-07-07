@@ -5,7 +5,7 @@
 
 #include "bgc.h"
 
-void daily_bgc (bgc_struct BGCM, int num_ele, const double t, const double *naddfrac, int first_balance)
+void DailyBgc (bgc_struct bgc, int num_ele, const double t, const double *naddfrac, int first_balance)
 {
     siteconst_struct *sitec;
     metvar_struct  *metv;
@@ -38,9 +38,9 @@ void daily_bgc (bgc_struct BGCM, int num_ele, const double t, const double *nadd
     rawtime = (int)t;
     timestamp = gmtime (&rawtime);
 
-    co2 = &BGCM->co2;
-    ndepctrl = &BGCM->ndepctrl;
-    ctrl = &BGCM->ctrl;
+    co2 = &bgc->co2;
+    ndepctrl = &bgc->ndepctrl;
+    ctrl = &bgc->ctrl;
 
     /* Get co2 and ndep */
     if (ctrl->spinup == 1)      /* Spinup mode */
@@ -63,7 +63,7 @@ void daily_bgc (bgc_struct BGCM, int num_ele, const double t, const double *nadd
         {
             /* When varco2 = 1, use file for co2 */
             if (co2->varco2 == 1)
-                co2lvl = get_co2 (BGCM->Forcing[CO2_TS][0], t);
+                co2lvl = GetCO2 (bgc->forcing.ts[CO2_TS][0], t);
             if (co2lvl < -999)
             {
                 printf ("Error finding CO2 value on %4.4d-%2.2d-%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday);
@@ -83,7 +83,7 @@ void daily_bgc (bgc_struct BGCM, int num_ele, const double t, const double *nadd
             }
             else
             {
-                daily_ndep = get_ndep (BGCM->Forcing[NDEP_TS][0], t);
+                daily_ndep = GetNdep (bgc->forcing.ts[NDEP_TS][0], t);
                 daily_nfix = ndepctrl->nfix / 365.0;
                 if (daily_ndep < -999)
                 {
@@ -100,21 +100,21 @@ void daily_bgc (bgc_struct BGCM, int num_ele, const double t, const double *nadd
 
     for (i = 0; i < num_ele; i++)
     {
-        sitec = &BGCM->grid[i].sitec;
-        metv = &BGCM->grid[i].metv;
-        epc = &BGCM->grid[i].epc;
-        epv = &BGCM->grid[i].epv;
-        ws = &BGCM->grid[i].ws;
-        wf = &BGCM->grid[i].wf;
-        cs = &BGCM->grid[i].cs;
-        cf = &BGCM->grid[i].cf;
-        ns = &BGCM->grid[i].ns;
-        nf = &BGCM->grid[i].nf;
-        nt = &BGCM->grid[i].nt;
-        phen = &BGCM->grid[i].phen;
-        psn_sun = &BGCM->grid[i].psn_sun;
-        psn_shade = &BGCM->grid[i].psn_shade;
-        summary = &BGCM->grid[i].summary;
+        sitec = &bgc->grid[i].sitec;
+        metv = &bgc->grid[i].metv;
+        epc = &bgc->grid[i].epc;
+        epv = &bgc->grid[i].epv;
+        ws = &bgc->grid[i].ws;
+        wf = &bgc->grid[i].wf;
+        cs = &bgc->grid[i].cs;
+        cf = &bgc->grid[i].cf;
+        ns = &bgc->grid[i].ns;
+        nf = &bgc->grid[i].nf;
+        nt = &bgc->grid[i].nt;
+        phen = &bgc->grid[i].phen;
+        psn_sun = &bgc->grid[i].psn_sun;
+        psn_shade = &bgc->grid[i].psn_shade;
+        summary = &bgc->grid[i].summary;
 
         metv->co2 = co2lvl;
 
@@ -197,26 +197,26 @@ void daily_bgc (bgc_struct BGCM, int num_ele, const double t, const double *nadd
 
     for (i = 0; i < num_ele; i++)
     {
-        sitec = &BGCM->grid[i].sitec;
-        metv = &BGCM->grid[i].metv;
-        epc = &BGCM->grid[i].epc;
-        epv = &BGCM->grid[i].epv;
-        ws = &BGCM->grid[i].ws;
-        wf = &BGCM->grid[i].wf;
-        cs = &BGCM->grid[i].cs;
-        cf = &BGCM->grid[i].cf;
-        ns = &BGCM->grid[i].ns;
-        nf = &BGCM->grid[i].nf;
-        nt = &BGCM->grid[i].nt;
-        phen = &BGCM->grid[i].phen;
-        psn_sun = &BGCM->grid[i].psn_sun;
-        psn_shade = &BGCM->grid[i].psn_shade;
-        summary = &BGCM->grid[i].summary;
+        sitec = &bgc->grid[i].sitec;
+        metv = &bgc->grid[i].metv;
+        epc = &bgc->grid[i].epc;
+        epv = &bgc->grid[i].epv;
+        ws = &bgc->grid[i].ws;
+        wf = &bgc->grid[i].wf;
+        cs = &bgc->grid[i].cs;
+        cf = &bgc->grid[i].cf;
+        ns = &bgc->grid[i].ns;
+        nf = &bgc->grid[i].nf;
+        nt = &bgc->grid[i].nt;
+        phen = &bgc->grid[i].phen;
+        psn_sun = &bgc->grid[i].psn_sun;
+        psn_shade = &bgc->grid[i].psn_shade;
+        summary = &bgc->grid[i].summary;
 
         for (j = 0; j < 3; j++)
         {
             if (sitec->nabr[j] > 0)
-                nabr_nconc[j] = MOBILEN_PROPORTION * BGCM->grid[sitec->nabr[j] - 1].ns.sminn / BGCM->grid[sitec->nabr[j] - 1].ws.soilw;
+                nabr_nconc[j] = MOBILEN_PROPORTION * bgc->grid[sitec->nabr[j] - 1].ns.sminn / bgc->grid[sitec->nabr[j] - 1].ws.soilw;
             else
                 nabr_nconc[j] = 0.0;
         }

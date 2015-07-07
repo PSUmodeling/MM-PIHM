@@ -20,10 +20,10 @@ LFLAGS = -L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
 SRCS_ = pihm.c \
 	read_alloc.c \
 	read_func.c \
-	hydrol_func.c \
 	initialize.c \
-	hydrol.c \
+	hydrol_func.c \
 	is_sm_et.c \
+	hydrol.c \
 	print.c \
 	forcing.c \
 	update.c
@@ -41,8 +41,8 @@ MSG = "...  Compiling PIHM  ..."
 ifeq ($(MAKECMDGOALS),flux-pihm)
   SFLAGS = -D_NOAH_ 
   MODULE_SRCS_= noah/lsm_func.c \
-	spa/spa.c \
   	noah/coupling.c \
+	spa/spa.c \
 	noah/module_sf_noahlsm.c
   MODULE_HEADERS_ = include/noah.h \
 	include/spa.h
@@ -67,7 +67,7 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 endif
 
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
-  SFLAGS = -D_BGC_ -D_FLUX_PIHM_ 
+  SFLAGS = -D_BGC_ -D_NOAH_ 
   MODULE_SRCS_=	noah/coupling.c \
 	noah/module_sf_noahlsm.c \
 	spa/spa.c \
@@ -77,6 +77,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/make_zero_flux_struct.c \
 	bgc/restart_io.c \
 	bgc/firstday.c \
+	bgc/bgc_spinup.c \
+	bgc/metarr_init.c \
 	bgc/zero_srcsnk.c \
 	bgc/daily_bgc.c \
 	bgc/get_co2.c \
@@ -97,12 +99,10 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/mortality.c \
 	bgc/check_balance.c \
 	bgc/summary.c \
-	bgc/metarr_init.c \
-	bgc/bgc_spinup.c \
 	bgc/nleaching.c
-  MODULE_HEADERS_ = noah/noah.h \
-	spa/spa.h \
-	bgc/bgc.h 
+  MODULE_HEADERS_ = include/noah.h \
+	include/spa.h \
+	include/bgc.h 
   EXECUTABLE = flux-pihm-bgc
   MSG = "... Compiling Flux-PIHM-BGC ..."
 endif

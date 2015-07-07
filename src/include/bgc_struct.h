@@ -23,18 +23,8 @@ typedef struct
     int             spinupstart;    /* first met year for spinup */
     int             spinupend;  /* last met year for spinup */
 
-    int             print_lai;
-    int             print_vegc;
-    int             print_litrc;
-    int             print_soilc;
-    int             print_totalc;
-    int             print_npp;
-    int             print_nep;
-    int             print_nee;
-    int             print_gpp;
-
-    Print_Ctrl      PCtrl[100];
     int             nprint;
+    int             prtvrbl[NUM_PRINT];
 } control_struct;
 
 
@@ -947,6 +937,11 @@ typedef struct bgc_grid
 
 } bgc_grid;
 
+typedef struct bgc_forc_struct
+{
+    ts_struct      *ts[NUM_BGC_FORC];
+} bgc_forc_struct;
+
 typedef struct bgc_struct
 {
     bgc_grid       *grid;
@@ -957,7 +952,8 @@ typedef struct bgc_struct
     double          spinup_resid_trend; /* kgC/m2/yr remaining trend after spinup */
     int             spinup_years;   /* number of years before reaching steady-state */
     unsigned char   bgc_ascii;  /* ASCII output flag */
-    TSD           **Forcing;
+    bgc_forc_struct forcing;
+    prtctrl_struct  prtctrl[NUM_PRINT];
 }              *bgc_struct;
 
 #endif
