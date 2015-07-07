@@ -5,20 +5,6 @@
 
 #include "pihm.h"
 
-//void update (double t, void *DS)
-//{
-//    int             k;
-//    Model_Data      MD;
-//
-//    MD = (Model_Data) DS;
-//
-//    for (k = 0; k < MD->NumTS; k++)
-//    {
-//        while (MD->TSD_meteo[k].iCounter < MD->TSD_meteo[k].length && t > MD->TSD_meteo[k].TS[MD->TSD_meteo[k].iCounter + 1][0])
-//            MD->TSD_meteo[k].iCounter++;
-//    }
-//}
-
 void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
 {
     double       *y;
@@ -60,8 +46,8 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
             runoff = runoff + elem->fluxsub[j] / elem->topo.area;
         }
 #ifdef _NOAH_
-        recharge = (realgw1 - realgw0) * pihm->ele[i].porosity / stepsize + runoff + pihm->eleetsat[i] * pihm->eleet[i][1];
-        pihm->elevir[i] = (realunsat1 - realunsat0) * pihm->ele[i].porosity / stepsize + recharge + (1. - pihm->eleetsat[i]) * pihm->eleet[i][1] + pihm->eleet[i][2];
+        recharge = (realgw1 - realgw0) * elem->soil.porosity / stepsize + runoff + elem->et_from_sat * elem->et[1];
+        elem->infil = (realunsat1 - realunsat0) * elem->soil.porosity / stepsize + recharge + (1.0 - elem->et_from_sat) * elem->et[1] + elem->et[2];
 #else
         recharge = (realgw1 - realgw0) * elem->soil.porosity / stepsize + runoff + ((elem->gw0 > aquiferdepth - elem->lc.rzd) ? elem->et[1] : 0.0);
         elem->infil = (realunsat1 - realunsat0) * elem->soil.porosity / stepsize + recharge + (elem->surf0 < EPS / 100.0 ? elem->et[2] : 0.0) + ((elem->gw0 <= aquiferdepth - elem->lc.rzd) ? elem->et[1] : 0.0);

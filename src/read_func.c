@@ -247,3 +247,16 @@ void ReadKeywordTime (char *buffer, char *keyword, int *value)
     timeinfo->tm_mon = timeinfo->tm_mon - 1;
     *value = timegm (timeinfo);
 }
+
+void ReadKeywordStr (char *buffer, char *keyword, char *value)
+{
+    int             match;
+    char            optstr[MAXSTRING];
+
+    match = sscanf (buffer, "%s %[^\n]", optstr, value);
+    if (match != 2 || strcasecmp (keyword, optstr) != 0)
+    {
+        printf ("ERROR: Expected keyword \"%s\"!\n", keyword);
+        exit (1);
+    }
+}

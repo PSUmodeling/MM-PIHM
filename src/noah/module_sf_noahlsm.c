@@ -1,661 +1,662 @@
+#include "pihm.h"
 #include "noah.h"
 
-void SFLX (GRID_TYPE * NOAH)
+void SFlx (grid_struct * grid)
 {
 /*----------------------------------------------------------------------
-* SUBROUTINE SFLX - UNIFIED NOAHLSM VERSION 1.0 JULY 2007
+* subroutine sflx - unified noahlsm version 1.0 july 2007
 * ----------------------------------------------------------------------
-* SUB-DRIVER FOR "Noah LSM" FAMILY OF PHYSICS SUBROUTINES FOR A
-* SOIL/VEG/SNOWPACK LAND-SURFACE MODEL TO UPDATE SOIL MOISTURE, SOIL
-* ICE, SOIL TEMPERATURE, SKIN TEMPERATURE, SNOWPACK WATER CONTENT,
-* SNOWDEPTH, AND ALL TERMS OF THE SURFACE ENERGY BALANCE AND SURFACE
-* WATER BALANCE (EXCLUDING INPUT ATMOSPHERIC FORCINGS OF DOWNWARD
-* RADIATION AND PRECIP)
+* sub-driver for "noah lsm" family of physics subroutines for a
+* soil/veg/snowpack land-surface model to update soil moisture, soil
+* ice, soil temperature, skin temperature, snowpack water content,
+* snowdepth, and all terms of the surface energy balance and surface
+* water balance (excluding input atmospheric forcings of downward
+* radiation and precip)
 * --------------------------------------------------------------------*/
-    int            *FRZGRA, *SNOWNG;
+    int            *frzgra, *snowng;
 
-    int            *NSOIL, *VEGTYP;
-    int            *ISURBAN;
-    int            *NROOT;
-    int             KZ, K, iout;
+    int            *nsoil, *vegtyp;
+    int            *isurban;
+    int            *nroot;
+    int             kz, k, iout;
 
-    int             RDLAI2D;
-    int             USEMONALB;
+    int             rdlai2d;
+    int             usemonalb;
 
-    double         *SHDMIN, *SHDMAX, *DT, *DQSDT2, *LWDN, *PRCP, *PRCPRAIN,
-       *Q2, *Q2SAT, *SFCPRS, *SFCSPD, *SFCTMP, *SNOALB, *SOLDN, *SOLNET,
-       *TBOT, *TH2, *ZLVL, *FFROZP;
-    double         *EMBRD;
-    double         *ALBEDO;
-    double         *COSZ, *SOLARDIRECT, *CH, *CM, *CMC, *SNEQV, *SNCOVR,
-       *SNOWH, *T1, *XLAI, *SHDFAC, *Z0BRD, *EMISSI, *ALB;
-    double         *SNOTIME1;
-    double         *RIBB;
-    double         *SLDPTH;
-    double         *ET;
-    double         *SMAV;
-    double         *SH2O, *SMC, *STC;
-    double         *RTDIS;
-    double          ZSOIL[NOAH->NSOIL];
+    double         *shdmin, *shdmax, *dt, *dqsdt2, *lwdn, *prcp, *prcprain,
+       *q2, *q2sat, *sfcprs, *sfcspd, *sfctmp, *snoalb, *soldn, *solnet,
+       *tbot, *th2, *zlvl, *ffrozp;
+    double         *embrd;
+    double         *albedo;
+    double         *cosz, *solardirect, *ch, *cm, *cmc, *sneqv, *sncovr,
+       *snowh, *t1, *xlai, *shdfac, *z0brd, *emissi, *alb;
+    double         *snotime1;
+    double         *ribb;
+    double         *sldpth;
+    double         *et;
+    double         *smav;
+    double         *sh2o, *smc, *stc;
+    double         *rtdis;
+    double          zsoil[grid->nsoil];
 
-    double         *ETA_KINEMATIC, *BETA, *DEW, *DRIP, *EC, *EDIR, *ESNOW, *ETA, *ETP, *FLX1, *FLX2, *FLX3, *SHEAT, *PC, *RUNOFF2, *RUNOFF3, *RC, *RSMIN, *RCQ, *RCS, *RCSOIL, *RCT, *SSOIL, *SMCDRY, *SMCMAX, *SMCREF, *SMCWLT, *SNOMLT, *SOILM, *SOILW, *FDOWN, *Q1;
-    double         *CFACTR, *CMCMAX, *CSOIL, *CZIL, *DF1, *DKSAT, *ETT, *EPSCA, *F1, *FXEXP, *FRZX, *HS, *QUARTZ, *RCH, *RR, *RGL, *RSMAX, *SNDENS, *SNCOND, *SBETA, *SN_NEW, *SNUP, *SALP, *T24, *T2V, *TOPT, *ZBOT, *Z0, *PRCPF, *ETNS, *PTU;
-    double          DF1H, DF1A, DSOIL, DTOT, FRCSNO, FRCSOI, SOILWM, SOILWW;
-    double         *LVCOEF;
-    double          INTERP_FRACTION;
-    double         *LAIMIN, *LAIMAX;
-    double         *ALBEDOMIN, *ALBEDOMAX;
-    double         *EMISSMIN, *EMISSMAX;
-    double         *Z0MIN, *Z0MAX;
+    double         *eta_kinematic, *beta, *dew, *drip, *ec, *edir, *esnow, *eta, *etp, *flx1, *flx2, *flx3, *sheat, *pc, *runoff2, *runoff3, *rc, *rsmin, *rcq, *rcs, *rcsoil, *rct, *ssoil, *smcdry, *smcmax, *smcref, *smcwlt, *snomlt, *soilm, *soilw, *fdown, *q1;
+    double         *cfactr, *cmcmax, *csoil, *czil, *df1, *dksat, *ett, *epsca, *f1, *fxexp, *frzx, *hs, *quartz, *rch, *rr, *rgl, *rsmax, *sndens, *sncond, *sbeta, *sn_new, *snup, *salp, *t24, *t2v, *topt, *zbot, *z0, *prcpf, *etns, *ptu;
+    double          df1h, df1a, dsoil, dtot, frcsno, frcsoi, soilwm, soilww;
+    double         *lvcoef;
+    double          interp_fraction;
+    double         *laimin, *laimax;
+    double         *albedomin, *albedomax;
+    double         *emissmin, *emissmax;
+    double         *z0min, *z0max;
 
-#ifdef _FLUX_PIHM_
-    double         *VGALPHA, *VGBETA, *SMCMIN, *MACKSAT, *AREAF, *INF;
-    double         *PCPDRP;
-    int            *NMACD, *NWTBL;
-    int            *MAC_STATUS;
+#ifdef _NOAH_
+    double         *vgalpha, *vgbeta, *smcmin, *macksat, *areaf, *infil;
+    double         *pcpdrp;
+    int            *nmacd, *nwtbl;
+    int            *mac_status;
 #else
-    double         *RUNOFF1, *BEXP, *DWSAT, *KDT, *PSISAT, *REFKDT, *SLOPE;
+    double         *runoff1, *bexp, *dwsat, *kdt, *psisat, *refkdt, *slope;
 #endif
 
 /*----------------------------------------------------------------------
-*   INITIALIZATION
+*   initialization
 * --------------------------------------------------------------------*/
 
-#ifndef _FLUX_PIHM_
-    NOAH->RUNOFF1 = 0.0;
-    NOAH->RUNOFF2 = 0.0;
-    NOAH->RUNOFF3 = 0.0;
+#ifndef _NOAH_
+    grid->runoff1 = 0.0;
+    grid->runoff2 = 0.0;
+    grid->runoff3 = 0.0;
 #endif
-    NOAH->SNOMLT = 0.0;
+    grid->snomlt = 0.0;
 
 /*----------------------------------------------------------------------
-* CALCULATE DEPTH (NEGATIVE) BELOW GROUND FROM TOP SKIN SFC TO BOTTOM OF
-* EACH SOIL LAYER.  NOTE:  SIGN OF ZSOIL IS NEGATIVE (DENOTING BELOW
-* GROUND)
+* calculate depth (negative) below ground from top skin sfc to bottom of
+* each soil layer.  note:  sign of zsoil is negative (denoting below
+* ground)
 * --------------------------------------------------------------------*/
 
-    ZSOIL[0] = -NOAH->SLDPTH[0];
-    for (KZ = 1; KZ < NOAH->NSOIL; KZ++)
-        ZSOIL[KZ] = -NOAH->SLDPTH[KZ] + ZSOIL[KZ - 1];
+    zsoil[0] = -grid->sldpth[0];
+    for (kz = 1; kz < grid->nsoil; kz++)
+        zsoil[kz] = -grid->sldpth[kz] + zsoil[kz - 1];
 
 /*----------------------------------------------------------------------
-* NEXT IS CRUCIAL CALL TO SET THE LAND-SURFACE PARAMETERS, INCLUDING
-* SOIL-TYPE AND VEG-TYPE DEPENDENT PARAMETERS.
+* next is crucial call to set the land-surface parameters, including
+* soil-type and veg-type dependent parameters.
 * --------------------------------------------------------------------*/
 
-    //  REDPRM(NOAH, LSM, ZSOIL);           /* YS: REDPRM is now called in driver */
+    //  RedPrm(grid, lsm, zsoil);           /* ys: RedPrm is now called in driver */
 
-    FRZGRA = (int *)malloc (sizeof (int));
-    SNOWNG = (int *)malloc (sizeof (int));
+    frzgra = (int *)malloc (sizeof (int));
+    snowng = (int *)malloc (sizeof (int));
 
-    NSOIL = &(NOAH->NSOIL);
-#ifndef _FLUX_PIHM_
-    SLOPETYP = &(NOAH->SLOPETYP);
-    SOILTYP = &(NOAH->SOILTYP);
+    nsoil = &(grid->nsoil);
+#ifndef _NOAH_
+    slopetyp = &(grid->slopetyp);
+    soiltyp = &(grid->soiltyp);
 #endif
-    VEGTYP = &(NOAH->VEGTYP);
-    ISURBAN = &(NOAH->ISURBAN);
-    NROOT = &(NOAH->NROOT);
+    vegtyp = &(grid->vegtyp);
+    isurban = &(grid->isurban);
+    nroot = &(grid->nroot);
 
-    RDLAI2D = NOAH->RDLAI2D;
-    USEMONALB = NOAH->USEMONALB;
+    rdlai2d = grid->rdlai2d;
+    usemonalb = grid->usemonalb;
 
-    SHDMIN = &(NOAH->SHDMIN);
-    SHDMAX = &(NOAH->SHDMAX);
-    DT = &(NOAH->DT);
-    DQSDT2 = &(NOAH->DQSDT2);
-    LWDN = &(NOAH->LWDN);
-    PRCP = &(NOAH->PRCP);
-    PRCPRAIN = &(NOAH->PRCPRAIN);
-    Q2 = &(NOAH->Q2);
-    Q2SAT = &(NOAH->Q2SAT);
-    SFCPRS = &(NOAH->SFCPRS);
-    SFCSPD = &(NOAH->SFCSPD);
-    SFCTMP = &(NOAH->SFCTMP);
-    SNOALB = &(NOAH->SNOALB);
-    SOLDN = &(NOAH->SOLDN);
-    SOLNET = &(NOAH->SOLNET);
-    TBOT = &(NOAH->TBOT);
-    TH2 = &(NOAH->TH2);
-    ZLVL = &(NOAH->ZLVL);
-    FFROZP = &(NOAH->FFROZP);
+    shdmin = &(grid->shdmin);
+    shdmax = &(grid->shdmax);
+    dt = &(grid->dt);
+    dqsdt2 = &(grid->dqsdt2);
+    lwdn = &(grid->lwdn);
+    prcp = &(grid->prcp);
+    prcprain = &(grid->prcprain);
+    q2 = &(grid->q2);
+    q2sat = &(grid->q2sat);
+    sfcprs = &(grid->sfcprs);
+    sfcspd = &(grid->sfcspd);
+    sfctmp = &(grid->sfctmp);
+    snoalb = &(grid->snoalb);
+    soldn = &(grid->soldn);
+    solnet = &(grid->solnet);
+    tbot = &(grid->tbot);
+    th2 = &(grid->th2);
+    zlvl = &(grid->zlvl);
+    ffrozp = &(grid->ffrozp);
 
-    EMBRD = &(NOAH->EMBRD);
-    ALBEDO = &(NOAH->ALBEDO);
-    COSZ = &(NOAH->COSZ);
-    SOLARDIRECT = &(NOAH->SOLARDIRECT);
-    CH = &(NOAH->CH);
-    CM = &(NOAH->CM);
-    CMC = &(NOAH->CMC);
-    SNEQV = &(NOAH->SNEQV);
-    SNCOVR = &(NOAH->SNCOVR);
-    SNOWH = &(NOAH->SNOWH);
-    T1 = &(NOAH->T1);
-    XLAI = &(NOAH->XLAI);
-    SHDFAC = &(NOAH->SHDFAC);
-    Z0BRD = &(NOAH->Z0BRD);
-    EMISSI = &(NOAH->EMISSI);
-    ALB = &(NOAH->ALB);
+    embrd = &(grid->embrd);
+    albedo = &(grid->albedo);
+    cosz = &(grid->cosz);
+    solardirect = &(grid->solardirect);
+    ch = &(grid->ch);
+    cm = &(grid->cm);
+    cmc = &(grid->cmc);
+    sneqv = &(grid->sneqv);
+    sncovr = &(grid->sncovr);
+    snowh = &(grid->snowh);
+    t1 = &(grid->t1);
+    xlai = &(grid->xlai);
+    shdfac = &(grid->shdfac);
+    z0brd = &(grid->z0brd);
+    emissi = &(grid->emissi);
+    alb = &(grid->alb);
 
-    SNOTIME1 = &(NOAH->SNOTIME1);
+    snotime1 = &(grid->snotime1);
 
-    RIBB = &(NOAH->RIBB);
+    ribb = &(grid->ribb);
 
-    SLDPTH = &(NOAH->SLDPTH[0]);
-    ET = &(NOAH->ET[0]);
-    SMAV = &(NOAH->SMAV[0]);
-    SH2O = &(NOAH->SH2O[0]);
-    SMC = &(NOAH->SMC[0]);
-    STC = &(NOAH->STC[0]);
+    sldpth = &(grid->sldpth[0]);
+    et = &(grid->et[0]);
+    smav = &(grid->smav[0]);
+    sh2o = &(grid->sh2o[0]);
+    smc = &(grid->smc[0]);
+    stc = &(grid->stc[0]);
 
-    RTDIS = &(NOAH->RTDIS[0]);
+    rtdis = &(grid->rtdis[0]);
 
-    ETA_KINEMATIC = &(NOAH->ETA_KINEMATIC);
-    BETA = &(NOAH->BETA);
-    DEW = &(NOAH->DEW);
-    DRIP = &(NOAH->DRIP);
-    EC = &(NOAH->EC);
-    EDIR = &(NOAH->EDIR);
-    ESNOW = &(NOAH->ESNOW);
-    ETA = &(NOAH->ETA);
-    ETP = &(NOAH->ETP);
-    FLX1 = &(NOAH->FLX1);
-    FLX2 = &(NOAH->FLX2);
-    FLX3 = &(NOAH->FLX3);
-    SHEAT = &(NOAH->SHEAT);
-    PC = &(NOAH->PC);
-    RUNOFF2 = &(NOAH->RUNOFF2);
-    RUNOFF3 = &(NOAH->RUNOFF3);
-    RC = &(NOAH->RC);
-    RSMIN = &(NOAH->RSMIN);
-    RCQ = &(NOAH->RCQ);
-    RCS = &(NOAH->RCS);
-    RCSOIL = &(NOAH->RCSOIL);
-    RCT = &(NOAH->RCT);
-    SSOIL = &(NOAH->SSOIL);
-    SMCDRY = &(NOAH->SMCDRY);
-    SMCMAX = &(NOAH->SMCMAX);
-    SMCREF = &(NOAH->SMCREF);
-    SMCWLT = &(NOAH->SMCWLT);
-    SNOMLT = &(NOAH->SNOMLT);
-    SOILM = &(NOAH->SOILM);
-    SOILW = &(NOAH->SOILW);
-    FDOWN = &(NOAH->FDOWN);
-    Q1 = &(NOAH->Q1);
-#ifdef _FLUX_PIHM_
-    SMCMIN = &(NOAH->SMCMIN);
-    VGALPHA = &(NOAH->VGALPHA);
-    VGBETA = &(NOAH->VGBETA);
-    MACKSAT = &(NOAH->MACKSAT);
-    AREAF = &(NOAH->AREAF);
-    INF = &(NOAH->INF);
-    NMACD = &(NOAH->NMACD);
-    MAC_STATUS = &(NOAH->MAC_STATUS);
-    NWTBL = &(NOAH->NWTBL);
-    PCPDRP = &(NOAH->PCPDRP);
+    eta_kinematic = &(grid->eta_kinematic);
+    beta = &(grid->beta);
+    dew = &(grid->dew);
+    drip = &(grid->drip);
+    ec = &(grid->ec);
+    edir = &(grid->edir);
+    esnow = &(grid->esnow);
+    eta = &(grid->eta);
+    etp = &(grid->etp);
+    flx1 = &(grid->flx1);
+    flx2 = &(grid->flx2);
+    flx3 = &(grid->flx3);
+    sheat = &(grid->sheat);
+    pc = &(grid->pc);
+    runoff2 = &(grid->runoff2);
+    runoff3 = &(grid->runoff3);
+    rc = &(grid->rc);
+    rsmin = &(grid->rsmin);
+    rcq = &(grid->rcq);
+    rcs = &(grid->rcs);
+    rcsoil = &(grid->rcsoil);
+    rct = &(grid->rct);
+    ssoil = &(grid->ssoil);
+    smcdry = &(grid->smcdry);
+    smcmax = &(grid->smcmax);
+    smcref = &(grid->smcref);
+    smcwlt = &(grid->smcwlt);
+    snomlt = &(grid->snomlt);
+    soilm = &(grid->soilm);
+    soilw = &(grid->soilw);
+    fdown = &(grid->fdown);
+    q1 = &(grid->q1);
+#ifdef _NOAH_
+    smcmin = &(grid->smcmin);
+    vgalpha = &(grid->vgalpha);
+    vgbeta = &(grid->vgbeta);
+    macksat = &(grid->macksat);
+    areaf = &(grid->areaf);
+    infil = &(grid->infil);
+    nmacd = &(grid->nmacd);
+    mac_status = &(grid->mac_status);
+    nwtbl = &(grid->nwtbl);
+    pcpdrp = &(grid->pcpdrp);
 #else
-    RUNOFF1 = &(NOAH->RUNOFF1);
-    BEXP = &(NOAH->BEXP);
-    DWSAT = &(NOAH->DWSAT);
-    KDT = &(NOAH->KDT);
-    PSISAT = &(NOAH->PSISAT);
-    SLOPE = &(NOAH->SLOPE);
-    REFKDT = &(NOAH->REFKDT);
+    runoff1 = &(grid->runoff1);
+    bexp = &(grid->bexp);
+    dwsat = &(grid->dwsat);
+    kdt = &(grid->kdt);
+    psisat = &(grid->psisat);
+    slope = &(grid->slope);
+    refkdt = &(grid->refkdt);
 #endif
-    CFACTR = &(NOAH->CFACTR);
-    CMCMAX = &(NOAH->CMCMAX);
-    CSOIL = &(NOAH->CSOIL);
-    CZIL = &(NOAH->CZIL);
-    DF1 = (double *)malloc (sizeof (double));
-    DKSAT = &(NOAH->DKSAT);
-    ETT = &(NOAH->ETT);
-    EPSCA = (double *)malloc (sizeof (double));
-    F1 = &(NOAH->F1);
-    FXEXP = &(NOAH->FXEXP);
-    FRZX = &(NOAH->FRZX);
-    HS = &(NOAH->HS);
-    QUARTZ = &(NOAH->QUARTZ);
-    RCH = (double *)malloc (sizeof (double));
-    RR = (double *)malloc (sizeof (double));
-    RGL = &(NOAH->RGL);
-    RSMAX = &(NOAH->RSMAX);
-    SNDENS = (double *)malloc (sizeof (double));
-    SNCOND = (double *)malloc (sizeof (double));
-    SBETA = &(NOAH->SBETA);
-    SN_NEW = (double *)malloc (sizeof (double));
-    SNUP = &(NOAH->SNUP);
-    SALP = &(NOAH->SALP);
-    T24 = (double *)malloc (sizeof (double));
-    T2V = (double *)malloc (sizeof (double));
-    TOPT = &(NOAH->TOPT);
-    ZBOT = &(NOAH->ZBOT);
-    Z0 = &(NOAH->Z0);
-    PRCPF = (double *)malloc (sizeof (double));
-    ETNS = (double *)malloc (sizeof (double));
-    PTU = &(NOAH->PTU);
+    cfactr = &(grid->cfactr);
+    cmcmax = &(grid->cmcmax);
+    csoil = &(grid->csoil);
+    czil = &(grid->czil);
+    df1 = (double *)malloc (sizeof (double));
+    dksat = &(grid->dksat);
+    ett = &(grid->ett);
+    epsca = (double *)malloc (sizeof (double));
+    f1 = &(grid->f1);
+    fxexp = &(grid->fxexp);
+    frzx = &(grid->frzx);
+    hs = &(grid->hs);
+    quartz = &(grid->quartz);
+    rch = (double *)malloc (sizeof (double));
+    rr = (double *)malloc (sizeof (double));
+    rgl = &(grid->rgl);
+    rsmax = &(grid->rsmax);
+    sndens = (double *)malloc (sizeof (double));
+    sncond = (double *)malloc (sizeof (double));
+    sbeta = &(grid->sbeta);
+    sn_new = (double *)malloc (sizeof (double));
+    snup = &(grid->snup);
+    salp = &(grid->salp);
+    t24 = (double *)malloc (sizeof (double));
+    t2v = (double *)malloc (sizeof (double));
+    topt = &(grid->topt);
+    zbot = &(grid->zbot);
+    z0 = &(grid->z0);
+    prcpf = (double *)malloc (sizeof (double));
+    etns = (double *)malloc (sizeof (double));
+    ptu = &(grid->ptu);
 
-    LVCOEF = &(NOAH->LVCOEF);
-    LAIMIN = &(NOAH->LAIMIN);
-    LAIMAX = &(NOAH->LAIMAX);
-    ALBEDOMIN = &(NOAH->ALBEDOMIN);
-    ALBEDOMAX = &(NOAH->ALBEDOMAX);
-    EMISSMIN = &(NOAH->EMISSMIN);
-    EMISSMAX = &(NOAH->EMISSMAX);
-    Z0MIN = &(NOAH->Z0MIN);
-    Z0MAX = &(NOAH->Z0MAX);
+    lvcoef = &(grid->lvcoef);
+    laimin = &(grid->laimin);
+    laimax = &(grid->laimax);
+    albedomin = &(grid->albedomin);
+    albedomax = &(grid->albedomax);
+    emissmin = &(grid->emissmin);
+    emissmax = &(grid->emissmax);
+    z0min = &(grid->z0min);
+    z0max = &(grid->z0max);
 
-#ifdef _FLUX_PIHM_
-    *PCPDRP = 0.;
+#ifdef _NOAH_
+    *pcpdrp = 0.;
 #endif
 
 
     /*
      * urban 
      */
-    if (*VEGTYP == *ISURBAN)
+    if (*vegtyp == *isurban)
     {
-        *SHDFAC = 0.05;
-        *RSMIN = 400.0;
-        *SMCMAX = 0.45;
-#ifdef _FLUX_PIHM_
-        *SMCMIN = 0.0;
+        *shdfac = 0.05;
+        *rsmin = 400.0;
+        *smcmax = 0.45;
+#ifdef _NOAH_
+        *smcmin = 0.0;
 #endif
-        *SMCREF = 0.42;
-        *SMCWLT = 0.40;
-        *SMCDRY = 0.40;
+        *smcref = 0.42;
+        *smcwlt = 0.40;
+        *smcdry = 0.40;
     }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 
 /*----------------------------------------------------------------------
-* YS: FLUX-PIHM USES LAI AS A FORCING VARIABLE
-* VEGETATION FRACTION IS CALCULATED FROM LAI FOLLOWING NOAH-MP
+* ys: flux-pihm uses lai as a forcing variable
+* vegetation fraction is calculated from lai following noah-mp
 * --------------------------------------------------------------------*/
 
-    if (*XLAI >= *LAIMAX)
+    if (*xlai >= *laimax)
     {
-        *EMBRD = *EMISSMAX;
-        *ALB = *ALBEDOMIN;
-        *Z0BRD = *Z0MAX;
+        *embrd = *emissmax;
+        *alb = *albedomin;
+        *z0brd = *z0max;
     }
-    else if (*XLAI <= *LAIMIN)
+    else if (*xlai <= *laimin)
     {
-        *EMBRD = *EMISSMIN;
-        *ALB = *ALBEDOMAX;
-        *Z0BRD = *Z0MIN;
+        *embrd = *emissmin;
+        *alb = *albedomax;
+        *z0brd = *z0min;
     }
     else
     {
-        if (*LAIMAX > *LAIMIN)
+        if (*laimax > *laimin)
         {
-            INTERP_FRACTION = (*XLAI - *LAIMIN) / (*LAIMAX - *LAIMIN);
+            interp_fraction = (*xlai - *laimin) / (*laimax - *laimin);
             /*
-             * Bound INTERP_FRACTION between 0 and 1 
+             * bound interp_fraction between 0 and 1 
              */
-            INTERP_FRACTION = INTERP_FRACTION < 1.0 ? INTERP_FRACTION : 1.0;
-            INTERP_FRACTION = INTERP_FRACTION > 0.0 ? INTERP_FRACTION : 0.0;
+            interp_fraction = interp_fraction < 1.0 ? interp_fraction : 1.0;
+            interp_fraction = interp_fraction > 0.0 ? interp_fraction : 0.0;
             /*
-             * Scale Emissivity and LAI between EMISSMIN and EMISSMAX by INTERP_FRACTION 
+             * scale emissivity and lai between emissmin and emissmax by interp_fraction 
              */
-            *EMBRD = ((1.0 - INTERP_FRACTION) * *EMISSMIN) + (INTERP_FRACTION * *EMISSMAX);
-            *ALB = ((1.0 - INTERP_FRACTION) * *ALBEDOMAX) + (INTERP_FRACTION * *ALBEDOMIN);
-            *Z0BRD = ((1.0 - INTERP_FRACTION) * *Z0MIN) + (INTERP_FRACTION * *Z0MAX);
+            *embrd = ((1.0 - interp_fraction) * *emissmin) + (interp_fraction * *emissmax);
+            *alb = ((1.0 - interp_fraction) * *albedomax) + (interp_fraction * *albedomin);
+            *z0brd = ((1.0 - interp_fraction) * *z0min) + (interp_fraction * *z0max);
         }
         else
         {
-            *EMBRD = 0.5 * *EMISSMIN + 0.5 * *EMISSMAX;
-            *ALB = 0.5 * *ALBEDOMIN + 0.5 * *ALBEDOMAX;
-            *Z0BRD = 0.5 * *Z0MIN + 0.5 * *Z0MAX;
+            *embrd = 0.5 * *emissmin + 0.5 * *emissmax;
+            *alb = 0.5 * *albedomin + 0.5 * *albedomax;
+            *z0brd = 0.5 * *z0min + 0.5 * *z0max;
         }
     }
 
-//    *SHDFAC = 1. - exp (-0.52 * (*XLAI));
-      *SHDFAC = 1. - exp (-0.75 * (*XLAI));
+//    *shdfac = 1. - exp (-0.52 * (*xlai));
+      *shdfac = 1. - exp (-0.75 * (*xlai));
 #else
-    if (*SHDFAC >= *SHDMAX)
+    if (*shdfac >= *shdmax)
     {
-        *EMBRD = *EMISSMAX;
-        if (!RDLAI2D)
-            *XLAI = *LAIMAX;
-        if (!USEMONALB)
-            *ALB = *ALBEDOMIN;
-        *Z0BRD = *Z0MAX;
+        *embrd = *emissmax;
+        if (!rdlai2d)
+            *xlai = *laimax;
+        if (!usemonalb)
+            *alb = *albedomin;
+        *z0brd = *z0max;
     }
-    else if (*SHDFAC <= *SHDMIN)
+    else if (*shdfac <= *shdmin)
     {
-        *EMBRD = *EMISSMIN;
-        if (!RDLAI2D)
-            *XLAI = *LAIMIN;
-        if (!USEMONALB)
-            *ALB = *ALBEDOMAX;
-        *Z0BRD = *Z0MIN;
+        *embrd = *emissmin;
+        if (!rdlai2d)
+            *xlai = *laimin;
+        if (!usemonalb)
+            *alb = *albedomax;
+        *z0brd = *z0min;
     }
     else
     {
-        if (*SHDMAX > *SHDMIN)
+        if (*shdmax > *shdmin)
         {
-            INTERP_FRACTION = (*SHDFAC - *SHDMIN) / (*SHDMAX - *SHDMIN);
+            interp_fraction = (*shdfac - *shdmin) / (*shdmax - *shdmin);
             /*
-             * Bound INTERP_FRACTION between 0 and 1 
+             * bound interp_fraction between 0 and 1 
              */
-            INTERP_FRACTION = INTERP_FRACTION < 1.0 ? INTERP_FRACTION : 1.0;
-            INTERP_FRACTION = INTERP_FRACTION > 0.0 ? INTERP_FRACTION : 0.0;
+            interp_fraction = interp_fraction < 1.0 ? interp_fraction : 1.0;
+            interp_fraction = interp_fraction > 0.0 ? interp_fraction : 0.0;
             /*
-             * Scale Emissivity and LAI between EMISSMIN and EMISSMAX by INTERP_FRACTION 
+             * scale emissivity and lai between emissmin and emissmax by interp_fraction 
              */
-            *EMBRD =
-               ((1.0 - INTERP_FRACTION) * *EMISSMIN) +
-               (INTERP_FRACTION * *EMISSMAX);
-            if (!RDLAI2D)
-                *XLAI =
-                   ((1.0 - INTERP_FRACTION) * *LAIMIN) +
-                   (INTERP_FRACTION * *LAIMAX);
-            if (!USEMONALB)
-                *ALB =
-                   ((1.0 - INTERP_FRACTION) * *ALBEDOMAX) +
-                   (INTERP_FRACTION * *ALBEDOMIN);
-            *Z0BRD =
-               ((1.0 - INTERP_FRACTION) * *Z0MIN) +
-               (INTERP_FRACTION * *Z0MAX);
+            *embrd =
+               ((1.0 - interp_fraction) * *emissmin) +
+               (interp_fraction * *emissmax);
+            if (!rdlai2d)
+                *xlai =
+                   ((1.0 - interp_fraction) * *laimin) +
+                   (interp_fraction * *laimax);
+            if (!usemonalb)
+                *alb =
+                   ((1.0 - interp_fraction) * *albedomax) +
+                   (interp_fraction * *albedomin);
+            *z0brd =
+               ((1.0 - interp_fraction) * *z0min) +
+               (interp_fraction * *z0max);
         }
         else
         {
-            *EMBRD = 0.5 * *EMISSMIN + 0.5 * *EMISSMAX;
-            if (!RDLAI2D)
-                *XLAI = 0.5 * *LAIMIN + 0.5 * *LAIMAX;
-            if (!USEMONALB)
-                *ALB = 0.5 * *ALBEDOMIN + 0.5 * *ALBEDOMAX;
-            *Z0BRD = 0.5 * *Z0MIN + 0.5 * *Z0MAX;
+            *embrd = 0.5 * *emissmin + 0.5 * *emissmax;
+            if (!rdlai2d)
+                *xlai = 0.5 * *laimin + 0.5 * *laimax;
+            if (!usemonalb)
+                *alb = 0.5 * *albedomin + 0.5 * *albedomax;
+            *z0brd = 0.5 * *z0min + 0.5 * *z0max;
         }
     }
 #endif
 
     /*
-     * INITIALIZE PRECIPITATION LOGICALS. 
+     * initialize precipitation logicals. 
      */
-    *SNOWNG = 0;
-    *FRZGRA = 0;
+    *snowng = 0;
+    *frzgra = 0;
 
 /*----------------------------------------------------------------------
-* IF INPUT SNOWPACK IS NONZERO, THEN COMPUTE SNOW DENSITY "SNDENS" AND
-* SNOW THERMAL CONDUCTIVITY "SNCOND" (NOTE THAT CSNOW IS A FUNCTION
-* SUBROUTINE)
+* if input snowpack is nonzero, then compute snow density "sndens" and
+* snow thermal conductivity "sncond" (note that CSnow is a function
+* subroutine)
 * --------------------------------------------------------------------*/
-    if (*SNEQV <= 1.0e-7)       /* safer IF kmh (2008/03/25) */
+    if (*sneqv <= 1.0e-7)       /* safer if kmh (2008/03/25) */
     {
-        *SNEQV = 0.0;
-        *SNDENS = 0.0;
-        *SNOWH = 0.0;
-        *SNCOND = 1.0;
+        *sneqv = 0.0;
+        *sndens = 0.0;
+        *snowh = 0.0;
+        *sncond = 1.0;
     }
     else
     {
-        *SNDENS = *SNEQV / *SNOWH;
-        if (*SNDENS > 1.0)
+        *sndens = *sneqv / *snowh;
+        if (*sndens > 1.0)
         {
-            printf ("Physical snow depth is less than snow water equiv.\n");
+            printf ("physical snow depth is less than snow water equiv.\n");
             exit (0);
         }
-        CSNOW (SNCOND, SNDENS);
+        CSnow (sncond, sndens);
     }
 
 #ifdef _DEBUG_
-    //printf ("NSOIL = %d, ISURBAN = %d, NROOT = %d\n", *NSOIL, *ISURBAN, *NROOT);
-    //printf ("RDLAI2D = %d, USEMONALB = %d\n", RDLAI2D, USEMONALB);
-    //printf ("SHDMIN = %f, SHDMAX = %f, DT = %f, DQSDT2 = %f, LWDN = %f, PRCP = %f, PRCPRAIN = %f, Q2 = %f, Q2SAT = %f, SFCPRS = %f, SFCSPD = %f, SFCTMP = %f, SNOALB = %f, SOLDN = %f, SOLNET = %f, TBOT = %f, TH2, = %f, ZLVL = %f, FFROZP = %f\n", *SHDMIN, *SHDMAX, *DT, *DQSDT2, *LWDN, *PRCP, *PRCPRAIN, *Q2, *Q2SAT, *SFCPRS, *SFCSPD, *SFCTMP, *SNOALB, *SOLDN, *SOLNET, *TBOT, *TH2, *ZLVL, *FFROZP);
-    //printf ("CH = %f, CM = %f, CMC = %f, SNEQV = %f, SNCOVR = %f, SNOWH = %f, T1 = %f, XLAI = %f, SHDFAC = %f, Z0BRD = %f, EMISSI = %f, ALB = %f\n", *CH, *CM, *CMC, *SNEQV, *SNCOVR, *SNOWH, *T1, *XLAI, *SHDFAC, *Z0BRD, *EMISSI, *ALB);
-    //printf ("SNOTIME1 = %f\n", *SNOTIME1);
-    //printf ("RIBB = %f\n", *RIBB);
-    //for (KZ = 0; KZ < *NSOIL; KZ++) printf ("SLDPTH[%d] = %f ", KZ, SLDPTH[KZ]);
+    //printf ("nsoil = %d, isurban = %d, nroot = %d\n", *nsoil, *isurban, *nroot);
+    //printf ("rdlai2d = %d, usemonalb = %d\n", rdlai2d, usemonalb);
+    //printf ("shdmin = %f, shdmax = %f, dt = %f, dqsdt2 = %f, lwdn = %f, prcp = %f, prcprain = %f, q2 = %f, q2sat = %f, sfcprs = %f, sfcspd = %f, sfctmp = %f, snoalb = %f, soldn = %f, solnet = %f, tbot = %f, th2, = %f, zlvl = %f, ffrozp = %f\n", *shdmin, *shdmax, *dt, *dqsdt2, *lwdn, *prcp, *prcprain, *q2, *q2sat, *sfcprs, *sfcspd, *sfctmp, *snoalb, *soldn, *solnet, *tbot, *th2, *zlvl, *ffrozp);
+    //printf ("ch = %f, cm = %f, cmc = %f, sneqv = %f, sncovr = %f, snowh = %f, t1 = %f, xlai = %f, shdfac = %f, z0brd = %f, emissi = %f, alb = %f\n", *ch, *cm, *cmc, *sneqv, *sncovr, *snowh, *t1, *xlai, *shdfac, *z0brd, *emissi, *alb);
+    //printf ("snotime1 = %f\n", *snotime1);
+    //printf ("ribb = %f\n", *ribb);
+    //for (kz = 0; kz < *nsoil; kz++) printf ("sldpth[%d] = %f ", kz, sldpth[kz]);
     //printf ("\n");
-    //for (KZ = 0; KZ < *NSOIL; KZ++)
-    //    printf ("SH2O[%d] = %f ", KZ, SH2O[KZ]);
+    //for (kz = 0; kz < *nsoil; kz++)
+    //    printf ("sh2o[%d] = %f ", kz, sh2o[kz]);
     //printf ("\n");
-    //for (KZ = 0; KZ < *NSOIL; KZ++)
-    //    printf ("SMC[%d] = %f ", KZ, SMC[KZ]);
+    //for (kz = 0; kz < *nsoil; kz++)
+    //    printf ("smc[%d] = %f ", kz, smc[kz]);
     //printf ("\n");
-    //for (KZ = 0; KZ < *NSOIL; KZ++)
-    //    printf ("STC[%d] = %f ", KZ, STC[KZ]);
+    //for (kz = 0; kz < *nsoil; kz++)
+    //    printf ("stc[%d] = %f ", kz, stc[kz]);
     //printf ("\n");
-    //for (KZ = 0; KZ < *NSOIL; KZ++)
-    //    printf ("RTDIS[%d] = %f ", KZ, RTDIS[KZ]);
+    //for (kz = 0; kz < *nsoil; kz++)
+    //    printf ("rtdis[%d] = %f ", kz, rtdis[kz]);
     //printf ("\n");
-    //for (KZ = 0; KZ < *NSOIL; KZ++)
-    //    printf ("ZSOIL[%d] = %f ", KZ, ZSOIL[KZ]);
+    //for (kz = 0; kz < *nsoil; kz++)
+    //    printf ("zsoil[%d] = %f ", kz, zsoil[kz]);
     //printf ("\n");
-    //printf ("VGALPHA = %f, VGBETA = %f, CFACTR = %f, CMCMAX = %f, CSOIL = %f, CZIL = %f, DF1 = %f, DKSAT = %f, FXEXP = %f, FRZX = %f, LVH2O = %f, RGL = %f, RSMAX = %f, SBETA = %f, TOPT = %f, HS = %f, ZBOT = %f, SNUP = %f, SALP = %f, SMCMAX = %f, SMCWLT = %f, SMCREF = %f, SMCDRY = %f, QUARTZ = %f, LAIMIN = %f, LAIMAX = %f, EMISSMIN = %f, EMISSIMAX = %f, ALBEDOMIN = %f, ALBEDOMAX = %f, Z0MIN = %f, Z0MAX = %f\n", *VGALPHA, *VGBETA, *CFACTR, *CMCMAX, *CSOIL, *CZIL, *DF1, *DKSAT, *FXEXP, *FRZX, LVH2O, *RGL, *RSMAX, *SBETA, *TOPT, *HS, *ZBOT, *SNUP, *SALP, *SMCMAX, *SMCWLT, *SMCREF, *SMCDRY, *QUARTZ, *LAIMIN, *LAIMAX, *EMISSMIN, *EMISSMAX, *ALBEDOMIN, *ALBEDOMAX, *Z0MIN, *Z0MAX);
+    //printf ("vgalpha = %f, vgbeta = %f, cfactr = %f, cmcmax = %f, csoil = %f, czil = %f, df1 = %f, dksat = %f, fxexp = %f, frzx = %f, LVH2O = %f, rgl = %f, rsmax = %f, sbeta = %f, topt = %f, hs = %f, zbot = %f, snup = %f, salp = %f, smcmax = %f, smcwlt = %f, smcref = %f, smcdry = %f, quartz = %f, laimin = %f, laimax = %f, emissmin = %f, emissimax = %f, albedomin = %f, albedomax = %f, z0min = %f, z0max = %f\n", *vgalpha, *vgbeta, *cfactr, *cmcmax, *csoil, *czil, *df1, *dksat, *fxexp, *frzx, LVH2O, *rgl, *rsmax, *sbeta, *topt, *hs, *zbot, *snup, *salp, *smcmax, *smcwlt, *smcref, *smcdry, *quartz, *laimin, *laimax, *emissmin, *emissmax, *albedomin, *albedomax, *z0min, *z0max);
 #endif
 
 /*----------------------------------------------------------------------
-* DETERMINE IF IT'S PRECIPITATING AND WHAT KIND OF PRECIP IT IS.
-* IF IT'S PRCPING AND THE AIR TEMP IS COLDER THAN 0 C, IT'S SNOWING!
-* IF IT'S PRCPING AND THE AIR TEMP IS WARMER THAN 0 C, BUT THE GRND
-* TEMP IS COLDER THAN 0 C, FREEZING RAIN IS PRESUMED TO BE FALLING.
+* determine if it's precipitating and what kind of precip it is.
+* if it's prcping and the air temp is colder than 0 c, it's snowing!
+* if it's prcping and the air temp is warmer than 0 c, but the grnd
+* temp is colder than 0 c, freezing rain is presumed to be falling.
 * --------------------------------------------------------------------*/
 
-    if (*PRCP > 0.0)
+    if (*prcp > 0.0)
 
         /*
-         * snow defined when fraction of frozen precip (FFROZP) > 0.5,
+         * snow defined when fraction of frozen precip (ffrozp) > 0.5,
          * passed in from model microphysics. 
          */
     {
-        if (*FFROZP > 0.5)
-            *SNOWNG = 1;
+        if (*ffrozp > 0.5)
+            *snowng = 1;
         else
         {
-            if (*T1 <= TFREEZ)
-                *FRZGRA = 1;
+            if (*t1 <= TFREEZ)
+                *frzgra = 1;
         }
     }
 
 /*----------------------------------------------------------------------
-* IF EITHER PRCP FLAG IS SET, DETERMINE NEW SNOWFALL (CONVERTING PRCP
-* RATE FROM KG M-2 S-1 TO A LIQUID EQUIV SNOW DEPTH IN METERS) AND ADD
-* IT TO THE EXISTING SNOWPACK.
-* NOTE THAT SINCE ALL PRECIP IS ADDED TO SNOWPACK, NO PRECIP INFILTRATES
-* INTO THE SOIL SO THAT PRCP1 IS SET TO ZERO.
+* if either prcp flag is set, determine new snowfall (converting prcp
+* rate from kg m-2 s-1 to a liquid equiv snow depth in meters) and add
+* it to the existing snowpack.
+* note that since all precip is added to snowpack, no precip infiltrates
+* into the soil so that prcp1 is set to zero.
 * --------------------------------------------------------------------*/
-    if (*SNOWNG || *FRZGRA)
+    if (*snowng || *frzgra)
     {
-        *SN_NEW = *PRCP * *DT * 0.001;
-        *SNEQV = *SNEQV + *SN_NEW;
-        *PRCPF = 0.0;
+        *sn_new = *prcp * *dt * 0.001;
+        *sneqv = *sneqv + *sn_new;
+        *prcpf = 0.0;
 
 /*----------------------------------------------------------------------
-* UPDATE SNOW DENSITY BASED ON NEW SNOWFALL, USING OLD AND NEW SNOW.
-* UPDATE SNOW THERMAL CONDUCTIVITY
+* update snow density based on new snowfall, using old and new snow.
+* update snow thermal conductivity
 * --------------------------------------------------------------------*/
-        SNOW_NEW (SFCTMP, SN_NEW, SNOWH, SNDENS);
-        CSNOW (SNCOND, SNDENS);
+        SnowNew (sfctmp, sn_new, snowh, sndens);
+        CSnow (sncond, sndens);
     }
 
 /*----------------------------------------------------------------------
-* PRECIP IS LIQUID (RAIN), HENCE SAVE IN THE PRECIP VARIABLE THAT
-* LATER CAN WHOLELY OR PARTIALLY INFILTRATE THE SOIL (ALONG WITH
-* ANY CANOPY "DRIP" ADDED TO THIS LATER)
+* precip is liquid (rain), hence save in the precip variable that
+* later can wholely or partially infiltrate the soil (along with
+* any canopy "drip" added to this later)
 * --------------------------------------------------------------------*/
     else
-        *PRCPF = *PRCP;
+        *prcpf = *prcp;
 
 /*----------------------------------------------------------------------
-* DETERMINE SNOWCOVER AND ALBEDO OVER LAND.
+* determine snowcover and albedo over land.
 * ----------------------------------------------------------------------
 * ----------------------------------------------------------------------
-* IF SNOW DEPTH=0, SET SNOW FRACTION=0, ALBEDO=SNOW FREE ALBEDO.
+* if snow depth=0, set snow fraction=0, albedo=snow free albedo.
 * --------------------------------------------------------------------*/
-    if (*SNEQV == 0.0)
+    if (*sneqv == 0.0)
     {
-        *SNCOVR = 0.0;
-        *ALBEDO = *ALB;
-        *EMISSI = *EMBRD;
+        *sncovr = 0.0;
+        *albedo = *alb;
+        *emissi = *embrd;
     }
     else
     {
 
 /*----------------------------------------------------------------------
-* DETERMINE SNOW FRACTIONAL COVERAGE.
-* DETERMINE SURFACE ALBEDO MODIFICATION DUE TO SNOWDEPTH STATE.
+* determine snow fractional coverage.
+* determine surface albedo modification due to snowdepth state.
 * --------------------------------------------------------------------*/
-        SNFRAC (SNEQV, SNUP, SALP, SNOWH, SNCOVR);
+        SnFrac (sneqv, snup, salp, snowh, sncovr);
 
-        *SNCOVR = *SNCOVR < 0.98 ? *SNCOVR : 0.98;
+        *sncovr = *sncovr < 0.98 ? *sncovr : 0.98;
 
-        ALCALC (ALB, SNOALB, EMBRD, SHDFAC, SHDMIN, SNCOVR, T1, ALBEDO,
-           EMISSI, DT, SNOWNG, SNOTIME1, LVCOEF);
+        AlCalc (alb, snoalb, embrd, shdfac, shdmin, sncovr, t1, albedo,
+           emissi, dt, snowng, snotime1, lvcoef);
     }
 
 /*----------------------------------------------------------------------
-* NEXT CALCULATE THE SUBSURFACE HEAT FLUX, WHICH FIRST REQUIRES
-* CALCULATION OF THE THERMAL DIFFUSIVITY.  TREATMENT OF THE
-* LATTER FOLLOWS THAT ON PAGES 148-149 FROM "HEAT TRANSFER IN
-* COLD CLIMATES", BY V. J. LUNARDINI (PUBLISHED IN 1981
-* BY VAN NOSTRAND REINHOLD CO.) I.E. TREATMENT OF TWO CONTIGUOUS
-* "PLANE PARALLEL" MEDIUMS (NAMELY HERE THE FIRST SOIL LAYER
-* AND THE SNOWPACK LAYER, IF ANY). THIS DIFFUSIVITY TREATMENT
-* BEHAVES WELL FOR BOTH ZERO AND NONZERO SNOWPACK, INCLUDING THE
-* LIMIT OF VERY THIN SNOWPACK.  THIS TREATMENT ALSO ELIMINATES
-* THE NEED TO IMPOSE AN ARBITRARY UPPER BOUND ON SUBSURFACE
-* HEAT FLUX WHEN THE SNOWPACK BECOMES EXTREMELY THIN.
+* next calculate the subsurface heat flux, which first requires
+* calculation of the thermal diffusivity.  treatment of the
+* latter follows that on pages 148-149 from "heat transfer in
+* cold climates", by v. j. lunardini (published in 1981
+* by van nostrand reinhold co.) i.e. treatment of two contiguous
+* "plane parallel" mediums (namely here the first soil layer
+* and the snowpack layer, if any). this diffusivity treatment
+* behaves well for both zero and nonzero snowpack, including the
+* limit of very thin snowpack.  this treatment also eliminates
+* the need to impose an arbitrary upper bound on subsurface
+* heat flux when the snowpack becomes extremely thin.
 * ----------------------------------------------------------------------
-* FIRST CALCULATE THERMAL DIFFUSIVITY OF TOP SOIL LAYER, USING
-* BOTH THE FROZEN AND LIQUID SOIL MOISTURE, FOLLOWING THE
-* SOIL THERMAL DIFFUSIVITY FUNCTION OF PETERS-LIDARD ET AL.
-* (1998,JAS, VOL 55, 1209-1224), WHICH REQUIRES THE SPECIFYING
-* THE QUARTZ CONTENT OF THE GIVEN SOIL CLASS (SEE ROUTINE REDPRM)
+* first calculate thermal diffusivity of top soil layer, using
+* both the frozen and liquid soil moisture, following the
+* soil thermal diffusivity function of peters-lidard et al.
+* (1998,jas, vol 55, 1209-1224), which requires the specifying
+* the quartz content of the given soil class (see routine RedPrm)
 * ----------------------------------------------------------------------
 * ----------------------------------------------------------------------
-* NEXT ADD SUBSURFACE HEAT FLUX REDUCTION EFFECT FROM THE
-* OVERLYING GREEN CANOPY, ADAPTED FROM SECTION 2.1.2 OF
-* PETERS-LIDARD ET AL. (1997, JGR, VOL 102(D4))
+* next add subsurface heat flux reduction effect from the
+* overlying green canopy, adapted from section 2.1.2 of
+* peters-lidard et al. (1997, jgr, vol 102(d4))
 * --------------------------------------------------------------------*/
-#ifdef _FLUX_PIHM_
-    TDFCND (DF1, SMC, QUARTZ, SMCMAX, SMCMIN, SH2O);
+#ifdef _NOAH_
+    TDfCnd (df1, smc, quartz, smcmax, smcmin, sh2o);
 #else
-    TDFCND (DF1, SMC, QUARTZ, SMCMAX, SH2O);
+    TDfCnd (df1, smc, quartz, smcmax, sh2o);
 #endif
 
     /*
      * urban 
      */
-    if (*VEGTYP == *ISURBAN)
-        *DF1 = 3.24;
+    if (*vegtyp == *isurban)
+        *df1 = 3.24;
 
-    *DF1 = *DF1 * exp (*SBETA * *SHDFAC);
+    *df1 = *df1 * exp (*sbeta * *shdfac);
 
     /*
      * kmh 09/03/2006
-     * kmh 03/25/2008  change SNCOVR threshold to 0.97
+     * kmh 03/25/2008  change sncovr threshold to 0.97
      */
-    if (*SNCOVR > 0.97)
-        *DF1 = *SNCOND;
+    if (*sncovr > 0.97)
+        *df1 = *sncond;
 
 /*----------------------------------------------------------------------
-* FINALLY "PLANE PARALLEL" SNOWPACK EFFECT FOLLOWING
-* V.J. LINARDINI REFERENCE CITED ABOVE. NOTE THAT DTOT IS
-* COMBINED DEPTH OF SNOWDEPTH AND THICKNESS OF FIRST SOIL LAYER
+* finally "plane parallel" snowpack effect following
+* v.j. linardini reference cited above. note that dtot is
+* combined depth of snowdepth and thickness of first soil layer
 * --------------------------------------------------------------------*/
 
-    DSOIL = -(0.5 * ZSOIL[0]);
-    if (*SNEQV == 0.)
-        *SSOIL = *DF1 * (*T1 - STC[0]) / DSOIL;
+    dsoil = -(0.5 * zsoil[0]);
+    if (*sneqv == 0.)
+        *ssoil = *df1 * (*t1 - stc[0]) / dsoil;
     else
     {
-        DTOT = *SNOWH + DSOIL;
-        FRCSNO = *SNOWH / DTOT;
+        dtot = *snowh + dsoil;
+        frcsno = *snowh / dtot;
 
         /*
-         * 1. HARMONIC MEAN (SERIES FLOW) 
+         * 1. harmonic mean (series flow) 
          */
-        //      DF1 = (SNCOND*DF1)/(FRCSOI*SNCOND+FRCSNO*DF1)
-        FRCSOI = DSOIL / DTOT;
+        //      df1 = (sncond*df1)/(frcsoi*sncond+frcsno*df1)
+        frcsoi = dsoil / dtot;
 
         /*
-         * 2. ARITHMETIC MEAN (PARALLEL FLOW) 
+         * 2. arithmetic mean (parallel flow) 
          */
-        //      DF1 = FRCSNO*SNCOND + FRCSOI*DF1
-        DF1H = (*SNCOND * *DF1) / (FRCSOI * *SNCOND + FRCSNO * *DF1);
+        //      df1 = frcsno*sncond + frcsoi*df1
+        df1h = (*sncond * *df1) / (frcsoi * *sncond + frcsno * *df1);
 
         /*
-         * 3. GEOMETRIC MEAN (INTERMEDIATE BETWEEN HARMONIC AND ARITHMETIC MEAN) 
+         * 3. geometric mean (intermediate between harmonic and arithmetic mean) 
          */
-        //      DF1 = (SNCOND**FRCSNO)*(DF1**FRCSOI)
+        //      df1 = (sncond**frcsno)*(df1**frcsoi)
         /*
-         * weigh DF by snow fraction 
+         * weigh df by snow fraction 
          */
-        //      DF1 = DF1H*SNCOVR + DF1A*(1.0-SNCOVR)
-        //      DF1 = DF1H*SNCOVR + DF1*(1.0-SNCOVR)
-        DF1A = FRCSNO * *SNCOND + FRCSOI * *DF1;
+        //      df1 = df1h*sncovr + df1a*(1.0-sncovr)
+        //      df1 = df1h*sncovr + df1*(1.0-sncovr)
+        df1a = frcsno * *sncond + frcsoi * *df1;
 
 /*----------------------------------------------------------------------
-* CALCULATE SUBSURFACE HEAT FLUX, SSOIL, FROM FINAL THERMAL DIFFUSIVITY
-* OF SURFACE MEDIUMS, DF1 ABOVE, AND SKIN TEMPERATURE AND TOP
-* MID-LAYER SOIL TEMPERATURE
+* calculate subsurface heat flux, ssoil, from final thermal diffusivity
+* of surface mediums, df1 above, and skin temperature and top
+* mid-layer soil temperature
 * --------------------------------------------------------------------*/
-        *DF1 = DF1A * *SNCOVR + *DF1 * (1.0 - *SNCOVR);
-        *SSOIL = *DF1 * (*T1 - STC[0]) / DTOT;
+        *df1 = df1a * *sncovr + *df1 * (1.0 - *sncovr);
+        *ssoil = *df1 * (*t1 - stc[0]) / dtot;
     }
 
 /*----------------------------------------------------------------------
-* DETERMINE SURFACE ROUGHNESS OVER SNOWPACK USING SNOW CONDITION FROM
-* THE PREVIOUS TIMESTEP.
+* determine surface roughness over snowpack using snow condition from
+* the previous timestep.
 * --------------------------------------------------------------------*/
-    if (*SNCOVR > 0.)
-        SNOWZ0 (SNCOVR, Z0, Z0BRD, SNOWH);
+    if (*sncovr > 0.)
+        Snowz0 (sncovr, z0, z0brd, snowh);
     else
-        *Z0 = *Z0BRD;
+        *z0 = *z0brd;
 
 /*----------------------------------------------------------------------
-* NEXT CALL ROUTINE SFCDIF TO CALCULATE THE SFC EXCHANGE COEF (CH) FOR
-* HEAT AND MOISTURE.
+* next call routine sfcdif to calculate the sfc exchange coef (ch) for
+* heat and moisture.
 
-* NOTE !!!
-* DO NOT CALL SFCDIF UNTIL AFTER ABOVE CALL TO REDPRM, IN CASE
-* ALTERNATIVE VALUES OF ROUGHNESS LENGTH (Z0) AND ZILINTINKEVICH COEF
-* (CZIL) ARE SET THERE VIA NAMELIST I/O.
+* note !!!
+* do not call sfcdif until after above call to RedPrm, in case
+* alternative values of roughness length (z0) and zilintinkevich coef
+* (czil) are set there via namelist i/o.
 
-* NOTE !!!
-* ROUTINE SFCDIF RETURNS A CH THAT REPRESENTS THE WIND SPD TIMES THE
-* "ORIGINAL" NONDIMENSIONAL "Ch" TYPICAL IN LITERATURE.  HENCE THE CH
-* RETURNED FROM SFCDIF HAS UNITS OF M/S.  THE IMPORTANT COMPANION
-* COEFFICIENT OF CH, CARRIED HERE AS "RCH", IS THE CH FROM SFCDIF TIMES
-* AIR DENSITY AND PARAMETER "CP".  "RCH" IS COMPUTED IN "CALL PENMAN".
-* RCH RATHER THAN CH IS THE COEFF USUALLY INVOKED LATER IN EQNS.
+* note !!!
+* routine sfcdif returns a ch that represents the wind spd times the
+* "original" nondimensional "ch" typical in literature.  hence the ch
+* returned from sfcdif has units of m/s.  the important companion
+* coefficient of ch, carried here as "rch", is the ch from sfcdif times
+* air density and parameter "CP".  "rch" is computed in "call Penman".
+* rch rather than ch is the coeff usually invoked later in eqns.
 
-* NOTE !!!
+* note !!!
 *-----------------------------------------------------------------------
-* SFCDIF ALSO RETURNS THE SURFACE EXCHANGE COEFFICIENT FOR MOMENTUM, CM,
-* ALSO KNOWN AS THE SURFACE DRAGE COEFFICIENT. Needed as a state variable
-* for iterative/implicit solution of CH in SFCDIF
+* sfcdif also returns the surface exchange coefficient for momentum, cm,
+* also known as the surface drage coefficient. needed as a state variable
+* for iterative/implicit solution of ch in sfcdif
 * --------------------------------------------------------------------*/
 
     /*
-     * if (!LCH)
+     * if (!lch)
      * {
-     * *T1V = *T1 * (1.0 + 0.61 * *Q2);
-     * *TH2V = *TH2 * (1.0 + 0.61 * *Q2);
-     * SFCDIF_off(ZLVL, Z0, T1V, TH2V, SFCSPD, CZIL, CM, CH);
+     * *t1v = *t1 * (1.0 + 0.61 * *q2);
+     * *th2v = *th2 * (1.0 + 0.61 * *q2);
+     * SfcDifOff(zlvl, z0, t1v, th2v, sfcspd, czil, cm, ch);
      * }
      */
 
 /*----------------------------------------------------------------------
-* CALL PENMAN SUBROUTINE TO CALCULATE POTENTIAL EVAPORATION (ETP), AND
-* OTHER PARTIAL PRODUCTS AND SUMS SAVE IN COMMON/RITE FOR LATER
-* CALCULATIONS.
+* call Penman subroutine to calculate potential evaporation (etp), and
+* other partial products and sums save in common/rite for later
+* calculations.
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-* CALCULATE TOTAL DOWNWARD RADIATION (SOLAR PLUS LONGWAVE) NEEDED IN
-* PENMAN EP SUBROUTINE THAT FOLLOWS
+* calculate total downward radiation (solar plus longwave) needed in
+* Penman ep subroutine that follows
 * --------------------------------------------------------------------*/
-    //  *FDOWN = *SOLDN * (1.0- *ALBEDO) + *LWDN;
-    *FDOWN = *SOLNET + *LWDN;
+    //  *fdown = *soldn * (1.0- *albedo) + *lwdn;
+    *fdown = *solnet + *lwdn;
 
 /*----------------------------------------------------------------------
-* CALC VIRTUAL TEMPS AND VIRTUAL POTENTIAL TEMPS NEEDED BY SUBROUTINES
-* PENMAN.
+* calc virtual temps and virtual potential temps needed by subroutines
+* Penman.
 * --------------------------------------------------------------------*/
-    *T2V = *SFCTMP * (1.0 + 0.61 * *Q2);
+    *t2v = *sfctmp * (1.0 + 0.61 * *q2);
 
 #ifdef _DEBUG_
     iout = 1;
@@ -664,4422 +665,4422 @@ void SFLX (GRID_TYPE * NOAH)
 #endif
     //if (iout == 1)
     //{
-    //    printf ("before penman\n");
-    //    printf ("SFCTMP = %lf SFCPRS = %lf CH = %lf T2V = %lf TH2 = %lf PRCP = %lf FDOWN = %lf T24 = %lf SSOIL = %lf Q2 = %f Q2SAT = %lf ETP = %lf RCH = %lf EPSCA = %lf RR = %lf SNOWNG = %d FRZGRA = %d DQSDT2 = %lf FLX2 = %lf SNOWH = %lf SNEQV = %lf DSOIL = %lf FRCSNO = %lf SNCOVR = %lf DTOT = %lf ZSOIL(1) = %lf DF1 = %lf T1 = %lf STC1 = %lf ALBEDO = %lf SMC = %lf STC = %lf SH2O = %lf\n", *SFCTMP, *SFCPRS, *CH, *T2V, *TH2, *PRCP, *FDOWN, *T24, *SSOIL, *Q2, *Q2SAT, *ETP, *RCH, *EPSCA, *RR, *SNOWNG, *FRZGRA, *DQSDT2, *FLX2, *SNOWH, *SNEQV, DSOIL, FRCSNO, *SNCOVR, DTOT, ZSOIL[0], *DF1, *T1, STC[0], *ALBEDO, SMC[0], STC[1], SH2O[0]);
-    //    //      for (K = 0; K < *NSOIL; K++)
-    //    //          printf("SH2O = %f, SMC = %f\t", SH2O[K], SMC[K]);
+    //    printf ("before Penman\n");
+    //    printf ("sfctmp = %lf sfcprs = %lf ch = %lf t2v = %lf th2 = %lf prcp = %lf fdown = %lf t24 = %lf ssoil = %lf q2 = %f q2sat = %lf etp = %lf rch = %lf epsca = %lf rr = %lf snowng = %d frzgra = %d dqsdt2 = %lf flx2 = %lf snowh = %lf sneqv = %lf dsoil = %lf frcsno = %lf sncovr = %lf dtot = %lf zsoil(1) = %lf df1 = %lf t1 = %lf stc1 = %lf albedo = %lf smc = %lf stc = %lf sh2o = %lf\n", *sfctmp, *sfcprs, *ch, *t2v, *th2, *prcp, *fdown, *t24, *ssoil, *q2, *q2sat, *etp, *rch, *epsca, *rr, *snowng, *frzgra, *dqsdt2, *flx2, *snowh, *sneqv, dsoil, frcsno, *sncovr, dtot, zsoil[0], *df1, *t1, stc[0], *albedo, smc[0], stc[1], sh2o[0]);
+    //    //      for (k = 0; k < *nsoil; k++)
+    //    //          printf("sh2o = %f, smc = %f\t", sh2o[k], smc[k]);
     //    //      printf("\n");
     //}
 
-    PENMAN (SFCTMP, SFCPRS, CH, T2V, TH2, PRCP, FDOWN, T24, SSOIL, Q2, Q2SAT, ETP, RCH, EPSCA, RR, SNOWNG, FRZGRA, DQSDT2, FLX2, EMISSI, SNEQV, T1, SNCOVR);
+    Penman (sfctmp, sfcprs, ch, t2v, th2, prcp, fdown, t24, ssoil, q2, q2sat, etp, rch, epsca, rr, snowng, frzgra, dqsdt2, flx2, emissi, sneqv, t1, sncovr);
 
 /*----------------------------------------------------------------------
-* CALL CANRES TO CALCULATE THE CANOPY RESISTANCE AND CONVERT IT INTO PC
-* IF NONZERO GREENNESS FRACTION
+* call CanRes to calculate the canopy resistance and convert it into pc
+* if nonzero greenness fraction
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-*  FROZEN GROUND EXTENSION: TOTAL SOIL WATER "SMC" WAS REPLACED
-*  BY UNFROZEN SOIL WATER "SH2O" IN CALL TO CANRES BELOW
+*  frozen ground extension: total soil water "smc" was replaced
+*  by unfrozen soil water "sh2o" in call to CanRes below
 * --------------------------------------------------------------------*/
-    if (*SHDFAC > 0.)
-        CANRES (SOLDN, CH, SFCTMP, Q2, SFCPRS, SH2O, ZSOIL, NSOIL, SMCWLT,
-           SMCREF, RSMIN, RC, PC, NROOT, Q2SAT, DQSDT2, TOPT, RSMAX, RGL, HS,
-           XLAI, RCS, RCT, RCQ, RCSOIL, EMISSI);
+    if (*shdfac > 0.)
+        CanRes (soldn, ch, sfctmp, q2, sfcprs, sh2o, zsoil, nsoil, smcwlt,
+           smcref, rsmin, rc, pc, nroot, q2sat, dqsdt2, topt, rsmax, rgl, hs,
+           xlai, rcs, rct, rcq, rcsoil, emissi);
     else
-        *RC = 0.0;
+        *rc = 0.0;
 
 /*----------------------------------------------------------------------
-* NOW DECIDE MAJOR PATHWAY BRANCH TO TAKE DEPENDING ON WHETHER SNOWPACK
-* EXISTS OR NOT:
+* now decide major pathway branch to take depending on whether snowpack
+* exists or not:
 * --------------------------------------------------------------------*/
-    *ESNOW = 0.0;
-    if (*SNEQV == 0.0)
+    *esnow = 0.0;
+    if (*sneqv == 0.0)
     {
-#ifdef _FLUX_PIHM_
-        NOPAC (ETP, ETA, PRCP, PCPDRP, SMC, SMCMAX, SMCMIN, SMCWLT, SMCREF,
-           SMCDRY, CMC, CMCMAX, NSOIL, DT, SHDFAC, SBETA, Q2, T1, SFCTMP, T24,
-           TH2, FDOWN, F1, EMISSI, SSOIL, STC, EPSCA, VGALPHA, VGBETA,
-           MACKSAT, AREAF, NMACD, MAC_STATUS, NWTBL, PC, RCH, RR, CFACTR, SH2O, FRZX,
-           ZSOIL, DKSAT, TBOT, ZBOT, INF, RUNOFF2, RUNOFF3, EDIR, EC, ET, ETT,
-           NROOT, RTDIS, QUARTZ, FXEXP, CSOIL, BETA, DRIP, DEW, FLX1, FLX3,
-           VEGTYP, ISURBAN);
+#ifdef _NOAH_
+        NoPac (etp, eta, prcp, pcpdrp, smc, smcmax, smcmin, smcwlt, smcref,
+           smcdry, cmc, cmcmax, nsoil, dt, shdfac, sbeta, q2, t1, sfctmp, t24,
+           th2, fdown, f1, emissi, ssoil, stc, epsca, vgalpha, vgbeta,
+           macksat, areaf, nmacd, mac_status, nwtbl, pc, rch, rr, cfactr, sh2o, frzx,
+           zsoil, dksat, tbot, zbot, infil, runoff2, runoff3, edir, ec, et, ett,
+           nroot, rtdis, quartz, fxexp, csoil, beta, drip, dew, flx1, flx3,
+           vegtyp, isurban);
 #else
-        NOPAC (ETP, ETA, PRCP, SMC, SMCMAX, SMCWLT, SMCREF, SMCDRY, CMC,
-           CMCMAX, NSOIL, DT, SHDFAC, SBETA, Q2, T1, SFCTMP, T24, TH2, FDOWN,
-           F1, EMISSI, SSOIL, STC, EPSCA, BEXP, PC, RCH, RR, CFACTR, SH2O,
-           SLOPE, KDT, FRZX, PSISAT, ZSOIL, DKSAT, DWSAT, TBOT, ZBOT, RUNOFF1,
-           RUNOFF2, RUNOFF3, EDIR, EC, ET, ETT, NROOT, RTDIS, QUARTZ, FXEXP,
-           CSOIL, BETA, DRIP, DEW, FLX1, FLX3, VEGTYP, ISURBAN);
+        NoPac (etp, eta, prcp, smc, smcmax, smcwlt, smcref, smcdry, cmc,
+           cmcmax, nsoil, dt, shdfac, sbeta, q2, t1, sfctmp, t24, th2, fdown,
+           f1, emissi, ssoil, stc, epsca, bexp, pc, rch, rr, cfactr, sh2o,
+           slope, kdt, frzx, psisat, zsoil, dksat, dwsat, tbot, zbot, runoff1,
+           runoff2, runoff3, edir, ec, et, ett, nroot, rtdis, quartz, fxexp,
+           csoil, beta, drip, dew, flx1, flx3, vegtyp, isurban);
 #endif
-        *ETA_KINEMATIC = *ETA;
+        *eta_kinematic = *eta;
     }
     else
     {
-#ifdef _FLUX_PIHM_
-        SNOPAC (ETP, ETA, PRCP, PRCPF, PCPDRP, SNOWNG, SMC, SMCMAX, SMCMIN,
-           SMCWLT, SMCREF, SMCDRY, CMC, CMCMAX, NSOIL, DT, SBETA, DF1, Q2, T1,
-           SFCTMP, T24, TH2, FDOWN, F1, SSOIL, STC, EPSCA, SFCPRS, VGALPHA,
-           VGBETA, MACKSAT, AREAF, NMACD, MAC_STATUS, NWTBL, PC, RCH, RR, CFACTR, SNCOVR,
-           SNEQV, SNDENS, SNOWH, SH2O, FRZX, ZSOIL, DKSAT, TBOT, ZBOT, SHDFAC,
-           INF, RUNOFF2, RUNOFF3, EDIR, EC, ET, ETT, NROOT, SNOMLT, RTDIS,
-           QUARTZ, FXEXP, CSOIL, BETA, DRIP, DEW, FLX1, FLX2, FLX3, ESNOW,
-           ETNS, EMISSI, RIBB, SOLDN, ISURBAN, VEGTYP);
+#ifdef _NOAH_
+        SnoPac (etp, eta, prcp, prcpf, pcpdrp, snowng, smc, smcmax, smcmin,
+           smcwlt, smcref, smcdry, cmc, cmcmax, nsoil, dt, sbeta, df1, q2, t1,
+           sfctmp, t24, th2, fdown, f1, ssoil, stc, epsca, sfcprs, vgalpha,
+           vgbeta, macksat, areaf, nmacd, mac_status, nwtbl, pc, rch, rr, cfactr, sncovr,
+           sneqv, sndens, snowh, sh2o, frzx, zsoil, dksat, tbot, zbot, shdfac,
+           infil, runoff2, runoff3, edir, ec, et, ett, nroot, snomlt, rtdis,
+           quartz, fxexp, csoil, beta, drip, dew, flx1, flx2, flx3, esnow,
+           etns, emissi, ribb, soldn, isurban, vegtyp);
 #else
-        SNOPAC (ETP, ETA, PRCP, PRCPF, SNOWNG, SMC, SMCMAX, SMCWLT, SMCREF,
-           SMCDRY, CMC, CMCMAX, NSOIL, DT, SBETA, DF1, Q2, T1, SFCTMP, T24,
-           TH2, FDOWN, F1, SSOIL, STC, EPSCA, SFCPRS, BEXP, PC, RCH, RR,
-           CFACTR, SNCOVR, SNEQV, SNDENS, SNOWH, SH2O, SLOPE, KDT, FRZX,
-           PSISAT, ZSOIL, DWSAT, DKSAT, TBOT, ZBOT, SHDFAC, RUNOFF1, RUNOFF2,
-           RUNOFF3, EDIR, EC, ET, ETT, NROOT, SNOMLT, RTDIS, QUARTZ, FXEXP,
-           CSOIL, BETA, DRIP, DEW, FLX1, FLX2, FLX3, ESNOW, ETNS, EMISSI,
-           RIBB, SOLDN, ISURBAN, VEGTYP);
+        SnoPac (etp, eta, prcp, prcpf, snowng, smc, smcmax, smcwlt, smcref,
+           smcdry, cmc, cmcmax, nsoil, dt, sbeta, df1, q2, t1, sfctmp, t24,
+           th2, fdown, f1, ssoil, stc, epsca, sfcprs, bexp, pc, rch, rr,
+           cfactr, sncovr, sneqv, sndens, snowh, sh2o, slope, kdt, frzx,
+           psisat, zsoil, dwsat, dksat, tbot, zbot, shdfac, runoff1, runoff2,
+           runoff3, edir, ec, et, ett, nroot, snomlt, rtdis, quartz, fxexp,
+           csoil, beta, drip, dew, flx1, flx2, flx3, esnow, etns, emissi,
+           ribb, soldn, isurban, vegtyp);
 #endif
-        *ETA_KINEMATIC = *ESNOW + *ETNS;
+        *eta_kinematic = *esnow + *etns;
     }
 
     /*
-     * Calculate effective mixing ratio at grnd level (skin) 
+     * calculate effective mixing ratio at grnd level (skin) 
      */
 
-    //  *Q1 = *Q2 + *ETA * CP / *RCH;
-    *Q1 = *Q2 + *ETA_KINEMATIC * CP / *RCH;
+    //  *q1 = *q2 + *eta * CP / *rch;
+    *q1 = *q2 + *eta_kinematic * CP / *rch;
 
 /*----------------------------------------------------------------------
-* DETERMINE SENSIBLE HEAT (H) IN ENERGY UNITS (W M-2)
+* determine sensible heat (h) in energy units (w m-2)
 * --------------------------------------------------------------------*/
 
-    *SHEAT = -(*CH * CP * *SFCPRS) / (R * *T2V) * (*TH2 - *T1);
+    *sheat = -(*ch * CP * *sfcprs) / (RD * *t2v) * (*th2 - *t1);
 
 /*----------------------------------------------------------------------
-* CONVERT EVAP TERMS FROM KINEMATIC (KG M-2 S-1) TO ENERGY UNITS (W M-2)
+* convert evap terms from kinematic (kg m-2 s-1) to energy units (w m-2)
 * --------------------------------------------------------------------*/
-    *EDIR = *EDIR * LVH2O;
-    *EC = *EC * LVH2O;
-    for (K = 0; K < *NSOIL; K++)
-        ET[K] = ET[K] * LVH2O;
-    *ETT = *ETT * LVH2O;
-    *ESNOW = *ESNOW * LSUBS;
-    *ETP = *ETP * ((1. - *SNCOVR) * LVH2O + *SNCOVR * LSUBS);
-    if (*ETP > 0.)
-        *ETA = *EDIR + *EC + *ETT + *ESNOW;
+    *edir = *edir * LVH2O;
+    *ec = *ec * LVH2O;
+    for (k = 0; k < *nsoil; k++)
+        et[k] = et[k] * LVH2O;
+    *ett = *ett * LVH2O;
+    *esnow = *esnow * LSUBS;
+    *etp = *etp * ((1. - *sncovr) * LVH2O + *sncovr * LSUBS);
+    if (*etp > 0.)
+        *eta = *edir + *ec + *ett + *esnow;
     else
-        *ETA = *ETP;
+        *eta = *etp;
 
 /*----------------------------------------------------------------------
-* DETERMINE BETA (RATIO OF ACTUAL TO POTENTIAL EVAP)
+* determine beta (ratio of actual to potential evap)
 * --------------------------------------------------------------------*/
-    if (*ETP == 0.0)
-        *BETA = 0.0;
+    if (*etp == 0.0)
+        *beta = 0.0;
     else
-        *BETA = *ETA / *ETP;
+        *beta = *eta / *etp;
 
 /*----------------------------------------------------------------------
-* CONVERT THE SIGN OF SOIL HEAT FLUX SO THAT:
-*   SSOIL>0: WARM THE SURFACE  (NIGHT TIME)
-*   SSOIL<0: COOL THE SURFACE  (DAY TIME)
+* convert the sign of soil heat flux so that:
+*   ssoil>0: warm the surface  (night time)
+*   ssoil<0: cool the surface  (day time)
 * --------------------------------------------------------------------*/
-    *SSOIL = -1.0 * *SSOIL;
+    *ssoil = -1.0 * *ssoil;
 
 /*----------------------------------------------------------------------
-*  FOR THE CASE OF LAND:
-*  CONVERT RUNOFF3 (INTERNAL LAYER RUNOFF FROM SUPERSAT) FROM M TO M S-1
-*  AND ADD TO SUBSURFACE RUNOFF/DRAINAGE/BASEFLOW.  RUNOFF2 IS ALREADY
-*  A RATE AT THIS POINT
+*  for the case of land:
+*  convert runoff3 (internal layer runoff from supersat) from m to m s-1
+*  and add to subsurface runoff/drainage/baseflow.  runoff2 is already
+*  a rate at this point
 * --------------------------------------------------------------------*/
 
-    *RUNOFF3 = *RUNOFF3 / *DT;
-#ifndef _FLUX_PIHM_
-    *RUNOFF2 = *RUNOFF2 + *RUNOFF3;
+    *runoff3 = *runoff3 / *dt;
+#ifndef _NOAH_
+    *runoff2 = *runoff2 + *runoff3;
 #endif
-    /* Definitions of SOILM and SOILW have been changed in Flux-PIHM for
+    /* definitions of soilm and soilw have been changed in flux-pihm for
      * coupling purpose */
-    *SOILM = -1.0 * SH2O[0] * ZSOIL[0];
-    for (K = 1; K < *NSOIL; K++)
-        *SOILM += SH2O[K] * (ZSOIL[K - 1] - ZSOIL[K]);
+    *soilm = -1.0 * sh2o[0] * zsoil[0];
+    for (k = 1; k < *nsoil; k++)
+        *soilm += sh2o[k] * (zsoil[k - 1] - zsoil[k]);
 
-    *SOILW = -1.0 * SH2O[0] * ZSOIL[0];
-    for (K = 1; K < *NROOT; K++)
-        *SOILW += SH2O[K] * (ZSOIL[K - 1] - ZSOIL[K]);
-    *SOILW /= -ZSOIL[*NROOT - 1];
+    *soilw = -1.0 * sh2o[0] * zsoil[0];
+    for (k = 1; k < *nroot; k++)
+        *soilw += sh2o[k] * (zsoil[k - 1] - zsoil[k]);
+    *soilw /= -zsoil[*nroot - 1];
 
-    //*SOILM = -1.0 * SMC[0] * ZSOIL[0];
-    //for (K = 1; K < *NSOIL; K++)
-    //    *SOILM = *SOILM + SMC[K] * (ZSOIL[K - 1] - ZSOIL[K]);
-    //SOILWM = -1.0 * (*SMCMAX - *SMCWLT) * ZSOIL[0];
-    //SOILWW = -1.0 * (SMC[0] - *SMCWLT) * ZSOIL[0];
+    //*soilm = -1.0 * smc[0] * zsoil[0];
+    //for (k = 1; k < *nsoil; k++)
+    //    *soilm = *soilm + smc[k] * (zsoil[k - 1] - zsoil[k]);
+    //soilwm = -1.0 * (*smcmax - *smcwlt) * zsoil[0];
+    //soilww = -1.0 * (smc[0] - *smcwlt) * zsoil[0];
 
-    //for (K = 0; K < *NSOIL; K++)
-    //    SMAV[K] = (SMC[K] - *SMCWLT) / (*SMCMAX - *SMCWLT);
+    //for (k = 0; k < *nsoil; k++)
+    //    smav[k] = (smc[k] - *smcwlt) / (*smcmax - *smcwlt);
 
-    //if (*NROOT > 0)
+    //if (*nroot > 0)
     //{
-    //    for (K = 1; K < *NROOT; K++)
+    //    for (k = 1; k < *nroot; k++)
     //    {
-    //        SOILWM = SOILWM + (*SMCMAX - *SMCWLT) * (ZSOIL[K - 1] - ZSOIL[K]);
-    //        SOILWW = SOILWW + (SMC[K] - *SMCWLT) * (ZSOIL[K - 1] - ZSOIL[K]);
+    //        soilwm = soilwm + (*smcmax - *smcwlt) * (zsoil[k - 1] - zsoil[k]);
+    //        soilww = soilww + (smc[k] - *smcwlt) * (zsoil[k - 1] - zsoil[k]);
     //    }
     //}
-    //if (SOILWM < 1.e-6)
+    //if (soilwm < 1.e-6)
     //{
-    //    SOILWM = 0.0;
-    //    *SOILW = 0.0;
-    //    *SOILM = 0.0;
+    //    soilwm = 0.0;
+    //    *soilw = 0.0;
+    //    *soilm = 0.0;
     //}
     //else
-    //    *SOILW = SOILWW / SOILWM;
+    //    *soilw = soilww / soilwm;
 
     /*
-     * #ifdef _DEBUG_
-     * printf("PRCP = %f, Q2 = %f, Q2SAT = %f, SFCPRS = %f, SFCSPD = %f, SFCTMP = %f, SOLNET = %f, ZLVL = %f\n", *PRCP, *Q2, *Q2SAT, *SFCPRS, *SFCSPD, *SFCTMP, *SOLNET, *ZLVL);
-     * printf("CZIL = %f, CH = %f, CM = %f\n", *CZIL, *CH, *CM);
-     * printf("XLAI = %f, SHDFAC = %f, Z0 = %f\n", *XLAI, *SHDFAC, *Z0);
-     * printf("EC = %f, EDIR = %f, ETT = %f, ETP = %f\n", *EC, *EDIR, *ETT, *ETP);
-     * printf("PC = %f\n", *PC);
+     * #ifdef _debug_
+     * printf("prcp = %f, q2 = %f, q2sat = %f, sfcprs = %f, sfcspd = %f, sfctmp = %f, solnet = %f, zlvl = %f\n", *prcp, *q2, *q2sat, *sfcprs, *sfcspd, *sfctmp, *solnet, *zlvl);
+     * printf("czil = %f, ch = %f, cm = %f\n", *czil, *ch, *cm);
+     * printf("xlai = %f, shdfac = %f, z0 = %f\n", *xlai, *shdfac, *z0);
+     * printf("ec = %f, edir = %f, ett = %f, etp = %f\n", *ec, *edir, *ett, *etp);
+     * printf("pc = %f\n", *pc);
      * #endif
      */
-    free (FRZGRA);
-    free (SNOWNG);
-    free (DF1);
-    free (EPSCA);
-    free (RCH);
-    free (RR);
-    free (SNDENS);
-    free (SNCOND);
-    free (SN_NEW);
-    free (T24);
-    free (T2V);
-    free (PRCPF);
-    free (ETNS);
+    free (frzgra);
+    free (snowng);
+    free (df1);
+    free (epsca);
+    free (rch);
+    free (rr);
+    free (sndens);
+    free (sncond);
+    free (sn_new);
+    free (t24);
+    free (t2v);
+    free (prcpf);
+    free (etns);
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE SFLX
+  end subroutine sflx
 * --------------------------------------------------------------------*/
 }
 
 void
-ALCALC (double *ALB, double *SNOALB, double *EMBRD, double *SHDFAC,
-   double *SHDMIN, double *SNCOVR, double *TSNOW, double *ALBEDO,
-   double *EMISSI, double *DT, int *SNOWNG, double *SNOTIME1, double *LVCOEF)
+AlCalc (double *alb, double *snoalb, double *embrd, double *shdfac,
+   double *shdmin, double *sncovr, double *tsnow, double *albedo,
+   double *emissi, double *dt, int *snowng, double *snotime1, double *lvcoef)
 {
 
 /*----------------------------------------------------------------------
-* CALCULATE ALBEDO INCLUDING SNOW EFFECT (0 -> 1)
-*   ALB     SNOWFREE ALBEDO
-*   SNOALB  MAXIMUM (DEEP) SNOW ALBEDO
-*   SHDFAC    AREAL FRACTIONAL COVERAGE OF GREEN VEGETATION
-*   SHDMIN    MINIMUM AREAL FRACTIONAL COVERAGE OF GREEN VEGETATION
-*   SNCOVR  FRACTIONAL SNOW COVER
-*   ALBEDO  SURFACE ALBEDO INCLUDING SNOW EFFECT
-*   TSNOW   SNOW SURFACE TEMPERATURE (K)
+* calculate albedo including snow effect (0 -> 1)
+*   alb     snowfree albedo
+*   snoalb  maximum (deep) snow albedo
+*   shdfac    areal fractional coverage of green vegetation
+*   shdmin    minimum areal fractional coverage of green vegetation
+*   sncovr  fractional snow cover
+*   albedo  surface albedo including snow effect
+*   tsnow   snow surface temperature (k)
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-* SNOALB IS ARGUMENT REPRESENTING MAXIMUM ALBEDO OVER DEEP SNOW,
-* AS PASSED INTO SFLX, AND ADAPTED FROM THE SATELLITE-BASED MAXIMUM
-* SNOW ALBEDO FIELDS PROVIDED BY D. ROBINSON AND G. KUKLA
-* (1985, JCAM, VOL 24, 402-411)
+* snoalb is argument representing maximum albedo over deep snow,
+* as passed into sflx, and adapted from the satellite-based maximum
+* snow albedo fields provided by d. robinson and g. kukla
+* (1985, jcam, vol 24, 402-411)
 * --------------------------------------------------------------------*/
-    double          SNOALB2;
-    double          SNOALB1;
-    double          SNACCA = 0.94, SNACCB = 0.58;
+    double          snoalb2;
+    double          snoalb1;
+    double          snacca = 0.94, snaccb = 0.58;
 
     /*
      * turn of vegetation effect 
      */
-    //      ALBEDO = ALB + (1.0- (SHDFAC - SHDMIN))* SNCOVR * (SNOALB - ALB)
-    //      ALBEDO = (1.0-SNCOVR)*ALB + SNCOVR*SNOALB !this is equivalent to below
+    //      albedo = alb + (1.0- (shdfac - shdmin))* sncovr * (snoalb - alb)
+    //      albedo = (1.0-sncovr)*alb + sncovr*snoalb !this is equivalent to below
 
-    *ALBEDO = *ALB + *SNCOVR * (*SNOALB - *ALB);
-    *EMISSI = *EMBRD + *SNCOVR * (EMISSI_S - *EMBRD);
+    *albedo = *alb + *sncovr * (*snoalb - *alb);
+    *emissi = *embrd + *sncovr * (EMISSI_S - *embrd);
 
     /*
-     * BASE FORMULATION (DICKINSON ET AL., 1986, COGLEY ET AL., 1990) 
+     * base formulation (dickinson et al., 1986, cogley et al., 1990) 
      */
 
     /*
-     * IF (TSNOW.LE.263.16) THEN
-     * ALBEDO=SNOALB
-     * ELSE
-     * IF (TSNOW.LT.273.16) THEN
-     * TM=0.1*(TSNOW-263.16)
-     * SNOALB1=0.5*((0.9-0.2*(TM**3))+(0.8-0.16*(TM**3)))
-     * ELSE
-     * SNOALB1=0.67
-     * IF(SNCOVR.GT.0.95) SNOALB1= 0.6
-     * SNOALB1 = ALB + SNCOVR*(SNOALB-ALB)
-     * ENDIF
-     * ENDIF
-     * ALBEDO = ALB + SNCOVR*(SNOALB1-ALB)
+     * if (tsnow.le.263.16) then
+     * albedo=snoalb
+     * else
+     * if (tsnow.lt.273.16) then
+     * tm=0.1*(tsnow-263.16)
+     * snoalb1=0.5*((0.9-0.2*(tm**3))+(0.8-0.16*(tm**3)))
+     * else
+     * snoalb1=0.67
+     * if(sncovr.gt.0.95) snoalb1= 0.6
+     * snoalb1 = alb + sncovr*(snoalb-alb)
+     * endif
+     * endif
+     * albedo = alb + sncovr*(snoalb1-alb)
      * 
-     * ISBA FORMULATION (VERSEGHY, 1991; BAKER ET AL., 1990)
-     * SNOALB1 = SNOALB+COEF*(0.85-SNOALB)
-     * SNOALB2=SNOALB1
-     * m          LSTSNW=LSTSNW+1
-     * SNOTIME1 = SNOTIME1 + DT
-     * IF (SNOWNG) THEN
-     * SNOALB2=SNOALB
-     * *m             LSTSNW=0
-     * SNOTIME1 = 0.0
-     * ELSE
-     * IF (TSNOW.LT.273.16) THEN
-     * *              SNOALB2=SNOALB-0.008*LSTSNW*DT/86400
-     * *m              SNOALB2=SNOALB-0.008*SNOTIME1/86400
-     * SNOALB2=(SNOALB2-0.65)*EXP(-0.05*DT/3600)+0.65
-     * *              SNOALB2=(ALBEDO-0.65)*EXP(-0.01*DT/3600)+0.65
-     * ELSE
-     * SNOALB2=(SNOALB2-0.5)*EXP(-0.0005*DT/3600)+0.5
-     * *              SNOALB2=(SNOALB-0.5)*EXP(-0.24*LSTSNW*DT/86400)+0.5
-     * *m              SNOALB2=(SNOALB-0.5)*EXP(-0.24*SNOTIME1/86400)+0.5
-     * ENDIF
-     * ENDIF
+     * isba formulation (verseghy, 1991; baker et al., 1990)
+     * snoalb1 = snoalb+coef*(0.85-snoalb)
+     * snoalb2=snoalb1
+     * m          lstsnw=lstsnw+1
+     * snotime1 = snotime1 + dt
+     * if (snowng) then
+     * snoalb2=snoalb
+     * *m             lstsnw=0
+     * snotime1 = 0.0
+     * else
+     * if (tsnow.lt.273.16) then
+     * *              snoalb2=snoalb-0.008*lstsnw*dt/86400
+     * *m              snoalb2=snoalb-0.008*snotime1/86400
+     * snoalb2=(snoalb2-0.65)*exp(-0.05*dt/3600)+0.65
+     * *              snoalb2=(albedo-0.65)*exp(-0.01*dt/3600)+0.65
+     * else
+     * snoalb2=(snoalb2-0.5)*exp(-0.0005*dt/3600)+0.5
+     * *              snoalb2=(snoalb-0.5)*exp(-0.24*lstsnw*dt/86400)+0.5
+     * *m              snoalb2=(snoalb-0.5)*exp(-0.24*snotime1/86400)+0.5
+     * endif
+     * endif
      * 
-     * *               print*,'SNOALB2',SNOALB2,'ALBEDO',ALBEDO,'DT',DT
-     * ALBEDO = ALB + SNCOVR*(SNOALB2-ALB)
-     * IF (ALBEDO .GT. SNOALB2) ALBEDO=SNOALB2
-     * *m          LSTSNW1=LSTSNW
-     * *          SNOTIME = SNOTIME1
+     * *               print*,'snoalb2',snoalb2,'albedo',albedo,'dt',dt
+     * albedo = alb + sncovr*(snoalb2-alb)
+     * if (albedo .gt. snoalb2) albedo=snoalb2
+     * *m          lstsnw1=lstsnw
+     * *          snotime = snotime1
      */
 
     /*
-     * formulation by Livneh
+     * formulation by livneh
      * * ----------------------------------------------------------------------
-     * * SNOALB IS CONSIDERED AS THE MAXIMUM SNOW ALBEDO FOR NEW SNOW, AT
-     * * A VALUE OF 85%. SNOW ALBEDO CURVE DEFAULTS ARE FROM BRAS P.263. SHOULD
-     * * NOT BE CHANGED EXCEPT FOR SERIOUS PROBLEMS WITH SNOW MELT.
-     * * TO IMPLEMENT ACCUMULATIN PARAMETERS, SNACCA AND SNACCB, ASSERT THAT IT
-     * * IS INDEED ACCUMULATION SEASON. I.E. THAT SNOW SURFACE TEMP IS BELOW
-     * * ZERO AND THE DATE FALLS BETWEEN OCTOBER AND FEBRUARY
+     * * snoalb is considered as the maximum snow albedo for new snow, at
+     * * a value of 85%. snow albedo curve defaults are from bras p.263. should
+     * * not be changed except for serious problems with snow melt.
+     * * to implement accumulatin parameters, snacca and snaccb, assert that it
+     * * is indeed accumulation season. i.e. that snow surface temp is below
+     * * zero and the date falls between october and february
      * * --------------------------------------------------------------------
      */
-    SNOALB1 = *SNOALB + *LVCOEF * (0.85 - *SNOALB);
-    SNOALB2 = SNOALB1;
+    snoalb1 = *snoalb + *lvcoef * (0.85 - *snoalb);
+    snoalb2 = snoalb1;
 
-/*---------------- Initial LSTSNW ------------------------------------*/
-    if (*SNOWNG)
-        *SNOTIME1 = 0.0;
+/*---------------- initial lstsnw ------------------------------------*/
+    if (*snowng)
+        *snotime1 = 0.0;
     else
     {
-        *SNOTIME1 = *SNOTIME1 + *DT;
-        //      IF (TSNOW.LT.273.16) THEN
-        SNOALB2 = SNOALB1 * pow (SNACCA, pow (*SNOTIME1 / 86400.0, SNACCB));
-        //      ELSE
-        //          SNOALB2 =SNOALB1*(SNTHWA**((SNOTIME1/86400.0)**SNTHWB))
-        //               ENDIF
+        *snotime1 = *snotime1 + *dt;
+        //      if (tsnow.lt.273.16) then
+        snoalb2 = snoalb1 * pow (snacca, pow (*snotime1 / 86400.0, snaccb));
+        //      else
+        //          snoalb2 =snoalb1*(snthwa**((snotime1/86400.0)**snthwb))
+        //               endif
     }
 
-    SNOALB2 = SNOALB2 > *ALB ? SNOALB2 : *ALB;
-    *ALBEDO = *ALB + *SNCOVR * (SNOALB2 - *ALB);
-    if (*ALBEDO > SNOALB2)
-        *ALBEDO = SNOALB2;
+    snoalb2 = snoalb2 > *alb ? snoalb2 : *alb;
+    *albedo = *alb + *sncovr * (snoalb2 - *alb);
+    if (*albedo > snoalb2)
+        *albedo = snoalb2;
 
-    //          IF (TSNOW.LT.273.16) THEN
-    //            ALBEDO=SNOALB-0.008*DT/86400
-    //          ELSE
-    //            ALBEDO=(SNOALB-0.5)*EXP(-0.24*DT/86400)+0.5
-    //          ENDIF
+    //          if (tsnow.lt.273.16) then
+    //            albedo=snoalb-0.008*dt/86400
+    //          else
+    //            albedo=(snoalb-0.5)*exp(-0.24*dt/86400)+0.5
+    //          endif
 
-    //      IF (ALBEDO > SNOALB) ALBEDO = SNOALB
+    //      if (albedo > snoalb) albedo = snoalb
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE ALCALC
+  end subroutine AlCalc
 * --------------------------------------------------------------------*/
 }
 
 void
-CANRES (double *SOLAR, double *CH, double *SFCTMP, double *Q2, double *SFCPRS,
-   double *SMC, double *ZSOIL, int *NSOIL, double *SMCWLT, double *SMCREF,
-   double *RSMIN, double *RC, double *PC, int *NROOT, double *Q2SAT,
-   double *DQSDT2, double *TOPT, double *RSMAX, double *RGL, double *HS,
-   double *XLAI, double *RCS, double *RCT, double *RCQ, double *RCSOIL,
-   double *EMISSI)
+CanRes (double *solar, double *ch, double *sfctmp, double *q2, double *sfcprs,
+   double *smc, double *zsoil, int *nsoil, double *smcwlt, double *smcref,
+   double *rsmin, double *rc, double *pc, int *nroot, double *q2sat,
+   double *dqsdt2, double *topt, double *rsmax, double *rgl, double *hs,
+   double *xlai, double *rcs, double *rct, double *rcq, double *rcsoil,
+   double *emissi)
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE CANRES
+* subroutine CanRes
 * ----------------------------------------------------------------------
-* CALCULATE CANOPY RESISTANCE WHICH DEPENDS ON INCOMING SOLAR RADIATION,
-* AIR TEMPERATURE, ATMOSPHERIC WATER VAPOR PRESSURE DEFICIT AT THE
-* LOWEST MODEL LEVEL, AND SOIL MOISTURE (PREFERABLY UNFROZEN SOIL
-* MOISTURE RATHER THAN TOTAL)
+* calculate canopy resistance which depends on incoming solar radiation,
+* air temperature, atmospheric water vapor pressure deficit at the
+* lowest model level, and soil moisture (preferably unfrozen soil
+* moisture rather than total)
 * ----------------------------------------------------------------------
-* SOURCE:  JARVIS (1976), NOILHAN AND PLANTON (1989, MWR), JACQUEMIN AND
-* NOILHAN (1990, BLM)
-* SEE ALSO:  CHEN ET AL (1996, JGR, VOL 101(D3), 7251-7268), EQNS 12-14
-* AND TABLE 2 OF SEC. 3.1.2
+* source:  jarvis (1976), noilhan and planton (1989, mwr), jacquemin and
+* noilhan (1990, blm)
+* see also:  chen et al (1996, jgr, vol 101(d3), 7251-7268), eqns 12-14
+* and table 2 of sec. 3.1.2
 * ----------------------------------------------------------------------
-* INPUT:
-*   SOLAR   INCOMING SOLAR RADIATION
-*   CH      SURFACE EXCHANGE COEFFICIENT FOR HEAT AND MOISTURE
-*   SFCTMP  AIR TEMPERATURE AT 1ST LEVEL ABOVE GROUND
-*   Q2      AIR HUMIDITY AT 1ST LEVEL ABOVE GROUND
-*   Q2SAT   SATURATION AIR HUMIDITY AT 1ST LEVEL ABOVE GROUND
-*   DQSDT2  SLOPE OF SATURATION HUMIDITY FUNCTION WRT TEMP
-*   SFCPRS  SURFACE PRESSURE
-*   SMC     VOLUMETRIC SOIL MOISTURE
-*   ZSOIL   SOIL DEPTH (NEGATIVE SIGN, AS IT IS BELOW GROUND)
-*   NSOIL   NO. OF SOIL LAYERS
-*   NROOT   NO. OF SOIL LAYERS IN ROOT ZONE (1.LE.NROOT.LE.NSOIL)
-*   XLAI    LEAF AREA INDEX
-*   SMCWLT  WILTING POINT
-*   SMCREF  REFERENCE SOIL MOISTURE (WHERE SOIL WATER DEFICIT STRESS
-*             SETS IN)
-* RSMIN, RSMAX, TOPT, RGL, HS ARE CANOPY STRESS PARAMETERS SET IN
-*   SURBOUTINE REDPRM
-* OUTPUT:
-*   PC  PLANT COEFFICIENT
-*   RC  CANOPY RESISTANCE
+* input:
+*   solar   incoming solar radiation
+*   ch      surface exchange coefficient for heat and moisture
+*   sfctmp  air temperature at 1st level above ground
+*   q2      air humidity at 1st level above ground
+*   q2sat   saturation air humidity at 1st level above ground
+*   dqsdt2  slope of saturation humidity function wrt temp
+*   sfcprs  surface pressure
+*   smc     volumetric soil moisture
+*   zsoil   soil depth (negative sign, as it is below ground)
+*   nsoil   no. of soil layers
+*   nroot   no. of soil layers in root zone (1.le.nroot.le.nsoil)
+*   xlai    leaf area index
+*   smcwlt  wilting point
+*   smcref  reference soil moisture (where soil water deficit stress
+*             sets in)
+* rsmin, rsmax, topt, rgl, hs are canopy stress parameters set in
+*   surboutine RedPrm
+* output:
+*   pc  plant coefficient
+*   rc  canopy resistance
 * --------------------------------------------------------------------*/
 
-    int             K;
-    double          DELTA, FF, GX, RR;
-    double          PART[*NSOIL];
-    double          SLV = 2.501000e6;
+    int             k;
+    double          delta, ff, gx, rr;
+    double          part[*nsoil];
+    double          slv = 2.501000e6;
 
 /*----------------------------------------------------------------------
-* INITIALIZE CANOPY RESISTANCE MULTIPLIER TERMS.
+* initialize canopy resistance multiplier terms.
 * --------------------------------------------------------------------*/
-    *RCS = 0.0;
-    *RCT = 0.0;
-    *RCQ = 0.0;
-    *RCSOIL = 0.0;
+    *rcs = 0.0;
+    *rct = 0.0;
+    *rcq = 0.0;
+    *rcsoil = 0.0;
 
 /*----------------------------------------------------------------------
-* CONTRIBUTION DUE TO INCOMING SOLAR RADIATION
+* contribution due to incoming solar radiation
 * --------------------------------------------------------------------*/
-    *RC = 0.0;
-    FF = 0.55 * 2.0 * *SOLAR / (*RGL * *XLAI);
-    *RCS = (FF + *RSMIN / *RSMAX) / (1.0 + FF);
+    *rc = 0.0;
+    ff = 0.55 * 2.0 * *solar / (*rgl * *xlai);
+    *rcs = (ff + *rsmin / *rsmax) / (1.0 + ff);
 
-//    printf("SOLAR = %lf, RGL = %lf, XLAI = %lf, FF = %lf, RSMIN = %lf, RSMAX = %lf, RCS = %lf\n", *SOLAR, *RGL, *XLAI, FF, *RSMIN, *RSMAX, *RCS);
+//    printf("solar = %lf, rgl = %lf, xlai = %lf, ff = %lf, rsmin = %lf, rsmax = %lf, rcs = %lf\n", *solar, *rgl, *xlai, ff, *rsmin, *rsmax, *rcs);
 
 /*----------------------------------------------------------------------
-* CONTRIBUTION DUE TO AIR TEMPERATURE AT FIRST MODEL LEVEL ABOVE GROUND
-* RCT EXPRESSION FROM NOILHAN AND PLANTON (1989, MWR).
+* contribution due to air temperature at first model level above ground
+* rct expression from noilhan and planton (1989, mwr).
 * --------------------------------------------------------------------*/
-    *RCS = *RCS > 0.0001 ? *RCS : 0.0001;
-    *RCT = 1.0 - 0.0016 * pow (*TOPT - *SFCTMP, 2.0);
+    *rcs = *rcs > 0.0001 ? *rcs : 0.0001;
+    *rct = 1.0 - 0.0016 * pow (*topt - *sfctmp, 2.0);
 
 /*----------------------------------------------------------------------
-* CONTRIBUTION DUE TO VAPOR PRESSURE DEFICIT AT FIRST MODEL LEVEL.
-* RCQ EXPRESSION FROM SSIB
+* contribution due to vapor pressure deficit at first model level.
+* rcq expression from ssib
 * --------------------------------------------------------------------*/
-    *RCT = *RCT > 0.0001 ? *RCT : 0.0001;
-    *RCQ = 1.0 / (1.0 + *HS * (*Q2SAT - *Q2));
+    *rct = *rct > 0.0001 ? *rct : 0.0001;
+    *rcq = 1.0 / (1.0 + *hs * (*q2sat - *q2));
 
 /*----------------------------------------------------------------------
-* CONTRIBUTION DUE TO SOIL MOISTURE AVAILABILITY.
-* DETERMINE CONTRIBUTION FROM EACH SOIL LAYER, THEN ADD THEM UP.
+* contribution due to soil moisture availability.
+* determine contribution from each soil layer, then add them up.
 * --------------------------------------------------------------------*/
-    *RCQ = *RCQ > 0.01 ? *RCQ : 0.01;
-    GX = (SMC[0] - *SMCWLT) / (*SMCREF - *SMCWLT);
-    if (GX > 1.)
-        GX = 1.;
-    if (GX < 0.)
-        GX = 0.;
+    *rcq = *rcq > 0.01 ? *rcq : 0.01;
+    gx = (smc[0] - *smcwlt) / (*smcref - *smcwlt);
+    if (gx > 1.)
+        gx = 1.;
+    if (gx < 0.)
+        gx = 0.;
 
 /*----------------------------------------------------------------------
-* USE SOIL DEPTH AS WEIGHTING FACTOR
+* use soil depth as weighting factor
 * ----------------------------------------------------------------------
 * ----------------------------------------------------------------------
-* USE ROOT DISTRIBUTION AS WEIGHTING FACTOR
-*      PART(1) = RTDIS(1) * GX
+* use root distribution as weighting factor
+*      part(1) = rtdis(1) * gx
 * --------------------------------------------------------------------*/
-    PART[0] = (ZSOIL[0] / ZSOIL[*NROOT - 1]) * GX;
-    for (K = 1; K < *NROOT; K++)
+    part[0] = (zsoil[0] / zsoil[*nroot - 1]) * gx;
+    for (k = 1; k < *nroot; k++)
     {
-        GX = (SMC[K] - *SMCWLT) / (*SMCREF - *SMCWLT);
-        if (GX > 1.)
-            GX = 1.;
-        if (GX < 0.)
-            GX = 0.;
+        gx = (smc[k] - *smcwlt) / (*smcref - *smcwlt);
+        if (gx > 1.)
+            gx = 1.;
+        if (gx < 0.)
+            gx = 0.;
 
 /*----------------------------------------------------------------------
-* USE SOIL DEPTH AS WEIGHTING FACTOR
+* use soil depth as weighting factor
 * ----------------------------------------------------------------------
 * ----------------------------------------------------------------------
-* USE ROOT DISTRIBUTION AS WEIGHTING FACTOR
-*        PART(K) = RTDIS(K) * GX
+* use root distribution as weighting factor
+*        part(k) = rtdis(k) * gx
 * --------------------------------------------------------------------*/
-        PART[K] = ((ZSOIL[K] - ZSOIL[K - 1]) / ZSOIL[*NROOT - 1]) * GX;
+        part[k] = ((zsoil[k] - zsoil[k - 1]) / zsoil[*nroot - 1]) * gx;
     }
-    for (K = 0; K < *NROOT; K++)
-        *RCSOIL = *RCSOIL + PART[K];
+    for (k = 0; k < *nroot; k++)
+        *rcsoil = *rcsoil + part[k];
 
 /*----------------------------------------------------------------------
-* DETERMINE CANOPY RESISTANCE DUE TO ALL FACTORS.  CONVERT CANOPY
-* RESISTANCE (RC) TO PLANT COEFFICIENT (PC) TO BE USED WITH POTENTIAL
-* EVAP IN DETERMINING ACTUAL EVAP.  PC IS DETERMINED BY:
-*   PC * LINERIZED PENMAN POTENTIAL EVAP =
-*   PENMAN-MONTEITH ACTUAL EVAPORATION (CONTAINING RC TERM).
+* determine canopy resistance due to all factors.  convert canopy
+* resistance (rc) to plant coefficient (pc) to be used with potential
+* evap in determining actual evap.  pc is determined by:
+*   pc * linerized Penman potential evap =
+*   Penman-monteith actual evaporation (containing rc term).
 * --------------------------------------------------------------------*/
-    *RCSOIL = *RCSOIL > 0.0001 ? *RCSOIL : 0.0001;
+    *rcsoil = *rcsoil > 0.0001 ? *rcsoil : 0.0001;
 
-    *RC = *RSMIN / (*XLAI * *RCS * *RCT * *RCQ * *RCSOIL);
-    //  RR = (4.* SIGMA * RD / CP)* (SFCTMP **4.)/ (SFCPRS * CH) + 1.0;
-    RR =
-       (4. * *EMISSI * SIGMA * RD / CP) * pow (*SFCTMP,
-       4.) / (*SFCPRS * *CH) + 1.0;
+    *rc = *rsmin / (*xlai * *rcs * *rct * *rcq * *rcsoil);
+    //  rr = (4.* SIGMA * RD / CP)* (sfctmp **4.)/ (sfcprs * ch) + 1.0;
+    rr =
+       (4. * *emissi * SIGMA * RD / CP) * pow (*sfctmp,
+       4.) / (*sfcprs * *ch) + 1.0;
 
-    DELTA = (SLV / CP) * *DQSDT2;
+    delta = (slv / CP) * *dqsdt2;
 
-    *PC = (RR + DELTA) / (RR * (1. + *RC * *CH) + DELTA);
+    *pc = (rr + delta) / (rr * (1. + *rc * *ch) + delta);
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE CANRES
+  end subroutine CanRes
 * --------------------------------------------------------------------*/
 }
 
-void CSNOW (double *SNCOND, double *DSNOW)
+void CSnow (double *sncond, double *dsnow)
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE CSNOW
-* FUNCTION CSNOW
+* subroutine CSnow
+* function CSnow
 * ----------------------------------------------------------------------
-* CALCULATE SNOW THERMAL CONDUCTIVITY
+* calculate snow thermal conductivity
 * --------------------------------------------------------------------*/
-    double          C;
-    double          UNIT = 0.11631;
+    double          c;
+    double          unit = 0.11631;
 
 /*----------------------------------------------------------------------
-* SNCOND IN UNITS OF CAL/(CM*HR*C), RETURNED IN W/(M*C)
-* CSNOW IN UNITS OF CAL/(CM*HR*C), RETURNED IN W/(M*C)
-* BASIC VERSION IS DYACHKOVA EQUATION (1960), FOR RANGE 0.1-0.4
+* sncond in units of cal/(cm*hr*c), returned in w/(m*c)
+* csnow in units of cal/(cm*hr*c), returned in w/(m*c)
+* basic version is dyachkova equation (1960), for range 0.1-0.4
 * --------------------------------------------------------------------*/
-    C = 0.328 * pow (10, 2.25 * *DSNOW);
-    //  CSNOW=UNIT*C
+    c = 0.328 * pow (10, 2.25 * *dsnow);
+    //  csnow=unit*c
 
 /*----------------------------------------------------------------------
-* DE VAUX EQUATION (1933), IN RANGE 0.1-0.6
+* de vaux equation (1933), in range 0.1-0.6
 * ----------------------------------------------------------------------
-*      SNCOND=0.0293*(1.+100.*DSNOW**2)
-*      CSNOW=0.0293*(1.+100.*DSNOW**2)
+*      sncond=0.0293*(1.+100.*dsnow**2)
+*      csnow=0.0293*(1.+100.*dsnow**2)
 
 * ----------------------------------------------------------------------
-* E. ANDERSEN FROM FLERCHINGER
+* e. andersen from flerchinger
 * ----------------------------------------------------------------------
-*      SNCOND=0.021+2.51*DSNOW**2
-*      CSNOW=0.021+2.51*DSNOW**2
+*      sncond=0.021+2.51*dsnow**2
+*      csnow=0.021+2.51*dsnow**2
 
-*      SNCOND = UNIT * C
+*      sncond = unit * c
 * double snow thermal conductivity
 */
-    *SNCOND = 2.0 * UNIT * C;
+    *sncond = 2.0 * unit * c;
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE CSNOW
+  end subroutine CSnow
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-DEVAP (double *EDIR, double *ETP1, double *SMC, double *ZSOIL, double *SHDFAC,
-   double *SMCMAX, double *DKSAT, double *SMCDRY, double *SMCREF,
-   double *SMCWLT, double *FXEXP)
+DEvap (double *edir, double *etp1, double *smc, double *zsoil, double *shdfac,
+   double *smcmax, double *dksat, double *smcdry, double *smcref,
+   double *smcwlt, double *fxexp)
 #else
 void
-DEVAP (double *EDIR, double *ETP1, double *SMC, double *ZSOIL, double *SHDFAC,
-   double *SMCMAX, double *BEXP, double *DKSAT, double *DWSAT, double *SMCDRY,
-   double *SMCREF, double *SMCWLT, double *FXEXP)
+DEvap (double *edir, double *etp1, double *smc, double *zsoil, double *shdfac,
+   double *smcmax, double *bexp, double *dksat, double *dwsat, double *smcdry,
+   double *smcref, double *smcwlt, double *fxexp)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE DEVAP
-* FUNCTION DEVAP
+* subroutine DEvap
+* function DEvap
 * ----------------------------------------------------------------------
-* CALCULATE DIRECT SOIL EVAPORATION
+* calculate direct soil evaporation
 * --------------------------------------------------------------------*/
-    double          FX, SRATIO;
+    double          fx, sratio;
 
 /*----------------------------------------------------------------------
-* DIRECT EVAP A FUNCTION OF RELATIVE SOIL MOISTURE AVAILABILITY, LINEAR
-* WHEN FXEXP=1.
+* direct evap a function of relative soil moisture availability, linear
+* when fxexp=1.
 * ----------------------------------------------------------------------
 * ----------------------------------------------------------------------
-* FX > 1 REPRESENTS DEMAND CONTROL
-* FX < 1 REPRESENTS FLUX CONTROL
+* fx > 1 represents demand control
+* fx < 1 represents flux control
 * --------------------------------------------------------------------*/
 
-    SRATIO = (*SMC - *SMCDRY) / (*SMCMAX - *SMCDRY);
-    if (SRATIO > 0.)
+    sratio = (*smc - *smcdry) / (*smcmax - *smcdry);
+    if (sratio > 0.)
     {
-        FX = pow (SRATIO, *FXEXP);
-        FX = FX > 1. ? 1. : FX;
-        FX = FX < 0. ? 0. : FX;
+        fx = pow (sratio, *fxexp);
+        fx = fx > 1. ? 1. : fx;
+        fx = fx < 0. ? 0. : fx;
     }
     else
-        FX = 0.;
+        fx = 0.;
 
 /*----------------------------------------------------------------------
-* ALLOW FOR THE DIRECT-EVAP-REDUCING EFFECT OF SHADE
+* allow for the direct-evap-reducing effect of shade
 * --------------------------------------------------------------------*/
-    *EDIR = FX * (1.0 - *SHDFAC) * *ETP1;
+    *edir = fx * (1.0 - *shdfac) * *etp1;
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE DEVAP
+  end subroutine DEvap
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-EVAPO (double *ETA1, double *SMC, int *NSOIL, double *CMC, double *ETP1,
-   double *DT, double *ZSOIL, double *SH2O, double *SMCMAX, double *PC,
-   double *SMCWLT, double *DKSAT, double *SMCREF, double *SHDFAC,
-   double *CMCMAX, double *SMCDRY, double *CFACTR, double *EDIR, double *EC,
-   double *ET, double *ETT, double *SFCTMP, double *Q2, int *NROOT,
-   double *RTDIS, double *FXEXP)
+Evapo (double *eta1, double *smc, int *nsoil, double *cmc, double *etp1,
+   double *dt, double *zsoil, double *sh2o, double *smcmax, double *pc,
+   double *smcwlt, double *dksat, double *smcref, double *shdfac,
+   double *cmcmax, double *smcdry, double *cfactr, double *edir, double *ec,
+   double *et, double *ett, double *sfctmp, double *q2, int *nroot,
+   double *rtdis, double *fxexp)
 #else
 void
-EVAPO (double *ETA1, double *SMC, int *NSOIL, double *CMC, double *ETP1,
-   double *DT, double *ZSOIL, double *SH2O, double *SMCMAX, double *BEXP,
-   double *PC, double *SMCWLT, double *DKSAT, double *DWSAT, double *SMCREF,
-   double *SHDFAC, double *CMCMAX, double *SMCDRY, double *CFACTR,
-   double *EDIR, double *EC, double *ET, double *ETT, double *SFCTMP,
-   double *Q2, int *NROOT, double *RTDIS, double *FXEXP)
+Evapo (double *eta1, double *smc, int *nsoil, double *cmc, double *etp1,
+   double *dt, double *zsoil, double *sh2o, double *smcmax, double *bexp,
+   double *pc, double *smcwlt, double *dksat, double *dwsat, double *smcref,
+   double *shdfac, double *cmcmax, double *smcdry, double *cfactr,
+   double *edir, double *ec, double *et, double *ett, double *sfctmp,
+   double *q2, int *nroot, double *rtdis, double *fxexp)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE EVAPO
+* subroutine Evapo
 * ----------------------------------------------------------------------
-* CALCULATE SOIL MOISTURE FLUX.  THE SOIL MOISTURE CONTENT (SMC - A PER
-* UNIT VOLUME MEASUREMENT) IS A DEPENDENT VARIABLE THAT IS UPDATED WITH
-* PROGNOSTIC EQNS. THE CANOPY MOISTURE CONTENT (CMC) IS ALSO UPDATED.
-* FROZEN GROUND VERSION:  NEW STATES ADDED: SH2O, AND FROZEN GROUND
-* CORRECTION FACTOR, FRZFACT AND PARAMETER SLOPE.
+* calculate soil moisture flux.  the soil moisture content (smc - a per
+* unit volume measurement) is a dependent variable that is updated with
+* prognostic eqns. the canopy moisture content (cmc) is also updated.
+* frozen ground version:  new states added: sh2o, and frozen ground
+* correction factor, frzfact and parameter slope.
 * --------------------------------------------------------------------*/
-    int             K;
-    double          CMC2MS;
+    int             k;
+    double          cmc2ms;
 
 /*----------------------------------------------------------------------
-* EXECUTABLE CODE BEGINS HERE IF THE POTENTIAL EVAPOTRANSPIRATION IS
-* GREATER THAN ZERO.
+* executable code begins here if the potential evapotranspiration is
+* greater than zero.
 * --------------------------------------------------------------------*/
-    *EDIR = 0.;
-    *EC = 0.;
-    *ETT = 0.;
-    for (K = 0; K < *NSOIL; K++)
-        ET[K] = 0.;
+    *edir = 0.;
+    *ec = 0.;
+    *ett = 0.;
+    for (k = 0; k < *nsoil; k++)
+        et[k] = 0.;
 
 /*----------------------------------------------------------------------
-* RETRIEVE DIRECT EVAPORATION FROM SOIL SURFACE.  CALL THIS FUNCTION
-* ONLY IF VEG COVER NOT COMPLETE.
-* FROZEN GROUND VERSION:  SH2O STATES REPLACE SMC STATES.
+* retrieve direct evaporation from soil surface.  call this function
+* only if veg cover not complete.
+* frozen ground version:  sh2o states replace smc states.
 * --------------------------------------------------------------------*/
-    if (*ETP1 > 0.0)
+    if (*etp1 > 0.0)
     {
-        if (*SHDFAC < 1.)
-#ifdef _FLUX_PIHM_
-            DEVAP (EDIR, ETP1, SMC, ZSOIL, SHDFAC, SMCMAX, DKSAT, SMCDRY,
-               SMCREF, SMCWLT, FXEXP);
+        if (*shdfac < 1.)
+#ifdef _NOAH_
+            DEvap (edir, etp1, smc, zsoil, shdfac, smcmax, dksat, smcdry,
+               smcref, smcwlt, fxexp);
 #else
-            DEVAP (EDIR, ETP1, SMC, ZSOIL, SHDFAC, SMCMAX, BEXP, DKSAT, DWSAT,
-               SMCDRY, SMCREF, SMCWLT, FXEXP);
+            DEvap (edir, etp1, smc, zsoil, shdfac, smcmax, bexp, dksat, dwsat,
+               smcdry, smcref, smcwlt, fxexp);
 #endif
 
 /*----------------------------------------------------------------------
-* INITIALIZE PLANT TOTAL TRANSPIRATION, RETRIEVE PLANT TRANSPIRATION,
-* AND ACCUMULATE IT FOR ALL SOIL LAYERS.
+* initialize plant total transpiration, retrieve plant transpiration,
+* and accumulate it for all soil layers.
 * --------------------------------------------------------------------*/
 
-        if (*SHDFAC > 0.0)
+        if (*shdfac > 0.0)
         {
-            TRANSP (ET, NSOIL, ETP1, SH2O, CMC, ZSOIL, SHDFAC, SMCWLT, CMCMAX,
-               PC, CFACTR, SMCREF, SFCTMP, Q2, NROOT, RTDIS);
-            for (K = 0; K < *NSOIL; K++)
-                *ETT = *ETT + ET[K];
+            Transp (et, nsoil, etp1, sh2o, cmc, zsoil, shdfac, smcwlt, cmcmax,
+               pc, cfactr, smcref, sfctmp, q2, nroot, rtdis);
+            for (k = 0; k < *nsoil; k++)
+                *ett = *ett + et[k];
 
 /*----------------------------------------------------------------------
-* CALCULATE CANOPY EVAPORATION.
-* IF STATEMENTS TO AVOID TANGENT LINEAR PROBLEMS NEAR CMC=0.0.
+* calculate canopy evaporation.
+* if statements to avoid tangent linear problems near cmc=0.0.
 * --------------------------------------------------------------------*/
-            if (*CMC > 0.0)
-                *EC =
-                   *SHDFAC * pow ((*CMC / *CMCMAX > 1. ? 1. : *CMC / *CMCMAX),
-                   *CFACTR) * *ETP1;
+            if (*cmc > 0.0)
+                *ec =
+                   *shdfac * pow ((*cmc / *cmcmax > 1. ? 1. : *cmc / *cmcmax),
+                   *cfactr) * *etp1;
             else
-                *EC = 0.0;
+                *ec = 0.0;
 
 /*----------------------------------------------------------------------
-* EC SHOULD BE LIMITED BY THE TOTAL AMOUNT OF AVAILABLE WATER ON THE
-* CANOPY.  -F.CHEN, 18-OCT-1994
+* ec should be limited by the total amount of available water on the
+* canopy.  -f.chen, 18-oct-1994
 * --------------------------------------------------------------------*/
-            CMC2MS = *CMC / *DT;
-            *EC = CMC2MS < *EC ? CMC2MS : *EC;
+            cmc2ms = *cmc / *dt;
+            *ec = cmc2ms < *ec ? cmc2ms : *ec;
         }
     }
 
 /*----------------------------------------------------------------------
-* TOTAL UP EVAP AND TRANSP TYPES TO OBTAIN ACTUAL EVAPOTRANSP
+* total up evap and transp types to obtain actual evapotransp
 * --------------------------------------------------------------------*/
-    *ETA1 = *EDIR + *ETT + *EC;
+    *eta1 = *edir + *ett + *ec;
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE EVAPO
+  end subroutine Evapo
 * --------------------------------------------------------------------*/
 }
 
-void FAC2MIT (double *SMCMAX, double *FLIMIT)
+void Fac2Mit (double *smcmax, double *flimit)
 {
-    *FLIMIT = 0.90;
+    *flimit = 0.90;
 
-    if (*SMCMAX == 0.395)
-        *FLIMIT = 0.59;
-    else if ((*SMCMAX == 0.434) || (*SMCMAX == 0.404))
-        *FLIMIT = 0.85;
-    else if ((*SMCMAX == 0.465) || (*SMCMAX == 0.406))
-        *FLIMIT = 0.86;
-    else if ((*SMCMAX == 0.476) || (*SMCMAX == 0.439))
-        *FLIMIT = 0.74;
-    else if ((*SMCMAX == 0.200) || (*SMCMAX == 0.464))
-        *FLIMIT = 0.80;
+    if (*smcmax == 0.395)
+        *flimit = 0.59;
+    else if ((*smcmax == 0.434) || (*smcmax == 0.404))
+        *flimit = 0.85;
+    else if ((*smcmax == 0.465) || (*smcmax == 0.406))
+        *flimit = 0.86;
+    else if ((*smcmax == 0.476) || (*smcmax == 0.439))
+        *flimit = 0.74;
+    else if ((*smcmax == 0.200) || (*smcmax == 0.464))
+        *flimit = 0.80;
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE FAC2MIT
+  end subroutine Fac2Mit
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-FRH2O (double *FREE, double *TKELV, double *SMC, double *SH2O, double *SMCMAX,
-   double *SMCMIN, double *VGALPHA, double *VGBETA)
+FrH2O (double *freew, double *tkelv, double *smc, double *sh2o, double *smcmax,
+   double *smcmin, double *vgalpha, double *vgbeta)
 #else
 void
-FRH2O (double *FREE, double *TKELV, double *SMC, double *SH2O, double *SMCMAX,
-   double *BEXP, double *PSIS)
+FrH2O (double *freew, double *tkelv, double *smc, double *sh2o, double *smcmax,
+   double *bexp, double *psis)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE FRH2O
+* subroutine FrH2O
 * ----------------------------------------------------------------------
-* CALCULATE AMOUNT OF SUPERCOOLED LIQUID SOIL WATER CONTENT IF
-* TEMPERATURE IS BELOW 273.15K (T0).  REQUIRES NEWTON-TYPE ITERATION TO
-* SOLVE THE NONLINEAR IMPLICIT EQUATION GIVEN IN EQN 17 OF KOREN ET AL
-* (1999, JGR, VOL 104(D16), 19569-19585).
+* calculate amount of supercooled liquid soil water content if
+* temperature is below 273.15k (t0).  requires newton-type iteration to
+* solve the nonlinear implicit equation given in eqn 17 of koren et al
+* (1999, jgr, vol 104(d16), 19569-19585).
 * ----------------------------------------------------------------------
-* NEW VERSION (JUNE 2001): MUCH FASTER AND MORE ACCURATE NEWTON
-* ITERATION ACHIEVED BY FIRST TAKING LOG OF EQN CITED ABOVE -- LESS THAN
-* 4 (TYPICALLY 1 OR 2) ITERATIONS ACHIEVES CONVERGENCE.  ALSO, EXPLICIT
-* 1-STEP SOLUTION OPTION FOR SPECIAL CASE OF PARAMETER CK=0, WHICH
-* REDUCES THE ORIGINAL IMPLICIT EQUATION TO A SIMPLER EXPLICIT FORM,
-* KNOWN AS THE "FLERCHINGER EQN". IMPROVED HANDLING OF SOLUTION IN THE
-* LIMIT OF FREEZING POINT TEMPERATURE T0.
+* new version (june 2001): much faster and more accurate newton
+* iteration achieved by first taking log of eqn cited above -- less than
+* 4 (typically 1 or 2) iterations achieves convergence.  also, explicit
+* 1-step solution option for special case of parameter ck=0, which
+* reduces the original implicit equation to a simpler explicit form,
+* known as the "flerchinger eqn". improved handling of solution in the
+* limit of freezing point temperature t0.
 * ----------------------------------------------------------------------
-* INPUT:
+* input:
 
-*   TKELV.........TEMPERATURE (Kelvin)
-*   SMC...........TOTAL SOIL MOISTURE CONTENT (VOLUMETRIC)
-*   SH2O..........LIQUID SOIL MOISTURE CONTENT (VOLUMETRIC)
-*   SMCMAX........SATURATION SOIL MOISTURE CONTENT (FROM REDPRM)
-*   B.............SOIL TYPE "B" PARAMETER (FROM REDPRM)
-*   PSIS..........SATURATED SOIL MATRIC POTENTIAL (FROM REDPRM)
+*   tkelv.........temperature (kelvin)
+*   smc...........total soil moisture content (volumetric)
+*   sh2o..........liquid soil moisture content (volumetric)
+*   smcmax........saturation soil moisture content (from RedPrm)
+*   b.............soil type "b" parameter (from RedPrm)
+*   psis..........saturated soil matric potential (from RedPrm)
 
-* OUTPUT:
-*   FREE..........SUPERCOOLED LIQUID WATER CONTENT
+* output:
+*   freew..........supercooled liquid water content
 * --------------------------------------------------------------------*/
-    double          DENOM, DF, DSWL, FK, SWL, SWLK;
-    int             NLOG, KCOUNT;
-    //      PARAMETER(CK = 0.0)
-    double          CK = 8.0, ERROR = 0.005, HLICE = 3.335e5, GS = 9.81, T0 = 273.15;
+    double          denom, df, dswl, fk, swl, swlk;
+    int             nlog, kcount;
+    //      parameter(ck = 0.0)
+    double          ck = 8.0, error = 0.005, hlice = 3.335e5, gs = 9.81, t0 = 273.15;
 
-#ifdef _FLUX_PIHM_
-    double          MX;
-    MX = *VGBETA / (1 - *VGBETA);
+#ifdef _NOAH_
+    double          mx;
+    mx = *vgbeta / (1 - *vgbeta);
 #else
 
 /*----------------------------------------------------------------------
-* LIMITS ON PARAMETER B: B < 5.5  (use parameter BLIM)
-* SIMULATIONS SHOWED IF B > 5.5 UNFROZEN WATER CONTENT IS
-* NON-REALISTICALLY HIGH AT VERY LOW TEMPERATURES.
+* limits on parameter b: b < 5.5  (use parameter blim)
+* simulations showed if b > 5.5 unfrozen water content is
+* non-realistically high at very low temperatures.
 * --------------------------------------------------------------------*/
-    BX = *BEXP;
+    bx = *bexp;
 
 /*----------------------------------------------------------------------
-* INITIALIZING ITERATIONS COUNTER AND ITERATIVE SOLUTION FLAG.
+* initializing iterations counter and iterative solution flag.
 * --------------------------------------------------------------------*/
-    if (*BEXP > BLIM)
-        BX = BLIM;
+    if (*bexp > blim)
+        bx = blim;
 #endif
-    NLOG = 0;
+    nlog = 0;
 
 /*----------------------------------------------------------------------
-*  IF TEMPERATURE NOT SIGNIFICANTLY BELOW FREEZING (T0), SH2O = SMC
+*  if temperature not significantly below freezing (t0), sh2o = smc
 * --------------------------------------------------------------------*/
-    KCOUNT = 0;
-    //      FRH2O = SMC
-    if (*TKELV > (T0 - 1.e-3))
-        *FREE = *SMC;
+    kcount = 0;
+    //      frh2o = smc
+    if (*tkelv > (t0 - 1.e-3))
+        *freew = *smc;
     else
     {
 
 /*----------------------------------------------------------------------
-* OPTION 1: ITERATED SOLUTION FOR NONZERO CK
-* IN KOREN ET AL, JGR, 1999, EQN 17
+* option 1: iterated solution for nonzero ck
+* in koren et al, jgr, 1999, eqn 17
 * ----------------------------------------------------------------------
-* INITIAL GUESS FOR SWL (frozen content)
+* initial guess for swl (frozen content)
 * --------------------------------------------------------------------*/
-        if (CK != 0.0)
+        if (ck != 0.0)
         {
-            SWL = *SMC - *SH2O;
+            swl = *smc - *sh2o;
 
 /*----------------------------------------------------------------------
-* KEEP WITHIN BOUNDS.
+* keep within bounds.
 * --------------------------------------------------------------------*/
-#ifdef _FLUX_PIHM_
-            if (SWL > (*SMC - *SMCMIN - 0.02))
-                SWL = *SMC - *SMCMIN - 0.02;
+#ifdef _NOAH_
+            if (swl > (*smc - *smcmin - 0.02))
+                swl = *smc - *smcmin - 0.02;
 #else
-            if (SWL > (*SMC - 0.02))
-                SWL = *SMC - 0.02;
+            if (swl > (*smc - 0.02))
+                swl = *smc - 0.02;
 #endif
 
 /*----------------------------------------------------------------------
-*  START OF ITERATIONS
+*  start of iterations
 * --------------------------------------------------------------------*/
-            if (SWL < 0.)
-                SWL = 0.;
-          C1001:
-            if (!((NLOG < 10) && (KCOUNT == 0)))
-                goto C1002;
-            NLOG = NLOG + 1;
-#ifdef _FLUX_PIHM_
-            DF =
-               log ((GS / *VGALPHA / HLICE) * pow (1. + CK * SWL,
-                  2.) * pow (pow ((*SMC - SWL - *SMCMIN) / (*SMCMAX -
-                        *SMCMIN), MX) - 1.,
-                  1. / *VGBETA)) - log (-(*TKELV - T0) / *TKELV);
-            DENOM =
-               2. * CK / (1. + CK * SWL) - 1. / (1 - *VGBETA) / (*SMCMAX -
-               *SMCMIN) * pow ((*SMC - SWL - *SMCMIN) / (*SMCMAX - *SMCMIN),
-               MX - 1.) / (pow ((*SMC - SWL - *SMCMIN) / (*SMCMAX - *SMCMIN),
-                  MX) - 1.);
+            if (swl < 0.)
+                swl = 0.;
+          c1001:
+            if (!((nlog < 10) && (kcount == 0)))
+                goto c1002;
+            nlog = nlog + 1;
+#ifdef _NOAH_
+            df =
+               log ((gs / *vgalpha / hlice) * pow (1. + ck * swl,
+                  2.) * pow (pow ((*smc - swl - *smcmin) / (*smcmax -
+                        *smcmin), mx) - 1.,
+                  1. / *vgbeta)) - log (-(*tkelv - t0) / *tkelv);
+            denom =
+               2. * ck / (1. + ck * swl) - 1. / (1 - *vgbeta) / (*smcmax -
+               *smcmin) * pow ((*smc - swl - *smcmin) / (*smcmax - *smcmin),
+               mx - 1.) / (pow ((*smc - swl - *smcmin) / (*smcmax - *smcmin),
+                  mx) - 1.);
 #else
-            DF =
-               log ((*PSIS * GS / HLICE) * pow (1. + CK * SWL,
-                  2.) * pow (*SMCMAX / (*SMC - SWL),
-                  BX)) - log (-(*TKELV - T0) / *TKELV);
-            DENOM = 2. * CK / (1. + CK * SWL) + BX / (*SMC - SWL);
+            df =
+               log ((*psis * gs / hlice) * pow (1. + ck * swl,
+                  2.) * pow (*smcmax / (*smc - swl),
+                  bx)) - log (-(*tkelv - t0) / *tkelv);
+            denom = 2. * ck / (1. + ck * swl) + bx / (*smc - swl);
 #endif
-            SWLK = SWL - DF / DENOM;
+            swlk = swl - df / denom;
 
 /*----------------------------------------------------------------------
-* BOUNDS USEFUL FOR MATHEMATICAL SOLUTION.
+* bounds useful for mathematical solution.
 * --------------------------------------------------------------------*/
-#ifdef _FLUX_PIHM_
-            if (SWLK > (*SMC - *SMCMIN - 0.02))
-                SWLK = *SMC - *SMCMIN - 0.02;
+#ifdef _NOAH_
+            if (swlk > (*smc - *smcmin - 0.02))
+                swlk = *smc - *smcmin - 0.02;
 #else
-            if (SWLK > (*SMC - 0.02))
-                SWLK = *SMC - 0.02;
+            if (swlk > (*smc - 0.02))
+                swlk = *smc - 0.02;
 #endif
-            if (SWLK < 0.)
-                SWLK = 0.;
+            if (swlk < 0.)
+                swlk = 0.;
 
 /*----------------------------------------------------------------------
-* MATHEMATICAL SOLUTION BOUNDS APPLIED.
+* mathematical solution bounds applied.
 * --------------------------------------------------------------------*/
-            DSWL = fabs (SWLK - SWL);
+            dswl = fabs (swlk - swl);
 
 /*----------------------------------------------------------------------
-* IF MORE THAN 10 ITERATIONS, USE EXPLICIT METHOD (CK=0 APPROX.)
-* WHEN DSWL LESS OR EQ. ERROR, NO MORE ITERATIONS REQUIRED.
+* if more than 10 iterations, use explicit method (ck=0 approx.)
+* when dswl less or eq. error, no more iterations required.
 * --------------------------------------------------------------------*/
-            SWL = SWLK;
-            if (DSWL <= ERROR)
-                KCOUNT = KCOUNT + 1;
+            swl = swlk;
+            if (dswl <= error)
+                kcount = kcount + 1;
 
 /*----------------------------------------------------------------------
-*  END OF ITERATIONS
+*  end of iterations
 * ----------------------------------------------------------------------
-* BOUNDS APPLIED WITHIN DO-BLOCK ARE VALID FOR PHYSICAL SOLUTION.
+* bounds applied within do-block are valid for physical solution.
 * --------------------------------------------------------------------*/
-            //          FRH2O = SMC - SWL
-            goto C1001;
-          C1002:
-            *FREE = *SMC - SWL;
+            //          frh2o = smc - swl
+            goto c1001;
+          c1002:
+            *freew = *smc - swl;
         }
 
 /*----------------------------------------------------------------------
-* END OPTION 1
+* end option 1
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-* OPTION 2: EXPLICIT SOLUTION FOR FLERCHINGER EQ. i.e. CK=0
-* IN KOREN ET AL., JGR, 1999, EQN 17
-* APPLY PHYSICAL BOUNDS TO FLERCHINGER SOLUTION
+* option 2: explicit solution for flerchinger eq. i.e. ck=0
+* in koren et al., jgr, 1999, eqn 17
+* apply physical bounds to flerchinger solution
 * --------------------------------------------------------------------*/
-        if (KCOUNT == 0)
+        if (kcount == 0)
         {
-            //          printf ("Flerchinger USEd in NEW version. Iterations= %d\n",
-            //             NLOG);
-#ifdef _FLUX_PIHM_
-            FK =
-               pow (pow (-(*TKELV - T0) / *TKELV * *VGALPHA * HLICE / GS,
-                  *VGBETA) + 1., 1. / MX) * (*SMCMAX - *SMCMIN);
+            //          printf ("flerchinger used in new version. iterations= %d\n",
+            //             nlog);
+#ifdef _NOAH_
+            fk =
+               pow (pow (-(*tkelv - t0) / *tkelv * *vgalpha * hlice / gs,
+                  *vgbeta) + 1., 1. / mx) * (*smcmax - *smcmin);
 #else
-            FK =
-               pow ((HLICE / (GS * (-*PSIS))) * ((*TKELV - T0) / *TKELV),
-               -1 / BX) * *SMCMAX;
+            fk =
+               pow ((hlice / (gs * (-*psis))) * ((*tkelv - t0) / *tkelv),
+               -1 / bx) * *smcmax;
 #endif
-            //          FRH2O = MIN (FK, SMC)
-            if (FK < 0.02)
-                FK = 0.02;
-            *FREE = FK < *SMC ? FK : *SMC;
+            //          frh2o = min (fk, smc)
+            if (fk < 0.02)
+                fk = 0.02;
+            *freew = fk < *smc ? fk : *smc;
 
 /*----------------------------------------------------------------------
-* END OPTION 2
+* end option 2
 * --------------------------------------------------------------------*/
         }
     }
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE FRH2O
+  end subroutine FrH2O
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-HRT (double *RHSTS, double *STC, double *SMC, double *SMCMAX, double *SMCMIN,
-   int *NSOIL, double *ZSOIL, double *YY, double *ZZ1, double *TBOT,
-   double *ZBOT, double *SH2O, double *DT, double *VGALPHA, double *VGBETA,
-   double *F1, double *DF1, double *QUARTZ, double *CSOIL, double *AI,
-   double *BI, double *CI, int *VEGTYP, int *ISURBAN)
+HRT (double *rhsts, double *stc, double *smc, double *smcmax, double *smcmin,
+   int *nsoil, double *zsoil, double *yy, double *zz1, double *tbot,
+   double *zbot, double *sh2o, double *dt, double *vgalpha, double *vgbeta,
+   double *f1, double *df1, double *quartz, double *csoil, double *ai,
+   double *bi, double *ci, int *vegtyp, int *isurban)
 #else
 void
-HRT (double *RHSTS, double *STC, double *SMC, double *SMCMAX, int *NSOIL,
-   double *ZSOIL, double *YY, double *ZZ1, double *TBOT, double *ZBOT,
-   double *PSISAT, double *SH2O, double *DT, double *BEXP, double *F1,
-   double *DF1, double *QUARTZ, double *CSOIL, double *AI, double *BI,
-   double *CI, int *VEGTYP, int *ISURBAN)
+HRT (double *rhsts, double *stc, double *smc, double *smcmax, int *nsoil,
+   double *zsoil, double *yy, double *zz1, double *tbot, double *zbot,
+   double *psisat, double *sh2o, double *dt, double *bexp, double *f1,
+   double *df1, double *quartz, double *csoil, double *ai, double *bi,
+   double *ci, int *vegtyp, int *isurban)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE HRT
+* subroutine HRT
 * ----------------------------------------------------------------------
-* CALCULATE THE RIGHT HAND SIDE OF THE TIME TENDENCY TERM OF THE SOIL
-* THERMAL DIFFUSION EQUATION.  ALSO TO COMPUTE ( PREPARE ) THE MATRIX
-* COEFFICIENTS FOR THE TRI-DIAGONAL MATRIX OF THE IMPLICIT TIME SCHEME.
+* calculate the right hand side of the time tendency term of the soil
+* thermal diffusion equation.  also to compute ( prepare ) the matrix
+* coefficients for the tri-diagonal matrix of the implicit time scheme.
 * --------------------------------------------------------------------*/
-    int             ITAVG;
-    int             K;
+    int             itavg;
+    int             k;
 
-    double          DDZ, DDZ2, DENOM, DF1K, DTSDZ, DTSDZ2, HCPCT, SSOIL, SICE,
-       CSOIL_LOC;
-    double         *DF1N, *QTOT, *TAVG, *TBK, *TBK1, *TSNSR, *TSURF;
-    double          T0 = 273.15, CAIR = 1004.0, CICE = 2.106e6, CH2O = 4.2e6;
+    double          ddz, ddz2, denom, df1k, dtsdz, dtsdz2, hcpct, ssoil, sice,
+       csoil_loc;
+    double         *df1n, *qtot, *tavg, *tbk, *tbk1, *tsnsr, *tsurf;
+    double          t0 = 273.15, cair = 1004.0, cice = 2.106e6, ch2o = 4.2e6;
 
-    DF1N = (double *)malloc (sizeof (double));
-    QTOT = (double *)malloc (sizeof (double));
-    TAVG = (double *)malloc (sizeof (double));
-    TBK = (double *)malloc (sizeof (double));
-    TBK1 = (double *)malloc (sizeof (double));
-    TSNSR = (double *)malloc (sizeof (double));
-    TSURF = (double *)malloc (sizeof (double));
+    df1n = (double *)malloc (sizeof (double));
+    qtot = (double *)malloc (sizeof (double));
+    tavg = (double *)malloc (sizeof (double));
+    tbk = (double *)malloc (sizeof (double));
+    tbk1 = (double *)malloc (sizeof (double));
+    tsnsr = (double *)malloc (sizeof (double));
+    tsurf = (double *)malloc (sizeof (double));
 
     /*
      * urban 
      */
-    if (*VEGTYP == *ISURBAN)
-        CSOIL_LOC = 3.0e6;
+    if (*vegtyp == *isurban)
+        csoil_loc = 3.0e6;
     else
-        CSOIL_LOC = *CSOIL;
+        csoil_loc = *csoil;
 
 /*----------------------------------------------------------------------
-* INITIALIZE LOGICAL FOR SOIL LAYER TEMPERATURE AVERAGING.
+* initialize logical for soil layer temperature averaging.
 * --------------------------------------------------------------------*/
-    ITAVG = 1;
+    itavg = 1;
 
 /*----------------------------------------------------------------------
-* BEGIN SECTION FOR TOP SOIL LAYER
+* begin section for top soil layer
 * ----------------------------------------------------------------------
-* CALC THE HEAT CAPACITY OF THE TOP SOIL LAYER
+* calc the heat capacity of the top soil layer
 * --------------------------------------------------------------------*/
-    HCPCT =
-       SH2O[0] * CH2O + (1.0 - *SMCMAX) * CSOIL_LOC + (*SMCMAX -
-       SMC[0]) * CAIR + (SMC[0] - SH2O[0]) * CICE;
+    hcpct =
+       sh2o[0] * ch2o + (1.0 - *smcmax) * csoil_loc + (*smcmax -
+       smc[0]) * cair + (smc[0] - sh2o[0]) * cice;
 
 /*----------------------------------------------------------------------
-* CALC THE MATRIX COEFFICIENTS AI, BI, AND CI FOR THE TOP LAYER
+* calc the matrix coefficients ai, bi, and ci for the top layer
 * --------------------------------------------------------------------*/
-    DDZ = 1.0 / (-0.5 * ZSOIL[1]);
-    AI[0] = 0.0;
-    CI[0] = (*DF1 * DDZ) / (ZSOIL[0] * HCPCT);
+    ddz = 1.0 / (-0.5 * zsoil[1]);
+    ai[0] = 0.0;
+    ci[0] = (*df1 * ddz) / (zsoil[0] * hcpct);
 
 /*----------------------------------------------------------------------
-* CALCULATE THE VERTICAL SOIL TEMP GRADIENT BTWN THE 1ST AND 2ND SOIL
-* LAYERS.  THEN CALCULATE THE SUBSURFACE HEAT FLUX. USE THE TEMP
-* GRADIENT AND SUBSFC HEAT FLUX TO CALC "RIGHT-HAND SIDE TENDENCY
-* TERMS", OR "RHSTS", FOR TOP SOIL LAYER.
+* calculate the vertical soil temp gradient btwn the 1st and 2nd soil
+* layers.  then calculate the subsurface heat flux. use the temp
+* gradient and subsfc heat flux to calc "right-hand side tendency
+* terms", or "rhsts", for top soil layer.
 * --------------------------------------------------------------------*/
-    BI[0] = -CI[0] + *DF1 / (0.5 * ZSOIL[0] * ZSOIL[0] * HCPCT * *ZZ1);
-    DTSDZ = (STC[0] - STC[1]) / (-0.5 * ZSOIL[1]);
-    SSOIL = *DF1 * (STC[0] - *YY) / (0.5 * ZSOIL[0] * *ZZ1);
-    //      RHSTS[0] = (*DF1 * DTSDZ - SSOIL) / (ZSOIL[0] * HCPCT);
-    DENOM = (ZSOIL[0] * HCPCT);
+    bi[0] = -ci[0] + *df1 / (0.5 * zsoil[0] * zsoil[0] * hcpct * *zz1);
+    dtsdz = (stc[0] - stc[1]) / (-0.5 * zsoil[1]);
+    ssoil = *df1 * (stc[0] - *yy) / (0.5 * zsoil[0] * *zz1);
+    //      rhsts[0] = (*df1 * dtsdz - ssoil) / (zsoil[0] * hcpct);
+    denom = (zsoil[0] * hcpct);
 
 /*----------------------------------------------------------------------
-* NEXT CAPTURE THE VERTICAL DIFFERENCE OF THE HEAT FLUX AT TOP AND
-* BOTTOM OF FIRST SOIL LAYER FOR USE IN HEAT FLUX CONSTRAINT APPLIED TO
-* POTENTIAL SOIL FREEZING/THAWING IN ROUTINE SNKSRC.
+* next capture the vertical difference of the heat flux at top and
+* bottom of first soil layer for use in heat flux constraint applied to
+* potential soil freezing/thawing in routine SnkSrc.
 * --------------------------------------------------------------------*/
-    //  *QTOT = SSOIL - *DF1*DTSDZ;
-    RHSTS[0] = (*DF1 * DTSDZ - SSOIL) / DENOM;
+    //  *qtot = ssoil - *df1*dtsdz;
+    rhsts[0] = (*df1 * dtsdz - ssoil) / denom;
 
 /*----------------------------------------------------------------------
-* CALCULATE FROZEN WATER CONTENT IN 1ST SOIL LAYER.
+* calculate frozen water content in 1st soil layer.
 * --------------------------------------------------------------------*/
-    *QTOT = -1.0 * RHSTS[0] * DENOM;
+    *qtot = -1.0 * rhsts[0] * denom;
 
 /*----------------------------------------------------------------------
-* IF TEMPERATURE AVERAGING INVOKED (ITAVG=TRUE; ELSE SKIP):
-* SET TEMP "TSURF" AT TOP OF SOIL COLUMN (FOR USE IN FREEZING SOIL
-* PHYSICS LATER IN FUNCTION SUBROUTINE SNKSRC).  IF SNOWPACK CONTENT IS
-* ZERO, THEN TSURF EXPRESSION BELOW GIVES TSURF = SKIN TEMP.  IF
-* SNOWPACK IS NONZERO (HENCE ARGUMENT ZZ1=1), THEN TSURF EXPRESSION
-* BELOW YIELDS SOIL COLUMN TOP TEMPERATURE UNDER SNOWPACK.  THEN
-* CALCULATE TEMPERATURE AT BOTTOM INTERFACE OF 1ST SOIL LAYER FOR USE
-* LATER IN FUNCTION SUBROUTINE SNKSRC
+* if temperature averaging invoked (itavg=true; else skip):
+* set temp "tsurf" at top of soil column (for use in freezing soil
+* physics later in function subroutine SnkSrc).  if snowpack content is
+* zero, then tsurf expression below gives tsurf = skin temp.  if
+* snowpack is nonzero (hence argument zz1=1), then tsurf expression
+* below yields soil column top temperature under snowpack.  then
+* calculate temperature at bottom interface of 1st soil layer for use
+* later in function subroutine SnkSrc
 * --------------------------------------------------------------------*/
-    SICE = SMC[0] - SH2O[0];
-    if (ITAVG)
+    sice = smc[0] - sh2o[0];
+    if (itavg)
     {
-        *TSURF = (*YY + (*ZZ1 - 1) * STC[0]) / *ZZ1;
+        *tsurf = (*yy + (*zz1 - 1) * stc[0]) / *zz1;
 
 /*----------------------------------------------------------------------
-* IF FROZEN WATER PRESENT OR ANY OF LAYER-1 MID-POINT OR BOUNDING
-* INTERFACE TEMPERATURES BELOW FREEZING, THEN CALL SNKSRC TO
-* COMPUTE HEAT SOURCE/SINK (AND CHANGE IN FROZEN WATER CONTENT)
-* DUE TO POSSIBLE SOIL WATER PHASE CHANGE
+* if frozen water present or any of layer-1 mid-point or bounding
+* interface temperatures below freezing, then call SnkSrc to
+* compute heat source/sink (and change in frozen water content)
+* due to possible soil water phase change
 * --------------------------------------------------------------------*/
-        TBND (STC, STC + 1, ZSOIL, ZBOT, 0, NSOIL, TBK);
-        if ((SICE > 0.) || (STC[0] < T0) || (*TSURF < T0) || (*TBK < T0))
+        TBnd (stc, stc + 1, zsoil, zbot, 0, nsoil, tbk);
+        if ((sice > 0.) || (stc[0] < t0) || (*tsurf < t0) || (*tbk < t0))
         {
-            //          *TSNSR = SNKSRC (TAVG,SMC(1),SH2O(1),
-            TMPAVG (TAVG, TSURF, STC, TBK, ZSOIL, NSOIL, 0);
-#ifdef _FLUX_PIHM_
-            SNKSRC (TSNSR, TAVG, SMC, SH2O, ZSOIL, NSOIL, SMCMAX, SMCMIN,
-               VGALPHA, VGBETA, DT, 0, QTOT);
+            //          *tsnsr = SnkSrc (tavg,smc(1),sh2o(1),
+            TmpAvg (tavg, tsurf, stc, tbk, zsoil, nsoil, 0);
+#ifdef _NOAH_
+            SnkSrc (tsnsr, tavg, smc, sh2o, zsoil, nsoil, smcmax, smcmin,
+               vgalpha, vgbeta, dt, 0, qtot);
 #else
-            SNKSRC (TSNSR, TAVG, SMC, SH2O, ZSOIL, NSOIL, SMCMAX, PSISAT,
-               BEXP, DT, 0, QTOT);
+            SnkSrc (tsnsr, tavg, smc, sh2o, zsoil, nsoil, smcmax, psisat,
+               bexp, dt, 0, qtot);
 #endif
-            //          RHSTS(1) = RHSTS(1) - *TSNSR / ( ZSOIL(1) * HCPCT )
-            RHSTS[0] = RHSTS[0] - *TSNSR / DENOM;
+            //          rhsts(1) = rhsts(1) - *tsnsr / ( zsoil(1) * hcpct )
+            rhsts[0] = rhsts[0] - *tsnsr / denom;
         }
     }
     else
     {
-        //          *TSNSR = SNKSRC (STC(1),SMC(1),SH2O(1),
-        if ((SICE > 0.) || (STC[0] < T0))
+        //          *tsnsr = SnkSrc (stc(1),smc(1),sh2o(1),
+        if ((sice > 0.) || (stc[0] < t0))
         {
-#ifdef _FLUX_PIHM_
-            SNKSRC (TSNSR, STC, SMC, SH2O, ZSOIL, NSOIL, SMCMAX, SMCMIN,
-               VGALPHA, VGBETA, DT, 0, QTOT);
+#ifdef _NOAH_
+            SnkSrc (tsnsr, stc, smc, sh2o, zsoil, nsoil, smcmax, smcmin,
+               vgalpha, vgbeta, dt, 0, qtot);
 #else
-            SNKSRC (TSNSR, STC, SMC, SH2O, ZSOIL, NSOIL, SMCMAX, PSISAT, BEXP,
-               DT, 0, QTOT);
+            SnkSrc (tsnsr, stc, smc, sh2o, zsoil, nsoil, smcmax, psisat, bexp,
+               dt, 0, qtot);
 #endif
-            //          RHSTS(1) = RHSTS(1) - *TSNSR / ( ZSOIL(1) * HCPCT )
-            RHSTS[0] = RHSTS[0] - *TSNSR / DENOM;
+            //          rhsts(1) = rhsts(1) - *tsnsr / ( zsoil(1) * hcpct )
+            rhsts[0] = rhsts[0] - *tsnsr / denom;
         }
 
 /*----------------------------------------------------------------------
-* THIS ENDS SECTION FOR TOP SOIL LAYER.
+* this ends section for top soil layer.
 * --------------------------------------------------------------------*/
     }
 
     /*
-     * INITIALIZE DDZ2 
+     * initialize ddz2 
      */
 
 /*--------------------------------------------------------------------*/
 
-    DDZ2 = 0.0;
-    DF1K = *DF1;
+    ddz2 = 0.0;
+    df1k = *df1;
 
 /*----------------------------------------------------------------------
-* LOOP THRU THE REMAINING SOIL LAYERS, REPEATING THE ABOVE PROCESS
-* (EXCEPT SUBSFC OR "GROUND" HEAT FLUX NOT REPEATED IN LOWER LAYERS)
+* loop thru the remaining soil layers, repeating the above process
+* (except subsfc or "ground" heat flux not repeated in lower layers)
 * ----------------------------------------------------------------------
-* CALCULATE HEAT CAPACITY FOR THIS SOIL LAYER.
+* calculate heat capacity for this soil layer.
 * --------------------------------------------------------------------*/
-    for (K = 1; K < *NSOIL; K++)
+    for (k = 1; k < *nsoil; k++)
     {
-        HCPCT =
-           SH2O[K] * CH2O + (1.0 - *SMCMAX) * CSOIL_LOC + (*SMCMAX -
-           SMC[K]) * CAIR + (SMC[K] - SH2O[K]) * CICE;
+        hcpct =
+           sh2o[k] * ch2o + (1.0 - *smcmax) * csoil_loc + (*smcmax -
+           smc[k]) * cair + (smc[k] - sh2o[k]) * cice;
 
 /*----------------------------------------------------------------------
-* THIS SECTION FOR LAYER 2 OR GREATER, BUT NOT LAST LAYER.
+* this section for layer 2 or greater, but not last layer.
 * ----------------------------------------------------------------------
-* CALCULATE THERMAL DIFFUSIVITY FOR THIS LAYER.
+* calculate thermal diffusivity for this layer.
 * --------------------------------------------------------------------*/
-        if (K != *NSOIL - 1)
+        if (k != *nsoil - 1)
         {
 
 /*----------------------------------------------------------------------
-* CALC THE VERTICAL SOIL TEMP GRADIENT THRU THIS LAYER
+* calc the vertical soil temp gradient thru this layer
 * --------------------------------------------------------------------*/
-#ifdef _FLUX_PIHM_
-            TDFCND (DF1N, SMC + K, QUARTZ, SMCMAX, SMCMIN, SH2O + K);
+#ifdef _NOAH_
+            TDfCnd (df1n, smc + k, quartz, smcmax, smcmin, sh2o + k);
 #else
-            TDFCND (DF1N, SMC + K, QUARTZ, SMCMAX, SH2O + K);
+            TDfCnd (df1n, smc + k, quartz, smcmax, sh2o + k);
 #endif
 
             /*
              * urban 
              */
-            if (*VEGTYP == *ISURBAN)
-                *DF1N = 3.24;
+            if (*vegtyp == *isurban)
+                *df1n = 3.24;
 
-            DENOM = 0.5 * (ZSOIL[K - 1] - ZSOIL[K + 1]);
-
-/*----------------------------------------------------------------------
-* CALC THE MATRIX COEF, CI, AFTER CALC'NG ITS PARTIAL PRODUCT
-* --------------------------------------------------------------------*/
-            DTSDZ2 = (STC[K] - STC[K + 1]) / DENOM;
-            DDZ2 = 2. / (ZSOIL[K - 1] - ZSOIL[K + 1]);
+            denom = 0.5 * (zsoil[k - 1] - zsoil[k + 1]);
 
 /*----------------------------------------------------------------------
-* IF TEMPERATURE AVERAGING INVOKED (ITAVG=TRUE; ELSE SKIP):  CALCULATE
-* TEMP AT BOTTOM OF LAYER.
+* calc the matrix coef, ci, after calc'ng its partial product
 * --------------------------------------------------------------------*/
-            CI[K] = -*DF1N * DDZ2 / ((ZSOIL[K - 1] - ZSOIL[K]) * HCPCT);
-            if (ITAVG)
-                TBND (STC + K, STC + K + 1, ZSOIL, ZBOT, K, NSOIL, TBK1);
+            dtsdz2 = (stc[k] - stc[k + 1]) / denom;
+            ddz2 = 2. / (zsoil[k - 1] - zsoil[k + 1]);
+
+/*----------------------------------------------------------------------
+* if temperature averaging invoked (itavg=true; else skip):  calculate
+* temp at bottom of layer.
+* --------------------------------------------------------------------*/
+            ci[k] = -*df1n * ddz2 / ((zsoil[k - 1] - zsoil[k]) * hcpct);
+            if (itavg)
+                TBnd (stc + k, stc + k + 1, zsoil, zbot, k, nsoil, tbk1);
         }
         else
         {
 
 /*----------------------------------------------------------------------
-* SPECIAL CASE OF BOTTOM SOIL LAYER:  CALCULATE THERMAL DIFFUSIVITY FOR
-* BOTTOM LAYER.
+* special case of bottom soil layer:  calculate thermal diffusivity for
+* bottom layer.
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-* CALC THE VERTICAL SOIL TEMP GRADIENT THRU BOTTOM LAYER.
+* calc the vertical soil temp gradient thru bottom layer.
 * --------------------------------------------------------------------*/
-#ifdef _FLUX_PIHM_
-            TDFCND (DF1N, SMC + K, QUARTZ, SMCMAX, SMCMIN, SH2O + K);
+#ifdef _NOAH_
+            TDfCnd (df1n, smc + k, quartz, smcmax, smcmin, sh2o + k);
 #else
-            TDFCND (DF1N, SMC + K, QUARTZ, SMCMAX, SH2O + K);
+            TDfCnd (df1n, smc + k, quartz, smcmax, sh2o + k);
 #endif
 
             /*
              * urban 
              */
-            if (*VEGTYP == *ISURBAN)
-                *DF1N = 3.24;
+            if (*vegtyp == *isurban)
+                *df1n = 3.24;
 
-            DENOM = 0.5 * (ZSOIL[K - 1] + ZSOIL[K]) - *ZBOT;
+            denom = 0.5 * (zsoil[k - 1] + zsoil[k]) - *zbot;
 
 /*----------------------------------------------------------------------
-* SET MATRIX COEF, CI TO ZERO IF BOTTOM LAYER.
+* set matrix coef, ci to zero if bottom layer.
 * --------------------------------------------------------------------*/
-            DTSDZ2 = (STC[K] - *TBOT) / DENOM;
+            dtsdz2 = (stc[k] - *tbot) / denom;
 
 /*----------------------------------------------------------------------
-* IF TEMPERATURE AVERAGING INVOKED (ITAVG=TRUE; ELSE SKIP):  CALCULATE
-* TEMP AT BOTTOM OF LAST LAYER.
+* if temperature averaging invoked (itavg=true; else skip):  calculate
+* temp at bottom of last layer.
 * --------------------------------------------------------------------*/
-            CI[K] = 0.;
-            if (ITAVG)
-                TBND (STC + K, TBOT, ZSOIL, ZBOT, K, NSOIL, TBK1);
+            ci[k] = 0.;
+            if (itavg)
+                TBnd (stc + k, tbot, zsoil, zbot, k, nsoil, tbk1);
 
 /*----------------------------------------------------------------------
-* THIS ENDS SPECIAL LOOP FOR BOTTOM LAYER.
+* this ends special loop for bottom layer.
 * --------------------------------------------------------------------*/
         }
 
 /*----------------------------------------------------------------------
-* CALCULATE RHSTS FOR THIS LAYER AFTER CALC'NG A PARTIAL PRODUCT.
+* calculate rhsts for this layer after calc'ng a partial product.
 * --------------------------------------------------------------------*/
-        DENOM = (ZSOIL[K] - ZSOIL[K - 1]) * HCPCT;
-        RHSTS[K] = (*DF1N * DTSDZ2 - DF1K * DTSDZ) / DENOM;
-        *QTOT = -1.0 * DENOM * RHSTS[K];
+        denom = (zsoil[k] - zsoil[k - 1]) * hcpct;
+        rhsts[k] = (*df1n * dtsdz2 - df1k * dtsdz) / denom;
+        *qtot = -1.0 * denom * rhsts[k];
 
-        SICE = SMC[K] - SH2O[K];
+        sice = smc[k] - sh2o[k];
 
-        if (ITAVG)
+        if (itavg)
         {
-            TMPAVG (TAVG, TBK, STC + K, TBK1, ZSOIL, NSOIL, K);
-            //                  *TSNSR = SNKSRC(TAVG,SMC(K),SH2O(K),ZSOIL,NSOIL,
-            if ((SICE > 0.) || (STC[K] < T0) || (*TBK < T0) || (*TBK1 < T0))
+            TmpAvg (tavg, tbk, stc + k, tbk1, zsoil, nsoil, k);
+            //                  *tsnsr = SnkSrc(tavg,smc(k),sh2o(k),zsoil,nsoil,
+            if ((sice > 0.) || (stc[k] < t0) || (*tbk < t0) || (*tbk1 < t0))
             {
-#ifdef _FLUX_PIHM_
-                SNKSRC (TSNSR, TAVG, SMC + K, SH2O + K, ZSOIL, NSOIL, SMCMAX,
-                   SMCMIN, VGALPHA, VGBETA, DT, K, QTOT);
+#ifdef _NOAH_
+                SnkSrc (tsnsr, tavg, smc + k, sh2o + k, zsoil, nsoil, smcmax,
+                   smcmin, vgalpha, vgbeta, dt, k, qtot);
 #else
-                SNKSRC (TSNSR, TAVG, SMC + K, SH2O + K, ZSOIL, NSOIL, SMCMAX,
-                   PSISAT, BEXP, DT, K, QTOT);
+                SnkSrc (tsnsr, tavg, smc + k, sh2o + k, zsoil, nsoil, smcmax,
+                   psisat, bexp, dt, k, qtot);
 #endif
-                RHSTS[K] = RHSTS[K] - *TSNSR / DENOM;
+                rhsts[k] = rhsts[k] - *tsnsr / denom;
             }
         }
         else
         {
-            //            TSNSR = SNKSRC(STC(K),SMC(K),SH2O(K),ZSOIL,NSOIL,
-            if ((SICE > 0.) || (STC[K] < T0))
+            //            tsnsr = SnkSrc(stc(k),smc(k),sh2o(k),zsoil,nsoil,
+            if ((sice > 0.) || (stc[k] < t0))
             {
-#ifdef _FLUX_PIHM_
-                SNKSRC (TSNSR, STC + K, SMC + K, SH2O + K, ZSOIL, NSOIL,
-                   SMCMAX, SMCMIN, VGALPHA, VGBETA, DT, K, QTOT);
+#ifdef _NOAH_
+                SnkSrc (tsnsr, stc + k, smc + k, sh2o + k, zsoil, nsoil,
+                   smcmax, smcmin, vgalpha, vgbeta, dt, k, qtot);
 #else
-                SNKSRC (TSNSR, STC + K, SMC + K, SH2O + K, ZSOIL, NSOIL,
-                   SMCMAX, PSISAT, BEXP, DT, K, QTOT);
+                SnkSrc (tsnsr, stc + k, smc + k, sh2o + k, zsoil, nsoil,
+                   smcmax, psisat, bexp, dt, k, qtot);
 #endif
-                RHSTS[K] = RHSTS[K] - *TSNSR / DENOM;
+                rhsts[k] = rhsts[k] - *tsnsr / denom;
             }
         }
 
 /*----------------------------------------------------------------------
-* CALC MATRIX COEFS, AI, AND BI FOR THIS LAYER.
+* calc matrix coefs, ai, and bi for this layer.
 * --------------------------------------------------------------------*/
-        AI[K] = -DF1K * DDZ / ((ZSOIL[K - 1] - ZSOIL[K]) * HCPCT);
+        ai[k] = -df1k * ddz / ((zsoil[k - 1] - zsoil[k]) * hcpct);
 
 /*----------------------------------------------------------------------
-* RESET VALUES OF DF1, DTSDZ, DDZ, AND TBK FOR LOOP TO NEXT SOIL LAYER.
+* reset values of df1, dtsdz, ddz, and tbk for loop to next soil layer.
 * --------------------------------------------------------------------*/
-        BI[K] = -(AI[K] + CI[K]);
-        *TBK = *TBK1;
-        DF1K = *DF1N;
-        DTSDZ = DTSDZ2;
-        DDZ = DDZ2;
+        bi[k] = -(ai[k] + ci[k]);
+        *tbk = *tbk1;
+        df1k = *df1n;
+        dtsdz = dtsdz2;
+        ddz = ddz2;
     }
 
-    free (DF1N);
-    free (QTOT);
-    free (TAVG);
-    free (TBK);
-    free (TBK1);
-    free (TSNSR);
-    free (TSURF);
+    free (df1n);
+    free (qtot);
+    free (tavg);
+    free (tbk);
+    free (tbk1);
+    free (tsnsr);
+    free (tsurf);
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE HRT
+  end subroutine HRT
 * --------------------------------------------------------------------*/
 }
 
 
 void
-HSTEP (double *STCOUT, double *STCIN, double *RHSTS, double *DT, int *NSOIL,
-   double *AI, double *BI, double *CI)
+HStep (double *stcout, double *stcin, double *rhsts, double *dt, int *nsoil,
+   double *ai, double *bi, double *ci)
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE HSTEP
+* subroutine HStep
 * ----------------------------------------------------------------------
-* CALCULATE/UPDATE THE SOIL TEMPERATURE FIELD.
+* calculate/update the soil temperature field.
 * --------------------------------------------------------------------*/
-    int             K;
+    int             k;
 
-    double          RHSTSin[*NSOIL];
-    double          CIin[*NSOIL];
+    double          rhstsin[*nsoil];
+    double          ciin[*nsoil];
 
 /*----------------------------------------------------------------------
-* CREATE FINITE DIFFERENCE VALUES FOR USE IN ROSR12 ROUTINE
+* create finite difference values for use in Rosr12 routine
 * --------------------------------------------------------------------*/
-    for (K = 0; K < *NSOIL; K++)
+    for (k = 0; k < *nsoil; k++)
     {
-        RHSTS[K] = RHSTS[K] * *DT;
-        AI[K] = AI[K] * *DT;
-        BI[K] = 1. + BI[K] * *DT;
-        CI[K] = CI[K] * *DT;
+        rhsts[k] = rhsts[k] * *dt;
+        ai[k] = ai[k] * *dt;
+        bi[k] = 1. + bi[k] * *dt;
+        ci[k] = ci[k] * *dt;
     }
 
 /*----------------------------------------------------------------------
-* COPY VALUES FOR INPUT VARIABLES BEFORE CALL TO ROSR12
+* copy values for input variables before call to Rosr12
 * --------------------------------------------------------------------*/
-    for (K = 0; K < *NSOIL; K++)
-        RHSTSin[K] = RHSTS[K];
-    for (K = 0; K < *NSOIL; K++)
-        CIin[K] = CI[K];
+    for (k = 0; k < *nsoil; k++)
+        rhstsin[k] = rhsts[k];
+    for (k = 0; k < *nsoil; k++)
+        ciin[k] = ci[k];
 
 /*----------------------------------------------------------------------
-* SOLVE THE TRI-DIAGONAL MATRIX EQUATION
+* solve the tri-diagonal matrix equation
 * --------------------------------------------------------------------*/
-    ROSR12 (CI, AI, BI, CIin, RHSTSin, RHSTS, NSOIL);
+    Rosr12 (ci, ai, bi, ciin, rhstsin, rhsts, nsoil);
 
 /*----------------------------------------------------------------------
-* CALC/UPDATE THE SOIL TEMPS USING MATRIX SOLUTION
+* calc/update the soil temps using matrix solution
 * --------------------------------------------------------------------*/
-    for (K = 0; K < *NSOIL; K++)
-        STCOUT[K] = STCIN[K] + CI[K];
+    for (k = 0; k < *nsoil; k++)
+        stcout[k] = stcin[k] + ci[k];
 
 /*----------------------------------------------------------------------
-* END SUBROUTINE HSTEP
+* end subroutine HStep
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-NOPAC (double *ETP, double *ETA, double *PRCP, double *PCPDRP, double *SMC,
-   double *SMCMAX, double *SMCMIN, double *SMCWLT, double *SMCREF,
-   double *SMCDRY, double *CMC, double *CMCMAX, int *NSOIL, double *DT,
-   double *SHDFAC, double *SBETA, double *Q2, double *T1, double *SFCTMP,
-   double *T24, double *TH2, double *FDOWN, double *F1, double *EMISSI,
-   double *SSOIL, double *STC, double *EPSCA, double *VGALPHA, double *VGBETA,
-   double *MACKSAT, double *AREAF, int *NMACD, int *MAC_STATUS, int *NWTBL, double *PC,
-   double *RCH, double *RR, double *CFACTR, double *SH2O, double *FRZFACT,
-   double *ZSOIL, double *DKSAT, double *TBOT, double *ZBOT, double *INF,
-   double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET,
-   double *ETT, int *NROOT, double *RTDIS, double *QUARTZ, double *FXEXP,
-   double *CSOIL, double *BETA, double *DRIP, double *DEW, double *FLX1,
-   double *FLX3, int *VEGTYP, int *ISURBAN)
+NoPac (double *etp, double *eta, double *prcp, double *pcpdrp, double *smc,
+   double *smcmax, double *smcmin, double *smcwlt, double *smcref,
+   double *smcdry, double *cmc, double *cmcmax, int *nsoil, double *dt,
+   double *shdfac, double *sbeta, double *q2, double *t1, double *sfctmp,
+   double *t24, double *th2, double *fdown, double *f1, double *emissi,
+   double *ssoil, double *stc, double *epsca, double *vgalpha, double *vgbeta,
+   double *macksat, double *areaf, int *nmacd, int *mac_status, int *nwtbl, double *pc,
+   double *rch, double *rr, double *cfactr, double *sh2o, double *frzfact,
+   double *zsoil, double *dksat, double *tbot, double *zbot, double *infil,
+   double *runoff2, double *runoff3, double *edir, double *ec, double *et,
+   double *ett, int *nroot, double *rtdis, double *quartz, double *fxexp,
+   double *csoil, double *beta, double *drip, double *dew, double *flx1,
+   double *flx3, int *vegtyp, int *isurban)
 #else
 void
-NOPAC (double *ETP, double *ETA, double *PRCP, double *SMC, double *SMCMAX,
-   double *SMCWLT, double *SMCREF, double *SMCDRY, double *CMC,
-   double *CMCMAX, int *NSOIL, double *DT, double *SHDFAC, double *SBETA,
-   double *Q2, double *T1, double *SFCTMP, double *T24, double *TH2,
-   double *FDOWN, double *F1, double *EMISSI, double *SSOIL, double *STC,
-   double *EPSCA, double *BEXP, double *PC, double *RCH, double *RR,
-   double *CFACTR, double *SH2O, double *SLOPE, double *KDT, double *FRZFACT,
-   double *PSISAT, double *ZSOIL, double *DKSAT, double *DWSAT, double *TBOT,
-   double *ZBOT, double *RUNOFF1, double *RUNOFF2, double *RUNOFF3,
-   double *EDIR, double *EC, double *ET, double *ETT, int *NROOT,
-   double *RTDIS, double *QUARTZ, double *FXEXP, double *CSOIL, double *BETA,
-   double *DRIP, double *DEW, double *FLX1, double *FLX3, int *VEGTYP,
-   int *ISURBAN)
+NoPac (double *etp, double *eta, double *prcp, double *smc, double *smcmax,
+   double *smcwlt, double *smcref, double *smcdry, double *cmc,
+   double *cmcmax, int *nsoil, double *dt, double *shdfac, double *sbeta,
+   double *q2, double *t1, double *sfctmp, double *t24, double *th2,
+   double *fdown, double *f1, double *emissi, double *ssoil, double *stc,
+   double *epsca, double *bexp, double *pc, double *rch, double *rr,
+   double *cfactr, double *sh2o, double *slope, double *kdt, double *frzfact,
+   double *psisat, double *zsoil, double *dksat, double *dwsat, double *tbot,
+   double *zbot, double *runoff1, double *runoff2, double *runoff3,
+   double *edir, double *ec, double *et, double *ett, int *nroot,
+   double *rtdis, double *quartz, double *fxexp, double *csoil, double *beta,
+   double *drip, double *dew, double *flx1, double *flx3, int *vegtyp,
+   int *isurban)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE NOPAC
+* subroutine NoPac
 * ----------------------------------------------------------------------
-* CALCULATE SOIL MOISTURE AND HEAT FLUX VALUES AND UPDATE SOIL MOISTURE
-* CONTENT AND SOIL HEAT CONTENT VALUES FOR THE CASE WHEN NO SNOW PACK IS
-* PRESENT.
+* calculate soil moisture and heat flux values and update soil moisture
+* content and soil heat content values for the case when no snow pack is
+* present.
 * --------------------------------------------------------------------*/
 
-    int             K;
+    int             k;
 
-    double          ET1[*NSOIL];
-    double         *EC1, *EDIR1, *ETT1, *DF1, *ETA1, *ETP1, *PRCP1, *YY, *ZZ1;
-    double          YYNUM;
+    double          et1[*nsoil];
+    double         *ec1, *edir1, *ett1, *df1, *eta1, *etp1, *prcp1, *yy, *zz1;
+    double          yynum;
 
-    EC1 = (double *)malloc (sizeof (double));
-    EDIR1 = (double *)malloc (sizeof (double));
-    ETT1 = (double *)malloc (sizeof (double));
-    DF1 = (double *)malloc (sizeof (double));
-    ETA1 = (double *)malloc (sizeof (double));
-    ETP1 = (double *)malloc (sizeof (double));
-    PRCP1 = (double *)malloc (sizeof (double));
-    YY = (double *)malloc (sizeof (double));
-    ZZ1 = (double *)malloc (sizeof (double));
+    ec1 = (double *)malloc (sizeof (double));
+    edir1 = (double *)malloc (sizeof (double));
+    ett1 = (double *)malloc (sizeof (double));
+    df1 = (double *)malloc (sizeof (double));
+    eta1 = (double *)malloc (sizeof (double));
+    etp1 = (double *)malloc (sizeof (double));
+    prcp1 = (double *)malloc (sizeof (double));
+    yy = (double *)malloc (sizeof (double));
+    zz1 = (double *)malloc (sizeof (double));
 
 /*----------------------------------------------------------------------
-* EXECUTABLE CODE BEGINS HERE:
-* CONVERT ETP Fnd PRCP FROM KG M-2 S-1 TO M S-1 AND INITIALIZE DEW.
+* executable code begins here:
+* convert etp fnd prcp from kg m-2 s-1 to m s-1 and initialize dew.
 * --------------------------------------------------------------------*/
-    *PRCP1 = *PRCP * 0.001;
-    *ETP1 = *ETP * 0.001;
-    *DEW = 0.0;
+    *prcp1 = *prcp * 0.001;
+    *etp1 = *etp * 0.001;
+    *dew = 0.0;
 
 /*----------------------------------------------------------------------
-* INITIALIZE EVAP TERMS.
+* initialize evap terms.
 * --------------------------------------------------------------------*/
-    *EDIR = 0.;
-    *EDIR1 = 0.;
-    *EC1 = 0.;
-    *EC = 0.;
-    for (K = 0; K < *NSOIL; K++)
+    *edir = 0.;
+    *edir1 = 0.;
+    *ec1 = 0.;
+    *ec = 0.;
+    for (k = 0; k < *nsoil; k++)
     {
-        ET[K] = 0.;
-        ET1[K] = 0.;
+        et[k] = 0.;
+        et1[k] = 0.;
     }
-    *ETT = 0.;
-    *ETT1 = 0.;
+    *ett = 0.;
+    *ett1 = 0.;
 
-    if (*ETP > 0.0)
+    if (*etp > 0.0)
     {
-#ifdef _FLUX_PIHM_
-        EVAPO (ETA1, SMC, NSOIL, CMC, ETP1, DT, ZSOIL, SH2O, SMCMAX, PC,
-           SMCWLT, DKSAT, SMCREF, SHDFAC, CMCMAX, SMCDRY, CFACTR, EDIR1, EC1,
-           ET1, ETT1, SFCTMP, Q2, NROOT, RTDIS, FXEXP);
-        SMFLX (SMC, NSOIL, CMC, DT, PRCP1, PCPDRP, ZSOIL, SH2O, FRZFACT,
-           SMCMAX, SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, MAC_STATUS, NWTBL,
-           SMCWLT, DKSAT, SHDFAC, CMCMAX, INF, RUNOFF2, RUNOFF3, EDIR1, EC1,
-           ET1, DRIP);
+#ifdef _NOAH_
+        Evapo (eta1, smc, nsoil, cmc, etp1, dt, zsoil, sh2o, smcmax, pc,
+           smcwlt, dksat, smcref, shdfac, cmcmax, smcdry, cfactr, edir1, ec1,
+           et1, ett1, sfctmp, q2, nroot, rtdis, fxexp);
+        SmFlx (smc, nsoil, cmc, dt, prcp1, pcpdrp, zsoil, sh2o, frzfact,
+           smcmax, smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, mac_status, nwtbl,
+           smcwlt, dksat, shdfac, cmcmax, infil, runoff2, runoff3, edir1, ec1,
+           et1, drip);
 #else
-        EVAPO (ETA1, SMC, NSOIL, CMC, ETP1, DT, ZSOIL, SH2O, SMCMAX, BEXP, PC,
-           SMCWLT, DKSAT, DWSAT, SMCREF, SHDFAC, CMCMAX, SMCDRY, CFACTR,
-           EDIR1, EC1, ET1, ETT1, SFCTMP, Q2, NROOT, RTDIS, FXEXP);
-        SMFLX (SMC, NSOIL, CMC, DT, PRCP1, ZSOIL, SH2O, SLOPE, KDT, FRZFACT,
-           SMCMAX, BEXP, SMCWLT, DKSAT, DWSAT, SHDFAC, CMCMAX, RUNOFF1,
-           RUNOFF2, RUNOFF3, EDIR1, EC1, ET1, DRIP);
+        Evapo (eta1, smc, nsoil, cmc, etp1, dt, zsoil, sh2o, smcmax, bexp, pc,
+           smcwlt, dksat, dwsat, smcref, shdfac, cmcmax, smcdry, cfactr,
+           edir1, ec1, et1, ett1, sfctmp, q2, nroot, rtdis, fxexp);
+        SmFlx (smc, nsoil, cmc, dt, prcp1, zsoil, sh2o, slope, kdt, frzfact,
+           smcmax, bexp, smcwlt, dksat, dwsat, shdfac, cmcmax, runoff1,
+           runoff2, runoff3, edir1, ec1, et1, drip);
 #endif
 
 /*----------------------------------------------------------------------
-* CONVERT MODELED EVAPOTRANSPIRATION FROM  M S-1  TO  KG M-2 S-1.
+* convert modeled evapotranspiration from  m s-1  to  kg m-2 s-1.
 * --------------------------------------------------------------------*/
 
-        *ETA = *ETA1 * 1000.0;
+        *eta = *eta1 * 1000.0;
     }
 
 /*----------------------------------------------------------------------
-* IF ETP < 0, ASSUME DEW FORMS (TRANSFORM ETP1 INTO DEW AND REINITIALIZE
-* ETP1 TO ZERO).
+* if etp < 0, assume dew forms (transform etp1 into dew and reinitialize
+* etp1 to zero).
 * --------------------------------------------------------------------*/
     else
     {
-        *DEW = -*ETP1;
+        *dew = -*etp1;
 
 /*----------------------------------------------------------------------
-* CONVERT PRCP FROM 'KG M-2 S-1' TO 'M S-1' AND ADD DEW AMOUNT.
+* convert prcp from 'kg m-2 s-1' to 'm s-1' and add dew amount.
 * --------------------------------------------------------------------*/
 
-        *PRCP1 = *PRCP1 + *DEW;
-#ifdef _FLUX_PIHM_
-        SMFLX (SMC, NSOIL, CMC, DT, PRCP1, PCPDRP, ZSOIL, SH2O, FRZFACT,
-           SMCMAX, SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, MAC_STATUS, NWTBL,
-           SMCWLT, DKSAT, SHDFAC, CMCMAX, INF, RUNOFF2, RUNOFF3, EDIR1, EC1,
-           ET1, DRIP);
+        *prcp1 = *prcp1 + *dew;
+#ifdef _NOAH_
+        SmFlx (smc, nsoil, cmc, dt, prcp1, pcpdrp, zsoil, sh2o, frzfact,
+           smcmax, smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, mac_status, nwtbl,
+           smcwlt, dksat, shdfac, cmcmax, infil, runoff2, runoff3, edir1, ec1,
+           et1, drip);
 #else
-        SMFLX (SMC, NSOIL, CMC, DT, PRCP1, ZSOIL, SH2O, SLOPE, KDT, FRZFACT,
-           SMCMAX, BEXP, SMCWLT, DKSAT, DWSAT, SHDFAC, CMCMAX, RUNOFF1,
-           RUNOFF2, RUNOFF3, EDIR1, EC1, ET1, DRIP);
+        SmFlx (smc, nsoil, cmc, dt, prcp1, zsoil, sh2o, slope, kdt, frzfact,
+           smcmax, bexp, smcwlt, dksat, dwsat, shdfac, cmcmax, runoff1,
+           runoff2, runoff3, edir1, ec1, et1, drip);
 #endif
 
 /*----------------------------------------------------------------------
-* CONVERT MODELED EVAPOTRANSPIRATION FROM 'M S-1' TO 'KG M-2 S-1'.
+* convert modeled evapotranspiration from 'm s-1' to 'kg m-2 s-1'.
 * --------------------------------------------------------------------*/
-        //      *ETA = *ETA1 * 1000.0
+        //      *eta = *eta1 * 1000.0
     }
 
 /*----------------------------------------------------------------------
-* BASED ON ETP AND E VALUES, DETERMINE BETA
+* based on etp and e values, determine beta
 * --------------------------------------------------------------------*/
 
-    if (*ETP <= 0.0)
+    if (*etp <= 0.0)
     {
-        *BETA = 0.0;
-        *ETA = *ETP;
-        if (*ETP < 0.0)
-            *BETA = 1.0;
+        *beta = 0.0;
+        *eta = *etp;
+        if (*etp < 0.0)
+            *beta = 1.0;
     }
     else
-        *BETA = *ETA / *ETP;
+        *beta = *eta / *etp;
 
 /*----------------------------------------------------------------------
-* CONVERT MODELED EVAPOTRANSPIRATION COMPONENTS 'M S-1' TO 'KG M-2 S-1'.
+* convert modeled evapotranspiration components 'm s-1' to 'kg m-2 s-1'.
 * --------------------------------------------------------------------*/
-    *EDIR = *EDIR1 * 1000.;
-    *EC = *EC1 * 1000.;
-    for (K = 0; K < *NSOIL; K++)
-        ET[K] = ET1[K] * 1000.;
-    *ETT = *ETT1 * 1000.;
+    *edir = *edir1 * 1000.;
+    *ec = *ec1 * 1000.;
+    for (k = 0; k < *nsoil; k++)
+        et[k] = et1[k] * 1000.;
+    *ett = *ett1 * 1000.;
 
 /*----------------------------------------------------------------------
-* GET SOIL THERMAL DIFFUXIVITY/CONDUCTIVITY FOR TOP SOIL LYR,
-* CALC. ADJUSTED TOP LYR SOIL TEMP AND ADJUSTED SOIL FLUX, THEN
-* CALL SHFLX TO COMPUTE/UPDATE SOIL HEAT FLUX AND SOIL TEMPS.
+* get soil thermal diffuxivity/conductivity for top soil lyr,
+* calc. adjusted top lyr soil temp and adjusted soil flux, then
+* call ShFlx to compute/update soil heat flux and soil temps.
 * --------------------------------------------------------------------*/
 
-#ifdef _FLUX_PIHM_
-    TDFCND (DF1, SMC, QUARTZ, SMCMAX, SMCMIN, SH2O);
+#ifdef _NOAH_
+    TDfCnd (df1, smc, quartz, smcmax, smcmin, sh2o);
 #else
-    TDFCND (DF1, SMC, QUARTZ, SMCMAX, SH2O);
+    TDfCnd (df1, smc, quartz, smcmax, sh2o);
 #endif
 
     /*
      * urban 
      */
-    if (*VEGTYP == *ISURBAN)
-        *DF1 = 3.24;
+    if (*vegtyp == *isurban)
+        *df1 = 3.24;
 
 /*----------------------------------------------------------------------
-* VEGETATION GREENNESS FRACTION REDUCTION IN SUBSURFACE HEAT FLUX
-* VIA REDUCTION FACTOR, WHICH IS CONVENIENT TO APPLY HERE TO THERMAL
-* DIFFUSIVITY THAT IS LATER USED IN HRT TO COMPUTE SUB SFC HEAT FLUX
-* (SEE ADDITIONAL COMMENTS ON VEG EFFECT SUB-SFC HEAT FLX IN
-* ROUTINE SFLX)
+* vegetation greenness fraction reduction in subsurface heat flux
+* via reduction factor, which is convenient to apply here to thermal
+* diffusivity that is later used in HRT to compute sub sfc heat flux
+* (see additional comments on veg effect sub-sfc heat flx in
+* routine sflx)
 * --------------------------------------------------------------------*/
-    *DF1 = *DF1 * exp (*SBETA * *SHDFAC);
+    *df1 = *df1 * exp (*sbeta * *shdfac);
 
 /*----------------------------------------------------------------------
-* COMPUTE INTERMEDIATE TERMS PASSED TO ROUTINE HRT (VIA ROUTINE
-* SHFLX BELOW) FOR USE IN COMPUTING SUBSURFACE HEAT FLUX IN HRT
+* compute intermediate terms passed to routine HRT (via routine
+* ShFlx below) for use in computing subsurface heat flux in HRT
 * --------------------------------------------------------------------*/
-    YYNUM = *FDOWN - *EMISSI * SIGMA * *T24;
-    *YY = *SFCTMP + (YYNUM / *RCH + *TH2 - *SFCTMP - *BETA * *EPSCA) / *RR;
+    yynum = *fdown - *emissi * SIGMA * *t24;
+    *yy = *sfctmp + (yynum / *rch + *th2 - *sfctmp - *beta * *epsca) / *rr;
 
-    *ZZ1 = *DF1 / (-0.5 * ZSOIL[0] * *RCH * *RR) + 1.0;
+    *zz1 = *df1 / (-0.5 * zsoil[0] * *rch * *rr) + 1.0;
 
     /*
      * urban 
      */
-#ifdef _FLUX_PIHM_
-    SHFLX (SSOIL, STC, SMC, SMCMAX, SMCMIN, NSOIL, T1, DT, YY, ZZ1, ZSOIL,
-       TBOT, ZBOT, SMCWLT, SH2O, VGALPHA, VGBETA, F1, DF1, QUARTZ, CSOIL,
-       VEGTYP, ISURBAN);
+#ifdef _NOAH_
+    ShFlx (ssoil, stc, smc, smcmax, smcmin, nsoil, t1, dt, yy, zz1, zsoil,
+       tbot, zbot, smcwlt, sh2o, vgalpha, vgbeta, f1, df1, quartz, csoil,
+       vegtyp, isurban);
 #else
-    SHFLX (SSOIL, STC, SMC, SMCMAX, NSOIL, T1, DT, YY, ZZ1, ZSOIL, TBOT, ZBOT,
-       SMCWLT, PSISAT, SH2O, BEXP, F1, DF1, QUARTZ, CSOIL, VEGTYP, ISURBAN);
+    ShFlx (ssoil, stc, smc, smcmax, nsoil, t1, dt, yy, zz1, zsoil, tbot, zbot,
+       smcwlt, psisat, sh2o, bexp, f1, df1, quartz, csoil, vegtyp, isurban);
 #endif
 
 /*----------------------------------------------------------------------
-* SET FLX1 AND FLX3 (SNOPACK PHASE CHANGE HEAT FLUXES) TO ZERO SINCE
-* THEY ARE NOT USED HERE IN SNOPAC.  FLX2 (FREEZING RAIN HEAT FLUX) WAS
-* SIMILARLY INITIALIZED IN THE PENMAN ROUTINE.
+* set flx1 and flx3 (snopack phase change heat fluxes) to zero since
+* they are not used here in SnoPac.  flx2 (freezing rain heat flux) was
+* similarly initialized in the Penman routine.
 * --------------------------------------------------------------------*/
-    *FLX1 = CPH2O * *PRCP * (*T1 - *SFCTMP);
-    *FLX3 = 0.0;
+    *flx1 = CPH2O * *prcp * (*t1 - *sfctmp);
+    *flx3 = 0.0;
 
-    free (EC1);
-    free (EDIR1);
-    free (ETT1);
-    free (DF1);
-    free (ETA1);
-    free (ETP1);
-    free (PRCP1);
-    free (YY);
-    free (ZZ1);
+    free (ec1);
+    free (edir1);
+    free (ett1);
+    free (df1);
+    free (eta1);
+    free (etp1);
+    free (prcp1);
+    free (yy);
+    free (zz1);
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE NOPAC
+  end subroutine NoPac
 * --------------------------------------------------------------------*/
 }
 
-void PENMAN (double *SFCTMP, double *SFCPRS, double *CH, double *T2V, double *TH2, double *PRCP, double *FDOWN, double *T24, double *SSOIL, double *Q2, double *Q2SAT, double *ETP, double *RCH, double *EPSCA, double *RR, int *SNOWNG, int *FRZGRA, double *DQSDT2, double *FLX2, double *EMISSI_IN, double *SNEQV, double *T1, double *SNCOVR)
+void Penman (double *sfctmp, double *sfcprs, double *ch, double *t2v, double *th2, double *prcp, double *fdown, double *t24, double *ssoil, double *q2, double *q2sat, double *etp, double *rch, double *epsca, double *rr, int *snowng, int *frzgra, double *dqsdt2, double *flx2, double *emissi_in, double *sneqv, double *t1, double *sncovr)
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE PENMAN
+* subroutine Penman
 * ----------------------------------------------------------------------
-* CALCULATE POTENTIAL EVAPORATION FOR THE CURRENT POINT.  VARIOUS
-* PARTIAL SUMS/PRODUCTS ARE ALSO CALCULATED AND PASSED BACK TO THE
-* CALLING ROUTINE FOR LATER USE.
+* calculate potential evaporation for the current point.  various
+* partial sums/products are also calculated and passed back to the
+* calling routine for later use.
 * --------------------------------------------------------------------*/
 
-    double          A, DELTA, FNET, RAD, RHO, EMISSI, ELCP1, LVS;
+    double          a, delta, fnet, rad, rho, emissi, elcp1, lvs;
 
-    double          ELCP = 2.4888e+3, LSUBC = 2.501000e+6;
+    double          elcp = 2.4888e+3, lsubc = 2.501000e+6;
 
 /*----------------------------------------------------------------------
-* EXECUTABLE CODE BEGINS HERE:
+* executable code begins here:
 * ----------------------------------------------------------------------
 * ----------------------------------------------------------------------
-* PREPARE PARTIAL QUANTITIES FOR PENMAN EQUATION.
+* prepare partial quantities for Penman equation.
 * --------------------------------------------------------------------*/
-    EMISSI = *EMISSI_IN;
-    ELCP1 = (1.0 - *SNCOVR) * ELCP + *SNCOVR * ELCP * LSUBS / LSUBC;
-    LVS = (1.0 - *SNCOVR) * LSUBC + *SNCOVR * LSUBS;
+    emissi = *emissi_in;
+    elcp1 = (1.0 - *sncovr) * elcp + *sncovr * elcp * LSUBS / lsubc;
+    lvs = (1.0 - *sncovr) * lsubc + *sncovr * LSUBS;
 
-    *FLX2 = 0.0;
-    //DELTA = ELCP * DQSDT2
-    DELTA = ELCP1 * *DQSDT2;
-    *T24 = *SFCTMP * *SFCTMP * *SFCTMP * *SFCTMP;
-    //RR = T24 * 6.48E-8 / (SFCPRS * CH) + 1.0
-    *RR = EMISSI * *T24 * 6.48e-8 / (*SFCPRS * *CH) + 1.0;
-    RHO = *SFCPRS / (RD * *T2V);
+    *flx2 = 0.0;
+    //delta = elcp * dqsdt2
+    delta = elcp1 * *dqsdt2;
+    *t24 = *sfctmp * *sfctmp * *sfctmp * *sfctmp;
+    //rr = t24 * 6.48e-8 / (sfcprs * ch) + 1.0
+    *rr = emissi * *t24 * 6.48e-8 / (*sfcprs * *ch) + 1.0;
+    rho = *sfcprs / (RD * *t2v);
 
 /*----------------------------------------------------------------------
-* ADJUST THE PARTIAL SUMS / PRODUCTS WITH THE LATENT HEAT
-* EFFECTS CAUSED BY FALLING PRECIPITATION.
+* adjust the partial sums / products with the latent heat
+* effects caused by falling precipitation.
 * --------------------------------------------------------------------*/
-    *RCH = RHO * CP * *CH;
-    if (!*SNOWNG)
+    *rch = rho * CP * *ch;
+    if (!*snowng)
     {
-        if (*PRCP > 0.0)
-            *RR = *RR + CPH2O * *PRCP / *RCH;
+        if (*prcp > 0.0)
+            *rr = *rr + CPH2O * *prcp / *rch;
     }
     else
-        *RR = *RR + CPICE * *PRCP / *RCH;
+        *rr = *rr + CPICE * *prcp / *rch;
 
 /*----------------------------------------------------------------------
-* INCLUDE THE LATENT HEAT EFFECTS OF FRZNG RAIN CONVERTING TO ICE ON
-* IMPACT IN THE CALCULATION OF FLX2 AND FNET.
+* include the latent heat effects of frzng rain converting to ice on
+* impact in the calculation of flx2 and fnet.
 * --------------------------------------------------------------------*/
-    //      FNET = FDOWN - SIGMA * T24- SSOIL
-    FNET = *FDOWN - EMISSI * SIGMA * *T24 - *SSOIL;
-    if (*FRZGRA)
+    //      fnet = fdown - SIGMA * t24- ssoil
+    fnet = *fdown - emissi * SIGMA * *t24 - *ssoil;
+    if (*frzgra)
     {
-        *FLX2 = -LSUBF * (*PRCP);
-        FNET = FNET - *FLX2;
+        *flx2 = -LSUBF * (*prcp);
+        fnet = fnet - *flx2;
 
 /*----------------------------------------------------------------------
-* FINISH PENMAN EQUATION CALCULATIONS.
+* finish Penman equation calculations.
 * --------------------------------------------------------------------*/
     }
-    RAD = FNET / *RCH + *TH2 - *SFCTMP;
-    //  A = ELCP * (Q2SAT - Q2)
-    A = ELCP1 * (*Q2SAT - *Q2);
-    *EPSCA = (A * *RR + RAD * DELTA) / (DELTA + *RR);
-    //  ETP = EPSCA * RCH / LSUBC;
-    *ETP = *EPSCA * *RCH / LVS;
+    rad = fnet / *rch + *th2 - *sfctmp;
+    //  a = elcp * (q2sat - q2)
+    a = elcp1 * (*q2sat - *q2);
+    *epsca = (a * *rr + rad * delta) / (delta + *rr);
+    //  etp = epsca * rch / lsubc;
+    *etp = *epsca * *rch / lvs;
 #ifdef _DEBUG_
-    printf("RR = %lf, RAD = %lf, DELTA = %lf, CH = %lf, EPSCA = %f, ETP = %lg, DQSDT2 = %lf\n", *RR, RAD, DELTA, *CH, *EPSCA, *ETP, *DQSDT2);
+    printf("rr = %lf, rad = %lf, delta = %lf, ch = %lf, epsca = %f, etp = %lg, dqsdt2 = %lf\n", *rr, rad, delta, *ch, *epsca, *etp, *dqsdt2);
 #endif
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE PENMAN
+  end subroutine Penman
 * --------------------------------------------------------------------*/
 }
 
-void REDPRM (GRID_TYPE * NOAH, LSM_STRUCT LSM, double *ZSOIL)
-{
-
-/*----------------------------------------------------------------------
-* Internally set (default valuess)
-* all soil and vegetation parameters required for the execusion oF
-* the Noah lsm are defined in VEGPARM.TBL, SOILPARM.TB, and GENPARM.TBL.
-* ----------------------------------------------------------------------
-*     Vegetation parameters:
-*             ALBBRD: SFC background snow-free albedo
-*             CMXTBL: MAX CNPY Capacity
-*              Z0BRD: Background roughness length
-*             SHDFAC: Green vegetation fraction
-*              NROOT: Rooting depth
-*              RSMIN: Mimimum stomatal resistance
-*              RSMAX: Max. stomatal resistance
-*                RGL: Parameters used in radiation stress function
-*                 HS: Parameter used in vapor pressure deficit functio
-*               TOPT: Optimum transpiration air temperature.
-*             CMCMAX: Maximum canopy water capacity
-*             CFACTR: Parameter used in the canopy inteception calculation
-*               SNUP: Threshold snow depth (in water equivalent m) that
-*                     implies 100 percent snow cover
-*                LAI: Leaf area index
-*
-* ----------------------------------------------------------------------
-*      Soil parameters:
-*        SMCMAX: MAX soil moisture content (porosity)
-*        SMCREF: Reference soil moisture  (field capacity)
-*        SMCWLT: Wilting point soil moisture
-*        SMCWLT: Air dry soil moist content limits
-*       SSATPSI: SAT (saturation) soil potential
-*         DKSAT: SAT soil conductivity
-*          BEXP: B parameter
-*        SSATDW: SAT soil diffusivity
-*           F1: Soil thermal diffusivity/conductivity coef.
-*        QUARTZ: Soil quartz content
-*  Modified by F. Chen (12/22/97)  to use the STATSGO soil map
-*  Modified By F. Chen (01/22/00)  to include PLaya, Lava, and White San
-*  Modified By F. Chen (08/05/02)  to include additional parameters for the Noah
-* NOTE: SATDW = BB*SATDK*(SATPSI/MAXSMC)
-*         F11 = ALOG10(SATPSI) + BB*ALOG10(MAXSMC) + 2.0
-*       REFSMC1=MAXSMC*(5.79E-9/SATDK)**(1/(2*BB+3)) 5.79E-9 m/s= 0.5 mm
-*       REFSMC=REFSMC1+1./3.(MAXSMC-REFSMC1)
-*       WLTSMC1=MAXSMC*(200./SATPSI)**(-1./BB)    (Wetzel and Chang, 198
-*       WLTSMC=WLTSMC1-0.5*WLTSMC1
-* Note: the values for playa is set for it to have a thermal conductivit
-* as sand and to have a hydrulic conductivity as clay
-*
-* ----------------------------------------------------------------------
-* Class parameter 'SLOPETYP' was included to estimate linear reservoir
-* coefficient 'SLOPE' to the baseflow runoff out of the bottom layer.
-* lowest class (slopetyp=0) means highest slope parameter = 1.
-* definition of slopetyp from 'zobler' slope type:
-* slope class  percent slope
-* 1            0-8
-* 2            8-30
-* 3            > 30
-* 4            0-30
-* 5            0-8 & > 30
-* 6            8-30 & > 30
-* 7            0-8, 8-30, > 30
-* 9            GLACIAL ICE
-* BLANK        OCEAN/SEA
-*       SLOPE_DATA: linear reservoir coefficient
-*       SBETA_DATA: parameter used to caluculate vegetation effect on soil heat
-*       FXEXP_DAT:  soil evaporation exponent used in DEVAP
-*       CSOIL_DATA: soil heat capacity [J M-3 K-1]
-*       SALP_DATA: shape parameter of  distribution function of snow cover
-*       REFDK_DATA and REFKDT_DATA: parameters in the surface runoff parameteriz
-*       FRZK_DATA: frozen ground parameter
-*       ZBOT_DATA: depth[M] of lower boundary soil temperature
-*       CZIL_DATA: calculate roughness length of heat
-*       SMLOW_DATA and MHIGH_DATA: two soil moisture wilt, soil moisture referen
-*                 parameters
-* Set maximum number of soil-, veg-, and slopetyp in data statement.
-* --------------------------------------------------------------------*/
-
-    int             I;
-
-    double          FRZFACT;
-
-    /*
-     * SAVE
-     * * ----------------------------------------------------------------------
-     */
-    if (NOAH->SOILTYP > LSM->SOILTBL.SLCATS)
-    {
-        printf ("Warning: too many input soil types\n");
-        exit (0);
-    }
-    if (NOAH->VEGTYP > LSM->VEGTBL.LUCATS)
-    {
-        printf ("Warning: too many input landuse types\n");
-        exit (0);
-    }
-    if (NOAH->SLOPETYP > LSM->GENPRMT.SLPCATS)
-    {
-        printf ("Warning: too many input slope types\n");
-        exit (0);
-    }
-
-/*----------------------------------------------------------------------
-*  SET-UP SOIL PARAMETERS
-* --------------------------------------------------------------------*/
-    NOAH->CSOIL = LSM->GENPRMT.CSOIL_DATA;
-#ifdef _FLUX_PIHM_
-    NOAH->VGALPHA = LSM->SOILTBL.VGA[NOAH->SOILTYP - 1];
-    NOAH->VGBETA = LSM->SOILTBL.VGB[NOAH->SOILTYP - 1];
-    NOAH->SMCMIN = LSM->SOILTBL.MINSMC[NOAH->SOILTYP - 1];
-    NOAH->MACKSAT = LSM->SOILTBL.MACKSAT[NOAH->SOILTYP - 1];
-    NOAH->AREAF = LSM->SOILTBL.AREAF[NOAH->SOILTYP - 1];
-    NOAH->NMACD = LSM->SOILTBL.NMACD[NOAH->SOILTYP - 1];
-#else
-    NOAH->BEXP = LSM->SOILTBL.BB[NOAH->SOILTYP - 1];
-    NOAH->PSISAT = LSM->SOILTBL.SATPSI[NOAH->SOILTYP - 1];
-    NOAH->DWSAT = LSM->SOILTBL.SATDW[NOAH->SOILTYP - 1];
-#endif
-    NOAH->DKSAT = LSM->SOILTBL.SATDK[NOAH->SOILTYP - 1];
-    NOAH->F1 = LSM->SOILTBL.F11[NOAH->SOILTYP - 1];
-    NOAH->QUARTZ = LSM->SOILTBL.QTZ[NOAH->SOILTYP - 1];
-    NOAH->SMCDRY = LSM->SOILTBL.DRYSMC[NOAH->SOILTYP - 1];
-    NOAH->SMCMAX = LSM->SOILTBL.MAXSMC[NOAH->SOILTYP - 1];
-    NOAH->SMCREF = LSM->SOILTBL.REFSMC[NOAH->SOILTYP - 1];
-    NOAH->SMCWLT = LSM->SOILTBL.WLTSMC[NOAH->SOILTYP - 1];
-
-/*----------------------------------------------------------------------
-* Set-up universal parameters (not dependent on SOILTYP, VEGTYP or
-* SLOPETYP)
-* --------------------------------------------------------------------*/
-    NOAH->ZBOT = LSM->GENPRMT.ZBOT_DATA;
-    NOAH->SALP = LSM->GENPRMT.SALP_DATA;
-    NOAH->SBETA = LSM->GENPRMT.SBETA_DATA;
-    NOAH->FRZK = LSM->GENPRMT.FRZK_DATA;
-    NOAH->FXEXP = LSM->GENPRMT.FXEXP_DATA;
-    NOAH->PTU = 0.;             /* (not used yet) to satisify intent(out) */
-    NOAH->CZIL = LSM->GENPRMT.CZIL_DATA;
-    NOAH->LVCOEF = LSM->GENPRMT.LVCOEF_DATA;
-#ifndef _FLUX_PIHM_
-    NOAH->SLOPE = LSM->GENPRMT.SLOPE_DATA[NOAH->SLOPETYP - 1];
-    NOAH->REFKDT = LSM->GENPRMT.REFKDT_DATA;
-    NOAH->REFDK = LSM->GENPRMT.REFDK_DATA;
-    NOAH->KDT = NOAH->REFKDT * NOAH->DKSAT / NOAH->REFDK;
-#endif
-
-/*----------------------------------------------------------------------
-* TO ADJUST FRZK PARAMETER TO ACTUAL SOIL TYPE: FRZK * FRZFACT
-* --------------------------------------------------------------------*/
-    FRZFACT = (NOAH->SMCMAX / NOAH->SMCREF) * (0.412 / 0.468);
-    NOAH->FRZX = NOAH->FRZK * FRZFACT;
-
-/*----------------------------------------------------------------------
-* SET-UP VEGETATION PARAMETERS
-* --------------------------------------------------------------------*/
-    NOAH->TOPT = LSM->VEGTBL.TOPT_DATA;
-    NOAH->CFACTR = LSM->VEGTBL.CFACTR_DATA;
-    NOAH->RSMAX = LSM->VEGTBL.RSMAX_DATA;
-#ifdef _FLUX_PIHM_
-    NOAH->CMCMAX = LSM->VEGTBL.CMCFACTRTBL[NOAH->VEGTYP - 1] * NOAH->XLAI;
-#else
-    NOAH->CMCMAX = LSM->VEGTBL.CMCMAX_DATA;
-#endif
-    NOAH->NROOT = LSM->VEGTBL.NROTBL[NOAH->VEGTYP - 1];
-    NOAH->SNUP = LSM->VEGTBL.SNUPTBL[NOAH->VEGTYP - 1];
-    NOAH->RSMIN = LSM->VEGTBL.RSTBL[NOAH->VEGTYP - 1];
-    NOAH->RGL = LSM->VEGTBL.RGLTBL[NOAH->VEGTYP - 1];
-    NOAH->HS = LSM->VEGTBL.HSTBL[NOAH->VEGTYP - 1];
-    NOAH->EMISSMIN = LSM->VEGTBL.EMISSMINTBL[NOAH->VEGTYP - 1];
-    NOAH->EMISSMAX = LSM->VEGTBL.EMISSMAXTBL[NOAH->VEGTYP - 1];
-    NOAH->LAIMIN = LSM->VEGTBL.LAIMINTBL[NOAH->VEGTYP - 1];
-    NOAH->LAIMAX = LSM->VEGTBL.LAIMAXTBL[NOAH->VEGTYP - 1];
-    NOAH->Z0MIN = LSM->VEGTBL.Z0MINTBL[NOAH->VEGTYP - 1];
-    NOAH->Z0MAX = LSM->VEGTBL.Z0MAXTBL[NOAH->VEGTYP - 1];
-    NOAH->ALBEDOMIN = LSM->VEGTBL.ALBEDOMINTBL[NOAH->VEGTYP - 1];
-    NOAH->ALBEDOMAX = LSM->VEGTBL.ALBEDOMAXTBL[NOAH->VEGTYP - 1];
-
-    NOAH->ISURBAN = LSM->VEGTBL.ISURBAN;
-
-    if (NOAH->VEGTYP == LSM->VEGTBL.BARE)
-        NOAH->SHDFAC = 0.0;
-
-    if (NOAH->NROOT > NOAH->NSOIL)
-    {
-        printf ("Error: too many root layers %d, %d\n", NOAH->NSOIL,
-           NOAH->NROOT);
-        exit (0);
-    }
-
-/*----------------------------------------------------------------------
-* CALCULATE ROOT DISTRIBUTION.  PRESENT VERSION ASSUMES UNIFORM
-* DISTRIBUTION BASED ON SOIL LAYER DEPTHS.
-* --------------------------------------------------------------------*/
-    for (I = 0; I < NOAH->NROOT; I++)
-        NOAH->RTDIS[I] = -NOAH->SLDPTH[I] / ZSOIL[NOAH->NROOT - 1];
-
-/*----------------------------------------------------------------------
-*  SET-UP SLOPE PARAMETER
-* --------------------------------------------------------------------*/
-
-    /*
-     * print*,'end of PRMRED'
-     * *       print*,'VEGTYP',VEGTYP,'SOILTYP',SOILTYP,'SLOPETYP',SLOPETYP,    &
-     * *    & 'CFACTR',CFACTR,'CMCMAX',CMCMAX,'RSMAX',RSMAX,'TOPT',TOPT,        &
-     * *    & 'REFKDT',REFKDT,'KDT',KDT,'SBETA',SBETA, 'SHDFAC',SHDFAC,         &
-     * *    &  'RSMIN',RSMIN,'RGL',RGL,'HS',HS,'ZBOT',ZBOT,'FRZX',FRZX,         &
-     * *    &  'PSISAT',PSISAT,'SLOPE',SLOPE,'SNUP',SNUP,'SALP',SALP,'BEXP',    &
-     * *    &   BEXP,                                                           &
-     * *    &  'DKSAT',DKSAT,'DWSAT',DWSAT,                                     &
-     * *    &  'SMCMAX',SMCMAX,'SMCWLT',SMCWLT,'SMCREF',SMCREF,'SMCDRY',SMCDRY, &
-     * *    &  'F1',F1,'QUARTZ',QUARTZ,'FXEXP',FXEXP,                           &
-     * *    &  'RTDIS',RTDIS,'SLDPTH',SLDPTH,'ZSOIL',ZSOIL, 'NROOT',NROOT,      &
-     * *    &  'NSOIL',NSOIL,'Z0',Z0,'CZIL',CZIL,'LAI',LAI,                     &
-     * *    &  'CSOIL',CSOIL,'PTU',PTU,                                         &
-     * *    &  'LOCAL', LOCAL
-     */
-
-}
+//void RedPrm (grid_struct * grid, lsm_struct lsm, double *zsoil)
+//{
+//
+///*----------------------------------------------------------------------
+//* internally set (default valuess)
+//* all soil and vegetation parameters required for the execusion of
+//* the noah lsm are defined in vegparm.tbl, soilparm.tb, and genparm.tbl.
+//* ----------------------------------------------------------------------
+//*     vegetation parameters:
+//*             albbrd: sfc background snow-free albedo
+//*             cmxtbl: max cnpy capacity
+//*              z0brd: background roughness length
+//*             shdfac: green vegetation fraction
+//*              nroot: rooting depth
+//*              rsmin: mimimum stomatal resistance
+//*              rsmax: max. stomatal resistance
+//*                rgl: parameters used in radiation stress function
+//*                 hs: parameter used in vapor pressure deficit functio
+//*               topt: optimum transpiration air temperature.
+//*             cmcmax: maximum canopy water capacity
+//*             cfactr: parameter used in the canopy inteception calculation
+//*               snup: threshold snow depth (in water equivalent m) that
+//*                     implies 100 percent snow cover
+//*                lai: leaf area index
+//*
+//* ----------------------------------------------------------------------
+//*      soil parameters:
+//*        smcmax: max soil moisture content (porosity)
+//*        smcref: reference soil moisture  (field capacity)
+//*        smcwlt: wilting point soil moisture
+//*        smcwlt: air dry soil moist content limits
+//*       ssatpsi: sat (saturation) soil potential
+//*         dksat: sat soil conductivity
+//*          bexp: b parameter
+//*        ssatdw: sat soil diffusivity
+//*           f1: soil thermal diffusivity/conductivity coef.
+//*        quartz: soil quartz content
+//*  modified by f. chen (12/22/97)  to use the statsgo soil map
+//*  modified by f. chen (01/22/00)  to include playa, lava, and white san
+//*  modified by f. chen (08/05/02)  to include additional parameters for the noah
+//* note: satdw = bb*satdk*(satpsi/maxsmc)
+//*         f11 = alog10(satpsi) + bb*alog10(maxsmc) + 2.0
+//*       refsmc1=maxsmc*(5.79e-9/satdk)**(1/(2*bb+3)) 5.79e-9 m/s= 0.5 mm
+//*       refsmc=refsmc1+1./3.(maxsmc-refsmc1)
+//*       wltsmc1=maxsmc*(200./satpsi)**(-1./bb)    (wetzel and chang, 198
+//*       wltsmc=wltsmc1-0.5*wltsmc1
+//* note: the values for playa is set for it to have a thermal conductivit
+//* as sand and to have a hydrulic conductivity as clay
+//*
+//* ----------------------------------------------------------------------
+//* class parameter 'slopetyp' was included to estimate linear reservoir
+//* coefficient 'slope' to the baseflow runoff out of the bottom layer.
+//* lowest class (slopetyp=0) means highest slope parameter = 1.
+//* definition of slopetyp from 'zobler' slope type:
+//* slope class  percent slope
+//* 1            0-8
+//* 2            8-30
+//* 3            > 30
+//* 4            0-30
+//* 5            0-8 & > 30
+//* 6            8-30 & > 30
+//* 7            0-8, 8-30, > 30
+//* 9            glacial ice
+//* blank        ocean/sea
+//*       slope_data: linear reservoir coefficient
+//*       sbeta_data: parameter used to caluculate vegetation effect on soil heat
+//*       fxexp_dat:  soil evaporation exponent used in DEvap
+//*       csoil_data: soil heat capacity [j m-3 k-1]
+//*       salp_data: shape parameter of  distribution function of snow cover
+//*       refdk_data and refkdt_data: parameters in the surface runoff parameteriz
+//*       frzk_data: frozen ground parameter
+//*       zbot_data: depth[m] of lower boundary soil temperature
+//*       czil_data: calculate roughness length of heat
+//*       smlow_data and mhigh_data: two soil moisture wilt, soil moisture referen
+//*                 parameters
+//* set maximum number of soil-, veg-, and slopetyp in data statement.
+//* --------------------------------------------------------------------*/
+//
+//    int             i;
+//
+//    double          frzfact;
+//
+//    /*
+//     * save
+//     * * ----------------------------------------------------------------------
+//     */
+//    if (grid->soiltyp > lsm->soiltbl.slcats)
+//    {
+//        printf ("warning: too many input soil types\n");
+//        exit (0);
+//    }
+//    if (grid->vegtyp > lsm->vegtbl.lucats)
+//    {
+//        printf ("warning: too many input landuse types\n");
+//        exit (0);
+//    }
+//    if (grid->slopetyp > lsm->genprmt.slpcats)
+//    {
+//        printf ("warning: too many input slope types\n");
+//        exit (0);
+//    }
+//
+///*----------------------------------------------------------------------
+//*  set-up soil parameters
+//* --------------------------------------------------------------------*/
+//    grid->csoil = lsm->genprmt.csoil_data;
+//#ifdef _NOAH_
+//    grid->vgalpha = lsm->soiltbl.vga[grid->soiltyp - 1];
+//    grid->vgbeta = lsm->soiltbl.vgb[grid->soiltyp - 1];
+//    grid->smcmin = lsm->soiltbl.minsmc[grid->soiltyp - 1];
+//    grid->macksat = lsm->soiltbl.macksat[grid->soiltyp - 1];
+//    grid->areaf = lsm->soiltbl.areaf[grid->soiltyp - 1];
+//    grid->nmacd = lsm->soiltbl.nmacd[grid->soiltyp - 1];
+//#else
+//    grid->bexp = lsm->soiltbl.bb[grid->soiltyp - 1];
+//    grid->psisat = lsm->soiltbl.satpsi[grid->soiltyp - 1];
+//    grid->dwsat = lsm->soiltbl.satdw[grid->soiltyp - 1];
+//#endif
+//    grid->dksat = lsm->soiltbl.satdk[grid->soiltyp - 1];
+//    grid->f1 = lsm->soiltbl.f11[grid->soiltyp - 1];
+//    grid->quartz = lsm->soiltbl.qtz[grid->soiltyp - 1];
+//    grid->smcdry = lsm->soiltbl.drysmc[grid->soiltyp - 1];
+//    grid->smcmax = lsm->soiltbl.maxsmc[grid->soiltyp - 1];
+//    grid->smcref = lsm->soiltbl.refsmc[grid->soiltyp - 1];
+//    grid->smcwlt = lsm->soiltbl.wltsmc[grid->soiltyp - 1];
+//
+///*----------------------------------------------------------------------
+//* set-up universal parameters (not dependent on soiltyp, vegtyp or
+//* slopetyp)
+//* --------------------------------------------------------------------*/
+//    grid->zbot = lsm->genprmt.zbot_data;
+//    grid->salp = lsm->genprmt.salp_data;
+//    grid->sbeta = lsm->genprmt.sbeta_data;
+//    grid->frzk = lsm->genprmt.frzk_data;
+//    grid->fxexp = lsm->genprmt.fxexp_data;
+//    grid->ptu = 0.;             /* (not used yet) to satisify intent(out) */
+//    grid->czil = lsm->genprmt.czil_data;
+//    grid->lvcoef = lsm->genprmt.lvcoef_data;
+//#ifndef _NOAH_
+//    grid->slope = lsm->genprmt.slope_data[grid->slopetyp - 1];
+//    grid->refkdt = lsm->genprmt.refkdt_data;
+//    grid->refdk = lsm->genprmt.refdk_data;
+//    grid->kdt = grid->refkdt * grid->dksat / grid->refdk;
+//#endif
+//
+///*----------------------------------------------------------------------
+//* to adjust frzk parameter to actual soil type: frzk * frzfact
+//* --------------------------------------------------------------------*/
+//    frzfact = (grid->smcmax / grid->smcref) * (0.412 / 0.468);
+//    grid->frzx = grid->frzk * frzfact;
+//
+///*----------------------------------------------------------------------
+//* set-up vegetation parameters
+//* --------------------------------------------------------------------*/
+//    grid->topt = lsm->vegtbl.topt_data;
+//    grid->cfactr = lsm->vegtbl.cfactr_data;
+//    grid->rsmax = lsm->vegtbl.rsmax_data;
+//#ifdef _NOAH_
+//    grid->cmcmax = lsm->vegtbl.cmcfactrtbl[grid->vegtyp - 1] * grid->xlai;
+//#else
+//    grid->cmcmax = lsm->vegtbl.cmcmax_data;
+//#endif
+//    grid->nroot = lsm->vegtbl.nrotbl[grid->vegtyp - 1];
+//    grid->snup = lsm->vegtbl.snuptbl[grid->vegtyp - 1];
+//    grid->rsmin = lsm->vegtbl.rstbl[grid->vegtyp - 1];
+//    grid->rgl = lsm->vegtbl.rgltbl[grid->vegtyp - 1];
+//    grid->hs = lsm->vegtbl.hstbl[grid->vegtyp - 1];
+//    grid->emissmin = lsm->vegtbl.emissmintbl[grid->vegtyp - 1];
+//    grid->emissmax = lsm->vegtbl.emissmaxtbl[grid->vegtyp - 1];
+//    grid->laimin = lsm->vegtbl.laimintbl[grid->vegtyp - 1];
+//    grid->laimax = lsm->vegtbl.laimaxtbl[grid->vegtyp - 1];
+//    grid->z0min = lsm->vegtbl.z0mintbl[grid->vegtyp - 1];
+//    grid->z0max = lsm->vegtbl.z0maxtbl[grid->vegtyp - 1];
+//    grid->albedomin = lsm->vegtbl.albedomintbl[grid->vegtyp - 1];
+//    grid->albedomax = lsm->vegtbl.albedomaxtbl[grid->vegtyp - 1];
+//
+//    grid->isurban = lsm->vegtbl.isurban;
+//
+//    if (grid->vegtyp == lsm->vegtbl.bare)
+//        grid->shdfac = 0.0;
+//
+//    if (grid->nroot > grid->nsoil)
+//    {
+//        printf ("error: too many root layers %d, %d\n", grid->nsoil,
+//           grid->nroot);
+//        exit (0);
+//    }
+//
+///*----------------------------------------------------------------------
+//* calculate root distribution.  present version assumes uniform
+//* distribution based on soil layer depths.
+//* --------------------------------------------------------------------*/
+//    for (i = 0; i < grid->nroot; i++)
+//        grid->rtdis[i] = -grid->sldpth[i] / zsoil[grid->nroot - 1];
+//
+///*----------------------------------------------------------------------
+//*  set-up slope parameter
+//* --------------------------------------------------------------------*/
+//
+//    /*
+//     * print*,'end of prmred'
+//     * *       print*,'vegtyp',vegtyp,'soiltyp',soiltyp,'slopetyp',slopetyp,    &
+//     * *    & 'cfactr',cfactr,'cmcmax',cmcmax,'rsmax',rsmax,'topt',topt,        &
+//     * *    & 'refkdt',refkdt,'kdt',kdt,'sbeta',sbeta, 'shdfac',shdfac,         &
+//     * *    &  'rsmin',rsmin,'rgl',rgl,'hs',hs,'zbot',zbot,'frzx',frzx,         &
+//     * *    &  'psisat',psisat,'slope',slope,'snup',snup,'salp',salp,'bexp',    &
+//     * *    &   bexp,                                                           &
+//     * *    &  'dksat',dksat,'dwsat',dwsat,                                     &
+//     * *    &  'smcmax',smcmax,'smcwlt',smcwlt,'smcref',smcref,'smcdry',smcdry, &
+//     * *    &  'f1',f1,'quartz',quartz,'fxexp',fxexp,                           &
+//     * *    &  'rtdis',rtdis,'sldpth',sldpth,'zsoil',zsoil, 'nroot',nroot,      &
+//     * *    &  'nsoil',nsoil,'z0',z0,'czil',czil,'lai',lai,                     &
+//     * *    &  'csoil',csoil,'ptu',ptu,                                         &
+//     * *    &  'local', local
+//     */
+//
+//}
 
 void
-ROSR12 (double *P, double *A, double *B, double *C, double *D, double *DELTA,
-   int *NSOIL)
+Rosr12 (double *p, double *a, double *b, double *c, double *d, double *delta,
+   int *nsoil)
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE ROSR12
+* subroutine Rosr12
 * ----------------------------------------------------------------------
-* INVERT (SOLVE) THE TRI-DIAGONAL MATRIX PROBLEM SHOWN BELOW:
+* invert (solve) the tri-diagonal matrix problem shown below:
 * ###                                            ### ###  ###   ###  ###
-* #B(1), C(1),  0  ,  0  ,  0  ,   . . .  ,    0   # #      #   #      #
-* #A(2), B(2), C(2),  0  ,  0  ,   . . .  ,    0   # #      #   #      #
-* # 0  , A(3), B(3), C(3),  0  ,   . . .  ,    0   # #      #   # D(3) #
-* # 0  ,  0  , A(4), B(4), C(4),   . . .  ,    0   # # P(4) #   # D(4) #
-* # 0  ,  0  ,  0  , A(5), B(5),   . . .  ,    0   # # P(5) #   # D(5) #
+* #b(1), c(1),  0  ,  0  ,  0  ,   . . .  ,    0   # #      #   #      #
+* #a(2), b(2), c(2),  0  ,  0  ,   . . .  ,    0   # #      #   #      #
+* # 0  , a(3), b(3), c(3),  0  ,   . . .  ,    0   # #      #   # d(3) #
+* # 0  ,  0  , a(4), b(4), c(4),   . . .  ,    0   # # p(4) #   # d(4) #
+* # 0  ,  0  ,  0  , a(5), b(5),   . . .  ,    0   # # p(5) #   # d(5) #
 * # .                                          .   # #  .   # = #   .  #
 * # .                                          .   # #  .   #   #   .  #
 * # .                                          .   # #  .   #   #   .  #
-* # 0  , . . . , 0 , A(M-2), B(M-2), C(M-2),   0   # #P(M-2)#   #D(M-2)#
-* # 0  , . . . , 0 ,   0   , A(M-1), B(M-1), C(M-1)# #P(M-1)#   #D(M-1)#
-* # 0  , . . . , 0 ,   0   ,   0   ,  A(M) ,  B(M) # # P(M) #   # D(M) #
+* # 0  , . . . , 0 , a(m-2), b(m-2), c(m-2),   0   # #p(m-2)#   #d(m-2)#
+* # 0  , . . . , 0 ,   0   , a(m-1), b(m-1), c(m-1)# #p(m-1)#   #d(m-1)#
+* # 0  , . . . , 0 ,   0   ,   0   ,  a(m) ,  b(m) # # p(m) #   # d(m) #
 * ###                                            ### ###  ###   ###  ###
 * --------------------------------------------------------------------*/
 
-    int             K, KK;
+    int             k, kk;
 
 /*----------------------------------------------------------------------
-* INITIALIZE EQN COEF C FOR THE LOWEST SOIL LAYER
+* initialize eqn coef c for the lowest soil layer
 * --------------------------------------------------------------------*/
-    C[*NSOIL - 1] = 0.0;
-    P[0] = -C[0] / B[0];
+    c[*nsoil - 1] = 0.0;
+    p[0] = -c[0] / b[0];
 
 /*----------------------------------------------------------------------
-* SOLVE THE COEFS FOR THE 1ST SOIL LAYER
+* solve the coefs for the 1st soil layer
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-* SOLVE THE COEFS FOR SOIL LAYERS 2 THRU NSOIL
+* solve the coefs for soil layers 2 thru nsoil
 * --------------------------------------------------------------------*/
-    DELTA[0] = D[0] / B[0];
-    for (K = 1; K < *NSOIL; K++)
+    delta[0] = d[0] / b[0];
+    for (k = 1; k < *nsoil; k++)
     {
-        P[K] = -C[K] * (1.0 / (B[K] + A[K] * P[K - 1]));
-        DELTA[K] =
-           (D[K] - A[K] * DELTA[K - 1]) * (1.0 / (B[K] + A[K] * P[K - 1]));
+        p[k] = -c[k] * (1.0 / (b[k] + a[k] * p[k - 1]));
+        delta[k] =
+           (d[k] - a[k] * delta[k - 1]) * (1.0 / (b[k] + a[k] * p[k - 1]));
     }
 
 /*----------------------------------------------------------------------
-* SET P TO DELTA FOR LOWEST SOIL LAYER
+* set p to delta for lowest soil layer
 * --------------------------------------------------------------------*/
-    P[*NSOIL - 1] = DELTA[*NSOIL - 1];
+    p[*nsoil - 1] = delta[*nsoil - 1];
 
 /*----------------------------------------------------------------------
-* ADJUST P FOR SOIL LAYERS 2 THRU NSOIL
+* adjust p for soil layers 2 thru nsoil
 * --------------------------------------------------------------------*/
-    for (K = 1; K < *NSOIL; K++)
+    for (k = 1; k < *nsoil; k++)
     {
-        KK = *NSOIL - K - 1;
-        P[KK] = P[KK] * P[KK + 1] + DELTA[KK];
+        kk = *nsoil - k - 1;
+        p[kk] = p[kk] * p[kk + 1] + delta[kk];
     }
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE ROSR12
+  end subroutine Rosr12
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-SHFLX (double *SSOIL, double *STC, double *SMC, double *SMCMAX,
-   double *SMCMIN, int *NSOIL, double *T1, double *DT, double *YY,
-   double *ZZ1, double *ZSOIL, double *TBOT, double *ZBOT, double *SMCWLT,
-   double *SH2O, double *VGALPHA, double *VGBETA, double *F1, double *DF1,
-   double *QUARTZ, double *CSOIL, int *VEGTYP, int *ISURBAN)
+ShFlx (double *ssoil, double *stc, double *smc, double *smcmax,
+   double *smcmin, int *nsoil, double *t1, double *dt, double *yy,
+   double *zz1, double *zsoil, double *tbot, double *zbot, double *smcwlt,
+   double *sh2o, double *vgalpha, double *vgbeta, double *f1, double *df1,
+   double *quartz, double *csoil, int *vegtyp, int *isurban)
 #else
 void
-SHFLX (double *SSOIL, double *STC, double *SMC, double *SMCMAX, int *NSOIL,
-   double *T1, double *DT, double *YY, double *ZZ1, double *ZSOIL,
-   double *TBOT, double *ZBOT, double *SMCWLT, double *PSISAT, double *SH2O,
-   double *BEXP, double *F1, double *DF1, double *QUARTZ, double *CSOIL,
-   int *VEGTYP, int *ISURBAN)
+ShFlx (double *ssoil, double *stc, double *smc, double *smcmax, int *nsoil,
+   double *t1, double *dt, double *yy, double *zz1, double *zsoil,
+   double *tbot, double *zbot, double *smcwlt, double *psisat, double *sh2o,
+   double *bexp, double *f1, double *df1, double *quartz, double *csoil,
+   int *vegtyp, int *isurban)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE SHFLX
+* subroutine ShFlx
 * ----------------------------------------------------------------------
-* UPDATE THE TEMPERATURE STATE OF THE SOIL COLUMN BASED ON THE THERMAL
-* DIFFUSION EQUATION AND UPDATE THE FROZEN SOIL MOISTURE CONTENT BASED
-* ON THE TEMPERATURE.
+* update the temperature state of the soil column based on the thermal
+* diffusion equation and update the frozen soil moisture content based
+* on the temperature.
 * --------------------------------------------------------------------*/
-    int             I;
+    int             i;
 
-    double          AI[*NSOIL], BI[*NSOIL], CI[*NSOIL], STCF[*NSOIL],
-       RHSTS[*NSOIL];
+    double          ai[*nsoil], bi[*nsoil], ci[*nsoil], stcf[*nsoil],
+       rhsts[*nsoil];
 
 /*----------------------------------------------------------------------
-* HRT ROUTINE CALCS THE RIGHT HAND SIDE OF THE SOIL TEMP DIF EQN
+* HRT routine calcs the right hand side of the soil temp dif eqn
 * --------------------------------------------------------------------*/
 
     /*
-     * Land case 
+     * land case 
      */
 
-#ifdef _FLUX_PIHM_
-    HRT (RHSTS, STC, SMC, SMCMAX, SMCMIN, NSOIL, ZSOIL, YY, ZZ1, TBOT, ZBOT,
-       SH2O, DT, VGALPHA, VGBETA, F1, DF1, QUARTZ, CSOIL, AI, BI, CI, VEGTYP,
-       ISURBAN);
+#ifdef _NOAH_
+    HRT (rhsts, stc, smc, smcmax, smcmin, nsoil, zsoil, yy, zz1, tbot, zbot,
+       sh2o, dt, vgalpha, vgbeta, f1, df1, quartz, csoil, ai, bi, ci, vegtyp,
+       isurban);
 #else
-    HRT (RHSTS, STC, SMC, SMCMAX, NSOIL, ZSOIL, YY, ZZ1, TBOT, ZBOT, PSISAT,
-       SH2O, DT, BEXP, F1, DF1, QUARTZ, CSOIL, AI, BI, CI, VEGTYP, ISURBAN);
+    HRT (rhsts, stc, smc, smcmax, nsoil, zsoil, yy, zz1, tbot, zbot, psisat,
+       sh2o, dt, bexp, f1, df1, quartz, csoil, ai, bi, ci, vegtyp, isurban);
 #endif
 
-    HSTEP (STCF, STC, RHSTS, DT, NSOIL, AI, BI, CI);
+    HStep (stcf, stc, rhsts, dt, nsoil, ai, bi, ci);
 
-    for (I = 0; I < *NSOIL; I++)
-        STC[I] = STCF[I];
+    for (i = 0; i < *nsoil; i++)
+        stc[i] = stcf[i];
 
 /*----------------------------------------------------------------------
-* IN THE NO SNOWPACK CASE (VIA ROUTINE NOPAC BRANCH,) UPDATE THE GRND
-* (SKIN) TEMPERATURE HERE IN RESPONSE TO THE UPDATED SOIL TEMPERATURE
-* PROFILE ABOVE.  (NOTE: INSPECTION OF ROUTINE SNOPAC SHOWS THAT T1
-* BELOW IS A DUMMY VARIABLE ONLY, AS SKIN TEMPERATURE IS UPDATED
-* DIFFERENTLY IN ROUTINE SNOPAC)
+* in the no snowpack case (via routine NoPac branch,) update the grnd
+* (skin) temperature here in response to the updated soil temperature
+* profile above.  (note: inspection of routine SnoPac shows that t1
+* below is a dummy variable only, as skin temperature is updated
+* differently in routine SnoPac)
 * ----------------------------------------------------------------------
 * ----------------------------------------------------------------------
-* CALCULATE SURFACE SOIL HEAT FLUX
+* calculate surface soil heat flux
 * --------------------------------------------------------------------*/
-    *T1 = (*YY + (*ZZ1 - 1.0) * STC[0]) / *ZZ1;
-    *SSOIL = *DF1 * (STC[0] - *T1) / (0.5 * ZSOIL[0]);
+    *t1 = (*yy + (*zz1 - 1.0) * stc[0]) / *zz1;
+    *ssoil = *df1 * (stc[0] - *t1) / (0.5 * zsoil[0]);
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE SHFLX
+  end subroutine ShFlx
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-SMFLX (double *SMC, int *NSOIL, double *CMC, double *DT, double *PRCP1,
-   double *PCPDRP, double *ZSOIL, double *SH2O, double *FRZFACT,
-   double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA,
-   double *MACKSAT, double *AREAF, int *NMACD, int *MAC_STATUS, int *NWTBL, double *SMCWLT,
-   double *DKSAT, double *SHDFAC, double *CMCMAX, double *INF,
-   double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET,
-   double *DRIP)
+SmFlx (double *smc, int *nsoil, double *cmc, double *dt, double *prcp1,
+   double *pcpdrp, double *zsoil, double *sh2o, double *frzfact,
+   double *smcmax, double *smcmin, double *vgalpha, double *vgbeta,
+   double *macksat, double *areaf, int *nmacd, int *mac_status, int *nwtbl, double *smcwlt,
+   double *dksat, double *shdfac, double *cmcmax, double *infil,
+   double *runoff2, double *runoff3, double *edir, double *ec, double *et,
+   double *drip)
 #else
 void
-SMFLX (double *SMC, int *NSOIL, double *CMC, double *DT, double *PRCP1,
-   double *ZSOIL, double *SH2O, double *SLOPE, double *KDT, double *FRZFACT,
-   double *SMCMAX, double *BEXP, double *SMCWLT, double *DKSAT, double *DWSAT,
-   double *SHDFAC, double *CMCMAX, double *RUNOFF1, double *RUNOFF2,
-   double *RUNOFF3, double *EDIR, double *EC, double *ET, double *DRIP)
+SmFlx (double *smc, int *nsoil, double *cmc, double *dt, double *prcp1,
+   double *zsoil, double *sh2o, double *slope, double *kdt, double *frzfact,
+   double *smcmax, double *bexp, double *smcwlt, double *dksat, double *dwsat,
+   double *shdfac, double *cmcmax, double *runoff1, double *runoff2,
+   double *runoff3, double *edir, double *ec, double *et, double *drip)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE SMFLX
+* subroutine SmFlx
 * ----------------------------------------------------------------------
-* CALCULATE SOIL MOISTURE FLUX.  THE SOIL MOISTURE CONTENT (SMC - A PER
-* UNIT VOLUME MEASUREMENT) IS A DEPENDENT VARIABLE THAT IS UPDATED WITH
-* PROGNOSTIC EQNS. THE CANOPY MOISTURE CONTENT (CMC) IS ALSO UPDATED.
-* FROZEN GROUND VERSION:  NEW STATES ADDED: SH2O, AND FROZEN GROUND
-* CORRECTION FACTOR, FRZFACT AND PARAMETER SLOPE.
+* calculate soil moisture flux.  the soil moisture content (smc - a per
+* unit volume measurement) is a dependent variable that is updated with
+* prognostic eqns. the canopy moisture content (cmc) is also updated.
+* frozen ground version:  new states added: sh2o, and frozen ground
+* correction factor, frzfact and parameter slope.
 * --------------------------------------------------------------------*/
 
-    int             I;
-    double          AI[*NSOIL], BI[*NSOIL], CI[*NSOIL];
-    double          RHSTT[*NSOIL];
-    double          SICE[*NSOIL];
-    double         *DUMMY;
-    double          EXCESS;
-    double         *RHSCT;
-    double          TRHSCT;
-#ifndef _FLUX_PIHM_
-    double         *PCPDRP;
+    int             i;
+    double          ai[*nsoil], bi[*nsoil], ci[*nsoil];
+    double          rhstt[*nsoil];
+    double          sice[*nsoil];
+    double         *dummy;
+    double          excess;
+    double         *rhsct;
+    double          trhsct;
+#ifndef _NOAH_
+    double         *pcpdrp;
 #endif
-    //double          FAC2;
-    double         *FLIMIT;
-#ifdef _FLUX_PIHM_
-    double          KD = 6.54e-7, BFACTR = 3.89;
+    //double          fac2;
+    double         *flimit;
+#ifdef _NOAH_
+    double          kd = 6.54e-7, bfactr = 3.89;
 #endif
-    DUMMY = (double *)malloc (sizeof (double));
-#ifndef _FLUX_PIHM_
-    PCPDRP = (double *)malloc (sizeof (double));
+    dummy = (double *)malloc (sizeof (double));
+#ifndef _NOAH_
+    pcpdrp = (double *)malloc (sizeof (double));
 #endif
-    RHSCT = (double *)malloc (sizeof (double));
-    FLIMIT = (double *)malloc (sizeof (double));
+    rhsct = (double *)malloc (sizeof (double));
+    flimit = (double *)malloc (sizeof (double));
 
 /*----------------------------------------------------------------------
-* EXECUTABLE CODE BEGINS HERE.
+* executable code begins here.
 * ----------------------------------------------------------------------
 * ----------------------------------------------------------------------
-* COMPUTE THE RIGHT HAND SIDE OF THE CANOPY EQN TERM ( RHSCT )
+* compute the right hand side of the canopy eqn term ( rhsct )
 * --------------------------------------------------------------------*/
-    *DUMMY = 0.;
+    *dummy = 0.;
 
 /*----------------------------------------------------------------------
-* CONVERT RHSCT (A RATE) TO TRHSCT (AN AMOUNT) AND ADD IT TO EXISTING
-* CMC.  IF RESULTING AMT EXCEEDS MAX CAPACITY, IT BECOMES DRIP AND WILL
-* FALL TO THE GRND.
+* convert rhsct (a rate) to trhsct (an amount) and add it to existing
+* cmc.  if resulting amt exceeds max capacity, it becomes drip and will
+* fall to the grnd.
 * --------------------------------------------------------------------*/
-    *RHSCT = *SHDFAC * *PRCP1 - *EC;
-    *DRIP = 0.;
-    TRHSCT = *DT * *RHSCT;
-    EXCESS = *CMC + TRHSCT;
+    *rhsct = *shdfac * *prcp1 - *ec;
+    *drip = 0.;
+    trhsct = *dt * *rhsct;
+    excess = *cmc + trhsct;
 
 /*----------------------------------------------------------------------
-* PCPDRP IS THE COMBINED PRCP1 AND DRIP (FROM CMC) THAT GOES INTO THE
-* SOIL
+* pcpdrp is the combined prcp1 and drip (from cmc) that goes into the
+* soil
 * --------------------------------------------------------------------*/
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 
 /*----------------------------------------------------------------------
-* PIHM DRIP CALCULATION FOLLOWING RUTTER AND MORTAN (1977 JAE)
+* pihm drip calculation following rutter and mortan (1977 jae)
 * --------------------------------------------------------------------*/
-    if (EXCESS > 0)
+    if (excess > 0)
     {
-        if (EXCESS >= *CMCMAX)
+        if (excess >= *cmcmax)
         {
-            *DRIP = (KD * *CMCMAX * exp (BFACTR)) * *DT + EXCESS - *CMCMAX;
-            *RHSCT = *RHSCT - KD * *CMCMAX * exp (BFACTR);
+            *drip = (kd * *cmcmax * exp (bfactr)) * *dt + excess - *cmcmax;
+            *rhsct = *rhsct - kd * *cmcmax * exp (bfactr);
         }
         else
         {
-            *DRIP = (KD * *CMCMAX * exp (BFACTR * EXCESS / *CMCMAX)) * *DT;
-            *RHSCT = *RHSCT - KD * *CMCMAX * exp (BFACTR * EXCESS / *CMCMAX);
+            *drip = (kd * *cmcmax * exp (bfactr * excess / *cmcmax)) * *dt;
+            *rhsct = *rhsct - kd * *cmcmax * exp (bfactr * excess / *cmcmax);
         }
     }
 #else
-    if (EXCESS > *CMCMAX)
-        *DRIP = EXCESS - *CMCMAX;
+    if (excess > *cmcmax)
+        *drip = excess - *cmcmax;
 #endif
-    *PCPDRP = (1. - *SHDFAC) * *PRCP1 + *DRIP / *DT;
+    *pcpdrp = (1. - *shdfac) * *prcp1 + *drip / *dt;
 
 /*----------------------------------------------------------------------
-* STORE ICE CONTENT AT EACH SOIL LAYER BEFORE CALLING SRT and SSTEP
+* store ice content at each soil layer before calling SRT and SStep
 * --------------------------------------------------------------------*/
-    for (I = 0; I < *NSOIL; I++)
-        SICE[I] = SMC[I] - SH2O[I];
+    for (i = 0; i < *nsoil; i++)
+        sice[i] = smc[i] - sh2o[i];
 
 /*----------------------------------------------------------------------
-* CALL SUBROUTINES SRT AND SSTEP TO SOLVE THE SOIL MOISTURE
-* TENDENCY EQUATIONS.
-* IF THE INFILTRATING PRECIP RATE IS NONTRIVIAL,
-*   (WE CONSIDER NONTRIVIAL TO BE A PRECIP TOTAL OVER THE TIME STEP
-*    EXCEEDING ONE ONE-THOUSANDTH OF THE WATER HOLDING CAPACITY OF
-*    THE FIRST SOIL LAYER)
-* THEN CALL THE SRT/SSTEP SUBROUTINE PAIR TWICE IN THE MANNER OF
-*   TIME SCHEME "F" (IMPLICIT STATE, AVERAGED COEFFICIENT)
-*   OF SECTION 2 OF KALNAY AND KANAMITSU (1988, MWR, VOL 116,
-*   PAGES 1945-1958)TO MINIMIZE 2-DELTA-T OSCILLATIONS IN THE
-*   SOIL MOISTURE VALUE OF THE TOP SOIL LAYER THAT CAN ARISE BECAUSE
-*   OF THE EXTREME NONLINEAR DEPENDENCE OF THE SOIL HYDRAULIC
-*   DIFFUSIVITY COEFFICIENT AND THE HYDRAULIC CONDUCTIVITY ON THE
-*   SOIL MOISTURE STATE
-* OTHERWISE CALL THE SRT/SSTEP SUBROUTINE PAIR ONCE IN THE MANNER OF
-*   TIME SCHEME "D" (IMPLICIT STATE, EXPLICIT COEFFICIENT)
-*   OF SECTION 2 OF KALNAY AND KANAMITSU
-* PCPDRP IS UNITS OF KG/M**2/S OR MM/S, ZSOIL IS NEGATIVE DEPTH IN M
+* call subroutines SRT and SStep to solve the soil moisture
+* tendency equations.
+* if the infiltrating precip rate is nontrivial,
+*   (we consider nontrivial to be a precip total over the time step
+*    exceeding one one-thousandth of the water holding capacity of
+*    the first soil layer)
+* then call the SRT/SStep subroutine pair twice in the manner of
+*   time scheme "f" (implicit state, averaged coefficient)
+*   of section 2 of kalnay and kanamitsu (1988, mwr, vol 116,
+*   pages 1945-1958)to minimize 2-delta-t oscillations in the
+*   soil moisture value of the top soil layer that can arise because
+*   of the extreme nonlinear dependence of the soil hydraulic
+*   diffusivity coefficient and the hydraulic conductivity on the
+*   soil moisture state
+* otherwise call the SRT/SStep subroutine pair once in the manner of
+*   time scheme "d" (implicit state, explicit coefficient)
+*   of section 2 of kalnay and kanamitsu
+* pcpdrp is units of kg/m**2/s or mm/s, zsoil is negative depth in m
 * ----------------------------------------------------------------------
-*  According to Dr. Ken Mitchell's suggestion, add the second contraint
+*  according to dr. ken mitchell's suggestion, add the second contraint
 *  to remove numerical instability of runoff and soil moisture
-*  FLIMIT is a limit value for FAC2
+*  flimit is a limit value for fac2
 * --------------------------------------------------------------------*/
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 
 /*----------------------------------------------------------------------
-* FROZEN GROUND VERSION:
-* SMC STATES REPLACED BY SH2O STATES IN SRT SUBR.  SH2O & SICE STATES
-* INC&UDED IN SSTEP SUBR.  FROZEN GROUND CORRECTION FACTOR, FRZFACT
-* ADDED.  ALL WATER BALANCE CALCULATIONS USING UNFROZEN WATER
+* frozen ground version:
+* smc states replaced by sh2o states in SRT subr.  sh2o & sice states
+* inc&uded in SStep subr.  frozen ground correction factor, frzfact
+* added.  all water balance calculations using unfrozen water
 * --------------------------------------------------------------------*/
-    if (*NWTBL == 0)
+    if (*nwtbl == 0)
     {
-        for (I = 0; I < *NSOIL; I++)
+        for (i = 0; i < *nsoil; i++)
         {
-            SMC[I] = *SMCMAX;
-            SH2O[I] = SMC[I] - SICE[I];
+            smc[i] = *smcmax;
+            sh2o[i] = smc[i] - sice[i];
         }
     }
     else
     {
 
-        //      if ((*PCPDRP * *DT) > (0.0001 * 1000.0 * (-ZSOIL[0]) * *SMCMAX))
+        //      if ((*pcpdrp * *dt) > (0.0001 * 1000.0 * (-zsoil[0]) * *smcmax))
         //      {
-        //          SRT(RHSTT, EDIR, ET, SH2O, SH2O, NWTBL, PCPDRP, ZSOIL, DKSAT, SMCMAX, SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, INF, RUNOFF2, DT, SMCWLT, FRZFACT, SICE, AI, BI, CI);
-        //          SSTEP(SH2OFG, SH2O, DUMMY, RHSTT, RHSCT, DT, NWTBL, SMCMAX, SMCMIN, CMCMAX, RUNOFF3, ZSOIL, SMC, SICE, AI, BI, CI);
-        //          for (K = 0; K < *NSOIL; K++)
-        //              SH2OA[K] = (SH2O[K] + SH2OFG[K]) * 0.5;
-        //          SRT (RHSTT, EDIR, ET, SH2O, SH2OA, NWTBL, PCPDRP, ZSOIL, DKSAT, SMCMAX, SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, INF, RUNOFF2, DT, SMCWLT, FRZFACT, SICE, AI, BI, CI);
-        //          SSTEP (SH2O, SH2O, CMC, RHSTT, RHSCT, DT, NWTBL, SMCMAX, CMCMAX, SMCMIN, RUNOFF3, ZSOIL, SMC, SICE, AI, BI, CI);
+        //          SRT(rhstt, edir, et, sh2o, sh2o, nwtbl, pcpdrp, zsoil, dksat, smcmax, smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, infil, runoff2, dt, smcwlt, frzfact, sice, ai, bi, ci);
+        //          SStep(sh2ofg, sh2o, dummy, rhstt, rhsct, dt, nwtbl, smcmax, smcmin, cmcmax, runoff3, zsoil, smc, sice, ai, bi, ci);
+        //          for (k = 0; k < *nsoil; k++)
+        //              sh2oa[k] = (sh2o[k] + sh2ofg[k]) * 0.5;
+        //          SRT (rhstt, edir, et, sh2o, sh2oa, nwtbl, pcpdrp, zsoil, dksat, smcmax, smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, infil, runoff2, dt, smcwlt, frzfact, sice, ai, bi, ci);
+        //          SStep (sh2o, sh2o, cmc, rhstt, rhsct, dt, nwtbl, smcmax, cmcmax, smcmin, runoff3, zsoil, smc, sice, ai, bi, ci);
         //      }
         //      else
         //      {
-        //          SRT(RHSTT, EDIR, ET, SH2O, SH2O, NWTBL, PCPDRP, ZSOIL, DKSAT, SMCMAX, SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, INF, RUNOFF2, DT, SMCWLT, FRZFACT, SICE, AI, BI, CI);
-        //          SSTEP (SH2O, SH2O, CMC, RHSTT, RHSCT, DT, NWTBL, SMCMAX, SMCMIN, CMCMAX, RUNOFF3, ZSOIL, SMC, SICE, AI, BI, CI);
+        //          SRT(rhstt, edir, et, sh2o, sh2o, nwtbl, pcpdrp, zsoil, dksat, smcmax, smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, infil, runoff2, dt, smcwlt, frzfact, sice, ai, bi, ci);
+        //          SStep (sh2o, sh2o, cmc, rhstt, rhsct, dt, nwtbl, smcmax, smcmin, cmcmax, runoff3, zsoil, smc, sice, ai, bi, ci);
         //      }
-        SRT (RHSTT, EDIR, ET, SH2O, SH2O, NSOIL, NWTBL, PCPDRP, ZSOIL, DKSAT, SMCMAX,
-           SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, MAC_STATUS, INF, RUNOFF2, DT,
-           SMCWLT, FRZFACT, SICE, AI, BI, CI);
-        SSTEP (SH2O, SH2O, CMC, RHSTT, RHSCT, DT, NSOIL, SMCMAX, SMCMIN,
-           CMCMAX, RUNOFF3, ZSOIL, SMC, SICE, AI, BI, CI);
+        SRT (rhstt, edir, et, sh2o, sh2o, nsoil, nwtbl, pcpdrp, zsoil, dksat, smcmax,
+           smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, mac_status, infil, runoff2, dt,
+           smcwlt, frzfact, sice, ai, bi, ci);
+        SStep (sh2o, sh2o, cmc, rhstt, rhsct, dt, nsoil, smcmax, smcmin,
+           cmcmax, runoff3, zsoil, smc, sice, ai, bi, ci);
     }
 
 #else
-    FAC2 = 0.0;
-    for (I = 0; I < *NSOIL; I++)
+    fac2 = 0.0;
+    for (i = 0; i < *nsoil; i++)
     {
-        FAC2 = FAC2 > (SH2O[I] / *SMCMAX) ? FAC2 : (SH2O[I] / *SMCMAX);
+        fac2 = fac2 > (sh2o[i] / *smcmax) ? fac2 : (sh2o[i] / *smcmax);
     }
-    FAC2MIT (SMCMAX, FLIMIT);
+    Fac2Mit (smcmax, flimit);
 
 /*----------------------------------------------------------------------
-* FROZEN GROUND VERSION:
-* SMC STATES REPLACED BY SH2O STATES IN SRT SUBR.  SH2O & SICE STATES
-* INC&UDED IN SSTEP SUBR.  FROZEN GROUND CORRECTION FACTOR, FRZFACT
-* ADDED.  ALL WATER BALANCE CALCULATIONS USING UNFROZEN WATER
+* frozen ground version:
+* smc states replaced by sh2o states in SRT subr.  sh2o & sice states
+* inc&uded in SStep subr.  frozen ground correction factor, frzfact
+* added.  all water balance calculations using unfrozen water
 * --------------------------------------------------------------------*/
 
-    if (((*PCPDRP * *DT) > (0.0001 * 1000.0 * (-ZSOIL[0]) * *SMCMAX))
-       || (FAC2 > *FLIMIT))
+    if (((*pcpdrp * *dt) > (0.0001 * 1000.0 * (-zsoil[0]) * *smcmax))
+       || (fac2 > *flimit))
     {
-        SRT (RHSTT, EDIR, ET, SH2O, SH2O, NSOIL, PCPDRP, ZSOIL, DWSAT, DKSAT,
-           SMCMAX, BEXP, RUNOFF1, RUNOFF2, DT, SMCWLT, SLOPE, KDT, FRZFACT,
-           SICE, AI, BI, CI);
-        SSTEP (SH2OFG, SH2O, DUMMY, RHSTT, RHSCT, DT, NSOIL, SMCMAX, CMCMAX,
-           RUNOFF3, ZSOIL, SMC, SICE, AI, BI, CI);
-        for (K = 0; K < *NSOIL; K++)
-            SH2OA[K] = (SH2O[K] + SH2OFG[K]) * 0.5;
-        SRT (RHSTT, EDIR, ET, SH2O, SH2OA, NSOIL, PCPDRP, ZSOIL, DWSAT, DKSAT,
-           SMCMAX, BEXP, RUNOFF1, RUNOFF2, DT, SMCWLT, SLOPE, KDT, FRZFACT,
-           SICE, AI, BI, CI);
-        SSTEP (SH2O, SH2O, CMC, RHSTT, RHSCT, DT, NSOIL, SMCMAX, CMCMAX,
-           RUNOFF3, ZSOIL, SMC, SICE, AI, BI, CI);
+        SRT (rhstt, edir, et, sh2o, sh2o, nsoil, pcpdrp, zsoil, dwsat, dksat,
+           smcmax, bexp, runoff1, runoff2, dt, smcwlt, slope, kdt, frzfact,
+           sice, ai, bi, ci);
+        SStep (sh2ofg, sh2o, dummy, rhstt, rhsct, dt, nsoil, smcmax, cmcmax,
+           runoff3, zsoil, smc, sice, ai, bi, ci);
+        for (k = 0; k < *nsoil; k++)
+            sh2oa[k] = (sh2o[k] + sh2ofg[k]) * 0.5;
+        SRT (rhstt, edir, et, sh2o, sh2oa, nsoil, pcpdrp, zsoil, dwsat, dksat,
+           smcmax, bexp, runoff1, runoff2, dt, smcwlt, slope, kdt, frzfact,
+           sice, ai, bi, ci);
+        SStep (sh2o, sh2o, cmc, rhstt, rhsct, dt, nsoil, smcmax, cmcmax,
+           runoff3, zsoil, smc, sice, ai, bi, ci);
     }
     else
     {
-        SRT (RHSTT, EDIR, ET, SH2O, SH2O, NSOIL, PCPDRP, ZSOIL, DWSAT, DKSAT,
-           SMCMAX, BEXP, RUNOFF1, RUNOFF2, DT, SMCWLT, SLOPE, KDT, FRZFACT,
-           SICE, AI, BI, CI);
-        SSTEP (SH2O, SH2O, CMC, RHSTT, RHSCT, DT, NSOIL, SMCMAX, CMCMAX,
-           RUNOFF3, ZSOIL, SMC, SICE, AI, BI, CI);
-        //      RUNOF = RUNOFF
+        SRT (rhstt, edir, et, sh2o, sh2o, nsoil, pcpdrp, zsoil, dwsat, dksat,
+           smcmax, bexp, runoff1, runoff2, dt, smcwlt, slope, kdt, frzfact,
+           sice, ai, bi, ci);
+        SStep (sh2o, sh2o, cmc, rhstt, rhsct, dt, nsoil, smcmax, cmcmax,
+           runoff3, zsoil, smc, sice, ai, bi, ci);
+        //      runof = runoff
 
     }
 #endif
-    free (DUMMY);
-#ifndef _FLUX_PIHM_
-    free (PCPDRP);
+    free (dummy);
+#ifndef _NOAH_
+    free (pcpdrp);
 #endif
-    free (RHSCT);
-    free (FLIMIT);
+    free (rhsct);
+    free (flimit);
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE SMFLX
+  end subroutine SmFlx
 * --------------------------------------------------------------------*/
 }
 
 void
-SNFRAC (double *SNEQV, double *SNUP, double *SALP, double *SNOWH,
-   double *SNCOVR)
+SnFrac (double *sneqv, double *snup, double *salp, double *snowh,
+   double *sncovr)
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE SNFRAC
+* subroutine SnFrac
 * ----------------------------------------------------------------------
-* CALCULATE SNOW FRACTION (0 -> 1)
-* SNEQV   SNOW WATER EQUIVALENT (M)
-* SNUP    THRESHOLD SNEQV DEPTH ABOVE WHICH SNCOVR=1
-* SALP    TUNING PARAMETER
-* SNCOVR  FRACTIONAL SNOW COVER
+* calculate snow fraction (0 -> 1)
+* sneqv   snow water equivalent (m)
+* snup    threshold sneqv depth above which sncovr=1
+* salp    tuning parameter
+* sncovr  fractional snow cover
 * --------------------------------------------------------------------*/
 
-    double          RSNOW;
+    double          rsnow;
 
 /*----------------------------------------------------------------------
-* SNUP IS VEG-CLASS DEPENDENT SNOWDEPTH THRESHHOLD (SET IN ROUTINE
-* REDPRM) ABOVE WHICH SNOCVR=1.
+* snup is veg-class dependent snowdepth threshhold (set in routine
+* RedPrm) above which snocvr=1.
 * --------------------------------------------------------------------*/
-    if (*SNEQV < *SNUP)
+    if (*sneqv < *snup)
     {
-        RSNOW = *SNEQV / *SNUP;
-        *SNCOVR = 1. - (exp (-*SALP * RSNOW) - RSNOW * exp (-*SALP));
+        rsnow = *sneqv / *snup;
+        *sncovr = 1. - (exp (-*salp * rsnow) - rsnow * exp (-*salp));
     }
     else
-        *SNCOVR = 1.0;
+        *sncovr = 1.0;
 
     /*
-     * FORMULATION OF DICKINSON ET AL. 1986 
+     * formulation of dickinson et al. 1986 
      */
-    //  Z0N = 0.035;
+    //  z0n = 0.035;
 
-    //  *SNCOVR = *SNOWH / (*SNOWH + 5. * Z0N);
+    //  *sncovr = *snowh / (*snowh + 5. * z0n);
 
     /*
-     * FORMULATION OF MARSHALL ET AL. 1994 
+     * formulation of marshall et al. 1994 
      */
-    //  *SNCOVR = *SNEQV / (*SNEQV + 2. * Z0N);
+    //  *sncovr = *sneqv / (*sneqv + 2. * z0n);
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE SNFRAC
+  end subroutine SnFrac
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-SNKSRC (double *TSNSR, double *TAVG, double *SMC, double *SH2O, double *ZSOIL,
-   int *NSOIL, double *SMCMAX, double *SMCMIN, double *VGALPHA,
-   double *VGBETA, double *DT, int K, double *QTOT)
+SnkSrc (double *tsnsr, double *tavg, double *smc, double *sh2o, double *zsoil,
+   int *nsoil, double *smcmax, double *smcmin, double *vgalpha,
+   double *vgbeta, double *dt, int k, double *qtot)
 #else
 void
-SNKSRC (double *TSNSR, double *TAVG, double *SMC, double *SH2O, double *ZSOIL,
-   int *NSOIL, double *SMCMAX, double *PSISAT, double *BEXP, double *DT,
-   int K, double *QTOT)
+SnkSrc (double *tsnsr, double *tavg, double *smc, double *sh2o, double *zsoil,
+   int *nsoil, double *smcmax, double *psisat, double *bexp, double *dt,
+   int k, double *qtot)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE SNKSRC
+* subroutine SnkSrc
 * ----------------------------------------------------------------------
-* CALCULATE SINK/SOURCE TERM OF THE THERMAL DIFFUSION EQUATION. (SH2O)
-* IS AVAILABLE LIQUED WATER.
+* calculate sink/source term of the thermal diffusion equation. (sh2o)
+* is available liqued water.
 * --------------------------------------------------------------------*/
 
-    double          DZ, *FREE, XH2O;
+    double          dz, *freew, xh2o;
 
-    double          DH2O = 1.0000e3, HLICE = 3.3350e5;
+    double          dh2o = 1.0000e3, hlice = 3.3350e5;
 
-    FREE = (double *)malloc (sizeof (double));
+    freew = (double *)malloc (sizeof (double));
 
-    if (K == 0)
-        DZ = -ZSOIL[0];
+    if (k == 0)
+        dz = -zsoil[0];
     else
-        DZ = ZSOIL[K - 1] - ZSOIL[K];
+        dz = zsoil[k - 1] - zsoil[k];
 
 /*----------------------------------------------------------------------
-* VIA FUNCTION FRH2O, COMPUTE POTENTIAL OR 'EQUILIBRIUM' UNFROZEN
-* SUPERCOOLED FREE WATER FOR GIVEN SOIL TYPE AND SOIL LAYER TEMPERATURE.
-* FUNCTION FRH20 INVOKES EQN (17) FROM V. KOREN ET AL (1999, JGR, VOL.
-* 104, PG 19573).  (ASIDE:  LATTER EQN IN JOURNAL IN CENTIGRADE UNITS.
-* ROUTINE FRH2O USE FORM OF EQN IN KELVIN UNITS.)
+* via function FrH2O, compute potential or 'equilibrium' unfrozen
+* supercooled free water for given soil type and soil layer temperature.
+* function frh20 invokes eqn (17) from v. koren et al (1999, jgr, vol.
+* 104, pg 19573).  (aside:  latter eqn in journal in centigrade units.
+* routine FrH2O use form of eqn in kelvin units.)
 * --------------------------------------------------------------------*/
 
     /*
-     * FREE = FRH2O(TAVG,SMC,SH2O,SMCMAX,BEXP,PSISAT)   
+     * freew = FrH2O(tavg,smc,sh2o,smcmax,bexp,psisat)   
      */
 
 /*----------------------------------------------------------------------
-* IN NEXT BLOCK OF CODE, INVOKE EQN 18 OF V. KOREN ET AL (1999, JGR,
-* VOL. 104, PG 19573.)  THAT IS, FIRST ESTIMATE THE NEW AMOUNTOF LIQUID
-* WATER, 'XH2O', IMPLIED BY THE SUM OF (1) THE LIQUID WATER AT THE BEGIN
-* OF CURRENT TIME STEP, AND (2) THE FREEZE OF THAW CHANGE IN LIQUID
-* WATER IMPLIED BY THE HEAT FLUX 'QTOT' PASSED IN FROM ROUTINE HRT.
-* SECOND, DETERMINE IF XH2O NEEDS TO BE BOUNDED BY 'FREE' (EQUIL AMT) OR
-* IF 'FREE' NEEDS TO BE BOUNDED BY XH2O.
+* in next block of code, invoke eqn 18 of v. koren et al (1999, jgr,
+* vol. 104, pg 19573.)  that is, first estimate the new amountof liquid
+* water, 'xh2o', implied by the sum of (1) the liquid water at the begin
+* of current time step, and (2) the freeze of thaw change in liquid
+* water implied by the heat flux 'qtot' passed in from routine HRT.
+* second, determine if xh2o needs to be bounded by 'free' (equil amt) or
+* if 'free' needs to be bounded by xh2o.
 * --------------------------------------------------------------------*/
-#ifdef _FLUX_PIHM_
-    FRH2O (FREE, TAVG, SMC, SH2O, SMCMAX, SMCMIN, VGALPHA, VGBETA);
+#ifdef _NOAH_
+    FrH2O (freew, tavg, smc, sh2o, smcmax, smcmin, vgalpha, vgbeta);
 #else
-    FRH2O (FREE, TAVG, SMC, SH2O, SMCMAX, BEXP, PSISAT);
+    FrH2O (freew, tavg, smc, sh2o, smcmax, bexp, psisat);
 #endif
 
 /*----------------------------------------------------------------------
-* FIRST, IF FREEZING AND REMAINING LIQUID LESS THAN LOWER BOUND, THEN
-* REDUCE EXTENT OF FREEZING, THEREBY LETTING SOME OR ALL OF HEAT FLUX
-* QTOT COOL THE SOIL TEMP LATER IN ROUTINE HRT.
+* first, if freezing and remaining liquid less than lower bound, then
+* reduce extent of freezing, thereby letting some or all of heat flux
+* qtot cool the soil temp later in routine HRT.
 * --------------------------------------------------------------------*/
-    XH2O = *SH2O + *QTOT * *DT / (DH2O * HLICE * DZ);
+    xh2o = *sh2o + *qtot * *dt / (dh2o * hlice * dz);
 
-    if (XH2O < *SH2O && XH2O < *FREE)
+    if (xh2o < *sh2o && xh2o < *freew)
     {
-        if (*FREE > *SH2O)
-            XH2O = *SH2O;
+        if (*freew > *sh2o)
+            xh2o = *sh2o;
         else
-            XH2O = *FREE;
+            xh2o = *freew;
     }
 
 /*----------------------------------------------------------------------
-* SECOND, IF THAWING AND THE INCREASE IN LIQUID WATER GREATER THAN UPPER
-* BOUND, THEN REDUCE EXTENT OF THAW, THEREBY LETTING SOME OR ALL OF HEAT
-* FLUX QTOT WARM THE SOIL TEMP LATER IN ROUTINE HRT.
+* second, if thawing and the increase in liquid water greater than upper
+* bound, then reduce extent of thaw, thereby letting some or all of heat
+* flux qtot warm the soil temp later in routine HRT.
 * --------------------------------------------------------------------*/
 
-    if (XH2O > *SH2O && XH2O > *FREE)
+    if (xh2o > *sh2o && xh2o > *freew)
     {
-        if (*FREE < *SH2O)
-            XH2O = *SH2O;
+        if (*freew < *sh2o)
+            xh2o = *sh2o;
         else
-            XH2O = *FREE;
+            xh2o = *freew;
     }
 
 /*----------------------------------------------------------------------
-* CALCULATE PHASE-CHANGE HEAT SOURCE/SINK TERM FOR USE IN ROUTINE HRT
-* AND UPDATE LIQUID WATER TO REFLCET FINAL FREEZE/THAW INCREMENT.
+* calculate phase-change heat source/sink term for use in routine HRT
+* and update liquid water to reflcet final freeze/thaw increment.
 * --------------------------------------------------------------------*/
-    //      SNKSRC = -DH2O*HLICE*DZ*(XH2O-SH2O)/ *DT
-    if (XH2O < 0.)
-        XH2O = 0.;
-    if (XH2O > *SMC)
-        XH2O = *SMC;
-    *TSNSR = -DH2O * HLICE * DZ * (XH2O - *SH2O) / *DT;
+    //      SnkSrc = -dh2o*hlice*dz*(xh2o-sh2o)/ *dt
+    if (xh2o < 0.)
+        xh2o = 0.;
+    if (xh2o > *smc)
+        xh2o = *smc;
+    *tsnsr = -dh2o * hlice * dz * (xh2o - *sh2o) / *dt;
 
-    *SH2O = XH2O;
+    *sh2o = xh2o;
 
-    free (FREE);
+    free (freew);
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE SNKSRC
+  end subroutine SnkSrc
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-SNOPAC (double *ETP, double *ETA, double *PRCP, double *PRCPF, double *PCPDRP,
-   int *SNOWNG, double *SMC, double *SMCMAX, double *SMCMIN, double *SMCWLT,
-   double *SMCREF, double *SMCDRY, double *CMC, double *CMCMAX, int *NSOIL,
-   double *DT, double *SBETA, double *DF1, double *Q2, double *T1,
-   double *SFCTMP, double *T24, double *TH2, double *FDOWN, double *F1,
-   double *SSOIL, double *STC, double *EPSCA, double *SFCPRS, double *VGALPHA,
-   double *VGBETA, double *MACKSAT, double *AREAF, int *NMACD, int *MAC_STATUS, int *NWTBL,
-   double *PC, double *RCH, double *RR, double *CFACTR, double *SNCOVR,
-   double *ESD, double *SNDENS, double *SNOWH, double *SH2O, double *FRZFACT,
-   double *ZSOIL, double *DKSAT, double *TBOT, double *ZBOT, double *SHDFAC,
-   double *INF, double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC,
-   double *ET, double *ETT, int *NROOT, double *SNOMLT, double *RTDIS,
-   double *QUARTZ, double *FXEXP, double *CSOIL, double *BETA, double *DRIP,
-   double *DEW, double *FLX1, double *FLX2, double *FLX3, double *ESNOW,
-   double *ETNS, double *EMISSI, double *RIBB, double *SOLDN, int *ISURBAN,
-   int *VEGTYP)
+SnoPac (double *etp, double *eta, double *prcp, double *prcpf, double *pcpdrp,
+   int *snowng, double *smc, double *smcmax, double *smcmin, double *smcwlt,
+   double *smcref, double *smcdry, double *cmc, double *cmcmax, int *nsoil,
+   double *dt, double *sbeta, double *df1, double *q2, double *t1,
+   double *sfctmp, double *t24, double *th2, double *fdown, double *f1,
+   double *ssoil, double *stc, double *epsca, double *sfcprs, double *vgalpha,
+   double *vgbeta, double *macksat, double *areaf, int *nmacd, int *mac_status, int *nwtbl,
+   double *pc, double *rch, double *rr, double *cfactr, double *sncovr,
+   double *esd, double *sndens, double *snowh, double *sh2o, double *frzfact,
+   double *zsoil, double *dksat, double *tbot, double *zbot, double *shdfac,
+   double *infil, double *runoff2, double *runoff3, double *edir, double *ec,
+   double *et, double *ett, int *nroot, double *snomlt, double *rtdis,
+   double *quartz, double *fxexp, double *csoil, double *beta, double *drip,
+   double *dew, double *flx1, double *flx2, double *flx3, double *esnow,
+   double *etns, double *emissi, double *ribb, double *soldn, int *isurban,
+   int *vegtyp)
 #else
 void
-SNOPAC (double *ETP, double *ETA, double *PRCP, double *PRCPF, int *SNOWNG,
-   double *SMC, double *SMCMAX, double *SMCWLT, double *SMCREF,
-   double *SMCDRY, double *CMC, double *CMCMAX, int *NSOIL, double *DT,
-   double *SBETA, double *DF1, double *Q2, double *T1, double *SFCTMP,
-   double *T24, double *TH2, double *FDOWN, double *F1, double *SSOIL,
-   double *STC, double *EPSCA, double *SFCPRS, double *BEXP, double *PC,
-   double *RCH, double *RR, double *CFACTR, double *SNCOVR, double *ESD,
-   double *SNDENS, double *SNOWH, double *SH2O, double *SLOPE, double *KDT,
-   double *FRZFACT, double *PSISAT, double *ZSOIL, double *DWSAT,
-   double *DKSAT, double *TBOT, double *ZBOT, double *SHDFAC, double *RUNOFF1,
-   double *RUNOFF2, double *RUNOFF3, double *EDIR, double *EC, double *ET,
-   double *ETT, int *NROOT, double *SNOMLT, double *RTDIS, double *QUARTZ,
-   double *FXEXP, double *CSOIL, double *BETA, double *DRIP, double *DEW,
-   double *FLX1, double *FLX2, double *FLX3, double *ESNOW, double *ETNS,
-   double *EMISSI, double *RIBB, double *SOLDN, int *ISURBAN, int *VEGTYP)
+SnoPac (double *etp, double *eta, double *prcp, double *prcpf, int *snowng,
+   double *smc, double *smcmax, double *smcwlt, double *smcref,
+   double *smcdry, double *cmc, double *cmcmax, int *nsoil, double *dt,
+   double *sbeta, double *df1, double *q2, double *t1, double *sfctmp,
+   double *t24, double *th2, double *fdown, double *f1, double *ssoil,
+   double *stc, double *epsca, double *sfcprs, double *bexp, double *pc,
+   double *rch, double *rr, double *cfactr, double *sncovr, double *esd,
+   double *sndens, double *snowh, double *sh2o, double *slope, double *kdt,
+   double *frzfact, double *psisat, double *zsoil, double *dwsat,
+   double *dksat, double *tbot, double *zbot, double *shdfac, double *runoff1,
+   double *runoff2, double *runoff3, double *edir, double *ec, double *et,
+   double *ett, int *nroot, double *snomlt, double *rtdis, double *quartz,
+   double *fxexp, double *csoil, double *beta, double *drip, double *dew,
+   double *flx1, double *flx2, double *flx3, double *esnow, double *etns,
+   double *emissi, double *ribb, double *soldn, int *isurban, int *vegtyp)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE SNOPAC
+* subroutine SnoPac
 * ----------------------------------------------------------------------
-* CALCULATE SOIL MOISTURE AND HEAT FLUX VALUES & UPDATE SOIL MOISTURE
-* CONTENT AND SOIL HEAT CONTENT VALUES FOR THE CASE WHEN A SNOW PACK IS
-* PRESENT.
+* calculate soil moisture and heat flux values & update soil moisture
+* content and soil heat content values for the case when a snow pack is
+* present.
 * --------------------------------------------------------------------*/
 
-    int             K;
+    int             k;
 
-    double          ET1[*NSOIL];
-    double          DENOM;
-    double          DSOIL;
-    double          DTOT;
-    double          ESNOW1;
-    double          ESNOW2;
-    //double          ETP2;
-    double          ETP3;
-    double          ETANRG;
-    double          EX;
-    double          SEH;
-    double          SNCOND;
-    double          T12;
-    double          T12A;
-    double          T12B;
-    double          T14;
-    double         *EC1;
-    double         *EDIR1;
-    double         *ETT1;
-    double         *ETP1;
-    double         *ETNS1;
-    double         *PRCP1;
-    double         *SSOIL1;
-    double         *T11;
-    double         *YY;
-    double         *ZZ1;
-    double          ESDMIN = 1.0e-6;
-    double          LSUBC = 2.501e6;
-    double          SNOEXP = 2.0;
+    double          et1[*nsoil];
+    double          denom;
+    double          dsoil;
+    double          dtot;
+    double          esnow1;
+    double          esnow2;
+    //double          etp2;
+    double          etp3;
+    double          etanrg;
+    double          ex;
+    double          seh;
+    double          sncond;
+    double          t12;
+    double          t12a;
+    double          t12b;
+    double          t14;
+    double         *ec1;
+    double         *edir1;
+    double         *ett1;
+    double         *etp1;
+    double         *etns1;
+    double         *prcp1;
+    double         *ssoil1;
+    double         *t11;
+    double         *yy;
+    double         *zz1;
+    double          esdmin = 1.0e-6;
+    double          lsubc = 2.501e6;
+    double          snoexp = 2.0;
 
-    EC1 = (double *)malloc (sizeof (double));
-    EDIR1 = (double *)malloc (sizeof (double));
-    ETT1 = (double *)malloc (sizeof (double));
-    ETP1 = (double *)malloc (sizeof (double));
-    ETNS1 = (double *)malloc (sizeof (double));
-    PRCP1 = (double *)malloc (sizeof (double));
-    SSOIL1 = (double *)malloc (sizeof (double));
-    T11 = (double *)malloc (sizeof (double));
-    YY = (double *)malloc (sizeof (double));
-    ZZ1 = (double *)malloc (sizeof (double));
+    ec1 = (double *)malloc (sizeof (double));
+    edir1 = (double *)malloc (sizeof (double));
+    ett1 = (double *)malloc (sizeof (double));
+    etp1 = (double *)malloc (sizeof (double));
+    etns1 = (double *)malloc (sizeof (double));
+    prcp1 = (double *)malloc (sizeof (double));
+    ssoil1 = (double *)malloc (sizeof (double));
+    t11 = (double *)malloc (sizeof (double));
+    yy = (double *)malloc (sizeof (double));
+    zz1 = (double *)malloc (sizeof (double));
 
 /*----------------------------------------------------------------------
-* EXECUTABLE CODE BEGINS HERE:
+* executable code begins here:
 * ----------------------------------------------------------------------
 * ----------------------------------------------------------------------
-* INITIALIZE EVAP TERMS.
+* initialize evap terms.
 * ----------------------------------------------------------------------
 * conversions:
-* ESNOW [KG M-2 S-1]
-* ESDFLX [KG M-2 S-1] .le. ESNOW
-* ESNOW1 [M S-1]
-* ESNOW2 [M]
-* ETP [KG M-2 S-1]
-* ETP1 [M S-1]
-* ETP2 [M]
+* esnow [kg m-2 s-1]
+* esdflx [kg m-2 s-1] .le. esnow
+* esnow1 [m s-1]
+* esnow2 [m]
+* etp [kg m-2 s-1]
+* etp1 [m s-1]
+* etp2 [m]
 * --------------------------------------------------------------------*/
-    *DEW = 0.;
-    *EDIR = 0.;
-    *EDIR1 = 0.;
-    *EC1 = 0.;
-    *EC = 0.;
-    //      EMISSI_S=0.95    ! For snow
+    *dew = 0.;
+    *edir = 0.;
+    *edir1 = 0.;
+    *ec1 = 0.;
+    *ec = 0.;
+    //      EMISSI_S=0.95    ! for snow
 
-    for (K = 0; K < *NSOIL; K++)
+    for (k = 0; k < *nsoil; k++)
     {
-        ET[K] = 0.;
-        ET1[K] = 0.;
+        et[k] = 0.;
+        et1[k] = 0.;
     }
-    *ETT = 0.;
-    *ETT1 = 0.;
-    *ETNS = 0.;
-    *ETNS1 = 0.;
-    *ESNOW = 0.;
-    ESNOW1 = 0.;
-    ESNOW2 = 0.;
+    *ett = 0.;
+    *ett1 = 0.;
+    *etns = 0.;
+    *etns1 = 0.;
+    *esnow = 0.;
+    esnow1 = 0.;
+    esnow2 = 0.;
 
 /*----------------------------------------------------------------------
-* CONVERT POTENTIAL EVAP (ETP) FROM KG M-2 S-1 TO ETP1 IN M S-1
+* convert potential evap (etp) from kg m-2 s-1 to etp1 in m s-1
 * --------------------------------------------------------------------*/
-    *PRCP1 = *PRCPF * 0.001;
+    *prcp1 = *prcpf * 0.001;
 
 /*----------------------------------------------------------------------
-* IF ETP<0 (DOWNWARD) THEN DEWFALL (=FROSTFALL IN THIS CASE).
+* if etp<0 (downward) then dewfall (=frostfall in this case).
 * --------------------------------------------------------------------*/
-    *BETA = 1.0;
-    if (*ETP <= 0.0)
+    *beta = 1.0;
+    if (*etp <= 0.0)
     {
-        if ((*RIBB >= 0.1) && (*FDOWN > 150.0))
+        if ((*ribb >= 0.1) && (*fdown > 150.0))
         {
-            *ETP =
-               ((*ETP * (1.0 - *RIBB) <
-                  0. ? *ETP * (1.0 - *RIBB) : 0.0) * *SNCOVR / 0.980 +
-               *ETP * (0.980 - *SNCOVR)) / 0.980;
+            *etp =
+               ((*etp * (1.0 - *ribb) <
+                  0. ? *etp * (1.0 - *ribb) : 0.0) * *sncovr / 0.980 +
+               *etp * (0.980 - *sncovr)) / 0.980;
         }
-        if (*ETP == 0.)
-            *BETA = 0.0;
-        *ETP1 = *ETP * 0.001;
-        *DEW = -*ETP1;
-        ESNOW2 = *ETP1 * *DT;
-        ETANRG = *ETP * ((1. - *SNCOVR) * LSUBC + *SNCOVR * LSUBS);
+        if (*etp == 0.)
+            *beta = 0.0;
+        *etp1 = *etp * 0.001;
+        *dew = -*etp1;
+        esnow2 = *etp1 * *dt;
+        etanrg = *etp * ((1. - *sncovr) * lsubc + *sncovr * LSUBS);
     }
     else
     {
-        *ETP1 = *ETP * 0.001;
+        *etp1 = *etp * 0.001;
         /*
-         * LAND CASE 
+         * land case 
          */
-        if (*SNCOVR < 1.)
+        if (*sncovr < 1.)
         {
-#ifdef _FLUX_PIHM_
-            EVAPO (ETNS1, SMC, NSOIL, CMC, ETP1, DT, ZSOIL, SH2O, SMCMAX, PC,
-               SMCWLT, DKSAT, SMCREF, SHDFAC, CMCMAX, SMCDRY, CFACTR, EDIR1,
-               EC1, ET1, ETT1, SFCTMP, Q2, NROOT, RTDIS, FXEXP);
+#ifdef _NOAH_
+            Evapo (etns1, smc, nsoil, cmc, etp1, dt, zsoil, sh2o, smcmax, pc,
+               smcwlt, dksat, smcref, shdfac, cmcmax, smcdry, cfactr, edir1,
+               ec1, et1, ett1, sfctmp, q2, nroot, rtdis, fxexp);
 #else
-            EVAPO (ETNS1, SMC, NSOIL, CMC, ETP1, DT, ZSOIL, SH2O, SMCMAX,
-               BEXP, PC, SMCWLT, DKSAT, DWSAT, SMCREF, SHDFAC, CMCMAX, SMCDRY,
-               CFACTR, EDIR1, EC1, ET1, ETT1, SFCTMP, Q2, NROOT, RTDIS,
-               FXEXP);
+            Evapo (etns1, smc, nsoil, cmc, etp1, dt, zsoil, sh2o, smcmax,
+               bexp, pc, smcwlt, dksat, dwsat, smcref, shdfac, cmcmax, smcdry,
+               cfactr, edir1, ec1, et1, ett1, sfctmp, q2, nroot, rtdis,
+               fxexp);
 #endif
 
             /*
              * --------------------------------------------------------------------------
              */
-            *EDIR1 = *EDIR1 * (1. - *SNCOVR);
-            *EC1 = *EC1 * (1. - *SNCOVR);
-            for (K = 0; K < *NSOIL; K++)
-                ET1[K] = ET1[K] * (1. - *SNCOVR);
-            *ETT1 = *ETT1 * (1. - *SNCOVR);
-            //          *ETNS1 = *EDIR1+ *EC1+ *ETT1;
-            *ETNS1 = *ETNS1 * (1. - *SNCOVR);
+            *edir1 = *edir1 * (1. - *sncovr);
+            *ec1 = *ec1 * (1. - *sncovr);
+            for (k = 0; k < *nsoil; k++)
+                et1[k] = et1[k] * (1. - *sncovr);
+            *ett1 = *ett1 * (1. - *sncovr);
+            //          *etns1 = *edir1+ *ec1+ *ett1;
+            *etns1 = *etns1 * (1. - *sncovr);
 
 /*--------------------------------------------------------------------------*/
-            *EDIR = *EDIR1 * 1000.;
-            *EC = *EC1 * 1000.;
-            for (K = 0; K < *NSOIL; K++)
-                ET[K] = ET1[K] * 1000.;
-            *ETT = *ETT1 * 1000.;
-            *ETNS = *ETNS1 * 1000.;
+            *edir = *edir1 * 1000.;
+            *ec = *ec1 * 1000.;
+            for (k = 0; k < *nsoil; k++)
+                et[k] = et1[k] * 1000.;
+            *ett = *ett1 * 1000.;
+            *etns = *etns1 * 1000.;
 
 /*--------------------------------------------------------------------*/
 
         }
-        *ESNOW = *ETP * *SNCOVR;
-        ESNOW1 = *ESNOW * 0.001;
-        ESNOW2 = ESNOW1 * *DT;
-        ETANRG = *ESNOW * LSUBS + *ETNS * LSUBC;
+        *esnow = *etp * *sncovr;
+        esnow1 = *esnow * 0.001;
+        esnow2 = esnow1 * *dt;
+        etanrg = *esnow * LSUBS + *etns * lsubc;
     }
 
 /*----------------------------------------------------------------------
-* IF PRECIP IS FALLING, CALCULATE HEAT FLUX FROM SNOW SFC TO NEWLY
-* ACCUMULATING PRECIP.  NOTE THAT THIS REFLECTS THE FLUX APPROPRIATE FOR
-* THE NOT-YET-UPDATED SKIN TEMPERATURE (T1).  ASSUMES TEMPERATURE OF THE
-* SNOWFALL STRIKING THE GROUND IS =SFCTMP (LOWEST MODEL LEVEL AIR TEMP).
+* if precip is falling, calculate heat flux from snow sfc to newly
+* accumulating precip.  note that this reflects the flux appropriate for
+* the not-yet-updated skin temperature (t1).  assumes temperature of the
+* snowfall striking the ground is =sfctmp (lowest model level air temp).
 * --------------------------------------------------------------------*/
-    *FLX1 = 0.0;
-    if (*SNOWNG)
-        *FLX1 = CPICE * *PRCP * (*T1 - *SFCTMP);
+    *flx1 = 0.0;
+    if (*snowng)
+        *flx1 = CPICE * *prcp * (*t1 - *sfctmp);
     else
     {
-        if (*PRCP > 0.0)
-            *FLX1 = CPH2O * *PRCP * (*T1 - *SFCTMP);
+        if (*prcp > 0.0)
+            *flx1 = CPH2O * *prcp * (*t1 - *sfctmp);
 
 /*----------------------------------------------------------------------
-* CALCULATE AN 'EFFECTIVE SNOW-GRND SFC TEMP' (T12) BASED ON HEAT FLUXES
-* BETWEEN THE SNOW PACK AND THE SOIL AND ON NET RADIATION.
-* INCLUDE FLX1 (PRECIP-SNOW SFC) AND FLX2 (FREEZING RAIN LATENT HEAT)
-* FLUXES.  FLX1 FROM ABOVE, FLX2 BROUGHT IN VIA COMMOM BLOCK RITE.
-* FLX2 REFLECTS FREEZING RAIN LATENT HEAT FLUX USING T1 CALCULATED IN
-* PENMAN.
+* calculate an 'effective snow-grnd sfc temp' (t12) based on heat fluxes
+* between the snow pack and the soil and on net radiation.
+* include flx1 (precip-snow sfc) and flx2 (freezing rain latent heat)
+* fluxes.  flx1 from above, flx2 brought in via commom block rite.
+* flx2 reflects freezing rain latent heat flux using t1 calculated in
+* Penman.
 * --------------------------------------------------------------------*/
     }
-    DSOIL = -(0.5 * ZSOIL[0]);
-    DTOT = *SNOWH + DSOIL;
-    DENOM = 1.0 + *DF1 / (DTOT * *RR * *RCH);
+    dsoil = -(0.5 * zsoil[0]);
+    dtot = *snowh + dsoil;
+    denom = 1.0 + *df1 / (dtot * *rr * *rch);
 
     /*
      * surface emissivity weighted by snow cover fraction
-     * *      T12A = ( (*FDOWN - *FLX1 - *FLX2 -                                   &
-     * *     &       ((*SNCOVR*EMISSI_S)+*EMISSI*(1.0-*SNCOVR))*SIGMA **T24)/ *RCH    &
-     * *     &       + *TH2 - *SFCTMP - ETANRG / *RCH ) / *RR
+     * *      t12a = ( (*fdown - *flx1 - *flx2 -                                   &
+     * *     &       ((*sncovr*EMISSI_S)+*emissi*(1.0-*sncovr))*SIGMA **t24)/ *rch    &
+     * *     &       + *th2 - *sfctmp - etanrg / *rch ) / *rr
      */
-    T12A =
-       ((*FDOWN - *FLX1 - *FLX2 - *EMISSI * SIGMA * *T24) / *RCH + *TH2 -
-       *SFCTMP - ETANRG / *RCH) / *RR;
-    T12B = *DF1 * STC[0] / (DTOT * *RR * *RCH);
+    t12a =
+       ((*fdown - *flx1 - *flx2 - *emissi * SIGMA * *t24) / *rch + *th2 -
+       *sfctmp - etanrg / *rch) / *rr;
+    t12b = *df1 * stc[0] / (dtot * *rr * *rch);
 
 /*----------------------------------------------------------------------
-* IF THE 'EFFECTIVE SNOW-GRND SFC TEMP' IS AT OR BELOW FREEZING, NO SNOW
-* MELT WILL OCCUR.  SET THE SKIN TEMP TO THIS EFFECTIVE TEMP.  REDUCE
-* (BY SUBLIMINATION ) OR INCREASE (BY FROST) THE DEPTH OF THE SNOWPACK,
-* DEPENDING ON SIGN OF ETP.
-* UPDATE SOIL HEAT FLUX (SSOIL) USING NEW SKIN TEMPERATURE (T1)
-* SINCE NO SNOWMELT, SET ACCUMULATED SNOWMELT TO ZERO, SET 'EFFECTIVE'
-* PRECIP FROM SNOWMELT TO ZERO, SET PHASE-CHANGE HEAT FLUX FROM SNOWMELT
-* TO ZERO.
+* if the 'effective snow-grnd sfc temp' is at or below freezing, no snow
+* melt will occur.  set the skin temp to this effective temp.  reduce
+* (by sublimination ) or increase (by frost) the depth of the snowpack,
+* depending on sign of etp.
+* update soil heat flux (ssoil) using new skin temperature (t1)
+* since no snowmelt, set accumulated snowmelt to zero, set 'effective'
+* precip from snowmelt to zero, set phase-change heat flux from snowmelt
+* to zero.
 * ----------------------------------------------------------------------
-* SUB-FREEZING BLOCK
+* sub-freezing block
 * --------------------------------------------------------------------*/
-    T12 = (*SFCTMP + T12A + T12B) / DENOM;
+    t12 = (*sfctmp + t12a + t12b) / denom;
 
-    if (T12 <= TFREEZ)
+    if (t12 <= TFREEZ)
     {
-        *T1 = T12;
-        *SSOIL = *DF1 * (*T1 - STC[0]) / DTOT;
+        *t1 = t12;
+        *ssoil = *df1 * (*t1 - stc[0]) / dtot;
 
-        //      *ESD = MAX (0.0, *ESD- ETP2)
-        *ESD = *ESD - ESNOW2 > 0. ? (*ESD - ESNOW2) : 0.;
-        *FLX3 = 0.0;
-        EX = 0.0;
+        //      *esd = max (0.0, *esd- etp2)
+        *esd = *esd - esnow2 > 0. ? (*esd - esnow2) : 0.;
+        *flx3 = 0.0;
+        ex = 0.0;
 
-        *SNOMLT = 0.0;
+        *snomlt = 0.0;
     }
 
 /*----------------------------------------------------------------------
-* IF THE 'EFFECTIVE SNOW-GRND SFC TEMP' IS ABOVE FREEZING, SNOW MELT
-* WILL OCCUR.  CALL THE SNOW MELT RATE,EX AND AMT, SNOMLT.  REVISE THE
-* EFFECTIVE SNOW DEPTH.  REVISE THE SKIN TEMP BECAUSE IT WOULD HAVE CHGD
-* DUE TO THE LATENT HEAT RELEASED BY THE MELTING. CALC THE LATENT HEAT
-* RELEASED, FLX3. SET THE EFFECTIVE PRECIP, PRCP1 TO THE SNOW MELT RATE,
-* EX FOR USE IN SMFLX.  ADJUSTMENT TO T1 TO ACCOUNT FOR SNOW PATCHES.
-* CALCULATE QSAT VALID AT FREEZING POINT.  NOTE THAT ESAT (SATURATION
-* VAPOR PRESSURE) VALUE OF 6.11E+2 USED HERE IS THAT VALID AT FRZZING
-* POINT.  NOTE THAT ETP FROM CALL PENMAN IN SFLX IS IGNORED HERE IN
-* FAVOR OF BULK ETP OVER 'OPEN WATER' AT FREEZING TEMP.
-* UPDATE SOIL HEAT FLUX (S) USING NEW SKIN TEMPERATURE (T1)
+* if the 'effective snow-grnd sfc temp' is above freezing, snow melt
+* will occur.  call the snow melt rate,ex and amt, snomlt.  revise the
+* effective snow depth.  revise the skin temp because it would have chgd
+* due to the latent heat released by the melting. calc the latent heat
+* released, flx3. set the effective precip, prcp1 to the snow melt rate,
+* ex for use in SmFlx.  adjustment to t1 to account for snow patches.
+* calculate qsat valid at freezing point.  note that esat (saturation
+* vapor pressure) value of 6.11e+2 used here is that valid at frzzing
+* point.  note that etp from call Penman in sflx is ignored here in
+* favor of bulk etp over 'open water' at freezing temp.
+* update soil heat flux (s) using new skin temperature (t1)
 * ----------------------------------------------------------------------
-* ABOVE FREEZING BLOCK
+* above freezing block
 * --------------------------------------------------------------------*/
     else
     {
-        *T1 =
-           TFREEZ * pow (*SNCOVR, SNOEXP) + T12 * (1.0 - pow (*SNCOVR,
-              SNOEXP));
-        *BETA = 1.0;
+        *t1 =
+           TFREEZ * pow (*sncovr, snoexp) + t12 * (1.0 - pow (*sncovr,
+              snoexp));
+        *beta = 1.0;
 
 /*----------------------------------------------------------------------
-* IF POTENTIAL EVAP (SUBLIMATION) GREATER THAN DEPTH OF SNOWPACK.
-* BETA<1
-* SNOWPACK HAS SUBLIMATED AWAY, SET DEPTH TO ZERO.
+* if potential evap (sublimation) greater than depth of snowpack.
+* beta<1
+* snowpack has sublimated away, set depth to zero.
 * --------------------------------------------------------------------*/
-        *SSOIL = *DF1 * (*T1 - STC[0]) / DTOT;
+        *ssoil = *df1 * (*t1 - stc[0]) / dtot;
 
-        if (*ESD - ESNOW2 <= ESDMIN)
+        if (*esd - esnow2 <= esdmin)
         {
-            *ESD = 0.0;
-            EX = 0.0;
-            *SNOMLT = 0.0;
-            *FLX3 = 0.0;
+            *esd = 0.0;
+            ex = 0.0;
+            *snomlt = 0.0;
+            *flx3 = 0.0;
 
 /*----------------------------------------------------------------------
-* SUBLIMATION LESS THAN DEPTH OF SNOWPACK
-* SNOWPACK (ESD) REDUCED BY ESNOW2 (DEPTH OF SUBLIMATED SNOW)
+* sublimation less than depth of snowpack
+* snowpack (esd) reduced by esnow2 (depth of sublimated snow)
 * --------------------------------------------------------------------*/
         }
         else
         {
-            *ESD = *ESD - ESNOW2;
-            ETP3 = *ETP * LSUBC;
-            SEH = *RCH * (*T1 - *TH2);
-            T14 = *T1 * *T1;
-            T14 = T14 * T14;
-            //          *FLX3 = *FDOWN - *FLX1 - *FLX2 - ((*SNCOVR*EMISSI_S)+*EMISSI*(1-*SNCOVR))*SIGMA*T14 - *SSOIL - SEH - ETANRG;
-            *FLX3 =
-               *FDOWN - *FLX1 - *FLX2 - *EMISSI * SIGMA * T14 - *SSOIL - SEH -
-               ETANRG;
-            if (*FLX3 <= 0.0)
-                *FLX3 = 0.0;
+            *esd = *esd - esnow2;
+            etp3 = *etp * lsubc;
+            seh = *rch * (*t1 - *th2);
+            t14 = *t1 * *t1;
+            t14 = t14 * t14;
+            //          *flx3 = *fdown - *flx1 - *flx2 - ((*sncovr*EMISSI_S)+*emissi*(1-*sncovr))*SIGMA*t14 - *ssoil - seh - etanrg;
+            *flx3 =
+               *fdown - *flx1 - *flx2 - *emissi * SIGMA * t14 - *ssoil - seh -
+               etanrg;
+            if (*flx3 <= 0.0)
+                *flx3 = 0.0;
 
 /*----------------------------------------------------------------------
-* SNOWMELT REDUCTION DEPENDING ON SNOW COVER
+* snowmelt reduction depending on snow cover
 * --------------------------------------------------------------------*/
-            EX = *FLX3 * 0.001 / LSUBF;
+            ex = *flx3 * 0.001 / LSUBF;
 
 /*----------------------------------------------------------------------
-* ESDMIN REPRESENTS A SNOWPACK DEPTH THRESHOLD VALUE BELOW WHICH WE
-* CHOOSE NOT TO RETAIN ANY SNOWPACK, AND INSTEAD INCLUDE IT IN SNOWMELT.
+* esdmin represents a snowpack depth threshold value below which we
+* choose not to retain any snowpack, and instead include it in snowmelt.
 * --------------------------------------------------------------------*/
-            *SNOMLT = EX * *DT;
-            if (*ESD - *SNOMLT >= ESDMIN)
+            *snomlt = ex * *dt;
+            if (*esd - *snomlt >= esdmin)
             {
-                *ESD = *ESD - *SNOMLT;
+                *esd = *esd - *snomlt;
 
 /*----------------------------------------------------------------------
-* SNOWMELT EXCEEDS SNOW DEPTH
+* snowmelt exceeds snow depth
 * --------------------------------------------------------------------*/
             }
             else
             {
-                EX = *ESD / *DT;
-                *FLX3 = EX * 1000.0 * LSUBF;
-                *SNOMLT = *ESD;
+                ex = *esd / *dt;
+                *flx3 = ex * 1000.0 * LSUBF;
+                *snomlt = *esd;
 
-                *ESD = 0.0;
+                *esd = 0.0;
 
 /*----------------------------------------------------------------------
-* END OF 'ESD .LE. ETP2' IF-BLOCK
+* end of 'esd .le. etp2' if-block
 ----------------------------------------------------------------------*/
             }
         }
 
 /*----------------------------------------------------------------------
-* END OF 'T12 .LE. TFREEZ' IF-BLOCK
+* end of 't12 .le. TFREEZ' if-block
 * ----------------------------------------------------------------------
 * ----------------------------------------------------------------------
-* IF NON-GLACIAL LAND, ADD SNOWMELT RATE (EX) TO PRECIP RATE TO BE USED
-* IN SUBROUTINE SMFLX (SOIL MOISTURE EVOLUTION) VIA INFILTRATION.
+* if non-glacial land, add snowmelt rate (ex) to precip rate to be used
+* in subroutine SmFlx (soil moisture evolution) via infiltration.
 *
-* RUNOFF/BASEFLOW LATER NEAR THE END OF SFLX (AFTER RETURN FROM CALL TO
-* SUBROUTINE SNOPAC)
+* runoff/baseflow later near the end of sflx (after return from call to
+* subroutine SnoPac)
 * --------------------------------------------------------------------*/
-        *PRCP1 = *PRCP1 + EX;
+        *prcp1 = *prcp1 + ex;
 
 /*----------------------------------------------------------------------
-* SET THE EFFECTIVE POTNL EVAPOTRANSP (ETP1) TO ZERO SINCE THIS IS SNOW
-* CASE, SO SURFACE EVAP NOT CALCULATED FROM EDIR, EC, OR ETT IN SMFLX
-* (BELOW).
-* SMFLX RETURNS UPDATED SOIL MOISTURE VALUES FOR NON-GLACIAL LAND.
+* set the effective potnl evapotransp (etp1) to zero since this is snow
+* case, so surface evap not calculated from edir, ec, or ett in SmFlx
+* (below).
+* SmFlx returns updated soil moisture values for non-glacial land.
 * --------------------------------------------------------------------*/
     }
-#ifdef _FLUX_PIHM_
-    SMFLX (SMC, NSOIL, CMC, DT, PRCP1, PCPDRP, ZSOIL, SH2O, FRZFACT, SMCMAX,
-       SMCMIN, VGALPHA, VGBETA, MACKSAT, AREAF, NMACD, MAC_STATUS, NWTBL, SMCWLT, DKSAT,
-       SHDFAC, CMCMAX, INF, RUNOFF2, RUNOFF3, EDIR1, EC1, ET1, DRIP);
+#ifdef _NOAH_
+    SmFlx (smc, nsoil, cmc, dt, prcp1, pcpdrp, zsoil, sh2o, frzfact, smcmax,
+       smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, mac_status, nwtbl, smcwlt, dksat,
+       shdfac, cmcmax, infil, runoff2, runoff3, edir1, ec1, et1, drip);
 #else
-    SMFLX (SMC, NSOIL, CMC, DT, PRCP1, ZSOIL, SH2O, SLOPE, KDT, FRZFACT,
-       SMCMAX, BEXP, SMCWLT, DKSAT, DWSAT, SHDFAC, CMCMAX, RUNOFF1, RUNOFF2,
-       RUNOFF3, EDIR1, EC1, ET1, DRIP);
+    SmFlx (smc, nsoil, cmc, dt, prcp1, zsoil, sh2o, slope, kdt, frzfact,
+       smcmax, bexp, smcwlt, dksat, dwsat, shdfac, cmcmax, runoff1, runoff2,
+       runoff3, edir1, ec1, et1, drip);
 #endif
 
 /*----------------------------------------------------------------------
-* BEFORE CALL SHFLX IN THIS SNOWPACK CASE, SET ZZ1 AND YY ARGUMENTS TO
-* SPECIAL VALUES THAT ENSURE THAT GROUND HEAT FLUX CALCULATED IN SHFLX
-* MATCHES THAT ALREADY COMPUTER FOR BELOW THE SNOWPACK, THUS THE SFC
-* HEAT FLUX TO BE COMPUTED IN SHFLX WILL EFFECTIVELY BE THE FLUX AT THE
-* SNOW TOP SURFACE.  T11 IS A DUMMY ARGUEMENT SO WE WILL NOT USE THE
-* SKIN TEMP VALUE AS REVISED BY SHFLX.
+* before call ShFlx in this snowpack case, set zz1 and yy arguments to
+* special values that ensure that ground heat flux calculated in ShFlx
+* matches that already computer for below the snowpack, thus the sfc
+* heat flux to be computed in ShFlx will effectively be the flux at the
+* snow top surface.  t11 is a dummy arguement so we will not use the
+* skin temp value as revised by ShFlx.
 * --------------------------------------------------------------------*/
-    *ZZ1 = 1.0;
-    *YY = STC[0] - 0.5 * *SSOIL * ZSOIL[0] * *ZZ1 / *DF1;
+    *zz1 = 1.0;
+    *yy = stc[0] - 0.5 * *ssoil * zsoil[0] * *zz1 / *df1;
 
 /*----------------------------------------------------------------------
-* SHFLX WILL CALC/UPDATE THE SOIL TEMPS.  NOTE:  THE SUB-SFC HEAT FLUX
-* (SSOIL1) AND THE SKIN TEMP (T11) OUTPUT FROM THIS SHFLX CALL ARE NOT
-* USED  IN ANY SUBSEQUENT CALCULATIONS. RATHER, THEY ARE DUMMY VARIABLES
-* HERE IN THE SNOPAC CASE, SINCE THE SKIN TEMP AND SUB-SFC HEAT FLUX ARE
-* UPDATED INSTEAD NEAR THE BEGINNING OF THE CALL TO SNOPAC.
+* ShFlx will calc/update the soil temps.  note:  the sub-sfc heat flux
+* (ssoil1) and the skin temp (t11) output from this ShFlx call are not
+* used  in any subsequent calculations. rather, they are dummy variables
+* here in the SnoPac case, since the skin temp and sub-sfc heat flux are
+* updated instead near the beginning of the call to SnoPac.
 * --------------------------------------------------------------------*/
-    *T11 = *T1;
-#ifdef _FLUX_PIHM_
-    SHFLX (SSOIL1, STC, SMC, SMCMAX, SMCMIN, NSOIL, T11, DT, YY, ZZ1, ZSOIL,
-       TBOT, ZBOT, SMCWLT, SH2O, VGALPHA, VGBETA, F1, DF1, QUARTZ, CSOIL,
-       VEGTYP, ISURBAN);
+    *t11 = *t1;
+#ifdef _NOAH_
+    ShFlx (ssoil1, stc, smc, smcmax, smcmin, nsoil, t11, dt, yy, zz1, zsoil,
+       tbot, zbot, smcwlt, sh2o, vgalpha, vgbeta, f1, df1, quartz, csoil,
+       vegtyp, isurban);
 #else
-    SHFLX (SSOIL1, STC, SMC, SMCMAX, NSOIL, T11, DT, YY, ZZ1, ZSOIL, TBOT,
-       ZBOT, SMCWLT, PSISAT, SH2O, BEXP, F1, DF1, QUARTZ, CSOIL, VEGTYP,
-       ISURBAN);
+    ShFlx (ssoil1, stc, smc, smcmax, nsoil, t11, dt, yy, zz1, zsoil, tbot,
+       zbot, smcwlt, psisat, sh2o, bexp, f1, df1, quartz, csoil, vegtyp,
+       isurban);
 #endif
 
 /*----------------------------------------------------------------------
-* SNOW DEPTH AND DENSITY ADJUSTMENT BASED ON SNOW COMPACTION.  YY IS
-* ASSUMED TO BE THE SOIL TEMPERTURE AT THE TOP OF THE SOIL COLUMN.
+* snow depth and density adjustment based on snow compaction.  yy is
+* assumed to be the soil temperture at the top of the soil column.
 * --------------------------------------------------------------------*/
     /*
-     * LAND 
+     * land 
      */
-    if (*ESD > 0.)
-        SNOWPACK (ESD, DT, SNOWH, SNDENS, T1, YY);
+    if (*esd > 0.)
+        SnowPack (esd, dt, snowh, sndens, t1, yy);
     else
     {
-        *ESD = 0.;
-        *SNOWH = 0.;
-        *SNDENS = 0.;
-        SNCOND = 1.;
-        *SNCOVR = 0.;
+        *esd = 0.;
+        *snowh = 0.;
+        *sndens = 0.;
+        sncond = 1.;
+        *sncovr = 0.;
     }
 
-    free (EC1);
-    free (EDIR1);
-    free (ETT1);
-    free (ETP1);
-    free (ETNS1);
-    free (PRCP1);
-    free (SSOIL1);
-    free (T11);
-    free (YY);
-    free (ZZ1);
+    free (ec1);
+    free (edir1);
+    free (ett1);
+    free (etp1);
+    free (etns1);
+    free (prcp1);
+    free (ssoil1);
+    free (t11);
+    free (yy);
+    free (zz1);
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE SNOPAC
+  end subroutine SnoPac
 * --------------------------------------------------------------------*/
 }
 
-void SNOWPACK (double *ESD, double *DTSEC, double *SNOWH, double *SNDENS, double *TSNOW, double *TSOIL)
+void SnowPack (double *esd, double *dtsec, double *snowh, double *sndens, double *tsnow, double *tsoil)
 {
 /*----------------------------------------------------------------------
-* SUBROUTINE SNOWPACK
+* subroutine SnowPack
 * ----------------------------------------------------------------------
-* CALCULATE COMPACTION OF SNOWPACK UNDER CONDITIONS OF INCREASING SNOW
-* DENSITY, AS OBTAINED FROM AN APPROXIMATE SOLUTION OF E. ANDERSON'S
-* DIFFERENTIAL EQUATION (3.29), NOAA TECHNICAL REPORT NWS 19, BY VICTOR
-* KOREN, 03/25/95.
+* calculate compaction of snowpack under conditions of increasing snow
+* density, as obtained from an approximate solution of e. anderson's
+* differential equation (3.29), noaa technical report nws 19, by victor
+* koren, 03/25/95.
 * ----------------------------------------------------------------------
-* ESD     WATER EQUIVALENT OF SNOW (M)
-* DTSEC   TIME STEP (SEC)
-* SNOWH   SNOW DEPTH (M)
-* SNDENS  SNOW DENSITY (G/CM3=DIMENSIONLESS FRACTION OF H2O DENSITY)
-* TSNOW   SNOW SURFACE TEMPERATURE (K)
-* TSOIL   SOIL SURFACE TEMPERATURE (K)
+* esd     water equivalent of snow (m)
+* dtsec   time step (sec)
+* snowh   snow depth (m)
+* sndens  snow density (g/cm3=dimensionless fraction of h2o density)
+* tsnow   snow surface temperature (k)
+* tsoil   soil surface temperature (k)
 
-* SUBROUTINE WILL RETURN NEW VALUES OF SNOWH AND SNDENS
+* subroutine will return new values of snowh and sndens
 * --------------------------------------------------------------------*/
 
-    int             IPOL;
-    int             J;
-    double          BFAC;
-    double          DSX;
-    double          DTHR;
-    double          DW;
-    double          SNOWHC;
-    double          PEXP;
-    double          TAVGC;
-    double          TSNOWC;
-    double          TSOILC;
-    double          ESDC;
-    double          ESDCX;
-    double          C1 = 0.01;
-    double          C2 = 21.0;
+    int             ipol;
+    int             j;
+    double          bfac;
+    double          dsx;
+    double          dthr;
+    double          dw;
+    double          snowhc;
+    double          pexp;
+    double          tavgc;
+    double          tsnowc;
+    double          tsoilc;
+    double          esdc;
+    double          esdcx;
+    double          c1 = 0.01;
+    double          c2 = 21.0;
 
 /*----------------------------------------------------------------------
-* CONVERSION INTO SIMULATION UNITS
+* conversion into simulation units
 * --------------------------------------------------------------------*/
-    SNOWHC = *SNOWH * 100.0;
-    ESDC = *ESD * 100.0;
-    DTHR = *DTSEC / 3600.0;
-    TSNOWC = *TSNOW - 273.15;
-    TSOILC = *TSOIL - 273.15;
+    snowhc = *snowh * 100.0;
+    esdc = *esd * 100.0;
+    dthr = *dtsec / 3600.0;
+    tsnowc = *tsnow - 273.15;
+    tsoilc = *tsoil - 273.15;
 
 /*----------------------------------------------------------------------
-* CALCULATING OF AVERAGE TEMPERATURE OF SNOW PACK
+* calculating of average temperature of snow pack
 * ----------------------------------------------------------------------
 * ----------------------------------------------------------------------
-* CALCULATING OF SNOW DEPTH AND DENSITY AS A RESULT OF COMPACTION
-*  SNDENS=DS0*(EXP(BFAC*ESD)-1.)/(BFAC*ESD)
-*  BFAC=DTHR*C1*EXP(0.08*TAVGC-C2*DS0)
-* NOTE: BFAC*ESD IN SNDENS EQN ABOVE HAS TO BE CAREFULLY TREATED
-* NUMERICALLY BELOW:
-*   C1 IS THE FRACTIONAL INCREASE IN DENSITY (1/(CM*HR))
-*   C2 IS A CONSTANT (CM3/G) KOJIMA ESTIMATED AS 21 CMS/G
+* calculating of snow depth and density as a result of compaction
+*  sndens=ds0*(exp(bfac*esd)-1.)/(bfac*esd)
+*  bfac=dthr*c1*exp(0.08*tavgc-c2*ds0)
+* note: bfac*esd in sndens eqn above has to be carefully treated
+* numerically below:
+*   c1 is the fractional increase in density (1/(cm*hr))
+*   c2 is a constant (cm3/g) kojima estimated as 21 cms/g
 * --------------------------------------------------------------------*/
-    TAVGC = 0.5 * (TSNOWC + TSOILC);
-    if (ESDC > 1.e-2)
-        ESDCX = ESDC;
+    tavgc = 0.5 * (tsnowc + tsoilc);
+    if (esdc > 1.e-2)
+        esdcx = esdc;
     else
-        ESDCX = 1.e-2;
+        esdcx = 1.e-2;
 
-    //      DSX = *SNDENS*((DEXP(BFAC*ESDC)-1.)/(BFAC*ESDC))
+    //      dsx = *sndens*((dexp(bfac*esdc)-1.)/(bfac*esdc))
 
 /*----------------------------------------------------------------------
-* THE FUNCTION OF THE FORM (e**x-1)/x EMBEDDED IN ABOVE EXPRESSION
-* FOR DSX WAS CAUSING NUMERICAL DIFFICULTIES WHEN THE DENOMINATOR "x"
-* (I.E. BFAC*ESDC) BECAME ZERO OR APPROACHED ZERO (DESPITE THE FACT THAT
-* THE ANALYTICAL FUNCTION (e**x-1)/x HAS A WELL DEFINED LIMIT AS
-* "x" APPROACHES ZERO), HENCE BELOW WE REPLACE THE (e**x-1)/x
-* EXPRESSION WITH AN EQUIVALENT, NUMERICALLY WELL-BEHAVED
-* POLYNOMIAL EXPANSION.
+* the function of the form (e**x-1)/x embedded in above expression
+* for dsx was causing numerical difficulties when the denominator "x"
+* (i.e. bfac*esdc) became zero or approached zero (despite the fact that
+* the analytical function (e**x-1)/x has a well defined limit as
+* "x" approaches zero), hence below we replace the (e**x-1)/x
+* expression with an equivalent, numerically well-behaved
+* polynomial expansion.
 
-* NUMBER OF TERMS OF POLYNOMIAL EXPANSION, AND HENCE ITS ACCURACY,
-* IS GOVERNED BY ITERATION LIMIT "IPOL".
-*      IPOL GREATER THAN 9 ONLY MAKES A DIFFERENCE ON DOUBLE
-*            PRECISION (RELATIVE ERRORS GIVEN IN PERCENT %).
-*       IPOL=9, FOR REL.ERROR <~ 1.6 E-6 % (8 SIGNIFICANT DIGITS)
-*       IPOL=8, FOR REL.ERROR <~ 1.8 E-5 % (7 SIGNIFICANT DIGITS)
-*       IPOL=7, FOR REL.ERROR <~ 1.8 E-4 % ...
+* number of terms of polynomial expansion, and hence its accuracy,
+* is governed by iteration limit "ipol".
+*      ipol greater than 9 only makes a difference on double
+*            precision (relative errors given in percent %).
+*       ipol=9, for rel.error <~ 1.6 e-6 % (8 significant digits)
+*       ipol=8, for rel.error <~ 1.8 e-5 % (7 significant digits)
+*       ipol=7, for rel.error <~ 1.8 e-4 % ...
 * --------------------------------------------------------------------*/
-    BFAC = DTHR * C1 * exp (0.08 * TAVGC - C2 * *SNDENS);
-    IPOL = 4;
-    PEXP = 0.;
-    //  PEXP = (1. + PEXP)*BFAC*ESDC/REAL(J+1);
-    for (J = IPOL; J > 0; J--)
+    bfac = dthr * c1 * exp (0.08 * tavgc - c2 * *sndens);
+    ipol = 4;
+    pexp = 0.;
+    //  pexp = (1. + pexp)*bfac*esdc/real(j+1);
+    for (j = ipol; j > 0; j--)
     {
-        PEXP = (1. + PEXP) * BFAC * ESDCX / (double)(J + 1);
+        pexp = (1. + pexp) * bfac * esdcx / (double)(j + 1);
     }
 
-    PEXP = PEXP + 1.;
+    pexp = pexp + 1.;
 
 /*----------------------------------------------------------------------
-* ABOVE LINE ENDS POLYNOMIAL SUBSTITUTION
+* above line ends polynomial substitution
 * ----------------------------------------------------------------------
-*     END OF KOREAN FORMULATION
+*     end of korean formulation
 * --------------------------------------------------------------------*/
 
     /*
-     *     BASE FORMULATION (COGLEY ET AL., 1990)
-     *     CONVERT DENSITY FROM G/CM3 TO KG/M3
-     *       DSM=*SNDENS*1000.0
+     *     base formulation (cogley et al., 1990)
+     *     convert density from g/cm3 to kg/m3
+     *       dsm=*sndens*1000.0
      
-     *       DSX=DSM+*DTSEC*0.5*DSM*G* *ESD/
-     *    &      (1E7*EXP(-0.02*DSM+KN/(TAVGC+273.16)-14.643))
+     *       dsx=dsm+*dtsec*0.5*dsm*g* *esd/
+     *    &      (1e7*exp(-0.02*dsm+kn/(tavgc+273.16)-14.643))
      
-     *  &   CONVERT DENSITY FROM KG/M3 TO G/CM3
-     *       DSX=DSX/1000.0
+     *  &   convert density from kg/m3 to g/cm3
+     *       dsx=dsx/1000.0
      
-     *     END OF COGLEY ET AL. FORMULATION
+     *     end of cogley et al. formulation
      */
 
 /*----------------------------------------------------------------------
-* SET UPPER/LOWER LIMIT ON SNOW DENSITY
+* set upper/lower limit on snow density
 * --------------------------------------------------------------------*/
-    DSX = *SNDENS * (PEXP);
-    if (DSX > 0.40)
-        DSX = 0.40;
-    if (DSX < 0.05)
-        DSX = 0.05;
+    dsx = *sndens * (pexp);
+    if (dsx > 0.40)
+        dsx = 0.40;
+    if (dsx < 0.05)
+        dsx = 0.05;
 
 /*----------------------------------------------------------------------
-* UPDATE OF SNOW DEPTH AND DENSITY DEPENDING ON LIQUID WATER DURING
-* SNOWMELT.  ASSUMED THAT 13% OF LIQUID WATER CAN BE STORED IN SNOW PER
-* DAY DURING SNOWMELT TILL SNOW DENSITY 0.40.
+* update of snow depth and density depending on liquid water during
+* snowmelt.  assumed that 13% of liquid water can be stored in snow per
+* day during snowmelt till snow density 0.40.
 * --------------------------------------------------------------------*/
-    *SNDENS = DSX;
-    if (TSNOWC >= 0.)
+    *sndens = dsx;
+    if (tsnowc >= 0.)
     {
-        DW = 0.13 * DTHR / 24.;
-        *SNDENS = *SNDENS * (1. - DW) + DW;
-        if (*SNDENS >= 0.40)
-            *SNDENS = 0.40;
+        dw = 0.13 * dthr / 24.;
+        *sndens = *sndens * (1. - dw) + dw;
+        if (*sndens >= 0.40)
+            *sndens = 0.40;
 
 /*----------------------------------------------------------------------
-* CALCULATE SNOW DEPTH (CM) FROM SNOW WATER EQUIVALENT AND SNOW DENSITY.
-* CHANGE SNOW DEPTH UNITS TO METERS
+* calculate snow depth (cm) from snow water equivalent and snow density.
+* change snow depth units to meters
 * --------------------------------------------------------------------*/
     }
-    SNOWHC = ESDC / *SNDENS;
-    *SNOWH = SNOWHC * 0.01;
+    snowhc = esdc / *sndens;
+    *snowh = snowhc * 0.01;
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE SNOWPACK
+  end subroutine SnowPack
 * --------------------------------------------------------------------*/
 }
 
-void SNOWZ0 (double *SNCOVR, double *Z0, double *Z0BRD, double *SNOWH)
+void Snowz0 (double *sncovr, double *z0, double *z0brd, double *snowh)
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE SNOWZ0
+* subroutine Snowz0
 * ----------------------------------------------------------------------
-* CALCULATE TOTAL ROUGHNESS LENGTH OVER SNOW
-* SNCOVR  FRACTIONAL SNOW COVER
-* Z0      ROUGHNESS LENGTH (m)
-* Z0S     SNOW ROUGHNESS LENGTH:=0.001 (m)
+* calculate total roughness length over snow
+* sncovr  fractional snow cover
+* z0      roughness length (m)
+* z0s     snow roughness length:=0.001 (m)
 * --------------------------------------------------------------------*/
-    double          Z0S = 0.001;
-    double          BURIAL;
-    double          Z0EFF;
+    double          z0s = 0.001;
+    double          burial;
+    double          z0eff;
 
-    //m Z0 = (1.- SNCOVR)* Z0BRD + SNCOVR * Z0S
-    BURIAL = 7.0 * *Z0BRD - *SNOWH;
-    if (BURIAL < 0.0007)
-        Z0EFF = Z0S;
+    //m z0 = (1.- sncovr)* z0brd + sncovr * z0s
+    burial = 7.0 * *z0brd - *snowh;
+    if (burial < 0.0007)
+        z0eff = z0s;
     else
-        Z0EFF = BURIAL / 7.0;
+        z0eff = burial / 7.0;
 
-    *Z0 = (1. - *SNCOVR) * *Z0BRD + *SNCOVR * Z0EFF;
+    *z0 = (1. - *sncovr) * *z0brd + *sncovr * z0eff;
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE SNOWZ0
+  end subroutine Snowz0
 * --------------------------------------------------------------------*/
 }
 
-void SNOW_NEW (double *TEMP, double *NEWSN, double *SNOWH, double *SNDENS)
+void SnowNew (double *temp, double *newsn, double *snowh, double *sndens)
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE SNOW_NEW
+* subroutine SnowNew
 * ----------------------------------------------------------------------
-* CALCULATE SNOW DEPTH AND DENSITY TO ACCOUNT FOR THE NEW SNOWFALL.
-* NEW VALUES OF SNOW DEPTH & DENSITY RETURNED.
+* calculate snow depth and density to account for the new snowfall.
+* new values of snow depth & density returned.
 
-* TEMP    AIR TEMPERATURE (K)
-* NEWSN   NEW SNOWFALL (M)
-* SNOWH   SNOW DEPTH (M)
-* SNDENS  SNOW DENSITY (G/CM3=DIMENSIONLESS FRACTION OF H2O DENSITY)
+* temp    air temperature (k)
+* newsn   new snowfall (m)
+* snowh   snow depth (m)
+* sndens  snow density (g/cm3=dimensionless fraction of h2o density)
 * --------------------------------------------------------------------*/
 
-    double          DSNEW, HNEWC, SNOWHC, NEWSNC, TEMPC;
+    double          dsnew, hnewc, snowhc, newsnc, tempc;
 
 /*----------------------------------------------------------------------
-* CONVERSION INTO SIMULATION UNITS
+* conversion into simulation units
 * --------------------------------------------------------------------*/
-    SNOWHC = *SNOWH * 100.0;
-    NEWSNC = *NEWSN * 100.0;
+    snowhc = *snowh * 100.0;
+    newsnc = *newsn * 100.0;
 
 /*----------------------------------------------------------------------
-* CALCULATING NEW SNOWFALL DENSITY DEPENDING ON TEMPERATURE
-* EQUATION FROM GOTTLIB L. 'A GENERAL RUNOFF MODEL FOR SNOWCOVERED
-* AND GLACIERIZED BASIN', 6TH NORDIC HYDROLOGICAL CONFERENCE,
-* VEMADOLEN, SWEDEN, 1980, 172-177PP.
+* calculating new snowfall density depending on temperature
+* equation from gottlib l. 'a general runoff model for snowcovered
+* and glacierized basin', 6th nordic hydrological conference,
+* vemadolen, sweden, 1980, 172-177pp.
 *---------------------------------------------------------------------*/
-    TEMPC = *TEMP - 273.15;
-    if (TEMPC <= -15.)
-        DSNEW = 0.05;
+    tempc = *temp - 273.15;
+    if (tempc <= -15.)
+        dsnew = 0.05;
     else
-        DSNEW = 0.05 + 0.0017 * pow (TEMPC + 15., 1.5);
+        dsnew = 0.05 + 0.0017 * pow (tempc + 15., 1.5);
 
 /*----------------------------------------------------------------------
-* ADJUSTMENT OF SNOW DENSITY DEPENDING ON NEW SNOWFALL
+* adjustment of snow density depending on new snowfall
 * --------------------------------------------------------------------*/
-    HNEWC = NEWSNC / DSNEW;
-    if (SNOWHC + HNEWC < 0.001)
-        *SNDENS = DSNEW > *SNDENS ? DSNEW : *SNDENS;
+    hnewc = newsnc / dsnew;
+    if (snowhc + hnewc < 0.001)
+        *sndens = dsnew > *sndens ? dsnew : *sndens;
     else
-        *SNDENS = (SNOWHC * *SNDENS + HNEWC * DSNEW) / (SNOWHC + HNEWC);
-    SNOWHC = SNOWHC + HNEWC;
-    *SNOWH = SNOWHC * 0.01;
+        *sndens = (snowhc * *sndens + hnewc * dsnew) / (snowhc + hnewc);
+    snowhc = snowhc + hnewc;
+    *snowh = snowhc * 0.01;
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE SNOW_NEW
+  end subroutine SnowNew
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
-   int *NSOIL, int *NWTBL, double *PCPDRP, double *ZSOIL, double *DKSAT, double *SMCMAX,
-   double *SMCMIN, double *VGALPHA, double *VGBETA, double *MACKSAT,
-   double *AREAF, int *NMACD, int *MAC_STATUS, double *INF, double *RUNOFF2, double *DT,
-   double *SMCWLT, double *FRZX, double *SICE, double *AI, double *BI,
-   double *CI)
+SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa,
+   int *nsoil, int *nwtbl, double *pcpdrp, double *zsoil, double *dksat, double *smcmax,
+   double *smcmin, double *vgalpha, double *vgbeta, double *macksat,
+   double *areaf, int *nmacd, int *mac_status, double *infil, double *runoff2, double *dt,
+   double *smcwlt, double *frzx, double *sice, double *ai, double *bi,
+   double *ci)
 #else
 void
-SRT (double *RHSTT, double *EDIR, double *ET, double *SH2O, double *SH2OA,
-   int *NSOIL, double *PCPDRP, double *ZSOIL, double *DWSAT, double *DKSAT,
-   double *SMCMAX, double *BEXP, double *RUNOFF1, double *RUNOFF2, double *DT,
-   double *SMCWLT, double *SLOPE, double *KDT, double *FRZX, double *SICE,
-   double *AI, double *BI, double *CI)
+SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa,
+   int *nsoil, double *pcpdrp, double *zsoil, double *dwsat, double *dksat,
+   double *smcmax, double *bexp, double *runoff1, double *runoff2, double *dt,
+   double *smcwlt, double *slope, double *kdt, double *frzx, double *sice,
+   double *ai, double *bi, double *ci)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE SRT
+* subroutine SRT
 * ----------------------------------------------------------------------
-* CALCULATE THE RIGHT HAND SIDE OF THE TIME TENDENCY TERM OF THE SOIL
-* WATER DIFFUSION EQUATION.  ALSO TO COMPUTE ( PREPARE ) THE MATRIX
-* COEFFICIENTS FOR THE TRI-DIAGONAL MATRIX OF THE IMPLICIT TIME SCHEME.
+* calculate the right hand side of the time tendency term of the soil
+* water diffusion equation.  also to compute ( prepare ) the matrix
+* coefficients for the tri-diagonal matrix of the implicit time scheme.
 * --------------------------------------------------------------------*/
-    int             IOHINF;
-    int             K, KS;
-    double          DDZ;
-    double          DDZ2;
-    double          DENOM;
-    double          DENOM2;
-    double          NUMER;
-    double          PDDUM;
-    double          SSTT;
-    double         *MXSMC, *MXSMC2;
-    double         *SICEMAX;
-    double         *WCND;
-    double         *WCND2;
-    double         *WDF;
-    double         *WDF2;
-#ifdef _FLUX_PIHM_
-    double         *DSMDZ, *DSMDZ2;
-    int             MACPORE[*NSOIL];
+    int             iohinf;
+    int             k, ks;
+    double          ddz;
+    double          ddz2;
+    double          denom;
+    double          denom2;
+    double          numer;
+    double          pddum;
+    double          sstt;
+    double         *mxsmc, *mxsmc2;
+    double         *sicemax;
+    double         *wcnd;
+    double         *wcnd2;
+    double         *wdf;
+    double         *wdf2;
+#ifdef _NOAH_
+    double         *dsmdz, *dsmdz2;
+    int             macpore[*nsoil];
 #else
-    double          DSMDZ, DSMDZ2;
+    double          dsmdz, dsmdz2;
 #endif
 
 /*----------------------------------------------------------------------
-* FROZEN GROUND VERSION:
-* REFERENCE FROZEN GROUND PARAMETER, CVFRZ, IS A SHAPE PARAMETER OF
-* AREAL DISTRIBUTION FUNCTION OF SOIL ICE CONTENT WHICH EQUALS 1/CV.
-* CV IS A COEFFICIENT OF SPATIAL VARIATION OF SOIL ICE CONTENT.  BASED
-* ON FIELD DATA CV DEPENDS ON AREAL MEAN OF FROZEN DEPTH, AND IT CLOSE
-* TO CONSTANT = 0.6 IF AREAL MEAN FROZEN DEPTH IS ABOVE 20 CM.  THAT IS
-* WHY PARAMETER CVFRZ = 3 (INT{1/0.6*0.6}).
-* CURRENT LOGIC DOESN'T ALLOW CVFRZ BE BIGGER THAN 3
+* frozen ground version:
+* reference frozen ground parameter, cvfrz, is a shape parameter of
+* areal distribution function of soil ice content which equals 1/cv.
+* cv is a coefficient of spatial variation of soil ice content.  based
+* on field data cv depends on areal mean of frozen depth, and it close
+* to constant = 0.6 if areal mean frozen depth is above 20 cm.  that is
+* why parameter cvfrz = 3 (int{1/0.6*0.6}).
+* current logic doesn't allow cvfrz be bigger than 3
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-* DETERMINE RAINFALL INFILTRATION RATE AND RUNOFF.  INCLUDE THE
-* INFILTRATION FORMULE FROM SCHAAKE AND KOREN MODEL.
-* MODIFIED BY Q DUAN
+* determine rainfall infiltration rate and runoff.  include the
+* infiltration formule from schaake and koren model.
+* modified by q duan
 * ----------------------------------------------------------------------
 * ----------------------------------------------------------------------
-* LET SICEMAX BE THE GREATEST, IF ANY, FROZEN WATER CONTENT WITHIN SOIL
-* LAYERS.
+* let sicemax be the greatest, if any, frozen water content within soil
+* layers.
 * --------------------------------------------------------------------*/
-    SICEMAX = (double *)malloc (sizeof (double));
-    WCND = (double *)malloc (sizeof (double));
-    WCND2 = (double *)malloc (sizeof (double));
-    WDF = (double *)malloc (sizeof (double));
-    WDF2 = (double *)malloc (sizeof (double));
-    IOHINF = 1;
-    *SICEMAX = 0.0;
+    sicemax = (double *)malloc (sizeof (double));
+    wcnd = (double *)malloc (sizeof (double));
+    wcnd2 = (double *)malloc (sizeof (double));
+    wdf = (double *)malloc (sizeof (double));
+    wdf2 = (double *)malloc (sizeof (double));
+    iohinf = 1;
+    *sicemax = 0.0;
 
-    for (KS = 0; KS < *NSOIL; KS++)
+    for (ks = 0; ks < *nsoil; ks++)
     {
-        if (SICE[KS] > *SICEMAX)
-            *SICEMAX = SICE[KS];
+        if (sice[ks] > *sicemax)
+            *sicemax = sice[ks];
 /*----------------------------------------------------------------------
-* DETERMINE RAINFALL INFILTRATION RATE AND RUNOFF
+* determine rainfall infiltration rate and runoff
 * --------------------------------------------------------------------*/
     }
 
-#ifdef _FLUX_PIHM_
-    DSMDZ = (double *)malloc (sizeof (double));
-    DSMDZ2 = (double *)malloc (sizeof (double));
+#ifdef _NOAH_
+    dsmdz = (double *)malloc (sizeof (double));
+    dsmdz2 = (double *)malloc (sizeof (double));
 
-    PDDUM = *INF;
+    pddum = *infil;
 
-    for (K = 0; K < *NSOIL; K++)
-        MACPORE[K] = 0;
-    for (K = 0; K < *NMACD - 1; K++)
-        MACPORE[K] = 1;
+    for (k = 0; k < *nsoil; k++)
+        macpore[k] = 0;
+    for (k = 0; k < *nmacd - 1; k++)
+        macpore[k] = 1;
 
 ///*----------------------------------------------------------------------
-//* YS: IF LATERAL RUNOFF (RUNOFF2) IS NEGATIVE (GRID IS A SINK) AND THE
-//* INTERFACE LAYER IS CLOSE TO SATURATION, LATERAL RUNOFF IS ADDED TO THE
-//* LAYER ABOVE
+//* ys: if lateral runoff (runoff2) is negative (grid is a sink) and the
+//* interface layer is close to saturation, lateral runoff is added to the
+//* layer above
 //* --------------------------------------------------------------------*/
-//    DENOM2 = ZSOIL[*NSOIL - 2] - ZSOIL[*NSOIL - 1];
-//    if (*NSOIL == 2)
-//        DENOM = -ZSOIL[*NSOIL - 1];
+//    denom2 = zsoil[*nsoil - 2] - zsoil[*nsoil - 1];
+//    if (*nsoil == 2)
+//        denom = -zsoil[*nsoil - 1];
 //    else
-//        DENOM = ZSOIL[*NSOIL - 3] - ZSOIL[*NSOIL - 1];
+//        denom = zsoil[*nsoil - 3] - zsoil[*nsoil - 1];
 //
-//    *DSMDZ = (SH2O[*NSOIL - 2] - SH2O[*NSOIL - 1]) / (DENOM * 0.5);
+//    *dsmdz = (sh2o[*nsoil - 2] - sh2o[*nsoil - 1]) / (denom * 0.5);
 //
-//    WDFCND (WDF, WCND, SH2OA + *NSOIL - 2, SMCMAX, SMCMIN, VGALPHA, VGBETA,
-//       DKSAT, MACKSAT, AREAF, MAC_STATUS, SICEMAX, DSMDZ, MACPORE + *NSOIL - 2);
+//    WDfCnd (wdf, wcnd, sh2oa + *nsoil - 2, smcmax, smcmin, vgalpha, vgbeta,
+//       dksat, macksat, areaf, mac_status, sicemax, dsmdz, macpore + *nsoil - 2);
 //
-//    if (*RUNOFF2 < 0
-//       && (*SMCMAX - SH2O[*NSOIL - 1]) / *DT * DENOM2 <
-//       *WDF * *DSMDZ + *WCND - ET[*NSOIL - 1] - *RUNOFF2)
-//        RFLAG = 1;
+//    if (*runoff2 < 0
+//       && (*smcmax - sh2o[*nsoil - 1]) / *dt * denom2 <
+//       *wdf * *dsmdz + *wcnd - et[*nsoil - 1] - *runoff2)
+//        rflag = 1;
 //    else
-//        RFLAG = 0;
+//        rflag = 0;
 
-    MXSMC = SH2OA;
+    mxsmc = sh2oa;
 
-    *DSMDZ = (SH2O[0] - SH2O[1]) / (-0.5 * ZSOIL[1]);
-    WDFCND (WDF, WCND, MXSMC, SMCMAX, SMCMIN, VGALPHA, VGBETA, DKSAT, MACKSAT,
-       AREAF, MAC_STATUS, SICEMAX, DSMDZ, MACPORE);
-
-/*----------------------------------------------------------------------
-* CALC THE MATRIX COEFFICIENTS AI, BI, AND CI FOR THE TOP LAYER
-* --------------------------------------------------------------------*/
-    DDZ = 1. / (-.5 * ZSOIL[1]);
-    AI[0] = 0.0;
-    BI[0] = *WDF * DDZ / (-ZSOIL[0]);
+    *dsmdz = (sh2o[0] - sh2o[1]) / (-0.5 * zsoil[1]);
+    WDfCnd (wdf, wcnd, mxsmc, smcmax, smcmin, vgalpha, vgbeta, dksat, macksat,
+       areaf, mac_status, sicemax, dsmdz, macpore);
 
 /*----------------------------------------------------------------------
-* CALC RHSTT FOR THE TOP LAYER AFTER CALC'NG THE VERTICAL SOIL MOISTURE
-* GRADIENT BTWN THE TOP AND NEXT TO TOP LAYERS.
+* calc the matrix coefficients ai, bi, and ci for the top layer
 * --------------------------------------------------------------------*/
-    CI[0] = -BI[0];
-    RHSTT[0] = (*WDF * *DSMDZ + *WCND - PDDUM + *EDIR + ET[0]) / ZSOIL[0];
-
-    if (*NWTBL == 1)
-        RHSTT[0] += *RUNOFF2 / ZSOIL[0];
+    ddz = 1. / (-.5 * zsoil[1]);
+    ai[0] = 0.0;
+    bi[0] = *wdf * ddz / (-zsoil[0]);
 
 /*----------------------------------------------------------------------
-* INITIALIZE DDZ2
+* calc rhstt for the top layer after calc'ng the vertical soil moisture
+* gradient btwn the top and next to top layers.
 * --------------------------------------------------------------------*/
-    SSTT = *WDF * *DSMDZ + *WCND + *EDIR + ET[0];
+    ci[0] = -bi[0];
+    rhstt[0] = (*wdf * *dsmdz + *wcnd - pddum + *edir + et[0]) / zsoil[0];
+
+    if (*nwtbl == 1)
+        rhstt[0] += *runoff2 / zsoil[0];
 
 /*----------------------------------------------------------------------
-* LOOP THRU THE REMAINING SOIL LAYERS, REPEATING THE ABV PROCESS
+* initialize ddz2
 * --------------------------------------------------------------------*/
-    DDZ2 = 0.0;
-    for (K = 1; K < *NSOIL; K++)
+    sstt = *wdf * *dsmdz + *wcnd + *edir + et[0];
+
+/*----------------------------------------------------------------------
+* loop thru the remaining soil layers, repeating the abv process
+* --------------------------------------------------------------------*/
+    ddz2 = 0.0;
+    for (k = 1; k < *nsoil; k++)
     {
-        DENOM2 = (ZSOIL[K - 1] - ZSOIL[K]);
-        if (K < *NSOIL - 1)
+        denom2 = (zsoil[k - 1] - zsoil[k]);
+        if (k < *nsoil - 1)
         {
 
 /*----------------------------------------------------------------------
-* AGAIN, TO AVOID SPURIOUS DRAINAGE BEHAVIOR, 'UPSTREAM DIFFERENCING' IN
-* LINE BELOW REPLACED WITH NEW APPROACH IN 2ND LINE:
-* 'MXSMC2 = MAX (SH2OA(K), SH2OA(K+1))'
+* again, to avoid spurious drainage behavior, 'upstream differencing' in
+* line below replaced with new approach in 2nd line:
+* 'mxsmc2 = max (sh2oa(k), sh2oa(k+1))'
 * --------------------------------------------------------------------*/
-            MXSMC2 = SH2OA + K;
-            DENOM = (ZSOIL[K - 1] - ZSOIL[K + 1]);
-            *DSMDZ2 = (SH2O[K] - SH2O[K + 1]) / (DENOM * 0.5);
-            WDFCND (WDF2, WCND2, MXSMC2, SMCMAX, SMCMIN, VGALPHA, VGBETA,
-               DKSAT, MACKSAT, AREAF, MAC_STATUS, SICEMAX, DSMDZ2, MACPORE + K);
+            mxsmc2 = sh2oa + k;
+            denom = (zsoil[k - 1] - zsoil[k + 1]);
+            *dsmdz2 = (sh2o[k] - sh2o[k + 1]) / (denom * 0.5);
+            WDfCnd (wdf2, wcnd2, mxsmc2, smcmax, smcmin, vgalpha, vgbeta,
+               dksat, macksat, areaf, mac_status, sicemax, dsmdz2, macpore + k);
 
 /*-----------------------------------------------------------------------
-* CALC SOME PARTIAL PRODUCTS FOR LATER USE IN CALC'NG RHSTT
+* calc some partial products for later use in calc'ng rhstt
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-* CALC THE MATRIX COEF, CI, AFTER CALC'NG ITS PARTIAL PRODUCT
+* calc the matrix coef, ci, after calc'ng its partial product
 * --------------------------------------------------------------------*/
-            DDZ2 = 2.0 / DENOM;
-            CI[K] = -*WDF2 * DDZ2 / DENOM2;
+            ddz2 = 2.0 / denom;
+            ci[k] = -*wdf2 * ddz2 / denom2;
         }
         else
         {
 
 /*----------------------------------------------------------------------
-* SLOPE OF BOTTOM LAYER IS INTRODUCED
+* slope of bottom layer is introduced
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-* RETRIEVE THE SOIL WATER DIFFUSIVITY AND HYDRAULIC CONDUCTIVITY FOR
-* THIS LAYER
+* retrieve the soil water diffusivity and hydraulic conductivity for
+* this layer
 * --------------------------------------------------------------------*/
-            *WDF2 = 0;
-            *WCND2 = 0;
+            *wdf2 = 0;
+            *wcnd2 = 0;
 
 /*----------------------------------------------------------------------
-* CALC A PARTIAL PRODUCT FOR LATER USE IN CALC'NG RHSTT
+* calc a partial product for later use in calc'ng rhstt
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-* SET MATRIX COEF CI TO ZERO
+* set matrix coef ci to zero
 * --------------------------------------------------------------------*/
-            *DSMDZ2 = 0.0;
-            CI[K] = 0.0;
+            *dsmdz2 = 0.0;
+            ci[k] = 0.0;
 
 /*----------------------------------------------------------------------
-* CALC RHSTT FOR THIS LAYER AFTER CALC'NG ITS NUMERATOR
+* calc rhstt for this layer after calc'ng its numerator
 * --------------------------------------------------------------------*/
         }
 
-        NUMER = (*WDF2 * *DSMDZ2) + *WCND2 - (*WDF * *DSMDZ) - *WCND + ET[K];
-        if (K == *NWTBL - 1)
-                NUMER = NUMER + *RUNOFF2;
+        numer = (*wdf2 * *dsmdz2) + *wcnd2 - (*wdf * *dsmdz) - *wcnd + et[k];
+        if (k == *nwtbl - 1)
+                numer = numer + *runoff2;
 
 /*----------------------------------------------------------------------
-* CALC MATRIX COEFS, AI, AND BI FOR THIS LAYER
+* calc matrix coefs, ai, and bi for this layer
 * --------------------------------------------------------------------*/
-        RHSTT[K] = NUMER / (-DENOM2);
-        AI[K] = -*WDF * DDZ / DENOM2;
+        rhstt[k] = numer / (-denom2);
+        ai[k] = -*wdf * ddz / denom2;
 
 /*----------------------------------------------------------------------
-* RESET VALUES OF WDF, WCND, DSMDZ, AND DDZ FOR LOOP TO NEXT LYR
-* RUNOFF2:  SUB-SURFACE OR BASEFLOW RUNOFF
+* reset values of wdf, wcnd, dsmdz, and ddz for loop to next lyr
+* runoff2:  sub-surface or baseflow runoff
 * --------------------------------------------------------------------*/
-        BI[K] = -(AI[K] + CI[K]);
+        bi[k] = -(ai[k] + ci[k]);
 
-        if (K != *NSOIL - 1)
+        if (k != *nsoil - 1)
         {
-            *WDF = *WDF2;
-            *WCND = *WCND2;
-            *DSMDZ = *DSMDZ2;
-            DDZ = DDZ2;
+            *wdf = *wdf2;
+            *wcnd = *wcnd2;
+            *dsmdz = *dsmdz2;
+            ddz = ddz2;
         }
     }
 
-    free (DSMDZ);
-    free (DSMDZ2);
+    free (dsmdz);
+    free (dsmdz2);
 #else
-    PDDUM = *PCPDRP;
-    *RUNOFF1 = 0.0;
+    pddum = *pcpdrp;
+    *runoff1 = 0.0;
 
 /*----------------------------------------------------------------------
-* MODIFIED BY Q. DUAN, 5/16/94
+* modified by q. duan, 5/16/94
 * --------------------------------------------------------------------*/
-    //        IF (IOHINF == 1) THEN
+    //        if (iohinf == 1) then
 
-    if (*PCPDRP != 0.0)
+    if (*pcpdrp != 0.0)
     {
-        DT1 = *DT / 86400.;
-        SMCAV = *SMCMAX - *SMCWLT;
+        dt1 = *dt / 86400.;
+        smcav = *smcmax - *smcwlt;
 
 /*----------------------------------------------------------------------
-* FROZEN GROUND VERSION:
+* frozen ground version:
 * --------------------------------------------------------------------*/
-        DMAX[0] = -ZSOIL[0] * SMCAV;
+        dmax[0] = -zsoil[0] * smcav;
 
-        DICE = -ZSOIL[0] * SICE[0];
-        DMAX[0] = DMAX[0] * (1.0 - (SH2OA[0] + SICE[0] - *SMCWLT) / SMCAV);
+        dice = -zsoil[0] * sice[0];
+        dmax[0] = dmax[0] * (1.0 - (sh2oa[0] + sice[0] - *smcwlt) / smcav);
 
-        DD = DMAX[0];
+        dd = dmax[0];
 
 /*----------------------------------------------------------------------
-* FROZEN GROUND VERSION:
+* frozen ground version:
 * --------------------------------------------------------------------*/
-        for (KS = 1; KS < *NSOIL; KS++)
+        for (ks = 1; ks < *nsoil; ks++)
         {
-            DICE = DICE + (ZSOIL[KS - 1] - ZSOIL[KS]) * SICE[KS];
-            DMAX[KS] = (ZSOIL[KS - 1] - ZSOIL[KS]) * SMCAV;
-            DMAX[KS] =
-               DMAX[KS] * (1.0 - (SH2OA[KS] + SICE[KS] - *SMCWLT) / SMCAV);
-            DD = DD + DMAX[KS];
+            dice = dice + (zsoil[ks - 1] - zsoil[ks]) * sice[ks];
+            dmax[ks] = (zsoil[ks - 1] - zsoil[ks]) * smcav;
+            dmax[ks] =
+               dmax[ks] * (1.0 - (sh2oa[ks] + sice[ks] - *smcwlt) / smcav);
+            dd = dd + dmax[ks];
 
 /*----------------------------------------------------------------------
-* VAL = (1.-EXP(-KDT*SQRT(DT1)))
-* IN BELOW, REMOVE THE SQRT IN ABOVE
+* val = (1.-exp(-kdt*sqrt(dt1)))
+* in below, remove the sqrt in above
 * --------------------------------------------------------------------*/
         }
-        VAL = (1. - exp (-*KDT * DT1));
-        DDT = DD * VAL;
-        PX = *PCPDRP * *DT;
-        if (PX < 0.0)
-            PX = 0.0;
+        val = (1. - exp (-*kdt * dt1));
+        ddt = dd * val;
+        px = *pcpdrp * *dt;
+        if (px < 0.0)
+            px = 0.0;
 
 /*----------------------------------------------------------------------
-* FROZEN GROUND VERSION:
-* REDUCTION OF INFILTRATION BASED ON FROZEN GROUND PARAMETERS
+* frozen ground version:
+* reduction of infiltration based on frozen ground parameters
 * --------------------------------------------------------------------*/
-        INFMAX = (PX * (DDT / (PX + DDT))) / *DT;
-        FCR = 1.;
-        if (DICE > 1.e-2)
+        infmax = (px * (ddt / (px + ddt))) / *dt;
+        fcr = 1.;
+        if (dice > 1.e-2)
         {
-            ACRT = (double)CVFRZ **FRZX / DICE;
-            SUM = 1.;
-            IALP1 = CVFRZ - 1;
-            for (J = 1; J < IALP1 + 1; J++)
+            acrt = (double)cvfrz **frzx / dice;
+            sum = 1.;
+            ialp1 = cvfrz - 1;
+            for (j = 1; j < ialp1 + 1; j++)
             {
-                K = 1;
-                for (JJ = J + 1; JJ < IALP1; JJ++)
+                k = 1;
+                for (jj = j + 1; jj < ialp1; jj++)
                 {
-                    K = K * JJ;
+                    k = k * jj;
                 }
-                SUM = SUM + pow (ACRT, (double)(CVFRZ - J)) / (double)K;
+                sum = sum + pow (acrt, (double)(cvfrz - j)) / (double)k;
             }
-            FCR = 1. - exp (-ACRT) * SUM;
+            fcr = 1. - exp (-acrt) * sum;
         }
 
 /*----------------------------------------------------------------------
-* CORRECTION OF INFILTRATION LIMITATION:
-* IF INFMAX .LE. HYDROLIC CONDUCTIVITY ASSIGN INFMAX THE VALUE OF
-* HYDROLIC CONDUCTIVITY
+* correction of infiltration limitation:
+* if infmax .le. hydrolic conductivity assign infmax the value of
+* hydrolic conductivity
 * ---------------------------------------------------------------------*/
-        //         MXSMC = MAX ( SH2OA(1), SH2OA(2) )
-        INFMAX = INFMAX * FCR;
-        MXSMC = SH2OA;
-        WDFCND (WDF, WCND, MXSMC, SMCMAX, BEXP, DKSAT, DWSAT, SICEMAX);
-        INFMAX = INFMAX > *WCND ? INFMAX : *WCND;
+        //         mxsmc = max ( sh2oa(1), sh2oa(2) )
+        infmax = infmax * fcr;
+        mxsmc = sh2oa;
+        WDfCnd (wdf, wcnd, mxsmc, smcmax, bexp, dksat, dwsat, sicemax);
+        infmax = infmax > *wcnd ? infmax : *wcnd;
 
-        INFMAX = INFMAX < PX / *DT ? INFMAX : PX / *DT;
-        if (*PCPDRP > INFMAX)
+        infmax = infmax < px / *dt ? infmax : px / *dt;
+        if (*pcpdrp > infmax)
         {
-            *RUNOFF1 = *PCPDRP - INFMAX;
-            PDDUM = INFMAX;
+            *runoff1 = *pcpdrp - infmax;
+            pddum = infmax;
         }
 
 /*----------------------------------------------------------------------
-* TO AVOID SPURIOUS DRAINAGE BEHAVIOR, 'UPSTREAM DIFFERENCING' IN LINE
-* BELOW REPLACED WITH NEW APPROACH IN 2ND LINE:
-* 'MXSMC = MAX(SH2OA(1), SH2OA(2))'
+* to avoid spurious drainage behavior, 'upstream differencing' in line
+* below replaced with new approach in 2nd line:
+* 'mxsmc = max(sh2oa(1), sh2oa(2))'
 * --------------------------------------------------------------------*/
     }
 
-    MXSMC = SH2OA;
-    WDFCND (WDF, WCND, MXSMC, SMCMAX, BEXP, DKSAT, DWSAT, SICEMAX);
+    mxsmc = sh2oa;
+    WDfCnd (wdf, wcnd, mxsmc, smcmax, bexp, dksat, dwsat, sicemax);
 
 /*----------------------------------------------------------------------
-* CALC THE MATRIX COEFFICIENTS AI, BI, AND CI FOR THE TOP LAYER
+* calc the matrix coefficients ai, bi, and ci for the top layer
 * --------------------------------------------------------------------*/
-    DDZ = 1. / (-.5 * ZSOIL[1]);
-    AI[0] = 0.0;
-    BI[0] = *WDF * DDZ / (-ZSOIL[0]);
+    ddz = 1. / (-.5 * zsoil[1]);
+    ai[0] = 0.0;
+    bi[0] = *wdf * ddz / (-zsoil[0]);
 
 /*----------------------------------------------------------------------
-* CALC RHSTT FOR THE TOP LAYER AFTER CALC'NG THE VERTICAL SOIL MOISTURE
-* GRADIENT BTWN THE TOP AND NEXT TO TOP LAYERS.
+* calc rhstt for the top layer after calc'ng the vertical soil moisture
+* gradient btwn the top and next to top layers.
 * --------------------------------------------------------------------*/
-    CI[0] = -BI[0];
-    DSMDZ = (SH2O[0] - SH2O[1]) / (-0.5 * ZSOIL[1]);
-    RHSTT[0] = (*WDF * DSMDZ + *WCND - PDDUM + *EDIR + ET[0]) / ZSOIL[0];
+    ci[0] = -bi[0];
+    dsmdz = (sh2o[0] - sh2o[1]) / (-0.5 * zsoil[1]);
+    rhstt[0] = (*wdf * dsmdz + *wcnd - pddum + *edir + et[0]) / zsoil[0];
 
 /*----------------------------------------------------------------------
-* INITIALIZE DDZ2
+* initialize ddz2
 * --------------------------------------------------------------------*/
-    SSTT = *WDF * DSMDZ + *WCND + *EDIR + ET[0];
+    sstt = *wdf * dsmdz + *wcnd + *edir + et[0];
 
 /*----------------------------------------------------------------------
-* LOOP THRU THE REMAINING SOIL LAYERS, REPEATING THE ABV PROCESS
+* loop thru the remaining soil layers, repeating the abv process
 * --------------------------------------------------------------------*/
-    DDZ2 = 0.0;
-    for (K = 1; K < *NSOIL; K++)
+    ddz2 = 0.0;
+    for (k = 1; k < *nsoil; k++)
     {
-        DENOM2 = (ZSOIL[K - 1] - ZSOIL[K]);
-        if (K != *NSOIL - 1)
+        denom2 = (zsoil[k - 1] - zsoil[k]);
+        if (k != *nsoil - 1)
         {
 
 /*----------------------------------------------------------------------
-* AGAIN, TO AVOID SPURIOUS DRAINAGE BEHAVIOR, 'UPSTREAM DIFFERENCING' IN
-* LINE BELOW REPLACED WITH NEW APPROACH IN 2ND LINE:
-* 'MXSMC2 = MAX (SH2OA(K), SH2OA(K+1))'
+* again, to avoid spurious drainage behavior, 'upstream differencing' in
+* line below replaced with new approach in 2nd line:
+* 'mxsmc2 = max (sh2oa(k), sh2oa(k+1))'
 * --------------------------------------------------------------------*/
-            SLOPX = 1.;
+            slopx = 1.;
 
-            MXSMC2 = SH2OA + K;
-            WDFCND (WDF2, WCND2, MXSMC2, SMCMAX, BEXP, DKSAT, DWSAT, SICEMAX);
+            mxsmc2 = sh2oa + k;
+            WDfCnd (wdf2, wcnd2, mxsmc2, smcmax, bexp, dksat, dwsat, sicemax);
 
 /*-----------------------------------------------------------------------
-* CALC SOME PARTIAL PRODUCTS FOR LATER USE IN CALC'NG RHSTT
+* calc some partial products for later use in calc'ng rhstt
 * --------------------------------------------------------------------*/
-            DENOM = (ZSOIL[K - 1] - ZSOIL[K + 1]);
+            denom = (zsoil[k - 1] - zsoil[k + 1]);
 
 /*----------------------------------------------------------------------
-* CALC THE MATRIX COEF, CI, AFTER CALC'NG ITS PARTIAL PRODUCT
+* calc the matrix coef, ci, after calc'ng its partial product
 * --------------------------------------------------------------------*/
-            DSMDZ2 = (SH2O[K] - SH2O[K + 1]) / (DENOM * 0.5);
-            DDZ2 = 2.0 / DENOM;
-            CI[K] = -*WDF2 * DDZ2 / DENOM2;
+            dsmdz2 = (sh2o[k] - sh2o[k + 1]) / (denom * 0.5);
+            ddz2 = 2.0 / denom;
+            ci[k] = -*wdf2 * ddz2 / denom2;
         }
         else
         {
 
 /*----------------------------------------------------------------------
-* SLOPE OF BOTTOM LAYER IS INTRODUCED
+* slope of bottom layer is introduced
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-* RETRIEVE THE SOIL WATER DIFFUSIVITY AND HYDRAULIC CONDUCTIVITY FOR
-* THIS LAYER
+* retrieve the soil water diffusivity and hydraulic conductivity for
+* this layer
 * --------------------------------------------------------------------*/
-            SLOPX = *SLOPE;
-            WDFCND (WDF2, WCND2, SH2OA + *NSOIL - 1, SMCMAX, BEXP, DKSAT,
-               DWSAT, SICEMAX);
+            slopx = *slope;
+            WDfCnd (wdf2, wcnd2, sh2oa + *nsoil - 1, smcmax, bexp, dksat,
+               dwsat, sicemax);
 
 /*----------------------------------------------------------------------
-* CALC A PARTIAL PRODUCT FOR LATER USE IN CALC'NG RHSTT
+* calc a partial product for later use in calc'ng rhstt
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-* SET MATRIX COEF CI TO ZERO
+* set matrix coef ci to zero
 * --------------------------------------------------------------------*/
-            DSMDZ2 = 0.0;
-            CI[K] = 0.0;
+            dsmdz2 = 0.0;
+            ci[k] = 0.0;
 
 /*----------------------------------------------------------------------
-* CALC RHSTT FOR THIS LAYER AFTER CALC'NG ITS NUMERATOR
+* calc rhstt for this layer after calc'ng its numerator
 * --------------------------------------------------------------------*/
         }
-        NUMER =
-           (*WDF2 * DSMDZ2) + SLOPX * *WCND2 - (*WDF * DSMDZ) - *WCND + ET[K];
+        numer =
+           (*wdf2 * dsmdz2) + slopx * *wcnd2 - (*wdf * dsmdz) - *wcnd + et[k];
 
 /*----------------------------------------------------------------------
-* CALC MATRIX COEFS, AI, AND BI FOR THIS LAYER
+* calc matrix coefs, ai, and bi for this layer
 * --------------------------------------------------------------------*/
-        RHSTT[K] = NUMER / (-DENOM2);
-        AI[K] = -*WDF * DDZ / DENOM2;
+        rhstt[k] = numer / (-denom2);
+        ai[k] = -*wdf * ddz / denom2;
 
 /*----------------------------------------------------------------------
-* RESET VALUES OF WDF, WCND, DSMDZ, AND DDZ FOR LOOP TO NEXT LYR
-* RUNOFF2:  SUB-SURFACE OR BASEFLOW RUNOFF
+* reset values of wdf, wcnd, dsmdz, and ddz for loop to next lyr
+* runoff2:  sub-surface or baseflow runoff
 * --------------------------------------------------------------------*/
-        BI[K] = -(AI[K] + CI[K]);
-        if (K == *NSOIL - 1)
-            *RUNOFF2 = SLOPX * *WCND2;
-        if (K != *NSOIL - 1)
+        bi[k] = -(ai[k] + ci[k]);
+        if (k == *nsoil - 1)
+            *runoff2 = slopx * *wcnd2;
+        if (k != *nsoil - 1)
         {
-            *WDF = *WDF2;
-            *WCND = *WCND2;
-            DSMDZ = DSMDZ2;
-            DDZ = DDZ2;
+            *wdf = *wdf2;
+            *wcnd = *wcnd2;
+            dsmdz = dsmdz2;
+            ddz = ddz2;
         }
     }
 #endif
 
-    free (SICEMAX);
-    free (WCND);
-    free (WCND2);
-    free (WDF);
-    free (WDF2);
+    free (sicemax);
+    free (wcnd);
+    free (wcnd2);
+    free (wdf);
+    free (wdf2);
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE SRT
+  end subroutine SRT
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-SSTEP (double *SH2OOUT, double *SH2OIN, double *CMC, double *RHSTT,
-   double *RHSCT, double *DT, int *NSOIL, double *SMCMAX, double *SMCMIN,
-   double *CMCMAX, double *RUNOFF3, double *ZSOIL, double *SMC, double *SICE,
-   double *AI, double *BI, double *CI)
+SStep (double *sh2oout, double *sh2oin, double *cmc, double *rhstt,
+   double *rhsct, double *dt, int *nsoil, double *smcmax, double *smcmin,
+   double *cmcmax, double *runoff3, double *zsoil, double *smc, double *sice,
+   double *ai, double *bi, double *ci)
 #else
 void
-SSTEP (double *SH2OOUT, double *SH2OIN, double *CMC, double *RHSTT,
-   double *RHSCT, double *DT, int *NSOIL, double *SMCMAX, double *CMCMAX,
-   double *RUNOFF3, double *ZSOIL, double *SMC, double *SICE, double *AI,
-   double *BI, double *CI)
+SStep (double *sh2oout, double *sh2oin, double *cmc, double *rhstt,
+   double *rhsct, double *dt, int *nsoil, double *smcmax, double *cmcmax,
+   double *runoff3, double *zsoil, double *smc, double *sice, double *ai,
+   double *bi, double *ci)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE SSTEP
+* subroutine SStep
 * ----------------------------------------------------------------------
-* CALCULATE/UPDATE SOIL MOISTURE CONTENT VALUES AND CANOPY MOISTURE
-* CONTENT VALUES.
+* calculate/update soil moisture content values and canopy moisture
+* content values.
 * --------------------------------------------------------------------*/
-    int             K, KK11;
+    int             k, kk11;
 
-    double          RHSTTin[*NSOIL], CIin[*NSOIL];
-    double          SH2Omid[*NSOIL];
-    double          DDZ, STOT, WPLUS;
+    double          rhsttin[*nsoil], ciin[*nsoil];
+    double          sh2omid[*nsoil];
+    double          ddz, stot, wplus;
 
 /*----------------------------------------------------------------------
-* CREATE 'AMOUNT' VALUES OF VARIABLES TO BE INPUT TO THE
-* TRI-DIAGONAL MATRIX ROUTINE.
+* create 'amount' values of variables to be input to the
+* tri-diagonal matrix routine.
 * --------------------------------------------------------------------*/
-    for (K = 0; K < *NSOIL; K++)
+    for (k = 0; k < *nsoil; k++)
     {
-        RHSTT[K] = RHSTT[K] * *DT;
-        AI[K] = AI[K] * *DT;
-        BI[K] = 1. + BI[K] * *DT;
-        CI[K] = CI[K] * *DT;
+        rhstt[k] = rhstt[k] * *dt;
+        ai[k] = ai[k] * *dt;
+        bi[k] = 1. + bi[k] * *dt;
+        ci[k] = ci[k] * *dt;
     }
 
 /*----------------------------------------------------------------------
-* COPY VALUES FOR INPUT VARIABLES BEFORE CALL TO ROSR12
+* copy values for input variables before call to Rosr12
 * --------------------------------------------------------------------*/
-    for (K = 0; K < *NSOIL; K++)
-        RHSTTin[K] = RHSTT[K];
-    for (K = 0; K < *NSOIL; K++)
-        CIin[K] = CI[K];
+    for (k = 0; k < *nsoil; k++)
+        rhsttin[k] = rhstt[k];
+    for (k = 0; k < *nsoil; k++)
+        ciin[k] = ci[k];
 
 /*----------------------------------------------------------------------
-* CALL ROSR12 TO SOLVE THE TRI-DIAGONAL MATRIX
+* call Rosr12 to solve the tri-diagonal matrix
 * --------------------------------------------------------------------*/
-    ROSR12 (CI, AI, BI, CIin, RHSTTin, RHSTT, NSOIL);
+    Rosr12 (ci, ai, bi, ciin, rhsttin, rhstt, nsoil);
 
 /*----------------------------------------------------------------------
-* SUM THE PREVIOUS SMC VALUE AND THE MATRIX SOLUTION TO GET A
-* NEW VALUE.  MIN ALLOWABLE VALUE OF SMC WILL BE 0.02.
-* RUNOFF3: RUNOFF WITHIN SOIL LAYERS
+* sum the previous smc value and the matrix solution to get a
+* new value.  min allowable value of smc will be 0.02.
+* runoff3: runoff within soil layers
 * --------------------------------------------------------------------*/
-    WPLUS = 0.0;
-    *RUNOFF3 = 0.;
+    wplus = 0.0;
+    *runoff3 = 0.;
 
-    for (K = *NSOIL - 1; K >= 0; K--)
+    for (k = *nsoil - 1; k >= 0; k--)
     {
-        if (K != 0)
-            DDZ = ZSOIL[K - 1] - ZSOIL[K];
+        if (k != 0)
+            ddz = zsoil[k - 1] - zsoil[k];
         else
-            DDZ = -ZSOIL[0];
+            ddz = -zsoil[0];
 
-        SH2Omid[K] = SH2OIN[K] + CI[K] + WPLUS / DDZ;
-        STOT = SH2Omid[K] + SICE[K];
+        sh2omid[k] = sh2oin[k] + ci[k] + wplus / ddz;
+        stot = sh2omid[k] + sice[k];
 
-        if (STOT > *SMCMAX)
+        if (stot > *smcmax)
         {
-            if (K == 0)
-                DDZ = -ZSOIL[0];
+            if (k == 0)
+                ddz = -zsoil[0];
             else
             {
-                KK11 = K - 1;
-                DDZ = -ZSOIL[K] + ZSOIL[KK11];
+                kk11 = k - 1;
+                ddz = -zsoil[k] + zsoil[kk11];
             }
-            WPLUS = (STOT - *SMCMAX) * DDZ;
+            wplus = (stot - *smcmax) * ddz;
         }
         else
-            WPLUS = 0.0;
+            wplus = 0.0;
 
-        if (STOT < *SMCMAX)
-            SMC[K] = STOT;
+        if (stot < *smcmax)
+            smc[k] = stot;
         else
-            SMC[K] = *SMCMAX;
+            smc[k] = *smcmax;
 
-        SH2Omid[K] = SMC[K] - SICE[K];
+        sh2omid[k] = smc[k] - sice[k];
     }
 
-    DDZ = -ZSOIL[0];
-    for (K = 0; K < *NSOIL; K++)
+    ddz = -zsoil[0];
+    for (k = 0; k < *nsoil; k++)
     {
-        if (K != 0)
-            DDZ = ZSOIL[K - 1] - ZSOIL[K];
-        SH2OOUT[K] = SH2Omid[K] + WPLUS / DDZ;
-        STOT = SH2OOUT[K] + SICE[K];
-        if (STOT > *SMCMAX)
+        if (k != 0)
+            ddz = zsoil[k - 1] - zsoil[k];
+        sh2oout[k] = sh2omid[k] + wplus / ddz;
+        stot = sh2oout[k] + sice[k];
+        if (stot > *smcmax)
         {
-            if (K == 0)
-                DDZ = -ZSOIL[0];
+            if (k == 0)
+                ddz = -zsoil[0];
             else
             {
-                KK11 = K - 1;
-                DDZ = -ZSOIL[K] + ZSOIL[KK11];
+                kk11 = k - 1;
+                ddz = -zsoil[k] + zsoil[kk11];
             }
-            WPLUS = (STOT - *SMCMAX) * DDZ;
+            wplus = (stot - *smcmax) * ddz;
         }
         else
-            WPLUS = 0.;
+            wplus = 0.;
 
-        SMC[K] = STOT < *SMCMAX ? STOT : *SMCMAX;
-#ifdef _FLUX_PIHM_
-        SMC[K] = SMC[K] > *SMCMIN + 0.02 ? SMC[K] : *SMCMIN + 0.02;
+        smc[k] = stot < *smcmax ? stot : *smcmax;
+#ifdef _NOAH_
+        smc[k] = smc[k] > *smcmin + 0.02 ? smc[k] : *smcmin + 0.02;
 #else
-        SMC[K] = SMC[K] > 0.02 ? SMC[K] : 0.02;
+        smc[k] = smc[k] > 0.02 ? smc[k] : 0.02;
 #endif
-        SH2OOUT[K] = SMC[K] - SICE[K];
-        SH2OOUT[K] = SH2OOUT[K] > 0 ? SH2OOUT[K] : 0;
+        sh2oout[k] = smc[k] - sice[k];
+        sh2oout[k] = sh2oout[k] > 0 ? sh2oout[k] : 0;
     }
 
 /*----------------------------------------------------------------------
-* UPDATE CANOPY WATER CONTENT/INTERCEPTION (CMC).  CONVERT RHSCT TO
-* AN 'AMOUNT' VALUE AND ADD TO PREVIOUS CMC VALUE TO GET NEW CMC.
+* update canopy water content/interception (cmc).  convert rhsct to
+* an 'amount' value and add to previous cmc value to get new cmc.
 * --------------------------------------------------------------------*/
-    *RUNOFF3 = WPLUS;
-    *CMC = *CMC + *DT * *RHSCT;
-    if (*CMC < 1.e-20)
-        *CMC = 0.0;
-    *CMC = *CMC < *CMCMAX ? *CMC : *CMCMAX;
+    *runoff3 = wplus;
+    *cmc = *cmc + *dt * *rhsct;
+    if (*cmc < 1.e-20)
+        *cmc = 0.0;
+    *cmc = *cmc < *cmcmax ? *cmc : *cmcmax;
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE SSTEP
+  end subroutine SStep
 * --------------------------------------------------------------------*/
 }
 
 void
-TBND (double *TU, double *TB, double *ZSOIL, double *ZBOT, int K, int *NSOIL,
-   double *TBND1)
+TBnd (double *tu, double *tb, double *zsoil, double *zbot, int k, int *nsoil,
+   double *tbnd1)
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE TBND
+* subroutine TBnd
 * ----------------------------------------------------------------------
-* CALCULATE TEMPERATURE ON THE BOUNDARY OF THE LAYER BY INTERPOLATION OF
-* THE MIDDLE LAYER TEMPERATURES
+* calculate temperature on the boundary of the layer by interpolation of
+* the middle layer temperatures
 * --------------------------------------------------------------------*/
-    double          ZB, ZUP;
+    double          zb, zup;
 
 /*----------------------------------------------------------------------
-* USE SURFACE TEMPERATURE ON THE TOP OF THE FIRST LAYER
+* use surface temperature on the top of the first layer
 * --------------------------------------------------------------------*/
-    if (K == 0)
-        ZUP = 0.;
+    if (k == 0)
+        zup = 0.;
     else
-        ZUP = ZSOIL[K - 1];
+        zup = zsoil[k - 1];
 
 /*----------------------------------------------------------------------
-* USE DEPTH OF THE CONSTANT BOTTOM TEMPERATURE WHEN INTERPOLATE
-* TEMPERATURE INTO THE LAST LAYER BOUNDARY
+* use depth of the constant bottom temperature when interpolate
+* temperature into the last layer boundary
 * --------------------------------------------------------------------*/
-    if (K == *NSOIL - 1)
-        ZB = 2. * *ZBOT - ZSOIL[K];
+    if (k == *nsoil - 1)
+        zb = 2. * *zbot - zsoil[k];
     else
-        ZB = ZSOIL[K + 1];
+        zb = zsoil[k + 1];
 
 /*----------------------------------------------------------------------
-* LINEAR INTERPOLATION BETWEEN THE AVERAGE LAYER TEMPERATURES
+* linear interpolation between the average layer temperatures
 * --------------------------------------------------------------------*/
 
-    *TBND1 = *TU + (*TB - *TU) * (ZUP - ZSOIL[K]) / (ZUP - ZB);
+    *tbnd1 = *tu + (*tb - *tu) * (zup - zsoil[k]) / (zup - zb);
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE TBND
+  end subroutine TBnd
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-TDFCND (double *DF, double *SMC, double *QZ, double *SMCMAX, double *SMCMIN,
-   double *SH2O)
+TDfCnd (double *df, double *smc, double *qz, double *smcmax, double *smcmin,
+   double *sh2o)
 #else
 void
-TDFCND (double *DF, double *SMC, double *QZ, double *SMCMAX, double *SH2O)
+TDfCnd (double *df, double *smc, double *qz, double *smcmax, double *sh2o)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE TDFCND
+* subroutine TDfCnd
 * ----------------------------------------------------------------------
-* CALCULATE THERMAL DIFFUSIVITY AND CONDUCTIVITY OF THE SOIL FOR A GIVEN
-* POINT AND TIME.
+* calculate thermal diffusivity and conductivity of the soil for a given
+* point and time.
 * ----------------------------------------------------------------------
-* PETERS-LIDARD APPROACH (PETERS-LIDARD et al., 1998)
-* June 2001 CHANGES: FROZEN SOIL CONDITION.
+* peters-lidard approach (peters-lidard et al., 1998)
+* june 2001 changes: frozen soil condition.
 * --------------------------------------------------------------------*/
-    double          AKE, GAMMD, THKDRY, THKICE, THKO, THKQTZ, THKSAT, THKS,
-       THKW, SATRATIO, XU, XUNFROZ;
+    double          ake, gammd, thkdry, thkice, thko, thkqtz, thksat, thks,
+       thkw, satratio, xu, xunfroz;
 
 /*----------------------------------------------------------------------
-* WE NOW GET QUARTZ AS AN INPUT ARGUMENT (SET IN ROUTINE REDPRM):
-*      DATA QUARTZ /0.82, 0.10, 0.25, 0.60, 0.52,
+* we now get quartz as an input argument (set in routine RedPrm):
+*      data quartz /0.82, 0.10, 0.25, 0.60, 0.52,
 *     &             0.35, 0.60, 0.40, 0.82/
 * ----------------------------------------------------------------------
-* IF THE SOIL HAS ANY MOISTURE CONTENT COMPUTE A PARTIAL SUM/PRODUCT
-* OTHERWISE USE A CONSTANT VALUE WHICH WORKS WELL WITH MOST SOILS
+* if the soil has any moisture content compute a partial sum/product
+* otherwise use a constant value which works well with most soils
 * ----------------------------------------------------------------------
-*  THKW ......WATER THERMAL CONDUCTIVITY
-*  THKQTZ ....THERMAL CONDUCTIVITY FOR QUARTZ
-*  THKO ......THERMAL CONDUCTIVITY FOR OTHER SOIL COMPONENTS
-*  THKS ......THERMAL CONDUCTIVITY FOR THE SOLIDS COMBINED(QUARTZ+OTHER)
-*  THKICE ....ICE THERMAL CONDUCTIVITY
-*  SMCMAX ....POROSITY (= SMCMAX)
-*  QZ .........QUARTZ CONTENT (SOIL TYPE DEPENDENT)
+*  thkw ......water thermal conductivity
+*  thkqtz ....thermal conductivity for quartz
+*  thko ......thermal conductivity for other soil components
+*  thks ......thermal conductivity for the solids combined(quartz+other)
+*  thkice ....ice thermal conductivity
+*  smcmax ....porosity (= smcmax)
+*  qz .........quartz content (soil type dependent)
 * ----------------------------------------------------------------------
-* USE AS IN PETERS-LIDARD, 1998 (MODIF. FROM JOHANSEN, 1975).
+* use as in peters-lidard, 1998 (modif. from johansen, 1975).
 
-*                                  PABLO GRUNMANN, 08/17/98
-* REFS.:
-*      FAROUKI, O.T.,1986: THERMAL PROPERTIES OF SOILS. SERIES ON ROCK
-*              AND SOIL MECHANICS, VOL. 11, TRANS TECH, 136 PP.
-*      JOHANSEN, O., 1975: THERMAL CONDUCTIVITY OF SOILS. PH.D. THESIS,
-*              UNIVERSITY OF TRONDHEIM,
-*      PETERS-LIDARD, C. D., ET AL., 1998: THE EFFECT OF SOIL THERMAL
-*              CONDUCTIVITY PARAMETERIZATION ON SURFACE ENERGY FLUXES
-*              AND TEMPERATURES. JOURNAL OF THE ATMOSPHERIC SCIENCES,
-*              VOL. 55, PP. 1209-1224.
+*                                  pablo grunmann, 08/17/98
+* refs.:
+*      farouki, o.t.,1986: thermal properties of soils. series on rock
+*              and soil mechanics, vol. 11, trans tech, 136 pp.
+*      johansen, o., 1975: thermal conductivity of soils. ph.d. thesis,
+*              university of trondheim,
+*      peters-lidard, c. d., et al., 1998: the effect of soil thermal
+*              conductivity parameterization on surface energy fluxes
+*              and temperatures. journal of the atmospheric sciences,
+*              vol. 55, pp. 1209-1224.
 * --------------------------------------------------------------------*/
-    // NEEDS PARAMETERS
-    // POROSITY(SOIL TYPE):
-    //      POROS = SMCMAX
-    // SATURATION RATIO:
-    // PARAMETERS  W/(M.K)
-#ifdef _FLUX_PIHM_
-    SATRATIO = (*SMC - *SMCMIN) / (*SMCMAX - *SMCMIN);
+    // needs parameters
+    // porosity(soil type):
+    //      poros = smcmax
+    // saturation ratio:
+    // parameters  w/(m.k)
+#ifdef _NOAH_
+    satratio = (*smc - *smcmin) / (*smcmax - *smcmin);
 #else
-    SATRATIO = *SMC / *SMCMAX;
+    satratio = *smc / *smcmax;
 #endif
 
     /*
-     * ICE CONDUCTIVITY: 
+     * ice conductivity: 
      */
-    THKICE = 2.2;
+    thkice = 2.2;
 
     /*
-     * WATER CONDUCTIVITY: 
+     * water conductivity: 
      */
-    THKW = 0.57;
+    thkw = 0.57;
 
     /*
-     * THERMAL CONDUCTIVITY OF "OTHER" SOIL COMPONENTS 
+     * thermal conductivity of "other" soil components 
      */
-    //      IF (QZ .LE. 0.2) THKO = 3.0
-    THKO = 2.0;
+    //      if (qz .le. 0.2) thko = 3.0
+    thko = 2.0;
 
     /*
-     * QUARTZ' CONDUCTIVITY 
+     * quartz' conductivity 
      */
-    THKQTZ = 7.7;
+    thkqtz = 7.7;
 
     /*
-     * SOLIDS' CONDUCTIVITY 
+     * solids' conductivity 
      */
-    THKS = pow (THKQTZ, *QZ) * pow (THKO, 1. - *QZ);
+    thks = pow (thkqtz, *qz) * pow (thko, 1. - *qz);
 
     /*
-     * UNFROZEN FRACTION (FROM 1., i.e., 100%LIQUID, TO 0. (100% FROZEN)) 
+     * unfrozen fraction (from 1., i.e., 100%liquid, to 0. (100% frozen)) 
      */
-    XUNFROZ = *SH2O / *SMC;
+    xunfroz = *sh2o / *smc;
 
     /*
-     * UNFROZEN VOLUME FOR SATURATION (POROSITY*XUNFROZ) 
+     * unfrozen volume for saturation (porosity*xunfroz) 
      */
-    XU = XUNFROZ * (*SMCMAX);
+    xu = xunfroz * (*smcmax);
 
     /*
-     * SATURATED THERMAL CONDUCTIVITY 
+     * saturated thermal conductivity 
      */
-    THKSAT =
-       pow (THKS, 1. - *SMCMAX) * pow (THKICE, *SMCMAX - XU) * pow (THKW, XU);
+    thksat =
+       pow (thks, 1. - *smcmax) * pow (thkice, *smcmax - xu) * pow (thkw, xu);
 
     /*
-     * DRY DENSITY IN KG/M3 
+     * dry density in kg/m3 
      */
-    GAMMD = (1. - *SMCMAX) * 2700.;
+    gammd = (1. - *smcmax) * 2700.;
 
     /*
-     * DRY THERMAL CONDUCTIVITY IN W.M-1.K-1 
+     * dry thermal conductivity in w.m-1.k-1 
      */
-    THKDRY = (0.135 * GAMMD + 64.7) / (2700. - 0.947 * GAMMD);
+    thkdry = (0.135 * gammd + 64.7) / (2700. - 0.947 * gammd);
 
     /*
-     * FROZEN 
+     * frozen 
      */
-    if ((*SH2O + 0.0005) < *SMC)
-        AKE = SATRATIO;
+    if ((*sh2o + 0.0005) < *smc)
+        ake = satratio;
 
     /*
-     * UNFROZEN
-     * RANGE OF VALIDITY FOR THE KERSTEN NUMBER (AKE)
+     * unfrozen
+     * range of validity for the kersten number (ake)
      */
     else
     {
 
         /*
-         * KERSTEN NUMBER (USING "FINE" FORMULA, VALID FOR SOILS CONTAINING AT
-         * LEAST 5% OF PARTICLES WITH DIAMETER LESS THAN 2.E-6 METERS.)
-         * (FOR "COARSE" FORMULA, SEE PETERS-LIDARD ET AL., 1998).
+         * kersten number (using "fine" formula, valid for soils containing at
+         * least 5% of particles with diameter less than 2.e-6 meters.)
+         * (for "coarse" formula, see peters-lidard et al., 1998).
          */
 
-        if (SATRATIO > 0.1)
-            AKE = log10 (SATRATIO) + 1.0;
+        if (satratio > 0.1)
+            ake = log10 (satratio) + 1.0;
 
         /*
-         * USE K = KDRY 
+         * use k = kdry 
          */
         else
-            AKE = 0.0;
+            ake = 0.0;
     }
 
     /*
-     * THERMAL CONDUCTIVITY 
+     * thermal conductivity 
      */
 
-    *DF = AKE * (THKSAT - THKDRY) + THKDRY;
+    *df = ake * (thksat - thkdry) + thkdry;
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE TDFCND
+  end subroutine TDfCnd
 * --------------------------------------------------------------------*/
 }
 
 void
-TMPAVG (double *TAVG, double *TUP, double *TM, double *TDN, double *ZSOIL,
-   int *NSOIL, int K)
+TmpAvg (double *tavg, double *tup, double *tm, double *tdn, double *zsoil,
+   int *nsoil, int k)
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE TMPAVG
+* subroutine TmpAvg
 * ----------------------------------------------------------------------
-* CALCULATE SOIL LAYER AVERAGE TEMPERATURE (TAVG) IN FREEZING/THAWING
-* LAYER USING UP, DOWN, AND MIDDLE LAYER TEMPERATURES (TUP, TDN, TM),
-* WHERE TUP IS AT TOP BOUNDARY OF LAYER, TDN IS AT BOTTOM BOUNDARY OF
-* LAYER.  TM IS LAYER PROGNOSTIC STATE TEMPERATURE.
+* calculate soil layer average temperature (tavg) in freezing/thawing
+* layer using up, down, and middle layer temperatures (tup, tdn, tm),
+* where tup is at top boundary of layer, tdn is at bottom boundary of
+* layer.  tm is layer prognostic state temperature.
 * --------------------------------------------------------------------*/
-    double          DZ, DZH, X0, XDN, XUP;
-    double          T0 = 2.7315e2;
+    double          dz, dzh, x0, xdn, xup;
+    double          t0 = 2.7315e2;
 
 /*--------------------------------------------------------------------*/
 
-    if (K == 0)
-        DZ = -ZSOIL[0];
+    if (k == 0)
+        dz = -zsoil[0];
     else
-        DZ = ZSOIL[K - 1] - ZSOIL[K];
+        dz = zsoil[k - 1] - zsoil[k];
 
-    DZH = DZ * 0.5;
-    if (*TUP < T0)
+    dzh = dz * 0.5;
+    if (*tup < t0)
     {
-        if (*TM < T0)
+        if (*tm < t0)
         {
 
 /*----------------------------------------------------------------------
-* TUP, TM, TDN < T0
+* tup, tm, tdn < t0
 * --------------------------------------------------------------------*/
-            if (*TDN < T0)
-                *TAVG = (*TUP + 2.0 * *TM + *TDN) / 4.0;
+            if (*tdn < t0)
+                *tavg = (*tup + 2.0 * *tm + *tdn) / 4.0;
 
 /*----------------------------------------------------------------------
-* TUP & TM < T0,  TDN .ge. T0
+* tup & tm < t0,  tdn .ge. t0
 * --------------------------------------------------------------------*/
             else
             {
-                X0 = (T0 - *TM) * DZH / (*TDN - *TM);
-                *TAVG =
-                   0.5 * (*TUP * DZH + *TM * (DZH + X0) + T0 * (2. * DZH -
-                      X0)) / DZ;
+                x0 = (t0 - *tm) * dzh / (*tdn - *tm);
+                *tavg =
+                   0.5 * (*tup * dzh + *tm * (dzh + x0) + t0 * (2. * dzh -
+                      x0)) / dz;
             }
         }
         else
         {
 
 /*----------------------------------------------------------------------
-* TUP < T0, TM .ge. T0, TDN < T0
+* tup < t0, tm .ge. t0, tdn < t0
 * --------------------------------------------------------------------*/
-            if (*TDN < T0)
+            if (*tdn < t0)
             {
-                XUP = (T0 - *TUP) * DZH / (*TM - *TUP);
-                XDN = DZH - (T0 - *TM) * DZH / (*TDN - *TM);
-                *TAVG =
-                   0.5 * (*TUP * XUP + T0 * (2. * DZ - XUP - XDN) +
-                   *TDN * XDN) / DZ;
+                xup = (t0 - *tup) * dzh / (*tm - *tup);
+                xdn = dzh - (t0 - *tm) * dzh / (*tdn - *tm);
+                *tavg =
+                   0.5 * (*tup * xup + t0 * (2. * dz - xup - xdn) +
+                   *tdn * xdn) / dz;
             }
 
 /*----------------------------------------------------------------------
-* TUP < T0, TM .ge. T0, TDN .ge. T0
+* tup < t0, tm .ge. t0, tdn .ge. t0
 * --------------------------------------------------------------------*/
             else
             {
-                XUP = (T0 - *TUP) * DZH / (*TM - *TUP);
-                *TAVG = 0.5 * (*TUP * XUP + T0 * (2. * DZ - XUP)) / DZ;
+                xup = (t0 - *tup) * dzh / (*tm - *tup);
+                *tavg = 0.5 * (*tup * xup + t0 * (2. * dz - xup)) / dz;
             }
         }
     }
     else
     {
-        if (*TM < T0)
+        if (*tm < t0)
         {
 
 /*----------------------------------------------------------------------
-* TUP .ge. T0, TM < T0, TDN < T0
+* tup .ge. t0, tm < t0, tdn < t0
 * --------------------------------------------------------------------*/
-            if (*TDN < T0)
+            if (*tdn < t0)
             {
-                XUP = DZH - (T0 - *TUP) * DZH / (*TM - *TUP);
-                *TAVG =
-                   0.5 * (T0 * (DZ - XUP) + *TM * (DZH + XUP) +
-                   *TDN * DZH) / DZ;
+                xup = dzh - (t0 - *tup) * dzh / (*tm - *tup);
+                *tavg =
+                   0.5 * (t0 * (dz - xup) + *tm * (dzh + xup) +
+                   *tdn * dzh) / dz;
             }
 
 /*----------------------------------------------------------------------
-* TUP .ge. T0, TM < T0, TDN .ge. T0
+* tup .ge. t0, tm < t0, tdn .ge. t0
 * --------------------------------------------------------------------*/
             else
             {
-                XUP = DZH - (T0 - *TUP) * DZH / (*TM - *TUP);
-                XDN = (T0 - *TM) * DZH / (*TDN - *TM);
-                *TAVG =
-                   0.5 * (T0 * (2. * DZ - XUP - XDN) + *TM * (XUP +
-                      XDN)) / DZ;
+                xup = dzh - (t0 - *tup) * dzh / (*tm - *tup);
+                xdn = (t0 - *tm) * dzh / (*tdn - *tm);
+                *tavg =
+                   0.5 * (t0 * (2. * dz - xup - xdn) + *tm * (xup +
+                      xdn)) / dz;
             }
         }
         else
         {
 
 /*----------------------------------------------------------------------
-* TUP .ge. T0, TM .ge. T0, TDN < T0
+* tup .ge. t0, tm .ge. t0, tdn < t0
 * --------------------------------------------------------------------*/
-            if (*TDN < T0)
+            if (*tdn < t0)
             {
-                XDN = DZH - (T0 - *TM) * DZH / (*TDN - *TM);
-                *TAVG = (T0 * (DZ - XDN) + 0.5 * (T0 + *TDN) * XDN) / DZ;
+                xdn = dzh - (t0 - *tm) * dzh / (*tdn - *tm);
+                *tavg = (t0 * (dz - xdn) + 0.5 * (t0 + *tdn) * xdn) / dz;
             }
 
 /*----------------------------------------------------------------------
-* TUP .ge. T0, TM .ge. T0, TDN .ge. T0
+* tup .ge. t0, tm .ge. t0, tdn .ge. t0
 * --------------------------------------------------------------------*/
             else
-                *TAVG = (*TUP + 2.0 * *TM + *TDN) / 4.0;
+                *tavg = (*tup + 2.0 * *tm + *tdn) / 4.0;
         }
     }
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE TMPAVG
+  end subroutine TmpAvg
 * --------------------------------------------------------------------*/
 }
 
 void
-TRANSP (double *ET, int *NSOIL, double *ETP1, double *SMC, double *CMC,
-   double *ZSOIL, double *SHDFAC, double *SMCWLT, double *CMCMAX, double *PC,
-   double *CFACTR, double *SMCREF, double *SFCTMP, double *Q2, int *NROOT,
-   double *RTDIS)
+Transp (double *et, int *nsoil, double *etp1, double *smc, double *cmc,
+   double *zsoil, double *shdfac, double *smcwlt, double *cmcmax, double *pc,
+   double *cfactr, double *smcref, double *sfctmp, double *q2, int *nroot,
+   double *rtdis)
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE TRANSP
+* subroutine Transp
 * ----------------------------------------------------------------------
-* CALCULATE TRANSPIRATION FOR THE VEG CLASS.
+* calculate transpiration for the veg class.
 * --------------------------------------------------------------------*/
-    int             I, K;
-    double          DENOM;
-    double          ETP1A;
-    //.....REAL PART(NSOIL)
-    double          GX[*NROOT];
-    double          RTX, SGX;
+    int             i, k;
+    double          denom;
+    double          etp1a;
+    //.....real part(nsoil)
+    double          gx[*nroot];
+    double          rtx, sgx;
 
 /*----------------------------------------------------------------------
-* INITIALIZE PLANT TRANSP TO ZERO FOR ALL SOIL LAYERS.
+* initialize plant transp to zero for all soil layers.
 * --------------------------------------------------------------------*/
-    for (K = 0; K < *NSOIL; K++)
-        ET[K] = 0.;
+    for (k = 0; k < *nsoil; k++)
+        et[k] = 0.;
 
 /*----------------------------------------------------------------------
-* CALCULATE AN 'ADJUSTED' POTENTIAL TRANSPIRATION
-* IF STATEMENT BELOW TO AVOID TANGENT LINEAR PROBLEMS NEAR ZERO
-* NOTE: GX AND OTHER TERMS BELOW REDISTRIBUTE TRANSPIRATION BY LAYER,
-* ET(K), AS A FUNCTION OF SOIL MOISTURE AVAILABILITY, WHILE PRESERVING
-* TOTAL ETP1A.
+* calculate an 'adjusted' potential transpiration
+* if statement below to avoid tangent linear problems near zero
+* note: gx and other terms below redistribute transpiration by layer,
+* et(k), as a function of soil moisture availability, while preserving
+* total etp1a.
 * --------------------------------------------------------------------*/
-    if (*CMC != 0.0)
-        ETP1A = *SHDFAC * *PC * *ETP1 * (1.0 - pow (*CMC / *CMCMAX, *CFACTR));
+    if (*cmc != 0.0)
+        etp1a = *shdfac * *pc * *etp1 * (1.0 - pow (*cmc / *cmcmax, *cfactr));
     else
-        ETP1A = *SHDFAC * *PC * *ETP1;
-    SGX = 0.0;
-    for (I = 0; I < *NROOT; I++)
+        etp1a = *shdfac * *pc * *etp1;
+    sgx = 0.0;
+    for (i = 0; i < *nroot; i++)
     {
-        GX[I] = (SMC[I] - *SMCWLT) / (*SMCREF - *SMCWLT);
-        if (GX[I] < 0)
-            GX[I] = 0;
-        if (GX[I] > 1)
-            GX[I] = 1.0;
-        SGX = SGX + GX[I];
+        gx[i] = (smc[i] - *smcwlt) / (*smcref - *smcwlt);
+        if (gx[i] < 0)
+            gx[i] = 0;
+        if (gx[i] > 1)
+            gx[i] = 1.0;
+        sgx = sgx + gx[i];
     }
 
-    SGX = SGX / (double)*NROOT;
-    DENOM = 0.;
-    for (I = 0; I < *NROOT; I++)
+    sgx = sgx / (double)*nroot;
+    denom = 0.;
+    for (i = 0; i < *nroot; i++)
     {
-        RTX = RTDIS[I] + GX[I] - SGX;
-        GX[I] = GX[I] * (RTX > 0. ? RTX : 0.);
-        DENOM = DENOM + GX[I];
+        rtx = rtdis[i] + gx[i] - sgx;
+        gx[i] = gx[i] * (rtx > 0. ? rtx : 0.);
+        denom = denom + gx[i];
     }
 
-    if (DENOM <= 0.0)
-        DENOM = 1.;
-    for (I = 0; I < *NROOT; I++)
+    if (denom <= 0.0)
+        denom = 1.;
+    for (i = 0; i < *nroot; i++)
     {
-        ET[I] = ETP1A * GX[I] / DENOM;
+        et[i] = etp1a * gx[i] / denom;
 
 /*----------------------------------------------------------------------
-* ABOVE CODE ASSUMES A VERTICALLY UNIFORM ROOT DISTRIBUTION
-* CODE BELOW TESTS A VARIABLE ROOT DISTRIBUTION
+* above code assumes a vertically uniform root distribution
+* code below tests a variable root distribution
 * ----------------------------------------------------------------------
-*		ET[0] = (ZSOIL[0] / ZSOIL(*NROOT) ) * GX * ETP1A;
-*		ET[0] = (ZSOIL[0] / ZSOIL(*NROOT) ) * ETP1A;
+*		et[0] = (zsoil[0] / zsoil(*nroot) ) * gx * etp1a;
+*		et[0] = (zsoil[0] / zsoil(*nroot) ) * etp1a;
 * ----------------------------------------------------------------------
-* USING ROOT DISTRIBUTION AS WEIGHTING FACTOR
+* using root distribution as weighting factor
 * ----------------------------------------------------------------------
-*		ET[0] = RTDIS[0] * ETP1A;
-*		ET[0] = ETP1A * PART[0];
+*		et[0] = rtdis[0] * etp1a;
+*		et[0] = etp1a * part[0];
 * ----------------------------------------------------------------------
-* LOOP DOWN THRU THE SOIL LAYERS REPEATING THE OPERATION ABOVE,
-* BUT USING THE THICKNESS OF THE SOIL LAYER (RATHER THAN THE
-* ABSOLUTE DEPTH OF EACH LAYER) IN THE FINAL CALCULATION.
+* loop down thru the soil layers repeating the operation above,
+* but using the thickness of the soil layer (rather than the
+* absolute depth of each layer) in the final calculation.
 * ----------------------------------------------------------------------
-*		for (K = 1; K < *NROOT; K++)
+*		for (k = 1; k < *nroot; k++)
 		{
-*			GX = (SMC[K] - *SMCWLT ) / (*SMCREF - *SMCWLT);
-*			GX = GX < 1.0 ? GX : 1.0;
-*			GX = GX > 0.0 ? GX : 0.0;
-* TEST CANOPY RESISTANCE
-*			GX = 1.0;
-*			ET[K] = ((ZSOIL[K] - ZSOIL[K-1]) / ZSOIL[*NROOT - 1]) * GX * ETP1A;
-*			ET[K] = ((ZSOIL[K] - ZSOIL[K-1]) / ZSOIL[*NROOT - 1]) * ETP1A;
+*			gx = (smc[k] - *smcwlt ) / (*smcref - *smcwlt);
+*			gx = gx < 1.0 ? gx : 1.0;
+*			gx = gx > 0.0 ? gx : 0.0;
+* test canopy resistance
+*			gx = 1.0;
+*			et[k] = ((zsoil[k] - zsoil[k-1]) / zsoil[*nroot - 1]) * gx * etp1a;
+*			et[k] = ((zsoil[k] - zsoil[k-1]) / zsoil[*nroot - 1]) * etp1a;
 * ----------------------------------------------------------------------
-* USING ROOT DISTRIBUTION AS WEIGHTING FACTOR
+* using root distribution as weighting factor
 * ----------------------------------------------------------------------
-*			ET[K] = RTDIS[K] * ETP1A;
-*			ET[K] = ETP1A * PART[K];
+*			et[k] = rtdis[k] * etp1a;
+*			et[k] = etp1a * part[k];
 *		}
 */
     }
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE TRANSP
+  end subroutine Transp
 * --------------------------------------------------------------------*/
 }
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 void
-WDFCND (double *WDF, double *WCND, double *SMC, double *SMCMAX, double *SMCMIN, double *VGALPHA, double *VGBETA, double *DKSAT, double *MACKSAT, double *AREAF, int *MAC_STATUS, double *SICEMAX, double *DSMDZ, int *MACPORE)
+WDfCnd (double *wdf, double *wcnd, double *smc, double *smcmax, double *smcmin, double *vgalpha, double *vgbeta, double *dksat, double *macksat, double *areaf, int *mac_status, double *sicemax, double *dsmdz, int *macpore)
 #else
 void
-WDFCND (double *WDF, double *WCND, double *SMC, double *SMCMAX, double *BEXP, double *DKSAT, double *DWSAT, double *SICEMAX)
+WDfCnd (double *wdf, double *wcnd, double *smc, double *smcmax, double *bexp, double *dksat, double *dwsat, double *sicemax)
 #endif
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE WDFCND
+* subroutine WDfCnd
 * ----------------------------------------------------------------------
-* CALCULATE SOIL WATER DIFFUSIVITY AND SOIL HYDRAULIC CONDUCTIVITY.
+* calculate soil water diffusivity and soil hydraulic conductivity.
 * --------------------------------------------------------------------*/
-    double          EXPON, FACTR1, FACTR2, VKWGT;
-#ifdef _FLUX_PIHM_
-    double          SATKFUNC, DPSIDSM;
+    double          expon, factr1, factr2, vkwgt;
+#ifdef _NOAH_
+    double          satkfunc, dpsidsm;
 #endif
 
 /*----------------------------------------------------------------------
-*     CALC THE RATIO OF THE ACTUAL TO THE MAX PSBL SOIL H2O CONTENT
+*     calc the ratio of the actual to the max psbl soil h2o content
 * --------------------------------------------------------------------*/
 
-#ifdef _FLUX_PIHM_
-    FACTR1 = 0.05 / (*SMCMAX - *SMCMIN);
-    FACTR2 = (*SMC - *SMCMIN) / (*SMCMAX - *SMCMIN);
+#ifdef _NOAH_
+    factr1 = 0.05 / (*smcmax - *smcmin);
+    factr2 = (*smc - *smcmin) / (*smcmax - *smcmin);
 
 /*----------------------------------------------------------------------
-* FACTR2 should avoid to be 0 or 1
+* factr2 should avoid to be 0 or 1
 * --------------------------------------------------------------------*/
-    if (FACTR2 > 1. - .0005)
-        FACTR2 = 1. - .0005;
-    if (FACTR2 < 0. + .0005)
-        FACTR2 = .0005;
-    FACTR1 = FACTR1 < FACTR2 ? FACTR1 : FACTR2;
-    EXPON = 1.0 - 1. / *VGBETA;
+    if (factr2 > 1. - .0005)
+        factr2 = 1. - .0005;
+    if (factr2 < 0. + .0005)
+        factr2 = .0005;
+    factr1 = factr1 < factr2 ? factr1 : factr2;
+    expon = 1.0 - 1. / *vgbeta;
 
-    SATKFUNC =
-       pow (FACTR2, 0.5) * pow (1. - pow (1. - pow (FACTR2, 1. / EXPON),
-          EXPON), 2.);
-    DPSIDSM =
-       (1. - EXPON) / *VGALPHA / EXPON / (*SMCMAX -
-       *SMCMIN) * pow (pow (FACTR2, -1. / EXPON) - 1.,
-       0. - EXPON) * pow (FACTR2, -(1. / EXPON + 1.));
+    satkfunc =
+       pow (factr2, 0.5) * pow (1. - pow (1. - pow (factr2, 1. / expon),
+          expon), 2.);
+    dpsidsm =
+       (1. - expon) / *vgalpha / expon / (*smcmax -
+       *smcmin) * pow (pow (factr2, -1. / expon) - 1.,
+       0. - expon) * pow (factr2, -(1. / expon + 1.));
 
-    if (*MACPORE == 1)
-        *WCND = EFFKV (SATKFUNC, FACTR2, *MAC_STATUS, *MACKSAT, *DKSAT, *AREAF);
+    if (*macpore == 1)
+        *wcnd = EFFKV (satkfunc, factr2, *mac_status, *macksat, *dksat, *areaf);
     else
-        *WCND = *DKSAT * SATKFUNC;
+        *wcnd = *dksat * satkfunc;
 
-    *WDF = *WCND * DPSIDSM;
+    *wdf = *wcnd * dpsidsm;
 
-    //  *WDF = (1. - EXPON) * (*DKSAT * (1. - *AREAF) + *MACKSAT * *AREAF) / *VGALPHA / EXPON / (*SMCMAX - *SMCMIN) * pow(FACTR2, 0.5 - 1. / EXPON) * (pow(1. - pow(FACTR2, 1. / EXPON) ,-EXPON) + pow(1. - pow(FACTR2, 1. / EXPON) ,EXPON) - 2.);
-    //  *WCND = sqrt(FACTR2) * pow(1. - pow(1. - pow(FACTR2, 1. / EXPON), EXPON), 2.) * (*DKSAT * (1. - *AREAF) + *MACKSAT * *AREAF);
+    //  *wdf = (1. - expon) * (*dksat * (1. - *areaf) + *macksat * *areaf) / *vgalpha / expon / (*smcmax - *smcmin) * pow(factr2, 0.5 - 1. / expon) * (pow(1. - pow(factr2, 1. / expon) ,-expon) + pow(1. - pow(factr2, 1. / expon) ,expon) - 2.);
+    //  *wcnd = sqrt(factr2) * pow(1. - pow(1. - pow(factr2, 1. / expon), expon), 2.) * (*dksat * (1. - *areaf) + *macksat * *areaf);
 
-    if (*SICEMAX > 0.0)
+    if (*sicemax > 0.0)
     {
-        VKWGT = 1. / (1. + pow (500. * *SICEMAX, 3.));
-        SATKFUNC =
-           pow (FACTR1, 0.5) * pow (1. - pow (1. - pow (FACTR1, 1. / EXPON),
-              EXPON), 2.);
-        DPSIDSM =
-           (1. - EXPON) / *VGALPHA / EXPON / (*SMCMAX -
-           *SMCMIN) * pow (pow (FACTR1, -1. / EXPON) - 1.,
-           0. - EXPON) * pow (FACTR1, -(1. / EXPON + 1.));
-        if (*MACPORE == 1)
-            *WDF =
-               VKWGT * *WDF + (1. - VKWGT) * DPSIDSM * EFFKV (SATKFUNC, FACTR1, *MAC_STATUS, *MACKSAT, *DKSAT, *AREAF);
+        vkwgt = 1. / (1. + pow (500. * *sicemax, 3.));
+        satkfunc =
+           pow (factr1, 0.5) * pow (1. - pow (1. - pow (factr1, 1. / expon),
+              expon), 2.);
+        dpsidsm =
+           (1. - expon) / *vgalpha / expon / (*smcmax -
+           *smcmin) * pow (pow (factr1, -1. / expon) - 1.,
+           0. - expon) * pow (factr1, -(1. / expon + 1.));
+        if (*macpore == 1)
+            *wdf =
+               vkwgt * *wdf + (1. - vkwgt) * dpsidsm * EFFKV (satkfunc, factr1, *mac_status, *macksat, *dksat, *areaf);
         else
-            *WDF = VKWGT * *WDF + (1. - VKWGT) * DPSIDSM * SATKFUNC * *DKSAT;
+            *wdf = vkwgt * *wdf + (1. - vkwgt) * dpsidsm * satkfunc * *dksat;
     }
 
 
 #else
 
 /*----------------------------------------------------------------------
-* PREP AN EXPNTL COEF AND CALC THE SOIL WATER DIFFUSIVITY
+* prep an expntl coef and calc the soil water diffusivity
 * --------------------------------------------------------------------*/
-    FACTR1 = 0.05 / *SMCMAX;
-    FACTR2 = *SMC / *SMCMAX;
-    FACTR1 = FACTR1 < FACTR2 ? FACTR1 : FACTR2;
-    EXPON = *BEXP + 2.0;
+    factr1 = 0.05 / *smcmax;
+    factr2 = *smc / *smcmax;
+    factr1 = factr1 < factr2 ? factr1 : factr2;
+    expon = *bexp + 2.0;
 
 /*----------------------------------------------------------------------
-* FROZEN SOIL HYDRAULIC DIFFUSIVITY.  VERY SENSITIVE TO THE VERTICAL
-* GRADIENT OF UNFROZEN WATER. THE LATTER GRADIENT CAN BECOME VERY
-* EXTREME IN FREEZING/THAWING SITUATIONS, AND GIVEN THE RELATIVELY
-* FEW AND THICK SOIL LAYERS, THIS GRADIENT SUFFERES SERIOUS
-* TRUNCTION ERRORS YIELDING ERRONEOUSLY HIGH VERTICAL TRANSPORTS OF
-* UNFROZEN WATER IN BOTH DIRECTIONS FROM HUGE HYDRAULIC DIFFUSIVITY.
-* THEREFORE, WE FOUND WE HAD TO ARBITRARILY CONSTRAIN WDF
+* frozen soil hydraulic diffusivity.  very sensitive to the vertical
+* gradient of unfrozen water. the latter gradient can become very
+* extreme in freezing/thawing situations, and given the relatively
+* few and thick soil layers, this gradient sufferes serious
+* trunction errors yielding erroneously high vertical transports of
+* unfrozen water in both directions from huge hydraulic diffusivity.
+* therefore, we found we had to arbitrarily constrain wdf
 * --
-* VERSION D_10CM: ........  FACTR1 = 0.2/SMCMAX
-* WEIGHTED APPROACH...................... PABLO GRUNMANN, 28_SEP_1999.
+* version d_10cm: ........  factr1 = 0.2/smcmax
+* weighted approach...................... pablo grunmann, 28_sep_1999.
 * --------------------------------------------------------------------*/
-    *WDF = *DWSAT * pow (FACTR2, EXPON);
-    if (*SICEMAX > 0.0)
+    *wdf = *dwsat * pow (factr2, expon);
+    if (*sicemax > 0.0)
     {
-        VKWGT = 1. / (1. + pow (500. * *SICEMAX, 3.));
-        *WDF = VKWGT * *WDF + (1. - VKWGT) * *DWSAT * pow (FACTR1, EXPON);
+        vkwgt = 1. / (1. + pow (500. * *sicemax, 3.));
+        *wdf = vkwgt * *wdf + (1. - vkwgt) * *dwsat * pow (factr1, expon);
 
 /*----------------------------------------------------------------------
-* RESET THE EXPNTL COEF AND CALC THE HYDRAULIC CONDUCTIVITY
+* reset the expntl coef and calc the hydraulic conductivity
 * --------------------------------------------------------------------*/
     }
-    EXPON = (2.0 * *BEXP) + 3.0;
-    *WCND = *DKSAT * pow (FACTR2, EXPON);
+    expon = (2.0 * *bexp) + 3.0;
+    *wcnd = *dksat * pow (factr2, expon);
 #endif
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE WDFCND
+  end subroutine WDfCnd
 * --------------------------------------------------------------------*/
 }
 
 
-void SFCDIF_off (double *ZLM, double *ZLM_WIND, double *Z0, double *THZ0, double *THLM, double *SFCSPD, double *CZIL, double *AKMS, double *AKHS, int *VEGTYP, int *ISURBAN, int *IZ0TLND)
+void SfcDifOff (double *zlm, double *zlm_wind, double *z0, double *thz0, double *thlm, double *sfcspd, double *czil, double *akms, double *akhs, int *vegtyp, int *isurban, int *iz0tlnd)
 {
 
 /*----------------------------------------------------------------------
-* SUBROUTINE SFCDIF (renamed SFCDIF_off to avoid clash with Eta PBL)
+* subroutine sfcdif (renamed SfcDifOff to avoid clash with eta pbl)
 * ----------------------------------------------------------------------
-* CALCULATE SURFACE LAYER EXCHANGE COEFFICIENTS VIA ITERATIVE PROCESS.
-* SEE CHEN ET AL (1997, BLM)
+* calculate surface layer exchange coefficients via iterative process.
+* see chen et al (1997, blm)
 * --------------------------------------------------------------------*/
 
-    double          ZILFC, ZU, ZT, RDZ, CXCH;
-    double          DTHV, DU2, BTGH, WSTAR2, USTAR, ZSLU, ZSLT, RLOGU, RLOGT;
-    double          RLMO, ZETALT, ZETALU, ZETAU, ZETAT, XLU4, XLT4, XU4, XT4;
-    //!CC   ......REAL ZTFC
+    double          zilfc, zu, zt, rdz, cxch;
+    double          dthv, du2, btgh, wstar2, ustar, zslu, zslt, rlogu, rlogt;
+    double          rlmo, zetalt, zetalu, zetau, zetat, xlu4, xlt4, xu4, xt4;
+    //!cc   ......real ztfc
 
-    double          XLU, XLT, XU, XT, PSMZ, SIMM, PSHZ, SIMH, USTARK, RLMN,
-       RLMA;
+    double          xlu, xlt, xu, xt, psmz, simm, pshz, simh, ustark, rlmn,
+       rlma;
 
-    int             ILECH, ITR;
+    int             ilech, itr;
 
-    double          WWST = 1.2;
-    double          WWST2;
-    double          G = 9.8, VKRM = 0.40, EXCM = 0.001, BETA = 1. / 270.;
-    double          BTG, ELFC;
-    double          WOLD = .15;
-    double          WNEW;
-    int             ITRMX = 5;
+    double          wwst = 1.2;
+    double          wwst2;
+    double          g = 9.8, vkrm = 0.40, excm = 0.001, beta = 1. / 270.;
+    double          btg, elfc;
+    double          wold = .15;
+    double          wnew;
+    int             itrmx = 5;
 
-    double          EPSU2 = 1.e-4;
-    double          EPSUST = 0.07;
-    //  double EPSA = 1.e-8;
-    double          ZTMIN = -5.;
-    double          ZTMAX = 1.;
-    double          HPBL = 1000.0;
-    double          SQVISC = 258.2;
+    double          epsu2 = 1.e-4;
+    double          epsust = 0.07;
+    //  double epsa = 1.e-8;
+    double          ztmin = -5.;
+    double          ztmax = 1.;
+    double          hpbl = 1000.0;
+    double          sqvisc = 258.2;
 
-    WWST2 = WWST * WWST;
-    BTG = BETA * G;
-    ELFC = VKRM * BTG;
-    WNEW = 1. - WOLD;
+    wwst2 = wwst * wwst;
+    btg = beta * g;
+    elfc = vkrm * btg;
+    wnew = 1. - wold;
 
 /*----------------------------------------------------------------------
-*     ZTFC: RATIO OF ZOH/ZOM  LESS OR EQUAL THAN 1
-*     C......ZTFC=0.1
-*     CZIL: CONSTANT C IN Zilitinkevich, S. S.1995,:NOTE ABOUT ZT
+*     ztfc: ratio of zoh/zom  less or equal than 1
+*     c......ztfc=0.1
+*     czil: constant c in zilitinkevich, s. s.1995,:note about zt
 * --------------------------------------------------------------------*/
-    ILECH = 0;
+    ilech = 0;
 
 /*--------------------------------------------------------------------*/
-    if ((*IZ0TLND == 0) || (*VEGTYP == *ISURBAN))
+    if ((*iz0tlnd == 0) || (*vegtyp == *isurban))
     {
-        /* Just use the original CZIL value. */
-        ZILFC = -*CZIL * VKRM * SQVISC;
+        /* just use the original czil value. */
+        zilfc = -*czil * vkrm * sqvisc;
     }
     else
     {
-        /* Modify CZIL according to Chen & Zhang, 2009
-         * CZIL = 10 ** -0.40 H, ( where H = 10*Zo ) */
-        *CZIL = pow (10.0, -0.4 * (*Z0 / 0.07));
-        ZILFC = -*CZIL * VKRM * SQVISC;
+        /* modify czil according to chen & zhang, 2009
+         * czil = 10 ** -0.40 h, ( where h = 10*zo ) */
+        *czil = pow (10.0, -0.4 * (*z0 / 0.07));
+        zilfc = -*czil * vkrm * sqvisc;
     }
-    //     C.......ZT=Z0*ZTFC
-    ZU = *Z0;
-    RDZ = 1. / *ZLM_WIND;
-    CXCH = EXCM * RDZ;
-    DTHV = *THLM - *THZ0;
+    //     c.......zt=z0*ztfc
+    zu = *z0;
+    rdz = 1. / *zlm_wind;
+    cxch = excm * rdz;
+    dthv = *thlm - *thz0;
 
 /*----------------------------------------------------------------------
-* BELJARS CORRECTION OF USTAR
+* beljars correction of ustar
 * --------------------------------------------------------------------*/
-    DU2 = (*SFCSPD * *SFCSPD) > EPSU2 ? (*SFCSPD * *SFCSPD) : EPSU2;
+    du2 = (*sfcspd * *sfcspd) > epsu2 ? (*sfcspd * *sfcspd) : epsu2;
 
     /*
-     * cc   If statements to avoid TANGENT LINEAR problems near zero 
+     * cc   if statements to avoid tangent linear problems near zero 
      */
-    BTGH = BTG * HPBL;
-    if (BTGH * *AKHS * DTHV != 0.0)
-        WSTAR2 = WWST2 * pow (fabs (BTGH * *AKHS * DTHV), 2. / 3.);
+    btgh = btg * hpbl;
+    if (btgh * *akhs * dthv != 0.0)
+        wstar2 = wwst2 * pow (fabs (btgh * *akhs * dthv), 2. / 3.);
     else
-        WSTAR2 = 0.0;
+        wstar2 = 0.0;
 
 /*----------------------------------------------------------------------
-* ZILITINKEVITCH APPROACH FOR ZT
+* zilitinkevitch approach for zt
 * --------------------------------------------------------------------*/
-    USTAR = sqrt (*AKMS * sqrt (DU2 + WSTAR2));
-    USTAR = USTAR > EPSUST ? USTAR : EPSUST;
+    ustar = sqrt (*akms * sqrt (du2 + wstar2));
+    ustar = ustar > epsust ? ustar : epsust;
 
 /*--------------------------------------------------------------------*/
-    ZT = exp (ZILFC * sqrt (USTAR * *Z0)) * *Z0;
-    ZSLU = *ZLM_WIND + ZU;
-    //     PRINT*,'ZSLT=',ZSLT
-    //     PRINT*,'ZLM=',ZLM
-    //     PRINT*,'ZT=',ZT
+    zt = exp (zilfc * sqrt (ustar * *z0)) * *z0;
+    zslu = *zlm_wind + zu;
+    //     print*,'zslt=',zslt
+    //     print*,'zlm=',zlm
+    //     print*,'zt=',zt
 
-    ZSLT = *ZLM + ZT;
-//    ZSLT = *ZLM_WIND + ZT;
-    RLOGU = log (ZSLU / ZU);
+    zslt = *zlm + zt;
+//    zslt = *zlm_wind + zt;
+    rlogu = log (zslu / zu);
 
-    RLOGT = log (ZSLT / ZT);
-    //     PRINT*,'RLMO=',RLMO
-    //     PRINT*,'ELFC=',ELFC
-    //     PRINT*,'AKHS=',AKHS
-    //     PRINT*,'DTHV=',DTHV
-    //     PRINT*,'USTAR=',USTAR
+    rlogt = log (zslt / zt);
+    //     print*,'rlmo=',rlmo
+    //     print*,'elfc=',elfc
+    //     print*,'akhs=',akhs
+    //     print*,'dthv=',dthv
+    //     print*,'ustar=',ustar
 
-    RLMO = ELFC * *AKHS * DTHV / pow (USTAR, 3);
+    rlmo = elfc * *akhs * dthv / pow (ustar, 3);
 
 /*----------------------------------------------------------------------
-* 1./MONIN-OBUKKHOV LENGTH-SCALE
+* 1./monin-obukkhov length-scale
 * --------------------------------------------------------------------*/
-    for (ITR = 0; ITR < ITRMX; ITR++)
+    for (itr = 0; itr < itrmx; itr++)
     {
-        ZETALT = ZSLT * RLMO;
-        ZETALT = ZETALT > ZTMIN ? ZETALT : ZTMIN;
-        RLMO = ZETALT / ZSLT;
-        ZETALU = ZSLU * RLMO;
-        ZETAU = ZU * RLMO;
+        zetalt = zslt * rlmo;
+        zetalt = zetalt > ztmin ? zetalt : ztmin;
+        rlmo = zetalt / zslt;
+        zetalu = zslu * rlmo;
+        zetau = zu * rlmo;
 
-        ZETAT = ZT * RLMO;
-        if (ILECH == 0)
+        zetat = zt * rlmo;
+        if (ilech == 0)
         {
-            if (RLMO < 0.)
+            if (rlmo < 0.)
             {
-                XLU4 = 1. - 16. * ZETALU;
-                XLT4 = 1. - 16. * ZETALT;
-                XU4 = 1. - 16. * ZETAU;
-                XT4 = 1. - 16. * ZETAT;
-                XLU = sqrt (sqrt (XLU4));
-                XLT = sqrt (sqrt (XLT4));
-                XU = sqrt (sqrt (XU4));
+                xlu4 = 1. - 16. * zetalu;
+                xlt4 = 1. - 16. * zetalt;
+                xu4 = 1. - 16. * zetau;
+                xt4 = 1. - 16. * zetat;
+                xlu = sqrt (sqrt (xlu4));
+                xlt = sqrt (sqrt (xlt4));
+                xu = sqrt (sqrt (xu4));
 
-                XT = sqrt (sqrt (XT4));
-                //     PRINT*,'-----------1------------'
-                //     PRINT*,'PSMZ=',PSMZ
-                //     PRINT*,'PSPMU(ZETAU)=',PSPMU(ZETAU)
-                //     PRINT*,'XU=',XU
-                //     PRINT*,'------------------------'
-                PSMZ = PSPMU (XU);
-                SIMM = PSPMU (XLU) - PSMZ + RLOGU;
-                PSHZ = PSPHU (XT);
-                SIMH = PSPHU (XLT) - PSHZ + RLOGT;
+                xt = sqrt (sqrt (xt4));
+                //     print*,'-----------1------------'
+                //     print*,'psmz=',psmz
+                //     print*,'Pspmu(zetau)=',Pspmu(zetau)
+                //     print*,'xu=',xu
+                //     print*,'------------------------'
+                psmz = Pspmu (xu);
+                simm = Pspmu (xlu) - psmz + rlogu;
+                pshz = Psphu (xt);
+                simh = Psphu (xlt) - pshz + rlogt;
             }
             else
             {
-                ZETALU = ZETALU < ZTMAX ? ZETALU : ZTMAX;
-                ZETALT = ZETALT < ZTMAX ? ZETALT : ZTMAX;
-                //     PRINT*,'-----------2------------'
-                //     PRINT*,'PSMZ=',PSMZ
-                //     PRINT*,'PSPMS(ZETAU)=',PSPMS(ZETAU)
-                //     PRINT*,'ZETAU=',ZETAU
-                //     PRINT*,'------------------------'
-                PSMZ = PSPMS (ZETAU);
-                SIMM = PSPMS (ZETALU) - PSMZ + RLOGU;
-                PSHZ = PSPHS (ZETAT);
-                SIMH = PSPHS (ZETALT) - PSHZ + RLOGT;
+                zetalu = zetalu < ztmax ? zetalu : ztmax;
+                zetalt = zetalt < ztmax ? zetalt : ztmax;
+                //     print*,'-----------2------------'
+                //     print*,'psmz=',psmz
+                //     print*,'Pspms(zetau)=',Pspms(zetau)
+                //     print*,'zetau=',zetau
+                //     print*,'------------------------'
+                psmz = Pspms (zetau);
+                simm = Pspms (zetalu) - psmz + rlogu;
+                pshz = Psphs (zetat);
+                simh = Psphs (zetalt) - pshz + rlogt;
             }
         }
 
 /*----------------------------------------------------------------------
-* LECH'S FUNCTIONS
+* lech's functions
 * --------------------------------------------------------------------*/
         else
         {
-            if (RLMO < 0.)
+            if (rlmo < 0.)
             {
-                //     PRINT*,'-----------3------------'
-                //     PRINT*,'PSMZ=',PSMZ
-                //     PRINT*,'PSLMU(ZETAU)=',PSLMU(ZETAU)
-                //     PRINT*,'ZETAU=',ZETAU
-                //     PRINT*,'------------------------'
-                PSMZ = PSLMU (ZETAU);
-                SIMM = PSLMU (ZETALU) - PSMZ + RLOGU;
-                PSHZ = PSLHU (ZETAT);
-                SIMH = PSLHU (ZETALT) - PSHZ + RLOGT;
+                //     print*,'-----------3------------'
+                //     print*,'psmz=',psmz
+                //     print*,'Pslmu(zetau)=',Pslmu(zetau)
+                //     print*,'zetau=',zetau
+                //     print*,'------------------------'
+                psmz = Pslmu (zetau);
+                simm = Pslmu (zetalu) - psmz + rlogu;
+                pshz = Pslhu (zetat);
+                simh = Pslhu (zetalt) - pshz + rlogt;
             }
             else
             {
-                ZETALU = ZETALU < ZTMAX ? ZETALU : ZTMAX;
-                ZETALT = ZETALT < ZTMAX ? ZETALT : ZTMAX;
-                //     PRINT*,'-----------4------------'
-                //     PRINT*,'PSMZ=',PSMZ
-                //     PRINT*,'PSLMS(ZETAU)=',PSLMS(ZETAU)
-                //     PRINT*,'ZETAU=',ZETAU
-                //     PRINT*,'------------------------'
-                PSMZ = PSLMS (ZETAU);
-                SIMM = PSLMS (ZETALU) - PSMZ + RLOGU;
-                PSHZ = PSLHS (ZETAT);
-                SIMH = PSLHS (ZETALT) - PSHZ + RLOGT;
+                zetalu = zetalu < ztmax ? zetalu : ztmax;
+                zetalt = zetalt < ztmax ? zetalt : ztmax;
+                //     print*,'-----------4------------'
+                //     print*,'psmz=',psmz
+                //     print*,'Pslms(zetau)=',Pslms(zetau)
+                //     print*,'zetau=',zetau
+                //     print*,'------------------------'
+                psmz = Pslms (zetau);
+                simm = Pslms (zetalu) - psmz + rlogu;
+                pshz = Pslhs (zetat);
+                simh = Pslhs (zetalt) - pshz + rlogt;
             }
         }
 
 /*----------------------------------------------------------------------
-* BELJAARS CORRECTION FOR USTAR
+* beljaars correction for ustar
 * --------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------
-* ZILITINKEVITCH FIX FOR ZT
+* zilitinkevitch fix for zt
 * --------------------------------------------------------------------*/
-        USTAR = sqrt (*AKMS * sqrt (DU2 + WSTAR2));
-        USTAR = USTAR > EPSUST ? USTAR : EPSUST;
+        ustar = sqrt (*akms * sqrt (du2 + wstar2));
+        ustar = ustar > epsust ? ustar : epsust;
 
-        ZT = exp (ZILFC * sqrt (USTAR * *Z0)) * *Z0;
-        ZSLT = *ZLM + ZT;
+        zt = exp (zilfc * sqrt (ustar * *z0)) * *z0;
+        zslt = *zlm + zt;
 
 /*--------------------------------------------------------------------*/
-        RLOGT = log (ZSLT / ZT);
-        USTARK = USTAR * VKRM;
-        *AKMS = USTARK / SIMM > CXCH ? USTARK / SIMM : CXCH;
+        rlogt = log (zslt / zt);
+        ustark = ustar * vkrm;
+        *akms = ustark / simm > cxch ? ustark / simm : cxch;
 
 /*----------------------------------------------------------------------
-* IF STATEMENTS TO AVOID TANGENT LINEAR PROBLEMS NEAR ZERO
+* if statements to avoid tangent linear problems near zero
 *---------------------------------------------------------------------*/
-        *AKHS = USTARK / SIMH > CXCH ? USTARK / SIMH : CXCH;
-        if (BTGH * *AKHS * DTHV != 0.0)
-            WSTAR2 = WWST2 * pow (fabs (BTGH * *AKHS * DTHV), 2. / 3.);
+        *akhs = ustark / simh > cxch ? ustark / simh : cxch;
+        if (btgh * *akhs * dthv != 0.0)
+            wstar2 = wwst2 * pow (fabs (btgh * *akhs * dthv), 2. / 3.);
         else
-            WSTAR2 = 0.0;
+            wstar2 = 0.0;
 
 /*--------------------------------------------------------------------*/
-        RLMN = ELFC * *AKHS * DTHV / pow (USTAR, 3.0);
+        rlmn = elfc * *akhs * dthv / pow (ustar, 3.0);
 
 /*----------------------------------------------------------------------
-*     IF(ABS((RLMN-RLMO)/RLMA).LT.EPSIT)    GO TO 110
+*     if(abs((rlmn-rlmo)/rlma).lt.epsit)    go to 110
 *---------------------------------------------------------------------*/
-        RLMA = RLMO * WOLD + RLMN * WNEW;
+        rlma = rlmo * wold + rlmn * wnew;
 
 /*--------------------------------------------------------------------*/
-        RLMO = RLMA;
-        //     PRINT*,'----------------------------'
-        //     PRINT*,'SFCDIF OUTPUT !  ! ! ! ! ! ! ! !  !   !    !'
+        rlmo = rlma;
+        //     print*,'----------------------------'
+        //     print*,'sfcdif output !  ! ! ! ! ! ! ! !  !   !    !'
 
-        //     PRINT*,'ZLM=',ZLM
-        //     PRINT*,'Z0=',Z0
-        //     PRINT*,'THZ0=',THZ0
-        //     PRINT*,'THLM=',THLM
-        //     PRINT*,'SFCSPD=',SFCSPD
-        //     PRINT*,'CZIL=',CZIL
-        //     PRINT*,'AKMS=',AKMS
-        //     PRINT*,'AKHS=',AKHS
-        //     PRINT*,'----------------------------'
+        //     print*,'zlm=',zlm
+        //     print*,'z0=',z0
+        //     print*,'thz0=',thz0
+        //     print*,'thlm=',thlm
+        //     print*,'sfcspd=',sfcspd
+        //     print*,'czil=',czil
+        //     print*,'akms=',akms
+        //     print*,'akhs=',akhs
+        //     print*,'----------------------------'
     }
 
 /*----------------------------------------------------------------------
-  END SUBROUTINE SFCDIF_off
+  end subroutine SfcDifOff
 * --------------------------------------------------------------------*/
 }
 
 /*----------------------------------------------------------------------
-* NOTE: THE TWO CODE BLOCKS BELOW DEFINE FUNCTIONS
+* note: the two code blocks below define functions
 * ----------------------------------------------------------------------
-* LECH'S SURFACE FUNCTIONS
+* lech's surface functions
 * --------------------------------------------------------------------*/
-double PSLMU (double ZZ)
+double Pslmu (double zz)
 {
     double          x;
-    x = -0.96 * log (1.0 - 4.5 * ZZ);
+    x = -0.96 * log (1.0 - 4.5 * zz);
     return x;
 }
 
-double PSLMS (double ZZ)
+double Pslms (double zz)
 {
-    double          RIC = 0.183, RRIC;
+    double          ric = 0.183, rric;
     double          x;
-    RRIC = 1.0 / RIC;
-    x = ZZ * RRIC - 2.076 * (1. - 1. / (ZZ + 1.));
+    rric = 1.0 / ric;
+    x = zz * rric - 2.076 * (1. - 1. / (zz + 1.));
     return x;
 }
 
-double PSLHU (double ZZ)
+double Pslhu (double zz)
 {
     double          x;
-    x = -0.96 * log (1.0 - 4.5 * ZZ);
+    x = -0.96 * log (1.0 - 4.5 * zz);
     return x;
 }
 
-double PSLHS (double ZZ)
+double Pslhs (double zz)
 {
-    double          RIC = 0.183;
-    double          FHNEU = 0.8, RFC = 0.191;
-    double          RFAC;
+    double          ric = 0.183;
+    double          fhneu = 0.8, rfc = 0.191;
+    double          rfac;
     double          x;
 
-    RFAC = RIC / (FHNEU * RFC * RFC);
-    //  x = ZZ * RFAC -2.076* (1. -1./ (ZZ +1.));
-    x = ZZ * RFAC - 2.076 * (1. - exp (-1.2 * ZZ));
-    printf("now: %lf, before: %lf\n", x, ZZ * RFAC -2.076* (1. -1./ (ZZ +1.)));
+    rfac = ric / (fhneu * rfc * rfc);
+    //  x = zz * rfac -2.076* (1. -1./ (zz +1.));
+    x = zz * rfac - 2.076 * (1. - exp (-1.2 * zz));
+    printf("now: %lf, before: %lf\n", x, zz * rfac -2.076* (1. -1./ (zz +1.)));
     return x;
 }
 
 /*----------------------------------------------------------------------
-* PAULSON'S SURFACE FUNCTIONS
+* paulson's surface functions
 * --------------------------------------------------------------------*/
 
-double PSPMU (double XX)
+double Pspmu (double xx)
 {
-    double          PIHF = 3.14159265 / 2.0;
+    double          pihf = 3.14159265 / 2.0;
     double          x;
-    x = -2. * log ((XX + 1.) * 0.5) - log ((XX * XX + 1.) * 0.5) +
-       2. * atan (XX) - PIHF;
+    x = -2. * log ((xx + 1.) * 0.5) - log ((xx * xx + 1.) * 0.5) +
+       2. * atan (xx) - pihf;
     return x;
 }
 
-double PSPMS (double YY)
+double Pspms (double yy)
 {
     double          x;
-    x = 5. * YY;
+    x = 5. * yy;
     return x;
 }
 
-double PSPHU (double XX)
+double Psphu (double xx)
 {
     double          x;
-    x = -2. * log ((XX * XX + 1.) * 0.5);
+    x = -2. * log ((xx * xx + 1.) * 0.5);
     return x;
 }
 
 /*----------------------------------------------------------------------
-* THIS ROUTINE SFCDIF CAN HANDLE BOTH OVER OPEN WATER (SEA, OCEAN) AND
-* OVER SOLID SURFACE (LAND, SEA-ICE).
+* this routine sfcdif can handle both over open water (sea, ocean) and
+* over solid surface (land, sea-ice).
 * --------------------------------------------------------------------*/
-double PSPHS (double YY)
+double Psphs (double yy)
 {
     double          x;
-    x = 5. * YY;
+    x = 5. * yy;
     return x;
 }
 
-double EFFKV (double KSATFUNC, double ELEMSATN, int STATUS, double MACKV, double KV, double AREAF)
+double EFFKV (double ksatfunc, double elemsatn, int status, double mackv, double kv, double areaf)
 {
-    //return (KV * KSATFUNC);
-    if (STATUS == SAT_CTRL)
-        return (MACKV * AREAF + KV * (1. - AREAF) * KSATFUNC);
+    //return (kv * ksatfunc);
+    if (status == SAT_CTRL)
+        return (mackv * areaf + kv * (1. - areaf) * ksatfunc);
     else
     {
-        if (STATUS == MAT_CTRL)
-            return KV * KSATFUNC;
+        if (status == MAT_CTRL)
+            return kv * ksatfunc;
         else
         {
-            if (STATUS == APP_CTRL)
-                return (MACKV * AREAF * KSATFUNC + KV * (1. - AREAF) * KSATFUNC);
+            if (status == APP_CTRL)
+                return (mackv * areaf * ksatfunc + kv * (1. - areaf) * ksatfunc);
             else
-                return (MACKV * AREAF + KV * (1. - AREAF) * KSATFUNC);
+                return (mackv * areaf + kv * (1. - areaf) * ksatfunc);
         }
     }
 }

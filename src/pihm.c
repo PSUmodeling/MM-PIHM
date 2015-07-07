@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 #include "noah.h"
 #endif
 
@@ -40,7 +40,7 @@ int main (int argc, char *argv[])
     printf ("\t\t##        #### ##     ## ##     ##\n");
     printf ("\n\t    The Penn State Integrated Hydrologic Model\n");
 
-#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
     printf ("\n\t    * Land surface module turned on.\n");
 #endif
 #ifdef _RT_
@@ -101,32 +101,27 @@ int main (int argc, char *argv[])
 
     strcpy (simulation, project);
 
-    if (first_cycle)
+    /* Save input files into output directory */
+    sprintf (source_file, "input/%s/%s.para", project, project);
+    if (access (source_file, F_OK) != -1)
     {
-        /* Save input files into output directory */
-        sprintf (source_file, "input/%s/%s.para", project, project);
-        if (access (source_file, F_OK) != -1)
-        {
-            sprintf (system_cmd, "cp %s %s/%s.para.bak", source_file, outputdir, project);
-            system (system_cmd);
-        }
-        sprintf (source_file, "input/%s/%s.calib", project, simulation);
-        if (access (source_file, F_OK) != -1)
-        {
-            sprintf (system_cmd, "cp %s %s/%s.calib.bak", source_file, outputdir, simulation);
-            system (system_cmd);
-        }
-        sprintf (source_file, "input/%s/%s.init", project, project);
-        if (access (source_file, F_OK) != -1)
-        {
-            sprintf (system_cmd, "cp %s %s/%s.init.bak", source_file, outputdir, simulation);
-            system (system_cmd);
-        }
+        sprintf (system_cmd, "cp %s %s/%s.para.bak", source_file, outputdir, project);
+        system (system_cmd);
+    }
+    sprintf (source_file, "input/%s/%s.calib", project, simulation);
+    if (access (source_file, F_OK) != -1)
+    {
+        sprintf (system_cmd, "cp %s %s/%s.calib.bak", source_file, outputdir, simulation);
+        system (system_cmd);
+    }
+    sprintf (source_file, "input/%s/%s.init", project, project);
+    if (access (source_file, F_OK) != -1)
+    {
+        sprintf (system_cmd, "cp %s %s/%s.init.bak", source_file, outputdir, simulation);
+        system (system_cmd);
     }
 
-    PIHMRun (project, outputdir, first_cycle);
-
-    first_cycle = 0;
+    PIHMRun (simulation, outputdir, first_cycle);
 
     return (0);
 }
@@ -147,8 +142,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     realtype        stepsize;   /* stress period & step size */
     realtype        cvode_val;
 
-#ifdef _FLUX_PIHM_
-    LSM_STRUCT      LSM;
+#ifdef _NOAH_
+    lsm_struct      noah;
 #endif
 
 #ifdef _RT_
@@ -162,8 +157,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     /* Allocate memory for model data structure */
     pihm = (pihm_struct) malloc (sizeof *pihm);
 
-#ifdef _FLUX_PIHM_
-    LSM = (LSM_STRUCT) malloc (sizeof *LSM);
+#ifdef _NOAH_
+    noah = (lsm_struct) malloc (sizeof *noah);
 #endif
 #ifdef _RT_
     chData = (Chem_Data) malloc (sizeof * chData);
@@ -174,9 +169,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 
     /* Read PIHM input files */
     ReadAlloc (simulation, pihm);
-//#ifdef _FLUX_PIHM_
-//    LSM_read (filename, LSM, cData);
-//#endif
+#ifdef _NOAH_
+    LsmRead (simulation, noah, pihm);
+#endif
 //#ifdef _BGC_
 //    BGC_read (filename, BGCM, mData);
 //#endif
@@ -200,30 +195,33 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         printf ("Fatal error: CVodeMalloc failed. \n");
         exit (1);
     }
-//#ifdef _FLUX_PIHM_
-//    LSM_initialize (filename, mData, cData, LSM);
-//#endif
-//#ifdef _RT_
-//    chem_alloc(filename, mData, cData, chData, cData->StartTime/60);
-//    /* Prepare chem output files */
-//    InitialChemFile(filename, chData->NumBTC, chData->BTC_loc);
-//#endif
-//#ifdef _BGC_
-//    BGC_init (filename, mData, LSM, BGCM);
-//#endif
-//
+#ifdef _NOAH_
+    LsmInitialize (simulation, pihm, noah);
+#endif
+#ifdef _RT_
+    chem_alloc(filename, mData, cData, chData, cData->StartTime/60);
+    /* Prepare chem output files */
+    InitialChemFile(filename, chData->NumBTC, chData->BTC_loc);
+#endif
+#ifdef _BGC_
+    BGC_init (filename, mData, LSM, BGCM);
+#endif
+
     MapOutput (simulation, pihm, outputdir);
+#ifdef _NOAH_
+    MapLsmOutput (simulation, noah, pihm->numele, outputdir);
+#endif
 
     if (first_cycle == 1)
     {
         /* initialize output files and structures */
         InitOutputFile (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii);
-//#ifdef _FLUX_PIHM_
-//        LSM_initialize_output (filename, mData, cData, LSM, output_dir);
-//#endif
-//#ifdef _BGC_
-//        bgc_initialize_output (filename, mData, cData, BGCM, output_dir);
-//#endif
+#ifdef _NOAH_
+        InitOutputFile (noah->prtctrl, noah->nprint, pihm->ctrl.ascii);
+#endif
+#ifdef _BGC_
+        bgc_initialize_output (filename, mData, cData, BGCM, output_dir);
+#endif
         first_cycle = 0;
     }
 //
@@ -271,41 +269,20 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 
                 ApplyForcing (&pihm->forcing, t);
 
-                if (t % pihm->ctrl.etstep == 0)
+                if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
                 {
-#ifdef _FLUX_PIHM_
-                    for (j = 0; j < mData->NumEle; j++)
-                    {
-                        mData->avg_inf[j] = (mData->avg_inf[j] + mData->EleViR[j]) / (cData->ETStep / StepSize);
-                        mData->avg_subflux[j][0] = (mData->avg_subflux[j][0] + mData->FluxSub[j][0]) / (cData->ETStep / StepSize);
-                        mData->avg_subflux[j][1] = (mData->avg_subflux[j][1] + mData->FluxSub[j][1]) / (cData->ETStep / StepSize);
-                        mData->avg_subflux[j][2] = (mData->avg_subflux[j][2] + mData->FluxSub[j][2]) / (cData->ETStep / StepSize);
-                    }
+#ifdef _NOAH_
+                    /* Calculate surface energy balance */
+                    PIHMxNoah (t, (double) pihm->ctrl.etstep, pihm, noah);
 
-                    /* calculate surface energy balance */
-                    PIHM2Noah (t, cData->ETStep, mData, LSM);
-                    Noah2PIHM (mData, LSM);
-
-#ifdef _BGC_
-                    BgcCoupling ((int) t, (int) cData->StartTime, mData, LSM, BGCM);
-#endif
-                    for (j = 0; j < mData->NumEle; j++)
+                    for (j = 0; j < noah->nprint; j++)
                     {
-                        mData->avg_inf[j] = 0.0; 
-                        mData->avg_subflux[j][0] = 0.0;
-                        mData->avg_subflux[j][1] = 0.0;
-                        mData->avg_subflux[j][2] = 0.0;
+                        PrintData (&noah->prtctrl[j], t, pihm->ctrl.etstep, pihm->ctrl.ascii);
                     }
-                }
-                else
-                {
-                    for (j = 0; j < mData->NumEle; j++)
-                    {
-                        mData->avg_inf[j] = mData->avg_inf[j] + mData->EleViR[j];
-                        mData->avg_subflux[j][0] = mData->avg_subflux[j][0] + mData->FluxSub[j][0];
-                        mData->avg_subflux[j][1] = mData->avg_subflux[j][1] + mData->FluxSub[j][1];
-                        mData->avg_subflux[j][2] = mData->avg_subflux[j][2] + mData->FluxSub[j][2];
-                    }
+//
+//#ifdef _BGC_
+//                    BgcCoupling ((int) t, (int) cData->StartTime, mData, LSM, BGCM);
+//#endif
 #else
                     /* calculate Interception Storage and ET */
                     IntcpSnowET (t, (double) pihm->ctrl.etstep, pihm);
@@ -328,6 +305,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                     printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
 
                 Summary (pihm, CV_Y, (double) stepsize);
+#ifdef _NOAH_
+                AvgFlux (noah, pihm);
+#endif
 #ifdef _RT_
                 /* PIHM-rt control file */
                 fluxtrans(t / 60.0, StepSize / 60.0, mData, chData, CV_Y);
@@ -338,18 +318,12 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             /* Print outputs */
             for (j = 0; j < pihm->ctrl.nprint; j++)
             {
-                PrintData (&pihm->prtctrl[j], t, stepsize, pihm->ctrl.ascii);
+                PrintData (&pihm->prtctrl[j], t, (int) stepsize, pihm->ctrl.ascii);
             }
-//#ifdef _FLUX_PIHM_
-//            for (j = 0; j < LSM->NPRINT; j++)
-//                PrintData (LSM->PCtrl[j], t, StepSize, cData->Ascii);
-//#endif
-//#ifdef _BGC_
-//#endif
-//#ifdef _RT_
-//            /* PIHM-rt output routine */
-//            PrintChem(filename, chData,t/60);
-//#endif
+#ifdef _RT_
+            /* PIHM-rt output routine */
+            PrintChem(filename, chData,t/60);
+#endif
 //#ifdef _BGC_
         }
 //#endif

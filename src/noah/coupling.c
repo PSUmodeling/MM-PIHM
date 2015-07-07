@@ -8,27 +8,47 @@
 #include "noah.h"
 #include "spa.h"
 
-void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
+void PIHMxNoah (int t, double stepsize, pihm_struct pihm, lsm_struct noah)
 {
-    GRID_TYPE      *NOAH;
+    grid_struct      *grid;
 
-    double          A2 = 17.67, A3 = 273.15, A4 = 29.65, ELWV = 2.501e6, A23M4, E0 = 611.0, RV = 461.0, EPSILON = 0.622;
-    double          E;
-    double          SVP, SVP1 = 611.2, SVP2 = 17.67, SVP3 = 29.65, SVPT0 = 273.15;
-    double          T1V, TH2V, T2V, RHO, ES, RH;
+    const double    A2 = 17.67;
+    const double    A3 = 273.15;
+    const double    A4 = 29.65;
+    const double    ELWV = 2.501e6;
+    double          a23m4;
+    const double    E0 = 611.0;
+    const double    RVV = 461.0;
+    const double    EPSILON = 0.622;
+    double          e;
+    double          svp;
+    const double    SVP1 = 611.2;
+    const double    SVP2 = 17.67;
+    const double    SVP3 = 29.65;
+    const double    SVPT0 = 273.15;
+
+    double          t1v;
+    double          th2v;
+    double          t2v;
+    double          rho;
+    double          es;
+    double          rh;
     int             i, j;
     int             spa_result;
 
-    double          Soldown, Sdir, Sdif;
-    time_t         *rawtime;
+    double          etsat;
+    double          fcr, acrt, dice, sum;
+    int             ialp1;
+    int             jj, k;
+    int             cvfrz = 3;
+
+    double          soldown, sdir, sdif;
+    time_t          rawtime;
     struct tm      *timestamp;
-    double          metarr[7];
 
     spa_data        spa;
-    rawtime = (time_t *) malloc (sizeof (time_t));
-    *rawtime = (int)t;
-    timestamp = gmtime (rawtime);
-    free (rawtime);
+    rawtime = (int)t;
+    timestamp = gmtime (&rawtime);
 
     spa.year = timestamp->tm_year + 1900;
     spa.month = timestamp->tm_mon + 1;
@@ -37,200 +57,262 @@ void PIHM2Noah (realtype t, realtype stepsize, Model_Data PIHM, LSM_STRUCT LSM)
     spa.minute = timestamp->tm_min;
     spa.second = timestamp->tm_sec;
     spa.timezone = 0;
+
     spa.delta_t = 67;
     spa.delta_ut1 = 0;
     spa.atmos_refract = 0.5667;
 
-    spa.longitude = LSM->LONGITUDE;
-    spa.latitude = LSM->LATITUDE;
+    spa.longitude = noah->longitude;
+    spa.latitude = noah->latitude;
+
     spa.elevation = 0.0;
-    for (i = 0; i < PIHM->NumEle; i++)
-        spa.elevation = spa.elevation + (double)PIHM->Ele[i].zmax;
-    spa.elevation = spa.elevation / (double)PIHM->NumEle;
-    /* Calculate surface pressure based on FAO 1998 method (Narasimhan 2002) */
+    for (i = 0; i < pihm->numele; i++)
+    {
+        spa.elevation = spa.elevation + pihm->elem[i].topo.zmax;
+    }
+    spa.elevation = spa.elevation / (double)pihm->numele;
+
+    /* Calculate surface pressure based on fao 1998 method (narasimhan 2002) */
     spa.pressure = 1013.25 * pow ((293.0 - 0.0065 * spa.elevation) / 293.0, 5.26);
-    spa.temperature = LSM->GENPRMT.TBOT_DATA;
+    spa.temperature = noah->genprmt.tbot_data;
 
     spa.function = SPA_ZA;
     spa_result = spa_calculate (&spa);
 
     if (spa_result != 0)
     {
-        printf ("SPA Error Code: %d\n", spa_result);
+        printf ("spa error code: %d\n", spa_result);
         exit (1);
     }
+
     spa.azimuth180 = mod ((360.0 + spa.azimuth180), 360.0);
 
-    for (i = 0; i < PIHM->NumEle; i++)
+    ApplyRadnForcing (&noah->forcing, t);
+
+    for (i = 0; i < pihm->numele; i++)
     {
-        NOAH = &(LSM->GRID[i]);
+        grid = &(noah->grid[i]);
 
         /* Read time step */
-        NOAH->DT = (double)stepsize;
+        grid->dt = (double) stepsize;
 
         /* Read forcing */
-        MultiInterpolation (&PIHM->TSD_meteo[PIHM->Ele[i].meteo - 1], t, &metarr[0], 7);
-
-        NOAH->SFCSPD = metarr[SFCSPD_TS];
-        NOAH->SFCTMP = metarr[SFCTMP_TS];
-        RH = metarr[RH_TS];
-        NOAH->SFCPRS = metarr[PRES_TS] / 100.0;
-        NOAH->LONGWAVE = metarr[LONGWAVE_TS];
-        NOAH->PRCP = metarr[PRCP_TS];
+        grid->sfcspd = *pihm->elem[i].forc.meteo[SFCSPD_TS];
+        grid->sfctmp = *pihm->elem[i].forc.meteo[SFCTMP_TS];
+        rh = *pihm->elem[i].forc.meteo[RH_TS];
+        grid->sfcprs = *pihm->elem[i].forc.meteo[PRES_TS] / 100.0;
+        grid->longwave = *pihm->elem[i].forc.meteo[LONGWAVE_TS];
+        grid->prcp = *pihm->elem[i].forc.meteo[PRCP_TS];
 
         /* Calculate solar radiation */
-        if (LSM->RAD_MODE > 0)
+        if (noah->rad_mode > 0)
         {
-            MultiInterpolation (&LSM->TSD_rad[PIHM->Ele[i].meteo - 1], t, &metarr[0], 2);
-            Sdir = metarr[SOLAR_DIR_TS];
-            Sdif = metarr[SOLAR_DIF_TS];
+            sdir = *grid->radn[SOLAR_DIR_TS];
+            sdif = *grid->radn[SOLAR_DIF_TS];
 
-            Soldown = topo_radiation (Sdir, Sdif, spa.zenith, spa.azimuth180, NOAH->SLOPE, NOAH->ASPECT, NOAH->H_PHI, NOAH->SVF);
+            soldown = TopoRadiation (sdir, sdif, spa.zenith, spa.azimuth180, grid->slope, grid->aspect, grid->h_phi, grid->svf);
         }
         else
-            Soldown = metarr[SOLAR_TS];
+        {
+            soldown = *pihm->elem[i].forc.meteo[SOLAR_TS];
+        }
 
-        NOAH->SOLDN = Soldown;
+        grid->soldn = soldown;
 
-        NOAH->SFCPRS = NOAH->SFCPRS * 1.0e2;
+        grid->sfcprs = grid->sfcprs * 1.0e2;
 
-        /* Initiate LSM variables */
+        /* Initiate lsm variables */
 
-        RH = RH / 100.0;
+        rh = rh / 100.0;
 
-        SVP = SVP1 * exp (SVP2 * (NOAH->SFCTMP - SVPT0) / (NOAH->SFCTMP - SVP3));
-        E = RH * SVP;
+        svp = SVP1 * exp (SVP2 * (grid->sfctmp - SVPT0) / (grid->sfctmp - SVP3));
+        e = rh * svp;
 
-        NOAH->Q2 = (0.622 * E) / (NOAH->SFCPRS - (1.0 - 0.622) * E);
+        grid->q2 = (0.622 * e) / (grid->sfcprs - (1.0 - 0.622) * e);
 
-        if (NOAH->PRCP > 0.0 && NOAH->SFCTMP < 273.15)
-            NOAH->FFROZP = 1.0;
+        if (grid->prcp > 0.0 && grid->sfctmp < 273.15)
+        {
+            grid->ffrozp = 1.0;
+        }
         else
-            NOAH->FFROZP = 0.0;
+        {
+            grid->ffrozp = 0.0;
+        }
 
-        NOAH->TH2 = NOAH->SFCTMP + (0.0098 * NOAH->ZLVL);
-        T1V = NOAH->T1 * (1.0 + 0.61 * NOAH->Q2);
-        TH2V = NOAH->TH2 * (1.0 + 0.61 * NOAH->Q2);
-        T2V = NOAH->SFCTMP * (1.0 + 0.61 * NOAH->Q2);
-        RHO = NOAH->SFCPRS / (RD * T2V);
+        grid->th2 = grid->sfctmp + (0.0098 * grid->zlvl);
+        t1v = grid->t1 * (1.0 + 0.61 * grid->q2);
+        th2v = grid->th2 * (1.0 + 0.61 * grid->q2);
+        t2v = grid->sfctmp * (1.0 + 0.61 * grid->q2);
+        rho = grid->sfcprs / (RD * t2v);
 
-        A23M4 = A2 * (A3 - A4);
+        a23m4 = A2 * (A3 - A4);
 
-        ES = E0 * exp (ELWV / RV * (1.0 / A3 - 1.0 / NOAH->SFCTMP));
-        NOAH->Q2SAT = EPSILON * ES / (NOAH->SFCPRS - (1.0 - EPSILON) * ES);
+        es = E0 * exp (ELWV / RVV * (1.0 / A3 - 1.0 / grid->sfctmp));
+        grid->q2sat = EPSILON * es / (grid->sfcprs - (1.0 - EPSILON) * es);
 
-        NOAH->DQSDT2 = NOAH->Q2SAT * A23M4 / pow (NOAH->SFCTMP - A4, 2);
+        grid->dqsdt2 = grid->q2sat * a23m4 / pow (grid->sfctmp - A4, 2);
 
-        if (NOAH->USEMONALB)
-            NOAH->ALB = 0.18;
+        if (grid->usemonalb)
+        {
+            grid->alb = 0.18;
+        }
         else
-            NOAH->ALB = BADVAL;
+        {
+            grid->alb = BADVAL;
+        }
 
-        if (NOAH->RDLAI2D)
-            NOAH->XLAI = 2.0;
+        if (grid->rdlai2d)
+        {
+            grid->xlai = 2.0;
+        }
         //else
-        //    NOAH->XLAI = BADVAL;
+        //    grid->xlai = badval;
 
-        NOAH->SHDFAC = PIHM->LandC[PIHM->Ele[i].LC - 1].VegFrac;
+        grid->shdfac = pihm->elem[i].lc.vegfrac;
 
 #ifndef _BGC_
-        if (PIHM->Ele[i].LAI > 0)
-            NOAH->XLAI = Interpolation(&PIHM->TSD_lai[PIHM->Ele[i].LAI - 1], t);
+        if (pihm->elem[i].forc.lai_type > 0)
+        {
+            grid->xlai = *pihm->elem[i].forc.lai;
+        }
         else
-            NOAH->XLAI = monthly_lai (t, PIHM->Ele[i].LC);
-
-        NOAH->CMCMAX = PIHM->ISFactor[PIHM->Ele[i].LC - 1] * NOAH->XLAI;
+        {
+            grid->xlai = MonthlyLAI (t, pihm->elem[i].lc.type);
+        }
 #endif
-        if (NOAH->Q1 == BADVAL)
-            NOAH->Q1 = NOAH->Q2;
 
-        SFCDIF_off (&(NOAH->ZLVL), &(NOAH->ZLVL_WIND), &(NOAH->Z0), &T1V, &TH2V, &(NOAH->SFCSPD), &(NOAH->CZIL), &(NOAH->CM), &(NOAH->CH), &(NOAH->VEGTYP), &(NOAH->ISURBAN), &(NOAH->IZ0TLND));
+        grid->cmcmax = grid->cmcfactr * grid->xlai;
 
-        NOAH->SOLNET = NOAH->SOLDN * (1.0 - NOAH->ALBEDO);
-        NOAH->LWDN = NOAH->LONGWAVE * NOAH->EMISSI;
+        if (grid->q1 == BADVAL)
+        {
+            grid->q1 = grid->q2;
+        }
 
-        NOAH->RUNOFF2 = 0.0;
+        SfcDifOff (&(grid->zlvl), &(grid->zlvl_wind), &(grid->z0), &t1v, &th2v, &(grid->sfcspd), &(grid->czil), &(grid->cm), &(grid->ch), &(grid->vegtyp), &(grid->isurban), &(grid->iz0tlnd));
+
+        grid->solnet = grid->soldn * (1.0 - grid->albedo);
+        grid->lwdn = grid->longwave * grid->emissi;
+
+        grid->avginfil /= (double) (grid->dt / pihm->dt);
         for (j = 0; j < 3; j++)
-            NOAH->RUNOFF2 = NOAH->RUNOFF2 + (double)(PIHM->avg_subflux[i][j] / PIHM->Ele[i].area );
-        NOAH->INF = (double)(PIHM->avg_inf[i]);
-        NOAH->NWTBL = FindLayer (LSM, (double)(PIHM->Ele[i].zmax - PIHM->Ele[i].zmin - PIHM->EleGW[i]));
-        if (NOAH->NWTBL > NOAH->NSOIL)
-            NOAH->NWTBL = NOAH->NSOIL;
+        {
+            grid->avgsubflux[j] /= (double) (grid->dt / pihm->dt);
+        }
 
-        NOAH->MAC_STATUS = PIHM->EleMacAct[i];
+        grid->runoff2 = 0.0;
+        for (j = 0; j < 3; j++)
+        {
+            grid->runoff2 += grid->avgsubflux[j] / pihm->elem[i].topo.area;
+        }
+        grid->infil = grid->avginfil;
+        grid->nwtbl = FindLayer (grid->sldpth, grid->nsoil, pihm->elem[i].soil.depth - pihm->elem[i].gw0);
+        if (grid->nwtbl > grid->nsoil)
+        {
+            grid->nwtbl = grid->nsoil;
+        }
 
-        SFLX (NOAH);
+        grid->mac_status = pihm->elem[i].macpore_status;
 
-        NOAH->DRIP = 1.0e3 * NOAH->DRIP / NOAH->DT;  /* Convert DRIP from m/s to kg m{-2} s{-1} (mm/s) */
+        SFlx (grid);
+
+        grid->drip = 1.0e3 * grid->drip / grid->dt;  /* convert drip from m/s to kg m{-2} s{-1} (mm/s) */
+
+        /*
+         * Transfer Noah variables to PIHM
+         */
+#ifdef _rt_
+	pihm->ele[i].temp   = (realtype) grid->stc[2];
+#endif
+        pihm->elem[i].netprcp =  grid->pcpdrp;
+        /*
+         * ET: convert from w m-2 to m s-1 
+         */
+        pihm->elem[i].et[0] = grid->ec / LVH2O / 1000.0 ;
+        pihm->elem[i].et[1] = grid->ett / LVH2O / 1000.0 ;
+        pihm->elem[i].et[2] = grid->edir / LVH2O / 1000.0 ;
+
+        /* Calculate transpiration from saturated zone */
+        pihm->elem[i].et_from_sat = 0.0;
+        etsat = 0.0;
+        if (grid->ett > 0.0)
+        {
+            if (grid->nwtbl <= grid->nroot)
+            {
+                for (j = (grid->nwtbl <= 0 ? 0 : grid->nwtbl - 1); j < grid->nroot; j++)
+                {
+                    etsat += grid->et[j];
+                }
+                pihm->elem[i].et_from_sat =  etsat / grid->ett;
+                pihm->elem[i].et_from_sat = (pihm->elem[i].et_from_sat > 1.0) ? 1.0 : pihm->elem[i].et_from_sat;
+                pihm->elem[i].et_from_sat = (pihm->elem[i].et_from_sat < 0.0) ? 0.0 : pihm->elem[i].et_from_sat;
+            }
+        }
+        pihm->elem[i].snow = grid->sneqv;
+        pihm->elem[i].intcp = grid->cmc;
+
+        /* Calculate surface saturation ratio for pihm infiltration */
+        pihm->elem[i].sfcsat = (grid->sh2o[0] - grid->smcmin) / (grid->smcmax - grid->smcmin);
+        pihm->elem[i].sfcsat = (pihm->elem[i].sfcsat > 0.0) ? pihm->elem[i].sfcsat : 0.0;
+        pihm->elem[i].sfcsat = (pihm->elem[i].sfcsat < 1.0) ? pihm->elem[i].sfcsat : 1.0;
+
+        /* Calculate infiltration reduction factor due to frozen soil */
+        pihm->elem[i].fcr = 1.0;
+        dice = 0.0;
+        for (j = 0; j < grid->nsoil; j++)
+        {
+            dice = dice + grid->sldpth[j] * (grid->smc[j] - grid->sh2o[j]);
+        }
+        fcr = 1.0;
+        if (dice > 1.0e-2)
+        {
+            acrt = (double) cvfrz * grid->frzx / dice;
+            sum = 1.0;
+            ialp1 = cvfrz - 1;
+            for (j = 1; j < ialp1 + 1; j++)
+            {
+                k = 1;
+                for (jj = j + 1; jj < ialp1; jj++)
+                    k = k * jj;
+                sum = sum + pow (acrt, (double)(cvfrz - j)) / (double)k;
+            }
+            fcr = 1.0 - exp (-acrt) * sum;
+        }
+        pihm->elem[i].fcr = fcr;
+
+        grid->avginfil = 0.0;
+        for (j = 0; j < 3; j++)
+        {
+            grid->avgsubflux[j] = 0.0;
+        }
+    }
+
+}
+
+void ApplyRadnForcing (radn_ts_struct *forcing, int t)
+{
+    int         i, j;
+    double      radn[2];
+
+    for (i = 0; i < forcing->nts; i++)
+    {
+        IntrplForcing (forcing->ts[i], t, 2, radn);
+
+        for (j = 0; j < 2; j++)
+        {
+            forcing->radn[j][i] = radn[j];
+        }
     }
 }
 
-void Noah2PIHM (Model_Data PIHM, LSM_STRUCT LSM)
+void AvgFlux (lsm_struct noah, pihm_struct pihm)
 {
-    GRID_TYPE      *NOAH;
-    double          ETsat;
-    double          FCR, ACRT, DICE, SUM;
-    int             IALP1;
-    int             J, JJ, K;
-    int             CVFRZ = 3;
-
-    int             i, j;
-    for (i = 0; i < PIHM->NumEle; i++)
+    int         i, j;
+    for (i = 0; i < pihm->numele; i++)
     {
-        NOAH = &(LSM->GRID[i]);
-#ifdef _RT_
-	PIHM->Ele[i].temp   = (realtype) NOAH->STC[2];
-#endif
-        PIHM->EleNetPrep[i] = (realtype) NOAH->PCPDRP;
-        /*
-         * EleET: convert from W m-2 to m s-1 
-         */
-        PIHM->EleET[i][0] = (realtype) NOAH->EC / LVH2O / 1000.0 ;
-        PIHM->EleET[i][1] = (realtype) NOAH->ETT / LVH2O / 1000.0 ;
-        PIHM->EleET[i][2] = (realtype) NOAH->EDIR / LVH2O / 1000.0 ;
-
-        /* Calculate transpiration from saturated zone */
-        PIHM->EleETsat[i] = 0.0;
-        ETsat = 0.0;
-        if (NOAH->ETT > 0.0)
+        noah->grid[i].avginfil += pihm->elem[i].infil;
+        for (j = 0; j < 3; j++)
         {
-            if (NOAH->NWTBL <= NOAH->NROOT)
-            {
-                for (j = (NOAH->NWTBL <= 0 ? 0 : NOAH->NWTBL - 1); j < NOAH->NROOT; j++)
-                    ETsat = ETsat + NOAH->ET[j];
-                PIHM->EleETsat[i] = (realtype) (ETsat / NOAH->ETT);
-                PIHM->EleETsat[i] = PIHM->EleETsat[i] > 1.0 ? 1.0 : PIHM->EleETsat[i];
-                PIHM->EleETsat[i] = PIHM->EleETsat[i] < 0.0 ? 0.0 : PIHM->EleETsat[i];
-            }
+            noah->grid[i].avgsubflux[j] += pihm->elem[i].fluxsub[j];
         }
-        PIHM->EleSnow[i] = (realtype) NOAH->SNEQV;
-        PIHM->EleIS[i] = (realtype) NOAH->CMC;
-
-        /* Calculate surface saturation ratio for PIHM infiltration */
-        PIHM->SfcSat[i] = (NOAH->SH2O[0] - NOAH->SMCMIN) / (NOAH->SMCMAX - NOAH->SMCMIN);
-        PIHM->SfcSat[i] = PIHM->SfcSat[i] > 0.0 ? PIHM->SfcSat[i] : 0.0;
-        PIHM->SfcSat[i] = PIHM->SfcSat[i] < 1.0 ? PIHM->SfcSat[i] : 1.0;
-
-        /* Calculate infiltration reduction factor due to frozen soil */
-        PIHM->EleFCR[i] = 1.0;
-        DICE = 0.0;
-        for (j = 0; j < NOAH->NSOIL; j++)
-            DICE = DICE + NOAH->SLDPTH[j] * (NOAH->SMC[j] - NOAH->SH2O[j]);
-        FCR = 1.0;
-        if (DICE > 1.0e-2)
-        {
-            ACRT = (double)CVFRZ *NOAH->FRZX / DICE;
-            SUM = 1.0;
-            IALP1 = CVFRZ - 1;
-            for (J = 1; J < IALP1 + 1; J++)
-            {
-                K = 1;
-                for (JJ = J + 1; JJ < IALP1; JJ++)
-                    K = K * JJ;
-                SUM = SUM + pow (ACRT, (double)(CVFRZ - J)) / (double)K;
-            }
-            FCR = 1.0 - exp (-ACRT) * SUM;
-        }
-        PIHM->EleFCR[i] = (realtype) FCR;
     }
 }

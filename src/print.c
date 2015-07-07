@@ -15,7 +15,7 @@ void PrintData (prtctrl_struct *prtctrl, int t, int dt, int ascii)
         prtctrl->buffer[j] += *prtctrl->vrbl[j];
     }
 
-    if (t % prtctrl->intvl == 0)
+    if (t % prtctrl->intvl == 0 && t > 0)
     {
         rawtime = t;
         timestamp = gmtime (&rawtime);

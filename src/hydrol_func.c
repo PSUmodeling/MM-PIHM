@@ -95,25 +95,37 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax, dou
     if (rivytot > eleytot)
     {
         if (eleytot > threshele)
+        {
             flux = cwr * 2.0 * sqrt (2.0 * GRAV ) * length * sqrt (rivytot - eleytot) * (rivytot - threshele) / 3.0;
+        }
         else
         {
             if (threshele < rivytot)
+            {
                 flux = cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (rivytot - threshele) * (rivytot - threshele) / 3.0;
+            }
             else
+            {
                 flux = 0.0;
+            }
         }
     }
     else
     {
         if (rivytot > threshele)
+        {
             flux = -cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (eleytot - rivytot) * (eleytot - threshele) / 3.0;
+        }
         else
         {
             if (threshele < eleytot)
+            {
                 flux = -cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (eleytot - threshele) * (eleytot - threshele) / 3.0;
+            }
             else
+            {
                 flux = 0.0;
+            }
         }
     }
 

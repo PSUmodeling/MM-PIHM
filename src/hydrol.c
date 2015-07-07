@@ -10,8 +10,6 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     elem_struct    *elem;
     river_struct   *riv;
 
-    FILE           *fid;
-
     y = NV_DATA_S (CV_Y);
     dy = NV_DATA_S (CV_Ydot);
     pihm = (pihm_struct) pihm_data;
@@ -143,28 +141,6 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             exit (1);
         }
     }
-
-    //fid = fopen ("dy.txt", "a");
-
-    //fprintf (fid, "tt = %lf\n", t);
-    //for (i = 0; i < pihm->numele; i++)
-    //{
-    //    fprintf (fid, "%lf %d surf %20.17lf\n", t, i, dy[i]);
-    //}
-    //for (i = 0; i < pihm->numele; i++)
-    //{
-    //    fprintf (fid, "%lf %d unsat %20.17lf\n", t, i, dy[i + pihm->numele]);
-    //}
-    //for (i = 0; i < pihm->numele; i++)
-    //{
-    //    fprintf (fid, "%lf %d GW %20.17lf\n", t, i, dy[i + 2 * pihm->numele]);
-    //}
-    //for (i = 0; i < 2 * pihm->numriv; i++)
-    //{
-    //    fprintf (fid, "%lf %d riv %25.22lf\n", t, i, dy[i + 3 * pihm->numele]);
-    //}
-
-    //fclose (fid);
     
     return (0);
 }

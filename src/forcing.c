@@ -35,12 +35,16 @@ void IntrplForcing (ts_struct ts, int t, int nvrbl, double *vrbl)
     if (t <= ts.ftime[0])
     {
         for (j = 0; j < nvrbl; j++)
+        {
             vrbl[j] = ts.data[0][j];
+        }
     }
     else if (t >= ts.ftime[ts.length - 1])
     {
         for (j = 0; j < nvrbl; j++)
+        {
             vrbl[j] = ts.data[ts.length - 1][j];
+        }
     }
     else
     {
@@ -53,13 +57,19 @@ void IntrplForcing (ts_struct ts, int t, int nvrbl, double *vrbl)
             if (t >= ts.ftime[middle - 1] && t <= ts.ftime[middle])
             {
                 for (j = 0; j < nvrbl; j++)
+                {
                     vrbl[j] = ((double) (ts.ftime[middle] - t) * ts.data[middle - 1][j] + (double) (t - ts.ftime[middle - 1]) * ts.data[middle][j]) / (double) (ts.ftime[middle] - ts.ftime[middle - 1]);
+                }
                 break;
             }
             else if (ts.ftime[middle] > t)
+            {
                 last = middle - 1;
+            }
             else
+            {
                 first = middle + 1;
+            }
         }
     }
 }

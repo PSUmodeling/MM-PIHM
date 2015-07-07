@@ -15,24 +15,24 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
         printf ("\n\nInitialize data structure\n");
     }
 
-#ifdef _FLUX_PIHM_
-    pihm->avg_inf = (double *) malloc (pihm->NumEle * sizeof (double));  /* YS */
-    pihm->avg_rech = (double *) malloc (pihm->NumEle * sizeof (double));  /* YS */
-    pihm->avg_subflux = (double **) malloc (pihm->NumEle * sizeof (double *));  /* YS */
-    for (i = 0; i < pihm->NumEle; i++)
-    {
-        pihm->EleFCR[i] = 1.0;
-	pihm->avg_inf[i] = 0.0;
-	pihm->avg_rech[i] = 0.0;
-	pihm->avg_subflux[i] = (double *) malloc (3 * sizeof (double));
-	pihm->avg_subflux[i][0] = 0.0;
-	pihm->avg_subflux[i][1] = 0.0;
-	pihm->avg_subflux[i][2] = 0.0;
-    }
-#endif
-
     pihm->elem = (elem_struct *) malloc (pihm->numele * sizeof (elem_struct));
     pihm->riv = (river_struct *) malloc (pihm->numriv * sizeof (river_struct));
+
+#ifdef _NOAH_
+    //pihm->avg_inf = (double *) malloc (pihm->NumEle * sizeof (double));  /* YS */
+    //pihm->avg_rech = (double *) malloc (pihm->NumEle * sizeof (double));  /* YS */
+    //pihm->avg_subflux = (double **) malloc (pihm->NumEle * sizeof (double *));  /* YS */
+    for (i = 0; i < pihm->numele; i++)
+    {
+        pihm->elem[i].fcr = 1.0;
+	//pihm->avg_inf[i] = 0.0;
+	//pihm->avg_rech[i] = 0.0;
+	//pihm->avg_subflux[i] = (double *) malloc (3 * sizeof (double));
+	//pihm->avg_subflux[i][0] = 0.0;
+	//pihm->avg_subflux[i][1] = 0.0;
+	//pihm->avg_subflux[i][2] = 0.0;
+    }
+#endif
 
     InitMeshStruct (pihm->elem, pihm->numele, pihm->mesh_tbl);
 
@@ -150,15 +150,8 @@ void InitSoil (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl, soil
         elem[i].soil.thetas = elem[i].soil.thetar + elem[i].soil.porosity;
 
         /* Calculate field capacity and wilting point following Chan and Dudhia 2001 MWR, but replacing Campbell with van Genuchten */
-        thetaw = WiltingPoint (soil_tbl.thetas[soil_ind], soil_tbl.thetar[soil_ind], soil_tbl.alpha[soil_ind], soil_tbl.beta[soil_ind]);
-        thetaref = FieldCapacity (soil_tbl.alpha[soil_ind], soil_tbl.beta[soil_ind], geol_tbl.ksatv[geol_ind], soil_tbl.thetas[soil_ind], soil_tbl.thetar[soil_ind]);
-#ifdef _NOAH_
-        elem[i].soil.thetaw = cal.thetaw * (thetaw - elem[i].soil.thetar) + elem[i].soil.thetar;
-        elem[i].soil.thetaref = cal.thetaref * (thetaref - elem[i].soil.thetar) + elem[i].soil.thetar;
-#else
-        elem[i].soil.thetaw = thetaw;
-        elem[i].soil.thetaref = thetaref;
-#endif
+        elem[i].soil.thetaw = WiltingPoint (soil_tbl.thetas[soil_ind], soil_tbl.thetar[soil_ind], soil_tbl.alpha[soil_ind], soil_tbl.beta[soil_ind]);
+        elem[i].soil.thetaref = FieldCapacity (soil_tbl.alpha[soil_ind], soil_tbl.beta[soil_ind], geol_tbl.ksatv[geol_ind], soil_tbl.thetas[soil_ind], soil_tbl.thetar[soil_ind]);
 
         elem[i].soil.dmac = cal.dmac * geol_tbl.dmac[geol_ind];
         if (elem[i].soil.dmac > elem[i].soil.depth)
@@ -237,13 +230,13 @@ void InitLC (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl, lc_tbl
         elem[i].lc.cfactr = lc_tbl.cfactr;
         elem[i].lc.topt = lc_tbl.topt;
 
-#ifdef _NOAH_
-        elem[i].lc.rsmin *= cal.rsmin;
-        elem[i].lc.intcp_factr *= cal.intcp;
-        elem[i].lc.cfactr *= cal.cfactr;
-        elem[i].lc.rgl *= cal.rgl;
-        elem[i].lc.hs *= cal.hs;
-#endif
+//#ifdef _NOAH_
+//        elem[i].lc.rsmin *= cal.rsmin;
+//        elem[i].lc.intcp_factr *= cal.intcp;
+//        elem[i].lc.cfactr *= cal.cfactr;
+//        elem[i].lc.rgl *= cal.rgl;
+//        elem[i].lc.hs *= cal.hs;
+//#endif
     }
 }
 

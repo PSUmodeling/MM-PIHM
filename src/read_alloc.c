@@ -1117,21 +1117,36 @@ void ReadCalib (char *project, char *simulation, calib_struct *cal)
     CS->Cal.Prep_conc = 1.0;
 #endif
 
-#ifdef _FLUX_PIHM_
-            else if (strcasecmp ("DRIP", optstr) == 0)
-                sscanf (cmdstr, "%*s %lf", &CS->Cal.TF);
-            else if (strcasecmp ("CMCMAX", optstr) == 0)
-                sscanf (cmdstr, "%*s %lf", &CS->Cal.IS);
-            else if (strcasecmp ("CZIL", optstr) == 0)
-                sscanf (cmdstr, "%*s %lf", &CS->Cal.Czil);
-            else if (strcasecmp ("FXEXP", optstr) == 0)
-                sscanf (cmdstr, "%*s %lf", &CS->Cal.fx_soil);
-            else if (strcasecmp ("CFACTR", optstr) == 0)
-                sscanf (cmdstr, "%*s %lf", &CS->Cal.fx_canopy);
-            else if (strcasecmp ("RGL", optstr) == 0)
-                sscanf (cmdstr, "%*s %lf", &CS->Cal.Rs_ref);
-            else if (strcasecmp ("HS", optstr) == 0)
-                sscanf (cmdstr, "%*s %lf", &CS->Cal.h_s);
+#ifdef _NOAH_
+    NextLine (global_calib, cmdstr);
+    ReadKeywordDouble (cmdstr, "DRIP", &cal->drip);
+
+    NextLine (global_calib, cmdstr);
+    ReadKeywordDouble (cmdstr, "CMCMAX", &cal->intcp);
+
+    NextLine (global_calib, cmdstr);
+    ReadKeywordDouble (cmdstr, "RS", &cal->rsmin);
+
+    NextLine (global_calib, cmdstr);
+    ReadKeywordDouble (cmdstr, "CZIL", &cal->czil);
+
+    NextLine (global_calib, cmdstr);
+    ReadKeywordDouble (cmdstr, "FXEXP", &cal->fxexp);
+
+    NextLine (global_calib, cmdstr);
+    ReadKeywordDouble (cmdstr, "CFACTR", &cal->cfactr);
+
+    NextLine (global_calib, cmdstr);
+    ReadKeywordDouble (cmdstr, "RGL", &cal->rgl);
+
+    NextLine (global_calib, cmdstr);
+    ReadKeywordDouble (cmdstr, "HS", &cal->hs);
+
+    NextLine (global_calib, cmdstr);
+    ReadKeywordDouble (cmdstr, "REFSMC", &cal->thetaref);
+    
+    NextLine (global_calib, cmdstr);
+    ReadKeywordDouble (cmdstr, "WLTSMC", &cal->thetaw);
 #endif
     /* finish reading calib file */
     fclose (global_calib);
