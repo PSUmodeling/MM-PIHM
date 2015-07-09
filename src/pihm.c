@@ -272,12 +272,6 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                 /* Calculate surface energy balance */
                 PIHMxNoah (t, (double) pihm->ctrl.etstep, pihm, noah);
 
-                for (j = 0; j < noah->nprint; j++)
-                {
-                    PrintData (&noah->prtctrl[j], t, pihm->ctrl.etstep,
-                        pihm->ctrl.ascii);
-                }
-
 //#ifdef _BGC_
 //                    BgcCoupling ((int) t, (int) cData->StartTime, mData, LSM, BGCM);
 //#endif
@@ -324,9 +318,17 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             /* Print outputs */
             for (j = 0; j < pihm->ctrl.nprint; j++)
             {
-                PrintData (&pihm->prtctrl[j], t, (int) pihm->ctrl.stepsize,
+                PrintData (&pihm->prtctrl[j], t, pihm->ctrl.stepsize,
                     pihm->ctrl.ascii);
             }
+#ifdef _NOAH_
+            for (j = 0; j < noah->nprint; j++)
+            {
+                PrintData (&noah->prtctrl[j], t, pihm->ctrl.stepsize,
+                    pihm->ctrl.ascii);
+            }
+#endif
+
 #ifdef _RT_
             /* PIHM-rt output routine */
             PrintChem (filename, chData, t / 60);
