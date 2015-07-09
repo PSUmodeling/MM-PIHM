@@ -318,14 +318,14 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             /* Print outputs */
             for (j = 0; j < pihm->ctrl.nprint; j++)
             {
-                PrintData (&pihm->prtctrl[j], t, pihm->ctrl.stepsize,
-                    pihm->ctrl.ascii);
+                PrintData (&pihm->prtctrl[j], t, t - pihm->ctrl.starttime,
+                    pihm->ctrl.stepsize, pihm->ctrl.ascii);
             }
 #ifdef _NOAH_
             for (j = 0; j < noah->nprint; j++)
             {
-                PrintData (&noah->prtctrl[j], t, pihm->ctrl.stepsize,
-                    pihm->ctrl.ascii);
+                PrintData (&noah->prtctrl[j], t, t - pihm->ctrl.starttime,
+                    pihm->ctrl.stepsize, pihm->ctrl.ascii);
             }
 #endif
 

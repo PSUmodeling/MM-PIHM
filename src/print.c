@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void PrintData (prtctrl_struct *prtctrl, int t, int dt, int ascii)
+void PrintData (prtctrl_struct *prtctrl, int t, int lapse, int dt, int ascii)
 {
     int             j;
     struct tm      *timestamp;
@@ -15,7 +15,7 @@ void PrintData (prtctrl_struct *prtctrl, int t, int dt, int ascii)
         prtctrl->buffer[j] += *prtctrl->vrbl[j];
     }
 
-    if (t % prtctrl->intvl == 0 && t > 0)
+    if (lapse % prtctrl->intvl == 0 && lapse > 0)
     {
         rawtime = t;
         timestamp = gmtime (&rawtime);
@@ -56,7 +56,7 @@ void PrintData (prtctrl_struct *prtctrl, int t, int dt, int ascii)
             exit (1);
         }
 
-        outtime = (double)t;
+        outtime = (double) t;
         fwrite (&outtime, sizeof (double), 1, fid);
         for (j = 0; j < prtctrl->nvrbl; j++)
         {

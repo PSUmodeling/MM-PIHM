@@ -119,7 +119,8 @@ double          EffKH (int mp, double tmpy, double aqdepth, double macd,
     double macksath, double areaf, double ksath);
 //void            PrintInit (Model_Data, char *);
 //
-void            PrintData (prtctrl_struct *prtctrl, int t, int dt, int ascii);
+void            PrintData (prtctrl_struct *prtctrl, int t, int lapse, int dt,
+    int ascii);
 int             MacroporeStatus (double ksatfunc, double elemsatn,
     double grady, double mackv, double kv, double areaf);
 double          KrFunc (double alpha, double beta, double satn);
