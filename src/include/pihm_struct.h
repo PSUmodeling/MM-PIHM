@@ -302,8 +302,6 @@ typedef struct pihm_struct
     int             numele;     /* number of elements */
     int             numriv;     /* number of rivere segments */
 
-    double          dt;
-
     /* Input */
     mesh_tbl_struct mesh_tbl;
     attrib_tbl_struct attrib_tbl;

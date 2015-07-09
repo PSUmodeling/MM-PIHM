@@ -201,12 +201,12 @@ void PIHMxNoah (int t, double stepsize, pihm_struct pihm, lsm_struct noah)
         grid->solnet = grid->soldn * (1.0 - grid->albedo);
         grid->lwdn = grid->longwave * grid->emissi;
 
-        grid->avginfil /= (double)(grid->dt / pihm->dt);
+        grid->avginfil /= (double)(grid->dt / pihm->ctrl.stepsize);
         for (j = 0; j < 3; j++)
         {
-            grid->avgsubflux[j] /= (double)(grid->dt / pihm->dt);
+            grid->avgsubflux[j] /= (double)(grid->dt / pihm->ctrl.stepsize);
         }
-        grid->avgrunoff /= (double)(grid->dt / pihm->dt);
+        grid->avgrunoff /= (double)(grid->dt / pihm->ctrl.stepsize);
 
         //grid->runoff2 = 0.0;
         //for (j = 0; j < 3; j++)

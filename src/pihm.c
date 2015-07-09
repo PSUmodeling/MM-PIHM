@@ -88,20 +88,23 @@ int main (int argc, char *argv[])
     {
         printf ("\nERROR:You must specify the name of project!\n");
         printf ("Usage: ./pihm [-o -d -v] <project name>\n");
-        printf
-            ("\t-o Output will be written in the \"output\" directory and overwrite existing output.\n");
+        printf ("\t-o Output will be written in the \"output\" directory"
+            "and overwrite existing output.\n");
         printf ("\t-v Verbose mode\n");
         printf ("\t-d Debug mode\n");
         exit (1);
     }
     else
+    {
         strcpy (project, argv[optind]);
+    }
 
     first_cycle = 1;
 
     /* Create output directory */
     CreateOutputDir (project, outputdir, overwrite_mode);
 
+    /* The name of the simulation is the same as the project */
     strcpy (simulation, project);
 
     /* Save input files into output directory */
@@ -137,15 +140,14 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     pihm_struct     pihm;
     N_Vector        CV_Y;       /* State Variables Vector */
     void           *cvode_mem;  /* Model Data Pointer */
-    int             flag;       /* flag to test return value */
+    int             flag;       /* Flag to test return value */
     int             nsv;        /* Problem size */
-    int             i, j;       /* loop index */
-    int             t;          /* simulation time */
+    int             i, j;       /* Loop index */
+    int             t;          /* Simulation time */
     realtype        solvert;
     struct tm      *timestamp;
     time_t          rawtime;
-    realtype        nextptr;
-    realtype        stepsize;   /* stress period & step size */
+    int             nextptr;
     realtype        cvode_val;
 
 #ifdef _NOAH_
@@ -260,21 +262,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         /* start solver in loops */
         for (i = 0; i < pihm->ctrl.nstep; i++)
         {
-            /* inner loops to next output points with ET step size control */
-            //while (t < pihm->ctrl.tout[i + 1])
-            //{
-            if (t + pihm->ctrl.etstep >= pihm->ctrl.tout[i + 1])
-            {
-                nextptr = pihm->ctrl.tout[i + 1];
-            }
-            else
-            {
-                nextptr = t + pihm->ctrl.etstep;
-            }
-
-            stepsize = nextptr - (realtype)t;
-
-            pihm->dt = (double)stepsize;
+            nextptr = pihm->ctrl.tout[i + 1];
 
             ApplyForcing (&pihm->forcing, t);
 
@@ -282,30 +270,30 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             {
 #ifdef _NOAH_
                 /* Calculate surface energy balance */
-                PIHMxNoah (t, (double)pihm->ctrl.etstep, pihm, noah);
+                PIHMxNoah (t, (double) pihm->ctrl.etstep, pihm, noah);
 
                 for (j = 0; j < noah->nprint; j++)
                 {
                     PrintData (&noah->prtctrl[j], t, pihm->ctrl.etstep,
                         pihm->ctrl.ascii);
                 }
-//
+
 //#ifdef _BGC_
 //                    BgcCoupling ((int) t, (int) cData->StartTime, mData, LSM, BGCM);
 //#endif
 #else
                 /* Calculate Interception Storage and ET */
-                IntcpSnowET (t, (double)pihm->ctrl.etstep, pihm);
+                IntcpSnowET (t, (double) pihm->ctrl.etstep, pihm);
 #endif
             }
 
             /* Added to adatpt to larger time step. */
-            flag = CVodeSetMaxNumSteps (cvode_mem, (long int)(stepsize * 20));
-            solvert = (realtype)t;
-            flag = CVode (cvode_mem, nextptr, CV_Y, &solvert, CV_NORMAL);
+            flag = CVodeSetMaxNumSteps (cvode_mem, (long int) (pihm->ctrl.stepsize * 20));
+            solvert = (realtype) t;
+            flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert, CV_NORMAL);
             flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
 
-            t = (int)solvert;
+            t = (int) solvert;
             rawtime = t;
             timestamp = gmtime (&rawtime);
 
@@ -324,7 +312,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                     timestamp->tm_min);
             }
 
-            Summary (pihm, CV_Y, (double)stepsize);
+            Summary (pihm, CV_Y, (double) pihm->ctrl.stepsize);
 #ifdef _NOAH_
             AvgFlux (noah, pihm);
 #endif
@@ -332,12 +320,11 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             /* PIHM-rt control file */
             fluxtrans (t / 60.0, StepSize / 60.0, mData, chData, CV_Y);
 #endif
-            //}
 
             /* Print outputs */
             for (j = 0; j < pihm->ctrl.nprint; j++)
             {
-                PrintData (&pihm->prtctrl[j], t, (int)stepsize,
+                PrintData (&pihm->prtctrl[j], t, (int) pihm->ctrl.stepsize,
                     pihm->ctrl.ascii);
             }
 #ifdef _RT_
@@ -359,14 +346,12 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 //    }
 //
 //    printf ("\n Done. \n");
-//    /* Free memory */
-//    N_VDestroy_Serial (CV_Y);
-//
-//    /* Free integrator memory */
-//    CVodeFree (&cvode_mem);
-//
-//    free (rawtime);
-//    free (filename);
+    /* Free memory */
+    N_VDestroy_Serial (CV_Y);
+
+    /* Free integrator memory */
+    CVodeFree (&cvode_mem);
+
     FreeData (pihm);
 //#ifdef _FLUX_PIHM_
 //    LSM_FreeData (mData, LSM);

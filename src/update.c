@@ -93,12 +93,12 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         recharge =
             (realgw1 - realgw0) * elem->soil.porosity / stepsize +
             elem->runoff + ((elem->gw0 >
-                aquiferdepth - elem->lc.rzd) ? elem->et[1] : 0.0);
+                elem->soil.depth - elem->lc.rzd) ? elem->et[1] : 0.0);
         elem->infil =
             (realunsat1 - realunsat0) * elem->soil.porosity / stepsize +
             recharge + (elem->surf0 <
             EPS / 100.0 ? elem->et[2] : 0.0) + ((elem->gw0 <=
-                aquiferdepth - elem->lc.rzd) ? elem->et[1] : 0.0);
+                elem->soil.depth - elem->lc.rzd) ? elem->et[1] : 0.0);
 #endif
         if (elem->infil < 0.0)
         {

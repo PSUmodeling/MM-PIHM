@@ -14,7 +14,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     dy = NV_DATA_S (CV_Ydot);
     pihm = (pihm_struct)pihm_data;
 
-    dt = pihm->dt;
+    dt = (double) pihm->ctrl.stepsize;
 
     /*
      * Initialization of temporary state variables 
@@ -370,7 +370,7 @@ void VerticalFlow (pihm_struct pihm)
     double          qmax;
     elem_struct    *elem;
 
-    dt = pihm->dt;
+    dt = (double) pihm->ctrl.stepsize;
 
     for (i = 0; i < pihm->numele; i++)
     {
@@ -533,7 +533,7 @@ void RiverFlow (pihm_struct pihm)
     double          avg_wid;
     double          dt;
 
-    dt = pihm->dt;
+    dt = (double) pihm->ctrl.stepsize;
 
     /*
      * Lateral flux calculation between river-river and river-triangular
