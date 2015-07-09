@@ -44,9 +44,11 @@ void nleaching (nstate_struct * ns, nflux_struct * nf, wstate_struct * ws, const
             nf->sminn_leached += soilwater_nconc * metv->subflux[k];
         }
         else
+        {
             nf->sminn_leached += nabr_nconc[k] * metv->subflux[k];
-
-        ns->nleached_snk += nf->sminn_leached;
-        ns->sminn -= nf->sminn_leached;
+        }
     }
+
+    ns->nleached_snk += nf->sminn_leached;
+    ns->sminn -= nf->sminn_leached;
 }

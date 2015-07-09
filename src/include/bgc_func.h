@@ -7,9 +7,11 @@ void            ReadBinFile (ts_struct *ts, char *fn, int numele);
 void            BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bgc);
 void            MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir);
 void            BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct noah);
-//void BgcCoupling (int t, int start_time, Model_Data pihm, LSM_STRUCT noah, bgc_struct bgc);
-void            DayMet (const metarr_struct *metarr, metvar_struct *metv, int metday);
-void            MetarrInit (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_time, int end_time);
+void            BgcCoupling (int t, int start_time, pihm_struct pihm, lsm_struct noah, bgc_struct bgc);
+void            DailyBgc (bgc_struct bgc, int num_ele, const double t, const double *naddfrac, int first_balance);
+
+void            daymet (const metarr_struct *metarr, metvar_struct *metv, int metday);
+void            metarr_init (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_time, int end_time);
 
 void            presim_state_init (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns, cinit_struct * cinit);
 void            make_zero_flux_struct (wflux_struct * wf, cflux_struct * cf, nflux_struct * nf);
@@ -19,7 +21,6 @@ void            firstday (const epconst_struct * epc, const cinit_struct * cinit
 void            zero_srcsnk (cstate_struct * cs, nstate_struct * ns, wstate_struct * ws, summary_struct * summary);
 void            precision_control (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns);
 
-void            DailyBgc (bgc_struct bgc, int num_ele, const double t, const double *naddfrac, int first_balance);
 void            radtrans (const cstate_struct * cs, const epconst_struct * epc, metvar_struct * metv, epvar_struct * epv, double albedo);
 void            maint_resp (const cstate_struct * cs, const nstate_struct * ns, const epconst_struct * epc, const metvar_struct * metv, cflux_struct * cf, epvar_struct * epv);
 void            phenology (const epconst_struct * epc, const metvar_struct * metv, phenology_struct * phen, epvar_struct * epv, cstate_struct * cs, cflux_struct * cf, nstate_struct * ns, nflux_struct * nf);

@@ -46,7 +46,7 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
     rawtime = timegm (timestamp);
     spinup_endtime = (int) rawtime;
 
-    MetarrInit (bgc, pihm, noah, spinup_starttime, spinup_endtime);
+    metarr_init (bgc, pihm, noah, spinup_starttime, spinup_endtime);
 
     metyears = bgc->ctrl.spinupend - bgc->ctrl.spinupstart + 1;
     metyr = 0;
@@ -100,7 +100,7 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
                     naddfrac[i] = 0.0;
                 }
 
-                DayMet (&bgc->grid[i].metarr, &bgc->grid[i].metv, j);
+                daymet (&bgc->grid[i].metarr, &bgc->grid[i].metv, j);
                 bgc->grid[i].ws.soilw = bgc->grid[i].metv.soilw;
                 bgc->grid[i].epv.vwc = bgc->grid[i].metv.swc;
             }

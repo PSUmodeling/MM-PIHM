@@ -116,6 +116,8 @@ typedef struct elem_struct
     double          unsat;
     double          fluxsurf[3];       /* Overland Flux */
     double          fluxsub[3];        /* Subsurface Flux */
+    double          fluxtotal[3];       /* Sum of surface and subsurface flux */
+    double          runoff;
     double          prcp;       /* Precep. on each element */
     double          netprcp;   /* Net precep. on each elment */
     double          infil;       /* Variable infiltration rate */

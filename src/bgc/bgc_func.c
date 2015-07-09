@@ -648,189 +648,202 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
     }
 }
 
-//void BgcCoupling (int t, int start_time, Model_Data pihm, LSM_STRUCT noah, bgc_struct bgc)
-//{
-//    static int      counter[5000];
-//    static int      daylight_counter[5000];
-//    double          dayl, prev_dayl;
-//    spa_data        spa;
-//    int             spa_result;
-//    time_t          rawtime;
-//    struct tm      *timestamp;
-//    double          sfctmp;
-//    double          solar;
-//    int             i, j, k;
-//    double          dummy[pihm->NumEle];
-//    metvar_struct  *metv;
-//    static int      first_balance;
-//
-//    if (t == start_time)
-//    {
-//        for (i = 0; i < pihm->NumEle; i++)
-//        {
-//            counter[i] = 0;
-//            daylight_counter[i] = 0;
-//
-//            metv = &(bgc->grid[i].metv);
-//            metv->tmax = -999.0;
-//            metv->tmin = 999.0;
-//            metv->tavg = 0.0;
-//            metv->tsoil = 0.0;
-//            metv->swc = 0.0;
-//            metv->soilw = 0.0;
-//            for (k = 0; k < 3; k++)
-//                metv->subflux[k] = 0.0;
-//            metv->tday = 0.0;
-//            metv->q2d = 0.0;
-//            metv->pa = 0.0;
-//            metv->swavgfd = 0.0;
-//            metv->par = 0.0;
-//            metv->tnight = 0.0;
-//        }
-//        first_balance = 1;
-//    }
-//
-//    for (i = 0; i < pihm->NumEle; i++)
-//    {
-//        metv = &(bgc->grid[i].metv);
-//
-//        sfctmp = noah->GRID[i].SFCTMP - 273.15;
-//        metv->tmax = (metv->tmax > sfctmp) ? metv->tmax : sfctmp;
-//        metv->tmin = (metv->tmin < sfctmp) ? metv->tmin : sfctmp;
-//        metv->tavg += sfctmp;
-//        solar = noah->GRID[i].SOLDN;
-//        metv->tsoil += noah->GRID[i].STC[0] - 273.15;
-//        metv->swc += noah->GRID[i].SOILW;
-//        metv->soilw += noah->GRID[i].SOILM;
-//        for (k = 0; k < 3; k++)
-//        {
-//            if (pihm->Ele[i].BC[k] < 0.0 && pihm->avg_subflux[i][k] < 0.0)
-//                metv->subflux[k] = 0.0;
-//            else
-//                metv->subflux[k] += pihm->avg_subflux[i][k] * 1000.0 * 24.0 * 3600.0 / pihm->Ele[i].area;
-//        }
-//
-//        if (solar > 1.0)
-//        {
-//            metv->tday += sfctmp;
-//            metv->q2d += noah->GRID[i].Q2SAT - noah->GRID[i].Q2;
-//            metv->pa += noah->GRID[i].SFCPRS;
-//            metv->swavgfd += solar;
-//            metv->par += solar * RAD2PAR;
-//            daylight_counter[i]++;
-//        }
-//        else
-//            metv->tnight += sfctmp;
-//
-//        counter[i]++;
-//    }
-//
-//    if ((t - start_time) % 86400 == 0 && t > start_time)
-//    {
-//        rawtime = (int) (t - 86400);
-//        timestamp = gmtime (&rawtime);
-//        spa.year = timestamp->tm_year + 1900;
-//        spa.month = timestamp->tm_mon + 1;
-//        spa.day = timestamp->tm_mday;
-//        spa.hour = timestamp->tm_hour;
-//        spa.minute = timestamp->tm_min;
-//        spa.second = timestamp->tm_sec;
-//
-//        spa.timezone = 0;
-//        spa.delta_t = 67;
-//        spa.delta_ut1 = 0;
-//        spa.atmos_refract = 0.5667;
-//
-//        spa.longitude = bgc->grid[0].sitec.lon;
-//        spa.latitude = bgc->grid[0].sitec.lat;
-//        spa.elevation = 0.;
-//        for (i = 0; i < pihm->NumEle; i++)
-//            spa.elevation = spa.elevation + (double)pihm->Ele[i].zmax;
-//        spa.elevation = spa.elevation / (double)pihm->NumEle;
-//        /*
-//         * Calculate surface pressure based on FAO 1998 method (Narasimhan 2002) 
-//         */
-//        spa.pressure = 1013.25 * pow ((293. - 0.0065 * spa.elevation) / 293., 5.26);
-//        spa.temperature = noah->GENPRMT.TBOT_DATA;
-//
-//        spa.function = SPA_ZA_RTS;
-//        spa_result = spa_calculate (&spa);
-//
-//        /* daylength (s) */
-//        dayl = (spa.sunset - spa.sunrise) * 3600.;
-//        dayl = dayl < 0. ? (dayl + 24. * 3600.) : dayl;
-//
-//        rawtime = rawtime - 24 * 3600;
-//        timestamp = gmtime (&rawtime);
-//        spa.year = timestamp->tm_year + 1900;
-//        spa.month = timestamp->tm_mon + 1;
-//        spa.day = timestamp->tm_mday;
-//        spa.hour = timestamp->tm_hour;
-//        spa.minute = timestamp->tm_min;
-//        spa.second = timestamp->tm_sec;
-//        spa_result = spa_calculate (&spa);
-//        prev_dayl = (spa.sunset - spa.sunrise) * 3600.;
-//        prev_dayl = prev_dayl < 0. ? (prev_dayl + 12. * 3600.) : prev_dayl;
-//
-//        for (i = 0; i < pihm->NumEle; i++)
-//        {
-//            metv = &(bgc->grid[i].metv);
-//
-//            metv->dayl = dayl;
-//            metv->prev_dayl = prev_dayl;
-//
-//            metv->tavg /= (double) counter[i];
-//            metv->tsoil /= (double) counter[i];
-//            metv->swc /= (double) counter[i];
-//            metv->soilw /= (double) counter[i];
-//            for (k = 0; k < 3; k++)
-//            {
-//                metv->subflux[k] /= (double) counter[i];
-//            }
-//
-//            metv->tday /= (double) daylight_counter[i];
-//            metv->q2d /= (double) daylight_counter[i];
-//            metv->pa /= (double) daylight_counter[i];
-//            metv->swavgfd /= (double) daylight_counter[i];
-//            metv->par /= (double) daylight_counter[i];
-//            metv->tnight /= (double) (counter[i] - daylight_counter[i]);
-//        }
-//
-//        daily_bgc (bgc, pihm->NumEle, t, dummy, first_balance);
-//        first_balance = 0;
-//
-//        for (j = 0; j < bgc->ctrl.nprint; j++)
-//            PrintData (bgc->ctrl.PCtrl[j], t, 86400, 1);
-//
-//        
-//        for (i = 0; i < pihm->NumEle; i++)
-//        {
-//            noah->GRID[i].XLAI = bgc->grid[i].epv.proj_lai;
-//            noah->GRID[i].CMCMAX = pihm->ISFactor[pihm->Ele[i].LC - 1] * noah->GRID[i].XLAI;
-//
-//            metv = &(bgc->grid[i].metv);
-//
-//            counter[i] = 0;
-//            daylight_counter[i] = 0;
-//
-//            metv->tmax = -999.0;
-//            metv->tmin = 999.0;
-//            metv->tavg = 0.0;
-//            metv->tsoil = 0.0;
-//            metv->swc = 0.0;
-//            metv->soilw = 0.0;
-//            for (k = 0; k < 3; k++)
-//                metv->subflux[k] = 0.0;
-//            metv->tday = 0.0;
-//            metv->q2d = 0.0;
-//            metv->pa = 0.0;
-//            metv->swavgfd = 0.0;
-//            metv->par = 0.0;
-//            metv->tnight = 0.0;
-//        }
-//    }
-//}
-//
+void BgcCoupling (int t, int start_time, pihm_struct pihm, lsm_struct noah, bgc_struct bgc)
+{
+    static int      counter[5000];
+    static int      daylight_counter[5000];
+    double          dayl, prev_dayl;
+    spa_data        spa;
+    int             spa_result;
+    time_t          rawtime;
+    struct tm      *timestamp;
+    double          sfctmp;
+    double          solar;
+    int             i, j, k;
+    double          dummy[pihm->numele];
+    metvar_struct  *metv;
+    static int      first_balance;
+
+    if (t == start_time)
+    {
+        for (i = 0; i < pihm->numele; i++)
+        {
+            counter[i] = 0;
+            daylight_counter[i] = 0;
+
+            metv = &(bgc->grid[i].metv);
+            metv->tmax = -999.0;
+            metv->tmin = 999.0;
+            metv->tavg = 0.0;
+            metv->tsoil = 0.0;
+            metv->swc = 0.0;
+            metv->soilw = 0.0;
+            for (k = 0; k < 3; k++)
+            {
+                metv->subflux[k] = 0.0;
+            }
+            metv->tday = 0.0;
+            metv->q2d = 0.0;
+            metv->pa = 0.0;
+            metv->swavgfd = 0.0;
+            metv->par = 0.0;
+            metv->tnight = 0.0;
+        }
+        first_balance = 1;
+    }
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        metv = &(bgc->grid[i].metv);
+
+        sfctmp = noah->grid[i].sfctmp - 273.15;
+        metv->tmax = (metv->tmax > sfctmp) ? metv->tmax : sfctmp;
+        metv->tmin = (metv->tmin < sfctmp) ? metv->tmin : sfctmp;
+        metv->tavg += sfctmp;
+        solar = noah->grid[i].soldn;
+        metv->tsoil += noah->grid[i].stc[0] - 273.15;
+        metv->swc += noah->grid[i].soilw;
+        metv->soilw += noah->grid[i].soilm;
+        for (k = 0; k < 3; k++)
+        {
+            //if (pihm->elem[i].bc_type[k] < 0.0 && noah->grid[i].avgsubflux[k] < 0.0)
+            //{
+            //    metv->subflux[k] = 0.0;
+            //}
+            //else
+            //{
+                metv->subflux[k] += noah->grid[i].avgsubflux[k] * 1000.0 * 24.0 * 3600.0 / pihm->elem[i].topo.area;
+            //}
+        }
+
+        if (solar > 1.0)
+        {
+            metv->tday += sfctmp;
+            metv->q2d += noah->grid[i].q2sat - noah->grid[i].q2;
+            metv->pa += noah->grid[i].sfcprs;
+            metv->swavgfd += solar;
+            metv->par += solar * RAD2PAR;
+            daylight_counter[i]++;
+        }
+        else
+        {
+            metv->tnight += sfctmp;
+        }
+
+        (counter[i])++;
+    }
+
+    if ((t - start_time) % 86400 == 0 && t > start_time)
+    {
+        rawtime = (int) (t - 86400);
+        timestamp = gmtime (&rawtime);
+        spa.year = timestamp->tm_year + 1900;
+        spa.month = timestamp->tm_mon + 1;
+        spa.day = timestamp->tm_mday;
+        spa.hour = timestamp->tm_hour;
+        spa.minute = timestamp->tm_min;
+        spa.second = timestamp->tm_sec;
+
+        spa.timezone = 0;
+        spa.delta_t = 67;
+        spa.delta_ut1 = 0;
+        spa.atmos_refract = 0.5667;
+
+        spa.longitude = bgc->grid[0].sitec.lon;
+        spa.latitude = bgc->grid[0].sitec.lat;
+        spa.elevation = 0.;
+        for (i = 0; i < pihm->numele; i++)
+        {
+            spa.elevation = spa.elevation + (double)pihm->elem[i].topo.zmax;
+        }
+        spa.elevation = spa.elevation / (double)pihm->numele;
+        /*
+         * Calculate surface pressure based on FAO 1998 method (Narasimhan 2002) 
+         */
+        spa.pressure = 1013.25 * pow ((293. - 0.0065 * spa.elevation) / 293., 5.26);
+        spa.temperature = noah->genprmt.tbot_data;
+
+        spa.function = SPA_ZA_RTS;
+        spa_result = spa_calculate (&spa);
+
+        /* daylength (s) */
+        dayl = (spa.sunset - spa.sunrise) * 3600.0;
+        dayl = (dayl < 0.0) ? (dayl + 24.0 * 3600.0) : dayl;
+
+        rawtime = rawtime - 24 * 3600;
+        timestamp = gmtime (&rawtime);
+        spa.year = timestamp->tm_year + 1900;
+        spa.month = timestamp->tm_mon + 1;
+        spa.day = timestamp->tm_mday;
+        spa.hour = timestamp->tm_hour;
+        spa.minute = timestamp->tm_min;
+        spa.second = timestamp->tm_sec;
+        spa_result = spa_calculate (&spa);
+        prev_dayl = (spa.sunset - spa.sunrise) * 3600.;
+        prev_dayl = (prev_dayl < 0.0) ? (prev_dayl + 12.0 * 3600.0) : prev_dayl;
+
+        for (i = 0; i < pihm->numele; i++)
+        {
+            metv = &(bgc->grid[i].metv);
+
+            metv->dayl = dayl;
+            metv->prev_dayl = prev_dayl;
+
+            metv->tavg /= (double) counter[i];
+            metv->tsoil /= (double) counter[i];
+            metv->swc /= (double) counter[i];
+            metv->soilw /= (double) counter[i];
+            for (k = 0; k < 3; k++)
+            {
+                metv->subflux[k] /= (double) counter[i];
+            }
+
+            metv->tday /= (double) daylight_counter[i];
+            metv->q2d /= (double) daylight_counter[i];
+            metv->pa /= (double) daylight_counter[i];
+            metv->swavgfd /= (double) daylight_counter[i];
+            metv->par /= (double) daylight_counter[i];
+
+            metv->tnight /= (double) (counter[i] - daylight_counter[i]);
+        }
+
+        DailyBgc (bgc, pihm->numele, t, dummy, first_balance);
+        first_balance = 0;
+
+        for (j = 0; j < bgc->ctrl.nprint; j++)
+        {
+            PrintData (&bgc->prtctrl[j], t, 86400, 1);
+        }
+
+        
+        for (i = 0; i < pihm->numele; i++)
+        {
+            noah->grid[i].xlai = bgc->grid[i].epv.proj_lai;
+            noah->grid[i].cmcmax = noah->grid[i].cmcfactr * noah->grid[i].xlai;
+
+            metv = &(bgc->grid[i].metv);
+
+            counter[i] = 0;
+            daylight_counter[i] = 0;
+
+            metv->tmax = -999.0;
+            metv->tmin = 999.0;
+            metv->tavg = 0.0;
+            metv->tsoil = 0.0;
+            metv->swc = 0.0;
+            metv->soilw = 0.0;
+            for (k = 0; k < 3; k++)
+                metv->subflux[k] = 0.0;
+            metv->tday = 0.0;
+            metv->q2d = 0.0;
+            metv->pa = 0.0;
+            metv->swavgfd = 0.0;
+            metv->par = 0.0;
+            metv->tnight = 0.0;
+        }
+    }
+}
+
 void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir)
 {
     int             i, j;
@@ -1003,6 +1016,3 @@ void ReadAnnFile (ts_struct *ts, char *fn)
     
     fclose (fid);
 }
-
-
-

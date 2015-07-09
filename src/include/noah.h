@@ -292,6 +292,7 @@ typedef struct grid_type
     int             nroot;      /* number of root layers, a function of veg type, determined in subroutine redprm. */
 
     double          avgsubflux[3];
+    double          avgrunoff;
     double          avginfil;
 
     double         *radn[2];

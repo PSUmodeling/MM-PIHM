@@ -255,8 +255,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         for (i = 0; i < pihm->ctrl.nstep; i++)
         {
             /* inner loops to next output points with ET step size control */
-            while (t < pihm->ctrl.tout[i + 1])
-            {
+            //while (t < pihm->ctrl.tout[i + 1])
+            //{
                 if (t + pihm->ctrl.etstep >= pihm->ctrl.tout[i + 1])
                 {
                     nextptr = pihm->ctrl.tout[i + 1];
@@ -323,7 +323,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                 /* PIHM-rt control file */
                 fluxtrans(t / 60.0, StepSize / 60.0, mData, chData, CV_Y);
 #endif
-            }
+            //}
 
             /* Print outputs */
             for (j = 0; j < pihm->ctrl.nprint; j++)

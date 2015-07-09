@@ -944,7 +944,16 @@ void ReadPara (char *project, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     ReadKeywordInt (cmdstr, "SUBFLX", &ctrl->prtvrbl[SUBFLX_CTRL]);
 
+    NextLine (para_file, cmdstr);
+    ReadKeywordInt (cmdstr, "TOTALFLX", &ctrl->prtvrbl[TOTALFLX_CTRL]);
+
     fclose (para_file);
+
+    if (ctrl->etstep < ctrl->stepsize || ctrl->etstep % ctrl->stepsize > 0)
+    {
+        printf ("ERROR: LSM (ET) step size should be an integral multiple of model step size!\n");
+        exit (1);
+    }
 }
 
 //if (CS->a != 1.0)

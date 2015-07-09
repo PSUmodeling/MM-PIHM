@@ -198,12 +198,14 @@ void PIHMxNoah (int t, double stepsize, pihm_struct pihm, lsm_struct noah)
         {
             grid->avgsubflux[j] /= (double) (grid->dt / pihm->dt);
         }
+        grid->avgrunoff /= (double) (grid->dt / pihm->dt);
 
-        grid->runoff2 = 0.0;
-        for (j = 0; j < 3; j++)
-        {
-            grid->runoff2 += grid->avgsubflux[j] / pihm->elem[i].topo.area;
-        }
+        //grid->runoff2 = 0.0;
+        //for (j = 0; j < 3; j++)
+        //{
+        //    grid->runoff2 += grid->avgsubflux[j] / pihm->elem[i].topo.area;
+        //}
+        grid->runoff2 = grid->avgrunoff;
         grid->infil = grid->avginfil;
         grid->nwtbl = FindLayer (grid->sldpth, grid->nsoil, pihm->elem[i].soil.depth - pihm->elem[i].gw0);
         if (grid->nwtbl > grid->nsoil)
@@ -280,6 +282,7 @@ void PIHMxNoah (int t, double stepsize, pihm_struct pihm, lsm_struct noah)
         pihm->elem[i].fcr = fcr;
 
         grid->avginfil = 0.0;
+        grid->avgrunoff = 0.0;
         for (j = 0; j < 3; j++)
         {
             grid->avgsubflux[j] = 0.0;
@@ -310,6 +313,7 @@ void AvgFlux (lsm_struct noah, pihm_struct pihm)
     for (i = 0; i < pihm->numele; i++)
     {
         noah->grid[i].avginfil += pihm->elem[i].infil;
+        noah->grid[i].avgrunoff += pihm->elem[i].runoff;
         for (j = 0; j < 3; j++)
         {
             noah->grid[i].avgsubflux[j] += pihm->elem[i].fluxsub[j];

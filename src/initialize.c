@@ -536,6 +536,9 @@ void InitStateVrbl (elem_struct *elem, int numele, river_struct *riv, int numriv
         NV_Ith_S (CV_Y, i) = ic.surf[i];
         NV_Ith_S (CV_Y, i + numele) = ic.unsat[i];
         NV_Ith_S (CV_Y, i + 2 * numele) = ic.gw[i];
+
+        elem[i].runoff = 0.0;
+        elem[i].infil = 0.0;
     }    
 
     for (i = 0; i < numriv; i++)
@@ -843,6 +846,20 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         for (j = 0; j < pihm->numele; j++)
                         {
                             pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].fluxsub[k];
+                        }
+                        n++;
+                    }
+                    break;
+                case TOTALFLX_CTRL:
+                    for (k = 0; k < 3; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name, "%s%s.totalflx%d", outputdir, simulation, k);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].nvrbl = pihm->numele;
+                        pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                        for (j = 0; j < pihm->numele; j++)
+                        {
+                            pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].fluxtotal[k];
                         }
                         n++;
                     }

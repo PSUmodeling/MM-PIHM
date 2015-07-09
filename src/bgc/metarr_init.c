@@ -1,6 +1,6 @@
 #include "bgc.h"
 
-void MetarrInit (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_time, int end_time)
+void metarr_init (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_time, int end_time)
 {
     /*
      * Generate meteorological forcing array for spin-up
@@ -257,14 +257,14 @@ void MetarrInit (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_ti
             for (k = 0; k < 3; k++)
             {
                 /* Convert from m3/s to kg/m2/d */
-                if (pihm->elem[i].forc.bc_type[k] < 0.0 && fluxsub[k][i] < 0.0)
-                {
-                    metarr->subflux[k][j] = 0.0;
-                }
-                else
-                {
+                //if (pihm->elem[i].forc.bc_type[k] < 0.0 && fluxsub[k][i] < 0.0)
+                //{
+                //    metarr->subflux[k][j] = 0.0;
+                //}
+                //else
+                //{
                     metarr->subflux[k][j] = 1000.0 * fluxsub[k][i] * 24.0 * 3600.0 / pihm->elem[i].topo.area;
-                }
+                //}
             }
         }
     }

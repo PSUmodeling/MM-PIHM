@@ -1,6 +1,6 @@
 #include "bgc.h"
 
-void DayMet (const metarr_struct * metarr, metvar_struct * metv, int metday)
+void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
 {
     int k;
     /* convert prcp from cm --> kg/m2 */

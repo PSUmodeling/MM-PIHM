@@ -141,7 +141,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             exit (1);
         }
     }
-    
+
     return (0);
 }
 
