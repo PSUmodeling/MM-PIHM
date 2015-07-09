@@ -1,3 +1,4 @@
+
 /*****************************************************************************
  * File       : pihm.h
  * Function   : Declaration and Definition of global variables and data
@@ -22,8 +23,8 @@
                                  * defination */
 #include "cvode.h"              /* CVODE header file */
 #include "cvode_spgmr.h"        /* CVSPGMR linear header file */
-#include "sundials_smalldense.h"    /* use generic DENSE linear solver
-                                     * for "small" */
+#include "sundials_smalldense.h"        /* use generic DENSE linear solver
+                                         * for "small" */
 #include "nvector_serial.h"     /* contains the definition of type
                                  * N_Vector */
 #include "sundials_math.h"      /* contains UnitRoundoff, RSqrt,

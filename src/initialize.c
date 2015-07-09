@@ -1,3 +1,4 @@
+
 /*****************************************************************************
  * File		: initialize.c							
  * Function	: Initialization of elemental attributes using relational	
@@ -15,8 +16,8 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
         printf ("\n\nInitialize data structure\n");
     }
 
-    pihm->elem = (elem_struct *) malloc (pihm->numele * sizeof (elem_struct));
-    pihm->riv = (river_struct *) malloc (pihm->numriv * sizeof (river_struct));
+    pihm->elem = (elem_struct *)malloc (pihm->numele * sizeof (elem_struct));
+    pihm->riv = (river_struct *)malloc (pihm->numriv * sizeof (river_struct));
 
 #ifdef _NOAH_
     //pihm->avg_inf = (double *) malloc (pihm->NumEle * sizeof (double));  /* YS */
@@ -25,12 +26,12 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     for (i = 0; i < pihm->numele; i++)
     {
         pihm->elem[i].fcr = 1.0;
-	//pihm->avg_inf[i] = 0.0;
-	//pihm->avg_rech[i] = 0.0;
-	//pihm->avg_subflux[i] = (double *) malloc (3 * sizeof (double));
-	//pihm->avg_subflux[i][0] = 0.0;
-	//pihm->avg_subflux[i][1] = 0.0;
-	//pihm->avg_subflux[i][2] = 0.0;
+        //pihm->avg_inf[i] = 0.0;
+        //pihm->avg_rech[i] = 0.0;
+        //pihm->avg_subflux[i] = (double *) malloc (3 * sizeof (double));
+        //pihm->avg_subflux[i][0] = 0.0;
+        //pihm->avg_subflux[i][1] = 0.0;
+        //pihm->avg_subflux[i][2] = 0.0;
     }
 #endif
 
@@ -47,7 +48,8 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     InitForcing (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
         pihm->attrib_tbl, pihm->riv_att_tbl, &pihm->forcing, pihm->cal);
 
-    InitRiver (pihm->riv, pihm->numriv, pihm->elem, pihm->riv_att_tbl, pihm->riv_shp_tbl, pihm->riv_matl_tbl, pihm->mesh_tbl, pihm->cal);
+    InitRiver (pihm->riv, pihm->numriv, pihm->elem, pihm->riv_att_tbl,
+        pihm->riv_shp_tbl, pihm->riv_matl_tbl, pihm->mesh_tbl, pihm->cal);
 
     if (debug_mode)
     {
@@ -58,21 +60,24 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
 
     if (pihm->ctrl.init_type == 0)
     {
-        SaturationIC (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, &pihm->ic);
+        SaturationIC (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
+            &pihm->ic);
     }
     else if (pihm->ctrl.init_type == 1)
     {
         for (i = 0; i < pihm->numriv; i++)
         {
-            pihm->ic.rivgw[i] = pihm->riv[i].topo.zmax - pihm->riv[i].topo.zmin - 0.1;
+            pihm->ic.rivgw[i] =
+                pihm->riv[i].topo.zmax - pihm->riv[i].topo.zmin - 0.1;
         }
     }
 
-    InitStateVrbl (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, CV_Y, pihm->ic);
+    InitStateVrbl (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, CV_Y,
+        pihm->ic);
 
     CalcModelStep (&pihm->ctrl);
 }
-    
+
 void InitMeshStruct (elem_struct *elem, int numele, mesh_tbl_struct mesh_tbl)
 {
     int             i, j;
@@ -105,21 +110,27 @@ void InitTopo (elem_struct *elem, int numele, mesh_tbl_struct mesh_tbl)
             zmax[j] = mesh_tbl.zmax[elem[i].node[j] - 1];
         }
 
-        elem[i].topo.area = 0.5 * ((x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] - x[0]));
+        elem[i].topo.area =
+            0.5 * ((x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] -
+                x[0]));
         /* Calculate centroid of triangle */
         elem[i].topo.x = (x[0] + x[1] + x[2]) / 3.0;
         elem[i].topo.y = (y[0] + y[1] + y[2]) / 3.0;
 
         elem[i].topo.zmin = (zmin[0] + zmin[1] + zmin[2]) / 3.0;
         elem[i].topo.zmax = (zmax[0] + zmax[1] + zmax[2]) / 3.0;
-        elem[i].topo.edge[0] = sqrt (pow ((x[1] - x[2]), 2) + pow ((y[1] - y[2]), 2));
-        elem[i].topo.edge[1] = sqrt (pow ((x[2] - x[0]), 2) + pow ((y[2] - y[0]), 2));
-        elem[i].topo.edge[2] = sqrt (pow ((x[0] - x[1]), 2) + pow ((y[0] - y[1]), 2));
+        elem[i].topo.edge[0] =
+            sqrt (pow ((x[1] - x[2]), 2) + pow ((y[1] - y[2]), 2));
+        elem[i].topo.edge[1] =
+            sqrt (pow ((x[2] - x[0]), 2) + pow ((y[2] - y[0]), 2));
+        elem[i].topo.edge[2] =
+            sqrt (pow ((x[0] - x[1]), 2) + pow ((y[0] - y[1]), 2));
 
     }
 }
 
-void InitSoil (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl, soil_tbl_struct soil_tbl, geol_tbl_struct geol_tbl, calib_struct cal)
+void InitSoil (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl,
+    soil_tbl_struct soil_tbl, geol_tbl_struct geol_tbl, calib_struct cal)
 {
     int             i;
     int             soil_ind;
@@ -136,10 +147,13 @@ void InitSoil (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl, soil
         elem[i].soil.ksath = cal.ksath * geol_tbl.ksath[geol_ind];
         elem[i].soil.ksatv = cal.ksatv * geol_tbl.ksatv[geol_ind];
         elem[i].soil.kinfv = cal.kinfv * soil_tbl.ksatv[soil_ind];
-        elem[i].soil.porosity = cal.porosity * (soil_tbl.thetas[soil_ind] - soil_tbl.thetar[soil_ind]);
+        elem[i].soil.porosity =
+            cal.porosity * (soil_tbl.thetas[soil_ind] -
+            soil_tbl.thetar[soil_ind]);
         if (elem[i].soil.porosity > 1.0 || elem[i].soil.porosity <= 0.0)
         {
-            printf ("Warning: Porosity value out of bounds for element %d", i + 1);
+            printf ("Warning: Porosity value out of bounds for element %d",
+                i + 1);
             exit (1);
         }
         elem[i].soil.dinf = cal.dinf * soil_tbl.dinf[soil_ind];
@@ -150,8 +164,14 @@ void InitSoil (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl, soil
         elem[i].soil.thetas = elem[i].soil.thetar + elem[i].soil.porosity;
 
         /* Calculate field capacity and wilting point following Chan and Dudhia 2001 MWR, but replacing Campbell with van Genuchten */
-        elem[i].soil.thetaw = WiltingPoint (soil_tbl.thetas[soil_ind], soil_tbl.thetar[soil_ind], soil_tbl.alpha[soil_ind], soil_tbl.beta[soil_ind]);
-        elem[i].soil.thetaref = FieldCapacity (soil_tbl.alpha[soil_ind], soil_tbl.beta[soil_ind], geol_tbl.ksatv[geol_ind], soil_tbl.thetas[soil_ind], soil_tbl.thetar[soil_ind]);
+        elem[i].soil.thetaw =
+            WiltingPoint (soil_tbl.thetas[soil_ind],
+            soil_tbl.thetar[soil_ind], soil_tbl.alpha[soil_ind],
+            soil_tbl.beta[soil_ind]);
+        elem[i].soil.thetaref =
+            FieldCapacity (soil_tbl.alpha[soil_ind], soil_tbl.beta[soil_ind],
+            geol_tbl.ksatv[geol_ind], soil_tbl.thetas[soil_ind],
+            soil_tbl.thetar[soil_ind]);
 
         elem[i].soil.dmac = cal.dmac * geol_tbl.dmac[geol_ind];
         if (elem[i].soil.dmac > elem[i].soil.depth)
@@ -165,12 +185,13 @@ void InitSoil (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl, soil
     }
 }
 
-double FieldCapacity (double alpha, double beta, double kv, double thetas, double thetar)
+double FieldCapacity (double alpha, double beta, double kv, double thetas,
+    double thetar)
 {
-    double        satn;
-    double        ktemp;
-    double        thetaref;
-    const double  KFC = 5.79E-9;
+    double          satn;
+    double          ktemp;
+    double          thetaref;
+    const double    KFC = 5.79E-9;
 
     /* Set default value of field capacity, in case a valid value cannot be
      * found using the defination */
@@ -181,7 +202,8 @@ double FieldCapacity (double alpha, double beta, double kv, double thetas, doubl
         ktemp = kv * KrFunc (alpha, beta, satn);
         if (ktemp >= KFC)
         {
-            thetaref = (1.0 / 3.0 + 2.0 / 3.0 * satn) * (thetas - thetar) + thetar;
+            thetaref =
+                (1.0 / 3.0 + 2.0 / 3.0 * satn) * (thetas - thetar) + thetar;
             break;
         }
     }
@@ -192,10 +214,12 @@ double WiltingPoint (double thetas, double thetar, double alpha, double beta)
 {
     const double    PSIW = 200.0;
 
-    return (0.5 * (thetas - thetar) * pow (1.0 / (1.0 + pow (PSIW * alpha, beta)), 1.0 - 1.0 / beta) + thetar);
+    return (0.5 * (thetas - thetar) * pow (1.0 / (1.0 + pow (PSIW * alpha,
+                    beta)), 1.0 - 1.0 / beta) + thetar);
 }
 
-void InitLC (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl, lc_tbl_struct lc_tbl, calib_struct cal)
+void InitLC (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl,
+    lc_tbl_struct lc_tbl, calib_struct cal)
 {
     int             i;
     int             lc_ind;
@@ -240,7 +264,10 @@ void InitLC (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl, lc_tbl
     }
 }
 
-void InitRiver (river_struct *riv, int numriv, elem_struct *elem, riv_att_tbl_struct riv_att_tbl, riv_shp_tbl_struct riv_shp_tbl, riv_matl_tbl_struct riv_matl_tbl, mesh_tbl_struct mesh_tbl, calib_struct cal)
+void InitRiver (river_struct *riv, int numriv, elem_struct *elem,
+    riv_att_tbl_struct riv_att_tbl, riv_shp_tbl_struct riv_shp_tbl,
+    riv_matl_tbl_struct riv_matl_tbl, mesh_tbl_struct mesh_tbl,
+    calib_struct cal)
 {
     int             i, j;
 
@@ -261,30 +288,54 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem, riv_att_tbl_st
                 elem[riv[i].rightele - 1].forc.bc_type[j] = -4 * (i + 1);
         }
 
-        riv[i].topo.x = (mesh_tbl.x[riv[i].fromnode - 1] + mesh_tbl.x[riv[i].tonode - 1]) / 2.0;
-        riv[i].topo.y = (mesh_tbl.y[riv[i].fromnode - 1] + mesh_tbl.y[riv[i].tonode - 1]) / 2.0;
-        riv[i].topo.zmax = (mesh_tbl.zmax[riv[i].fromnode - 1] + mesh_tbl.zmax[riv[i].tonode - 1]) / 2.0;
-        riv[i].topo.zmin = riv[i].topo.zmax - (0.5 * (elem[riv[i].leftele - 1].topo.zmax + elem[riv[i].rightele - 1].topo.zmax)
-            - 0.5 * (elem[riv[i].leftele - 1].topo.zmin + elem[riv[i].rightele - 1].topo.zmin));
+        riv[i].topo.x =
+            (mesh_tbl.x[riv[i].fromnode - 1] + mesh_tbl.x[riv[i].tonode -
+                1]) / 2.0;
+        riv[i].topo.y =
+            (mesh_tbl.y[riv[i].fromnode - 1] + mesh_tbl.y[riv[i].tonode -
+                1]) / 2.0;
+        riv[i].topo.zmax =
+            (mesh_tbl.zmax[riv[i].fromnode - 1] +
+            mesh_tbl.zmax[riv[i].tonode - 1]) / 2.0;
+        riv[i].topo.zmin =
+            riv[i].topo.zmax - (0.5 * (elem[riv[i].leftele - 1].topo.zmax +
+                elem[riv[i].rightele - 1].topo.zmax) -
+            0.5 * (elem[riv[i].leftele - 1].topo.zmin + elem[riv[i].rightele -
+                    1].topo.zmin));
         riv[i].topo.node_zmax = mesh_tbl.zmax[riv[i].tonode - 1];
 
-        riv[i].shp.depth = cal.rivdepth * riv_shp_tbl.depth[riv_att_tbl.shp[i] - 1];
-        riv[i].shp.intrpl_ord = riv_shp_tbl.intrpl_ord[riv_att_tbl.shp[i] - 1];
-        riv[i].shp.coeff = cal.rivshpcoeff * riv_shp_tbl.coeff[riv_att_tbl.shp[i] - 1];
-        riv[i].shp.length = sqrt (pow (mesh_tbl.x[riv[i].fromnode - 1] - mesh_tbl.x[riv[i].tonode - 1], 2) + pow (mesh_tbl.y[riv[i].fromnode - 1] - mesh_tbl.y[riv[i].tonode - 1], 2));
+        riv[i].shp.depth =
+            cal.rivdepth * riv_shp_tbl.depth[riv_att_tbl.shp[i] - 1];
+        riv[i].shp.intrpl_ord =
+            riv_shp_tbl.intrpl_ord[riv_att_tbl.shp[i] - 1];
+        riv[i].shp.coeff =
+            cal.rivshpcoeff * riv_shp_tbl.coeff[riv_att_tbl.shp[i] - 1];
+        riv[i].shp.length =
+            sqrt (pow (mesh_tbl.x[riv[i].fromnode - 1] -
+                mesh_tbl.x[riv[i].tonode - 1],
+                2) + pow (mesh_tbl.y[riv[i].fromnode - 1] -
+                mesh_tbl.y[riv[i].tonode - 1], 2));
 
         riv[i].topo.zbed = riv[i].topo.zmax - riv[i].shp.depth;
 
-        riv[i].matl.rough = cal.rivrough * riv_matl_tbl.rough[riv_att_tbl.matl[i] - 1];
+        riv[i].matl.rough =
+            cal.rivrough * riv_matl_tbl.rough[riv_att_tbl.matl[i] - 1];
         riv[i].matl.cwr = riv_matl_tbl.cwr[riv_att_tbl.matl[i] - 1];
-        riv[i].matl.ksath = cal.rivksath * riv_matl_tbl.ksath[riv_att_tbl.matl[i] - 1];
-        riv[i].matl.ksatv = cal.rivksatv * riv_matl_tbl.ksatv[riv_att_tbl.matl[i] - 1];
-        riv[i].matl.bedthick = cal.rivbedthick * riv_matl_tbl.bedthick[riv_att_tbl.matl[i] - 1];
-        riv[i].matl.porosity = 0.5 * (elem[riv[i].leftele - 1].soil.porosity +  elem[riv[i].rightele - 1].soil.porosity);
+        riv[i].matl.ksath =
+            cal.rivksath * riv_matl_tbl.ksath[riv_att_tbl.matl[i] - 1];
+        riv[i].matl.ksatv =
+            cal.rivksatv * riv_matl_tbl.ksatv[riv_att_tbl.matl[i] - 1];
+        riv[i].matl.bedthick =
+            cal.rivbedthick * riv_matl_tbl.bedthick[riv_att_tbl.matl[i] - 1];
+        riv[i].matl.porosity =
+            0.5 * (elem[riv[i].leftele - 1].soil.porosity +
+            elem[riv[i].rightele - 1].soil.porosity);
     }
 }
 
-void InitForcing (elem_struct *elem, int numele, river_struct *riv, int numriv, attrib_tbl_struct attrib_tbl, riv_att_tbl_struct riv_att_tbl, forcing_ts_struct *forcing, calib_struct cal)
+void InitForcing (elem_struct *elem, int numele, river_struct *riv,
+    int numriv, attrib_tbl_struct attrib_tbl, riv_att_tbl_struct riv_att_tbl,
+    forcing_ts_struct *forcing, calib_struct cal)
 {
     int             i, j;
 
@@ -297,14 +348,17 @@ void InitForcing (elem_struct *elem, int numele, river_struct *riv, int numriv, 
         }
     }
 
-    forcing->bc = (double *) malloc (forcing->nts[BC_TS] * sizeof (double));
+    forcing->bc = (double *)malloc (forcing->nts[BC_TS] * sizeof (double));
     for (i = 0; i < NUM_METEO_TS; i++)
     {
-        forcing->meteo[i] = (double *) malloc (forcing->nts[METEO_TS] * sizeof (double));
+        forcing->meteo[i] =
+            (double *)malloc (forcing->nts[METEO_TS] * sizeof (double));
     }
-    forcing->lai = (double *) malloc (forcing->nts[LAI_TS] * sizeof (double));
-    forcing->riverbc = (double *) malloc (forcing->nts[RIV_TS] * sizeof (double));
-    forcing->source = (double *) malloc (forcing->nts[SS_TS] * sizeof (double));
+    forcing->lai = (double *)malloc (forcing->nts[LAI_TS] * sizeof (double));
+    forcing->riverbc =
+        (double *)malloc (forcing->nts[RIV_TS] * sizeof (double));
+    forcing->source =
+        (double *)malloc (forcing->nts[SS_TS] * sizeof (double));
 
     for (i = 0; i < numele; i++)
     {
@@ -313,13 +367,15 @@ void InitForcing (elem_struct *elem, int numele, river_struct *riv, int numriv, 
             elem[i].forc.bc_type[j] = attrib_tbl.bc[i][j];
             if (elem[i].forc.bc_type[j] > 0)
             {
-                elem[i].forc.bc[j] = &forcing->bc[elem[i].forc.bc_type[j] - 1];
+                elem[i].forc.bc[j] =
+                    &forcing->bc[elem[i].forc.bc_type[j] - 1];
             }
         }
 
         for (j = 0; j < NUM_METEO_TS; j++)
         {
-            elem[i].forc.meteo[j] = &forcing->meteo[j][attrib_tbl.meteo[i] - 1];
+            elem[i].forc.meteo[j] =
+                &forcing->meteo[j][attrib_tbl.meteo[i] - 1];
         }
         elem[i].forc.zlvl_wind = forcing->zlvl_wind[attrib_tbl.meteo[i] - 1];
 
@@ -345,7 +401,8 @@ void InitForcing (elem_struct *elem, int numele, river_struct *riv, int numriv, 
     }
 }
 
-void CorrectElevation (elem_struct *elem, int numele, river_struct *riv, int numriv)
+void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
+    int numriv)
 {
     int             i, j;
     int             sink;
@@ -363,7 +420,11 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv, int num
         {
             if (elem[i].nabr[j] > 0)
             {
-                new_elevation = elem[i].forc.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmax : riv[-(elem[i].forc.bc_type[j] / 4) - 1].topo.zmax;
+                new_elevation =
+                    elem[i].forc.bc_type[j] >
+                    -4 ? elem[elem[i].nabr[j] -
+                    1].topo.zmax : riv[-(elem[i].forc.bc_type[j] / 4) -
+                    1].topo.zmax;
                 if (elem[i].topo.zmax - new_elevation >= 0)
                 {
                     sink = 0;
@@ -383,9 +444,19 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv, int num
             {
                 if (elem[i].nabr[j] > 0)
                 {
-                    elem[i].topo.zmax = (elem[i].forc.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmax : riv[-(elem[i].forc.bc_type[j] / 4) - 1].topo.zmax);
-                    new_elevation = new_elevation > elem[i].topo.zmax ? elem[i].topo.zmax : new_elevation;
-                    printf ("(%d)%lf  ", j + 1, (elem[i].forc.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmax : riv[-(elem[i].forc.bc_type[j] / 4) - 1].topo.zmax));
+                    elem[i].topo.zmax =
+                        (elem[i].forc.bc_type[j] >
+                        -4 ? elem[elem[i].nabr[j] -
+                            1].topo.zmax : riv[-(elem[i].forc.bc_type[j] /
+                                4) - 1].topo.zmax);
+                    new_elevation =
+                        new_elevation >
+                        elem[i].topo.zmax ? elem[i].topo.zmax : new_elevation;
+                    printf ("(%d)%lf  ", j + 1,
+                        (elem[i].forc.bc_type[j] >
+                            -4 ? elem[elem[i].nabr[j] -
+                                1].topo.zmax : riv[-(elem[i].forc.bc_type[j] /
+                                    4) - 1].topo.zmax));
                 }
             }
             elem[i].topo.zmax = new_elevation;
@@ -404,7 +475,11 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv, int num
             {
                 if (elem[i].nabr[j] > 0)
                 {
-                    new_elevation = elem[i].forc.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmin : riv[-(elem[i].forc.bc_type[j] / 4) - 1].topo.zmin;
+                    new_elevation =
+                        elem[i].forc.bc_type[j] >
+                        -4 ? elem[elem[i].nabr[j] -
+                        1].topo.zmin : riv[-(elem[i].forc.bc_type[j] / 4) -
+                        1].topo.zmin;
                     if (elem[i].topo.zmin - new_elevation >= 0.0)
                     {
                         sink = 0;
@@ -422,9 +497,20 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv, int num
                 {
                     if (elem[i].nabr[j] > 0)
                     {
-                        elem[i].topo.zmin = (elem[i].forc.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmin : riv[-(elem[i].forc.bc_type[j] / 4) - 1].topo.zmin);
-                        new_elevation = new_elevation > elem[i].topo.zmin ? elem[i].topo.zmin : new_elevation;
-                        printf ("(%d)%lf  ", j + 1, (elem[i].forc.bc_type[j] > -4 ? elem[elem[i].nabr[j] - 1].topo.zmin : riv[-(elem[i].forc.bc_type[j] / 4) - 1].topo.zmin));
+                        elem[i].topo.zmin =
+                            (elem[i].forc.bc_type[j] >
+                            -4 ? elem[elem[i].nabr[j] -
+                                1].topo.zmin : riv[-(elem[i].forc.bc_type[j] /
+                                    4) - 1].topo.zmin);
+                        new_elevation =
+                            new_elevation >
+                            elem[i].topo.zmin ? elem[i].topo.
+                            zmin : new_elevation;
+                        printf ("(%d)%lf  ", j + 1,
+                            (elem[i].forc.bc_type[j] >
+                                -4 ? elem[elem[i].nabr[j] -
+                                    1].topo.zmin : riv[-(elem[i].forc.
+                                        bc_type[j] / 4) - 1].topo.zmin));
                     }
                 }
                 elem[i].topo.zmin = new_elevation;
@@ -441,7 +527,7 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv, int num
             {
                 river_flag = 1;
                 printf ("Riv %d is lower than downstream Riv %d\n",
-                        i + 1, riv[i].down);
+                    i + 1, riv[i].down);
             }
         }
     }
@@ -452,7 +538,8 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv, int num
     }
 }
 
-void InitSurfL (elem_struct *ele, int numele, river_struct *riv, mesh_tbl_struct mesh_tbl)
+void InitSurfL (elem_struct *ele, int numele, river_struct *riv,
+    mesh_tbl_struct mesh_tbl)
 {
     int             i, j;
     double          x[3];
@@ -490,13 +577,22 @@ void InitSurfL (elem_struct *ele, int numele, river_struct *riv, mesh_tbl_struct
                     disty = (ele[i].topo.y - 0.5 * (y[0] + y[1]));
                     break;
             }
-            ele[i].topo.surfx[j] = ele[i].nabr[j] > 0 ? (ele[i].forc.bc_type[j] > -4 ? ele[ele[i].nabr[j] - 1].topo.x : riv[-(ele[i].forc.bc_type[j] / 4) - 1].topo.x) : (ele[i].topo.x - 2.0 * distx);
-            ele[i].topo.surfy[j] = ele[i].nabr[j] > 0 ? (ele[i].forc.bc_type[j] > -4 ? ele[ele[i].nabr[j] - 1].topo.y : riv[-(ele[i].forc.bc_type[j] / 4) - 1].topo.y) : (ele[i].topo.y - 2.0 * disty);
+            ele[i].topo.surfx[j] =
+                ele[i].nabr[j] > 0 ? (ele[i].forc.bc_type[j] >
+                -4 ? ele[ele[i].nabr[j] -
+                    1].topo.x : riv[-(ele[i].forc.bc_type[j] / 4) -
+                    1].topo.x) : (ele[i].topo.x - 2.0 * distx);
+            ele[i].topo.surfy[j] =
+                ele[i].nabr[j] > 0 ? (ele[i].forc.bc_type[j] >
+                -4 ? ele[ele[i].nabr[j] -
+                    1].topo.y : riv[-(ele[i].forc.bc_type[j] / 4) -
+                    1].topo.y) : (ele[i].topo.y - 2.0 * disty);
         }
     }
 }
 
-void SaturationIC (const elem_struct *ele, int numele, const river_struct *riv, int numriv, ic_struct *ic)
+void SaturationIC (const elem_struct *ele, int numele,
+    const river_struct *riv, int numriv, ic_struct *ic)
 {
     int             i;
 
@@ -516,7 +612,8 @@ void SaturationIC (const elem_struct *ele, int numele, const river_struct *riv, 
     }
 }
 
-void InitStateVrbl (elem_struct *elem, int numele, river_struct *riv, int numriv, N_Vector CV_Y, ic_struct ic)
+void InitStateVrbl (elem_struct *elem, int numele, river_struct *riv,
+    int numriv, N_Vector CV_Y, ic_struct ic)
 {
     int             i;
 
@@ -539,7 +636,7 @@ void InitStateVrbl (elem_struct *elem, int numele, river_struct *riv, int numriv
 
         elem[i].runoff = 0.0;
         elem[i].infil = 0.0;
-    }    
+    }
 
     for (i = 0; i < numriv; i++)
     {
@@ -556,11 +653,11 @@ void InitStateVrbl (elem_struct *elem, int numele, river_struct *riv, int numriv
 
 void CalcModelStep (ctrl_struct *ctrl)
 {
-    int                 i;
+    int             i;
 
     ctrl->nstep = (ctrl->endtime - ctrl->starttime) / ctrl->stepsize;
 
-    ctrl->tout = (int *) malloc ((ctrl->nstep + 1) * sizeof (int));
+    ctrl->tout = (int *)malloc ((ctrl->nstep + 1) * sizeof (int));
 
     for (i = 0; i < ctrl->nstep + 1; i++)
     {
@@ -591,25 +688,32 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
             switch (i)
             {
                 case GW_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.gw", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.gw", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numele + pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].gw0;
                     }
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j + pihm->numele] = &pihm->riv[j].gw0;
+                        pihm->prtctrl[n].vrbl[j + pihm->numele] =
+                            &pihm->riv[j].gw0;
                     }
                     n++;
                     break;
                 case SURF_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.surf", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.surf", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].surf0;
@@ -617,10 +721,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case SNOW_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.snow", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.snow", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].snow;
@@ -628,10 +735,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVSTG_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.stage", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.stage", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].stage0;
@@ -639,10 +749,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case INFIL_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.infil", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.infil", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].infil;
@@ -650,10 +763,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RECHARGE_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.recharge", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.recharge",
+                        outputdir, simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].rechg;
@@ -661,10 +777,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case CMC_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.is", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.is", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].intcp;
@@ -672,10 +791,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case UNSAT_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.unsat", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.unsat", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].unsat0;
@@ -683,10 +805,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case EC_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.et0", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.et0", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].et[0];
@@ -694,10 +819,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case ETT_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.et1", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.et1", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].et[1];
@@ -705,10 +833,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case EDIR_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.et2", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.et2", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].et[2];
@@ -716,10 +847,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVFLX0_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx0", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx0", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[0];
@@ -727,10 +861,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVFLX1_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx1", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx1", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[1];
@@ -738,10 +875,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVFLX2_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx2", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx2", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[2];
@@ -749,10 +889,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVFLX3_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx3", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx3", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[3];
@@ -760,10 +903,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVFLX4_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx4", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx4", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[4];
@@ -771,10 +917,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVFLX5_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx5", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx5", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[5];
@@ -782,10 +931,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVFLX6_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx6", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx6", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[6];
@@ -793,10 +945,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVFLX7_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx7", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx7", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[7];
@@ -804,10 +959,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVFLX8_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx8", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx8", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[8];
@@ -815,10 +973,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVFLX9_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx9", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx9", outputdir,
+                        simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[9];
@@ -826,10 +987,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVFLX10_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx10", outputdir, simulation);
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx10",
+                        outputdir, simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                     pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[10];
@@ -839,13 +1003,17 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                 case SUBFLX_CTRL:
                     for (k = 0; k < 3; k++)
                     {
-                        sprintf (pihm->prtctrl[n].name, "%s%s.subflx%d", outputdir, simulation, k);
+                        sprintf (pihm->prtctrl[n].name, "%s%s.subflx%d",
+                            outputdir, simulation, k);
                         pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                         pihm->prtctrl[n].nvrbl = pihm->numele;
-                        pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                        pihm->prtctrl[n].vrbl =
+                            (double **)malloc (pihm->prtctrl[n].nvrbl *
+                            sizeof (double *));
                         for (j = 0; j < pihm->numele; j++)
                         {
-                            pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].fluxsub[k];
+                            pihm->prtctrl[n].vrbl[j] =
+                                &pihm->elem[j].fluxsub[k];
                         }
                         n++;
                     }
@@ -853,13 +1021,17 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                 case TOTALFLX_CTRL:
                     for (k = 0; k < 3; k++)
                     {
-                        sprintf (pihm->prtctrl[n].name, "%s%s.totalflx%d", outputdir, simulation, k);
+                        sprintf (pihm->prtctrl[n].name, "%s%s.totalflx%d",
+                            outputdir, simulation, k);
                         pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                         pihm->prtctrl[n].nvrbl = pihm->numele;
-                        pihm->prtctrl[n].vrbl = (double **) malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+                        pihm->prtctrl[n].vrbl =
+                            (double **)malloc (pihm->prtctrl[n].nvrbl *
+                            sizeof (double *));
                         for (j = 0; j < pihm->numele; j++)
                         {
-                            pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].fluxtotal[k];
+                            pihm->prtctrl[n].vrbl[j] =
+                                &pihm->elem[j].fluxtotal[k];
                         }
                         n++;
                     }
@@ -881,7 +1053,8 @@ void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii)
 
     for (i = 0; i < nprint; i++)
     {
-        prtctrl[i].buffer = (double *) calloc (prtctrl[i].nvrbl, sizeof (double));
+        prtctrl[i].buffer =
+            (double *)calloc (prtctrl[i].nvrbl, sizeof (double));
 
         fid = fopen (prtctrl[i].name, "w");
         fclose (fid);

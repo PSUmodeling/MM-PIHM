@@ -4,7 +4,8 @@ int Readable (char *cmdstr)
 {
     int             readable;
 
-    if (cmdstr[0] != '#' && cmdstr[0] != '\n' && cmdstr[0] != '\0' && cmdstr[0] != '\t')
+    if (cmdstr[0] != '#' && cmdstr[0] != '\n' && cmdstr[0] != '\0' &&
+        cmdstr[0] != '\t')
         readable = 1;
     else
         readable = 0;
@@ -12,7 +13,7 @@ int Readable (char *cmdstr)
     return (readable);
 }
 
-int FindLine (FILE *fid, char *token)
+int FindLine (FILE * fid, char *token)
 {
     int             success = 0;
     char            cmdstr[MAXSTRING];
@@ -38,7 +39,7 @@ int FindLine (FILE *fid, char *token)
                     break;
                 }
             }
-            
+
             fgets (cmdstr, MAXSTRING, fid);
         }
     }
@@ -46,7 +47,7 @@ int FindLine (FILE *fid, char *token)
     return (success);
 }
 
-void NextLine (FILE *fid, char *cmdstr)
+void NextLine (FILE * fid, char *cmdstr)
 {
     /*
      * Read a non-blank line into cmdstr
@@ -57,7 +58,7 @@ void NextLine (FILE *fid, char *cmdstr)
         fgets (cmdstr, MAXSTRING, fid);
 }
 
-int CountLine (FILE *fid, int num_arg, ...)
+int CountLine (FILE * fid, int num_arg, ...)
 {
     /*
      * Count number of non-blank lines between current location to where
@@ -93,7 +94,7 @@ int CountLine (FILE *fid, int num_arg, ...)
                     success = 1;
             }
             /* clean memory reserved for valist */
-            va_end(valist);
+            va_end (valist);
 
             if (success)
                 break;
@@ -137,7 +138,7 @@ int CountLine (FILE *fid, int num_arg, ...)
 //    return (count);
 //}
 
-void CheckFile (FILE *fid, char *fn)
+void CheckFile (FILE * fid, char *fn)
 {
     if (fid == NULL)
     {
@@ -155,10 +156,10 @@ void CheckFile (FILE *fid, char *fn)
 
 void ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
 {
-    int         match;
-    FILE       *stream;
-    struct tm  *timeinfo;
-    int         i;
+    int             match;
+    FILE           *stream;
+    struct tm      *timeinfo;
+    int             i;
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
@@ -166,8 +167,7 @@ void ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
     {
         match = sscanf (cmdstr, "%d-%d-%d %d:%d %lf",
             &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
-            &timeinfo->tm_hour, &timeinfo->tm_min,
-            &data[0]);
+            &timeinfo->tm_hour, &timeinfo->tm_min, &data[0]);
         timeinfo->tm_sec = 0;
         if (match != nvrbl + 5)
         {
@@ -228,15 +228,15 @@ void ReadKeywordInt (char *buffer, char *keyword, int *value)
 void ReadKeywordTime (char *buffer, char *keyword, int *value)
 {
     char            optstr[MAXSTRING];
-    int         match;
-    struct tm  *timeinfo;
+    int             match;
+    struct tm      *timeinfo;
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
     match = sscanf (buffer, "%s %d-%d-%d %d:%d", optstr,
         &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
         &timeinfo->tm_hour, &timeinfo->tm_min);
-        timeinfo->tm_sec = 0;
+    timeinfo->tm_sec = 0;
     if (match != 6 || strcasecmp (keyword, optstr) != 0)
     {
         printf ("ERROR: Expected keyword \"%s\"!\n", keyword);

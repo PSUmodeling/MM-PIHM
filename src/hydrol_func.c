@@ -2,12 +2,14 @@
 
 double DhByDl (double *l1, double *l2, double *surfh)
 {
-    return (-1.0 * (l1[2] * (surfh[1] - surfh[0]) + l1[1] * (surfh[0] - surfh[2]) + l1[0] * (surfh[2] - surfh[1])) / (l2[2] * (l1[1] - l1[0]) + l2[1] * (l1[0] - l1[2]) + l2[0] * (l1[2] - l1[1])));
+    return (-1.0 * (l1[2] * (surfh[1] - surfh[0]) + l1[1] * (surfh[0] -
+                surfh[2]) + l1[0] * (surfh[2] - surfh[1])) / (l2[2] * (l1[1] -
+                l1[0]) + l2[1] * (l1[0] - l1[2]) + l2[0] * (l1[2] - l1[1])));
 }
 
 double RivArea (int riv_order, double riv_depth, double riv_coeff)
 {
-    double        riv_area;
+    double          riv_area;
 
     switch (riv_order)
     {
@@ -18,10 +20,13 @@ double RivArea (int riv_order, double riv_depth, double riv_coeff)
             riv_area = pow (riv_depth, 2) / riv_coeff;
             break;
         case 3:
-            riv_area = 4.0 * pow (riv_depth, 1.5) / (3.0 * pow (riv_coeff, 0.5));
+            riv_area =
+                4.0 * pow (riv_depth, 1.5) / (3.0 * pow (riv_coeff, 0.5));
             break;
         case 4:
-            riv_area = 3.0 * pow (riv_depth, 4.0 / 3.0) / (2.0 * pow (riv_coeff, 1.0 / 3.0));
+            riv_area =
+                3.0 * pow (riv_depth, 4.0 / 3.0) / (2.0 * pow (riv_coeff,
+                    1.0 / 3.0));
             break;
         default:
             printf ("Error: River order %d is not defined!\n", riv_order);
@@ -33,7 +38,7 @@ double RivArea (int riv_order, double riv_depth, double riv_coeff)
 
 double RivPerim (int riv_order, double riv_depth, double riv_coeff)
 {
-    double        riv_perim;
+    double          riv_perim;
 
     switch (riv_order)
     {
@@ -41,13 +46,27 @@ double RivPerim (int riv_order, double riv_depth, double riv_coeff)
             riv_perim = 2.0 * riv_depth + riv_coeff;
             break;
         case 2:
-            riv_perim = 2.0 * riv_depth * pow (1.0 + pow (riv_coeff, 2), 0.5) / riv_coeff;
+            riv_perim =
+                2.0 * riv_depth * pow (1.0 + pow (riv_coeff, 2),
+                0.5) / riv_coeff;
             break;
         case 3:
-            riv_perim = (pow (riv_depth * (1.0 + 4.0 * riv_coeff * riv_depth) / riv_coeff, 0.5)) + (log (2.0 * pow (riv_coeff * riv_depth, 0.5) + pow (1.0 + 4.0 * riv_coeff * riv_depth, 0.5)) / (2.0 * riv_coeff));
+            riv_perim =
+                (pow (riv_depth * (1.0 +
+                        4.0 * riv_coeff * riv_depth) / riv_coeff,
+                    0.5)) + (log (2.0 * pow (riv_coeff * riv_depth,
+                        0.5) + pow (1.0 + 4.0 * riv_coeff * riv_depth,
+                        0.5)) / (2.0 * riv_coeff));
             break;
         case 4:
-            riv_perim = 2.0 * ((pow (riv_depth * (1.0 + 9.0 * pow (riv_coeff, 2.0 / 3.0) * riv_depth), 0.5) / 3.0) + (log (3.0 * pow (riv_coeff, 1.0 / 3.0) * pow (riv_depth, 0.5) + pow (1.0 + 9.0 * pow (riv_coeff, 2.0 / 3.0) * riv_depth, 0.5)) / (9.0 * pow (riv_coeff, 1.0 / 3.0))));
+            riv_perim =
+                2.0 * ((pow (riv_depth * (1.0 + 9.0 * pow (riv_coeff,
+                                2.0 / 3.0) * riv_depth),
+                        0.5) / 3.0) + (log (3.0 * pow (riv_coeff,
+                            1.0 / 3.0) * pow (riv_depth,
+                            0.5) + pow (1.0 + 9.0 * pow (riv_coeff,
+                                2.0 / 3.0) * riv_depth,
+                            0.5)) / (9.0 * pow (riv_coeff, 1.0 / 3.0))));
             break;
         default:
             printf ("Error: River order %d is not defined!\n", riv_order);
@@ -58,7 +77,7 @@ double RivPerim (int riv_order, double riv_depth, double riv_coeff)
 
 double EqWid (int riv_order, double riv_depth, double riv_coeff)
 {
-    double        eq_wid;
+    double          eq_wid;
 
     switch (riv_order)
     {
@@ -66,13 +85,22 @@ double EqWid (int riv_order, double riv_depth, double riv_coeff)
             eq_wid = riv_coeff;
             break;
         case 2:
-            eq_wid = 2.0 * pow (riv_depth + EPS, 1.0 / (riv_order - 1)) / pow (riv_coeff, 1.0 / (riv_order - 1));
+            eq_wid =
+                2.0 * pow (riv_depth + EPS,
+                1.0 / (riv_order - 1)) / pow (riv_coeff,
+                1.0 / (riv_order - 1));
             break;
         case 3:
-            eq_wid = 2.0 * pow (riv_depth + EPS, 1.0 / (riv_order - 1)) / pow (riv_coeff, 1.0 / (riv_order - 1));
+            eq_wid =
+                2.0 * pow (riv_depth + EPS,
+                1.0 / (riv_order - 1)) / pow (riv_coeff,
+                1.0 / (riv_order - 1));
             break;
         case 4:
-            eq_wid = 2.0 * pow (riv_depth + EPS, 1.0/ (riv_order - 1)) / pow (riv_coeff, 1.0 / (riv_order - 1));
+            eq_wid =
+                2.0 * pow (riv_depth + EPS,
+                1.0 / (riv_order - 1)) / pow (riv_coeff,
+                1.0 / (riv_order - 1));
             break;
         default:
             printf ("Error: River order %d is not defined!\n", riv_order);
@@ -82,10 +110,11 @@ double EqWid (int riv_order, double riv_depth, double riv_coeff)
 }
 
 
-double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax, double rivytot, double length)
+double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
+    double rivytot, double length)
 {
     double          flux;
-    double        threshele;
+    double          threshele;
 
     if (rivzmax < elez)
         threshele = elez;
@@ -96,13 +125,17 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax, dou
     {
         if (eleytot > threshele)
         {
-            flux = cwr * 2.0 * sqrt (2.0 * GRAV ) * length * sqrt (rivytot - eleytot) * (rivytot - threshele) / 3.0;
+            flux =
+                cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (rivytot -
+                eleytot) * (rivytot - threshele) / 3.0;
         }
         else
         {
             if (threshele < rivytot)
             {
-                flux = cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (rivytot - threshele) * (rivytot - threshele) / 3.0;
+                flux =
+                    cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (rivytot -
+                    threshele) * (rivytot - threshele) / 3.0;
             }
             else
             {
@@ -114,13 +147,17 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax, dou
     {
         if (rivytot > threshele)
         {
-            flux = -cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (eleytot - rivytot) * (eleytot - threshele) / 3.0;
+            flux =
+                -cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (eleytot -
+                rivytot) * (eleytot - threshele) / 3.0;
         }
         else
         {
             if (threshele < eleytot)
             {
-                flux = -cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (eleytot - threshele) * (eleytot - threshele) / 3.0;
+                flux =
+                    -cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (eleytot -
+                    threshele) * (eleytot - threshele) / 3.0;
             }
             else
             {
@@ -132,9 +169,11 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax, dou
     return (flux);
 }
 
-double OverlandFlow (double avg_y, double grad_y, double avg_sf, double crossa, double avg_rough)
+double OverlandFlow (double avg_y, double grad_y, double avg_sf,
+    double crossa, double avg_rough)
 {
-    return (crossa * pow (avg_y, 2.0 / 3.0) * grad_y / (sqrt (fabs (avg_sf)) * avg_rough));
+    return (crossa * pow (avg_y,
+            2.0 / 3.0) * grad_y / (sqrt (fabs (avg_sf)) * avg_rough));
 }
 
 double AvgY (double diff, double yi, double yinabr)
@@ -167,7 +206,8 @@ double AvgY (double diff, double yi, double yinabr)
     return (avg_y);
 }
 
-double EffKV (double ksatfunc, double elemsatn, int status, double mackv, double kv, double areaf)
+double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
+    double kv, double areaf)
 {
     if (status == SAT_CTRL)
     {
@@ -183,7 +223,8 @@ double EffKV (double ksatfunc, double elemsatn, int status, double mackv, double
         {
             if (status == APP_CTRL)
             {
-                return (mackv * areaf * elemsatn + kv * (1.0 - areaf) * ksatfunc);
+                return (mackv * areaf * elemsatn + kv * (1.0 -
+                        areaf) * ksatfunc);
             }
             else
             {
@@ -193,7 +234,8 @@ double EffKV (double ksatfunc, double elemsatn, int status, double mackv, double
     }
 }
 
-int MacroporeStatus (double ksatfunc, double elemsatn, double grady, double mackv, double kv, double areaf)
+int MacroporeStatus (double ksatfunc, double elemsatn, double grady,
+    double mackv, double kv, double areaf)
 {
     if (elemsatn >= 0.98)
     {
@@ -207,7 +249,8 @@ int MacroporeStatus (double ksatfunc, double elemsatn, double grady, double mack
         }
         else
         {
-            if (grady * ksatfunc * kv < (mackv * areaf + kv * (1.0 - areaf) * ksatfunc))
+            if (grady * ksatfunc * kv <
+                (mackv * areaf + kv * (1.0 - areaf) * ksatfunc))
             {
                 return (APP_CTRL);
             }
@@ -219,7 +262,8 @@ int MacroporeStatus (double ksatfunc, double elemsatn, double grady, double mack
     }
 }
 
-double EffKH (int mp, double tmpy, double aqdepth, double macd, double macksath, double areaf, double ksath)
+double EffKH (int mp, double tmpy, double aqdepth, double macd,
+    double macksath, double areaf, double ksath)
 {
     if (mp == 1)
     {
@@ -227,11 +271,14 @@ double EffKH (int mp, double tmpy, double aqdepth, double macd, double macksath,
         {
             if (tmpy > aqdepth)
             {
-                return (macksath * macd * areaf + ksath * (aqdepth - macd * areaf)) / aqdepth;
+                return (macksath * macd * areaf + ksath * (aqdepth -
+                        macd * areaf)) / aqdepth;
             }
             else
             {
-                return (macksath * (tmpy - (aqdepth - macd)) * areaf + ksath * (aqdepth - macd + (tmpy - (aqdepth - macd)) * (1.0 - areaf))) / tmpy;
+                return (macksath * (tmpy - (aqdepth - macd)) * areaf +
+                    ksath * (aqdepth - macd + (tmpy - (aqdepth -
+                                macd)) * (1.0 - areaf))) / tmpy;
             }
         }
         else
@@ -247,11 +294,13 @@ double EffKH (int mp, double tmpy, double aqdepth, double macd, double macksath,
 
 double KrFunc (double alpha, double beta, double satn)
 {
-    return (pow (satn, 0.5) * pow (-1.0 + pow (1.0 - pow (satn, beta / (beta - 1.0)), (beta - 1.0) / beta), 2));
+    return (pow (satn, 0.5) * pow (-1.0 + pow (1.0 - pow (satn,
+                    beta / (beta - 1.0)), (beta - 1.0) / beta), 2));
 }
 
 double Psi (double satn, double alpha, double beta)
 {
     /* van Genuchten 1980 SSSAJ */
-    return (0.0 - pow (pow (1.0 / satn, beta / (beta - 1.0)) - 1.0, 1.0 / beta) / alpha);
+    return (0.0 - pow (pow (1.0 / satn, beta / (beta - 1.0)) - 1.0,
+            1.0 / beta) / alpha);
 }

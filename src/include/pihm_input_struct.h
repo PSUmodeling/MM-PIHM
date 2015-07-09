@@ -9,8 +9,8 @@ typedef struct riv_att_tbl_struct
     int            *down;       /* down stream segment */
     int            *leftele;    /* Left neighboring element */
     int            *rightele;   /* Right neighboring element */
-    int            *shp;      /* shape type    */
-    int            *matl;   /* material type */
+    int            *shp;        /* shape type    */
+    int            *matl;       /* material type */
     int            *ic;         /* IC type */
     int            *bc;         /* BC type */
     int            *rsvr;
@@ -20,7 +20,7 @@ typedef struct riv_shp_tbl_struct
 {
     int             number;
     double         *depth;      /* depth */
-    int            *intrpl_ord;  /* Interpolation order for river shape:
+    int            *intrpl_ord; /* Interpolation order for river shape:
                                  * 1: rectangle,
                                  * 2: triangle,
                                  * 3: quadratic,
@@ -62,7 +62,7 @@ typedef struct attrib_tbl_struct
     int            *soil;       /* soil type */
     int            *geol;
     int            *lc;         /* Land Cover type  */
-    int           **bc;      /* Boundary condition type.
+    int           **bc;         /* Boundary condition type.
                                  * 0: Natural BC (no flow);
                                  * 1: Dirichlet BC;
                                  * 2:Neumann BC */
@@ -76,9 +76,9 @@ typedef struct attrib_tbl_struct
 
 typedef struct soil_tbl_struct
 {
-    int             number;      /* index */
+    int             number;     /* index */
     double         *ksatv;      /* vertical saturated soil
-                                * conductivity */
+                                 * conductivity */
     double         *thetas;     /* soil porosity */
     double         *thetar;     /* soil moisture residual */
     double         *qtz;        /* ys: quartz content */
@@ -86,58 +86,58 @@ typedef struct soil_tbl_struct
     double         *beta;       /* soil curve parameter 2 */
 
     double         *areafh;     /* macroporous area fraction on
-                                * horizontal section */
-    double         *kmacv;   /* macroporous saturated vertical
-                                * conductivity */
+                                 * horizontal section */
+    double         *kmacv;      /* macroporous saturated vertical
+                                 * conductivity */
     double         *dinf;       /* depth from ground surface accross which
                                  * head is calculated during infiltration */
 } soil_tbl_struct;
 
 typedef struct geol_tbl_struct
 {
-    int             number;      /* index */
-    double          *ksath;      /* horizontal saturated geology
+    int             number;     /* index */
+    double         *ksath;      /* horizontal saturated geology
                                  * conductivity */
-    double          *ksatv;      /* vertical saturated geology
+    double         *ksatv;      /* vertical saturated geology
                                  * conductivity */
-    double          *thetas;     /* geology porosity */
-    double          *thetar;     /* residual porosity */
-    double          *alpha;      /* van genuchten parameter */
-    double          *beta;       /* van genuchten parameter */
+    double         *thetas;     /* geology porosity */
+    double         *thetar;     /* residual porosity */
+    double         *alpha;      /* van genuchten parameter */
+    double         *beta;       /* van genuchten parameter */
 
-    double          *areafv;     /* macroporous area fraction on vertical
+    double         *areafv;     /* macroporous area fraction on vertical
                                  * section */
-    double          *kmach;   /* macroporous saturated
+    double         *kmach;      /* macroporous saturated
                                  * horizontal conductivity */
-    double          *dmac;
+    double         *dmac;
 } geol_tbl_struct;
 
 typedef struct lc_tbl_struct
 {
-    int             number;      /* index */
+    int             number;     /* index */
 
-    double        *laimax;     /* max lai */
-    double        *laimin;     /* ys: min lai */
-    double        *vegfrac;    /* canopy fracn */
-    double        *albedomin; /* ys: minimum albedo */
-    double        *albedomax; /* ys: maximum albedo */
-    double        *emissmin;  /* ys: minimum emissivity */
-    double        *emissmax;  /* ys: maximum emissivity */
-    double        *z0min;     /* ys: minimum roughness length */
-    double        *z0max;     /* ys: maximum roughness length */
-    double        *hs;        /* ys: vapor pressure deficit stress
+    double         *laimax;     /* max lai */
+    double         *laimin;     /* ys: min lai */
+    double         *vegfrac;    /* canopy fracn */
+    double         *albedomin;  /* ys: minimum albedo */
+    double         *albedomax;  /* ys: maximum albedo */
+    double         *emissmin;   /* ys: minimum emissivity */
+    double         *emissmax;   /* ys: maximum emissivity */
+    double         *z0min;      /* ys: minimum roughness length */
+    double         *z0max;      /* ys: maximum roughness length */
+    double         *hs;         /* ys: vapor pressure deficit stress
                                  * parameter */
-    double        *snup;       /* ys */
-    double        *rgl;     /* visible solar flux used in radiation
+    double         *snup;       /* ys */
+    double         *rgl;        /* visible solar flux used in radiation
                                  * stress */
-    double        *rsmin;       /* minimum stomatal resistance */
-    double        *rough;      /* surface roughness factor  */
-    double        *rzd;        /* rootzone depth */
+    double         *rsmin;      /* minimum stomatal resistance */
+    double         *rough;      /* surface roughness factor  */
+    double         *rzd;        /* rootzone depth */
 
-    double          rsmax;       /* YS */
+    double          rsmax;      /* YS */
     int             bare;       /* YS */
     int             natural;
-    double          cfactr;  /* YS */
+    double          cfactr;     /* YS */
     double          topt;       /* YS */
 } lc_tbl_struct;
 
@@ -153,7 +153,7 @@ typedef struct forcing_ts_struct
     int             nts[NUM_TS];
 
     ts_struct      *ts[NUM_TS];
-    double         *zlvl_wind;     /* wind measurement height */
+    double         *zlvl_wind;  /* wind measurement height */
 
     double         *bc;
     double         *meteo[NUM_METEO_TS];

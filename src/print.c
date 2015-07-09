@@ -7,7 +7,7 @@ void PrintData (prtctrl_struct *prtctrl, int t, int dt, int ascii)
     time_t          rawtime;
     char            ascii_fn[MAXSTRING];
     FILE           *fid;
-    double        outval;
+    double          outval;
     double          outtime;
 
     for (j = 0; j < prtctrl->nvrbl; j++)
@@ -29,12 +29,15 @@ void PrintData (prtctrl_struct *prtctrl, int t, int dt, int ascii)
                 printf ("ERROR: opening output files (%s)!\n", ascii_fn);
                 exit (1);
             }
-            fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+            fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
+                timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+                timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
             for (j = 0; j < prtctrl->nvrbl; j++)
             {
                 if (prtctrl->intvl > dt)
                 {
-                    fprintf (fid, "\t%lf", prtctrl->buffer[j] / ( (double) (prtctrl->intvl / dt)));
+                    fprintf (fid, "\t%lf",
+                        prtctrl->buffer[j] / ((double)(prtctrl->intvl / dt)));
                 }
                 else
                 {
@@ -53,13 +56,14 @@ void PrintData (prtctrl_struct *prtctrl, int t, int dt, int ascii)
             exit (1);
         }
 
-        outtime = (double) t;
+        outtime = (double)t;
         fwrite (&outtime, sizeof (double), 1, fid);
         for (j = 0; j < prtctrl->nvrbl; j++)
         {
             if (prtctrl->intvl > dt)
             {
-                outval = prtctrl->buffer[j] / ((realtype) (prtctrl->intvl / dt));
+                outval =
+                    prtctrl->buffer[j] / ((realtype)(prtctrl->intvl / dt));
             }
             else
             {

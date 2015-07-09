@@ -1,3 +1,4 @@
+
 /*****************************************************************************
  * File        : read_alloc.c
  * Function    : read parameter files
@@ -66,7 +67,9 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     }
 }
 
-void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct *riv_shp_tbl, riv_matl_tbl_struct *riv_matl_tbl, riv_ic_tbl_struct *riv_ic_tbl, ic_struct *ic, forcing_ts_struct *forcing)
+void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,
+    riv_shp_tbl_struct *riv_shp_tbl, riv_matl_tbl_struct *riv_matl_tbl,
+    riv_ic_tbl_struct * riv_ic_tbl, ic_struct *ic, forcing_ts_struct *forcing)
 {
     int             i, j;
     char            fn[MAXSTRING];
@@ -98,16 +101,18 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
     }
 
     /* Allocate */
-    riv_att_tbl->fromnode = (int *) malloc (riv_att_tbl->number * sizeof (int));
-    riv_att_tbl->tonode = (int *) malloc (riv_att_tbl->number * sizeof (int));
-    riv_att_tbl->down = (int *) malloc (riv_att_tbl->number * sizeof (int));
-    riv_att_tbl->leftele = (int *) malloc (riv_att_tbl->number * sizeof (int));
-    riv_att_tbl->rightele = (int *) malloc (riv_att_tbl->number * sizeof (int));
-    riv_att_tbl->shp = (int *) malloc (riv_att_tbl->number * sizeof (int));
-    riv_att_tbl->matl = (int *) malloc (riv_att_tbl->number * sizeof (int));
-    riv_att_tbl->ic = (int *) malloc (riv_att_tbl->number * sizeof (int));
-    riv_att_tbl->bc = (int *) malloc (riv_att_tbl->number * sizeof (int));
-    riv_att_tbl->rsvr = (int *) malloc (riv_att_tbl->number * sizeof (int));
+    riv_att_tbl->fromnode =
+        (int *)malloc (riv_att_tbl->number * sizeof (int));
+    riv_att_tbl->tonode = (int *)malloc (riv_att_tbl->number * sizeof (int));
+    riv_att_tbl->down = (int *)malloc (riv_att_tbl->number * sizeof (int));
+    riv_att_tbl->leftele = (int *)malloc (riv_att_tbl->number * sizeof (int));
+    riv_att_tbl->rightele =
+        (int *)malloc (riv_att_tbl->number * sizeof (int));
+    riv_att_tbl->shp = (int *)malloc (riv_att_tbl->number * sizeof (int));
+    riv_att_tbl->matl = (int *)malloc (riv_att_tbl->number * sizeof (int));
+    riv_att_tbl->ic = (int *)malloc (riv_att_tbl->number * sizeof (int));
+    riv_att_tbl->bc = (int *)malloc (riv_att_tbl->number * sizeof (int));
+    riv_att_tbl->rsvr = (int *)malloc (riv_att_tbl->number * sizeof (int));
 
     /* Read river segment information */
     for (i = 0; i < riv_att_tbl->number; i++)
@@ -119,11 +124,12 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
             &riv_att_tbl->down[i],
             &riv_att_tbl->leftele[i], &riv_att_tbl->rightele[i],
             &riv_att_tbl->shp[i], &riv_att_tbl->matl[i],
-            &riv_att_tbl->ic[i], &riv_att_tbl->bc[i],
-            &riv_att_tbl->bc[i]);
+            &riv_att_tbl->ic[i], &riv_att_tbl->bc[i], &riv_att_tbl->bc[i]);
         if (match != 11 || i != index - 1)
         {
-            printf ("Cannot read river segment information for the %dth segment!\n", i + 1);
+            printf
+                ("Cannot read river segment information for the %dth segment!\n",
+                i + 1);
             printf (".riv file format error!\n");
             exit (1);
         }
@@ -143,9 +149,12 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
     }
 
     /* Allocate */
-    riv_shp_tbl->depth = (double *) malloc (riv_shp_tbl->number * sizeof (double));
-    riv_shp_tbl->intrpl_ord = (int *) malloc (riv_shp_tbl->number * sizeof (int));
-    riv_shp_tbl->coeff = (double *) malloc (riv_shp_tbl->number * sizeof (double));
+    riv_shp_tbl->depth =
+        (double *)malloc (riv_shp_tbl->number * sizeof (double));
+    riv_shp_tbl->intrpl_ord =
+        (int *)malloc (riv_shp_tbl->number * sizeof (int));
+    riv_shp_tbl->coeff =
+        (double *)malloc (riv_shp_tbl->number * sizeof (double));
 
     for (i = 0; i < riv_shp_tbl->number; i++)
     {
@@ -153,9 +162,11 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
         match = sscanf (cmdstr, "%d %lf %d %lf",
             &index, &riv_shp_tbl->depth[i],
             &riv_shp_tbl->intrpl_ord[i], &riv_shp_tbl->coeff[i]);
-        if (match != 4 || i != index -1 )
+        if (match != 4 || i != index - 1)
         {
-            printf ("Cannot read river shape information for the %dth shape!\n", i + 1);
+            printf
+                ("Cannot read river shape information for the %dth shape!\n",
+                i + 1);
             printf (".riv file format error!\n");
             exit (1);
         }
@@ -175,11 +186,16 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
     }
 
     /* Allocate */
-    riv_matl_tbl->rough = (double *) malloc (riv_matl_tbl->number * sizeof (double));
-    riv_matl_tbl->cwr = (double *) malloc (riv_matl_tbl->number * sizeof (double));
-    riv_matl_tbl->ksath = (double *) malloc (riv_matl_tbl->number * sizeof (double));
-    riv_matl_tbl->ksatv = (double *) malloc (riv_matl_tbl->number * sizeof (double));
-    riv_matl_tbl->bedthick = (double *) malloc (riv_matl_tbl->number * sizeof (double));
+    riv_matl_tbl->rough =
+        (double *)malloc (riv_matl_tbl->number * sizeof (double));
+    riv_matl_tbl->cwr =
+        (double *)malloc (riv_matl_tbl->number * sizeof (double));
+    riv_matl_tbl->ksath =
+        (double *)malloc (riv_matl_tbl->number * sizeof (double));
+    riv_matl_tbl->ksatv =
+        (double *)malloc (riv_matl_tbl->number * sizeof (double));
+    riv_matl_tbl->bedthick =
+        (double *)malloc (riv_matl_tbl->number * sizeof (double));
 
     for (i = 0; i < riv_matl_tbl->number; i++)
     {
@@ -191,7 +207,8 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
             &riv_matl_tbl->bedthick[i]);
         if (match != 6 || i != index - 1)
         {
-            printf ("Cannot read information for the %dth material!\n", i + 1);
+            printf ("Cannot read information for the %dth material!\n",
+                i + 1);
             printf (".riv file format error!\n");
             exit (1);
         }
@@ -211,7 +228,8 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
     }
 
     /* Allocate */
-    riv_ic_tbl->stage = (double *) malloc (riv_ic_tbl->number * sizeof (double));
+    riv_ic_tbl->stage =
+        (double *)malloc (riv_ic_tbl->number * sizeof (double));
 
     for (i = 0; i < riv_ic_tbl->number; i++)
     {
@@ -219,14 +237,16 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
         match = sscanf (cmdstr, "%d %lf", &index, &riv_ic_tbl->stage[i]);
         if (match != 2 || i != index - 1)
         {
-            printf ("Cannot read information for the %dth initial condition!\n", i + 1);
+            printf
+                ("Cannot read information for the %dth initial condition!\n",
+                i + 1);
             printf (".riv file format error!\n");
             exit (1);
         }
     }
 
-    ic->rivgw = (double *) malloc (riv_att_tbl->number * sizeof (double));
-    ic->stage = (double *) malloc (riv_att_tbl->number * sizeof (double));
+    ic->rivgw = (double *)malloc (riv_att_tbl->number * sizeof (double));
+    ic->stage = (double *)malloc (riv_att_tbl->number * sizeof (double));
 
     for (i = 0; i < riv_att_tbl->number; i++)
     {
@@ -245,7 +265,8 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
         exit (1);
     }
 
-    forcing->ts[RIV_TS] = (ts_struct *) malloc (forcing->nts[RIV_TS] * sizeof (ts_struct));
+    forcing->ts[RIV_TS] =
+        (ts_struct *)malloc (forcing->nts[RIV_TS] * sizeof (ts_struct));
 
     for (i = 0; i < forcing->nts[RIV_TS]; i++)
     {
@@ -253,13 +274,16 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
         match = sscanf (cmdstr, "%*s %d", &index);
         if (match != 1 || i != index - 1)
         {
-            printf ("Cannot read information of the %dth river boudnary condition!\n", i);
+            printf
+                ("Cannot read information of the %dth river boudnary condition!\n",
+                i);
             printf (".riv file format error!\n");
             exit (1);
         }
         NextLine (riv_file, cmdstr);
         NextLine (riv_file, cmdstr);
-        forcing->ts[RIV_TS][i].length = CountLine (riv_file, 2, "RIV_TS", "RES");
+        forcing->ts[RIV_TS][i].length =
+            CountLine (riv_file, 2, "RIV_TS", "RES");
     }
 
     FindLine (riv_file, "BC");
@@ -269,13 +293,18 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl, riv_shp_tbl_struct
         NextLine (riv_file, cmdstr);
         NextLine (riv_file, cmdstr);
 
-        forcing->ts[RIV_TS][i].data = (double **) malloc ((forcing->ts[RIV_TS][i].length) * sizeof (double *));
-        forcing->ts[RIV_TS][i].ftime = (int *) malloc ((forcing->ts[RIV_TS][i].length) * sizeof (int));
+        forcing->ts[RIV_TS][i].data =
+            (double **)malloc ((forcing->ts[RIV_TS][i].length) *
+            sizeof (double *));
+        forcing->ts[RIV_TS][i].ftime =
+            (int *)malloc ((forcing->ts[RIV_TS][i].length) * sizeof (int));
         for (j = 0; j < forcing->ts[RIV_TS][i].length; j++)
         {
-            forcing->ts[RIV_TS][i].data[j] = (double *) malloc (sizeof (double));
+            forcing->ts[RIV_TS][i].data[j] =
+                (double *)malloc (sizeof (double));
             NextLine (riv_file, cmdstr);
-            ReadTS (cmdstr, &forcing->ts[RIV_TS][i].ftime[j], &forcing->ts[RIV_TS][i].data[j][0], 1);
+            ReadTS (cmdstr, &forcing->ts[RIV_TS][i].ftime[j],
+                &forcing->ts[RIV_TS][i].data[j][0], 1);
         }
     }
 
@@ -313,19 +342,20 @@ void ReadMesh (char *project, mesh_tbl_struct *mesh_tbl)
         exit (1);
     }
 
-    mesh_tbl->node = (int **) malloc (mesh_tbl->numele * sizeof (int *));
-    mesh_tbl->nabr = (int **) malloc (mesh_tbl->numele * sizeof (int *));
+    mesh_tbl->node = (int **)malloc (mesh_tbl->numele * sizeof (int *));
+    mesh_tbl->nabr = (int **)malloc (mesh_tbl->numele * sizeof (int *));
 
     for (i = 0; i < mesh_tbl->numele; i++)
     {
-        mesh_tbl->node[i] = (int *) malloc (3 * sizeof (int));
-        mesh_tbl->nabr[i] = (int *) malloc (3 * sizeof (int));
+        mesh_tbl->node[i] = (int *)malloc (3 * sizeof (int));
+        mesh_tbl->nabr[i] = (int *)malloc (3 * sizeof (int));
 
         NextLine (mesh_file, cmdstr);
         match = sscanf (cmdstr, "%d %d %d %d %d %d %d",
             &index,
-            &mesh_tbl->node[i][0], &mesh_tbl->node[i][1],  &mesh_tbl->node[i][2], 
-            &mesh_tbl->nabr[i][0], &mesh_tbl->nabr[i][1],  &mesh_tbl->nabr[i][2]);
+            &mesh_tbl->node[i][0], &mesh_tbl->node[i][1],
+            &mesh_tbl->node[i][2], &mesh_tbl->nabr[i][0],
+            &mesh_tbl->nabr[i][1], &mesh_tbl->nabr[i][2]);
         if (match != 7 || i != index - 1)
         {
             printf ("Cannot read information of the %dth element!\n", i + 1);
@@ -346,10 +376,10 @@ void ReadMesh (char *project, mesh_tbl_struct *mesh_tbl)
         exit (1);
     }
 
-    mesh_tbl->x = (double *) malloc (mesh_tbl->numnode * sizeof (double));
-    mesh_tbl->y = (double *) malloc (mesh_tbl->numnode * sizeof (double));
-    mesh_tbl->zmin = (double *) malloc (mesh_tbl->numnode * sizeof (double));
-    mesh_tbl->zmax = (double *) malloc (mesh_tbl->numnode * sizeof (double));
+    mesh_tbl->x = (double *)malloc (mesh_tbl->numnode * sizeof (double));
+    mesh_tbl->y = (double *)malloc (mesh_tbl->numnode * sizeof (double));
+    mesh_tbl->zmin = (double *)malloc (mesh_tbl->numnode * sizeof (double));
+    mesh_tbl->zmax = (double *)malloc (mesh_tbl->numnode * sizeof (double));
 
     for (i = 0; i < mesh_tbl->numnode; i++)
     {
@@ -370,7 +400,8 @@ void ReadMesh (char *project, mesh_tbl_struct *mesh_tbl)
     fclose (mesh_file);
 }
 
-void ReadAtt (char *project, attrib_tbl_struct *attrib_tbl, ic_struct *ic, int numele)
+void ReadAtt (char *project, attrib_tbl_struct *attrib_tbl, ic_struct *ic,
+    int numele)
 {
     char            fn[MAXSTRING];
     int             i;
@@ -384,35 +415,35 @@ void ReadAtt (char *project, attrib_tbl_struct *attrib_tbl, ic_struct *ic, int n
     CheckFile (att_file, fn);
 
     /* start reading att_file */
-    ic->intcp = (double *) malloc (numele * sizeof (double));
-    ic->snow = (double *) malloc (numele * sizeof (double));
-    ic->surf = (double *) malloc (numele * sizeof (double));
-    ic->unsat = (double *) malloc (numele * sizeof (double));
-    ic->gw = (double *) malloc (numele * sizeof (double));
+    ic->intcp = (double *)malloc (numele * sizeof (double));
+    ic->snow = (double *)malloc (numele * sizeof (double));
+    ic->surf = (double *)malloc (numele * sizeof (double));
+    ic->unsat = (double *)malloc (numele * sizeof (double));
+    ic->gw = (double *)malloc (numele * sizeof (double));
 
-    attrib_tbl->soil = (int *) malloc (numele * sizeof (int));
-    attrib_tbl->geol = (int *) malloc (numele * sizeof (int));
-    attrib_tbl->lc = (int *) malloc (numele * sizeof (int));
-    attrib_tbl->bc = (int **) malloc (numele * sizeof (int *));
-    attrib_tbl->meteo = (int *) malloc (numele * sizeof (int));
-    attrib_tbl->lai = (int *) malloc (numele * sizeof (int));
-    attrib_tbl->source = (int *) malloc (numele * sizeof (int));
-    attrib_tbl->macropore = (int *) malloc (numele * sizeof (int));
+    attrib_tbl->soil = (int *)malloc (numele * sizeof (int));
+    attrib_tbl->geol = (int *)malloc (numele * sizeof (int));
+    attrib_tbl->lc = (int *)malloc (numele * sizeof (int));
+    attrib_tbl->bc = (int **)malloc (numele * sizeof (int *));
+    attrib_tbl->meteo = (int *)malloc (numele * sizeof (int));
+    attrib_tbl->lai = (int *)malloc (numele * sizeof (int));
+    attrib_tbl->source = (int *)malloc (numele * sizeof (int));
+    attrib_tbl->macropore = (int *)malloc (numele * sizeof (int));
 
     NextLine (att_file, cmdstr);
     for (i = 0; i < numele; i++)
     {
-        attrib_tbl->bc[i] = (int *) malloc (3 * sizeof (int));
+        attrib_tbl->bc[i] = (int *)malloc (3 * sizeof (int));
 
         NextLine (att_file, cmdstr);
-        match = sscanf (cmdstr, "%d %d %d %d %lf %lf %lf %lf %lf %d %d %d %d %d %d %d",
-            &index,
+        match =
+            sscanf (cmdstr,
+            "%d %d %d %d %lf %lf %lf %lf %lf %d %d %d %d %d %d %d", &index,
             &attrib_tbl->soil[i], &attrib_tbl->geol[i], &attrib_tbl->lc[i],
-            &ic->intcp[i], &ic->snow[i], &ic->surf[i],
-            &ic->unsat[i], &ic->gw[i],
-            &attrib_tbl->meteo[i], &attrib_tbl->lai[i],
-            &attrib_tbl->source[i],
-            &attrib_tbl->bc[i][0], &attrib_tbl->bc[i][1], &attrib_tbl->bc[i][2], 
+            &ic->intcp[i], &ic->snow[i], &ic->surf[i], &ic->unsat[i],
+            &ic->gw[i], &attrib_tbl->meteo[i], &attrib_tbl->lai[i],
+            &attrib_tbl->source[i], &attrib_tbl->bc[i][0],
+            &attrib_tbl->bc[i][1], &attrib_tbl->bc[i][2],
             &attrib_tbl->macropore[i]);
         if (match != 16)
         {
@@ -449,15 +480,15 @@ void ReadSoil (char *project, soil_tbl_struct *soil_tbl)
         exit (1);
     }
 
-    soil_tbl->ksatv = (double *) malloc (soil_tbl->number * sizeof (double));
-    soil_tbl->thetas = (double *) malloc (soil_tbl->number * sizeof (double));
-    soil_tbl->thetar = (double *) malloc (soil_tbl->number * sizeof (double));
-    soil_tbl->qtz = (double *) malloc (soil_tbl->number * sizeof (double));
-    soil_tbl->alpha = (double *) malloc (soil_tbl->number * sizeof (double));
-    soil_tbl->beta = (double *) malloc (soil_tbl->number * sizeof (double));
-    soil_tbl->areafh = (double *) malloc (soil_tbl->number * sizeof (double));
-    soil_tbl->kmacv = (double *) malloc (soil_tbl->number * sizeof (double));
-    soil_tbl->dinf = (double *) malloc (soil_tbl->number * sizeof (double));
+    soil_tbl->ksatv = (double *)malloc (soil_tbl->number * sizeof (double));
+    soil_tbl->thetas = (double *)malloc (soil_tbl->number * sizeof (double));
+    soil_tbl->thetar = (double *)malloc (soil_tbl->number * sizeof (double));
+    soil_tbl->qtz = (double *)malloc (soil_tbl->number * sizeof (double));
+    soil_tbl->alpha = (double *)malloc (soil_tbl->number * sizeof (double));
+    soil_tbl->beta = (double *)malloc (soil_tbl->number * sizeof (double));
+    soil_tbl->areafh = (double *)malloc (soil_tbl->number * sizeof (double));
+    soil_tbl->kmacv = (double *)malloc (soil_tbl->number * sizeof (double));
+    soil_tbl->dinf = (double *)malloc (soil_tbl->number * sizeof (double));
 
     for (i = 0; i < soil_tbl->number; i++)
     {
@@ -468,11 +499,11 @@ void ReadSoil (char *project, soil_tbl_struct *soil_tbl)
             &soil_tbl->thetas[i], &soil_tbl->thetar[i],
             &soil_tbl->dinf[i],
             &soil_tbl->alpha[i], &soil_tbl->beta[i],
-            &soil_tbl->areafh[i], &soil_tbl->kmacv[i],
-            &soil_tbl->qtz[i]);
+            &soil_tbl->areafh[i], &soil_tbl->kmacv[i], &soil_tbl->qtz[i]);
         if (match != 10 || i != index - 1)
         {
-            printf ("Cannot read information of the %dth soil type!\n", i + 1);
+            printf ("Cannot read information of the %dth soil type!\n",
+                i + 1);
             printf (".soil file format error!\n");
             exit (1);
         }
@@ -504,15 +535,15 @@ void ReadGeol (char *project, geol_tbl_struct *geol_tbl)
         exit (1);
     }
 
-    geol_tbl->ksath = (double *) malloc (geol_tbl->number * sizeof (double));
-    geol_tbl->ksatv = (double *) malloc (geol_tbl->number * sizeof (double));
-    geol_tbl->thetas = (double *) malloc (geol_tbl->number * sizeof (double));
-    geol_tbl->thetar = (double *) malloc (geol_tbl->number * sizeof (double));
-    geol_tbl->alpha = (double *) malloc (geol_tbl->number * sizeof (double));
-    geol_tbl->beta = (double *) malloc (geol_tbl->number * sizeof (double));
-    geol_tbl->areafv = (double *) malloc (geol_tbl->number * sizeof (double));
-    geol_tbl->kmach = (double *) malloc (geol_tbl->number * sizeof (double));
-    geol_tbl->dmac = (double *) malloc (geol_tbl->number * sizeof (double));
+    geol_tbl->ksath = (double *)malloc (geol_tbl->number * sizeof (double));
+    geol_tbl->ksatv = (double *)malloc (geol_tbl->number * sizeof (double));
+    geol_tbl->thetas = (double *)malloc (geol_tbl->number * sizeof (double));
+    geol_tbl->thetar = (double *)malloc (geol_tbl->number * sizeof (double));
+    geol_tbl->alpha = (double *)malloc (geol_tbl->number * sizeof (double));
+    geol_tbl->beta = (double *)malloc (geol_tbl->number * sizeof (double));
+    geol_tbl->areafv = (double *)malloc (geol_tbl->number * sizeof (double));
+    geol_tbl->kmach = (double *)malloc (geol_tbl->number * sizeof (double));
+    geol_tbl->dmac = (double *)malloc (geol_tbl->number * sizeof (double));
 
     for (i = 0; i < geol_tbl->number; i++)
     {
@@ -525,7 +556,8 @@ void ReadGeol (char *project, geol_tbl_struct *geol_tbl)
             &geol_tbl->areafv[i], &geol_tbl->kmach[i], &geol_tbl->dmac[i]);
         if (match != 10 || i != index - 1)
         {
-            printf ("Cannot read information of the %dth geology type!\n", i + 1);
+            printf ("Cannot read information of the %dth geology type!\n",
+                i + 1);
             printf (".geol file format error!\n");
             exit (1);
         }
@@ -555,38 +587,38 @@ void ReadLC (lc_tbl_struct *lc_tbl)
         exit (1);
     }
 
-    lc_tbl->laimax = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->laimin = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->vegfrac = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->albedomin = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->albedomax = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->emissmin = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->emissmax = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->z0min = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->z0max = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->hs = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->snup = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->rgl = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->rsmin = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->rough = (double *) malloc (lc_tbl->number * sizeof (double));
-    lc_tbl->rzd = (double *) malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->laimax = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->laimin = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->vegfrac = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->albedomin = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->albedomax = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->emissmin = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->emissmax = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->z0min = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->z0max = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->hs = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->snup = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->rgl = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->rsmin = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->rough = (double *)malloc (lc_tbl->number * sizeof (double));
+    lc_tbl->rzd = (double *)malloc (lc_tbl->number * sizeof (double));
 
     for (i = 0; i < lc_tbl->number; i++)
     {
         NextLine (lc_file, cmdstr);
-        match = sscanf (cmdstr, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-            &index,
-            &lc_tbl->vegfrac[i], &lc_tbl->rzd[i], 
-            &lc_tbl->rsmin[i], &lc_tbl->rgl[i], &lc_tbl->hs[i],
-            &lc_tbl->snup[i],
-            &lc_tbl->laimin[i], &lc_tbl->laimax[i],
-            &lc_tbl->emissmin[i], &lc_tbl->emissmax[i],
-            &lc_tbl->albedomin[i], &lc_tbl->albedomax[i],
-            &lc_tbl->z0min[i], &lc_tbl->z0max[i],
+        match =
+            sscanf (cmdstr,
+            "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+            &index, &lc_tbl->vegfrac[i], &lc_tbl->rzd[i], &lc_tbl->rsmin[i],
+            &lc_tbl->rgl[i], &lc_tbl->hs[i], &lc_tbl->snup[i],
+            &lc_tbl->laimin[i], &lc_tbl->laimax[i], &lc_tbl->emissmin[i],
+            &lc_tbl->emissmax[i], &lc_tbl->albedomin[i],
+            &lc_tbl->albedomax[i], &lc_tbl->z0min[i], &lc_tbl->z0max[i],
             &lc_tbl->rough[i]);
         if (match != 16 || i != index - 1)
         {
-            printf ("Cannot read information of the %dth landcover type!\n", i + 1);
+            printf ("Cannot read information of the %dth landcover type!\n",
+                i + 1);
             printf ("Landcover file format error!\n");
             exit (1);
         }
@@ -600,10 +632,10 @@ void ReadLC (lc_tbl_struct *lc_tbl)
 
     NextLine (lc_file, cmdstr);
     ReadKeywordDouble (cmdstr, "RSMAX_DATA", &lc_tbl->rsmax);
-    
+
     NextLine (lc_file, cmdstr);
     ReadKeywordInt (cmdstr, "BARE", &lc_tbl->bare);
-    
+
     NextLine (lc_file, cmdstr);
     ReadKeywordInt (cmdstr, "NATURAL", &lc_tbl->natural);
 
@@ -628,28 +660,34 @@ void ReadForc (char *project, forcing_ts_struct *forcing)
     match = sscanf (cmdstr, "%*s %d", &forcing->nts[METEO_TS]);
     if (match != 1)
     {
-        printf ("Cannot read number of meteorological forcing time series!\n");
+        printf
+            ("Cannot read number of meteorological forcing time series!\n");
         printf (".forc file format error!\n");
         exit (1);
     }
 
-    forcing->ts[METEO_TS] = (ts_struct *) malloc (forcing->nts[METEO_TS] * sizeof (ts_struct));
-    forcing->zlvl_wind = (double *) malloc (forcing->nts[METEO_TS] * sizeof (double));
+    forcing->ts[METEO_TS] =
+        (ts_struct *)malloc (forcing->nts[METEO_TS] * sizeof (ts_struct));
+    forcing->zlvl_wind =
+        (double *)malloc (forcing->nts[METEO_TS] * sizeof (double));
 
     for (i = 0; i < forcing->nts[METEO_TS]; i++)
     {
         NextLine (forc_file, cmdstr);
-        match = sscanf (cmdstr, "%*s %d %*s %lf", &index, &forcing->zlvl_wind[i]);
+        match =
+            sscanf (cmdstr, "%*s %d %*s %lf", &index, &forcing->zlvl_wind[i]);
         if (match != 2 || i != index - 1)
         {
-            printf ("Cannot read information of the %dth forcing series!\n", i);
+            printf ("Cannot read information of the %dth forcing series!\n",
+                i);
             printf (".forc file format error!\n");
             exit (1);
         }
         /* Skip header lines */
         NextLine (forc_file, cmdstr);
         NextLine (forc_file, cmdstr);
-        forcing->ts[METEO_TS][i].length = CountLine (forc_file, 1, "METEO_TS");
+        forcing->ts[METEO_TS][i].length =
+            CountLine (forc_file, 1, "METEO_TS");
     }
 
     /* Rewind and read */
@@ -661,20 +699,26 @@ void ReadForc (char *project, forcing_ts_struct *forcing)
         NextLine (forc_file, cmdstr);
         NextLine (forc_file, cmdstr);
 
-        forcing->ts[METEO_TS][i].ftime = (int *) malloc (forcing->ts[METEO_TS][i].length * sizeof (int));
-        forcing->ts[METEO_TS][i].data = (double **) malloc (forcing->ts[METEO_TS][i].length * sizeof (double *));
+        forcing->ts[METEO_TS][i].ftime =
+            (int *)malloc (forcing->ts[METEO_TS][i].length * sizeof (int));
+        forcing->ts[METEO_TS][i].data =
+            (double **)malloc (forcing->ts[METEO_TS][i].length *
+            sizeof (double *));
         for (j = 0; j < forcing->ts[METEO_TS][i].length; j++)
         {
-            forcing->ts[METEO_TS][i].data[j] = (double *) malloc (NUM_METEO_TS * sizeof (double));
+            forcing->ts[METEO_TS][i].data[j] =
+                (double *)malloc (NUM_METEO_TS * sizeof (double));
             NextLine (forc_file, cmdstr);
-            ReadTS (cmdstr, &forcing->ts[METEO_TS][i].ftime[j], &forcing->ts[METEO_TS][i].data[j][0], NUM_METEO_TS);
+            ReadTS (cmdstr, &forcing->ts[METEO_TS][i].ftime[j],
+                &forcing->ts[METEO_TS][i].data[j][0], NUM_METEO_TS);
         }
     }
 
     fclose (forc_file);
 }
 
-void ReadLAI (char *project, forcing_ts_struct *forcing, int numele, const attrib_tbl_struct *attrib_tbl)
+void ReadLAI (char *project, forcing_ts_struct *forcing, int numele,
+    const attrib_tbl_struct *attrib_tbl)
 {
     char            fn[MAXSTRING];
     char            cmdstr[MAXSTRING];
@@ -686,7 +730,7 @@ void ReadLAI (char *project, forcing_ts_struct *forcing, int numele, const attri
 
     for (i = 0; i < numele; i++)
     {
-        if ( attrib_tbl->lai[i] > 0)
+        if (attrib_tbl->lai[i] > 0)
         {
             read_lai = 1;
             break;
@@ -712,14 +756,16 @@ void ReadLAI (char *project, forcing_ts_struct *forcing, int numele, const attri
             exit (1);
         }
 
-        forcing->ts[LAI_TS] = (ts_struct *) malloc (forcing->nts[LAI_TS] * sizeof (ts_struct));
+        forcing->ts[LAI_TS] =
+            (ts_struct *)malloc (forcing->nts[LAI_TS] * sizeof (ts_struct));
         for (i = 0; i < forcing->nts[LAI_TS]; i++)
         {
             NextLine (lai_file, cmdstr);
             match = sscanf (cmdstr, "%*s %d", &index);
             if (match != 1 || i != index - 1)
             {
-                printf ("Cannot read information of the %dth LAI series!\n", i);
+                printf ("Cannot read information of the %dth LAI series!\n",
+                    i);
                 printf (".lai file format error!\n");
                 exit (1);
             }
@@ -738,13 +784,18 @@ void ReadLAI (char *project, forcing_ts_struct *forcing, int numele, const attri
             NextLine (lai_file, cmdstr);
             NextLine (lai_file, cmdstr);
 
-            forcing->ts[LAI_TS][i].ftime = (int *) malloc (forcing->ts[LAI_TS][i].length * sizeof (int));
-            forcing->ts[LAI_TS][i].data = (double **) malloc (forcing->ts[LAI_TS][i].length * sizeof (double *));
+            forcing->ts[LAI_TS][i].ftime =
+                (int *)malloc (forcing->ts[LAI_TS][i].length * sizeof (int));
+            forcing->ts[LAI_TS][i].data =
+                (double **)malloc (forcing->ts[LAI_TS][i].length *
+                sizeof (double *));
             for (j = 0; j < forcing->ts[LAI_TS][i].length; j++)
             {
-                forcing->ts[LAI_TS][i].data[j] = (double *) malloc (sizeof (double));
+                forcing->ts[LAI_TS][i].data[j] =
+                    (double *)malloc (sizeof (double));
                 NextLine (lai_file, cmdstr);
-                ReadTS (cmdstr, &forcing->ts[LAI_TS][i].ftime[j], &forcing->ts[LAI_TS][i].data[j][0], 1);
+                ReadTS (cmdstr, &forcing->ts[LAI_TS][i].ftime[j],
+                    &forcing->ts[LAI_TS][i].data[j][0], 1);
             }
         }
         fclose (lai_file);
@@ -776,8 +827,9 @@ void ReadIbc (char *project, forcing_ts_struct *forcing)
         printf (".ibc file format error!\n");
         exit (1);
     }
-        
-    forcing->ts[BC_TS] = (ts_struct *) malloc (forcing->nts[BC_TS] * sizeof (ts_struct));
+
+    forcing->ts[BC_TS] =
+        (ts_struct *)malloc (forcing->nts[BC_TS] * sizeof (ts_struct));
 
     for (i = 0; i < forcing->nts[BC_TS]; i++)
     {
@@ -785,7 +837,9 @@ void ReadIbc (char *project, forcing_ts_struct *forcing)
         match = sscanf (cmdstr, "%*s %d", &index);
         if (match != 1 || i != index - 1)
         {
-            printf ("Cannot read information of the %dth boundary condition series!\n", i);
+            printf
+                ("Cannot read information of the %dth boundary condition series!\n",
+                i);
             printf (".ibc file format error!\n");
             exit (1);
         }
@@ -805,13 +859,18 @@ void ReadIbc (char *project, forcing_ts_struct *forcing)
         NextLine (ibc_file, cmdstr);
         NextLine (ibc_file, cmdstr);
 
-        forcing->ts[BC_TS][i].ftime = (int *) malloc (forcing->ts[BC_TS][i].length * sizeof (int));
-        forcing->ts[BC_TS][i].data = (double **) malloc (forcing->ts[BC_TS][i].length * sizeof (double *));
+        forcing->ts[BC_TS][i].ftime =
+            (int *)malloc (forcing->ts[BC_TS][i].length * sizeof (int));
+        forcing->ts[BC_TS][i].data =
+            (double **)malloc (forcing->ts[BC_TS][i].length *
+            sizeof (double *));
         for (j = 0; j < forcing->ts[BC_TS][i].length; j++)
         {
-            forcing->ts[BC_TS][i].data[j] = (double *) malloc (sizeof (double));
+            forcing->ts[BC_TS][i].data[j] =
+                (double *)malloc (sizeof (double));
             NextLine (ibc_file, cmdstr);
-            ReadTS (cmdstr, &forcing->ts[BC_TS][i].ftime[j], &forcing->ts[BC_TS][i].data[j][0], 1);
+            ReadTS (cmdstr, &forcing->ts[BC_TS][i].ftime[j],
+                &forcing->ts[BC_TS][i].data[j][0], 1);
         }
     }
 
@@ -838,10 +897,10 @@ void ReadPara (char *project, ctrl_struct *ctrl)
 
     NextLine (para_file, cmdstr);
     ReadKeywordInt (cmdstr, "WRITE_IC", &ctrl->write_ic);
-    
+
     NextLine (para_file, cmdstr);
     ReadKeywordInt (cmdstr, "UNSAT_MODE", &ctrl->unsat_mode);
-    
+
     NextLine (para_file, cmdstr);
     ReadKeywordInt (cmdstr, "SURF_MODE", &ctrl->surf_mode);
 
@@ -951,7 +1010,8 @@ void ReadPara (char *project, ctrl_struct *ctrl)
 
     if (ctrl->etstep < ctrl->stepsize || ctrl->etstep % ctrl->stepsize > 0)
     {
-        printf ("ERROR: LSM (ET) step size should be an integral multiple of model step size!\n");
+        printf
+            ("ERROR: LSM (ET) step size should be an integral multiple of model step size!\n");
         exit (1);
     }
 }
@@ -1031,7 +1091,7 @@ void ReadCalib (char *project, char *simulation, calib_struct *cal)
 {
     char            fn[MAXSTRING];
     char            cmdstr[MAXSTRING];
-    FILE           *global_calib;   /* Pointer to .calib file */
+    FILE           *global_calib;       /* Pointer to .calib file */
 
     sprintf (fn, "input/%s/%s.calib", project, simulation);
     global_calib = fopen (fn, "r");
@@ -1120,9 +1180,9 @@ void ReadCalib (char *project, char *simulation, calib_struct *cal)
 
 #ifdef _RT_
     CS->Cal.PCO2 = 1.0;
-    CS->Cal.Keq  = 1.0;
+    CS->Cal.Keq = 1.0;
     CS->Cal.Site_den = 1.0;
-    CS->Cal.SSA  = 1.0;
+    CS->Cal.SSA = 1.0;
     CS->Cal.Prep_conc = 1.0;
 #endif
 
@@ -1153,7 +1213,7 @@ void ReadCalib (char *project, char *simulation, calib_struct *cal)
 
     NextLine (global_calib, cmdstr);
     ReadKeywordDouble (cmdstr, "REFSMC", &cal->thetaref);
-    
+
     NextLine (global_calib, cmdstr);
     ReadKeywordDouble (cmdstr, "WLTSMC", &cal->thetaw);
 #endif
@@ -1161,7 +1221,8 @@ void ReadCalib (char *project, char *simulation, calib_struct *cal)
     fclose (global_calib);
 }
 
-void ReadInit (char *project, char *simulation, ic_struct *ic, int numele, int numriv)
+void ReadInit (char *project, char *simulation, ic_struct *ic, int numele,
+    int numriv)
 {
     char            fn[MAXSTRING];
     FILE           *init_file;
@@ -1188,8 +1249,7 @@ void ReadInit (char *project, char *simulation, ic_struct *ic, int numele, int n
     for (i = 0; i < numriv; i++)
     {
         NextLine (init_file, cmdstr);
-        match = sscanf (cmdstr, "%lf %lf",
-            &ic->stage[i], &ic->rivgw[i]);
+        match = sscanf (cmdstr, "%lf %lf", &ic->stage[i], &ic->rivgw[i]);
         if (match != 2)
         {
             printf ("ERROR: .init format error!\n");

@@ -7,7 +7,7 @@
 
 #define RD	    287.04
 #define SIGMA	    5.67e-8
-//#define CP	    1004.6
+//#define CP        1004.6
 #define CPH2O	    4.218e3
 #define CPICE	    2.106e3
 #define LSUBF	    3.335e5
@@ -16,16 +16,19 @@
 #define NSLTYPE	    32767
 #define NSLOPE	    32767
 #define TFREEZ	    273.15
-//#define LVH2O	    2.501e6
+//#define LVH2O     2.501e6
 #define LSUBS	    2.83e6
 #define R	    287.04
 
 #define MAXLYR     11
 
-enum lsm_forcing_type {SOLAR_DIR_TS, SOLAR_DIF_TS};
-enum lsm_print_type {T1_CTRL, STC_CTRL, SMC_CTRL, SH2O_CTRL, SNOWH_CTRL,
+enum lsm_forcing_type
+{ SOLAR_DIR_TS, SOLAR_DIF_TS };
+enum lsm_print_type
+{ T1_CTRL, STC_CTRL, SMC_CTRL, SH2O_CTRL, SNOWH_CTRL,
     ALBEDO_CTRL, LE_CTRL, SH_CTRL, G_CTRL, ETP_CTRL, ESNOW_CTRL,
-    ROOTW_CTRL, SOILM_CTRL};
+    ROOTW_CTRL, SOILM_CTRL
+};
 
 typedef struct genprmt_type
 {
@@ -116,7 +119,7 @@ typedef struct grid_type
     double          q2;         /* mixing ratio at height zlvl above ground (kg kg-1) */
     double          cosz;       /* solar zenith angle (not used for now) */
     double          prcprain;   /* liquid-precipitation rate (kg m-2 s-1) (not used) */
-    double          solardirect;    /* direct component of downward solar radiation (w m-2) (not used) */
+    double          solardirect;        /* direct component of downward solar radiation (w m-2) (not used) */
     double          ffrozp;     /* fraction of frozen precipitation */
 
     /*
@@ -180,7 +183,7 @@ typedef struct grid_type
 #ifdef _NOAH_
     double          macksat;    /* ys: flux-pihm saturation macropore conductivity */
     double          areaf;      /* ys: flux-pihm fractional area of macropore */
-    double          infil;        /* ys: flux-pihm infiltration */
+    double          infil;      /* ys: flux-pihm infiltration */
     int             mac_status;
     int             nmacd;      /* ys: flux-pihm the layer where the macropore depth reaches */
     int             nwtbl;      /* ys: flux-pihm the layer where the water table is */
@@ -235,13 +238,13 @@ typedef struct grid_type
      * necessary.  other applications may require different output variables. 
      */
     double          eta;        /* actual latent heat flux (w m-2: negative, if up from surface) */
-    double          eta_kinematic;  /* atctual latent heat flux in kg m-2 s-1 */
+    double          eta_kinematic;      /* atctual latent heat flux in kg m-2 s-1 */
     double          sheat;      /* sensible heat flux (w m-2: negative, if upward from surface) */
     double          fdown;      /* radiation forcing at the surface (w m-2) = soldn*(1-alb)+lwdn */
 
     double          ec;         /* canopy water evaporation (w m-2) */
     double          edir;       /* direct soil evaporation (w m-2) */
-    double          et[MAXLYR];         /* plant transpiration from a particular root (soil) layer (w m-2) */
+    double          et[MAXLYR]; /* plant transpiration from a particular root (soil) layer (w m-2) */
     double          ett;        /* total plant transpiration (w m-2) */
     double          esnow;      /* sublimation from (or deposition to if <0) snowpack (w m-2) */
     double          drip;       /* through-fall of precip and/or dew in excess of canopy water-holding capacity (m) */
@@ -319,7 +322,7 @@ typedef struct lsm_ic_struct
 typedef struct lsm_struct
 {
     genprmt_type    genprmt;
-    grid_struct      *grid;
+    grid_struct    *grid;
     lsm_ic_struct   ic;
 #ifdef _NOAH_
     int             std_nsoil;
@@ -338,118 +341,271 @@ typedef struct lsm_struct
 
 void            SFlx (grid_struct *);
 
-void            AlCalc (double *alb, double *snoalb, double *embrd, double *shdfac, double *shdmin, double *sncovr, double *tsnow, double *albedo, double *emissi, double *dt, int *snowng, double *snotime1, double *lvcoef);
+void            AlCalc (double *alb, double *snoalb, double *embrd,
+    double *shdfac, double *shdmin, double *sncovr, double *tsnow,
+    double *albedo, double *emissi, double *dt, int *snowng, double *snotime1,
+    double *lvcoef);
 
-void            CanRes (double *solar, double *ch, double *sfctmp, double *q2, double *sfcprs, double *smc, double *zsoil, int *nsoil, double *smcwlt, double *smcref, double *rsmin, double *rc, double *pc, int *nroot, double *q2sat, double *dqsdt2, double *topt, double *rsmax, double *rgl, double *hs, double *xlai, double *rcs, double *rct, double *rcq, double *rcsoil, double *emissi);
+void            CanRes (double *solar, double *ch, double *sfctmp, double *q2,
+    double *sfcprs, double *smc, double *zsoil, int *nsoil, double *smcwlt,
+    double *smcref, double *rsmin, double *rc, double *pc, int *nroot,
+    double *q2sat, double *dqsdt2, double *topt, double *rsmax, double *rgl,
+    double *hs, double *xlai, double *rcs, double *rct, double *rcq,
+    double *rcsoil, double *emissi);
 
 void            CSnow (double *sncond, double *dsnow);
 
 #ifdef _NOAH_
-void            DEvap (double *edir, double *etp1, double *smc, double *zsoil, double *shdfac, double *smcmax, double *dksat, double *smcdry, double *smcref, double *smcwlt, double *fxexp);
+void            DEvap (double *edir, double *etp1, double *smc, double *zsoil,
+    double *shdfac, double *smcmax, double *dksat, double *smcdry,
+    double *smcref, double *smcwlt, double *fxexp);
 #else
-void            DEvap (double *edir, double *etp1, double *smc, double *zsoil, double *shdfac, double *smcmax, double *bexp, double *dksat, double *dwsat, double *smcdry, double *smcref, double *smcwlt, double *fxexp);
+void            DEvap (double *edir, double *etp1, double *smc, double *zsoil,
+    double *shdfac, double *smcmax, double *bexp, double *dksat,
+    double *dwsat, double *smcdry, double *smcref, double *smcwlt,
+    double *fxexp);
 #endif
 
 #ifdef _NOAH_
-void            Evapo (double *eta1, double *smc, int *nsoil, double *cmc, double *etp1, double *dt, double *zsoil, double *sh2o, double *smcmax, double *pc, double *smcwlt, double *dksat, double *smcref, double *shdfac, double *cmcmax, double *smcdry, double *cfactr, double *edir, double *ec, double *et, double *ett, double *sfctmp, double *q2, int *nroot, double *rtdis, double *fxexp);
+void            Evapo (double *eta1, double *smc, int *nsoil, double *cmc,
+    double *etp1, double *dt, double *zsoil, double *sh2o, double *smcmax,
+    double *pc, double *smcwlt, double *dksat, double *smcref, double *shdfac,
+    double *cmcmax, double *smcdry, double *cfactr, double *edir, double *ec,
+    double *et, double *ett, double *sfctmp, double *q2, int *nroot,
+    double *rtdis, double *fxexp);
 #else
-void            Evapo (double *eta1, double *smc, int *nsoil, double *cmc, double *etp1, double *dt, double *zsoil, double *sh2o, double *smcmax, double *bexp, double *pc, double *smcwlt, double *dksat, double *dwsat, double *smcref, double *shdfac, double *cmcmax, double *smcdry, double *cfactr, double *edir, double *ec, double *et, double *ett, double *sfctmp, double *q2, int *nroot, double *rtdis, double *fxexp);
+void            Evapo (double *eta1, double *smc, int *nsoil, double *cmc,
+    double *etp1, double *dt, double *zsoil, double *sh2o, double *smcmax,
+    double *bexp, double *pc, double *smcwlt, double *dksat, double *dwsat,
+    double *smcref, double *shdfac, double *cmcmax, double *smcdry,
+    double *cfactr, double *edir, double *ec, double *et, double *ett,
+    double *sfctmp, double *q2, int *nroot, double *rtdis, double *fxexp);
 #endif
 
 void            Fac2Mit (double *smcmax, double *flimit);
 
 #ifdef _NOAH_
-void            FrH2O (double *free, double *tkelv, double *smc, double *sh2o, double *smcmax, double *smcmin, double *vgalpha, double *vgbeta);
+void            FrH2O (double *free, double *tkelv, double *smc, double *sh2o,
+    double *smcmax, double *smcmin, double *vgalpha, double *vgbeta);
 #else
-void            FrH2O (double *free, double *tkelv, double *smc, double *sh2o, double *smcmax, double *bexp, double *psis);
+void            FrH2O (double *free, double *tkelv, double *smc, double *sh2o,
+    double *smcmax, double *bexp, double *psis);
 #endif
 
 #ifdef _NOAH_
-void            HRT (double *rhsts, double *stc, double *smc, double *smcmax, double *smcmin, int *nsoil, double *zsoil, double *yy, double *zz1, double *tbot, double *zbot, double *sh2o, double *dt, double *vgalpha, double *vgbeta, double *f1, double *df1, double *quartz, double *csoil, double *ai, double *bi, double *ci, int *vegtyp, int *isurban);
+void            HRT (double *rhsts, double *stc, double *smc, double *smcmax,
+    double *smcmin, int *nsoil, double *zsoil, double *yy, double *zz1,
+    double *tbot, double *zbot, double *sh2o, double *dt, double *vgalpha,
+    double *vgbeta, double *f1, double *df1, double *quartz, double *csoil,
+    double *ai, double *bi, double *ci, int *vegtyp, int *isurban);
 #else
-void            HRT (double *rhsts, double *stc, double *smc, double *smcmax, int *nsoil, double *zsoil, double *yy, double *zz1, double *tbot, double *zbot, double *psisat, double *sh2o, double *dt, double *bexp, double *f1, double *df1, double *quartz, double *csoil, double *ai, double *bi, double *ci, int *vegtyp, int *isurban);
+void            HRT (double *rhsts, double *stc, double *smc, double *smcmax,
+    int *nsoil, double *zsoil, double *yy, double *zz1, double *tbot,
+    double *zbot, double *psisat, double *sh2o, double *dt, double *bexp,
+    double *f1, double *df1, double *quartz, double *csoil, double *ai,
+    double *bi, double *ci, int *vegtyp, int *isurban);
 #endif
 
-void            HStep (double *stcout, double *stcin, double *rhsts, double *dt, int *nsoil, double *ai, double *bi, double *ci);
+void            HStep (double *stcout, double *stcin, double *rhsts,
+    double *dt, int *nsoil, double *ai, double *bi, double *ci);
 
 #ifdef _NOAH_
-void            NoPac (double *etp, double *eta, double *prcp, double *pcpdrp, double *smc, double *smcmax, double *smcmin, double *smcwlt, double *smcref, double *smcdry, double *cmc, double *cmcmax, int *nsoil, double *dt, double *shdfac, double *sbeta, double *q2, double *t1, double *sfctmp, double *t24, double *th2, double *fdown, double *f1, double *emissi, double *ssoil, double *stc, double *epsca, double *vgalpha, double *vgbeta, double *macksat, double *areaf, int *nmacd, int *mac_status, int *nwtbl, double *pc, double *rch, double *rr, double *cfactr, double *sh2o, double *frzfact, double *zsoil, double *dksat, double *tbot, double *zbot, double *inf, double *runoff2, double *runoff3, double *edir, double *ec, double *et, double *ett, int *nroot, double *rtdis, double *quartz, double *fxexp, double *csoil, double *beta, double *drip, double *dew, double *flx1, double *flx3, int *vegtyp, int *isurban);
+void            NoPac (double *etp, double *eta, double *prcp, double *pcpdrp,
+    double *smc, double *smcmax, double *smcmin, double *smcwlt,
+    double *smcref, double *smcdry, double *cmc, double *cmcmax, int *nsoil,
+    double *dt, double *shdfac, double *sbeta, double *q2, double *t1,
+    double *sfctmp, double *t24, double *th2, double *fdown, double *f1,
+    double *emissi, double *ssoil, double *stc, double *epsca,
+    double *vgalpha, double *vgbeta, double *macksat, double *areaf,
+    int *nmacd, int *mac_status, int *nwtbl, double *pc, double *rch,
+    double *rr, double *cfactr, double *sh2o, double *frzfact, double *zsoil,
+    double *dksat, double *tbot, double *zbot, double *inf, double *runoff2,
+    double *runoff3, double *edir, double *ec, double *et, double *ett,
+    int *nroot, double *rtdis, double *quartz, double *fxexp, double *csoil,
+    double *beta, double *drip, double *dew, double *flx1, double *flx3,
+    int *vegtyp, int *isurban);
 #else
-void            NoPac (double *etp, double *eta, double *prcp, double *smc, double *smcmax, double *smcwlt, double *smcref, double *smcdry, double *cmc, double *cmcmax, int *nsoil, double *dt, double *shdfac, double *sbeta, double *q2, double *t1, double *sfctmp, double *t24, double *th2, double *fdown, double *f1, double *emissi, double *ssoil, double *stc, double *epsca, double *bexp, double *pc, double *rch, double *rr, double *cfactr, double *sh2o, double *slope, double *kdt, double *frzfact, double *psisat, double *zsoil, double *dksat, double *dwsat, double *tbot, double *zbot, double *runoff1, double *runoff2, double *runoff3, double *edir, double *ec, double *et, double *ett, int *nroot, double *rtdis, double *quartz, double *fxexp, double *csoil, double *beta, double *drip, double *dew, double *flx1, double *flx3, int *vegtyp, int *isurban);
+void            NoPac (double *etp, double *eta, double *prcp, double *smc,
+    double *smcmax, double *smcwlt, double *smcref, double *smcdry,
+    double *cmc, double *cmcmax, int *nsoil, double *dt, double *shdfac,
+    double *sbeta, double *q2, double *t1, double *sfctmp, double *t24,
+    double *th2, double *fdown, double *f1, double *emissi, double *ssoil,
+    double *stc, double *epsca, double *bexp, double *pc, double *rch,
+    double *rr, double *cfactr, double *sh2o, double *slope, double *kdt,
+    double *frzfact, double *psisat, double *zsoil, double *dksat,
+    double *dwsat, double *tbot, double *zbot, double *runoff1,
+    double *runoff2, double *runoff3, double *edir, double *ec, double *et,
+    double *ett, int *nroot, double *rtdis, double *quartz, double *fxexp,
+    double *csoil, double *beta, double *drip, double *dew, double *flx1,
+    double *flx3, int *vegtyp, int *isurban);
 #endif
 
-void            Penman (double *sfctmp, double *sfcprs, double *ch, double *t2v, double *th2, double *prcp, double *fdown, double *t24, double *ssoil, double *q2, double *q2sat, double *etp, double *rch, double *epsca, double *rr, int *snowng, int *frzgra, double *dqsdt2, double *flx2, double *emissi_in, double *sneqv, double *t1, double *sncovr);
+void            Penman (double *sfctmp, double *sfcprs, double *ch,
+    double *t2v, double *th2, double *prcp, double *fdown, double *t24,
+    double *ssoil, double *q2, double *q2sat, double *etp, double *rch,
+    double *epsca, double *rr, int *snowng, int *frzgra, double *dqsdt2,
+    double *flx2, double *emissi_in, double *sneqv, double *t1,
+    double *sncovr);
 
 void            RedPrm (grid_struct * noah, lsm_struct lsm, double *zsoil);
 
-void            Rosr12 (double *p, double *a, double *b, double *c, double *d, double *delta, int *nsoil);
+void            Rosr12 (double *p, double *a, double *b, double *c, double *d,
+    double *delta, int *nsoil);
 
 #ifdef _NOAH_
-void            ShFlx (double *ssoil, double *stc, double *smc, double *smcmax, double *smcmin, int *nsoil, double *t1, double *dt, double *yy, double *zz1, double *zsoil, double *tbot, double *zbot, double *smcwlt, double *sh2o, double *vgalpha, double *vgbeta, double *f1, double *df1, double *quartz, double *csoil, int *vegtyp, int *isurban);
+void            ShFlx (double *ssoil, double *stc, double *smc,
+    double *smcmax, double *smcmin, int *nsoil, double *t1, double *dt,
+    double *yy, double *zz1, double *zsoil, double *tbot, double *zbot,
+    double *smcwlt, double *sh2o, double *vgalpha, double *vgbeta, double *f1,
+    double *df1, double *quartz, double *csoil, int *vegtyp, int *isurban);
 #else
-void            ShFlx (double *ssoil, double *stc, double *smc, double *smcmax, int *nsoil, double *t1, double *dt, double *yy, double *zz1, double *zsoil, double *tbot, double *zbot, double *smcwlt, double *psisat, double *sh2o, double *bexp, double *f1, double *df1, double *quartz, double *csoil, int *vegtyp, int *isurban);
+void            ShFlx (double *ssoil, double *stc, double *smc,
+    double *smcmax, int *nsoil, double *t1, double *dt, double *yy,
+    double *zz1, double *zsoil, double *tbot, double *zbot, double *smcwlt,
+    double *psisat, double *sh2o, double *bexp, double *f1, double *df1,
+    double *quartz, double *csoil, int *vegtyp, int *isurban);
 #endif
 
 #ifdef _NOAH_
-void            SmFlx (double *smc, int *nsoil, double *cmc, double *dt, double *prcp1, double *pcpdrp, double *zsoil, double *sh2o, double *frzfact, double *smcmax, double *smcmin, double *vgalpha, double *vgbeta, double *macksat, double *areaf, int *nmacd, int *mac_status, int *nwtbl, double *smcwlt, double *dksat, double *shdfac, double *cmcmax, double *inf, double *runoff2, double *runoff3, double *edir, double *ec, double *et, double *drip);
+void            SmFlx (double *smc, int *nsoil, double *cmc, double *dt,
+    double *prcp1, double *pcpdrp, double *zsoil, double *sh2o,
+    double *frzfact, double *smcmax, double *smcmin, double *vgalpha,
+    double *vgbeta, double *macksat, double *areaf, int *nmacd,
+    int *mac_status, int *nwtbl, double *smcwlt, double *dksat,
+    double *shdfac, double *cmcmax, double *inf, double *runoff2,
+    double *runoff3, double *edir, double *ec, double *et, double *drip);
 #else
-void            SmFlx (double *smc, int *nsoil, double *cmc, double *dt, double *prcp1, double *zsoil, double *sh2o, double *slope, double *kdt, double *frzfact, double *smcmax, double *bexp, double *smcwlt, double *dksat, double *dwsat, double *shdfac, double *cmcmax, double *runoff1, double *runoff2, double *runoff3, double *edir, double *ec, double *et, double *drip);
+void            SmFlx (double *smc, int *nsoil, double *cmc, double *dt,
+    double *prcp1, double *zsoil, double *sh2o, double *slope, double *kdt,
+    double *frzfact, double *smcmax, double *bexp, double *smcwlt,
+    double *dksat, double *dwsat, double *shdfac, double *cmcmax,
+    double *runoff1, double *runoff2, double *runoff3, double *edir,
+    double *ec, double *et, double *drip);
 #endif
 
-void            SnFrac (double *sneqv, double *snup, double *salp, double *snowh, double *sncovr);
+void            SnFrac (double *sneqv, double *snup, double *salp,
+    double *snowh, double *sncovr);
 
 #ifdef _NOAH_
-void            SnkSrc (double *tsnsr, double *tavg, double *smc, double *sh2o, double *zsoil, int *nsoil, double *smcmax, double *smcmin, double *vgalpha, double *vgbeta, double *dt, int k, double *qtot);
+void            SnkSrc (double *tsnsr, double *tavg, double *smc,
+    double *sh2o, double *zsoil, int *nsoil, double *smcmax, double *smcmin,
+    double *vgalpha, double *vgbeta, double *dt, int k, double *qtot);
 #else
-void            SnkSrc (double *tsnsr, double *tavg, double *smc, double *sh2o, double *zsoil, int *nsoil, double *smcmax, double *psisat, double *bexp, double *dt, int k, double *qtot);
-#endif
-
-#ifdef _NOAH_
-void            SnoPac (double *etp, double *eta, double *prcp, double *prcpf, double *pcpdrp, int *snowng, double *smc, double *smcmax, double *smcmin, double *smcwlt, double *smcref, double *smcdry, double *cmc, double *cmcmax, int *nsoil, double *dt, double *sbeta, double *df1, double *q2, double *t1, double *sfctmp, double *t24, double *th2, double *fdown, double *f1, double *ssoil, double *stc, double *epsca, double *sfcprs, double *vgalpha, double *vgbeta, double *macksat, double *areaf, int *nmacd, int *mac_status, int *nwtbl, double *pc, double *rch, double *rr, double *cfactr, double *sncovr, double *esd, double *sndens, double *snowh, double *sh2o, double *frzfact, double *zsoil, double *dksat, double *tbot, double *zbot, double *shdfac, double *inf, double *runoff2, double *runoff3, double *edir, double *ec, double *et, double *ett, int *nroot, double *snomlt, double *rtdis, double *quartz, double *fxexp, double *csoil, double *beta, double *drip, double *dew, double *flx1, double *flx2, double *flx3, double *esnow, double *etns, double *emissi, double *ribb, double *soldn, int *isurban, int *vegtyp);
-#else
-void            SnoPac (double *etp, double *eta, double *prcp, double *prcpf, int *snowng, double *smc, double *smcmax, double *smcwlt, double *smcref, double *smcdry, double *cmc, double *cmcmax, int *nsoil, double *dt, double *sbeta, double *df1, double *q2, double *t1, double *sfctmp, double *t24, double *th2, double *fdown, double *f1, double *ssoil, double *stc, double *epsca, double *sfcprs, double *bexp, double *pc, double *rch, double *rr, double *cfactr, double *sncovr, double *esd, double *sndens, double *snowh, double *sh2o, double *slope, double *kdt, double *frzfact, double *psisat, double *zsoil, double *dwsat, double *dksat, double *tbot, double *zbot, double *shdfac, double *runoff1, double *runoff2, double *runoff3, double *edir, double *ec, double *et, double *ett, int *nroot, double *snomlt, double *rtdis, double *quartz, double *fxexp, double *csoil, double *beta, double *drip, double *dew, double *flx1, double *flx2, double *flx3, double *esnow, double *etns, double *emissi, double *ribb, double *soldn, int *isurban, int *vegtyp);
-#endif
-
-void            SnowPack (double *esd, double *dtsec, double *snowh, double *sndens, double *tsnow, double *tsoil);
-
-void            Snowz0 (double *sncovr, double *z0, double *z0brd, double *snowh);
-
-void            SnowNew (double *temp, double *newsn, double *snowh, double *sndens);
-
-#ifdef _NOAH_
-void            SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa, int *nsoil, int *nwtbl, double *pcpdrp, double *zsoil, double *dksat, double *smcmax, double *smcmin, double *vgalpha, double *vgbeta, double *macksat, double *areaf, int *nmacd, int *mac_status, double *inf, double *runoff2, double *dt, double *smcwlt, double *frzx, double *sice, double *ai, double *bi, double *ci);
-#else
-void            SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa, int *nsoil, double *pcpdrp, double *zsoil, double *dwsat, double *dksat, double *smcmax, double *bexp, double *runoff1, double *runoff2, double *dt, double *smcwlt, double *slope, double *kdt, double *frzx, double *sice, double *ai, double *bi, double *ci);
+void            SnkSrc (double *tsnsr, double *tavg, double *smc,
+    double *sh2o, double *zsoil, int *nsoil, double *smcmax, double *psisat,
+    double *bexp, double *dt, int k, double *qtot);
 #endif
 
 #ifdef _NOAH_
-void            SStep (double *sh2oout, double *sh2oin, double *cmc, double *rhstt, double *rhsct, double *dt, int *nsoil, double *smcmax, double *smcmin, double *cmcmax, double *runoff3, double *zsoil, double *smc, double *sice, double *ai, double *bi, double *ci);
+void            SnoPac (double *etp, double *eta, double *prcp, double *prcpf,
+    double *pcpdrp, int *snowng, double *smc, double *smcmax, double *smcmin,
+    double *smcwlt, double *smcref, double *smcdry, double *cmc,
+    double *cmcmax, int *nsoil, double *dt, double *sbeta, double *df1,
+    double *q2, double *t1, double *sfctmp, double *t24, double *th2,
+    double *fdown, double *f1, double *ssoil, double *stc, double *epsca,
+    double *sfcprs, double *vgalpha, double *vgbeta, double *macksat,
+    double *areaf, int *nmacd, int *mac_status, int *nwtbl, double *pc,
+    double *rch, double *rr, double *cfactr, double *sncovr, double *esd,
+    double *sndens, double *snowh, double *sh2o, double *frzfact,
+    double *zsoil, double *dksat, double *tbot, double *zbot, double *shdfac,
+    double *inf, double *runoff2, double *runoff3, double *edir, double *ec,
+    double *et, double *ett, int *nroot, double *snomlt, double *rtdis,
+    double *quartz, double *fxexp, double *csoil, double *beta, double *drip,
+    double *dew, double *flx1, double *flx2, double *flx3, double *esnow,
+    double *etns, double *emissi, double *ribb, double *soldn, int *isurban,
+    int *vegtyp);
 #else
-void            SStep (double *sh2oout, double *sh2oin, double *cmc, double *rhstt, double *rhsct, double *dt, int *nsoil, double *smcmax, double *cmcmax, double *runoff3, double *zsoil, double *smc, double *sice, double *ai, double *bi, double *ci);
+void            SnoPac (double *etp, double *eta, double *prcp, double *prcpf,
+    int *snowng, double *smc, double *smcmax, double *smcwlt, double *smcref,
+    double *smcdry, double *cmc, double *cmcmax, int *nsoil, double *dt,
+    double *sbeta, double *df1, double *q2, double *t1, double *sfctmp,
+    double *t24, double *th2, double *fdown, double *f1, double *ssoil,
+    double *stc, double *epsca, double *sfcprs, double *bexp, double *pc,
+    double *rch, double *rr, double *cfactr, double *sncovr, double *esd,
+    double *sndens, double *snowh, double *sh2o, double *slope, double *kdt,
+    double *frzfact, double *psisat, double *zsoil, double *dwsat,
+    double *dksat, double *tbot, double *zbot, double *shdfac,
+    double *runoff1, double *runoff2, double *runoff3, double *edir,
+    double *ec, double *et, double *ett, int *nroot, double *snomlt,
+    double *rtdis, double *quartz, double *fxexp, double *csoil, double *beta,
+    double *drip, double *dew, double *flx1, double *flx2, double *flx3,
+    double *esnow, double *etns, double *emissi, double *ribb, double *soldn,
+    int *isurban, int *vegtyp);
 #endif
 
-void            TBnd (double *tu, double *tb, double *zsoil, double *zbot, int k, int *nsoil, double *tbnd1);
+void            SnowPack (double *esd, double *dtsec, double *snowh,
+    double *sndens, double *tsnow, double *tsoil);
+
+void            Snowz0 (double *sncovr, double *z0, double *z0brd,
+    double *snowh);
+
+void            SnowNew (double *temp, double *newsn, double *snowh,
+    double *sndens);
 
 #ifdef _NOAH_
-void            TDfCnd (double *df, double *smc, double *qz, double *smcmax, double *smcmin, double *sh2o);
+void            SRT (double *rhstt, double *edir, double *et, double *sh2o,
+    double *sh2oa, int *nsoil, int *nwtbl, double *pcpdrp, double *zsoil,
+    double *dksat, double *smcmax, double *smcmin, double *vgalpha,
+    double *vgbeta, double *macksat, double *areaf, int *nmacd,
+    int *mac_status, double *inf, double *runoff2, double *dt, double *smcwlt,
+    double *frzx, double *sice, double *ai, double *bi, double *ci);
 #else
-void            TDfCnd (double *df, double *smc, double *qz, double *smcmax, double *sh2o);
+void            SRT (double *rhstt, double *edir, double *et, double *sh2o,
+    double *sh2oa, int *nsoil, double *pcpdrp, double *zsoil, double *dwsat,
+    double *dksat, double *smcmax, double *bexp, double *runoff1,
+    double *runoff2, double *dt, double *smcwlt, double *slope, double *kdt,
+    double *frzx, double *sice, double *ai, double *bi, double *ci);
 #endif
 
-void            TmpAvg (double *tavg, double *tup, double *tm, double *tdn, double *zsoil, int *nsoil, int k);
-
-void            Transp (double *et, int *nsoil, double *etp1, double *smc, double *cmc, double *zsoil, double *shdfac, double *smcwlt, double *cmcmax, double *pc, double *cfactr, double *smcref, double *sfctmp, double *q2, int *nroot, double *rtdis);
-
 #ifdef _NOAH_
-void            WDfCnd (double *wdf, double *wcnd, double *smc, double *smcmax, double *smcmin, double *vgalpha, double *vgbeta, double *dksat, double *macksat, double *areaf, int *mac_status, double *sicemax, double *dsmdz, int *macpore);
+void            SStep (double *sh2oout, double *sh2oin, double *cmc,
+    double *rhstt, double *rhsct, double *dt, int *nsoil, double *smcmax,
+    double *smcmin, double *cmcmax, double *runoff3, double *zsoil,
+    double *smc, double *sice, double *ai, double *bi, double *ci);
 #else
-void            WDfCnd (double *wdf, double *wcnd, double *smc, double *smcmax, double *bexp, double *dksat, double *dwsat, double *sicemax);
+void            SStep (double *sh2oout, double *sh2oin, double *cmc,
+    double *rhstt, double *rhsct, double *dt, int *nsoil, double *smcmax,
+    double *cmcmax, double *runoff3, double *zsoil, double *smc, double *sice,
+    double *ai, double *bi, double *ci);
 #endif
 
-void            SfcDifOff (double *zlm, double *zlm_wind, double *z0, double *thz0, double *thlm, double *sfcspd, double *czil, double *akms, double *akhs, int *vegtyp, int *isurban, int *iz0tlnd);
+void            TBnd (double *tu, double *tb, double *zsoil, double *zbot,
+    int k, int *nsoil, double *tbnd1);
 
 #ifdef _NOAH_
-double          EFFKV (double ksatfunc, double elemsatn, int status, double mackv, double kv, double areaf);
+void            TDfCnd (double *df, double *smc, double *qz, double *smcmax,
+    double *smcmin, double *sh2o);
+#else
+void            TDfCnd (double *df, double *smc, double *qz, double *smcmax,
+    double *sh2o);
+#endif
+
+void            TmpAvg (double *tavg, double *tup, double *tm, double *tdn,
+    double *zsoil, int *nsoil, int k);
+
+void            Transp (double *et, int *nsoil, double *etp1, double *smc,
+    double *cmc, double *zsoil, double *shdfac, double *smcwlt,
+    double *cmcmax, double *pc, double *cfactr, double *smcref,
+    double *sfctmp, double *q2, int *nroot, double *rtdis);
+
+#ifdef _NOAH_
+void            WDfCnd (double *wdf, double *wcnd, double *smc,
+    double *smcmax, double *smcmin, double *vgalpha, double *vgbeta,
+    double *dksat, double *macksat, double *areaf, int *mac_status,
+    double *sicemax, double *dsmdz, int *macpore);
+#else
+void            WDfCnd (double *wdf, double *wcnd, double *smc,
+    double *smcmax, double *bexp, double *dksat, double *dwsat,
+    double *sicemax);
+#endif
+
+void            SfcDifOff (double *zlm, double *zlm_wind, double *z0,
+    double *thz0, double *thlm, double *sfcspd, double *czil, double *akms,
+    double *akhs, int *vegtyp, int *isurban, int *iz0tlnd);
+
+#ifdef _NOAH_
+double          EFFKV (double ksatfunc, double elemsatn, int status,
+    double mackv, double kv, double areaf);
 #endif
 
 double          Pslmu (double zz);
@@ -461,22 +617,32 @@ double          Pspms (double yy);
 double          Psphu (double xx);
 double          Psphs (double yy);
 
-void LsmRead (char *project, lsm_struct noah, pihm_struct pihm);
-void LsmInitialize (char *simulation, pihm_struct pihm, lsm_struct noah);
-void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdir);
+void            LsmRead (char *project, lsm_struct noah, pihm_struct pihm);
+void            LsmInitialize (char *simulation, pihm_struct pihm,
+    lsm_struct noah);
+void            MapLsmOutput (char *simulation, lsm_struct noah, int numele,
+    char *outputdir);
 
-void PIHMxNoah (int t, double stepsize, pihm_struct pihm, lsm_struct noah);
+void            PIHMxNoah (int t, double stepsize, pihm_struct pihm,
+    lsm_struct noah);
 
-void AvgFlux (lsm_struct noah, pihm_struct pihm);
+void            AvgFlux (lsm_struct noah, pihm_struct pihm);
 
-void DefSldpth (double *sldpth, int *nsoil, double total_depth, double *std_sldpth, int std_nsoil);
-void CalcSlopeAspect (grid_struct *grid, elem_struct elem, pihm_struct pihm);
-void LsmSaturationIC (lsm_ic_struct *ic, const grid_struct *grid, const elem_struct *elem, int numele);
-void ReadLsmInit (char *project, char *simulation, lsm_ic_struct *ic, int numele);
-void InitLsmVrbl (grid_struct *grid, elem_struct *elem, int numele, lsm_ic_struct ic);
-int FindLayer (const double *sldpth, int nsoil, double depth);
+void            DefSldpth (double *sldpth, int *nsoil, double total_depth,
+    double *std_sldpth, int std_nsoil);
+void            CalcSlopeAspect (grid_struct * grid, elem_struct elem,
+    pihm_struct pihm);
+void            LsmSaturationIC (lsm_ic_struct *ic, const grid_struct * grid,
+    const elem_struct *elem, int numele);
+void            ReadLsmInit (char *project, char *simulation,
+    lsm_ic_struct *ic, int numele);
+void            InitLsmVrbl (grid_struct * grid, elem_struct *elem,
+    int numele, lsm_ic_struct ic);
+int             FindLayer (const double *sldpth, int nsoil, double depth);
 double          mod (double, double);
 
-double TopoRadiation (double sdir, double sdif, double zenith, double azimuth180, double slope, double aspect, double *h_phi, double svf);
-void ApplyRadnForcing (radn_ts_struct *forcing, int t);
+double          TopoRadiation (double sdir, double sdif, double zenith,
+    double azimuth180, double slope, double aspect, double *h_phi,
+    double svf);
+void            ApplyRadnForcing (radn_ts_struct *forcing, int t);
 #endif

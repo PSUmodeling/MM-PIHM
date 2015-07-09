@@ -3,6 +3,7 @@
 
 void SFlx (grid_struct * grid)
 {
+
 /*----------------------------------------------------------------------
 * subroutine sflx - unified noahlsm version 1.0 july 2007
 * ----------------------------------------------------------------------
@@ -24,12 +25,12 @@ void SFlx (grid_struct * grid)
     int             usemonalb;
 
     double         *shdmin, *shdmax, *dt, *dqsdt2, *lwdn, *prcp, *prcprain,
-       *q2, *q2sat, *sfcprs, *sfcspd, *sfctmp, *snoalb, *soldn, *solnet,
-       *tbot, *th2, *zlvl, *ffrozp;
+        *q2, *q2sat, *sfcprs, *sfcspd, *sfctmp, *snoalb, *soldn, *solnet,
+        *tbot, *th2, *zlvl, *ffrozp;
     double         *embrd;
     double         *albedo;
     double         *cosz, *solardirect, *ch, *cm, *cmc, *sneqv, *sncovr,
-       *snowh, *t1, *xlai, *shdfac, *z0brd, *emissi, *alb;
+        *snowh, *t1, *xlai, *shdfac, *z0brd, *emissi, *alb;
     double         *snotime1;
     double         *ribb;
     double         *sldpth;
@@ -39,8 +40,14 @@ void SFlx (grid_struct * grid)
     double         *rtdis;
     double          zsoil[grid->nsoil];
 
-    double         *eta_kinematic, *beta, *dew, *drip, *ec, *edir, *esnow, *eta, *etp, *flx1, *flx2, *flx3, *sheat, *pc, *runoff2, *runoff3, *rc, *rsmin, *rcq, *rcs, *rcsoil, *rct, *ssoil, *smcdry, *smcmax, *smcref, *smcwlt, *snomlt, *soilm, *soilw, *fdown, *q1;
-    double         *cfactr, *cmcmax, *csoil, *czil, *df1, *dksat, *ett, *epsca, *f1, *fxexp, *frzx, *hs, *quartz, *rch, *rr, *rgl, *rsmax, *sndens, *sncond, *sbeta, *sn_new, *snup, *salp, *t24, *t2v, *topt, *zbot, *z0, *prcpf, *etns, *ptu;
+    double         *eta_kinematic, *beta, *dew, *drip, *ec, *edir, *esnow,
+        *eta, *etp, *flx1, *flx2, *flx3, *sheat, *pc, *runoff2, *runoff3, *rc,
+        *rsmin, *rcq, *rcs, *rcsoil, *rct, *ssoil, *smcdry, *smcmax, *smcref,
+        *smcwlt, *snomlt, *soilm, *soilw, *fdown, *q1;
+    double         *cfactr, *cmcmax, *csoil, *czil, *df1, *dksat, *ett,
+        *epsca, *f1, *fxexp, *frzx, *hs, *quartz, *rch, *rr, *rgl, *rsmax,
+        *sndens, *sncond, *sbeta, *sn_new, *snup, *salp, *t24, *t2v, *topt,
+        *zbot, *z0, *prcpf, *etns, *ptu;
     double          df1h, df1a, dsoil, dtot, frcsno, frcsoi, soilwm, soilww;
     double         *lvcoef;
     double          interp_fraction;
@@ -298,9 +305,15 @@ void SFlx (grid_struct * grid)
             /*
              * scale emissivity and lai between emissmin and emissmax by interp_fraction 
              */
-            *embrd = ((1.0 - interp_fraction) * *emissmin) + (interp_fraction * *emissmax);
-            *alb = ((1.0 - interp_fraction) * *albedomax) + (interp_fraction * *albedomin);
-            *z0brd = ((1.0 - interp_fraction) * *z0min) + (interp_fraction * *z0max);
+            *embrd =
+                ((1.0 - interp_fraction) * *emissmin) +
+                (interp_fraction * *emissmax);
+            *alb =
+                ((1.0 - interp_fraction) * *albedomax) +
+                (interp_fraction * *albedomin);
+            *z0brd =
+                ((1.0 - interp_fraction) * *z0min) +
+                (interp_fraction * *z0max);
         }
         else
         {
@@ -311,7 +324,7 @@ void SFlx (grid_struct * grid)
     }
 
 //    *shdfac = 1. - exp (-0.52 * (*xlai));
-      *shdfac = 1. - exp (-0.75 * (*xlai));
+    *shdfac = 1. - exp (-0.75 * (*xlai));
 #else
     if (*shdfac >= *shdmax)
     {
@@ -345,19 +358,19 @@ void SFlx (grid_struct * grid)
              * scale emissivity and lai between emissmin and emissmax by interp_fraction 
              */
             *embrd =
-               ((1.0 - interp_fraction) * *emissmin) +
-               (interp_fraction * *emissmax);
+                ((1.0 - interp_fraction) * *emissmin) +
+                (interp_fraction * *emissmax);
             if (!rdlai2d)
                 *xlai =
-                   ((1.0 - interp_fraction) * *laimin) +
-                   (interp_fraction * *laimax);
+                    ((1.0 - interp_fraction) * *laimin) +
+                    (interp_fraction * *laimax);
             if (!usemonalb)
                 *alb =
-                   ((1.0 - interp_fraction) * *albedomax) +
-                   (interp_fraction * *albedomin);
+                    ((1.0 - interp_fraction) * *albedomax) +
+                    (interp_fraction * *albedomin);
             *z0brd =
-               ((1.0 - interp_fraction) * *z0min) +
-               (interp_fraction * *z0max);
+                ((1.0 - interp_fraction) * *z0min) +
+                (interp_fraction * *z0max);
         }
         else
         {
@@ -503,7 +516,7 @@ void SFlx (grid_struct * grid)
         *sncovr = *sncovr < 0.98 ? *sncovr : 0.98;
 
         AlCalc (alb, snoalb, embrd, shdfac, shdmin, sncovr, t1, albedo,
-           emissi, dt, snowng, snotime1, lvcoef);
+            emissi, dt, snowng, snotime1, lvcoef);
     }
 
 /*----------------------------------------------------------------------
@@ -672,7 +685,9 @@ void SFlx (grid_struct * grid)
     //    //      printf("\n");
     //}
 
-    Penman (sfctmp, sfcprs, ch, t2v, th2, prcp, fdown, t24, ssoil, q2, q2sat, etp, rch, epsca, rr, snowng, frzgra, dqsdt2, flx2, emissi, sneqv, t1, sncovr);
+    Penman (sfctmp, sfcprs, ch, t2v, th2, prcp, fdown, t24, ssoil, q2, q2sat,
+        etp, rch, epsca, rr, snowng, frzgra, dqsdt2, flx2, emissi, sneqv, t1,
+        sncovr);
 
 /*----------------------------------------------------------------------
 * call CanRes to calculate the canopy resistance and convert it into pc
@@ -685,8 +700,8 @@ void SFlx (grid_struct * grid)
 * --------------------------------------------------------------------*/
     if (*shdfac > 0.)
         CanRes (soldn, ch, sfctmp, q2, sfcprs, sh2o, zsoil, nsoil, smcwlt,
-           smcref, rsmin, rc, pc, nroot, q2sat, dqsdt2, topt, rsmax, rgl, hs,
-           xlai, rcs, rct, rcq, rcsoil, emissi);
+            smcref, rsmin, rc, pc, nroot, q2sat, dqsdt2, topt, rsmax, rgl, hs,
+            xlai, rcs, rct, rcq, rcsoil, emissi);
     else
         *rc = 0.0;
 
@@ -699,19 +714,20 @@ void SFlx (grid_struct * grid)
     {
 #ifdef _NOAH_
         NoPac (etp, eta, prcp, pcpdrp, smc, smcmax, smcmin, smcwlt, smcref,
-           smcdry, cmc, cmcmax, nsoil, dt, shdfac, sbeta, q2, t1, sfctmp, t24,
-           th2, fdown, f1, emissi, ssoil, stc, epsca, vgalpha, vgbeta,
-           macksat, areaf, nmacd, mac_status, nwtbl, pc, rch, rr, cfactr, sh2o, frzx,
-           zsoil, dksat, tbot, zbot, infil, runoff2, runoff3, edir, ec, et, ett,
-           nroot, rtdis, quartz, fxexp, csoil, beta, drip, dew, flx1, flx3,
-           vegtyp, isurban);
+            smcdry, cmc, cmcmax, nsoil, dt, shdfac, sbeta, q2, t1, sfctmp,
+            t24, th2, fdown, f1, emissi, ssoil, stc, epsca, vgalpha, vgbeta,
+            macksat, areaf, nmacd, mac_status, nwtbl, pc, rch, rr, cfactr,
+            sh2o, frzx, zsoil, dksat, tbot, zbot, infil, runoff2, runoff3,
+            edir, ec, et, ett, nroot, rtdis, quartz, fxexp, csoil, beta, drip,
+            dew, flx1, flx3, vegtyp, isurban);
 #else
         NoPac (etp, eta, prcp, smc, smcmax, smcwlt, smcref, smcdry, cmc,
-           cmcmax, nsoil, dt, shdfac, sbeta, q2, t1, sfctmp, t24, th2, fdown,
-           f1, emissi, ssoil, stc, epsca, bexp, pc, rch, rr, cfactr, sh2o,
-           slope, kdt, frzx, psisat, zsoil, dksat, dwsat, tbot, zbot, runoff1,
-           runoff2, runoff3, edir, ec, et, ett, nroot, rtdis, quartz, fxexp,
-           csoil, beta, drip, dew, flx1, flx3, vegtyp, isurban);
+            cmcmax, nsoil, dt, shdfac, sbeta, q2, t1, sfctmp, t24, th2, fdown,
+            f1, emissi, ssoil, stc, epsca, bexp, pc, rch, rr, cfactr, sh2o,
+            slope, kdt, frzx, psisat, zsoil, dksat, dwsat, tbot, zbot,
+            runoff1, runoff2, runoff3, edir, ec, et, ett, nroot, rtdis,
+            quartz, fxexp, csoil, beta, drip, dew, flx1, flx3, vegtyp,
+            isurban);
 #endif
         *eta_kinematic = *eta;
     }
@@ -719,22 +735,23 @@ void SFlx (grid_struct * grid)
     {
 #ifdef _NOAH_
         SnoPac (etp, eta, prcp, prcpf, pcpdrp, snowng, smc, smcmax, smcmin,
-           smcwlt, smcref, smcdry, cmc, cmcmax, nsoil, dt, sbeta, df1, q2, t1,
-           sfctmp, t24, th2, fdown, f1, ssoil, stc, epsca, sfcprs, vgalpha,
-           vgbeta, macksat, areaf, nmacd, mac_status, nwtbl, pc, rch, rr, cfactr, sncovr,
-           sneqv, sndens, snowh, sh2o, frzx, zsoil, dksat, tbot, zbot, shdfac,
-           infil, runoff2, runoff3, edir, ec, et, ett, nroot, snomlt, rtdis,
-           quartz, fxexp, csoil, beta, drip, dew, flx1, flx2, flx3, esnow,
-           etns, emissi, ribb, soldn, isurban, vegtyp);
+            smcwlt, smcref, smcdry, cmc, cmcmax, nsoil, dt, sbeta, df1, q2,
+            t1, sfctmp, t24, th2, fdown, f1, ssoil, stc, epsca, sfcprs,
+            vgalpha, vgbeta, macksat, areaf, nmacd, mac_status, nwtbl, pc,
+            rch, rr, cfactr, sncovr, sneqv, sndens, snowh, sh2o, frzx, zsoil,
+            dksat, tbot, zbot, shdfac, infil, runoff2, runoff3, edir, ec, et,
+            ett, nroot, snomlt, rtdis, quartz, fxexp, csoil, beta, drip, dew,
+            flx1, flx2, flx3, esnow, etns, emissi, ribb, soldn, isurban,
+            vegtyp);
 #else
         SnoPac (etp, eta, prcp, prcpf, snowng, smc, smcmax, smcwlt, smcref,
-           smcdry, cmc, cmcmax, nsoil, dt, sbeta, df1, q2, t1, sfctmp, t24,
-           th2, fdown, f1, ssoil, stc, epsca, sfcprs, bexp, pc, rch, rr,
-           cfactr, sncovr, sneqv, sndens, snowh, sh2o, slope, kdt, frzx,
-           psisat, zsoil, dwsat, dksat, tbot, zbot, shdfac, runoff1, runoff2,
-           runoff3, edir, ec, et, ett, nroot, snomlt, rtdis, quartz, fxexp,
-           csoil, beta, drip, dew, flx1, flx2, flx3, esnow, etns, emissi,
-           ribb, soldn, isurban, vegtyp);
+            smcdry, cmc, cmcmax, nsoil, dt, sbeta, df1, q2, t1, sfctmp, t24,
+            th2, fdown, f1, ssoil, stc, epsca, sfcprs, bexp, pc, rch, rr,
+            cfactr, sncovr, sneqv, sndens, snowh, sh2o, slope, kdt, frzx,
+            psisat, zsoil, dwsat, dksat, tbot, zbot, shdfac, runoff1, runoff2,
+            runoff3, edir, ec, et, ett, nroot, snomlt, rtdis, quartz, fxexp,
+            csoil, beta, drip, dew, flx1, flx2, flx3, esnow, etns, emissi,
+            ribb, soldn, isurban, vegtyp);
 #endif
         *eta_kinematic = *esnow + *etns;
     }
@@ -860,8 +877,8 @@ void SFlx (grid_struct * grid)
 
 void
 AlCalc (double *alb, double *snoalb, double *embrd, double *shdfac,
-   double *shdmin, double *sncovr, double *tsnow, double *albedo,
-   double *emissi, double *dt, int *snowng, double *snotime1, double *lvcoef)
+    double *shdmin, double *sncovr, double *tsnow, double *albedo,
+    double *emissi, double *dt, int *snowng, double *snotime1, double *lvcoef)
 {
 
 /*----------------------------------------------------------------------
@@ -989,11 +1006,11 @@ AlCalc (double *alb, double *snoalb, double *embrd, double *shdfac,
 
 void
 CanRes (double *solar, double *ch, double *sfctmp, double *q2, double *sfcprs,
-   double *smc, double *zsoil, int *nsoil, double *smcwlt, double *smcref,
-   double *rsmin, double *rc, double *pc, int *nroot, double *q2sat,
-   double *dqsdt2, double *topt, double *rsmax, double *rgl, double *hs,
-   double *xlai, double *rcs, double *rct, double *rcq, double *rcsoil,
-   double *emissi)
+    double *smc, double *zsoil, int *nsoil, double *smcwlt, double *smcref,
+    double *rsmin, double *rc, double *pc, int *nroot, double *q2sat,
+    double *dqsdt2, double *topt, double *rsmax, double *rgl, double *hs,
+    double *xlai, double *rcs, double *rct, double *rcq, double *rcsoil,
+    double *emissi)
 {
 
 /*----------------------------------------------------------------------
@@ -1118,9 +1135,8 @@ CanRes (double *solar, double *ch, double *sfctmp, double *q2, double *sfcprs,
 
     *rc = *rsmin / (*xlai * *rcs * *rct * *rcq * *rcsoil);
     //  rr = (4.* SIGMA * RD / CP)* (sfctmp **4.)/ (sfcprs * ch) + 1.0;
-    rr =
-       (4. * *emissi * SIGMA * RD / CP) * pow (*sfctmp,
-       4.) / (*sfcprs * *ch) + 1.0;
+    rr = (4. * *emissi * SIGMA * RD / CP) * pow (*sfctmp,
+        4.) / (*sfcprs * *ch) + 1.0;
 
     delta = (slv / CP) * *dqsdt2;
 
@@ -1176,13 +1192,13 @@ void CSnow (double *sncond, double *dsnow)
 #ifdef _NOAH_
 void
 DEvap (double *edir, double *etp1, double *smc, double *zsoil, double *shdfac,
-   double *smcmax, double *dksat, double *smcdry, double *smcref,
-   double *smcwlt, double *fxexp)
+    double *smcmax, double *dksat, double *smcdry, double *smcref,
+    double *smcwlt, double *fxexp)
 #else
 void
 DEvap (double *edir, double *etp1, double *smc, double *zsoil, double *shdfac,
-   double *smcmax, double *bexp, double *dksat, double *dwsat, double *smcdry,
-   double *smcref, double *smcwlt, double *fxexp)
+    double *smcmax, double *bexp, double *dksat, double *dwsat,
+    double *smcdry, double *smcref, double *smcwlt, double *fxexp)
 #endif
 {
 
@@ -1226,19 +1242,19 @@ DEvap (double *edir, double *etp1, double *smc, double *zsoil, double *shdfac,
 #ifdef _NOAH_
 void
 Evapo (double *eta1, double *smc, int *nsoil, double *cmc, double *etp1,
-   double *dt, double *zsoil, double *sh2o, double *smcmax, double *pc,
-   double *smcwlt, double *dksat, double *smcref, double *shdfac,
-   double *cmcmax, double *smcdry, double *cfactr, double *edir, double *ec,
-   double *et, double *ett, double *sfctmp, double *q2, int *nroot,
-   double *rtdis, double *fxexp)
+    double *dt, double *zsoil, double *sh2o, double *smcmax, double *pc,
+    double *smcwlt, double *dksat, double *smcref, double *shdfac,
+    double *cmcmax, double *smcdry, double *cfactr, double *edir, double *ec,
+    double *et, double *ett, double *sfctmp, double *q2, int *nroot,
+    double *rtdis, double *fxexp)
 #else
 void
 Evapo (double *eta1, double *smc, int *nsoil, double *cmc, double *etp1,
-   double *dt, double *zsoil, double *sh2o, double *smcmax, double *bexp,
-   double *pc, double *smcwlt, double *dksat, double *dwsat, double *smcref,
-   double *shdfac, double *cmcmax, double *smcdry, double *cfactr,
-   double *edir, double *ec, double *et, double *ett, double *sfctmp,
-   double *q2, int *nroot, double *rtdis, double *fxexp)
+    double *dt, double *zsoil, double *sh2o, double *smcmax, double *bexp,
+    double *pc, double *smcwlt, double *dksat, double *dwsat, double *smcref,
+    double *shdfac, double *cmcmax, double *smcdry, double *cfactr,
+    double *edir, double *ec, double *et, double *ett, double *sfctmp,
+    double *q2, int *nroot, double *rtdis, double *fxexp)
 #endif
 {
 
@@ -1274,10 +1290,10 @@ Evapo (double *eta1, double *smc, int *nsoil, double *cmc, double *etp1,
         if (*shdfac < 1.)
 #ifdef _NOAH_
             DEvap (edir, etp1, smc, zsoil, shdfac, smcmax, dksat, smcdry,
-               smcref, smcwlt, fxexp);
+                smcref, smcwlt, fxexp);
 #else
             DEvap (edir, etp1, smc, zsoil, shdfac, smcmax, bexp, dksat, dwsat,
-               smcdry, smcref, smcwlt, fxexp);
+                smcdry, smcref, smcwlt, fxexp);
 #endif
 
 /*----------------------------------------------------------------------
@@ -1288,7 +1304,7 @@ Evapo (double *eta1, double *smc, int *nsoil, double *cmc, double *etp1,
         if (*shdfac > 0.0)
         {
             Transp (et, nsoil, etp1, sh2o, cmc, zsoil, shdfac, smcwlt, cmcmax,
-               pc, cfactr, smcref, sfctmp, q2, nroot, rtdis);
+                pc, cfactr, smcref, sfctmp, q2, nroot, rtdis);
             for (k = 0; k < *nsoil; k++)
                 *ett = *ett + et[k];
 
@@ -1298,8 +1314,8 @@ Evapo (double *eta1, double *smc, int *nsoil, double *cmc, double *etp1,
 * --------------------------------------------------------------------*/
             if (*cmc > 0.0)
                 *ec =
-                   *shdfac * pow ((*cmc / *cmcmax > 1. ? 1. : *cmc / *cmcmax),
-                   *cfactr) * *etp1;
+                    *shdfac * pow ((*cmc / *cmcmax >
+                        1. ? 1. : *cmc / *cmcmax), *cfactr) * *etp1;
             else
                 *ec = 0.0;
 
@@ -1344,12 +1360,12 @@ void Fac2Mit (double *smcmax, double *flimit)
 
 #ifdef _NOAH_
 void
-FrH2O (double *freew, double *tkelv, double *smc, double *sh2o, double *smcmax,
-   double *smcmin, double *vgalpha, double *vgbeta)
+FrH2O (double *freew, double *tkelv, double *smc, double *sh2o,
+    double *smcmax, double *smcmin, double *vgalpha, double *vgbeta)
 #else
 void
-FrH2O (double *freew, double *tkelv, double *smc, double *sh2o, double *smcmax,
-   double *bexp, double *psis)
+FrH2O (double *freew, double *tkelv, double *smc, double *sh2o,
+    double *smcmax, double *bexp, double *psis)
 #endif
 {
 
@@ -1384,7 +1400,8 @@ FrH2O (double *freew, double *tkelv, double *smc, double *sh2o, double *smcmax,
     double          denom, df, dswl, fk, swl, swlk;
     int             nlog, kcount;
     //      parameter(ck = 0.0)
-    double          ck = 8.0, error = 0.005, hlice = 3.335e5, gs = 9.81, t0 = 273.15;
+    double          ck = 8.0, error = 0.005, hlice = 3.335e5, gs = 9.81, t0 =
+        273.15;
 
 #ifdef _NOAH_
     double          mx;
@@ -1447,21 +1464,19 @@ FrH2O (double *freew, double *tkelv, double *smc, double *sh2o, double *smcmax,
                 goto c1002;
             nlog = nlog + 1;
 #ifdef _NOAH_
-            df =
-               log ((gs / *vgalpha / hlice) * pow (1. + ck * swl,
-                  2.) * pow (pow ((*smc - swl - *smcmin) / (*smcmax -
-                        *smcmin), mx) - 1.,
-                  1. / *vgbeta)) - log (-(*tkelv - t0) / *tkelv);
+            df = log ((gs / *vgalpha / hlice) * pow (1. + ck * swl,
+                    2.) * pow (pow ((*smc - swl - *smcmin) / (*smcmax -
+                            *smcmin), mx) - 1.,
+                    1. / *vgbeta)) - log (-(*tkelv - t0) / *tkelv);
             denom =
-               2. * ck / (1. + ck * swl) - 1. / (1 - *vgbeta) / (*smcmax -
-               *smcmin) * pow ((*smc - swl - *smcmin) / (*smcmax - *smcmin),
-               mx - 1.) / (pow ((*smc - swl - *smcmin) / (*smcmax - *smcmin),
-                  mx) - 1.);
+                2. * ck / (1. + ck * swl) - 1. / (1 - *vgbeta) / (*smcmax -
+                *smcmin) * pow ((*smc - swl - *smcmin) / (*smcmax - *smcmin),
+                mx - 1.) / (pow ((*smc - swl - *smcmin) / (*smcmax - *smcmin),
+                    mx) - 1.);
 #else
-            df =
-               log ((*psis * gs / hlice) * pow (1. + ck * swl,
-                  2.) * pow (*smcmax / (*smc - swl),
-                  bx)) - log (-(*tkelv - t0) / *tkelv);
+            df = log ((*psis * gs / hlice) * pow (1. + ck * swl,
+                    2.) * pow (*smcmax / (*smc - swl),
+                    bx)) - log (-(*tkelv - t0) / *tkelv);
             denom = 2. * ck / (1. + ck * swl) + bx / (*smc - swl);
 #endif
             swlk = swl - df / denom;
@@ -1517,13 +1532,11 @@ FrH2O (double *freew, double *tkelv, double *smc, double *sh2o, double *smcmax,
             //          printf ("flerchinger used in new version. iterations= %d\n",
             //             nlog);
 #ifdef _NOAH_
-            fk =
-               pow (pow (-(*tkelv - t0) / *tkelv * *vgalpha * hlice / gs,
-                  *vgbeta) + 1., 1. / mx) * (*smcmax - *smcmin);
+            fk = pow (pow (-(*tkelv - t0) / *tkelv * *vgalpha * hlice / gs,
+                    *vgbeta) + 1., 1. / mx) * (*smcmax - *smcmin);
 #else
-            fk =
-               pow ((hlice / (gs * (-*psis))) * ((*tkelv - t0) / *tkelv),
-               -1 / bx) * *smcmax;
+            fk = pow ((hlice / (gs * (-*psis))) * ((*tkelv - t0) / *tkelv),
+                -1 / bx) * *smcmax;
 #endif
             //          frh2o = min (fk, smc)
             if (fk < 0.02)
@@ -1544,17 +1557,17 @@ FrH2O (double *freew, double *tkelv, double *smc, double *sh2o, double *smcmax,
 #ifdef _NOAH_
 void
 HRT (double *rhsts, double *stc, double *smc, double *smcmax, double *smcmin,
-   int *nsoil, double *zsoil, double *yy, double *zz1, double *tbot,
-   double *zbot, double *sh2o, double *dt, double *vgalpha, double *vgbeta,
-   double *f1, double *df1, double *quartz, double *csoil, double *ai,
-   double *bi, double *ci, int *vegtyp, int *isurban)
+    int *nsoil, double *zsoil, double *yy, double *zz1, double *tbot,
+    double *zbot, double *sh2o, double *dt, double *vgalpha, double *vgbeta,
+    double *f1, double *df1, double *quartz, double *csoil, double *ai,
+    double *bi, double *ci, int *vegtyp, int *isurban)
 #else
 void
 HRT (double *rhsts, double *stc, double *smc, double *smcmax, int *nsoil,
-   double *zsoil, double *yy, double *zz1, double *tbot, double *zbot,
-   double *psisat, double *sh2o, double *dt, double *bexp, double *f1,
-   double *df1, double *quartz, double *csoil, double *ai, double *bi,
-   double *ci, int *vegtyp, int *isurban)
+    double *zsoil, double *yy, double *zz1, double *tbot, double *zbot,
+    double *psisat, double *sh2o, double *dt, double *bexp, double *f1,
+    double *df1, double *quartz, double *csoil, double *ai, double *bi,
+    double *ci, int *vegtyp, int *isurban)
 #endif
 {
 
@@ -1569,7 +1582,7 @@ HRT (double *rhsts, double *stc, double *smc, double *smcmax, int *nsoil,
     int             k;
 
     double          ddz, ddz2, denom, df1k, dtsdz, dtsdz2, hcpct, ssoil, sice,
-       csoil_loc;
+        csoil_loc;
     double         *df1n, *qtot, *tavg, *tbk, *tbk1, *tsnsr, *tsurf;
     double          t0 = 273.15, cair = 1004.0, cice = 2.106e6, ch2o = 4.2e6;
 
@@ -1600,8 +1613,8 @@ HRT (double *rhsts, double *stc, double *smc, double *smcmax, int *nsoil,
 * calc the heat capacity of the top soil layer
 * --------------------------------------------------------------------*/
     hcpct =
-       sh2o[0] * ch2o + (1.0 - *smcmax) * csoil_loc + (*smcmax -
-       smc[0]) * cair + (smc[0] - sh2o[0]) * cice;
+        sh2o[0] * ch2o + (1.0 - *smcmax) * csoil_loc + (*smcmax -
+        smc[0]) * cair + (smc[0] - sh2o[0]) * cice;
 
 /*----------------------------------------------------------------------
 * calc the matrix coefficients ai, bi, and ci for the top layer
@@ -1663,10 +1676,10 @@ HRT (double *rhsts, double *stc, double *smc, double *smcmax, int *nsoil,
             TmpAvg (tavg, tsurf, stc, tbk, zsoil, nsoil, 0);
 #ifdef _NOAH_
             SnkSrc (tsnsr, tavg, smc, sh2o, zsoil, nsoil, smcmax, smcmin,
-               vgalpha, vgbeta, dt, 0, qtot);
+                vgalpha, vgbeta, dt, 0, qtot);
 #else
             SnkSrc (tsnsr, tavg, smc, sh2o, zsoil, nsoil, smcmax, psisat,
-               bexp, dt, 0, qtot);
+                bexp, dt, 0, qtot);
 #endif
             //          rhsts(1) = rhsts(1) - *tsnsr / ( zsoil(1) * hcpct )
             rhsts[0] = rhsts[0] - *tsnsr / denom;
@@ -1679,10 +1692,10 @@ HRT (double *rhsts, double *stc, double *smc, double *smcmax, int *nsoil,
         {
 #ifdef _NOAH_
             SnkSrc (tsnsr, stc, smc, sh2o, zsoil, nsoil, smcmax, smcmin,
-               vgalpha, vgbeta, dt, 0, qtot);
+                vgalpha, vgbeta, dt, 0, qtot);
 #else
             SnkSrc (tsnsr, stc, smc, sh2o, zsoil, nsoil, smcmax, psisat, bexp,
-               dt, 0, qtot);
+                dt, 0, qtot);
 #endif
             //          rhsts(1) = rhsts(1) - *tsnsr / ( zsoil(1) * hcpct )
             rhsts[0] = rhsts[0] - *tsnsr / denom;
@@ -1711,8 +1724,8 @@ HRT (double *rhsts, double *stc, double *smc, double *smcmax, int *nsoil,
     for (k = 1; k < *nsoil; k++)
     {
         hcpct =
-           sh2o[k] * ch2o + (1.0 - *smcmax) * csoil_loc + (*smcmax -
-           smc[k]) * cair + (smc[k] - sh2o[k]) * cice;
+            sh2o[k] * ch2o + (1.0 - *smcmax) * csoil_loc + (*smcmax -
+            smc[k]) * cair + (smc[k] - sh2o[k]) * cice;
 
 /*----------------------------------------------------------------------
 * this section for layer 2 or greater, but not last layer.
@@ -1813,10 +1826,10 @@ HRT (double *rhsts, double *stc, double *smc, double *smcmax, int *nsoil,
             {
 #ifdef _NOAH_
                 SnkSrc (tsnsr, tavg, smc + k, sh2o + k, zsoil, nsoil, smcmax,
-                   smcmin, vgalpha, vgbeta, dt, k, qtot);
+                    smcmin, vgalpha, vgbeta, dt, k, qtot);
 #else
                 SnkSrc (tsnsr, tavg, smc + k, sh2o + k, zsoil, nsoil, smcmax,
-                   psisat, bexp, dt, k, qtot);
+                    psisat, bexp, dt, k, qtot);
 #endif
                 rhsts[k] = rhsts[k] - *tsnsr / denom;
             }
@@ -1828,10 +1841,10 @@ HRT (double *rhsts, double *stc, double *smc, double *smcmax, int *nsoil,
             {
 #ifdef _NOAH_
                 SnkSrc (tsnsr, stc + k, smc + k, sh2o + k, zsoil, nsoil,
-                   smcmax, smcmin, vgalpha, vgbeta, dt, k, qtot);
+                    smcmax, smcmin, vgalpha, vgbeta, dt, k, qtot);
 #else
                 SnkSrc (tsnsr, stc + k, smc + k, sh2o + k, zsoil, nsoil,
-                   smcmax, psisat, bexp, dt, k, qtot);
+                    smcmax, psisat, bexp, dt, k, qtot);
 #endif
                 rhsts[k] = rhsts[k] - *tsnsr / denom;
             }
@@ -1868,7 +1881,7 @@ HRT (double *rhsts, double *stc, double *smc, double *smcmax, int *nsoil,
 
 void
 HStep (double *stcout, double *stcin, double *rhsts, double *dt, int *nsoil,
-   double *ai, double *bi, double *ci)
+    double *ai, double *bi, double *ci)
 {
 
 /*----------------------------------------------------------------------
@@ -1919,33 +1932,34 @@ HStep (double *stcout, double *stcin, double *rhsts, double *dt, int *nsoil,
 #ifdef _NOAH_
 void
 NoPac (double *etp, double *eta, double *prcp, double *pcpdrp, double *smc,
-   double *smcmax, double *smcmin, double *smcwlt, double *smcref,
-   double *smcdry, double *cmc, double *cmcmax, int *nsoil, double *dt,
-   double *shdfac, double *sbeta, double *q2, double *t1, double *sfctmp,
-   double *t24, double *th2, double *fdown, double *f1, double *emissi,
-   double *ssoil, double *stc, double *epsca, double *vgalpha, double *vgbeta,
-   double *macksat, double *areaf, int *nmacd, int *mac_status, int *nwtbl, double *pc,
-   double *rch, double *rr, double *cfactr, double *sh2o, double *frzfact,
-   double *zsoil, double *dksat, double *tbot, double *zbot, double *infil,
-   double *runoff2, double *runoff3, double *edir, double *ec, double *et,
-   double *ett, int *nroot, double *rtdis, double *quartz, double *fxexp,
-   double *csoil, double *beta, double *drip, double *dew, double *flx1,
-   double *flx3, int *vegtyp, int *isurban)
+    double *smcmax, double *smcmin, double *smcwlt, double *smcref,
+    double *smcdry, double *cmc, double *cmcmax, int *nsoil, double *dt,
+    double *shdfac, double *sbeta, double *q2, double *t1, double *sfctmp,
+    double *t24, double *th2, double *fdown, double *f1, double *emissi,
+    double *ssoil, double *stc, double *epsca, double *vgalpha,
+    double *vgbeta, double *macksat, double *areaf, int *nmacd,
+    int *mac_status, int *nwtbl, double *pc, double *rch, double *rr,
+    double *cfactr, double *sh2o, double *frzfact, double *zsoil,
+    double *dksat, double *tbot, double *zbot, double *infil, double *runoff2,
+    double *runoff3, double *edir, double *ec, double *et, double *ett,
+    int *nroot, double *rtdis, double *quartz, double *fxexp, double *csoil,
+    double *beta, double *drip, double *dew, double *flx1, double *flx3,
+    int *vegtyp, int *isurban)
 #else
 void
 NoPac (double *etp, double *eta, double *prcp, double *smc, double *smcmax,
-   double *smcwlt, double *smcref, double *smcdry, double *cmc,
-   double *cmcmax, int *nsoil, double *dt, double *shdfac, double *sbeta,
-   double *q2, double *t1, double *sfctmp, double *t24, double *th2,
-   double *fdown, double *f1, double *emissi, double *ssoil, double *stc,
-   double *epsca, double *bexp, double *pc, double *rch, double *rr,
-   double *cfactr, double *sh2o, double *slope, double *kdt, double *frzfact,
-   double *psisat, double *zsoil, double *dksat, double *dwsat, double *tbot,
-   double *zbot, double *runoff1, double *runoff2, double *runoff3,
-   double *edir, double *ec, double *et, double *ett, int *nroot,
-   double *rtdis, double *quartz, double *fxexp, double *csoil, double *beta,
-   double *drip, double *dew, double *flx1, double *flx3, int *vegtyp,
-   int *isurban)
+    double *smcwlt, double *smcref, double *smcdry, double *cmc,
+    double *cmcmax, int *nsoil, double *dt, double *shdfac, double *sbeta,
+    double *q2, double *t1, double *sfctmp, double *t24, double *th2,
+    double *fdown, double *f1, double *emissi, double *ssoil, double *stc,
+    double *epsca, double *bexp, double *pc, double *rch, double *rr,
+    double *cfactr, double *sh2o, double *slope, double *kdt, double *frzfact,
+    double *psisat, double *zsoil, double *dksat, double *dwsat, double *tbot,
+    double *zbot, double *runoff1, double *runoff2, double *runoff3,
+    double *edir, double *ec, double *et, double *ett, int *nroot,
+    double *rtdis, double *quartz, double *fxexp, double *csoil, double *beta,
+    double *drip, double *dew, double *flx1, double *flx3, int *vegtyp,
+    int *isurban)
 #endif
 {
 
@@ -2000,19 +2014,19 @@ NoPac (double *etp, double *eta, double *prcp, double *smc, double *smcmax,
     {
 #ifdef _NOAH_
         Evapo (eta1, smc, nsoil, cmc, etp1, dt, zsoil, sh2o, smcmax, pc,
-           smcwlt, dksat, smcref, shdfac, cmcmax, smcdry, cfactr, edir1, ec1,
-           et1, ett1, sfctmp, q2, nroot, rtdis, fxexp);
+            smcwlt, dksat, smcref, shdfac, cmcmax, smcdry, cfactr, edir1, ec1,
+            et1, ett1, sfctmp, q2, nroot, rtdis, fxexp);
         SmFlx (smc, nsoil, cmc, dt, prcp1, pcpdrp, zsoil, sh2o, frzfact,
-           smcmax, smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, mac_status, nwtbl,
-           smcwlt, dksat, shdfac, cmcmax, infil, runoff2, runoff3, edir1, ec1,
-           et1, drip);
+            smcmax, smcmin, vgalpha, vgbeta, macksat, areaf, nmacd,
+            mac_status, nwtbl, smcwlt, dksat, shdfac, cmcmax, infil, runoff2,
+            runoff3, edir1, ec1, et1, drip);
 #else
         Evapo (eta1, smc, nsoil, cmc, etp1, dt, zsoil, sh2o, smcmax, bexp, pc,
-           smcwlt, dksat, dwsat, smcref, shdfac, cmcmax, smcdry, cfactr,
-           edir1, ec1, et1, ett1, sfctmp, q2, nroot, rtdis, fxexp);
+            smcwlt, dksat, dwsat, smcref, shdfac, cmcmax, smcdry, cfactr,
+            edir1, ec1, et1, ett1, sfctmp, q2, nroot, rtdis, fxexp);
         SmFlx (smc, nsoil, cmc, dt, prcp1, zsoil, sh2o, slope, kdt, frzfact,
-           smcmax, bexp, smcwlt, dksat, dwsat, shdfac, cmcmax, runoff1,
-           runoff2, runoff3, edir1, ec1, et1, drip);
+            smcmax, bexp, smcwlt, dksat, dwsat, shdfac, cmcmax, runoff1,
+            runoff2, runoff3, edir1, ec1, et1, drip);
 #endif
 
 /*----------------------------------------------------------------------
@@ -2037,13 +2051,13 @@ NoPac (double *etp, double *eta, double *prcp, double *smc, double *smcmax,
         *prcp1 = *prcp1 + *dew;
 #ifdef _NOAH_
         SmFlx (smc, nsoil, cmc, dt, prcp1, pcpdrp, zsoil, sh2o, frzfact,
-           smcmax, smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, mac_status, nwtbl,
-           smcwlt, dksat, shdfac, cmcmax, infil, runoff2, runoff3, edir1, ec1,
-           et1, drip);
+            smcmax, smcmin, vgalpha, vgbeta, macksat, areaf, nmacd,
+            mac_status, nwtbl, smcwlt, dksat, shdfac, cmcmax, infil, runoff2,
+            runoff3, edir1, ec1, et1, drip);
 #else
         SmFlx (smc, nsoil, cmc, dt, prcp1, zsoil, sh2o, slope, kdt, frzfact,
-           smcmax, bexp, smcwlt, dksat, dwsat, shdfac, cmcmax, runoff1,
-           runoff2, runoff3, edir1, ec1, et1, drip);
+            smcmax, bexp, smcwlt, dksat, dwsat, shdfac, cmcmax, runoff1,
+            runoff2, runoff3, edir1, ec1, et1, drip);
 #endif
 
 /*----------------------------------------------------------------------
@@ -2116,11 +2130,11 @@ NoPac (double *etp, double *eta, double *prcp, double *smc, double *smcmax,
      */
 #ifdef _NOAH_
     ShFlx (ssoil, stc, smc, smcmax, smcmin, nsoil, t1, dt, yy, zz1, zsoil,
-       tbot, zbot, smcwlt, sh2o, vgalpha, vgbeta, f1, df1, quartz, csoil,
-       vegtyp, isurban);
+        tbot, zbot, smcwlt, sh2o, vgalpha, vgbeta, f1, df1, quartz, csoil,
+        vegtyp, isurban);
 #else
     ShFlx (ssoil, stc, smc, smcmax, nsoil, t1, dt, yy, zz1, zsoil, tbot, zbot,
-       smcwlt, psisat, sh2o, bexp, f1, df1, quartz, csoil, vegtyp, isurban);
+        smcwlt, psisat, sh2o, bexp, f1, df1, quartz, csoil, vegtyp, isurban);
 #endif
 
 /*----------------------------------------------------------------------
@@ -2146,7 +2160,11 @@ NoPac (double *etp, double *eta, double *prcp, double *smc, double *smcmax,
 * --------------------------------------------------------------------*/
 }
 
-void Penman (double *sfctmp, double *sfcprs, double *ch, double *t2v, double *th2, double *prcp, double *fdown, double *t24, double *ssoil, double *q2, double *q2sat, double *etp, double *rch, double *epsca, double *rr, int *snowng, int *frzgra, double *dqsdt2, double *flx2, double *emissi_in, double *sneqv, double *t1, double *sncovr)
+void Penman (double *sfctmp, double *sfcprs, double *ch, double *t2v,
+    double *th2, double *prcp, double *fdown, double *t24, double *ssoil,
+    double *q2, double *q2sat, double *etp, double *rch, double *epsca,
+    double *rr, int *snowng, int *frzgra, double *dqsdt2, double *flx2,
+    double *emissi_in, double *sneqv, double *t1, double *sncovr)
 {
 
 /*----------------------------------------------------------------------
@@ -2214,7 +2232,9 @@ void Penman (double *sfctmp, double *sfcprs, double *ch, double *t2v, double *th
     //  etp = epsca * rch / lsubc;
     *etp = *epsca * *rch / lvs;
 #ifdef _DEBUG_
-    printf("rr = %lf, rad = %lf, delta = %lf, ch = %lf, epsca = %f, etp = %lg, dqsdt2 = %lf\n", *rr, rad, delta, *ch, *epsca, *etp, *dqsdt2);
+    printf
+        ("rr = %lf, rad = %lf, delta = %lf, ch = %lf, epsca = %f, etp = %lg, dqsdt2 = %lf\n",
+        *rr, rad, delta, *ch, *epsca, *etp, *dqsdt2);
 #endif
 
 /*----------------------------------------------------------------------
@@ -2442,7 +2462,7 @@ void Penman (double *sfctmp, double *sfcprs, double *ch, double *t2v, double *th
 
 void
 Rosr12 (double *p, double *a, double *b, double *c, double *d, double *delta,
-   int *nsoil)
+    int *nsoil)
 {
 
 /*----------------------------------------------------------------------
@@ -2484,7 +2504,7 @@ Rosr12 (double *p, double *a, double *b, double *c, double *d, double *delta,
     {
         p[k] = -c[k] * (1.0 / (b[k] + a[k] * p[k - 1]));
         delta[k] =
-           (d[k] - a[k] * delta[k - 1]) * (1.0 / (b[k] + a[k] * p[k - 1]));
+            (d[k] - a[k] * delta[k - 1]) * (1.0 / (b[k] + a[k] * p[k - 1]));
     }
 
 /*----------------------------------------------------------------------
@@ -2509,17 +2529,17 @@ Rosr12 (double *p, double *a, double *b, double *c, double *d, double *delta,
 #ifdef _NOAH_
 void
 ShFlx (double *ssoil, double *stc, double *smc, double *smcmax,
-   double *smcmin, int *nsoil, double *t1, double *dt, double *yy,
-   double *zz1, double *zsoil, double *tbot, double *zbot, double *smcwlt,
-   double *sh2o, double *vgalpha, double *vgbeta, double *f1, double *df1,
-   double *quartz, double *csoil, int *vegtyp, int *isurban)
+    double *smcmin, int *nsoil, double *t1, double *dt, double *yy,
+    double *zz1, double *zsoil, double *tbot, double *zbot, double *smcwlt,
+    double *sh2o, double *vgalpha, double *vgbeta, double *f1, double *df1,
+    double *quartz, double *csoil, int *vegtyp, int *isurban)
 #else
 void
 ShFlx (double *ssoil, double *stc, double *smc, double *smcmax, int *nsoil,
-   double *t1, double *dt, double *yy, double *zz1, double *zsoil,
-   double *tbot, double *zbot, double *smcwlt, double *psisat, double *sh2o,
-   double *bexp, double *f1, double *df1, double *quartz, double *csoil,
-   int *vegtyp, int *isurban)
+    double *t1, double *dt, double *yy, double *zz1, double *zsoil,
+    double *tbot, double *zbot, double *smcwlt, double *psisat, double *sh2o,
+    double *bexp, double *f1, double *df1, double *quartz, double *csoil,
+    int *vegtyp, int *isurban)
 #endif
 {
 
@@ -2533,7 +2553,7 @@ ShFlx (double *ssoil, double *stc, double *smc, double *smcmax, int *nsoil,
     int             i;
 
     double          ai[*nsoil], bi[*nsoil], ci[*nsoil], stcf[*nsoil],
-       rhsts[*nsoil];
+        rhsts[*nsoil];
 
 /*----------------------------------------------------------------------
 * HRT routine calcs the right hand side of the soil temp dif eqn
@@ -2545,11 +2565,11 @@ ShFlx (double *ssoil, double *stc, double *smc, double *smcmax, int *nsoil,
 
 #ifdef _NOAH_
     HRT (rhsts, stc, smc, smcmax, smcmin, nsoil, zsoil, yy, zz1, tbot, zbot,
-       sh2o, dt, vgalpha, vgbeta, f1, df1, quartz, csoil, ai, bi, ci, vegtyp,
-       isurban);
+        sh2o, dt, vgalpha, vgbeta, f1, df1, quartz, csoil, ai, bi, ci, vegtyp,
+        isurban);
 #else
     HRT (rhsts, stc, smc, smcmax, nsoil, zsoil, yy, zz1, tbot, zbot, psisat,
-       sh2o, dt, bexp, f1, df1, quartz, csoil, ai, bi, ci, vegtyp, isurban);
+        sh2o, dt, bexp, f1, df1, quartz, csoil, ai, bi, ci, vegtyp, isurban);
 #endif
 
     HStep (stcf, stc, rhsts, dt, nsoil, ai, bi, ci);
@@ -2578,19 +2598,20 @@ ShFlx (double *ssoil, double *stc, double *smc, double *smcmax, int *nsoil,
 #ifdef _NOAH_
 void
 SmFlx (double *smc, int *nsoil, double *cmc, double *dt, double *prcp1,
-   double *pcpdrp, double *zsoil, double *sh2o, double *frzfact,
-   double *smcmax, double *smcmin, double *vgalpha, double *vgbeta,
-   double *macksat, double *areaf, int *nmacd, int *mac_status, int *nwtbl, double *smcwlt,
-   double *dksat, double *shdfac, double *cmcmax, double *infil,
-   double *runoff2, double *runoff3, double *edir, double *ec, double *et,
-   double *drip)
+    double *pcpdrp, double *zsoil, double *sh2o, double *frzfact,
+    double *smcmax, double *smcmin, double *vgalpha, double *vgbeta,
+    double *macksat, double *areaf, int *nmacd, int *mac_status, int *nwtbl,
+    double *smcwlt, double *dksat, double *shdfac, double *cmcmax,
+    double *infil, double *runoff2, double *runoff3, double *edir, double *ec,
+    double *et, double *drip)
 #else
 void
 SmFlx (double *smc, int *nsoil, double *cmc, double *dt, double *prcp1,
-   double *zsoil, double *sh2o, double *slope, double *kdt, double *frzfact,
-   double *smcmax, double *bexp, double *smcwlt, double *dksat, double *dwsat,
-   double *shdfac, double *cmcmax, double *runoff1, double *runoff2,
-   double *runoff3, double *edir, double *ec, double *et, double *drip)
+    double *zsoil, double *sh2o, double *slope, double *kdt, double *frzfact,
+    double *smcmax, double *bexp, double *smcwlt, double *dksat,
+    double *dwsat, double *shdfac, double *cmcmax, double *runoff1,
+    double *runoff2, double *runoff3, double *edir, double *ec, double *et,
+    double *drip)
 #endif
 {
 
@@ -2736,11 +2757,12 @@ SmFlx (double *smc, int *nsoil, double *cmc, double *dt, double *prcp1,
         //          SRT(rhstt, edir, et, sh2o, sh2o, nwtbl, pcpdrp, zsoil, dksat, smcmax, smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, infil, runoff2, dt, smcwlt, frzfact, sice, ai, bi, ci);
         //          SStep (sh2o, sh2o, cmc, rhstt, rhsct, dt, nwtbl, smcmax, smcmin, cmcmax, runoff3, zsoil, smc, sice, ai, bi, ci);
         //      }
-        SRT (rhstt, edir, et, sh2o, sh2o, nsoil, nwtbl, pcpdrp, zsoil, dksat, smcmax,
-           smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, mac_status, infil, runoff2, dt,
-           smcwlt, frzfact, sice, ai, bi, ci);
+        SRT (rhstt, edir, et, sh2o, sh2o, nsoil, nwtbl, pcpdrp, zsoil, dksat,
+            smcmax, smcmin, vgalpha, vgbeta, macksat, areaf, nmacd,
+            mac_status, infil, runoff2, dt, smcwlt, frzfact, sice, ai, bi,
+            ci);
         SStep (sh2o, sh2o, cmc, rhstt, rhsct, dt, nsoil, smcmax, smcmin,
-           cmcmax, runoff3, zsoil, smc, sice, ai, bi, ci);
+            cmcmax, runoff3, zsoil, smc, sice, ai, bi, ci);
     }
 
 #else
@@ -2759,28 +2781,28 @@ SmFlx (double *smc, int *nsoil, double *cmc, double *dt, double *prcp1,
 * --------------------------------------------------------------------*/
 
     if (((*pcpdrp * *dt) > (0.0001 * 1000.0 * (-zsoil[0]) * *smcmax))
-       || (fac2 > *flimit))
+        || (fac2 > *flimit))
     {
         SRT (rhstt, edir, et, sh2o, sh2o, nsoil, pcpdrp, zsoil, dwsat, dksat,
-           smcmax, bexp, runoff1, runoff2, dt, smcwlt, slope, kdt, frzfact,
-           sice, ai, bi, ci);
+            smcmax, bexp, runoff1, runoff2, dt, smcwlt, slope, kdt, frzfact,
+            sice, ai, bi, ci);
         SStep (sh2ofg, sh2o, dummy, rhstt, rhsct, dt, nsoil, smcmax, cmcmax,
-           runoff3, zsoil, smc, sice, ai, bi, ci);
+            runoff3, zsoil, smc, sice, ai, bi, ci);
         for (k = 0; k < *nsoil; k++)
             sh2oa[k] = (sh2o[k] + sh2ofg[k]) * 0.5;
         SRT (rhstt, edir, et, sh2o, sh2oa, nsoil, pcpdrp, zsoil, dwsat, dksat,
-           smcmax, bexp, runoff1, runoff2, dt, smcwlt, slope, kdt, frzfact,
-           sice, ai, bi, ci);
+            smcmax, bexp, runoff1, runoff2, dt, smcwlt, slope, kdt, frzfact,
+            sice, ai, bi, ci);
         SStep (sh2o, sh2o, cmc, rhstt, rhsct, dt, nsoil, smcmax, cmcmax,
-           runoff3, zsoil, smc, sice, ai, bi, ci);
+            runoff3, zsoil, smc, sice, ai, bi, ci);
     }
     else
     {
         SRT (rhstt, edir, et, sh2o, sh2o, nsoil, pcpdrp, zsoil, dwsat, dksat,
-           smcmax, bexp, runoff1, runoff2, dt, smcwlt, slope, kdt, frzfact,
-           sice, ai, bi, ci);
+            smcmax, bexp, runoff1, runoff2, dt, smcwlt, slope, kdt, frzfact,
+            sice, ai, bi, ci);
         SStep (sh2o, sh2o, cmc, rhstt, rhsct, dt, nsoil, smcmax, cmcmax,
-           runoff3, zsoil, smc, sice, ai, bi, ci);
+            runoff3, zsoil, smc, sice, ai, bi, ci);
         //      runof = runoff
 
     }
@@ -2799,7 +2821,7 @@ SmFlx (double *smc, int *nsoil, double *cmc, double *dt, double *prcp1,
 
 void
 SnFrac (double *sneqv, double *snup, double *salp, double *snowh,
-   double *sncovr)
+    double *sncovr)
 {
 
 /*----------------------------------------------------------------------
@@ -2846,13 +2868,13 @@ SnFrac (double *sneqv, double *snup, double *salp, double *snowh,
 #ifdef _NOAH_
 void
 SnkSrc (double *tsnsr, double *tavg, double *smc, double *sh2o, double *zsoil,
-   int *nsoil, double *smcmax, double *smcmin, double *vgalpha,
-   double *vgbeta, double *dt, int k, double *qtot)
+    int *nsoil, double *smcmax, double *smcmin, double *vgalpha,
+    double *vgbeta, double *dt, int k, double *qtot)
 #else
 void
 SnkSrc (double *tsnsr, double *tavg, double *smc, double *sh2o, double *zsoil,
-   int *nsoil, double *smcmax, double *psisat, double *bexp, double *dt,
-   int k, double *qtot)
+    int *nsoil, double *smcmax, double *psisat, double *bexp, double *dt,
+    int k, double *qtot)
 #endif
 {
 
@@ -2953,38 +2975,39 @@ SnkSrc (double *tsnsr, double *tavg, double *smc, double *sh2o, double *zsoil,
 #ifdef _NOAH_
 void
 SnoPac (double *etp, double *eta, double *prcp, double *prcpf, double *pcpdrp,
-   int *snowng, double *smc, double *smcmax, double *smcmin, double *smcwlt,
-   double *smcref, double *smcdry, double *cmc, double *cmcmax, int *nsoil,
-   double *dt, double *sbeta, double *df1, double *q2, double *t1,
-   double *sfctmp, double *t24, double *th2, double *fdown, double *f1,
-   double *ssoil, double *stc, double *epsca, double *sfcprs, double *vgalpha,
-   double *vgbeta, double *macksat, double *areaf, int *nmacd, int *mac_status, int *nwtbl,
-   double *pc, double *rch, double *rr, double *cfactr, double *sncovr,
-   double *esd, double *sndens, double *snowh, double *sh2o, double *frzfact,
-   double *zsoil, double *dksat, double *tbot, double *zbot, double *shdfac,
-   double *infil, double *runoff2, double *runoff3, double *edir, double *ec,
-   double *et, double *ett, int *nroot, double *snomlt, double *rtdis,
-   double *quartz, double *fxexp, double *csoil, double *beta, double *drip,
-   double *dew, double *flx1, double *flx2, double *flx3, double *esnow,
-   double *etns, double *emissi, double *ribb, double *soldn, int *isurban,
-   int *vegtyp)
+    int *snowng, double *smc, double *smcmax, double *smcmin, double *smcwlt,
+    double *smcref, double *smcdry, double *cmc, double *cmcmax, int *nsoil,
+    double *dt, double *sbeta, double *df1, double *q2, double *t1,
+    double *sfctmp, double *t24, double *th2, double *fdown, double *f1,
+    double *ssoil, double *stc, double *epsca, double *sfcprs,
+    double *vgalpha, double *vgbeta, double *macksat, double *areaf,
+    int *nmacd, int *mac_status, int *nwtbl, double *pc, double *rch,
+    double *rr, double *cfactr, double *sncovr, double *esd, double *sndens,
+    double *snowh, double *sh2o, double *frzfact, double *zsoil,
+    double *dksat, double *tbot, double *zbot, double *shdfac, double *infil,
+    double *runoff2, double *runoff3, double *edir, double *ec, double *et,
+    double *ett, int *nroot, double *snomlt, double *rtdis, double *quartz,
+    double *fxexp, double *csoil, double *beta, double *drip, double *dew,
+    double *flx1, double *flx2, double *flx3, double *esnow, double *etns,
+    double *emissi, double *ribb, double *soldn, int *isurban, int *vegtyp)
 #else
 void
 SnoPac (double *etp, double *eta, double *prcp, double *prcpf, int *snowng,
-   double *smc, double *smcmax, double *smcwlt, double *smcref,
-   double *smcdry, double *cmc, double *cmcmax, int *nsoil, double *dt,
-   double *sbeta, double *df1, double *q2, double *t1, double *sfctmp,
-   double *t24, double *th2, double *fdown, double *f1, double *ssoil,
-   double *stc, double *epsca, double *sfcprs, double *bexp, double *pc,
-   double *rch, double *rr, double *cfactr, double *sncovr, double *esd,
-   double *sndens, double *snowh, double *sh2o, double *slope, double *kdt,
-   double *frzfact, double *psisat, double *zsoil, double *dwsat,
-   double *dksat, double *tbot, double *zbot, double *shdfac, double *runoff1,
-   double *runoff2, double *runoff3, double *edir, double *ec, double *et,
-   double *ett, int *nroot, double *snomlt, double *rtdis, double *quartz,
-   double *fxexp, double *csoil, double *beta, double *drip, double *dew,
-   double *flx1, double *flx2, double *flx3, double *esnow, double *etns,
-   double *emissi, double *ribb, double *soldn, int *isurban, int *vegtyp)
+    double *smc, double *smcmax, double *smcwlt, double *smcref,
+    double *smcdry, double *cmc, double *cmcmax, int *nsoil, double *dt,
+    double *sbeta, double *df1, double *q2, double *t1, double *sfctmp,
+    double *t24, double *th2, double *fdown, double *f1, double *ssoil,
+    double *stc, double *epsca, double *sfcprs, double *bexp, double *pc,
+    double *rch, double *rr, double *cfactr, double *sncovr, double *esd,
+    double *sndens, double *snowh, double *sh2o, double *slope, double *kdt,
+    double *frzfact, double *psisat, double *zsoil, double *dwsat,
+    double *dksat, double *tbot, double *zbot, double *shdfac,
+    double *runoff1, double *runoff2, double *runoff3, double *edir,
+    double *ec, double *et, double *ett, int *nroot, double *snomlt,
+    double *rtdis, double *quartz, double *fxexp, double *csoil, double *beta,
+    double *drip, double *dew, double *flx1, double *flx2, double *flx3,
+    double *esnow, double *etns, double *emissi, double *ribb, double *soldn,
+    int *isurban, int *vegtyp)
 #endif
 {
 
@@ -3088,9 +3111,9 @@ SnoPac (double *etp, double *eta, double *prcp, double *prcpf, int *snowng,
         if ((*ribb >= 0.1) && (*fdown > 150.0))
         {
             *etp =
-               ((*etp * (1.0 - *ribb) <
-                  0. ? *etp * (1.0 - *ribb) : 0.0) * *sncovr / 0.980 +
-               *etp * (0.980 - *sncovr)) / 0.980;
+                ((*etp * (1.0 - *ribb) <
+                    0. ? *etp * (1.0 - *ribb) : 0.0) * *sncovr / 0.980 +
+                *etp * (0.980 - *sncovr)) / 0.980;
         }
         if (*etp == 0.)
             *beta = 0.0;
@@ -3109,13 +3132,13 @@ SnoPac (double *etp, double *eta, double *prcp, double *prcpf, int *snowng,
         {
 #ifdef _NOAH_
             Evapo (etns1, smc, nsoil, cmc, etp1, dt, zsoil, sh2o, smcmax, pc,
-               smcwlt, dksat, smcref, shdfac, cmcmax, smcdry, cfactr, edir1,
-               ec1, et1, ett1, sfctmp, q2, nroot, rtdis, fxexp);
+                smcwlt, dksat, smcref, shdfac, cmcmax, smcdry, cfactr, edir1,
+                ec1, et1, ett1, sfctmp, q2, nroot, rtdis, fxexp);
 #else
             Evapo (etns1, smc, nsoil, cmc, etp1, dt, zsoil, sh2o, smcmax,
-               bexp, pc, smcwlt, dksat, dwsat, smcref, shdfac, cmcmax, smcdry,
-               cfactr, edir1, ec1, et1, ett1, sfctmp, q2, nroot, rtdis,
-               fxexp);
+                bexp, pc, smcwlt, dksat, dwsat, smcref, shdfac, cmcmax,
+                smcdry, cfactr, edir1, ec1, et1, ett1, sfctmp, q2, nroot,
+                rtdis, fxexp);
 #endif
 
             /*
@@ -3180,8 +3203,8 @@ SnoPac (double *etp, double *eta, double *prcp, double *prcpf, int *snowng,
      * *     &       + *th2 - *sfctmp - etanrg / *rch ) / *rr
      */
     t12a =
-       ((*fdown - *flx1 - *flx2 - *emissi * SIGMA * *t24) / *rch + *th2 -
-       *sfctmp - etanrg / *rch) / *rr;
+        ((*fdown - *flx1 - *flx2 - *emissi * SIGMA * *t24) / *rch + *th2 -
+        *sfctmp - etanrg / *rch) / *rr;
     t12b = *df1 * stc[0] / (dtot * *rr * *rch);
 
 /*----------------------------------------------------------------------
@@ -3229,8 +3252,8 @@ SnoPac (double *etp, double *eta, double *prcp, double *prcpf, int *snowng,
     else
     {
         *t1 =
-           TFREEZ * pow (*sncovr, snoexp) + t12 * (1.0 - pow (*sncovr,
-              snoexp));
+            TFREEZ * pow (*sncovr, snoexp) + t12 * (1.0 - pow (*sncovr,
+                snoexp));
         *beta = 1.0;
 
 /*----------------------------------------------------------------------
@@ -3261,8 +3284,8 @@ SnoPac (double *etp, double *eta, double *prcp, double *prcpf, int *snowng,
             t14 = t14 * t14;
             //          *flx3 = *fdown - *flx1 - *flx2 - ((*sncovr*EMISSI_S)+*emissi*(1-*sncovr))*SIGMA*t14 - *ssoil - seh - etanrg;
             *flx3 =
-               *fdown - *flx1 - *flx2 - *emissi * SIGMA * t14 - *ssoil - seh -
-               etanrg;
+                *fdown - *flx1 - *flx2 - *emissi * SIGMA * t14 - *ssoil -
+                seh - etanrg;
             if (*flx3 <= 0.0)
                 *flx3 = 0.0;
 
@@ -3319,12 +3342,13 @@ SnoPac (double *etp, double *eta, double *prcp, double *prcpf, int *snowng,
     }
 #ifdef _NOAH_
     SmFlx (smc, nsoil, cmc, dt, prcp1, pcpdrp, zsoil, sh2o, frzfact, smcmax,
-       smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, mac_status, nwtbl, smcwlt, dksat,
-       shdfac, cmcmax, infil, runoff2, runoff3, edir1, ec1, et1, drip);
+        smcmin, vgalpha, vgbeta, macksat, areaf, nmacd, mac_status, nwtbl,
+        smcwlt, dksat, shdfac, cmcmax, infil, runoff2, runoff3, edir1, ec1,
+        et1, drip);
 #else
     SmFlx (smc, nsoil, cmc, dt, prcp1, zsoil, sh2o, slope, kdt, frzfact,
-       smcmax, bexp, smcwlt, dksat, dwsat, shdfac, cmcmax, runoff1, runoff2,
-       runoff3, edir1, ec1, et1, drip);
+        smcmax, bexp, smcwlt, dksat, dwsat, shdfac, cmcmax, runoff1, runoff2,
+        runoff3, edir1, ec1, et1, drip);
 #endif
 
 /*----------------------------------------------------------------------
@@ -3348,12 +3372,12 @@ SnoPac (double *etp, double *eta, double *prcp, double *prcpf, int *snowng,
     *t11 = *t1;
 #ifdef _NOAH_
     ShFlx (ssoil1, stc, smc, smcmax, smcmin, nsoil, t11, dt, yy, zz1, zsoil,
-       tbot, zbot, smcwlt, sh2o, vgalpha, vgbeta, f1, df1, quartz, csoil,
-       vegtyp, isurban);
+        tbot, zbot, smcwlt, sh2o, vgalpha, vgbeta, f1, df1, quartz, csoil,
+        vegtyp, isurban);
 #else
     ShFlx (ssoil1, stc, smc, smcmax, nsoil, t11, dt, yy, zz1, zsoil, tbot,
-       zbot, smcwlt, psisat, sh2o, bexp, f1, df1, quartz, csoil, vegtyp,
-       isurban);
+        zbot, smcwlt, psisat, sh2o, bexp, f1, df1, quartz, csoil, vegtyp,
+        isurban);
 #endif
 
 /*----------------------------------------------------------------------
@@ -3390,8 +3414,10 @@ SnoPac (double *etp, double *eta, double *prcp, double *prcpf, int *snowng,
 * --------------------------------------------------------------------*/
 }
 
-void SnowPack (double *esd, double *dtsec, double *snowh, double *sndens, double *tsnow, double *tsoil)
+void SnowPack (double *esd, double *dtsec, double *snowh, double *sndens,
+    double *tsnow, double *tsoil)
 {
+
 /*----------------------------------------------------------------------
 * subroutine SnowPack
 * ----------------------------------------------------------------------
@@ -3621,18 +3647,18 @@ void SnowNew (double *temp, double *newsn, double *snowh, double *sndens)
 #ifdef _NOAH_
 void
 SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa,
-   int *nsoil, int *nwtbl, double *pcpdrp, double *zsoil, double *dksat, double *smcmax,
-   double *smcmin, double *vgalpha, double *vgbeta, double *macksat,
-   double *areaf, int *nmacd, int *mac_status, double *infil, double *runoff2, double *dt,
-   double *smcwlt, double *frzx, double *sice, double *ai, double *bi,
-   double *ci)
+    int *nsoil, int *nwtbl, double *pcpdrp, double *zsoil, double *dksat,
+    double *smcmax, double *smcmin, double *vgalpha, double *vgbeta,
+    double *macksat, double *areaf, int *nmacd, int *mac_status,
+    double *infil, double *runoff2, double *dt, double *smcwlt, double *frzx,
+    double *sice, double *ai, double *bi, double *ci)
 #else
 void
 SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa,
-   int *nsoil, double *pcpdrp, double *zsoil, double *dwsat, double *dksat,
-   double *smcmax, double *bexp, double *runoff1, double *runoff2, double *dt,
-   double *smcwlt, double *slope, double *kdt, double *frzx, double *sice,
-   double *ai, double *bi, double *ci)
+    int *nsoil, double *pcpdrp, double *zsoil, double *dwsat, double *dksat,
+    double *smcmax, double *bexp, double *runoff1, double *runoff2,
+    double *dt, double *smcwlt, double *slope, double *kdt, double *frzx,
+    double *sice, double *ai, double *bi, double *ci)
 #endif
 {
 
@@ -3697,6 +3723,7 @@ SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa,
     {
         if (sice[ks] > *sicemax)
             *sicemax = sice[ks];
+
 /*----------------------------------------------------------------------
 * determine rainfall infiltration rate and runoff
 * --------------------------------------------------------------------*/
@@ -3740,7 +3767,7 @@ SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa,
 
     *dsmdz = (sh2o[0] - sh2o[1]) / (-0.5 * zsoil[1]);
     WDfCnd (wdf, wcnd, mxsmc, smcmax, smcmin, vgalpha, vgbeta, dksat, macksat,
-       areaf, mac_status, sicemax, dsmdz, macpore);
+        areaf, mac_status, sicemax, dsmdz, macpore);
 
 /*----------------------------------------------------------------------
 * calc the matrix coefficients ai, bi, and ci for the top layer
@@ -3783,7 +3810,8 @@ SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa,
             denom = (zsoil[k - 1] - zsoil[k + 1]);
             *dsmdz2 = (sh2o[k] - sh2o[k + 1]) / (denom * 0.5);
             WDfCnd (wdf2, wcnd2, mxsmc2, smcmax, smcmin, vgalpha, vgbeta,
-               dksat, macksat, areaf, mac_status, sicemax, dsmdz2, macpore + k);
+                dksat, macksat, areaf, mac_status, sicemax, dsmdz2,
+                macpore + k);
 
 /*-----------------------------------------------------------------------
 * calc some partial products for later use in calc'ng rhstt
@@ -3826,7 +3854,7 @@ SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa,
 
         numer = (*wdf2 * *dsmdz2) + *wcnd2 - (*wdf * *dsmdz) - *wcnd + et[k];
         if (k == *nwtbl - 1)
-                numer = numer + *runoff2;
+            numer = numer + *runoff2;
 
 /*----------------------------------------------------------------------
 * calc matrix coefs, ai, and bi for this layer
@@ -3883,7 +3911,7 @@ SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa,
             dice = dice + (zsoil[ks - 1] - zsoil[ks]) * sice[ks];
             dmax[ks] = (zsoil[ks - 1] - zsoil[ks]) * smcav;
             dmax[ks] =
-               dmax[ks] * (1.0 - (sh2oa[ks] + sice[ks] - *smcwlt) / smcav);
+                dmax[ks] * (1.0 - (sh2oa[ks] + sice[ks] - *smcwlt) / smcav);
             dd = dd + dmax[ks];
 
 /*----------------------------------------------------------------------
@@ -4013,7 +4041,7 @@ SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa,
 * --------------------------------------------------------------------*/
             slopx = *slope;
             WDfCnd (wdf2, wcnd2, sh2oa + *nsoil - 1, smcmax, bexp, dksat,
-               dwsat, sicemax);
+                dwsat, sicemax);
 
 /*----------------------------------------------------------------------
 * calc a partial product for later use in calc'ng rhstt
@@ -4030,7 +4058,8 @@ SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa,
 * --------------------------------------------------------------------*/
         }
         numer =
-           (*wdf2 * dsmdz2) + slopx * *wcnd2 - (*wdf * dsmdz) - *wcnd + et[k];
+            (*wdf2 * dsmdz2) + slopx * *wcnd2 - (*wdf * dsmdz) - *wcnd +
+            et[k];
 
 /*----------------------------------------------------------------------
 * calc matrix coefs, ai, and bi for this layer
@@ -4069,15 +4098,15 @@ SRT (double *rhstt, double *edir, double *et, double *sh2o, double *sh2oa,
 #ifdef _NOAH_
 void
 SStep (double *sh2oout, double *sh2oin, double *cmc, double *rhstt,
-   double *rhsct, double *dt, int *nsoil, double *smcmax, double *smcmin,
-   double *cmcmax, double *runoff3, double *zsoil, double *smc, double *sice,
-   double *ai, double *bi, double *ci)
+    double *rhsct, double *dt, int *nsoil, double *smcmax, double *smcmin,
+    double *cmcmax, double *runoff3, double *zsoil, double *smc, double *sice,
+    double *ai, double *bi, double *ci)
 #else
 void
 SStep (double *sh2oout, double *sh2oin, double *cmc, double *rhstt,
-   double *rhsct, double *dt, int *nsoil, double *smcmax, double *cmcmax,
-   double *runoff3, double *zsoil, double *smc, double *sice, double *ai,
-   double *bi, double *ci)
+    double *rhsct, double *dt, int *nsoil, double *smcmax, double *cmcmax,
+    double *runoff3, double *zsoil, double *smc, double *sice, double *ai,
+    double *bi, double *ci)
 #endif
 {
 
@@ -4206,7 +4235,7 @@ SStep (double *sh2oout, double *sh2oin, double *cmc, double *rhstt,
 
 void
 TBnd (double *tu, double *tb, double *zsoil, double *zbot, int k, int *nsoil,
-   double *tbnd1)
+    double *tbnd1)
 {
 
 /*----------------------------------------------------------------------
@@ -4248,7 +4277,7 @@ TBnd (double *tu, double *tb, double *zsoil, double *zbot, int k, int *nsoil,
 #ifdef _NOAH_
 void
 TDfCnd (double *df, double *smc, double *qz, double *smcmax, double *smcmin,
-   double *sh2o)
+    double *sh2o)
 #else
 void
 TDfCnd (double *df, double *smc, double *qz, double *smcmax, double *sh2o)
@@ -4265,7 +4294,7 @@ TDfCnd (double *df, double *smc, double *qz, double *smcmax, double *sh2o)
 * june 2001 changes: frozen soil condition.
 * --------------------------------------------------------------------*/
     double          ake, gammd, thkdry, thkice, thko, thkqtz, thksat, thks,
-       thkw, satratio, xu, xunfroz;
+        thkw, satratio, xu, xunfroz;
 
 /*----------------------------------------------------------------------
 * we now get quartz as an input argument (set in routine RedPrm):
@@ -4347,7 +4376,8 @@ TDfCnd (double *df, double *smc, double *qz, double *smcmax, double *sh2o)
      * saturated thermal conductivity 
      */
     thksat =
-       pow (thks, 1. - *smcmax) * pow (thkice, *smcmax - xu) * pow (thkw, xu);
+        pow (thks, 1. - *smcmax) * pow (thkice, *smcmax - xu) * pow (thkw,
+        xu);
 
     /*
      * dry density in kg/m3 
@@ -4401,7 +4431,7 @@ TDfCnd (double *df, double *smc, double *qz, double *smcmax, double *sh2o)
 
 void
 TmpAvg (double *tavg, double *tup, double *tm, double *tdn, double *zsoil,
-   int *nsoil, int k)
+    int *nsoil, int k)
 {
 
 /*----------------------------------------------------------------------
@@ -4441,8 +4471,8 @@ TmpAvg (double *tavg, double *tup, double *tm, double *tdn, double *zsoil,
             {
                 x0 = (t0 - *tm) * dzh / (*tdn - *tm);
                 *tavg =
-                   0.5 * (*tup * dzh + *tm * (dzh + x0) + t0 * (2. * dzh -
-                      x0)) / dz;
+                    0.5 * (*tup * dzh + *tm * (dzh + x0) + t0 * (2. * dzh -
+                        x0)) / dz;
             }
         }
         else
@@ -4456,8 +4486,8 @@ TmpAvg (double *tavg, double *tup, double *tm, double *tdn, double *zsoil,
                 xup = (t0 - *tup) * dzh / (*tm - *tup);
                 xdn = dzh - (t0 - *tm) * dzh / (*tdn - *tm);
                 *tavg =
-                   0.5 * (*tup * xup + t0 * (2. * dz - xup - xdn) +
-                   *tdn * xdn) / dz;
+                    0.5 * (*tup * xup + t0 * (2. * dz - xup - xdn) +
+                    *tdn * xdn) / dz;
             }
 
 /*----------------------------------------------------------------------
@@ -4482,8 +4512,8 @@ TmpAvg (double *tavg, double *tup, double *tm, double *tdn, double *zsoil,
             {
                 xup = dzh - (t0 - *tup) * dzh / (*tm - *tup);
                 *tavg =
-                   0.5 * (t0 * (dz - xup) + *tm * (dzh + xup) +
-                   *tdn * dzh) / dz;
+                    0.5 * (t0 * (dz - xup) + *tm * (dzh + xup) +
+                    *tdn * dzh) / dz;
             }
 
 /*----------------------------------------------------------------------
@@ -4494,8 +4524,8 @@ TmpAvg (double *tavg, double *tup, double *tm, double *tdn, double *zsoil,
                 xup = dzh - (t0 - *tup) * dzh / (*tm - *tup);
                 xdn = (t0 - *tm) * dzh / (*tdn - *tm);
                 *tavg =
-                   0.5 * (t0 * (2. * dz - xup - xdn) + *tm * (xup +
-                      xdn)) / dz;
+                    0.5 * (t0 * (2. * dz - xup - xdn) + *tm * (xup +
+                        xdn)) / dz;
             }
         }
         else
@@ -4525,9 +4555,9 @@ TmpAvg (double *tavg, double *tup, double *tm, double *tdn, double *zsoil,
 
 void
 Transp (double *et, int *nsoil, double *etp1, double *smc, double *cmc,
-   double *zsoil, double *shdfac, double *smcwlt, double *cmcmax, double *pc,
-   double *cfactr, double *smcref, double *sfctmp, double *q2, int *nroot,
-   double *rtdis)
+    double *zsoil, double *shdfac, double *smcwlt, double *cmcmax, double *pc,
+    double *cfactr, double *smcref, double *sfctmp, double *q2, int *nroot,
+    double *rtdis)
 {
 
 /*----------------------------------------------------------------------
@@ -4626,10 +4656,14 @@ Transp (double *et, int *nsoil, double *etp1, double *smc, double *cmc,
 
 #ifdef _NOAH_
 void
-WDfCnd (double *wdf, double *wcnd, double *smc, double *smcmax, double *smcmin, double *vgalpha, double *vgbeta, double *dksat, double *macksat, double *areaf, int *mac_status, double *sicemax, double *dsmdz, int *macpore)
+WDfCnd (double *wdf, double *wcnd, double *smc, double *smcmax,
+    double *smcmin, double *vgalpha, double *vgbeta, double *dksat,
+    double *macksat, double *areaf, int *mac_status, double *sicemax,
+    double *dsmdz, int *macpore)
 #else
 void
-WDfCnd (double *wdf, double *wcnd, double *smc, double *smcmax, double *bexp, double *dksat, double *dwsat, double *sicemax)
+WDfCnd (double *wdf, double *wcnd, double *smc, double *smcmax, double *bexp,
+    double *dksat, double *dwsat, double *sicemax)
 #endif
 {
 
@@ -4662,15 +4696,16 @@ WDfCnd (double *wdf, double *wcnd, double *smc, double *smcmax, double *bexp, do
     expon = 1.0 - 1. / *vgbeta;
 
     satkfunc =
-       pow (factr2, 0.5) * pow (1. - pow (1. - pow (factr2, 1. / expon),
-          expon), 2.);
+        pow (factr2, 0.5) * pow (1. - pow (1. - pow (factr2, 1. / expon),
+            expon), 2.);
     dpsidsm =
-       (1. - expon) / *vgalpha / expon / (*smcmax -
-       *smcmin) * pow (pow (factr2, -1. / expon) - 1.,
-       0. - expon) * pow (factr2, -(1. / expon + 1.));
+        (1. - expon) / *vgalpha / expon / (*smcmax -
+        *smcmin) * pow (pow (factr2, -1. / expon) - 1.,
+        0. - expon) * pow (factr2, -(1. / expon + 1.));
 
     if (*macpore == 1)
-        *wcnd = EFFKV (satkfunc, factr2, *mac_status, *macksat, *dksat, *areaf);
+        *wcnd =
+            EFFKV (satkfunc, factr2, *mac_status, *macksat, *dksat, *areaf);
     else
         *wcnd = *dksat * satkfunc;
 
@@ -4683,15 +4718,16 @@ WDfCnd (double *wdf, double *wcnd, double *smc, double *smcmax, double *bexp, do
     {
         vkwgt = 1. / (1. + pow (500. * *sicemax, 3.));
         satkfunc =
-           pow (factr1, 0.5) * pow (1. - pow (1. - pow (factr1, 1. / expon),
-              expon), 2.);
+            pow (factr1, 0.5) * pow (1. - pow (1. - pow (factr1, 1. / expon),
+                expon), 2.);
         dpsidsm =
-           (1. - expon) / *vgalpha / expon / (*smcmax -
-           *smcmin) * pow (pow (factr1, -1. / expon) - 1.,
-           0. - expon) * pow (factr1, -(1. / expon + 1.));
+            (1. - expon) / *vgalpha / expon / (*smcmax -
+            *smcmin) * pow (pow (factr1, -1. / expon) - 1.,
+            0. - expon) * pow (factr1, -(1. / expon + 1.));
         if (*macpore == 1)
             *wdf =
-               vkwgt * *wdf + (1. - vkwgt) * dpsidsm * EFFKV (satkfunc, factr1, *mac_status, *macksat, *dksat, *areaf);
+                vkwgt * *wdf + (1. - vkwgt) * dpsidsm * EFFKV (satkfunc,
+                factr1, *mac_status, *macksat, *dksat, *areaf);
         else
             *wdf = vkwgt * *wdf + (1. - vkwgt) * dpsidsm * satkfunc * *dksat;
     }
@@ -4739,7 +4775,9 @@ WDfCnd (double *wdf, double *wcnd, double *smc, double *smcmax, double *bexp, do
 }
 
 
-void SfcDifOff (double *zlm, double *zlm_wind, double *z0, double *thz0, double *thlm, double *sfcspd, double *czil, double *akms, double *akhs, int *vegtyp, int *isurban, int *iz0tlnd)
+void SfcDifOff (double *zlm, double *zlm_wind, double *z0, double *thz0,
+    double *thlm, double *sfcspd, double *czil, double *akms, double *akhs,
+    int *vegtyp, int *isurban, int *iz0tlnd)
 {
 
 /*----------------------------------------------------------------------
@@ -4755,7 +4793,7 @@ void SfcDifOff (double *zlm, double *zlm_wind, double *z0, double *thz0, double 
     //!cc   ......real ztfc
 
     double          xlu, xlt, xu, xt, psmz, simm, pshz, simh, ustark, rlmn,
-       rlma;
+        rlma;
 
     int             ilech, itr;
 
@@ -5024,7 +5062,8 @@ double Pslhs (double zz)
     rfac = ric / (fhneu * rfc * rfc);
     //  x = zz * rfac -2.076* (1. -1./ (zz +1.));
     x = zz * rfac - 2.076 * (1. - exp (-1.2 * zz));
-    printf("now: %lf, before: %lf\n", x, zz * rfac -2.076* (1. -1./ (zz +1.)));
+    printf ("now: %lf, before: %lf\n", x,
+        zz * rfac - 2.076 * (1. - 1. / (zz + 1.)));
     return x;
 }
 
@@ -5037,7 +5076,7 @@ double Pspmu (double xx)
     double          pihf = 3.14159265 / 2.0;
     double          x;
     x = -2. * log ((xx + 1.) * 0.5) - log ((xx * xx + 1.) * 0.5) +
-       2. * atan (xx) - pihf;
+        2. * atan (xx) - pihf;
     return x;
 }
 
@@ -5066,7 +5105,8 @@ double Psphs (double yy)
     return x;
 }
 
-double EFFKV (double ksatfunc, double elemsatn, int status, double mackv, double kv, double areaf)
+double EFFKV (double ksatfunc, double elemsatn, int status, double mackv,
+    double kv, double areaf)
 {
     //return (kv * ksatfunc);
     if (status == SAT_CTRL)
@@ -5078,7 +5118,8 @@ double EFFKV (double ksatfunc, double elemsatn, int status, double mackv, double
         else
         {
             if (status == APP_CTRL)
-                return (mackv * areaf * ksatfunc + kv * (1. - areaf) * ksatfunc);
+                return (mackv * areaf * ksatfunc + kv * (1. -
+                        areaf) * ksatfunc);
             else
                 return (mackv * areaf + kv * (1. - areaf) * ksatfunc);
         }

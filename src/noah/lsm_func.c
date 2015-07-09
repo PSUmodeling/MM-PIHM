@@ -1,3 +1,4 @@
+
 /*****************************************************************************
  * File		:   lsm_func.c 
  * Function	:   noah related functions
@@ -58,7 +59,9 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
     ReadKeywordInt (cmdstr, "NSOIL", &noah->std_nsoil);
     if (noah->std_nsoil > MAXLYR - 1)
     {
-        printf ("Error: the number of soil layers should be smaller than %d\n!", MAXLYR - 1);
+        printf
+            ("Error: the number of soil layers should be smaller than %d\n!",
+            MAXLYR - 1);
         exit (1);
     }
 
@@ -159,7 +162,8 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
             exit (1);
         }
 
-        noah->forcing.ts = (ts_struct *) malloc (noah->forcing.nts * sizeof (ts_struct));
+        noah->forcing.ts =
+            (ts_struct *)malloc (noah->forcing.nts * sizeof (ts_struct));
 
         for (i = 0; i < noah->forcing.nts; i++)
         {
@@ -167,7 +171,9 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
             match = sscanf (cmdstr, "%*s %d", &index);
             if (match != 1 || i != index - 1)
             {
-                printf ("Cannot read information of the %dth forcing series!\n", i);
+                printf
+                    ("Cannot read information of the %dth forcing series!\n",
+                    i);
                 printf (".forc file format error!\n");
                 exit (1);
             }
@@ -187,13 +193,18 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
             NextLine (radn_file, cmdstr);
             NextLine (radn_file, cmdstr);
 
-            noah->forcing.ts[i].ftime = (int *) malloc (noah->forcing.ts[i].length * sizeof (int));
-            noah->forcing.ts[i].data = (double **) malloc (noah->forcing.ts[i].length * sizeof (double *));
+            noah->forcing.ts[i].ftime =
+                (int *)malloc (noah->forcing.ts[i].length * sizeof (int));
+            noah->forcing.ts[i].data =
+                (double **)malloc (noah->forcing.ts[i].length *
+                sizeof (double *));
             for (j = 0; j < noah->forcing.ts[i].length; j++)
             {
-                noah->forcing.ts[i].data[j] = (double *) malloc (2 * sizeof (double));
+                noah->forcing.ts[i].data[j] =
+                    (double *)malloc (2 * sizeof (double));
                 NextLine (radn_file, cmdstr);
-                ReadTS (cmdstr, &noah->forcing.ts[i].ftime[j], &noah->forcing.ts[i].data[j][0], 2);
+                ReadTS (cmdstr, &noah->forcing.ts[i].ftime[j],
+                    &noah->forcing.ts[i].data[j][0], 2);
             }
         }
 
@@ -203,7 +214,7 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
 
 void LsmInitialize (char *simulation, pihm_struct pihm, lsm_struct noah)
 {
-    grid_struct      *grid;
+    grid_struct    *grid;
     int             i, j, kz;
     double          zsoil[MAXLYR];
     double          frzfact;
@@ -227,23 +238,24 @@ void LsmInitialize (char *simulation, pihm_struct pihm, lsm_struct noah)
     {
         for (i = 0; i < 2; i++)
         {
-            noah->forcing.radn[i] = (double *) malloc (noah->forcing.nts * sizeof (double));
+            noah->forcing.radn[i] =
+                (double *)malloc (noah->forcing.nts * sizeof (double));
         }
     }
 
     noah->grid = (grid_struct *) malloc (pihm->numele * sizeof (grid_struct));
 
-    noah->ic.t1 = (double *) malloc (pihm->numele * sizeof (double));
-    noah->ic.snowh = (double *) malloc (pihm->numele * sizeof (double));
-    noah->ic.stc = (double **) malloc (pihm->numele * sizeof (double *));
-    noah->ic.smc = (double **) malloc (pihm->numele * sizeof (double *));
-    noah->ic.sh2o = (double **) malloc (pihm->numele * sizeof (double *));
+    noah->ic.t1 = (double *)malloc (pihm->numele * sizeof (double));
+    noah->ic.snowh = (double *)malloc (pihm->numele * sizeof (double));
+    noah->ic.stc = (double **)malloc (pihm->numele * sizeof (double *));
+    noah->ic.smc = (double **)malloc (pihm->numele * sizeof (double *));
+    noah->ic.sh2o = (double **)malloc (pihm->numele * sizeof (double *));
 
     for (i = 0; i < pihm->numele; i++)
     {
-        noah->ic.stc[i] = (double *) malloc (MAXLYR * sizeof (double));
-        noah->ic.smc[i] = (double *) malloc (MAXLYR * sizeof (double));
-        noah->ic.sh2o[i] = (double *) malloc (MAXLYR * sizeof (double));
+        noah->ic.stc[i] = (double *)malloc (MAXLYR * sizeof (double));
+        noah->ic.smc[i] = (double *)malloc (MAXLYR * sizeof (double));
+        noah->ic.sh2o[i] = (double *)malloc (MAXLYR * sizeof (double));
     }
 
     for (i = 0; i < pihm->numele; i++)
@@ -251,8 +263,10 @@ void LsmInitialize (char *simulation, pihm_struct pihm, lsm_struct noah)
         grid = &noah->grid[i];
         elem = &pihm->elem[i];
 
-        grid->radn[SOLAR_DIR_TS] = &noah->forcing.radn[SOLAR_DIR_TS][pihm->attrib_tbl.meteo[i] - 1];
-        grid->radn[SOLAR_DIF_TS] = &noah->forcing.radn[SOLAR_DIF_TS][pihm->attrib_tbl.meteo[i] - 1];
+        grid->radn[SOLAR_DIR_TS] =
+            &noah->forcing.radn[SOLAR_DIR_TS][pihm->attrib_tbl.meteo[i] - 1];
+        grid->radn[SOLAR_DIF_TS] =
+            &noah->forcing.radn[SOLAR_DIF_TS][pihm->attrib_tbl.meteo[i] - 1];
 
         grid->avginfil = 0.0;
         for (j = 0; j < 3; j++)
@@ -261,7 +275,8 @@ void LsmInitialize (char *simulation, pihm_struct pihm, lsm_struct noah)
         }
 
         /* Set-up soil layer depths */
-        DefSldpth (grid->sldpth, &grid->nsoil, elem->soil.depth, noah->std_sldpth, noah->std_nsoil);
+        DefSldpth (grid->sldpth, &grid->nsoil, elem->soil.depth,
+            noah->std_sldpth, noah->std_nsoil);
 
         /* Set-up soil parameters */
         grid->csoil = noah->genprmt.csoil_data;
@@ -287,7 +302,7 @@ void LsmInitialize (char *simulation, pihm_struct pihm, lsm_struct noah)
         grid->sbeta = noah->genprmt.sbeta_data;
         grid->frzk = noah->genprmt.frzk_data;
         grid->fxexp = noah->genprmt.fxexp_data;
-        grid->ptu = 0.0;    /* (not used yet) to satisfy intent (out) */
+        grid->ptu = 0.0;        /* (not used yet) to satisfy intent (out) */
         grid->czil = noah->genprmt.czil_data;
         grid->lvcoef = noah->genprmt.lvcoef_data;
 
@@ -345,8 +360,10 @@ void LsmInitialize (char *simulation, pihm_struct pihm, lsm_struct noah)
         grid->hs *= pihm->cal.hs;
         grid->cfactr *= pihm->cal.cfactr;
         grid->cmcfactr *= pihm->cal.intcp;
-        grid->smcref = (grid->smcref - grid->smcmin) * pihm->cal.thetaref + grid->smcmin;
-        grid->smcwlt = (grid->smcwlt - grid->smcmin) * pihm->cal.thetaw + grid->smcmin;
+        grid->smcref =
+            (grid->smcref - grid->smcmin) * pihm->cal.thetaref + grid->smcmin;
+        grid->smcwlt =
+            (grid->smcwlt - grid->smcmin) * pihm->cal.thetaw + grid->smcmin;
 
         /* Initialize topographic radiation related parameters */
         if (noah->rad_mode == 1)
@@ -427,7 +444,7 @@ void LsmInitialize (char *simulation, pihm_struct pihm, lsm_struct noah)
     }
 
     /* Set initial conditions for land surface variables */
-    if (pihm->ctrl.init_type < 3)      /* Relaxation */
+    if (pihm->ctrl.init_type < 3)       /* Relaxation */
     {
         ApplyForcing (&pihm->forcing, pihm->ctrl.starttime);
         LsmSaturationIC (&noah->ic, noah->grid, pihm->elem, pihm->numele);
@@ -441,7 +458,8 @@ void LsmInitialize (char *simulation, pihm_struct pihm, lsm_struct noah)
     InitLsmVrbl (noah->grid, pihm->elem, pihm->numele, noah->ic);
 }
 
-void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdir)
+void MapLsmOutput (char *simulation, lsm_struct noah, int numele,
+    char *outputdir)
 {
     int             i, j, k;
     int             n;
@@ -458,10 +476,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
             switch (i)
             {
                 case T1_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.t1", outputdir, simulation);
+                    sprintf (noah->prtctrl[n].name, "%s%s.t1", outputdir,
+                        simulation);
                     noah->prtctrl[n].intvl = noah->prtvrbl[i];
                     noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                    noah->prtctrl[n].vrbl =
+                        (double **)malloc (noah->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < numele; j++)
                     {
                         noah->prtctrl[n].vrbl[j] = &noah->grid[j].t1;
@@ -471,10 +492,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
                 case STC_CTRL:
                     for (k = 0; k < MAXLYR; k++)
                     {
-                        sprintf (noah->prtctrl[n].name, "%s%s.stc%d", outputdir, simulation, k);
+                        sprintf (noah->prtctrl[n].name, "%s%s.stc%d",
+                            outputdir, simulation, k);
                         noah->prtctrl[n].intvl = noah->prtvrbl[i];
                         noah->prtctrl[n].nvrbl = numele;
-                        noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                        noah->prtctrl[n].vrbl =
+                            (double **)malloc (noah->prtctrl[n].nvrbl *
+                            sizeof (double *));
                         for (j = 0; j < numele; j++)
                         {
                             noah->prtctrl[n].vrbl[j] = &noah->grid[j].stc[k];
@@ -485,10 +509,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
                 case SMC_CTRL:
                     for (k = 0; k < MAXLYR; k++)
                     {
-                        sprintf (noah->prtctrl[n].name, "%s%s.smc%d", outputdir, simulation, k);
+                        sprintf (noah->prtctrl[n].name, "%s%s.smc%d",
+                            outputdir, simulation, k);
                         noah->prtctrl[n].intvl = noah->prtvrbl[i];
                         noah->prtctrl[n].nvrbl = numele;
-                        noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                        noah->prtctrl[n].vrbl =
+                            (double **)malloc (noah->prtctrl[n].nvrbl *
+                            sizeof (double *));
                         for (j = 0; j < numele; j++)
                         {
                             noah->prtctrl[n].vrbl[j] = &noah->grid[j].smc[k];
@@ -499,10 +526,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
                 case SH2O_CTRL:
                     for (k = 0; k < MAXLYR; k++)
                     {
-                        sprintf (noah->prtctrl[n].name, "%s%s.swc%d", outputdir, simulation, k);
+                        sprintf (noah->prtctrl[n].name, "%s%s.swc%d",
+                            outputdir, simulation, k);
                         noah->prtctrl[n].intvl = noah->prtvrbl[i];
                         noah->prtctrl[n].nvrbl = numele;
-                        noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                        noah->prtctrl[n].vrbl =
+                            (double **)malloc (noah->prtctrl[n].nvrbl *
+                            sizeof (double *));
                         for (j = 0; j < numele; j++)
                         {
                             noah->prtctrl[n].vrbl[j] = &noah->grid[j].sh2o[k];
@@ -511,10 +541,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
                     }
                     break;
                 case SNOWH_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.snowh", outputdir, simulation);
+                    sprintf (noah->prtctrl[n].name, "%s%s.snowh", outputdir,
+                        simulation);
                     noah->prtctrl[n].intvl = noah->prtvrbl[i];
                     noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                    noah->prtctrl[n].vrbl =
+                        (double **)malloc (noah->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < numele; j++)
                     {
                         noah->prtctrl[n].vrbl[j] = &noah->grid[j].snowh;
@@ -522,10 +555,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
                     n++;
                     break;
                 case ALBEDO_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.albedo", outputdir, simulation);
+                    sprintf (noah->prtctrl[n].name, "%s%s.albedo", outputdir,
+                        simulation);
                     noah->prtctrl[n].intvl = noah->prtvrbl[i];
                     noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                    noah->prtctrl[n].vrbl =
+                        (double **)malloc (noah->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < numele; j++)
                     {
                         noah->prtctrl[n].vrbl[j] = &noah->grid[j].albedo;
@@ -533,10 +569,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
                     n++;
                     break;
                 case LE_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.le", outputdir, simulation);
+                    sprintf (noah->prtctrl[n].name, "%s%s.le", outputdir,
+                        simulation);
                     noah->prtctrl[n].intvl = noah->prtvrbl[i];
                     noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                    noah->prtctrl[n].vrbl =
+                        (double **)malloc (noah->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < numele; j++)
                     {
                         noah->prtctrl[n].vrbl[j] = &noah->grid[j].eta;
@@ -544,10 +583,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
                     n++;
                     break;
                 case SH_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.sh", outputdir, simulation);
+                    sprintf (noah->prtctrl[n].name, "%s%s.sh", outputdir,
+                        simulation);
                     noah->prtctrl[n].intvl = noah->prtvrbl[i];
                     noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                    noah->prtctrl[n].vrbl =
+                        (double **)malloc (noah->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < numele; j++)
                     {
                         noah->prtctrl[n].vrbl[j] = &noah->grid[j].sheat;
@@ -555,10 +597,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
                     n++;
                     break;
                 case G_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.g", outputdir, simulation);
+                    sprintf (noah->prtctrl[n].name, "%s%s.g", outputdir,
+                        simulation);
                     noah->prtctrl[n].intvl = noah->prtvrbl[i];
                     noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                    noah->prtctrl[n].vrbl =
+                        (double **)malloc (noah->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < numele; j++)
                     {
                         noah->prtctrl[n].vrbl[j] = &noah->grid[j].ssoil;
@@ -566,10 +611,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
                     n++;
                     break;
                 case ETP_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.etp", outputdir, simulation);
+                    sprintf (noah->prtctrl[n].name, "%s%s.etp", outputdir,
+                        simulation);
                     noah->prtctrl[n].intvl = noah->prtvrbl[i];
                     noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                    noah->prtctrl[n].vrbl =
+                        (double **)malloc (noah->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < numele; j++)
                     {
                         noah->prtctrl[n].vrbl[j] = &noah->grid[j].etp;
@@ -577,10 +625,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
                     n++;
                     break;
                 case ESNOW_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.esnow", outputdir, simulation);
+                    sprintf (noah->prtctrl[n].name, "%s%s.esnow", outputdir,
+                        simulation);
                     noah->prtctrl[n].intvl = noah->prtvrbl[i];
                     noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                    noah->prtctrl[n].vrbl =
+                        (double **)malloc (noah->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < numele; j++)
                     {
                         noah->prtctrl[n].vrbl[j] = &noah->grid[j].esnow;
@@ -588,10 +639,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
                     n++;
                     break;
                 case ROOTW_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.rootw", outputdir, simulation);
+                    sprintf (noah->prtctrl[n].name, "%s%s.rootw", outputdir,
+                        simulation);
                     noah->prtctrl[n].intvl = noah->prtvrbl[i];
                     noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                    noah->prtctrl[n].vrbl =
+                        (double **)malloc (noah->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < numele; j++)
                     {
                         noah->prtctrl[n].vrbl[j] = &noah->grid[j].soilw;
@@ -599,10 +653,13 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
                     n++;
                     break;
                 case SOILM_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.soilm", outputdir, simulation);
+                    sprintf (noah->prtctrl[n].name, "%s%s.soilm", outputdir,
+                        simulation);
                     noah->prtctrl[n].intvl = noah->prtvrbl[i];
                     noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl = (double **) malloc (noah->prtctrl[n].nvrbl * sizeof (double *));
+                    noah->prtctrl[n].vrbl =
+                        (double **)malloc (noah->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < numele; j++)
                     {
                         noah->prtctrl[n].vrbl[j] = &noah->grid[j].soilm;
@@ -655,7 +712,7 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
 //               (double **)malloc (noah->PCtrl[icounter].NumVar *
 //               sizeof (double *));
 //            for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//	      noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].STC[j]);
+//            noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].STC[j]);
 //            icounter++;
 //        }
 //    }
@@ -813,14 +870,14 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele, char *outputdi
 //        Ofile = fopen (noah->PCtrl[i].name, "w");
 //        fclose (Ofile);
 //
-//	if (CS->Ascii)
-//	{
-//	    ascii_name = (char *)malloc ((strlen (noah->PCtrl[i].name) + 5) * sizeof (char));
-//	    sprintf (ascii_name, "%s.txt", noah->PCtrl[i].name);
-//	    Ofile = fopen (ascii_name, "w");
-//	    fclose (Ofile);
+//      if (CS->Ascii)
+//      {
+//          ascii_name = (char *)malloc ((strlen (noah->PCtrl[i].name) + 5) * sizeof (char));
+//          sprintf (ascii_name, "%s.txt", noah->PCtrl[i].name);
+//          Ofile = fopen (ascii_name, "w");
+//          fclose (Ofile);
 //            free (ascii_name);
-//	}
+//      }
 //
 //        noah->PCtrl[i].buffer = (double *)calloc (noah->PCtrl[i].NumVar, sizeof (double));
 //    }
@@ -899,7 +956,7 @@ int FindLayer (const double *sldpth, int nsoil, double depth)
             j++;
         }
         layer = ind + 1;
-        layer = (layer > nsoil) ? nsoil: layer;
+        layer = (layer > nsoil) ? nsoil : layer;
     }
     return (layer);
 }
@@ -909,25 +966,33 @@ double mod (double a, double N)
     return (a - N * floor (a / N));
 }
 
-double TopoRadiation (double sdir, double sdif, double zenith, double azimuth180, double slope, double aspect, double *h_phi, double svf)
+double TopoRadiation (double sdir, double sdif, double zenith,
+    double azimuth180, double slope, double aspect, double *h_phi, double svf)
 {
-    double incidence;
-    double gvf;
-    double  soldown;
+    double          incidence;
+    double          gvf;
+    double          soldown;
 
     if (zenith > h_phi[(int)floor (azimuth180 / 10.0)])
         sdir = 0.0;
-    incidence = 180.0 / PI * acos (cos (zenith * PI / 180.0) * cos (slope * PI / 180.0) + sin (zenith * PI / 180.0) * sin (slope * PI / 180.0) * cos ((azimuth180 - aspect) * PI / 180.0));
+    incidence =
+        180.0 / PI * acos (cos (zenith * PI / 180.0) * cos (slope * PI /
+            180.0) +
+        sin (zenith * PI / 180.0) * sin (slope * PI / 180.0) *
+        cos ((azimuth180 - aspect) * PI / 180.0));
     incidence = incidence > 90.0 ? 90.0 : incidence;
     gvf = (1.0 + cos (slope * PI / 180.0)) / 2.0 - svf;
     gvf = gvf < 0.0 ? 0.0 : gvf;
-    soldown = sdir * cos (incidence * PI / 180.0) + svf * sdif + 0.2 * gvf * (sdir * cos (zenith * PI / 180.0) + sdif);
+    soldown =
+        sdir * cos (incidence * PI / 180.0) + svf * sdif +
+        0.2 * gvf * (sdir * cos (zenith * PI / 180.0) + sdif);
     soldown = soldown < 0.0 ? 0.0 : soldown;
 
     return (soldown);
 }
 
-void DefSldpth (double *sldpth, int *nsoil, double total_depth, double *std_sldpth, int std_nsoil)
+void DefSldpth (double *sldpth, int *nsoil, double total_depth,
+    double *std_sldpth, int std_nsoil)
 {
     int             j, k;
     double          zsoil[MAXLYR];
@@ -994,13 +1059,14 @@ void DefSldpth (double *sldpth, int *nsoil, double total_depth, double *std_sldp
     }
 }
 
-void CalcSlopeAspect (grid_struct *grid, elem_struct elem, pihm_struct pihm)
+void CalcSlopeAspect (grid_struct * grid, elem_struct elem, pihm_struct pihm)
 {
     double          x[3];
     double          y[3];
     double          zmax[3];
-    double          vector1[3], vector2[3], normal_vector[3], vector[3], h, c, se, ce;
-    int             nodes[2];
+    double          vector1[3], vector2[3], normal_vector[3], vector[3], h, c,
+        se, ce;
+    int nodes[2];
     double          x1, y1, z1, x2, y2, z2, xc, yc, zc;
     double          c1, c2, ce1, ce2, se1, se2, phi1, phi2;
     int             ind, ind1, ind2;
@@ -1034,7 +1100,8 @@ void CalcSlopeAspect (grid_struct *grid, elem_struct elem, pihm_struct pihm)
     }
 
     /* Calculate slope */
-    c = sqrt (normal_vector[0] * normal_vector[0] + normal_vector[1] * normal_vector[1]);
+    c = sqrt (normal_vector[0] * normal_vector[0] +
+        normal_vector[1] * normal_vector[1]);
     grid->slope = atan (c / normal_vector[2]) * 180.0 / PI;
 
     /* Calculte aspect */
@@ -1123,7 +1190,7 @@ void CalcSlopeAspect (grid_struct *grid, elem_struct elem, pihm_struct pihm)
             if (fabs (phi1 - phi2) > 180.0)
             {
                 ind1 = 0;
-                ind2 = (int) floor ((phi1 < phi2 ? phi1 : phi2) / 10.0);
+                ind2 = (int)floor ((phi1 < phi2 ? phi1 : phi2) / 10.0);
                 for (ind = ind1; ind <= ind2; ind++)
                 {
                     if (h < grid->h_phi[ind])
@@ -1132,7 +1199,7 @@ void CalcSlopeAspect (grid_struct *grid, elem_struct elem, pihm_struct pihm)
                     }
                 }
 
-                ind1 = (int) floor ((phi1 > phi2 ? phi1 : phi2) / 10.0);
+                ind1 = (int)floor ((phi1 > phi2 ? phi1 : phi2) / 10.0);
                 ind2 = 35;
                 for (ind = ind1; ind <= ind2; ind++)
                 {
@@ -1144,8 +1211,8 @@ void CalcSlopeAspect (grid_struct *grid, elem_struct elem, pihm_struct pihm)
             }
             else
             {
-                ind1 = (int) floor ((phi1 < phi2 ? phi1 : phi2) / 10.0);
-                ind2 = (int) floor ((phi1 > phi2 ? phi1 : phi2) / 10.0);
+                ind1 = (int)floor ((phi1 < phi2 ? phi1 : phi2) / 10.0);
+                ind2 = (int)floor ((phi1 > phi2 ? phi1 : phi2) / 10.0);
                 for (ind = ind1; ind <= ind2; ind++)
                 {
                     if (h < grid->h_phi[ind])
@@ -1159,12 +1226,21 @@ void CalcSlopeAspect (grid_struct *grid, elem_struct elem, pihm_struct pihm)
 
     for (ind = 0; ind < 36; ind++)
     {
-        grid->svf += 0.5 / PI * (cos (grid->slope * PI / 180.0) * (pow (sin (grid->h_phi[ind] * PI / 180.0), 2)) + sin (grid->slope * PI / 180.0) * cos ((ind * 10.0 + 5.0 - grid->aspect) * PI / 180.0) * grid->h_phi[ind] * PI / 180.0 - sin (grid->h_phi[ind] * PI / 180.0) * cos (grid->h_phi[ind] * PI / 180.0)) * 10.0 / 180.0 * PI;
+        grid->svf +=
+            0.5 / PI * (cos (grid->slope * PI / 180.0) *
+            (pow (sin (grid->h_phi[ind] * PI / 180.0),
+                    2)) + sin (grid->slope * PI / 180.0) * cos ((ind * 10.0 +
+                    5.0 -
+                    grid->aspect) * PI / 180.0) * grid->h_phi[ind] * PI /
+            180.0 -
+            sin (grid->h_phi[ind] * PI / 180.0) * cos (grid->h_phi[ind] * PI /
+                180.0)) * 10.0 / 180.0 * PI;
     }
 
     if (verbose_mode)
     {
-        printf ("ele: slope = %lf, aspect = %lf, svf = %lf\t", grid->slope, grid->aspect, grid->svf);
+        printf ("ele: slope = %lf, aspect = %lf, svf = %lf\t", grid->slope,
+            grid->aspect, grid->svf);
         for (ind = 0; ind < 36; ind++)
         {
             printf ("%lf\t", grid->h_phi[ind]);
@@ -1173,7 +1249,8 @@ void CalcSlopeAspect (grid_struct *grid, elem_struct elem, pihm_struct pihm)
     }
 }
 
-void LsmSaturationIC (lsm_ic_struct *ic, const grid_struct *grid, const elem_struct *elem, int numele)
+void LsmSaturationIC (lsm_ic_struct *ic, const grid_struct * grid,
+    const elem_struct *elem, int numele)
 {
     double          sfctmp;
     int             i, j;
@@ -1184,13 +1261,18 @@ void LsmSaturationIC (lsm_ic_struct *ic, const grid_struct *grid, const elem_str
 
         ic->t1[i] = sfctmp;
 
-        ic->stc[i][0] = sfctmp + (sfctmp - grid[i].tbot) / grid[i].zbot * grid[i].sldpth[0] * 0.5;
+        ic->stc[i][0] =
+            sfctmp + (sfctmp -
+            grid[i].tbot) / grid[i].zbot * grid[i].sldpth[0] * 0.5;
 
         for (j = 1; j < MAXLYR; j++)
         {
             if (grid[i].sldpth[j] > 0)
             {
-                ic->stc[i][j] = ic->stc[i][j - 1] + (sfctmp - grid[i].tbot) / grid[i].zbot * (grid[i].sldpth[j - 1] + grid[i].sldpth[j]) * 0.5;
+                ic->stc[i][j] =
+                    ic->stc[i][j - 1] + (sfctmp -
+                    grid[i].tbot) / grid[i].zbot * (grid[i].sldpth[j - 1] +
+                    grid[i].sldpth[j]) * 0.5;
             }
             else
             {
@@ -1215,7 +1297,8 @@ void LsmSaturationIC (lsm_ic_struct *ic, const grid_struct *grid, const elem_str
     }
 }
 
-void ReadLsmInit (char *project, char *simulation, lsm_ic_struct *ic, int numele)
+void ReadLsmInit (char *project, char *simulation, lsm_ic_struct *ic,
+    int numele)
 {
     char            fn[MAXSTRING];
     FILE           *init_file;
@@ -1243,7 +1326,8 @@ void ReadLsmInit (char *project, char *simulation, lsm_ic_struct *ic, int numele
     }
 }
 
-void InitLsmVrbl (grid_struct *grid, elem_struct *elem, int numele, lsm_ic_struct ic)
+void InitLsmVrbl (grid_struct * grid, elem_struct *elem, int numele,
+    lsm_ic_struct ic)
 {
     int             i, j;
 

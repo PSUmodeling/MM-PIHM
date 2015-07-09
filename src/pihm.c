@@ -32,11 +32,11 @@ int main (int argc, char *argv[])
 
     printf ("\n");
     printf ("\t\t########  #### ##     ## ##     ##\n");
-    printf ("\t\t##     ##  ##  ##     ## ###   ###\n"); 
+    printf ("\t\t##     ##  ##  ##     ## ###   ###\n");
     printf ("\t\t##     ##  ##  ##     ## #### ####\n");
     printf ("\t\t########   ##  ######### ## ### ##\n");
     printf ("\t\t##         ##  ##     ## ##     ##\n");
-    printf ("\t\t##         ##  ##     ## ##     ##\n"); 
+    printf ("\t\t##         ##  ##     ## ##     ##\n");
     printf ("\t\t##        #### ##     ## ##     ##\n");
     printf ("\n\t    The Penn State Integrated Hydrologic Model\n");
 
@@ -50,21 +50,23 @@ int main (int argc, char *argv[])
     printf ("\n\t    * Biogeochemistry module turned on.\n");
 #endif
 
-    while((c = getopt(argc, argv, "odv")) != -1)
+    while ((c = getopt (argc, argv, "odv")) != -1)
     {
         if (optind >= argc)
         {
             printf ("\nUsage: ./pihm [-o -d -v] <project name>\n");
-            printf ("\t-o Output will be written in the \"output\" directory and overwrite existing output.\n");
+            printf
+                ("\t-o Output will be written in the \"output\" directory and overwrite existing output.\n");
             printf ("\t-v Verbose mode\n");
             printf ("\t-d Debug mode\n");
             exit (1);
         }
-        switch(c)
+        switch (c)
         {
             case 'o':
                 overwrite_mode = 1;
-                printf ("Overwrite mode turned on. Output directory is \"./output\".\n");
+                printf
+                    ("Overwrite mode turned on. Output directory is \"./output\".\n");
                 break;
             case 'd':
                 debug_mode = 1;
@@ -86,7 +88,8 @@ int main (int argc, char *argv[])
     {
         printf ("\nERROR:You must specify the name of project!\n");
         printf ("Usage: ./pihm [-o -d -v] <project name>\n");
-        printf ("\t-o Output will be written in the \"output\" directory and overwrite existing output.\n");
+        printf
+            ("\t-o Output will be written in the \"output\" directory and overwrite existing output.\n");
         printf ("\t-v Verbose mode\n");
         printf ("\t-d Debug mode\n");
         exit (1);
@@ -105,19 +108,22 @@ int main (int argc, char *argv[])
     sprintf (source_file, "input/%s/%s.para", project, project);
     if (access (source_file, F_OK) != -1)
     {
-        sprintf (system_cmd, "cp %s %s/%s.para.bak", source_file, outputdir, project);
+        sprintf (system_cmd, "cp %s %s/%s.para.bak", source_file, outputdir,
+            project);
         system (system_cmd);
     }
     sprintf (source_file, "input/%s/%s.calib", project, simulation);
     if (access (source_file, F_OK) != -1)
     {
-        sprintf (system_cmd, "cp %s %s/%s.calib.bak", source_file, outputdir, simulation);
+        sprintf (system_cmd, "cp %s %s/%s.calib.bak", source_file, outputdir,
+            simulation);
         system (system_cmd);
     }
     sprintf (source_file, "input/%s/%s.init", project, project);
     if (access (source_file, F_OK) != -1)
     {
-        sprintf (system_cmd, "cp %s %s/%s.init.bak", source_file, outputdir, simulation);
+        sprintf (system_cmd, "cp %s %s/%s.init.bak", source_file, outputdir,
+            simulation);
         system (system_cmd);
     }
 
@@ -132,7 +138,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     N_Vector        CV_Y;       /* State Variables Vector */
     void           *cvode_mem;  /* Model Data Pointer */
     int             flag;       /* flag to test return value */
-    int             nsv;          /* Problem size */
+    int             nsv;        /* Problem size */
     int             i, j;       /* loop index */
     int             t;          /* simulation time */
     realtype        solvert;
@@ -148,19 +154,19 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 
 #ifdef _RT_
     Chem_Data       chData;
-#endif 
+#endif
 
 #ifdef _BGC_
     bgc_struct      bgc;
 #endif
 
     /* Allocate memory for model data structure */
-    pihm = (pihm_struct) malloc (sizeof *pihm);
+    pihm = (pihm_struct)malloc (sizeof *pihm);
 #ifdef _NOAH_
-    noah = (lsm_struct) malloc (sizeof *noah);
+    noah = (lsm_struct)malloc (sizeof *noah);
 #endif
 #ifdef _RT_
-    chData = (Chem_Data) malloc (sizeof * chData);
+    chData = (Chem_Data) malloc (sizeof *chData);
 #endif
 #ifdef _BGC_
     bgc = (bgc_struct) malloc (sizeof *bgc);
@@ -241,11 +247,11 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 
         /* Set solver parameters */
         flag = CVodeSetFdata (cvode_mem, pihm);
-        flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
+        flag = CVodeSetInitStep (cvode_mem, (realtype)pihm->ctrl.initstep);
         flag = CVodeSetStabLimDet (cvode_mem, TRUE);
-        flag = CVodeSetMaxStep (cvode_mem, (realtype) pihm->ctrl.maxstep);
-        flag = CVodeMalloc (cvode_mem, f, (realtype) pihm->ctrl.starttime,
-            CV_Y, CV_SS, (realtype) pihm->ctrl.reltol, &pihm->ctrl.abstol);
+        flag = CVodeSetMaxStep (cvode_mem, (realtype)pihm->ctrl.maxstep);
+        flag = CVodeMalloc (cvode_mem, f, (realtype)pihm->ctrl.starttime,
+            CV_Y, CV_SS, (realtype)pihm->ctrl.reltol, &pihm->ctrl.abstol);
         flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
 
         /* set start time */
@@ -257,82 +263,86 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             /* inner loops to next output points with ET step size control */
             //while (t < pihm->ctrl.tout[i + 1])
             //{
-                if (t + pihm->ctrl.etstep >= pihm->ctrl.tout[i + 1])
-                {
-                    nextptr = pihm->ctrl.tout[i + 1];
-                }
-                else
-                {
-                    nextptr = t + pihm->ctrl.etstep;
-                }
+            if (t + pihm->ctrl.etstep >= pihm->ctrl.tout[i + 1])
+            {
+                nextptr = pihm->ctrl.tout[i + 1];
+            }
+            else
+            {
+                nextptr = t + pihm->ctrl.etstep;
+            }
 
-                stepsize = nextptr - (realtype) t;
+            stepsize = nextptr - (realtype)t;
 
-                pihm->dt = (double) stepsize;
+            pihm->dt = (double)stepsize;
 
-                ApplyForcing (&pihm->forcing, t);
+            ApplyForcing (&pihm->forcing, t);
 
-                if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
-                {
+            if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
+            {
 #ifdef _NOAH_
-                    /* Calculate surface energy balance */
-                    PIHMxNoah (t, (double) pihm->ctrl.etstep, pihm, noah);
+                /* Calculate surface energy balance */
+                PIHMxNoah (t, (double)pihm->ctrl.etstep, pihm, noah);
 
-                    for (j = 0; j < noah->nprint; j++)
-                    {
-                        PrintData (&noah->prtctrl[j], t, pihm->ctrl.etstep, pihm->ctrl.ascii);
-                    }
+                for (j = 0; j < noah->nprint; j++)
+                {
+                    PrintData (&noah->prtctrl[j], t, pihm->ctrl.etstep,
+                        pihm->ctrl.ascii);
+                }
 //
 //#ifdef _BGC_
 //                    BgcCoupling ((int) t, (int) cData->StartTime, mData, LSM, BGCM);
 //#endif
 #else
-                    /* Calculate Interception Storage and ET */
-                    IntcpSnowET (t, (double) pihm->ctrl.etstep, pihm);
+                /* Calculate Interception Storage and ET */
+                IntcpSnowET (t, (double)pihm->ctrl.etstep, pihm);
 #endif
-                }
+            }
 
-                /* Added to adatpt to larger time step. */
-                flag = CVodeSetMaxNumSteps(cvode_mem, (long int)(stepsize* 20));
-                solvert = (realtype) t;
-                flag = CVode (cvode_mem, nextptr, CV_Y, &solvert, CV_NORMAL);
-                flag = CVodeGetCurrentTime(cvode_mem, &cvode_val);
+            /* Added to adatpt to larger time step. */
+            flag = CVodeSetMaxNumSteps (cvode_mem, (long int)(stepsize * 20));
+            solvert = (realtype)t;
+            flag = CVode (cvode_mem, nextptr, CV_Y, &solvert, CV_NORMAL);
+            flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
 
-                t = (int) solvert;
-                rawtime = t;
-                timestamp = gmtime (&rawtime);
+            t = (int)solvert;
+            rawtime = t;
+            timestamp = gmtime (&rawtime);
 
-                if (verbose_mode)
-                {
-                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
-                        timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday,
-                        timestamp->tm_hour, timestamp->tm_min, t);
-                }
-                else if (rawtime % 3600 == 0)
-                {
-                    printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
-                        timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday,
-                        timestamp->tm_hour, timestamp->tm_min);
-                }
+            if (verbose_mode)
+            {
+                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
+                    timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+                    timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min,
+                    t);
+            }
+            else if (rawtime % 3600 == 0)
+            {
+                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
+                    timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+                    timestamp->tm_mday, timestamp->tm_hour,
+                    timestamp->tm_min);
+            }
 
-                Summary (pihm, CV_Y, (double) stepsize);
+            Summary (pihm, CV_Y, (double)stepsize);
 #ifdef _NOAH_
-                AvgFlux (noah, pihm);
+            AvgFlux (noah, pihm);
 #endif
 #ifdef _RT_
-                /* PIHM-rt control file */
-                fluxtrans(t / 60.0, StepSize / 60.0, mData, chData, CV_Y);
+            /* PIHM-rt control file */
+            fluxtrans (t / 60.0, StepSize / 60.0, mData, chData, CV_Y);
 #endif
             //}
 
             /* Print outputs */
             for (j = 0; j < pihm->ctrl.nprint; j++)
             {
-                PrintData (&pihm->prtctrl[j], t, (int) stepsize, pihm->ctrl.ascii);
+                PrintData (&pihm->prtctrl[j], t, (int)stepsize,
+                    pihm->ctrl.ascii);
             }
 #ifdef _RT_
             /* PIHM-rt output routine */
-            PrintChem(filename, chData,t/60);
+            PrintChem (filename, chData, t / 60);
 #endif
         }
 #ifdef _BGC_
@@ -384,7 +394,9 @@ void CreateOutputDir (char *project, char *outputdir, int overwrite_mode)
     else
     {
         /* Create output directory based on projectname and time */
-        sprintf (str, "%2.2d%2.2d%2.2d%2.2d%2.2d", timestamp->tm_year + 1900 - 2000, timestamp->tm_mon + 1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+        sprintf (str, "%2.2d%2.2d%2.2d%2.2d%2.2d",
+            timestamp->tm_year + 1900 - 2000, timestamp->tm_mon + 1,
+            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
         sprintf (outputdir, "output/%s.%s/", project, str);
         printf ("\nOutput directory: %s\n", outputdir);
         mkdir (outputdir, 0755);
