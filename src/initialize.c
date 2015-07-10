@@ -20,18 +20,9 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     pihm->riv = (river_struct *)malloc (pihm->numriv * sizeof (river_struct));
 
 #ifdef _NOAH_
-    //pihm->avg_inf = (double *) malloc (pihm->NumEle * sizeof (double));  /* YS */
-    //pihm->avg_rech = (double *) malloc (pihm->NumEle * sizeof (double));  /* YS */
-    //pihm->avg_subflux = (double **) malloc (pihm->NumEle * sizeof (double *));  /* YS */
     for (i = 0; i < pihm->numele; i++)
     {
         pihm->elem[i].fcr = 1.0;
-        //pihm->avg_inf[i] = 0.0;
-        //pihm->avg_rech[i] = 0.0;
-        //pihm->avg_subflux[i] = (double *) malloc (3 * sizeof (double));
-        //pihm->avg_subflux[i][0] = 0.0;
-        //pihm->avg_subflux[i][1] = 0.0;
-        //pihm->avg_subflux[i][2] = 0.0;
     }
 #endif
 
@@ -135,8 +126,6 @@ void InitSoil (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl,
     int             i;
     int             soil_ind;
     int             geol_ind;
-    double          thetaw;
-    double          thetaref;
 
     for (i = 0; i < numele; i++)
     {

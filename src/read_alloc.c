@@ -1016,77 +1016,6 @@ void ReadPara (char *project, ctrl_struct *ctrl)
     }
 }
 
-//if (CS->a != 1.0)
-//NumTout = (int)(log (1. - (CS->EndTime - CS->StartTime) * (1. - CS->a) / CS->b) / log (CS->a));
-//else
-//    {
-//        if ((CS->EndTime - CS->StartTime) / CS->b - ((int)(CS->EndTime - CS->StartTime) / CS->b) > 0)
-//            NumTout = (int)((CS->EndTime - CS->StartTime) / CS->b);
-//        else
-//            NumTout = (int)((CS->EndTime - CS->StartTime) / CS->b - 1);
-//    }
-//
-//    CS->NumSteps = NumTout + 1;
-//
-//    CS->Tout = (realtype *) malloc ((CS->NumSteps + 1) * sizeof (realtype));
-//
-//    for (i = 0; i < CS->NumSteps + 1; i++)
-//    {
-//        if (i == 0)
-//            CS->Tout[i] = CS->StartTime;
-//        else
-//            CS->Tout[i] = CS->Tout[i - 1] + pow (CS->a, i) * CS->b;
-//    }
-//
-//    if (CS->Tout[CS->NumSteps] < CS->EndTime)
-//        CS->Tout[CS->NumSteps] = CS->EndTime;
-//    if (CS->abstol == BADVAL)
-//    {
-//        printf ("\n  Fatal Error: Absolute Tolerance (ABSTOL) must be defined in .para file!\n");
-//        exit (1);
-//    }
-//    if (CS->reltol == BADVAL)
-//    {
-//        printf ("\n  Fatal Error: Relative  Tolerance (RELTOL) must be defined in .para file!\n");
-//        exit (1);
-//    }
-//    if (CS->InitStep == BADVAL)
-//    {
-//        printf ("\n  Fatal Error: Initial time-step (INIT_STEP) must be defined in .para file!\n");
-//        exit (1);
-//    }
-//    if (CS->MaxStep == BADVAL)
-//    {
-//        printf ("\n  Fatal Error: Maximum time-step (MAX_STEP) must be defined in .para file!\n");
-//        exit (1);
-//    }
-//    if (CS->StartTime == BADVAL)
-//    {
-//        printf ("\n  Fatal Error: Simulation start time (START yyyy-mm-dd hh:mm) must be defined in .para file!\n");
-//        exit (1);
-//    }
-//    if (CS->EndTime == BADVAL)
-//    {
-//        printf ("\n  Fatal Error: Simulation end time (END yyyy-mm-dd hh:mm) must be defined in .para file!\n");
-//        exit (1);
-//    }
-//    if (CS->ETStep == BADVAL)
-//    {
-//        printf ("\n  Fatal Error: Land surface model time-step (LSM_STEP) must be defined in .para file!\n");
-//        exit (1);
-//    }
-//    if (CS->outtype == BADVAL)
-//    {
-//        printf ("\n  Fatal Error: Output step-size type (OUTPUT_TYPE) must be defined in .para file!\n");
-//        exit (1);
-//    }
-//    if ((CS->outtype == 0) && (CS->a == BADVAL || CS->b == BADVAL))
-//    {
-//        printf ("\n  Fatal Error: Output step-size factor (A) and base step-size (B) must be defined in .para file!\n");
-//        exit (1);
-//    }
-//}
-
 void ReadCalib (char *project, char *simulation, calib_struct *cal)
 {
     char            fn[MAXSTRING];
@@ -1226,9 +1155,7 @@ void ReadInit (char *project, char *simulation, ic_struct *ic, int numele,
 {
     char            fn[MAXSTRING];
     FILE           *init_file;
-    char            cmdstr[MAXSTRING];
     int             i;
-    int             match;
 
     sprintf (fn, "input/%s/%s.init", project, simulation);
     init_file = fopen (fn, "rb");
@@ -1363,10 +1290,32 @@ void FreeData (pihm_struct pihm)
             free (pihm->forcing.ts[k][i].ftime);
             free (pihm->forcing.ts[k][i].data);
         }
-        if (pihm->forcing.nts[k] > 0)
+        //if (pihm->forcing.nts[k] > 0)
+        //{
             free (pihm->forcing.ts[k]);
+        //}
     }
 
+    free (pihm->forcing.bc);
+    for (i = 0; i < NUM_METEO_TS; i++)
+    {
+        free (pihm->forcing.meteo[i]);
+    }
+    free (pihm->forcing.zlvl_wind);
+    free (pihm->forcing.lai);
+    free (pihm->forcing.riverbc);
+    free (pihm->forcing.source);
+
+    free (pihm->ctrl.tout);
+
+    for (i = 0; i < pihm->ctrl.nprint; i++)
+    {
+        free (pihm->prtctrl[i].vrbl);
+        free (pihm->prtctrl[i].buffer);
+    }
+
+    free (pihm->elem);
+    free (pihm->riv);
 //
 //    /*
 //     * free river

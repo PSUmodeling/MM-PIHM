@@ -246,6 +246,8 @@ void ReadKeywordTime (char *buffer, char *keyword, int *value)
     timeinfo->tm_year = timeinfo->tm_year - 1900;
     timeinfo->tm_mon = timeinfo->tm_mon - 1;
     *value = timegm (timeinfo);
+
+    free (timeinfo);
 }
 
 void ReadKeywordStr (char *buffer, char *keyword, char *value)

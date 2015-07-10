@@ -10,7 +10,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
 {
     double         *y;
     double          wtd0, wtd1, elemsatn0, elemsatn1, realunsat0, realunsat1,
-        realgw0, realgw1, recharge, runoff;
+        realgw0, realgw1, recharge;
     double          totalw0, totalw1;
     int             i, j;
     elem_struct    *elem;

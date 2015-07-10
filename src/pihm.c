@@ -142,7 +142,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     void           *cvode_mem;  /* Model Data Pointer */
     int             flag;       /* Flag to test return value */
     int             nsv;        /* Problem size */
-    int             i, j;       /* Loop index */
+    int             i;       /* Loop index */
     int             t;          /* Simulation time */
     realtype        solvert;
     struct tm      *timestamp;
