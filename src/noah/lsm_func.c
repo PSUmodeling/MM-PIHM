@@ -12,7 +12,6 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
 {
     int             i, j;
     char            fn[MAXSTRING];
-    struct tm      *timeinfo;
     FILE           *lsm_file;
     FILE           *radn_file;
     FILE           *stream;
@@ -23,8 +22,6 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
     char            project[MAXSTRING];
     char           *token;
     char            tempname[MAXSTRING];
-
-    timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
     strcpy (tempname, simulation);
     if (strstr (tempname, ".") != 0)
@@ -673,31 +670,45 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele,
     noah->nprint = n;
 }
 
-//
-//void LSM_FreeData (Model_Data PIHM, LSM_STRUCT noah)
-//{
-//    GRID_TYPE      *NOAH;
-//
-//    int             i;
-//    for (i = 0; i < PIHM->NumEle; i++)
-//    {
-//        NOAH = &(noah->GRID[i]);
-//        free (NOAH->STC);
-//        free (NOAH->SMC);
-//        free (NOAH->SH2O);
-//        free (NOAH->SLDPTH);
-//        free (NOAH->ET);
-//        free (NOAH->SMAV);
-//        free (NOAH->RTDIS);
-//    }
-//    for (i = 0; i < noah->NPRINT; i++)
-//    {
-//        free (noah->PCtrl[i].PrintVar);
-//        free (noah->PCtrl[i].buffer);
-//    }
-//    free (noah->GRID);
-//    free (noah->STD_SLDPTH);
-//}
+
+void LsmFreeData (pihm_struct pihm, lsm_struct noah)
+{
+    int             i, j;
+
+    for (i = 0; i < noah->forcing.nts; i++)
+    {
+        for (j = 0; j < noah->forcing.ts[i].length; j++)
+        {
+            free (noah->forcing.ts[i].data[j]);
+        }
+        free (noah->forcing.ts[i].ftime);
+        free (noah->forcing.ts[i].data);
+    }
+    free (noah->forcing.ts);
+    for (i = 0; i < 2; i++)
+    {
+        free (noah->forcing.radn[i]);
+    }
+
+    free (noah->grid);
+    free (noah->ic.t1);
+    free (noah->ic.snowh);
+    for (i = 0; i < pihm->numele; i++)
+    {
+        free (noah->ic.stc[i]);
+        free (noah->ic.smc[i]);
+        free (noah->ic.sh2o[i]);
+    }
+    free (noah->ic.stc);
+    free (noah->ic.smc);
+    free (noah->ic.sh2o);
+
+    for (i = 0; i < noah->nprint; i++)
+    {
+        free (noah->prtctrl[i].vrbl);
+        free (noah->prtctrl[i].buffer);
+    }
+}
 
 void LsmPrtInit (pihm_struct pihm, lsm_struct noah, char *simulation)
 {

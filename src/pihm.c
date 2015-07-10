@@ -353,7 +353,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     CVodeFree (&cvode_mem);
 
 #ifdef _NOAH_
-//    LsmFreeData (pihm, noah);
+    LsmFreeData (pihm, noah);
     free (noah);
 #endif
 #ifdef _BGC_

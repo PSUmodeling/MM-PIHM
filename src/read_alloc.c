@@ -1278,6 +1278,7 @@ void FreeData (pihm_struct pihm)
     free (pihm->lc_tbl.rsmin);
     free (pihm->lc_tbl.rough);
     free (pihm->lc_tbl.rzd);
+
     /* Free forcing input structure */
     for (k = 0; k < NUM_TS; k++)
     {
@@ -1290,10 +1291,7 @@ void FreeData (pihm_struct pihm)
             free (pihm->forcing.ts[k][i].ftime);
             free (pihm->forcing.ts[k][i].data);
         }
-        //if (pihm->forcing.nts[k] > 0)
-        //{
-            free (pihm->forcing.ts[k]);
-        //}
+        free (pihm->forcing.ts[k]);
     }
 
     free (pihm->forcing.bc);

@@ -646,4 +646,5 @@ double          TopoRadiation (double sdir, double sdif, double zenith,
     double svf);
 void            ApplyRadnForcing (radn_ts_struct *forcing, int t);
 void            LsmPrtInit (pihm_struct pihm, lsm_struct noah, char *simulation);
+void            LsmFreeData (pihm_struct pihm, lsm_struct noah);
 #endif
