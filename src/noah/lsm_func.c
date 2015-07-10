@@ -673,215 +673,6 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele,
     noah->nprint = n;
 }
 
-//void LSM_initialize_output (char *filename, Model_Data PIHM, Control_Data CS, LSM_STRUCT noah, char *outputdir)
-//{
-//    FILE           *Ofile;
-//    char           *ascii_name;
-//    int             i, j, ensemble_mode, icounter;
-//
-//    if (strstr (filename, ".") != 0)
-//        ensemble_mode = 1;
-//    else
-//        ensemble_mode = 0;
-//
-//    if (CS->Verbose)
-//        printf ("\nInitializing noah output files ...\n");
-//
-//    icounter = 0;
-//    if (noah->PRINT_T1 > 0)
-//    {
-//        sprintf (noah->PCtrl[icounter].name, "%s%s.Tsfc", outputdir, filename);
-//        noah->PCtrl[icounter].Interval = noah->PRINT_T1;
-//        noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//        noah->PCtrl[icounter].PrintVar =
-//           (double **)malloc (noah->PCtrl[icounter].NumVar *
-//           sizeof (double *));
-//        for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//            noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].T1);
-//        icounter++;
-//    }
-//    if (noah->PRINT_STC > 0)
-//    {
-//        for (j = 0; j < noah->STD_NSOIL + 1; j++)
-//        {
-//            sprintf (noah->PCtrl[icounter].name, "%s%s.TSOIL%d", outputdir,
-//               filename, j);
-//            noah->PCtrl[icounter].Interval = noah->PRINT_STC;
-//            noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//            noah->PCtrl[icounter].PrintVar =
-//               (double **)malloc (noah->PCtrl[icounter].NumVar *
-//               sizeof (double *));
-//            for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//            noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].STC[j]);
-//            icounter++;
-//        }
-//    }
-//    if (noah->PRINT_SMC > 0)
-//    {
-//        for (j = 0; j < noah->STD_NSOIL + 1; j++)
-//        {
-//            sprintf (noah->PCtrl[icounter].name, "%s%s.SM%d", outputdir,
-//               filename, j);
-//            noah->PCtrl[icounter].Interval = noah->PRINT_SMC;
-//            noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//            noah->PCtrl[icounter].PrintVar =
-//               (double **)malloc (noah->PCtrl[icounter].NumVar *
-//               sizeof (double *));
-//            for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//                noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].SMC[j]);
-//            icounter++;
-//        }
-//    }
-//    if (noah->PRINT_SH2O > 0)
-//    {
-//        for (j = 0; j < noah->STD_NSOIL + 1; j++)
-//        {
-//            sprintf (noah->PCtrl[icounter].name, "%s%s.SW%d", outputdir,
-//               filename, j);
-//            noah->PCtrl[icounter].Interval = noah->PRINT_SH2O;
-//            noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//            noah->PCtrl[icounter].PrintVar =
-//               (double **)malloc (noah->PCtrl[icounter].NumVar *
-//               sizeof (double *));
-//            for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//                noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].SH2O[j]);
-//            icounter++;
-//        }
-//    }
-//    if (noah->PRINT_SNOWH > 0)
-//    {
-//        sprintf (noah->PCtrl[icounter].name, "%s%s.snowH", outputdir,
-//           filename);
-//        noah->PCtrl[icounter].Interval = noah->PRINT_SNOWH;
-//        noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//        noah->PCtrl[icounter].PrintVar =
-//           (double **)malloc (noah->PCtrl[icounter].NumVar *
-//           sizeof (double *));
-//        for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//            noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].SNOWH);
-//        icounter++;
-//    }
-//    if (noah->PRINT_ALBEDO > 0)
-//    {
-//        sprintf (noah->PCtrl[icounter].name, "%s%s.Albedo", outputdir,
-//           filename);
-//        noah->PCtrl[icounter].Interval = noah->PRINT_ALBEDO;
-//        noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//        noah->PCtrl[icounter].PrintVar =
-//           (double **)malloc (noah->PCtrl[icounter].NumVar *
-//           sizeof (double *));
-//        for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//            noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].ALBEDO);
-//        icounter++;
-//    }
-//    if (noah->PRINT_LE > 0)
-//    {
-//        sprintf (noah->PCtrl[icounter].name, "%s%s.LE", outputdir, filename);
-//        noah->PCtrl[icounter].Interval = noah->PRINT_LE;
-//        noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//        noah->PCtrl[icounter].PrintVar =
-//           (double **)malloc (noah->PCtrl[icounter].NumVar *
-//           sizeof (double *));
-//        for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//            noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].ETA);
-//        icounter++;
-//    }
-//    if (noah->PRINT_SH > 0)
-//    {
-//        sprintf (noah->PCtrl[icounter].name, "%s%s.SH", outputdir, filename);
-//        noah->PCtrl[icounter].Interval = noah->PRINT_SH;
-//        noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//        noah->PCtrl[icounter].PrintVar =
-//           (double **)malloc (noah->PCtrl[icounter].NumVar *
-//           sizeof (double *));
-//        for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//            noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].SHEAT);
-//        icounter++;
-//    }
-//    if (noah->PRINT_G > 0)
-//    {
-//        sprintf (noah->PCtrl[icounter].name, "%s%s.G", outputdir, filename);
-//        noah->PCtrl[icounter].Interval = noah->PRINT_G;
-//        noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//        noah->PCtrl[icounter].PrintVar =
-//           (double **)malloc (noah->PCtrl[icounter].NumVar *
-//           sizeof (double *));
-//        for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//            noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].SSOIL);
-//        icounter++;
-//    }
-//    if (noah->PRINT_ETP > 0)
-//    {
-//        sprintf (noah->PCtrl[icounter].name, "%s%s.ETP", outputdir, filename);
-//        noah->PCtrl[icounter].Interval = noah->PRINT_ETP;
-//        noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//        noah->PCtrl[icounter].PrintVar =
-//           (double **)malloc (noah->PCtrl[icounter].NumVar *
-//           sizeof (double *));
-//        for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//            noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].ETP);
-//        icounter++;
-//    }
-//    if (noah->PRINT_ESNOW > 0)
-//    {
-//        sprintf (noah->PCtrl[icounter].name, "%s%s.ESNOW", outputdir, filename);
-//        noah->PCtrl[icounter].Interval = noah->PRINT_ESNOW;
-//        noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//        noah->PCtrl[icounter].PrintVar =
-//           (double **)malloc (noah->PCtrl[icounter].NumVar *
-//           sizeof (double *));
-//        for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//            noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].ESNOW);
-//        icounter++;
-//    }
-//    if (noah->PRINT_ROOTW > 0)
-//    {
-//        sprintf (noah->PCtrl[icounter].name, "%s%s.ROOTW", outputdir, filename);
-//        noah->PCtrl[icounter].Interval = noah->PRINT_ROOTW;
-//        noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//        noah->PCtrl[icounter].PrintVar =
-//           (double **)malloc (noah->PCtrl[icounter].NumVar *
-//           sizeof (double *));
-//        for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//            noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].SOILW);
-//        icounter++;
-//    }
-//    if (noah->PRINT_SOILM > 0)
-//    {
-//        sprintf (noah->PCtrl[icounter].name, "%s%s.SOILM", outputdir, filename);
-//        noah->PCtrl[icounter].Interval = noah->PRINT_SOILM;
-//        noah->PCtrl[icounter].NumVar = PIHM->NumEle;
-//        noah->PCtrl[icounter].PrintVar =
-//           (double **)malloc (noah->PCtrl[icounter].NumVar *
-//           sizeof (double *));
-//        for (i = 0; i < noah->PCtrl[icounter].NumVar; i++)
-//            noah->PCtrl[icounter].PrintVar[i] = &(noah->GRID[i].SOILM);
-//        icounter++;
-//    }
-//    noah->NPRINT = icounter;
-//
-//    for (i = 0; i < noah->NPRINT; i++)
-//    {
-//        if (noah->PCtrl[i].Interval < noah->GRID[0].DT)
-//        {
-//            printf("\nLSM %s print interval must not be smaller than noah step size!\n", noah->PCtrl[i].name);
-//            exit(1);
-//        }
-//        Ofile = fopen (noah->PCtrl[i].name, "w");
-//        fclose (Ofile);
-//
-//      if (CS->Ascii)
-//      {
-//          ascii_name = (char *)malloc ((strlen (noah->PCtrl[i].name) + 5) * sizeof (char));
-//          sprintf (ascii_name, "%s.txt", noah->PCtrl[i].name);
-//          Ofile = fopen (ascii_name, "w");
-//          fclose (Ofile);
-//            free (ascii_name);
-//      }
-//
-//        noah->PCtrl[i].buffer = (double *)calloc (noah->PCtrl[i].NumVar, sizeof (double));
-//    }
-//}
 //
 //void LSM_FreeData (Model_Data PIHM, LSM_STRUCT noah)
 //{
@@ -907,31 +698,51 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele,
 //    free (noah->GRID);
 //    free (noah->STD_SLDPTH);
 //}
-//
-//void LSM_PrintInit (Model_Data PIHM, LSM_STRUCT noah, char *filename)
-//{
-//    FILE           *init_file;
-//    char           *init_name;
-//    int             i, j;
-//    init_name = (char *)malloc ((2 * strlen (filename) + 16) * sizeof (char));
-//    sprintf (init_name, "input/%s/%s.lsminit", filename, filename);
-//    init_file = fopen (init_name, "w");
-//    free (init_name);
-//
-//    for (i = 0; i < PIHM->NumEle; i++)
-//    {
-//        fprintf (init_file, "%lf\t%lf", noah->GRID[i].T1, noah->GRID[i].SNOWH);
-//        for (j = 0; j < noah->STD_NSOIL + 1; j++)
-//            fprintf (init_file, "\t%lf", noah->GRID[i].STC[j]);
-//        for (j = 0; j < noah->STD_NSOIL + 1; j++)
-//            fprintf (init_file, "\t%lf", noah->GRID[i].SMC[j]);
-//        for (j = 0; j < noah->STD_NSOIL + 1; j++)
-//            fprintf (init_file, "\t%lf", noah->GRID[i].SH2O[j]);
-//        fprintf (init_file, "\n");
-//    }
-//
-//    fclose (init_file);
-//}
+
+void LsmPrtInit (pihm_struct pihm, lsm_struct noah, char *simulation)
+{
+    FILE           *init_file;
+    char            fn[MAXSTRING];
+    char            project[MAXSTRING];
+    char           *token;
+    char            tempname[MAXSTRING];
+    int             i, j;
+
+    strcpy (tempname, simulation);
+    if (strstr (tempname, ".") != 0)
+    {
+        token = strtok (tempname, ".");
+        strcpy (project, token);
+    }
+    else
+    {
+        strcpy (project, simulation);
+    }
+
+    sprintf (fn, "input/%s/%s.lsminit", project, simulation);
+    init_file = fopen (fn, "wb");
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        fwrite (&noah->grid[i].t1, sizeof (double), 1, init_file);
+        fwrite (&noah->grid[i].snowh, sizeof (double), 1, init_file);
+
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&noah->grid[i].stc[j], sizeof (double), 1, init_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&noah->grid[i].smc[j], sizeof (double), 1, init_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&noah->grid[i].sh2o[j], sizeof (double), 1, init_file);
+        }
+    }
+
+    fclose (init_file);
+}
 //
 int FindLayer (const double *sldpth, int nsoil, double depth)
 {
@@ -1237,16 +1048,16 @@ void CalcSlopeAspect (grid_struct * grid, elem_struct elem, pihm_struct pihm)
                 180.0)) * 10.0 / 180.0 * PI;
     }
 
-    if (verbose_mode)
-    {
-        printf ("ele: slope = %lf, aspect = %lf, svf = %lf\t", grid->slope,
-            grid->aspect, grid->svf);
-        for (ind = 0; ind < 36; ind++)
-        {
-            printf ("%lf\t", grid->h_phi[ind]);
-        }
-        printf ("\n");
-    }
+    //if (verbose_mode)
+    //{
+    //    printf ("ele: slope = %lf, aspect = %lf, svf = %lf\t", grid->slope,
+    //        grid->aspect, grid->svf);
+    //    for (ind = 0; ind < 36; ind++)
+    //    {
+    //        printf ("%lf\t", grid->h_phi[ind]);
+    //    }
+    //    printf ("\n");
+    //}
 }
 
 void LsmSaturationIC (lsm_ic_struct *ic, const grid_struct * grid,
@@ -1305,25 +1116,29 @@ void ReadLsmInit (char *project, char *simulation, lsm_ic_struct *ic,
     int             i, j;
 
     sprintf (fn, "input/%s/%s.lsminit", project, simulation);
-    init_file = fopen (fn, "r");
+    init_file = fopen (fn, "rb");
     CheckFile (init_file, fn);
 
     for (i = 0; i < numele; i++)
     {
-        fscanf (init_file, "%lf %lf", &ic->t1[i], &ic->snowh[i]);
+        fread (&ic->t1[i], sizeof (double), 1, init_file);
+        fread (&ic->snowh[i], sizeof (double), 1, init_file);
+
         for (j = 0; j < MAXLYR; j++)
         {
-            fscanf (init_file, "%lf", &ic->stc[i][j]);
+            fread (&ic->stc[i][j], sizeof (double), 1, init_file);
         }
         for (j = 0; j < MAXLYR; j++)
         {
-            fscanf (init_file, "%lf", &ic->smc[i][j]);
+            fread (&ic->smc[i][j], sizeof (double), 1, init_file);
         }
         for (j = 0; j < MAXLYR; j++)
         {
-            fscanf (init_file, "%lf", &ic->sh2o[i][j]);
+            fread (&ic->sh2o[i][j], sizeof (double), 1, init_file);
         }
     }
+
+    fclose (init_file);
 }
 
 void InitLsmVrbl (grid_struct * grid, elem_struct *elem, int numele,

@@ -337,28 +337,30 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #ifdef _BGC_
     }
 #endif
-//    }
-//
-//    if (cData->Spinup)
-//    {
-//        PrintInit (mData, filename);
-//#ifdef _FLUX_PIHM_
-//        LSM_PrintInit (mData, LSM, filename);
-//#endif
-//    }
-//
-//    printf ("\n Done. \n");
+
+    if (pihm->ctrl.write_ic)
+    {
+        PrtInit (pihm, simulation);
+#ifdef _NOAH_
+        LsmPrtInit (pihm, noah, simulation);
+#endif
+    }
+
+    printf ("\nSimulation completed.\n");
     /* Free memory */
     N_VDestroy_Serial (CV_Y);
 
     /* Free integrator memory */
     CVodeFree (&cvode_mem);
 
-    FreeData (pihm);
-//#ifdef _FLUX_PIHM_
+#ifdef _NOAH_
 //    LSM_FreeData (mData, LSM);
-//    free (LSM);
-//#endif
+    free (noah);
+#endif
+#ifdef _BGC_
+    free (bgc);
+#endif
+    FreeData (pihm);
     free (pihm);
 }
 
@@ -369,7 +371,9 @@ void CreateOutputDir (char *project, char *outputdir, int overwrite_mode)
     char            str[11];
 
     if (0 == (mkdir ("output", 0755)))
+    {
         printf (" Output directory was created.\n\n");
+    }
 
     time (&rawtime);
     timestamp = localtime (&rawtime);

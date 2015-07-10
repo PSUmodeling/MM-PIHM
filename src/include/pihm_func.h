@@ -117,8 +117,8 @@ double          EffKV (double ksatfunc, double elemsatn, int status,
     double mackv, double kv, double areaf);
 double          EffKH (int mp, double tmpy, double aqdepth, double macd,
     double macksath, double areaf, double ksath);
-//void            PrintInit (Model_Data, char *);
-//
+
+void            PrtInit (pihm_struct pihm, char *simulation);
 void            PrintData (prtctrl_struct *prtctrl, int t, int lapse, int dt,
     int ascii);
 int             MacroporeStatus (double ksatfunc, double elemsatn,

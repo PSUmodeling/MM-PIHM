@@ -1231,30 +1231,21 @@ void ReadInit (char *project, char *simulation, ic_struct *ic, int numele,
     int             match;
 
     sprintf (fn, "input/%s/%s.init", project, simulation);
-    init_file = fopen (fn, "r");
+    init_file = fopen (fn, "rb");
     CheckFile (init_file, fn);
 
     for (i = 0; i < numele; i++)
     {
-        NextLine (init_file, cmdstr);
-        match = sscanf (cmdstr, "%lf %lf %lf %lf %lf",
-            &ic->intcp[i], &ic->snow[i],
-            &ic->surf[i], &ic->unsat[i], &ic->gw[i]);
-        if (match != 5)
-        {
-            printf ("ERROR: .init format error!\n");
-            exit (1);
-        }
+        fread (&ic->intcp[i], sizeof (double), 1, init_file);
+        fread (&ic->snow[i], sizeof (double), 1, init_file);
+        fread (&ic->surf[i], sizeof (double), 1, init_file);
+        fread (&ic->unsat[i], sizeof (double), 1, init_file);
+        fread (&ic->gw[i], sizeof (double), 1, init_file);
     }
     for (i = 0; i < numriv; i++)
     {
-        NextLine (init_file, cmdstr);
-        match = sscanf (cmdstr, "%lf %lf", &ic->stage[i], &ic->rivgw[i]);
-        if (match != 2)
-        {
-            printf ("ERROR: .init format error!\n");
-            exit (1);
-        }
+        fread (&ic->stage[i], sizeof (double), 1, init_file);
+        fread (&ic->rivgw[i], sizeof (double), 1, init_file);
     }
 }
 

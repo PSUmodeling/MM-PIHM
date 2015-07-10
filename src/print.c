@@ -77,20 +77,43 @@ void PrintData (prtctrl_struct *prtctrl, int t, int lapse, int dt, int ascii)
     }
 }
 
-//void PrintInit (Model_Data DS, char *filename)
-//{
-//    FILE           *init_file;
-//    char           *init_name;
-//    int             i;
-//
-//    init_name = (char *)malloc ((2 * strlen (filename) + 13) * sizeof (char));
-//    sprintf (init_name, "input/%s/%s.init", filename, filename);
-//    init_file = fopen (init_name, "w");
-//    free (init_name);
-//
-//    for (i = 0; i < DS->NumEle; i++)
-//        fprintf (init_file, "%lf\t%lf\t%lf\t%lf\t%lf\n", DS->EleIS[i], DS->EleSnow[i], DS->EleSurf[i], DS->EleUnsat[i], DS->EleGW[i]);
-//    for (i = 0; i < DS->NumRiv; i++)
-//        fprintf (init_file, "%lf\t%lf\n", DS->RivStg[i], DS->EleGW[i + DS->NumEle]);
-//    fclose (init_file);
-//}
+void PrtInit (pihm_struct pihm, char *simulation)
+{
+    FILE           *init_file;
+    char            fn[MAXSTRING];
+    char            project[MAXSTRING];
+    char           *token;
+    char            tempname[MAXSTRING];
+    int             i;
+
+    strcpy (tempname, simulation);
+    if (strstr (tempname, ".") != 0)
+    {
+        token = strtok (tempname, ".");
+        strcpy (project, token);
+    }
+    else
+    {
+        strcpy (project, simulation);
+    }
+
+    sprintf (fn, "input/%s/%s.init", project, simulation);
+    init_file = fopen (fn, "wb");
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        fwrite (&pihm->elem[i].intcp, sizeof (double), 1, init_file);
+        fwrite (&pihm->elem[i].snow, sizeof (double), 1, init_file);
+        fwrite (&pihm->elem[i].surf0, sizeof (double), 1, init_file);
+        fwrite (&pihm->elem[i].unsat0, sizeof (double), 1, init_file);
+        fwrite (&pihm->elem[i].gw0, sizeof (double), 1, init_file);
+    }
+
+    for (i = 0; i < pihm->numriv; i++)
+    {
+        fwrite (&pihm->riv[i].stage0, sizeof (double), 1, init_file);
+        fwrite (&pihm->riv[i].gw0, sizeof (double), 1, init_file);
+    }
+
+    fclose (init_file);
+}
