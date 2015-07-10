@@ -119,8 +119,8 @@ double          EffKH (int mp, double tmpy, double aqdepth, double macd,
     double macksath, double areaf, double ksath);
 
 void            PrtInit (pihm_struct pihm, char *simulation);
-void            PrintData (prtctrl_struct *prtctrl, int t, int lapse, int dt,
-    int ascii);
+void            PrintData (prtctrl_struct *prtctrl, int nprint, int t,
+    int lapse, int dt, int ascii);
 int             MacroporeStatus (double ksatfunc, double elemsatn,
     double grady, double mackv, double kv, double areaf);
 double          KrFunc (double alpha, double beta, double satn);

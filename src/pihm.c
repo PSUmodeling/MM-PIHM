@@ -282,8 +282,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             }
 
             /* Added to adatpt to larger time step. */
-            flag = CVodeSetMaxNumSteps (cvode_mem, (long int) (pihm->ctrl.stepsize * 20));
             solvert = (realtype) t;
+            flag = CVodeSetMaxNumSteps (cvode_mem, (long int) (pihm->ctrl.stepsize * 20));
             flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert, CV_NORMAL);
             flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
 
@@ -316,17 +316,13 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #endif
 
             /* Print outputs */
-            for (j = 0; j < pihm->ctrl.nprint; j++)
-            {
-                PrintData (&pihm->prtctrl[j], t, t - pihm->ctrl.starttime,
-                    pihm->ctrl.stepsize, pihm->ctrl.ascii);
-            }
+            PrintData (pihm->prtctrl, pihm->ctrl.nprint, t,
+                t - pihm->ctrl.starttime, pihm->ctrl.stepsize,
+                pihm->ctrl.ascii);
 #ifdef _NOAH_
-            for (j = 0; j < noah->nprint; j++)
-            {
-                PrintData (&noah->prtctrl[j], t, t - pihm->ctrl.starttime,
-                    pihm->ctrl.stepsize, pihm->ctrl.ascii);
-            }
+            PrintData (noah->prtctrl, noah->nprint, t,
+                t - pihm->ctrl.starttime, pihm->ctrl.stepsize,
+                pihm->ctrl.ascii);
 #endif
 
 #ifdef _RT_

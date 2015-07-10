@@ -1049,6 +1049,7 @@ void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii)
 {
     FILE           *fid;
     char            ascii_fn[MAXSTRING];
+    char            dat_fn[MAXSTRING];
     int             i;
 
     for (i = 0; i < nprint; i++)
@@ -1056,7 +1057,8 @@ void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii)
         prtctrl[i].buffer =
             (double *)calloc (prtctrl[i].nvrbl, sizeof (double));
 
-        fid = fopen (prtctrl[i].name, "w");
+        sprintf (dat_fn, "%s.dat", prtctrl[i].name);
+        fid = fopen (dat_fn, "w");
         fclose (fid);
 
         if (ascii)
