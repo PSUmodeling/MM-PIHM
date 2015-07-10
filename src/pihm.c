@@ -256,16 +256,17 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             CV_Y, CV_SS, (realtype)pihm->ctrl.reltol, &pihm->ctrl.abstol);
         flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
 
-        /* set start time */
-        t = pihm->ctrl.starttime;
-
-        /* start solver in loops */
+        /* Start solver in loops */
         for (i = 0; i < pihm->ctrl.nstep; i++)
         {
+            /* Determine current step and next step */
+            t = pihm->ctrl.tout[i];
             nextptr = pihm->ctrl.tout[i + 1];
 
+            /* Apply forcing */
             ApplyForcing (&pihm->forcing, t);
 
+            /* Determine if land surface simulation is needed */
             if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
             {
 #ifdef _NOAH_
@@ -276,31 +277,32 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 //                    BgcCoupling ((int) t, (int) cData->StartTime, mData, LSM, BGCM);
 //#endif
 #else
-                /* Calculate Interception Storage and ET */
+                /* Calculate Interception storage and ET */
                 IntcpSnowET (t, (double) pihm->ctrl.etstep, pihm);
 #endif
             }
 
-            /* Added to adatpt to larger time step. */
             solvert = (realtype) t;
-            flag = CVodeSetMaxNumSteps (cvode_mem, (long int) (pihm->ctrl.stepsize * 20));
-            flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert, CV_NORMAL);
+            flag = CVodeSetMaxNumSteps (cvode_mem,
+                (long int) (pihm->ctrl.stepsize * 20));
+            flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert,
+                CV_NORMAL);
             flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
 
             t = (int) solvert;
-            rawtime = t;
+            rawtime = (time_t) t;
             timestamp = gmtime (&rawtime);
 
             if (verbose_mode)
             {
-                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
+                printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
                     timestamp->tm_year + 1900, timestamp->tm_mon + 1,
                     timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min,
                     t);
             }
             else if (rawtime % 3600 == 0)
             {
-                printf (" Time = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
+                printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
                     timestamp->tm_year + 1900, timestamp->tm_mon + 1,
                     timestamp->tm_mday, timestamp->tm_hour,
                     timestamp->tm_min);
@@ -343,6 +345,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     }
 
     printf ("\nSimulation completed.\n");
+
     /* Free memory */
     N_VDestroy_Serial (CV_Y);
 
@@ -350,7 +353,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     CVodeFree (&cvode_mem);
 
 #ifdef _NOAH_
-//    LSM_FreeData (mData, LSM);
+//    LsmFreeData (pihm, noah);
     free (noah);
 #endif
 #ifdef _BGC_
