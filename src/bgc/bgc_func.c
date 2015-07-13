@@ -810,10 +810,8 @@ void BgcCoupling (int t, int start_time, pihm_struct pihm, lsm_struct noah, bgc_
         DailyBgc (bgc, pihm->numele, t, dummy, first_balance);
         first_balance = 0;
 
-        for (j = 0; j < bgc->ctrl.nprint; j++)
-        {
-            PrintData (&bgc->prtctrl[j], t, 86400, 1);
-        }
+        PrintData (bgc->prtctrl, bgc->ctrl.nprint, t, t - start_time, 86400,
+            pihm->ctrl.ascii);
 
         
         for (i = 0; i < pihm->numele; i++)

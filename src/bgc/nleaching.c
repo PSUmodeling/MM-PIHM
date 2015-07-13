@@ -14,6 +14,7 @@ void nleaching (nstate_struct * ns, nflux_struct * nf, wstate_struct * ws, const
 {
     double          soilwater_nconc;
     int             k;
+    double          outflow;
 
     /* N leaching flux is calculated after all the other nfluxes are
      * reconciled to avoid the possibility of removing more N than is there.
@@ -39,14 +40,20 @@ void nleaching (nstate_struct * ns, nflux_struct * nf, wstate_struct * ws, const
     nf->sminn_leached = 0.0;
     for (k = 0; k < 3; k++)
     {
-        if (metv->subflux[k] > 0.0)
-        {
-            nf->sminn_leached += soilwater_nconc * metv->subflux[k];
-        }
-        else
-        {
-            nf->sminn_leached += nabr_nconc[k] * metv->subflux[k];
-        }
+        outflow += metv->subflux[k];
+        //if (metv->subflux[k] > 0.0)
+        //{
+        //    nf->sminn_leached += soilwater_nconc * metv->subflux[k];
+        //}
+        //else
+        //{
+        //    nf->sminn_leached += nabr_nconc[k] * metv->subflux[k];
+        //}
+    }
+
+    if (outflow > 0.0)
+    {
+        nf->sminn_leached = soilwater_nconc * outflow;
     }
 
     ns->nleached_snk += nf->sminn_leached;

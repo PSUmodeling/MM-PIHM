@@ -12,6 +12,10 @@
 #include "bgc.h"
 #endif
 
+#ifdef _CYCLES_
+#include "cycles.h"
+#endif
+
 #ifdef _ENKF_
 #include "enkf.h"
 #endif
@@ -48,6 +52,9 @@ int main (int argc, char *argv[])
 #endif
 #ifdef _BGC_
     printf ("\n\t    * Biogeochemistry module turned on.\n");
+#endif
+#ifdef _CYCLES_
+    printf ("\n\t    * Crop module turned on.\n");
 #endif
 
     while ((c = getopt (argc, argv, "odv")) != -1)
@@ -162,6 +169,10 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     bgc_struct      bgc;
 #endif
 
+#ifdef _CYCLES_
+    CyclesStruct    cycles;
+#endif
+
     /* Allocate memory for model data structure */
     pihm = (pihm_struct)malloc (sizeof *pihm);
 #ifdef _NOAH_
@@ -172,6 +183,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #endif
 #ifdef _BGC_
     bgc = (bgc_struct) malloc (sizeof *bgc);
+#endif
+#ifdef _CYCLES_
+    cycles = (CyclesStruct) malloc (sizeof *cycles);
 #endif
 
     /* Read PIHM input files */
@@ -208,6 +222,11 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     BgcInit (simulation, pihm, noah, bgc);
 #endif
 
+#ifdef _CYCLES_
+    /* Read Cycles input and initialize Cycles structure */
+    CyclesRead (simulation, cycles, pihm);
+    CyclesInit (cycles, pihm);
+#endif
 //#ifdef _RT_
 //    chem_alloc(filename, mData, cData, chData, cData->StartTime/60);
 //    /* Prepare chem output files */
@@ -332,6 +351,13 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             PrintChem (filename, chData, t / 60);
 #endif
         }
+
+        /* Free memory */
+        N_VDestroy_Serial (CV_Y);
+
+        /* Free integrator memory */
+        CVodeFree (&cvode_mem);
+
 #ifdef _BGC_
     }
 #endif
@@ -345,12 +371,6 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     }
 
     printf ("\nSimulation completed.\n");
-
-    /* Free memory */
-    N_VDestroy_Serial (CV_Y);
-
-    /* Free integrator memory */
-    CVodeFree (&cvode_mem);
 
 #ifdef _NOAH_
     LsmFreeData (pihm, noah);
