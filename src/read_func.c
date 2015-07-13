@@ -55,7 +55,14 @@ void NextLine (FILE * fid, char *cmdstr)
     strcpy (cmdstr, "\0");
 
     while (!Readable (cmdstr))
-        fgets (cmdstr, MAXSTRING, fid);
+    {
+        if (fgets (cmdstr, MAXSTRING, fid) == NULL)
+        {
+            strcpy(cmdstr, "EOF");
+            break;
+        }
+
+    }
 }
 
 int CountLine (FILE * fid, int num_arg, ...)
