@@ -107,6 +107,14 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
   MSG = "... Compiling Flux-PIHM-BGC ..."
 endif
 
+ifeq ($(MAKECMDGOALS),pihm-cycles)
+  SFLAGS = -D_CYCLES_
+  MODULE_SRCS_= 
+  MODULE_HEADERS_ = 
+  EXECUTABLE = pihm-cycles
+  MSG = "... Compiling Flux-PIHM ..."
+endif
+
 SRCS = $(patsubst %,$(SRCDIR)/%,$(SRCS_))
 HEADERS = $(patsubst %,$(SRCDIR)/%,$(HEADERS_))
 OBJS = $(SRCS:.c=.o)
@@ -156,6 +164,13 @@ rt-flux-pihm: $(OBJS) $(MODULE_OBJS)
 
 flux-pihm-bgc: 	## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
 flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
+	@echo
+	@echo $(MSG)
+	@echo
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
+
+pihm-cycles: 	## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
+pihm-cycles: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
