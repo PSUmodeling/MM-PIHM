@@ -62,7 +62,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             elem->edir[2] = 0.0;
         }
 #else   
-        if (elem->surf >= EPS / 100.0)
+        if (elem->surf >= IMMOBILE)
         {
             elem->edir[0] = elem->et[2];
             elem->edir[1] = 0.0;
@@ -317,11 +317,11 @@ void LateralFlow (pihm_struct pihm)
                             2) + pow (dhbydy[elem->nabr[j] - 1], 2)));
                 if (pihm->ctrl.surf_mode == 1)
                 {
-                    avg_sf = (grad_y_surf > 0.0) ? grad_y_surf : EPS / 1.0E6;
+                    avg_sf = (grad_y_surf > 0.0) ? grad_y_surf : GRADMIN;
                 }
                 else
                 {
-                    avg_sf = (avg_sf > EPS / 1.0E6) ? avg_sf : EPS / 1.0E6;
+                    avg_sf = (avg_sf > GRADMIN) ? avg_sf : GRADMIN;
                 }
                 /* Weighting needed */
                 avg_rough = 0.5 * (elem->lc.rough + nabr->lc.rough);
@@ -408,8 +408,7 @@ void VerticalFlow (pihm_struct pihm)
             grad_y_sub =
                 (elem->surf + elem->topo.zmax - (elem->gw +
                     elem->topo.zmin)) / elem->soil.dinf;
-            grad_y_sub = (elem->surf < EPS / 100.0 &&
-                grad_y_sub > 0.0) ? 0.0 : grad_y_sub;
+            grad_y_sub = (elem->surf < IMMOBILE && grad_y_sub > 0.0) ? 0.0 : grad_y_sub;
             satn = 1.0;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
             effk =
@@ -441,7 +440,7 @@ void VerticalFlow (pihm_struct pihm)
             satn = elem->unsat / deficit;
 #endif
             satn = (satn > 1.0) ? 1.0 : satn;
-            satn = (satn < MULTF * EPS) ? (MULTF * EPS) : satn;
+            satn = (satn < SATMIN) ? SATMIN : satn;
             /* note: for psi calculation using van genuchten relation, cutting
              * the psi-sat tail at small saturation can be performed for
              * computational advantage. if you dont' want to perform this,
@@ -454,7 +453,7 @@ void VerticalFlow (pihm_struct pihm)
                 elem->soil.dinf;
             grad_y_sub =
                 (elem->surf + elem->topo.zmax - total_y) / elem->soil.dinf;
-            grad_y_sub = (elem->surf < EPS / 100.0 &&
+            grad_y_sub = (elem->surf < IMMOBILE &&
                 grad_y_sub > 0.0) ? 0.0 : grad_y_sub;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
             if (elem->soil.macropore == 1)
@@ -491,7 +490,7 @@ void VerticalFlow (pihm_struct pihm)
             /* Arithmetic mean formulation */
             satn = elem->unsat / deficit;
             satn = (satn > 1.0) ? 1.0 : satn;
-            satn = (satn < MULTF * EPS) ? (MULTF * EPS) : satn;
+            satn = (satn < SATMIN) ? SATMIN : satn;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
             effk = (elem->soil.macropore == 1 &&
                 elem->gw >
@@ -578,7 +577,7 @@ void RiverFlow (pihm_struct pihm)
                 1) ? (riv->topo.zbed - down->topo.zbed) : (total_y -
                 total_y_down);
             grad_y = dif_y / distance;
-            avg_sf = (grad_y > 0.0) ? grad_y : EPS;
+            avg_sf = (grad_y > 0.0) ? grad_y : RIVGRADMIN;
             crossa =
                 RivArea (riv->shp.intrpl_ord, riv->stage, riv->shp.coeff);
             crossa_down =

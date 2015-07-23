@@ -1,10 +1,12 @@
 #ifndef PIHM_CONST_HEADER
 #define PIHM_CONST_HEADER
 
-#define MULTF		2.0
 #define PSIMIN		-70.0
-#define EPS		0.05
-#define THRESH		0.0
+#define IMMOBILE        5E-4
+#define GRADMIN         5E-8
+#define SATMIN          0.1
+#define RIVDPTHMIN      0.05
+#define RIVGRADMIN      0.05
 #define GRAV		9.80665
 #define PI		3.14159265
 #define BADVAL		-999

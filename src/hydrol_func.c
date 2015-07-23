@@ -85,22 +85,16 @@ double EqWid (int riv_order, double riv_depth, double riv_coeff)
             eq_wid = riv_coeff;
             break;
         case 2:
-            eq_wid =
-                2.0 * pow (riv_depth + EPS,
-                1.0 / (riv_order - 1)) / pow (riv_coeff,
-                1.0 / (riv_order - 1));
+            eq_wid = 2.0 * pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
+                pow (riv_coeff, 1.0 / (riv_order - 1));
             break;
         case 3:
-            eq_wid =
-                2.0 * pow (riv_depth + EPS,
-                1.0 / (riv_order - 1)) / pow (riv_coeff,
-                1.0 / (riv_order - 1));
+            eq_wid = 2.0 * pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
+                pow (riv_coeff, 1.0 / (riv_order - 1));
             break;
         case 4:
-            eq_wid =
-                2.0 * pow (riv_depth + EPS,
-                1.0 / (riv_order - 1)) / pow (riv_coeff,
-                1.0 / (riv_order - 1));
+            eq_wid = 2.0 * pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
+                pow (riv_coeff, 1.0 / (riv_order - 1));
             break;
         default:
             printf ("Error: River order %d is not defined!\n", riv_order);
@@ -182,7 +176,7 @@ double AvgY (double diff, double yi, double yinabr)
 
     if (diff > 0.0)
     {
-        if (yi > 1.0 * EPS / 100.0)
+        if (yi > 1.0 * IMMOBILE)
         {
             avg_y = 1.0 * yi;
         }
@@ -193,7 +187,7 @@ double AvgY (double diff, double yi, double yinabr)
     }
     else
     {
-        if (yinabr > 1.0 * EPS / 100.0)
+        if (yinabr > 1.0 * IMMOBILE)
         {
             avg_y = 1.0 * yinabr;
         }
