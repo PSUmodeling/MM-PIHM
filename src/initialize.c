@@ -110,13 +110,55 @@ void InitTopo (elem_struct *elem, int numele, mesh_tbl_struct mesh_tbl)
 
         elem[i].topo.zmin = (zmin[0] + zmin[1] + zmin[2]) / 3.0;
         elem[i].topo.zmax = (zmax[0] + zmax[1] + zmax[2]) / 3.0;
-        elem[i].topo.edge[0] =
-            sqrt (pow ((x[1] - x[2]), 2) + pow ((y[1] - y[2]), 2));
-        elem[i].topo.edge[1] =
-            sqrt (pow ((x[2] - x[0]), 2) + pow ((y[2] - y[0]), 2));
-        elem[i].topo.edge[2] =
-            sqrt (pow ((x[0] - x[1]), 2) + pow ((y[0] - y[1]), 2));
+    }
 
+    for (i = 0; i < numele; i++)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            x[j] = mesh_tbl.x[elem[i].node[j] - 1];
+            y[j] = mesh_tbl.y[elem[i].node[j] - 1];
+        }
+
+        if (elem[i].nabr[0] > 0)
+        {
+            elem[i].topo.edge[0] = Edge (elem[i].topo.x, elem[i].topo.y,
+                    elem[elem[i].nabr[0] - 1].topo.x,
+                    elem[elem[i].nabr[0] - 1].topo.y,
+                    x[1], y[1], x[2], y[2]);
+        }
+        else
+        {
+            elem[i].topo.edge[0] =
+                sqrt (pow ((x[1] - x[2]), 2) + pow ((y[1] - y[2]), 2));
+        }
+
+        
+        if (elem[i].nabr[1] > 0)
+        {
+            elem[i].topo.edge[1] = Edge (elem[i].topo.x, elem[i].topo.y,
+                    elem[elem[i].nabr[1] - 1].topo.x,
+                    elem[elem[i].nabr[1] - 1].topo.y,
+                    x[2], y[2], x[0], y[0]);
+        }
+        else
+        {
+            elem[i].topo.edge[1] =
+                sqrt (pow ((x[2] - x[0]), 2) + pow ((y[2] - y[0]), 2));
+        }
+
+        if (elem[i].nabr[2] > 0)
+        {
+            elem[i].topo.edge[2] = Edge (elem[i].topo.x, elem[i].topo.y,
+                    elem[elem[i].nabr[2] - 1].topo.x,
+                    elem[elem[i].nabr[2] - 1].topo.y,
+                    x[0], y[0], x[1], y[1]);
+        }
+        else
+        {
+            elem[i].topo.edge[2] =
+                sqrt (pow ((x[0] - x[1]), 2) + pow ((y[0] - y[1]), 2));
+        }
     }
 }
 
@@ -1057,4 +1099,20 @@ void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii)
             fclose (fid);
         }
     }
+}
+
+double Edge (double x1, double y1, double x2, double y2, double nx1, double ny1, double nx2, double ny2)
+{
+    double      k1, k2;
+    double      cosphi;
+    double      edge;
+
+    k1 = (y2 - y1) / (x2 - x1);
+    k2 = (ny2 - ny1) / (nx2 - nx1);
+
+    cosphi = fabs (k2 - k1) / (sqrt (1.0 + k1 * k1) * sqrt (1.0 + k2 * k2));
+
+    edge = sqrt (pow ((nx1 - nx2), 2) + pow ((ny1 - ny2), 2)) * cosphi;
+
+    return (edge);
 }
