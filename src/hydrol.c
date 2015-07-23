@@ -45,6 +45,8 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
      */
     for (i = 0; i < pihm->numele; i++)
     {
+        elem = &pihm->elem[i];
+
         /* Source of direct evaporation */
 #ifdef _NOAH_
         if (elem->gw > elem->soil.depth - elem->soil.dinf)
@@ -98,6 +100,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             elem->ett[1] = elem->et[1];
             elem->ett[2] = 0.0;
         }
+#endif
     }
         
     LateralFlow (pihm);
