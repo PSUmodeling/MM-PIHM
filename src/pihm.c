@@ -304,8 +304,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             solvert = (realtype) t;
             flag = CVodeSetMaxNumSteps (cvode_mem,
                 (long int) (pihm->ctrl.stepsize * 20));
+            flag = CVodeSetStopTime (cvode_mem, (realtype) nextptr);
             flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert,
-                CV_NORMAL);
+                CV_NORMAL_TSTOP);
             flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
 
             t = (int) solvert;
