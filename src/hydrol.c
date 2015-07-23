@@ -164,8 +164,8 @@ void LateralFlow (pihm_struct pihm)
     double          distance;
     double          grad_y_sub;
     double          surfh[3];
-    double          dhbydx[pihm->numele];
-    double          dhbydy[pihm->numele];
+    double         *dhbydx;
+    double         *dhbydy;
     double          effk;
     double          effk_nabr;
     double          avg_ksat;
@@ -179,6 +179,9 @@ void LateralFlow (pihm_struct pihm)
     elem_struct    *elem;
     elem_struct    *nabr;
     river_struct   *riv;
+
+    dhbydx = (double *) malloc (pihm->numele * sizeof (double));
+    dhbydy = (double *) malloc (pihm->numele * sizeof (double));
 
     for (i = 0; i < pihm->numele; i++)
     {
@@ -346,6 +349,9 @@ void LateralFlow (pihm_struct pihm)
             }                   /* End of specified boundary condition */
         }                       /* End of neighbor loop */
     }                           /* End of element loop */
+
+    free (dhbydx);
+    free (dhbydy);
 }
 
 void VerticalFlow (pihm_struct pihm)
