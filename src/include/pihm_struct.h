@@ -128,6 +128,9 @@ typedef struct elem_struct
     double          et[3];      /* Evapotranspiration (from canopy, ground,
                                  * transpiration) */
 
+    double          edir[3];
+    double          ett[3];
+
     int             macpore_status;
 
     double          albedo;

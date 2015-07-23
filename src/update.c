@@ -81,25 +81,13 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         {
             elem->runoff += elem->fluxsub[j] / elem->topo.area;
         }
-#ifdef _NOAH_
-        recharge =
-            (realgw1 - realgw0) * elem->soil.porosity / stepsize +
-            elem->runoff + elem->et_from_sat * elem->et[1];
+
+        recharge = (realgw1 - realgw0) * elem->soil.porosity / stepsize +
+            elem->runoff + elem->edir[2] + elem->ett[2];
         //elem->infil = (realunsat1 - realunsat0) * elem->soil.porosity / stepsize + recharge + (1.0 - elem->et_from_sat) * elem->et[1] + elem->et[2];
-        elem->infil =
-            (totalw1 - totalw0) * elem->soil.porosity / stepsize +
-            elem->runoff + elem->et[1] + elem->et[2];
-#else
-        recharge =
-            (realgw1 - realgw0) * elem->soil.porosity / stepsize +
-            elem->runoff + ((elem->gw0 >
-                elem->soil.depth - elem->lc.rzd) ? elem->et[1] : 0.0);
-        elem->infil =
-            (realunsat1 - realunsat0) * elem->soil.porosity / stepsize +
-            recharge + (elem->surf0 <
-            EPS / 100.0 ? elem->et[2] : 0.0) + ((elem->gw0 <=
-                elem->soil.depth - elem->lc.rzd) ? elem->et[1] : 0.0);
-#endif
+        elem->infil = (totalw1 - totalw0) * elem->soil.porosity / stepsize +
+            elem->runoff + elem->edir[1] +elem->edir[2] + elem->ett[1] + elem->ett[2];
+
         if (elem->infil < 0.0)
         {
             elem->runoff -= elem->infil;

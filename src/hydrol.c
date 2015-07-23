@@ -40,6 +40,66 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         pihm->riv[i].fluxriv[10] = 0.0;
     }
 
+    /*
+     * Determine source of ET
+     */
+    for (i = 0; i < pihm->numele; i++)
+    {
+        /* Source of direct evaporation */
+#ifdef _NOAH_
+        if (elem->gw > elem->soil.depth - elem->soil.dinf)
+        {
+            elem->edir[0] = 0.0;
+            elem->edir[1] = 0.0;
+            elem->edir[2] = elem->et[2];
+        }
+        else
+        {
+            elem->edir[0] = 0.0;
+            elem->edir[1] = elem->et[2];
+            elem->edir[2] = 0.0;
+        }
+#else   
+        if (elem->surf >= EPS / 100.0)
+        {
+            elem->edir[0] = elem->et[2];
+            elem->edir[1] = 0.0;
+            elem->edir[2] = 0.0;
+        }
+        else if (elem->gw > elem->soil.depth - elem->soil.dinf)
+        {
+            elem->edir[0] = 0.0;
+            elem->edir[1] = 0.0;
+            elem->edir[2] = elem->et[2];
+        }
+        else
+        {
+            elem->edir[0] = 0.0;
+            elem->edir[1] = elem->et[2];
+            elem->edir[2] = 0.0;
+        }
+#endif
+
+        /* Source of transpiration */
+#ifdef _NOAH_
+        elem->ett[0] = 0.0;
+        elem->ett[1] = (1.0 - elem->et_from_sat) * elem->et[1];
+        elem->ett[2] = elem->et_from_sat * elem->et[1];
+#else
+        if (elem->gw > elem->soil.depth - elem->lc.rzd)
+        {
+            elem->ett[0] = 0.0;
+            elem->ett[1] = 0.0;
+            elem->ett[2] = elem->et[1];
+        }
+        else
+        {
+            elem->ett[0] = 0.0;
+            elem->ett[1] = elem->et[1];
+            elem->ett[2] = 0.0;
+        }
+    }
+        
     LateralFlow (pihm);
 
     VerticalFlow (pihm);
@@ -50,44 +110,9 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     {
         elem = &pihm->elem[i];
 
-        if (elem->gw > elem->soil.depth - elem->soil.dinf)
-        {
-            dy[UNSAT(i)] += elem->infil - elem->rechg;
-#ifdef _NOAH_
-            dy[GW(i)] += elem->rechg - elem->et[2];
-#else
-            dy[GW(i)] += elem->rechg - ((elem->surf < EPS / 100.0) ? elem->et[2] : 0.0);
-#endif
-        }
-        else
-        {
-#ifdef _NOAH_
-            dy[UNSAT(i)] += elem->infil - elem->rechg - elem->et[2];
-#else
-            dy[UNSAT(i)] +=
-                elem->infil - elem->rechg - ((elem->surf <
-                    EPS / 100.0) ? elem->et[2] : 0.0);
-#endif
-            dy[GW(i)] += elem->rechg;
-        }
-
-#ifdef _NOAH_
-        dy[SURF(i)] += elem->netprcp - elem->infil;
-        dy[GW(i)] -= elem->et_from_sat * elem->et[1];
-        dy[UNSAT(i)] -= (1.0 - elem->et_from_sat) * elem->et[1];
-#else
-        dy[SURF(i)] +=
-            elem->netprcp - elem->infil - ((elem->surf <
-                EPS / 100.0) ? 0.0 : elem->et[2]);
-        if (elem->gw > elem->soil.depth - elem->lc.rzd)
-        {
-            dy[GW(i)] -= elem->et[1];
-        }
-        else
-        {
-            dy[UNSAT(i)] -= elem->et[1];
-        }
-#endif
+        dy[SURF(i)] += elem->netprcp - elem->infil - elem->edir[0];
+        dy[UNSAT(i)] += elem->infil - elem->rechg - elem->edir[1] - elem->ett[1];
+        dy[GW(i)] += elem->rechg - elem->edir[2] - elem->ett[2];
 
         for (j = 0; j < 3; j++)
         {
@@ -394,16 +419,11 @@ void VerticalFlow (pihm_struct pihm)
             elem->infil = effk * grad_y_sub;
 #endif
 
-#ifdef _NOAH_
-            qmax =
-                elem->surf / dt + elem->netprcp + (elem->fluxsurf[0] +
-                elem->fluxsurf[1] + elem->fluxsurf[2]) / elem->topo.area;
-#else
             qmax =
                 elem->surf / dt + elem->netprcp + (elem->fluxsurf[0] +
                 elem->fluxsurf[1] + elem->fluxsurf[2]) / elem->topo.area -
-                ((elem->surf < EPS / 100.0) ? 0.0 : elem->et[2]);
-#endif
+                elem->edir[0];
+
             elem->infil = (elem->infil < qmax) ? elem->infil : qmax;
             elem->infil = (elem->infil > 0.0) ? elem->infil : 0.0;
 
@@ -453,16 +473,11 @@ void VerticalFlow (pihm_struct pihm)
             elem->infil = 0.5 * effk * grad_y_sub;
 #endif
 
-#ifdef _NOAH_
-            qmax =
-                elem->surf / dt + elem->netprcp + (elem->fluxsurf[0] +
-                elem->fluxsurf[1] + elem->fluxsurf[2]) / elem->topo.area;
-#else
             qmax =
                 elem->surf / dt + elem->netprcp + (elem->fluxsurf[0] +
                 elem->fluxsurf[1] + elem->fluxsurf[2]) / elem->topo.area -
-                ((elem->surf < EPS / 100.0) ? 0.0 : elem->et[2]);
-#endif
+                elem->edir[0];
+
             elem->infil = (elem->infil < qmax) ? elem->infil : qmax;
             elem->infil = (elem->infil > 0.0) ? elem->infil : 0.0;
 
