@@ -21,25 +21,20 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
      */
     for (i = 0; i < 3 * pihm->numele + 2 * pihm->numriv; i++)
     {
-        dy[i] = 0.0;
+        dy[SURF(i)] = 0.0;
     }
 
     for (i = 0; i < pihm->numele; i++)
     {
-        pihm->elem[i].surf = (y[i] >= 0.0) ? y[i] : 0.0;
-        pihm->elem[i].unsat =
-            (y[i + pihm->numele] >= 0.0) ? y[i + pihm->numele] : 0.0;
-        pihm->elem[i].gw =
-            (y[i + 2 * pihm->numele] >= 0.0) ? y[i + 2 * pihm->numele] : 0.0;
+        pihm->elem[i].surf = (y[SURF(i)] >= 0.0) ? y[SURF(i)] : 0.0;
+        pihm->elem[i].unsat = (y[UNSAT(i)] >= 0.0) ? y[UNSAT(i)] : 0.0;
+        pihm->elem[i].gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
     }
 
     for (i = 0; i < pihm->numriv; i++)
     {
-        pihm->riv[i].stage =
-            (y[i + 3 * pihm->numele] >= 0.0) ? y[i + 3 * pihm->numele] : 0.0;
-        pihm->riv[i].gw =
-            (y[i + 3 * pihm->numele + pihm->numriv] >=
-            0.0) ? y[i + 3 * pihm->numele + pihm->numriv] : 0.0;
+        pihm->riv[i].stage = (y[RIVSTG(i)] >= 0.0) ? y[RIVSTG(i)] : 0.0;
+        pihm->riv[i].gw = (y[RIVGW(i)] >= 0.0) ? y[RIVGW(i)] : 0.0;
 
         pihm->riv[i].fluxriv[0] = 0.0;
         pihm->riv[i].fluxriv[10] = 0.0;
@@ -57,68 +52,66 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         if (elem->gw > elem->soil.depth - elem->soil.dinf)
         {
-            dy[i + pihm->numele] += elem->infil - elem->rechg;
+            dy[UNSAT(i)] += elem->infil - elem->rechg;
 #ifdef _NOAH_
-            dy[i + 2 * pihm->numele] += elem->rechg - elem->et[2];
+            dy[GW(i)] += elem->rechg - elem->et[2];
 #else
-            dy[i + 2 * pihm->numele] +=
-                elem->rechg - ((elem->surf <
-                    EPS / 100.0) ? elem->et[2] : 0.0);
+            dy[GW(i)] += elem->rechg - ((elem->surf < EPS / 100.0) ? elem->et[2] : 0.0);
 #endif
         }
         else
         {
 #ifdef _NOAH_
-            dy[i + pihm->numele] += elem->infil - elem->rechg - elem->et[2];
+            dy[UNSAT(i)] += elem->infil - elem->rechg - elem->et[2];
 #else
-            dy[i + pihm->numele] +=
+            dy[UNSAT(i)] +=
                 elem->infil - elem->rechg - ((elem->surf <
                     EPS / 100.0) ? elem->et[2] : 0.0);
 #endif
-            dy[i + 2 * pihm->numele] += elem->rechg;
+            dy[GW(i)] += elem->rechg;
         }
 
 #ifdef _NOAH_
-        dy[i] += elem->netprcp - elem->infil;
-        dy[i + 2 * pihm->numele] -= elem->et_from_sat * elem->et[1];
-        dy[i + pihm->numele] -= (1.0 - elem->et_from_sat) * elem->et[1];
+        dy[SURF(i)] += elem->netprcp - elem->infil;
+        dy[GW(i)] -= elem->et_from_sat * elem->et[1];
+        dy[UNSAT(i)] -= (1.0 - elem->et_from_sat) * elem->et[1];
 #else
-        dy[i] +=
+        dy[SURF(i)] +=
             elem->netprcp - elem->infil - ((elem->surf <
                 EPS / 100.0) ? 0.0 : elem->et[2]);
         if (elem->gw > elem->soil.depth - elem->lc.rzd)
         {
-            dy[i + 2 * pihm->numele] -= elem->et[1];
+            dy[GW(i)] -= elem->et[1];
         }
         else
         {
-            dy[i + pihm->numele] -= elem->et[1];
+            dy[UNSAT(i)] -= elem->et[1];
         }
 #endif
 
         for (j = 0; j < 3; j++)
         {
-            dy[i] -= elem->fluxsurf[j] / elem->topo.area;
-            dy[i + 2 * pihm->numele] -= elem->fluxsub[j] / elem->topo.area;
+            dy[SURF(i)] -= elem->fluxsurf[j] / elem->topo.area;
+            dy[GW(i)] -= elem->fluxsub[j] / elem->topo.area;
         }
 
-        dy[i + pihm->numele] /= elem->soil.porosity;
-        dy[i + 2 * pihm->numele] /= elem->soil.porosity;
+        dy[UNSAT(i)] /= elem->soil.porosity;
+        dy[GW(i)] /= elem->soil.porosity;
 
-        if (isnan (dy[i]))
+        if (isnan (dy[SURF(i)]))
         {
             printf
                 ("ERROR: NAN error for Element %d (surface water) at %lf\n",
                 i + 1, t);
             exit (1);
         }
-        if (isnan (dy[i + pihm->numele]))
+        if (isnan (dy[UNSAT(i)]))
         {
             printf ("ERROR: NAN error for Element %d (unsat water) at %lf\n",
                 i + 1, t);
             exit (1);
         }
-        if (isnan (dy[i + 2 * pihm->numele]))
+        if (isnan (dy[GW(i)]))
         {
             printf ("ERROR: NAN error for Element %d (groundwater) at %lf\n",
                 i + 1, t);
@@ -135,24 +128,23 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             /* Note the limitation due to
              * d(v)/dt=a*dy/dt+y*da/dt
              * for cs other than rectangle */
-            dy[i + 3 * pihm->numele] -=
+            dy[RIVSTG(i)] -=
                 riv->fluxriv[j] / (riv->shp.length *
                 EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff));
         }
-        dy[i + 3 * pihm->numele + pihm->numriv] +=
+        dy[RIVGW(i)] +=
             -riv->fluxriv[7] - riv->fluxriv[8] - riv->fluxriv[9] -
             riv->fluxriv[10] + riv->fluxriv[6];
-        dy[i + 3 * pihm->numele +
-            pihm->numriv] /= riv->matl.porosity * riv->shp.length *
+        dy[RIVGW(i)] /= riv->matl.porosity * riv->shp.length *
             EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff);
 
-        if (isnan (dy[i + 3 * pihm->numele]))
+        if (isnan (dy[RIVSTG(i)]))
         {
             printf ("ERROR: NAN error for River Segment %d (river) at %lf\n",
                 i + 1, t);
             exit (1);
         }
-        if (isnan (dy[i + 3 * pihm->numele + pihm->numriv]))
+        if (isnan (dy[RIVGW(i)]))
         {
             printf
                 ("ERROR: NAN error for River Segment %d (groundwater) at %lf\n",

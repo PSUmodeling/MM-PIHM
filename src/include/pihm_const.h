@@ -10,6 +10,12 @@
 #define BADVAL		-999
 #define MAXSTRING	1024
 
+#define SURF(i)         i
+#define UNSAT(i)        i + pihm->numele
+#define GW(i)           i + 2 * pihm->numele
+#define RIVSTG(i)       i + 3 * pihm->numele
+#define RIVGW(i)        i + 3 * pihm->numele + pihm->numriv
+
 #define MAT_CTRL        0
 #define APP_CTRL        1
 #define MAC_CTRL        2

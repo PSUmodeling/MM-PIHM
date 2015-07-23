@@ -22,8 +22,8 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
     {
         elem = &pihm->elem[i];
 
-        elem->unsat = y[i + pihm->numele];
-        elem->gw = y[i + 2 * pihm->numele];
+        elem->unsat = y[UNSAT(i)];
+        elem->gw = y[GW(i)];
 
         /* calculate infiltration based on mass conservation */
         wtd0 = elem->soil.depth - ((elem->gw0 > 0.0) ? elem->gw0 : 0.0);
@@ -113,13 +113,13 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
     }
     for (i = 0; i < pihm->numele; i++)
     {
-        pihm->elem[i].surf0 = y[i];
-        pihm->elem[i].unsat0 = y[i + pihm->numele];
-        pihm->elem[i].gw0 = y[i + 2 * pihm->numele];
+        pihm->elem[i].surf0 = y[SURF(i)];
+        pihm->elem[i].unsat0 = y[UNSAT(i)];
+        pihm->elem[i].gw0 = y[GW(i)];
     }
     for (i = 0; i < pihm->numriv; i++)
     {
-        pihm->riv[i].stage0 = y[i + 3 * pihm->numele];
-        pihm->riv[i].gw0 = y[i + 3 * pihm->numele + pihm->numriv];
+        pihm->riv[i].stage0 = y[RIVSTG(i)];
+        pihm->riv[i].gw0 = y[RIVGW(i)];
     }
 }
