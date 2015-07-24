@@ -812,9 +812,9 @@ void SFlx (grid_struct * grid)
 #endif
     /* definitions of soilm and soilw have been changed in flux-pihm for
      * coupling purpose */
-    *soilm = -1.0 * smc[0] * zsoil[0];
+    *soilm = -1.0 * sh2o[0] * zsoil[0];
     for (k = 1; k < *nsoil; k++)
-        *soilm += smc[k] * (zsoil[k - 1] - zsoil[k]);
+        *soilm += sh2o[k] * (zsoil[k - 1] - zsoil[k]);
 
     *soilw = -1.0 * sh2o[0] * zsoil[0];
     for (k = 1; k < *nroot; k++)
