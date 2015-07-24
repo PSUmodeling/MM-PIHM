@@ -79,7 +79,6 @@ void            SaturationIC (const elem_struct *ele, int numele,
 void            InitStateVrbl (elem_struct *elem, int numele,
     river_struct *riv, int numriv, N_Vector CV_Y, ic_struct ic);
 void            CalcModelStep (ctrl_struct *ctrl);
-double Edge (double x1, double y1, double x2, double y2, double nx1, double ny1, double nx2, double ny2);
 
 void            MapOutput (char *simulation, pihm_struct pihm,
     char *outputdir);
