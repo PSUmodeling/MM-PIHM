@@ -862,7 +862,7 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
-                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].epv.proj_lai;
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].epv.proj_lai;
                     }
                     n++;
                     break;
@@ -873,7 +873,7 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
-                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.vegc;
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.vegc;
                     }
                     n++;
                     break;
@@ -884,7 +884,7 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
-                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.litrc;
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.litrc;
                     }
                     n++;
                     break;
@@ -895,7 +895,7 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
-                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.soilc;
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.soilc;
                     }
                     n++;
                     break;
@@ -906,7 +906,7 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
-                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.totalc;
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.totalc;
                     }
                     n++;
                     break;
@@ -917,7 +917,7 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
-                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.daily_npp;
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.daily_npp;
                     }
                     n++;
                     break;
@@ -928,7 +928,7 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
-                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.daily_nee;
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.daily_nee;
                     }
                     n++;
                     break;
@@ -939,7 +939,7 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
-                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[i].summary.daily_gpp;
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.daily_gpp;
                     }
                     n++;
                     break;
