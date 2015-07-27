@@ -225,7 +225,7 @@ void DailyBgc (bgc_struct bgc, int num_ele, const double t, const double *naddfr
         /* Calculate N leaching loss.  This is a special state variable update
          * routine, done after the other fluxes and states are reconciled in order
          * to avoid negative sminn under heavy leaching potential */
-        nleaching(ns, nf, ws, nabr_nconc, metv);
+        //nleaching(ns, nf, ws, nabr_nconc, metv);
 
         /* Calculate daily mortality fluxes and update state variables */
         /* This is done last, with a special state update procedure, to insure
