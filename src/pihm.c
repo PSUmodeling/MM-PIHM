@@ -292,9 +292,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                 /* Calculate surface energy balance */
                 PIHMxNoah (t, (double) pihm->ctrl.etstep, pihm, noah);
 
-//#ifdef _BGC_
-//                    BgcCoupling ((int) t, (int) cData->StartTime, mData, LSM, BGCM);
-//#endif
+#ifdef _BGC_
+                BgcCoupling ((int) t, (int) pihm->ctrl.starttime, pihm, noah, bgc);
+#endif
 #else
                 /* Calculate Interception storage and ET */
                 IntcpSnowET (t, (double) pihm->ctrl.etstep, pihm);
