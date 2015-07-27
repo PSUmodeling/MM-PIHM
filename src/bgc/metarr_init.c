@@ -190,7 +190,7 @@ void metarr_init (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_t
             }
             else
             {
-                metarr->prev_dayl[j] = metarr->prev_dayl[j - 1];
+                metarr->prev_dayl[j] = metarr->dayl[j - 1];
             }
 
             metarr->prcp[j] = 0.0;
