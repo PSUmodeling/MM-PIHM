@@ -107,6 +107,20 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
   MSG = "... Compiling Flux-PIHM-BGC ..."
 endif
 
+ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
+  SFLAGS = -D_ENKF_ -D_NOAH_
+  MODULE_SRCS_= noah/coupling.c \
+  	noah/module_sf_noahlsm.c \
+	spa/spa.c \
+	noah/lsm_func.c \
+	enkf/read_enkf.c
+  MODULE_HEADERS_ = include/noah.h \
+  	include/spa.h \
+	include/enkf.h
+  EXECUTABLE = flux-pihm-enkf
+  MSG = "... Compiling Flux-PIHM-EnKF ..."
+endif
+
 ifeq ($(MAKECMDGOALS),pihm-cycles)
   SFLAGS = -D_CYCLES_
   MODULE_SRCS_= 
@@ -164,6 +178,13 @@ rt-flux-pihm: $(OBJS) $(MODULE_OBJS)
 
 flux-pihm-bgc: 	## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
 flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
+	@echo
+	@echo $(MSG)
+	@echo
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
+
+flux-pihm-enkf: 	## Compile Flux-PIHM-EnKF (Flux-PIHM EnKF system)
+flux-pihm-enkf: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo

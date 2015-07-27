@@ -33,6 +33,9 @@ int main (int argc, char *argv[])
     char            source_file[MAXSTRING];
     int             overwrite_mode = 0;
     int             c;
+#ifdef _ENKF_
+    enkf_struct     ens;
+#endif
 
     printf ("\n");
     printf ("\t\t########  #### ##     ## ##     ##\n");
@@ -111,6 +114,11 @@ int main (int argc, char *argv[])
     /* Create output directory */
     CreateOutputDir (project, outputdir, overwrite_mode);
 
+#ifdef _ENKF_
+    ens = (enkf_struct) malloc (sizeof *ens);
+
+    EnKFRead (project, ens);
+#endif
     /* The name of the simulation is the same as the project */
     strcpy (simulation, project);
 
@@ -138,6 +146,10 @@ int main (int argc, char *argv[])
     }
 
     PIHMRun (simulation, outputdir, first_cycle);
+
+#ifdef _ENKF_
+    free (ens);
+#endif
 
     return (0);
 }
