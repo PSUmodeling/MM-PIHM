@@ -113,7 +113,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
   	noah/module_sf_noahlsm.c \
 	spa/spa.c \
 	noah/lsm_func.c \
-	enkf/read_enkf.c
+	enkf/read_enkf.c \
+	enkf/perturb.c
   MODULE_HEADERS_ = include/noah.h \
   	include/spa.h \
 	include/enkf.h

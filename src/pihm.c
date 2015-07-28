@@ -29,8 +29,6 @@ int main (int argc, char *argv[])
     char            project[MAXSTRING];
     char            simulation[MAXSTRING];
     char            outputdir[MAXSTRING];
-    char            system_cmd[MAXSTRING];
-    char            source_file[MAXSTRING];
     int             overwrite_mode = 0;
     int             c;
 #ifdef _ENKF_
@@ -118,32 +116,18 @@ int main (int argc, char *argv[])
     ens = (enkf_struct) malloc (sizeof *ens);
 
     EnKFRead (project, ens);
+
+//    if (ens->ne % (p - 1) != 0)
+//    {
+//    }
+
+    /*
+     * Perturb model parameters 
+     */
+    Perturb (project, ens, outputdir);
 #endif
     /* The name of the simulation is the same as the project */
     strcpy (simulation, project);
-
-    /* Save input files into output directory */
-    sprintf (source_file, "input/%s/%s.para", project, project);
-    if (access (source_file, F_OK) != -1)
-    {
-        sprintf (system_cmd, "cp %s %s/%s.para.bak", source_file, outputdir,
-            project);
-        system (system_cmd);
-    }
-    sprintf (source_file, "input/%s/%s.calib", project, simulation);
-    if (access (source_file, F_OK) != -1)
-    {
-        sprintf (system_cmd, "cp %s %s/%s.calib.bak", source_file, outputdir,
-            simulation);
-        system (system_cmd);
-    }
-    sprintf (source_file, "input/%s/%s.init", project, project);
-    if (access (source_file, F_OK) != -1)
-    {
-        sprintf (system_cmd, "cp %s %s/%s.init.bak", source_file, outputdir,
-            simulation);
-        system (system_cmd);
-    }
 
     PIHMRun (simulation, outputdir, first_cycle);
 
@@ -256,6 +240,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 
     if (first_cycle == 1)
     {
+        BKInput (simulation, outputdir);
+        
         /* initialize output files and structures */
         InitOutputFile (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii);
 #ifdef _NOAH_
@@ -423,5 +409,48 @@ void CreateOutputDir (char *project, char *outputdir, int overwrite_mode)
         sprintf (outputdir, "output/%s.%s/", project, str);
         printf ("\nOutput directory: %s\n", outputdir);
         mkdir (outputdir, 0755);
+    }
+}
+
+void BKInput (char *simulation, char *outputdir)
+{
+    char            project[MAXSTRING];
+    char           *token;
+    char            tempname[MAXSTRING];
+    char            system_cmd[MAXSTRING];
+    char            source_file[MAXSTRING];
+
+    strcpy (tempname, simulation);
+    if (strstr (tempname, ".") != 0)
+    {
+        token = strtok (tempname, ".");
+        strcpy (project, token);
+    }
+    else
+    {
+        strcpy (project, simulation);
+    }
+
+    /* Save input files into output directory */
+    sprintf (source_file, "input/%s/%s.para", project, project);
+    if (access (source_file, F_OK) != -1)
+    {
+        sprintf (system_cmd, "cp %s %s/%s.para.bak", source_file, outputdir,
+            project);
+        system (system_cmd);
+    }
+    sprintf (source_file, "input/%s/%s.calib", project, simulation);
+    if (access (source_file, F_OK) != -1)
+    {
+        sprintf (system_cmd, "cp %s %s/%s.calib.bak", source_file, outputdir,
+            simulation);
+        system (system_cmd);
+    }
+    sprintf (source_file, "input/%s/%s.init", project, simulation);
+    if (access (source_file, F_OK) != -1)
+    {
+        sprintf (system_cmd, "cp %s %s/%s.init.bak", source_file, outputdir,
+            simulation);
+        system (system_cmd);
     }
 }

@@ -2,6 +2,14 @@
 
 #define MAXPARAM        100
 #define MAXVAR          100
+#define MAXINT          2147483647
+#define CORRMAX         0.25
+
+enum prmt_type {KSATH, KSATV, KINF, KMACH, KMACV, DINF, RZD, DMAC, POROSITY,
+    ALPHA, BETA, AREAFV, AREAFH, VEGFRAC, ALBEDO, ROUGH, PRCP, SFCTMP,
+    ET0, ET1, ET2, RIVROUGH, RIVKSATH, RIVKSATV, RIVBEDTHICK, RIVDEPTH,
+    RIVSHPCOEFF, THETAREF, THETAW, RSMIN, DRIP, INTCP, CZIL, FXEXP, CFACTR,
+    RGL, HS};
 
 typedef struct var_struct
 {
@@ -35,8 +43,8 @@ typedef struct obs_struct
 
 typedef struct ens_mbr_struct
 {
-    double         *parameter;
-    double        **variable;
+    double         *param;
+    double        **var;
 } ens_mbr_struct;
 
 typedef struct enkf_struct
@@ -64,4 +72,11 @@ typedef struct enkf_struct
 } *enkf_struct;
 
 void EnKFRead(char *project, enkf_struct ens);
+double Randn();
+void MapVar (var_struct *var, int numele, int numriv);
+void Perturb(char *project, enkf_struct ens, char *outputdir);
+void MapVar (var_struct *var, int numele, int numriv);
+void Calib2Mbr (calib_struct cal, double *param);
+void WriteParamFile (int rawtime, enkf_struct ens, int ind, char *outputdir);
+void WriteCalFile (enkf_struct ens, char *project);
 

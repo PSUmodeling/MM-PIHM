@@ -128,4 +128,5 @@ double          Psi (double satn, double alpha, double beta);
 
 void            Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize);
 
+void BKInput (char *simulation, char *outputdir);
 #endif
