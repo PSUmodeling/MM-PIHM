@@ -837,7 +837,7 @@ void WriteCalFile (enkf_struct ens, char *project)
 
     for (i = 0; i < ens->ne; i++)
     {
-        sprintf (fn, "input/%s/%s.%3.3d.calib", project, project, i);
+        sprintf (fn, "input/%s/%s.%3.3d.calib", project, project, i + 1);
         fid = fopen (fn, "w");
 
         for (j = 0; j < MAXPARAM; j++)

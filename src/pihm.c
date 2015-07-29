@@ -32,9 +32,24 @@ int main (int argc, char *argv[])
     int             overwrite_mode = 0;
     int             c;
 #ifdef _ENKF_
-    enkf_struct     ens;
-#endif
+    int             i;
+    int             id;
+    int             ierr;
+    int             p;
+    int             obs_time;
+    int             ne;
+    int             success;
 
+    enkf_struct     ens;
+    MPI_Status      status;
+
+    ierr = MPI_Init (&argc, &argv);
+    ierr = MPI_Comm_rank (MPI_COMM_WORLD, &id);
+    ierr = MPI_Comm_size (MPI_COMM_WORLD, &p);
+
+    if (id == 0)
+    {
+#endif
     printf ("\n");
     printf ("\t\t########  #### ##     ## ##     ##\n");
     printf ("\t\t##     ##  ##  ##     ## ###   ###\n");
@@ -57,6 +72,19 @@ int main (int argc, char *argv[])
 #ifdef _CYCLES_
     printf ("\n\t    * Crop module turned on.\n");
 #endif
+#ifdef _ENKF_
+    }
+#endif
+
+    //{
+    //    int ii = 0;
+    //    char hostname[256];
+    //    gethostname(hostname, sizeof(hostname));
+    //    printf("PID %d on %s ready for attach\n", getpid(), hostname);
+    //    fflush(stdout);
+    //    while (0 == ii)
+    //        sleep(5);
+    //}
 
     while ((c = getopt (argc, argv, "odv")) != -1)
     {
@@ -113,26 +141,97 @@ int main (int argc, char *argv[])
     CreateOutputDir (project, outputdir, overwrite_mode);
 
 #ifdef _ENKF_
-    ens = (enkf_struct) malloc (sizeof *ens);
+    if (id == 0)
+    {
+        ens = (enkf_struct) malloc (sizeof *ens);
 
-    EnKFRead (project, ens);
+        EnKFRead (project, ens);
 
-//    if (ens->ne % (p - 1) != 0)
-//    {
-//    }
+        if (ens->ne % (p - 1) != 0)
+        {
+            printf ("ERROR: Please specify a correct node number!");
+            ierr = MPI_Finalize();
+            exit(1);
+        }
 
-    /*
-     * Perturb model parameters 
-     */
-    Perturb (project, ens, outputdir);
-#endif
+        /*
+         * Perturb model parameters 
+         */
+        Perturb (project, ens, outputdir);
+    }
+
+    while (1)
+    {
+        if (id == 0)
+        {
+            if (ens->cycle_start_time >= ens->end_time)
+            {
+                JobHandout (0, p - 1);
+            
+                break;
+            }
+            else
+            {
+                //WritePara (project, ens->mbr_start_mode,
+                //    ens->cycle_start_time, ens->cycle_end_time);
+
+                JobHandout (ens->ne, p - 1);
+            }
+
+            PrintEnKFStatus (ens->cycle_start_time, ens->cycle_end_time);
+
+            JobHandIn (p - 1);
+
+            ens->update_param = 1;
+            ens->update_var = 1;
+
+            obs_time = ens->cycle_end_time;
+
+            //ReadVar (project, ens, obs_time);
+
+            //EnKF (project, ens, obs_time);
+
+            ens->mbr_start_mode = 3;
+            ens->cycle_start_time = ens->cycle_end_time;
+            ens->cycle_end_time += ens->interval;
+        }
+        else
+        {
+            MPI_Recv (&ne, 1, MPI_INT, 0, NE_TAG, MPI_COMM_WORLD, &status);
+            printf ("Job received %d on %d\n", ne, id);
+            fflush (stdout);
+
+            if (ne <= 0)
+            {
+                break;
+            }
+
+            for (i = (id - 1) * ne / (p - 1); i < id * ne / (p - 1); i++)
+            {
+                sprintf (simulation, "%s.%3.3d", project, i + 1);
+#else
     /* The name of the simulation is the same as the project */
     strcpy (simulation, project);
+#endif
 
     PIHMRun (simulation, outputdir, first_cycle);
 
+    printf ("PIHM completed\n");
+    fflush (stdout);
+
 #ifdef _ENKF_
-    free (ens);
+                success = 1;
+                ierr = MPI_Send (&success, 1, MPI_INT, 0, SUCCESS_TAG, MPI_COMM_WORLD);
+            }
+        }
+    }
+
+    ierr = MPI_Finalize ();
+
+    if (id == 0)
+    {
+        free (ens);
+    }
 #endif
 
     return (0);
@@ -169,6 +268,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     CyclesStruct    cycles;
 #endif
 
+    printf ("Running %s\n", simulation);
     /* Allocate memory for model data structure */
     pihm = (pihm_struct)malloc (sizeof *pihm);
 #ifdef _NOAH_
@@ -240,7 +340,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 
     if (first_cycle == 1)
     {
-        BKInput (simulation, outputdir);
+        //BKInput (simulation, outputdir);
         
         /* initialize output files and structures */
         InitOutputFile (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii);
@@ -320,10 +420,10 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             }
             else if (rawtime % 3600 == 0)
             {
-                printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
+                printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d %s\n",
                     timestamp->tm_year + 1900, timestamp->tm_mon + 1,
                     timestamp->tm_mday, timestamp->tm_hour,
-                    timestamp->tm_min);
+                    timestamp->tm_min, simulation);
             }
 
             Summary (pihm, CV_Y, (double) pihm->ctrl.stepsize);
@@ -435,22 +535,23 @@ void BKInput (char *simulation, char *outputdir)
     sprintf (source_file, "input/%s/%s.para", project, project);
     if (access (source_file, F_OK) != -1)
     {
-        sprintf (system_cmd, "cp %s %s/%s.para.bak", source_file, outputdir,
+        sprintf (system_cmd, "cp %s ./%s/%s.para.bak", source_file, outputdir,
             project);
         system (system_cmd);
     }
     sprintf (source_file, "input/%s/%s.calib", project, simulation);
     if (access (source_file, F_OK) != -1)
     {
-        sprintf (system_cmd, "cp %s %s/%s.calib.bak", source_file, outputdir,
+        sprintf (system_cmd, "cp %s ./%s/%s.calib.bak", source_file, outputdir,
             simulation);
         system (system_cmd);
     }
     sprintf (source_file, "input/%s/%s.init", project, simulation);
     if (access (source_file, F_OK) != -1)
     {
-        sprintf (system_cmd, "cp %s %s/%s.init.bak", source_file, outputdir,
+        sprintf (system_cmd, "cp %s ./%s/%s.init.bak", source_file, outputdir,
             simulation);
         system (system_cmd);
     }
 }
+

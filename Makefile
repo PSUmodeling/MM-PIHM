@@ -108,12 +108,14 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 endif
 
 ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
+  CC = mpicc
   SFLAGS = -D_ENKF_ -D_NOAH_
   MODULE_SRCS_= noah/coupling.c \
   	noah/module_sf_noahlsm.c \
 	spa/spa.c \
 	noah/lsm_func.c \
 	enkf/read_enkf.c \
+	enkf/enkf_func.c \
 	enkf/perturb.c
   MODULE_HEADERS_ = include/noah.h \
   	include/spa.h \
@@ -209,4 +211,4 @@ clean:		## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ pihm flux-pihm flux-pihm-bgc rt-flux-pihm
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ pihm flux-pihm flux-pihm-bgc rt-flux-pihm flux-pihm-enkf

@@ -1,9 +1,12 @@
-//#include "mpi.h"
+#include "mpi.h"
 
 #define MAXPARAM        100
 #define MAXVAR          100
 #define MAXINT          2147483647
 #define CORRMAX         0.25
+
+#define SUCCESS_TAG     2
+#define NE_TAG          1
 
 enum prmt_type {KSATH, KSATV, KINF, KMACH, KMACV, DINF, RZD, DMAC, POROSITY,
     ALPHA, BETA, AREAFV, AREAFH, VEGFRAC, ALBEDO, ROUGH, PRCP, SFCTMP,
@@ -62,7 +65,7 @@ typedef struct enkf_struct
     double          weight;
     ens_mbr_struct *member;
     int             update_var;
-    int             update_prmt;
+    int             update_param;
 
     double         *total_water_volume;
 
@@ -79,4 +82,7 @@ void MapVar (var_struct *var, int numele, int numriv);
 void Calib2Mbr (calib_struct cal, double *param);
 void WriteParamFile (int rawtime, enkf_struct ens, int ind, char *outputdir);
 void WriteCalFile (enkf_struct ens, char *project);
+void JobHandout (int msg, int total_jobs);
+void PrintEnKFStatus (int starttime, int endtime);
+void JobHandIn (int total_jobs);
 
