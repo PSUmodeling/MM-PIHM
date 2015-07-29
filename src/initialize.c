@@ -666,7 +666,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
     int             n;
 
     if (verbose_mode)
-        printf ("\nInitializing output files\n");
+        printf ("\nInitializing PIHM output files\n");
 
     n = 0;
 

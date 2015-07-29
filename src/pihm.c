@@ -76,15 +76,6 @@ int main (int argc, char *argv[])
     }
 #endif
 
-    //{
-    //    int ii = 0;
-    //    char hostname[256];
-    //    gethostname(hostname, sizeof(hostname));
-    //    printf("PID %d on %s ready for attach\n", getpid(), hostname);
-    //    fflush(stdout);
-    //    while (0 == ii)
-    //        sleep(5);
-    //}
 
     while ((c = getopt (argc, argv, "odv")) != -1)
     {
@@ -139,6 +130,14 @@ int main (int argc, char *argv[])
 
     /* Create output directory */
     CreateOutputDir (project, outputdir, overwrite_mode);
+#ifdef _ENKF_
+    if (id == 0)
+    {
+#endif
+    printf ("\nOutput directory: %s\n", outputdir);
+#ifdef _ENKF_
+    }
+#endif
 
 #ifdef _ENKF_
     if (id == 0)
@@ -214,7 +213,7 @@ int main (int argc, char *argv[])
     strcpy (simulation, project);
 #endif
 
-    PIHMRun (simulation, outputdir, first_cycle);
+    PIHMRun (simulation, outputdir, 1);
 
     printf ("PIHM completed\n");
     fflush (stdout);
@@ -226,12 +225,13 @@ int main (int argc, char *argv[])
         }
     }
 
-    ierr = MPI_Finalize ();
-
     if (id == 0)
     {
         free (ens);
     }
+
+    ierr = MPI_Finalize ();
+
 #endif
 
     return (0);
@@ -350,7 +350,6 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #ifdef _BGC_
         InitOutputFile (bgc->prtctrl, bgc->ctrl.nprint, pihm->ctrl.ascii);
 #endif
-        first_cycle = 0;
     }
 
 #ifdef _BGC_
@@ -507,7 +506,6 @@ void CreateOutputDir (char *project, char *outputdir, int overwrite_mode)
             timestamp->tm_year + 1900 - 2000, timestamp->tm_mon + 1,
             timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
         sprintf (outputdir, "output/%s.%s/", project, str);
-        printf ("\nOutput directory: %s\n", outputdir);
         mkdir (outputdir, 0755);
     }
 }

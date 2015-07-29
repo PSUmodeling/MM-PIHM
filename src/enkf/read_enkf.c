@@ -39,6 +39,7 @@ void EnKFRead(char *project, enkf_struct ens)
 
     NextLine (enkf_file, cmdstr);
     ReadKeywordInt (cmdstr, "ASSIMILATION_INTERVAL", &ens->interval);
+    ens->interval *= 3600;
 
     NextLine (enkf_file, cmdstr);
     ReadKeywordInt (cmdstr, "START_MODE", &ens->mbr_start_mode);

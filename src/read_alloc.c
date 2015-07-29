@@ -55,6 +55,10 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 
     ReadLAI (project, &pihm->forcing, pihm->numele, &pihm->attrib_tbl);
 
+    /* Read source and sink */
+    //ReadSS ();
+    pihm->forcing.nts[SS_TS] = 0;
+
     ReadIbc (project, &pihm->forcing);
 
     ReadPara (project, &pihm->ctrl);
@@ -715,6 +719,7 @@ void ReadForc (char *project, forcing_ts_struct *forcing)
     }
 
     fclose (forc_file);
+
 }
 
 void ReadLAI (char *project, forcing_ts_struct *forcing, int numele,
@@ -882,6 +887,12 @@ void ReadPara (char *project, ctrl_struct *ctrl)
     char            fn[MAXSTRING];
     FILE           *para_file;  /* Pointer to .para file */
     char            cmdstr[MAXSTRING];
+    int             i;
+
+    for (i = 0; i < NUM_PRINT; i++)
+    {
+        ctrl->prtvrbl[i] = 0;
+    }
 
     sprintf (fn, "input/%s/%s.para", project, project);
     para_file = fopen (fn, "r");
@@ -1282,14 +1293,17 @@ void FreeData (pihm_struct pihm)
     /* Free forcing input structure */
     for (k = 0; k < NUM_TS; k++)
     {
-        for (i = 0; i < pihm->forcing.nts[k]; i++)
+        if (pihm->forcing.nts[k] > 0)
         {
-            for (j = 0; j < pihm->forcing.ts[k][i].length; j++)
+            for (i = 0; i < pihm->forcing.nts[k]; i++)
             {
-                free (pihm->forcing.ts[k][i].data[j]);
+                for (j = 0; j < pihm->forcing.ts[k][i].length; j++)
+                {
+                    free (pihm->forcing.ts[k][i].data[j]);
+                }
+                free (pihm->forcing.ts[k][i].ftime);
+                free (pihm->forcing.ts[k][i].data);
             }
-            free (pihm->forcing.ts[k][i].ftime);
-            free (pihm->forcing.ts[k][i].data);
         }
         free (pihm->forcing.ts[k]);
     }
@@ -1306,7 +1320,7 @@ void FreeData (pihm_struct pihm)
 
     free (pihm->ctrl.tout);
 
-    for (i = 0; i < pihm->ctrl.nprint; i++)
+    for (i = 0; i < NUM_PRINT; i++)
     {
         free (pihm->prtctrl[i].vrbl);
         free (pihm->prtctrl[i].buffer);
@@ -1314,143 +1328,4 @@ void FreeData (pihm_struct pihm)
 
     free (pihm->elem);
     free (pihm->riv);
-//
-//    /*
-//     * free river
-//     */
-//    for (i = 0; i < DS->NumRivBC; i++)
-//    {
-//        for (j = 0; j < DS->TSD_Riv[i].length; j++)
-//            free (DS->TSD_Riv[i].TS[j]);
-//        free (DS->TSD_Riv[i].TS);
-//    }
-//
-//    free (DS->Riv);
-//    free (DS->Riv_IC);
-//    free (DS->Riv_Shape);
-//    free (DS->Riv_Mat);
-//    free (DS->TSD_Riv);
-//    /*
-//     * free mesh
-//     */
-//
-//    free (DS->Ele);
-//    free (DS->Node);
-//    /*
-//     * free att
-//     */
-//    free (DS->Ele_IC);
-//    /*
-//     * free soil
-//     */
-//    free (DS->Soil);
-//    /*
-//     * free geol
-//     */
-//    free (DS->Geol);
-//    /*
-//     * free lc
-//     */
-//    free (DS->LandC);
-//
-//    for (j = 0; j < DS->NumLAI; j++)
-//    {
-//        for (k = 0; k < DS->TSD_lai[j].length; k++)
-//            free (DS->TSD_lai[j].TS[k]);
-//        free (DS->TSD_lai[j].TS);
-//    }
-//    free (DS->TSD_lai);
-//
-//    /*
-//     * free forc
-//     */
-//    for (j = 0; j < DS->NumTS; j++)
-//    {
-//        for (k = 0; k < DS->TSD_meteo[j].length; k++)
-//            free (DS->TSD_meteo[j].TS[k]);
-//        free (DS->TSD_meteo[j].TS);
-//    }
-//    free (DS->TSD_meteo);
-//
-//    free (DS->ISFactor);
-//    /*
-//     * free ibc
-//     */
-//    if (DS->Num1BC > 0)
-//        for (i = 0; i < DS->Num1BC; i++)
-//        {
-//            for (j = 0; j < DS->TSD_EleBC[i].length; j++)
-//                free (DS->TSD_EleBC[i].TS[j]);
-//            free (DS->TSD_EleBC[i].TS);
-//        }
-//    if (DS->Num2BC > 0)
-//        for (i = DS->Num1BC; i < DS->Num1BC + DS->Num2BC; i++)
-//        {
-//            for (j = 0; j < DS->TSD_EleBC[i].length; j++)
-//                free (DS->TSD_EleBC[i].TS[j]);
-//            free (DS->TSD_EleBC[i].TS);
-//        }
-//
-//
-//    if (DS->Num1BC + DS->Num2BC > 0)
-//        free (DS->TSD_EleBC);
-//    /*
-//     * free para
-//     */
-//    free (CS->Tout);
-//    /*
-//     * free initialize.c
-//     */
-//    for (i = 0; i < DS->NumEle; i++)
-//        free (DS->FluxSurf[i]);
-//    free (DS->FluxSurf);
-//    for (i = 0; i < DS->NumEle; i++)
-//        free (DS->FluxSub[i]);
-//    free (DS->FluxSub);
-//    for (i = 0; i < DS->NumEle; i++)
-//        free (DS->EleET[i]);
-//    free (DS->EleET);
-//    for (i = 0; i < DS->NumRiv; i++)
-//        free (DS->FluxRiv[i]);
-//    free (DS->FluxRiv);
-//    free (DS->EleNetPrep);
-//    free (DS->windH);
-//    free (DS->EleSurf);
-//    free (DS->EleGW);
-//    free (DS->EleUnsat);
-//    free (DS->EleMacAct);
-//    free (DS->RivStg);
-//    free (DS->ElePrep);
-//    free (DS->EleViR);
-//    free (DS->Recharge);
-//    free (DS->EleIS);
-//    free (DS->EleISmax);
-//    free (DS->EleISsnowmax);
-//    free (DS->EleSnow);
-//    free (DS->EleSnowGrnd);
-//    free (DS->EleSnowCanopy);
-//    free (DS->EleTF);
-//    free (DS->Albedo);
-//#ifdef _FLUX_PIHM_
-//    free (DS->SfcSat);
-//    free (DS->EleETsat);
-//    free (DS->EleFCR);
-//    free (DS->avg_inf);
-//    free (DS->avg_rech);
-//    for (i = 0; i < DS->NumEle; i++)
-//        free (DS->avg_subflux[i]);
-//    free (DS->avg_subflux);
-//#endif
-//    /*
-//     * free Print
-//     */
-//    for (i = 0; i < CS->NumPrint; i++)
-//    {
-//        free (CS->PCtrl[i].PrintVar);
-//        free (CS->PCtrl[i].buffer);
-//    }
-//    /*
-//     * free DummyY
-//     */
-//    free (DS->DummyY);
 }
