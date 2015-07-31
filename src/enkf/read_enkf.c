@@ -68,23 +68,35 @@ void EnKFRead(char *project, enkf_struct ens)
             &ens->param[i].type);
     }
 
-    //fscanf(EnKF_file,"%d", &En->no_obs);
+    NextLine (enkf_file, cmdstr);
+    ReadKeywordInt (cmdstr, "NUM_OBS", &ens->nobs);
 
-    //if (En->no_obs>0)
-    //{
-    //    En->observation = (ObsCtrl *)malloc(En->no_obs*sizeof(ObsCtrl));
-    //    for (i=0; i<En->no_obs; i++)
-    //    {
-    //        fscanf(EnKF_file, "%s %s %d %d", &En->observation[i].obsn, &En->observation[i].obsfn, &En->observation[i].obs_type, &En->observation[i].no_ctrl);
-    //        En->observation[i].vrbl_ind = (int *)malloc(En->observation[i].no_ctrl*sizeof(int));
-    //        En->observation[i].grid_ind = (int *)malloc(En->observation[i].no_ctrl*sizeof(int));
-    //        En->observation[i].weight = (realtype *)malloc(En->observation[i].no_ctrl*sizeof(realtype));
-    //        for (j=0; j<En->observation[i].no_ctrl; j++)
-    //        {
-    //            fscanf(EnKF_file, "%d %d %lf", &En->observation[i].vrbl_ind[j], &En->observation[i].grid_ind[j], &En->observation[i].weight[j]);
-    //        }
-    //    }
-    //}
+    if (ens->nobs > 0)
+    {
+        ens->obs = (obs_struct *)malloc (ens->nobs * sizeof (obs_struct));
+
+        for (i = 0; i < ens->nobs; i++)
+        {
+            NextLine (enkf_file, cmdstr);
+            ReadKeywordStr (cmdstr, "OBS_TYPE", ens->obs[i].name);
+
+            NextLine (enkf_file, cmdstr);
+            ReadKeywordStr (cmdstr, "OBS_FILE", ens->obs[i].fn);
+
+
+            NextLine (enkf_file, cmdstr);
+            ReadKeywordDouble (cmdstr, "OBS_LOCATION_X", &ens->obs[i].x);
+
+            NextLine (enkf_file, cmdstr);
+            ReadKeywordDouble (cmdstr, "OBS_LOCATION_Y", &ens->obs[i].y);
+
+            NextLine (enkf_file, cmdstr);
+            ReadKeywordDouble (cmdstr, "OBS_RADIUS", &ens->obs[i].rad);
+
+            NextLine (enkf_file, cmdstr);
+            ReadKeywordDouble (cmdstr, "OBS_DEPTH", &ens->obs[i].depth);
+        }
+    }
 
     fclose (enkf_file);
 

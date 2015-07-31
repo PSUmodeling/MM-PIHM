@@ -1,16 +1,40 @@
 #include "pihm.h"
+#ifdef _NOAH_
+#include "noah.h"
+#endif
 #include "enkf.h"
 
-void JobHandout (int msg, int total_jobs)
+void JobHandout (int ne, int starttime, int endtime, int startmode, char *outputdir, int total_jobs)
 {
     int             dest;
+    int             msg[4];
+
+    msg[0] = ne;
+    msg[1] = starttime;
+    msg[2] = endtime;
+    msg[3] = startmode;
 
     for (dest = 1; dest < total_jobs + 1; dest++)
     {
-        MPI_Send (&msg, 1, MPI_INT, dest, NE_TAG, MPI_COMM_WORLD);
+        MPI_Send (outputdir, MAXSTRING, MPI_CHAR, dest, DIR_TAG, MPI_COMM_WORLD);
+        MPI_Send (msg, 4, MPI_INT, dest, NE_TAG, MPI_COMM_WORLD);
         printf ("Job sent to %d\n", dest);
         fflush (stdout);
     }
+}
+
+void JobRecv (int *ne, int *starttime, int *endtime, int *startmode, char *outputdir)
+{
+    int             msg[4];
+    MPI_Status      status;
+
+    MPI_Recv (outputdir, MAXSTRING, MPI_CHAR, 0, DIR_TAG, MPI_COMM_WORLD, &status);
+    MPI_Recv (msg, 4, MPI_INT, 0, NE_TAG, MPI_COMM_WORLD, &status);
+
+    *ne = msg[0];
+    *starttime = msg[1];
+    *endtime = msg[2];
+    *startmode = msg[3];
 }
 
 void PrintEnKFStatus (int starttime, int endtime)
@@ -118,3 +142,74 @@ void WritePara (char *project, int start_mode, int start_time, int end_time)
 
     fclose (fid);
 }
+
+void InitOper (char *project, enkf_struct ens)
+{
+    pihm_struct     pihm;
+    N_Vector        CV_Y;       /* State Variables Vector */
+#ifdef _NOAH_
+    lsm_struct      noah;
+#endif
+    int             nsv;
+    int             i;
+
+    char            outputdir[MAXSTRING];
+
+    outputdir[0] = '\0';
+
+    pihm = (pihm_struct)malloc (sizeof *pihm);
+#ifdef _NOAH_
+    noah = (lsm_struct)malloc (sizeof *noah);
+#endif
+    ReadAlloc (project, pihm);
+
+    if (pihm->ctrl.unsat_mode == 2)
+    {
+        /* problem size */
+        nsv = 3 * pihm->numele + 2 * pihm->numriv;
+    }
+
+    CV_Y = N_VNew_Serial (nsv);
+
+    Initialize (pihm, CV_Y);
+
+#ifdef _NOAH_
+    /* Read LSM input and initialize LSM structure */
+    LsmRead (project, noah, pihm);
+    LsmInitialize (project, pihm, noah);
+#endif
+    MapOutput (project, pihm, outputdir);
+#ifdef _NOAH_
+    MapLsmOutput (project, noah, pihm->numele, outputdir);
+#endif
+
+    ens->numele = pihm->numele;
+    ens->numriv = pihm->numriv;
+
+
+    for (i = 0; i < ens->nobs; i++)
+    {
+        if (strcasecmp (ens->obs[i].name, "discharge") == 0)
+        {
+            ens->obs[i].type = RUNOFF_OBS;
+            DisOper (&ens->obs[i], pihm);
+        }
+        else
+        {
+            printf ("ERROR: Cannot find the operator for %s!\n",
+                ens->obs[i].name);
+            exit (1);
+        }
+    }
+
+#ifdef _NOAH_
+    LsmFreeData (pihm, noah);
+    free (noah);
+#endif
+#ifdef _BGC_
+    free (bgc);
+#endif
+    FreeData (pihm);
+    free (pihm);
+}
+

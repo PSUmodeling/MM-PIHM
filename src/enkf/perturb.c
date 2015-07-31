@@ -25,7 +25,6 @@ void GenRandNum (int ne, int nparam, double **randnum, double lower, double uppe
     int             std_flag = 1;
     double          s1, s2;
     double          max = -999.0;
-    double          temp;
 
     if (nparam > 1)
     {
@@ -114,19 +113,10 @@ void GenRandNum (int ne, int nparam, double **randnum, double lower, double uppe
 void Perturb(char *project, enkf_struct ens, char *outputdir)
 {
     int ne;
-    int i, j, k;
+    int i, j;
     int n = 0;
     time_t      rawtime;
 
-    int         numele;
-    int         numriv;
-    riv_att_tbl_struct  riv_att_tbl;
-    riv_shp_tbl_struct  riv_shp_tbl;
-    riv_matl_tbl_struct riv_matl_tbl;
-    riv_ic_tbl_struct   riv_ic_tbl;
-    ic_struct           ic;
-    forcing_ts_struct   forcing;
-    mesh_tbl_struct     mesh_tbl;
     calib_struct        cal;
 
     double    **x;
@@ -166,14 +156,7 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
     /*
      * Define variable controls: vairable names, variable dimension, etc.
      */
-    ReadRiv (project, &riv_att_tbl, &riv_shp_tbl, &riv_matl_tbl, &riv_ic_tbl,
-        &ic, &forcing);
-    numriv = riv_att_tbl.number;
-
-    ReadMesh (project, &mesh_tbl);
-    numele = mesh_tbl.numele;
-
-    MapVar (ens->var, numele, numriv);
+    MapVar (ens->var, ens->numele, ens->numriv);
 
     for (i = 0; i < MAXPARAM; i++)
     {
@@ -213,9 +196,6 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
 
     for (i = 0; i < ne; i++)
     {
-        ens->member[i].param = (double *) malloc (MAXPARAM * sizeof(double));
-        ens->member[i].var = (double **) malloc (MAXVAR * sizeof(double));
-
         for (j = 0; j < MAXVAR; j++)
         {
             ens->member[i].var[j] =
@@ -619,6 +599,11 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
 void MapVar (var_struct *var, int numele, int numriv)
 {
     int             i, j;
+
+    for (i = 0; i < MAXVAR; i++)
+    {
+        var[i].dim = 0;
+    }
 
     for (i = 0; i < MAXVAR; i++)
     {

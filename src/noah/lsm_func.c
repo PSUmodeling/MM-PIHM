@@ -701,35 +701,35 @@ void LsmFreeData (pihm_struct pihm, lsm_struct noah)
         {
             for (j = 0; j < noah->forcing.ts[i].length; j++)
             {
-                PihmFree (&noah->forcing.ts[i].data[j]);
+                free (noah->forcing.ts[i].data[j]);
             }
-            PihmFree (&noah->forcing.ts[i].ftime);
-            PihmFree (&noah->forcing.ts[i].data);
+            free (noah->forcing.ts[i].ftime);
+            free (noah->forcing.ts[i].data);
         }
-        PihmFree (&noah->forcing.ts);
+        free (noah->forcing.ts);
         for (i = 0; i < 2; i++)
         {
-            PihmFree (&noah->forcing.radn[i]);
+            free (noah->forcing.radn[i]);
         }
     }
 
-    PihmFree (&noah->grid);
-    PihmFree (&noah->ic.t1);
-    PihmFree (&noah->ic.snowh);
+    free (noah->grid);
+    free (noah->ic.t1);
+    free (noah->ic.snowh);
     for (i = 0; i < pihm->numele; i++)
     {
-        PihmFree (&noah->ic.stc[i]);
-        PihmFree (&noah->ic.smc[i]);
-        PihmFree (&noah->ic.sh2o[i]);
+        free (noah->ic.stc[i]);
+        free (noah->ic.smc[i]);
+        free (noah->ic.sh2o[i]);
     }
-    PihmFree (&noah->ic.stc);
-    PihmFree (&noah->ic.smc);
-    PihmFree (&noah->ic.sh2o);
+    free (noah->ic.stc);
+    free (noah->ic.smc);
+    free (noah->ic.sh2o);
 
     for (i = 0; i < noah->nprint; i++)
     {
-        PihmFree (&noah->prtctrl[i].vrbl);
-        PihmFree (&noah->prtctrl[i].buffer);
+        free (noah->prtctrl[i].vrbl);
+        free (noah->prtctrl[i].buffer);
     }
 }
 

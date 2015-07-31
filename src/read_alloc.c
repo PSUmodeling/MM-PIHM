@@ -1211,103 +1211,103 @@ void FreeData (pihm_struct pihm)
     int             i, j, k;
 
     /* Free river input structure */
-    PihmFree (&pihm->riv_att_tbl.fromnode);
-    PihmFree (&pihm->riv_att_tbl.tonode);
-    PihmFree (&pihm->riv_att_tbl.down);
-    PihmFree (&pihm->riv_att_tbl.leftele);
-    PihmFree (&pihm->riv_att_tbl.rightele);
-    PihmFree (&pihm->riv_att_tbl.shp);
-    PihmFree (&pihm->riv_att_tbl.matl);
-    PihmFree (&pihm->riv_att_tbl.ic);
-    PihmFree (&pihm->riv_att_tbl.bc);
-    PihmFree (&pihm->riv_att_tbl.rsvr);
+    free (pihm->riv_att_tbl.fromnode);
+    free (pihm->riv_att_tbl.tonode);
+    free (pihm->riv_att_tbl.down);
+    free (pihm->riv_att_tbl.leftele);
+    free (pihm->riv_att_tbl.rightele);
+    free (pihm->riv_att_tbl.shp);
+    free (pihm->riv_att_tbl.matl);
+    free (pihm->riv_att_tbl.ic);
+    free (pihm->riv_att_tbl.bc);
+    free (pihm->riv_att_tbl.rsvr);
 
-    PihmFree (&pihm->riv_shp_tbl.depth);
-    PihmFree (&pihm->riv_shp_tbl.intrpl_ord);
-    PihmFree (&pihm->riv_shp_tbl.coeff);
+    free (pihm->riv_shp_tbl.depth);
+    free (pihm->riv_shp_tbl.intrpl_ord);
+    free (pihm->riv_shp_tbl.coeff);
 
-    PihmFree (&pihm->riv_matl_tbl.rough);
-    PihmFree (&pihm->riv_matl_tbl.cwr);
-    PihmFree (&pihm->riv_matl_tbl.ksath);
-    PihmFree (&pihm->riv_matl_tbl.ksatv);
-    PihmFree (&pihm->riv_matl_tbl.bedthick);
+    free (pihm->riv_matl_tbl.rough);
+    free (pihm->riv_matl_tbl.cwr);
+    free (pihm->riv_matl_tbl.ksath);
+    free (pihm->riv_matl_tbl.ksatv);
+    free (pihm->riv_matl_tbl.bedthick);
 
-    PihmFree (&pihm->riv_ic_tbl.stage);
+    free (pihm->riv_ic_tbl.stage);
 
     /* Free mesh input structure */
     for (i = 0; i < pihm->mesh_tbl.numele; i++)
     {
-        PihmFree (&pihm->mesh_tbl.node[i]);
-        PihmFree (&pihm->mesh_tbl.nabr[i]);
+        free (pihm->mesh_tbl.node[i]);
+        free (pihm->mesh_tbl.nabr[i]);
     }
-    PihmFree (&pihm->mesh_tbl.node);
-    PihmFree (&pihm->mesh_tbl.nabr);
-    PihmFree (&pihm->mesh_tbl.x);
-    PihmFree (&pihm->mesh_tbl.y);
-    PihmFree (&pihm->mesh_tbl.zmin);
-    PihmFree (&pihm->mesh_tbl.zmax);
+    free (pihm->mesh_tbl.node);
+    free (pihm->mesh_tbl.nabr);
+    free (pihm->mesh_tbl.x);
+    free (pihm->mesh_tbl.y);
+    free (pihm->mesh_tbl.zmin);
+    free (pihm->mesh_tbl.zmax);
 
     /* Free attribute input structure */
     for (i = 0; i < pihm->mesh_tbl.numele; i++)
     {
-        PihmFree (&pihm->attrib_tbl.bc[i]);
+        free (pihm->attrib_tbl.bc[i]);
     }
-    PihmFree (&pihm->attrib_tbl.soil);
-    PihmFree (&pihm->attrib_tbl.geol);
-    PihmFree (&pihm->attrib_tbl.lc);
-    PihmFree (&pihm->attrib_tbl.bc);
-    PihmFree (&pihm->attrib_tbl.meteo);
-    PihmFree (&pihm->attrib_tbl.lai);
-    PihmFree (&pihm->attrib_tbl.source);
-    PihmFree (&pihm->attrib_tbl.macropore);
+    free (pihm->attrib_tbl.soil);
+    free (pihm->attrib_tbl.geol);
+    free (pihm->attrib_tbl.lc);
+    free (pihm->attrib_tbl.bc);
+    free (pihm->attrib_tbl.meteo);
+    free (pihm->attrib_tbl.lai);
+    free (pihm->attrib_tbl.source);
+    free (pihm->attrib_tbl.macropore);
 
     /* Free soil input structure */
-    PihmFree (&pihm->soil_tbl.ksatv);
-    PihmFree (&pihm->soil_tbl.thetas);
-    PihmFree (&pihm->soil_tbl.thetar);
-    PihmFree (&pihm->soil_tbl.qtz);
-    PihmFree (&pihm->soil_tbl.alpha);
-    PihmFree (&pihm->soil_tbl.beta);
-    PihmFree (&pihm->soil_tbl.areafh);
-    PihmFree (&pihm->soil_tbl.kmacv);
-    PihmFree (&pihm->soil_tbl.dinf);
+    free (pihm->soil_tbl.ksatv);
+    free (pihm->soil_tbl.thetas);
+    free (pihm->soil_tbl.thetar);
+    free (pihm->soil_tbl.qtz);
+    free (pihm->soil_tbl.alpha);
+    free (pihm->soil_tbl.beta);
+    free (pihm->soil_tbl.areafh);
+    free (pihm->soil_tbl.kmacv);
+    free (pihm->soil_tbl.dinf);
 
     /* Free geol input structure */
-    PihmFree (&pihm->geol_tbl.ksath);
-    PihmFree (&pihm->geol_tbl.ksatv);
-    PihmFree (&pihm->geol_tbl.thetas);
-    PihmFree (&pihm->geol_tbl.thetar);
-    PihmFree (&pihm->geol_tbl.alpha);
-    PihmFree (&pihm->geol_tbl.beta);
-    PihmFree (&pihm->geol_tbl.areafv);
-    PihmFree (&pihm->geol_tbl.kmach);
-    PihmFree (&pihm->geol_tbl.dmac);
+    free (pihm->geol_tbl.ksath);
+    free (pihm->geol_tbl.ksatv);
+    free (pihm->geol_tbl.thetas);
+    free (pihm->geol_tbl.thetar);
+    free (pihm->geol_tbl.alpha);
+    free (pihm->geol_tbl.beta);
+    free (pihm->geol_tbl.areafv);
+    free (pihm->geol_tbl.kmach);
+    free (pihm->geol_tbl.dmac);
 
     /* Free initial condition */
-    PihmFree (&pihm->ic.intcp);
-    PihmFree (&pihm->ic.snow);
-    PihmFree (&pihm->ic.surf);
-    PihmFree (&pihm->ic.unsat);
-    PihmFree (&pihm->ic.gw);
-    PihmFree (&pihm->ic.rivgw);
-    PihmFree (&pihm->ic.stage);
+    free (pihm->ic.intcp);
+    free (pihm->ic.snow);
+    free (pihm->ic.surf);
+    free (pihm->ic.unsat);
+    free (pihm->ic.gw);
+    free (pihm->ic.rivgw);
+    free (pihm->ic.stage);
 
     /* Free landcover input structure */
-    PihmFree (&pihm->lc_tbl.laimax);
-    PihmFree (&pihm->lc_tbl.laimin);
-    PihmFree (&pihm->lc_tbl.vegfrac);
-    PihmFree (&pihm->lc_tbl.albedomin);
-    PihmFree (&pihm->lc_tbl.albedomax);
-    PihmFree (&pihm->lc_tbl.emissmin);
-    PihmFree (&pihm->lc_tbl.emissmax);
-    PihmFree (&pihm->lc_tbl.z0min);
-    PihmFree (&pihm->lc_tbl.z0max);
-    PihmFree (&pihm->lc_tbl.hs);
-    PihmFree (&pihm->lc_tbl.snup);
-    PihmFree (&pihm->lc_tbl.rgl);
-    PihmFree (&pihm->lc_tbl.rsmin);
-    PihmFree (&pihm->lc_tbl.rough);
-    PihmFree (&pihm->lc_tbl.rzd);
+    free (pihm->lc_tbl.laimax);
+    free (pihm->lc_tbl.laimin);
+    free (pihm->lc_tbl.vegfrac);
+    free (pihm->lc_tbl.albedomin);
+    free (pihm->lc_tbl.albedomax);
+    free (pihm->lc_tbl.emissmin);
+    free (pihm->lc_tbl.emissmax);
+    free (pihm->lc_tbl.z0min);
+    free (pihm->lc_tbl.z0max);
+    free (pihm->lc_tbl.hs);
+    free (pihm->lc_tbl.snup);
+    free (pihm->lc_tbl.rgl);
+    free (pihm->lc_tbl.rsmin);
+    free (pihm->lc_tbl.rough);
+    free (pihm->lc_tbl.rzd);
 
     /* Free forcing input structure */
     for (k = 0; k < NUM_TS; k++)
@@ -1318,49 +1318,49 @@ void FreeData (pihm_struct pihm)
             {
                 for (j = 0; j < pihm->forcing.ts[k][i].length; j++)
                 {
-                    PihmFree (&pihm->forcing.ts[k][i].data[j]);
+                    free (pihm->forcing.ts[k][i].data[j]);
                 }
-                PihmFree (&pihm->forcing.ts[k][i].ftime);
-                PihmFree (&pihm->forcing.ts[k][i].data);
+                free (pihm->forcing.ts[k][i].ftime);
+                free (pihm->forcing.ts[k][i].data);
             }
-        PihmFree (&pihm->forcing.ts[k]);
+        free (pihm->forcing.ts[k]);
         }
     }
 
     if (pihm->forcing.nts[BC_TS] > 0)
     {
-        PihmFree (&pihm->forcing.bc);
+        free (pihm->forcing.bc);
     }
 
     if (pihm->forcing.nts[METEO_TS] > 0)
     {
         for (i = 0; i < NUM_METEO_TS; i++)
         {
-            PihmFree (&pihm->forcing.meteo[i]);
+            free (pihm->forcing.meteo[i]);
         }
-        PihmFree (&pihm->forcing.zlvl_wind);
+        free (pihm->forcing.zlvl_wind);
     }
     if (pihm->forcing.nts[LAI_TS] > 0)
     {
-        PihmFree (&pihm->forcing.lai);
+        free (pihm->forcing.lai);
     }
     if (pihm->forcing.nts[RIV_TS] > 0)
     {
-        PihmFree (&pihm->forcing.riverbc);
+        free (pihm->forcing.riverbc);
     }
     if (pihm->forcing.nts[SS_TS] > 0)
     {
-        PihmFree (&pihm->forcing.source);
+        free (pihm->forcing.source);
     }
 
-    PihmFree (&pihm->ctrl.tout);
+    free (pihm->ctrl.tout);
 
     for (i = 0; i < pihm->ctrl.nprint; i++)
     {
-        PihmFree (&pihm->prtctrl[i].vrbl);
-        PihmFree (&pihm->prtctrl[i].buffer);
+        free (pihm->prtctrl[i].vrbl);
+        free (pihm->prtctrl[i].buffer);
     }
 
-    PihmFree (&pihm->elem);
-    PihmFree (&pihm->riv);
+    free (pihm->elem);
+    free (pihm->riv);
 }

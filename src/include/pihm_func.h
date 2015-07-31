@@ -4,7 +4,12 @@
 /*
  * Function Declarations
  */
+#ifdef _ENKF_
+void            PIHMRun (char *simulation, char *outputdir, int first_cycle,
+    int starttime, int endtime, int startmode);
+#else
 void            PIHMRun (char *simulation, char *outputdir, int first_cycle);
+#endif
 void            CreateOutputDir (char *project, char *outputdir,
     int overwrite_mode);
 //void            initialize (char *, Model_Data, Control_Data , N_Vector);

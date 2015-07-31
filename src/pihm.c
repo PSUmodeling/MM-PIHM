@@ -31,34 +31,6 @@ int main (int argc, char *argv[])
     int             overwrite_mode = 0;
     int             c;
     int             first_cycle;
-    pihm_struct     pihm;
-    N_Vector        CV_Y;       /* State Variables Vector */
-    void           *cvode_mem;  /* Model Data Pointer */
-    int             flag;       /* Flag to test return value */
-    int             nsv;        /* Problem size */
-    int             i;       /* Loop index */
-    int             t;          /* Simulation time */
-    realtype        solvert;
-    struct tm      *timestamp;
-    time_t          rawtime;
-    int             nextptr;
-    realtype        cvode_val;
-
-#ifdef _NOAH_
-    lsm_struct      noah;
-#endif
-
-#ifdef _RT_
-    Chem_Data       chData;
-#endif
-
-#ifdef _BGC_
-    bgc_struct      bgc;
-#endif
-
-#ifdef _CYCLES_
-    CyclesStruct    cycles;
-#endif
 #ifdef _ENKF_
     int             ii;
     int             id;
@@ -66,10 +38,11 @@ int main (int argc, char *argv[])
     int             p;
     int             obs_time;
     int             ne;
+    int             startmode;
+    int             starttime;
+    int             endtime;
     int             success;
-
     enkf_struct     ens;
-    MPI_Status      status;
 
     ierr = MPI_Init (&argc, &argv);
     ierr = MPI_Comm_rank (MPI_COMM_WORLD, &id);
@@ -114,7 +87,9 @@ int main (int argc, char *argv[])
     }
 #endif
 
-
+    /*
+     * Read command line arguments
+     */
     while ((c = getopt (argc, argv, "odv")) != -1)
     {
         if (optind >= argc)
@@ -166,13 +141,12 @@ int main (int argc, char *argv[])
 
     first_cycle = 1;
 
-    /* Create output directory */
-    CreateOutputDir (project, outputdir, overwrite_mode);
 #ifdef _ENKF_
     if (id == 0)
     {
 #endif
-    printf ("\nOutput directory: %s\n", outputdir);
+    /* Create output directory */
+    CreateOutputDir (project, outputdir, overwrite_mode);
 #ifdef _ENKF_
     }
 #endif
@@ -183,13 +157,18 @@ int main (int argc, char *argv[])
         ens = (enkf_struct) malloc (sizeof *ens);
 
         EnKFRead (project, ens);
-
+        
         if (ens->ne % (p - 1) != 0)
         {
             printf ("ERROR: Please specify a correct node number!");
             ierr = MPI_Finalize();
             exit(1);
         }
+        
+        /*
+         * Initialize observation operator vector
+         */
+        InitOper (project, ens);
 
         /*
          * Perturb model parameters 
@@ -203,16 +182,19 @@ int main (int argc, char *argv[])
         {
             if (ens->cycle_start_time >= ens->end_time)
             {
-                JobHandout (0, p - 1);
+                JobHandout (0, ens->cycle_start_time, ens->cycle_end_time,
+                    ens->mbr_start_mode, outputdir, p - 1);
             
                 break;
             }
             else
             {
-                WritePara (project, ens->mbr_start_mode,
-                    ens->cycle_start_time, ens->cycle_end_time);
+                //WritePara (project, ens->mbr_start_mode,
+                //    ens->cycle_start_time, ens->cycle_end_time);
 
-                JobHandout (ens->ne, p - 1);
+                JobHandout (ens->ne,
+                    ens->cycle_start_time, ens->cycle_end_time,
+                    ens->mbr_start_mode, outputdir, p - 1);
             }
 
             PrintEnKFStatus (ens->cycle_start_time, ens->cycle_end_time);
@@ -224,9 +206,9 @@ int main (int argc, char *argv[])
 
             obs_time = ens->cycle_end_time;
 
-            //ReadVar (project, ens, obs_time);
+            ReadVar (project, outputdir, ens, obs_time);
 
-            //EnKF (project, ens, obs_time);
+            EnKF (project, ens, obs_time, outputdir);
 
             ens->mbr_start_mode = 3;
             ens->cycle_start_time = ens->cycle_end_time;
@@ -234,8 +216,9 @@ int main (int argc, char *argv[])
         }
         else
         {
-            MPI_Recv (&ne, 1, MPI_INT, 0, NE_TAG, MPI_COMM_WORLD, &status);
-            printf ("Job received %d on %d\n", ne, id);
+            JobRecv (&ne, &starttime, &endtime, &startmode, outputdir);
+            printf ("Job received %d, %d, %d, %d, %s on %d\n",
+                ne, starttime, endtime, startmode, outputdir, id);
             fflush (stdout);
 
             if (ne <= 0)
@@ -246,12 +229,69 @@ int main (int argc, char *argv[])
             for (ii = (id - 1) * ne / (p - 1); ii < id * ne / (p - 1); ii++)
             {
                 sprintf (simulation, "%s.%3.3d", project, ii + 1);
+
+                PIHMRun (simulation, outputdir, first_cycle,
+                    starttime, endtime, startmode);
+            }
+
+            first_cycle = 0;
+            success = 1;
+            ierr = MPI_Send (&success, 1, MPI_INT, 0, SUCCESS_TAG, MPI_COMM_WORLD);
+        }
+    }
+
+    if (id == 0)
+    {
+        free (ens);
+    }
+
+    ierr = MPI_Finalize ();
+
 #else
     /* The name of the simulation is the same as the project */
     strcpy (simulation, project);
+
+    PIHMRun (simulation, outputdir, first_cycle);
 #endif
 
-    //PIHMRun (simulation, outputdir, first_cycle);
+    return (0);
+}
+
+#ifdef _ENKF_
+void PIHMRun (char *simulation, char *outputdir, int first_cycle,
+    int starttime, int endtime, int startmode)
+#else
+void PIHMRun (char *simulation, char *outputdir, int first_cycle)
+#endif
+{
+    pihm_struct     pihm;
+    N_Vector        CV_Y;       /* State Variables Vector */
+    void           *cvode_mem;  /* Model Data Pointer */
+    int             flag;       /* Flag to test return value */
+    int             nsv;        /* Problem size */
+    int             i;       /* Loop index */
+    int             t;          /* Simulation time */
+    realtype        solvert;
+    struct tm      *timestamp;
+    time_t          rawtime;
+    int             nextptr;
+    realtype        cvode_val;
+
+#ifdef _NOAH_
+    lsm_struct      noah;
+#endif
+
+#ifdef _RT_
+    Chem_Data       chData;
+#endif
+
+#ifdef _BGC_
+    bgc_struct      bgc;
+#endif
+
+#ifdef _CYCLES_
+    CyclesStruct    cycles;
+#endif
 
     printf ("Running %s\n", simulation);
     /* Allocate memory for model data structure */
@@ -271,6 +311,11 @@ int main (int argc, char *argv[])
 
     /* Read PIHM input files */
     ReadAlloc (simulation, pihm);
+#ifdef _ENKF_
+    pihm->ctrl.init_type = startmode;
+    pihm->ctrl.starttime = starttime;
+    pihm->ctrl.endtime = endtime;
+#endif
 
     if (pihm->ctrl.unsat_mode == 2)
     {
@@ -467,30 +512,6 @@ int main (int argc, char *argv[])
 
     printf ("PIHM completed\n");
     fflush (stdout);
-
-#ifdef _ENKF_
-            }
-
-            first_cycle = 0;
-            success = 1;
-            ierr = MPI_Send (&success, 1, MPI_INT, 0, SUCCESS_TAG, MPI_COMM_WORLD);
-        }
-    }
-
-    if (id == 0)
-    {
-        free (ens);
-    }
-
-    ierr = MPI_Finalize ();
-
-#endif
-
-    return (0);
-}
-
-void PIHMRun (char *simulation, char *outputdir, int first_cycle)
-{
 }
 
 void CreateOutputDir (char *project, char *outputdir, int overwrite_mode)
@@ -520,6 +541,8 @@ void CreateOutputDir (char *project, char *outputdir, int overwrite_mode)
         sprintf (outputdir, "output/%s.%s/", project, str);
         mkdir (outputdir, 0755);
     }
+
+    printf ("\nOutput directory: %s\n", outputdir);
 }
 
 void BKInput (char *simulation, char *outputdir)

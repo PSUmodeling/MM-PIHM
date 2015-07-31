@@ -7,6 +7,7 @@
 
 #define SUCCESS_TAG     2
 #define NE_TAG          1
+#define DIR_TAG         3
 
 enum prmt_type {KSATH, KSATV, KINF, KMACH, KMACV, DINF, RZD, DMAC, POROSITY,
     ALPHA, BETA, AREAFV, AREAFH, VEGFRAC, ALBEDO, ROUGH, PRCP, SFCTMP,
@@ -14,6 +15,7 @@ enum prmt_type {KSATH, KSATV, KINF, KMACH, KMACV, DINF, RZD, DMAC, POROSITY,
     RIVSHPCOEFF, THETAREF, THETAW, RSMIN, DRIP, INTCP, CZIL, FXEXP, CFACTR,
     RGL, HS};
 
+enum obs_type {RUNOFF_OBS};
 typedef struct var_struct
 {
     char            name[MAXSTRING];
@@ -37,17 +39,32 @@ typedef struct obs_struct
 {
     char            name[MAXSTRING];
     char            fn[MAXSTRING];
-    int             obs_type;
+    int             type;
+    double          x;
+    double          y;
+    double          rad;
+    double          depth;
     int             nctrl;
     int            *var_ind;
-    int            *grid_ind;
+    //int            *grid_ind;
+    /* The linear observation operator vector has a general form of
+     *
+     * xf = SUM_i {w_i * [ SUM_j  (k_j x_ij + b_j)]}
+     *
+     * w_i, k_j, and b_j are initialized at the beginning and stored here for
+     * easy access so they don't need to be calculated at every EnKF step.
+     * w_i could be the area of each model grid
+     * k_j is ususally 1.0, or could be the thickness of each soil layer
+     * b_j could be the soil column depth if xf is water table depth. */
     double         *weight;
+    double         *k;
+    double         *b;
 } obs_struct;
 
 typedef struct ens_mbr_struct
 {
-    double         *param;
-    double        **var;
+    double          param[MAXPARAM];
+    double         *var[MAXVAR];
 } ens_mbr_struct;
 
 typedef struct enkf_struct
@@ -82,8 +99,16 @@ void MapVar (var_struct *var, int numele, int numriv);
 void Calib2Mbr (calib_struct cal, double *param);
 void WriteParamOutput (int rawtime, enkf_struct ens, int ind, char *outputdir);
 void WriteCalFile (enkf_struct ens, char *project);
-void JobHandout (int msg, int total_jobs);
+void JobHandout (int ne, int starttime, int endtime, int startmode, char *outputdir, int total_jobs);
+void JobRecv (int *ne, int *starttime, int *endtime, int *startmode, char *outputdir);
 void PrintEnKFStatus (int starttime, int endtime);
 void JobHandIn (int total_jobs);
 void WritePara (char *project, int start_mode, int start_time, int end_time);
 
+void EnKFCore (double *xa, double obs, double obs_err, double *xf, int ne);
+void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir);
+void ReadObs (int obs_time, char *fn, double *obs, double *obs_error);
+void InitOper (char *project, enkf_struct ens);
+void DisOper (obs_struct *obs, pihm_struct pihm);
+void ReadFcst (enkf_struct enkf, obs_struct obs, double *xf);
+void ReadVar (char *project, char *outputdir, enkf_struct ens, int obs_time);

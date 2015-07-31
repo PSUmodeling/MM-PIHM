@@ -113,6 +113,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
   MODULE_SRCS_ = enkf/read_enkf.c \
 	enkf/enkf_func.c \
 	enkf/perturb.c \
+	enkf/EnKF.c \
+	enkf/obs_oper.c \
   	noah/coupling.c \
   	noah/module_sf_noahlsm.c \
 	spa/spa.c \
