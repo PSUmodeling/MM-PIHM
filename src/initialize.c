@@ -337,17 +337,32 @@ void InitForcing (elem_struct *elem, int numele, river_struct *riv,
         }
     }
 
-    forcing->bc = (double *)malloc (forcing->nts[BC_TS] * sizeof (double));
-    for (i = 0; i < NUM_METEO_TS; i++)
+    if (forcing->nts[BC_TS] > 0)
     {
-        forcing->meteo[i] =
-            (double *)malloc (forcing->nts[METEO_TS] * sizeof (double));
+        forcing->bc = (double *)malloc (forcing->nts[BC_TS] * sizeof (double));
     }
-    forcing->lai = (double *)malloc (forcing->nts[LAI_TS] * sizeof (double));
-    forcing->riverbc =
-        (double *)malloc (forcing->nts[RIV_TS] * sizeof (double));
-    forcing->source =
-        (double *)malloc (forcing->nts[SS_TS] * sizeof (double));
+    if (forcing->nts[METEO_TS] > 0)
+    {
+        for (i = 0; i < NUM_METEO_TS; i++)
+        {
+            forcing->meteo[i] =
+                (double *)malloc (forcing->nts[METEO_TS] * sizeof (double));
+        }
+    }
+    if (forcing->nts[LAI_TS] > 0)
+    {
+        forcing->lai = (double *)malloc (forcing->nts[LAI_TS] * sizeof (double));
+    }
+    if (forcing->nts[RIV_TS] > 0)
+    {
+        forcing->riverbc =
+            (double *)malloc (forcing->nts[RIV_TS] * sizeof (double));
+    }
+    if (forcing->nts[SS_TS] > 0)
+    {
+        forcing->source =
+            (double *)malloc (forcing->nts[SS_TS] * sizeof (double));
+    }
 
     for (i = 0; i < numele; i++)
     {
@@ -1032,6 +1047,12 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
     }
 
     pihm->ctrl.nprint = n;
+
+    for (i = 0; i < pihm->ctrl.nprint; i++)
+    {
+        pihm->prtctrl[i].buffer =
+            (double *) calloc (pihm->prtctrl[i].nvrbl, sizeof (double));
+    }
 }
 
 void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii)
@@ -1043,9 +1064,6 @@ void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii)
 
     for (i = 0; i < nprint; i++)
     {
-        prtctrl[i].buffer =
-            (double *)calloc (prtctrl[i].nvrbl, sizeof (double));
-
         sprintf (dat_fn, "%s.dat", prtctrl[i].name);
         fid = fopen (dat_fn, "w");
         fclose (fid);

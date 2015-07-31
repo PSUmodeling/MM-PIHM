@@ -36,9 +36,10 @@ void GenRandNum (int ne, int nparam, double **randnum, double lower, double uppe
         corr_flag = 0;
     }
 
+    srand(time(NULL));
+
     do
     {
-        srand(time(NULL));
         max = -999.0;
 
         for (j = 0; j < nparam; j++)
@@ -99,7 +100,6 @@ void GenRandNum (int ne, int nparam, double **randnum, double lower, double uppe
                 if (fabs(corr[i][j]) > max && i != j)
                 {
                     max = corr[i][j];
-                    printf ("corr = %lf, max = %lf\n", corr[i][j], max);
                 }
             }
         }
@@ -109,13 +109,6 @@ void GenRandNum (int ne, int nparam, double **randnum, double lower, double uppe
             corr_flag = 0;
         }
     } while (corr_flag);
-
-    printf ("lower = %lf, upper = %lf\n", lower, upper);
-    for (j = 0; j < ne; j++)
-    {
-        printf ("%lf, ", randnum[0][j]);
-    }
-    printf ("\n");
 }
     
 void Perturb(char *project, enkf_struct ens, char *outputdir)
@@ -607,7 +600,7 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
             printf("\nInitial std %f", ens->param[ind[i]].init_std);
             //fflush(paramfile);
             //fclose(paramfile);
-            WriteParamFile (ens->cycle_start_time, ens, ind[i], outputdir);
+            WriteParamOutput (ens->cycle_start_time, ens, ind[i], outputdir);
         }
 
         WriteCalFile (ens, project);
@@ -791,6 +784,7 @@ void Calib2Mbr (calib_struct cal, double *param)
     param[RIVBEDTHICK] = cal.rivbedthick;
     param[RIVDEPTH] = cal.rivdepth;
     param[RIVSHPCOEFF] = cal.rivshpcoeff;
+#ifdef _NOAH_    
     param[THETAREF] = cal.thetaref;
     param[THETAW] = cal.thetaw;
     param[RSMIN] = cal.rsmin;
@@ -801,9 +795,10 @@ void Calib2Mbr (calib_struct cal, double *param)
     param[CFACTR] = cal.cfactr;
     param[RGL] = cal.rgl;
     param[HS] = cal.hs;
+#endif
 }
 
-void WriteParamFile (int rawtime, enkf_struct ens, int ind, char *outputdir)
+void WriteParamOutput (int rawtime, enkf_struct ens, int ind, char *outputdir)
 {
     char            fn[MAXSTRING];
     time_t          timevar;

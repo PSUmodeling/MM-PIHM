@@ -80,9 +80,10 @@ void MapVar (var_struct *var, int numele, int numriv);
 void Perturb(char *project, enkf_struct ens, char *outputdir);
 void MapVar (var_struct *var, int numele, int numriv);
 void Calib2Mbr (calib_struct cal, double *param);
-void WriteParamFile (int rawtime, enkf_struct ens, int ind, char *outputdir);
+void WriteParamOutput (int rawtime, enkf_struct ens, int ind, char *outputdir);
 void WriteCalFile (enkf_struct ens, char *project);
 void JobHandout (int msg, int total_jobs);
 void PrintEnKFStatus (int starttime, int endtime);
 void JobHandIn (int total_jobs);
+void WritePara (char *project, int start_mode, int start_time, int end_time);
 

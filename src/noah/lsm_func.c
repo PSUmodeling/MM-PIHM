@@ -102,6 +102,12 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
     NextLine (lsm_file, cmdstr);
     ReadKeywordDouble (cmdstr, "LVCOEF_DATA", &noah->genprmt.lvcoef_data);
 
+    noah->nprint = 0;
+    for (i = 0; i < NUM_PRINT; i++)
+    {
+        noah->prtvrbl[i] = 0;
+    }
+
     NextLine (lsm_file, cmdstr);
     ReadKeywordInt (cmdstr, "T1", &noah->prtvrbl[T1_CTRL]);
 
@@ -142,6 +148,8 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
     ReadKeywordInt (cmdstr, "SOILM", &noah->prtvrbl[SOILM_CTRL]);
 
     fclose (lsm_file);
+
+    noah->forcing.nts = 0;
 
     if (noah->rad_mode == 1)
     {
@@ -643,6 +651,12 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele,
                     noah->prtctrl[n].vrbl =
                         (double **)malloc (noah->prtctrl[n].nvrbl *
                         sizeof (double *));
+                    if (noah->prtctrl[n].vrbl == NULL)
+                    {
+                        printf ("Malloc failed.\n");
+                        fflush (stdout);
+                        exit(1);
+                    }
                     for (j = 0; j < numele; j++)
                     {
                         noah->prtctrl[n].vrbl[j] = &noah->grid[j].soilw;
@@ -668,6 +682,12 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele,
     }
 
     noah->nprint = n;
+
+    for (i = 0; i < noah->nprint; i++)
+    {
+        noah->prtctrl[i].buffer =
+         (double *) calloc (noah->prtctrl[i].nvrbl, sizeof (double));
+    }
 }
 
 
@@ -675,38 +695,41 @@ void LsmFreeData (pihm_struct pihm, lsm_struct noah)
 {
     int             i, j;
 
-    for (i = 0; i < noah->forcing.nts; i++)
+    if (noah->rad_mode == 1)
     {
-        for (j = 0; j < noah->forcing.ts[i].length; j++)
+        for (i = 0; i < noah->forcing.nts; i++)
         {
-            free (noah->forcing.ts[i].data[j]);
+            for (j = 0; j < noah->forcing.ts[i].length; j++)
+            {
+                PihmFree (&noah->forcing.ts[i].data[j]);
+            }
+            PihmFree (&noah->forcing.ts[i].ftime);
+            PihmFree (&noah->forcing.ts[i].data);
         }
-        free (noah->forcing.ts[i].ftime);
-        free (noah->forcing.ts[i].data);
-    }
-    free (noah->forcing.ts);
-    for (i = 0; i < 2; i++)
-    {
-        free (noah->forcing.radn[i]);
+        PihmFree (&noah->forcing.ts);
+        for (i = 0; i < 2; i++)
+        {
+            PihmFree (&noah->forcing.radn[i]);
+        }
     }
 
-    free (noah->grid);
-    free (noah->ic.t1);
-    free (noah->ic.snowh);
+    PihmFree (&noah->grid);
+    PihmFree (&noah->ic.t1);
+    PihmFree (&noah->ic.snowh);
     for (i = 0; i < pihm->numele; i++)
     {
-        free (noah->ic.stc[i]);
-        free (noah->ic.smc[i]);
-        free (noah->ic.sh2o[i]);
+        PihmFree (&noah->ic.stc[i]);
+        PihmFree (&noah->ic.smc[i]);
+        PihmFree (&noah->ic.sh2o[i]);
     }
-    free (noah->ic.stc);
-    free (noah->ic.smc);
-    free (noah->ic.sh2o);
+    PihmFree (&noah->ic.stc);
+    PihmFree (&noah->ic.smc);
+    PihmFree (&noah->ic.sh2o);
 
     for (i = 0; i < noah->nprint; i++)
     {
-        free (noah->prtctrl[i].vrbl);
-        free (noah->prtctrl[i].buffer);
+        PihmFree (&noah->prtctrl[i].vrbl);
+        PihmFree (&noah->prtctrl[i].buffer);
     }
 }
 

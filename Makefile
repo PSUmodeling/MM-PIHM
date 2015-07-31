@@ -110,16 +110,16 @@ endif
 ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
   CC = mpicc
   SFLAGS = -D_ENKF_ -D_NOAH_
-  MODULE_SRCS_= noah/coupling.c \
+  MODULE_SRCS_ = enkf/read_enkf.c \
+	enkf/enkf_func.c \
+	enkf/perturb.c \
+  	noah/coupling.c \
   	noah/module_sf_noahlsm.c \
 	spa/spa.c \
-	noah/lsm_func.c \
-	enkf/read_enkf.c \
-	enkf/enkf_func.c \
-	enkf/perturb.c
-  MODULE_HEADERS_ = include/noah.h \
-  	include/spa.h \
-	include/enkf.h
+	noah/lsm_func.c 
+  MODULE_HEADERS_ = include/enkf.h \
+  	include/noah.h \
+  	include/spa.h 
   EXECUTABLE = flux-pihm-enkf
   MSG = "... Compiling Flux-PIHM-EnKF ..."
 endif

@@ -22,7 +22,6 @@
 
 int             verbose_mode;
 int             debug_mode;
-int             first_cycle;
 
 int main (int argc, char *argv[])
 {
@@ -31,8 +30,37 @@ int main (int argc, char *argv[])
     char            outputdir[MAXSTRING];
     int             overwrite_mode = 0;
     int             c;
+    int             first_cycle;
+    pihm_struct     pihm;
+    N_Vector        CV_Y;       /* State Variables Vector */
+    void           *cvode_mem;  /* Model Data Pointer */
+    int             flag;       /* Flag to test return value */
+    int             nsv;        /* Problem size */
+    int             i;       /* Loop index */
+    int             t;          /* Simulation time */
+    realtype        solvert;
+    struct tm      *timestamp;
+    time_t          rawtime;
+    int             nextptr;
+    realtype        cvode_val;
+
+#ifdef _NOAH_
+    lsm_struct      noah;
+#endif
+
+#ifdef _RT_
+    Chem_Data       chData;
+#endif
+
+#ifdef _BGC_
+    bgc_struct      bgc;
+#endif
+
+#ifdef _CYCLES_
+    CyclesStruct    cycles;
+#endif
 #ifdef _ENKF_
-    int             i;
+    int             ii;
     int             id;
     int             ierr;
     int             p;
@@ -46,6 +74,16 @@ int main (int argc, char *argv[])
     ierr = MPI_Init (&argc, &argv);
     ierr = MPI_Comm_rank (MPI_COMM_WORLD, &id);
     ierr = MPI_Comm_size (MPI_COMM_WORLD, &p);
+
+    //{
+    //    int ii = 0;
+    //    char hostname[256];
+    //    gethostname(hostname, sizeof(hostname));
+    //    printf("PID %d (%d) on %s ready for attach\n", getpid(), id, hostname);
+    //    fflush(stdout);
+    //    while (0 == ii)
+    //        sleep(5);
+    //}
 
     if (id == 0)
     {
@@ -171,8 +209,8 @@ int main (int argc, char *argv[])
             }
             else
             {
-                //WritePara (project, ens->mbr_start_mode,
-                //    ens->cycle_start_time, ens->cycle_end_time);
+                WritePara (project, ens->mbr_start_mode,
+                    ens->cycle_start_time, ens->cycle_end_time);
 
                 JobHandout (ens->ne, p - 1);
             }
@@ -205,68 +243,15 @@ int main (int argc, char *argv[])
                 break;
             }
 
-            for (i = (id - 1) * ne / (p - 1); i < id * ne / (p - 1); i++)
+            for (ii = (id - 1) * ne / (p - 1); ii < id * ne / (p - 1); ii++)
             {
-                sprintf (simulation, "%s.%3.3d", project, i + 1);
+                sprintf (simulation, "%s.%3.3d", project, ii + 1);
 #else
     /* The name of the simulation is the same as the project */
     strcpy (simulation, project);
 #endif
 
-    PIHMRun (simulation, outputdir, 1);
-
-    printf ("PIHM completed\n");
-    fflush (stdout);
-
-#ifdef _ENKF_
-                success = 1;
-                ierr = MPI_Send (&success, 1, MPI_INT, 0, SUCCESS_TAG, MPI_COMM_WORLD);
-            }
-        }
-    }
-
-    if (id == 0)
-    {
-        free (ens);
-    }
-
-    ierr = MPI_Finalize ();
-
-#endif
-
-    return (0);
-}
-
-void PIHMRun (char *simulation, char *outputdir, int first_cycle)
-{
-    pihm_struct     pihm;
-    N_Vector        CV_Y;       /* State Variables Vector */
-    void           *cvode_mem;  /* Model Data Pointer */
-    int             flag;       /* Flag to test return value */
-    int             nsv;        /* Problem size */
-    int             i;       /* Loop index */
-    int             t;          /* Simulation time */
-    realtype        solvert;
-    struct tm      *timestamp;
-    time_t          rawtime;
-    int             nextptr;
-    realtype        cvode_val;
-
-#ifdef _NOAH_
-    lsm_struct      noah;
-#endif
-
-#ifdef _RT_
-    Chem_Data       chData;
-#endif
-
-#ifdef _BGC_
-    bgc_struct      bgc;
-#endif
-
-#ifdef _CYCLES_
-    CyclesStruct    cycles;
-#endif
+    //PIHMRun (simulation, outputdir, first_cycle);
 
     printf ("Running %s\n", simulation);
     /* Allocate memory for model data structure */
@@ -479,6 +464,33 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #endif
     FreeData (pihm);
     free (pihm);
+
+    printf ("PIHM completed\n");
+    fflush (stdout);
+
+#ifdef _ENKF_
+            }
+
+            first_cycle = 0;
+            success = 1;
+            ierr = MPI_Send (&success, 1, MPI_INT, 0, SUCCESS_TAG, MPI_COMM_WORLD);
+        }
+    }
+
+    if (id == 0)
+    {
+        free (ens);
+    }
+
+    ierr = MPI_Finalize ();
+
+#endif
+
+    return (0);
+}
+
+void PIHMRun (char *simulation, char *outputdir, int first_cycle)
+{
 }
 
 void CreateOutputDir (char *project, char *outputdir, int overwrite_mode)
