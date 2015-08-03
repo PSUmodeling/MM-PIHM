@@ -190,19 +190,18 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
 
             ReadFcst (ens, ens->obs[i], xf);
 
-            ///* Prepare forecast vectors */
+            /* Prepare forecast vectors */
 
-            //printf("\n\n*****Predictions******");
+            printf("\n*****Predictions******\n");
 
-            //printf("\nPredictions of %s\n", ens->observation[i].obsn);
-            //for (j=0; j<ne; j++)
-            //{
-            //    printf("%f\t", xf[j]);
-            //}
-            //printf("%f\n", xf[ne]);
+            printf("Predictions of %s\n", ens->obs[i].name);
+            for (j = 0; j < ne; j++)
+            {
+                printf("%f\t", xf[j]);
+            }
+            printf("%f\n", xf[ne]);
 
-
-    //        /* Write observations to files */
+            /* Write observations to files */
 
             fprintf (obsfile, "\t%lf", obs);
 
@@ -648,7 +647,7 @@ void ReadFcst (enkf_struct ens, obs_struct obs, double *xf)
         xf[ne] += xf[i];
     }
 
-    xf[ne] /= (double) xf[ne];
+    xf[ne] /= (double) ne;
 }
 
 void ReadVar (char *project, char *outputdir, enkf_struct ens, int obs_time)
