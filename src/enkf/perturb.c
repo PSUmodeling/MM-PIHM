@@ -2,114 +2,6 @@
 #include "noah.h"
 #include "enkf.h"
 
-double Randn()
-{
-    double temp1, temp2;
-    double x;
-
-    temp1 = (double) (rand() % MAXINT + 1) / MAXINT;
-    temp2 = (double) (rand() % MAXINT + 1) / MAXINT;
-
-    x = sqrt (-2.0 * log (temp1)) * cos (2.0 * PI * temp2);
-
-    return (x);
-}
-
-void GenRandNum (int ne, int nparam, double **randnum, double lower, double upper)
-{
-    int             i, j, k;
-    double          corr[MAXPARAM][MAXPARAM];
-    double          mean[MAXPARAM];
-    double          std;
-    int             corr_flag;
-    int             std_flag = 1;
-    double          s1, s2;
-    double          max = -999.0;
-
-    if (nparam > 1)
-    {
-        corr_flag = 1;
-    }
-    else
-    {
-        corr_flag = 0;
-    }
-
-    srand(time(NULL));
-
-    do
-    {
-        max = -999.0;
-
-        for (j = 0; j < nparam; j++)
-        {
-            std_flag = 1;
-
-            while (std_flag)
-            {
-                mean[j] = 0.0;
-                std = 0.0;
-
-                for (i = 0; i < ne; i++)
-                {
-                    randnum[j][i] = Randn();
-                    mean[j] += randnum[j][i];
-                }
-
-                mean[j] /= (double) ne;
-
-                for (i = 0; i < ne; i++)
-                {
-                    std += (randnum[j][i] - mean[j]) * (randnum[j][i] - mean[j]);
-                }
-                std = sqrt (std / ((double) ne - 1.0));
-
-                std_flag = 0;
-
-                for (i = 0; i < ne; i++)
-                {
-                    randnum[j][i] = (randnum[j][i] - mean[j]) / std * 1.0;
-
-                    if (randnum[j][i] <= lower || randnum[j][i] >= upper)
-                    {
-                        std_flag = 1;
-                        break;
-                    }
-                }
-            }
-        }
-        
-        for (i = 0; i < nparam; i++)
-        {
-            for (j = 0; j < nparam; j++)
-            {
-                corr[i][j] = 0.0;
-                s1 = 0.0;
-                s2 = 0.0;
-
-                for (k = 0; k < ne; k++)
-                {
-                    corr[i][j] = (randnum[i][k] - mean[i]) * (randnum[j][k] - mean[j]) + corr[i][j];
-                    s1 = s1 + (randnum[i][k] - mean[i]) * (randnum[i][k] - mean[i]);
-                    s2 = s2 + (randnum[j][k] - mean[j]) * (randnum[j][k] - mean[j]);
-                }
-
-                corr[i][j] = corr[i][j] / sqrt (s1 * s2);
-
-                if (fabs(corr[i][j]) > max && i != j)
-                {
-                    max = corr[i][j];
-                }
-            }
-        }
-
-        if (max < CORRMAX)
-        {
-            corr_flag = 0;
-        }
-    } while (corr_flag);
-}
-    
 void Perturb(char *project, enkf_struct ens, char *outputdir)
 {
     int             ne;
@@ -155,22 +47,19 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
 
     printf("Ensemble members: %d\n", ne);
     printf("Default observation cycle: %-d hour(s)\n", ens->interval /  3600);
-//    printf("\nObservations:");
-//    if (En->no_obs == 0)
-//    {
-//        printf(" none");
-//    }
-//    else
-//    {
-//        for (i=0; i<En->no_obs-1; i++)
-//        {
-//            printf(" %s,", En->observation[i].obsn);
-//        }
-//        printf(" %s.", En->observation[En->no_obs-1].obsn);
-//    }
-//    obsfn = "output/obs.dat";
-//    obsfile = fopen(obsfn, "w");
-//    fclose(obsfile);
+    printf("Observations:");
+    if (ens->nobs == 0)
+    {
+        printf(" none");
+    }
+    else
+    {
+        for (i = 0; i < ens->nobs - 1; i++)
+        {
+            printf(" %s,", ens->obs[i].name);
+        }
+        printf(" %s.\n", ens->obs[ens->nobs - 1].name);
+    }
 
     for (i = 0; i < ne; i++)
     {
@@ -504,7 +393,7 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
             Calib2Mbr (cal, ens->member[i].param);
         }
 
-        printf("Initial parameters\n");
+        printf("\nInitial parameters\n");
 
         n = 0;
 
@@ -517,10 +406,10 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
             }
         }
 
-        randnum = (double **) malloc (n * sizeof (double *));
+        randnum = (double **)malloc (n * sizeof (double *));
         for (i = 0; i < n; i++)
         {
-            randnum[i] = (double *) malloc (ne * sizeof (double));
+            randnum[i] = (double *)malloc (ne * sizeof (double));
         }
 
         /* The initial standard deviation of perturbed parameter is 1/5 of
@@ -539,7 +428,7 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
             }
 
             prior_std = 0.2 * (ens->param[ind[i]].max - ens->param[ind[i]].min);
-            prior = (ens->param[ind[i]].min + ens->param[ind[i]].max) / 2.0 + (double) ens->start_mode * prior_std;
+            prior = (ens->param[ind[i]].min + ens->param[ind[i]].max) / 2.0 + (double)ens->start_mode * prior_std;
 
             for (j = 0; j < ne; j++)
             {
@@ -551,10 +440,11 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
                 }
                 printf("%lf\t", *x[j]);
             }
+            printf ("mean: %lf\n", prior);
 
             ens->param[ind[i]].init_std = prior_std;
 
-            printf("\nInitial std %lf\n", ens->param[ind[i]].init_std);
+            printf("Initial std %lf\n", ens->param[ind[i]].init_std);
 
             WriteParamOutput (ens->cycle_start_time, ens, ind[i], outputdir);
         }
@@ -908,4 +798,112 @@ void WriteCalFile (enkf_struct ens, char *project)
         fclose (fid);
     }
 
+}
+
+double Randn()
+{
+    double temp1, temp2;
+    double x;
+
+    temp1 = (double) (rand() % MAXINT + 1) / MAXINT;
+    temp2 = (double) (rand() % MAXINT + 1) / MAXINT;
+
+    x = sqrt (-2.0 * log (temp1)) * cos (2.0 * PI * temp2);
+
+    return (x);
+}
+
+void GenRandNum (int ne, int nparam, double **randnum, double lower, double upper)
+{
+    int             i, j, k;
+    double          corr[MAXPARAM][MAXPARAM];
+    double          mean[MAXPARAM];
+    double          std;
+    int             corr_flag;
+    int             std_flag = 1;
+    double          s1, s2;
+    double          max = -999.0;
+
+    if (nparam > 1)
+    {
+        corr_flag = 1;
+    }
+    else
+    {
+        corr_flag = 0;
+    }
+
+    srand(time(NULL));
+
+    do
+    {
+        max = -999.0;
+
+        for (j = 0; j < nparam; j++)
+        {
+            std_flag = 1;
+
+            while (std_flag)
+            {
+                mean[j] = 0.0;
+                std = 0.0;
+
+                for (i = 0; i < ne; i++)
+                {
+                    randnum[j][i] = Randn();
+                    mean[j] += randnum[j][i];
+                }
+
+                mean[j] /= (double) ne;
+
+                for (i = 0; i < ne; i++)
+                {
+                    std += (randnum[j][i] - mean[j]) * (randnum[j][i] - mean[j]);
+                }
+                std = sqrt (std / ((double) ne - 1.0));
+
+                std_flag = 0;
+
+                for (i = 0; i < ne; i++)
+                {
+                    randnum[j][i] = (randnum[j][i] - mean[j]) / std * 1.0;
+
+                    if (randnum[j][i] <= lower || randnum[j][i] >= upper)
+                    {
+                        std_flag = 1;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        for (i = 0; i < nparam; i++)
+        {
+            for (j = 0; j < nparam; j++)
+            {
+                corr[i][j] = 0.0;
+                s1 = 0.0;
+                s2 = 0.0;
+
+                for (k = 0; k < ne; k++)
+                {
+                    corr[i][j] = (randnum[i][k] - mean[i]) * (randnum[j][k] - mean[j]) + corr[i][j];
+                    s1 = s1 + (randnum[i][k] - mean[i]) * (randnum[i][k] - mean[i]);
+                    s2 = s2 + (randnum[j][k] - mean[j]) * (randnum[j][k] - mean[j]);
+                }
+
+                corr[i][j] = corr[i][j] / sqrt (s1 * s2);
+
+                if (fabs(corr[i][j]) > max && i != j)
+                {
+                    max = corr[i][j];
+                }
+            }
+        }
+
+        if (max < CORRMAX)
+        {
+            corr_flag = 0;
+        }
+    } while (corr_flag);
 }

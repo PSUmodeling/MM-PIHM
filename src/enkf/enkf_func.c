@@ -48,7 +48,7 @@ void PrintEnKFStatus (int starttime, int endtime)
     time_t          rawtime;
     struct tm      *timestamp;
 
-    printf ("Running ensemble members from ");
+    printf ("\nRunning ensemble members from ");
 
     rawtime = (int) starttime;
     timestamp = gmtime (&rawtime);
@@ -77,7 +77,7 @@ void JobHandIn (int total_jobs)
         ierr = MPI_Recv (&success, 1, MPI_INT, MPI_ANY_SOURCE, SUCCESS_TAG, MPI_COMM_WORLD, &status);
         received++;
         source = status.MPI_SOURCE;
-        printf("PIHM job handed in from Node: %d\n", source);
+        //printf("PIHM job handed in from Node: %d\n", source);
     }
 }
 
@@ -200,6 +200,11 @@ void InitOper (char *project, enkf_struct ens)
         {
             ens->obs[i].type = RUNOFF_OBS;
             DisOper (&ens->obs[i], pihm);
+        }
+        else if (strcasecmp (ens->obs[i].name, "skin_temperature") == 0)
+        {
+            ens->obs[i].type = TSKIN_OBS;
+            LandSfcTmpOper (&ens->obs[i], pihm);
         }
         else
         {

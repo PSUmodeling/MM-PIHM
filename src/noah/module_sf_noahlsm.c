@@ -48,7 +48,7 @@ void SFlx (grid_struct * grid)
         *epsca, *f1, *fxexp, *frzx, *hs, *quartz, *rch, *rr, *rgl, *rsmax,
         *sndens, *sncond, *sbeta, *sn_new, *snup, *salp, *t24, *t2v, *topt,
         *zbot, *z0, *prcpf, *etns, *ptu;
-    double          df1h, df1a, dsoil, dtot, frcsno, frcsoi, soilwm, soilww;
+    double          df1h, df1a, dsoil, dtot, frcsno, frcsoi; //soilwm, soilww;
     double         *lvcoef;
     double          interp_fraction;
     double         *laimin, *laimax;

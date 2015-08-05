@@ -15,7 +15,7 @@ enum prmt_type {KSATH, KSATV, KINF, KMACH, KMACV, DINF, RZD, DMAC, POROSITY,
     RIVSHPCOEFF, THETAREF, THETAW, RSMIN, DRIP, INTCP, CZIL, FXEXP, CFACTR,
     RGL, HS};
 
-enum obs_type {RUNOFF_OBS};
+enum obs_type {RUNOFF_OBS, TSKIN_OBS};
 typedef struct var_struct
 {
     char            name[MAXSTRING];
@@ -46,12 +46,11 @@ typedef struct obs_struct
     double          y;
     double          rad;
     double          depth;
-    int             nctrl;
+    int             nlyr;
     int            *var_ind;
-    //int            *grid_ind;
     /* The linear observation operator vector has a general form of
      *
-     * xf = SUM_i {w_i * [ SUM_j  (k_j x_ij + b_j)]}
+     * xf = SUM_j { SUM_i  [w_i * (k_ij x_ij + b_ij)]}
      *
      * w_i, k_j, and b_j are initialized at the beginning and stored here for
      * easy access so they don't need to be calculated at every EnKF step.
@@ -59,8 +58,8 @@ typedef struct obs_struct
      * k_j is ususally 1.0, or could be the thickness of each soil layer
      * b_j could be the soil column depth if xf is water table depth. */
     double         *weight;
-    double         *k;
-    double         *b;
+    double        **k;
+    double        **b;
 } obs_struct;
 
 typedef struct ens_mbr_struct
@@ -119,4 +118,7 @@ void ReadVar (char *project, char *outputdir, enkf_struct ens, int obs_time);
 void UpdAnlys (enkf_struct ens, double obs, double obs_error, double *xf);
 void CovInflt (enkf_struct ens, enkf_struct ens0);
 void WriteEnKFOut (char *project, enkf_struct ens, char *outputdir, int t);
+void GenRandNum (int ne, int nparam, double **randnum, double lower, double upper);
+double Randn();
+void LandSfcTmpOper (obs_struct *obs, pihm_struct pihm);
 

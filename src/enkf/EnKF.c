@@ -128,7 +128,7 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
 
     //srand(time(NULL));
 
-    printf("\n\nStarting EnKF ... \n");
+    printf("\nStarting EnKF ... \n");
 
     /* Copy prior from ens to En0 */
 
@@ -165,8 +165,6 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
     //    En0->TotalWaterVolume[j] = ens->TotalWaterVolume[j];
     //}
 
-    /* Define observation errors and create "observations" from truth */
-
     if (ens->nobs > 0)
     {
         sprintf (obsfn, "%s/obs.dat", outputdir);
@@ -175,8 +173,11 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
             timestamp->tm_year + 1900, timestamp->tm_mon + 1,
             timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
 
+        printf("\n*****Observations******\n");
+
         for (i = 0; i < ens->nobs; i++)
         {
+            /* Read observations */
             sprintf (obsin_fn, "input/%s/%s", project, ens->obs[i].fn);
             ReadObs (obs_time, obsin_fn, &obs, &obs_error);
 
@@ -184,8 +185,8 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
             //{
             //    obs = log (obs + 1.0);
             //}
-            printf("%s observation = %lf\n", ens->obs[i].fn, obs);
-            printf("%s error = %lf\n", ens->obs[i].fn, obs_error);
+            printf("%s observation = %lf\n", ens->obs[i].name, obs);
+            printf("%s error = %lf\n", ens->obs[i].name, obs_error);
 
             /* Read ensemble forecasts */
 
@@ -195,12 +196,12 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
 
             printf("\n*****Predictions******\n");
 
-            printf("Predictions of %s\n", ens->obs[i].name);
+            printf("%s:\n", ens->obs[i].name);
             for (j = 0; j < ne; j++)
             {
                 printf("%f\t", xf[j]);
             }
-            printf("%f\n", xf[ne]);
+            printf("mean: %f\n", xf[ne]);
 
             /* Write observations to files */
 
@@ -346,19 +347,19 @@ void CovInflt (enkf_struct ens, enkf_struct ens0)
     //char           *prmtfn;
     //FILE           *prmtfile;
 
-    int             i, j, k;
+    int             i, j;
     int             ne;
 
     double         *xp0, *xp;
 
-    double vrbl_min, vrbl_max;
-    double vrbl_mean, vrbl_mean0;
+    //double vrbl_min, vrbl_max;
+    //double vrbl_mean, vrbl_mean0;
 
     double        **x, *x0;
     double          average0, average;
     double          param_min, param_max;
     double          param_std;
-    double vrbl_temp;
+    //double vrbl_temp;
     double          c1, c2, c;
 
     //double TotalWaterVolume[ens->ne];
@@ -461,11 +462,11 @@ void CovInflt (enkf_struct ens, enkf_struct ens0)
                 {
                     average = pow (10.0, average);
                 }
-                printf("%lf\n", average);
+                printf("mean: %lf\n", average);
             }
             else
             {
-                printf("Parameter not updated\n");
+                printf("EnKF analysis %lf is out of range. Parameter is not updated\n", average);
                 average = average0;
                 for (j = 0; j < ne; j++)
                 {
@@ -617,14 +618,14 @@ void ReadFcst (enkf_struct ens, obs_struct obs, double *xf)
 
     for (i = 0; i < ne; i++)
     {
-        for (j = 0; j < obs.nctrl; j++)
+        for (j = 0; j < obs.nlyr; j++)
         {
             var_ind = obs.var_ind[j];
 
             for (k = 0; k < ens->var[var_ind].dim; k++)
             {
                 x += ens->member[i].var[var_ind][k] *
-                    obs.k[j] + obs.b[j];
+                    obs.k[k][j] + obs.b[k][j];
                 xf[i] += x * obs.weight[k];
             }
         }

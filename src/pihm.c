@@ -36,7 +36,6 @@ int main (int argc, char *argv[])
     int             id;
     int             ierr;
     int             p;
-    int             obs_time;
     int             job_per_node;
     int             startmode;
     int             starttime;
@@ -49,15 +48,15 @@ int main (int argc, char *argv[])
     ierr = MPI_Comm_rank (MPI_COMM_WORLD, &id);
     ierr = MPI_Comm_size (MPI_COMM_WORLD, &p);
 
-    //{
-    //    int ii = 0;
-    //    char hostname[256];
-    //    gethostname(hostname, sizeof(hostname));
-    //    printf("PID %d (%d) on %s ready for attach\n", getpid(), id, hostname);
-    //    fflush(stdout);
-    //    while (0 == ii)
-    //        sleep(5);
-    //}
+    {
+        int ii = 0;
+        char hostname[256];
+        gethostname(hostname, sizeof(hostname));
+        printf("PID %d (%d) on %s ready for attach\n", getpid(), id, hostname);
+        fflush(stdout);
+        while (0 == ii)
+            sleep(5);
+    }
 
     if (id == 0)
     {
@@ -80,6 +79,9 @@ int main (int argc, char *argv[])
 #endif
 #ifdef _BGC_
     printf ("\n\t    * Biogeochemistry module turned on.\n");
+#endif
+#ifdef _ENKF_
+    printf ("\n\t    * Ensemble Kalman filter turned on.\n");
 #endif
 #ifdef _CYCLES_
     printf ("\n\t    * Crop module turned on.\n");
@@ -157,16 +159,15 @@ int main (int argc, char *argv[])
 #ifdef _ENKF_
     if (id == 0)
     {
+        /*
+         * EnKF initialization
+         */
         ens = (enkf_struct) malloc (sizeof *ens);
 
-        /*
-         * Read EnKF input file
-         */
+        /* Read EnKF input file */
         EnKFRead (project, ens);
         
-        /*
-         * Check if node number is appropriate
-         */
+        /* Check if node number is appropriate */
         if (ens->ne % (p - 1) != 0)
         {
             printf ("ERROR: Please specify a correct node number!\n");
@@ -178,14 +179,10 @@ int main (int argc, char *argv[])
             job_per_node = ens->ne / (p - 1);
         }
         
-        /*
-         * Initialize observation operator vector
-         */
+        /* Initialize observation operator vector */
         InitOper (project, ens);
 
-        /*
-         * Perturb model parameters 
-         */
+        /* Perturb model parameters */
         Perturb (project, ens, outputdir);
     }
 
@@ -220,39 +217,29 @@ int main (int argc, char *argv[])
             /* Screen output */
             PrintEnKFStatus (ens->cycle_start_time, ens->cycle_end_time);
 
-            /*
-             * Waiting for different nodes to send signals indicating PIHM
-             * simulations done
-             */
+            /* Waiting for different nodes to send signals indicating PIHM
+             * simulations done */
             JobHandIn (p - 1);
 
             ens->update_param = 1;
             ens->update_var = 1;
 
-            obs_time = ens->cycle_end_time;
-
             /*
              * Read variables from PIHM output files
              */
-            ReadVar (project, outputdir, ens, obs_time);
+            ReadVar (project, outputdir, ens, ens->cycle_end_time);
 
-            /*
-             * EnKF data assimilation
-             */
-            EnKF (project, ens, obs_time, outputdir);
+            /* EnKF data assimilation */
+            EnKF (project, ens, ens->cycle_end_time, outputdir);
 
-            /*
-             * Proceed to next cycle
-             */
+            /* Proceed to next cycle */
             ens->mbr_start_mode = 3;
             ens->cycle_start_time = ens->cycle_end_time;
             ens->cycle_end_time += ens->interval;
         }
         else
         {
-            /*
-             * Receive required parameters from Node 0
-             */
+            /* Receive required parameters from Node 0 */
             JobRecv (&starttime, &endtime, &startmode, param, job_per_node * (p - 1));
 
             if (startmode == BADVAL)
@@ -273,6 +260,8 @@ int main (int argc, char *argv[])
 
             first_cycle = 0;
             success = 1;
+
+            /* Notify Node 0 PIHM run is completed */
             ierr = MPI_Send (&success, 1, MPI_INT, 0, SUCCESS_TAG, MPI_COMM_WORLD);
         }
     }
@@ -294,7 +283,6 @@ int main (int argc, char *argv[])
 
     printf ("\nSimulation completed.\n");
 #endif
-
 
     return (0);
 }
@@ -364,14 +352,14 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 
     if (pihm->ctrl.unsat_mode == 2)
     {
-        /* problem size */
+        /* State variable size */
         nsv = 3 * pihm->numele + 2 * pihm->numriv;
     }
 
-    /* Initial state variable depending on machine */
+    /* Initialize CVode state variables */
     CV_Y = N_VNew_Serial (nsv);
 
-    /* Initialize PIHM model structure */
+    /* Initialize PIHM structure */
     Initialize (pihm, CV_Y, simulation);
 
     /* Allocate memory for solver */
@@ -436,7 +424,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     {
 #endif
         if (verbose_mode)
+        {
             printf ("\n\nSolving ODE system ... \n\n");
+        }
 
         /* Set solver parameters */
         flag = CVodeSetFdata (cvode_mem, pihm);
@@ -462,27 +452,27 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             {
 #ifdef _NOAH_
                 /* Calculate surface energy balance */
-                PIHMxNoah (t, (double) pihm->ctrl.etstep, pihm, noah);
+                PIHMxNoah (t, (double)pihm->ctrl.etstep, pihm, noah);
 
 #ifdef _BGC_
-                BgcCoupling ((int) t, (int) pihm->ctrl.starttime, pihm, noah, bgc);
+                BgcCoupling ((int) t, (int)pihm->ctrl.starttime, pihm, noah, bgc);
 #endif
 #else
                 /* Calculate Interception storage and ET */
-                IntcpSnowET (t, (double) pihm->ctrl.etstep, pihm);
+                IntcpSnowET (t, (double)pihm->ctrl.etstep, pihm);
 #endif
             }
 
-            solvert = (realtype) t;
+            solvert = (realtype)t;
             flag = CVodeSetMaxNumSteps (cvode_mem,
-                (long int) (pihm->ctrl.stepsize * 20));
-            flag = CVodeSetStopTime (cvode_mem, (realtype) nextptr);
-            flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert,
+                (long int)(pihm->ctrl.stepsize * 20));
+            flag = CVodeSetStopTime (cvode_mem, (realtype)nextptr);
+            flag = CVode (cvode_mem, (realtype)nextptr, CV_Y, &solvert,
                 CV_NORMAL_TSTOP);
             flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
 
-            t = (int) solvert;
-            rawtime = (time_t) t;
+            t = (int)solvert;
+            rawtime = (time_t)t;
             timestamp = gmtime (&rawtime);
 
             if (verbose_mode)
@@ -525,7 +515,6 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                 t - pihm->ctrl.starttime, pihm->ctrl.stepsize,
                 pihm->ctrl.ascii);
 #endif
-
 #ifdef _RT_
             /* PIHM-rt output routine */
             PrintChem (filename, chData, t / 60);
@@ -637,4 +626,3 @@ void BKInput (char *simulation, char *outputdir)
         system (system_cmd);
     }
 }
-
