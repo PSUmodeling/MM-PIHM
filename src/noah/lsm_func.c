@@ -777,7 +777,7 @@ void LsmPrtInit (pihm_struct pihm, lsm_struct noah, char *simulation)
 
     fclose (init_file);
 }
-//
+
 int FindLayer (const double *sldpth, int nsoil, double depth)
 {
     int             layer;

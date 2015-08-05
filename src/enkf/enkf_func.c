@@ -4,37 +4,43 @@
 #endif
 #include "enkf.h"
 
-void JobHandout (int ne, int starttime, int endtime, int startmode, char *outputdir, int total_jobs)
+void JobHandout (int starttime, int endtime, int startmode, ens_mbr_struct *member,
+    double *param, int ne, int total_jobs)
 {
     int             dest;
-    int             msg[4];
+    int             msg[3];
+    int             i, j;
 
-    msg[0] = ne;
-    msg[1] = starttime;
-    msg[2] = endtime;
-    msg[3] = startmode;
+    msg[0] = starttime;
+    msg[1] = endtime;
+    msg[2] = startmode;
+
+    for (i = 0; i < ne; i++)
+    {
+        for (j = 0; j < MAXPARAM; j++)
+        {
+            param[i * MAXPARAM + j] = member[i].param[j];
+        }
+    }
 
     for (dest = 1; dest < total_jobs + 1; dest++)
     {
-        MPI_Send (outputdir, MAXSTRING, MPI_CHAR, dest, DIR_TAG, MPI_COMM_WORLD);
-        MPI_Send (msg, 4, MPI_INT, dest, NE_TAG, MPI_COMM_WORLD);
-        printf ("Job sent to %d\n", dest);
-        fflush (stdout);
+        MPI_Send (msg, 3, MPI_INT, dest, CYCLE_TAG, MPI_COMM_WORLD);
+        MPI_Send (param, ne * MAXPARAM, MPI_DOUBLE, dest, PARAM_TAG, MPI_COMM_WORLD);
     }
 }
 
-void JobRecv (int *ne, int *starttime, int *endtime, int *startmode, char *outputdir)
+void JobRecv (int *starttime, int *endtime, int *startmode, double *param, int ne)
 {
-    int             msg[4];
+    int             msg[3];
     MPI_Status      status;
 
-    MPI_Recv (outputdir, MAXSTRING, MPI_CHAR, 0, DIR_TAG, MPI_COMM_WORLD, &status);
-    MPI_Recv (msg, 4, MPI_INT, 0, NE_TAG, MPI_COMM_WORLD, &status);
+    MPI_Recv (msg, 3, MPI_INT, 0, CYCLE_TAG, MPI_COMM_WORLD, &status);
+    MPI_Recv (param, ne * MAXPARAM, MPI_DOUBLE, 0, PARAM_TAG, MPI_COMM_WORLD, &status);
 
-    *ne = msg[0];
-    *starttime = msg[1];
-    *endtime = msg[2];
-    *startmode = msg[3];
+    *starttime = msg[0];
+    *endtime = msg[1];
+    *startmode = msg[2];
 }
 
 void PrintEnKFStatus (int starttime, int endtime)
@@ -171,7 +177,7 @@ void InitOper (char *project, enkf_struct ens)
 
     CV_Y = N_VNew_Serial (nsv);
 
-    Initialize (pihm, CV_Y);
+    Initialize (pihm, CV_Y, project);
 
 #ifdef _NOAH_
     /* Read LSM input and initialize LSM structure */
@@ -185,6 +191,7 @@ void InitOper (char *project, enkf_struct ens)
 
     ens->numele = pihm->numele;
     ens->numriv = pihm->numriv;
+    ens->ascii = pihm->ctrl.ascii;
 
 
     for (i = 0; i < ens->nobs; i++)
@@ -212,4 +219,3 @@ void InitOper (char *project, enkf_struct ens)
     FreeData (pihm);
     free (pihm);
 }
-

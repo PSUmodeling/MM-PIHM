@@ -71,10 +71,6 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 
     ReadCalib (project, simulation, &pihm->cal);
 
-    if (pihm->ctrl.init_type == 3)
-    {
-        ReadInit (project, simulation, &pihm->ic, pihm->numele, pihm->numriv);
-    }
 }
 
 void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,

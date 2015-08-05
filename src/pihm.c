@@ -20,8 +20,8 @@
 #include "enkf.h"
 #endif
 
-int             verbose_mode;
-int             debug_mode;
+int                 verbose_mode;
+int                 debug_mode;
 
 int main (int argc, char *argv[])
 {
@@ -37,10 +37,11 @@ int main (int argc, char *argv[])
     int             ierr;
     int             p;
     int             obs_time;
-    int             ne;
+    int             job_per_node;
     int             startmode;
     int             starttime;
     int             endtime;
+    double         *param;
     int             success;
     enkf_struct     ens;
 
@@ -145,7 +146,9 @@ int main (int argc, char *argv[])
     if (id == 0)
     {
 #endif
-    /* Create output directory */
+    /*
+     * Create output directory
+     */
     CreateOutputDir (project, outputdir, overwrite_mode);
 #ifdef _ENKF_
     }
@@ -156,13 +159,23 @@ int main (int argc, char *argv[])
     {
         ens = (enkf_struct) malloc (sizeof *ens);
 
+        /*
+         * Read EnKF input file
+         */
         EnKFRead (project, ens);
         
+        /*
+         * Check if node number is appropriate
+         */
         if (ens->ne % (p - 1) != 0)
         {
-            printf ("ERROR: Please specify a correct node number!");
-            ierr = MPI_Finalize();
-            exit(1);
+            printf ("ERROR: Please specify a correct node number!\n");
+            fflush (stdout);
+            MPI_Abort (MPI_COMM_WORLD, 1);
+        }
+        else
+        {
+            job_per_node = ens->ne / (p - 1);
         }
         
         /*
@@ -176,29 +189,41 @@ int main (int argc, char *argv[])
         Perturb (project, ens, outputdir);
     }
 
+    /* Broadcast jobs per node and output directory to all nodes */
+    MPI_Bcast (&job_per_node, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast (outputdir, MAXSTRING, MPI_CHAR, 0, MPI_COMM_WORLD);
+    param = (double *) malloc (job_per_node * (p - 1) * MAXPARAM * sizeof (double));
+
+    /*
+     * EnKF cycles
+     */
     while (1)
     {
         if (id == 0)
         {
             if (ens->cycle_start_time >= ens->end_time)
             {
-                JobHandout (0, ens->cycle_start_time, ens->cycle_end_time,
-                    ens->mbr_start_mode, outputdir, p - 1);
+                /* Special case when EnKF cycle ends */
+                JobHandout (ens->cycle_start_time, ens->cycle_end_time,
+                    BADVAL, ens->member, param, ens->ne, p - 1);
             
                 break;
             }
             else
             {
-                //WritePara (project, ens->mbr_start_mode,
-                //    ens->cycle_start_time, ens->cycle_end_time);
-
-                JobHandout (ens->ne,
-                    ens->cycle_start_time, ens->cycle_end_time,
-                    ens->mbr_start_mode, outputdir, p - 1);
+                /* Send required parameters to different nodes for PIHM
+                 * runs */
+                JobHandout (ens->cycle_start_time, ens->cycle_end_time,
+                    ens->mbr_start_mode, ens->member, param, ens->ne, p - 1);
             }
 
+            /* Screen output */
             PrintEnKFStatus (ens->cycle_start_time, ens->cycle_end_time);
 
+            /*
+             * Waiting for different nodes to send signals indicating PIHM
+             * simulations done
+             */
             JobHandIn (p - 1);
 
             ens->update_param = 1;
@@ -206,32 +231,44 @@ int main (int argc, char *argv[])
 
             obs_time = ens->cycle_end_time;
 
+            /*
+             * Read variables from PIHM output files
+             */
             ReadVar (project, outputdir, ens, obs_time);
 
+            /*
+             * EnKF data assimilation
+             */
             EnKF (project, ens, obs_time, outputdir);
 
+            /*
+             * Proceed to next cycle
+             */
             ens->mbr_start_mode = 3;
             ens->cycle_start_time = ens->cycle_end_time;
             ens->cycle_end_time += ens->interval;
         }
         else
         {
-            JobRecv (&ne, &starttime, &endtime, &startmode, outputdir);
-            printf ("Job received %d, %d, %d, %d, %s on %d\n",
-                ne, starttime, endtime, startmode, outputdir, id);
-            fflush (stdout);
+            /*
+             * Receive required parameters from Node 0
+             */
+            JobRecv (&starttime, &endtime, &startmode, param, job_per_node * (p - 1));
 
-            if (ne <= 0)
+            if (startmode == BADVAL)
             {
+                /* Special case indicating end of EnKF cycles */
                 break;
             }
 
-            for (ii = (id - 1) * ne / (p - 1); ii < id * ne / (p - 1); ii++)
+            for (ii = (id - 1) * job_per_node; ii < id * job_per_node; ii++)
             {
+                /* Determine name of simulation */
                 sprintf (simulation, "%s.%3.3d", project, ii + 1);
 
+                /* Run PIHM */
                 PIHMRun (simulation, outputdir, first_cycle,
-                    starttime, endtime, startmode);
+                    starttime, endtime, startmode, param + ii * MAXPARAM);
             }
 
             first_cycle = 0;
@@ -242,24 +279,29 @@ int main (int argc, char *argv[])
 
     if (id == 0)
     {
+        printf ("\nSimulation completed.\n");
+
         free (ens);
     }
 
+    free (param);
     ierr = MPI_Finalize ();
-
 #else
     /* The name of the simulation is the same as the project */
     strcpy (simulation, project);
 
     PIHMRun (simulation, outputdir, first_cycle);
+
+    printf ("\nSimulation completed.\n");
 #endif
+
 
     return (0);
 }
 
 #ifdef _ENKF_
 void PIHMRun (char *simulation, char *outputdir, int first_cycle,
-    int starttime, int endtime, int startmode)
+    int starttime, int endtime, int startmode, double *param)
 #else
 void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #endif
@@ -293,7 +335,6 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     CyclesStruct    cycles;
 #endif
 
-    printf ("Running %s\n", simulation);
     /* Allocate memory for model data structure */
     pihm = (pihm_struct)malloc (sizeof *pihm);
 #ifdef _NOAH_
@@ -312,9 +353,13 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     /* Read PIHM input files */
     ReadAlloc (simulation, pihm);
 #ifdef _ENKF_
+    /* When running in ensemble mode, use parameters and calibration
+     * determined by EnKF module */
     pihm->ctrl.init_type = startmode;
     pihm->ctrl.starttime = starttime;
     pihm->ctrl.endtime = endtime;
+
+    Mbr2Cal (&pihm->cal, param);
 #endif
 
     if (pihm->ctrl.unsat_mode == 2)
@@ -327,7 +372,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     CV_Y = N_VNew_Serial (nsv);
 
     /* Initialize PIHM model structure */
-    Initialize (pihm, CV_Y);
+    Initialize (pihm, CV_Y, simulation);
 
     /* Allocate memory for solver */
     cvode_mem = CVodeCreate (CV_BDF, CV_NEWTON);
@@ -447,14 +492,19 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                     timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min,
                     t);
             }
+#ifndef _ENKF_
             else if (rawtime % 3600 == 0)
             {
-                printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d %s\n",
+                printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
                     timestamp->tm_year + 1900, timestamp->tm_mon + 1,
                     timestamp->tm_mday, timestamp->tm_hour,
-                    timestamp->tm_min, simulation);
+                    timestamp->tm_min);
             }
+#endif
 
+            /*
+             * Use mass balance to calculate model fluxes or variables
+             */
             Summary (pihm, CV_Y, (double) pihm->ctrl.stepsize);
 #ifdef _NOAH_
             AvgFlux (noah, pihm);
@@ -464,7 +514,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             fluxtrans (t / 60.0, StepSize / 60.0, mData, chData, CV_Y);
 #endif
 
-            /* Print outputs */
+            /*
+             * Print outputs
+             */
             PrintData (pihm->prtctrl, pihm->ctrl.nprint, t,
                 t - pihm->ctrl.starttime, pihm->ctrl.stepsize,
                 pihm->ctrl.ascii);
@@ -490,6 +542,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     }
 #endif
 
+    /*
+     * Write init files
+     */
     if (pihm->ctrl.write_ic)
     {
         PrtInit (pihm, simulation);
@@ -497,8 +552,6 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         LsmPrtInit (pihm, noah, simulation);
 #endif
     }
-
-    printf ("\nSimulation completed.\n");
 
 #ifdef _NOAH_
     LsmFreeData (pihm, noah);
@@ -509,9 +562,6 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #endif
     FreeData (pihm);
     free (pihm);
-
-    printf ("PIHM completed\n");
-    fflush (stdout);
 }
 
 void CreateOutputDir (char *project, char *outputdir, int overwrite_mode)

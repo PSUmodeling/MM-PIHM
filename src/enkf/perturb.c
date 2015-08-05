@@ -112,43 +112,21 @@ void GenRandNum (int ne, int nparam, double **randnum, double lower, double uppe
     
 void Perturb(char *project, enkf_struct ens, char *outputdir)
 {
-    int ne;
-    int i, j;
-    int n = 0;
-    time_t      rawtime;
+    int             ne;
+    int             i, j;
+    int             n = 0;
+    time_t          rawtime;
 
-    calib_struct        cal;
+    calib_struct    cal;
 
-    double    **x;
-    double    **randnum;
-    int         ind[MAXPARAM];
-    //double prmt_mean;
-    //double temp1, temp2, temp3;
-    //int NumEle, NumNode, NumRiv;
-    //char *fn;
-    //char str[3];
-
-    //FILE *prmtfile;
-    //FILE *calibfile;
-    //FILE *caliboutfile;
-    //FILE *calibinfile;
-    //FILE *obsfile;
-
-    //char *obsfn;
-    //char *calibinfn;
-    //char *caliboutfn;
-    //FILE *initoutfile;
-    //FILE *initinfile;
-    //char *initinfn;
-    //char *initoutfn;
-    //char *prmtfn;
-    //char tmpLName[11];
+    double        **x;
+    double        **randnum;
+    int             ind[MAXPARAM];
 
     double          prior;
     double          prior_std;
-    //int prmt_flag;
 
-    /* Initialize ensemble members' initial conditions using DS */
+    /* Initialize ensemble members */
     ne = ens->ne;
 
     ens->member = (ens_mbr_struct *) malloc (ne * sizeof (ens_mbr_struct));
@@ -176,7 +154,7 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
     rawtime = (int) ens->cycle_start_time;
 
     printf("Ensemble members: %d\n", ne);
-    printf("Default observation cycle: %-d hour(s)\n", ens->interval);
+    printf("Default observation cycle: %-d hour(s)\n", ens->interval /  3600);
 //    printf("\nObservations:");
 //    if (En->no_obs == 0)
 //    {
@@ -554,6 +532,7 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
 
         for (i = 0; i < n; i++)
         {
+            printf ("%s:\n", ens->param[ind[i]].name);
             for (j = 0; j < ne; j++)
             {
                 x[j] = &ens->member[j].param[ind[i]];
@@ -575,16 +554,12 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
 
             ens->param[ind[i]].init_std = prior_std;
 
-            //fprintf(paramfile,"\t%lf",*x[j]);
+            printf("\nInitial std %lf\n", ens->param[ind[i]].init_std);
 
-            printf("\nInitial std %f", ens->param[ind[i]].init_std);
-            //fflush(paramfile);
-            //fclose(paramfile);
             WriteParamOutput (ens->cycle_start_time, ens, ind[i], outputdir);
         }
 
         WriteCalFile (ens, project);
-
     }
 
     for (i = 0; i < n; i++)
@@ -612,106 +587,158 @@ void MapVar (var_struct *var, int numele, int numriv)
             case 0:
                 strcpy(var[i].name, "surf");
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 1:
                 strcpy(var[i].name, "stage");
                 var[i].dim = numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 2:
                 strcpy(var[i].name, "unsat");
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 3:
                 strcpy(var[i].name, "gw");
-                var[i].dim = numele+numriv;
+                var[i].dim = numele + numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 4:
                 strcpy(var[i].name, "et0");
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 5:
                 strcpy(var[i].name, "et1");
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 6:
                 strcpy(var[i].name, "et2");
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 7:
                 strcpy(var[i].name, "is");
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 8:
                 strcpy(var[i].name,  "snow");
-                var[i].dim = numele+numriv;
+                var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 9:
                 strcpy(var[i].name, "rivflx0");
                 var[i].dim = numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 10:
                 strcpy(var[i].name,  "rivflx1");
                 var[i].dim = numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 11:
                 strcpy(var[i].name,  "rivflx2");
                 var[i].dim = numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 12:
                 strcpy(var[i].name, "rivflx3");
                 var[i].dim = numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 13:
                 strcpy(var[i].name,  "rivflx4");
                 var[i].dim = numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 14:
                 strcpy(var[i].name, "rivflx5");
                 var[i].dim = numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 15:
                 strcpy(var[i].name,  "rivflx6");
                 var[i].dim = numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 16:
                 strcpy(var[i].name,  "rivflx7");
                 var[i].dim = numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 17:
                 strcpy(var[i].name,  "rivflx8");
                 var[i].dim = numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 18:
                 strcpy(var[i].name, "rivflx9");
                 var[i].dim = numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 19:
                 strcpy(var[i].name, "rivflx10");
                 var[i].dim = numriv;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 20:
                 strcpy(var[i].name,  "recharge");
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 21:
                 strcpy(var[i].name,  "g");
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 22:
                 strcpy(var[i].name,  "sh");
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 23:
                 strcpy(var[i].name,  "le");
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 24:
                 strcpy(var[i].name, "t1");
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             case 25:
                 strcpy(var[i].name, "snowh");
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
                 break;
             default:
                 break;
@@ -723,18 +750,24 @@ void MapVar (var_struct *var, int numele, int numriv)
             {
                 sprintf(var[i].name, "stc%-d", j);
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
             }
 
             if (i == 26 + MAXLYR + j)
             {
                 sprintf(var[i].name, "smc%-d", j);
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
             }
 
             if (i == 26 + 2 * MAXLYR + j)
             {
                 sprintf (var[i].name, "swc%-d", j);
                 var[i].dim = numele;
+                var[i].min = BADVAL;
+                var[i].max = BADVAL;
             }
         }
     }
@@ -780,6 +813,49 @@ void Calib2Mbr (calib_struct cal, double *param)
     param[CFACTR] = cal.cfactr;
     param[RGL] = cal.rgl;
     param[HS] = cal.hs;
+#endif
+}
+
+void Mbr2Cal (calib_struct *cal, const double *param)
+{
+    cal->ksath = param[KSATH];
+    cal->ksatv = param[KSATV];
+    cal->kinfv = param[KINF];
+    cal->kmach = param[KMACH];
+    cal->kmacv = param[KMACV];
+    cal->dinf = param[DINF];
+    cal->rzd = param[RZD];
+    cal->dmac = param[DMAC];
+    cal->porosity = param[POROSITY];
+    cal->alpha = param[ALPHA];
+    cal->beta = param[BETA];
+    cal->areafv = param[AREAFV];
+    cal->areafh = param[AREAFH];
+    cal->vegfrac = param[VEGFRAC];
+    cal->albedo = param[ALBEDO];
+    cal->rough = param[ROUGH];
+    cal->prcp = param[PRCP];
+    cal->sfctmp = param[SFCTMP];
+    cal->et[0] = param[ET0];
+    cal->et[1] = param[ET1];
+    cal->et[2] = param[ET2];
+    cal->rivrough = param[RIVROUGH];
+    cal->rivksath = param[RIVKSATH];
+    cal->rivksatv = param[RIVKSATV];
+    cal->rivbedthick = param[RIVBEDTHICK];
+    cal->rivdepth = param[RIVDEPTH];
+    cal->rivshpcoeff = param[RIVSHPCOEFF];
+#ifdef _NOAH_    
+    cal->thetaref = param[THETAREF];
+    cal->thetaw = param[THETAW];
+    cal->rsmin = param[RSMIN];
+    cal->drip = param[DRIP];
+    cal->intcp = param[INTCP];
+    cal->czil = param[CZIL];
+    cal->fxexp = param[FXEXP];
+    cal->cfactr = param[CFACTR];
+    cal->rgl = param[RGL];
+    cal->hs = param[HS];
 #endif
 }
 

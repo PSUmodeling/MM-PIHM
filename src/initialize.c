@@ -7,9 +7,23 @@
 
 #include "pihm.h"
 
-void Initialize (pihm_struct pihm, N_Vector CV_Y)
+void Initialize (pihm_struct pihm, N_Vector CV_Y, char *simulation)
 {
     int             i;
+    char            project[MAXSTRING];
+    char           *token;
+    char            tempname[MAXSTRING];
+
+    strcpy (tempname, simulation);
+    if (strstr (tempname, ".") != 0)
+    {
+        token = strtok (tempname, ".");
+        strcpy (project, token);
+    }
+    else
+    {
+        strcpy (project, simulation);
+    }
 
     if (verbose_mode)
     {
@@ -61,6 +75,10 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
             pihm->ic.rivgw[i] =
                 pihm->riv[i].topo.zmax - pihm->riv[i].topo.zmin - 0.1;
         }
+    }
+    else if (pihm->ctrl.init_type == 3)
+    {
+        ReadInit (project, simulation, &pihm->ic, pihm->numele, pihm->numriv);
     }
 
     InitStateVrbl (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, CV_Y,

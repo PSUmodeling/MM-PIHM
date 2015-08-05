@@ -6,7 +6,7 @@
  */
 #ifdef _ENKF_
 void            PIHMRun (char *simulation, char *outputdir, int first_cycle,
-    int starttime, int endtime, int startmode);
+    int starttime, int endtime, int startmode, double *param);
 #else
 void            PIHMRun (char *simulation, char *outputdir, int first_cycle);
 #endif
@@ -53,7 +53,7 @@ void            ReadKeywordStr (char *buffer, char *keyword, char *value);
 //int CountOccurance (FILE *fid, char *token);
 //
 //
-void            Initialize (pihm_struct pihm, N_Vector CV_Y);
+void            Initialize (pihm_struct pihm, N_Vector CV_Y, char *simulation);
 void            InitMeshStruct (elem_struct *elem, int numele,
     mesh_tbl_struct mesh_tbl);
 void            InitTopo (elem_struct *elem, int numele,

@@ -1,4 +1,5 @@
 #include "pihm.h"
+#include "noah.h"
 #include "enkf.h"
 
 //#define NUMVRBL 25+2*DS->NumSoilLayer
@@ -179,10 +180,10 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
             sprintf (obsin_fn, "input/%s/%s", project, ens->obs[i].fn);
             ReadObs (obs_time, obsin_fn, &obs, &obs_error);
 
-            if (ens->obs[i].type == RUNOFF_OBS)
-            {
-                obs = log (obs + 1.0);
-            }
+            //if (ens->obs[i].type == RUNOFF_OBS)
+            //{
+            //    obs = log (obs + 1.0);
+            //}
             printf("%s observation = %lf\n", ens->obs[i].fn, obs);
             printf("%s error = %lf\n", ens->obs[i].fn, obs_error);
 
@@ -205,15 +206,18 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
 
             fprintf (obsfile, "\t%lf", obs);
 
-    //        update_analysis(DS, ens, *obs, *obs_error, xf);
+            UpdAnlys (ens, obs, obs_error, xf);
         }
+
         fprintf(obsfile, "\n");
         fflush (obsfile);
         fclose (obsfile);
-    //    inflate(DS, ens, En0);
 
+        /* Covariance inflation */
+        CovInflt(ens, ens0);
     }
-    //write_EnKF_output(filename, DS, ens, timestamp);
+
+    WriteEnKFOut (project, ens, outputdir, obs_time);
     //printf("\n\nEnKF done.");
     //free(obs);
     //free(obs_error); 
@@ -232,335 +236,321 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
     free(xf);
 }
 
-//void update_analysis(ensemble ens, double obs, double obs_error, double *xf)
-//{
-//    int i, j, k;
-//    int ne;
-//
-//    double *xa;
-//
-//    double **x;
-//
-//    ne = ens->ne;
-//
-//    xa = (double *)malloc(sizeof(double)*(ne+1));
-//
-//    x = (double **)malloc(ne*sizeof(double));
-//
-//    /* Optimize Parameters from observations */
-//
-//    for (i=0; i<NUMPRMT; i++)
-//    {
-//        if (ens->prmt[i].update == 1 & ens->update_prmt == 1)
-//        {
-//            /* Make pointers point to the parameter that needs to be updated */
-//            for (j=0; j<ne; j++)
-//            {
-//                x[j] = &ens->member[j].parameter[i];
-//            }
-//
-//            /* Take log if the parameter is conductivity or Czil */
-//
-//            if (ens->prmt[i].type == 1)
-//            {
-//                for (j=0; j<ne; j++)
-//                {
-//                    *x[j] = log10(*x[j]);
-//                }
-//            }
-//
-//            /* Convert parameters to -inf:inf space and calculate initial pertubations */
-//
-//            xa[ne] = 0;
-//
-//            for (j = 0; j<ne; j++)
-//            {
-//                xa[j] = *x[j];
-//                xa[ne] = xa[ne]+xa[j];
-//            }
-//
-//            xa[ne] = xa[ne]/(double)ne;
-//
-//            EnKF_core(xa, obs, obs_error, xf, ne);
-//
-//            for (j = 0; j<ne; j++)
-//            {
-//                *x[j] = xa[j];
-//                if (ens->prmt[i].type == 1)
-//                {
-//                    *x[j] = pow(10,*x[j]);
-//                }
-//            }
-//        }
-//
-//    }
-//
-//    if (ens->update_stvrbl == 1)
-//    {
-//        for (i=0; i<NUMVRBL; i++)
-//        {
-//            for (k=0; k<ens->vrbl[i].vrbl_dim; k++)
-//            {
-//                for (j=0; j<ne; j++)
-//                {
-//                    x[j] = &ens->member[j].variable[i][k];
-//                }
-//
-//                xa[ne] = 0;
-//
-//                for (j = 0; j<ne; j++)
-//                {
-//                    xa[j] = *x[j];
-//                    xa[ne] = xa[ne]+xa[j];
-//                }
-//                xa[ne] = xa[ne]/(double)ne;
-//
-//                EnKF_core(xa, obs, obs_error, xf, ne);
-//                for (j = 0; j<ne; j++)
-//                {
-//                    *x[j] = xa[j];
-//                }
-//            }
-//        }
-//    }
-//
-//
-//    free(xa);
-//    free(x);
-//}
-//
-//void inflate(Model_Data DS, ensemble ens, ensemble En0)
-//{
-//    char *prmtn[NUMPRMT];		/* Modified by Y. Shi */
-//    char *prmtfn;
-//    FILE *prmtfile;
-//
-//    int i, j, k;
-//    int ne;
-//
-//    double *xp0, *xp;
-//
-//    double vrbl_min, vrbl_max;
-//    double vrbl_mean, vrbl_mean0;
-//
-//    double **x, *x0;
-//    double prmt_mean, prmt_mean0, prmt_min, prmt_max;
-//    double prmt_std;
-//    double vrbl_temp;
-//    double c1, c2, c;
-//
-//    double TotalWaterVolume[ens->ne];
-//    double MassCoeff[ens->ne];
-//
-//
-//    ne = ens->ne;
-//
-//    xp0 = (double *)malloc(sizeof(double)*ne);
-//    xp = (double *)malloc(sizeof(double)*ne);
-//
-//    x = (double **)malloc(ne*sizeof(double));
-//    x0 = (double *)malloc(ne*sizeof(double));
-//
-//
-//    /* Print out parameter names */
-//
-//    printf("\n\n*****Parameters********");
-//
-//    for (i=0; i<NUMPRMT; i++)
-//    {
-//        if (ens->prmt[i].update == 1 & ens->update_prmt == 1)
-//        {
-//            printf("\n %s\n", ens->prmt[i].prmtn);
-//            /* Make pointers point to the parameter that needs to be updated */
-//            for (j=0; j<ne; j++)
-//            {
-//                x[j] = &ens->member[j].parameter[i];
-//                x0[j] = En0->member[j].parameter[i];
-//            }
-//
-//
-//            /* Take log if the parameter is conductivity or Czil */
-//
-//            if (ens->prmt[i].type == 1)
-//            {
-//                for (j=0; j<ne; j++)
-//                {
-//                    *x[j] = log10(*x[j]);
-//                    x0[j] = log10(x0[j]);
-//                }
-//            }
-//
-//            prmt_mean0 = 0;
-//            prmt_mean = 0;
-//
-//            for (j = 0; j<ne; j++)
-//            {
-//                prmt_mean0 = prmt_mean0+x0[j];
-//                prmt_mean = prmt_mean+*x[j];
-//            }
-//
-//            prmt_mean = prmt_mean/(double)ne;
-//            prmt_mean0 = prmt_mean0/(double)ne;
-//
-//            for (j=0; j<ne; j++)
-//            {
-//                xp0[j] = x0[j] - prmt_mean0;
-//                xp[j] = *x[j] - prmt_mean;
-//            }
-//
-//            if (prmt_mean<ens->prmt[i].max - 0.25*ens->prmt[i].init_std && prmt_mean>ens->prmt[i].min + 0.25*ens->prmt[i].init_std)
-//            {
-//                // Calculate new perturbations and standard deviation
-//
-//                prmt_std = 0;
-//
-//                for (j = 0; j<ne; j++)
-//                {
-//                    xp[j] = (1-ens->weight)*xp[j]+ens->weight*xp0[j];
-//                    prmt_std = prmt_std + xp[j]*xp[j];
-//                }
-//                prmt_std = sqrt(prmt_std/((double)ne-1));
-//
-//                // Coavariance inflation
-//
-//                prmt_min = 999;
-//                prmt_max = -999;
-//
-//                for (j = 0; j<ne; j++)
-//                {
-//                    if (prmt_std<0.25*ens->prmt[i].init_std)
-//                    {
-//                        xp[j] = 0.25*ens->prmt[i].init_std/prmt_std*xp[j];
-//                    }
-//                    prmt_min = prmt_min<(prmt_mean+xp[j])?prmt_min:(prmt_mean+xp[j]);
-//                    prmt_max = prmt_max>(prmt_mean+xp[j])?prmt_max:(prmt_mean+xp[j]);
-//                }
-//                c1 = (ens->prmt[i].max-EPSILON-prmt_mean)/(prmt_max-prmt_mean);
-//                c2 = (prmt_mean-ens->prmt[i].min-EPSILON)/(prmt_mean-prmt_min);
-//                c = c1<c2?c1:c2;
-//                c = c<1?c:1.0;
-//
-//                for (j = 0; j<ne; j++)
-//                {
-//                    *x[j] = prmt_mean + c*xp[j];
-//                    if (ens->prmt[i].type == 1)
-//                    {
-//                        *x[j] = pow(10,*x[j]);
-//                    }
-//                    printf("%lf\t",*x[j]);
-//                }
-//                if (ens->prmt[i].type == 1)
-//                {
-//                    prmt_mean = pow(10,prmt_mean);
-//                }
-//                printf("%lf",prmt_mean);
-//            }
-//            else
-//            {
-//                printf("\tParameter not updated");
-//                prmt_mean = prmt_mean0;
-//                for (j = 0; j<ne; j++)
-//                {
-//                    *x[j] = x0[j];
-//                    if (ens->prmt[i].type == 1)
-//                    {
-//                        *x[j] = pow(10, x0[j]);
-//                    }
-//                }
-//
-//                if (ens->prmt[i].type == 1)
-//                {
-//                    prmt_mean = pow(10,prmt_mean);
-//                }
-//            }
-//        }
-//    }
-//
-//    if (ens->update_stvrbl == 1)
-//    {
-//        for (i=0; i<NUMVRBL; i++)
-//        {
-//            for (k=0; k<ens->vrbl[i].vrbl_dim; k++)
-//            {
-//                for (j=0; j<ne; j++)
-//                {
-//                    x[j] = &ens->member[j].variable[i][k];
-//                    x0[j] = En0->member[j].variable[i][k];
-//                }
-//                vrbl_mean = 0;
-//                vrbl_mean0 = 0;
-//
-//                for (j = 0; j<ne; j++)
-//                {
-//                    vrbl_mean = vrbl_mean+*x[j];
-//                    vrbl_mean0 = vrbl_mean0+x0[j];
-//                }
-//                vrbl_mean = vrbl_mean/(double)ne;
-//                vrbl_mean0 = vrbl_mean0/(double)ne;
-//
-//                for (j = 0; j<ne; j++)
-//                {
-//                    xp0[j] = x0[j]-vrbl_mean0;
-//                    xp[j] = *x[j]-vrbl_mean;
-//                    *x[j] = vrbl_mean + (1-ens->weight)*xp[j]+ens->weight*xp0[j];
-//                    /*
-//                       if (i < 2 | i > 11)
-//                       {
-//                     *x[j] = *x[j]<vrbl_min?vrbl_min:*x[j];
-//                     }
-//                     else
-//                     {
-//                     *x[j] = *x[j]>vrbl_min?(*x[j]<vrbl_max?*x[j]:x0[j]):x0[j];
-//                     }
-//                     */
-//                }
-//            }
-//        }
-//
-//        printf("\nMass conservation coefficient\n");
-//        for (j=0; j<ne; j++)
-//        {
-//            TotalWaterVolume[j] = En0->TotalWaterVolume[j];
-//            for (k = 0; k<DS->NumEle; k++)
-//            {
-//                ens->TotalWaterVolume[j] = ens->TotalWaterVolume[j] + DS->Ele[k].area*(ens->member[j].variable[0][k] + ens->member[j].variable[2][k]*DS->Ele[k].Porosity + ens->member[j].variable[3][k] + ens->member[j].variable[8][k] + ens->member[j].variable[7][k] + ens->member[j].variable[22][k]/Lv/1000*3600);
-//            }
-//            for (k = 0; k<DS->NumRiv; k++)
-//            {
-//                ens->TotalWaterVolume[j] = ens->TotalWaterVolume[j] + DS->Riv[k].coeff*DS->Riv[k].Length*(ens->member[j].variable[1][k] + ens->member[j].variable[8][k+DS->NumEle] + ens->member[j].variable[3][k+DS->NumEle]);
-//            }
-//            ens->TotalWaterVolume[j] = ens->TotalWaterVolume[j] + ens->member[j].variable[10][DS->NumRiv-1]/24;
-//            MassCoeff[j] = ens->TotalWaterVolume[j]/TotalWaterVolume[j];
-//            printf("%f\t", MassCoeff[j]);
-//        }
-//        /*
-//           for (j=0; j<ne; j++)
-//           {
-//           for (k = 0; k<DS->NumEle; k++)
-//           {
-//           ens->IC[j].Overland[k] = MassCoeff[j]*ens->IC[j].Overland[k];
-//           ens->IC[j].Unsat[k] = MassCoeff[j]*ens->IC[j].Unsat[k];
-//           ens->IC[j].IS[k] = MassCoeff[j]*ens->IC[j].IS[k];
-//           ens->IC[j].LE[k] = MassCoeff[j]*ens->IC[j].LE[k];
-//           }
-//           for (k = 0; k<DS->NumEle+DS->NumRiv; k++)
-//           {
-//           ens->IC[j].Sat[k] = MassCoeff[j]*ens->IC[j].Sat[k];
-//           ens->IC[j].Snow[k] = MassCoeff[j]*ens->IC[j].Snow[k];
-//           }
-//           ens->IC[j].rivFlx[1] = MassCoeff[j]*ens->IC[j].rivFlx[1];
-//           }
-//           */
-//    }
-//    free(xp0);
-//    free(xp);
-//    free(x);
-//    free(x0);
-//
-//    printf("\nInflate done!");
-//
-//}
-//
+void UpdAnlys (enkf_struct ens, double obs, double obs_error, double *xf)
+{
+    int             i, j, k;
+    int             ne;
+
+    double         *xa;
+
+    double        **x;
+
+    ne = ens->ne;
+
+    xa = (double *)malloc (sizeof (double) * (ne + 1));
+
+    x = (double **)malloc (ne * sizeof(double));
+
+    /*
+     * Optimize parameters using EnKF
+     */
+
+    for (i = 0; i < MAXPARAM; i++)
+    {
+        if (ens->param[i].update == 1 && ens->update_param == 1)
+        {
+            /* Make pointers point to the parameter that needs to be
+             * updated */
+            for (j = 0; j < ne; j++)
+            {
+                x[j] = &ens->member[j].param[i];
+            }
+
+            /* Take log if the parameter is conductivity or Czil */
+
+            if (ens->param[i].type == 1)
+            {
+                for (j = 0; j < ne; j++)
+                {
+                    *x[j] = log10 (*x[j]);
+                }
+            }
+
+            xa[ne] = 0.0;
+
+            for (j = 0; j < ne; j++)
+            {
+                xa[j] = *x[j];
+                xa[ne] += xa[j];
+            }
+
+            xa[ne] /= (double)ne;
+
+            EnKFCore (xa, obs, obs_error, xf, ne);
+
+            for (j = 0; j < ne; j++)
+            {
+                *x[j] = xa[j];
+                if (ens->param[i].type == 1)
+                {
+                    *x[j] = pow (10.0, *x[j]);
+                }
+            }
+        }
+    }
+
+    /*
+     * Optimize model variables
+     */
+    if (ens->update_var == 1)
+    {
+        for (i = 0; i < MAXVAR; i++)
+        {
+            if (ens->var[i].dim > 0)
+            {
+                for (k = 0; k < ens->var[i].dim; k++)
+                {
+                    for (j = 0; j < ne; j++)
+                    {
+                        x[j] = &ens->member[j].var[i][k];
+                    }
+
+                    xa[ne] = 0.0;
+
+                    for (j = 0; j < ne; j++)
+                    {
+                        xa[j] = *x[j];
+                        xa[ne] += xa[j];
+                    }
+                    xa[ne] /= (double)ne;
+
+                    EnKFCore (xa, obs, obs_error, xf, ne);
+
+                    for (j = 0; j < ne; j++)
+                    {
+                        *x[j] = xa[j];
+                    }
+                }
+            }
+        }
+    }
+
+
+    free (xa);
+    free (x);
+}
+
+void CovInflt (enkf_struct ens, enkf_struct ens0)
+{
+    //char           *prmtn[NUMPRMT];		/* Modified by Y. Shi */
+    //char           *prmtfn;
+    //FILE           *prmtfile;
+
+    int             i, j, k;
+    int             ne;
+
+    double         *xp0, *xp;
+
+    double vrbl_min, vrbl_max;
+    double vrbl_mean, vrbl_mean0;
+
+    double        **x, *x0;
+    double          average0, average;
+    double          param_min, param_max;
+    double          param_std;
+    double vrbl_temp;
+    double          c1, c2, c;
+
+    //double TotalWaterVolume[ens->ne];
+    //double MassCoeff[ens->ne];
+
+
+    ne = ens->ne;
+
+    xp0 = (double *)malloc (sizeof (double) * ne);
+    xp = (double *)malloc (sizeof (double) * ne);
+
+    x = (double **)malloc (ne * sizeof(double));
+    x0 = (double *)malloc (ne * sizeof(double));
+
+    printf("\n*****Parameters********\n");
+
+    for (i = 0; i < MAXPARAM; i++)
+    {
+        if (ens->param[i].update == 1 && ens->update_param == 1)
+        {
+            printf("%s\n", ens->param[i].name);
+            /* Make pointers point to the parameter that needs to be updated */
+            for (j = 0; j < ne; j++)
+            {
+                x[j] = &ens->member[j].param[i];
+                x0[j] = ens0->member[j].param[i];
+            }
+
+            /* Take log if the parameter is conductivity or Czil */
+
+            if (ens->param[i].type == 1)
+            {
+                for (j = 0; j < ne; j++)
+                {
+                    *x[j] = log10 (*x[j]);
+                    x0[j] = log10 (x0[j]);
+                }
+            }
+
+            average0 = 0.0;
+            average = 0.0;
+
+            for (j = 0; j < ne; j++)
+            {
+                average0 += x0[j];
+                average += *x[j];
+            }
+
+            average /= (double)ne;
+            average0 /= (double)ne;
+
+            for (j = 0; j < ne; j++)
+            {
+                xp0[j] = x0[j] - average0;
+                xp[j] = *x[j] - average;
+            }
+
+            if (average < ens->param[i].max - 0.25 * ens->param[i].init_std &&
+                average > ens->param[i].min + 0.25 * ens->param[i].init_std)
+            {
+                /* Calculate new perturbations and standard deviation */
+                param_std = 0.0;
+
+                for (j = 0; j < ne; j++)
+                {
+                    xp[j] = (1.0 - ens->weight) * xp[j] + ens->weight * xp0[j];
+                    param_std += xp[j] * xp[j];
+                }
+                param_std = sqrt (param_std / ((double)ne - 1.0));
+
+                /* Coavariance inflation */
+                param_min = 999.0;
+                param_max = -999.0;
+
+                for (j = 0; j < ne; j++)
+                {
+                    if (param_std < 0.25 * ens->param[i].init_std)
+                    {
+                        xp[j] = 0.25 * ens->param[i].init_std / param_std * xp[j];
+                    }
+                    param_min = (param_min < average + xp[j]) ? param_min: (average + xp[j]);
+                    param_max = (param_max > average + xp[j]) ? param_max: (average + xp[j]);
+                }
+
+                c1 = (ens->param[i].max - 1.0E-6 - average) / (param_max - average);
+                c2 = (average - ens->param[i].min - 1.0E-6) / (average - param_min);
+                c = (c1<c2) ? c1 : c2;
+                c = (c < 1.0) ? c : 1.0;
+
+                for (j = 0; j < ne; j++)
+                {
+                    *x[j] = average + c * xp[j];
+                    if (ens->param[i].type == 1)
+                    {
+                        *x[j] = pow (10.0, *x[j]);
+                    }
+                    printf("%lf\t",*x[j]);
+                }
+                if (ens->param[i].type == 1)
+                {
+                    average = pow (10.0, average);
+                }
+                printf("%lf\n", average);
+            }
+            else
+            {
+                printf("Parameter not updated\n");
+                average = average0;
+                for (j = 0; j < ne; j++)
+                {
+                    *x[j] = x0[j];
+                    if (ens->param[i].type == 1)
+                    {
+                        *x[j] = pow (10.0, x0[j]);
+                    }
+                }
+
+                if (ens->param[i].type == 1)
+                {
+                    average = pow (10.0, average);
+                }
+            }
+        }
+    }
+
+    //if (ens->update_stvrbl == 1)
+    //{
+    //    for (i=0; i<NUMVRBL; i++)
+    //    {
+    //        for (k=0; k<ens->vrbl[i].vrbl_dim; k++)
+    //        {
+    //            for (j=0; j<ne; j++)
+    //            {
+    //                x[j] = &ens->member[j].variable[i][k];
+    //                x0[j] = En0->member[j].variable[i][k];
+    //            }
+    //            vrbl_mean = 0;
+    //            vrbl_mean0 = 0;
+
+    //            for (j = 0; j<ne; j++)
+    //            {
+    //                vrbl_mean = vrbl_mean+*x[j];
+    //                vrbl_mean0 = vrbl_mean0+x0[j];
+    //            }
+    //            vrbl_mean = vrbl_mean/(double)ne;
+    //            vrbl_mean0 = vrbl_mean0/(double)ne;
+
+    //            for (j = 0; j<ne; j++)
+    //            {
+    //                xp0[j] = x0[j]-vrbl_mean0;
+    //                xp[j] = *x[j]-vrbl_mean;
+    //                *x[j] = vrbl_mean + (1-ens->weight)*xp[j]+ens->weight*xp0[j];
+    //                /*
+    //                   if (i < 2 | i > 11)
+    //                   {
+    //                 *x[j] = *x[j]<vrbl_min?vrbl_min:*x[j];
+    //                 }
+    //                 else
+    //                 {
+    //                 *x[j] = *x[j]>vrbl_min?(*x[j]<vrbl_max?*x[j]:x0[j]):x0[j];
+    //                 }
+    //                 */
+    //            }
+    //        }
+    //    }
+
+        //printf("\nMass conservation coefficient\n");
+        //for (j=0; j<ne; j++)
+        //{
+        //    TotalWaterVolume[j] = En0->TotalWaterVolume[j];
+        //    for (k = 0; k<DS->NumEle; k++)
+        //    {
+        //        ens->TotalWaterVolume[j] = ens->TotalWaterVolume[j] + DS->Ele[k].area*(ens->member[j].variable[0][k] + ens->member[j].variable[2][k]*DS->Ele[k].Porosity + ens->member[j].variable[3][k] + ens->member[j].variable[8][k] + ens->member[j].variable[7][k] + ens->member[j].variable[22][k]/Lv/1000*3600);
+        //    }
+        //    for (k = 0; k<DS->NumRiv; k++)
+        //    {
+        //        ens->TotalWaterVolume[j] = ens->TotalWaterVolume[j] + DS->Riv[k].coeff*DS->Riv[k].Length*(ens->member[j].variable[1][k] + ens->member[j].variable[8][k+DS->NumEle] + ens->member[j].variable[3][k+DS->NumEle]);
+        //    }
+        //    ens->TotalWaterVolume[j] = ens->TotalWaterVolume[j] + ens->member[j].variable[10][DS->NumRiv-1]/24;
+        //    MassCoeff[j] = ens->TotalWaterVolume[j]/TotalWaterVolume[j];
+        //    printf("%f\t", MassCoeff[j]);
+        //}
+    //}
+
+    free(xp0);
+    free(xp);
+    free(x);
+    free(x0);
+
+    printf("Inflation done!\n");
+}
+
 void ReadObs (int obs_time, char *fn, double *obs, double *obs_error)
 {
     time_t          rawtime;
@@ -687,7 +677,7 @@ void ReadVar (char *project, char *outputdir, enkf_struct ens, int obs_time)
                 {
                     fread (buffer, sizeof (double), ens->var[k].dim + 1, fid);
 
-                    if ((int) buffer[0] == obs_time)
+                    if ((int)buffer[0] == obs_time)
                     {
                         success = 1;
 
@@ -701,7 +691,7 @@ void ReadVar (char *project, char *outputdir, enkf_struct ens, int obs_time)
 
                 if (success == 0)
                 {
-                    printf("Fatal Error: No %s output available!", ens->var[k].name);
+                    printf("Fatal Error: No %s output available for member %d at %d (%d)!", ens->var[k].name, i + 1, obs_time, (int)buffer[0]);
                     exit(1);
                 }
             }
@@ -710,137 +700,150 @@ void ReadVar (char *project, char *outputdir, enkf_struct ens, int obs_time)
 
     free (buffer);
 }
-//void write_EnKF_output(char *projectname, Model_Data DS, ensemble ens, struct tm *timestamp)
-//{
-//    char indchar[3], *prmtfn, *ofn, *initfn, *calibfn;
-//    FILE *Ofile, *initfile, *prmtfile, *calibfile;
-//    double *x, prmtmean;
-//    int i, j, k;
-//    int ne;
-//
-//    ne = ens->ne;
-//
-//    x = (double *)malloc(ne*sizeof(double));
-//
-//    for (i=0; i<NUMPRMT; i++)
-//    {
-//        if (ens->prmt[i].update == 1 & ens->update_prmt == 1)
-//        {
-//            for (j=0; j<ne; j++)
-//            {
-//                x[j] = ens->member[j].parameter[i];
-//            }
-//
-//            prmtfn = (char *)malloc((strlen(ens->prmt[i].prmtn)+12)*sizeof(char));
-//            strcpy(prmtfn,"output/");
-//            strcat(prmtfn, ens->prmt[i].prmtn);
-//            prmtfile = fopen(strcat(prmtfn,".dat"),"a");
-//            free(prmtfn);
-//            fprintf(prmtfile,"\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",timestamp->tm_year+1900,timestamp->tm_mon+1,timestamp->tm_mday,timestamp->tm_hour,timestamp->tm_min);
-//
-//            prmtmean = 0;
-//            for (j=0; j<ne; j++)
-//            {
-//                fprintf(prmtfile,"\t%lf",x[j]);
-//                if (ens->prmt[i].type == 1)
-//                {
-//                    prmtmean = prmtmean + log10(x[j]);
-//                }
-//                else
-//                {
-//                    prmtmean = prmtmean + x[j];
-//                }
-//            }
-//            prmtmean = prmtmean/(double)(ens->ne);
-//            if (ens->prmt[i].type == 1)
-//            {
-//                prmtmean = pow(10, prmtmean);
-//            }
-//            fprintf(prmtfile, "\t%lf\n",prmtmean);
-//            fflush(prmtfile);
-//            fclose(prmtfile);
-//        }
-//    }
-//
-//    for (i=0; i<ne; i++)
-//    {
-//        sprintf(indchar, "%3.3d", i+1);
-//
-//        for (k=0; k<NUMVRBL; k++)
-//        {
-//            ofn = (char *)malloc((strlen(projectname)+strlen(ens->vrbl[k].vrbln)+13)*sizeof(char));
-//            strcpy(ofn,"output/");
-//            strcat(ofn, projectname);
-//            strcat(ofn,".");
-//            strcat(ofn, indchar);
-//            strcat(ofn,".");
-//            Ofile=fopen(strcat(ofn, ens->vrbl[k].vrbln),"a");
-//            free(ofn);
-//            fprintf(Ofile,"\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",timestamp->tm_year+1900,timestamp->tm_mon+1,timestamp->tm_mday,timestamp->tm_hour,timestamp->tm_min);
-//            for (j=0; j<ens->vrbl[k].vrbl_dim; j++)
-//            {
-//                fprintf(Ofile, "\t%lf", ens->member[i].variable[k][j]);
-//            }
-//            fprintf(Ofile, "\n");
-//            fflush(Ofile);
-//            fclose(Ofile);
-//        }
-//
-//
-//        initfn = (char *)malloc((strlen(projectname)+16)*sizeof(char));
-//        strcpy(initfn, "input/");
-//        strcat(initfn, projectname);
-//        strcat(initfn, ".");
-//        strcat(initfn, indchar);
-//        initfile = fopen(strcat(initfn, ".init"),"w");
-//        free(initfn);
-//
-//        for(j=0; j<DS->NumEle; j++)
-//        {
-//            fprintf(initfile, "%lf\t%lf\t%lf\t%lf\t%lf\t%lf", ens->member[i].variable[7][j],ens->member[i].variable[8][j],ens->member[i].variable[0][j],ens->member[i].variable[2][j],ens->member[i].variable[3][j],ens->member[i].variable[23][j]);
-//            for (k=0; k<DS->NumSoilLayer; k++)
-//            {
-//                fprintf(initfile, "\t%lf", ens->member[i].variable[24+k][j]);
-//            }
-//            for (k=0; k<DS->NumSoilLayer+1;k++)
-//            {
-//                fprintf(initfile, "\t%lf", ens->member[i].variable[24+DS->NumSoilLayer+k][j]);
-//            }
-//            fprintf(initfile, "\n");
-//        }
-//        for(j=0; j<DS->NumRiv; j++)
-//        {
-//            fprintf(initfile, "%lf\t%lf\t%lf\n",ens->member[i].variable[1][j],ens->member[i].variable[3][j+DS->NumEle],ens->member[i].variable[8][j+DS->NumEle]);
-//        } 
-//        fflush(initfile);
-//        fclose(initfile);
-//
-//        calibfn = (char *)malloc((strlen(projectname)+17)*sizeof(char));
-//        strcpy(calibfn,"input/");
-//        strcat(calibfn,projectname);
-//        strcat(calibfn,".");
-//        strcat(calibfn,indchar);
-//        calibfile = fopen(strcat(calibfn, ".calib"), "w");
-//        free(calibfn);
-//
-//        fprintf(calibfile,"%lf\t%lf\t%lf\t%lf\t%lf",ens->member[i].parameter[0],ens->member[i].parameter[1],ens->member[i].parameter[2],ens->member[i].parameter[3],ens->member[i].parameter[4]);
-//        fprintf(calibfile,"\n%lf\t%lf\t%lf",ens->member[i].parameter[5],ens->member[i].parameter[6],ens->member[i].parameter[7]);
-//        fprintf(calibfile,"\n%lf\t%lf\t%lf",ens->member[i].parameter[8],ens->member[i].parameter[9],ens->member[i].parameter[10]);
-//        fprintf(calibfile,"\n%lf\t%lf",ens->member[i].parameter[11],ens->member[i].parameter[12]);
-//        fprintf(calibfile,"\n%lf\t%lf\t%lf",ens->member[i].parameter[13],ens->member[i].parameter[14],ens->member[i].parameter[15]);
-//        fprintf(calibfile,"\n%lf\t%lf",ens->member[i].parameter[16],ens->member[i].parameter[17]);
-//        fprintf(calibfile,"\n%lf\t%lf\t%lf",ens->member[i].parameter[18],ens->member[i].parameter[19],  ens->member[i].parameter[20]);
-//        fprintf(calibfile,"\n%lf\t%lf\t%lf\t%lf",ens->member[i].parameter[21],ens->member[i].parameter[22],ens->member[i].parameter[23],ens->member[i].parameter[24]);
-//        fprintf(calibfile,"\n%lf\t%lf",ens->member[i].parameter[25],ens->member[i].parameter[26]);
-//        fprintf(calibfile,"\n%lf\t%lf",ens->member[i].parameter[27],ens->member[i].parameter[28]);
-//        fprintf(calibfile,"\n%lf\t%lf\t%lf\t%lf",ens->member[i].parameter[29],ens->member[i].parameter[30],ens->member[i].parameter[31],ens->member[i].parameter[32]);
-//        fprintf(calibfile,"\n%lf\t%lf\t%lf\t%lf\t%lf",ens->member[i].parameter[33],ens->member[i].parameter[34],ens->member[i].parameter[35],ens->member[i].parameter[36],ens->member[i].parameter[37]);
-//        fflush(calibfile);
-//        fclose(calibfile);
-//
-//    }
-//    free(x);
-//}
+
+void WriteEnKFOut (char *project, enkf_struct ens, char *outputdir, int t)
+{
+    //char indchar[3], *prmtfn, *ofn, *initfn, *calibfn;
+    //FILE *Ofile, *initfile, *prmtfile, *calibfile;
+    //double *x, prmtmean;
+    int             i, j, k;
+    time_t          rawtime;
+    struct tm      *timestamp;
+    FILE           *fid;
+    char            fn[MAXSTRING];
+    double         *x;
+    int             ne;
+    double          outtime;
+
+    rawtime = (time_t)t;
+    timestamp = gmtime(&rawtime);
+
+    ne = ens->ne;
+
+    x = (double *)malloc (ne * sizeof(double));
+
+    /*
+     * Write parameter output
+     */
+    for (i = 0; i < MAXPARAM; i++)
+    {
+        if (ens->param[i].update == 1 && ens->update_param == 1)
+        {
+            for (j = 0; j < ne; j++)
+            {
+                x[j] = ens->member[j].param[i];
+            }
+
+            sprintf (fn, "%s/%s.dat", outputdir, ens->param[i].name);
+            fid = fopen (fn, "a");
+            fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
+                timestamp->tm_year+1900, timestamp->tm_mon + 1,
+                timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+
+            for (j = 0; j < ne; j++)
+            {
+                fprintf (fid, "\t%lf", x[j]);
+            }
+            fprintf (fid, "\n");
+            fflush(fid);
+            fclose(fid);
+        }
+    }
+
+    for (i = 0; i < ne; i++)
+    {
+        /*
+         * Write variable/flux output
+         */
+        for (k = 0; k < MAXVAR; k++)
+        {
+            if (ens->var[k].dim > 0)
+            {
+                sprintf (fn, "%s%s.%3.3d.%s.dat",
+                    outputdir, project, i + 1, ens->var[k].name);
+                fid = fopen (fn, "ab");
+                outtime = (double) t;
+                fwrite (&outtime, sizeof (double), 1, fid);
+                for (j = 0; j < ens->var[k].dim; j++)
+                {
+                    fwrite (&ens->member[i].var[k][j], sizeof (double), 1, fid);
+                }
+                fflush(fid);
+                fclose(fid);
+
+                if (ens->ascii)
+                {
+                    sprintf (fn, "%s%s.%3.3d.%s.txt",
+                        outputdir, project, i + 1, ens->var[k].name);
+                    fid = fopen (fn, "a");
+                    fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
+                        timestamp->tm_year+1900, timestamp->tm_mon + 1,
+                        timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+                    for (j = 0; j < ens->var[k].dim; j++)
+                    {
+                        fprintf (fid, "\t%lf", ens->member[i].var[k][j]);
+                    }
+                    fprintf (fid, "\n");
+                    fflush (fid);
+                    fclose (fid);
+                }
+            }
+        }
+
+        /*
+         * Write PIHM initial condition
+         */
+        sprintf (fn, "input/%s/%s.%3.3d.init", project, project, i + 1);
+        fid = fopen (fn, "wb");
+        CheckFile (fid, fn);
+
+        for (j = 0; j < ens->numele; j++)
+        {
+            fwrite (&ens->member[i].var[7][j], sizeof (double), 1, fid);
+            fwrite (&ens->member[i].var[8][j], sizeof (double), 1, fid);
+            fwrite (&ens->member[i].var[0][j], sizeof (double), 1, fid);
+            fwrite (&ens->member[i].var[2][j], sizeof (double), 1, fid);
+            fwrite (&ens->member[i].var[3][j], sizeof (double), 1, fid);
+        }
+
+        for (j = 0; j < ens->numriv; j++)
+        {
+            fwrite (&ens->member[i].var[1][j], sizeof (double), 1, fid);
+            fwrite (&ens->member[i].var[3][j + ens->numele], sizeof (double), 1, fid);
+        } 
+        fflush(fid);
+        fclose(fid);
+
+        /*
+         * Write Noah initial condition
+         */
+        sprintf (fn, "input/%s/%s.%3.3d.lsminit", project, project, i + 1);
+        fid = fopen (fn, "wb");
+        CheckFile (fid, fn);
+
+        for (j = 0; j < ens->numele; j++)
+        {
+            fwrite (&ens->member[i].var[24][j], sizeof (double), 1, fid);
+            fwrite (&ens->member[i].var[25][j], sizeof (double), 1, fid);
+            for (k = 0; k < MAXLYR; k++)
+            {
+                fwrite (&ens->member[i].var[26 + k][j], sizeof (double), 1, fid);
+            }
+            for (k = 0; k < MAXLYR; k++)
+            {
+                fwrite (&ens->member[i].var[26 + MAXLYR + k][j], sizeof (double), 1, fid);
+            }
+            for (k = 0; k < MAXLYR; k++)
+            {
+                fwrite (&ens->member[i].var[26 + 2 * MAXLYR + k][j], sizeof (double), 1, fid);
+            }
+        }
+        fflush (fid);
+        fclose (fid);
+    }
+
+    free (x);
+}
 //void freeEnsemble(Model_Data DS, ensemble ens)
 //{
 //    int i, j;

@@ -6,8 +6,8 @@
 #define CORRMAX         0.25
 
 #define SUCCESS_TAG     2
-#define NE_TAG          1
-#define DIR_TAG         3
+#define CYCLE_TAG          1
+#define PARAM_TAG         3
 
 enum prmt_type {KSATH, KSATV, KINF, KMACH, KMACV, DINF, RZD, DMAC, POROSITY,
     ALPHA, BETA, AREAFV, AREAFH, VEGFRAC, ALBEDO, ROUGH, PRCP, SFCTMP,
@@ -20,6 +20,8 @@ typedef struct var_struct
 {
     char            name[MAXSTRING];
     int             dim;
+    double          min;
+    double          max;
 } var_struct;
 
 typedef struct param_struct
@@ -77,6 +79,7 @@ typedef struct enkf_struct
     int             cycle_start_time;
     int             cycle_end_time;
     int             mbr_start_mode;
+    int             ascii;
     int             numele;
     int             numriv;
     double          weight;
@@ -84,7 +87,7 @@ typedef struct enkf_struct
     int             update_var;
     int             update_param;
 
-    double         *total_water_volume;
+    //double         *total_water_volume;
 
     param_struct    param[MAXPARAM];
     var_struct      var[MAXVAR];
@@ -97,10 +100,11 @@ void MapVar (var_struct *var, int numele, int numriv);
 void Perturb(char *project, enkf_struct ens, char *outputdir);
 void MapVar (var_struct *var, int numele, int numriv);
 void Calib2Mbr (calib_struct cal, double *param);
+void Mbr2Cal (calib_struct *cal, const double *param);
 void WriteParamOutput (int rawtime, enkf_struct ens, int ind, char *outputdir);
 void WriteCalFile (enkf_struct ens, char *project);
-void JobHandout (int ne, int starttime, int endtime, int startmode, char *outputdir, int total_jobs);
-void JobRecv (int *ne, int *starttime, int *endtime, int *startmode, char *outputdir);
+void JobHandout (int starttime, int endtime, int startmode, ens_mbr_struct *member, double *param, int ne, int total_jobs);
+void JobRecv (int *starttime, int *endtime, int *startmode, double *param, int ne);
 void PrintEnKFStatus (int starttime, int endtime);
 void JobHandIn (int total_jobs);
 void WritePara (char *project, int start_mode, int start_time, int end_time);
@@ -112,3 +116,7 @@ void InitOper (char *project, enkf_struct ens);
 void DisOper (obs_struct *obs, pihm_struct pihm);
 void ReadFcst (enkf_struct enkf, obs_struct obs, double *xf);
 void ReadVar (char *project, char *outputdir, enkf_struct ens, int obs_time);
+void UpdAnlys (enkf_struct ens, double obs, double obs_error, double *xf);
+void CovInflt (enkf_struct ens, enkf_struct ens0);
+void WriteEnKFOut (char *project, enkf_struct ens, char *outputdir, int t);
+
