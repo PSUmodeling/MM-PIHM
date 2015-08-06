@@ -42,7 +42,7 @@ void EnKFRead(char *project, enkf_struct ens)
     ens->interval *= 3600;
 
     NextLine (enkf_file, cmdstr);
-    ReadKeywordInt (cmdstr, "START_MODE", &ens->mbr_start_mode);
+    ReadKeywordInt (cmdstr, "START_MODE", &ens->start_mode);
 
     NextLine (enkf_file, cmdstr);
     ReadKeywordDouble (cmdstr, "INFLATION_WEIGHT", &ens->weight);
