@@ -186,8 +186,8 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
             //{
             //    obs = log (obs + 1.0);
             //}
-            printf("%s observation = %lf\n", ens->obs[i].name, obs);
-            printf("%s error = %lf\n", ens->obs[i].name, obs_error);
+            printf("observation = %lf\n", obs);
+            printf("error = %lf\n", obs_error);
 
             /* Read ensemble forecasts */
 
@@ -195,7 +195,7 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
 
             /* Prepare forecast vectors */
 
-            printf("prediction = \n");
+            printf("prediction = ");
             for (j = 0; j < ne; j++)
             {
                 printf("%f\t", xf[j]);
