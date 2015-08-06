@@ -440,6 +440,11 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
                 }
                 printf("%lf\t", *x[j]);
             }
+
+            if (ens->param[ind[i]].type == 1)
+            {
+                prior = pow (10.0, prior);
+            }
             printf ("mean: %lf\n", prior);
 
             ens->param[ind[i]].init_std = prior_std;
