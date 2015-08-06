@@ -173,10 +173,11 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
             timestamp->tm_year + 1900, timestamp->tm_mon + 1,
             timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
 
-        printf("\n*****Observations******\n");
 
         for (i = 0; i < ens->nobs; i++)
         {
+            printf("\n*****%s******\n", ens->obs[i].name);
+
             /* Read observations */
             sprintf (obsin_fn, "input/%s/%s", project, ens->obs[i].fn);
             ReadObs (obs_time, obsin_fn, &obs, &obs_error);
@@ -194,9 +195,7 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
 
             /* Prepare forecast vectors */
 
-            printf("\n*****Predictions******\n");
-
-            printf("%s:\n", ens->obs[i].name);
+            printf("prediction = \n");
             for (j = 0; j < ne; j++)
             {
                 printf("%f\t", xf[j]);
