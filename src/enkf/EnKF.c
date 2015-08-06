@@ -736,7 +736,7 @@ void WriteEnKFOut (char *project, enkf_struct ens, char *outputdir, int t)
                 x[j] = ens->member[j].param[i];
             }
 
-            sprintf (fn, "%s/%s.dat", outputdir, ens->param[i].name);
+            sprintf (fn, "%s/%s.txt", outputdir, ens->param[i].name);
             fid = fopen (fn, "a");
             fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
                 timestamp->tm_year+1900, timestamp->tm_mon + 1,

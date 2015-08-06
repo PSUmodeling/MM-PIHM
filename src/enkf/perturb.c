@@ -773,9 +773,9 @@ void WriteParamOutput (int rawtime, enkf_struct ens, int ind, char *outputdir)
         timeinfo->tm_hour, timeinfo->tm_min);
     for (i = 0; i < ens->ne; i++)
     {
-        fprintf(fid, "\t%lf", ens->member[i].param[ind]);
+        fprintf (fid, "\t%lf", ens->member[i].param[ind]);
     }
-
+    fprintf (fid, "\n");
     fflush(fid);
     fclose(fid); 
 }
