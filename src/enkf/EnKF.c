@@ -607,7 +607,7 @@ void ReadFcst (enkf_struct ens, obs_struct obs, double *xf)
     int             i, j, k;
     int             ne;
     int             var_ind;
-    double          x;
+    double          xj;
 
     ne = ens->ne;
 
@@ -621,13 +621,15 @@ void ReadFcst (enkf_struct ens, obs_struct obs, double *xf)
         for (j = 0; j < obs.nlyr; j++)
         {
             var_ind = obs.var_ind[j];
+            xj = 0.0;
 
             for (k = 0; k < ens->var[var_ind].dim; k++)
             {
-                x += ens->member[i].var[var_ind][k] *
-                    obs.k[k][j] + obs.b[k][j];
-                xf[i] += x * obs.weight[k];
+                xj += obs.weight[k] * (ens->member[i].var[var_ind][k] *
+                    obs.k[k][j] + obs.b[k][j]);
             }
+            
+            xf[i] += xj;
         }
 
         if (obs.type == RUNOFF_OBS)
