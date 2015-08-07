@@ -354,6 +354,12 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
         }
 
         WriteCalFile (ens, project);
+
+        for (i = 0; i < n; i++)
+        {
+            free (randnum[i]);
+        }
+        free (randnum);
     }
     
     printf("\nInitial parameters\n");
@@ -382,13 +388,6 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
             WriteParamOutput (ens->cycle_start_time, ens, i, outputdir);
         }
     }
-
-
-    for (i = 0; i < n; i++)
-    {
-        free (randnum[i]);
-    }
-    free (randnum);
 
     free(x);
 }
