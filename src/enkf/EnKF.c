@@ -134,21 +134,21 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
 
     for (i = 0; i < ne; i++)
     {
-        ens0->member[i] = ens->member[i];
+        for (j = 0; j < MAXPARAM; j++)
+        {
+            ens0->member[i].param[j] = ens->member[i].param[j];
+        }
+        for (j = 0; j < MAXVAR; j++)
+        {
+            if (ens->var[j].dim > 0)
+            {
+                for(k = 0; k < ens->var[j].dim; k++)
+                {
+                    ens0->member[i].var[j][k] = ens->member[i].var[j][k];
+                }
+            }
+        }
     }
-    //    for (j=0; j<NUMPRMT; j++)
-    //    {
-    //        En0->member[i].parameter[j] = ens->member[i].parameter[j];
-    //    }
-    //    for (j=0; j<NUMVRBL; j++)
-    //    {
-    //        for(k=0; k<ens->vrbl[j].vrbl_dim; k++)
-    //        {
-    //            En0->member[i].variable[j][k] = ens->member[i].variable[j][k];
-    //        }
-    //    }
-    //}
-
 
     //for (j=0; j<ne; j++)
     //{
