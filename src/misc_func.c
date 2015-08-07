@@ -87,6 +87,6 @@ void PihmExit (int error)
     printf ("Exit from Node %d\n", id);
     MPI_Abort (MPI_COMM_WORLD, error);
 #else
-    PihmExit (error);
+    exit (error);
 #endif
 }
