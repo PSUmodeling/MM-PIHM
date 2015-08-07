@@ -448,13 +448,13 @@ void MapVar (var_struct *var, int numele, int numriv)
             case 7:
                 strcpy(var[i].name, "is");
                 var[i].dim = numele;
-                var[i].min = BADVAL;
+                var[i].min = 0.0;
                 var[i].max = BADVAL;
                 break;
             case 8:
                 strcpy(var[i].name,  "snow");
                 var[i].dim = numele;
-                var[i].min = BADVAL;
+                var[i].min = 0.0;
                 var[i].max = BADVAL;
                 break;
             case 9:
@@ -556,7 +556,7 @@ void MapVar (var_struct *var, int numele, int numriv)
             case 25:
                 strcpy(var[i].name, "snowh");
                 var[i].dim = numele;
-                var[i].min = BADVAL;
+                var[i].min = 0.0;
                 var[i].max = BADVAL;
                 break;
             default:
@@ -577,7 +577,7 @@ void MapVar (var_struct *var, int numele, int numriv)
             {
                 sprintf(var[i].name, "smc%-d", j);
                 var[i].dim = numele;
-                var[i].min = BADVAL;
+                var[i].min = 0.0;
                 var[i].max = BADVAL;
             }
 
@@ -585,7 +585,7 @@ void MapVar (var_struct *var, int numele, int numriv)
             {
                 sprintf (var[i].name, "swc%-d", j);
                 var[i].dim = numele;
-                var[i].min = BADVAL;
+                var[i].min = 0.0;
                 var[i].max = BADVAL;
             }
         }

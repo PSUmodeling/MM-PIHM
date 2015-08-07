@@ -342,28 +342,19 @@ void UpdAnlys (enkf_struct ens, double obs, double obs_error, double *xf)
 
 void CovInflt (enkf_struct ens, enkf_struct ens0)
 {
-    //char           *prmtn[NUMPRMT];		/* Modified by Y. Shi */
-    //char           *prmtfn;
-    //FILE           *prmtfile;
-
-    int             i, j;
+    int             i, j, k;
     int             ne;
 
     double         *xp0, *xp;
-
-    //double vrbl_min, vrbl_max;
-    //double vrbl_mean, vrbl_mean0;
 
     double        **x, *x0;
     double          average0, average;
     double          param_min, param_max;
     double          param_std;
-    //double vrbl_temp;
     double          c1, c2, c;
 
     //double TotalWaterVolume[ens->ne];
     //double MassCoeff[ens->ne];
-
 
     ne = ens->ne;
 
@@ -484,64 +475,50 @@ void CovInflt (enkf_struct ens, enkf_struct ens0)
         }
     }
 
-    //if (ens->update_stvrbl == 1)
-    //{
-    //    for (i=0; i<NUMVRBL; i++)
-    //    {
-    //        for (k=0; k<ens->vrbl[i].vrbl_dim; k++)
-    //        {
-    //            for (j=0; j<ne; j++)
-    //            {
-    //                x[j] = &ens->member[j].variable[i][k];
-    //                x0[j] = En0->member[j].variable[i][k];
-    //            }
-    //            vrbl_mean = 0;
-    //            vrbl_mean0 = 0;
+    if (ens->update_var == 1)
+    {
+        for (i = 0; i < MAXVAR; i++)
+        {
+            if (ens->var[i].dim > 0)
+            {
+                for (k = 0; k < ens->var[i].dim; k++)
+                {
+                    for (j = 0; j < ne; j++)
+                    {
+                        x[j] = &ens->member[j].var[i][k];
+                        x0[j] = ens0->member[j].var[i][k];
+                    }
 
-    //            for (j = 0; j<ne; j++)
-    //            {
-    //                vrbl_mean = vrbl_mean+*x[j];
-    //                vrbl_mean0 = vrbl_mean0+x0[j];
-    //            }
-    //            vrbl_mean = vrbl_mean/(double)ne;
-    //            vrbl_mean0 = vrbl_mean0/(double)ne;
+                    average = 0.0;
+                    average0 = 0.0;
 
-    //            for (j = 0; j<ne; j++)
-    //            {
-    //                xp0[j] = x0[j]-vrbl_mean0;
-    //                xp[j] = *x[j]-vrbl_mean;
-    //                *x[j] = vrbl_mean + (1-ens->weight)*xp[j]+ens->weight*xp0[j];
-    //                /*
-    //                   if (i < 2 | i > 11)
-    //                   {
-    //                 *x[j] = *x[j]<vrbl_min?vrbl_min:*x[j];
-    //                 }
-    //                 else
-    //                 {
-    //                 *x[j] = *x[j]>vrbl_min?(*x[j]<vrbl_max?*x[j]:x0[j]):x0[j];
-    //                 }
-    //                 */
-    //            }
-    //        }
-    //    }
+                    for (j = 0; j < ne; j++)
+                    {
+                        average += *x[j];
+                        average0 += x0[j];
+                    }
+                    average /= (double)ne;
+                    average0 /= (double)ne;
 
-        //printf("\nMass conservation coefficient\n");
-        //for (j=0; j<ne; j++)
-        //{
-        //    TotalWaterVolume[j] = En0->TotalWaterVolume[j];
-        //    for (k = 0; k<DS->NumEle; k++)
-        //    {
-        //        ens->TotalWaterVolume[j] = ens->TotalWaterVolume[j] + DS->Ele[k].area*(ens->member[j].variable[0][k] + ens->member[j].variable[2][k]*DS->Ele[k].Porosity + ens->member[j].variable[3][k] + ens->member[j].variable[8][k] + ens->member[j].variable[7][k] + ens->member[j].variable[22][k]/Lv/1000*3600);
-        //    }
-        //    for (k = 0; k<DS->NumRiv; k++)
-        //    {
-        //        ens->TotalWaterVolume[j] = ens->TotalWaterVolume[j] + DS->Riv[k].coeff*DS->Riv[k].Length*(ens->member[j].variable[1][k] + ens->member[j].variable[8][k+DS->NumEle] + ens->member[j].variable[3][k+DS->NumEle]);
-        //    }
-        //    ens->TotalWaterVolume[j] = ens->TotalWaterVolume[j] + ens->member[j].variable[10][DS->NumRiv-1]/24;
-        //    MassCoeff[j] = ens->TotalWaterVolume[j]/TotalWaterVolume[j];
-        //    printf("%f\t", MassCoeff[j]);
-        //}
-    //}
+                    for (j = 0; j < ne; j++)
+                    {
+                        xp0[j] = x0[j] - average0;
+                        xp[j] = *x[j] - average;
+                        *x[j] = average + (1.0 - ens->weight) * xp[j] + ens->weight * xp0[j];
+                        if ((int)ens->var[i].max != BADVAL)
+                        {
+                            *x[j] = (*x[j] < ens->var[i].max) ? *x[j] : ens->var[i].max;
+                        }
+                        
+                        if ((int)ens->var[i].min != BADVAL)
+                        {
+                            *x[j] = (*x[j] > ens->var[i].min) ? *x[j] : ens->var[i].min;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     free(xp0);
     free(xp);
