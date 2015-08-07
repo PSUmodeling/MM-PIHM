@@ -359,7 +359,7 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
     {
         if (ens->param[i].perturb == 1)
         {
-            printf ("%s:\n", ens->param[ind[i]].name);
+            printf ("%s:\n", ens->param[i].name);
 
             prior = 0.0;
 
@@ -374,9 +374,9 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
 
             printf ("mean: %lf\n", prior);
 
-            printf("Initial std %lf\n", ens->param[ind[i]].init_std);
+            printf("Initial std %lf\n", ens->param[i].init_std);
 
-            WriteParamOutput (ens->cycle_start_time, ens, ind[i], outputdir);
+            WriteParamOutput (ens->cycle_start_time, ens, i, outputdir);
         }
     }
 
