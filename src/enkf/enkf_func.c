@@ -214,6 +214,7 @@ void InitOper (char *project, enkf_struct ens)
         }
     }
 
+    N_VDestroy_Serial (CV_Y);
 #ifdef _NOAH_
     LsmFreeData (pihm, noah);
     free (noah);
@@ -223,4 +224,37 @@ void InitOper (char *project, enkf_struct ens)
 #endif
     FreeData (pihm);
     free (pihm);
+}
+
+void FreeEns (enkf_struct ens)
+{
+    int i, j;
+
+    for (i = 0; i < ens->nobs; i++)
+    {
+        free (ens->obs[i].var_ind);
+        free (ens->obs[i].weight);
+        for (j = 0; j < ens->obs[i].dim; j++)
+        {
+            free (ens->obs[i].k[j]);
+            free (ens->obs[i].b[j]);
+        }
+        free (ens->obs[i].k);
+        free (ens->obs[i].b);
+    }
+
+    free (ens->obs);
+
+    for (i = 0; i < ens->ne; i++)
+    {
+        for (j = 0; j < MAXVAR; j++)
+        {
+            if (ens->var[j].dim > 0)
+            {
+                free (ens->member[i].var[j]);
+            }
+        }
+    }
+
+    free (ens->member);
 }

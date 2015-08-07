@@ -55,8 +55,11 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
     {
         for (j = 0; j < MAXVAR; j++)
         {
-            ens->member[i].var[j] =
-                (double *) malloc (ens->var[j].dim * sizeof(double));
+            if (ens->var[j].dim > 0)
+            {
+                ens->member[i].var[j] =
+                    (double *) malloc (ens->var[j].dim * sizeof(double));
+            }
         }
 
 //        if (En->memStartMode == 3)

@@ -1200,6 +1200,8 @@ void ReadInit (char *project, char *simulation, ic_struct *ic, int numele,
         fread (&ic->stage[i], sizeof (double), 1, init_file);
         fread (&ic->rivgw[i], sizeof (double), 1, init_file);
     }
+
+    fclose (init_file);
 }
 
 void FreeData (pihm_struct pihm)

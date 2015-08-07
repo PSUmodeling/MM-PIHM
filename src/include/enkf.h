@@ -46,6 +46,7 @@ typedef struct obs_struct
     double          y;
     double          rad;
     double          depth;
+    int             dim;
     int             nlyr;
     int            *var_ind;
     /* The linear observation operator vector has a general form of

@@ -233,6 +233,21 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
     //}
     //free(En0->member);
     //free(En0);
+
+    for (i = 0; i < ne; i++)
+    {
+        for (j = 0; j < MAXVAR; j++)
+        {
+            if (ens->var[j].dim > 0)
+            {
+                free (ens0->member[i].var[j]);
+            }
+        }
+    }
+
+    free (ens0->member);
+    free (ens0);
+
     free(xf);
 }
 

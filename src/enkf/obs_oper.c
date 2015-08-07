@@ -11,17 +11,18 @@ void DisOper (obs_struct *obs, pihm_struct pihm)
     obs->var_ind = (int *) malloc (sizeof (int));
     obs->var_ind[0] = 10;
 
-    obs->weight = (double *) malloc (pihm->numriv * sizeof (double));
+    obs->dim = pihm->numriv;
+
+    obs->weight = (double *) malloc (obs->dim * sizeof (double));
 
     obs->nlyr = 1;
-    obs->k = (double **)malloc (pihm->numriv * sizeof (double *));
-    obs->b = (double **)malloc (pihm->numriv * sizeof (double *));
-    for (i = 0; i < pihm->numriv; i++)
+    obs->k = (double **)malloc (obs->dim * sizeof (double *));
+    obs->b = (double **)malloc (obs->dim * sizeof (double *));
+    for (i = 0; i < obs->dim; i++)
     {
         obs->k[i] = (double *)malloc (sizeof (double));
         obs->b[i] = (double *)malloc (sizeof (double));
     }
-
 
     for (i = 0; i < pihm->numriv; i++)
     {
@@ -40,8 +41,8 @@ void DisOper (obs_struct *obs, pihm_struct pihm)
         obs->k[i][0] = 1.0;
         obs->b[i][0] = 0.0;
     }
-    obs->weight[ind_min] = 24.0 * 3600.0;
 
+    obs->weight[ind_min] = 24.0 * 3600.0;
 }
 
 void LandSfcTmpOper (obs_struct *obs, pihm_struct pihm)
@@ -53,12 +54,14 @@ void LandSfcTmpOper (obs_struct *obs, pihm_struct pihm)
     obs->var_ind = (int *)malloc (sizeof (int));
     obs->var_ind[0] = 24;
 
-    obs->weight = (double *)malloc (pihm->numele * sizeof (double));
+    obs->dim = pihm->numele;
+
+    obs->weight = (double *)malloc (obs->dim * sizeof (double));
 
     obs->nlyr = 1;
-    obs->k = (double **)malloc (pihm->numele * sizeof (double));
-    obs->b = (double **)malloc (pihm->numele * sizeof (double));
-    for (i = 0; i < pihm->numele; i++)
+    obs->k = (double **)malloc (obs->dim * sizeof (double));
+    obs->b = (double **)malloc (obs->dim * sizeof (double));
+    for (i = 0; i < obs->dim; i++)
     {
         obs->k[i] = (double *)malloc (sizeof (double));
         obs->b[i] = (double *)malloc (sizeof (double));
