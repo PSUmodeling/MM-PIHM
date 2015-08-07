@@ -89,7 +89,7 @@ void EnKFCore(double *xa, double obs, double obs_err, double *xf, int ne)
 void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
 {
     double         *xf;
-    int             i, j;
+    int             i, j, k;
     int             ne;
 
     char            obsfn[MAXSTRING];
