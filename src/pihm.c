@@ -48,15 +48,15 @@ int main (int argc, char *argv[])
     ierr = MPI_Comm_rank (MPI_COMM_WORLD, &id);
     ierr = MPI_Comm_size (MPI_COMM_WORLD, &p);
 
-    {
-        int ii = 0;
-        char hostname[256];
-        gethostname(hostname, sizeof(hostname));
-        printf("PID %d (%d) on %s ready for attach\n", getpid(), id, hostname);
-        fflush(stdout);
-        while (0 == ii)
-            sleep(5);
-    }
+    //{
+    //    int ii = 0;
+    //    char hostname[256];
+    //    gethostname(hostname, sizeof(hostname));
+    //    printf("PID %d (%d) on %s ready for attach\n", getpid(), id, hostname);
+    //    fflush(stdout);
+    //    while (0 == ii)
+    //        sleep(5);
+    //}
 
     if (id == 0)
     {
