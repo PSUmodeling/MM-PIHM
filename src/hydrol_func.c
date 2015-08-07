@@ -30,7 +30,7 @@ double RivArea (int riv_order, double riv_depth, double riv_coeff)
             break;
         default:
             printf ("Error: River order %d is not defined!\n", riv_order);
-            exit (1);
+            PihmExit (1);
     }
 
     return (riv_area);
@@ -70,7 +70,7 @@ double RivPerim (int riv_order, double riv_depth, double riv_coeff)
             break;
         default:
             printf ("Error: River order %d is not defined!\n", riv_order);
-            exit (1);
+            PihmExit (1);
     }
     return (riv_perim);
 }
@@ -98,7 +98,7 @@ double EqWid (int riv_order, double riv_depth, double riv_coeff)
             break;
         default:
             printf ("Error: River order %d is not defined!\n", riv_order);
-            exit (1);
+            PihmExit (1);
     }
     return (eq_wid);
 }

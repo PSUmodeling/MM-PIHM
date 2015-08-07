@@ -150,7 +150,7 @@ void CheckFile (FILE * fid, char *fn)
     if (fid == NULL)
     {
         printf ("\n ERROR: %s is in use or does not exist!\n", fn);
-        exit (1);
+        PihmExit (1);
     }
     else
     {
@@ -179,7 +179,7 @@ void ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
         if (match != nvrbl + 5)
         {
             printf ("ERROR: Forcing format error!\n");
-            exit (1);
+            PihmExit (1);
         }
 
         timeinfo->tm_year = timeinfo->tm_year - 1900;
@@ -215,7 +215,7 @@ void ReadKeywordDouble (char *buffer, char *keyword, double *value)
     if (match != 2 || strcasecmp (keyword, optstr) != 0)
     {
         printf ("ERROR: Expected keyword \"%s\"!\n", keyword);
-        exit (1);
+        PihmExit (1);
     }
 }
 
@@ -228,7 +228,7 @@ void ReadKeywordInt (char *buffer, char *keyword, int *value)
     if (match != 2 || strcasecmp (keyword, optstr) != 0)
     {
         printf ("ERROR: Expected keyword \"%s\"!\n", keyword);
-        exit (1);
+        PihmExit (1);
     }
 }
 
@@ -247,7 +247,7 @@ void ReadKeywordTime (char *buffer, char *keyword, int *value)
     if (match != 6 || strcasecmp (keyword, optstr) != 0)
     {
         printf ("ERROR: Expected keyword \"%s\"!\n", keyword);
-        exit (1);
+        PihmExit (1);
     }
 
     timeinfo->tm_year = timeinfo->tm_year - 1900;
@@ -266,6 +266,6 @@ void ReadKeywordStr (char *buffer, char *keyword, char *value)
     if (match != 2 || strcasecmp (keyword, optstr) != 0)
     {
         printf ("ERROR: Expected keyword \"%s\"!\n", keyword);
-        exit (1);
+        PihmExit (1);
     }
 }

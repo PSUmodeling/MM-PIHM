@@ -210,7 +210,7 @@ void InitOper (char *project, enkf_struct ens)
         {
             printf ("ERROR: Cannot find the operator for %s!\n",
                 ens->obs[i].name);
-            exit (1);
+            PihmExit (1);
         }
     }
 

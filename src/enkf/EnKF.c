@@ -167,7 +167,7 @@ void EnKF (char *project, enkf_struct ens, int obs_time, char *outputdir)
 
     if (ens->nobs > 0)
     {
-        sprintf (obsfn, "%s/obs.dat", outputdir);
+        sprintf (obsfn, "%sobs.dat", outputdir);
         obsfile = fopen (obsfn, "a");
         fprintf (obsfile, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
             timestamp->tm_year + 1900, timestamp->tm_mon + 1,
@@ -588,12 +588,12 @@ void ReadObs (int obs_time, char *fn, double *obs, double *obs_error)
         {
             printf("\nFATAL ERROR: No observation availablein %s!\n",
                 fn);
-            exit(1);
+            PihmExit(1);
         }
         else if (match != 7)
         {
             printf ("ERROR: Observation file %s format error!\n", fn);
-            exit(1);
+            PihmExit(1);
         }
     }
 
@@ -664,7 +664,7 @@ void ReadVar (char *project, char *outputdir, enkf_struct ens, int obs_time)
         {
             if (ens->var[k].dim > 0)
             {
-                sprintf (fn, "%s/%s.%3.3d.%s.dat",
+                sprintf (fn, "%s%s.%3.3d.%s.dat",
                     outputdir, project, i + 1, ens->var[k].name);
                 fid = fopen (fn, "rb");
                 CheckFile (fid, fn);
@@ -694,7 +694,7 @@ void ReadVar (char *project, char *outputdir, enkf_struct ens, int obs_time)
                 if (success == 0)
                 {
                     printf("Fatal Error: No %s output available for member %d at %d (%d)!", ens->var[k].name, i + 1, obs_time, (int)buffer[0]);
-                    exit(1);
+                    PihmExit(1);
                 }
             }
         }
@@ -736,7 +736,7 @@ void WriteEnKFOut (char *project, enkf_struct ens, char *outputdir, int t)
                 x[j] = ens->member[j].param[i];
             }
 
-            sprintf (fn, "%s/%s.txt", outputdir, ens->param[i].name);
+            sprintf (fn, "%s%s.txt", outputdir, ens->param[i].name);
             fid = fopen (fn, "a");
             fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
                 timestamp->tm_year+1900, timestamp->tm_mon + 1,

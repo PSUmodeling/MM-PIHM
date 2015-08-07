@@ -103,7 +103,7 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,
     {
         printf ("Cannot read number of river segments!\n");
         printf (".riv file format error!\n");
-        exit (1);
+        PihmExit (1);
     }
 
     /* Allocate */
@@ -137,7 +137,7 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,
                 ("Cannot read river segment information for the %dth segment!\n",
                 i + 1);
             printf (".riv file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
     }
 
@@ -151,7 +151,7 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,
     {
         printf ("Cannot read number of river shapes!\n");
         printf (".riv file format error!\n");
-        exit (1);
+        PihmExit (1);
     }
 
     /* Allocate */
@@ -174,7 +174,7 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,
                 ("Cannot read river shape information for the %dth shape!\n",
                 i + 1);
             printf (".riv file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
     }
 
@@ -188,7 +188,7 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,
     {
         printf ("Cannot read number of river materials!\n");
         printf (".riv file format error!\n");
-        exit (1);
+        PihmExit (1);
     }
 
     /* Allocate */
@@ -216,7 +216,7 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,
             printf ("Cannot read information for the %dth material!\n",
                 i + 1);
             printf (".riv file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
     }
 
@@ -230,7 +230,7 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,
     {
         printf ("Cannot read number of river materials!\n");
         printf (".riv file format error!\n");
-        exit (1);
+        PihmExit (1);
     }
 
     /* Allocate */
@@ -247,7 +247,7 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,
                 ("Cannot read information for the %dth initial condition!\n",
                 i + 1);
             printf (".riv file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
     }
 
@@ -268,7 +268,7 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,
     {
         printf ("Cannot read number of river boundary conditions!\n");
         printf (".riv file format error!\n");
-        exit (1);
+        PihmExit (1);
     }
 
     if (forcing->nts[RIV_TS] > 0)
@@ -287,7 +287,7 @@ void ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,
                 ("Cannot read information of the %dth river boudnary condition!\n",
                 i);
             printf (".riv file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
         NextLine (riv_file, cmdstr);
         NextLine (riv_file, cmdstr);
@@ -348,7 +348,7 @@ void ReadMesh (char *project, mesh_tbl_struct *mesh_tbl)
     {
         printf ("Cannot read number of elements!\n");
         printf (".mesh file format error!\n");
-        exit (1);
+        PihmExit (1);
     }
 
     mesh_tbl->node = (int **)malloc (mesh_tbl->numele * sizeof (int *));
@@ -369,7 +369,7 @@ void ReadMesh (char *project, mesh_tbl_struct *mesh_tbl)
         {
             printf ("Cannot read information of the %dth element!\n", i + 1);
             printf (".mesh file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
     }
 
@@ -382,7 +382,7 @@ void ReadMesh (char *project, mesh_tbl_struct *mesh_tbl)
     {
         printf ("Cannot read number of nodes!\n");
         printf (".mesh file format error!\n");
-        exit (1);
+        PihmExit (1);
     }
 
     mesh_tbl->x = (double *)malloc (mesh_tbl->numnode * sizeof (double));
@@ -401,7 +401,7 @@ void ReadMesh (char *project, mesh_tbl_struct *mesh_tbl)
         {
             printf ("Cannot read information of the %dth node!\n", i + 1);
             printf (".mesh file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
     }
 
@@ -458,7 +458,7 @@ void ReadAtt (char *project, attrib_tbl_struct *attrib_tbl, ic_struct *ic,
         {
             printf ("Cannot read information of the %dth element!\n", i + 1);
             printf (".att file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
     }
 
@@ -486,7 +486,7 @@ void ReadSoil (char *project, soil_tbl_struct *soil_tbl)
     {
         printf ("Cannot read number of soil types!\n");
         printf (".soil file format error!\n");
-        exit (1);
+        PihmExit (1);
     }
 
     soil_tbl->ksatv = (double *)malloc (soil_tbl->number * sizeof (double));
@@ -514,7 +514,7 @@ void ReadSoil (char *project, soil_tbl_struct *soil_tbl)
             printf ("Cannot read information of the %dth soil type!\n",
                 i + 1);
             printf (".soil file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
     }
 
@@ -541,7 +541,7 @@ void ReadGeol (char *project, geol_tbl_struct *geol_tbl)
     {
         printf ("Cannot read number of geology types!\n");
         printf (".geol file format error!\n");
-        exit (1);
+        PihmExit (1);
     }
 
     geol_tbl->ksath = (double *)malloc (geol_tbl->number * sizeof (double));
@@ -568,7 +568,7 @@ void ReadGeol (char *project, geol_tbl_struct *geol_tbl)
             printf ("Cannot read information of the %dth geology type!\n",
                 i + 1);
             printf (".geol file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
     }
 
@@ -593,7 +593,7 @@ void ReadLC (lc_tbl_struct *lc_tbl)
     {
         printf ("Cannot read number of landcover types!\n");
         printf ("Land cover file format error!\n");
-        exit (1);
+        PihmExit (1);
     }
 
     lc_tbl->laimax = (double *)malloc (lc_tbl->number * sizeof (double));
@@ -629,7 +629,7 @@ void ReadLC (lc_tbl_struct *lc_tbl)
             printf ("Cannot read information of the %dth landcover type!\n",
                 i + 1);
             printf ("Landcover file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
     }
 
@@ -672,7 +672,7 @@ void ReadForc (char *project, forcing_ts_struct *forcing)
         printf
             ("Cannot read number of meteorological forcing time series!\n");
         printf (".forc file format error!\n");
-        exit (1);
+        PihmExit (1);
     }
 
     if (forcing->nts[METEO_TS] > 0)
@@ -693,7 +693,7 @@ void ReadForc (char *project, forcing_ts_struct *forcing)
             printf ("Cannot read information of the %dth forcing series!\n",
                 i);
             printf (".forc file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
         /* Skip header lines */
         NextLine (forc_file, cmdstr);
@@ -766,7 +766,7 @@ void ReadLAI (char *project, forcing_ts_struct *forcing, int numele,
         {
             printf ("Cannot read number of LAI time series!\n");
             printf (".lai file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
 
         if (forcing->nts[LAI_TS] > 0)
@@ -784,7 +784,7 @@ void ReadLAI (char *project, forcing_ts_struct *forcing, int numele,
                 printf ("Cannot read information of the %dth LAI series!\n",
                     i);
                 printf (".lai file format error!\n");
-                exit (1);
+                PihmExit (1);
             }
             /* Skip header lines */
             NextLine (lai_file, cmdstr);
@@ -842,7 +842,7 @@ void ReadIbc (char *project, forcing_ts_struct *forcing)
     {
         printf ("Cannot read number of boundary condition time series!\n");
         printf (".ibc file format error!\n");
-        exit (1);
+        PihmExit (1);
     }
 
     if (forcing->nts[BC_TS] > 0)
@@ -861,7 +861,7 @@ void ReadIbc (char *project, forcing_ts_struct *forcing)
                 ("Cannot read information of the %dth boundary condition series!\n",
                 i);
             printf (".ibc file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
         /* Skip header lines */
         NextLine (ibc_file, cmdstr);
@@ -1038,7 +1038,7 @@ void ReadPara (char *project, ctrl_struct *ctrl)
     {
         printf
             ("ERROR: LSM (ET) step size should be an integral multiple of model step size!\n");
-        exit (1);
+        PihmExit (1);
     }
 }
 

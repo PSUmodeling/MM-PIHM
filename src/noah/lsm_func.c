@@ -59,7 +59,7 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
         printf
             ("Error: the number of soil layers should be smaller than %d\n!",
             MAXLYR - 1);
-        exit (1);
+        PihmExit (1);
     }
 
     NextLine (lsm_file, cmdstr);
@@ -164,7 +164,7 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
         {
             printf ("Cannot read number of radiation forcing time series!\n");
             printf (".rad file format error!\n");
-            exit (1);
+            PihmExit (1);
         }
 
         noah->forcing.ts =
@@ -180,7 +180,7 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
                     ("Cannot read information of the %dth forcing series!\n",
                     i);
                 printf (".forc file format error!\n");
-                exit (1);
+                PihmExit (1);
             }
 
             /* Skip header lines */
@@ -655,7 +655,7 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele,
                     {
                         printf ("Malloc failed.\n");
                         fflush (stdout);
-                        exit(1);
+                        PihmExit(1);
                     }
                     for (j = 0; j < numele; j++)
                     {

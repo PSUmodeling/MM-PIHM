@@ -161,7 +161,7 @@ void InitSoil (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl,
         {
             printf ("Warning: Porosity value out of bounds for element %d",
                 i + 1);
-            exit (1);
+            PihmExit (1);
         }
         elem[i].soil.dinf = cal.dinf * soil_tbl.dinf[soil_ind];
         elem[i].soil.alpha = cal.alpha * soil_tbl.alpha[soil_ind];
@@ -250,7 +250,7 @@ void InitLC (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl,
         //if (elem[i].lc.albedo > 1.0 || elem[i].lc.albedo < 0.0)
         //{
         //    printf ("Warning: Albedo out of bounds");
-        //    exit (1);
+        //    PihmExit (1);
         //}
         elem[i].lc.z0min = lc_tbl.z0min[lc_ind];
         elem[i].lc.z0max = lc_tbl.z0max[lc_ind];

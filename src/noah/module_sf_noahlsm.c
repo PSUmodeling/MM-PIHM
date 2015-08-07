@@ -408,7 +408,7 @@ void SFlx (grid_struct * grid)
         if (*sndens > 1.0)
         {
             printf ("physical snow depth is less than snow water equiv.\n");
-            exit (0);
+            PihmExit (0);
         }
         CSnow (sncond, sndens);
     }
@@ -2331,17 +2331,17 @@ void Penman (double *sfctmp, double *sfcprs, double *ch, double *t2v,
 //    if (grid->soiltyp > lsm->soiltbl.slcats)
 //    {
 //        printf ("warning: too many input soil types\n");
-//        exit (0);
+//        PihmExit (0);
 //    }
 //    if (grid->vegtyp > lsm->vegtbl.lucats)
 //    {
 //        printf ("warning: too many input landuse types\n");
-//        exit (0);
+//        PihmExit (0);
 //    }
 //    if (grid->slopetyp > lsm->genprmt.slpcats)
 //    {
 //        printf ("warning: too many input slope types\n");
-//        exit (0);
+//        PihmExit (0);
 //    }
 //
 ///*----------------------------------------------------------------------
@@ -2427,7 +2427,7 @@ void Penman (double *sfctmp, double *sfcprs, double *ch, double *t2v,
 //    {
 //        printf ("error: too many root layers %d, %d\n", grid->nsoil,
 //           grid->nroot);
-//        exit (0);
+//        PihmExit (0);
 //    }
 //
 ///*----------------------------------------------------------------------

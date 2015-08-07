@@ -135,4 +135,5 @@ void            Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize);
 
 void BKInput (char *simulation, char *outputdir);
 void PihmFree (void **ptr);
+void PihmExit (int error);
 #endif

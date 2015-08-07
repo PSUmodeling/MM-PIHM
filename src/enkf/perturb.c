@@ -84,7 +84,7 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
 //            {
 //                printf("\n  Fatal Error: %s.init0 is in use or does not exist!\n", projectname);
 //                fclose(initinfile);
-//                exit(1);
+//                PihmExit(1);
 //            }
 //            else
 //            {
@@ -153,7 +153,7 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
 //            if(calibinfile == NULL)
 //            {
 //                printf("\n  Fatal Error: %s.calib0 is in use or does not exist!\n", projectname);
-//                exit(1);
+//                PihmExit(1);
 //            }
 //
 //            /* start reading calib_file */
@@ -281,7 +281,7 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
 //            if(calibfile == NULL)
 //            {
 //                printf("\n  Fatal Error: %s.calib is in use or does not exist!\n", projectname);
-//                exit(1);
+//                PihmExit(1);
 //            }
 //
 //            /* start reading calib_file */

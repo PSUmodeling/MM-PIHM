@@ -131,19 +131,19 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             printf
                 ("ERROR: NAN error for Element %d (surface water) at %lf\n",
                 i + 1, t);
-            exit (1);
+            PihmExit (1);
         }
         if (isnan (dy[UNSAT(i)]))
         {
             printf ("ERROR: NAN error for Element %d (unsat water) at %lf\n",
                 i + 1, t);
-            exit (1);
+            PihmExit (1);
         }
         if (isnan (dy[GW(i)]))
         {
             printf ("ERROR: NAN error for Element %d (groundwater) at %lf\n",
                 i + 1, t);
-            exit (1);
+            PihmExit (1);
         }
     }
 
@@ -170,14 +170,14 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         {
             printf ("ERROR: NAN error for River Segment %d (river) at %lf\n",
                 i + 1, t);
-            exit (1);
+            PihmExit (1);
         }
         if (isnan (dy[RIVGW(i)]))
         {
             printf
                 ("ERROR: NAN error for River Segment %d (groundwater) at %lf\n",
                 i + 1, t);
-            exit (1);
+            PihmExit (1);
         }
     }
 
@@ -694,7 +694,7 @@ void RiverFlow (pihm_struct pihm)
                 default:
                     printf
                         ("Error: river routing boundary condition type is wrong!\n");
-                    exit (1);
+                    PihmExit (1);
             }
             /* Note: boundary condition for subsurface element can be changed.
              * Assumption: no flow condition */

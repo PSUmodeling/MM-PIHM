@@ -132,7 +132,7 @@ void EnKFRead(char *project, enkf_struct ens)
 //    if(para_file == NULL)
 //    {
 //        printf("\n  Fatal Error: %s.para is in use or does not exist!\n", project);
-//        exit(1);
+//        PihmExit(1);
 //    }
 //    fscanf(para_file, "%d %d", &(CS->Verbose), &(CS->Debug));
 //    fscanf(para_file, "%d", &tempindex);

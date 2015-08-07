@@ -84,7 +84,7 @@ void PIHMxNoah (int t, double stepsize, pihm_struct pihm, lsm_struct noah)
     if (spa_result != 0)
     {
         printf ("spa error code: %d\n", spa_result);
-        exit (1);
+        PihmExit (1);
     }
 
     spa.azimuth180 = mod ((360.0 + spa.azimuth180), 360.0);
