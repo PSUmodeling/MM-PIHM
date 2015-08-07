@@ -696,6 +696,8 @@ void ReadVar (char *project, char *outputdir, enkf_struct ens, int obs_time)
                     printf("Fatal Error: No %s output available for member %d at %d (%d)!", ens->var[k].name, i + 1, obs_time, (int)buffer[0]);
                     PihmExit(1);
                 }
+
+                fclose (fid);
             }
         }
     }
