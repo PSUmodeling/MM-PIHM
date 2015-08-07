@@ -270,6 +270,7 @@ int main (int argc, char *argv[])
     {
         printf ("\nSimulation completed.\n");
 
+        FreeEns (ens);
         free (ens);
     }
 

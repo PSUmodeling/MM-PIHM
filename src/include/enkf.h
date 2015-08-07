@@ -122,4 +122,5 @@ void WriteEnKFOut (char *project, enkf_struct ens, char *outputdir, int t);
 void GenRandNum (int ne, int nparam, double **randnum, double lower, double upper);
 double Randn();
 void LandSfcTmpOper (obs_struct *obs, pihm_struct pihm);
+void FreeEns (enkf_struct ens);
 
