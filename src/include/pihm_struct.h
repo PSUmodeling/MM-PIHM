@@ -140,6 +140,7 @@ typedef struct elem_struct
                                          * extracts from the saturated zone */
     double          fcr;        /* YS: reduction of infiltration caused
                                  * by frozen ground */
+    double          mbc;
 #endif
 
 #ifdef _RT_
@@ -184,6 +185,7 @@ typedef struct river_struct
     double          gw0;
     double          gw;
     double          fluxriv[11];
+    double          mbc;
 } river_struct;
 
 /*

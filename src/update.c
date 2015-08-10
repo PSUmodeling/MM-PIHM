@@ -9,11 +9,15 @@
 void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
 {
     double         *y;
-    double          wtd0, wtd1, elemsatn0, elemsatn1, realunsat0, realunsat1,
-        realgw0, realgw1, recharge;
+    double          wtd0, wtd1;
+    double          elemsatn0, elemsatn1;
+    double          realunsat0, realunsat1;
+    double          realgw0, realgw1;
+    double          recharge;
     double          totalw0, totalw1;
     int             i, j;
     elem_struct    *elem;
+    river_struct   *riv;
 
     y = NV_DATA_S (CV_Y);
 
@@ -22,6 +26,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
     {
         elem = &pihm->elem[i];
 
+        elem->surf = y[SURF(i)];
         elem->unsat = y[UNSAT(i)];
         elem->gw = y[GW(i)];
 
@@ -98,7 +103,40 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         {
             elem->fluxtotal[j] = elem->fluxsurf[j] + elem->fluxsub[j];
         }
+
+        totalw0 = elem->surf0 + elem->unsat0 * elem->soil.porosity +
+            elem->gw0 * elem->soil.porosity + stepsize *
+            (elem->netprcp - elem->et[0] - elem->et[1] - elem->et[2]);
+        for (j = 0; j < 3; j++)
+        {
+            totalw0 -= elem->fluxtotal[j] / elem->topo.area;
+        }
+
+        totalw1 = elem->surf + elem->unsat * elem->soil.porosity + elem->gw * elem->soil.porosity;
+
+        elem->mbc = totalw1 / totalw0;
     }
+
+    for (i = 0; i < pihm->numriv; i++)
+    {
+        riv = &pihm->riv[i];
+
+        riv->stage = y[RIVSTG(i)];
+        riv->gw = y[RIVGW(i)];
+
+        totalw0 = riv->stage0 + riv->gw0 * riv->matl.porosity;
+
+        for (j = 0; j < 7; j++)
+        {
+            totalw0 -= riv->fluxriv[j] / (riv->shp.length * EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff));
+        }
+        totalw0 += (-riv->fluxriv[7] - riv->fluxriv[8] - riv->fluxriv[9] - riv->fluxriv[10] + riv->fluxriv[6]) / (riv->shp.length * EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff));
+
+        totalw1 = riv->stage + riv->gw * riv->matl.porosity;
+
+        riv->mbc = totalw1 / totalw0;
+    }
+
     for (i = 0; i < pihm->numele; i++)
     {
         pihm->elem[i].surf0 = y[SURF(i)];

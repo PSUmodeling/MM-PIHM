@@ -1064,6 +1064,27 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
         }
     }
 
+    if (debug_mode)
+    {
+        sprintf (pihm->prtctrl[n].name, "%s%s.mbc", outputdir,
+            simulation);
+        pihm->prtctrl[n].intvl = 3600;
+        pihm->prtctrl[n].nvrbl = pihm->numele + pihm->numriv;
+        pihm->prtctrl[n].vrbl =
+            (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    sizeof (double *));
+        for (j = 0; j < pihm->numele; j++)
+        {
+            pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].mbc;
+        }
+        for (j = 0; j < pihm->numriv; j++)
+        {
+            pihm->prtctrl[n].vrbl[j + pihm->numele] =
+                &pihm->riv[j].mbc;
+        }
+        n++;
+    }
+
     pihm->ctrl.nprint = n;
 
     for (i = 0; i < pihm->ctrl.nprint; i++)
