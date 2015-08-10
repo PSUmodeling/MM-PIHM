@@ -116,7 +116,6 @@ typedef struct elem_struct
     double          unsat;
     double          fluxsurf[3];        /* Overland Flux */
     double          fluxsub[3]; /* Subsurface Flux */
-    double          fluxtotal[3];       /* Sum of surface and subsurface flux */
     double          runoff;
     double          prcp;       /* Precep. on each element */
     double          netprcp;    /* Net precep. on each elment */
@@ -140,6 +139,7 @@ typedef struct elem_struct
                                          * extracts from the saturated zone */
     double          fcr;        /* YS: reduction of infiltration caused
                                  * by frozen ground */
+    double          totalw;
     double          mbc;
 #endif
 
@@ -185,6 +185,7 @@ typedef struct river_struct
     double          gw0;
     double          gw;
     double          fluxriv[11];
+    double          totalw;
     double          mbc;
 } river_struct;
 

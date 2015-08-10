@@ -156,15 +156,12 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             /* Note the limitation due to
              * d(v)/dt=a*dy/dt+y*da/dt
              * for cs other than rectangle */
-            dy[RIVSTG(i)] -=
-                riv->fluxriv[j] / (riv->shp.length *
-                EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff));
+            dy[RIVSTG(i)] -= riv->fluxriv[j] / riv->topo.area;
         }
         dy[RIVGW(i)] +=
             -riv->fluxriv[7] - riv->fluxriv[8] - riv->fluxriv[9] -
             riv->fluxriv[10] + riv->fluxriv[6];
-        dy[RIVGW(i)] /= riv->matl.porosity * riv->shp.length *
-            EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff);
+        dy[RIVGW(i)] /= riv->matl.porosity * riv->topo.area;
 
         if (isnan (dy[RIVSTG(i)]))
         {

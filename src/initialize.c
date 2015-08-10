@@ -337,6 +337,9 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem,
         riv[i].matl.porosity =
             0.5 * (elem[riv[i].leftele - 1].soil.porosity +
             elem[riv[i].rightele - 1].soil.porosity);
+
+        riv[i].topo.area = riv[i].shp.length *
+            EqWid (riv[i].shp.intrpl_ord, riv[i].shp.depth, riv[i].shp.coeff);
     }
 }
 
@@ -637,7 +640,7 @@ void SaturationIC (const elem_struct *ele, int numele,
 void InitStateVrbl (elem_struct *elem, int numele, river_struct *riv,
     int numriv, N_Vector CV_Y, ic_struct ic)
 {
-    int             i;
+    int             i, j;
 
     for (i = 0; i < numele; i++)
     {
@@ -658,6 +661,12 @@ void InitStateVrbl (elem_struct *elem, int numele, river_struct *riv,
 
         elem[i].runoff = 0.0;
         elem[i].infil = 0.0;
+
+        for (j = 0; j < 3; j++)
+        {
+            elem[i].fluxsurf[j] = 0.0;
+            elem[i].fluxsub[j] = 0.0;
+        }
     }
 
     for (i = 0; i < numriv; i++)
@@ -1040,10 +1049,10 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         n++;
                     }
                     break;
-                case TOTALFLX_CTRL:
+                case SURFFLX_CTRL:
                     for (k = 0; k < 3; k++)
                     {
-                        sprintf (pihm->prtctrl[n].name, "%s%s.totalflx%d",
+                        sprintf (pihm->prtctrl[n].name, "%s%s.surfflx%d",
                             outputdir, simulation, k);
                         pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
                         pihm->prtctrl[n].nvrbl = pihm->numele;
@@ -1053,10 +1062,29 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         for (j = 0; j < pihm->numele; j++)
                         {
                             pihm->prtctrl[n].vrbl[j] =
-                                &pihm->elem[j].fluxtotal[k];
+                                &pihm->elem[j].fluxsurf[k];
                         }
                         n++;
                     }
+                    break;
+                case TOTALW_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.totalw", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele + pihm->numriv;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].totalw;
+                    }
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j + pihm->numele] =
+                            &pihm->riv[j].totalw;
+                    }
+                    n++;
                     break;
                 default:
                     break;

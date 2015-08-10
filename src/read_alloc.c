@@ -1030,7 +1030,10 @@ void ReadPara (char *project, ctrl_struct *ctrl)
     ReadKeywordInt (cmdstr, "SUBFLX", &ctrl->prtvrbl[SUBFLX_CTRL]);
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "TOTALFLX", &ctrl->prtvrbl[TOTALFLX_CTRL]);
+    ReadKeywordInt (cmdstr, "SURFFLX", &ctrl->prtvrbl[SURFFLX_CTRL]);
+
+    NextLine (para_file, cmdstr);
+    ReadKeywordInt (cmdstr, "TOTALW", &ctrl->prtvrbl[TOTALW_CTRL]);
 
     fclose (para_file);
 
