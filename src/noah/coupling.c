@@ -223,8 +223,18 @@ void PIHMxNoah (int t, double stepsize, pihm_struct pihm, lsm_struct noah)
             grid->nwtbl = grid->nsoil;
         }
 
+        for (j = 0; j < grid->nsoil; j++)
+        {
+            grid->smc[j] = (grid->smc[j] > grid->smcmin + 0.02) ? grid->smc[j] : grid->smcmin + 0.02;
+            grid->smc[j] = (grid->smc[j] < grid->smcmax) ? grid->smc[j] : grid->smcmax;
+            grid->sh2o[j] = (grid->sh2o[j] < grid->smc[j]) ? grid->sh2o[j] : grid->smc[j];
+        }
+
         grid->mac_status = pihm->elem[i].macpore_status;
 
+        /*
+         * Run Noah LSM
+         */
         SFlx (grid);
 
         grid->drip = 1.0e3 * grid->drip / grid->dt;     /* convert drip from m/s to kg m{-2} s{-1} (mm/s) */
