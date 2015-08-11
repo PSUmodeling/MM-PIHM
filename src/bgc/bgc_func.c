@@ -1,5 +1,7 @@
 #include "bgc.h"
 
+#define MAXGRID     5000
+
 void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
 {
     int             i, k;
@@ -488,13 +490,13 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         ReadBinFile (&bgc->forcing.ts[SWC_TS][0], fn, pihm->numele);
 
         /* Read total soil water storage forcing */
-        bgc->forcing.ts[SOILM_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-        sprintf (fn, "input/%s/%s.soilm", project, project);
-        ReadBinFile (&bgc->forcing.ts[SOILM_TS][0], fn, pihm->numele);
+        bgc->forcing.ts[TOTALW_TS] = (ts_struct *) malloc (sizeof (ts_struct));
+        sprintf (fn, "input/%s/%s.totalw", project, project);
+        ReadBinFile (&bgc->forcing.ts[TOTALW_TS][0], fn, pihm->numele);
 
         /* Read soil temperature forcing */
         bgc->forcing.ts[STC_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-        sprintf (fn, "input/%s/%s.stc", project, project);
+        sprintf (fn, "input/%s/%s.stc0", project, project);
         ReadBinFile (&bgc->forcing.ts[STC_TS][0], fn, pihm->numele);
 
         /* Read subsurface flux forcing */
@@ -503,6 +505,22 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         {
             sprintf (fn, "input/%s/%s.subflx%d", project, project, k);
             ReadBinFile (&bgc->forcing.ts[SUBFLX_TS][k], fn, pihm->numele);
+        }
+
+        /* Read surface flux forcing */
+        bgc->forcing.ts[SURFFLX_TS] = (ts_struct *) malloc (3 * sizeof (ts_struct));
+        for (k = 0; k < 3; k++)
+        {
+            sprintf (fn, "input/%s/%s.surfflx%d", project, project, k);
+            ReadBinFile (&bgc->forcing.ts[SURFFLX_TS][k], fn, pihm->numele);
+        }
+
+        /* Read river flux forcing */
+        bgc->forcing.ts[RIVFLX_TS] = (ts_struct *) malloc (10 * sizeof (ts_struct));
+        for (k = 0; k < 10; k++)
+        {
+            sprintf (fn, "input/%s/%s.rivflx%d", project, project, k);
+            ReadBinFile (&bgc->forcing.ts[RIVFLX_TS][k], fn, pihm->numriv);
         }
     }
 
@@ -562,6 +580,16 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         bgc->grid[i].epv.annavg_t2m = 280.0;
         bgc->grid[i].epv.tempavg_t2m = 0.0;
     }
+
+    bgc->riv = (bgc_river *)malloc (pihm->numriv * sizeof (bgc_river));
+
+    for (i = 0; i < pihm->numriv; i++)
+    {
+        bgc->riv[i].soilw = 0.0;
+        bgc->riv[i].sminn = 0.0;
+        bgc->riv[i].nleached_snk = 0.0;
+        bgc->riv[i].sminn_leached = 0.0;
+    }
 }
 
 void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bgc)
@@ -601,9 +629,17 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
         bgc->grid[i].sitec.lon = noah->longitude;
         bgc->grid[i].sitec.sw_alb = 0.5 * (noah->grid[i].albedomin + noah->grid[i].albedomax);
         bgc->grid[i].sitec.area = pihm->elem[i].topo.area;
+
         for (j = 0; j < 3; j++)
         {
-            bgc->grid[i].sitec.nabr[j] = pihm->elem[i].nabr[j];
+            if (pihm->elem[i].forc.bc_type[j] <= -4)
+            {
+                bgc->grid[i].sitec.nabr[j] = pihm->elem[i].forc.bc_type[j] / 4;
+            }
+            else
+            {
+                bgc->grid[i].sitec.nabr[j] = pihm->elem[i].nabr[j];
+            }
         }
 
         bgc->grid[i].epv.annavg_t2m = noah->genprmt.tbot_data - 273.15;
@@ -615,6 +651,33 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
         bgc->grid[i].epc.gl_c = 1.0 / noah->grid[i].rsmax;
         bgc->grid[i].epc.smcref = noah->grid[i].smcref;
         bgc->grid[i].epc.smcwlt = noah->grid[i].smcwlt;
+
+    }
+
+    for (i = 0; i < pihm->numriv; i++)
+    {
+        bgc->riv[i].nabr[0] = 0;
+
+        for (j = 0; j < pihm->numriv; j++)
+        {
+            if (pihm->riv[j].down == i)
+            {
+                bgc->riv[i].nabr[0] = -j;
+                break;
+            }
+        }
+
+        if (pihm->riv[i].down > 0)
+        {
+            bgc->riv[i].nabr[1] = -pihm->riv[i].down;
+        }
+        else
+        {
+            bgc->riv[i].nabr[1] = 0;
+        }
+
+        bgc->riv[i].nabr[2] = pihm->riv[i].leftele;
+        bgc->riv[i].nabr[3] = pihm->riv[i].rightele;
     }
 
     /* Read initial conditions */
@@ -631,6 +694,11 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
 
             noah->grid[i].xlai = bgc->grid[i].cs.leafc * bgc->grid[i].epc.avg_proj_sla;
             noah->grid[i].cmcmax = noah->grid[i].cmcfactr * noah->grid[i].xlai;
+        }
+
+        for (i = 0; i < pihm->numriv; i++)
+        {
+            fread (&(bgc->riv[i].sminn), sizeof (double), 1, init_file);
         }
         fclose (init_file);
     }
@@ -650,8 +718,8 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
 
 void BgcCoupling (int t, int start_time, pihm_struct pihm, lsm_struct noah, bgc_struct bgc)
 {
-    static int      counter[5000];
-    static int      daylight_counter[5000];
+    static int      counter[MAXGRID];
+    static int      daylight_counter[MAXGRID];
     double          dayl, prev_dayl;
     spa_data        spa;
     int             spa_result;
@@ -680,7 +748,7 @@ void BgcCoupling (int t, int start_time, pihm_struct pihm, lsm_struct noah, bgc_
             metv->soilw = 0.0;
             for (k = 0; k < 3; k++)
             {
-                metv->subflux[k] = 0.0;
+                metv->latflux[k] = 0.0;
             }
             metv->tday = 0.0;
             metv->q2d = 0.0;
@@ -712,7 +780,7 @@ void BgcCoupling (int t, int start_time, pihm_struct pihm, lsm_struct noah, bgc_
             //}
             //else
             //{
-                metv->subflux[k] += noah->grid[i].avgsubflux[k] * 1000.0 * 24.0 * 3600.0 / pihm->elem[i].topo.area;
+                metv->latflux[k] += noah->grid[i].avgsubflux[k] * 1000.0 * 24.0 * 3600.0 / pihm->elem[i].topo.area;
             //}
         }
 
@@ -795,7 +863,7 @@ void BgcCoupling (int t, int start_time, pihm_struct pihm, lsm_struct noah, bgc_
             metv->soilw /= (double) counter[i];
             for (k = 0; k < 3; k++)
             {
-                metv->subflux[k] /= (double) counter[i];
+                metv->latflux[k] /= (double) counter[i];
             }
 
             metv->tday /= (double) daylight_counter[i];
@@ -831,7 +899,7 @@ void BgcCoupling (int t, int start_time, pihm_struct pihm, lsm_struct noah, bgc_
             metv->swc = 0.0;
             metv->soilw = 0.0;
             for (k = 0; k < 3; k++)
-                metv->subflux[k] = 0.0;
+                metv->latflux[k] = 0.0;
             metv->tday = 0.0;
             metv->q2d = 0.0;
             metv->pa = 0.0;

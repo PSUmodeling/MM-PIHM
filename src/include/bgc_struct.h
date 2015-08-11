@@ -73,7 +73,7 @@ typedef struct
     double         *swc;
     double         *pa;
     double         *tavg_ra;    /* (deg C) 11-day running avg of daily avg temp */
-    double         *subflux[3];
+    double         *latflux[4];
     double         *soilw;
 } metarr_struct;
 
@@ -89,7 +89,7 @@ typedef struct
     double          tsoil;      /* (deg C) daily soil temperature, avg, top 10 cm */
     double          swc;
     double          soilw;
-    double          subflux[3];
+    double          latflux[4];
     double          vpd;        /* (Pa)    vapor pressure deficit */
     double          q2d;        /* (m3/m3) mixing ratio deficit */
     double          swavgfd;    /* (W/m2)  daylight average shortwave flux */
@@ -382,7 +382,6 @@ typedef struct
     double          nleached_snk;       /* (kgN/m2) SUM of N leached */
     double          nvol_snk;   /* (kgN/m2) SUM of N lost to volatilization */
     double          fire_snk;   /* (kgN/m2) SUM of N lost to fire */
-    double          soilwater_nconc;
 } nstate_struct;
 
 /* daily nitrogen flux variables */
@@ -935,8 +934,18 @@ typedef struct bgc_grid
     epvar_struct    epv;
     restart_data_struct restart_input;  /* input restart data */
     restart_data_struct restart_output; /* output restart data */
-
 } bgc_grid;
+
+typedef struct bgc_river
+{
+    int             nabr[4];
+    metarr_struct   metarr;
+    metvar_struct   metv;
+    double          soilw;
+    double          sminn;
+    double          nleached_snk;
+    double          sminn_leached;
+} bgc_river;
 
 typedef struct bgc_forc_struct
 {
@@ -946,6 +955,7 @@ typedef struct bgc_forc_struct
 typedef struct bgc_struct
 {
     bgc_grid       *grid;
+    bgc_river      *riv;
     control_struct  ctrl;       /* bgc control variables */
     co2control_struct co2;      /* CO2 concentration information */
     ndepcontrol_struct ndepctrl;        /* Nitrogen deposition control structure */

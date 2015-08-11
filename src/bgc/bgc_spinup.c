@@ -8,7 +8,7 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
     FILE           *restart_file;
     FILE           *sminn_file;
     char            restart_fn[MAXSTRING];
-    int             i, j;   //k;
+    int             i, j;
     struct tm      *timestamp;
     time_t          rawtime;
     int             metyr;
@@ -17,8 +17,13 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
     int             t;
     int             first_balance = 1;
     int             metyears;
-    int             steady1[pihm->numele], steady2[pihm->numele], rising[pihm->numele], metcycle = 0, spinyears = 0;
-    double          tally1[pihm->numele], tally1b[pihm->numele], tally2[pihm->numele], tally2b[pihm->numele], t1;
+    int             steady1[pihm->numele], steady2[pihm->numele];
+    int             rising[pihm->numele];
+    int             metcycle = 0;
+    int             spinyears = 0;
+    double          tally1[pihm->numele], tally1b[pihm->numele];
+    double          tally2[pihm->numele], tally2b[pihm->numele];
+    double          t1;
     int             spinup_complete[pihm->numele];
     int             spinup_year[pihm->numele];
     int             total_complete;
@@ -39,12 +44,12 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
     timestamp->tm_year = timestamp->tm_year - 1900;
     timestamp->tm_mon = timestamp->tm_mon - 1;
     rawtime = timegm (timestamp);
-    spinup_starttime = (int) rawtime;
+    spinup_starttime = (int)rawtime;
 
     timestamp->tm_year = bgc->ctrl.spinupend + 1;
     timestamp->tm_year = timestamp->tm_year - 1900;
     rawtime = timegm (timestamp);
-    spinup_endtime = (int) rawtime;
+    spinup_endtime = (int)rawtime;
 
     metarr_init (bgc, pihm, noah, spinup_starttime, spinup_endtime);
 

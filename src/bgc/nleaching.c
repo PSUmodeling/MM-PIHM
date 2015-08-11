@@ -40,7 +40,7 @@ void nleaching (nstate_struct * ns, nflux_struct * nf, wstate_struct * ws, const
     nf->sminn_leached = 0.0;
     for (k = 0; k < 3; k++)
     {
-        outflow += metv->subflux[k];
+        outflow += metv->latflux[k];
         //if (metv->subflux[k] > 0.0)
         //{
         //    nf->sminn_leached += soilwater_nconc * metv->subflux[k];

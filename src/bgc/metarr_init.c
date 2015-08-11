@@ -23,61 +23,78 @@ void metarr_init (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_t
     struct tm      *timestamp;
     double         *swc;
     double         *stc;
-    double         *soilw;
-    double         *fluxsub[3];
+    double         *totalw;
+    double         *subflux[3];
+    double         *surfflux[3];
+    double         *rivflux[10];
     double          es;
     double          pres;
     int             ind;
 
     printf ("Initialize meteorological forcing array for model spin-up ...\n");
 
-    length = (int)((end_time - start_time) / 24. / 3600.);
+    length = (end_time - start_time) / 24 / 3600;
 
-    swc = (double *) malloc (pihm->numele * sizeof (double));
-    stc = (double *) malloc (pihm->numele * sizeof (double));
-    soilw = (double *) malloc (pihm->numele * sizeof (double));
-
-    met_forcing = (double ***) malloc (pihm->forcing.nts[METEO_TS] * sizeof (double **));
-    radn_forcing = (double ***) malloc (pihm->forcing.nts[METEO_TS] * sizeof (double **));
-
-    for (j = 0; j < pihm->forcing.nts[METEO_TS]; j++)
-    {
-        met_forcing[j] = (double **) malloc (24 * sizeof (double *));
-        radn_forcing[j] = (double **) malloc (24 * sizeof (double *));
-
-        for (hour = 0; hour < 24; hour++)
-        {
-            met_forcing[j][hour] = (double *) malloc (NUM_METEO_TS * sizeof (double));
-            radn_forcing[j][hour] = (double *) malloc (4 * sizeof (double));
-        }
-    }
+    swc = (double *)malloc (pihm->numele * sizeof (double));
+    stc = (double *)malloc (pihm->numele * sizeof (double));
+    totalw = (double *)malloc ((pihm->numele + pihm->numriv) * sizeof (double));
 
     for (k = 0; k < 3; k++)
     {
-        fluxsub[k] = (double *) malloc (pihm->numele * sizeof (double));
+        subflux[k] = (double *)malloc (pihm->numele * sizeof (double));
+        surfflux[k] = (double *)malloc (pihm->numele * sizeof (double));
     }
+
+    for (k = 0; k < 10; k++)
+    {
+        rivflux[k] = (double *)malloc (pihm->numriv * sizeof (double));
+    }
+
+    met_forcing = (double ***)malloc (pihm->forcing.nts[METEO_TS] * sizeof (double **));
+    radn_forcing = (double ***)malloc (pihm->forcing.nts[METEO_TS] * sizeof (double **));
+
+    for (j = 0; j < pihm->forcing.nts[METEO_TS]; j++)
+    {
+        met_forcing[j] = (double **)malloc (24 * sizeof (double *));
+        radn_forcing[j] = (double **)malloc (24 * sizeof (double *));
+
+        for (hour = 0; hour < 24; hour++)
+        {
+            met_forcing[j][hour] = (double *)malloc (NUM_METEO_TS * sizeof (double));
+            radn_forcing[j][hour] = (double *)malloc (4 * sizeof (double));
+        }
+    }
+
 
     for (i = 0; i < pihm->numele; i++)
     {
-        bgc->grid[i].metarr.tmax = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.tmin = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.prcp = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.vpd = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.q2d = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.swavgfd = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.par = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.dayl = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.prev_dayl = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.tavg = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.tday = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.tnight = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.tsoil = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.swc = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.pa = (double *) malloc (length * sizeof (double));
-        bgc->grid[i].metarr.soilw = (double *) malloc (length * sizeof (double));
-        for (j = 0; j < 3; j++)
+        bgc->grid[i].metarr.tmax = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.tmin = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.prcp = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.vpd = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.q2d = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.swavgfd = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.par = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.dayl = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.prev_dayl = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.tavg = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.tday = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.tnight = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.tsoil = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.swc = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.pa = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.soilw = (double *)malloc (length * sizeof (double));
+        for (j = 0; j < 4; j++)
         {
-            bgc->grid[i].metarr.subflux[j] = (double *) malloc (length * sizeof (double));
+            bgc->grid[i].metarr.latflux[j] = (double *)malloc (length * sizeof (double));
+        }
+    }
+
+    for (i = 0; i < pihm->numriv; i++)
+    {
+        for (j = 0; j < 4; j++)
+        {
+            bgc->riv[i].metarr.latflux[j] = (double *)malloc (length * sizeof (double));
         }
     }
 
@@ -172,10 +189,15 @@ void metarr_init (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_t
 
         IntrplForcing (bgc->forcing.ts[SWC_TS][0], t + 24 * 3600, pihm->numele, &swc[0]);
         IntrplForcing (bgc->forcing.ts[STC_TS][0], t + 24 * 3600, pihm->numele, &stc[0]);
-        IntrplForcing (bgc->forcing.ts[SOILM_TS][0], t + 24 * 3600, pihm->numele, &soilw[0]);
+        IntrplForcing (bgc->forcing.ts[TOTALW_TS][0], t + 24 * 3600, pihm->numele + pihm->numriv, &totalw[0]);
         for (k = 0; k < 3; k++)
         {
-            IntrplForcing (bgc->forcing.ts[SUBFLX_TS][k], t + 24 * 3600, pihm->numele, &fluxsub[k][0]);
+            IntrplForcing (bgc->forcing.ts[SUBFLX_TS][k], t + 24 * 3600, pihm->numele, &subflux[k][0]);
+            IntrplForcing (bgc->forcing.ts[SURFFLX_TS][k], t + 24 * 3600, pihm->numele, &surfflux[k][0]);
+        }
+        for (k = 0; k < 10; k++)
+        {
+            IntrplForcing (bgc->forcing.ts[RIVFLX_TS][k], t + 24 * 3600, pihm->numriv, &rivflux[k][0]);
         }
 
         for (i = 0; i < pihm->numele; i++)
@@ -253,25 +275,43 @@ void metarr_init (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_t
 
             metarr->tsoil[j] = stc[i] - 273.15;
             metarr->swc[j] = swc[i];
-            metarr->soilw[j] = soilw[i] * 1000.0;
+            metarr->soilw[j] = totalw[i] * 1000.0;
             for (k = 0; k < 3; k++)
             {
                 /* Convert from m3/s to kg/m2/d */
-                //if (pihm->elem[i].forc.bc_type[k] < 0.0 && fluxsub[k][i] < 0.0)
-                //{
-                //    metarr->subflux[k][j] = 0.0;
-                //}
-                //else
-                //{
-                    metarr->subflux[k][j] = 1000.0 * fluxsub[k][i] * 24.0 * 3600.0 / pihm->elem[i].topo.area;
-                //}
+                metarr->latflux[k][j] = 1000.0 * (subflux[k][i] + surfflux[k][i]) * 24.0 * 3600.0 / pihm->elem[i].topo.area;
             }
+            metarr->latflux[3][j] = 0.0;
         }
+
+        for (i = 0; i < pihm->numriv; i++)
+        {
+            metarr = &(bgc->riv[i].metarr);
+
+            metarr->soilw[j] = totalw[i + pihm->numele] * 1000.0;
+
+            /* Convert from m3/s to kg/m2/d */
+            metarr->latflux[0][j] = 1000.0 * (rivflux[0][j] + rivflux[10][j]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
+            metarr->latflux[1][j] = 1000.0 * (rivflux[1][j] + rivflux[9][j]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
+            metarr->latflux[2][j] = 1000.0 * (rivflux[2][j] + rivflux[4][j] + rivflux[7][j]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
+            metarr->latflux[3][j] = 1000.0 * (rivflux[3][j] + rivflux[5][j] + rivflux[8][j]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
+        }
+
     }
 
     free (swc);
     free (stc);
-    free (soilw);
+    free (totalw);
+
+    for (k = 0; k < 3; k++)
+    {
+        free (subflux[k]);
+    }
+
+    for (k = 0; k < 10; k++)
+    {
+        free (rivflux[k]);
+    }
 
     for (j = 0; j < pihm->forcing.nts[METEO_TS]; j++)
     {

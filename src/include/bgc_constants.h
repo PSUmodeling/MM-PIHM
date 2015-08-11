@@ -88,9 +88,9 @@
 #define SANE 1
 #define INSANE 0
 
-#define NUM_BGC_FORC    6
+#define NUM_BGC_FORC    8
 enum bgc_forcing_type
-{ CO2_TS, NDEP_TS, SWC_TS, SOILM_TS, STC_TS, SUBFLX_TS };
+{ CO2_TS, NDEP_TS, SWC_TS, TOTALW_TS, STC_TS, SUBFLX_TS, SURFFLX_TS, RIVFLX_TS };
 enum epc_vegtype
 { EPC_C3GRASS, EPC_C4GRASS, EPC_DBF, EPC_DNF, EPC_EBF, EPC_ENF, EPC_SHRUB,
         EPC_MIXED };
