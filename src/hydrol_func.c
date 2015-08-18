@@ -11,6 +11,8 @@ double RivArea (int riv_order, double riv_depth, double riv_coeff)
 {
     double          riv_area;
 
+    riv_depth = (riv_depth > 0.0) ? riv_depth : 0.0;
+
     switch (riv_order)
     {
         case 1:
@@ -39,6 +41,8 @@ double RivArea (int riv_order, double riv_depth, double riv_coeff)
 double RivPerim (int riv_order, double riv_depth, double riv_coeff)
 {
     double          riv_perim;
+
+    riv_depth = (riv_depth > 0.0) ? riv_depth : 0.0;
 
     switch (riv_order)
     {
@@ -79,6 +83,8 @@ double EqWid (int riv_order, double riv_depth, double riv_coeff)
 {
     double          eq_wid;
 
+    riv_depth = (riv_depth > 0.0) ? riv_depth : 0.0;
+
     switch (riv_order)
     {
         case 1:
@@ -111,9 +117,13 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
     double          threshele;
 
     if (rivzmax < elez)
+    {
         threshele = elez;
+    }
     else
+    {
         threshele = rivzmax;
+    }
 
     if (rivytot > eleytot)
     {
@@ -259,6 +269,8 @@ int MacroporeStatus (double ksatfunc, double elemsatn, double grady,
 double EffKH (int mp, double tmpy, double aqdepth, double macd,
     double macksath, double areaf, double ksath)
 {
+    tmpy = (tmpy > 0.0) ? tmpy : 0.0;
+
     if (mp == 1)
     {
         if (tmpy > aqdepth - macd)

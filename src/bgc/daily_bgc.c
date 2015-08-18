@@ -5,7 +5,7 @@
 
 #include "bgc.h"
 
-void DailyBgc (bgc_struct bgc, int num_ele, const double t, const double *naddfrac, int first_balance)
+void DailyBgc (bgc_struct bgc, int numele, int numriv, const double t, const double *naddfrac, int first_balance)
 {
     siteconst_struct *sitec;
     metvar_struct  *metv;
@@ -24,11 +24,10 @@ void DailyBgc (bgc_struct bgc, int num_ele, const double t, const double *naddfr
     ntemp_struct   *nt;
     phenology_struct *phen;
     summary_struct *summary;
-    int             i, j;
+    int             i;
     struct tm      *timestamp;
     time_t          rawtime;
     double          co2lvl;
-    double          nabr_nconc[3];
 
     /* miscelaneous variables for program control in main */
     int             annual_alloc;
@@ -98,7 +97,7 @@ void DailyBgc (bgc_struct bgc, int num_ele, const double t, const double *naddfr
         }
     }
 
-    for (i = 0; i < num_ele; i++)
+    for (i = 0; i < numele; i++)
     {
         sitec = &bgc->grid[i].sitec;
         metv = &bgc->grid[i].metv;
@@ -195,7 +194,14 @@ void DailyBgc (bgc_struct bgc, int num_ele, const double t, const double *naddfr
         daily_nitrogen_state_update (nf, ns, annual_alloc, epc->woody, epc->evergreen);
     }
 
-    for (i = 0; i < num_ele; i++)
+
+
+    /* Calculate N leaching loss.  This is a special state variable update
+     * routine, done after the other fluxes and states are reconciled in order
+     * to avoid negative sminn under heavy leaching potential */
+    nleaching (bgc->grid, numele, bgc->riv, numriv);
+
+    for (i = 0; i < numele; i++)
     {
         sitec = &bgc->grid[i].sitec;
         metv = &bgc->grid[i].metv;
@@ -212,20 +218,6 @@ void DailyBgc (bgc_struct bgc, int num_ele, const double t, const double *naddfr
         psn_sun = &bgc->grid[i].psn_sun;
         psn_shade = &bgc->grid[i].psn_shade;
         summary = &bgc->grid[i].summary;
-
-        for (j = 0; j < 3; j++)
-        {
-            if (sitec->nabr[j] > 0)
-                nabr_nconc[j] = MOBILEN_PROPORTION * bgc->grid[sitec->nabr[j] - 1].ns.sminn / bgc->grid[sitec->nabr[j] - 1].ws.soilw;
-            else
-                nabr_nconc[j] = 0.0;
-        }
-
-
-        /* Calculate N leaching loss.  This is a special state variable update
-         * routine, done after the other fluxes and states are reconciled in order
-         * to avoid negative sminn under heavy leaching potential */
-        //nleaching(ns, nf, ws, nabr_nconc, metv);
 
         /* Calculate daily mortality fluxes and update state variables */
         /* This is done last, with a special state update procedure, to insure

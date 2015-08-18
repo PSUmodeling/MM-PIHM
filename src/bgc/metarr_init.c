@@ -29,6 +29,7 @@ void metarr_init (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_t
     double         *rivflux[10];
     double          es;
     double          pres;
+    double          temp;
     int             ind;
 
     printf ("Initialize meteorological forcing array for model spin-up ...\n");
@@ -92,6 +93,8 @@ void metarr_init (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_t
 
     for (i = 0; i < pihm->numriv; i++)
     {
+        bgc->riv[i].metarr.soilw = (double *)malloc (length * sizeof (double));
+
         for (j = 0; j < 4; j++)
         {
             bgc->riv[i].metarr.latflux[j] = (double *)malloc (length * sizeof (double));
@@ -195,7 +198,7 @@ void metarr_init (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_t
             IntrplForcing (bgc->forcing.ts[SUBFLX_TS][k], t + 24 * 3600, pihm->numele, &subflux[k][0]);
             IntrplForcing (bgc->forcing.ts[SURFFLX_TS][k], t + 24 * 3600, pihm->numele, &surfflux[k][0]);
         }
-        for (k = 0; k < 10; k++)
+        for (k = 0; k < 11; k++)
         {
             IntrplForcing (bgc->forcing.ts[RIVFLX_TS][k], t + 24 * 3600, pihm->numriv, &rivflux[k][0]);
         }
@@ -291,14 +294,29 @@ void metarr_init (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_t
             metarr->soilw[j] = totalw[i + pihm->numele] * 1000.0;
 
             /* Convert from m3/s to kg/m2/d */
-            metarr->latflux[0][j] = 1000.0 * (rivflux[0][j] + rivflux[10][j]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
-            metarr->latflux[1][j] = 1000.0 * (rivflux[1][j] + rivflux[9][j]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
-            metarr->latflux[2][j] = 1000.0 * (rivflux[2][j] + rivflux[4][j] + rivflux[7][j]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
-            metarr->latflux[3][j] = 1000.0 * (rivflux[3][j] + rivflux[5][j] + rivflux[8][j]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
+            metarr->latflux[0][j] = 1000.0 * (rivflux[0][i] + rivflux[10][i]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
+            metarr->latflux[1][j] = 1000.0 * (rivflux[1][i] + rivflux[9][i]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
+            metarr->latflux[2][j] = 1000.0 * (rivflux[2][i] + rivflux[4][i] + rivflux[7][i]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
+            metarr->latflux[3][j] = 1000.0 * (rivflux[3][i] + rivflux[5][i] + rivflux[8][i]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
         }
 
     }
 
+    for (j = 1; j < length; j++)
+    {
+        for (i = 0; i < pihm->numriv; i++)
+        {
+            temp = bgc->riv[i].metarr.soilw[j - 1];
+            for (k = 0; k < 4; k++)
+            {
+                temp -= bgc->riv[i].metarr.latflux[k][j];
+            }
+            printf ("%d: %lf\t", i, bgc->riv[i].metarr.soilw[j] / temp);
+        }
+        printf ("\n");
+    }
+    fflush (stdout);
+        
     free (swc);
     free (stc);
     free (totalw);

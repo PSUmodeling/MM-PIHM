@@ -30,8 +30,10 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         elem->surf = y[SURF(i)];
         elem->unsat = y[UNSAT(i)];
         elem->gw = y[GW(i)];
-
-        /* calculate infiltration based on mass conservation */
+        
+        /*
+         * Calculate infiltration based on mass conservation
+         */
         wtd0 = elem->soil.depth - ((elem->gw0 > 0.0) ? elem->gw0 : 0.0);
         wtd0 = (wtd0 < 0.0) ? 0.0 : wtd0;
         if (wtd0 <= 0.0)
@@ -81,6 +83,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         soilw1 = elem->gw + elem->unsat;
         soilw1 = (soilw1 > elem->soil.depth) ? elem->soil.depth : soilw1;
         soilw1 = (soilw1 < 0.0) ? 0.0 : soilw1;
+
         /* subsurface runoff rate */
         elem->runoff = 0.0;
         for (j = 0; j < 3; j++)
@@ -90,7 +93,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
 
         recharge = (realgw1 - realgw0) * elem->soil.porosity / stepsize +
             elem->runoff + elem->edir[2] + elem->ett[2];
-        //elem->infil = (realunsat1 - realunsat0) * elem->soil.porosity / stepsize + recharge + (1.0 - elem->et_from_sat) * elem->et[1] + elem->et[2];
+
         elem->infil = (soilw1 - soilw0) * elem->soil.porosity / stepsize +
             elem->runoff + elem->edir[1] +elem->edir[2] + elem->ett[1] + elem->ett[2];
 
@@ -122,11 +125,14 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
 
         totalw0 = riv->stage0 + riv->gw0 * riv->matl.porosity;
 
-        for (j = 0; j < 7; j++)
+        for (j = 0; j < 11; j++)
         {
-            totalw0 -= riv->fluxriv[j] / (riv->shp.length * EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff));
+            if (j != 6)
+            {
+                /* fluxriv[6] is internal flux and is not accounted for */
+                totalw0 -= riv->fluxriv[j] * stepsize / riv->topo.area;
+            }
         }
-        totalw0 += (-riv->fluxriv[7] - riv->fluxriv[8] - riv->fluxriv[9] - riv->fluxriv[10] + riv->fluxriv[6]) / (riv->shp.length * EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff));
 
         riv->totalw = riv->stage + riv->gw * riv->matl.porosity;
 

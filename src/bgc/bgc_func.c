@@ -486,24 +486,24 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
     {
         /* Read root zone soil water content forcing */
         bgc->forcing.ts[SWC_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-        sprintf (fn, "input/%s/%s.rootw", project, project);
+        sprintf (fn, "input/%s/%s.rootw.dat", project, project);
         ReadBinFile (&bgc->forcing.ts[SWC_TS][0], fn, pihm->numele);
 
         /* Read total soil water storage forcing */
         bgc->forcing.ts[TOTALW_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-        sprintf (fn, "input/%s/%s.totalw", project, project);
-        ReadBinFile (&bgc->forcing.ts[TOTALW_TS][0], fn, pihm->numele);
+        sprintf (fn, "input/%s/%s.totalw.dat", project, project);
+        ReadBinFile (&bgc->forcing.ts[TOTALW_TS][0], fn, pihm->numele + pihm->numriv);
 
         /* Read soil temperature forcing */
         bgc->forcing.ts[STC_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-        sprintf (fn, "input/%s/%s.stc0", project, project);
+        sprintf (fn, "input/%s/%s.stc0.dat", project, project);
         ReadBinFile (&bgc->forcing.ts[STC_TS][0], fn, pihm->numele);
 
         /* Read subsurface flux forcing */
         bgc->forcing.ts[SUBFLX_TS] = (ts_struct *) malloc (3 * sizeof (ts_struct));
         for (k = 0; k < 3; k++)
         {
-            sprintf (fn, "input/%s/%s.subflx%d", project, project, k);
+            sprintf (fn, "input/%s/%s.subflx%d.dat", project, project, k);
             ReadBinFile (&bgc->forcing.ts[SUBFLX_TS][k], fn, pihm->numele);
         }
 
@@ -511,15 +511,15 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         bgc->forcing.ts[SURFFLX_TS] = (ts_struct *) malloc (3 * sizeof (ts_struct));
         for (k = 0; k < 3; k++)
         {
-            sprintf (fn, "input/%s/%s.surfflx%d", project, project, k);
+            sprintf (fn, "input/%s/%s.surfflx%d.dat", project, project, k);
             ReadBinFile (&bgc->forcing.ts[SURFFLX_TS][k], fn, pihm->numele);
         }
 
         /* Read river flux forcing */
-        bgc->forcing.ts[RIVFLX_TS] = (ts_struct *) malloc (10 * sizeof (ts_struct));
-        for (k = 0; k < 10; k++)
+        bgc->forcing.ts[RIVFLX_TS] = (ts_struct *) malloc (11 * sizeof (ts_struct));
+        for (k = 0; k < 11; k++)
         {
-            sprintf (fn, "input/%s/%s.rivflx%d", project, project, k);
+            sprintf (fn, "input/%s/%s.rivflx%d.dat", project, project, k);
             ReadBinFile (&bgc->forcing.ts[RIVFLX_TS][k], fn, pihm->numriv);
         }
     }
@@ -708,6 +708,11 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
         {
             firstday (&bgc->grid[i].epc, &bgc->grid[i].cinit, &bgc->grid[i].epv, &bgc->grid[i].cs, &bgc->grid[i].ns);
         }
+
+        for (i = 0; i < pihm->numriv; i++)
+        {
+            bgc->riv[i].sminn = 0.0;
+        }
     }
 
     for (i = 0; i < pihm->numele; i++)
@@ -728,7 +733,7 @@ void BgcCoupling (int t, int start_time, pihm_struct pihm, lsm_struct noah, bgc_
     double          sfctmp;
     double          solar;
     int             i, j, k;
-    double          dummy[pihm->numele];
+    double          dummy[MAXGRID];
     metvar_struct  *metv;
     static int      first_balance;
 
@@ -774,15 +779,9 @@ void BgcCoupling (int t, int start_time, pihm_struct pihm, lsm_struct noah, bgc_
         metv->soilw += noah->grid[i].soilm;
         for (k = 0; k < 3; k++)
         {
-            //if (pihm->elem[i].bc_type[k] < 0.0 && noah->grid[i].avgsubflux[k] < 0.0)
-            //{
-            //    metv->subflux[k] = 0.0;
-            //}
-            //else
-            //{
-                metv->latflux[k] += noah->grid[i].avgsubflux[k] * 1000.0 * 24.0 * 3600.0 / pihm->elem[i].topo.area;
-            //}
+            metv->latflux[k] += noah->grid[i].avgsubflux[k] * 1000.0 * 24.0 * 3600.0 / pihm->elem[i].topo.area;
         }
+        metv->latflux[3] = 0.0;
 
         if (solar > 1.0)
         {
@@ -875,7 +874,7 @@ void BgcCoupling (int t, int start_time, pihm_struct pihm, lsm_struct noah, bgc_
             metv->tnight /= (double) (counter[i] - daylight_counter[i]);
         }
 
-        DailyBgc (bgc, pihm->numele, t, dummy, first_balance);
+        DailyBgc (bgc, pihm->numele, pihm->numriv, t, dummy, first_balance);
         first_balance = 0;
 
         PrintData (bgc->prtctrl, bgc->ctrl.nprint, t, t - start_time, 86400,

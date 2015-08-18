@@ -8,7 +8,7 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
     FILE           *restart_file;
     FILE           *sminn_file;
     char            restart_fn[MAXSTRING];
-    int             i, j;
+    int             i, j, k;
     struct tm      *timestamp;
     time_t          rawtime;
     int             metyr;
@@ -17,19 +17,33 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
     int             t;
     int             first_balance = 1;
     int             metyears;
-    int             steady1[pihm->numele], steady2[pihm->numele];
-    int             rising[pihm->numele];
+    int            *steady1, *steady2;
+    int            *rising;
     int             metcycle = 0;
     int             spinyears = 0;
-    double          tally1[pihm->numele], tally1b[pihm->numele];
-    double          tally2[pihm->numele], tally2b[pihm->numele];
+    double         *tally1, *tally1b;
+    double         *tally2, *tally2b;
     double          t1;
-    int             spinup_complete[pihm->numele];
-    int             spinup_year[pihm->numele];
+    int            *spinup_complete;
+    int            *spinup_year;
     int             total_complete;
-    double          naddfrac[pihm->numele];
+    double         *naddfrac;
 
     timestamp = (struct tm *)malloc (sizeof (struct tm));
+
+    steady1 = (int *)malloc (pihm->numele * sizeof (int));
+    steady2 = (int *)malloc (pihm->numele * sizeof (int));
+    rising = (int *)malloc (pihm->numele * sizeof (int));
+
+    spinup_complete = (int *)malloc (pihm->numele * sizeof (int));
+    spinup_year = (int *)malloc (pihm->numele * sizeof (int));
+
+    tally1 = (double *)malloc (pihm->numele * sizeof (double));
+    tally1b = (double *)malloc (pihm->numele * sizeof (double));
+    tally2 = (double *)malloc (pihm->numele * sizeof (double));
+    tally2b = (double *)malloc (pihm->numele * sizeof (double));
+
+    naddfrac = (double *)malloc (pihm->numele * sizeof (double));
 
     printf ("\n\nRunning BGC model in spin-up mode using prescribed "
         "soil moisture and soil temperature\n");
@@ -110,7 +124,17 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
                 bgc->grid[i].epv.vwc = bgc->grid[i].metv.swc;
             }
 
-            DailyBgc (bgc, pihm->numele, t, naddfrac, first_balance);
+            for (i = 0; i < pihm->numriv; i++)
+            {
+                bgc->riv[i].soilw = bgc->riv[i].metarr.soilw[j];
+
+                for (k = 0; k < 4; k++)
+                {
+                    bgc->riv[i].metv.latflux[k] = bgc->riv[i].metarr.latflux[k][j];
+                }
+            }
+
+            DailyBgc (bgc, pihm->numele, pihm->numriv, t, naddfrac, first_balance);
 
             for (i = 0; i < pihm->numele; i++)
             {
@@ -208,9 +232,26 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
         fprintf (spinyr_file, "%d\t", spinup_year[i]);
         fprintf (sminn_file, "%lf\t", bgc->grid[i].ns.sminn);
     }
+    for (i = 0; i < pihm->numriv; i++)
+    {
+        fwrite (&bgc->riv[i].sminn, sizeof (double), 1, restart_file);
+        fprintf (sminn_file, "%lf\t", bgc->riv[i].sminn);
+    }
+
     fclose (sminn_file);
     fclose (soilc_file);
     fclose (vegc_file);
     fclose (restart_file);
     fclose (spinyr_file);
+
+    free (steady1);
+    free (steady2);
+    free (rising);
+    free (spinup_complete);
+    free (spinup_year);
+    free (tally1);
+    free (tally1b);
+    free (tally2);
+    free (tally2b);
+    free (naddfrac);
 }

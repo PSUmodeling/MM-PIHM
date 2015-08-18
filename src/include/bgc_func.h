@@ -12,7 +12,7 @@ void            BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm,
     lsm_struct noah);
 void            BgcCoupling (int t, int start_time, pihm_struct pihm,
     lsm_struct noah, bgc_struct bgc);
-void            DailyBgc (bgc_struct bgc, int num_ele, const double t,
+void            DailyBgc (bgc_struct bgc, int numele, int numriv, const double t,
     const double *naddfrac, int first_balance);
 
 void            daymet (const metarr_struct * metarr, metvar_struct * metv,
@@ -81,7 +81,6 @@ void            csummary (cflux_struct * cf, cstate_struct * cs,
     summary_struct * summary);
 double          GetCO2 (ts_struct co2_ts, int t);
 double          GetNdep (ts_struct ndep_ts, int t);
-void            nleaching (nstate_struct * ns, nflux_struct * nf,
-    wstate_struct * ws, const double *nabr_nconc, const metvar_struct * metv);
+void nleaching (bgc_grid *grid, int numele, bgc_river *riv, int numriv);
 
 #endif

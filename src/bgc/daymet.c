@@ -39,7 +39,10 @@ void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
     metv->pa = metarr->pa[metday];
 
     for (k = 0; k < 3; k++)
+    {
         metv->latflux[k] = metarr->latflux[k][metday];
+    }
+    metv->latflux[3] = 0.0;
 
     //printf ("prcp %lf tmax %lf tmin %lf tavg %lf tday %lf tnight %lf tsoil %lf swc %lf vpd %lf swavgfd %lf par %lf dayl %lf prev_dayl %lf pa %lf\n", metv->prcp, metv->tmax, metv->tmin, metv->tavg, metv->tday, metv->tnight, metv->tsoil, metv->swc, metv->vpd, metv->swavgfd, metv->par, metv->dayl, metv->prev_dayl, metv->pa);
 }

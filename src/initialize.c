@@ -1096,7 +1096,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
     {
         sprintf (pihm->prtctrl[n].name, "%s%s.mbc", outputdir,
             simulation);
-        pihm->prtctrl[n].intvl = 3600;
+        pihm->prtctrl[n].intvl = 60;
         pihm->prtctrl[n].nvrbl = pihm->numele + pihm->numriv;
         pihm->prtctrl[n].vrbl =
             (double **)malloc (pihm->prtctrl[n].nvrbl *

@@ -68,13 +68,14 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
                 if (prtctrl[i].intvl > dt)
                 {
                     outval =
-                        prtctrl[i].buffer[j] / ((realtype)(prtctrl[i].intvl / dt));
+                        prtctrl[i].buffer[j] / ((double)(prtctrl[i].intvl / dt));
                 }
                 else
                 {
                     outval = prtctrl[i].buffer[j];
                 }
                 fwrite (&outval, sizeof (double), 1, fid);
+
                 prtctrl[i].buffer[j] = 0.0;
             }
             fflush (fid);

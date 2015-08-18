@@ -21,7 +21,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
      */
     for (i = 0; i < 3 * pihm->numele + 2 * pihm->numriv; i++)
     {
-        dy[SURF(i)] = 0.0;
+        dy[i] = 0.0;
     }
 
     for (i = 0; i < pihm->numele; i++)
@@ -409,7 +409,7 @@ void VerticalFlow (pihm_struct pihm)
             satn = 1.0;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
             effk =
-                (elem->soil.macropore == 1) ? EffKV (satkfunc, grad_y_sub,
+                (elem->soil.macropore == 1) ? EffKV (satkfunc, satn,
                 SAT_CTRL, elem->soil.kmacv, elem->soil.kinfv,
                 elem->soil.areafh) : elem->soil.kinfv;
 #ifdef _NOAH_
@@ -490,10 +490,10 @@ void VerticalFlow (pihm_struct pihm)
             satn = (satn < SATMIN) ? SATMIN : satn;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
             effk = (elem->soil.macropore == 1 &&
-                elem->gw >
-                elem->soil.depth - elem->soil.dmac) ? EffKV (satkfunc, satn,
-                elem->macpore_status, elem->soil.kmacv, elem->soil.ksatv,
-                elem->soil.areafh) : elem->soil.ksatv * satkfunc;
+                elem->gw > elem->soil.depth - elem->soil.dmac) ?
+                EffKV (satkfunc, satn, elem->macpore_status, elem->soil.kmacv,
+                elem->soil.ksatv, elem->soil.areafh) :
+                elem->soil.ksatv * satkfunc;
 
             elem->rechg =
                 (deficit <=
