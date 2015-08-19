@@ -732,7 +732,7 @@ void BgcCoupling (int t, int start_time, pihm_struct pihm, lsm_struct noah, bgc_
     struct tm      *timestamp;
     double          sfctmp;
     double          solar;
-    int             i, j, k;
+    int             i, k;
     double          dummy[MAXGRID];
     metvar_struct  *metv;
     static int      first_balance;

@@ -19,8 +19,8 @@ void canopy_et (const metvar_struct * metv, const epconst_struct * epc, epvar_st
     double          tday;
     double          tmin;
     double          dayl;
-    double          vpd, vpd_open, vpd_close;
-    double          psi, psi_open, psi_close;
+    //double          vpd, vpd_open, vpd_close;
+    //double          psi, psi_open, psi_close;
     double          m_ppfd_sun, m_ppfd_shade;
     double          m_tmin, m_psi, m_co2, m_vpd, m_final_sun, m_final_shade;
     double          proj_lai;
