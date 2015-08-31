@@ -1,47 +1,46 @@
 INIT_MODE	    0                   # Initialization type 0: Relaxation, 1: use .att file, 3: use .init file
 ASCII_OUTPUT        1                   # Write ASCII output? 0: no, 1: yes
-SPINUP_MODE	    0                   # Spin-up mode, 0: Standard model run, 1: Outputs will be written to .init files
+WRITE_IC	    0                   # Write initial condition? 0: Standard model run, 1: Outputs will be written to .init files
 UNSAT_MODE	    2
-SAT_MODE	    2
+SURF_MODE	    2
 RIV_MODE	    2
 SOLVER		    2
-GSTYPE	    	    1
-MAXK		    0
-DELTA		    0
 ABSTOL		    1E-4
 RELTOL	            1E-3
 INIT_SOLVER_STEP    5E-5
 MAX_SOLVER_STEP	    60                  # Maximum solver step (DANGER ZONE)
-LSM_STEP	    1800                # LSM (or ET) step size (unit: s)
-START		    2009-06-01 12:00
+LSM_STEP	    900	                # LSM (or ET) step size (unit: s)
+START		    2009-01-01 00:00
 END		    2010-01-01 00:00
-OUTPUT_TYPE	    0
-STEPSIZE_FACTOR	    1.0
 MODEL_STEPSIZE	    60                 # PIHM step size (unit: s)
-
 ###############################################################################
 # OUTPUT CONTROL:                                                             #
 #  All options are listed below.                                              #
 #  Use "#" to comment out the variables you do not want to output, or set     #
-#  the output interval (in minutes) to 0.                                     #
+#  the output interval (in secends) to 0.                                     #
 ###############################################################################
-GW		    3600
-SURF		    0
-SNOW		    0
-RIVSTG		    0
-RECHARGE	    0
-CMC		    0
-UNSAT		    0
-EC                  0
-ETT                 0
-EDIR		    0
-RIVFLX0             0
-RIVFLX1	    	    3600
-RIVFLX2             0
-RIVFLX3	            0
-RIVFLX4    	    0
-RIVFLX5    	    0
-RIVFLX6    	    0
-RIVFLX7    	    0
-RIVFLX8             0
-RIVFLX9    	    0
+GW		    86400
+SURF		    86400
+SNOW		    86400
+RIVSTG		    86400
+INFIL               86400
+RECHARGE	    86400
+CMC		    86400
+UNSAT		    86400
+EC                  86400
+ETT                 86400
+EDIR		    86400
+RIVFLX0             86400
+RIVFLX1	    	    86400
+RIVFLX2             86400
+RIVFLX3	            86400
+RIVFLX4    	    86400
+RIVFLX5    	    86400
+RIVFLX6    	    86400
+RIVFLX7    	    86400
+RIVFLX8             86400
+RIVFLX9    	    86400
+RIVFLX10    	    86400
+SUBFLX              86400
+SURFFLX             86400
+TOTALW              86400

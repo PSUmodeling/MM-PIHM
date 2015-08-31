@@ -2,7 +2,7 @@ TIME_DEFINE     (keyword - do not remove)
 2009            (yr)        start of spinup met year
 2009            (yr)        end of spinup met year
 1               (flag)      1 = spinup simulation, 0 = normal simulation
-1000            (int)       maximum number of spinup years (if spinup simulation)
+2000            (int)       maximum number of spinup years (if spinup simulation)
 
 CO2_CONTROL     (keyword - do not remove)
 1               (flag)    0=constant 1=vary with file
@@ -33,3 +33,12 @@ N_STATE         (keyword) start of nitrogen state variable initialization block
 0.0             (kgN/m2)  soil nitrogen, mineral pool
 
 DAILY_OUTPUT    (keyword)
+LAI             86400
+VEGC            86400
+LITRC           86400
+SOILC           86400
+TOTALC          86400
+NPP             86400
+NEP             86400
+NEE             86400
+GPP             86400

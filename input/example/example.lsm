@@ -17,7 +17,7 @@ LVCOEF_DATA	0.5
 ######################
 T1              0
 STC             0
-SMC             3600
+SMC             0
 SH2O            0
 SNOWH           0
 ALBEDO          0
@@ -25,4 +25,6 @@ LE              0
 SH              0
 G               0
 ETP             0
-ESNOW           3600
+ESNOW           0
+ROOTW           0
+SOILM           3600

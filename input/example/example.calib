@@ -19,13 +19,12 @@ SFCTMP		1.0
 EC		1.0
 ETT		1.0     
 EDIR		1.0
-ROUGH_RIV	5.0
-KRIVH		1.0
-KRIVV		1.0
+ROUGH_RIV	1.0     # 50
+KRIVH	        1.0     # 10
+KRIVV		1.0     # 50
 BEDTHCK		1.0
 RIV_DPTH	1.0
 RIV_WDTH	1.0
-
 ###############################################################################
 # LSM calibration:                                                            #
 #  Use "#" to comment out the variables if you are not using the LSM module   #
