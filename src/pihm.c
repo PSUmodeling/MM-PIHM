@@ -528,20 +528,19 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         /* Free integrator memory */
         CVodeFree (&cvode_mem);
 
+        /*
+         * Write init files
+         */
+        if (pihm->ctrl.write_ic)
+        {
+            PrtInit (pihm, simulation);
+#ifdef _NOAH_
+            LsmPrtInit (pihm, noah, simulation);
+#endif
+        }
 #ifdef _BGC_
     }
 #endif
-
-    /*
-     * Write init files
-     */
-    if (pihm->ctrl.write_ic)
-    {
-        PrtInit (pihm, simulation);
-#ifdef _NOAH_
-        LsmPrtInit (pihm, noah, simulation);
-#endif
-    }
 
 #ifdef _NOAH_
     LsmFreeData (pihm, noah);
