@@ -31,7 +31,7 @@
                                  * closure */
 #define DENITRIF_PROPORTION  0.01       /* fraction of mineralization to
                                          * volatile */
-#define MOBILEN_PROPORTION   0.1        /* fraction mineral N avail for
+#define MOBILEN_PROPORTION   0.2        /* fraction mineral N avail for
                                          * leaching */
 
 /* use this block of constants to include the dynamics for slowest soil pool

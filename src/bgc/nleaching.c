@@ -82,6 +82,8 @@ void nleaching (bgc_grid *grid, int numele, bgc_river *riv, int numriv)
             }
         }
 
+        grid[i].nf.sminn_leached = (grid[i].nf.sminn_leached < grid[i].ns.sminn) ? grid[i].nf.sminn_leached : grid[i].ns.sminn;
+
         grid[i].ns.nleached_snk += grid[i].nf.sminn_leached;
         grid[i].ns.sminn -= grid[i].nf.sminn_leached;
     }
