@@ -95,6 +95,32 @@ typedef struct forc_struct
     double         *riverbc;
 } forc_struct;
 
+typedef struct daily_struct
+{
+    double          sfctmp;
+    double          tday;
+    double          tnight;
+    double          tmax;
+    double          tmin;
+
+    double          solar;
+
+    double          surf;
+    double          unsat;
+    double          gw;
+
+    double          fluxsurf[4];
+    double          fluxsub[4];
+    double          infil;
+    double          rechg;
+
+#ifdef _NOAH_
+    double          stc;
+    double          sh2o;
+    double          albedo;
+#endif
+} daily_struct;
+
 typedef struct elem_struct
 {
     int             node[3];    /* Counterclock-wise */
@@ -104,6 +130,8 @@ typedef struct elem_struct
     soil_struct     soil;
     lc_struct       lc;
     forc_struct     forc;
+
+    daily_struct    daily;
 
     double          surf0;      /* YS: Stores surface water level of
                                  * last time step */
