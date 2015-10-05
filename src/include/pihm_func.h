@@ -133,6 +133,11 @@ double          Psi (double satn, double alpha, double beta);
 
 void            Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize);
 
+#ifndef _NOAH_
+void DailyVar (int t, int start_time, pihm_struct pihm);
+#endif
+void InitDailyStruct (daily_struct *daily);
+
 void BKInput (char *simulation, char *outputdir);
 void PihmFree (void **ptr);
 void PihmExit (int error);

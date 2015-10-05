@@ -105,6 +105,8 @@ typedef struct daily_struct
 
     double          solar;
 
+    double          sfcprs;
+
     double          surf;
     double          unsat;
     double          gw;
@@ -114,9 +116,16 @@ typedef struct daily_struct
     double          infil;
     double          rechg;
 
+    double          dayl;
+    double          prev_dayl;
+
+    int             counter;
+    int             daylight_counter;
+
 #ifdef _NOAH_
     double          stc;
     double          sh2o;
+    double          q2d;
     double          albedo;
 #endif
 } daily_struct;

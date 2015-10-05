@@ -27,6 +27,7 @@ SRCS_ = pihm.c \
 	print.c \
 	forcing.c \
 	misc_func.c \
+	daily.c \
 	update.c
 
 HEADERS_ = include/pihm.h \
