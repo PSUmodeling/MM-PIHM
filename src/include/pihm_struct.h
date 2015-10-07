@@ -211,6 +211,8 @@ typedef struct river_struct
     matl_struct     matl;
     forc_struct     forc;
 
+    daily_struct    daily;
+
     int             leftele;    /* Left neighboring element */
     int             rightele;   /* Right neighboring element */
     int             fromnode;   /* Upstream Node no. */

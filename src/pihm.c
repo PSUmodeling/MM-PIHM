@@ -456,12 +456,17 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                 PIHMxNoah (t, (double)pihm->ctrl.etstep, pihm, noah);
 
 #ifdef _BGC_
-                BgcCoupling ((int) t, (int)pihm->ctrl.starttime, pihm, noah, bgc);
+                BgcCoupling ((int)t, (int)pihm->ctrl.starttime, pihm, noah, bgc);
 #endif
 #else
                 /* Calculate Interception storage and ET */
                 IntcpSnowET (t, (double)pihm->ctrl.etstep, pihm);
 #endif
+            }
+
+            if ((t - pihm->ctrl.starttime) % 86400 == 0)
+            {
+                InitDailyStruct (pihm);
             }
 
             solvert = (realtype)t;
@@ -497,9 +502,17 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
              * Use mass balance to calculate model fluxes or variables
              */
             Summary (pihm, CV_Y, (double) pihm->ctrl.stepsize);
+
 #ifdef _NOAH_
             AvgFlux (noah, pihm);
 #endif
+
+#ifdef _NOAH_
+            DailyVar (t, pihm->ctrl.starttime, pihm, noah);
+#else
+            DailyVar (t, pihm->ctrl.starttime, pihm);
+#endif
+
 #ifdef _RT_
             /* PIHM-rt control file */
             fluxtrans (t / 60.0, StepSize / 60.0, mData, chData, CV_Y);

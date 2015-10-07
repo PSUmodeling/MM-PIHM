@@ -12,6 +12,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 {
     daily_struct   *daily;
     elem_struct    *elem;
+    river_struct   *riv;
 #ifdef _NOAH_
     grid_struct    *grid;
 #endif
@@ -25,6 +26,10 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
     spa_data        spa;
     int             spa_result;
 
+    /*
+     * Cumulates daily variables
+     */
+    /* Triangular grids */
     for (i = 0; i < pihm->numele; i++)
     {
         daily = &pihm->elem[i].daily;
@@ -32,14 +37,6 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 #ifdef _NOAH_
         grid = &noah->grid[i];
 #endif
-
-        /* Initialize daily structure at the beginning of simulation */
-        if (t == start_time)
-        {
-            InitDailyStruct (daily);
-        }
-
-        /* Calculate daily variables */
         /* Air temperature */
         sfctmp = *elem->forc.meteo[SFCTMP_TS];
         daily->tmax = (daily->tmax > sfctmp) ? daily->tmax : sfctmp;
@@ -89,6 +86,32 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         {
             daily->tnight += sfctmp;
         }
+
+        (daily->counter)++;
+    }
+
+    /* River segments */
+    for (i = 0; i < pihm->numriv; i++)
+    {
+        daily = &pihm->riv[i].daily;
+        riv = &pihm->riv[i];
+
+        /* Water storage terms */
+        daily->surf += riv->stage;
+        daily->gw += riv->gw;
+
+        /* Lateral flux */
+        daily->fluxsub[0] += riv->fluxriv[0];
+        daily->fluxsurf[0] += riv->fluxriv[10];
+
+        daily->fluxsub[1] += riv->fluxriv[1];
+        daily->fluxsurf[1] += riv->fluxriv[9];
+
+        daily->fluxsub[2] += riv->fluxriv[2];
+        daily->fluxsurf[2] += riv->fluxriv[4] + riv->fluxriv[7];
+
+        daily->fluxsub[3] += riv->fluxriv[3];
+        daily->fluxsurf[3] += riv->fluxriv[5] + riv->fluxriv[8];
 
         (daily->counter)++;
     }
@@ -172,30 +195,77 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 
             daily->tnight /= (double)(daily->counter - daily->daylight_counter);
         }
+
+        for (i = 0; i < pihm->numriv; i++)
+        {
+            daily = &(pihm->riv[i].daily);
+
+            daily->surf /= (double)daily->counter;
+            daily->gw /= (double)daily->counter;
+
+            for (k = 0; k < 4; k++)
+            {
+                daily->fluxsub[k] /= (double)daily->counter;
+                daily->fluxsurf[k] /= (double)daily->counter;
+            }
+        }
     }
 }
 
-void InitDailyStruct (daily_struct *daily)
+void InitDailyStruct (pihm_struct pihm)
 {
-    int             k;
-    daily->counter = 0;
-    daily->daylight_counter = 0;
+    int             i, k;
+    daily_struct   *daily;
 
-#ifdef _NOAH_
-    daily->tmax = -999.0;
-    daily->tmin = 999.0;
-    daily->sfctmp = 0.0;
-    daily->stc = 0.0;
-    daily->sh2o = 0.0;
-    daily->tday = 0.0;
-    daily->tnight = 0.0;
-    daily->q2d = 0.0;
-    daily->sfcprs = 0.0;
-    daily->solar = 0.0;
-#endif
-    for (k = 0; k < 4; k++)
+    for (i = 0; i < pihm->numele; i++)
     {
-        daily->fluxsurf[k] = 0.0;
-        daily->fluxsub[k] = 0.0;
+        daily = &pihm->elem[i].daily;
+
+        daily->counter = 0;
+        daily->daylight_counter = 0;
+
+        daily->tmax = -999.0;
+        daily->tmin = 999.0;
+        daily->sfctmp = 0.0;
+        daily->tday = 0.0;
+        daily->tnight = 0.0;
+        daily->solar = 0.0;
+#ifdef _NOAH_
+        daily->stc = 0.0;
+        daily->sh2o = 0.0;
+        daily->q2d = 0.0;
+        daily->sfcprs = 0.0;
+#endif
+        for (k = 0; k < 4; k++)
+        {
+            daily->fluxsurf[k] = 0.0;
+            daily->fluxsub[k] = 0.0;
+        }
+    }
+
+    for (i = 0; i < pihm->numriv; i++)
+    {
+        daily = &pihm->riv[i].daily;
+
+        daily->counter = 0;
+        daily->daylight_counter = 0;
+
+        daily->tmax = -999.0;
+        daily->tmin = 999.0;
+        daily->sfctmp = 0.0;
+        daily->tday = 0.0;
+        daily->tnight = 0.0;
+        daily->solar = 0.0;
+#ifdef _NOAH_
+        daily->stc = 0.0;
+        daily->sh2o = 0.0;
+        daily->q2d = 0.0;
+        daily->sfcprs = 0.0;
+#endif
+        for (k = 0; k < 4; k++)
+        {
+            daily->fluxsurf[k] = 0.0;
+            daily->fluxsub[k] = 0.0;
+        }
     }
 }

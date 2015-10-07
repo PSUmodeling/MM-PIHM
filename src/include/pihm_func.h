@@ -136,7 +136,7 @@ void            Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize);
 #ifndef _NOAH_
 void DailyVar (int t, int start_time, pihm_struct pihm);
 #endif
-void InitDailyStruct (daily_struct *daily);
+void InitDailyStruct (pihm_struct pihm);
 
 void BKInput (char *simulation, char *outputdir);
 void PihmFree (void **ptr);
