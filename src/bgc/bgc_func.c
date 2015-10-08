@@ -720,8 +720,8 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
             fread (&(bgc->grid[i].restart_input), sizeof (restart_data_struct), 1, init_file);
             restart_input (&bgc->grid[i].ws, &bgc->grid[i].cs, &bgc->grid[i].ns, &bgc->grid[i].epv, &bgc->grid[i].restart_input);
 
-            noah->grid[i].xlai = bgc->grid[i].cs.leafc * bgc->grid[i].epc.avg_proj_sla;
-            noah->grid[i].cmcmax = noah->grid[i].cmcfactr * noah->grid[i].xlai;
+            /* Calculate LAI for the coupling with Noah */
+            bgc->grid[i].epv.proj_lai = bgc->grid[i].cs.leafc * bgc->grid[i].epc.avg_proj_sla;
         }
 
         for (i = 0; i < pihm->numriv; i++)
@@ -749,13 +749,27 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
     }
 }
 
-void Bgc2Noah (pihm_struct pihm, lsm_struct noah, bgc_struct bgc)
+void Bgc2Noah (int t, pihm_struct pihm, lsm_struct noah, bgc_struct bgc)
 {
     int             i;
 
     for (i = 0; i < pihm->numele; i++)
     {
-        noah->grid[i].xlai = bgc->grid[i].epv.proj_lai;
+        if (!bgc->ctrl.spinup)
+        {
+            noah->grid[i].xlai = bgc->grid[i].epv.proj_lai;
+        }
+        else
+        {
+            if (pihm->elem[i].forc.lai_type > 0)
+            {
+                noah->grid[i].xlai = *pihm->elem[i].forc.lai;
+            }
+            else
+            {
+                noah->grid[i].xlai = MonthlyLAI (t, pihm->elem[i].lc.type);
+            }
+        }
     }
 }
 

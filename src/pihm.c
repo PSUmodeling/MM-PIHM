@@ -443,6 +443,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         /* Determine if land surface simulation is needed */
         if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
         {
+#ifdef _BGC_
+            Bgc2Noah (t, pihm, noah, bgc);
+#endif
 #ifdef _NOAH_
             /* Calculate surface energy balance */
             PIHMxNoah (t, (double)pihm->ctrl.etstep, pihm, noah);

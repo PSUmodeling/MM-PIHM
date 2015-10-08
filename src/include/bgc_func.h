@@ -12,7 +12,7 @@ void            BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm,
     lsm_struct noah);
 void            BgcCoupling (int t, int start_time, pihm_struct pihm,
     lsm_struct noah, bgc_struct bgc);
-void            Bgc2Noah (pihm_struct pihm, lsm_struct noah, bgc_struct bgc);
+void            Bgc2Noah (int t, pihm_struct pihm, lsm_struct noah, bgc_struct bgc);
 void            DailyBgc (bgc_struct bgc, int numele, int numriv, const double t,
     const double *naddfrac, int first_balance);
 
