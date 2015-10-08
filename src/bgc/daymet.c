@@ -2,7 +2,15 @@
 
 void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
 {
-    int k;
+    int             k;
+
+    if (metarr->flag[metday] == 0)
+    {
+        printf ("ERROR: BGC forcing of the %dth day is not available!\n", metday + 1);
+        fflush (stdout);
+        PihmExit (1);
+    }
+
     /* convert prcp from cm --> kg/m2 */
     metv->prcp = metarr->prcp[metday];
 

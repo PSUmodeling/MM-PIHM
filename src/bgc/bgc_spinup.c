@@ -10,10 +10,7 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
     char            restart_fn[MAXSTRING];
     int             i, j, k;
     struct tm      *timestamp;
-    time_t          rawtime;
     int             metyr;
-    int             spinup_starttime;
-    int             spinup_endtime;
     int             t;
     int             first_balance = 1;
     int             metyears;
@@ -45,29 +42,7 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
 
     naddfrac = (double *)malloc (pihm->numele * sizeof (double));
 
-    printf ("\n\nRunning BGC model in spin-up mode using prescribed "
-        "soil moisture and soil temperature\n");
-    printf ("PIHM is not running.\n");
-
-    timestamp->tm_year = bgc->ctrl.spinupstart;
-    timestamp->tm_mon = 1;
-    timestamp->tm_mday = 1;
-    timestamp->tm_hour = 0;
-    timestamp->tm_min = 0;
-    timestamp->tm_sec = 0;
-    timestamp->tm_year = timestamp->tm_year - 1900;
-    timestamp->tm_mon = timestamp->tm_mon - 1;
-    rawtime = timegm (timestamp);
-    spinup_starttime = (int)rawtime;
-
-    timestamp->tm_year = bgc->ctrl.spinupend + 1;
-    timestamp->tm_year = timestamp->tm_year - 1900;
-    rawtime = timegm (timestamp);
-    spinup_endtime = (int)rawtime;
-
-    metarr_init (bgc, pihm, noah, spinup_starttime, spinup_endtime);
-
-    metyears = bgc->ctrl.spinupend - bgc->ctrl.spinupstart + 1;
+    metyears = bgc->ctrl.spinupendyear - bgc->ctrl.spinupstartyear + 1;
     metyr = 0;
 
     spinyears = 0;
@@ -101,10 +76,9 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
 
         printf ("Year: %6d\n", spinyears);
 
-        for (j = 0; j < (spinup_endtime - spinup_starttime) / 24 / 3600; j++)
+        for (j = 0; j < (bgc->ctrl.spinupend - bgc->ctrl.spinupstart) / 24 / 3600; j++)
         {
-            t = spinup_starttime + j * 24 * 3600;
-            rawtime = t;
+            t = bgc->ctrl.spinupstart + j * 24 * 3600;
 
             for (i = 0; i < pihm->numele; i++)
             {

@@ -175,7 +175,9 @@ void PIHMxNoah (int t, double stepsize, pihm_struct pihm, lsm_struct noah)
 
         grid->shdfac = pihm->elem[i].lc.vegfrac;
 
-#ifndef _BGC_
+//#ifndef _BGC_
+        /* When BGC module is turned on, LAI is determined in another
+         * subroutine */
         if (pihm->elem[i].forc.lai_type > 0)
         {
             grid->xlai = *pihm->elem[i].forc.lai;
@@ -184,7 +186,7 @@ void PIHMxNoah (int t, double stepsize, pihm_struct pihm, lsm_struct noah)
         {
             grid->xlai = MonthlyLAI (t, pihm->elem[i].lc.type);
         }
-#endif
+//#endif
 
         grid->cmcmax = grid->cmcfactr * grid->xlai;
 

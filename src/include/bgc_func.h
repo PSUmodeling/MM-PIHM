@@ -12,13 +12,14 @@ void            BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm,
     lsm_struct noah);
 void            BgcCoupling (int t, int start_time, pihm_struct pihm,
     lsm_struct noah, bgc_struct bgc);
+void            Bgc2Noah (pihm_struct pihm, lsm_struct noah, bgc_struct bgc);
 void            DailyBgc (bgc_struct bgc, int numele, int numriv, const double t,
     const double *naddfrac, int first_balance);
 
 void            daymet (const metarr_struct * metarr, metvar_struct * metv,
     int metday);
-void            metarr_init (bgc_struct bgc, pihm_struct pihm,
-    lsm_struct noah, int start_time, int end_time);
+void            metarr_init (bgc_struct bgc, pihm_struct pihm, int start_time, int end_time);
+void            pihm2metarr (bgc_struct bgc, pihm_struct pihm, int t, int start_time, int end_time);
 
 void            presim_state_init (wstate_struct * ws, cstate_struct * cs,
     nstate_struct * ns, cinit_struct * cinit);

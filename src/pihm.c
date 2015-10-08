@@ -416,144 +416,149 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #endif
     }
 
+    if (verbose_mode)
+    {
+        printf ("\n\nSolving ODE system ... \n\n");
+    }
+
+    /* Set solver parameters */
+    flag = CVodeSetFdata (cvode_mem, pihm);
+    flag = CVodeSetInitStep (cvode_mem, (realtype)pihm->ctrl.initstep);
+    flag = CVodeSetStabLimDet (cvode_mem, TRUE);
+    flag = CVodeSetMaxStep (cvode_mem, (realtype)pihm->ctrl.maxstep);
+    flag = CVodeMalloc (cvode_mem, f, (realtype)pihm->ctrl.starttime,
+        CV_Y, CV_SS, (realtype)pihm->ctrl.reltol, &pihm->ctrl.abstol);
+    flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
+
+    /* Start solver in loops */
+    for (i = 0; i < pihm->ctrl.nstep; i++)
+    {
+        /* Determine current step and next step */
+        t = pihm->ctrl.tout[i];
+        nextptr = pihm->ctrl.tout[i + 1];
+
+        /* Apply forcing */
+        ApplyForcing (&pihm->forcing, t);
+
+        /* Determine if land surface simulation is needed */
+        if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
+        {
+#ifdef _NOAH_
+            /* Calculate surface energy balance */
+            PIHMxNoah (t, (double)pihm->ctrl.etstep, pihm, noah);
+
+//#ifdef _BGC_
+//            BgcCoupling ((int)t, (int)pihm->ctrl.starttime, pihm, noah, bgc);
+//#endif
+#else
+            /* Calculate Interception storage and ET */
+            IntcpSnowET (t, (double)pihm->ctrl.etstep, pihm);
+#endif
+        }
+
+        solvert = (realtype)t;
+        flag = CVodeSetMaxNumSteps (cvode_mem,
+            (long int)(pihm->ctrl.stepsize * 20));
+        flag = CVodeSetStopTime (cvode_mem, (realtype)nextptr);
+        flag = CVode (cvode_mem, (realtype)nextptr, CV_Y, &solvert,
+            CV_NORMAL_TSTOP);
+        flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
+
+        t = (int)solvert;
+        rawtime = (time_t)t;
+        timestamp = gmtime (&rawtime);
+
+        if (verbose_mode)
+        {
+            printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
+                timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+                timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min,
+                t);
+        }
+#ifndef _ENKF_
+        else if (rawtime % 3600 == 0)
+        {
+            printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
+                timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+                timestamp->tm_mday, timestamp->tm_hour,
+                timestamp->tm_min);
+        }
+#endif
+
+        /*
+         * Use mass balance to calculate model fluxes or variables
+         */
+        Summary (pihm, CV_Y, (double) pihm->ctrl.stepsize);
+
+#ifdef _NOAH_
+        AvgFlux (noah, pihm);
+#endif
+
+#ifdef _NOAH_
+        DailyVar (t, pihm->ctrl.starttime, pihm, noah);
+#else
+        DailyVar (t, pihm->ctrl.starttime, pihm);
+#endif
+
+#ifdef _RT_
+        /* PIHM-rt control file */
+        fluxtrans (t / 60.0, StepSize / 60.0, mData, chData, CV_Y);
+#endif
+
+        /*
+         * Print outputs
+         */
+        PrintData (pihm->prtctrl, pihm->ctrl.nprint, t,
+            t - pihm->ctrl.starttime, pihm->ctrl.stepsize,
+            pihm->ctrl.ascii);
+#ifdef _NOAH_
+        PrintData (noah->prtctrl, noah->nprint, t,
+            t - pihm->ctrl.starttime, pihm->ctrl.stepsize,
+            pihm->ctrl.ascii);
+#endif
+#ifdef _RT_
+        /* PIHM-rt output routine */
+        PrintChem (filename, chData, t / 60);
+#endif
+
+        if ((t - pihm->ctrl.starttime) % 86400 == 0)
+        {
+#ifdef _BGC_
+            if (bgc->ctrl.spinup)
+            {
+                pihm2metarr (bgc, pihm, t, bgc->ctrl.spinupstart, bgc->ctrl.spinupend);
+            }
+            else
+            {
+            }
+#endif
+            InitDailyStruct (pihm);
+        }
+    }
+
 #ifdef _BGC_
     if (bgc->ctrl.spinup == 1)
     {
         BgcSpinup (simulation, bgc, pihm, noah);
     }
-    else
+#endif
+
+    /* Free memory */
+    N_VDestroy_Serial (CV_Y);
+
+    /* Free integrator memory */
+    CVodeFree (&cvode_mem);
+
+    /*
+     * Write init files
+     */
+    if (pihm->ctrl.write_ic)
     {
-#endif
-        if (verbose_mode)
-        {
-            printf ("\n\nSolving ODE system ... \n\n");
-        }
-
-        /* Set solver parameters */
-        flag = CVodeSetFdata (cvode_mem, pihm);
-        flag = CVodeSetInitStep (cvode_mem, (realtype)pihm->ctrl.initstep);
-        flag = CVodeSetStabLimDet (cvode_mem, TRUE);
-        flag = CVodeSetMaxStep (cvode_mem, (realtype)pihm->ctrl.maxstep);
-        flag = CVodeMalloc (cvode_mem, f, (realtype)pihm->ctrl.starttime,
-            CV_Y, CV_SS, (realtype)pihm->ctrl.reltol, &pihm->ctrl.abstol);
-        flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
-
-        /* Start solver in loops */
-        for (i = 0; i < pihm->ctrl.nstep; i++)
-        {
-            /* Determine current step and next step */
-            t = pihm->ctrl.tout[i];
-            nextptr = pihm->ctrl.tout[i + 1];
-
-            /* Apply forcing */
-            ApplyForcing (&pihm->forcing, t);
-
-            /* Determine if land surface simulation is needed */
-            if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
-            {
+        PrtInit (pihm, simulation);
 #ifdef _NOAH_
-                /* Calculate surface energy balance */
-                PIHMxNoah (t, (double)pihm->ctrl.etstep, pihm, noah);
-
-#ifdef _BGC_
-                BgcCoupling ((int)t, (int)pihm->ctrl.starttime, pihm, noah, bgc);
+        LsmPrtInit (pihm, noah, simulation);
 #endif
-#else
-                /* Calculate Interception storage and ET */
-                IntcpSnowET (t, (double)pihm->ctrl.etstep, pihm);
-#endif
-            }
-
-            if ((t - pihm->ctrl.starttime) % 86400 == 0)
-            {
-                InitDailyStruct (pihm);
-            }
-
-            solvert = (realtype)t;
-            flag = CVodeSetMaxNumSteps (cvode_mem,
-                (long int)(pihm->ctrl.stepsize * 20));
-            flag = CVodeSetStopTime (cvode_mem, (realtype)nextptr);
-            flag = CVode (cvode_mem, (realtype)nextptr, CV_Y, &solvert,
-                CV_NORMAL_TSTOP);
-            flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
-
-            t = (int)solvert;
-            rawtime = (time_t)t;
-            timestamp = gmtime (&rawtime);
-
-            if (verbose_mode)
-            {
-                printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
-                    timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-                    timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min,
-                    t);
-            }
-#ifndef _ENKF_
-            else if (rawtime % 3600 == 0)
-            {
-                printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
-                    timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-                    timestamp->tm_mday, timestamp->tm_hour,
-                    timestamp->tm_min);
-            }
-#endif
-
-            /*
-             * Use mass balance to calculate model fluxes or variables
-             */
-            Summary (pihm, CV_Y, (double) pihm->ctrl.stepsize);
-
-#ifdef _NOAH_
-            AvgFlux (noah, pihm);
-#endif
-
-#ifdef _NOAH_
-            DailyVar (t, pihm->ctrl.starttime, pihm, noah);
-#else
-            DailyVar (t, pihm->ctrl.starttime, pihm);
-#endif
-
-#ifdef _RT_
-            /* PIHM-rt control file */
-            fluxtrans (t / 60.0, StepSize / 60.0, mData, chData, CV_Y);
-#endif
-
-            /*
-             * Print outputs
-             */
-            PrintData (pihm->prtctrl, pihm->ctrl.nprint, t,
-                t - pihm->ctrl.starttime, pihm->ctrl.stepsize,
-                pihm->ctrl.ascii);
-#ifdef _NOAH_
-            PrintData (noah->prtctrl, noah->nprint, t,
-                t - pihm->ctrl.starttime, pihm->ctrl.stepsize,
-                pihm->ctrl.ascii);
-#endif
-#ifdef _RT_
-            /* PIHM-rt output routine */
-            PrintChem (filename, chData, t / 60);
-#endif
-        }
-
-        /* Free memory */
-        N_VDestroy_Serial (CV_Y);
-
-        /* Free integrator memory */
-        CVodeFree (&cvode_mem);
-
-        /*
-         * Write init files
-         */
-        if (pihm->ctrl.write_ic)
-        {
-            PrtInit (pihm, simulation);
-#ifdef _NOAH_
-            LsmPrtInit (pihm, noah, simulation);
-#endif
-        }
-#ifdef _BGC_
     }
-#endif
 
 #ifdef _NOAH_
     LsmFreeData (pihm, noah);

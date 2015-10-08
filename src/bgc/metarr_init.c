@@ -1,71 +1,16 @@
 #include "bgc.h"
 
-void metarr_init (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_time, int end_time)
+void metarr_init (bgc_struct bgc, pihm_struct pihm, int start_time, int end_time)
 {
     /*
      * Generate meteorological forcing array for spin-up
      */
-    double          sfctmp;
-    double          solar;
-    double          dayl, prev_dayl;
-    double          rh;
-    metarr_struct  *metarr;
-    double       ***met_forcing;
-    double       ***radn_forcing;
-    int             hour;
-    double          t;
     int             i, j, k;
     int             length;
-    int             daylight_counter;
-    spa_data        spa;
-    int             spa_result;
-    time_t          rawtime;
-    struct tm      *timestamp;
-    double         *swc;
-    double         *stc;
-    double         *totalw;
-    double         *subflux[3];
-    double         *surfflux[3];
-    double         *rivflux[10];
-    double          es;
-    double          pres;
-    double          temp;
-    int             ind;
 
-    printf ("Initialize meteorological forcing array for model spin-up ...\n");
+    printf ("Initialize meteorological forcing array...\n");
 
     length = (end_time - start_time) / 24 / 3600;
-
-    swc = (double *)malloc (pihm->numele * sizeof (double));
-    stc = (double *)malloc (pihm->numele * sizeof (double));
-    totalw = (double *)malloc ((pihm->numele + pihm->numriv) * sizeof (double));
-
-    for (k = 0; k < 3; k++)
-    {
-        subflux[k] = (double *)malloc (pihm->numele * sizeof (double));
-        surfflux[k] = (double *)malloc (pihm->numele * sizeof (double));
-    }
-
-    for (k = 0; k < 10; k++)
-    {
-        rivflux[k] = (double *)malloc (pihm->numriv * sizeof (double));
-    }
-
-    met_forcing = (double ***)malloc (pihm->forcing.nts[METEO_TS] * sizeof (double **));
-    radn_forcing = (double ***)malloc (pihm->forcing.nts[METEO_TS] * sizeof (double **));
-
-    for (j = 0; j < pihm->forcing.nts[METEO_TS]; j++)
-    {
-        met_forcing[j] = (double **)malloc (24 * sizeof (double *));
-        radn_forcing[j] = (double **)malloc (24 * sizeof (double *));
-
-        for (hour = 0; hour < 24; hour++)
-        {
-            met_forcing[j][hour] = (double *)malloc (NUM_METEO_TS * sizeof (double));
-            radn_forcing[j][hour] = (double *)malloc (4 * sizeof (double));
-        }
-    }
-
 
     for (i = 0; i < pihm->numele; i++)
     {
@@ -85,262 +30,100 @@ void metarr_init (bgc_struct bgc, pihm_struct pihm, lsm_struct noah, int start_t
         bgc->grid[i].metarr.swc = (double *)malloc (length * sizeof (double));
         bgc->grid[i].metarr.pa = (double *)malloc (length * sizeof (double));
         bgc->grid[i].metarr.soilw = (double *)malloc (length * sizeof (double));
-        for (j = 0; j < 4; j++)
+        bgc->grid[i].metarr.flag = (int *)malloc (length * sizeof (int));
+        for (k = 0; k < 4; k++)
         {
-            bgc->grid[i].metarr.latflux[j] = (double *)malloc (length * sizeof (double));
+            bgc->grid[i].metarr.latflux[k] = (double *)malloc (length * sizeof (double));
+        }
+
+        for (j = 0; j < length; j++)
+        {
+            bgc->grid[i].metarr.flag[j] = 0;
         }
     }
 
     for (i = 0; i < pihm->numriv; i++)
     {
+        bgc->riv[i].metarr.flag = (int *)malloc (length * sizeof (int));
         bgc->riv[i].metarr.soilw = (double *)malloc (length * sizeof (double));
 
-        for (j = 0; j < 4; j++)
+        for (k = 0; k < 4; k++)
         {
-            bgc->riv[i].metarr.latflux[j] = (double *)malloc (length * sizeof (double));
+            bgc->riv[i].metarr.latflux[k] = (double *)malloc (length * sizeof (double));
+        }
+
+        for (j = 0; j < length; j++)
+        {
+            bgc->riv[i].metarr.flag[j] = 0;
         }
     }
+}
 
-    for (j = 0; j < length; j++)
+void pihm2metarr (bgc_struct bgc, pihm_struct pihm, int t, int start_time, int end_time)
+{
+    int             i, k;
+    int             ind;
+    metarr_struct  *metarr;
+    daily_struct   *daily;
+
+    if (t > start_time)
     {
-        t = start_time + j * 24 * 3600;
-        rawtime = t;
-        timestamp = gmtime (&rawtime);
-        spa.year = timestamp->tm_year + 1900;
-        spa.month = timestamp->tm_mon + 1;
-        spa.day = timestamp->tm_mday;
-        spa.hour = timestamp->tm_hour;
-        spa.minute = timestamp->tm_min;
-        spa.second = timestamp->tm_sec;
-
-        spa.timezone = 0;
-        spa.delta_t = 67;
-        spa.delta_ut1 = 0;
-        spa.atmos_refract = 0.5667;
-
-        spa.longitude = bgc->grid[0].sitec.lon;
-        spa.latitude = bgc->grid[0].sitec.lat;
-        spa.elevation = 0.0;
-        for (i = 0; i < pihm->numele; i++)
-        {
-            spa.elevation += pihm->elem[i].topo.zmax;
-        }
-        spa.elevation /= (double) pihm->numele;
-        /*
-         * Calculate surface pressure based on FAO 1998 method (Narasimhan 2002) 
-         */
-        spa.pressure = 1013.25 * pow ((293.0 - 0.0065 * spa.elevation) / 293.0, 5.26);
-        spa.temperature = noah->genprmt.tbot_data;
-
-        spa.function = SPA_ZA_RTS;
-        spa_result = spa_calculate (&spa);
-
-        /* daylength (s) */
-        dayl = (spa.sunset - spa.sunrise) * 3600.0;
-        dayl = (dayl < 0.0) ? (dayl + 24.0 * 3600.0) : dayl;
-
-        if (j == 0)
-        {
-            rawtime = rawtime - 24 * 3600;
-            timestamp = gmtime (&rawtime);
-            spa.year = timestamp->tm_year + 1900;
-            spa.month = timestamp->tm_mon + 1;
-            spa.day = timestamp->tm_mday;
-            spa.hour = timestamp->tm_hour;
-            spa.minute = timestamp->tm_min;
-            spa.second = timestamp->tm_sec;
-            spa_result = spa_calculate (&spa);
-            prev_dayl = (spa.sunset - spa.sunrise) * 3600.0;
-            prev_dayl = (prev_dayl < 0.0) ? (prev_dayl + 12.0 * 3600.0) : prev_dayl;
-        }
-
-        for (hour = 0; hour < 24; hour++)
-        {
-            for (k = 0; k < pihm->forcing.nts[METEO_TS]; k++)
-            {
-                IntrplForcing (pihm->forcing.ts[METEO_TS][k], t + hour * 3600, NUM_METEO_TS, &met_forcing[k][hour][0]);
-            }
-
-            if (noah->rad_mode > 0)
-            {
-                rawtime = t + hour * 3600;
-                timestamp = gmtime (&rawtime);
-                spa.year = timestamp->tm_year + 1900;
-                spa.month = timestamp->tm_mon + 1;
-                spa.day = timestamp->tm_mday;
-                spa.hour = timestamp->tm_hour;
-                spa.minute = timestamp->tm_min;
-                spa.second = timestamp->tm_sec;
-                spa.function = SPA_ZA;
-                spa_result = spa_calculate (&spa);
-
-                if (spa_result != 0)
-                {
-                    printf ("SPA Error Code: %d\n", spa_result);
-                    exit (0);
-                }
-                spa.azimuth180 = mod ((360.0 + spa.azimuth180), 360.0);
-
-                for (k = 0; k < pihm->forcing.nts[METEO_TS]; k++)
-                {
-                    IntrplForcing (noah->forcing.ts[k], t + hour * 3600, 2, &radn_forcing[k][hour][0]);
-                    radn_forcing[k][hour][3] = spa.azimuth180;
-                    radn_forcing[k][hour][2] = spa.zenith;
-                }
-            }
-        }
-
-        IntrplForcing (bgc->forcing.ts[SWC_TS][0], t + 24 * 3600, pihm->numele, &swc[0]);
-        IntrplForcing (bgc->forcing.ts[STC_TS][0], t + 24 * 3600, pihm->numele, &stc[0]);
-        IntrplForcing (bgc->forcing.ts[TOTALW_TS][0], t + 24 * 3600, pihm->numele + pihm->numriv, &totalw[0]);
-        for (k = 0; k < 3; k++)
-        {
-            IntrplForcing (bgc->forcing.ts[SUBFLX_TS][k], t + 24 * 3600, pihm->numele, &subflux[k][0]);
-            IntrplForcing (bgc->forcing.ts[SURFFLX_TS][k], t + 24 * 3600, pihm->numele, &surfflux[k][0]);
-        }
-        for (k = 0; k < 11; k++)
-        {
-            IntrplForcing (bgc->forcing.ts[RIVFLX_TS][k], t + 24 * 3600, pihm->numriv, &rivflux[k][0]);
-        }
+        ind = (t - start_time) / 24 / 3600 - 1; /* t is already the end of day */
 
         for (i = 0; i < pihm->numele; i++)
         {
-            ind = pihm->attrib_tbl.meteo[i] - 1;
-
             metarr = &(bgc->grid[i].metarr);
-            metarr->dayl[j] = dayl;
-            if (j == 0)
-            {
-                metarr->prev_dayl[j] = prev_dayl;
-            }
-            else
-            {
-                metarr->prev_dayl[j] = metarr->dayl[j - 1];
-            }
+            daily = &(pihm->elem[i].daily);
 
-            metarr->prcp[j] = 0.0;
-            metarr->tmax[j] = -999.0;
-            metarr->tmin[j] = 999.0;
-            metarr->tavg[j] = 0.0;
-            metarr->tday[j] = 0.0;
-            metarr->tnight[j] = 0.0;
-            metarr->vpd[j] = 0.0;
-            metarr->q2d[j] = 0.0;
-            metarr->swavgfd[j] = 0.0;
-            metarr->par[j] = 0.0;
-            metarr->pa[j] = 0.0;
-            rh = 0.0;
-            daylight_counter = 0;
+            metarr->dayl[ind] = daily->dayl;
+            metarr->prev_dayl[ind] = daily->prev_dayl;
 
-            for (hour = 0; hour < 24; hour++)
-            {
-                metarr->prcp[j] += met_forcing[ind][hour][PRCP_TS] * 3600.0;    /* Convert from kg m-2 s-1 to kg m-2 */
-                sfctmp = met_forcing[ind][hour][SFCTMP_TS] - 273.15;
-                metarr->tmax[j] = (sfctmp > metarr->tmax[j]) ? sfctmp : metarr->tmax[j];
-                metarr->tmin[j] = (sfctmp < metarr->tmin[j]) ? sfctmp : metarr->tmin[j];
-                metarr->tavg[j] += sfctmp;
-                if (noah->rad_mode > 0)
-                {
-                    solar = TopoRadiation (radn_forcing[ind][hour][0], radn_forcing[ind][hour][1], radn_forcing[ind][hour][2], radn_forcing[ind][hour][3], noah->grid[i].slope, noah->grid[i].aspect, noah->grid[i].h_phi, noah->grid[i].svf);
-                }
-                else
-                {
-                    solar = met_forcing[ind][hour][SOLAR_TS];
-                }
+            metarr->tmax[ind] = daily->tmax - 273.15;
+            metarr->tmin[ind] = daily->tmin - 273.15;
+            metarr->tavg[ind] = daily->sfctmp - 273.15;
+            metarr->tday[ind] = daily->tday - 273.15;
+            metarr->tnight[ind] = daily->tnight - 273.15;
 
-                if (solar > 1.0)
-                {
-                    metarr->tday[j] += sfctmp;
-                    rh = met_forcing[ind][hour][RH_TS] / 100.;
-                    metarr->vpd[j] += (1.0 - rh) * 611.2 * exp (17.67 * sfctmp / (sfctmp + 243.5));
-                    es = 611.2 * exp (17.67 * sfctmp / (sfctmp + 243.5));
-                    pres = met_forcing[ind][hour][PRES_TS];
-                    metarr->q2d[j] += (0.622 * es) / (pres - (1.0 - 0.622) * es) - (0.622 * es * rh) / (pres - (1.0 - 0.622) * es * rh);
-                    metarr->pa[j] += met_forcing[ind][hour][PRES_TS];
-                    metarr->swavgfd[j] += solar;
-                    daylight_counter++;
-                }
-                else
-                {
-                    metarr->tnight[j] += sfctmp;
-                }
-            }
+            metarr->q2d[ind] = daily->q2d;
+            metarr->pa[ind] = daily->sfcprs;
+            metarr->swavgfd[ind] = daily->solar;
+            metarr->par[ind] = metarr->swavgfd[ind] * RAD2PAR;
 
-            metarr->tavg[j] /= 24.0;
-            metarr->tday[j] /= (double) daylight_counter;
-            metarr->tnight[j] /= (24.0 - (double) daylight_counter);
-            metarr->vpd[j] /= (double) daylight_counter;
-            metarr->q2d[j] /= (double) daylight_counter;
-            metarr->pa[j] /= (double) daylight_counter;
-            metarr->swavgfd[j] /= (double) daylight_counter;
+            metarr->tsoil[ind] = daily->stc - 273.15;
+            metarr->swc[ind] = daily->sh2o;
+            metarr->soilw[ind] = (daily->surf
+                + daily->unsat * pihm->elem[i].soil.porosity
+                + daily->gw * pihm->elem[i].soil.porosity)
+                * 1000.0;
 
-            metarr->par[j] = metarr->swavgfd[j] * RAD2PAR;
-
-            metarr->tsoil[j] = stc[i] - 273.15;
-            metarr->swc[j] = swc[i];
-            metarr->soilw[j] = totalw[i] * 1000.0;
             for (k = 0; k < 3; k++)
             {
                 /* Convert from m3/s to kg/m2/d */
-                metarr->latflux[k][j] = 1000.0 * (subflux[k][i] + surfflux[k][i]) * 24.0 * 3600.0 / pihm->elem[i].topo.area;
+                metarr->latflux[k][ind] = 1000.0
+                    * (daily->fluxsub[k] + daily->fluxsurf[k])
+                    * 24.0 * 3600.0 / pihm->elem[i].topo.area;
             }
-            metarr->latflux[3][j] = 0.0;
+            metarr->latflux[3][ind] = 0.0;
+
+            metarr->flag[ind] = 1;
         }
 
         for (i = 0; i < pihm->numriv; i++)
         {
             metarr = &(bgc->riv[i].metarr);
+            daily = &(pihm->riv[i].daily);
 
-            metarr->soilw[j] = totalw[i + pihm->numele] * 1000.0;
+            metarr->soilw[ind] = (daily->surf
+                + daily->gw * pihm->riv[i].matl.porosity) * 1000.0;
 
             /* Convert from m3/s to kg/m2/d */
-            metarr->latflux[0][j] = 1000.0 * (rivflux[0][i] + rivflux[10][i]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
-            metarr->latflux[1][j] = 1000.0 * (rivflux[1][i] + rivflux[9][i]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
-            metarr->latflux[2][j] = 1000.0 * (rivflux[2][i] + rivflux[4][i] + rivflux[7][i]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
-            metarr->latflux[3][j] = 1000.0 * (rivflux[3][i] + rivflux[5][i] + rivflux[8][i]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
-        }
-
-    }
-
-    for (j = 1; j < length; j++)
-    {
-        for (i = 0; i < pihm->numriv; i++)
-        {
-            temp = bgc->riv[i].metarr.soilw[j - 1];
             for (k = 0; k < 4; k++)
             {
-                temp -= bgc->riv[i].metarr.latflux[k][j];
+                metarr->latflux[k][ind] = 1000.0 * (daily->fluxsurf[k] + daily->fluxsub[k]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
             }
-            printf ("%d: %lf\t", i, bgc->riv[i].metarr.soilw[j] / temp);
+
+            metarr->flag[ind] = 1;
         }
-        printf ("\n");
-    }
-    fflush (stdout);
-        
-    free (swc);
-    free (stc);
-    free (totalw);
 
-    for (k = 0; k < 3; k++)
-    {
-        free (subflux[k]);
     }
-
-    for (k = 0; k < 10; k++)
-    {
-        free (rivflux[k]);
-    }
-
-    for (j = 0; j < pihm->forcing.nts[METEO_TS]; j++)
-    {
-        for (hour = 0; hour < 24; hour++)
-        {
-            free (met_forcing[j][hour]);
-            free (radn_forcing[j][hour]);
-        }
-        free (met_forcing[j]);
-        free (radn_forcing[j]);
-    }
-    free (met_forcing);
-    free (radn_forcing);
 }

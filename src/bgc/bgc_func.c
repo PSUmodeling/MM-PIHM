@@ -15,7 +15,8 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
     char            co2_fn[MAXSTRING];
     char            ndep_fn[MAXSTRING];
     char            cmdstr[MAXSTRING];
-    struct tm      *timeinfo;
+    struct tm      *timestamp;
+    time_t          rawtime;
     enum epc_vegtype veg_type;
     epconst_struct *epc;
     control_struct *ctrl;
@@ -28,7 +29,7 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
     nstate_struct   ns;
     cinit_struct    cinit;
 
-    timeinfo = (struct tm *)malloc (sizeof (struct tm));
+    timestamp = (struct tm *)malloc (sizeof (struct tm));
 
     /* Detect if model is running in ensemble mode */
     strcpy (tempname, simulation);
@@ -383,9 +384,26 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
 
     FindLine (bgc_file, "TIME_DEFINE");
     NextLine (bgc_file, cmdstr);
-    sscanf (cmdstr, "%d", &ctrl->spinupstart);
+    sscanf (cmdstr, "%d", &ctrl->spinupstartyear);
     NextLine (bgc_file, cmdstr);
-    sscanf (cmdstr, "%d", &ctrl->spinupend);
+    sscanf (cmdstr, "%d", &ctrl->spinupendyear);
+
+    timestamp->tm_year = bgc->ctrl.spinupstartyear;
+    timestamp->tm_mon = 1;
+    timestamp->tm_mday = 1;
+    timestamp->tm_hour = 0;
+    timestamp->tm_min = 0;
+    timestamp->tm_sec = 0;
+    timestamp->tm_year = timestamp->tm_year - 1900;
+    timestamp->tm_mon = timestamp->tm_mon - 1;
+    rawtime = timegm (timestamp);
+    ctrl->spinupstart = (int)rawtime;
+
+    timestamp->tm_year = bgc->ctrl.spinupendyear + 1;
+    timestamp->tm_year = timestamp->tm_year - 1900;
+    rawtime = timegm (timestamp);
+    ctrl->spinupend = (int)rawtime;
+
     NextLine (bgc_file, cmdstr);
     sscanf (cmdstr, "%d", &ctrl->spinup);
     NextLine (bgc_file, cmdstr);
@@ -680,6 +698,16 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
         bgc->riv[i].nabr[3] = pihm->riv[i].rightele;
     }
 
+    /* Initialize metarr */
+    if (bgc->ctrl.spinup)
+    {
+        metarr_init (bgc, pihm, bgc->ctrl.spinupstart, bgc->ctrl.spinupend);
+    }
+    else
+    {
+        metarr_init (bgc, pihm, pihm->ctrl.starttime, pihm->ctrl.endtime);
+    }
+
     /* Read initial conditions */
     if (bgc->ctrl.spinup == 0)
     {
@@ -718,6 +746,16 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
     for (i = 0; i < pihm->numele; i++)
     {
         zero_srcsnk (&bgc->grid[i].cs, &bgc->grid[i].ns, &bgc->grid[i].ws, &bgc->grid[i].summary);
+    }
+}
+
+void Bgc2Noah (pihm_struct pihm, lsm_struct noah, bgc_struct bgc)
+{
+    int             i;
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        noah->grid[i].xlai = bgc->grid[i].epv.proj_lai;
     }
 }
 

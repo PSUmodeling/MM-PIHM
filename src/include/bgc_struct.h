@@ -20,8 +20,10 @@ typedef struct
     int             write_restart;      /* flag to write restart file */
     int             keep_metyr; /* (flag) 1=retain restart metyr, 0=reset metyr */
     int             onscreen;   /* (flag) 1=show progress on-screen 0=don't */
-    int             spinupstart;        /* first met year for spinup */
-    int             spinupend;  /* last met year for spinup */
+    int             spinupstartyear;/* first met year for spinup */
+    int             spinupendyear;  /* last met year for spinup */
+    int             spinupstart;/* start time of spinup */
+    int             spinupend;  /* end time of spinup */
 
     int             nprint;
     int             prtvrbl[NUM_PRINT];
@@ -75,6 +77,7 @@ typedef struct
     double         *tavg_ra;    /* (deg C) 11-day running avg of daily avg temp */
     double         *latflux[4];
     double         *soilw;
+    int            *flag;
 } metarr_struct;
 
 /* daily values that are passed to daily model subroutines */
