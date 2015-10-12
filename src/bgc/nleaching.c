@@ -124,7 +124,11 @@ void nleaching (bgc_grid *grid, int numele, bgc_river *riv, int numriv)
             }
         }
 
-        nleached = (nleached < riv[i].sminn) ? nleached : riv[i].sminn;
+        //nleached = (nleached < riv[i].sminn) ? nleached : riv[i].sminn;
+        if (nleached > riv[i].sminn)
+        {
+            nleached = riv[i].sminn;
+        }
 
         riv[i].sminn -= nleached;
     }

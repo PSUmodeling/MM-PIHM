@@ -678,9 +678,9 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
 
         for (j = 0; j < pihm->numriv; j++)
         {
-            if (pihm->riv[j].down == i)
+            if (pihm->riv[j].down == i + 1)
             {
-                bgc->riv[i].nabr[0] = -j;
+                bgc->riv[i].nabr[0] = -(j + 1);
                 break;
             }
         }
