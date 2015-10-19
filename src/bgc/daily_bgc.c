@@ -5,7 +5,7 @@
 
 #include "bgc.h"
 
-void DailyBgc (bgc_struct bgc, int numele, int numriv, const double t, const double *naddfrac, int first_balance)
+void DailyBgc (bgc_struct bgc, int numele, int numriv, int t, int simstart, const double *naddfrac, int first_balance)
 {
     siteconst_struct *sitec;
     metvar_struct  *metv;
@@ -24,7 +24,8 @@ void DailyBgc (bgc_struct bgc, int numele, int numriv, const double t, const dou
     ntemp_struct   *nt;
     phenology_struct *phen;
     summary_struct *summary;
-    int             i;
+    int             i, k;
+    int             simday;
     struct tm      *timestamp;
     time_t          rawtime;
     double          co2lvl;
@@ -94,6 +95,24 @@ void DailyBgc (bgc_struct bgc, int numele, int numriv, const double t, const dou
                     daily_ndep = daily_ndep / 365.0;
                 }
             }
+        }
+    }
+
+    simday = (t - simstart) / 24 / 3600 - 1;
+
+    for (i = 0; i < numele; i++)
+    {
+        daymet (&bgc->grid[i].metarr, &bgc->grid[i].metv, simday);
+        bgc->grid[i].ws.soilw = bgc->grid[i].metv.soilw;
+        bgc->grid[i].epv.vwc = bgc->grid[i].metv.swc;
+    }
+
+    for (i = 0; i < numriv; i++)
+    {
+        bgc->riv[i].soilw = bgc->riv[i].metarr.soilw[simday];
+        for (k = 0; k < 4; k++)
+        {
+            bgc->riv[i].metv.latflux[k] = bgc->riv[i].metarr.latflux[k][simday];
         }
     }
 

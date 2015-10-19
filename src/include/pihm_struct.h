@@ -127,6 +127,7 @@ typedef struct daily_struct
     double          sh2o;
     double          q2d;
     double          albedo;
+    double          ch;
 #endif
 } daily_struct;
 

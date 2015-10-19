@@ -8,7 +8,7 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
     FILE           *restart_file;
     FILE           *sminn_file;
     char            restart_fn[MAXSTRING];
-    int             i, j, k;
+    int             i, j;
     struct tm      *timestamp;
     int             metyr;
     int             t;
@@ -78,7 +78,7 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
 
         for (j = 0; j < (bgc->ctrl.spinupend - bgc->ctrl.spinupstart) / 24 / 3600; j++)
         {
-            t = bgc->ctrl.spinupstart + j * 24 * 3600;
+            t = bgc->ctrl.spinupstart + (j + 1) * 24 * 3600;
 
             for (i = 0; i < pihm->numele; i++)
             {
@@ -93,22 +93,22 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
                     naddfrac[i] = 0.0;
                 }
 
-                daymet (&bgc->grid[i].metarr, &bgc->grid[i].metv, j);
-                bgc->grid[i].ws.soilw = bgc->grid[i].metv.soilw;
-                bgc->grid[i].epv.vwc = bgc->grid[i].metv.swc;
+                //daymet (&bgc->grid[i].metarr, &bgc->grid[i].metv, j);
+                //bgc->grid[i].ws.soilw = bgc->grid[i].metv.soilw;
+                //bgc->grid[i].epv.vwc = bgc->grid[i].metv.swc;
             }
 
-            for (i = 0; i < pihm->numriv; i++)
-            {
-                bgc->riv[i].soilw = bgc->riv[i].metarr.soilw[j];
+            //for (i = 0; i < pihm->numriv; i++)
+            //{
+            //    bgc->riv[i].soilw = bgc->riv[i].metarr.soilw[j];
 
-                for (k = 0; k < 4; k++)
-                {
-                    bgc->riv[i].metv.latflux[k] = bgc->riv[i].metarr.latflux[k][j];
-                }
-            }
+            //    for (k = 0; k < 4; k++)
+            //    {
+            //        bgc->riv[i].metv.latflux[k] = bgc->riv[i].metarr.latflux[k][j];
+            //    }
+            //}
 
-            DailyBgc (bgc, pihm->numele, pihm->numriv, t, naddfrac, first_balance);
+            DailyBgc (bgc, pihm->numele, pihm->numriv, t, bgc->ctrl.spinupstart, naddfrac, first_balance);
 
             for (i = 0; i < pihm->numele; i++)
             {

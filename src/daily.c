@@ -80,6 +80,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             daily->q2d += grid->q2sat - grid->q2;
             daily->sfcprs += grid->sfcprs;
             daily->solar += solar;
+            daily->ch += grid->ch;
             (daily->daylight_counter)++;
         }
         else
@@ -192,6 +193,9 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             daily->q2d /= (double)daily->daylight_counter;
             daily->sfcprs /= (double)daily->daylight_counter;
             daily->solar /= (double)daily->daylight_counter;
+            daily->ch /= (double)daily->daylight_counter;
+
+            if (i == 0) printf ("ch = %lf\n", daily->ch);
 
             daily->tnight /= (double)(daily->counter - daily->daylight_counter);
         }
@@ -224,17 +228,26 @@ void InitDailyStruct (pihm_struct pihm)
         daily->counter = 0;
         daily->daylight_counter = 0;
 
-        daily->tmax = -999.0;
-        daily->tmin = 999.0;
         daily->sfctmp = 0.0;
         daily->tday = 0.0;
         daily->tnight = 0.0;
+        daily->tmax = -999.0;
+        daily->tmin = 999.0;
         daily->solar = 0.0;
+        daily->sfcprs = 0.0;
+        daily->surf = 0.0;
+        daily->unsat = 0.0;
+        daily->gw = 0.0;
+        daily->infil = 0.0;
+        daily->rechg = 0.0;
+        daily->dayl = 0.0;
+        daily->prev_dayl = 0.0;
 #ifdef _NOAH_
         daily->stc = 0.0;
         daily->sh2o = 0.0;
         daily->q2d = 0.0;
-        daily->sfcprs = 0.0;
+        daily->albedo = 0.0;
+        daily->ch = 0.0;
 #endif
         for (k = 0; k < 4; k++)
         {
@@ -250,17 +263,26 @@ void InitDailyStruct (pihm_struct pihm)
         daily->counter = 0;
         daily->daylight_counter = 0;
 
-        daily->tmax = -999.0;
-        daily->tmin = 999.0;
         daily->sfctmp = 0.0;
         daily->tday = 0.0;
         daily->tnight = 0.0;
+        daily->tmax = -999.0;
+        daily->tmin = 999.0;
         daily->solar = 0.0;
+        daily->sfcprs = 0.0;
+        daily->surf = 0.0;
+        daily->unsat = 0.0;
+        daily->gw = 0.0;
+        daily->infil = 0.0;
+        daily->rechg = 0.0;
+        daily->dayl = 0.0;
+        daily->prev_dayl = 0.0;
 #ifdef _NOAH_
         daily->stc = 0.0;
         daily->sh2o = 0.0;
         daily->q2d = 0.0;
-        daily->sfcprs = 0.0;
+        daily->albedo = 0.0;
+        daily->ch = 0.0;
 #endif
         for (k = 0; k < 4; k++)
         {

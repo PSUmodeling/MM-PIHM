@@ -318,6 +318,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 
 #ifdef _BGC_
     bgc_struct      bgc;
+    int             first_balance = 1;
+    double         *dummy;
 #endif
 
 #ifdef _CYCLES_
@@ -380,6 +382,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     /* Read BGC input and initialize BGC structure */
     BgcRead (simulation, bgc, pihm);
     BgcInit (simulation, pihm, noah, bgc);
+    dummy = (double *)malloc (pihm->numele * sizeof (double));
 #endif
 
 #ifdef _CYCLES_
@@ -527,12 +530,14 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         if ((t - pihm->ctrl.starttime) % 86400 == 0)
         {
 #ifdef _BGC_
-            if (bgc->ctrl.spinup)
+            pihm2metarr (bgc, pihm, t, bgc->ctrl.spinupstart, bgc->ctrl.spinupend);
+
+            if (!bgc->ctrl.spinup)
             {
-                pihm2metarr (bgc, pihm, t, bgc->ctrl.spinupstart, bgc->ctrl.spinupend);
-            }
-            else
-            {
+                DailyBgc (bgc, pihm->numele, pihm->numriv, t, pihm->ctrl.starttime, dummy, first_balance);
+                first_balance = 0;
+
+                PrintData (bgc->prtctrl, bgc->ctrl.nprint, t, t - pihm->ctrl.starttime, 86400, pihm->ctrl.ascii);
             }
 #endif
             InitDailyStruct (pihm);
@@ -569,6 +574,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #endif
 #ifdef _BGC_
     free (bgc);
+    free (dummy);
 #endif
     FreeData (pihm);
     free (pihm);
