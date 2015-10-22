@@ -93,6 +93,8 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
                     naddfrac[i] = 0.0;
                 }
 
+                naddfrac[i] = 0.0;
+
                 //daymet (&bgc->grid[i].metarr, &bgc->grid[i].metv, j);
                 //bgc->grid[i].ws.soilw = bgc->grid[i].metv.soilw;
                 //bgc->grid[i].epv.vwc = bgc->grid[i].metv.swc;
