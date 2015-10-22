@@ -484,6 +484,8 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
     ReadKeywordInt (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL]);
     NextLine (bgc_file, cmdstr);
     ReadKeywordInt (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL]);
 
     fclose (bgc_file);
 
@@ -1059,6 +1061,17 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
                         bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.daily_gpp;
+                    }
+                    n++;
+                    break;
+                case SMINN_CTRL:
+                    sprintf (bgc->prtctrl[n].name, "%s%s.sminn", outputdir, simulation);
+                    bgc->prtctrl[n].intvl = 86400;
+                    bgc->prtctrl[n].nvrbl = numele;
+                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
+                    {
+                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].ns.sminn;
                     }
                     n++;
                     break;

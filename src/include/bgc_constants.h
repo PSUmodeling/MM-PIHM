@@ -96,7 +96,7 @@ enum epc_vegtype
         EPC_MIXED };
 enum bgc_print_type
 { LAI_CTRL, VEGC_CTRL, LITRC_CTRL, SOILC_CTRL,
-    TOTALC_CTRL, NPP_CTRL, NEP_CTRL, NEE_CTRL, GPP_CTRL
+    TOTALC_CTRL, NPP_CTRL, NEP_CTRL, NEE_CTRL, GPP_CTRL, SMINN_CTRL
 };
 
 #endif
