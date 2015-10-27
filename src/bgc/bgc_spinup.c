@@ -203,7 +203,7 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
     sprintf (fn, "%sspinyr.dat", outputdir);
     spinyr_file = fopen (fn, "w");
     
-    sprintf (fn, "%ssminn.dat", "w");
+    sprintf (fn, "%ssminn.dat", outputdir);
     sminn_file = fopen (fn, "w");
 
     sprintf (restart_fn, "input/%s/%s.bgcinit", simulation, simulation);
