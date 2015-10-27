@@ -27,7 +27,7 @@ enum lsm_forcing_type
 enum lsm_print_type
 { T1_CTRL, STC_CTRL, SMC_CTRL, SH2O_CTRL, SNOWH_CTRL,
     ALBEDO_CTRL, LE_CTRL, SH_CTRL, G_CTRL, ETP_CTRL, ESNOW_CTRL,
-    ROOTW_CTRL, SOILM_CTRL
+    ROOTW_CTRL, SOILM_CTRL, SOLAR_CTRL
 };
 
 typedef struct genprmt_type

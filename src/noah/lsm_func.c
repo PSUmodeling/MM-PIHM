@@ -147,6 +147,9 @@ void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
     NextLine (lsm_file, cmdstr);
     ReadKeywordInt (cmdstr, "SOILM", &noah->prtvrbl[SOILM_CTRL]);
 
+    NextLine (lsm_file, cmdstr);
+    ReadKeywordInt (cmdstr, "SOLAR", &noah->prtvrbl[SOLAR_CTRL]);
+
     fclose (lsm_file);
 
     noah->forcing.nts = 0;
@@ -674,6 +677,20 @@ void MapLsmOutput (char *simulation, lsm_struct noah, int numele,
                     for (j = 0; j < numele; j++)
                     {
                         noah->prtctrl[n].vrbl[j] = &noah->grid[j].soilm;
+                    }
+                    n++;
+                    break;
+                case SOLAR_CTRL:
+                    sprintf (noah->prtctrl[n].name, "%s%s.solar", outputdir,
+                        simulation);
+                    noah->prtctrl[n].intvl = noah->prtvrbl[i];
+                    noah->prtctrl[n].nvrbl = numele;
+                    noah->prtctrl[n].vrbl =
+                        (double **)malloc (noah->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < numele; j++)
+                    {
+                        noah->prtctrl[n].vrbl[j] = &noah->grid[j].soldn;
                     }
                     n++;
                     break;
