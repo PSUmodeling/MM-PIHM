@@ -1,12 +1,13 @@
 #include "bgc.h"
 
-void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct noah)
+void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct noah, char *outputdir)
 {
     FILE           *soilc_file;
     FILE           *vegc_file;
     FILE           *spinyr_file;
     FILE           *restart_file;
     FILE           *sminn_file;
+    char            fn[MAXSTRING];
     char            restart_fn[MAXSTRING];
     int             i, j;
     struct tm      *timestamp;
@@ -193,10 +194,18 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
         /* end of do block, test for steady state */
     } while (spinyears < bgc->ctrl.maxspinyears || metcycle != 0);// || total_complete < PIHM->NumEle);
 
-    soilc_file = fopen ("soilc.dat", "w");
-    vegc_file = fopen("vegc.dat", "w");
-    spinyr_file = fopen ("spinyr.dat", "w");
-    sminn_file = fopen ("sminn.dat", "w");
+    sprintf (fn, "%ssoilc.dat", outputdir);
+    soilc_file = fopen (fn, "w");
+
+    sprintf (fn, "%svegc.dat", outputdir);
+    vegc_file = fopen(fn, "w");
+
+    sprintf (fn, "%sspinyr.dat", outputdir);
+    spinyr_file = fopen (fn, "w");
+    
+    sprintf (fn, "%ssminn.dat", "w");
+    sminn_file = fopen (fn, "w");
+
     sprintf (restart_fn, "input/%s/%s.bgcinit", simulation, simulation);
     restart_file = fopen (restart_fn, "wb");
     for (i = 0; i < pihm->numele; i++)

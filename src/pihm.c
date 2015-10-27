@@ -547,7 +547,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #ifdef _BGC_
     if (bgc->ctrl.spinup == 1)
     {
-        BgcSpinup (simulation, bgc, pihm, noah);
+        BgcSpinup (simulation, bgc, pihm, noah, outputdir);
     }
 #endif
 

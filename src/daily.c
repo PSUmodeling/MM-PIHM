@@ -195,7 +195,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             daily->solar /= (double)daily->daylight_counter;
             daily->ch /= (double)daily->daylight_counter;
 
-            if (i == 0) printf ("ch = %lf\n", daily->ch);
+            //if (i == 0) printf ("ch = %lf\n", daily->ch);
 
             daily->tnight /= (double)(daily->counter - daily->daylight_counter);
         }
