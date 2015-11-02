@@ -136,3 +136,35 @@ void nleaching (bgc_grid *grid, int numele, bgc_river *riv, int numriv)
 
     free (soilwater_nconc);
 }
+
+void nleaching_nt (bgc_grid *grid, int numele, bgc_river *riv, int numriv)
+{
+    double          soilwater_nconc;
+    int             i;
+    double          total_soilwater = 0.0;
+    double          total_sminn = 0.0;
+    double          nleached;
+    double          outflow;
+
+    for (i = 0; i < numele; i++)
+    {
+        total_soilwater += grid[i].ws.soilw;
+        total_sminn += grid[i].ns.sminn;
+    }
+
+    soilwater_nconc = total_sminn / total_soilwater;
+
+    outflow = riv[numriv - 1].metv.latflux[1];
+
+    nleached = MOBILEN_PROPORTION * soilwater_nconc * outflow;
+
+    for (i = 0; i < numele; i++)
+    {
+        grid[i].nf.sminn_leached = nleached / numele;
+
+        grid[i].nf.sminn_leached = (grid[i].nf.sminn_leached < grid[i].ns.sminn) ? grid[i].nf.sminn_leached : grid[i].ns.sminn;
+
+        grid[i].ns.nleached_snk += grid[i].nf.sminn_leached;
+        grid[i].ns.sminn -= grid[i].nf.sminn_leached;
+    }
+}
