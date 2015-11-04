@@ -34,6 +34,7 @@
 pihm
 pihm-bgc
 flux-pihm
+flux-pihm-bgc
 
 # PBS scripts
 run-*

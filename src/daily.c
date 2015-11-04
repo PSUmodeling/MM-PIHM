@@ -1,7 +1,7 @@
 #include "pihm.h"
+#include "spa.h"
 #ifdef _NOAH_
 #include "noah.h"
-#include "spa.h"
 #endif
 
 #ifdef _NOAH_
@@ -25,7 +25,6 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
     struct tm      *timestamp;
     spa_data        spa;
     int             spa_result;
-
     /*
      * Cumulates daily variables
      */
@@ -53,9 +52,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 #ifdef _NOAH_
         /* Soil temperature */
         daily->stc += grid->stc[0];
-#endif
 
-#ifdef _NOAH_
         /* Root zone soil moisture */
         daily->sh2o += grid->soilw;
 #endif
@@ -77,10 +74,12 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         if (solar > 1.0)
         {
             daily->tday += sfctmp;
+#ifdef _NOAH_
             daily->q2d += grid->q2sat - grid->q2;
-            daily->sfcprs += grid->sfcprs;
-            daily->solar += solar;
             daily->ch += grid->ch;
+            daily->sfcprs += grid->sfcprs;
+#endif
+            daily->solar += solar;
             (daily->daylight_counter)++;
         }
         else
@@ -120,7 +119,6 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
     /* Calculate daily variables */
     if ((t - start_time) % 86400 == 0 && t > start_time)
     {
-#ifdef _NOAH_
         rawtime = (int)(t - 86400);
         timestamp = gmtime (&rawtime);
         spa.year = timestamp->tm_year + 1900;
@@ -167,7 +165,6 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         spa_result = spa_calculate (&spa);
         prev_dayl = (spa.sunset - spa.sunrise) * 3600.;
         prev_dayl = (prev_dayl < 0.0) ? (prev_dayl + 12.0 * 3600.0) : prev_dayl;
-#endif
 
         for (i = 0; i < pihm->numele; i++)
         {
@@ -177,8 +174,10 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             daily->prev_dayl = prev_dayl;
 
             daily->sfctmp /= (double)daily->counter;
+#ifdef _NOAH_
             daily->stc /= (double)daily->counter;
             daily->sh2o /= (double)daily->counter;
+#endif
             daily->surf /= (double)daily->counter;
             daily->unsat /= (double)daily->counter;
             daily->gw /= (double)daily->counter;
@@ -190,10 +189,12 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             }
 
             daily->tday /= (double)daily->daylight_counter;
+#ifdef _NOAH_
             daily->q2d /= (double)daily->daylight_counter;
             daily->sfcprs /= (double)daily->daylight_counter;
-            daily->solar /= (double)daily->daylight_counter;
             daily->ch /= (double)daily->daylight_counter;
+#endif
+            daily->solar /= (double)daily->daylight_counter;
 
             //if (i == 0) printf ("ch = %lf\n", daily->ch);
 

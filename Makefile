@@ -27,7 +27,6 @@ SRCS_ = pihm.c \
 	print.c \
 	forcing.c \
 	misc_func.c \
-	daily.c \
 	update.c
 
 HEADERS_ = include/pihm.h \
@@ -69,8 +68,9 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 endif
 
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
-  SFLAGS = -D_BGC_ -D_NOAH_ 
-  MODULE_SRCS_=	noah/coupling.c \
+  SFLAGS = -D_BGC_ -D_NOAH_ -D_DAILY_
+  MODULE_SRCS_=	daily.c \
+	noah/coupling.c \
 	noah/module_sf_noahlsm.c \
 	spa/spa.c \
 	noah/lsm_func.c \
@@ -129,7 +129,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
 endif
 
 ifeq ($(MAKECMDGOALS),pihm-cycles)
-  SFLAGS = -D_CYCLES_
+  SFLAGS = -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= 
   MODULE_HEADERS_ = 
   EXECUTABLE = pihm-cycles

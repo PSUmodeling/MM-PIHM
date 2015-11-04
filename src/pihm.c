@@ -13,7 +13,7 @@
 #endif
 
 #ifdef _CYCLES_
-#include "cycles.h"
+#include "Cycles.h"
 #endif
 
 #ifdef _ENKF_
@@ -500,10 +500,10 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         AvgFlux (noah, pihm);
 #endif
 
+#ifdef _DAILY_
 #ifdef _NOAH_
         DailyVar (t, pihm->ctrl.starttime, pihm, noah);
-#else
-        DailyVar (t, pihm->ctrl.starttime, pihm);
+#endif
 #endif
 
 #ifdef _RT_
@@ -540,7 +540,10 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                 PrintData (bgc->prtctrl, bgc->ctrl.nprint, t, t - pihm->ctrl.starttime, 86400, pihm->ctrl.ascii);
             }
 #endif
+
+#ifdef _DAILY_
             InitDailyStruct (pihm);
+#endif
         }
     }
 

@@ -95,6 +95,7 @@ typedef struct forc_struct
     double         *riverbc;
 } forc_struct;
 
+#ifdef _DAILY_
 typedef struct daily_struct
 {
     double          sfctmp;
@@ -130,6 +131,7 @@ typedef struct daily_struct
     double          ch;
 #endif
 } daily_struct;
+#endif
 
 typedef struct elem_struct
 {
@@ -141,7 +143,9 @@ typedef struct elem_struct
     lc_struct       lc;
     forc_struct     forc;
 
+#ifdef _DAILY_
     daily_struct    daily;
+#endif
 
     double          surf0;      /* YS: Stores surface water level of
                                  * last time step */
@@ -171,14 +175,15 @@ typedef struct elem_struct
     int             macpore_status;
 
     double          albedo;
+
+    double          totalw;
+    double          mbc;
 #ifdef _NOAH_
     double          sfcsat;     /* YS: Surface saturation */
     double          et_from_sat;        /* YS: Fraction of Transpiration that
                                          * extracts from the saturated zone */
     double          fcr;        /* YS: reduction of infiltration caused
                                  * by frozen ground */
-    double          totalw;
-    double          mbc;
 #endif
 
 #ifdef _RT_
@@ -212,7 +217,9 @@ typedef struct river_struct
     matl_struct     matl;
     forc_struct     forc;
 
+#ifdef _DAILY_
     daily_struct    daily;
+#endif
 
     int             leftele;    /* Left neighboring element */
     int             rightele;   /* Right neighboring element */

@@ -647,6 +647,4 @@ double          TopoRadiation (double sdir, double sdif, double zenith,
 void            ApplyRadnForcing (radn_ts_struct *forcing, int t);
 void            LsmPrtInit (pihm_struct pihm, lsm_struct noah, char *simulation);
 void            LsmFreeData (pihm_struct pihm, lsm_struct noah);
-
-void DailyVar (int t, int start_time, pihm_struct pihm, lsm_struct noah);
 #endif

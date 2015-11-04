@@ -84,4 +84,7 @@ double          GetCO2 (ts_struct co2_ts, int t);
 double          GetNdep (ts_struct ndep_ts, int t);
 void nleaching (bgc_grid *grid, int numele, bgc_river *riv, int numriv);
 void nleaching_nt (bgc_grid *grid, int numele, bgc_river *riv, int numriv);
+
+
+void DailyVar (int t, int start_time, pihm_struct pihm, lsm_struct noah);
 #endif

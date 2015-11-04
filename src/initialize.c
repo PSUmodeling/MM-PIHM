@@ -86,7 +86,9 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y, char *simulation)
 
     CalcModelStep (&pihm->ctrl);
 
+#ifdef _DAILY_
     InitDailyStruct (pihm);
+#endif
 }
 
 void InitMeshStruct (elem_struct *elem, int numele, mesh_tbl_struct mesh_tbl)
