@@ -105,6 +105,7 @@ typedef struct daily_struct
     double          tmin;
 
     double          solar;
+    double          solar_total;
 
     double          sfcprs;
 

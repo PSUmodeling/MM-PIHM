@@ -50,6 +50,7 @@ void            ReadKeywordDouble (char *buffer, char *keyword,
 void            ReadKeywordInt (char *buffer, char *keyword, int *value);
 void            ReadKeywordTime (char *buffer, char *keyword, int *value);
 void            ReadKeywordStr (char *buffer, char *keyword, char *value);
+int CountOccurance (FILE *fid, char *token);
 //int CountOccurance (FILE *fid, char *token);
 //
 //

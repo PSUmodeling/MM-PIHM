@@ -130,8 +130,9 @@ endif
 
 ifeq ($(MAKECMDGOALS),pihm-cycles)
   SFLAGS = -D_CYCLES_ -D_DAILY_
-  MODULE_SRCS_= 
-  MODULE_HEADERS_ = 
+  MODULE_SRCS_= daily.c \
+  	cycles/cycles_func.c
+  MODULE_HEADERS_ = include/Cycles.h
   EXECUTABLE = pihm-cycles
   MSG = "... Compiling Flux-PIHM ..."
 endif

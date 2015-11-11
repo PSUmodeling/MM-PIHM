@@ -269,3 +269,33 @@ void ReadKeywordStr (char *buffer, char *keyword, char *value)
         PihmExit (1);
     }
 }
+
+int CountOccurance (FILE *fid, char *token)
+{
+    /*
+     * Count number of occurance of keyword from the current line to the end
+     * of file
+     */
+
+    char            cmdstr[MAXSTRING];
+    char            optstr[MAXSTRING];
+    int             count;
+
+    /* Initialize cmdstr */
+    strcpy (cmdstr, "\0");
+    count = 0;
+
+    while (!feof (fid))
+    {
+        if (Readable (cmdstr))
+        {
+            sscanf (cmdstr, "%s", optstr);
+            if (strcasecmp (token, optstr) == 0)
+                count++;
+        }
+        
+        fgets (cmdstr, MAXSTRING, fid);
+    }
+
+    return (count);
+}

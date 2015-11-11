@@ -1,6 +1,6 @@
 #include "pihm.h"
-#include "spa.h"
 #ifdef _NOAH_
+#include "spa.h"
 #include "noah.h"
 #endif
 
@@ -15,16 +15,16 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
     river_struct   *riv;
 #ifdef _NOAH_
     grid_struct    *grid;
+    double          dayl;
+    double          prev_dayl;
+    spa_data        spa;
+    int             spa_result;
 #endif
     int             i, k;
     double          sfctmp;
     double          solar;
-    double          dayl;
-    double          prev_dayl;
     time_t          rawtime;
     struct tm      *timestamp;
-    spa_data        spa;
-    int             spa_result;
     /*
      * Cumulates daily variables
      */
@@ -80,6 +80,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             daily->sfcprs += grid->sfcprs;
 #endif
             daily->solar += solar;
+            daily->solar_total += solar * pihm->ctrl.stepsize;
             (daily->daylight_counter)++;
         }
         else
@@ -119,6 +120,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
     /* Calculate daily variables */
     if ((t - start_time) % 86400 == 0 && t > start_time)
     {
+#ifdef _NOAH_
         rawtime = (int)(t - 86400);
         timestamp = gmtime (&rawtime);
         spa.year = timestamp->tm_year + 1900;
@@ -165,16 +167,17 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         spa_result = spa_calculate (&spa);
         prev_dayl = (spa.sunset - spa.sunrise) * 3600.;
         prev_dayl = (prev_dayl < 0.0) ? (prev_dayl + 12.0 * 3600.0) : prev_dayl;
+#endif
 
         for (i = 0; i < pihm->numele; i++)
         {
             daily = &(pihm->elem[i].daily);
 
+            daily->sfctmp /= (double)daily->counter;
+#ifdef _NOAH_
             daily->dayl = dayl;
             daily->prev_dayl = prev_dayl;
 
-            daily->sfctmp /= (double)daily->counter;
-#ifdef _NOAH_
             daily->stc /= (double)daily->counter;
             daily->sh2o /= (double)daily->counter;
 #endif
@@ -195,8 +198,6 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             daily->ch /= (double)daily->daylight_counter;
 #endif
             daily->solar /= (double)daily->daylight_counter;
-
-            //if (i == 0) printf ("ch = %lf\n", daily->ch);
 
             daily->tnight /= (double)(daily->counter - daily->daylight_counter);
         }
@@ -235,6 +236,7 @@ void InitDailyStruct (pihm_struct pihm)
         daily->tmax = -999.0;
         daily->tmin = 999.0;
         daily->solar = 0.0;
+        daily->solar_total = 0.0;
         daily->sfcprs = 0.0;
         daily->surf = 0.0;
         daily->unsat = 0.0;
@@ -270,6 +272,7 @@ void InitDailyStruct (pihm_struct pihm)
         daily->tmax = -999.0;
         daily->tmin = 999.0;
         daily->solar = 0.0;
+        daily->solar_total = 0.0;
         daily->sfcprs = 0.0;
         daily->surf = 0.0;
         daily->unsat = 0.0;
