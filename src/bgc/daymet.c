@@ -29,6 +29,8 @@ void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
     metv->tsoil = metarr->tsoil[metday];
     metv->swc = metarr->swc[metday];
     metv->soilw = metarr->soilw[metday];
+    metv->sw_alb = metarr->sw_alb[metday];
+    metv->gl_bl = metarr->gl_bl[metday];
 
     /* daylight average vapor pressure deficit (Pa) */
     metv->vpd = metarr->vpd[metday];

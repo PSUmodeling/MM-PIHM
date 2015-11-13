@@ -19,12 +19,13 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
     double          prev_dayl;
     spa_data        spa;
     int             spa_result;
+    time_t          rawtime;
+    struct tm      *timestamp;
 #endif
     int             i, k;
     double          sfctmp;
     double          solar;
-    time_t          rawtime;
-    struct tm      *timestamp;
+
     /*
      * Cumulates daily variables
      */
@@ -78,6 +79,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             daily->q2d += grid->q2sat - grid->q2;
             daily->ch += grid->ch;
             daily->sfcprs += grid->sfcprs;
+            daily->albedo += grid->albedo;
 #endif
             daily->solar += solar;
             daily->solar_total += solar * pihm->ctrl.stepsize;
@@ -196,6 +198,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             daily->q2d /= (double)daily->daylight_counter;
             daily->sfcprs /= (double)daily->daylight_counter;
             daily->ch /= (double)daily->daylight_counter;
+            daily->albedo /= (double)daily->daylight_counter;
 #endif
             daily->solar /= (double)daily->daylight_counter;
 

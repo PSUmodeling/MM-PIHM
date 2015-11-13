@@ -30,6 +30,8 @@ void metarr_init (bgc_struct bgc, pihm_struct pihm, int start_time, int end_time
         bgc->grid[i].metarr.swc = (double *)malloc (length * sizeof (double));
         bgc->grid[i].metarr.pa = (double *)malloc (length * sizeof (double));
         bgc->grid[i].metarr.soilw = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.sw_alb = (double *)malloc (length * sizeof (double));
+        bgc->grid[i].metarr.gl_bl = (double *)malloc (length * sizeof (double));
         bgc->grid[i].metarr.flag = (int *)malloc (length * sizeof (int));
         for (k = 0; k < 4; k++)
         {
@@ -95,6 +97,9 @@ void pihm2metarr (bgc_struct bgc, pihm_struct pihm, int t, int start_time, int e
                 + daily->unsat * pihm->elem[i].soil.porosity
                 + daily->gw * pihm->elem[i].soil.porosity)
                 * 1000.0;
+
+            metarr->sw_alb[ind] = daily->albedo;
+            metarr->gl_bl[ind] = daily->ch;
 
             for (k = 0; k < 3; k++)
             {

@@ -77,6 +77,8 @@ typedef struct
     double         *tavg_ra;    /* (deg C) 11-day running avg of daily avg temp */
     double         *latflux[4];
     double         *soilw;
+    double         *sw_alb;
+    double         *gl_bl;
     int            *flag;
 } metarr_struct;
 
@@ -93,6 +95,8 @@ typedef struct
     double          swc;
     double          soilw;
     double          latflux[4];
+    double          sw_alb;
+    double          gl_bl;
     double          vpd;        /* (Pa)    vapor pressure deficit */
     double          q2d;        /* (m3/m3) mixing ratio deficit */
     double          swavgfd;    /* (W/m2)  daylight average shortwave flux */

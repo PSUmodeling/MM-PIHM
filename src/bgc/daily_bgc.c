@@ -105,6 +105,8 @@ void DailyBgc (bgc_struct bgc, int numele, int numriv, int t, int simstart, cons
         daymet (&bgc->grid[i].metarr, &bgc->grid[i].metv, simday);
         bgc->grid[i].ws.soilw = bgc->grid[i].metv.soilw;
         bgc->grid[i].epv.vwc = bgc->grid[i].metv.swc;
+        bgc->grid[i].sitec.sw_alb = bgc->grid[i].metv.sw_alb;
+        bgc->grid[i].epc.gl_bl = bgc->grid[i].metv.gl_bl;
     }
 
     for (i = 0; i < numriv; i++)
