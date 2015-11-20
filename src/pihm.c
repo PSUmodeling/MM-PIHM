@@ -540,6 +540,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
                 PrintData (bgc->prtctrl, bgc->ctrl.nprint, t, t - pihm->ctrl.starttime, 86400, pihm->ctrl.ascii);
             }
 #endif
+#ifdef _CYCLES_
+            DailyCycles (cycles, pihm, t, simulation);
+#endif
 
 #ifdef _DAILY_
             InitDailyStruct (pihm);

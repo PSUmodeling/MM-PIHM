@@ -131,7 +131,30 @@ endif
 ifeq ($(MAKECMDGOALS),pihm-cycles)
   SFLAGS = -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= daily.c \
-  	cycles/cycles_func.c
+  	cycles/cycles_func.c \
+	cycles/Initialize.c \
+    	cycles/Soil.c \
+    	cycles/Weather.c \
+    	cycles/ReferenceET.c \
+    	cycles/SoilTemperature.c \
+    	cycles/Crop.c \
+    	cycles/Residue.c \
+    	cycles/CropThermalTime.c \
+    	cycles/FieldOperation.c \
+    	cycles/SoilCarbon.c \
+    	cycles/DailyOperation.c \
+    	cycles/Tillage.c \
+    	cycles/Fertilization.c \
+    	cycles/CropHarvest.c \
+    	cycles/Snow.c \
+    	cycles/SoilInfiltration.c \
+    	cycles/Irrigation.c \
+    	cycles/SoilSolute.c \
+    	cycles/SoilEvaporation.c \
+    	cycles/SoilNitrogen.c \
+    	cycles/CropProcess.c \
+    	cycles/CropTranspiration.c \
+    	cycles/MiscFunc.c
   MODULE_HEADERS_ = include/Cycles.h
   EXECUTABLE = pihm-cycles
   MSG = "... Compiling Flux-PIHM ..."
@@ -191,7 +214,7 @@ flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-flux-pihm-enkf: 	## Compile Flux-PIHM-EnKF (Flux-PIHM EnKF system)
+flux-pihm-enkf: ## Compile Flux-PIHM-EnKF (Flux-PIHM EnKF system)
 flux-pihm-enkf: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
