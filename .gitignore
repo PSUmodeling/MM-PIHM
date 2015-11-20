@@ -32,9 +32,9 @@
 
 # PIHM executables
 pihm
-pihm-bgc
 flux-pihm
 flux-pihm-bgc
+pihm-cycles
 
 # PBS scripts
 run-*
