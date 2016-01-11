@@ -15,17 +15,17 @@ double RivArea (int riv_order, double riv_depth, double riv_coeff)
 
     switch (riv_order)
     {
-        case 1:
+        case RECTANGLE:
             riv_area = riv_depth * riv_coeff;
             break;
-        case 2:
+        case TRIANGLE:
             riv_area = pow (riv_depth, 2) / riv_coeff;
             break;
-        case 3:
+        case QUADRATIC:
             riv_area =
                 4.0 * pow (riv_depth, 1.5) / (3.0 * pow (riv_coeff, 0.5));
             break;
-        case 4:
+        case CUBIC:
             riv_area =
                 3.0 * pow (riv_depth, 4.0 / 3.0) / (2.0 * pow (riv_coeff,
                     1.0 / 3.0));
@@ -46,15 +46,15 @@ double RivPerim (int riv_order, double riv_depth, double riv_coeff)
 
     switch (riv_order)
     {
-        case 1:
+        case RECTANGLE:
             riv_perim = 2.0 * riv_depth + riv_coeff;
             break;
-        case 2:
+        case TRIANGLE:
             riv_perim =
                 2.0 * riv_depth * pow (1.0 + pow (riv_coeff, 2),
                 0.5) / riv_coeff;
             break;
-        case 3:
+        case QUADRATIC:
             riv_perim =
                 (pow (riv_depth * (1.0 +
                         4.0 * riv_coeff * riv_depth) / riv_coeff,
@@ -62,7 +62,7 @@ double RivPerim (int riv_order, double riv_depth, double riv_coeff)
                         0.5) + pow (1.0 + 4.0 * riv_coeff * riv_depth,
                         0.5)) / (2.0 * riv_coeff));
             break;
-        case 4:
+        case CUBIC:
             riv_perim =
                 2.0 * ((pow (riv_depth * (1.0 + 9.0 * pow (riv_coeff,
                                 2.0 / 3.0) * riv_depth),
@@ -87,18 +87,18 @@ double EqWid (int riv_order, double riv_depth, double riv_coeff)
 
     switch (riv_order)
     {
-        case 1:
+        case RECTANGLE:
             eq_wid = riv_coeff;
             break;
-        case 2:
+        case TRIANGLE:
             eq_wid = 2.0 * pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
                 pow (riv_coeff, 1.0 / (riv_order - 1));
             break;
-        case 3:
+        case QUADRATIC:
             eq_wid = 2.0 * pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
                 pow (riv_coeff, 1.0 / (riv_order - 1));
             break;
-        case 4:
+        case CUBIC:
             eq_wid = 2.0 * pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
                 pow (riv_coeff, 1.0 / (riv_order - 1));
             break;
@@ -114,32 +114,30 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
     double rivytot, double length)
 {
     double          flux;
-    double          threshele;
+    double          zbank;
 
-    if (rivzmax < elez)
-    {
-        threshele = elez;
-    }
-    else
-    {
-        threshele = rivzmax;
-    }
+    /*
+     * Panday and Hyakorn 2004 AWR Eqs. (23) and (24)
+     */
+    zbank = (rivzmax < elez) ? elez : rivzmax;
 
     if (rivytot > eleytot)
     {
-        if (eleytot > threshele)
+        if (eleytot > zbank)
         {
+            /* Submerged weir */
             flux =
                 cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (rivytot -
-                eleytot) * (rivytot - threshele) / 3.0;
+                eleytot) * (rivytot - zbank) / 3.0;
         }
         else
         {
-            if (threshele < rivytot)
+            if (zbank < rivytot)
             {
+                /* Free-flowing weir */
                 flux =
                     cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (rivytot -
-                    threshele) * (rivytot - threshele) / 3.0;
+                    zbank) * (rivytot - zbank) / 3.0;
             }
             else
             {
@@ -149,19 +147,21 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
     }
     else
     {
-        if (rivytot > threshele)
+        if (rivytot > zbank)
         {
+            /* Submerged weir */
             flux =
                 -cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (eleytot -
-                rivytot) * (eleytot - threshele) / 3.0;
+                rivytot) * (eleytot - zbank) / 3.0;
         }
         else
         {
-            if (threshele < eleytot)
+            if (zbank < eleytot)
             {
+                /* Free-flowing weir */
                 flux =
                     -cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (eleytot -
-                    threshele) * (eleytot - threshele) / 3.0;
+                    zbank) * (eleytot - zbank) / 3.0;
             }
             else
             {
@@ -213,29 +213,28 @@ double AvgY (double diff, double yi, double yinabr)
 double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
     double kv, double areaf)
 {
-    if (status == SAT_CTRL)
+    double          effkv;
+
+    switch (status)
     {
-        return (mackv * areaf + kv * (1.0 - areaf) * ksatfunc);
+        case MAT_CTRL:
+            effkv = kv * ksatfunc;
+            break;
+        case APP_CTRL:
+            effkv = mackv * areaf * elemsatn + kv * (1.0 - areaf) * ksatfunc;
+            break;
+        case MAC_CTRL:
+            effkv = mackv * areaf + kv * (1.0 - areaf) * ksatfunc;
+            break;
+        case SAT_CTRL:
+            effkv = mackv * areaf + kv * (1.0 - areaf) * ksatfunc;
+            break;
+        default:
+            printf ("Error: Macropore status not recognized!\n");
+            PihmExit (1);
     }
-    else
-    {
-        if (status == MAT_CTRL)
-        {
-            return (kv * ksatfunc);
-        }
-        else
-        {
-            if (status == APP_CTRL)
-            {
-                return (mackv * areaf * elemsatn + kv * (1.0 -
-                        areaf) * ksatfunc);
-            }
-            else
-            {
-                return (mackv * areaf + kv * (1.0 - areaf) * ksatfunc);
-            }
-        }
-    }
+
+    return (effkv);
 }
 
 int MacroporeStatus (double ksatfunc, double elemsatn, double grady,

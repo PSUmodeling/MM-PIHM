@@ -5,40 +5,33 @@
  * Function Declarations
  */
 #ifdef _ENKF_
-void            PIHMRun (char *simulation, char *outputdir, int first_cycle,
-    int starttime, int endtime, int startmode, double *param);
+void            PIHMRun (char *, char *, int, int, int, int, double *);
 #else
-void            PIHMRun (char *simulation, char *outputdir, int first_cycle);
+void            PIHMRun (char *, char *, int);
 #endif
-void            CreateOutputDir (char *project, char *outputdir,
-    int overwrite_mode);
-//void            initialize (char *, Model_Data, Control_Data , N_Vector);
-//void            initialize_output (char *, Model_Data, Control_Data , char *);
-//int             f (realtype, N_Vector, N_Vector, void *);
-void            ReadAlloc (char *simulation, pihm_struct pihm);
-void            ReadRiv (char *project, riv_att_tbl_struct *riv_att_tbl,
-    riv_shp_tbl_struct *riv_shp_tbl, riv_matl_tbl_struct *riv_matl_tbl,
-    riv_ic_tbl_struct * riv_ic_tbl, ic_struct *ic,
-    forcing_ts_struct *forcing);
-void            ReadMesh (char *project, mesh_tbl_struct *mesh_tbl);
-void            ReadAtt (char *project, attrib_tbl_struct *attrib_tbl,
-    ic_struct *ic, int numele);
-void            ReadSoil (char *project, soil_tbl_struct *soil_tbl);
-void            ReadGeol (char *project, geol_tbl_struct *geol_tbl);
-void            ReadLC (lc_tbl_struct *lc_tbl);
-void            ReadForc (char *project, forcing_ts_struct *forcing);
-void            ReadLAI (char *project, forcing_ts_struct *forcing,
-    int numele, const attrib_tbl_struct *attrib_tbl);
-void            ReadIbc (char *project, forcing_ts_struct *forcing);
-void            ReadPara (char *project, ctrl_struct *ctrl);
-void            ReadCalib (char *project, char *simulation,
-    calib_struct *cal);
-void            ReadInit (char *project, char *simulation, ic_struct *ic,
-    int numele, int numriv);
+void            CreateOutputDir (char *, int);
+void            ReadAlloc (char *, pihm_struct);
+void            ReadRiv (char *, rivtbl_struct *, shptbl_struct *,
+    matltbl_struct *, forc_struct *);
+void            ReadMesh (char *, meshtbl_struct *);
+void            ReadAtt (char *, atttbl_struct *, int);
+void            ReadSoil (char *, soiltbl_struct *);
+void            ReadGeol (char *, geoltbl_struct *);
+void            ReadLC (char *, lctbl_struct *);
+void            ReadForc (char *, forc_struct *);
+void            ReadLAI (char *, forc_struct *, int numele,
+    const atttbl_struct *);
+void            ReadIbc (char *, forc_struct *);
+void            ReadPara (char *, ctrl_struct *);
+void            ReadCalib (char *, calib_struct *);
+void            ReadInit (char *, elem_struct *, int, river_struct *, int);
 void            FreeData (pihm_struct pihm);
+#ifdef _NOAH_
+void            ReadLsm (char *, double *, double *, ctrl_struct *,
+    noahtbl_struct *);
+void            ReadRad (char *, forc_struct *);
+#endif
 
-//void ReadCalib (char *simulation, Model_Data DS, Control_Data CS);
-//
 int             Readable (char *token);
 int             FindLine (FILE * fid, char *token);
 void            NextLine (FILE * fid, char *cmdstr);
@@ -51,94 +44,154 @@ void            ReadKeywordInt (char *buffer, char *keyword, int *value);
 void            ReadKeywordTime (char *buffer, char *keyword, int *value);
 void            ReadKeywordStr (char *buffer, char *keyword, char *value);
 int CountOccurance (FILE *fid, char *token);
-//int CountOccurance (FILE *fid, char *token);
-//
-//
-void            Initialize (pihm_struct pihm, N_Vector CV_Y, char *simulation);
-void            InitMeshStruct (elem_struct *elem, int numele,
-    mesh_tbl_struct mesh_tbl);
-void            InitTopo (elem_struct *elem, int numele,
-    mesh_tbl_struct mesh_tbl);
-void            InitSoil (elem_struct *elem, int numele,
-    attrib_tbl_struct attrib_tbl, soil_tbl_struct soil_tbl,
-    geol_tbl_struct geol_tbl, calib_struct cal);
-double          FieldCapacity (double alpha, double beta, double kv,
-    double thetas, double thetar);
-double          WiltingPoint (double thetas, double thetar, double alpha,
-    double beta);
-void            InitLC (elem_struct *elem, int numele,
-    attrib_tbl_struct attrib_tbl, lc_tbl_struct lc_tbl,
-    calib_struct calibration);
-void            InitRiver (river_struct *riv, int numriv, elem_struct *elem,
-    riv_att_tbl_struct riv_att_tbl, riv_shp_tbl_struct riv_shp_tbl,
-    riv_matl_tbl_struct riv_matl_tbl, mesh_tbl_struct mesh_tbl,
-    calib_struct cal);
-void            InitForcing (elem_struct *elem, int numele, river_struct *riv,
-    int numriv, attrib_tbl_struct attrib_tbl, riv_att_tbl_struct riv_att_tbl,
-    forcing_ts_struct *forcing, calib_struct cal);
-void            CorrectElevation (elem_struct *elem, int numele,
-    river_struct *riv, int numriv);
-void            InitSurfL (elem_struct *ele, int numele, river_struct *riv,
-    mesh_tbl_struct mesh_tbl);
-void            SaturationIC (const elem_struct *ele, int numele,
-    const river_struct *riv, int numriv, ic_struct *ic);
-void            InitStateVrbl (elem_struct *elem, int numele,
-    river_struct *riv, int numriv, N_Vector CV_Y, ic_struct ic);
-void            CalcModelStep (ctrl_struct *ctrl);
 
-void            MapOutput (char *simulation, pihm_struct pihm,
-    char *outputdir);
-void            InitOutputFile (prtctrl_struct *prtctrl, int nprint,
-    int ascii);
+void            Initialize (pihm_struct, N_Vector);
+void            InitMeshStruct (elem_struct *, int, meshtbl_struct);
+void            InitTopo (elem_struct *, int, meshtbl_struct);
+#ifdef _NOAH_
+void            InitSoil (elem_struct *, int, atttbl_struct,
+    soiltbl_struct, geoltbl_struct, noahtbl_struct, calib_struct);
+#else
+void            InitSoil (elem_struct *, int, atttbl_struct,
+    soiltbl_struct, geoltbl_struct, calib_struct);
+#endif
+void            ZeroWaterFlux (wf_struct *wf);
+double          FieldCapacity (double, double, double, double, double);
+double          WiltingPoint (double, double, double, double);
+void            InitLC (elem_struct *, int, atttbl_struct, lctbl_struct,
+    calib_struct);
+void            InitRiver (river_struct *, int, elem_struct *, rivtbl_struct,
+    shptbl_struct, matltbl_struct, meshtbl_struct, calib_struct);
+void            InitForcing (elem_struct *, int, river_struct *, int,
+    atttbl_struct, rivtbl_struct, forc_struct *forc, calib_struct);
+void            CorrectElevation (elem_struct *, int, river_struct *, int);
+void            InitSurfL (elem_struct *, int, river_struct *,
+    meshtbl_struct);
+void            SaturationIC (elem_struct *, int, river_struct *, int);
+void            InitVar (elem_struct *, int, river_struct *, int, N_Vector);
+void            CalcModelStep (ctrl_struct *);
 
-void            ApplyForcing (forcing_ts_struct *forcing, int t);
+void            MapOutput (char *, pihm_struct, char *);
+void            InitOutputFile (prtctrl_struct *, int, int);
+void            ApplyForcing (forc_struct *, int);
+void            IntcpSnowET (int, double, pihm_struct);
+void            IntrplForcing (tsdata_struct, int, int);
+double          MonthlyLAI (int, int);
+double          MonthlyRL (int, int);
+double          MonthlyMF (int);
+int             f (realtype, N_Vector, N_Vector, void *);
+void            LateralFlow (pihm_struct);
+void            VerticalFlow (pihm_struct);
+void            RiverFlow (pihm_struct);
+void            RiverToEle (river_struct *, elem_struct *, elem_struct *,
+    int, double *, double *, double *, double);
+double          DhByDl (double *, double *, double *);
+double          RivArea (int, double, double);
+double          RivPerim (int, double, double);
+double          EqWid (int, double, double);
+double          OLFEleToRiv (double, double, double, double, double, double);
+double          OverlandFlow (double, double, double, double, double);
+double          AvgY (double, double, double);
+double          EffKV (double, double, int, double, double, double);
+double          EffKH (int, double, double, double, double, double, double);
 
-void            IntcpSnowET (int t, double stepsize, pihm_struct pihm);
-
-void            IntrplForcing (ts_struct ts, int t, int nvrbl, double *vrbl);
-double          MonthlyLAI (int t, int lc_type);
-double          MonthlyRL (int t, int lc_type);
-double          MonthlyMF (int t);
-
-int             f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot,
-    void *pihm_data);
-void            LateralFlow (pihm_struct pihm);
-void            VerticalFlow (pihm_struct pihm);
-void            RiverFlow (pihm_struct pihm);
-void            RiverToEle (river_struct *riv, elem_struct *elem,
-    elem_struct *oppbank, int side, double *fluxsurf, double *fluxriv,
-    double *fluxsub, double dt);
-
-double          DhByDl (double *l1, double *l2, double *surfh);
-double          RivArea (int riv_order, double riv_depth, double riv_coeff);
-double          RivPerim (int riv_order, double riv_depth, double riv_coeff);
-double          EqWid (int riv_order, double riv_depth, double riv_coeff);
-double          OLFEleToRiv (double eleYtot, double EleZ, double cwr,
-    double rivZmax, double rivYtot, double length);
-double          OverlandFlow (double avg_y, double grad_y, double avg_sf,
-    double cross, double avg_rough);
-double          AvgY (double diff, double yi, double yinabr);
-//void            f_update (realtype, realtype *, void *);    /* YS */
-double          EffKV (double ksatfunc, double elemsatn, int status,
-    double mackv, double kv, double areaf);
-double          EffKH (int mp, double tmpy, double aqdepth, double macd,
-    double macksath, double areaf, double ksath);
-
-void            PrtInit (pihm_struct pihm, char *simulation);
-void            PrintData (prtctrl_struct *prtctrl, int nprint, int t,
-    int lapse, int dt, int ascii);
-int             MacroporeStatus (double ksatfunc, double elemsatn,
-    double grady, double mackv, double kv, double areaf);
-double          KrFunc (double alpha, double beta, double satn);
-double          Psi (double satn, double alpha, double beta);
+//void            PrtInit (pihm_struct pihm, char *simulation);
+void            PrintData (prtctrl_struct *, int, int, int, int, int);
+int             MacroporeStatus (double, double, double, double, double,
+    double);
+double          KrFunc (double, double, double);
+double          Psi (double, double, double);
 
 void            Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize);
-
-#ifdef _DAILY_
-void InitDailyStruct (pihm_struct pihm);
-#endif
-
-void BKInput (char *simulation, char *outputdir);
-void PihmFree (void **ptr);
+void            SetCVodeParam (pihm_struct, void *, N_Vector);
+void            SolveCVode (int *, int, int, void *, N_Vector);
+//
+//#ifdef _DAILY_
+//void InitDailyStruct (pihm_struct pihm);
+//#endif
+//
+void BKInput (char *, char *);
+//void PihmFree (void **ptr);
 void PihmExit (int error);
+
+#ifdef _NOAH_
+void            InitLsm (elem_struct *, int, ctrl_struct, noahtbl_struct,
+                    calib_struct);
+void            DefSldpth (double *, int *, double, const double *, int);
+void            RootDist (const double *, int, int, double *);
+void            CalcSlopeAspect (elem_struct *, int, meshtbl_struct);
+int             FindLayer (const double *, int, double);
+double          GWTransp (double, double *, int, int);
+void            ReadLsmInit (char *, elem_struct *, int);
+void            SunPos (int, double, double, double, double, double *,
+                    double *);
+double          TopoRadn (double, double, double, double, double, double,
+                    const double *, double);
+void            CalHum (ps_struct *, es_struct *);
+void            Noah (int, pihm_struct);
+double          FrozRain (double, double);
+void            AvgFlux (elem_struct *, int, int);
+void            SfcDifOff (ps_struct *, const lc_struct *, double, double,
+                    int);
+void            SFlx (ws_struct *, wf_struct *, es_struct *, ef_struct *,
+                    ps_struct *, lc_struct *, soil_struct *, int);
+double          CSnow (double);
+void            SnowNew (const es_struct *, double, ps_struct *);
+double          SnFrac (double, double, double, double);
+void            AlCalc (ps_struct *, double, int);
+double          TDfCnd (double, double, double, double, double);
+double          Snowz0 (double, double, double);
+void            Penman (wf_struct *, es_struct *, ef_struct *, ps_struct *,
+                    double *, double, int, int);
+void            CanRes (ws_struct *, es_struct *, ef_struct *, ps_struct *,
+                    const double *, const soil_struct *, const lc_struct *);
+void            DEvap (const ws_struct *, wf_struct *, const ps_struct *,
+                    const lc_struct *, const soil_struct *);
+void            Evapo (ws_struct *, wf_struct *, ps_struct *,
+                    const lc_struct *, const soil_struct *, const double *,
+                    double);
+void            Transp (const ws_struct *, wf_struct *, const ps_struct *,
+                    const lc_struct *, const soil_struct *, const double *);
+void            NoPac (ws_struct *, wf_struct *, es_struct *, ef_struct *,
+                    ps_struct *, lc_struct *, soil_struct *, const double *,
+                    double, double);
+double          TBnd (double, double, const double *, double, int, int);
+double          TmpAvg (double, double, double, const double *, int, int);
+void            SnkSrc (double *, double, double, double *,
+                    const soil_struct *, const double *, int, double, int,
+                    double);
+void            Rosr12 (double *, double *, double *, double *, double *,
+                    double *, int);
+void            ShFlx (ws_struct *, es_struct *, ef_struct *, ps_struct *,
+                    const lc_struct *, const soil_struct *, double, double,
+                    double, const double *, double);
+void            SmFlx (ws_struct *, wf_struct *, ps_struct *,
+                    const lc_struct *,  const soil_struct *, const double *,
+                    double, double);
+void            HRT (ws_struct *, es_struct *, ef_struct *, ps_struct *,
+                    const lc_struct *, const soil_struct *, double *,
+                    const double *, double, double, double, double, double *,
+                    double *, double *);
+void            SRT (ws_struct *, wf_struct *, ps_struct *,
+                    const soil_struct *, double *, double *, double *,
+                    double *, double *, const double *, double);
+void            SStep (ws_struct *, wf_struct *, ps_struct *,
+                    const soil_struct *, double *, double, const double *,
+                    double *, double *, double *, double *, double);
+void            WDfCnd (double *, double *, double, double, double, int,
+                    const soil_struct *, const ps_struct *);
+void            SnoPac (ws_struct *, wf_struct *, es_struct *, ef_struct *,
+                    ps_struct *, lc_struct *, const soil_struct *, int, 
+                    const double *, double, double, double, double);
+void            SnowPack (double, double, double *, double *, double, double);
+double          EFFKV (double, double, int, double, double, double);
+double          Pslmu (double);
+double          Pslms (double);
+double          Pslhu (double);
+double          Pslhs (double);
+double          Pspmu (double);
+double          Pspms (double);
+double          Psphu (double);
+double          Psphs (double);
+#endif
 #endif

@@ -1,33 +1,54 @@
 #include "pihm.h"
 
-void ApplyForcing (forcing_ts_struct *forcing, int t)
+void ApplyForcing (forc_struct *forc, int t)
 {
-    int             i, j;
-    double          meteo[NUM_METEO_TS];
+    int             k;
 
     /* Boundary conditions */
-    for (i = 0; i < forcing->nts[BC_TS]; i++)
-        IntrplForcing (forcing->ts[BC_TS][i], t, 1, &forcing->bc[i]);
+    if (forc->nbc > 0)
+    {
+        for (k = 0; k < forc->nbc; k++)
+        {
+            IntrplForcing (forc->bc[k], t, 1);
+        }
+    }
 
     /* Meteorological forcing */
-    for (i = 0; i < forcing->nts[METEO_TS]; i++)
+    for (k = 0; k < forc->nmeteo; k++)
     {
-        IntrplForcing (forcing->ts[METEO_TS][i], t, NUM_METEO_TS, meteo);
-
-        for (j = 0; j < NUM_METEO_TS; j++)
-            forcing->meteo[j][i] = meteo[j];
+        IntrplForcing (forc->meteo[k], t, NUM_METEO_VAR);
     }
 
     /* LAI forcing */
-    for (i = 0; i < forcing->nts[LAI_TS]; i++)
-        IntrplForcing (forcing->ts[LAI_TS][i], t, 1, &forcing->lai[i]);
+    if (forc->nlai > 0)
+    {
+        for (k = 0; k < forc->nlai; k++)
+        {
+            IntrplForcing (forc->lai[k], t, 1);
+        }
+    }
 
     /* River boundary condition */
-    for (i = 0; i < forcing->nts[RIV_TS]; i++)
-        IntrplForcing (forcing->ts[RIV_TS][i], t, 1, &forcing->riverbc[i]);
+    if (forc->nriverbc > 0)
+    {
+        for (k = 0; k < forc->nriverbc; k++)
+        {
+            IntrplForcing (forc->riverbc[k], t, 1);
+        }
+    }
+
+#ifdef _NOAH_
+    if (forc->nrad > 0)
+    {
+        for (k = 0; k < forc->nrad; k++)
+        {   
+            IntrplForcing (forc->rad[k], t, 2);
+        }
+    }
+#endif
 }
 
-void IntrplForcing (ts_struct ts, int t, int nvrbl, double *vrbl)
+void IntrplForcing (tsdata_struct ts, int t, int nvrbl)
 {
     int             j;
     int             first, middle, last;
@@ -36,14 +57,14 @@ void IntrplForcing (ts_struct ts, int t, int nvrbl, double *vrbl)
     {
         for (j = 0; j < nvrbl; j++)
         {
-            vrbl[j] = ts.data[0][j];
+            ts.value[j] = ts.data[0][j];
         }
     }
     else if (t >= ts.ftime[ts.length - 1])
     {
         for (j = 0; j < nvrbl; j++)
         {
-            vrbl[j] = ts.data[ts.length - 1][j];
+            ts.value[j] = ts.data[ts.length - 1][j];
         }
     }
     else
@@ -58,7 +79,7 @@ void IntrplForcing (ts_struct ts, int t, int nvrbl, double *vrbl)
             {
                 for (j = 0; j < nvrbl; j++)
                 {
-                    vrbl[j] =
+                    ts.value[j] =
                         ((double)(ts.ftime[middle] - t) * ts.data[middle -
                             1][j] + (double)(t - ts.ftime[middle -
                                 1]) * ts.data[middle][j]) /

@@ -7,23 +7,11 @@
 
 #include "pihm.h"
 
-void Initialize (pihm_struct pihm, N_Vector CV_Y, char *simulation)
+void Initialize (pihm_struct pihm, N_Vector CV_Y)
 {
+#ifdef _NOAH_
     int             i;
-    char            project[MAXSTRING];
-    char           *token;
-    char            tempname[MAXSTRING];
-
-    strcpy (tempname, simulation);
-    if (strstr (tempname, ".") != 0)
-    {
-        token = strtok (tempname, ".");
-        strcpy (project, token);
-    }
-    else
-    {
-        strcpy (project, simulation);
-    }
+#endif
 
     if (verbose_mode)
     {
@@ -33,79 +21,90 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y, char *simulation)
     pihm->elem = (elem_struct *)malloc (pihm->numele * sizeof (elem_struct));
     pihm->riv = (river_struct *)malloc (pihm->numriv * sizeof (river_struct));
 
+    InitMeshStruct (pihm->elem, pihm->numele, pihm->meshtbl);
+
+    InitTopo (pihm->elem, pihm->numele, pihm->meshtbl);
+
 #ifdef _NOAH_
+    /* Calculate average elevation of model domain */
+    pihm->elevation = 0.0;
     for (i = 0; i < pihm->numele; i++)
     {
-        pihm->elem[i].fcr = 1.0;
+        pihm->elevation += pihm->elem[i].topo.zmax;
     }
+    pihm->elevation /= (double)pihm->numele;
 #endif
 
-    InitMeshStruct (pihm->elem, pihm->numele, pihm->mesh_tbl);
+#ifdef _NOAH_
+    InitSoil (pihm->elem, pihm->numele, pihm->atttbl, pihm->soiltbl,
+        pihm->geoltbl, pihm->noahtbl, pihm->cal);
+#else
+    InitSoil (pihm->elem, pihm->numele, pihm->atttbl, pihm->soiltbl,
+        pihm->geoltbl, pihm->cal);
+#endif
 
-    InitTopo (pihm->elem, pihm->numele, pihm->mesh_tbl);
-
-    InitSoil (pihm->elem, pihm->numele, pihm->attrib_tbl, pihm->soil_tbl,
-        pihm->geol_tbl, pihm->cal);
-
-    InitLC (pihm->elem, pihm->numele, pihm->attrib_tbl, pihm->lc_tbl,
+    InitLC (pihm->elem, pihm->numele, pihm->atttbl, pihm->lctbl,
         pihm->cal);
 
     InitForcing (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
-        pihm->attrib_tbl, pihm->riv_att_tbl, &pihm->forcing, pihm->cal);
+        pihm->atttbl, pihm->rivtbl, &pihm->forc, pihm->cal);
 
-    InitRiver (pihm->riv, pihm->numriv, pihm->elem, pihm->riv_att_tbl,
-        pihm->riv_shp_tbl, pihm->riv_matl_tbl, pihm->mesh_tbl, pihm->cal);
+    InitRiver (pihm->riv, pihm->numriv, pihm->elem, pihm->rivtbl,
+        pihm->shptbl, pihm->matltbl, pihm->meshtbl, pihm->cal);
 
     if (debug_mode)
     {
         CorrectElevation (pihm->elem, pihm->numele, pihm->riv, pihm->numriv);
     }
 
-    InitSurfL (pihm->elem, pihm->numele, pihm->riv, pihm->mesh_tbl);
+    InitSurfL (pihm->elem, pihm->numele, pihm->riv, pihm->meshtbl);
 
-    if (pihm->ctrl.init_type == 0)
+#ifdef _NOAH_
+    InitLsm (pihm->elem, pihm->numele, pihm->ctrl, pihm->noahtbl, pihm->cal);
+#endif
+
+    if (pihm->ctrl.init_type == RELAX)
     {
-        SaturationIC (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
-            &pihm->ic);
+#ifdef _NOAH_
+        ApplyForcing (&pihm->forc, pihm->ctrl.starttime);
+#endif
+        SaturationIC (pihm->elem, pihm->numele, pihm->riv, pihm->numriv);
     }
-    else if (pihm->ctrl.init_type == 1)
+    else if (pihm->ctrl.init_type == RST_FILE)
     {
-        for (i = 0; i < pihm->numriv; i++)
-        {
-            pihm->ic.rivgw[i] =
-                pihm->riv[i].topo.zmax - pihm->riv[i].topo.zmin - 0.1;
-        }
-    }
-    else if (pihm->ctrl.init_type == 3)
-    {
-        ReadInit (project, simulation, &pihm->ic, pihm->numele, pihm->numriv);
+        ReadInit (pihm->filename.init, pihm->elem, pihm->numele, pihm->riv,
+            pihm->numriv);
+#ifdef _NOAH_
+        ReadLsmInit (pihm->filename.lsminit, pihm->elem, pihm->numele);
+#endif
     }
 
-    InitStateVrbl (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, CV_Y,
-        pihm->ic);
+    InitVar (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, CV_Y);
 
     CalcModelStep (&pihm->ctrl);
 
-#ifdef _DAILY_
-    InitDailyStruct (pihm);
-#endif
+//#ifdef _DAILY_
+//    InitDailyStruct (pihm);
+//#endif
 }
 
-void InitMeshStruct (elem_struct *elem, int numele, mesh_tbl_struct mesh_tbl)
+void InitMeshStruct (elem_struct *elem, int numele, meshtbl_struct meshtbl)
 {
     int             i, j;
 
     for (i = 0; i < numele; i++)
     {
+        elem[i].ind = i + 1;
+
         for (j = 0; j < 3; j++)
         {
-            elem[i].node[j] = mesh_tbl.node[i][j];
-            elem[i].nabr[j] = mesh_tbl.nabr[i][j];
+            elem[i].node[j] = meshtbl.node[i][j];
+            elem[i].nabr[j] = meshtbl.nabr[i][j];
         }
     }
 }
 
-void InitTopo (elem_struct *elem, int numele, mesh_tbl_struct mesh_tbl)
+void InitTopo (elem_struct *elem, int numele, meshtbl_struct meshtbl)
 {
     int             i, j;
     double          x[3];
@@ -117,10 +116,10 @@ void InitTopo (elem_struct *elem, int numele, mesh_tbl_struct mesh_tbl)
     {
         for (j = 0; j < 3; j++)
         {
-            x[j] = mesh_tbl.x[elem[i].node[j] - 1];
-            y[j] = mesh_tbl.y[elem[i].node[j] - 1];
-            zmin[j] = mesh_tbl.zmin[elem[i].node[j] - 1];
-            zmax[j] = mesh_tbl.zmax[elem[i].node[j] - 1];
+            x[j] = meshtbl.x[elem[i].node[j] - 1];
+            y[j] = meshtbl.y[elem[i].node[j] - 1];
+            zmin[j] = meshtbl.zmin[elem[i].node[j] - 1];
+            zmax[j] = meshtbl.zmax[elem[i].node[j] - 1];
         }
 
         elem[i].topo.area =
@@ -138,12 +137,21 @@ void InitTopo (elem_struct *elem, int numele, mesh_tbl_struct mesh_tbl)
             sqrt (pow ((x[2] - x[0]), 2) + pow ((y[2] - y[0]), 2));
         elem[i].topo.edge[2] =
             sqrt (pow ((x[0] - x[1]), 2) + pow ((y[0] - y[1]), 2));
-
     }
+
+#ifdef _NOAH_
+    CalcSlopeAspect (elem, numele, meshtbl);
+#endif
 }
 
-void InitSoil (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl,
-    soil_tbl_struct soil_tbl, geol_tbl_struct geol_tbl, calib_struct cal)
+#ifdef _NOAH_
+void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
+    soiltbl_struct soiltbl, geoltbl_struct geoltbl, noahtbl_struct noahtbl,
+    calib_struct cal)
+#else
+void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
+    soiltbl_struct soiltbl, geoltbl_struct geoltbl, calib_struct cal)
+#endif
 {
     int             i;
     int             soil_ind;
@@ -151,193 +159,217 @@ void InitSoil (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl,
 
     for (i = 0; i < numele; i++)
     {
-        soil_ind = attrib_tbl.soil[i] - 1;
-        geol_ind = attrib_tbl.geol[i] - 1;
+        soil_ind = atttbl.soil[i] - 1;
+        geol_ind = atttbl.geol[i] - 1;
 
         elem[i].soil.depth = elem[i].topo.zmax - elem[i].topo.zmin;
-        elem[i].soil.ksath = cal.ksath * geol_tbl.ksath[geol_ind];
-        elem[i].soil.ksatv = cal.ksatv * geol_tbl.ksatv[geol_ind];
-        elem[i].soil.kinfv = cal.kinfv * soil_tbl.ksatv[soil_ind];
+        elem[i].soil.ksath = cal.ksath * geoltbl.ksath[geol_ind];
+        elem[i].soil.ksatv = cal.ksatv * geoltbl.ksatv[geol_ind];
+        elem[i].soil.kinfv = cal.kinfv * soiltbl.ksatv[soil_ind];
         elem[i].soil.porosity =
-            cal.porosity * (soil_tbl.thetas[soil_ind] -
-            soil_tbl.thetar[soil_ind]);
+            cal.porosity * (soiltbl.smcmax[soil_ind] -
+            soiltbl.smcmin[soil_ind]);
         if (elem[i].soil.porosity > 1.0 || elem[i].soil.porosity <= 0.0)
         {
             printf ("Warning: Porosity value out of bounds for element %d",
                 i + 1);
             PihmExit (1);
         }
-        elem[i].soil.dinf = cal.dinf * soil_tbl.dinf[soil_ind];
-        elem[i].soil.alpha = cal.alpha * soil_tbl.alpha[soil_ind];
-        elem[i].soil.beta = cal.beta * soil_tbl.beta[soil_ind];
+        elem[i].soil.dinf = cal.dinf * soiltbl.dinf[soil_ind];
+        elem[i].soil.alpha = cal.alpha * soiltbl.alpha[soil_ind];
+        elem[i].soil.beta = cal.beta * soiltbl.beta[soil_ind];
 
-        elem[i].soil.thetar = soil_tbl.thetar[soil_ind];
-        elem[i].soil.thetas = elem[i].soil.thetar + elem[i].soil.porosity;
+        elem[i].soil.smcmin = soiltbl.smcmin[soil_ind];
+        elem[i].soil.smcmax = elem[i].soil.smcmin + elem[i].soil.porosity;
 
         /* Calculate field capacity and wilting point following Chan and Dudhia 2001 MWR, but replacing Campbell with van Genuchten */
-        elem[i].soil.thetaw =
-            WiltingPoint (soil_tbl.thetas[soil_ind],
-            soil_tbl.thetar[soil_ind], soil_tbl.alpha[soil_ind],
-            soil_tbl.beta[soil_ind]);
-        elem[i].soil.thetaref =
-            FieldCapacity (soil_tbl.alpha[soil_ind], soil_tbl.beta[soil_ind],
-            geol_tbl.ksatv[geol_ind], soil_tbl.thetas[soil_ind],
-            soil_tbl.thetar[soil_ind]);
+        elem[i].soil.smcwlt =
+            WiltingPoint (soiltbl.smcmax[soil_ind],
+            soiltbl.smcmin[soil_ind], soiltbl.alpha[soil_ind],
+            soiltbl.beta[soil_ind]);
+#ifdef _NOAH_
+        elem[i].soil.smcwlt =
+            (elem[i].soil.smcwlt - elem[i].soil.smcmin) * cal.thetaw +
+            elem[i].soil.smcmin;
+#endif
+        elem[i].soil.smcref =
+            FieldCapacity (soiltbl.alpha[soil_ind], soiltbl.beta[soil_ind],
+            geoltbl.ksatv[geol_ind], soiltbl.smcmax[soil_ind],
+            soiltbl.smcmin[soil_ind]);
+#ifdef _NOAH_
+        elem[i].soil.smcref =
+            (elem[i].soil.smcref - elem[i].soil.smcmin) * cal.thetaref +
+            elem[i].soil.smcmin;
+#endif
 
-        elem[i].soil.dmac = cal.dmac * geol_tbl.dmac[geol_ind];
+        elem[i].soil.dmac = cal.dmac * geoltbl.dmac[geol_ind];
         if (elem[i].soil.dmac > elem[i].soil.depth)
             elem[i].soil.dmac = elem[i].soil.depth;
 
-        elem[i].soil.kmacv = cal.kmacv * soil_tbl.kmacv[soil_ind];
-        elem[i].soil.kmach = cal.kmach * geol_tbl.kmach[geol_ind];
-        elem[i].soil.areafh = cal.areafh * soil_tbl.areafh[soil_ind];
-        elem[i].soil.areafv = cal.areafv * geol_tbl.areafv[geol_ind];
-        elem[i].soil.macropore = attrib_tbl.macropore[i];
+        elem[i].soil.kmacv = cal.kmacv * soiltbl.kmacv[soil_ind];
+        elem[i].soil.kmach = cal.kmach * geoltbl.kmach[geol_ind];
+        elem[i].soil.areafh = cal.areafh * soiltbl.areafh[soil_ind];
+        elem[i].soil.areafv = cal.areafv * geoltbl.areafv[geol_ind];
+        elem[i].soil.macropore = atttbl.macropore[i];
+#ifdef _NOAH_
+        elem[i].soil.csoil = noahtbl.csoil;
+        elem[i].soil.quartz = soiltbl.qtz[soil_ind];
+        elem[i].soil.smcdry = elem[i].soil.smcwlt;
+#endif
     }
 }
 
-double FieldCapacity (double alpha, double beta, double kv, double thetas,
-    double thetar)
+double FieldCapacity (double alpha, double beta, double kv, double smcmax,
+    double smcmin)
 {
     double          satn;
     double          ktemp;
-    double          thetaref;
+    double          smcref;
     const double    KFC = 5.79E-9;
 
     /* Set default value of field capacity, in case a valid value cannot be
      * found using the defination */
-    thetaref = 0.75 * thetas;
+    smcref = 0.75 * smcmax;
 
     for (satn = 0.005; satn < 1.0; satn = satn + 0.001)
     {
         ktemp = kv * KrFunc (alpha, beta, satn);
         if (ktemp >= KFC)
         {
-            thetaref =
-                (1.0 / 3.0 + 2.0 / 3.0 * satn) * (thetas - thetar) + thetar;
+            smcref =
+                (1.0 / 3.0 + 2.0 / 3.0 * satn) * (smcmax - smcmin) + smcmin;
             break;
         }
     }
-    return (thetaref);
+    return (smcref);
 }
 
-double WiltingPoint (double thetas, double thetar, double alpha, double beta)
+double WiltingPoint (double smcmax, double smcmin, double alpha, double beta)
 {
     const double    PSIW = 200.0;
 
-    return (0.5 * (thetas - thetar) * pow (1.0 / (1.0 + pow (PSIW * alpha,
-                    beta)), 1.0 - 1.0 / beta) + thetar);
+    return (0.5 * (smcmax - smcmin) * pow (1.0 / (1.0 + pow (PSIW * alpha,
+                    beta)), 1.0 - 1.0 / beta) + smcmin);
 }
 
-void InitLC (elem_struct *elem, int numele, attrib_tbl_struct attrib_tbl,
-    lc_tbl_struct lc_tbl, calib_struct cal)
+void InitLC (elem_struct *elem, int numele, atttbl_struct atttbl,
+    lctbl_struct lctbl, calib_struct cal)
 {
     int             i;
     int             lc_ind;
 
     for (i = 0; i < numele; i++)
     {
-        lc_ind = attrib_tbl.lc[i] - 1;
+        lc_ind = atttbl.lc[i] - 1;
         elem[i].lc.type = lc_ind + 1;
-        elem[i].lc.vegfrac = cal.vegfrac * lc_tbl.vegfrac[lc_ind];
-        elem[i].lc.rzd = cal.rzd * lc_tbl.rzd[lc_ind];
-        elem[i].lc.rsmin = lc_tbl.rsmin[lc_ind];
-        elem[i].lc.rgl = lc_tbl.rgl[lc_ind];
-        elem[i].lc.hs = lc_tbl.hs[lc_ind];
-        elem[i].lc.laimin = lc_tbl.laimin[lc_ind];
-        elem[i].lc.laimax = lc_tbl.laimax[lc_ind];
-        elem[i].lc.emissmin = lc_tbl.emissmin[lc_ind];
-        elem[i].lc.emissmax = lc_tbl.emissmax[lc_ind];
-        elem[i].lc.albedomin = cal.albedo * lc_tbl.albedomin[lc_ind];
-        elem[i].lc.albedomax = cal.albedo * lc_tbl.albedomax[lc_ind];
-        //elem[i].lc.albedo = 0.5 * elem[i].lc.albedo_min + 0.5 * elem[i].lc.albedo_max;
-        //if (elem[i].lc.albedo > 1.0 || elem[i].lc.albedo < 0.0)
-        //{
-        //    printf ("Warning: Albedo out of bounds");
-        //    PihmExit (1);
-        //}
-        elem[i].lc.z0min = lc_tbl.z0min[lc_ind];
-        elem[i].lc.z0max = lc_tbl.z0max[lc_ind];
-        elem[i].lc.rough = cal.rough * lc_tbl.rough[lc_ind];
-        elem[i].lc.intcp_factr = 0.0002;
-        elem[i].lc.rsmax = lc_tbl.rsmax;
-        elem[i].lc.bare = lc_tbl.bare;
-        elem[i].lc.cfactr = lc_tbl.cfactr;
-        elem[i].lc.topt = lc_tbl.topt;
+        elem[i].lc.shdfac = cal.vegfrac * lctbl.vegfrac[lc_ind];
+        elem[i].lc.rzd = cal.rzd * lctbl.rzd[lc_ind];
+        elem[i].lc.rsmin = lctbl.rsmin[lc_ind];
+        elem[i].lc.rgl = lctbl.rgl[lc_ind];
+        elem[i].lc.hs = lctbl.hs[lc_ind];
+        elem[i].lc.laimin = lctbl.laimin[lc_ind];
+        elem[i].lc.laimax = lctbl.laimax[lc_ind];
+        elem[i].lc.emissmin = lctbl.emissmin[lc_ind];
+        elem[i].lc.emissmax = lctbl.emissmax[lc_ind];
+        elem[i].lc.albedomin = cal.albedo * lctbl.albedomin[lc_ind];
+        elem[i].lc.albedomax = cal.albedo * lctbl.albedomax[lc_ind];
+        elem[i].lc.z0min = lctbl.z0min[lc_ind];
+        elem[i].lc.z0max = lctbl.z0max[lc_ind];
+        elem[i].lc.rough = cal.rough * lctbl.rough[lc_ind];
+        elem[i].lc.cmcfactr = 0.0002;
+        elem[i].lc.rsmax = lctbl.rsmax;
+        elem[i].lc.cfactr = lctbl.cfactr;
+        elem[i].lc.topt = lctbl.topt;
+        elem[i].lc.bare = lctbl.bare;
+        if (elem[i].lc.type == lctbl.bare)
+        {
+            elem[i].lc.shdfac = 0.0;
+        }
+#ifdef _NOAH_
+        elem[i].lc.ptu = 0.0;       /* Not yet used */
+        elem[i].lc.snup = lctbl.snup[lc_ind];
+        elem[i].lc.isurban = ISURBAN;
+        elem[i].lc.shdmin = 0.01;
+        elem[i].lc.shdmax = 0.96;
+#endif
 
-//#ifdef _NOAH_
-//        elem[i].lc.rsmin *= cal.rsmin;
-//        elem[i].lc.intcp_factr *= cal.intcp;
-//        elem[i].lc.cfactr *= cal.cfactr;
-//        elem[i].lc.rgl *= cal.rgl;
-//        elem[i].lc.hs *= cal.hs;
-//#endif
+#ifdef _NOAH_
+        elem[i].lc.rsmin *= cal.rsmin;
+        elem[i].lc.cmcfactr *= cal.intcp;
+        elem[i].lc.cfactr *= cal.cfactr;
+        elem[i].lc.rgl *= cal.rgl;
+        elem[i].lc.hs *= cal.hs;
+#endif
     }
 }
 
 void InitRiver (river_struct *riv, int numriv, elem_struct *elem,
-    riv_att_tbl_struct riv_att_tbl, riv_shp_tbl_struct riv_shp_tbl,
-    riv_matl_tbl_struct riv_matl_tbl, mesh_tbl_struct mesh_tbl,
+    rivtbl_struct rivtbl, shptbl_struct shptbl,
+    matltbl_struct matltbl, meshtbl_struct meshtbl,
     calib_struct cal)
 {
     int             i, j;
 
     for (i = 0; i < numriv; i++)
     {
-        riv[i].leftele = riv_att_tbl.leftele[i];
-        riv[i].rightele = riv_att_tbl.rightele[i];
-        riv[i].fromnode = riv_att_tbl.fromnode[i];
-        riv[i].tonode = riv_att_tbl.tonode[i];
-        riv[i].down = riv_att_tbl.down[i];
+        riv[i].leftele = rivtbl.leftele[i];
+        riv[i].rightele = rivtbl.rightele[i];
+        riv[i].fromnode = rivtbl.fromnode[i];
+        riv[i].tonode = rivtbl.tonode[i];
+        riv[i].down = rivtbl.down[i];
 
         for (j = 0; j < 3; j++)
         {
             /* Note: Strategy to use BC < -4 for river identification */
             if (elem[riv[i].leftele - 1].nabr[j] == riv[i].rightele)
-                elem[riv[i].leftele - 1].forc.bc_type[j] = -4 * (i + 1);
+            {
+                elem[riv[i].leftele - 1].nabr[j] = 0 - (i + 1);
+            }
             if (elem[riv[i].rightele - 1].nabr[j] == riv[i].leftele)
-                elem[riv[i].rightele - 1].forc.bc_type[j] = -4 * (i + 1);
+            {
+                elem[riv[i].rightele - 1].nabr[j] = 0 - (i + 1);
+            }
         }
 
         riv[i].topo.x =
-            (mesh_tbl.x[riv[i].fromnode - 1] + mesh_tbl.x[riv[i].tonode -
+            (meshtbl.x[riv[i].fromnode - 1] + meshtbl.x[riv[i].tonode -
                 1]) / 2.0;
         riv[i].topo.y =
-            (mesh_tbl.y[riv[i].fromnode - 1] + mesh_tbl.y[riv[i].tonode -
+            (meshtbl.y[riv[i].fromnode - 1] + meshtbl.y[riv[i].tonode -
                 1]) / 2.0;
         riv[i].topo.zmax =
-            (mesh_tbl.zmax[riv[i].fromnode - 1] +
-            mesh_tbl.zmax[riv[i].tonode - 1]) / 2.0;
+            (meshtbl.zmax[riv[i].fromnode - 1] +
+            meshtbl.zmax[riv[i].tonode - 1]) / 2.0;
         riv[i].topo.zmin =
             riv[i].topo.zmax - (0.5 * (elem[riv[i].leftele - 1].topo.zmax +
                 elem[riv[i].rightele - 1].topo.zmax) -
             0.5 * (elem[riv[i].leftele - 1].topo.zmin + elem[riv[i].rightele -
                     1].topo.zmin));
-        riv[i].topo.node_zmax = mesh_tbl.zmax[riv[i].tonode - 1];
+        riv[i].topo.node_zmax = meshtbl.zmax[riv[i].tonode - 1];
 
         riv[i].shp.depth =
-            cal.rivdepth * riv_shp_tbl.depth[riv_att_tbl.shp[i] - 1];
+            cal.rivdepth * shptbl.depth[rivtbl.shp[i] - 1];
         riv[i].shp.intrpl_ord =
-            riv_shp_tbl.intrpl_ord[riv_att_tbl.shp[i] - 1];
+            shptbl.intrpl_ord[rivtbl.shp[i] - 1];
         riv[i].shp.coeff =
-            cal.rivshpcoeff * riv_shp_tbl.coeff[riv_att_tbl.shp[i] - 1];
+            cal.rivshpcoeff * shptbl.coeff[rivtbl.shp[i] - 1];
         riv[i].shp.length =
-            sqrt (pow (mesh_tbl.x[riv[i].fromnode - 1] -
-                mesh_tbl.x[riv[i].tonode - 1],
-                2) + pow (mesh_tbl.y[riv[i].fromnode - 1] -
-                mesh_tbl.y[riv[i].tonode - 1], 2));
+            sqrt (pow (meshtbl.x[riv[i].fromnode - 1] -
+                meshtbl.x[riv[i].tonode - 1],
+                2) + pow (meshtbl.y[riv[i].fromnode - 1] -
+                meshtbl.y[riv[i].tonode - 1], 2));
 
         riv[i].topo.zbed = riv[i].topo.zmax - riv[i].shp.depth;
 
         riv[i].matl.rough =
-            cal.rivrough * riv_matl_tbl.rough[riv_att_tbl.matl[i] - 1];
-        riv[i].matl.cwr = riv_matl_tbl.cwr[riv_att_tbl.matl[i] - 1];
+            cal.rivrough * matltbl.rough[rivtbl.matl[i] - 1];
+        riv[i].matl.cwr = matltbl.cwr[rivtbl.matl[i] - 1];
         riv[i].matl.ksath =
-            cal.rivksath * riv_matl_tbl.ksath[riv_att_tbl.matl[i] - 1];
+            cal.rivksath * matltbl.ksath[rivtbl.matl[i] - 1];
         riv[i].matl.ksatv =
-            cal.rivksatv * riv_matl_tbl.ksatv[riv_att_tbl.matl[i] - 1];
+            cal.rivksatv * matltbl.ksatv[rivtbl.matl[i] - 1];
         riv[i].matl.bedthick =
-            cal.rivbedthick * riv_matl_tbl.bedthick[riv_att_tbl.matl[i] - 1];
+            cal.rivbedthick * matltbl.bedthick[rivtbl.matl[i] - 1];
         riv[i].matl.porosity =
             0.5 * (elem[riv[i].leftele - 1].soil.porosity +
             elem[riv[i].rightele - 1].soil.porosity);
@@ -348,84 +380,116 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem,
 }
 
 void InitForcing (elem_struct *elem, int numele, river_struct *riv,
-    int numriv, attrib_tbl_struct attrib_tbl, riv_att_tbl_struct riv_att_tbl,
-    forcing_ts_struct *forcing, calib_struct cal)
+    int numriv, atttbl_struct atttbl, rivtbl_struct rivtbl,
+    forc_struct *forc, calib_struct cal)
 {
     int             i, j;
 
-    for (i = 0; i < forcing->nts[METEO_TS]; i++)
+    for (i = 0; i < forc->nmeteo; i++)
     {
-        for (j = 0; j < forcing->ts[METEO_TS][i].length; j++)
+        for (j = 0; j < forc->meteo[i].length; j++)
         {
-            forcing->ts[METEO_TS][i].data[j][PRCP_TS] *= cal.prcp;
-            forcing->ts[METEO_TS][i].data[j][SFCTMP_TS] *= cal.sfctmp;
+            forc->meteo[i].data[j][PRCP_TS] *= cal.prcp;
+            forc->meteo[i].data[j][SFCTMP_TS] *= cal.sfctmp;
         }
     }
 
-    if (forcing->nts[BC_TS] > 0)
+    if (forc->nbc > 0)
     {
-        forcing->bc = (double *)malloc (forcing->nts[BC_TS] * sizeof (double));
-    }
-    if (forcing->nts[METEO_TS] > 0)
-    {
-        for (i = 0; i < NUM_METEO_TS; i++)
+        for (i = 0; i < forc->nbc; i++)
         {
-            forcing->meteo[i] =
-                (double *)malloc (forcing->nts[METEO_TS] * sizeof (double));
+            forc->bc[i].value = (double *)malloc (sizeof (double));
         }
     }
-    if (forcing->nts[LAI_TS] > 0)
+    if (forc->nmeteo > 0)
     {
-        forcing->lai = (double *)malloc (forcing->nts[LAI_TS] * sizeof (double));
+        for (i = 0; i < forc->nmeteo; i++)
+        {
+            forc->meteo[i].value =
+                (double *)malloc (NUM_METEO_VAR * sizeof (double));
+        }
     }
-    if (forcing->nts[RIV_TS] > 0)
+    if (forc->nlai > 0)
     {
-        forcing->riverbc =
-            (double *)malloc (forcing->nts[RIV_TS] * sizeof (double));
+        for (i = 0; i < forc->nlai; i++)
+        {
+            forc->lai[i].value = (double *)malloc (sizeof (double));
+        }
     }
-    if (forcing->nts[SS_TS] > 0)
+    if (forc->nriverbc > 0)
     {
-        forcing->source =
-            (double *)malloc (forcing->nts[SS_TS] * sizeof (double));
+        for (i = 0; i < forc->nriverbc; i++)
+        {
+            forc->riverbc[i].value = (double *)malloc (sizeof (double));
+        }
     }
+    if (forc->nsource > 0)
+    {
+        for (i = 0; i < forc->nsource; i++)
+        {
+            forc->source[i].value = (double *)malloc (sizeof (double));
+        }
+    }
+#ifdef _NOAH_
+    if (forc->nrad > 0)
+    {
+        for (i = 0; i < forc->nrad; i++)
+        {
+            forc->rad[i].value = (double *)malloc (2 * sizeof (double));
+        }
+    }
+#endif
 
     for (i = 0; i < numele; i++)
     {
         for (j = 0; j < 3; j++)
         {
-            elem[i].forc.bc_type[j] = attrib_tbl.bc[i][j];
+            elem[i].forc.bc_type[j] = atttbl.bc[i][j];
             if (elem[i].forc.bc_type[j] > 0)
             {
                 elem[i].forc.bc[j] =
-                    &forcing->bc[elem[i].forc.bc_type[j] - 1];
+                    forc->bc[elem[i].forc.bc_type[j] - 1].value;
+            }
+            else if (elem[i].forc.bc_type[j] < 0)
+            {
+                elem[i].forc.bc[j] =
+                    forc->bc[0 - elem[i].forc.bc_type[j] - 1].value;
             }
         }
 
-        for (j = 0; j < NUM_METEO_TS; j++)
+        for (j = 0; j < NUM_METEO_VAR; j++)
         {
-            elem[i].forc.meteo[j] =
-                &forcing->meteo[j][attrib_tbl.meteo[i] - 1];
+            elem[i].forc.meteo[j] = &forc->meteo[atttbl.meteo[i] - 1].value[j];
         }
-        elem[i].forc.zlvl_wind = forcing->zlvl_wind[attrib_tbl.meteo[i] - 1];
+        elem[i].ps.zlvl_wind = forc->meteo[atttbl.meteo[i] - 1].zlvl_wind;
 
-        elem[i].forc.lai_type = attrib_tbl.lai[i];
+        elem[i].forc.lai_type = atttbl.lai[i];
         if (elem[i].forc.lai_type > 0)
         {
-            elem[i].forc.lai = &forcing->lai[attrib_tbl.lai[i] - 1];
+            elem[i].forc.lai = forc->lai[atttbl.lai[i] - 1].value;
         }
 
-        if (attrib_tbl.source[i] > 0)
+        if (atttbl.source[i] > 0)
         {
-            elem[i].forc.source = &forcing->source[attrib_tbl.source[i] - 1];
+            elem[i].forc.source = forc->source[atttbl.source[i] - 1].value;
         }
 
+#ifdef _NOAH_
+        if (forc->nrad > 0)
+        {
+            for (j = 0; j < 2; j++)
+            {
+                elem[i].forc.rad[j] = &forc->rad[atttbl.meteo[i] - 1].value[j];
+            }
+        }
+#endif
     }
 
     for (i = 0; i < numriv; i++)
     {
-        if (riv_att_tbl.bc[i] > 0)
+        if (rivtbl.bc[i] > 0)
         {
-            riv[i].forc.riverbc = &forcing->riverbc[riv_att_tbl.bc[i] - 1];
+            riv[i].forc.riverbc = forc->riverbc[rivtbl.bc[i] - 1].value;
         }
     }
 }
@@ -447,13 +511,11 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
 
         for (j = 0; j < 3; j++)
         {
-            if (elem[i].nabr[j] > 0)
+            if (elem[i].nabr[j] != 0)
             {
-                new_elevation =
-                    elem[i].forc.bc_type[j] >
-                    -4 ? elem[elem[i].nabr[j] -
-                    1].topo.zmax : riv[-(elem[i].forc.bc_type[j] / 4) -
-                    1].topo.zmax;
+                new_elevation = (elem[i].nabr[j] > 0) ?
+                    elem[elem[i].nabr[j] - 1].topo.zmax :
+                    riv[0 - elem[i].nabr[j] - 1].topo.zmax;
                 if (elem[i].topo.zmax - new_elevation >= 0)
                 {
                     sink = 0;
@@ -471,21 +533,17 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
             new_elevation = 1.0e7;
             for (j = 0; j < 3; j++)
             {
-                if (elem[i].nabr[j] > 0)
+                if (elem[i].nabr[j] != 0)
                 {
-                    elem[i].topo.zmax =
-                        (elem[i].forc.bc_type[j] >
-                        -4 ? elem[elem[i].nabr[j] -
-                            1].topo.zmax : riv[-(elem[i].forc.bc_type[j] /
-                                4) - 1].topo.zmax);
-                    new_elevation =
-                        new_elevation >
-                        elem[i].topo.zmax ? elem[i].topo.zmax : new_elevation;
+                    elem[i].topo.zmax = (elem[i].nabr[j] > 0) ?
+                        elem[elem[i].nabr[j] - 1].topo.zmax :
+                        riv[0 - elem[i].nabr[j] - 1].topo.zmax;
+                    new_elevation = (new_elevation > elem[i].topo.zmax) ?
+                        elem[i].topo.zmax : new_elevation;
                     printf ("(%d)%lf  ", j + 1,
-                        (elem[i].forc.bc_type[j] >
-                            -4 ? elem[elem[i].nabr[j] -
-                                1].topo.zmax : riv[-(elem[i].forc.bc_type[j] /
-                                    4) - 1].topo.zmax));
+                        (elem[i].nabr[j] > 0) ?
+                            elem[elem[i].nabr[j] - 1].topo.zmax :
+                            riv[0 - elem[i].nabr[j] - 1].topo.zmax);
                 }
             }
             elem[i].topo.zmax = new_elevation;
@@ -502,13 +560,11 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
             sink = 1;
             for (j = 0; j < 3; j++)
             {
-                if (elem[i].nabr[j] > 0)
+                if (elem[i].nabr[j] != 0)
                 {
-                    new_elevation =
-                        elem[i].forc.bc_type[j] >
-                        -4 ? elem[elem[i].nabr[j] -
-                        1].topo.zmin : riv[-(elem[i].forc.bc_type[j] / 4) -
-                        1].topo.zmin;
+                    new_elevation = (elem[i].nabr[j] > 0) ?
+                        elem[elem[i].nabr[j] - 1].topo.zmin :
+                        riv[-elem[i].nabr[j] - 1].topo.zmin;
                     if (elem[i].topo.zmin - new_elevation >= 0.0)
                     {
                         sink = 0;
@@ -524,22 +580,17 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
                 new_elevation = 1.0e7;
                 for (j = 0; j < 3; j++)
                 {
-                    if (elem[i].nabr[j] > 0)
+                    if (elem[i].nabr[j] != 0)
                     {
-                        elem[i].topo.zmin =
-                            (elem[i].forc.bc_type[j] >
-                            -4 ? elem[elem[i].nabr[j] -
-                                1].topo.zmin : riv[-(elem[i].forc.bc_type[j] /
-                                    4) - 1].topo.zmin);
-                        new_elevation =
-                            new_elevation >
-                            elem[i].topo.zmin ? elem[i].topo.
-                            zmin : new_elevation;
+                        elem[i].topo.zmin = (elem[i].nabr[j] > 0) ?
+                            elem[elem[i].nabr[j] - 1].topo.zmin :
+                            riv[0 - elem[i].nabr[j] - 1].topo.zmin;
+                        new_elevation = (new_elevation > elem[i].topo.zmin) ?
+                            elem[i].topo.zmin : new_elevation;
                         printf ("(%d)%lf  ", j + 1,
-                            (elem[i].forc.bc_type[j] >
-                                -4 ? elem[elem[i].nabr[j] -
-                                    1].topo.zmin : riv[-(elem[i].forc.
-                                        bc_type[j] / 4) - 1].topo.zmin));
+                            (elem[i].nabr[j] > 0) ?
+                            elem[elem[i].nabr[j] - 1].topo.zmin :
+                            riv[0 - elem[i].nabr[j] - 1].topo.zmin);
                     }
                 }
                 elem[i].topo.zmin = new_elevation;
@@ -567,8 +618,8 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
     }
 }
 
-void InitSurfL (elem_struct *ele, int numele, river_struct *riv,
-    mesh_tbl_struct mesh_tbl)
+void InitSurfL (elem_struct *elem, int numele, river_struct *riv,
+    meshtbl_struct meshtbl)
 {
     int             i, j;
     double          x[3];
@@ -582,10 +633,10 @@ void InitSurfL (elem_struct *ele, int numele, river_struct *riv,
     {
         for (j = 0; j < 3; j++)
         {
-            x[j] = mesh_tbl.x[ele[i].node[j] - 1];
-            y[j] = mesh_tbl.y[ele[i].node[j] - 1];
-            zmin[j] = mesh_tbl.zmin[ele[i].node[j] - 1];
-            zmax[j] = mesh_tbl.zmax[ele[i].node[j] - 1];
+            x[j] = meshtbl.x[elem[i].node[j] - 1];
+            y[j] = meshtbl.y[elem[i].node[j] - 1];
+            zmin[j] = meshtbl.zmin[elem[i].node[j] - 1];
+            zmax[j] = meshtbl.zmax[elem[i].node[j] - 1];
         }
 
         for (j = 0; j < 3; j++)
@@ -594,95 +645,203 @@ void InitSurfL (elem_struct *ele, int numele, river_struct *riv,
             switch (j)
             {
                 case 0:
-                    distx = (ele[i].topo.x - 0.5 * (x[1] + x[2]));
-                    disty = (ele[i].topo.y - 0.5 * (y[1] + y[2]));
+                    distx = (elem[i].topo.x - 0.5 * (x[1] + x[2]));
+                    disty = (elem[i].topo.y - 0.5 * (y[1] + y[2]));
                     break;
                 case 1:
-                    distx = (ele[i].topo.x - 0.5 * (x[2] + x[0]));
-                    disty = (ele[i].topo.y - 0.5 * (y[2] + y[0]));
+                    distx = (elem[i].topo.x - 0.5 * (x[2] + x[0]));
+                    disty = (elem[i].topo.y - 0.5 * (y[2] + y[0]));
                     break;
                 case 2:
-                    distx = (ele[i].topo.x - 0.5 * (x[0] + x[1]));
-                    disty = (ele[i].topo.y - 0.5 * (y[0] + y[1]));
+                    distx = (elem[i].topo.x - 0.5 * (x[0] + x[1]));
+                    disty = (elem[i].topo.y - 0.5 * (y[0] + y[1]));
                     break;
             }
-            ele[i].topo.surfx[j] =
-                ele[i].nabr[j] > 0 ? (ele[i].forc.bc_type[j] >
-                -4 ? ele[ele[i].nabr[j] -
-                    1].topo.x : riv[-(ele[i].forc.bc_type[j] / 4) -
-                    1].topo.x) : (ele[i].topo.x - 2.0 * distx);
-            ele[i].topo.surfy[j] =
-                ele[i].nabr[j] > 0 ? (ele[i].forc.bc_type[j] >
-                -4 ? ele[ele[i].nabr[j] -
-                    1].topo.y : riv[-(ele[i].forc.bc_type[j] / 4) -
-                    1].topo.y) : (ele[i].topo.y - 2.0 * disty);
+
+            if (elem[i].nabr[j] == 0)
+            {
+                elem[i].topo.surfx[j] = elem[i].topo.x - 2.0 * distx;
+                elem[i].topo.surfy[j] = elem[i].topo.y - 2.0 * disty;
+            }
+            else
+            {
+                elem[i].topo.surfx[j] = (elem[i].nabr[j] > 0) ?
+                    elem[elem[i].nabr[j] - 1].topo.x :
+                    riv[0 - elem[i].nabr[j] - 1].topo.x;
+                elem[i].topo.surfy[j] = (elem[i].nabr[j] > 0) ?
+                    elem[elem[i].nabr[j] - 1].topo.y :
+                    riv[0 - elem[i].nabr[j] - 1].topo.y;
+            }
         }
     }
 }
 
-void SaturationIC (const elem_struct *ele, int numele,
-    const river_struct *riv, int numriv, ic_struct *ic)
+void SaturationIC (elem_struct *elem, int numele, river_struct *riv,
+    int numriv)
+{
+    int             i;
+#ifdef _NOAH_
+    int             j;
+    double          sfctmp;
+#endif
+
+    for (i = 0; i < numele; i++)
+    {
+        elem[i].ic.intcp = 0.0;
+        elem[i].ic.sneqv = 0.0;
+        elem[i].ic.surf = 0.0;
+        elem[i].ic.unsat = 0.1;
+        elem[i].ic.gw = elem[i].soil.depth - 0.1;
+
+#ifdef _NOAH_
+        sfctmp = *elem[i].forc.meteo[SFCTMP_TS];
+
+        elem[i].ic.t1 = sfctmp;
+
+        elem[i].ic.stc[0] = sfctmp +
+            (sfctmp - elem[i].ps.tbot) / elem[i].ps.zbot *
+            elem[i].ps.sldpth[0] * 0.5;
+
+        for (j = 1; j < MAXLYR; j++)
+        {
+            if (elem[i].ps.sldpth[j] > 0.0)
+            {
+                elem[i].ic.stc[j] =
+                    elem[i].ic.stc[j - 1] +
+                    (sfctmp - elem[i].ps.tbot) / elem[i].ps.zbot *
+                    (elem[i].ps.sldpth[j - 1] + elem[i].ps.sldpth[j]) * 0.5;
+            }
+            else
+            {
+                elem[i].ic.stc[j] = BADVAL;
+            }
+        }
+
+        for (j = 0; j < MAXLYR; j++)
+        {
+            if (elem[i].ps.sldpth[j] > 0.0)
+            {
+                elem[i].ic.smc[j] = elem[i].soil.smcmax;
+                elem[i].ic.sh2o[j] = elem[i].soil.smcmax;
+            }
+            else
+            {
+                elem[i].ic.smc[j] = BADVAL;
+                elem[i].ic.sh2o[j] = BADVAL;
+            }
+        }
+        elem[i].ic.snowh = 0.0;
+#endif
+    }
+
+    for (i = 0; i < numriv; i++)
+    {
+        riv[i].ic.stage = 0.0;
+        riv[i].ic.gw = riv[i].topo.zbed - riv[i].topo.zmin - 0.1;
+    }
+}
+
+void InitVar (elem_struct *elem, int numele, river_struct *riv,
+    int numriv, N_Vector CV_Y)
 {
     int             i;
 
+    /* State variables (initial conditions) */
     for (i = 0; i < numele; i++)
     {
-        ic->intcp[i] = 0.0;
-        ic->snow[i] = 0.0;
-        ic->surf[i] = 0.0;
-        ic->unsat[i] = 0.1;
-        ic->gw[i] = ele[i].soil.depth - 0.1;
-    }
+        elem[i].ws.cmc = elem[i].ic.intcp;
+        elem[i].ws.sneqv = elem[i].ic.sneqv;
 
-    for (i = 0; i < numriv; i++)
-    {
-        ic->stage[i] = 0.0;
-        ic->rivgw[i] = riv[i].topo.zbed - riv[i].topo.zmin - 0.1;
-    }
-}
+        elem[i].ws.surf = elem[i].ic.surf;
+        elem[i].ws.unsat = elem[i].ic.unsat;
+        elem[i].ws.gw = elem[i].ic.gw;
 
-void InitStateVrbl (elem_struct *elem, int numele, river_struct *riv,
-    int numriv, N_Vector CV_Y, ic_struct ic)
-{
-    int             i, j;
+        NV_Ith_S (CV_Y, i) = elem[i].ic.surf;
+        NV_Ith_S (CV_Y, i + numele) = elem[i].ic.unsat;
+        NV_Ith_S (CV_Y, i + 2 * numele) = elem[i].ic.gw;
+#ifdef _NOAH_
+        elem[i].es.t1 = elem[i].ic.t1;
+        elem[i].ps.snowh = elem[i].ic.snowh;
 
-    for (i = 0; i < numele; i++)
-    {
-        elem[i].intcp = ic.intcp[i];
-        elem[i].snow = ic.snow[i];
-
-        elem[i].surf0 = ic.surf[i];
-        elem[i].unsat0 = ic.unsat[i];
-        elem[i].gw0 = ic.gw[i];
-
-        elem[i].surf = ic.surf[i];
-        elem[i].unsat = ic.unsat[i];
-        elem[i].gw = ic.gw[i];
-
-        NV_Ith_S (CV_Y, i) = ic.surf[i];
-        NV_Ith_S (CV_Y, i + numele) = ic.unsat[i];
-        NV_Ith_S (CV_Y, i + 2 * numele) = ic.gw[i];
-
-        elem[i].runoff = 0.0;
-        elem[i].infil = 0.0;
-
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < MAXLYR; j++)
         {
-            elem[i].fluxsurf[j] = 0.0;
-            elem[i].fluxsub[j] = 0.0;
+            elem[i].es.stc[j] = elem[i].ic.stc[j];
+            elem[i].ws.smc[j] = elem[i].ic.smc[j];
+            elem[i].ws.sh2o[j] = elem[i].ic.sh2o[j];
         }
+#endif
+
+        elem[i].ws0 = elem[i].ws;
     }
 
     for (i = 0; i < numriv; i++)
     {
-        riv[i].stage0 = ic.stage[i];
-        riv[i].gw0 = ic.rivgw[i];
+        riv[i].ws.stage = riv[i].ic.stage;
+        riv[i].ws.gw = riv[i].ic.gw;
 
-        riv[i].stage = ic.stage[i];
-        riv[i].gw = ic.rivgw[i];
+        NV_Ith_S (CV_Y, i + 3 * numele) = riv[i].ic.stage;
+        NV_Ith_S (CV_Y, i + 3 * numele + numriv) = riv[i].ic.gw;
 
-        NV_Ith_S (CV_Y, i + 3 * numele) = ic.stage[i];
-        NV_Ith_S (CV_Y, i + 3 * numele + numriv) = ic.rivgw[i];
+        riv[i].ws0 = riv[i].ws;
+    }
+
+    /* Other variables */
+    for (i = 0; i < numele; i++)
+    {
+        ZeroWaterFlux (&elem[i].wf);
+
+#ifdef _NOAH_
+        ZeroWaterFlux (&elem[i].avgwf);
+
+        elem[i].ps.snotime1 = 0.0;
+        elem[i].ps.ribb = 0.0;
+        elem[i].ps.fcr = 1.0;
+        elem[i].ps.snoalb = 0.75;
+        elem[i].ps.zlvl = 3.0;
+        elem[i].ps.emissi = 0.96;
+        elem[i].ps.albedo = 0.18;
+        elem[i].ps.z0 = 0.1;
+        elem[i].ps.ch = 1.0e-4;
+        elem[i].ps.cm = 1.0e-4;
+        elem[i].ps.beta = BADVAL;
+        elem[i].ps.sncovr = BADVAL;
+        elem[i].ps.rc = BADVAL;
+        elem[i].ps.pc = BADVAL;
+        elem[i].ps.rcs = BADVAL;
+        elem[i].ps.rct = BADVAL;
+        elem[i].ps.rcsoil = BADVAL;
+        elem[i].ps.q1 = BADVAL;
+        elem[i].ps.cosz = BADVAL;
+        elem[i].ps.z0brd = BADVAL;
+        elem[i].ps.eta_kinematic = BADVAL;
+
+        elem[i].ef.sheat = BADVAL;
+        elem[i].ef.eta = BADVAL;
+        elem[i].ef.fdown = BADVAL;
+        elem[i].ef.ec = BADVAL;
+        elem[i].ef.edir = BADVAL;
+        elem[i].ef.ett = BADVAL;
+        elem[i].ef.etp = BADVAL;
+        elem[i].ef.ssoil = BADVAL;
+        elem[i].ef.flx1 = BADVAL;
+        elem[i].ef.flx2 = BADVAL;
+        elem[i].ef.flx3 = BADVAL;
+        elem[i].ef.solardirect = BADVAL;
+        elem[i].ef.esnow = BADVAL;
+
+        elem[i].wf.runoff1 = BADVAL;
+        elem[i].wf.runoff2 = BADVAL;
+        elem[i].wf.runoff3 = BADVAL;
+        elem[i].wf.pcpdrp = 0.0;
+        elem[i].wf.drip = 0.0;
+        elem[i].wf.prcprain = BADVAL;
+        elem[i].wf.dew = BADVAL;
+        elem[i].wf.snomlt = BADVAL;
+        elem[i].wf.esnow = BADVAL;
+
+        elem[i].ws.soilw = BADVAL;
+        elem[i].ws.soilm = BADVAL;
+#endif
     }
 }
 
@@ -697,453 +856,55 @@ void CalcModelStep (ctrl_struct *ctrl)
     for (i = 0; i < ctrl->nstep + 1; i++)
     {
         if (i == 0)
+        {
             ctrl->tout[i] = ctrl->starttime;
+        }
         else
+        {
             ctrl->tout[i] = ctrl->tout[i - 1] + ctrl->stepsize;
+        }
     }
 
     if (ctrl->tout[ctrl->nstep] < ctrl->endtime)
+    {
         ctrl->tout[ctrl->nstep] = ctrl->endtime;
-}
-
-void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
-{
-    int             i, j, k;
-    int             n;
-
-    if (verbose_mode)
-        printf ("\nInitializing PIHM output files\n");
-
-    n = 0;
-
-    for (i = 0; i < NUM_PRINT; i++)
-    {
-        if (pihm->ctrl.prtvrbl[i] > 0)
-        {
-            switch (i)
-            {
-                case GW_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.gw", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele + pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].gw0;
-                    }
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j + pihm->numele] =
-                            &pihm->riv[j].gw0;
-                    }
-                    n++;
-                    break;
-                case SURF_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.surf", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].surf0;
-                    }
-                    n++;
-                    break;
-                case SNOW_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.snow", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].snow;
-                    }
-                    n++;
-                    break;
-                case RIVSTG_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.stage", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].stage0;
-                    }
-                    n++;
-                    break;
-                case INFIL_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.infil", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].infil;
-                    }
-                    n++;
-                    break;
-                case RECHARGE_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.recharge",
-                        outputdir, simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].rechg;
-                    }
-                    n++;
-                    break;
-                case CMC_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.is", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].intcp;
-                    }
-                    n++;
-                    break;
-                case UNSAT_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.unsat", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].unsat0;
-                    }
-                    n++;
-                    break;
-                case EC_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.et0", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].et[0];
-                    }
-                    n++;
-                    break;
-                case ETT_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.et1", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].et[1];
-                    }
-                    n++;
-                    break;
-                case EDIR_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.et2", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].et[2];
-                    }
-                    n++;
-                    break;
-                case RIVFLX0_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx0", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[0];
-                    }
-                    n++;
-                    break;
-                case RIVFLX1_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx1", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[1];
-                    }
-                    n++;
-                    break;
-                case RIVFLX2_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx2", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[2];
-                    }
-                    n++;
-                    break;
-                case RIVFLX3_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx3", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[3];
-                    }
-                    n++;
-                    break;
-                case RIVFLX4_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx4", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[4];
-                    }
-                    n++;
-                    break;
-                case RIVFLX5_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx5", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[5];
-                    }
-                    n++;
-                    break;
-                case RIVFLX6_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx6", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[6];
-                    }
-                    n++;
-                    break;
-                case RIVFLX7_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx7", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[7];
-                    }
-                    n++;
-                    break;
-                case RIVFLX8_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx8", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[8];
-                    }
-                    n++;
-                    break;
-                case RIVFLX9_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx9", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[9];
-                    }
-                    n++;
-                    break;
-                case RIVFLX10_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.rivflx10",
-                        outputdir, simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].fluxriv[10];
-                    }
-                    n++;
-                    break;
-                case SUBFLX_CTRL:
-                    for (k = 0; k < 3; k++)
-                    {
-                        sprintf (pihm->prtctrl[n].name, "%s%s.subflx%d",
-                            outputdir, simulation, k);
-                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                        pihm->prtctrl[n].nvrbl = pihm->numele;
-                        pihm->prtctrl[n].vrbl =
-                            (double **)malloc (pihm->prtctrl[n].nvrbl *
-                            sizeof (double *));
-                        for (j = 0; j < pihm->numele; j++)
-                        {
-                            pihm->prtctrl[n].vrbl[j] =
-                                &pihm->elem[j].fluxsub[k];
-                        }
-                        n++;
-                    }
-                    break;
-                case SURFFLX_CTRL:
-                    for (k = 0; k < 3; k++)
-                    {
-                        sprintf (pihm->prtctrl[n].name, "%s%s.surfflx%d",
-                            outputdir, simulation, k);
-                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                        pihm->prtctrl[n].nvrbl = pihm->numele;
-                        pihm->prtctrl[n].vrbl =
-                            (double **)malloc (pihm->prtctrl[n].nvrbl *
-                            sizeof (double *));
-                        for (j = 0; j < pihm->numele; j++)
-                        {
-                            pihm->prtctrl[n].vrbl[j] =
-                                &pihm->elem[j].fluxsurf[k];
-                        }
-                        n++;
-                    }
-                    break;
-                case TOTALW_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.totalw", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele + pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].totalw;
-                    }
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j + pihm->numele] =
-                            &pihm->riv[j].totalw;
-                    }
-                    n++;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    if (debug_mode)
-    {
-        sprintf (pihm->prtctrl[n].name, "%s%s.mbc", outputdir,
-            simulation);
-        pihm->prtctrl[n].intvl = 60;
-        pihm->prtctrl[n].nvrbl = pihm->numele + pihm->numriv;
-        pihm->prtctrl[n].vrbl =
-            (double **)malloc (pihm->prtctrl[n].nvrbl *
-                    sizeof (double *));
-        for (j = 0; j < pihm->numele; j++)
-        {
-            pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].mbc;
-        }
-        for (j = 0; j < pihm->numriv; j++)
-        {
-            pihm->prtctrl[n].vrbl[j + pihm->numele] =
-                &pihm->riv[j].mbc;
-        }
-        n++;
-    }
-
-    pihm->ctrl.nprint = n;
-
-    for (i = 0; i < pihm->ctrl.nprint; i++)
-    {
-        pihm->prtctrl[i].buffer =
-            (double *) calloc (pihm->prtctrl[i].nvrbl, sizeof (double));
     }
 }
 
-void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii)
+void ZeroWaterFlux (wf_struct *wf)
 {
-    FILE           *fid;
-    char            ascii_fn[MAXSTRING];
-    char            dat_fn[MAXSTRING];
-    int             i;
+    int             j;
 
-    for (i = 0; i < nprint; i++)
+    wf->runoff = 0.0;
+    wf->infil = 0.0;
+    wf->prcp = 0.0;
+    wf->netprcp = 0.0;
+    wf->rechg = 0.0;
+    wf->drip = 0.0;
+    wf->edir = 0.0;
+    wf->ett = 0.0;
+    wf->ec = 0.0;
+    wf->etp = 0.0;
+    wf->eta = 0.0;
+    wf->edir_sfc = 0.0;
+    wf->edir_unsat = 0.0;
+    wf->edir_gw = 0.0;
+    wf->ett_unsat = 0.0;
+    wf->ett_gw = 0.0;
+
+    for (j = 0; j < 3; j++)
     {
-        sprintf (dat_fn, "%s.dat", prtctrl[i].name);
-        fid = fopen (dat_fn, "w");
-        fclose (fid);
+        wf->fluxsurf[j] = 0.0;
+        wf->fluxsub[j] = 0.0;
+    }
 
-        if (ascii)
-        {
-            sprintf (ascii_fn, "%s.txt", prtctrl[i].name);
-            fid = fopen (ascii_fn, "w");
-            fclose (fid);
-        }
+    for (j = 0; j < MAXLYR; j++)
+    {
+        wf->et[j] = 0.0;
+    }
+
+    for (j = 0; j < 11; j++)
+    {
+        wf->fluxriv[j] = 0.0;
     }
 }

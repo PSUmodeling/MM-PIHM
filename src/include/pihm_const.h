@@ -1,16 +1,35 @@
 #ifndef PIHM_CONST_HEADER
 #define PIHM_CONST_HEADER
 
+/* Physical parameters */
+#define PI		3.14159265
+#define GRAV		9.80665
+#define CP              1004.0  /* Specific heat capacity of air (J/kg/K) */
+#define LVH2O           2.501e6 /* Latent heat of vaporization (J/kg) */
+#define SIGMA           5.67e-8 /* Stefan-Boltzmann constant (W/m2/K4) */
+#define RD              287.04  /* Gas constant for dry air (J/kg/K) */
+#define RV              461.5   /* Gas constant for water vapor (J/kg/K) */
+#define CPH2O	        4.218e3 /* Specific heat capacity of water (J/kg/K) */
+#define CPICE	        2.106e3
+#define LSUBF	        3.335e5
+#define EMISSI_S        0.95
+#define TFREEZ          273.15
+#define LSUBS           2.83e6
+
+#define BADVAL		-999
+#define MAXSTRING	1024
+#define ISURBAN         13
+
+#define MAXLYR          11
+#define NUM_METEO_VAR   7
+#define NUM_PRINT       200
+
 #define PSIMIN		-70.0
 #define IMMOBILE        5E-4
 #define GRADMIN         5E-8
 #define SATMIN          0.1
 #define RIVDPTHMIN      0.05
 #define RIVGRADMIN      0.05
-#define GRAV		9.80665
-#define PI		3.14159265
-#define BADVAL		-999
-#define MAXSTRING	1024
 
 #define SURF(i)         i
 #define UNSAT(i)        i + pihm->numele
@@ -18,39 +37,81 @@
 #define RIVSTG(i)       i + 3 * pihm->numele
 #define RIVGW(i)        i + 3 * pihm->numele + pihm->numriv
 
+/* Macropore status */
 #define MAT_CTRL        0
 #define APP_CTRL        1
 #define MAC_CTRL        2
 #define SAT_CTRL        3
 
+/* River segment interpolation order */
+#define RECTANGLE       1
+#define TRIANGLE        2
+#define QUADRATIC       3
+#define CUBIC           4
+
 #define RIGHT_SIDE      0
 #define LEFT_SIDE       1
 
-#define CP           1004.0
-#define LVH2O              2.503e6
-#define SIGMA           5.67e-8
-#define RD           287.04
-#define RV             461.5
+/* Approximation */
+#define KINEMATIC       1
+#define DIFF_WAVE       2
 
-#define NUM_TS          5
-#define NUM_METEO_TS    7
-#define NUM_PRINT       100
+/* Initialization type */
+#define RELAX           0
+#define RST_FILE        3
+
+/* Average flux */
+#define SUM             0
+#define AVG             1
+
+/* Output variables */
+#define GW_CTRL         0
+#define SURF_CTRL       1
+#define SNOW_CTRL       2
+#define RIVSTG_CTRL     3
+#define INFIL_CTRL      4
+#define RECHARGE_CTRL   5
+#define CMC_CTRL        6
+#define UNSAT_CTRL      7
+#define EC_CTRL         8
+#define ETT_CTRL        9
+#define EDIR_CTRL       10
+#define RIVFLX0_CTRL    11
+#define RIVFLX1_CTRL    12
+#define RIVFLX2_CTRL    13
+#define RIVFLX3_CTRL    14
+#define RIVFLX4_CTRL    15
+#define RIVFLX5_CTRL    16
+#define RIVFLX6_CTRL    17
+#define RIVFLX7_CTRL    18
+#define RIVFLX8_CTRL    19
+#define RIVFLX9_CTRL    20
+#define RIVFLX10_CTRL   21
+#define SUBFLX_CTRL     22
+#define SURFFLX_CTRL    23
+#define T1_CTRL         24
+#define STC_CTRL        25
+#define SMC_CTRL        26
+#define SH2O_CTRL       27
+#define SNOWH_CTRL      28
+#define ALBEDO_CTRL     29
+#define LE_CTRL         30
+#define SH_CTRL         31
+#define G_CTRL          32
+#define ETP_CTRL        33
+#define ESNOW_CTRL      34
+#define ROOTW_CTRL      35
+#define SOILM_CTRL      36
+#define SOLAR_CTRL      37
 
 extern int      verbose_mode;
 extern int      debug_mode;
+extern char     project[MAXSTRING];
 
 /* Enumrate type for forcing time series */
 enum meteo_forcing_type
 { PRCP_TS, SFCTMP_TS, RH_TS, SFCSPD_TS, SOLAR_TS, LONGWAVE_TS, PRES_TS };
-enum forcing_type
-{ RIV_TS, BC_TS, METEO_TS, LAI_TS, SS_TS };
 
-enum pihm_print_type
-{ GW_CTRL, SURF_CTRL, SNOW_CTRL, RIVSTG_CTRL,
-    INFIL_CTRL, RECHARGE_CTRL, CMC_CTRL, UNSAT_CTRL, EC_CTRL, ETT_CTRL,
-        EDIR_CTRL,
-    RIVFLX0_CTRL, RIVFLX1_CTRL, RIVFLX2_CTRL, RIVFLX3_CTRL, RIVFLX4_CTRL,
-    RIVFLX5_CTRL, RIVFLX6_CTRL, RIVFLX7_CTRL, RIVFLX8_CTRL, RIVFLX9_CTRL,
-    RIVFLX10_CTRL, SUBFLX_CTRL, SURFFLX_CTRL, TOTALW_CTRL
-};
+enum rad_forcing_type
+{ SOLAR_DIR_TS, SOLAR_DIF_TS };
 #endif

@@ -1,7 +1,28 @@
 #ifndef PIHM_INPUT_STRUCT_HEADER
 #define PIHM_INPUT_STRUCT_HEADER
 
-typedef struct riv_att_tbl_struct
+typedef struct filename_struct
+{
+    char            riv[MAXSTRING];
+    char            mesh[MAXSTRING];
+    char            att[MAXSTRING];
+    char            soil[MAXSTRING];
+    char            geol[MAXSTRING];
+    char            lc[MAXSTRING];
+    char            forc[MAXSTRING];
+    char            lai[MAXSTRING];
+    char            ibc[MAXSTRING];
+    char            para[MAXSTRING];
+    char            calib[MAXSTRING];
+    char            init[MAXSTRING];
+#ifdef _NOAH_
+    char            lsm[MAXSTRING];
+    char            rad[MAXSTRING];
+    char            lsminit[MAXSTRING];
+#endif
+} filename_struct;
+
+typedef struct rivtbl_struct
 {
     int             number;
     int            *fromnode;   /* Upstream Node no. */
@@ -11,12 +32,11 @@ typedef struct riv_att_tbl_struct
     int            *rightele;   /* Right neighboring element */
     int            *shp;        /* shape type    */
     int            *matl;       /* material type */
-    int            *ic;         /* IC type */
     int            *bc;         /* BC type */
     int            *rsvr;
-} riv_att_tbl_struct;
+} rivtbl_struct;
 
-typedef struct riv_shp_tbl_struct
+typedef struct shptbl_struct
 {
     int             number;
     double         *depth;      /* depth */
@@ -27,9 +47,9 @@ typedef struct riv_shp_tbl_struct
                                  * 4: cubic */
     double         *coeff;      /* Coefficient c in
                                  * D = c * pow(B / 2, interpOrd) */
-} riv_shp_tbl_struct;
+} shptbl_struct;
 
-typedef struct riv_matl_tbl_struct
+typedef struct matltbl_struct
 {
     int             number;     /* Number of River Bank/Bed Material */
     double         *rough;
@@ -37,15 +57,9 @@ typedef struct riv_matl_tbl_struct
     double         *ksath;      /* Conductivity of river banks */
     double         *ksatv;      /* Conductivity of river bed */
     double         *bedthick;   /* thickeness of conductive river bed */
-} riv_matl_tbl_struct;
+} matltbl_struct;
 
-typedef struct riv_ic_tbl_struct
-{
-    int             number;
-    double         *stage;
-} riv_ic_tbl_struct;
-
-typedef struct mesh_tbl_struct
+typedef struct meshtbl_struct
 {
     int             numele;
     int             numnode;
@@ -55,9 +69,9 @@ typedef struct mesh_tbl_struct
     double         *y;
     double         *zmin;
     double         *zmax;
-} mesh_tbl_struct;
+} meshtbl_struct;
 
-typedef struct attrib_tbl_struct
+typedef struct atttbl_struct
 {
     int            *soil;       /* soil type */
     int            *geol;
@@ -72,15 +86,15 @@ typedef struct attrib_tbl_struct
                                  *                                  * series */
     int            *source;     /* source (well) type */
     int            *macropore;
-} attrib_tbl_struct;
+} atttbl_struct;
 
-typedef struct soil_tbl_struct
+typedef struct soiltbl_struct
 {
     int             number;     /* index */
     double         *ksatv;      /* vertical saturated soil
                                  * conductivity */
-    double         *thetas;     /* soil porosity */
-    double         *thetar;     /* soil moisture residual */
+    double         *smcmax;     /* soil porosity */
+    double         *smcmin;     /* soil moisture residual */
     double         *qtz;        /* ys: quartz content */
     double         *alpha;      /* soil curve parameter 1 */
     double         *beta;       /* soil curve parameter 2 */
@@ -91,17 +105,17 @@ typedef struct soil_tbl_struct
                                  * conductivity */
     double         *dinf;       /* depth from ground surface accross which
                                  * head is calculated during infiltration */
-} soil_tbl_struct;
+} soiltbl_struct;
 
-typedef struct geol_tbl_struct
+typedef struct geoltbl_struct
 {
     int             number;     /* index */
     double         *ksath;      /* horizontal saturated geology
                                  * conductivity */
     double         *ksatv;      /* vertical saturated geology
                                  * conductivity */
-    double         *thetas;     /* geology porosity */
-    double         *thetar;     /* residual porosity */
+    double         *smcmax;     /* geology porosity */
+    double         *smcmin;    /* residual porosity */
     double         *alpha;      /* van genuchten parameter */
     double         *beta;       /* van genuchten parameter */
 
@@ -110,9 +124,9 @@ typedef struct geol_tbl_struct
     double         *kmach;      /* macroporous saturated
                                  * horizontal conductivity */
     double         *dmac;
-} geol_tbl_struct;
+} geoltbl_struct;
 
-typedef struct lc_tbl_struct
+typedef struct lctbl_struct
 {
     int             number;     /* index */
 
@@ -139,28 +153,62 @@ typedef struct lc_tbl_struct
     int             natural;
     double          cfactr;     /* YS */
     double          topt;       /* YS */
-} lc_tbl_struct;
+} lctbl_struct;
 
-typedef struct ts_struct
+typedef struct tsdata_struct
 {
     int             length;     /* length of time series */
     int            *ftime;
     double        **data;       /* 2D time series data */
-} ts_struct;
+    double         *value;
+    double          zlvl_wind;
+} tsdata_struct;
 
-typedef struct forcing_ts_struct
+typedef struct forc_struct
 {
-    int             nts[NUM_TS];
+    /* Forcing series */
+    int             nbc;
+    tsdata_struct  *bc;
 
-    ts_struct      *ts[NUM_TS];
-    double         *zlvl_wind;  /* wind measurement height */
+    int             nmeteo;
+    tsdata_struct  *meteo;
 
-    double         *bc;
-    double         *meteo[NUM_METEO_TS];
-    double         *lai;
-    double         *z0;
-    double         *source;
-    double         *meltf;
-    double         *riverbc;
-} forcing_ts_struct;
+    int             nlai;
+    tsdata_struct  *lai;
+
+    int             nz0;
+    tsdata_struct  *z0;
+
+    int             nsource;
+    tsdata_struct  *source;
+
+    int             nmeltf;
+    tsdata_struct  *meltf;
+
+    int             nriverbc;
+    tsdata_struct  *riverbc;
+#ifdef _NOAH_
+    int             nrad;
+    tsdata_struct  *rad;
+#endif
+} forc_struct;
+
+#ifdef _NOAH_
+typedef struct noahtbl_struct
+{
+    double          sbeta;
+    double          fxexp;
+    double          csoil;
+    double          salp;
+    double          refdk;
+    double          refkdt;
+    double          frzk;
+    double          zbot;
+    double          tbot;
+    double          smlow;
+    double          smhigh;
+    double          czil;
+    double          lvcoef;
+} noahtbl_struct;
+#endif
 #endif

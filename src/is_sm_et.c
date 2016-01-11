@@ -46,9 +46,9 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
         elem = &pihm->elem[i];
 
         /* Note the dependence on physical units */
-        elem->prcp = *elem->forc.meteo[PRCP_TS] / 1000.0;
-        elem->albedo = 0.5 * (elem->lc.albedomin + elem->lc.albedomax);
-        radnet = *elem->forc.meteo[SOLAR_TS] * (1.0 - elem->albedo);
+        elem->wf.prcp = *elem->forc.meteo[PRCP_TS] / 1000.0;
+        elem->ps.albedo = 0.5 * (elem->lc.albedomin + elem->lc.albedomax);
+        radnet = *elem->forc.meteo[SOLAR_TS] * (1.0 - elem->ps.albedo);
         sfctmp = *elem->forc.meteo[SFCTMP_TS] - 273.15;
         wind = *elem->forc.meteo[SFCSPD_TS];
         rh = *elem->forc.meteo[RH_TS] / 100.0;
@@ -74,15 +74,15 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
         frac_snow =
             sfctmp < TSNOW ? 1.0 : sfctmp >
             TRAIN ? 0 : (TRAIN - sfctmp) / (TRAIN - TSNOW);
-        snow_rate = frac_snow * elem->prcp;
+        snow_rate = frac_snow * elem->wf.prcp;
         /* snow_grnd, snow_canopy, snow_intcp_max, melt_rate_grnd,
          * melt_rate_canopy are the average value prorated over the whole
          * elemental area */
         snow_grnd =
-            snow_grnd + (1.0 - elem->lc.vegfrac) * snow_rate * stepsize;
-        snow_canopy = snow_canopy + elem->lc.vegfrac * snow_rate * stepsize;
+            snow_grnd + (1.0 - elem->lc.shdfac) * snow_rate * stepsize;
+        snow_canopy = snow_canopy + elem->lc.shdfac * snow_rate * stepsize;
         snow_intcp_max =
-            snow_canopy > 0.0 ? 0.003 * lai * elem->lc.vegfrac : 0.0;
+            snow_canopy > 0.0 ? 0.003 * lai * elem->lc.shdfac : 0.0;
         if (snow_canopy > snow_intcp_max)
         {
             snow_grnd += snow_canopy - snow_intcp_max;
@@ -111,12 +111,12 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
          * EleIS, EleET[0] and ret are prorated for the whole element.
          * Logistics are simpler if assumed in volumetric form by
          * multiplication of Area on either side of equation */
-        intcp_max = elem->lc.intcp_factr * lai * elem->lc.vegfrac;
+        intcp_max = elem->lc.cmcfactr * lai * elem->lc.shdfac;
 
         z0 = MonthlyRL (t, elem->lc.type);
 
-        ra = log (elem->forc.zlvl_wind / z0) * log (10.0 *
-            elem->forc.zlvl_wind / z0) / (wind * 0.16);
+        ra = log (elem->ps.zlvl_wind / z0) * log (10.0 *
+            elem->ps.zlvl_wind / z0) / (wind * 0.16);
 
         gamma =
             4.0 * 0.7 * SIGMA * RD / CP * pow (sfctmp + 273.15,
@@ -129,32 +129,32 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
             (radnet * delta + gamma * (1.2 * LVH2O * (qvsat -
                     qv) / ra)) / (1000.0 * LVH2O * (delta + gamma));
 
-        if (elem->soil.depth - elem->gw0 < elem->lc.rzd)
+        if (elem->soil.depth - elem->ws0.gw < elem->lc.rzd)
             satn = 1.0;
         else
             satn =
-                ((elem->unsat0 / (elem->soil.depth - elem->gw0)) >
-                1.0) ? 1.0 : ((elem->unsat0 / (elem->soil.depth -
-                        elem->gw0)) <
+                ((elem->ws0.unsat / (elem->soil.depth - elem->ws0.gw)) >
+                1.0) ? 1.0 : ((elem->ws0.unsat / (elem->soil.depth -
+                        elem->ws0.gw)) <
                 0.0) ? 0.0 : 0.5 * (1.0 -
-                cos (3.14 * (elem->unsat0 / (elem->soil.depth - elem->gw0))));
+                cos (3.14 * (elem->ws0.unsat / (elem->soil.depth - elem->ws0.gw))));
 
         betas =
-            (satn * elem->soil.porosity + elem->soil.thetar -
-            elem->soil.thetaw) / (elem->soil.thetaref - elem->soil.thetaw);
+            (satn * elem->soil.porosity + elem->soil.smcmin -
+            elem->soil.smcwlt) / (elem->soil.smcref - elem->soil.smcwlt);
         betas = (betas < 0.0001) ? 0.0001 : (betas > 1.0 ? 1.0 : betas);
-        elem->et[2] = (1.0 - elem->lc.vegfrac) * pow (betas, 2) * etp;
-        elem->et[2] = elem->et[2] < 0.0 ? 0.0 : elem->et[2];
+        elem->wf.edir = (1.0 - elem->lc.shdfac) * pow (betas, 2) * etp;
+        elem->wf.edir = elem->wf.edir < 0.0 ? 0.0 : elem->wf.edir;
 
         /* Note the dependence on physical units */
         if (lai > 0.0)
         {
-            elem->et[0] =
-                elem->lc.vegfrac * (pow ((elem->intcp <
-                        0.0 ? 0.0 : (elem->intcp >
-                            intcp_max ? intcp_max : elem->intcp)) / intcp_max,
+            elem->wf.ec =
+                elem->lc.shdfac * (pow ((elem->ws.cmc <
+                        0.0 ? 0.0 : (elem->ws.cmc >
+                            intcp_max ? intcp_max : elem->ws.cmc)) / intcp_max,
                     elem->lc.cfactr)) * etp;
-            elem->et[0] = elem->et[0] < 0.0 ? 0.0 : elem->et[0];
+            elem->wf.ec = elem->wf.ec < 0.0 ? 0.0 : elem->wf.ec;
 
             fr = 1.1 * radnet / (elem->lc.rgl * lai);
             fr = fr < 0.0 ? 0.0 : fr;
@@ -170,106 +170,106 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
 
             pc = (1.0 + delta / gamma) / (1.0 + rs / ra + delta / gamma);
 
-            elem->et[1] =
-                elem->lc.vegfrac * pc * (1.0 - pow (((elem->intcp +
+            elem->wf.ett =
+                elem->lc.shdfac * pc * (1.0 - pow (((elem->ws.cmc +
                             snow_canopy <
-                            0.0) ? 0.0 : (elem->intcp +
+                            0.0) ? 0.0 : (elem->ws.cmc +
                             snow_canopy)) / (intcp_max + snow_intcp_max),
                     elem->lc.cfactr)) * etp;
-            elem->et[1] = elem->et[1] < 0.0 ? 0.0 : elem->et[1];
-            elem->et[1] = ((elem->gw < (elem->soil.depth - elem->lc.rzd)) &&
-                elem->unsat <= 0.0) ? 0.0 : elem->et[1];
+            elem->wf.ett = elem->wf.ett < 0.0 ? 0.0 : elem->wf.ett;
+            elem->wf.ett = ((elem->ws.gw < (elem->soil.depth - elem->lc.rzd)) &&
+                elem->ws.unsat <= 0.0) ? 0.0 : elem->wf.ett;
 
-            elem->drip =
-                elem->intcp <=
-                0.0 ? 0.0 : 5.65e-2 * intcp_max * exp (3.89 * (elem->intcp <
-                    0.0 ? 0.0 : elem->intcp) / intcp_max);
+            elem->wf.drip =
+                elem->ws.cmc <=
+                0.0 ? 0.0 : 5.65e-2 * intcp_max * exp (3.89 * (elem->ws.cmc <
+                    0.0 ? 0.0 : elem->ws.cmc) / intcp_max);
         }
         else
         {
-            elem->et[1] = 0.0;
-            elem->et[0] = 0.0;
-            elem->drip = 0.0;
+            elem->wf.ett = 0.0;
+            elem->wf.ec = 0.0;
+            elem->wf.drip = 0.0;
         }
 
-        if (elem->drip < 0.0)
-            elem->drip = 0.0;
-        if (elem->drip * stepsize > elem->intcp)
-            elem->drip = elem->intcp / stepsize;
-        if (elem->intcp >= intcp_max)
+        if (elem->wf.drip < 0.0)
+            elem->wf.drip = 0.0;
+        if (elem->wf.drip * stepsize > elem->ws.cmc)
+            elem->wf.drip = elem->ws.cmc / stepsize;
+        if (elem->ws.cmc >= intcp_max)
         {
-            if (((1.0 - frac_snow) * elem->prcp * elem->lc.vegfrac +
-                    melt_rate_canopy) >= elem->et[0] + elem->drip)
+            if (((1.0 - frac_snow) * elem->wf.prcp * elem->lc.shdfac +
+                    melt_rate_canopy) >= elem->wf.ec + elem->wf.drip)
             {
                 ret =
-                    elem->drip + (elem->intcp - intcp_max) / stepsize +
-                    (((1.0 - frac_snow) * elem->prcp * elem->lc.vegfrac +
-                        melt_rate_canopy) - (elem->et[0] + elem->drip));
+                    elem->wf.drip + (elem->ws.cmc - intcp_max) / stepsize +
+                    (((1.0 - frac_snow) * elem->wf.prcp * elem->lc.shdfac +
+                        melt_rate_canopy) - (elem->wf.ec + elem->wf.drip));
                 isval = intcp_max;
             }
-            else if ((((1.0 - frac_snow) * elem->prcp * elem->lc.vegfrac +
-                        melt_rate_canopy) < elem->et[0] + elem->drip) &&
-                (elem->intcp + stepsize * ((1.0 -
-                            frac_snow) * elem->prcp * elem->lc.vegfrac +
-                        melt_rate_canopy - elem->et[0] - elem->drip) <= 0.0))
+            else if ((((1.0 - frac_snow) * elem->wf.prcp * elem->lc.shdfac +
+                        melt_rate_canopy) < elem->wf.ec + elem->wf.drip) &&
+                (elem->ws.cmc + stepsize * ((1.0 -
+                            frac_snow) * elem->wf.prcp * elem->lc.shdfac +
+                        melt_rate_canopy - elem->wf.ec - elem->wf.drip) <= 0.0))
             {
-                elem->et[0] =
-                    (elem->et[0] / (elem->et[0] +
-                        elem->drip)) * (elem->intcp / stepsize + ((1.0 -
-                            frac_snow) * elem->prcp * elem->lc.vegfrac +
+                elem->wf.ec =
+                    (elem->wf.ec / (elem->wf.ec +
+                        elem->wf.drip)) * (elem->ws.cmc / stepsize + ((1.0 -
+                            frac_snow) * elem->wf.prcp * elem->lc.shdfac +
                         melt_rate_canopy));
                 ret =
-                    (elem->drip / (elem->et[0] +
-                        elem->drip)) * (elem->intcp / stepsize + ((1.0 -
-                            frac_snow) * elem->prcp * elem->lc.vegfrac +
+                    (elem->wf.drip / (elem->wf.ec +
+                        elem->wf.drip)) * (elem->ws.cmc / stepsize + ((1.0 -
+                            frac_snow) * elem->wf.prcp * elem->lc.shdfac +
                         melt_rate_canopy));
                 isval = 0.0;
             }
             else
             {
                 isval =
-                    elem->intcp + stepsize * (((1.0 -
-                            frac_snow) * elem->prcp * elem->lc.vegfrac +
-                        melt_rate_canopy) - elem->et[0] - elem->drip);
-                ret = elem->drip;
+                    elem->ws.cmc + stepsize * (((1.0 -
+                            frac_snow) * elem->wf.prcp * elem->lc.shdfac +
+                        melt_rate_canopy) - elem->wf.ec - elem->wf.drip);
+                ret = elem->wf.drip;
             }
         }
-        else if ((elem->intcp < intcp_max) &&
-            ((elem->intcp + (((1.0 -
-                                frac_snow) * elem->prcp * elem->lc.vegfrac +
-                            melt_rate_canopy) - elem->et[0] -
-                        elem->drip) * stepsize) >= intcp_max))
+        else if ((elem->ws.cmc < intcp_max) &&
+            ((elem->ws.cmc + (((1.0 -
+                                frac_snow) * elem->wf.prcp * elem->lc.shdfac +
+                            melt_rate_canopy) - elem->wf.ec -
+                        elem->wf.drip) * stepsize) >= intcp_max))
         {
             isval = intcp_max;
             ret =
-                elem->drip + (((elem->intcp + (((1.0 -
-                                    frac_snow) * elem->prcp *
-                                elem->lc.vegfrac + melt_rate_canopy) -
-                            elem->et[0] - elem->drip) * stepsize) -
+                elem->wf.drip + (((elem->ws.cmc + (((1.0 -
+                                    frac_snow) * elem->wf.prcp *
+                                elem->lc.shdfac + melt_rate_canopy) -
+                            elem->wf.ec - elem->wf.drip) * stepsize) -
                     intcp_max)) / stepsize;
         }
-        else if ((elem->intcp < intcp_max) &&
-            ((elem->intcp + (((1.0 -
-                                frac_snow) * elem->prcp * elem->lc.vegfrac +
-                            melt_rate_canopy) - elem->et[0] -
-                        elem->drip) * stepsize) <= 0.0))
+        else if ((elem->ws.cmc < intcp_max) &&
+            ((elem->ws.cmc + (((1.0 -
+                                frac_snow) * elem->wf.prcp * elem->lc.shdfac +
+                            melt_rate_canopy) - elem->wf.ec -
+                        elem->wf.drip) * stepsize) <= 0.0))
         {
-            if ((elem->et[0] > 0.0) || (elem->drip > 0.0))
+            if ((elem->wf.ec > 0.0) || (elem->wf.drip > 0.0))
             {
-                elem->et[0] =
-                    (elem->et[0] / (elem->et[0] +
-                        elem->drip)) * (elem->intcp / stepsize + ((1.0 -
-                            frac_snow) * elem->prcp * elem->lc.vegfrac +
+                elem->wf.ec =
+                    (elem->wf.ec / (elem->wf.ec +
+                        elem->wf.drip)) * (elem->ws.cmc / stepsize + ((1.0 -
+                            frac_snow) * elem->wf.prcp * elem->lc.shdfac +
                         melt_rate_canopy));
                 ret =
-                    (elem->drip / (elem->et[0] +
-                        elem->drip)) * (elem->intcp / stepsize + ((1.0 -
-                            frac_snow) * elem->prcp * elem->lc.vegfrac +
+                    (elem->wf.drip / (elem->wf.ec +
+                        elem->wf.drip)) * (elem->ws.cmc / stepsize + ((1.0 -
+                            frac_snow) * elem->wf.prcp * elem->lc.shdfac +
                         melt_rate_canopy));
             }
             else
             {
-                elem->et[0] = 0.0;
+                elem->wf.ec = 0.0;
                 ret = 0.0;
             }
             isval = 0.0;
@@ -277,16 +277,16 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
         else
         {
             isval =
-                elem->intcp + (((1.0 -
-                        frac_snow) * elem->prcp * elem->lc.vegfrac +
-                    melt_rate_canopy) - elem->et[0] - elem->drip) * stepsize;
-            ret = elem->drip;
+                elem->ws.cmc + (((1.0 -
+                        frac_snow) * elem->wf.prcp * elem->lc.shdfac +
+                    melt_rate_canopy) - elem->wf.ec - elem->wf.drip) * stepsize;
+            ret = elem->wf.drip;
         }
 
-        elem->netprcp =
-            (1.0 - elem->lc.vegfrac) * (1.0 - frac_snow) * elem->prcp + ret +
+        elem->wf.netprcp =
+            (1.0 - elem->lc.shdfac) * (1.0 - frac_snow) * elem->wf.prcp + ret +
             melt_rate_grnd;
-        elem->drip = ret;
-        elem->intcp = isval;
+        elem->wf.drip = ret;
+        elem->ws.cmc = isval;
     }
 }

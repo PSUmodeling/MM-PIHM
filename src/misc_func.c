@@ -3,7 +3,7 @@
 #include "enkf.h"
 #endif
 
-void CreateOutputDir (char *project, char *outputdir, int overwrite_mode)
+void CreateOutputDir (char *outputdir, int overwrite_mode)
 {
     time_t          rawtime;
     struct tm      *timestamp;

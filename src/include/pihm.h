@@ -1,4 +1,3 @@
-
 /*****************************************************************************
  * File       : pihm.h
  * Function   : Declaration and Definition of global variables and data
@@ -30,6 +29,10 @@
 #include "sundials_math.h"      /* contains UnitRoundoff, RSqrt,
                                  * SQR functions  */
 #include "cvode_dense.h"        /* CVDENSE header file */
+
+#ifdef _NOAH_
+#include "spa.h"
+#endif
 
 #include "pihm_const.h"
 #include "pihm_input_struct.h"
