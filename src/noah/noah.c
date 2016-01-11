@@ -2480,6 +2480,8 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
     double          acrt;
     double          sum;
     double          ialp1;
+    double          weight[MAXLYR];
+    double          smctot;
     int             macpore[MAXLYR];
     /* Frozen ground version:
      * Reference frozen ground parameter, cvfrz, is a shape parameter of areal
@@ -2539,6 +2541,40 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
         macpore[k] = 1;
     }
 
+    /* Determine runoff from each layer */
+    smctot = (ps->nwtbl <= 1) ? -zsoil[0] * ws->sh2o[0] : 0.0;
+    for (ks = 1; ks < ps->nsoil; ks++)
+    {
+        if (ks >= ps->nwtbl - 1)
+        {
+            smctot += (zsoil[ks - 1] - zsoil[ks]) * ws->sh2o[ks];
+        }
+    }
+
+    for (ks = 0; ks < MAXLYR; ks++)
+    {
+        weight[ks] = 0.0;
+    }
+
+    for (ks = 0; ks < ps->nsoil; ks++)
+    {
+        if (ks >= ps->nwtbl - 1)
+        {
+            if (ks == 0)
+            {
+                weight[ks] = -zsoil[0] * ws->sh2o[0] / smctot;
+            }
+            else
+            {
+                weight[ks] = (zsoil[ks - 1] - zsoil[ks]) * ws->sh2o[ks] / smctot;
+            }
+        }
+    }
+
+    if (weight[0] + weight[1] + weight[2] + weight[3] + weight[4] + weight[5] + weight[6] + weight[7] + weight[8] + weight[9] + weight[10] < 0.99
+        ||weight[0] + weight[1] + weight[2] + weight[3] + weight[4] + weight[5] + weight[6] + weight[7] + weight[8] + weight[9] + weight[10] > 1.01 )
+    printf ("total weight %lf\n", weight[0] + weight[1] + weight[2] + weight[3] + weight[4] + weight[5] + weight[6] + weight[7] + weight[8] + weight[9] + weight[10]);
+
     mxsmc = ws->sh2o[0];
 
     dsmdz = (ws->sh2o[0] - ws->sh2o[1]) / (- 0.5 * zsoil[1]);
@@ -2553,10 +2589,7 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
      * gradient btwn the top and next to top layers. */
     rhstt[0] = (wdf * dsmdz + wcnd - pddum + wf->edir + wf->et[0]) / zsoil[0];
 
-    if (ps->nwtbl == 1)
-    {
-        rhstt[0] += avgwf->runoff2 / zsoil[0];
-    }
+    rhstt[0] += avgwf->runoff2 * weight[0] / zsoil[0];
 
     /* Loop thru the remaining soil layers, repeating the abv process */
     /* Initialize ddz2 */
@@ -2591,10 +2624,9 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
 
         /* Calc rhstt for this layer after calc'ng its numerator */
         numer = (wdf2 * dsmdz2) + wcnd2 - (wdf * dsmdz) - wcnd + wf->et[k];
-        if (k == ps->nwtbl - 1)
-        {
-            numer = numer + avgwf->runoff2;
-        }
+        
+        numer = numer + avgwf->runoff2 * weight[k];
+
         rhstt[k] = numer / (-denom2);
 
         /* Calc matrix coefs, ai, and bi for this layer */
@@ -2674,6 +2706,8 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
 
         if (stot > soil->smcmax)
         {
+            ws->smc[k] = soil->smcmax;
+
             if (k == 0)
             {
                 ddz = -zsoil[0];
@@ -2687,16 +2721,8 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
         }
         else
         {
-            wplus = 0.0;
-        }
-
-        if (stot < soil->smcmax)
-        {
             ws->smc[k] = stot;
-        }
-        else
-        {
-            ws->smc[k] = soil->smcmax;
+            wplus = 0.0;
         }
 
         sh2omid[k] = ws->smc[k] - sice[k];
