@@ -2707,16 +2707,6 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
         if (stot > soil->smcmax)
         {
             ws->smc[k] = soil->smcmax;
-
-            if (k == 0)
-            {
-                ddz = -zsoil[0];
-            }
-            else
-            {
-                kk11 = k - 1;
-                ddz = -zsoil[k] + zsoil[kk11];
-            }
             wplus = (stot - soil->smcmax) * ddz;
         }
         else
@@ -2724,17 +2714,6 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
             if (k > ps->nwtbl - 1)
             {
                 ws->smc[k] = soil->smcmax;
-
-                if (k == 0)
-                {
-                    ddz = -zsoil[0];
-                }
-                else
-                {
-                    kk11 = k - 1;
-                    ddz = -zsoil[k] + zsoil[kk11];
-                }
-
                 wplus = (stot - soil->smcmax) * ddz;
             }
             else
@@ -2758,15 +2737,6 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
         stot = ws->sh2o[k] + sice[k];
         if (stot > soil->smcmax)
         {
-            if (k == 0)
-            {
-                ddz = -zsoil[0];
-            }
-            else
-            {
-                kk11 = k - 1;
-                ddz = -zsoil[k] + zsoil[kk11];
-            }
             wplus = (stot - soil->smcmax) * ddz;
         }
         else
