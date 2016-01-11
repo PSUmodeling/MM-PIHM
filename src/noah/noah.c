@@ -69,9 +69,6 @@ void Noah (int t, pihm_struct pihm)
         elem->ef.solnet = elem->ef.soldn * (1.0 - elem->ps.albedo);
         elem->ef.lwdn = elem->ef.longwave * elem->ps.emissi;
 
-        elem->wf.runoff2 = elem->avgwf.runoff;
-        elem->wf.infil = elem->avgwf.infil;
-
         elem->ps.nwtbl = FindLayer (elem->ps.sldpth, elem->ps.nsoil,
             elem->soil.depth - elem->ws.gw);
         elem->ps.nwtbl = (elem->ps.nwtbl > elem->ps.nsoil) ?
@@ -90,8 +87,8 @@ void Noah (int t, pihm_struct pihm)
         /*
          * Run Noah LSM
          */
-        SFlx (&elem->ws, &elem->wf, &elem->es, &elem->ef, &elem->ps,
-            &elem->lc, &elem->soil, pihm->ctrl.etstep);
+        SFlx (&elem->ws, &elem->wf, &elem->avgwf, &elem->es, &elem->ef,
+            &elem->ps, &elem->lc, &elem->soil, pihm->ctrl.etstep);
 
         /*
          * Transfer Noah variables to PIHM
@@ -106,8 +103,9 @@ void Noah (int t, pihm_struct pihm)
     }
 }
 
-void SFlx (ws_struct *ws, wf_struct *wf, es_struct *es, ef_struct *ef,
-    ps_struct *ps, lc_struct *lc, soil_struct *soil, int etstep)
+void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
+    es_struct *es, ef_struct *ef, ps_struct *ps, lc_struct *lc,
+    soil_struct *soil, int etstep)
 {
     /*
      * subroutine SFlx - unified noahlsm version 1.0 july 2007
@@ -480,12 +478,13 @@ void SFlx (ws_struct *ws, wf_struct *wf, es_struct *es, ef_struct *ef,
 
     if (ws->sneqv == 0.0)
     {
-        NoPac (ws, wf, es, ef, ps, lc, soil, zsoil, dt, t24);
+        NoPac (ws, wf, avgwf, es, ef, ps, lc, soil, zsoil, dt, t24);
         ps->eta_kinematic = wf->eta * 1000.0;
     }
     else
     {
-        SnoPac (ws, wf, es, ef, ps, lc, soil, snowng, zsoil, dt, t24, prcpf, df1);
+        SnoPac (ws, wf, avgwf, es, ef, ps, lc, soil, snowng, zsoil, dt, t24,
+            prcpf, df1);
         ps->eta_kinematic = (wf->esnow + wf->etns) * 1000.0;
     }
 
@@ -1278,9 +1277,9 @@ void HStep (es_struct *es, double *rhsts, double dt, int nsoil, double *ai,
     }
 }
 
-void NoPac (ws_struct *ws, wf_struct *wf, es_struct *es, ef_struct *ef,
-    ps_struct *ps, lc_struct *lc, soil_struct *soil, const double *zsoil,
-    double dt, double t24)
+void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
+    es_struct *es, ef_struct *ef, ps_struct *ps, lc_struct *lc,
+    soil_struct *soil, const double *zsoil, double dt, double t24)
 {
     /*
      * Function NoPac
@@ -1324,7 +1323,7 @@ void NoPac (ws_struct *ws, wf_struct *wf, es_struct *es, ef_struct *ef,
 
         wf->eta = wf->etns;
 
-        SmFlx (ws, wf, ps, lc, soil, zsoil, prcpf, dt);
+        SmFlx (ws, wf, avgwf, ps, lc, soil, zsoil, prcpf, dt);
 
         /* Convert modeled evapotranspiration from m s-1 to kg m-2 s-1. */
         //*eta = *eta1 * 1000.0;
@@ -1337,7 +1336,7 @@ void NoPac (ws_struct *ws, wf_struct *wf, es_struct *es, ef_struct *ef,
 
         /* Add dew amount to prcp */
         prcpf += wf->dew;
-        SmFlx (ws, wf, ps, lc, soil, zsoil, prcpf, dt);
+        SmFlx (ws, wf, avgwf, ps, lc, soil, zsoil, prcpf, dt);
 
         /* Convert modeled evapotranspiration from 'm s-1' to 'kg m-2 s-1'. */
         //*eta = *eta1 * 1000.0
@@ -1773,8 +1772,9 @@ void ShFlx (ws_struct *ws, es_struct *es, ef_struct *ef, ps_struct *ps,
     ef->ssoil = df1 * (es->stc[0] - es->t1) / (0.5 * zsoil[0]);
 }
 
-void SmFlx (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
-    const soil_struct *soil, const double *zsoil, double prcp, double dt)
+void SmFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
+    ps_struct *ps, const lc_struct *lc, const soil_struct *soil,
+    const double *zsoil, double prcp, double dt)
 {
     /*
      * Function SmFlx
@@ -1855,7 +1855,7 @@ void SmFlx (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
     }
     else
     {
-        SRT (ws, wf, ps, soil, rhstt, sice, ai, bi, ci, zsoil, dt);
+        SRT (ws, wf, avgwf, ps, soil, rhstt, sice, ai, bi, ci, zsoil, dt);
         SStep (ws, wf, ps, soil, rhstt, rhsct, zsoil, sice, ai, bi, ci, dt);
     }
 }
@@ -1981,9 +1981,10 @@ void SnkSrc (double *tsnsr, double tavg, double smc, double *sh2o,
     *sh2o = xh2o;
 }
 
-void SnoPac (ws_struct *ws, wf_struct *wf, es_struct *es, ef_struct *ef,
-    ps_struct *ps, lc_struct *lc, const soil_struct *soil, int snowng, 
-    const double *zsoil, double dt, double t24, double prcpf, double df1)
+void SnoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
+    es_struct *es, ef_struct *ef, ps_struct *ps, lc_struct *lc,
+    const soil_struct *soil, int snowng, const double *zsoil, double dt,
+    double t24, double prcpf, double df1)
 {
     /*
      * Function SnoPac
@@ -2223,7 +2224,7 @@ void SnoPac (ws_struct *ws, wf_struct *wf, es_struct *es, ef_struct *ef,
          * SmFlx returns updated soil moisture values for non-glacial land. */
     }
 
-    SmFlx (ws, wf, ps, lc, soil, zsoil, prcpf, dt);
+    SmFlx (ws, wf, avgwf, ps, lc, soil, zsoil, prcpf, dt);
 
     /* Before call ShFlx in this snowpack case, set zz1 and yy arguments to
      * special values that ensure that ground heat flux calculated in ShFlx
@@ -2449,7 +2450,7 @@ void SnowNew (const es_struct *es, double newsn, ps_struct *ps)
     ps->snowh = snowhc * 0.01;
 }
 
-void SRT (ws_struct *ws, wf_struct *wf, ps_struct *ps,
+void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
     const soil_struct *soil, double *rhstt, double *sice, double *ai,
     double *bi, double *ci, const double *zsoil, double dt)
 {
@@ -2527,7 +2528,7 @@ void SRT (ws_struct *ws, wf_struct *wf, ps_struct *ps,
     }
 
     /* Determine rainfall infiltration rate and runoff */
-    pddum = wf->infil;
+    pddum = avgwf->infil;
 
     for (k = 0; k < ps->nsoil; k++)
     {
@@ -2554,7 +2555,7 @@ void SRT (ws_struct *ws, wf_struct *wf, ps_struct *ps,
 
     if (ps->nwtbl == 1)
     {
-        rhstt[0] += wf->runoff2 / zsoil[0];
+        rhstt[0] += avgwf->runoff2 / zsoil[0];
     }
 
     /* Loop thru the remaining soil layers, repeating the abv process */
@@ -2592,7 +2593,7 @@ void SRT (ws_struct *ws, wf_struct *wf, ps_struct *ps,
         numer = (wdf2 * dsmdz2) + wcnd2 - (wdf * dsmdz) - wcnd + wf->et[k];
         if (k == ps->nwtbl - 1)
         {
-            numer = numer + wf->runoff2;
+            numer = numer + avgwf->runoff2;
         }
         rhstt[k] = numer / (-denom2);
 

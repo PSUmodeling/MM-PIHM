@@ -133,8 +133,9 @@ double          FrozRain (double, double);
 void            AvgFlux (elem_struct *, int, int);
 void            SfcDifOff (ps_struct *, const lc_struct *, double, double,
                     int);
-void            SFlx (ws_struct *, wf_struct *, es_struct *, ef_struct *,
-                    ps_struct *, lc_struct *, soil_struct *, int);
+void            SFlx (ws_struct *, wf_struct *, const wf_struct *,
+                    es_struct *, ef_struct *, ps_struct *, lc_struct *,
+                    soil_struct *, int);
 double          CSnow (double);
 void            SnowNew (const es_struct *, double, ps_struct *);
 double          SnFrac (double, double, double, double);
@@ -152,9 +153,9 @@ void            Evapo (ws_struct *, wf_struct *, ps_struct *,
                     double);
 void            Transp (const ws_struct *, wf_struct *, const ps_struct *,
                     const lc_struct *, const soil_struct *, const double *);
-void            NoPac (ws_struct *, wf_struct *, es_struct *, ef_struct *,
-                    ps_struct *, lc_struct *, soil_struct *, const double *,
-                    double, double);
+void            NoPac (ws_struct *, wf_struct *, const wf_struct *,
+                    es_struct *, ef_struct *, ps_struct *, lc_struct *,
+                    soil_struct *, const double *, double, double);
 double          TBnd (double, double, const double *, double, int, int);
 double          TmpAvg (double, double, double, const double *, int, int);
 void            SnkSrc (double *, double, double, double *,
@@ -165,14 +166,14 @@ void            Rosr12 (double *, double *, double *, double *, double *,
 void            ShFlx (ws_struct *, es_struct *, ef_struct *, ps_struct *,
                     const lc_struct *, const soil_struct *, double, double,
                     double, const double *, double);
-void            SmFlx (ws_struct *, wf_struct *, ps_struct *,
-                    const lc_struct *,  const soil_struct *, const double *,
-                    double, double);
+void            SmFlx (ws_struct *, wf_struct *, const wf_struct *,
+                    ps_struct *, const lc_struct *,  const soil_struct *,
+                    const double *, double, double);
 void            HRT (ws_struct *, es_struct *, ef_struct *, ps_struct *,
                     const lc_struct *, const soil_struct *, double *,
                     const double *, double, double, double, double, double *,
                     double *, double *);
-void            SRT (ws_struct *, wf_struct *, ps_struct *,
+void            SRT (ws_struct *, wf_struct *, const wf_struct *, ps_struct *,
                     const soil_struct *, double *, double *, double *,
                     double *, double *, const double *, double);
 void            SStep (ws_struct *, wf_struct *, ps_struct *,
@@ -180,9 +181,10 @@ void            SStep (ws_struct *, wf_struct *, ps_struct *,
                     double *, double *, double *, double *, double);
 void            WDfCnd (double *, double *, double, double, double, int,
                     const soil_struct *, const ps_struct *);
-void            SnoPac (ws_struct *, wf_struct *, es_struct *, ef_struct *,
-                    ps_struct *, lc_struct *, const soil_struct *, int, 
-                    const double *, double, double, double, double);
+void            SnoPac (ws_struct *, wf_struct *, const wf_struct *,
+                    es_struct *, ef_struct *, ps_struct *, lc_struct *,
+                    const soil_struct *, int, const double *, double, double,
+                    double, double);
 void            SnowPack (double, double, double *, double *, double, double);
 double          EFFKV (double, double, int, double, double, double);
 double          Pslmu (double);

@@ -878,7 +878,9 @@ void ZeroWaterFlux (wf_struct *wf)
 {
     int             j;
 
-    wf->runoff = 0.0;
+#ifdef _NOAH_
+    wf->runoff2 = 0.0;
+#endif
     wf->infil = 0.0;
     wf->prcp = 0.0;
     wf->netprcp = 0.0;

@@ -261,7 +261,6 @@ typedef struct wf_struct
 {
     double          fluxsurf[3];        /* Overland Flux */
     double          fluxsub[3]; /* Subsurface Flux */
-    double          runoff;
     double          prcp;       /* Precep. on each element */
     double          netprcp;    /* Net precep. on each elment */
     double          infil;      /* Variable infiltration rate */

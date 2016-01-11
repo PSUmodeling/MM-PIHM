@@ -13,6 +13,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
     double          realgw0, realgw1;
     double          recharge;
     double          soilw0, soilw1;
+    double          subrunoff;
     int             i, j;
     elem_struct    *elem;
     river_struct   *riv;
@@ -83,23 +84,27 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         /* 
          * Subsurface runoff rate
          */
-        elem->wf.runoff = 0.0;
+        subrunoff = 0.0;
         for (j = 0; j < 3; j++)
         {
-            elem->wf.runoff += elem->wf.fluxsub[j] / elem->topo.area;
+            subrunoff += elem->wf.fluxsub[j] / elem->topo.area;
         }
 
         recharge = (realgw1 - realgw0) * elem->soil.porosity / stepsize +
-            elem->wf.runoff + elem->wf.edir_gw + elem->wf.ett_gw;
+            subrunoff + elem->wf.edir_gw + elem->wf.ett_gw;
 
         elem->wf.infil = (soilw1 - soilw0) * elem->soil.porosity / stepsize +
-            elem->wf.runoff + elem->wf.edir_unsat + elem->wf.edir_gw + elem->wf.ett_unsat + elem->wf.ett_gw;
+            subrunoff + elem->wf.edir_unsat + elem->wf.edir_gw + elem->wf.ett_unsat + elem->wf.ett_gw;
 
         if (elem->wf.infil < 0.0)
         {
-            elem->wf.runoff -= elem->wf.infil;
+            subrunoff -= elem->wf.infil;
             elem->wf.infil = 0.0;
         }
+
+#ifdef _NOAH_
+        elem->wf.runoff2 = subrunoff;
+#endif
 
         pihm->elem[i].ws0 = pihm->elem[i].ws;
     }
