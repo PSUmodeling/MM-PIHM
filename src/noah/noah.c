@@ -2721,8 +2721,27 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
         }
         else
         {
-            ws->smc[k] = stot;
-            wplus = 0.0;
+            if (k > ps->nwtbl - 1)
+            {
+                ws->smc[k] = soil->smcmax;
+
+                if (k == 0)
+                {
+                    ddz = -zsoil[0];
+                }
+                else
+                {
+                    kk11 = k - 1;
+                    ddz = -zsoil[k] + zsoil[kk11];
+                }
+
+                wplus = (stot - soil->smcmax) * ddz;
+            }
+            else
+            {
+                ws->smc[k] = stot;
+                wplus = 0.0;
+            }
         }
 
         sh2omid[k] = ws->smc[k] - sice[k];
