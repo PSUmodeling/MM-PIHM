@@ -113,4 +113,8 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
 
         riv->ws0 = riv->ws;
     }
+
+#ifdef _NOAH_
+    AvgFlux (pihm->elem, pihm->numele, SUM);
+#endif
 }

@@ -15,16 +15,17 @@ LVCOEF_DATA	0.5
 ######################
 # Print Control      #
 ######################
-T1              0
-STC             0
-SMC             0
-SH2O            0
-SNOWH           0
-ALBEDO          0
-LE              0
-SH              0
-G               0
-ETP             0
-ESNOW           0
-ROOTW           0
+T1              3600
+STC             3600
+SMC             3600
+SH2O            3600
+SNOWH           3600
+ALBEDO          3600
+LE              3600
+SH              3600
+G               3600
+ETP             3600
+ESNOW           3600
+ROOTW           3600
 SOILM           3600
+SOLAR           3600

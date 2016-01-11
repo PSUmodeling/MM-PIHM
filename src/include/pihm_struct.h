@@ -172,6 +172,7 @@ typedef struct ps_struct
     double          eta_kinematic;      /* atctual latent heat flux in kg m-2 s-1 */
     double          zbot;       /* depth (m) of lower boundary soil temperature */
     double          tbot;       /* bottom soil temperature (local yearly-mean sfc air temperature) */
+    double          gwet;
 #endif
 } ps_struct;
 

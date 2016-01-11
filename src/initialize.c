@@ -745,6 +745,9 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
     int numriv, N_Vector CV_Y)
 {
     int             i;
+#ifdef _NOAH_
+    int             j;
+#endif
 
     /* State variables (initial conditions) */
     for (i = 0; i < numele; i++)

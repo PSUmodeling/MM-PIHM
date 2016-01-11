@@ -43,9 +43,10 @@ MSG = "...  Compiling PIHM  ..."
 ifeq ($(MAKECMDGOALS),flux-pihm)
   SFLAGS = -D_NOAH_ 
   MODULE_SRCS_= noah/lsm_func.c \
-  	noah/coupling.c \
+  	noah/lsm_read.c \
+	noah/lsm_init.c \
 	spa/spa.c \
-	noah/module_sf_noahlsm.c
+	noah/noah.c
   MODULE_HEADERS_ = include/noah.h \
 	include/spa.h
   EXECUTABLE = flux-pihm

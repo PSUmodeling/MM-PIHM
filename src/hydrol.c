@@ -84,6 +84,8 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         /* Source of transpiration */
 #ifdef _NOAH_
+        elem->ps.gwet = GWTransp (elem->wf.ett, elem->wf.et, elem->ps.nwtbl,
+            elem->lc.nroot);
         elem->wf.ett_unsat = (1.0 - elem->ps.gwet) * elem->wf.ett;
         elem->wf.ett_gw = elem->ps.gwet * elem->wf.ett;
 #else

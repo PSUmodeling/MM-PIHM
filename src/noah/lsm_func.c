@@ -1,804 +1,14 @@
-
 /*****************************************************************************
  * File		:   lsm_func.c 
  * Function	:   noah related functions
  ****************************************************************************/
-
 #include "pihm.h"
-#include "spa.h"
-#include "noah.h"
-
-void LsmRead (char *simulation, lsm_struct noah, pihm_struct pihm)
-{
-    int             i, j;
-    char            fn[MAXSTRING];
-    FILE           *lsm_file;
-    FILE           *radn_file;
-    FILE           *stream;
-    char            cmdstr[MAXSTRING];
-    char            buffer[MAXSTRING];
-    int             index;
-    int             match;
-    char            project[MAXSTRING];
-    char           *token;
-    char            tempname[MAXSTRING];
-
-    strcpy (tempname, simulation);
-    if (strstr (tempname, ".") != 0)
-    {
-        token = strtok (tempname, ".");
-        strcpy (project, token);
-    }
-    else
-    {
-        strcpy (project, simulation);
-    }
-
-
-    /*
-     * Open *.lsm file
-     */
-    sprintf (fn, "input/%s/%s.lsm", project, project);
-    lsm_file = fopen (fn, "r");
-    CheckFile (lsm_file, fn);
-
-    /*
-     * Start reading lsm_file
-     */
-    FindLine (lsm_file, "BOF");
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "LATITUDE", &noah->latitude);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "LONGITUDE", &noah->longitude);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NSOIL", &noah->std_nsoil);
-    if (noah->std_nsoil > MAXLYR - 1)
-    {
-        printf
-            ("Error: the number of soil layers should be smaller than %d\n!",
-            MAXLYR - 1);
-        PihmExit (1);
-    }
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordStr (cmdstr, "SLDPTH_DATA", buffer);
-
-    stream = fmemopen (buffer, strlen (buffer), "r");
-    for (i = 0; i < noah->std_nsoil; i++)
-    {
-        fscanf (stream, "%lf", &noah->std_sldpth[i]);
-    }
-    fclose (stream);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RAD_MODE_DATA", &noah->rad_mode);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "SBETA_DATA", &noah->genprmt.sbeta_data);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "FXEXP_DATA", &noah->genprmt.fxexp_data);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "CSOIL_DATA", &noah->genprmt.csoil_data);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "SALP_DATA", &noah->genprmt.salp_data);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "FRZK_DATA", &noah->genprmt.frzk_data);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "ZBOT_DATA", &noah->genprmt.zbot_data);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "TBOT_DATA", &noah->genprmt.tbot_data);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "CZIL_DATA", &noah->genprmt.czil_data);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "LVCOEF_DATA", &noah->genprmt.lvcoef_data);
-
-    noah->nprint = 0;
-    for (i = 0; i < NUM_PRINT; i++)
-    {
-        noah->prtvrbl[i] = 0;
-    }
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "T1", &noah->prtvrbl[T1_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "STC", &noah->prtvrbl[STC_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SMC", &noah->prtvrbl[SMC_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SH2O", &noah->prtvrbl[SH2O_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SNOWH", &noah->prtvrbl[SNOWH_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "ALBEDO", &noah->prtvrbl[ALBEDO_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "LE", &noah->prtvrbl[LE_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SH", &noah->prtvrbl[SH_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "G", &noah->prtvrbl[G_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "ETP", &noah->prtvrbl[ETP_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "ESNOW", &noah->prtvrbl[ESNOW_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "ROOTW", &noah->prtvrbl[ROOTW_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SOILM", &noah->prtvrbl[SOILM_CTRL]);
-
-    NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SOLAR", &noah->prtvrbl[SOLAR_CTRL]);
-
-    fclose (lsm_file);
-
-    noah->forcing.nts = 0;
-
-    if (noah->rad_mode == 1)
-    {
-        sprintf (fn, "input/%s/%s.rad", project, project);
-        radn_file = fopen (fn, "r");
-        CheckFile (radn_file, fn);
-
-        FindLine (radn_file, "BOF");
-        NextLine (radn_file, cmdstr);
-        match = sscanf (cmdstr, "%*s %d", &noah->forcing.nts);
-        if (match != 1)
-        {
-            printf ("Cannot read number of radiation forcing time series!\n");
-            printf (".rad file format error!\n");
-            PihmExit (1);
-        }
-
-        noah->forcing.ts =
-            (ts_struct *)malloc (noah->forcing.nts * sizeof (ts_struct));
-
-        for (i = 0; i < noah->forcing.nts; i++)
-        {
-            NextLine (radn_file, cmdstr);
-            match = sscanf (cmdstr, "%*s %d", &index);
-            if (match != 1 || i != index - 1)
-            {
-                printf
-                    ("Cannot read information of the %dth forcing series!\n",
-                    i);
-                printf (".forc file format error!\n");
-                PihmExit (1);
-            }
-
-            /* Skip header lines */
-            NextLine (radn_file, cmdstr);
-            NextLine (radn_file, cmdstr);
-            noah->forcing.ts[i].length = CountLine (radn_file, 1, "RAD_TS");
-        }
-
-        /* Rewind and read */
-        FindLine (radn_file, "NUM_RAD_TS");
-        for (i = 0; i < noah->forcing.nts; i++)
-        {
-            /* Skip header lines */
-            NextLine (radn_file, cmdstr);
-            NextLine (radn_file, cmdstr);
-            NextLine (radn_file, cmdstr);
-
-            noah->forcing.ts[i].ftime =
-                (int *)malloc (noah->forcing.ts[i].length * sizeof (int));
-            noah->forcing.ts[i].data =
-                (double **)malloc (noah->forcing.ts[i].length *
-                sizeof (double *));
-            for (j = 0; j < noah->forcing.ts[i].length; j++)
-            {
-                noah->forcing.ts[i].data[j] =
-                    (double *)malloc (2 * sizeof (double));
-                NextLine (radn_file, cmdstr);
-                ReadTS (cmdstr, &noah->forcing.ts[i].ftime[j],
-                    &noah->forcing.ts[i].data[j][0], 2);
-            }
-        }
-
-        fclose (radn_file);
-    }
-}
-
-void LsmInitialize (char *simulation, pihm_struct pihm, lsm_struct noah)
-{
-    grid_struct    *grid;
-    int             i, j, kz;
-    double          zsoil[MAXLYR];
-    double          frzfact;
-    char            project[MAXSTRING];
-    char           *token;
-    char            tempname[MAXSTRING];
-    elem_struct    *elem;
-
-    strcpy (tempname, simulation);
-    if (strstr (tempname, ".") != 0)
-    {
-        token = strtok (tempname, ".");
-        strcpy (project, token);
-    }
-    else
-    {
-        strcpy (project, simulation);
-    }
-
-    if (noah->rad_mode == 1)
-    {
-        for (i = 0; i < 2; i++)
-        {
-            noah->forcing.radn[i] =
-                (double *)malloc (noah->forcing.nts * sizeof (double));
-        }
-    }
-
-    noah->grid = (grid_struct *) malloc (pihm->numele * sizeof (grid_struct));
-
-    noah->ic.t1 = (double *)malloc (pihm->numele * sizeof (double));
-    noah->ic.snowh = (double *)malloc (pihm->numele * sizeof (double));
-    noah->ic.stc = (double **)malloc (pihm->numele * sizeof (double *));
-    noah->ic.smc = (double **)malloc (pihm->numele * sizeof (double *));
-    noah->ic.sh2o = (double **)malloc (pihm->numele * sizeof (double *));
-
-    for (i = 0; i < pihm->numele; i++)
-    {
-        noah->ic.stc[i] = (double *)malloc (MAXLYR * sizeof (double));
-        noah->ic.smc[i] = (double *)malloc (MAXLYR * sizeof (double));
-        noah->ic.sh2o[i] = (double *)malloc (MAXLYR * sizeof (double));
-    }
-
-    for (i = 0; i < pihm->numele; i++)
-    {
-        grid = &noah->grid[i];
-        elem = &pihm->elem[i];
-
-        grid->radn[SOLAR_DIR_TS] =
-            &noah->forcing.radn[SOLAR_DIR_TS][pihm->attrib_tbl.meteo[i] - 1];
-        grid->radn[SOLAR_DIF_TS] =
-            &noah->forcing.radn[SOLAR_DIF_TS][pihm->attrib_tbl.meteo[i] - 1];
-
-        grid->avginfil = 0.0;
-        for (j = 0; j < 3; j++)
-        {
-            grid->avgsubflux[j] = 0.0;
-        }
-
-        /* Set-up soil layer depths */
-        DefSldpth (grid->sldpth, &grid->nsoil, elem->soil.depth,
-            noah->std_sldpth, noah->std_nsoil);
-
-        /* Set-up soil parameters */
-        grid->csoil = noah->genprmt.csoil_data;
-        grid->vgalpha = elem->soil.alpha;
-        grid->vgbeta = elem->soil.beta;
-        grid->smcmin = elem->soil.thetar;
-        grid->macksat = elem->soil.kmacv;
-        grid->areaf = elem->soil.areafh;
-        grid->nmacd = FindLayer (grid->sldpth, grid->nsoil, elem->soil.dmac);
-
-        grid->dksat = elem->soil.ksatv;
-        grid->quartz = pihm->soil_tbl.qtz[pihm->attrib_tbl.soil[i] - 1];
-        grid->smcdry = elem->soil.thetaw;
-        grid->smcmax = elem->soil.thetas;
-        grid->smcref = elem->soil.thetaref;
-        grid->smcwlt = elem->soil.thetaw;
-
-        /* Set-up universal parameters (not dependent on soil type or
-         * vegetation type */
-        grid->zbot = noah->genprmt.zbot_data;
-        grid->tbot = noah->genprmt.tbot_data;
-        grid->salp = noah->genprmt.salp_data;
-        grid->sbeta = noah->genprmt.sbeta_data;
-        grid->frzk = noah->genprmt.frzk_data;
-        grid->fxexp = noah->genprmt.fxexp_data;
-        grid->ptu = 0.0;        /* (not used yet) to satisfy intent (out) */
-        grid->czil = noah->genprmt.czil_data;
-        grid->lvcoef = noah->genprmt.lvcoef_data;
-
-        /* To adjust frzk parameter to actual soil type */
-        frzfact = (grid->smcmax / grid->smcref) * (0.412 / 0.468);
-        grid->frzx = grid->frzk * frzfact;
-
-        /* Set-up vegetation parameters */
-        grid->vegtyp = elem->lc.type;
-        grid->topt = elem->lc.topt;
-        grid->cfactr = elem->lc.cfactr;
-        grid->rsmax = elem->lc.rsmax;
-        //grid->cmcmax = elem->
-        grid->nroot = FindLayer (grid->sldpth, grid->nsoil, elem->lc.rzd);
-        grid->snup = elem->lc.snup;
-        grid->rsmin = elem->lc.rsmin;
-        grid->rgl = elem->lc.rgl;
-        grid->hs = elem->lc.hs;
-        grid->emissmin = elem->lc.emissmin;
-        grid->emissmax = elem->lc.emissmax;
-        grid->laimin = elem->lc.laimin;
-        grid->laimax = elem->lc.laimax;
-        grid->z0max = elem->lc.z0max;
-        grid->z0min = elem->lc.z0min;
-        grid->albedomin = elem->lc.albedomin;
-        grid->albedomax = elem->lc.albedomax;
-        grid->isurban = 13;
-        grid->cmcfactr = elem->lc.intcp_factr;
-
-        if (grid->vegtyp == pihm->lc_tbl.bare)
-        {
-            grid->shdfac = 0.0;
-        }
-
-        /* Calculate root distribution.
-         * Present version assumes uniform distribution based on soil layer
-         * depths. */
-
-        zsoil[0] = -grid->sldpth[0];
-        for (kz = 1; kz < grid->nsoil; kz++)
-        {
-            zsoil[kz] = -grid->sldpth[kz] + zsoil[kz - 1];
-        }
-
-        for (j = 0; j < grid->nroot; j++)
-        {
-            grid->rtdis[j] = -grid->sldpth[j] / zsoil[grid->nroot - 1];
-        }
-
-        /* Apply calibration */
-        grid->czil *= pihm->cal.czil;
-        grid->fxexp *= pihm->cal.fxexp;
-        grid->rsmin *= pihm->cal.rsmin;
-        grid->rgl *= pihm->cal.rgl;
-        grid->hs *= pihm->cal.hs;
-        grid->cfactr *= pihm->cal.cfactr;
-        grid->cmcfactr *= pihm->cal.intcp;
-        grid->smcref =
-            (grid->smcref - grid->smcmin) * pihm->cal.thetaref + grid->smcmin;
-        grid->smcwlt =
-            (grid->smcwlt - grid->smcmin) * pihm->cal.thetaw + grid->smcmin;
-
-        /* Initialize topographic radiation related parameters */
-        if (noah->rad_mode == 1)
-        {
-            CalcSlopeAspect (grid, *elem, pihm);
-        }
-
-        grid->snotime1 = 0.0;
-        grid->ribb = 0.0;
-
-        grid->sheat = BADVAL;
-        grid->eta_kinematic = BADVAL;
-        grid->eta = BADVAL;
-        grid->fdown = BADVAL;
-        grid->ec = BADVAL;
-        grid->edir = BADVAL;
-        grid->ett = BADVAL;
-        grid->esnow = BADVAL;
-        grid->drip = BADVAL;
-        grid->dew = BADVAL;
-        grid->beta = BADVAL;
-        grid->t1 = BADVAL;
-        grid->snowh = BADVAL;
-        grid->sneqv = BADVAL;
-        grid->etp = BADVAL;
-        grid->ssoil = BADVAL;
-        grid->flx1 = BADVAL;
-        grid->flx2 = BADVAL;
-        grid->flx3 = BADVAL;
-        grid->snomlt = BADVAL;
-        grid->sncovr = BADVAL;
-        grid->runoff1 = BADVAL;
-        grid->runoff2 = BADVAL;
-        grid->runoff3 = BADVAL;
-        grid->rc = BADVAL;
-        grid->pc = BADVAL;
-        grid->rcs = BADVAL;
-        grid->rct = BADVAL;
-        grid->rcsoil = BADVAL;
-        grid->soilw = BADVAL;
-        grid->soilm = BADVAL;
-        grid->q1 = BADVAL;
-        //grid->smcwlt = BADVAL;
-        //grid->smcdry = BADVAL;
-        //grid->smcref = BADVAL;
-        //grid->smcmax = BADVAL;
-        //grid->rsmin = BADVAL;
-        //grid->nroot = BADVAL;
-
-        grid->pcpdrp = 0.0;
-        grid->drip = 0.0;
-
-        grid->dt = pihm->ctrl.etstep;
-
-        grid->snoalb = 0.75;
-        grid->zlvl = 3.0;
-        grid->zlvl_wind = elem->forc.zlvl_wind;
-        grid->isurban = 13;
-        grid->shdmin = 0.01;
-        grid->shdmax = 0.96;
-
-        grid->usemonalb = 0;
-        grid->rdlai2d = 0;
-        grid->iz0tlnd = 0;
-
-        grid->cosz = BADVAL;
-        grid->prcprain = BADVAL;
-        grid->solardirect = BADVAL;
-
-        grid->emissi = 0.96;
-        grid->albedo = 0.18;
-        grid->z0 = 0.1;
-
-        grid->z0brd = BADVAL;
-
-        grid->ch = 1.0e-4;
-        grid->cm = 1.0e-4;
-    }
-
-    /* Set initial conditions for land surface variables */
-    if (pihm->ctrl.init_type < 3)       /* Relaxation */
-    {
-        ApplyForcing (&pihm->forcing, pihm->ctrl.starttime);
-        LsmSaturationIC (&noah->ic, noah->grid, pihm->elem, pihm->numele);
-    }
-    else
-    {
-        /* Hot start mode */
-        ReadLsmInit (project, simulation, &noah->ic, pihm->numele);
-    }
-
-    InitLsmVrbl (noah->grid, pihm->elem, pihm->numele, noah->ic);
-}
-
-void MapLsmOutput (char *simulation, lsm_struct noah, int numele,
-    char *outputdir)
-{
-    int             i, j, k;
-    int             n;
-
-    if (verbose_mode)
-        printf ("\nInitializing output files\n");
-
-    n = 0;
-
-    for (i = 0; i < NUM_PRINT; i++)
-    {
-        if (noah->prtvrbl[i] > 0)
-        {
-            switch (i)
-            {
-                case T1_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.t1", outputdir,
-                        simulation);
-                    noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                    noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl =
-                        (double **)malloc (noah->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < numele; j++)
-                    {
-                        noah->prtctrl[n].vrbl[j] = &noah->grid[j].t1;
-                    }
-                    n++;
-                    break;
-                case STC_CTRL:
-                    for (k = 0; k < MAXLYR; k++)
-                    {
-                        sprintf (noah->prtctrl[n].name, "%s%s.stc%d",
-                            outputdir, simulation, k);
-                        noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                        noah->prtctrl[n].nvrbl = numele;
-                        noah->prtctrl[n].vrbl =
-                            (double **)malloc (noah->prtctrl[n].nvrbl *
-                            sizeof (double *));
-                        for (j = 0; j < numele; j++)
-                        {
-                            noah->prtctrl[n].vrbl[j] = &noah->grid[j].stc[k];
-                        }
-                        n++;
-                    }
-                    break;
-                case SMC_CTRL:
-                    for (k = 0; k < MAXLYR; k++)
-                    {
-                        sprintf (noah->prtctrl[n].name, "%s%s.smc%d",
-                            outputdir, simulation, k);
-                        noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                        noah->prtctrl[n].nvrbl = numele;
-                        noah->prtctrl[n].vrbl =
-                            (double **)malloc (noah->prtctrl[n].nvrbl *
-                            sizeof (double *));
-                        for (j = 0; j < numele; j++)
-                        {
-                            noah->prtctrl[n].vrbl[j] = &noah->grid[j].smc[k];
-                        }
-                        n++;
-                    }
-                    break;
-                case SH2O_CTRL:
-                    for (k = 0; k < MAXLYR; k++)
-                    {
-                        sprintf (noah->prtctrl[n].name, "%s%s.swc%d",
-                            outputdir, simulation, k);
-                        noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                        noah->prtctrl[n].nvrbl = numele;
-                        noah->prtctrl[n].vrbl =
-                            (double **)malloc (noah->prtctrl[n].nvrbl *
-                            sizeof (double *));
-                        for (j = 0; j < numele; j++)
-                        {
-                            noah->prtctrl[n].vrbl[j] = &noah->grid[j].sh2o[k];
-                        }
-                        n++;
-                    }
-                    break;
-                case SNOWH_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.snowh", outputdir,
-                        simulation);
-                    noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                    noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl =
-                        (double **)malloc (noah->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < numele; j++)
-                    {
-                        noah->prtctrl[n].vrbl[j] = &noah->grid[j].snowh;
-                    }
-                    n++;
-                    break;
-                case ALBEDO_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.albedo", outputdir,
-                        simulation);
-                    noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                    noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl =
-                        (double **)malloc (noah->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < numele; j++)
-                    {
-                        noah->prtctrl[n].vrbl[j] = &noah->grid[j].albedo;
-                    }
-                    n++;
-                    break;
-                case LE_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.le", outputdir,
-                        simulation);
-                    noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                    noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl =
-                        (double **)malloc (noah->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < numele; j++)
-                    {
-                        noah->prtctrl[n].vrbl[j] = &noah->grid[j].eta;
-                    }
-                    n++;
-                    break;
-                case SH_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.sh", outputdir,
-                        simulation);
-                    noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                    noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl =
-                        (double **)malloc (noah->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < numele; j++)
-                    {
-                        noah->prtctrl[n].vrbl[j] = &noah->grid[j].sheat;
-                    }
-                    n++;
-                    break;
-                case G_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.g", outputdir,
-                        simulation);
-                    noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                    noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl =
-                        (double **)malloc (noah->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < numele; j++)
-                    {
-                        noah->prtctrl[n].vrbl[j] = &noah->grid[j].ssoil;
-                    }
-                    n++;
-                    break;
-                case ETP_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.etp", outputdir,
-                        simulation);
-                    noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                    noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl =
-                        (double **)malloc (noah->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < numele; j++)
-                    {
-                        noah->prtctrl[n].vrbl[j] = &noah->grid[j].etp;
-                    }
-                    n++;
-                    break;
-                case ESNOW_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.esnow", outputdir,
-                        simulation);
-                    noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                    noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl =
-                        (double **)malloc (noah->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < numele; j++)
-                    {
-                        noah->prtctrl[n].vrbl[j] = &noah->grid[j].esnow;
-                    }
-                    n++;
-                    break;
-                case ROOTW_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.rootw", outputdir,
-                        simulation);
-                    noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                    noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl =
-                        (double **)malloc (noah->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    if (noah->prtctrl[n].vrbl == NULL)
-                    {
-                        printf ("Malloc failed.\n");
-                        fflush (stdout);
-                        PihmExit(1);
-                    }
-                    for (j = 0; j < numele; j++)
-                    {
-                        noah->prtctrl[n].vrbl[j] = &noah->grid[j].soilw;
-                    }
-                    n++;
-                    break;
-                case SOILM_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.soilm", outputdir,
-                        simulation);
-                    noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                    noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl =
-                        (double **)malloc (noah->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < numele; j++)
-                    {
-                        noah->prtctrl[n].vrbl[j] = &noah->grid[j].soilm;
-                    }
-                    n++;
-                    break;
-                case SOLAR_CTRL:
-                    sprintf (noah->prtctrl[n].name, "%s%s.solar", outputdir,
-                        simulation);
-                    noah->prtctrl[n].intvl = noah->prtvrbl[i];
-                    noah->prtctrl[n].nvrbl = numele;
-                    noah->prtctrl[n].vrbl =
-                        (double **)malloc (noah->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < numele; j++)
-                    {
-                        noah->prtctrl[n].vrbl[j] = &noah->grid[j].soldn;
-                    }
-                    n++;
-                    break;
-            }
-        }
-    }
-
-    noah->nprint = n;
-
-    for (i = 0; i < noah->nprint; i++)
-    {
-        noah->prtctrl[i].buffer =
-         (double *) calloc (noah->prtctrl[i].nvrbl, sizeof (double));
-    }
-}
-
-
-void LsmFreeData (pihm_struct pihm, lsm_struct noah)
-{
-    int             i, j;
-
-    if (noah->rad_mode == 1)
-    {
-        for (i = 0; i < noah->forcing.nts; i++)
-        {
-            for (j = 0; j < noah->forcing.ts[i].length; j++)
-            {
-                free (noah->forcing.ts[i].data[j]);
-            }
-            free (noah->forcing.ts[i].ftime);
-            free (noah->forcing.ts[i].data);
-        }
-        free (noah->forcing.ts);
-        for (i = 0; i < 2; i++)
-        {
-            free (noah->forcing.radn[i]);
-        }
-    }
-
-    free (noah->grid);
-    free (noah->ic.t1);
-    free (noah->ic.snowh);
-    for (i = 0; i < pihm->numele; i++)
-    {
-        free (noah->ic.stc[i]);
-        free (noah->ic.smc[i]);
-        free (noah->ic.sh2o[i]);
-    }
-    free (noah->ic.stc);
-    free (noah->ic.smc);
-    free (noah->ic.sh2o);
-
-    for (i = 0; i < noah->nprint; i++)
-    {
-        free (noah->prtctrl[i].vrbl);
-        free (noah->prtctrl[i].buffer);
-    }
-}
-
-void LsmPrtInit (pihm_struct pihm, lsm_struct noah, char *simulation)
-{
-    FILE           *init_file;
-    char            fn[MAXSTRING];
-    char            project[MAXSTRING];
-    char           *token;
-    char            tempname[MAXSTRING];
-    int             i, j;
-
-    strcpy (tempname, simulation);
-    if (strstr (tempname, ".") != 0)
-    {
-        token = strtok (tempname, ".");
-        strcpy (project, token);
-    }
-    else
-    {
-        strcpy (project, simulation);
-    }
-
-    sprintf (fn, "input/%s/%s.lsminit", project, simulation);
-    init_file = fopen (fn, "wb");
-
-    for (i = 0; i < pihm->numele; i++)
-    {
-        fwrite (&noah->grid[i].t1, sizeof (double), 1, init_file);
-        fwrite (&noah->grid[i].snowh, sizeof (double), 1, init_file);
-
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fwrite (&noah->grid[i].stc[j], sizeof (double), 1, init_file);
-        }
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fwrite (&noah->grid[i].smc[j], sizeof (double), 1, init_file);
-        }
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fwrite (&noah->grid[i].sh2o[j], sizeof (double), 1, init_file);
-        }
-    }
-
-    fclose (init_file);
-}
 
 int FindLayer (const double *sldpth, int nsoil, double depth)
 {
     int             layer;
-    int             j = 0, ind = 0;
+    int             j = 0;
+    int             ind = 0;
     double          dsum = 0.0;
 
     if (depth <= 0.0)
@@ -823,30 +33,35 @@ int FindLayer (const double *sldpth, int nsoil, double depth)
     return (layer);
 }
 
-double mod (double a, double N)
+double Mod (double a, double n)
 {
-    return (a - N * floor (a / N));
+    return (a - n * floor (a / n));
 }
 
-double TopoRadiation (double sdir, double sdif, double zenith,
-    double azimuth180, double slope, double aspect, double *h_phi, double svf)
+double TopoRadn (double sdir, double sdif, double zenith,
+    double azimuth180, double slope, double aspect, const double *h_phi,
+    double svf)
 {
     double          incidence;
     double          gvf;
     double          soldown;
 
     if (zenith > h_phi[(int)floor (azimuth180 / 10.0)])
+    {
         sdir = 0.0;
-    incidence =
-        180.0 / PI * acos (cos (zenith * PI / 180.0) * cos (slope * PI /
-            180.0) +
+    }
+
+    incidence = acos (cos (zenith * PI / 180.0) * cos (slope * PI / 180.0) +
         sin (zenith * PI / 180.0) * sin (slope * PI / 180.0) *
         cos ((azimuth180 - aspect) * PI / 180.0));
+    incidence *= 180.0 / PI;
     incidence = incidence > 90.0 ? 90.0 : incidence;
+
     gvf = (1.0 + cos (slope * PI / 180.0)) / 2.0 - svf;
-    gvf = gvf < 0.0 ? 0.0 : gvf;
-    soldown =
-        sdir * cos (incidence * PI / 180.0) + svf * sdif +
+    gvf = (gvf < 0.0) ? 0.0 : gvf;
+
+    soldown = sdir * cos (incidence * PI / 180.0) +
+        svf * sdif +
         0.2 * gvf * (sdir * cos (zenith * PI / 180.0) + sdif);
     soldown = soldown < 0.0 ? 0.0 : soldown;
 
@@ -854,7 +69,7 @@ double TopoRadiation (double sdir, double sdif, double zenith,
 }
 
 void DefSldpth (double *sldpth, int *nsoil, double total_depth,
-    double *std_sldpth, int std_nsoil)
+    const double *std_sldpth, int std_nsoil)
 {
     int             j, k;
     double          zsoil[MAXLYR];
@@ -921,295 +136,403 @@ void DefSldpth (double *sldpth, int *nsoil, double total_depth,
     }
 }
 
-void CalcSlopeAspect (grid_struct * grid, elem_struct elem, pihm_struct pihm)
+void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
 {
+    const int       XCOMP = 0;
+    const int       YCOMP = 1;
+    const int       ZCOMP = 2;
     double          x[3];
     double          y[3];
     double          zmax[3];
-    double          vector1[3], vector2[3], normal_vector[3], vector[3], h, c,
-        se, ce;
-    int nodes[2];
+    double          edge_vector[2][3];
+    double          normal_vector[3];
+    double          vector[3];
+    double          h, c;
+    double          se, ce;
+    int             nodes[2];
     double          x1, y1, z1, x2, y2, z2, xc, yc, zc;
     double          c1, c2, ce1, ce2, se1, se2, phi1, phi2;
+    double          integrable;
     int             ind, ind1, ind2;
-    int             j, k;
-
-    for (j = 0; j < 3; j++)
-    {
-        x[j] = pihm->mesh_tbl.x[elem.node[j] - 1];
-        y[j] = pihm->mesh_tbl.y[elem.node[j] - 1];
-        zmax[j] = pihm->mesh_tbl.zmax[elem.node[j] - 1];
-    }
-
-    vector1[0] = x[0] - x[2];
-    vector1[1] = y[0] - y[2];
-    vector1[2] = zmax[0] - zmax[2];
-
-    vector2[0] = x[1] - x[2];
-    vector2[1] = y[1] - y[2];
-    vector2[2] = zmax[1] - zmax[2];
-
-    /* Calculate normal vector */
-    normal_vector[0] = vector1[1] * vector2[2] - vector1[2] * vector2[1];
-    normal_vector[1] = vector1[2] * vector2[0] - vector1[0] * vector2[2];
-    normal_vector[2] = vector1[0] * vector2[1] - vector1[1] * vector2[0];
-
-    if (normal_vector[2] < 0.0)
-    {
-        normal_vector[0] = -normal_vector[0];
-        normal_vector[1] = -normal_vector[1];
-        normal_vector[2] = -normal_vector[2];
-    }
-
-    /* Calculate slope */
-    c = sqrt (normal_vector[0] * normal_vector[0] +
-        normal_vector[1] * normal_vector[1]);
-    grid->slope = atan (c / normal_vector[2]) * 180.0 / PI;
-
-    /* Calculte aspect */
-    ce = normal_vector[0] / c;
-    se = normal_vector[1] / c;
-    grid->aspect = acos (ce) * 180.0 / PI;
-
-    if (se < 0.0)
-        grid->aspect = 360.0 - grid->aspect;
-
-    grid->aspect = mod (360.0 - grid->aspect + 270.0, 360.0);
-
-    /* Calculate sky view factor (Dozier and Frew 1990) */
-    grid->svf = 0.0;
-
-    for (j = 0; j < 36; j++)
-    {
-        grid->h_phi[j] = 90.0;
-    }
-
-    for (j = 0; j < pihm->numele; j++)
-    {
-        for (k = 0; k < 3; k++)
-        {
-            switch (k)
-            {
-                case 0:
-                    nodes[0] = 1;
-                    nodes[1] = 2;
-                    break;
-                case 1:
-                    nodes[0] = 0;
-                    nodes[1] = 2;
-                    break;
-                case 2:
-                    nodes[0] = 0;
-                    nodes[1] = 1;
-                    break;
-            }
-            x1 = pihm->mesh_tbl.x[pihm->elem[j].node[nodes[0]] - 1];
-            y1 = pihm->mesh_tbl.y[pihm->elem[j].node[nodes[0]] - 1];
-            z1 = pihm->mesh_tbl.zmax[pihm->elem[j].node[nodes[0]] - 1];
-            x2 = pihm->mesh_tbl.x[pihm->elem[j].node[nodes[1]] - 1];
-            y2 = pihm->mesh_tbl.y[pihm->elem[j].node[nodes[1]] - 1];
-            z2 = pihm->mesh_tbl.zmax[pihm->elem[j].node[nodes[1]] - 1];
-
-            xc = 0.5 * (x1 + x2);
-            yc = 0.5 * (y1 + y2);
-            zc = 0.5 * (z1 + z2);
-
-            vector[0] = xc - elem.topo.x;
-            vector[1] = yc - elem.topo.y;
-            vector[2] = zc - elem.topo.zmax;
-            c = sqrt (vector[0] * vector[0] + vector[1] * vector[1]);
-            h = atan (c / vector[2]) * 180.0 / PI;
-            h = (h < 0.0) ? 90.0 : h;
-
-            vector1[0] = x1 - elem.topo.x;
-            vector1[1] = y1 - elem.topo.y;
-            vector1[2] = z1 - elem.topo.zmax;
-            vector2[0] = x2 - elem.topo.x;
-            vector2[1] = y2 - elem.topo.y;
-            vector2[2] = z2 - elem.topo.zmax;
-
-            c1 = sqrt (vector1[0] * vector1[0] + vector1[1] * vector1[1]);
-            c2 = sqrt (vector2[0] * vector2[0] + vector2[1] * vector2[1]);
-
-            ce1 = vector1[0] / c1;
-            se1 = vector1[1] / c1;
-            phi1 = acos (ce1) * 180.0 / PI;
-            if (se1 < 0.0)
-            {
-                phi1 = 360.0 - phi1;
-            }
-            phi1 = mod (360.0 - phi1 + 270.0, 360.0);
-
-            ce2 = vector2[0] / c2;
-            se2 = vector2[1] / c2;
-            phi2 = acos (ce2) * 180.0 / PI;
-            if (se2 < 0.0)
-            {
-                phi2 = 360.0 - phi2;
-            }
-            phi2 = mod (360.0 - phi2 + 270.0, 360.0);
-
-            if (fabs (phi1 - phi2) > 180.0)
-            {
-                ind1 = 0;
-                ind2 = (int)floor ((phi1 < phi2 ? phi1 : phi2) / 10.0);
-                for (ind = ind1; ind <= ind2; ind++)
-                {
-                    if (h < grid->h_phi[ind])
-                    {
-                        grid->h_phi[ind] = h;
-                    }
-                }
-
-                ind1 = (int)floor ((phi1 > phi2 ? phi1 : phi2) / 10.0);
-                ind2 = 35;
-                for (ind = ind1; ind <= ind2; ind++)
-                {
-                    if (h < grid->h_phi[ind])
-                    {
-                        grid->h_phi[ind] = h;
-                    }
-                }
-            }
-            else
-            {
-                ind1 = (int)floor ((phi1 < phi2 ? phi1 : phi2) / 10.0);
-                ind2 = (int)floor ((phi1 > phi2 ? phi1 : phi2) / 10.0);
-                for (ind = ind1; ind <= ind2; ind++)
-                {
-                    if (h < grid->h_phi[ind])
-                    {
-                        grid->h_phi[ind] = h;
-                    }
-                }
-            }
-        }
-    }
-
-    for (ind = 0; ind < 36; ind++)
-    {
-        grid->svf +=
-            0.5 / PI * (cos (grid->slope * PI / 180.0) *
-            (pow (sin (grid->h_phi[ind] * PI / 180.0),
-                    2)) + sin (grid->slope * PI / 180.0) * cos ((ind * 10.0 +
-                    5.0 -
-                    grid->aspect) * PI / 180.0) * grid->h_phi[ind] * PI /
-            180.0 -
-            sin (grid->h_phi[ind] * PI / 180.0) * cos (grid->h_phi[ind] * PI /
-                180.0)) * 10.0 / 180.0 * PI;
-    }
-
-    //if (verbose_mode)
-    //{
-    //    printf ("ele: slope = %lf, aspect = %lf, svf = %lf\t", grid->slope,
-    //        grid->aspect, grid->svf);
-    //    for (ind = 0; ind < 36; ind++)
-    //    {
-    //        printf ("%lf\t", grid->h_phi[ind]);
-    //    }
-    //    printf ("\n");
-    //}
-}
-
-void LsmSaturationIC (lsm_ic_struct *ic, const grid_struct * grid,
-    const elem_struct *elem, int numele)
-{
-    double          sfctmp;
-    int             i, j;
+    int             i, j, k;
 
     for (i = 0; i < numele; i++)
     {
-        sfctmp = *elem[i].forc.meteo[SFCTMP_TS];
-
-        ic->t1[i] = sfctmp;
-
-        ic->stc[i][0] =
-            sfctmp + (sfctmp -
-            grid[i].tbot) / grid[i].zbot * grid[i].sldpth[0] * 0.5;
-
-        for (j = 1; j < MAXLYR; j++)
+        for (j = 0; j < 3; j++)
         {
-            if (grid[i].sldpth[j] > 0)
+            x[j] = meshtbl.x[elem[i].node[j] - 1];
+            y[j] = meshtbl.y[elem[i].node[j] - 1];
+            zmax[j] = meshtbl.zmax[elem[i].node[j] - 1];
+        }
+
+        edge_vector[0][XCOMP] = x[0] - x[2];
+        edge_vector[0][YCOMP] = y[0] - y[2];
+        edge_vector[0][ZCOMP] = zmax[0] - zmax[2];
+
+        edge_vector[1][XCOMP] = x[1] - x[2];
+        edge_vector[1][YCOMP] = y[1] - y[2];
+        edge_vector[1][ZCOMP] = zmax[1] - zmax[2];
+
+        /* Calculate normal vector */
+        normal_vector[XCOMP] = edge_vector[0][YCOMP] * edge_vector[1][ZCOMP] -
+            edge_vector[0][ZCOMP] * edge_vector[1][YCOMP];
+        normal_vector[YCOMP] = edge_vector[0][ZCOMP] * edge_vector[1][XCOMP] -
+            edge_vector[0][XCOMP] * edge_vector[1][ZCOMP];
+        normal_vector[ZCOMP] = edge_vector[0][XCOMP] * edge_vector[1][YCOMP] -
+            edge_vector[0][YCOMP] * edge_vector[1][XCOMP];
+
+        if (normal_vector[ZCOMP] < 0.0)
+        {
+            normal_vector[XCOMP] = -normal_vector[XCOMP];
+            normal_vector[YCOMP] = -normal_vector[YCOMP];
+            normal_vector[ZCOMP] = -normal_vector[ZCOMP];
+        }
+
+        /* Calculate slope */
+        c = sqrt (normal_vector[XCOMP] * normal_vector[XCOMP] +
+            normal_vector[YCOMP] * normal_vector[YCOMP]);
+        elem[i].topo.slope = atan (c / normal_vector[ZCOMP]) * 180.0 / PI;
+
+        /* Calculte aspect */
+        ce = normal_vector[XCOMP] / c;
+        se = normal_vector[YCOMP] / c;
+        elem[i].topo.aspect = acos (ce) * 180.0 / PI;
+
+        if (se < 0.0)
+        {
+            elem[i].topo.aspect = 360.0 - elem[i].topo.aspect;
+        }
+
+        elem[i].topo.aspect = Mod (360.0 - elem[i].topo.aspect + 270.0, 360.0);
+
+        /*
+         * Calculate sky view factor (Dozier and Frew 1990)
+         */
+        elem[i].topo.svf = 0.0;
+
+        /* Calculate unobstructed angle for every 10 degrees */
+        for (j = 0; j < 36; j++)
+        {
+            elem[i].topo.h_phi[j] = 90.0;
+        }
+
+        /* Consider every edge of every triangular grid */
+        for (j = 0; j < numele; j++)
+        {
+            for (k = 0; k < 3; k++)
             {
-                ic->stc[i][j] =
-                    ic->stc[i][j - 1] + (sfctmp -
-                    grid[i].tbot) / grid[i].zbot * (grid[i].sldpth[j - 1] +
-                    grid[i].sldpth[j]) * 0.5;
-            }
-            else
-            {
-                ic->stc[i][j] = BADVAL;
+                switch (k)
+                {
+                    case 0:
+                        nodes[0] = 1;
+                        nodes[1] = 2;
+                        break;
+                    case 1:
+                        nodes[0] = 0;
+                        nodes[1] = 2;
+                        break;
+                    case 2:
+                        nodes[0] = 0;
+                        nodes[1] = 1;
+                        break;
+                }
+                x1 = meshtbl.x[elem[j].node[nodes[0]] - 1];
+                y1 = meshtbl.y[elem[j].node[nodes[0]] - 1];
+                z1 = meshtbl.zmax[elem[j].node[nodes[0]] - 1];
+                x2 = meshtbl.x[elem[j].node[nodes[1]] - 1];
+                y2 = meshtbl.y[elem[j].node[nodes[1]] - 1];
+                z2 = meshtbl.zmax[elem[j].node[nodes[1]] - 1];
+
+                xc = 0.5 * (x1 + x2);
+                yc = 0.5 * (y1 + y2);
+                zc = 0.5 * (z1 + z2);
+
+                vector[XCOMP] = xc - elem[i].topo.x;
+                vector[YCOMP] = yc - elem[i].topo.y;
+                vector[ZCOMP] = zc - elem[i].topo.zmax;
+                c = sqrt (vector[XCOMP] * vector[XCOMP] + vector[YCOMP] * vector[YCOMP]);
+                /* Unobstructed angle of the kth edge of the jth grid */
+                h = atan (c / vector[ZCOMP]) * 180.0 / PI;
+                h = (h < 0.0) ? 90.0 : h;
+
+                /* Find out which directions are blocked */
+                edge_vector[0][XCOMP] = x1 - elem[i].topo.x;
+                edge_vector[0][YCOMP] = y1 - elem[i].topo.y;
+                edge_vector[0][ZCOMP] = z1 - elem[i].topo.zmax;
+                edge_vector[1][XCOMP] = x2 - elem[i].topo.x;
+                edge_vector[1][YCOMP] = y2 - elem[i].topo.y;
+                edge_vector[1][ZCOMP] = z2 - elem[i].topo.zmax;
+
+                c1 = sqrt (edge_vector[0][XCOMP] * edge_vector[0][XCOMP] +
+                    edge_vector[0][YCOMP] * edge_vector[0][YCOMP]);
+                c2 = sqrt (edge_vector[1][XCOMP] * edge_vector[1][XCOMP] +
+                    edge_vector[1][YCOMP] * edge_vector[1][YCOMP]);
+
+                ce1 = edge_vector[0][XCOMP] / c1;
+                se1 = edge_vector[0][YCOMP] / c1;
+                phi1 = acos (ce1) * 180.0 / PI;
+                if (se1 < 0.0)
+                {
+                    phi1 = 360.0 - phi1;
+                }
+                phi1 = Mod (360.0 - phi1 + 270.0, 360.0);
+
+                ce2 = edge_vector[1][XCOMP] / c2;
+                se2 = edge_vector[1][YCOMP] / c2;
+                phi2 = acos (ce2) * 180.0 / PI;
+                if (se2 < 0.0)
+                {
+                    phi2 = 360.0 - phi2;
+                }
+                phi2 = Mod (360.0 - phi2 + 270.0, 360.0);
+
+                if (fabs (phi1 - phi2) > 180.0)
+                {
+                    ind1 = 0;
+                    ind2 = (int)floor ((phi1 < phi2 ? phi1 : phi2) / 10.0);
+                    for (ind = ind1; ind <= ind2; ind++)
+                    {
+                        if (h < elem[i].topo.h_phi[ind])
+                        {
+                            elem[i].topo.h_phi[ind] = h;
+                        }
+                    }
+
+                    ind1 = (int)floor ((phi1 > phi2 ? phi1 : phi2) / 10.0);
+                    ind2 = 35;
+                    for (ind = ind1; ind <= ind2; ind++)
+                    {
+                        if (h < elem[i].topo.h_phi[ind])
+                        {
+                            elem[i].topo.h_phi[ind] = h;
+                        }
+                    }
+                }
+                else
+                {
+                    ind1 = (int)floor ((phi1 < phi2 ? phi1 : phi2) / 10.0);
+                    ind2 = (int)floor ((phi1 > phi2 ? phi1 : phi2) / 10.0);
+                    for (ind = ind1; ind <= ind2; ind++)
+                    {
+                        if (h < elem[i].topo.h_phi[ind])
+                        {
+                            elem[i].topo.h_phi[ind] = h;
+                        }
+                    }
+                }
             }
         }
 
-        for (j = 0; j < MAXLYR; j++)
+        /* Calculate sky view factor (Eq. 7b) */
+        for (ind = 0; ind < 36; ind++)
         {
-            if (grid[i].sldpth[j] > 0.0)
-            {
-                ic->smc[i][j] = elem[i].soil.thetas;
-                ic->sh2o[i][j] = elem[i].soil.thetas;
-            }
-            else
-            {
-                ic->smc[i][j] = BADVAL;
-                ic->sh2o[i][j] = BADVAL;
-            }
+            integrable = sin (elem[i].topo.slope * PI / 180.0) *
+                cos ((ind * 10.0 + 5.0 - elem[i].topo.aspect) * PI / 180.0);
+            integrable *= elem[i].topo.h_phi[ind] * PI / 180.0 -
+                sin (elem[i].topo.h_phi[ind] * PI / 180.0) *
+                cos (elem[i].topo.h_phi[ind] * PI / 180.0);
+            integrable += cos (elem[i].topo.slope * PI / 180.0) *
+                pow (sin (elem[i].topo.h_phi[ind] * PI / 180.0), 2);
+
+            elem[i].topo.svf += 0.5 / PI * integrable * 10.0 / 180.0 * PI;
         }
-        ic->snowh[i] = 0.0;
+
+        if (verbose_mode)
+        {
+            printf ("ele: slope = %lf, aspect = %lf, svf = %lf\t", elem[i].topo.slope,
+                elem[i].topo.aspect, elem[i].topo.svf);
+            for (ind = 0; ind < 36; ind++)
+            {
+                printf ("%lf\t", elem[i].topo.h_phi[ind]);
+            }
+            printf ("\n");
+        }
     }
 }
 
-void ReadLsmInit (char *project, char *simulation, lsm_ic_struct *ic,
-    int numele)
+double GWTransp (double ett, double *et, int nwtbl, int nroot)
 {
-    char            fn[MAXSTRING];
-    FILE           *init_file;
-    int             i, j;
+    /* Calculate transpiration from saturated zone */
+    int             j;
+    double          gw_transp = 0.0;
 
-    sprintf (fn, "input/%s/%s.lsminit", project, simulation);
-    init_file = fopen (fn, "rb");
-    CheckFile (init_file, fn);
-
-    for (i = 0; i < numele; i++)
+    if (ett > 0.0)
     {
-        fread (&ic->t1[i], sizeof (double), 1, init_file);
-        fread (&ic->snowh[i], sizeof (double), 1, init_file);
+        if (nwtbl <= nroot)
+        {
+            for (j = (nwtbl <= 0 ? 0 : nwtbl - 1); j < nroot; j++)
+            {
+                gw_transp += et[j];
+            }
 
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fread (&ic->stc[i][j], sizeof (double), 1, init_file);
-        }
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fread (&ic->smc[i][j], sizeof (double), 1, init_file);
-        }
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fread (&ic->sh2o[i][j], sizeof (double), 1, init_file);
+            gw_transp = gw_transp / ett;
+            gw_transp = (gw_transp > 1.0) ? 1.0 : gw_transp;
+            gw_transp = (gw_transp < 0.0) ? 0.0 : gw_transp;
         }
     }
 
-    fclose (init_file);
+    return (gw_transp);
 }
 
-void InitLsmVrbl (grid_struct * grid, elem_struct *elem, int numele,
-    lsm_ic_struct ic)
+void RootDist (const double *sldpth, int nsoil, int nroot, double *rtdis)
 {
-    int             i, j;
+    /* Calculate root distribution.
+     * Present version assumes uniform distribution based on soil layer
+     * depths. */
+    double          zsoil[MAXLYR];
+    int             j, kz;
 
-    for (i = 0; i < numele; i++)
+    zsoil[0] = -sldpth[0];
+    for (kz = 1; kz < nsoil; kz++)
     {
-        grid[i].t1 = ic.t1[i];
-        grid[i].snowh = ic.snowh[i];
+        zsoil[kz] = -sldpth[kz] + zsoil[kz - 1];
+    }
 
-        for (j = 0; j < MAXLYR; j++)
+    for (j = 0; j < nroot; j++)
+    {
+        rtdis[j] = -sldpth[j] / zsoil[nroot - 1];
+    }
+}
+
+void SunPos (int t, double latitude, double longitude, double elevation, double tmp, double *zenith, double *azimuth)
+{
+    spa_data        spa;
+    int             spa_result;
+    time_t          rawtime;
+    struct tm      *timestamp;
+
+    rawtime = (time_t)t;
+    timestamp = gmtime (&rawtime);
+
+    spa.year = timestamp->tm_year + 1900;
+    spa.month = timestamp->tm_mon + 1;
+    spa.day = timestamp->tm_mday;
+    spa.hour = timestamp->tm_hour;
+    spa.minute = timestamp->tm_min;
+    spa.second = timestamp->tm_sec;
+    spa.timezone = 0;
+
+    spa.delta_t = 67;
+    spa.delta_ut1 = 0;
+    spa.atmos_refract = 0.5667;
+
+    spa.longitude = longitude;
+    spa.latitude = latitude;
+
+    spa.elevation = elevation;
+
+    /* Calculate surface pressure based on fao 1998 method (narasimhan 2002) */
+    spa.pressure =
+        1013.25 * pow ((293.0 - 0.0065 * spa.elevation) / 293.0, 5.26);
+    spa.temperature = tmp;
+
+    spa.function = SPA_ZA;
+    spa_result = spa_calculate (&spa);
+
+    if (spa_result != 0)
+    {
+        printf ("spa error code: %d\n", spa_result);
+        PihmExit (1);
+    }
+
+    *azimuth = Mod ((360.0 + spa.azimuth180), 360.0);
+    *zenith = spa.zenith;
+}
+
+void CalHum (ps_struct *ps, es_struct *es)
+{
+    const double    A2 = 17.67;
+    const double    A3 = 273.15;
+    const double    A4 = 29.65;
+    const double    ELWV = 2.501e6;
+    double          a23m4;
+    const double    E0 = 611.0;
+    const double    RVV = 461.0;
+    const double    EPSILON = 0.622;
+    double          e;
+    double          esat;
+    double          svp;
+    const double    SVP1 = 611.2;
+    const double    SVP2 = 17.67;
+    const double    SVP3 = 29.65;
+    const double    SVPT0 = 273.15;
+
+    double          t2v;
+    double          rho;
+    double          rh;
+
+    rh = ps->rh / 100.0;
+
+    svp = SVP1 * exp (SVP2 * (es->sfctmp - SVPT0) / (es->sfctmp - SVP3));
+    e = rh * svp;
+
+    ps->q2 = (0.622 * e) / (ps->sfcprs - (1.0 - 0.622) * e);
+
+    es->th2 = es->sfctmp + (0.0098 * ps->zlvl);
+    //es->t1v = es->t1 * (1.0 + 0.61 * ps->q2);
+    //es->th2v = es->th2 * (1.0 + 0.61 * ps->q2);
+    t2v = es->sfctmp * (1.0 + 0.61 * ps->q2);
+    rho = ps->sfcprs / (RD * t2v);
+
+    a23m4 = A2 * (A3 - A4);
+
+    esat = E0 * exp (ELWV / RVV * (1.0 / A3 - 1.0 / es->sfctmp));
+
+    ps->q2sat = EPSILON * esat / (ps->sfcprs - (1.0 - EPSILON) * esat);
+
+    ps->dqsdt2 = ps->q2sat * a23m4 / pow (es->sfctmp - A4, 2);
+}
+
+double FrozRain (double prcp, double sfctmp)
+{
+    double          ffrozp;
+
+    if (prcp > 0.0 && sfctmp < TFREEZ)
+    {
+        ffrozp = 1.0;
+    }
+    else
+    {
+        ffrozp = 0.0;
+    }
+
+    return (ffrozp);
+}
+
+void AvgFlux (elem_struct *elem, int numele, int op)
+{
+    static int      counter;
+    int             i, j;
+    double          denom;
+
+    if (op == SUM)
+    {
+        for (i = 0; i < numele; i++)
         {
-            grid[i].stc[j] = ic.stc[i][j];
-            grid[i].smc[j] = ic.smc[i][j];
-            grid[i].sh2o[j] = ic.sh2o[i][j];
-        }
+            elem[i].avgwf.infil += elem[i].wf.infil;
+            elem[i].avgwf.runoff += elem[i].wf.runoff;
 
-        grid[i].cmc = elem[i].intcp;
-        grid[i].sneqv = elem[i].snow;
+            for (j = 0; j < 3; j++)
+            {
+                elem[i].avgwf.fluxsub[j] += elem[i].wf.fluxsub[j];
+            }
+        }
+        counter++;
+    }
+    else
+    {
+        denom = (counter == 0) ? 1.0 : (double)counter;
+
+        for (i = 0; i < numele; i++)
+        {
+            elem[i].avgwf.infil /= denom;
+            elem[i].avgwf.runoff /= denom;
+
+            for (j = 0; j < 3; j++)
+            {
+                elem[i].avgwf.fluxsub[j] /= denom;
+            }
+        }
+        counter = 0;
     }
 }
