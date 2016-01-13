@@ -199,35 +199,6 @@ void ReadRad (char *filename, forc_struct *forc)
     fclose (rad_file);
 }
 
-void ReadLsmInit (char *filename, elem_struct *elem, int numele)
-{
-    FILE           *init_file;
-    int             i, j;
-
-    init_file = fopen (filename, "rb");
-    CheckFile (init_file, filename);
-
-    for (i = 0; i < numele; i++)
-    {
-        fread (&elem[i].ic.t1, sizeof (double), 1, init_file);
-        fread (&elem[i].ic.snowh, sizeof (double), 1, init_file);
-
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fread (&elem[i].ic.stc[j], sizeof (double), 1, init_file);
-        }
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fread (&elem[i].ic.smc[j], sizeof (double), 1, init_file);
-        }
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fread (&elem[i].ic.sh2o[j], sizeof (double), 1, init_file);
-        }
-    }
-
-    fclose (init_file);
-}
 //
 ////void LsmPrtInit (pihm_struct pihm, lsm_struct noah, char *simulation)
 ////{
@@ -254,21 +225,6 @@ void ReadLsmInit (char *filename, elem_struct *elem, int numele)
 ////
 ////    for (i = 0; i < pihm->numele; i++)
 ////    {
-////        fwrite (&noah->grid[i].t1, sizeof (double), 1, init_file);
-////        fwrite (&noah->grid[i].snowh, sizeof (double), 1, init_file);
-////
-////        for (j = 0; j < MAXLYR; j++)
-////        {
-////            fwrite (&noah->grid[i].stc[j], sizeof (double), 1, init_file);
-////        }
-////        for (j = 0; j < MAXLYR; j++)
-////        {
-////            fwrite (&noah->grid[i].smc[j], sizeof (double), 1, init_file);
-////        }
-////        for (j = 0; j < MAXLYR; j++)
-////        {
-////            fwrite (&noah->grid[i].sh2o[j], sizeof (double), 1, init_file);
-////        }
 ////    }
 ////
 ////    fclose (init_file);

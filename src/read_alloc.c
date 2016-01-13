@@ -44,7 +44,6 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 #ifdef _NOAH_
     sprintf (pihm->filename.lsm, "input/%s/%s.lsm", project, project);
     sprintf (pihm->filename.rad, "input/%s/%s.rad", project, project);
-    sprintf (pihm->filename.lsminit, "input/%s/%s.lsminit", project, simulation);
 #endif
 
     ReadRiv (pihm->filename.riv, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl,
@@ -1118,9 +1117,32 @@ void ReadInit (char *filename, elem_struct *elem, int numele,
 {
     FILE           *init_file;
     int             i;
+    int             sz;
+    int             elemsz;
+    int             rivsz;
+#ifdef _NOAH_
+    int             j;
+#endif
 
     init_file = fopen (filename, "rb");
     CheckFile (init_file, filename);
+
+    elemsz = 5 * sizeof (double);
+    rivsz = 2 * sizeof (double);
+#ifdef _NOAH_
+    elemsz += (2 + 3 * MAXLYR) * sizeof (double);
+#endif
+
+    fseek (init_file, 0L, SEEK_END);
+    sz = ftell (init_file);
+
+    if (sz != elemsz * numele + rivsz * numriv)
+    {
+        printf ("\nERROR:.init file size does not match!\n");
+        PihmExit (1);
+    }
+        
+    fseek (init_file, 0L, SEEK_SET);
 
     for (i = 0; i < numele; i++)
     {
@@ -1129,6 +1151,23 @@ void ReadInit (char *filename, elem_struct *elem, int numele,
         fread (&elem[i].ic.surf, sizeof (double), 1, init_file);
         fread (&elem[i].ic.unsat, sizeof (double), 1, init_file);
         fread (&elem[i].ic.gw, sizeof (double), 1, init_file);
+#ifdef _NOAH_
+        fread (&elem[i].ic.t1, sizeof (double), 1, init_file);
+        fread (&elem[i].ic.snowh, sizeof (double), 1, init_file);
+
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fread (&elem[i].ic.stc[j], sizeof (double), 1, init_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fread (&elem[i].ic.smc[j], sizeof (double), 1, init_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fread (&elem[i].ic.sh2o[j], sizeof (double), 1, init_file);
+        }
+#endif
     }
     for (i = 0; i < numriv; i++)
     {

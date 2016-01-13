@@ -697,21 +697,10 @@ void PrtInit (pihm_struct pihm, char *simulation)
 {
     FILE           *init_file;
     char            fn[MAXSTRING];
-    char            project[MAXSTRING];
-    char           *token;
-    char            tempname[MAXSTRING];
     int             i;
-
-    strcpy (tempname, simulation);
-    if (strstr (tempname, ".") != 0)
-    {
-        token = strtok (tempname, ".");
-        strcpy (project, token);
-    }
-    else
-    {
-        strcpy (project, simulation);
-    }
+#ifdef _NOAH_
+    int             j;
+#endif
 
     sprintf (fn, "input/%s/%s.init", project, simulation);
     init_file = fopen (fn, "wb");
@@ -723,6 +712,22 @@ void PrtInit (pihm_struct pihm, char *simulation)
         fwrite (&pihm->elem[i].ws.surf, sizeof (double), 1, init_file);
         fwrite (&pihm->elem[i].ws.unsat, sizeof (double), 1, init_file);
         fwrite (&pihm->elem[i].ws.gw, sizeof (double), 1, init_file);
+        fwrite (&pihm->elem[i].es.t1, sizeof (double), 1, init_file);
+        fwrite (&pihm->elem[i].ps.snowh, sizeof (double), 1, init_file);
+#ifdef _NOAH_
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&pihm->elem[i].es.stc[j], sizeof (double), 1, init_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&pihm->elem[i].ws.smc[j], sizeof (double), 1, init_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&pihm->elem[i].ws.sh2o[j], sizeof (double), 1, init_file);
+        }
+#endif
     }
 
     for (i = 0; i < pihm->numriv; i++)

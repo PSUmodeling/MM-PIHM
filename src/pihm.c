@@ -109,16 +109,13 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             pihm->ctrl.ascii);
     }
 
-//    /*
-//     * Write init files
-//     */
-//    if (pihm->ctrl.write_ic)
-//    {
-//        PrtInit (pihm, simulation);
-//#ifdef _NOAH_
-//        LsmPrtInit (pihm, noah, simulation);
-//#endif
-//    }
+    /*
+     * Write init files
+     */
+    if (pihm->ctrl.write_ic)
+    {
+        PrtInit (pihm, simulation);
+    }
 
     /* Free memory */
     N_VDestroy_Serial (CV_Y);

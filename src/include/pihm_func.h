@@ -95,7 +95,7 @@ double          AvgY (double, double, double);
 double          EffKV (double, double, int, double, double, double);
 double          EffKH (int, double, double, double, double, double, double);
 
-//void            PrtInit (pihm_struct pihm, char *simulation);
+void            PrtInit (pihm_struct pihm, char *simulation);
 void            PrintData (prtctrl_struct *, int, int, int, int, int);
 int             MacroporeStatus (double, double, double, double, double,
     double);
@@ -122,7 +122,6 @@ void            RootDist (const double *, int, int, double *);
 void            CalcSlopeAspect (elem_struct *, int, meshtbl_struct);
 int             FindLayer (const double *, int, double);
 double          GWTransp (double, double *, int, int);
-void            ReadLsmInit (char *, elem_struct *, int);
 void            SunPos (int, double, double, double, double, double *,
                     double *);
 double          TopoRadn (double, double, double, double, double, double,

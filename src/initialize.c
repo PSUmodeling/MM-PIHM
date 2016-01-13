@@ -74,9 +74,6 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     {
         ReadInit (pihm->filename.init, pihm->elem, pihm->numele, pihm->riv,
             pihm->numriv);
-#ifdef _NOAH_
-        ReadLsmInit (pihm->filename.lsminit, pihm->elem, pihm->numele);
-#endif
     }
 
     InitVar (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, CV_Y);
