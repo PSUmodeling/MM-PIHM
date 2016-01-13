@@ -105,9 +105,9 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * Water flow
      */
-    LateralFlow (pihm);
-
     VerticalFlow (pihm);
+
+    LateralFlow (pihm);
 
     RiverFlow (pihm);
 
@@ -434,10 +434,12 @@ void VerticalFlow (pihm_struct pihm)
             elem->wf.infil = effk * grad_y_sub;
 #endif
 
-            qmax =
-                elem->ws.surf / dt + elem->wf.netprcp + (elem->wf.fluxsurf[0] +
-                elem->wf.fluxsurf[1] + elem->wf.fluxsurf[2]) / elem->topo.area -
-                elem->wf.edir_sfc;
+            qmax = elem->ws.surf / dt + elem->wf.netprcp - elem->wf.edir_sfc;
+            qmax = (qmax > 0.0) ? qmax : 0.0;
+            //qmax =
+            //    elem->ws.surf / dt + elem->wf.netprcp + (elem->wf.fluxsurf[0] +
+            //    elem->wf.fluxsurf[1] + elem->wf.fluxsurf[2]) / elem->topo.area -
+            //    elem->wf.edir_sfc;
 
             elem->wf.infil = (elem->wf.infil < qmax) ? elem->wf.infil : qmax;
             elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
@@ -489,10 +491,12 @@ void VerticalFlow (pihm_struct pihm)
             elem->wf.infil = 0.5 * effk * grad_y_sub;
 #endif
 
-            qmax =
-                elem->ws.surf / dt + elem->wf.netprcp + (elem->wf.fluxsurf[0] +
-                elem->wf.fluxsurf[1] + elem->wf.fluxsurf[2]) / elem->topo.area -
-                elem->wf.edir_sfc;
+            //qmax =
+            //    elem->ws.surf / dt + elem->wf.netprcp + (elem->wf.fluxsurf[0] +
+            //    elem->wf.fluxsurf[1] + elem->wf.fluxsurf[2]) / elem->topo.area -
+            //    elem->wf.edir_sfc;
+            qmax = elem->ws.surf / dt + elem->wf.netprcp - elem->wf.edir_sfc;
+            qmax = (qmax > 0.0) ? qmax : 0.0;
 
             elem->wf.infil = (elem->wf.infil < qmax) ? elem->wf.infil : qmax;
             elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
@@ -839,7 +843,7 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
         {
             if (*fluxsurf < 0.0 && *fluxsurf < elem->wf.fluxsurf[j])
             {
-                *fluxsurf = -elem->ws.surf / dt;
+                //*fluxsurf = -elem->ws.surf / dt;
             }
             elem->wf.fluxsurf[j] = -(*fluxsurf);
             elem->wf.fluxsub[j] = -(*fluxriv + *fluxsub);
