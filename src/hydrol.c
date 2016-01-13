@@ -402,6 +402,7 @@ void VerticalFlow (pihm_struct pihm)
     double          deficit;
     double          avg_y_sub;
     double          total_y;
+    double          applrate;
     double          qmax;
     elem_struct    *elem;
 
@@ -410,6 +411,9 @@ void VerticalFlow (pihm_struct pihm)
     for (i = 0; i < pihm->numele; i++)
     {
         elem = &pihm->elem[i];
+
+        applrate = (elem->ws.surf < IMMOBILE) ?
+            elem->wf.netprcp : elem->ws.surf / dt;
 
         if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
         {
@@ -469,7 +473,7 @@ void VerticalFlow (pihm_struct pihm)
             if (elem->soil.macropore == 1)
             {
                 elem->ps.macpore_status =
-                    MacroporeStatus (satkfunc, satn, grad_y_sub,
+                    MacroporeStatus (satkfunc, satn, applrate,
                     elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
                 effk =
                     EffKV (satkfunc, satn, elem->ps.macpore_status,

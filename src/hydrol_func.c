@@ -237,7 +237,7 @@ double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
     return (effkv);
 }
 
-int MacroporeStatus (double ksatfunc, double elemsatn, double grady,
+int MacroporeStatus (double ksatfunc, double elemsatn, double applrate,
     double mackv, double kv, double areaf)
 {
     if (elemsatn >= 0.98)
@@ -246,13 +246,13 @@ int MacroporeStatus (double ksatfunc, double elemsatn, double grady,
     }
     else
     {
-        if (grady * ksatfunc * kv <= 1.0 * kv * ksatfunc)
+        if (applrate <= 1.0 * kv * ksatfunc)
         {
             return (MAT_CTRL);
         }
         else
         {
-            if (grady * ksatfunc * kv <
+            if (applrate <
                 (mackv * areaf + kv * (1.0 - areaf) * ksatfunc))
             {
                 return (APP_CTRL);
