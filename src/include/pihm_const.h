@@ -25,7 +25,7 @@
 #define NUM_PRINT       200
 
 #define PSIMIN		-70.0
-#define IMMOBILE        5E-4
+#define DEPRSTG         1E-4
 #define GRADMIN         5E-8
 #define SATMIN          0.1
 #define RIVDPTHMIN      0.05

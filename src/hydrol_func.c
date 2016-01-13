@@ -186,7 +186,7 @@ double AvgY (double diff, double yi, double yinabr)
 
     if (diff > 0.0)
     {
-        if (yi > 1.0 * IMMOBILE)
+        if (yi > 0.0)
         {
             avg_y = 1.0 * yi;
         }
@@ -197,7 +197,7 @@ double AvgY (double diff, double yi, double yinabr)
     }
     else
     {
-        if (yinabr > 1.0 * IMMOBILE)
+        if (yinabr > 0.0)
         {
             avg_y = 1.0 * yinabr;
         }

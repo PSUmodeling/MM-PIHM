@@ -125,6 +125,7 @@ typedef struct ps_struct
     double          sfcspd;
     double          rh;
     double          sfcprs;
+    double          surfavail;
 #ifdef _NOAH_
     double          snoalb;     /* upper bound on maximum albedo over deep snow (e.g. from robinson and kukla, 1985, j. clim. & appl. meteor.) */
     int             nsoil;      /* number of soil layers (at least 2, and not

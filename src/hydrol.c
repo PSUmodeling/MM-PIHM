@@ -26,18 +26,23 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
     for (i = 0; i < pihm->numele; i++)
     {
-        pihm->elem[i].ws.surf = (y[SURF(i)] >= 0.0) ? y[SURF(i)] : 0.0;
-        pihm->elem[i].ws.unsat = (y[UNSAT(i)] >= 0.0) ? y[UNSAT(i)] : 0.0;
-        pihm->elem[i].ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
+        elem = &pihm->elem[i];
+
+        elem->ws.surf = (y[SURF(i)] >= 0.0) ? y[SURF(i)] : 0.0;
+        elem->ps.surfavail = (elem->ws.surf > DEPRSTG) ? elem->ws.surf : 0.0;
+        elem->ws.unsat = (y[UNSAT(i)] >= 0.0) ? y[UNSAT(i)] : 0.0;
+        elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
     }
 
     for (i = 0; i < pihm->numriv; i++)
     {
-        pihm->riv[i].ws.stage = (y[RIVSTG(i)] >= 0.0) ? y[RIVSTG(i)] : 0.0;
-        pihm->riv[i].ws.gw = (y[RIVGW(i)] >= 0.0) ? y[RIVGW(i)] : 0.0;
+        riv = &pihm->riv[i];
 
-        pihm->riv[i].wf.fluxriv[0] = 0.0;
-        pihm->riv[i].wf.fluxriv[10] = 0.0;
+        riv->ws.stage = (y[RIVSTG(i)] >= 0.0) ? y[RIVSTG(i)] : 0.0;
+        riv->ws.gw = (y[RIVGW(i)] >= 0.0) ? y[RIVGW(i)] : 0.0;
+
+        riv->wf.fluxriv[0] = 0.0;
+        riv->wf.fluxriv[10] = 0.0;
     }
 
     /*
@@ -62,7 +67,7 @@ int f (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             elem->wf.edir_gw = 0.0;
         }
 #else   
-        if (elem->ws.surf >= IMMOBILE)
+        if (elem->ws.surf >= DEPRSTG)
         {
             elem->wf.edir_sfc = elem->wf.edir;
             elem->wf.edir_unsat = 0.0;
@@ -225,7 +230,7 @@ void LateralFlow (pihm_struct pihm)
                 if (elem->nabr[j] > 0)
                 {
                     nabr = &pihm->elem[elem->nabr[j] - 1];
-                    surfh[j] = nabr->topo.zmax + nabr->ws.surf;
+                    surfh[j] = nabr->topo.zmax + nabr->ps.surfavail;
                 }
                 else if (elem->nabr[j] < 0)
                 {
@@ -244,7 +249,7 @@ void LateralFlow (pihm_struct pihm)
                 {
                     if (elem->forc.bc_type[j] == 0)
                     {
-                        surfh[j] = elem->topo.zmax + elem->ws.surf;
+                        surfh[j] = elem->topo.zmax + elem->ps.surfavail;
                     }
                     else
                     {
@@ -315,10 +320,10 @@ void LateralFlow (pihm_struct pihm)
                 else
                 {
                     dif_y_surf =
-                        (elem->ws.surf + elem->topo.zmax) - (nabr->ws.surf +
+                        (elem->ps.surfavail + elem->topo.zmax) - (nabr->ps.surfavail +
                         nabr->topo.zmax);
                 }
-                avg_y_surf = AvgY (dif_y_surf, elem->ws.surf, nabr->ws.surf);
+                avg_y_surf = AvgY (dif_y_surf, elem->ps.surfavail, nabr->ps.surfavail);
                 grad_y_surf = dif_y_surf / distance;
                 avg_sf =
                     0.5 * (sqrt (pow (dhbydx[i], 2) + pow (dhbydy[i],
@@ -404,6 +409,7 @@ void VerticalFlow (pihm_struct pihm)
     double          total_y;
     double          applrate;
     double          qmax;
+    double          wetfrac;
     elem_struct    *elem;
 
     dt = (double) pihm->ctrl.stepsize;
@@ -412,8 +418,10 @@ void VerticalFlow (pihm_struct pihm)
     {
         elem = &pihm->elem[i];
 
-        applrate = (elem->ws.surf < IMMOBILE) ?
-            elem->wf.netprcp : elem->ws.surf / dt;
+        applrate = elem->wf.netprcp + elem->ws.surf / dt;
+
+        wetfrac = (elem->ws.surf > DEPRSTG) ?
+            1.0 : sqrt (elem->ws.surf / DEPRSTG);
 
         if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
         {
@@ -421,7 +429,7 @@ void VerticalFlow (pihm_struct pihm)
             grad_y_sub =
                 (elem->ws.surf + elem->topo.zmax - (elem->ws.gw +
                     elem->topo.zmin)) / elem->soil.dinf;
-            grad_y_sub = (elem->ws.surf < IMMOBILE && grad_y_sub > 0.0) ? 0.0 : grad_y_sub;
+            grad_y_sub = (elem->ws.surf < 0.0 && grad_y_sub > 0.0) ? 0.0 : grad_y_sub;
             satn = 1.0;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
             effk =
@@ -429,20 +437,16 @@ void VerticalFlow (pihm_struct pihm)
                 SAT_CTRL, elem->soil.kmacv, elem->soil.kinfv,
                 elem->soil.areafh) : elem->soil.kinfv;
 #ifdef _NOAH_
-            elem->wf.infil = elem->ps.fcr * effk * grad_y_sub;
+            elem->wf.infil = elem->ps.fcr * wetfrac * effk * grad_y_sub;
 #else
-            elem->wf.infil = effk * grad_y_sub;
+            elem->wf.infil = wetfrac * effk * grad_y_sub;
 #endif
 
             qmax = elem->ws.surf / dt + elem->wf.netprcp - elem->wf.edir_sfc;
             qmax = (qmax > 0.0) ? qmax : 0.0;
-            //qmax =
-            //    elem->ws.surf / dt + elem->wf.netprcp + (elem->wf.fluxsurf[0] +
-            //    elem->wf.fluxsurf[1] + elem->wf.fluxsurf[2]) / elem->topo.area -
-            //    elem->wf.edir_sfc;
 
+            /* Note: infiltration can be negtive in this case */
             elem->wf.infil = (elem->wf.infil < qmax) ? elem->wf.infil : qmax;
-            elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
 
             elem->wf.rechg = elem->wf.infil;
         }
@@ -469,7 +473,7 @@ void VerticalFlow (pihm_struct pihm)
                 elem->soil.dinf;
             grad_y_sub =
                 (elem->ws.surf + elem->topo.zmax - total_y) / elem->soil.dinf;
-            grad_y_sub = (elem->ws.surf < IMMOBILE &&
+            grad_y_sub = (elem->ws.surf < 0.0 &&
                 grad_y_sub > 0.0) ? 0.0 : grad_y_sub;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
             if (elem->soil.macropore == 1)
@@ -486,15 +490,11 @@ void VerticalFlow (pihm_struct pihm)
                 effk = elem->soil.kinfv;
             }
 #ifdef _NOAH_
-            elem->wf.infil = elem->ps.fcr * 0.5 * effk * grad_y_sub;
+            elem->wf.infil = elem->ps.fcr * wetfrac * 0.5 * effk * grad_y_sub;
 #else
-            elem->wf.infil = 0.5 * effk * grad_y_sub;
+            elem->wf.infil = 0.5 * wetfrac * effk * grad_y_sub;
 #endif
 
-            //qmax =
-            //    elem->ws.surf / dt + elem->wf.netprcp + (elem->wf.fluxsurf[0] +
-            //    elem->wf.fluxsurf[1] + elem->wf.fluxsurf[2]) / elem->topo.area -
-            //    elem->wf.edir_sfc;
             qmax = elem->ws.surf / dt + elem->wf.netprcp - elem->wf.edir_sfc;
             qmax = (qmax > 0.0) ? qmax : 0.0;
 
@@ -657,12 +657,12 @@ void RiverFlow (pihm_struct pihm)
                     total_y_down =
                         *riv->forc.riverbc + (riv->topo.node_zmax -
                         riv->shp.depth);
-                    //distance = 0.5 * riv->shp.length;
-                    distance =
-                        sqrt (pow (riv->topo.x -
-                            pihm->meshtbl.x[riv->tonode - 1],
-                            2) + pow (riv->topo.y -
-                            pihm->meshtbl.y[riv->tonode - 1], 2));
+                    distance = 0.5 * riv->shp.length;
+                    //distance =
+                    //    sqrt (pow (riv->topo.x -
+                    //        pihm->meshtbl.x[riv->tonode - 1],
+                    //        2) + pow (riv->topo.y -
+                    //        pihm->meshtbl.y[riv->tonode - 1], 2));
                     grad_y = (total_y - total_y_down) / distance;
                     avg_sf = grad_y;
                     avg_rough = riv->matl.rough;
@@ -682,12 +682,12 @@ void RiverFlow (pihm_struct pihm)
                     break;
                 case -3:
                     /* Zero-depth-gradient boundary conditions */
-                    //distance = 0.5 * riv->shp.length;
-                    distance =
-                        sqrt (pow (riv->topo.x -
-                            pihm->meshtbl.x[riv->tonode - 1],
-                            2) + pow (riv->topo.y -
-                            pihm->meshtbl.y[riv->tonode - 1], 2));
+                    distance = 0.5 * riv->shp.length;
+                    //distance =
+                    //    sqrt (pow (riv->topo.x -
+                    //        pihm->meshtbl.x[riv->tonode - 1],
+                    //        2) + pow (riv->topo.y -
+                    //        pihm->meshtbl.y[riv->tonode - 1], 2));
                     grad_y =
                         (riv->topo.zbed - (riv->topo.node_zmax -
                             riv->shp.depth)) / distance;
@@ -767,7 +767,7 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
 
     /* Lateral surface flux calculation between river-triangular element */
     *fluxsurf =
-        OLFEleToRiv (elem->ws.surf + elem->topo.zmax, elem->topo.zmax,
+        OLFEleToRiv (elem->ps.surfavail + elem->topo.zmax, elem->topo.zmax,
         riv->matl.cwr, riv->topo.zmax, total_y, riv->shp.length);
 
     /* Lateral subsurface flux calculation between river-triangular element */
@@ -841,10 +841,6 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     {
         if (elem->nabr[j] == - ind)
         {
-            if (*fluxsurf < 0.0 && *fluxsurf < elem->wf.fluxsurf[j])
-            {
-                //*fluxsurf = -elem->ws.surf / dt;
-            }
             elem->wf.fluxsurf[j] = -(*fluxsurf);
             elem->wf.fluxsub[j] = -(*fluxriv + *fluxsub);
             break;
