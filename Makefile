@@ -5,8 +5,7 @@
 CC = gcc
 CFLAGS = -g -O0 -Wall
 
-SUNDIALS_PATH = /gpfs/home/yzs123/work/lib/sundials-2.2.0
-#SUNDIALS_PATH = ./sundials
+SUNDIALS_PATH = ./sundials
 
 SRCDIR = ./src
 LIBS =	-lm
@@ -188,7 +187,7 @@ all:	sundials pihm
 
 sundials:	## Install sundials library
 sundials:
-	tar -xvf sundials.tar; cd sundials; ./configure; make; make install; cd ../
+	cd sundials; ./configure; make; make install; cd ../
 	@echo "SUNDIALS library installed."
 pihm: 		## Compile PIHM
 pihm:	$(OBJS)
