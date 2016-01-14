@@ -712,9 +712,9 @@ void PrtInit (pihm_struct pihm, char *simulation)
         fwrite (&pihm->elem[i].ws.surf, sizeof (double), 1, init_file);
         fwrite (&pihm->elem[i].ws.unsat, sizeof (double), 1, init_file);
         fwrite (&pihm->elem[i].ws.gw, sizeof (double), 1, init_file);
+#ifdef _NOAH_
         fwrite (&pihm->elem[i].es.t1, sizeof (double), 1, init_file);
         fwrite (&pihm->elem[i].ps.snowh, sizeof (double), 1, init_file);
-#ifdef _NOAH_
         for (j = 0; j < MAXLYR; j++)
         {
             fwrite (&pihm->elem[i].es.stc[j], sizeof (double), 1, init_file);
