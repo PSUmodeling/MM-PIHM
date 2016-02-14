@@ -536,3 +536,18 @@ void AvgFlux (elem_struct *elem, int numele, int op)
         counter = 0;
     }
 }
+
+double AvgElev (elem_struct *elem, int numele)
+{
+    double          elev = 0.0;
+    int             i;
+
+    for (i = 0; i < numele; i++)
+    {
+        elev += elem[i].topo.zmax;
+    }
+    
+    elev /= (double)numele;
+
+    return (elev);
+}

@@ -121,6 +121,7 @@ void            DefSldpth (double *, int *, double, const double *, int);
 void            RootDist (const double *, int, int, double *);
 void            CalcSlopeAspect (elem_struct *, int, meshtbl_struct);
 int             FindLayer (const double *, int, double);
+double          AvgElev (elem_struct *, int);
 double          GWTransp (double, double *, int, int);
 void            SunPos (int, double, double, double, double, double *,
                     double *);

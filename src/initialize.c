@@ -27,12 +27,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
 
 #ifdef _NOAH_
     /* Calculate average elevation of model domain */
-    pihm->elevation = 0.0;
-    for (i = 0; i < pihm->numele; i++)
-    {
-        pihm->elevation += pihm->elem[i].topo.zmax;
-    }
-    pihm->elevation /= (double)pihm->numele;
+    pihm->elevation = AvgElev (pihm->elem, pihm->numele);
 #endif
 
 #ifdef _NOAH_
