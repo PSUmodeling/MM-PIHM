@@ -168,7 +168,7 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     /*
      * Urban 
      */
-    if (lc->type == lc->isurban)
+    if (lc->isurban)
     {
         lc->shdfac = 0.05;
         lc->rsmin = 400.0;
@@ -348,7 +348,7 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
         ws->sh2o[0]);
 
     /* Urban */
-    if (lc->type == lc->isurban)
+    if (lc->isurban)
     {
         df1 = 3.24;
     }
@@ -1041,7 +1041,7 @@ void HRT (ws_struct *ws, es_struct *es, ef_struct *ef, ps_struct *ps,
     const double    CH2O = 4.2e6;
 
     /* Urban */
-    if (lc->type == lc->isurban)
+    if (lc->isurban)
     {
         csoil_loc = 3.0e6;
     }
@@ -1143,7 +1143,7 @@ void HRT (ws_struct *ws, es_struct *es, ef_struct *ef, ps_struct *ps,
                 soil->smcmin, ws->sh2o[k]);
 
             /* Urban */
-            if (lc->type == lc->isurban)
+            if (lc->isurban)
             {
                 df1n = 3.24;
             }
@@ -1171,7 +1171,7 @@ void HRT (ws_struct *ws, es_struct *es, ef_struct *ef, ps_struct *ps,
                 soil->smcmin, ws->sh2o[k]);
 
             /* Urban */
-            if (lc->type == lc->isurban)
+            if (lc->isurban)
             {
                 df1n = 3.24;
             }
@@ -1371,7 +1371,7 @@ void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
         ws->sh2o[0]);
 
     /* Urban */
-    if (lc->type == lc->isurban)
+    if (lc->isurban)
     {
         df1 = 3.24;
     }
@@ -3239,7 +3239,7 @@ void SfcDifOff (ps_struct *ps, const lc_struct *lc, double t1v, double th2v,
 
     ilech = 0;
 
-    if ((iz0tlnd == 0) || (lc->type == lc->isurban))
+    if ((iz0tlnd == 0) || lc->isurban)
     {
         /* Just use the original Czil value. */
         zilfc = -ps->czil * VKRM * SQVISC;

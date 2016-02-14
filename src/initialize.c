@@ -277,15 +277,12 @@ void InitLC (elem_struct *elem, int numele, atttbl_struct atttbl,
         elem[i].lc.rsmax = lctbl.rsmax;
         elem[i].lc.cfactr = lctbl.cfactr;
         elem[i].lc.topt = lctbl.topt;
-        elem[i].lc.bare = lctbl.bare;
-        if (elem[i].lc.type == lctbl.bare)
-        {
-            elem[i].lc.shdfac = 0.0;
-        }
+        elem[i].lc.bare = (elem[i].lc.type == lctbl.bare) ? 1 : 0;
+        elem[i].lc.shdfac = (elem[i].lc.bare == 1) ? 0.0 : elem[i].lc.shdfac;
 #ifdef _NOAH_
         elem[i].lc.ptu = 0.0;       /* Not yet used */
         elem[i].lc.snup = lctbl.snup[lc_ind];
-        elem[i].lc.isurban = ISURBAN;
+        elem[i].lc.isurban = (elem[i].lc.type == ISURBAN) ? 1 : 0;
         elem[i].lc.shdmin = 0.01;
         elem[i].lc.shdmax = 0.96;
 #endif
