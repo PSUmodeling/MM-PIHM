@@ -104,6 +104,13 @@ double          Psi (double, double, double);
 void            Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize);
 void            SetCVodeParam (pihm_struct, void *, N_Vector);
 void            SolveCVode (int *, int, int, void *, N_Vector);
+int             SoilTex (double, double);
+double          Qtz (int);
+double          PtfKV (double, double, double, double, int);
+double          PtfThetaS (double, double, double, double, int);
+double          PtfThetaR (double, double, double, double, int);
+double          PtfAlpha (double, double, double, double, int);
+double          PtfBeta (double, double, double, double, int);
 //
 //#ifdef _DAILY_
 //void InitDailyStruct (pihm_struct pihm);

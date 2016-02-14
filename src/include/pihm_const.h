@@ -37,6 +37,20 @@
 #define RIVSTG(i)       i + 3 * pihm->numele
 #define RIVGW(i)        i + 3 * pihm->numele + pihm->numriv
 
+/* Soil textures */
+#define SAND            0
+#define LOAMY_SAND      1
+#define SANDY_LOAM      2
+#define LOAM            3
+#define SILT_LOAM       4
+#define SILT            5
+#define SANDY_CLAY_LOAM 6
+#define CLAY_LOAM       7
+#define SILTY_CLAY_LOAM 8
+#define SANDY_CLAY      9
+#define SILTY_CLAY      10
+#define CLAY            11
+
 /* Macropore status */
 #define MAT_CTRL        0
 #define APP_CTRL        1

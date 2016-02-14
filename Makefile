@@ -21,6 +21,7 @@ SRCS_ = main.c \
 	read_alloc.c \
 	read_func.c \
 	initialize.c \
+	soil.c \
 	hydrol_func.c \
 	is_sm_et.c \
 	hydrol.c \
