@@ -482,6 +482,10 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
             printf (".soil file format error!\n");
             PihmExit (1);
         }
+
+        /* Fill in missing organic matter and bulk density values */
+        soiltbl->om[i] = (soiltbl->om[i] > 0.0) ? soiltbl->om[i] : 2.5;
+        soiltbl->bd[i] = (soiltbl->bd[i] > 0.0) ? soiltbl->bd[i] : 1.3;
     }
 
     fclose (soil_file);
