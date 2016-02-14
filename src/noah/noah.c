@@ -3118,7 +3118,7 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
 
     /* factr2 should avoid to be 0 or 1 */
     factr2 = (factr2 > 1.0 - 5.0e-4) ? 1.0 - 5.0e-4 : factr2;
-    factr2 = (factr2 < 0.0 + 5.0e-4) ? 5.0e04 : factr2;
+    factr2 = (factr2 < 0.0 + 5.0e-4) ? 5.0e-4 : factr2;
 
     factr1 = (factr1 < factr2) ? factr1 : factr2;
     expon = 1.0 - 1.0 / soil->beta;
