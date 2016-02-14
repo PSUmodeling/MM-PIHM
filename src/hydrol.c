@@ -304,7 +304,8 @@ void LateralFlow (pihm_struct pihm)
                     EffKH (nabr->soil.macropore, nabr->ws.gw, nabr->soil.depth,
                     nabr->soil.dmac, nabr->soil.kmach, nabr->soil.areafv,
                     nabr->soil.ksath);
-                avg_ksat = 0.5 * (effk + effk_nabr);
+                //avg_ksat = 0.5 * (effk + effk_nabr);
+                avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
                 /* Groundwater flow modeled by Darcy's Law */
                 elem->wf.fluxsub[j] =
                     avg_ksat * grad_y_sub * avg_y_sub * elem->topo.edge[j];
@@ -641,7 +642,8 @@ void RiverFlow (pihm_struct pihm)
                     left->soil.ksath) + EffKH (right->soil.macropore,
                     right->ws.gw, right->soil.depth, right->soil.dmac,
                     right->soil.kmach, left->soil.areafv, right->soil.ksath));
-            avg_ksat = 0.5 * (effk + effk_nabr);
+            //avg_ksat = 0.5 * (effk + effk_nabr);
+            avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
             /* Groundwater flow modeled by Darcy's law */
             riv->wf.fluxriv[9] = avg_ksat * grad_y_sub * avg_y_sub * avg_wid;
             /* Accumulate to get in-flow for down segments:
@@ -798,7 +800,8 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
         EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
         elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
         elem->soil.ksath);
-    avg_ksat = 0.5 * (effk + effk_nabr);
+    //avg_ksat = 0.5 * (effk + effk_nabr);
+    avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
     *fluxriv = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
 
     /* Lateral flux between rectangular element (beneath river) and triangular
@@ -831,7 +834,8 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
         EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
         elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
         elem->soil.ksath);
-    avg_ksat = 0.5 * (effk + effk_nabr);
+    //avg_ksat = 0.5 * (effk + effk_nabr);
+    avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
     grad_y_sub = dif_y_sub / distance;
     /* Take into account macropore effect */
     *fluxsub = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
