@@ -91,8 +91,15 @@ typedef struct atttbl_struct
 typedef struct soiltbl_struct
 {
     int             number;     /* index */
+    int            *mukey;
+    double         *silt;
+    double         *clay;
+    double         *om;
+    double         *bd;
+    double         *kinfv;
     double         *ksatv;      /* vertical saturated soil
                                  * conductivity */
+    double         *ksath;
     double         *smcmax;     /* soil porosity */
     double         *smcmin;     /* soil moisture residual */
     double         *qtz;        /* ys: quartz content */
@@ -101,8 +108,11 @@ typedef struct soiltbl_struct
 
     double         *areafh;     /* macroporous area fraction on
                                  * horizontal section */
+    double         *areafv;
     double         *kmacv;      /* macroporous saturated vertical
                                  * conductivity */
+    double         *kmach;
+    double         *dmac;
     double         *dinf;       /* depth from ground surface accross which
                                  * head is calculated during infiltration */
 } soiltbl_struct;
@@ -110,6 +120,10 @@ typedef struct soiltbl_struct
 typedef struct geoltbl_struct
 {
     int             number;     /* index */
+    double         *silt;
+    double         *clay;
+    double         *om;
+    double         *bd;
     double         *ksath;      /* horizontal saturated geology
                                  * conductivity */
     double         *ksatv;      /* vertical saturated geology
@@ -118,12 +132,6 @@ typedef struct geoltbl_struct
     double         *smcmin;    /* residual porosity */
     double         *alpha;      /* van genuchten parameter */
     double         *beta;       /* van genuchten parameter */
-
-    double         *areafv;     /* macroporous area fraction on vertical
-                                 * section */
-    double         *kmach;      /* macroporous saturated
-                                 * horizontal conductivity */
-    double         *dmac;
 } geoltbl_struct;
 
 typedef struct lctbl_struct

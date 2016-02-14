@@ -48,13 +48,12 @@ int CountOccurance (FILE *fid, char *token);
 void            Initialize (pihm_struct, N_Vector);
 void            InitMeshStruct (elem_struct *, int, meshtbl_struct);
 void            InitTopo (elem_struct *, int, meshtbl_struct);
+void            InitSoil (elem_struct *, int, atttbl_struct,
+                    soiltbl_struct,
 #ifdef _NOAH_
-void            InitSoil (elem_struct *, int, atttbl_struct,
-    soiltbl_struct, geoltbl_struct, noahtbl_struct, calib_struct);
-#else
-void            InitSoil (elem_struct *, int, atttbl_struct,
-    soiltbl_struct, geoltbl_struct, calib_struct);
+                    noahtbl_struct,
 #endif
+                    calib_struct);
 void            ZeroWaterFlux (wf_struct *wf);
 double          FieldCapacity (double, double, double, double, double);
 double          WiltingPoint (double, double, double, double);

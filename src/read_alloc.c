@@ -440,27 +440,42 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
         PihmExit (1);
     }
 
+    soiltbl->mukey = (int *)malloc (soiltbl->number * sizeof (int));
+    soiltbl->silt = (double *)malloc (soiltbl->number * sizeof(double));
+    soiltbl->clay = (double *)malloc (soiltbl->number * sizeof(double));
+    soiltbl->om = (double *)malloc (soiltbl->number * sizeof(double));
+    soiltbl->bd = (double *)malloc (soiltbl->number * sizeof(double));
+    soiltbl->kinfv = (double *)malloc (soiltbl->number * sizeof(double));
     soiltbl->ksatv = (double *)malloc (soiltbl->number * sizeof (double));
+    soiltbl->ksath = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->smcmax = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->smcmin = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->qtz = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->alpha = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->beta = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->areafh = (double *)malloc (soiltbl->number * sizeof (double));
+    soiltbl->areafv = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->kmacv = (double *)malloc (soiltbl->number * sizeof (double));
+    soiltbl->kmach = (double *)malloc (soiltbl->number * sizeof (double));
+    soiltbl->dmac = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->dinf = (double *)malloc (soiltbl->number * sizeof (double));
 
     for (i = 0; i < soiltbl->number; i++)
     {
         NextLine (soil_file, cmdstr);
-        match = sscanf (cmdstr, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-            &index,
-            &soiltbl->ksatv[i],
-            &soiltbl->smcmax[i], &soiltbl->smcmin[i],
-            &soiltbl->dinf[i],
+        match = sscanf (cmdstr, "%d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf"
+            "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+            &index, &soiltbl->mukey[i],
+            &soiltbl->silt[i], &soiltbl->clay[i], &soiltbl->om[i],
+            &soiltbl->bd[i],
+            &soiltbl->kinfv[i], &soiltbl->ksatv[i], &soiltbl->ksath[i],
+            &soiltbl->smcmax[i], &soiltbl->smcmin[i], &soiltbl->dinf[i],
             &soiltbl->alpha[i], &soiltbl->beta[i],
-            &soiltbl->areafh[i], &soiltbl->kmacv[i], &soiltbl->qtz[i]);
-        if (match != 10 || i != index - 1)
+            &soiltbl->areafh[i], &soiltbl->kmacv[i],
+            &soiltbl->areafv[i], &soiltbl->kmach[i],
+            &soiltbl->dmac[i], &soiltbl->qtz[i]);
+
+        if (match != 20 || i != index - 1)
         {
             printf ("Cannot read information of the %dth soil type!\n",
                 i + 1);
@@ -493,26 +508,28 @@ void ReadGeol (char *filename, geoltbl_struct *geoltbl)
         PihmExit (1);
     }
 
+    geoltbl->silt = (double *)malloc (geoltbl->number * sizeof (double));
+    geoltbl->clay = (double *)malloc (geoltbl->number * sizeof (double));
+    geoltbl->om = (double *)malloc (geoltbl->number * sizeof (double));
+    geoltbl->bd = (double *)malloc (geoltbl->number * sizeof (double));
     geoltbl->ksath = (double *)malloc (geoltbl->number * sizeof (double));
     geoltbl->ksatv = (double *)malloc (geoltbl->number * sizeof (double));
     geoltbl->smcmax = (double *)malloc (geoltbl->number * sizeof (double));
     geoltbl->smcmin = (double *)malloc (geoltbl->number * sizeof (double));
     geoltbl->alpha = (double *)malloc (geoltbl->number * sizeof (double));
     geoltbl->beta = (double *)malloc (geoltbl->number * sizeof (double));
-    geoltbl->areafv = (double *)malloc (geoltbl->number * sizeof (double));
-    geoltbl->kmach = (double *)malloc (geoltbl->number * sizeof (double));
-    geoltbl->dmac = (double *)malloc (geoltbl->number * sizeof (double));
 
     for (i = 0; i < geoltbl->number; i++)
     {
         NextLine (geol_file, cmdstr);
-        match = sscanf (cmdstr, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+        match = sscanf (cmdstr, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
             &index,
-            &geoltbl->ksath[i], &geoltbl->ksatv[i],
+            &geoltbl->silt[i], &geoltbl->clay[i], &geoltbl->om[i],
+            &geoltbl->bd[i],
+            &geoltbl->ksatv[i], &geoltbl->ksath[i],
             &geoltbl->smcmax[i], &geoltbl->smcmin[i],
-            &geoltbl->alpha[i], &geoltbl->beta[i],
-            &geoltbl->areafv[i], &geoltbl->kmach[i], &geoltbl->dmac[i]);
-        if (match != 10 || i != index - 1)
+            &geoltbl->alpha[i], &geoltbl->beta[i]);
+        if (match != 11 || i != index - 1)
         {
             printf ("Cannot read information of the %dth geology type!\n",
                 i + 1);

@@ -30,13 +30,11 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     pihm->elevation = AvgElev (pihm->elem, pihm->numele);
 #endif
 
+    InitSoil (pihm->elem, pihm->numele, pihm->atttbl, pihm->soiltbl,
 #ifdef _NOAH_
-    InitSoil (pihm->elem, pihm->numele, pihm->atttbl, pihm->soiltbl,
-        pihm->geoltbl, pihm->noahtbl, pihm->cal);
-#else
-    InitSoil (pihm->elem, pihm->numele, pihm->atttbl, pihm->soiltbl,
-        pihm->geoltbl, pihm->cal);
+        pihm->noahtbl,
 #endif
+        pihm->cal);
 
     InitLC (pihm->elem, pihm->numele, pihm->atttbl, pihm->lctbl,
         pihm->cal);
@@ -136,28 +134,24 @@ void InitTopo (elem_struct *elem, int numele, meshtbl_struct meshtbl)
 #endif
 }
 
+void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
+    soiltbl_struct soiltbl,
 #ifdef _NOAH_
-void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
-    soiltbl_struct soiltbl, geoltbl_struct geoltbl, noahtbl_struct noahtbl,
-    calib_struct cal)
-#else
-void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
-    soiltbl_struct soiltbl, geoltbl_struct geoltbl, calib_struct cal)
+    noahtbl_struct noahtbl,
 #endif
+    calib_struct cal)
 {
     int             i;
     int             soil_ind;
-    int             geol_ind;
 
     for (i = 0; i < numele; i++)
     {
         soil_ind = atttbl.soil[i] - 1;
-        geol_ind = atttbl.geol[i] - 1;
 
         elem[i].soil.depth = elem[i].topo.zmax - elem[i].topo.zmin;
-        elem[i].soil.ksath = cal.ksath * geoltbl.ksath[geol_ind];
-        elem[i].soil.ksatv = cal.ksatv * geoltbl.ksatv[geol_ind];
-        elem[i].soil.kinfv = cal.kinfv * soiltbl.ksatv[soil_ind];
+        elem[i].soil.ksath = cal.ksath * soiltbl.ksath[soil_ind];
+        elem[i].soil.ksatv = cal.ksatv * soiltbl.ksatv[soil_ind];
+        elem[i].soil.kinfv = cal.kinfv * soiltbl.kinfv[soil_ind];
         elem[i].soil.porosity =
             cal.porosity * (soiltbl.smcmax[soil_ind] -
             soiltbl.smcmin[soil_ind]);
@@ -186,7 +180,7 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
 #endif
         elem[i].soil.smcref =
             FieldCapacity (soiltbl.alpha[soil_ind], soiltbl.beta[soil_ind],
-            geoltbl.ksatv[geol_ind], soiltbl.smcmax[soil_ind],
+            soiltbl.ksatv[soil_ind], soiltbl.smcmax[soil_ind],
             soiltbl.smcmin[soil_ind]);
 #ifdef _NOAH_
         elem[i].soil.smcref =
@@ -194,14 +188,14 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
             elem[i].soil.smcmin;
 #endif
 
-        elem[i].soil.dmac = cal.dmac * geoltbl.dmac[geol_ind];
+        elem[i].soil.dmac = cal.dmac * soiltbl.dmac[soil_ind];
         if (elem[i].soil.dmac > elem[i].soil.depth)
             elem[i].soil.dmac = elem[i].soil.depth;
 
         elem[i].soil.kmacv = cal.kmacv * soiltbl.kmacv[soil_ind];
-        elem[i].soil.kmach = cal.kmach * geoltbl.kmach[geol_ind];
+        elem[i].soil.kmach = cal.kmach * soiltbl.kmach[soil_ind];
         elem[i].soil.areafh = cal.areafh * soiltbl.areafh[soil_ind];
-        elem[i].soil.areafv = cal.areafv * geoltbl.areafv[geol_ind];
+        elem[i].soil.areafv = cal.areafv * soiltbl.areafv[soil_ind];
         elem[i].soil.macropore = atttbl.macropore[i];
 #ifdef _NOAH_
         elem[i].soil.csoil = noahtbl.csoil;
