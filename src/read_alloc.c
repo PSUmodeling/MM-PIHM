@@ -426,6 +426,9 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
     char            cmdstr[MAXSTRING];
     int             match;
     int             index;
+    const int       TOPSOIL = 1;
+    const int       SUBSOIL = 0;
+    int             ptf_used = 0;
 
     soil_file = fopen (filename, "r");
     CheckFile (soil_file, filename);
@@ -486,6 +489,55 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
         /* Fill in missing organic matter and bulk density values */
         soiltbl->om[i] = (soiltbl->om[i] > 0.0) ? soiltbl->om[i] : 2.5;
         soiltbl->bd[i] = (soiltbl->bd[i] > 0.0) ? soiltbl->bd[i] : 1.3;
+
+        /* Fill missing hydraulic properties using PTFs */
+        if (soiltbl->kinfv[i] < 0.0)
+        {
+            soiltbl->kinfv[i] =
+                PtfKV (soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
+                soiltbl->bd[i], TOPSOIL);
+            ptf_used = 1;
+        }
+        if (soiltbl->ksatv[i] < 0.0)
+        {
+            soiltbl->ksatv[i] =
+                PtfKV (soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
+                soiltbl->bd[i], SUBSOIL);
+            ptf_used = 1;
+        }
+        if (soiltbl->ksath[i] < 0.0)
+        {
+            soiltbl->ksath[i] = 10.0 * soiltbl->ksatv[i];
+            ptf_used = 1;
+        }
+        if (soiltbl->smcmax[i] < 0.0)
+        {
+            soiltbl->smcmax[i] =
+                PtfThetaS (soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
+                soiltbl->bd[i], SUBSOIL);
+            ptf_used = 1;
+        }
+        if (soiltbl->smcmin[i] < 0.0)
+        {
+            soiltbl->smcmin[i] =
+                PtfThetaR (soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
+                soiltbl->bd[i], SUBSOIL);
+            ptf_used = 1;
+        }
+        if (soiltbl->alpha[i] < 0.0)
+        {
+            soiltbl->alpha[i] =
+                PtfAlpha (soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
+                soiltbl->bd[i], SUBSOIL);
+            ptf_used = 1;
+        }
+        if (soiltbl->beta[i] < 0.0)
+        {
+            soiltbl->beta[i] =
+                PtfBeta (soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
+                soiltbl->bd[i], SUBSOIL);
+            ptf_used = 1;
+        }
     }
 
     fclose (soil_file);
