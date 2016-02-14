@@ -426,6 +426,7 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
     char            cmdstr[MAXSTRING];
     int             match;
     int             index;
+    int             texture;
     const int       TOPSOIL = 1;
     const int       SUBSOIL = 0;
     int             ptf_used = 0;
@@ -537,6 +538,26 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
                 PtfBeta (soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
                 soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
+        }
+        if (soiltbl->qtz[i] < 0.0)
+        {
+            texture = SoilTex(soiltbl->silt[i], soiltbl->clay[i]);
+            soiltbl->qtz[i] = Qtz (texture);
+            ptf_used = 1;
+        }
+    }
+
+    if (ptf_used)
+    {
+        printf ("%-7s\t%-15s\t%-15s\t%-15s\t%-7s\t%-7s\t%-7s\t%-7s\t%-7s\n",
+            "TYPE", "KINFV", "KSATV", "KSATH", "SMCMAX", "SMCMIN", "ALPHA",
+            "BETA", "QTZ");
+        for (i = 0; i < soiltbl->number; i++)
+        {
+            printf ("%-7d\t%-15.3le\t%-15.3le\t%-15.3le\t%-7.3lf\t%-7.3lf\t%-7.3lf\t%-7.3lf\t%-7.3lf\n",
+                i + 1, soiltbl->kinfv[i], soiltbl->ksatv[i],
+                soiltbl->ksath[i], soiltbl->smcmax[i], soiltbl->smcmin[i],
+                soiltbl->alpha[i], soiltbl->beta[i], soiltbl->qtz[i]);
         }
     }
 
