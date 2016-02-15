@@ -65,7 +65,7 @@ void NextLine (FILE * fid, char *cmdstr)
     }
 }
 
-int CountLine (FILE * fid, int num_arg, ...)
+int CountLine (FILE * fid, char *cmdstr, int num_arg, ...)
 {
     /*
      * Count number of non-blank lines between current location to where
@@ -73,7 +73,6 @@ int CountLine (FILE * fid, int num_arg, ...)
      */
 
     va_list         valist;
-    char            cmdstr[MAXSTRING];
     char            optstr[MAXSTRING];
     char            token[MAXSTRING];
     int             count;
@@ -189,10 +188,16 @@ void ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
     else
     {
         stream = fmemopen (cmdstr, strlen (cmdstr), "r");
-        fscanf (stream, "%d-%d-%d %d:%d",
+        match = fscanf (stream, "%d-%d-%d %d:%d",
             &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
             &timeinfo->tm_hour, &timeinfo->tm_min);
         timeinfo->tm_sec = 0;
+        if (match != 5)
+        {
+            printf ("ERROR: Forcing format error!\n");
+            PihmExit (1);
+        }
+
         for (i = 0; i < nvrbl; i++)
         {
             fscanf (stream, "%lf", &data[i]);

@@ -35,7 +35,7 @@ void            ReadRad (char *, forc_struct *);
 int             Readable (char *token);
 int             FindLine (FILE * fid, char *token);
 void            NextLine (FILE * fid, char *cmdstr);
-int             CountLine (FILE * fid, int num_arg, ...);
+int             CountLine (FILE *, char *, int, ...);
 void            ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl);
 void            CheckFile (FILE * fid, char *fn);
 void            ReadKeywordDouble (char *buffer, char *keyword,

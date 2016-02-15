@@ -137,14 +137,9 @@ void ReadRad (char *filename, forc_struct *forc)
     CheckFile (rad_file, filename);
 
     FindLine (rad_file, "BOF");
-    NextLine (rad_file, cmdstr);
-    match = sscanf (cmdstr, "%*s %d", &forc->nrad);
-    if (match != 1)
-    {
-        printf ("Cannot read number of radiation forcing time series!\n");
-        printf (".rad file format error!\n");
-        PihmExit (1);
-    }
+
+    forc->nrad = CountOccurance (rad_file, "RAD_TS");
+
     if (forc->nrad != forc->nmeteo)
     {
         printf ("The number of radiation forcing time series should be the same as the number of meteorlogical forcing time series!\n");
@@ -155,15 +150,17 @@ void ReadRad (char *filename, forc_struct *forc)
     forc->rad =
         (tsdata_struct *)malloc (forc->nrad * sizeof (tsdata_struct));
 
+    FindLine (rad_file, "BOF");
+
+    NextLine (rad_file, cmdstr);
     for (i = 0; i < forc->nrad; i++)
     {
-        NextLine (rad_file, cmdstr);
         match = sscanf (cmdstr, "%*s %d", &index);
         if (match != 1 || i != index - 1)
         {
             printf
                 ("Cannot read information of the %dth forcing series!\n",
-                i);
+                i + 1);
             printf (".rad file format error!\n");
             PihmExit (1);
         }
@@ -171,11 +168,11 @@ void ReadRad (char *filename, forc_struct *forc)
         /* Skip header lines */
         NextLine (rad_file, cmdstr);
         NextLine (rad_file, cmdstr);
-        forc->rad[i].length = CountLine (rad_file, 1, "RAD_TS");
+        forc->rad[i].length = CountLine (rad_file, cmdstr, 1, "RAD_TS");
     }
 
     /* Rewind and read */
-    FindLine (rad_file, "NUM_RAD_TS");
+    FindLine (rad_file, "BOF");
     for (i = 0; i < forc->nrad; i++)
     {
         /* Skip header lines */

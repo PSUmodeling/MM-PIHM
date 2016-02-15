@@ -258,7 +258,7 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
             NextLine (riv_file, cmdstr);
             NextLine (riv_file, cmdstr);
             forc->riverbc[i].length =
-                CountLine (riv_file, 2, "RIV_TS", "RES");
+                CountLine (riv_file, cmdstr, 2, "RIV_TS", "RES");
         }
 
         FindLine (riv_file, "BC");
@@ -706,24 +706,18 @@ void ReadForc (char *filename, forc_struct *forc)
     CheckFile (forc_file, filename);
 
     FindLine (forc_file, "BOF");
-    NextLine (forc_file, cmdstr);
-    match = sscanf (cmdstr, "%*s %d", &forc->nmeteo);
-    if (match != 1)
-    {
-        printf
-            ("Cannot read number of meteorological forcing time series!\n");
-        printf (".forc file format error!\n");
-        PihmExit (1);
-    }
 
+    forc->nmeteo= CountOccurance (forc_file, "METEO_TS");
+
+    FindLine (forc_file, "BOF");
     if (forc->nmeteo > 0)
     {
         forc->meteo =
             (tsdata_struct *)malloc (forc->nmeteo * sizeof (tsdata_struct));
 
+        NextLine (forc_file, cmdstr);
         for (i = 0; i < forc->nmeteo; i++)
         {
-            NextLine (forc_file, cmdstr);
             match = sscanf (cmdstr, "%*s %d %*s %lf",
                     &index, &forc->meteo[i].zlvl_wind);
             if (match != 2 || i != index - 1)
@@ -737,11 +731,11 @@ void ReadForc (char *filename, forc_struct *forc)
             NextLine (forc_file, cmdstr);
             NextLine (forc_file, cmdstr);
             forc->meteo[i].length =
-                CountLine (forc_file, 1, "METEO_TS");
+                CountLine (forc_file, cmdstr, 1, "METEO_TS");
         }
 
         /* Rewind and read */
-        FindLine (forc_file, "NUM_METEO_TS");
+        FindLine (forc_file, "BOF");
         for (i = 0; i < forc->nmeteo; i++)
         {
             /* Skip header lines */
@@ -776,7 +770,6 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
     FILE           *lai_file;
     int             i, j;
     int             index;
-    int             match;
 
     for (i = 0; i < numele; i++)
     {
@@ -796,25 +789,20 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
 
         /* start reading lai_file */
         FindLine (lai_file, "BOF");
-        NextLine (lai_file, cmdstr);
-        match = sscanf (cmdstr, "%*s %d", &forc->nlai);
-        if (match != 1)
-        {
-            printf ("Cannot read number of LAI time series!\n");
-            printf (".lai file format error!\n");
-            PihmExit (1);
-        }
 
+        forc->nlai = CountOccurance (lai_file, "LAI_TS");
+
+        FindLine (lai_file, "BOF");
         if (forc->nlai > 0)
         {
             forc->lai =
                 (tsdata_struct *)malloc (forc->nlai * sizeof (tsdata_struct));
 
+            NextLine (lai_file, cmdstr);
             for (i = 0; i < forc->nlai; i++)
             {
-                NextLine (lai_file, cmdstr);
-                match = sscanf (cmdstr, "%*s %d", &index);
-                if (match != 1 || i != index - 1)
+                ReadKeywordInt (cmdstr, "LAI_TS", &index);
+                if (i != index - 1)
                 {
                     printf ("Cannot read information of the %dth LAI series!\n",
                         i);
@@ -824,11 +812,11 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
                 /* Skip header lines */
                 NextLine (lai_file, cmdstr);
                 NextLine (lai_file, cmdstr);
-                forc->lai[i].length = CountLine (lai_file, 1, "LAI_TS");
+                forc->lai[i].length = CountLine (lai_file, cmdstr, 1, "LAI_TS");
             }
 
             /* Rewind and read */
-            FindLine (lai_file, "NUM_LAI_TS");
+            FindLine (lai_file, "BOF");
             for (i = 0; i < forc->nlai; i++)
             {
                 /* Skip header lines */
@@ -855,6 +843,7 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
         fclose (lai_file);
     }
 }
+
 
 void ReadIbc (char *filename, forc_struct *forc)
 {
@@ -901,7 +890,7 @@ void ReadIbc (char *filename, forc_struct *forc)
             NextLine (ibc_file, cmdstr);
             NextLine (ibc_file, cmdstr);
 
-            forc->bc[i].length = CountLine (ibc_file, 1, "BC_TS");
+            forc->bc[i].length = CountLine (ibc_file, cmdstr, 1, "BC_TS");
         }
 
         /* Rewind and read */

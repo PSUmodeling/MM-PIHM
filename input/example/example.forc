@@ -1,4 +1,3 @@
-NUM_METEO_TS    1
 METEO_TS        1       WIND_LVL    10.0
 TIME                    PRCP		SFCTMP  RH      SFCSPD  SOLAR   LONGWV  PRES
 TS                      kg/m2/s		K       %       m/s     W/m2    W/m2    Pa
