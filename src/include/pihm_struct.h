@@ -174,6 +174,7 @@ typedef struct ps_struct
     double          zbot;       /* depth (m) of lower boundary soil temperature */
     double          tbot;       /* bottom soil temperature (local yearly-mean sfc air temperature) */
     double          gwet;
+    double          satdpth[MAXLYR];
 #endif
 } ps_struct;
 

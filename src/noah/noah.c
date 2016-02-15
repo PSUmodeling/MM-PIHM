@@ -69,10 +69,8 @@ void Noah (int t, pihm_struct pihm)
         elem->ef.solnet = elem->ef.soldn * (1.0 - elem->ps.albedo);
         elem->ef.lwdn = elem->ef.longwave * elem->ps.emissi;
 
-        elem->ps.nwtbl = FindLayer (elem->ps.sldpth, elem->ps.nsoil,
-            elem->soil.depth - elem->ws.gw);
-        elem->ps.nwtbl = (elem->ps.nwtbl > elem->ps.nsoil) ?
-            elem->ps.nsoil : elem->ps.nwtbl;
+        elem->ps.nwtbl = FindWT (elem->ps.sldpth, elem->ps.nsoil,
+            elem->ws.gw, elem->ps.satdpth);
 
         for (j = 0; j < elem->ps.nsoil; j++)
         {
@@ -2604,6 +2602,7 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
     double          rhsttin[MAXLYR], ciin[MAXLYR];
     double          sh2omid[MAXLYR];
     double          ddz, stot, wplus;
+    double          stotmin;
 
     /* Create 'amount' values of variables to be input to the tri-diagonal
      * matrix routine. */
@@ -2656,10 +2655,13 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
         }
         else
         {
-            if (k > ps->nwtbl - 1)
+            stotmin = ps->satdpth[k] * soil->smcmax +
+                (ps->sldpth[k] - ps->satdpth[k]) * soil->smcmin;
+
+            if (stot < stotmin)
             {
-                ws->smc[k] = soil->smcmax;
-                wplus = (stot - soil->smcmax) * ddz;
+                ws->smc[k] = stotmin;
+                wplus = (stot - stotmin) * ddz;
             }
             else
             {

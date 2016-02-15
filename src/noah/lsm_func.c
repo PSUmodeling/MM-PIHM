@@ -4,6 +4,57 @@
  ****************************************************************************/
 #include "pihm.h"
 
+int FindWT (const double *sldpth, int nsoil, double gw, double *satdpth)
+{
+    int             layer;
+    int             j;
+    double          dsum = 0.0;
+    double          depth;
+
+    for (j = 0; j < MAXLYR; j++)
+    {
+        satdpth[j] = 0.0;
+    }
+
+    depth = 0.0;
+    for (j = 0; j < nsoil; j++)
+    {
+        depth += sldpth[j];
+    }
+
+    if (gw <= 0.0)
+    {
+        layer = nsoil;
+    }
+    else if (gw > depth)
+    {
+        layer = 0;
+        for (j = 0; j < nsoil; j++)
+        {
+            satdpth[j] = sldpth[j];
+        }
+    }
+    else
+    {
+        for (j = nsoil - 1; j >= 0; j--)
+        {
+            if (dsum + sldpth[j] > gw)
+            {
+                satdpth[j] = gw - dsum;
+                layer = j + 1;
+                break;
+            }
+            else
+            {
+                satdpth[j] = sldpth[j];
+                dsum += sldpth[j];
+            }
+        }
+    }
+
+    return (layer);
+}
+
 int FindLayer (const double *sldpth, int nsoil, double depth)
 {
     int             layer;
@@ -554,19 +605,9 @@ double AvgElev (elem_struct *elem, int numele)
 
 void CalcLatFlx (const ws_struct *ws, const ps_struct *ps, wf_struct *wf)
 {
-    double          smctot;
+    double          sattot;
     double          weight[MAXLYR];
     int             ks;
-
-    /* Determine runoff from each layer */
-    smctot = (ps->nwtbl <= 1) ? ps->sldpth[0] * ws->sh2o[0] : 0.0;
-    for (ks = 1; ks < ps->nsoil; ks++)
-    {
-        if (ks >= ps->nwtbl - 1)
-        {
-            smctot += ps->sldpth[ks] * ws->sh2o[ks];
-        }
-    }
 
     for (ks = 0; ks < MAXLYR; ks++)
     {
@@ -574,13 +615,22 @@ void CalcLatFlx (const ws_struct *ws, const ps_struct *ps, wf_struct *wf)
         wf->runoff2_lyr[ks] = 0.0;
     }
 
+    /* Determine runoff from each layer */
     for (ks = 0; ks < ps->nsoil; ks++)
     {
-        if (ks >= ps->nwtbl - 1)
-        {
-            weight[ks] =  ps->sldpth[ks] * ws->sh2o[ks] / smctot;
-        }
-        wf->runoff2_lyr[ks] = weight[ks] * wf->runoff2; 
+        sattot += ps->satdpth[ks];
     }
 
+    if (sattot <= 0.0)
+    {
+        weight[ps->nsoil - 1] = 1.0;
+    }
+    else
+    {
+        for (ks = 0; ks < ps->nsoil; ks++)
+        {
+            weight[ks] =  ps->satdpth[ks] / sattot;
+            wf->runoff2_lyr[ks] = weight[ks] * wf->runoff2; 
+        }
+    }
 }
