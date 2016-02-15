@@ -47,8 +47,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm)
 	noah/lsm_init.c \
 	spa/spa.c \
 	noah/noah.c
-  MODULE_HEADERS_ = include/noah.h \
-	include/spa.h
+  MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm
   MSG = "... Compiling FLUX-PIHM ..."
 endif
