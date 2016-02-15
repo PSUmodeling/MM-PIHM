@@ -928,62 +928,44 @@ double FrH2O (double tkelv, double smc, double sh2o, const soil_struct *soil)
             swl = (swl < 0.0) ? 0.0 : swl;
 
             /* Start of iterations */
-c1001:
-            if (!((nlog < 10) && (kcount == 0)))
+            while (nlog < 10 && kcount == 0)
             {
-                goto c1002;
-            }
-            nlog++;
+                nlog++;
 
-            satn = (smc - swl - soil->smcmin) / (soil->smcmax - soil->smcmin);
-            mx = soil->beta / (1.0 - soil->beta);
+                satn = (smc - swl - soil->smcmin) / (soil->smcmax - soil->smcmin);
+                mx = soil->beta / (1.0 - soil->beta);
 
-            //df = log ((gs / soil->alpha / hlice) * pow (1.0 + ck * swl,
-            //            2.0) * pow (pow ((smc - swl - soil->smcmin) / (soil->smcmax -
-            //                        soil->smcmin), mx) - 1.0,
-            //                1.0 / soil->beta)) - log (- (tkelv - TFREEZ) / tkelv);
-            df = log(GRAV / soil->alpha / LSUBF);
-            df += 1.0 / soil->beta * log (pow (satn, mx) - 1);
-            df += 2 * log (1.0 + CK * swl);
-            df -= log (- (tkelv - TFREEZ) / tkelv);
-            //denom =
-            //    2.0 * CK / (1.0 + CK * swl) - 1.0 / (1.0 - soil->beta) / (soil->smcmax -
-            //            soil->smcmin) * pow ((smc - swl - soil->smcmin) /
-            //            (soil->smcmax - soil->smcmin), mx - 1.0) /
-            //            (pow ((smc - swl - soil->smcmin) / (soil->smcmax - soil->smcmin),
-            //                        mx) - 1.0);
-            denom = 1.0 / (soil->beta - 1.0) / (soil->smcmax - soil->smcmin);
-            denom *= pow (satn, mx - 1.0);
-            denom /= (pow (satn, mx) - 1.0);
-            denom += 2.0 * CK / (1.0 + CK * swl);
-            swlk = swl - df / denom;
+                df = log(GRAV / soil->alpha / LSUBF) +
+                    1.0 / soil->beta * log (pow (satn, mx) - 1.0) +
+                    2.0 * log (1.0 + CK * swl) -
+                    log (- (tkelv - TFREEZ) / tkelv);
 
-            /* Bounds useful for mathematical solution. */
-            if (swlk > (smc - 0.02))
-            {
-                swlk = smc - 0.02;
-            }
-            if (swlk < 0.0)
-            {
-                swlk = 0.0;
+                denom = 1.0 / (soil->beta - 1.0) / (soil->smcmax - soil->smcmin) *
+                    pow (satn, mx - 1.0) / (pow (satn, mx) - 1.0) +
+                    2.0 * CK / (1.0 + CK * swl);
+
+                swlk = swl - df / denom;
+
+                /* Bounds useful for mathematical solution. */
+                swlk = (swlk > smc - 0.02) ? smc - 0.02 : swlk;
+                swlk = (swlk < 0.0) ? 0.0 : swlk;
+
+                /* Mathematical solution bounds applied. */
+                dswl = fabs (swlk - swl);
+
+                /* If more than 10 iterations, use explicit method (ck = 0
+                 * approx.) when dswl less or eq. error, no more iterations
+                 * required. */
+                swl = swlk;
+                if (dswl <= ERROR)
+                {
+                    kcount++;
+                }
+                /* End of iterations
+                 * Bounds applied within do-block are valid for physical
+                 * solution */
             }
 
-            /* Mathematical solution bounds applied. */
-            dswl = fabs (swlk - swl);
-
-            /* If more than 10 iterations, use explicit method (ck = 0
-             * approx.) when dswl less or eq. error, no more iterations
-             * required. */
-            swl = swlk;
-            if (dswl <= ERROR)
-            {
-                kcount++;
-            }
-            /* End of iterations
-             * Bounds applied within do-block are valid for physical
-             * solution */
-            goto c1001;
-c1002:
             freew = smc - swl;
         }
 
@@ -992,15 +974,10 @@ c1002:
          * Apply physical bounds to flerchinger solution */
         if (kcount == 0)
         {
-            fk = pow (pow (-(tkelv - TFREEZ) / tkelv * soil->alpha * LSUBF / GRAV,
-                        soil->beta) + 1.0, 1.0 / mx) * (soil->smcmax - soil->smcmin);
-            fk = pow (-(tkelv - TFREEZ) / tkelv * soil->alpha * LSUBF / GRAV,
-                soil->beta);
-            fk = pow (fk, 1.0 / mx);
-            fk *= soil->smcmax - soil->smcmin;
-            fk -= soil->smcmin;
-
+            fk = pow (pow (- (tkelv - TFREEZ) / tkelv * soil->alpha * LSUBF / GRAV,
+                soil->beta), 1.0 / mx) * (soil->smcmax - soil->smcmin) - soil->smcmin;
             fk = (fk < 0.02) ? 0.02 : fk;
+
             freew = (fk < smc) ? fk : smc;
         }
     }
