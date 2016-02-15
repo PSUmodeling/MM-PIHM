@@ -196,25 +196,59 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
 double FieldCapacity (double alpha, double beta, double kv, double smcmax,
     double smcmin)
 {
+    /*
+     * Solve field capacity using Newton's method
+     * Field capacity is defined as (Chen and Dudhia 2001 MWR)
+     * Theta_ref = Theta_s * (1 / 3 + 2 / 3 * satn_ref)
+     * where satn_ref is the soil saturation ratio when the soil hydraulic
+     * conductivity reaches 5.70E-9 m/s
+     */
     double          satn;
-    double          ktemp;
+    double          satnk;
+    double          denom;
+    double          df;
+    double          dsatn;
+    double          mx;
+    double          ftheta;
+    int             n;
     double          smcref;
     const double    KFC = 5.79E-9;
+    const double    ERROR = 1.0E-3;
+    
+    mx = 1.0 - 1.0 / beta;
 
-    /* Set default value of field capacity, in case a valid value cannot be
-     * found using the defination */
-    smcref = 0.75 * smcmax;
+    n = 0;
 
-    for (satn = 0.005; satn < 1.0; satn = satn + 0.001)
+    satn = 0.75;
+
+    while (n < 10 && dsatn > ERROR)
     {
-        ktemp = kv * KrFunc (alpha, beta, satn);
-        if (ktemp >= KFC)
-        {
-            smcref =
-                (1.0 / 3.0 + 2.0 / 3.0 * satn) * (smcmax - smcmin) + smcmin;
-            break;
-        }
+        n++;
+
+        df = KrFunc (alpha, beta, satn) - KFC / kv;
+
+        ftheta = 1.0 - pow (satn, 1.0 / mx);
+
+        denom = 0.5 * pow (satn, - 0.5) * pow (1.0 - pow (ftheta, mx), 2.0) +
+            2.0 * pow (satn, 1.0 / mx - 0.5) * (pow (ftheta, mx - 1.0) - pow (ftheta, 2.0 * mx - 1.0));
+        
+        satnk = satn - df / denom;
+        satnk = (satnk > 1.0 - 1.0E-3) ? 1.0 - 1.0E-3 : satnk;
+        satnk = (satnk < SATMIN) ? SATMIN : satnk;
+
+        dsatn = fabs (satnk - satn);
+
+        satn = satnk;
     }
+
+    if (dsatn > ERROR)
+    {
+        satn = 0.75;
+    }
+
+    smcref =
+        (1.0 / 3.0 + 2.0 / 3.0 * satn) * (smcmax - smcmin) + smcmin;
+
     return (smcref);
 }
 
