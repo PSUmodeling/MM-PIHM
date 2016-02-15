@@ -152,9 +152,9 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
         elem[i].soil.ksath = cal.ksath * soiltbl.ksath[soil_ind];
         elem[i].soil.ksatv = cal.ksatv * soiltbl.ksatv[soil_ind];
         elem[i].soil.kinfv = cal.kinfv * soiltbl.kinfv[soil_ind];
-        elem[i].soil.porosity =
-            cal.porosity * (soiltbl.smcmax[soil_ind] -
-            soiltbl.smcmin[soil_ind]);
+        elem[i].soil.smcmin = cal.porosity * soiltbl.smcmin[soil_ind];
+        elem[i].soil.smcmax = cal.porosity * soiltbl.smcmax[soil_ind]; 
+        elem[i].soil.porosity = elem[i].soil.smcmax - elem[i].soil.smcmin;
         if (elem[i].soil.porosity > 1.0 || elem[i].soil.porosity <= 0.0)
         {
             printf ("Warning: Porosity value out of bounds for element %d",
@@ -165,8 +165,6 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
         elem[i].soil.alpha = cal.alpha * soiltbl.alpha[soil_ind];
         elem[i].soil.beta = cal.beta * soiltbl.beta[soil_ind];
 
-        elem[i].soil.smcmin = soiltbl.smcmin[soil_ind];
-        elem[i].soil.smcmax = elem[i].soil.smcmin + elem[i].soil.porosity;
 
         /* Calculate field capacity and wilting point following Chan and Dudhia 2001 MWR, but replacing Campbell with van Genuchten */
         elem[i].soil.smcwlt =
