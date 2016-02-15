@@ -129,7 +129,6 @@ void ReadRad (char *filename, forc_struct *forc)
 {
     int             i, j;
     FILE           *rad_file;
-    int             match;
     int             index;
     char            cmdstr[MAXSTRING];
 
@@ -155,8 +154,8 @@ void ReadRad (char *filename, forc_struct *forc)
     NextLine (rad_file, cmdstr);
     for (i = 0; i < forc->nrad; i++)
     {
-        match = sscanf (cmdstr, "%*s %d", &index);
-        if (match != 1 || i != index - 1)
+        ReadKeywordInt (cmdstr, "RAD_TS", &index);
+        if (i != index - 1)
         {
             printf
                 ("Cannot read information of the %dth forcing series!\n",
