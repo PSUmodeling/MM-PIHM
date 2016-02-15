@@ -16,25 +16,6 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
         {
             switch (i)
             {
-                case GW_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.gw", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele + pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.gw;
-                    }
-                    for (j = 0; j < pihm->numriv; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j + pihm->numele] =
-                            &pihm->riv[j].ws.gw;
-                    }
-                    n++;
-                    break;
                 case SURF_CTRL:
                     sprintf (pihm->prtctrl[n].name, "%s%s.surf", outputdir,
                         simulation);
@@ -46,6 +27,62 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.surf;
+                    }
+                    n++;
+                    break;
+                case UNSAT_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.unsat", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.unsat;
+                    }
+                    n++;
+                    break;
+                case GW_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.gw", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.gw;
+                    }
+                    n++;
+                    break;
+                case RIVSTG_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.stage", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].ws.stage;
+                    }
+                    n++;
+                    break;
+                case RIVGW_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivgw", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].ws.gw;
                     }
                     n++;
                     break;
@@ -63,17 +100,17 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     }
                     n++;
                     break;
-                case RIVSTG_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.stage", outputdir,
+                case CMC_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.is", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
                     pihm->prtctrl[n].vrbl =
                         (double **)malloc (pihm->prtctrl[n].nvrbl *
                         sizeof (double *));
-                    for (j = 0; j < pihm->numriv; j++)
+                    for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].ws.stage;
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.cmc;
                     }
                     n++;
                     break;
@@ -102,34 +139,6 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].wf.rechg;
-                    }
-                    n++;
-                    break;
-                case CMC_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.is", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.cmc;
-                    }
-                    n++;
-                    break;
-                case UNSAT_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.unsat", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
-                        sizeof (double *));
-                    for (j = 0; j < pihm->numele; j++)
-                    {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.unsat;
                     }
                     n++;
                     break;

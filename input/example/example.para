@@ -19,14 +19,15 @@ MODEL_STEPSIZE	    60                 # PIHM step size (unit: s)
 #  Use "#" to comment out the variables you do not want to output, or set     #
 #  the output interval (in secends) to 0.                                     #
 ###############################################################################
-GW		    3600
 SURF		    3600
-SNOW		    3600
+UNSAT		    3600
+GW		    3600
 RIVSTG		    3600
+RIVGW               3600
+SNOW		    3600
+CMC		    3600
 INFIL               3600
 RECHARGE	    3600
-CMC		    3600
-UNSAT		    3600
 EC                  3600
 ETT                 3600
 EDIR		    3600
@@ -43,4 +44,3 @@ RIVFLX9    	    3600
 RIVFLX10    	    3600
 SUBFLX              3600
 SURFFLX             3600
-TOTALW              3600

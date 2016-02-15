@@ -992,28 +992,31 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     ReadKeywordInt (cmdstr, "MODEL_STEPSIZE", &ctrl->stepsize);
 
     NextLine (para_file, cmdstr);
+    ReadKeywordInt (cmdstr, "SURF", &ctrl->prtvrbl[SURF_CTRL]);
+
+    NextLine (para_file, cmdstr);
+    ReadKeywordInt (cmdstr, "UNSAT", &ctrl->prtvrbl[UNSAT_CTRL]);
+
+    NextLine (para_file, cmdstr);
     ReadKeywordInt (cmdstr, "GW", &ctrl->prtvrbl[GW_CTRL]);
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SURF", &ctrl->prtvrbl[SURF_CTRL]);
+    ReadKeywordInt (cmdstr, "RIVSTG", &ctrl->prtvrbl[RIVSTG_CTRL]);
+
+    NextLine (para_file, cmdstr);
+    ReadKeywordInt (cmdstr, "RIVGW", &ctrl->prtvrbl[RIVGW_CTRL]);
 
     NextLine (para_file, cmdstr);
     ReadKeywordInt (cmdstr, "SNOW", &ctrl->prtvrbl[SNOW_CTRL]);
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVSTG", &ctrl->prtvrbl[RIVSTG_CTRL]);
+    ReadKeywordInt (cmdstr, "CMC", &ctrl->prtvrbl[CMC_CTRL]);
 
     NextLine (para_file, cmdstr);
     ReadKeywordInt (cmdstr, "INFIL", &ctrl->prtvrbl[INFIL_CTRL]);
 
     NextLine (para_file, cmdstr);
     ReadKeywordInt (cmdstr, "RECHARGE", &ctrl->prtvrbl[RECHARGE_CTRL]);
-
-    NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "CMC", &ctrl->prtvrbl[CMC_CTRL]);
-
-    NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "UNSAT", &ctrl->prtvrbl[UNSAT_CTRL]);
 
     NextLine (para_file, cmdstr);
     ReadKeywordInt (cmdstr, "EC", &ctrl->prtvrbl[EC_CTRL]);
