@@ -123,6 +123,7 @@ void PihmExit (int error);
 #ifdef _NOAH_
 void            InitLsm (elem_struct *, int, ctrl_struct, noahtbl_struct,
                     calib_struct);
+void            CalcLatFlx (const ws_struct *ws, const ps_struct *ps, wf_struct *wf);
 void            DefSldpth (double *, int *, double, const double *, int);
 void            RootDist (const double *, int, int, double *);
 void            CalcSlopeAspect (elem_struct *, int, meshtbl_struct);

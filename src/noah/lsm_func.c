@@ -551,3 +551,36 @@ double AvgElev (elem_struct *elem, int numele)
 
     return (elev);
 }
+
+void CalcLatFlx (const ws_struct *ws, const ps_struct *ps, wf_struct *wf)
+{
+    double          smctot;
+    double          weight[MAXLYR];
+    int             ks;
+
+    /* Determine runoff from each layer */
+    smctot = (ps->nwtbl <= 1) ? ps->sldpth[0] * ws->sh2o[0] : 0.0;
+    for (ks = 1; ks < ps->nsoil; ks++)
+    {
+        if (ks >= ps->nwtbl - 1)
+        {
+            smctot += ps->sldpth[ks] * ws->sh2o[ks];
+        }
+    }
+
+    for (ks = 0; ks < MAXLYR; ks++)
+    {
+        weight[ks] = 0.0;
+        wf->runoff2_lyr[ks] = 0.0;
+    }
+
+    for (ks = 0; ks < ps->nsoil; ks++)
+    {
+        if (ks >= ps->nwtbl - 1)
+        {
+            weight[ks] =  ps->sldpth[ks] * ws->sh2o[ks] / smctot;
+        }
+        wf->runoff2_lyr[ks] = weight[ks] * wf->runoff2; 
+    }
+
+}

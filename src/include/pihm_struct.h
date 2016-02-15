@@ -282,6 +282,7 @@ typedef struct wf_struct
 #ifdef _NOAH_
     double          runoff1;    /* surface runoff (m s-1), not infiltrating the surface */
     double          runoff2;    /* subsurface runoff (m s-1), drainage out bottom of last soil layer (baseflow) */
+    double          runoff2_lyr[MAXLYR];
     double          runoff3;    /* numerical trunctation in excess of porosity (smcmax) for a given soil layer at the end of a time step (m s-1). note: the above runoff2 is actually the sum of runoff2 and runoff3 */
     double          pcpdrp;     /* combined prcp1 and drip (from cmc) that goes into the soil (m s-1) */
     double          prcprain;   /* liquid-precipitation rate (kg m-2 s-1) (not used) */
