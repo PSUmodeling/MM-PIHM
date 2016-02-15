@@ -463,6 +463,8 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
     soiltbl->kmach = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->dmac = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->dinf = (double *)malloc (soiltbl->number * sizeof (double));
+    soiltbl->smcref = (double *)malloc (soiltbl->number * sizeof (double));
+    soiltbl->smcwlt = (double *)malloc (soiltbl->number * sizeof (double));
 
     for (i = 0; i < soiltbl->number; i++)
     {
@@ -545,6 +547,14 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
             soiltbl->qtz[i] = Qtz (texture);
             ptf_used = 1;
         }
+
+        /* Calculate field capacity and wilting point */
+        soiltbl->smcref[i] =
+            FieldCapacity (soiltbl->alpha[i], soiltbl->beta[i],
+            soiltbl->ksatv[i], soiltbl->smcmax[i], soiltbl->smcmin[i]);
+        soiltbl->smcwlt[i] =
+            WiltingPoint (soiltbl->smcmax[i], soiltbl->smcmin[i],
+            soiltbl->alpha[i], soiltbl->beta[i]);
     }
 
     if (ptf_used)

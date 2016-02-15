@@ -167,19 +167,13 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
 
 
         /* Calculate field capacity and wilting point following Chan and Dudhia 2001 MWR, but replacing Campbell with van Genuchten */
-        elem[i].soil.smcwlt =
-            WiltingPoint (soiltbl.smcmax[soil_ind],
-            soiltbl.smcmin[soil_ind], soiltbl.alpha[soil_ind],
-            soiltbl.beta[soil_ind]);
+        elem[i].soil.smcwlt = cal.porosity * soiltbl.smcwlt[soil_ind];
 #ifdef _NOAH_
-        elem[i].soil.smcwlt *= cal.porosity * cal.thetaw;
+        elem[i].soil.smcwlt *= cal.thetaw;
 #endif
-        elem[i].soil.smcref =
-            FieldCapacity (soiltbl.alpha[soil_ind], soiltbl.beta[soil_ind],
-            soiltbl.ksatv[soil_ind], soiltbl.smcmax[soil_ind],
-            soiltbl.smcmin[soil_ind]);
+        elem[i].soil.smcref = cal.porosity * soiltbl.smcref[soil_ind];
 #ifdef _NOAH_
-        elem[i].soil.smcref *= cal.porosity * cal.thetaref;
+        elem[i].soil.smcref *= cal.thetaref;
 #endif
 
         elem[i].soil.dmac = cal.dmac * soiltbl.dmac[soil_ind];

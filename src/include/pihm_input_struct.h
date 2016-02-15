@@ -115,6 +115,8 @@ typedef struct soiltbl_struct
     double         *dmac;
     double         *dinf;       /* depth from ground surface accross which
                                  * head is calculated during infiltration */
+    double         *smcref;
+    double         *smcwlt;
 } soiltbl_struct;
 
 typedef struct geoltbl_struct
