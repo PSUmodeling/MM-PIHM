@@ -172,18 +172,14 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
             soiltbl.smcmin[soil_ind], soiltbl.alpha[soil_ind],
             soiltbl.beta[soil_ind]);
 #ifdef _NOAH_
-        elem[i].soil.smcwlt =
-            (elem[i].soil.smcwlt - elem[i].soil.smcmin) * cal.thetaw +
-            elem[i].soil.smcmin;
+        elem[i].soil.smcwlt *= cal.porosity * cal.thetaw;
 #endif
         elem[i].soil.smcref =
             FieldCapacity (soiltbl.alpha[soil_ind], soiltbl.beta[soil_ind],
             soiltbl.ksatv[soil_ind], soiltbl.smcmax[soil_ind],
             soiltbl.smcmin[soil_ind]);
 #ifdef _NOAH_
-        elem[i].soil.smcref =
-            (elem[i].soil.smcref - elem[i].soil.smcmin) * cal.thetaref +
-            elem[i].soil.smcmin;
+        elem[i].soil.smcref *= cal.porosity * cal.thetaref;
 #endif
 
         elem[i].soil.dmac = cal.dmac * soiltbl.dmac[soil_ind];
