@@ -3,12 +3,38 @@
 int Readable (char *cmdstr)
 {
     int             readable;
+    int             i;
+    char            ch;
 
-    if (cmdstr[0] != '#' && cmdstr[0] != '\n' && cmdstr[0] != '\0' &&
-        cmdstr[0] != '\t')
-        readable = 1;
-    else
+    for (i = 0; i < strlen (cmdstr); i++)
+    {
+        if (cmdstr[i] == 32 || cmdstr[i] == '\t' || cmdstr[i] == ' ')
+        {
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    if (i >= strlen (cmdstr))
+    {
         readable = 0;
+    }
+    else
+    {
+        ch = cmdstr[i];
+
+        if (ch != '#' && ch != '\n' && ch != '\0' && ch != '\r')
+        {
+            readable = 1;
+        }
+        else
+        {
+            readable = 0;
+        }
+    }
 
     return (readable);
 }
