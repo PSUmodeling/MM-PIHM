@@ -63,9 +63,6 @@
 #define QUADRATIC       3
 #define CUBIC           4
 
-#define RIGHT_SIDE      0
-#define LEFT_SIDE       1
-
 /* Approximation */
 #define KINEMATIC       1
 #define DIFF_WAVE       2

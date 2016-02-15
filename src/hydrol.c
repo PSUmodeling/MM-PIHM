@@ -304,7 +304,6 @@ void LateralFlow (pihm_struct pihm)
                     EffKH (nabr->soil.macropore, nabr->ws.gw, nabr->soil.depth,
                     nabr->soil.dmac, nabr->soil.kmach, nabr->soil.areafv,
                     nabr->soil.ksath);
-                //avg_ksat = 0.5 * (effk + effk_nabr);
                 avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
                 /* Groundwater flow modeled by Darcy's Law */
                 elem->wf.fluxsub[j] =
@@ -642,7 +641,6 @@ void RiverFlow (pihm_struct pihm)
                     left->soil.ksath) + EffKH (right->soil.macropore,
                     right->ws.gw, right->soil.depth, right->soil.dmac,
                     right->soil.kmach, left->soil.areafv, right->soil.ksath));
-            //avg_ksat = 0.5 * (effk + effk_nabr);
             avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
             /* Groundwater flow modeled by Darcy's law */
             riv->wf.fluxriv[9] = avg_ksat * grad_y_sub * avg_y_sub * avg_wid;
@@ -660,11 +658,6 @@ void RiverFlow (pihm_struct pihm)
                         *riv->forc.riverbc + (riv->topo.node_zmax -
                         riv->shp.depth);
                     distance = 0.5 * riv->shp.length;
-                    //distance =
-                    //    sqrt (pow (riv->topo.x -
-                    //        pihm->meshtbl.x[riv->tonode - 1],
-                    //        2) + pow (riv->topo.y -
-                    //        pihm->meshtbl.y[riv->tonode - 1], 2));
                     grad_y = (total_y - total_y_down) / distance;
                     avg_sf = grad_y;
                     avg_rough = riv->matl.rough;
@@ -685,11 +678,6 @@ void RiverFlow (pihm_struct pihm)
                 case -3:
                     /* Zero-depth-gradient boundary conditions */
                     distance = 0.5 * riv->shp.length;
-                    //distance =
-                    //    sqrt (pow (riv->topo.x -
-                    //        pihm->meshtbl.x[riv->tonode - 1],
-                    //        2) + pow (riv->topo.y -
-                    //        pihm->meshtbl.y[riv->tonode - 1], 2));
                     grad_y =
                         (riv->topo.zbed - (riv->topo.node_zmax -
                             riv->shp.depth)) / distance;
@@ -800,7 +788,6 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
         EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
         elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
         elem->soil.ksath);
-    //avg_ksat = 0.5 * (effk + effk_nabr);
     avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
     *fluxriv = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
 
@@ -834,7 +821,6 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
         EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
         elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
         elem->soil.ksath);
-    //avg_ksat = 0.5 * (effk + effk_nabr);
     avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
     grad_y_sub = dif_y_sub / distance;
     /* Take into account macropore effect */

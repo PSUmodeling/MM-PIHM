@@ -18,7 +18,6 @@ typedef struct filename_struct
 #ifdef _NOAH_
     char            lsm[MAXSTRING];
     char            rad[MAXSTRING];
-    char            lsminit[MAXSTRING];
 #endif
 } filename_struct;
 

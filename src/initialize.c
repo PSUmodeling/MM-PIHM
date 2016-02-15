@@ -9,10 +9,6 @@
 
 void Initialize (pihm_struct pihm, N_Vector CV_Y)
 {
-#ifdef _NOAH_
-    int             i;
-#endif
-
     if (verbose_mode)
     {
         printf ("\n\nInitialize data structure\n");

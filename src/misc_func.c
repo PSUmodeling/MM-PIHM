@@ -1,7 +1,4 @@
 #include "pihm.h"
-#ifdef _ENKF_
-#include "enkf.h"
-#endif
 
 void CreateOutputDir (char *outputdir, int overwrite_mode)
 {

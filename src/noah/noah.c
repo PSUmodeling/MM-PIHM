@@ -531,21 +531,6 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
      *   ssoil<0: cool the surface  (day time) */
     ef->ssoil *= -1.0;
 
-    ///* Definitions of soilm and soilw have been changed in Flux-PIHM for
-    // * coupling purpose */
-    //ws->soilm = -1.0 * ws->sh2o[0] * zsoil[0];
-    //for (k = 1; k < ps->nsoil; k++)
-    //{
-    //    ws->soilm += ws->sh2o[k] * (zsoil[k - 1] - zsoil[k]);
-    //}
-
-    //ws->soilw = -1.0 * ws->sh2o[0] * zsoil[0];
-    //for (k = 1; k < lc->nroot; k++)
-    //{
-    //    ws->soilw += ws->sh2o[k] * (zsoil[k - 1] - zsoil[k]);
-    //}
-    //ws->soilw /= - zsoil[lc->nroot - 1];
-
     ws->soilm = -1.0 * ws->smc[0] * zsoil[0];
     for (k = 1; k < ps->nsoil; k++)
     {
@@ -850,27 +835,7 @@ void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
     /* Total up evap and transp types to obtain actual evapotransp */ 
     wf->etns = wf->edir + wf->ett + wf->ec;
 }
-//
-//void Fac2Mit (double *smcmax, double *flimit)
-//{
-//    *flimit = 0.90;
-//
-//    if (*smcmax == 0.395)
-//        *flimit = 0.59;
-//    else if ((*smcmax == 0.434) || (*smcmax == 0.404))
-//        *flimit = 0.85;
-//    else if ((*smcmax == 0.465) || (*smcmax == 0.406))
-//        *flimit = 0.86;
-//    else if ((*smcmax == 0.476) || (*smcmax == 0.439))
-//        *flimit = 0.74;
-//    else if ((*smcmax == 0.200) || (*smcmax == 0.464))
-//        *flimit = 0.80;
-//
-///*----------------------------------------------------------------------
-//  end subroutine Fac2Mit
-//* --------------------------------------------------------------------*/
-//}
-//
+
 double FrH2O (double tkelv, double smc, double sh2o, const soil_struct *soil)
 {
     /*
@@ -1272,23 +1237,16 @@ void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     double          yynum;
     double          prcpf;
 
-    //*prcp1 = *prcp * 0.001;
-    //*etp1 = *etp * 0.001;
     prcpf = wf->prcp;
     wf->dew = 0.0;
 
     /* Initialize evap terms */
-    //*edir = 0.;
-    //*edir1 = 0.;
-    //*ec1 = 0.;
-    //*ec = 0.;
     wf->edir = 0.0;
     wf->ec = 0.0;
 
     for (k = 0; k < ps->nsoil; k++)
     {
         wf->et[k] = 0.0;
-        //et1[k] = 0.;
     }
 
     wf->ett = 0.0;
@@ -1301,9 +1259,6 @@ void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
         wf->eta = wf->etns;
 
         SmFlx (ws, wf, avgwf, ps, lc, soil, zsoil, prcpf, dt);
-
-        /* Convert modeled evapotranspiration from m s-1 to kg m-2 s-1. */
-        //*eta = *eta1 * 1000.0;
     }
     else
     {
@@ -1316,7 +1271,6 @@ void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
         SmFlx (ws, wf, avgwf, ps, lc, soil, zsoil, prcpf, dt);
 
         /* Convert modeled evapotranspiration from 'm s-1' to 'kg m-2 s-1'. */
-        //*eta = *eta1 * 1000.0
     }
 
     /* Based on etp and e values, determine beta */
@@ -1333,13 +1287,6 @@ void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     {
         ps->beta = wf->eta / wf->etp;
     }
-
-    /* Convert modeled evapotranspiration components 'm s-1' to 'kg m-2 s-1'. */
-    //*edir = *edir1 * 1000.;
-    //*ec = *ec1 * 1000.;
-    //for (k = 0; k < *nsoil; k++)
-    //    et[k] = et1[k] * 1000.;
-    //*ett = *ett1 * 1000.;
 
     /* Get soil thermal diffuxivity/conductivity for top soil lyr, Calc.
      * adjusted top lyr soil temp and adjusted soil flux, then call ShFlx to
@@ -1449,224 +1396,7 @@ void Penman (wf_struct *wf, es_struct *es, ef_struct *ef, ps_struct *ps,
     //etp = epsca * rch / LSUBC;
     wf->etp = ef->epsca * ps->rch / lvs / 1000.0;
 }
-////void RedPrm (grid_struct * grid, lsm_struct lsm, double *zsoil)
-////{
-////
-/////*----------------------------------------------------------------------
-////* internally set (default valuess)
-////* all soil and vegetation parameters required for the execusion of
-////* the noah lsm are defined in vegparm.tbl, soilparm.tb, and genparm.tbl.
-////* ----------------------------------------------------------------------
-////*     vegetation parameters:
-////*             albbrd: sfc background snow-free albedo
-////*             cmxtbl: max cnpy capacity
-////*              z0brd: background roughness length
-////*             shdfac: green vegetation fraction
-////*              nroot: rooting depth
-////*              rsmin: mimimum stomatal resistance
-////*              rsmax: max. stomatal resistance
-////*                rgl: parameters used in radiation stress function
-////*                 hs: parameter used in vapor pressure deficit functio
-////*               topt: optimum transpiration air temperature.
-////*             cmcmax: maximum canopy water capacity
-////*             cfactr: parameter used in the canopy inteception calculation
-////*               snup: threshold snow depth (in water equivalent m) that
-////*                     implies 100 percent snow cover
-////*                lai: leaf area index
-////*
-////* ----------------------------------------------------------------------
-////*      soil parameters:
-////*        smcmax: max soil moisture content (porosity)
-////*        smcref: reference soil moisture  (field capacity)
-////*        smcwlt: wilting point soil moisture
-////*        smcwlt: air dry soil moist content limits
-////*       ssatpsi: sat (saturation) soil potential
-////*         dksat: sat soil conductivity
-////*          bexp: b parameter
-////*        ssatdw: sat soil diffusivity
-////*           f1: soil thermal diffusivity/conductivity coef.
-////*        quartz: soil quartz content
-////*  modified by f. chen (12/22/97)  to use the statsgo soil map
-////*  modified by f. chen (01/22/00)  to include playa, lava, and white san
-////*  modified by f. chen (08/05/02)  to include additional parameters for the noah
-////* note: satdw = bb*satdk*(satpsi/maxsmc)
-////*         f11 = alog10(satpsi) + bb*alog10(maxsmc) + 2.0
-////*       refsmc1=maxsmc*(5.79e-9/satdk)**(1/(2*bb+3)) 5.79e-9 m/s= 0.5 mm
-////*       refsmc=refsmc1+1./3.(maxsmc-refsmc1)
-////*       wltsmc1=maxsmc*(200./satpsi)**(-1./bb)    (wetzel and chang, 198
-////*       wltsmc=wltsmc1-0.5*wltsmc1
-////* note: the values for playa is set for it to have a thermal conductivit
-////* as sand and to have a hydrulic conductivity as clay
-////*
-////* ----------------------------------------------------------------------
-////* class parameter 'slopetyp' was included to estimate linear reservoir
-////* coefficient 'slope' to the baseflow runoff out of the bottom layer.
-////* lowest class (slopetyp=0) means highest slope parameter = 1.
-////* definition of slopetyp from 'zobler' slope type:
-////* slope class  percent slope
-////* 1            0-8
-////* 2            8-30
-////* 3            > 30
-////* 4            0-30
-////* 5            0-8 & > 30
-////* 6            8-30 & > 30
-////* 7            0-8, 8-30, > 30
-////* 9            glacial ice
-////* blank        ocean/sea
-////*       slope_data: linear reservoir coefficient
-////*       sbeta_data: parameter used to caluculate vegetation effect on soil heat
-////*       fxexp_dat:  soil evaporation exponent used in DEvap
-////*       csoil_data: soil heat capacity [j m-3 k-1]
-////*       salp_data: shape parameter of  distribution function of snow cover
-////*       refdk_data and refkdt_data: parameters in the surface runoff parameteriz
-////*       frzk_data: frozen ground parameter
-////*       zbot_data: depth[m] of lower boundary soil temperature
-////*       czil_data: calculate roughness length of heat
-////*       smlow_data and mhigh_data: two soil moisture wilt, soil moisture referen
-////*                 parameters
-////* set maximum number of soil-, veg-, and slopetyp in data statement.
-////* --------------------------------------------------------------------*/
-////
-////    int             i;
-////
-////    double          frzfact;
-////
-////    /*
-////     * save
-////     * * ----------------------------------------------------------------------
-////     */
-////    if (grid->soiltyp > lsm->soiltbl.slcats)
-////    {
-////        printf ("warning: too many input soil types\n");
-////        PihmExit (0);
-////    }
-////    if (grid->vegtyp > lsm->vegtbl.lucats)
-////    {
-////        printf ("warning: too many input landuse types\n");
-////        PihmExit (0);
-////    }
-////    if (grid->slopetyp > lsm->genprmt.slpcats)
-////    {
-////        printf ("warning: too many input slope types\n");
-////        PihmExit (0);
-////    }
-////
-/////*----------------------------------------------------------------------
-////*  set-up soil parameters
-////* --------------------------------------------------------------------*/
-////    grid->csoil = lsm->genprmt.csoil_data;
-////#ifdef _NOAH_
-////    grid->vgalpha = lsm->soiltbl.vga[grid->soiltyp - 1];
-////    grid->vgbeta = lsm->soiltbl.vgb[grid->soiltyp - 1];
-////    grid->smcmin = lsm->soiltbl.minsmc[grid->soiltyp - 1];
-////    grid->macksat = lsm->soiltbl.macksat[grid->soiltyp - 1];
-////    grid->areaf = lsm->soiltbl.areaf[grid->soiltyp - 1];
-////    grid->nmacd = lsm->soiltbl.nmacd[grid->soiltyp - 1];
-////#else
-////    grid->bexp = lsm->soiltbl.bb[grid->soiltyp - 1];
-////    grid->psisat = lsm->soiltbl.satpsi[grid->soiltyp - 1];
-////    grid->dwsat = lsm->soiltbl.satdw[grid->soiltyp - 1];
-////#endif
-////    grid->dksat = lsm->soiltbl.satdk[grid->soiltyp - 1];
-////    grid->f1 = lsm->soiltbl.f11[grid->soiltyp - 1];
-////    grid->quartz = lsm->soiltbl.qtz[grid->soiltyp - 1];
-////    grid->smcdry = lsm->soiltbl.drysmc[grid->soiltyp - 1];
-////    grid->smcmax = lsm->soiltbl.maxsmc[grid->soiltyp - 1];
-////    grid->smcref = lsm->soiltbl.refsmc[grid->soiltyp - 1];
-////    grid->smcwlt = lsm->soiltbl.wltsmc[grid->soiltyp - 1];
-////
-/////*----------------------------------------------------------------------
-////* set-up universal parameters (not dependent on soiltyp, vegtyp or
-////* slopetyp)
-////* --------------------------------------------------------------------*/
-////    grid->zbot = lsm->genprmt.zbot_data;
-////    grid->salp = lsm->genprmt.salp_data;
-////    grid->sbeta = lsm->genprmt.sbeta_data;
-////    grid->frzk = lsm->genprmt.frzk_data;
-////    grid->fxexp = lsm->genprmt.fxexp_data;
-////    grid->ptu = 0.;             /* (not used yet) to satisify intent(out) */
-////    grid->czil = lsm->genprmt.czil_data;
-////    grid->lvcoef = lsm->genprmt.lvcoef_data;
-////#ifndef _NOAH_
-////    grid->slope = lsm->genprmt.slope_data[grid->slopetyp - 1];
-////    grid->refkdt = lsm->genprmt.refkdt_data;
-////    grid->refdk = lsm->genprmt.refdk_data;
-////    grid->kdt = grid->refkdt * grid->dksat / grid->refdk;
-////#endif
-////
-/////*----------------------------------------------------------------------
-////* to adjust frzk parameter to actual soil type: frzk * frzfact
-////* --------------------------------------------------------------------*/
-////    frzfact = (grid->smcmax / grid->smcref) * (0.412 / 0.468);
-////    grid->frzx = grid->frzk * frzfact;
-////
-/////*----------------------------------------------------------------------
-////* set-up vegetation parameters
-////* --------------------------------------------------------------------*/
-////    grid->topt = lsm->vegtbl.topt_data;
-////    grid->cfactr = lsm->vegtbl.cfactr_data;
-////    grid->rsmax = lsm->vegtbl.rsmax_data;
-////#ifdef _NOAH_
-////    grid->cmcmax = lsm->vegtbl.cmcfactrtbl[grid->vegtyp - 1] * grid->xlai;
-////#else
-////    grid->cmcmax = lsm->vegtbl.cmcmax_data;
-////#endif
-////    grid->nroot = lsm->vegtbl.nrotbl[grid->vegtyp - 1];
-////    grid->snup = lsm->vegtbl.snuptbl[grid->vegtyp - 1];
-////    grid->rsmin = lsm->vegtbl.rstbl[grid->vegtyp - 1];
-////    grid->rgl = lsm->vegtbl.rgltbl[grid->vegtyp - 1];
-////    grid->hs = lsm->vegtbl.hstbl[grid->vegtyp - 1];
-////    grid->emissmin = lsm->vegtbl.emissmintbl[grid->vegtyp - 1];
-////    grid->emissmax = lsm->vegtbl.emissmaxtbl[grid->vegtyp - 1];
-////    grid->laimin = lsm->vegtbl.laimintbl[grid->vegtyp - 1];
-////    grid->laimax = lsm->vegtbl.laimaxtbl[grid->vegtyp - 1];
-////    grid->z0min = lsm->vegtbl.z0mintbl[grid->vegtyp - 1];
-////    grid->z0max = lsm->vegtbl.z0maxtbl[grid->vegtyp - 1];
-////    grid->albedomin = lsm->vegtbl.albedomintbl[grid->vegtyp - 1];
-////    grid->albedomax = lsm->vegtbl.albedomaxtbl[grid->vegtyp - 1];
-////
-////    grid->isurban = lsm->vegtbl.isurban;
-////
-////    if (grid->vegtyp == lsm->vegtbl.bare)
-////        grid->shdfac = 0.0;
-////
-////    if (grid->nroot > grid->nsoil)
-////    {
-////        printf ("error: too many root layers %d, %d\n", grid->nsoil,
-////           grid->nroot);
-////        PihmExit (0);
-////    }
-////
-/////*----------------------------------------------------------------------
-////* calculate root distribution.  present version assumes uniform
-////* distribution based on soil layer depths.
-////* --------------------------------------------------------------------*/
-////    for (i = 0; i < grid->nroot; i++)
-////        grid->rtdis[i] = -grid->sldpth[i] / zsoil[grid->nroot - 1];
-////
-/////*----------------------------------------------------------------------
-////*  set-up slope parameter
-////* --------------------------------------------------------------------*/
-////
-////    /*
-////     * print*,'end of prmred'
-////     * *       print*,'vegtyp',vegtyp,'soiltyp',soiltyp,'slopetyp',slopetyp,    &
-////     * *    & 'cfactr',cfactr,'cmcmax',cmcmax,'rsmax',rsmax,'topt',topt,        &
-////     * *    & 'refkdt',refkdt,'kdt',kdt,'sbeta',sbeta, 'shdfac',shdfac,         &
-////     * *    &  'rsmin',rsmin,'rgl',rgl,'hs',hs,'zbot',zbot,'frzx',frzx,         &
-////     * *    &  'psisat',psisat,'slope',slope,'snup',snup,'salp',salp,'bexp',    &
-////     * *    &   bexp,                                                           &
-////     * *    &  'dksat',dksat,'dwsat',dwsat,                                     &
-////     * *    &  'smcmax',smcmax,'smcwlt',smcwlt,'smcref',smcref,'smcdry',smcdry, &
-////     * *    &  'f1',f1,'quartz',quartz,'fxexp',fxexp,                           &
-////     * *    &  'rtdis',rtdis,'sldpth',sldpth,'zsoil',zsoil, 'nroot',nroot,      &
-////     * *    &  'nsoil',nsoil,'z0',z0,'czil',czil,'lai',lai,                     &
-////     * *    &  'csoil',csoil,'ptu',ptu,                                         &
-////     * *    &  'local', local
-////     */
-////
-////}
-//
+
 void Rosr12 (double *p, double *a, double *b, double *c, double *d,
     double *delta, int nsoil)
 {
@@ -2457,8 +2187,6 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
     double          acrt;
     double          sum;
     double          ialp1;
-    double          weight[MAXLYR];
-    double          smctot;
     int             macpore[MAXLYR];
     /* Frozen ground version:
      * Reference frozen ground parameter, cvfrz, is a shape parameter of areal
@@ -2597,11 +2325,13 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
      * Calculate/update soil moisture content values and canopy moisture
      * content values.
      */
-    int             k, kk11;
-
-    double          rhsttin[MAXLYR], ciin[MAXLYR];
+    int             k;
+    double          rhsttin[MAXLYR];
+    double          ciin[MAXLYR];
     double          sh2omid[MAXLYR];
-    double          ddz, stot, wplus;
+    double          ddz;
+    double          stot;
+    double          wplus;
     double          stotmin;
 
     /* Create 'amount' values of variables to be input to the tri-diagonal
@@ -3119,6 +2849,9 @@ void SfcDifOff (ps_struct *ps, const lc_struct *lc, double t1v, double th2v,
     /*
      * Calculate surface layer exchange coefficients via iterative process.
      * See Chen et al. (1997, BLM)
+     *
+     * This routine sfcdif can handle both over open water (sea, ocean) and
+     * over solid surface (land, sea-ice).
      */
     double          zilfc;
     double          zu;
@@ -3328,11 +3061,10 @@ void SfcDifOff (ps_struct *ps, const lc_struct *lc, double t1v, double th2v,
     }
 }
 
-/*----------------------------------------------------------------------
-* note: the two code blocks below define functions
-* ----------------------------------------------------------------------
-* lech's surface functions
-* --------------------------------------------------------------------*/
+/* 
+ * Note: the two code blocks below define functions
+ */
+/* Lech's surface functions */
 double Pslmu (double zz)
 {
     double          x;
@@ -3371,10 +3103,7 @@ double Pslhs (double zz)
     return x;
 }
 
-/*----------------------------------------------------------------------
-* paulson's surface functions
-* --------------------------------------------------------------------*/
-
+/* Paulson's surface functions */
 double Pspmu (double xx)
 {
     double          pihf = 3.14159265 / 2.0;
@@ -3398,10 +3127,6 @@ double Psphu (double xx)
     return x;
 }
 
-/*----------------------------------------------------------------------
-* this routine sfcdif can handle both over open water (sea, ocean) and
-* over solid surface (land, sea-ice).
-* --------------------------------------------------------------------*/
 double Psphs (double yy)
 {
     double          x;

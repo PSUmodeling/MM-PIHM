@@ -237,13 +237,6 @@ typedef struct daily_struct
 
 typedef struct ws_struct
 {
-    //double          surf0;      /* YS: Stores surface water level of
-    //                             * last time step */
-    //double          gw0;        /* YS: Stores groundwater level of last time
-    //                             * step */
-    //double          unsat0;     /* YS: Stores unsaturated storage of
-    //                             * last time step */
-    //double          stage0;
     double          stage;
     double          surf;
     double          gw;
@@ -364,10 +357,11 @@ typedef struct elem_struct
     wf_struct       wf;
 #ifdef _NOAH_
     wf_struct       avgwf;
-#endif
 
     es_struct       es;
     ef_struct       ef;
+#endif
+
 } elem_struct;
 
 typedef struct shp_struct

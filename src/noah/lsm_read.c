@@ -195,33 +195,3 @@ void ReadRad (char *filename, forc_struct *forc)
     fclose (rad_file);
 }
 
-//
-////void LsmPrtInit (pihm_struct pihm, lsm_struct noah, char *simulation)
-////{
-////    FILE           *init_file;
-////    char            fn[MAXSTRING];
-////    char            project[MAXSTRING];
-////    char           *token;
-////    char            tempname[MAXSTRING];
-////    int             i, j;
-////
-////    strcpy (tempname, simulation);
-////    if (strstr (tempname, ".") != 0)
-////    {
-////        token = strtok (tempname, ".");
-////        strcpy (project, token);
-////    }
-////    else
-////    {
-////        strcpy (project, simulation);
-////    }
-////
-////    sprintf (fn, "input/%s/%s.lsminit", project, simulation);
-////    init_file = fopen (fn, "wb");
-////
-////    for (i = 0; i < pihm->numele; i++)
-////    {
-////    }
-////
-////    fclose (init_file);
-////}

@@ -164,17 +164,17 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem, N_Vector CV
     if (verbose_mode)
     {
         printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
-                timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-                timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min,
-                *t);
+            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min,
+            *t);
     }
 #ifndef _ENKF_
     else if (rawtime % 3600 == 0)
     {
         printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
-                timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-                timestamp->tm_mday, timestamp->tm_hour,
-                timestamp->tm_min);
+            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+            timestamp->tm_mday, timestamp->tm_hour,
+            timestamp->tm_min);
     }
 #endif
 }
