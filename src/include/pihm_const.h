@@ -52,10 +52,9 @@
 #define CLAY            11
 
 /* Macropore status */
-#define MAT_CTRL        0
+#define MTX_CTRL        0
 #define APP_CTRL        1
 #define MAC_CTRL        2
-#define SAT_CTRL        3
 
 /* River segment interpolation order */
 #define RECTANGLE       1

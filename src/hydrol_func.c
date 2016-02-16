@@ -217,16 +217,13 @@ double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
 
     switch (status)
     {
-        case MAT_CTRL:
+        case MTX_CTRL:
             effkv = kv * ksatfunc;
             break;
         case APP_CTRL:
             effkv = mackv * areaf * elemsatn + kv * (1.0 - areaf) * ksatfunc;
             break;
         case MAC_CTRL:
-            effkv = mackv * areaf + kv * (1.0 - areaf) * ksatfunc;
-            break;
-        case SAT_CTRL:
             effkv = mackv * areaf + kv * (1.0 - areaf) * ksatfunc;
             break;
         default:
@@ -240,27 +237,19 @@ double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
 int MacroporeStatus (double ksatfunc, double elemsatn, double applrate,
     double mackv, double kv, double areaf)
 {
-    if (elemsatn >= 0.98)
+    if (applrate <= 1.0 * kv * ksatfunc)
     {
-        return (SAT_CTRL);
+        return (MTX_CTRL);
     }
     else
     {
-        if (applrate <= 1.0 * kv * ksatfunc)
+        if (applrate < (mackv * areaf + kv * (1.0 - areaf) * ksatfunc))
         {
-            return (MAT_CTRL);
+            return (APP_CTRL);
         }
         else
         {
-            if (applrate <
-                (mackv * areaf + kv * (1.0 - areaf) * ksatfunc))
-            {
-                return (APP_CTRL);
-            }
-            else
-            {
-                return (MAC_CTRL);
-            }
+            return (MAC_CTRL);
         }
     }
 }

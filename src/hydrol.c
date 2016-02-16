@@ -423,6 +423,10 @@ void VerticalFlow (pihm_struct pihm)
         wetfrac = (elem->ws.surf > DEPRSTG) ?
             1.0 : sqrt (elem->ws.surf / DEPRSTG);
 
+        elem->ps.macpore_status =
+            MacroporeStatus (satkfunc, satn, applrate,
+            elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
+
         if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
         {
             /* Assumption: Dinf < Dmac */
@@ -432,10 +436,21 @@ void VerticalFlow (pihm_struct pihm)
             grad_y_sub = (elem->ws.surf < 0.0 && grad_y_sub > 0.0) ? 0.0 : grad_y_sub;
             satn = 1.0;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
-            effk =
-                (elem->soil.macropore == 1) ? EffKV (satkfunc, satn,
-                SAT_CTRL, elem->soil.kmacv, elem->soil.kinfv,
-                elem->soil.areafh) : elem->soil.kinfv;
+
+            if (grad_y_sub < 0.0)
+            {
+                effk = (elem->ps.macpore_status == 1) ?
+                    elem->soil.kmacv * elem->soil.areafh +
+                    elem->soil.kinfv * (1.0 - elem->soil.areafh) :
+                    elem->soil.kinfv;
+            }
+            else
+            {
+                effk =
+                    (elem->soil.macropore == 1) ? EffKV (satkfunc, satn,
+                    elem->ps.macpore_status, elem->soil.kmacv,
+                    elem->soil.kinfv, elem->soil.areafh) : elem->soil.kinfv;
+            }
 #ifdef _NOAH_
             elem->wf.infil = elem->ps.fcr * wetfrac * effk * grad_y_sub;
 #else
@@ -478,9 +493,6 @@ void VerticalFlow (pihm_struct pihm)
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
             if (elem->soil.macropore == 1)
             {
-                elem->ps.macpore_status =
-                    MacroporeStatus (satkfunc, satn, applrate,
-                    elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
                 effk =
                     EffKV (satkfunc, satn, elem->ps.macpore_status,
                     elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
