@@ -616,6 +616,7 @@ void CalcLatFlx (const ws_struct *ws, const ps_struct *ps, wf_struct *wf)
     }
 
     /* Determine runoff from each layer */
+    sattot = 0;
     for (ks = 0; ks < ps->nsoil; ks++)
     {
         sattot += ps->satdpth[ks];

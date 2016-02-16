@@ -2385,8 +2385,11 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
         }
         else
         {
-            stotmin = ps->satdpth[k] * soil->smcmax +
-                (ps->sldpth[k] - ps->satdpth[k]) * soil->smcmin;
+            stotmin = (ps->satdpth[k] * soil->smcmax +
+                (ps->sldpth[k] - ps->satdpth[k]) * (soil->smcmin + 0.02)) /
+                ps->sldpth[k];
+            stotmin = (stotmin > soil->smcmax) ? soil->smcmax : stotmin;
+            stotmin = (stotmin < soil->smcmin + 0.02) ? soil->smcmin + 0.02 : stotmin;
 
             if (stot < stotmin)
             {
