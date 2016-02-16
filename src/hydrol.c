@@ -409,7 +409,7 @@ void VerticalFlow (pihm_struct pihm)
     double          total_y;
     double          applrate;
     double          qmax;
-    double          wetfrac;
+    //double          wetfrac;
     elem_struct    *elem;
 
     dt = (double) pihm->ctrl.stepsize;
@@ -420,8 +420,8 @@ void VerticalFlow (pihm_struct pihm)
 
         applrate = elem->wf.netprcp + elem->ws.surf / dt;
 
-        wetfrac = (elem->ws.surf > DEPRSTG) ?
-            1.0 : sqrt (elem->ws.surf / DEPRSTG);
+        //wetfrac = (elem->ws.surf > DEPRSTG) ?
+        //    1.0 : sqrt (elem->ws.surf / DEPRSTG);
 
         elem->ps.macpore_status =
             MacroporeStatus (satkfunc, satn, applrate,
@@ -451,17 +451,17 @@ void VerticalFlow (pihm_struct pihm)
                     elem->ps.macpore_status, elem->soil.kmacv,
                     elem->soil.kinfv, elem->soil.areafh) : elem->soil.kinfv;
             }
-#ifdef _NOAH_
-            elem->wf.infil = elem->ps.fcr * wetfrac * effk * grad_y_sub;
-#else
-            elem->wf.infil = wetfrac * effk * grad_y_sub;
-#endif
+
+            elem->wf.infil = effk * grad_y_sub;
 
             qmax = elem->ws.surf / dt + elem->wf.netprcp - elem->wf.edir_sfc;
             qmax = (qmax > 0.0) ? qmax : 0.0;
 
             /* Note: infiltration can be negtive in this case */
             elem->wf.infil = (elem->wf.infil < qmax) ? elem->wf.infil : qmax;
+#ifdef _NOAH_
+            elem->wf.infil *= elem->ps.fcr;
+#endif
 
             elem->wf.rechg = elem->wf.infil;
         }
@@ -501,18 +501,17 @@ void VerticalFlow (pihm_struct pihm)
             {
                 effk = elem->soil.kinfv;
             }
-#ifdef _NOAH_
-            elem->wf.infil = elem->ps.fcr * wetfrac * 0.5 * effk * grad_y_sub;
-#else
-            elem->wf.infil = 0.5 * wetfrac * effk * grad_y_sub;
-#endif
+
+            elem->wf.infil = 0.5 * effk * grad_y_sub;
 
             qmax = elem->ws.surf / dt + elem->wf.netprcp - elem->wf.edir_sfc;
             qmax = (qmax > 0.0) ? qmax : 0.0;
 
             elem->wf.infil = (elem->wf.infil < qmax) ? elem->wf.infil : qmax;
             elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
-
+#ifdef _NOAH_
+            elem->wf.infil *= elem->ps.fcr;
+#endif
             /* Harmonic mean formulation.
              * Note that if unsaturated zone has low saturation, satkfunc
              * becomes very small. use arithmetic mean instead */
