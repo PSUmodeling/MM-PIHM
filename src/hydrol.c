@@ -408,7 +408,6 @@ void VerticalFlow (pihm_struct pihm)
     double          avg_y_sub;
     double          total_y;
     double          applrate;
-    double          qmax;
     //double          wetfrac;
     elem_struct    *elem;
 
@@ -454,11 +453,8 @@ void VerticalFlow (pihm_struct pihm)
 
             elem->wf.infil = effk * grad_y_sub;
 
-            qmax = elem->ws.surf / dt + elem->wf.netprcp - elem->wf.edir_sfc;
-            qmax = (qmax > 0.0) ? qmax : 0.0;
-
             /* Note: infiltration can be negative in this case */
-            elem->wf.infil = (elem->wf.infil < qmax) ? elem->wf.infil : qmax;
+            elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
 #ifdef _NOAH_
             elem->wf.infil *= elem->ps.fcr;
 #endif
@@ -504,10 +500,7 @@ void VerticalFlow (pihm_struct pihm)
 
             elem->wf.infil = 0.5 * effk * grad_y_sub;
 
-            qmax = elem->ws.surf / dt + elem->wf.netprcp - elem->wf.edir_sfc;
-            qmax = (qmax > 0.0) ? qmax : 0.0;
-
-            elem->wf.infil = (elem->wf.infil < qmax) ? elem->wf.infil : qmax;
+            elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
             elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
 #ifdef _NOAH_
             elem->wf.infil *= elem->ps.fcr;
