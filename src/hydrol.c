@@ -439,7 +439,7 @@ void VerticalFlow (pihm_struct pihm)
 
             if (grad_y_sub < 0.0)
             {
-                effk = (elem->ps.macpore_status == 1) ?
+                effk = (elem->soil.macropore) ?
                     elem->soil.kmacv * elem->soil.areafh +
                     elem->soil.kinfv * (1.0 - elem->soil.areafh) :
                     elem->soil.kinfv;
@@ -447,7 +447,7 @@ void VerticalFlow (pihm_struct pihm)
             else
             {
                 effk =
-                    (elem->soil.macropore == 1) ? EffKV (satkfunc, satn,
+                    (elem->soil.macropore) ? EffKV (satkfunc, satn,
                     elem->ps.macpore_status, elem->soil.kmacv,
                     elem->soil.kinfv, elem->soil.areafh) : elem->soil.kinfv;
             }
@@ -457,7 +457,7 @@ void VerticalFlow (pihm_struct pihm)
             qmax = elem->ws.surf / dt + elem->wf.netprcp - elem->wf.edir_sfc;
             qmax = (qmax > 0.0) ? qmax : 0.0;
 
-            /* Note: infiltration can be negtive in this case */
+            /* Note: infiltration can be negative in this case */
             elem->wf.infil = (elem->wf.infil < qmax) ? elem->wf.infil : qmax;
 #ifdef _NOAH_
             elem->wf.infil *= elem->ps.fcr;
@@ -476,7 +476,7 @@ void VerticalFlow (pihm_struct pihm)
 #endif
             satn = (satn > 1.0) ? 1.0 : satn;
             satn = (satn < SATMIN) ? SATMIN : satn;
-            /* note: for psi calculation using van genuchten relation, cutting
+            /* Note: for psi calculation using van genuchten relation, cutting
              * the psi-sat tail at small saturation can be performed for
              * computational advantage. if you dont' want to perform this,
              * comment the statement that follows */
@@ -488,10 +488,10 @@ void VerticalFlow (pihm_struct pihm)
                 elem->soil.dinf;
             grad_y_sub =
                 (elem->ws.surf + elem->topo.zmax - total_y) / elem->soil.dinf;
-            grad_y_sub = (elem->ws.surf < 0.0 &&
-                grad_y_sub > 0.0) ? 0.0 : grad_y_sub;
+            grad_y_sub = (elem->ws.surf < 0.0 && grad_y_sub > 0.0) ?
+                0.0 : grad_y_sub;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
-            if (elem->soil.macropore == 1)
+            if (elem->soil.macropore)
             {
                 effk =
                     EffKV (satkfunc, satn, elem->ps.macpore_status,
@@ -499,7 +499,7 @@ void VerticalFlow (pihm_struct pihm)
             }
             else
             {
-                effk = elem->soil.kinfv;
+                effk = elem->soil.kinfv * satkfunc;
             }
 
             elem->wf.infil = 0.5 * effk * grad_y_sub;
@@ -521,7 +521,7 @@ void VerticalFlow (pihm_struct pihm)
             satn = (satn > 1.0) ? 1.0 : satn;
             satn = (satn < SATMIN) ? SATMIN : satn;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
-            effk = (elem->soil.macropore == 1 &&
+            effk = (elem->soil.macropore &&
                 elem->ws.gw > elem->soil.depth - elem->soil.dmac) ?
                 EffKV (satkfunc, satn, elem->ps.macpore_status, elem->soil.kmacv,
                 elem->soil.ksatv, elem->soil.areafh) :
