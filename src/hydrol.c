@@ -399,14 +399,14 @@ void LateralFlow (pihm_struct pihm)
 void VerticalFlow (pihm_struct pihm)
 {
     int             i;
-    double          grad_y_sub;
     double          satn;
     double          satkfunc;
+    double          dh_by_dz;
+    double          psi_u;
+    double          h_u;
     double          effk;
     double          dt;
     double          deficit;
-    double          avg_y_sub;
-    double          total_y;
     double          applrate;
     //double          wetfrac;
     elem_struct    *elem;
@@ -429,14 +429,15 @@ void VerticalFlow (pihm_struct pihm)
         if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
         {
             /* Assumption: Dinf < Dmac */
-            grad_y_sub =
+            dh_by_dz =
                 (elem->ws.surf + elem->topo.zmax - (elem->ws.gw +
                     elem->topo.zmin)) / elem->soil.dinf;
-            grad_y_sub = (elem->ws.surf < 0.0 && grad_y_sub > 0.0) ? 0.0 : grad_y_sub;
+            dh_by_dz = (elem->ws.surf < 0.0 && dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
+
             satn = 1.0;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
 
-            if (grad_y_sub < 0.0)
+            if (dh_by_dz < 0.0)
             {
                 effk = (elem->soil.macropore) ?
                     elem->soil.kmacv * elem->soil.areafh +
@@ -451,7 +452,7 @@ void VerticalFlow (pihm_struct pihm)
                     elem->soil.kinfv, elem->soil.areafh) : elem->soil.kinfv;
             }
 
-            elem->wf.infil = effk * grad_y_sub;
+            elem->wf.infil = effk * dh_by_dz;
 
             /* Note: infiltration can be negative in this case */
             elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
@@ -476,16 +477,16 @@ void VerticalFlow (pihm_struct pihm)
              * the psi-sat tail at small saturation can be performed for
              * computational advantage. if you dont' want to perform this,
              * comment the statement that follows */
-            avg_y_sub = Psi (satn, elem->soil.alpha, elem->soil.beta);
-            avg_y_sub = (avg_y_sub > PSIMIN) ? avg_y_sub : PSIMIN;
+            psi_u = Psi (satn, elem->soil.alpha, elem->soil.beta);
+            psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
 
-            total_y =
-                avg_y_sub + elem->topo.zmin + elem->soil.depth -
+            h_u = psi_u + elem->topo.zmin + elem->soil.depth -
                 elem->soil.dinf;
-            grad_y_sub =
-                (elem->ws.surf + elem->topo.zmax - total_y) / elem->soil.dinf;
-            grad_y_sub = (elem->ws.surf < 0.0 && grad_y_sub > 0.0) ?
-                0.0 : grad_y_sub;
+            dh_by_dz =
+                (elem->ws.surf + elem->topo.zmax - h_u) / elem->soil.dinf;
+            dh_by_dz = (elem->ws.surf < 0.0 && dh_by_dz > 0.0) ?
+                0.0 : dh_by_dz;
+
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
             if (elem->soil.macropore)
             {
@@ -498,7 +499,7 @@ void VerticalFlow (pihm_struct pihm)
                 effk = elem->soil.kinfv * satkfunc;
             }
 
-            elem->wf.infil = 0.5 * effk * grad_y_sub;
+            elem->wf.infil = 0.5 * effk * dh_by_dz;
 
             elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
             elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
@@ -513,6 +514,7 @@ void VerticalFlow (pihm_struct pihm)
             satn = elem->ws.unsat / deficit;
             satn = (satn > 1.0) ? 1.0 : satn;
             satn = (satn < SATMIN) ? SATMIN : satn;
+
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
             effk = (elem->soil.macropore &&
                 elem->ws.gw > elem->soil.depth - elem->soil.dmac) ?
@@ -520,14 +522,14 @@ void VerticalFlow (pihm_struct pihm)
                 elem->soil.ksatv, elem->soil.areafh) :
                 elem->soil.ksatv * satkfunc;
 
-            elem->wf.rechg =
-                (deficit <=
-                0.0) ? 0.0 : (elem->soil.ksatv * elem->ws.gw +
-                effk * deficit) * (elem->soil.alpha * deficit -
-                2.0 * pow (-1.0 + pow (satn,
-                        elem->soil.beta / (1.0 - elem->soil.beta)),
-                    1.0 / elem->soil.beta)) / (elem->soil.alpha *
-                pow (deficit + elem->ws.gw, 2));
+            psi_u = Psi (satn, elem->soil.alpha, elem->soil.beta);
+
+            dh_by_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + elem->ws.gw));
+
+            elem->wf.rechg = (deficit <= 0.0) ? 0.0 :
+                (elem->soil.ksatv * elem->ws.gw + effk * deficit) / (deficit + elem->ws.gw) *
+                dh_by_dz;
+
             elem->wf.rechg = (elem->wf.rechg > 0.0 &&
                 elem->ws.unsat <= 0.0) ? 0.0 : elem->wf.rechg;
             elem->wf.rechg = (elem->wf.rechg < 0.0 &&
