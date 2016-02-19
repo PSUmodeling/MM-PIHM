@@ -210,28 +210,27 @@ double AvgY (double diff, double yi, double yinabr)
     return (avg_y);
 }
 
-double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
-    double kv, double areaf)
+void EffKV (double ksatfunc, double elemsatn, int status, double mackv,
+    double kv, double areaf, double *effkv)
 {
-    double          effkv;
-
     switch (status)
     {
         case MTX_CTRL:
-            effkv = kv * ksatfunc;
+            effkv[KMTX] = kv * ksatfunc;
+            effkv[KMAC] = 0.0;
             break;
         case APP_CTRL:
-            effkv = mackv * areaf * elemsatn + kv * (1.0 - areaf) * ksatfunc;
+            effkv[KMTX] = kv * (1.0 - areaf) * ksatfunc;
+            effkv[KMAC] = mackv * areaf * elemsatn; 
             break;
         case MAC_CTRL:
-            effkv = mackv * areaf + kv * (1.0 - areaf) * ksatfunc;
+            effkv[KMTX] = kv * (1.0 - areaf) * ksatfunc;
+            effkv[KMAC] = mackv * areaf;
             break;
         default:
             printf ("Error: Macropore status not recognized!\n");
             PihmExit (1);
     }
-
-    return (effkv);
 }
 
 int MacroporeStatus (double ksatfunc, double elemsatn, double applrate,

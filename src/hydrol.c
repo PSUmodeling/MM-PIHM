@@ -404,7 +404,7 @@ void VerticalFlow (pihm_struct pihm)
     double          dh_by_dz;
     double          psi_u;
     double          h_u;
-    double          effk;
+    double          effk[2];
     double          dt;
     double          deficit;
     double          applrate;
@@ -439,20 +439,28 @@ void VerticalFlow (pihm_struct pihm)
 
             if (dh_by_dz < 0.0)
             {
-                effk = (elem->soil.macropore) ?
+                effk[KMTX] = (elem->soil.macropore) ?
                     elem->soil.kmacv * elem->soil.areafh +
                     elem->soil.kinfv * (1.0 - elem->soil.areafh) :
                     elem->soil.kinfv;
+                effk[KMAC] = 0.0;
             }
             else
             {
-                effk =
-                    (elem->soil.macropore) ? EffKV (satkfunc, satn,
-                    elem->ps.macpore_status, elem->soil.kmacv,
-                    elem->soil.kinfv, elem->soil.areafh) : elem->soil.kinfv;
+                if (elem->soil.macropore)
+                {
+                    EffKV (satkfunc, satn, elem->ps.macpore_status,
+                        elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh,
+                        effk);
+                }
+                else
+                {
+                    effk[KMTX] = elem->soil.kinfv;
+                    effk[KMAC] = 0.0;
+                }
             }
 
-            elem->wf.infil = effk * dh_by_dz;
+            elem->wf.infil = (effk[KMTX] + effk[KMAC]) * dh_by_dz;
 
             /* Note: infiltration can be negative in this case */
             elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
@@ -490,16 +498,16 @@ void VerticalFlow (pihm_struct pihm)
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
             if (elem->soil.macropore)
             {
-                effk =
-                    EffKV (satkfunc, satn, elem->ps.macpore_status,
-                    elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
+                EffKV (satkfunc, satn, elem->ps.macpore_status,
+                    elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh, effk);
             }
             else
             {
-                effk = elem->soil.kinfv * satkfunc;
+                effk[KMTX] = elem->soil.kinfv * satkfunc;
+                effk[KMAC] = 0.0;
             }
 
-            elem->wf.infil = 0.5 * effk * dh_by_dz;
+            elem->wf.infil = 0.5 * (effk[KMTX] + effk[KMAC]) * dh_by_dz;
 
             elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
             elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
@@ -516,18 +524,23 @@ void VerticalFlow (pihm_struct pihm)
             satn = (satn < SATMIN) ? SATMIN : satn;
 
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
-            effk = (elem->soil.macropore &&
-                elem->ws.gw > elem->soil.depth - elem->soil.dmac) ?
+            if (elem->soil.macropore && elem->ws.gw > elem->soil.depth - elem->soil.dmac)
+            {
                 EffKV (satkfunc, satn, elem->ps.macpore_status, elem->soil.kmacv,
-                elem->soil.ksatv, elem->soil.areafh) :
-                elem->soil.ksatv * satkfunc;
+                elem->soil.ksatv, elem->soil.areafh, effk);
+            }
+            else
+            {
+                effk[KMTX] = elem->soil.ksatv * satkfunc;
+                effk[KMAC] = 0.0;
+            }
 
             psi_u = Psi (satn, elem->soil.alpha, elem->soil.beta);
 
             dh_by_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + elem->ws.gw));
 
             elem->wf.rechg = (deficit <= 0.0) ? 0.0 :
-                (elem->soil.ksatv * elem->ws.gw + effk * deficit) / (deficit + elem->ws.gw) *
+                (elem->soil.ksatv * elem->ws.gw + (effk[KMTX] + effk[KMAC]) * deficit) / (deficit + elem->ws.gw) *
                 dh_by_dz;
 
             elem->wf.rechg = (elem->wf.rechg > 0.0 &&

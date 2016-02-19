@@ -273,6 +273,7 @@ typedef struct wf_struct
     double          ett_unsat;
     double          ett_gw;
     double          fluxriv[11];
+    double          macflow;
 #ifdef _NOAH_
     double          runoff1;    /* surface runoff (m s-1), not infiltrating the surface */
     double          runoff2;    /* subsurface runoff (m s-1), drainage out bottom of last soil layer (baseflow) */

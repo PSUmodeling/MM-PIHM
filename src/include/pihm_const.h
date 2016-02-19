@@ -56,6 +56,9 @@
 #define APP_CTRL        1
 #define MAC_CTRL        2
 
+#define KMTX            0
+#define KMAC            1
+
 /* River segment interpolation order */
 #define RECTANGLE       1
 #define TRIANGLE        2
