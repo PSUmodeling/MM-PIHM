@@ -561,6 +561,7 @@ void AvgFlux (elem_struct *elem, int numele, int op)
         for (i = 0; i < numele; i++)
         {
             elem[i].avgwf.infil += elem[i].wf.infil;
+            elem[i].avgwf.macflow += elem[i].wf.macflow;
             elem[i].avgwf.runoff2 += elem[i].wf.runoff2;
 
             for (j = 0; j < 3; j++)
@@ -577,6 +578,7 @@ void AvgFlux (elem_struct *elem, int numele, int op)
         for (i = 0; i < numele; i++)
         {
             elem[i].avgwf.infil /= denom;
+            elem[i].avgwf.macflow /= denom;
             elem[i].avgwf.runoff2 /= denom;
 
             for (j = 0; j < 3; j++)

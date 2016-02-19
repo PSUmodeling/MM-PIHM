@@ -897,6 +897,7 @@ void ZeroWaterFlux (wf_struct *wf)
     wf->edir_gw = 0.0;
     wf->ett_unsat = 0.0;
     wf->ett_gw = 0.0;
+    wf->macflow = 0.0;
 
     for (j = 0; j < 3; j++)
     {

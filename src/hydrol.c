@@ -405,6 +405,7 @@ void VerticalFlow (pihm_struct pihm)
     double          psi_u;
     double          h_u;
     double          effk[2];
+    double          kavg;
     double          dt;
     double          deficit;
     double          applrate;
@@ -460,12 +461,24 @@ void VerticalFlow (pihm_struct pihm)
                 }
             }
 
-            elem->wf.infil = (effk[KMTX] + effk[KMAC]) * dh_by_dz;
+            elem->wf.infil = effk[KMTX] * dh_by_dz + effk[KMAC];
 
             /* Note: infiltration can be negative in this case */
-            elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
+            //elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
+            if (elem->wf.infil > applrate)
+            {
+                elem->wf.infil = applrate;
+                elem->wf.macflow = (effk[KMAC] > 0.0) ? elem->wf.infil - effk[KMTX] * dh_by_dz : 0.0;
+                elem->wf.macflow = (elem->wf.macflow > 0.0) ? elem->wf.macflow : 0.0;
+            }
+            else
+            {
+                elem->wf.macflow = effk[KMAC];
+            }
+
 #ifdef _NOAH_
             elem->wf.infil *= elem->ps.fcr;
+            elem->wf.macflow *= elem->ps.fcr;
 #endif
 
             elem->wf.rechg = elem->wf.infil;
@@ -490,7 +503,7 @@ void VerticalFlow (pihm_struct pihm)
 
             h_u = psi_u + elem->topo.zmin + elem->soil.depth -
                 elem->soil.dinf;
-            dh_by_dz =
+            dh_by_dz = 0.5 *
                 (elem->ws.surf + elem->topo.zmax - h_u) / elem->soil.dinf;
             dh_by_dz = (elem->ws.surf < 0.0 && dh_by_dz > 0.0) ?
                 0.0 : dh_by_dz;
@@ -507,12 +520,23 @@ void VerticalFlow (pihm_struct pihm)
                 effk[KMAC] = 0.0;
             }
 
-            elem->wf.infil = 0.5 * (effk[KMTX] + effk[KMAC]) * dh_by_dz;
+            elem->wf.infil = effk[KMTX] * dh_by_dz + effk[KMAC];
 
-            elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
+            if (elem->wf.infil > applrate)
+            {
+                elem->wf.infil = applrate;
+                elem->wf.macflow = (effk[KMAC] > 0.0) ? elem->wf.infil - effk[KMTX] * dh_by_dz : 0.0;
+                elem->wf.macflow = (elem->wf.macflow > 0.0) ? elem->wf.macflow : 0.0;
+            }
+            else
+            {
+                elem->wf.macflow = effk[KMAC];
+            }
+
             elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
 #ifdef _NOAH_
             elem->wf.infil *= elem->ps.fcr;
+            elem->wf.macflow *= elem->ps.fcr;
 #endif
             /* Harmonic mean formulation.
              * Note that if unsaturated zone has low saturation, satkfunc
@@ -524,10 +548,10 @@ void VerticalFlow (pihm_struct pihm)
             satn = (satn < SATMIN) ? SATMIN : satn;
 
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
-            if (elem->soil.macropore && elem->ws.gw > elem->soil.depth - elem->soil.dmac)
+            if (elem->soil.macropore)
             {
                 EffKV (satkfunc, satn, elem->ps.macpore_status, elem->soil.kmacv,
-                elem->soil.ksatv, elem->soil.areafh, effk);
+                    elem->soil.ksatv, elem->soil.areafh, effk);
             }
             else
             {
@@ -539,9 +563,16 @@ void VerticalFlow (pihm_struct pihm)
 
             dh_by_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + elem->ws.gw));
 
+            //kavg = 1.0 / (deficit / effk[KMTX] + elem->ws.gw / elem->soil.ksatv);
+            kavg = (deficit * effk[KMTX] + elem->ws.gw * elem->soil.ksatv) / (deficit + elem->ws.gw);
+
             elem->wf.rechg = (deficit <= 0.0) ? 0.0 :
-                (elem->soil.ksatv * elem->ws.gw + (effk[KMTX] + effk[KMAC]) * deficit) / (deficit + elem->ws.gw) *
-                dh_by_dz;
+                kavg * dh_by_dz;
+
+            if (elem->soil.macropore && elem->ws.gw > elem->soil.depth - elem->soil.dmac)
+            {
+                elem->wf.rechg += elem->wf.macflow ;
+            }
 
             elem->wf.rechg = (elem->wf.rechg > 0.0 &&
                 elem->ws.unsat <= 0.0) ? 0.0 : elem->wf.rechg;
