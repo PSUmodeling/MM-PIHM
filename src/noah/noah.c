@@ -2250,6 +2250,10 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
 
     dsmdz = (ws->sh2o[0] - ws->sh2o[1]) / (- 0.5 * zsoil[1]);
     WDfCnd (&wdf, &wcnd, mxsmc, sicemax, dsmdz, macpore[0], soil, ps);
+    if (macpore[0] && macpore[1])
+    {
+        wcnd += avgwf->macflow;
+    }
 
     /* Calc the matrix coefficients ai, bi, and ci for the top layer */
     ddz = 1.0 / (- 0.5 * zsoil[1]);
@@ -2275,6 +2279,10 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
             dsmdz2 = (ws->sh2o[k] - ws->sh2o[k + 1]) / (denom * 0.5);
             WDfCnd (&wdf2, &wcnd2, mxsmc2, sicemax, dsmdz2, macpore[k], soil,
                 ps);
+            if (macpore[k] && macpore[k + 1])
+            {
+                wcnd2 += avgwf->macflow;
+            }
             /* Calc some partial products for later use in calc'ng rhstt
              * Calc the matrix coef, ci, after calc'ng its partial product */
             ddz2 = 2.0 / denom;
@@ -2296,7 +2304,7 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
         /* Calc rhstt for this layer after calc'ng its numerator */
         numer = (wdf2 * dsmdz2) + wcnd2 - (wdf * dsmdz) - wcnd + wf->et[k];
         
-        numer = numer + avgwf->runoff2_lyr[k];
+        numer += avgwf->runoff2_lyr[k];
 
         rhstt[k] = numer / (-denom2);
 
@@ -2791,6 +2799,7 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
     double          vkwgt;
     double          satkfunc;
     double          dpsidsm;
+    double          kv[2];
 
     /* Calc the ratio of the actual to the max psbl soil h2o content */
     factr1 = 0.05 / (soil->smcmax - soil->smcmin);
@@ -2811,9 +2820,9 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
 
     if (macpore == 1)
     {
-        *wcnd =
-            EFFKV (satkfunc, factr2, ps->macpore_status, soil->kmacv, soil->ksatv,
-            soil->areafh);
+        EffKV (satkfunc, factr2, ps->macpore_status, soil->kmacv, soil->ksatv,
+            soil->areafh, kv);
+        *wcnd = kv[KMTX];
     }
     else
     {
@@ -2833,10 +2842,9 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
             pow (factr1, - (1.0 / expon + 1.0));
         if (macpore == 1)
         {
+            EffKV (satkfunc, factr1, ps->macpore_status, soil->kmacv, soil->ksatv, soil->areafh, kv);
             *wdf =
-                vkwgt * *wdf + (1.0 - vkwgt) * dpsidsm * EFFKV (satkfunc,
-                factr1, ps->macpore_status, soil->kmacv, soil->ksatv,
-                soil->areafh);
+                vkwgt * *wdf + (1.0 - vkwgt) * dpsidsm * kv[KMTX];
         }
         else
         {
@@ -3137,18 +3145,18 @@ double Psphs (double yy)
     return x;
 }
 
-double EFFKV (double ksatfunc, double elemsatn, int status, double mackv,
-    double kv, double areaf)
-{
-    //return (kv * ksatfunc);
-    if (status == MTX_CTRL)
-        return kv * ksatfunc;
-    else
-    {
-        if (status == APP_CTRL)
-            return (mackv * areaf * ksatfunc + kv * (1. -
-                        areaf) * ksatfunc);
-        else
-            return (mackv * areaf + kv * (1. - areaf) * ksatfunc);
-    }
-}
+//double EFFKV (double ksatfunc, double elemsatn, int status, double mackv,
+//    double kv, double areaf)
+//{
+//    //return (kv * ksatfunc);
+//    if (status == MTX_CTRL)
+//        return kv * ksatfunc;
+//    else
+//    {
+//        if (status == APP_CTRL)
+//            return (mackv * areaf * ksatfunc + kv * (1. -
+//                        areaf) * ksatfunc);
+//        else
+//            return (mackv * areaf + kv * (1. - areaf) * ksatfunc);
+//    }
+//}
