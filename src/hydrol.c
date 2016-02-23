@@ -561,12 +561,13 @@ void VerticalFlow (pihm_struct pihm)
 
             psi_u = Psi (satn, elem->soil.alpha, elem->soil.beta);
 
-            dh_by_dz = (0.5 * (deficit + elem->ws.gw) + psi_u) / (0.5 * (deficit + elem->ws.gw));
+            dh_by_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + elem->ws.gw));
 
-            kavg = 1.0 / (deficit / effk[KMTX] + elem->ws.gw / elem->soil.ksatv);
-            //kavg = (deficit * effk[KMTX] + elem->ws.gw * elem->soil.ksatv) / (deficit + elem->ws.gw);
+            //kavg = 1.0 / (deficit / effk[KMTX] + elem->ws.gw / elem->soil.ksatv);
+            kavg = (deficit * effk[KMTX] + elem->ws.gw * elem->soil.ksatv) / (deficit + elem->ws.gw);
 
-            elem->wf.rechg = (deficit <= 0.0) ? 0.0 : kavg * dh_by_dz;
+            elem->wf.rechg = (deficit <= 0.0) ? 0.0 :
+                kavg * dh_by_dz;
 
             if (elem->soil.macropore && elem->ws.gw > elem->soil.depth - elem->soil.dmac)
             {
@@ -799,6 +800,7 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     double          grad_y_sub;
     double          effk_nabr;
     double          avg_ksat;
+    double          aquifer_depth;
     int             j;
 
     total_y = riv->ws.stage + riv->topo.zbed;
@@ -836,8 +838,7 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
         EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
         elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
         elem->soil.ksath);
-    //avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
-    avg_ksat = effk;
+    avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
     *fluxriv = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
 
     /* Lateral flux between rectangular element (beneath river) and triangular
@@ -859,6 +860,7 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
         avg_y_sub = elem->ws.gw;
     }
     avg_y_sub = AvgY (dif_y_sub, riv->ws.gw, avg_y_sub);
+    aquifer_depth = riv->topo.zbed - riv->topo.zmin;
     effk =
         0.5 * (EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
             elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
