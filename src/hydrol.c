@@ -423,10 +423,6 @@ void VerticalFlow (pihm_struct pihm)
         //wetfrac = (elem->ws.surf > DEPRSTG) ?
         //    1.0 : sqrt (elem->ws.surf / DEPRSTG);
 
-        elem->ps.macpore_status =
-            MacroporeStatus (satkfunc, satn, applrate,
-            elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
-
         if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
         {
             /* Assumption: Dinf < Dmac */
@@ -437,6 +433,10 @@ void VerticalFlow (pihm_struct pihm)
 
             satn = 1.0;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
+
+            elem->ps.macpore_status =
+                MacroporeStatus (satkfunc, satn, applrate,
+                elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
 
             if (dh_by_dz < 0.0)
             {
@@ -509,6 +509,11 @@ void VerticalFlow (pihm_struct pihm)
                 0.0 : dh_by_dz;
 
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
+
+            elem->ps.macpore_status =
+                MacroporeStatus (satkfunc, satn, applrate,
+                elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
+
             if (elem->soil.macropore)
             {
                 EffKV (satkfunc, satn, elem->ps.macpore_status,
