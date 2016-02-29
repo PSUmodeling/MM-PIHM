@@ -304,7 +304,7 @@ void LateralFlow (pihm_struct pihm)
                     EffKH (nabr->soil.macropore, nabr->ws.gw, nabr->soil.depth,
                     nabr->soil.dmac, nabr->soil.kmach, nabr->soil.areafv,
                     nabr->soil.ksath);
-                avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
+                avg_ksat = 0.5 * (effk + effk_nabr);
                 /* Groundwater flow modeled by Darcy's Law */
                 elem->wf.fluxsub[j] =
                     avg_ksat * grad_y_sub * avg_y_sub * elem->topo.edge[j];
@@ -404,7 +404,8 @@ void VerticalFlow (pihm_struct pihm)
     double          dh_by_dz;
     double          psi_u;
     double          h_u;
-    double          effk[2];
+    double          kinf;
+    double          keff;
     double          kavg;
     double          dt;
     double          deficit;
@@ -430,56 +431,44 @@ void VerticalFlow (pihm_struct pihm)
                 (elem->ws.surf + elem->topo.zmax - (elem->ws.gw +
                     elem->topo.zmin)) / elem->soil.dinf;
             dh_by_dz = (elem->ws.surf < 0.0 && dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
+            dh_by_dz = (dh_by_dz < 1.0 && dh_by_dz > 0.0) ? 1.0 : dh_by_dz;
 
             satn = 1.0;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
 
-            elem->ps.macpore_status =
-                MacroporeStatus (satkfunc, satn, applrate,
-                elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
+            if (elem->soil.macropore)
+            {
+                elem->ps.macpore_status =
+                    MacroporeStatus (satkfunc, satn, applrate,
+                    elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
+            }
+            else
+            {
+                elem->ps.macpore_status = MTX_CTRL;
+            }
 
             if (dh_by_dz < 0.0)
             {
-                effk[KMTX] = (elem->soil.macropore) ?
+                kinf = (elem->soil.macropore) ?
                     elem->soil.kmacv * elem->soil.areafh +
                     elem->soil.kinfv * (1.0 - elem->soil.areafh) :
                     elem->soil.kinfv;
-                effk[KMAC] = 0.0;
             }
             else
             {
-                if (elem->soil.macropore)
-                {
-                    EffKV (satkfunc, satn, elem->ps.macpore_status,
-                        elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh,
-                        effk);
-                }
-                else
-                {
-                    effk[KMTX] = elem->soil.kinfv;
-                    effk[KMAC] = 0.0;
-                }
+                kinf = EffKinf (satkfunc, satn, elem->ps.macpore_status,
+                    elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
             }
 
-            elem->wf.infil = effk[KMTX] * dh_by_dz + effk[KMAC];
+            elem->wf.infil = kinf * dh_by_dz;
 
             /* Note: infiltration can be negative in this case */
-            //elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
-            if (elem->wf.infil > applrate)
-            {
-                elem->wf.infil = applrate;
-                elem->wf.macflow = (effk[KMAC] > 0.0) ? elem->wf.infil - effk[KMTX] * dh_by_dz : 0.0;
-                elem->wf.macflow = (elem->wf.macflow > 0.0) ? elem->wf.macflow : 0.0;
-            }
-            else
-            {
-                elem->wf.macflow = effk[KMAC];
-            }
+            elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
 
 #ifdef _NOAH_
             elem->wf.infil *= elem->ps.fcr;
-            elem->wf.macflow *= elem->ps.fcr;
 #endif
+
 
             elem->wf.rechg = elem->wf.infil;
         }
@@ -510,39 +499,28 @@ void VerticalFlow (pihm_struct pihm)
 
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
 
-            elem->ps.macpore_status =
-                MacroporeStatus (satkfunc, satn, applrate,
-                elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
-
             if (elem->soil.macropore)
             {
-                EffKV (satkfunc, satn, elem->ps.macpore_status,
-                    elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh, effk);
+                elem->ps.macpore_status =
+                    MacroporeStatus (satkfunc, satn, applrate,
+                    elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
             }
             else
             {
-                effk[KMTX] = elem->soil.kinfv * satkfunc;
-                effk[KMAC] = 0.0;
+                elem->ps.macpore_status = MTX_CTRL;
             }
 
-            elem->wf.infil = effk[KMTX] * dh_by_dz + effk[KMAC];
+            kinf = EffKinf (satkfunc, satn, elem->ps.macpore_status,
+                elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
 
-            if (elem->wf.infil > applrate)
-            {
-                elem->wf.infil = applrate;
-                elem->wf.macflow = (effk[KMAC] > 0.0) ? elem->wf.infil - effk[KMTX] * dh_by_dz : 0.0;
-                elem->wf.macflow = (elem->wf.macflow > 0.0) ? elem->wf.macflow : 0.0;
-            }
-            else
-            {
-                elem->wf.macflow = effk[KMAC];
-            }
+            elem->wf.infil = kinf * dh_by_dz;
 
+            elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
             elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
 #ifdef _NOAH_
             elem->wf.infil *= elem->ps.fcr;
-            elem->wf.macflow *= elem->ps.fcr;
 #endif
+
             /* Harmonic mean formulation.
              * Note that if unsaturated zone has low saturation, satkfunc
              * becomes very small. use arithmetic mean instead */
@@ -553,31 +531,26 @@ void VerticalFlow (pihm_struct pihm)
             satn = (satn < SATMIN) ? SATMIN : satn;
 
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
-            if (elem->soil.macropore)
-            {
-                EffKV (satkfunc, satn, elem->ps.macpore_status, elem->soil.kmacv,
-                    elem->soil.ksatv, elem->soil.areafh, effk);
-            }
-            else
-            {
-                effk[KMTX] = elem->soil.ksatv * satkfunc;
-                effk[KMAC] = 0.0;
-            }
+
+            //if (elem->ps.macpore_status > MTX_CTRL && elem->ws.gw > elem->soil.depth - elem->soil.dmac)
+            //{
+            //    keff = EffKV (satkfunc, satn, elem->ps.macpore_status, elem->soil.kmacv, elem->soil.ksatv, elem->soil.areafh);
+            //}
+            //else
+            //{
+            //    keff = elem->soil.ksatv * satkfunc;
+            //}
 
             psi_u = Psi (satn, elem->soil.alpha, elem->soil.beta);
 
             dh_by_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + elem->ws.gw));
 
             //kavg = 1.0 / (deficit / effk[KMTX] + elem->ws.gw / elem->soil.ksatv);
-            kavg = (deficit * effk[KMTX] + elem->ws.gw * elem->soil.ksatv) / (deficit + elem->ws.gw);
+            //kavg = (deficit * keff + elem->ws.gw * elem->soil.ksatv) / (deficit + elem->ws.gw);
+            kavg = AvgKV (elem->soil.dmac, deficit, elem->ws.gw, elem->ps.macpore_status, satn, satkfunc, elem->soil.kmacv, elem->soil.ksatv, elem->soil.areafh);
 
             elem->wf.rechg = (deficit <= 0.0) ? 0.0 :
                 kavg * dh_by_dz;
-
-            if (elem->soil.macropore && elem->ws.gw > elem->soil.depth - elem->soil.dmac)
-            {
-                elem->wf.rechg += elem->wf.macflow ;
-            }
 
             elem->wf.rechg = (elem->wf.rechg > 0.0 &&
                 elem->ws.unsat <= 0.0) ? 0.0 : elem->wf.rechg;
@@ -696,7 +669,7 @@ void RiverFlow (pihm_struct pihm)
                     left->soil.ksath) + EffKH (right->soil.macropore,
                     right->ws.gw, right->soil.depth, right->soil.dmac,
                     right->soil.kmach, left->soil.areafv, right->soil.ksath));
-            avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
+            avg_ksat = 0.5 * (effk + effk_nabr);
             /* Groundwater flow modeled by Darcy's law */
             riv->wf.fluxriv[9] = avg_ksat * grad_y_sub * avg_y_sub * avg_wid;
             /* Accumulate to get in-flow for down segments:
@@ -843,7 +816,7 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
         EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
         elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
         elem->soil.ksath);
-    avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
+    avg_ksat = 0.5 * (effk + effk_nabr);
     *fluxriv = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
 
     /* Lateral flux between rectangular element (beneath river) and triangular
@@ -876,7 +849,7 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
         EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
         elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
         elem->soil.ksath);
-    avg_ksat = 2.0 * effk * effk_nabr / (effk + effk_nabr);
+    avg_ksat = 0.5 * (effk + effk_nabr);
     grad_y_sub = dif_y_sub / distance;
     /* Take into account macropore effect */
     *fluxsub = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;

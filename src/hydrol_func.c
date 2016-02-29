@@ -210,27 +210,83 @@ double AvgY (double diff, double yi, double yinabr)
     return (avg_y);
 }
 
-void EffKV (double ksatfunc, double elemsatn, int status, double mackv,
-    double kv, double areaf, double *effkv)
+double EffKinf (double ksatfunc, double elemsatn, int status, double mackv,
+    double kinf, double areaf)
 {
+    double          keff;
+
     switch (status)
     {
         case MTX_CTRL:
-            effkv[KMTX] = kv * ksatfunc;
-            effkv[KMAC] = 0.0;
+            keff = kinf * ksatfunc;
             break;
         case APP_CTRL:
-            effkv[KMTX] = kv * (1.0 - areaf) * ksatfunc;
-            effkv[KMAC] = mackv * areaf * elemsatn; 
+            keff = kinf * (1.0 - areaf) * ksatfunc + mackv * areaf * KrFunc (10.0, 2.0, elemsatn);
             break;
         case MAC_CTRL:
-            effkv[KMTX] = kv * (1.0 - areaf) * ksatfunc;
-            effkv[KMAC] = mackv * areaf;
+            keff = kinf * (1.0 - areaf) * ksatfunc + mackv * areaf;
             break;
         default:
             printf ("Error: Macropore status not recognized!\n");
             PihmExit (1);
     }
+
+    return (keff);
+}
+
+double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
+    double kv, double areaf)
+{
+    double          keff;
+
+    switch (status)
+    {
+        case MTX_CTRL:
+            keff = kv * ksatfunc;
+            break;
+        case APP_CTRL:
+            keff = kv * (1.0 - areaf) * ksatfunc + mackv * areaf * ksatfunc;//KrFunc (10.0, 2.0, elemsatn);
+            break;
+        case MAC_CTRL:
+            keff = kv * (1.0 - areaf) * ksatfunc + mackv * areaf;
+            break;
+        default:
+            printf ("Error: Macropore status not recognized!\n");
+            PihmExit (1);
+    }
+
+    return (keff);
+}
+
+double AvgKV (double dmac, double deficit, double gw, double macp_status, double satn, double satkfunc, double kmacv, double ksatv, double areafh)
+{
+    double          k1, k2, k3;
+    double          d1, d2, d3;
+
+    if (deficit > dmac)
+    {
+        k1 = EffKV (satkfunc, satn, macp_status, kmacv, ksatv, areafh);
+        d1 = dmac;
+
+        k2 = satkfunc * ksatv;
+        d2 = deficit - dmac;
+
+        k3 = ksatv;
+        d3 = gw;
+    }
+    else
+    {
+        k1 = EffKV (satkfunc, satn, macp_status, kmacv, ksatv, areafh);
+        d1 = deficit;
+
+        k2 = kmacv * areafh + ksatv * (1.0 - areafh);
+        d2 = dmac - deficit;
+
+        k3 = ksatv;
+        d3 = gw - (dmac - deficit);
+    }
+
+    return ((k1 * d1 + k2 * d2 + k3 * d3) / (d1 + d2 + d3));
 }
 
 int MacroporeStatus (double ksatfunc, double elemsatn, double applrate,

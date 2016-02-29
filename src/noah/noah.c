@@ -2250,10 +2250,6 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
 
     dsmdz = (ws->sh2o[0] - ws->sh2o[1]) / (- 0.5 * zsoil[1]);
     WDfCnd (&wdf, &wcnd, mxsmc, sicemax, dsmdz, macpore[0], soil, ps);
-    if (macpore[0] && macpore[1])
-    {
-        wcnd += avgwf->macflow;
-    }
 
     /* Calc the matrix coefficients ai, bi, and ci for the top layer */
     ddz = 1.0 / (- 0.5 * zsoil[1]);
@@ -2279,10 +2275,6 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
             dsmdz2 = (ws->sh2o[k] - ws->sh2o[k + 1]) / (denom * 0.5);
             WDfCnd (&wdf2, &wcnd2, mxsmc2, sicemax, dsmdz2, macpore[k], soil,
                 ps);
-            if (macpore[k] && macpore[k + 1])
-            {
-                wcnd2 += avgwf->macflow;
-            }
             /* Calc some partial products for later use in calc'ng rhstt
              * Calc the matrix coef, ci, after calc'ng its partial product */
             ddz2 = 2.0 / denom;
@@ -2818,11 +2810,10 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
         pow (pow (factr2, - 1.0 / expon) - 1.0, - expon) *
         pow (factr2, - (1.0 / expon + 1.0));
 
-    if (macpore == 1)
+    if (macpore == 1 && ps->macpore_status > MTX_CTRL)
     {
-        EffKV (satkfunc, factr2, ps->macpore_status, soil->kmacv, soil->ksatv,
-            soil->areafh, kv);
-        *wcnd = kv[KMTX];
+        *wcnd = EffKV (satkfunc, factr2, ps->macpore_status, soil->kmacv, soil->ksatv, soil->areafh);
+        //*wcnd = (soil->kmacv * soil->areafh + soil->ksatv * (1.0 - soil->areafh)) * satkfunc;
     }
     else
     {
@@ -2840,11 +2831,10 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
             / (soil->smcmax - soil->smcmin) *
             pow (pow (factr1, - 1.0 / expon) - 1.0, - expon) *
             pow (factr1, - (1.0 / expon + 1.0));
-        if (macpore == 1)
+        if (macpore == 1 && ps->macpore_status > MTX_CTRL)
         {
-            EffKV (satkfunc, factr1, ps->macpore_status, soil->kmacv, soil->ksatv, soil->areafh, kv);
             *wdf =
-                vkwgt * *wdf + (1.0 - vkwgt) * dpsidsm * kv[KMTX];
+                vkwgt * *wdf + (1.0 - vkwgt) * dpsidsm * EffKV (satkfunc, factr1, ps->macpore_status, soil->kmacv, soil->ksatv, soil->areafh);
         }
         else
         {

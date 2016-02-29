@@ -14,7 +14,6 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
     double          recharge;
     double          soilw0, soilw1;
     double          subrunoff;
-    double          nmacflow;
     int             i, j;
     elem_struct    *elem;
     river_struct   *riv;
@@ -29,9 +28,6 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         elem->ws.unsat = y[UNSAT(i)];
         elem->ws.gw = y[GW(i)];
 
-        nmacflow = (elem->wf.infil <= 0.0) ? 0.0 : elem->wf.macflow / elem->wf.infil;
-        nmacflow = (nmacflow < 1.0) ? nmacflow : 1.0;
-        
         /*
          * Calculate infiltration based on mass conservation
          */
@@ -105,8 +101,6 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
             subrunoff -= elem->wf.infil;
             elem->wf.infil = 0.0;
         }
-
-        elem->wf.macflow = nmacflow * elem->wf.infil;
 
 #ifdef _NOAH_
         elem->wf.runoff2 = subrunoff;
