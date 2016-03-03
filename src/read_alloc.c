@@ -633,15 +633,9 @@ void ReadLC (char *filename, lctbl_struct *lctbl)
     lc_file = fopen (filename, "r");
     CheckFile (lc_file, filename);
 
-    /* start reading land cover file */
+    /* Start reading land cover file */
     NextLine (lc_file, cmdstr);
-    match = sscanf (cmdstr, "%d", &lctbl->number);
-    if (match != 1)
-    {
-        printf ("Cannot read number of landcover types!\n");
-        printf ("Land cover file format error!\n");
-        PihmExit (1);
-    }
+    ReadKeywordInt (cmdstr, "NUMLC", &lctbl->number);
 
     lctbl->laimax = (double *)malloc (lctbl->number * sizeof (double));
     lctbl->laimin = (double *)malloc (lctbl->number * sizeof (double));
@@ -658,6 +652,9 @@ void ReadLC (char *filename, lctbl_struct *lctbl)
     lctbl->rsmin = (double *)malloc (lctbl->number * sizeof (double));
     lctbl->rough = (double *)malloc (lctbl->number * sizeof (double));
     lctbl->rzd = (double *)malloc (lctbl->number * sizeof (double));
+
+    /* Skip header line */
+    NextLine (lc_file, cmdstr);
 
     for (i = 0; i < lctbl->number; i++)
     {
