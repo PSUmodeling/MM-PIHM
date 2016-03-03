@@ -105,13 +105,7 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     /* Read number of river segments */
     FindLine (riv_file, "BOF");
     NextLine (riv_file, cmdstr);
-    match = sscanf (cmdstr, "%d", &rivtbl->number);
-    if (match != 1)
-    {
-        printf ("Cannot read number of river segments!\n");
-        printf (".riv file format error!\n");
-        PihmExit (1);
-    }
+    ReadKeywordInt (cmdstr, "NUMRIV", &rivtbl->number);
 
     /* Allocate */
     rivtbl->fromnode =
@@ -125,6 +119,9 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     rivtbl->matl = (int *)malloc (rivtbl->number * sizeof (int));
     rivtbl->bc = (int *)malloc (rivtbl->number * sizeof (int));
     rivtbl->rsvr = (int *)malloc (rivtbl->number * sizeof (int));
+
+    /* Skip header line */
+    NextLine (riv_file, cmdstr);
 
     /* Read river segment information */
     for (i = 0; i < rivtbl->number; i++)
@@ -150,15 +147,8 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     /*
      * Read river shape information
      */
-    FindLine (riv_file, "SHAPE");
     NextLine (riv_file, cmdstr);
-    match = sscanf (cmdstr, "%d", &shptbl->number);
-    if (match != 1)
-    {
-        printf ("Cannot read number of river shapes!\n");
-        printf (".riv file format error!\n");
-        PihmExit (1);
-    }
+    ReadKeywordInt (cmdstr, "SHAPE", &shptbl->number);
 
     /* Allocate */
     shptbl->depth =
@@ -167,6 +157,9 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
         (int *)malloc (shptbl->number * sizeof (int));
     shptbl->coeff =
         (double *)malloc (shptbl->number * sizeof (double));
+
+    /* Skip header line */
+    NextLine (riv_file, cmdstr);
 
     for (i = 0; i < shptbl->number; i++)
     {
@@ -187,15 +180,8 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     /*
      * Read river material information
      */
-    FindLine (riv_file, "MATERIAL");
     NextLine (riv_file, cmdstr);
-    match = sscanf (cmdstr, "%d", &matltbl->number);
-    if (match != 1)
-    {
-        printf ("Cannot read number of river materials!\n");
-        printf (".riv file format error!\n");
-        PihmExit (1);
-    }
+    ReadKeywordInt (cmdstr, "MATERIAL", &matltbl->number);
 
     /* Allocate */
     matltbl->rough =
@@ -208,6 +194,9 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
         (double *)malloc (matltbl->number * sizeof (double));
     matltbl->bedthick =
         (double *)malloc (matltbl->number * sizeof (double));
+
+    /* Skip header line */
+    NextLine (riv_file, cmdstr);
 
     for (i = 0; i < matltbl->number; i++)
     {
@@ -230,13 +219,7 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
      * Read river boundary condition block
      */
     NextLine (riv_file, cmdstr);
-    match = sscanf (cmdstr, "%*s %d", &forc->nriverbc);
-    if (match != 1)
-    {
-        printf ("Cannot read number of river boundary conditions!\n");
-        printf (".riv file format error!\n");
-        PihmExit (1);
-    }
+    ReadKeywordInt (cmdstr, "BC", &forc->nriverbc);
 
     if (forc->nriverbc > 0)
     {
