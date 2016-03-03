@@ -1,7 +1,7 @@
 KSATH		5.0	# Horizontal saturated hydraulic conductivity
 KSATV		3.5	# Vertital saturated hydraulic conductivity 
 KINF		5.0	# Infiltration conductivity
-KMACSATH	40.0	# Horizontal saturated macropore hydraulic conductivity
+KMACSATH	4.0	# Horizontal saturated macropore hydraulic conductivity
 KMACSATV	0.5	# Vertital saturated macropore hydraulic conductivity
 DINF		1.0	# Infiltration depth
 DROOT		1.0	# Rooting depth

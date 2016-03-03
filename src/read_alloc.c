@@ -428,17 +428,10 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
     soil_file = fopen (filename, "r");
     CheckFile (soil_file, filename);
 
-    /* start reading soil_file */
+    /* Start reading soil file */
     NextLine (soil_file, cmdstr);
-    match = sscanf (cmdstr, "%d", &soiltbl->number);
-    if (match != 1)
-    {
-        printf ("Cannot read number of soil types!\n");
-        printf (".soil file format error!\n");
-        PihmExit (1);
-    }
+    ReadKeywordInt (cmdstr, "NUMSOIL", &soiltbl->number);
 
-    soiltbl->mukey = (int *)malloc (soiltbl->number * sizeof (int));
     soiltbl->silt = (double *)malloc (soiltbl->number * sizeof(double));
     soiltbl->clay = (double *)malloc (soiltbl->number * sizeof(double));
     soiltbl->om = (double *)malloc (soiltbl->number * sizeof(double));
@@ -453,29 +446,27 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
     soiltbl->beta = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->areafh = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->areafv = (double *)malloc (soiltbl->number * sizeof (double));
-    soiltbl->kmacv = (double *)malloc (soiltbl->number * sizeof (double));
-    soiltbl->kmach = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->dmac = (double *)malloc (soiltbl->number * sizeof (double));
-    soiltbl->dinf = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->smcref = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->smcwlt = (double *)malloc (soiltbl->number * sizeof (double));
+
+    /* Skip header line */
+    NextLine (soil_file, cmdstr);
 
     for (i = 0; i < soiltbl->number; i++)
     {
         NextLine (soil_file, cmdstr);
-        match = sscanf (cmdstr, "%d %d %lf %lf %lf %lf %lf %lf %lf %lf %lf"
-            "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
-            &index, &soiltbl->mukey[i],
-            &soiltbl->silt[i], &soiltbl->clay[i], &soiltbl->om[i],
+        match = sscanf (cmdstr,
+            "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+            &index, &soiltbl->silt[i], &soiltbl->clay[i], &soiltbl->om[i],
             &soiltbl->bd[i],
             &soiltbl->kinfv[i], &soiltbl->ksatv[i], &soiltbl->ksath[i],
-            &soiltbl->smcmax[i], &soiltbl->smcmin[i], &soiltbl->dinf[i],
+            &soiltbl->smcmax[i], &soiltbl->smcmin[i], 
             &soiltbl->alpha[i], &soiltbl->beta[i],
-            &soiltbl->areafh[i], &soiltbl->kmacv[i],
-            &soiltbl->areafv[i], &soiltbl->kmach[i],
+            &soiltbl->areafh[i], &soiltbl->areafv[i], 
             &soiltbl->dmac[i], &soiltbl->qtz[i]);
 
-        if (match != 20 || i != index - 1)
+        if (match != 16 || i != index - 1)
         {
             printf ("Cannot read information of the %dth soil type!\n",
                 i + 1);
@@ -550,6 +541,15 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
             WiltingPoint (soiltbl->smcmax[i], soiltbl->smcmin[i],
             soiltbl->alpha[i], soiltbl->beta[i]);
     }
+
+    NextLine (soil_file, cmdstr);
+    ReadKeywordDouble (cmdstr, "DINF", &soiltbl->dinf);
+
+    NextLine (soil_file, cmdstr);
+    ReadKeywordDouble (cmdstr, "KMACV_RO", &soiltbl->kmacv_ro);
+    
+    NextLine (soil_file, cmdstr);
+    ReadKeywordDouble (cmdstr, "KMACH_RO", &soiltbl->kmach_ro);
 
     if (ptf_used)
     {

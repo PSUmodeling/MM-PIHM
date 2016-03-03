@@ -90,7 +90,6 @@ typedef struct atttbl_struct
 typedef struct soiltbl_struct
 {
     int             number;     /* index */
-    int            *mukey;
     double         *silt;
     double         *clay;
     double         *om;
@@ -108,14 +107,13 @@ typedef struct soiltbl_struct
     double         *areafh;     /* macroporous area fraction on
                                  * horizontal section */
     double         *areafv;
-    double         *kmacv;      /* macroporous saturated vertical
-                                 * conductivity */
-    double         *kmach;
     double         *dmac;
-    double         *dinf;       /* depth from ground surface accross which
-                                 * head is calculated during infiltration */
     double         *smcref;
     double         *smcwlt;
+
+    double          dinf;
+    double          kmacv_ro;
+    double          kmach_ro;
 } soiltbl_struct;
 
 typedef struct geoltbl_struct
