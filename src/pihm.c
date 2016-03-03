@@ -135,7 +135,7 @@ void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     flag = CVodeSetInitStep (cvode_mem, (realtype)pihm->ctrl.initstep);
     flag = CVodeSetStabLimDet (cvode_mem, TRUE);
     flag = CVodeSetMaxStep (cvode_mem, (realtype)pihm->ctrl.maxstep);
-    flag = CVodeMalloc (cvode_mem, f, (realtype)pihm->ctrl.starttime,
+    flag = CVodeMalloc (cvode_mem, Hydrol, (realtype)pihm->ctrl.starttime,
         CV_Y, CV_SS, (realtype)pihm->ctrl.reltol, &pihm->ctrl.abstol);
     flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
 }
@@ -149,7 +149,6 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem, N_Vector CV
     int             flag;
 
     solvert = (realtype)(*t);
-
 
     flag = CVodeSetMaxNumSteps (cvode_mem, (long int)(stepsize * 20));
     flag = CVodeSetStopTime (cvode_mem, (realtype)nextptr);
