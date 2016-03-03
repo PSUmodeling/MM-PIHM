@@ -308,16 +308,13 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
      * Read element mesh block
      */
     NextLine (mesh_file, cmdstr);
-    match = sscanf (cmdstr, "%d", &meshtbl->numele);
-    if (match != 1)
-    {
-        printf ("Cannot read number of elements!\n");
-        printf (".mesh file format error!\n");
-        PihmExit (1);
-    }
+    ReadKeywordInt (cmdstr, "NUMELE", &meshtbl->numele);
 
     meshtbl->node = (int **)malloc (meshtbl->numele * sizeof (int *));
     meshtbl->nabr = (int **)malloc (meshtbl->numele * sizeof (int *));
+
+    /* Skip header line */
+    NextLine (mesh_file, cmdstr);
 
     for (i = 0; i < meshtbl->numele; i++)
     {
@@ -342,13 +339,10 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
      * Read node block
      */
     NextLine (mesh_file, cmdstr);
-    match = sscanf (cmdstr, "%d", &meshtbl->numnode);
-    if (match != 1)
-    {
-        printf ("Cannot read number of nodes!\n");
-        printf (".mesh file format error!\n");
-        PihmExit (1);
-    }
+    ReadKeywordInt (cmdstr, "NUMNODE", &meshtbl->numnode);
+
+    /* Skip header line */
+    NextLine (mesh_file, cmdstr);
 
     meshtbl->x = (double *)malloc (meshtbl->numnode * sizeof (double));
     meshtbl->y = (double *)malloc (meshtbl->numnode * sizeof (double));
