@@ -1,6 +1,14 @@
 #ifndef PIHM_FUNC_HEADER
 #define PIHM_FUNC_HEADER
 
+#define _ARITH_
+
+#define SURF(i)         i
+#define UNSAT(i)        i + pihm->numele
+#define GW(i)           i + 2 * pihm->numele
+#define RIVSTG(i)       i + 3 * pihm->numele
+#define RIVGW(i)        i + 3 * pihm->numele + pihm->numriv
+
 /*
  * Function Declarations
  */
@@ -78,7 +86,7 @@ void            IntrplForcing (tsdata_struct, int, int);
 double          MonthlyLAI (int, int);
 double          MonthlyRL (int, int);
 double          MonthlyMF (int);
-int             f (realtype, N_Vector, N_Vector, void *);
+int             Hydrol (realtype, N_Vector, N_Vector, void *);
 void            LateralFlow (pihm_struct);
 void            VerticalFlow (pihm_struct);
 void            RiverFlow (pihm_struct);
@@ -91,7 +99,9 @@ double          EqWid (int, double, double);
 double          OLFEleToRiv (double, double, double, double, double, double);
 double          OverlandFlow (double, double, double, double, double);
 double          AvgY (double, double, double);
+double          EffKinf (double, double, int, double, double, double);
 double          EffKV (double, double, int, double, double, double);
+double AvgKV (double dmac, double deficit, double gw, double macp_status, double satn, double satkfunc, double kmacv, double ksatv, double areafh);
 double          EffKH (int, double, double, double, double, double, double);
 
 void            PrtInit (pihm_struct pihm, char *simulation);

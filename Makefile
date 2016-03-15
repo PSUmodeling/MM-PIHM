@@ -22,9 +22,11 @@ SRCS_ = main.c \
 	read_func.c \
 	initialize.c \
 	soil.c \
-	hydrol_func.c \
 	is_sm_et.c \
 	hydrol.c \
+	lat_flow.c\
+	vert_flow.c\
+	river_flow.c\
 	print.c \
 	forcing.c \
 	misc_func.c \
@@ -49,7 +51,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm)
 	noah/noah.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm
-  MSG = "... Compiling FLUX-PIHM ..."
+  MSG = "... Compiling Flux-PIHM ..."
 endif
 
 ifeq ($(MAKECMDGOALS),rt-flux-pihm)
@@ -65,7 +67,7 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	spa/spa.h \
 	rt/rt.h
   EXECUTABLE = rt-flux-pihm
-  MSG = "... Compiling FLUX-PIHM ..."
+  MSG = "... Compiling RT-Flux-PIHM ..."
 endif
 
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)

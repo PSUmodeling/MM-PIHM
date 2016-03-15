@@ -27,7 +27,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         elem->ws.surf = y[SURF(i)];
         elem->ws.unsat = y[UNSAT(i)];
         elem->ws.gw = y[GW(i)];
-        
+
         /*
          * Calculate infiltration based on mass conservation
          */

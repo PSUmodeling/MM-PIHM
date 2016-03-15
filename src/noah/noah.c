@@ -2296,7 +2296,7 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
         /* Calc rhstt for this layer after calc'ng its numerator */
         numer = (wdf2 * dsmdz2) + wcnd2 - (wdf * dsmdz) - wcnd + wf->et[k];
         
-        numer = numer + avgwf->runoff2_lyr[k];
+        numer += avgwf->runoff2_lyr[k];
 
         rhstt[k] = numer / (-denom2);
 
@@ -2791,6 +2791,7 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
     double          vkwgt;
     double          satkfunc;
     double          dpsidsm;
+    double          kv[2];
 
     /* Calc the ratio of the actual to the max psbl soil h2o content */
     factr1 = 0.05 / (soil->smcmax - soil->smcmin);
@@ -2809,11 +2810,10 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
         pow (pow (factr2, - 1.0 / expon) - 1.0, - expon) *
         pow (factr2, - (1.0 / expon + 1.0));
 
-    if (macpore == 1)
+    if (macpore == 1 && ps->macpore_status > MTX_CTRL)
     {
-        *wcnd =
-            EFFKV (satkfunc, factr2, ps->macpore_status, soil->kmacv, soil->ksatv,
-            soil->areafh);
+        *wcnd = EffKV (satkfunc, factr2, ps->macpore_status, soil->kmacv, soil->ksatv, soil->areafh);
+        //*wcnd = (soil->kmacv * soil->areafh + soil->ksatv * (1.0 - soil->areafh)) * satkfunc;
     }
     else
     {
@@ -2831,12 +2831,10 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
             / (soil->smcmax - soil->smcmin) *
             pow (pow (factr1, - 1.0 / expon) - 1.0, - expon) *
             pow (factr1, - (1.0 / expon + 1.0));
-        if (macpore == 1)
+        if (macpore == 1 && ps->macpore_status > MTX_CTRL)
         {
             *wdf =
-                vkwgt * *wdf + (1.0 - vkwgt) * dpsidsm * EFFKV (satkfunc,
-                factr1, ps->macpore_status, soil->kmacv, soil->ksatv,
-                soil->areafh);
+                vkwgt * *wdf + (1.0 - vkwgt) * dpsidsm * EffKV (satkfunc, factr1, ps->macpore_status, soil->kmacv, soil->ksatv, soil->areafh);
         }
         else
         {
@@ -3137,18 +3135,18 @@ double Psphs (double yy)
     return x;
 }
 
-double EFFKV (double ksatfunc, double elemsatn, int status, double mackv,
-    double kv, double areaf)
-{
-    //return (kv * ksatfunc);
-    if (status == MTX_CTRL)
-        return kv * ksatfunc;
-    else
-    {
-        if (status == APP_CTRL)
-            return (mackv * areaf * ksatfunc + kv * (1. -
-                        areaf) * ksatfunc);
-        else
-            return (mackv * areaf + kv * (1. - areaf) * ksatfunc);
-    }
-}
+//double EFFKV (double ksatfunc, double elemsatn, int status, double mackv,
+//    double kv, double areaf)
+//{
+//    //return (kv * ksatfunc);
+//    if (status == MTX_CTRL)
+//        return kv * ksatfunc;
+//    else
+//    {
+//        if (status == APP_CTRL)
+//            return (mackv * areaf * ksatfunc + kv * (1. -
+//                        areaf) * ksatfunc);
+//        else
+//            return (mackv * areaf + kv * (1. - areaf) * ksatfunc);
+//    }
+//}

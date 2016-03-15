@@ -144,10 +144,14 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
     {
         soil_ind = atttbl.soil[i] - 1;
 
+        elem[i].soil.dinf = cal.dinf * soiltbl.dinf;
+
         elem[i].soil.depth = elem[i].topo.zmax - elem[i].topo.zmin;
+
         elem[i].soil.ksath = cal.ksath * soiltbl.ksath[soil_ind];
         elem[i].soil.ksatv = cal.ksatv * soiltbl.ksatv[soil_ind];
         elem[i].soil.kinfv = cal.kinfv * soiltbl.kinfv[soil_ind];
+
         elem[i].soil.smcmin = cal.porosity * soiltbl.smcmin[soil_ind];
         elem[i].soil.smcmax = cal.porosity * soiltbl.smcmax[soil_ind]; 
         elem[i].soil.porosity = elem[i].soil.smcmax - elem[i].soil.smcmin;
@@ -157,7 +161,6 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
                 i + 1);
             PihmExit (1);
         }
-        elem[i].soil.dinf = cal.dinf * soiltbl.dinf[soil_ind];
         elem[i].soil.alpha = cal.alpha * soiltbl.alpha[soil_ind];
         elem[i].soil.beta = cal.beta * soiltbl.beta[soil_ind];
 
@@ -173,14 +176,15 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
 #endif
 
         elem[i].soil.dmac = cal.dmac * soiltbl.dmac[soil_ind];
-        if (elem[i].soil.dmac > elem[i].soil.depth)
-            elem[i].soil.dmac = elem[i].soil.depth;
+        elem[i].soil.dmac = (elem[i].soil.dmac > elem[i].soil.depth) ?
+            elem[i].soil.depth : elem[i].soil.dmac;
 
-        elem[i].soil.kmacv = cal.kmacv * soiltbl.kmacv[soil_ind];
-        elem[i].soil.kmach = cal.kmach * soiltbl.kmach[soil_ind];
         elem[i].soil.areafh = cal.areafh * soiltbl.areafh[soil_ind];
         elem[i].soil.areafv = cal.areafv * soiltbl.areafv[soil_ind];
         elem[i].soil.macropore = atttbl.macropore[i];
+
+        elem[i].soil.kmacv = cal.kmacv * soiltbl.kmacv_ro * soiltbl.kinfv[soil_ind];
+        elem[i].soil.kmach = cal.kmach * soiltbl.kmach_ro * soiltbl.ksath[soil_ind];
 #ifdef _NOAH_
         elem[i].soil.csoil = noahtbl.csoil;
         elem[i].soil.quartz = soiltbl.qtz[soil_ind];

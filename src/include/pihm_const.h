@@ -31,12 +31,6 @@
 #define RIVDPTHMIN      0.05
 #define RIVGRADMIN      0.05
 
-#define SURF(i)         i
-#define UNSAT(i)        i + pihm->numele
-#define GW(i)           i + 2 * pihm->numele
-#define RIVSTG(i)       i + 3 * pihm->numele
-#define RIVGW(i)        i + 3 * pihm->numele + pihm->numriv
-
 /* Soil textures */
 #define SAND            0
 #define LOAMY_SAND      1
@@ -100,6 +94,7 @@
 #define RIVFLX10_CTRL   22
 #define SUBFLX_CTRL     23
 #define SURFFLX_CTRL    24
+
 #ifdef _NOAH_
 #define T1_CTRL         25
 #define STC_CTRL        26
