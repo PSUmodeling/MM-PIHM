@@ -38,7 +38,7 @@ void LateralFlow (pihm_struct pihm)
                 if (elem->nabr[j] > 0)
                 {
                     nabr = &pihm->elem[elem->nabr[j] - 1];
-                    surfh[j] = nabr->topo.zmax + nabr->ps.surfavail;
+                    surfh[j] = nabr->topo.zmax + nabr->ws.surf;
                 }
                 else if (elem->nabr[j] < 0)
                 {
@@ -57,7 +57,7 @@ void LateralFlow (pihm_struct pihm)
                 {
                     if (elem->forc.bc_type[j] == 0)
                     {
-                        surfh[j] = elem->topo.zmax + elem->ps.surfavail;
+                        surfh[j] = elem->topo.zmax + elem->ws.surf;
                     }
                     else
                     {
@@ -128,10 +128,10 @@ void LateralFlow (pihm_struct pihm)
                 else
                 {
                     dif_y_surf =
-                        (elem->ps.surfavail + elem->topo.zmax) - (nabr->ps.surfavail +
+                        (elem->ws.surf + elem->topo.zmax) - (nabr->ws.surf +
                         nabr->topo.zmax);
                 }
-                avg_y_surf = AvgY (dif_y_surf, elem->ps.surfavail, nabr->ps.surfavail);
+                avg_y_surf = AvgY (dif_y_surf, elem->ws.surf, nabr->ws.surf);
                 grad_y_surf = dif_y_surf / distance;
                 avg_sf =
                     0.5 * (sqrt (pow (dhbydx[i], 2) + pow (dhbydy[i],
@@ -202,6 +202,36 @@ void LateralFlow (pihm_struct pihm)
 
     free (dhbydx);
     free (dhbydy);
+}
+
+double AvgYsfc (double diff, double yi, double yinabr)
+{
+    double          avg_y;
+
+    if (diff > 0.0)
+    {
+        if (yi > DEPRSTG)
+        {
+            avg_y = 1.0 * yi;
+        }
+        else
+        {
+            avg_y = 0.0;
+        }
+    }
+    else
+    {
+        if (yinabr > DEPRSTG)
+        {
+            avg_y = 1.0 * yinabr;
+        }
+        else
+        {
+            avg_y = 0.0;
+        }
+    }
+
+    return (avg_y);
 }
 
 double AvgY (double diff, double yi, double yinabr)

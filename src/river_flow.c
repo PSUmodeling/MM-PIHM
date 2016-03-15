@@ -229,7 +229,7 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
 
     /* Lateral surface flux calculation between river-triangular element */
     *fluxsurf =
-        OLFEleToRiv (elem->ps.surfavail + elem->topo.zmax, elem->topo.zmax,
+        OLFEleToRiv (elem->ws.surf + elem->topo.zmax, elem->topo.zmax,
         riv->matl.cwr, riv->topo.zmax, total_y, riv->shp.length);
 
     /* Lateral subsurface flux calculation between river-triangular element */
@@ -379,7 +379,7 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
             }
         }
     }
-    else
+    else if (eleytot - elez > DEPRSTG)
     {
         if (rivytot > zbank)
         {
@@ -402,6 +402,10 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
                 flux = 0.0;
             }
         }
+    }
+    else
+    {
+        flux = 0.0;
     }
 
     return (flux);

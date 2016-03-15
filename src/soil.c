@@ -178,11 +178,11 @@ double PtfThetaR (double silt, double clay, double om, double bd, int topsoil)
 
     if (clay < 18.0 && 100.0 - silt - clay > 65.0)
     {
-        thetar = 0.025;
+        thetar = 0.15;
     }
     else
     {
-        thetar = 0.01;
+        thetar = 0.05;
     }
 
     return (thetar);

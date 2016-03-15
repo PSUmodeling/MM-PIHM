@@ -29,7 +29,6 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem = &pihm->elem[i];
 
         elem->ws.surf = (y[SURF(i)] >= 0.0) ? y[SURF(i)] : 0.0;
-        elem->ps.surfavail = (elem->ws.surf > DEPRSTG) ? elem->ws.surf : 0.0;
         elem->ws.unsat = (y[UNSAT(i)] >= 0.0) ? y[UNSAT(i)] : 0.0;
         elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
     }

@@ -99,6 +99,7 @@ double          EqWid (int, double, double);
 double          OLFEleToRiv (double, double, double, double, double, double);
 double          OverlandFlow (double, double, double, double, double);
 double          AvgY (double, double, double);
+double          AvgYsfc (double, double, double);
 double          EffKinf (double, double, int, double, double, double);
 double          EffKV (double, double, int, double, double, double);
 double AvgKV (double dmac, double deficit, double gw, double macp_status, double satn, double satkfunc, double kmacv, double ksatv, double areafh);
