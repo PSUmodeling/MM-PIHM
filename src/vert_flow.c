@@ -14,7 +14,7 @@ void VerticalFlow (pihm_struct pihm)
     double          dt;
     double          deficit;
     double          applrate;
-    //double          wetfrac;
+    double          wetfrac;
     elem_struct    *elem;
 
     dt = (double) pihm->ctrl.stepsize;
@@ -25,8 +25,7 @@ void VerticalFlow (pihm_struct pihm)
 
         applrate = elem->wf.netprcp + elem->ws.surf / dt;
 
-        //wetfrac = (elem->ws.surf > DEPRSTG) ?
-        //    1.0 : sqrt (elem->ws.surf / DEPRSTG);
+        wetfrac = (elem->ws.surf > DEPRSTG) ? 1.0 : ((elem->ws.surf < 0.0) ? 0.0 : pow (elem->ws.surf / DEPRSTG, 2.0));
 
         if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
         {
@@ -68,6 +67,8 @@ void VerticalFlow (pihm_struct pihm)
 
             /* Note: infiltration can be negative in this case */
             elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
+
+            elem->wf.infil *= wetfrac;
 
 #ifdef _NOAH_
             elem->wf.infil *= elem->ps.fcr;
@@ -119,6 +120,9 @@ void VerticalFlow (pihm_struct pihm)
 
             elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
             elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
+
+            elem->wf.infil *= wetfrac;
+
 #ifdef _NOAH_
             elem->wf.infil *= elem->ps.fcr;
 #endif
