@@ -108,7 +108,7 @@ double          EffKH (int, double, double, double, double, double, double);
 void            PrtInit (pihm_struct pihm, char *simulation);
 void            PrintData (prtctrl_struct *, int, int, int, int, int);
 int             MacroporeStatus (double, double, double, double, double,
-    double);
+                    double, double);
 double          KrFunc (double, double, double);
 double          Psi (double, double, double);
 

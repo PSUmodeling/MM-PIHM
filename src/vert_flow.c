@@ -43,7 +43,7 @@ void VerticalFlow (pihm_struct pihm)
             if (elem->soil.macropore)
             {
                 elem->ps.macpore_status =
-                    MacroporeStatus (satkfunc, satn, applrate,
+                    MacroporeStatus (dh_by_dz, satkfunc, satn, applrate,
                     elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
             }
             else
@@ -104,7 +104,7 @@ void VerticalFlow (pihm_struct pihm)
             if (elem->soil.macropore)
             {
                 elem->ps.macpore_status =
-                    MacroporeStatus (satkfunc, satn, applrate,
+                    MacroporeStatus (dh_by_dz, satkfunc, satn, applrate,
                     elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
             }
             else
@@ -251,16 +251,18 @@ double KrFunc (double alpha, double beta, double satn)
                     beta / (beta - 1.0)), (beta - 1.0) / beta), 2));
 }
 
-int MacroporeStatus (double ksatfunc, double elemsatn, double applrate,
+int MacroporeStatus (double dh_by_dz, double ksatfunc, double elemsatn, double applrate,
     double mackv, double kv, double areaf)
 {
-    if (applrate <= 1.0 * kv * ksatfunc)
+    dh_by_dz = (dh_by_dz < 1.0) ? 1.0 : dh_by_dz;
+
+    if (applrate <= dh_by_dz * kv * ksatfunc)
     {
         return (MTX_CTRL);
     }
     else
     {
-        if (applrate < (mackv * areaf + kv * (1.0 - areaf) * ksatfunc))
+        if (applrate < dh_by_dz * (mackv * areaf + kv * (1.0 - areaf) * ksatfunc))
         {
             return (APP_CTRL);
         }
