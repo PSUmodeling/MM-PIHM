@@ -94,10 +94,8 @@ void VerticalFlow (pihm_struct pihm)
             psi_u = Psi (satn, elem->soil.alpha, elem->soil.beta);
             psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
 
-            h_u = psi_u + elem->topo.zmin + elem->soil.depth -
-                elem->soil.dinf;
-            dh_by_dz = 0.5 *
-                (elem->ws.surf + elem->topo.zmax - h_u) / elem->soil.dinf;
+            h_u = psi_u + elem->topo.zmax - 0.5 * elem->soil.dinf;
+            dh_by_dz = (0.5 * elem->ws.surf + elem->topo.zmax - h_u) / (0.5 * (elem->ws.surf + elem->soil.dinf));
             dh_by_dz = (elem->ws.surf < 0.0 && dh_by_dz > 0.0) ?
                 0.0 : dh_by_dz;
 
