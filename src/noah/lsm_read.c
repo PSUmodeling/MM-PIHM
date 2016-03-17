@@ -9,7 +9,9 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
 {
     int             i;
     FILE           *lsm_file;
-    FILE           *stream;
+    int             match;
+    int             bytes_now;
+    int             bytes_consumed = 0;
     char            cmdstr[MAXSTRING];
     char            buffer[MAXSTRING];
 
@@ -42,12 +44,16 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
     NextLine (lsm_file, cmdstr);
     ReadKeywordStr (cmdstr, "SLDPTH_DATA", buffer);
 
-    stream = fmemopen (buffer, strlen (buffer), "r");
     for (i = 0; i < ctrl->nsoil; i++)
     {
-        fscanf (stream, "%lf", &ctrl->sldpth[i]);
+        match = sscanf (buffer + bytes_consumed, "%lf%n", &ctrl->sldpth[i], &bytes_now);
+        if (match != 1)
+        {
+            printf ("ERROR: .lsm input format error!\n");
+            PihmExit (1);
+        }
+        bytes_consumed += bytes_now;
     }
-    fclose (stream);
 
     NextLine (lsm_file, cmdstr);
     ReadKeywordInt (cmdstr, "RAD_MODE_DATA", &ctrl->rad_mode);

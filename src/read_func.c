@@ -189,8 +189,9 @@ void CheckFile (FILE * fid, char *fn)
 void ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
 {
     int             match;
-    FILE           *stream;
     struct tm      *timeinfo;
+    int             bytes_now;
+    int             bytes_consumed = 0;
     int             i;
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
@@ -213,11 +214,11 @@ void ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
     }
     else
     {
-        stream = fmemopen (cmdstr, strlen (cmdstr), "r");
-        match = fscanf (stream, "%d-%d-%d %d:%d",
+        match = sscanf (cmdstr + bytes_consumed, "%d-%d-%d %d:%d%n", 
             &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
-            &timeinfo->tm_hour, &timeinfo->tm_min);
-        timeinfo->tm_sec = 0;
+            &timeinfo->tm_hour, &timeinfo->tm_min, &bytes_now);
+        bytes_consumed += bytes_now;
+        
         if (match != 5)
         {
             printf ("ERROR: Forcing format error!\n");
@@ -226,12 +227,19 @@ void ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
 
         for (i = 0; i < nvrbl; i++)
         {
-            fscanf (stream, "%lf", &data[i]);
+            match = sscanf (cmdstr + bytes_consumed, "%lf%n", &data[i], &bytes_now);
+            if (match != 1)
+            {
+                printf ("ERROR: Forcing format error!\n");
+                PihmExit (1);
+            }
+            bytes_consumed += bytes_now;
         }
+
         timeinfo->tm_year = timeinfo->tm_year - 1900;
         timeinfo->tm_mon = timeinfo->tm_mon - 1;
+        timeinfo->tm_sec = 0;
         *ftime = timegm (timeinfo);
-        fclose (stream);
     }
 
     free (timeinfo);
