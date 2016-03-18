@@ -8,7 +8,7 @@ int main (int argc, char *argv[])
 {
     char            outputdir[MAXSTRING];
     char            simulation[MAXSTRING];
-    int             overwrite_mode = 0;
+    int             spec_output_mode = 0;
     int             c;
     int             first_cycle;
 #ifdef _ENKF_
@@ -73,23 +73,15 @@ int main (int argc, char *argv[])
     /*
      * Read command line arguments
      */
-    while ((c = getopt (argc, argv, "odv")) != -1)
+    while ((c = getopt (argc, argv, "o:dvl")) != -1)
     {
-        if (optind >= argc)
-        {
-            printf ("\nUsage: ./pihm [-o -d -v] <project name>\n");
-            printf
-                ("\t-o Output will be written in the \"output\" directory and overwrite existing output.\n");
-            printf ("\t-v Verbose mode\n");
-            printf ("\t-d Debug mode\n");
-            PihmExit (1);
-        }
         switch (c)
         {
             case 'o':
-                overwrite_mode = 1;
+                sprintf (outputdir, "output/%s/", optarg);
+                spec_output_mode = 1;
                 printf
-                    ("Overwrite mode turned on. Output directory is \"./output\".\n");
+                    ("Output directory is specified as \"%s\".\n", outputdir);
                 break;
             case 'd':
                 debug_mode = 1;
@@ -110,9 +102,8 @@ int main (int argc, char *argv[])
     if (optind >= argc)
     {
         printf ("\nERROR:You must specify the name of project!\n");
-        printf ("Usage: ./pihm [-o -d -v] <project name>\n");
-        printf ("\t-o Output will be written in the \"output\" directory"
-            "and overwrite existing output.\n");
+        printf ("Usage: ./pihm [-o output_dir] [-d] [-v] <project name>\n");
+        printf ("\t-o Specify output directory.\n");
         printf ("\t-v Verbose mode\n");
         printf ("\t-d Debug mode\n");
         PihmExit (1);
@@ -131,7 +122,7 @@ int main (int argc, char *argv[])
     /*
      * Create output directory
      */
-    CreateOutputDir (outputdir, overwrite_mode);
+    CreateOutputDir (outputdir, spec_output_mode);
 #ifdef _ENKF_
     }
 #endif

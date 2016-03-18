@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void CreateOutputDir (char *outputdir, int overwrite_mode)
+void CreateOutputDir (char *outputdir, int spec_output_mode)
 {
     time_t          rawtime;
     struct tm      *timestamp;
@@ -11,24 +11,21 @@ void CreateOutputDir (char *outputdir, int overwrite_mode)
         printf (" Output directory was created.\n\n");
     }
 
-    time (&rawtime);
-    timestamp = localtime (&rawtime);
+    if (!spec_output_mode)
+    {
+        time (&rawtime);
+        timestamp = localtime (&rawtime);
 
-    if (overwrite_mode)
-    {
-        strcpy (outputdir, "output/");
-    }
-    else
-    {
         /* Create output directory based on projectname and time */
         sprintf (str, "%2.2d%2.2d%2.2d%2.2d%2.2d",
             timestamp->tm_year + 1900 - 2000, timestamp->tm_mon + 1,
             timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
         sprintf (outputdir, "output/%s.%s/", project, str);
-        mkdir (outputdir, 0755);
-    }
 
-    printf ("\nOutput directory: %s\n", outputdir);
+        printf ("\nOutput directory: %s\n", outputdir);
+    }
+    
+    mkdir (outputdir, 0755);
 }
 
 void BKInput (char *simulation, char *outputdir)
