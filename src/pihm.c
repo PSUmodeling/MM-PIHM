@@ -30,10 +30,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #endif
 
     /* Number of state variables */
-    if (pihm->ctrl.unsat_mode == DIFF_WAVE)
-    {
-        nsv = 3 * pihm->numele + 2 * pihm->numriv;
-    }
+    nsv = 3 * pihm->numele + 2 * pihm->numriv;
 
     /* Initialize CVode state variables */
     CV_Y = N_VNew_Serial (nsv);
@@ -56,7 +53,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     {
         /* Backup input files */
         BKInput (simulation, outputdir);
-        
+
         /* Initialize output files and structures */
         InitOutputFile (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii);
     }

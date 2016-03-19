@@ -166,7 +166,7 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     wf->pcpdrp = 0.0;
 
     /*
-     * Urban 
+     * Urban
      */
     if (lc->isurban)
     {
@@ -227,7 +227,7 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     lc->shdfac = 1.0 - exp (-0.75 * (ps->xlai));
 
     /*
-     * Initialize precipitation logicals. 
+     * Initialize precipitation logicals.
      */
     snowng = 0;
     frzgra = 0;
@@ -300,7 +300,7 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
         prcpf = wf->prcp;
     }
 
-    /* 
+    /*
      * Determine snowcover and albedo over land.
      */
     if (ws->sneqv == 0.0)
@@ -452,7 +452,7 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
 
     /* Calc virtual temps and virtual potential temps needed by Penman. */
     t2v = es->sfctmp * (1.0 + 0.61 * ps->q2);
-    
+
     Penman (wf, es, ef, ps, &t24, t2v, snowng, frzgra);
 
     /*
@@ -728,7 +728,7 @@ double CSnow (double dsnow)
     //csnow = 0.021 + 2.51 * dsnow * dsnow;
 
     //sncond = UNIT * c;
-    
+
     /* Double snow thermal conductivity */
     sncond = 2.0 * UNIT * c;
 
@@ -832,7 +832,7 @@ void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
         }
     }
 
-    /* Total up evap and transp types to obtain actual evapotransp */ 
+    /* Total up evap and transp types to obtain actual evapotransp */
     wf->etns = wf->edir + wf->ett + wf->ec;
 }
 
@@ -2295,7 +2295,7 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
 
         /* Calc rhstt for this layer after calc'ng its numerator */
         numer = (wdf2 * dsmdz2) + wcnd2 - (wdf * dsmdz) - wcnd + wf->et[k];
-        
+
         numer += avgwf->runoff2_lyr[k];
 
         rhstt[k] = numer / (-denom2);
@@ -2760,7 +2760,7 @@ void Transp (const ws_struct *ws, wf_struct *wf, const ps_struct *ps,
         // * but using the thickness of the soil layer (rather than the
         // * absolute depth of each layer) in the final calculation. */
         //for (k = 0; k < lc->nroot; k++)
-        //{ 
+        //{
         //    gx = (ws->smc[k] - soil->smcwlt ) / (soil->smcref - soil->smcwlt);
         //    gx = (gx < 0.0) ? 0.0 : gx;
         //    gx = (gx > 1.0) ? 1.0 : gx;
@@ -2791,7 +2791,6 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
     double          vkwgt;
     double          satkfunc;
     double          dpsidsm;
-    double          kv[2];
 
     /* Calc the ratio of the actual to the max psbl soil h2o content */
     factr1 = 0.05 / (soil->smcmax - soil->smcmin);
@@ -3062,7 +3061,7 @@ void SfcDifOff (ps_struct *ps, const lc_struct *lc, double t1v, double th2v,
     }
 }
 
-/* 
+/*
  * Note: the two code blocks below define functions
  */
 /* Lech's surface functions */

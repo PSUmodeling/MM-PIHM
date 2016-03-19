@@ -1,12 +1,12 @@
 /*****************************************************************************
- * File		:   lsm_func.c 
+ * File		:   lsm_func.c
  * Function	:   noah related functions
  ****************************************************************************/
 #include "pihm.h"
 
 int FindWT (const double *sldpth, int nsoil, double gw, double *satdpth)
 {
-    int             layer;
+    int             layer = -999;
     int             j;
     double          dsum = 0.0;
     double          depth;
@@ -597,7 +597,7 @@ double AvgElev (elem_struct *elem, int numele)
     {
         elev += elem[i].topo.zmax;
     }
-    
+
     elev /= (double)numele;
 
     return (elev);
@@ -631,7 +631,7 @@ void CalcLatFlx (const ws_struct *ws, const ps_struct *ps, wf_struct *wf)
         for (ks = 0; ks < ps->nsoil; ks++)
         {
             weight[ks] =  ps->satdpth[ks] / sattot;
-            wf->runoff2_lyr[ks] = weight[ks] * wf->runoff2; 
+            wf->runoff2_lyr[ks] = weight[ks] * wf->runoff2;
         }
     }
 }

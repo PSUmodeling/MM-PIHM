@@ -9,7 +9,6 @@ void VerticalFlow (pihm_struct pihm)
     double          psi_u;
     double          h_u;
     double          kinf;
-    double          keff;
     double          kavg;
     double          dt;
     double          deficit;
@@ -204,7 +203,7 @@ double AvgKV (double dmac, double deficit, double gw, double macp_status, double
 double EffKinf (double ksatfunc, double elemsatn, int status, double mackv,
     double kinf, double areaf)
 {
-    double          keff;
+    double          keff = 0.0;
 
     switch (status)
     {
@@ -228,7 +227,7 @@ double EffKinf (double ksatfunc, double elemsatn, int status, double mackv,
 double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
     double kv, double areaf)
 {
-    double          keff;
+    double          keff = 0.0;
 
     switch (status)
     {
@@ -283,4 +282,3 @@ double Psi (double satn, double alpha, double beta)
     return (0.0 - pow (pow (1.0 / satn, beta / (beta - 1.0)) - 1.0,
             1.0 / beta) / alpha);
 }
-

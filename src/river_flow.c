@@ -316,7 +316,7 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
 
 double EqWid (int riv_order, double riv_depth, double riv_coeff)
 {
-    double          eq_wid;
+    double          eq_wid = 0.0;
 
     riv_depth = (riv_depth > 0.0) ? riv_depth : 0.0;
 
@@ -413,7 +413,7 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
 
 double RivArea (int riv_order, double riv_depth, double riv_coeff)
 {
-    double          riv_area;
+    double          riv_area = 0.0;
 
     riv_depth = (riv_depth > 0.0) ? riv_depth : 0.0;
 
@@ -444,7 +444,7 @@ double RivArea (int riv_order, double riv_depth, double riv_coeff)
 
 double RivPerim (int riv_order, double riv_depth, double riv_coeff)
 {
-    double          riv_perim;
+    double          riv_perim = 0.0;
 
     riv_depth = (riv_depth > 0.0) ? riv_depth : 0.0;
 

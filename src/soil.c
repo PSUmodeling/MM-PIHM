@@ -5,7 +5,7 @@ int SoilTex (double silt, double clay)
     /*
      * Define soil texture using USDA Textural Classes
      */
-    int             texture;
+    int             texture = -999;
     double          sand;
 
     silt /= 100.0;
@@ -89,7 +89,7 @@ int SoilTex (double silt, double clay)
 
 double Qtz (int texture)
 {
-    double          qtz;
+    double          qtz = 0.0;
 
     switch (texture)
     {
@@ -191,7 +191,7 @@ double PtfThetaR (double silt, double clay, double om, double bd, int topsoil)
 double PtfAlpha (double silt, double clay, double om, double bd, int topsoil)
 {
     double          alpha;
-    
+
     /* Calcualte alpha in cm */
     alpha = exp(- 14.96 + 0.03135 * clay + 0.0351 * silt + 0.646 * om +
         15.29 * bd - 0.192 * (double)topsoil - 4.671 * bd * bd -
@@ -218,4 +218,3 @@ double PtfBeta (double silt, double clay, double om, double bd, int topsoil)
 
     return (beta);
 }
-
