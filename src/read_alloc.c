@@ -1,16 +1,3 @@
-/*****************************************************************************
- * File        : read_alloc.c
- * Function    : read parameter files
- *----------------------------------------------------------------------------
- *..............MODIFICATIONS/ADDITIONS in PIHM 2.0...........................
- * a) Addition of three new input files: file.calib, file.lc and file.geol
- * b) Declaration and allocation  of new variables for new process, shape
- *    representations  and calibration (e.g. ET, Infiltration, Macropore,
- *    Stormflow, Element beneath river, river shapes, river bed property,
- *    thresholds for root zone, infiltration and macropore depths, land cover
- *    attributes etc)                                                      
- ****************************************************************************/
-
 #include "pihm.h"
 
 void PihmFree (void **ptr)
@@ -29,56 +16,98 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     /*
      * Set file names of the input files
      */
-    sprintf (pihm->filename.riv, "input/%s/%s.riv", project, project);
-    sprintf (pihm->filename.mesh, "input/%s/%s.mesh", project, project);
-    sprintf (pihm->filename.att, "input/%s/%s.att", project, project);
-    sprintf (pihm->filename.soil, "input/%s/%s.soil", project, project);
-    sprintf (pihm->filename.geol, "input/%s/%s.geol", project, project);
-    sprintf (pihm->filename.lc, "input/vegprmt.tbl");
-    sprintf (pihm->filename.forc, "input/%s/%s.forc", project, project);
-    sprintf (pihm->filename.lai, "input/%s/%s.lai", project, project);
-    sprintf (pihm->filename.ibc, "input/%s/%s.ibc", project, project);
-    sprintf (pihm->filename.para, "input/%s/%s.para", project, project);
-    sprintf (pihm->filename.calib, "input/%s/%s.calib", project, simulation);
-    sprintf (pihm->filename.init, "input/%s/%s.init", project, simulation);
+    sprintf (pihm->filename.riv,  "input/%s/%s.riv",   project, project);
+    sprintf (pihm->filename.mesh, "input/%s/%s.mesh",  project, project);
+    sprintf (pihm->filename.att,  "input/%s/%s.att",   project, project);
+    sprintf (pihm->filename.soil, "input/%s/%s.soil",  project, project);
+    sprintf (pihm->filename.geol, "input/%s/%s.geol",  project, project);
+    sprintf (pihm->filename.lc,   "input/vegprmt.tbl");
+    sprintf (pihm->filename.forc, "input/%s/%s.forc",  project, project);
+    sprintf (pihm->filename.lai,  "input/%s/%s.lai",   project, project);
+    sprintf (pihm->filename.ibc,  "input/%s/%s.ibc",   project, project);
+    sprintf (pihm->filename.para, "input/%s/%s.para",  project, project);
+    sprintf (pihm->filename.calib,"input/%s/%s.calib", project, simulation);
+    sprintf (pihm->filename.init, "input/%s/%s.init",  project, simulation);
 #ifdef _NOAH_
-    sprintf (pihm->filename.lsm, "input/%s/%s.lsm", project, project);
-    sprintf (pihm->filename.rad, "input/%s/%s.rad", project, project);
+    sprintf (pihm->filename.lsm,  "input/%s/%s.lsm",   project, project);
+    sprintf (pihm->filename.rad,  "input/%s/%s.rad",   project, project);
 #endif
 
+    /*
+     * Read river input file
+     */
     ReadRiv (pihm->filename.riv, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl,
         &pihm->forc);
     pihm->numriv = pihm->rivtbl.number;
 
+    /*
+     * Read mesh structure input file
+     */
     ReadMesh (pihm->filename.mesh, &pihm->meshtbl);
     pihm->numele = pihm->meshtbl.numele;
 
+    /*
+     * Read attribute table input file
+     */
     ReadAtt (pihm->filename.att, &pihm->atttbl, pihm->numele);
 
+    /*
+     * Read soil input file
+     */
     ReadSoil (pihm->filename.soil, &pihm->soiltbl);
 
-    ReadGeol (pihm->filename.geol, &pihm->geoltbl);
+    /*
+     * Read geology input file
+     */
+    //ReadGeol (pihm->filename.geol, &pihm->geoltbl);
 
+    /*
+     * Read land cover input file
+     */
     ReadLC (pihm->filename.lc, &pihm->lctbl);
 
+    /*
+     * Read meteorological forcing input file
+     */
     ReadForc (pihm->filename.forc, &pihm->forc);
 
+    /*
+     * Read LAI input file
+     */
     ReadLAI (pihm->filename.lai, &pihm->forc, pihm->numele, &pihm->atttbl);
 
-    /* Read source and sink */
+    /*
+     * Read source and sink input file
+     */
     //ReadSS ();
 
+    /*
+     * Read boundary condition input file
+     */
     ReadIbc (pihm->filename.ibc, &pihm->forc);
 
+    /*
+     * Read model control file
+     */
     ReadPara (pihm->filename.para, &pihm->ctrl);
 
+    /*
+     * Read calibration input file
+     */
     ReadCalib (pihm->filename.calib, &pihm->cal);
+
 #ifdef _NOAH_
+    /*
+     * Read LSM input file
+     */
     ReadLsm (pihm->filename.lsm, &pihm->latitude, &pihm->longitude,
         &pihm->ctrl, &pihm->noahtbl);
 
     if (pihm->ctrl.rad_mode == 1)
     {
+        /*
+         * Read radiation input file
+         */
         ReadRad (pihm->filename.rad, &pihm->forc);
     }
 #endif
@@ -108,13 +137,11 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     ReadKeywordInt (cmdstr, "NUMRIV", &rivtbl->number);
 
     /* Allocate */
-    rivtbl->fromnode =
-        (int *)malloc (rivtbl->number * sizeof (int));
+    rivtbl->fromnode = (int *)malloc (rivtbl->number * sizeof (int));
     rivtbl->tonode = (int *)malloc (rivtbl->number * sizeof (int));
     rivtbl->down = (int *)malloc (rivtbl->number * sizeof (int));
     rivtbl->leftele = (int *)malloc (rivtbl->number * sizeof (int));
-    rivtbl->rightele =
-        (int *)malloc (rivtbl->number * sizeof (int));
+    rivtbl->rightele = (int *)malloc (rivtbl->number * sizeof (int));
     rivtbl->shp = (int *)malloc (rivtbl->number * sizeof (int));
     rivtbl->matl = (int *)malloc (rivtbl->number * sizeof (int));
     rivtbl->bc = (int *)malloc (rivtbl->number * sizeof (int));
@@ -136,9 +163,8 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
             &rivtbl->bc[i], &rivtbl->rsvr[i]);
         if (match != 10 || i != index - 1)
         {
-            printf
-                ("Cannot read river segment information for the %dth segment!\n",
-                i + 1);
+            printf ("Cannot read river segment information for the %dth"
+                "segment!\n", i + 1);
             printf (".riv file format error!\n");
             PihmExit (1);
         }
@@ -151,12 +177,9 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     ReadKeywordInt (cmdstr, "SHAPE", &shptbl->number);
 
     /* Allocate */
-    shptbl->depth =
-        (double *)malloc (shptbl->number * sizeof (double));
-    shptbl->intrpl_ord =
-        (int *)malloc (shptbl->number * sizeof (int));
-    shptbl->coeff =
-        (double *)malloc (shptbl->number * sizeof (double));
+    shptbl->depth = (double *)malloc (shptbl->number * sizeof (double));
+    shptbl->intrpl_ord = (int *)malloc (shptbl->number * sizeof (int));
+    shptbl->coeff = (double *)malloc (shptbl->number * sizeof (double));
 
     /* Skip header line */
     NextLine (riv_file, cmdstr);
@@ -184,16 +207,11 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     ReadKeywordInt (cmdstr, "MATERIAL", &matltbl->number);
 
     /* Allocate */
-    matltbl->rough =
-        (double *)malloc (matltbl->number * sizeof (double));
-    matltbl->cwr =
-        (double *)malloc (matltbl->number * sizeof (double));
-    matltbl->ksath =
-        (double *)malloc (matltbl->number * sizeof (double));
-    matltbl->ksatv =
-        (double *)malloc (matltbl->number * sizeof (double));
-    matltbl->bedthick =
-        (double *)malloc (matltbl->number * sizeof (double));
+    matltbl->rough = (double *)malloc (matltbl->number * sizeof (double));
+    matltbl->cwr = (double *)malloc (matltbl->number * sizeof (double));
+    matltbl->ksath = (double *)malloc (matltbl->number * sizeof (double));
+    matltbl->ksatv = (double *)malloc (matltbl->number * sizeof (double));
+    matltbl->bedthick = (double *)malloc (matltbl->number * sizeof (double));
 
     /* Skip header line */
     NextLine (riv_file, cmdstr);
@@ -204,8 +222,7 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
         match = sscanf (cmdstr, "%d %lf %lf %lf %lf %lf",
             &index,
             &matltbl->rough[i], &matltbl->cwr[i],
-            &matltbl->ksath[i], &matltbl->ksatv[i],
-            &matltbl->bedthick[i]);
+            &matltbl->ksath[i], &matltbl->ksatv[i], &matltbl->bedthick[i]);
         if (match != 6 || i != index - 1)
         {
             printf ("Cannot read information for the %dth material!\n",
@@ -258,8 +275,7 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
                 (int *)malloc ((forc->riverbc[i].length) * sizeof (int));
             for (j = 0; j < forc->riverbc[i].length; j++)
             {
-                forc->riverbc[i].data[j] =
-                    (double *)malloc (sizeof (double));
+                forc->riverbc[i].data[j] = (double *)malloc (sizeof (double));
                 NextLine (riv_file, cmdstr);
                 ReadTS (cmdstr, &forc->riverbc[i].ftime[j],
                     &forc->riverbc[i].data[j][0], 1);
@@ -415,11 +431,11 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
     NextLine (soil_file, cmdstr);
     ReadKeywordInt (cmdstr, "NUMSOIL", &soiltbl->number);
 
-    soiltbl->silt = (double *)malloc (soiltbl->number * sizeof(double));
-    soiltbl->clay = (double *)malloc (soiltbl->number * sizeof(double));
-    soiltbl->om = (double *)malloc (soiltbl->number * sizeof(double));
-    soiltbl->bd = (double *)malloc (soiltbl->number * sizeof(double));
-    soiltbl->kinfv = (double *)malloc (soiltbl->number * sizeof(double));
+    soiltbl->silt = (double *)malloc (soiltbl->number * sizeof (double));
+    soiltbl->clay = (double *)malloc (soiltbl->number * sizeof (double));
+    soiltbl->om = (double *)malloc (soiltbl->number * sizeof (double));
+    soiltbl->bd = (double *)malloc (soiltbl->number * sizeof (double));
+    soiltbl->kinfv = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->ksatv = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->ksath = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->smcmax = (double *)malloc (soiltbl->number * sizeof (double));
@@ -444,9 +460,9 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
             &index, &soiltbl->silt[i], &soiltbl->clay[i], &soiltbl->om[i],
             &soiltbl->bd[i],
             &soiltbl->kinfv[i], &soiltbl->ksatv[i], &soiltbl->ksath[i],
-            &soiltbl->smcmax[i], &soiltbl->smcmin[i], 
+            &soiltbl->smcmax[i], &soiltbl->smcmin[i],
             &soiltbl->alpha[i], &soiltbl->beta[i],
-            &soiltbl->areafh[i], &soiltbl->areafv[i], 
+            &soiltbl->areafh[i], &soiltbl->areafv[i],
             &soiltbl->dmac[i], &soiltbl->qtz[i]);
 
         if (match != 16 || i != index - 1)
@@ -511,7 +527,7 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
         }
         if (soiltbl->qtz[i] < 0.0)
         {
-            texture = SoilTex(soiltbl->silt[i], soiltbl->clay[i]);
+            texture = SoilTex (soiltbl->silt[i], soiltbl->clay[i]);
             soiltbl->qtz[i] = Qtz (texture);
             ptf_used = 1;
         }
@@ -530,7 +546,7 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
 
     NextLine (soil_file, cmdstr);
     ReadKeywordDouble (cmdstr, "KMACV_RO", &soiltbl->kmacv_ro);
-    
+
     NextLine (soil_file, cmdstr);
     ReadKeywordDouble (cmdstr, "KMACH_RO", &soiltbl->kmach_ro);
 
@@ -541,7 +557,9 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
             "BETA", "QTZ");
         for (i = 0; i < soiltbl->number; i++)
         {
-            printf ("%-7d\t%-15.3le\t%-15.3le\t%-15.3le\t%-7.3lf\t%-7.3lf\t%-7.3lf\t%-7.3lf\t%-7.3lf\n",
+            printf
+                ("%-7d\t%-15.3le\t%-15.3le\t%-15.3le\t%-7.3lf\t%-7.3lf\t"
+                "%-7.3lf\t%-7.3lf\t%-7.3lf\n",
                 i + 1, soiltbl->kinfv[i], soiltbl->ksatv[i],
                 soiltbl->ksath[i], soiltbl->smcmax[i], soiltbl->smcmin[i],
                 soiltbl->alpha[i], soiltbl->beta[i], soiltbl->qtz[i]);
@@ -691,7 +709,7 @@ void ReadForc (char *filename, forc_struct *forc)
 
     FindLine (forc_file, "BOF");
 
-    forc->nmeteo= CountOccurance (forc_file, "METEO_TS");
+    forc->nmeteo = CountOccurance (forc_file, "METEO_TS");
 
     FindLine (forc_file, "BOF");
     if (forc->nmeteo > 0)
@@ -703,10 +721,11 @@ void ReadForc (char *filename, forc_struct *forc)
         for (i = 0; i < forc->nmeteo; i++)
         {
             match = sscanf (cmdstr, "%*s %d %*s %lf",
-                    &index, &forc->meteo[i].zlvl_wind);
+                &index, &forc->meteo[i].zlvl_wind);
             if (match != 2 || i != index - 1)
             {
-                printf ("Cannot read information of the %dth forcing series!\n",
+                printf
+                    ("Cannot read information of the %dth forcing series!\n",
                     i);
                 printf (".forc file format error!\n");
                 PihmExit (1);
@@ -730,8 +749,7 @@ void ReadForc (char *filename, forc_struct *forc)
             forc->meteo[i].ftime =
                 (int *)malloc (forc->meteo[i].length * sizeof (int));
             forc->meteo[i].data =
-                (double **)malloc (forc->meteo[i].length *
-                sizeof (double *));
+                (double **)malloc (forc->meteo[i].length * sizeof (double *));
             for (j = 0; j < forc->meteo[i].length; j++)
             {
                 forc->meteo[i].data[j] =
@@ -788,7 +806,8 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
                 ReadKeywordInt (cmdstr, "LAI_TS", &index);
                 if (i != index - 1)
                 {
-                    printf ("Cannot read information of the %dth LAI series!\n",
+                    printf
+                        ("Cannot read information of the %dth LAI series!\n",
                         i);
                     printf (".lai file format error!\n");
                     PihmExit (1);
@@ -796,7 +815,8 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
                 /* Skip header lines */
                 NextLine (lai_file, cmdstr);
                 NextLine (lai_file, cmdstr);
-                forc->lai[i].length = CountLine (lai_file, cmdstr, 1, "LAI_TS");
+                forc->lai[i].length =
+                    CountLine (lai_file, cmdstr, 1, "LAI_TS");
             }
 
             /* Rewind and read */
@@ -815,8 +835,7 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
                     sizeof (double *));
                 for (j = 0; j < forc->lai[i].length; j++)
                 {
-                    forc->lai[i].data[j] =
-                        (double *)malloc (sizeof (double));
+                    forc->lai[i].data[j] = (double *)malloc (sizeof (double));
                     NextLine (lai_file, cmdstr);
                     ReadTS (cmdstr, &forc->lai[i].ftime[j],
                         &forc->lai[i].data[j][0], 1);
@@ -1044,7 +1063,8 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     if (ctrl->etstep < ctrl->stepsize || ctrl->etstep % ctrl->stepsize > 0)
     {
         printf
-            ("ERROR: LSM (ET) step size should be an integral multiple of model step size!\n");
+            ("ERROR: LSM (ET) step size should be an integral multiple of"
+            "model step size!\n");
         PihmExit (1);
     }
 }
@@ -1211,7 +1231,7 @@ void ReadInit (char *filename, elem_struct *elem, int numele,
         printf ("\nERROR:.init file size does not match!\n");
         PihmExit (1);
     }
-        
+
     fseek (init_file, 0L, SEEK_SET);
 
     for (i = 0; i < numele; i++)

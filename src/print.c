@@ -194,7 +194,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].wf.fluxriv[0];
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->riv[j].wf.fluxriv[0];
                     }
                     n++;
                     break;
@@ -208,7 +209,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].wf.fluxriv[1];
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->riv[j].wf.fluxriv[1];
                     }
                     n++;
                     break;
@@ -222,7 +224,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].wf.fluxriv[2];
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->riv[j].wf.fluxriv[2];
                     }
                     n++;
                     break;
@@ -236,7 +239,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].wf.fluxriv[3];
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->riv[j].wf.fluxriv[3];
                     }
                     n++;
                     break;
@@ -250,7 +254,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].wf.fluxriv[4];
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->riv[j].wf.fluxriv[4];
                     }
                     n++;
                     break;
@@ -264,7 +269,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].wf.fluxriv[5];
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->riv[j].wf.fluxriv[5];
                     }
                     n++;
                     break;
@@ -278,7 +284,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].wf.fluxriv[6];
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->riv[j].wf.fluxriv[6];
                     }
                     n++;
                     break;
@@ -292,7 +299,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].wf.fluxriv[7];
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->riv[j].wf.fluxriv[7];
                     }
                     n++;
                     break;
@@ -306,7 +314,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].wf.fluxriv[8];
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->riv[j].wf.fluxriv[8];
                     }
                     n++;
                     break;
@@ -320,7 +329,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].wf.fluxriv[9];
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->riv[j].wf.fluxriv[9];
                     }
                     n++;
                     break;
@@ -334,7 +344,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].wf.fluxriv[10];
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->riv[j].wf.fluxriv[10];
                     }
                     n++;
                     break;
@@ -401,7 +412,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                             sizeof (double *));
                         for (j = 0; j < pihm->numele; j++)
                         {
-                            pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].es.stc[k];
+                            pihm->prtctrl[n].vrbl[j] =
+                                &pihm->elem[j].es.stc[k];
                         }
                         n++;
                     }
@@ -418,7 +430,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                             sizeof (double *));
                         for (j = 0; j < pihm->numele; j++)
                         {
-                            pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.smc[k];
+                            pihm->prtctrl[n].vrbl[j] =
+                                &pihm->elem[j].ws.smc[k];
                         }
                         n++;
                     }
@@ -435,7 +448,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                             sizeof (double *));
                         for (j = 0; j < pihm->numele; j++)
                         {
-                            pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.sh2o[k];
+                            pihm->prtctrl[n].vrbl[j] =
+                                &pihm->elem[j].ws.sh2o[k];
                         }
                         n++;
                     }
@@ -592,7 +606,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
     for (i = 0; i < pihm->ctrl.nprint; i++)
     {
         pihm->prtctrl[i].buffer =
-            (double *) calloc (pihm->prtctrl[i].nvrbl, sizeof (double));
+            (double *)calloc (pihm->prtctrl[i].nvrbl, sizeof (double));
     }
 }
 
@@ -653,13 +667,15 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
                 }
                 fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
                     timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-                    timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+                    timestamp->tm_mday, timestamp->tm_hour,
+                    timestamp->tm_min);
                 for (j = 0; j < prtctrl[i].nvrbl; j++)
                 {
                     if (prtctrl[i].intvl > dt)
                     {
                         fprintf (fid, "\t%lf",
-                            prtctrl[i].buffer[j] / ((double)(prtctrl[i].intvl / dt)));
+                            prtctrl[i].buffer[j] /
+                            ((double)(prtctrl[i].intvl / dt)));
                     }
                     else
                     {
@@ -675,18 +691,20 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
             fid = fopen (dat_fn, "ab");
             if (NULL == fid)
             {
-                printf ("ERROR: opening output files (.%s)!\n", prtctrl[i].name);
+                printf ("ERROR: opening output files (.%s)!\n",
+                    prtctrl[i].name);
                 PihmExit (1);
             }
 
-            outtime = (double) t;
+            outtime = (double)t;
             fwrite (&outtime, sizeof (double), 1, fid);
             for (j = 0; j < prtctrl[i].nvrbl; j++)
             {
                 if (prtctrl[i].intvl > dt)
                 {
                     outval =
-                        prtctrl[i].buffer[j] / ((double)(prtctrl[i].intvl / dt));
+                        prtctrl[i].buffer[j] / ((double)(prtctrl[i].intvl /
+                            dt));
                 }
                 else
                 {

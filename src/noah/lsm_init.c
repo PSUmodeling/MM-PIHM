@@ -1,7 +1,3 @@
-/*****************************************************************************
- * File		:   lsm_init.c 
- * Function	:   Noah initialization functions
- ****************************************************************************/
 #include "pihm.h"
 
 void InitLsm (elem_struct *elem, int numele, ctrl_struct ctrl,
@@ -22,7 +18,8 @@ void InitLsm (elem_struct *elem, int numele, ctrl_struct ctrl,
             FindLayer (elem[i].ps.sldpth, elem[i].ps.nsoil,
             elem[i].soil.dmac);
 
-        elem[i].lc.nroot = FindLayer (elem[i].ps.sldpth, elem[i].ps.nsoil, elem[i].lc.rzd);
+        elem[i].lc.nroot =
+            FindLayer (elem[i].ps.sldpth, elem[i].ps.nsoil, elem[i].lc.rzd);
 
         RootDist (elem[i].ps.sldpth, elem[i].ps.nsoil, elem[i].lc.nroot,
             elem[i].lc.rtdis);
@@ -38,7 +35,8 @@ void InitLsm (elem_struct *elem, int numele, ctrl_struct ctrl,
         elem[i].ps.tbot = noahtbl.tbot;
 
         /* To adjust frzk parameter to actual soil type */
-        frzfact = (elem[i].soil.smcmax / elem[i].soil.smcref) * (0.412 / 0.468);
+        frzfact =
+            (elem[i].soil.smcmax / elem[i].soil.smcref) * (0.412 / 0.468);
         elem[i].ps.frzx = elem[i].ps.frzk * frzfact;
     }
 }

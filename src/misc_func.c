@@ -24,7 +24,7 @@ void CreateOutputDir (char *outputdir, int spec_output_mode)
 
         printf ("\nOutput directory: %s\n", outputdir);
     }
-    
+
     mkdir (outputdir, 0755);
 }
 
@@ -58,8 +58,8 @@ void BKInput (char *simulation, char *outputdir)
     sprintf (source_file, "input/%s/%s.calib", project, simulation);
     if (access (source_file, F_OK) != -1)
     {
-        sprintf (system_cmd, "cp %s ./%s/%s.calib.bak", source_file, outputdir,
-            simulation);
+        sprintf (system_cmd, "cp %s ./%s/%s.calib.bak", source_file,
+            outputdir, simulation);
         system (system_cmd);
     }
     sprintf (source_file, "input/%s/%s.init", project, simulation);

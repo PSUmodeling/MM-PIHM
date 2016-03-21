@@ -11,7 +11,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     N_Vector        CV_Y;       /* State Variables Vector */
     void           *cvode_mem;  /* Model Data Pointer */
     int             nsv;        /* Problem size */
-    int             i;       /* Loop index */
+    int             i;          /* Loop index */
     int             t;          /* Simulation time */
 
     /* Allocate memory for model data structure */
@@ -96,14 +96,13 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         /*
          * Use mass balance to calculate model fluxes or variables
          */
-        Summary (pihm, CV_Y, (double) pihm->ctrl.stepsize);
+        Summary (pihm, CV_Y, (double)pihm->ctrl.stepsize);
 
         /*
          * Print outputs
          */
         PrintData (pihm->prtctrl, pihm->ctrl.nprint, t,
-            t - pihm->ctrl.starttime, pihm->ctrl.stepsize,
-            pihm->ctrl.ascii);
+            t - pihm->ctrl.starttime, pihm->ctrl.stepsize, pihm->ctrl.ascii);
     }
 
     /*
@@ -129,15 +128,16 @@ void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     int             flag;
 
     flag = CVodeSetFdata (cvode_mem, pihm);
-    flag = CVodeSetInitStep (cvode_mem, (realtype)pihm->ctrl.initstep);
+    flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
     flag = CVodeSetStabLimDet (cvode_mem, TRUE);
-    flag = CVodeSetMaxStep (cvode_mem, (realtype)pihm->ctrl.maxstep);
-    flag = CVodeMalloc (cvode_mem, Hydrol, (realtype)pihm->ctrl.starttime,
-        CV_Y, CV_SS, (realtype)pihm->ctrl.reltol, &pihm->ctrl.abstol);
+    flag = CVodeSetMaxStep (cvode_mem, (realtype) pihm->ctrl.maxstep);
+    flag = CVodeMalloc (cvode_mem, Hydrol, (realtype) pihm->ctrl.starttime,
+        CV_Y, CV_SS, (realtype) pihm->ctrl.reltol, &pihm->ctrl.abstol);
     flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
 }
 
-void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem, N_Vector CV_Y)
+void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
+    N_Vector CV_Y)
 {
     realtype        solvert;
     realtype        cvode_val;
@@ -145,32 +145,30 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem, N_Vector CV
     time_t          rawtime;
     int             flag;
 
-    solvert = (realtype)(*t);
+    solvert = (realtype) (*t);
 
     flag = CVodeSetMaxNumSteps (cvode_mem, (long int)(stepsize * 20));
-    flag = CVodeSetStopTime (cvode_mem, (realtype)nextptr);
-    flag = CVode (cvode_mem, (realtype)nextptr, CV_Y, &solvert,
-            CV_NORMAL_TSTOP);
+    flag = CVodeSetStopTime (cvode_mem, (realtype) nextptr);
+    flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert,
+        CV_NORMAL_TSTOP);
     flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
 
     *t = (int)solvert;
-    rawtime = (time_t)(*t);
+    rawtime = (time_t) (*t);
     timestamp = gmtime (&rawtime);
 
     if (verbose_mode)
     {
         printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
             timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min,
-            *t);
+            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, *t);
     }
 #ifndef _ENKF_
     else if (rawtime % 3600 == 0)
     {
         printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
             timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-            timestamp->tm_mday, timestamp->tm_hour,
-            timestamp->tm_min);
+            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
     }
 #endif
 }

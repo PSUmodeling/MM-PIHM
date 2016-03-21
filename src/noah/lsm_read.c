@@ -1,7 +1,3 @@
-/*****************************************************************************
- * File		:   lsm_read.c 
- * Function	:   Read LSM input files
- ****************************************************************************/
 #include "pihm.h"
 
 void ReadLsm (char *filename, double *latitude, double *longitude,
@@ -46,7 +42,9 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
 
     for (i = 0; i < ctrl->nsoil; i++)
     {
-        match = sscanf (buffer + bytes_consumed, "%lf%n", &ctrl->sldpth[i], &bytes_now);
+        match =
+            sscanf (buffer + bytes_consumed, "%lf%n", &ctrl->sldpth[i],
+            &bytes_now);
         if (match != 1)
         {
             printf ("ERROR: .lsm input format error!\n");
@@ -147,13 +145,13 @@ void ReadRad (char *filename, forc_struct *forc)
 
     if (forc->nrad != forc->nmeteo)
     {
-        printf ("The number of radiation forcing time series should be the same as the number of meteorlogical forcing time series!\n");
+        printf
+            ("The number of radiation forcing time series should be the same as the number of meteorlogical forcing time series!\n");
         printf (".rad file format error!\n");
         PihmExit (1);
     }
 
-    forc->rad =
-        (tsdata_struct *)malloc (forc->nrad * sizeof (tsdata_struct));
+    forc->rad = (tsdata_struct *)malloc (forc->nrad * sizeof (tsdata_struct));
 
     FindLine (rad_file, "BOF");
 
@@ -200,4 +198,3 @@ void ReadRad (char *filename, forc_struct *forc)
 
     fclose (rad_file);
 }
-

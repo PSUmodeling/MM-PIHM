@@ -16,7 +16,7 @@ void VerticalFlow (pihm_struct pihm)
     double          wetfrac;
     elem_struct    *elem;
 
-    dt = (double) pihm->ctrl.stepsize;
+    dt = (double)pihm->ctrl.stepsize;
 
     for (i = 0; i < pihm->numele; i++)
     {
@@ -24,7 +24,9 @@ void VerticalFlow (pihm_struct pihm)
 
         applrate = elem->wf.netprcp + elem->ws.surf / dt;
 
-        wetfrac = (elem->ws.surf > DEPRSTG) ? 1.0 : ((elem->ws.surf < 0.0) ? 0.0 : pow (elem->ws.surf / DEPRSTG, 2.0));
+        wetfrac =
+            (elem->ws.surf > DEPRSTG) ? 1.0 : ((elem->ws.surf <
+                0.0) ? 0.0 : pow (elem->ws.surf / DEPRSTG, 2.0));
 
         if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
         {
@@ -32,7 +34,8 @@ void VerticalFlow (pihm_struct pihm)
             dh_by_dz =
                 (elem->ws.surf + elem->topo.zmax - (elem->ws.gw +
                     elem->topo.zmin)) / elem->soil.dinf;
-            dh_by_dz = (elem->ws.surf < 0.0 && dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
+            dh_by_dz = (elem->ws.surf < 0.0 &&
+                dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
             dh_by_dz = (dh_by_dz < 1.0 && dh_by_dz > 0.0) ? 1.0 : dh_by_dz;
 
             satn = 1.0;
@@ -65,7 +68,8 @@ void VerticalFlow (pihm_struct pihm)
             elem->wf.infil = kinf * dh_by_dz;
 
             /* Note: infiltration can be negative in this case */
-            elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
+            elem->wf.infil =
+                (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
 
             elem->wf.infil *= wetfrac;
 
@@ -95,9 +99,11 @@ void VerticalFlow (pihm_struct pihm)
             psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
 
             h_u = psi_u + elem->topo.zmax - 0.5 * elem->soil.dinf;
-            dh_by_dz = (0.5 * elem->ws.surf + elem->topo.zmax - h_u) / (0.5 * (elem->ws.surf + elem->soil.dinf));
-            dh_by_dz = (elem->ws.surf < 0.0 && dh_by_dz > 0.0) ?
-                0.0 : dh_by_dz;
+            dh_by_dz =
+                (0.5 * elem->ws.surf + elem->topo.zmax -
+                h_u) / (0.5 * (elem->ws.surf + elem->soil.dinf));
+            dh_by_dz = (elem->ws.surf < 0.0 &&
+                dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
 
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
 
@@ -117,7 +123,8 @@ void VerticalFlow (pihm_struct pihm)
 
             elem->wf.infil = kinf * dh_by_dz;
 
-            elem->wf.infil = (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
+            elem->wf.infil =
+                (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
             elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
 
             elem->wf.infil *= wetfrac;
@@ -148,14 +155,17 @@ void VerticalFlow (pihm_struct pihm)
 
             psi_u = Psi (satn, elem->soil.alpha, elem->soil.beta);
 
-            dh_by_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + elem->ws.gw));
+            dh_by_dz =
+                (0.5 * deficit + psi_u) / (0.5 * (deficit + elem->ws.gw));
 
             //kavg = 1.0 / (deficit / effk[KMTX] + elem->ws.gw / elem->soil.ksatv);
             //kavg = (deficit * keff + elem->ws.gw * elem->soil.ksatv) / (deficit + elem->ws.gw);
-            kavg = AvgKV (elem->soil.dmac, deficit, elem->ws.gw, elem->ps.macpore_status, satn, satkfunc, elem->soil.kmacv, elem->soil.ksatv, elem->soil.areafh);
+            kavg =
+                AvgKV (elem->soil.dmac, deficit, elem->ws.gw,
+                elem->ps.macpore_status, satn, satkfunc, elem->soil.kmacv,
+                elem->soil.ksatv, elem->soil.areafh);
 
-            elem->wf.rechg = (deficit <= 0.0) ? 0.0 :
-                kavg * dh_by_dz;
+            elem->wf.rechg = (deficit <= 0.0) ? 0.0 : kavg * dh_by_dz;
 
             elem->wf.rechg = (elem->wf.rechg > 0.0 &&
                 elem->ws.unsat <= 0.0) ? 0.0 : elem->wf.rechg;
@@ -165,7 +175,8 @@ void VerticalFlow (pihm_struct pihm)
     }
 }
 
-double AvgKV (double dmac, double deficit, double gw, double macp_status, double satn, double satkfunc, double kmacv, double ksatv, double areafh)
+double AvgKV (double dmac, double deficit, double gw, double macp_status,
+    double satn, double satkfunc, double kmacv, double ksatv, double areafh)
 {
     double          k1, k2, k3;
     double          d1, d2, d3;
@@ -211,7 +222,9 @@ double EffKinf (double ksatfunc, double elemsatn, int status, double mackv,
             keff = kinf * ksatfunc;
             break;
         case APP_CTRL:
-            keff = kinf * (1.0 - areaf) * ksatfunc + mackv * areaf * KrFunc (10.0, 2.0, elemsatn);
+            keff =
+                kinf * (1.0 - areaf) * ksatfunc +
+                mackv * areaf * KrFunc (10.0, 2.0, elemsatn);
             break;
         case MAC_CTRL:
             keff = kinf * (1.0 - areaf) * ksatfunc + mackv * areaf;
@@ -235,7 +248,7 @@ double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
             keff = kv * ksatfunc;
             break;
         case APP_CTRL:
-            keff = kv * (1.0 - areaf) * ksatfunc + mackv * areaf * ksatfunc;//KrFunc (10.0, 2.0, elemsatn);
+            keff = kv * (1.0 - areaf) * ksatfunc + mackv * areaf * ksatfunc;    //KrFunc (10.0, 2.0, elemsatn);
             break;
         case MAC_CTRL:
             keff = kv * (1.0 - areaf) * ksatfunc + mackv * areaf;
@@ -254,8 +267,8 @@ double KrFunc (double alpha, double beta, double satn)
                     beta / (beta - 1.0)), (beta - 1.0) / beta), 2));
 }
 
-int MacroporeStatus (double dh_by_dz, double ksatfunc, double elemsatn, double applrate,
-    double mackv, double kv, double areaf)
+int MacroporeStatus (double dh_by_dz, double ksatfunc, double elemsatn,
+    double applrate, double mackv, double kv, double areaf)
 {
     dh_by_dz = (dh_by_dz < 1.0) ? 1.0 : dh_by_dz;
 
@@ -265,7 +278,8 @@ int MacroporeStatus (double dh_by_dz, double ksatfunc, double elemsatn, double a
     }
     else
     {
-        if (applrate < dh_by_dz * (mackv * areaf + kv * (1.0 - areaf) * ksatfunc))
+        if (applrate <
+            dh_by_dz * (mackv * areaf + kv * (1.0 - areaf) * ksatfunc))
         {
             return (APP_CTRL);
         }

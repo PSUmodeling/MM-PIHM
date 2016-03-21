@@ -2,8 +2,8 @@
 #define BGC_FUNC_H
 
 void            BgcRead (char *filename, bgc_struct bgc, pihm_struct pihm);
-void            ReadAnnFile (ts_struct *ts, char *fn);
-void            ReadBinFile (ts_struct *ts, char *fn, int numele);
+void            ReadAnnFile (ts_struct * ts, char *fn);
+void            ReadBinFile (ts_struct * ts, char *fn, int numele);
 void            BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah,
     bgc_struct bgc);
 void            MapBgcOutput (char *simulation, bgc_struct bgc, int numele,
@@ -12,14 +12,17 @@ void            BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm,
     lsm_struct noah, char *outputdir);
 void            BgcCoupling (int t, int start_time, pihm_struct pihm,
     lsm_struct noah, bgc_struct bgc);
-void            Bgc2Noah (int t, pihm_struct pihm, lsm_struct noah, bgc_struct bgc);
-void            DailyBgc (bgc_struct bgc, int numele, int numriv, int t, int simstart,
-    const double *naddfrac, int first_balance);
+void            Bgc2Noah (int t, pihm_struct pihm, lsm_struct noah,
+    bgc_struct bgc);
+void            DailyBgc (bgc_struct bgc, int numele, int numriv, int t,
+    int simstart, const double *naddfrac, int first_balance);
 
 void            daymet (const metarr_struct * metarr, metvar_struct * metv,
     int metday);
-void            metarr_init (bgc_struct bgc, pihm_struct pihm, int start_time, int end_time);
-void            pihm2metarr (bgc_struct bgc, pihm_struct pihm, int t, int start_time, int end_time);
+void            metarr_init (bgc_struct bgc, pihm_struct pihm, int start_time,
+    int end_time);
+void            pihm2metarr (bgc_struct bgc, pihm_struct pihm, int t,
+    int start_time, int end_time);
 
 void            presim_state_init (wstate_struct * ws, cstate_struct * cs,
     nstate_struct * ns, cinit_struct * cinit);
@@ -82,9 +85,12 @@ void            csummary (cflux_struct * cf, cstate_struct * cs,
     summary_struct * summary);
 double          GetCO2 (ts_struct co2_ts, int t);
 double          GetNdep (ts_struct ndep_ts, int t);
-void nleaching (bgc_grid *grid, int numele, bgc_river *riv, int numriv);
-void nleaching_nt (bgc_grid *grid, int numele, bgc_river *riv, int numriv);
+void            nleaching (bgc_grid * grid, int numele, bgc_river * riv,
+    int numriv);
+void            nleaching_nt (bgc_grid * grid, int numele, bgc_river * riv,
+    int numriv);
 
 
-void DailyVar (int t, int start_time, pihm_struct pihm, lsm_struct noah);
+void            DailyVar (int t, int start_time, pihm_struct pihm,
+    lsm_struct noah);
 #endif

@@ -84,7 +84,7 @@ void NextLine (FILE * fid, char *cmdstr)
     {
         if (fgets (cmdstr, MAXSTRING, fid) == NULL)
         {
-            strcpy(cmdstr, "EOF");
+            strcpy (cmdstr, "EOF");
             break;
         }
 
@@ -97,7 +97,6 @@ int CountLine (FILE * fid, char *cmdstr, int num_arg, ...)
      * Count number of non-blank lines between current location to where
      * token occurs
      */
-
     va_list         valist;
     char            optstr[MAXSTRING];
     char            token[MAXSTRING];
@@ -139,36 +138,6 @@ int CountLine (FILE * fid, char *cmdstr, int num_arg, ...)
 
     return (count);
 }
-
-//int CountOccurance (FILE *fid, char *token)
-//{
-//    /*
-//     * Count number of occurance of keyword from the current line to the end
-//     * of file
-//     */
-//
-//    char            cmdstr[MAXSTRING];
-//    char            optstr[MAXSTRING];
-//    int             count;
-//
-//    /* Initialize cmdstr */
-//    strcpy (cmdstr, "\0");
-//    count = 0;
-//
-//    while (!feof (fid))
-//    {
-//        if (Readable (cmdstr))
-//        {
-//            sscanf (cmdstr, "%s", optstr);
-//            if (strcasecmp (token, optstr) == 0)
-//                count++;
-//        }
-//        
-//        fgets (cmdstr, MAXSTRING, fid);
-//    }
-//
-//    return (count);
-//}
 
 void CheckFile (FILE * fid, char *fn)
 {
@@ -214,11 +183,11 @@ void ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
     }
     else
     {
-        match = sscanf (cmdstr + bytes_consumed, "%d-%d-%d %d:%d%n", 
+        match = sscanf (cmdstr + bytes_consumed, "%d-%d-%d %d:%d%n",
             &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
             &timeinfo->tm_hour, &timeinfo->tm_min, &bytes_now);
         bytes_consumed += bytes_now;
-        
+
         if (match != 5)
         {
             printf ("ERROR: Forcing format error!\n");
@@ -227,7 +196,9 @@ void ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
 
         for (i = 0; i < nvrbl; i++)
         {
-            match = sscanf (cmdstr + bytes_consumed, "%lf%n", &data[i], &bytes_now);
+            match =
+                sscanf (cmdstr + bytes_consumed, "%lf%n", &data[i],
+                &bytes_now);
             if (match != 1)
             {
                 printf ("ERROR: Forcing format error!\n");
@@ -309,7 +280,7 @@ void ReadKeywordStr (char *buffer, char *keyword, char *value)
     }
 }
 
-int CountOccurance (FILE *fid, char *token)
+int CountOccurance (FILE * fid, char *token)
 {
     /*
      * Count number of occurance of keyword from the current line to the end
@@ -332,7 +303,7 @@ int CountOccurance (FILE *fid, char *token)
             if (strcasecmp (token, optstr) == 0)
                 count++;
         }
-        
+
         fgets (cmdstr, MAXSTRING, fid);
     }
 

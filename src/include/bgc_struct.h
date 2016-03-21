@@ -20,9 +20,9 @@ typedef struct
     int             write_restart;      /* flag to write restart file */
     int             keep_metyr; /* (flag) 1=retain restart metyr, 0=reset metyr */
     int             onscreen;   /* (flag) 1=show progress on-screen 0=don't */
-    int             spinupstartyear;/* first met year for spinup */
-    int             spinupendyear;  /* last met year for spinup */
-    int             spinupstart;/* start time of spinup */
+    int             spinupstartyear;    /* first met year for spinup */
+    int             spinupendyear;      /* last met year for spinup */
+    int             spinupstart;        /* start time of spinup */
     int             spinupend;  /* end time of spinup */
 
     int             nprint;

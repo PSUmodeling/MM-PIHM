@@ -1,7 +1,3 @@
-/*****************************************************************************
- * File		:   lsm_func.c
- * Function	:   noah related functions
- ****************************************************************************/
 #include "pihm.h"
 
 int FindWT (const double *sldpth, int nsoil, double gw, double *satdpth)
@@ -112,8 +108,7 @@ double TopoRadn (double sdir, double sdif, double zenith,
     gvf = (gvf < 0.0) ? 0.0 : gvf;
 
     soldown = sdir * cos (incidence * PI / 180.0) +
-        svf * sdif +
-        0.2 * gvf * (sdir * cos (zenith * PI / 180.0) + sdif);
+        svf * sdif + 0.2 * gvf * (sdir * cos (zenith * PI / 180.0) + sdif);
     soldown = soldown < 0.0 ? 0.0 : soldown;
 
     return (soldown);
@@ -254,7 +249,8 @@ void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
             elem[i].topo.aspect = 360.0 - elem[i].topo.aspect;
         }
 
-        elem[i].topo.aspect = Mod (360.0 - elem[i].topo.aspect + 270.0, 360.0);
+        elem[i].topo.aspect =
+            Mod (360.0 - elem[i].topo.aspect + 270.0, 360.0);
 
         /*
          * Calculate sky view factor (Dozier and Frew 1990)
@@ -301,7 +297,8 @@ void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
                 vector[XCOMP] = xc - elem[i].topo.x;
                 vector[YCOMP] = yc - elem[i].topo.y;
                 vector[ZCOMP] = zc - elem[i].topo.zmax;
-                c = sqrt (vector[XCOMP] * vector[XCOMP] + vector[YCOMP] * vector[YCOMP]);
+                c = sqrt (vector[XCOMP] * vector[XCOMP] +
+                    vector[YCOMP] * vector[YCOMP]);
                 /* Unobstructed angle of the kth edge of the jth grid */
                 h = atan (c / vector[ZCOMP]) * 180.0 / PI;
                 h = (h < 0.0) ? 90.0 : h;
@@ -390,8 +387,8 @@ void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
 
         if (verbose_mode)
         {
-            printf ("ele: slope = %lf, aspect = %lf, svf = %lf\t", elem[i].topo.slope,
-                elem[i].topo.aspect, elem[i].topo.svf);
+            printf ("ele: slope = %lf, aspect = %lf, svf = %lf\t",
+                elem[i].topo.slope, elem[i].topo.aspect, elem[i].topo.svf);
             for (ind = 0; ind < 36; ind++)
             {
                 printf ("%lf\t", elem[i].topo.h_phi[ind]);
@@ -445,14 +442,15 @@ void RootDist (const double *sldpth, int nsoil, int nroot, double *rtdis)
     }
 }
 
-void SunPos (int t, double latitude, double longitude, double elevation, double tmp, double *zenith, double *azimuth)
+void SunPos (int t, double latitude, double longitude, double elevation,
+    double tmp, double *zenith, double *azimuth)
 {
     spa_data        spa;
     int             spa_result;
     time_t          rawtime;
     struct tm      *timestamp;
 
-    rawtime = (time_t)t;
+    rawtime = (time_t) t;
     timestamp = gmtime (&rawtime);
 
     spa.year = timestamp->tm_year + 1900;
@@ -630,7 +628,7 @@ void CalcLatFlx (const ws_struct *ws, const ps_struct *ps, wf_struct *wf)
     {
         for (ks = 0; ks < ps->nsoil; ks++)
         {
-            weight[ks] =  ps->satdpth[ks] / sattot;
+            weight[ks] = ps->satdpth[ks] / sattot;
             wf->runoff2_lyr[ks] = weight[ks] * wf->runoff2;
         }
     }

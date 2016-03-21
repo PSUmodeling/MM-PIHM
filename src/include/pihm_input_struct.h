@@ -128,7 +128,7 @@ typedef struct geoltbl_struct
     double         *ksatv;      /* vertical saturated geology
                                  * conductivity */
     double         *smcmax;     /* geology porosity */
-    double         *smcmin;    /* residual porosity */
+    double         *smcmin;     /* residual porosity */
     double         *alpha;      /* van genuchten parameter */
     double         *beta;       /* van genuchten parameter */
 } geoltbl_struct;

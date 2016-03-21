@@ -1,7 +1,3 @@
-/*****************************************************************************
- * File		: update.c
- * Function	: Update variables during simulation
- ****************************************************************************/
 #include "pihm.h"
 
 void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
@@ -24,9 +20,9 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
     {
         elem = &pihm->elem[i];
 
-        elem->ws.surf = y[SURF(i)];
-        elem->ws.unsat = y[UNSAT(i)];
-        elem->ws.gw = y[GW(i)];
+        elem->ws.surf = y[SURF (i)];
+        elem->ws.unsat = y[UNSAT (i)];
+        elem->ws.gw = y[GW (i)];
 
         /*
          * Calculate infiltration based on mass conservation
@@ -75,7 +71,8 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         elemsatn1 = (elemsatn1 > 0.0) ? 0.0 : elemsatn1;
         realunsat1 = elemsatn1 * wtd1;
 
-        realgw1 = (elem->ws.gw > elem->soil.depth) ? elem->soil.depth : elem->ws.gw;
+        realgw1 =
+            (elem->ws.gw > elem->soil.depth) ? elem->soil.depth : elem->ws.gw;
 
         soilw1 = elem->ws.gw + elem->ws.unsat;
         soilw1 = (soilw1 > elem->soil.depth) ? elem->soil.depth : soilw1;
@@ -94,7 +91,8 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
             subrunoff + elem->wf.edir_gw + elem->wf.ett_gw;
 
         elem->wf.infil = (soilw1 - soilw0) * elem->soil.porosity / stepsize +
-            subrunoff + elem->wf.edir_unsat + elem->wf.edir_gw + elem->wf.ett_unsat + elem->wf.ett_gw;
+            subrunoff + elem->wf.edir_unsat + elem->wf.edir_gw +
+            elem->wf.ett_unsat + elem->wf.ett_gw;
 
         if (elem->wf.infil < 0.0)
         {
@@ -113,8 +111,8 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
     {
         riv = &pihm->riv[i];
 
-        riv->ws.stage = y[RIVSTG(i)];
-        riv->ws.gw = y[RIVGW(i)];
+        riv->ws.stage = y[RIVSTG (i)];
+        riv->ws.gw = y[RIVGW (i)];
 
         riv->ws0 = riv->ws;
     }

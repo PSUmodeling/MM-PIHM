@@ -242,7 +242,7 @@ typedef struct ws_struct
     double          unsat;
     double          sneqv;      /* liquid water-equivalent snow depth (m). note: snow density = sneqv/snowh */
     double          cmcmax;     /* maximum canopy water capacity */
-    double          cmc;      /* Interception storage */
+    double          cmc;        /* Interception storage */
 #ifdef _NOAH_
     double          smc[MAXLYR];        /* total soil moisture content (volumetric fraction) */
     double          sh2o[MAXLYR];       /* unfrozen soil moisture content (volumetric fraction). note: frozen soil moisture = smc - sh2o */

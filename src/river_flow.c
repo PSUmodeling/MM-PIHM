@@ -34,7 +34,7 @@ void RiverFlow (pihm_struct pihm)
     double          avg_wid;
     double          dt;
 
-    dt = (double) pihm->ctrl.stepsize;
+    dt = (double)pihm->ctrl.stepsize;
 
     /*
      * Lateral flux calculation between river-river and river-triangular
@@ -54,7 +54,8 @@ void RiverFlow (pihm_struct pihm)
             /* Lateral flux calculation between river-river element */
             total_y_down = down->ws.stage + down->topo.zbed;
             perim_down =
-                RivPerim (down->shp.intrpl_ord, down->ws.stage, down->shp.coeff);
+                RivPerim (down->shp.intrpl_ord, down->ws.stage,
+                down->shp.coeff);
             avg_perim = (perim + perim_down) / 2.0;
             avg_rough = (riv->matl.rough + down->matl.rough) / 2.0;
             distance = 0.5 * (riv->shp.length + down->shp.length);
@@ -67,7 +68,8 @@ void RiverFlow (pihm_struct pihm)
             crossa =
                 RivArea (riv->shp.intrpl_ord, riv->ws.stage, riv->shp.coeff);
             crossa_down =
-                RivArea (down->shp.intrpl_ord, down->ws.stage, down->shp.coeff);
+                RivArea (down->shp.intrpl_ord, down->ws.stage,
+                down->shp.coeff);
             avg_crossa = 0.5 * (crossa + crossa_down);
             avg_y = (avg_perim == 0.0) ? 0.0 : (avg_crossa / avg_perim);
             riv->wf.fluxriv[1] =
@@ -203,7 +205,9 @@ void RiverFlow (pihm_struct pihm)
         }
         else
         {
-            dif_y = riv->ws.stage + riv->topo.zbed - (riv->ws.gw + riv->topo.zmin);
+            dif_y =
+                riv->ws.stage + riv->topo.zbed - (riv->ws.gw +
+                riv->topo.zmin);
         }
         grad_y = dif_y / riv->matl.bedthick;
         riv->wf.fluxriv[6] =
@@ -233,7 +237,8 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
         riv->matl.cwr, riv->topo.zmax, total_y, riv->shp.length);
 
     /* Lateral subsurface flux calculation between river-triangular element */
-    dif_y_sub = (riv->ws.stage + riv->topo.zbed) - (elem->ws.gw + elem->topo.zmin);
+    dif_y_sub =
+        (riv->ws.stage + riv->topo.zbed) - (elem->ws.gw + elem->topo.zmin);
     /* This is head at river edge representation */
     //avg_y_sub = ((md->riv[i].zmax-(md->ele[md->riv[i].leftele-1].zmax-md->ele[md->riv[i].leftele-1].zmin)+md->dummyy[md->riv[i].leftele-1 + 2*md->numele])>md->riv[i].zmin)?((md->riv[i].zmax-(md->ele[md->riv[i].leftele-1].zmax-md->ele[md->riv[i].leftele-1].zmin)+md->dummyy[md->riv[i].leftele-1 + 2*md->numele])-md->riv[i].zmin):0;
     /* This is head in neighboring cell represention */
@@ -265,7 +270,8 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
 
     /* Lateral flux between rectangular element (beneath river) and triangular
      * element */
-    dif_y_sub = (riv->ws.gw + riv->topo.zmin) - (elem->ws.gw + elem->topo.zmin);
+    dif_y_sub =
+        (riv->ws.gw + riv->topo.zmin) - (elem->ws.gw + elem->topo.zmin);
     /* This is head at river edge representation */
     //avg_y_sub = ((md->riv[i].zmax-(md->ele[md->riv[i].leftele-1].zmax-md->ele[md->riv[i].leftele-1].zmin)+md->dummyy[md->riv[i].leftele-1 + 2*md->numele])>md->riv[i].zmin)?md->riv[i].zmin-(md->riv[i].zmax-(md->ele[md->riv[i].leftele-1].zmax-md->ele[md->riv[i].leftele-1].zmin)):md->dummyy[md->riv[i].leftele-1 + 2*md->numele];
     /* this is head in neighboring cell represention */
@@ -286,9 +292,9 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     effk =
         0.5 * (EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
             elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
-            elem->soil.ksath) + EffKH (oppbank->soil.macropore, oppbank->ws.gw,
-            oppbank->soil.depth, oppbank->soil.dmac, oppbank->soil.kmach,
-            oppbank->soil.areafv, oppbank->soil.ksath));
+            elem->soil.ksath) + EffKH (oppbank->soil.macropore,
+            oppbank->ws.gw, oppbank->soil.depth, oppbank->soil.dmac,
+            oppbank->soil.kmach, oppbank->soil.areafv, oppbank->soil.ksath));
     effk_nabr =
         EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
         elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
@@ -305,7 +311,7 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     /* Replace flux term */
     for (j = 0; j < 3; j++)
     {
-        if (elem->nabr[j] == - ind)
+        if (elem->nabr[j] == -ind)
         {
             elem->wf.fluxsurf[j] = -(*fluxsurf);
             elem->wf.fluxsub[j] = -(*fluxriv + *fluxsub);
@@ -326,16 +332,22 @@ double EqWid (int riv_order, double riv_depth, double riv_coeff)
             eq_wid = riv_coeff;
             break;
         case TRIANGLE:
-            eq_wid = 2.0 * pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
-                pow (riv_coeff, 1.0 / (riv_order - 1));
+            eq_wid =
+                2.0 * pow (riv_depth + RIVDPTHMIN,
+                1.0 / (riv_order - 1)) / pow (riv_coeff,
+                1.0 / (riv_order - 1));
             break;
         case QUADRATIC:
-            eq_wid = 2.0 * pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
-                pow (riv_coeff, 1.0 / (riv_order - 1));
+            eq_wid =
+                2.0 * pow (riv_depth + RIVDPTHMIN,
+                1.0 / (riv_order - 1)) / pow (riv_coeff,
+                1.0 / (riv_order - 1));
             break;
         case CUBIC:
-            eq_wid = 2.0 * pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
-                pow (riv_coeff, 1.0 / (riv_order - 1));
+            eq_wid =
+                2.0 * pow (riv_depth + RIVDPTHMIN,
+                1.0 / (riv_order - 1)) / pow (riv_coeff,
+                1.0 / (riv_order - 1));
             break;
         default:
             printf ("Error: River order %d is not defined!\n", riv_order);

@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-int                 verbose_mode;
-int                 debug_mode;
-char                project[MAXSTRING];
+int             verbose_mode;
+int             debug_mode;
+char            project[MAXSTRING];
 
 int main (int argc, char *argv[])
 {
@@ -10,7 +10,7 @@ int main (int argc, char *argv[])
     char            simulation[MAXSTRING];
     int             spec_output_mode = 0;
     int             c;
-    int             first_cycle;
+    int             first_cycle = 1;
 #ifdef _ENKF_
     int             ii;
     int             id;
@@ -41,30 +41,31 @@ int main (int argc, char *argv[])
     if (id == 0)
     {
 #endif
-    printf ("\n");
-    printf ("\t\t########  #### ##     ## ##     ##\n");
-    printf ("\t\t##     ##  ##  ##     ## ###   ###\n");
-    printf ("\t\t##     ##  ##  ##     ## #### ####\n");
-    printf ("\t\t########   ##  ######### ## ### ##\n");
-    printf ("\t\t##         ##  ##     ## ##     ##\n");
-    printf ("\t\t##         ##  ##     ## ##     ##\n");
-    printf ("\t\t##        #### ##     ## ##     ##\n");
-    printf ("\n\t    The Penn State Integrated Hydrologic Model\n");
+        printf ("\n");
+        printf ("\t\t########  #### ##     ## ##     ##\n");
+        printf ("\t\t##     ##  ##  ##     ## ###   ###\n");
+        printf ("\t\t##     ##  ##  ##     ## #### ####\n");
+        printf ("\t\t########   ##  ######### ## ### ##\n");
+        printf ("\t\t##         ##  ##     ## ##     ##\n");
+        printf ("\t\t##         ##  ##     ## ##     ##\n");
+        printf ("\t\t##        #### ##     ## ##     ##\n");
+        printf ("\n\t    The Penn State Integrated Hydrologic Model\n");
 
 #ifdef _NOAH_
-    printf ("\n\t    * Land surface module turned on.\n");
+        printf ("\n\t    * Land surface module turned on.\n");
 #endif
 #ifdef _RT_
-    printf ("\n\t    * Reactive transport land surface hydrological mode.\n");
+        printf
+            ("\n\t    * Reactive transport land surface hydrological mode.\n");
 #endif
 #ifdef _BGC_
-    printf ("\n\t    * Biogeochemistry module turned on.\n");
+        printf ("\n\t    * Biogeochemistry module turned on.\n");
 #endif
 #ifdef _ENKF_
-    printf ("\n\t    * Ensemble Kalman filter turned on.\n");
+        printf ("\n\t    * Ensemble Kalman filter turned on.\n");
 #endif
 #ifdef _CYCLES_
-    printf ("\n\t    * Crop module turned on.\n");
+        printf ("\n\t    * Crop module turned on.\n");
 #endif
 #ifdef _ENKF_
     }
@@ -78,16 +79,19 @@ int main (int argc, char *argv[])
         switch (c)
         {
             case 'o':
+                /* Specify output directory */
                 sprintf (outputdir, "output/%s/", optarg);
                 spec_output_mode = 1;
                 printf
                     ("Output directory is specified as \"%s\".\n", outputdir);
                 break;
             case 'd':
+                /* Debug mode */
                 debug_mode = 1;
                 printf ("Debug mode turned on.\n");
                 break;
             case 'v':
+                /* Verbose mode */
                 verbose_mode = 1;
                 printf ("Verbose mode turned on.\n");
                 break;
@@ -113,23 +117,16 @@ int main (int argc, char *argv[])
         strcpy (project, argv[optind]);
     }
 
-    first_cycle = 1;
-
 #ifdef _ENKF_
     if (id == 0)
     {
 #endif
-    /*
-     * Create output directory
-     */
-    CreateOutputDir (outputdir, spec_output_mode);
-#ifdef _ENKF_
-    }
-#endif
+        /*
+         * Create output directory
+         */
+        CreateOutputDir (outputdir, spec_output_mode);
 
 #ifdef _ENKF_
-    if (id == 0)
-    {
         /*
          * EnKF initialization
          */
@@ -137,7 +134,7 @@ int main (int argc, char *argv[])
 
         /* Read EnKF input file */
         EnKFRead (project, ens);
-        
+
         /* Check if node number is appropriate */
         if (ens->ne % (p - 1) != 0)
         {
@@ -149,7 +146,7 @@ int main (int argc, char *argv[])
         {
             job_per_node = ens->ne / (p - 1);
         }
-        
+
         /* Initialize observation operator vector */
         InitOper (project, ens);
 
@@ -160,7 +157,9 @@ int main (int argc, char *argv[])
     /* Broadcast jobs per node and output directory to all nodes */
     MPI_Bcast (&job_per_node, 1, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast (outputdir, MAXSTRING, MPI_CHAR, 0, MPI_COMM_WORLD);
-    param = (double *) malloc (job_per_node * (p - 1) * MAXPARAM * sizeof (double));
+    param =
+        (double *)malloc (job_per_node * (p - 1) * MAXPARAM *
+        sizeof (double));
 
     /*
      * EnKF cycles
@@ -174,7 +173,7 @@ int main (int argc, char *argv[])
                 /* Special case when EnKF cycle ends */
                 JobHandout (ens->cycle_start_time, ens->cycle_end_time,
                     BADVAL, ens->member, param, ens->ne, p - 1);
-            
+
                 break;
             }
             else
@@ -211,7 +210,8 @@ int main (int argc, char *argv[])
         else
         {
             /* Receive required parameters from Node 0 */
-            JobRecv (&starttime, &endtime, &startmode, param, job_per_node * (p - 1));
+            JobRecv (&starttime, &endtime, &startmode, param,
+                job_per_node * (p - 1));
 
             if (startmode == BADVAL)
             {
@@ -233,29 +233,32 @@ int main (int argc, char *argv[])
             success = 1;
 
             /* Notify Node 0 PIHM run is completed */
-            ierr = MPI_Send (&success, 1, MPI_INT, 0, SUCCESS_TAG, MPI_COMM_WORLD);
+            ierr =
+                MPI_Send (&success, 1, MPI_INT, 0, SUCCESS_TAG,
+                MPI_COMM_WORLD);
         }
     }
+#else
+    /* The name of the simulation is the same as the project */
+    strcpy (simulation, project);
 
+    PIHMRun (simulation, outputdir, first_cycle);
+#endif
+
+#ifdef _ENKF_
     if (id == 0)
     {
+#endif
         printf ("\nSimulation completed.\n");
 
+#ifdef _ENKF_
         FreeEns (ens);
         free (ens);
     }
 
     free (param);
     ierr = MPI_Finalize ();
-#else
-    /* The name of the simulation is the same as the project */
-    strcpy (simulation, project);
-
-    PIHMRun (simulation, outputdir, first_cycle);
-
-    printf ("\nSimulation completed.\n");
 #endif
 
     return (0);
 }
-

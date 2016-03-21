@@ -24,8 +24,8 @@ void LateralFlow (pihm_struct pihm)
     elem_struct    *nabr;
     river_struct   *riv;
 
-    dhbydx = (double *) malloc (pihm->numele * sizeof (double));
-    dhbydy = (double *) malloc (pihm->numele * sizeof (double));
+    dhbydx = (double *)malloc (pihm->numele * sizeof (double));
+    dhbydy = (double *)malloc (pihm->numele * sizeof (double));
 
     for (i = 0; i < pihm->numele; i++)
     {
@@ -42,7 +42,7 @@ void LateralFlow (pihm_struct pihm)
                 }
                 else if (elem->nabr[j] < 0)
                 {
-                    riv = &pihm->riv[- elem->nabr[j] - 1];
+                    riv = &pihm->riv[-elem->nabr[j] - 1];
 
                     if (riv->ws.stage > riv->shp.depth)
                     {
@@ -85,7 +85,7 @@ void LateralFlow (pihm_struct pihm)
                 }
                 else
                 {
-                    riv = &pihm->riv[- elem->nabr[j] - 1];
+                    riv = &pihm->riv[-elem->nabr[j] - 1];
                     nabr = (i == riv->leftele - 1) ?
                         &pihm->elem[riv->rightele - 1] :
                         &pihm->elem[riv->leftele - 1];
@@ -105,13 +105,13 @@ void LateralFlow (pihm_struct pihm)
                 grad_y_sub = dif_y_sub / distance;
                 /* Take into account macropore effect */
                 effk =
-                    EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
-                    elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
-                    elem->soil.ksath);
+                    EffKH (elem->soil.macropore, elem->ws.gw,
+                    elem->soil.depth, elem->soil.dmac, elem->soil.kmach,
+                    elem->soil.areafv, elem->soil.ksath);
                 effk_nabr =
-                    EffKH (nabr->soil.macropore, nabr->ws.gw, nabr->soil.depth,
-                    nabr->soil.dmac, nabr->soil.kmach, nabr->soil.areafv,
-                    nabr->soil.ksath);
+                    EffKH (nabr->soil.macropore, nabr->ws.gw,
+                    nabr->soil.depth, nabr->soil.dmac, nabr->soil.kmach,
+                    nabr->soil.areafv, nabr->soil.ksath);
                 avg_ksat = 0.5 * (effk + effk_nabr);
                 /* Groundwater flow modeled by Darcy's Law */
                 elem->wf.fluxsub[j] =

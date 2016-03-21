@@ -37,12 +37,14 @@ int SoilTex (double silt, double clay)
     {
         texture = LOAMY_SAND;
     }
-    else if ((clay>= 0.07 && clay <= 0.2 && sand > 0.52 && silt + 2.0 * clay >= 0.3) ||
-        (clay < 0.07 && silt < 0.5 && silt + 2.0 *clay >= 0.3))
+    else if ((clay >= 0.07 && clay <= 0.2 && sand > 0.52 &&
+            silt + 2.0 * clay >= 0.3) || (clay < 0.07 && silt < 0.5 &&
+            silt + 2.0 * clay >= 0.3))
     {
         texture = SANDY_LOAM;
     }
-    else if (clay >= 0.07 && clay <= 0.27 && silt >= 0.28 && silt < 0.5 && sand <= 0.52)
+    else if (clay >= 0.07 && clay <= 0.27 && silt >= 0.28 && silt < 0.5 &&
+        sand <= 0.52)
     {
         texture = LOAM;
     }
@@ -167,7 +169,7 @@ double PtfThetaS (double silt, double clay, double om, double bd, int topsoil)
         0.000001491 * silt * silt + 0.0000821 * om * om + 0.02427 / clay +
         0.01113 / silt + 0.01472 * log (silt) - 0.0000733 * om * clay -
         0.000619 * bd * clay - 0.001183 * bd * om -
-        0.0001664 * (double)topsoil * silt;
+        0.0001664 * (double)topsoil *silt;
 
     return (thetas);
 }
@@ -193,7 +195,7 @@ double PtfAlpha (double silt, double clay, double om, double bd, int topsoil)
     double          alpha;
 
     /* Calcualte alpha in cm */
-    alpha = exp(- 14.96 + 0.03135 * clay + 0.0351 * silt + 0.646 * om +
+    alpha = exp (-14.96 + 0.03135 * clay + 0.0351 * silt + 0.646 * om +
         15.29 * bd - 0.192 * (double)topsoil - 4.671 * bd * bd -
         0.000781 * clay * clay - 0.00687 * om * om + 0.0449 / om +
         0.0663 * log (silt) + 0.1482 * log (om) - 0.04546 * bd * silt -
@@ -209,10 +211,10 @@ double PtfBeta (double silt, double clay, double om, double bd, int topsoil)
 {
     double          beta;
 
-    beta = 1.0 + exp (- 25.23 - 0.02195 * clay + 0.0074 * silt - 0.1940 * om +
+    beta = 1.0 + exp (-25.23 - 0.02195 * clay + 0.0074 * silt - 0.1940 * om +
         45.5 * bd - 7.24 * bd * bd + 0.0003658 * clay * clay +
         0.002885 * om * om - 12.81 / bd - 0.1524 / silt - 0.01958 / om -
-        0.2876 * log (silt) - 0.0709 * log (om) - 44.6 * log(bd) -
+        0.2876 * log (silt) - 0.0709 * log (om) - 44.6 * log (bd) -
         0.02264 * bd * clay + 0.0896 * bd * om +
         0.00718 * (double)topsoil * clay);
 
