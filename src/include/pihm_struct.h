@@ -317,6 +317,228 @@ typedef struct ef_struct
     double          solardirect;        /* direct component of downward solar radiation (w m-2) (not used) */
 } ef_struct;
 
+#ifdef _CYCLES_
+typedef struct crop_struct
+{
+    /* Instance of the crop that is being planted */
+    char            cropName[128];
+
+    /* User Defined Auto Irrigation */
+    int             autoIrrigationUsed;
+    int             autoIrrigationStartDay;
+    int             autoIrrigationStopDay;
+    double          autoIrrigationWaterDepletion;
+    int             autoIrrigationLastSoilLayer;
+
+    /* User Defined Auto Fertilization */
+    int             autoFertilizationUsed;
+    int             autoFertilizationStartDay;
+    int             autoFertilizationStopDay;
+    double          autoFertilizationMass;
+    char            autoFertilizationSource;
+    char            autoFertilizationForm;
+    int             autoFertilizationMethod;
+
+    /* Crop Status Flags */
+    int             cropGrowing;
+    int             cropMature;
+
+    /* State Variables */
+    double          svTT_Daily;
+    double          svTT_Cumulative;
+    double          svRadiationInterception;
+    double          svBiomass;
+    double          svShoot;
+    double          svRoot;
+    double          svRizho;
+    double          svShootDailyGrowth;
+    double          svRootDailyGrowth;
+    double          svRizhoDailyDeposition;
+    double          svUnstressedShootDailyGrowth;
+    double          svUnstressedRootDailyGrowth;
+    double          svPostFloweringShootBiomass;
+    double          svRootingDepth;
+    double          svTranspiration;
+    double          svTranspirationPotential;
+    double          svN_Shoot;
+    double          svN_Root;
+    double          svN_Rhizo;
+    double          svN_RizhoDailyDeposition;
+    double          svN_AutoAdded;
+    double          svN_Fixation;
+    double          svWaterStressFactor;
+    double          svN_StressFactor;
+
+    double          svShootUnstressed;
+    double          svN_StressCumulative;
+
+    double          svRadiationInterception_nc;
+    
+    int             userSeedingDate;
+    int             userFloweringDate;
+    int             userMaturityDate;
+    double          userMaximumSoilCoverage;
+    double          userMaximumRootingDepth;
+    double          userExpectedYieldAvg;
+    double          userExpectedYieldMax;
+    double          userExpectedYieldMin;
+    double          userPercentMoistureInYield;
+    double          userFractionResidueStanding;
+    double          userFractionResidueRemoved;
+    double          userClippingBiomassThresholdUpper;
+    double          userClippingBiomassThresholdLower;
+    double          userClippingTiming;
+    int             userClippingDestiny;
+    double          userTranspirationMinTemperature;
+    double          userTranspirationThresholdTemperature;
+    double          userColdDamageMinTemperature;
+    double          userColdDamageThresholdTemperature;
+    double          userTemperatureBase;
+    double          userTemperatureOptimum;
+    double          userTemperatureMaximum;
+    double          userShootPartitionInitial;
+    double          userShootPartitionFinal;
+    double          userRadiationUseEfficiency;
+    double          userTranspirationUseEfficiency;
+    double          userHIx;
+    double          userHIo;    /* intercept harvest index */
+    double          userHIk;
+    double          userEmergenceTT;
+    double          userNMaxConcentration;
+    double          userNDilutionSlope;
+    double          userKc;
+    int             userAnnual;
+    int             userLegume;
+    int             userC3orC4;
+    double          userExtinctionCoefficient;
+
+    double          userPlantingDensity;
+
+    int             userClippingStart;
+    int             userClippingEnd;
+
+    double          calculatedFloweringTT;
+    double          calculatedMaturityTT;
+    double          calculatedSimAvgYield;
+    double          calculatedSimMaxYield;
+    double          calculatedSimMinYield;
+    double          LWP_StressOnset;
+    double          LWP_WiltingPoint;
+    double          transpirationMax;
+
+    int             harvestDateFinal;
+    int             harvestCount;
+    enum stage      stageGrowth;
+
+    double          rcForageYield;
+    double          rcGrainYield;
+    double          rcBiomass;
+    double          rcRoot;
+    double          rcResidueBiomass;
+    double          rcCropTranspiration;
+    double          rcCropTranspirationPotential;
+    double          rcSoilWaterEvaporation;
+    double          rcHarvestIndex;
+    double          rcTotalNitrogen;
+    double          rcRootNitrogen;
+    double          rcGrainNitrogenYield;
+    double          rcForageNitrogenYield;
+    double          rcNitrogenCumulative;
+    double          rcNitrogenInHarvest;
+    double          rcNitrogenInResidue;
+    double          rcNitrogenForageConc;
+} crop_struct;
+
+typedef struct comm_struct
+{
+    /* State Variables */
+    double          svRadiationInterception;
+    double          svBiomass;
+    double          svShoot;
+    double          svRoot;
+    double          svRizho;
+    double          svShootDailyGrowth;
+    double          svRootDailyGrowth;
+    double          svRizhoDailyDeposition;
+    double          svRootingDepth; /* maximum */
+    double          svTranspiration;
+    double          svTranspirationPotential;
+    double          svN_Shoot;
+    double          svN_Root;
+    double          svN_Rhizo;
+    double          svN_RizhoDailyDeposition;
+    double          svN_AutoAdded;
+    double          svN_Fixation;
+    double          svWaterStressFactor;
+    double          svN_StressFactor;
+
+    crop_struct    *Crop;
+    int             NumCrop;
+    int             NumActiveCrop;
+} comm_struct;
+
+typedef struct residue_struct
+{
+    double          residueInterception;
+    double          stanResidueTau;
+    double          flatResidueTau;
+    double          stanResidueMass;
+    double          flatResidueMass;
+    double          stanResidueN;
+    double          flatResidueN;
+    double          manureSurfaceC;
+    double          manureSurfaceN;
+
+    double          stanResidueWater;
+    double          flatResidueWater;   /* (mm) */
+
+    double         *residueAbgd;
+    double         *residueRt;
+    double         *residueRz;
+    double         *residueAbgdN;
+    double         *residueRtN;
+    double         *residueRzN;
+    double          yearResidueBiomass;
+    double          yearResidueHarvested;
+    double          yearRootBiomass;
+    double          yearRhizodepositionBiomass;
+    double         *manureC;
+    double         *manureN;    /* Mg/ha */
+} residue_struct;
+
+typedef struct soilc_struct
+{
+    double         *factorComposite;
+    double         *carbonRespired;
+    double         *rootBiomassInput;
+    double         *rhizBiomassInput;
+    double         *abgdBiomassInput;
+    double         *rootCarbonInput;
+    double         *rhizCarbonInput;
+    double         *manuCarbonInput;
+    double         *abgdCarbonInput;
+    double         *carbonMassInitial;
+    double         *carbonMassFinal;
+    double         *annualDecompositionFactor;
+    double         *annualSoilCarbonDecompositionRate;
+    double         *annualCarbonInputByLayer;
+    double         *annualHumifiedCarbonMass;
+    double         *annualRespiredCarbonMass;
+    double         *annualRespiredResidueCarbonMass;
+    double         *annualHumificationCoefficient;
+    double         *annualNmineralization;
+    double         *annualNImmobilization;
+    double         *annualNNetMineralization;
+    double          annualAmmoniumNitrification;
+    double          annualNitrousOxidefromNitrification;
+    double          annualAmmoniaVolatilization;
+    double          annualNO3Denitrification;
+    double          annualNitrousOxidefromDenitrification;
+    double          annualNitrateLeaching;
+    double          annualAmmoniumLeaching;
+} soilc_struct;
+#endif
+
 typedef struct elemic_struct
 {
     double          surf;
@@ -359,6 +581,12 @@ typedef struct elem_struct
 
     es_struct       es;
     ef_struct       ef;
+#endif
+#ifdef _CYCLES_
+    cropmgmt_struct cropmgmt;
+    comm_struct     comm;
+    residue_struct  residue;
+    soilc_struct    soilc;
 #endif
 
 } elem_struct;
@@ -501,6 +729,11 @@ typedef struct ctrl_struct
     double          sldpth[MAXLYR];
     int             rad_mode;   /* radiation mode; 1: topographic, 0: uniform */
 #endif
+#ifdef _CYCLES_
+    int             simStartYear;
+    int             simEndYear;
+    int             totalYears;
+#endif
 } ctrl_struct;
 
 typedef struct prtctrl_struct
@@ -539,6 +772,11 @@ typedef struct pihm_struct
     matltbl_struct  matltbl;    /* Store River Bank Material Information */
 #ifdef _NOAH_
     noahtbl_struct  noahtbl;
+#endif
+#ifdef _CYCLES_
+    agtbl_struct    agtbl;
+    croptbl_struct  croptbl;
+    mgmttbl_struct  mgmttbl;
 #endif
     forc_struct     forc;
 

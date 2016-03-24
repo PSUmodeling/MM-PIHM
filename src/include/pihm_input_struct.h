@@ -19,6 +19,12 @@ typedef struct filename_struct
     char            lsm[MAXSTRING];
     char            rad[MAXSTRING];
 #endif
+#ifdef _CYCLES_
+    char            cycles[MAXSTRING];
+    char            soilinit[MAXSTRING];
+    char            crop[MAXSTRING];
+    char            op[MAXSTRING];
+#endif
 } filename_struct;
 
 typedef struct rivtbl_struct
@@ -114,6 +120,15 @@ typedef struct soiltbl_struct
     double          dinf;
     double          kmacv_ro;
     double          kmach_ro;
+#ifdef _CYCLES_
+    int            *totalLayers;
+    double        **clay_lyr;
+    double        **sand_lyr;
+    double        **iom_lyr;
+    double        **bd_lyr;
+    double        **NO3_lyr;
+    double        **NH4_lyr;
+#endif
 } soiltbl_struct;
 
 typedef struct geoltbl_struct
@@ -217,5 +232,169 @@ typedef struct noahtbl_struct
     double          czil;
     double          lvcoef;
 } noahtbl_struct;
+#endif
+
+#ifdef _CYCLES_
+typedef struct agtbl_struct
+{
+    int            *op;
+    int            *rotsz;
+    int            *auto_N;
+    int            *auto_P;
+    int            *auto_S;
+} agtbl_struct;
+
+typedef struct croptbl_struct
+{
+    int             number;
+
+    char          **cropName;
+    int            *userSeedingDate;
+    int            *userFloweringDate;
+    int            *userMaturityDate;
+    double         *userMaximumSoilCoverage;
+    double         *userMaximumRootingDepth;
+    double         *userExpectedYieldAvg;
+    double         *userExpectedYieldMax;
+    double         *userExpectedYieldMin;
+    double         *userPercentMoistureInYield;
+    double         *userFractionResidueStanding;
+    double         *userFractionResidueRemoved;
+    double         *userClippingBiomassThresholdUpper;
+    double         *userClippingBiomassThresholdLower;
+    double         *userClippingTiming;
+    int            *userClippingDestiny;
+    double         *userTranspirationMinTemperature;
+    double         *userTranspirationThresholdTemperature;
+    double         *userColdDamageMinTemperature;
+    double         *userColdDamageThresholdTemperature;
+    double         *userTemperatureBase;
+    double         *userTemperatureOptimum;
+    double         *userTemperatureMaximum;
+    double         *userShootPartitionInitial;
+    double         *userShootPartitionFinal;
+    double         *userRadiationUseEfficiency;
+    double         *userTranspirationUseEfficiency;
+    double         *userHIx;
+    double         *userHIo;    /* intercept harvest index */
+    double         *userHIk;
+    double         *userEmergenceTT;
+    double         *userNMaxConcentration;
+    double         *userNDilutionSlope;
+    double         *userKc;
+    int            *userAnnual;
+    int            *userLegume;
+    int            *userC3orC4;
+    double         *userExtinctionCoefficient;
+    double         *userPlantingDensity;
+    int            *userClippingStart;
+    int            *userClippingEnd;
+    double         *LWP_StressOnset;
+    double         *LWP_WiltingPoint;
+    double         *transpirationMax;
+} croptbl_struct;
+
+typedef struct op_struct
+{
+    int             opYear;
+    int             opDay;
+    int             status;
+
+    /* Planting Order */
+    char            cropName[128];
+    int             usesAutoIrrigation;
+    int             usesAutoFertilization;
+    int             plantID;
+    double          plantingDensity;
+    int             clippingStart;
+    int             clippingEnd;
+
+    /* Tillage */
+    char            opToolName[MAXSTRING];
+    double          opDepth;
+    double          opSDR;
+    double          opMixingEfficiency;
+    char            cropNameT[128];
+    double          fractionThermalTime;
+    double          killEfficiency;
+    int             grainHarvest;
+    double          forageHarvest;
+
+    /* Fixed Irrigation */
+    double          opVolume;
+
+    /* Fixed Fertilization */
+    char            opSource[MAXSTRING];
+    double          opMass;
+    char            opForm[MAXSTRING];
+    char            opMethod[MAXSTRING];
+    int             opLayer;    /* Starting from 1 */
+    double          opC_Organic;
+    double          opC_Charcoal;
+    double          opN_Organic;
+    double          opN_Charcoal;
+    double          opN_NH4;
+    double          opN_NO3;
+    double          opP_Organic;
+    double          opP_Charcoal;
+    double          opP_Inorganic;
+    double          opK;
+    double          opS;
+} op_struct;
+
+typedef struct autoirr_struct
+{
+    char            cropName[128];
+    int             startDay;
+    int             stopDay;
+    double          waterDepletion;
+    int             lastSoilLayer;
+} autoirr_struct;
+//
+//typedef struct autoFertilizationStruct
+//{
+//    char            cropName[128];
+//    int             startDay;
+//    int             stopDay;
+//    double          mass;
+//    char            source[MAXSTRING];
+//    char            form[MAXSTRING];
+//    char            method[MAXSTRING];
+//} autoFertilizationStruct;
+
+typedef struct cropmgmt_struct
+{
+    int             yearsInRotation;
+    int             adjustedYields;
+    int             automaticNitrogen;
+    int             automaticPhosphorus;
+    int             automaticSulfur;
+    int             rotationYear;
+
+    op_struct      *FixedFertilization;
+    int             numFertilization;
+
+    op_struct      *FixedIrrigation;
+    int             numIrrigation;
+
+    op_struct      *Tillage;
+    int             numTillage;
+    double         *tillageFactor;
+
+    op_struct      *plantingOrder;
+    int             totalCropsPerRotation;
+
+    autoirr_struct *autoIrrigation;
+    int             numAutoIrrigation;
+
+    int             usingAutoIrr;
+    int             usingAutoFert;
+} cropmgmt_struct;
+
+typedef struct mgmttbl_struct
+{
+    int             number;
+    cropmgmt_struct *cropmgmt;
+} mgmttbl_struct;
 #endif
 #endif

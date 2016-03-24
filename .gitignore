@@ -69,7 +69,7 @@ sundials/shared/source/Makefile
 pihm
 flux-pihm
 flux-pihm-bgc
-pihm-cycles
+flux-pihm-cycles
 
 # PBS scripts
 run-*

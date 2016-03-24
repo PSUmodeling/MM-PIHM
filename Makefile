@@ -9,7 +9,8 @@ SUNDIALS_PATH = ./sundials
 
 SRCDIR = ./src
 LIBS =	-lm
-INCLUDES = -I${SUNDIALS_PATH}/include \
+INCLUDES = \
+	-I${SUNDIALS_PATH}/include \
 	-I${SUNDIALS_PATH}/include/cvode \
 	-I${SUNDIALS_PATH}/include/sundials\
 	-I${SRCDIR}/include
@@ -32,7 +33,8 @@ SRCS_ = main.c \
 	misc_func.c \
 	update.c
 
-HEADERS_ = include/pihm.h \
+HEADERS_ = \
+	include/pihm.h \
 	include/pihm_input_struct.h \
 	include/pihm_const.h \
 	include/pihm_struct.h \
@@ -42,37 +44,49 @@ MODULE_HEADERS_ =
 EXECUTABLE = pihm
 MSG = "...  Compiling PIHM  ..."
 
+#-------------------
+# Flux-PIHM
+#-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm)
   SFLAGS = -D_NOAH_ 
-  MODULE_SRCS_= noah/lsm_func.c \
+  MODULE_SRCS_= \
+  	noah/lsm_func.c \
   	noah/lsm_read.c \
 	noah/lsm_init.c \
-	spa/spa.c \
-	noah/noah.c
+	noah/noah.c \
+	spa/spa.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm
   MSG = "... Compiling Flux-PIHM ..."
 endif
 
+#-------------------
+# RT-Flux-PIHM
+#-------------------
 ifeq ($(MAKECMDGOALS),rt-flux-pihm)
   SFLAGS = -D_RT_ -D_FLUX_PIHM_
-  MODULE_SRCS_= noah/coupling.c \
+  MODULE_SRCS_= \
+  	noah/coupling.c \
 	noah/module_sf_noahlsm.c \
 	spa/spa.c \
 	noah/lsm_func.c \
 	rt/rt.c \
 	rt/react.c \
 	rt/os3d.c
-  MODULE_HEADERS_ = noah/noah.h \
+  MODULE_HEADERS_ = \
 	spa/spa.h \
 	rt/rt.h
   EXECUTABLE = rt-flux-pihm
   MSG = "... Compiling RT-Flux-PIHM ..."
 endif
 
+#-------------------
+# Flux-PIHM-BGC
+#-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
   SFLAGS = -D_BGC_ -D_NOAH_ -D_DAILY_
-  MODULE_SRCS_=	daily.c \
+  MODULE_SRCS_=	\
+  	daily.c \
 	noah/coupling.c \
 	noah/module_sf_noahlsm.c \
 	spa/spa.c \
@@ -105,17 +119,21 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/check_balance.c \
 	bgc/summary.c \
 	bgc/nleaching.c
-  MODULE_HEADERS_ = include/noah.h \
+  MODULE_HEADERS_ = \
 	include/spa.h \
 	include/bgc.h 
   EXECUTABLE = flux-pihm-bgc
   MSG = "... Compiling Flux-PIHM-BGC ..."
 endif
 
+#-------------------
+# Flux-PIHM-EnKF
+#-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
   CC = mpicc
   SFLAGS = -D_ENKF_ -D_NOAH_
-  MODULE_SRCS_ = enkf/read_enkf.c \
+  MODULE_SRCS_ = \
+  	enkf/read_enkf.c \
 	enkf/enkf_func.c \
 	enkf/enkf.c \
 	enkf/obs_oper.c \
@@ -124,42 +142,23 @@ ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
 	noah/lsm_init.c \
   	noah/noah.c \
 	spa/spa.c
-  MODULE_HEADERS_ = include/enkf.h \
+  MODULE_HEADERS_ = \
+  	include/enkf.h \
   	include/spa.h 
   EXECUTABLE = flux-pihm-enkf
   MSG = "... Compiling Flux-PIHM-EnKF ..."
 endif
 
-ifeq ($(MAKECMDGOALS),pihm-cycles)
+#-------------------
+# Flux-PIHM-Cycles
+#-------------------
+ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS = -D_CYCLES_ -D_DAILY_
-  MODULE_SRCS_= daily.c \
-  	cycles/cycles_func.c \
-	cycles/Initialize.c \
-    	cycles/Soil.c \
-    	cycles/Weather.c \
-    	cycles/ReferenceET.c \
-    	cycles/SoilTemperature.c \
-    	cycles/Crop.c \
-    	cycles/Residue.c \
-    	cycles/CropThermalTime.c \
-    	cycles/FieldOperation.c \
-    	cycles/SoilCarbon.c \
-    	cycles/DailyOperation.c \
-    	cycles/Tillage.c \
-    	cycles/Fertilization.c \
-    	cycles/CropHarvest.c \
-    	cycles/Snow.c \
-    	cycles/SoilInfiltration.c \
-    	cycles/Irrigation.c \
-    	cycles/SoilSolute.c \
-    	cycles/SoilEvaporation.c \
-    	cycles/SoilNitrogen.c \
-    	cycles/CropProcess.c \
-    	cycles/CropTranspiration.c \
-    	cycles/MiscFunc.c
-  MODULE_HEADERS_ = include/Cycles.h
-  EXECUTABLE = pihm-cycles
-  MSG = "... Compiling Flux-PIHM ..."
+  MODULE_SRCS_= \
+  	cycles/cycles_read.c
+  MODULE_HEADERS_ =
+  EXECUTABLE = flux-pihm-cycles
+  MSG = "... Compiling Flux-PIHM-Cycles ..."
 endif
 
 SRCS = $(patsubst %,$(SRCDIR)/%,$(SRCS_))
@@ -172,7 +171,7 @@ MODULE_OBJS = $(MODULE_SRCS:.c=.o)
 
 .PHONY: all clean help sundials
 
-help:		## Show this help
+help:			## Show this help
 	@echo
 	@echo "Makefile for MM-PIHM"
 	@echo
@@ -183,47 +182,47 @@ help:		## Show this help
 	@echo "NOTE: Please always \"make clean\" when switching from one module to another!"
 	@echo
 
-all:		## Install sundials and compile PIHM
+all:			## Install sundials and compile PIHM
 all:	sundials pihm
 
-sundials:	## Install sundials library
+sundials:		## Install sundials library
 sundials:
 	cd sundials; ./configure; make; make install; cd ../
 	@echo "SUNDIALS library installed."
-pihm: 		## Compile PIHM
+pihm:			## Compile PIHM
 pihm:	$(OBJS)
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
 
-flux-pihm: 	## Complile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
+flux-pihm:		## Complile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
 flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-rt-flux-pihm:	## Complile RT-Flux-PIHM (Reactive Transport Flux PIHM) for hydrogeochemical coupling.
+rt-flux-pihm:		## Complile RT-Flux-PIHM (Reactive Transport Flux PIHM) for hydrogeochemical coupling.
 rt-flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-flux-pihm-bgc: 	## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
+flux-pihm-bgc:		## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
 flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-flux-pihm-enkf: ## Compile Flux-PIHM-EnKF (Flux-PIHM EnKF system)
+flux-pihm-enkf:		## Compile Flux-PIHM-EnKF (Flux-PIHM EnKF system)
 flux-pihm-enkf: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-pihm-cycles: 	## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
-pihm-cycles: $(OBJS) $(MODULE_OBJS)
+flux-pihm-cycles:	## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
+flux-pihm-cycles: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
@@ -236,7 +235,7 @@ tool:
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@
 
 
-clean:		## Clean executables and objects
+clean:			## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo

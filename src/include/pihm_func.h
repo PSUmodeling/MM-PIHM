@@ -259,4 +259,11 @@ int             FindVar (var_struct *var, char *varname);
 void InitEns (enkf_struct ens);
 #endif
 
+#ifdef _CYCLES_
+void            ReadCyclesCtrl (char *, agtbl_struct *, int);
+void            ReadSoilInit (char *, soiltbl_struct *);
+void            ReadCrop (char *, croptbl_struct *);
+void            ReadOperation (char *, mgmttbl_struct *, const croptbl_struct *);
+#endif
+
 #endif

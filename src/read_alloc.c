@@ -32,6 +32,12 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     sprintf (pihm->filename.lsm,  "input/%s/%s.lsm",   project, project);
     sprintf (pihm->filename.rad,  "input/%s/%s.rad",   project, project);
 #endif
+#ifdef _CYCLES_
+    sprintf (pihm->filename.cycles, "input/%s/%s.cycles", project, project);
+    sprintf (pihm->filename.soilinit, "input/%s/%s.soilinit", project, project);
+    sprintf (pihm->filename.crop, "input/%s/%s.crop", project, project);
+    sprintf (pihm->filename.op, "input/%s/%s.operation", project, project);
+#endif
 
     /*
      * Read river input file
@@ -112,6 +118,28 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
          */
         ReadRad (pihm->filename.rad, &pihm->forc);
     }
+#endif
+
+#ifdef _CYCLES_
+    /*
+     * Read Cycles simulation control file
+     */
+    ReadCyclesCtrl (pihm->filename.cycles, &pihm->agtbl, pihm->numele);
+
+    /*
+     * Read soil initialization file
+     */
+    ReadSoilInit (pihm->filename.soilinit, &pihm->soiltbl);
+
+    /*
+     * Read crop description file
+     */
+    ReadCrop (pihm->filename.crop, &pihm->croptbl);
+
+    /*
+     * Read operation file
+     */
+    ReadOperation (pihm->filename.op, &pihm->mgmttbl, &pihm->croptbl);
 #endif
 }
 
