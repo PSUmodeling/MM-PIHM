@@ -117,15 +117,14 @@ ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
   SFLAGS = -D_ENKF_ -D_NOAH_
   MODULE_SRCS_ = enkf/read_enkf.c \
 	enkf/enkf_func.c \
-	enkf/perturb.c \
-	enkf/EnKF.c \
+	enkf/enkf.c \
 	enkf/obs_oper.c \
-  	noah/coupling.c \
-  	noah/module_sf_noahlsm.c \
-	spa/spa.c \
-	noah/lsm_func.c 
+	noah/lsm_func.c \
+	noah/lsm_read.c \
+	noah/lsm_init.c \
+  	noah/noah.c \
+	spa/spa.c
   MODULE_HEADERS_ = include/enkf.h \
-  	include/noah.h \
   	include/spa.h 
   EXECUTABLE = flux-pihm-enkf
   MSG = "... Compiling Flux-PIHM-EnKF ..."
@@ -208,7 +207,6 @@ rt-flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
-
 
 flux-pihm-bgc: 	## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
 flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)

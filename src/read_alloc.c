@@ -79,11 +79,13 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     /*
      * Read source and sink input file
      */
+    pihm->forc.nsource = 0;
     //ReadSS ();
 
     /*
      * Read boundary condition input file
      */
+    pihm->forc.nbc = 0;
     ReadIbc (pihm->filename.ibc, &pihm->forc);
 
     /*
@@ -1268,161 +1270,175 @@ void ReadInit (char *filename, elem_struct *elem, int numele,
     fclose (init_file);
 }
 
-//void FreeData (pihm_struct pihm)
-//{
-//    int             i, j, k;
-//
-//    /* Free river input structure */
-//    free (pihm->rivtbl.fromnode);
-//    free (pihm->rivtbl.tonode);
-//    free (pihm->rivtbl.down);
-//    free (pihm->rivtbl.leftele);
-//    free (pihm->rivtbl.rightele);
-//    free (pihm->rivtbl.shp);
-//    free (pihm->rivtbl.matl);
-//    free (pihm->rivtbl.ic);
-//    free (pihm->rivtbl.bc);
-//    free (pihm->rivtbl.rsvr);
-//
-//    free (pihm->shptbl.depth);
-//    free (pihm->shptbl.intrpl_ord);
-//    free (pihm->shptbl.coeff);
-//
-//    free (pihm->matltbl.rough);
-//    free (pihm->matltbl.cwr);
-//    free (pihm->matltbl.ksath);
-//    free (pihm->matltbl.ksatv);
-//    free (pihm->matltbl.bedthick);
-//
-//    free (pihm->riv_ic_tbl.stage);
-//
-//    /* Free mesh input structure */
-//    for (i = 0; i < pihm->meshtbl.numele; i++)
-//    {
-//        free (pihm->meshtbl.node[i]);
-//        free (pihm->meshtbl.nabr[i]);
-//    }
-//    free (pihm->meshtbl.node);
-//    free (pihm->meshtbl.nabr);
-//    free (pihm->meshtbl.x);
-//    free (pihm->meshtbl.y);
-//    free (pihm->meshtbl.zmin);
-//    free (pihm->meshtbl.zmax);
-//
-//    /* Free attribute input structure */
-//    for (i = 0; i < pihm->meshtbl.numele; i++)
-//    {
-//        free (pihm->attrib_tbl.bc[i]);
-//    }
-//    free (pihm->attrib_tbl.soil);
-//    free (pihm->attrib_tbl.geol);
-//    free (pihm->attrib_tbl.lc);
-//    free (pihm->attrib_tbl.bc);
-//    free (pihm->attrib_tbl.meteo);
-//    free (pihm->attrib_tbl.lai);
-//    free (pihm->attrib_tbl.source);
-//    free (pihm->attrib_tbl.macropore);
-//
-//    /* Free soil input structure */
-//    free (pihm->soil_tbl.ksatv);
-//    free (pihm->soil_tbl.smcmax);
-//    free (pihm->soil_tbl.smcmin);
-//    free (pihm->soil_tbl.qtz);
-//    free (pihm->soil_tbl.alpha);
-//    free (pihm->soil_tbl.beta);
-//    free (pihm->soil_tbl.areafh);
-//    free (pihm->soil_tbl.kmacv);
-//    free (pihm->soil_tbl.dinf);
-//
-//    /* Free geol input structure */
-//    free (pihm->geol_tbl.ksath);
-//    free (pihm->geol_tbl.ksatv);
-//    free (pihm->geol_tbl.smcmax);
-//    free (pihm->geol_tbl.smcmin);
-//    free (pihm->geol_tbl.alpha);
-//    free (pihm->geol_tbl.beta);
-//    free (pihm->geol_tbl.areafv);
-//    free (pihm->geol_tbl.kmach);
-//    free (pihm->geol_tbl.dmac);
-//
-//    /* Free initial condition */
-//    free (pihm->ic.intcp);
-//    free (pihm->ic.snow);
-//    free (pihm->ic.surf);
-//    free (pihm->ic.unsat);
-//    free (pihm->ic.gw);
-//    free (pihm->ic.rivgw);
-//    free (pihm->ic.stage);
-//
-//    /* Free landcover input structure */
-//    free (pihm->lc_tbl.laimax);
-//    free (pihm->lc_tbl.laimin);
-//    free (pihm->lc_tbl.vegfrac);
-//    free (pihm->lc_tbl.albedomin);
-//    free (pihm->lc_tbl.albedomax);
-//    free (pihm->lc_tbl.emissmin);
-//    free (pihm->lc_tbl.emissmax);
-//    free (pihm->lc_tbl.z0min);
-//    free (pihm->lc_tbl.z0max);
-//    free (pihm->lc_tbl.hs);
-//    free (pihm->lc_tbl.snup);
-//    free (pihm->lc_tbl.rgl);
-//    free (pihm->lc_tbl.rsmin);
-//    free (pihm->lc_tbl.rough);
-//    free (pihm->lc_tbl.rzd);
-//
-//    /* Free forcing input structure */
-//    for (k = 0; k < NUM_TS; k++)
-//    {
-//        if (pihm->forcing.nts[k] > 0)
-//        {
-//            for (i = 0; i < pihm->forcing.nts[k]; i++)
-//            {
-//                for (j = 0; j < pihm->forcing.ts[k][i].length; j++)
-//                {
-//                    free (pihm->forcing.ts[k][i].data[j]);
-//                }
-//                free (pihm->forcing.ts[k][i].ftime);
-//                free (pihm->forcing.ts[k][i].data);
-//            }
-//        free (pihm->forcing.ts[k]);
-//        }
-//    }
-//
-//    if (pihm->forcing.nts[BC_TS] > 0)
-//    {
-//        free (pihm->forcing.bc);
-//    }
-//
-//    if (pihm->forcing.nts[METEO_TS] > 0)
-//    {
-//        for (i = 0; i < NUM_METEO_TS; i++)
-//        {
-//            free (pihm->forcing.meteo[i]);
-//        }
-//        free (pihm->forcing.zlvl_wind);
-//    }
-//    if (pihm->forcing.nts[LAI_TS] > 0)
-//    {
-//        free (pihm->forcing.lai);
-//    }
-//    if (pihm->forcing.nts[RIV_TS] > 0)
-//    {
-//        free (pihm->forcing.riverbc);
-//    }
-//    if (pihm->forcing.nts[SS_TS] > 0)
-//    {
-//        free (pihm->forcing.source);
-//    }
-//
-//    free (pihm->ctrl.tout);
-//
-//    for (i = 0; i < pihm->ctrl.nprint; i++)
-//    {
-//        free (pihm->prtctrl[i].vrbl);
-//        free (pihm->prtctrl[i].buffer);
-//    }
-//
-//    free (pihm->elem);
-//    free (pihm->riv);
-//}
+void FreeData (pihm_struct pihm)
+{
+    int             i, j;
+
+    /* Free river input structure */
+    free (pihm->rivtbl.fromnode);
+    free (pihm->rivtbl.tonode);
+    free (pihm->rivtbl.down);
+    free (pihm->rivtbl.leftele);
+    free (pihm->rivtbl.rightele);
+    free (pihm->rivtbl.shp);
+    free (pihm->rivtbl.matl);
+    free (pihm->rivtbl.bc);
+    free (pihm->rivtbl.rsvr);
+
+    free (pihm->shptbl.depth);
+    free (pihm->shptbl.intrpl_ord);
+    free (pihm->shptbl.coeff);
+
+    free (pihm->matltbl.rough);
+    free (pihm->matltbl.cwr);
+    free (pihm->matltbl.ksath);
+    free (pihm->matltbl.ksatv);
+    free (pihm->matltbl.bedthick);
+
+    /* Free mesh input structure */
+    for (i = 0; i < pihm->meshtbl.numele; i++)
+    {
+        free (pihm->meshtbl.node[i]);
+        free (pihm->meshtbl.nabr[i]);
+    }
+    free (pihm->meshtbl.node);
+    free (pihm->meshtbl.nabr);
+    free (pihm->meshtbl.x);
+    free (pihm->meshtbl.y);
+    free (pihm->meshtbl.zmin);
+    free (pihm->meshtbl.zmax);
+
+    /* Free attribute input structure */
+    for (i = 0; i < pihm->meshtbl.numele; i++)
+    {
+        free (pihm->atttbl.bc[i]);
+    }
+    free (pihm->atttbl.soil);
+    free (pihm->atttbl.geol);
+    free (pihm->atttbl.lc);
+    free (pihm->atttbl.bc);
+    free (pihm->atttbl.meteo);
+    free (pihm->atttbl.lai);
+    free (pihm->atttbl.source);
+    free (pihm->atttbl.macropore);
+
+    /* Free soil input structure */
+    free (pihm->soiltbl.silt);
+    free (pihm->soiltbl.clay);
+    free (pihm->soiltbl.om);
+    free (pihm->soiltbl.bd);
+    free (pihm->soiltbl.kinfv);
+    free (pihm->soiltbl.ksatv);
+    free (pihm->soiltbl.ksath);
+    free (pihm->soiltbl.smcmax);
+    free (pihm->soiltbl.smcmin);
+    free (pihm->soiltbl.qtz);
+    free (pihm->soiltbl.alpha);
+    free (pihm->soiltbl.beta);
+    free (pihm->soiltbl.areafh);
+    free (pihm->soiltbl.areafv);
+    free (pihm->soiltbl.dmac);
+    free (pihm->soiltbl.smcref);
+    free (pihm->soiltbl.smcwlt);
+
+    /* Free geol input structure */
+    //free (pihm->geol_tbl.ksath);
+    //free (pihm->geol_tbl.ksatv);
+    //free (pihm->geol_tbl.smcmax);
+    //free (pihm->geol_tbl.smcmin);
+    //free (pihm->geol_tbl.alpha);
+    //free (pihm->geol_tbl.beta);
+    //free (pihm->geol_tbl.areafv);
+    //free (pihm->geol_tbl.kmach);
+    //free (pihm->geol_tbl.dmac);
+
+    /* Free landcover input structure */
+    free (pihm->lctbl.laimax);
+    free (pihm->lctbl.laimin);
+    free (pihm->lctbl.vegfrac);
+    free (pihm->lctbl.albedomin);
+    free (pihm->lctbl.albedomax);
+    free (pihm->lctbl.emissmin);
+    free (pihm->lctbl.emissmax);
+    free (pihm->lctbl.z0min);
+    free (pihm->lctbl.z0max);
+    free (pihm->lctbl.hs);
+    free (pihm->lctbl.snup);
+    free (pihm->lctbl.rgl);
+    free (pihm->lctbl.rsmin);
+    free (pihm->lctbl.rough);
+    free (pihm->lctbl.rzd);
+
+    /* Free forcing input structure */
+    if (pihm->forc.nriverbc > 0)
+    {
+        for (i = 0; i < pihm->forc.nriverbc; i++)
+        {
+            for (j = 0; j < pihm->forc.riverbc[i].length; j++)
+            {
+                free (pihm->forc.riverbc[i].data[j]);
+            }
+            free (pihm->forc.riverbc[i].ftime);
+            free (pihm->forc.riverbc[i].data);
+        }
+        free (pihm->forc.riverbc);
+    }
+
+    if (pihm->forc.nmeteo > 0)
+    {
+        for (i = 0; i < pihm->forc.nmeteo; i++)
+        {
+            for (j = 0; j < pihm->forc.meteo[i].length; j++)
+            {
+                free (pihm->forc.meteo[i].data[j]);
+            }
+            free (pihm->forc.meteo[i].ftime);
+            free (pihm->forc.meteo[i].data);
+            free (pihm->forc.meteo[i].value);
+        }
+        free (pihm->forc.meteo);
+    }
+
+    if (pihm->forc.nlai > 0)
+    {
+        for (i = 0; i < pihm->forc.nlai; i++)
+        {
+            for (j = 0; j < pihm->forc.lai[i].length; j++)
+            {
+                free (pihm->forc.lai[i].data[j]);
+            }
+            free (pihm->forc.lai[i].ftime);
+            free (pihm->forc.lai[i].data);
+            free (pihm->forc.lai[i].value);
+        }
+        free (pihm->forc.lai);
+    }
+
+#ifdef _NOAH_
+    if (pihm->forc.nrad > 0)
+    {
+        for (i = 0; i < pihm->forc.nrad; i++)
+        {
+            for (j = 0; j < pihm->forc.rad[i].length; j++)
+            {
+                free (pihm->forc.rad[i].data[j]);
+            }
+            free (pihm->forc.rad[i].ftime);
+            free (pihm->forc.rad[i].data);
+            free (pihm->forc.rad[i].value);
+        }
+        free (pihm->forc.rad);
+    }
+#endif
+
+    free (pihm->ctrl.tout);
+
+    for (i = 0; i < pihm->ctrl.nprint; i++)
+    {
+        free (pihm->prtctrl[i].vrbl);
+        free (pihm->prtctrl[i].buffer);
+    }
+
+    free (pihm->elem);
+    free (pihm->riv);
+}

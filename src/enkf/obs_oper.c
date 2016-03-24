@@ -1,19 +1,18 @@
 #include "pihm.h"
-#include "enkf.h"
 
-void DisOper (obs_struct *obs, pihm_struct pihm)
+void DisOper (obs_struct *obs, var_struct *var, pihm_struct pihm)
 {
     double          dist;
     double          dist_min = 999999999.9;
     int             ind_min;
     int             i;
 
-    obs->var_ind = (int *) malloc (sizeof (int));
-    obs->var_ind[0] = 10;
+    obs->var_ind = (int *)malloc (sizeof (int));
+    obs->var_ind[0] = FindVar (var, "rivflx1");
 
     obs->dim = pihm->numriv;
 
-    obs->weight = (double *) malloc (obs->dim * sizeof (double));
+    obs->weight = (double *)malloc (obs->dim * sizeof (double));
 
     obs->nlyr = 1;
     obs->k = (double **)malloc (obs->dim * sizeof (double *));
@@ -26,8 +25,10 @@ void DisOper (obs_struct *obs, pihm_struct pihm)
 
     for (i = 0; i < pihm->numriv; i++)
     {
-        dist = sqrt ((pihm->riv[i].topo.x - obs->x) * (pihm->riv[i].topo.x - obs->x) +
-            (pihm->riv[i].topo.y - obs->y) * (pihm->riv[i].topo.y - obs->y));
+        dist =
+            sqrt ((pihm->riv[i].topo.x - obs->x) * (pihm->riv[i].topo.x -
+                obs->x) + (pihm->riv[i].topo.y -
+                obs->y) * (pihm->riv[i].topo.y - obs->y));
         if (dist < dist_min)
         {
             ind_min = i;
@@ -45,14 +46,14 @@ void DisOper (obs_struct *obs, pihm_struct pihm)
     obs->weight[ind_min] = 24.0 * 3600.0;
 }
 
-void LandSfcTmpOper (obs_struct *obs, pihm_struct pihm)
+void LandSfcTmpOper (obs_struct *obs, var_struct *var, pihm_struct pihm)
 {
     double          dist;
     int             i;
     double          total_area = 0.0;
 
     obs->var_ind = (int *)malloc (sizeof (int));
-    obs->var_ind[0] = 24;
+    obs->var_ind[0] = FindVar (var, "t1");
 
     obs->dim = pihm->numele;
 
@@ -69,8 +70,10 @@ void LandSfcTmpOper (obs_struct *obs, pihm_struct pihm)
 
     for (i = 0; i < pihm->numele; i++)
     {
-        dist = sqrt ((pihm->elem[i].topo.x - obs->x) * (pihm->elem[i].topo.x - obs->x) +
-            (pihm->elem[i].topo.y - obs->y) * (pihm->elem[i].topo.y - obs->y));
+        dist =
+            sqrt ((pihm->elem[i].topo.x - obs->x) * (pihm->elem[i].topo.x -
+                obs->x) + (pihm->elem[i].topo.y -
+                obs->y) * (pihm->elem[i].topo.y - obs->y));
 
         obs->k[i][0] = 1.0;
         obs->b[i][0] = 0.0;
@@ -90,4 +93,27 @@ void LandSfcTmpOper (obs_struct *obs, pihm_struct pihm)
     {
         obs->weight[i] /= total_area;
     }
+}
+
+int FindVar (var_struct *var, char *varname)
+{
+    int             i;
+    int             id = -999;
+
+    for (i = 0; i < MAXVAR; i++)
+    {
+        if (strcasecmp (varname, var[i].name) == 0)
+        {
+            id = i;
+            break;
+        }
+    }
+
+    if (id == -999)
+    {
+        printf ("Cannot find variable \"%s\"!\n", varname);
+        PihmExit (1);
+    }
+
+    return (id);
 }

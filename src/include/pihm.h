@@ -1,10 +1,3 @@
-
-/*****************************************************************************
- * File       : pihm.h
- * Function   : Declaration and Definition of global variables and data
- *              structure
- ****************************************************************************/
-
 #ifndef PIHM_HEADER
 #define PIHM_HEADER
 
@@ -38,6 +31,10 @@
 #include "pihm_const.h"
 #include "pihm_input_struct.h"
 #include "pihm_struct.h"
+#ifdef _ENKF_
+#include "mpi.h"
+#include "enkf.h"
+#endif
 #include "pihm_func.h"
 
 #endif

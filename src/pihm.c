@@ -119,8 +119,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     /* Free integrator memory */
     CVodeFree (&cvode_mem);
 
-    //FreeData (pihm);
-    //free (pihm);
+    FreeData (pihm);
+    free (pihm);
 }
 
 void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)

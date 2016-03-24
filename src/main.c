@@ -148,7 +148,7 @@ int main (int argc, char *argv[])
         }
 
         /* Initialize observation operator vector */
-        InitOper (project, ens);
+        InitEns (ens);
 
         /* Perturb model parameters */
         Perturb (project, ens, outputdir);
@@ -200,7 +200,7 @@ int main (int argc, char *argv[])
             ReadVar (project, outputdir, ens, ens->cycle_end_time);
 
             /* EnKF data assimilation */
-            EnKF (project, ens, ens->cycle_end_time, outputdir);
+            EnKF (ens, ens->cycle_end_time, outputdir);
 
             /* Proceed to next cycle */
             ens->mbr_start_mode = 3;

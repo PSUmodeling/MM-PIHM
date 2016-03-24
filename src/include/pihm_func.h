@@ -214,4 +214,49 @@ double          Pspms (double);
 double          Psphu (double);
 double          Psphs (double);
 #endif
+
+#ifdef _ENKF_
+void            EnKFRead (char *project, enkf_struct ens);
+double          Randn ();
+void            MapVar (var_struct * var, int numele, int numriv);
+void            Perturb (char *project, enkf_struct ens, char *outputdir);
+void            MapVar (var_struct * var, int numele, int numriv);
+void            Calib2Mbr (calib_struct cal, double *param);
+void            Mbr2Cal (calib_struct *cal, const double *param);
+void            WriteParamOutput (int rawtime, enkf_struct ens, int ind,
+    char *outputdir);
+void            WriteCalFile (enkf_struct ens, char *project);
+void            JobHandout (int starttime, int endtime, int startmode,
+    ensmbr_struct * member, double *param, int ne, int total_jobs);
+void            JobRecv (int *starttime, int *endtime, int *startmode,
+    double *param, int ne);
+void            PrintEnKFStatus (int starttime, int endtime);
+void            JobHandIn (int total_jobs);
+void            WritePara (char *project, int start_mode, int start_time,
+    int end_time);
+
+void            EnKFCore (double *xa, double obs, double obs_err, double *xf,
+    int ne);
+void            EnKF (enkf_struct ens, int obs_time, char *outputdir);
+void            ReadObs (int obs_time, char *fn, double *obs,
+    double *obs_error);
+void            InitOper (pihm_struct pihm, enkf_struct ens);
+void            DisOper (obs_struct * obs, var_struct *var, pihm_struct pihm);
+void            ReadFcst (enkf_struct enkf, obs_struct obs, double *xf);
+void            ReadVar (char *project, char *outputdir, enkf_struct ens,
+    int obs_time);
+void            UpdAnlys (enkf_struct ens, double obs, double obs_error,
+    double *xf);
+void            CovInflt (enkf_struct ens, enkf_struct ens0);
+void            WriteEnKFOut (char *project, enkf_struct ens, char *outputdir,
+    int t);
+void            GenRandNum (int ne, int nparam, double **randnum,
+    double lower, double upper);
+double          Randn ();
+void            LandSfcTmpOper (obs_struct * obs, var_struct *var, pihm_struct pihm);
+void            FreeEns (enkf_struct ens);
+int             FindVar (var_struct *var, char *varname);
+void InitEns (enkf_struct ens);
+#endif
+
 #endif
