@@ -1,0 +1,68 @@
+NUM_ENSEMBLE_MEMBER     3
+ASSIMILATION_INTERVAL   72      # [HOUR]
+START_MODE              0       # 3: Using existing .calib files
+                                # 2: Perturbing near the calibrated value in .calib
+                                # [-1 -- 1]: Perturbing around 
+INFLATION_WEIGHT        0.5
+ASSIMILATION_END_TIME   2009-05-13 00:00
+
+###################
+# PARAMETER TABLE #
+###################
+PARAMETER       PERTURB UPDATE  PTB_MIN PTB_MAX MIN     MAX     LOG
+KSATH		0	0	0.01	100	0.01	100	1
+KSATV		0	0	0.01	100	0.01	100	1
+KINF	        0	0	0.01	100	0.01	100	1
+KMACSATH	0	0	0.01	100	0.01	100	1
+KMACSATV        0	0	0.01	1	0.01	1	1
+DINF		0	0	0	5	0	5	0
+DROOT		0	0	0	5	0	5	0
+DMAC		0	0	0	2	0	2	0
+POROSITY	0	0	0.4	0.6	0.3	1.2	0
+ALPHA		0	0	1.3	2.3	0	2.5	0
+BETA		1	1	0.90	1.80	0.85	1.85	0
+MACVF		0	0	0	15	0	15	0
+MACHF		0	0	0	15	0	15	0
+VEGFRAC		0	0	0	1.5	0	1.5	0
+ALBEDO		0	0	0.5	2	0.8	1.2	0
+ROUGH		0	0	0.5	200	0.5	200	1
+PRCP		0	0	0.8	1.2	0.5	1.5	0
+SFCTMP		0	0	0.8	1.2	0.95	1.05	0
+EC		0	0	0	2	0	2	0
+ETT		0	0	0	2	0	2	0
+EDIR		0	0	0	2	0	2	0
+ROUGH_RIV	0	0	0.5	200	0.5	200	1
+KRIVH           0	0	0.01	100	0.01	100	1
+KRIVV           0	0	0.01	100	0.01	100	1
+BEDTHCK 	0	0	0	2	0	2	0
+RIV_DPTH    	0	0	0	2	0	2	0
+RIV_WDTH	0	0	0	2	0	2	0
+DRIP		0	0	0	5	0	5	0
+CMCMAX		0	0	0	5	0	5	0
+RS		0	0	0.3	2	0.3	1.2	0
+CZIL		0	0	0.1	10	0.1	10	1
+FXEXP		0	0	0.8	2.5	0.8	2.2	0
+CFACTR          0	0	0	2	0.8	1.5	0
+RGL		0	0	1	3	0.8	3	0
+HS		0	0	0.5	2	0.8	1.5	0
+REFSMC          0	0	0.8	1.15	0.8	1.2	0
+WLTSMC		0	0	0	1.0	0	1.0	0
+
+#################
+# OBSERVATIONS  #
+#################
+NUM_OBS         1
+
+OBS_TYPE        discharge
+OBS_FILE        discharge.txt
+OBS_LOCATION_X  254209.83
+OBS_LOCATION_Y  4505410.76
+OBS_RADIUS      0.0
+OBS_DEPTH       0.0
+
+OBS_TYPE        skin_temperature
+OBS_FILE        t1.dat
+OBS_LOCATION_X  254448.31
+OBS_LOCATION_Y  4505380.39
+OBS_RADIUS      500.0
+OBS_DEPTH       0.0

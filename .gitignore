@@ -79,7 +79,7 @@ src/*~
 src/*/*~
 
 # Input, output and logs
+!input/example/
 input/
-!input/sh
 output/
 *.log
