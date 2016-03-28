@@ -84,7 +84,8 @@
 /input/*
 !/input/example
 /input/example/example.*.calib
-/input/example/example.*.init
-/input/example/example.*.init.txt
+!/input/example/example.ic
+/input/example/example.*.ic
+/input/example/example.*.ic.txt
 /output/
 /*.log
