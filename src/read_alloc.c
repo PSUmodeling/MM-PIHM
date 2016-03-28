@@ -36,7 +36,6 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     sprintf (pihm->filename.cycles, "input/%s/%s.cycles", project, project);
     sprintf (pihm->filename.soilinit, "input/%s/%s.soilinit", project, project);
     sprintf (pihm->filename.crop, "input/%s/%s.crop", project, project);
-    sprintf (pihm->filename.op, "input/%s/%s.operation", project, project);
 #endif
 
     /*
@@ -139,7 +138,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     /*
      * Read operation file
      */
-    ReadOperation (pihm->filename.op, &pihm->mgmttbl, &pihm->croptbl);
+    ReadOperation (&pihm->agtbl, &pihm->mgmttbl, &pihm->croptbl);
 #endif
 }
 

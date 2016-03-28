@@ -23,7 +23,7 @@ typedef struct filename_struct
     char            cycles[MAXSTRING];
     char            soilinit[MAXSTRING];
     char            crop[MAXSTRING];
-    char            op[MAXSTRING];
+    char            op[MAXOP][MAXSTRING];
 #endif
 } filename_struct;
 
@@ -242,6 +242,8 @@ typedef struct agtbl_struct
     int            *auto_N;
     int            *auto_P;
     int            *auto_S;
+    int             nopfile;
+    char            opfilen[MAXOP][MAXSTRING];
 } agtbl_struct;
 
 typedef struct croptbl_struct

@@ -155,7 +155,8 @@ endif
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS = -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
-  	cycles/cycles_read.c
+  	cycles/cycles_read.c \
+	cycles/cycles_init.c
   MODULE_HEADERS_ =
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."

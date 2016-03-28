@@ -44,6 +44,10 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     InitLsm (pihm->elem, pihm->numele, pihm->ctrl, pihm->noahtbl, pihm->cal);
 #endif
 
+#ifdef _CYCLES_
+    InitCycles (pihm->elem, pihm->numele, &pihm->mgmttbl, &pihm->agtbl);
+#endif
+
     if (pihm->ctrl.init_type == RELAX)
     {
 #ifdef _NOAH_

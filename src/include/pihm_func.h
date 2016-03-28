@@ -263,7 +263,9 @@ void InitEns (enkf_struct ens);
 void            ReadCyclesCtrl (char *, agtbl_struct *, int);
 void            ReadSoilInit (char *, soiltbl_struct *);
 void            ReadCrop (char *, croptbl_struct *);
-void            ReadOperation (char *, mgmttbl_struct *, const croptbl_struct *);
+void            ReadOperation (const agtbl_struct *, mgmttbl_struct *, const croptbl_struct *);
+int             CropExist (char *, const croptbl_struct *);
+void            InitCycles (elem_struct *, int, const mgmttbl_struct *, const agtbl_struct *);
 #endif
 
 #endif

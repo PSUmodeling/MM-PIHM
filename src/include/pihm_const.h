@@ -124,6 +124,8 @@ enum rad_forcing_type
 { SOLAR_DIR_TS, SOLAR_DIF_TS };
 
 #ifdef _CYCLES_
+#define MAXOP               100
+
 #define REMOVE_CLIPPING     0
 #define RETURN_CLIPPING     1
 #define GRAZING_CLIPPING    2
