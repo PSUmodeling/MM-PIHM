@@ -1155,12 +1155,6 @@ void ReadCalib (char *filename, calib_struct *cal)
     ReadKeywordDouble (cmdstr, "ROUGH", &cal->rough);
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "PRCP", &cal->prcp);
-
-    NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "SFCTMP", &cal->sfctmp);
-
-    NextLine (global_calib, cmdstr);
     ReadKeywordDouble (cmdstr, "EC", &cal->ec);
 
     NextLine (global_calib, cmdstr);
@@ -1227,7 +1221,17 @@ void ReadCalib (char *filename, calib_struct *cal)
     ReadKeywordDouble (cmdstr, "WLTSMC", &cal->thetaw);
 #endif
 
-    /* finish reading calib file */
+    /*
+     * Scenarios
+     */
+    NextLine (global_calib, cmdstr);
+    ReadKeywordDouble (cmdstr, "PRCP", &cal->prcp);
+
+    NextLine (global_calib, cmdstr);
+    ReadKeywordDouble (cmdstr, "SFCTMP", &cal->sfctmp);
+
+
+    /* Finish reading calib file */
     fclose (global_calib);
 }
 

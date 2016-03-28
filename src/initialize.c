@@ -382,12 +382,15 @@ void InitForcing (elem_struct *elem, int numele, river_struct *riv,
 {
     int             i, j;
 
+    /*
+     * Apply scenarios
+     */
     for (i = 0; i < forc->nmeteo; i++)
     {
         for (j = 0; j < forc->meteo[i].length; j++)
         {
             forc->meteo[i].data[j][PRCP_TS] *= cal.prcp;
-            forc->meteo[i].data[j][SFCTMP_TS] *= cal.sfctmp;
+            forc->meteo[i].data[j][SFCTMP_TS] += cal.sfctmp;
         }
     }
 
