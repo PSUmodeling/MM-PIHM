@@ -254,6 +254,7 @@ void            GenRandNum (int ne, int nparam, double **randnum,
     double lower, double upper);
 double          Randn ();
 void            LandSfcTmpOper (obs_struct * obs, var_struct *var, pihm_struct pihm);
+void		COSMOSOper (obs_struct *obs, var_struct *var, pihm_struct pihm);
 void            FreeEns (enkf_struct ens);
 int             FindVar (var_struct *var, char *varname);
 void InitEns (enkf_struct ens);
