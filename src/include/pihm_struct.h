@@ -58,7 +58,6 @@ typedef struct soil_struct
                                  * vertical cross-section */
     double          areafh;     /* macropore area fraction on a
                                  * horizontal cross-section */
-    int             macropore;  /* 1: macropore; 0: regular soil */
 #ifdef _NOAH_
     double          csoil;      /* soil heat capacity (j m-3 k-1) */
     double          quartz;     /* soil quartz content */

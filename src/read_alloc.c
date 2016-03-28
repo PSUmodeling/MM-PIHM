@@ -418,18 +418,16 @@ void ReadAtt (char *filename, atttbl_struct *atttbl, int numele)
     atttbl->meteo = (int *)malloc (numele * sizeof (int));
     atttbl->lai = (int *)malloc (numele * sizeof (int));
     atttbl->source = (int *)malloc (numele * sizeof (int));
-    atttbl->macropore = (int *)malloc (numele * sizeof (int));
 
     NextLine (att_file, cmdstr);
     for (i = 0; i < numele; i++)
     {
         NextLine (att_file, cmdstr);
-        match = sscanf (cmdstr, "%d %d %d %d %d %d %d %d %d %d %d", &index,
+        match = sscanf (cmdstr, "%d %d %d %d %d %d %d %d %d %d", &index,
             &atttbl->soil[i], &atttbl->geol[i], &atttbl->lc[i],
             &atttbl->meteo[i], &atttbl->lai[i], &atttbl->source[i],
-            &atttbl->bc[i][0], &atttbl->bc[i][1], &atttbl->bc[i][2],
-            &atttbl->macropore[i]);
-        if (match != 11)
+            &atttbl->bc[i][0], &atttbl->bc[i][1], &atttbl->bc[i][2]);
+        if (match != 10)
         {
             printf ("Cannot read information of the %dth element!\n", i + 1);
             printf (".att file format error!\n");
@@ -1351,7 +1349,6 @@ void FreeData (pihm_struct pihm)
     free (pihm->atttbl.meteo);
     free (pihm->atttbl.lai);
     free (pihm->atttbl.source);
-    free (pihm->atttbl.macropore);
 
     /* Free soil input structure */
     free (pihm->soiltbl.silt);

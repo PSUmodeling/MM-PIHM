@@ -41,23 +41,22 @@ void VerticalFlow (pihm_struct pihm)
             satn = 1.0;
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
 
-            if (elem->soil.macropore)
+            if (elem->soil.areafh == 0.0)
+            {
+                elem->ps.macpore_status = MTX_CTRL;
+            }
+            else
             {
                 elem->ps.macpore_status =
                     MacroporeStatus (dh_by_dz, satkfunc, satn, applrate,
                     elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
             }
-            else
-            {
-                elem->ps.macpore_status = MTX_CTRL;
-            }
 
             if (dh_by_dz < 0.0)
             {
-                kinf = (elem->soil.macropore) ?
+                kinf = 
                     elem->soil.kmacv * elem->soil.areafh +
-                    elem->soil.kinfv * (1.0 - elem->soil.areafh) :
-                    elem->soil.kinfv;
+                    elem->soil.kinfv * (1.0 - elem->soil.areafh);
             }
             else
             {
@@ -107,15 +106,15 @@ void VerticalFlow (pihm_struct pihm)
 
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
 
-            if (elem->soil.macropore)
+            if (elem->soil.areafh == 0.0)
+            {
+                elem->ps.macpore_status = MTX_CTRL;
+            }
+            else
             {
                 elem->ps.macpore_status =
                     MacroporeStatus (dh_by_dz, satkfunc, satn, applrate,
                     elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
-            }
-            else
-            {
-                elem->ps.macpore_status = MTX_CTRL;
             }
 
             kinf = EffKinf (satkfunc, satn, elem->ps.macpore_status,

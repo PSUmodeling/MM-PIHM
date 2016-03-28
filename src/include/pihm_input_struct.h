@@ -90,7 +90,6 @@ typedef struct atttbl_struct
                                  * values; else: use user provided time
                                  *                                  * series */
     int            *source;     /* source (well) type */
-    int            *macropore;
 } atttbl_struct;
 
 typedef struct soiltbl_struct

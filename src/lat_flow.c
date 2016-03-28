@@ -105,13 +105,11 @@ void LateralFlow (pihm_struct pihm)
                 grad_y_sub = dif_y_sub / distance;
                 /* Take into account macropore effect */
                 effk =
-                    EffKH (elem->soil.macropore, elem->ws.gw,
-                    elem->soil.depth, elem->soil.dmac, elem->soil.kmach,
-                    elem->soil.areafv, elem->soil.ksath);
+                    EffKH (elem->ws.gw, elem->soil.depth, elem->soil.dmac,
+                    elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
                 effk_nabr =
-                    EffKH (nabr->soil.macropore, nabr->ws.gw,
-                    nabr->soil.depth, nabr->soil.dmac, nabr->soil.kmach,
-                    nabr->soil.areafv, nabr->soil.ksath);
+                    EffKH (nabr->ws.gw, nabr->soil.depth, nabr->soil.dmac,
+                    nabr->soil.kmach, nabr->soil.areafv, nabr->soil.ksath);
                 avg_ksat = 0.5 * (effk + effk_nabr);
                 /* Groundwater flow modeled by Darcy's Law */
                 elem->wf.fluxsub[j] =
@@ -180,9 +178,9 @@ void LateralFlow (pihm_struct pihm)
                             elem->topo.edge[2] / (4.0 * elem->topo.area),
                             2) - pow (elem->topo.edge[j] / 2.0, 2));
                     effk =
-                        EffKH (elem->soil.macropore, elem->ws.gw,
-                        elem->soil.depth, elem->soil.dmac, elem->soil.kmach,
-                        elem->soil.areafv, elem->soil.ksath);
+                        EffKH (elem->ws.gw, elem->soil.depth, elem->soil.dmac,
+                        elem->soil.kmach, elem->soil.areafv,
+                        elem->soil.ksath);
                     avg_ksat = effk;
                     grad_y_sub = dif_y_sub / distance;
                     elem->wf.fluxsub[j] =
@@ -272,30 +270,23 @@ double DhByDl (double *l1, double *l2, double *surfh)
                 l1[0]) + l2[1] * (l1[0] - l1[2]) + l2[0] * (l1[2] - l1[1])));
 }
 
-double EffKH (int mp, double tmpy, double aqdepth, double macd,
-    double macksath, double areaf, double ksath)
+double EffKH (double tmpy, double aqdepth, double macd, double macksath,
+    double areaf, double ksath)
 {
     tmpy = (tmpy > 0.0) ? tmpy : 0.0;
 
-    if (mp == 1)
+    if (tmpy > aqdepth - macd)
     {
-        if (tmpy > aqdepth - macd)
+        if (tmpy > aqdepth)
         {
-            if (tmpy > aqdepth)
-            {
-                return (macksath * macd * areaf + ksath * (aqdepth -
-                        macd * areaf)) / aqdepth;
-            }
-            else
-            {
-                return (macksath * (tmpy - (aqdepth - macd)) * areaf +
-                    ksath * (aqdepth - macd + (tmpy - (aqdepth -
-                                macd)) * (1.0 - areaf))) / tmpy;
-            }
+            return (macksath * macd * areaf + ksath * (aqdepth -
+                    macd * areaf)) / aqdepth;
         }
         else
         {
-            return (ksath);
+            return (macksath * (tmpy - (aqdepth - macd)) * areaf +
+                ksath * (aqdepth - macd + (tmpy - (aqdepth -
+                            macd)) * (1.0 - areaf))) / tmpy;
         }
     }
     else

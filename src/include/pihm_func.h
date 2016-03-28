@@ -104,7 +104,7 @@ double          EffKV (double, double, int, double, double, double);
 double          AvgKV (double dmac, double deficit, double gw,
     double macp_status, double satn, double satkfunc, double kmacv,
     double ksatv, double areafh);
-double          EffKH (int, double, double, double, double, double, double);
+double          EffKH (double, double, double, double, double, double);
 
 void            PrtInit (pihm_struct pihm, char *simulation);
 void            PrintData (prtctrl_struct *, int, int, int, int, int);

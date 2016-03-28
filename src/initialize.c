@@ -178,7 +178,6 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
 
         elem[i].soil.areafh = cal.areafh * soiltbl.areafh[soil_ind];
         elem[i].soil.areafv = cal.areafv * soiltbl.areafv[soil_ind];
-        elem[i].soil.macropore = atttbl.macropore[i];
 
         elem[i].soil.kmacv =
             cal.kmacv * soiltbl.kmacv_ro * soiltbl.kinfv[soil_ind];

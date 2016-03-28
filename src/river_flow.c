@@ -95,21 +95,17 @@ void RiverFlow (pihm_struct pihm)
             aquifer_depth = riv->topo.zbed - riv->topo.zmin;
             left = &pihm->elem[riv->leftele - 1];
             right = &pihm->elem[riv->rightele - 1];
-            effk =
-                0.5 * (EffKH (left->soil.macropore, left->ws.gw,
-                    left->soil.depth, left->soil.dmac, left->soil.kmach,
-                    left->soil.areafv,
-                    left->soil.ksath) + EffKH (right->soil.macropore,
-                    right->ws.gw, right->soil.depth, right->soil.dmac,
-                    right->soil.kmach, left->soil.areafv, right->soil.ksath));
+            effk = 0.5 *
+                (EffKH (left->ws.gw, left->soil.depth, left->soil.dmac,
+                left->soil.kmach, left->soil.areafv, left->soil.ksath) +
+                EffKH (right->ws.gw, right->soil.depth, right->soil.dmac,
+                right->soil.kmach, left->soil.areafv, right->soil.ksath));
             left = &pihm->elem[down->leftele - 1];
             right = &pihm->elem[down->rightele - 1];
-            effk_nabr =
-                0.5 * (EffKH (left->soil.macropore, left->ws.gw,
-                    left->soil.depth, left->soil.dmac, left->soil.kmach,
-                    left->soil.areafv,
-                    left->soil.ksath) + EffKH (right->soil.macropore,
-                    right->ws.gw, right->soil.depth, right->soil.dmac,
+            effk_nabr = 0.5 *
+                (EffKH (left->ws.gw, left->soil.depth, left->soil.dmac,
+                left->soil.kmach, left->soil.areafv, left->soil.ksath) +
+                EffKH ( right->ws.gw, right->soil.depth, right->soil.dmac,
                     right->soil.kmach, left->soil.areafv, right->soil.ksath));
 #ifdef _ARITH_
             avg_ksat = 0.5 * (effk + effk_nabr);
@@ -262,9 +258,8 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     grad_y_sub = dif_y_sub / distance;
     /* Take into account macropore effect */
     effk_nabr =
-        EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
-        elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
-        elem->soil.ksath);
+        EffKH (elem->ws.gw, elem->soil.depth, elem->soil.dmac,
+        elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
     avg_ksat = 0.5 * (effk + effk_nabr);
     *fluxriv = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
 
@@ -289,16 +284,14 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     }
     avg_y_sub = AvgY (dif_y_sub, riv->ws.gw, avg_y_sub);
     aquifer_depth = riv->topo.zbed - riv->topo.zmin;
-    effk =
-        0.5 * (EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
-            elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
-            elem->soil.ksath) + EffKH (oppbank->soil.macropore,
-            oppbank->ws.gw, oppbank->soil.depth, oppbank->soil.dmac,
+    effk = 0.5 *
+        (EffKH (elem->ws.gw, elem->soil.depth, elem->soil.dmac,
+        elem->soil.kmach, elem->soil.areafv, elem->soil.ksath) +
+        EffKH (oppbank->ws.gw, oppbank->soil.depth, oppbank->soil.dmac,
             oppbank->soil.kmach, oppbank->soil.areafv, oppbank->soil.ksath));
     effk_nabr =
-        EffKH (elem->soil.macropore, elem->ws.gw, elem->soil.depth,
-        elem->soil.dmac, elem->soil.kmach, elem->soil.areafv,
-        elem->soil.ksath);
+        EffKH (elem->ws.gw, elem->soil.depth, elem->soil.dmac,
+        elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
 #ifdef _ARITH_
     avg_ksat = 0.5 * (effk + effk_nabr);
 #else

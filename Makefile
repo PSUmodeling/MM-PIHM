@@ -240,4 +240,4 @@ clean:			## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ pihm flux-pihm flux-pihm-bgc rt-flux-pihm flux-pihm-enkf
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ pihm flux-pihm flux-pihm-bgc flux-pihm-cycles rt-flux-pihm flux-pihm-enkf
