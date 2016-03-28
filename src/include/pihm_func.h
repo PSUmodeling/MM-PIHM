@@ -29,10 +29,10 @@ void            ReadLC (char *, lctbl_struct *);
 void            ReadForc (char *, forc_struct *);
 void            ReadLAI (char *, forc_struct *, int numele,
     const atttbl_struct *);
-void            ReadIbc (char *, forc_struct *);
+void            ReadBC (char *, forc_struct *);
 void            ReadPara (char *, ctrl_struct *);
 void            ReadCalib (char *, calib_struct *);
-void            ReadInit (char *, elem_struct *, int, river_struct *, int);
+void            ReadIC (char *, elem_struct *, int, river_struct *, int);
 void            FreeData (pihm_struct pihm);
 #ifdef _NOAH_
 void            ReadLsm (char *, double *, double *, ctrl_struct *,

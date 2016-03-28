@@ -9,12 +9,12 @@ typedef struct filename_struct
     char            soil[MAXSTRING];
     char            geol[MAXSTRING];
     char            lc[MAXSTRING];
-    char            forc[MAXSTRING];
+    char            meteo[MAXSTRING];
     char            lai[MAXSTRING];
-    char            ibc[MAXSTRING];
+    char            bc[MAXSTRING];
     char            para[MAXSTRING];
     char            calib[MAXSTRING];
-    char            init[MAXSTRING];
+    char            ic[MAXSTRING];
 #ifdef _NOAH_
     char            lsm[MAXSTRING];
     char            rad[MAXSTRING];

@@ -22,12 +22,12 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     sprintf (pihm->filename.soil, "input/%s/%s.soil",  project, project);
     sprintf (pihm->filename.geol, "input/%s/%s.geol",  project, project);
     sprintf (pihm->filename.lc,   "input/vegprmt.tbl");
-    sprintf (pihm->filename.forc, "input/%s/%s.forc",  project, project);
+    sprintf (pihm->filename.meteo, "input/%s/%s.meteo",  project, project);
     sprintf (pihm->filename.lai,  "input/%s/%s.lai",   project, project);
-    sprintf (pihm->filename.ibc,  "input/%s/%s.ibc",   project, project);
+    sprintf (pihm->filename.bc,  "input/%s/%s.bc",   project, project);
     sprintf (pihm->filename.para, "input/%s/%s.para",  project, project);
     sprintf (pihm->filename.calib,"input/%s/%s.calib", project, simulation);
-    sprintf (pihm->filename.init, "input/%s/%s.init",  project, simulation);
+    sprintf (pihm->filename.ic, "input/%s/%s.ic",  project, simulation);
 #ifdef _NOAH_
     sprintf (pihm->filename.lsm,  "input/%s/%s.lsm",   project, project);
     sprintf (pihm->filename.rad,  "input/%s/%s.rad",   project, project);
@@ -74,7 +74,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     /*
      * Read meteorological forcing input file
      */
-    ReadForc (pihm->filename.forc, &pihm->forc);
+    ReadForc (pihm->filename.meteo, &pihm->forc);
 
     /*
      * Read LAI input file
@@ -91,7 +91,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
      * Read boundary condition input file
      */
     pihm->forc.nbc = 0;
-    ReadIbc (pihm->filename.ibc, &pihm->forc);
+    ReadBC (pihm->filename.bc, &pihm->forc);
 
     /*
      * Read model control file
@@ -727,26 +727,26 @@ void ReadLC (char *filename, lctbl_struct *lctbl)
 
 void ReadForc (char *filename, forc_struct *forc)
 {
-    FILE           *forc_file;  /* Pointer to .forc file */
+    FILE           *meteo_file;  /* Pointer to .forc file */
     char            cmdstr[MAXSTRING];
     int             i, j;
     int             match;
     int             index;
 
-    forc_file = fopen (filename, "r");
-    CheckFile (forc_file, filename);
+    meteo_file = fopen (filename, "r");
+    CheckFile (meteo_file, filename);
 
-    FindLine (forc_file, "BOF");
+    FindLine (meteo_file, "BOF");
 
-    forc->nmeteo = CountOccurance (forc_file, "METEO_TS");
+    forc->nmeteo = CountOccurance (meteo_file, "METEO_TS");
 
-    FindLine (forc_file, "BOF");
+    FindLine (meteo_file, "BOF");
     if (forc->nmeteo > 0)
     {
         forc->meteo =
             (tsdata_struct *)malloc (forc->nmeteo * sizeof (tsdata_struct));
 
-        NextLine (forc_file, cmdstr);
+        NextLine (meteo_file, cmdstr);
         for (i = 0; i < forc->nmeteo; i++)
         {
             match = sscanf (cmdstr, "%*s %d %*s %lf",
@@ -760,20 +760,20 @@ void ReadForc (char *filename, forc_struct *forc)
                 PihmExit (1);
             }
             /* Skip header lines */
-            NextLine (forc_file, cmdstr);
-            NextLine (forc_file, cmdstr);
+            NextLine (meteo_file, cmdstr);
+            NextLine (meteo_file, cmdstr);
             forc->meteo[i].length =
-                CountLine (forc_file, cmdstr, 1, "METEO_TS");
+                CountLine (meteo_file, cmdstr, 1, "METEO_TS");
         }
 
         /* Rewind and read */
-        FindLine (forc_file, "BOF");
+        FindLine (meteo_file, "BOF");
         for (i = 0; i < forc->nmeteo; i++)
         {
             /* Skip header lines */
-            NextLine (forc_file, cmdstr);
-            NextLine (forc_file, cmdstr);
-            NextLine (forc_file, cmdstr);
+            NextLine (meteo_file, cmdstr);
+            NextLine (meteo_file, cmdstr);
+            NextLine (meteo_file, cmdstr);
 
             forc->meteo[i].ftime =
                 (int *)malloc (forc->meteo[i].length * sizeof (int));
@@ -783,14 +783,14 @@ void ReadForc (char *filename, forc_struct *forc)
             {
                 forc->meteo[i].data[j] =
                     (double *)malloc (NUM_METEO_VAR * sizeof (double));
-                NextLine (forc_file, cmdstr);
+                NextLine (meteo_file, cmdstr);
                 ReadTS (cmdstr, &forc->meteo[i].ftime[j],
                     &forc->meteo[i].data[j][0], NUM_METEO_VAR);
             }
         }
     }
 
-    fclose (forc_file);
+    fclose (meteo_file);
 }
 
 void ReadLAI (char *filename, forc_struct *forc, int numele,
@@ -877,22 +877,22 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
 }
 
 
-void ReadIbc (char *filename, forc_struct *forc)
+void ReadBC (char *filename, forc_struct *forc)
 {
     int             i, j;
-    FILE           *ibc_file;   /* Pointer to .ibc file */
+    FILE           *bc_file;   /* Pointer to .ibc file */
     char            cmdstr[MAXSTRING];
     int             match;
     int             index;
 
-    ibc_file = fopen (filename, "r");
-    CheckFile (ibc_file, filename);
+    bc_file = fopen (filename, "r");
+    CheckFile (bc_file, filename);
 
     /*
-     * Start reading ibc_file 
+     * Start reading bc_file 
      */
-    FindLine (ibc_file, "BOF");
-    NextLine (ibc_file, cmdstr);
+    FindLine (bc_file, "BOF");
+    NextLine (bc_file, cmdstr);
     match = sscanf (cmdstr, "%*s %d", &forc->nbc);
     if (match != 1)
     {
@@ -908,7 +908,7 @@ void ReadIbc (char *filename, forc_struct *forc)
 
         for (i = 0; i < forc->nbc; i++)
         {
-            NextLine (ibc_file, cmdstr);
+            NextLine (bc_file, cmdstr);
             match = sscanf (cmdstr, "%*s %d", &index);
             if (match != 1 || i != index - 1)
             {
@@ -919,20 +919,20 @@ void ReadIbc (char *filename, forc_struct *forc)
                 PihmExit (1);
             }
             /* Skip header lines */
-            NextLine (ibc_file, cmdstr);
-            NextLine (ibc_file, cmdstr);
+            NextLine (bc_file, cmdstr);
+            NextLine (bc_file, cmdstr);
 
-            forc->bc[i].length = CountLine (ibc_file, cmdstr, 1, "BC_TS");
+            forc->bc[i].length = CountLine (bc_file, cmdstr, 1, "BC_TS");
         }
 
         /* Rewind and read */
-        FindLine (ibc_file, "NUM_BC_TS");
+        FindLine (bc_file, "NUM_BC_TS");
         for (i = 0; i < forc->nbc; i++)
         {
             /* Skip header lines */
-            NextLine (ibc_file, cmdstr);
-            NextLine (ibc_file, cmdstr);
-            NextLine (ibc_file, cmdstr);
+            NextLine (bc_file, cmdstr);
+            NextLine (bc_file, cmdstr);
+            NextLine (bc_file, cmdstr);
 
             forc->bc[i].ftime =
                 (int *)malloc (forc->bc[i].length * sizeof (int));
@@ -941,14 +941,14 @@ void ReadIbc (char *filename, forc_struct *forc)
             for (j = 0; j < forc->bc[i].length; j++)
             {
                 forc->bc[i].data[j] = (double *)malloc (sizeof (double));
-                NextLine (ibc_file, cmdstr);
+                NextLine (bc_file, cmdstr);
                 ReadTS (cmdstr, &forc->bc[i].ftime[j],
                     &forc->bc[i].data[j][0], 1);
             }
         }
     }
 
-    fclose (ibc_file);
+    fclose (bc_file);
 }
 
 void ReadPara (char *filename, ctrl_struct *ctrl)
@@ -1231,10 +1231,10 @@ void ReadCalib (char *filename, calib_struct *cal)
     fclose (global_calib);
 }
 
-void ReadInit (char *filename, elem_struct *elem, int numele,
+void ReadIC (char *filename, elem_struct *elem, int numele,
     river_struct *riv, int numriv)
 {
-    FILE           *init_file;
+    FILE           *ic_file;
     int             i;
     int             sz;
     int             elemsz;
@@ -1243,8 +1243,8 @@ void ReadInit (char *filename, elem_struct *elem, int numele,
     int             j;
 #endif
 
-    init_file = fopen (filename, "rb");
-    CheckFile (init_file, filename);
+    ic_file = fopen (filename, "rb");
+    CheckFile (ic_file, filename);
 
     elemsz = 5 * sizeof (double);
     rivsz = 2 * sizeof (double);
@@ -1252,49 +1252,49 @@ void ReadInit (char *filename, elem_struct *elem, int numele,
     elemsz += (2 + 3 * MAXLYR) * sizeof (double);
 #endif
 
-    fseek (init_file, 0L, SEEK_END);
-    sz = ftell (init_file);
+    fseek (ic_file, 0L, SEEK_END);
+    sz = ftell (ic_file);
 
     if (sz != elemsz * numele + rivsz * numriv)
     {
-        printf ("\nERROR:.init file size does not match!\n");
+        printf ("\nERROR:.ic file size does not match!\n");
         PihmExit (1);
     }
 
-    fseek (init_file, 0L, SEEK_SET);
+    fseek (ic_file, 0L, SEEK_SET);
 
     for (i = 0; i < numele; i++)
     {
-        fread (&elem[i].ic.intcp, sizeof (double), 1, init_file);
-        fread (&elem[i].ic.sneqv, sizeof (double), 1, init_file);
-        fread (&elem[i].ic.surf, sizeof (double), 1, init_file);
-        fread (&elem[i].ic.unsat, sizeof (double), 1, init_file);
-        fread (&elem[i].ic.gw, sizeof (double), 1, init_file);
+        fread (&elem[i].ic.intcp, sizeof (double), 1, ic_file);
+        fread (&elem[i].ic.sneqv, sizeof (double), 1, ic_file);
+        fread (&elem[i].ic.surf, sizeof (double), 1, ic_file);
+        fread (&elem[i].ic.unsat, sizeof (double), 1, ic_file);
+        fread (&elem[i].ic.gw, sizeof (double), 1, ic_file);
 #ifdef _NOAH_
-        fread (&elem[i].ic.t1, sizeof (double), 1, init_file);
-        fread (&elem[i].ic.snowh, sizeof (double), 1, init_file);
+        fread (&elem[i].ic.t1, sizeof (double), 1, ic_file);
+        fread (&elem[i].ic.snowh, sizeof (double), 1, ic_file);
 
         for (j = 0; j < MAXLYR; j++)
         {
-            fread (&elem[i].ic.stc[j], sizeof (double), 1, init_file);
+            fread (&elem[i].ic.stc[j], sizeof (double), 1, ic_file);
         }
         for (j = 0; j < MAXLYR; j++)
         {
-            fread (&elem[i].ic.smc[j], sizeof (double), 1, init_file);
+            fread (&elem[i].ic.smc[j], sizeof (double), 1, ic_file);
         }
         for (j = 0; j < MAXLYR; j++)
         {
-            fread (&elem[i].ic.sh2o[j], sizeof (double), 1, init_file);
+            fread (&elem[i].ic.sh2o[j], sizeof (double), 1, ic_file);
         }
 #endif
     }
     for (i = 0; i < numriv; i++)
     {
-        fread (&riv[i].ic.stage, sizeof (double), 1, init_file);
-        fread (&riv[i].ic.gw, sizeof (double), 1, init_file);
+        fread (&riv[i].ic.stage, sizeof (double), 1, ic_file);
+        fread (&riv[i].ic.gw, sizeof (double), 1, ic_file);
     }
 
-    fclose (init_file);
+    fclose (ic_file);
 }
 
 void FreeData (pihm_struct pihm)

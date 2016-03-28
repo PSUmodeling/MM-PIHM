@@ -57,7 +57,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     }
     else if (pihm->ctrl.init_type == RST_FILE)
     {
-        ReadInit (pihm->filename.init, pihm->elem, pihm->numele, pihm->riv,
+        ReadIC (pihm->filename.ic, pihm->elem, pihm->numele, pihm->riv,
             pihm->numriv);
     }
 
