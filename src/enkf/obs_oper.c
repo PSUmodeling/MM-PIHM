@@ -117,3 +117,50 @@ int FindVar (var_struct *var, char *varname)
 
     return (id);
 }
+
+void COSMOSOper (obs_struct *obs, var_struct *var, pihm_struct pihm)
+{
+    double          dist;
+    int             i;
+    double          total_area = 0.0;
+
+    obs->var_ind = (int *)malloc (sizeof (int));
+    obs->var_ind[0] = FindVar (var, "smc0");
+
+    obs->dim = pihm->numele;
+
+    obs->weight = (double *)malloc (obs->dim * sizeof (double));
+
+    obs->nlyr = 1;
+    obs->k = (double **)malloc (obs->dim * sizeof (double));
+    obs->b = (double **)malloc (obs->dim * sizeof (double));
+    for (i = 0; i < obs->dim; i++)
+    {
+        obs->k[i] = (double *)malloc (sizeof (double));
+        obs->b[i] = (double *)malloc (sizeof (double));
+    }
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        dist = sqrt ((pihm->elem[i].topo.x - obs->x) * (pihm->elem[i].topo.x - obs->x) +
+            (pihm->elem[i].topo.y - obs->y) * (pihm->elem[i].topo.y - obs->y));
+
+        obs->k[i][0] = 1.0;
+        obs->b[i][0] = 0.0;
+
+        if (dist < obs->rad)
+        {
+            obs->weight[i] = pihm->elem[i].topo.area;
+            total_area += pihm->elem[i].topo.area;
+        }
+        else
+        {
+            obs->weight[i] = 0.0;
+        }
+    }
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        obs->weight[i] /= total_area;
+    }
+}
