@@ -45,7 +45,8 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
 #endif
 
 #ifdef _CYCLES_
-    InitCycles (pihm->elem, pihm->numele, &pihm->mgmttbl, &pihm->agtbl);
+    InitCycles (pihm->elem, pihm->numele, &pihm->mgmttbl, &pihm->agtbl,
+        &pihm->croptbl, &pihm->soiltbl);
 #endif
 
     if (pihm->ctrl.init_type == RELAX)
@@ -138,7 +139,9 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
 
     for (i = 0; i < numele; i++)
     {
-        soil_ind = atttbl.soil[i] - 1;
+        elem[i].soil.type = atttbl.soil[i];
+
+        soil_ind = elem[i].soil.type - 1;
 
         elem[i].soil.dinf = cal.dinf * soiltbl.dinf;
 

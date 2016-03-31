@@ -153,10 +153,18 @@ endif
 # Flux-PIHM-Cycles
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
-  SFLAGS = -D_CYCLES_ -D_DAILY_
+  SFLAGS = -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
+	noah/lsm_func.c \
+	noah/lsm_read.c \
+	noah/lsm_init.c \
+  	noah/noah.c \
+	spa/spa.c \
   	cycles/cycles_read.c \
-	cycles/cycles_init.c
+	cycles/cycles_init.c \
+	cycles/Soil.c \
+	cycles/Residue.c \
+	cycles/SoilCarbon.c
   MODULE_HEADERS_ =
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."

@@ -266,7 +266,26 @@ void            ReadSoilInit (char *, soiltbl_struct *);
 void            ReadCrop (char *, croptbl_struct *);
 void            ReadOperation (const agtbl_struct *, mgmttbl_struct *, const croptbl_struct *);
 int             CropExist (char *, const croptbl_struct *);
-void            InitCycles (elem_struct *, int, const mgmttbl_struct *, const agtbl_struct *);
+void            InitCycles (elem_struct *, int, const mgmttbl_struct *, const agtbl_struct *, const croptbl_struct *, const soiltbl_struct *);
+void            InitializeSoil (soil_struct *, const soiltbl_struct *, const ps_struct *);
+double          BulkDensity (double, double, double);
+void            InitializeResidue (residue_struct *, int);
+void            InitializeSoilCarbon (soilc_struct *, int);
+void            ComputeFactorComposite (soilc_struct *SoilCarbon, int doy, int y, int last_doy, soil_struct *Soil);
+void            ComputeSoilCarbonBalanceMB (soilc_struct *SoilCarbon, int y, residue_struct *Residue, soil_struct *Soil, double *tillageFactor);
+void            ComputeSoilCarbonBalance (soilc_struct *SoilCarbon, int y, residue_struct *Residue, soil_struct *Soil, double *tillageFactor);
+void            StoreOutput (soilc_struct *SoilCarbon, int y, int totalLayers, double *SOCMass);
+double          Aeration (double AC);
+double          Moisture (double wp);
+double          TemperatureFunction (double T);
+double          MaximumAbgdHumificationFactor (double clayFraction);
+double          MaximumRootHumificationFactor (double clayFraction);
+double          MaximumRhizHumificationFactor (double clayFraction);
+double          MaximumManuHumificationFactor (double clayFraction);
+double          NitrogenMineralization (double CNDecomposing, double CNnew, double humRate, double decomposedMass);
+double          CNdestiny (double NmineralConc, double CNdecomposing);
+double          PoolNitrogenMineralization (double NmineralConc, double CNRatioDecomposing, double humRate, double decomposedMass, double carbonConc);
+double          Function_CNnew (double NmineralConc, double CNDecomposingPool);
 #endif
 
 #endif

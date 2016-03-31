@@ -302,7 +302,7 @@ typedef struct op_struct
     int             status;
 
     /* Planting Order */
-    char            cropName[128];
+    char            cropName[MAXSTRING];
     int             usesAutoIrrigation;
     int             usesAutoFertilization;
     int             plantID;
@@ -315,7 +315,7 @@ typedef struct op_struct
     double          opDepth;
     double          opSDR;
     double          opMixingEfficiency;
-    char            cropNameT[128];
+    char            cropNameT[MAXSTRING];
     double          fractionThermalTime;
     double          killEfficiency;
     int             grainHarvest;
@@ -345,7 +345,7 @@ typedef struct op_struct
 
 typedef struct autoirr_struct
 {
-    char            cropName[128];
+    char            cropName[MAXSTRING];
     int             startDay;
     int             stopDay;
     double          waterDepletion;
@@ -380,7 +380,7 @@ typedef struct cropmgmt_struct
 
     op_struct      *Tillage;
     int             numTillage;
-    double         *tillageFactor;
+    double          tillageFactor[MAXLYR];
 
     op_struct      *plantingOrder;
     int             totalCropsPerRotation;

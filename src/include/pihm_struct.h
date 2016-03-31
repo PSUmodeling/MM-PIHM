@@ -32,6 +32,8 @@ typedef struct topo_struct
  */
 typedef struct soil_struct
 {
+    int             type;
+
     double          depth;
     double          ksath;      /* horizontal geologic saturated
                                  * hydraulic conductivity */
@@ -62,6 +64,76 @@ typedef struct soil_struct
     double          csoil;      /* soil heat capacity (j m-3 k-1) */
     double          quartz;     /* soil quartz content */
     double          smcdry;     /* dry soil moisture threshold where direct evap frm top layer ends (volumetric) */
+#endif
+
+#ifdef _CYCLES_
+    int             totalLayers;
+    double          Curve_Number;
+    double          Percent_Slope;
+
+    double          annualTemperaturePhase;
+    double          dampingDepth;
+
+    double          cumulativeDepth[MAXLYR];
+    double          nodeDepth[MAXLYR + 1];
+    double          layerThickness[MAXLYR];
+    double          Clay[MAXLYR];
+    double          Sand[MAXLYR];
+    double          IOM[MAXLYR];
+    double          NO3[MAXLYR];
+    double          NH4[MAXLYR];
+    double          BD[MAXLYR];
+    double          FC[MAXLYR];
+    double          PWP[MAXLYR];
+
+    double          Porosity[MAXLYR];
+    double          PAW[MAXLYR];
+//    double          FC_WaterPotential[MAXLYR];
+//    double          airEntryPotential[MAXLYR];
+//    double          B_Value[MAXLYR];
+//    double          M_Value[MAXLYR];
+//    double          ksat[MAXLYR];
+
+    double          n2o[MAXLYR];
+
+    double          SOC_Conc[MAXLYR];
+    double          SOC_Mass[MAXLYR];
+    double          SON_Mass[MAXLYR];
+    double          MBC_Mass[MAXLYR];
+    double          MBN_Mass[MAXLYR];
+    double          SOCProfile;
+    double          SONProfile;
+
+    double          C_Humified;
+    double          C_ResidueRespired;
+    double          C_SoilRespired;
+
+    double          soilTemperature[MAXLYR];
+    double          waterContent[MAXLYR];
+    double          waterUptake[MAXLYR];
+    double          pH[MAXLYR];
+
+    double          latflux[MAXLYR];
+
+    double          evaporationVol;
+    double          residueEvaporationVol;
+    double          infiltrationVol;
+    double          runoffVol;
+    double          irrigationVol;
+    double          drainageVol;
+    double          NO3Leaching;
+    double          NH4Leaching;
+
+    double          NO3Profile;
+    double          NH4Profile;
+    double          N_Immobilization;
+    double          N_Mineralization;
+    double          N_NetMineralization;
+    double          NH4_Nitrification;
+    double          N2O_Nitrification;
+    double          NO3_Denitrification;
+    double          N2O_Denitrification;
+    double          NH4_Volatilization;
 #endif
 } soil_struct;
 
@@ -320,7 +392,7 @@ typedef struct ef_struct
 typedef struct crop_struct
 {
     /* Instance of the crop that is being planted */
-    char            cropName[128];
+    char            cropName[MAXSTRING];
 
     /* User Defined Auto Irrigation */
     int             autoIrrigationUsed;
@@ -427,7 +499,7 @@ typedef struct crop_struct
 
     int             harvestDateFinal;
     int             harvestCount;
-    enum stage      stageGrowth;
+    int             stageGrowth;
 
     double          rcForageYield;
     double          rcGrainYield;
@@ -491,43 +563,43 @@ typedef struct residue_struct
     double          stanResidueWater;
     double          flatResidueWater;   /* (mm) */
 
-    double         *residueAbgd;
-    double         *residueRt;
-    double         *residueRz;
-    double         *residueAbgdN;
-    double         *residueRtN;
-    double         *residueRzN;
+    double          residueAbgd[MAXLYR];
+    double          residueRt[MAXLYR];
+    double          residueRz[MAXLYR];
+    double          residueAbgdN[MAXLYR];
+    double          residueRtN[MAXLYR];
+    double          residueRzN[MAXLYR];
     double          yearResidueBiomass;
     double          yearResidueHarvested;
     double          yearRootBiomass;
     double          yearRhizodepositionBiomass;
-    double         *manureC;
-    double         *manureN;    /* Mg/ha */
+    double          manureC[MAXLYR];
+    double          manureN[MAXLYR];    /* Mg/ha */
 } residue_struct;
 
 typedef struct soilc_struct
 {
-    double         *factorComposite;
-    double         *carbonRespired;
-    double         *rootBiomassInput;
-    double         *rhizBiomassInput;
-    double         *abgdBiomassInput;
-    double         *rootCarbonInput;
-    double         *rhizCarbonInput;
-    double         *manuCarbonInput;
-    double         *abgdCarbonInput;
-    double         *carbonMassInitial;
-    double         *carbonMassFinal;
-    double         *annualDecompositionFactor;
-    double         *annualSoilCarbonDecompositionRate;
-    double         *annualCarbonInputByLayer;
-    double         *annualHumifiedCarbonMass;
-    double         *annualRespiredCarbonMass;
-    double         *annualRespiredResidueCarbonMass;
-    double         *annualHumificationCoefficient;
-    double         *annualNmineralization;
-    double         *annualNImmobilization;
-    double         *annualNNetMineralization;
+    double          factorComposite[MAXLYR];
+    double          carbonRespired[MAXLYR];
+    double          rootBiomassInput[MAXLYR];
+    double          rhizBiomassInput[MAXLYR];
+    double          abgdBiomassInput[MAXLYR];
+    double          rootCarbonInput[MAXLYR];
+    double          rhizCarbonInput[MAXLYR];
+    double          manuCarbonInput[MAXLYR];
+    double          abgdCarbonInput[MAXLYR];
+    double          carbonMassInitial[MAXLYR];
+    double          carbonMassFinal[MAXLYR];
+    double          annualDecompositionFactor[MAXLYR];
+    double          annualSoilCarbonDecompositionRate[MAXLYR];
+    double          annualCarbonInputByLayer[MAXLYR];
+    double          annualHumifiedCarbonMass[MAXLYR];
+    double          annualRespiredCarbonMass[MAXLYR];
+    double          annualRespiredResidueCarbonMass[MAXLYR];
+    double          annualHumificationCoefficient[MAXLYR];
+    double          annualNmineralization[MAXLYR];
+    double          annualNImmobilization[MAXLYR];
+    double          annualNNetMineralization[MAXLYR];
     double          annualAmmoniumNitrification;
     double          annualNitrousOxidefromNitrification;
     double          annualAmmoniaVolatilization;
