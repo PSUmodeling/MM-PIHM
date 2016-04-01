@@ -17,6 +17,8 @@ INCLUDES = \
 
 LFLAGS = -L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
 
+SFLAGS = -D_PIHM_
+
 SRCS_ = main.c \
 	pihm.c \
 	read_alloc.c \
@@ -48,7 +50,7 @@ MSG = "...  Compiling PIHM  ..."
 # Flux-PIHM
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm)
-  SFLAGS = -D_NOAH_ 
+  SFLAGS = -D_PIHM_ -D_NOAH_ 
   MODULE_SRCS_= \
   	noah/lsm_func.c \
   	noah/lsm_read.c \
@@ -64,7 +66,7 @@ endif
 # RT-Flux-PIHM
 #-------------------
 ifeq ($(MAKECMDGOALS),rt-flux-pihm)
-  SFLAGS = -D_RT_ -D_FLUX_PIHM_
+  SFLAGS = -D_PIHM_ -D_RT_ -D_FLUX_PIHM_
   MODULE_SRCS_= \
   	noah/coupling.c \
 	noah/module_sf_noahlsm.c \
@@ -84,7 +86,7 @@ endif
 # Flux-PIHM-BGC
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
-  SFLAGS = -D_BGC_ -D_NOAH_ -D_DAILY_
+  SFLAGS = -D_PIHM_ -D_BGC_ -D_NOAH_ -D_DAILY_
   MODULE_SRCS_=	\
   	daily.c \
 	noah/coupling.c \
@@ -131,7 +133,7 @@ endif
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
   CC = mpicc
-  SFLAGS = -D_ENKF_ -D_NOAH_
+  SFLAGS = -D_PIHM_ -D_ENKF_ -D_NOAH_
   MODULE_SRCS_ = \
   	enkf/read_enkf.c \
 	enkf/enkf_func.c \
@@ -153,18 +155,20 @@ endif
 # Flux-PIHM-Cycles
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
-  SFLAGS = -D_NOAH_ -D_CYCLES_ -D_DAILY_
+  SFLAGS = -D_PIHM_ -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
 	noah/lsm_func.c \
 	noah/lsm_read.c \
 	noah/lsm_init.c \
   	noah/noah.c \
+	noah/daily.c \
 	spa/spa.c \
   	cycles/cycles_read.c \
 	cycles/cycles_init.c \
 	cycles/Soil.c \
 	cycles/Residue.c \
-	cycles/SoilCarbon.c
+	cycles/SoilCarbon.c \
+	cycles/CropTranspiration.c
   MODULE_HEADERS_ =
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."

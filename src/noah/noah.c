@@ -88,7 +88,11 @@ void Noah (int t, pihm_struct pihm)
          * Run Noah LSM
          */
         SFlx (&elem->ws, &elem->wf, &elem->avgwf, &elem->es, &elem->ef,
-            &elem->ps, &elem->lc, &elem->soil, pihm->ctrl.etstep);
+            &elem->ps, &elem->lc, &elem->soil,
+#ifdef _CYCLES_
+            &elem->comm, &elem->residue,
+#endif
+            pihm->ctrl.etstep);
 
         /*
          * Transfer Noah variables to PIHM
@@ -105,7 +109,11 @@ void Noah (int t, pihm_struct pihm)
 
 void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     es_struct *es, ef_struct * ef, ps_struct *ps, lc_struct *lc,
-    soil_struct *soil, int etstep)
+    soil_struct *soil,
+#ifdef _CYCLES_
+    comm_struct *comm, residue_struct *residue,
+#endif
+    int etstep)
 {
     /*
      * subroutine SFlx - unified noahlsm version 1.0 july 2007
@@ -463,7 +471,9 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
      */
     if (lc->shdfac > 0.0)
     {
+#ifndef _CYCLES_
         CanRes (ws, es, ef, ps, zsoil, soil, lc);
+#endif
     }
     else
     {
@@ -478,13 +488,20 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
 
     if (ws->sneqv == 0.0)
     {
-        NoPac (ws, wf, avgwf, es, ef, ps, lc, soil, zsoil, dt, t24);
+        NoPac (ws, wf, avgwf, es, ef, ps, lc, soil,
+#ifdef _CYCLES_
+            comm, residue,
+#endif
+            zsoil, dt, t24);
         ps->eta_kinematic = wf->eta * 1000.0;
     }
     else
     {
-        SnoPac (ws, wf, avgwf, es, ef, ps, lc, soil, snowng, zsoil, dt, t24,
-            prcpf, df1);
+        SnoPac (ws, wf, avgwf, es, ef, ps, lc, soil,
+#ifdef _CYCLES_
+            comm, residue,
+#endif
+            snowng, zsoil, dt, t24, prcpf, df1);
         ps->eta_kinematic = (wf->esnow + wf->etns) * 1000.0;
     }
 
@@ -769,7 +786,11 @@ void DEvap (const ws_struct *ws, wf_struct *wf, const ps_struct *ps,
 }
 
 void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
-    const soil_struct *soil, const double *zsoil, double dt)
+    soil_struct *soil,
+#ifdef _CYCLES_
+    comm_struct *comm, residue_struct *residue, const es_struct *es,
+#endif
+    const double *zsoil, double dt)
 {
     /*
      * Function Evapo
@@ -800,14 +821,25 @@ void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
             /* Retrieve direct evaporation from soil surface. Call this
              * function only if veg cover not complete.
              * Frozen ground version:  sh2o states replace smc states. */
+#ifdef _CYCLES_
+            Evaporation (soil, comm, residue, wf->etp * 1000.0 * 24.0 * 3600.0, ps->sncovr);
+#else
             DEvap (ws, wf, ps, lc, soil);
+#endif
         }
 
         if (lc->shdfac > 0.0)
         {
             /* Initialize plant total transpiration, retrieve plant transpiration,
              * and accumulate it for all soil layers. */
+#ifdef _CYCLES_
+            if (comm->NumActiveCrop > 0)
+            {
+                WaterUptake (comm, soil, es->sfctmp, wf);
+            }
+#else
             Transp (ws, wf, ps, lc, soil, zsoil);
+#endif
             for (k = 0; k < ps->nsoil; k++)
             {
                 wf->ett += wf->et[k];
@@ -1228,7 +1260,11 @@ void HStep (es_struct *es, double *rhsts, double dt, int nsoil, double *ai,
 
 void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     es_struct *es, ef_struct * ef, ps_struct *ps, lc_struct *lc,
-    soil_struct *soil, const double *zsoil, double dt, double t24)
+    soil_struct *soil,
+#ifdef _CYCLES_
+    comm_struct *comm, residue_struct *residue,
+#endif
+    const double *zsoil, double dt, double t24)
 {
     /*
      * Function NoPac
@@ -1261,7 +1297,11 @@ void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
 
     if (wf->etp > 0.0)
     {
-        Evapo (ws, wf, ps, lc, soil, zsoil, dt);
+        Evapo (ws, wf, ps, lc, soil,
+#ifdef _CYCLES_
+            comm, residue, es,
+#endif
+            zsoil, dt);
 
         wf->eta = wf->etns;
 
@@ -1569,7 +1609,7 @@ void SmFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     else
     {
         SRT (ws, wf, avgwf, ps, soil, rhstt, sice, ai, bi, ci, zsoil, dt);
-        SStep (ws, wf, ps, soil, rhstt, rhsct, zsoil, sice, ai, bi, ci, dt);
+        SStep (ws, wf, avgwf, ps, soil, rhstt, rhsct, zsoil, sice, ai, bi, ci, dt);
     }
 }
 
@@ -1696,8 +1736,12 @@ void SnkSrc (double *tsnsr, double tavg, double smc, double *sh2o,
 
 void SnoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     es_struct *es, ef_struct * ef, ps_struct *ps, lc_struct *lc,
-    const soil_struct *soil, int snowng, const double *zsoil, double dt,
-    double t24, double prcpf, double df1)
+    soil_struct *soil,
+#ifdef _CYCLES_
+    comm_struct *comm, residue_struct *residue,
+#endif
+    int snowng, const double *zsoil, double dt, double t24, double prcpf,
+    double df1)
 {
     /*
      * Function SnoPac
@@ -1782,7 +1826,11 @@ void SnoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
         /* Land case */
         if (ps->sncovr < 1.0)
         {
-            Evapo (ws, wf, ps, lc, soil, zsoil, dt);
+            Evapo (ws, wf, ps, lc, soil,
+#ifdef _CYCLES_
+                comm, residue, es,
+#endif                
+                zsoil, dt);
 
             wf->edir *= (1.0 - ps->sncovr);
             wf->ec *= (1.0 - ps->sncovr);
@@ -2323,9 +2371,10 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
     }
 }
 
-void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
-    const soil_struct *soil, double *rhstt, double rhsct, const double *zsoil,
-    double *sice, double *ai, double *bi, double *ci, double dt)
+void SStep (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
+    ps_struct *ps, const soil_struct *soil, double *rhstt, double rhsct,
+    const double *zsoil, double *sice, double *ai, double *bi, double *ci,
+    double dt)
 {
     /*
      * Function SStep
@@ -2336,6 +2385,7 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
     int             k;
     double          rhsttin[MAXLYR];
     double          ciin[MAXLYR];
+    double          sh2o0[MAXLYR];
     double          sh2omid[MAXLYR];
     double          ddz;
     double          stot;
@@ -2351,6 +2401,9 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
         bi[k] *= dt;
         bi[k] += 1.0;
         ci[k] *= dt;
+
+        sh2o0[k] = ws->sh2o[k];
+        wf->smflx[k] = 0.0;
     }
 
     /* Copy values for input variables before call to Rosr12 */
@@ -2439,6 +2492,13 @@ void SStep (ws_struct *ws, wf_struct *wf, ps_struct *ps,
             ws->smc[k] : soil->smcmin + 0.02;
         ws->sh2o[k] = ws->smc[k] - sice[k];
         ws->sh2o[k] = (ws->sh2o[k] > 0.0) ? ws->sh2o[k] : 0.0;
+    }
+
+    for (k = ps->nsoil - 1; k > 0; k--)
+    {
+        wf->smflx[k - 1] =
+            (ws->sh2o[k] - sh2o0[k]) * ps->sldpth[k] / dt +
+            avgwf->runoff2_lyr[k] + wf->et[k] + wf->smflx[k];
     }
 
     /* Update canopy water content/interception (cmc). Convert rhsct to an

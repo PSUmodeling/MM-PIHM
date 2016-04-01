@@ -156,7 +156,12 @@ void            AvgFlux (elem_struct *, int, int);
 void            SfcDifOff (ps_struct *, const lc_struct *, double, double,
     int);
 void            SFlx (ws_struct *, wf_struct *, const wf_struct *,
-    es_struct *, ef_struct *, ps_struct *, lc_struct *, soil_struct *, int);
+                    es_struct *, ef_struct *, ps_struct *, lc_struct *,
+                    soil_struct *,
+#ifdef _CYCLES_
+                    comm_struct *, residue_struct *,
+#endif
+                    int);
 double          CSnow (double);
 void            SnowNew (const es_struct *, double, ps_struct *);
 double          SnFrac (double, double, double, double);
@@ -170,12 +175,20 @@ void            CanRes (ws_struct *, es_struct *, ef_struct *, ps_struct *,
 void            DEvap (const ws_struct *, wf_struct *, const ps_struct *,
     const lc_struct *, const soil_struct *);
 void            Evapo (ws_struct *, wf_struct *, ps_struct *,
-    const lc_struct *, const soil_struct *, const double *, double);
+    const lc_struct *, soil_struct *,
+#ifdef _CYCLES_
+    comm_struct *, residue_struct *, const es_struct *es,
+#endif
+    const double *, double);
 void            Transp (const ws_struct *, wf_struct *, const ps_struct *,
     const lc_struct *, const soil_struct *, const double *);
 void            NoPac (ws_struct *, wf_struct *, const wf_struct *,
     es_struct *, ef_struct *, ps_struct *, lc_struct *,
-    soil_struct *, const double *, double, double);
+    soil_struct *,
+#ifdef _CYCLES_
+    comm_struct *, residue_struct *,
+#endif
+    const double *, double, double);
 double          TBnd (double, double, const double *, double, int, int);
 double          TmpAvg (double, double, double, const double *, int, int);
 void            SnkSrc (double *, double, double, double *,
@@ -195,14 +208,19 @@ void            HRT (ws_struct *, es_struct *, ef_struct *, ps_struct *,
 void            SRT (ws_struct *, wf_struct *, const wf_struct *, ps_struct *,
     const soil_struct *, double *, double *, double *,
     double *, double *, const double *, double);
-void            SStep (ws_struct *, wf_struct *, ps_struct *,
-    const soil_struct *, double *, double, const double *,
-    double *, double *, double *, double *, double);
+void            SStep (ws_struct *, wf_struct *, const wf_struct *,
+                    ps_struct *, const soil_struct *, double *, double,
+                    const double *, double *, double *, double *, double *,
+                    double);
 void            WDfCnd (double *, double *, double, double, double, int,
     const soil_struct *, const ps_struct *);
 void            SnoPac (ws_struct *, wf_struct *, const wf_struct *,
     es_struct *, ef_struct *, ps_struct *, lc_struct *,
-    const soil_struct *, int, const double *, double, double, double, double);
+    soil_struct *,
+#ifdef _CYCLES_
+    comm_struct *, residue_struct *,
+#endif
+    int, const double *, double, double, double, double);
 void            SnowPack (double, double, double *, double *, double, double);
 double          EFFKV (double, double, int, double, double, double);
 double          Pslmu (double);
@@ -213,6 +231,10 @@ double          Pspmu (double);
 double          Pspms (double);
 double          Psphu (double);
 double          Psphs (double);
+#ifdef _DAILY_
+void            DailyVar (int, int, pihm_struct);
+void            InitDailyStruct (pihm_struct);
+#endif
 #endif
 
 #ifdef _ENKF_
@@ -286,6 +308,9 @@ double          NitrogenMineralization (double CNDecomposing, double CNnew, doub
 double          CNdestiny (double NmineralConc, double CNdecomposing);
 double          PoolNitrogenMineralization (double NmineralConc, double CNRatioDecomposing, double humRate, double decomposedMass, double carbonConc);
 double          Function_CNnew (double NmineralConc, double CNDecomposingPool);
+void WaterUptake (comm_struct *Community, soil_struct *Soil, double sfctmp, wf_struct *wf);
+double TemperatureLimitation (double T, double T_Min, double T_Threshold);
+void CalcRootFraction (double *fractionRootsByLayer, soil_struct *Soil, crop_struct *Crop);
 #endif
 
 #endif

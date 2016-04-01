@@ -98,11 +98,26 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
          */
         Summary (pihm, CV_Y, (double)pihm->ctrl.stepsize);
 
+#ifdef _DAILY_
+        DailyVar (t, pihm->ctrl.starttime, pihm);
+#endif
+
         /*
          * Print outputs
          */
         PrintData (pihm->prtctrl, pihm->ctrl.nprint, t,
             t - pihm->ctrl.starttime, pihm->ctrl.stepsize, pihm->ctrl.ascii);
+
+#ifdef _DAILY_
+        if ((t - pihm->ctrl.starttime) % 86400 == 0)
+        {
+            /*
+             * Daily timestep modules
+             */
+
+            InitDailyStruct (pihm);
+        }
+#endif
     }
 
     /*
