@@ -278,6 +278,8 @@ typedef struct daily_struct
     double          solar;
     double          solar_total;
 
+    double          sfcspd;
+
     double          sfcprs;
 
     double          surf;
@@ -445,9 +447,8 @@ typedef struct crop_struct
 
     double          svRadiationInterception_nc;
     
-    int             userSeedingDate;
-    int             userFloweringDate;
-    int             userMaturityDate;
+    double          userFloweringTT;
+    double          userMaturityTT;
     double          userMaximumSoilCoverage;
     double          userMaximumRootingDepth;
     double          userExpectedYieldAvg;
@@ -487,9 +488,6 @@ typedef struct crop_struct
 
     int             userClippingStart;
     int             userClippingEnd;
-
-    double          calculatedFloweringTT;
-    double          calculatedMaturityTT;
     double          calculatedSimAvgYield;
     double          calculatedSimMaxYield;
     double          calculatedSimMinYield;
@@ -626,6 +624,34 @@ typedef struct elemic_struct
 #endif
 } elemic_struct;
 
+#ifdef _CYCLES_
+typedef struct weather_struct
+{
+    //double          siteAltitude;
+    //double          siteLatitude;
+    //double          screeningHeight;
+    //int             length;
+    //double         *yearlyAmplitude;
+    //double         *annualAverageTemperature;
+    int            *lastDoy;
+    double        **wind;
+    //double        **ETref;
+    //double        **precipitation;
+    //double        **RHmax;
+    //double        **RHmin;
+    double        **solarRadiation;
+    double        **tMax;
+    double        **tMin;
+    double        **vpd;
+    double          atmosphericPressure;
+} weather_struct;
+
+typedef struct snow_struct
+{
+    double              snowCover;
+} snow_struct;
+#endif
+
 typedef struct elem_struct
 {
     int             node[3];    /* Counterclock-wise */
@@ -658,6 +684,8 @@ typedef struct elem_struct
     comm_struct     comm;
     residue_struct  residue;
     soilc_struct    soilc;
+    weather_struct  weather;
+    snow_struct     snow;
 #endif
 
 } elem_struct;
@@ -801,9 +829,9 @@ typedef struct ctrl_struct
     int             rad_mode;   /* radiation mode; 1: topographic, 0: uniform */
 #endif
 #ifdef _CYCLES_
-    int             simStartYear;
-    int             simEndYear;
-    int             totalYears;
+    //int             simStartYear;
+    //int             simEndYear;
+    //int             totalYears;
 #endif
 } ctrl_struct;
 

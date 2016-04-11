@@ -250,9 +250,8 @@ typedef struct croptbl_struct
     int             number;
 
     char          **cropName;
-    int            *userSeedingDate;
-    int            *userFloweringDate;
-    int            *userMaturityDate;
+    double         *userFloweringTT;
+    double         *userMaturityTT;
     double         *userMaximumSoilCoverage;
     double         *userMaximumRootingDepth;
     double         *userExpectedYieldAvg;

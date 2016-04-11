@@ -3,6 +3,7 @@
 
 /* Physical parameters */
 #define PI		3.14159265
+#define DAYINSEC        86400
 #define GRAV		9.80665
 #define CP              1004.0  /* Specific heat capacity of air (J/kg/K) */
 #define LVH2O           2.501e6 /* Latent heat of vaporization (J/kg) */

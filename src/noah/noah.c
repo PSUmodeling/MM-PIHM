@@ -828,6 +828,13 @@ void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
 #endif
         }
 
+#ifdef _CYCLES_
+        /*
+         * Evaporation from residue
+         */
+        ResidueEvaporation (residue, soil, comm, wf->etp * 1000.0 * 24.0 * 3600.0, ps->sncovr);
+#endif
+
         if (lc->shdfac > 0.0)
         {
             /* Initialize plant total transpiration, retrieve plant transpiration,

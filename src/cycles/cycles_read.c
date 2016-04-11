@@ -266,12 +266,10 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
     croptbl->number = CountOccurance (crop_file, "NAME");
 
     croptbl->cropName = (char **)malloc (croptbl->number * sizeof (char *));
-    croptbl->userSeedingDate =
-        (int *)malloc (croptbl->number * sizeof (int));
-    croptbl->userFloweringDate =
-        (int *)malloc (croptbl->number * sizeof (int));
-    croptbl->userMaturityDate =
-        (int *)malloc (croptbl->number * sizeof (int));
+    croptbl->userFloweringTT =
+        (double *)malloc (croptbl->number * sizeof (int));
+    croptbl->userMaturityTT =
+        (double *)malloc (croptbl->number * sizeof (int));
     croptbl->userMaximumSoilCoverage =
         (double *)malloc (croptbl->number * sizeof (double));
 
@@ -365,13 +363,10 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
         ReadKeywordStr (cmdstr, "NAME", croptbl->cropName[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordInt (cmdstr, "AVERAGE_SEEDING_DATE", &croptbl->userSeedingDate[j]);
+        ReadKeywordDouble (cmdstr, "FLOWERING_TT", &croptbl->userFloweringTT[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordInt (cmdstr, "AVERAGE_50%_FLOWERING_DATE", &croptbl->userFloweringDate[j]);
-
-        NextLine (crop_file, cmdstr);
-        ReadKeywordInt (cmdstr, "AVERAGE_MATURITY_DATE", &croptbl->userMaturityDate[j]);
+        ReadKeywordDouble (cmdstr, "MATURITY_TT", &croptbl->userMaturityTT[j]);
 
         NextLine (crop_file, cmdstr);
         ReadKeywordDouble (cmdstr, "MAXIMUM_SOIL_COVERAGE", &croptbl->userMaximumSoilCoverage[j]);

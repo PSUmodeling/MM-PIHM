@@ -45,7 +45,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
 #endif
 
 #ifdef _CYCLES_
-    InitCycles (pihm->elem, pihm->numele, &pihm->mgmttbl, &pihm->agtbl,
+    InitCycles (pihm->elem, pihm->numele, &pihm->ctrl, &pihm->mgmttbl, &pihm->agtbl,
         &pihm->croptbl, &pihm->soiltbl);
 #endif
 
@@ -66,9 +66,9 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
 
     CalcModelStep (&pihm->ctrl);
 
-//#ifdef _DAILY_
-//    InitDailyStruct (pihm);
-//#endif
+#ifdef _DAILY_
+    InitDailyStruct (pihm);
+#endif
 }
 
 void InitMeshStruct (elem_struct *elem, int numele, meshtbl_struct meshtbl)

@@ -165,10 +165,21 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	spa/spa.c \
   	cycles/cycles_read.c \
 	cycles/cycles_init.c \
+	cycles/cycles_func.c \
 	cycles/Soil.c \
 	cycles/Residue.c \
 	cycles/SoilCarbon.c \
-	cycles/CropTranspiration.c
+	cycles/CropTranspiration.c \
+	cycles/SoilEvaporation.c \
+	cycles/DailyOperation.c \
+	cycles/CropProcess.c \
+	cycles/CropThermalTime.c \
+	cycles/CropHarvest.c \
+	cycles/Crop.c \
+	cycles/FieldOperation.c \
+	cycles/Fertilization.c \
+	cycles/Tillage.c \
+	cycles/SoilNitrogen.c
   MODULE_HEADERS_ =
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."
