@@ -525,7 +525,11 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
         ((1.0 - ps->sncovr) * LVH2O + ps->sncovr * LSUBS);
     if (ef->etp > 0.0)
     {
+#ifdef _CYCLES_
+        ef->eta = ef->edir + ef->ec + ef->ett + wf->eres * 1000.0 * LVH2O+ ef->esnow;
+#else
         ef->eta = ef->edir + ef->ec + ef->ett + ef->esnow;
+#endif
     }
     else
     {
@@ -876,7 +880,11 @@ void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
     }
 
     /* Total up evap and transp types to obtain actual evapotransp */
+#ifdef _CYCLES_
+    wf->etns = wf->edir + wf->ett + wf->ec + wf->eres;
+#else
     wf->etns = wf->edir + wf->ett + wf->ec;
+#endif
 }
 
 double FrH2O (double tkelv, double smc, double sh2o, const soil_struct *soil)
@@ -1302,7 +1310,6 @@ void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     }
 
     wf->ett = 0.0;
-    //*ett1 = 0.;
 
     if (wf->etp > 0.0)
     {
