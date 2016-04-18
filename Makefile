@@ -179,7 +179,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	cycles/FieldOperation.c \
 	cycles/Fertilization.c \
 	cycles/Tillage.c \
-	cycles/SoilNitrogen.c
+	cycles/SoilNitrogen.c \
+	cycles/Irrigation.c
   MODULE_HEADERS_ =
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."

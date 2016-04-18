@@ -822,7 +822,8 @@ void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
              * function only if veg cover not complete.
              * Frozen ground version:  sh2o states replace smc states. */
 #ifdef _CYCLES_
-            Evaporation (soil, comm, residue, wf->etp * 1000.0 * 24.0 * 3600.0, ps->sncovr);
+            Evaporation (soil, comm, residue, wf->etp * 1000.0 * dt, ps->sncovr);
+            wf->edir = soil->evaporationVol / 1000.0 / dt;
 #else
             DEvap (ws, wf, ps, lc, soil);
 #endif
@@ -832,7 +833,8 @@ void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
         /*
          * Evaporation from residue
          */
-        ResidueEvaporation (residue, soil, comm, wf->etp * 1000.0 * 24.0 * 3600.0, ps->sncovr);
+        ResidueEvaporation (residue, soil, comm, wf->etp * 1000.0 * dt, ps->sncovr);
+        wf->eres = soil->residueEvaporationVol / 1000.0 / dt;
 #endif
 
         if (lc->shdfac > 0.0)
@@ -842,7 +844,7 @@ void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
 #ifdef _CYCLES_
             if (comm->NumActiveCrop > 0)
             {
-                WaterUptake (comm, soil, es->sfctmp, wf);
+                WaterUptake (comm, soil, es->sfctmp, wf, dt);
             }
 #else
             Transp (ws, wf, ps, lc, soil, zsoil);
@@ -1312,7 +1314,11 @@ void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
 
         wf->eta = wf->etns;
 
-        SmFlx (ws, wf, avgwf, ps, lc, soil, zsoil, prcpf, dt);
+        SmFlx (ws, wf, avgwf, ps, lc, soil, 
+#ifdef _CYCLES_
+            residue,
+#endif
+            zsoil, prcpf, dt);
     }
     else
     {
@@ -1322,7 +1328,11 @@ void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
 
         /* Add dew amount to prcp */
         prcpf += wf->dew;
-        SmFlx (ws, wf, avgwf, ps, lc, soil, zsoil, prcpf, dt);
+        SmFlx (ws, wf, avgwf, ps, lc, soil,
+#ifdef _CYCLES_
+            residue,
+#endif
+            zsoil, prcpf, dt);
 
         /* Convert modeled evapotranspiration from 'm s-1' to 'kg m-2 s-1'. */
     }
@@ -1535,6 +1545,9 @@ void ShFlx (ws_struct *ws, es_struct *es, ef_struct * ef, ps_struct *ps,
 
 void SmFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     ps_struct *ps, const lc_struct *lc, const soil_struct *soil,
+#ifdef _CYCLES_
+    residue_struct *residue,
+#endif
     const double *zsoil, double prcp, double dt)
 {
     /*
@@ -1615,7 +1628,11 @@ void SmFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     }
     else
     {
-        SRT (ws, wf, avgwf, ps, soil, rhstt, sice, ai, bi, ci, zsoil, dt);
+        SRT (ws, wf, avgwf, ps, soil,
+#ifdef _CYCLES_
+            residue,
+#endif
+            rhstt, sice, ai, bi, ci, zsoil, dt);
         SStep (ws, wf, avgwf, ps, soil, rhstt, rhsct, zsoil, sice, ai, bi, ci, dt);
     }
 }
@@ -1994,7 +2011,11 @@ void SnoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
          * SmFlx returns updated soil moisture values for non-glacial land. */
     }
 
-    SmFlx (ws, wf, avgwf, ps, lc, soil, zsoil, prcpf, dt);
+    SmFlx (ws, wf, avgwf, ps, lc, soil,
+#ifdef _CYCLES_
+        residue,
+#endif
+        zsoil, prcpf, dt);
 
     /* Before call ShFlx in this snowpack case, set zz1 and yy arguments to
      * special values that ensure that ground heat flux calculated in ShFlx
@@ -2221,8 +2242,12 @@ void SnowNew (const es_struct *es, double newsn, ps_struct *ps)
 }
 
 void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
-    const soil_struct *soil, double *rhstt, double *sice, double *ai,
-    double *bi, double *ci, const double *zsoil, double dt)
+    const soil_struct *soil,
+#ifdef _CYCLES_
+    residue_struct *residue,
+#endif
+    double *rhstt, double *sice, double *ai, double *bi, double *ci,
+    const double *zsoil, double dt)
 {
     /*
      * Function SRT
@@ -2251,6 +2276,9 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
     double          sum;
     double          ialp1;
     int             macpore[MAXLYR];
+#ifdef _CYCLES_
+    double          infil_vol;
+#endif
     /* Frozen ground version:
      * Reference frozen ground parameter, cvfrz, is a shape parameter of areal
      * distribution function of soil ice content which equals 1/cv.
@@ -2297,8 +2325,17 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
         ps->fcr = 1.0 - exp (-acrt) * sum;
     }
 
+    
     /* Determine rainfall infiltration rate and runoff */
+#ifdef _CYCLES_
+    infil_vol = avgwf->infil * dt * 1000.0;
+
+    ResidueWetting (residue, &infil_vol);
+
+    pddum = infil_vol / dt / 1000.0;
+#else
     pddum = avgwf->infil;
+#endif
 
     for (k = 0; k < ps->nsoil; k++)
     {

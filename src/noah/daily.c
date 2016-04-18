@@ -26,9 +26,9 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 
         /* Air temperature */
         sfctmp = *elem->forc.meteo[SFCTMP_TS];
+        daily->sfctmp += sfctmp;
         daily->tmax = (daily->tmax > sfctmp) ? daily->tmax : sfctmp;
         daily->tmin = (daily->tmin < sfctmp) ? daily->tmin : sfctmp;
-        daily->sfctmp += sfctmp;
 
         /* Solar radiation */
         solar = elem->ef.soldn;
@@ -36,19 +36,27 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         /* Wind speed */
         daily->sfcspd += elem->ps.sfcspd;
 
-        /* Soil temperature */
+        /* Soil moisture, temperature, and ET */
         for (k = 0; k < elem->ps.nsoil; k++)
         {
             daily->stc[k] += elem->es.stc[k];
             daily->sh2o[k] += elem->ws.sh2o[k];
             daily->smflx[k] += elem->wf.smflx[k];
-            //daily->smc[k] += elem->ws.smc[k];
         }
+
+#ifdef _CYCLES_
+        for (k = 0; k < elem->ps.nsoil; k++)
+        {
+            daily->et[k] += elem->wf.et[k];
+        }
+        daily->sncovr += elem->ps.sncovr;
+#endif
 
         /* Water storage terms */
         daily->surf += elem->ws.surf;
         daily->unsat += elem->ws.unsat;
         daily->gw += elem->ws.gw;
+
 
         /* Lateral flux */
         for (k = 0; k < 3; k++)
@@ -166,6 +174,15 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
                 daily->sh2o[k] /= (double)daily->counter;
                 daily->smflx[k] /= (double)daily->counter;
             }
+
+#ifdef _CYCLES_
+            for (k = 0; k < pihm->elem[i].ps.nsoil; k++)
+            {
+                daily->et[k] /= (double)daily->counter;
+            }
+            daily->sncovr /= (double)daily->counter;
+#endif
+
             daily->surf /= (double)daily->counter;
             daily->unsat /= (double)daily->counter;
             daily->gw /= (double)daily->counter;
@@ -178,8 +195,8 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 
             daily->tday /= (double)daily->daylight_counter;
             daily->q2d /= (double)daily->daylight_counter;
-            daily->sfcprs /= (double)daily->daylight_counter;
             daily->ch /= (double)daily->daylight_counter;
+            daily->sfcprs /= (double)daily->daylight_counter;
             daily->albedo /= (double)daily->daylight_counter;
             daily->solar /= (double)daily->daylight_counter;
 
@@ -219,13 +236,25 @@ void InitDailyStruct (pihm_struct pihm)
         daily->tnight = 0.0;
         daily->tmax = -999.0;
         daily->tmin = 999.0;
-        daily->sfcspd = 0.0;
         daily->solar = 0.0;
         daily->solar_total = 0.0;
+        daily->sfcspd = 0.0;
         daily->sfcprs = 0.0;
         daily->surf = 0.0;
         daily->unsat = 0.0;
         daily->gw = 0.0;
+#ifdef _CYCLES_
+        for (k = 0; k < MAXLYR; k++)
+        {
+            daily->et[k] = 0.0;
+        }
+        daily->sncovr = 0.0;
+#endif
+        for (k = 0; k < 4; k++)
+        {
+            daily->fluxsurf[k] = 0.0;
+            daily->fluxsub[k] = 0.0;
+        }
         daily->infil = 0.0;
         daily->rechg = 0.0;
         daily->dayl = 0.0;
@@ -234,15 +263,11 @@ void InitDailyStruct (pihm_struct pihm)
         {
             daily->stc[k] = 0.0;
             daily->sh2o[k] = 0.0;
+            daily->smflx[k] = 0.0;
         }
         daily->q2d = 0.0;
         daily->albedo = 0.0;
         daily->ch = 0.0;
-        for (k = 0; k < 4; k++)
-        {
-            daily->fluxsurf[k] = 0.0;
-            daily->fluxsub[k] = 0.0;
-        }
     }
 
     for (i = 0; i < pihm->numriv; i++)

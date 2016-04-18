@@ -200,14 +200,20 @@ void            ShFlx (ws_struct *, es_struct *, ef_struct *, ps_struct *,
     double, const double *, double);
 void            SmFlx (ws_struct *, wf_struct *, const wf_struct *,
     ps_struct *, const lc_struct *, const soil_struct *,
+#ifdef _CYCLES_
+    residue_struct *,
+#endif
     const double *, double, double);
 void            HRT (ws_struct *, es_struct *, ef_struct *, ps_struct *,
     const lc_struct *, const soil_struct *, double *,
     const double *, double, double, double, double, double *,
     double *, double *);
 void            SRT (ws_struct *, wf_struct *, const wf_struct *, ps_struct *,
-    const soil_struct *, double *, double *, double *,
-    double *, double *, const double *, double);
+    const soil_struct *,
+#ifdef _CYCLES_
+    residue_struct *,
+#endif
+    double *, double *, double *, double *, double *, const double *, double);
 void            SStep (ws_struct *, wf_struct *, const wf_struct *,
                     ps_struct *, const soil_struct *, double *, double,
                     const double *, double *, double *, double *, double *,
@@ -310,12 +316,12 @@ double          NitrogenMineralization (double CNDecomposing, double CNnew, doub
 double          CNdestiny (double NmineralConc, double CNdecomposing);
 double          PoolNitrogenMineralization (double NmineralConc, double CNRatioDecomposing, double humRate, double decomposedMass, double carbonConc);
 double          Function_CNnew (double NmineralConc, double CNDecomposingPool);
-void WaterUptake (comm_struct *Community, soil_struct *Soil, double sfctmp, wf_struct *wf);
+void WaterUptake (comm_struct *Community, soil_struct *Soil, double sfctmp, wf_struct *wf, double dt);
 double TemperatureLimitation (double T, double T_Min, double T_Threshold);
 void CalcRootFraction (double *fractionRootsByLayer, soil_struct *Soil, crop_struct *Crop);
 int DOY (int);
 int IsLeapYear (int year);
-void DailyOperations (int y, int d, cropmgmt_struct *CropManagement, comm_struct *Community, residue_struct *Residue, ctrl_struct *SimControl, snow_struct *snow, soil_struct *Soil, soilc_struct *SoilCarbon, weather_struct *Weather, wf_struct *wf);
+void DailyOperations (int y, int d, cropmgmt_struct *CropManagement, comm_struct *Community, residue_struct *Residue, ctrl_struct *SimControl, snow_struct *snow, soil_struct *Soil, soilc_struct *SoilCarbon, weather_struct *Weather);
 double Depth_Limitation_To_Evaporation (double Depth);
 double Water_Content_Limitation_To_Evaporation (double FC, double WC_AirDry, double WC);
 void Evaporation (soil_struct *Soil, const comm_struct *Community, residue_struct *Residue, double ETo, double SnowCover);
@@ -367,6 +373,8 @@ double pHFunction (double pH);
 double VolatilizationDepthFunction (double depth);
 double AirMolarDensity (double T, double P);
 double BoundaryLayerConductance (double RI, double RM, double WS, double AMD);
+void ResidueWetting (residue_struct *Residue, double *infil_vol);
+double FindIrrigationVolume (int opLayer, double opWaterDepletion, const soil_struct *Soil);
 #endif
 
 #endif

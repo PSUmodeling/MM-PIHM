@@ -269,6 +269,9 @@ typedef struct elemforc_struct
 #ifdef _DAILY_
 typedef struct daily_struct
 {
+    int             counter;
+    int             daylight_counter;
+
     double          sfctmp;
     double          tday;
     double          tnight;
@@ -286,20 +289,21 @@ typedef struct daily_struct
     double          unsat;
     double          gw;
 
+#ifdef _CYCLES_
+    double          et[MAXLYR];
+    double          sncovr;
+#endif
     double          fluxsurf[4];
     double          fluxsub[4];
     double          infil;
     double          rechg;
-    double          smflx[MAXLYR];
 
     double          dayl;
     double          prev_dayl;
 
-    int             counter;
-    int             daylight_counter;
-
     double          stc[MAXLYR];
     double          sh2o[MAXLYR];
+    double          smflx[MAXLYR];
     double          q2d;
     double          albedo;
     double          ch;
@@ -337,7 +341,6 @@ typedef struct wf_struct
     double          ec;
     double          etp;
     double          eta;
-    double          et[MAXLYR];
     double          edir_sfc;
     double          edir_unsat;
     double          edir_gw;
@@ -345,6 +348,7 @@ typedef struct wf_struct
     double          ett_gw;
     double          fluxriv[11];
 #ifdef _NOAH_
+    double          et[MAXLYR];
     double          runoff1;    /* surface runoff (m s-1), not infiltrating the surface */
     double          runoff2;    /* subsurface runoff (m s-1), drainage out bottom of last soil layer (baseflow) */
     double          runoff2_lyr[MAXLYR];
@@ -356,6 +360,9 @@ typedef struct wf_struct
     double          snomlt;     /* snow melt (m/s) (water equivalent) */
     double          esnow;      /* sublimation from (or deposition to if <0) snowpack (ms-1) */
     double          etns;
+#endif
+#ifdef _CYCLES_
+    double          eres;
 #endif
 } wf_struct;
 
@@ -447,6 +454,9 @@ typedef struct crop_struct
 
     double          svRadiationInterception_nc;
     
+    double          dailyTranspiration;
+    double          dailyTranspirationPotential;
+
     double          userFloweringTT;
     double          userMaturityTT;
     double          userMaximumSoilCoverage;
