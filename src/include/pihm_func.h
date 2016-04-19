@@ -346,7 +346,7 @@ int ForcedClipping (int d, comm_struct *Community);
 void GrainHarvest (int y, int doy, crop_struct *Crop, residue_struct *Residue, soil_struct *Soil, soilc_struct *SoilCarbon);
 void ComputeColdDamage (int y, int doy, crop_struct *Crop, const weather_struct *Weather, const snow_struct *Snow, residue_struct *Residue);
 double ColdDamage (double T, double Crop_Tn, double Crop_Tth);
-void ForageHarvest (int y, int doy, crop_struct *Crop, residue_struct *Residue, soil_struct *Soil, soilc_struct *SoilCarbon);
+void ForageAndSeedHarvest (int y, int doy, crop_struct *Crop, residue_struct *Residue, soil_struct *Soil, soilc_struct *SoilCarbon);
 void HarvestCrop (int y, int doy, crop_struct *Crop, residue_struct *Residue, soil_struct *Soil, soilc_struct *SoilCarbon);
 void PlantingCrop (comm_struct *Community, const cropmgmt_struct *CropManagement, int plantingIndex);
 void AddCrop (crop_struct *Crop);

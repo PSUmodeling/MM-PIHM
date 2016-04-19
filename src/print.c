@@ -601,6 +601,33 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
         }
     }
 
+#ifdef _CYCLES_
+                sprintf (pihm->prtctrl[n].name, "%s%s.biomass", outputdir,
+                    simulation);
+                pihm->prtctrl[n].intvl = 86400;
+                pihm->prtctrl[n].nvrbl = pihm->numele;
+                pihm->prtctrl[n].vrbl =
+                    (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    sizeof (double *));
+                for (j = 0; j < pihm->numele; j++)
+                {
+                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].comm.svBiomass;
+                }
+                n++;
+                sprintf (pihm->prtctrl[n].name, "%s%s.eres", outputdir,
+                    simulation);
+                pihm->prtctrl[n].intvl = 3600;
+                pihm->prtctrl[n].nvrbl = pihm->numele;
+                pihm->prtctrl[n].vrbl =
+                    (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    sizeof (double *));
+                for (j = 0; j < pihm->numele; j++)
+                {
+                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].wf.eres;
+                }
+                n++;
+#endif
+
     pihm->ctrl.nprint = n;
 
     for (i = 0; i < pihm->ctrl.nprint; i++)
