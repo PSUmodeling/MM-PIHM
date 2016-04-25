@@ -80,6 +80,9 @@ void Noah (int t, pihm_struct pihm)
                 elem->ws.smc[j] : elem->soil.smcmax;
             elem->ws.sh2o[j] = (elem->ws.sh2o[j] < elem->ws.smc[j]) ?
                 elem->ws.sh2o[j] : elem->ws.smc[j];
+#ifdef _CYCLES_
+            elem->soil.waterContent[j] = elem->ws.sh2o[j];
+#endif
         }
 
         CalcLatFlx (&elem->ws, &elem->ps, &elem->avgwf);
@@ -93,12 +96,6 @@ void Noah (int t, pihm_struct pihm)
             &elem->comm, &elem->residue,
 #endif
             pihm->ctrl.etstep);
-
-    if (elem->ef.eta > 10000.0)
-    {
-        printf ("t = %d, i = %d, edir = %lf, ec = %lf, ett = %lf, eres = %lf, esnow = %lf", t, i, elem->ef.edir, elem->ef.ec, elem->ef.ett, elem->wf.eres * 1000.0 * LVH2O, elem->ef.esnow);
-        exit(1);
-    }
 
         /*
          * Transfer Noah variables to PIHM
@@ -834,11 +831,6 @@ void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
 #ifdef _CYCLES_
             Evaporation (soil, comm, residue, wf->etp * 1000.0 * dt, ps->sncovr);
             wf->edir = soil->evaporationVol / 1000.0 / dt;
-            
-            if (wf->edir * LVH2O *1000.0 > 10000.0)
-            {
-                printf ("Edir = %lf\n", wf->edir);
-            }
 #else
             DEvap (ws, wf, ps, lc, soil);
 #endif
