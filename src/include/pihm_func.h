@@ -316,7 +316,7 @@ double          NitrogenMineralization (double CNDecomposing, double CNnew, doub
 double          CNdestiny (double NmineralConc, double CNdecomposing);
 double          PoolNitrogenMineralization (double NmineralConc, double CNRatioDecomposing, double humRate, double decomposedMass, double carbonConc);
 double          Function_CNnew (double NmineralConc, double CNDecomposingPool);
-void WaterUptake (comm_struct *Community, soil_struct *Soil, double sfctmp, wf_struct *wf, double dt);
+void WaterUptake (comm_struct *Community, soil_struct *Soil, double sfctmp, wf_struct *wf, double pc, double dt);
 double TemperatureLimitation (double T, double T_Min, double T_Threshold);
 void CalcRootFraction (double *fractionRootsByLayer, soil_struct *Soil, crop_struct *Crop);
 int DOY (int);

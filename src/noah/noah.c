@@ -474,9 +474,7 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
      */
     if (lc->shdfac > 0.0)
     {
-#ifndef _CYCLES_
         CanRes (ws, es, ef, ps, zsoil, soil, lc);
-#endif
     }
     else
     {
@@ -659,6 +657,9 @@ void CanRes (ws_struct *ws, es_struct *es, ef_struct * ef, ps_struct *ps,
     double          delta, ff, gx, rr;
     double          part[MAXLYR];
     const double    SLV = 2.501000e6;
+#ifdef _CYCLES_
+    const double    RC = 70.0;
+#endif
 
     /* Initialize canopy resistance multiplier terms. */
     ps->rcs = 0.0;
@@ -716,8 +717,12 @@ void CanRes (ws_struct *ws, es_struct *es, ef_struct * ef, ps_struct *ps,
      * evap in determining actual evap. pc is determined by:
      *   pc * linerized Penman potential evap =
      *   Penman-monteith actual evaporation (containing rc term). */
+#ifdef _CYCLES_
+    ps->rc = RC;
+#else
     ps->rc =
         lc->rsmin / (ps->xlai * ps->rcs * ps->rct * ps->rcq * ps->rcsoil);
+#endif
     //rr = (4.0 * SIGMA * RD / CP) * pow(es->sfctmp, 4.0) /
     //  (ps->sfcprs * ps->ch) + 1.0;
     rr = (4.0 * ps->emissi * SIGMA * RD / CP) *
@@ -840,7 +845,7 @@ void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
         /*
          * Evaporation from residue
          */
-        ResidueEvaporation (residue, soil, comm, wf->etp * 1000.0 * dt, ps->sncovr);
+        ResidueEvaporation (residue, soil, comm, wf->etp * ps->pc * 1000.0 * dt, ps->sncovr);
         wf->eres = soil->residueEvaporationVol / 1000.0 / dt;
 #endif
 
@@ -851,7 +856,7 @@ void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
 #ifdef _CYCLES_
             if (comm->NumActiveCrop > 0)
             {
-                WaterUptake (comm, soil, es->sfctmp, wf, dt);
+                WaterUptake (comm, soil, es->sfctmp, wf, ps->pc, dt);
             }
 #else
             Transp (ws, wf, ps, lc, soil, zsoil);
