@@ -37,8 +37,8 @@ KC                                          1.2
 ANNUAL                                      1
 LEGUME                                      0
 C3                                          0
-LWP_STRESS_ONSET                            -1100.0
-LWP_WILTING_POINT                           -2000.0
+LWP_STRESS_ONSET                            -600.0
+LWP_WILTING_POINT                           -1500.0
 TRANSPIRATION_MAX                           12.00
 
 ####################################################

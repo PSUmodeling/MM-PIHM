@@ -604,12 +604,10 @@ double AvgElev (elem_struct *elem, int numele)
 void CalcLatFlx (const ws_struct *ws, const ps_struct *ps, wf_struct *wf)
 {
     double          sattot;
-    double          weight[MAXLYR];
     int             ks;
 
     for (ks = 0; ks < MAXLYR; ks++)
     {
-        weight[ks] = 0.0;
         wf->runoff2_lyr[ks] = 0.0;
     }
 
@@ -622,14 +620,13 @@ void CalcLatFlx (const ws_struct *ws, const ps_struct *ps, wf_struct *wf)
 
     if (sattot <= 0.0)
     {
-        weight[ps->nsoil - 1] = 1.0;
+        wf->runoff2_lyr[ps->nsoil - 1] = wf->runoff2;
     }
     else
     {
         for (ks = 0; ks < ps->nsoil; ks++)
         {
-            weight[ks] = ps->satdpth[ks] / sattot;
-            wf->runoff2_lyr[ks] = weight[ks] * wf->runoff2;
+            wf->runoff2_lyr[ks] = ps->satdpth[ks] / sattot * wf->runoff2;
         }
     }
 }

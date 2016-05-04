@@ -660,6 +660,15 @@ typedef struct snow_struct
 {
     double              snowCover;
 } snow_struct;
+
+typedef struct solute_struct
+{
+    double              soluteMass[MAXLYR];
+    double              soluteMassAdsorbed[MAXLYR];
+    double              soluteConc[MAXLYR];
+    double              soluteFluxLat[4][MAXLYR];
+    double              soluteFluxVert[MAXLYR];
+} solute_struct;
 #endif
 
 typedef struct elem_struct
@@ -696,6 +705,8 @@ typedef struct elem_struct
     soilc_struct    soilc;
     weather_struct  weather;
     snow_struct     snow;
+    solute_struct   NO3sol;
+    solute_struct   NH4sol;
 #endif
 
 } elem_struct;
