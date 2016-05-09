@@ -375,10 +375,11 @@ double AirMolarDensity (double T, double P);
 double BoundaryLayerConductance (double RI, double RM, double WS, double AMD);
 void ResidueWetting (residue_struct *Residue, double *infil_vol);
 double FindIrrigationVolume (int opLayer, double opWaterDepletion, const soil_struct *Soil);
-void SoluteTransport (elem_struct *elem, int numele);
+void SoluteTransport (elem_struct *elem, int numele, double dt);
 void Adsorption (const double *sldpth, const double *sh2o, const double *bd, int nsoil, double Sol_Kd, solute_struct *solute);
 double LinearEquilibriumConcentration (double Kd, double bulkDensity, double layerThickness, double waterContent, double soluteMass);
 double LinearEquilibriumSoluteMass (double Kd, double bulkDensity, double layerThickness, double waterContent, double concentration);
+void Elem2ElemSolTrnsp (const elem_struct *src, const elem_struct *snk, double fluxsub, const double *conc, double dt, double *flux_sol_src, double *flux_sol_snk);
 #endif
 
 #endif
