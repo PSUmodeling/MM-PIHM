@@ -72,12 +72,6 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         /* Determine current step and next step */
         t = pihm->ctrl.tout[i];
 
-        if (t == 1230771660)
-        {
-            printf ("Add N to Ele 226\n");
-            pihm->elem[226].soil.NO3[pihm->elem[226].ps.nsoil - 1] += 1.0;
-        }
-            
         /* Apply forcing */
         ApplyForcing (&pihm->forc, t);
 
