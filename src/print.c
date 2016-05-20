@@ -696,6 +696,58 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                 }
                 n++;
 
+                sprintf (pihm->prtctrl[n].name, "%s%s.NO3", outputdir,
+                    simulation);
+                pihm->prtctrl[n].intvl = 3600;
+                pihm->prtctrl[n].nvrbl = pihm->numele;
+                pihm->prtctrl[n].vrbl =
+                    (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    sizeof (double *));
+                for (j = 0; j < pihm->numele; j++)
+                {
+                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].soil.NO3Profile;
+                }
+                n++;
+                
+                sprintf (pihm->prtctrl[n].name, "%s%s.rivNO3", outputdir,
+                    simulation);
+                pihm->prtctrl[n].intvl = 3600;
+                pihm->prtctrl[n].nvrbl = pihm->numriv;
+                pihm->prtctrl[n].vrbl =
+                    (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    sizeof (double *));
+                for (j = 0; j < pihm->numriv; j++)
+                {
+                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].NO3sol.soluteMass[0];
+                }
+                n++;
+
+                sprintf (pihm->prtctrl[n].name, "%s%s.NH4", outputdir,
+                    simulation);
+                pihm->prtctrl[n].intvl = 3600;
+                pihm->prtctrl[n].nvrbl = pihm->numele;
+                pihm->prtctrl[n].vrbl =
+                    (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    sizeof (double *));
+                for (j = 0; j < pihm->numele; j++)
+                {
+                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].soil.NH4Profile;
+                }
+                n++;
+                
+                sprintf (pihm->prtctrl[n].name, "%s%s.rivNH4", outputdir,
+                    simulation);
+                pihm->prtctrl[n].intvl = 3600;
+                pihm->prtctrl[n].nvrbl = pihm->numriv;
+                pihm->prtctrl[n].vrbl =
+                    (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    sizeof (double *));
+                for (j = 0; j < pihm->numriv; j++)
+                {
+                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].NH4sol.soluteMass[0];
+                }
+                n++;
+
 #endif
 
     pihm->ctrl.nprint = n;

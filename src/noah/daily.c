@@ -41,7 +41,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         {
             daily->stc[k] += elem->es.stc[k];
             daily->sh2o[k] += elem->ws.sh2o[k];
-            daily->smflx[k] += elem->wf.smflx[k];
+            daily->smflxv[k] += elem->wf.smflxv[k];
         }
 
 #ifdef _CYCLES_
@@ -172,7 +172,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             {
                 daily->stc[k] /= (double)daily->counter;
                 daily->sh2o[k] /= (double)daily->counter;
-                daily->smflx[k] /= (double)daily->counter;
+                daily->smflxv[k] /= (double)daily->counter;
             }
 
 #ifdef _CYCLES_
@@ -263,7 +263,7 @@ void InitDailyStruct (pihm_struct pihm)
         {
             daily->stc[k] = 0.0;
             daily->sh2o[k] = 0.0;
-            daily->smflx[k] = 0.0;
+            daily->smflxv[k] = 0.0;
         }
         daily->q2d = 0.0;
         daily->albedo = 0.0;
@@ -295,7 +295,7 @@ void InitDailyStruct (pihm_struct pihm)
         daily->prev_dayl = 0.0;
         for (k = 0; k < MAXLYR; k++)
         {
-            daily->smflx[MAXLYR] = 0.0;
+            daily->smflxv[MAXLYR] = 0.0;
             daily->stc[k] = 0.0;
             daily->sh2o[k] = 0.0;
         }

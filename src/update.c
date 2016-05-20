@@ -105,6 +105,11 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
 #endif
 
         pihm->elem[i].ws0 = pihm->elem[i].ws;
+
+        elem->ps.nwtbl = FindWT (elem->ps.sldpth, elem->ps.nsoil,
+            elem->ws.gw, elem->ps.satdpth);
+        
+        CalcLatFlx (&elem->ws, &elem->ps, &elem->wf);
     }
 
     for (i = 0; i < pihm->numriv; i++)
@@ -118,6 +123,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
     }
 
 #ifdef _NOAH_
+
     AvgFlux (pihm->elem, pihm->numele, SUM);
 #endif
 }

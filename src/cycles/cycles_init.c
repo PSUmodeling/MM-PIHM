@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitCycles (elem_struct *elem, int numele, const ctrl_struct *ctrl, const mgmttbl_struct *mgmttbl, const agtbl_struct *agtbl, const croptbl_struct *croptbl, const soiltbl_struct *soiltbl)
+void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv, const ctrl_struct *ctrl, const mgmttbl_struct *mgmttbl, const agtbl_struct *agtbl, const croptbl_struct *croptbl, const soiltbl_struct *soiltbl)
 {
     int             ntill;
     int             nplnt;
@@ -193,7 +193,11 @@ void InitCycles (elem_struct *elem, int numele, const ctrl_struct *ctrl, const m
             comm->Crop[j].calculatedSimMinYield = 0.0;
 
             comm->Crop[j].stageGrowth = NO_CROP;
+
+            InitCropSV (&comm->Crop[j]);
         }
+
+        UpdateCommunity (comm);
 
         InitializeSoil (&elem[i].soil, soiltbl, &elem[i].ps);
 
@@ -208,6 +212,27 @@ void InitCycles (elem_struct *elem, int numele, const ctrl_struct *ctrl, const m
         for (k = 0; k < elem[i].ps.nsoil; k++)
         {
             elem[i].cropmgmt.tillageFactor[k] = 0.0;
+        }
+    }
+
+    for (i = 0; i < numriv; i++)
+    {
+        for (k = 0; k < MAXLYR; k++)
+        {
+            riv[i].NO3sol.soluteMass[k] = 0.0;
+            riv[i].NH4sol.soluteMass[k] = 0.0;
+        }
+
+        for (k = 0; k < elem[riv[i].rightele - 1].ps.nsoil; k++)
+        {
+            riv[i].NO3sol.soluteMass[0] += elem[riv[i].rightele - 1].soil.NO3[k];
+            riv[i].NH4sol.soluteMass[0] += elem[riv[i].rightele - 1].soil.NH4[k];
+        }
+
+        for (k = 0; k < elem[riv[i].leftele - 1].ps.nsoil; k++)
+        {
+            riv[i].NO3sol.soluteMass[0] += elem[riv[i].leftele - 1].soil.NO3[k];
+            riv[i].NH4sol.soluteMass[0] += elem[riv[i].leftele - 1].soil.NH4[k];
         }
     }
 }

@@ -296,7 +296,7 @@ void            ReadSoilInit (char *, soiltbl_struct *);
 void            ReadCrop (char *, croptbl_struct *);
 void            ReadOperation (const agtbl_struct *, mgmttbl_struct *, const croptbl_struct *);
 int             CropExist (char *, const croptbl_struct *);
-void            InitCycles (elem_struct *, int, const ctrl_struct *, const mgmttbl_struct *, const agtbl_struct *, const croptbl_struct *, const soiltbl_struct *);
+void            InitCycles (elem_struct *, int, river_struct *, int, const ctrl_struct *, const mgmttbl_struct *, const agtbl_struct *, const croptbl_struct *, const soiltbl_struct *);
 void            InitializeSoil (soil_struct *, const soiltbl_struct *, const ps_struct *);
 double          BulkDensity (double, double, double);
 void            InitializeResidue (residue_struct *, int);
@@ -375,11 +375,14 @@ double AirMolarDensity (double T, double P);
 double BoundaryLayerConductance (double RI, double RM, double WS, double AMD);
 void ResidueWetting (residue_struct *Residue, double *infil_vol);
 double FindIrrigationVolume (int opLayer, double opWaterDepletion, const soil_struct *Soil);
-void SoluteTransport (elem_struct *elem, int numele, double dt);
+void SoluteTransport (elem_struct *elem, int numele, river_struct *, int, double dt);
 void Adsorption (const double *sldpth, const double *sh2o, const double *bd, int nsoil, double Sol_Kd, solute_struct *solute);
 double LinearEquilibriumConcentration (double Kd, double bulkDensity, double layerThickness, double waterContent, double soluteMass);
 double LinearEquilibriumSoluteMass (double Kd, double bulkDensity, double layerThickness, double waterContent, double concentration);
-void Elem2ElemSolTrnsp (const elem_struct *src, const elem_struct *snk, double fluxsub, const double *conc, double dt, double *flux_sol_src, double *flux_sol_snk);
+void Elem2ElemSolTrnsp (const elem_struct *src, const elem_struct *snk, double *fluxsub, const double *conc, double dt, double *flux_sol_src, double *flux_sol_snk);
+void Elem2RiverSolTrnsp (const elem_struct *elem, const river_struct *riv, double gwflux, double *smflx, const double *elem_conc, const double *riv_conc, double dt, double *flux_sol_elem, double *flux_sol_riv);
+void River2RiverSolTrnsp (river_struct *riv, const river_struct *down, double *fluxriv, const double *riv_conc, const double *down_conc, double dt, double *flux_sol_riv, double *flux_sol_down);
+void InitCropSV (crop_struct *Crop);
 #endif
 
 #endif

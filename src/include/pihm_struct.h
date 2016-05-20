@@ -303,7 +303,8 @@ typedef struct daily_struct
 
     double          stc[MAXLYR];
     double          sh2o[MAXLYR];
-    double          smflx[MAXLYR];
+    double          smflxv[MAXLYR];
+    double          smflxh[4][MAXLYR];
     double          q2d;
     double          albedo;
     double          ch;
@@ -353,7 +354,8 @@ typedef struct wf_struct
     double          runoff2;    /* subsurface runoff (m s-1), drainage out bottom of last soil layer (baseflow) */
     double          runoff2_lyr[MAXLYR];
     double          runoff3;    /* numerical trunctation in excess of porosity (smcmax) for a given soil layer at the end of a time step (m s-1). note: the above runoff2 is actually the sum of runoff2 and runoff3 */
-    double          smflx[MAXLYR];
+    double          smflxv[MAXLYR];
+    double          smflxh[4][MAXLYR];
     double          pcpdrp;     /* combined prcp1 and drip (from cmc) that goes into the soil (m s-1) */
     double          prcprain;   /* liquid-precipitation rate (kg m-2 s-1) (not used) */
     double          dew;        /* dewfall (or frostfall for t<273.15) (m) */
@@ -753,6 +755,10 @@ typedef struct river_struct
     int             fromnode;   /* Upstream Node no. */
     int             tonode;     /* Dnstream Node no. */
     int             down;       /* down stream segment */
+#ifdef _CYCLES_
+    solute_struct   NO3sol;
+    solute_struct   NH4sol;
+#endif
 } river_struct;
 
 typedef struct calib_struct

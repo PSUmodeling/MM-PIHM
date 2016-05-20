@@ -3,6 +3,10 @@
 void Noah (int t, pihm_struct pihm)
 {
     int             i, j;
+#ifdef _CYCLES_
+    double          ksolar;
+    double          tau;
+#endif
     double          zenith, azimuth;
     double          sdir, sdif;
     elem_struct    *elem;
@@ -50,6 +54,20 @@ void Noah (int t, pihm_struct pihm)
 
         elem->ps.alb = BADVAL;
 
+#ifdef _CYCLES_
+        if (elem->comm.svRadiationInterception > 0.0)
+        {
+            ksolar = 0.5;
+
+            tau = 1.0 - ((elem->comm.svRadiationInterception > 0.98) ? 0.98 : elem->comm.svRadiationInterception);
+
+            elem->ps.xlai = - log (1.0 - tau) / ksolar;
+        }
+        else
+        {
+            elem->ps.xlai = 0.0;
+        }
+#else
         if (elem->forc.lai_type > 0)
         {
             elem->ps.xlai = *elem->forc.lai;
@@ -58,6 +76,7 @@ void Noah (int t, pihm_struct pihm)
         {
             elem->ps.xlai = MonthlyLAI (t, elem->lc.type);
         }
+#endif
 
         elem->ws.cmcmax = elem->lc.cmcfactr * elem->ps.xlai;
 
@@ -83,9 +102,11 @@ void Noah (int t, pihm_struct pihm)
 #ifdef _CYCLES_
             elem->soil.waterContent[j] = elem->ws.sh2o[j];
 #endif
+
+            elem->avgwf.runoff2_lyr[j] = (elem->avgwf.smflxh[0][j] + elem->avgwf.smflxh[1][j] + elem->avgwf.smflxh[2][j]) / elem->topo.area;
         }
 
-        CalcLatFlx (&elem->ws, &elem->ps, &elem->avgwf);
+        //CalcLatFlx (&elem->ws, &elem->ps, &elem->avgwf);
 
         /*
          * Run Noah LSM
@@ -236,7 +257,11 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     }
 
     //lc->shdfac = 1.0 - exp (-0.52 * (ps->xlai));
+#ifdef _CYCLES_
+    lc->shdfac = comm->svRadiationInterception;
+#else
     lc->shdfac = 1.0 - exp (-0.75 * (ps->xlai));
+#endif
 
     /*
      * Initialize precipitation logicals.
@@ -854,10 +879,7 @@ void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
             /* Initialize plant total transpiration, retrieve plant transpiration,
              * and accumulate it for all soil layers. */
 #ifdef _CYCLES_
-            if (comm->NumActiveCrop > 0)
-            {
-                WaterUptake (comm, soil, es->sfctmp, wf, ps->pc, dt);
-            }
+            WaterUptake (comm, soil, es->sfctmp, wf, ps->pc, dt);
 #else
             Transp (ws, wf, ps, lc, soil, zsoil);
 #endif
@@ -2462,7 +2484,7 @@ void SStep (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
         ci[k] *= dt;
 
         sh2o0[k] = ws->sh2o[k];
-        wf->smflx[k] = 0.0;
+        wf->smflxv[k] = 0.0;
     }
 
     /* Copy values for input variables before call to Rosr12 */
@@ -2555,9 +2577,9 @@ void SStep (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
 
     for (k = ps->nsoil - 1; k > 0; k--)
     {
-        wf->smflx[k - 1] =
+        wf->smflxv[k - 1] =
             (ws->sh2o[k] - sh2o0[k]) * ps->sldpth[k] / dt +
-            avgwf->runoff2_lyr[k] + wf->et[k] + wf->smflx[k];
+            avgwf->runoff2_lyr[k] + wf->et[k] + wf->smflxv[k];
     }
 
     /* Update canopy water content/interception (cmc). Convert rhsct to an
