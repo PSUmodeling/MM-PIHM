@@ -883,7 +883,10 @@ void CalcModelStep (ctrl_struct *ctrl)
 
 void ZeroWaterFlux (wf_struct *wf)
 {
-    int             j, k;
+    int             j;
+#ifdef _NOAH_
+    int             k;
+#endif
 
 #ifdef _NOAH_
     wf->runoff2 = 0.0;
@@ -908,16 +911,20 @@ void ZeroWaterFlux (wf_struct *wf)
     {
         wf->fluxsurf[j] = 0.0;
         wf->fluxsub[j] = 0.0;
+#ifdef _NOAH_
         for (k = 0; k < MAXLYR; k++)
         {
             wf->smflxh[j][k] = 0.0;
         }
+#endif
     }
 
+#ifdef _NOAH_
     for (j = 0; j < MAXLYR; j++)
     {
         wf->et[j] = 0.0;
     }
+#endif
 
     for (j = 0; j < 11; j++)
     {
