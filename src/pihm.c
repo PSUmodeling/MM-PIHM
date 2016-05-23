@@ -113,7 +113,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #endif
 
 #ifdef _CYCLES_
-        SoluteTransport (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, (double)pihm->ctrl.stepsize);
+        SoluteTransport (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
+            (double)pihm->ctrl.stepsize);
 #endif
         /*
          * Print outputs

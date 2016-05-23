@@ -602,151 +602,140 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
     }
 
 #ifdef _CYCLES_
-            for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
-            {
-                sprintf (pihm->prtctrl[n].name, "%s%s.%s.biomass", outputdir,
-                    simulation, pihm->elem[0].comm.Crop[k].cropName);
-                pihm->prtctrl[n].intvl = 86400;
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl =
-                    (double **)malloc (pihm->prtctrl[n].nvrbl *
-                    sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].comm.Crop[k].svBiomass;
-                }
-                n++;
+    for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
+    {
+        sprintf (pihm->prtctrl[n].name, "%s%s.%s.biomass", outputdir,
+            simulation, pihm->elem[0].comm.Crop[k].cropName);
+        pihm->prtctrl[n].intvl = 86400;
+        pihm->prtctrl[n].nvrbl = pihm->numele;
+        pihm->prtctrl[n].vrbl =
+            (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+        for (j = 0; j < pihm->numele; j++)
+        {
+            pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].comm.Crop[k].svBiomass;
+        }
+        n++;
 
-                sprintf (pihm->prtctrl[n].name, "%s%s.%s.radintcp", outputdir,
-                    simulation, pihm->elem[0].comm.Crop[k].cropName);
-                pihm->prtctrl[n].intvl = 86400;
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl =
-                    (double **)malloc (pihm->prtctrl[n].nvrbl *
-                    sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].comm.Crop[k].svRadiationInterception;
-                }
-                n++;
+        sprintf (pihm->prtctrl[n].name, "%s%s.%s.radintcp", outputdir,
+            simulation, pihm->elem[0].comm.Crop[k].cropName);
+        pihm->prtctrl[n].intvl = 86400;
+        pihm->prtctrl[n].nvrbl = pihm->numele;
+        pihm->prtctrl[n].vrbl =
+            (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+        for (j = 0; j < pihm->numele; j++)
+        {
+            pihm->prtctrl[n].vrbl[j] =
+                &pihm->elem[j].comm.Crop[k].svRadiationInterception;
+        }
+        n++;
 
-                sprintf (pihm->prtctrl[n].name, "%s%s.%s.waterstress", outputdir,
-                    simulation, pihm->elem[0].comm.Crop[k].cropName);
-                pihm->prtctrl[n].intvl = 86400;
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl =
-                    (double **)malloc (pihm->prtctrl[n].nvrbl *
-                    sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].comm.Crop[k].svWaterStressFactor;
-                }
-                n++;
+        sprintf (pihm->prtctrl[n].name, "%s%s.%s.waterstress", outputdir,
+            simulation, pihm->elem[0].comm.Crop[k].cropName);
+        pihm->prtctrl[n].intvl = 86400;
+        pihm->prtctrl[n].nvrbl = pihm->numele;
+        pihm->prtctrl[n].vrbl =
+            (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+        for (j = 0; j < pihm->numele; j++)
+        {
+            pihm->prtctrl[n].vrbl[j] =
+                &pihm->elem[j].comm.Crop[k].svWaterStressFactor;
+        }
+        n++;
 
-                sprintf (pihm->prtctrl[n].name, "%s%s.%s.nstress", outputdir,
-                    simulation, pihm->elem[0].comm.Crop[k].cropName);
-                pihm->prtctrl[n].intvl = 86400;
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl =
-                    (double **)malloc (pihm->prtctrl[n].nvrbl *
-                    sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].comm.Crop[k].svN_StressFactor;
-                }
-                n++;
-                
-                sprintf (pihm->prtctrl[n].name, "%s%s.%s.transp", outputdir,
-                    simulation, pihm->elem[0].comm.Crop[k].cropName);
-                pihm->prtctrl[n].intvl = 86400;
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl =
-                    (double **)malloc (pihm->prtctrl[n].nvrbl *
-                    sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].comm.Crop[k].svTranspiration;
-                }
-                n++;
+        sprintf (pihm->prtctrl[n].name, "%s%s.%s.nstress", outputdir,
+            simulation, pihm->elem[0].comm.Crop[k].cropName);
+        pihm->prtctrl[n].intvl = 86400;
+        pihm->prtctrl[n].nvrbl = pihm->numele;
+        pihm->prtctrl[n].vrbl =
+            (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+        for (j = 0; j < pihm->numele; j++)
+        {
+            pihm->prtctrl[n].vrbl[j] =
+                &pihm->elem[j].comm.Crop[k].svN_StressFactor;
+        }
+        n++;
 
-                sprintf (pihm->prtctrl[n].name, "%s%s.%s.pottransp", outputdir,
-                    simulation, pihm->elem[0].comm.Crop[k].cropName);
-                pihm->prtctrl[n].intvl = 86400;
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl =
-                    (double **)malloc (pihm->prtctrl[n].nvrbl *
-                    sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].comm.Crop[k].svTranspirationPotential;
-                }
-                n++;
-            }
+        sprintf (pihm->prtctrl[n].name, "%s%s.%s.transp", outputdir,
+            simulation, pihm->elem[0].comm.Crop[k].cropName);
+        pihm->prtctrl[n].intvl = 86400;
+        pihm->prtctrl[n].nvrbl = pihm->numele;
+        pihm->prtctrl[n].vrbl =
+            (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+        for (j = 0; j < pihm->numele; j++)
+        {
+            pihm->prtctrl[n].vrbl[j] =
+                &pihm->elem[j].comm.Crop[k].svTranspiration;
+        }
+        n++;
 
-                sprintf (pihm->prtctrl[n].name, "%s%s.eres", outputdir,
-                    simulation);
-                pihm->prtctrl[n].intvl = 3600;
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl =
-                    (double **)malloc (pihm->prtctrl[n].nvrbl *
-                    sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].wf.eres;
-                }
-                n++;
+        sprintf (pihm->prtctrl[n].name, "%s%s.%s.pottransp", outputdir,
+            simulation, pihm->elem[0].comm.Crop[k].cropName);
+        pihm->prtctrl[n].intvl = 86400;
+        pihm->prtctrl[n].nvrbl = pihm->numele;
+        pihm->prtctrl[n].vrbl =
+            (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+        for (j = 0; j < pihm->numele; j++)
+        {
+            pihm->prtctrl[n].vrbl[j] =
+                &pihm->elem[j].comm.Crop[k].svTranspirationPotential;
+        }
+        n++;
+    }
 
-                sprintf (pihm->prtctrl[n].name, "%s%s.NO3", outputdir,
-                    simulation);
-                pihm->prtctrl[n].intvl = 3600;
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl =
-                    (double **)malloc (pihm->prtctrl[n].nvrbl *
-                    sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].soil.NO3Profile;
-                }
-                n++;
-                
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivNO3", outputdir,
-                    simulation);
-                pihm->prtctrl[n].intvl = 3600;
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl =
-                    (double **)malloc (pihm->prtctrl[n].nvrbl *
-                    sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].NO3sol.soluteMass[0];
-                }
-                n++;
+    sprintf (pihm->prtctrl[n].name, "%s%s.eres", outputdir, simulation);
+    pihm->prtctrl[n].intvl = 3600;
+    pihm->prtctrl[n].nvrbl = pihm->numele;
+    pihm->prtctrl[n].vrbl =
+        (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+    for (j = 0; j < pihm->numele; j++)
+    {
+        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].wf.eres;
+    }
+    n++;
 
-                sprintf (pihm->prtctrl[n].name, "%s%s.NH4", outputdir,
-                    simulation);
-                pihm->prtctrl[n].intvl = 3600;
-                pihm->prtctrl[n].nvrbl = pihm->numele;
-                pihm->prtctrl[n].vrbl =
-                    (double **)malloc (pihm->prtctrl[n].nvrbl *
-                    sizeof (double *));
-                for (j = 0; j < pihm->numele; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].soil.NH4Profile;
-                }
-                n++;
-                
-                sprintf (pihm->prtctrl[n].name, "%s%s.rivNH4", outputdir,
-                    simulation);
-                pihm->prtctrl[n].intvl = 3600;
-                pihm->prtctrl[n].nvrbl = pihm->numriv;
-                pihm->prtctrl[n].vrbl =
-                    (double **)malloc (pihm->prtctrl[n].nvrbl *
-                    sizeof (double *));
-                for (j = 0; j < pihm->numriv; j++)
-                {
-                    pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].NH4sol.soluteMass[0];
-                }
-                n++;
+    sprintf (pihm->prtctrl[n].name, "%s%s.NO3", outputdir, simulation);
+    pihm->prtctrl[n].intvl = 3600;
+    pihm->prtctrl[n].nvrbl = pihm->numele;
+    pihm->prtctrl[n].vrbl =
+        (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+    for (j = 0; j < pihm->numele; j++)
+    {
+        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].soil.NO3Profile;
+    }
+    n++;
+
+    sprintf (pihm->prtctrl[n].name, "%s%s.rivNO3", outputdir, simulation);
+    pihm->prtctrl[n].intvl = 3600;
+    pihm->prtctrl[n].nvrbl = pihm->numriv;
+    pihm->prtctrl[n].vrbl =
+        (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+    for (j = 0; j < pihm->numriv; j++)
+    {
+        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].NO3sol.soluteMass[0];
+    }
+    n++;
+
+    sprintf (pihm->prtctrl[n].name, "%s%s.NH4", outputdir, simulation);
+    pihm->prtctrl[n].intvl = 3600;
+    pihm->prtctrl[n].nvrbl = pihm->numele;
+    pihm->prtctrl[n].vrbl =
+        (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+    for (j = 0; j < pihm->numele; j++)
+    {
+        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].soil.NH4Profile;
+    }
+    n++;
+
+    sprintf (pihm->prtctrl[n].name, "%s%s.rivNH4", outputdir, simulation);
+    pihm->prtctrl[n].intvl = 3600;
+    pihm->prtctrl[n].nvrbl = pihm->numriv;
+    pihm->prtctrl[n].vrbl =
+        (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+    for (j = 0; j < pihm->numriv; j++)
+    {
+        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].NH4sol.soluteMass[0];
+    }
+    n++;
 
 #endif
 

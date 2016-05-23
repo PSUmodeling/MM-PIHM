@@ -130,7 +130,7 @@ int main (int argc, char *argv[])
         /*
          * EnKF initialization
          */
-        ens = (enkf_struct) malloc (sizeof *ens);
+        ens = (enkf_struct)malloc (sizeof *ens);
 
         /* Read EnKF input file */
         EnKFRead (project, ens);
@@ -249,7 +249,8 @@ int main (int argc, char *argv[])
     if (id == 0)
     {
 #endif
-        printf ("\nSimulation completed.\n");
+
+    printf ("\nSimulation completed.\n");
 
 #ifdef _ENKF_
         FreeEns (ens);

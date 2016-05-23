@@ -108,7 +108,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
 
         elem->ps.nwtbl = FindWT (elem->ps.sldpth, elem->ps.nsoil,
             elem->ws.gw, elem->ps.satdpth);
-        
+
         CalcLatFlx (&elem->ws, &elem->ps, &elem->wf);
     }
 

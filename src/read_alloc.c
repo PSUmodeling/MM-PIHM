@@ -16,25 +16,26 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     /*
      * Set file names of the input files
      */
-    sprintf (pihm->filename.riv,  "input/%s/%s.riv",   project, project);
-    sprintf (pihm->filename.mesh, "input/%s/%s.mesh",  project, project);
-    sprintf (pihm->filename.att,  "input/%s/%s.att",   project, project);
-    sprintf (pihm->filename.soil, "input/%s/%s.soil",  project, project);
-    sprintf (pihm->filename.geol, "input/%s/%s.geol",  project, project);
-    sprintf (pihm->filename.lc,   "input/vegprmt.tbl");
-    sprintf (pihm->filename.meteo, "input/%s/%s.meteo",  project, project);
-    sprintf (pihm->filename.lai,  "input/%s/%s.lai",   project, project);
-    sprintf (pihm->filename.bc,  "input/%s/%s.bc",   project, project);
-    sprintf (pihm->filename.para, "input/%s/%s.para",  project, project);
-    sprintf (pihm->filename.calib,"input/%s/%s.calib", project, simulation);
-    sprintf (pihm->filename.ic, "input/%s/%s.ic",  project, simulation);
+    sprintf (pihm->filename.riv, "input/%s/%s.riv", project, project);
+    sprintf (pihm->filename.mesh, "input/%s/%s.mesh", project, project);
+    sprintf (pihm->filename.att, "input/%s/%s.att", project, project);
+    sprintf (pihm->filename.soil, "input/%s/%s.soil", project, project);
+    sprintf (pihm->filename.geol, "input/%s/%s.geol", project, project);
+    sprintf (pihm->filename.lc, "input/vegprmt.tbl");
+    sprintf (pihm->filename.meteo, "input/%s/%s.meteo", project, project);
+    sprintf (pihm->filename.lai, "input/%s/%s.lai", project, project);
+    sprintf (pihm->filename.bc, "input/%s/%s.bc", project, project);
+    sprintf (pihm->filename.para, "input/%s/%s.para", project, project);
+    sprintf (pihm->filename.calib, "input/%s/%s.calib", project, simulation);
+    sprintf (pihm->filename.ic, "input/%s/%s.ic", project, simulation);
 #ifdef _NOAH_
-    sprintf (pihm->filename.lsm,  "input/%s/%s.lsm",   project, project);
-    sprintf (pihm->filename.rad,  "input/%s/%s.rad",   project, project);
+    sprintf (pihm->filename.lsm, "input/%s/%s.lsm", project, project);
+    sprintf (pihm->filename.rad, "input/%s/%s.rad", project, project);
 #endif
 #ifdef _CYCLES_
     sprintf (pihm->filename.cycles, "input/%s/%s.cycles", project, project);
-    sprintf (pihm->filename.soilinit, "input/%s/%s.soilinit", project, project);
+    sprintf (pihm->filename.soilinit, "input/%s/%s.soilinit", project,
+        project);
     sprintf (pihm->filename.crop, "input/%s/%s.crop", project, project);
 #endif
 
@@ -725,7 +726,7 @@ void ReadLC (char *filename, lctbl_struct *lctbl)
 
 void ReadForc (char *filename, forc_struct *forc)
 {
-    FILE           *meteo_file;  /* Pointer to .forc file */
+    FILE           *meteo_file; /* Pointer to .forc file */
     char            cmdstr[MAXSTRING];
     int             i, j;
     int             match;
@@ -878,7 +879,7 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
 void ReadBC (char *filename, forc_struct *forc)
 {
     int             i, j;
-    FILE           *bc_file;   /* Pointer to .ibc file */
+    FILE           *bc_file;    /* Pointer to .ibc file */
     char            cmdstr[MAXSTRING];
     int             match;
     int             index;

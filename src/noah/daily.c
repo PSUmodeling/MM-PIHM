@@ -136,7 +136,8 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         /*
          * Calculate surface pressure based on FAO 1998 method (Narasimhan 2002) 
          */
-        spa.pressure = 1013.25 * pow ((293. - 0.0065 * spa.elevation) / 293.0, 5.26);
+        spa.pressure =
+            1013.25 * pow ((293. - 0.0065 * spa.elevation) / 293.0, 5.26);
         spa.temperature = pihm->noahtbl.tbot;
 
         spa.function = SPA_ZA_RTS;
@@ -156,7 +157,8 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         spa.second = timestamp->tm_sec;
         spa_result = spa_calculate (&spa);
         prev_dayl = (spa.sunset - spa.sunrise) * 3600.;
-        prev_dayl = (prev_dayl < 0.0) ? (prev_dayl + 12.0 * 3600.0) : prev_dayl;
+        prev_dayl =
+            (prev_dayl < 0.0) ? (prev_dayl + 12.0 * 3600.0) : prev_dayl;
 
         for (i = 0; i < pihm->numele; i++)
         {
@@ -166,7 +168,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             daily->dayl = dayl;
             daily->prev_dayl = prev_dayl;
 
-            daily->sfcspd /= (double) daily->counter;
+            daily->sfcspd /= (double)daily->counter;
 
             for (k = 0; k < pihm->elem[i].ps.nsoil; k++)
             {
@@ -200,7 +202,8 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             daily->albedo /= (double)daily->daylight_counter;
             daily->solar /= (double)daily->daylight_counter;
 
-            daily->tnight /= (double)(daily->counter - daily->daylight_counter);
+            daily->tnight /= (double)(daily->counter -
+                daily->daylight_counter);
         }
 
         for (i = 0; i < pihm->numriv; i++)
