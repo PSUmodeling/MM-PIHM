@@ -45,8 +45,9 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
 #endif
 
 #ifdef _CYCLES_
-    InitCycles (pihm->elem, pihm->numele, &pihm->ctrl, &pihm->mgmttbl, &pihm->agtbl,
-        &pihm->croptbl, &pihm->soiltbl);
+    InitCycles (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
+        &pihm->ctrl, &pihm->mgmttbl, &pihm->agtbl, &pihm->croptbl,
+        &pihm->soiltbl);
 #endif
 
     if (pihm->ctrl.init_type == RELAX)
@@ -882,7 +883,7 @@ void CalcModelStep (ctrl_struct *ctrl)
 
 void ZeroWaterFlux (wf_struct *wf)
 {
-    int             j;
+    int             j, k;
 
 #ifdef _NOAH_
     wf->runoff2 = 0.0;
@@ -907,6 +908,10 @@ void ZeroWaterFlux (wf_struct *wf)
     {
         wf->fluxsurf[j] = 0.0;
         wf->fluxsub[j] = 0.0;
+        for (k = 0; k < MAXLYR; k++)
+        {
+            wf->smflxh[j][k] = 0.0;
+        }
     }
 
     for (j = 0; j < MAXLYR; j++)

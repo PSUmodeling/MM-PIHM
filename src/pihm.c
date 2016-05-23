@@ -103,6 +103,20 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 #endif
 
         /*
+         * Daily timestep modules
+         */
+#ifdef _CYCLES_
+        if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
+        {
+            DailyCycles (t - DAYINSEC, pihm);
+        }
+#endif
+
+#ifdef _CYCLES_
+        SoluteTransport (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
+            (double)pihm->ctrl.stepsize);
+#endif
+        /*
          * Print outputs
          */
         PrintData (pihm->prtctrl, pihm->ctrl.nprint, t,
@@ -110,14 +124,10 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 
 #ifdef _DAILY_
         /*
-         * Daily timestep modules
+         * Initialize daily structures
          */
         if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
         {
-#ifdef _CYCLES_
-            DailyCycles (t - DAYINSEC, pihm);
-#endif
-
             InitDailyStruct (pihm);
         }
 #endif

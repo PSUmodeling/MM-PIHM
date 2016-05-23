@@ -21,6 +21,7 @@ int FindWT (const double *sldpth, int nsoil, double gw, double *satdpth)
     if (gw <= 0.0)
     {
         layer = nsoil;
+        satdpth[nsoil - 1] = 1.0E-3;
     }
     else if (gw > depth)
     {
@@ -551,7 +552,7 @@ double FrozRain (double prcp, double sfctmp)
 void AvgFlux (elem_struct *elem, int numele, int op)
 {
     static int      counter;
-    int             i, j;
+    int             i, j, k;
     double          denom;
 
     if (op == SUM)
@@ -564,6 +565,11 @@ void AvgFlux (elem_struct *elem, int numele, int op)
             for (j = 0; j < 3; j++)
             {
                 elem[i].avgwf.fluxsub[j] += elem[i].wf.fluxsub[j];
+
+                for (k = 0; k < elem[i].ps.nsoil; k++)
+                {
+                    elem[i].avgwf.smflxh[j][k] += elem[i].wf.smflxh[j][k];
+                }
             }
         }
         counter++;
@@ -580,6 +586,11 @@ void AvgFlux (elem_struct *elem, int numele, int op)
             for (j = 0; j < 3; j++)
             {
                 elem[i].avgwf.fluxsub[j] /= denom;
+
+                for (k = 0; k < elem[i].ps.nsoil; k++)
+                {
+                    elem[i].avgwf.smflxh[j][k] /= denom;
+                }
             }
         }
         counter = 0;
@@ -604,13 +615,14 @@ double AvgElev (elem_struct *elem, int numele)
 void CalcLatFlx (const ws_struct *ws, const ps_struct *ps, wf_struct *wf)
 {
     double          sattot;
-    double          weight[MAXLYR];
-    int             ks;
+    int             k, ks;
 
-    for (ks = 0; ks < MAXLYR; ks++)
+    for (k = 0; k < 3; k++)
     {
-        weight[ks] = 0.0;
-        wf->runoff2_lyr[ks] = 0.0;
+        for (ks = 0; ks < MAXLYR; ks++)
+        {
+            wf->smflxh[k][ks] = 0.0;
+        }
     }
 
     /* Determine runoff from each layer */
@@ -620,16 +632,18 @@ void CalcLatFlx (const ws_struct *ws, const ps_struct *ps, wf_struct *wf)
         sattot += ps->satdpth[ks];
     }
 
-    if (sattot <= 0.0)
+    for (k = 0; k < 3; k++)
     {
-        weight[ps->nsoil - 1] = 1.0;
-    }
-    else
-    {
-        for (ks = 0; ks < ps->nsoil; ks++)
+        if (sattot <= 0.0)
         {
-            weight[ks] = ps->satdpth[ks] / sattot;
-            wf->runoff2_lyr[ks] = weight[ks] * wf->runoff2;
+            wf->smflxh[k][ps->nsoil - 1] = wf->fluxsub[k];
+        }
+        else
+        {
+            for (ks = 0; ks < ps->nsoil; ks++)
+            {
+                wf->smflxh[k][ks] = ps->satdpth[ks] / sattot * wf->fluxsub[k];
+            }
         }
     }
 }

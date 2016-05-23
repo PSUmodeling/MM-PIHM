@@ -200,14 +200,20 @@ void            ShFlx (ws_struct *, es_struct *, ef_struct *, ps_struct *,
     double, const double *, double);
 void            SmFlx (ws_struct *, wf_struct *, const wf_struct *,
     ps_struct *, const lc_struct *, const soil_struct *,
+#ifdef _CYCLES_
+    residue_struct *,
+#endif
     const double *, double, double);
 void            HRT (ws_struct *, es_struct *, ef_struct *, ps_struct *,
     const lc_struct *, const soil_struct *, double *,
     const double *, double, double, double, double, double *,
     double *, double *);
 void            SRT (ws_struct *, wf_struct *, const wf_struct *, ps_struct *,
-    const soil_struct *, double *, double *, double *,
-    double *, double *, const double *, double);
+    const soil_struct *,
+#ifdef _CYCLES_
+    residue_struct *,
+#endif
+    double *, double *, double *, double *, double *, const double *, double);
 void            SStep (ws_struct *, wf_struct *, const wf_struct *,
                     ps_struct *, const soil_struct *, double *, double,
                     const double *, double *, double *, double *, double *,
@@ -290,7 +296,7 @@ void            ReadSoilInit (char *, soiltbl_struct *);
 void            ReadCrop (char *, croptbl_struct *);
 void            ReadOperation (const agtbl_struct *, mgmttbl_struct *, const croptbl_struct *);
 int             CropExist (char *, const croptbl_struct *);
-void            InitCycles (elem_struct *, int, const ctrl_struct *, const mgmttbl_struct *, const agtbl_struct *, const croptbl_struct *, const soiltbl_struct *);
+void            InitCycles (elem_struct *, int, river_struct *, int, const ctrl_struct *, const mgmttbl_struct *, const agtbl_struct *, const croptbl_struct *, const soiltbl_struct *);
 void            InitializeSoil (soil_struct *, const soiltbl_struct *, const ps_struct *);
 double          BulkDensity (double, double, double);
 void            InitializeResidue (residue_struct *, int);
@@ -310,12 +316,12 @@ double          NitrogenMineralization (double CNDecomposing, double CNnew, doub
 double          CNdestiny (double NmineralConc, double CNdecomposing);
 double          PoolNitrogenMineralization (double NmineralConc, double CNRatioDecomposing, double humRate, double decomposedMass, double carbonConc);
 double          Function_CNnew (double NmineralConc, double CNDecomposingPool);
-void WaterUptake (comm_struct *Community, soil_struct *Soil, double sfctmp, wf_struct *wf);
+void WaterUptake (comm_struct *Community, soil_struct *Soil, double sfctmp, wf_struct *wf, double pc, double dt);
 double TemperatureLimitation (double T, double T_Min, double T_Threshold);
 void CalcRootFraction (double *fractionRootsByLayer, soil_struct *Soil, crop_struct *Crop);
 int DOY (int);
 int IsLeapYear (int year);
-void DailyOperations (int y, int d, cropmgmt_struct *CropManagement, comm_struct *Community, residue_struct *Residue, ctrl_struct *SimControl, snow_struct *snow, soil_struct *Soil, soilc_struct *SoilCarbon, weather_struct *Weather, wf_struct *wf);
+void DailyOperations (int y, int d, cropmgmt_struct *CropManagement, comm_struct *Community, residue_struct *Residue, ctrl_struct *SimControl, snow_struct *snow, soil_struct *Soil, soilc_struct *SoilCarbon, weather_struct *Weather);
 double Depth_Limitation_To_Evaporation (double Depth);
 double Water_Content_Limitation_To_Evaporation (double FC, double WC_AirDry, double WC);
 void Evaporation (soil_struct *Soil, const comm_struct *Community, residue_struct *Residue, double ETo, double SnowCover);
@@ -340,7 +346,7 @@ int ForcedClipping (int d, comm_struct *Community);
 void GrainHarvest (int y, int doy, crop_struct *Crop, residue_struct *Residue, soil_struct *Soil, soilc_struct *SoilCarbon);
 void ComputeColdDamage (int y, int doy, crop_struct *Crop, const weather_struct *Weather, const snow_struct *Snow, residue_struct *Residue);
 double ColdDamage (double T, double Crop_Tn, double Crop_Tth);
-void ForageHarvest (int y, int doy, crop_struct *Crop, residue_struct *Residue, soil_struct *Soil, soilc_struct *SoilCarbon);
+void ForageAndSeedHarvest (int y, int doy, crop_struct *Crop, residue_struct *Residue, soil_struct *Soil, soilc_struct *SoilCarbon);
 void HarvestCrop (int y, int doy, crop_struct *Crop, residue_struct *Residue, soil_struct *Soil, soilc_struct *SoilCarbon);
 void PlantingCrop (comm_struct *Community, const cropmgmt_struct *CropManagement, int plantingIndex);
 void AddCrop (crop_struct *Crop);
@@ -367,6 +373,16 @@ double pHFunction (double pH);
 double VolatilizationDepthFunction (double depth);
 double AirMolarDensity (double T, double P);
 double BoundaryLayerConductance (double RI, double RM, double WS, double AMD);
+void ResidueWetting (residue_struct *Residue, double *infil_vol);
+double FindIrrigationVolume (int opLayer, double opWaterDepletion, const soil_struct *Soil);
+void SoluteTransport (elem_struct *elem, int numele, river_struct *, int, double dt);
+void Adsorption (const double *sldpth, const double *sh2o, const double *bd, int nsoil, double Sol_Kd, solute_struct *solute);
+double LinearEquilibriumConcentration (double Kd, double bulkDensity, double layerThickness, double waterContent, double soluteMass);
+double LinearEquilibriumSoluteMass (double Kd, double bulkDensity, double layerThickness, double waterContent, double concentration);
+void Elem2ElemSolTrnsp (const elem_struct *src, const elem_struct *snk, double *fluxsub, const double *conc, double dt, double *flux_sol_src, double *flux_sol_snk);
+void Elem2RiverSolTrnsp (const elem_struct *elem, const river_struct *riv, double gwflux, double *smflx, const double *elem_conc, const double *riv_conc, double dt, double *flux_sol_elem, double *flux_sol_riv);
+void River2RiverSolTrnsp (river_struct *riv, const river_struct *down, double *fluxriv, const double *riv_conc, const double *down_conc, double dt, double *flux_sol_riv, double *flux_sol_down);
+void InitCropSV (crop_struct *Crop);
 #endif
 
 #endif

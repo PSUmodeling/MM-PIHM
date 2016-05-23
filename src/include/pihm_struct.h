@@ -269,6 +269,9 @@ typedef struct elemforc_struct
 #ifdef _DAILY_
 typedef struct daily_struct
 {
+    int             counter;
+    int             daylight_counter;
+
     double          sfctmp;
     double          tday;
     double          tnight;
@@ -286,20 +289,22 @@ typedef struct daily_struct
     double          unsat;
     double          gw;
 
+#ifdef _CYCLES_
+    double          et[MAXLYR];
+    double          sncovr;
+#endif
     double          fluxsurf[4];
     double          fluxsub[4];
     double          infil;
     double          rechg;
-    double          smflx[MAXLYR];
 
     double          dayl;
     double          prev_dayl;
 
-    int             counter;
-    int             daylight_counter;
-
     double          stc[MAXLYR];
     double          sh2o[MAXLYR];
+    double          smflxv[MAXLYR];
+    double          smflxh[4][MAXLYR];
     double          q2d;
     double          albedo;
     double          ch;
@@ -337,7 +342,6 @@ typedef struct wf_struct
     double          ec;
     double          etp;
     double          eta;
-    double          et[MAXLYR];
     double          edir_sfc;
     double          edir_unsat;
     double          edir_gw;
@@ -345,17 +349,22 @@ typedef struct wf_struct
     double          ett_gw;
     double          fluxriv[11];
 #ifdef _NOAH_
+    double          et[MAXLYR];
     double          runoff1;    /* surface runoff (m s-1), not infiltrating the surface */
     double          runoff2;    /* subsurface runoff (m s-1), drainage out bottom of last soil layer (baseflow) */
     double          runoff2_lyr[MAXLYR];
     double          runoff3;    /* numerical trunctation in excess of porosity (smcmax) for a given soil layer at the end of a time step (m s-1). note: the above runoff2 is actually the sum of runoff2 and runoff3 */
-    double          smflx[MAXLYR];
+    double          smflxv[MAXLYR];
+    double          smflxh[4][MAXLYR];
     double          pcpdrp;     /* combined prcp1 and drip (from cmc) that goes into the soil (m s-1) */
     double          prcprain;   /* liquid-precipitation rate (kg m-2 s-1) (not used) */
     double          dew;        /* dewfall (or frostfall for t<273.15) (m) */
     double          snomlt;     /* snow melt (m/s) (water equivalent) */
     double          esnow;      /* sublimation from (or deposition to if <0) snowpack (ms-1) */
     double          etns;
+#endif
+#ifdef _CYCLES_
+    double          eres;
 #endif
 } wf_struct;
 
@@ -447,6 +456,9 @@ typedef struct crop_struct
 
     double          svRadiationInterception_nc;
     
+    double          dailyTranspiration;
+    double          dailyTranspirationPotential;
+
     double          userFloweringTT;
     double          userMaturityTT;
     double          userMaximumSoilCoverage;
@@ -650,6 +662,15 @@ typedef struct snow_struct
 {
     double              snowCover;
 } snow_struct;
+
+typedef struct solute_struct
+{
+    double              soluteMass[MAXLYR];
+    double              soluteMassAdsorbed[MAXLYR];
+    double              soluteConc[MAXLYR];
+    double              soluteFluxLat[4][MAXLYR];
+    double              soluteFluxVert[MAXLYR];
+} solute_struct;
 #endif
 
 typedef struct elem_struct
@@ -686,6 +707,8 @@ typedef struct elem_struct
     soilc_struct    soilc;
     weather_struct  weather;
     snow_struct     snow;
+    solute_struct   NO3sol;
+    solute_struct   NH4sol;
 #endif
 
 } elem_struct;
@@ -732,6 +755,10 @@ typedef struct river_struct
     int             fromnode;   /* Upstream Node no. */
     int             tonode;     /* Dnstream Node no. */
     int             down;       /* down stream segment */
+#ifdef _CYCLES_
+    solute_struct   NO3sol;
+    solute_struct   NH4sol;
+#endif
 } river_struct;
 
 typedef struct calib_struct

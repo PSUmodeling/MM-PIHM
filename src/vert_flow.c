@@ -54,7 +54,7 @@ void VerticalFlow (pihm_struct pihm)
 
             if (dh_by_dz < 0.0)
             {
-                kinf = 
+                kinf =
                     elem->soil.kmacv * elem->soil.areafh +
                     elem->soil.kinfv * (1.0 - elem->soil.areafh);
             }

@@ -11,7 +11,7 @@ int DOY (int t)
     };
     int             leap;
 
-    rawtime = (time_t)t;
+    rawtime = (time_t) t;
     timestamp = gmtime (&rawtime);
 
     year = timestamp->tm_year + 1900;

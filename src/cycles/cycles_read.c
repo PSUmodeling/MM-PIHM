@@ -126,7 +126,10 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, int numele)
     for (i = 0; i < numele; i++)
     {
         NextLine (simctrl_file, cmdstr);
-        match = sscanf (cmdstr, "%d %d %d %d %d %d", &index, &agtbl->op[i], &agtbl->rotsz[i], &agtbl->auto_N[i], &agtbl->auto_P[i], &agtbl->auto_S[i]);
+        match =
+            sscanf (cmdstr, "%d %d %d %d %d %d", &index, &agtbl->op[i],
+            &agtbl->rotsz[i], &agtbl->auto_N[i], &agtbl->auto_P[i],
+            &agtbl->auto_S[i]);
         if (match != 6)
         {
             printf ("Cannot read information of the %dth element!\n", i + 1);
@@ -141,7 +144,7 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, int numele)
     while (1)
     {
         NextLine (simctrl_file, cmdstr);
-        
+
         if (strcasecmp (cmdstr, "EOF") == 0)
         {
             break;
@@ -187,13 +190,18 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
     soil_file = fopen (filename, "r");
     CheckFile (soil_file, filename);
 
-    soiltbl->totalLayers = (int *) malloc (soiltbl->number * sizeof (int));
-    soiltbl->clay_lyr = (double **) malloc (soiltbl->number * sizeof (double *));
-    soiltbl->sand_lyr = (double **) malloc (soiltbl->number * sizeof (double *));
-    soiltbl->iom_lyr = (double **) malloc (soiltbl->number * sizeof (double *));
-    soiltbl->bd_lyr = (double **) malloc (soiltbl->number * sizeof (double *));
-    soiltbl->NO3_lyr = (double **) malloc (soiltbl->number * sizeof (double *));
-    soiltbl->NH4_lyr = (double **) malloc (soiltbl->number * sizeof (double *));
+    soiltbl->totalLayers = (int *)malloc (soiltbl->number * sizeof (int));
+    soiltbl->clay_lyr =
+        (double **)malloc (soiltbl->number * sizeof (double *));
+    soiltbl->sand_lyr =
+        (double **)malloc (soiltbl->number * sizeof (double *));
+    soiltbl->iom_lyr =
+        (double **)malloc (soiltbl->number * sizeof (double *));
+    soiltbl->bd_lyr = (double **)malloc (soiltbl->number * sizeof (double *));
+    soiltbl->NO3_lyr =
+        (double **)malloc (soiltbl->number * sizeof (double *));
+    soiltbl->NH4_lyr =
+        (double **)malloc (soiltbl->number * sizeof (double *));
 
     /* Read soil file */
     FindLine (soil_file, "BOF");
@@ -215,18 +223,18 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
         ReadKeywordInt (cmdstr, "TOTAL_LAYERS", &soiltbl->totalLayers[i]);
 
         soiltbl->clay_lyr[i] =
-            (double *) malloc (soiltbl->totalLayers[i] * sizeof (double));
+            (double *)malloc (soiltbl->totalLayers[i] * sizeof (double));
         soiltbl->sand_lyr[i] =
-            (double *) malloc (soiltbl->totalLayers[i] * sizeof (double));
+            (double *)malloc (soiltbl->totalLayers[i] * sizeof (double));
         soiltbl->iom_lyr[i] =
-            (double *) malloc (soiltbl->totalLayers[i] * sizeof (double));
+            (double *)malloc (soiltbl->totalLayers[i] * sizeof (double));
         soiltbl->bd_lyr[i] =
-            (double *) malloc (soiltbl->totalLayers[i] * sizeof (double));
+            (double *)malloc (soiltbl->totalLayers[i] * sizeof (double));
         soiltbl->NO3_lyr[i] =
-            (double *) malloc (soiltbl->totalLayers[i] * sizeof (double));
+            (double *)malloc (soiltbl->totalLayers[i] * sizeof (double));
         soiltbl->NH4_lyr[i] =
-            (double *) malloc (soiltbl->totalLayers[i] * sizeof (double));
-        
+            (double *)malloc (soiltbl->totalLayers[i] * sizeof (double));
+
         /* Skip header */
         NextLine (soil_file, cmdstr);
 
@@ -240,7 +248,8 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
 
             if (match != 7 || j != layer - 1)
             {
-                printf ("Cannot read information of the %dth layer of the %dth"
+                printf
+                    ("Cannot read information of the %dth layer of the %dth"
                     "soil type!\n", j + 1, i + 1);
                 printf (".soilinit file format error!\n");
                 exit (1);
@@ -317,34 +326,26 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
         (double *)malloc (croptbl->number * sizeof (double));
     croptbl->userTranspirationUseEfficiency =
         (double *)malloc (croptbl->number * sizeof (double));
-    croptbl->userHIx =
-        (double *)malloc (croptbl->number * sizeof (double));
-    croptbl->userHIo =
-        (double *)malloc (croptbl->number * sizeof (double));
-    croptbl->userHIk =
-        (double *)malloc (croptbl->number * sizeof (double));
+    croptbl->userHIx = (double *)malloc (croptbl->number * sizeof (double));
+    croptbl->userHIo = (double *)malloc (croptbl->number * sizeof (double));
+    croptbl->userHIk = (double *)malloc (croptbl->number * sizeof (double));
     croptbl->userEmergenceTT =
         (double *)malloc (croptbl->number * sizeof (double));
     croptbl->userNMaxConcentration =
         (double *)malloc (croptbl->number * sizeof (double));
     croptbl->userNDilutionSlope =
         (double *)malloc (croptbl->number * sizeof (double));
-    croptbl->userKc =
-        (double *)malloc (croptbl->number * sizeof (double));
-    croptbl->userAnnual =
-        (int *)malloc (croptbl->number * sizeof (int));
-    croptbl->userLegume =
-        (int *)malloc (croptbl->number * sizeof (int));
-    croptbl->userC3orC4 =
-        (int *)malloc (croptbl->number * sizeof (int));
+    croptbl->userKc = (double *)malloc (croptbl->number * sizeof (double));
+    croptbl->userAnnual = (int *)malloc (croptbl->number * sizeof (int));
+    croptbl->userLegume = (int *)malloc (croptbl->number * sizeof (int));
+    croptbl->userC3orC4 = (int *)malloc (croptbl->number * sizeof (int));
     croptbl->userExtinctionCoefficient =
         (double *)malloc (croptbl->number * sizeof (double));
     croptbl->userPlantingDensity =
         (double *)malloc (croptbl->number * sizeof (double));
     croptbl->userClippingStart =
         (int *)malloc (croptbl->number * sizeof (int));
-    croptbl->userClippingEnd =
-        (int *)malloc (croptbl->number * sizeof (int));
+    croptbl->userClippingEnd = (int *)malloc (croptbl->number * sizeof (int));
     croptbl->LWP_StressOnset =
         (double *)malloc (croptbl->number * sizeof (double));
     croptbl->LWP_WiltingPoint =
@@ -363,43 +364,56 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
         ReadKeywordStr (cmdstr, "NAME", croptbl->cropName[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "FLOWERING_TT", &croptbl->userFloweringTT[j]);
+        ReadKeywordDouble (cmdstr, "FLOWERING_TT",
+            &croptbl->userFloweringTT[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MATURITY_TT", &croptbl->userMaturityTT[j]);
+        ReadKeywordDouble (cmdstr, "MATURITY_TT",
+            &croptbl->userMaturityTT[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MAXIMUM_SOIL_COVERAGE", &croptbl->userMaximumSoilCoverage[j]);
+        ReadKeywordDouble (cmdstr, "MAXIMUM_SOIL_COVERAGE",
+            &croptbl->userMaximumSoilCoverage[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MAXIMUM_ROOTING_DEPTH", &croptbl->userMaximumRootingDepth[j]);
+        ReadKeywordDouble (cmdstr, "MAXIMUM_ROOTING_DEPTH",
+            &croptbl->userMaximumRootingDepth[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "AVERAGE_EXPECTED_YIELD", &croptbl->userExpectedYieldAvg[j]);
+        ReadKeywordDouble (cmdstr, "AVERAGE_EXPECTED_YIELD",
+            &croptbl->userExpectedYieldAvg[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MAXIMUM_EXPECTED_YIELD", &croptbl->userExpectedYieldMax[j]);
+        ReadKeywordDouble (cmdstr, "MAXIMUM_EXPECTED_YIELD",
+            &croptbl->userExpectedYieldMax[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MINIMUM_EXPECTED_YIELD", &croptbl->userExpectedYieldMin[j]);
+        ReadKeywordDouble (cmdstr, "MINIMUM_EXPECTED_YIELD",
+            &croptbl->userExpectedYieldMin[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "COMMERCIAL_YIELD_MOISTURE", &croptbl->userPercentMoistureInYield[j]);
+        ReadKeywordDouble (cmdstr, "COMMERCIAL_YIELD_MOISTURE",
+            &croptbl->userPercentMoistureInYield[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "STANDING_RESIDUE_AT_HARVEST", &croptbl->userFractionResidueStanding[j]);
+        ReadKeywordDouble (cmdstr, "STANDING_RESIDUE_AT_HARVEST",
+            &croptbl->userFractionResidueStanding[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "RESIDUE_REMOVED", &croptbl->userFractionResidueRemoved[j]);
+        ReadKeywordDouble (cmdstr, "RESIDUE_REMOVED",
+            &croptbl->userFractionResidueRemoved[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "CLIPPING_BIOMASS_THRESHOLD_UPPER", &croptbl->userClippingBiomassThresholdUpper[j]);
+        ReadKeywordDouble (cmdstr, "CLIPPING_BIOMASS_THRESHOLD_UPPER",
+            &croptbl->userClippingBiomassThresholdUpper[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "CLIPPING_BIOMASS_THRESHOLD_LOWER", &croptbl->userClippingBiomassThresholdLower[j]);
+        ReadKeywordDouble (cmdstr, "CLIPPING_BIOMASS_THRESHOLD_LOWER",
+            &croptbl->userClippingBiomassThresholdLower[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "HARVEST_TIMING", &croptbl->userClippingTiming[j]);
+        ReadKeywordDouble (cmdstr, "HARVEST_TIMING",
+            &croptbl->userClippingTiming[j]);
 
         NextLine (crop_file, cmdstr);
         ReadKeywordStr (cmdstr, "CLIPPING_BIOMASS_DESTINY", temp);
@@ -422,55 +436,71 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
         }
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MIN_TEMPERATURE_FOR_TRANSPIRATION", &croptbl->userTranspirationMinTemperature[j]);
+        ReadKeywordDouble (cmdstr, "MIN_TEMPERATURE_FOR_TRANSPIRATION",
+            &croptbl->userTranspirationMinTemperature[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "THRESHOLD_TEMPERATURE_FOR_TRANPIRATION", &croptbl->userTranspirationThresholdTemperature[j]);
+        ReadKeywordDouble (cmdstr, "THRESHOLD_TEMPERATURE_FOR_TRANPIRATION",
+            &croptbl->userTranspirationThresholdTemperature[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MIN_TEMPERATURE_FOR_COLD_DAMAGE", &croptbl->userColdDamageMinTemperature[j]);
+        ReadKeywordDouble (cmdstr, "MIN_TEMPERATURE_FOR_COLD_DAMAGE",
+            &croptbl->userColdDamageMinTemperature[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "THRESHOLD_TEMPERATURE_FOR_COLD_DAMAGE", &croptbl->userColdDamageThresholdTemperature[j]);
+        ReadKeywordDouble (cmdstr, "THRESHOLD_TEMPERATURE_FOR_COLD_DAMAGE",
+            &croptbl->userColdDamageThresholdTemperature[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "BASE_TEMPERATURE_FOR_DEVELOPMENT", &croptbl->userTemperatureBase[j]);
+        ReadKeywordDouble (cmdstr, "BASE_TEMPERATURE_FOR_DEVELOPMENT",
+            &croptbl->userTemperatureBase[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "OPTIMUM_TEMPERATURE_FOR_DEVELOPEMENT", &croptbl->userTemperatureOptimum[j]);
+        ReadKeywordDouble (cmdstr, "OPTIMUM_TEMPERATURE_FOR_DEVELOPEMENT",
+            &croptbl->userTemperatureOptimum[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MAX_TEMPERATURE_FOR_DEVELOPMENT", &croptbl->userTemperatureMaximum[j]);
+        ReadKeywordDouble (cmdstr, "MAX_TEMPERATURE_FOR_DEVELOPMENT",
+            &croptbl->userTemperatureMaximum[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "INITIAL_PARTITIONING_TO_SHOOT", &croptbl->userShootPartitionInitial[j]);
+        ReadKeywordDouble (cmdstr, "INITIAL_PARTITIONING_TO_SHOOT",
+            &croptbl->userShootPartitionInitial[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "FINAL_PARTITIONING_TO_SHOOT", &croptbl->userShootPartitionFinal[j]);
+        ReadKeywordDouble (cmdstr, "FINAL_PARTITIONING_TO_SHOOT",
+            &croptbl->userShootPartitionFinal[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "RADIATION_USE_EFFICIENCY", &croptbl->userRadiationUseEfficiency[j]);
+        ReadKeywordDouble (cmdstr, "RADIATION_USE_EFFICIENCY",
+            &croptbl->userRadiationUseEfficiency[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "TRANSPIRATION_USE_EFFICIENCY", &croptbl->userTranspirationUseEfficiency[j]);
+        ReadKeywordDouble (cmdstr, "TRANSPIRATION_USE_EFFICIENCY",
+            &croptbl->userTranspirationUseEfficiency[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MAXIMUM_HARVEST_INDEX", &croptbl->userHIx[j]);
+        ReadKeywordDouble (cmdstr, "MAXIMUM_HARVEST_INDEX",
+            &croptbl->userHIx[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MINIMUM_HARVEST_INDEX", &croptbl->userHIo[j]);
+        ReadKeywordDouble (cmdstr, "MINIMUM_HARVEST_INDEX",
+            &croptbl->userHIo[j]);
 
         NextLine (crop_file, cmdstr);
         ReadKeywordDouble (cmdstr, "HARVEST_INDEX", &croptbl->userHIk[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "THERMAL_TIME_TO_EMERGENCE", &croptbl->userEmergenceTT[j]);
+        ReadKeywordDouble (cmdstr, "THERMAL_TIME_TO_EMERGENCE",
+            &croptbl->userEmergenceTT[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "N_MAX_CONCENTRATION", &croptbl->userNMaxConcentration[j]);
+        ReadKeywordDouble (cmdstr, "N_MAX_CONCENTRATION",
+            &croptbl->userNMaxConcentration[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "N_DILUTION_SLOPE", &croptbl->userNDilutionSlope[j]);
+        ReadKeywordDouble (cmdstr, "N_DILUTION_SLOPE",
+            &croptbl->userNDilutionSlope[j]);
 
         NextLine (crop_file, cmdstr);
         ReadKeywordDouble (cmdstr, "KC", &croptbl->userKc[j]);
@@ -485,19 +515,23 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
         ReadKeywordInt (cmdstr, "C3", &croptbl->userC3orC4[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "LWP_STRESS_ONSET", &croptbl->LWP_StressOnset[j]);
+        ReadKeywordDouble (cmdstr, "LWP_STRESS_ONSET",
+            &croptbl->LWP_StressOnset[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "LWP_WILTING_POINT", &croptbl->LWP_WiltingPoint[j]);
+        ReadKeywordDouble (cmdstr, "LWP_WILTING_POINT",
+            &croptbl->LWP_WiltingPoint[j]);
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "TRANSPIRATION_MAX", &croptbl->transpirationMax[j]);
+        ReadKeywordDouble (cmdstr, "TRANSPIRATION_MAX",
+            &croptbl->transpirationMax[j]);
     }
 
     fclose (crop_file);
 }
 
-void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const croptbl_struct *croptbl)
+void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
+    const croptbl_struct *croptbl)
 {
     FILE           *op_file;
     char            cmdstr[MAXSTRING];
@@ -514,7 +548,8 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
     mgmttbl->number = agtbl->nopfile;
 
     mgmttbl->cropmgmt =
-        (cropmgmt_struct *)malloc (mgmttbl->number * sizeof (cropmgmt_struct));
+        (cropmgmt_struct *)malloc (mgmttbl->number *
+        sizeof (cropmgmt_struct));
 
     for (i = 0; i < mgmttbl->number; i++)
     {
@@ -544,7 +579,8 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
         cropmgmt->totalCropsPerRotation = nplnt;
         if (nplnt > 0)
         {
-            cropmgmt->plantingOrder = (op_struct *)malloc (nplnt * sizeof (op_struct));
+            cropmgmt->plantingOrder =
+                (op_struct *)malloc (nplnt * sizeof (op_struct));
 
             /* Rewind to the beginning of file and read all planting operations */
             FindLine (op_file, "BOF");
@@ -565,7 +601,8 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
                 ReadKeywordStr (cmdstr, "CROP", q->cropName);
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "USE_AUTO_IRR", &q->usesAutoIrrigation);
+                ReadKeywordInt (cmdstr, "USE_AUTO_IRR",
+                    &q->usesAutoIrrigation);
                 if (q->usesAutoIrrigation == 0)
                 {
                     q->usesAutoIrrigation = -1;
@@ -576,7 +613,8 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
                 }
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "USE_AUTO_FERT", &q->usesAutoFertilization);
+                ReadKeywordInt (cmdstr, "USE_AUTO_FERT",
+                    &q->usesAutoFertilization);
                 if (q->usesAutoFertilization == 0)
                 {
                     q->usesAutoFertilization = -1;
@@ -589,15 +627,17 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
                 ReadKeywordInt (cmdstr, "CLIPPING_START", &q->clippingStart);
                 if (q->clippingStart > 366 || q->clippingStart < 1)
                 {
-                    printf ("ERROR: Please specify valid DOY for clipping start date!\n");
+                    printf
+                        ("ERROR: Please specify valid DOY for clipping start date!\n");
                     exit (1);
                 }
-                
+
                 NextLine (op_file, cmdstr);
                 ReadKeywordInt (cmdstr, "CLIPPING_END", &q->clippingEnd);
                 if (q->clippingEnd > 366 || q->clippingEnd < 1)
                 {
-                    printf ("ERROR: Please specify valid DOY for clipping end date!\n");
+                    printf
+                        ("ERROR: Please specify valid DOY for clipping end date!\n");
                     exit (1);
                 }
 
@@ -614,7 +654,9 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
                 }
                 if (k >= croptbl->number)
                 {
-                    printf ("ERROR: Cannot find the plant description of %s, please check your input file\n", q->cropName);
+                    printf
+                        ("ERROR: Cannot find the plant description of %s, please check your input file\n",
+                        q->cropName);
                     exit (1);
                 }
             }
@@ -623,7 +665,8 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
         cropmgmt->numTillage = ntill;
         if (ntill > 0)
         {
-            cropmgmt->Tillage = (op_struct *)malloc (ntill * sizeof (op_struct));
+            cropmgmt->Tillage =
+                (op_struct *)malloc (ntill * sizeof (op_struct));
 
             /* Rewind to the beginning of file and read all tillage operations */
             FindLine (op_file, "BOF");
@@ -650,7 +693,8 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
                 ReadKeywordDouble (cmdstr, "SOIL_DISTURB_RATIO", &q->opSDR);
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "MIXING_EFFICIENCY", &q->opMixingEfficiency);
+                ReadKeywordDouble (cmdstr, "MIXING_EFFICIENCY",
+                    &q->opMixingEfficiency);
 
                 NextLine (op_file, cmdstr);
                 ReadKeywordStr (cmdstr, "CROP_NAME", q->cropNameT);
@@ -660,21 +704,25 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
                     strcasecmp (q->cropNameT, "All") != 0 &&
                     !CropExist (q->cropNameT, croptbl))
                 {
-                    printf ("ERROR: Crop name %s not recognized!\n", q->cropNameT);
+                    printf ("ERROR: Crop name %s not recognized!\n",
+                        q->cropNameT);
                     exit (1);
                 }
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "FRAC_THERMAL_TIME", &q->fractionThermalTime);
+                ReadKeywordDouble (cmdstr, "FRAC_THERMAL_TIME",
+                    &q->fractionThermalTime);
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "KILL_EFFICIENCY", &q->killEfficiency);
+                ReadKeywordDouble (cmdstr, "KILL_EFFICIENCY",
+                    &q->killEfficiency);
 
                 NextLine (op_file, cmdstr);
                 ReadKeywordInt (cmdstr, "GRAIN_HARVEST", &q->grainHarvest);
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "FORAGE_HARVEST", &q->forageHarvest);
+                ReadKeywordDouble (cmdstr, "FORAGE_HARVEST",
+                    &q->forageHarvest);
 
                 q->status = 0;
             }
@@ -683,7 +731,8 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
         cropmgmt->numFertilization = nfert;
         if (nfert > 0)
         {
-            cropmgmt->FixedFertilization = (op_struct *)malloc (nfert * sizeof (op_struct));
+            cropmgmt->FixedFertilization =
+                (op_struct *)malloc (nfert * sizeof (op_struct));
 
             /* Rewind to the beginning of file and read all fertilization
              * operations */
@@ -751,22 +800,27 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
 
                 q->status = 0;
 
-                if (q->opC_Organic + q->opC_Charcoal + q->opN_Organic + q->opN_Charcoal + q->opN_NH4 + q->opN_NO3 + q->opP_Organic + q->opP_Charcoal + q->opP_Inorganic + q->opK + q->opS <= 1.0)
+                if (q->opC_Organic + q->opC_Charcoal + q->opN_Organic +
+                    q->opN_Charcoal + q->opN_NH4 + q->opN_NO3 +
+                    q->opP_Organic + q->opP_Charcoal + q->opP_Inorganic +
+                    q->opK + q->opS <= 1.0)
                 {
                     q->opMass /= 1000.0;
                 }
                 else
                 {
-                    printf ("ERROR: Added fertilization fractions must be <= 1\n");
+                    printf
+                        ("ERROR: Added fertilization fractions must be <= 1\n");
                     exit (1);
                 }
             }
         }
 
         cropmgmt->numIrrigation = nirrg;
-        if (nirrg  > 0)
+        if (nirrg > 0)
         {
-            cropmgmt->FixedIrrigation = (op_struct *)malloc (nirrg * sizeof (op_struct));
+            cropmgmt->FixedIrrigation =
+                (op_struct *)malloc (nirrg * sizeof (op_struct));
 
             /* Rewind to the beginning of file and read all irrigation
              * operations */
@@ -780,7 +834,7 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
 
                 NextLine (op_file, cmdstr);
                 ReadKeywordInt (cmdstr, "YEAR", &q->opYear);
-                
+
                 NextLine (op_file, cmdstr);
                 ReadKeywordInt (cmdstr, "DOY", &q->opDay);
 
@@ -794,7 +848,9 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
         cropmgmt->numAutoIrrigation = nautoirrg;
         if (nautoirrg > 0)
         {
-            cropmgmt->autoIrrigation = (autoirr_struct *)malloc (nautoirrg * sizeof (autoirr_struct));
+            cropmgmt->autoIrrigation =
+                (autoirr_struct *)malloc (nautoirrg *
+                sizeof (autoirr_struct));
             /* Rewind to the beginning of file and read all planting operations */
             FindLine (op_file, "BOF");
 
@@ -803,30 +859,37 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
                 FindLine (op_file, "AUTO_IRRIGATION");
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordStr (cmdstr, "CROP", cropmgmt->autoIrrigation[j].cropName);
+                ReadKeywordStr (cmdstr, "CROP",
+                    cropmgmt->autoIrrigation[j].cropName);
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "START_DAY", &cropmgmt->autoIrrigation[j].startDay);
+                ReadKeywordInt (cmdstr, "START_DAY",
+                    &cropmgmt->autoIrrigation[j].startDay);
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "STOP_DAY", &cropmgmt->autoIrrigation[j].stopDay);
+                ReadKeywordInt (cmdstr, "STOP_DAY",
+                    &cropmgmt->autoIrrigation[j].stopDay);
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "WATER_DEPLETION", &cropmgmt->autoIrrigation[j].waterDepletion);
+                ReadKeywordDouble (cmdstr, "WATER_DEPLETION",
+                    &cropmgmt->autoIrrigation[j].waterDepletion);
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "LAST_SOIL_LAYER", &cropmgmt->autoIrrigation[j].lastSoilLayer);
+                ReadKeywordInt (cmdstr, "LAST_SOIL_LAYER",
+                    &cropmgmt->autoIrrigation[j].lastSoilLayer);
             }
         }
 
         /* Link plating order and auto irrigation */
         for (j = 0; j < cropmgmt->totalCropsPerRotation; j++)
         {
-            if (cropmgmt->usingAutoIrr && cropmgmt->plantingOrder[j].usesAutoIrrigation == 1)
+            if (cropmgmt->usingAutoIrr &&
+                cropmgmt->plantingOrder[j].usesAutoIrrigation == 1)
             {
                 for (k = 0; k < nautoirrg; k++)
                 {
-                    if (strcmp (cropmgmt->plantingOrder[j].cropName, cropmgmt->autoIrrigation[k].cropName) == 0)
+                    if (strcmp (cropmgmt->plantingOrder[j].cropName,
+                            cropmgmt->autoIrrigation[k].cropName) == 0)
                     {
                         cropmgmt->plantingOrder[j].usesAutoIrrigation = k;
                         break;
@@ -834,7 +897,9 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
                 }
                 if (k >= nautoirrg)
                 {
-                    printf ("ERROR: Cannot find the description of auto irrigation for %s!\n", cropmgmt->plantingOrder[j].cropName);
+                    printf
+                        ("ERROR: Cannot find the description of auto irrigation for %s!\n",
+                        cropmgmt->plantingOrder[j].cropName);
                     exit (1);
                 }
             }
@@ -845,6 +910,7 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl, const cr
         fclose (op_file);
     }
 }
+
 //
 //void DailyCycles (CyclesStruct cycles, pihm_struct pihm, int t, char *project)
 //{
