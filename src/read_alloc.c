@@ -124,7 +124,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     /*
      * Read Cycles simulation control file
      */
-    ReadCyclesCtrl (pihm->filename.cycles, &pihm->agtbl, pihm->numele);
+    ReadCyclesCtrl (pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl, pihm->numele);
 
     /*
      * Read soil initialization file

@@ -113,6 +113,20 @@
 #define SOLAR_CTRL      38
 #endif
 
+#ifdef _CYCLES_
+#define BIOMASS_CTRL    39
+#define RADNINTCP_CTRL  40
+#define WATER_STS_CTRL  41
+#define N_STS_CTRL      42
+#define CROP_TR_CTRL    43
+#define CROP_POTTR_CTRL 44
+#define RES_EVAP_CTRL   45
+#define NO3_PROF_CTRL   46
+#define NO3_RIVER_CTRL  47
+#define NH4_PROF_CTRL   48
+#define NH4_RIVER_CTRL  49
+#endif
+
 extern int      verbose_mode;
 extern int      debug_mode;
 extern char     project[MAXSTRING];
@@ -131,11 +145,11 @@ enum rad_forcing_type
 #define RETURN_CLIPPING     1
 #define GRAZING_CLIPPING    2
 
-#define STAN_RESIDUE_SA 4.0     /* Standing residue area to mass ratio
+#define STAN_RESIDUE_SA     4.0     /* Standing residue area to mass ratio
                                  * (m2/kg) */
-#define FLAT_RESIDUE_SA 4.0     /* Flat residue area to mass ratio (m2/kg) */
-#define STAN_RESIDUE_K  0.25    /* Standing residue extinction coefficient */
-#define FLAT_RESIDUE_K  1.0     /* flat residue extinction */
+#define FLAT_RESIDUE_SA     4.0     /* Flat residue area to mass ratio (m2/kg) */
+#define STAN_RESIDUE_K      0.25    /* Standing residue extinction coefficient */
+#define FLAT_RESIDUE_K      1.0     /* flat residue extinction */
 
 #define MAXIMUM_UNDISTURBED_SOC_DECOMPOSITION_RATE  0.00015     /* (1 + 0.056) ^ (1 / 365) - 1  ' 1/day (1/5 for Urbana) */
 #define MAXIMUM_RESIDUE_DECOMPOSITION_RATE          0.05        /* 1/day */

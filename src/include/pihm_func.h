@@ -291,7 +291,7 @@ void InitEns (enkf_struct ens);
 #ifdef _CYCLES_
 void DailyCycles (int t, pihm_struct pihm);
 void FirstDOY (int *rotationYear, int yearsInRotation, int totalLayers, soilc_struct *SoilCarbon, residue_struct *Residue, const soil_struct *Soil);
-void            ReadCyclesCtrl (char *, agtbl_struct *, int);
+void            ReadCyclesCtrl (char *, agtbl_struct *, ctrl_struct *, int);
 void            ReadSoilInit (char *, soiltbl_struct *);
 void            ReadCrop (char *, croptbl_struct *);
 void            ReadOperation (const agtbl_struct *, mgmttbl_struct *, const croptbl_struct *);

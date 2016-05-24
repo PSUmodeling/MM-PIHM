@@ -99,7 +99,7 @@
 //
 //}
 
-void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, int numele)
+void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl, int numele)
 {
     FILE           *simctrl_file;
     //time_t          rawtime;
@@ -145,7 +145,7 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, int numele)
     {
         NextLine (simctrl_file, cmdstr);
 
-        if (strcasecmp (cmdstr, "EOF") == 0)
+        if (strcasecmp (cmdstr, "EOF") * strcasecmp (cmdstr, "PRINT_CTRL") == 0)
         {
             break;
         }
@@ -161,6 +161,43 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, int numele)
     }
 
     agtbl->nopfile = i;
+
+    /* Output control */
+    FindLine (simctrl_file, "PRINT_CTRL");
+
+    NextLine (simctrl_file, cmdstr);
+    ReadKeywordInt (cmdstr, "BIOMASS", &ctrl->prtvrbl[BIOMASS_CTRL]);
+
+    NextLine (simctrl_file, cmdstr);
+    ReadKeywordInt (cmdstr, "RADN_INTCP", &ctrl->prtvrbl[RADNINTCP_CTRL]);
+
+    NextLine (simctrl_file, cmdstr);
+    ReadKeywordInt (cmdstr, "WATER_STRESS", &ctrl->prtvrbl[WATER_STS_CTRL]);
+
+    NextLine (simctrl_file, cmdstr);
+    ReadKeywordInt (cmdstr, "N_STRESS", &ctrl->prtvrbl[N_STS_CTRL]);
+
+    NextLine (simctrl_file, cmdstr);
+    ReadKeywordInt (cmdstr, "CROP_TR", &ctrl->prtvrbl[CROP_TR_CTRL]);
+
+    NextLine (simctrl_file, cmdstr);
+    ReadKeywordInt (cmdstr, "CROP_POT_TR", &ctrl->prtvrbl[CROP_POTTR_CTRL]);
+
+    NextLine (simctrl_file, cmdstr);
+    ReadKeywordInt (cmdstr, "RES_EVAP", &ctrl->prtvrbl[RES_EVAP_CTRL]);
+
+    NextLine (simctrl_file, cmdstr);
+    ReadKeywordInt (cmdstr, "NO3_PROF", &ctrl->prtvrbl[NO3_PROF_CTRL]);
+
+    NextLine (simctrl_file, cmdstr);
+    ReadKeywordInt (cmdstr, "NO3_RIVER", &ctrl->prtvrbl[NO3_RIVER_CTRL]);
+
+    NextLine (simctrl_file, cmdstr);
+    ReadKeywordInt (cmdstr, "NH4_PROF", &ctrl->prtvrbl[NH4_PROF_CTRL]);
+
+    NextLine (simctrl_file, cmdstr);
+    ReadKeywordInt (cmdstr, "NH4_RIVER", &ctrl->prtvrbl[NH4_RIVER_CTRL]);
+
 
     fclose (simctrl_file);
 
