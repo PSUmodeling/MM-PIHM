@@ -737,6 +737,17 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
     }
     n++;
 
+    sprintf (pihm->prtctrl[n].name, "%s%s.NO3denitrif", outputdir, simulation);
+    pihm->prtctrl[n].intvl = 86400;
+    pihm->prtctrl[n].nvrbl = pihm->numele;
+    pihm->prtctrl[n].vrbl =
+        (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+    for (j = 0; j < pihm->numele; j++)
+    {
+        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].soil.NO3_Denitrification;
+    }
+    n++;
+
 #endif
 
     pihm->ctrl.nprint = n;

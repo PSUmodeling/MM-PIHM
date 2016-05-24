@@ -105,6 +105,7 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl, int
     //time_t          rawtime;
     //struct tm      *timestamp;
     char            cmdstr[MAXSTRING];
+    char            optstr[MAXSTRING];
     int             i;
     int             match;
     int             index;
@@ -144,8 +145,9 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl, int
     while (1)
     {
         NextLine (simctrl_file, cmdstr);
+        sscanf (cmdstr, "%s", optstr);
 
-        if (strcasecmp (cmdstr, "EOF") * strcasecmp (cmdstr, "PRINT_CTRL") == 0)
+        if (strcasecmp (cmdstr, "EOF") == 0 || strcasecmp (optstr, "PRINT_CTRL") == 0)
         {
             break;
         }

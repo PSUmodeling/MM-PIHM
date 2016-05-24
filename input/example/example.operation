@@ -14,6 +14,26 @@ KILL_EFFICIENCY     0.0
 GRAIN_HARVEST       0
 FORAGE_HARVEST      0.0
 
+FIXED_FERTILIZATION
+YEAR                1
+DOY                 109
+SOURCE              32-00-00_Urea_Ammonium_Nitrate_Solution
+MASS                200
+FORM                LIQUID
+METHOD              BROADCAST
+LAYER               3
+C_ORGANIC           0
+C_CHARCOAL          0
+N_ORGANIC           0
+N_CHARCOAL          0
+N_NH4               0.24
+N_NO3               0.08
+P_ORGANIC           0
+P_CHARCOAL          0
+P_INORGANIC         0
+K                   0
+S                   0
+
 PLANTING
 YEAR                1
 DOY                 110
