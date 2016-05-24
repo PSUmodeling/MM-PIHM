@@ -267,6 +267,7 @@ void            COSMOSOper (obs_struct *, var_struct *, pihm_struct);
 void            FreeEns (enkf_struct);
 int             FindVar (var_struct *, char *);
 void            InitEns (enkf_struct);
+void            Parallel (int, int, char *);
 #endif
 
 #ifdef _CYCLES_
