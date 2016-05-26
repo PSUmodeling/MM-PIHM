@@ -7,22 +7,12 @@ char            project[MAXSTRING];
 int main (int argc, char *argv[])
 {
     char            outputdir[MAXSTRING];
-    char            simulation[MAXSTRING];
     int             spec_output_mode = 0;
     int             c;
-    int             first_cycle = 1;
 #ifdef _ENKF_
-    int             ii;
     int             id;
-    int             ierr;
     int             p;
-    int             job_per_node;
-    int             startmode;
-    int             starttime;
-    int             endtime;
-    double         *param;
-    int             success;
-    enkf_struct     ens;
+    int             ierr;
 
     ierr = MPI_Init (&argc, &argv);
     ierr = MPI_Comm_rank (MPI_COMM_WORLD, &id);
@@ -117,16 +107,55 @@ int main (int argc, char *argv[])
         strcpy (project, argv[optind]);
     }
 
+    /*
+     * Create output directory
+     */
 #ifdef _ENKF_
     if (id == 0)
     {
 #endif
-        /*
-         * Create output directory
-         */
-        CreateOutputDir (outputdir, spec_output_mode);
+    CreateOutputDir (outputdir, spec_output_mode);
+#ifdef _ENKF_
+    }
+#endif
+
+    /*
+     * Run PIHM (or EnKF system)
+     */
+#ifdef _ENKF_
+    Parallel (id, p, outputdir);
+#else
+    /* The name of the simulation is the same as the project for single
+     * PIHM run */
+    PIHMRun (project, outputdir, 1);
+#endif
+
+    printf ("\nSimulation completed.\n");
 
 #ifdef _ENKF_
+    ierr = MPI_Finalize ();
+#endif
+
+    return (0);
+}
+
+#ifdef _ENKF_
+void Parallel (int id, int p, char *outputdir)
+{
+    char            simulation[MAXSTRING];
+    int             job_per_node;
+    int             startmode;
+    int             starttime;
+    int             endtime;
+    double         *param;
+    int             first_cycle = 1;
+    int             success;
+    int             ierr;
+    int             ii;
+    enkf_struct     ens;
+
+    if (id == 0)
+    {
         /*
          * EnKF initialization
          */
@@ -238,28 +267,13 @@ int main (int argc, char *argv[])
                 MPI_COMM_WORLD);
         }
     }
-#else
-    /* The name of the simulation is the same as the project */
-    strcpy (simulation, project);
 
-    PIHMRun (simulation, outputdir, first_cycle);
-#endif
-
-#ifdef _ENKF_
     if (id == 0)
     {
-#endif
-
-    printf ("\nSimulation completed.\n");
-
-#ifdef _ENKF_
         FreeEns (ens);
         free (ens);
     }
 
     free (param);
-    ierr = MPI_Finalize ();
-#endif
-
-    return (0);
 }
+#endif
