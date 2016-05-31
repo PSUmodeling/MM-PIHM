@@ -25,6 +25,9 @@ typedef struct filename_struct
     char            crop[MAXSTRING];
     char            op[MAXOP][MAXSTRING];
 #endif
+#ifdef _BGC_
+    char            bgc[MAXSTRING];
+#endif
 } filename_struct;
 
 typedef struct rivtbl_struct

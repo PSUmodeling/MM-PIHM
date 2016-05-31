@@ -88,42 +88,42 @@ endif
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
   SFLAGS = -D_PIHM_ -D_BGC_ -D_NOAH_ -D_DAILY_
   MODULE_SRCS_=	\
-  	daily.c \
-	noah/coupling.c \
-	noah/module_sf_noahlsm.c \
-	spa/spa.c \
+  	noah/daily.c \
 	noah/lsm_func.c \
-	bgc/bgc_func.c \
-	bgc/presim_state_init.c \
-	bgc/make_zero_flux_struct.c \
-	bgc/restart_io.c \
-	bgc/firstday.c \
-	bgc/bgc_spinup.c \
-	bgc/metarr_init.c \
-	bgc/zero_srcsnk.c \
-	bgc/daily_bgc.c \
-	bgc/get_co2.c \
-	bgc/get_ndep.c \
-	bgc/precision_control.c \
-	bgc/daymet.c \
-	bgc/radtrans.c \
-	bgc/maint_resp.c \
-	bgc/phenology.c \
-	bgc/soilpsi.c \
-	bgc/daily_allocation.c \
-	bgc/canopy_et.c \
-	bgc/photosynthesis.c \
-	bgc/decomp.c \
-	bgc/annual_rates.c \
-	bgc/growth_resp.c \
-	bgc/state_update.c \
-	bgc/mortality.c \
-	bgc/check_balance.c \
-	bgc/summary.c \
-	bgc/nleaching.c
+	noah/lsm_read.c \
+	noah/lsm_init.c \
+	noah/noah.c \
+	spa/spa.c \
+	bgc/bgc_read.c 
+	#bgc/presim_state_init.c \
+	#bgc/make_zero_flux_struct.c \
+	#bgc/restart_io.c \
+	#bgc/firstday.c \
+	#bgc/bgc_spinup.c \
+	#bgc/metarr_init.c \
+	#bgc/zero_srcsnk.c \
+	#bgc/daily_bgc.c \
+	#bgc/get_co2.c \
+	#bgc/get_ndep.c \
+	#bgc/precision_control.c \
+	#bgc/daymet.c \
+	#bgc/radtrans.c \
+	#bgc/maint_resp.c \
+	#bgc/phenology.c \
+	#bgc/soilpsi.c \
+	#bgc/daily_allocation.c \
+	#bgc/canopy_et.c \
+	#bgc/photosynthesis.c \
+	#bgc/decomp.c \
+	#bgc/annual_rates.c \
+	#bgc/growth_resp.c \
+	#bgc/state_update.c \
+	#bgc/mortality.c \
+	#bgc/check_balance.c \
+	#bgc/summary.c \
+	#bgc/nleaching.c
   MODULE_HEADERS_ = \
-	include/spa.h \
-	include/bgc.h 
+	include/spa.h
   EXECUTABLE = flux-pihm-bgc
   MSG = "... Compiling Flux-PIHM-BGC ..."
 endif

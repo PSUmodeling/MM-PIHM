@@ -418,4 +418,8 @@ void            River2RiverSolTrnsp (river_struct *, const river_struct *,
 void            InitCropSV (crop_struct *);
 #endif
 
+#ifdef _BGC_
+void            ReadEPC (epclist_struct *);
+#endif
+
 #endif

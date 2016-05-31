@@ -38,6 +38,9 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
         project);
     sprintf (pihm->filename.crop, "input/%s/%s.crop", project, project);
 #endif
+#ifdef _BGC_
+    sprintf (pihm->filename.bgc, "input/%s/%s.bgc", project, project);
+#endif
 
     /*
      * Read river input file
@@ -141,6 +144,14 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
      */
     ReadOperation (&pihm->agtbl, &pihm->mgmttbl, &pihm->croptbl);
 #endif
+
+#ifdef _BGC_
+    /*
+     * Read Biome-BGC epc files
+     */
+    ReadEPC (&pihm->epclist);
+#endif
+    
 }
 
 void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
