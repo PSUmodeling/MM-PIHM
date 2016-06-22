@@ -1,5 +1,234 @@
 #include "pihm.h"
 
+void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2, ndepcontrol_struct *ndepctrl, char *co2_fn, char *ndep_fn)
+{
+    FILE           *bgc_file;
+    struct tm      *timestamp;
+    time_t          rawtime;
+    char            cmdstr[MAXSTRING];
+
+    timestamp = (struct tm *)malloc (sizeof (struct tm));
+
+    /* Read bgc simulation control file */
+    bgc_file = fopen (fn, "r");
+    CheckFile (bgc_file, fn);
+
+    FindLine (bgc_file, "TIME_DEFINE");
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%d", &ctrl->spinupstartyear);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%d", &ctrl->spinupendyear);
+
+    timestamp->tm_year = ctrl->spinupstartyear - 1900;
+    timestamp->tm_mon = 1 - 1;
+    timestamp->tm_mday = 1;
+    timestamp->tm_hour = 0;
+    timestamp->tm_min = 0;
+    timestamp->tm_sec = 0;
+    rawtime = timegm (timestamp);
+    ctrl->spinupstart = (int)rawtime;
+
+    timestamp->tm_year = ctrl->spinupendyear + 1 - 1900;
+    rawtime = timegm (timestamp);
+    ctrl->spinupend = (int)rawtime;
+
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%d", &ctrl->spinup);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%d", &ctrl->maxspinyears);
+
+    FindLine (bgc_file, "CO2_CONTROL");
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%d", &co2->varco2);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &co2->co2ppm);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%s", co2_fn);
+
+    FindLine (bgc_file, "NDEP_CONTROL");
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%d", &ndepctrl->varndep);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ndepctrl->ndep);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ndepctrl->nfix);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%s", ndep_fn);
+
+    FindLine (bgc_file, "C_STATE");
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->cinit.max_leafc);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->cinit.max_stemc);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->cs.cwdc);
+    ctrl->ns.cwdn = BADVAL;
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->cs.litr1c);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->cs.litr2c);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->cs.litr3c);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->cs.litr4c);
+    ctrl->ns.litr2n = BADVAL;
+    ctrl->ns.litr3n = BADVAL;
+    ctrl->ns.litr4n = BADVAL;
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->cs.soil1c);
+    ctrl->ns.soil1n = BADVAL;
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->cs.soil2c);
+    ctrl->ns.soil2n = BADVAL;
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->cs.soil3c);
+    ctrl->ns.soil3n = BADVAL;
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->cs.soil4c);
+    ctrl->ns.soil4n = BADVAL;
+
+    FindLine (bgc_file, "N_STATE");
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->ns.litr1n);
+    NextLine (bgc_file, cmdstr);
+    sscanf (cmdstr, "%lf", &ctrl->ns.sminn);
+
+    FindLine (bgc_file, "DAILY_OUTPUT");
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL]);
+    NextLine (bgc_file, cmdstr);
+    ReadKeywordInt (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL]);
+
+    fclose (bgc_file);
+}
+
+//    /* Read soil moisture and soil temperature "forcing" */
+//    if (ctrl->spinup == 1)
+//    {
+//        /* Read root zone soil water content forcing */
+//        bgc->forcing.ts[SWC_TS] = (ts_struct *) malloc (sizeof (ts_struct));
+//        sprintf (fn, "input/%s/%s.rootw.dat", project, project);
+//        ReadBinFile (&bgc->forcing.ts[SWC_TS][0], fn, pihm->numele);
+//
+//        /* Read total soil water storage forcing */
+//        bgc->forcing.ts[TOTALW_TS] = (ts_struct *) malloc (sizeof (ts_struct));
+//        sprintf (fn, "input/%s/%s.totalw.dat", project, project);
+//        ReadBinFile (&bgc->forcing.ts[TOTALW_TS][0], fn, pihm->numele + pihm->numriv);
+//
+//        /* Read soil temperature forcing */
+//        bgc->forcing.ts[STC_TS] = (ts_struct *) malloc (sizeof (ts_struct));
+//        sprintf (fn, "input/%s/%s.stc0.dat", project, project);
+//        ReadBinFile (&bgc->forcing.ts[STC_TS][0], fn, pihm->numele);
+//
+//        /* Read subsurface flux forcing */
+//        bgc->forcing.ts[SUBFLX_TS] = (ts_struct *) malloc (3 * sizeof (ts_struct));
+//        for (k = 0; k < 3; k++)
+//        {
+//            sprintf (fn, "input/%s/%s.subflx%d.dat", project, project, k);
+//            ReadBinFile (&bgc->forcing.ts[SUBFLX_TS][k], fn, pihm->numele);
+//        }
+//
+//        /* Read surface flux forcing */
+//        bgc->forcing.ts[SURFFLX_TS] = (ts_struct *) malloc (3 * sizeof (ts_struct));
+//        for (k = 0; k < 3; k++)
+//        {
+//            sprintf (fn, "input/%s/%s.surfflx%d.dat", project, project, k);
+//            ReadBinFile (&bgc->forcing.ts[SURFFLX_TS][k], fn, pihm->numele);
+//        }
+//
+//        /* Read river flux forcing */
+//        bgc->forcing.ts[RIVFLX_TS] = (ts_struct *) malloc (11 * sizeof (ts_struct));
+//        for (k = 0; k < 11; k++)
+//        {
+//            sprintf (fn, "input/%s/%s.rivflx%d.dat", project, project, k);
+//            ReadBinFile (&bgc->forcing.ts[RIVFLX_TS][k], fn, pihm->numriv);
+//        }
+//    }
+//
+//    /* Copy initial conditions to every model grid */
+//    bgc->grid = (bgc_grid *) malloc (pihm->numele * sizeof (bgc_grid));
+//
+//    for (i = 0; i < pihm->numele; i++)
+//    {
+//        bgc->grid[i].ws = ws;
+//        bgc->grid[i].cinit = cinit;
+//        bgc->grid[i].cs = ctrl->cs;
+//        bgc->grid[i].ns = ctrl->ns;
+//        if (pihm->attrib_tbl.lc[i] == 4)
+//        {
+//            bgc->grid[i].epc = bgc->epclist.epc[EPC_DBF];
+//        }
+//        else if (pihm->attrib_tbl.lc[i] == 1)
+//        {
+//            bgc->grid[i].epc = bgc->epclist.epc[EPC_ENF];
+//        }
+//        else if (pihm->attrib_tbl.lc[i] == 5)
+//        {
+//            bgc->grid[i].epc = bgc->epclist.epc[EPC_MIXED];
+//        }
+//
+//        bgc->grid[i].ns.cwdn = cs.cwdc / bgc->grid[i].epc.deadwood_cn;
+//        bgc->grid[i].ns.litr2n = cs.litr2c / bgc->grid[i].epc.leaflitr_cn;
+//        bgc->grid[i].ns.litr3n = cs.litr3c / bgc->grid[i].epc.leaflitr_cn;
+//        bgc->grid[i].ns.litr4n = cs.litr4c / bgc->grid[i].epc.leaflitr_cn;
+//        bgc->grid[i].ns.soil1n = cs.soil1c / SOIL1_CN;
+//        bgc->grid[i].ns.soil2n = cs.soil2c / SOIL2_CN;
+//        bgc->grid[i].ns.soil3n = cs.soil3c / SOIL3_CN;
+//        bgc->grid[i].ns.soil4n = cs.soil4c / SOIL4_CN;
+//
+//        if (bgc->grid[i].epc.evergreen == 1)
+//        {
+//            bgc->grid[i].epv.dormant_flag = 0.0;
+//        }
+//        else
+//        {
+//            bgc->grid[i].epv.dormant_flag = 1.0;
+//        }
+//        //bgc->grid[i].epv.days_active = 0.;
+//        bgc->grid[i].epv.onset_flag = 0.0;
+//        bgc->grid[i].epv.onset_counter = 0.0;
+//        bgc->grid[i].epv.onset_gddflag = 0.0;
+//        bgc->grid[i].epv.onset_fdd = 0.0;
+//        bgc->grid[i].epv.onset_gdd = 0.0;
+//        bgc->grid[i].epv.onset_swi = 0.0;
+//        bgc->grid[i].epv.offset_flag = 0.0;
+//        bgc->grid[i].epv.offset_counter = 0.0;
+//        bgc->grid[i].epv.offset_fdd = 0.0;
+//        bgc->grid[i].epv.offset_swi = 0.0;
+//        bgc->grid[i].epv.lgsf = 0.0;
+//        bgc->grid[i].epv.bglfr = 0.0;
+//        bgc->grid[i].epv.bgtr = 0.0;
+//        bgc->grid[i].epv.annavg_t2m = 280.0;
+//        bgc->grid[i].epv.tempavg_t2m = 0.0;
+//    }
+//
+//    bgc->riv = (bgc_river *)malloc (pihm->numriv * sizeof (bgc_river));
+//
+//    for (i = 0; i < pihm->numriv; i++)
+//    {
+//        bgc->riv[i].soilw = 0.0;
+//        bgc->riv[i].sminn = 0.0;
+//        bgc->riv[i].nleached_snk = 0.0;
+//        bgc->riv[i].sminn_leached = 0.0;
+//    }
+//}
+
 void ReadEPC (epclist_struct *epclist)
 {
     int             i;
@@ -339,243 +568,47 @@ void ReadEPC (epclist_struct *epclist)
     }
 }
 
-//    /* Read bgc simulation control file */
-//
-//    ctrl = &bgc->ctrl;
-//    co2 = &bgc->co2;
-//    ndepctrl = &bgc->ndepctrl;
-//
-//    sprintf (fn, "input/%s/%s.bgc", project, project);
-//    bgc_file = fopen (fn, "r");
-//    CheckFile (bgc_file, fn);
-//
-//    FindLine (bgc_file, "TIME_DEFINE");
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%d", &ctrl->spinupstartyear);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%d", &ctrl->spinupendyear);
-//
-//    timestamp->tm_year = bgc->ctrl.spinupstartyear;
-//    timestamp->tm_mon = 1;
-//    timestamp->tm_mday = 1;
-//    timestamp->tm_hour = 0;
-//    timestamp->tm_min = 0;
-//    timestamp->tm_sec = 0;
-//    timestamp->tm_year = timestamp->tm_year - 1900;
-//    timestamp->tm_mon = timestamp->tm_mon - 1;
-//    rawtime = timegm (timestamp);
-//    ctrl->spinupstart = (int)rawtime;
-//
-//    timestamp->tm_year = bgc->ctrl.spinupendyear + 1;
-//    timestamp->tm_year = timestamp->tm_year - 1900;
-//    rawtime = timegm (timestamp);
-//    ctrl->spinupend = (int)rawtime;
-//
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%d", &ctrl->spinup);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%d", &ctrl->maxspinyears);
-//
-//    FindLine (bgc_file, "CO2_CONTROL");
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%d", &co2->varco2);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &co2->co2ppm);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%s", co2_fn);
-//
-//    FindLine (bgc_file, "NDEP_CONTROL");
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%d", &ndepctrl->varndep);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &ndepctrl->ndep);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &ndepctrl->nfix);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%s", ndep_fn);
-//
-//    FindLine (bgc_file, "C_STATE");
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &cinit.max_leafc);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &cinit.max_stemc);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &cs.cwdc);
-//    ns.cwdn = BADVAL;
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &cs.litr1c);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &cs.litr2c);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &cs.litr3c);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &cs.litr4c);
-//    ns.litr2n = BADVAL;
-//    ns.litr3n = BADVAL;
-//    ns.litr4n = BADVAL;
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &cs.soil1c);
-//    ns.soil1n = BADVAL;
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &cs.soil2c);
-//    ns.soil2n = BADVAL;
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &cs.soil3c);
-//    ns.soil3n = BADVAL;
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &cs.soil4c);
-//    ns.soil4n = BADVAL;
-//
-//    FindLine (bgc_file, "N_STATE");
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &ns.litr1n);
-//    NextLine (bgc_file, cmdstr);
-//    sscanf (cmdstr, "%lf", &ns.sminn);
-//
-//    FindLine (bgc_file, "DAILY_OUTPUT");
-//    NextLine (bgc_file, cmdstr);
-//    ReadKeywordInt (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL]);
-//    NextLine (bgc_file, cmdstr);
-//    ReadKeywordInt (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL]);
-//    NextLine (bgc_file, cmdstr);
-//    ReadKeywordInt (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL]);
-//    NextLine (bgc_file, cmdstr);
-//    ReadKeywordInt (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL]);
-//    NextLine (bgc_file, cmdstr);
-//    ReadKeywordInt (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL]);
-//    NextLine (bgc_file, cmdstr);
-//    ReadKeywordInt (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL]);
-//    NextLine (bgc_file, cmdstr);
-//    ReadKeywordInt (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL]);
-//    NextLine (bgc_file, cmdstr);
-//    ReadKeywordInt (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL]);
-//    NextLine (bgc_file, cmdstr);
-//    ReadKeywordInt (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL]);
-//    NextLine (bgc_file, cmdstr);
-//    ReadKeywordInt (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL]);
-//
-//    fclose (bgc_file);
-//
-//    /* Read CO2 and Ndep files */
-//    if (co2->varco2 == 1)
-//    {
-//        bgc->forcing.ts[CO2_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-//        ReadAnnFile (&bgc->forcing.ts[CO2_TS][0], co2_fn);
-//    }
-//    if (ndepctrl->varndep == 1)
-//    {
-//        bgc->forcing.ts[NDEP_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-//        ReadAnnFile (&bgc->forcing.ts[NDEP_TS][0], ndep_fn);
-//    }
-//
-//    /* Read soil moisture and soil temperature "forcing" */
-//    if (ctrl->spinup == 1)
-//    {
-//        /* Read root zone soil water content forcing */
-//        bgc->forcing.ts[SWC_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-//        sprintf (fn, "input/%s/%s.rootw.dat", project, project);
-//        ReadBinFile (&bgc->forcing.ts[SWC_TS][0], fn, pihm->numele);
-//
-//        /* Read total soil water storage forcing */
-//        bgc->forcing.ts[TOTALW_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-//        sprintf (fn, "input/%s/%s.totalw.dat", project, project);
-//        ReadBinFile (&bgc->forcing.ts[TOTALW_TS][0], fn, pihm->numele + pihm->numriv);
-//
-//        /* Read soil temperature forcing */
-//        bgc->forcing.ts[STC_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-//        sprintf (fn, "input/%s/%s.stc0.dat", project, project);
-//        ReadBinFile (&bgc->forcing.ts[STC_TS][0], fn, pihm->numele);
-//
-//        /* Read subsurface flux forcing */
-//        bgc->forcing.ts[SUBFLX_TS] = (ts_struct *) malloc (3 * sizeof (ts_struct));
-//        for (k = 0; k < 3; k++)
-//        {
-//            sprintf (fn, "input/%s/%s.subflx%d.dat", project, project, k);
-//            ReadBinFile (&bgc->forcing.ts[SUBFLX_TS][k], fn, pihm->numele);
-//        }
-//
-//        /* Read surface flux forcing */
-//        bgc->forcing.ts[SURFFLX_TS] = (ts_struct *) malloc (3 * sizeof (ts_struct));
-//        for (k = 0; k < 3; k++)
-//        {
-//            sprintf (fn, "input/%s/%s.surfflx%d.dat", project, project, k);
-//            ReadBinFile (&bgc->forcing.ts[SURFFLX_TS][k], fn, pihm->numele);
-//        }
-//
-//        /* Read river flux forcing */
-//        bgc->forcing.ts[RIVFLX_TS] = (ts_struct *) malloc (11 * sizeof (ts_struct));
-//        for (k = 0; k < 11; k++)
-//        {
-//            sprintf (fn, "input/%s/%s.rivflx%d.dat", project, project, k);
-//            ReadBinFile (&bgc->forcing.ts[RIVFLX_TS][k], fn, pihm->numriv);
-//        }
-//    }
-//
-//    /* Copy initial conditions to every model grid */
-//    bgc->grid = (bgc_grid *) malloc (pihm->numele * sizeof (bgc_grid));
-//
-//    for (i = 0; i < pihm->numele; i++)
-//    {
-//        bgc->grid[i].ws = ws;
-//        bgc->grid[i].cinit = cinit;
-//        bgc->grid[i].cs = cs;
-//        bgc->grid[i].ns = ns;
-//        if (pihm->attrib_tbl.lc[i] == 4)
-//        {
-//            bgc->grid[i].epc = bgc->epclist.epc[EPC_DBF];
-//        }
-//        else if (pihm->attrib_tbl.lc[i] == 1)
-//        {
-//            bgc->grid[i].epc = bgc->epclist.epc[EPC_ENF];
-//        }
-//        else if (pihm->attrib_tbl.lc[i] == 5)
-//        {
-//            bgc->grid[i].epc = bgc->epclist.epc[EPC_MIXED];
-//        }
-//
-//        bgc->grid[i].ns.cwdn = cs.cwdc / bgc->grid[i].epc.deadwood_cn;
-//        bgc->grid[i].ns.litr2n = cs.litr2c / bgc->grid[i].epc.leaflitr_cn;
-//        bgc->grid[i].ns.litr3n = cs.litr3c / bgc->grid[i].epc.leaflitr_cn;
-//        bgc->grid[i].ns.litr4n = cs.litr4c / bgc->grid[i].epc.leaflitr_cn;
-//        bgc->grid[i].ns.soil1n = cs.soil1c / SOIL1_CN;
-//        bgc->grid[i].ns.soil2n = cs.soil2c / SOIL2_CN;
-//        bgc->grid[i].ns.soil3n = cs.soil3c / SOIL3_CN;
-//        bgc->grid[i].ns.soil4n = cs.soil4c / SOIL4_CN;
-//
-//        if (bgc->grid[i].epc.evergreen == 1)
-//        {
-//            bgc->grid[i].epv.dormant_flag = 0.0;
-//        }
-//        else
-//        {
-//            bgc->grid[i].epv.dormant_flag = 1.0;
-//        }
-//        //bgc->grid[i].epv.days_active = 0.;
-//        bgc->grid[i].epv.onset_flag = 0.0;
-//        bgc->grid[i].epv.onset_counter = 0.0;
-//        bgc->grid[i].epv.onset_gddflag = 0.0;
-//        bgc->grid[i].epv.onset_fdd = 0.0;
-//        bgc->grid[i].epv.onset_gdd = 0.0;
-//        bgc->grid[i].epv.onset_swi = 0.0;
-//        bgc->grid[i].epv.offset_flag = 0.0;
-//        bgc->grid[i].epv.offset_counter = 0.0;
-//        bgc->grid[i].epv.offset_fdd = 0.0;
-//        bgc->grid[i].epv.offset_swi = 0.0;
-//        bgc->grid[i].epv.lgsf = 0.0;
-//        bgc->grid[i].epv.bglfr = 0.0;
-//        bgc->grid[i].epv.bgtr = 0.0;
-//        bgc->grid[i].epv.annavg_t2m = 280.0;
-//        bgc->grid[i].epv.tempavg_t2m = 0.0;
-//    }
-//
-//    bgc->riv = (bgc_river *)malloc (pihm->numriv * sizeof (bgc_river));
-//
-//    for (i = 0; i < pihm->numriv; i++)
-//    {
-//        bgc->riv[i].soilw = 0.0;
-//        bgc->riv[i].sminn = 0.0;
-//        bgc->riv[i].nleached_snk = 0.0;
-//        bgc->riv[i].sminn_leached = 0.0;
-//    }
-//}
+void ReadAnnFile (tsdata_struct *ts, char *fn)
+{
+    FILE           *fid;
+    time_t          rawtime;
+    struct tm      *timeinfo;
+    char            cmdstr[MAXSTRING];
+    int             i;
+    int             match;
 
+    timeinfo = (struct tm *)malloc (sizeof (struct tm));
+
+    fid = fopen (fn, "r");
+    CheckFile (fid, fn);
+
+    ts->length = CountLine (fid, cmdstr, 1, "EOF");
+    ts->ftime = (int *) malloc (ts->length * sizeof (int));
+    ts->data = (double **) malloc (ts->length * sizeof (double *));
+
+    FindLine (fid, "BOF");
+    for (i = 0; i < ts->length; i++)
+    {
+        ts->data[i] = (double *) malloc (sizeof (double));
+        NextLine (fid, cmdstr);
+        match = sscanf (cmdstr, "%d %lf", &timeinfo->tm_year, &ts->data[i][0]);
+
+        if (match != 2)
+        {
+            printf ("Cannot read annual time series!\n");
+            printf ("%s file format error!\n", fn);
+            PihmExit (1);
+        }
+
+        timeinfo->tm_year = timeinfo->tm_year - 1900;
+        timeinfo->tm_mon = 0;
+        timeinfo->tm_mday = 1;
+        timeinfo->tm_hour = 0;
+        timeinfo->tm_min = 0;
+        timeinfo->tm_sec = 0;
+        rawtime = timegm (timeinfo);
+        ts->ftime[i] = (int)rawtime;
+    }
+    
+    fclose (fid);
+}

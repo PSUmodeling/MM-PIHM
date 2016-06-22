@@ -50,6 +50,11 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
         &pihm->soiltbl);
 #endif
 
+#ifdef _BGC_
+    InitBGC (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
+        &pihm->epclist, &pihm->ctrl);
+#endif
+
     if (pihm->ctrl.init_type == RELAX)
     {
 #ifdef _NOAH_
@@ -64,6 +69,10 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     }
 
     InitVar (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, CV_Y);
+
+#ifdef _BGC_
+    InitBGCVar ();
+#endif
 
     CalcModelStep (&pihm->ctrl);
 

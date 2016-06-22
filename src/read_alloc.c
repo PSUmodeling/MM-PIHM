@@ -40,6 +40,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 #endif
 #ifdef _BGC_
     sprintf (pihm->filename.bgc, "input/%s/%s.bgc", project, project);
+    sprintf (pihm->filename.bgcinit, "input/%s/%s.bgcinit", project, simulation);
 #endif
 
     /*
@@ -146,10 +147,25 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 #endif
 
 #ifdef _BGC_
+    ReadBGC (pihm->filename.bgc, &pihm->ctrl, &pihm->co2, &pihm->ndepctrl,
+        pihm->filename.co2, pihm->filename.ndep);
     /*
      * Read Biome-BGC epc files
      */
     ReadEPC (&pihm->epclist);
+
+    /* Read CO2 and Ndep files */
+    if (pihm->co2.varco2)
+    {
+        pihm->forc.co2 = (tsdata_struct *)malloc (sizeof (tsdata_struct));
+        ReadAnnFile (&pihm->forc.co2[0], pihm->filename.co2);
+    }
+
+    if (pihm->ndepctrl.varndep)
+    {
+        pihm->forc.ndep = (tsdata_struct *) malloc (sizeof (tsdata_struct));
+        ReadAnnFile (&pihm->forc.ndep[0], pihm->filename.ndep);
+    }
 #endif
     
 }
@@ -1262,8 +1278,14 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
 
     elemsz = 5 * sizeof (double);
     rivsz = 2 * sizeof (double);
+
 #ifdef _NOAH_
     elemsz += (2 + 3 * MAXLYR) * sizeof (double);
+#endif
+
+#ifdef _BGC_
+    elemsz += sizeof (restart_data_struct);
+    rivsz += sizeof (double);
 #endif
 
     fseek (ic_file, 0L, SEEK_END);
@@ -1284,6 +1306,7 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
         fread (&elem[i].ic.surf, sizeof (double), 1, ic_file);
         fread (&elem[i].ic.unsat, sizeof (double), 1, ic_file);
         fread (&elem[i].ic.gw, sizeof (double), 1, ic_file);
+
 #ifdef _NOAH_
         fread (&elem[i].ic.t1, sizeof (double), 1, ic_file);
         fread (&elem[i].ic.snowh, sizeof (double), 1, ic_file);
@@ -1301,11 +1324,18 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
             fread (&elem[i].ic.sh2o[j], sizeof (double), 1, ic_file);
         }
 #endif
+
+#ifdef _BGC_
+        fread (&elem[i].restart_input, sizeof (restart_data_struct), 1, ic_file);
+#endif
     }
     for (i = 0; i < numriv; i++)
     {
         fread (&riv[i].ic.stage, sizeof (double), 1, ic_file);
         fread (&riv[i].ic.gw, sizeof (double), 1, ic_file);
+#ifdef _BGC_
+        fread (&riv[i].sminn, sizeof (double), 1, ic_file);
+#endif
     }
 
     fclose (ic_file);

@@ -27,6 +27,9 @@ typedef struct filename_struct
 #endif
 #ifdef _BGC_
     char            bgc[MAXSTRING];
+    char            co2[MAXSTRING];
+    char            ndep[MAXSTRING];
+    char            bgcinit[MAXSTRING];
 #endif
 } filename_struct;
 
@@ -211,9 +214,15 @@ typedef struct forc_struct
 
     int             nriverbc;
     tsdata_struct  *riverbc;
+
 #ifdef _NOAH_
     int             nrad;
     tsdata_struct  *rad;
+#endif
+
+#ifdef _BGC_
+    tsdata_struct  *co2;
+    tsdata_struct  *ndep;
 #endif
 } forc_struct;
 

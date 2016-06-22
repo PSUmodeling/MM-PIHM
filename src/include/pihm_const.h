@@ -46,6 +46,28 @@
 #define SILTY_CLAY      10
 #define CLAY            11
 
+/* Land cover types */
+#define ENF             1
+#define EBF             2
+#define DNF             3
+#define DBF             4
+#define MIXF            5
+#define CLOSE_SHRUB     6
+#define OPEN_SHRUB      7
+#define WOODY_SAVANNA   8
+#define SAVANNA         9
+#define GRASS           10
+#define PWL             11
+#define CROP            12
+#define URBAN_BUILDUP   13
+#define CROP_NATURAL    14
+#define SNOW_ICE        15
+#define BARREN          16
+#define WATER           17
+#define WOOD_TUNDRA     18
+#define MIX_TUNDRA      19
+#define BARREN_TUNDRA   20
+
 /* Macropore status */
 #define MTX_CTRL        0
 #define APP_CTRL        1

@@ -94,7 +94,9 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	noah/lsm_init.c \
 	noah/noah.c \
 	spa/spa.c \
-	bgc/bgc_read.c 
+	bgc/bgc_read.c \
+	bgc/bgc_init.c \
+	bgc/metarr_init.c \
 	#bgc/presim_state_init.c \
 	#bgc/make_zero_flux_struct.c \
 	#bgc/restart_io.c \

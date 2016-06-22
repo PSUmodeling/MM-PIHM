@@ -420,6 +420,12 @@ void            InitCropSV (crop_struct *);
 
 #ifdef _BGC_
 void            ReadEPC (epclist_struct *);
+void            ReadBGC (char *, ctrl_struct *, co2control_struct *,
+    ndepcontrol_struct *, char *, char *);
+void            metarr_init (metarr_struct *, int, int);
+void            ReadAnnFile (tsdata_struct *, char *);
+void            InitBGC (elem_struct *, int, river_struct *, int,
+    const epclist_struct *, const ctrl_struct *);
 #endif
 
 #endif

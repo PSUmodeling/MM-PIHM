@@ -11,12 +11,8 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
     char           *token;
     char            tempname[MAXSTRING];
     FILE           *epc_file;
-    FILE           *bgc_file;
     char            co2_fn[MAXSTRING];
     char            ndep_fn[MAXSTRING];
-    char            cmdstr[MAXSTRING];
-    struct tm      *timestamp;
-    time_t          rawtime;
     enum epc_vegtype veg_type;
     epconst_struct *epc;
     control_struct *ctrl;
@@ -1117,38 +1113,3 @@ void ReadBinFile (ts_struct *ts, char *fn, int numele)
     fclose (fid);
 }
 
-void ReadAnnFile (ts_struct *ts, char *fn)
-{
-    FILE           *fid;
-    time_t          rawtime;
-    struct tm      *timeinfo;
-    char            cmdstr[MAXSTRING];
-    int             i;
-
-    timeinfo = (struct tm *)malloc (sizeof (struct tm));
-
-    fid = fopen (fn, "r");
-    CheckFile (fid, fn);
-
-    ts->length = CountLine (fid, 1, "EOF");
-    ts->ftime = (int *) malloc (ts->length * sizeof (int));
-    ts->data = (double **) malloc (ts->length * sizeof (double *));
-
-    FindLine (fid, "BOF");
-    for (i = 0; i < ts->length; i++)
-    {
-        ts->data[i] = (double *) malloc (sizeof (double));
-        NextLine (fid, cmdstr);
-        sscanf (cmdstr, "%d %lf", &timeinfo->tm_year, &ts->data[i][0]);
-        timeinfo->tm_year = timeinfo->tm_year - 1900;
-        timeinfo->tm_mon = 0;
-        timeinfo->tm_mday = 1;
-        timeinfo->tm_hour = 0;
-        timeinfo->tm_min = 0;
-        timeinfo->tm_sec = 0;
-        rawtime = timegm (timeinfo);
-        ts->ftime[i] = (int) rawtime;
-    }
-    
-    fclose (fid);
-}

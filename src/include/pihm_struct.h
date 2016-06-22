@@ -1600,6 +1600,7 @@ typedef struct river_struct
     solute_struct   NH4sol;
 #endif
 #ifdef _BGC_
+    metarr_struct   metarr;     /* meteorological data array */
     double          sminn;
     double          nleached_snk;
     double          sminn_leached;
@@ -1700,10 +1701,32 @@ typedef struct ctrl_struct
     double          sldpth[MAXLYR];
     int             rad_mode;   /* radiation mode; 1: topographic, 0: uniform */
 #endif
-#ifdef _CYCLES_
-    //int             simStartYear;
-    //int             simEndYear;
-    //int             totalYears;
+
+#ifdef _BGC_
+    double          simstarttime;       /* start time of simulation */
+    double          simendtime; /* end time of simulation */
+    int             spinup;     /* (flag) 1=spinup run, 0=normal run */
+    int             maxspinyears;       /* maximum number of years for spinup run */
+    int             dodaily;    /* flag for daily output */
+    int             domonavg;   /* flag for monthly average of daily outputs */
+    int             doannavg;   /* flag for annual average of daily outputs */
+    int             doannual;   /* flag for annual output */
+    int             ndayout;    /* number of daily outputs */
+    int             nannout;    /* number of annual outputs */
+    int            *daycodes;   /* array of indices for daily outputs */
+    int            *anncodes;   /* array of indices for annual outputs */
+    int             read_restart;       /* flag to read restart file */
+    int             write_restart;      /* flag to write restart file */
+    int             keep_metyr; /* (flag) 1=retain restart metyr, 0=reset metyr */
+    int             onscreen;   /* (flag) 1=show progress on-screen 0=don't */
+    int             spinupstartyear;    /* first met year for spinup */
+    int             spinupendyear;      /* last met year for spinup */
+    int             spinupstart;        /* start time of spinup */
+    int             spinupend;  /* end time of spinup */
+
+    cstate_struct   cs;
+    nstate_struct   ns;
+    cinit_struct    cinit;
 #endif
 } ctrl_struct;
 

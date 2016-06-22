@@ -11,12 +11,8 @@
 
 #include "bgc.h"
 
-void restart_input (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, restart_data_struct * restart)
+void restart_input (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, restart_data_struct * restart)
 {
-    ws->soilw = restart->soilw;
-    ws->snoww = restart->snoww;
-    ws->canopyw = restart->canopyw;
-
     cs->leafc = restart->leafc;
     cs->leafc_storage = restart->leafc_storage;
     cs->leafc_transfer = restart->leafc_transfer;
@@ -100,20 +96,10 @@ void restart_input (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns, 
     epv->offset_counter = restart->offset_counter;
     epv->offset_fdd = restart->offset_fdd;
     epv->offset_swi = restart->offset_swi;
-
-    //    if (ctrl->keep_metyr)
-    //        *metyr = restart->metyr; 
-    //    else
-    //        *metyr = 0;
-
 }
 
-void restart_output (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, restart_data_struct * restart)
+void restart_output (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, restart_data_struct * restart)
 {
-    restart->soilw = ws->soilw;
-    restart->snoww = ws->snoww;
-    restart->canopyw = ws->canopyw;
-
     restart->leafc = cs->leafc;
     restart->leafc_storage = cs->leafc_storage;
     restart->leafc_transfer = cs->leafc_transfer;
@@ -197,5 +183,4 @@ void restart_output (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns,
     restart->offset_counter = epv->offset_counter;
     restart->offset_fdd = epv->offset_fdd;
     restart->offset_swi = epv->offset_swi;
-    //  restart->metyr                            = metyr;
 }
