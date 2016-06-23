@@ -5,7 +5,7 @@ void metarr_init (metarr_struct *metarr, int start_time, int end_time)
     /*
      * Generate meteorological forcing array for spin-up
      */
-    int             i, j, k;
+    int             j, k;
     int             length;
 
     length = (end_time - start_time) / 24 / 3600;

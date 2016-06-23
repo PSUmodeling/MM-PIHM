@@ -9,7 +9,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 void restart_input (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, restart_data_struct * restart)
 {
@@ -98,7 +98,7 @@ void restart_input (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, 
     epv->offset_swi = restart->offset_swi;
 }
 
-void restart_output (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, restart_data_struct * restart)
+void restart_output (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, restart_data_struct *restart)
 {
     restart->leafc = cs->leafc;
     restart->leafc_storage = cs->leafc_storage;

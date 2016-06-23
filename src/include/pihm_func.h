@@ -426,6 +426,11 @@ void            metarr_init (metarr_struct *, int, int);
 void            ReadAnnFile (tsdata_struct *, char *);
 void            InitBGC (elem_struct *, int, river_struct *, int,
     const epclist_struct *, const ctrl_struct *);
+void            restart_input (cstate_struct *, nstate_struct *, epvar_struct *, restart_data_struct *);
+void            InitBGCVar (elem_struct *, int, river_struct *, int,
+    cinit_struct, cstate_struct, nstate_struct, char *, int);
+void            firstday (const epconst_struct *, const cinit_struct *, epvar_struct *, cstate_struct *, nstate_struct *);
+void            zero_srcsnk (cstate_struct *, nstate_struct *, summary_struct *);
 #endif
 
 #endif

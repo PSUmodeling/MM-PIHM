@@ -23,7 +23,7 @@
 
 #define MAXLYR          11
 #define NUM_METEO_VAR   7
-#define NUM_PRINT       200
+#define NUM_PRINT       1024
 
 #define PSIMIN		-70.0
 #define DEPRSTG         1E-4

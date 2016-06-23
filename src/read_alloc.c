@@ -1266,32 +1266,15 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
 {
     FILE           *ic_file;
     int             i;
-    int             sz;
-    int             elemsz;
-    int             rivsz;
-#ifdef _NOAH_
-    int             j;
-#endif
+    int             size;
 
     ic_file = fopen (filename, "rb");
     CheckFile (ic_file, filename);
 
-    elemsz = 5 * sizeof (double);
-    rivsz = 2 * sizeof (double);
-
-#ifdef _NOAH_
-    elemsz += (2 + 3 * MAXLYR) * sizeof (double);
-#endif
-
-#ifdef _BGC_
-    elemsz += sizeof (restart_data_struct);
-    rivsz += sizeof (double);
-#endif
-
     fseek (ic_file, 0L, SEEK_END);
-    sz = ftell (ic_file);
+    size = ftell (ic_file);
 
-    if (sz != elemsz * numele + rivsz * numriv)
+    if (size != sizeof (elemic_struct) * numele + sizeof (riveric_struct) * numriv)
     {
         printf ("\nERROR:.ic file size does not match!\n");
         PihmExit (1);
@@ -1301,41 +1284,12 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
 
     for (i = 0; i < numele; i++)
     {
-        fread (&elem[i].ic.intcp, sizeof (double), 1, ic_file);
-        fread (&elem[i].ic.sneqv, sizeof (double), 1, ic_file);
-        fread (&elem[i].ic.surf, sizeof (double), 1, ic_file);
-        fread (&elem[i].ic.unsat, sizeof (double), 1, ic_file);
-        fread (&elem[i].ic.gw, sizeof (double), 1, ic_file);
-
-#ifdef _NOAH_
-        fread (&elem[i].ic.t1, sizeof (double), 1, ic_file);
-        fread (&elem[i].ic.snowh, sizeof (double), 1, ic_file);
-
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fread (&elem[i].ic.stc[j], sizeof (double), 1, ic_file);
-        }
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fread (&elem[i].ic.smc[j], sizeof (double), 1, ic_file);
-        }
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fread (&elem[i].ic.sh2o[j], sizeof (double), 1, ic_file);
-        }
-#endif
-
-#ifdef _BGC_
-        fread (&elem[i].restart_input, sizeof (restart_data_struct), 1, ic_file);
-#endif
+        fread (&elem[i].ic, sizeof (elemic_struct), 1, ic_file);
     }
+
     for (i = 0; i < numriv; i++)
     {
-        fread (&riv[i].ic.stage, sizeof (double), 1, ic_file);
-        fread (&riv[i].ic.gw, sizeof (double), 1, ic_file);
-#ifdef _BGC_
-        fread (&riv[i].sminn, sizeof (double), 1, ic_file);
-#endif
+        fread (&riv[i].ic, sizeof (riveric_struct), 1, ic_file);
     }
 
     fclose (ic_file);

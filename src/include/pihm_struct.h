@@ -622,11 +622,11 @@ typedef struct soilc_struct
 
 typedef struct elemic_struct
 {
+    double          intcp;
+    double          sneqv;
     double          surf;
     double          unsat;
     double          gw;
-    double          sneqv;
-    double          intcp;
 #ifdef _NOAH_
     double          t1;
     double          snowh;
@@ -634,10 +634,11 @@ typedef struct elemic_struct
     double          smc[MAXLYR];
     double          sh2o[MAXLYR];
 #endif
+} elemic_struct;
+
 #ifdef _BGC_
-    double          soilw;
-    double          snoww;
-    double          canopyw;
+typedef struct restart_data_struct
+{
     double          leafc;
     double          leafc_storage;
     double          leafc_transfer;
@@ -718,8 +719,8 @@ typedef struct elemic_struct
     double          offset_counter;
     double          offset_fdd;
     double          offset_swi;
+} restart_data_struct;
 #endif
-} elemic_struct;
 
 #ifdef _CYCLES_
 typedef struct weather_struct
@@ -1533,6 +1534,8 @@ typedef struct elem_struct
     solute_struct   NH4sol;
 #endif
 #ifdef _BGC_
+    restart_data_struct restart_input;
+    restart_data_struct restart_output;
     metarr_struct   metarr;     /* meteorological data array */
     metvar_struct   metv;
     cinit_struct    cinit;      /* first-year values for leafc and stemc */

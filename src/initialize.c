@@ -71,7 +71,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     InitVar (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, CV_Y);
 
 #ifdef _BGC_
-    InitBGCVar ();
+    InitBGCVar (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, pihm->ctrl.cinit, pihm->ctrl.cs, pihm->ctrl.ns, pihm->filename.bgcinit, pihm->ctrl.spinup);
 #endif
 
     CalcModelStep (&pihm->ctrl);
@@ -778,6 +778,7 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
         NV_Ith_S (CV_Y, i) = elem[i].ic.surf;
         NV_Ith_S (CV_Y, i + numele) = elem[i].ic.unsat;
         NV_Ith_S (CV_Y, i + 2 * numele) = elem[i].ic.gw;
+
 #ifdef _NOAH_
         elem[i].es.t1 = elem[i].ic.t1;
         elem[i].ps.snowh = elem[i].ic.snowh;

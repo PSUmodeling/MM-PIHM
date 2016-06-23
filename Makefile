@@ -97,13 +97,13 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/bgc_read.c \
 	bgc/bgc_init.c \
 	bgc/metarr_init.c \
+	bgc/restart_io.c \
+	bgc/make_zero_flux_struct.c \
+	bgc/zero_srcsnk.c \
+	bgc/firstday.c
 	#bgc/presim_state_init.c \
-	#bgc/make_zero_flux_struct.c \
-	#bgc/restart_io.c \
-	#bgc/firstday.c \
 	#bgc/bgc_spinup.c \
 	#bgc/metarr_init.c \
-	#bgc/zero_srcsnk.c \
 	#bgc/daily_bgc.c \
 	#bgc/get_co2.c \
 	#bgc/get_ndep.c \

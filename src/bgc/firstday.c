@@ -9,7 +9,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 void firstday (const epconst_struct * epc, const cinit_struct * cinit, epvar_struct * epv, cstate_struct * cs, nstate_struct * ns)
 {

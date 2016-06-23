@@ -9,22 +9,10 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
-void make_zero_flux_struct (wflux_struct * wf, cflux_struct * cf, nflux_struct * nf)
+void make_zero_flux_struct (cflux_struct * cf, nflux_struct * nf)
 {
-    /* daily water fluxes */
-    wf->prcp_to_canopyw = 0.0;
-    wf->prcp_to_soilw = 0.0;
-    wf->prcp_to_snoww = 0.0;
-    wf->canopyw_evap = 0.0;
-    wf->canopyw_to_soilw = 0.0;
-    wf->snoww_subl = 0.0;
-    wf->snoww_to_soilw = 0.0;
-    wf->soilw_evap = 0.0;
-    wf->soilw_trans = 0.0;
-    wf->soilw_outflow = 0.0;
-
     /* daily carbon fluxes */
     cf->m_leafc_to_litr1c = 0.0;
     cf->m_leafc_to_litr2c = 0.0;
