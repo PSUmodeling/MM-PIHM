@@ -489,7 +489,7 @@ void SunPos (int t, double latitude, double longitude, double elevation,
     *zenith = spa.zenith;
 }
 
-void CalHum (ps_struct *ps, es_struct *es)
+void CalHum (pstate_struct *ps, estate_struct *es)
 {
     const double    A2 = 17.67;
     const double    A3 = 273.15;
@@ -612,7 +612,7 @@ double AvgElev (elem_struct *elem, int numele)
     return (elev);
 }
 
-void CalcLatFlx (const ws_struct *ws, const ps_struct *ps, wf_struct *wf)
+void CalcLatFlx (const wstate_struct *ws, const pstate_struct *ps, wflux_struct *wf)
 {
     double          sattot;
     int             k, ks;

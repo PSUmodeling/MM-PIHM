@@ -1,4 +1,4 @@
-#include "bgc.h"
+#include "pihm.h"
 
 void maint_resp (const cstate_struct * cs, const nstate_struct * ns, const epconst_struct * epc, const metvar_struct * metv, cflux_struct * cf, epvar_struct * epv)
 {

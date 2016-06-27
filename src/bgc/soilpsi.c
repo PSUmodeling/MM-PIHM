@@ -9,7 +9,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 void soilpsi (const siteconst_struct * sitec, double vwc, double *psi)
 {

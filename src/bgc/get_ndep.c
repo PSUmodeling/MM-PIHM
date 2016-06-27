@@ -8,7 +8,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 double GetNdep (ts_struct ndep_ts, int t)
 {

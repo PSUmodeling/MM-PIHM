@@ -41,7 +41,7 @@ void metarr_init (metarr_struct *metarr, int start_time, int end_time)
     }
 }
 
-void Save2MetArr (elem_struct *elem, int numele, river_struct *riv, int numriv, int t, int start_time, int end_time)
+void Save2MetArr (pihm_struct pihm, int t, int start_time, int end_time)
 {
     int             i, k;
     int             ind;
@@ -52,10 +52,10 @@ void Save2MetArr (elem_struct *elem, int numele, river_struct *riv, int numriv, 
     {
         ind = (t - start_time) / 24 / 3600 - 1; /* t is already the end of day */
 
-        for (i = 0; i < numele; i++)
+        for (i = 0; i < pihm->numele; i++)
         {
-            metarr = &(elem[i].metarr);
-            daily = &(elem[i].daily);
+            metarr = &(pihm->elem[i].metarr);
+            daily = &(pihm->elem[i].daily);
 
             metarr->dayl[ind] = daily->dayl;
             metarr->prev_dayl[ind] = daily->prev_dayl;
@@ -74,8 +74,8 @@ void Save2MetArr (elem_struct *elem, int numele, river_struct *riv, int numriv, 
             metarr->tsoil[ind] = daily->stc[0] - 273.15;
             metarr->swc[ind] = daily->sh2o[0];
             metarr->soilw[ind] = (daily->surf
-                + daily->unsat * elem[i].soil.porosity
-                + daily->gw * elem[i].soil.porosity)
+                + daily->unsat * pihm->elem[i].soil.porosity
+                + daily->gw * pihm->elem[i].soil.porosity)
                 * 1000.0;
 
             metarr->sw_alb[ind] = daily->albedo;
@@ -86,25 +86,25 @@ void Save2MetArr (elem_struct *elem, int numele, river_struct *riv, int numriv, 
                 /* Convert from m3/s to kg/m2/d */
                 metarr->latflux[k][ind] = 1000.0
                     * (daily->fluxsub[k] + daily->fluxsurf[k])
-                    * 24.0 * 3600.0 / elem[i].topo.area;
+                    * 24.0 * 3600.0 / pihm->elem[i].topo.area;
             }
             metarr->latflux[3][ind] = 0.0;
 
             metarr->flag[ind] = 1;
         }
 
-        for (i = 0; i < numriv; i++)
+        for (i = 0; i < pihm->numriv; i++)
         {
-            metarr = &riv[i].metarr;
-            daily = &riv[i].daily;
+            metarr = &pihm->riv[i].metarr;
+            daily = &pihm->riv[i].daily;
 
             metarr->soilw[ind] = (daily->surf
-                + daily->gw * riv[i].matl.porosity) * 1000.0;
+                + daily->gw * pihm->riv[i].matl.porosity) * 1000.0;
 
             /* Convert from m3/s to kg/m2/d */
             for (k = 0; k < 4; k++)
             {
-                metarr->latflux[k][ind] = 1000.0 * (daily->fluxsurf[k] + daily->fluxsub[k]) * 24.0 * 3600.0 / riv[i].topo.area;
+                metarr->latflux[k][ind] = 1000.0 * (daily->fluxsurf[k] + daily->fluxsub[k]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
             }
 
             metarr->flag[ind] = 1;

@@ -9,7 +9,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 void precision_control (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns)
 {

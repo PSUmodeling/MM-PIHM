@@ -8,7 +8,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 int run_avg (const double *input, double *output, int n, int w, int w_flag)
 {

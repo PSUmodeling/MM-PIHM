@@ -178,7 +178,7 @@ typedef struct lc_struct
 /*
  * Land cover physical states
  */
-typedef struct ps_struct
+typedef struct pstate_struct
 {
     int             macpore_status;
     double          rc;         /* lcp: canopy resistance (s m-1) */
@@ -246,7 +246,7 @@ typedef struct ps_struct
     double          gwet;
     double          satdpth[MAXLYR];
 #endif
-} ps_struct;
+} pstate_struct;
 
 typedef struct elemforc_struct
 {
@@ -311,7 +311,7 @@ typedef struct daily_struct
 } daily_struct;
 #endif
 
-typedef struct ws_struct
+typedef struct wstate_struct
 {
     double          stage;
     double          surf;
@@ -326,9 +326,9 @@ typedef struct ws_struct
     double          soilw;      /* available soil moisture in root zone (unitless fraction between smcwlt and smcmax) */
     double          soilm;      /* total soil column moisture content (frozen+unfrozen) (m) */
 #endif
-} ws_struct;
+} wstate_struct;
 
-typedef struct wf_struct
+typedef struct wflux_struct
 {
     double          fluxsurf[3];        /* Overland Flux */
     double          fluxsub[3]; /* Subsurface Flux */
@@ -366,17 +366,17 @@ typedef struct wf_struct
 #ifdef _CYCLES_
     double          eres;
 #endif
-} wf_struct;
+} wflux_struct;
 
-typedef struct es_struct
+typedef struct estate_struct
 {
     double          stc[MAXLYR];        /* soil temp (k) */
     double          t1;         /* ground/canopy/snowpack) effective skin temperature (k) */
     double          th2;        /* air potential temperature (k) at height zlvl above ground */
     double          sfctmp;
-} es_struct;
+} estate_struct;
 
-typedef struct ef_struct
+typedef struct eflux_struct
 {
     double          solnet;     /* net downward solar radiation ((w m-2; positive) */
     double          etp;        /* potential evaporation (w m-2) */
@@ -397,7 +397,7 @@ typedef struct ef_struct
     double          flx2;       /* freezing rain latent heat flux (w m-2) */
     double          flx3;       /* phase-change heat flux from snowmelt (w m-2) */
     double          solardirect;        /* direct component of downward solar radiation (w m-2) (not used) */
-} ef_struct;
+} eflux_struct;
 
 #ifdef _CYCLES_
 typedef struct crop_struct
@@ -1512,16 +1512,16 @@ typedef struct elem_struct
 #ifdef _DAILY_
     daily_struct    daily;
 #endif
-    ps_struct       ps;
+    pstate_struct       ps;
 
-    ws_struct       ws;
-    ws_struct       ws0;
-    wf_struct       wf;
+    wstate_struct       ws;
+    wstate_struct       ws0;
+    wflux_struct       wf;
 #ifdef _NOAH_
-    wf_struct       avgwf;
+    wflux_struct       avgwf;
 
-    es_struct       es;
-    ef_struct       ef;
+    estate_struct       es;
+    eflux_struct       ef;
 #endif
 #ifdef _CYCLES_
     cropmgmt_struct cropmgmt;
@@ -1586,9 +1586,9 @@ typedef struct river_struct
     shp_struct      shp;
     matl_struct     matl;
     elemforc_struct forc;
-    ws_struct       ws;
-    ws_struct       ws0;
-    wf_struct       wf;
+    wstate_struct       ws;
+    wstate_struct       ws0;
+    wflux_struct       wf;
     riveric_struct  ic;
 #ifdef _DAILY_
     daily_struct    daily;

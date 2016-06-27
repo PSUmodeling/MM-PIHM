@@ -8,7 +8,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 void growth_resp (epconst_struct * epc, cflux_struct * cf)
 {

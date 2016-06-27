@@ -1,4 +1,4 @@
-#include "bgc.h"
+#include "pihm.h"
 
 void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
 {

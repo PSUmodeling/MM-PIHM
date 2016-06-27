@@ -891,7 +891,7 @@ void CalcModelStep (ctrl_struct *ctrl)
     }
 }
 
-void ZeroWaterFlux (wf_struct *wf)
+void ZeroWaterFlux (wflux_struct *wf)
 {
     int             j;
 #ifdef _NOAH_

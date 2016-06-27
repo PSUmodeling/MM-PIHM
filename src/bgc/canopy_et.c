@@ -9,7 +9,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 void canopy_et (const metvar_struct * metv, const epconst_struct * epc, epvar_struct * epv, wflux_struct * wf)
 {

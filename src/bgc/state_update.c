@@ -8,7 +8,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc, int woody, int evergreen)
 {

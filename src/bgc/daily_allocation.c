@@ -22,7 +22,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 void daily_allocation (cflux_struct * cf, cstate_struct * cs, nflux_struct * nf, nstate_struct * ns, epconst_struct * epc, epvar_struct * epv, ntemp_struct * nt, const double naddfrac, const int spinup)
 {

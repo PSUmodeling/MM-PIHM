@@ -135,8 +135,8 @@ void Noah (int t, pihm_struct pihm)
     }
 }
 
-void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
-    es_struct *es, ef_struct *ef, ps_struct *ps, lc_struct *lc,
+void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
+    estate_struct *es, eflux_struct *ef, pstate_struct *ps, lc_struct *lc,
     soil_struct *soil,
 #ifdef _CYCLES_
     comm_struct *comm, residue_struct *residue,
@@ -618,7 +618,7 @@ void SFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     }
 }
 
-void AlCalc (ps_struct *ps, double dt, int snowng)
+void AlCalc (pstate_struct *ps, double dt, int snowng)
 {
     /*
      * Calculate albedo including snow effect (0 -> 1)
@@ -668,7 +668,7 @@ void AlCalc (ps_struct *ps, double dt, int snowng)
     ps->albedo = (ps->albedo > snoalb2) ? snoalb2 : ps->albedo;
 }
 
-void CanRes (ws_struct *ws, es_struct *es, ef_struct *ef, ps_struct *ps,
+void CanRes (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
     const double *zsoil, const soil_struct *soil, const lc_struct *lc)
 {
     /*
@@ -797,7 +797,7 @@ double CSnow (double dsnow)
     return (sncond);
 }
 
-void DEvap (const ws_struct *ws, wf_struct *wf, const ps_struct *ps,
+void DEvap (const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil)
 {
     /*
@@ -828,10 +828,10 @@ void DEvap (const ws_struct *ws, wf_struct *wf, const ps_struct *ps,
     wf->edir = fx * (1.0 - lc->shdfac) * wf->etp;
 }
 
-void Evapo (ws_struct *ws, wf_struct *wf, ps_struct *ps, const lc_struct *lc,
+void Evapo (wstate_struct *ws, wflux_struct *wf, pstate_struct *ps, const lc_struct *lc,
     soil_struct *soil,
 #ifdef _CYCLES_
-    comm_struct *comm, residue_struct *residue, const es_struct *es,
+    comm_struct *comm, residue_struct *residue, const estate_struct *es,
 #endif
     const double *zsoil, double dt)
 {
@@ -1044,7 +1044,7 @@ double FrH2O (double tkelv, double smc, double sh2o, const soil_struct *soil)
     return (freew);
 }
 
-void HRT (ws_struct *ws, es_struct *es, ef_struct *ef, ps_struct *ps,
+void HRT (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil, double *rhsts,
     const double *zsoil, double yy, double zz1, double dt, double df1,
     double *ai, double *bi, double *ci)
@@ -1271,7 +1271,7 @@ void HRT (ws_struct *ws, es_struct *es, ef_struct *ef, ps_struct *ps,
     }
 }
 
-void HStep (es_struct *es, double *rhsts, double dt, int nsoil, double *ai,
+void HStep (estate_struct *es, double *rhsts, double dt, int nsoil, double *ai,
     double *bi, double *ci)
 {
     /*
@@ -1313,8 +1313,8 @@ void HStep (es_struct *es, double *rhsts, double dt, int nsoil, double *ai,
     }
 }
 
-void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
-    es_struct *es, ef_struct *ef, ps_struct *ps, lc_struct *lc,
+void NoPac (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
+    estate_struct *es, eflux_struct *ef, pstate_struct *ps, lc_struct *lc,
     soil_struct *soil,
 #ifdef _CYCLES_
     comm_struct *comm, residue_struct *residue,
@@ -1434,7 +1434,7 @@ void NoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
     ef->flx3 = 0.0;
 }
 
-void Penman (wf_struct *wf, es_struct *es, ef_struct *ef, ps_struct *ps,
+void Penman (wflux_struct *wf, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
     double *t24, double t2v, int snowng, int frzgra)
 {
     /*
@@ -1556,7 +1556,7 @@ void Rosr12 (double *p, double *a, double *b, double *c, double *d,
     }
 }
 
-void ShFlx (ws_struct *ws, es_struct *es, ef_struct *ef, ps_struct *ps,
+void ShFlx (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil, double dt, double yy,
     double zz1, const double *zsoil, double df1)
 {
@@ -1588,8 +1588,8 @@ void ShFlx (ws_struct *ws, es_struct *es, ef_struct *ef, ps_struct *ps,
     ef->ssoil = df1 * (es->stc[0] - es->t1) / (0.5 * zsoil[0]);
 }
 
-void SmFlx (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
-    ps_struct *ps, const lc_struct *lc, const soil_struct *soil,
+void SmFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
+    pstate_struct *ps, const lc_struct *lc, const soil_struct *soil,
 #ifdef _CYCLES_
     residue_struct *residue,
 #endif
@@ -1804,8 +1804,8 @@ void SnkSrc (double *tsnsr, double tavg, double smc, double *sh2o,
     *sh2o = xh2o;
 }
 
-void SnoPac (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
-    es_struct *es, ef_struct *ef, ps_struct *ps, lc_struct *lc,
+void SnoPac (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
+    estate_struct *es, eflux_struct *ef, pstate_struct *ps, lc_struct *lc,
     soil_struct *soil,
 #ifdef _CYCLES_
     comm_struct *comm, residue_struct *residue,
@@ -2240,7 +2240,7 @@ double Snowz0 (double sncovr, double z0brd, double snowh)
     return (z0);
 }
 
-void SnowNew (const es_struct *es, double newsn, ps_struct *ps)
+void SnowNew (const estate_struct *es, double newsn, pstate_struct *ps)
 {
     /*
      * Function SnowNew
@@ -2287,7 +2287,7 @@ void SnowNew (const es_struct *es, double newsn, ps_struct *ps)
     ps->snowh = snowhc * 0.01;
 }
 
-void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
+void SRT (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf, pstate_struct *ps,
     const soil_struct *soil,
 #ifdef _CYCLES_
     residue_struct *residue,
@@ -2461,8 +2461,8 @@ void SRT (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf, ps_struct *ps,
     }
 }
 
-void SStep (ws_struct *ws, wf_struct *wf, const wf_struct *avgwf,
-    ps_struct *ps, const soil_struct *soil, double *rhstt, double rhsct,
+void SStep (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
+    pstate_struct *ps, const soil_struct *soil, double *rhstt, double rhsct,
     const double *zsoil, double *sice, double *ai, double *bi, double *ci,
     double dt)
 {
@@ -2853,7 +2853,7 @@ double TmpAvg (double tup, double tm, double tdn, const double *zsoil,
     return (tavg);
 }
 
-void Transp (const ws_struct *ws, wf_struct *wf, const ps_struct *ps,
+void Transp (const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil, const double *zsoil)
 {
     /*
@@ -2940,7 +2940,7 @@ void Transp (const ws_struct *ws, wf_struct *wf, const ps_struct *ps,
 }
 
 void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
-    double dsmdz, int macpore, const soil_struct *soil, const ps_struct *ps)
+    double dsmdz, int macpore, const soil_struct *soil, const pstate_struct *ps)
 {
     /*
      * Function WDfCnd
@@ -3009,7 +3009,7 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
     }
 }
 
-void SfcDifOff (ps_struct *ps, const lc_struct *lc, double t1v, double th2v,
+void SfcDifOff (pstate_struct *ps, const lc_struct *lc, double t1v, double th2v,
     int iz0tlnd)
 {
     /*

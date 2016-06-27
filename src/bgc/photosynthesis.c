@@ -8,7 +8,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 void total_photosynthesis (const metvar_struct * metv, const epconst_struct * epc, epvar_struct * epv, cflux_struct * cf, psn_struct * psn_sun, psn_struct * psn_shade)
 {

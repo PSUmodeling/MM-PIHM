@@ -8,7 +8,7 @@
  *
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 signed char     bgc_verbosity = BV_DETAIL;
 FILE           *bgc_logfile = NULL;

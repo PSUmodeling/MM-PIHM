@@ -1,17 +1,7 @@
-#include "bgc.h"
+#include "pihm.h"
 
 void presim_state_init (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns, cinit_struct * cinit)
 {
-    ws->soilw = 0.0;
-    ws->snoww = 0.0;
-    ws->canopyw = 0.0;
-    ws->prcp_src = 0.0;
-    ws->outflow_snk = 0.0;
-    ws->soilevap_snk = 0.0;
-    ws->snowsubl_snk = 0.0;
-    ws->canopyevap_snk = 0.0;
-    ws->trans_snk = 0.0;
-
     cinit->max_leafc = 0.0;
     cinit->max_stemc = 0.0;
 

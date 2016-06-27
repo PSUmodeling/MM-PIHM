@@ -9,7 +9,7 @@ Biome-BGC version 4.2 (final release)
 See copyright.txt for Copyright information
 **/
 
-#include "bgc.h"
+#include "pihm.h"
 
 int output_ascii (float arr[], int nvars, FILE * ptr)
 {

@@ -8,7 +8,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 void mortality (const epconst_struct * epc, cstate_struct * cs, cflux_struct * cf, nstate_struct * ns, nflux_struct * nf)
 {

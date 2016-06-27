@@ -105,10 +105,21 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         /*
          * Daily timestep modules
          */
-#ifdef _CYCLES_
+#ifdef _DAILY_
         if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
         {
+    #ifdef _CYCLES_
             DailyCycles (t - DAYINSEC, pihm);
+    #endif
+    #ifdef _BGC_
+            if (pihm->ctrl.spinup)
+            {
+                Save2MetArr (pihm, t, pihm->ctrl.spinupstart, pihm->ctrl.spinupend);
+            }
+            else
+            {
+            }
+    #endif
         }
 #endif
 
@@ -132,6 +143,13 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         }
 #endif
     }
+
+#ifdef _BGC_
+    if (pihm->ctrl.spinup)
+    {
+        BGCSpinup (simulation, pihm, outputdir);
+    }
+#endif
 
     /*
      * Write init files

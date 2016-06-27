@@ -8,7 +8,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 void phenology (const epconst_struct * epc, const metvar_struct * metv, phenology_struct * phen, epvar_struct * epv, cstate_struct * cs, cflux_struct * cf, nstate_struct * ns, nflux_struct * nf)
 {

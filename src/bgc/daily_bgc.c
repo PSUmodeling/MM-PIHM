@@ -3,9 +3,9 @@
  * Daily BGC model logic
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
-void DailyBgc (bgc_struct bgc, int numele, int numriv, int t, int simstart, const double *naddfrac, int first_balance)
+void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, int first_balance)
 {
     siteconst_struct *sitec;
     metvar_struct  *metv;
@@ -38,9 +38,9 @@ void DailyBgc (bgc_struct bgc, int numele, int numriv, int t, int simstart, cons
     rawtime = (int)t;
     timestamp = gmtime (&rawtime);
 
-    co2 = &bgc->co2;
-    ndepctrl = &bgc->ndepctrl;
-    ctrl = &bgc->ctrl;
+    co2 = &pihm->co2;
+    ndepctrl = &pihm->ndepctrl;
+    ctrl = &pihm->ctrl;
 
     /* Get co2 and ndep */
     if (ctrl->spinup == 1)      /* Spinup mode */
@@ -63,7 +63,7 @@ void DailyBgc (bgc_struct bgc, int numele, int numriv, int t, int simstart, cons
         {
             /* When varco2 = 1, use file for co2 */
             if (co2->varco2 == 1)
-                co2lvl = GetCO2 (bgc->forcing.ts[CO2_TS][0], t);
+                co2lvl = GetCO2 (pihm->forcing.ts[CO2_TS][0], t);
             if (co2lvl < -999)
             {
                 printf ("Error finding CO2 value on %4.4d-%2.2d-%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday);
@@ -83,7 +83,7 @@ void DailyBgc (bgc_struct bgc, int numele, int numriv, int t, int simstart, cons
             }
             else
             {
-                daily_ndep = GetNdep (bgc->forcing.ts[NDEP_TS][0], t);
+                daily_ndep = GetNdep (pihm->forcing.ts[NDEP_TS][0], t);
                 daily_nfix = ndepctrl->nfix / 365.0;
                 if (daily_ndep < -999)
                 {
@@ -102,39 +102,39 @@ void DailyBgc (bgc_struct bgc, int numele, int numriv, int t, int simstart, cons
 
     for (i = 0; i < numele; i++)
     {
-        daymet (&bgc->grid[i].metarr, &bgc->grid[i].metv, simday);
-        bgc->grid[i].ws.soilw = bgc->grid[i].metv.soilw;
-        bgc->grid[i].epv.vwc = bgc->grid[i].metv.swc;
-        bgc->grid[i].sitec.sw_alb = bgc->grid[i].metv.sw_alb;
-        bgc->grid[i].epc.gl_bl = bgc->grid[i].metv.gl_bl;
+        daymet (&pihm->elem[i].metarr, &pihm->elem[i].metv, simday);
+        pihm->elem[i].ws.soilw = pihm->elem[i].metv.soilw;
+        pihm->elem[i].epv.vwc = pihm->elem[i].metv.swc;
+        pihm->elem[i].sitec.sw_alb = pihm->elem[i].metv.sw_alb;
+        pihm->elem[i].epc.gl_bl = pihm->elem[i].metv.gl_bl;
     }
 
     for (i = 0; i < numriv; i++)
     {
-        bgc->riv[i].soilw = bgc->riv[i].metarr.soilw[simday];
+        pihm->riv[i].soilw = pihm->riv[i].metarr.soilw[simday];
         for (k = 0; k < 4; k++)
         {
-            bgc->riv[i].metv.latflux[k] = bgc->riv[i].metarr.latflux[k][simday];
+            pihm->riv[i].metv.latflux[k] = pihm->riv[i].metarr.latflux[k][simday];
         }
     }
 
     for (i = 0; i < numele; i++)
     {
-        sitec = &bgc->grid[i].sitec;
-        metv = &bgc->grid[i].metv;
-        epc = &bgc->grid[i].epc;
-        epv = &bgc->grid[i].epv;
-        ws = &bgc->grid[i].ws;
-        wf = &bgc->grid[i].wf;
-        cs = &bgc->grid[i].cs;
-        cf = &bgc->grid[i].cf;
-        ns = &bgc->grid[i].ns;
-        nf = &bgc->grid[i].nf;
-        nt = &bgc->grid[i].nt;
-        phen = &bgc->grid[i].phen;
-        psn_sun = &bgc->grid[i].psn_sun;
-        psn_shade = &bgc->grid[i].psn_shade;
-        summary = &bgc->grid[i].summary;
+        sitec = &pihm->elem[i].sitec;
+        metv = &pihm->elem[i].metv;
+        epc = &pihm->elem[i].epc;
+        epv = &pihm->elem[i].epv;
+        ws = &pihm->elem[i].ws;
+        wf = &pihm->elem[i].wf;
+        cs = &pihm->elem[i].cs;
+        cf = &pihm->elem[i].cf;
+        ns = &pihm->elem[i].ns;
+        nf = &pihm->elem[i].nf;
+        nt = &pihm->elem[i].nt;
+        phen = &pihm->elem[i].phen;
+        psn_sun = &pihm->elem[i].psn_sun;
+        psn_shade = &pihm->elem[i].psn_shade;
+        summary = &pihm->elem[i].summary;
 
         metv->co2 = co2lvl;
 
@@ -220,25 +220,25 @@ void DailyBgc (bgc_struct bgc, int numele, int numriv, int t, int simstart, cons
     /* Calculate N leaching loss.  This is a special state variable update
      * routine, done after the other fluxes and states are reconciled in order
      * to avoid negative sminn under heavy leaching potential */
-    nleaching (bgc->grid, numele, bgc->riv, numriv);
+    nleaching (pihm->elem, numele, pihm->riv, numriv);
 
     for (i = 0; i < numele; i++)
     {
-        sitec = &bgc->grid[i].sitec;
-        metv = &bgc->grid[i].metv;
-        epc = &bgc->grid[i].epc;
-        epv = &bgc->grid[i].epv;
-        ws = &bgc->grid[i].ws;
-        wf = &bgc->grid[i].wf;
-        cs = &bgc->grid[i].cs;
-        cf = &bgc->grid[i].cf;
-        ns = &bgc->grid[i].ns;
-        nf = &bgc->grid[i].nf;
-        nt = &bgc->grid[i].nt;
-        phen = &bgc->grid[i].phen;
-        psn_sun = &bgc->grid[i].psn_sun;
-        psn_shade = &bgc->grid[i].psn_shade;
-        summary = &bgc->grid[i].summary;
+        sitec = &pihm->elem[i].sitec;
+        metv = &pihm->elem[i].metv;
+        epc = &pihm->elem[i].epc;
+        epv = &pihm->elem[i].epv;
+        ws = &pihm->elem[i].ws;
+        wf = &pihm->elem[i].wf;
+        cs = &pihm->elem[i].cs;
+        cf = &pihm->elem[i].cf;
+        ns = &pihm->elem[i].ns;
+        nf = &pihm->elem[i].nf;
+        nt = &pihm->elem[i].nt;
+        phen = &pihm->elem[i].phen;
+        psn_sun = &pihm->elem[i].psn_sun;
+        psn_shade = &pihm->elem[i].psn_shade;
+        summary = &pihm->elem[i].summary;
 
         /* Calculate daily mortality fluxes and update state variables */
         /* This is done last, with a special state update procedure, to insure

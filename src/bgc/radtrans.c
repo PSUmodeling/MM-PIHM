@@ -10,7 +10,7 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 void radtrans (const cstate_struct * cs, const epconst_struct * epc, metvar_struct * metv, epvar_struct * epv, double albedo)
 {

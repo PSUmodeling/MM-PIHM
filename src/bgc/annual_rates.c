@@ -1,4 +1,4 @@
-#include "bgc.h"
+#include "pihm.h"
 
 void annual_rates (const epconst_struct *epc, epvar_struct *epv)
 {

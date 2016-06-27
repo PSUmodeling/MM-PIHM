@@ -1,4 +1,4 @@
-#include "bgc.h"
+#include "pihm.h"
 
 #define MAXGRID     5000
 
