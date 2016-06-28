@@ -7,11 +7,10 @@
 
 void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, int first_balance)
 {
-    siteconst_struct *sitec;
     metvar_struct  *metv;
     co2control_struct *co2;
     ndepcontrol_struct *ndepctrl;
-    control_struct *ctrl;
+    ctrl_struct *ctrl;
     epconst_struct *epc;
     epvar_struct   *epv;
     psn_struct     *psn_sun, *psn_shade;
@@ -105,7 +104,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
         daymet (&pihm->elem[i].metarr, &pihm->elem[i].metv, simday);
         pihm->elem[i].ws.soilw = pihm->elem[i].metv.soilw;
         pihm->elem[i].epv.vwc = pihm->elem[i].metv.swc;
-        pihm->elem[i].sitec.sw_alb = pihm->elem[i].metv.sw_alb;
+        //pihm->elem[i].sitec.sw_alb = pihm->elem[i].metv.sw_alb;
         pihm->elem[i].epc.gl_bl = pihm->elem[i].metv.gl_bl;
     }
 
@@ -120,7 +119,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
 
     for (i = 0; i < numele; i++)
     {
-        sitec = &pihm->elem[i].sitec;
+        //sitec = &pihm->elem[i].sitec;
         metv = &pihm->elem[i].metv;
         epc = &pihm->elem[i].epc;
         epv = &pihm->elem[i].epv;
@@ -155,7 +154,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
         /* Calculate leaf area index, sun and shade fractions, and specific
          * leaf area for sun and shade canopy fractions, then calculate
          * canopy radiation interception and transmission */
-        radtrans (cs, epc, metv, epv, sitec->sw_alb);
+        radtrans (cs, epc, metv, epv, ps->albedo);
 
         /* update the ann max LAI for annual diagnostic output */
         if (epv->proj_lai > epv->ytd_maxplai)
@@ -163,7 +162,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
 
         /* soil water potential */
         epv->vwc = metv->swc;
-        soilpsi (sitec, epv->vwc, &epv->psi);
+        soilpsi (soil, epv->vwc, &epv->psi);
 
         /* daily maintenance respiration */
         maint_resp (cs, ns, epc, metv, cf, epv);
@@ -224,7 +223,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
 
     for (i = 0; i < numele; i++)
     {
-        sitec = &pihm->elem[i].sitec;
+        //sitec = &pihm->elem[i].sitec;
         metv = &pihm->elem[i].metv;
         epc = &pihm->elem[i].epc;
         epv = &pihm->elem[i].epv;

@@ -125,13 +125,13 @@ void RiverFlow (pihm_struct pihm)
                 case -1:
                     /* Dirichlet boundary condition */
                     total_y_down =
-                        *riv->forc.riverbc + (riv->topo.node_zmax -
+                        riv->bc.head + (riv->topo.node_zmax -
                         riv->shp.depth);
                     distance = 0.5 * riv->shp.length;
                     grad_y = (total_y - total_y_down) / distance;
                     avg_sf = grad_y;
                     avg_rough = riv->matl.rough;
-                    avg_y = AvgY (grad_y, riv->ws.stage, *riv->forc.riverbc);
+                    avg_y = AvgY (grad_y, riv->ws.stage, riv->bc.head);
                     avg_perim = perim;
                     crossa =
                         RivArea (riv->shp.intrpl_ord, riv->ws.stage,
@@ -143,7 +143,7 @@ void RiverFlow (pihm_struct pihm)
                     break;
                 case -2:
                     /* Neumann boundary condition */
-                    riv->wf.fluxriv[1] = *riv->forc.riverbc;
+                    riv->wf.fluxriv[1] = riv->bc.flux;
                     break;
                 case -3:
                     /* Zero-depth-gradient boundary conditions */

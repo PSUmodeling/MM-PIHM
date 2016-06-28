@@ -46,12 +46,11 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
         elem = &pihm->elem[i];
 
         /* Note the dependence on physical units */
-        elem->wf.prcp = *elem->forc.meteo[PRCP_TS] / 1000.0;
         elem->ps.albedo = 0.5 * (elem->lc.albedomin + elem->lc.albedomax);
-        radnet = *elem->forc.meteo[SOLAR_TS] * (1.0 - elem->ps.albedo);
-        sfctmp = *elem->forc.meteo[SFCTMP_TS] - 273.15;
-        wind = *elem->forc.meteo[SFCSPD_TS];
-        rh = *elem->forc.meteo[RH_TS] / 100.0;
+        radnet = elem->ef.soldn * (1.0 - elem->ps.albedo);
+        sfctmp = elem->es.sfctmp - 273.15;
+        wind = elem->ps.sfcspd;
+        rh = elem->ps.rh / 100.0;
 
         vp = 611.2 * exp (17.67 * sfctmp / (sfctmp + 243.5)) * rh;
         pres =
@@ -59,13 +58,13 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
             5.26);
         qv = 0.622 * vp / pres;
         qvsat = 0.622 * (vp / rh) / pres;
-        if (elem->forc.lai_type > 0)
+        if (elem->attrib.lai_type > 0)
         {
-            lai = *elem->forc.lai;
+            lai = elem->ps.xlai;
         }
         else
         {
-            lai = MonthlyLAI (t, elem->lc.type);
+            lai = MonthlyLAI (t, elem->attrib.lc_type);
         }
 
         meltf = MonthlyMF (t);
@@ -113,7 +112,7 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
          * multiplication of Area on either side of equation */
         intcp_max = elem->lc.cmcfactr * lai * elem->lc.shdfac;
 
-        z0 = MonthlyRL (t, elem->lc.type);
+        z0 = MonthlyRL (t, elem->attrib.lc_type);
 
         ra = log (elem->ps.zlvl_wind / z0) * log (10.0 *
             elem->ps.zlvl_wind / z0) / (wind * 0.16);

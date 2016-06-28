@@ -54,16 +54,19 @@ int             CountOccurance (FILE *, char *);
 void            Initialize (pihm_struct, N_Vector);
 void            InitMeshStruct (elem_struct *, int, meshtbl_struct);
 void            InitTopo (elem_struct *, int, meshtbl_struct);
-void            InitSoil (elem_struct *, int, atttbl_struct, soiltbl_struct,
+void            InitSoil (elem_struct *, int, soiltbl_struct,
 #ifdef _NOAH_
     noahtbl_struct,
 #endif
     calib_struct);
-void            ZeroWaterFlux (wflux_struct *);
+void            InitWState (wstate_struct *);
+void            InitPState (pstate_struct *);
+void            InitWFlux (wflux_struct *);
+void            InitEState (estate_struct *);
+void            InitEFlux (eflux_struct *);
 double          FieldCapacity (double, double, double, double, double);
 double          WiltingPoint (double, double, double, double);
-void            InitLC (elem_struct *, int, atttbl_struct, lctbl_struct,
-    calib_struct);
+void            InitLC (elem_struct *, int, lctbl_struct, calib_struct);
 void            InitRiver (river_struct *, int, elem_struct *, rivtbl_struct,
     shptbl_struct, matltbl_struct, meshtbl_struct, calib_struct);
 void            InitForcing (elem_struct *, int, river_struct *, int,
@@ -77,7 +80,7 @@ void            CalcModelStep (ctrl_struct *);
 
 void            MapOutput (char *, pihm_struct, char *);
 void            InitOutputFile (prtctrl_struct *, int, int);
-void            ApplyForcing (forc_struct *, int);
+void            ApplyForcing (forc_struct *, elem_struct *, int, river_struct *, int, int);
 void            IntcpSnowET (int, double, pihm_struct);
 void            IntrplForcing (tsdata_struct, int, int);
 double          MonthlyLAI (int, int);

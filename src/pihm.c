@@ -73,7 +73,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         t = pihm->ctrl.tout[i];
 
         /* Apply forcing */
-        ApplyForcing (&pihm->forc, t);
+        ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv, pihm->numriv, t);
 
         /* Determine if land surface simulation is needed */
         if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)

@@ -1,6 +1,16 @@
 #ifndef PIHM_STRUCT_HEADER
 #define PIHM_STRUCT_HEADER
 
+typedef struct attrib_struct
+{
+    int             soil_type;
+    int             lc_type;
+    int             bc_type[3];
+    int             riverbc_type;
+    int             meteo_type;
+    int             lai_type;
+} attrib_struct;
+
 /* 
  * Topographic parameters
  */
@@ -32,8 +42,6 @@ typedef struct topo_struct
  */
 typedef struct soil_struct
 {
-    int             type;
-
     double          depth;
     double          ksath;      /* horizontal geologic saturated
                                  * hydraulic conductivity */
@@ -142,7 +150,6 @@ typedef struct soil_struct
  */
 typedef struct lc_struct
 {
-    int             type;
     double          shdfac;     /* areal fractional coverage of green vegetation (fraction= 0.0-1.0) */
     double          shdmin;     /* minimum areal fractional coverage of green vegetation (fraction= 0.0-1.0) <= shdfac */
     double          shdmax;     /* maximum areal fractional coverage of green vegetation (fraction= 0.0-1.0) >= shdfac */
@@ -234,6 +241,7 @@ typedef struct pstate_struct
     double          z0brd;      /* background fixed roughness length (m) */
     double          embrd;      /* background surface emissivity (between 0 and 1) */
     double          q2sat;
+    double          q2d;
     double          dqsdt2;
     int             nwtbl;
     double          sndens;
@@ -245,71 +253,10 @@ typedef struct pstate_struct
     double          tbot;       /* bottom soil temperature (local yearly-mean sfc air temperature) */
     double          gwet;
     double          satdpth[MAXLYR];
-#endif
-} pstate_struct;
-
-typedef struct elemforc_struct
-{
-    int             bc_type[3];
-    int             lai_type;
-
-    /* Forcing values */
-    double         *bc[3];
-    double         *meteo[NUM_METEO_VAR];
-    double         *lai;
-    double         *z0;
-    double         *source;
-    double         *meltf;
-    double         *riverbc;
-#ifdef _NOAH_
-    double         *rad[2];
-#endif
-} elemforc_struct;
-
-#ifdef _DAILY_
-typedef struct daily_struct
-{
-    int             counter;
-    int             daylight_counter;
-
-    double          sfctmp;
-    double          tday;
-    double          tnight;
-    double          tmax;
-    double          tmin;
-
-    double          solar;
-    double          solar_total;
-
-    double          sfcspd;
-
-    double          sfcprs;
-
-    double          surf;
-    double          unsat;
-    double          gw;
-
-#ifdef _CYCLES_
-    double          et[MAXLYR];
-    double          sncovr;
-#endif
-    double          fluxsurf[4];
-    double          fluxsub[4];
-    double          infil;
-    double          rechg;
-
     double          dayl;
     double          prev_dayl;
-
-    double          stc[MAXLYR];
-    double          sh2o[MAXLYR];
-    double          smflxv[MAXLYR];
-    double          smflxh[4][MAXLYR];
-    double          q2d;
-    double          albedo;
-    double          ch;
-} daily_struct;
 #endif
+} pstate_struct;
 
 typedef struct wstate_struct
 {
@@ -374,6 +321,10 @@ typedef struct estate_struct
     double          t1;         /* ground/canopy/snowpack) effective skin temperature (k) */
     double          th2;        /* air potential temperature (k) at height zlvl above ground */
     double          sfctmp;
+    double          tday;
+    double          tnight;
+    double          tmax;
+    double          tmin;
 } estate_struct;
 
 typedef struct eflux_struct
@@ -392,6 +343,9 @@ typedef struct eflux_struct
     double          ett;        /* total plant transpiration (w m-2) */
     double          esnow;      /* sublimation from (or deposition to if <0) snowpack (w m-2) */
     double          soldn;      /* solar downward radiation (w m-2; positive, not net solar) */
+    double          solar_total;
+    double          sdir;
+    double          sdif;
     double          longwave;
     double          flx1;       /* precip-snow sfc (w m-2) */
     double          flx2;       /* freezing rain latent heat flux (w m-2) */
@@ -619,6 +573,12 @@ typedef struct soilc_struct
     double          annualAmmoniumLeaching;
 } soilc_struct;
 #endif
+
+typedef struct elembc_struct
+{
+    double          head[3];
+    double          flux[3];
+} elembc_struct;
 
 typedef struct elemic_struct
 {
@@ -1496,6 +1456,21 @@ typedef struct epclist_struct
 } epclist_struct;
 #endif
 
+#ifdef _DAILY_
+typedef struct daily_struct
+{
+    int             counter;
+    int             daylight_counter;
+
+    wstate_struct   ws;
+    wflux_struct    wf;
+    pstate_struct   ps;
+    estate_struct   es;
+    eflux_struct    ef;
+} daily_struct;
+#endif
+
+
 typedef struct elem_struct
 {
     int             node[3];    /* Counterclock-wise */
@@ -1503,11 +1478,13 @@ typedef struct elem_struct
                                  * (0: on boundary) */
     int             ind;
 
+    attrib_struct   attrib;
+
     topo_struct     topo;
     soil_struct     soil;
     lc_struct       lc;
-    elemforc_struct forc;
     elemic_struct   ic;
+    elembc_struct   bc;
 
 #ifdef _DAILY_
     daily_struct    daily;
@@ -1574,6 +1551,12 @@ typedef struct matl_struct
     double          porosity;
 } matl_struct;
 
+typedef struct riverbc_struct
+{
+    double          head;
+    double          flux;
+} riverbc_struct;
+
 typedef struct riveric_struct
 {
     double          stage;
@@ -1582,14 +1565,15 @@ typedef struct riveric_struct
 
 typedef struct river_struct
 {
+    attrib_struct   attrib;
     topo_struct     topo;
     shp_struct      shp;
     matl_struct     matl;
-    elemforc_struct forc;
     wstate_struct       ws;
     wstate_struct       ws0;
     wflux_struct       wf;
     riveric_struct  ic;
+    riverbc_struct  bc;
 #ifdef _DAILY_
     daily_struct    daily;
 #endif

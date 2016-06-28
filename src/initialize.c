@@ -2,6 +2,8 @@
 
 void Initialize (pihm_struct pihm, N_Vector CV_Y)
 {
+    int             i, j;
+
     if (verbose_mode)
     {
         printf ("\n\nInitialize data structure\n");
@@ -9,6 +11,23 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
 
     pihm->elem = (elem_struct *)malloc (pihm->numele * sizeof (elem_struct));
     pihm->riv = (river_struct *)malloc (pihm->numriv * sizeof (river_struct));
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        pihm->elem[i].attrib.soil_type = pihm->atttbl.soil[i];
+        pihm->elem[i].attrib.lc_type = pihm->atttbl.lc[i];
+        for (j = 0; j < 3; j++)
+        {
+            pihm->elem[i].attrib.bc_type[j] = pihm->atttbl.bc[i][j];
+        }
+        pihm->elem[i].attrib.meteo_type = pihm->atttbl.meteo[i];
+        pihm->elem[i].attrib.lai_type = pihm->atttbl.lai[i];
+    }
+
+    for (i = 0; i < pihm->numriv; i++)
+    {
+        pihm->riv[i].attrib.riverbc_type = pihm->rivtbl.bc[i];
+    }
 
     InitMeshStruct (pihm->elem, pihm->numele, pihm->meshtbl);
 
@@ -19,13 +38,13 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     pihm->elevation = AvgElev (pihm->elem, pihm->numele);
 #endif
 
-    InitSoil (pihm->elem, pihm->numele, pihm->atttbl, pihm->soiltbl,
+    InitSoil (pihm->elem, pihm->numele, pihm->soiltbl,
 #ifdef _NOAH_
         pihm->noahtbl,
 #endif
         pihm->cal);
 
-    InitLC (pihm->elem, pihm->numele, pihm->atttbl, pihm->lctbl, pihm->cal);
+    InitLC (pihm->elem, pihm->numele, pihm->lctbl, pihm->cal);
 
     InitForcing (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
         pihm->atttbl, pihm->rivtbl, &pihm->forc, pihm->cal);
@@ -58,7 +77,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     if (pihm->ctrl.init_type == RELAX)
     {
 #ifdef _NOAH_
-        ApplyForcing (&pihm->forc, pihm->ctrl.starttime);
+        ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv, pihm->numriv, pihm->ctrl.starttime);
 #endif
         SaturationIC (pihm->elem, pihm->numele, pihm->riv, pihm->numriv);
     }
@@ -137,8 +156,7 @@ void InitTopo (elem_struct *elem, int numele, meshtbl_struct meshtbl)
 #endif
 }
 
-void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
-    soiltbl_struct soiltbl,
+void InitSoil (elem_struct *elem, int numele, soiltbl_struct soiltbl,
 #ifdef _NOAH_
     noahtbl_struct noahtbl,
 #endif
@@ -149,9 +167,7 @@ void InitSoil (elem_struct *elem, int numele, atttbl_struct atttbl,
 
     for (i = 0; i < numele; i++)
     {
-        elem[i].soil.type = atttbl.soil[i];
-
-        soil_ind = elem[i].soil.type - 1;
+        soil_ind = elem[i].attrib.soil_type - 1;
 
         elem[i].soil.dinf = cal.dinf * soiltbl.dinf;
 
@@ -271,16 +287,16 @@ double WiltingPoint (double smcmax, double smcmin, double alpha, double beta)
                     beta)), 1.0 - 1.0 / beta) + smcmin);
 }
 
-void InitLC (elem_struct *elem, int numele, atttbl_struct atttbl,
-    lctbl_struct lctbl, calib_struct cal)
+void InitLC (elem_struct *elem, int numele, lctbl_struct lctbl,
+    calib_struct cal)
 {
     int             i;
     int             lc_ind;
 
     for (i = 0; i < numele; i++)
     {
-        lc_ind = atttbl.lc[i] - 1;
-        elem[i].lc.type = lc_ind + 1;
+        lc_ind = elem[i].attrib.lc_type - 1;
+
         elem[i].lc.shdfac = cal.vegfrac * lctbl.vegfrac[lc_ind];
         elem[i].lc.rzd = cal.rzd * lctbl.rzd[lc_ind];
         elem[i].lc.rsmin = lctbl.rsmin[lc_ind];
@@ -299,12 +315,12 @@ void InitLC (elem_struct *elem, int numele, atttbl_struct atttbl,
         elem[i].lc.rsmax = lctbl.rsmax;
         elem[i].lc.cfactr = lctbl.cfactr;
         elem[i].lc.topt = lctbl.topt;
-        elem[i].lc.bare = (elem[i].lc.type == lctbl.bare) ? 1 : 0;
+        elem[i].lc.bare = (elem[i].attrib.lc_type == lctbl.bare) ? 1 : 0;
         elem[i].lc.shdfac = (elem[i].lc.bare == 1) ? 0.0 : elem[i].lc.shdfac;
 #ifdef _NOAH_
         elem[i].lc.ptu = 0.0;   /* Not yet used */
         elem[i].lc.snup = lctbl.snup[lc_ind];
-        elem[i].lc.isurban = (elem[i].lc.type == ISURBAN) ? 1 : 0;
+        elem[i].lc.isurban = (elem[i].attrib.lc_type == ISURBAN) ? 1 : 0;
         elem[i].lc.shdmin = 0.01;
         elem[i].lc.shdmax = 0.96;
 #endif
@@ -454,57 +470,7 @@ void InitForcing (elem_struct *elem, int numele, river_struct *riv,
 
     for (i = 0; i < numele; i++)
     {
-        for (j = 0; j < 3; j++)
-        {
-            elem[i].forc.bc_type[j] = atttbl.bc[i][j];
-            if (elem[i].forc.bc_type[j] > 0)
-            {
-                elem[i].forc.bc[j] =
-                    forc->bc[elem[i].forc.bc_type[j] - 1].value;
-            }
-            else if (elem[i].forc.bc_type[j] < 0)
-            {
-                elem[i].forc.bc[j] =
-                    forc->bc[0 - elem[i].forc.bc_type[j] - 1].value;
-            }
-        }
-
-        for (j = 0; j < NUM_METEO_VAR; j++)
-        {
-            elem[i].forc.meteo[j] =
-                &forc->meteo[atttbl.meteo[i] - 1].value[j];
-        }
-        elem[i].ps.zlvl_wind = forc->meteo[atttbl.meteo[i] - 1].zlvl_wind;
-
-        elem[i].forc.lai_type = atttbl.lai[i];
-        if (elem[i].forc.lai_type > 0)
-        {
-            elem[i].forc.lai = forc->lai[atttbl.lai[i] - 1].value;
-        }
-
-        if (atttbl.source[i] > 0)
-        {
-            elem[i].forc.source = forc->source[atttbl.source[i] - 1].value;
-        }
-
-#ifdef _NOAH_
-        if (forc->nrad > 0)
-        {
-            for (j = 0; j < 2; j++)
-            {
-                elem[i].forc.rad[j] =
-                    &forc->rad[atttbl.meteo[i] - 1].value[j];
-            }
-        }
-#endif
-    }
-
-    for (i = 0; i < numriv; i++)
-    {
-        if (rivtbl.bc[i] > 0)
-        {
-            riv[i].forc.riverbc = forc->riverbc[rivtbl.bc[i] - 1].value;
-        }
+        elem[i].ps.zlvl_wind = forc->meteo[elem[i].attrib.meteo_type - 1].zlvl_wind;
     }
 }
 
@@ -710,7 +676,7 @@ void SaturationIC (elem_struct *elem, int numele, river_struct *riv,
         elem[i].ic.gw = elem[i].soil.depth - 0.1;
 
 #ifdef _NOAH_
-        sfctmp = *elem[i].forc.meteo[SFCTMP_TS];
+        sfctmp = elem[i].es.sfctmp;
 
         elem[i].ic.t1 = sfctmp;
 
@@ -808,10 +774,10 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
     /* Other variables */
     for (i = 0; i < numele; i++)
     {
-        ZeroWaterFlux (&elem[i].wf);
+        InitWFlux (&elem[i].wf);
 
 #ifdef _NOAH_
-        ZeroWaterFlux (&elem[i].avgwf);
+        InitWFlux (&elem[i].avgwf);
 
         elem[i].ps.snotime1 = 0.0;
         elem[i].ps.ribb = 0.0;
@@ -891,19 +857,43 @@ void CalcModelStep (ctrl_struct *ctrl)
     }
 }
 
-void ZeroWaterFlux (wflux_struct *wf)
+void InitWState (wstate_struct *ws)
+{
+    int             k;
+
+    ws->stage = 0.0;
+    ws->surf = 0.0;
+    ws->gw = 0.0;
+    ws->unsat = 0.0;
+    ws->sneqv = 0.0;
+    ws->cmcmax = 0.0;
+    ws->cmc = 0.0;
+#ifdef _NOAH_
+    for (k = 0; k < MAXLYR; k++)
+    {
+        ws->smc[k] = 0.0;
+        ws->sh2o[k] = 0.0;
+    }
+    ws->soilw = 0.0;
+    ws->soilm = 0.0;
+#endif
+}
+
+void InitWFlux (wflux_struct *wf)
 {
     int             j;
 #ifdef _NOAH_
     int             k;
 #endif
 
-#ifdef _NOAH_
-    wf->runoff2 = 0.0;
-#endif
-    wf->infil = 0.0;
+    for (j = 0; j < 3; j++)
+    {
+        wf->fluxsurf[j] = 0.0;
+        wf->fluxsub[j] = 0.0;
+    }
     wf->prcp = 0.0;
     wf->netprcp = 0.0;
+    wf->infil = 0.0;
     wf->rechg = 0.0;
     wf->drip = 0.0;
     wf->edir = 0.0;
@@ -916,28 +906,157 @@ void ZeroWaterFlux (wflux_struct *wf)
     wf->edir_gw = 0.0;
     wf->ett_unsat = 0.0;
     wf->ett_gw = 0.0;
-
-    for (j = 0; j < 3; j++)
-    {
-        wf->fluxsurf[j] = 0.0;
-        wf->fluxsub[j] = 0.0;
-#ifdef _NOAH_
-        for (k = 0; k < MAXLYR; k++)
-        {
-            wf->smflxh[j][k] = 0.0;
-        }
-#endif
-    }
-
-#ifdef _NOAH_
-    for (j = 0; j < MAXLYR; j++)
-    {
-        wf->et[j] = 0.0;
-    }
-#endif
-
     for (j = 0; j < 11; j++)
     {
         wf->fluxriv[j] = 0.0;
     }
+#ifdef _NOAH_
+    for (k = 0; k < MAXLYR; k++)
+    {
+        wf->et[k] = 0.0;
+    }
+    wf->runoff1 = 0.0;
+    wf->runoff2 = 0.0;
+    for (k = 0; k < MAXLYR; k++)
+    {
+        wf->runoff2_lyr[k] = 0.0;
+    }
+    wf->runoff3 = 0.0;
+    for (j = 0; j < 4; j++)
+    {
+        for (k = 0; k < MAXLYR; k++)
+        {
+            wf->smflxh[j][k] = 0.0;
+        }
+    }
+    for (k = 0; k < MAXLYR; k++)
+    {
+        wf->smflxv[k] = 0.0;
+    }
+    wf->pcpdrp = 0.0;
+    wf->prcprain = 0.0;
+    wf->dew = 0.0;
+    wf->snomlt = 0.0;
+    wf->esnow = 0.0;
+    wf->etns = 0.0;
+#endif
+}
+
+void InitPState (pstate_struct *ps)
+{
+    int             k;
+
+    ps->macpore_status = 999;
+    ps->rc = 0.0;
+    ps->pc = 0.0;
+    ps->xlai = 0.0;
+    ps->rcs = 0.0;
+    ps->rct = 0.0;
+    ps->rcq = 0.0;
+    ps->rcsoil = 0.0;
+    ps->alb = 0.0;
+    ps->albedo = 0.0;
+    ps->zlvl = 0.0;
+    ps->zlvl_wind = 0.0;
+    ps->sfcspd = 0.0;
+    ps->rh = 0.0;
+    ps->sfcprs = 0.0;
+#ifdef _NOAH_
+    ps->snoalb = 0.0;
+    ps->nsoil = 999;
+    for (k = 0; k < MAXLYR; k++)
+    {
+        ps->sldpth[k] = 999;
+    }
+    ps->frzk = 0.0;
+    ps->frzx = 0.0;
+    ps->czil = 0.0;
+    ps->emissi = 0.0;
+    ps->ch = 0.0;
+    ps->rch = 0.0;
+    ps->cm = 0.0;
+    ps->z0 = 0.0;
+    ps->fcr = 0.0;
+    ps->nmacd = 999;
+    ps->salp = 0.0;
+    ps->fxexp = 0.0;
+    ps->sbeta = 0.0;
+    ps->lvcoef = 0.0;
+    ps->snotime1 = 0.0;
+    ps->ribb = 0.0;
+    ps->beta = 0.0;
+    ps->sncovr = 0.0;
+    ps->q1 = 0.0;
+    ps->q2 = 0.0;
+    ps->cosz = 0.0;
+    ps->ffrozp = 0.0;
+    ps->z0brd = 0.0;
+    ps->embrd = 0.0;
+    ps->q2sat = 0.0;
+    ps->q2d = 0.0;
+    ps->dqsdt2 = 0.0;
+    ps->nwtbl = 0.0;
+    ps->sndens = 0.0;
+    ps->snowh = 0.0;
+    ps->sncond = 0.0;
+    ps->rr = 0.0;
+    ps->eta_kinematic = 0.0;
+    ps->zbot = 0.0;
+    ps->tbot = 0.0;
+    ps->gwet = 0.0;
+    for (k = 0; k < MAXLYR; k++)
+    {
+        ps->satdpth[k] = 0.0;
+    }
+    ps->dayl = 0.0;
+    ps->prev_dayl = 0.0;
+#endif
+}
+
+void InitEState (estate_struct *es)
+{
+    int             k;
+
+    for (k = 0; k < MAXLYR; k++)
+    {
+        es->stc[k] = 0.0;
+    }
+    es->t1 = 0.0;
+    es->th2 = 0.0;
+    es->sfctmp = 0.0;
+    es->tday = 0.0;
+    es->tnight = 0.0;
+    es->tmax = -999.0;
+    es->tmin = 999.0;
+}
+
+void InitEFlux (eflux_struct *ef)
+{
+    int             k;
+
+    ef->solnet = 0.0;
+    ef->etp = 0.0;
+    ef->epsca = 0.0;
+    ef->ssoil = 0.0;
+    ef->eta = 0.0;
+    ef->sheat = 0.0;
+    ef->fdown = 0.0;
+    ef->lwdn = 0.0;
+    ef->ec = 0.0;
+    ef->edir = 0.0;
+    for (k = 0; k < MAXLYR; k++)
+    {
+        ef->et[k] = 0.0;
+    }
+    ef->ett = 0.0;
+    ef->esnow = 0.0;
+    ef->soldn = 0.0;
+    ef->solar_total = 0.0;
+    ef->sdir = 0.0;
+    ef->sdif = 0.0;
+    ef->longwave = 0.0;
+    ef->flx1 = 0.0;
+    ef->flx2 = 0.0;
+    ef->flx3 = 0.0;
+    ef->solardirect = 0.0;
 }

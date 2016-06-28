@@ -26,26 +26,15 @@ void Noah (int t, pihm_struct pihm)
     {
         elem = &pihm->elem[i];
 
-        /* Read forcing */
-        elem->ps.sfcspd = *elem->forc.meteo[SFCSPD_TS];
-        elem->es.sfctmp = *elem->forc.meteo[SFCTMP_TS];
-        elem->ps.rh = *elem->forc.meteo[RH_TS];
-        elem->ps.sfcprs = *elem->forc.meteo[PRES_TS];
-        elem->ef.longwave = *elem->forc.meteo[LONGWAVE_TS];
-        elem->wf.prcp = *elem->forc.meteo[PRCP_TS] * 0.001;
         /* Calculate solar radiation */
         if (pihm->ctrl.rad_mode > 0)
         {
-            sdir = *elem->forc.rad[SOLAR_DIR_TS];
-            sdif = *elem->forc.rad[SOLAR_DIF_TS];
+            sdir = elem->ef.sdir;
+            sdif = elem->ef.sdif;
 
             elem->ef.soldn =
                 TopoRadn (sdir, sdif, zenith, azimuth, elem->topo.slope,
                 elem->topo.aspect, elem->topo.h_phi, elem->topo.svf);
-        }
-        else
-        {
-            elem->ef.soldn = *elem->forc.meteo[SOLAR_TS];
         }
 
         CalHum (&elem->ps, &elem->es);
@@ -70,13 +59,9 @@ void Noah (int t, pihm_struct pihm)
             elem->ps.xlai = 0.0;
         }
 #else
-        if (elem->forc.lai_type > 0)
+        if (elem->attrib.lai_type == 0)
         {
-            elem->ps.xlai = *elem->forc.lai;
-        }
-        else
-        {
-            elem->ps.xlai = MonthlyLAI (t, elem->lc.type);
+            elem->ps.xlai = MonthlyLAI (t, elem->attrib.lc_type);
         }
 #endif
 
@@ -131,7 +116,7 @@ void Noah (int t, pihm_struct pihm)
         elem->wf.ett = elem->ef.ett / LVH2O / 1000.0;
         elem->wf.edir = elem->ef.edir / LVH2O / 1000.0;
 
-        ZeroWaterFlux (&elem->avgwf);
+        InitWFlux (&elem->avgwf);
     }
 }
 

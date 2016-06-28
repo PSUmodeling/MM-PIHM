@@ -1,40 +1,46 @@
 #include "pihm.h"
 
-void ApplyForcing (forc_struct *forc, int t)
+void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele, river_struct *riv, int numriv, int t)
 {
-    int             k;
+    int             i, j, k;
+    int             ind;
 
-    /* Boundary conditions */
+    /* 
+     * Boundary conditions
+     */
     if (forc->nbc > 0)
     {
         for (k = 0; k < forc->nbc; k++)
         {
             IntrplForcing (forc->bc[k], t, 1);
         }
+
+        for (i = 0; i < numele; i++)
+        {
+            for (j = 0; j < 3; j++)
+            {
+                if (elem[i].attrib.bc_type[j] > 0)
+                {
+                    ind = elem[i].attrib.bc_type[j] - 1;
+                    elem[i].bc.head[j] = forc->bc[ind].value[0];
+                    elem[i].bc.flux[j] = -999.0;
+                }
+                else if (elem[i].attrib.bc_type[j] < 0)
+                {
+                    ind = 0 - elem[i].attrib.bc_type[j] - 1;
+                    elem[i].bc.flux[j] = forc->bc[ind].value[0];
+                    elem[i].bc.head[j] = -999.0;
+                }
+            }
+        }
     }
 
-    /* Meteorological forcing */
+    /* 
+     * Meteorological forcing
+     */
     for (k = 0; k < forc->nmeteo; k++)
     {
         IntrplForcing (forc->meteo[k], t, NUM_METEO_VAR);
-    }
-
-    /* LAI forcing */
-    if (forc->nlai > 0)
-    {
-        for (k = 0; k < forc->nlai; k++)
-        {
-            IntrplForcing (forc->lai[k], t, 1);
-        }
-    }
-
-    /* River boundary condition */
-    if (forc->nriverbc > 0)
-    {
-        for (k = 0; k < forc->nriverbc; k++)
-        {
-            IntrplForcing (forc->riverbc[k], t, 1);
-        }
     }
 
 #ifdef _NOAH_
@@ -46,6 +52,66 @@ void ApplyForcing (forc_struct *forc, int t)
         }
     }
 #endif
+
+    for (i = 0; i < numele; i++)
+    {
+        ind = elem[i].attrib.meteo_type - 1;
+
+        elem[i].wf.prcp = forc->meteo[ind].value[PRCP_TS] / 1000.0;
+        elem[i].es.sfctmp = forc->meteo[ind].value[SFCTMP_TS];
+        elem[i].ps.rh = forc->meteo[ind].value[RH_TS];
+        elem[i].ps.sfcspd = forc->meteo[ind].value[SFCSPD_TS];
+        elem[i].ef.soldn = forc->meteo[ind].value[SOLAR_TS];
+        elem[i].ef.longwave = forc->meteo[ind].value[LONGWAVE_TS];
+        elem[i].ps.sfcprs = forc->meteo[ind].value[PRES_TS];
+
+#ifdef _NOAH_
+        if (forc->nrad > 0)
+        {
+            elem[i].ef.sdif = forc->rad[ind].value[SOLAR_DIR_TS];
+            elem[i].ef.sdir = forc->rad[ind].value[SOLAR_DIF_TS];
+        }
+#endif
+    }
+
+    /* 
+     * LAI forcing
+     */
+    if (forc->nlai > 0)
+    {
+        for (k = 0; k < forc->nlai; k++)
+        {
+            IntrplForcing (forc->lai[k], t, 1);
+        }
+
+        for (i = 0; i < numele; i++)
+        {
+            if (elem[i].attrib.lai_type > 0)
+            {
+                ind = elem[i].attrib.lai_type - 1;
+            
+                elem[i].ps.xlai = forc->lai[ind].value[0];
+            }
+        }
+    }
+
+    /* River boundary condition */
+    if (forc->nriverbc > 0)
+    {
+        for (k = 0; k < forc->nriverbc; k++)
+        {
+            IntrplForcing (forc->riverbc[k], t, 1);
+        }
+
+        for (i = 0; i < numriv; i++)
+        {
+            if (riv[i].attrib.riverbc_type > 0)
+            {
+                ind = riv[i].attrib.riverbc_type - 1;
+                riv[i].bc.head = forc->riverbc[ind].value[0];
+            }
+        }
+    }
 }
 
 void IntrplForcing (tsdata_struct ts, int t, int nvrbl)

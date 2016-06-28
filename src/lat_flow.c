@@ -55,13 +55,13 @@ void LateralFlow (pihm_struct pihm)
                 }
                 else
                 {
-                    if (elem->forc.bc_type[j] == 0)
+                    if (elem->attrib.bc_type[j] == 0)
                     {
                         surfh[j] = elem->topo.zmax + elem->ws.surf;
                     }
                     else
                     {
-                        surfh[j] = *elem->forc.bc[j];
+                        surfh[j] = elem->bc.head[j];
                     }
                 }
             }
@@ -153,24 +153,24 @@ void LateralFlow (pihm_struct pihm)
             else                /* Boundary condition flux */
             {
                 /* No flow (natural) boundary condition is default */
-                if (elem->forc.bc_type[j] == 0)
+                if (elem->attrib.bc_type[j] == 0)
                 {
                     elem->wf.fluxsurf[j] = 0.0;
                     elem->wf.fluxsub[j] = 0.0;
                 }
                 /* Note: ideally different boundary conditions need to be
                  * incorporated for surf and subsurf respectively */
-                else if (elem->forc.bc_type[j] > 0)
+                else if (elem->attrib.bc_type[j] > 0)
                 {
                     /* Note: the formulation assumes only Dirichlet TS right
                      * now */
                     /* note the assumption here is no flow for surface */
                     elem->wf.fluxsurf[j] = 0.0;
                     dif_y_sub =
-                        elem->ws.gw + elem->topo.zmin - *elem->forc.bc[j];
+                        elem->ws.gw + elem->topo.zmin - elem->bc.head[j];
                     avg_y_sub =
                         AvgY (dif_y_sub, elem->ws.gw,
-                        *elem->forc.bc[j] - elem->topo.zmin);
+                        elem->bc.head[j] - elem->topo.zmin);
                     /* Minimum distance from circumcenter to the edge of the
                      * triangle on which boundary condition is defined */
                     distance =
@@ -191,8 +191,8 @@ void LateralFlow (pihm_struct pihm)
                 {
                     /* Neumann bc (note: md->ele[i].bc[j] value has to be
                      * = 2+(index of neumann boundary ts) */
-                    elem->wf.fluxsurf[j] = *elem->forc.bc[j];
-                    elem->wf.fluxsub[j] = *elem->forc.bc[j];
+                    elem->wf.fluxsurf[j] = elem->bc.flux[j];
+                    elem->wf.fluxsub[j] = elem->bc.flux[j];
                 }
             }                   /* End of specified boundary condition */
         }                       /* End of neighbor loop */

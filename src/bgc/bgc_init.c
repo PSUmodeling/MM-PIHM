@@ -12,18 +12,18 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, cons
 
     for (i = 0; i < numele; i++)
     {
-        if (elem[i].lc.type == DBF)
+        if (elem[i].attrib.lc_type == DBF)
         {
             elem[i].epc = epclist->epc[EPC_DBF];
         }
-        else if (elem[i].lc.type == ENF)
+        else if (elem[i].attrib.lc_type == ENF)
         {
             elem[i].epc = epclist->epc[EPC_ENF];
         }
         else
         {
             printf ("Land cover type %d not been defined in Flux-PIHM-BGC\n",
-                elem[i].lc.type);
+                elem[i].attrib.lc_type);
             PihmExit (1);
         }
 
