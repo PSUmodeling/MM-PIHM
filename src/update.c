@@ -84,7 +84,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         subrunoff = 0.0;
         for (j = 0; j < 3; j++)
         {
-            subrunoff += elem->wf.fluxsub[j] / elem->topo.area;
+            subrunoff += elem->wf.subsurf[j] / elem->topo.area;
         }
 
         recharge = (realgw1 - realgw0) * elem->soil.porosity / stepsize +

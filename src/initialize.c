@@ -468,6 +468,11 @@ void InitForcing (elem_struct *elem, int numele, river_struct *riv,
     }
 #endif
 
+#ifdef _BGC_
+    forc->co2[0].value = (double *)malloc (sizeof (double));
+    forc->ndep[0].value = (double *)malloc (sizeof (double));
+#endif
+
     for (i = 0; i < numele; i++)
     {
         elem[i].ps.zlvl_wind = forc->meteo[elem[i].attrib.meteo_type - 1].zlvl_wind;
@@ -888,8 +893,8 @@ void InitWFlux (wflux_struct *wf)
 
     for (j = 0; j < 3; j++)
     {
-        wf->fluxsurf[j] = 0.0;
-        wf->fluxsub[j] = 0.0;
+        wf->surf[j] = 0.0;
+        wf->subsurf[j] = 0.0;
     }
     wf->prcp = 0.0;
     wf->netprcp = 0.0;
@@ -901,14 +906,14 @@ void InitWFlux (wflux_struct *wf)
     wf->ec = 0.0;
     wf->etp = 0.0;
     wf->eta = 0.0;
-    wf->edir_sfc = 0.0;
+    wf->edir_surf = 0.0;
     wf->edir_unsat = 0.0;
     wf->edir_gw = 0.0;
     wf->ett_unsat = 0.0;
     wf->ett_gw = 0.0;
     for (j = 0; j < 11; j++)
     {
-        wf->fluxriv[j] = 0.0;
+        wf->river[j] = 0.0;
     }
 #ifdef _NOAH_
     for (k = 0; k < MAXLYR; k++)

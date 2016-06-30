@@ -272,42 +272,44 @@ typedef struct wstate_struct
     double          sh2o[MAXLYR];       /* unfrozen soil moisture content (volumetric fraction). note: frozen soil moisture = smc - sh2o */
     double          soilw;      /* available soil moisture in root zone (unitless fraction between smcwlt and smcmax) */
     double          soilm;      /* total soil column moisture content (frozen+unfrozen) (m) */
+    double          rootw;
 #endif
 } wstate_struct;
 
 typedef struct wflux_struct
 {
-    double          fluxsurf[3];        /* Overland Flux */
-    double          fluxsub[3]; /* Subsurface Flux */
-    double          prcp;       /* Precep. on each element */
-    double          netprcp;    /* Net precep. on each elment */
-    double          infil;      /* Variable infiltration rate */
-    double          rechg;      /* Recharge rate to GW */
-    double          drip;       /* through-fall of precip and/or dew in excess of canopy water-holding capacity (m/s) */
+    double          surf[3];        /* Overland Flux */
+    double          subsurf[3];     /* Subsurface Flux */
+    double          totlat[4];      /* Total lateral flow (surf + sub) */ 
+    double          prcp;           /* Precep. on each element */
+    double          netprcp;        /* Net precep. on each elment */
+    double          infil;          /* Variable infiltration rate */
+    double          rechg;          /* Recharge rate to GW */
+    double          drip;           /* through-fall of precip and/or dew in excess of canopy water-holding capacity (m/s) */
     double          edir;
     double          ett;
     double          ec;
     double          etp;
     double          eta;
-    double          edir_sfc;
+    double          edir_surf;
     double          edir_unsat;
     double          edir_gw;
     double          ett_unsat;
     double          ett_gw;
-    double          fluxriv[11];
+    double          river[11];
 #ifdef _NOAH_
     double          et[MAXLYR];
-    double          runoff1;    /* surface runoff (m s-1), not infiltrating the surface */
-    double          runoff2;    /* subsurface runoff (m s-1), drainage out bottom of last soil layer (baseflow) */
+    double          runoff1;        /* surface runoff (m s-1), not infiltrating the surface */
+    double          runoff2;        /* subsurface runoff (m s-1), drainage out bottom of last soil layer (baseflow) */
     double          runoff2_lyr[MAXLYR];
-    double          runoff3;    /* numerical trunctation in excess of porosity (smcmax) for a given soil layer at the end of a time step (m s-1). note: the above runoff2 is actually the sum of runoff2 and runoff3 */
+    double          runoff3;        /* numerical trunctation in excess of porosity (smcmax) for a given soil layer at the end of a time step (m s-1). note: the above runoff2 is actually the sum of runoff2 and runoff3 */
     double          smflxv[MAXLYR];
     double          smflxh[4][MAXLYR];
-    double          pcpdrp;     /* combined prcp1 and drip (from cmc) that goes into the soil (m s-1) */
-    double          prcprain;   /* liquid-precipitation rate (kg m-2 s-1) (not used) */
-    double          dew;        /* dewfall (or frostfall for t<273.15) (m) */
-    double          snomlt;     /* snow melt (m/s) (water equivalent) */
-    double          esnow;      /* sublimation from (or deposition to if <0) snowpack (ms-1) */
+    double          pcpdrp;         /* combined prcp1 and drip (from cmc) that goes into the soil (m s-1) */
+    double          prcprain;       /* liquid-precipitation rate (kg m-2 s-1) (not used) */
+    double          dew;            /* dewfall (or frostfall for t<273.15) (m) */
+    double          snomlt;         /* snow melt (m/s) (water equivalent) */
+    double          esnow;          /* sublimation from (or deposition to if <0) snowpack (ms-1) */
     double          etns;
 #endif
 #ifdef _CYCLES_
@@ -351,6 +353,7 @@ typedef struct eflux_struct
     double          flx2;       /* freezing rain latent heat flux (w m-2) */
     double          flx3;       /* phase-change heat flux from snowmelt (w m-2) */
     double          solardirect;        /* direct component of downward solar radiation (w m-2) (not used) */
+    double          par;
 } eflux_struct;
 
 #ifdef _CYCLES_
@@ -772,37 +775,37 @@ typedef struct
     int            *flag;
 } metarr_struct;
 
-/* daily values that are passed to daily model subroutines */
-typedef struct
-{
-    double          prcp;       /* (kg/m2) precipitation */
-    double          tmax;       /* (deg C) daily maximum air temperature */
-    double          tmin;       /* (deg C) daily minimum air temperature */
-    double          tavg;       /* (deg C) daily average air temperature */
-    double          tday;       /* (deg C) daylight average air temperature */
-    double          tnight;     /* (deg C) nightime average air temperature */
-    double          tsoil;      /* (deg C) daily soil temperature, avg, top 10 cm */
-    double          swc;
-    double          soilw;
-    double          latflux[4];
-    double          sw_alb;
-    double          gl_bl;
-    double          vpd;        /* (Pa)    vapor pressure deficit */
-    double          q2d;        /* (m3/m3) mixing ratio deficit */
-    double          swavgfd;    /* (W/m2)  daylight average shortwave flux */
-    double          swabs;      /* (W/m2)  canopy absorbed shortwave flux */
-    double          swtrans;    /* (W/m2)  transmitted shortwave flux */
-    double          swabs_per_plaisun;  /* (W/m2) swabs per unit sunlit proj LAI */
-    double          swabs_per_plaishade;        /* (W/m2) swabs per unit shaded proj LAI */
-    double          ppfd_per_plaisun;   /* (umol/m2/s) ppfd per unit sunlit proj LAI */
-    double          ppfd_per_plaishade; /* (umol/m2/s) ppfd per unit shaded proj LAI */
-    double          par;        /* (W/m2)  photosynthetically active radiation */
-    double          parabs;     /* (W/m2)  PAR absorbed by canopy */
-    double          pa;         /* (Pa)    atmospheric pressure */
-    double          co2;        /* (ppm)   atmospheric concentration of CO2 */
-    double          dayl;       /* (s)     daylength */
-    double          prev_dayl;  /* daylength from previous timestep (seconds) */
-} metvar_struct;
+///* daily values that are passed to daily model subroutines */
+//typedef struct
+//{
+//    double          prcp;       /* (kg/m2) precipitation */
+//    double          tmax;       /* (deg C) daily maximum air temperature */
+//    double          tmin;       /* (deg C) daily minimum air temperature */
+//    double          tavg;       /* (deg C) daily average air temperature */
+//    double          tday;       /* (deg C) daylight average air temperature */
+//    double          tnight;     /* (deg C) nightime average air temperature */
+//    double          tsoil;      /* (deg C) daily soil temperature, avg, top 10 cm */
+//    double          swc;
+//    double          soilw;
+//    double          latflux[4];
+//    double          sw_alb;
+//    double          gl_bl;
+//    double          vpd;        /* (Pa)    vapor pressure deficit */
+//    double          q2d;        /* (m3/m3) mixing ratio deficit */
+//    double          swavgfd;    /* (W/m2)  daylight average shortwave flux */
+//    double          swabs;      /* (W/m2)  canopy absorbed shortwave flux */
+//    double          swtrans;    /* (W/m2)  transmitted shortwave flux */
+//    double          swabs_per_plaisun;  /* (W/m2) swabs per unit sunlit proj LAI */
+//    double          swabs_per_plaishade;        /* (W/m2) swabs per unit shaded proj LAI */
+//    double          ppfd_per_plaisun;   /* (umol/m2/s) ppfd per unit sunlit proj LAI */
+//    double          ppfd_per_plaishade; /* (umol/m2/s) ppfd per unit shaded proj LAI */
+//    double          par;        /* (W/m2)  photosynthetically active radiation */
+//    double          parabs;     /* (W/m2)  PAR absorbed by canopy */
+//    double          pa;         /* (Pa)    atmospheric pressure */
+//    double          co2;        /* (ppm)   atmospheric concentration of CO2 */
+//    double          dayl;       /* (s)     daylength */
+//    double          prev_dayl;  /* daylength from previous timestep (seconds) */
+//} metvar_struct;
 
 /* carbon state initialization structure */
 typedef struct
@@ -1514,7 +1517,7 @@ typedef struct elem_struct
     restart_data_struct restart_input;
     restart_data_struct restart_output;
     metarr_struct   metarr;     /* meteorological data array */
-    metvar_struct   metv;
+    //metvar_struct   metv;
     cinit_struct    cinit;      /* first-year values for leafc and stemc */
     cstate_struct   cs;         /* carbon state variables */
     cflux_struct    cf;

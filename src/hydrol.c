@@ -40,8 +40,8 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         riv->ws.stage = (y[RIVSTG (i)] >= 0.0) ? y[RIVSTG (i)] : 0.0;
         riv->ws.gw = (y[RIVGW (i)] >= 0.0) ? y[RIVGW (i)] : 0.0;
 
-        riv->wf.fluxriv[0] = 0.0;
-        riv->wf.fluxriv[10] = 0.0;
+        riv->wf.river[0] = 0.0;
+        riv->wf.river[10] = 0.0;
     }
 
     /*
@@ -55,32 +55,32 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #ifdef _NOAH_
         if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
         {
-            elem->wf.edir_sfc = 0.0;
+            elem->wf.edir_surf = 0.0;
             elem->wf.edir_unsat = 0.0;
             elem->wf.edir_gw = elem->wf.edir;
         }
         else
         {
-            elem->wf.edir_sfc = 0.0;
+            elem->wf.edir_surf = 0.0;
             elem->wf.edir_unsat = elem->wf.edir;
             elem->wf.edir_gw = 0.0;
         }
 #else
         if (elem->ws.surf >= DEPRSTG)
         {
-            elem->wf.edir_sfc = elem->wf.edir;
+            elem->wf.edir_surf = elem->wf.edir;
             elem->wf.edir_unsat = 0.0;
             elem->wf.edir_gw = 0.0;
         }
         else if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
         {
-            elem->wf.edir_sfc = 0.0;
+            elem->wf.edir_surf = 0.0;
             elem->wf.edir_unsat = 0.0;
             elem->wf.edir_gw = elem->wf.edir;
         }
         else
         {
-            elem->wf.edir_sfc = 0.0;
+            elem->wf.edir_surf = 0.0;
             elem->wf.edir_unsat = elem->wf.edir;
             elem->wf.edir_gw = 0.0;
         }
@@ -122,15 +122,15 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     {
         elem = &pihm->elem[i];
 
-        dy[SURF (i)] += elem->wf.netprcp - elem->wf.infil - elem->wf.edir_sfc;
+        dy[SURF (i)] += elem->wf.netprcp - elem->wf.infil - elem->wf.edir_surf;
         dy[UNSAT (i)] += elem->wf.infil - elem->wf.rechg -
             elem->wf.edir_unsat - elem->wf.ett_unsat;
         dy[GW (i)] += elem->wf.rechg - elem->wf.edir_gw - elem->wf.ett_gw;
 
         for (j = 0; j < 3; j++)
         {
-            dy[SURF (i)] -= elem->wf.fluxsurf[j] / elem->topo.area;
-            dy[GW (i)] -= elem->wf.fluxsub[j] / elem->topo.area;
+            dy[SURF (i)] -= elem->wf.surf[j] / elem->topo.area;
+            dy[GW (i)] -= elem->wf.subsurf[j] / elem->topo.area;
         }
 
         dy[UNSAT (i)] /= elem->soil.porosity;
@@ -166,11 +166,11 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             /* Note the limitation due to
              * d(v)/dt=a*dy/dt+y*da/dt
              * for cs other than rectangle */
-            dy[RIVSTG (i)] -= riv->wf.fluxriv[j] / riv->topo.area;
+            dy[RIVSTG (i)] -= riv->wf.river[j] / riv->topo.area;
         }
         dy[RIVGW (i)] +=
-            -riv->wf.fluxriv[7] - riv->wf.fluxriv[8] - riv->wf.fluxriv[9] -
-            riv->wf.fluxriv[10] + riv->wf.fluxriv[6];
+            -riv->wf.river[7] - riv->wf.river[8] - riv->wf.river[9] -
+            riv->wf.river[10] + riv->wf.river[6];
         dy[RIVGW (i)] /= riv->matl.porosity * riv->topo.area;
 
         if (isnan (dy[RIVSTG (i)]))

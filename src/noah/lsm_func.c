@@ -564,7 +564,7 @@ void AvgFlux (elem_struct *elem, int numele, int op)
 
             for (j = 0; j < 3; j++)
             {
-                elem[i].avgwf.fluxsub[j] += elem[i].wf.fluxsub[j];
+                elem[i].avgwf.subsurf[j] += elem[i].wf.subsurf[j];
 
                 for (k = 0; k < elem[i].ps.nsoil; k++)
                 {
@@ -585,7 +585,7 @@ void AvgFlux (elem_struct *elem, int numele, int op)
 
             for (j = 0; j < 3; j++)
             {
-                elem[i].avgwf.fluxsub[j] /= denom;
+                elem[i].avgwf.subsurf[j] /= denom;
 
                 for (k = 0; k < elem[i].ps.nsoil; k++)
                 {
@@ -636,13 +636,13 @@ void CalcLatFlx (const wstate_struct *ws, const pstate_struct *ps, wflux_struct 
     {
         if (sattot <= 0.0)
         {
-            wf->smflxh[k][ps->nsoil - 1] = wf->fluxsub[k];
+            wf->smflxh[k][ps->nsoil - 1] = wf->subsurf[k];
         }
         else
         {
             for (ks = 0; ks < ps->nsoil; ks++)
             {
-                wf->smflxh[k][ks] = ps->satdpth[ks] / sattot * wf->fluxsub[k];
+                wf->smflxh[k][ks] = ps->satdpth[ks] / sattot * wf->subsurf[k];
             }
         }
     }

@@ -103,27 +103,26 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/bgc_spinup.c \
 	bgc/firstday.c \
 	bgc/presim_state_init.c \
-	bgc/metarr_init.c \
 	bgc/daily_bgc.c \
 	bgc/get_co2.c \
 	bgc/get_ndep.c \
-	bgc/precision_control.c \
-	bgc/daymet.c \
-	bgc/radtrans.c \
-	bgc/maint_resp.c \
-	bgc/phenology.c \
-	bgc/soilpsi.c \
-	bgc/daily_allocation.c \
-	bgc/canopy_et.c \
-	bgc/photosynthesis.c \
-	bgc/decomp.c \
-	bgc/annual_rates.c \
-	bgc/growth_resp.c \
-	bgc/state_update.c \
-	bgc/mortality.c \
-	bgc/check_balance.c \
-	bgc/summary.c \
-	bgc/nleaching.c
+	bgc/daymet.c
+	#bgc/precision_control.c \
+	#bgc/radtrans.c \
+	#bgc/maint_resp.c \
+	#bgc/phenology.c \
+	#bgc/soilpsi.c \
+	#bgc/daily_allocation.c \
+	#bgc/canopy_et.c \
+	#bgc/photosynthesis.c \
+	#bgc/decomp.c \
+	#bgc/annual_rates.c \
+	#bgc/growth_resp.c \
+	#bgc/state_update.c \
+	#bgc/mortality.c \
+	#bgc/check_balance.c \
+	#bgc/summary.c \
+	#bgc/nleaching.c
   MODULE_HEADERS_ = \
 	include/spa.h
   EXECUTABLE = flux-pihm-bgc

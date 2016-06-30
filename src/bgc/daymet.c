@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
+void daymet (const metarr_struct *metarr, wstate_struct *ws, wflux_struct *wf, estate_struct *es, eflux_struct *ef, pstate_struct *ps, int metday)
 {
     int             k;
 
@@ -12,47 +12,38 @@ void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
     }
 
     /* convert prcp from cm --> kg/m2 */
-    metv->prcp = metarr->prcp[metday];
+    wf->prcp = metarr->prcp[metday];
 
-    /* air temperature calculations (all temperatures deg C) */
-    //printf ("tnight %lf\n", metv->tnight);
-    //printf ("metday %d\n", metday);
-    //printf ("metday in daymet = %d, %lf\n", metarr->tnight[metday]);
-    metv->tnight = metarr->tnight[metday];
-    metv->tmax = metarr->tmax[metday];
-    metv->tmin = metarr->tmin[metday];
-    metv->tavg = metarr->tavg[metday];
-    metv->tday = metarr->tday[metday];
-    //printf ("metday in daymet = %d, %lf\n", metarr->tnight[metday]);
-    //printf ("metday in daymet = %d, %lf\n", metarr->tnight[metday]);
+    es->tnight = metarr->tnight[metday];
+    es->tmax = metarr->tmax[metday];
+    es->tmin = metarr->tmin[metday];
+    es->sfctmp = metarr->tavg[metday];
+    es->tday = metarr->tday[metday];
 
-    metv->tsoil = metarr->tsoil[metday];
-    metv->swc = metarr->swc[metday];
-    metv->soilw = metarr->soilw[metday];
-    metv->sw_alb = metarr->sw_alb[metday];
-    metv->gl_bl = metarr->gl_bl[metday];
+    es->stc[0] = metarr->tsoil[metday];
+    ws->sh2o[0] = metarr->swc[metday];
+    ws->soilw = metarr->soilw[metday];
+    ps->albedo = metarr->sw_alb[metday];
+    ps->ch = metarr->gl_bl[metday];
 
     /* daylight average vapor pressure deficit (Pa) */
-    metv->vpd = metarr->vpd[metday];
-    metv->q2d = metarr->q2d[metday];
+    ps->q2d = metarr->q2d[metday];
 
     /* daylight average shortwave flux density (W/m2) */
-    metv->swavgfd = metarr->swavgfd[metday];
+    ef->soldn = metarr->swavgfd[metday];
 
     /* PAR (W/m2) */
-    metv->par = metarr->par[metday];
+    ef->par = metarr->par[metday];
 
     /* daylength (s) */
-    metv->dayl = metarr->dayl[metday];
-    metv->prev_dayl = metarr->prev_dayl[metday];
+    ps->dayl = metarr->dayl[metday];
+    ps->prev_dayl = metarr->prev_dayl[metday];
 
-    metv->pa = metarr->pa[metday];
+    ps->sfcprs = metarr->pa[metday];
 
     for (k = 0; k < 3; k++)
     {
-        metv->latflux[k] = metarr->latflux[k][metday];
+        wf->fluxlat[k] = metarr->latflux[k][metday];
     }
-    metv->latflux[3] = 0.0;
-
-    //printf ("prcp %lf tmax %lf tmin %lf tavg %lf tday %lf tnight %lf tsoil %lf swc %lf vpd %lf swavgfd %lf par %lf dayl %lf prev_dayl %lf pa %lf\n", metv->prcp, metv->tmax, metv->tmin, metv->tavg, metv->tday, metv->tnight, metv->tsoil, metv->swc, metv->vpd, metv->swavgfd, metv->par, metv->dayl, metv->prev_dayl, metv->pa);
+    wf->fluxlat[3] = 0.0;
 }

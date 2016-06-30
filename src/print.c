@@ -195,7 +195,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.fluxriv[0];
+                            &pihm->riv[j].wf.river[0];
                     }
                     n++;
                     break;
@@ -210,7 +210,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.fluxriv[1];
+                            &pihm->riv[j].wf.river[1];
                     }
                     n++;
                     break;
@@ -225,7 +225,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.fluxriv[2];
+                            &pihm->riv[j].wf.river[2];
                     }
                     n++;
                     break;
@@ -240,7 +240,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.fluxriv[3];
+                            &pihm->riv[j].wf.river[3];
                     }
                     n++;
                     break;
@@ -255,7 +255,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.fluxriv[4];
+                            &pihm->riv[j].wf.river[4];
                     }
                     n++;
                     break;
@@ -270,7 +270,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.fluxriv[5];
+                            &pihm->riv[j].wf.river[5];
                     }
                     n++;
                     break;
@@ -285,7 +285,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.fluxriv[6];
+                            &pihm->riv[j].wf.river[6];
                     }
                     n++;
                     break;
@@ -300,7 +300,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.fluxriv[7];
+                            &pihm->riv[j].wf.river[7];
                     }
                     n++;
                     break;
@@ -315,7 +315,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.fluxriv[8];
+                            &pihm->riv[j].wf.river[8];
                     }
                     n++;
                     break;
@@ -330,7 +330,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.fluxriv[9];
+                            &pihm->riv[j].wf.river[9];
                     }
                     n++;
                     break;
@@ -345,7 +345,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.fluxriv[10];
+                            &pihm->riv[j].wf.river[10];
                     }
                     n++;
                     break;
@@ -362,7 +362,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         for (j = 0; j < pihm->numele; j++)
                         {
                             pihm->prtctrl[n].vrbl[j] =
-                                &pihm->elem[j].wf.fluxsub[k];
+                                &pihm->elem[j].wf.subsurf[k];
                         }
                         n++;
                     }
@@ -380,7 +380,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         for (j = 0; j < pihm->numele; j++)
                         {
                             pihm->prtctrl[n].vrbl[j] =
-                                &pihm->elem[j].wf.fluxsurf[k];
+                                &pihm->elem[j].wf.surf[k];
                         }
                         n++;
                     }

@@ -437,6 +437,8 @@ void            zero_srcsnk (cstate_struct *, nstate_struct *, summary_struct *)
 void            Save2MetArr (pihm_struct, int, int, int);
 void            BGCSpinup (char *, pihm_struct, char *);
 void            restart_output (cstate_struct *, nstate_struct *, epvar_struct *, restart_data_struct *);
+double          GetCO2 (tsdata_struct, int);
+double          GetNdep (tsdata_struct, int);
 #endif
 
 #endif
