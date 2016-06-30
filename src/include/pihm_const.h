@@ -81,12 +81,12 @@
 #define LEFT_AQUIF2CHANL    4
 #define RIGHT_AQUIF2CHANL   5
 #define CHANL_LKG           6
-#define UP_AQUIF2AQUIF      7
-#define DOWN_AQUIF2AQUIF    8
-#define LEFT_AQUIF2AQUIF    9
-#define RIGHT_AQUIF2AQUIF   10
+#define LEFT_AQUIF2AQUIF    7
+#define RIGHT_AQUIF2AQUIF   8
+#define DOWN_AQUIF2AQUIF    9
+#define UP_AQUIF2AQUIF      10
 
-/* River segment interpo    lation order */
+/* River segment interpolation order */
 #define RECTANGLE           1
 #define TRIANGLE            2
 #define QUADRATIC           3
@@ -96,7 +96,7 @@
 #define KINEMATIC           1
 #define DIFF_WAVE           2
 
-/* Initialization type *    /
+/* Initialization type */
 #define RELAX               0
 #define RST_FILE            3
 
