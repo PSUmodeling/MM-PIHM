@@ -299,9 +299,9 @@ void InitLC (elem_struct *elem, int numele, lctbl_struct lctbl,
 
         elem[i].lc.shdfac = cal.vegfrac * lctbl.vegfrac[lc_ind];
         elem[i].lc.rzd = cal.rzd * lctbl.rzd[lc_ind];
-        elem[i].lc.rsmin = lctbl.rsmin[lc_ind];
-        elem[i].lc.rgl = lctbl.rgl[lc_ind];
-        elem[i].lc.hs = lctbl.hs[lc_ind];
+        elem[i].epc.rsmin = lctbl.rsmin[lc_ind];
+        elem[i].epc.rgl = lctbl.rgl[lc_ind];
+        elem[i].epc.hs = lctbl.hs[lc_ind];
         elem[i].lc.laimin = lctbl.laimin[lc_ind];
         elem[i].lc.laimax = lctbl.laimax[lc_ind];
         elem[i].lc.emissmin = lctbl.emissmin[lc_ind];
@@ -312,9 +312,9 @@ void InitLC (elem_struct *elem, int numele, lctbl_struct lctbl,
         elem[i].lc.z0max = lctbl.z0max[lc_ind];
         elem[i].lc.rough = cal.rough * lctbl.rough[lc_ind];
         elem[i].lc.cmcfactr = 0.0002;
-        elem[i].lc.rsmax = lctbl.rsmax;
+        elem[i].epc.rsmax = lctbl.rsmax;
         elem[i].lc.cfactr = lctbl.cfactr;
-        elem[i].lc.topt = lctbl.topt;
+        elem[i].epc.topt = lctbl.topt;
         elem[i].lc.bare = (elem[i].attrib.lc_type == lctbl.bare) ? 1 : 0;
         elem[i].lc.shdfac = (elem[i].lc.bare == 1) ? 0.0 : elem[i].lc.shdfac;
 #ifdef _NOAH_
@@ -326,11 +326,11 @@ void InitLC (elem_struct *elem, int numele, lctbl_struct lctbl,
 #endif
 
 #ifdef _NOAH_
-        elem[i].lc.rsmin *= cal.rsmin;
+        elem[i].epc.rsmin *= cal.rsmin;
         elem[i].lc.cmcfactr *= cal.intcp;
         elem[i].lc.cfactr *= cal.cfactr;
-        elem[i].lc.rgl *= cal.rgl;
-        elem[i].lc.hs *= cal.hs;
+        elem[i].epc.rgl *= cal.rgl;
+        elem[i].epc.hs *= cal.hs;
 #endif
     }
 }

@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void metarr_init (metarr_struct *metarr, int start_time, int end_time)
+void InitStor (stor_struct *stor, int start_time, int end_time)
 {
     /*
      * Generate meteorological forcing array for spin-up
@@ -10,42 +10,50 @@ void metarr_init (metarr_struct *metarr, int start_time, int end_time)
 
     length = (end_time - start_time) / 24 / 3600;
 
-    metarr->tmax = (double *)malloc (length * sizeof (double));
-    metarr->tmin = (double *)malloc (length * sizeof (double));
-    metarr->prcp = (double *)malloc (length * sizeof (double));
-    metarr->vpd = (double *)malloc (length * sizeof (double));
-    metarr->q2d = (double *)malloc (length * sizeof (double));
-    metarr->swavgfd = (double *)malloc (length * sizeof (double));
-    metarr->par = (double *)malloc (length * sizeof (double));
-    metarr->dayl = (double *)malloc (length * sizeof (double));
-    metarr->prev_dayl = (double *)malloc (length * sizeof (double));
-    metarr->tavg = (double *)malloc (length * sizeof (double));
-    metarr->tday = (double *)malloc (length * sizeof (double));
-    metarr->tnight = (double *)malloc (length * sizeof (double));
-    metarr->tsoil = (double *)malloc (length * sizeof (double));
-    metarr->swc = (double *)malloc (length * sizeof (double));
-    metarr->pa = (double *)malloc (length * sizeof (double));
-    metarr->soilw = (double *)malloc (length * sizeof (double));
-    metarr->sw_alb = (double *)malloc (length * sizeof (double));
-    metarr->gl_bl = (double *)malloc (length * sizeof (double));
-    metarr->flag = (int *)malloc (length * sizeof (int));
-
-    for (k = 0; k < 4; k++)
+    stor->dayl = (double *)malloc (length * sizeof (double));
+    stor->prev_dayl = (double *)malloc (length * sizeof (double));
+    stor->tmax = (double *)malloc (length * sizeof (double));
+    stor->tmin = (double *)malloc (length * sizeof (double));
+    stor->sfctmp = (double *)malloc (length * sizeof (double));
+    stor->tday = (double *)malloc (length * sizeof (double));
+    stor->tnight = (double *)malloc (length * sizeof (double));
+    stor->q2d = (double *)malloc (length * sizeof (double));
+    stor->sfcprs = (double *)malloc (length * sizeof (double));
+    stor->soldn = (double *)malloc (length * sizeof (double));
+    stor->par = (double *)malloc (length * sizeof (double));
+    for (k = 0; k < MAXLYR; k++)
     {
-        metarr->latflux[k] = (double *)malloc (length * sizeof (double));
+        stor->stc[k] = (double *)malloc (length * sizeof (double));
+        stor->sh2o[k] = (double *)malloc (length * sizeof (double));
     }
+    stor->surf = (double *)malloc (length * sizeof (double));
+    stor->unsat = (double *)malloc (length * sizeof (double));
+    stor->gw = (double *)malloc (length * sizeof (double));
+    stor->stage = (double *)malloc (length * sizeof (double));
+    stor->albedo = (double *)malloc (length * sizeof (double));
+    stor->ch = (double *)malloc (length * sizeof (double));
+    for (j = 0; j < 3; j++)
+    {
+        stor->subsurfflx[j] = (double *)malloc (length * sizeof (double));
+        stor->surfflx[j] = (double *)malloc (length * sizeof (double));
+    }
+    for (j = 0; j < 11; j++)
+    {
+        stor->riverflx[j] = (double *)malloc (length * sizeof (double));
+    }
+    stor->flag = (int *)malloc (length * sizeof (int));
 
     for (j = 0; j < length; j++)
     {
-        metarr->flag[j] = 0;
+        stor->flag[j] = 0;
     }
 }
 
-void Save2MetArr (pihm_struct pihm, int t, int start_time, int end_time)
+void Save2Stor (pihm_struct pihm, int t, int start_time, int end_time)
 {
     int             i, k;
     int             ind;
-    metarr_struct  *metarr;
+    stor_struct    *stor;
     daily_struct   *daily;
 
     if (t > start_time)
@@ -54,60 +62,86 @@ void Save2MetArr (pihm_struct pihm, int t, int start_time, int end_time)
 
         for (i = 0; i < pihm->numele; i++)
         {
-            metarr = &(pihm->elem[i].metarr);
+            stor = &(pihm->elem[i].stor);
             daily = &(pihm->elem[i].daily);
 
-            metarr->dayl[ind] = daily->ps.dayl;
-            metarr->prev_dayl[ind] = daily->ps.prev_dayl;
+            stor->dayl[ind] = daily->ps.dayl;
+            stor->prev_dayl[ind] = daily->ps.prev_dayl;
 
-            metarr->tmax[ind] = daily->es.tmax - 273.15;
-            metarr->tmin[ind] = daily->es.tmin - 273.15;
-            metarr->tavg[ind] = daily->es.sfctmp - 273.15;
-            metarr->tday[ind] = daily->es.tday - 273.15;
-            metarr->tnight[ind] = daily->es.tnight - 273.15;
-
-            metarr->q2d[ind] = daily->ps.q2d;
-            metarr->pa[ind] = daily->ps.sfcprs;
-            metarr->swavgfd[ind] = daily->ef.soldn;
-            metarr->par[ind] = metarr->swavgfd[ind] * RAD2PAR;
-
-            metarr->tsoil[ind] = daily->es.stc[0] - 273.15;
-            metarr->swc[ind] = daily->ws.sh2o[0];
-            metarr->soilw[ind] = (daily->ws.surf
-                + daily->ws.unsat * pihm->elem[i].soil.porosity
-                + daily->ws.gw * pihm->elem[i].soil.porosity)
-                * 1000.0;
-
-            metarr->sw_alb[ind] = daily->ps.albedo;
-            metarr->gl_bl[ind] = daily->ps.ch;
+            stor->tmax[ind] = daily->es.tmax;
+            stor->tmin[ind] = daily->es.tmin;
+            stor->sfctmp[ind] = daily->es.sfctmp;
+            stor->tday[ind] = daily->es.tday;
+            stor->tnight[ind] = daily->es.tnight;
+            stor->q2d[ind] = daily->ps.q2d;
+            stor->sfcprs[ind] = daily->ps.sfcprs;
+            stor->soldn[ind] = daily->ef.soldn;
+            stor->par[ind] = stor->soldn[ind] * RAD2PAR;
+            for (k = 0; k < MAXLYR; k++)
+            {
+                stor->stc[k][ind] = daily->es.stc[k];
+                stor->sh2o[k][ind] = daily->ws.sh2o[k];
+            }
+            stor->surf[ind] = daily->ws.surf;
+            stor->unsat[ind] = daily->ws.unsat;
+            stor->gw[ind] = daily->ws.gw;
+            stor->albedo[ind] = daily->ps.albedo;
+            stor->ch[ind] = daily->ps.ch;
 
             for (k = 0; k < 3; k++)
             {
-                /* Convert from m3/s to kg/m2/d */
-                metarr->latflux[k][ind] = 1000.0
-                    * (daily->wf.fluxsub[k] + daily->wf.fluxsurf[k])
-                    * 24.0 * 3600.0 / pihm->elem[i].topo.area;
+                stor->subsurfflx[k][ind] = daily->wf.surf[k];
+                stor->surfflx[k][ind] = daily->wf.surf[k];
             }
-            metarr->latflux[3][ind] = 0.0;
 
-            metarr->flag[ind] = 1;
+            //stor->tmax[ind] = daily->es.tmax - 273.15;
+            //stor->tmin[ind] = daily->es.tmin - 273.15;
+            //stor->tavg[ind] = daily->es.sfctmp - 273.15;
+            //stor->tday[ind] = daily->es.tday - 273.15;
+            //stor->tnight[ind] = daily->es.tnight - 273.15;
+
+            //stor->q2d[ind] = daily->ps.q2d;
+            //stor->pa[ind] = daily->ps.sfcprs;
+            //stor->swavgfd[ind] = daily->ef.soldn;
+            //stor->par[ind] = stor->swavgfd[ind] * RAD2PAR;
+
+            //stor->tsoil[ind] = daily->es.stc[0] - 273.15;
+            //stor->rootw[ind] = daily->ws.sh2o[0];
+            //stor->totalw[ind] = (daily->ws.surf
+            //    + daily->ws.unsat * pihm->elem[i].soil.porosity
+            //    + daily->ws.gw * pihm->elem[i].soil.porosity)
+            //    * 1000.0;
+
+            //stor->sw_alb[ind] = daily->ps.albedo;
+            //stor->gl_bl[ind] = daily->ps.ch;
+
+            //for (k = 0; k < 3; k++)
+            //{
+            //    /* Convert from m3/s to kg/m2/d */
+            //    stor->latflux[k][ind] = 1000.0
+            //        * (daily->wf.subsurf[k] + daily->wf.surf[k])
+            //        * 24.0 * 3600.0 / pihm->elem[i].topo.area;
+            //}
+            //stor->latflux[3][ind] = 0.0;
+
+            stor->flag[ind] = 1;
         }
 
         for (i = 0; i < pihm->numriv; i++)
         {
-            metarr = &pihm->riv[i].metarr;
+            stor = &pihm->riv[i].stor;
             daily = &pihm->riv[i].daily;
 
-            metarr->soilw[ind] = (daily->ws.surf
-                + daily->ws.gw * pihm->riv[i].matl.porosity) * 1000.0;
+            stor->stage[ind] = daily->ws.stage;
+            stor->gw[ind] = daily->ws.gw;
 
             /* Convert from m3/s to kg/m2/d */
-            for (k = 0; k < 4; k++)
+            for (k = 0; k < 11; k++)
             {
-                metarr->latflux[k][ind] = 1000.0 * (daily->wf.fluxsurf[k] + daily->wf.fluxsub[k]) * 24.0 * 3600.0 / pihm->riv[i].topo.area;
+                stor->riverflx[k][ind] = daily->wf.river[k];
             }
 
-            metarr->flag[ind] = 1;
+            stor->flag[ind] = 1;
         }
 
     }

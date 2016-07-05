@@ -94,24 +94,24 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	noah/lsm_init.c \
 	noah/noah.c \
 	spa/spa.c \
-	bgc/bgc_read.c \
 	bgc/bgc_init.c \
-	bgc/metarr_init.c \
-	bgc/restart_io.c \
-	bgc/make_zero_flux_struct.c \
-	bgc/zero_srcsnk.c \
+	bgc/bgc_read.c \
 	bgc/bgc_spinup.c \
-	bgc/firstday.c \
-	bgc/presim_state_init.c \
 	bgc/daily_bgc.c \
+	bgc/daymet.c \
+	bgc/firstday.c \
 	bgc/get_co2.c \
 	bgc/get_ndep.c \
-	bgc/daymet.c
-	#bgc/precision_control.c \
-	#bgc/radtrans.c \
-	#bgc/maint_resp.c \
-	#bgc/phenology.c \
-	#bgc/soilpsi.c \
+	bgc/maint_resp.c \
+	bgc/make_zero_flux_struct.c \
+	bgc/metarr_init.c \
+	bgc/phenology.c \
+	bgc/precision_control.c \
+	bgc/presim_state_init.c \
+	bgc/radtrans.c \
+	bgc/restart_io.c \
+	bgc/soilpsi.c \
+	bgc/zero_srcsnk.c
 	#bgc/daily_allocation.c \
 	#bgc/canopy_et.c \
 	#bgc/photosynthesis.c \

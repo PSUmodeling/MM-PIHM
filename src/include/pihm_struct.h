@@ -154,17 +154,11 @@ typedef struct lc_struct
     double          shdmin;     /* minimum areal fractional coverage of green vegetation (fraction= 0.0-1.0) <= shdfac */
     double          shdmax;     /* maximum areal fractional coverage of green vegetation (fraction= 0.0-1.0) >= shdfac */
     double          rzd;
-    double          rsmin;      /* minimum canopy resistance */
-    double          rgl;        /* reference incoming solar flux for
-                                 * photosynthetically active canopy */
     double          laimin;
     double          laimax;     /* maxm. LAI accross all seasons for a
                                  * vegetation type */
     double          snup;       /* threshold snow depth (in water equivalent m) that implies 100 percent snow cover */
-    double          hs;         /* parameter used in vapor pressure deficit function */
-    double          topt;       /* optimum transpiration air temperature */
     double          cfactr;     /* parameter used in the canopy inteception calculation */
-    double          rsmax;      /* max. stomatal resistance */
     double          emissmax;   /* maximum emissivity */
     double          emissmin;   /* minimum emmisivity */
     double          albedomax;  /* maximum background albedo */
@@ -181,6 +175,65 @@ typedef struct lc_struct
     double          rtdis[MAXLYR];
 #endif
 } lc_struct;
+
+typedef struct epconst_struct
+{
+    double          rsmin;      /* minimum canopy resistance */
+    double          rgl;        /* reference incoming solar flux for
+                                 * photosynthetically active canopy */
+    double          hs;         /* parameter used in vapor pressure deficit function */
+    double          topt;       /* optimum transpiration air temperature */
+    double          rsmax;      /* max. stomatal resistance */
+#ifdef _BGC_
+    int             woody;      /* (flag) 1=woody, 0=non-woody */
+    int             evergreen;  /* (flag) 1=evergreen, 0=deciduous */
+    int             c3_flag;    /* (flag) 1 = C3,  0 = C4 */
+    int             phenology_flag;     /* (flag) 1=phenology model, 0=user defined */
+    int             onday;      /* (yday) yearday leaves on */
+    int             offday;     /* (yday) yearday leaves off */
+    double          transfer_days;      /* (prop.) fraction of growth period for transfer */
+    double          litfall_days;       /* (prop.) fraction of growth period for litfall */
+    double          leaf_turnover;      /* (1/yr) annual leaf turnover fraction */
+    double          froot_turnover;     /* (1/yr) annual fine root turnover fraction */
+    double          livewood_turnover;  /* (1/yr) annual live wood turnover fraction */
+    double          daily_mortality_turnover;   /* (1/day) daily mortality turnover */
+    double          daily_fire_turnover;        /* (1/day) daily fire turnover */
+    double          alloc_frootc_leafc; /* (ratio) new fine root C to new leaf C */
+    double          alloc_newstemc_newleafc;    /* (ratio) new stem C to new leaf C */
+    double          alloc_newlivewoodc_newwoodc;        /* (ratio) new livewood C:new wood C */
+    double          alloc_crootc_stemc; /* (ratio) new live croot C to new live stem C */
+    double          alloc_prop_curgrowth;       /* (prop.) daily allocation to current growth */
+    double          avg_proj_sla;       /* (m2/kgC) canopy average proj. SLA */
+    double          sla_ratio;  /* (DIM) ratio of shaded to sunlit projected SLA */
+    double          lai_ratio;  /* (DIM) ratio of (all-sided LA / one-sided LA) */
+    double          int_coef;   /* (kg/kg/LAI/d) canopy precip interception coef */
+    double          ext_coef;   /* (DIM) canopy light extinction coefficient */
+    double          flnr;       /* (kg NRub/kg Nleaf) leaf N in Rubisco */
+    double          psi_open;   /* (MPa) psi at start of conductance reduction */
+    double          psi_close;  /* (MPa) psi at complete conductance reduction */
+    double          vpd_open;   /* (Pa)  vpd at start of conductance reduction */
+    double          vpd_close;  /* (Pa)  vpd at complete conductance reduction */
+    double          gl_smax;    /* (m/s) maximum leaf-scale stomatal conductance */
+    double          gl_c;       /* (m/s) leaf-scale cuticular conductance */
+    double          gl_bl;      /* (m/s) leaf-scale boundary layer conductance */
+    double          froot_cn;   /* (kgC/kgN) C:N for fine roots */
+    double          leaf_cn;    /* (kgC/kgN) C:N for leaves */
+    double          livewood_cn;        /* (kgC/kgN) C:N for live wood */
+    double          deadwood_cn;        /* (kgC/kgN) C:N for dead wood */
+    double          leaflitr_cn;        /* (kgC/kgN) constant C:N for leaf litter */
+    double          leaflitr_flab;      /* (DIM) leaf litter labile fraction */
+    double          leaflitr_fucel;     /* (DIM) leaf litter unshielded cellulose fract. */
+    double          leaflitr_fscel;     /* (DIM) leaf litter shielded cellulose fract. */
+    double          leaflitr_flig;      /* (DIM) leaf litter lignin fraction */
+    double          frootlitr_flab;     /* (DIM) froot litter labile fraction */
+    double          frootlitr_fucel;    /* (DIM) froot litter unshielded cellulose fract */
+    double          frootlitr_fscel;    /* (DIM) froot litter shielded cellulose fract */
+    double          frootlitr_flig;     /* (DIM) froot litter lignin fraction */
+    double          deadwood_fucel;     /* (DIM) dead wood unshileded cellulose fraction */
+    double          deadwood_fscel;     /* (DIM) dead wood shielded cellulose fraction */
+    double          deadwood_flig;      /* (DIM) dead wood lignin fraction */
+#endif
+} epconst_struct;
 
 /*
  * Land cover physical states
@@ -256,6 +309,15 @@ typedef struct pstate_struct
     double          dayl;
     double          prev_dayl;
 #endif
+#ifdef _BGC_
+    double          co2;
+    double          ppfd_per_plaisun;   /* (umol/m2/s) ppfd per unit sunlit proj LAI */
+    double          ppfd_per_plaishade; /* (umol/m2/s) ppfd per unit shaded proj LAI */
+    double          proj_lai;   /* (DIM) live projected leaf area index */
+    double          all_lai;    /* (DIM) live all-sided leaf area index */
+    double          plaisun;    /* (DIM) sunlit projected leaf area index */
+    double          plaishade;  /* (DIM) shaded projected leaf area index */
+#endif
 } pstate_struct;
 
 typedef struct wstate_struct
@@ -272,7 +334,6 @@ typedef struct wstate_struct
     double          sh2o[MAXLYR];       /* unfrozen soil moisture content (volumetric fraction). note: frozen soil moisture = smc - sh2o */
     double          soilw;      /* available soil moisture in root zone (unitless fraction between smcwlt and smcmax) */
     double          soilm;      /* total soil column moisture content (frozen+unfrozen) (m) */
-    double          rootw;
 #endif
 } wstate_struct;
 
@@ -353,7 +414,14 @@ typedef struct eflux_struct
     double          flx2;       /* freezing rain latent heat flux (w m-2) */
     double          flx3;       /* phase-change heat flux from snowmelt (w m-2) */
     double          solardirect;        /* direct component of downward solar radiation (w m-2) (not used) */
+#ifdef _BGC_
     double          par;
+    double          swabs;      /* (W/m2)  canopy absorbed shortwave flux */
+    double          swtrans;    /* (W/m2)  transmitted shortwave flux */
+    double          swabs_per_plaisun;  /* (W/m2) swabs per unit sunlit proj LAI */
+    double          swabs_per_plaishade;        /* (W/m2) swabs per unit shaded proj LAI */
+    double          parabs;     /* (W/m2)  PAR absorbed by canopy */
+#endif
 } eflux_struct;
 
 #ifdef _CYCLES_
@@ -750,30 +818,32 @@ typedef struct
  * which are used for an 11-day running average of daily average air T,
  * computed for the whole length of the met array prior to the 
  * daily model loop */
-typedef struct
+typedef struct stor_struct
 {
-    double         *tmax;       /* (deg C) daily maximum air temperature */
-    double         *tmin;       /* (deg C) daily minimum air temperature */
-    double         *prcp;       /* (cm)    precipitation */
-    double         *vpd;        /* (Pa)    vapor pressure deficit */
-    double         *q2d;        /* (m3/m3) mixing ratio deficit */
-    double         *swavgfd;    /* (W/m2)  daylight avg shortwave flux density */
-    double         *par;        /* (W/m2)  photosynthetically active radiation */
     double         *dayl;       /* (s)     daylength */
     double         *prev_dayl;
-    double         *tavg;       /* (deg C) daily average temperature */
+    double         *tmax;       /* (deg C) daily maximum air temperature */
+    double         *tmin;       /* (deg C) daily minimum air temperature */
+    double         *sfctmp;       /* (deg C) daily average temperature */
     double         *tday;
     double         *tnight;
-    double         *tsoil;
-    double         *swc;
-    double         *pa;
-    double         *tavg_ra;    /* (deg C) 11-day running avg of daily avg temp */
-    double         *latflux[4];
-    double         *soilw;
-    double         *sw_alb;
-    double         *gl_bl;
+    double         *q2d;        /* (m3/m3) mixing ratio deficit */
+    double         *sfcprs;
+    double         *soldn;    /* (W/m2)  daylight avg shortwave flux density */
+    double         *par;        /* (W/m2)  photosynthetically active radiation */
+    double         *stc[MAXLYR];
+    double         *sh2o[MAXLYR];
+    double         *surf;
+    double         *stage;
+    double         *unsat;
+    double         *gw;
+    double         *albedo;
+    double         *ch;
+    double         *subsurfflx[3];
+    double         *surfflx[3];
+    double         *riverflx[11];
     int            *flag;
-} metarr_struct;
+} stor_struct;
 
 ///* daily values that are passed to daily model subroutines */
 //typedef struct
@@ -793,14 +863,8 @@ typedef struct
 //    double          vpd;        /* (Pa)    vapor pressure deficit */
 //    double          q2d;        /* (m3/m3) mixing ratio deficit */
 //    double          swavgfd;    /* (W/m2)  daylight average shortwave flux */
-//    double          swabs;      /* (W/m2)  canopy absorbed shortwave flux */
-//    double          swtrans;    /* (W/m2)  transmitted shortwave flux */
-//    double          swabs_per_plaisun;  /* (W/m2) swabs per unit sunlit proj LAI */
-//    double          swabs_per_plaishade;        /* (W/m2) swabs per unit shaded proj LAI */
-//    double          ppfd_per_plaisun;   /* (umol/m2/s) ppfd per unit sunlit proj LAI */
-//    double          ppfd_per_plaishade; /* (umol/m2/s) ppfd per unit shaded proj LAI */
-//    double          par;        /* (W/m2)  photosynthetically active radiation */
 //    double          parabs;     /* (W/m2)  PAR absorbed by canopy */
+//    double          par;        /* (W/m2)  photosynthetically active radiation */
 //    double          pa;         /* (Pa)    atmospheric pressure */
 //    double          co2;        /* (ppm)   atmospheric concentration of CO2 */
 //    double          dayl;       /* (s)     daylength */
@@ -1243,14 +1307,14 @@ typedef struct
     double          annmax_livestemc;   /* (kgC/m2) annual maximum daily livestem C */
     double          annmax_livecrootc;  /* (kgC/m2) annual maximum daily livecroot C */
     double          dsr;        /* (days) number of days since rain, for soil evap */
-    double          proj_lai;   /* (DIM) live projected leaf area index */
-    double          all_lai;    /* (DIM) live all-sided leaf area index */
-    double          plaisun;    /* (DIM) sunlit projected leaf area index */
-    double          plaishade;  /* (DIM) shaded projected leaf area index */
+    //double          proj_lai;   /* (DIM) live projected leaf area index */
+    //double          all_lai;    /* (DIM) live all-sided leaf area index */
+    //double          plaisun;    /* (DIM) sunlit projected leaf area index */
+    //double          plaishade;  /* (DIM) shaded projected leaf area index */
     double          sun_proj_sla;       /* (m2/kgC) sunlit projected SLA */
     double          shade_proj_sla;     /* (m2/kgC) shaded projected SLA */
     double          psi;        /* (MPa) water potential of soil and leaves */
-    double          vwc;        /* (DIM) volumetric water content */
+    //double          vwc;        /* (DIM) volumetric water content */
     double          dlmr_area_sun;      /* (umolC/m2projected leaf area/s) sunlit leaf MR */
     double          dlmr_area_shade;    /* (umolC/m2projected leaf area/s) shaded leaf MR */
     double          gl_t_wv_sun;        /* (m/s) leaf-scale conductance to transpired water */
@@ -1276,7 +1340,7 @@ typedef struct
     double          m_vpd;      /* (DIM) vapor pressure deficit multiplier */
     double          m_final_sun;        /* (DIM) product of all other multipliers */
     double          m_final_shade;      /* (DIM) product of all other multipliers */
-    double          gl_bl;      /* (m/s) leaf boundary layer conductance */
+    //double          gl_bl;      /* (m/s) leaf boundary layer conductance */
     double          gl_c;       /* (m/s) leaf cuticular conductance */
     double          gl_s_sun;   /* (m/s) leaf-scale stomatal conductance */
     double          gl_s_shade; /* (m/s) leaf-scale stomatal conductance */
@@ -1337,63 +1401,6 @@ typedef struct
     double          old_c_balance;
     double          old_n_balance;
 } epvar_struct;
-
-typedef struct
-{
-    int             woody;      /* (flag) 1=woody, 0=non-woody */
-    int             evergreen;  /* (flag) 1=evergreen, 0=deciduous */
-    int             c3_flag;    /* (flag) 1 = C3,  0 = C4 */
-    int             phenology_flag;     /* (flag) 1=phenology model, 0=user defined */
-    int             onday;      /* (yday) yearday leaves on */
-    int             offday;     /* (yday) yearday leaves off */
-    double          transfer_days;      /* (prop.) fraction of growth period for transfer */
-    double          litfall_days;       /* (prop.) fraction of growth period for litfall */
-    double          leaf_turnover;      /* (1/yr) annual leaf turnover fraction */
-    double          froot_turnover;     /* (1/yr) annual fine root turnover fraction */
-    double          livewood_turnover;  /* (1/yr) annual live wood turnover fraction */
-    double          daily_mortality_turnover;   /* (1/day) daily mortality turnover */
-    double          daily_fire_turnover;        /* (1/day) daily fire turnover */
-    double          alloc_frootc_leafc; /* (ratio) new fine root C to new leaf C */
-    double          alloc_newstemc_newleafc;    /* (ratio) new stem C to new leaf C */
-    double          alloc_newlivewoodc_newwoodc;        /* (ratio) new livewood C:new wood C */
-    double          alloc_crootc_stemc; /* (ratio) new live croot C to new live stem C */
-    double          alloc_prop_curgrowth;       /* (prop.) daily allocation to current growth */
-    double          avg_proj_sla;       /* (m2/kgC) canopy average proj. SLA */
-    double          sla_ratio;  /* (DIM) ratio of shaded to sunlit projected SLA */
-    double          lai_ratio;  /* (DIM) ratio of (all-sided LA / one-sided LA) */
-    double          int_coef;   /* (kg/kg/LAI/d) canopy precip interception coef */
-    double          ext_coef;   /* (DIM) canopy light extinction coefficient */
-    double          flnr;       /* (kg NRub/kg Nleaf) leaf N in Rubisco */
-    double          psi_open;   /* (MPa) psi at start of conductance reduction */
-    double          psi_close;  /* (MPa) psi at complete conductance reduction */
-    double          vpd_open;   /* (Pa)  vpd at start of conductance reduction */
-    double          vpd_close;  /* (Pa)  vpd at complete conductance reduction */
-    double          gl_smax;    /* (m/s) maximum leaf-scale stomatal conductance */
-    double          gl_c;       /* (m/s) leaf-scale cuticular conductance */
-    double          gl_bl;      /* (m/s) leaf-scale boundary layer conductance */
-    double          froot_cn;   /* (kgC/kgN) C:N for fine roots */
-    double          leaf_cn;    /* (kgC/kgN) C:N for leaves */
-    double          livewood_cn;        /* (kgC/kgN) C:N for live wood */
-    double          deadwood_cn;        /* (kgC/kgN) C:N for dead wood */
-    double          leaflitr_cn;        /* (kgC/kgN) constant C:N for leaf litter */
-    double          leaflitr_flab;      /* (DIM) leaf litter labile fraction */
-    double          leaflitr_fucel;     /* (DIM) leaf litter unshielded cellulose fract. */
-    double          leaflitr_fscel;     /* (DIM) leaf litter shielded cellulose fract. */
-    double          leaflitr_flig;      /* (DIM) leaf litter lignin fraction */
-    double          frootlitr_flab;     /* (DIM) froot litter labile fraction */
-    double          frootlitr_fucel;    /* (DIM) froot litter unshielded cellulose fract */
-    double          frootlitr_fscel;    /* (DIM) froot litter shielded cellulose fract */
-    double          frootlitr_flig;     /* (DIM) froot litter lignin fraction */
-    double          deadwood_fucel;     /* (DIM) dead wood unshileded cellulose fraction */
-    double          deadwood_fscel;     /* (DIM) dead wood shielded cellulose fraction */
-    double          deadwood_flig;      /* (DIM) dead wood lignin fraction */
-
-    //double          topt;
-    //double          rgl;
-    //double          hs;
-    //double          smcref;
-    //double          smcwlt;
-} epconst_struct;
 
 /* structure for the photosynthesis routine */
 typedef struct
@@ -1486,6 +1493,7 @@ typedef struct elem_struct
     topo_struct     topo;
     soil_struct     soil;
     lc_struct       lc;
+    epconst_struct  epc;
     elemic_struct   ic;
     elembc_struct   bc;
 
@@ -1516,7 +1524,7 @@ typedef struct elem_struct
 #ifdef _BGC_
     restart_data_struct restart_input;
     restart_data_struct restart_output;
-    metarr_struct   metarr;     /* meteorological data array */
+    stor_struct     stor;
     //metvar_struct   metv;
     cinit_struct    cinit;      /* first-year values for leafc and stemc */
     cstate_struct   cs;         /* carbon state variables */
@@ -1530,7 +1538,6 @@ typedef struct elem_struct
 
     phenology_struct phen;
 
-    epconst_struct  epc;        /* ecophysiological constants */
     epvar_struct    epv;
 #endif
 
@@ -1590,7 +1597,7 @@ typedef struct river_struct
     solute_struct   NH4sol;
 #endif
 #ifdef _BGC_
-    metarr_struct   metarr;     /* meteorological data array */
+    stor_struct     stor;     /* meteorological data array */
     double          sminn;
     double          nleached_snk;
     double          sminn_leached;

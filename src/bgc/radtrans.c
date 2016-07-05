@@ -12,7 +12,7 @@
 
 #include "pihm.h"
 
-void radtrans (const cstate_struct * cs, const epconst_struct * epc, metvar_struct * metv, epvar_struct * epv, double albedo)
+void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps, const epconst_struct *epc, epvar_struct *epv)
 {
     /* calculate the projected leaf area and SLA for sun and shade fractions
      * and the canopy transmission and absorption of shortwave radiation
@@ -81,26 +81,30 @@ void radtrans (const cstate_struct * cs, const epconst_struct * epc, metvar_stru
 
     /* calculate total shortwave absorbed */
     k_sw = k;
-    albedo_sw = albedo;
+    albedo_sw = ps->albedo;
 
     /* FIXED 02/05/04 */
-    if (metv->swavgfd < 0.0)
-        metv->swavgfd = 0.0;
+    if (ef->soldn < 0.0)
+    {
+        ef->soldn = 0.0;
+    }
 
-    sw = metv->swavgfd * (1.0 - albedo_sw);
+    sw = ef->soldn * (1.0 - albedo_sw);
     swabs = sw * (1.0 - exp (-k_sw * proj_lai));
     //    printf ("leafc = %lf, sw = %lf, k_sw = %lf, proj_lai = %lf, swabs = %lf\n", cs->leafc, sw, k_sw, proj_lai, swabs);
     swtrans = sw - swabs;
 
     /* calculate PAR absorbed */
     k_par = k * 1.0;
-    albedo_par = albedo / 3.0;
+    albedo_par = ps->albedo / 3.0;
 
     /* FIXED 02/05/04 */
-    if (metv->par < 0.0)
-        metv->par = 0.0;
+    if (ef->par < 0.0)
+    {
+        ef->par = 0.0;
+    }
 
-    par = metv->par * (1.0 - albedo_par);
+    par = ef->par * (1.0 - albedo_par);
     parabs = par * (1.0 - exp (-k_par * proj_lai));
 
     /* calculate the total shortwave absorbed by the sunlit and
@@ -152,15 +156,13 @@ void radtrans (const cstate_struct * cs, const epconst_struct * epc, metvar_stru
     }
 
     /* assign structure values */
-    metv->swabs = swabs;
-    metv->swtrans = swtrans;
-    metv->swabs_per_plaisun = swabs_per_plaisun;
-    metv->swabs_per_plaishade = swabs_per_plaishade;
+    ef->swabs = swabs;
+    ef->swtrans = swtrans;
+    ef->swabs_per_plaisun = swabs_per_plaisun;
+    ef->swabs_per_plaishade = swabs_per_plaishade;
     /* calculate PPFD: assumes an average energy for PAR photon (EPAR, umol/J)
      * unit conversion: W/m2 --> umol/m2/s. */
-    metv->ppfd_per_plaisun = parabs_per_plaisun * EPAR;
-    metv->ppfd_per_plaishade = parabs_per_plaishade * EPAR;
-    metv->parabs = parabs;
-
-    //    printf ("swabs = %lf, swtrans = %lf, swabs_per_laisun = %lf, swabs per lai shade = %lf, ppfd_per_plaisun = %lf, %lf, %lf\n", metv->swabs, metv->swtrans, metv->swabs_per_plaisun, metv->swabs_per_plaishade, metv->ppfd_per_plaisun, metv->ppfd_per_plaishade, metv->parabs);
+    ps->ppfd_per_plaisun = parabs_per_plaisun * EPAR;
+    ps->ppfd_per_plaishade = parabs_per_plaishade * EPAR;
+    ef->parabs = parabs;
 }

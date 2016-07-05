@@ -109,8 +109,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         CalcLatFlx (&elem->ws, &elem->ps, &elem->wf);
 #endif
 
-        pihm->elem[i].ws0 = pihm->elem[i].ws;
-
+        elem->ws0 = elem->ws;
     }
 
     for (i = 0; i < pihm->numriv; i++)

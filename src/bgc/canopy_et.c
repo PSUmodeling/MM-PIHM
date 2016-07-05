@@ -24,7 +24,6 @@ void canopy_et (const metvar_struct * metv, const epconst_struct * epc, epvar_st
     double          m_ppfd_sun, m_ppfd_shade;
     double          m_tmin, m_psi, m_co2, m_vpd, m_final_sun, m_final_shade;
     double          proj_lai;
-    double          canopy_w;
     double          gcorr;
     double          ff;
     double          q2d;
@@ -40,7 +39,6 @@ void canopy_et (const metvar_struct * metv, const epconst_struct * epc, epvar_st
     swc = metv->swc;
     dayl = metv->dayl;
     proj_lai = epv->proj_lai;
-    canopy_w = wf->prcp_to_canopyw;
 
     /* temperature and pressure correction factor for conductances */
     gcorr = pow ((metv->tday + 273.15) / 293.15, 1.75) * 101300. / metv->pa;

@@ -101,7 +101,7 @@ void Noah (int t, pihm_struct pihm)
          * Run Noah LSM
          */
         SFlx (&elem->ws, &elem->wf, &elem->avgwf, &elem->es, &elem->ef,
-            &elem->ps, &elem->lc, &elem->soil,
+            &elem->ps, &elem->lc, &elem->epc, &elem->soil,
 #ifdef _CYCLES_
             &elem->comm, &elem->residue,
 #endif
@@ -122,7 +122,7 @@ void Noah (int t, pihm_struct pihm)
 
 void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
     estate_struct *es, eflux_struct *ef, pstate_struct *ps, lc_struct *lc,
-    soil_struct *soil,
+    epconst_struct *epc, soil_struct *soil,
 #ifdef _CYCLES_
     comm_struct *comm, residue_struct *residue,
 #endif
@@ -192,7 +192,7 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
     if (lc->isurban)
     {
         lc->shdfac = 0.05;
-        lc->rsmin = 400.0;
+        epc->rsmin = 400.0;
         soil->smcmax = 0.45;
         soil->smcmin = 0.0;
         soil->smcref = 0.42;
@@ -488,7 +488,7 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
      */
     if (lc->shdfac > 0.0)
     {
-        CanRes (ws, es, ef, ps, zsoil, soil, lc);
+        CanRes (ws, es, ef, ps, zsoil, soil, lc, epc);
     }
     else
     {
@@ -591,6 +591,7 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
             soilww += (ws->smc[k] - soil->smcwlt) * (zsoil[k - 1] - zsoil[k]);
         }
     }
+
     if (soilwm < 1.0e-6)
     {
         soilwm = 0.0;
@@ -654,7 +655,7 @@ void AlCalc (pstate_struct *ps, double dt, int snowng)
 }
 
 void CanRes (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
-    const double *zsoil, const soil_struct *soil, const lc_struct *lc)
+    const double *zsoil, const soil_struct *soil, const lc_struct *lc, const epconst_struct *epc)
 {
     /*
      * Function CanRes
@@ -686,18 +687,18 @@ void CanRes (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_stru
     ps->rc = 0.0;
 
     /* Contribution due to incoming solar radiation */
-    ff = 0.55 * 2.0 * ef->soldn / (lc->rgl * ps->xlai);
-    ps->rcs = (ff + lc->rsmin / lc->rsmax) / (1.0 + ff);
+    ff = 0.55 * 2.0 * ef->soldn / (epc->rgl * ps->xlai);
+    ps->rcs = (ff + epc->rsmin / epc->rsmax) / (1.0 + ff);
     ps->rcs = (ps->rcs > 0.0001) ? ps->rcs : 0.0001;
 
     /* Contribution due to air temperature at first model level above ground
      * rct expression from Noilhan and Planton (1989, MWR). */
-    ps->rct = 1.0 - 0.0016 * pow (lc->topt - es->sfctmp, 2.0);
+    ps->rct = 1.0 - 0.0016 * pow (epc->topt - es->sfctmp, 2.0);
     ps->rct = (ps->rct > 0.0001) ? ps->rct : 0.0001;
 
     /* Contribution due to vapor pressure deficit at first model level.
      * rcq expression from ssib */
-    ps->rcq = 1.0 / (1.0 + lc->hs * (ps->q2sat - ps->q2));
+    ps->rcq = 1.0 / (1.0 + epc->hs * (ps->q2sat - ps->q2));
     ps->rcq = (ps->rcq > 0.01) ? ps->rcq : 0.01;
 
     /* Contribution due to soil moisture availability.
@@ -737,7 +738,7 @@ void CanRes (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_stru
     ps->rc = RC;
 #else
     ps->rc =
-        lc->rsmin / (ps->xlai * ps->rcs * ps->rct * ps->rcq * ps->rcsoil);
+        epc->rsmin / (ps->xlai * ps->rcs * ps->rct * ps->rcq * ps->rcsoil);
 #endif
     //rr = (4.0 * SIGMA * RD / CP) * pow(es->sfctmp, 4.0) /
     //  (ps->sfcprs * ps->ch) + 1.0;

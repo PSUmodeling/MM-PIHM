@@ -114,7 +114,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     #ifdef _BGC_
             if (pihm->ctrl.spinup)
             {
-                Save2MetArr (pihm, t, pihm->ctrl.spinupstart, pihm->ctrl.spinupend);
+                Save2Stor (pihm, t, pihm->ctrl.spinupstart, pihm->ctrl.spinupend);
             }
             else
             {

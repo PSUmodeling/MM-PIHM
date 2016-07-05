@@ -156,17 +156,17 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
                     intcp_max, elem->lc.cfactr)) * etp;
             elem->wf.ec = elem->wf.ec < 0.0 ? 0.0 : elem->wf.ec;
 
-            fr = 1.1 * radnet / (elem->lc.rgl * lai);
+            fr = 1.1 * radnet / (elem->epc.rgl * lai);
             fr = fr < 0.0 ? 0.0 : fr;
-            alphar = (1.0 + fr) / (fr + (elem->lc.rsmin / elem->lc.rsmax));
+            alphar = (1.0 + fr) / (fr + (elem->epc.rsmin / elem->epc.rsmax));
             alphar = alphar > 10000.0 ? 10000.0 : alphar;
             etas =
-                1.0 - 0.0016 * (pow ((elem->lc.topt - 273.15 - sfctmp), 2));
+                1.0 - 0.0016 * (pow ((elem->epc.topt - 273.15 - sfctmp), 2));
             etas = etas < 0.0001 ? 0.0001 : etas;
             gammas = 1.0 / (1.0 + 0.00025 * (vp / rh - vp));
             gammas = (gammas < 0.01) ? 0.01 : gammas;
-            rs = elem->lc.rsmin * alphar / (betas * lai * etas * gammas);
-            rs = rs > elem->lc.rsmax ? elem->lc.rsmax : rs;
+            rs = elem->epc.rsmin * alphar / (betas * lai * etas * gammas);
+            rs = rs > elem->epc.rsmax ? elem->epc.rsmax : rs;
 
             pc = (1.0 + delta / gamma) / (1.0 + rs / ra + delta / gamma);
 

@@ -11,7 +11,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
     int             spa_result;
     time_t          rawtime;
     struct tm      *timestamp;
-    int             i, k;
+    int             i, j, k;
     double          sfctmp;
     double          solar;
 
@@ -61,11 +61,11 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         /* Lateral flux */
         for (k = 0; k < 3; k++)
         {
-            daily->wf.fluxsub[k] += elem->wf.fluxsub[k];
-            daily->wf.fluxsurf[k] += elem->wf.fluxsurf[k];
+            daily->wf.subsurf[k] += elem->wf.subsurf[k];
+            daily->wf.surf[k] += elem->wf.surf[k];
         }
-        daily->wf.fluxsub[3] = 0.0;
-        daily->wf.fluxsurf[3] = 0.0;
+        daily->wf.subsurf[3] = 0.0;
+        daily->wf.surf[3] = 0.0;
 
         if (solar > 1.0)
         {
@@ -97,17 +97,21 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         daily->ws.gw += riv->ws.gw;
 
         /* Lateral flux */
-        daily->wf.fluxsub[0] += riv->wf.fluxriv[0];
-        daily->wf.fluxsurf[0] += riv->wf.fluxriv[10];
+        for (j = 0; j < 11; j++)
+        {
+            daily->wf.river[j] += riv->wf.river[j];
+        }
+        //daily->wf.fluxsub[0] += riv->wf.fluxriv[0];
+        //daily->wf.fluxsurf[0] += riv->wf.fluxriv[10];
 
-        daily->wf.fluxsub[1] += riv->wf.fluxriv[1];
-        daily->wf.fluxsurf[1] += riv->wf.fluxriv[9];
+        //daily->wf.fluxsub[1] += riv->wf.fluxriv[1];
+        //daily->wf.fluxsurf[1] += riv->wf.fluxriv[9];
 
-        daily->wf.fluxsub[2] += riv->wf.fluxriv[2];
-        daily->wf.fluxsurf[2] += riv->wf.fluxriv[4] + riv->wf.fluxriv[7];
+        //daily->wf.fluxsub[2] += riv->wf.fluxriv[2];
+        //daily->wf.fluxsurf[2] += riv->wf.fluxriv[4] + riv->wf.fluxriv[7];
 
-        daily->wf.fluxsub[3] += riv->wf.fluxriv[3];
-        daily->wf.fluxsurf[3] += riv->wf.fluxriv[5] + riv->wf.fluxriv[8];
+        //daily->wf.fluxsub[3] += riv->wf.fluxriv[3];
+        //daily->wf.fluxsurf[3] += riv->wf.fluxriv[5] + riv->wf.fluxriv[8];
 
         (daily->counter)++;
     }
@@ -191,8 +195,8 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 
             for (k = 0; k < 4; k++)
             {
-                daily->wf.fluxsub[k] /= (double)daily->counter;
-                daily->wf.fluxsurf[k] /= (double)daily->counter;
+                daily->wf.subsurf[k] /= (double)daily->counter;
+                daily->wf.surf[k] /= (double)daily->counter;
             }
 
             daily->es.tday /= (double)daily->daylight_counter;
@@ -213,10 +217,9 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             daily->ws.surf /= (double)daily->counter;
             daily->ws.gw /= (double)daily->counter;
 
-            for (k = 0; k < 4; k++)
+            for (j = 0; j < 11; j++)
             {
-                daily->wf.fluxsub[k] /= (double)daily->counter;
-                daily->wf.fluxsurf[k] /= (double)daily->counter;
+                daily->wf.river[j] /= (double)daily->counter;
             }
         }
     }

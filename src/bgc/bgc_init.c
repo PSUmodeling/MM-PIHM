@@ -29,11 +29,7 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, cons
 
         if (ctrl->spinup)
         {
-            metarr_init (&elem[i].metarr, ctrl->spinupstart, ctrl->spinupend);
-        }
-        else
-        {
-            metarr_init (&elem[i].metarr, ctrl->starttime, ctrl->endtime);
+            InitStor (&elem[i].stor, ctrl->spinupstart, ctrl->spinupend);
         }
     }
 
@@ -41,11 +37,7 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, cons
     {
         if (ctrl->spinup)
         {
-            metarr_init (&riv[i].metarr, ctrl->spinupstart, ctrl->spinupend);
-        }
-        else
-        {
-            metarr_init (&riv[i].metarr, ctrl->starttime, ctrl->endtime);
+            InitStor (&riv[i].stor, ctrl->spinupstart, ctrl->spinupend);
         }
     }
 }
@@ -116,11 +108,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
             elem[i].epv.offset_counter = 0.0;
             elem[i].epv.offset_fdd = 0.0;
             elem[i].epv.offset_swi = 0.0;
-    //        elem[i].epv.lgsf = 0.0;
-    //       elem[i].epv.bglfr = 0.0;
-    //        elem[i].epv.bgtr = 0.0;
-            elem[i].epv.annavg_t2m = 280.0;
-    //        elem[i].epv.tempavg_t2m = 0.0;
+            elem[i].epv.annavg_t2m = elem[i].ps.tbot;
 
             firstday (&elem[i].epc, &elem[i].cinit, &elem[i].epv, &elem[i].cs, &elem[i].ns);
         }
