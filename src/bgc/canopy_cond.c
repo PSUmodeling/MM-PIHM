@@ -11,9 +11,10 @@
 
 #include "pihm.h"
 
-void canopy_et (const metvar_struct * metv, const epconst_struct * epc, epvar_struct * epv, wflux_struct * wf)
+void CanopyCond (const epconst_struct *epc, const pstate_struct *ps, const estate_struct *es, const elem_wstate_struct *ws, const soil_struct *soil, epvar_struct *epv)
 {
-    double          gl_bl, gl_c, gl_s_sun, gl_s_shade;
+    int             k;
+    double          gl_bl, gl_c, gl_smax, gl_s_sun, gl_s_shade;
     double          gl_e_wv, gl_t_wv_sun, gl_t_wv_shade;// gl_sh;
     //double          gc_e_wv, gc_sh;
     double          tday;
@@ -28,30 +29,46 @@ void canopy_et (const metvar_struct * metv, const epconst_struct * epc, epvar_st
     double          ff;
     double          q2d;
     double          swc;
+    double          droot;
 
     //double          e, cwe, t, trans, trans_sun, trans_shade, e_dayl, t_dayl;
     //pmet_struct     pmet_in;
 
     /* assign variables that are used more than once */
-    tday = metv->tday;
-    tmin = metv->tmin;
-    q2d = metv->q2d;
-    swc = metv->swc;
-    dayl = metv->dayl;
-    proj_lai = epv->proj_lai;
+    tday = es->tday - TFREEZ;
+    tmin = es->tmin;
+    q2d = ps->q2d;
+    dayl = ps->dayl;
+    proj_lai = ps->proj_lai;
+
+    swc = ws->sh2o[0] * ps->sldpth[0];
+    droot = ps->sldpth[0];
+
+    if (ps->nroot > 0)
+    {
+        for (k = 0; k < ps->nroot; k++)
+        {
+            swc += ws->sh2o[k] * ps->sldpth[k];
+            droot += ps->sldpth[k];
+        }
+    }
+
+    swc /= droot;
 
     /* temperature and pressure correction factor for conductances */
-    gcorr = pow ((metv->tday + 273.15) / 293.15, 1.75) * 101300. / metv->pa;
+    gcorr = pow ((tday + 273.15) / 293.15, 1.75) * 101300. / ps->sfcprs;
 
     /* calculate leaf- and canopy-level conductances to water vapor
      * and sensible heat fluxes */
 
     /* leaf boundary-layer conductance */
-    gl_bl = epc->gl_bl * gcorr;
+    gl_bl = ps->ch;
 
     /* leaf cuticular conductance */
     //gl_c = epc->gl_c * gcorr;
-    gl_c = epc->gl_c;
+    gl_c = 1.0 / epc->rsmax;
+
+    gl_smax = 1.0 / epc->rsmin;
 
     /* leaf stomatal conductance: first generate multipliers, then apply them
      * to maximum stomatal conductance */
@@ -71,11 +88,11 @@ void canopy_et (const metvar_struct * metv, const epconst_struct * epc, epvar_st
     /* photosynthetic photon flux density conductance control */
     //m_ppfd_sun = metv->ppfd_per_plaisun / (PPFD50 + metv->ppfd_per_plaisun);
     //m_ppfd_shade = metv->ppfd_per_plaishade / (PPFD50 + metv->ppfd_per_plaishade);
-    ff = metv->ppfd_per_plaisun / PPFD50;
-    m_ppfd_sun = (ff + gl_c / epc->gl_smax) / (1.0 + ff);
+    ff = ps->ppfd_per_plaisun / PPFD50;
+    m_ppfd_sun = (ff + gl_c / gl_smax) / (1.0 + ff);
     m_ppfd_sun = (m_ppfd_sun > 0.0001) ? m_ppfd_sun : 0.0001;
-    ff = metv->ppfd_per_plaishade / PPFD50;
-    m_ppfd_shade = (ff + gl_c / epc->gl_smax) / (1.0 + ff);
+    ff = ps->ppfd_per_plaishade / PPFD50;
+    m_ppfd_shade = (ff + gl_c / gl_smax) / (1.0 + ff);
     m_ppfd_shade = (m_ppfd_shade > 0.0001) ? m_ppfd_shade : 0.0001;
     /* soil-leaf water potential multiplier */
     //if (psi > psi_open)         /* no water stress */
@@ -84,7 +101,7 @@ void canopy_et (const metvar_struct * metv, const epconst_struct * epc, epvar_st
     //    m_psi = 0.0;
     //else                        /* partial water stress */
     //    m_psi = (psi_close - psi) / (psi_close - psi_open);
-    m_psi = (swc - epc->smcwlt) / (epc->smcref - epc->smcwlt);
+    m_psi = (swc - soil->smcwlt) / (soil->smcref - soil->smcwlt);
     m_psi = (m_psi < 1.0) ? m_psi : 1.0;
     m_psi = (m_psi > 0.0001) ? m_psi : 0.0001;
 
@@ -117,9 +134,9 @@ void canopy_et (const metvar_struct * metv, const epconst_struct * epc, epvar_st
     m_final_shade = m_ppfd_shade * m_psi * m_co2 * m_tmin * m_vpd;
     if (m_final_shade < 0.00000001)
         m_final_shade = 0.00000001;
-    gl_s_sun = epc->gl_smax * m_final_sun;// * epv->plaisun;
+    gl_s_sun = gl_smax * m_final_sun;// * epv->plaisun;
     //gl_s_sun = (gl_s_sun > gl_c) ? gl_s_sun : gl_c;
-    gl_s_shade = epc->gl_smax * m_final_shade;// * epv->plaishade;
+    gl_s_shade = gl_smax * m_final_shade;// * epv->plaishade;
     //gl_s_shade = (gl_s_shade > gl_c) ? gl_s_shade : gl_c;
 
     /* calculate leaf-and canopy-level conductances to water vapor and

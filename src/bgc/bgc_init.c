@@ -29,7 +29,7 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, cons
 
         if (ctrl->spinup)
         {
-            InitStor (&elem[i].stor, ctrl->spinupstart, ctrl->spinupend);
+            InitElemStor (&elem[i].stor, ctrl->spinupstart, ctrl->spinupend);
         }
     }
 
@@ -37,7 +37,7 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, cons
     {
         if (ctrl->spinup)
         {
-            InitStor (&riv[i].stor, ctrl->spinupstart, ctrl->spinupend);
+            InitRiverStor (&riv[i].stor, ctrl->spinupstart, ctrl->spinupend);
         }
     }
 }
@@ -55,13 +55,13 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
 
         for (i = 0; i < numele; i++)
         {
-            fread (&elem[i].restart_input, sizeof (restart_data_struct), 1, init_file);
+            fread (&elem[i].restart_input, sizeof (bgc_ic_struct), 1, init_file);
 
             restart_input (&elem[i].cs, &elem[i].ns, &elem[i].epv,
                 &elem[i].restart_input);
 
             /* Calculate LAI for the coupling with Noah */
-            elem[i].epv.proj_lai = elem[i].cs.leafc * elem[i].epc.avg_proj_sla;
+            elem[i].ps.proj_lai = elem[i].cs.leafc * elem[i].epc.avg_proj_sla;
         }
 
         for (i = 0; i < numriv; i++)

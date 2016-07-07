@@ -10,7 +10,7 @@
 
 #include "pihm.h"
 
-void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc, int woody, int evergreen)
+void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc, int woody, int evergreen)
 {
     /* daily update of the carbon state variables */
 
@@ -25,9 +25,7 @@ void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc
 
     /* Phenology fluxes */
     /* leaf and fine root transfer growth */
-    //    printf ("leafc = %lf\n", cs->leafc);
     cs->leafc += cf->leafc_transfer_to_leafc;
-    //    printf ("+ leafc_transfer_to_leafc = %lf\n", cf->leafc_transfer_to_leafc);
     cs->leafc_transfer -= cf->leafc_transfer_to_leafc;
     cs->frootc += cf->frootc_transfer_to_frootc;
     cs->frootc_transfer -= cf->frootc_transfer_to_frootc;
@@ -46,16 +44,12 @@ void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc
     /* Leaf and fine root litterfall */
     cs->litr1c += cf->leafc_to_litr1c;
     cs->leafc -= cf->leafc_to_litr1c;
-    //printf ("- leafc_to_litr1c = %lf\n", cf->leafc_to_litr1c);
     cs->litr2c += cf->leafc_to_litr2c;
     cs->leafc -= cf->leafc_to_litr2c;
-    //printf ("- leafc_to_litr2c = %lf\n", cf->leafc_to_litr2c);
     cs->litr3c += cf->leafc_to_litr3c;
     cs->leafc -= cf->leafc_to_litr3c;
-    //printf ("- leafc_to_litr3c = %lf\n", cf->leafc_to_litr3c);
     cs->litr4c += cf->leafc_to_litr4c;
     cs->leafc -= cf->leafc_to_litr4c;
-    //printf ("- leafc_to_litr4c = %lf\n", cf->leafc_to_litr4c);
     cs->litr1c += cf->frootc_to_litr1c;
     cs->frootc -= cf->frootc_to_litr1c;
     cs->litr2c += cf->frootc_to_litr2c;
@@ -142,8 +136,6 @@ void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc
     /* Daily allocation fluxes */
     /* daily leaf allocation fluxes */
     cs->leafc += cf->cpool_to_leafc;
-    //printf ("+cpool_to_leafc = %lf\n", cf->cpool_to_leafc);
-    //printf ("leafc = %lf\n", cs->leafc);
     cs->cpool -= cf->cpool_to_leafc;
     cs->leafc_storage += cf->cpool_to_leafc_storage;
     cs->cpool -= cf->cpool_to_leafc_storage;
@@ -275,7 +267,7 @@ void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc
     }                           /* end if allocation day */
 }
 
-void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int alloc, int woody, int evergreen)
+void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc, int woody, int evergreen)
 {
     /* N state variables are updated below in the order of the relevant fluxes
      * in the daily model loop */
@@ -288,9 +280,7 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
 
     /* Phenology fluxes */
     /* Leaf and fine root transfer growth */
-    //printf ("leafn = %lf\n", ns->leafn);
     ns->leafn += nf->leafn_transfer_to_leafn;
-    //printf ("+leafn_transfer_to_leafn = %lf, %lf\n", nf->leafn_transfer_to_leafn, ns->leafn);
     ns->leafn_transfer -= nf->leafn_transfer_to_leafn;
     ns->frootn += nf->frootn_transfer_to_frootn;
     ns->frootn_transfer -= nf->frootn_transfer_to_frootn;
@@ -309,19 +299,14 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
     /* Leaf and fine root litterfall */
     ns->litr1n += nf->leafn_to_litr1n;
     ns->leafn -= nf->leafn_to_litr1n;
-    //printf ("-leafn_to_litr1n = %lf, %lf\n", nf->leafn_to_litr1n, ns->leafn);
     ns->litr2n += nf->leafn_to_litr2n;
     ns->leafn -= nf->leafn_to_litr2n;
-    //printf ("-leafn_to_litr2n = %lf, %lf\n", nf->leafn_to_litr2n, ns->leafn);
     ns->litr3n += nf->leafn_to_litr3n;
     ns->leafn -= nf->leafn_to_litr3n;
-    //printf ("-leafn_to_litr3n = %lf, %lf\n", nf->leafn_to_litr3n, ns->leafn);
     ns->litr4n += nf->leafn_to_litr4n;
     ns->leafn -= nf->leafn_to_litr4n;
-    //printf ("-leafn_to_litr4n = %lf, %lf\n", nf->leafn_to_litr4n, ns->leafn);
     ns->retransn += nf->leafn_to_retransn;  /* N retranslocation */
     ns->leafn -= nf->leafn_to_retransn;
-    //printf ("-leafn_to_retransn = %lf, %lf\n", nf->leafn_to_retransn, ns->leafn);
     ns->litr1n += nf->frootn_to_litr1n;
     ns->frootn -= nf->frootn_to_litr1n;
     ns->litr2n += nf->frootn_to_litr2n;
@@ -443,7 +428,6 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
     /* Daily allocation fluxes */
     /* Daily leaf allocation fluxes */
     ns->leafn += nf->npool_to_leafn;
-    //printf ("+npool_to_leafn = %lf, %lf\n", nf->npool_to_leafn, ns->leafn);
     ns->npool -= nf->npool_to_leafn;
     ns->leafn_storage += nf->npool_to_leafn_storage;
     ns->npool -= nf->npool_to_leafn_storage;

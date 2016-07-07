@@ -42,30 +42,30 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps, con
     if (cs->leafc > 0.0)
     {
         /* Calculate whole-canopy projected and all-sided LAI */
-        epv->proj_lai = cs->leafc * epc->avg_proj_sla;
-        epv->all_lai = epv->proj_lai * epc->lai_ratio;
+        ps->proj_lai = cs->leafc * epc->avg_proj_sla;
+        ps->all_lai = ps->proj_lai * epc->lai_ratio;
 
         /* Calculate projected LAI for sunlit and shaded canopy portions */
-        epv->plaisun = 1.0 - exp (-epv->proj_lai);
-        epv->plaishade = epv->proj_lai - epv->plaisun;
-        if (epv->plaishade < 0.0)
+        ps->plaisun = 1.0 - exp (- ps->proj_lai);
+        ps->plaishade = ps->proj_lai - ps->plaisun;
+        if (ps->plaishade < 0.0)
         {
             printf ("FATAL ERROR: Negative plaishade\n");
-            printf ("LAI of shaded canopy = %lf\n", epv->plaishade);
+            printf ("LAI of shaded canopy = %lf\n", ps->plaishade);
             exit (1);
         }
 
         /* calculate the projected specific leaf area for sunlit and 
          * shaded canopy fractions */
-        epv->sun_proj_sla = (epv->plaisun + (epv->plaishade / epc->sla_ratio)) / cs->leafc;
+        epv->sun_proj_sla = (ps->plaisun + (ps->plaishade / epc->sla_ratio)) / cs->leafc;
         epv->shade_proj_sla = epv->sun_proj_sla * epc->sla_ratio;
     }
     else if (cs->leafc == 0.0)
     {
-        epv->all_lai = 0.0;
-        epv->proj_lai = 0.0;
-        epv->plaisun = 0.0;
-        epv->plaishade = 0.0;
+        ps->all_lai = 0.0;
+        ps->proj_lai = 0.0;
+        ps->plaisun = 0.0;
+        ps->plaishade = 0.0;
         epv->sun_proj_sla = 0.0;
         epv->shade_proj_sla = 0.0;
     }
@@ -77,7 +77,7 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps, con
     }
 
     k = epc->ext_coef;
-    proj_lai = epv->proj_lai;
+    proj_lai = ps->proj_lai;
 
     /* calculate total shortwave absorbed */
     k_sw = k;
@@ -109,7 +109,7 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps, con
 
     /* calculate the total shortwave absorbed by the sunlit and
      * shaded canopy fractions */
-    swabs_plaisun = k_sw * sw * epv->plaisun;
+    swabs_plaisun = k_sw * sw * ps->plaisun;
     swabs_plaishade = swabs - swabs_plaisun;
 
     /* FIXED 02/05/04 */
@@ -123,8 +123,8 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps, con
      * shaded canopy fractions */
     if (proj_lai > 0.0)
     {
-        swabs_per_plaisun = swabs_plaisun / epv->plaisun;
-        swabs_per_plaishade = swabs_plaishade / epv->plaishade;
+        swabs_per_plaisun = swabs_plaisun / ps->plaisun;
+        swabs_per_plaishade = swabs_plaishade / ps->plaishade;
     }
     else
     {
@@ -133,7 +133,7 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps, con
 
     /* calculate the total PAR absorbed by the sunlit and
      * shaded canopy fractions */
-    parabs_plaisun = k_par * par * epv->plaisun;
+    parabs_plaisun = k_par * par * ps->plaisun;
     parabs_plaishade = parabs - parabs_plaisun;
 
     /* FIXED 02/05/04 */
@@ -147,8 +147,8 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps, con
      * shaded canopy fractions */
     if (proj_lai > 0.0)
     {
-        parabs_per_plaisun = parabs_plaisun / epv->plaisun;
-        parabs_per_plaishade = parabs_plaishade / epv->plaishade;
+        parabs_per_plaisun = parabs_plaisun / ps->plaisun;
+        parabs_per_plaishade = parabs_plaishade / ps->plaishade;
     }
     else
     {

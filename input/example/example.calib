@@ -8,7 +8,7 @@ DROOT		1.0	# Rooting depth
 DMAC		1.6	# Macropore depth
 POROSITY	0.8
 ALPHA		1.0
-BETA		1.12
+BETA		1.15
 MACVF		5.0
 MACHF		5.0
 VEGFRAC		1.0

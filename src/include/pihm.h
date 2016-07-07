@@ -30,6 +30,8 @@
 
 #include "pihm_const.h"
 #include "pihm_input_struct.h"
+#include "elem_struct.h"
+#include "river_struct.h"
 #include "pihm_struct.h"
 #ifdef _ENKF_
 #include "mpi.h"

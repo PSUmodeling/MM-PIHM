@@ -10,33 +10,32 @@
 
 #include "pihm.h"
 
-void total_photosynthesis (const metvar_struct * metv, const epconst_struct * epc, epvar_struct * epv, cflux_struct * cf, psn_struct * psn_sun, psn_struct * psn_shade)
+void TotalPhotosynthesis (const epconst_struct *epc, const estate_struct *es, const pstate_struct *ps, epvar_struct *epv, cflux_struct *cf, psn_struct *psn_sun, psn_struct *psn_shade)
 {
     /*
      * This function is a wrapper and replacement for the photosynthesis code
      * which used to be in the central bgc.c code. At Mott Jolly's request,
-     * all of the science code is being moved into funtions. */
+     * all of the science code is being moved into funtions.
+     */
 
     /* psn_struct psn_sun, psn_shade; */
 
     /* SUNLIT canopy fraction photosynthesis */
     /* set the input variables */
     psn_sun->c3 = epc->c3_flag;
-    psn_sun->co2 = metv->co2;
-    psn_sun->pa = metv->pa;
-    psn_sun->t = metv->tday;
+    psn_sun->co2 = ps->co2;
+    psn_sun->pa = ps->sfcprs;
+    psn_sun->t = es->tday - TFREEZ;
     psn_sun->lnc = 1.0 / (epv->sun_proj_sla * epc->leaf_cn);
     psn_sun->flnr = epc->flnr;
-    psn_sun->ppfd = metv->ppfd_per_plaisun;
+    psn_sun->ppfd = ps->ppfd_per_plaisun;
     /* convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
      * water vapor */
-    psn_sun->g = epv->gl_t_wv_sun * 1e6 / (1.6 * 8.3143 * (metv->tday + 273.15));
-    //    printf ("gl_t_wv_sun = %lf, R = %lf, tday = %lf\n", epv->gl_t_wv_sun, R, metv->tday);
+    psn_sun->g = epv->gl_t_wv_sun * 1.0e6 / (1.6 * 8.3143 * es->tday);
     psn_sun->dlmr = epv->dlmr_area_sun;
 
-    //    printf ("c3 = %d, co2 = %lf, pa = %lf, t = %lf, lnc = %lf, flnr = %lf, ppfd = %lf, g = %lf, dlmr = %lf\n", psn_sun->c3, psn_sun->co2, psn_sun->pa, psn_sun->t, psn_sun->lnc, psn_sun->flnr, psn_sun->ppfd, psn_sun->g, psn_sun->dlmr);
     /* Calculate photosynthesis for sunlit leaves */
-    photosynthesis (psn_sun);
+    Photosynthesis (psn_sun);
 
     epv->assim_sun = psn_sun->A;
 
@@ -44,23 +43,23 @@ void total_photosynthesis (const metvar_struct * metv, const epconst_struct * ep
      * the maintenance respiration rate added, this sum multiplied by the
      * projected leaf area in the relevant canopy fraction, and this total
      * converted from umol/m2/s -> kgC/m2/d */
-    cf->psnsun_to_cpool = (epv->assim_sun + epv->dlmr_area_sun) * epv->plaisun * metv->dayl * 12.011e-9;
+    cf->psnsun_to_cpool = (epv->assim_sun + epv->dlmr_area_sun) * ps->plaisun * ps->dayl * 12.011e-9;
     //printf ("Photo %lf\n", cf->psnsun_to_cpool);
 
     /* SHADED canopy fraction photosynthesis */
     psn_shade->c3 = epc->c3_flag;
-    psn_shade->co2 = metv->co2;
-    psn_shade->pa = metv->pa;
-    psn_shade->t = metv->tday;
+    psn_shade->co2 = ps->co2;
+    psn_shade->pa = ps->sfcprs;
+    psn_shade->t = es->tday - 273.15;
     psn_shade->lnc = 1.0 / (epv->shade_proj_sla * epc->leaf_cn);
     psn_shade->flnr = epc->flnr;
-    psn_shade->ppfd = metv->ppfd_per_plaishade;
+    psn_shade->ppfd = ps->ppfd_per_plaishade;
     /* convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
      * water vapor */
-    psn_shade->g = epv->gl_t_wv_shade * 1e6 / (1.6 * 8.3143 * (metv->tday + 273.15));
+    psn_shade->g = epv->gl_t_wv_shade * 1e6 / (1.6 * 8.3143 * es->tday);
     psn_shade->dlmr = epv->dlmr_area_shade;
     /* Calculate photosynthesis for shaded leaves */
-    photosynthesis (psn_shade);
+    Photosynthesis (psn_shade);
 
     epv->assim_shade = psn_shade->A;
 
@@ -68,11 +67,11 @@ void total_photosynthesis (const metvar_struct * metv, const epconst_struct * ep
      * the maintenance respiration rate added, this sum multiplied by the
      * projected leaf area in the relevant canopy fraction, and this total
      * converted from umol/m2/s -> kgC/m2/d */
-    cf->psnshade_to_cpool = (epv->assim_shade + epv->dlmr_area_shade) * epv->plaishade * metv->dayl * 12.011e-9;
+    cf->psnshade_to_cpool = (epv->assim_shade + epv->dlmr_area_shade) * ps->plaishade * ps->dayl * 12.011e-9;
 }
 
 
-void photosynthesis (psn_struct * psn)
+void Photosynthesis (psn_struct *psn)
 {
     /*
      * The following variables are assumed to be defined in the psn struct

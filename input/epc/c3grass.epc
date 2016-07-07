@@ -26,15 +26,11 @@ ECOPHYS       C3 grass
 0.25          (DIM)     fine root lignin proportion
 0.75         *(DIM)     dead wood cellulose proportion
 0.25         *(DIM)     dead wood lignin proportion
-0.021         (1/LAI/d) canopy water interception coefficient 
 0.6           (DIM)     canopy light extinction coefficient
 2.0           (DIM)     all-sided to projected leaf area ratio
 45.0          (m2/kgC)  canopy average specific leaf area (projected area basis)
 2.0           (DIM)     ratio of shaded SLA:sunlit SLA
 0.15          (DIM)     fraction of leaf N in Rubisco
-0.005         (m/s)     maximum stomatal conductance (projected area basis)
-0.00001       (m/s)     cuticular conductance (projected area basis) 
-0.04          (m/s)     boundary layer conductance (projected area basis)
 -0.6          (MPa)     leaf water potential: start of conductance reduction
 -2.3          (MPa)     leaf water potential: complete conductance reduction
 930.0         (Pa)      vapor pressure deficit: start of conductance reduction

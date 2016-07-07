@@ -10,7 +10,7 @@
 
 #include "pihm.h"
 
-void mortality (const epconst_struct * epc, cstate_struct * cs, cflux_struct * cf, nstate_struct * ns, nflux_struct * nf)
+void Mortality (const epconst_struct *epc, cstate_struct *cs, cflux_struct *cf, nstate_struct *ns, nflux_struct *nf)
 {
     double          mort;
     /* dead stem combustion proportion */

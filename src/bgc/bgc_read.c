@@ -487,9 +487,6 @@ void ReadEPC (epclist_struct *epclist)
             epc->deadwood_fscel = 0.8 * t1;
             epc->deadwood_fucel = 0.2 * t1;
         }
-        /* canopy water int coef */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->int_coef);
         /* canopy light ext coef */
         fgets (cmdstr, MAXSTRING, epc_file);
         sscanf (cmdstr, "%lf", &epc->ext_coef);
@@ -505,15 +502,6 @@ void ReadEPC (epclist_struct *epclist)
         /* Rubisco N fraction */
         fgets (cmdstr, MAXSTRING, epc_file);
         sscanf (cmdstr, "%lf", &epc->flnr);
-        /* gl_smax */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->gl_smax);
-        /* gl_c */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->gl_c);
-        /* gl_bl */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->gl_bl);
         /* psi_sat */
         fgets (cmdstr, MAXSTRING, epc_file);
         sscanf (cmdstr, "%lf", &epc->psi_open);
@@ -551,7 +539,6 @@ void ReadEPC (epclist_struct *epclist)
         printf ("LEAFLITR %lf %lf %lf\t", epc->leaflitr_fscel, epc->leaflitr_fucel, epc->leaflitr_flig);
         printf ("FROOTLITR %lf %lf %lf\t", epc->frootlitr_fscel, epc->frootlitr_fucel, epc->frootlitr_flig);
         printf ("DEADWOOD %lf %lf %lf\t", epc->deadwood_fscel, epc->deadwood_fucel, epc->deadwood_flig);
-        printf ("INTCOEF %lf\t", epc->int_coef);
         printf ("EXTCOEF %lf\t", epc->ext_coef);
         printf ("LAIRATIO %lf\t", epc->lai_ratio);
         printf ("PROJSLA %lf\t", epc->avg_proj_sla);

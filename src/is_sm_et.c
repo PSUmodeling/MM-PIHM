@@ -60,7 +60,7 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
         qvsat = 0.622 * (vp / rh) / pres;
         if (elem->attrib.lai_type > 0)
         {
-            lai = elem->ps.xlai;
+            lai = elem->ps.proj_lai;
         }
         else
         {
@@ -128,7 +128,7 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
             (radnet * delta + gamma * (1.2 * LVH2O * (qvsat -
                     qv) / ra)) / (1000.0 * LVH2O * (delta + gamma));
 
-        if (elem->soil.depth - elem->ws0.gw < elem->lc.rzd)
+        if (elem->soil.depth - elem->ws0.gw < elem->ps.rzd)
             satn = 1.0;
         else
             satn =
@@ -177,7 +177,7 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
                             snow_canopy)) / (intcp_max + snow_intcp_max),
                     elem->lc.cfactr)) * etp;
             elem->wf.ett = elem->wf.ett < 0.0 ? 0.0 : elem->wf.ett;
-            elem->wf.ett = ((elem->ws.gw < (elem->soil.depth - elem->lc.rzd))
+            elem->wf.ett = ((elem->ws.gw < (elem->soil.depth - elem->ps.rzd))
                 && elem->ws.unsat <= 0.0) ? 0.0 : elem->wf.ett;
 
             elem->wf.drip =
@@ -285,7 +285,7 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
             ret = elem->wf.drip;
         }
 
-        elem->wf.netprcp =
+        elem->wf.pcpdrp =
             (1.0 - elem->lc.shdfac) * (1.0 - frac_snow) * elem->wf.prcp +
             ret + melt_rate_grnd;
         elem->wf.drip = ret;

@@ -19,6 +19,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
 
     /* Read PIHM input files */
     ReadAlloc (simulation, pihm);
+
 #ifdef _ENKF_
     /* When running in ensemble mode, use parameters and calibration
      * determined by EnKF module */

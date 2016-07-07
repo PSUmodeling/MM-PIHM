@@ -97,7 +97,7 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
                 naddfrac[i] = 0.0;
             }
 
-            //DailyBgc (pihm, pihm->ctrl.spinupstart, naddfrac, first_balance);
+            DailyBgc (pihm, t, pihm->ctrl.spinupstart, naddfrac, first_balance);
 
             for (i = 0; i < pihm->numele; i++)
             {
@@ -194,12 +194,12 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
     sprintf (fn, "%ssminn.dat", outputdir);
     sminn_file = fopen (fn, "w");
 
-    sprintf (restart_fn, "input/%s/%s.bgcinit", simulation, simulation);
+    sprintf (restart_fn, "input/%s/%s.bgcic", simulation, simulation);
     restart_file = fopen (restart_fn, "wb");
     for (i = 0; i < pihm->numele; i++)
     {
         restart_output (&pihm->elem[i].cs, &pihm->elem[i].ns, &pihm->elem[i].epv, &pihm->elem[i].restart_output);
-        fwrite(&(pihm->elem[i].restart_output), sizeof(restart_data_struct), 1, restart_file);
+        fwrite(&(pihm->elem[i].restart_output), sizeof(bgc_ic_struct), 1, restart_file);
         fprintf (soilc_file, "%lf\t", pihm->elem[i].summary.soilc);
         fprintf (vegc_file, "%lf\t", pihm->elem[i].summary.vegc);
         fprintf (spinyr_file, "%d\t", spinup_year[i]);

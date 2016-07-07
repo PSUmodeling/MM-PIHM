@@ -22,7 +22,7 @@ void VerticalFlow (pihm_struct pihm)
     {
         elem = &pihm->elem[i];
 
-        applrate = elem->wf.netprcp + elem->ws.surf / dt;
+        applrate = elem->wf.pcpdrp + elem->ws.surf / dt;
 
         wetfrac =
             (elem->ws.surf > DEPRSTG) ? 1.0 : ((elem->ws.surf <

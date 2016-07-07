@@ -2,7 +2,6 @@
 
 void DailyVar (int t, int start_time, pihm_struct pihm)
 {
-    daily_struct   *daily;
     elem_struct    *elem;
     river_struct   *riv;
     double          dayl;
@@ -21,85 +20,85 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
     /* Triangular grids */
     for (i = 0; i < pihm->numele; i++)
     {
-        daily = &pihm->elem[i].daily;
         elem = &pihm->elem[i];
 
         /* Air temperature */
         sfctmp = elem->es.sfctmp;
-        daily->es.sfctmp += sfctmp;
-        daily->es.tmax = (daily->es.tmax > sfctmp) ? daily->es.tmax : sfctmp;
-        daily->es.tmin = (daily->es.tmin < sfctmp) ? daily->es.tmin : sfctmp;
+        elem->daily.es.sfctmp += sfctmp;
+        elem->daily.es.tmax =
+            (elem->daily.es.tmax > sfctmp) ? elem->daily.es.tmax : sfctmp;
+        elem->daily.es.tmin =
+            (elem->daily.es.tmin < sfctmp) ? elem->daily.es.tmin : sfctmp;
 
         /* Solar radiation */
         solar = elem->ef.soldn;
 
         /* Wind speed */
-        daily->ps.sfcspd += elem->ps.sfcspd;
+        elem->daily.ps.sfcspd += elem->ps.sfcspd;
 
         /* Soil moisture, temperature, and ET */
         for (k = 0; k < elem->ps.nsoil; k++)
         {
-            daily->es.stc[k] += elem->es.stc[k];
-            daily->ws.sh2o[k] += elem->ws.sh2o[k];
-            daily->wf.smflxv[k] += elem->wf.smflxv[k];
+            elem->daily.es.stc[k] += elem->es.stc[k];
+            elem->daily.ws.sh2o[k] += elem->ws.sh2o[k];
+            elem->daily.wf.smflxv[k] += elem->wf.smflxv[k];
         }
 
 #ifdef _CYCLES_
         for (k = 0; k < elem->ps.nsoil; k++)
         {
-            daily->wf.et[k] += elem->wf.et[k];
+            elem->daily.wf.et[k] += elem->wf.et[k];
         }
-        daily->ps.sncovr += elem->ps.sncovr;
+        elem->daily.ps.sncovr += elem->ps.sncovr;
 #endif
 
         /* Water storage terms */
-        daily->ws.surf += elem->ws.surf;
-        daily->ws.unsat += elem->ws.unsat;
-        daily->ws.gw += elem->ws.gw;
+        elem->daily.ws.surf += elem->ws.surf;
+        elem->daily.ws.unsat += elem->ws.unsat;
+        elem->daily.ws.gw += elem->ws.gw;
 
 
         /* Lateral flux */
         for (k = 0; k < 3; k++)
         {
-            daily->wf.subsurf[k] += elem->wf.subsurf[k];
-            daily->wf.surf[k] += elem->wf.surf[k];
+            elem->daily.wf.subsurf[k] += elem->wf.subsurf[k];
+            elem->daily.wf.surf[k] += elem->wf.surf[k];
         }
-        daily->wf.subsurf[3] = 0.0;
-        daily->wf.surf[3] = 0.0;
+        elem->daily.wf.subsurf[3] = 0.0;
+        elem->daily.wf.surf[3] = 0.0;
 
-        if (solar > 1.0)
+        if (solar > 0.0)
         {
-            daily->es.tday += sfctmp;
-            daily->ps.q2d += elem->ps.q2sat - elem->ps.q2;
-            daily->ps.ch += elem->ps.ch;
-            daily->ps.sfcprs += elem->ps.sfcprs;
-            daily->ps.albedo += elem->ps.albedo;
-            daily->ef.soldn += solar;
-            daily->ef.solar_total += solar * pihm->ctrl.stepsize;
-            (daily->daylight_counter)++;
+            elem->daily.es.tday += sfctmp;
+            elem->daily.ps.q2d += elem->ps.q2sat - elem->ps.q2;
+            elem->daily.ps.ch += elem->ps.ch;
+            elem->daily.ps.sfcprs += elem->ps.sfcprs;
+            elem->daily.ps.albedo += elem->ps.albedo;
+            elem->daily.ef.soldn += solar;
+            elem->daily.ef.solar_total += solar * pihm->ctrl.stepsize;
+            (elem->daily.daylight_counter)++;
         }
         else
         {
-            daily->es.tnight += sfctmp;
+            elem->daily.es.tnight += sfctmp;
         }
 
-        (daily->counter)++;
+        (elem->daily.counter)++;
     }
 
     /* River segments */
     for (i = 0; i < pihm->numriv; i++)
     {
-        daily = &pihm->riv[i].daily;
         riv = &pihm->riv[i];
 
         /* Water storage terms */
-        daily->ws.surf += riv->ws.stage;
-        daily->ws.gw += riv->ws.gw;
+        riv->daily.ws.stage += riv->ws.stage;
+        riv->daily.ws.gw += riv->ws.gw;
 
         /* Lateral flux */
         for (j = 0; j < 11; j++)
         {
-            daily->wf.river[j] += riv->wf.river[j];
+            riv->daily.wf.river[j] += riv->wf.river[j];
         }
         //daily->wf.fluxsub[0] += riv->wf.fluxriv[0];
         //daily->wf.fluxsurf[0] += riv->wf.fluxriv[10];
@@ -113,7 +112,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         //daily->wf.fluxsub[3] += riv->wf.fluxriv[3];
         //daily->wf.fluxsurf[3] += riv->wf.fluxriv[5] + riv->wf.fluxriv[8];
 
-        (daily->counter)++;
+        (riv->daily.counter)++;
     }
 
     /* Calculate daily variables */
@@ -166,60 +165,60 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 
         for (i = 0; i < pihm->numele; i++)
         {
-            daily = &(pihm->elem[i].daily);
+            elem = &pihm->elem[i];
 
-            daily->es.sfctmp /= (double)daily->counter;
-            daily->ps.dayl = dayl;
-            daily->ps.prev_dayl = prev_dayl;
+            elem->daily.es.sfctmp /= (double)elem->daily.counter;
+            elem->daily.ps.dayl = dayl;
+            elem->daily.ps.prev_dayl = prev_dayl;
 
-            daily->ps.sfcspd /= (double)daily->counter;
+            elem->daily.ps.sfcspd /= (double)elem->daily.counter;
 
             for (k = 0; k < pihm->elem[i].ps.nsoil; k++)
             {
-                daily->es.stc[k] /= (double)daily->counter;
-                daily->ws.sh2o[k] /= (double)daily->counter;
-                daily->wf.smflxv[k] /= (double)daily->counter;
+                elem->daily.es.stc[k] /= (double)elem->daily.counter;
+                elem->daily.ws.sh2o[k] /= (double)elem->daily.counter;
+                elem->daily.wf.smflxv[k] /= (double)elem->daily.counter;
             }
 
 #ifdef _CYCLES_
             for (k = 0; k < pihm->elem[i].ps.nsoil; k++)
             {
-                daily->wf.et[k] /= (double)daily->counter;
+                elem->daily.wf.et[k] /= (double)elem->daily.counter;
             }
-            daily->ps.sncovr /= (double)daily->counter;
+            elem->daily.ps.sncovr /= (double)elem->daily.counter;
 #endif
 
-            daily->ws.surf /= (double)daily->counter;
-            daily->ws.unsat /= (double)daily->counter;
-            daily->ws.gw /= (double)daily->counter;
+            elem->daily.ws.surf /= (double)elem->daily.counter;
+            elem->daily.ws.unsat /= (double)elem->daily.counter;
+            elem->daily.ws.gw /= (double)elem->daily.counter;
 
             for (k = 0; k < 4; k++)
             {
-                daily->wf.subsurf[k] /= (double)daily->counter;
-                daily->wf.surf[k] /= (double)daily->counter;
+                elem->daily.wf.subsurf[k] /= (double)elem->daily.counter;
+                elem->daily.wf.surf[k] /= (double)elem->daily.counter;
             }
 
-            daily->es.tday /= (double)daily->daylight_counter;
-            daily->ps.q2d /= (double)daily->daylight_counter;
-            daily->ps.ch /= (double)daily->daylight_counter;
-            daily->ps.sfcprs /= (double)daily->daylight_counter;
-            daily->ps.albedo /= (double)daily->daylight_counter;
-            daily->ef.soldn /= (double)daily->daylight_counter;
+            elem->daily.es.tday /= (double)elem->daily.daylight_counter;
+            elem->daily.ps.q2d /= (double)elem->daily.daylight_counter;
+            elem->daily.ps.ch /= (double)elem->daily.daylight_counter;
+            elem->daily.ps.sfcprs /= (double)elem->daily.daylight_counter;
+            elem->daily.ps.albedo /= (double)elem->daily.daylight_counter;
+            elem->daily.ef.soldn /= (double)elem->daily.daylight_counter;
 
-            daily->es.tnight /= (double)(daily->counter -
-                daily->daylight_counter);
+            elem->daily.es.tnight /= (double)(elem->daily.counter -
+                elem->daily.daylight_counter);
         }
 
         for (i = 0; i < pihm->numriv; i++)
         {
-            daily = &(pihm->riv[i].daily);
+            riv = &pihm->riv[i];
 
-            daily->ws.surf /= (double)daily->counter;
-            daily->ws.gw /= (double)daily->counter;
+            riv->daily.ws.stage /= (double)riv->daily.counter;
+            riv->daily.ws.gw /= (double)riv->daily.counter;
 
             for (j = 0; j < 11; j++)
             {
-                daily->wf.river[j] /= (double)daily->counter;
+                riv->daily.wf.river[j] /= (double)riv->daily.counter;
             }
         }
     }
@@ -228,31 +227,29 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 void InitDailyStruct (pihm_struct pihm)
 {
     int             i;
-    daily_struct   *daily;
+    elem_struct    *elem;
+    river_struct   *riv;
 
     for (i = 0; i < pihm->numele; i++)
     {
-        daily = &pihm->elem[i].daily;
+        elem = &pihm->elem[i];
 
-        daily->counter = 0;
-        daily->daylight_counter = 0;
-        InitWState (&daily->ws);
-        InitWFlux (&daily->wf);
-        InitPState (&daily->ps);
-        InitEState (&daily->es);
-        InitEFlux (&daily->ef);
+        elem->daily.counter = 0;
+        elem->daily.daylight_counter = 0;
+        InitElemWState (&elem->daily.ws);
+        InitElemWFlux (&elem->daily.wf);
+        InitPState (&elem->daily.ps);
+        InitEState (&elem->daily.es);
+        InitEFlux (&elem->daily.ef);
     }
 
     for (i = 0; i < pihm->numriv; i++)
     {
-        daily = &pihm->riv[i].daily;
+        riv = &pihm->riv[i];
 
-        daily->counter = 0;
-        daily->daylight_counter = 0;
-        InitWState (&daily->ws);
-        InitWFlux (&daily->wf);
-        InitPState (&daily->ps);
-        InitEState (&daily->es);
-        InitEFlux (&daily->ef);
+        riv->daily.counter = 0;
+        riv->daily.daylight_counter = 0;
+        InitRiverWState (&riv->daily.ws);
+        InitRiverWFlux (&riv->daily.wf);
     }
 }

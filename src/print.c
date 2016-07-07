@@ -562,7 +562,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.soilw;
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ps.soilw;
                     }
                     n++;
                     break;

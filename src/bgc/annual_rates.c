@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void annual_rates (const epconst_struct *epc, epvar_struct *epv)
+void AnnualRates (const epconst_struct *epc, epvar_struct *epv)
 {
     if (epc->evergreen)
     {

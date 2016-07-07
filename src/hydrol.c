@@ -89,11 +89,11 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         /* Source of transpiration */
 #ifdef _NOAH_
         elem->ps.gwet = GWTransp (elem->wf.ett, elem->wf.et, elem->ps.nwtbl,
-            elem->lc.nroot);
+            elem->ps.nroot);
         elem->wf.ett_unsat = (1.0 - elem->ps.gwet) * elem->wf.ett;
         elem->wf.ett_gw = elem->ps.gwet * elem->wf.ett;
 #else
-        if (elem->ws.gw > elem->soil.depth - elem->lc.rzd)
+        if (elem->ws.gw > elem->soil.depth - elem->ps.rzd)
         {
             elem->wf.ett_unsat = 0.0;
             elem->wf.ett_gw = elem->wf.ett;
@@ -122,7 +122,7 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     {
         elem = &pihm->elem[i];
 
-        dy[SURF (i)] += elem->wf.netprcp - elem->wf.infil - elem->wf.edir_surf;
+        dy[SURF (i)] += elem->wf.pcpdrp - elem->wf.infil - elem->wf.edir_surf;
         dy[UNSAT (i)] += elem->wf.infil - elem->wf.rechg -
             elem->wf.edir_unsat - elem->wf.ett_unsat;
         dy[GW (i)] += elem->wf.rechg - elem->wf.edir_gw - elem->wf.ett_gw;

@@ -10,7 +10,7 @@
 
 #include "pihm.h"
 
-void check_carbon_balance (cstate_struct * cs, double *old_balance, int first_balance)
+void CheckCarbonBalance (cstate_struct *cs, double *old_balance, int first_balance)
 {
     double          in, out, store, balance;
 
@@ -47,7 +47,7 @@ void check_carbon_balance (cstate_struct * cs, double *old_balance, int first_ba
     *old_balance = balance;
 }
 
-void check_nitrogen_balance (nstate_struct * ns, double *old_balance, int first_balance)
+void CheckNitrogenBalance (nstate_struct *ns, double *old_balance, int first_balance)
 {
     double          in, out, store, balance;
 

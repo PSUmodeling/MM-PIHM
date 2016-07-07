@@ -298,7 +298,7 @@ void InitLC (elem_struct *elem, int numele, lctbl_struct lctbl,
         lc_ind = elem[i].attrib.lc_type - 1;
 
         elem[i].lc.shdfac = cal.vegfrac * lctbl.vegfrac[lc_ind];
-        elem[i].lc.rzd = cal.rzd * lctbl.rzd[lc_ind];
+        elem[i].ps.rzd = cal.rzd * lctbl.rzd[lc_ind];
         elem[i].epc.rsmin = lctbl.rsmin[lc_ind];
         elem[i].epc.rgl = lctbl.rgl[lc_ind];
         elem[i].epc.hs = lctbl.hs[lc_ind];
@@ -318,7 +318,7 @@ void InitLC (elem_struct *elem, int numele, lctbl_struct lctbl,
         elem[i].lc.bare = (elem[i].attrib.lc_type == lctbl.bare) ? 1 : 0;
         elem[i].lc.shdfac = (elem[i].lc.bare == 1) ? 0.0 : elem[i].lc.shdfac;
 #ifdef _NOAH_
-        elem[i].lc.ptu = 0.0;   /* Not yet used */
+        //elem[i].lc.ptu = 0.0;   /* Not yet used */
         elem[i].lc.snup = lctbl.snup[lc_ind];
         elem[i].lc.isurban = (elem[i].attrib.lc_type == ISURBAN) ? 1 : 0;
         elem[i].lc.shdmin = 0.01;
@@ -339,7 +339,7 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem,
     rivtbl_struct rivtbl, shptbl_struct shptbl,
     matltbl_struct matltbl, meshtbl_struct meshtbl, calib_struct cal)
 {
-    int             i, j;
+    int             i, ii, j;
 
     for (i = 0; i < numriv; i++)
     {
@@ -348,6 +348,14 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem,
         riv[i].fromnode = rivtbl.fromnode[i];
         riv[i].tonode = rivtbl.tonode[i];
         riv[i].down = rivtbl.down[i];
+        riv[i].up = 0;
+        for (ii = 0; ii < numriv; ii++)
+        {
+            if (rivtbl.down[ii] == i + 1)
+            {
+                riv[i].up = ii + 1;
+            }
+        }
 
         for (j = 0; j < 3; j++)
         {
@@ -779,10 +787,10 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
     /* Other variables */
     for (i = 0; i < numele; i++)
     {
-        InitWFlux (&elem[i].wf);
+        InitElemWFlux (&elem[i].wf);
 
 #ifdef _NOAH_
-        InitWFlux (&elem[i].avgwf);
+        InitElemWFlux (&elem[i].avgwf);
 
         elem[i].ps.snotime1 = 0.0;
         elem[i].ps.ribb = 0.0;
@@ -830,7 +838,6 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
         elem[i].wf.snomlt = BADVAL;
         elem[i].wf.esnow = BADVAL;
 
-        elem[i].ws.soilw = BADVAL;
         elem[i].ws.soilm = BADVAL;
 #endif
     }
@@ -862,11 +869,8 @@ void CalcModelStep (ctrl_struct *ctrl)
     }
 }
 
-void InitWState (wstate_struct *ws)
+void InitElemWState (elem_wstate_struct *ws)
 {
-    int             k;
-
-    ws->stage = 0.0;
     ws->surf = 0.0;
     ws->gw = 0.0;
     ws->unsat = 0.0;
@@ -874,22 +878,26 @@ void InitWState (wstate_struct *ws)
     ws->cmcmax = 0.0;
     ws->cmc = 0.0;
 #ifdef _NOAH_
+    int             k;
+
     for (k = 0; k < MAXLYR; k++)
     {
         ws->smc[k] = 0.0;
         ws->sh2o[k] = 0.0;
     }
-    ws->soilw = 0.0;
     ws->soilm = 0.0;
 #endif
 }
 
-void InitWFlux (wflux_struct *wf)
+void InitRiverWState (river_wstate_struct *ws)
+{
+    ws->stage = 0.0;
+    ws->gw = 0.0;
+}
+
+void InitElemWFlux (elem_wflux_struct *wf)
 {
     int             j;
-#ifdef _NOAH_
-    int             k;
-#endif
 
     for (j = 0; j < 3; j++)
     {
@@ -897,7 +905,7 @@ void InitWFlux (wflux_struct *wf)
         wf->subsurf[j] = 0.0;
     }
     wf->prcp = 0.0;
-    wf->netprcp = 0.0;
+    wf->pcpdrp = 0.0;
     wf->infil = 0.0;
     wf->rechg = 0.0;
     wf->drip = 0.0;
@@ -911,11 +919,10 @@ void InitWFlux (wflux_struct *wf)
     wf->edir_gw = 0.0;
     wf->ett_unsat = 0.0;
     wf->ett_gw = 0.0;
-    for (j = 0; j < 11; j++)
-    {
-        wf->river[j] = 0.0;
-    }
+
 #ifdef _NOAH_
+    int             k;
+
     for (k = 0; k < MAXLYR; k++)
     {
         wf->et[k] = 0.0;
@@ -927,34 +934,45 @@ void InitWFlux (wflux_struct *wf)
         wf->runoff2_lyr[k] = 0.0;
     }
     wf->runoff3 = 0.0;
-    for (j = 0; j < 4; j++)
+    for (k = 0; k < MAXLYR; k++)
+    {
+        wf->smflxv[k] = 0.0;
+    }
+    for (j = 0; j < 3; j++)
     {
         for (k = 0; k < MAXLYR; k++)
         {
             wf->smflxh[j][k] = 0.0;
         }
     }
-    for (k = 0; k < MAXLYR; k++)
-    {
-        wf->smflxv[k] = 0.0;
-    }
-    wf->pcpdrp = 0.0;
     wf->prcprain = 0.0;
     wf->dew = 0.0;
     wf->snomlt = 0.0;
     wf->esnow = 0.0;
     wf->etns = 0.0;
 #endif
+#ifdef _CYCLES_
+    wf->eres = 0.0;
+#endif
+}
+
+void InitRiverWFlux (river_wflux_struct *wf)
+{
+    int             j;
+
+    for (j = 0; j < 11; j++)
+    {
+        wf->river[j] = 0.0;
+    }
 }
 
 void InitPState (pstate_struct *ps)
 {
-    int             k;
-
+    ps->rzd = 0.0;
     ps->macpore_status = 999;
     ps->rc = 0.0;
     ps->pc = 0.0;
-    ps->xlai = 0.0;
+    ps->proj_lai = 0.0;
     ps->rcs = 0.0;
     ps->rct = 0.0;
     ps->rcq = 0.0;
@@ -966,13 +984,22 @@ void InitPState (pstate_struct *ps)
     ps->sfcspd = 0.0;
     ps->rh = 0.0;
     ps->sfcprs = 0.0;
+
 #ifdef _NOAH_
+    int             k;
+
+    ps->nroot = 0;
+    for (k = 0; k < MAXLYR; k++)
+    {
+        ps->rtdis[k] = 0.0;
+    }
     ps->snoalb = 0.0;
     ps->nsoil = 999;
     for (k = 0; k < MAXLYR; k++)
     {
         ps->sldpth[k] = 999;
     }
+    ps->soilw = 0.0;
     ps->frzk = 0.0;
     ps->frzx = 0.0;
     ps->czil = 0.0;
@@ -1000,7 +1027,7 @@ void InitPState (pstate_struct *ps)
     ps->q2sat = 0.0;
     ps->q2d = 0.0;
     ps->dqsdt2 = 0.0;
-    ps->nwtbl = 0.0;
+    ps->nwtbl = 999;
     ps->sndens = 0.0;
     ps->snowh = 0.0;
     ps->sncond = 0.0;
@@ -1015,6 +1042,14 @@ void InitPState (pstate_struct *ps)
     }
     ps->dayl = 0.0;
     ps->prev_dayl = 0.0;
+#endif
+#ifdef _BGC_
+    ps->co2 = 0.0;
+    ps->ppfd_per_plaisun = 0.0;
+    ps->ppfd_per_plaishade = 0.0;
+    ps->all_lai = 0.0;
+    ps->plaisun = 0.0;
+    ps->plaishade = 0.0;
 #endif
 }
 
@@ -1064,4 +1099,12 @@ void InitEFlux (eflux_struct *ef)
     ef->flx2 = 0.0;
     ef->flx3 = 0.0;
     ef->solardirect = 0.0;
+#ifdef _BGC_
+    ef->par = 0.0;
+    ef->swabs = 0.0;
+    ef->swtrans = 0.0;
+    ef->swabs_per_plaisun = 0.0;
+    ef->swabs_per_plaishade = 0.0;
+    ef->parabs = 0.0;
+#endif
 }

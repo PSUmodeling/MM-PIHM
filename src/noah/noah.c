@@ -52,20 +52,20 @@ void Noah (int t, pihm_struct pihm)
                 1.0 - ((elem->comm.svRadiationInterception >
                     0.98) ? 0.98 : elem->comm.svRadiationInterception);
 
-            elem->ps.xlai = -log (1.0 - tau) / ksolar;
+            elem->ps.proj_lai = -log (1.0 - tau) / ksolar;
         }
         else
         {
-            elem->ps.xlai = 0.0;
+            elem->ps.proj_lai = 0.0;
         }
 #else
         if (elem->attrib.lai_type == 0)
         {
-            elem->ps.xlai = MonthlyLAI (t, elem->attrib.lc_type);
+            elem->ps.proj_lai = MonthlyLAI (t, elem->attrib.lc_type);
         }
 #endif
 
-        elem->ws.cmcmax = elem->lc.cmcfactr * elem->ps.xlai;
+        elem->ws.cmcmax = elem->lc.cmcfactr * elem->ps.proj_lai;
 
         if (elem->ps.q1 == BADVAL)
         {
@@ -95,8 +95,6 @@ void Noah (int t, pihm_struct pihm)
                 elem->avgwf.smflxh[2][j]) / elem->topo.area;
         }
 
-        //CalcLatFlx (&elem->ws, &elem->ps, &elem->avgwf);
-
         /*
          * Run Noah LSM
          */
@@ -107,20 +105,16 @@ void Noah (int t, pihm_struct pihm)
 #endif
             pihm->ctrl.etstep);
 
-        /*
-         * Transfer Noah variables to PIHM
-         */
-        elem->wf.netprcp = elem->wf.pcpdrp;
         /* ET: convert from w m-2 to m s-1 */
         elem->wf.ec = elem->ef.ec / LVH2O / 1000.0;
         elem->wf.ett = elem->ef.ett / LVH2O / 1000.0;
         elem->wf.edir = elem->ef.edir / LVH2O / 1000.0;
 
-        InitWFlux (&elem->avgwf);
+        InitElemWFlux (&elem->avgwf);
     }
 }
 
-void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
+void SFlx (elem_wstate_struct *ws, elem_wflux_struct *wf, const elem_wflux_struct *avgwf,
     estate_struct *es, eflux_struct *ef, pstate_struct *ps, lc_struct *lc,
     epconst_struct *epc, soil_struct *soil,
 #ifdef _CYCLES_
@@ -202,13 +196,13 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
 
     /* YS: Flux-PIHM uses LAI as a forcing variable.
      * Vegetation fraction is calculated from LAI following Noah-MP */
-    if (ps->xlai >= lc->laimax)
+    if (ps->proj_lai >= lc->laimax)
     {
         ps->embrd = lc->emissmax;
         ps->alb = lc->albedomin;
         ps->z0brd = lc->z0max;
     }
-    else if (ps->xlai <= lc->laimin)
+    else if (ps->proj_lai <= lc->laimin)
     {
         ps->embrd = lc->emissmin;
         ps->alb = lc->albedomax;
@@ -219,7 +213,7 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
         if (lc->laimax > lc->laimin)
         {
             interp_fraction =
-                (ps->xlai - lc->laimin) / (lc->laimax - lc->laimin);
+                (ps->proj_lai - lc->laimin) / (lc->laimax - lc->laimin);
 
             /* Bound interp_fraction between 0 and 1 */
             interp_fraction = (interp_fraction < 1.0) ? interp_fraction : 1.0;
@@ -245,11 +239,11 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
         }
     }
 
-    //lc->shdfac = 1.0 - exp (-0.52 * (ps->xlai));
+    //lc->shdfac = 1.0 - exp (-0.52 * (ps->proj_lai));
 #ifdef _CYCLES_
     lc->shdfac = comm->svRadiationInterception;
 #else
-    lc->shdfac = 1.0 - exp (-0.75 * (ps->xlai));
+    lc->shdfac = 1.0 - exp (-0.75 * (ps->proj_lai));
 #endif
 
     /*
@@ -582,9 +576,9 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
         smav[k] = (ws->smc[k] - soil->smcwlt) / (soil->smcmax - soil->smcwlt);
     }
 
-    if (lc->nroot > 0)
+    if (ps->nroot > 0)
     {
-        for (k = 1; k < lc->nroot; k++)
+        for (k = 1; k < ps->nroot; k++)
         {
             soilwm +=
                 (soil->smcmax - soil->smcwlt) * (zsoil[k - 1] - zsoil[k]);
@@ -595,12 +589,12 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
     if (soilwm < 1.0e-6)
     {
         soilwm = 0.0;
-        ws->soilw = 0.0;
+        ps->soilw = 0.0;
         ws->soilm = 0.0;
     }
     else
     {
-        ws->soilw = soilww / soilwm;
+        ps->soilw = soilww / soilwm;
     }
 }
 
@@ -654,7 +648,7 @@ void AlCalc (pstate_struct *ps, double dt, int snowng)
     ps->albedo = (ps->albedo > snoalb2) ? snoalb2 : ps->albedo;
 }
 
-void CanRes (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
+void CanRes (elem_wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
     const double *zsoil, const soil_struct *soil, const lc_struct *lc, const epconst_struct *epc)
 {
     /*
@@ -687,7 +681,7 @@ void CanRes (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_stru
     ps->rc = 0.0;
 
     /* Contribution due to incoming solar radiation */
-    ff = 0.55 * 2.0 * ef->soldn / (epc->rgl * ps->xlai);
+    ff = 0.55 * 2.0 * ef->soldn / (epc->rgl * ps->proj_lai);
     ps->rcs = (ff + epc->rsmin / epc->rsmax) / (1.0 + ff);
     ps->rcs = (ps->rcs > 0.0001) ? ps->rcs : 0.0001;
 
@@ -710,8 +704,8 @@ void CanRes (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_stru
     /* Use root distribution as weighting factor */
     //part[0]1 = rtdis[0] * gx;
     /* Use soil depth as weighting factor */
-    part[0] = (zsoil[0] / zsoil[lc->nroot - 1]) * gx;
-    for (k = 1; k < lc->nroot; k++)
+    part[0] = (zsoil[0] / zsoil[ps->nroot - 1]) * gx;
+    for (k = 1; k < ps->nroot; k++)
     {
         gx = (ws->sh2o[k] - soil->smcwlt) / (soil->smcref - soil->smcwlt);
         gx = (gx > 1.0) ? 1.0 : gx;
@@ -720,10 +714,10 @@ void CanRes (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_stru
         /* Use root distribution as weighting factor */
         //part[k] = rtdis[k] * gx;
         /* Use soil depth as weighting factor */
-        part[k] = ((zsoil[k] - zsoil[k - 1]) / zsoil[lc->nroot - 1]) * gx;
+        part[k] = ((zsoil[k] - zsoil[k - 1]) / zsoil[ps->nroot - 1]) * gx;
     }
 
-    for (k = 0; k < lc->nroot; k++)
+    for (k = 0; k < ps->nroot; k++)
     {
         ps->rcsoil += part[k];
     }
@@ -738,7 +732,7 @@ void CanRes (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_stru
     ps->rc = RC;
 #else
     ps->rc =
-        epc->rsmin / (ps->xlai * ps->rcs * ps->rct * ps->rcq * ps->rcsoil);
+        epc->rsmin / (ps->proj_lai * ps->rcs * ps->rct * ps->rcq * ps->rcsoil);
 #endif
     //rr = (4.0 * SIGMA * RD / CP) * pow(es->sfctmp, 4.0) /
     //  (ps->sfcprs * ps->ch) + 1.0;
@@ -783,7 +777,7 @@ double CSnow (double dsnow)
     return (sncond);
 }
 
-void DEvap (const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
+void DEvap (const elem_wstate_struct *ws, elem_wflux_struct *wf, const pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil)
 {
     /*
@@ -814,7 +808,7 @@ void DEvap (const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     wf->edir = fx * (1.0 - lc->shdfac) * wf->etp;
 }
 
-void Evapo (wstate_struct *ws, wflux_struct *wf, pstate_struct *ps, const lc_struct *lc,
+void Evapo (elem_wstate_struct *ws, elem_wflux_struct *wf, pstate_struct *ps, const lc_struct *lc,
     soil_struct *soil,
 #ifdef _CYCLES_
     comm_struct *comm, residue_struct *residue, const estate_struct *es,
@@ -1030,7 +1024,7 @@ double FrH2O (double tkelv, double smc, double sh2o, const soil_struct *soil)
     return (freew);
 }
 
-void HRT (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
+void HRT (elem_wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil, double *rhsts,
     const double *zsoil, double yy, double zz1, double dt, double df1,
     double *ai, double *bi, double *ci)
@@ -1299,7 +1293,7 @@ void HStep (estate_struct *es, double *rhsts, double dt, int nsoil, double *ai,
     }
 }
 
-void NoPac (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
+void NoPac (elem_wstate_struct *ws, elem_wflux_struct *wf, const elem_wflux_struct *avgwf,
     estate_struct *es, eflux_struct *ef, pstate_struct *ps, lc_struct *lc,
     soil_struct *soil,
 #ifdef _CYCLES_
@@ -1420,7 +1414,7 @@ void NoPac (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
     ef->flx3 = 0.0;
 }
 
-void Penman (wflux_struct *wf, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
+void Penman (elem_wflux_struct *wf, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
     double *t24, double t2v, int snowng, int frzgra)
 {
     /*
@@ -1542,7 +1536,7 @@ void Rosr12 (double *p, double *a, double *b, double *c, double *d,
     }
 }
 
-void ShFlx (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
+void ShFlx (elem_wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil, double dt, double yy,
     double zz1, const double *zsoil, double df1)
 {
@@ -1574,7 +1568,7 @@ void ShFlx (wstate_struct *ws, estate_struct *es, eflux_struct *ef, pstate_struc
     ef->ssoil = df1 * (es->stc[0] - es->t1) / (0.5 * zsoil[0]);
 }
 
-void SmFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
+void SmFlx (elem_wstate_struct *ws, elem_wflux_struct *wf, const elem_wflux_struct *avgwf,
     pstate_struct *ps, const lc_struct *lc, const soil_struct *soil,
 #ifdef _CYCLES_
     residue_struct *residue,
@@ -1790,7 +1784,7 @@ void SnkSrc (double *tsnsr, double tavg, double smc, double *sh2o,
     *sh2o = xh2o;
 }
 
-void SnoPac (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
+void SnoPac (elem_wstate_struct *ws, elem_wflux_struct *wf, const elem_wflux_struct *avgwf,
     estate_struct *es, eflux_struct *ef, pstate_struct *ps, lc_struct *lc,
     soil_struct *soil,
 #ifdef _CYCLES_
@@ -2273,7 +2267,7 @@ void SnowNew (const estate_struct *es, double newsn, pstate_struct *ps)
     ps->snowh = snowhc * 0.01;
 }
 
-void SRT (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf, pstate_struct *ps,
+void SRT (elem_wstate_struct *ws, elem_wflux_struct *wf, const elem_wflux_struct *avgwf, pstate_struct *ps,
     const soil_struct *soil,
 #ifdef _CYCLES_
     residue_struct *residue,
@@ -2447,7 +2441,7 @@ void SRT (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf, pstate
     }
 }
 
-void SStep (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
+void SStep (elem_wstate_struct *ws, elem_wflux_struct *wf, const elem_wflux_struct *avgwf,
     pstate_struct *ps, const soil_struct *soil, double *rhstt, double rhsct,
     const double *zsoil, double *sice, double *ai, double *bi, double *ci,
     double dt)
@@ -2839,7 +2833,7 @@ double TmpAvg (double tup, double tm, double tdn, const double *zsoil,
     return (tavg);
 }
 
-void Transp (const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
+void Transp (const elem_wstate_struct *ws, elem_wflux_struct *wf, const pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil, const double *zsoil)
 {
     /*
@@ -2875,25 +2869,25 @@ void Transp (const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     }
 
     sgx = 0.0;
-    for (i = 0; i < lc->nroot; i++)
+    for (i = 0; i < ps->nroot; i++)
     {
         gx[i] = (ws->smc[i] - soil->smcwlt) / (soil->smcref - soil->smcwlt);
         gx[i] = (gx[i] < 0.0) ? 0.0 : gx[i];
         gx[i] = (gx[i] > 1.0) ? 1.0 : gx[i];
         sgx += gx[i];
     }
-    sgx = sgx / (double)lc->nroot;
+    sgx = sgx / (double)ps->nroot;
 
     denom = 0.0;
-    for (i = 0; i < lc->nroot; i++)
+    for (i = 0; i < ps->nroot; i++)
     {
-        rtx = lc->rtdis[i] + gx[i] - sgx;
+        rtx = ps->rtdis[i] + gx[i] - sgx;
         gx[i] *= (rtx > 0.0 ? rtx : 0.0);
         denom += gx[i];
     }
     denom = (denom <= 0.0) ? 1.0 : denom;
 
-    for (i = 0; i < lc->nroot; i++)
+    for (i = 0; i < ps->nroot; i++)
     {
         wf->et[i] = etpa * gx[i] / denom;
 
@@ -2907,7 +2901,7 @@ void Transp (const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
         ///* Loop down thru the soil layers repeating the operation above,
         // * but using the thickness of the soil layer (rather than the
         // * absolute depth of each layer) in the final calculation. */
-        //for (k = 0; k < lc->nroot; k++)
+        //for (k = 0; k < ps->nroot; k++)
         //{
         //    gx = (ws->smc[k] - soil->smcwlt ) / (soil->smcref - soil->smcwlt);
         //    gx = (gx < 0.0) ? 0.0 : gx;
@@ -2915,9 +2909,9 @@ void Transp (const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
         //    /*test canopy resistance */
         //    gx = 1.0;
         //    wf->et[k] = ((zsoil[k] - zsoil[k-1]) /
-        //    zsoil[lc->nroot - 1]) * gx * etpa;
+        //    zsoil[ps->nroot - 1]) * gx * etpa;
         //    wf->et[k] = ((zsoil[k] - zsoil[k-1]) /
-        //    zsoil[lc->nroot - 1]) * etpa;
+        //    zsoil[ps->nroot - 1]) * etpa;
         //    /*using root distribution as weighting factor */
         //    wf->et[k] = lc->rtdis[k] * etpa;
         //    wf->et[k] = etpa * part[k];

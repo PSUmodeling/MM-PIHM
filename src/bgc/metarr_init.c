@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitStor (stor_struct *stor, int start_time, int end_time)
+void InitElemStor (elem_stor_struct *stor, int start_time, int end_time)
 {
     /*
      * Generate meteorological forcing array for spin-up
@@ -29,7 +29,6 @@ void InitStor (stor_struct *stor, int start_time, int end_time)
     stor->surf = (double *)malloc (length * sizeof (double));
     stor->unsat = (double *)malloc (length * sizeof (double));
     stor->gw = (double *)malloc (length * sizeof (double));
-    stor->stage = (double *)malloc (length * sizeof (double));
     stor->albedo = (double *)malloc (length * sizeof (double));
     stor->ch = (double *)malloc (length * sizeof (double));
     for (j = 0; j < 3; j++)
@@ -37,6 +36,26 @@ void InitStor (stor_struct *stor, int start_time, int end_time)
         stor->subsurfflx[j] = (double *)malloc (length * sizeof (double));
         stor->surfflx[j] = (double *)malloc (length * sizeof (double));
     }
+    stor->flag = (int *)malloc (length * sizeof (int));
+
+    for (j = 0; j < length; j++)
+    {
+        stor->flag[j] = 0;
+    }
+}
+
+void InitRiverStor (river_stor_struct *stor, int start_time, int end_time)
+{
+    /*
+     * Generate meteorological forcing array for spin-up
+     */
+    int             j;
+    int             length;
+
+    length = (end_time - start_time) / 24 / 3600;
+
+    stor->stage = (double *)malloc (length * sizeof (double));
+    stor->gw = (double *)malloc (length * sizeof (double));
     for (j = 0; j < 11; j++)
     {
         stor->riverflx[j] = (double *)malloc (length * sizeof (double));
@@ -53,8 +72,8 @@ void Save2Stor (pihm_struct pihm, int t, int start_time, int end_time)
 {
     int             i, k;
     int             ind;
-    stor_struct    *stor;
-    daily_struct   *daily;
+    elem_stor_struct    *stor;
+    elem_daily_struct   *daily;
 
     if (t > start_time)
     {
@@ -129,19 +148,16 @@ void Save2Stor (pihm_struct pihm, int t, int start_time, int end_time)
 
         for (i = 0; i < pihm->numriv; i++)
         {
-            stor = &pihm->riv[i].stor;
-            daily = &pihm->riv[i].daily;
-
-            stor->stage[ind] = daily->ws.stage;
-            stor->gw[ind] = daily->ws.gw;
+            pihm->riv[i].stor.stage[ind] = pihm->riv[i].daily.ws.stage;
+            pihm->riv[i].stor.gw[ind] = pihm->riv[i].daily.ws.gw;
 
             /* Convert from m3/s to kg/m2/d */
             for (k = 0; k < 11; k++)
             {
-                stor->riverflx[k][ind] = daily->wf.river[k];
+                pihm->riv[i].stor.riverflx[k][ind] = pihm->riv[i].daily.wf.river[k];
             }
 
-            stor->flag[ind] = 1;
+            pihm->riv[i].stor.flag[ind] = 1;
         }
 
     }

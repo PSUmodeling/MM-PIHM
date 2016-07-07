@@ -10,7 +10,7 @@
 
 #include "pihm.h"
 
-void growth_resp (epconst_struct * epc, cflux_struct * cf)
+void GrowthResp (epconst_struct *epc, cflux_struct *cf)
 {
     double          g1;         /* RATIO   C respired for growth : C grown  */
     double          g2;         /* proportion of growth resp to release at fixation */

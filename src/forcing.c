@@ -68,8 +68,8 @@ void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele, river_struc
 #ifdef _NOAH_
         if (forc->nrad > 0)
         {
-            elem[i].ef.sdif = forc->rad[ind].value[SOLAR_DIR_TS];
-            elem[i].ef.sdir = forc->rad[ind].value[SOLAR_DIF_TS];
+            elem[i].ef.sdir = forc->rad[ind].value[SOLAR_DIR_TS];
+            elem[i].ef.sdif = forc->rad[ind].value[SOLAR_DIF_TS];
         }
 #endif
     }
@@ -90,7 +90,7 @@ void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele, river_struc
             {
                 ind = elem[i].attrib.lai_type - 1;
             
-                elem[i].ps.xlai = forc->lai[ind].value[0];
+                elem[i].ps.proj_lai = forc->lai[ind].value[0];
             }
         }
     }

@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void daymet (const stor_struct *stor, wstate_struct *ws, wflux_struct *wf, estate_struct *es, eflux_struct *ef, pstate_struct *ps, int metday)
+void ElemDayMet (const elem_stor_struct *stor, elem_wstate_struct *ws, elem_wflux_struct *wf, estate_struct *es, eflux_struct *ef, pstate_struct *ps, int metday)
 {
     int             k;
 
@@ -38,7 +38,6 @@ void daymet (const stor_struct *stor, wstate_struct *ws, wflux_struct *wf, estat
         ws->sh2o[k] = stor->sh2o[k][metday];
     }
     ws->surf = stor->surf[metday];
-    ws->stage = stor->stage[metday];
     ws->unsat = stor->unsat[metday];
     ws->gw = stor->gw[metday];
     ps->albedo = stor->albedo[metday];
@@ -49,6 +48,20 @@ void daymet (const stor_struct *stor, wstate_struct *ws, wflux_struct *wf, estat
         wf->surf[k] = stor->surfflx[k][metday];
         wf->subsurf[k] = stor->subsurfflx[k][metday];
     }
+}
+void RiverDayMet (const river_stor_struct *stor, river_wstate_struct *ws, river_wflux_struct *wf, int metday)
+{
+    int             k;
+
+    if (stor->flag[metday] == 0)
+    {
+        printf ("ERROR: BGC forcing of the %dth day is not available!\n", metday + 1);
+        fflush (stdout);
+        PihmExit (1);
+    }
+
+    ws->stage = stor->stage[metday];
+    ws->gw = stor->gw[metday];
 
     for (k = 0; k < 11; k++)
     {

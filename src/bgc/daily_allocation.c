@@ -24,7 +24,7 @@
 
 #include "pihm.h"
 
-void daily_allocation (cflux_struct * cf, cstate_struct * cs, nflux_struct * nf, nstate_struct * ns, epconst_struct * epc, epvar_struct * epv, ntemp_struct * nt, const double naddfrac, const int spinup)
+void DailyAllocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf, nstate_struct *ns, epconst_struct *epc, epvar_struct *epv, ntemp_struct *nt, const double naddfrac, const int spinup)
 {
     double          day_gpp;    /* daily gross production */
     double          day_mresp;  /* daily total maintenance respiration */
