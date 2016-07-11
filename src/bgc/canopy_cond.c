@@ -36,7 +36,7 @@ void CanopyCond (const epconst_struct *epc, const pstate_struct *ps, const estat
 
     /* assign variables that are used more than once */
     tday = es->tday - TFREEZ;
-    tmin = es->tmin;
+    tmin = es->tmin - TFREEZ;
     q2d = ps->q2d;
     dayl = ps->dayl;
     proj_lai = ps->proj_lai;
@@ -44,9 +44,9 @@ void CanopyCond (const epconst_struct *epc, const pstate_struct *ps, const estat
     swc = ws->sh2o[0] * ps->sldpth[0];
     droot = ps->sldpth[0];
 
-    if (ps->nroot > 0)
+    if (ps->nroot > 1)
     {
-        for (k = 0; k < ps->nroot; k++)
+        for (k = 1; k < ps->nroot; k++)
         {
             swc += ws->sh2o[k] * ps->sldpth[k];
             droot += ps->sldpth[k];

@@ -878,7 +878,7 @@ void PrtInit (pihm_struct pihm, char *simulation)
     int             j;
 #endif
 
-    sprintf (fn, "input/%s/%s.init", project, simulation);
+    sprintf (fn, "input/%s/%s.ic", project, simulation);
     init_file = fopen (fn, "wb");
 
     for (i = 0; i < pihm->numele; i++)

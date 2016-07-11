@@ -1,8 +1,9 @@
 #include "pihm.h"
 
-void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, const epclist_struct *epclist, const ctrl_struct *ctrl)
+void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, const epctbl_struct *epctbl, const ctrl_struct *ctrl)
 {
     int             i;
+    int             epc_ind;
 
     /* Detect if model is running in ensemble mode */
     if (verbose_mode)
@@ -12,20 +13,64 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, cons
 
     for (i = 0; i < numele; i++)
     {
-        if (elem[i].attrib.lc_type == DBF)
-        {
-            elem[i].epc = epclist->epc[EPC_DBF];
-        }
-        else if (elem[i].attrib.lc_type == ENF)
-        {
-            elem[i].epc = epclist->epc[EPC_ENF];
-        }
-        else
+        epc_ind = elem[i].attrib.lc_type - 1;
+
+        if (epc_ind != ENF - 1 &&
+            epc_ind != EBF - 1 &&
+            epc_ind != DNF - 1 &&
+            epc_ind != DBF - 1 &&
+            epc_ind != GRASS - 1 &&
+            epc_ind != CLOSE_SHRUB - 1 &&
+            epc_ind != OPEN_SHRUB - 1)
         {
             printf ("Land cover type %d not been defined in Flux-PIHM-BGC\n",
                 elem[i].attrib.lc_type);
             PihmExit (1);
         }
+
+        elem[i].epc.woody = epctbl->woody[epc_ind];
+        elem[i].epc.evergreen = epctbl->evergreen[epc_ind];
+        elem[i].epc.c3_flag = epctbl->c3_flag[epc_ind];
+        elem[i].epc.phenology_flag = epctbl->phenology_flag[epc_ind];
+        elem[i].epc.onday = epctbl->onday[epc_ind];
+        elem[i].epc.offday = epctbl->offday[epc_ind];
+        elem[i].epc.transfer_days = epctbl->transfer_days[epc_ind];
+        elem[i].epc.litfall_days = epctbl->litfall_days[epc_ind];
+        elem[i].epc.leaf_turnover = epctbl->leaf_turnover[epc_ind];
+        elem[i].epc.froot_turnover = epctbl->froot_turnover[epc_ind];
+        elem[i].epc.livewood_turnover = epctbl->livewood_turnover[epc_ind];
+        elem[i].epc.daily_mortality_turnover = epctbl->daily_mortality_turnover[epc_ind];
+        elem[i].epc.daily_fire_turnover = epctbl->daily_fire_turnover[epc_ind];
+        elem[i].epc.alloc_frootc_leafc = epctbl->alloc_frootc_leafc[epc_ind];
+        elem[i].epc.alloc_newstemc_newleafc = epctbl->alloc_newstemc_newleafc[epc_ind];
+        elem[i].epc.alloc_newlivewoodc_newwoodc = epctbl->alloc_newlivewoodc_newwoodc[epc_ind];
+        elem[i].epc.alloc_crootc_stemc = epctbl->alloc_crootc_stemc[epc_ind];
+        elem[i].epc.alloc_prop_curgrowth = epctbl->alloc_prop_curgrowth[epc_ind];
+        elem[i].epc.avg_proj_sla = epctbl->avg_proj_sla[epc_ind];
+        elem[i].epc.sla_ratio = epctbl->sla_ratio[epc_ind];
+        elem[i].epc.lai_ratio = epctbl->lai_ratio[epc_ind];
+        elem[i].epc.ext_coef = epctbl->ext_coef[epc_ind];
+        elem[i].epc.flnr = epctbl->flnr[epc_ind];
+        elem[i].epc.psi_open = epctbl->psi_open[epc_ind];
+        elem[i].epc.psi_close = epctbl->psi_close[epc_ind];
+        elem[i].epc.vpd_open = epctbl->vpd_open[epc_ind];
+        elem[i].epc.vpd_close = epctbl->vpd_close[epc_ind];
+        elem[i].epc.froot_cn = epctbl->froot_cn[epc_ind];
+        elem[i].epc.leaf_cn = epctbl->leaf_cn[epc_ind];
+        elem[i].epc.livewood_cn = epctbl->livewood_cn[epc_ind];
+        elem[i].epc.deadwood_cn = epctbl->deadwood_cn[epc_ind];
+        elem[i].epc.leaflitr_cn = epctbl->leaflitr_cn[epc_ind];
+        elem[i].epc.leaflitr_flab = epctbl->leaflitr_flab[epc_ind];
+        elem[i].epc.leaflitr_fucel = epctbl->leaflitr_fucel[epc_ind];
+        elem[i].epc.leaflitr_fscel = epctbl->leaflitr_fscel[epc_ind];
+        elem[i].epc.leaflitr_flig = epctbl->leaflitr_flig[epc_ind];
+        elem[i].epc.frootlitr_flab = epctbl->frootlitr_flab[epc_ind];
+        elem[i].epc.frootlitr_fucel = epctbl->frootlitr_fucel[epc_ind];
+        elem[i].epc.frootlitr_fscel = epctbl->frootlitr_fscel[epc_ind];
+        elem[i].epc.frootlitr_flig = epctbl->frootlitr_flig[epc_ind];
+        elem[i].epc.deadwood_fucel = epctbl->deadwood_fucel[epc_ind];
+        elem[i].epc.deadwood_fscel = epctbl->deadwood_fscel[epc_ind];
+        elem[i].epc.deadwood_flig = epctbl->deadwood_flig[epc_ind];
 
         if (ctrl->spinup)
         {
@@ -48,7 +93,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
     FILE           *init_file;
 
     /* Read initial conditions */
-    if (! spinup)
+    if (!spinup)
     {
         init_file = fopen (fn, "rb");
         CheckFile (init_file, fn);

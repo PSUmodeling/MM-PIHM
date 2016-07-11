@@ -51,7 +51,7 @@ MSG = "...  Compiling PIHM  ..."
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm)
   SFLAGS = -D_PIHM_ -D_NOAH_ 
-  MODULE_SRCS_= \
+  MODULE_SRCS_ = \
   	noah/lsm_func.c \
   	noah/lsm_read.c \
 	noah/lsm_init.c \

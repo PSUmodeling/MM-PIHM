@@ -47,6 +47,8 @@
 #define CLAY                11
 
 /* Land cover types */
+#define NLCTYPE             40
+
 #define ENF                 1
 #define EBF                 2
 #define DNF                 3
@@ -160,6 +162,19 @@
 #define NO3_RIVER_CTRL      47
 #define NH4_PROF_CTRL       48
 #define NH4_RIVER_CTRL      49
+#endif
+
+#ifdef _BGC_
+#define LAI_CTRL            50
+#define VEGC_CTRL           51
+#define LITRC_CTRL          52
+#define SOILC_CTRL          53
+#define TOTALC_CTRL         54
+#define NPP_CTRL            55
+#define NEP_CTRL            56
+#define NEE_CTRL            57
+#define GPP_CTRL            58
+#define SMINN_CTRL          59
 #endif
 
 extern int      verbose_mode;
@@ -296,26 +311,6 @@ enum stage
 #define DAYSNDEPLOY 365.0
 #define DAYSCRECOVER 365.0
 #define BULK_DENITRIF_PROPORTION 0.5
-
-#define NVEGTYPES   7
-
-/* output control constants */
-#define NMAP 700
-
-/* For modifying summary output as per pan-arctic bgc */
-#define SANE 1
-#define INSANE 0
-
-#define NUM_BGC_FORC    8
-enum bgc_forcing_type
-{ CO2_TS, NDEP_TS, SWC_TS, TOTALW_TS, STC_TS, SUBFLX_TS, SURFFLX_TS,
-        RIVFLX_TS };
-enum epc_vegtype
-{ EPC_C3GRASS, EPC_C4GRASS, EPC_DBF, EPC_DNF, EPC_EBF, EPC_ENF, EPC_SHRUB };
-enum bgc_print_type
-{ LAI_CTRL, VEGC_CTRL, LITRC_CTRL, SOILC_CTRL,
-    TOTALC_CTRL, NPP_CTRL, NEP_CTRL, NEE_CTRL, GPP_CTRL, SMINN_CTRL
-};
 #endif
 
 #ifdef _ENKF_

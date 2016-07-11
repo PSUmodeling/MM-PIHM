@@ -109,39 +109,9 @@ void Save2Stor (pihm_struct pihm, int t, int start_time, int end_time)
 
             for (k = 0; k < 3; k++)
             {
-                stor->subsurfflx[k][ind] = daily->wf.surf[k];
+                stor->subsurfflx[k][ind] = daily->wf.subsurf[k];
                 stor->surfflx[k][ind] = daily->wf.surf[k];
             }
-
-            //stor->tmax[ind] = daily->es.tmax - 273.15;
-            //stor->tmin[ind] = daily->es.tmin - 273.15;
-            //stor->tavg[ind] = daily->es.sfctmp - 273.15;
-            //stor->tday[ind] = daily->es.tday - 273.15;
-            //stor->tnight[ind] = daily->es.tnight - 273.15;
-
-            //stor->q2d[ind] = daily->ps.q2d;
-            //stor->pa[ind] = daily->ps.sfcprs;
-            //stor->swavgfd[ind] = daily->ef.soldn;
-            //stor->par[ind] = stor->swavgfd[ind] * RAD2PAR;
-
-            //stor->tsoil[ind] = daily->es.stc[0] - 273.15;
-            //stor->rootw[ind] = daily->ws.sh2o[0];
-            //stor->totalw[ind] = (daily->ws.surf
-            //    + daily->ws.unsat * pihm->elem[i].soil.porosity
-            //    + daily->ws.gw * pihm->elem[i].soil.porosity)
-            //    * 1000.0;
-
-            //stor->sw_alb[ind] = daily->ps.albedo;
-            //stor->gl_bl[ind] = daily->ps.ch;
-
-            //for (k = 0; k < 3; k++)
-            //{
-            //    /* Convert from m3/s to kg/m2/d */
-            //    stor->latflux[k][ind] = 1000.0
-            //        * (daily->wf.subsurf[k] + daily->wf.surf[k])
-            //        * 24.0 * 3600.0 / pihm->elem[i].topo.area;
-            //}
-            //stor->latflux[3][ind] = 0.0;
 
             stor->flag[ind] = 1;
         }
@@ -151,7 +121,6 @@ void Save2Stor (pihm_struct pihm, int t, int start_time, int end_time)
             pihm->riv[i].stor.stage[ind] = pihm->riv[i].daily.ws.stage;
             pihm->riv[i].stor.gw[ind] = pihm->riv[i].daily.ws.gw;
 
-            /* Convert from m3/s to kg/m2/d */
             for (k = 0; k < 11; k++)
             {
                 pihm->riv[i].stor.riverflx[k][ind] = pihm->riv[i].daily.wf.river[k];

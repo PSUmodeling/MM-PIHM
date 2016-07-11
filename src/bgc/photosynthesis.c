@@ -17,6 +17,9 @@ void TotalPhotosynthesis (const epconst_struct *epc, const estate_struct *es, co
      * which used to be in the central bgc.c code. At Mott Jolly's request,
      * all of the science code is being moved into funtions.
      */
+    double          tday;
+
+    tday = es->tday - TFREEZ;
 
     /* psn_struct psn_sun, psn_shade; */
 
@@ -25,13 +28,13 @@ void TotalPhotosynthesis (const epconst_struct *epc, const estate_struct *es, co
     psn_sun->c3 = epc->c3_flag;
     psn_sun->co2 = ps->co2;
     psn_sun->pa = ps->sfcprs;
-    psn_sun->t = es->tday - TFREEZ;
+    psn_sun->t = tday;
     psn_sun->lnc = 1.0 / (epv->sun_proj_sla * epc->leaf_cn);
     psn_sun->flnr = epc->flnr;
     psn_sun->ppfd = ps->ppfd_per_plaisun;
     /* convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
      * water vapor */
-    psn_sun->g = epv->gl_t_wv_sun * 1.0e6 / (1.6 * 8.3143 * es->tday);
+    psn_sun->g = epv->gl_t_wv_sun * 1.0e6 / (1.6 * 8.3143 * (tday + TFREEZ));
     psn_sun->dlmr = epv->dlmr_area_sun;
 
     /* Calculate photosynthesis for sunlit leaves */
@@ -50,13 +53,13 @@ void TotalPhotosynthesis (const epconst_struct *epc, const estate_struct *es, co
     psn_shade->c3 = epc->c3_flag;
     psn_shade->co2 = ps->co2;
     psn_shade->pa = ps->sfcprs;
-    psn_shade->t = es->tday - 273.15;
+    psn_shade->t = tday;
     psn_shade->lnc = 1.0 / (epv->shade_proj_sla * epc->leaf_cn);
     psn_shade->flnr = epc->flnr;
     psn_shade->ppfd = ps->ppfd_per_plaishade;
     /* convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
      * water vapor */
-    psn_shade->g = epv->gl_t_wv_shade * 1e6 / (1.6 * 8.3143 * es->tday);
+    psn_shade->g = epv->gl_t_wv_shade * 1e6 / (1.6 * 8.3143 * (tday + TFREEZ));
     psn_shade->dlmr = epv->dlmr_area_shade;
     /* Calculate photosynthesis for shaded leaves */
     Photosynthesis (psn_shade);

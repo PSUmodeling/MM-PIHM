@@ -40,7 +40,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 #endif
 #ifdef _BGC_
     sprintf (pihm->filename.bgc, "input/%s/%s.bgc", project, project);
-    sprintf (pihm->filename.bgcinit, "input/%s/%s.bgcinit", project, simulation);
+    sprintf (pihm->filename.bgcinit, "input/%s/%s.bgcic", project, simulation);
 #endif
 
     /*
@@ -152,7 +152,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     /*
      * Read Biome-BGC epc files
      */
-    ReadEPC (&pihm->epclist);
+    ReadEPC (&pihm->epctbl);
 
     /* Read CO2 and Ndep files */
     if (pihm->co2.varco2)

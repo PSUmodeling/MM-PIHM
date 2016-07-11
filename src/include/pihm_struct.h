@@ -24,13 +24,6 @@ typedef struct
 } ndepcontrol_struct;
 
 /* meteorological variable arrays */
-
-
-typedef struct epclist_struct
-{
-    int             nvegtypes;  /* number of vegetation types */
-    epconst_struct *epc;        /* pointer to array of epc structures */
-} epclist_struct;
 #endif
 
 typedef struct calib_struct
@@ -188,7 +181,7 @@ typedef struct pihm_struct
 #ifdef _BGC_
     co2control_struct co2;      /* CO2 concentration information */
     ndepcontrol_struct ndepctrl;        /* Nitrogen deposition control structure */
-    epclist_struct  epclist;
+    epctbl_struct   epctbl;
 #endif
     forc_struct     forc;
 

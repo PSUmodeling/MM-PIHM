@@ -245,6 +245,55 @@ typedef struct noahtbl_struct
 } noahtbl_struct;
 #endif
 
+#ifdef _BGC_
+typedef struct epctbl_struct
+{
+    int            *woody;
+    int            *evergreen;
+    int            *c3_flag;
+    int            *phenology_flag;
+    int            *onday;
+    int            *offday;
+    double         *transfer_days;
+    double         *litfall_days;
+    double         *leaf_turnover;
+    double         *froot_turnover;
+    double         *livewood_turnover;
+    double         *daily_mortality_turnover;
+    double         *daily_fire_turnover;
+    double         *alloc_frootc_leafc;
+    double         *alloc_newstemc_newleafc;
+    double         *alloc_newlivewoodc_newwoodc;
+    double         *alloc_crootc_stemc;
+    double         *alloc_prop_curgrowth;
+    double         *avg_proj_sla;
+    double         *sla_ratio;
+    double         *lai_ratio;
+    double         *ext_coef;
+    double         *flnr;
+    double         *psi_open;
+    double         *psi_close;
+    double         *vpd_open;
+    double         *vpd_close;
+    double         *froot_cn;
+    double         *leaf_cn;
+    double         *livewood_cn;
+    double         *deadwood_cn;
+    double         *leaflitr_cn;
+    double         *leaflitr_flab;
+    double         *leaflitr_fucel;
+    double         *leaflitr_fscel;
+    double         *leaflitr_flig;
+    double         *frootlitr_flab;
+    double         *frootlitr_fucel;
+    double         *frootlitr_fscel;
+    double         *frootlitr_flig;
+    double         *deadwood_fucel;
+    double         *deadwood_fscel;
+    double         *deadwood_flig;
+} epctbl_struct;
+#endif
+
 #ifdef _CYCLES_
 typedef struct agtbl_struct
 {

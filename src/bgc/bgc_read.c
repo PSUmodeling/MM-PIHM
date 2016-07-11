@@ -229,7 +229,7 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2, ndepcontrol_s
 //    }
 //}
 
-void ReadEPC (epclist_struct *epclist)
+void ReadEPC (epctbl_struct *epctbl)
 {
     int             i;
     char            fn[MAXSTRING];
@@ -237,321 +237,404 @@ void ReadEPC (epclist_struct *epclist)
     FILE           *epc_file;
     char            cmdstr[MAXSTRING];
 
-    epconst_struct *epc;
+    epctbl->woody = (int *)malloc (NLCTYPE * sizeof (int));
+    epctbl->evergreen = (int *)malloc (NLCTYPE * sizeof (int));
+    epctbl->c3_flag = (int *)malloc (NLCTYPE * sizeof (int));
+    epctbl->phenology_flag = (int *)malloc (NLCTYPE * sizeof (int));
+    epctbl->onday = (int *)malloc (NLCTYPE * sizeof (int));
+    epctbl->offday = (int *)malloc (NLCTYPE * sizeof (int));
+    epctbl->transfer_days = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->litfall_days = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->leaf_turnover = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->froot_turnover = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->livewood_turnover = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->daily_mortality_turnover = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->daily_fire_turnover = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->alloc_frootc_leafc = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->alloc_newstemc_newleafc = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->alloc_newlivewoodc_newwoodc = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->alloc_crootc_stemc = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->alloc_prop_curgrowth = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->avg_proj_sla = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->sla_ratio = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->lai_ratio = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->ext_coef = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->flnr = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->psi_open = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->psi_close = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->vpd_open = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->vpd_close = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->froot_cn = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->leaf_cn = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->livewood_cn = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->deadwood_cn = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->leaflitr_cn = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->leaflitr_flab = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->leaflitr_fucel = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->leaflitr_fscel = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->leaflitr_flig = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->frootlitr_flab = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->frootlitr_fucel = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->frootlitr_fscel = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->frootlitr_flig = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->deadwood_fucel = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->deadwood_fscel = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->deadwood_flig = (double *)malloc (NLCTYPE * sizeof (double));
 
     /* Read epc files */
-    epclist->nvegtypes = NVEGTYPES;
-    epclist->epc = (epconst_struct *)
-        malloc (epclist->nvegtypes * sizeof (epconst_struct));
-
     if (verbose_mode)
     {
         printf ("\nRead ecophysiological constant files\n");
     }
 
-    for (i = 0; i < epclist->nvegtypes; i++)
+    for (i = 0; i < NLCTYPE; i++)
     {
-        switch (i)
+        switch (i + 1)
         {
-            case EPC_C3GRASS:
-                strcpy (fn, "input/epc/c3grass.epc");
-                epc_file = fopen (fn, "r");
-                break;
-            case EPC_C4GRASS:
-                strcpy (fn, "input/epc/c4grass.epc");
-                epc_file = fopen (fn, "r");
-                break;
-            case EPC_DBF:
-                strcpy (fn, "input/epc/dbf.epc");
-                epc_file = fopen (fn, "r");
-                break;
-            case EPC_DNF:
-                strcpy (fn, "input/epc/dnf.epc");
-                epc_file = fopen (fn, "r");
-                break;
-            case EPC_EBF:
-                strcpy (fn, "input/epc/ebf.epc");
-                epc_file = fopen (fn, "r");
-                break;
-            case EPC_ENF:
+            case ENF:
                 strcpy (fn, "input/epc/enf.epc");
                 epc_file = fopen (fn, "r");
                 break;
-            case EPC_SHRUB:
+            case EBF:
+                strcpy (fn, "input/epc/ebf.epc");
+                epc_file = fopen (fn, "r");
+                break;
+            case DNF:
+                strcpy (fn, "input/epc/dnf.epc");
+                epc_file = fopen (fn, "r");
+                break;
+            case DBF:
+                strcpy (fn, "input/epc/dbf.epc");
+                epc_file = fopen (fn, "r");
+                break;
+            case GRASS:
+                strcpy (fn, "input/epc/c3grass.epc");
+                epc_file = fopen (fn, "r");
+                break;
+            case CLOSE_SHRUB:
                 strcpy (fn, "input/epc/shrub.epc");
                 epc_file = fopen (fn, "r");
                 break;
-            //case EPC_MIXED:
-            //    strcpy (fn, "input/epc/mix.epc");
-            //    epc_file = fopen (fn, "r");
-            //    break;
+            case OPEN_SHRUB:
+                strcpy (fn, "input/epc/shrub.epc");
+                epc_file = fopen (fn, "r");
+                break;
+            default:
+                strcpy (fn, "N/A");
         }
 
-        CheckFile (epc_file, fn);
+        if (strcasecmp (fn, "N/A") != 0)
+        {
+            CheckFile (epc_file, fn);
 
-        epc = &(epclist->epc[i]);
+            /* Skip header file */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            /* Read epc */
+            /* woody/non-woody flag */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%d", &epctbl->woody[i]);
+            /* evergreen/deciduous flag */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%d", &epctbl->evergreen[i]);
+            /* C3/C4 flag */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%d", &epctbl->c3_flag[i]);
+            /* transfer days */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->transfer_days[i]);
+            /* litter fall days */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->litfall_days[i]);
+            /* leaf turnover */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->leaf_turnover[i]);
+            /* force leaf turnover fraction to 1.0 if deciduous */
+            if (!epctbl->evergreen[i])
+            {
+                epctbl->leaf_turnover[i] = 1.0;
+            }
+            epctbl->froot_turnover[i] = epctbl->leaf_turnover[i];
+            /* live wood turnover */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->livewood_turnover[i]);
+            /* whole-plant mortality */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &t1);
+            epctbl->daily_mortality_turnover[i] = t1 / 365.0;
+            /* fire mortality */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &t1);
+            epctbl->daily_fire_turnover[i] = t1 / 365.0;
+            /* froot C:leaf C */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->alloc_frootc_leafc[i]);
+            /* new stem C:new leaf C */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->alloc_newstemc_newleafc[i]);
+            /* new livewood C:new wood C */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->alloc_newlivewoodc_newwoodc[i]);
+            /* croot C:stem C */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->alloc_crootc_stemc[i]);
+            /* new growth:storage growth */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->alloc_prop_curgrowth[i]);
+            /* force storage growth to 0.0 if evergreen (following CLM-CN) */
+            if (epctbl->evergreen[i])
+            {
+                epctbl->alloc_prop_curgrowth[i] = 1.0;
+            }
+            /* average leaf C:N */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->leaf_cn[i]);
+            /* leaf litter C:N */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->leaflitr_cn[i]);
+            /* test for leaflitter C:N > leaf C:N */
+            if (epctbl->leaflitr_cn[i] < epctbl->leaf_cn[i])
+            {
+                printf ("Error: leaf litter C:N must be >= leaf C:N\n");
+                printf ("change the values in ECOPHYS block of initialization file %s\n", fn);
+                exit (1);
+            }
+            /* initial fine root C:N */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->froot_cn[i]);
+            /* initial livewood C:N */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->livewood_cn[i]);
+            /* initial deadwood C:N */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->deadwood_cn[i]);
+            /* test for deadwood C:N > livewood C:N */
+            if (epctbl->deadwood_cn[i] < epctbl->livewood_cn[i])
+            {
+                printf ("Error: livewood C:N must be >= deadwood C:N\n");
+                printf ("change the values in ECOPHYS block of initialization file\n");
+                exit (1);
+            }
+            /* leaf litter labile proportion */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &t1);
+            epctbl->leaflitr_flab[i] = t1;
+            /* leaf litter cellulose proportion */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &t2);
+            /* leaf litter lignin proportion */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &t3);
+            epctbl->leaflitr_flig[i] = t3;
 
-        /* Skip header file */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        /* Read epc */
-        /* woody/non-woody flag */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%d", &epc->woody);
-        /* evergreen/deciduous flag */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%d", &epc->evergreen);
-        /* C3/C4 flag */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%d", &epc->c3_flag);
-        /* transfer days */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->transfer_days);
-        /* litter fall days */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->litfall_days);
-        /* leaf turnover */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->leaf_turnover);
-        /* force leaf turnover fraction to 1.0 if deciduous */
-        if (!epc->evergreen)
-        {
-            epc->leaf_turnover = 1.0;
-        }
-        epc->froot_turnover = epc->leaf_turnover;
-        /* live wood turnover */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->livewood_turnover);
-        /* whole-plant mortality */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &t1);
-        epc->daily_mortality_turnover = t1 / 365.0;
-        /* fire mortality */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &t1);
-        epc->daily_fire_turnover = t1 / 365.0;
-        /* froot C:leaf C */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->alloc_frootc_leafc);
-        /* new stem C:new leaf C */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->alloc_newstemc_newleafc);
-        /* new livewood C:new wood C */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->alloc_newlivewoodc_newwoodc);
-        /* croot C:stem C */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->alloc_crootc_stemc);
-        /* new growth:storage growth */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->alloc_prop_curgrowth);
-        /* force storage growth to 0.0 if evergreen (following CLM-CN) */
-        if (epc->evergreen)
-        {
-            epc->alloc_prop_curgrowth = 1.0;
-        }
-        /* average leaf C:N */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->leaf_cn);
-        /* leaf litter C:N */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->leaflitr_cn);
-        /* test for leaflitter C:N > leaf C:N */
-        if (epc->leaflitr_cn < epc->leaf_cn)
-        {
-            printf ("Error: leaf litter C:N must be >= leaf C:N\n");
-            printf ("change the values in ECOPHYS block of initialization file %s\n", fn);
-            exit (1);
-        }
-        /* initial fine root C:N */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->froot_cn);
-        /* initial livewood C:N */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->livewood_cn);
-        /* initial deadwood C:N */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->deadwood_cn);
-        /* test for deadwood C:N > livewood C:N */
-        if (epc->deadwood_cn < epc->livewood_cn)
-        {
-            printf ("Error: livewood C:N must be >= deadwood C:N\n");
-            printf ("change the values in ECOPHYS block of initialization file\n");
-            exit (1);
-        }
-        /* leaf litter labile proportion */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &t1);
-        epc->leaflitr_flab = t1;
-        /* leaf litter cellulose proportion */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &t2);
-        /* leaf litter lignin proportion */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &t3);
-        epc->leaflitr_flig = t3;
+            /* test for litter fractions sum to 1.0 */
+            if (fabs (t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
+            {
+                printf ("Error:\n");
+                printf ("leaf litter proportions of labile, cellulose, and lignin\n");
+                printf ("must sum to 1.0. Check initialization file and try again %s.\n", fn);
+                exit (1);
+            }
+            /* calculate shielded and unshielded cellulose fraction */
+            r1 = t3 / t2;
+            if (r1 <= 0.45)
+            {
+                epctbl->leaflitr_fscel[i] = 0.0;
+                epctbl->leaflitr_fucel[i] = t2;
+            }
+            else if (r1 > 0.45 && r1 < 0.7)
+            {
+                t4 = (r1 - 0.45) * 3.2;
+                epctbl->leaflitr_fscel[i] = t4 * t2;
+                epctbl->leaflitr_fucel[i] = (1.0 - t4) * t2;
+            }
+            else
+            {
+                epctbl->leaflitr_fscel[i] = 0.8 * t2;
+                epctbl->leaflitr_fucel[i] = 0.2 * t2;
+            }
+            /* froot litter labile proportion */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &t1);
+            epctbl->frootlitr_flab[i] = t1;
+            /* froot litter cellulose proportion */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &t2);
+            /* froot litter lignin proportion */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &t3);
+            epctbl->frootlitr_flig[i] = t3;
 
-        /* test for litter fractions sum to 1.0 */
-        if (fabs (t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
-        {
-            printf ("Error:\n");
-            printf ("leaf litter proportions of labile, cellulose, and lignin\n");
-            printf ("must sum to 1.0. Check initialization file and try again %s.\n", fn);
-            exit (1);
-        }
-        /* calculate shielded and unshielded cellulose fraction */
-        r1 = t3 / t2;
-        if (r1 <= 0.45)
-        {
-            epc->leaflitr_fscel = 0.0;
-            epc->leaflitr_fucel = t2;
-        }
-        else if (r1 > 0.45 && r1 < 0.7)
-        {
-            t4 = (r1 - 0.45) * 3.2;
-            epc->leaflitr_fscel = t4 * t2;
-            epc->leaflitr_fucel = (1.0 - t4) * t2;
-        }
-        else
-        {
-            epc->leaflitr_fscel = 0.8 * t2;
-            epc->leaflitr_fucel = 0.2 * t2;
-        }
-        /* froot litter labile proportion */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &t1);
-        epc->frootlitr_flab = t1;
-        /* froot litter cellulose proportion */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &t2);
-        /* froot litter lignin proportion */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &t3);
-        epc->frootlitr_flig = t3;
-
-        /* test for litter fractions sum to 1.0 */
-        if (fabs (t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
-        {
-            printf ("Error:\n");
-            printf ("froot litter proportions of labile, cellulose, and lignin\n");
-            printf ("must sum to 1.0. Check initialization file and try again.\n");
-            exit (1);
-        }
-        /* calculate shielded and unshielded cellulose fraction */
-        r1 = t3 / t2;
-        if (r1 <= 0.45)
-        {
-            epc->frootlitr_fscel = 0.0;
-            epc->frootlitr_fucel = t2;
-        }
-        else if (r1 > 0.45 && r1 < 0.7)
-        {
-            t4 = (r1 - 0.45) * 3.2;
-            epc->frootlitr_fscel = t4 * t2;
-            epc->frootlitr_fucel = (1.0 - t4) * t2;
-        }
-        else
-        {
-            epc->frootlitr_fscel = 0.8 * t2;
-            epc->frootlitr_fucel = 0.2 * t2;
-        }
-        /* dead wood cellulose */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &t1);
-        /* dead wood lignin */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &t2);
-        epc->deadwood_flig = t2;
-        /* test for litter fractions sum to 1.0 */
-        if (fabs (t1 + t2 - 1.0) > FLT_COND_TOL)
-        {
-            printf ("Error:\n");
-            printf ("deadwood proportions of cellulose and lignin must sum\n");
-            printf ("to 1.0. Check initialization file and try again.\n");
-            exit (1);
-        }
-        /* calculate shielded and unshielded cellulose fraction */
-        r1 = t2 / t1;
-        if (r1 <= 0.45)
-        {
-            epc->deadwood_fscel = 0.0;
-            epc->deadwood_fucel = t1;
-        }
-        else if (r1 > 0.45 && r1 < 0.7)
-        {
-            t4 = (r1 - 0.45) * 3.2;
-            epc->deadwood_fscel = t4 * t1;
-            epc->deadwood_fucel = (1.0 - t4) * t1;
-        }
-        else
-        {
-            epc->deadwood_fscel = 0.8 * t1;
-            epc->deadwood_fucel = 0.2 * t1;
-        }
-        /* canopy light ext coef */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->ext_coef);
-        /* all to projected LA ratio */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->lai_ratio);
-        /* canopy average projected specific leaf area */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->avg_proj_sla);
-        /* sunlit SLA ratio */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->sla_ratio);
-        /* Rubisco N fraction */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->flnr);
-        /* psi_sat */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->psi_open);
-        /* psi_close */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->psi_close);
-        /* vpd_max */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->vpd_open);
-        /* vpd_min */
-        fgets (cmdstr, MAXSTRING, epc_file);
-        sscanf (cmdstr, "%lf", &epc->vpd_close);
+            /* test for litter fractions sum to 1.0 */
+            if (fabs (t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
+            {
+                printf ("Error:\n");
+                printf ("froot litter proportions of labile, cellulose, and lignin\n");
+                printf ("must sum to 1.0. Check initialization file and try again.\n");
+                exit (1);
+            }
+            /* calculate shielded and unshielded cellulose fraction */
+            r1 = t3 / t2;
+            if (r1 <= 0.45)
+            {
+                epctbl->frootlitr_fscel[i] = 0.0;
+                epctbl->frootlitr_fucel[i] = t2;
+            }
+            else if (r1 > 0.45 && r1 < 0.7)
+            {
+                t4 = (r1 - 0.45) * 3.2;
+                epctbl->frootlitr_fscel[i] = t4 * t2;
+                epctbl->frootlitr_fucel[i] = (1.0 - t4) * t2;
+            }
+            else
+            {
+                epctbl->frootlitr_fscel[i] = 0.8 * t2;
+                epctbl->frootlitr_fucel[i] = 0.2 * t2;
+            }
+            /* dead wood cellulose */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &t1);
+            /* dead wood lignin */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &t2);
+            epctbl->deadwood_flig[i] = t2;
+            /* test for litter fractions sum to 1.0 */
+            if (fabs (t1 + t2 - 1.0) > FLT_COND_TOL)
+            {
+                printf ("Error:\n");
+                printf ("deadwood proportions of cellulose and lignin must sum\n");
+                printf ("to 1.0. Check initialization file and try again.\n");
+                exit (1);
+            }
+            /* calculate shielded and unshielded cellulose fraction */
+            r1 = t2 / t1;
+            if (r1 <= 0.45)
+            {
+                epctbl->deadwood_fscel[i] = 0.0;
+                epctbl->deadwood_fucel[i] = t1;
+            }
+            else if (r1 > 0.45 && r1 < 0.7)
+            {
+                t4 = (r1 - 0.45) * 3.2;
+                epctbl->deadwood_fscel[i] = t4 * t1;
+                epctbl->deadwood_fucel[i] = (1.0 - t4) * t1;
+            }
+            else
+            {
+                epctbl->deadwood_fscel[i] = 0.8 * t1;
+                epctbl->deadwood_fucel[i] = 0.2 * t1;
+            }
+            /* canopy light ext coef */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->ext_coef[i]);
+            /* all to projected LA ratio */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->lai_ratio[i]);
+            /* canopy average projected specific leaf area */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->avg_proj_sla[i]);
+            /* sunlit SLA ratio */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->sla_ratio[i]);
+            /* Rubisco N fraction */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->flnr[i]);
+            /* psi_sat */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->psi_open[i]);
+            /* psi_close */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->psi_close[i]);
+            /* vpd_max */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->vpd_open[i]);
+            /* vpd_min */
+            fgets (cmdstr, MAXSTRING, epc_file);
+            sscanf (cmdstr, "%lf", &epctbl->vpd_close[i]);
 
 #ifdef _DEBUG_
-        printf ("WOODY%d\t", epc->woody);
-        printf ("EVERGREEN%d\t", epc->evergreen);
-        printf ("C3%d\t", epc->c3_flag);
-        printf ("TRANSFERDAY%lf\t", epc->transfer_days);
-        printf ("LITFALLDAY%lf\t", epc->litfall_days);
-        printf ("LEAFTURNOVER%lf\t", epc->leaf_turnover);
-        printf ("FROOTTURNOVER%lf\t", epc->froot_turnover);
-        printf ("LIVEWOODTURNOVER%lf\t", epc->livewood_turnover);
-        printf ("DAILYMORTALITYTURNOVER%lf\t", epc->daily_mortality_turnover);
-        printf ("DAILYFIRETURNOVER%lf\t", epc->daily_fire_turnover);
-        printf ("FROOTC/LEAFC%lf\t", epc->alloc_frootc_leafc);
-        printf ("NEWSTEMC/NEWLEAFC%lf\t", epc->alloc_newstemc_newleafc);
-        printf ("NEWLIVEWOODC/NEWWOODC%lf\t", epc->alloc_newlivewoodc_newwoodc);
-        printf ("CROOTC/STEMC%lf\t", epc->alloc_crootc_stemc);
-        printf ("PROP%lf\t", epc->alloc_prop_curgrowth);
-        printf ("LEAFCN%lf\t", epc->leaf_cn);
-        printf ("LEAFLITRCN%lf\t", epc->leaflitr_cn);
-        printf ("FROOTCN%lf\t", epc->froot_cn);
-        printf ("LIVEWOODCN%lf\t", epc->livewood_cn);
-        printf ("DEADWOODCN%lf\t", epc->deadwood_cn);
-        printf ("LEAFLITR %lf %lf %lf\t", epc->leaflitr_fscel, epc->leaflitr_fucel, epc->leaflitr_flig);
-        printf ("FROOTLITR %lf %lf %lf\t", epc->frootlitr_fscel, epc->frootlitr_fucel, epc->frootlitr_flig);
-        printf ("DEADWOOD %lf %lf %lf\t", epc->deadwood_fscel, epc->deadwood_fucel, epc->deadwood_flig);
-        printf ("EXTCOEF %lf\t", epc->ext_coef);
-        printf ("LAIRATIO %lf\t", epc->lai_ratio);
-        printf ("PROJSLA %lf\t", epc->avg_proj_sla);
-        printf ("SLARATIO %lf\t", epc->sla_ratio);
-        printf ("FLNR %lf\t", epc->flnr);
-        printf ("GLMAX %lf\t", epc->gl_smax);
-        printf ("GLC %lf\t", epc->gl_c);
-        printf ("GL_BL %lf\t", epc->gl_bl);
-        printf ("PSIOPEN %lf\t", epc->psi_open);
-        printf ("PSICLOSE %lf\t", epc->psi_close);
-        printf ("VPDOPEN %lf\t", epc->vpd_open);
-        printf ("VPDCLOSE%lf\n", epc->vpd_close);
+            printf ("WOODY%d\t", epctbl->woody[i]);
+            printf ("EVERGREEN%d\t", epctbl->evergreen[i]);
+            printf ("C3%d\t", epctbl->c3_flag[i]);
+            printf ("TRANSFERDAY%lf\t", epctbl->transfer_days[i]);
+            printf ("LITFALLDAY%lf\t", epctbl->litfall_days[i]);
+            printf ("LEAFTURNOVER%lf\t", epctbl->leaf_turnover[i]);
+            printf ("FROOTTURNOVER%lf\t", epctbl->froot_turnover[i]);
+            printf ("LIVEWOODTURNOVER%lf\t", epctbl->livewood_turnover[i]);
+            printf ("DAILYMORTALITYTURNOVER%lf\t", epctbl->daily_mortality_turnover[i]);
+            printf ("DAILYFIRETURNOVER%lf\t", epctbl->daily_fire_turnover[i]);
+            printf ("FROOTC/LEAFC%lf\t", epctbl->alloc_frootc_leafc[i]);
+            printf ("NEWSTEMC/NEWLEAFC%lf\t", epctbl->alloc_newstemc_newleafc[i]);
+            printf ("NEWLIVEWOODC/NEWWOODC%lf\t", epctbl->alloc_newlivewoodc_newwoodc[i]);
+            printf ("CROOTC/STEMC%lf\t", epctbl->alloc_crootc_stemc[i]);
+            printf ("PROP%lf\t", epctbl->alloc_prop_curgrowth[i]);
+            printf ("LEAFCN%lf\t", epctbl->leaf_cn[i]);
+            printf ("LEAFLITRCN%lf\t", epctbl->leaflitr_cn[i]);
+            printf ("FROOTCN%lf\t", epctbl->froot_cn[i]);
+            printf ("LIVEWOODCN%lf\t", epctbl->livewood_cn[i]);
+            printf ("DEADWOODCN%lf\t", epctbl->deadwood_cn[i]);
+            printf ("LEAFLITR %lf %lf %lf\t", epctbl->leaflitr_fscel[i], epctbl->leaflitr_fucel[i], epctbl->leaflitr_flig[i]);
+            printf ("FROOTLITR %lf %lf %lf\t", epctbl->frootlitr_fscel[i], epctbl->frootlitr_fucel[i], epctbl->frootlitr_flig[i]);
+            printf ("DEADWOOD %lf %lf %lf\t", epctbl->deadwood_fscel[i], epctbl->deadwood_fucel[i], epctbl->deadwood_flig[i]);
+            printf ("EXTCOEF %lf\t", epctbl->ext_coef[i]);
+            printf ("LAIRATIO %lf\t", epctbl->lai_ratio[i]);
+            printf ("PROJSLA %lf\t", epctbl->avg_proj_sla[i]);
+            printf ("SLARATIO %lf\t", epctbl->sla_ratio[i]);
+            printf ("FLNR %lf\t", epctbl->flnr[i]);
+            printf ("GLMAX %lf\t", epctbl->gl_smax[i]);
+            printf ("GLC %lf\t", epctbl->gl_c[i]);
+            printf ("GL_BL %lf\t", epctbl->gl_bl[i]);
+            printf ("PSIOPEN %lf\t", epctbl->psi_open[i]);
+            printf ("PSICLOSE %lf\t", epctbl->psi_close[i]);
+            printf ("VPDOPEN %lf\t", epctbl->vpd_open[i]);
+            printf ("VPDCLOSE%lf\n", epctbl->vpd_close[i]);
 #endif
+        }
+        else
+        {
+            epctbl->woody[i] = BADVAL;
+            epctbl->evergreen[i] = BADVAL;
+            epctbl->c3_flag[i] = BADVAL;
+            epctbl->phenology_flag[i] = BADVAL;
+            epctbl->onday[i] = BADVAL;
+            epctbl->offday[i] = BADVAL;
+            epctbl->transfer_days[i] = BADVAL;
+            epctbl->litfall_days[i] = BADVAL;
+            epctbl->leaf_turnover[i] = BADVAL;
+            epctbl->froot_turnover[i] = BADVAL;
+            epctbl->livewood_turnover[i] = BADVAL;
+            epctbl->daily_mortality_turnover[i] = BADVAL;
+            epctbl->daily_fire_turnover[i] = BADVAL;
+            epctbl->alloc_frootc_leafc[i] = BADVAL;
+            epctbl->alloc_newstemc_newleafc[i] = BADVAL;
+            epctbl->alloc_newlivewoodc_newwoodc[i] = BADVAL;
+            epctbl->alloc_crootc_stemc[i] = BADVAL;
+            epctbl->alloc_prop_curgrowth[i] = BADVAL;
+            epctbl->avg_proj_sla[i] = BADVAL;
+            epctbl->sla_ratio[i] = BADVAL;
+            epctbl->lai_ratio[i] = BADVAL;
+            epctbl->ext_coef[i] = BADVAL;
+            epctbl->flnr[i] = BADVAL;
+            epctbl->psi_open[i] = BADVAL;
+            epctbl->psi_close[i] = BADVAL;
+            epctbl->vpd_open[i] = BADVAL;
+            epctbl->vpd_close[i] = BADVAL;
+            epctbl->froot_cn[i] = BADVAL;
+            epctbl->leaf_cn[i] = BADVAL;
+            epctbl->livewood_cn[i] = BADVAL;
+            epctbl->deadwood_cn[i] = BADVAL;
+            epctbl->leaflitr_cn[i] = BADVAL;
+            epctbl->leaflitr_flab[i] = BADVAL;
+            epctbl->leaflitr_fucel[i] = BADVAL;
+            epctbl->leaflitr_fscel[i] = BADVAL;
+            epctbl->leaflitr_flig[i] = BADVAL;
+            epctbl->frootlitr_flab[i] = BADVAL;
+            epctbl->frootlitr_fucel[i] = BADVAL;
+            epctbl->frootlitr_fscel[i] = BADVAL;
+            epctbl->frootlitr_flig[i] = BADVAL;
+            epctbl->deadwood_fucel[i] = BADVAL;
+            epctbl->deadwood_fscel[i] = BADVAL;
+            epctbl->deadwood_flig[i] = BADVAL;
+        }
     }
 }
 

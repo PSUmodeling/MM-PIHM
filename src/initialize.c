@@ -71,7 +71,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
 
 #ifdef _BGC_
     InitBGC (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
-        &pihm->epclist, &pihm->ctrl);
+        &pihm->epctbl, &pihm->ctrl);
 #endif
 
     if (pihm->ctrl.init_type == RELAX)

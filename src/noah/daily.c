@@ -57,15 +57,12 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         elem->daily.ws.unsat += elem->ws.unsat;
         elem->daily.ws.gw += elem->ws.gw;
 
-
         /* Lateral flux */
         for (k = 0; k < 3; k++)
         {
             elem->daily.wf.subsurf[k] += elem->wf.subsurf[k];
             elem->daily.wf.surf[k] += elem->wf.surf[k];
         }
-        elem->daily.wf.subsurf[3] = 0.0;
-        elem->daily.wf.surf[3] = 0.0;
 
         if (solar > 0.0)
         {
@@ -192,7 +189,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             elem->daily.ws.unsat /= (double)elem->daily.counter;
             elem->daily.ws.gw /= (double)elem->daily.counter;
 
-            for (k = 0; k < 4; k++)
+            for (k = 0; k < 3; k++)
             {
                 elem->daily.wf.subsurf[k] /= (double)elem->daily.counter;
                 elem->daily.wf.surf[k] /= (double)elem->daily.counter;

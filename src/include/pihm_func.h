@@ -425,14 +425,14 @@ void            InitCropSV (crop_struct *);
 #endif
 
 #ifdef _BGC_
-void            ReadEPC (epclist_struct *);
+void            ReadEPC (epctbl_struct *);
 void            ReadBGC (char *, ctrl_struct *, co2control_struct *,
     ndepcontrol_struct *, char *, char *);
 void            InitElemStor (elem_stor_struct *, int, int);
 void            InitRiverStor (river_stor_struct *, int, int);
 void            ReadAnnFile (tsdata_struct *, char *);
 void            InitBGC (elem_struct *, int, river_struct *, int,
-    const epclist_struct *, const ctrl_struct *);
+    const epctbl_struct *, const ctrl_struct *);
 void            restart_input (cstate_struct *, nstate_struct *, epvar_struct *, bgc_ic_struct *);
 void            InitBGCVar (elem_struct *, int, river_struct *, int,
     cinit_struct, cstate_struct, nstate_struct, char *, int);
