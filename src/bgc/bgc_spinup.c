@@ -97,7 +97,7 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
                 naddfrac[i] = 0.0;
             }
 
-            DailyBgc (pihm, t, pihm->ctrl.spinupstart, naddfrac, first_balance);
+            DailyBgc (pihm, t, pihm->ctrl.spinupstart, first_balance);
 
             for (i = 0; i < pihm->numele; i++)
             {

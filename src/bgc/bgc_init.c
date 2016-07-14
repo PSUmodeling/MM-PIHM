@@ -107,6 +107,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
 
             /* Calculate LAI for the coupling with Noah */
             elem[i].ps.proj_lai = elem[i].cs.leafc * elem[i].epc.avg_proj_sla;
+            elem[i].epv.annavg_t2m = elem[i].ps.tbot;
         }
 
         for (i = 0; i < numriv; i++)

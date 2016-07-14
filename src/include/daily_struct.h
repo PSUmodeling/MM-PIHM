@@ -11,7 +11,7 @@ typedef struct daily_wstate_struct
 
 typedef struct daily_wflux_struct
 {
-    double          avg_surf[NUM_EDGE];
+    double          avg_ovlflow[NUM_EDGE];
     double          avg_subsurf[NUM_EDGE];
     double          avg_et[MAXLYR];
     double          avg_smflxv[MAXLYR];
@@ -41,7 +41,7 @@ typedef struct daily_estate_struct
 typedef struct daily_eflux_struct
 {
     double          avg_soldn;
-    double          par;
+    //double          par;
     double          solar_total;
 } daily_eflux_struct;
 
@@ -64,7 +64,7 @@ typedef struct river_daily_wstate_struct
 
 typedef struct river_daily_wflux_struct
 {
-    double          avg_river[NUM_RIVFLX];
+    double          avg_rivflow[NUM_RIVFLX];
 } river_daily_wflux_struct;
 
 typedef struct river_daily_struct

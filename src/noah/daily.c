@@ -61,7 +61,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         for (k = 0; k < 3; k++)
         {
             elem->daily.wf.avg_subsurf[k] += elem->wf.subsurf[k];
-            elem->daily.wf.avg_surf[k] += elem->wf.surf[k];
+            elem->daily.wf.avg_ovlflow[k] += elem->wf.ovlflow[k];
         }
 
         if (solar > 0.0)
@@ -95,7 +95,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         /* Lateral flux */
         for (j = 0; j < 11; j++)
         {
-            riv->daily.wf.avg_river[j] += riv->wf.river[j];
+            riv->daily.wf.avg_rivflow[j] += riv->wf.rivflow[j];
         }
         //daily->wf.fluxsub[0] += riv->wf.fluxriv[0];
         //daily->wf.fluxsurf[0] += riv->wf.fluxriv[10];
@@ -192,7 +192,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             for (k = 0; k < 3; k++)
             {
                 elem->daily.wf.avg_subsurf[k] /= (double)elem->daily.counter;
-                elem->daily.wf.avg_surf[k] /= (double)elem->daily.counter;
+                elem->daily.wf.avg_ovlflow[k] /= (double)elem->daily.counter;
             }
 
             elem->daily.es.tday /= (double)elem->daily.daylight_counter;
@@ -215,7 +215,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 
             for (j = 0; j < 11; j++)
             {
-                riv->daily.wf.avg_river[j] /= (double)riv->daily.counter;
+                riv->daily.wf.avg_rivflow[j] /= (double)riv->daily.counter;
             }
         }
     }
@@ -269,7 +269,7 @@ void InitDailyWFlux (daily_wflux_struct *wf)
 
     for (k = 0; k < NUM_EDGE; k++)
     {
-        wf->avg_surf[k] = 0.0;
+        wf->avg_ovlflow[k] = 0.0;
         wf->avg_subsurf[k] = 0.0;
     }
 
@@ -309,7 +309,7 @@ void InitDailyEState (daily_estate_struct *es)
 void InitDailyEFlux (daily_eflux_struct *ef)
 {
     ef->avg_soldn = 0.0;
-    ef->par = 0.0;
+    //ef->par = 0.0;
     ef->solar_total = 0.0;
 }
 
@@ -325,6 +325,6 @@ void InitRiverDailyWFlux (river_daily_wflux_struct *wf)
 
     for (k = 0; k < NUM_RIVFLX; k++)
     {
-        wf->avg_river[k] = 0.0;
+        wf->avg_rivflow[k] = 0.0;
     }
 }

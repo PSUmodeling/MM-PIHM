@@ -195,7 +195,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.river[0];
+                            &pihm->riv[j].wf.rivflow[0];
                     }
                     n++;
                     break;
@@ -210,7 +210,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.river[1];
+                            &pihm->riv[j].wf.rivflow[1];
                     }
                     n++;
                     break;
@@ -225,7 +225,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.river[2];
+                            &pihm->riv[j].wf.rivflow[2];
                     }
                     n++;
                     break;
@@ -240,7 +240,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.river[3];
+                            &pihm->riv[j].wf.rivflow[3];
                     }
                     n++;
                     break;
@@ -255,7 +255,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.river[4];
+                            &pihm->riv[j].wf.rivflow[4];
                     }
                     n++;
                     break;
@@ -270,7 +270,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.river[5];
+                            &pihm->riv[j].wf.rivflow[5];
                     }
                     n++;
                     break;
@@ -285,7 +285,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.river[6];
+                            &pihm->riv[j].wf.rivflow[6];
                     }
                     n++;
                     break;
@@ -300,7 +300,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.river[7];
+                            &pihm->riv[j].wf.rivflow[7];
                     }
                     n++;
                     break;
@@ -315,7 +315,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.river[8];
+                            &pihm->riv[j].wf.rivflow[8];
                     }
                     n++;
                     break;
@@ -330,7 +330,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.river[9];
+                            &pihm->riv[j].wf.rivflow[9];
                     }
                     n++;
                     break;
@@ -345,7 +345,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] =
-                            &pihm->riv[j].wf.river[10];
+                            &pihm->riv[j].wf.rivflow[10];
                     }
                     n++;
                     break;
@@ -380,7 +380,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         for (j = 0; j < pihm->numele; j++)
                         {
                             pihm->prtctrl[n].vrbl[j] =
-                                &pihm->elem[j].wf.surf[k];
+                                &pihm->elem[j].wf.ovlflow[k];
                         }
                         n++;
                     }
@@ -591,6 +591,135 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numele; j++)
                     {
                         pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ef.soldn;
+                    }
+                    n++;
+                    break;
+#endif
+
+#ifdef _BGC_
+                case LAI_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.lai", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ps.proj_lai;
+                    }
+                    n++;
+                    break;
+                case VEGC_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.vegc", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.vegc;
+                    }
+                    n++;
+                    break;
+                case LITRC_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.litrc", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.litrc;
+                    }
+                    n++;
+                    break;
+                case SOILC_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.soilc", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.soilc;
+                    }
+                    n++;
+                    break;
+                case TOTALC_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.totalc", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.totalc;
+                    }
+                    n++;
+                    break;
+                case NPP_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.npp", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.daily_npp;
+                    }
+                    n++;
+                    break;
+                case NEE_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.nee", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.daily_nee;
+                    }
+                    n++;
+                    break;
+                case GPP_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.gpp", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.daily_gpp;
+                    }
+                    n++;
+                    break;
+                case SMINN_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.sminn", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvrbl = pihm->numele;
+                    pihm->prtctrl[n].vrbl =
+                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ns.sminn;
                     }
                     n++;
                     break;

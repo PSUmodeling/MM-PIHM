@@ -40,8 +40,8 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         riv->ws.stage = (y[RIVSTG (i)] >= 0.0) ? y[RIVSTG (i)] : 0.0;
         riv->ws.gw = (y[RIVGW (i)] >= 0.0) ? y[RIVGW (i)] : 0.0;
 
-        riv->wf.river[UP_CHANL2CHANL] = 0.0;
-        riv->wf.river[UP_AQUIF2AQUIF] = 0.0;
+        riv->wf.rivflow[UP_CHANL2CHANL] = 0.0;
+        riv->wf.rivflow[UP_AQUIF2AQUIF] = 0.0;
     }
 
     /*
@@ -129,7 +129,7 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (j = 0; j < 3; j++)
         {
-            dy[SURF (i)] -= elem->wf.surf[j] / elem->topo.area;
+            dy[SURF (i)] -= elem->wf.ovlflow[j] / elem->topo.area;
             dy[GW (i)] -= elem->wf.subsurf[j] / elem->topo.area;
         }
 
@@ -166,11 +166,11 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             /* Note the limitation due to
              * d(v)/dt=a*dy/dt+y*da/dt
              * for cs other than rectangle */
-            dy[RIVSTG (i)] -= riv->wf.river[j] / riv->topo.area;
+            dy[RIVSTG (i)] -= riv->wf.rivflow[j] / riv->topo.area;
         }
         dy[RIVGW (i)] +=
-            -riv->wf.river[LEFT_AQUIF2AQUIF] - riv->wf.river[RIGHT_AQUIF2AQUIF] - riv->wf.river[DOWN_AQUIF2AQUIF] -
-            riv->wf.river[UP_AQUIF2AQUIF] + riv->wf.river[CHANL_LKG];
+            -riv->wf.rivflow[LEFT_AQUIF2AQUIF] - riv->wf.rivflow[RIGHT_AQUIF2AQUIF] - riv->wf.rivflow[DOWN_AQUIF2AQUIF] -
+            riv->wf.rivflow[UP_AQUIF2AQUIF] + riv->wf.rivflow[CHANL_LKG];
         dy[RIVGW (i)] /= riv->matl.porosity * riv->topo.area;
 
         if (isnan (dy[RIVSTG (i)]))

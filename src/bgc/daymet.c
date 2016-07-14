@@ -32,7 +32,7 @@ void DayMet (const stor_struct *stor, daily_wstate_struct *daily_ws,
     }
 
     daily_ef->avg_soldn = stor->soldn[metday];
-    daily_ef->par = stor->par[metday];
+    //daily_ef->par = stor->par[metday];
 
     daily_ws->avg_surf = stor->surf[metday];
     daily_ws->avg_unsat = stor->unsat[metday];
@@ -44,7 +44,7 @@ void DayMet (const stor_struct *stor, daily_wstate_struct *daily_ws,
 
     for (k = 0; k < NUM_EDGE; k++)
     {
-        daily_wf->avg_surf[k] = stor->surfflx[k][metday];
+        daily_wf->avg_ovlflow[k] = stor->surfflx[k][metday];
         daily_wf->avg_subsurf[k] = stor->subsurfflx[k][metday];
     }
 }
@@ -65,6 +65,6 @@ void RiverDayMet (const river_stor_struct *stor, river_daily_wstate_struct *dail
 
     for (k = 0; k < NUM_RIVFLX; k++)
     {
-        daily_wf->avg_river[k] = stor->riverflx[k][metday];
+        daily_wf->avg_rivflow[k] = stor->rivflow[k][metday];
     }
 }

@@ -5,7 +5,7 @@
 
 #include "pihm.h"
 
-void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, int first_balance)
+void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
 {
     //metvar_struct  *metv;
     co2control_struct *co2;
@@ -228,7 +228,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
          * day, because the competition between decomp immobilization fluxes and
          * plant growth N demand is resolved here.  On days with no growth, no
          * allocation occurs, but immobilization fluxes are updated normally */
-        DailyAllocation (cf, cs, nf, ns, epc, epv, nt, naddfrac[i], ctrl->spinup);
+        DailyAllocation (cf, cs, nf, ns, epc, epv, nt, ctrl->spinup);
 
         /* Reassess the annual turnover rates for livewood --> deadwood, and for
          * evergreen leaf and fine root litterfall. This happens once each year,

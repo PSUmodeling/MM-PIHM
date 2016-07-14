@@ -29,14 +29,14 @@ typedef struct river_wstate_struct
 
 typedef struct river_wflux_struct
 {
-    double          river[NUM_RIVFLX];
+    double          rivflow[NUM_RIVFLX];
 } river_wflux_struct;
 
 typedef struct river_stor_struct
 {
     double         *stage;
     double         *gw;
-    double         *riverflx[NUM_RIVFLX];
+    double         *rivflow[NUM_RIVFLX];
     int            *flag;
 } river_stor_struct;
 

@@ -86,14 +86,13 @@ void RadTrans (const cstate_struct *cs, const daily_eflux_struct *daily_ef, eflu
     sw = ((daily_ef->avg_soldn > 0.0) ? daily_ef->avg_soldn : 0.0) *
         (1.0 - albedo_sw);
     swabs = sw * (1.0 - exp (-k_sw * proj_lai));
-    //    printf ("leafc = %lf, sw = %lf, k_sw = %lf, proj_lai = %lf, swabs = %lf\n", cs->leafc, sw, k_sw, proj_lai, swabs);
     swtrans = sw - swabs;
 
     /* calculate PAR absorbed */
     k_par = k * 1.0;
     albedo_par = albedo / 3.0;
 
-    par = ((daily_ef->par > 0.0) ? daily_ef->par : 0.0) * (1.0 - albedo_par);
+    par = ((daily_ef->avg_soldn > 0.0) ? daily_ef->avg_soldn : 0.0) * RAD2PAR * (1.0 - albedo_par);
     parabs = par * (1.0 - exp (-k_par * proj_lai));
 
     /* calculate the total shortwave absorbed by the sunlit and

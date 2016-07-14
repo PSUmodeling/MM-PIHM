@@ -13,6 +13,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     int             nsv;        /* Problem size */
     int             i;          /* Loop index */
     int             t;          /* Simulation time */
+    int             first_balance = 1;
 
     /* Allocate memory for model data structure */
     pihm = (pihm_struct)malloc (sizeof *pihm);
@@ -74,7 +75,11 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         t = pihm->ctrl.tout[i];
 
         /* Apply forcing */
-        ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv, pihm->numriv, t);
+        ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv, pihm->numriv, t
+#ifdef _BGC_
+            , &pihm->ctrl
+#endif
+            );
 
         /* Determine if land surface simulation is needed */
         if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
@@ -119,6 +124,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             }
             else
             {
+                DailyBgc (pihm, t, pihm->ctrl.starttime, first_balance);
+
+                first_balance = 0;
             }
     #endif
         }

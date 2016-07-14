@@ -1,43 +1,81 @@
 #include "pihm.h"
 
-void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele, river_struct *riv, int numriv, int t)
+void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele, river_struct *riv, int numriv, int t
+#ifdef _BGC_
+    , ctrl_struct *ctrl
+#endif
+    )
 {
-    int             i, j, k;
-    int             ind;
-
     /* 
      * Boundary conditions
      */
     if (forc->nbc > 0)
     {
-        for (k = 0; k < forc->nbc; k++)
-        {
-            IntrplForcing (forc->bc[k], t, 1);
-        }
-
-        for (i = 0; i < numele; i++)
-        {
-            for (j = 0; j < 3; j++)
-            {
-                if (elem[i].attrib.bc_type[j] > 0)
-                {
-                    ind = elem[i].attrib.bc_type[j] - 1;
-                    elem[i].bc.head[j] = forc->bc[ind].value[0];
-                    elem[i].bc.flux[j] = -999.0;
-                }
-                else if (elem[i].attrib.bc_type[j] < 0)
-                {
-                    ind = 0 - elem[i].attrib.bc_type[j] - 1;
-                    elem[i].bc.flux[j] = forc->bc[ind].value[0];
-                    elem[i].bc.head[j] = -999.0;
-                }
-            }
-        }
+        ApplyBC (forc, elem, numele, t);
     }
 
     /* 
      * Meteorological forcing
      */
+    ApplyMeteoForc (forc, elem, numele, t);
+
+    /* 
+     * LAI forcing
+     */
+#ifdef _BGC_
+    if (ctrl->spinup)
+    {
+#endif
+#ifndef _CYCLES_
+        ApplyLAI (forc, elem, numele, t);
+#endif
+#ifdef _BGC_
+    }
+#endif
+
+    /* River boundary condition */
+    if (forc->nriverbc > 0)
+    {
+        ApplyRiverBC (forc, riv, numriv, t);
+    }
+}
+
+
+void ApplyBC (forc_struct *forc, elem_struct *elem, int numele, int t)
+{
+    int             ind;
+    int             i, j, k;
+
+    for (k = 0; k < forc->nbc; k++)
+    {
+        IntrplForcing (forc->bc[k], t, 1);
+    }
+
+    for (i = 0; i < numele; i++)
+    {
+        for (j = 0; j < 3; j++)
+        {
+            if (elem[i].attrib.bc_type[j] > 0)
+            {
+                ind = elem[i].attrib.bc_type[j] - 1;
+                elem[i].bc.head[j] = forc->bc[ind].value[0];
+                elem[i].bc.flux[j] = BADVAL;
+            }
+            else if (elem[i].attrib.bc_type[j] < 0)
+            {
+                ind = 0 - elem[i].attrib.bc_type[j] - 1;
+                elem[i].bc.flux[j] = forc->bc[ind].value[0];
+                elem[i].bc.head[j] = BADVAL;
+            }
+        }
+    }
+}
+
+void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t)
+{
+    int             ind;
+    int             i, k;
+
     for (k = 0; k < forc->nmeteo; k++)
     {
         IntrplForcing (forc->meteo[k], t, NUM_METEO_VAR);
@@ -73,47 +111,55 @@ void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele, river_struc
         }
 #endif
     }
+}
 
-    /* 
-     * LAI forcing
-     */
+void ApplyLAI (forc_struct *forc, elem_struct *elem, int numele, int t)
+{
+    int             ind;
+    int             i, k;
+
     if (forc->nlai > 0)
     {
         for (k = 0; k < forc->nlai; k++)
         {
             IntrplForcing (forc->lai[k], t, 1);
         }
-
-        for (i = 0; i < numele; i++)
-        {
-            if (elem[i].attrib.lai_type > 0)
-            {
-                ind = elem[i].attrib.lai_type - 1;
-            
-                elem[i].ps.proj_lai = forc->lai[ind].value[0];
-            }
-        }
     }
 
-    /* River boundary condition */
-    if (forc->nriverbc > 0)
+    for (i = 0; i < numele; i++)
     {
-        for (k = 0; k < forc->nriverbc; k++)
+        if (elem[i].attrib.lai_type > 0)
         {
-            IntrplForcing (forc->riverbc[k], t, 1);
+            ind = elem[i].attrib.lai_type - 1;
+        
+            elem[i].ps.proj_lai = forc->lai[ind].value[0];
         }
-
-        for (i = 0; i < numriv; i++)
+        else
         {
-            if (riv[i].attrib.riverbc_type > 0)
-            {
-                ind = riv[i].attrib.riverbc_type - 1;
-                riv[i].bc.head = forc->riverbc[ind].value[0];
-            }
+            elem->ps.proj_lai = MonthlyLAI (t, elem->attrib.lc_type);
         }
     }
 }
 
+void ApplyRiverBC (forc_struct *forc, river_struct *riv, int numriv, int t)
+{
+    int             ind;
+    int             i, k;
+
+    for (k = 0; k < forc->nriverbc; k++)
+    {
+        IntrplForcing (forc->riverbc[k], t, 1);
+    }
+
+    for (i = 0; i < numriv; i++)
+    {
+        if (riv[i].attrib.riverbc_type > 0)
+        {
+            ind = riv[i].attrib.riverbc_type - 1;
+            riv[i].bc.head = forc->riverbc[ind].value[0];
+        }
+    }
+}
 void IntrplForcing (tsdata_struct ts, int t, int nvrbl)
 {
     int             j;

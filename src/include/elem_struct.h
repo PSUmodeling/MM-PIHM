@@ -1,7 +1,9 @@
 #ifndef ELEM_STRUCT_HEADER
 #define ELEM_STRUCT_HEADER
 
-/* Attribute */
+/*
+ * Attribute
+ */
 typedef struct attrib_struct
 {
     int             soil_type;
@@ -21,9 +23,9 @@ typedef struct topo_struct
     double          y;          /* y of centroid */
     double          zmin;       /* z_min of centroid */
     double          zmax;       /* z_max of centroid */
-    double          edge[3];    /* edge i is from node i to node i+1 */
-    double          surfx[3];
-    double          surfy[3];
+    double          edge[NUM_EDGE];    /* edge i is from node i to node i+1 */
+    double          surfx[NUM_EDGE];
+    double          surfy[NUM_EDGE];
     double          slope;
     double          aspect;     /* ys: surface aspect of grid */
     double          svf;        /* ys: sky view factor */
@@ -88,12 +90,6 @@ typedef struct soil_struct
 
     double          Porosity[MAXLYR];
     double          PAW[MAXLYR];
-//    double          FC_WaterPotential[MAXLYR];
-//    double          airEntryPotential[MAXLYR];
-//    double          B_Value[MAXLYR];
-//    double          M_Value[MAXLYR];
-//    double          ksat[MAXLYR];
-
     double          n2o[MAXLYR];
 
     double          SOC_Conc[MAXLYR];
@@ -138,7 +134,7 @@ typedef struct soil_struct
 } soil_struct;
 
 /*
- * Land cover paraemters
+ * Land cover parameters
  */
 typedef struct lc_struct
 {
@@ -218,7 +214,7 @@ typedef struct epconst_struct
 } epconst_struct;
 
 /*
- * Element physical states
+ * Physical states
  */
 typedef struct pstate_struct
 {
@@ -306,8 +302,8 @@ typedef struct pstate_struct
 typedef struct wstate_struct
 {
     double          surf;
-    double          gw;
     double          unsat;
+    double          gw;
     double          sneqv;      /* liquid water-equivalent snow depth (m). note: snow density = sneqv/snowh */
     double          cmcmax;     /* maximum canopy water capacity */
     double          cmc;        /* Interception storage */
@@ -320,7 +316,7 @@ typedef struct wstate_struct
 
 typedef struct wflux_struct
 {
-    double          surf[NUM_EDGE];        /* Overland Flux */
+    double          ovlflow[NUM_EDGE];        /* Overland Flux */
     double          subsurf[NUM_EDGE];     /* Subsurface Flux */
     double          prcp;           /* Precep. on each element */
     double          pcpdrp;         /* combined prcp1 and drip (from cmc) that goes into the soil (m s-1) */
@@ -345,7 +341,6 @@ typedef struct wflux_struct
     double          runoff3;        /* numerical trunctation in excess of porosity (smcmax) for a given soil layer at the end of a time step (m s-1). note: the above runoff2 is actually the sum of runoff2 and runoff3 */
     double          smflxv[MAXLYR];
     double          smflxh[NUM_EDGE][MAXLYR];
-    double          prcprain;       /* liquid-precipitation rate (kg m-2 s-1) (not used) */
     double          dew;            /* dewfall (or frostfall for t<273.15) (m) */
     double          snomlt;         /* snow melt (m/s) (water equivalent) */
     double          esnow;          /* sublimation from (or deposition to if <0) snowpack (ms-1) */
@@ -380,7 +375,6 @@ typedef struct eflux_struct
     double          ett;        /* total plant transpiration (w m-2) */
     double          esnow;      /* sublimation from (or deposition to if <0) snowpack (w m-2) */
     double          soldn;      /* solar downward radiation (w m-2; positive, not net solar) */
-    double          solar_total;
     double          sdir;
     double          sdif;
     double          longwave;
@@ -729,18 +723,8 @@ typedef struct bgc_ic_struct
 #ifdef _CYCLES_
 typedef struct weather_struct
 {
-    //double          siteAltitude;
-    //double          siteLatitude;
-    //double          screeningHeight;
-    //int             length;
-    //double         *yearlyAmplitude;
-    //double         *annualAverageTemperature;
     int            *lastDoy;
     double        **wind;
-    //double        **ETref;
-    //double        **precipitation;
-    //double        **RHmax;
-    //double        **RHmin;
     double        **solarRadiation;
     double        **tMax;
     double        **tMin;
@@ -775,7 +759,7 @@ typedef struct stor_struct
     double         *q2d;        /* (m3/m3) mixing ratio deficit */
     double         *sfcprs;
     double         *soldn;    /* (W/m2)  daylight avg shortwave flux density */
-    double         *par;        /* (W/m2)  photosynthetically active radiation */
+    //double         *par;        /* (W/m2)  photosynthetically active radiation */
     double         *stc[MAXLYR];
     double         *sh2o[MAXLYR];
     double         *surf;
@@ -1369,8 +1353,8 @@ typedef struct summary_struct
 
 typedef struct elem_struct
 {
-    int             node[3];    /* Counterclock-wise */
-    int             nabr[3];    /* neighbor i shares edge i
+    int             node[NUM_EDGE];    /* Counterclock-wise */
+    int             nabr[NUM_EDGE];    /* neighbor i shares edge i
                                  * (0: on boundary) */
     int             ind;
 
@@ -1423,5 +1407,4 @@ typedef struct elem_struct
     epvar_struct    epv;
 #endif
 } elem_struct;
-
 #endif

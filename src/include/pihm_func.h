@@ -82,7 +82,17 @@ void            CalcModelStep (ctrl_struct *);
 
 void            MapOutput (char *, pihm_struct, char *);
 void            InitOutputFile (prtctrl_struct *, int, int);
-void            ApplyForcing (forc_struct *, elem_struct *, int, river_struct *, int, int);
+void            ApplyForcing (forc_struct *, elem_struct *, int, river_struct *, int, int
+#ifdef _BGC_
+    , ctrl_struct *
+#endif
+    );
+void            ApplyBC (forc_struct *, elem_struct *, int, int);
+void            ApplyMeteoForc (forc_struct *, elem_struct *, int, int);
+void            ApplyLAI (forc_struct *, elem_struct *, int, int);
+void            ApplyRiverBC (forc_struct *, river_struct *, int, int);
+
+
 void            IntcpSnowET (int, double, pihm_struct);
 void            IntrplForcing (tsdata_struct, int, int);
 double          MonthlyLAI (int, int);
@@ -469,7 +479,7 @@ void            CanopyCond (const epconst_struct *, const daily_pstate_struct *,
 void            Photosynthesis (psn_struct *);
 void            TotalPhotosynthesis (const epconst_struct *, const daily_estate_struct *, const daily_pstate_struct *, const pstate_struct *, epvar_struct *, cflux_struct *, psn_struct *, psn_struct *);
 void            Decomp (double, const epconst_struct *, epvar_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *, ntemp_struct *);
-void            DailyAllocation (cflux_struct *, cstate_struct *, nflux_struct *, nstate_struct *, epconst_struct *, epvar_struct *, ntemp_struct *, const double, const int);
+void            DailyAllocation (cflux_struct *, cstate_struct *, nflux_struct *, nstate_struct *, epconst_struct *, epvar_struct *, ntemp_struct *, const int);
 void            AnnualRates (const epconst_struct *, epvar_struct *);
 void            GrowthResp (epconst_struct *, cflux_struct *);
 void            DailyCarbonStateUpdate (cflux_struct *, cstate_struct *, int, int, int);
@@ -479,7 +489,7 @@ void            CheckCarbonBalance (cstate_struct *, double *, int);
 void            CheckNitrogenBalance (nstate_struct *, double *, int);
 void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
 void            NLeaching (elem_struct *, int, river_struct *, int);
-void            DailyBgc (pihm_struct, int, int, const double *, int);
+void            DailyBgc (pihm_struct, int, int, int);
 #endif
 
 #endif

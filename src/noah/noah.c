@@ -58,11 +58,6 @@ void Noah (int t, pihm_struct pihm)
         {
             elem->ps.proj_lai = 0.0;
         }
-#else
-        if (elem->attrib.lai_type == 0)
-        {
-            elem->ps.proj_lai = MonthlyLAI (t, elem->attrib.lc_type);
-        }
 #endif
 
         elem->ws.cmcmax = elem->lc.cmcfactr * elem->ps.proj_lai;

@@ -146,7 +146,7 @@ void LateralFlow (pihm_struct pihm)
                 /* Weighting needed */
                 avg_rough = 0.5 * (elem->lc.rough + nabr->lc.rough);
                 crossa = avg_y_surf * elem->topo.edge[j];
-                elem->wf.surf[j] =
+                elem->wf.ovlflow[j] =
                     OverlandFlow (avg_y_surf, grad_y_surf, avg_sf, crossa,
                     avg_rough);
             }
@@ -155,7 +155,7 @@ void LateralFlow (pihm_struct pihm)
                 /* No flow (natural) boundary condition is default */
                 if (elem->attrib.bc_type[j] == 0)
                 {
-                    elem->wf.surf[j] = 0.0;
+                    elem->wf.ovlflow[j] = 0.0;
                     elem->wf.subsurf[j] = 0.0;
                 }
                 /* Note: ideally different boundary conditions need to be
@@ -165,7 +165,7 @@ void LateralFlow (pihm_struct pihm)
                     /* Note: the formulation assumes only Dirichlet TS right
                      * now */
                     /* note the assumption here is no flow for surface */
-                    elem->wf.surf[j] = 0.0;
+                    elem->wf.ovlflow[j] = 0.0;
                     dif_y_sub =
                         elem->ws.gw + elem->topo.zmin - elem->bc.head[j];
                     avg_y_sub =
@@ -191,7 +191,7 @@ void LateralFlow (pihm_struct pihm)
                 {
                     /* Neumann bc (note: md->ele[i].bc[j] value has to be
                      * = 2+(index of neumann boundary ts) */
-                    elem->wf.surf[j] = elem->bc.flux[j];
+                    elem->wf.ovlflow[j] = elem->bc.flux[j];
                     elem->wf.subsurf[j] = elem->bc.flux[j];
                 }
             }                   /* End of specified boundary condition */

@@ -77,7 +77,11 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     if (pihm->ctrl.init_type == RELAX)
     {
 #ifdef _NOAH_
-        ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv, pihm->numriv, pihm->ctrl.starttime);
+        ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv, pihm->numriv, pihm->ctrl.starttime
+#ifdef _BGC_
+            , &pihm->ctrl
+#endif
+            );
 #endif
         SaturationIC (pihm->elem, pihm->numele, pihm->riv, pihm->numriv);
     }
@@ -833,7 +837,6 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
         elem[i].wf.runoff3 = BADVAL;
         elem[i].wf.pcpdrp = 0.0;
         elem[i].wf.drip = 0.0;
-        elem[i].wf.prcprain = BADVAL;
         elem[i].wf.dew = BADVAL;
         elem[i].wf.snomlt = BADVAL;
         elem[i].wf.esnow = BADVAL;
@@ -875,7 +878,7 @@ void InitWFlux (wflux_struct *wf)
 
     for (j = 0; j < 3; j++)
     {
-        wf->surf[j] = 0.0;
+        wf->ovlflow[j] = 0.0;
         wf->subsurf[j] = 0.0;
     }
     wf->prcp = 0.0;
@@ -919,7 +922,6 @@ void InitWFlux (wflux_struct *wf)
             wf->smflxh[j][k] = 0.0;
         }
     }
-    wf->prcprain = 0.0;
     wf->dew = 0.0;
     wf->snomlt = 0.0;
     wf->esnow = 0.0;
@@ -936,7 +938,7 @@ void InitRiverWFlux (river_wflux_struct *wf)
 
     for (j = 0; j < 11; j++)
     {
-        wf->river[j] = 0.0;
+        wf->rivflow[j] = 0.0;
     }
 }
 
@@ -961,7 +963,6 @@ void InitEFlux (eflux_struct *ef)
     ef->ett = 0.0;
     ef->esnow = 0.0;
     ef->soldn = 0.0;
-    ef->solar_total = 0.0;
     ef->sdir = 0.0;
     ef->sdif = 0.0;
     ef->longwave = 0.0;
