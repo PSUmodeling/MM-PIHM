@@ -30,6 +30,9 @@
 
 #include "pihm_const.h"
 #include "input_tbl_struct.h"
+#ifdef _DAILY_
+#include "daily_struct.h"
+#endif
 #include "elem_struct.h"
 #include "river_struct.h"
 #include "pihm_struct.h"

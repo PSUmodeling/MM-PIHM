@@ -10,8 +10,8 @@
 
 #include "pihm.h"
 
-void Phenology (const epconst_struct *epc, const pstate_struct *ps,
-    const estate_struct *es, phenology_struct *phen, epvar_struct *epv,
+void Phenology (const epconst_struct *epc, const daily_pstate_struct *daily_ps,
+    const daily_estate_struct *daily_es, phenology_struct *phen, epvar_struct *epv,
     cstate_struct *cs, cflux_struct *cf, nstate_struct *ns,
     nflux_struct *nf)
 {
@@ -37,7 +37,7 @@ void Phenology (const epconst_struct *epc, const pstate_struct *ps,
 
     onset_critsum = exp (4.795 + 0.129 * (epv->annavg_t2m - TFREEZ));
 
-    tsoil = es->stc[0] - TFREEZ;
+    tsoil = daily_es->avg_stc[0] - TFREEZ;
 
     /* define the phenology signals for cases in which the phenology signals
      * are constant between years */
@@ -114,7 +114,7 @@ void Phenology (const epconst_struct *epc, const pstate_struct *ps,
 
             /* set flag for solstice period
              * (winter->summer = 1, summer->winter = 0) */
-            if (ps->dayl >= ps->prev_dayl)
+            if (daily_ps->dayl >= daily_ps->prev_dayl)
                 ws_flag = 1;
             else
                 ws_flag = 0;
@@ -206,7 +206,7 @@ void Phenology (const epconst_struct *epc, const pstate_struct *ps,
             {
                 /* only begin to test for offset daylength once past the
                  * summer sol */
-                if (ws_flag == 0 && ps->dayl < critdayl)
+                if (ws_flag == 0 && daily_ps->dayl < critdayl)
                 {
                     epv->offset_flag = 1.;
                     epv->offset_counter = epc->litfall_days;
@@ -576,20 +576,20 @@ void Phenology (const epconst_struct *epc, const pstate_struct *ps,
     if (epv->annmax_frootc < cs->frootc)
         epv->annmax_frootc = cs->frootc;
 }
-
-int FreePhenmem (phenarray_struct *phen)
-{
-    int             ok = 1;
-
-    /* free memory in phenology arrays */
-    free (phen->remdays_curgrowth);
-    free (phen->remdays_transfer);
-    free (phen->remdays_litfall);
-    free (phen->predays_transfer);
-    free (phen->predays_litfall);
-
-    return (!ok);
-}
+//
+//int FreePhenmem (phenarray_struct *phen)
+//{
+//    int             ok = 1;
+//
+//    /* free memory in phenology arrays */
+//    free (phen->remdays_curgrowth);
+//    free (phen->remdays_transfer);
+//    free (phen->remdays_litfall);
+//    free (phen->predays_transfer);
+//    free (phen->predays_litfall);
+//
+//    return (!ok);
+//}
 
 void LeafLitFall (const epconst_struct * epc, double litfallc, cflux_struct * cf, nflux_struct * nf)
 {

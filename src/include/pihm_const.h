@@ -21,6 +21,8 @@
 #define MAXSTRING	    1024
 #define ISURBAN             13
 
+#define NUM_EDGE            3
+
 #define MAXLYR              11
 #define NUM_METEO_VAR       7
 #define NUM_PRINT           1024
@@ -76,6 +78,7 @@
 #define MAC_CTRL            2
 
 /* River fluxes */
+#define NUM_RIVFLX          11
 #define UP_CHANL2CHANL      0
 #define DOWN_CHANL2CHANL    1
 #define LEFT_SURF2CHANL     2

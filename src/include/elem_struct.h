@@ -2,19 +2,19 @@
 #define ELEM_STRUCT_HEADER
 
 /* Attribute */
-typedef struct elem_attrib_struct
+typedef struct attrib_struct
 {
     int             soil_type;
     int             lc_type;
     int             bc_type[3];
     int             meteo_type;
     int             lai_type;
-} elem_attrib_struct;
+} attrib_struct;
 
 /* 
  * Topographic parameters
  */
-typedef struct elem_topo_struct
+typedef struct topo_struct
 {
     double          area;       /* area of element */
     double          x;          /* x of centroid */
@@ -24,16 +24,12 @@ typedef struct elem_topo_struct
     double          edge[3];    /* edge i is from node i to node i+1 */
     double          surfx[3];
     double          surfy[3];
-#ifdef _NOAH_
     double          slope;
     double          aspect;     /* ys: surface aspect of grid */
     double          svf;        /* ys: sky view factor */
     double          h_phi[36];  /* unobstrcted angle */
-#endif
-#ifdef _RT_
-    double          areasub[3];
-#endif
-} elem_topo_struct;
+    double          areasub[NUM_EDGE];
+} topo_struct;
 
 /*
  * Soil parameters
@@ -66,11 +62,9 @@ typedef struct soil_struct
                                  * vertical cross-section */
     double          areafh;     /* macropore area fraction on a
                                  * horizontal cross-section */
-#ifdef _NOAH_
     double          csoil;      /* soil heat capacity (j m-3 k-1) */
     double          quartz;     /* soil quartz content */
     double          smcdry;     /* dry soil moisture threshold where direct evap frm top layer ends (volumetric) */
-#endif
 
 #ifdef _CYCLES_
     int             totalLayers;
@@ -165,10 +159,7 @@ typedef struct lc_struct
     double          rough;      /* surface roughness of an element */
     double          cmcfactr;
     int             bare;
-#ifdef _NOAH_
     int             isurban;
-    //double          ptu;        /* photo thermal unit (plant phenology for annuals/crops) (not yet used, but passed to redprm for future use in veg parms) */
-#endif
 } lc_struct;
 
 typedef struct epconst_struct
@@ -248,10 +239,10 @@ typedef struct pstate_struct
     double          sfcspd;
     double          rh;
     double          sfcprs;
+    double          snoalb;     /* upper bound on maximum albedo over deep snow (e.g. from robinson and kukla, 1985, j. clim. & appl. meteor.) */
 #ifdef _NOAH_
     int             nroot;      /* number of root layers, a function of veg type, determined in subroutine redprm. */
     double          rtdis[MAXLYR];
-    double          snoalb;     /* upper bound on maximum albedo over deep snow (e.g. from robinson and kukla, 1985, j. clim. & appl. meteor.) */
     int             nsoil;      /* number of soil layers (at least 2, and not
                                  * greater than parameter nsold set below) */
 
@@ -303,8 +294,6 @@ typedef struct pstate_struct
     double          satdpth[MAXLYR];
 #endif
 #ifdef _BGC_
-    double          dayl;
-    double          prev_dayl;
     double          co2;
     double          ppfd_per_plaisun;   /* (umol/m2/s) ppfd per unit sunlit proj LAI */
     double          ppfd_per_plaishade; /* (umol/m2/s) ppfd per unit shaded proj LAI */
@@ -314,7 +303,7 @@ typedef struct pstate_struct
 #endif
 } pstate_struct;
 
-typedef struct elem_wstate_struct
+typedef struct wstate_struct
 {
     double          surf;
     double          gw;
@@ -327,12 +316,12 @@ typedef struct elem_wstate_struct
     double          sh2o[MAXLYR];       /* unfrozen soil moisture content (volumetric fraction). note: frozen soil moisture = smc - sh2o */
     double          soilm;      /* total soil column moisture content (frozen+unfrozen) (m) */
 #endif
-} elem_wstate_struct;
+} wstate_struct;
 
-typedef struct elem_wflux_struct
+typedef struct wflux_struct
 {
-    double          surf[3];        /* Overland Flux */
-    double          subsurf[3];     /* Subsurface Flux */
+    double          surf[NUM_EDGE];        /* Overland Flux */
+    double          subsurf[NUM_EDGE];     /* Subsurface Flux */
     double          prcp;           /* Precep. on each element */
     double          pcpdrp;         /* combined prcp1 and drip (from cmc) that goes into the soil (m s-1) */
     double          infil;          /* Variable infiltration rate */
@@ -355,7 +344,7 @@ typedef struct elem_wflux_struct
     double          runoff2_lyr[MAXLYR];
     double          runoff3;        /* numerical trunctation in excess of porosity (smcmax) for a given soil layer at the end of a time step (m s-1). note: the above runoff2 is actually the sum of runoff2 and runoff3 */
     double          smflxv[MAXLYR];
-    double          smflxh[3][MAXLYR];
+    double          smflxh[NUM_EDGE][MAXLYR];
     double          prcprain;       /* liquid-precipitation rate (kg m-2 s-1) (not used) */
     double          dew;            /* dewfall (or frostfall for t<273.15) (m) */
     double          snomlt;         /* snow melt (m/s) (water equivalent) */
@@ -365,7 +354,7 @@ typedef struct elem_wflux_struct
 #ifdef _CYCLES_
     double          eres;
 #endif
-} elem_wflux_struct;
+} wflux_struct;
 
 typedef struct estate_struct
 {
@@ -373,10 +362,6 @@ typedef struct estate_struct
     double          t1;         /* ground/canopy/snowpack) effective skin temperature (k) */
     double          th2;        /* air potential temperature (k) at height zlvl above ground */
     double          sfctmp;
-    double          tday;
-    double          tnight;
-    double          tmax;
-    double          tmin;
 } estate_struct;
 
 typedef struct eflux_struct
@@ -404,7 +389,6 @@ typedef struct eflux_struct
     double          flx3;       /* phase-change heat flux from snowmelt (w m-2) */
     double          solardirect;        /* direct component of downward solar radiation (w m-2) (not used) */
 #ifdef _BGC_
-    double          par;
     double          swabs;      /* (W/m2)  canopy absorbed shortwave flux */
     double          swtrans;    /* (W/m2)  transmitted shortwave flux */
     double          swabs_per_plaisun;  /* (W/m2) swabs per unit sunlit proj LAI */
@@ -636,8 +620,8 @@ typedef struct soilc_struct
 
 typedef struct elembc_struct
 {
-    double          head[3];
-    double          flux[3];
+    double          head[NUM_EDGE];
+    double          flux[NUM_EDGE];
 } elembc_struct;
 
 typedef struct elemic_struct
@@ -779,7 +763,7 @@ typedef struct solute_struct
 } solute_struct;
 #endif
 
-typedef struct elem_stor_struct
+typedef struct stor_struct
 {
     double         *dayl;       /* (s)     daylength */
     double         *prev_dayl;
@@ -799,13 +783,13 @@ typedef struct elem_stor_struct
     double         *gw;
     double         *albedo;
     double         *ch;
-    double         *subsurfflx[3];
-    double         *surfflx[3];
+    double         *subsurfflx[NUM_EDGE];
+    double         *surfflx[NUM_EDGE];
     int            *flag;
-} elem_stor_struct;
+} stor_struct;
 
 /* carbon state variables (including sums for sources and sinks) */
-typedef struct
+typedef struct cstate_struct
 {
     double          leafc;      /* (kgC/m2) leaf C */
     double          leafc_storage;      /* (kgC/m2) leaf C storage */
@@ -860,7 +844,7 @@ typedef struct
 } cstate_struct;
 
 /* daily carbon flux variables */
-typedef struct
+typedef struct cflux_struct
 {
     /* mortality fluxes */
     double          m_leafc_to_litr1c;  /* (kgC/m2/d) */
@@ -1005,7 +989,7 @@ typedef struct
 } cflux_struct;
 
 /* nitrogen state variables (including sums for sources and sinks) */
-typedef struct
+typedef struct nstate_struct
 {
     double          leafn;      /* (kgN/m2) leaf N */
     double          leafn_storage;      /* (kgN/m2) leaf N */
@@ -1045,7 +1029,7 @@ typedef struct
 } nstate_struct;
 
 /* daily nitrogen flux variables */
-typedef struct
+typedef struct nflux_struct
 {
     /* mortality fluxes */
     double          m_leafn_to_litr1n;  /* (kgN/m2/d) */
@@ -1181,7 +1165,7 @@ typedef struct
 
 /* temporary nitrogen variables for reconciliation of decomposition
  * immobilization fluxes and plant growth N demands */
-typedef struct
+typedef struct ntemp_struct
 {
     double          mineralized;
     double          potential_immob;
@@ -1201,18 +1185,8 @@ typedef struct
     double          kl4;
 } ntemp_struct;
 
-/* phenological control arrays */
-typedef struct
-{
-    int            *remdays_curgrowth;  /* (nmetdays) days left in current growth season */
-    int            *remdays_transfer;   /* (nmetdays) number of transfer days remaining */
-    int            *remdays_litfall;    /* (nmetdays) number of litfall days remaining */
-    int            *predays_transfer;   /* (nmetdays) number of transfer days previous */
-    int            *predays_litfall;    /* (nmetdays) number of litfall days previous */
-} phenarray_struct;
-
 /* daily phenological data array */
-typedef struct
+typedef struct phenology_struct
 {
     double          remdays_curgrowth;  /* days left in current growth season */
     double          remdays_transfer;   /* number of transfer days remaining */
@@ -1222,7 +1196,7 @@ typedef struct
 } phenology_struct;
 
 /* ecophysiological variables */
-typedef struct
+typedef struct epvar_struct
 {
     double          day_leafc_litfall_increment;        /* (kgC/m2/d) rate leaf litfall */
     double          day_frootc_litfall_increment;       /* (kgC/m2/d) rate froot litfall */
@@ -1329,7 +1303,7 @@ typedef struct
 } epvar_struct;
 
 /* carbon state initialization structure */
-typedef struct
+typedef struct cinit_struct
 {
     double          max_leafc;  /* (kgC/m2) first-year displayed + stored leafc */
     double          max_stemc;  /* (kgC/m2) first-year total stem carbon */
@@ -1337,7 +1311,7 @@ typedef struct
 
 
 /* structure for the photosynthesis routine */
-typedef struct
+typedef struct psn_struct
 {
     int             c3;         /* (flag) set to 1 for C3 model, 0 for C4 model */
     double          pa;         /* (Pa) atmospheric pressure */
@@ -1362,7 +1336,7 @@ typedef struct
     double          A;          /* (umol/m2/s) final assimilation rate */
 } psn_struct;
 
-typedef struct
+typedef struct summary_struct
 {
     double          daily_npp;  /* kgC/m2/day = GPP - Rmaint - Rgrowth */
     double          daily_nep;  /* kgC/m2/day = NPP - Rheterotroph */
@@ -1393,20 +1367,6 @@ typedef struct
     double          totalc;     /* kgC/m2  total of vegc, litrc, and soilc */
 } summary_struct;
 
-#ifdef _DAILY_
-typedef struct elem_daily_struct
-{
-    int             counter;
-    int             daylight_counter;
-
-    elem_wstate_struct  ws;
-    elem_wflux_struct   wf;
-    pstate_struct   ps;
-    estate_struct   es;
-    eflux_struct    ef;
-} elem_daily_struct;
-#endif
-
 typedef struct elem_struct
 {
     int             node[3];    /* Counterclock-wise */
@@ -1414,27 +1374,27 @@ typedef struct elem_struct
                                  * (0: on boundary) */
     int             ind;
 
-    elem_attrib_struct  attrib;
+    attrib_struct   attrib;
 
-    elem_topo_struct    topo;
+    topo_struct     topo;
     soil_struct     soil;
     lc_struct       lc;
     epconst_struct  epc;
     elemic_struct   ic;
     elembc_struct   bc;
 #ifdef _DAILY_
-    elem_daily_struct daily;
+    daily_struct daily;
 #endif
 
     pstate_struct   ps;
 
-    elem_wstate_struct  ws;
-    elem_wstate_struct  ws0;
-    elem_wflux_struct   wf;
+    wstate_struct  ws;
+    wstate_struct  ws0;
+    wflux_struct   wf;
     estate_struct   es;
     eflux_struct    ef;
 #ifdef _NOAH_
-    elem_wflux_struct   avgwf;
+    wflux_struct   avgwf;
 #endif
 #ifdef _CYCLES_
     cropmgmt_struct cropmgmt;
@@ -1449,7 +1409,7 @@ typedef struct elem_struct
 #ifdef _BGC_
     bgc_ic_struct   restart_input;
     bgc_ic_struct   restart_output;
-    elem_stor_struct    stor;
+    stor_struct    stor;
     cinit_struct    cinit;      /* first-year values for leafc and stemc */
     cstate_struct   cs;         /* carbon state variables */
     cflux_struct    cf;

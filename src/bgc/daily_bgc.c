@@ -14,15 +14,17 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
     epconst_struct *epc;
     epvar_struct   *epv;
     psn_struct     *psn_sun, *psn_shade;
-    elem_wstate_struct  *ws;
-    elem_wflux_struct   *wf;
-    estate_struct  *es;
-    eflux_struct   *ef;
+    daily_wstate_struct *daily_ws;
+    daily_wflux_struct *daily_wf;
+    daily_estate_struct *daily_es;
+    daily_eflux_struct  *daily_ef;
+    daily_pstate_struct *daily_ps;
     cstate_struct  *cs;
     cflux_struct   *cf;
     nstate_struct  *ns;
     nflux_struct   *nf;
     ntemp_struct   *nt;
+    eflux_struct   *ef;
     pstate_struct  *ps;
     soil_struct    *soil;
     phenology_struct *phen;
@@ -109,17 +111,9 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
     {
         for (i = 0; i < pihm->numele; i++)
         {
-            ElemDayMet (&pihm->elem[i].stor, &pihm->elem[i].daily.ws,
+            DayMet (&pihm->elem[i].stor, &pihm->elem[i].daily.ws,
                 &pihm->elem[i].daily.wf, &pihm->elem[i].daily.es,
-                &pihm->elem[i].daily.ef, &pihm->elem[i].daily.ps,
-                simday);
-
-            pihm->elem[i].daily.ps.nsoil = pihm->elem[i].ps.nsoil;
-            pihm->elem[i].daily.ps.nroot = pihm->elem[i].ps.nroot;
-            for (k = 0; k < MAXLYR; k++)
-            {
-                pihm->elem[i].daily.ps.sldpth[k] = pihm->elem[i].ps.sldpth[k];
-            }
+                &pihm->elem[i].daily.ef, &pihm->elem[i].daily.ps, simday);
         }
 
         for (i = 0; i < pihm->numriv; i++)
@@ -134,16 +128,18 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
         epc = &pihm->elem[i].epc;
         epv = &pihm->elem[i].epv;
         soil = &pihm->elem[i].soil;
-        ws = &pihm->elem[i].daily.ws;
-        wf = &pihm->elem[i].daily.wf;
-        es = &pihm->elem[i].daily.es;
-        ef = &pihm->elem[i].daily.ef;
-        ps = &pihm->elem[i].daily.ps;
+        daily_ws = &pihm->elem[i].daily.ws;
+        daily_wf = &pihm->elem[i].daily.wf;
+        daily_es = &pihm->elem[i].daily.es;
+        daily_ef = &pihm->elem[i].daily.ef;
+        daily_ps = &pihm->elem[i].daily.ps;
         cs = &pihm->elem[i].cs;
         cf = &pihm->elem[i].cf;
         ns = &pihm->elem[i].ns;
         nf = &pihm->elem[i].nf;
         nt = &pihm->elem[i].nt;
+        ef = &pihm->elem[i].ef;
+        ps = &pihm->elem[i].ps;
         phen = &pihm->elem[i].phen;
         psn_sun = &pihm->elem[i].psn_sun;
         psn_shade = &pihm->elem[i].psn_shade;
@@ -157,7 +153,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
         MakeZeroFluxStruct (cf, nf);
 
         /* Phenology fluxes */
-        Phenology (epc, ps, es, phen, epv, cs, cf, ns, nf);
+        Phenology (epc, daily_ps, daily_es, phen, epv, cs, cf, ns, nf);
 
         /* Test for the annual allocation day */
         if (phen->remdays_litfall == 1)
@@ -172,7 +168,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
         /* Calculate leaf area index, sun and shade fractions, and specific
          * leaf area for sun and shade canopy fractions, then calculate
          * canopy radiation interception and transmission */
-        RadTrans (cs, ef, ps, epc, epv);
+        RadTrans (cs, daily_ef, ef, ps, epc, epv, daily_ps->avg_albedo);
 
         /* Update the ann max LAI for annual diagnostic output */
         if (ps->proj_lai > epv->ytd_maxplai)
@@ -182,14 +178,14 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
 
         /* Soil water potential */
         //vwc = (ws->unsat + ws->gw) / soil->depth * soil->smcmax;
-        vwc = ws->sh2o[0] * ps->sldpth[0];
+        vwc = daily_ws->avg_sh2o[0] * ps->sldpth[0];
         droot = ps->sldpth[0];
 
         if (ps->nsoil > 1)
         {
             for (k = 1; k < ps->nsoil; k++)
             {
-                vwc += ws->sh2o[k] * ps->sldpth[k];
+                vwc += daily_ws->avg_sh2o[k] * ps->sldpth[k];
                 droot += ps->sldpth[k];
             }
         }
@@ -199,13 +195,13 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
         SoilPsi (soil, vwc, &epv->psi);
 
         /* daily maintenance respiration */
-        MaintResp (cs, ns, epc, es, ps, cf, epv);
+        MaintResp (cs, ns, epc, daily_es, daily_ps, cf, epv);
 
         /* Begin canopy bio-physical process simulation */
-        if (cs->leafc && ps->dayl)
+        if (cs->leafc && daily_ps->dayl)
         {
             /* Conductance */
-            CanopyCond (epc, ps, es, ws, soil, epv);
+            CanopyCond (epc, daily_ps, daily_es, daily_ws, ps, soil, epv);
         }
 
         /* Do photosynthesis only when it is part of the current growth season, as
@@ -213,9 +209,9 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
          * new growth consistent with the treatment of litterfall and
          * allocation */
 
-        if (cs->leafc && !epv->dormant_flag && ps->dayl)
+        if (cs->leafc && !epv->dormant_flag && daily_ps->dayl)
         {
-            TotalPhotosynthesis (epc, es, ps, epv, cf, psn_sun, psn_shade);
+            TotalPhotosynthesis (epc, daily_es, daily_ps, ps, epv, cf, psn_sun, psn_shade);
         }
         else
         {
@@ -226,7 +222,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
         nf->nfix_to_sminn = daily_nfix;
 
         /* Daily litter and soil decomp and nitrogen fluxes */
-        Decomp (es->stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt);
+        Decomp (daily_es->avg_stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt);
 
         /* Daily allocation gets called whether or not this is a current growth
          * day, because the competition between decomp immobilization fluxes and
@@ -261,20 +257,10 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
     {
         epc = &pihm->elem[i].epc;
         epv = &pihm->elem[i].epv;
-        soil = &pihm->elem[i].soil;
-        ws = &pihm->elem[i].daily.ws;
-        wf = &pihm->elem[i].daily.wf;
-        es = &pihm->elem[i].daily.es;
-        ef = &pihm->elem[i].daily.ef;
-        ps = &pihm->elem[i].daily.ps;
         cs = &pihm->elem[i].cs;
         cf = &pihm->elem[i].cf;
         ns = &pihm->elem[i].ns;
         nf = &pihm->elem[i].nf;
-        nt = &pihm->elem[i].nt;
-        phen = &pihm->elem[i].phen;
-        psn_sun = &pihm->elem[i].psn_sun;
-        psn_shade = &pihm->elem[i].psn_shade;
         summary = &pihm->elem[i].summary;
 
         /* Calculate daily mortality fluxes and update state variables */

@@ -1,6 +1,8 @@
 #include "pihm.h"
 
-void ElemDayMet (const elem_stor_struct *stor, elem_wstate_struct *ws, elem_wflux_struct *wf, estate_struct *es, eflux_struct *ef, pstate_struct *ps, int metday)
+void DayMet (const stor_struct *stor, daily_wstate_struct *daily_ws,
+    daily_wflux_struct *daily_wf, daily_estate_struct *daily_es,
+    daily_eflux_struct *daily_ef, daily_pstate_struct *daily_ps, int metday)
 {
     int             k;
 
@@ -12,44 +14,42 @@ void ElemDayMet (const elem_stor_struct *stor, elem_wstate_struct *ws, elem_wflu
     }
 
     /* daylength (s) */
-    ps->dayl = stor->dayl[metday];
-    ps->prev_dayl = stor->prev_dayl[metday];
+    daily_ps->dayl = stor->dayl[metday];
+    daily_ps->prev_dayl = stor->prev_dayl[metday];
+    daily_ps->avg_q2d = stor->q2d[metday];
+    daily_ps->avg_sfcprs = stor->sfcprs[metday];
+    daily_ps->avg_albedo = stor->albedo[metday];
+    daily_ps->avg_ch = stor->ch[metday];
 
-    es->tmax = stor->tmax[metday];
-    es->tmin = stor->tmin[metday];
-    es->sfctmp = stor->sfctmp[metday];
-    es->tday = stor->tday[metday];
-    es->tnight = stor->tnight[metday];
-
-    /* daylight average vapor pressure deficit (Pa) */
-    ps->q2d = stor->q2d[metday];
-
-    ps->sfcprs = stor->sfcprs[metday];
-
-    /* daylight average shortwave flux density (W/m2) */
-    ef->soldn = stor->soldn[metday];
-
-    /* PAR (W/m2) */
-    ef->par = stor->par[metday];
-
+    daily_es->tmax = stor->tmax[metday];
+    daily_es->tmin = stor->tmin[metday];
+    daily_es->avg_sfctmp = stor->sfctmp[metday];
+    daily_es->tday = stor->tday[metday];
+    daily_es->tnight = stor->tnight[metday];
     for (k = 0; k < MAXLYR; k++)
     {
-        es->stc[k] = stor->stc[k][metday];
-        ws->sh2o[k] = stor->sh2o[k][metday];
+        daily_es->avg_stc[k] = stor->stc[k][metday];
     }
-    ws->surf = stor->surf[metday];
-    ws->unsat = stor->unsat[metday];
-    ws->gw = stor->gw[metday];
-    ps->albedo = stor->albedo[metday];
-    ps->ch = stor->ch[metday];
 
-    for (k = 0; k < 3; k++)
+    daily_ef->avg_soldn = stor->soldn[metday];
+    daily_ef->par = stor->par[metday];
+
+    daily_ws->avg_surf = stor->surf[metday];
+    daily_ws->avg_unsat = stor->unsat[metday];
+    daily_ws->avg_gw = stor->gw[metday];
+    for (k = 0; k < MAXLYR; k++)
     {
-        wf->surf[k] = stor->surfflx[k][metday];
-        wf->subsurf[k] = stor->subsurfflx[k][metday];
+        daily_ws->avg_sh2o[k] = stor->sh2o[k][metday];
+    }
+
+    for (k = 0; k < NUM_EDGE; k++)
+    {
+        daily_wf->avg_surf[k] = stor->surfflx[k][metday];
+        daily_wf->avg_subsurf[k] = stor->subsurfflx[k][metday];
     }
 }
-void RiverDayMet (const river_stor_struct *stor, river_wstate_struct *ws, river_wflux_struct *wf, int metday)
+
+void RiverDayMet (const river_stor_struct *stor, river_daily_wstate_struct *daily_ws, river_daily_wflux_struct *daily_wf, int metday)
 {
     int             k;
 
@@ -60,11 +60,11 @@ void RiverDayMet (const river_stor_struct *stor, river_wstate_struct *ws, river_
         PihmExit (1);
     }
 
-    ws->stage = stor->stage[metday];
-    ws->gw = stor->gw[metday];
+    daily_ws->avg_stage = stor->stage[metday];
+    daily_ws->avg_gw = stor->gw[metday];
 
-    for (k = 0; k < 11; k++)
+    for (k = 0; k < NUM_RIVFLX; k++)
     {
-        wf->river[k] = stor->riverflx[k][metday];
+        daily_wf->avg_river[k] = stor->riverflx[k][metday];
     }
 }

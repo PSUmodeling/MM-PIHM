@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void MaintResp (const cstate_struct *cs, const nstate_struct *ns, const epconst_struct *epc, const estate_struct *es, const pstate_struct *ps, cflux_struct *cf, epvar_struct *epv)
+void MaintResp (const cstate_struct *cs, const nstate_struct *ns, const epconst_struct *epc, const daily_estate_struct *daily_es, const daily_pstate_struct *daily_ps, cflux_struct *cf, epvar_struct *epv)
 {
     /*
      * maintenance respiration routine
@@ -30,10 +30,10 @@ void MaintResp (const cstate_struct *cs, const nstate_struct *ns, const epconst_
     double          exponent;
     double          n_area_sun, n_area_shade, dlmr_area_sun, dlmr_area_shade;
 
-    tday = es->tday - TFREEZ;
-    tnight = es->tnight - TFREEZ;
-    tavg = es->sfctmp - TFREEZ;
-    tsoil = es->stc[0] - TFREEZ;
+    tday = daily_es->tday - TFREEZ;
+    tnight = daily_es->tnight - TFREEZ;
+    tavg = daily_es->avg_sfctmp - TFREEZ;
+    tsoil = daily_es->avg_stc[0] - TFREEZ;
 
     /* leaf day and night maintenance respiration when leaves on */
     if (cs->leafc)
@@ -42,7 +42,7 @@ void MaintResp (const cstate_struct *cs, const nstate_struct *ns, const epconst_
 
         /* leaf, day */
         exponent = (tday - 20.0) / 10.0;
-        cf->leaf_day_mr = t1 * pow (q10, exponent) * ps->dayl / 86400.0;
+        cf->leaf_day_mr = t1 * pow (q10, exponent) * daily_ps->dayl / 86400.0;
 
         /* for day respiration, also determine rates of maintenance respiration
          * per unit of projected leaf area in the sunlit and shaded portions of
@@ -62,7 +62,7 @@ void MaintResp (const cstate_struct *cs, const nstate_struct *ns, const epconst_
 
         /* leaf, night */
         exponent = (tnight - 20.0) / 10.0;
-        cf->leaf_night_mr = t1 * pow (q10, exponent) * (86400.0 - ps->dayl) / 86400.0;
+        cf->leaf_night_mr = t1 * pow (q10, exponent) * (86400.0 - daily_ps->dayl) / 86400.0;
     }
     else                        /* no leaves on */
     {

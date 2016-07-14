@@ -5,7 +5,7 @@
 typedef struct river_attrib_struct
 {
     int             riverbc_type;
-} attrib_struct;
+} river_attrib_struct;
 
 /* 
  * Topographic parameters
@@ -29,27 +29,16 @@ typedef struct river_wstate_struct
 
 typedef struct river_wflux_struct
 {
-    double          river[11];
+    double          river[NUM_RIVFLX];
 } river_wflux_struct;
 
 typedef struct river_stor_struct
 {
     double         *stage;
     double         *gw;
-    double         *riverflx[11];
+    double         *riverflx[NUM_RIVFLX];
     int            *flag;
 } river_stor_struct;
-
-#ifdef _DAILY_
-typedef struct river_daily_struct
-{
-    int             counter;
-    int             daylight_counter;
-
-    river_wstate_struct ws;
-    river_wflux_struct  wf;
-} river_daily_struct;
-#endif
 
 typedef struct shp_struct
 {
@@ -83,7 +72,7 @@ typedef struct riveric_struct
 
 typedef struct river_struct
 {
-    attrib_struct   attrib;
+    river_attrib_struct   attrib;
     river_topo_struct     topo;
     shp_struct      shp;
     matl_struct     matl;
@@ -112,5 +101,4 @@ typedef struct river_struct
     double          sminn_leached;
 #endif
 } river_struct;
-
 #endif

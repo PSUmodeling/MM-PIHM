@@ -787,10 +787,10 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
     /* Other variables */
     for (i = 0; i < numele; i++)
     {
-        InitElemWFlux (&elem[i].wf);
+        InitWFlux (&elem[i].wf);
 
 #ifdef _NOAH_
-        InitElemWFlux (&elem[i].avgwf);
+        InitWFlux (&elem[i].avgwf);
 
         elem[i].ps.snotime1 = 0.0;
         elem[i].ps.ribb = 0.0;
@@ -869,33 +869,7 @@ void CalcModelStep (ctrl_struct *ctrl)
     }
 }
 
-void InitElemWState (elem_wstate_struct *ws)
-{
-    ws->surf = 0.0;
-    ws->gw = 0.0;
-    ws->unsat = 0.0;
-    ws->sneqv = 0.0;
-    ws->cmcmax = 0.0;
-    ws->cmc = 0.0;
-#ifdef _NOAH_
-    int             k;
-
-    for (k = 0; k < MAXLYR; k++)
-    {
-        ws->smc[k] = 0.0;
-        ws->sh2o[k] = 0.0;
-    }
-    ws->soilm = 0.0;
-#endif
-}
-
-void InitRiverWState (river_wstate_struct *ws)
-{
-    ws->stage = 0.0;
-    ws->gw = 0.0;
-}
-
-void InitElemWFlux (elem_wflux_struct *wf)
+void InitWFlux (wflux_struct *wf)
 {
     int             j;
 
@@ -966,110 +940,6 @@ void InitRiverWFlux (river_wflux_struct *wf)
     }
 }
 
-void InitPState (pstate_struct *ps)
-{
-    ps->rzd = 0.0;
-    ps->macpore_status = 999;
-    ps->rc = 0.0;
-    ps->pc = 0.0;
-    ps->proj_lai = 0.0;
-    ps->rcs = 0.0;
-    ps->rct = 0.0;
-    ps->rcq = 0.0;
-    ps->rcsoil = 0.0;
-    ps->alb = 0.0;
-    ps->albedo = 0.0;
-    ps->zlvl = 0.0;
-    ps->zlvl_wind = 0.0;
-    ps->sfcspd = 0.0;
-    ps->rh = 0.0;
-    ps->sfcprs = 0.0;
-
-#ifdef _NOAH_
-    int             k;
-
-    ps->nroot = 0;
-    for (k = 0; k < MAXLYR; k++)
-    {
-        ps->rtdis[k] = 0.0;
-    }
-    ps->snoalb = 0.0;
-    ps->nsoil = 999;
-    for (k = 0; k < MAXLYR; k++)
-    {
-        ps->sldpth[k] = 999;
-    }
-    ps->soilw = 0.0;
-    ps->frzk = 0.0;
-    ps->frzx = 0.0;
-    ps->czil = 0.0;
-    ps->emissi = 0.0;
-    ps->ch = 0.0;
-    ps->rch = 0.0;
-    ps->cm = 0.0;
-    ps->z0 = 0.0;
-    ps->fcr = 0.0;
-    ps->nmacd = 999;
-    ps->salp = 0.0;
-    ps->fxexp = 0.0;
-    ps->sbeta = 0.0;
-    ps->lvcoef = 0.0;
-    ps->snotime1 = 0.0;
-    ps->ribb = 0.0;
-    ps->beta = 0.0;
-    ps->sncovr = 0.0;
-    ps->q1 = 0.0;
-    ps->q2 = 0.0;
-    ps->cosz = 0.0;
-    ps->ffrozp = 0.0;
-    ps->z0brd = 0.0;
-    ps->embrd = 0.0;
-    ps->q2sat = 0.0;
-    ps->q2d = 0.0;
-    ps->dqsdt2 = 0.0;
-    ps->nwtbl = 999;
-    ps->sndens = 0.0;
-    ps->snowh = 0.0;
-    ps->sncond = 0.0;
-    ps->rr = 0.0;
-    ps->eta_kinematic = 0.0;
-    ps->zbot = 0.0;
-    ps->tbot = 0.0;
-    ps->gwet = 0.0;
-    for (k = 0; k < MAXLYR; k++)
-    {
-        ps->satdpth[k] = 0.0;
-    }
-    ps->dayl = 0.0;
-    ps->prev_dayl = 0.0;
-#endif
-#ifdef _BGC_
-    ps->co2 = 0.0;
-    ps->ppfd_per_plaisun = 0.0;
-    ps->ppfd_per_plaishade = 0.0;
-    ps->all_lai = 0.0;
-    ps->plaisun = 0.0;
-    ps->plaishade = 0.0;
-#endif
-}
-
-void InitEState (estate_struct *es)
-{
-    int             k;
-
-    for (k = 0; k < MAXLYR; k++)
-    {
-        es->stc[k] = 0.0;
-    }
-    es->t1 = 0.0;
-    es->th2 = 0.0;
-    es->sfctmp = 0.0;
-    es->tday = 0.0;
-    es->tnight = 0.0;
-    es->tmax = -999.0;
-    es->tmin = 999.0;
-}
-
 void InitEFlux (eflux_struct *ef)
 {
     int             k;
@@ -1100,7 +970,6 @@ void InitEFlux (eflux_struct *ef)
     ef->flx3 = 0.0;
     ef->solardirect = 0.0;
 #ifdef _BGC_
-    ef->par = 0.0;
     ef->swabs = 0.0;
     ef->swtrans = 0.0;
     ef->swabs_per_plaisun = 0.0;
