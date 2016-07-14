@@ -24,7 +24,6 @@ void CanopyCond (const epconst_struct *epc, const pstate_struct *ps, const estat
     //double          psi, psi_open, psi_close;
     double          m_ppfd_sun, m_ppfd_shade;
     double          m_tmin, m_psi, m_co2, m_vpd, m_final_sun, m_final_shade;
-    double          proj_lai;
     double          gcorr;
     double          ff;
     double          q2d;
@@ -39,7 +38,6 @@ void CanopyCond (const epconst_struct *epc, const pstate_struct *ps, const estat
     tmin = es->tmin - TFREEZ;
     q2d = ps->q2d;
     dayl = ps->dayl;
-    proj_lai = ps->proj_lai;
 
     swc = ws->sh2o[0] * ps->sldpth[0];
     droot = ps->sldpth[0];

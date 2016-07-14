@@ -29,7 +29,7 @@
 #endif
 
 #include "pihm_const.h"
-#include "pihm_input_struct.h"
+#include "input_tbl_struct.h"
 #include "elem_struct.h"
 #include "river_struct.h"
 #include "pihm_struct.h"

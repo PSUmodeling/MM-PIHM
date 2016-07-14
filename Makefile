@@ -37,7 +37,7 @@ SRCS_ = main.c \
 
 HEADERS_ = \
 	include/pihm.h \
-	include/pihm_input_struct.h \
+	include/input_tbl_struct.h \
 	include/pihm_const.h \
 	include/pihm_struct.h \
 	include/pihm_func.h

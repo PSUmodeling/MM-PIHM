@@ -27,12 +27,13 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
     soil_struct    *soil;
     phenology_struct *phen;
     summary_struct *summary;
-    int             i;
+    int             i, k;
     int             simday;
     struct tm      *timestamp;
     time_t          rawtime;
     double          co2lvl;
     double          vwc;
+    double          droot;
 
     /* miscelaneous variables for program control in main */
     int             annual_alloc;
@@ -112,6 +113,13 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
                 &pihm->elem[i].daily.wf, &pihm->elem[i].daily.es,
                 &pihm->elem[i].daily.ef, &pihm->elem[i].daily.ps,
                 simday);
+
+            pihm->elem[i].daily.ps.nsoil = pihm->elem[i].ps.nsoil;
+            pihm->elem[i].daily.ps.nroot = pihm->elem[i].ps.nroot;
+            for (k = 0; k < MAXLYR; k++)
+            {
+                pihm->elem[i].daily.ps.sldpth[k] = pihm->elem[i].ps.sldpth[k];
+            }
         }
 
         for (i = 0; i < pihm->numriv; i++)
@@ -173,7 +181,20 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, const double *naddfrac, in
         }
 
         /* Soil water potential */
-        vwc = (ws->unsat + ws->gw) / soil->depth * soil->smcmax;
+        //vwc = (ws->unsat + ws->gw) / soil->depth * soil->smcmax;
+        vwc = ws->sh2o[0] * ps->sldpth[0];
+        droot = ps->sldpth[0];
+
+        if (ps->nsoil > 1)
+        {
+            for (k = 1; k < ps->nsoil; k++)
+            {
+                vwc += ws->sh2o[k] * ps->sldpth[k];
+                droot += ps->sldpth[k];
+            }
+        }
+
+        vwc /= droot;
 
         SoilPsi (soil, vwc, &epv->psi);
 
