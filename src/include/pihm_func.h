@@ -300,7 +300,7 @@ void            InitCycles (elem_struct *, int, river_struct *, int,
     const ctrl_struct *, const mgmttbl_struct *, const agtbl_struct *,
     const croptbl_struct *, const soiltbl_struct *);
 void            InitializeSoil (soil_struct *, const soiltbl_struct *,
-    const pstate_struct *);
+    const pstate_struct *, int);
 double          BulkDensity (double, double, double);
 void            InitializeResidue (residue_struct *, int);
 void            InitializeSoilCarbon (soilc_struct *, int);

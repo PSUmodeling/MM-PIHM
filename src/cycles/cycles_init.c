@@ -236,7 +236,7 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
         UpdateCommunity (comm);
 
-        InitializeSoil (&elem[i].soil, soiltbl, &elem[i].ps);
+        InitializeSoil (&elem[i].soil, soiltbl, &elem[i].ps, elem[i].attrib.soil_type);
 
         InitializeResidue (&elem[i].residue, elem[i].ps.nsoil);
 
