@@ -86,6 +86,12 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
          */
         cropmgmt = &elem[i].cropmgmt;
 
+        if (agtbl->op[i] > agtbl->nopfile)
+        {
+            printf ("ERROR: Operation file for operation index %d is not provided!\n", agtbl->op[i]);
+            exit (1);
+        }
+
         opind = agtbl->op[i] - 1;
 
         nplnt = mgmttbl->cropmgmt[opind].totalCropsPerRotation;
