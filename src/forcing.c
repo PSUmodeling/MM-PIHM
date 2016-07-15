@@ -100,7 +100,9 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t)
         elem[i].ps.rh = forc->meteo[ind].value[RH_TS];
         elem[i].ps.sfcspd = forc->meteo[ind].value[SFCSPD_TS];
         elem[i].ef.soldn = forc->meteo[ind].value[SOLAR_TS];
+#ifdef _NOAH_
         elem[i].ef.longwave = forc->meteo[ind].value[LONGWAVE_TS];
+#endif
         elem[i].ps.sfcprs = forc->meteo[ind].value[PRES_TS];
 
 #ifdef _NOAH_

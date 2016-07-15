@@ -112,7 +112,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
 
         for (i = 0; i < numriv; i++)
         {
-            fread (&riv[i].sminn, sizeof (double), 1, init_file);
+            fread (&riv[i].ns.sminn, sizeof (double), 1, init_file);
         }
 
         fclose (init_file);
@@ -161,7 +161,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
 
         for (i = 0; i < numriv; i++)
         {
-            riv[i].sminn = 0.0;
+            riv[i].ns.sminn = 0.0;
         }
     }
 
@@ -172,7 +172,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
 
     for (i = 0; i < numriv; i++)
     {
-       riv[i].nleached_snk = 0.0;
-       riv[i].sminn_leached = 0.0;
+       //riv[i].nleached_snk = 0.0;
+       riv[i].nf.sminn_leached = 0.0;
     }
 }

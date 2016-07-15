@@ -944,6 +944,9 @@ void InitRiverWFlux (river_wflux_struct *wf)
 
 void InitEFlux (eflux_struct *ef)
 {
+    ef->soldn = 0.0;
+
+#ifdef _NOAH_
     int             k;
 
     ef->solnet = 0.0;
@@ -962,7 +965,6 @@ void InitEFlux (eflux_struct *ef)
     }
     ef->ett = 0.0;
     ef->esnow = 0.0;
-    ef->soldn = 0.0;
     ef->sdir = 0.0;
     ef->sdif = 0.0;
     ef->longwave = 0.0;
@@ -970,6 +972,7 @@ void InitEFlux (eflux_struct *ef)
     ef->flx2 = 0.0;
     ef->flx3 = 0.0;
     ef->solardirect = 0.0;
+#endif
 #ifdef _BGC_
     ef->swabs = 0.0;
     ef->swtrans = 0.0;

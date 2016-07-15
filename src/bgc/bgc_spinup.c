@@ -207,8 +207,8 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
     }
     for (i = 0; i < pihm->numriv; i++)
     {
-        fwrite (&pihm->riv[i].sminn, sizeof (double), 1, restart_file);
-        fprintf (sminn_file, "%lf\t", pihm->riv[i].sminn);
+        fwrite (&pihm->riv[i].ns.sminn, sizeof (double), 1, restart_file);
+        fprintf (sminn_file, "%lf\t", pihm->riv[i].ns.sminn);
     }
 
     fclose (sminn_file);

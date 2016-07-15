@@ -32,6 +32,7 @@ typedef struct river_wflux_struct
     double          rivflow[NUM_RIVFLX];
 } river_wflux_struct;
 
+#ifdef _BGC_
 typedef struct river_stor_struct
 {
     double         *stage;
@@ -39,6 +40,7 @@ typedef struct river_stor_struct
     double         *rivflow[NUM_RIVFLX];
     int            *flag;
 } river_stor_struct;
+#endif
 
 typedef struct shp_struct
 {
@@ -58,18 +60,19 @@ typedef struct matl_struct
     double          porosity;
 } matl_struct;
 
-typedef struct riverbc_struct
+typedef struct river_bc_struct
 {
     double          head;
     double          flux;
-} riverbc_struct;
+} river_bc_struct;
 
-typedef struct riveric_struct
+typedef struct river_ic_struct
 {
     double          stage;
     double          gw;
-} riveric_struct;
+} river_ic_struct;
 
+#ifdef _DAILY_
 typedef struct river_daily_struct
 {
     int             counter;
@@ -80,19 +83,30 @@ typedef struct river_daily_struct
     double          avg_rivflow[NUM_RIVFLX];
 } river_daily_struct;
 
+typedef struct river_nstate_struct
+{
+    double          sminn;
+} river_nstate_struct;
+
+typedef struct river_nflux_struct
+{
+    double          sminn_leached;
+} river_nflux_struct;
+#endif
+
 typedef struct river_struct
 {
-    river_attrib_struct   attrib;
-    river_topo_struct     topo;
+    river_attrib_struct attrib;
+    river_topo_struct topo;
     shp_struct      shp;
     matl_struct     matl;
-    river_wstate_struct   ws;
-    river_wstate_struct   ws0;
-    river_wflux_struct    wf;
-    riveric_struct  ic;
-    riverbc_struct  bc;
+    river_wstate_struct ws;
+    river_wstate_struct ws0;
+    river_wflux_struct wf;
+    river_ic_struct ic;
+    river_bc_struct bc;
 #ifdef _DAILY_
-    river_daily_struct    daily;
+    river_daily_struct daily;
 #endif
     int             leftele;    /* Left neighboring element */
     int             rightele;   /* Right neighboring element */
@@ -105,10 +119,10 @@ typedef struct river_struct
     solute_struct   NH4sol;
 #endif
 #ifdef _BGC_
-    river_stor_struct     stor;     /* meteorological data array */
-    double          sminn;
-    double          nleached_snk;
-    double          sminn_leached;
+    river_stor_struct stor;     /* meteorological data array */
+    river_nstate_struct ns;
+    river_nflux_struct nf;
+    //double          nleached_snk;
 #endif
 } river_struct;
 #endif

@@ -1274,7 +1274,7 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
     fseek (ic_file, 0L, SEEK_END);
     size = ftell (ic_file);
 
-    if (size != sizeof (elemic_struct) * numele + sizeof (riveric_struct) * numriv)
+    if (size != sizeof (ic_struct) * numele + sizeof (river_ic_struct) * numriv)
     {
         printf ("\nERROR:.ic file size does not match!\n");
         PihmExit (1);
@@ -1284,12 +1284,12 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
 
     for (i = 0; i < numele; i++)
     {
-        fread (&elem[i].ic, sizeof (elemic_struct), 1, ic_file);
+        fread (&elem[i].ic, sizeof (ic_struct), 1, ic_file);
     }
 
     for (i = 0; i < numriv; i++)
     {
-        fread (&riv[i].ic, sizeof (riveric_struct), 1, ic_file);
+        fread (&riv[i].ic, sizeof (river_ic_struct), 1, ic_file);
     }
 
     fclose (ic_file);

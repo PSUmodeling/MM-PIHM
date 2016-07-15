@@ -44,7 +44,7 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
     {
         totwater = (riv[i].daily.avg_stage +
             riv[i].daily.avg_gw * riv[i].matl.porosity) * 1000.0;
-        nconc[i + numele] = riv[i].sminn / totwater;
+        nconc[i + numele] = riv[i].ns.sminn / totwater;
     }
 
     for (i = 0; i < numele; i++)
@@ -194,12 +194,13 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
             nleached += MOBILEN_PROPORTION * nabr_nconc[RIGHT] * latflux;
         }
 
-        if (nleached > riv[i].sminn)
+        if (nleached > riv[i].ns.sminn)
         {
-            nleached = riv[i].sminn;
+            nleached = riv[i].ns.sminn;
         }
 
-        riv[i].sminn -= nleached;
+        riv[i].nf.sminn_leached = nleached;
+        riv[i].ns.sminn -= nleached;
     }
 
     free (nconc);

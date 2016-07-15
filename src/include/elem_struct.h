@@ -26,11 +26,13 @@ typedef struct topo_struct
     double          edge[NUM_EDGE];    /* edge i is from node i to node i+1 */
     double          surfx[NUM_EDGE];
     double          surfy[NUM_EDGE];
+#ifdef _NOAH_
     double          slope;
     double          aspect;     /* ys: surface aspect of grid */
     double          svf;        /* ys: sky view factor */
     double          h_phi[36];  /* unobstrcted angle */
     double          areasub[NUM_EDGE];
+#endif
 } topo_struct;
 
 /*
@@ -64,9 +66,11 @@ typedef struct soil_struct
                                  * vertical cross-section */
     double          areafh;     /* macropore area fraction on a
                                  * horizontal cross-section */
+#ifdef _NOAH_
     double          csoil;      /* soil heat capacity (j m-3 k-1) */
     double          quartz;     /* soil quartz content */
     double          smcdry;     /* dry soil moisture threshold where direct evap frm top layer ends (volumetric) */
+#endif
 
 #ifdef _CYCLES_
     int             totalLayers;
@@ -166,6 +170,7 @@ typedef struct epconst_struct
     double          hs;         /* parameter used in vapor pressure deficit function */
     double          topt;       /* optimum transpiration air temperature */
     double          rsmax;      /* max. stomatal resistance */
+
 #ifdef _BGC_
     int             woody;      /* (flag) 1=woody, 0=non-woody */
     int             evergreen;  /* (flag) 1=evergreen, 0=deciduous */
@@ -227,7 +232,6 @@ typedef struct pstate_struct
     double          rct;        /* air temperature rc factor (dimensionless) */
     double          rcq;        /* atmos vapor pressure deficit rc factor (dimensionless) */
     double          rcsoil;     /* soil moisture rc factor (dimensionless) */
-    double          alb;        /* backround snow-free surface albedo (fraction), for julian day of year (usually from temporal interpolation of monthly */
     double          albedo;
     double          zlvl;       /* lcp: height (m) above ground of atmospheric forcing
                                  * variables */
@@ -235,8 +239,9 @@ typedef struct pstate_struct
     double          sfcspd;
     double          rh;
     double          sfcprs;
-    double          snoalb;     /* upper bound on maximum albedo over deep snow (e.g. from robinson and kukla, 1985, j. clim. & appl. meteor.) */
 #ifdef _NOAH_
+    double          alb;        /* backround snow-free surface albedo (fraction), for julian day of year (usually from temporal interpolation of monthly */
+    double          snoalb;     /* upper bound on maximum albedo over deep snow (e.g. from robinson and kukla, 1985, j. clim. & appl. meteor.) */
     int             nroot;      /* number of root layers, a function of veg type, determined in subroutine redprm. */
     double          rtdis[MAXLYR];
     int             nsoil;      /* number of soil layers (at least 2, and not
@@ -353,14 +358,18 @@ typedef struct wflux_struct
 
 typedef struct estate_struct
 {
-    double          stc[MAXLYR];        /* soil temp (k) */
+    double          sfctmp;
+#ifdef _NOAH_
     double          t1;         /* ground/canopy/snowpack) effective skin temperature (k) */
     double          th2;        /* air potential temperature (k) at height zlvl above ground */
-    double          sfctmp;
+    double          stc[MAXLYR];        /* soil temp (k) */
+#endif
 } estate_struct;
 
 typedef struct eflux_struct
 {
+    double          soldn;      /* solar downward radiation (w m-2; positive, not net solar) */
+#ifdef _NOAH_
     double          solnet;     /* net downward solar radiation ((w m-2; positive) */
     double          etp;        /* potential evaporation (w m-2) */
     double          epsca;      /* */
@@ -374,7 +383,6 @@ typedef struct eflux_struct
     double          et[MAXLYR]; /* plant transpiration from a particular root (soil) layer (w m-2) */
     double          ett;        /* total plant transpiration (w m-2) */
     double          esnow;      /* sublimation from (or deposition to if <0) snowpack (w m-2) */
-    double          soldn;      /* solar downward radiation (w m-2; positive, not net solar) */
     double          sdir;
     double          sdif;
     double          longwave;
@@ -382,6 +390,7 @@ typedef struct eflux_struct
     double          flx2;       /* freezing rain latent heat flux (w m-2) */
     double          flx3;       /* phase-change heat flux from snowmelt (w m-2) */
     double          solardirect;        /* direct component of downward solar radiation (w m-2) (not used) */
+#endif
 #ifdef _BGC_
     double          swabs;      /* (W/m2)  canopy absorbed shortwave flux */
     double          swtrans;    /* (W/m2)  transmitted shortwave flux */
@@ -612,13 +621,13 @@ typedef struct soilc_struct
 } soilc_struct;
 #endif
 
-typedef struct elembc_struct
+typedef struct bc_struct
 {
     double          head[NUM_EDGE];
     double          flux[NUM_EDGE];
-} elembc_struct;
+} bc_struct;
 
-typedef struct elemic_struct
+typedef struct ic_struct
 {
     double          intcp;
     double          sneqv;
@@ -632,7 +641,7 @@ typedef struct elemic_struct
     double          smc[MAXLYR];
     double          sh2o[MAXLYR];
 #endif
-} elemic_struct;
+} ic_struct;
 
 #ifdef _BGC_
 typedef struct bgc_ic_struct
@@ -747,6 +756,7 @@ typedef struct solute_struct
 } solute_struct;
 #endif
 
+#ifdef _DAILY_
 typedef struct daily_struct
 {
     int             counter;
@@ -781,7 +791,9 @@ typedef struct daily_struct
     double          avg_soldn;
     double          solar_total;
 } daily_struct;
+#endif
 
+#ifdef _BGC_
 typedef struct stor_struct
 {
     double         *dayl;       /* (s)     daylength */
@@ -794,7 +806,6 @@ typedef struct stor_struct
     double         *q2d;        /* (m3/m3) mixing ratio deficit */
     double         *sfcprs;
     double         *soldn;    /* (W/m2)  daylight avg shortwave flux density */
-    //double         *par;        /* (W/m2)  photosynthetically active radiation */
     double         *stc[MAXLYR];
     double         *sh2o[MAXLYR];
     double         *surf;
@@ -1385,7 +1396,7 @@ typedef struct summary_struct
     double          soilc;      /* kgC/m2  total soil C */
     double          totalc;     /* kgC/m2  total of vegc, litrc, and soilc */
 } summary_struct;
-
+#endif
 typedef struct elem_struct
 {
     int             node[NUM_EDGE];    /* Counterclock-wise */
@@ -1399,8 +1410,8 @@ typedef struct elem_struct
     soil_struct     soil;
     lc_struct       lc;
     epconst_struct  epc;
-    elemic_struct   ic;
-    elembc_struct   bc;
+    ic_struct   ic;
+    bc_struct   bc;
 #ifdef _DAILY_
     daily_struct daily;
 #endif
