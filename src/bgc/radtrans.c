@@ -12,7 +12,7 @@
 
 #include "pihm.h"
 
-void RadTrans (const cstate_struct *cs, const daily_eflux_struct *daily_ef, eflux_struct *ef, pstate_struct *ps, const epconst_struct *epc, epvar_struct *epv, double albedo)
+void RadTrans (const cstate_struct *cs, const daily_struct *daily, eflux_struct *ef, pstate_struct *ps, const epconst_struct *epc, epvar_struct *epv)
 {
     /* calculate the projected leaf area and SLA for sun and shade fractions
      * and the canopy transmission and absorption of shortwave radiation
@@ -81,18 +81,18 @@ void RadTrans (const cstate_struct *cs, const daily_eflux_struct *daily_ef, eflu
 
     /* calculate total shortwave absorbed */
     k_sw = k;
-    albedo_sw = albedo;
+    albedo_sw = daily->avg_albedo;
 
-    sw = ((daily_ef->avg_soldn > 0.0) ? daily_ef->avg_soldn : 0.0) *
+    sw = ((daily->avg_soldn > 0.0) ? daily->avg_soldn : 0.0) *
         (1.0 - albedo_sw);
     swabs = sw * (1.0 - exp (-k_sw * proj_lai));
     swtrans = sw - swabs;
 
     /* calculate PAR absorbed */
     k_par = k * 1.0;
-    albedo_par = albedo / 3.0;
+    albedo_par = daily->avg_albedo / 3.0;
 
-    par = ((daily_ef->avg_soldn > 0.0) ? daily_ef->avg_soldn : 0.0) * RAD2PAR * (1.0 - albedo_par);
+    par = ((daily->avg_soldn > 0.0) ? daily->avg_soldn : 0.0) * RAD2PAR * (1.0 - albedo_par);
     parabs = par * (1.0 - exp (-k_par * proj_lai));
 
     /* calculate the total shortwave absorbed by the sunlit and

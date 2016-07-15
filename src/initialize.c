@@ -94,7 +94,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     InitVar (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, CV_Y);
 
 #ifdef _BGC_
-    InitBGCVar (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, pihm->ctrl.cinit, pihm->ctrl.cs, pihm->ctrl.ns, pihm->filename.bgcinit, pihm->ctrl.spinup);
+    InitBGCVar (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, pihm->ctrl.cinit, pihm->ctrl.cs, pihm->ctrl.ns, pihm->filename.bgcinit, pihm->ctrl.bgc_spinup);
 #endif
 
     CalcModelStep (&pihm->ctrl);

@@ -10,8 +10,8 @@
 
 #include "pihm.h"
 
-void Phenology (const epconst_struct *epc, const daily_pstate_struct *daily_ps,
-    const daily_estate_struct *daily_es, phenology_struct *phen, epvar_struct *epv,
+void Phenology (const epconst_struct *epc, const daily_struct *daily,
+    phenology_struct *phen, epvar_struct *epv,
     cstate_struct *cs, cflux_struct *cf, nstate_struct *ns,
     nflux_struct *nf)
 {
@@ -37,7 +37,7 @@ void Phenology (const epconst_struct *epc, const daily_pstate_struct *daily_ps,
 
     onset_critsum = exp (4.795 + 0.129 * (epv->annavg_t2m - TFREEZ));
 
-    tsoil = daily_es->avg_stc[0] - TFREEZ;
+    tsoil = daily->avg_stc[0] - TFREEZ;
 
     /* define the phenology signals for cases in which the phenology signals
      * are constant between years */
@@ -114,7 +114,7 @@ void Phenology (const epconst_struct *epc, const daily_pstate_struct *daily_ps,
 
             /* set flag for solstice period
              * (winter->summer = 1, summer->winter = 0) */
-            if (daily_ps->dayl >= daily_ps->prev_dayl)
+            if (daily->dayl >= daily->prev_dayl)
                 ws_flag = 1;
             else
                 ws_flag = 0;
@@ -206,7 +206,7 @@ void Phenology (const epconst_struct *epc, const daily_pstate_struct *daily_ps,
             {
                 /* only begin to test for offset daylength once past the
                  * summer sol */
-                if (ws_flag == 0 && daily_ps->dayl < critdayl)
+                if (ws_flag == 0 && daily->dayl < critdayl)
                 {
                     epv->offset_flag = 1.;
                     epv->offset_counter = epc->litfall_days;

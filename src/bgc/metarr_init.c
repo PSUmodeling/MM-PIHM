@@ -84,33 +84,33 @@ void Save2Stor (pihm_struct pihm, int t, int start_time, int end_time)
             stor = &(pihm->elem[i].stor);
             daily = &(pihm->elem[i].daily);
 
-            stor->dayl[ind] = daily->ps.dayl;
-            stor->prev_dayl[ind] = daily->ps.prev_dayl;
+            stor->dayl[ind] = daily->dayl;
+            stor->prev_dayl[ind] = daily->prev_dayl;
 
-            stor->tmax[ind] = daily->es.tmax;
-            stor->tmin[ind] = daily->es.tmin;
-            stor->sfctmp[ind] = daily->es.avg_sfctmp;
-            stor->tday[ind] = daily->es.tday;
-            stor->tnight[ind] = daily->es.tnight;
-            stor->q2d[ind] = daily->ps.avg_q2d;
-            stor->sfcprs[ind] = daily->ps.avg_sfcprs;
-            stor->soldn[ind] = daily->ef.avg_soldn;
+            stor->tmax[ind] = daily->tmax;
+            stor->tmin[ind] = daily->tmin;
+            stor->sfctmp[ind] = daily->avg_sfctmp;
+            stor->tday[ind] = daily->tday;
+            stor->tnight[ind] = daily->tnight;
+            stor->q2d[ind] = daily->avg_q2d;
+            stor->sfcprs[ind] = daily->avg_sfcprs;
+            stor->soldn[ind] = daily->avg_soldn;
             //stor->par[ind] = stor->soldn[ind] * RAD2PAR;
             for (k = 0; k < MAXLYR; k++)
             {
-                stor->stc[k][ind] = daily->es.avg_stc[k];
-                stor->sh2o[k][ind] = daily->ws.avg_sh2o[k];
+                stor->stc[k][ind] = daily->avg_stc[k];
+                stor->sh2o[k][ind] = daily->avg_sh2o[k];
             }
-            stor->surf[ind] = daily->ws.avg_surf;
-            stor->unsat[ind] = daily->ws.avg_unsat;
-            stor->gw[ind] = daily->ws.avg_gw;
-            stor->albedo[ind] = daily->ps.avg_albedo;
-            stor->ch[ind] = daily->ps.avg_ch;
+            stor->surf[ind] = daily->avg_surf;
+            stor->unsat[ind] = daily->avg_unsat;
+            stor->gw[ind] = daily->avg_gw;
+            stor->albedo[ind] = daily->avg_albedo;
+            stor->ch[ind] = daily->avg_ch;
 
             for (k = 0; k < 3; k++)
             {
-                stor->subsurfflx[k][ind] = daily->wf.avg_subsurf[k];
-                stor->surfflx[k][ind] = daily->wf.avg_ovlflow[k];
+                stor->subsurfflx[k][ind] = daily->avg_subsurf[k];
+                stor->surfflx[k][ind] = daily->avg_ovlflow[k];
             }
 
             stor->flag[ind] = 1;
@@ -118,12 +118,12 @@ void Save2Stor (pihm_struct pihm, int t, int start_time, int end_time)
 
         for (i = 0; i < pihm->numriv; i++)
         {
-            pihm->riv[i].stor.stage[ind] = pihm->riv[i].daily.ws.avg_stage;
-            pihm->riv[i].stor.gw[ind] = pihm->riv[i].daily.ws.avg_gw;
+            pihm->riv[i].stor.stage[ind] = pihm->riv[i].daily.avg_stage;
+            pihm->riv[i].stor.gw[ind] = pihm->riv[i].daily.avg_gw;
 
             for (k = 0; k < 11; k++)
             {
-                pihm->riv[i].stor.rivflow[k][ind] = pihm->riv[i].daily.wf.avg_rivflow[k];
+                pihm->riv[i].stor.rivflow[k][ind] = pihm->riv[i].daily.avg_rivflow[k];
             }
 
             pihm->riv[i].stor.flag[ind] = 1;

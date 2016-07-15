@@ -10,7 +10,7 @@
 
 #include "pihm.h"
 
-void TotalPhotosynthesis (const epconst_struct *epc, const daily_estate_struct *daily_es, const daily_pstate_struct *daily_ps, const pstate_struct *ps, epvar_struct *epv, cflux_struct *cf, psn_struct *psn_sun, psn_struct *psn_shade)
+void TotalPhotosynthesis (const epconst_struct *epc, const daily_struct *daily, const pstate_struct *ps, epvar_struct *epv, cflux_struct *cf, psn_struct *psn_sun, psn_struct *psn_shade)
 {
     /*
      * This function is a wrapper and replacement for the photosynthesis code
@@ -19,7 +19,7 @@ void TotalPhotosynthesis (const epconst_struct *epc, const daily_estate_struct *
      */
     double          tday;
 
-    tday = daily_es->tday - TFREEZ;
+    tday = daily->tday - TFREEZ;
 
     /* psn_struct psn_sun, psn_shade; */
 
@@ -27,7 +27,7 @@ void TotalPhotosynthesis (const epconst_struct *epc, const daily_estate_struct *
     /* set the input variables */
     psn_sun->c3 = epc->c3_flag;
     psn_sun->co2 = ps->co2;
-    psn_sun->pa = daily_ps->avg_sfcprs;
+    psn_sun->pa = daily->avg_sfcprs;
     psn_sun->t = tday;
     psn_sun->lnc = 1.0 / (epv->sun_proj_sla * epc->leaf_cn);
     psn_sun->flnr = epc->flnr;
@@ -46,13 +46,13 @@ void TotalPhotosynthesis (const epconst_struct *epc, const daily_estate_struct *
      * the maintenance respiration rate added, this sum multiplied by the
      * projected leaf area in the relevant canopy fraction, and this total
      * converted from umol/m2/s -> kgC/m2/d */
-    cf->psnsun_to_cpool = (epv->assim_sun + epv->dlmr_area_sun) * ps->plaisun * daily_ps->dayl * 12.011e-9;
+    cf->psnsun_to_cpool = (epv->assim_sun + epv->dlmr_area_sun) * ps->plaisun * daily->dayl * 12.011e-9;
     //printf ("Photo %lf\n", cf->psnsun_to_cpool);
 
     /* SHADED canopy fraction photosynthesis */
     psn_shade->c3 = epc->c3_flag;
     psn_shade->co2 = ps->co2;
-    psn_shade->pa = daily_ps->avg_sfcprs;
+    psn_shade->pa = daily->avg_sfcprs;
     psn_shade->t = tday;
     psn_shade->lnc = 1.0 / (epv->shade_proj_sla * epc->leaf_cn);
     psn_shade->flnr = epc->flnr;
@@ -70,7 +70,7 @@ void TotalPhotosynthesis (const epconst_struct *epc, const daily_estate_struct *
      * the maintenance respiration rate added, this sum multiplied by the
      * projected leaf area in the relevant canopy fraction, and this total
      * converted from umol/m2/s -> kgC/m2/d */
-    cf->psnshade_to_cpool = (epv->assim_shade + epv->dlmr_area_shade) * ps->plaishade * daily_ps->dayl * 12.011e-9;
+    cf->psnshade_to_cpool = (epv->assim_shade + epv->dlmr_area_shade) * ps->plaishade * daily->dayl * 12.011e-9;
 }
 
 

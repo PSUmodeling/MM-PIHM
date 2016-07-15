@@ -250,16 +250,6 @@ void            InitDailyStruct (pihm_struct);
 #endif
 #endif
 
-#ifdef _DAILY_
-void            InitDailyWState (daily_wstate_struct *);
-void            InitDailyWFlux (daily_wflux_struct *);
-void            InitDailyPState (daily_pstate_struct *);
-void            InitDailyEState (daily_estate_struct *);
-void            InitDailyEFlux (daily_eflux_struct *);
-void            InitRiverDailyWState (river_daily_wstate_struct *);
-void            InitRiverDailyWFlux (river_daily_wflux_struct *);
-#endif
-
 #ifdef _ENKF_
 void            EnKFRead (char *, enkf_struct);
 double          Randn ();
@@ -463,21 +453,19 @@ void            BGCSpinup (char *, pihm_struct, char *);
 void            restart_output (cstate_struct *, nstate_struct *, epvar_struct *, bgc_ic_struct *);
 double          GetCO2 (tsdata_struct, int);
 double          GetNdep (tsdata_struct, int);
-void            DayMet (const stor_struct *, daily_wstate_struct *, daily_wflux_struct *, daily_estate_struct *, daily_eflux_struct *, daily_pstate_struct *, int);
-void            RiverDayMet (const river_stor_struct *, river_daily_wstate_struct *, river_daily_wflux_struct *, int);
+void            DayMet (const stor_struct *, daily_struct *, int);
+void            RiverDayMet (const river_stor_struct *, river_daily_struct *, int);
 void            PrecisionControl (cstate_struct *cs, nstate_struct *ns);
 void            MakeZeroFluxStruct (cflux_struct *, nflux_struct *);
-void            Phenology (const epconst_struct *, const daily_pstate_struct *,
-    const daily_estate_struct *, phenology_struct *, epvar_struct *,
-    cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *nf);
+void            Phenology (const epconst_struct *, const daily_struct *, phenology_struct *, epvar_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *nf);
 void            LeafLitFall (const epconst_struct *, double, cflux_struct *, nflux_struct *);
 void            FRootLitFall (const epconst_struct *, double, cflux_struct *, nflux_struct *);
-void            RadTrans (const cstate_struct *, const daily_eflux_struct *, eflux_struct *, pstate_struct *, const epconst_struct *, epvar_struct *, double);
+void            RadTrans (const cstate_struct *, const daily_struct *, eflux_struct *, pstate_struct *, const epconst_struct *, epvar_struct *);
 void            SoilPsi (const soil_struct *, double, double *);
-void            MaintResp (const cstate_struct *, const nstate_struct *, const epconst_struct *, const daily_estate_struct *, const daily_pstate_struct *, cflux_struct *, epvar_struct *);
-void            CanopyCond (const epconst_struct *, const daily_pstate_struct *, const daily_estate_struct *, const daily_wstate_struct *, pstate_struct *, const soil_struct *, epvar_struct *);
+void            MaintResp (const cstate_struct *, const nstate_struct *, const epconst_struct *, const daily_struct *, cflux_struct *, epvar_struct *);
+void            CanopyCond (const epconst_struct *, const daily_struct *, pstate_struct *, const soil_struct *, epvar_struct *);
 void            Photosynthesis (psn_struct *);
-void            TotalPhotosynthesis (const epconst_struct *, const daily_estate_struct *, const daily_pstate_struct *, const pstate_struct *, epvar_struct *, cflux_struct *, psn_struct *, psn_struct *);
+void            TotalPhotosynthesis (const epconst_struct *, const daily_struct *, const pstate_struct *, epvar_struct *, cflux_struct *, psn_struct *, psn_struct *);
 void            Decomp (double, const epconst_struct *, epvar_struct *, cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *, ntemp_struct *);
 void            DailyAllocation (cflux_struct *, cstate_struct *, nflux_struct *, nstate_struct *, epconst_struct *, epvar_struct *, ntemp_struct *, const int);
 void            AnnualRates (const epconst_struct *, epvar_struct *);

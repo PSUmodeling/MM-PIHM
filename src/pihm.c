@@ -1,11 +1,10 @@
 #include "pihm.h"
 
+void PIHMRun (char *simulation, char *outputdir, int first_cycle
 #ifdef _ENKF_
-void PIHMRun (char *simulation, char *outputdir, int first_cycle,
-    int starttime, int endtime, int startmode, double *param)
-#else
-void PIHMRun (char *simulation, char *outputdir, int first_cycle)
+    , int starttime, int endtime, int startmode, double *param
 #endif
+    )
 {
     pihm_struct     pihm;
     N_Vector        CV_Y;       /* State Variables Vector */
@@ -13,7 +12,9 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     int             nsv;        /* Problem size */
     int             i;          /* Loop index */
     int             t;          /* Simulation time */
+#ifdef _BGC_
     int             first_balance = 1;
+#endif
 
     /* Allocate memory for model data structure */
     pihm = (pihm_struct)malloc (sizeof *pihm);
@@ -118,7 +119,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
             DailyCycles (t - DAYINSEC, pihm);
     #endif
     #ifdef _BGC_
-            if (pihm->ctrl.spinup)
+            if (pihm->ctrl.bgc_spinup)
             {
                 Save2Stor (pihm, t, pihm->ctrl.spinupstart, pihm->ctrl.spinupend);
             }
@@ -154,7 +155,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     }
 
 #ifdef _BGC_
-    if (pihm->ctrl.spinup)
+    if (pihm->ctrl.bgc_spinup)
     {
         BGCSpinup (simulation, pihm, outputdir);
     }

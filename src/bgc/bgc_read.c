@@ -33,7 +33,7 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2, ndepcontrol_s
     ctrl->spinupend = (int)rawtime;
 
     NextLine (bgc_file, cmdstr);
-    sscanf (cmdstr, "%d", &ctrl->spinup);
+    sscanf (cmdstr, "%d", &ctrl->bgc_spinup);
     NextLine (bgc_file, cmdstr);
     sscanf (cmdstr, "%d", &ctrl->maxspinyears);
 

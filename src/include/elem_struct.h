@@ -747,6 +747,41 @@ typedef struct solute_struct
 } solute_struct;
 #endif
 
+typedef struct daily_struct
+{
+    int             counter;
+    int             daylight_counter;
+
+    double          avg_surf;
+    double          avg_unsat;
+    double          avg_gw;
+    double          avg_sh2o[MAXLYR];
+
+    double          avg_ovlflow[NUM_EDGE];
+    double          avg_subsurf[NUM_EDGE];
+    double          avg_et[MAXLYR];
+    double          avg_smflxv[MAXLYR];
+
+    double          dayl;
+    double          prev_dayl;
+    double          avg_q2d;
+    double          avg_sfcprs;
+    double          avg_ch;
+    double          avg_albedo;
+    double          avg_sfcspd;
+    double          avg_sncovr;
+
+    double          tmax;
+    double          tmin;
+    double          avg_sfctmp;
+    double          tday;
+    double          tnight;
+    double          avg_stc[MAXLYR];
+
+    double          avg_soldn;
+    double          solar_total;
+} daily_struct;
+
 typedef struct stor_struct
 {
     double         *dayl;       /* (s)     daylength */

@@ -11,10 +11,8 @@
 
 #include "pihm.h"
 
-void CanopyCond (const epconst_struct *epc,
-    const daily_pstate_struct *daily_ps, const daily_estate_struct *daily_es,
-    const daily_wstate_struct *daily_ws, pstate_struct *ps,
-    const soil_struct *soil, epvar_struct *epv)
+void CanopyCond (const epconst_struct *epc, const daily_struct *daily,
+    pstate_struct *ps, const soil_struct *soil, epvar_struct *epv)
 {
     int             k;
     double          gl_bl, gl_c, gl_smax, gl_s_sun, gl_s_shade;
@@ -37,19 +35,19 @@ void CanopyCond (const epconst_struct *epc,
     //pmet_struct     pmet_in;
 
     /* assign variables that are used more than once */
-    tday = daily_es->tday - TFREEZ;
-    tmin = daily_es->tmin - TFREEZ;
-    q2d = daily_ps->avg_q2d;
-    dayl = daily_ps->dayl;
+    tday = daily->tday - TFREEZ;
+    tmin = daily->tmin - TFREEZ;
+    q2d = daily->avg_q2d;
+    dayl = daily->dayl;
 
-    swc = daily_ws->avg_sh2o[0] * ps->sldpth[0];
+    swc = daily->avg_sh2o[0] * ps->sldpth[0];
     droot = ps->sldpth[0];
 
     if (ps->nroot > 1)
     {
         for (k = 1; k < ps->nroot; k++)
         {
-            swc += daily_ws->avg_sh2o[k] * ps->sldpth[k];
+            swc += daily->avg_sh2o[k] * ps->sldpth[k];
             droot += ps->sldpth[k];
         }
     }
@@ -57,13 +55,13 @@ void CanopyCond (const epconst_struct *epc,
     swc /= droot;
 
     /* temperature and pressure correction factor for conductances */
-    gcorr = pow ((tday + 273.15) / 293.15, 1.75) * 101300. / daily_ps->avg_sfcprs;
+    gcorr = pow ((tday + 273.15) / 293.15, 1.75) * 101300. / daily->avg_sfcprs;
 
     /* calculate leaf- and canopy-level conductances to water vapor
      * and sensible heat fluxes */
 
     /* leaf boundary-layer conductance */
-    gl_bl = daily_ps->avg_ch;
+    gl_bl = daily->avg_ch;
 
     /* leaf cuticular conductance */
     //gl_c = epc->gl_c * gcorr;

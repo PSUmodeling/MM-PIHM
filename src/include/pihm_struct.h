@@ -112,7 +112,7 @@ typedef struct ctrl_struct
 #ifdef _BGC_
     double          simstarttime;       /* start time of simulation */
     double          simendtime; /* end time of simulation */
-    int             spinup;     /* (flag) 1=spinup run, 0=normal run */
+    int             bgc_spinup;     /* (flag) 1=spinup run, 0=normal run */
     int             maxspinyears;       /* maximum number of years for spinup run */
     int             dodaily;    /* flag for daily output */
     int             domonavg;   /* flag for monthly average of daily outputs */

@@ -22,15 +22,15 @@ void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele, river_struc
     /* 
      * LAI forcing
      */
-#ifdef _BGC_
-    if (ctrl->spinup)
-    {
-#endif
 #ifndef _CYCLES_
+    #ifdef _BGC_
+    if (ctrl->bgc_spinup)
+    {
         ApplyLAI (forc, elem, numele, t);
-#endif
-#ifdef _BGC_
     }
+    #else
+    ApplyLAI (forc, elem, numele, t);
+    #endif
 #endif
 
     /* River boundary condition */

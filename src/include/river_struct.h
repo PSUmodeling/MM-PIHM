@@ -70,6 +70,16 @@ typedef struct riveric_struct
     double          gw;
 } riveric_struct;
 
+typedef struct river_daily_struct
+{
+    int             counter;
+
+    double          avg_stage;
+    double          avg_gw;
+
+    double          avg_rivflow[NUM_RIVFLX];
+} river_daily_struct;
+
 typedef struct river_struct
 {
     river_attrib_struct   attrib;

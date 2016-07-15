@@ -35,15 +35,15 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
 
     for (i = 0; i < numele; i++)
     {
-        totwater = (elem[i].daily.ws.avg_surf + elem[i].daily.ws.avg_unsat * elem[i].soil.porosity +
-            elem[i].daily.ws.avg_gw * elem[i].soil.porosity) * 1000.0;
+        totwater = (elem[i].daily.avg_surf + elem[i].daily.avg_unsat * elem[i].soil.porosity +
+            elem[i].daily.avg_gw * elem[i].soil.porosity) * 1000.0;
         nconc[i] = elem[i].ns.sminn / totwater;
     }
 
     for (i = 0; i < numriv; i++)
     {
-        totwater = (riv[i].daily.ws.avg_stage +
-            riv[i].daily.ws.avg_gw * riv[i].matl.porosity) * 1000.0;
+        totwater = (riv[i].daily.avg_stage +
+            riv[i].daily.avg_gw * riv[i].matl.porosity) * 1000.0;
         nconc[i + numele] = riv[i].sminn / totwater;
     }
 
@@ -71,8 +71,8 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
 
         for (j = 0; j < 3; j++)
         {
-            latflux = (elem[i].daily.wf.avg_subsurf[j] +
-                elem[i].daily.wf.avg_ovlflow[j]) *
+            latflux = (elem[i].daily.avg_subsurf[j] +
+                elem[i].daily.avg_ovlflow[j]) *
                 24.0 * 3600.0 * 1000.0 / elem[i].topo.area;
 
             if (latflux > 0.0)
@@ -108,8 +108,8 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
         }
         nabr_nconc[UP] = (nabr_nconc[UP] > 0.0) ? nabr_nconc[UP] : 0.0;
 
-        latflux = (riv[i].daily.wf.avg_rivflow[UP_CHANL2CHANL] +
-            riv[i].daily.wf.avg_rivflow[UP_AQUIF2AQUIF]) *
+        latflux = (riv[i].daily.avg_rivflow[UP_CHANL2CHANL] +
+            riv[i].daily.avg_rivflow[UP_AQUIF2AQUIF]) *
             1000.0 * 24.0 * 3600.0 / riv[i].topo.area;
 
         if (latflux > 0.0)
@@ -132,8 +132,8 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
         }
         nabr_nconc[DOWN] = (nabr_nconc[DOWN] > 0.0) ? nabr_nconc[DOWN] : 0.0;
 
-        latflux = (riv[i].daily.wf.avg_rivflow[DOWN_CHANL2CHANL] +
-            riv[i].daily.wf.avg_rivflow[DOWN_AQUIF2AQUIF]) *
+        latflux = (riv[i].daily.avg_rivflow[DOWN_CHANL2CHANL] +
+            riv[i].daily.avg_rivflow[DOWN_AQUIF2AQUIF]) *
             1000.0 * 24.0 * 3600.0 / riv[i].topo.area;
 
         if (latflux > 0.0)
@@ -156,9 +156,9 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
         }
         nabr_nconc[LEFT] = (nabr_nconc[LEFT] > 0.0) ? nabr_nconc[LEFT] : 0.0;
 
-        latflux = (riv[i].daily.wf.avg_rivflow[LEFT_SURF2CHANL] +
-            riv[i].daily.wf.avg_rivflow[LEFT_AQUIF2CHANL] +
-            riv[i].daily.wf.avg_rivflow[LEFT_AQUIF2AQUIF]) *
+        latflux = (riv[i].daily.avg_rivflow[LEFT_SURF2CHANL] +
+            riv[i].daily.avg_rivflow[LEFT_AQUIF2CHANL] +
+            riv[i].daily.avg_rivflow[LEFT_AQUIF2AQUIF]) *
             1000.0 * 24.0 * 3600.0 / riv[i].topo.area;
 
         if (latflux > 0.0)
@@ -180,9 +180,9 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
         }
         nabr_nconc[RIGHT] = (nabr_nconc[RIGHT] > 0.0) ? nabr_nconc[RIGHT] : 0.0;
 
-        latflux = (riv[i].daily.wf.avg_rivflow[RIGHT_SURF2CHANL] +
-            riv[i].daily.wf.avg_rivflow[RIGHT_AQUIF2CHANL] +
-            riv[i].daily.wf.avg_rivflow[RIGHT_AQUIF2AQUIF]) *
+        latflux = (riv[i].daily.avg_rivflow[RIGHT_SURF2CHANL] +
+            riv[i].daily.avg_rivflow[RIGHT_AQUIF2CHANL] +
+            riv[i].daily.avg_rivflow[RIGHT_AQUIF2AQUIF]) *
             1000.0 * 24.0 * 3600.0 / riv[i].topo.area;
 
         if (latflux > 0.0)
