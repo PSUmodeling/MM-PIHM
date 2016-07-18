@@ -8,12 +8,12 @@ CFLAGS = -g -O0 -Wall
 SUNDIALS_PATH = ./sundials
 
 SRCDIR = ./src
-LIBS =	-lm
+LIBS = -lm
 INCLUDES =\
+	-I${SRCDIR}/include\
 	-I${SUNDIALS_PATH}/include\
 	-I${SUNDIALS_PATH}/include/cvode\
-	-I${SUNDIALS_PATH}/include/sundials\
-	-I${SRCDIR}/include
+	-I${SUNDIALS_PATH}/include/sundials
 
 LFLAGS = -L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
 
@@ -36,11 +36,13 @@ SRCS_ = main.c\
 	vert_flow.c
 
 HEADERS_ =\
-	include/pihm.h\
+	include/elem_struct.h\
 	include/input_tbl_struct.h\
+	include/pihm.h\
 	include/pihm_const.h\
+	include/pihm_func.h\
 	include/pihm_struct.h\
-	include/pihm_func.h
+	include/river_struct.h
 
 MODULE_HEADERS_ =
 EXECUTABLE = pihm
@@ -53,8 +55,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm)
   SFLAGS = -D_PIHM_ -D_NOAH_ 
   MODULE_SRCS_ =\
   	noah/lsm_func.c\
-  	noah/lsm_read.c\
 	noah/lsm_init.c\
+  	noah/lsm_read.c\
 	noah/noah.c\
 	spa/spa.c
   MODULE_HEADERS_ = include/spa.h
@@ -66,7 +68,7 @@ endif
 # RT-Flux-PIHM
 #-------------------
 ifeq ($(MAKECMDGOALS),rt-flux-pihm)
-  SFLAGS = -D_PIHM_ -D_RT_ -D_FLUX_PIHM_
+  SFLAGS = -D_PIHM_ -D_RT_ -D_NOAH_
   MODULE_SRCS_=\
   	noah/coupling.c\
 	noah/module_sf_noahlsm.c\
@@ -119,12 +121,11 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/zero_srcsnk.c\
   	noah/daily.c\
 	noah/lsm_func.c\
-	noah/lsm_read.c\
 	noah/lsm_init.c\
+	noah/lsm_read.c\
 	noah/noah.c\
 	spa/spa.c
-  MODULE_HEADERS_ =\
-	include/spa.h
+  MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-bgc
   MSG = "... Compiling Flux-PIHM-BGC ..."
 endif
@@ -136,13 +137,13 @@ ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
   CC = mpicc
   SFLAGS = -D_PIHM_ -D_ENKF_ -D_NOAH_
   MODULE_SRCS_ =\
-  	enkf/read_enkf.c\
-	enkf/enkf_func.c\
 	enkf/enkf.c\
+	enkf/enkf_func.c\
 	enkf/obs_oper.c\
+  	enkf/read_enkf.c\
 	noah/lsm_func.c\
-	noah/lsm_read.c\
 	noah/lsm_init.c\
+	noah/lsm_read.c\
   	noah/noah.c\
 	spa/spa.c
   MODULE_HEADERS_ =\
@@ -158,32 +159,32 @@ endif
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS = -D_PIHM_ -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_=\
-	noah/lsm_func.c\
-	noah/lsm_read.c\
-	noah/lsm_init.c\
-  	noah/noah.c\
-	noah/daily.c\
-	spa/spa.c\
+	cycles/Crop.c\
+	cycles/CropHarvest.c\
+	cycles/CropProcess.c\
+	cycles/CropThermalTime.c\
+	cycles/CropTranspiration.c\
   	cycles/cycles_read.c\
 	cycles/cycles_init.c\
 	cycles/cycles_func.c\
-	cycles/Soil.c\
-	cycles/Residue.c\
-	cycles/SoilCarbon.c\
-	cycles/CropTranspiration.c\
-	cycles/SoilEvaporation.c\
 	cycles/DailyOperation.c\
-	cycles/CropProcess.c\
-	cycles/CropThermalTime.c\
-	cycles/CropHarvest.c\
-	cycles/Crop.c\
-	cycles/FieldOperation.c\
 	cycles/Fertilization.c\
-	cycles/Tillage.c\
+	cycles/FieldOperation.c\
+	cycles/Residue.c\
+	cycles/Soil.c\
+	cycles/SoilCarbon.c\
+	cycles/SoilEvaporation.c\
 	cycles/SoilNitrogen.c\
+	cycles/SoilSolute.c\
+	cycles/Tillage.c\
 	cycles/Irrigation.c\
-	cycles/SoilSolute.c
-  MODULE_HEADERS_ =
+	noah/daily.c\
+	noah/lsm_func.c\
+	noah/lsm_init.c\
+	noah/lsm_read.c\
+  	noah/noah.c\
+	spa/spa.c
+  MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."
 endif

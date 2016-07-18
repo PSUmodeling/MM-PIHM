@@ -112,7 +112,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
         {
             fread (&elem[i].restart_input, sizeof (bgc_ic_struct), 1, init_file);
 
-            restart_input (&elem[i].cs, &elem[i].ns, &elem[i].epv,
+            RestartInput (&elem[i].cs, &elem[i].ns, &elem[i].epv,
                 &elem[i].restart_input);
 
             /* Calculate LAI for the coupling with Noah */
@@ -166,7 +166,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
             elem[i].epv.offset_swi = 0.0;
             elem[i].epv.annavg_t2m = elem[i].ps.tbot;
 
-            firstday (&elem[i].epc, &elem[i].cinit, &elem[i].epv, &elem[i].cs, &elem[i].ns);
+            FirstDay (&elem[i].epc, &elem[i].cinit, &elem[i].epv, &elem[i].cs, &elem[i].ns);
         }
 
         for (i = 0; i < numriv; i++)
@@ -177,7 +177,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
 
     for (i = 0; i < numele; i++)
     {
-        zero_srcsnk (&elem[i].cs, &elem[i].ns, &elem[i].summary);
+        ZeroSrcSnk (&elem[i].cs, &elem[i].ns, &elem[i].summary);
     }
 
     for (i = 0; i < numriv; i++)

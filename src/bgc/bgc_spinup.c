@@ -198,7 +198,7 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
     restart_file = fopen (restart_fn, "wb");
     for (i = 0; i < pihm->numele; i++)
     {
-        restart_output (&pihm->elem[i].cs, &pihm->elem[i].ns, &pihm->elem[i].epv, &pihm->elem[i].restart_output);
+        RestartOutput (&pihm->elem[i].cs, &pihm->elem[i].ns, &pihm->elem[i].epv, &pihm->elem[i].restart_output);
         fwrite(&(pihm->elem[i].restart_output), sizeof(bgc_ic_struct), 1, restart_file);
         fprintf (soilc_file, "%lf\t", pihm->elem[i].summary.soilc);
         fprintf (vegc_file, "%lf\t", pihm->elem[i].summary.vegc);

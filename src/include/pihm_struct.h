@@ -3,7 +3,7 @@
 
 #ifdef _BGC_
 /* a structure to hold information on the annual co2 concentration */
-typedef struct
+typedef struct co2control_struct
 {
     int             varco2;     /* (flag) 0=const 1=use file 2=const,file for Ndep */
     double          co2ppm;     /* (ppm)  constant CO2 concentration */
@@ -13,7 +13,7 @@ typedef struct
 } co2control_struct;
 
 /* a structure to hold annual nitrogen deposition data */
-typedef struct
+typedef struct ndepcontrol_struct
 {
     int             varndep;    /* (flag) 0=const 1=use file  */
     double         *ndep_array; /* (kgN m-2 yr-1)  annual ndep array */
@@ -22,8 +22,6 @@ typedef struct
     double          ndep;       /* (kgN/m2/yr) wet+dry atmospheric deposition of N */
     double          nfix;       /* (kgN/m2/yr) symbiotic+asymbiotic fixation of N */
 } ndepcontrol_struct;
-
-/* meteorological variable arrays */
 #endif
 
 typedef struct calib_struct
@@ -114,18 +112,8 @@ typedef struct ctrl_struct
     double          simendtime; /* end time of simulation */
     int             bgc_spinup;     /* (flag) 1=spinup run, 0=normal run */
     int             maxspinyears;       /* maximum number of years for spinup run */
-    int             dodaily;    /* flag for daily output */
-    int             domonavg;   /* flag for monthly average of daily outputs */
-    int             doannavg;   /* flag for annual average of daily outputs */
-    int             doannual;   /* flag for annual output */
-    int             ndayout;    /* number of daily outputs */
-    int             nannout;    /* number of annual outputs */
-    int            *daycodes;   /* array of indices for daily outputs */
-    int            *anncodes;   /* array of indices for annual outputs */
     int             read_restart;       /* flag to read restart file */
     int             write_restart;      /* flag to write restart file */
-    int             keep_metyr; /* (flag) 1=retain restart metyr, 0=reset metyr */
-    int             onscreen;   /* (flag) 1=show progress on-screen 0=don't */
     int             spinupstartyear;    /* first met year for spinup */
     int             spinupendyear;      /* last met year for spinup */
     int             spinupstart;        /* start time of spinup */
@@ -191,6 +179,6 @@ typedef struct pihm_struct
     calib_struct    cal;
     ctrl_struct     ctrl;
     prtctrl_struct  prtctrl[NUM_PRINT];
-}              *pihm_struct;
+} *pihm_struct;
 
 #endif

@@ -11,7 +11,7 @@
 
 #include "pihm.h"
 
-void restart_input (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, bgc_ic_struct * restart)
+void RestartInput (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, bgc_ic_struct * restart)
 {
     cs->leafc = restart->leafc;
     cs->leafc_storage = restart->leafc_storage;
@@ -98,7 +98,7 @@ void restart_input (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, 
     epv->offset_swi = restart->offset_swi;
 }
 
-void restart_output (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, bgc_ic_struct *restart)
+void RestartOutput (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, bgc_ic_struct *restart)
 {
     restart->leafc = cs->leafc;
     restart->leafc_storage = cs->leafc_storage;
