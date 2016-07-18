@@ -188,7 +188,7 @@ void InitSoil (elem_struct *elem, int numele, soiltbl_struct soiltbl,
         {
             fprintf (stderr, "Error: Porosity value out of bounds for element %d",
                 i + 1);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
         }
         elem[i].soil.alpha = cal.alpha * soiltbl.alpha[soil_ind];
         elem[i].soil.beta = cal.beta * soiltbl.beta[soil_ind];

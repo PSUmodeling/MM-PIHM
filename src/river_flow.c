@@ -172,7 +172,7 @@ void RiverFlow (pihm_struct pihm)
                 default:
                     fprintf (stderr, "Error: River routing boundary condition type (%d) is not recognized.\n",
                         riv->down);
-                    PIHMError (1, __FUNCTION__);
+                    PIHMError (1);
             }
             /* Note: boundary condition for subsurface element can be changed.
              * Assumption: no flow condition */
@@ -344,7 +344,7 @@ double EqWid (int riv_order, double riv_depth, double riv_coeff)
             break;
         default:
             fprintf (stderr, "Error: River order %d is not defined.\n", riv_order);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
     }
     return (eq_wid);
 }
@@ -441,7 +441,7 @@ double RivArea (int riv_order, double riv_depth, double riv_coeff)
             break;
         default:
             fprintf (stderr, "Error: River order %d is not defined!\n", riv_order);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
     }
 
     return (riv_area);
@@ -483,7 +483,7 @@ double RivPerim (int riv_order, double riv_depth, double riv_coeff)
             break;
         default:
             fprintf (stderr, "Error: River order %d is not defined!\n", riv_order);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
     }
     return (riv_perim);
 }

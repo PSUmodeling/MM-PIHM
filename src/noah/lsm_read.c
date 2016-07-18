@@ -19,7 +19,7 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
     if (NULL == lsm_file)
     {
         fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMError (1, __FUNCTION__);
+        PIHMError (1);
     }
     
     if (verbose_mode)
@@ -44,7 +44,7 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
         fprintf (stderr, "Error reading %s.\n", filename);
         fprintf (stderr, "The number of soil layers should not be larger than %d.\n",
             MAXLYR - 1);
-        PIHMError (1, __FUNCTION__);
+        PIHMError (1);
     }
 
     NextLine (lsm_file, cmdstr);
@@ -59,7 +59,7 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
         {
             fprintf (stderr, "Error reading %s.\n", filename);
             fprintf (stderr, "Please check SLDPTH_DATA.\n");
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
         }
         bytes_consumed += bytes_now;
     }
@@ -152,7 +152,7 @@ void ReadRad (char *filename, forc_struct *forc)
     if (NULL == rad_file)
     {
         fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMError (1, __FUNCTION__);
+        PIHMError (1);
     }
 
     if (verbose_mode)
@@ -168,7 +168,7 @@ void ReadRad (char *filename, forc_struct *forc)
     {
         fprintf (stderr, "Error reading %s.\n", filename);
         fprintf (stderr, "The number of radiation forcing time series should be the same as the number of meteorlogical forcing time series.\n");
-        PIHMError (1, __FUNCTION__);
+        PIHMError (1);
     }
 
     forc->rad = (tsdata_struct *)malloc (forc->nrad * sizeof (tsdata_struct));
@@ -184,7 +184,7 @@ void ReadRad (char *filename, forc_struct *forc)
             fprintf (stderr, "Error reading %s.\n", filename);
             fprintf (stderr, "Cannot read information of the %dth forcing series.\n",
                 i + 1);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
         }
 
         /* Skip header lines */

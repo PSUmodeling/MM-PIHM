@@ -12,11 +12,11 @@
 /*
  * Function Declarations
  */
+void            PIHMRun (char *, char *, int
 #ifdef _ENKF_
-void            PIHMRun (char *, char *, int, int, int, int, double *);
-#else
-void            PIHMRun (char *, char *, int);
+    , int, int, int, double *
 #endif
+    );
 void            CreateOutputDir (char *, int);
 void            ReadAlloc (char *, pihm_struct);
 void            ReadRiv (char *, rivtbl_struct *, shptbl_struct *,
@@ -137,7 +137,8 @@ double          PtfBeta (double, double, double, double, int);
 //#endif
 //
 void            BKInput (char *, char *);
-void            PIHMError (int, const char *);
+#define PIHMError(i)  _PIHMError(__FILE__, __LINE__, __FUNCTION__, i)
+void            _PIHMError (const char *, int, const char *, int);
 
 #ifdef _NOAH_
 void            InitLsm (elem_struct *, int, ctrl_struct, noahtbl_struct,
@@ -339,7 +340,7 @@ void            GrowingCrop (int, int, comm_struct *, residue_struct *,
     const ctrl_struct *, soil_struct *, soilc_struct *, cropmgmt_struct *,
     const weather_struct *, const snow_struct *);
 void            CropStage (int, comm_struct *, int);
-double          FinalHarvestDate (int, int);
+double          FinalHarvestDate (int, int, double, double, double);
 void            Phenology (int, int, const weather_struct *, comm_struct *);
 double          ThermalTime (double, double, double, double);
 void            RadiationInterception (int, int, comm_struct *);

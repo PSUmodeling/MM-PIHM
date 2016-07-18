@@ -100,7 +100,7 @@ int main (int argc, char *argv[])
         fprintf (stderr, "\t-o Specify output directory.\n");
         fprintf (stderr, "\t-v Verbose mode\n");
         fprintf (stderr, "\t-d Debug mode\n");
-        PIHMError (1, __FUNCTION__);
+        PIHMError (1);
     }
     else
     {

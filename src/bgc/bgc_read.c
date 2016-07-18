@@ -15,7 +15,7 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2, ndepcontrol_s
     if (NULL == bgc_file)
     {
         fprintf (stderr, "Error opening %s.\n", fn);
-        PIHMError (1, __FUNCTION__);
+        PIHMError (1);
     }
 
     FindLine (bgc_file, "TIME_DEFINE");
@@ -333,7 +333,7 @@ void ReadEPC (epctbl_struct *epctbl)
             if (NULL == epc_file)
             {
                 fprintf (stderr, "Error opening %s.\n", fn);
-                PIHMError (1, __FUNCTION__);
+                PIHMError (1);
             }
 
             if (verbose_mode)
@@ -668,7 +668,7 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
     if (NULL == fid)
     {
         fprintf (stderr, "Error opening %s.\n", fn);
-        PIHMError (1, __FUNCTION__);
+        PIHMError (1);
     }
 
     if (verbose_mode)
@@ -691,7 +691,7 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
         {
             fprintf (stderr, "Error reading %s.\n", fn);
             fprintf (stderr, "Please check file format.\n");
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
         }
 
         timeinfo->tm_year = timeinfo->tm_year - 1900;

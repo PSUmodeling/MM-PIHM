@@ -230,7 +230,7 @@ double EffKinf (double ksatfunc, double elemsatn, int status, double mackv,
             break;
         default:
             fprintf (stderr, "Error: Macropore status (%d) is not defined.\n", status);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
     }
 
     return (keff);
@@ -254,7 +254,7 @@ double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
             break;
         default:
             fprintf (stderr, "Error: Macropore status (%d) is not defined.\n", status);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
     }
 
     return (keff);

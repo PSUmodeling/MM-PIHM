@@ -17,7 +17,7 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl, int
     if (NULL == simctrl_file)
     {
         fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMError (1, __FUNCTION__);
+        PIHMError (1);
     }
 
     if (verbose_mode)
@@ -68,7 +68,7 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl, int
         {
             fprintf (stderr, "Error reading %s.\n", filename),
             fprintf (stderr, "Please check file format.\n");
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
         }
         i++;
     }
@@ -142,7 +142,7 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
     if (NULL == soil_file)
     {
         fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMError (1, __FUNCTION__);
+        PIHMError (1);
     }
 
     if (verbose_mode)
@@ -232,7 +232,7 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
     if (NULL == crop_file)
     {
         fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMError (1, __FUNCTION__);
+        PIHMError (1);
     }
 
     if (verbose_mode)
@@ -533,7 +533,7 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
         if (NULL == op_file)
         {
             fprintf (stderr, "Error opening %s.\n", filename);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
         }
 
         if (verbose_mode)

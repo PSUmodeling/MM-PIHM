@@ -941,7 +941,7 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
                 if (NULL == fid)
                 {
                     fprintf (stderr, "Error opening %s.\n", ascii_fn);
-                    PIHMError (1, __FUNCTION__);
+                    PIHMError (1);
                 }
                 fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
                     timestamp->tm_year + 1900, timestamp->tm_mon + 1,
@@ -971,7 +971,7 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
             {
                 fprintf (stderr, "Error opening %s.\n",
                     prtctrl[i].name);
-                PIHMError (1, __FUNCTION__);
+                PIHMError (1);
             }
 
             outtime = (double)t;

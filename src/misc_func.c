@@ -71,7 +71,7 @@ void BKInput (char *simulation, char *outputdir)
     }
 }
 
-void PIHMError (int error, const char *func)
+void _PIHMError (const char *fn, int lineno, const char *func, int error)
 {
 #ifdef _ENKF_
     int             id;
@@ -83,7 +83,12 @@ void PIHMError (int error, const char *func)
     fflush (stderr);
     MPI_Abort (MPI_COMM_WORLD, error);
 #else
-    fprintf (stderr, "Error in %s.\n", func);
+    fprintf (stderr, "Error in %s", func);
+    if (verbose_mode)
+    {
+        fprintf (stderr, " (%s, Line %d)", fn, lineno);
+    }
+    fprintf (stderr, ".\n");
     fprintf (stderr, "Exiting...\n");
     fflush (stderr);
     exit (error);

@@ -141,19 +141,19 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             fprintf
                 (stderr, "Error: NAN error for Element %d (surface water) at %lf\n",
                 i + 1, t);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
         }
         if (isnan (dy[UNSAT (i)]))
         {
             fprintf (stderr, "Error: NAN error for Element %d (unsat water) at %lf\n",
                 i + 1, t);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
         }
         if (isnan (dy[GW (i)]))
         {
             fprintf (stderr, "Error: NAN error for Element %d (groundwater) at %lf\n",
                 i + 1, t);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
         }
     }
 
@@ -177,14 +177,14 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         {
             fprintf (stderr, "Error: NAN error for River Segment %d (river stage) at %lf\n",
                 i + 1, t);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
         }
         if (isnan (dy[RIVGW (i)]))
         {
             fprintf
                 (stderr, "Error: NAN error for River Segment %d (groundwater) at"
                 "%lf\n", i + 1, t);
-            PIHMError (1, __FUNCTION__);
+            PIHMError (1);
         }
     }
 
