@@ -6,9 +6,8 @@ void DayMet (const stor_struct *stor, daily_struct *daily, int metday)
 
     if (stor->flag[metday] == 0)
     {
-        printf ("ERROR: BGC forcing of the %dth day is not available!\n", metday + 1);
-        fflush (stdout);
-        PihmExit (1);
+        fprintf (stderr, "Error: BGC forcing of the %dth day is not available.\n", metday + 1);
+        PIHMError (1, __FUNCTION__);
     }
 
     daily->dayl = stor->dayl[metday];
@@ -51,9 +50,8 @@ void RiverDayMet (const river_stor_struct *stor, river_daily_struct *daily, int 
 
     if (stor->flag[metday] == 0)
     {
-        printf ("ERROR: BGC forcing of the %dth day is not available!\n", metday + 1);
-        fflush (stdout);
-        PihmExit (1);
+        fprintf (stderr, "Error: BGC forcing of the %dth day is not available.\n", metday + 1);
+        PIHMError (1, __FUNCTION__);
     }
 
     daily->avg_stage = stor->stage[metday];

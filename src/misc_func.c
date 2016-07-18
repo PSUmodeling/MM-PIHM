@@ -71,16 +71,21 @@ void BKInput (char *simulation, char *outputdir)
     }
 }
 
-void PihmExit (int error)
+void PIHMError (int error, const char *func)
 {
 #ifdef _ENKF_
     int             id;
     int             ierr;
 
     ierr = MPI_Comm_rank (MPI_COMM_WORLD, &id);
-    printf ("Exit from Node %d\n", id);
+    fprintf (stderr, "Error in %s\n", func);
+    fprintf (stderr, "Exiting from Node %d\n", id);
+    fflush (stderr);
     MPI_Abort (MPI_COMM_WORLD, error);
 #else
+    fprintf (stderr, "Error in %s.\n", func);
+    fprintf (stderr, "Exiting...\n");
+    fflush (stderr);
     exit (error);
 #endif
 }

@@ -23,9 +23,9 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, cons
             epc_ind != CLOSE_SHRUB - 1 &&
             epc_ind != OPEN_SHRUB - 1)
         {
-            printf ("Land cover type %d not been defined in Flux-PIHM-BGC\n",
+            fprintf (stderr, "Error: Land cover type %d not been defined in Flux-PIHM-BGC.\n",
                 elem[i].attrib.lc_type);
-            PihmExit (1);
+            PIHMError (1, __FUNCTION__);
         }
 
         elem[i].epc.woody = epctbl->woody[epc_ind];
@@ -96,7 +96,17 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
     if (!spinup)
     {
         init_file = fopen (fn, "rb");
-        CheckFile (init_file, fn);
+
+        if (NULL == init_file)
+        {
+            fprintf (stderr, "Error reading %s.\n", fn);
+            PIHMError (1, __FUNCTION__);
+        }
+
+        if (verbose_mode)
+        {
+            printf ("Reading %s...", fn);
+        }
 
         for (i = 0; i < numele; i++)
         {

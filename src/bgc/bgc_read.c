@@ -11,7 +11,12 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2, ndepcontrol_s
 
     /* Read bgc simulation control file */
     bgc_file = fopen (fn, "r");
-    CheckFile (bgc_file, fn);
+
+    if (NULL == bgc_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", fn);
+        PIHMError (1, __FUNCTION__);
+    }
 
     FindLine (bgc_file, "TIME_DEFINE");
     NextLine (bgc_file, cmdstr);
@@ -95,25 +100,25 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2, ndepcontrol_s
 
     FindLine (bgc_file, "DAILY_OUTPUT");
     NextLine (bgc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL]);
+    ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i');
     NextLine (bgc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL]);
+    ReadKeyword (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL], 'i');
     NextLine (bgc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL]);
+    ReadKeyword (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL], 'i');
     NextLine (bgc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL]);
+    ReadKeyword (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL], 'i');
     NextLine (bgc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL]);
+    ReadKeyword (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL], 'i');
     NextLine (bgc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL]);
+    ReadKeyword (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL], 'i');
     NextLine (bgc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL]);
+    ReadKeyword (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL], 'i');
     NextLine (bgc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL]);
+    ReadKeyword (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL], 'i');
     NextLine (bgc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL]);
+    ReadKeyword (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL], 'i');
     NextLine (bgc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL]);
+    ReadKeyword (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL], 'i');
 
     fclose (bgc_file);
 }
@@ -325,7 +330,16 @@ void ReadEPC (epctbl_struct *epctbl)
 
         if (strcasecmp (fn, "N/A") != 0)
         {
-            CheckFile (epc_file, fn);
+            if (NULL == epc_file)
+            {
+                fprintf (stderr, "Error opening %s.\n", fn);
+                PIHMError (1, __FUNCTION__);
+            }
+
+            if (verbose_mode)
+            {
+                printf ("\nReading %s...\n", fn);
+            }
 
             /* Skip header file */
             fgets (cmdstr, MAXSTRING, epc_file);
@@ -650,7 +664,17 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
     fid = fopen (fn, "r");
-    CheckFile (fid, fn);
+
+    if (NULL == fid)
+    {
+        fprintf (stderr, "Error opening %s.\n", fn);
+        PIHMError (1, __FUNCTION__);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s...\n", fn);
+    }
 
     ts->length = CountLine (fid, cmdstr, 1, "EOF");
     ts->ftime = (int *) malloc (ts->length * sizeof (int));
@@ -665,9 +689,9 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
 
         if (match != 2)
         {
-            printf ("Cannot read annual time series!\n");
-            printf ("%s file format error!\n", fn);
-            PihmExit (1);
+            fprintf (stderr, "Error reading %s.\n", fn);
+            fprintf (stderr, "Please check file format.\n");
+            PIHMError (1, __FUNCTION__);
         }
 
         timeinfo->tm_year = timeinfo->tm_year - 1900;

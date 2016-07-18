@@ -43,12 +43,8 @@ int             Readable (char *);
 int             FindLine (FILE *, char *);
 void            NextLine (FILE *, char *);
 int             CountLine (FILE *, char *, int, ...);
-void            ReadTS (char *, int *, double *, int);
-void            CheckFile (FILE *, char *);
-void            ReadKeywordDouble (char *, char *, double *);
-void            ReadKeywordInt (char *, char *, int *);
-void            ReadKeywordTime (char *, char *, int *);
-void            ReadKeywordStr (char *, char *, char *);
+int             ReadTS (char *, int *, double *, int);
+int             ReadKeyword (char *, char *, void *, char);
 int             CountOccurance (FILE *, char *);
 
 void            Initialize (pihm_struct, N_Vector);
@@ -141,7 +137,7 @@ double          PtfBeta (double, double, double, double, int);
 //#endif
 //
 void            BKInput (char *, char *);
-void            PihmExit (int error);
+void            PIHMError (int, const char *);
 
 #ifdef _NOAH_
 void            InitLsm (elem_struct *, int, ctrl_struct, noahtbl_struct,

@@ -940,8 +940,8 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
                 fid = fopen (ascii_fn, "a");
                 if (NULL == fid)
                 {
-                    printf ("ERROR: opening output files (%s)!\n", ascii_fn);
-                    PihmExit (1);
+                    fprintf (stderr, "Error opening %s.\n", ascii_fn);
+                    PIHMError (1, __FUNCTION__);
                 }
                 fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
                     timestamp->tm_year + 1900, timestamp->tm_mon + 1,
@@ -969,9 +969,9 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
             fid = fopen (dat_fn, "ab");
             if (NULL == fid)
             {
-                printf ("ERROR: opening output files (.%s)!\n",
+                fprintf (stderr, "Error opening %s.\n",
                     prtctrl[i].name);
-                PihmExit (1);
+                PIHMError (1, __FUNCTION__);
             }
 
             outtime = (double)t;

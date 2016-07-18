@@ -1,104 +1,5 @@
 #include "pihm.h"
 
-//void ReadCycles (pihm_struct pihm)
-//{
-//    /*
-//     * Read simulation control file
-//     */
-//    ReadSimControl (pihm->filename.cycles, &pihm->agtbl, pihm->numele);
-//
-//    /*
-//     * Read soil initialization file
-//     */
-//    ReadSoilInit (pihm->filename.soilinit, &pihm->soiltbl);
-//
-//    /*
-//     * Read crop description file
-//     */
-//    ReadCrop (pihm->filename.crop, &pihm->croptbl);
-//
-//    /*
-//     * Read operation file
-//     */
-//    ReadOperation (pihm->filename.op, &pihm->mgmttbl, &pihm->croptbl);
-//
-//    ///* Copy operation to all model grids */
-//    //for (i = 0; i < pihm->numele; i++)
-//    //{
-//    //    cycles->grid[i].cropmgmt.plantingOrder = (FieldOperationStruct *)malloc (cropmgmt.totalCropsPerRotation * sizeof (FieldOperationStruct));
-//    //    cycles->grid[i].cropmgmt.ForcedHarvest = (FieldOperationStruct *)malloc (cropmgmt.numHarvest * sizeof (FieldOperationStruct));
-//    //    cycles->grid[i].cropmgmt.FixedFertilization = (FieldOperationStruct *)malloc (cropmgmt.numFertilization * sizeof (FieldOperationStruct));
-//    //    cycles->grid[i].cropmgmt.FixedIrrigation = (FieldOperationStruct *)malloc (cropmgmt.numIrrigation * sizeof (FieldOperationStruct));
-//    //    cycles->grid[i].cropmgmt.Tillage = (FieldOperationStruct *)malloc (cropmgmt.numTillage * sizeof (FieldOperationStruct));
-//    //    cycles->grid[i].cropmgmt.autoIrrigation = (autoIrrigationStruct *)malloc (cropmgmt.numAutoIrrigation * sizeof (autoIrrigationStruct));
-//
-//    //    cycles->grid[i].cropmgmt = cropmgmt;
-//    //}
-//
-//    //ReadWeather (simulation, &weather, cycles->SimControl.simStartYear, cycles->SimControl.totalYears);
-//
-//    //for (i = 0; i < pihm->numele; i++)
-//    //{
-//    //    cycles->grid[i].Weather.wind = (double **)malloc (cycles->SimControl.totalYears * sizeof (double *));
-//    //    cycles->grid[i].Weather.ETref = (double **)malloc (cycles->SimControl.totalYears * sizeof (double *));
-//    //    cycles->grid[i].Weather.precipitation = (double **)malloc (cycles->SimControl.totalYears * sizeof (double *));
-//    //    cycles->grid[i].Weather.RHmax = (double **)malloc (cycles->SimControl.totalYears * sizeof (double *));
-//    //    cycles->grid[i].Weather.RHmin = (double **)malloc (cycles->SimControl.totalYears * sizeof (double *));
-//    //    cycles->grid[i].Weather.solarRadiation = (double **)malloc (cycles->SimControl.totalYears * sizeof (double *));
-//    //    cycles->grid[i].Weather.tMax = (double **)malloc (cycles->SimControl.totalYears * sizeof (double *));
-//    //    cycles->grid[i].Weather.tMin = (double **)malloc (cycles->SimControl.totalYears * sizeof (double *));
-//    //    cycles->grid[i].Weather.yearlyAmplitude = (double *)malloc (cycles->SimControl.totalYears * sizeof (double));
-//    //    cycles->grid[i].Weather.annualAverageTemperature = (double *)malloc (cycles->SimControl.totalYears * sizeof (double));
-//    //    cycles->grid[i].Weather.lastDoy = (int *)malloc (cycles->SimControl.totalYears * sizeof (int));
-//    //    for (y = 0; y < cycles->SimControl.totalYears; y++)
-//    //    {
-//    //        cycles->grid[i].Weather.wind[y] = (double *)malloc (366 * sizeof (double));
-//    //        cycles->grid[i].Weather.ETref[y] = (double *)malloc (366 * sizeof (double));
-//    //        cycles->grid[i].Weather.precipitation[y] = (double *)malloc (366 * sizeof (double));
-//    //        cycles->grid[i].Weather.RHmax[y] = (double *)malloc (366 * sizeof (double));
-//    //        cycles->grid[i].Weather.RHmin[y] = (double *)malloc (366 * sizeof (double));
-//    //        cycles->grid[i].Weather.solarRadiation[y] = (double *)malloc (366 * sizeof (double));
-//    //        cycles->grid[i].Weather.tMax[y] = (double *)malloc (366 * sizeof (double));
-//    //        cycles->grid[i].Weather.tMin[y] = (double *)malloc (366 * sizeof (double));
-//    //    }
-//
-//    //    cycles->grid[i].Weather = weather;
-//    //}
-//
-//}
-
-//void CyclesInit (CyclesStruct cycles, pihm_struct pihm)
-//{
-//    int         i, c;
-//
-//    for (i = 0; i < pihm->numele; i++)
-//    {
-//        CalculateDerivedWeather (&cycles->grid[i].Weather, cycles->SimControl.totalYears);
-//
-//        InitializeSoil (&cycles->grid[i].Soil, &cycles->grid[i].Weather, &cycles->SimControl, &pihm->elem[i].soil);
-//
-//        InitializeResidue (&cycles->grid[i].Residue, cycles->SimControl.totalYears, cycles->grid[i].Soil.totalLayers);
-//
-//        InitializeSoilCarbon (&cycles->grid[i].SoilCarbon, cycles->grid[i].Soil.totalLayers);
-//
-//        cycles->grid[i].Community.NumActiveCrop = 0;
-//
-//        for (c = 0; c < cycles->grid[i].Community.NumCrop; c++)
-//        {
-//            cycles->grid[i].Community.Crop[c].stageGrowth = NO_CROP;
-//        }
-//
-//        cycles->grid[i].cropmgmt.tillageFactor = (double *)malloc (cycles->grid[i].Soil.totalLayers * sizeof (double));
-//
-//        cycles->grid[i].Snow.Snow = 0.0;
-//
-//        cycles->grid[i].Summary = (SummaryStruct) {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-//
-//        ComputeThermalTime (cycles->SimControl.totalYears, &cycles->grid[i].Community, &cycles->grid[i].Weather);
-//    }
-//
-//}
-
 void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl, int numele)
 {
     FILE           *simctrl_file;
@@ -112,7 +13,17 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl, int
 
     /* Open simulation control file */
     simctrl_file = fopen (filename, "r");
-    CheckFile (simctrl_file, filename);
+
+    if (NULL == simctrl_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMError (1, __FUNCTION__);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s...\n", filename);
+    }
 
     agtbl->op = (int *)malloc (numele * sizeof (int));
     agtbl->rotsz = (int *)malloc (numele * sizeof (int));
@@ -155,9 +66,9 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl, int
         match = sscanf (cmdstr, "%d %s", &index, agtbl->opfilen[i]);
         if (match != 2 || i != index - 1)
         {
-            printf ("Cannot read operation file information!\n");
-            printf (".cycles file format error!\n");
-            PihmExit (1);
+            fprintf (stderr, "Error reading %s.\n", filename),
+            fprintf (stderr, "Please check file format.\n");
+            PIHMError (1, __FUNCTION__);
         }
         i++;
     }
@@ -168,37 +79,37 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl, int
     FindLine (simctrl_file, "PRINT_CTRL");
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeywordInt (cmdstr, "BIOMASS", &ctrl->prtvrbl[BIOMASS_CTRL]);
+    ReadKeyword (cmdstr, "BIOMASS", &ctrl->prtvrbl[BIOMASS_CTRL], 'i');
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RADN_INTCP", &ctrl->prtvrbl[RADNINTCP_CTRL]);
+    ReadKeyword (cmdstr, "RADN_INTCP", &ctrl->prtvrbl[RADNINTCP_CTRL], 'i');
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeywordInt (cmdstr, "WATER_STRESS", &ctrl->prtvrbl[WATER_STS_CTRL]);
+    ReadKeyword (cmdstr, "WATER_STRESS", &ctrl->prtvrbl[WATER_STS_CTRL], 'i');
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeywordInt (cmdstr, "N_STRESS", &ctrl->prtvrbl[N_STS_CTRL]);
+    ReadKeyword (cmdstr, "N_STRESS", &ctrl->prtvrbl[N_STS_CTRL], 'i');
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeywordInt (cmdstr, "CROP_TR", &ctrl->prtvrbl[CROP_TR_CTRL]);
+    ReadKeyword (cmdstr, "CROP_TR", &ctrl->prtvrbl[CROP_TR_CTRL], 'i');
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeywordInt (cmdstr, "CROP_POT_TR", &ctrl->prtvrbl[CROP_POTTR_CTRL]);
+    ReadKeyword (cmdstr, "CROP_POT_TR", &ctrl->prtvrbl[CROP_POTTR_CTRL], 'i');
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RES_EVAP", &ctrl->prtvrbl[RES_EVAP_CTRL]);
+    ReadKeyword (cmdstr, "RES_EVAP", &ctrl->prtvrbl[RES_EVAP_CTRL], 'i');
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NO3_PROF", &ctrl->prtvrbl[NO3_PROF_CTRL]);
+    ReadKeyword (cmdstr, "NO3_PROF", &ctrl->prtvrbl[NO3_PROF_CTRL], 'i');
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NO3_RIVER", &ctrl->prtvrbl[NO3_RIVER_CTRL]);
+    ReadKeyword (cmdstr, "NO3_RIVER", &ctrl->prtvrbl[NO3_RIVER_CTRL], 'i');
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NH4_PROF", &ctrl->prtvrbl[NH4_PROF_CTRL]);
+    ReadKeyword (cmdstr, "NH4_PROF", &ctrl->prtvrbl[NH4_PROF_CTRL], 'i');
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NH4_RIVER", &ctrl->prtvrbl[NH4_RIVER_CTRL]);
+    ReadKeyword (cmdstr, "NH4_RIVER", &ctrl->prtvrbl[NH4_RIVER_CTRL], 'i');
 
 
     fclose (simctrl_file);
@@ -227,7 +138,17 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
      * Open soil initialization file
      */
     soil_file = fopen (filename, "r");
-    CheckFile (soil_file, filename);
+
+    if (NULL == soil_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMError (1, __FUNCTION__);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s...\n", filename);
+    }
 
     soiltbl->totalLayers = (int *)malloc (soiltbl->number * sizeof (int));
     soiltbl->clay_lyr =
@@ -248,7 +169,7 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
     for (i = 0; i < soiltbl->number; i++)
     {
         NextLine (soil_file, cmdstr);
-        ReadKeywordInt (cmdstr, "SOIL_TYPE", &index);
+        ReadKeyword (cmdstr, "SOIL_TYPE", &index, 'i');
 
         if (i != index - 1)
         {
@@ -259,7 +180,7 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
         }
 
         NextLine (soil_file, cmdstr);
-        ReadKeywordInt (cmdstr, "TOTAL_LAYERS", &soiltbl->totalLayers[i]);
+        ReadKeyword (cmdstr, "TOTAL_LAYERS", &soiltbl->totalLayers[i], 'i');
 
         soiltbl->clay_lyr[i] =
             (double *)malloc (soiltbl->totalLayers[i] * sizeof (double));
@@ -307,7 +228,17 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
     int             j;
 
     crop_file = fopen (filename, "r");
-    CheckFile (crop_file, filename);
+
+    if (NULL == crop_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMError (1, __FUNCTION__);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s...\n", filename);
+    }
 
     /* Read crop description file */
     /* First count how many crop types are there in the description file */
@@ -400,62 +331,62 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
     {
         croptbl->cropName[j] = (char *)malloc (MAXSTRING * sizeof (char));
         NextLine (crop_file, cmdstr);
-        ReadKeywordStr (cmdstr, "NAME", croptbl->cropName[j]);
+        ReadKeyword (cmdstr, "NAME", croptbl->cropName[j], 's');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "FLOWERING_TT",
-            &croptbl->userFloweringTT[j]);
+        ReadKeyword (cmdstr, "FLOWERING_TT",
+            &croptbl->userFloweringTT[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MATURITY_TT",
-            &croptbl->userMaturityTT[j]);
+        ReadKeyword (cmdstr, "MATURITY_TT",
+            &croptbl->userMaturityTT[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MAXIMUM_SOIL_COVERAGE",
-            &croptbl->userMaximumSoilCoverage[j]);
+        ReadKeyword (cmdstr, "MAXIMUM_SOIL_COVERAGE",
+            &croptbl->userMaximumSoilCoverage[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MAXIMUM_ROOTING_DEPTH",
-            &croptbl->userMaximumRootingDepth[j]);
+        ReadKeyword (cmdstr, "MAXIMUM_ROOTING_DEPTH",
+            &croptbl->userMaximumRootingDepth[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "AVERAGE_EXPECTED_YIELD",
-            &croptbl->userExpectedYieldAvg[j]);
+        ReadKeyword (cmdstr, "AVERAGE_EXPECTED_YIELD",
+            &croptbl->userExpectedYieldAvg[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MAXIMUM_EXPECTED_YIELD",
-            &croptbl->userExpectedYieldMax[j]);
+        ReadKeyword (cmdstr, "MAXIMUM_EXPECTED_YIELD",
+            &croptbl->userExpectedYieldMax[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MINIMUM_EXPECTED_YIELD",
-            &croptbl->userExpectedYieldMin[j]);
+        ReadKeyword (cmdstr, "MINIMUM_EXPECTED_YIELD",
+            &croptbl->userExpectedYieldMin[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "COMMERCIAL_YIELD_MOISTURE",
-            &croptbl->userPercentMoistureInYield[j]);
+        ReadKeyword (cmdstr, "COMMERCIAL_YIELD_MOISTURE",
+            &croptbl->userPercentMoistureInYield[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "STANDING_RESIDUE_AT_HARVEST",
-            &croptbl->userFractionResidueStanding[j]);
+        ReadKeyword (cmdstr, "STANDING_RESIDUE_AT_HARVEST",
+            &croptbl->userFractionResidueStanding[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "RESIDUE_REMOVED",
-            &croptbl->userFractionResidueRemoved[j]);
+        ReadKeyword (cmdstr, "RESIDUE_REMOVED",
+            &croptbl->userFractionResidueRemoved[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "CLIPPING_BIOMASS_THRESHOLD_UPPER",
-            &croptbl->userClippingBiomassThresholdUpper[j]);
+        ReadKeyword (cmdstr, "CLIPPING_BIOMASS_THRESHOLD_UPPER",
+            &croptbl->userClippingBiomassThresholdUpper[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "CLIPPING_BIOMASS_THRESHOLD_LOWER",
-            &croptbl->userClippingBiomassThresholdLower[j]);
+        ReadKeyword (cmdstr, "CLIPPING_BIOMASS_THRESHOLD_LOWER",
+            &croptbl->userClippingBiomassThresholdLower[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "HARVEST_TIMING",
-            &croptbl->userClippingTiming[j]);
+        ReadKeyword (cmdstr, "HARVEST_TIMING",
+            &croptbl->userClippingTiming[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordStr (cmdstr, "CLIPPING_BIOMASS_DESTINY", temp);
+        ReadKeyword (cmdstr, "CLIPPING_BIOMASS_DESTINY", temp, 's');
         if (strcasecmp ("REMOVE", temp) == 0)
         {
             croptbl->userClippingDestiny[j] = REMOVE_CLIPPING;
@@ -475,95 +406,95 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
         }
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MIN_TEMPERATURE_FOR_TRANSPIRATION",
-            &croptbl->userTranspirationMinTemperature[j]);
+        ReadKeyword (cmdstr, "MIN_TEMPERATURE_FOR_TRANSPIRATION",
+            &croptbl->userTranspirationMinTemperature[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "THRESHOLD_TEMPERATURE_FOR_TRANPIRATION",
-            &croptbl->userTranspirationThresholdTemperature[j]);
+        ReadKeyword (cmdstr, "THRESHOLD_TEMPERATURE_FOR_TRANPIRATION",
+            &croptbl->userTranspirationThresholdTemperature[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MIN_TEMPERATURE_FOR_COLD_DAMAGE",
-            &croptbl->userColdDamageMinTemperature[j]);
+        ReadKeyword (cmdstr, "MIN_TEMPERATURE_FOR_COLD_DAMAGE",
+            &croptbl->userColdDamageMinTemperature[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "THRESHOLD_TEMPERATURE_FOR_COLD_DAMAGE",
-            &croptbl->userColdDamageThresholdTemperature[j]);
+        ReadKeyword (cmdstr, "THRESHOLD_TEMPERATURE_FOR_COLD_DAMAGE",
+            &croptbl->userColdDamageThresholdTemperature[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "BASE_TEMPERATURE_FOR_DEVELOPMENT",
-            &croptbl->userTemperatureBase[j]);
+        ReadKeyword (cmdstr, "BASE_TEMPERATURE_FOR_DEVELOPMENT",
+            &croptbl->userTemperatureBase[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "OPTIMUM_TEMPERATURE_FOR_DEVELOPEMENT",
-            &croptbl->userTemperatureOptimum[j]);
+        ReadKeyword (cmdstr, "OPTIMUM_TEMPERATURE_FOR_DEVELOPEMENT",
+            &croptbl->userTemperatureOptimum[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MAX_TEMPERATURE_FOR_DEVELOPMENT",
-            &croptbl->userTemperatureMaximum[j]);
+        ReadKeyword (cmdstr, "MAX_TEMPERATURE_FOR_DEVELOPMENT",
+            &croptbl->userTemperatureMaximum[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "INITIAL_PARTITIONING_TO_SHOOT",
-            &croptbl->userShootPartitionInitial[j]);
+        ReadKeyword (cmdstr, "INITIAL_PARTITIONING_TO_SHOOT",
+            &croptbl->userShootPartitionInitial[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "FINAL_PARTITIONING_TO_SHOOT",
-            &croptbl->userShootPartitionFinal[j]);
+        ReadKeyword (cmdstr, "FINAL_PARTITIONING_TO_SHOOT",
+            &croptbl->userShootPartitionFinal[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "RADIATION_USE_EFFICIENCY",
-            &croptbl->userRadiationUseEfficiency[j]);
+        ReadKeyword (cmdstr, "RADIATION_USE_EFFICIENCY",
+            &croptbl->userRadiationUseEfficiency[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "TRANSPIRATION_USE_EFFICIENCY",
-            &croptbl->userTranspirationUseEfficiency[j]);
+        ReadKeyword (cmdstr, "TRANSPIRATION_USE_EFFICIENCY",
+            &croptbl->userTranspirationUseEfficiency[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MAXIMUM_HARVEST_INDEX",
-            &croptbl->userHIx[j]);
+        ReadKeyword (cmdstr, "MAXIMUM_HARVEST_INDEX",
+            &croptbl->userHIx[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "MINIMUM_HARVEST_INDEX",
-            &croptbl->userHIo[j]);
+        ReadKeyword (cmdstr, "MINIMUM_HARVEST_INDEX",
+            &croptbl->userHIo[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "HARVEST_INDEX", &croptbl->userHIk[j]);
+        ReadKeyword (cmdstr, "HARVEST_INDEX", &croptbl->userHIk[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "THERMAL_TIME_TO_EMERGENCE",
-            &croptbl->userEmergenceTT[j]);
+        ReadKeyword (cmdstr, "THERMAL_TIME_TO_EMERGENCE",
+            &croptbl->userEmergenceTT[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "N_MAX_CONCENTRATION",
-            &croptbl->userNMaxConcentration[j]);
+        ReadKeyword (cmdstr, "N_MAX_CONCENTRATION",
+            &croptbl->userNMaxConcentration[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "N_DILUTION_SLOPE",
-            &croptbl->userNDilutionSlope[j]);
+        ReadKeyword (cmdstr, "N_DILUTION_SLOPE",
+            &croptbl->userNDilutionSlope[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "KC", &croptbl->userKc[j]);
+        ReadKeyword (cmdstr, "KC", &croptbl->userKc[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordInt (cmdstr, "ANNUAL", &croptbl->userAnnual[j]);
+        ReadKeyword (cmdstr, "ANNUAL", &croptbl->userAnnual[j], 'i');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordInt (cmdstr, "LEGUME", &croptbl->userLegume[j]);
+        ReadKeyword (cmdstr, "LEGUME", &croptbl->userLegume[j], 'i');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordInt (cmdstr, "C3", &croptbl->userC3orC4[j]);
+        ReadKeyword (cmdstr, "C3", &croptbl->userC3orC4[j], 'i');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "LWP_STRESS_ONSET",
-            &croptbl->LWP_StressOnset[j]);
+        ReadKeyword (cmdstr, "LWP_STRESS_ONSET",
+            &croptbl->LWP_StressOnset[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "LWP_WILTING_POINT",
-            &croptbl->LWP_WiltingPoint[j]);
+        ReadKeyword (cmdstr, "LWP_WILTING_POINT",
+            &croptbl->LWP_WiltingPoint[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeywordDouble (cmdstr, "TRANSPIRATION_MAX",
-            &croptbl->transpirationMax[j]);
+        ReadKeyword (cmdstr, "TRANSPIRATION_MAX",
+            &croptbl->transpirationMax[j], 'd');
     }
 
     fclose (crop_file);
@@ -598,7 +529,17 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
 
         sprintf (filename, "input/%s/%s", project, agtbl->opfilen[i]);
         op_file = fopen (filename, "r");
-        CheckFile (op_file, filename);
+
+        if (NULL == op_file)
+        {
+            fprintf (stderr, "Error opening %s.\n", filename);
+            PIHMError (1, __FUNCTION__);
+        }
+
+        if (verbose_mode)
+        {
+            printf ("Reading %s...\n", filename);
+        }
 
         FindLine (op_file, "BOF");
         nplnt = CountOccurance (op_file, "PLANTING");
@@ -631,17 +572,17 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 FindLine (op_file, "PLANTING");
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "YEAR", &q->opYear);
+                ReadKeyword (cmdstr, "YEAR", &q->opYear, 'i');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "DOY", &q->opDay);
+                ReadKeyword (cmdstr, "DOY", &q->opDay, 'i');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordStr (cmdstr, "CROP", q->cropName);
+                ReadKeyword (cmdstr, "CROP", q->cropName, 's');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "USE_AUTO_IRR",
-                    &q->usesAutoIrrigation);
+                ReadKeyword (cmdstr, "USE_AUTO_IRR",
+                    &q->usesAutoIrrigation, 'i');
                 if (q->usesAutoIrrigation == 0)
                 {
                     q->usesAutoIrrigation = -1;
@@ -652,18 +593,18 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 }
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "USE_AUTO_FERT",
-                    &q->usesAutoFertilization);
+                ReadKeyword (cmdstr, "USE_AUTO_FERT",
+                    &q->usesAutoFertilization, 'i');
                 if (q->usesAutoFertilization == 0)
                 {
                     q->usesAutoFertilization = -1;
                 }
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "FRACTION", &q->plantingDensity);
+                ReadKeyword (cmdstr, "FRACTION", &q->plantingDensity, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "CLIPPING_START", &q->clippingStart);
+                ReadKeyword (cmdstr, "CLIPPING_START", &q->clippingStart, 'i');
                 if (q->clippingStart > 366 || q->clippingStart < 1)
                 {
                     printf
@@ -672,7 +613,7 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 }
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "CLIPPING_END", &q->clippingEnd);
+                ReadKeyword (cmdstr, "CLIPPING_END", &q->clippingEnd, 'i');
                 if (q->clippingEnd > 366 || q->clippingEnd < 1)
                 {
                     printf
@@ -717,26 +658,26 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 FindLine (op_file, "TILLAGE");
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "YEAR", &q->opYear);
+                ReadKeyword (cmdstr, "YEAR", &q->opYear, 'i');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "DOY", &q->opDay);
+                ReadKeyword (cmdstr, "DOY", &q->opDay, 'i');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordStr (cmdstr, "TOOL", q->opToolName);
+                ReadKeyword (cmdstr, "TOOL", q->opToolName, 's');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "DEPTH", &q->opDepth);
+                ReadKeyword (cmdstr, "DEPTH", &q->opDepth, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "SOIL_DISTURB_RATIO", &q->opSDR);
+                ReadKeyword (cmdstr, "SOIL_DISTURB_RATIO", &q->opSDR, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "MIXING_EFFICIENCY",
-                    &q->opMixingEfficiency);
+                ReadKeyword (cmdstr, "MIXING_EFFICIENCY",
+                    &q->opMixingEfficiency, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordStr (cmdstr, "CROP_NAME", q->cropNameT);
+                ReadKeyword (cmdstr, "CROP_NAME", q->cropNameT, 's');
 
                 /* Check if the specified crop exists */
                 if (strcasecmp (q->cropNameT, "N/A") != 0 &&
@@ -749,19 +690,19 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 }
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "FRAC_THERMAL_TIME",
-                    &q->fractionThermalTime);
+                ReadKeyword (cmdstr, "FRAC_THERMAL_TIME",
+                    &q->fractionThermalTime, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "KILL_EFFICIENCY",
-                    &q->killEfficiency);
+                ReadKeyword (cmdstr, "KILL_EFFICIENCY",
+                    &q->killEfficiency, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "GRAIN_HARVEST", &q->grainHarvest);
+                ReadKeyword (cmdstr, "GRAIN_HARVEST", &q->grainHarvest, 'i');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "FORAGE_HARVEST",
-                    &q->forageHarvest);
+                ReadKeyword (cmdstr, "FORAGE_HARVEST",
+                    &q->forageHarvest, 'd');
 
                 q->status = 0;
             }
@@ -784,58 +725,58 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 FindLine (op_file, "FIXED_FERTILIZATION");
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "YEAR", &q->opYear);
+                ReadKeyword (cmdstr, "YEAR", &q->opYear, 'i');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "DOY", &q->opDay);
+                ReadKeyword (cmdstr, "DOY", &q->opDay, 'i');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordStr (cmdstr, "SOURCE", q->opSource);
+                ReadKeyword (cmdstr, "SOURCE", q->opSource, 's');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "MASS", &q->opMass);
+                ReadKeyword (cmdstr, "MASS", &q->opMass, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordStr (cmdstr, "FORM", q->opForm);
+                ReadKeyword (cmdstr, "FORM", q->opForm, 's');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordStr (cmdstr, "METHOD", q->opMethod);
+                ReadKeyword (cmdstr, "METHOD", q->opMethod, 's');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "LAYER", &q->opLayer);
+                ReadKeyword (cmdstr, "LAYER", &q->opLayer, 'i');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "C_ORGANIC", &q->opC_Organic);
+                ReadKeyword (cmdstr, "C_ORGANIC", &q->opC_Organic, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "C_CHARCOAL", &q->opC_Charcoal);
+                ReadKeyword (cmdstr, "C_CHARCOAL", &q->opC_Charcoal, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "N_ORGANIC", &q->opN_Organic);
+                ReadKeyword (cmdstr, "N_ORGANIC", &q->opN_Organic, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "N_CHARCOAL", &q->opN_Charcoal);
+                ReadKeyword (cmdstr, "N_CHARCOAL", &q->opN_Charcoal, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "N_NH4", &q->opN_NH4);
+                ReadKeyword (cmdstr, "N_NH4", &q->opN_NH4, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "N_NO3", &q->opN_NO3);
+                ReadKeyword (cmdstr, "N_NO3", &q->opN_NO3, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "P_ORGANIC", &q->opP_Organic);
+                ReadKeyword (cmdstr, "P_ORGANIC", &q->opP_Organic, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "P_CHARCOAL", &q->opP_Charcoal);
+                ReadKeyword (cmdstr, "P_CHARCOAL", &q->opP_Charcoal, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "P_INORGANIC", &q->opP_Inorganic);
+                ReadKeyword (cmdstr, "P_INORGANIC", &q->opP_Inorganic, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "K", &q->opK);
+                ReadKeyword (cmdstr, "K", &q->opK, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "S", &q->opS);
+                ReadKeyword (cmdstr, "S", &q->opS, 'd');
 
                 q->status = 0;
 
@@ -872,13 +813,13 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 FindLine (op_file, "FIXED_IRRIGATION");
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "YEAR", &q->opYear);
+                ReadKeyword (cmdstr, "YEAR", &q->opYear, 'i');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "DOY", &q->opDay);
+                ReadKeyword (cmdstr, "DOY", &q->opDay, 'i');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "VOLUME", &q->opVolume);
+                ReadKeyword (cmdstr, "VOLUME", &q->opVolume, 'd');
 
                 q->status = 0;
             }
@@ -898,24 +839,24 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 FindLine (op_file, "AUTO_IRRIGATION");
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordStr (cmdstr, "CROP",
-                    cropmgmt->autoIrrigation[j].cropName);
+                ReadKeyword (cmdstr, "CROP",
+                    cropmgmt->autoIrrigation[j].cropName, 's');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "START_DAY",
-                    &cropmgmt->autoIrrigation[j].startDay);
+                ReadKeyword (cmdstr, "START_DAY",
+                    &cropmgmt->autoIrrigation[j].startDay, 'i');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "STOP_DAY",
-                    &cropmgmt->autoIrrigation[j].stopDay);
+                ReadKeyword (cmdstr, "STOP_DAY",
+                    &cropmgmt->autoIrrigation[j].stopDay, 'i');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordDouble (cmdstr, "WATER_DEPLETION",
-                    &cropmgmt->autoIrrigation[j].waterDepletion);
+                ReadKeyword (cmdstr, "WATER_DEPLETION",
+                    &cropmgmt->autoIrrigation[j].waterDepletion, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeywordInt (cmdstr, "LAST_SOIL_LAYER",
-                    &cropmgmt->autoIrrigation[j].lastSoilLayer);
+                ReadKeyword (cmdstr, "LAST_SOIL_LAYER",
+                    &cropmgmt->autoIrrigation[j].lastSoilLayer, 'i');
             }
         }
 

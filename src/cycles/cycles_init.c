@@ -89,6 +89,7 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
         if (agtbl->op[i] > agtbl->nopfile)
         {
             printf ("ERROR: Operation file for operation index %d is not provided!\n", agtbl->op[i]);
+            printf ("Exiting from Function %s at %s, Line %d.\n", __FUNCTION__, __FILE__, __LINE__);
             exit (1);
         }
 

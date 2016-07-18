@@ -15,30 +15,40 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
      * Open *.lsm file
      */
     lsm_file = fopen (filename, "r");
-    CheckFile (lsm_file, filename);
+
+    if (NULL == lsm_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMError (1, __FUNCTION__);
+    }
+    
+    if (verbose_mode)
+    {
+        printf ("Reading %s.\n", filename);
+    }
 
     /*
      * Start reading lsm_file
      */
     FindLine (lsm_file, "BOF");
     NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "LATITUDE", latitude);
+    ReadKeyword (cmdstr, "LATITUDE", latitude, 'd');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "LONGITUDE", longitude);
+    ReadKeyword (cmdstr, "LONGITUDE", longitude, 'd');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NSOIL", &ctrl->nsoil);
+    ReadKeyword (cmdstr, "NSOIL", &ctrl->nsoil, 'i');
     if (ctrl->nsoil > MAXLYR - 1)
     {
-        printf
-            ("Error: the number of soil layers should not be larger than %d\n!",
+        fprintf (stderr, "Error reading %s.\n", filename);
+        fprintf (stderr, "The number of soil layers should not be larger than %d.\n",
             MAXLYR - 1);
-        PihmExit (1);
+        PIHMError (1, __FUNCTION__);
     }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordStr (cmdstr, "SLDPTH_DATA", buffer);
+    ReadKeyword (cmdstr, "SLDPTH_DATA", buffer, 's');
 
     for (i = 0; i < ctrl->nsoil; i++)
     {
@@ -47,84 +57,85 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
             &bytes_now);
         if (match != 1)
         {
-            printf ("ERROR: .lsm input format error!\n");
-            PihmExit (1);
+            fprintf (stderr, "Error reading %s.\n", filename);
+            fprintf (stderr, "Please check SLDPTH_DATA.\n");
+            PIHMError (1, __FUNCTION__);
         }
         bytes_consumed += bytes_now;
     }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RAD_MODE_DATA", &ctrl->rad_mode);
+    ReadKeyword (cmdstr, "RAD_MODE_DATA", &ctrl->rad_mode, 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "SBETA_DATA", &noahtbl->sbeta);
+    ReadKeyword (cmdstr, "SBETA_DATA", &noahtbl->sbeta, 'd');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "FXEXP_DATA", &noahtbl->fxexp);
+    ReadKeyword (cmdstr, "FXEXP_DATA", &noahtbl->fxexp, 'd');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "CSOIL_DATA", &noahtbl->csoil);
+    ReadKeyword (cmdstr, "CSOIL_DATA", &noahtbl->csoil, 'd');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "SALP_DATA", &noahtbl->salp);
+    ReadKeyword (cmdstr, "SALP_DATA", &noahtbl->salp, 'd');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "FRZK_DATA", &noahtbl->frzk);
+    ReadKeyword (cmdstr, "FRZK_DATA", &noahtbl->frzk, 'd');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "ZBOT_DATA", &noahtbl->zbot);
+    ReadKeyword (cmdstr, "ZBOT_DATA", &noahtbl->zbot, 'd');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "TBOT_DATA", &noahtbl->tbot);
+    ReadKeyword (cmdstr, "TBOT_DATA", &noahtbl->tbot, 'd');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "CZIL_DATA", &noahtbl->czil);
+    ReadKeyword (cmdstr, "CZIL_DATA", &noahtbl->czil, 'd');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "LVCOEF_DATA", &noahtbl->lvcoef);
+    ReadKeyword (cmdstr, "LVCOEF_DATA", &noahtbl->lvcoef, 'd');
 
     /* Output control */
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "T1", &ctrl->prtvrbl[T1_CTRL]);
+    ReadKeyword (cmdstr, "T1", &ctrl->prtvrbl[T1_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "STC", &ctrl->prtvrbl[STC_CTRL]);
+    ReadKeyword (cmdstr, "STC", &ctrl->prtvrbl[STC_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SMC", &ctrl->prtvrbl[SMC_CTRL]);
+    ReadKeyword (cmdstr, "SMC", &ctrl->prtvrbl[SMC_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SH2O", &ctrl->prtvrbl[SH2O_CTRL]);
+    ReadKeyword (cmdstr, "SH2O", &ctrl->prtvrbl[SH2O_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SNOWH", &ctrl->prtvrbl[SNOWH_CTRL]);
+    ReadKeyword (cmdstr, "SNOWH", &ctrl->prtvrbl[SNOWH_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "ALBEDO", &ctrl->prtvrbl[ALBEDO_CTRL]);
+    ReadKeyword (cmdstr, "ALBEDO", &ctrl->prtvrbl[ALBEDO_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "LE", &ctrl->prtvrbl[LE_CTRL]);
+    ReadKeyword (cmdstr, "LE", &ctrl->prtvrbl[LE_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SH", &ctrl->prtvrbl[SH_CTRL]);
+    ReadKeyword (cmdstr, "SH", &ctrl->prtvrbl[SH_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "G", &ctrl->prtvrbl[G_CTRL]);
+    ReadKeyword (cmdstr, "G", &ctrl->prtvrbl[G_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "ETP", &ctrl->prtvrbl[ETP_CTRL]);
+    ReadKeyword (cmdstr, "ETP", &ctrl->prtvrbl[ETP_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "ESNOW", &ctrl->prtvrbl[ESNOW_CTRL]);
+    ReadKeyword (cmdstr, "ESNOW", &ctrl->prtvrbl[ESNOW_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "ROOTW", &ctrl->prtvrbl[ROOTW_CTRL]);
+    ReadKeyword (cmdstr, "ROOTW", &ctrl->prtvrbl[ROOTW_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SOILM", &ctrl->prtvrbl[SOILM_CTRL]);
+    ReadKeyword (cmdstr, "SOILM", &ctrl->prtvrbl[SOILM_CTRL], 'i');
 
     NextLine (lsm_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SOLAR", &ctrl->prtvrbl[SOLAR_CTRL]);
+    ReadKeyword (cmdstr, "SOLAR", &ctrl->prtvrbl[SOLAR_CTRL], 'i');
 
     fclose (lsm_file);
 }
@@ -137,7 +148,17 @@ void ReadRad (char *filename, forc_struct *forc)
     char            cmdstr[MAXSTRING];
 
     rad_file = fopen (filename, "r");
-    CheckFile (rad_file, filename);
+    
+    if (NULL == rad_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMError (1, __FUNCTION__);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s.\n", filename);
+    }
 
     FindLine (rad_file, "BOF");
 
@@ -145,10 +166,9 @@ void ReadRad (char *filename, forc_struct *forc)
 
     if (forc->nrad != forc->nmeteo)
     {
-        printf
-            ("The number of radiation forcing time series should be the same as the number of meteorlogical forcing time series!\n");
-        printf (".rad file format error!\n");
-        PihmExit (1);
+        fprintf (stderr, "Error reading %s.\n", filename);
+        fprintf (stderr, "The number of radiation forcing time series should be the same as the number of meteorlogical forcing time series.\n");
+        PIHMError (1, __FUNCTION__);
     }
 
     forc->rad = (tsdata_struct *)malloc (forc->nrad * sizeof (tsdata_struct));
@@ -158,14 +178,13 @@ void ReadRad (char *filename, forc_struct *forc)
     NextLine (rad_file, cmdstr);
     for (i = 0; i < forc->nrad; i++)
     {
-        ReadKeywordInt (cmdstr, "RAD_TS", &index);
+        ReadKeyword (cmdstr, "RAD_TS", &index, 'i');
         if (i != index - 1)
         {
-            printf
-                ("Cannot read information of the %dth forcing series!\n",
+            fprintf (stderr, "Error reading %s.\n", filename);
+            fprintf (stderr, "Cannot read information of the %dth forcing series.\n",
                 i + 1);
-            printf (".rad file format error!\n");
-            PihmExit (1);
+            PIHMError (1, __FUNCTION__);
         }
 
         /* Skip header lines */

@@ -481,8 +481,8 @@ void SunPos (int t, double latitude, double longitude, double elevation,
 
     if (spa_result != 0)
     {
-        printf ("spa error code: %d\n", spa_result);
-        PihmExit (1);
+        fprintf (stderr, "Error spa error code: %d.\n", spa_result);
+        PIHMError (1, __FUNCTION__);
     }
 
     *azimuth = Mod ((360.0 + spa.azimuth180), 360.0);

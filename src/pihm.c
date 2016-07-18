@@ -45,8 +45,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle
     cvode_mem = CVodeCreate (CV_BDF, CV_NEWTON);
     if (cvode_mem == NULL)
     {
-        printf ("Fatal error: CVodeMalloc failed. \n");
-        PihmExit (1);
+        fprintf (stderr, "Error in allocating memory for solver.\n");
+        PIHMError (1, __FUNCTION__);
     }
 
     /* Create output structures */
