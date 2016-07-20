@@ -6,7 +6,9 @@ void DayMet (const stor_struct *stor, daily_struct *daily, int metday)
 
     if (stor->flag[metday] == 0)
     {
-        fprintf (stderr, "Error: BGC forcing of the %dth day is not available.\n", metday + 1);
+        fprintf (stderr,
+            "Error: BGC forcing of the %dth day is not available.\n",
+            metday + 1);
         PIHMError (1);
     }
 
@@ -44,13 +46,16 @@ void DayMet (const stor_struct *stor, daily_struct *daily, int metday)
     }
 }
 
-void RiverDayMet (const river_stor_struct *stor, river_daily_struct *daily, int metday)
+void RiverDayMet (const river_stor_struct *stor, river_daily_struct *daily,
+    int metday)
 {
     int             k;
 
     if (stor->flag[metday] == 0)
     {
-        fprintf (stderr, "Error: BGC forcing of the %dth day is not available.\n", metday + 1);
+        fprintf (stderr,
+            "Error: BGC forcing of the %dth day is not available.\n",
+            metday + 1);
         PIHMError (1);
     }
 

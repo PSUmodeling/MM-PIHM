@@ -1,3 +1,4 @@
+
 /*
  * photosynthesis.c
  * C3/C4 photosynthesis model
@@ -10,7 +11,9 @@
 
 #include "pihm.h"
 
-void TotalPhotosynthesis (const epconst_struct *epc, const daily_struct *daily, const pstate_struct *ps, epvar_struct *epv, cflux_struct *cf, psn_struct *psn_sun, psn_struct *psn_shade)
+void TotalPhotosynthesis (const epconst_struct *epc,
+    const daily_struct *daily, const pstate_struct *ps, epvar_struct *epv,
+    cflux_struct *cf, psn_struct *psn_sun, psn_struct *psn_shade)
 {
     /*
      * This function is a wrapper and replacement for the photosynthesis code
@@ -46,7 +49,9 @@ void TotalPhotosynthesis (const epconst_struct *epc, const daily_struct *daily, 
      * the maintenance respiration rate added, this sum multiplied by the
      * projected leaf area in the relevant canopy fraction, and this total
      * converted from umol/m2/s -> kgC/m2/d */
-    cf->psnsun_to_cpool = (epv->assim_sun + epv->dlmr_area_sun) * ps->plaisun * daily->dayl * 12.011e-9;
+    cf->psnsun_to_cpool =
+        (epv->assim_sun +
+        epv->dlmr_area_sun) * ps->plaisun * daily->dayl * 12.011e-9;
     //printf ("Photo %lf\n", cf->psnsun_to_cpool);
 
     /* SHADED canopy fraction photosynthesis */
@@ -59,7 +64,8 @@ void TotalPhotosynthesis (const epconst_struct *epc, const daily_struct *daily, 
     psn_shade->ppfd = ps->ppfd_per_plaishade;
     /* convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
      * water vapor */
-    psn_shade->g = epv->gl_t_wv_shade * 1e6 / (1.6 * 8.3143 * (tday + TFREEZ));
+    psn_shade->g =
+        epv->gl_t_wv_shade * 1e6 / (1.6 * 8.3143 * (tday + TFREEZ));
     psn_shade->dlmr = epv->dlmr_area_shade;
     /* Calculate photosynthesis for shaded leaves */
     Photosynthesis (psn_shade);
@@ -70,7 +76,9 @@ void TotalPhotosynthesis (const epconst_struct *epc, const daily_struct *daily, 
      * the maintenance respiration rate added, this sum multiplied by the
      * projected leaf area in the relevant canopy fraction, and this total
      * converted from umol/m2/s -> kgC/m2/d */
-    cf->psnshade_to_cpool = (epv->assim_shade + epv->dlmr_area_shade) * ps->plaishade * daily->dayl * 12.011e-9;
+    cf->psnshade_to_cpool =
+        (epv->assim_shade +
+        epv->dlmr_area_shade) * ps->plaishade * daily->dayl * 12.011e-9;
 }
 
 
@@ -125,13 +133,13 @@ void Photosynthesis (psn_struct *psn)
      * All other parameters, including the q10's for Kc and Ko are the same as
      * in Woodrow and Berry. */
 
-    static double   Kc25 = 404.0;   /* (ubar) MM const carboxylase, 25 deg C */
-    static double   q10Kc = 2.1;    /* (DIM) Q_10 for Kc */
-    static double   Ko25 = 248.0;   /* (mbar) MM const oxygenase, 25 deg C */
-    static double   q10Ko = 1.2;    /* (DIM) Q_10 for Ko */
-    static double   act25 = 3.6;    /* (umol/mgRubisco/min) Rubisco activity */
-    static double   q10act = 2.4;   /* (DIM) Q_10 for Rubisco activity */
-    static double   pabs = 0.85;    /* (DIM) fPAR effectively absorbed by PSII */
+    static double   Kc25 = 404.0;       /* (ubar) MM const carboxylase, 25 deg C */
+    static double   q10Kc = 2.1;        /* (DIM) Q_10 for Kc */
+    static double   Ko25 = 248.0;       /* (mbar) MM const oxygenase, 25 deg C */
+    static double   q10Ko = 1.2;        /* (DIM) Q_10 for Ko */
+    static double   act25 = 3.6;        /* (umol/mgRubisco/min) Rubisco activity */
+    static double   q10act = 2.4;       /* (DIM) Q_10 for Rubisco activity */
+    static double   pabs = 0.85;        /* (DIM) fPAR effectively absorbed by PSII */
 
     /* local variables */
     double          t;          /* (deg C) temperature */

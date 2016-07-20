@@ -123,7 +123,8 @@ void Save2Stor (pihm_struct pihm, int t, int start_time, int end_time)
 
             for (k = 0; k < 11; k++)
             {
-                pihm->riv[i].stor.rivflow[k][ind] = pihm->riv[i].daily.avg_rivflow[k];
+                pihm->riv[i].stor.rivflow[k][ind] =
+                    pihm->riv[i].daily.avg_rivflow[k];
             }
 
             pihm->riv[i].stor.flag[ind] = 1;

@@ -139,19 +139,22 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         if (isnan (dy[SURF (i)]))
         {
             fprintf
-                (stderr, "Error: NAN error for Element %d (surface water) at %lf\n",
+                (stderr,
+                "Error: NAN error for Element %d (surface water) at %lf\n",
                 i + 1, t);
             PIHMError (1);
         }
         if (isnan (dy[UNSAT (i)]))
         {
-            fprintf (stderr, "Error: NAN error for Element %d (unsat water) at %lf\n",
+            fprintf (stderr,
+                "Error: NAN error for Element %d (unsat water) at %lf\n",
                 i + 1, t);
             PIHMError (1);
         }
         if (isnan (dy[GW (i)]))
         {
-            fprintf (stderr, "Error: NAN error for Element %d (groundwater) at %lf\n",
+            fprintf (stderr,
+                "Error: NAN error for Element %d (groundwater) at %lf\n",
                 i + 1, t);
             PIHMError (1);
         }
@@ -169,20 +172,24 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[RIVSTG (i)] -= riv->wf.rivflow[j] / riv->topo.area;
         }
         dy[RIVGW (i)] +=
-            -riv->wf.rivflow[LEFT_AQUIF2AQUIF] - riv->wf.rivflow[RIGHT_AQUIF2AQUIF] - riv->wf.rivflow[DOWN_AQUIF2AQUIF] -
+            -riv->wf.rivflow[LEFT_AQUIF2AQUIF] -
+            riv->wf.rivflow[RIGHT_AQUIF2AQUIF] -
+            riv->wf.rivflow[DOWN_AQUIF2AQUIF] -
             riv->wf.rivflow[UP_AQUIF2AQUIF] + riv->wf.rivflow[CHANL_LKG];
         dy[RIVGW (i)] /= riv->matl.porosity * riv->topo.area;
 
         if (isnan (dy[RIVSTG (i)]))
         {
-            fprintf (stderr, "Error: NAN error for River Segment %d (river stage) at %lf\n",
+            fprintf (stderr,
+                "Error: NAN error for River Segment %d (river stage) at %lf\n",
                 i + 1, t);
             PIHMError (1);
         }
         if (isnan (dy[RIVGW (i)]))
         {
             fprintf
-                (stderr, "Error: NAN error for River Segment %d (groundwater) at"
+                (stderr,
+                "Error: NAN error for River Segment %d (groundwater) at"
                 "%lf\n", i + 1, t);
             PIHMError (1);
         }

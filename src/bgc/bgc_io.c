@@ -1,3 +1,4 @@
+
 /*
  *
  *  bgc_io.c created 20041013 by Andrew Neuschwander
@@ -21,7 +22,9 @@ int bgc_logfile_setup (char *logfile)
 
     if (bgc_logfile == NULL)
     {
-        bgc_printf (BV_ERROR, "Couldn't Open logfile for writing: '%s' (Error: %s)\n", logfile, strerror (errno));
+        bgc_printf (BV_ERROR,
+            "Couldn't Open logfile for writing: '%s' (Error: %s)\n", logfile,
+            strerror (errno));
         bgc_print_usage ();
         exit (EXIT_FAILURE);
     }
@@ -43,22 +46,35 @@ void bgc_print_usage (void)
 {
     extern char    *argv_zero;
 
-    bgc_printf (BV_ERROR, "\nusage: %s {-l <logfile>} {-s | -v [0..4]} {-p} {-V} {-a} {-u | -g | -m} <ini file>\n\n", argv_zero);
-    bgc_printf (BV_ERROR, "       -l <logfile> send output to logfile, overwrite old logfile\n");
-    bgc_printf (BV_ERROR, "       -V print version number and build information and exit\n");
-    bgc_printf (BV_ERROR, "       -p do alternate calculation for summary outputs (see USAGE.TXT)\n");
+    bgc_printf (BV_ERROR,
+        "\nusage: %s {-l <logfile>} {-s | -v [0..4]} {-p} {-V} {-a} {-u | -g | -m} <ini file>\n\n",
+        argv_zero);
+    bgc_printf (BV_ERROR,
+        "       -l <logfile> send output to logfile, overwrite old logfile\n");
+    bgc_printf (BV_ERROR,
+        "       -V print version number and build information and exit\n");
+    bgc_printf (BV_ERROR,
+        "       -p do alternate calculation for summary outputs (see USAGE.TXT)\n");
     bgc_printf (BV_ERROR, "       -a output ascii formated data\n");
-    bgc_printf (BV_ERROR, "       -s run in silent mode, no standard out or error\n");
+    bgc_printf (BV_ERROR,
+        "       -s run in silent mode, no standard out or error\n");
     bgc_printf (BV_ERROR, "       -v [0..4] set the verbosity level \n");
     bgc_printf (BV_ERROR, "           0 ERROR - only report errors \n");
     bgc_printf (BV_ERROR, "           1 WARN - also report warnings\n");
-    bgc_printf (BV_ERROR, "           2 PROGRESS - also report basic progress information\n");
-    bgc_printf (BV_ERROR, "           3 DETAIL - also report progress details (default level)\n");
-    bgc_printf (BV_ERROR, "           4 DIAG - also print internal diagnostics\n");
-    bgc_printf (BV_ERROR, "       -u Run in spin-up mode (over ride ini setting).\n");
-    bgc_printf (BV_ERROR, "       -g Run in spin 'n go mode: do spinup and model in one run\n");
-    bgc_printf (BV_ERROR, "       -m Run in model mode (over ride ini setting).\n");
-    bgc_printf (BV_ERROR, "       -n <ndepfile> use an external nitrogen deposition file.\n");
+    bgc_printf (BV_ERROR,
+        "           2 PROGRESS - also report basic progress information\n");
+    bgc_printf (BV_ERROR,
+        "           3 DETAIL - also report progress details (default level)\n");
+    bgc_printf (BV_ERROR,
+        "           4 DIAG - also print internal diagnostics\n");
+    bgc_printf (BV_ERROR,
+        "       -u Run in spin-up mode (over ride ini setting).\n");
+    bgc_printf (BV_ERROR,
+        "       -g Run in spin 'n go mode: do spinup and model in one run\n");
+    bgc_printf (BV_ERROR,
+        "       -m Run in model mode (over ride ini setting).\n");
+    bgc_printf (BV_ERROR,
+        "       -n <ndepfile> use an external nitrogen deposition file.\n");
 
 }
 
@@ -125,7 +141,8 @@ signed char bgc_verbosity_decode (char *keyword)
 }
 
 #ifdef __USE_ISOC99
-int _bgc_printf (const char *file, int line, signed char verbosity, const char *format, ...)
+int _bgc_printf (const char *file, int line, signed char verbosity,
+    const char *format, ...)
 #else
 int bgc_printf (signed char verbosity, const char *format, ...)
 #endif
@@ -137,7 +154,8 @@ int bgc_printf (signed char verbosity, const char *format, ...)
 
 #ifdef DEBUG
     /* needed to debug the verbosity settings */
-    printf ("Function Verbosity: %d\nRequested Verbosity: %d\n", verbosity, bgc_verbosity);
+    printf ("Function Verbosity: %d\nRequested Verbosity: %d\n", verbosity,
+        bgc_verbosity);
     fflush (stdout);
 #endif
 

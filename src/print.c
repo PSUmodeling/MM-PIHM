@@ -621,7 +621,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.vegc;
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->elem[j].summary.vegc;
                     }
                     n++;
                     break;
@@ -635,7 +636,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.litrc;
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->elem[j].summary.litrc;
                     }
                     n++;
                     break;
@@ -649,7 +651,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.soilc;
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->elem[j].summary.soilc;
                     }
                     n++;
                     break;
@@ -663,7 +666,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.totalc;
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->elem[j].summary.totalc;
                     }
                     n++;
                     break;
@@ -677,7 +681,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.daily_npp;
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->elem[j].summary.daily_npp;
                     }
                     n++;
                     break;
@@ -691,7 +696,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.daily_nee;
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->elem[j].summary.daily_nee;
                     }
                     n++;
                     break;
@@ -705,7 +711,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].summary.daily_gpp;
+                        pihm->prtctrl[n].vrbl[j] =
+                            &pihm->elem[j].summary.daily_gpp;
                     }
                     n++;
                     break;
@@ -866,7 +873,8 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
     }
     n++;
 
-    sprintf (pihm->prtctrl[n].name, "%s%s.NO3denitrif", outputdir, simulation);
+    sprintf (pihm->prtctrl[n].name, "%s%s.NO3denitrif", outputdir,
+        simulation);
     pihm->prtctrl[n].intvl = 86400;
     pihm->prtctrl[n].nvrbl = pihm->numele;
     pihm->prtctrl[n].vrbl =
@@ -969,8 +977,7 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
             fid = fopen (dat_fn, "ab");
             if (NULL == fid)
             {
-                fprintf (stderr, "Error opening %s.\n",
-                    prtctrl[i].name);
+                fprintf (stderr, "Error opening %s.\n", prtctrl[i].name);
                 PIHMError (1);
             }
 

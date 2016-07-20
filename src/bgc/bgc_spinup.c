@@ -25,7 +25,7 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
     int            *spinup_complete;
     int            *spinup_year;
     int             total_complete;
-    double         *naddfrac;
+    //double         *naddfrac;
 
     timestamp = (struct tm *)malloc (sizeof (struct tm));
 
@@ -41,7 +41,7 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
     tally2 = (double *)malloc (pihm->numele * sizeof (double));
     tally2b = (double *)malloc (pihm->numele * sizeof (double));
 
-    naddfrac = (double *)malloc (pihm->numele * sizeof (double));
+    //naddfrac = (double *)malloc (pihm->numele * sizeof (double));
 
     metyears = pihm->ctrl.spinupendyear - pihm->ctrl.spinupstartyear + 1;
     metyr = 0;
@@ -77,27 +77,31 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
 
         printf ("Year: %6d\n", spinyears);
 
-        for (j = 0; j < (pihm->ctrl.spinupend - pihm->ctrl.spinupstart) / 24 / 3600; j++)
+        for (j = 0;
+            j < (pihm->ctrl.spinupend - pihm->ctrl.spinupstart) / 24 / 3600;
+            j++)
         {
             t = pihm->ctrl.spinupstart + (j + 1) * 24 * 3600;
 
-            for (i = 0; i < pihm->numele; i++)
-            {
-                naddfrac[i] = 1.0;
+            //for (i = 0; i < pihm->numele; i++)
+            //{
+            //    naddfrac[i] = 1.0;
 
-                if (!steady1[i] && rising[i] && metcycle == 0)
-                {
-                    naddfrac[i] = 1.0 - ((double) j / (double) metyears / 365.0);
-                }
-                else
-                {
-                    naddfrac[i] = 0.0;
-                }
+            //    if (!steady1[i] && rising[i] && metcycle == 0)
+            //    {
+            //        naddfrac[i] = 1.0 - ((double) j / (double) metyears / 365.0);
+            //    }
+            //    else
+            //    {
+            //        naddfrac[i] = 0.0;
+            //    }
 
-                naddfrac[i] = 0.0;
-            }
+            //    naddfrac[i] = 0.0;
+            //}
 
             DailyBgc (pihm, t, pihm->ctrl.spinupstart, first_balance);
+
+            first_balance = 0;
 
             for (i = 0; i < pihm->numele; i++)
             {
@@ -112,7 +116,6 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
                     tally2b[i] += pihm->elem[i].summary.totalc;
                 }
             }
-            first_balance = 0;
         }
 
         metyr++;
@@ -125,8 +128,8 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
             if (!steady1[i] && metcycle == 2)
             {
                 /* convert tally1 and tally2 to average daily soilc */
-                tally1[i] /= (double)metyears * 365.0;
-                tally2[i] /= (double)metyears * 365.0;
+                tally1[i] /= (double)metyears *365.0;
+                tally2[i] /= (double)metyears *365.0;
                 rising[i] = (tally2[i] > tally1[i]);
                 t1 = (tally2[i] - tally1[i]) / (double)metyears;
                 steady1[i] = (fabs (t1) < SPINUP_TOLERANCE);
@@ -135,8 +138,8 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
             else if (steady1[i] && metcycle == 2)
             {
                 /* convert tally1 and tally2 to average daily soilc */
-                tally1[i] /= (double)metyears * 365.0;
-                tally2[i] /= (double)metyears * 365.0;
+                tally1[i] /= (double)metyears *365.0;
+                tally2[i] /= (double)metyears *365.0;
                 t1 = (tally2[i] - tally1[i]) / (double)metyears;
                 steady2[i] = (fabs (t1) < SPINUP_TOLERANCE);
 
@@ -147,11 +150,14 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
                     rising[i] = 1;
                 }
             }
+
             if (steady1[i] && steady2[i])
             {
                 if (spinup_complete[i] == 0)
                 {
-                    printf ("Ele %d spinup %d Avg daily soilc = %lf (%lf)\n", i, steady1[i] && steady2[i], tally1[i], pihm->elem[i].summary.soilc);
+                    printf ("Ele %d spinup %d Avg daily soilc = %lf (%lf)\n",
+                        i, steady1[i] &&
+                        steady2[i], tally1[i], pihm->elem[i].summary.soilc);
                     spinup_year[i] = spinyears;
                 }
                 spinup_complete[i] = 1;
@@ -173,24 +179,25 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
             total_complete += spinup_complete[i];
         }
 
-        printf ("%d elements completed spin-up, %d elements to go\n", total_complete, pihm->numele - total_complete);
+        printf ("%d elements completed spin-up, %d elements to go\n",
+            total_complete, pihm->numele - total_complete);
 
         /* spinup control */
         /* if this is the third pass through metcycle, do comparison */
         /* first block is during the rising phase */
 
         /* end of do block, test for steady state */
-    } while (spinyears < pihm->ctrl.maxspinyears || metcycle != 0);// || total_complete < PIHM->NumEle);
+    } while (spinyears < pihm->ctrl.maxspinyears || metcycle != 0);     // || total_complete < PIHM->NumEle);
 
     sprintf (fn, "%ssoilc.dat", outputdir);
     soilc_file = fopen (fn, "w");
 
     sprintf (fn, "%svegc.dat", outputdir);
-    vegc_file = fopen(fn, "w");
+    vegc_file = fopen (fn, "w");
 
     sprintf (fn, "%sspinyr.dat", outputdir);
     spinyr_file = fopen (fn, "w");
-    
+
     sprintf (fn, "%ssminn.dat", outputdir);
     sminn_file = fopen (fn, "w");
 
@@ -198,8 +205,10 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
     restart_file = fopen (restart_fn, "wb");
     for (i = 0; i < pihm->numele; i++)
     {
-        RestartOutput (&pihm->elem[i].cs, &pihm->elem[i].ns, &pihm->elem[i].epv, &pihm->elem[i].restart_output);
-        fwrite(&(pihm->elem[i].restart_output), sizeof(bgc_ic_struct), 1, restart_file);
+        RestartOutput (&pihm->elem[i].cs, &pihm->elem[i].ns,
+            &pihm->elem[i].epv, &pihm->elem[i].restart_output);
+        fwrite (&(pihm->elem[i].restart_output), sizeof (bgcic_struct), 1,
+            restart_file);
         fprintf (soilc_file, "%lf\t", pihm->elem[i].summary.soilc);
         fprintf (vegc_file, "%lf\t", pihm->elem[i].summary.vegc);
         fprintf (spinyr_file, "%d\t", spinup_year[i]);
@@ -226,5 +235,5 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
     free (tally1b);
     free (tally2);
     free (tally2b);
-    free (naddfrac);
+    //free (naddfrac);
 }

@@ -1,6 +1,7 @@
 #include "pihm.h"
 
-void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2, ndepcontrol_struct *ndepctrl, char *co2_fn, char *ndep_fn)
+void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
+    ndepcontrol_struct *ndepctrl, char *co2_fn, char *ndep_fn)
 {
     FILE           *bgc_file;
     struct tm      *timestamp;
@@ -253,13 +254,18 @@ void ReadEPC (epctbl_struct *epctbl)
     epctbl->leaf_turnover = (double *)malloc (NLCTYPE * sizeof (double));
     epctbl->froot_turnover = (double *)malloc (NLCTYPE * sizeof (double));
     epctbl->livewood_turnover = (double *)malloc (NLCTYPE * sizeof (double));
-    epctbl->daily_mortality_turnover = (double *)malloc (NLCTYPE * sizeof (double));
-    epctbl->daily_fire_turnover = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->daily_mortality_turnover =
+        (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->daily_fire_turnover =
+        (double *)malloc (NLCTYPE * sizeof (double));
     epctbl->alloc_frootc_leafc = (double *)malloc (NLCTYPE * sizeof (double));
-    epctbl->alloc_newstemc_newleafc = (double *)malloc (NLCTYPE * sizeof (double));
-    epctbl->alloc_newlivewoodc_newwoodc = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->alloc_newstemc_newleafc =
+        (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->alloc_newlivewoodc_newwoodc =
+        (double *)malloc (NLCTYPE * sizeof (double));
     epctbl->alloc_crootc_stemc = (double *)malloc (NLCTYPE * sizeof (double));
-    epctbl->alloc_prop_curgrowth = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->alloc_prop_curgrowth =
+        (double *)malloc (NLCTYPE * sizeof (double));
     epctbl->avg_proj_sla = (double *)malloc (NLCTYPE * sizeof (double));
     epctbl->sla_ratio = (double *)malloc (NLCTYPE * sizeof (double));
     epctbl->lai_ratio = (double *)malloc (NLCTYPE * sizeof (double));
@@ -409,7 +415,9 @@ void ReadEPC (epctbl_struct *epctbl)
             if (epctbl->leaflitr_cn[i] < epctbl->leaf_cn[i])
             {
                 printf ("Error: leaf litter C:N must be >= leaf C:N\n");
-                printf ("change the values in ECOPHYS block of initialization file %s\n", fn);
+                printf
+                    ("change the values in ECOPHYS block of initialization file %s\n",
+                    fn);
                 exit (1);
             }
             /* initial fine root C:N */
@@ -425,7 +433,8 @@ void ReadEPC (epctbl_struct *epctbl)
             if (epctbl->deadwood_cn[i] < epctbl->livewood_cn[i])
             {
                 printf ("Error: livewood C:N must be >= deadwood C:N\n");
-                printf ("change the values in ECOPHYS block of initialization file\n");
+                printf
+                    ("change the values in ECOPHYS block of initialization file\n");
                 exit (1);
             }
             /* leaf litter labile proportion */
@@ -444,8 +453,11 @@ void ReadEPC (epctbl_struct *epctbl)
             if (fabs (t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
             {
                 printf ("Error:\n");
-                printf ("leaf litter proportions of labile, cellulose, and lignin\n");
-                printf ("must sum to 1.0. Check initialization file and try again %s.\n", fn);
+                printf
+                    ("leaf litter proportions of labile, cellulose, and lignin\n");
+                printf
+                    ("must sum to 1.0. Check initialization file and try again %s.\n",
+                    fn);
                 exit (1);
             }
             /* calculate shielded and unshielded cellulose fraction */
@@ -482,8 +494,10 @@ void ReadEPC (epctbl_struct *epctbl)
             if (fabs (t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
             {
                 printf ("Error:\n");
-                printf ("froot litter proportions of labile, cellulose, and lignin\n");
-                printf ("must sum to 1.0. Check initialization file and try again.\n");
+                printf
+                    ("froot litter proportions of labile, cellulose, and lignin\n");
+                printf
+                    ("must sum to 1.0. Check initialization file and try again.\n");
                 exit (1);
             }
             /* calculate shielded and unshielded cellulose fraction */
@@ -515,7 +529,8 @@ void ReadEPC (epctbl_struct *epctbl)
             if (fabs (t1 + t2 - 1.0) > FLT_COND_TOL)
             {
                 printf ("Error:\n");
-                printf ("deadwood proportions of cellulose and lignin must sum\n");
+                printf
+                    ("deadwood proportions of cellulose and lignin must sum\n");
                 printf ("to 1.0. Check initialization file and try again.\n");
                 exit (1);
             }
@@ -574,11 +589,14 @@ void ReadEPC (epctbl_struct *epctbl)
             printf ("LEAFTURNOVER%lf\t", epctbl->leaf_turnover[i]);
             printf ("FROOTTURNOVER%lf\t", epctbl->froot_turnover[i]);
             printf ("LIVEWOODTURNOVER%lf\t", epctbl->livewood_turnover[i]);
-            printf ("DAILYMORTALITYTURNOVER%lf\t", epctbl->daily_mortality_turnover[i]);
+            printf ("DAILYMORTALITYTURNOVER%lf\t",
+                epctbl->daily_mortality_turnover[i]);
             printf ("DAILYFIRETURNOVER%lf\t", epctbl->daily_fire_turnover[i]);
             printf ("FROOTC/LEAFC%lf\t", epctbl->alloc_frootc_leafc[i]);
-            printf ("NEWSTEMC/NEWLEAFC%lf\t", epctbl->alloc_newstemc_newleafc[i]);
-            printf ("NEWLIVEWOODC/NEWWOODC%lf\t", epctbl->alloc_newlivewoodc_newwoodc[i]);
+            printf ("NEWSTEMC/NEWLEAFC%lf\t",
+                epctbl->alloc_newstemc_newleafc[i]);
+            printf ("NEWLIVEWOODC/NEWWOODC%lf\t",
+                epctbl->alloc_newlivewoodc_newwoodc[i]);
             printf ("CROOTC/STEMC%lf\t", epctbl->alloc_crootc_stemc[i]);
             printf ("PROP%lf\t", epctbl->alloc_prop_curgrowth[i]);
             printf ("LEAFCN%lf\t", epctbl->leaf_cn[i]);
@@ -586,9 +604,12 @@ void ReadEPC (epctbl_struct *epctbl)
             printf ("FROOTCN%lf\t", epctbl->froot_cn[i]);
             printf ("LIVEWOODCN%lf\t", epctbl->livewood_cn[i]);
             printf ("DEADWOODCN%lf\t", epctbl->deadwood_cn[i]);
-            printf ("LEAFLITR %lf %lf %lf\t", epctbl->leaflitr_fscel[i], epctbl->leaflitr_fucel[i], epctbl->leaflitr_flig[i]);
-            printf ("FROOTLITR %lf %lf %lf\t", epctbl->frootlitr_fscel[i], epctbl->frootlitr_fucel[i], epctbl->frootlitr_flig[i]);
-            printf ("DEADWOOD %lf %lf %lf\t", epctbl->deadwood_fscel[i], epctbl->deadwood_fucel[i], epctbl->deadwood_flig[i]);
+            printf ("LEAFLITR %lf %lf %lf\t", epctbl->leaflitr_fscel[i],
+                epctbl->leaflitr_fucel[i], epctbl->leaflitr_flig[i]);
+            printf ("FROOTLITR %lf %lf %lf\t", epctbl->frootlitr_fscel[i],
+                epctbl->frootlitr_fucel[i], epctbl->frootlitr_flig[i]);
+            printf ("DEADWOOD %lf %lf %lf\t", epctbl->deadwood_fscel[i],
+                epctbl->deadwood_fucel[i], epctbl->deadwood_flig[i]);
             printf ("EXTCOEF %lf\t", epctbl->ext_coef[i]);
             printf ("LAIRATIO %lf\t", epctbl->lai_ratio[i]);
             printf ("PROJSLA %lf\t", epctbl->avg_proj_sla[i]);
@@ -677,15 +698,16 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
     }
 
     ts->length = CountLine (fid, cmdstr, 1, "EOF");
-    ts->ftime = (int *) malloc (ts->length * sizeof (int));
-    ts->data = (double **) malloc (ts->length * sizeof (double *));
+    ts->ftime = (int *)malloc (ts->length * sizeof (int));
+    ts->data = (double **)malloc (ts->length * sizeof (double *));
 
     FindLine (fid, "BOF");
     for (i = 0; i < ts->length; i++)
     {
-        ts->data[i] = (double *) malloc (sizeof (double));
+        ts->data[i] = (double *)malloc (sizeof (double));
         NextLine (fid, cmdstr);
-        match = sscanf (cmdstr, "%d %lf", &timeinfo->tm_year, &ts->data[i][0]);
+        match =
+            sscanf (cmdstr, "%d %lf", &timeinfo->tm_year, &ts->data[i][0]);
 
         if (match != 2)
         {
@@ -703,6 +725,6 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
         rawtime = timegm (timeinfo);
         ts->ftime[i] = (int)rawtime;
     }
-    
+
     fclose (fid);
 }

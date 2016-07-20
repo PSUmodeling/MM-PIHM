@@ -1,6 +1,7 @@
 #include "pihm.h"
 
-void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl, int numele)
+void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
+    int numele)
 {
     FILE           *simctrl_file;
     //time_t          rawtime;
@@ -58,7 +59,8 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl, int
         NextLine (simctrl_file, cmdstr);
         sscanf (cmdstr, "%s", optstr);
 
-        if (strcasecmp (cmdstr, "EOF") == 0 || strcasecmp (optstr, "PRINT_CTRL") == 0)
+        if (strcasecmp (cmdstr, "EOF") == 0 ||
+            strcasecmp (optstr, "PRINT_CTRL") == 0)
         {
             break;
         }
@@ -67,7 +69,7 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl, int
         if (match != 2 || i != index - 1)
         {
             fprintf (stderr, "Error reading %s.\n", filename),
-            fprintf (stderr, "Please check file format.\n");
+                fprintf (stderr, "Please check file format.\n");
             PIHMError (1);
         }
         i++;
@@ -338,8 +340,7 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
             &croptbl->userFloweringTT[j], 'd');
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "MATURITY_TT",
-            &croptbl->userMaturityTT[j], 'd');
+        ReadKeyword (cmdstr, "MATURITY_TT", &croptbl->userMaturityTT[j], 'd');
 
         NextLine (crop_file, cmdstr);
         ReadKeyword (cmdstr, "MAXIMUM_SOIL_COVERAGE",
@@ -604,7 +605,8 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 ReadKeyword (cmdstr, "FRACTION", &q->plantingDensity, 'd');
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "CLIPPING_START", &q->clippingStart, 'i');
+                ReadKeyword (cmdstr, "CLIPPING_START", &q->clippingStart,
+                    'i');
                 if (q->clippingStart > 366 || q->clippingStart < 1)
                 {
                     printf

@@ -1,3 +1,4 @@
+
 /* 
  * phenology.c
  * daily phenology fluxes
@@ -12,8 +13,7 @@
 
 void Phenology (const epconst_struct *epc, const daily_struct *daily,
     phenology_struct *phen, epvar_struct *epv,
-    cstate_struct *cs, cflux_struct *cf, nstate_struct *ns,
-    nflux_struct *nf)
+    cstate_struct *cs, cflux_struct *cf, nstate_struct *ns, nflux_struct *nf)
 {
     int             woody, evergreen;
     double          ndays;
@@ -44,8 +44,10 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
     if (evergreen)
     {
         epv->dormant_flag = 0.0;
-        epv->day_leafc_litfall_increment = cs->leafc * epc->leaf_turnover / 365.0;
-        epv->day_frootc_litfall_increment = cs->frootc * epc->froot_turnover / 365.0;
+        epv->day_leafc_litfall_increment =
+            cs->leafc * epc->leaf_turnover / 365.0;
+        epv->day_frootc_litfall_increment =
+            cs->frootc * epc->froot_turnover / 365.0;
 
         /* litterfall happens everyday.  To prevent litterfall from driving
          * pools negative in the case of a very high mortality, fluxes are
@@ -69,7 +71,8 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
         if (epc->woody)
         {
             /* turnover from live stem wood to dead stem wood */
-            epv->day_livestemc_turnover_increment = cs->livestemc * epc->livewood_turnover / 365.0;
+            epv->day_livestemc_turnover_increment =
+                cs->livestemc * epc->livewood_turnover / 365.0;
             livestemtovrc = epv->day_livestemc_turnover_increment;
             livestemtovrn = livestemtovrc / epc->livewood_cn;
             if (livestemtovrc > cs->livestemc)
@@ -80,11 +83,13 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
             {
                 cf->livestemc_to_deadstemc = livestemtovrc;
                 nf->livestemn_to_deadstemn = livestemtovrc / epc->deadwood_cn;
-                nf->livestemn_to_retransn = livestemtovrn - nf->livestemn_to_deadstemn;
+                nf->livestemn_to_retransn =
+                    livestemtovrn - nf->livestemn_to_deadstemn;
             }
 
             /* turnover from live coarse root wood to dead coarse root wood */
-            epv->day_livecrootc_turnover_increment = cs->livecrootc * epc->livewood_turnover / 365.0;
+            epv->day_livecrootc_turnover_increment =
+                cs->livecrootc * epc->livewood_turnover / 365.0;
             livecroottovrc = epv->day_livecrootc_turnover_increment;
             livecroottovrn = livecroottovrc / epc->livewood_cn;
             if (livecroottovrc > cs->livecrootc)
@@ -94,8 +99,10 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
             if (livecroottovrc && livecroottovrn)
             {
                 cf->livecrootc_to_deadcrootc = livecroottovrc;
-                nf->livecrootn_to_deadcrootn = livecroottovrc / epc->deadwood_cn;
-                nf->livecrootn_to_retransn = livecroottovrn - nf->livecrootn_to_deadcrootn;
+                nf->livecrootn_to_deadcrootn =
+                    livecroottovrc / epc->deadwood_cn;
+                nf->livecrootn_to_retransn =
+                    livecroottovrn - nf->livecrootn_to_deadcrootn;
             }
         }
 
@@ -466,14 +473,22 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
             nf->frootn_transfer_to_frootn = 2.0 * ns->frootn_transfer / ndays;
             if (epc->woody)
             {
-                cf->livestemc_transfer_to_livestemc = 2.0 * cs->livestemc_transfer / ndays;
-                nf->livestemn_transfer_to_livestemn = 2.0 * ns->livestemn_transfer / ndays;
-                cf->deadstemc_transfer_to_deadstemc = 2.0 * cs->deadstemc_transfer / ndays;
-                nf->deadstemn_transfer_to_deadstemn = 2.0 * ns->deadstemn_transfer / ndays;
-                cf->livecrootc_transfer_to_livecrootc = 2.0 * cs->livecrootc_transfer / ndays;
-                nf->livecrootn_transfer_to_livecrootn = 2.0 * ns->livecrootn_transfer / ndays;
-                cf->deadcrootc_transfer_to_deadcrootc = 2.0 * cs->deadcrootc_transfer / ndays;
-                nf->deadcrootn_transfer_to_deadcrootn = 2.0 * ns->deadcrootn_transfer / ndays;
+                cf->livestemc_transfer_to_livestemc =
+                    2.0 * cs->livestemc_transfer / ndays;
+                nf->livestemn_transfer_to_livestemn =
+                    2.0 * ns->livestemn_transfer / ndays;
+                cf->deadstemc_transfer_to_deadstemc =
+                    2.0 * cs->deadstemc_transfer / ndays;
+                nf->deadstemn_transfer_to_deadstemn =
+                    2.0 * ns->deadstemn_transfer / ndays;
+                cf->livecrootc_transfer_to_livecrootc =
+                    2.0 * cs->livecrootc_transfer / ndays;
+                nf->livecrootn_transfer_to_livecrootn =
+                    2.0 * ns->livecrootn_transfer / ndays;
+                cf->deadcrootc_transfer_to_deadcrootc =
+                    2.0 * cs->deadcrootc_transfer / ndays;
+                nf->deadcrootn_transfer_to_deadcrootn =
+                    2.0 * ns->deadcrootn_transfer / ndays;
             }
         }
 
@@ -497,13 +512,17 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
                 /* otherwise, assess litterfall 
                  * rates as described above */
                 leaflitfallc = epv->day_leafc_litfall_increment;
-                drate = 2.0 * (cs->leafc - leaflitfallc * ndays) / (ndays * ndays);
+                drate =
+                    2.0 * (cs->leafc -
+                    leaflitfallc * ndays) / (ndays * ndays);
                 //printf ("drate = 2.0 * (%lf - %lf * %lf) / (%lf * %lf)\n", cs->leafc, epv->day_leafc_litfall_increment, ndays, ndays, ndays);
                 epv->day_leafc_litfall_increment += drate;
                 leaflitfallc = epv->day_leafc_litfall_increment;
                 //printf ("days = %lf, phen->remdays_litfall = %lf, drate = %lf, leafc = %lf, litfallc = %lf\n", ndays, phen->remdays_litfall, drate, cs->leafc, leaflitfallc);
                 frootlitfallc = epv->day_frootc_litfall_increment;
-                drate = 2.0 * (cs->frootc - frootlitfallc * ndays) / (ndays * ndays);
+                drate =
+                    2.0 * (cs->frootc -
+                    frootlitfallc * ndays) / (ndays * ndays);
                 epv->day_frootc_litfall_increment += drate;
                 frootlitfallc = epv->day_frootc_litfall_increment;
             }
@@ -526,7 +545,8 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
         if (epc->woody)
         {
             /* turnover from live stem wood to dead stem wood */
-            epv->day_livestemc_turnover_increment = cs->livestemc * epc->livewood_turnover / 365.;
+            epv->day_livestemc_turnover_increment =
+                cs->livestemc * epc->livewood_turnover / 365.;
             livestemtovrc = epv->day_livestemc_turnover_increment;
             livestemtovrn = livestemtovrc / epc->livewood_cn;
             if (livestemtovrc > cs->livestemc)
@@ -537,11 +557,13 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
             {
                 cf->livestemc_to_deadstemc = livestemtovrc;
                 nf->livestemn_to_deadstemn = livestemtovrc / epc->deadwood_cn;
-                nf->livestemn_to_retransn = livestemtovrn - nf->livestemn_to_deadstemn;
+                nf->livestemn_to_retransn =
+                    livestemtovrn - nf->livestemn_to_deadstemn;
             }
 
             /* turnover from live coarse root wood to dead coarse root wood */
-            epv->day_livecrootc_turnover_increment = cs->livecrootc * epc->livewood_turnover / 365.;
+            epv->day_livecrootc_turnover_increment =
+                cs->livecrootc * epc->livewood_turnover / 365.;
             livecroottovrc = epv->day_livecrootc_turnover_increment;
             livecroottovrn = livecroottovrc / epc->livewood_cn;
             if (livecroottovrc > cs->livecrootc)
@@ -551,14 +573,16 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
             if (livecroottovrc && livecroottovrn)
             {
                 cf->livecrootc_to_deadcrootc = livecroottovrc;
-                nf->livecrootn_to_deadcrootn = livecroottovrc / epc->deadwood_cn;
-                nf->livecrootn_to_retransn = livecroottovrn - nf->livecrootn_to_deadcrootn;
+                nf->livecrootn_to_deadcrootn =
+                    livecroottovrc / epc->deadwood_cn;
+                nf->livecrootn_to_retransn =
+                    livecroottovrn - nf->livecrootn_to_deadcrootn;
             }
         }
 
     }                           /* end else phenology model block */
 
-        //printf ("evergreen = %d, woody = %d, w_s_flag = %1.1d, onset_flag = %1.0lf, dormant_flag = %1.0lf, tsoil = %lf, onset_gddflag = %1.0lf, onset_gdd = %lf, onset_counter = %lf, remdays_transfer = %lf, remdays_litfall = %lf\n", evergreen, woody, ws_flag, epv->onset_flag, epv->dormant_flag, metv->tsoil, epv->onset_gddflag, epv->onset_gdd, epv->onset_counter, phen->remdays_transfer, phen->remdays_litfall);
+    //printf ("evergreen = %d, woody = %d, w_s_flag = %1.1d, onset_flag = %1.0lf, dormant_flag = %1.0lf, tsoil = %lf, onset_gddflag = %1.0lf, onset_gdd = %lf, onset_counter = %lf, remdays_transfer = %lf, remdays_litfall = %lf\n", evergreen, woody, ws_flag, epv->onset_flag, epv->dormant_flag, metv->tsoil, epv->onset_gddflag, epv->onset_gdd, epv->onset_counter, phen->remdays_transfer, phen->remdays_litfall);
 
     /* for woody types, find annual maximum value for live stemc and live crootc
      * calculation of livewood turnover rates */
@@ -576,6 +600,7 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
     if (epv->annmax_frootc < cs->frootc)
         epv->annmax_frootc = cs->frootc;
 }
+
 //
 //int FreePhenmem (phenarray_struct *phen)
 //{
@@ -591,7 +616,8 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
 //    return (!ok);
 //}
 
-void LeafLitFall (const epconst_struct * epc, double litfallc, cflux_struct * cf, nflux_struct * nf)
+void LeafLitFall (const epconst_struct *epc, double litfallc,
+    cflux_struct *cf, nflux_struct *nf)
 {
     double          c1, c2, c3, c4;
     double          n1, n2, n3, n4;
@@ -626,7 +652,8 @@ void LeafLitFall (const epconst_struct * epc, double litfallc, cflux_struct * cf
     nf->leafn_to_retransn = nretrans;
 }
 
-void FRootLitFall (const epconst_struct *epc, double litfallc, cflux_struct *cf, nflux_struct *nf)
+void FRootLitFall (const epconst_struct *epc, double litfallc,
+    cflux_struct *cf, nflux_struct *nf)
 {
     double          c1, c2, c3, c4;
     double          n1, n2, n3, n4;

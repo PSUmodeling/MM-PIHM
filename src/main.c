@@ -96,7 +96,8 @@ int main (int argc, char *argv[])
     if (optind >= argc)
     {
         fprintf (stderr, "Error:You must specify the name of project!\n");
-        fprintf (stderr, "Usage: ./pihm [-o output_dir] [-d] [-v] <project name>\n");
+        fprintf (stderr,
+            "Usage: ./pihm [-o output_dir] [-d] [-v] <project name>\n");
         fprintf (stderr, "\t-o Specify output directory.\n");
         fprintf (stderr, "\t-v Verbose mode\n");
         fprintf (stderr, "\t-d Debug mode\n");
@@ -114,7 +115,7 @@ int main (int argc, char *argv[])
     if (id == 0)
     {
 #endif
-    CreateOutputDir (outputdir, spec_output_mode);
+        CreateOutputDir (outputdir, spec_output_mode);
 #ifdef _ENKF_
     }
 #endif
@@ -167,7 +168,8 @@ void Parallel (int id, int p, char *outputdir)
         /* Check if node number is appropriate */
         if (ens->ne % (p - 1) != 0)
         {
-            fprintf (stderr, "Error: Please specify a correct node number!\n");
+            fprintf (stderr,
+                "Error: Please specify a correct node number!\n");
             PIHMError (1, __FUNCTION__);
         }
         else

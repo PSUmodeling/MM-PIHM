@@ -1,3 +1,4 @@
+
 /* 
  * canopy_et.c
  * A single-function treatment of canopy evaporation and transpiration
@@ -16,7 +17,7 @@ void CanopyCond (const epconst_struct *epc, const daily_struct *daily,
 {
     int             k;
     double          gl_bl, gl_c, gl_smax, gl_s_sun, gl_s_shade;
-    double          gl_e_wv, gl_t_wv_sun, gl_t_wv_shade;// gl_sh;
+    double          gl_e_wv, gl_t_wv_sun, gl_t_wv_shade;        // gl_sh;
     //double          gc_e_wv, gc_sh;
     double          tday;
     double          tmin;
@@ -55,7 +56,8 @@ void CanopyCond (const epconst_struct *epc, const daily_struct *daily,
     swc /= droot;
 
     /* temperature and pressure correction factor for conductances */
-    gcorr = pow ((tday + 273.15) / 293.15, 1.75) * 101300. / daily->avg_sfcprs;
+    gcorr =
+        pow ((tday + 273.15) / 293.15, 1.75) * 101300. / daily->avg_sfcprs;
 
     /* calculate leaf- and canopy-level conductances to water vapor
      * and sensible heat fluxes */
@@ -133,9 +135,9 @@ void CanopyCond (const epconst_struct *epc, const daily_struct *daily,
     m_final_shade = m_ppfd_shade * m_psi * m_co2 * m_tmin * m_vpd;
     if (m_final_shade < 0.00000001)
         m_final_shade = 0.00000001;
-    gl_s_sun = gl_smax * m_final_sun;// * epv->plaisun;
+    gl_s_sun = gl_smax * m_final_sun;   // * epv->plaisun;
     //gl_s_sun = (gl_s_sun > gl_c) ? gl_s_sun : gl_c;
-    gl_s_shade = gl_smax * m_final_shade;// * epv->plaishade;
+    gl_s_shade = gl_smax * m_final_shade;       // * epv->plaishade;
     //gl_s_shade = (gl_s_shade > gl_c) ? gl_s_shade : gl_c;
 
     /* calculate leaf-and canopy-level conductances to water vapor and

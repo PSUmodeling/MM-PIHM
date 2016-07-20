@@ -9,7 +9,7 @@ SUNDIALS_PATH = ./sundials
 
 SRCDIR = ./src
 LIBS = -lm
-INCLUDES =\
+INCLUDES = \
 	-I${SRCDIR}/include\
 	-I${SUNDIALS_PATH}/include\
 	-I${SUNDIALS_PATH}/include/cvode\
@@ -35,12 +35,12 @@ SRCS_ = main.c\
 	update.c\
 	vert_flow.c
 
-HEADERS_ =\
+HEADERS_ = \
 	include/elem_struct.h\
-	include/input_tbl_struct.h\
 	include/pihm.h\
 	include/pihm_const.h\
 	include/pihm_func.h\
+	include/pihm_input_struct.h\
 	include/pihm_struct.h\
 	include/river_struct.h
 
@@ -53,7 +53,7 @@ MSG = "...  Compiling PIHM  ..."
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm)
   SFLAGS = -D_PIHM_ -D_NOAH_ 
-  MODULE_SRCS_ =\
+  MODULE_SRCS_ = \
   	noah/lsm_func.c\
 	noah/lsm_init.c\
   	noah/lsm_read.c\
@@ -67,29 +67,29 @@ endif
 #-------------------
 # RT-Flux-PIHM
 #-------------------
-ifeq ($(MAKECMDGOALS),rt-flux-pihm)
-  SFLAGS = -D_PIHM_ -D_RT_ -D_NOAH_
-  MODULE_SRCS_=\
-  	noah/coupling.c\
-	noah/module_sf_noahlsm.c\
-	spa/spa.c\
-	noah/lsm_func.c\
-	rt/rt.c\
-	rt/react.c\
-	rt/os3d.c
-  MODULE_HEADERS_ =\
-	spa/spa.h\
-	rt/rt.h
-  EXECUTABLE = rt-flux-pihm
-  MSG = "... Compiling RT-Flux-PIHM ..."
-endif
+#ifeq ($(MAKECMDGOALS),rt-flux-pihm)
+#  SFLAGS = -D_PIHM_ -D_RT_ -D_NOAH_
+#  MODULE_SRCS_=\
+#  	noah/coupling.c\
+#	noah/module_sf_noahlsm.c\
+#	spa/spa.c\
+#	noah/lsm_func.c\
+#	rt/rt.c\
+#	rt/react.c\
+#	rt/os3d.c
+#  MODULE_HEADERS_ =\
+#	spa/spa.h\
+#	rt/rt.h
+#  EXECUTABLE = rt-flux-pihm
+#  MSG = "... Compiling RT-Flux-PIHM ..."
+#endif
 
 #-------------------
 # Flux-PIHM-BGC
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
-  SFLAGS = -D_PIHM_ -D_BGC_ -D_NOAH_ -D_DAILY_
-  MODULE_SRCS_=\
+  SFLAGS = -D_PIHM_ -D_NOAH_ -D_BGC_ -D_DAILY_
+  MODULE_SRCS_= \
 	bgc/annual_rates.c\
 	bgc/bgc_init.c\
 	bgc/bgc_read.c\
@@ -133,32 +133,32 @@ endif
 #-------------------
 # Flux-PIHM-EnKF
 #-------------------
-ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
-  CC = mpicc
-  SFLAGS = -D_PIHM_ -D_ENKF_ -D_NOAH_
-  MODULE_SRCS_ =\
-	enkf/enkf.c\
-	enkf/enkf_func.c\
-	enkf/obs_oper.c\
-  	enkf/read_enkf.c\
-	noah/lsm_func.c\
-	noah/lsm_init.c\
-	noah/lsm_read.c\
-  	noah/noah.c\
-	spa/spa.c
-  MODULE_HEADERS_ =\
-  	include/enkf.h\
-  	include/spa.h 
-  EXECUTABLE = flux-pihm-enkf
-  MSG = "... Compiling Flux-PIHM-EnKF ..."
-endif
+#ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
+#  CC = mpicc
+#  SFLAGS = -D_PIHM_ -D_ENKF_ -D_NOAH_
+#  MODULE_SRCS_ = \
+#	enkf/enkf.c\
+#	enkf/enkf_func.c\
+#	enkf/obs_oper.c\
+#  	enkf/read_enkf.c\
+#	noah/lsm_func.c\
+#	noah/lsm_init.c\
+#	noah/lsm_read.c\
+#  	noah/noah.c\
+#	spa/spa.c
+#  MODULE_HEADERS_ = \
+#  	include/enkf.h\
+#  	include/spa.h 
+#  EXECUTABLE = flux-pihm-enkf
+#  MSG = "... Compiling Flux-PIHM-EnKF ..."
+#endif
 
 #-------------------
 # Flux-PIHM-Cycles
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS = -D_PIHM_ -D_NOAH_ -D_CYCLES_ -D_DAILY_
-  MODULE_SRCS_=\
+  MODULE_SRCS_= \
 	cycles/Crop.c\
 	cycles/CropHarvest.c\
 	cycles/CropProcess.c\
@@ -217,6 +217,7 @@ sundials:		## Install sundials library
 sundials:
 	cd sundials; ./configure; make; make install; cd ../
 	@echo "SUNDIALS library installed."
+
 pihm:			## Compile PIHM
 pihm:	$(OBJS)
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
@@ -228,22 +229,8 @@ flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-rt-flux-pihm:		## Complile RT-Flux-PIHM (Reactive Transport Flux PIHM) for hydrogeochemical coupling.
-rt-flux-pihm: $(OBJS) $(MODULE_OBJS)
-	@echo
-	@echo $(MSG)
-	@echo
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
-
 flux-pihm-bgc:		## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
 flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
-	@echo
-	@echo $(MSG)
-	@echo
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
-
-flux-pihm-enkf:		## Compile Flux-PIHM-EnKF (Flux-PIHM EnKF system)
-flux-pihm-enkf: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo

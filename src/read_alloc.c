@@ -40,7 +40,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 #endif
 #ifdef _BGC_
     sprintf (pihm->filename.bgc, "input/%s/%s.bgc", project, project);
-    sprintf (pihm->filename.bgcinit, "input/%s/%s.bgcic", project, simulation);
+    sprintf (pihm->filename.bgcic, "input/%s/%s.bgcic", project, simulation);
 #endif
 
     /*
@@ -128,7 +128,8 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     /*
      * Read Cycles simulation control file
      */
-    ReadCyclesCtrl (pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl, pihm->numele);
+    ReadCyclesCtrl (pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl,
+        pihm->numele);
 
     /*
      * Read soil initialization file
@@ -163,11 +164,11 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 
     if (pihm->ndepctrl.varndep)
     {
-        pihm->forc.ndep = (tsdata_struct *) malloc (sizeof (tsdata_struct));
+        pihm->forc.ndep = (tsdata_struct *)malloc (sizeof (tsdata_struct));
         ReadAnnFile (&pihm->forc.ndep[0], pihm->filename.ndep);
     }
 #endif
-    
+
 }
 
 void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
@@ -235,7 +236,8 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
         if (match != 10 || i != index - 1)
         {
             fprintf (stderr, "Error in .riv file format.\n");
-            fprintf (stderr, "Cannot read river segment information for the %dth"
+            fprintf (stderr,
+                "Cannot read river segment information for the %dth"
                 "segment.\n", i + 1);
             PIHMError (1);
         }
@@ -269,7 +271,8 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
         {
             fprintf (stderr, "Error in .riv file format.\n");
             fprintf
-                (stderr, "Cannot read river shape information for the %dth shape.\n",
+                (stderr,
+                "Cannot read river shape information for the %dth shape.\n",
                 i + 1);
             PIHMError (1);
         }
@@ -305,8 +308,8 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
         if (match != 6 || i != index - 1)
         {
             fprintf (stderr, "Error in .riv file format.\n");
-            fprintf (stderr, "Cannot read information for the %dth material.\n",
-                i + 1);
+            fprintf (stderr,
+                "Cannot read information for the %dth material.\n", i + 1);
             PIHMError (1);
         }
     }
@@ -333,7 +336,8 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
             if (match != 1 || i != index - 1)
             {
                 fprintf (stderr, "Error in .riv file format.\n");
-                fprintf (stderr, "Cannot read information of the %dth river boudnary condition!\n",
+                fprintf (stderr,
+                    "Cannot read information of the %dth river boudnary condition!\n",
                     i);
                 PIHMError (1);
             }
@@ -360,7 +364,7 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
                 forc->riverbc[i].data[j] = (double *)malloc (sizeof (double));
                 NextLine (riv_file, cmdstr);
                 if (!ReadTS (cmdstr, &forc->riverbc[i].ftime[j],
-                    &forc->riverbc[i].data[j][0], 1))
+                        &forc->riverbc[i].data[j][0], 1))
                 {
                     fprintf (stderr, "Error reading %s.\n", filename);
                     PIHMError (1);
@@ -429,7 +433,8 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
         if (match != 7 || i != index - 1)
         {
             fprintf (stderr, "Error reading %s.\n", filename);
-            fprintf (stderr, "Cannot read information of the %dth element.\n", i + 1);
+            fprintf (stderr, "Cannot read information of the %dth element.\n",
+                i + 1);
             PIHMError (1);
         }
     }
@@ -462,7 +467,8 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
         if (match != 5 || i != index - 1)
         {
             fprintf (stderr, "Error reading %s.\n", filename);
-            fprintf (stderr, "Cannot read information of the %dth node!\n", i + 1);
+            fprintf (stderr, "Cannot read information of the %dth node!\n",
+                i + 1);
             PIHMError (1);
         }
     }
@@ -515,7 +521,8 @@ void ReadAtt (char *filename, atttbl_struct *atttbl, int numele)
         if (match != 10)
         {
             fprintf (stderr, "Error opening %s.\n", filename);
-            fprintf (stderr, "Cannot read information of the %dth element.\n", i + 1);
+            fprintf (stderr, "Cannot read information of the %dth element.\n",
+                i + 1);
             PIHMError (1);
         }
     }
@@ -594,8 +601,8 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
         if (match != 16 || i != index - 1)
         {
             fprintf (stderr, "Error reading %s.\n", filename);
-            fprintf (stderr, "Cannot read information of the %dth soil type!\n",
-                i + 1);
+            fprintf (stderr,
+                "Cannot read information of the %dth soil type!\n", i + 1);
             PIHMError (1);
         }
 
@@ -834,7 +841,8 @@ void ReadLC (char *filename, lctbl_struct *lctbl)
         if (match != 16 || i != index - 1)
         {
             fprintf (stderr, "Error opening %s.\n", filename);
-            fprintf (stderr, "Cannot read information of the %dth landcover type!\n",
+            fprintf (stderr,
+                "Cannot read information of the %dth landcover type!\n",
                 i + 1);
             PIHMError (1);
         }
@@ -917,7 +925,8 @@ void ReadForc (char *filename, forc_struct *forc)
             if (match != 2 || i != index - 1)
             {
                 fprintf (stderr, "Error reading %s.\n", filename);
-                fprintf (stderr, "Cannot read information of the %dth forcing series!\n",
+                fprintf (stderr,
+                    "Cannot read information of the %dth forcing series!\n",
                     i);
                 PIHMError (1);
             }
@@ -947,7 +956,7 @@ void ReadForc (char *filename, forc_struct *forc)
                     (double *)malloc (NUM_METEO_VAR * sizeof (double));
                 NextLine (meteo_file, cmdstr);
                 if (!ReadTS (cmdstr, &forc->meteo[i].ftime[j],
-                    &forc->meteo[i].data[j][0], NUM_METEO_VAR))
+                        &forc->meteo[i].data[j][0], NUM_METEO_VAR))
                 {
                     fprintf (stderr, "Error reading %s.\n", filename);
                     PIHMError (1);
@@ -1016,7 +1025,8 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
                 if (i != index - 1)
                 {
                     fprintf (stderr, "Error reading %s.\n", filename);
-                    fprintf (stderr, "Cannot read information of the %dth LAI series.\n",
+                    fprintf (stderr,
+                        "Cannot read information of the %dth LAI series.\n",
                         i);
                     PIHMError (1);
                 }
@@ -1046,7 +1056,7 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
                     forc->lai[i].data[j] = (double *)malloc (sizeof (double));
                     NextLine (lai_file, cmdstr);
                     if (!ReadTS (cmdstr, &forc->lai[i].ftime[j],
-                        &forc->lai[i].data[j][0], 1))
+                            &forc->lai[i].data[j][0], 1))
                     {
                         fprintf (stderr, "Error reading %s.\n", filename);
                         PIHMError (1);
@@ -1090,7 +1100,8 @@ void ReadBC (char *filename, forc_struct *forc)
     if (match != 1)
     {
         fprintf (stderr, "Error reading %s.\n", filename);
-        fprintf (stderr, "Cannot read number of boundary condition time series.\n");
+        fprintf (stderr,
+            "Cannot read number of boundary condition time series.\n");
         PIHMError (1);
     }
 
@@ -1106,7 +1117,8 @@ void ReadBC (char *filename, forc_struct *forc)
             if (match != 1 || i != index - 1)
             {
                 fprintf (stderr, "Error reading %s.\n", filename);
-                fprintf (stderr, "Cannot read information of the %dth boundary condition series!\n",
+                fprintf (stderr,
+                    "Cannot read information of the %dth boundary condition series!\n",
                     i);
                 PIHMError (1);
             }
@@ -1135,7 +1147,7 @@ void ReadBC (char *filename, forc_struct *forc)
                 forc->bc[i].data[j] = (double *)malloc (sizeof (double));
                 NextLine (bc_file, cmdstr);
                 if (!ReadTS (cmdstr, &forc->bc[i].ftime[j],
-                    &forc->bc[i].data[j][0], 1))
+                        &forc->bc[i].data[j][0], 1))
                 {
                     fprintf (stderr, "Error reading %s.\n", filename);
                     PIHMError (1);
@@ -1457,7 +1469,8 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
 
     if (ctrl->etstep < ctrl->stepsize || ctrl->etstep % ctrl->stepsize > 0)
     {
-        fprintf (stderr, "Error: LSM (ET) step size should be an integral multiple of"
+        fprintf (stderr,
+            "Error: LSM (ET) step size should be an integral multiple of"
             "model step size!\n");
         PIHMError (1);
     }
@@ -1781,9 +1794,11 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
     fseek (ic_file, 0L, SEEK_END);
     size = ftell (ic_file);
 
-    if (size != sizeof (ic_struct) * numele + sizeof (river_ic_struct) * numriv)
+    if (size !=
+        sizeof (ic_struct) * numele + sizeof (river_ic_struct) * numriv)
     {
-        fprintf (stderr, "Error: %s file size does not match requirement.\n", filename);
+        fprintf (stderr, "Error: %s file size does not match requirement.\n",
+            filename);
         fprintf (stderr, "Please use a correct initial condition file.\n");
         PIHMError (1);
     }

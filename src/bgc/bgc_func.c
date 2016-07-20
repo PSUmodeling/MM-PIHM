@@ -44,7 +44,9 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
 
     /* Read epc files */
     bgc->epclist.nvegtypes = NVEGTYPES;
-    bgc->epclist.epc = (epconst_struct *) malloc (bgc->epclist.nvegtypes * sizeof (epconst_struct));
+    bgc->epclist.epc =
+        (epconst_struct *)malloc (bgc->epclist.nvegtypes *
+        sizeof (epconst_struct));
 
     if (verbose_mode)
     {
@@ -90,7 +92,9 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         }
         if (epc_file == NULL)
         {
-            printf ("\nFatal Error: epc file %s are in use or do not exist!\n", fn);
+            printf
+                ("\nFatal Error: epc file %s are in use or do not exist!\n",
+                fn);
             exit (1);
         }
 
@@ -160,7 +164,9 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         if (epc->leaflitr_cn < epc->leaf_cn)
         {
             printf ("Error: leaf litter C:N must be >= leaf C:N\n");
-            printf ("change the values in ECOPHYS block of initialization file %s\n", fn);
+            printf
+                ("change the values in ECOPHYS block of initialization file %s\n",
+                fn);
             exit (1);
         }
         /* initial fine root C:N */
@@ -176,7 +182,8 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         if (epc->deadwood_cn < epc->livewood_cn)
         {
             printf ("Error: livewood C:N must be >= deadwood C:N\n");
-            printf ("change the values in ECOPHYS block of initialization file\n");
+            printf
+                ("change the values in ECOPHYS block of initialization file\n");
             exit (1);
         }
         /* leaf litter labile proportion */
@@ -195,8 +202,11 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         if (fabs (t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
         {
             printf ("Error:\n");
-            printf ("leaf litter proportions of labile, cellulose, and lignin\n");
-            printf ("must sum to 1.0. Check initialization file and try again %s.\n", fn);
+            printf
+                ("leaf litter proportions of labile, cellulose, and lignin\n");
+            printf
+                ("must sum to 1.0. Check initialization file and try again %s.\n",
+                fn);
             exit (1);
         }
         /* calculate shielded and unshielded cellulose fraction */
@@ -233,8 +243,10 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         if (fabs (t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
         {
             printf ("Error:\n");
-            printf ("froot litter proportions of labile, cellulose, and lignin\n");
-            printf ("must sum to 1.0. Check initialization file and try again.\n");
+            printf
+                ("froot litter proportions of labile, cellulose, and lignin\n");
+            printf
+                ("must sum to 1.0. Check initialization file and try again.\n");
             exit (1);
         }
         /* calculate shielded and unshielded cellulose fraction */
@@ -266,7 +278,8 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         if (fabs (t1 + t2 - 1.0) > FLT_COND_TOL)
         {
             printf ("Error:\n");
-            printf ("deadwood proportions of cellulose and lignin must sum\n");
+            printf
+                ("deadwood proportions of cellulose and lignin must sum\n");
             printf ("to 1.0. Check initialization file and try again.\n");
             exit (1);
         }
@@ -341,7 +354,8 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         printf ("DAILYFIRETURNOVER%lf\t", epc->daily_fire_turnover);
         printf ("FROOTC/LEAFC%lf\t", epc->alloc_frootc_leafc);
         printf ("NEWSTEMC/NEWLEAFC%lf\t", epc->alloc_newstemc_newleafc);
-        printf ("NEWLIVEWOODC/NEWWOODC%lf\t", epc->alloc_newlivewoodc_newwoodc);
+        printf ("NEWLIVEWOODC/NEWWOODC%lf\t",
+            epc->alloc_newlivewoodc_newwoodc);
         printf ("CROOTC/STEMC%lf\t", epc->alloc_crootc_stemc);
         printf ("PROP%lf\t", epc->alloc_prop_curgrowth);
         printf ("LEAFCN%lf\t", epc->leaf_cn);
@@ -349,9 +363,12 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         printf ("FROOTCN%lf\t", epc->froot_cn);
         printf ("LIVEWOODCN%lf\t", epc->livewood_cn);
         printf ("DEADWOODCN%lf\t", epc->deadwood_cn);
-        printf ("LEAFLITR %lf %lf %lf\t", epc->leaflitr_fscel, epc->leaflitr_fucel, epc->leaflitr_flig);
-        printf ("FROOTLITR %lf %lf %lf\t", epc->frootlitr_fscel, epc->frootlitr_fucel, epc->frootlitr_flig);
-        printf ("DEADWOOD %lf %lf %lf\t", epc->deadwood_fscel, epc->deadwood_fucel, epc->deadwood_flig);
+        printf ("LEAFLITR %lf %lf %lf\t", epc->leaflitr_fscel,
+            epc->leaflitr_fucel, epc->leaflitr_flig);
+        printf ("FROOTLITR %lf %lf %lf\t", epc->frootlitr_fscel,
+            epc->frootlitr_fucel, epc->frootlitr_flig);
+        printf ("DEADWOOD %lf %lf %lf\t", epc->deadwood_fscel,
+            epc->deadwood_fucel, epc->deadwood_flig);
         printf ("INTCOEF %lf\t", epc->int_coef);
         printf ("EXTCOEF %lf\t", epc->ext_coef);
         printf ("LAIRATIO %lf\t", epc->lai_ratio);
@@ -506,9 +523,11 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         ReadBinFile (&bgc->forcing.ts[SWC_TS][0], fn, pihm->numele);
 
         /* Read total soil water storage forcing */
-        bgc->forcing.ts[TOTALW_TS] = (ts_struct *) malloc (sizeof (ts_struct));
+        bgc->forcing.ts[TOTALW_TS] =
+            (ts_struct *) malloc (sizeof (ts_struct));
         sprintf (fn, "input/%s/%s.totalw.dat", project, project);
-        ReadBinFile (&bgc->forcing.ts[TOTALW_TS][0], fn, pihm->numele + pihm->numriv);
+        ReadBinFile (&bgc->forcing.ts[TOTALW_TS][0], fn,
+            pihm->numele + pihm->numriv);
 
         /* Read soil temperature forcing */
         bgc->forcing.ts[STC_TS] = (ts_struct *) malloc (sizeof (ts_struct));
@@ -516,7 +535,8 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         ReadBinFile (&bgc->forcing.ts[STC_TS][0], fn, pihm->numele);
 
         /* Read subsurface flux forcing */
-        bgc->forcing.ts[SUBFLX_TS] = (ts_struct *) malloc (3 * sizeof (ts_struct));
+        bgc->forcing.ts[SUBFLX_TS] =
+            (ts_struct *) malloc (3 * sizeof (ts_struct));
         for (k = 0; k < 3; k++)
         {
             sprintf (fn, "input/%s/%s.subflx%d.dat", project, project, k);
@@ -524,7 +544,8 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         }
 
         /* Read surface flux forcing */
-        bgc->forcing.ts[SURFFLX_TS] = (ts_struct *) malloc (3 * sizeof (ts_struct));
+        bgc->forcing.ts[SURFFLX_TS] =
+            (ts_struct *) malloc (3 * sizeof (ts_struct));
         for (k = 0; k < 3; k++)
         {
             sprintf (fn, "input/%s/%s.surfflx%d.dat", project, project, k);
@@ -532,7 +553,8 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         }
 
         /* Read river flux forcing */
-        bgc->forcing.ts[RIVFLX_TS] = (ts_struct *) malloc (11 * sizeof (ts_struct));
+        bgc->forcing.ts[RIVFLX_TS] =
+            (ts_struct *) malloc (11 * sizeof (ts_struct));
         for (k = 0; k < 11; k++)
         {
             sprintf (fn, "input/%s/%s.rivflx%d.dat", project, project, k);
@@ -597,7 +619,7 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
         bgc->grid[i].epv.tempavg_t2m = 0.0;
     }
 
-    bgc->riv = (bgc_river *)malloc (pihm->numriv * sizeof (bgc_river));
+    bgc->riv = (bgc_river *) malloc (pihm->numriv * sizeof (bgc_river));
 
     for (i = 0; i < pihm->numriv; i++)
     {
@@ -608,7 +630,8 @@ void BgcRead (char *simulation, bgc_struct bgc, pihm_struct pihm)
     }
 }
 
-void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bgc)
+void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah,
+    bgc_struct bgc)
 {
     char            fn[MAXSTRING];
     char            project[MAXSTRING];
@@ -643,14 +666,16 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
         bgc->grid[i].sitec.vwc_fc = noah->grid[i].smcref;
         bgc->grid[i].sitec.lat = noah->latitude;
         bgc->grid[i].sitec.lon = noah->longitude;
-        bgc->grid[i].sitec.sw_alb = 0.5 * (noah->grid[i].albedomin + noah->grid[i].albedomax);
+        bgc->grid[i].sitec.sw_alb =
+            0.5 * (noah->grid[i].albedomin + noah->grid[i].albedomax);
         bgc->grid[i].sitec.area = pihm->elem[i].topo.area;
 
         for (j = 0; j < 3; j++)
         {
             if (pihm->elem[i].forc.bc_type[j] <= -4)
             {
-                bgc->grid[i].sitec.nabr[j] = pihm->elem[i].forc.bc_type[j] / 4;
+                bgc->grid[i].sitec.nabr[j] =
+                    pihm->elem[i].forc.bc_type[j] / 4;
             }
             else
             {
@@ -715,11 +740,15 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
 
         for (i = 0; i < pihm->numele; i++)
         {
-            fread (&(bgc->grid[i].restart_input), sizeof (restart_data_struct), 1, init_file);
-            restart_input (&bgc->grid[i].ws, &bgc->grid[i].cs, &bgc->grid[i].ns, &bgc->grid[i].epv, &bgc->grid[i].restart_input);
+            fread (&(bgc->grid[i].restart_input),
+                sizeof (restart_data_struct), 1, init_file);
+            restart_input (&bgc->grid[i].ws, &bgc->grid[i].cs,
+                &bgc->grid[i].ns, &bgc->grid[i].epv,
+                &bgc->grid[i].restart_input);
 
             /* Calculate LAI for the coupling with Noah */
-            bgc->grid[i].epv.proj_lai = bgc->grid[i].cs.leafc * bgc->grid[i].epc.avg_proj_sla;
+            bgc->grid[i].epv.proj_lai =
+                bgc->grid[i].cs.leafc * bgc->grid[i].epc.avg_proj_sla;
         }
 
         for (i = 0; i < pihm->numriv; i++)
@@ -732,7 +761,8 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
     {
         for (i = 0; i < pihm->numele; i++)
         {
-            firstday (&bgc->grid[i].epc, &bgc->grid[i].cinit, &bgc->grid[i].epv, &bgc->grid[i].cs, &bgc->grid[i].ns);
+            firstday (&bgc->grid[i].epc, &bgc->grid[i].cinit,
+                &bgc->grid[i].epv, &bgc->grid[i].cs, &bgc->grid[i].ns);
         }
 
         for (i = 0; i < pihm->numriv; i++)
@@ -743,7 +773,8 @@ void BgcInit (char *simulation, pihm_struct pihm, lsm_struct noah, bgc_struct bg
 
     for (i = 0; i < pihm->numele; i++)
     {
-        zero_srcsnk (&bgc->grid[i].cs, &bgc->grid[i].ns, &bgc->grid[i].ws, &bgc->grid[i].summary);
+        zero_srcsnk (&bgc->grid[i].cs, &bgc->grid[i].ns, &bgc->grid[i].ws,
+            &bgc->grid[i].summary);
     }
 }
 
@@ -959,7 +990,8 @@ void Bgc2Noah (int t, pihm_struct pihm, lsm_struct noah, bgc_struct bgc)
 //    }
 //}
 
-void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir)
+void MapBgcOutput (char *simulation, bgc_struct bgc, int numele,
+    char *outputdir)
 {
     int             i, j;
     int             n;
@@ -973,10 +1005,13 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
             switch (i)
             {
                 case LAI_CTRL:
-                    sprintf (bgc->prtctrl[n].name, "%s%s.lai", outputdir, simulation);
+                    sprintf (bgc->prtctrl[n].name, "%s%s.lai", outputdir,
+                        simulation);
                     bgc->prtctrl[n].intvl = 86400;
                     bgc->prtctrl[n].nvrbl = numele;
-                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    bgc->prtctrl[n].vrbl =
+                        (double **)malloc (bgc->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
                         bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].epv.proj_lai;
@@ -984,10 +1019,13 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     n++;
                     break;
                 case VEGC_CTRL:
-                    sprintf (bgc->prtctrl[n].name, "%s%s.vegc", outputdir, simulation);
+                    sprintf (bgc->prtctrl[n].name, "%s%s.vegc", outputdir,
+                        simulation);
                     bgc->prtctrl[n].intvl = 86400;
                     bgc->prtctrl[n].nvrbl = numele;
-                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    bgc->prtctrl[n].vrbl =
+                        (double **)malloc (bgc->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
                         bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.vegc;
@@ -995,10 +1033,13 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     n++;
                     break;
                 case LITRC_CTRL:
-                    sprintf (bgc->prtctrl[n].name, "%s%s.litrc", outputdir, simulation);
+                    sprintf (bgc->prtctrl[n].name, "%s%s.litrc", outputdir,
+                        simulation);
                     bgc->prtctrl[n].intvl = 86400;
                     bgc->prtctrl[n].nvrbl = numele;
-                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    bgc->prtctrl[n].vrbl =
+                        (double **)malloc (bgc->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
                         bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.litrc;
@@ -1006,10 +1047,13 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     n++;
                     break;
                 case SOILC_CTRL:
-                    sprintf (bgc->prtctrl[n].name, "%s%s.soilc", outputdir, simulation);
+                    sprintf (bgc->prtctrl[n].name, "%s%s.soilc", outputdir,
+                        simulation);
                     bgc->prtctrl[n].intvl = 86400;
                     bgc->prtctrl[n].nvrbl = numele;
-                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    bgc->prtctrl[n].vrbl =
+                        (double **)malloc (bgc->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
                         bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.soilc;
@@ -1017,54 +1061,73 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
                     n++;
                     break;
                 case TOTALC_CTRL:
-                    sprintf (bgc->prtctrl[n].name, "%s%s.totalc", outputdir, simulation);
+                    sprintf (bgc->prtctrl[n].name, "%s%s.totalc", outputdir,
+                        simulation);
                     bgc->prtctrl[n].intvl = 86400;
                     bgc->prtctrl[n].nvrbl = numele;
-                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    bgc->prtctrl[n].vrbl =
+                        (double **)malloc (bgc->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
-                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.totalc;
+                        bgc->prtctrl[n].vrbl[j] =
+                            &bgc->grid[j].summary.totalc;
                     }
                     n++;
                     break;
                 case NPP_CTRL:
-                    sprintf (bgc->prtctrl[n].name, "%s%s.npp", outputdir, simulation);
+                    sprintf (bgc->prtctrl[n].name, "%s%s.npp", outputdir,
+                        simulation);
                     bgc->prtctrl[n].intvl = 86400;
                     bgc->prtctrl[n].nvrbl = numele;
-                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    bgc->prtctrl[n].vrbl =
+                        (double **)malloc (bgc->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
-                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.daily_npp;
+                        bgc->prtctrl[n].vrbl[j] =
+                            &bgc->grid[j].summary.daily_npp;
                     }
                     n++;
                     break;
                 case NEE_CTRL:
-                    sprintf (bgc->prtctrl[n].name, "%s%s.nee", outputdir, simulation);
+                    sprintf (bgc->prtctrl[n].name, "%s%s.nee", outputdir,
+                        simulation);
                     bgc->prtctrl[n].intvl = 86400;
                     bgc->prtctrl[n].nvrbl = numele;
-                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    bgc->prtctrl[n].vrbl =
+                        (double **)malloc (bgc->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
-                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.daily_nee;
+                        bgc->prtctrl[n].vrbl[j] =
+                            &bgc->grid[j].summary.daily_nee;
                     }
                     n++;
                     break;
                 case GPP_CTRL:
-                    sprintf (bgc->prtctrl[n].name, "%s%s.gpp", outputdir, simulation);
+                    sprintf (bgc->prtctrl[n].name, "%s%s.gpp", outputdir,
+                        simulation);
                     bgc->prtctrl[n].intvl = 86400;
                     bgc->prtctrl[n].nvrbl = numele;
-                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    bgc->prtctrl[n].vrbl =
+                        (double **)malloc (bgc->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
-                        bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].summary.daily_gpp;
+                        bgc->prtctrl[n].vrbl[j] =
+                            &bgc->grid[j].summary.daily_gpp;
                     }
                     n++;
                     break;
                 case SMINN_CTRL:
-                    sprintf (bgc->prtctrl[n].name, "%s%s.sminn", outputdir, simulation);
+                    sprintf (bgc->prtctrl[n].name, "%s%s.sminn", outputdir,
+                        simulation);
                     bgc->prtctrl[n].intvl = 86400;
                     bgc->prtctrl[n].nvrbl = numele;
-                    bgc->prtctrl[n].vrbl = (double **) malloc (bgc->prtctrl[n].nvrbl * sizeof (double *));
+                    bgc->prtctrl[n].vrbl =
+                        (double **)malloc (bgc->prtctrl[n].nvrbl *
+                        sizeof (double *));
                     for (j = 0; j < bgc->prtctrl[n].nvrbl; j++)
                     {
                         bgc->prtctrl[n].vrbl[j] = &bgc->grid[j].ns.sminn;
@@ -1080,11 +1143,11 @@ void MapBgcOutput (char *simulation, bgc_struct bgc, int numele, char *outputdir
     for (i = 0; i < bgc->ctrl.nprint; i++)
     {
         bgc->prtctrl[i].buffer =
-         (double *) calloc (bgc->prtctrl[i].nvrbl, sizeof (double));
+            (double *)calloc (bgc->prtctrl[i].nvrbl, sizeof (double));
     }
 }
 
-void ReadBinFile (ts_struct *ts, char *fn, int numele)
+void ReadBinFile (ts_struct * ts, char *fn, int numele)
 {
     FILE           *fid;
     double          dtime;
@@ -1094,16 +1157,16 @@ void ReadBinFile (ts_struct *ts, char *fn, int numele)
     CheckFile (fid, fn);
 
     fseek (fid, 0L, SEEK_END);
-    ts->length = (int) (ftell (fid) / (numele + 1) / 8);
-    ts->ftime = (int *) malloc (ts->length * sizeof (int));
-    ts->data = (double **) malloc (ts->length * sizeof (double *));
+    ts->length = (int)(ftell (fid) / (numele + 1) / 8);
+    ts->ftime = (int *)malloc (ts->length * sizeof (int));
+    ts->data = (double **)malloc (ts->length * sizeof (double *));
 
     rewind (fid);
     for (j = 0; j < ts->length; j++)
     {
-        ts->data[j] = (double *) malloc (numele * sizeof (double));
+        ts->data[j] = (double *)malloc (numele * sizeof (double));
         fread (&dtime, sizeof (double), 1, fid);
-        ts->ftime[j] = (int) dtime;
+        ts->ftime[j] = (int)dtime;
         for (i = 0; i < numele; i++)
         {
             fread (&ts->data[j][i], sizeof (double), 1, fid);
@@ -1112,4 +1175,3 @@ void ReadBinFile (ts_struct *ts, char *fn, int numele)
 
     fclose (fid);
 }
-

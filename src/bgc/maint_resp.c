@@ -1,6 +1,8 @@
 #include "pihm.h"
 
-void MaintResp (const cstate_struct *cs, const nstate_struct *ns, const epconst_struct *epc, const daily_struct *daily, cflux_struct *cf, epvar_struct *epv)
+void MaintResp (const cstate_struct *cs, const nstate_struct *ns,
+    const epconst_struct *epc, const daily_struct *daily, cflux_struct *cf,
+    epvar_struct *epv)
 {
     /*
      * maintenance respiration routine
@@ -62,7 +64,8 @@ void MaintResp (const cstate_struct *cs, const nstate_struct *ns, const epconst_
 
         /* leaf, night */
         exponent = (tnight - 20.0) / 10.0;
-        cf->leaf_night_mr = t1 * pow (q10, exponent) * (86400.0 - daily->dayl) / 86400.0;
+        cf->leaf_night_mr =
+            t1 * pow (q10, exponent) * (86400.0 - daily->dayl) / 86400.0;
     }
     else                        /* no leaves on */
     {

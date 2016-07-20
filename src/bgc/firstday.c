@@ -1,3 +1,4 @@
+
 /* 
  * firstday.c
  * Initializes the state variables for the first day of a simulation that
@@ -11,7 +12,8 @@
 
 #include "pihm.h"
 
-void FirstDay (const epconst_struct * epc, const cinit_struct * cinit, epvar_struct * epv, cstate_struct * cs, nstate_struct * ns)
+void FirstDay (const epconst_struct *epc, const cinit_struct *cinit,
+    epvar_struct *epv, cstate_struct *cs, nstate_struct *ns)
 {
     int             woody;
     int             predays, remdays;
@@ -48,7 +50,8 @@ void FirstDay (const epconst_struct * epc, const cinit_struct * cinit, epvar_str
     cs->leafc_transfer = max_leafc * epc->leaf_turnover;
     cs->leafc = max_leafc - cs->leafc_transfer;
     max_frootc = max_leafc * epc->alloc_frootc_leafc;
-    cs->frootc_transfer = cinit->max_leafc * epc->alloc_frootc_leafc * epc->froot_turnover;
+    cs->frootc_transfer =
+        cinit->max_leafc * epc->alloc_frootc_leafc * epc->froot_turnover;
     cs->frootc = max_frootc - cs->frootc_transfer;
     if (epc->woody)
     {
@@ -57,12 +60,16 @@ void FirstDay (const epconst_struct * epc, const cinit_struct * cinit, epvar_str
         cs->livestemc_transfer = new_stemc * epc->alloc_newlivewoodc_newwoodc;
         cs->livestemc = cs->livestemc_transfer / epc->livewood_turnover;
         cs->deadstemc_transfer = new_stemc - cs->livestemc_transfer;
-        cs->deadstemc = max_stemc - cs->livestemc_transfer - cs->livestemc - cs->deadstemc_transfer;
+        cs->deadstemc =
+            max_stemc - cs->livestemc_transfer - cs->livestemc -
+            cs->deadstemc_transfer;
         if (cs->deadstemc < 0.0)
             cs->deadstemc = 0.0;
-        cs->livecrootc_transfer = cs->livestemc_transfer * epc->alloc_crootc_stemc;
+        cs->livecrootc_transfer =
+            cs->livestemc_transfer * epc->alloc_crootc_stemc;
         cs->livecrootc = cs->livestemc * epc->alloc_crootc_stemc;
-        cs->deadcrootc_transfer = cs->deadstemc_transfer * epc->alloc_crootc_stemc;
+        cs->deadcrootc_transfer =
+            cs->deadstemc_transfer * epc->alloc_crootc_stemc;
         cs->deadcrootc = cs->deadstemc * epc->alloc_crootc_stemc;
     }
 
@@ -157,15 +164,19 @@ void FirstDay (const epconst_struct * epc, const cinit_struct * cinit, epvar_str
     cs->gresp_transfer += (cs->leafc_transfer + cs->frootc_transfer) * GRPERC;
     if (woody)
     {
-        cs->gresp_transfer += (cs->livestemc_transfer + cs->deadstemc_transfer + cs->livecrootc_transfer + cs->deadcrootc_transfer) * GRPERC;
+        cs->gresp_transfer +=
+            (cs->livestemc_transfer + cs->deadstemc_transfer +
+            cs->livecrootc_transfer + cs->deadcrootc_transfer) * GRPERC;
     }
 
     /* set the initial rates of litterfall and live wood turnover */
     if (epc->evergreen)
     {
         /* leaf and fineroot litterfall rates */
-        epv->day_leafc_litfall_increment = max_leafc * epc->leaf_turnover / 365.0;
-        epv->day_frootc_litfall_increment = max_frootc * epc->froot_turnover / 365.0;
+        epv->day_leafc_litfall_increment =
+            max_leafc * epc->leaf_turnover / 365.0;
+        epv->day_frootc_litfall_increment =
+            max_frootc * epc->froot_turnover / 365.0;
     }
     else
     {
@@ -181,8 +192,10 @@ void FirstDay (const epconst_struct * epc, const cinit_struct * cinit, epvar_str
     if (epc->woody)
     {
         /* live wood turnover rates */
-        epv->day_livestemc_turnover_increment = cs->livestemc * epc->livewood_turnover / 365.0;
-        epv->day_livecrootc_turnover_increment = cs->livecrootc * epc->livewood_turnover / 365.0;
+        epv->day_livestemc_turnover_increment =
+            cs->livestemc * epc->livewood_turnover / 365.0;
+        epv->day_livecrootc_turnover_increment =
+            cs->livecrootc * epc->livewood_turnover / 365.0;
         epv->annmax_livestemc = 0.0;
         epv->annmax_livecrootc = 0.0;
     }

@@ -1,6 +1,7 @@
 #include "pihm.h"
 
-void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, const epctbl_struct *epctbl, const ctrl_struct *ctrl)
+void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv,
+    const epctbl_struct *epctbl, const ctrl_struct *ctrl)
 {
     int             i;
     int             epc_ind;
@@ -20,10 +21,10 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, cons
             epc_ind != DNF - 1 &&
             epc_ind != DBF - 1 &&
             epc_ind != GRASS - 1 &&
-            epc_ind != CLOSE_SHRUB - 1 &&
-            epc_ind != OPEN_SHRUB - 1)
+            epc_ind != CLOSE_SHRUB - 1 && epc_ind != OPEN_SHRUB - 1)
         {
-            fprintf (stderr, "Error: Land cover type %d not been defined in Flux-PIHM-BGC.\n",
+            fprintf (stderr,
+                "Error: Land cover type %d not been defined in Flux-PIHM-BGC.\n",
                 elem[i].attrib.lc_type);
             PIHMError (1);
         }
@@ -39,13 +40,18 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, cons
         elem[i].epc.leaf_turnover = epctbl->leaf_turnover[epc_ind];
         elem[i].epc.froot_turnover = epctbl->froot_turnover[epc_ind];
         elem[i].epc.livewood_turnover = epctbl->livewood_turnover[epc_ind];
-        elem[i].epc.daily_mortality_turnover = epctbl->daily_mortality_turnover[epc_ind];
-        elem[i].epc.daily_fire_turnover = epctbl->daily_fire_turnover[epc_ind];
+        elem[i].epc.daily_mortality_turnover =
+            epctbl->daily_mortality_turnover[epc_ind];
+        elem[i].epc.daily_fire_turnover =
+            epctbl->daily_fire_turnover[epc_ind];
         elem[i].epc.alloc_frootc_leafc = epctbl->alloc_frootc_leafc[epc_ind];
-        elem[i].epc.alloc_newstemc_newleafc = epctbl->alloc_newstemc_newleafc[epc_ind];
-        elem[i].epc.alloc_newlivewoodc_newwoodc = epctbl->alloc_newlivewoodc_newwoodc[epc_ind];
+        elem[i].epc.alloc_newstemc_newleafc =
+            epctbl->alloc_newstemc_newleafc[epc_ind];
+        elem[i].epc.alloc_newlivewoodc_newwoodc =
+            epctbl->alloc_newlivewoodc_newwoodc[epc_ind];
         elem[i].epc.alloc_crootc_stemc = epctbl->alloc_crootc_stemc[epc_ind];
-        elem[i].epc.alloc_prop_curgrowth = epctbl->alloc_prop_curgrowth[epc_ind];
+        elem[i].epc.alloc_prop_curgrowth =
+            epctbl->alloc_prop_curgrowth[epc_ind];
         elem[i].epc.avg_proj_sla = epctbl->avg_proj_sla[epc_ind];
         elem[i].epc.sla_ratio = epctbl->sla_ratio[epc_ind];
         elem[i].epc.lai_ratio = epctbl->lai_ratio[epc_ind];
@@ -87,7 +93,9 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv, cons
     }
 }
 
-void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, cinit_struct cinit, cstate_struct cs, nstate_struct ns, char *fn, int spinup)
+void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv,
+    cinit_struct cinit, cstate_struct cs, nstate_struct ns, char *fn,
+    int spinup)
 {
     int             i;
     FILE           *init_file;
@@ -110,7 +118,8 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
 
         for (i = 0; i < numele; i++)
         {
-            fread (&elem[i].restart_input, sizeof (bgc_ic_struct), 1, init_file);
+            fread (&elem[i].restart_input, sizeof (bgcic_struct), 1,
+                init_file);
 
             RestartInput (&elem[i].cs, &elem[i].ns, &elem[i].epv,
                 &elem[i].restart_input);
@@ -166,7 +175,8 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
             elem[i].epv.offset_swi = 0.0;
             elem[i].epv.annavg_t2m = elem[i].ps.tbot;
 
-            FirstDay (&elem[i].epc, &elem[i].cinit, &elem[i].epv, &elem[i].cs, &elem[i].ns);
+            FirstDay (&elem[i].epc, &elem[i].cinit, &elem[i].epv, &elem[i].cs,
+                &elem[i].ns);
         }
 
         for (i = 0; i < numriv; i++)
@@ -182,7 +192,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv, c
 
     for (i = 0; i < numriv; i++)
     {
-       //riv[i].nleached_snk = 0.0;
-       riv[i].nf.sminn_leached = 0.0;
+        //riv[i].nleached_snk = 0.0;
+        riv[i].nf.sminn_leached = 0.0;
     }
 }

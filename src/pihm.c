@@ -76,7 +76,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle
         t = pihm->ctrl.tout[i];
 
         /* Apply forcing */
-        ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv, pihm->numriv, t
+        ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv,
+            pihm->numriv, t
 #ifdef _BGC_
             , &pihm->ctrl
 #endif
@@ -115,13 +116,14 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle
 #ifdef _DAILY_
         if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
         {
-    #ifdef _CYCLES_
+#ifdef _CYCLES_
             DailyCycles (t - DAYINSEC, pihm);
-    #endif
-    #ifdef _BGC_
+#endif
+#ifdef _BGC_
             if (pihm->ctrl.bgc_spinup)
             {
-                Save2Stor (pihm, t, pihm->ctrl.spinupstart, pihm->ctrl.spinupend);
+                Save2Stor (pihm, t, pihm->ctrl.spinupstart,
+                    pihm->ctrl.spinupend);
             }
             else
             {
@@ -129,7 +131,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle
 
                 first_balance = 0;
             }
-    #endif
+#endif
         }
 #endif
 

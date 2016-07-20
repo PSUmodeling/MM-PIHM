@@ -1,3 +1,4 @@
+
 /* 
  * mortality.c
  * daily mortality fluxes
@@ -10,7 +11,8 @@
 
 #include "pihm.h"
 
-void Mortality (const epconst_struct *epc, cstate_struct *cs, cflux_struct *cf, nstate_struct *ns, nflux_struct *nf)
+void Mortality (const epconst_struct *epc, cstate_struct *cs,
+    cflux_struct *cf, nstate_struct *ns, nflux_struct *nf)
 {
     double          mort;
     /* dead stem combustion proportion */
@@ -52,9 +54,11 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs, cflux_struct *cf, 
     if (epc->woody)
     {
         cf->m_livestemc_to_cwdc = mort * cs->livestemc;
-        cf->m_deadstemc_to_cwdc = (mort + (1.0 - dscp) * epc->daily_fire_turnover) * cs->deadstemc;
+        cf->m_deadstemc_to_cwdc =
+            (mort + (1.0 - dscp) * epc->daily_fire_turnover) * cs->deadstemc;
         cf->m_livecrootc_to_cwdc = mort * cs->livecrootc;
-        cf->m_deadcrootc_to_cwdc = (mort + (1.0 - dscp) * epc->daily_fire_turnover) * cs->deadcrootc;
+        cf->m_deadcrootc_to_cwdc =
+            (mort + (1.0 - dscp) * epc->daily_fire_turnover) * cs->deadcrootc;
     }
 
     /* daily nitrogen fluxes due to mortality */
@@ -87,11 +91,15 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs, cflux_struct *cf, 
     if (epc->woody)
     {
         nf->m_livestemn_to_cwdn = cf->m_livestemc_to_cwdc / epc->deadwood_cn;
-        nf->m_livestemn_to_litr1n = (mort * ns->livestemn) - nf->m_livestemn_to_cwdn;
+        nf->m_livestemn_to_litr1n =
+            (mort * ns->livestemn) - nf->m_livestemn_to_cwdn;
         nf->m_deadstemn_to_cwdn = cf->m_deadstemc_to_cwdc / epc->deadwood_cn;
-        nf->m_livecrootn_to_cwdn = cf->m_livecrootc_to_cwdc / epc->deadwood_cn;
-        nf->m_livecrootn_to_litr1n = (mort * ns->livecrootn) - nf->m_livecrootn_to_cwdn;
-        nf->m_deadcrootn_to_cwdn = cf->m_deadcrootc_to_cwdc / epc->deadwood_cn;
+        nf->m_livecrootn_to_cwdn =
+            cf->m_livecrootc_to_cwdc / epc->deadwood_cn;
+        nf->m_livecrootn_to_litr1n =
+            (mort * ns->livecrootn) - nf->m_livecrootn_to_cwdn;
+        nf->m_deadcrootn_to_cwdn =
+            cf->m_deadcrootc_to_cwdc / epc->deadwood_cn;
     }
 
     /* update state variables */

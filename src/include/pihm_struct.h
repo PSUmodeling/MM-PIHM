@@ -2,6 +2,7 @@
 #define PIHM_STRUCT_HEADER
 
 #ifdef _BGC_
+
 /* a structure to hold information on the annual co2 concentration */
 typedef struct co2control_struct
 {
@@ -110,7 +111,7 @@ typedef struct ctrl_struct
 #ifdef _BGC_
     double          simstarttime;       /* start time of simulation */
     double          simendtime; /* end time of simulation */
-    int             bgc_spinup;     /* (flag) 1=spinup run, 0=normal run */
+    int             bgc_spinup; /* (flag) 1=spinup run, 0=normal run */
     int             maxspinyears;       /* maximum number of years for spinup run */
     int             read_restart;       /* flag to read restart file */
     int             write_restart;      /* flag to write restart file */
@@ -179,6 +180,6 @@ typedef struct pihm_struct
     calib_struct    cal;
     ctrl_struct     ctrl;
     prtctrl_struct  prtctrl[NUM_PRINT];
-} *pihm_struct;
+}              *pihm_struct;
 
 #endif

@@ -1,3 +1,4 @@
+
 /*
  * daily_bgc.c
  * Daily BGC model logic
@@ -10,11 +11,11 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
     //metvar_struct  *metv;
     co2control_struct *co2;
     ndepcontrol_struct *ndepctrl;
-    ctrl_struct *ctrl;
+    ctrl_struct    *ctrl;
     epconst_struct *epc;
     epvar_struct   *epv;
     psn_struct     *psn_sun, *psn_shade;
-    daily_struct *daily;
+    daily_struct   *daily;
     cstate_struct  *cs;
     cflux_struct   *cf;
     nstate_struct  *ns;
@@ -46,7 +47,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
     ctrl = &pihm->ctrl;
 
     /* Get co2 and ndep */
-    if (ctrl->bgc_spinup)      /* Spinup mode */
+    if (ctrl->bgc_spinup)       /* Spinup mode */
     {
         co2lvl = co2->co2ppm;
         daily_ndep = ndepctrl->ndep / 365.0;
@@ -69,7 +70,9 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
                 co2lvl = GetCO2 (pihm->forc.co2[0], t);
             if (co2lvl < -999)
             {
-                printf ("Error finding CO2 value on %4.4d-%2.2d-%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday);
+                printf ("Error finding CO2 value on %4.4d-%2.2d-%2.2d\n",
+                    timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+                    timestamp->tm_mday);
                 exit (1);
             }
 
@@ -90,7 +93,9 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
                 daily_nfix = ndepctrl->nfix / 365.0;
                 if (daily_ndep < -999)
                 {
-                    printf ("Error finding NDEP %4.4d-%2.2d-%2.2d\n", timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday);
+                    printf ("Error finding NDEP %4.4d-%2.2d-%2.2d\n",
+                        timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+                        timestamp->tm_mday);
                     exit (1);
                 }
                 else
@@ -103,7 +108,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
 
     simday = (t - simstart) / 24 / 3600 - 1;
 
-    if (ctrl->bgc_spinup)      /* Spinup mode */
+    if (ctrl->bgc_spinup)       /* Spinup mode */
     {
         for (i = 0; i < pihm->numele; i++)
         {
@@ -231,10 +236,12 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
         GrowthResp (epc, cf);
 
         /* Daily update of carbon state variables */
-        DailyCarbonStateUpdate (cf, cs, annual_alloc, epc->woody, epc->evergreen);
+        DailyCarbonStateUpdate (cf, cs, annual_alloc, epc->woody,
+            epc->evergreen);
 
         /* Daily update of nitrogen state variables */
-        DailyNitrogenStateUpdate (nf, ns, annual_alloc, epc->woody, epc->evergreen);
+        DailyNitrogenStateUpdate (nf, ns, annual_alloc, epc->woody,
+            epc->evergreen);
     }
 
     /* Calculate N leaching loss.  This is a special state variable update

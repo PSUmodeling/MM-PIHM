@@ -1,3 +1,4 @@
+
 /*
  * restart_io.c
  * functions called to copy restart info between restart structure and
@@ -11,7 +12,8 @@
 
 #include "pihm.h"
 
-void RestartInput (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, bgc_ic_struct * restart)
+void RestartInput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
+    bgcic_struct *restart)
 {
     cs->leafc = restart->leafc;
     cs->leafc_storage = restart->leafc_storage;
@@ -77,8 +79,10 @@ void RestartInput (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, b
 
     epv->day_leafc_litfall_increment = restart->day_leafc_litfall_increment;
     epv->day_frootc_litfall_increment = restart->day_frootc_litfall_increment;
-    epv->day_livestemc_turnover_increment = restart->day_livestemc_turnover_increment;
-    epv->day_livecrootc_turnover_increment = restart->day_livecrootc_turnover_increment;
+    epv->day_livestemc_turnover_increment =
+        restart->day_livestemc_turnover_increment;
+    epv->day_livecrootc_turnover_increment =
+        restart->day_livecrootc_turnover_increment;
     epv->annmax_leafc = restart->annmax_leafc;
     epv->annmax_frootc = restart->annmax_frootc;
     epv->annmax_livestemc = restart->annmax_livestemc;
@@ -98,7 +102,8 @@ void RestartInput (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, b
     epv->offset_swi = restart->offset_swi;
 }
 
-void RestartOutput (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, bgc_ic_struct *restart)
+void RestartOutput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
+    bgcic_struct *restart)
 {
     restart->leafc = cs->leafc;
     restart->leafc_storage = cs->leafc_storage;
@@ -164,8 +169,10 @@ void RestartOutput (cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, 
 
     restart->day_leafc_litfall_increment = epv->day_leafc_litfall_increment;
     restart->day_frootc_litfall_increment = epv->day_frootc_litfall_increment;
-    restart->day_livestemc_turnover_increment = epv->day_livestemc_turnover_increment;
-    restart->day_livecrootc_turnover_increment = epv->day_livecrootc_turnover_increment;
+    restart->day_livestemc_turnover_increment =
+        epv->day_livestemc_turnover_increment;
+    restart->day_livecrootc_turnover_increment =
+        epv->day_livecrootc_turnover_increment;
     restart->annmax_leafc = epv->annmax_leafc;
     restart->annmax_frootc = epv->annmax_frootc;
     restart->annmax_livestemc = epv->annmax_livestemc;

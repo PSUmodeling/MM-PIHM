@@ -218,7 +218,7 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type)
             if (match != 2 || strcasecmp (keyword, optstr) != 0)
             {
                 printf ("Expected keyword \"%s\", detected keyword \"%s\".\n",
-                        keyword, optstr);
+                    keyword, optstr);
                 success = 0;
             }
             break;
@@ -263,10 +263,11 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type)
             free (timeinfo);
             break;
         default:
-            fprintf (stderr, "Error: Keyword type \'%c\' is not defined.\n", type);
+            fprintf (stderr, "Error: Keyword type \'%c\' is not defined.\n",
+                type);
             PIHMError (1);
     }
-    
+
     return (success);
 }
 

@@ -77,7 +77,8 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     if (pihm->ctrl.init_type == RELAX)
     {
 #ifdef _NOAH_
-        ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv, pihm->numriv, pihm->ctrl.starttime
+        ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv,
+            pihm->numriv, pihm->ctrl.starttime
 #ifdef _BGC_
             , &pihm->ctrl
 #endif
@@ -94,7 +95,9 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     InitVar (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, CV_Y);
 
 #ifdef _BGC_
-    InitBGCVar (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, pihm->ctrl.cinit, pihm->ctrl.cs, pihm->ctrl.ns, pihm->filename.bgcinit, pihm->ctrl.bgc_spinup);
+    InitBGCVar (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
+        pihm->ctrl.cinit, pihm->ctrl.cs, pihm->ctrl.ns, pihm->filename.bgcic,
+        pihm->ctrl.bgc_spinup);
 #endif
 
     CalcModelStep (&pihm->ctrl);
@@ -186,8 +189,8 @@ void InitSoil (elem_struct *elem, int numele, soiltbl_struct soiltbl,
         elem[i].soil.porosity = elem[i].soil.smcmax - elem[i].soil.smcmin;
         if (elem[i].soil.porosity > 1.0 || elem[i].soil.porosity <= 0.0)
         {
-            fprintf (stderr, "Error: Porosity value out of bounds for element %d",
-                i + 1);
+            fprintf (stderr,
+                "Error: Porosity value out of bounds for element %d", i + 1);
             PIHMError (1);
         }
         elem[i].soil.alpha = cal.alpha * soiltbl.alpha[soil_ind];
@@ -487,7 +490,8 @@ void InitForcing (elem_struct *elem, int numele, river_struct *riv,
 
     for (i = 0; i < numele; i++)
     {
-        elem[i].ps.zlvl_wind = forc->meteo[elem[i].attrib.meteo_type - 1].zlvl_wind;
+        elem[i].ps.zlvl_wind =
+            forc->meteo[elem[i].attrib.meteo_type - 1].zlvl_wind;
     }
 }
 

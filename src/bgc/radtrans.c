@@ -1,3 +1,4 @@
+
 /* 
  * radtrans.c
  * calculate leaf area index, sun and shade fractions, and specific
@@ -12,7 +13,9 @@
 
 #include "pihm.h"
 
-void RadTrans (const cstate_struct *cs, const daily_struct *daily, eflux_struct *ef, pstate_struct *ps, const epconst_struct *epc, epvar_struct *epv)
+void RadTrans (const cstate_struct *cs, const daily_struct *daily,
+    eflux_struct *ef, pstate_struct *ps, const epconst_struct *epc,
+    epvar_struct *epv)
 {
     /* calculate the projected leaf area and SLA for sun and shade fractions
      * and the canopy transmission and absorption of shortwave radiation
@@ -46,7 +49,7 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily, eflux_struct 
         ps->all_lai = ps->proj_lai * epc->lai_ratio;
 
         /* Calculate projected LAI for sunlit and shaded canopy portions */
-        ps->plaisun = 1.0 - exp (- ps->proj_lai);
+        ps->plaisun = 1.0 - exp (-ps->proj_lai);
         ps->plaishade = ps->proj_lai - ps->plaisun;
         if (ps->plaishade < 0.0)
         {
@@ -57,7 +60,8 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily, eflux_struct 
 
         /* calculate the projected specific leaf area for sunlit and 
          * shaded canopy fractions */
-        epv->sun_proj_sla = (ps->plaisun + (ps->plaishade / epc->sla_ratio)) / cs->leafc;
+        epv->sun_proj_sla =
+            (ps->plaisun + (ps->plaishade / epc->sla_ratio)) / cs->leafc;
         epv->shade_proj_sla = epv->sun_proj_sla * epc->sla_ratio;
     }
     else if (cs->leafc == 0.0)
@@ -92,7 +96,9 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily, eflux_struct 
     k_par = k * 1.0;
     albedo_par = daily->avg_albedo / 3.0;
 
-    par = ((daily->avg_soldn > 0.0) ? daily->avg_soldn : 0.0) * RAD2PAR * (1.0 - albedo_par);
+    par =
+        ((daily->avg_soldn >
+            0.0) ? daily->avg_soldn : 0.0) * RAD2PAR * (1.0 - albedo_par);
     parabs = par * (1.0 - exp (-k_par * proj_lai));
 
     /* calculate the total shortwave absorbed by the sunlit and

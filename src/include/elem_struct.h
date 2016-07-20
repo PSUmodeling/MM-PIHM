@@ -1,21 +1,17 @@
 #ifndef ELEM_STRUCT_HEADER
 #define ELEM_STRUCT_HEADER
 
-/*
- * Attribute
- */
+/* Attribute */
 typedef struct attrib_struct
 {
     int             soil_type;
     int             lc_type;
-    int             bc_type[3];
+    int             bc_type[NUM_EDGE];
     int             meteo_type;
     int             lai_type;
 } attrib_struct;
 
-/* 
- * Topographic parameters
- */
+/* Topographic parameters */
 typedef struct topo_struct
 {
     double          area;       /* area of element */
@@ -23,7 +19,7 @@ typedef struct topo_struct
     double          y;          /* y of centroid */
     double          zmin;       /* z_min of centroid */
     double          zmax;       /* z_max of centroid */
-    double          edge[NUM_EDGE];    /* edge i is from node i to node i+1 */
+    double          edge[NUM_EDGE];     /* edge i is from node i to node i+1 */
     double          surfx[NUM_EDGE];
     double          surfy[NUM_EDGE];
 #ifdef _NOAH_
@@ -35,9 +31,7 @@ typedef struct topo_struct
 #endif
 } topo_struct;
 
-/*
- * Soil parameters
- */
+/* Soil parameters */
 typedef struct soil_struct
 {
     double          depth;
@@ -137,9 +131,7 @@ typedef struct soil_struct
 #endif
 } soil_struct;
 
-/*
- * Land cover parameters
- */
+/* Land cover parameters */
 typedef struct lc_struct
 {
     double          shdfac;     /* areal fractional coverage of green vegetation (fraction= 0.0-1.0) */
@@ -218,9 +210,7 @@ typedef struct epconst_struct
 #endif
 } epconst_struct;
 
-/*
- * Physical states
- */
+/* Physical states */
 typedef struct pstate_struct
 {
     double          rzd;
@@ -321,13 +311,13 @@ typedef struct wstate_struct
 
 typedef struct wflux_struct
 {
-    double          ovlflow[NUM_EDGE];        /* Overland Flux */
-    double          subsurf[NUM_EDGE];     /* Subsurface Flux */
-    double          prcp;           /* Precep. on each element */
-    double          pcpdrp;         /* combined prcp1 and drip (from cmc) that goes into the soil (m s-1) */
-    double          infil;          /* Variable infiltration rate */
-    double          rechg;          /* Recharge rate to GW */
-    double          drip;           /* through-fall of precip and/or dew in excess of canopy water-holding capacity (m/s) */
+    double          ovlflow[NUM_EDGE];  /* Overland Flux */
+    double          subsurf[NUM_EDGE];  /* Subsurface Flux */
+    double          prcp;       /* Precep. on each element */
+    double          pcpdrp;     /* combined prcp1 and drip (from cmc) that goes into the soil (m s-1) */
+    double          infil;      /* Variable infiltration rate */
+    double          rechg;      /* Recharge rate to GW */
+    double          drip;       /* through-fall of precip and/or dew in excess of canopy water-holding capacity (m/s) */
     double          edir;
     double          ett;
     double          ec;
@@ -340,15 +330,15 @@ typedef struct wflux_struct
     double          ett_gw;
 #ifdef _NOAH_
     double          et[MAXLYR];
-    double          runoff1;        /* surface runoff (m s-1), not infiltrating the surface */
-    double          runoff2;        /* subsurface runoff (m s-1), drainage out bottom of last soil layer (baseflow) */
+    double          runoff1;    /* surface runoff (m s-1), not infiltrating the surface */
+    double          runoff2;    /* subsurface runoff (m s-1), drainage out bottom of last soil layer (baseflow) */
     double          runoff2_lyr[MAXLYR];
-    double          runoff3;        /* numerical trunctation in excess of porosity (smcmax) for a given soil layer at the end of a time step (m s-1). note: the above runoff2 is actually the sum of runoff2 and runoff3 */
+    double          runoff3;    /* numerical trunctation in excess of porosity (smcmax) for a given soil layer at the end of a time step (m s-1). note: the above runoff2 is actually the sum of runoff2 and runoff3 */
     double          smflxv[MAXLYR];
     double          smflxh[NUM_EDGE][MAXLYR];
-    double          dew;            /* dewfall (or frostfall for t<273.15) (m) */
-    double          snomlt;         /* snow melt (m/s) (water equivalent) */
-    double          esnow;          /* sublimation from (or deposition to if <0) snowpack (ms-1) */
+    double          dew;        /* dewfall (or frostfall for t<273.15) (m) */
+    double          snomlt;     /* snow melt (m/s) (water equivalent) */
+    double          esnow;      /* sublimation from (or deposition to if <0) snowpack (ms-1) */
     double          etns;
 #endif
 #ifdef _CYCLES_
@@ -456,7 +446,7 @@ typedef struct crop_struct
     double          svN_StressCumulative;
 
     double          svRadiationInterception_nc;
-    
+
     double          dailyTranspiration;
     double          dailyTranspirationPotential;
 
@@ -542,7 +532,7 @@ typedef struct comm_struct
     double          svShootDailyGrowth;
     double          svRootDailyGrowth;
     double          svRizhoDailyDeposition;
-    double          svRootingDepth; /* maximum */
+    double          svRootingDepth;     /* maximum */
     double          svTranspiration;
     double          svTranspirationPotential;
     double          svN_Shoot;
@@ -644,7 +634,7 @@ typedef struct ic_struct
 } ic_struct;
 
 #ifdef _BGC_
-typedef struct bgc_ic_struct
+typedef struct bgcic_struct
 {
     double          leafc;
     double          leafc_storage;
@@ -726,7 +716,7 @@ typedef struct bgc_ic_struct
     double          offset_counter;
     double          offset_fdd;
     double          offset_swi;
-} bgc_ic_struct;
+} bgcic_struct;
 #endif
 
 #ifdef _CYCLES_
@@ -743,16 +733,16 @@ typedef struct weather_struct
 
 typedef struct snow_struct
 {
-    double              snowCover;
+    double          snowCover;
 } snow_struct;
 
 typedef struct solute_struct
 {
-    double              soluteMass[MAXLYR];
-    double              soluteMassAdsorbed[MAXLYR];
-    double              soluteConc[MAXLYR];
-    double              soluteFluxLat[4][MAXLYR];
-    double              soluteFluxVert[MAXLYR];
+    double          soluteMass[MAXLYR];
+    double          soluteMassAdsorbed[MAXLYR];
+    double          soluteConc[MAXLYR];
+    double          soluteFluxLat[4][MAXLYR];
+    double          soluteFluxVert[MAXLYR];
 } solute_struct;
 #endif
 
@@ -800,12 +790,12 @@ typedef struct stor_struct
     double         *prev_dayl;
     double         *tmax;       /* (deg C) daily maximum air temperature */
     double         *tmin;       /* (deg C) daily minimum air temperature */
-    double         *sfctmp;       /* (deg C) daily average temperature */
+    double         *sfctmp;     /* (deg C) daily average temperature */
     double         *tday;
     double         *tnight;
     double         *q2d;        /* (m3/m3) mixing ratio deficit */
     double         *sfcprs;
-    double         *soldn;    /* (W/m2)  daylight avg shortwave flux density */
+    double         *soldn;      /* (W/m2)  daylight avg shortwave flux density */
     double         *stc[MAXLYR];
     double         *sh2o[MAXLYR];
     double         *surf;
@@ -1399,9 +1389,9 @@ typedef struct summary_struct
 #endif
 typedef struct elem_struct
 {
-    int             node[NUM_EDGE];    /* Counterclock-wise */
-    int             nabr[NUM_EDGE];    /* neighbor i shares edge i
-                                 * (0: on boundary) */
+    int             node[NUM_EDGE];     /* Counterclock-wise */
+    int             nabr[NUM_EDGE];     /* neighbor i shares edge i
+                                         * (0: on boundary) */
     int             ind;
 
     attrib_struct   attrib;
@@ -1410,21 +1400,21 @@ typedef struct elem_struct
     soil_struct     soil;
     lc_struct       lc;
     epconst_struct  epc;
-    ic_struct   ic;
-    bc_struct   bc;
+    ic_struct       ic;
+    bc_struct       bc;
 #ifdef _DAILY_
-    daily_struct daily;
+    daily_struct    daily;
 #endif
 
     pstate_struct   ps;
 
-    wstate_struct  ws;
-    wstate_struct  ws0;
-    wflux_struct   wf;
+    wstate_struct   ws;
+    wstate_struct   ws0;
+    wflux_struct    wf;
     estate_struct   es;
     eflux_struct    ef;
 #ifdef _NOAH_
-    wflux_struct   avgwf;
+    wflux_struct    avgwf;
 #endif
 #ifdef _CYCLES_
     cropmgmt_struct cropmgmt;
@@ -1437,9 +1427,9 @@ typedef struct elem_struct
     solute_struct   NH4sol;
 #endif
 #ifdef _BGC_
-    bgc_ic_struct   restart_input;
-    bgc_ic_struct   restart_output;
-    stor_struct    stor;
+    bgcic_struct    restart_input;
+    bgcic_struct    restart_output;
+    stor_struct     stor;
     cinit_struct    cinit;      /* first-year values for leafc and stemc */
     cstate_struct   cs;         /* carbon state variables */
     cflux_struct    cf;

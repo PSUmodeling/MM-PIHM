@@ -21,7 +21,7 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
         fprintf (stderr, "Error opening %s.\n", filename);
         PIHMError (1);
     }
-    
+
     if (verbose_mode)
     {
         printf ("Reading %s.\n", filename);
@@ -42,7 +42,8 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
     if (ctrl->nsoil > MAXLYR - 1)
     {
         fprintf (stderr, "Error reading %s.\n", filename);
-        fprintf (stderr, "The number of soil layers should not be larger than %d.\n",
+        fprintf (stderr,
+            "The number of soil layers should not be larger than %d.\n",
             MAXLYR - 1);
         PIHMError (1);
     }
@@ -148,7 +149,7 @@ void ReadRad (char *filename, forc_struct *forc)
     char            cmdstr[MAXSTRING];
 
     rad_file = fopen (filename, "r");
-    
+
     if (NULL == rad_file)
     {
         fprintf (stderr, "Error opening %s.\n", filename);
@@ -167,7 +168,8 @@ void ReadRad (char *filename, forc_struct *forc)
     if (forc->nrad != forc->nmeteo)
     {
         fprintf (stderr, "Error reading %s.\n", filename);
-        fprintf (stderr, "The number of radiation forcing time series should be the same as the number of meteorlogical forcing time series.\n");
+        fprintf (stderr,
+            "The number of radiation forcing time series should be the same as the number of meteorlogical forcing time series.\n");
         PIHMError (1);
     }
 
@@ -182,7 +184,8 @@ void ReadRad (char *filename, forc_struct *forc)
         if (i != index - 1)
         {
             fprintf (stderr, "Error reading %s.\n", filename);
-            fprintf (stderr, "Cannot read information of the %dth forcing series.\n",
+            fprintf (stderr,
+                "Cannot read information of the %dth forcing series.\n",
                 i + 1);
             PIHMError (1);
         }

@@ -1,3 +1,4 @@
+
 /* 
  * zero_srcsnk.c
  * fill the source and sink variables with 0.0 at the start of the simulation
@@ -11,7 +12,8 @@
 #include "pihm.h"
 
 /* zero the source and sink state variables */
-void ZeroSrcSnk (cstate_struct * cs, nstate_struct * ns, summary_struct * summary)
+void ZeroSrcSnk (cstate_struct *cs, nstate_struct *ns,
+    summary_struct *summary)
 {
     /* zero the carbon sources and sinks */
     cs->psnsun_src = 0.0;

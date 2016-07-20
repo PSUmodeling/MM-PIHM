@@ -1,3 +1,4 @@
+
 /* 
  * precision_control.c
  * Detects very low values in state variable structures, and forces them to
@@ -11,7 +12,7 @@
 
 #include "pihm.h"
 
-void PrecisionControl (cstate_struct * cs, nstate_struct * ns)
+void PrecisionControl (cstate_struct *cs, nstate_struct *ns)
 {
     /* CARBON AND NITROGEN STATE VARIABLES */
     /* force very low leaf C to 0.0, to avoid roundoff

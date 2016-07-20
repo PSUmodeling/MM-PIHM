@@ -15,17 +15,20 @@ int SoilTex (double silt, double clay)
 
     if (silt < 0.0 || silt > 1.0)
     {
-        fprintf (stderr, "Error: Silt percentage (%lf) out of range.\n", silt * 100.0);
+        fprintf (stderr, "Error: Silt percentage (%lf) out of range.\n",
+            silt * 100.0);
         PIHMError (1);
     }
     if (clay < 0.0 || clay > 1.0)
     {
-        fprintf (stderr, "Error: Clay percentage (%lf) out of range.\n", clay * 100.0);
+        fprintf (stderr, "Error: Clay percentage (%lf) out of range.\n",
+            clay * 100.0);
         PIHMError (1);
     }
     if (sand < 0.0 || sand > 1.0)
     {
-        fprintf (stderr, "Error: Sand percentage (%lf) out of range.\n", sand * 100.0);
+        fprintf (stderr, "Error: Sand percentage (%lf) out of range.\n",
+            sand * 100.0);
         PIHMError (1);
     }
 
@@ -132,7 +135,8 @@ double Qtz (int texture)
             qtz = 0.25;
             break;
         default:
-            fprintf (stderr, "Error: Soil type (%d) not recognized.\n", texture);
+            fprintf (stderr, "Error: Soil type (%d) not recognized.\n",
+                texture);
             PIHMError (1);
             break;
     }

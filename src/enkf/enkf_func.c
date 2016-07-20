@@ -171,7 +171,7 @@ void InitEns (enkf_struct ens)
     /* Initialize ensemble members */
     ne = ens->ne;
 
-    ens->member = (ensmbr_struct *) malloc (ne * sizeof (ensmbr_struct));
+    ens->member = (ensmbr_struct *)malloc (ne * sizeof (ensmbr_struct));
 
     /*
      * Define variable controls: vairable names, variable dimension, etc.
@@ -180,20 +180,20 @@ void InitEns (enkf_struct ens)
 
     InitOper (pihm, ens);
 
-    printf("Ensemble members: %d\n", ne);
-    printf("Default observation cycle: %-d hour(s)\n", ens->interval /  3600);
-    printf("Observations:");
+    printf ("Ensemble members: %d\n", ne);
+    printf ("Default observation cycle: %-d hour(s)\n", ens->interval / 3600);
+    printf ("Observations:");
     if (ens->nobs == 0)
     {
-        printf(" none");
+        printf (" none");
     }
     else
     {
         for (i = 0; i < ens->nobs - 1; i++)
         {
-            printf(" %s,", ens->obs[i].name);
+            printf (" %s,", ens->obs[i].name);
         }
-        printf(" %s\n", ens->obs[ens->nobs - 1].name);
+        printf (" %s\n", ens->obs[ens->nobs - 1].name);
     }
 
     for (i = 0; i < ne; i++)
@@ -203,7 +203,7 @@ void InitEns (enkf_struct ens)
             if (ens->var[j].dim > 0)
             {
                 ens->member[i].var[j] =
-                    (double *) malloc (ens->var[j].dim * sizeof(double));
+                    (double *)malloc (ens->var[j].dim * sizeof (double));
             }
         }
 
@@ -215,7 +215,7 @@ void InitEns (enkf_struct ens)
     free (pihm);
 }
 
-void Perturb(char *project, enkf_struct ens, char *outputdir)
+void Perturb (char *project, enkf_struct ens, char *outputdir)
 {
     int             ne;
     int             i, j;
@@ -233,8 +233,8 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
 
     ne = ens->ne;
 
-    x = (double **) malloc (ne * sizeof (double));
-    
+    x = (double **)malloc (ne * sizeof (double));
+
     /*
      * Generate initial parameter values 
      */
@@ -279,17 +279,22 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
                     }
                 }
 
-                prior /= (double) ne;
+                prior /= (double)ne;
 
                 for (j = 0; j < ne; j++)
                 {
                     if (ens->param[i].type == LOG_TYPE)
                     {
-                        prior_std += (log10 (ens->member[j].param[i]) - prior) * (log10 (ens->member[j].param[i]) - prior);
+                        prior_std +=
+                            (log10 (ens->member[j].param[i]) -
+                            prior) * (log10 (ens->member[j].param[i]) -
+                            prior);
                     }
                     else
                     {
-                        prior_std += (ens->member[j].param[i] - prior) * (ens->member[j].param[i] - prior);
+                        prior_std +=
+                            (ens->member[j].param[i] -
+                            prior) * (ens->member[j].param[i] - prior);
                     }
                 }
                 prior_std = sqrt (prior_std / ((double)ne - 1.0));
@@ -428,7 +433,7 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
          * is therefore [-2.5 - mode, 2.5 - mode] */
 
         GenRandNum (ne, n, randnum,
-            -2.5 + (double) ens->start_mode, 2.5 - (double) ens->start_mode);
+            -2.5 + (double)ens->start_mode, 2.5 - (double)ens->start_mode);
 
         for (i = 0; i < n; i++)
         {
@@ -437,8 +442,11 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
                 x[j] = &ens->member[j].param[ind[i]];
             }
 
-            prior_std = 0.2 * (ens->param[ind[i]].max - ens->param[ind[i]].min);
-            prior = (ens->param[ind[i]].min + ens->param[ind[i]].max) / 2.0 + (double)ens->start_mode * prior_std;
+            prior_std =
+                0.2 * (ens->param[ind[i]].max - ens->param[ind[i]].min);
+            prior =
+                (ens->param[ind[i]].min + ens->param[ind[i]].max) / 2.0 +
+                (double)ens->start_mode * prior_std;
 
             for (j = 0; j < ne; j++)
             {
@@ -467,8 +475,8 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
         }
         free (randnum);
     }
-    
-    printf("\nInitial parameters\n");
+
+    printf ("\nInitial parameters\n");
 
     for (i = 0; i < MAXPARAM; i++)
     {
@@ -489,13 +497,13 @@ void Perturb(char *project, enkf_struct ens, char *outputdir)
 
             printf ("mean: %lf\n", prior);
 
-            printf("Initial std %lf\n", ens->param[i].init_std);
+            printf ("Initial std %lf\n", ens->param[i].init_std);
 
             WriteParamOutput (ens->cycle_start_time, ens, i, outputdir);
         }
     }
 
-    free(x);
+    free (x);
 }
 
 void MapVar (var_struct *var, int numele, int numriv)
@@ -513,49 +521,49 @@ void MapVar (var_struct *var, int numele, int numriv)
         switch (i)
         {
             case SURF_CTRL:
-                strcpy(var[n].name, "surf");
+                strcpy (var[n].name, "surf");
                 var[n].dim = numele;
                 var[n].min = BADVAL;
                 var[n].max = BADVAL;
                 n++;
                 break;
             case UNSAT_CTRL:
-                strcpy(var[n].name, "unsat");
+                strcpy (var[n].name, "unsat");
                 var[n].dim = numele;
                 var[n].min = BADVAL;
                 var[n].max = BADVAL;
                 n++;
                 break;
             case GW_CTRL:
-                strcpy(var[n].name, "gw");
+                strcpy (var[n].name, "gw");
                 var[n].dim = numele;
                 var[n].min = BADVAL;
                 var[n].max = BADVAL;
                 n++;
                 break;
             case RIVSTG_CTRL:
-                strcpy(var[n].name, "stage");
+                strcpy (var[n].name, "stage");
                 var[n].dim = numriv;
                 var[n].min = BADVAL;
                 var[n].max = BADVAL;
                 n++;
                 break;
             case RIVGW_CTRL:
-                strcpy(var[n].name, "rivgw");
+                strcpy (var[n].name, "rivgw");
                 var[n].dim = numriv;
                 var[n].min = BADVAL;
                 var[n].max = BADVAL;
                 n++;
                 break;
             case SNOW_CTRL:
-                strcpy(var[n].name,  "snow");
+                strcpy (var[n].name, "snow");
                 var[n].dim = numele;
                 var[n].min = 0.0;
                 var[n].max = BADVAL;
                 n++;
                 break;
             case CMC_CTRL:
-                strcpy(var[n].name, "is");
+                strcpy (var[n].name, "is");
                 var[n].dim = numele;
                 var[n].min = BADVAL;
                 var[n].max = BADVAL;
@@ -586,7 +594,7 @@ void MapVar (var_struct *var, int numele, int numriv)
                 n++;
                 break;
             case RIVFLX1_CTRL:
-                strcpy(var[n].name,  "rivflx1");
+                strcpy (var[n].name, "rivflx1");
                 var[n].dim = numriv;
                 var[n].min = BADVAL;
                 var[n].max = BADVAL;
@@ -637,7 +645,7 @@ void MapVar (var_struct *var, int numele, int numriv)
                 n++;
                 break;
             case T1_CTRL:
-                strcpy(var[n].name,  "t1");
+                strcpy (var[n].name, "t1");
                 var[n].dim = numele;
                 var[n].min = BADVAL;
                 var[n].max = BADVAL;
@@ -646,7 +654,7 @@ void MapVar (var_struct *var, int numele, int numriv)
             case STC_CTRL:
                 for (k = 0; k < MAXLYR; k++)
                 {
-                    sprintf(var[n].name, "stc%d", k);
+                    sprintf (var[n].name, "stc%d", k);
                     var[n].dim = numele;
                     var[n].min = BADVAL;
                     var[n].max = BADVAL;
@@ -656,7 +664,7 @@ void MapVar (var_struct *var, int numele, int numriv)
             case SMC_CTRL:
                 for (k = 0; k < MAXLYR; k++)
                 {
-                    sprintf(var[n].name,  "smc%d", k);
+                    sprintf (var[n].name, "smc%d", k);
                     var[n].dim = numele;
                     var[n].min = BADVAL;
                     var[n].max = BADVAL;
@@ -666,7 +674,7 @@ void MapVar (var_struct *var, int numele, int numriv)
             case SH2O_CTRL:
                 for (k = 0; k < MAXLYR; k++)
                 {
-                    sprintf(var[n].name, "swc%d", k);
+                    sprintf (var[n].name, "swc%d", k);
                     var[n].dim = numele;
                     var[n].min = BADVAL;
                     var[n].max = BADVAL;
@@ -674,14 +682,14 @@ void MapVar (var_struct *var, int numele, int numriv)
                 }
                 break;
             case SNOWH_CTRL:
-                strcpy(var[n].name, "snowh");
+                strcpy (var[n].name, "snowh");
                 var[n].dim = numele;
                 var[n].min = 0.0;
                 var[n].max = BADVAL;
                 n++;
                 break;
             case ALBEDO_CTRL:
-                strcpy(var[n].name, "albedo");
+                strcpy (var[n].name, "albedo");
                 var[n].dim = numele;
                 var[n].min = 0.0;
                 var[n].max = 1.0;
@@ -755,7 +763,7 @@ void Calib2Mbr (calib_struct cal, double *param)
     param[RIVBEDTHICK] = cal.rivbedthick;
     param[RIVDEPTH] = cal.rivdepth;
     param[RIVSHPCOEFF] = cal.rivshpcoeff;
-#ifdef _NOAH_    
+#ifdef _NOAH_
     param[THETAREF] = cal.thetaref;
     param[THETAW] = cal.thetaw;
     param[RSMIN] = cal.rsmin;
@@ -798,7 +806,7 @@ void Mbr2Cal (calib_struct *cal, const double *param)
     cal->rivbedthick = param[RIVBEDTHICK];
     cal->rivdepth = param[RIVDEPTH];
     cal->rivshpcoeff = param[RIVSHPCOEFF];
-#ifdef _NOAH_    
+#ifdef _NOAH_
     cal->thetaref = param[THETAREF];
     cal->thetaw = param[THETAW];
     cal->rsmin = param[RSMIN];
@@ -816,42 +824,43 @@ void WriteParamOutput (int rawtime, enkf_struct ens, int ind, char *outputdir)
 {
     char            fn[MAXSTRING];
     time_t          timevar;
-    struct tm  *timeinfo;
+    struct tm      *timeinfo;
     FILE           *fid;
     int             i;
 
     timevar = (time_t) rawtime;
-    timeinfo = gmtime(&timevar);
+    timeinfo = gmtime (&timevar);
 
     sprintf (fn, "%s/%s.txt", outputdir, ens->param[ind].name);
     fid = fopen (fn, "w");
 
     fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
-        timeinfo->tm_year+1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
+        timeinfo->tm_year + 1900, timeinfo->tm_mon + 1, timeinfo->tm_mday,
         timeinfo->tm_hour, timeinfo->tm_min);
     for (i = 0; i < ens->ne; i++)
     {
         fprintf (fid, "\t%lf", ens->member[i].param[ind]);
     }
     fprintf (fid, "\n");
-    fflush(fid);
-    fclose(fid); 
+    fflush (fid);
+    fclose (fid);
 }
 
-double Randn()
+double Randn ()
 {
-    double temp1, temp2;
-    double x;
+    double          temp1, temp2;
+    double          x;
 
-    temp1 = (double) (rand() % MAXINT + 1) / MAXINT;
-    temp2 = (double) (rand() % MAXINT + 1) / MAXINT;
+    temp1 = (double)(rand () % MAXINT + 1) / MAXINT;
+    temp2 = (double)(rand () % MAXINT + 1) / MAXINT;
 
     x = sqrt (-2.0 * log (temp1)) * cos (2.0 * PI * temp2);
 
     return (x);
 }
 
-void GenRandNum (int ne, int nparam, double **randnum, double lower, double upper)
+void GenRandNum (int ne, int nparam, double **randnum, double lower,
+    double upper)
 {
     int             i, j, k;
     double          corr[MAXPARAM][MAXPARAM];
@@ -871,7 +880,7 @@ void GenRandNum (int ne, int nparam, double **randnum, double lower, double uppe
         corr_flag = 0;
     }
 
-    srand(time(NULL));
+    srand (time (NULL));
 
     do
     {
@@ -888,17 +897,18 @@ void GenRandNum (int ne, int nparam, double **randnum, double lower, double uppe
 
                 for (i = 0; i < ne; i++)
                 {
-                    randnum[j][i] = Randn();
+                    randnum[j][i] = Randn ();
                     mean[j] += randnum[j][i];
                 }
 
-                mean[j] /= (double) ne;
+                mean[j] /= (double)ne;
 
                 for (i = 0; i < ne; i++)
                 {
-                    std += (randnum[j][i] - mean[j]) * (randnum[j][i] - mean[j]);
+                    std +=
+                        (randnum[j][i] - mean[j]) * (randnum[j][i] - mean[j]);
                 }
-                std = sqrt (std / ((double) ne - 1.0));
+                std = sqrt (std / ((double)ne - 1.0));
 
                 std_flag = 0;
 
@@ -914,7 +924,7 @@ void GenRandNum (int ne, int nparam, double **randnum, double lower, double uppe
                 }
             }
         }
-        
+
         for (i = 0; i < nparam; i++)
         {
             for (j = 0; j < nparam; j++)
@@ -925,14 +935,18 @@ void GenRandNum (int ne, int nparam, double **randnum, double lower, double uppe
 
                 for (k = 0; k < ne; k++)
                 {
-                    corr[i][j] = (randnum[i][k] - mean[i]) * (randnum[j][k] - mean[j]) + corr[i][j];
-                    s1 = s1 + (randnum[i][k] - mean[i]) * (randnum[i][k] - mean[i]);
-                    s2 = s2 + (randnum[j][k] - mean[j]) * (randnum[j][k] - mean[j]);
+                    corr[i][j] =
+                        (randnum[i][k] - mean[i]) * (randnum[j][k] -
+                        mean[j]) + corr[i][j];
+                    s1 = s1 + (randnum[i][k] - mean[i]) * (randnum[i][k] -
+                        mean[i]);
+                    s2 = s2 + (randnum[j][k] - mean[j]) * (randnum[j][k] -
+                        mean[j]);
                 }
 
                 corr[i][j] = corr[i][j] / sqrt (s1 * s2);
 
-                if (fabs(corr[i][j]) > max && i != j)
+                if (fabs (corr[i][j]) > max && i != j)
                 {
                     max = corr[i][j];
                 }
@@ -961,7 +975,8 @@ void WriteCalFile (enkf_struct ens, char *project)
         {
             if (ens->param[j].name[0] != '\0')
             {
-                fprintf (fid, "%-16s%-6lf\n", ens->param[j].name, ens->member[i].param[j]);
+                fprintf (fid, "%-16s%-6lf\n", ens->param[j].name,
+                    ens->member[i].param[j]);
             }
         }
 

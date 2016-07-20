@@ -1,3 +1,4 @@
+
 /* 
  * decomp.c
  * daily decomposition fluxes
@@ -13,19 +14,23 @@
 
 #include "pihm.h"
 
-void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv, cstate_struct *cs, cflux_struct *cf, nstate_struct *ns, nflux_struct *nf, ntemp_struct *nt)
+void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
+    cstate_struct *cs, cflux_struct *cf, nstate_struct *ns, nflux_struct *nf,
+    ntemp_struct *nt)
 {
     double          rate_scalar, t_scalar, w_scalar;
     double          tk;
     double          minpsi, maxpsi;
     double          rfl1s1, rfl2s2, rfl4s3, rfs1s2, rfs2s3, rfs3s4;
-    double          kl1_base, kl2_base, kl4_base, ks1_base, ks2_base, ks3_base, ks4_base, kfrag_base;
+    double          kl1_base, kl2_base, kl4_base, ks1_base, ks2_base,
+        ks3_base, ks4_base, kfrag_base;
     double          kl1, kl2, kl4, ks1, ks2, ks3, ks4, kfrag;
     double          cn_l1, cn_l2, cn_l4, cn_s1, cn_s2, cn_s3, cn_s4;
     double          cwdc_loss;
     double          plitr1c_loss, plitr2c_loss, plitr4c_loss;
     double          psoil1c_loss, psoil2c_loss, psoil3c_loss, psoil4c_loss;
-    double          pmnf_l1s1, pmnf_l2s2, pmnf_l4s3, pmnf_s1s2, pmnf_s2s3, pmnf_s3s4, pmnf_s4;
+    double          pmnf_l1s1, pmnf_l2s2, pmnf_l4s3, pmnf_s1s2, pmnf_s2s3,
+        pmnf_s3s4, pmnf_s4;
     double          potential_immob, mineralized;
     int             nlimit;
     double          ratio;

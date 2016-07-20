@@ -82,7 +82,9 @@ typedef struct river_daily_struct
 
     double          avg_rivflow[NUM_RIVFLX];
 } river_daily_struct;
+#endif
 
+#ifdef _BGC_
 typedef struct river_nstate_struct
 {
     double          sminn;
@@ -122,7 +124,6 @@ typedef struct river_struct
     river_stor_struct stor;     /* meteorological data array */
     river_nstate_struct ns;
     river_nflux_struct nf;
-    //double          nleached_snk;
 #endif
 } river_struct;
 #endif

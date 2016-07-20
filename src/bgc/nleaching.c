@@ -1,3 +1,4 @@
+
 /* 
  * nleaching.c
  * daily nitrogen leaching to groundwater
@@ -35,7 +36,9 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
 
     for (i = 0; i < numele; i++)
     {
-        totwater = (elem[i].daily.avg_surf + elem[i].daily.avg_unsat * elem[i].soil.porosity +
+        totwater =
+            (elem[i].daily.avg_surf +
+            elem[i].daily.avg_unsat * elem[i].soil.porosity +
             elem[i].daily.avg_gw * elem[i].soil.porosity) * 1000.0;
         nconc[i] = elem[i].ns.sminn / totwater;
     }
@@ -77,11 +80,13 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
 
             if (latflux > 0.0)
             {
-                elem[i].nf.sminn_leached += MOBILEN_PROPORTION * nconc[i] * latflux;
+                elem[i].nf.sminn_leached +=
+                    MOBILEN_PROPORTION * nconc[i] * latflux;
             }
             else
             {
-                elem[i].nf.sminn_leached += MOBILEN_PROPORTION * nabr_nconc[j] * latflux;
+                elem[i].nf.sminn_leached +=
+                    MOBILEN_PROPORTION * nabr_nconc[j] * latflux;
             }
         }
 
@@ -178,7 +183,8 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
         {
             nabr_nconc[RIGHT] = 0.0;
         }
-        nabr_nconc[RIGHT] = (nabr_nconc[RIGHT] > 0.0) ? nabr_nconc[RIGHT] : 0.0;
+        nabr_nconc[RIGHT] =
+            (nabr_nconc[RIGHT] > 0.0) ? nabr_nconc[RIGHT] : 0.0;
 
         latflux = (riv[i].daily.avg_rivflow[RIGHT_SURF2CHANL] +
             riv[i].daily.avg_rivflow[RIGHT_AQUIF2CHANL] +

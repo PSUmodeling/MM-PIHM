@@ -5,12 +5,12 @@
 #define PI                  3.14159265
 #define DAYINSEC            86400
 #define GRAV                9.80665
-#define CP                  1004.0  /* Specific heat capacity of air (J/kg/K) */
-#define LVH2O               2.501e6 /* Latent heat of vaporization (J/kg) */
-#define SIGMA               5.67e-8 /* Stefan-Boltzmann constant (W/m2/K4) */
-#define RD                  287.04  /* Gas constant for dry air (J/kg/K) */
-#define RV                  461.5   /* Gas constant for water vapor (J/kg/K) */
-#define CPH2O	            4.218e3 /* Specific heat capacity of water (J/kg/K) */
+#define CP                  1004.0      /* Specific heat capacity of air (J/kg/K) */
+#define LVH2O               2.501e6     /* Latent heat of vaporization (J/kg) */
+#define SIGMA               5.67e-8     /* Stefan-Boltzmann constant (W/m2/K4) */
+#define RD                  287.04      /* Gas constant for dry air (J/kg/K) */
+#define RV                  461.5       /* Gas constant for water vapor (J/kg/K) */
+#define CPH2O	            4.218e3     /* Specific heat capacity of water (J/kg/K) */
 #define CPICE	            2.106e3
 #define LSUBF	            3.335e5
 #define EMISSI_S            0.95
@@ -136,7 +136,6 @@
 #define SUBFLX_CTRL         23
 #define SURFFLX_CTRL        24
 
-#ifdef _NOAH_
 #define T1_CTRL             25
 #define STC_CTRL            26
 #define SMC_CTRL            27
@@ -151,9 +150,7 @@
 #define ROOTW_CTRL          36
 #define SOILM_CTRL          37
 #define SOLAR_CTRL          38
-#endif
 
-#ifdef _CYCLES_
 #define BIOMASS_CTRL        39
 #define RADNINTCP_CTRL      40
 #define WATER_STS_CTRL      41
@@ -165,10 +162,9 @@
 #define NO3_RIVER_CTRL      47
 #define NH4_PROF_CTRL       48
 #define NH4_RIVER_CTRL      49
-#endif
 
-#ifdef _BGC_
 #define LAI_CTRL            50
+
 #define VEGC_CTRL           51
 #define LITRC_CTRL          52
 #define SOILC_CTRL          53
@@ -178,7 +174,6 @@
 #define NEE_CTRL            57
 #define GPP_CTRL            58
 #define SMINN_CTRL          59
-#endif
 
 extern int      verbose_mode;
 extern int      debug_mode;
@@ -198,11 +193,11 @@ enum rad_forcing_type
 #define RETURN_CLIPPING     1
 #define GRAZING_CLIPPING    2
 
-#define STAN_RESIDUE_SA     4.0     /* Standing residue area to mass ratio
+#define STAN_RESIDUE_SA     4.0 /* Standing residue area to mass ratio
                                  * (m2/kg) */
-#define FLAT_RESIDUE_SA     4.0     /* Flat residue area to mass ratio (m2/kg) */
-#define STAN_RESIDUE_K      0.25    /* Standing residue extinction coefficient */
-#define FLAT_RESIDUE_K      1.0     /* flat residue extinction */
+#define FLAT_RESIDUE_SA     4.0 /* Flat residue area to mass ratio (m2/kg) */
+#define STAN_RESIDUE_K      0.25        /* Standing residue extinction coefficient */
+#define FLAT_RESIDUE_K      1.0 /* flat residue extinction */
 
 #define MAXIMUM_UNDISTURBED_SOC_DECOMPOSITION_RATE  0.00015     /* (1 + 0.056) ^ (1 / 365) - 1  ' 1/day (1/5 for Urbana) */
 #define MAXIMUM_RESIDUE_DECOMPOSITION_RATE          0.05        /* 1/day */
@@ -232,26 +227,12 @@ enum rad_forcing_type
 
 enum stage
 { NO_CROP, PRE_EMERGENCE, VEGETATIVE_GROWTH, PERENNIAL, REPRODUCTIVE_GROWTH,
-        MATURITY, CLIPPING, PLANTING };
+    MATURITY, CLIPPING, PLANTING
+};
 
 #endif
 
 #ifdef _BGC_
-/* Atmospheric constants */
-
-/* From the definition of the standard atmosphere, as established by the
- * International Civil Aviation Organization, and referenced in: 
- * Iribane, J.V., and W.L. Godson, 1981. Atmospheric Thermodynamics. 2nd 
- * Edition. D. Reidel Publishing Company, Dordrecht, The Netherlands.
- * (pp 10,167-168,245)
- */
-#define G_STD    9.80665        /* (m/s2) standard gravitational accel. */
-#define P_STD    101325.0       /* (Pa) standard pressure at 0 m elevation */
-#define T_STD    288.15         /* (K) standard temp at 0.0 m elevation  */
-#define MA       28.9644e-3     /* (kg/mol) molecular weight of air */
-#define MW       18.0148e-3     /* (kg/mol) molecular weight of water */
-#define LR_STD   0.0065         /* (-K/m) standard temperature lapse rate */
-#define SBC      5.67e-8        /* (W/(m2 K4)) Stefan-Boltzmann constant */
 
 /* Ecosystem constants */
 #define RAD2PAR     0.45        /* (DIM) ratio PAR / SWtotal  */
@@ -297,7 +278,7 @@ enum stage
 /* This constant determines the lower limit of state variables before they are
  * set to 0.0 to control rounding and overflow errors */
 #define CRIT_PREC 1e-20
-
+//
 #define FLT_COND_TOL 1e-10      /* This constant is used in if conditions
                                  * where floating point values are compared  */
 
@@ -305,10 +286,6 @@ enum stage
 
 /* maximum allowable trend in slow soil carbon at steady-state (kgC/m2/yr) */
 #define SPINUP_TOLERANCE 0.0005
-#define MODE_INI 0
-#define MODE_SPINUP 1
-#define MODE_MODEL 2
-#define MODE_SPINNGO 3
 
 /* allocation parameters */
 #define DAYSNDEPLOY 365.0

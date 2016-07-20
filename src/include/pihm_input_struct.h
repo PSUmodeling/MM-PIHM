@@ -29,7 +29,7 @@ typedef struct filename_struct
     char            bgc[MAXSTRING];
     char            co2[MAXSTRING];
     char            ndep[MAXSTRING];
-    char            bgcinit[MAXSTRING];
+    char            bgcic[MAXSTRING];
 #endif
 } filename_struct;
 
@@ -203,14 +203,8 @@ typedef struct forc_struct
     int             nlai;
     tsdata_struct  *lai;
 
-    int             nz0;
-    tsdata_struct  *z0;
-
     int             nsource;
     tsdata_struct  *source;
-
-    int             nmeltf;
-    tsdata_struct  *meltf;
 
     int             nriverbc;
     tsdata_struct  *riverbc;

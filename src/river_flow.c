@@ -76,7 +76,8 @@ void RiverFlow (pihm_struct pihm)
                 OverlandFlow (avg_y, grad_y, avg_sf, crossa, avg_rough);
             /* Accumulate to get in-flow for down segments:
              * [0] for inflow, [1] for outflow */
-            down->wf.rivflow[UP_CHANL2CHANL] -= riv->wf.rivflow[DOWN_CHANL2CHANL];
+            down->wf.rivflow[UP_CHANL2CHANL] -=
+                riv->wf.rivflow[DOWN_CHANL2CHANL];
 
             /* Lateral flux calculation between element beneath river (ebr)
              * and ebr */
@@ -113,10 +114,12 @@ void RiverFlow (pihm_struct pihm)
             avg_ksat = 2.0 / (1.0 / effk + 1.0 / effk_nabr);
 #endif
             /* Groundwater flow modeled by Darcy's law */
-            riv->wf.rivflow[DOWN_AQUIF2AQUIF] = avg_ksat * grad_y_sub * avg_y_sub * avg_wid;
+            riv->wf.rivflow[DOWN_AQUIF2AQUIF] =
+                avg_ksat * grad_y_sub * avg_y_sub * avg_wid;
             /* Accumulate to get in-flow for down segments:
              * [10] for inflow, [9] for outflow */
-            down->wf.rivflow[UP_AQUIF2AQUIF] -= riv->wf.rivflow[DOWN_AQUIF2AQUIF];
+            down->wf.rivflow[UP_AQUIF2AQUIF] -=
+                riv->wf.rivflow[DOWN_AQUIF2AQUIF];
         }
         else
         {
@@ -125,8 +128,7 @@ void RiverFlow (pihm_struct pihm)
                 case -1:
                     /* Dirichlet boundary condition */
                     total_y_down =
-                        riv->bc.head + (riv->topo.node_zmax -
-                        riv->shp.depth);
+                        riv->bc.head + (riv->topo.node_zmax - riv->shp.depth);
                     distance = 0.5 * riv->shp.length;
                     grad_y = (total_y - total_y_down) / distance;
                     avg_sf = grad_y;
@@ -167,10 +169,12 @@ void RiverFlow (pihm_struct pihm)
                     crossa =
                         RivArea (riv->shp.intrpl_ord, riv->ws.stage,
                         riv->shp.coeff);
-                    riv->wf.rivflow[DOWN_CHANL2CHANL] = crossa * sqrt (GRAV * riv->ws.stage);
+                    riv->wf.rivflow[DOWN_CHANL2CHANL] =
+                        crossa * sqrt (GRAV * riv->ws.stage);
                     break;
                 default:
-                    fprintf (stderr, "Error: River routing boundary condition type (%d) is not recognized.\n",
+                    fprintf (stderr,
+                        "Error: River routing boundary condition type (%d) is not recognized.\n",
                         riv->down);
                     PIHMError (1);
             }
@@ -184,14 +188,18 @@ void RiverFlow (pihm_struct pihm)
 
         if (riv->leftele > 0)
         {
-            RiverToEle (riv, left, right, i + 1, &riv->wf.rivflow[LEFT_SURF2CHANL],
-                &riv->wf.rivflow[LEFT_AQUIF2CHANL], &riv->wf.rivflow[LEFT_AQUIF2AQUIF], dt);
+            RiverToEle (riv, left, right, i + 1,
+                &riv->wf.rivflow[LEFT_SURF2CHANL],
+                &riv->wf.rivflow[LEFT_AQUIF2CHANL],
+                &riv->wf.rivflow[LEFT_AQUIF2AQUIF], dt);
         }
 
         if (riv->rightele > 0)
         {
-            RiverToEle (riv, right, left, i + 1, &riv->wf.rivflow[RIGHT_SURF2CHANL],
-                &riv->wf.rivflow[RIGHT_AQUIF2CHANL], &riv->wf.rivflow[RIGHT_AQUIF2AQUIF], dt);
+            RiverToEle (riv, right, left, i + 1,
+                &riv->wf.rivflow[RIGHT_SURF2CHANL],
+                &riv->wf.rivflow[RIGHT_AQUIF2CHANL],
+                &riv->wf.rivflow[RIGHT_AQUIF2AQUIF], dt);
         }
 
         avg_wid = EqWid (riv->shp.intrpl_ord, riv->ws.stage, riv->shp.coeff);
@@ -343,7 +351,8 @@ double EqWid (int riv_order, double riv_depth, double riv_coeff)
                 1.0 / (riv_order - 1));
             break;
         default:
-            fprintf (stderr, "Error: River order %d is not defined.\n", riv_order);
+            fprintf (stderr, "Error: River order %d is not defined.\n",
+                riv_order);
             PIHMError (1);
     }
     return (eq_wid);
@@ -440,7 +449,8 @@ double RivArea (int riv_order, double riv_depth, double riv_coeff)
                     1.0 / 3.0));
             break;
         default:
-            fprintf (stderr, "Error: River order %d is not defined!\n", riv_order);
+            fprintf (stderr, "Error: River order %d is not defined!\n",
+                riv_order);
             PIHMError (1);
     }
 
@@ -482,7 +492,8 @@ double RivPerim (int riv_order, double riv_depth, double riv_coeff)
                             0.5)) / (9.0 * pow (riv_coeff, 1.0 / 3.0))));
             break;
         default:
-            fprintf (stderr, "Error: River order %d is not defined!\n", riv_order);
+            fprintf (stderr, "Error: River order %d is not defined!\n",
+                riv_order);
             PIHMError (1);
     }
     return (riv_perim);
