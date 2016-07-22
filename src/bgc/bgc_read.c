@@ -249,8 +249,8 @@ void ReadEPC (epctbl_struct *epctbl)
     epctbl->phenology_flag = (int *)malloc (NLCTYPE * sizeof (int));
     epctbl->onday = (int *)malloc (NLCTYPE * sizeof (int));
     epctbl->offday = (int *)malloc (NLCTYPE * sizeof (int));
-    epctbl->transfer_days = (double *)malloc (NLCTYPE * sizeof (double));
-    epctbl->litfall_days = (double *)malloc (NLCTYPE * sizeof (double));
+    epctbl->transfer_days = (int *)malloc (NLCTYPE * sizeof (int));
+    epctbl->litfall_days = (int *)malloc (NLCTYPE * sizeof (int));
     epctbl->leaf_turnover = (double *)malloc (NLCTYPE * sizeof (double));
     epctbl->froot_turnover = (double *)malloc (NLCTYPE * sizeof (double));
     epctbl->livewood_turnover = (double *)malloc (NLCTYPE * sizeof (double));
@@ -361,10 +361,10 @@ void ReadEPC (epctbl_struct *epctbl)
             sscanf (cmdstr, "%d", &epctbl->c3_flag[i]);
             /* transfer days */
             fgets (cmdstr, MAXSTRING, epc_file);
-            sscanf (cmdstr, "%lf", &epctbl->transfer_days[i]);
+            sscanf (cmdstr, "%d", &epctbl->transfer_days[i]);
             /* litter fall days */
             fgets (cmdstr, MAXSTRING, epc_file);
-            sscanf (cmdstr, "%lf", &epctbl->litfall_days[i]);
+            sscanf (cmdstr, "%d", &epctbl->litfall_days[i]);
             /* leaf turnover */
             fgets (cmdstr, MAXSTRING, epc_file);
             sscanf (cmdstr, "%lf", &epctbl->leaf_turnover[i]);

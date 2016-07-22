@@ -201,11 +201,11 @@ void InitSoil (elem_struct *elem, int numele, soiltbl_struct soiltbl,
          * Dudhia 2001 MWR, but replacing Campbell with van Genuchten */
         elem[i].soil.smcwlt = cal.porosity * soiltbl.smcwlt[soil_ind];
 #ifdef _NOAH_
-        elem[i].soil.smcwlt *= cal.thetaw;
+        elem[i].soil.smcwlt *= cal.smcwlt;
 #endif
         elem[i].soil.smcref = cal.porosity * soiltbl.smcref[soil_ind];
 #ifdef _NOAH_
-        elem[i].soil.smcref *= cal.thetaref;
+        elem[i].soil.smcref *= cal.smcref;
 #endif
 
         elem[i].soil.dmac = cal.dmac * soiltbl.dmac[soil_ind];
@@ -334,7 +334,7 @@ void InitLC (elem_struct *elem, int numele, lctbl_struct lctbl,
 
 #ifdef _NOAH_
         elem[i].epc.rsmin *= cal.rsmin;
-        elem[i].lc.cmcfactr *= cal.intcp;
+        elem[i].lc.cmcfactr *= cal.cmcmax;
         elem[i].lc.cfactr *= cal.cfactr;
         elem[i].epc.rgl *= cal.rgl;
         elem[i].epc.hs *= cal.hs;
@@ -690,7 +690,7 @@ void SaturationIC (elem_struct *elem, int numele, river_struct *riv,
 
     for (i = 0; i < numele; i++)
     {
-        elem[i].ic.intcp = 0.0;
+        elem[i].ic.cmc = 0.0;
         elem[i].ic.sneqv = 0.0;
         elem[i].ic.surf = 0.0;
         elem[i].ic.unsat = 0.1;
@@ -755,7 +755,7 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
     /* State variables (initial conditions) */
     for (i = 0; i < numele; i++)
     {
-        elem[i].ws.cmc = elem[i].ic.intcp;
+        elem[i].ws.cmc = elem[i].ic.cmc;
         elem[i].ws.sneqv = elem[i].ic.sneqv;
 
         elem[i].ws.surf = elem[i].ic.surf;
@@ -818,7 +818,6 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
         elem[i].ps.rct = BADVAL;
         elem[i].ps.rcsoil = BADVAL;
         elem[i].ps.q1 = BADVAL;
-        elem[i].ps.cosz = BADVAL;
         elem[i].ps.z0brd = BADVAL;
         elem[i].ps.eta_kinematic = BADVAL;
 
@@ -833,10 +832,8 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
         elem[i].ef.flx1 = BADVAL;
         elem[i].ef.flx2 = BADVAL;
         elem[i].ef.flx3 = BADVAL;
-        elem[i].ef.solardirect = BADVAL;
         elem[i].ef.esnow = BADVAL;
 
-        elem[i].wf.runoff1 = BADVAL;
         elem[i].wf.runoff2 = BADVAL;
         elem[i].wf.runoff3 = BADVAL;
         elem[i].wf.pcpdrp = 0.0;
@@ -908,7 +905,6 @@ void InitWFlux (wflux_struct *wf)
     {
         wf->et[k] = 0.0;
     }
-    wf->runoff1 = 0.0;
     wf->runoff2 = 0.0;
     for (k = 0; k < MAXLYR; k++)
     {
@@ -955,7 +951,6 @@ void InitEFlux (eflux_struct *ef)
 
     ef->solnet = 0.0;
     ef->etp = 0.0;
-    ef->epsca = 0.0;
     ef->ssoil = 0.0;
     ef->eta = 0.0;
     ef->sheat = 0.0;
@@ -969,13 +964,12 @@ void InitEFlux (eflux_struct *ef)
     }
     ef->ett = 0.0;
     ef->esnow = 0.0;
-    ef->sdir = 0.0;
-    ef->sdif = 0.0;
+    ef->soldir = 0.0;
+    ef->soldif = 0.0;
     ef->longwave = 0.0;
     ef->flx1 = 0.0;
     ef->flx2 = 0.0;
     ef->flx3 = 0.0;
-    ef->solardirect = 0.0;
 #endif
 #ifdef _BGC_
     ef->swabs = 0.0;

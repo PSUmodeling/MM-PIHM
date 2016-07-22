@@ -24,19 +24,17 @@
                                  * SQR functions  */
 #include "cvode_dense.h"        /* CVDENSE header file */
 
-#ifdef _NOAH_
-#include "spa.h"
-#endif
-
 #include "pihm_const.h"
 #include "pihm_input_struct.h"
 #include "elem_struct.h"
 #include "river_struct.h"
 #include "pihm_struct.h"
+#include "pihm_func.h"
 #ifdef _ENKF_
 #include "mpi.h"
 #include "enkf.h"
 #endif
-#include "pihm_func.h"
-
+#ifdef _NOAH_
+#include "spa.h"
+#endif
 #endif

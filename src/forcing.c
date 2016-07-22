@@ -109,8 +109,8 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t)
 #ifdef _NOAH_
         if (forc->nrad > 0)
         {
-            elem[i].ef.sdir = forc->rad[ind].value[SOLAR_DIR_TS];
-            elem[i].ef.sdif = forc->rad[ind].value[SOLAR_DIF_TS];
+            elem[i].ef.soldir = forc->rad[ind].value[SOLDIR_TS];
+            elem[i].ef.soldif = forc->rad[ind].value[SOLDIF_TS];
         }
 #endif
     }

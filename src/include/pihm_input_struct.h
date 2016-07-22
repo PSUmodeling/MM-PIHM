@@ -1,6 +1,30 @@
 #ifndef PIHM_INPUT_STRUCT_HEADER
 #define PIHM_INPUT_STRUCT_HEADER
 
+/*****************************************************************************
+ * Input file names
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * riv                      char[]      river input file name
+ * mesh                     char[]      mesh structure file name
+ * att                      char[]      element attribute file name
+ * soil                     char[]      soil property file name
+ * geol                     char[]      geology property file name
+ * lc                       char[]      land cover property file name
+ * meteo                    char[]      meteorological forcing file name
+ * lai                      char[]      lai forcing file name
+ * bc                       char[]      boundary condition file name
+ * para                     char[]      control parameter file name
+ * calib                    char[]      calibration file name
+ * ic                       char[]      initial condition file name
+ * lsm                      char[]      land surface module control file name
+ * rad                      char[]      radiation forcing file name
+ * bgc                      char[]      bgc module control file name
+ * co2                      char[]      co2 forcing file name
+ * ndep                     char[]      nitrogen deposition forcing file name
+ * bgcic                    char[]      bgc module initial condition file name
+ ****************************************************************************/
 typedef struct filename_struct
 {
     char            riv[MAXSTRING];
@@ -33,43 +57,94 @@ typedef struct filename_struct
 #endif
 } filename_struct;
 
+/*****************************************************************************
+ * River input structure
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * number                   int*        number of river segments
+ * fromnode                 int*        upstream node id
+ * tonode                   int*        downstream node id
+ * down                     int*        downstream channel id
+ * leftele                  int*        left bank id
+ * rightele                 int*        right bank id
+ * shp                      int*        river shape type
+ * matl                     int*        material type
+ * bc                       int*        boundary condition type
+ * rsvr                     int*        reservoir type
+ ****************************************************************************/
 typedef struct rivtbl_struct
 {
     int             number;
-    int            *fromnode;   /* Upstream Node no. */
-    int            *tonode;     /* Dnstream Node no. */
-    int            *down;       /* down stream segment */
-    int            *leftele;    /* Left neighboring element */
-    int            *rightele;   /* Right neighboring element */
-    int            *shp;        /* shape type    */
-    int            *matl;       /* material type */
-    int            *bc;         /* BC type */
+    int            *fromnode;
+    int            *tonode;
+    int            *down;
+    int            *leftele;
+    int            *rightele;
+    int            *shp;
+    int            *matl;
+    int            *bc;
     int            *rsvr;
 } rivtbl_struct;
 
+/*****************************************************************************
+ * River shape parameters
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * number                   int         number of shape types
+ * depth                    double*     river channel depth
+ * intrpl_ord               int*        interpolation order (shape of channel)
+ *                                        1: rectangle
+ *                                        2: triangle
+ *                                        3: quadratic
+ *                                        4: cubic
+ * coeff                    double*     width coefficient
+ ****************************************************************************/
 typedef struct shptbl_struct
 {
     int             number;
-    double         *depth;      /* depth */
-    int            *intrpl_ord; /* Interpolation order for river shape:
-                                 * 1: rectangle,
-                                 * 2: triangle,
-                                 * 3: quadratic,
-                                 * 4: cubic */
-    double         *coeff;      /* Coefficient c in
-                                 * D = c * pow(B / 2, interpOrd) */
+    double         *depth;
+    int            *intrpl_ord;
+    double         *coeff;
 } shptbl_struct;
 
+/*****************************************************************************
+ * River channel matierial parameters
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * number                   int         number of bank/bed material types
+ * rough                    double*     river channel roughness [s m-1/3]
+ * cwr                      double*     discharge coefficient [-]
+ * ksath                    double*     bank hydraulic conductivity [m s-1]
+ * ksatv                    double*     bed hydraulic conductivity [m s-1]
+ * bedthick                 double*     bed thickness [m]
+ ****************************************************************************/
 typedef struct matltbl_struct
 {
-    int             number;     /* Number of River Bank/Bed Material */
+    int             number;
     double         *rough;
-    double         *cwr;        /* Weir Discharge Coefficient */
-    double         *ksath;      /* Conductivity of river banks */
-    double         *ksatv;      /* Conductivity of river bed */
-    double         *bedthick;   /* thickeness of conductive river bed */
+    double         *cwr;
+    double         *ksath;
+    double         *ksatv;
+    double         *bedthick;
 } matltbl_struct;
 
+/*****************************************************************************
+ * Mesh structure
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * numele                   int         number of triangular elements
+ * numnode                  int         number of nodes
+ * node                     int**       nodes of element
+ * nabr                     int**       neighbors of element
+ * x                        double*     x of node [m]
+ * y                        double*     y of node [m]
+ * zmin                     double*     bedrock elevation of node [m]
+ * zmax                     double*     surface elevation of node [m]
+ ****************************************************************************/
 typedef struct meshtbl_struct
 {
     int             numele;
@@ -82,46 +157,96 @@ typedef struct meshtbl_struct
     double         *zmax;
 } meshtbl_struct;
 
+/*****************************************************************************
+ * Element attribute
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * soil                     int*        element soil type
+ * geol                     int*        element geology type
+ * lc                       int*        element land cover type
+ * bc                       int**       element boudnary condition type
+ * meteo                    int*        element meteorological forcing type
+ * lai_type                 int*        element leaf area index forcing type
+ *                                        0: use climatological values;
+ *                                        else: use forcing file
+ * source                   int*        element source forcing type
+ ****************************************************************************/
 typedef struct atttbl_struct
 {
-    int            *soil;       /* soil type */
+    int            *soil;
     int            *geol;
-    int            *lc;         /* Land Cover type  */
-    int           **bc;         /* Boundary condition type.
-                                 * 0: Natural BC (no flow);
-                                 * 1: Dirichlet BC;
-                                 * 2:Neumann BC */
-    int            *meteo;      /* precipitation (forcing) type */
-    int            *lai;        /* LAI forcing type (0: use climatological
-                                 * values; else: use user provided time
-                                 *                                  * series */
-    int            *source;     /* source (well) type */
+    int            *lc;
+    int           **bc;
+    int            *meteo;
+    int            *lai;
+    int            *source;
 } atttbl_struct;
 
+/*****************************************************************************
+ * Soil parameter
+ * ---------------------------------------------------------------------------
+ *
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * number                   int         number of soil types
+ * silt                     double*     silt percentage [%]
+ * clay                     double*     clay percentage [%]
+ * om                       double*     organic matter percentage [%]
+ * bd                       double*     bulk density [g cm-3]
+ * kinfv                    double*     saturated infiltration conductivity
+ *                                        [m s-1]
+ * ksatv                    double*     vertical saturated hydraulic
+ *                                        conductivity [m s-1]
+ * ksath                    double*     horizontal saturated hydraulic
+ *                                        conductivity [m s-1]
+ * smcmax                   double*     maximum soil moisture content [m3 m-3]
+ * smcmin                   double*     residual soil moisture content
+ *                                        [m3 m-3]
+ * smcwlt                   double*     wilting point [m3 m-3]
+ * smcref                   double*     soil moisture threshold where
+ *                                        transpiration begins to stress
+ *                                        [m3 m-3]
+ * qtz                      double*     soil quartz content [-]
+ * alpha                    double*     alpha from van Genuchten eqn [m-1]
+ * beta                     double*     beta (n) from van Genuchten eqn [-]
+ * areafh                   double*     macropore area fraction on a
+ *                                        horizontal cross-section [m2 m-2]
+ * areafv                   double*     macropore area fraction on a vertical
+ *                                        cross-section [m2 m-2]
+ * dmac                     double*     macropore depth [m]
+ * dinf                     double      depth from ground surface accross which
+ *                                        head gradient is calculated for
+ *                                        infiltration [m]
+ * kmacv_ro                 double      ratio between vertical macropore
+ *                                        hydarulic conductivity and vertical
+ *                                        saturated infiltration hydarulic
+ *                                        conductivity [-]
+ * kmach_ro                 double      ratio between horizontal macropore
+ *                                        hydarulic conductivity and
+ *                                        horizontal saturated hydarulic
+ *                                        conductivity [-]
+ ****************************************************************************/
 typedef struct soiltbl_struct
 {
-    int             number;     /* index */
+    int             number;
     double         *silt;
     double         *clay;
     double         *om;
     double         *bd;
     double         *kinfv;
-    double         *ksatv;      /* vertical saturated soil
-                                 * conductivity */
+    double         *ksatv;
     double         *ksath;
-    double         *smcmax;     /* soil porosity */
-    double         *smcmin;     /* soil moisture residual */
-    double         *qtz;        /* ys: quartz content */
-    double         *alpha;      /* soil curve parameter 1 */
-    double         *beta;       /* soil curve parameter 2 */
-
-    double         *areafh;     /* macroporous area fraction on
-                                 * horizontal section */
+    double         *smcmax;
+    double         *smcmin;
+    double         *smcwlt;
+    double         *smcref;
+    double         *qtz;
+    double         *alpha;
+    double         *beta;
+    double         *areafh;
     double         *areafv;
     double         *dmac;
-    double         *smcref;
-    double         *smcwlt;
-
     double          dinf;
     double          kmacv_ro;
     double          kmach_ro;
@@ -136,84 +261,174 @@ typedef struct soiltbl_struct
 #endif
 } soiltbl_struct;
 
+/*****************************************************************************
+ * Geology parameter
+ * ---------------------------------------------------------------------------
+ *
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * number                   int         number of soil types
+ * silt                     double*     silt percentage [%]
+ * clay                     double*     clay percentage [%]
+ * om                       double*     organic matter percentage [%]
+ * bd                       double*     bulk density [g cm-3]
+ * ksath                    double*     horizontal saturated hydraulic
+ *                                        conductivity [m s-1]
+ * ksatv                    double*     vertical saturated hydraulic
+ *                                        conductivity [m s-1]
+ * smcmax                   double*     maximum soil moisture content [m3 m-3]
+ * smcmin                   double*     residual soil moisture content
+ *                                        [m3 m-3]
+ * alpha                    double*     alpha from van Genuchten eqn [m-1]
+ * beta                     double*     beta (n) from van Genuchten eqn [-]
+ ****************************************************************************/
 typedef struct geoltbl_struct
 {
-    int             number;     /* index */
+    int             number;
     double         *silt;
     double         *clay;
     double         *om;
     double         *bd;
-    double         *ksath;      /* horizontal saturated geology
-                                 * conductivity */
-    double         *ksatv;      /* vertical saturated geology
-                                 * conductivity */
-    double         *smcmax;     /* geology porosity */
-    double         *smcmin;     /* residual porosity */
-    double         *alpha;      /* van genuchten parameter */
-    double         *beta;       /* van genuchten parameter */
+    double         *ksath;
+    double         *ksatv;
+    double         *smcmax;
+    double         *smcmin;
+    double         *alpha;
+    double         *beta;
 } geoltbl_struct;
 
+/*****************************************************************************
+ * Land cover parameters
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * number                   int         number of land cover types
+ * laimax                   double      maximum LAI across all seasons for a
+ *                                        vegetation type [m2 m-2]
+ * laimin                   double      minimum LAI across all seasons for a
+ *                                        vegetation type [m2 m-2]
+ * vegfrac                  double      areal fractional coverage of green
+ *                                        vegetation (0.0-1.0) [-]
+ * albedomin                double      minimum background albedo [-]
+ * albedomax                double      maximum background albedo [-]
+ * emissmin                 double      minimum emissivity [-]
+ * emissmax                 double      maximum emissivity [-]
+ * z0min                    double      minimum roughness length [m]
+ * z0max                    double      maximum roughness length [m]
+ * hs                       double      parameter used in vapor pressure
+ *                                        deficit function [-]
+ * snup                     double      threshold snow depth (in water
+ *                                        equivalent) that implies 100% snow
+ *                                        cover [m]
+ * rgl                      double      reference incoming solar flux for
+ *                                        photosynthetically active canopy
+ *                                        [W m-2]
+ * rsmin                    double      minimum canopy resistance [s m-1]
+ * rough                    double      surface roughness (Manning's n)
+ *                                        [s m-1/3]
+ * rzd                      double      rooting depth [m]
+ * rsmax                    double      cuticular resistance [s m-1]
+ * bare                     int         the land-use category representing
+ *                                        bare ground
+ * natural                  int         the land-use category representing
+ *                                        non-urban portion of urban land-use
+ *                                        points
+ * cfactr                   double      parameter used in the canopy
+ *                                        inteception calculation [-]
+ * topt                     double      optimum transpiration air temperature
+ *                                        [K]
+ ****************************************************************************/
 typedef struct lctbl_struct
 {
-    int             number;     /* index */
-
-    double         *laimax;     /* max lai */
-    double         *laimin;     /* ys: min lai */
-    double         *vegfrac;    /* canopy fracn */
-    double         *albedomin;  /* ys: minimum albedo */
-    double         *albedomax;  /* ys: maximum albedo */
-    double         *emissmin;   /* ys: minimum emissivity */
-    double         *emissmax;   /* ys: maximum emissivity */
-    double         *z0min;      /* ys: minimum roughness length */
-    double         *z0max;      /* ys: maximum roughness length */
-    double         *hs;         /* ys: vapor pressure deficit stress
-                                 * parameter */
-    double         *snup;       /* ys */
-    double         *rgl;        /* visible solar flux used in radiation
-                                 * stress */
-    double         *rsmin;      /* minimum stomatal resistance */
-    double         *rough;      /* surface roughness factor  */
-    double         *rzd;        /* rootzone depth */
-
-    double          rsmax;      /* YS */
-    int             bare;       /* YS */
+    int             number;
+    double         *laimax;
+    double         *laimin;
+    double         *vegfrac;
+    double         *albedomin;
+    double         *albedomax;
+    double         *emissmin;
+    double         *emissmax;
+    double         *z0min;
+    double         *z0max;
+    double         *hs;
+    double         *snup;
+    double         *rgl;
+    double         *rsmin;
+    double         *rough;
+    double         *rzd;
+    double          rsmax;
+    int             bare;
     int             natural;
-    double          cfactr;     /* YS */
-    double          topt;       /* YS */
+    double          cfactr;
+    double          topt;
 } lctbl_struct;
 
+/*****************************************************************************
+ * Time series data structure
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * length                   int         length of time series
+ * ftime                    double*     forcing time
+ * data                     double**    forcing values at forcing time
+ * value                    double*     forcing values at model time t
+ * zlvl_wind                double      height above groundof wind
+ *                                        observations [m]
+ ****************************************************************************/
 typedef struct tsdata_struct
 {
-    int             length;     /* length of time series */
+    int             length;
     int            *ftime;
-    double        **data;       /* 2D time series data */
+    double        **data;
     double         *value;
     double          zlvl_wind;
 } tsdata_struct;
 
+/*****************************************************************************
+ * Forcing structure
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * nbc                      int         number of boundary condition series
+ * bc                       tsdata_struct*
+ *                                      boundary condition time series
+ * nmeteo                   int         number of meteorological forcing
+ *                                        series
+ * meteo                    tsdata_struct*
+ *                                      meteorological forcing series
+ * nlai                     int         number of lai series
+ * lai                      tsdata_struct*
+ *                                      lai forcing series
+ * nsource                  int         number of source forcing series
+ * source                   tsdata_struct*
+ *                                      source forcing series
+ * nriverbc                 int         number of river boundary conditions
+ * riverbc                  tsdata_struct*
+ *                                      river boundary condition series
+ * nrad                     int         number of radiation forcing series
+ * rad                      tsdata_struct*
+ *                                      radiation forcing series
+ * co2                      tsdata_struct*
+ *                                      co2 forcing series
+ * ndep                     tsdata_struct*
+ *                                      nitrogen deposition forcing series
+ ****************************************************************************/
 typedef struct forc_struct
 {
-    /* Forcing series */
     int             nbc;
     tsdata_struct  *bc;
-
     int             nmeteo;
     tsdata_struct  *meteo;
-
     int             nlai;
     tsdata_struct  *lai;
-
     int             nsource;
     tsdata_struct  *source;
-
     int             nriverbc;
     tsdata_struct  *riverbc;
-
 #ifdef _NOAH_
     int             nrad;
     tsdata_struct  *rad;
 #endif
-
 #ifdef _BGC_
     tsdata_struct  *co2;
     tsdata_struct  *ndep;
@@ -221,25 +436,112 @@ typedef struct forc_struct
 } forc_struct;
 
 #ifdef _NOAH_
+
+/*****************************************************************************
+ * Land surface parameters
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * sbeta                    double      parameter used to calculate vegetation
+ *                                        effect on soil heat [-]
+ * fxexp                    double      soil evaporation exponent used in
+ *                                        direct evaporation [-]
+ * csoil                    double      soil heat capacity [J m-3 K-1]
+ * salp                     double      shape parameter of distribution
+ *                                        function of snow cover [-]
+ * frzk                     double      frozen ground parameter [-]
+ * zbot                     double      depth of lower boundary soil
+ *                                        temperature [m]
+ * tbot                     double      bottom soil temperature (local yearly-
+ *                                        mean sfc air temperature) [K]
+ * czil                     double      zilitinkevich constant [-]
+ * lvcoef                   double      parameter controls surface snow albedo
+ *                                        in the presence of snowcover [-]
+ ****************************************************************************/
 typedef struct noahtbl_struct
 {
     double          sbeta;
     double          fxexp;
     double          csoil;
     double          salp;
-    double          refdk;
-    double          refkdt;
     double          frzk;
     double          zbot;
     double          tbot;
-    double          smlow;
-    double          smhigh;
     double          czil;
     double          lvcoef;
 } noahtbl_struct;
 #endif
 
 #ifdef _BGC_
+/*****************************************************************************
+ * Ecophysiological parameters
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * woody                    int*        flag: 1 = woody, 0 = non-woody
+ * evergreen                int*        flag: 1 = evergreen, 0 = deciduous
+ * c3_flag                  int*        flag: 1 = C3,  0 = C4
+ * phenology_flag           int*        flag: 1 = phenology model, 0 = user
+ *                                        defined
+ * onday                    int*        day of year when leaves on
+ * offday                   int*        day of year yearday leaves off
+ * transfer_days            int*        growth period for transfer [day]
+ * litfall_days             int*        growth period for litfall [day]
+ * leaf_turnover            double*     annual leaf turnover fraction [yr-1]
+ * froot_turnover           double*     annual fine root turnover fraction
+ *                                        [yr-1]
+ * livewood_turnover        double*     annual live wood turnover fraction
+ *                                        [yr-1]
+ * daily_mortality_turnover double*     daily mortality turnover [day-1]
+ * daily_fire_turnover      double*     daily fire turnover [day-1]
+ * alloc_frootc_leafc       double*     new fine root C to new leaf C [-]
+ * alloc_newstemc_newleafc  double*     new stem C to new leaf C [-]
+ * alloc_newlivewoodc_newwoodc
+ *                          double*     new livewood C:new wood C [-]
+ * alloc_crootc_stemc       double*     new live croot C to new live stem C
+ *                                        [-]
+ * alloc_prop_curgrowth     double*     daily allocation to current growth [-]
+ * avg_proj_sla             double*     canopy average projected SLA
+ *                                        [m2 kgC-1]
+ * sla_ratio                double*     ratio of shaded to sunlit projected
+ *                                        SLA [-]
+ * lai_ratio                double*     ratio of (all-sided LA / one-sided LA)
+ *                                        [-]
+ * ext_coef                 double*     canopy light extinction coefficient
+ *                                        [-]
+ * flnr                     double*     leaf N in Rubisco [kgNRub kgNleaf-1]
+ * psi_open                 double*     psi at start of conductance reduction
+ *                                        [MPa]
+ * psi_close                double*     psi at complete conductance reduction
+ *                                        [MPa]
+ * vpd_open                 double*     vpd at start of conductance reduction
+ *                                        [Pa]
+ * vpd_close                double*     vpd at complete conductance reduction
+ *                                        [Pa]
+ * froot_cn                 double*     C:N for fine roots [kgC kgN-1]
+ * leaf_cn                  double*     C:N for leaves [kgC kgN-1]
+ * livewood_cn              double*     C:N for live wood [kgC kgN-1]
+ * deadwood_cn              double*     C:N for dead wood [kgC kgN-1]
+ * leaflitr_cn              double*     constant C:N for leaf litter
+ *                                        [kgC kgN-1]
+ * leaflitr_flab            double*     leaf litter labile fraction [-]
+ * leaflitr_fucel           double*     leaf litter unshielded cellulose
+ *                                        fraction [-]
+ * leaflitr_fscel           double*     leaf litter shielded cellulose
+ *                                        fraction [-]
+ * leaflitr_flig            double*     leaf litter lignin fraction [-]
+ * frootlitr_flab           double*     fine root litter labile fraction [-]
+ * frootlitr_fucel          double*     fine root litter unshielded cellulose
+ *                                        fraction [-]
+ * frootlitr_fscel          double*     fine root litter shielded cellulose
+ *                                        fraction [-]
+ * frootlitr_flig           double*     fine root litter lignin fraction [-]
+ * deadwood_fucel           double*     dead wood unshileded cellulose
+ *                                        fraction [-]
+ * deadwood_fscel           double*     dead wood shielded cellulose fraction
+ *                                        [-]
+ * deadwood_flig            double*     dead wood lignin fraction [-]
+ ****************************************************************************/
 typedef struct epctbl_struct
 {
     int            *woody;
@@ -248,8 +550,8 @@ typedef struct epctbl_struct
     int            *phenology_flag;
     int            *onday;
     int            *offday;
-    double         *transfer_days;
-    double         *litfall_days;
+    int            *transfer_days;
+    int            *litfall_days;
     double         *leaf_turnover;
     double         *froot_turnover;
     double         *livewood_turnover;
@@ -405,17 +707,6 @@ typedef struct autoirr_struct
     double          waterDepletion;
     int             lastSoilLayer;
 } autoirr_struct;
-//
-//typedef struct autoFertilizationStruct
-//{
-//    char            cropName[128];
-//    int             startDay;
-//    int             stopDay;
-//    double          mass;
-//    char            source[MAXSTRING];
-//    char            form[MAXSTRING];
-//    char            method[MAXSTRING];
-//} autoFertilizationStruct;
 
 typedef struct cropmgmt_struct
 {

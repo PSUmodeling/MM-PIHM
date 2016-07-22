@@ -1165,7 +1165,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     char            cmdstr[MAXSTRING];
     int             i;
 
-    for (i = 0; i < NUM_PRINT; i++)
+    for (i = 0; i < MAXPRINT; i++)
     {
         ctrl->prtvrbl[i] = 0;
     }
@@ -1191,6 +1191,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
         fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
+    ctrl->init_type = (ctrl->init_type > 0) ? 1 : 0;
 
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "ASCII_OUTPUT", &ctrl->ascii, 'i'))
@@ -1686,7 +1687,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     }
 
     NextLine (global_calib, cmdstr);
-    if (!ReadKeyword (cmdstr, "CMCMAX", &cal->intcp, 'd'))
+    if (!ReadKeyword (cmdstr, "CMCMAX", &cal->cmcmax, 'd'))
     {
         fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
@@ -1735,14 +1736,14 @@ void ReadCalib (char *filename, calib_struct *cal)
     }
 
     NextLine (global_calib, cmdstr);
-    if (!ReadKeyword (cmdstr, "REFSMC", &cal->thetaref, 'd'))
+    if (!ReadKeyword (cmdstr, "REFSMC", &cal->smcref, 'd'))
     {
         fprintf (stderr, "Error opening %s.\n", filename);
         PIHMError (1);
     }
 
     NextLine (global_calib, cmdstr);
-    if (!ReadKeyword (cmdstr, "WLTSMC", &cal->thetaw, 'd'))
+    if (!ReadKeyword (cmdstr, "WLTSMC", &cal->smcwlt, 'd'))
     {
         fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
@@ -1982,7 +1983,7 @@ void FreeData (pihm_struct pihm)
 
     for (i = 0; i < pihm->ctrl.nprint; i++)
     {
-        free (pihm->prtctrl[i].vrbl);
+        free (pihm->prtctrl[i].var);
         free (pihm->prtctrl[i].buffer);
     }
 

@@ -10,7 +10,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
 
     n = 0;
 
-    for (i = 0; i < NUM_PRINT; i++)
+    for (i = 0; i < MAXPRINT; i++)
     {
         if (pihm->ctrl.prtvrbl[i] > 0)
         {
@@ -20,13 +20,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.surf", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.surf;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ws.surf;
                     }
                     n++;
                     break;
@@ -34,13 +34,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.unsat", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.unsat;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ws.unsat;
                     }
                     n++;
                     break;
@@ -48,13 +48,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.gw", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.gw;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ws.gw;
                     }
                     n++;
                     break;
@@ -62,13 +62,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.stage", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].ws.stage;
+                        pihm->prtctrl[n].var[j] = &pihm->riv[j].ws.stage;
                     }
                     n++;
                     break;
@@ -76,13 +76,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rivgw", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].ws.gw;
+                        pihm->prtctrl[n].var[j] = &pihm->riv[j].ws.gw;
                     }
                     n++;
                     break;
@@ -90,13 +90,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.snow", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.sneqv;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ws.sneqv;
                     }
                     n++;
                     break;
@@ -104,13 +104,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.is", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.cmc;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ws.cmc;
                     }
                     n++;
                     break;
@@ -118,13 +118,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.infil", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].wf.infil;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].wf.infil;
                     }
                     n++;
                     break;
@@ -132,13 +132,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.recharge",
                         outputdir, simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].wf.rechg;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].wf.rechg;
                     }
                     n++;
                     break;
@@ -146,13 +146,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.ec", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].wf.ec;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].wf.ec;
                     }
                     n++;
                     break;
@@ -160,13 +160,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.ett", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].wf.ett;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].wf.ett;
                     }
                     n++;
                     break;
@@ -174,13 +174,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.edir", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].wf.edir;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].wf.edir;
                     }
                     n++;
                     break;
@@ -188,13 +188,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rivflx0", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->riv[j].wf.rivflow[0];
                     }
                     n++;
@@ -203,13 +203,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rivflx1", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->riv[j].wf.rivflow[1];
                     }
                     n++;
@@ -218,13 +218,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rivflx2", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->riv[j].wf.rivflow[2];
                     }
                     n++;
@@ -233,13 +233,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rivflx3", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->riv[j].wf.rivflow[3];
                     }
                     n++;
@@ -248,13 +248,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rivflx4", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->riv[j].wf.rivflow[4];
                     }
                     n++;
@@ -263,13 +263,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rivflx5", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->riv[j].wf.rivflow[5];
                     }
                     n++;
@@ -278,13 +278,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rivflx6", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->riv[j].wf.rivflow[6];
                     }
                     n++;
@@ -293,13 +293,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rivflx7", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->riv[j].wf.rivflow[7];
                     }
                     n++;
@@ -308,13 +308,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rivflx8", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->riv[j].wf.rivflow[8];
                     }
                     n++;
@@ -323,13 +323,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rivflx9", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->riv[j].wf.rivflow[9];
                     }
                     n++;
@@ -338,13 +338,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rivflx10",
                         outputdir, simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numriv;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numriv; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->riv[j].wf.rivflow[10];
                     }
                     n++;
@@ -355,13 +355,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sprintf (pihm->prtctrl[n].name, "%s%s.subflx%d",
                             outputdir, simulation, k);
                         pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                        pihm->prtctrl[n].nvrbl = pihm->numele;
-                        pihm->prtctrl[n].vrbl =
-                            (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
                             sizeof (double *));
                         for (j = 0; j < pihm->numele; j++)
                         {
-                            pihm->prtctrl[n].vrbl[j] =
+                            pihm->prtctrl[n].var[j] =
                                 &pihm->elem[j].wf.subsurf[k];
                         }
                         n++;
@@ -373,13 +373,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sprintf (pihm->prtctrl[n].name, "%s%s.surfflx%d",
                             outputdir, simulation, k);
                         pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                        pihm->prtctrl[n].nvrbl = pihm->numele;
-                        pihm->prtctrl[n].vrbl =
-                            (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
                             sizeof (double *));
                         for (j = 0; j < pihm->numele; j++)
                         {
-                            pihm->prtctrl[n].vrbl[j] =
+                            pihm->prtctrl[n].var[j] =
                                 &pihm->elem[j].wf.ovlflow[k];
                         }
                         n++;
@@ -390,13 +390,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.t1", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].es.t1;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].es.t1;
                     }
                     n++;
                     break;
@@ -406,13 +406,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sprintf (pihm->prtctrl[n].name, "%s%s.stc%d",
                             outputdir, simulation, k);
                         pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                        pihm->prtctrl[n].nvrbl = pihm->numele;
-                        pihm->prtctrl[n].vrbl =
-                            (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
                             sizeof (double *));
                         for (j = 0; j < pihm->numele; j++)
                         {
-                            pihm->prtctrl[n].vrbl[j] =
+                            pihm->prtctrl[n].var[j] =
                                 &pihm->elem[j].es.stc[k];
                         }
                         n++;
@@ -424,13 +424,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sprintf (pihm->prtctrl[n].name, "%s%s.smc%d",
                             outputdir, simulation, k);
                         pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                        pihm->prtctrl[n].nvrbl = pihm->numele;
-                        pihm->prtctrl[n].vrbl =
-                            (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
                             sizeof (double *));
                         for (j = 0; j < pihm->numele; j++)
                         {
-                            pihm->prtctrl[n].vrbl[j] =
+                            pihm->prtctrl[n].var[j] =
                                 &pihm->elem[j].ws.smc[k];
                         }
                         n++;
@@ -442,13 +442,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         sprintf (pihm->prtctrl[n].name, "%s%s.swc%d",
                             outputdir, simulation, k);
                         pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                        pihm->prtctrl[n].nvrbl = pihm->numele;
-                        pihm->prtctrl[n].vrbl =
-                            (double **)malloc (pihm->prtctrl[n].nvrbl *
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
                             sizeof (double *));
                         for (j = 0; j < pihm->numele; j++)
                         {
-                            pihm->prtctrl[n].vrbl[j] =
+                            pihm->prtctrl[n].var[j] =
                                 &pihm->elem[j].ws.sh2o[k];
                         }
                         n++;
@@ -458,13 +458,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.snowh", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ps.snowh;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ps.snowh;
                     }
                     n++;
                     break;
@@ -472,13 +472,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.albedo", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ps.albedo;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ps.albedo;
                     }
                     n++;
                     break;
@@ -486,13 +486,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.le", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ef.eta;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ef.eta;
                     }
                     n++;
                     break;
@@ -500,13 +500,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.sh", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ef.sheat;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ef.sheat;
                     }
                     n++;
                     break;
@@ -514,13 +514,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.g", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ef.ssoil;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ef.ssoil;
                     }
                     n++;
                     break;
@@ -528,13 +528,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.etp", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ef.etp;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ef.etp;
                     }
                     n++;
                     break;
@@ -542,13 +542,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.esnow", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ef.esnow;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ef.esnow;
                     }
                     n++;
                     break;
@@ -556,13 +556,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.rootw", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ps.soilw;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ps.soilw;
                     }
                     n++;
                     break;
@@ -570,13 +570,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.soilm", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ws.soilm;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ws.soilm;
                     }
                     n++;
                     break;
@@ -584,13 +584,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.solar", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ef.soldn;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ef.soldn;
                     }
                     n++;
                     break;
@@ -601,13 +601,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.lai", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ps.proj_lai;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ps.proj_lai;
                     }
                     n++;
                     break;
@@ -615,13 +615,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.vegc", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->elem[j].summary.vegc;
                     }
                     n++;
@@ -630,13 +630,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.litrc", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->elem[j].summary.litrc;
                     }
                     n++;
@@ -645,13 +645,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.soilc", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->elem[j].summary.soilc;
                     }
                     n++;
@@ -660,13 +660,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.totalc", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->elem[j].summary.totalc;
                     }
                     n++;
@@ -675,13 +675,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.npp", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->elem[j].summary.daily_npp;
                     }
                     n++;
@@ -690,13 +690,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.nee", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->elem[j].summary.daily_nee;
                     }
                     n++;
@@ -705,13 +705,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.gpp", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] =
+                        pihm->prtctrl[n].var[j] =
                             &pihm->elem[j].summary.daily_gpp;
                     }
                     n++;
@@ -720,13 +720,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     sprintf (pihm->prtctrl[n].name, "%s%s.sminn", outputdir,
                         simulation);
                     pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].nvrbl = pihm->numele;
-                    pihm->prtctrl[n].vrbl =
-                        (double **)malloc (pihm->prtctrl[n].nvrbl *
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
                         sizeof (double *));
                     for (j = 0; j < pihm->numele; j++)
                     {
-                        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].ns.sminn;
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ns.sminn;
                     }
                     n++;
                     break;
@@ -743,24 +743,24 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
         sprintf (pihm->prtctrl[n].name, "%s%s.%s.biomass", outputdir,
             simulation, pihm->elem[0].comm.Crop[k].cropName);
         pihm->prtctrl[n].intvl = 86400;
-        pihm->prtctrl[n].nvrbl = pihm->numele;
-        pihm->prtctrl[n].vrbl =
-            (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+        pihm->prtctrl[n].nvar = pihm->numele;
+        pihm->prtctrl[n].var =
+            (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
         for (j = 0; j < pihm->numele; j++)
         {
-            pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].comm.Crop[k].svBiomass;
+            pihm->prtctrl[n].var[j] = &pihm->elem[j].comm.Crop[k].svBiomass;
         }
         n++;
 
         sprintf (pihm->prtctrl[n].name, "%s%s.%s.radintcp", outputdir,
             simulation, pihm->elem[0].comm.Crop[k].cropName);
         pihm->prtctrl[n].intvl = 86400;
-        pihm->prtctrl[n].nvrbl = pihm->numele;
-        pihm->prtctrl[n].vrbl =
-            (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+        pihm->prtctrl[n].nvar = pihm->numele;
+        pihm->prtctrl[n].var =
+            (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
         for (j = 0; j < pihm->numele; j++)
         {
-            pihm->prtctrl[n].vrbl[j] =
+            pihm->prtctrl[n].var[j] =
                 &pihm->elem[j].comm.Crop[k].svRadiationInterception;
         }
         n++;
@@ -768,12 +768,12 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
         sprintf (pihm->prtctrl[n].name, "%s%s.%s.waterstress", outputdir,
             simulation, pihm->elem[0].comm.Crop[k].cropName);
         pihm->prtctrl[n].intvl = 86400;
-        pihm->prtctrl[n].nvrbl = pihm->numele;
-        pihm->prtctrl[n].vrbl =
-            (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+        pihm->prtctrl[n].nvar = pihm->numele;
+        pihm->prtctrl[n].var =
+            (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
         for (j = 0; j < pihm->numele; j++)
         {
-            pihm->prtctrl[n].vrbl[j] =
+            pihm->prtctrl[n].var[j] =
                 &pihm->elem[j].comm.Crop[k].svWaterStressFactor;
         }
         n++;
@@ -781,12 +781,12 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
         sprintf (pihm->prtctrl[n].name, "%s%s.%s.nstress", outputdir,
             simulation, pihm->elem[0].comm.Crop[k].cropName);
         pihm->prtctrl[n].intvl = 86400;
-        pihm->prtctrl[n].nvrbl = pihm->numele;
-        pihm->prtctrl[n].vrbl =
-            (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+        pihm->prtctrl[n].nvar = pihm->numele;
+        pihm->prtctrl[n].var =
+            (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
         for (j = 0; j < pihm->numele; j++)
         {
-            pihm->prtctrl[n].vrbl[j] =
+            pihm->prtctrl[n].var[j] =
                 &pihm->elem[j].comm.Crop[k].svN_StressFactor;
         }
         n++;
@@ -794,12 +794,12 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
         sprintf (pihm->prtctrl[n].name, "%s%s.%s.transp", outputdir,
             simulation, pihm->elem[0].comm.Crop[k].cropName);
         pihm->prtctrl[n].intvl = 86400;
-        pihm->prtctrl[n].nvrbl = pihm->numele;
-        pihm->prtctrl[n].vrbl =
-            (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+        pihm->prtctrl[n].nvar = pihm->numele;
+        pihm->prtctrl[n].var =
+            (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
         for (j = 0; j < pihm->numele; j++)
         {
-            pihm->prtctrl[n].vrbl[j] =
+            pihm->prtctrl[n].var[j] =
                 &pihm->elem[j].comm.Crop[k].svTranspiration;
         }
         n++;
@@ -807,12 +807,12 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
         sprintf (pihm->prtctrl[n].name, "%s%s.%s.pottransp", outputdir,
             simulation, pihm->elem[0].comm.Crop[k].cropName);
         pihm->prtctrl[n].intvl = 86400;
-        pihm->prtctrl[n].nvrbl = pihm->numele;
-        pihm->prtctrl[n].vrbl =
-            (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+        pihm->prtctrl[n].nvar = pihm->numele;
+        pihm->prtctrl[n].var =
+            (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
         for (j = 0; j < pihm->numele; j++)
         {
-            pihm->prtctrl[n].vrbl[j] =
+            pihm->prtctrl[n].var[j] =
                 &pihm->elem[j].comm.Crop[k].svTranspirationPotential;
         }
         n++;
@@ -820,68 +820,68 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
 
     sprintf (pihm->prtctrl[n].name, "%s%s.eres", outputdir, simulation);
     pihm->prtctrl[n].intvl = 3600;
-    pihm->prtctrl[n].nvrbl = pihm->numele;
-    pihm->prtctrl[n].vrbl =
-        (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+    pihm->prtctrl[n].nvar = pihm->numele;
+    pihm->prtctrl[n].var =
+        (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
     for (j = 0; j < pihm->numele; j++)
     {
-        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].wf.eres;
+        pihm->prtctrl[n].var[j] = &pihm->elem[j].wf.eres;
     }
     n++;
 
     sprintf (pihm->prtctrl[n].name, "%s%s.NO3", outputdir, simulation);
     pihm->prtctrl[n].intvl = 3600;
-    pihm->prtctrl[n].nvrbl = pihm->numele;
-    pihm->prtctrl[n].vrbl =
-        (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+    pihm->prtctrl[n].nvar = pihm->numele;
+    pihm->prtctrl[n].var =
+        (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
     for (j = 0; j < pihm->numele; j++)
     {
-        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].soil.NO3Profile;
+        pihm->prtctrl[n].var[j] = &pihm->elem[j].soil.NO3Profile;
     }
     n++;
 
     sprintf (pihm->prtctrl[n].name, "%s%s.rivNO3", outputdir, simulation);
     pihm->prtctrl[n].intvl = 3600;
-    pihm->prtctrl[n].nvrbl = pihm->numriv;
-    pihm->prtctrl[n].vrbl =
-        (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+    pihm->prtctrl[n].nvar = pihm->numriv;
+    pihm->prtctrl[n].var =
+        (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
     for (j = 0; j < pihm->numriv; j++)
     {
-        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].NO3sol.soluteMass[0];
+        pihm->prtctrl[n].var[j] = &pihm->riv[j].NO3sol.soluteMass[0];
     }
     n++;
 
     sprintf (pihm->prtctrl[n].name, "%s%s.NH4", outputdir, simulation);
     pihm->prtctrl[n].intvl = 3600;
-    pihm->prtctrl[n].nvrbl = pihm->numele;
-    pihm->prtctrl[n].vrbl =
-        (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+    pihm->prtctrl[n].nvar = pihm->numele;
+    pihm->prtctrl[n].var =
+        (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
     for (j = 0; j < pihm->numele; j++)
     {
-        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].soil.NH4Profile;
+        pihm->prtctrl[n].var[j] = &pihm->elem[j].soil.NH4Profile;
     }
     n++;
 
     sprintf (pihm->prtctrl[n].name, "%s%s.rivNH4", outputdir, simulation);
     pihm->prtctrl[n].intvl = 3600;
-    pihm->prtctrl[n].nvrbl = pihm->numriv;
-    pihm->prtctrl[n].vrbl =
-        (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+    pihm->prtctrl[n].nvar = pihm->numriv;
+    pihm->prtctrl[n].var =
+        (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
     for (j = 0; j < pihm->numriv; j++)
     {
-        pihm->prtctrl[n].vrbl[j] = &pihm->riv[j].NH4sol.soluteMass[0];
+        pihm->prtctrl[n].var[j] = &pihm->riv[j].NH4sol.soluteMass[0];
     }
     n++;
 
     sprintf (pihm->prtctrl[n].name, "%s%s.NO3denitrif", outputdir,
         simulation);
     pihm->prtctrl[n].intvl = 86400;
-    pihm->prtctrl[n].nvrbl = pihm->numele;
-    pihm->prtctrl[n].vrbl =
-        (double **)malloc (pihm->prtctrl[n].nvrbl * sizeof (double *));
+    pihm->prtctrl[n].nvar = pihm->numele;
+    pihm->prtctrl[n].var =
+        (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
     for (j = 0; j < pihm->numele; j++)
     {
-        pihm->prtctrl[n].vrbl[j] = &pihm->elem[j].soil.NO3_Denitrification;
+        pihm->prtctrl[n].var[j] = &pihm->elem[j].soil.NO3_Denitrification;
     }
     n++;
 
@@ -892,7 +892,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
     for (i = 0; i < pihm->ctrl.nprint; i++)
     {
         pihm->prtctrl[i].buffer =
-            (double *)calloc (pihm->prtctrl[i].nvrbl, sizeof (double));
+            (double *)calloc (pihm->prtctrl[i].nvar, sizeof (double));
     }
 }
 
@@ -932,9 +932,9 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
 
     for (i = 0; i < nprint; i++)
     {
-        for (j = 0; j < prtctrl[i].nvrbl; j++)
+        for (j = 0; j < prtctrl[i].nvar; j++)
         {
-            prtctrl[i].buffer[j] += *prtctrl[i].vrbl[j];
+            prtctrl[i].buffer[j] += *prtctrl[i].var[j];
         }
 
         if (lapse % prtctrl[i].intvl == 0 && lapse > 0)
@@ -955,7 +955,7 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
                     timestamp->tm_year + 1900, timestamp->tm_mon + 1,
                     timestamp->tm_mday, timestamp->tm_hour,
                     timestamp->tm_min);
-                for (j = 0; j < prtctrl[i].nvrbl; j++)
+                for (j = 0; j < prtctrl[i].nvar; j++)
                 {
                     if (prtctrl[i].intvl > dt)
                     {
@@ -983,7 +983,7 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
 
             outtime = (double)t;
             fwrite (&outtime, sizeof (double), 1, fid);
-            for (j = 0; j < prtctrl[i].nvrbl; j++)
+            for (j = 0; j < prtctrl[i].nvar; j++)
             {
                 if (prtctrl[i].intvl > dt)
                 {

@@ -29,8 +29,8 @@ void Noah (int t, pihm_struct pihm)
         /* Calculate solar radiation */
         if (pihm->ctrl.rad_mode > 0)
         {
-            sdir = elem->ef.sdir;
-            sdif = elem->ef.sdif;
+            sdir = elem->ef.soldir;
+            sdif = elem->ef.soldif;
 
             elem->ef.soldn =
                 TopoRadn (sdir, sdif, zenith, azimuth, elem->topo.slope,
@@ -1397,7 +1397,7 @@ void NoPac (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
      * below) for use in computing subsurface heat flux in HRT */
     yynum = ef->fdown - ps->emissi * SIGMA * t24;
     yy = es->sfctmp +
-        (yynum / ps->rch + es->th2 - es->sfctmp - ps->beta * ef->epsca) /
+        (yynum / ps->rch + es->th2 - es->sfctmp - ps->beta * ps->epsca) /
         ps->rr;
 
     zz1 = df1 / (-0.5 * zsoil[0] * ps->rch * ps->rr) + 1.0;
@@ -1478,9 +1478,9 @@ void Penman (wflux_struct *wf, estate_struct *es, eflux_struct *ef,
     rad = fnet / ps->rch + es->th2 - es->sfctmp;
     //a = ELCP * (ps->q2sat - ps->q2);
     a = elcp1 * (ps->q2sat - ps->q2);
-    ef->epsca = (a * ps->rr + rad * delta) / (delta + ps->rr);
+    ps->epsca = (a * ps->rr + rad * delta) / (delta + ps->rr);
     //etp = epsca * rch / LSUBC;
-    wf->etp = ef->epsca * ps->rch / lvs / 1000.0;
+    wf->etp = ps->epsca * ps->rch / lvs / 1000.0;
 }
 
 void Rosr12 (double *p, double *a, double *b, double *c, double *d,

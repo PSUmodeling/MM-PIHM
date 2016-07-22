@@ -204,7 +204,7 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
                     epv->dormant_flag = 0.;
                     epv->onset_gddflag = 0.;
                     epv->onset_gdd = 0.;
-                    epv->onset_counter = epc->transfer_days;
+                    epv->onset_counter = (double)epc->transfer_days;
                 }
             }
 
@@ -216,7 +216,7 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
                 if (ws_flag == 0 && daily->dayl < critdayl)
                 {
                     epv->offset_flag = 1.;
-                    epv->offset_counter = epc->litfall_days;
+                    epv->offset_counter = (double)epc->litfall_days;
                     epv->prev_leafc_to_litter = 0.;
                     epv->prev_frootc_to_litter = 0.;
                 }
