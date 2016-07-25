@@ -237,16 +237,18 @@
 #define NO3_RIVER_CTRL  47
 #define NH4_PROF_CTRL   48
 #define NH4_RIVER_CTRL  49
-#define LAI_CTRL        50
-#define VEGC_CTRL       51
-#define LITRC_CTRL      52
-#define SOILC_CTRL      53
-#define TOTALC_CTRL     54
-#define NPP_CTRL        55
-#define NEP_CTRL        56
-#define NEE_CTRL        57
-#define GPP_CTRL        58
-#define SMINN_CTRL      59
+#define NO3_DENIT_CTRL  50
+#define N_LEACH_CTRL    51
+#define LAI_CTRL        52
+#define VEGC_CTRL       53
+#define LITRC_CTRL      54
+#define SOILC_CTRL      55
+#define TOTALC_CTRL     56
+#define NPP_CTRL        57
+#define NEP_CTRL        58
+#define NEE_CTRL        59
+#define GPP_CTRL        60
+#define SMINN_CTRL      61
 
 #ifdef _CYCLES_
 #define MAXOP               100

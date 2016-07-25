@@ -81,37 +81,101 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
     FindLine (simctrl_file, "PRINT_CTRL");
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeyword (cmdstr, "BIOMASS", &ctrl->prtvrbl[BIOMASS_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "BIOMASS", &ctrl->prtvrbl[BIOMASS_CTRL], 'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeyword (cmdstr, "RADN_INTCP", &ctrl->prtvrbl[RADNINTCP_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeyword (cmdstr, "WATER_STRESS", &ctrl->prtvrbl[WATER_STS_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "RADN_INTCP", &ctrl->prtvrbl[RADNINTCP_CTRL],
+            'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeyword (cmdstr, "N_STRESS", &ctrl->prtvrbl[N_STS_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "WATER_STRESS", &ctrl->prtvrbl[WATER_STS_CTRL],
+            'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeyword (cmdstr, "CROP_TR", &ctrl->prtvrbl[CROP_TR_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "N_STRESS", &ctrl->prtvrbl[N_STS_CTRL], 'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeyword (cmdstr, "CROP_POT_TR", &ctrl->prtvrbl[CROP_POTTR_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "CROP_TR", &ctrl->prtvrbl[CROP_TR_CTRL], 'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeyword (cmdstr, "RES_EVAP", &ctrl->prtvrbl[RES_EVAP_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "CROP_POT_TR", &ctrl->prtvrbl[CROP_POTTR_CTRL],
+            'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeyword (cmdstr, "NO3_PROF", &ctrl->prtvrbl[NO3_PROF_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "RES_EVAP", &ctrl->prtvrbl[RES_EVAP_CTRL], 'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeyword (cmdstr, "NO3_RIVER", &ctrl->prtvrbl[NO3_RIVER_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "NO3_PROF", &ctrl->prtvrbl[NO3_PROF_CTRL], 'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeyword (cmdstr, "NH4_PROF", &ctrl->prtvrbl[NH4_PROF_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "NO3_RIVER", &ctrl->prtvrbl[NO3_RIVER_CTRL],
+            'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
 
     NextLine (simctrl_file, cmdstr);
-    ReadKeyword (cmdstr, "NH4_RIVER", &ctrl->prtvrbl[NH4_RIVER_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "NH4_PROF", &ctrl->prtvrbl[NH4_PROF_CTRL], 'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
+
+    NextLine (simctrl_file, cmdstr);
+    if (!ReadKeyword (cmdstr, "NH4_RIVER", &ctrl->prtvrbl[NH4_RIVER_CTRL],
+            'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
+
+    NextLine (simctrl_file, cmdstr);
+    if (!ReadKeyword (cmdstr, "NO3_DENITRIF", &ctrl->prtvrbl[NO3_DENIT_CTRL],
+            'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMError (1);
+    }
 
 
     fclose (simctrl_file);
@@ -171,7 +235,11 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
     for (i = 0; i < soiltbl->number; i++)
     {
         NextLine (soil_file, cmdstr);
-        ReadKeyword (cmdstr, "SOIL_TYPE", &index, 'i');
+        if (!ReadKeyword (cmdstr, "SOIL_TYPE", &index, 'i'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         if (i != index - 1)
         {
@@ -182,7 +250,12 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
         }
 
         NextLine (soil_file, cmdstr);
-        ReadKeyword (cmdstr, "TOTAL_LAYERS", &soiltbl->totalLayers[i], 'i');
+        if (!ReadKeyword (cmdstr, "TOTAL_LAYERS", &soiltbl->totalLayers[i],
+                'i'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         soiltbl->clay_lyr[i] =
             (double *)malloc (soiltbl->totalLayers[i] * sizeof (double));
@@ -333,61 +406,122 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
     {
         croptbl->cropName[j] = (char *)malloc (MAXSTRING * sizeof (char));
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "NAME", croptbl->cropName[j], 's');
+        if (!ReadKeyword (cmdstr, "NAME", croptbl->cropName[j], 's'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "FLOWERING_TT",
-            &croptbl->userFloweringTT[j], 'd');
+        if (!ReadKeyword (cmdstr, "FLOWERING_TT",
+                &croptbl->userFloweringTT[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "MATURITY_TT", &croptbl->userMaturityTT[j], 'd');
+        if (!ReadKeyword (cmdstr, "MATURITY_TT", &croptbl->userMaturityTT[j],
+                'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "MAXIMUM_SOIL_COVERAGE",
-            &croptbl->userMaximumSoilCoverage[j], 'd');
+        if (!ReadKeyword (cmdstr, "MAXIMUM_SOIL_COVERAGE",
+                &croptbl->userMaximumSoilCoverage[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "MAXIMUM_ROOTING_DEPTH",
-            &croptbl->userMaximumRootingDepth[j], 'd');
+        if (!ReadKeyword (cmdstr, "MAXIMUM_ROOTING_DEPTH",
+                &croptbl->userMaximumRootingDepth[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "AVERAGE_EXPECTED_YIELD",
-            &croptbl->userExpectedYieldAvg[j], 'd');
+        if (!ReadKeyword (cmdstr, "AVERAGE_EXPECTED_YIELD",
+                &croptbl->userExpectedYieldAvg[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "MAXIMUM_EXPECTED_YIELD",
-            &croptbl->userExpectedYieldMax[j], 'd');
+        if (!ReadKeyword (cmdstr, "MAXIMUM_EXPECTED_YIELD",
+                &croptbl->userExpectedYieldMax[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "MINIMUM_EXPECTED_YIELD",
-            &croptbl->userExpectedYieldMin[j], 'd');
+        if (!ReadKeyword (cmdstr, "MINIMUM_EXPECTED_YIELD",
+                &croptbl->userExpectedYieldMin[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "COMMERCIAL_YIELD_MOISTURE",
-            &croptbl->userPercentMoistureInYield[j], 'd');
+        if (!ReadKeyword (cmdstr, "COMMERCIAL_YIELD_MOISTURE",
+                &croptbl->userPercentMoistureInYield[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "STANDING_RESIDUE_AT_HARVEST",
-            &croptbl->userFractionResidueStanding[j], 'd');
+        if (!ReadKeyword (cmdstr, "STANDING_RESIDUE_AT_HARVEST",
+                &croptbl->userFractionResidueStanding[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "RESIDUE_REMOVED",
-            &croptbl->userFractionResidueRemoved[j], 'd');
+        if (!ReadKeyword (cmdstr, "RESIDUE_REMOVED",
+                &croptbl->userFractionResidueRemoved[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "CLIPPING_BIOMASS_THRESHOLD_UPPER",
-            &croptbl->userClippingBiomassThresholdUpper[j], 'd');
+        if (!ReadKeyword (cmdstr, "CLIPPING_BIOMASS_THRESHOLD_UPPER",
+                &croptbl->userClippingBiomassThresholdUpper[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "CLIPPING_BIOMASS_THRESHOLD_LOWER",
-            &croptbl->userClippingBiomassThresholdLower[j], 'd');
+        if (!ReadKeyword (cmdstr, "CLIPPING_BIOMASS_THRESHOLD_LOWER",
+                &croptbl->userClippingBiomassThresholdLower[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "HARVEST_TIMING",
-            &croptbl->userClippingTiming[j], 'd');
+        if (!ReadKeyword (cmdstr, "HARVEST_TIMING",
+                &croptbl->userClippingTiming[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "CLIPPING_BIOMASS_DESTINY", temp, 's');
+        if (!ReadKeyword (cmdstr, "CLIPPING_BIOMASS_DESTINY", temp, 's'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
         if (strcasecmp ("REMOVE", temp) == 0)
         {
             croptbl->userClippingDestiny[j] = REMOVE_CLIPPING;
@@ -407,95 +541,191 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
         }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "MIN_TEMPERATURE_FOR_TRANSPIRATION",
-            &croptbl->userTranspirationMinTemperature[j], 'd');
+        if (!ReadKeyword (cmdstr, "MIN_TEMPERATURE_FOR_TRANSPIRATION",
+                &croptbl->userTranspirationMinTemperature[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "THRESHOLD_TEMPERATURE_FOR_TRANPIRATION",
-            &croptbl->userTranspirationThresholdTemperature[j], 'd');
+        if (!ReadKeyword (cmdstr, "THRESHOLD_TEMPERATURE_FOR_TRANPIRATION",
+                &croptbl->userTranspirationThresholdTemperature[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "MIN_TEMPERATURE_FOR_COLD_DAMAGE",
-            &croptbl->userColdDamageMinTemperature[j], 'd');
+        if (!ReadKeyword (cmdstr, "MIN_TEMPERATURE_FOR_COLD_DAMAGE",
+                &croptbl->userColdDamageMinTemperature[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "THRESHOLD_TEMPERATURE_FOR_COLD_DAMAGE",
-            &croptbl->userColdDamageThresholdTemperature[j], 'd');
+        if (!ReadKeyword (cmdstr, "THRESHOLD_TEMPERATURE_FOR_COLD_DAMAGE",
+                &croptbl->userColdDamageThresholdTemperature[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "BASE_TEMPERATURE_FOR_DEVELOPMENT",
-            &croptbl->userTemperatureBase[j], 'd');
+        if (!ReadKeyword (cmdstr, "BASE_TEMPERATURE_FOR_DEVELOPMENT",
+                &croptbl->userTemperatureBase[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "OPTIMUM_TEMPERATURE_FOR_DEVELOPEMENT",
-            &croptbl->userTemperatureOptimum[j], 'd');
+        if (!ReadKeyword (cmdstr, "OPTIMUM_TEMPERATURE_FOR_DEVELOPEMENT",
+                &croptbl->userTemperatureOptimum[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "MAX_TEMPERATURE_FOR_DEVELOPMENT",
-            &croptbl->userTemperatureMaximum[j], 'd');
+        if (!ReadKeyword (cmdstr, "MAX_TEMPERATURE_FOR_DEVELOPMENT",
+                &croptbl->userTemperatureMaximum[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "INITIAL_PARTITIONING_TO_SHOOT",
-            &croptbl->userShootPartitionInitial[j], 'd');
+        if (!ReadKeyword (cmdstr, "INITIAL_PARTITIONING_TO_SHOOT",
+                &croptbl->userShootPartitionInitial[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "FINAL_PARTITIONING_TO_SHOOT",
-            &croptbl->userShootPartitionFinal[j], 'd');
+        if (!ReadKeyword (cmdstr, "FINAL_PARTITIONING_TO_SHOOT",
+                &croptbl->userShootPartitionFinal[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "RADIATION_USE_EFFICIENCY",
-            &croptbl->userRadiationUseEfficiency[j], 'd');
+        if (!ReadKeyword (cmdstr, "RADIATION_USE_EFFICIENCY",
+                &croptbl->userRadiationUseEfficiency[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "TRANSPIRATION_USE_EFFICIENCY",
-            &croptbl->userTranspirationUseEfficiency[j], 'd');
+        if (!ReadKeyword (cmdstr, "TRANSPIRATION_USE_EFFICIENCY",
+                &croptbl->userTranspirationUseEfficiency[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "MAXIMUM_HARVEST_INDEX",
-            &croptbl->userHIx[j], 'd');
+        if (!ReadKeyword (cmdstr, "MAXIMUM_HARVEST_INDEX",
+                &croptbl->userHIx[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "MINIMUM_HARVEST_INDEX",
-            &croptbl->userHIo[j], 'd');
+        if (!ReadKeyword (cmdstr, "MINIMUM_HARVEST_INDEX",
+                &croptbl->userHIo[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "HARVEST_INDEX", &croptbl->userHIk[j], 'd');
+        if (!ReadKeyword (cmdstr, "HARVEST_INDEX", &croptbl->userHIk[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "THERMAL_TIME_TO_EMERGENCE",
-            &croptbl->userEmergenceTT[j], 'd');
+        if (!ReadKeyword (cmdstr, "THERMAL_TIME_TO_EMERGENCE",
+                &croptbl->userEmergenceTT[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "N_MAX_CONCENTRATION",
-            &croptbl->userNMaxConcentration[j], 'd');
+        if (!ReadKeyword (cmdstr, "N_MAX_CONCENTRATION",
+                &croptbl->userNMaxConcentration[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "N_DILUTION_SLOPE",
-            &croptbl->userNDilutionSlope[j], 'd');
+        if (!ReadKeyword (cmdstr, "N_DILUTION_SLOPE",
+                &croptbl->userNDilutionSlope[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "KC", &croptbl->userKc[j], 'd');
+        if (!ReadKeyword (cmdstr, "KC", &croptbl->userKc[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "ANNUAL", &croptbl->userAnnual[j], 'i');
+        if (!ReadKeyword (cmdstr, "ANNUAL", &croptbl->userAnnual[j], 'i'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "LEGUME", &croptbl->userLegume[j], 'i');
+        if (!ReadKeyword (cmdstr, "LEGUME", &croptbl->userLegume[j], 'i'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "C3", &croptbl->userC3orC4[j], 'i');
+        if (!ReadKeyword (cmdstr, "C3", &croptbl->userC3orC4[j], 'i'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "LWP_STRESS_ONSET",
-            &croptbl->LWP_StressOnset[j], 'd');
+        if (!ReadKeyword (cmdstr, "LWP_STRESS_ONSET",
+                &croptbl->LWP_StressOnset[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "LWP_WILTING_POINT",
-            &croptbl->LWP_WiltingPoint[j], 'd');
+        if (!ReadKeyword (cmdstr, "LWP_WILTING_POINT",
+                &croptbl->LWP_WiltingPoint[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
 
         NextLine (crop_file, cmdstr);
-        ReadKeyword (cmdstr, "TRANSPIRATION_MAX",
-            &croptbl->transpirationMax[j], 'd');
+        if (!ReadKeyword (cmdstr, "TRANSPIRATION_MAX",
+                &croptbl->transpirationMax[j], 'd'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
     }
 
     fclose (crop_file);
@@ -573,17 +803,33 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 FindLine (op_file, "PLANTING");
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "YEAR", &q->opYear, 'i');
+                if (!ReadKeyword (cmdstr, "YEAR", &q->opYear, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "DOY", &q->opDay, 'i');
+                if (!ReadKeyword (cmdstr, "DOY", &q->opDay, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "CROP", q->cropName, 's');
+                if (!ReadKeyword (cmdstr, "CROP", q->cropName, 's'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "USE_AUTO_IRR",
-                    &q->usesAutoIrrigation, 'i');
+                if (!ReadKeyword (cmdstr, "USE_AUTO_IRR",
+                        &q->usesAutoIrrigation, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
                 if (q->usesAutoIrrigation == 0)
                 {
                     q->usesAutoIrrigation = -1;
@@ -594,19 +840,32 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "USE_AUTO_FERT",
-                    &q->usesAutoFertilization, 'i');
+                if (!ReadKeyword (cmdstr, "USE_AUTO_FERT",
+                        &q->usesAutoFertilization, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
                 if (q->usesAutoFertilization == 0)
                 {
                     q->usesAutoFertilization = -1;
                 }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "FRACTION", &q->plantingDensity, 'd');
+                if (!ReadKeyword (cmdstr, "FRACTION", &q->plantingDensity,
+                        'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "CLIPPING_START", &q->clippingStart,
-                    'i');
+                if (!ReadKeyword (cmdstr, "CLIPPING_START", &q->clippingStart,
+                        'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
                 if (q->clippingStart > 366 || q->clippingStart < 1)
                 {
                     printf
@@ -615,7 +874,12 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "CLIPPING_END", &q->clippingEnd, 'i');
+                if (!ReadKeyword (cmdstr, "CLIPPING_END", &q->clippingEnd,
+                        'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
                 if (q->clippingEnd > 366 || q->clippingEnd < 1)
                 {
                     printf
@@ -660,26 +924,55 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 FindLine (op_file, "TILLAGE");
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "YEAR", &q->opYear, 'i');
+                if (!ReadKeyword (cmdstr, "YEAR", &q->opYear, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "DOY", &q->opDay, 'i');
+                if (!ReadKeyword (cmdstr, "DOY", &q->opDay, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "TOOL", q->opToolName, 's');
+                if (!ReadKeyword (cmdstr, "TOOL", q->opToolName, 's'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "DEPTH", &q->opDepth, 'd');
+                if (!ReadKeyword (cmdstr, "DEPTH", &q->opDepth, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "SOIL_DISTURB_RATIO", &q->opSDR, 'd');
+                if (!ReadKeyword (cmdstr, "SOIL_DISTURB_RATIO", &q->opSDR,
+                        'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "MIXING_EFFICIENCY",
-                    &q->opMixingEfficiency, 'd');
+                if (!ReadKeyword (cmdstr, "MIXING_EFFICIENCY",
+                        &q->opMixingEfficiency, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "CROP_NAME", q->cropNameT, 's');
+                if (!ReadKeyword (cmdstr, "CROP_NAME", q->cropNameT, 's'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 /* Check if the specified crop exists */
                 if (strcasecmp (q->cropNameT, "N/A") != 0 &&
@@ -692,19 +985,36 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "FRAC_THERMAL_TIME",
-                    &q->fractionThermalTime, 'd');
+                if (!ReadKeyword (cmdstr, "FRAC_THERMAL_TIME",
+                        &q->fractionThermalTime, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "KILL_EFFICIENCY",
-                    &q->killEfficiency, 'd');
+                if (!ReadKeyword (cmdstr, "KILL_EFFICIENCY",
+                        &q->killEfficiency, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "GRAIN_HARVEST", &q->grainHarvest, 'i');
+                if (!ReadKeyword (cmdstr, "GRAIN_HARVEST", &q->grainHarvest,
+                        'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "FORAGE_HARVEST",
-                    &q->forageHarvest, 'd');
+                if (!ReadKeyword (cmdstr, "FORAGE_HARVEST",
+                        &q->forageHarvest, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 q->status = 0;
             }
@@ -727,58 +1037,134 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 FindLine (op_file, "FIXED_FERTILIZATION");
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "YEAR", &q->opYear, 'i');
+                if (!ReadKeyword (cmdstr, "YEAR", &q->opYear, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "DOY", &q->opDay, 'i');
+                if (!ReadKeyword (cmdstr, "DOY", &q->opDay, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "SOURCE", q->opSource, 's');
+                if (!ReadKeyword (cmdstr, "SOURCE", q->opSource, 's'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "MASS", &q->opMass, 'd');
+                if (!ReadKeyword (cmdstr, "MASS", &q->opMass, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "FORM", q->opForm, 's');
+                if (!ReadKeyword (cmdstr, "FORM", q->opForm, 's'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "METHOD", q->opMethod, 's');
+                if (!ReadKeyword (cmdstr, "METHOD", q->opMethod, 's'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "LAYER", &q->opLayer, 'i');
+                if (!ReadKeyword (cmdstr, "LAYER", &q->opLayer, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "C_ORGANIC", &q->opC_Organic, 'd');
+                if (!ReadKeyword (cmdstr, "C_ORGANIC", &q->opC_Organic, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "C_CHARCOAL", &q->opC_Charcoal, 'd');
+                if (!ReadKeyword (cmdstr, "C_CHARCOAL", &q->opC_Charcoal,
+                        'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "N_ORGANIC", &q->opN_Organic, 'd');
+                if (!ReadKeyword (cmdstr, "N_ORGANIC", &q->opN_Organic, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "N_CHARCOAL", &q->opN_Charcoal, 'd');
+                if (!ReadKeyword (cmdstr, "N_CHARCOAL", &q->opN_Charcoal,
+                        'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "N_NH4", &q->opN_NH4, 'd');
+                if (!ReadKeyword (cmdstr, "N_NH4", &q->opN_NH4, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "N_NO3", &q->opN_NO3, 'd');
+                if (!ReadKeyword (cmdstr, "N_NO3", &q->opN_NO3, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "P_ORGANIC", &q->opP_Organic, 'd');
+                if (!ReadKeyword (cmdstr, "P_ORGANIC", &q->opP_Organic, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "P_CHARCOAL", &q->opP_Charcoal, 'd');
+                if (!ReadKeyword (cmdstr, "P_CHARCOAL", &q->opP_Charcoal,
+                        'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "P_INORGANIC", &q->opP_Inorganic, 'd');
+                if (!ReadKeyword (cmdstr, "P_INORGANIC", &q->opP_Inorganic,
+                        'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "K", &q->opK, 'd');
+                if (!ReadKeyword (cmdstr, "K", &q->opK, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "S", &q->opS, 'd');
+                if (!ReadKeyword (cmdstr, "S", &q->opS, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 q->status = 0;
 
@@ -815,13 +1201,25 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 FindLine (op_file, "FIXED_IRRIGATION");
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "YEAR", &q->opYear, 'i');
+                if (!ReadKeyword (cmdstr, "YEAR", &q->opYear, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "DOY", &q->opDay, 'i');
+                if (!ReadKeyword (cmdstr, "DOY", &q->opDay, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "VOLUME", &q->opVolume, 'd');
+                if (!ReadKeyword (cmdstr, "VOLUME", &q->opVolume, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 q->status = 0;
             }
@@ -841,24 +1239,44 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 FindLine (op_file, "AUTO_IRRIGATION");
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "CROP",
-                    cropmgmt->autoIrrigation[j].cropName, 's');
+                if (!ReadKeyword (cmdstr, "CROP",
+                        cropmgmt->autoIrrigation[j].cropName, 's'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "START_DAY",
-                    &cropmgmt->autoIrrigation[j].startDay, 'i');
+                if (!ReadKeyword (cmdstr, "START_DAY",
+                        &cropmgmt->autoIrrigation[j].startDay, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "STOP_DAY",
-                    &cropmgmt->autoIrrigation[j].stopDay, 'i');
+                if (!ReadKeyword (cmdstr, "STOP_DAY",
+                        &cropmgmt->autoIrrigation[j].stopDay, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "WATER_DEPLETION",
-                    &cropmgmt->autoIrrigation[j].waterDepletion, 'd');
+                if (!ReadKeyword (cmdstr, "WATER_DEPLETION",
+                        &cropmgmt->autoIrrigation[j].waterDepletion, 'd'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
 
                 NextLine (op_file, cmdstr);
-                ReadKeyword (cmdstr, "LAST_SOIL_LAYER",
-                    &cropmgmt->autoIrrigation[j].lastSoilLayer, 'i');
+                if (!ReadKeyword (cmdstr, "LAST_SOIL_LAYER",
+                        &cropmgmt->autoIrrigation[j].lastSoilLayer, 'i'))
+                {
+                    fprintf (stderr, "Error opening %s.\n", filename);
+                    PIHMError (1);
+                }
             }
         }
 

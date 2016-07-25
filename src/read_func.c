@@ -231,7 +231,7 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type)
                 success = 0;
             }
             break;
-        case 'c':
+        case 's':
             match = sscanf (buffer, "%s %[^\n]", optstr, (char *)value);
             if (match != 2 || strcasecmp (keyword, optstr) != 0)
             {

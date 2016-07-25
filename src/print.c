@@ -731,161 +731,235 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     n++;
                     break;
 #endif
+#ifdef _CYCLES_
+                case BIOMASS_CTRL:
+                    for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name, "%s%s.%s.biomass",
+                            outputdir, simulation,
+                            pihm->elem[0].comm.Crop[k].cropName);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
+                            sizeof (double *));
+                        for (j = 0; j < pihm->numele; j++)
+                        {
+                            pihm->prtctrl[n].var[j] =
+                                &pihm->elem[j].comm.Crop[k].svBiomass;
+                        }
+                        n++;
+                    }
+                    break;
+                case RADNINTCP_CTRL:
+                    for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name, "%s%s.%s.radintcp",
+                            outputdir, simulation,
+                            pihm->elem[0].comm.Crop[k].cropName);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
+                            sizeof (double *));
+                        for (j = 0; j < pihm->numele; j++)
+                        {
+                            pihm->prtctrl[n].var[j] =
+                                &pihm->
+                                elem[j].comm.Crop[k].svRadiationInterception;
+                        }
+                        n++;
+                    }
+                    break;
+                case WATER_STS_CTRL:
+                    for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name, "%s%s.%s.waterstress",
+                            outputdir, simulation,
+                            pihm->elem[0].comm.Crop[k].cropName);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
+                            sizeof (double *));
+                        for (j = 0; j < pihm->numele; j++)
+                        {
+                            pihm->prtctrl[n].var[j] =
+                                &pihm->
+                                elem[j].comm.Crop[k].svWaterStressFactor;
+                        }
+                        n++;
+                    }
+                    break;
+                case N_STS_CTRL:
+                    for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name, "%s%s.%s.nstress",
+                            outputdir, simulation,
+                            pihm->elem[0].comm.Crop[k].cropName);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
+                            sizeof (double *));
+                        for (j = 0; j < pihm->numele; j++)
+                        {
+                            pihm->prtctrl[n].var[j] =
+                                &pihm->elem[j].comm.Crop[k].svN_StressFactor;
+                        }
+                        n++;
+                    }
+                    break;
+                case CROP_TR_CTRL:
+                    for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name, "%s%s.%s.transp",
+                            outputdir, simulation,
+                            pihm->elem[0].comm.Crop[k].cropName);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
+                            sizeof (double *));
+                        for (j = 0; j < pihm->numele; j++)
+                        {
+                            pihm->prtctrl[n].var[j] =
+                                &pihm->elem[j].comm.Crop[k].svTranspiration;
+                        }
+                        n++;
+                    }
+                    break;
+                case CROP_POTTR_CTRL:
+                    for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name, "%s%s.%s.pottransp",
+                            outputdir, simulation,
+                            pihm->elem[0].comm.Crop[k].cropName);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
+                            sizeof (double *));
+                        for (j = 0; j < pihm->numele; j++)
+                        {
+                            pihm->prtctrl[n].var[j] =
+                                &pihm->
+                                elem[j].comm.Crop[k].svTranspirationPotential;
+                        }
+                        n++;
+                    }
+                    break;
+                case RES_EVAP_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.eres", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].wf.eres;
+                    }
+                    n++;
+                    break;
+                case NO3_PROF_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.NO3", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].var[j] =
+                            &pihm->elem[j].soil.NO3Profile;
+                    }
+                    n++;
+                    break;
+                case NO3_RIVER_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivNO3", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].var[j] =
+                            &pihm->riv[j].NO3sol.soluteMass[0];
+                    }
+                    n++;
+                    break;
+                case NH4_PROF_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.NH4", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].var[j] =
+                            &pihm->elem[j].soil.NH4Profile;
+                    }
+                    n++;
+                    break;
+                case NH4_RIVER_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.rivNH4", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numriv;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numriv; j++)
+                    {
+                        pihm->prtctrl[n].var[j] =
+                            &pihm->riv[j].NH4sol.soluteMass[0];
+                    }
+                    n++;
+                    break;
+                case NO3_DENIT_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.NO3denitrif",
+                        outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].var[j] =
+                            &pihm->elem[j].soil.NO3_Denitrification;
+                    }
+                    n++;
+                    break;
+                case LAI_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.lai", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ps.proj_lai;
+                    }
+                    n++;
+                    break;
+
+#endif
                 default:
                     break;
             }
         }
     }
 
-#ifdef _CYCLES_
-    for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
-    {
-        sprintf (pihm->prtctrl[n].name, "%s%s.%s.biomass", outputdir,
-            simulation, pihm->elem[0].comm.Crop[k].cropName);
-        pihm->prtctrl[n].intvl = 86400;
-        pihm->prtctrl[n].nvar = pihm->numele;
-        pihm->prtctrl[n].var =
-            (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
-        for (j = 0; j < pihm->numele; j++)
-        {
-            pihm->prtctrl[n].var[j] = &pihm->elem[j].comm.Crop[k].svBiomass;
-        }
-        n++;
-
-        sprintf (pihm->prtctrl[n].name, "%s%s.%s.radintcp", outputdir,
-            simulation, pihm->elem[0].comm.Crop[k].cropName);
-        pihm->prtctrl[n].intvl = 86400;
-        pihm->prtctrl[n].nvar = pihm->numele;
-        pihm->prtctrl[n].var =
-            (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
-        for (j = 0; j < pihm->numele; j++)
-        {
-            pihm->prtctrl[n].var[j] =
-                &pihm->elem[j].comm.Crop[k].svRadiationInterception;
-        }
-        n++;
-
-        sprintf (pihm->prtctrl[n].name, "%s%s.%s.waterstress", outputdir,
-            simulation, pihm->elem[0].comm.Crop[k].cropName);
-        pihm->prtctrl[n].intvl = 86400;
-        pihm->prtctrl[n].nvar = pihm->numele;
-        pihm->prtctrl[n].var =
-            (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
-        for (j = 0; j < pihm->numele; j++)
-        {
-            pihm->prtctrl[n].var[j] =
-                &pihm->elem[j].comm.Crop[k].svWaterStressFactor;
-        }
-        n++;
-
-        sprintf (pihm->prtctrl[n].name, "%s%s.%s.nstress", outputdir,
-            simulation, pihm->elem[0].comm.Crop[k].cropName);
-        pihm->prtctrl[n].intvl = 86400;
-        pihm->prtctrl[n].nvar = pihm->numele;
-        pihm->prtctrl[n].var =
-            (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
-        for (j = 0; j < pihm->numele; j++)
-        {
-            pihm->prtctrl[n].var[j] =
-                &pihm->elem[j].comm.Crop[k].svN_StressFactor;
-        }
-        n++;
-
-        sprintf (pihm->prtctrl[n].name, "%s%s.%s.transp", outputdir,
-            simulation, pihm->elem[0].comm.Crop[k].cropName);
-        pihm->prtctrl[n].intvl = 86400;
-        pihm->prtctrl[n].nvar = pihm->numele;
-        pihm->prtctrl[n].var =
-            (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
-        for (j = 0; j < pihm->numele; j++)
-        {
-            pihm->prtctrl[n].var[j] =
-                &pihm->elem[j].comm.Crop[k].svTranspiration;
-        }
-        n++;
-
-        sprintf (pihm->prtctrl[n].name, "%s%s.%s.pottransp", outputdir,
-            simulation, pihm->elem[0].comm.Crop[k].cropName);
-        pihm->prtctrl[n].intvl = 86400;
-        pihm->prtctrl[n].nvar = pihm->numele;
-        pihm->prtctrl[n].var =
-            (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
-        for (j = 0; j < pihm->numele; j++)
-        {
-            pihm->prtctrl[n].var[j] =
-                &pihm->elem[j].comm.Crop[k].svTranspirationPotential;
-        }
-        n++;
-    }
-
-    sprintf (pihm->prtctrl[n].name, "%s%s.eres", outputdir, simulation);
-    pihm->prtctrl[n].intvl = 3600;
-    pihm->prtctrl[n].nvar = pihm->numele;
-    pihm->prtctrl[n].var =
-        (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
-    for (j = 0; j < pihm->numele; j++)
-    {
-        pihm->prtctrl[n].var[j] = &pihm->elem[j].wf.eres;
-    }
-    n++;
-
-    sprintf (pihm->prtctrl[n].name, "%s%s.NO3", outputdir, simulation);
-    pihm->prtctrl[n].intvl = 3600;
-    pihm->prtctrl[n].nvar = pihm->numele;
-    pihm->prtctrl[n].var =
-        (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
-    for (j = 0; j < pihm->numele; j++)
-    {
-        pihm->prtctrl[n].var[j] = &pihm->elem[j].soil.NO3Profile;
-    }
-    n++;
-
-    sprintf (pihm->prtctrl[n].name, "%s%s.rivNO3", outputdir, simulation);
-    pihm->prtctrl[n].intvl = 3600;
-    pihm->prtctrl[n].nvar = pihm->numriv;
-    pihm->prtctrl[n].var =
-        (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
-    for (j = 0; j < pihm->numriv; j++)
-    {
-        pihm->prtctrl[n].var[j] = &pihm->riv[j].NO3sol.soluteMass[0];
-    }
-    n++;
-
-    sprintf (pihm->prtctrl[n].name, "%s%s.NH4", outputdir, simulation);
-    pihm->prtctrl[n].intvl = 3600;
-    pihm->prtctrl[n].nvar = pihm->numele;
-    pihm->prtctrl[n].var =
-        (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
-    for (j = 0; j < pihm->numele; j++)
-    {
-        pihm->prtctrl[n].var[j] = &pihm->elem[j].soil.NH4Profile;
-    }
-    n++;
-
-    sprintf (pihm->prtctrl[n].name, "%s%s.rivNH4", outputdir, simulation);
-    pihm->prtctrl[n].intvl = 3600;
-    pihm->prtctrl[n].nvar = pihm->numriv;
-    pihm->prtctrl[n].var =
-        (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
-    for (j = 0; j < pihm->numriv; j++)
-    {
-        pihm->prtctrl[n].var[j] = &pihm->riv[j].NH4sol.soluteMass[0];
-    }
-    n++;
-
-    sprintf (pihm->prtctrl[n].name, "%s%s.NO3denitrif", outputdir,
-        simulation);
-    pihm->prtctrl[n].intvl = 86400;
-    pihm->prtctrl[n].nvar = pihm->numele;
-    pihm->prtctrl[n].var =
-        (double **)malloc (pihm->prtctrl[n].nvar * sizeof (double *));
-    for (j = 0; j < pihm->numele; j++)
-    {
-        pihm->prtctrl[n].var[j] = &pihm->elem[j].soil.NO3_Denitrification;
-    }
-    n++;
-
-#endif
 
     pihm->ctrl.nprint = n;
 

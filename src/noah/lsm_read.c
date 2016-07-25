@@ -32,13 +32,25 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
      */
     FindLine (lsm_file, "BOF");
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "LATITUDE", latitude, 'd');
+    if (!ReadKeyword (cmdstr, "LATITUDE", latitude, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "LONGITUDE", longitude, 'd');
+    if (!ReadKeyword (cmdstr, "LONGITUDE", longitude, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "NSOIL", &ctrl->nsoil, 'i');
+    if (!ReadKeyword (cmdstr, "NSOIL", &ctrl->nsoil, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMError (1);
+    }
     if (ctrl->nsoil > MAXLYR - 1)
     {
         fprintf (stderr, "Error reading %s.\n", filename);
@@ -49,7 +61,11 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
     }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "SLDPTH_DATA", buffer, 's');
+    if (!ReadKeyword (cmdstr, "SLDPTH_DATA", buffer, 's'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMError (1);
+    }
 
     for (i = 0; i < ctrl->nsoil; i++)
     {
@@ -66,77 +82,173 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
     }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "RAD_MODE_DATA", &ctrl->rad_mode, 'i');
+    if (!ReadKeyword (cmdstr, "RAD_MODE_DATA", &ctrl->rad_mode, 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "SBETA_DATA", &noahtbl->sbeta, 'd');
+    if (!ReadKeyword (cmdstr, "SBETA_DATA", &noahtbl->sbeta, 'd'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "FXEXP_DATA", &noahtbl->fxexp, 'd');
+    if (!ReadKeyword (cmdstr, "FXEXP_DATA", &noahtbl->fxexp, 'd'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "CSOIL_DATA", &noahtbl->csoil, 'd');
+    if (!ReadKeyword (cmdstr, "CSOIL_DATA", &noahtbl->csoil, 'd'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "SALP_DATA", &noahtbl->salp, 'd');
+    if (!ReadKeyword (cmdstr, "SALP_DATA", &noahtbl->salp, 'd'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "FRZK_DATA", &noahtbl->frzk, 'd');
+    if (!ReadKeyword (cmdstr, "FRZK_DATA", &noahtbl->frzk, 'd'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "ZBOT_DATA", &noahtbl->zbot, 'd');
+    if (!ReadKeyword (cmdstr, "ZBOT_DATA", &noahtbl->zbot, 'd'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "TBOT_DATA", &noahtbl->tbot, 'd');
+    if (!ReadKeyword (cmdstr, "TBOT_DATA", &noahtbl->tbot, 'd'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "CZIL_DATA", &noahtbl->czil, 'd');
+    if (!ReadKeyword (cmdstr, "CZIL_DATA", &noahtbl->czil, 'd'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "LVCOEF_DATA", &noahtbl->lvcoef, 'd');
+    if (!ReadKeyword (cmdstr, "LVCOEF_DATA", &noahtbl->lvcoef, 'd'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     /* Output control */
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "T1", &ctrl->prtvrbl[T1_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "T1", &ctrl->prtvrbl[T1_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "STC", &ctrl->prtvrbl[STC_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "STC", &ctrl->prtvrbl[STC_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "SMC", &ctrl->prtvrbl[SMC_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "SMC", &ctrl->prtvrbl[SMC_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "SH2O", &ctrl->prtvrbl[SH2O_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "SH2O", &ctrl->prtvrbl[SH2O_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "SNOWH", &ctrl->prtvrbl[SNOWH_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "SNOWH", &ctrl->prtvrbl[SNOWH_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "ALBEDO", &ctrl->prtvrbl[ALBEDO_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "ALBEDO", &ctrl->prtvrbl[ALBEDO_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "LE", &ctrl->prtvrbl[LE_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "LE", &ctrl->prtvrbl[LE_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "SH", &ctrl->prtvrbl[SH_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "SH", &ctrl->prtvrbl[SH_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "G", &ctrl->prtvrbl[G_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "G", &ctrl->prtvrbl[G_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "ETP", &ctrl->prtvrbl[ETP_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "ETP", &ctrl->prtvrbl[ETP_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "ESNOW", &ctrl->prtvrbl[ESNOW_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "ESNOW", &ctrl->prtvrbl[ESNOW_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "ROOTW", &ctrl->prtvrbl[ROOTW_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "ROOTW", &ctrl->prtvrbl[ROOTW_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "SOILM", &ctrl->prtvrbl[SOILM_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "SOILM", &ctrl->prtvrbl[SOILM_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     NextLine (lsm_file, cmdstr);
-    ReadKeyword (cmdstr, "SOLAR", &ctrl->prtvrbl[SOLAR_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "SOLAR", &ctrl->prtvrbl[SOLAR_CTRL], 'i'))
+    {
+        fprintf (stderr, "Pleareadheck SLDPTH_DATA.\n");
+        PIHMError (1);
+    }
 
     fclose (lsm_file);
 }
@@ -180,7 +292,12 @@ void ReadRad (char *filename, forc_struct *forc)
     NextLine (rad_file, cmdstr);
     for (i = 0; i < forc->nrad; i++)
     {
-        ReadKeyword (cmdstr, "RAD_TS", &index, 'i');
+        if (!ReadKeyword (cmdstr, "RAD_TS", &index, 'i'))
+        {
+            fprintf (stderr, "Error reading %s.\n", filename);
+            PIHMError (1);
+        }
+
         if (i != index - 1)
         {
             fprintf (stderr, "Error reading %s.\n", filename);

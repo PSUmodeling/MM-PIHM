@@ -83,13 +83,13 @@ void _PIHMError (const char *fn, int lineno, const char *func, int error)
     fflush (stderr);
     MPI_Abort (MPI_COMM_WORLD, error);
 #else
-    fprintf (stderr, "Error in %s", func);
+    fprintf (stderr, "\n");
+    fprintf (stderr, "Exiting from %s", func);
     if (verbose_mode)
     {
         fprintf (stderr, " (%s, Line %d)", fn, lineno);
     }
-    fprintf (stderr, ".\n");
-    fprintf (stderr, "Exiting...\n");
+    fprintf (stderr, "...\n\n");
     fflush (stderr);
     exit (error);
 #endif

@@ -52,7 +52,7 @@ void Noah (int t, pihm_struct pihm)
                 1.0 - ((elem->comm.svRadiationInterception >
                     0.98) ? 0.98 : elem->comm.svRadiationInterception);
 
-            elem->ps.proj_lai = -log (1.0 - tau) / ksolar;
+            elem->ps.proj_lai = -log (tau) / ksolar;
         }
         else
         {

@@ -101,25 +101,75 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
 
     FindLine (bgc_file, "DAILY_OUTPUT");
     NextLine (bgc_file, cmdstr);
-    ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", fn);
+        PIHMError (1);
+    }
+
     NextLine (bgc_file, cmdstr);
-    ReadKeyword (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", fn);
+        PIHMError (1);
+    }
+
     NextLine (bgc_file, cmdstr);
-    ReadKeyword (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", fn);
+        PIHMError (1);
+    }
+
     NextLine (bgc_file, cmdstr);
-    ReadKeyword (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", fn);
+        PIHMError (1);
+    }
+
     NextLine (bgc_file, cmdstr);
-    ReadKeyword (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", fn);
+        PIHMError (1);
+    }
+
     NextLine (bgc_file, cmdstr);
-    ReadKeyword (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", fn);
+        PIHMError (1);
+    }
+
     NextLine (bgc_file, cmdstr);
-    ReadKeyword (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", fn);
+        PIHMError (1);
+    }
+
     NextLine (bgc_file, cmdstr);
-    ReadKeyword (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", fn);
+        PIHMError (1);
+    }
+
     NextLine (bgc_file, cmdstr);
-    ReadKeyword (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", fn);
+        PIHMError (1);
+    }
+
     NextLine (bgc_file, cmdstr);
-    ReadKeyword (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL], 'i');
+    if (!ReadKeyword (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", fn);
+        PIHMError (1);
+    }
+
 
     fclose (bgc_file);
 }
