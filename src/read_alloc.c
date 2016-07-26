@@ -1630,6 +1630,8 @@ void ReadCalib (char *filename, calib_struct *cal)
     }
 
 #ifdef _RT_
+    FindLine (global_calib, "RT_CALIBRATION");
+
     CS->Cal.PCO2 = 1.0;
     CS->Cal.Keq = 1.0;
     CS->Cal.Site_den = 1.0;
@@ -1638,6 +1640,8 @@ void ReadCalib (char *filename, calib_struct *cal)
 #endif
 
 #ifdef _NOAH_
+    FindLine (global_calib, "LSM_CALIBRATION");
+
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "DRIP", &cal->drip, 'd'))
     {
@@ -1712,6 +1716,8 @@ void ReadCalib (char *filename, calib_struct *cal)
     /*
      * Scenarios
      */
+    FindLine (global_calib, "SCENARIO");
+
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "PRCP", &cal->prcp, 'd'))
     {
