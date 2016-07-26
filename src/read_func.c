@@ -265,7 +265,7 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type)
         default:
             fprintf (stderr, "Error: Keyword type \'%c\' is not defined.\n",
                 type);
-            PIHMError (1);
+            PIHMExit (EXIT_FAILURE);
     }
 
     return (success);

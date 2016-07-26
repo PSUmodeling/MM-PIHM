@@ -71,7 +71,7 @@ void BKInput (char *simulation, char *outputdir)
     }
 }
 
-void _PIHMError (const char *fn, int lineno, const char *func, int error)
+void _PIHMExit (const char *fn, int lineno, const char *func, int error)
 {
 #ifdef _ENKF_
     int             id;

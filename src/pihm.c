@@ -46,7 +46,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle
     if (cvode_mem == NULL)
     {
         fprintf (stderr, "Error in allocating memory for solver.\n");
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
     /* Create output structures */

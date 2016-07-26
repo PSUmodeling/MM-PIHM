@@ -16,7 +16,7 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     if (NULL == bgc_file)
     {
         fprintf (stderr, "Error opening %s.\n", fn);
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
     FindLine (bgc_file, "TIME_DEFINE");
@@ -104,70 +104,70 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     if (!ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i'))
     {
         fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
     NextLine (bgc_file, cmdstr);
     if (!ReadKeyword (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL], 'i'))
     {
         fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
     NextLine (bgc_file, cmdstr);
     if (!ReadKeyword (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL], 'i'))
     {
         fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
     NextLine (bgc_file, cmdstr);
     if (!ReadKeyword (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL], 'i'))
     {
         fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
     NextLine (bgc_file, cmdstr);
     if (!ReadKeyword (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL], 'i'))
     {
         fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
     NextLine (bgc_file, cmdstr);
     if (!ReadKeyword (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL], 'i'))
     {
         fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
     NextLine (bgc_file, cmdstr);
     if (!ReadKeyword (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL], 'i'))
     {
         fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
     NextLine (bgc_file, cmdstr);
     if (!ReadKeyword (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL], 'i'))
     {
         fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
     NextLine (bgc_file, cmdstr);
     if (!ReadKeyword (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL], 'i'))
     {
         fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
     NextLine (bgc_file, cmdstr);
     if (!ReadKeyword (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL], 'i'))
     {
         fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
 
@@ -389,7 +389,7 @@ void ReadEPC (epctbl_struct *epctbl)
             if (NULL == epc_file)
             {
                 fprintf (stderr, "Error opening %s.\n", fn);
-                PIHMError (1);
+                PIHMExit (EXIT_FAILURE);
             }
 
             if (verbose_mode)
@@ -739,7 +739,7 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
     if (NULL == fid)
     {
         fprintf (stderr, "Error opening %s.\n", fn);
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
 
     if (verbose_mode)
@@ -763,7 +763,7 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
         {
             fprintf (stderr, "Error reading %s.\n", fn);
             fprintf (stderr, "Please check file format.\n");
-            PIHMError (1);
+            PIHMExit (EXIT_FAILURE);
         }
 
         timeinfo->tm_year = timeinfo->tm_year - 1900;

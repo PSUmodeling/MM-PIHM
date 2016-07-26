@@ -101,7 +101,7 @@ int main (int argc, char *argv[])
         fprintf (stderr, "\t-o Specify output directory.\n");
         fprintf (stderr, "\t-v Verbose mode\n");
         fprintf (stderr, "\t-d Debug mode\n");
-        PIHMError (1);
+        PIHMExit (EXIT_FAILURE);
     }
     else
     {
@@ -137,7 +137,7 @@ int main (int argc, char *argv[])
     ierr = MPI_Finalize ();
 #endif
 
-    return (0);
+    return (EXIT_SUCCESS);
 }
 
 #ifdef _ENKF_

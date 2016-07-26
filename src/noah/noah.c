@@ -264,7 +264,7 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
         {
             fprintf (stderr,
                 "Error: Physical snow depth is less than snow water equiv.\n");
-            PIHMError (1);
+            PIHMExit (EXIT_FAILURE);
         }
         ps->sncond = CSnow (ps->sndens);
     }

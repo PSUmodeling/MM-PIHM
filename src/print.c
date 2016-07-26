@@ -1046,9 +1046,10 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
 
     if (n > MAXPRINT)
     {
-        fprintf (stderr, "Error: Too many output files.
-            The maximum number of output files is %d.\n", MAXPRINT);
-        PIHMError (1);
+        fprintf (stderr, "Error: Too many output files. ");
+        fprintf (stderr, " The maximum number of output files is %d.\n",
+            MAXPRINT);
+        PIHMExit (EXIT_FAILURE);
     }
 
     pihm->ctrl.nprint = n;
@@ -1113,7 +1114,7 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
                 if (NULL == fid)
                 {
                     fprintf (stderr, "Error opening %s.\n", ascii_fn);
-                    PIHMError (1);
+                    PIHMExit (EXIT_FAILURE);
                 }
                 fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
                     timestamp->tm_year + 1900, timestamp->tm_mon + 1,
@@ -1142,7 +1143,7 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
             if (NULL == fid)
             {
                 fprintf (stderr, "Error opening %s.\n", prtctrl[i].name);
-                PIHMError (1);
+                PIHMExit (EXIT_FAILURE);
             }
 
             outtime = (double)t;

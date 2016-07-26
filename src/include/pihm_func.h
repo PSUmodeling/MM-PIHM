@@ -77,8 +77,8 @@ double          MonthlyRL (int, int);
 void            NextLine (FILE *, char *);
 double          OverlandFlow (double, double, double, double, double);
 double          OLFEleToRiv (double, double, double, double, double, double);
-#define PIHMError(i)  _PIHMError(__FILE__, __LINE__, __FUNCTION__, i)
-void            _PIHMError (const char *, int, const char *, int);
+#define PIHMExit(i)  _PIHMExit(__FILE__, __LINE__, __FUNCTION__, i)
+void            _PIHMExit (const char *, int, const char *, int);
 void            PIHMRun (char *, char *, int
 #ifdef _ENKF_
     , int, int, int, double *
