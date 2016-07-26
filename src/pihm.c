@@ -1,11 +1,10 @@
 #include "pihm.h"
 
+void PIHMRun (char *simulation, char *outputdir, int first_cycle
 #ifdef _ENKF_
-void PIHMRun (char *simulation, char *outputdir, int first_cycle,
-    int starttime, int endtime, int startmode, double *param)
-#else
-void PIHMRun (char *simulation, char *outputdir, int first_cycle)
+    , int starttime, int endtime, int startmode, double *param
 #endif
+    )
 {
     pihm_struct     pihm;
     N_Vector        CV_Y;       /* State Variables Vector */
@@ -13,12 +12,16 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     int             nsv;        /* Problem size */
     int             i;          /* Loop index */
     int             t;          /* Simulation time */
+#ifdef _BGC_
+    int             first_balance = 1;
+#endif
 
     /* Allocate memory for model data structure */
     pihm = (pihm_struct)malloc (sizeof *pihm);
 
     /* Read PIHM input files */
     ReadAlloc (simulation, pihm);
+
 #ifdef _ENKF_
     /* When running in ensemble mode, use parameters and calibration
      * determined by EnKF module */
@@ -42,8 +45,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
     cvode_mem = CVodeCreate (CV_BDF, CV_NEWTON);
     if (cvode_mem == NULL)
     {
-        printf ("Fatal error: CVodeMalloc failed. \n");
-        PihmExit (1);
+        fprintf (stderr, "Error in allocating memory for solver.\n");
+        PIHMExit (EXIT_FAILURE);
     }
 
     /* Create output structures */
@@ -73,7 +76,12 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         t = pihm->ctrl.tout[i];
 
         /* Apply forcing */
-        ApplyForcing (&pihm->forc, t);
+        ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv,
+            pihm->numriv, t
+#ifdef _BGC_
+            , &pihm->ctrl
+#endif
+            );
 
         /* Determine if land surface simulation is needed */
         if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
@@ -105,10 +113,25 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         /*
          * Daily timestep modules
          */
-#ifdef _CYCLES_
+#ifdef _DAILY_
         if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
         {
+#ifdef _CYCLES_
             DailyCycles (t - DAYINSEC, pihm);
+#endif
+#ifdef _BGC_
+            if (pihm->ctrl.bgc_spinup)
+            {
+                Save2Stor (pihm, t, pihm->ctrl.spinupstart,
+                    pihm->ctrl.spinupend);
+            }
+            else
+            {
+                DailyBgc (pihm, t, pihm->ctrl.starttime, first_balance);
+
+                first_balance = 0;
+            }
+#endif
         }
 #endif
 
@@ -132,6 +155,13 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle)
         }
 #endif
     }
+
+#ifdef _BGC_
+    if (pihm->ctrl.bgc_spinup)
+    {
+        BGCSpinup (simulation, pihm, outputdir);
+    }
+#endif
 
     /*
      * Write init files

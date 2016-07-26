@@ -1,3 +1,4 @@
+
 /* 
  * precision_control.c
  * Detects very low values in state variable structures, and forces them to
@@ -9,9 +10,9 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
-void precision_control (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns)
+void PrecisionControl (cstate_struct *cs, nstate_struct *ns)
 {
     /* CARBON AND NITROGEN STATE VARIABLES */
     /* force very low leaf C to 0.0, to avoid roundoff
@@ -137,22 +138,5 @@ void precision_control (wstate_struct * ws, cstate_struct * cs, nstate_struct * 
     {
         ns->litr1n += ns->retransn;
         ns->retransn = 0.0;
-    }
-
-    /* WATER STATE VARIABLES */
-    if (ws->soilw < CRIT_PREC)
-    {
-        ws->soilevap_snk += ws->soilw;
-        ws->soilw = 0.0;
-    }
-    if (ws->snoww < CRIT_PREC)
-    {
-        ws->snowsubl_snk += ws->snoww;
-        ws->snoww = 0.0;
-    }
-    if (ws->canopyw < CRIT_PREC)
-    {
-        ws->canopyevap_snk += ws->canopyw;
-        ws->canopyw = 0.0;
     }
 }

@@ -1,3 +1,4 @@
+
 /*
  * state_update.c
  * Resolve the fluxes in bgc() daily loop to update state variables
@@ -8,9 +9,10 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
-void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc, int woody, int evergreen)
+void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
+    int woody, int evergreen)
 {
     /* daily update of the carbon state variables */
 
@@ -25,9 +27,7 @@ void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc
 
     /* Phenology fluxes */
     /* leaf and fine root transfer growth */
-    //    printf ("leafc = %lf\n", cs->leafc);
     cs->leafc += cf->leafc_transfer_to_leafc;
-    //    printf ("+ leafc_transfer_to_leafc = %lf\n", cf->leafc_transfer_to_leafc);
     cs->leafc_transfer -= cf->leafc_transfer_to_leafc;
     cs->frootc += cf->frootc_transfer_to_frootc;
     cs->frootc_transfer -= cf->frootc_transfer_to_frootc;
@@ -46,16 +46,12 @@ void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc
     /* Leaf and fine root litterfall */
     cs->litr1c += cf->leafc_to_litr1c;
     cs->leafc -= cf->leafc_to_litr1c;
-    //printf ("- leafc_to_litr1c = %lf\n", cf->leafc_to_litr1c);
     cs->litr2c += cf->leafc_to_litr2c;
     cs->leafc -= cf->leafc_to_litr2c;
-    //printf ("- leafc_to_litr2c = %lf\n", cf->leafc_to_litr2c);
     cs->litr3c += cf->leafc_to_litr3c;
     cs->leafc -= cf->leafc_to_litr3c;
-    //printf ("- leafc_to_litr3c = %lf\n", cf->leafc_to_litr3c);
     cs->litr4c += cf->leafc_to_litr4c;
     cs->leafc -= cf->leafc_to_litr4c;
-    //printf ("- leafc_to_litr4c = %lf\n", cf->leafc_to_litr4c);
     cs->litr1c += cf->frootc_to_litr1c;
     cs->frootc -= cf->frootc_to_litr1c;
     cs->litr2c += cf->frootc_to_litr2c;
@@ -142,8 +138,6 @@ void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc
     /* Daily allocation fluxes */
     /* daily leaf allocation fluxes */
     cs->leafc += cf->cpool_to_leafc;
-    //printf ("+cpool_to_leafc = %lf\n", cf->cpool_to_leafc);
-    //printf ("leafc = %lf\n", cs->leafc);
     cs->cpool -= cf->cpool_to_leafc;
     cs->leafc_storage += cf->cpool_to_leafc_storage;
     cs->cpool -= cf->cpool_to_leafc_storage;
@@ -239,10 +233,14 @@ void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc
         cf->gresp_storage_to_gresp_transfer = cs->gresp_storage;
         if (woody)
         {
-            cf->livestemc_storage_to_livestemc_transfer = cs->livestemc_storage;
-            cf->deadstemc_storage_to_deadstemc_transfer = cs->deadstemc_storage;
-            cf->livecrootc_storage_to_livecrootc_transfer = cs->livecrootc_storage;
-            cf->deadcrootc_storage_to_deadcrootc_transfer = cs->deadcrootc_storage;
+            cf->livestemc_storage_to_livestemc_transfer =
+                cs->livestemc_storage;
+            cf->deadstemc_storage_to_deadstemc_transfer =
+                cs->deadstemc_storage;
+            cf->livecrootc_storage_to_livecrootc_transfer =
+                cs->livecrootc_storage;
+            cf->deadcrootc_storage_to_deadcrootc_transfer =
+                cs->deadcrootc_storage;
         }
         /* update states variables */
         cs->leafc_transfer += cf->leafc_storage_to_leafc_transfer;
@@ -253,14 +251,22 @@ void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc
         cs->gresp_storage -= cf->gresp_storage_to_gresp_transfer;
         if (woody)
         {
-            cs->livestemc_transfer += cf->livestemc_storage_to_livestemc_transfer;
-            cs->livestemc_storage -= cf->livestemc_storage_to_livestemc_transfer;
-            cs->deadstemc_transfer += cf->deadstemc_storage_to_deadstemc_transfer;
-            cs->deadstemc_storage -= cf->deadstemc_storage_to_deadstemc_transfer;
-            cs->livecrootc_transfer += cf->livecrootc_storage_to_livecrootc_transfer;
-            cs->livecrootc_storage -= cf->livecrootc_storage_to_livecrootc_transfer;
-            cs->deadcrootc_transfer += cf->deadcrootc_storage_to_deadcrootc_transfer;
-            cs->deadcrootc_storage -= cf->deadcrootc_storage_to_deadcrootc_transfer;
+            cs->livestemc_transfer +=
+                cf->livestemc_storage_to_livestemc_transfer;
+            cs->livestemc_storage -=
+                cf->livestemc_storage_to_livestemc_transfer;
+            cs->deadstemc_transfer +=
+                cf->deadstemc_storage_to_deadstemc_transfer;
+            cs->deadstemc_storage -=
+                cf->deadstemc_storage_to_deadstemc_transfer;
+            cs->livecrootc_transfer +=
+                cf->livecrootc_storage_to_livecrootc_transfer;
+            cs->livecrootc_storage -=
+                cf->livecrootc_storage_to_livecrootc_transfer;
+            cs->deadcrootc_transfer +=
+                cf->deadcrootc_storage_to_deadcrootc_transfer;
+            cs->deadcrootc_storage -=
+                cf->deadcrootc_storage_to_deadcrootc_transfer;
         }
 
         /* for deciduous system, force leafc and frootc to exactly 0.0 on the
@@ -275,7 +281,8 @@ void daily_carbon_state_update (cflux_struct * cf, cstate_struct * cs, int alloc
     }                           /* end if allocation day */
 }
 
-void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int alloc, int woody, int evergreen)
+void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
+    int woody, int evergreen)
 {
     /* N state variables are updated below in the order of the relevant fluxes
      * in the daily model loop */
@@ -288,9 +295,7 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
 
     /* Phenology fluxes */
     /* Leaf and fine root transfer growth */
-    //printf ("leafn = %lf\n", ns->leafn);
     ns->leafn += nf->leafn_transfer_to_leafn;
-    //printf ("+leafn_transfer_to_leafn = %lf, %lf\n", nf->leafn_transfer_to_leafn, ns->leafn);
     ns->leafn_transfer -= nf->leafn_transfer_to_leafn;
     ns->frootn += nf->frootn_transfer_to_frootn;
     ns->frootn_transfer -= nf->frootn_transfer_to_frootn;
@@ -309,19 +314,14 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
     /* Leaf and fine root litterfall */
     ns->litr1n += nf->leafn_to_litr1n;
     ns->leafn -= nf->leafn_to_litr1n;
-    //printf ("-leafn_to_litr1n = %lf, %lf\n", nf->leafn_to_litr1n, ns->leafn);
     ns->litr2n += nf->leafn_to_litr2n;
     ns->leafn -= nf->leafn_to_litr2n;
-    //printf ("-leafn_to_litr2n = %lf, %lf\n", nf->leafn_to_litr2n, ns->leafn);
     ns->litr3n += nf->leafn_to_litr3n;
     ns->leafn -= nf->leafn_to_litr3n;
-    //printf ("-leafn_to_litr3n = %lf, %lf\n", nf->leafn_to_litr3n, ns->leafn);
     ns->litr4n += nf->leafn_to_litr4n;
     ns->leafn -= nf->leafn_to_litr4n;
-    //printf ("-leafn_to_litr4n = %lf, %lf\n", nf->leafn_to_litr4n, ns->leafn);
-    ns->retransn += nf->leafn_to_retransn;  /* N retranslocation */
+    ns->retransn += nf->leafn_to_retransn;      /* N retranslocation */
     ns->leafn -= nf->leafn_to_retransn;
-    //printf ("-leafn_to_retransn = %lf, %lf\n", nf->leafn_to_retransn, ns->leafn);
     ns->litr1n += nf->frootn_to_litr1n;
     ns->frootn -= nf->frootn_to_litr1n;
     ns->litr2n += nf->frootn_to_litr2n;
@@ -358,7 +358,8 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
     ns->soil1n += nf->litr1n_to_soil1n;
     ns->litr1n -= nf->litr1n_to_soil1n;
     if (nf->sminn_to_soil1n_l1 < 0.0)
-        nf->sminn_to_nvol_l1s1 = -DENITRIF_PROPORTION * nf->sminn_to_soil1n_l1;
+        nf->sminn_to_nvol_l1s1 =
+            -DENITRIF_PROPORTION * nf->sminn_to_soil1n_l1;
     else
         nf->sminn_to_nvol_l1s1 = 0.0;
     ns->soil1n += nf->sminn_to_soil1n_l1;
@@ -369,7 +370,8 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
     ns->soil2n += nf->litr2n_to_soil2n;
     ns->litr2n -= nf->litr2n_to_soil2n;
     if (nf->sminn_to_soil2n_l2 < 0.0)
-        nf->sminn_to_nvol_l2s2 = -DENITRIF_PROPORTION * nf->sminn_to_soil2n_l2;
+        nf->sminn_to_nvol_l2s2 =
+            -DENITRIF_PROPORTION * nf->sminn_to_soil2n_l2;
     else
         nf->sminn_to_nvol_l2s2 = 0.0;
     ns->soil2n += nf->sminn_to_soil2n_l2;
@@ -383,7 +385,8 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
     ns->soil3n += nf->litr4n_to_soil3n;
     ns->litr4n -= nf->litr4n_to_soil3n;
     if (nf->sminn_to_soil3n_l4 < 0.0)
-        nf->sminn_to_nvol_l4s3 = -DENITRIF_PROPORTION * nf->sminn_to_soil3n_l4;
+        nf->sminn_to_nvol_l4s3 =
+            -DENITRIF_PROPORTION * nf->sminn_to_soil3n_l4;
     else
         nf->sminn_to_nvol_l4s3 = 0.0;
     ns->soil3n += nf->sminn_to_soil3n_l4;
@@ -394,7 +397,8 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
     ns->soil2n += nf->soil1n_to_soil2n;
     ns->soil1n -= nf->soil1n_to_soil2n;
     if (nf->sminn_to_soil2n_s1 < 0.0)
-        nf->sminn_to_nvol_s1s2 = -DENITRIF_PROPORTION * nf->sminn_to_soil2n_s1;
+        nf->sminn_to_nvol_s1s2 =
+            -DENITRIF_PROPORTION * nf->sminn_to_soil2n_s1;
     else
         nf->sminn_to_nvol_s1s2 = 0.0;
     ns->soil2n += nf->sminn_to_soil2n_s1;
@@ -405,7 +409,8 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
     ns->soil3n += nf->soil2n_to_soil3n;
     ns->soil2n -= nf->soil2n_to_soil3n;
     if (nf->sminn_to_soil3n_s2 < 0.0)
-        nf->sminn_to_nvol_s2s3 = -DENITRIF_PROPORTION * nf->sminn_to_soil3n_s2;
+        nf->sminn_to_nvol_s2s3 =
+            -DENITRIF_PROPORTION * nf->sminn_to_soil3n_s2;
     else
         nf->sminn_to_nvol_s2s3 = 0.0;
     ns->soil3n += nf->sminn_to_soil3n_s2;
@@ -416,7 +421,8 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
     ns->soil4n += nf->soil3n_to_soil4n;
     ns->soil3n -= nf->soil3n_to_soil4n;
     if (nf->sminn_to_soil4n_s3 < 0.0)
-        nf->sminn_to_nvol_s3s4 = -DENITRIF_PROPORTION * nf->sminn_to_soil4n_s3;
+        nf->sminn_to_nvol_s3s4 =
+            -DENITRIF_PROPORTION * nf->sminn_to_soil4n_s3;
     else
         nf->sminn_to_nvol_s3s4 = 0.0;
     ns->soil4n += nf->sminn_to_soil4n_s3;
@@ -443,7 +449,6 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
     /* Daily allocation fluxes */
     /* Daily leaf allocation fluxes */
     ns->leafn += nf->npool_to_leafn;
-    //printf ("+npool_to_leafn = %lf, %lf\n", nf->npool_to_leafn, ns->leafn);
     ns->npool -= nf->npool_to_leafn;
     ns->leafn_storage += nf->npool_to_leafn_storage;
     ns->npool -= nf->npool_to_leafn_storage;
@@ -488,10 +493,14 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
         nf->frootn_storage_to_frootn_transfer = ns->frootn_storage;
         if (woody)
         {
-            nf->livestemn_storage_to_livestemn_transfer = ns->livestemn_storage;
-            nf->deadstemn_storage_to_deadstemn_transfer = ns->deadstemn_storage;
-            nf->livecrootn_storage_to_livecrootn_transfer = ns->livecrootn_storage;
-            nf->deadcrootn_storage_to_deadcrootn_transfer = ns->deadcrootn_storage;
+            nf->livestemn_storage_to_livestemn_transfer =
+                ns->livestemn_storage;
+            nf->deadstemn_storage_to_deadstemn_transfer =
+                ns->deadstemn_storage;
+            nf->livecrootn_storage_to_livecrootn_transfer =
+                ns->livecrootn_storage;
+            nf->deadcrootn_storage_to_deadcrootn_transfer =
+                ns->deadcrootn_storage;
         }
         /* update states variables */
         ns->leafn_transfer += nf->leafn_storage_to_leafn_transfer;
@@ -500,14 +509,22 @@ void daily_nitrogen_state_update (nflux_struct * nf, nstate_struct * ns, int all
         ns->frootn_storage -= nf->frootn_storage_to_frootn_transfer;
         if (woody)
         {
-            ns->livestemn_transfer += nf->livestemn_storage_to_livestemn_transfer;
-            ns->livestemn_storage -= nf->livestemn_storage_to_livestemn_transfer;
-            ns->deadstemn_transfer += nf->deadstemn_storage_to_deadstemn_transfer;
-            ns->deadstemn_storage -= nf->deadstemn_storage_to_deadstemn_transfer;
-            ns->livecrootn_transfer += nf->livecrootn_storage_to_livecrootn_transfer;
-            ns->livecrootn_storage -= nf->livecrootn_storage_to_livecrootn_transfer;
-            ns->deadcrootn_transfer += nf->deadcrootn_storage_to_deadcrootn_transfer;
-            ns->deadcrootn_storage -= nf->deadcrootn_storage_to_deadcrootn_transfer;
+            ns->livestemn_transfer +=
+                nf->livestemn_storage_to_livestemn_transfer;
+            ns->livestemn_storage -=
+                nf->livestemn_storage_to_livestemn_transfer;
+            ns->deadstemn_transfer +=
+                nf->deadstemn_storage_to_deadstemn_transfer;
+            ns->deadstemn_storage -=
+                nf->deadstemn_storage_to_deadstemn_transfer;
+            ns->livecrootn_transfer +=
+                nf->livecrootn_storage_to_livecrootn_transfer;
+            ns->livecrootn_storage -=
+                nf->livecrootn_storage_to_livecrootn_transfer;
+            ns->deadcrootn_transfer +=
+                nf->deadcrootn_storage_to_deadcrootn_transfer;
+            ns->deadcrootn_storage -=
+                nf->deadcrootn_storage_to_deadcrootn_transfer;
         }
         /* for deciduous system, force leafn and frootn to exactly 0.0 on the
          * last day */

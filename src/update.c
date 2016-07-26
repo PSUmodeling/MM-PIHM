@@ -82,9 +82,9 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
          * Subsurface runoff rate
          */
         subrunoff = 0.0;
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
-            subrunoff += elem->wf.fluxsub[j] / elem->topo.area;
+            subrunoff += elem->wf.subsurf[j] / elem->topo.area;
         }
 
         recharge = (realgw1 - realgw0) * elem->soil.porosity / stepsize +
@@ -109,8 +109,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         CalcLatFlx (&elem->ws, &elem->ps, &elem->wf);
 #endif
 
-        pihm->elem[i].ws0 = pihm->elem[i].ws;
-
+        elem->ws0 = elem->ws;
     }
 
     for (i = 0; i < pihm->numriv; i++)
@@ -124,7 +123,6 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
     }
 
 #ifdef _NOAH_
-
     AvgFlux (pihm->elem, pihm->numele, SUM);
 #endif
 }

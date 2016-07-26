@@ -139,29 +139,14 @@ int CountLine (FILE * fid, char *cmdstr, int num_arg, ...)
     return (count);
 }
 
-void CheckFile (FILE * fid, char *fn)
-{
-    if (fid == NULL)
-    {
-        printf ("\n ERROR: %s is in use or does not exist!\n", fn);
-        PihmExit (1);
-    }
-    else
-    {
-        if (verbose_mode)
-        {
-            printf (" Reading %s\n", fn);
-        }
-    }
-}
-
-void ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
+int ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
 {
     int             match;
     struct tm      *timeinfo;
     int             bytes_now;
     int             bytes_consumed = 0;
     int             i;
+    int             success = 1;
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
@@ -173,13 +158,14 @@ void ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
         timeinfo->tm_sec = 0;
         if (match != nvrbl + 5)
         {
-            printf ("ERROR: Forcing format error!\n");
-            PihmExit (1);
+            success = 0;
         }
-
-        timeinfo->tm_year = timeinfo->tm_year - 1900;
-        timeinfo->tm_mon = timeinfo->tm_mon - 1;
-        *ftime = timegm (timeinfo);
+        else
+        {
+            timeinfo->tm_year = timeinfo->tm_year - 1900;
+            timeinfo->tm_mon = timeinfo->tm_mon - 1;
+            *ftime = timegm (timeinfo);
+        }
     }
     else
     {
@@ -190,94 +176,99 @@ void ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
 
         if (match != 5)
         {
-            printf ("ERROR: Forcing format error!\n");
-            PihmExit (1);
+            success = 0;
         }
-
-        for (i = 0; i < nvrbl; i++)
+        else
         {
-            match =
-                sscanf (cmdstr + bytes_consumed, "%lf%n", &data[i],
-                &bytes_now);
-            if (match != 1)
+            for (i = 0; i < nvrbl; i++)
             {
-                printf ("ERROR: Forcing format error!\n");
-                PihmExit (1);
+                match =
+                    sscanf (cmdstr + bytes_consumed, "%lf%n", &data[i],
+                    &bytes_now);
+                if (match != 1)
+                {
+                    success = 0;
+                }
+                bytes_consumed += bytes_now;
             }
-            bytes_consumed += bytes_now;
-        }
 
-        timeinfo->tm_year = timeinfo->tm_year - 1900;
-        timeinfo->tm_mon = timeinfo->tm_mon - 1;
-        timeinfo->tm_sec = 0;
-        *ftime = timegm (timeinfo);
+            timeinfo->tm_year = timeinfo->tm_year - 1900;
+            timeinfo->tm_mon = timeinfo->tm_mon - 1;
+            timeinfo->tm_sec = 0;
+            *ftime = timegm (timeinfo);
+        }
     }
 
     free (timeinfo);
+
+    return (success);
 }
 
-void ReadKeywordDouble (char *buffer, char *keyword, double *value)
+int ReadKeyword (char *buffer, char *keyword, void *value, char type)
 {
     int             match;
     char            optstr[MAXSTRING];
-
-    match = sscanf (buffer, "%s %lf", optstr, value);
-    if (match != 2 || strcasecmp (keyword, optstr) != 0)
-    {
-        printf ("ERROR: Expected keyword \"%s\"!\n", keyword);
-        PihmExit (1);
-    }
-}
-
-void ReadKeywordInt (char *buffer, char *keyword, int *value)
-{
-    int             match;
-    char            optstr[MAXSTRING];
-
-    match = sscanf (buffer, "%s %d", optstr, value);
-    if (match != 2 || strcasecmp (keyword, optstr) != 0)
-    {
-        printf ("ERROR: Expected keyword \"%s\"!\n", keyword);
-        PihmExit (1);
-    }
-}
-
-void ReadKeywordTime (char *buffer, char *keyword, int *value)
-{
-    char            optstr[MAXSTRING];
-    int             match;
+    int             success = 1;
     struct tm      *timeinfo;
 
-    timeinfo = (struct tm *)malloc (sizeof (struct tm));
-
-    match = sscanf (buffer, "%s %d-%d-%d %d:%d", optstr,
-        &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
-        &timeinfo->tm_hour, &timeinfo->tm_min);
-    timeinfo->tm_sec = 0;
-    if (match != 6 || strcasecmp (keyword, optstr) != 0)
+    switch (type)
     {
-        printf ("ERROR: Expected keyword \"%s\"!\n", keyword);
-        PihmExit (1);
+        case 'd':
+            match = sscanf (buffer, "%s %lf", optstr, (double *)value);
+            if (match != 2 || strcasecmp (keyword, optstr) != 0)
+            {
+                printf ("Expected keyword \"%s\", detected keyword \"%s\".\n",
+                    keyword, optstr);
+                success = 0;
+            }
+            break;
+        case 'i':
+            match = sscanf (buffer, "%s %d", optstr, (int *)value);
+            if (match != 2 || strcasecmp (keyword, optstr) != 0)
+            {
+                printf ("Expected keyword \"%s\", detected keyword \"%s\".\n",
+                    keyword, optstr);
+                success = 0;
+            }
+            break;
+        case 's':
+            match = sscanf (buffer, "%s %[^\n]", optstr, (char *)value);
+            if (match != 2 || strcasecmp (keyword, optstr) != 0)
+            {
+                printf ("Expected keyword \"%s\", detected keyword \"%s\".\n",
+                    keyword, optstr);
+                success = 0;
+            }
+            break;
+        case 't':
+            timeinfo = (struct tm *)malloc (sizeof (struct tm));
+
+            match = sscanf (buffer, "%s %d-%d-%d %d:%d", optstr,
+                &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
+                &timeinfo->tm_hour, &timeinfo->tm_min);
+            timeinfo->tm_sec = 0;
+            if (match != 6 || strcasecmp (keyword, optstr) != 0)
+            {
+                printf ("Expected keyword \"%s\", detected keyword \"%s\".\n",
+                    keyword, optstr);
+                success = 0;
+            }
+            else
+            {
+                timeinfo->tm_year = timeinfo->tm_year - 1900;
+                timeinfo->tm_mon = timeinfo->tm_mon - 1;
+                *((int *)value) = timegm (timeinfo);
+            }
+
+            free (timeinfo);
+            break;
+        default:
+            fprintf (stderr, "Error: Keyword type \'%c\' is not defined.\n",
+                type);
+            PIHMExit (EXIT_FAILURE);
     }
 
-    timeinfo->tm_year = timeinfo->tm_year - 1900;
-    timeinfo->tm_mon = timeinfo->tm_mon - 1;
-    *value = timegm (timeinfo);
-
-    free (timeinfo);
-}
-
-void ReadKeywordStr (char *buffer, char *keyword, char *value)
-{
-    int             match;
-    char            optstr[MAXSTRING];
-
-    match = sscanf (buffer, "%s %[^\n]", optstr, value);
-    if (match != 2 || strcasecmp (keyword, optstr) != 0)
-    {
-        printf ("ERROR: Expected keyword \"%s\"!\n", keyword);
-        PihmExit (1);
-    }
+    return (success);
 }
 
 int CountOccurance (FILE * fid, char *token)

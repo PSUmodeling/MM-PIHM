@@ -1,3 +1,4 @@
+
 /* 
  * zero_srcsnk.c
  * fill the source and sink variables with 0.0 at the start of the simulation
@@ -8,19 +9,12 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
 /* zero the source and sink state variables */
-void zero_srcsnk (cstate_struct * cs, nstate_struct * ns, wstate_struct * ws, summary_struct * summary)
+void ZeroSrcSnk (cstate_struct *cs, nstate_struct *ns,
+    summary_struct *summary)
 {
-    /* zero the water sources and sinks  */
-    ws->prcp_src = 0.0;
-    ws->outflow_snk = 0.0;
-    ws->soilevap_snk = 0.0;
-    ws->snowsubl_snk = 0.0;
-    ws->canopyevap_snk = 0.0;
-    ws->trans_snk = 0.0;
-
     /* zero the carbon sources and sinks */
     cs->psnsun_src = 0.0;
     cs->psnshade_src = 0.0;

@@ -22,7 +22,7 @@ void VerticalFlow (pihm_struct pihm)
     {
         elem = &pihm->elem[i];
 
-        applrate = elem->wf.netprcp + elem->ws.surf / dt;
+        applrate = elem->wf.pcpdrp + elem->ws.surf / dt;
 
         wetfrac =
             (elem->ws.surf > DEPRSTG) ? 1.0 : ((elem->ws.surf <
@@ -229,8 +229,9 @@ double EffKinf (double ksatfunc, double elemsatn, int status, double mackv,
             keff = kinf * (1.0 - areaf) * ksatfunc + mackv * areaf;
             break;
         default:
-            printf ("Error: Macropore status not recognized!\n");
-            PihmExit (1);
+            fprintf (stderr, "Error: Macropore status (%d) is not defined.\n",
+                status);
+            PIHMExit (EXIT_FAILURE);
     }
 
     return (keff);
@@ -253,8 +254,9 @@ double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
             keff = kv * (1.0 - areaf) * ksatfunc + mackv * areaf;
             break;
         default:
-            printf ("Error: Macropore status not recognized!\n");
-            PihmExit (1);
+            fprintf (stderr, "Error: Macropore status (%d) is not defined.\n",
+                status);
+            PIHMExit (EXIT_FAILURE);
     }
 
     return (keff);

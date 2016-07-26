@@ -1,6 +1,6 @@
-#include "bgc.h"
+#include "pihm.h"
 
-void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct noah, char *outputdir)
+void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
 {
     FILE           *soilc_file;
     FILE           *vegc_file;
@@ -25,7 +25,7 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
     int            *spinup_complete;
     int            *spinup_year;
     int             total_complete;
-    double         *naddfrac;
+    //double         *naddfrac;
 
     timestamp = (struct tm *)malloc (sizeof (struct tm));
 
@@ -41,9 +41,9 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
     tally2 = (double *)malloc (pihm->numele * sizeof (double));
     tally2b = (double *)malloc (pihm->numele * sizeof (double));
 
-    naddfrac = (double *)malloc (pihm->numele * sizeof (double));
+    //naddfrac = (double *)malloc (pihm->numele * sizeof (double));
 
-    metyears = bgc->ctrl.spinupendyear - bgc->ctrl.spinupstartyear + 1;
+    metyears = pihm->ctrl.spinupendyear - pihm->ctrl.spinupstartyear + 1;
     metyr = 0;
 
     spinyears = 0;
@@ -77,57 +77,48 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
 
         printf ("Year: %6d\n", spinyears);
 
-        for (j = 0; j < (bgc->ctrl.spinupend - bgc->ctrl.spinupstart) / 24 / 3600; j++)
+        for (j = 0;
+            j < (pihm->ctrl.spinupend - pihm->ctrl.spinupstart) / 24 / 3600;
+            j++)
         {
-            t = bgc->ctrl.spinupstart + (j + 1) * 24 * 3600;
+            t = pihm->ctrl.spinupstart + (j + 1) * 24 * 3600;
 
-            for (i = 0; i < pihm->numele; i++)
-            {
-                naddfrac[i] = 1.0;
-
-                if (!steady1[i] && rising[i] && metcycle == 0)
-                {
-                    naddfrac[i] = 1.0 - ((double) j / (double) metyears / 365.0);
-                }
-                else
-                {
-                    naddfrac[i] = 0.0;
-                }
-
-                naddfrac[i] = 0.0;
-
-                //daymet (&bgc->grid[i].metarr, &bgc->grid[i].metv, j);
-                //bgc->grid[i].ws.soilw = bgc->grid[i].metv.soilw;
-                //bgc->grid[i].epv.vwc = bgc->grid[i].metv.swc;
-            }
-
-            //for (i = 0; i < pihm->numriv; i++)
+            //for (i = 0; i < pihm->numele; i++)
             //{
-            //    bgc->riv[i].soilw = bgc->riv[i].metarr.soilw[j];
+            //    naddfrac[i] = 1.0;
 
-            //    for (k = 0; k < 4; k++)
+            //    if (!steady1[i] && rising[i] && metcycle == 0)
             //    {
-            //        bgc->riv[i].metv.latflux[k] = bgc->riv[i].metarr.latflux[k][j];
+            //        naddfrac[i] = 1.0 - ((double) j / (double) metyears / 365.0);
             //    }
+            //    else
+            //    {
+            //        naddfrac[i] = 0.0;
+            //    }
+
+            //    naddfrac[i] = 0.0;
             //}
 
-            DailyBgc (bgc, pihm->numele, pihm->numriv, t, bgc->ctrl.spinupstart, naddfrac, first_balance);
+            DailyBgc (pihm, t, pihm->ctrl.spinupstart, first_balance);
+
+            first_balance = 0;
 
             for (i = 0; i < pihm->numele; i++)
             {
                 if (metcycle == 1)
                 {
-                    tally1[i] += bgc->grid[i].summary.soilc;
-                    tally1b[i] += bgc->grid[i].summary.totalc;
+                    tally1[i] += pihm->elem[i].summary.soilc;
+                    tally1b[i] += pihm->elem[i].summary.totalc;
                 }
                 if (metcycle == 2)
                 {
-                    tally2[i] += bgc->grid[i].summary.soilc;
-                    tally2b[i] += bgc->grid[i].summary.totalc;
+                    tally2[i] += pihm->elem[i].summary.soilc;
+                    tally2b[i] += pihm->elem[i].summary.totalc;
                 }
             }
-            first_balance = 0;
         }
+
+        metyr++;
 
         spinyears = spinyears + j / 365;
 
@@ -137,18 +128,18 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
             if (!steady1[i] && metcycle == 2)
             {
                 /* convert tally1 and tally2 to average daily soilc */
-                tally1[i] /= (double) metyears * 365.0;
-                tally2[i] /= (double) metyears * 365.0;
+                tally1[i] /= (double)metyears *365.0;
+                tally2[i] /= (double)metyears *365.0;
                 rising[i] = (tally2[i] > tally1[i]);
-                t1 = (tally2[i] - tally1[i]) / (double) metyears;
+                t1 = (tally2[i] - tally1[i]) / (double)metyears;
                 steady1[i] = (fabs (t1) < SPINUP_TOLERANCE);
             }
             /* second block is after supplemental N turned off */
             else if (steady1[i] && metcycle == 2)
             {
                 /* convert tally1 and tally2 to average daily soilc */
-                tally1[i] /= (double) metyears * 365.0;
-                tally2[i] /= (double) metyears * 365.0;
+                tally1[i] /= (double)metyears *365.0;
+                tally2[i] /= (double)metyears *365.0;
                 t1 = (tally2[i] - tally1[i]) / (double)metyears;
                 steady2[i] = (fabs (t1) < SPINUP_TOLERANCE);
 
@@ -159,11 +150,14 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
                     rising[i] = 1;
                 }
             }
+
             if (steady1[i] && steady2[i])
             {
                 if (spinup_complete[i] == 0)
                 {
-                    printf ("Ele %d spinup %d Avg daily soilc = %lf (%lf)\n", i, steady1[i] && steady2[i], tally1[i], bgc->grid[i].summary.soilc);
+                    printf ("Ele %d spinup %d Avg daily soilc = %lf (%lf)\n",
+                        i, steady1[i] &&
+                        steady2[i], tally1[i], pihm->elem[i].summary.soilc);
                     spinup_year[i] = spinyears;
                 }
                 spinup_complete[i] = 1;
@@ -185,42 +179,45 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
             total_complete += spinup_complete[i];
         }
 
-        printf ("%d elements completed spin-up, %d elements to go\n", total_complete, pihm->numele - total_complete);
+        printf ("%d elements completed spin-up, %d elements to go\n",
+            total_complete, pihm->numele - total_complete);
 
         /* spinup control */
         /* if this is the third pass through metcycle, do comparison */
         /* first block is during the rising phase */
 
         /* end of do block, test for steady state */
-    } while (spinyears < bgc->ctrl.maxspinyears || metcycle != 0);// || total_complete < PIHM->NumEle);
+    } while (spinyears < pihm->ctrl.maxspinyears || metcycle != 0);     // || total_complete < PIHM->NumEle);
 
     sprintf (fn, "%ssoilc.dat", outputdir);
     soilc_file = fopen (fn, "w");
 
     sprintf (fn, "%svegc.dat", outputdir);
-    vegc_file = fopen(fn, "w");
+    vegc_file = fopen (fn, "w");
 
     sprintf (fn, "%sspinyr.dat", outputdir);
     spinyr_file = fopen (fn, "w");
-    
+
     sprintf (fn, "%ssminn.dat", outputdir);
     sminn_file = fopen (fn, "w");
 
-    sprintf (restart_fn, "input/%s/%s.bgcinit", simulation, simulation);
+    sprintf (restart_fn, "input/%s/%s.bgcic", simulation, simulation);
     restart_file = fopen (restart_fn, "wb");
     for (i = 0; i < pihm->numele; i++)
     {
-        restart_output (&bgc->grid[i].ws, &bgc->grid[i].cs, &bgc->grid[i].ns, &bgc->grid[i].epv, &bgc->grid[i].restart_output);
-        fwrite(&(bgc->grid[i].restart_output), sizeof(restart_data_struct), 1, restart_file);
-        fprintf (soilc_file, "%lf\t", bgc->grid[i].summary.soilc);
-        fprintf (vegc_file, "%lf\t", bgc->grid[i].summary.vegc);
+        RestartOutput (&pihm->elem[i].cs, &pihm->elem[i].ns,
+            &pihm->elem[i].epv, &pihm->elem[i].restart_output);
+        fwrite (&(pihm->elem[i].restart_output), sizeof (bgcic_struct), 1,
+            restart_file);
+        fprintf (soilc_file, "%lf\t", pihm->elem[i].summary.soilc);
+        fprintf (vegc_file, "%lf\t", pihm->elem[i].summary.vegc);
         fprintf (spinyr_file, "%d\t", spinup_year[i]);
-        fprintf (sminn_file, "%lf\t", bgc->grid[i].ns.sminn);
+        fprintf (sminn_file, "%lf\t", pihm->elem[i].ns.sminn);
     }
     for (i = 0; i < pihm->numriv; i++)
     {
-        fwrite (&bgc->riv[i].sminn, sizeof (double), 1, restart_file);
-        fprintf (sminn_file, "%lf\t", bgc->riv[i].sminn);
+        fwrite (&pihm->riv[i].ns.sminn, sizeof (double), 1, restart_file);
+        fprintf (sminn_file, "%lf\t", pihm->riv[i].ns.sminn);
     }
 
     fclose (sminn_file);
@@ -238,5 +235,5 @@ void BgcSpinup (char *simulation, bgc_struct bgc, pihm_struct pihm, lsm_struct n
     free (tally1b);
     free (tally2);
     free (tally2b);
-    free (naddfrac);
+    //free (naddfrac);
 }

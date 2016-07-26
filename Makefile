@@ -8,39 +8,41 @@ CFLAGS = -g -O0 -Wall
 SUNDIALS_PATH = ./sundials
 
 SRCDIR = ./src
-LIBS =	-lm
+LIBS = -lm
 INCLUDES = \
-	-I${SUNDIALS_PATH}/include \
-	-I${SUNDIALS_PATH}/include/cvode \
-	-I${SUNDIALS_PATH}/include/sundials\
-	-I${SRCDIR}/include
+	-I${SRCDIR}/include\
+	-I${SUNDIALS_PATH}/include\
+	-I${SUNDIALS_PATH}/include/cvode\
+	-I${SUNDIALS_PATH}/include/sundials
 
 LFLAGS = -L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
 
 SFLAGS = -D_PIHM_
 
-SRCS_ = main.c \
-	pihm.c \
-	read_alloc.c \
-	read_func.c \
-	initialize.c \
-	soil.c \
-	is_sm_et.c \
-	hydrol.c \
+SRCS_ = main.c\
+	forcing.c\
+	hydrol.c\
+	initialize.c\
+	is_sm_et.c\
 	lat_flow.c\
-	vert_flow.c\
+	misc_func.c\
+	pihm.c\
+	print.c\
+	read_alloc.c\
+	read_func.c\
 	river_flow.c\
-	print.c \
-	forcing.c \
-	misc_func.c \
-	update.c
+	soil.c\
+	update.c\
+	vert_flow.c
 
 HEADERS_ = \
-	include/pihm.h \
-	include/pihm_input_struct.h \
-	include/pihm_const.h \
-	include/pihm_struct.h \
-	include/pihm_func.h
+	include/elem_struct.h\
+	include/pihm.h\
+	include/pihm_const.h\
+	include/pihm_func.h\
+	include/pihm_input_struct.h\
+	include/pihm_struct.h\
+	include/river_struct.h
 
 MODULE_HEADERS_ =
 EXECUTABLE = pihm
@@ -51,11 +53,11 @@ MSG = "...  Compiling PIHM  ..."
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm)
   SFLAGS = -D_PIHM_ -D_NOAH_ 
-  MODULE_SRCS_= \
-  	noah/lsm_func.c \
-  	noah/lsm_read.c \
-	noah/lsm_init.c \
-	noah/noah.c \
+  MODULE_SRCS_ = \
+  	noah/lsm_func.c\
+	noah/lsm_init.c\
+  	noah/lsm_read.c\
+	noah/noah.c\
 	spa/spa.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm
@@ -65,65 +67,65 @@ endif
 #-------------------
 # RT-Flux-PIHM
 #-------------------
-ifeq ($(MAKECMDGOALS),rt-flux-pihm)
-  SFLAGS = -D_PIHM_ -D_RT_ -D_FLUX_PIHM_
-  MODULE_SRCS_= \
-  	noah/coupling.c \
-	noah/module_sf_noahlsm.c \
-	spa/spa.c \
-	noah/lsm_func.c \
-	rt/rt.c \
-	rt/react.c \
-	rt/os3d.c
-  MODULE_HEADERS_ = \
-	spa/spa.h \
-	rt/rt.h
-  EXECUTABLE = rt-flux-pihm
-  MSG = "... Compiling RT-Flux-PIHM ..."
-endif
+#ifeq ($(MAKECMDGOALS),rt-flux-pihm)
+#  SFLAGS = -D_PIHM_ -D_RT_ -D_NOAH_
+#  MODULE_SRCS_=\
+#  	noah/coupling.c\
+#	noah/module_sf_noahlsm.c\
+#	spa/spa.c\
+#	noah/lsm_func.c\
+#	rt/rt.c\
+#	rt/react.c\
+#	rt/os3d.c
+#  MODULE_HEADERS_ =\
+#	spa/spa.h\
+#	rt/rt.h
+#  EXECUTABLE = rt-flux-pihm
+#  MSG = "... Compiling RT-Flux-PIHM ..."
+#endif
 
 #-------------------
 # Flux-PIHM-BGC
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
-  SFLAGS = -D_PIHM_ -D_BGC_ -D_NOAH_ -D_DAILY_
-  MODULE_SRCS_=	\
-  	daily.c \
-	noah/coupling.c \
-	noah/module_sf_noahlsm.c \
-	spa/spa.c \
-	noah/lsm_func.c \
-	bgc/bgc_func.c \
-	bgc/presim_state_init.c \
-	bgc/make_zero_flux_struct.c \
-	bgc/restart_io.c \
-	bgc/firstday.c \
-	bgc/bgc_spinup.c \
-	bgc/metarr_init.c \
-	bgc/zero_srcsnk.c \
-	bgc/daily_bgc.c \
-	bgc/get_co2.c \
-	bgc/get_ndep.c \
-	bgc/precision_control.c \
-	bgc/daymet.c \
-	bgc/radtrans.c \
-	bgc/maint_resp.c \
-	bgc/phenology.c \
-	bgc/soilpsi.c \
-	bgc/daily_allocation.c \
-	bgc/canopy_et.c \
-	bgc/photosynthesis.c \
-	bgc/decomp.c \
-	bgc/annual_rates.c \
-	bgc/growth_resp.c \
-	bgc/state_update.c \
-	bgc/mortality.c \
-	bgc/check_balance.c \
-	bgc/summary.c \
-	bgc/nleaching.c
-  MODULE_HEADERS_ = \
-	include/spa.h \
-	include/bgc.h 
+  SFLAGS = -D_PIHM_ -D_NOAH_ -D_BGC_ -D_DAILY_
+  MODULE_SRCS_= \
+	bgc/annual_rates.c\
+	bgc/bgc_init.c\
+	bgc/bgc_read.c\
+	bgc/bgc_spinup.c\
+	bgc/canopy_cond.c\
+	bgc/check_balance.c\
+	bgc/daily_allocation.c\
+	bgc/daily_bgc.c\
+	bgc/daymet.c\
+	bgc/decomp.c\
+	bgc/firstday.c\
+	bgc/get_co2.c\
+	bgc/get_ndep.c\
+	bgc/growth_resp.c\
+	bgc/maint_resp.c\
+	bgc/make_zero_flux_struct.c\
+	bgc/metarr_init.c\
+	bgc/mortality.c\
+	bgc/nleaching.c\
+	bgc/phenology.c\
+	bgc/photosynthesis.c\
+	bgc/precision_control.c\
+	bgc/presim_state_init.c\
+	bgc/radtrans.c\
+	bgc/restart_io.c\
+	bgc/soilpsi.c\
+	bgc/state_update.c\
+	bgc/summary.c\
+	bgc/zero_srcsnk.c\
+  	noah/daily.c\
+	noah/lsm_func.c\
+	noah/lsm_init.c\
+	noah/lsm_read.c\
+	noah/noah.c\
+	spa/spa.c
+  MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-bgc
   MSG = "... Compiling Flux-PIHM-BGC ..."
 endif
@@ -131,25 +133,25 @@ endif
 #-------------------
 # Flux-PIHM-EnKF
 #-------------------
-ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
-  CC = mpicc
-  SFLAGS = -D_PIHM_ -D_ENKF_ -D_NOAH_
-  MODULE_SRCS_ = \
-  	enkf/read_enkf.c \
-	enkf/enkf_func.c \
-	enkf/enkf.c \
-	enkf/obs_oper.c \
-	noah/lsm_func.c \
-	noah/lsm_read.c \
-	noah/lsm_init.c \
-  	noah/noah.c \
-	spa/spa.c
-  MODULE_HEADERS_ = \
-  	include/enkf.h \
-  	include/spa.h 
-  EXECUTABLE = flux-pihm-enkf
-  MSG = "... Compiling Flux-PIHM-EnKF ..."
-endif
+#ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
+#  CC = mpicc
+#  SFLAGS = -D_PIHM_ -D_ENKF_ -D_NOAH_
+#  MODULE_SRCS_ = \
+#	enkf/enkf.c\
+#	enkf/enkf_func.c\
+#	enkf/obs_oper.c\
+#  	enkf/read_enkf.c\
+#	noah/lsm_func.c\
+#	noah/lsm_init.c\
+#	noah/lsm_read.c\
+#  	noah/noah.c\
+#	spa/spa.c
+#  MODULE_HEADERS_ = \
+#  	include/enkf.h\
+#  	include/spa.h 
+#  EXECUTABLE = flux-pihm-enkf
+#  MSG = "... Compiling Flux-PIHM-EnKF ..."
+#endif
 
 #-------------------
 # Flux-PIHM-Cycles
@@ -157,32 +159,32 @@ endif
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS = -D_PIHM_ -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
-	noah/lsm_func.c \
-	noah/lsm_read.c \
-	noah/lsm_init.c \
-  	noah/noah.c \
-	noah/daily.c \
-	spa/spa.c \
-  	cycles/cycles_read.c \
-	cycles/cycles_init.c \
-	cycles/cycles_func.c \
-	cycles/Soil.c \
-	cycles/Residue.c \
-	cycles/SoilCarbon.c \
-	cycles/CropTranspiration.c \
-	cycles/SoilEvaporation.c \
-	cycles/DailyOperation.c \
-	cycles/CropProcess.c \
-	cycles/CropThermalTime.c \
-	cycles/CropHarvest.c \
-	cycles/Crop.c \
-	cycles/FieldOperation.c \
-	cycles/Fertilization.c \
-	cycles/Tillage.c \
-	cycles/SoilNitrogen.c \
-	cycles/Irrigation.c \
-	cycles/SoilSolute.c
-  MODULE_HEADERS_ =
+	cycles/Crop.c\
+	cycles/CropHarvest.c\
+	cycles/CropProcess.c\
+	cycles/CropThermalTime.c\
+	cycles/CropTranspiration.c\
+  	cycles/cycles_read.c\
+	cycles/cycles_init.c\
+	cycles/cycles_func.c\
+	cycles/DailyOperation.c\
+	cycles/Fertilization.c\
+	cycles/FieldOperation.c\
+	cycles/Residue.c\
+	cycles/Soil.c\
+	cycles/SoilCarbon.c\
+	cycles/SoilEvaporation.c\
+	cycles/SoilNitrogen.c\
+	cycles/SoilSolute.c\
+	cycles/Tillage.c\
+	cycles/Irrigation.c\
+	noah/daily.c\
+	noah/lsm_func.c\
+	noah/lsm_init.c\
+	noah/lsm_read.c\
+  	noah/noah.c\
+	spa/spa.c
+  MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."
 endif
@@ -215,6 +217,7 @@ sundials:		## Install sundials library
 sundials:
 	cd sundials; ./configure; make; make install; cd ../
 	@echo "SUNDIALS library installed."
+
 pihm:			## Compile PIHM
 pihm:	$(OBJS)
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
@@ -226,22 +229,8 @@ flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-rt-flux-pihm:		## Complile RT-Flux-PIHM (Reactive Transport Flux PIHM) for hydrogeochemical coupling.
-rt-flux-pihm: $(OBJS) $(MODULE_OBJS)
-	@echo
-	@echo $(MSG)
-	@echo
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
-
 flux-pihm-bgc:		## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
 flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
-	@echo
-	@echo $(MSG)
-	@echo
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
-
-flux-pihm-enkf:		## Compile Flux-PIHM-EnKF (Flux-PIHM EnKF system)
-flux-pihm-enkf: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo

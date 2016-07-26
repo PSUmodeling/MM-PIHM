@@ -34,6 +34,32 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
     for (i = 0; i < numele; i++)
     {
+        if (agtbl->op[i] == 1)
+        {
+            elem[i].soil.IOM[0] = 5.54;
+            elem[i].soil.IOM[1] = 1.79;
+            elem[i].soil.IOM[2] = 1.82;
+            elem[i].soil.IOM[3] = 1.23;
+            elem[i].soil.IOM[4] = 0.87;
+            elem[i].soil.IOM[5] = 0.53;
+            elem[i].soil.IOM[6] = 0.23;
+            elem[i].soil.IOM[7] = 0.10;
+        }
+        else
+        {
+            elem[i].soil.IOM[0] = 5.42;
+            elem[i].soil.IOM[1] = 1.12;
+            elem[i].soil.IOM[2] = 1.90;
+            elem[i].soil.IOM[3] = 1.42;
+            elem[i].soil.IOM[4] = 1.00;
+            elem[i].soil.IOM[5] = 0.61;
+            elem[i].soil.IOM[6] = 0.29;
+            elem[i].soil.IOM[7] = 0.15;
+        }
+    }
+
+    for (i = 0; i < numele; i++)
+    {
         /*
          * Initialize weather structure
          */
@@ -85,6 +111,16 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
          * Copy crop management to each element
          */
         cropmgmt = &elem[i].cropmgmt;
+
+        if (agtbl->op[i] > agtbl->nopfile)
+        {
+            printf
+                ("ERROR: Operation file for operation index %d is not provided!\n",
+                agtbl->op[i]);
+            printf ("Exiting from Function %s at %s, Line %d.\n",
+                __FUNCTION__, __FILE__, __LINE__);
+            exit (1);
+        }
 
         opind = agtbl->op[i] - 1;
 
@@ -236,7 +272,8 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
         UpdateCommunity (comm);
 
-        InitializeSoil (&elem[i].soil, soiltbl, &elem[i].ps);
+        InitializeSoil (&elem[i].soil, soiltbl, &elem[i].ps,
+            elem[i].attrib.soil_type);
 
         InitializeResidue (&elem[i].residue, elem[i].ps.nsoil);
 

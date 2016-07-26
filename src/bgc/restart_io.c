@@ -1,3 +1,4 @@
+
 /*
  * restart_io.c
  * functions called to copy restart info between restart structure and
@@ -9,14 +10,11 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
-void restart_input (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, restart_data_struct * restart)
+void RestartInput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
+    bgcic_struct *restart)
 {
-    ws->soilw = restart->soilw;
-    ws->snoww = restart->snoww;
-    ws->canopyw = restart->canopyw;
-
     cs->leafc = restart->leafc;
     cs->leafc_storage = restart->leafc_storage;
     cs->leafc_transfer = restart->leafc_transfer;
@@ -81,8 +79,10 @@ void restart_input (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns, 
 
     epv->day_leafc_litfall_increment = restart->day_leafc_litfall_increment;
     epv->day_frootc_litfall_increment = restart->day_frootc_litfall_increment;
-    epv->day_livestemc_turnover_increment = restart->day_livestemc_turnover_increment;
-    epv->day_livecrootc_turnover_increment = restart->day_livecrootc_turnover_increment;
+    epv->day_livestemc_turnover_increment =
+        restart->day_livestemc_turnover_increment;
+    epv->day_livecrootc_turnover_increment =
+        restart->day_livecrootc_turnover_increment;
     epv->annmax_leafc = restart->annmax_leafc;
     epv->annmax_frootc = restart->annmax_frootc;
     epv->annmax_livestemc = restart->annmax_livestemc;
@@ -100,20 +100,11 @@ void restart_input (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns, 
     epv->offset_counter = restart->offset_counter;
     epv->offset_fdd = restart->offset_fdd;
     epv->offset_swi = restart->offset_swi;
-
-    //    if (ctrl->keep_metyr)
-    //        *metyr = restart->metyr; 
-    //    else
-    //        *metyr = 0;
-
 }
 
-void restart_output (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns, epvar_struct * epv, restart_data_struct * restart)
+void RestartOutput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
+    bgcic_struct *restart)
 {
-    restart->soilw = ws->soilw;
-    restart->snoww = ws->snoww;
-    restart->canopyw = ws->canopyw;
-
     restart->leafc = cs->leafc;
     restart->leafc_storage = cs->leafc_storage;
     restart->leafc_transfer = cs->leafc_transfer;
@@ -178,8 +169,10 @@ void restart_output (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns,
 
     restart->day_leafc_litfall_increment = epv->day_leafc_litfall_increment;
     restart->day_frootc_litfall_increment = epv->day_frootc_litfall_increment;
-    restart->day_livestemc_turnover_increment = epv->day_livestemc_turnover_increment;
-    restart->day_livecrootc_turnover_increment = epv->day_livecrootc_turnover_increment;
+    restart->day_livestemc_turnover_increment =
+        epv->day_livestemc_turnover_increment;
+    restart->day_livecrootc_turnover_increment =
+        epv->day_livecrootc_turnover_increment;
     restart->annmax_leafc = epv->annmax_leafc;
     restart->annmax_frootc = epv->annmax_frootc;
     restart->annmax_livestemc = epv->annmax_livestemc;
@@ -197,5 +190,4 @@ void restart_output (wstate_struct * ws, cstate_struct * cs, nstate_struct * ns,
     restart->offset_counter = epv->offset_counter;
     restart->offset_fdd = epv->offset_fdd;
     restart->offset_swi = epv->offset_swi;
-    //  restart->metyr                            = metyr;
 }

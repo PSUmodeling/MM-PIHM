@@ -142,8 +142,10 @@ void COSMOSOper (obs_struct *obs, var_struct *var, pihm_struct pihm)
 
     for (i = 0; i < pihm->numele; i++)
     {
-        dist = sqrt ((pihm->elem[i].topo.x - obs->x) * (pihm->elem[i].topo.x - obs->x) +
-            (pihm->elem[i].topo.y - obs->y) * (pihm->elem[i].topo.y - obs->y));
+        dist =
+            sqrt ((pihm->elem[i].topo.x - obs->x) * (pihm->elem[i].topo.x -
+                obs->x) + (pihm->elem[i].topo.y -
+                obs->y) * (pihm->elem[i].topo.y - obs->y));
 
         obs->k[i][0] = 1.0;
         obs->b[i][0] = 0.0;

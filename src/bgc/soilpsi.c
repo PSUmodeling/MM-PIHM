@@ -1,3 +1,4 @@
+
 /* 
  * soilpsi.c
  * soil water potential as a function of volumetric water content and
@@ -9,15 +10,15 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
-void soilpsi (const siteconst_struct * sitec, double vwc, double *psi)
+void SoilPsi (const soil_struct *soil, double vwc, double *psi)
 {
     /*
      * Given a list of site constants and the soil water content,
      * this function returns the soil water potential (MPa)
      * Inputs:
-     * ws.soilw           (kg/m2) water mass per unit area
+     * vwc                  (kg/m2) water mass per unit area
      * sitec.soil_depth   (m)     effective soil depth
      * sitec.soil_b       (DIM)   slope of log(psi) vs log(rwc)
      * sitec.vwc_sat      (DIM)   volumetric water content at saturation
@@ -25,20 +26,15 @@ void soilpsi (const siteconst_struct * sitec, double vwc, double *psi)
      * output:
      * psi_s              (MPa)   soil matric potential
      *
-     * uses the van Genuchten relation:
-     * psi_s = psi_sat * (vwc/vwc_sat)^b
+     * uses the van Genuchten relation
      */
 
     double          theta;
-    double          alpha, beta;
 
-    theta = (vwc - sitec->vwc_min) / (sitec->vwc_sat - sitec->vwc_min);
-    theta = theta > 1. ? 1. : theta;
-    theta = theta < 0. ? 0.05 : theta;
-    alpha = sitec->soil_alpha;
-    beta = sitec->soil_beta;
+    theta = (vwc - soil->smcmin) / (soil->smcmax - soil->smcmin);
+    theta = (theta > 1.0) ? 1.0 : theta;
+    theta = (theta < SATMIN) ? SATMIN : theta;
 
     /* calculate psi */
-    *psi = -(pow (pow (1. / theta, sitec->soil_beta / (sitec->soil_beta - 1.)) - 1., 1. / sitec->soil_beta) / sitec->soil_alpha) * 1000. * 9.81 / 1.e6;
-    //printf ("theta = %lf, alpha = %lf, beta = %lf, psi = %lf\n", theta, sitec->soil_alpha, sitec->soil_beta, *psi);
+    *psi = Psi (theta, soil->alpha, soil->beta) * 1000.0 * GRAV / 1.0e6;
 }

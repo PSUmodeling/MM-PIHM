@@ -1,58 +1,69 @@
-#include "bgc.h"
+#include "pihm.h"
 
-void daymet (const metarr_struct * metarr, metvar_struct * metv, int metday)
+void DayMet (const stor_struct *stor, daily_struct *daily, int metday)
 {
     int             k;
 
-    if (metarr->flag[metday] == 0)
+    if (stor->flag[metday] == 0)
     {
-        printf ("ERROR: BGC forcing of the %dth day is not available!\n", metday + 1);
-        fflush (stdout);
-        PihmExit (1);
+        fprintf (stderr,
+            "Error: BGC forcing of the %dth day is not available.\n",
+            metday + 1);
+        PIHMExit (EXIT_FAILURE);
     }
 
-    /* convert prcp from cm --> kg/m2 */
-    metv->prcp = metarr->prcp[metday];
+    daily->dayl = stor->dayl[metday];
+    daily->prev_dayl = stor->prev_dayl[metday];
+    daily->avg_q2d = stor->q2d[metday];
+    daily->avg_sfcprs = stor->sfcprs[metday];
+    daily->avg_albedo = stor->albedo[metday];
+    daily->avg_ch = stor->ch[metday];
 
-    /* air temperature calculations (all temperatures deg C) */
-    //printf ("tnight %lf\n", metv->tnight);
-    //printf ("metday %d\n", metday);
-    //printf ("metday in daymet = %d, %lf\n", metarr->tnight[metday]);
-    metv->tnight = metarr->tnight[metday];
-    metv->tmax = metarr->tmax[metday];
-    metv->tmin = metarr->tmin[metday];
-    metv->tavg = metarr->tavg[metday];
-    metv->tday = metarr->tday[metday];
-    //printf ("metday in daymet = %d, %lf\n", metarr->tnight[metday]);
-    //printf ("metday in daymet = %d, %lf\n", metarr->tnight[metday]);
-
-    metv->tsoil = metarr->tsoil[metday];
-    metv->swc = metarr->swc[metday];
-    metv->soilw = metarr->soilw[metday];
-    metv->sw_alb = metarr->sw_alb[metday];
-    metv->gl_bl = metarr->gl_bl[metday];
-
-    /* daylight average vapor pressure deficit (Pa) */
-    metv->vpd = metarr->vpd[metday];
-    metv->q2d = metarr->q2d[metday];
-
-    /* daylight average shortwave flux density (W/m2) */
-    metv->swavgfd = metarr->swavgfd[metday];
-
-    /* PAR (W/m2) */
-    metv->par = metarr->par[metday];
-
-    /* daylength (s) */
-    metv->dayl = metarr->dayl[metday];
-    metv->prev_dayl = metarr->prev_dayl[metday];
-
-    metv->pa = metarr->pa[metday];
-
-    for (k = 0; k < 3; k++)
+    daily->tmax = stor->tmax[metday];
+    daily->tmin = stor->tmin[metday];
+    daily->avg_sfctmp = stor->sfctmp[metday];
+    daily->tday = stor->tday[metday];
+    daily->tnight = stor->tnight[metday];
+    for (k = 0; k < MAXLYR; k++)
     {
-        metv->latflux[k] = metarr->latflux[k][metday];
+        daily->avg_stc[k] = stor->stc[k][metday];
     }
-    metv->latflux[3] = 0.0;
 
-    //printf ("prcp %lf tmax %lf tmin %lf tavg %lf tday %lf tnight %lf tsoil %lf swc %lf vpd %lf swavgfd %lf par %lf dayl %lf prev_dayl %lf pa %lf\n", metv->prcp, metv->tmax, metv->tmin, metv->tavg, metv->tday, metv->tnight, metv->tsoil, metv->swc, metv->vpd, metv->swavgfd, metv->par, metv->dayl, metv->prev_dayl, metv->pa);
+    daily->avg_soldn = stor->soldn[metday];
+
+    daily->avg_surf = stor->surf[metday];
+    daily->avg_unsat = stor->unsat[metday];
+    daily->avg_gw = stor->gw[metday];
+    for (k = 0; k < MAXLYR; k++)
+    {
+        daily->avg_sh2o[k] = stor->sh2o[k][metday];
+    }
+
+    for (k = 0; k < NUM_EDGE; k++)
+    {
+        daily->avg_ovlflow[k] = stor->surfflx[k][metday];
+        daily->avg_subsurf[k] = stor->subsurfflx[k][metday];
+    }
+}
+
+void RiverDayMet (const river_stor_struct *stor, river_daily_struct *daily,
+    int metday)
+{
+    int             k;
+
+    if (stor->flag[metday] == 0)
+    {
+        fprintf (stderr,
+            "Error: BGC forcing of the %dth day is not available.\n",
+            metday + 1);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    daily->avg_stage = stor->stage[metday];
+    daily->avg_gw = stor->gw[metday];
+
+    for (k = 0; k < NUM_RIVFLX; k++)
+    {
+        daily->avg_rivflow[k] = stor->rivflow[k][metday];
+    }
 }

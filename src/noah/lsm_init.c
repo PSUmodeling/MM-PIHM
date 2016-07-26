@@ -18,11 +18,11 @@ void InitLsm (elem_struct *elem, int numele, ctrl_struct ctrl,
             FindLayer (elem[i].ps.sldpth, elem[i].ps.nsoil,
             elem[i].soil.dmac);
 
-        elem[i].lc.nroot =
-            FindLayer (elem[i].ps.sldpth, elem[i].ps.nsoil, elem[i].lc.rzd);
+        elem[i].ps.nroot =
+            FindLayer (elem[i].ps.sldpth, elem[i].ps.nsoil, elem[i].ps.rzd);
 
-        RootDist (elem[i].ps.sldpth, elem[i].ps.nsoil, elem[i].lc.nroot,
-            elem[i].lc.rtdis);
+        RootDist (elem[i].ps.sldpth, elem[i].ps.nsoil, elem[i].ps.nroot,
+            elem[i].ps.rtdis);
         /* Set-up universal parameters (not dependent on soil type or
          * vegetation type */
         elem[i].ps.sbeta = noahtbl.sbeta;

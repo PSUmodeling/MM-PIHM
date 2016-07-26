@@ -1,3 +1,4 @@
+
 /* 
  * nleaching.c
  * daily nitrogen leaching to groundwater
@@ -8,16 +9,17 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
-void nleaching (bgc_grid *grid, int numele, bgc_river *riv, int numriv)
+void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
 {
-    double         *soilwater_nconc;
+    double         *nconc;
     int             i, j;
     double          nleached;
     double          nabr_nconc[4];
-    siteconst_struct *sitec;
-    metvar_struct  *metv;
+    double          totwater;
+    double          latflux;
+    const int       UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3;
 
     /* N leaching flux is calculated after all the other nfluxes are
      * reconciled to avoid the possibility of removing more N than is there.
@@ -30,35 +32,35 @@ void nleaching (bgc_grid *grid, int numele, bgc_river *riv, int numriv)
      * proportion of the soil mineral N pool which is soluble (nitrates), the
      * soil water content, and the outflow */
 
-    soilwater_nconc = (double *)malloc ((numele + numriv) * sizeof (double));
+    nconc = (double *)malloc ((numele + numriv) * sizeof (double));
 
     for (i = 0; i < numele; i++)
     {
-        soilwater_nconc[i] = grid[i].ns.sminn / grid[i].ws.soilw;
-        //printf ("%lf\t", soilwater_nconc[i]);
+        totwater =
+            (elem[i].daily.avg_surf +
+            elem[i].daily.avg_unsat * elem[i].soil.porosity +
+            elem[i].daily.avg_gw * elem[i].soil.porosity) * 1000.0;
+        nconc[i] = elem[i].ns.sminn / totwater;
     }
 
     for (i = 0; i < numriv; i++)
     {
-        soilwater_nconc[i + numele] = riv[i].sminn / riv[i].soilw;
-        //printf ("%lf\t", soilwater_nconc[i + numele]);
+        totwater = (riv[i].daily.avg_stage +
+            riv[i].daily.avg_gw * riv[i].matl.porosity) * 1000.0;
+        nconc[i + numele] = riv[i].ns.sminn / totwater;
     }
-    //printf ("\n");
 
     for (i = 0; i < numele; i++)
     {
-        sitec = &grid[i].sitec;
-        metv = &grid[i].metv;
-
         for (j = 0; j < 3; j++)
         {
-            if (sitec->nabr[j] > 0)
+            if (elem[i].nabr[j] > 0)
             {
-                nabr_nconc[j] = soilwater_nconc[sitec->nabr[j] - 1];
+                nabr_nconc[j] = nconc[elem[i].nabr[j] - 1];
             }
-            else if (sitec->nabr[j] < 0)
+            else if (elem[i].nabr[j] < 0)
             {
-                nabr_nconc[j] = soilwater_nconc[numele - sitec->nabr[j] - 1];
+                nabr_nconc[j] = nconc[numele - elem[i].nabr[j] - 1];
             }
             else
             {
@@ -68,103 +70,176 @@ void nleaching (bgc_grid *grid, int numele, bgc_river *riv, int numriv)
             nabr_nconc[j] = (nabr_nconc[j] > 0.0) ? nabr_nconc[j] : 0.0;
         }
 
-        grid[i].nf.sminn_leached = 0.0;
+        elem[i].nf.sminn_leached = 0.0;
 
         for (j = 0; j < 3; j++)
         {
-            if (metv->latflux[j] > 0.0)
+            latflux = (elem[i].daily.avg_subsurf[j] +
+                elem[i].daily.avg_ovlflow[j]) *
+                24.0 * 3600.0 * 1000.0 / elem[i].topo.area;
+
+            if (latflux > 0.0)
             {
-                grid[i].nf.sminn_leached += MOBILEN_PROPORTION * soilwater_nconc[i] * metv->latflux[j];
+                elem[i].nf.sminn_leached +=
+                    MOBILEN_PROPORTION * nconc[i] * latflux;
             }
             else
             {
-                grid[i].nf.sminn_leached += MOBILEN_PROPORTION * nabr_nconc[j] * metv->latflux[j];
+                elem[i].nf.sminn_leached +=
+                    MOBILEN_PROPORTION * nabr_nconc[j] * latflux;
             }
         }
 
-        grid[i].nf.sminn_leached = (grid[i].nf.sminn_leached < grid[i].ns.sminn) ? grid[i].nf.sminn_leached : grid[i].ns.sminn;
+        elem[i].nf.sminn_leached =
+            (elem[i].nf.sminn_leached < elem[i].ns.sminn) ?
+            elem[i].nf.sminn_leached : elem[i].ns.sminn;
 
-        grid[i].ns.nleached_snk += grid[i].nf.sminn_leached;
-        grid[i].ns.sminn -= grid[i].nf.sminn_leached;
+        elem[i].ns.nleached_snk += elem[i].nf.sminn_leached;
+        elem[i].ns.sminn -= elem[i].nf.sminn_leached;
     }
 
     for (i = 0; i < numriv; i++)
     {
-        metv = &riv[i].metv;
-
-        for (j = 0; j < 4; j++)
-        {
-            if (riv[i].nabr[j] > 0)
-            {
-                nabr_nconc[j] = soilwater_nconc[riv[i].nabr[j] - 1];
-            }
-            else if (riv[i].nabr[j] < 0)
-            {
-                nabr_nconc[j] = soilwater_nconc[numele - riv[i].nabr[j] - 1];
-            }
-            else
-            {
-                nabr_nconc[j] = 0.0;
-            }
-
-            nabr_nconc[j] = (nabr_nconc[j] > 0.0) ? nabr_nconc[j] : 0.0;
-        }
-
         nleached = 0.0;
 
-        for (j = 0; j < 4; j++)
+        /* Upstream */
+        if (riv[i].up > 0)
         {
-            if (metv->latflux[j] > 0.0)
-            {
-                nleached += MOBILEN_PROPORTION * soilwater_nconc[numele + i] * metv->latflux[j];
-            }
-            else
-            {
-                nleached += MOBILEN_PROPORTION * nabr_nconc[j] * metv->latflux[j];
-            }
+            nabr_nconc[UP] = nconc[numele + riv[i].up - 1];
+        }
+        else
+        {
+            nabr_nconc[UP] = 0.0;
+        }
+        nabr_nconc[UP] = (nabr_nconc[UP] > 0.0) ? nabr_nconc[UP] : 0.0;
+
+        latflux = (riv[i].daily.avg_rivflow[UP_CHANL2CHANL] +
+            riv[i].daily.avg_rivflow[UP_AQUIF2AQUIF]) *
+            1000.0 * 24.0 * 3600.0 / riv[i].topo.area;
+
+        if (latflux > 0.0)
+        {
+            nleached += MOBILEN_PROPORTION * nconc[numele + i] * latflux;
+        }
+        else
+        {
+            nleached += MOBILEN_PROPORTION * nabr_nconc[UP] * latflux;
         }
 
-        //nleached = (nleached < riv[i].sminn) ? nleached : riv[i].sminn;
-        if (nleached > riv[i].sminn)
+        /* Downstream */
+        if (riv[i].down > 0)
         {
-            nleached = riv[i].sminn;
+            nabr_nconc[DOWN] = nconc[numele + riv[i].down - 1];
+        }
+        else
+        {
+            nabr_nconc[DOWN] = 0.0;
+        }
+        nabr_nconc[DOWN] = (nabr_nconc[DOWN] > 0.0) ? nabr_nconc[DOWN] : 0.0;
+
+        latflux = (riv[i].daily.avg_rivflow[DOWN_CHANL2CHANL] +
+            riv[i].daily.avg_rivflow[DOWN_AQUIF2AQUIF]) *
+            1000.0 * 24.0 * 3600.0 / riv[i].topo.area;
+
+        if (latflux > 0.0)
+        {
+            nleached += MOBILEN_PROPORTION * nconc[numele + i] * latflux;
+        }
+        else
+        {
+            nleached += MOBILEN_PROPORTION * nabr_nconc[DOWN] * latflux;
         }
 
-        riv[i].sminn -= nleached;
-    }
-    fflush (stdout);
+        /* Left bank */
+        if (riv[i].leftele > 0)
+        {
+            nabr_nconc[LEFT] = nconc[riv[i].leftele - 1];
+        }
+        else
+        {
+            nabr_nconc[LEFT] = 0.0;
+        }
+        nabr_nconc[LEFT] = (nabr_nconc[LEFT] > 0.0) ? nabr_nconc[LEFT] : 0.0;
 
-    free (soilwater_nconc);
+        latflux = (riv[i].daily.avg_rivflow[LEFT_SURF2CHANL] +
+            riv[i].daily.avg_rivflow[LEFT_AQUIF2CHANL] +
+            riv[i].daily.avg_rivflow[LEFT_AQUIF2AQUIF]) *
+            1000.0 * 24.0 * 3600.0 / riv[i].topo.area;
+
+        if (latflux > 0.0)
+        {
+            nleached += MOBILEN_PROPORTION * nconc[numele + i] * latflux;
+        }
+        else
+        {
+            nleached += MOBILEN_PROPORTION * nabr_nconc[LEFT] * latflux;
+        }
+
+        if (riv[i].rightele > 0)
+        {
+            nabr_nconc[RIGHT] = nconc[riv[i].rightele - 1];
+        }
+        else
+        {
+            nabr_nconc[RIGHT] = 0.0;
+        }
+        nabr_nconc[RIGHT] =
+            (nabr_nconc[RIGHT] > 0.0) ? nabr_nconc[RIGHT] : 0.0;
+
+        latflux = (riv[i].daily.avg_rivflow[RIGHT_SURF2CHANL] +
+            riv[i].daily.avg_rivflow[RIGHT_AQUIF2CHANL] +
+            riv[i].daily.avg_rivflow[RIGHT_AQUIF2AQUIF]) *
+            1000.0 * 24.0 * 3600.0 / riv[i].topo.area;
+
+        if (latflux > 0.0)
+        {
+            nleached += MOBILEN_PROPORTION * nconc[numele + i] * latflux;
+        }
+        else
+        {
+            nleached += MOBILEN_PROPORTION * nabr_nconc[RIGHT] * latflux;
+        }
+
+        if (nleached > riv[i].ns.sminn)
+        {
+            nleached = riv[i].ns.sminn;
+        }
+
+        riv[i].nf.sminn_leached = nleached;
+        riv[i].ns.sminn -= nleached;
+    }
+
+    free (nconc);
 }
 
-void nleaching_nt (bgc_grid *grid, int numele, bgc_river *riv, int numriv)
-{
-    double          soilwater_nconc;
-    int             i;
-    double          total_soilwater = 0.0;
-    double          total_sminn = 0.0;
-    double          nleached;
-    double          outflow;
-
-    for (i = 0; i < numele; i++)
-    {
-        total_soilwater += grid[i].ws.soilw;
-        total_sminn += grid[i].ns.sminn;
-    }
-
-    soilwater_nconc = total_sminn / total_soilwater;
-
-    outflow = riv[numriv - 1].metv.latflux[1];
-
-    nleached = MOBILEN_PROPORTION * soilwater_nconc * outflow;
-
-    for (i = 0; i < numele; i++)
-    {
-        grid[i].nf.sminn_leached = nleached / numele;
-
-        grid[i].nf.sminn_leached = (grid[i].nf.sminn_leached < grid[i].ns.sminn) ? grid[i].nf.sminn_leached : grid[i].ns.sminn;
-
-        grid[i].ns.nleached_snk += grid[i].nf.sminn_leached;
-        grid[i].ns.sminn -= grid[i].nf.sminn_leached;
-    }
-}
+//void nleaching_nt (bgc_grid *grid, int numele, bgc_river *riv, int numriv)
+//{
+//    double          nconc;
+//    int             i;
+//    double          total_soilwater = 0.0;
+//    double          total_sminn = 0.0;
+//    double          nleached;
+//    double          outflow;
+//
+//    for (i = 0; i < numele; i++)
+//    {
+//        total_soilwater += grid[i].ws.soilw;
+//        total_sminn += grid[i].ns.sminn;
+//    }
+//
+//    nconc = total_sminn / total_soilwater;
+//
+//    outflow = riv[numriv - 1].metv.latflux[1];
+//
+//    nleached = MOBILEN_PROPORTION * nconc * outflow;
+//
+//    for (i = 0; i < numele; i++)
+//    {
+//        grid[i].nf.sminn_leached = nleached / numele;
+//
+//        grid[i].nf.sminn_leached = (grid[i].nf.sminn_leached < grid[i].ns.sminn) ? grid[i].nf.sminn_leached : grid[i].ns.sminn;
+//
+//        grid[i].ns.nleached_snk += grid[i].nf.sminn_leached;
+//        grid[i].ns.sminn -= grid[i].nf.sminn_leached;
+//    }
+//}

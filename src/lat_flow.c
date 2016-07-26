@@ -7,7 +7,7 @@ void LateralFlow (pihm_struct pihm)
     double          avg_y_sub;
     double          distance;
     double          grad_y_sub;
-    double          surfh[3];
+    double          surfh[NUM_EDGE];
     double         *dhbydx;
     double         *dhbydy;
     double          effk;
@@ -55,19 +55,19 @@ void LateralFlow (pihm_struct pihm)
                 }
                 else
                 {
-                    if (elem->forc.bc_type[j] == 0)
+                    if (elem->attrib.bc_type[j] == 0)
                     {
                         surfh[j] = elem->topo.zmax + elem->ws.surf;
                     }
                     else
                     {
-                        surfh[j] = *elem->forc.bc[j];
+                        surfh[j] = elem->bc.head[j];
                     }
                 }
             }
 
-            dhbydx[i] = DhByDl (elem->topo.surfy, elem->topo.surfx, surfh);
-            dhbydy[i] = DhByDl (elem->topo.surfx, elem->topo.surfy, surfh);
+            dhbydx[i] = DhByDl (elem->topo.nabrdist_y, elem->topo.nabrdist_x, surfh);
+            dhbydy[i] = DhByDl (elem->topo.nabrdist_x, elem->topo.nabrdist_y, surfh);
         }
     }
 
@@ -75,7 +75,7 @@ void LateralFlow (pihm_struct pihm)
     {
         elem = &pihm->elem[i];
 
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             if (elem->nabr[j] != 0)
             {
@@ -100,8 +100,8 @@ void LateralFlow (pihm_struct pihm)
                     nabr->topo.zmin);
                 avg_y_sub = AvgY (dif_y_sub, elem->ws.gw, nabr->ws.gw);
                 distance =
-                    sqrt (pow (elem->topo.x - nabr->topo.x,
-                        2) + pow (elem->topo.y - nabr->topo.y, 2));
+                    sqrt (pow (elem->topo.x - nabr->topo.x, 2) +
+                    pow (elem->topo.y - nabr->topo.y, 2));
                 grad_y_sub = dif_y_sub / distance;
                 /* Take into account macropore effect */
                 effk =
@@ -112,7 +112,7 @@ void LateralFlow (pihm_struct pihm)
                     nabr->soil.kmach, nabr->soil.areafv, nabr->soil.ksath);
                 avg_ksat = 0.5 * (effk + effk_nabr);
                 /* Groundwater flow modeled by Darcy's Law */
-                elem->wf.fluxsub[j] =
+                elem->wf.subsurf[j] =
                     avg_ksat * grad_y_sub * avg_y_sub * elem->topo.edge[j];
 
                 /* 
@@ -146,31 +146,31 @@ void LateralFlow (pihm_struct pihm)
                 /* Weighting needed */
                 avg_rough = 0.5 * (elem->lc.rough + nabr->lc.rough);
                 crossa = avg_y_surf * elem->topo.edge[j];
-                elem->wf.fluxsurf[j] =
+                elem->wf.ovlflow[j] =
                     OverlandFlow (avg_y_surf, grad_y_surf, avg_sf, crossa,
                     avg_rough);
             }
             else                /* Boundary condition flux */
             {
                 /* No flow (natural) boundary condition is default */
-                if (elem->forc.bc_type[j] == 0)
+                if (elem->attrib.bc_type[j] == 0)
                 {
-                    elem->wf.fluxsurf[j] = 0.0;
-                    elem->wf.fluxsub[j] = 0.0;
+                    elem->wf.ovlflow[j] = 0.0;
+                    elem->wf.subsurf[j] = 0.0;
                 }
                 /* Note: ideally different boundary conditions need to be
                  * incorporated for surf and subsurf respectively */
-                else if (elem->forc.bc_type[j] > 0)
+                else if (elem->attrib.bc_type[j] > 0)
                 {
                     /* Note: the formulation assumes only Dirichlet TS right
                      * now */
                     /* note the assumption here is no flow for surface */
-                    elem->wf.fluxsurf[j] = 0.0;
+                    elem->wf.ovlflow[j] = 0.0;
                     dif_y_sub =
-                        elem->ws.gw + elem->topo.zmin - *elem->forc.bc[j];
+                        elem->ws.gw + elem->topo.zmin - elem->bc.head[j];
                     avg_y_sub =
                         AvgY (dif_y_sub, elem->ws.gw,
-                        *elem->forc.bc[j] - elem->topo.zmin);
+                        elem->bc.head[j] - elem->topo.zmin);
                     /* Minimum distance from circumcenter to the edge of the
                      * triangle on which boundary condition is defined */
                     distance =
@@ -183,7 +183,7 @@ void LateralFlow (pihm_struct pihm)
                         elem->soil.ksath);
                     avg_ksat = effk;
                     grad_y_sub = dif_y_sub / distance;
-                    elem->wf.fluxsub[j] =
+                    elem->wf.subsurf[j] =
                         avg_ksat * grad_y_sub * avg_y_sub *
                         elem->topo.edge[j];
                 }
@@ -191,8 +191,8 @@ void LateralFlow (pihm_struct pihm)
                 {
                     /* Neumann bc (note: md->ele[i].bc[j] value has to be
                      * = 2+(index of neumann boundary ts) */
-                    elem->wf.fluxsurf[j] = *elem->forc.bc[j];
-                    elem->wf.fluxsub[j] = *elem->forc.bc[j];
+                    elem->wf.ovlflow[j] = elem->bc.flux[j];
+                    elem->wf.subsurf[j] = elem->bc.flux[j];
                 }
             }                   /* End of specified boundary condition */
         }                       /* End of neighbor loop */

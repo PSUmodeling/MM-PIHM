@@ -1,3 +1,4 @@
+
 /* 
  * daily_allocation.c
  * daily allocation of carbon and nitrogen, as well as the final reconciliation
@@ -22,9 +23,11 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
-void daily_allocation (cflux_struct * cf, cstate_struct * cs, nflux_struct * nf, nstate_struct * ns, epconst_struct * epc, epvar_struct * epv, ntemp_struct * nt, const double naddfrac, const int spinup)
+void DailyAllocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
+    nstate_struct *ns, epconst_struct *epc, epvar_struct *epv,
+    ntemp_struct *nt, const int spinup)
 {
     double          day_gpp;    /* daily gross production */
     double          day_mresp;  /* daily total maintenance respiration */
@@ -68,7 +71,9 @@ void daily_allocation (cflux_struct * cf, cstate_struct * cs, nflux_struct * nf,
      * production and maintenance respiration costs */
     day_gpp = cf->psnsun_to_cpool + cf->psnshade_to_cpool;
     if (woody)
-        day_mresp = cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr + cf->livestem_mr + cf->livecroot_mr;
+        day_mresp =
+            cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr +
+            cf->livestem_mr + cf->livecroot_mr;
     else
         day_mresp = cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr;
     avail_c = day_gpp - day_mresp;
@@ -118,7 +123,9 @@ void daily_allocation (cflux_struct * cf, cstate_struct * cs, nflux_struct * nf,
     if (woody)
     {
         c_allometry = ((1.0 + g1) * (1.0 + f1 + f3 * (1.0 + f2)));
-        n_allometry = (1.0 / cnl + f1 / cnfr + (f3 * f4 * (1.0 + f2)) / cnlw + (f3 * (1.0 - f4) * (1.0 + f2)) / cndw);
+        n_allometry =
+            (1.0 / cnl + f1 / cnfr + (f3 * f4 * (1.0 + f2)) / cnlw +
+            (f3 * (1.0 - f4) * (1.0 + f2)) / cndw);
     }
     else
     {
@@ -140,8 +147,8 @@ void daily_allocation (cflux_struct * cf, cstate_struct * cs, nflux_struct * nf,
         if (sum_ndemand > ns->sminn)
         {
             dif = sum_ndemand - ns->sminn;
-            ns->sminn += dif * naddfrac;
-            ns->ndep_src += dif * naddfrac;
+            //ns->sminn += dif * naddfrac;
+            //ns->ndep_src += dif * naddfrac;
         }
     }
 
@@ -222,7 +229,8 @@ void daily_allocation (cflux_struct * cf, cstate_struct * cs, nflux_struct * nf,
             plant_calloc = plant_nalloc * (c_allometry / n_allometry);
             excess_c = avail_c - plant_calloc;
             cf->psnsun_to_cpool -= excess_c * (cf->psnsun_to_cpool / day_gpp);
-            cf->psnshade_to_cpool -= excess_c * (cf->psnshade_to_cpool / day_gpp);
+            cf->psnshade_to_cpool -=
+                excess_c * (cf->psnshade_to_cpool / day_gpp);
         }
     }
 
@@ -247,7 +255,8 @@ void daily_allocation (cflux_struct * cf, cstate_struct * cs, nflux_struct * nf,
         cf->cpool_to_livecrootc = nlc * f2 * f3 * f4 * pnow;
         cf->cpool_to_livecrootc_storage = nlc * f2 * f3 * f4 * (1.0 - pnow);
         cf->cpool_to_deadcrootc = nlc * f2 * f3 * (1.0 - f4) * pnow;
-        cf->cpool_to_deadcrootc_storage = nlc * f2 * f3 * (1.0 - f4) * (1.0 - pnow);
+        cf->cpool_to_deadcrootc_storage =
+            nlc * f2 * f3 * (1.0 - f4) * (1.0 - pnow);
     }
     /* daily N fluxes out of npool and into new growth or storage */
     nf->npool_to_leafn = (nlc / cnl) * pnow;
@@ -257,13 +266,17 @@ void daily_allocation (cflux_struct * cf, cstate_struct * cs, nflux_struct * nf,
     if (woody)
     {
         nf->npool_to_livestemn = (nlc * f3 * f4 / cnlw) * pnow;
-        nf->npool_to_livestemn_storage = (nlc * f3 * f4 / cnlw) * (1.0 - pnow);
+        nf->npool_to_livestemn_storage =
+            (nlc * f3 * f4 / cnlw) * (1.0 - pnow);
         nf->npool_to_deadstemn = (nlc * f3 * (1.0 - f4) / cndw) * pnow;
-        nf->npool_to_deadstemn_storage = (nlc * f3 * (1.0 - f4) / cndw) * (1.0 - pnow);
+        nf->npool_to_deadstemn_storage =
+            (nlc * f3 * (1.0 - f4) / cndw) * (1.0 - pnow);
         nf->npool_to_livecrootn = (nlc * f2 * f3 * f4 / cnlw) * pnow;
-        nf->npool_to_livecrootn_storage = (nlc * f2 * f3 * f4 / cnlw) * (1.0 - pnow);
+        nf->npool_to_livecrootn_storage =
+            (nlc * f2 * f3 * f4 / cnlw) * (1.0 - pnow);
         nf->npool_to_deadcrootn = (nlc * f2 * f3 * (1.0 - f4) / cndw) * pnow;
-        nf->npool_to_deadcrootn_storage = (nlc * f2 * f3 * (1.0 - f4) / cndw) * (1.0 - pnow);
+        nf->npool_to_deadcrootn_storage =
+            (nlc * f2 * f3 * (1.0 - f4) / cndw) * (1.0 - pnow);
     }
 
     /* Calculate the amount of carbon that needs to go into growth respiration
@@ -276,9 +289,15 @@ void daily_allocation (cflux_struct * cf, cstate_struct * cs, nflux_struct * nf,
      * C for growth resp during display of transferred growth is assigned
      * here. */
     if (woody)
-        gresp_storage = (cf->cpool_to_leafc_storage + cf->cpool_to_frootc_storage + cf->cpool_to_livestemc_storage + cf->cpool_to_deadstemc_storage + cf->cpool_to_livecrootc_storage + cf->cpool_to_deadcrootc_storage) * g1 * (1.0 - g2);
+        gresp_storage =
+            (cf->cpool_to_leafc_storage + cf->cpool_to_frootc_storage +
+            cf->cpool_to_livestemc_storage + cf->cpool_to_deadstemc_storage +
+            cf->cpool_to_livecrootc_storage +
+            cf->cpool_to_deadcrootc_storage) * g1 * (1.0 - g2);
     else
-        gresp_storage = (cf->cpool_to_leafc_storage + cf->cpool_to_frootc_storage) * g1 * (1.0 - g2);
+        gresp_storage =
+            (cf->cpool_to_leafc_storage +
+            cf->cpool_to_frootc_storage) * g1 * (1.0 - g2);
     cf->cpool_to_gresp_storage = gresp_storage;
 
     /* Now use the N limitation information to assess the final decomposition

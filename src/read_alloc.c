@@ -13,9 +13,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
         printf ("\nRead input files:\n");
     }
 
-    /*
-     * Set file names of the input files
-     */
+    /* Set file names of the input files */
     sprintf (pihm->filename.riv, "input/%s/%s.riv", project, project);
     sprintf (pihm->filename.mesh, "input/%s/%s.mesh", project, project);
     sprintf (pihm->filename.att, "input/%s/%s.att", project, project);
@@ -38,125 +36,124 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
         project);
     sprintf (pihm->filename.crop, "input/%s/%s.crop", project, project);
 #endif
+#ifdef _BGC_
+    sprintf (pihm->filename.bgc, "input/%s/%s.bgc", project, project);
+    sprintf (pihm->filename.bgcic, "input/%s/%s.bgcic", project, simulation);
+#endif
 
-    /*
-     * Read river input file
-     */
+    /* Read river input file */
     ReadRiv (pihm->filename.riv, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl,
         &pihm->forc);
     pihm->numriv = pihm->rivtbl.number;
 
-    /*
-     * Read mesh structure input file
-     */
+    /* Read mesh structure input file */
     ReadMesh (pihm->filename.mesh, &pihm->meshtbl);
     pihm->numele = pihm->meshtbl.numele;
 
-    /*
-     * Read attribute table input file
-     */
+    /* Read attribute table input file */
     ReadAtt (pihm->filename.att, &pihm->atttbl, pihm->numele);
 
-    /*
-     * Read soil input file
-     */
+    /* Read soil input file */
     ReadSoil (pihm->filename.soil, &pihm->soiltbl);
 
-    /*
-     * Read geology input file
-     */
+    /* Read geology input file */
     //ReadGeol (pihm->filename.geol, &pihm->geoltbl);
 
-    /*
-     * Read land cover input file
-     */
+    /* Read land cover input file */
     ReadLC (pihm->filename.lc, &pihm->lctbl);
 
-    /*
-     * Read meteorological forcing input file
-     */
+    /* Read meteorological forcing input file */
     ReadForc (pihm->filename.meteo, &pihm->forc);
 
-    /*
-     * Read LAI input file
-     */
+    /* Read LAI input file */
     ReadLAI (pihm->filename.lai, &pihm->forc, pihm->numele, &pihm->atttbl);
 
-    /*
-     * Read source and sink input file
-     */
+    /* Read source and sink input file */
     pihm->forc.nsource = 0;
     //ReadSS ();
 
-    /*
-     * Read boundary condition input file
-     */
+    /* Read boundary condition input file */
     pihm->forc.nbc = 0;
     ReadBC (pihm->filename.bc, &pihm->forc);
 
-    /*
-     * Read model control file
-     */
+    /* Read model control file */
     ReadPara (pihm->filename.para, &pihm->ctrl);
 
-    /*
-     * Read calibration input file
-     */
+    /* Read calibration input file */
     ReadCalib (pihm->filename.calib, &pihm->cal);
 
 #ifdef _NOAH_
-    /*
-     * Read LSM input file
-     */
+    /* Read LSM input file */
     ReadLsm (pihm->filename.lsm, &pihm->latitude, &pihm->longitude,
         &pihm->ctrl, &pihm->noahtbl);
 
-    if (pihm->ctrl.rad_mode == 1)
+    if (pihm->ctrl.rad_mode == TOPO_SOL)
     {
-        /*
-         * Read radiation input file
-         */
+        /* Read radiation input file */
         ReadRad (pihm->filename.rad, &pihm->forc);
     }
 #endif
 
 #ifdef _CYCLES_
-    /*
-     * Read Cycles simulation control file
-     */
-    ReadCyclesCtrl (pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl, pihm->numele);
+    /* Read Cycles simulation control file */
+    ReadCyclesCtrl (pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl,
+        pihm->numele);
 
-    /*
-     * Read soil initialization file
-     */
+    /* Read soil initialization file */
     ReadSoilInit (pihm->filename.soilinit, &pihm->soiltbl);
 
-    /*
-     * Read crop description file
-     */
+    /* Read crop description file */
     ReadCrop (pihm->filename.crop, &pihm->croptbl);
 
-    /*
-     * Read operation file
-     */
+    /* Read operation file */
     ReadOperation (&pihm->agtbl, &pihm->mgmttbl, &pihm->croptbl);
 #endif
+
+#ifdef _BGC_
+    ReadBGC (pihm->filename.bgc, &pihm->ctrl, &pihm->co2, &pihm->ndepctrl,
+        pihm->filename.co2, pihm->filename.ndep);
+
+    /* Read Biome-BGC epc files */
+    ReadEPC (&pihm->epctbl);
+
+    /* Read CO2 and Ndep files */
+    if (pihm->co2.varco2)
+    {
+        pihm->forc.co2 = (tsdata_struct *)malloc (sizeof (tsdata_struct));
+        ReadAnnFile (&pihm->forc.co2[0], pihm->filename.co2);
+    }
+
+    if (pihm->ndepctrl.varndep)
+    {
+        pihm->forc.ndep = (tsdata_struct *)malloc (sizeof (tsdata_struct));
+        ReadAnnFile (&pihm->forc.ndep[0], pihm->filename.ndep);
+    }
+#endif
+
 }
 
 void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     matltbl_struct *matltbl, forc_struct *forc)
 {
     int             i, j;
-    FILE           *riv_file;   /* Pointer to .riv file */
+    FILE           *riv_file;
     char            cmdstr[MAXSTRING];
     int             match;
     int             index;
 
-    /*
-     * Open .riv input file
-     */
+    /** Open .riv input file */
     riv_file = fopen (filename, "r");
-    CheckFile (riv_file, filename);
+
+    if (NULL == riv_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s.\n", filename);
+    }
 
     /*
      * Read river segment block
@@ -164,7 +161,11 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     /* Read number of river segments */
     FindLine (riv_file, "BOF");
     NextLine (riv_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NUMRIV", &rivtbl->number);
+    if (!ReadKeyword (cmdstr, "NUMRIV", &rivtbl->number, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     /* Allocate */
     rivtbl->fromnode = (int *)malloc (rivtbl->number * sizeof (int));
@@ -193,10 +194,11 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
             &rivtbl->bc[i], &rivtbl->rsvr[i]);
         if (match != 10 || i != index - 1)
         {
-            printf ("Cannot read river segment information for the %dth"
-                "segment!\n", i + 1);
-            printf (".riv file format error!\n");
-            PihmExit (1);
+            fprintf (stderr, "Error in .riv file format.\n");
+            fprintf (stderr,
+                "Cannot read river segment information for the %dth"
+                "segment.\n", i + 1);
+            PIHMExit (EXIT_FAILURE);
         }
     }
 
@@ -204,7 +206,11 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
      * Read river shape information
      */
     NextLine (riv_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SHAPE", &shptbl->number);
+    if (!ReadKeyword (cmdstr, "SHAPE", &shptbl->number, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     /* Allocate */
     shptbl->depth = (double *)malloc (shptbl->number * sizeof (double));
@@ -222,11 +228,12 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
             &shptbl->intrpl_ord[i], &shptbl->coeff[i]);
         if (match != 4 || i != index - 1)
         {
-            printf
-                ("Cannot read river shape information for the %dth shape!\n",
+            fprintf (stderr, "Error in .riv file format.\n");
+            fprintf
+                (stderr,
+                "Cannot read river shape information for the %dth shape.\n",
                 i + 1);
-            printf (".riv file format error!\n");
-            PihmExit (1);
+            PIHMExit (EXIT_FAILURE);
         }
     }
 
@@ -234,7 +241,11 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
      * Read river material information
      */
     NextLine (riv_file, cmdstr);
-    ReadKeywordInt (cmdstr, "MATERIAL", &matltbl->number);
+    if (!ReadKeyword (cmdstr, "MATERIAL", &matltbl->number, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     /* Allocate */
     matltbl->rough = (double *)malloc (matltbl->number * sizeof (double));
@@ -255,10 +266,10 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
             &matltbl->ksath[i], &matltbl->ksatv[i], &matltbl->bedthick[i]);
         if (match != 6 || i != index - 1)
         {
-            printf ("Cannot read information for the %dth material!\n",
-                i + 1);
-            printf (".riv file format error!\n");
-            PihmExit (1);
+            fprintf (stderr, "Error in .riv file format.\n");
+            fprintf (stderr,
+                "Cannot read information for the %dth material.\n", i + 1);
+            PIHMExit (EXIT_FAILURE);
         }
     }
 
@@ -266,7 +277,11 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
      * Read river boundary condition block
      */
     NextLine (riv_file, cmdstr);
-    ReadKeywordInt (cmdstr, "BC", &forc->nriverbc);
+    if (!ReadKeyword (cmdstr, "BC", &forc->nriverbc, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     if (forc->nriverbc > 0)
     {
@@ -279,11 +294,11 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
             match = sscanf (cmdstr, "%*s %d", &index);
             if (match != 1 || i != index - 1)
             {
-                printf
-                    ("Cannot read information of the %dth river boudnary condition!\n",
+                fprintf (stderr, "Error in .riv file format.\n");
+                fprintf (stderr,
+                    "Cannot read information of the %dth river boudnary condition!\n",
                     i);
-                printf (".riv file format error!\n");
-                PihmExit (1);
+                PIHMExit (EXIT_FAILURE);
             }
             NextLine (riv_file, cmdstr);
             NextLine (riv_file, cmdstr);
@@ -307,8 +322,12 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
             {
                 forc->riverbc[i].data[j] = (double *)malloc (sizeof (double));
                 NextLine (riv_file, cmdstr);
-                ReadTS (cmdstr, &forc->riverbc[i].ftime[j],
-                    &forc->riverbc[i].data[j][0], 1);
+                if (!ReadTS (cmdstr, &forc->riverbc[i].ftime[j],
+                        &forc->riverbc[i].data[j][0], 1))
+                {
+                    fprintf (stderr, "Error reading %s.\n", filename);
+                    PIHMExit (EXIT_FAILURE);
+                }
             }
         }
     }
@@ -331,13 +350,27 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
      * Open .mesh input file
      */
     mesh_file = fopen (filename, "r");
-    CheckFile (mesh_file, filename);
+
+    if (NULL == mesh_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s.\n", filename);
+    }
 
     /*
      * Read element mesh block
      */
     NextLine (mesh_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NUMELE", &meshtbl->numele);
+    if (!ReadKeyword (cmdstr, "NUMELE", &meshtbl->numele, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     meshtbl->node = (int **)malloc (meshtbl->numele * sizeof (int *));
     meshtbl->nabr = (int **)malloc (meshtbl->numele * sizeof (int *));
@@ -358,9 +391,10 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
             &meshtbl->nabr[i][1], &meshtbl->nabr[i][2]);
         if (match != 7 || i != index - 1)
         {
-            printf ("Cannot read information of the %dth element!\n", i + 1);
-            printf (".mesh file format error!\n");
-            PihmExit (1);
+            fprintf (stderr, "Error reading %s.\n", filename);
+            fprintf (stderr, "Cannot read information of the %dth element.\n",
+                i + 1);
+            PIHMExit (EXIT_FAILURE);
         }
     }
 
@@ -368,7 +402,11 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
      * Read node block
      */
     NextLine (mesh_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NUMNODE", &meshtbl->numnode);
+    if (!ReadKeyword (cmdstr, "NUMNODE", &meshtbl->numnode, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     /* Skip header line */
     NextLine (mesh_file, cmdstr);
@@ -387,9 +425,10 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
             &meshtbl->zmin[i], &meshtbl->zmax[i]);
         if (match != 5 || i != index - 1)
         {
-            printf ("Cannot read information of the %dth node!\n", i + 1);
-            printf (".mesh file format error!\n");
-            PihmExit (1);
+            fprintf (stderr, "Error reading %s.\n", filename);
+            fprintf (stderr, "Cannot read information of the %dth node!\n",
+                i + 1);
+            PIHMExit (EXIT_FAILURE);
         }
     }
 
@@ -406,7 +445,17 @@ void ReadAtt (char *filename, atttbl_struct *atttbl, int numele)
     int             index;
 
     att_file = fopen (filename, "r");
-    CheckFile (att_file, filename);
+
+    if (NULL == att_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s.\n", filename);
+    }
 
     atttbl->soil = (int *)malloc (numele * sizeof (int));
     atttbl->geol = (int *)malloc (numele * sizeof (int));
@@ -430,9 +479,10 @@ void ReadAtt (char *filename, atttbl_struct *atttbl, int numele)
             &atttbl->bc[i][0], &atttbl->bc[i][1], &atttbl->bc[i][2]);
         if (match != 10)
         {
-            printf ("Cannot read information of the %dth element!\n", i + 1);
-            printf (".att file format error!\n");
-            PihmExit (1);
+            fprintf (stderr, "Error reading %s.\n", filename);
+            fprintf (stderr, "Cannot read information of the %dth element.\n",
+                i + 1);
+            PIHMExit (EXIT_FAILURE);
         }
     }
 
@@ -453,11 +503,25 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
     int             ptf_used = 0;
 
     soil_file = fopen (filename, "r");
-    CheckFile (soil_file, filename);
+
+    if (NULL == soil_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s.\n", filename);
+    }
 
     /* Start reading soil file */
     NextLine (soil_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NUMSOIL", &soiltbl->number);
+    if (!ReadKeyword (cmdstr, "NUMSOIL", &soiltbl->number, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     soiltbl->silt = (double *)malloc (soiltbl->number * sizeof (double));
     soiltbl->clay = (double *)malloc (soiltbl->number * sizeof (double));
@@ -495,10 +559,10 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
 
         if (match != 16 || i != index - 1)
         {
-            printf ("Cannot read information of the %dth soil type!\n",
-                i + 1);
-            printf (".soil file format error!\n");
-            PihmExit (1);
+            fprintf (stderr, "Error reading %s.\n", filename);
+            fprintf (stderr,
+                "Cannot read information of the %dth soil type!\n", i + 1);
+            PIHMExit (EXIT_FAILURE);
         }
 
         /* Fill in missing organic matter and bulk density values */
@@ -570,13 +634,25 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
     }
 
     NextLine (soil_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "DINF", &soiltbl->dinf);
+    if (!ReadKeyword (cmdstr, "DINF", &soiltbl->dinf, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (soil_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "KMACV_RO", &soiltbl->kmacv_ro);
+    if (!ReadKeyword (cmdstr, "KMACV_RO", &soiltbl->kmacv_ro, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (soil_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "KMACH_RO", &soiltbl->kmach_ro);
+    if (!ReadKeyword (cmdstr, "KMACH_RO", &soiltbl->kmach_ro, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     if (ptf_used)
     {
@@ -597,59 +673,69 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
     fclose (soil_file);
 }
 
-void ReadGeol (char *filename, geoltbl_struct *geoltbl)
-{
-    FILE           *geol_file;  /* Pointer to .geol file */
-    int             i;
-    char            cmdstr[MAXSTRING];
-    int             match;
-    int             index;
-
-    geol_file = fopen (filename, "r");
-    CheckFile (geol_file, filename);
-
-    /* start reading geol_file */
-    NextLine (geol_file, cmdstr);
-    match = sscanf (cmdstr, "%d", &geoltbl->number);
-    if (match != 1)
-    {
-        printf ("Cannot read number of geology types!\n");
-        printf (".geol file format error!\n");
-        PihmExit (1);
-    }
-
-    geoltbl->silt = (double *)malloc (geoltbl->number * sizeof (double));
-    geoltbl->clay = (double *)malloc (geoltbl->number * sizeof (double));
-    geoltbl->om = (double *)malloc (geoltbl->number * sizeof (double));
-    geoltbl->bd = (double *)malloc (geoltbl->number * sizeof (double));
-    geoltbl->ksath = (double *)malloc (geoltbl->number * sizeof (double));
-    geoltbl->ksatv = (double *)malloc (geoltbl->number * sizeof (double));
-    geoltbl->smcmax = (double *)malloc (geoltbl->number * sizeof (double));
-    geoltbl->smcmin = (double *)malloc (geoltbl->number * sizeof (double));
-    geoltbl->alpha = (double *)malloc (geoltbl->number * sizeof (double));
-    geoltbl->beta = (double *)malloc (geoltbl->number * sizeof (double));
-
-    for (i = 0; i < geoltbl->number; i++)
-    {
-        NextLine (geol_file, cmdstr);
-        match = sscanf (cmdstr, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-            &index,
-            &geoltbl->silt[i], &geoltbl->clay[i], &geoltbl->om[i],
-            &geoltbl->bd[i],
-            &geoltbl->ksatv[i], &geoltbl->ksath[i],
-            &geoltbl->smcmax[i], &geoltbl->smcmin[i],
-            &geoltbl->alpha[i], &geoltbl->beta[i]);
-        if (match != 11 || i != index - 1)
-        {
-            printf ("Cannot read information of the %dth geology type!\n",
-                i + 1);
-            printf (".geol file format error!\n");
-            PihmExit (1);
-        }
-    }
-
-    fclose (geol_file);
-}
+//void ReadGeol (char *filename, geoltbl_struct *geoltbl)
+//{
+//    FILE           *geol_file;  /* Pointer to .geol file */
+//    int             i;
+//    char            cmdstr[MAXSTRING];
+//    int             match;
+//    int             index;
+//
+//    geol_file = fopen (filename, "r");
+//
+//    if (NULL == geol_file)
+//    {
+//        fprintf (stderr, "Error opening %s.\n", filename);
+//        PIHMExit (EXIT_FAILURE);
+//    }
+//
+//    if (verbose_mode)
+//    {
+//        printf ("Reading %s.\n", filename);
+//    }
+//
+//    /* start reading geol_file */
+//    NextLine (geol_file, cmdstr);
+//    match = sscanf (cmdstr, "%d", &geoltbl->number);
+//    if (match != 1)
+//    {
+//        printf ("Cannot read number of geology types!\n");
+//        printf (".geol file format error!\n");
+//        PihmExit (1);
+//    }
+//
+//    geoltbl->silt = (double *)malloc (geoltbl->number * sizeof (double));
+//    geoltbl->clay = (double *)malloc (geoltbl->number * sizeof (double));
+//    geoltbl->om = (double *)malloc (geoltbl->number * sizeof (double));
+//    geoltbl->bd = (double *)malloc (geoltbl->number * sizeof (double));
+//    geoltbl->ksath = (double *)malloc (geoltbl->number * sizeof (double));
+//    geoltbl->ksatv = (double *)malloc (geoltbl->number * sizeof (double));
+//    geoltbl->smcmax = (double *)malloc (geoltbl->number * sizeof (double));
+//    geoltbl->smcmin = (double *)malloc (geoltbl->number * sizeof (double));
+//    geoltbl->alpha = (double *)malloc (geoltbl->number * sizeof (double));
+//    geoltbl->beta = (double *)malloc (geoltbl->number * sizeof (double));
+//
+//    for (i = 0; i < geoltbl->number; i++)
+//    {
+//        NextLine (geol_file, cmdstr);
+//        match = sscanf (cmdstr, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+//            &index,
+//            &geoltbl->silt[i], &geoltbl->clay[i], &geoltbl->om[i],
+//            &geoltbl->bd[i],
+//            &geoltbl->ksatv[i], &geoltbl->ksath[i],
+//            &geoltbl->smcmax[i], &geoltbl->smcmin[i],
+//            &geoltbl->alpha[i], &geoltbl->beta[i]);
+//        if (match != 11 || i != index - 1)
+//        {
+//            printf ("Cannot read information of the %dth geology type!\n",
+//                i + 1);
+//            printf (".geol file format error!\n");
+//            PihmExit (1);
+//        }
+//    }
+//
+//    fclose (geol_file);
+//}
 
 void ReadLC (char *filename, lctbl_struct *lctbl)
 {
@@ -660,11 +746,25 @@ void ReadLC (char *filename, lctbl_struct *lctbl)
     int             index;
 
     lc_file = fopen (filename, "r");
-    CheckFile (lc_file, filename);
+
+    if (NULL == lc_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s.\n", filename);
+    }
 
     /* Start reading land cover file */
     NextLine (lc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NUMLC", &lctbl->number);
+    if (!ReadKeyword (cmdstr, "NUMLC", &lctbl->number, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     lctbl->laimax = (double *)malloc (lctbl->number * sizeof (double));
     lctbl->laimin = (double *)malloc (lctbl->number * sizeof (double));
@@ -699,27 +799,48 @@ void ReadLC (char *filename, lctbl_struct *lctbl)
             &lctbl->rough[i]);
         if (match != 16 || i != index - 1)
         {
-            printf ("Cannot read information of the %dth landcover type!\n",
+            fprintf (stderr, "Error reading %s.\n", filename);
+            fprintf (stderr,
+                "Cannot read information of the %dth landcover type!\n",
                 i + 1);
-            printf ("Landcover file format error!\n");
-            PihmExit (1);
+            PIHMExit (EXIT_FAILURE);
         }
     }
 
     NextLine (lc_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "TOPT_DATA", &lctbl->topt);
+    if (!ReadKeyword (cmdstr, "TOPT_DATA", &lctbl->topt, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (lc_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "CFACTR_DATA", &lctbl->cfactr);
+    if (!ReadKeyword (cmdstr, "CFACTR_DATA", &lctbl->cfactr, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (lc_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "RSMAX_DATA", &lctbl->rsmax);
+    if (!ReadKeyword (cmdstr, "RSMAX_DATA", &lctbl->rsmax, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (lc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "BARE", &lctbl->bare);
+    if (!ReadKeyword (cmdstr, "BARE", &lctbl->bare, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (lc_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NATURAL", &lctbl->natural);
+    if (!ReadKeyword (cmdstr, "NATURAL", &lctbl->natural, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     fclose (lc_file);
 }
@@ -733,7 +854,17 @@ void ReadForc (char *filename, forc_struct *forc)
     int             index;
 
     meteo_file = fopen (filename, "r");
-    CheckFile (meteo_file, filename);
+
+    if (NULL == meteo_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s.\n", filename);
+    }
 
     FindLine (meteo_file, "BOF");
 
@@ -752,11 +883,11 @@ void ReadForc (char *filename, forc_struct *forc)
                 &index, &forc->meteo[i].zlvl_wind);
             if (match != 2 || i != index - 1)
             {
-                printf
-                    ("Cannot read information of the %dth forcing series!\n",
+                fprintf (stderr, "Error reading %s.\n", filename);
+                fprintf (stderr,
+                    "Cannot read information of the %dth forcing series!\n",
                     i);
-                printf (".forc file format error!\n");
-                PihmExit (1);
+                PIHMExit (EXIT_FAILURE);
             }
             /* Skip header lines */
             NextLine (meteo_file, cmdstr);
@@ -783,8 +914,12 @@ void ReadForc (char *filename, forc_struct *forc)
                 forc->meteo[i].data[j] =
                     (double *)malloc (NUM_METEO_VAR * sizeof (double));
                 NextLine (meteo_file, cmdstr);
-                ReadTS (cmdstr, &forc->meteo[i].ftime[j],
-                    &forc->meteo[i].data[j][0], NUM_METEO_VAR);
+                if (!ReadTS (cmdstr, &forc->meteo[i].ftime[j],
+                        &forc->meteo[i].data[j][0], NUM_METEO_VAR))
+                {
+                    fprintf (stderr, "Error reading %s.\n", filename);
+                    PIHMExit (EXIT_FAILURE);
+                }
             }
         }
     }
@@ -815,7 +950,17 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
     if (read_lai)
     {
         lai_file = fopen (filename, "r");
-        CheckFile (lai_file, filename);
+
+        if (NULL == lai_file)
+        {
+            fprintf (stderr, "Error opening %s.\n", filename);
+            PIHMExit (EXIT_FAILURE);
+        }
+
+        if (verbose_mode)
+        {
+            printf ("Reading %s.\n", filename);
+        }
 
         /* start reading lai_file */
         FindLine (lai_file, "BOF");
@@ -831,14 +976,18 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
             NextLine (lai_file, cmdstr);
             for (i = 0; i < forc->nlai; i++)
             {
-                ReadKeywordInt (cmdstr, "LAI_TS", &index);
+                if (!ReadKeyword (cmdstr, "LAI_TS", &index, 'i'))
+                {
+                    fprintf (stderr, "Error reading %s.\n", filename);
+                    PIHMExit (EXIT_FAILURE);
+                }
                 if (i != index - 1)
                 {
-                    printf
-                        ("Cannot read information of the %dth LAI series!\n",
+                    fprintf (stderr, "Error reading %s.\n", filename);
+                    fprintf (stderr,
+                        "Cannot read information of the %dth LAI series.\n",
                         i);
-                    printf (".lai file format error!\n");
-                    PihmExit (1);
+                    PIHMExit (EXIT_FAILURE);
                 }
                 /* Skip header lines */
                 NextLine (lai_file, cmdstr);
@@ -865,8 +1014,12 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
                 {
                     forc->lai[i].data[j] = (double *)malloc (sizeof (double));
                     NextLine (lai_file, cmdstr);
-                    ReadTS (cmdstr, &forc->lai[i].ftime[j],
-                        &forc->lai[i].data[j][0], 1);
+                    if (!ReadTS (cmdstr, &forc->lai[i].ftime[j],
+                            &forc->lai[i].data[j][0], 1))
+                    {
+                        fprintf (stderr, "Error reading %s.\n", filename);
+                        PIHMExit (EXIT_FAILURE);
+                    }
                 }
             }
         }
@@ -885,7 +1038,17 @@ void ReadBC (char *filename, forc_struct *forc)
     int             index;
 
     bc_file = fopen (filename, "r");
-    CheckFile (bc_file, filename);
+
+    if (NULL == bc_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s.\n", filename);
+    }
 
     /*
      * Start reading bc_file 
@@ -895,9 +1058,10 @@ void ReadBC (char *filename, forc_struct *forc)
     match = sscanf (cmdstr, "%*s %d", &forc->nbc);
     if (match != 1)
     {
-        printf ("Cannot read number of boundary condition time series!\n");
-        printf (".ibc file format error!\n");
-        PihmExit (1);
+        fprintf (stderr, "Error reading %s.\n", filename);
+        fprintf (stderr,
+            "Cannot read number of boundary condition time series.\n");
+        PIHMExit (EXIT_FAILURE);
     }
 
     if (forc->nbc > 0)
@@ -911,11 +1075,11 @@ void ReadBC (char *filename, forc_struct *forc)
             match = sscanf (cmdstr, "%*s %d", &index);
             if (match != 1 || i != index - 1)
             {
-                printf
-                    ("Cannot read information of the %dth boundary condition series!\n",
+                fprintf (stderr, "Error reading %s.\n", filename);
+                fprintf (stderr,
+                    "Cannot read information of the %dth boundary condition series!\n",
                     i);
-                printf (".ibc file format error!\n");
-                PihmExit (1);
+                PIHMExit (EXIT_FAILURE);
             }
             /* Skip header lines */
             NextLine (bc_file, cmdstr);
@@ -941,8 +1105,12 @@ void ReadBC (char *filename, forc_struct *forc)
             {
                 forc->bc[i].data[j] = (double *)malloc (sizeof (double));
                 NextLine (bc_file, cmdstr);
-                ReadTS (cmdstr, &forc->bc[i].ftime[j],
-                    &forc->bc[i].data[j][0], 1);
+                if (!ReadTS (cmdstr, &forc->bc[i].ftime[j],
+                        &forc->bc[i].data[j][0], 1))
+                {
+                    fprintf (stderr, "Error reading %s.\n", filename);
+                    PIHMExit (EXIT_FAILURE);
+                }
             }
         }
     }
@@ -956,144 +1124,315 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     char            cmdstr[MAXSTRING];
     int             i;
 
-    for (i = 0; i < NUM_PRINT; i++)
+    for (i = 0; i < MAXPRINT; i++)
     {
         ctrl->prtvrbl[i] = 0;
     }
 
     para_file = fopen (filename, "r");
-    CheckFile (para_file, filename);
+
+    if (NULL == para_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s.\n", filename);
+    }
 
     /* start reading para_file */
     /* Read through parameter file to find parameters */
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "INIT_MODE", &ctrl->init_type);
+    if (!ReadKeyword (cmdstr, "INIT_MODE", &ctrl->init_type, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+    ctrl->init_type = (ctrl->init_type > 0) ? 1 : 0;
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "ASCII_OUTPUT", &ctrl->ascii);
+    if (!ReadKeyword (cmdstr, "ASCII_OUTPUT", &ctrl->ascii, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "WRITE_IC", &ctrl->write_ic);
+    if (!ReadKeyword (cmdstr, "WRITE_IC", &ctrl->write_ic, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "UNSAT_MODE", &ctrl->unsat_mode);
+    if (!ReadKeyword (cmdstr, "UNSAT_MODE", &ctrl->unsat_mode, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SURF_MODE", &ctrl->surf_mode);
+    if (!ReadKeyword (cmdstr, "SURF_MODE", &ctrl->surf_mode, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIV_MODE", &ctrl->riv_mode);
+    if (!ReadKeyword (cmdstr, "RIV_MODE", &ctrl->riv_mode, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SOLVER", &ctrl->solver);
+    if (!ReadKeyword (cmdstr, "SOLVER", &ctrl->solver, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "ABSTOL", &ctrl->abstol);
+    if (!ReadKeyword (cmdstr, "ABSTOL", &ctrl->abstol, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "RELTOL", &ctrl->reltol);
+    if (!ReadKeyword (cmdstr, "RELTOL", &ctrl->reltol, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "INIT_SOLVER_STEP", &ctrl->initstep);
+    if (!ReadKeyword (cmdstr, "INIT_SOLVER_STEP", &ctrl->initstep, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "MAX_SOLVER_STEP", &ctrl->maxstep);
+    if (!ReadKeyword (cmdstr, "MAX_SOLVER_STEP", &ctrl->maxstep, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "LSM_STEP", &ctrl->etstep);
+    if (!ReadKeyword (cmdstr, "LSM_STEP", &ctrl->etstep, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordTime (cmdstr, "START", &ctrl->starttime);
+    if (!ReadKeyword (cmdstr, "START", &ctrl->starttime, 't'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordTime (cmdstr, "END", &ctrl->endtime);
+    if (!ReadKeyword (cmdstr, "END", &ctrl->endtime, 't'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "MODEL_STEPSIZE", &ctrl->stepsize);
+    if (!ReadKeyword (cmdstr, "MODEL_STEPSIZE", &ctrl->stepsize, 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SURF", &ctrl->prtvrbl[SURF_CTRL]);
+    if (!ReadKeyword (cmdstr, "SURF", &ctrl->prtvrbl[SURF_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "UNSAT", &ctrl->prtvrbl[UNSAT_CTRL]);
+    if (!ReadKeyword (cmdstr, "UNSAT", &ctrl->prtvrbl[UNSAT_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "GW", &ctrl->prtvrbl[GW_CTRL]);
+    if (!ReadKeyword (cmdstr, "GW", &ctrl->prtvrbl[GW_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVSTG", &ctrl->prtvrbl[RIVSTG_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVSTG", &ctrl->prtvrbl[RIVSTG_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVGW", &ctrl->prtvrbl[RIVGW_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVGW", &ctrl->prtvrbl[RIVGW_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SNOW", &ctrl->prtvrbl[SNOW_CTRL]);
+    if (!ReadKeyword (cmdstr, "SNOW", &ctrl->prtvrbl[SNOW_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "CMC", &ctrl->prtvrbl[CMC_CTRL]);
+    if (!ReadKeyword (cmdstr, "CMC", &ctrl->prtvrbl[CMC_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "INFIL", &ctrl->prtvrbl[INFIL_CTRL]);
+    if (!ReadKeyword (cmdstr, "INFIL", &ctrl->prtvrbl[INFIL_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RECHARGE", &ctrl->prtvrbl[RECHARGE_CTRL]);
+    if (!ReadKeyword (cmdstr, "RECHARGE", &ctrl->prtvrbl[RECHARGE_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "EC", &ctrl->prtvrbl[EC_CTRL]);
+    if (!ReadKeyword (cmdstr, "EC", &ctrl->prtvrbl[EC_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "ETT", &ctrl->prtvrbl[ETT_CTRL]);
+    if (!ReadKeyword (cmdstr, "ETT", &ctrl->prtvrbl[ETT_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "EDIR", &ctrl->prtvrbl[EDIR_CTRL]);
+    if (!ReadKeyword (cmdstr, "EDIR", &ctrl->prtvrbl[EDIR_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVFLX0", &ctrl->prtvrbl[RIVFLX0_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVFLX0", &ctrl->prtvrbl[RIVFLX0_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVFLX1", &ctrl->prtvrbl[RIVFLX1_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVFLX1", &ctrl->prtvrbl[RIVFLX1_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVFLX2", &ctrl->prtvrbl[RIVFLX2_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVFLX2", &ctrl->prtvrbl[RIVFLX2_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVFLX3", &ctrl->prtvrbl[RIVFLX3_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVFLX3", &ctrl->prtvrbl[RIVFLX3_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVFLX4", &ctrl->prtvrbl[RIVFLX4_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVFLX4", &ctrl->prtvrbl[RIVFLX4_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVFLX5", &ctrl->prtvrbl[RIVFLX5_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVFLX5", &ctrl->prtvrbl[RIVFLX5_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVFLX6", &ctrl->prtvrbl[RIVFLX6_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVFLX6", &ctrl->prtvrbl[RIVFLX6_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVFLX7", &ctrl->prtvrbl[RIVFLX7_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVFLX7", &ctrl->prtvrbl[RIVFLX7_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVFLX8", &ctrl->prtvrbl[RIVFLX8_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVFLX8", &ctrl->prtvrbl[RIVFLX8_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVFLX9", &ctrl->prtvrbl[RIVFLX9_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVFLX9", &ctrl->prtvrbl[RIVFLX9_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "RIVFLX10", &ctrl->prtvrbl[RIVFLX10_CTRL]);
+    if (!ReadKeyword (cmdstr, "RIVFLX10", &ctrl->prtvrbl[RIVFLX10_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SUBFLX", &ctrl->prtvrbl[SUBFLX_CTRL]);
+    if (!ReadKeyword (cmdstr, "SUBFLX", &ctrl->prtvrbl[SUBFLX_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (para_file, cmdstr);
-    ReadKeywordInt (cmdstr, "SURFFLX", &ctrl->prtvrbl[SURFFLX_CTRL]);
+    if (!ReadKeyword (cmdstr, "SURFFLX", &ctrl->prtvrbl[SURFFLX_CTRL], 'i'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     fclose (para_file);
 
     if (ctrl->etstep < ctrl->stepsize || ctrl->etstep % ctrl->stepsize > 0)
     {
-        printf
-            ("ERROR: LSM (ET) step size should be an integral multiple of"
+        fprintf (stderr,
+            "Error: LSM (ET) step size should be an integral multiple of"
             "model step size!\n");
-        PihmExit (1);
+        PIHMExit (EXIT_FAILURE);
     }
 }
 
@@ -1103,84 +1442,196 @@ void ReadCalib (char *filename, calib_struct *cal)
     FILE           *global_calib;       /* Pointer to .calib file */
 
     global_calib = fopen (filename, "r");
-    CheckFile (global_calib, filename);
+
+    if (NULL == global_calib)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s.\n", filename);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "KSATH", &cal->ksath);
+    if (!ReadKeyword (cmdstr, "KSATH", &cal->ksath, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "KSATV", &cal->ksatv);
+    if (!ReadKeyword (cmdstr, "KSATV", &cal->ksatv, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "KINF", &cal->kinfv);
+    if (!ReadKeyword (cmdstr, "KINF", &cal->kinfv, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "KMACSATH", &cal->kmach);
+    if (!ReadKeyword (cmdstr, "KMACSATH", &cal->kmach, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "KMACSATV", &cal->kmacv);
+    if (!ReadKeyword (cmdstr, "KMACSATV", &cal->kmacv, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "DINF", &cal->dinf);
+    if (!ReadKeyword (cmdstr, "DINF", &cal->dinf, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "DROOT", &cal->rzd);
+    if (!ReadKeyword (cmdstr, "DROOT", &cal->rzd, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "DMAC", &cal->dmac);
+    if (!ReadKeyword (cmdstr, "DMAC", &cal->dmac, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "POROSITY", &cal->porosity);
+    if (!ReadKeyword (cmdstr, "POROSITY", &cal->porosity, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "ALPHA", &cal->alpha);
+    if (!ReadKeyword (cmdstr, "ALPHA", &cal->alpha, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "BETA", &cal->beta);
+    if (!ReadKeyword (cmdstr, "BETA", &cal->beta, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "MACVF", &cal->areafv);
+    if (!ReadKeyword (cmdstr, "MACVF", &cal->areafv, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "MACHF", &cal->areafh);
+    if (!ReadKeyword (cmdstr, "MACHF", &cal->areafh, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "VEGFRAC", &cal->vegfrac);
+    if (!ReadKeyword (cmdstr, "VEGFRAC", &cal->vegfrac, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "ALBEDO", &cal->albedo);
+    if (!ReadKeyword (cmdstr, "ALBEDO", &cal->albedo, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "ROUGH", &cal->rough);
+    if (!ReadKeyword (cmdstr, "ROUGH", &cal->rough, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "EC", &cal->ec);
+    if (!ReadKeyword (cmdstr, "EC", &cal->ec, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "ETT", &cal->ett);
+    if (!ReadKeyword (cmdstr, "ETT", &cal->ett, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "EDIR", &cal->edir);
+    if (!ReadKeyword (cmdstr, "EDIR", &cal->edir, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "ROUGH_RIV", &cal->rivrough);
+    if (!ReadKeyword (cmdstr, "ROUGH_RIV", &cal->rivrough, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "KRIVH", &cal->rivksath);
+    if (!ReadKeyword (cmdstr, "KRIVH", &cal->rivksath, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "KRIVV", &cal->rivksatv);
+    if (!ReadKeyword (cmdstr, "KRIVV", &cal->rivksatv, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "BEDTHCK", &cal->rivbedthick);
+    if (!ReadKeyword (cmdstr, "BEDTHCK", &cal->rivbedthick, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "RIV_DPTH", &cal->rivdepth);
+    if (!ReadKeyword (cmdstr, "RIV_DPTH", &cal->rivdepth, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "RIV_WDTH", &cal->rivshpcoeff);
+    if (!ReadKeyword (cmdstr, "RIV_WDTH", &cal->rivshpcoeff, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
 #ifdef _RT_
+    FindLine (global_calib, "RT_CALIBRATION");
+
     CS->Cal.PCO2 = 1.0;
     CS->Cal.Keq = 1.0;
     CS->Cal.Site_den = 1.0;
@@ -1189,45 +1640,97 @@ void ReadCalib (char *filename, calib_struct *cal)
 #endif
 
 #ifdef _NOAH_
-    NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "DRIP", &cal->drip);
+    FindLine (global_calib, "LSM_CALIBRATION");
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "CMCMAX", &cal->intcp);
+    if (!ReadKeyword (cmdstr, "DRIP", &cal->drip, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "RS", &cal->rsmin);
+    if (!ReadKeyword (cmdstr, "CMCMAX", &cal->cmcmax, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "CZIL", &cal->czil);
+    if (!ReadKeyword (cmdstr, "RS", &cal->rsmin, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "FXEXP", &cal->fxexp);
+    if (!ReadKeyword (cmdstr, "CZIL", &cal->czil, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "CFACTR", &cal->cfactr);
+    if (!ReadKeyword (cmdstr, "FXEXP", &cal->fxexp, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "RGL", &cal->rgl);
+    if (!ReadKeyword (cmdstr, "CFACTR", &cal->cfactr, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "HS", &cal->hs);
+    if (!ReadKeyword (cmdstr, "RGL", &cal->rgl, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "REFSMC", &cal->thetaref);
+    if (!ReadKeyword (cmdstr, "HS", &cal->hs, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "WLTSMC", &cal->thetaw);
+    if (!ReadKeyword (cmdstr, "REFSMC", &cal->smcref, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    NextLine (global_calib, cmdstr);
+    if (!ReadKeyword (cmdstr, "WLTSMC", &cal->smcwlt, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 #endif
 
     /*
      * Scenarios
      */
-    NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "PRCP", &cal->prcp);
+    FindLine (global_calib, "SCENARIO");
 
     NextLine (global_calib, cmdstr);
-    ReadKeywordDouble (cmdstr, "SFCTMP", &cal->sfctmp);
+    if (!ReadKeyword (cmdstr, "PRCP", &cal->prcp, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    NextLine (global_calib, cmdstr);
+    if (!ReadKeyword (cmdstr, "SFCTMP", &cal->sfctmp, 'd'))
+    {
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 
 
     /* Finish reading calib file */
@@ -1239,62 +1742,43 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
 {
     FILE           *ic_file;
     int             i;
-    int             sz;
-    int             elemsz;
-    int             rivsz;
-#ifdef _NOAH_
-    int             j;
-#endif
+    int             size;
 
     ic_file = fopen (filename, "rb");
-    CheckFile (ic_file, filename);
 
-    elemsz = 5 * sizeof (double);
-    rivsz = 2 * sizeof (double);
-#ifdef _NOAH_
-    elemsz += (2 + 3 * MAXLYR) * sizeof (double);
-#endif
+    if (NULL == ic_file)
+    {
+        fprintf (stderr, "Error opening %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    if (verbose_mode)
+    {
+        printf ("Reading %s.\n", filename);
+    }
 
     fseek (ic_file, 0L, SEEK_END);
-    sz = ftell (ic_file);
+    size = ftell (ic_file);
 
-    if (sz != elemsz * numele + rivsz * numriv)
+    if (size !=
+        sizeof (ic_struct) * numele + sizeof (river_ic_struct) * numriv)
     {
-        printf ("\nERROR:.ic file size does not match!\n");
-        PihmExit (1);
+        fprintf (stderr, "Error: %s file size does not match requirement.\n",
+            filename);
+        fprintf (stderr, "Please use a correct initial condition file.\n");
+        PIHMExit (EXIT_FAILURE);
     }
 
     fseek (ic_file, 0L, SEEK_SET);
 
     for (i = 0; i < numele; i++)
     {
-        fread (&elem[i].ic.intcp, sizeof (double), 1, ic_file);
-        fread (&elem[i].ic.sneqv, sizeof (double), 1, ic_file);
-        fread (&elem[i].ic.surf, sizeof (double), 1, ic_file);
-        fread (&elem[i].ic.unsat, sizeof (double), 1, ic_file);
-        fread (&elem[i].ic.gw, sizeof (double), 1, ic_file);
-#ifdef _NOAH_
-        fread (&elem[i].ic.t1, sizeof (double), 1, ic_file);
-        fread (&elem[i].ic.snowh, sizeof (double), 1, ic_file);
-
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fread (&elem[i].ic.stc[j], sizeof (double), 1, ic_file);
-        }
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fread (&elem[i].ic.smc[j], sizeof (double), 1, ic_file);
-        }
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fread (&elem[i].ic.sh2o[j], sizeof (double), 1, ic_file);
-        }
-#endif
+        fread (&elem[i].ic, sizeof (ic_struct), 1, ic_file);
     }
+
     for (i = 0; i < numriv; i++)
     {
-        fread (&riv[i].ic.stage, sizeof (double), 1, ic_file);
-        fread (&riv[i].ic.gw, sizeof (double), 1, ic_file);
+        fread (&riv[i].ic, sizeof (river_ic_struct), 1, ic_file);
     }
 
     fclose (ic_file);
@@ -1464,7 +1948,7 @@ void FreeData (pihm_struct pihm)
 
     for (i = 0; i < pihm->ctrl.nprint; i++)
     {
-        free (pihm->prtctrl[i].vrbl);
+        free (pihm->prtctrl[i].var);
         free (pihm->prtctrl[i].buffer);
     }
 

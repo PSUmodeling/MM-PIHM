@@ -1,3 +1,4 @@
+
 /* 
  * check_balance.c
  * daily test of mass balance (water, carbon, and nitrogen state variables)
@@ -8,9 +9,10 @@
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  */
 
-#include "bgc.h"
+#include "pihm.h"
 
-void check_carbon_balance (cstate_struct * cs, double *old_balance, int first_balance)
+void CheckCarbonBalance (cstate_struct *cs, double *old_balance,
+    int first_balance)
 {
     double          in, out, store, balance;
 
@@ -20,10 +22,25 @@ void check_carbon_balance (cstate_struct * cs, double *old_balance, int first_ba
     in = cs->psnsun_src + cs->psnshade_src;
 
     /* sum of sinks */
-    out = cs->leaf_mr_snk + cs->leaf_gr_snk + cs->froot_mr_snk + cs->froot_gr_snk + cs->livestem_mr_snk + cs->livestem_gr_snk + cs->deadstem_gr_snk + cs->livecroot_mr_snk + cs->livecroot_gr_snk + cs->deadcroot_gr_snk + cs->litr1_hr_snk + cs->litr2_hr_snk + cs->litr4_hr_snk + cs->soil1_hr_snk + cs->soil2_hr_snk + cs->soil3_hr_snk + cs->soil4_hr_snk + cs->fire_snk;
+    out =
+        cs->leaf_mr_snk + cs->leaf_gr_snk + cs->froot_mr_snk +
+        cs->froot_gr_snk + cs->livestem_mr_snk + cs->livestem_gr_snk +
+        cs->deadstem_gr_snk + cs->livecroot_mr_snk + cs->livecroot_gr_snk +
+        cs->deadcroot_gr_snk + cs->litr1_hr_snk + cs->litr2_hr_snk +
+        cs->litr4_hr_snk + cs->soil1_hr_snk + cs->soil2_hr_snk +
+        cs->soil3_hr_snk + cs->soil4_hr_snk + cs->fire_snk;
 
     /* sum of current storage */
-    store = cs->leafc + cs->leafc_storage + cs->leafc_transfer + cs->frootc + cs->frootc_storage + cs->frootc_transfer + cs->livestemc + cs->livestemc_storage + cs->livestemc_transfer + cs->deadstemc + cs->deadstemc_storage + cs->deadstemc_transfer + cs->livecrootc + cs->livecrootc_storage + cs->livecrootc_transfer + cs->deadcrootc + cs->deadcrootc_storage + cs->deadcrootc_transfer + cs->gresp_storage + cs->gresp_transfer + cs->cwdc + cs->litr1c + cs->litr2c + cs->litr3c + cs->litr4c + cs->soil1c + cs->soil2c + cs->soil3c + cs->soil4c + cs->cpool;
+    store =
+        cs->leafc + cs->leafc_storage + cs->leafc_transfer + cs->frootc +
+        cs->frootc_storage + cs->frootc_transfer + cs->livestemc +
+        cs->livestemc_storage + cs->livestemc_transfer + cs->deadstemc +
+        cs->deadstemc_storage + cs->deadstemc_transfer + cs->livecrootc +
+        cs->livecrootc_storage + cs->livecrootc_transfer + cs->deadcrootc +
+        cs->deadcrootc_storage + cs->deadcrootc_transfer + cs->gresp_storage +
+        cs->gresp_transfer + cs->cwdc + cs->litr1c + cs->litr2c + cs->litr3c +
+        cs->litr4c + cs->soil1c + cs->soil2c + cs->soil3c + cs->soil4c +
+        cs->cpool;
 
     /* calculate current balance */
     balance = in - out - store;
@@ -35,7 +52,8 @@ void check_carbon_balance (cstate_struct * cs, double *old_balance, int first_ba
             printf ("FATAL ERRROR: carbon balance error:\n");
             printf ("Balance from previous day = %lf\n", *old_balance);
             printf ("Balance from current day  = %lf\n", balance);
-            printf ("Difference (previous - current) = %lf\n", *old_balance - balance);
+            printf ("Difference (previous - current) = %lf\n",
+                *old_balance - balance);
             printf ("Components of current balance:\n");
             printf ("Sources (summed over entire run)  = %lf\n", in);
             printf ("Sinks   (summed over entire run)  = %lf\n", out);
@@ -47,7 +65,8 @@ void check_carbon_balance (cstate_struct * cs, double *old_balance, int first_ba
     *old_balance = balance;
 }
 
-void check_nitrogen_balance (nstate_struct * ns, double *old_balance, int first_balance)
+void CheckNitrogenBalance (nstate_struct *ns, double *old_balance,
+    int first_balance)
 {
     double          in, out, store, balance;
 
@@ -60,7 +79,16 @@ void check_nitrogen_balance (nstate_struct * ns, double *old_balance, int first_
     out = ns->nleached_snk + ns->nvol_snk + ns->fire_snk;
 
     /* sum of current storage */
-    store = ns->leafn + ns->leafn_storage + ns->leafn_transfer + ns->frootn + ns->frootn_storage + ns->frootn_transfer + ns->livestemn + ns->livestemn_storage + ns->livestemn_transfer + ns->deadstemn + ns->deadstemn_storage + ns->deadstemn_transfer + ns->livecrootn + ns->livecrootn_storage + ns->livecrootn_transfer + ns->deadcrootn + ns->deadcrootn_storage + ns->deadcrootn_transfer + ns->cwdn + ns->litr1n + ns->litr2n + ns->litr3n + ns->litr4n + ns->soil1n + ns->soil2n + ns->soil3n + ns->soil4n + ns->sminn + ns->npool + ns->retransn;
+    store =
+        ns->leafn + ns->leafn_storage + ns->leafn_transfer + ns->frootn +
+        ns->frootn_storage + ns->frootn_transfer + ns->livestemn +
+        ns->livestemn_storage + ns->livestemn_transfer + ns->deadstemn +
+        ns->deadstemn_storage + ns->deadstemn_transfer + ns->livecrootn +
+        ns->livecrootn_storage + ns->livecrootn_transfer + ns->deadcrootn +
+        ns->deadcrootn_storage + ns->deadcrootn_transfer + ns->cwdn +
+        ns->litr1n + ns->litr2n + ns->litr3n + ns->litr4n + ns->soil1n +
+        ns->soil2n + ns->soil3n + ns->soil4n + ns->sminn + ns->npool +
+        ns->retransn;
 
     /* calculate current balance */
     balance = in - out - store;
@@ -72,7 +100,8 @@ void check_nitrogen_balance (nstate_struct * ns, double *old_balance, int first_
             printf ("FATAL ERRROR: nitrogen balance error:\n");
             printf ("Balance from previous day = %lf\n", *old_balance);
             printf ("Balance from current day  = %lf\n", balance);
-            printf ("Difference (previous - current) = %lf\n", *old_balance - balance);
+            printf ("Difference (previous - current) = %lf\n",
+                *old_balance - balance);
             printf ("Components of current balance:\n");
             printf ("Sources (summed over entire run)  = %lf\n", in);
             printf ("Sinks   (summed over entire run)  = %lf\n", out);
