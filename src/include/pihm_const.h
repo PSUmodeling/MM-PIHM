@@ -39,6 +39,9 @@
 #define PRES_TS         6       /* index of surface pressure forcing */
 
 /* Radiation forcing variables */
+#define UNIF_SOL    0
+#define TOPO_SOL    1
+
 #define SOLDIR_TS   0           /* index of direct solar radiation forcing */
 #define SOLDIF_TS   1           /* index of diffused solar radiation forcing*/
 

@@ -90,7 +90,9 @@ void _PIHMError (const char *fn, int lineno, const char *func, int error)
         fprintf (stderr, " (%s, Line %d)", fn, lineno);
     }
     fprintf (stderr, "...\n\n");
+
     fflush (stderr);
+
     exit (error);
 #endif
 }

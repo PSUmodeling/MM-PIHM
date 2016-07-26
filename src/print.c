@@ -750,6 +750,20 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         }
                         n++;
                     }
+
+                    sprintf (pihm->prtctrl[n].name, "%s%s.comm.biomass",
+                        outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].var[j] =
+                            &pihm->elem[j].comm.svBiomass;
+                    }
+                    n++;
                     break;
                 case RADNINTCP_CTRL:
                     for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
@@ -770,6 +784,20 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         }
                         n++;
                     }
+
+                    sprintf (pihm->prtctrl[n].name, "%s%s.comm.radintcp",
+                        outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].var[j] =
+                            &pihm->elem[j].comm.svRadiationInterception;
+                    }
+                    n++;
                     break;
                 case WATER_STS_CTRL:
                     for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
@@ -790,6 +818,20 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         }
                         n++;
                     }
+
+                    sprintf (pihm->prtctrl[n].name, "%s%s.comm.waterstress",
+                        outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].var[j] =
+                            &pihm->elem[j].comm.svWaterStressFactor;
+                    }
+                    n++;
                     break;
                 case N_STS_CTRL:
                     for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
@@ -809,6 +851,20 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         }
                         n++;
                     }
+
+                    sprintf (pihm->prtctrl[n].name, "%s%s.comm.nstress",
+                        outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].var[j] =
+                            &pihm->elem[j].comm.svN_StressFactor;
+                    }
+                    n++;
                     break;
                 case CROP_TR_CTRL:
                     for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
@@ -828,6 +884,20 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         }
                         n++;
                     }
+
+                    sprintf (pihm->prtctrl[n].name, "%s%s.comm.transp",
+                        outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].var[j] =
+                            &pihm->elem[j].comm.svTranspiration;
+                    }
+                    n++;
                     break;
                 case CROP_POTTR_CTRL:
                     for (k = 0; k < pihm->elem[0].comm.NumCrop; k++)
@@ -848,6 +918,20 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                         }
                         n++;
                     }
+
+                    sprintf (pihm->prtctrl[n].name, "%s%s.comm.pottransp",
+                        outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].var[j] =
+                            &pihm->elem[j].comm.svTranspirationPotential;
+                    }
+                    n++;
                     break;
                 case RES_EVAP_CTRL:
                     sprintf (pihm->prtctrl[n].name, "%s%s.eres", outputdir,
@@ -960,6 +1044,12 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
         }
     }
 
+    if (n > MAXPRINT)
+    {
+        fprintf (stderr, "Error: Too many output files.
+            The maximum number of output files is %d.\n", MAXPRINT);
+        PIHMError (1);
+    }
 
     pihm->ctrl.nprint = n;
 

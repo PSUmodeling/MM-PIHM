@@ -28,9 +28,9 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     {
         elem = &pihm->elem[i];
 
-        elem->ws.surf = (y[SURF (i)] >= 0.0) ? y[SURF (i)] : 0.0;
-        elem->ws.unsat = (y[UNSAT (i)] >= 0.0) ? y[UNSAT (i)] : 0.0;
-        elem->ws.gw = (y[GW (i)] >= 0.0) ? y[GW (i)] : 0.0;
+        elem->ws.surf = (y[SURF(i)] >= 0.0) ? y[SURF(i)] : 0.0;
+        elem->ws.unsat = (y[UNSAT(i)] >= 0.0) ? y[UNSAT(i)] : 0.0;
+        elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
     }
 
     for (i = 0; i < pihm->numriv; i++)
@@ -122,21 +122,21 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     {
         elem = &pihm->elem[i];
 
-        dy[SURF (i)] += elem->wf.pcpdrp - elem->wf.infil - elem->wf.edir_surf;
-        dy[UNSAT (i)] += elem->wf.infil - elem->wf.rechg -
+        dy[SURF(i)] += elem->wf.pcpdrp - elem->wf.infil - elem->wf.edir_surf;
+        dy[UNSAT(i)] += elem->wf.infil - elem->wf.rechg -
             elem->wf.edir_unsat - elem->wf.ett_unsat;
-        dy[GW (i)] += elem->wf.rechg - elem->wf.edir_gw - elem->wf.ett_gw;
+        dy[GW(i)] += elem->wf.rechg - elem->wf.edir_gw - elem->wf.ett_gw;
 
         for (j = 0; j < 3; j++)
         {
-            dy[SURF (i)] -= elem->wf.ovlflow[j] / elem->topo.area;
-            dy[GW (i)] -= elem->wf.subsurf[j] / elem->topo.area;
+            dy[SURF(i)] -= elem->wf.ovlflow[j] / elem->topo.area;
+            dy[GW(i)] -= elem->wf.subsurf[j] / elem->topo.area;
         }
 
-        dy[UNSAT (i)] /= elem->soil.porosity;
-        dy[GW (i)] /= elem->soil.porosity;
+        dy[UNSAT(i)] /= elem->soil.porosity;
+        dy[GW(i)] /= elem->soil.porosity;
 
-        if (isnan (dy[SURF (i)]))
+        if (isnan (dy[SURF(i)]))
         {
             fprintf
                 (stderr,
@@ -144,14 +144,14 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
                 i + 1, t);
             PIHMError (1);
         }
-        if (isnan (dy[UNSAT (i)]))
+        if (isnan (dy[UNSAT(i)]))
         {
             fprintf (stderr,
                 "Error: NAN error for Element %d (unsat water) at %lf\n",
                 i + 1, t);
             PIHMError (1);
         }
-        if (isnan (dy[GW (i)]))
+        if (isnan (dy[GW(i)]))
         {
             fprintf (stderr,
                 "Error: NAN error for Element %d (groundwater) at %lf\n",
@@ -171,11 +171,13 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
              * for cs other than rectangle */
             dy[RIVSTG (i)] -= riv->wf.rivflow[j] / riv->topo.area;
         }
-        dy[RIVGW (i)] +=
-            -riv->wf.rivflow[LEFT_AQUIF2AQUIF] -
+
+        dy[RIVGW (i)] += 0.0 -
+            riv->wf.rivflow[LEFT_AQUIF2AQUIF] -
             riv->wf.rivflow[RIGHT_AQUIF2AQUIF] -
             riv->wf.rivflow[DOWN_AQUIF2AQUIF] -
             riv->wf.rivflow[UP_AQUIF2AQUIF] + riv->wf.rivflow[CHANL_LKG];
+
         dy[RIVGW (i)] /= riv->matl.porosity * riv->topo.area;
 
         if (isnan (dy[RIVSTG (i)]))

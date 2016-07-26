@@ -33,8 +33,10 @@ typedef struct attrib_struct
  * zmax                     double      surface elevation [m]
  * edge                     double[]    length of edge (Edge i is from node i
  *                                        to node i + 1) [m]
- * surfx                    double[]
- * surfy                    double[]
+ * nabrdist_x               double[]    distance to neighbor in x direction
+ *                                        [m]
+ * nabrdist_y               double[]    distance to neighbor in y direction
+ *                                        [m]
  * ---------------------------------------------------------------------------
  * Variables below only used in Flux-PIHM
  * ---------------------------------------------------------------------------
@@ -56,8 +58,8 @@ typedef struct topo_struct
     double          zmin;
     double          zmax;
     double          edge[NUM_EDGE];
-    double          surfx[NUM_EDGE];
-    double          surfy[NUM_EDGE];
+    double          nabrdist_x[NUM_EDGE];
+    double          nabrdist_y[NUM_EDGE];
 #ifdef _NOAH_
     double          slope;
     double          aspect;

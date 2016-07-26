@@ -13,9 +13,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
         printf ("\nRead input files:\n");
     }
 
-    /*
-     * Set file names of the input files
-     */
+    /* Set file names of the input files */
     sprintf (pihm->filename.riv, "input/%s/%s.riv", project, project);
     sprintf (pihm->filename.mesh, "input/%s/%s.mesh", project, project);
     sprintf (pihm->filename.att, "input/%s/%s.att", project, project);
@@ -43,116 +41,79 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     sprintf (pihm->filename.bgcic, "input/%s/%s.bgcic", project, simulation);
 #endif
 
-    /*
-     * Read river input file
-     */
+    /* Read river input file */
     ReadRiv (pihm->filename.riv, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl,
         &pihm->forc);
     pihm->numriv = pihm->rivtbl.number;
 
-    /*
-     * Read mesh structure input file
-     */
+    /* Read mesh structure input file */
     ReadMesh (pihm->filename.mesh, &pihm->meshtbl);
     pihm->numele = pihm->meshtbl.numele;
 
-    /*
-     * Read attribute table input file
-     */
+    /* Read attribute table input file */
     ReadAtt (pihm->filename.att, &pihm->atttbl, pihm->numele);
 
-    /*
-     * Read soil input file
-     */
+    /* Read soil input file */
     ReadSoil (pihm->filename.soil, &pihm->soiltbl);
 
-    /*
-     * Read geology input file
-     */
+    /* Read geology input file */
     //ReadGeol (pihm->filename.geol, &pihm->geoltbl);
 
-    /*
-     * Read land cover input file
-     */
+    /* Read land cover input file */
     ReadLC (pihm->filename.lc, &pihm->lctbl);
 
-    /*
-     * Read meteorological forcing input file
-     */
+    /* Read meteorological forcing input file */
     ReadForc (pihm->filename.meteo, &pihm->forc);
 
-    /*
-     * Read LAI input file
-     */
+    /* Read LAI input file */
     ReadLAI (pihm->filename.lai, &pihm->forc, pihm->numele, &pihm->atttbl);
 
-    /*
-     * Read source and sink input file
-     */
+    /* Read source and sink input file */
     pihm->forc.nsource = 0;
     //ReadSS ();
 
-    /*
-     * Read boundary condition input file
-     */
+    /* Read boundary condition input file */
     pihm->forc.nbc = 0;
     ReadBC (pihm->filename.bc, &pihm->forc);
 
-    /*
-     * Read model control file
-     */
+    /* Read model control file */
     ReadPara (pihm->filename.para, &pihm->ctrl);
 
-    /*
-     * Read calibration input file
-     */
+    /* Read calibration input file */
     ReadCalib (pihm->filename.calib, &pihm->cal);
 
 #ifdef _NOAH_
-    /*
-     * Read LSM input file
-     */
+    /* Read LSM input file */
     ReadLsm (pihm->filename.lsm, &pihm->latitude, &pihm->longitude,
         &pihm->ctrl, &pihm->noahtbl);
 
-    if (pihm->ctrl.rad_mode == 1)
+    if (pihm->ctrl.rad_mode == TOPO_SOL)
     {
-        /*
-         * Read radiation input file
-         */
+        /* Read radiation input file */
         ReadRad (pihm->filename.rad, &pihm->forc);
     }
 #endif
 
 #ifdef _CYCLES_
-    /*
-     * Read Cycles simulation control file
-     */
+    /* Read Cycles simulation control file */
     ReadCyclesCtrl (pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl,
         pihm->numele);
 
-    /*
-     * Read soil initialization file
-     */
+    /* Read soil initialization file */
     ReadSoilInit (pihm->filename.soilinit, &pihm->soiltbl);
 
-    /*
-     * Read crop description file
-     */
+    /* Read crop description file */
     ReadCrop (pihm->filename.crop, &pihm->croptbl);
 
-    /*
-     * Read operation file
-     */
+    /* Read operation file */
     ReadOperation (&pihm->agtbl, &pihm->mgmttbl, &pihm->croptbl);
 #endif
 
 #ifdef _BGC_
     ReadBGC (pihm->filename.bgc, &pihm->ctrl, &pihm->co2, &pihm->ndepctrl,
         pihm->filename.co2, pihm->filename.ndep);
-    /*
-     * Read Biome-BGC epc files
-     */
+
+    /* Read Biome-BGC epc files */
     ReadEPC (&pihm->epctbl);
 
     /* Read CO2 and Ndep files */
@@ -175,14 +136,12 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     matltbl_struct *matltbl, forc_struct *forc)
 {
     int             i, j;
-    FILE           *riv_file;   /* Pointer to .riv file */
+    FILE           *riv_file;
     char            cmdstr[MAXSTRING];
     int             match;
     int             index;
 
-    /*
-     * Open .riv input file
-     */
+    /** Open .riv input file */
     riv_file = fopen (filename, "r");
 
     if (NULL == riv_file)
@@ -445,7 +404,7 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
     NextLine (mesh_file, cmdstr);
     if (!ReadKeyword (cmdstr, "NUMNODE", &meshtbl->numnode, 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -520,7 +479,7 @@ void ReadAtt (char *filename, atttbl_struct *atttbl, int numele)
             &atttbl->bc[i][0], &atttbl->bc[i][1], &atttbl->bc[i][2]);
         if (match != 10)
         {
-            fprintf (stderr, "Error opening %s.\n", filename);
+            fprintf (stderr, "Error reading %s.\n", filename);
             fprintf (stderr, "Cannot read information of the %dth element.\n",
                 i + 1);
             PIHMError (1);
@@ -677,7 +636,7 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
     NextLine (soil_file, cmdstr);
     if (!ReadKeyword (cmdstr, "DINF", &soiltbl->dinf, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -691,7 +650,7 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
     NextLine (soil_file, cmdstr);
     if (!ReadKeyword (cmdstr, "KMACH_RO", &soiltbl->kmach_ro, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -840,7 +799,7 @@ void ReadLC (char *filename, lctbl_struct *lctbl)
             &lctbl->rough[i]);
         if (match != 16 || i != index - 1)
         {
-            fprintf (stderr, "Error opening %s.\n", filename);
+            fprintf (stderr, "Error reading %s.\n", filename);
             fprintf (stderr,
                 "Cannot read information of the %dth landcover type!\n",
                 i + 1);
@@ -858,7 +817,7 @@ void ReadLC (char *filename, lctbl_struct *lctbl)
     NextLine (lc_file, cmdstr);
     if (!ReadKeyword (cmdstr, "CFACTR_DATA", &lctbl->cfactr, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -872,7 +831,7 @@ void ReadLC (char *filename, lctbl_struct *lctbl)
     NextLine (lc_file, cmdstr);
     if (!ReadKeyword (cmdstr, "BARE", &lctbl->bare, 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1196,7 +1155,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "ASCII_OUTPUT", &ctrl->ascii, 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1210,7 +1169,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "UNSAT_MODE", &ctrl->unsat_mode, 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1224,7 +1183,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "RIV_MODE", &ctrl->riv_mode, 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1238,7 +1197,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "ABSTOL", &ctrl->abstol, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1252,7 +1211,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "INIT_SOLVER_STEP", &ctrl->initstep, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1266,7 +1225,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "LSM_STEP", &ctrl->etstep, 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1280,7 +1239,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "END", &ctrl->endtime, 't'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1294,7 +1253,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "SURF", &ctrl->prtvrbl[SURF_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1308,7 +1267,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "GW", &ctrl->prtvrbl[GW_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1322,7 +1281,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "RIVGW", &ctrl->prtvrbl[RIVGW_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1336,7 +1295,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "CMC", &ctrl->prtvrbl[CMC_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1350,7 +1309,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "RECHARGE", &ctrl->prtvrbl[RECHARGE_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1364,7 +1323,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "ETT", &ctrl->prtvrbl[ETT_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1378,7 +1337,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "RIVFLX0", &ctrl->prtvrbl[RIVFLX0_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1392,7 +1351,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "RIVFLX2", &ctrl->prtvrbl[RIVFLX2_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1406,7 +1365,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "RIVFLX4", &ctrl->prtvrbl[RIVFLX4_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1420,7 +1379,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "RIVFLX6", &ctrl->prtvrbl[RIVFLX6_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1434,7 +1393,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "RIVFLX8", &ctrl->prtvrbl[RIVFLX8_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1448,7 +1407,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "RIVFLX10", &ctrl->prtvrbl[RIVFLX10_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1462,7 +1421,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr);
     if (!ReadKeyword (cmdstr, "SURFFLX", &ctrl->prtvrbl[SURFFLX_CTRL], 'i'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1505,7 +1464,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "KSATV", &cal->ksatv, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1519,7 +1478,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "KMACSATH", &cal->kmach, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1533,7 +1492,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "DINF", &cal->dinf, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1547,7 +1506,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "DMAC", &cal->dmac, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1561,7 +1520,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "ALPHA", &cal->alpha, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1575,7 +1534,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "MACVF", &cal->areafv, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1589,7 +1548,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "VEGFRAC", &cal->vegfrac, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1603,7 +1562,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "ROUGH", &cal->rough, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1617,7 +1576,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "ETT", &cal->ett, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1631,7 +1590,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "ROUGH_RIV", &cal->rivrough, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1645,7 +1604,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "KRIVV", &cal->rivksatv, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1659,7 +1618,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "RIV_DPTH", &cal->rivdepth, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1682,7 +1641,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "DRIP", &cal->drip, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1696,7 +1655,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "RS", &cal->rsmin, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1710,7 +1669,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "FXEXP", &cal->fxexp, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1724,7 +1683,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "RGL", &cal->rgl, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1738,7 +1697,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "REFSMC", &cal->smcref, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 
@@ -1756,7 +1715,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "PRCP", &cal->prcp, 'd'))
     {
-        fprintf (stderr, "Error opening %s.\n", filename);
+        fprintf (stderr, "Error reading %s.\n", filename);
         PIHMError (1);
     }
 

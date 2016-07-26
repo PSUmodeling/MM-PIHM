@@ -7,22 +7,16 @@ void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele,
 #endif
     )
 {
-    /* 
-     * Boundary conditions
-     */
+    /* Boundary conditions */
     if (forc->nbc > 0)
     {
         ApplyBC (forc, elem, numele, t);
     }
 
-    /* 
-     * Meteorological forcing
-     */
+    /* Meteorological forcing */
     ApplyMeteoForc (forc, elem, numele, t);
 
-    /* 
-     * LAI forcing
-     */
+    /* LAI forcing */
 #ifndef _CYCLES_
 #ifdef _BGC_
     if (ctrl->bgc_spinup)
@@ -171,17 +165,21 @@ void IntrplForcing (tsdata_struct ts, int t, int nvrbl)
 
     if (t <= ts.ftime[0])
     {
-        for (j = 0; j < nvrbl; j++)
-        {
-            ts.value[j] = ts.data[0][j];
-        }
+        fprintf (stderr, "Error finding forcing for current time step.\n");
+        PIHMError (1);
+        //for (j = 0; j < nvrbl; j++)
+        //{
+        //    ts.value[j] = ts.data[0][j];
+        //}
     }
     else if (t >= ts.ftime[ts.length - 1])
     {
-        for (j = 0; j < nvrbl; j++)
-        {
-            ts.value[j] = ts.data[ts.length - 1][j];
-        }
+        fprintf (stderr, "Error finding forcing for current time step.\n");
+        PIHMError (1);
+        //for (j = 0; j < nvrbl; j++)
+        //{
+        //    ts.value[j] = ts.data[ts.length - 1][j];
+        //}
     }
     else
     {

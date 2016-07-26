@@ -82,7 +82,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
          * Subsurface runoff rate
          */
         subrunoff = 0.0;
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             subrunoff += elem->wf.subsurf[j] / elem->topo.area;
         }

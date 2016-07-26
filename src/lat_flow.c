@@ -7,7 +7,7 @@ void LateralFlow (pihm_struct pihm)
     double          avg_y_sub;
     double          distance;
     double          grad_y_sub;
-    double          surfh[3];
+    double          surfh[NUM_EDGE];
     double         *dhbydx;
     double         *dhbydy;
     double          effk;
@@ -66,8 +66,8 @@ void LateralFlow (pihm_struct pihm)
                 }
             }
 
-            dhbydx[i] = DhByDl (elem->topo.surfy, elem->topo.surfx, surfh);
-            dhbydy[i] = DhByDl (elem->topo.surfx, elem->topo.surfy, surfh);
+            dhbydx[i] = DhByDl (elem->topo.nabrdist_y, elem->topo.nabrdist_x, surfh);
+            dhbydy[i] = DhByDl (elem->topo.nabrdist_x, elem->topo.nabrdist_y, surfh);
         }
     }
 
@@ -75,7 +75,7 @@ void LateralFlow (pihm_struct pihm)
     {
         elem = &pihm->elem[i];
 
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             if (elem->nabr[j] != 0)
             {
@@ -100,8 +100,8 @@ void LateralFlow (pihm_struct pihm)
                     nabr->topo.zmin);
                 avg_y_sub = AvgY (dif_y_sub, elem->ws.gw, nabr->ws.gw);
                 distance =
-                    sqrt (pow (elem->topo.x - nabr->topo.x,
-                        2) + pow (elem->topo.y - nabr->topo.y, 2));
+                    sqrt (pow (elem->topo.x - nabr->topo.x, 2) +
+                    pow (elem->topo.y - nabr->topo.y, 2));
                 grad_y_sub = dif_y_sub / distance;
                 /* Take into account macropore effect */
                 effk =

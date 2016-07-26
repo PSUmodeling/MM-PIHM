@@ -16,7 +16,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     {
         pihm->elem[i].attrib.soil_type = pihm->atttbl.soil[i];
         pihm->elem[i].attrib.lc_type = pihm->atttbl.lc[i];
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             pihm->elem[i].attrib.bc_type[j] = pihm->atttbl.bc[i][j];
         }
@@ -115,7 +115,7 @@ void InitMeshStruct (elem_struct *elem, int numele, meshtbl_struct meshtbl)
     {
         elem[i].ind = i + 1;
 
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             elem[i].node[j] = meshtbl.node[i][j];
             elem[i].nabr[j] = meshtbl.nabr[i][j];
@@ -126,14 +126,14 @@ void InitMeshStruct (elem_struct *elem, int numele, meshtbl_struct meshtbl)
 void InitTopo (elem_struct *elem, int numele, meshtbl_struct meshtbl)
 {
     int             i, j;
-    double          x[3];
-    double          y[3];
-    double          zmin[3];
-    double          zmax[3];
+    double          x[NUM_EDGE];
+    double          y[NUM_EDGE];
+    double          zmin[NUM_EDGE];
+    double          zmax[NUM_EDGE];
 
     for (i = 0; i < numele; i++)
     {
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             x[j] = meshtbl.x[elem[i].node[j] - 1];
             y[j] = meshtbl.y[elem[i].node[j] - 1];
@@ -304,11 +304,13 @@ void InitLC (elem_struct *elem, int numele, lctbl_struct lctbl,
     {
         lc_ind = elem[i].attrib.lc_type - 1;
 
-        elem[i].lc.shdfac = cal.vegfrac * lctbl.vegfrac[lc_ind];
         elem[i].ps.rzd = cal.rzd * lctbl.rzd[lc_ind];
         elem[i].epc.rsmin = lctbl.rsmin[lc_ind];
         elem[i].epc.rgl = lctbl.rgl[lc_ind];
         elem[i].epc.hs = lctbl.hs[lc_ind];
+        elem[i].epc.rsmax = lctbl.rsmax;
+        elem[i].epc.topt = lctbl.topt;
+        elem[i].lc.shdfac = cal.vegfrac * lctbl.vegfrac[lc_ind];
         elem[i].lc.laimin = lctbl.laimin[lc_ind];
         elem[i].lc.laimax = lctbl.laimax[lc_ind];
         elem[i].lc.emissmin = lctbl.emissmin[lc_ind];
@@ -319,13 +321,10 @@ void InitLC (elem_struct *elem, int numele, lctbl_struct lctbl,
         elem[i].lc.z0max = lctbl.z0max[lc_ind];
         elem[i].lc.rough = cal.rough * lctbl.rough[lc_ind];
         elem[i].lc.cmcfactr = 0.0002;
-        elem[i].epc.rsmax = lctbl.rsmax;
         elem[i].lc.cfactr = lctbl.cfactr;
-        elem[i].epc.topt = lctbl.topt;
         elem[i].lc.bare = (elem[i].attrib.lc_type == lctbl.bare) ? 1 : 0;
         elem[i].lc.shdfac = (elem[i].lc.bare == 1) ? 0.0 : elem[i].lc.shdfac;
 #ifdef _NOAH_
-        //elem[i].lc.ptu = 0.0;   /* Not yet used */
         elem[i].lc.snup = lctbl.snup[lc_ind];
         elem[i].lc.isurban = (elem[i].attrib.lc_type == ISURBAN) ? 1 : 0;
         elem[i].lc.shdmin = 0.01;
@@ -333,11 +332,11 @@ void InitLC (elem_struct *elem, int numele, lctbl_struct lctbl,
 #endif
 
 #ifdef _NOAH_
+        elem[i].epc.rgl *= cal.rgl;
+        elem[i].epc.hs *= cal.hs;
         elem[i].epc.rsmin *= cal.rsmin;
         elem[i].lc.cmcfactr *= cal.cmcmax;
         elem[i].lc.cfactr *= cal.cfactr;
-        elem[i].epc.rgl *= cal.rgl;
-        elem[i].epc.hs *= cal.hs;
 #endif
     }
 }
@@ -364,7 +363,7 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem,
             }
         }
 
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             /* Note: Strategy to use BC < -4 for river identification */
             if (elem[riv[i].leftele - 1].nabr[j] == riv[i].rightele)
@@ -425,9 +424,7 @@ void InitForcing (elem_struct *elem, int numele, river_struct *riv,
 {
     int             i, j;
 
-    /*
-     * Apply scenarios
-     */
+    /* Apply scenarios */
     for (i = 0; i < forc->nmeteo; i++)
     {
         for (j = 0; j < forc->meteo[i].length; j++)
@@ -510,7 +507,7 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
          * discretization). Not needed if there is lake feature. */
         sink = 1;
 
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             if (elem[i].nabr[j] != 0)
             {
@@ -532,7 +529,7 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
              * case only */
             printf ("\tBefore: %lf Corrected using: ", elem[i].topo.zmax);
             new_elevation = 1.0e7;
-            for (j = 0; j < 3; j++)
+            for (j = 0; j < NUM_EDGE; j++)
             {
                 if (elem[i].nabr[j] != 0)
                 {
@@ -559,7 +556,7 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
         for (i = 0; i < numele; i++)
         {
             sink = 1;
-            for (j = 0; j < 3; j++)
+            for (j = 0; j < NUM_EDGE; j++)
             {
                 if (elem[i].nabr[j] != 0)
                 {
@@ -580,7 +577,7 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
                  * case only */
                 printf ("\tBefore: %lf Corrected using:", elem[i].topo.zmin);
                 new_elevation = 1.0e7;
-                for (j = 0; j < 3; j++)
+                for (j = 0; j < NUM_EDGE; j++)
                 {
                     if (elem[i].nabr[j] != 0)
                     {
@@ -624,16 +621,16 @@ void InitSurfL (elem_struct *elem, int numele, river_struct *riv,
     meshtbl_struct meshtbl)
 {
     int             i, j;
-    double          x[3];
-    double          y[3];
-    double          zmin[3];
-    double          zmax[3];
+    double          x[NUM_EDGE];
+    double          y[NUM_EDGE];
+    double          zmin[NUM_EDGE];
+    double          zmax[NUM_EDGE];
     double          distx;
     double          disty;
 
     for (i = 0; i < numele; i++)
     {
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             x[j] = meshtbl.x[elem[i].node[j] - 1];
             y[j] = meshtbl.y[elem[i].node[j] - 1];
@@ -641,7 +638,7 @@ void InitSurfL (elem_struct *elem, int numele, river_struct *riv,
             zmax[j] = meshtbl.zmax[elem[i].node[j] - 1];
         }
 
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             /* Note: Assumption here is that the forumulation is circumcenter
              * based */
@@ -663,15 +660,15 @@ void InitSurfL (elem_struct *elem, int numele, river_struct *riv,
 
             if (elem[i].nabr[j] == 0)
             {
-                elem[i].topo.surfx[j] = elem[i].topo.x - 2.0 * distx;
-                elem[i].topo.surfy[j] = elem[i].topo.y - 2.0 * disty;
+                elem[i].topo.nabrdist_x[j] = elem[i].topo.x - 2.0 * distx;
+                elem[i].topo.nabrdist_y[j] = elem[i].topo.y - 2.0 * disty;
             }
             else
             {
-                elem[i].topo.surfx[j] = (elem[i].nabr[j] > 0) ?
+                elem[i].topo.nabrdist_x[j] = (elem[i].nabr[j] > 0) ?
                     elem[elem[i].nabr[j] - 1].topo.x :
                     riv[0 - elem[i].nabr[j] - 1].topo.x;
-                elem[i].topo.surfy[j] = (elem[i].nabr[j] > 0) ?
+                elem[i].topo.nabrdist_y[j] = (elem[i].nabr[j] > 0) ?
                     elem[elem[i].nabr[j] - 1].topo.y :
                     riv[0 - elem[i].nabr[j] - 1].topo.y;
             }
@@ -857,14 +854,8 @@ void CalcModelStep (ctrl_struct *ctrl)
 
     for (i = 0; i < ctrl->nstep + 1; i++)
     {
-        if (i == 0)
-        {
-            ctrl->tout[i] = ctrl->starttime;
-        }
-        else
-        {
-            ctrl->tout[i] = ctrl->tout[i - 1] + ctrl->stepsize;
-        }
+        ctrl->tout[i] = (i == 0) ?
+            ctrl->starttime : ctrl->tout[i - 1] + ctrl->stepsize;
     }
 
     if (ctrl->tout[ctrl->nstep] < ctrl->endtime)
@@ -877,7 +868,7 @@ void InitWFlux (wflux_struct *wf)
 {
     int             j;
 
-    for (j = 0; j < 3; j++)
+    for (j = 0; j < NUM_EDGE; j++)
     {
         wf->ovlflow[j] = 0.0;
         wf->subsurf[j] = 0.0;
@@ -915,7 +906,7 @@ void InitWFlux (wflux_struct *wf)
     {
         wf->smflxv[k] = 0.0;
     }
-    for (j = 0; j < 3; j++)
+    for (j = 0; j < NUM_EDGE; j++)
     {
         for (k = 0; k < MAXLYR; k++)
         {
