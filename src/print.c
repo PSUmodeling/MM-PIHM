@@ -973,7 +973,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].var[j] =
-                            &pihm->riv[j].NO3sol.soluteMass[0];
+                            &pihm->riv[j].NO3sol.soluteMass;
                     }
                     n++;
                     break;
@@ -1003,7 +1003,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < pihm->numriv; j++)
                     {
                         pihm->prtctrl[n].var[j] =
-                            &pihm->riv[j].NH4sol.soluteMass[0];
+                            &pihm->riv[j].NH4sol.soluteMass;
                     }
                     n++;
                     break;
@@ -1021,6 +1021,80 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                             &pihm->elem[j].soil.NO3_Denitrification;
                     }
                     n++;
+                    break;
+                case NO3_LEACH_CTRL:
+                    for (k = 0; k < NUM_EDGE; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name, "%s%s.NO3leaching%d",
+                            outputdir, simulation, k);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
+                            sizeof (double *));
+                        for (j = 0; j < pihm->numele; j++)
+                        {
+                            pihm->prtctrl[n].var[j] =
+                                &pihm->elem[j].soil.NO3Leaching[k];
+                        }
+                        n++;
+                    }
+                    break;
+                case NH4_LEACH_CTRL:
+                    for (k = 0; k < NUM_EDGE; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name, "%s%s.NH4leaching%d",
+                            outputdir, simulation, k);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].nvar = pihm->numele;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
+                            sizeof (double *));
+                        for (j = 0; j < pihm->numele; j++)
+                        {
+                            pihm->prtctrl[n].var[j] =
+                                &pihm->elem[j].soil.NH4Leaching[k];
+                        }
+                        n++;
+                    }
+                    break;
+                case NO3_LEACH_RIVER_CTRL:
+                    for (k = 0; k < 4; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name,
+                            "%s%s.riverNO3leaching%d",
+                            outputdir, simulation, k);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].nvar = pihm->numriv;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
+                            sizeof (double *));
+                        for (j = 0; j < pihm->numriv; j++)
+                        {
+                            pihm->prtctrl[n].var[j] =
+                                &pihm->riv[j].NO3Leaching[k];
+                        }
+                        n++;
+                    }
+                    break;
+                case NH4_LEACH_RIVER_CTRL:
+                    for (k = 0; k < 4; k++)
+                    {
+                        sprintf (pihm->prtctrl[n].name,
+                            "%s%s.riverNH4leaching%d",
+                            outputdir, simulation, k);
+                        pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                        pihm->prtctrl[n].nvar = pihm->numriv;
+                        pihm->prtctrl[n].var =
+                            (double **)malloc (pihm->prtctrl[n].nvar *
+                            sizeof (double *));
+                        for (j = 0; j < pihm->numriv; j++)
+                        {
+                            pihm->prtctrl[n].var[j] =
+                                &pihm->riv[j].NH4Leaching[k];
+                        }
+                        n++;
+                    }
                     break;
                 case LAI_CTRL:
                     sprintf (pihm->prtctrl[n].name, "%s%s.lai", outputdir,

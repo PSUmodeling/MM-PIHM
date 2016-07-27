@@ -415,10 +415,10 @@ double          LinearEquilibriumSoluteMass (double, double, double, double,
 void            Elem2ElemSolTrnsp (const elem_struct *, const elem_struct *,
     double *, const double *, double, double *, double *);
 void            Elem2RiverSolTrnsp (const elem_struct *, const river_struct *,
-    double, double *, const double *, const double *, double, double *,
+    double, double *, const double *, double, double, double *,
     double *);
 void            River2RiverSolTrnsp (river_struct *, const river_struct *,
-    double *, const double *, const double *, double, double *, double *);
+    double *, double, double, double, double *, double *);
 void            InitCropSV (crop_struct *);
 #endif
 

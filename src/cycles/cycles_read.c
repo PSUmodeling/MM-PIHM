@@ -177,18 +177,39 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
         PIHMExit (EXIT_FAILURE);
     }
 
+    NextLine (simctrl_file, cmdstr);
+    if (!ReadKeyword (cmdstr, "NO3_LEACH", &ctrl->prtvrbl[NO3_LEACH_CTRL],
+            'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    NextLine (simctrl_file, cmdstr);
+    if (!ReadKeyword (cmdstr, "NH4_LEACH", &ctrl->prtvrbl[NH4_LEACH_CTRL],
+            'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    NextLine (simctrl_file, cmdstr);
+    if (!ReadKeyword (cmdstr, "NO3_LEACH_RIVER",
+        &ctrl->prtvrbl[NO3_LEACH_RIVER_CTRL], 'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMExit (EXIT_FAILURE);
+    }
+
+    NextLine (simctrl_file, cmdstr);
+    if (!ReadKeyword (cmdstr, "NH4_LEACH_RIVER",
+        &ctrl->prtvrbl[NH4_LEACH_RIVER_CTRL], 'i'))
+    {
+        fprintf (stderr, "Please check file format.\n");
+        PIHMExit (EXIT_FAILURE);
+    }
 
     fclose (simctrl_file);
-
-    //rawtime = (int)ctrl->starttime;
-    //timestamp = gmtime (&rawtime);
-    //ctrl->simStartYear = timestamp->tm_year + 1900;
-
-    //rawtime = (int)ctrl->endtime;
-    //timestamp = gmtime (&rawtime);
-    //ctrl->simEndYear = timestamp->tm_year + 1900 - 1;
-
-    //ctrl->totalYears = ctrl->simEndYear - ctrl->simStartYear + 1;
 }
 
 void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
@@ -1310,153 +1331,6 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
         fclose (op_file);
     }
 }
-
-//
-//void DailyCycles (CyclesStruct cycles, pihm_struct pihm, int t, char *project)
-//{
-//    int             y, d;
-//    time_t          rawtime;
-//    struct tm      *timestamp;
-//
-//    CropManagementStruct *cropmgmt;
-//    CommunityStruct *Community;
-//    ResidueStruct  *Residue;
-//    SimControlStruct *SimControl;
-//    SnowStruct     *Snow;
-//    SoilStruct     *Soil;
-//    SoilCarbonStruct *SoilCarbon;
-//    WeatherStruct  *Weather;
-//    SummaryStruct  *Summary;
-//
-//    FieldOperationStruct *plantingOrder;
-//    FieldOperationStruct *FixedFertilization;
-//    FieldOperationStruct *Tillage;
-//    FieldOperationStruct *FixedIrrigation;
-//    int             operation_index;
-//    int             i, c;
-//    int             kill_all = 0;
-//
-//    rawtime = (time_t)(t - 24 * 3600);
-//    timestamp = gmtime (&rawtime);
-//
-//    y = timestamp->tm_year + 1900 - cycles->SimControl.simStartYear;
-//
-//    d = doy (timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday, 1);
-//
-//    printf ("Year %d doy %d\n", y, d);
-//
-//    for (i = 0; i < pihm->numele; i++)
-//    {
-//        kill_all = 0;
-//
-//        cropmgmt = &cycles->grid[i].cropmgmt;
-//        Community = &cycles->grid[i].Community;
-//        Residue = &cycles->grid[i].Residue;
-//        SimControl = &cycles->SimControl;
-//        Snow = &cycles->grid[i].Snow;
-//        Soil = &cycles->grid[i].Soil;
-//        SoilCarbon = &cycles->grid[i].SoilCarbon;
-//        Weather = &cycles->grid[i].Weather;
-//        Summary = &cycles->grid[i].Summary;
-//
-//        if (d == 1)
-//        { 
-//            FirstDOY (&cropmgmt->rotationYear, SimControl->yearsInRotation, Soil->totalLayers, SoilCarbon, Residue, Soil);
-//        }
-//
-//        /* If any crop in the community is growing, run the growing crop subroutine */
-//        if (Community->NumActiveCrop > 0)
-//            GrowingCrop (cropmgmt->rotationYear, y, d, cropmgmt->ForcedHarvest, cropmgmt->numHarvest, Community, Residue, SimControl, Soil, SoilCarbon, Weather, Snow, project);
-//
-//        while (IsOperationToday (cropmgmt->rotationYear, d, cropmgmt->plantingOrder, cropmgmt->totalCropsPerRotation, &operation_index))
-//        {
-//            plantingOrder = &cropmgmt->plantingOrder[operation_index];
-//            PlantingCrop (Community, cropmgmt, operation_index);
-//            if (verbose_mode)
-//                printf ("DOY %3.3d %-20s %s\n", d, "Planting", plantingOrder->cropName);
-//        }
-//        UpdateOperationStatus (cropmgmt->plantingOrder, cropmgmt->totalCropsPerRotation);
-//
-//        while (IsOperationToday (cropmgmt->rotationYear, d, cropmgmt->FixedFertilization, cropmgmt->numFertilization, &operation_index))
-//        {
-//            FixedFertilization = &cropmgmt->FixedFertilization[operation_index];
-//            if (verbose_mode)
-//                printf ("DOY %3.3d %-20s %s\n", d, "Fixed Fertilization", FixedFertilization->opSource);
-//
-//            ApplyFertilizer (FixedFertilization, Soil, Residue);
-//        }
-//        UpdateOperationStatus (cropmgmt->FixedFertilization, cropmgmt->numFertilization);
-//
-//        while (IsOperationToday (cropmgmt->rotationYear, d, cropmgmt->Tillage, cropmgmt->numTillage, &operation_index))
-//        {
-//            Tillage = &(cropmgmt->Tillage[operation_index]);
-//            if (verbose_mode)
-//                printf ("DOY %3.3d %-20s %s\n", d, "Tillage", Tillage->opToolName);
-//
-//            if (strcasecmp (Tillage->opToolName, "Kill_Crop") != 0)
-//                ExecuteTillage (SoilCarbon->abgdBiomassInput, Tillage, cropmgmt->tillageFactor, Soil, Residue);
-//            else if (Community->NumActiveCrop > 0)
-//            {
-//                if (strcasecmp (Tillage->cropNameT, "N/A") == 0 ||
-//                    strcasecmp (Tillage->cropNameT, "All") == 0)
-//                {
-//                    kill_all = 1;
-//                }
-//
-//                for (c = 0; c < Community->NumCrop; c++)
-//                {
-//                    if (Community->Crop[c].stageGrowth > NO_CROP)
-//                    {
-//                        if (kill_all || strcasecmp (Tillage->cropNameT, Community->Crop[c].cropName) == 0)
-//                        {
-//                            HarvestCrop (y, d, SimControl->simStartYear, &Community->Crop[c], Residue, Soil, SoilCarbon, Weather, project);
-//                            Community->NumActiveCrop--;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        UpdateOperationStatus (cropmgmt->Tillage, cropmgmt->numTillage);
-//
-//        UpdateCommunity (Community);
-//
-//        Soil->irrigationVol = 0.0;
-//        while (IsOperationToday (cropmgmt->rotationYear, d, cropmgmt->FixedIrrigation, cropmgmt->numIrrigation, &operation_index))
-//        {
-//            FixedIrrigation = &(cropmgmt->FixedIrrigation[operation_index]);
-//            if (verbose_mode)
-//                printf ("DOY %3.3d %-20s %lf\n", d, "Irrigation", FixedIrrigation->opVolume);
-//
-//            Soil->irrigationVol += FixedIrrigation->opVolume;
-//        }
-//        UpdateOperationStatus (cropmgmt->FixedIrrigation, cropmgmt->numIrrigation);
-//
-//        ComputeResidueCover (Residue);
-//
-//        TillageFactorSettling (cropmgmt->tillageFactor, Soil->totalLayers, Soil->waterContent, Soil->Porosity);
-//
-//        SnowProcesses (Snow, y, d, Weather, Residue->stanResidueTau, Community->svRadiationInterception);
-//
-//        Redistribution (y, d, Weather->precipitation[y][d - 1], Snow->snowFall, Snow->snowMelt, SimControl->hourlyInfiltration, Community, Soil, Residue);
-//
-//        ResidueEvaporation (Residue, Soil, Community, Weather->ETref[y][d - 1], Snow->snowCover);
-//
-//        Evaporation (Soil, Community, Residue, Weather->ETref[y][d - 1], Snow->snowCover);
-//
-//        Temperature (y, d, Snow->snowCover, Community->svRadiationInterception, Soil, Weather, Residue);
-//
-//        ComputeFactorComposite (SoilCarbon, d, y, Weather->lastDoy[y], Soil);
-//
-//        ComputeSoilCarbonBalanceMB (SoilCarbon, y, Residue, Soil, cropmgmt->tillageFactor);
-//
-//        NitrogenTransformation (y, d, Soil, Community, Residue, Weather, SoilCarbon);
-//
-//        if (d == Weather->lastDoy[y])
-//        {
-//            LastDOY (y, SimControl->simStartYear, Soil->totalLayers, Soil, SoilCarbon, Residue, Summary, project);
-//        }
-//    }
-//}
 
 int CropExist (char *cropName, const croptbl_struct *croptbl)
 {

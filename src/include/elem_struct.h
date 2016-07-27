@@ -180,8 +180,8 @@ typedef struct soil_struct
     double          runoffVol;
     double          irrigationVol;
     double          drainageVol;
-    double          NO3Leaching;
-    double          NH4Leaching;
+    double          NO3Leaching[NUM_EDGE];
+    double          NH4Leaching[NUM_EDGE];
     double          NO3Profile;
     double          NH4Profile;
     double          N_Immobilization;
@@ -1176,7 +1176,7 @@ typedef struct solute_struct
     double          soluteMass[MAXLYR];
     double          soluteMassAdsorbed[MAXLYR];
     double          soluteConc[MAXLYR];
-    double          soluteFluxLat[4][MAXLYR];
+    double          soluteFluxLat[NUM_EDGE][MAXLYR];
     double          soluteFluxVert[MAXLYR];
 } solute_struct;
 #endif
