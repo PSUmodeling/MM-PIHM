@@ -1185,11 +1185,8 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
             {
                 sprintf (ascii_fn, "%s.txt", prtctrl[i].name);
                 fid = fopen (ascii_fn, "a");
-                if (NULL == fid)
-                {
-                    fprintf (stderr, "Error opening %s.\n", ascii_fn);
-                    PIHMExit (EXIT_FAILURE);
-                }
+                CheckFile (fid, ascii_fn);
+
                 fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
                     timestamp->tm_year + 1900, timestamp->tm_mon + 1,
                     timestamp->tm_mday, timestamp->tm_hour,
@@ -1214,11 +1211,7 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
 
             sprintf (dat_fn, "%s.dat", prtctrl[i].name);
             fid = fopen (dat_fn, "ab");
-            if (NULL == fid)
-            {
-                fprintf (stderr, "Error opening %s.\n", prtctrl[i].name);
-                PIHMExit (EXIT_FAILURE);
-            }
+            CheckFile (fid, dat_fn);
 
             outtime = (double)t;
             fwrite (&outtime, sizeof (double), 1, fid);

@@ -143,17 +143,7 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
 
     /** Open .riv input file */
     riv_file = fopen (filename, "r");
-
-    if (NULL == riv_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s.\n", filename);
-    }
+    CheckFile (riv_file, filename);
 
     /*
      * Read river segment block
@@ -350,17 +340,7 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
      * Open .mesh input file
      */
     mesh_file = fopen (filename, "r");
-
-    if (NULL == mesh_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s.\n", filename);
-    }
+    CheckFile (mesh_file, filename);
 
     /*
      * Read element mesh block
@@ -445,17 +425,7 @@ void ReadAtt (char *filename, atttbl_struct *atttbl, int numele)
     int             index;
 
     att_file = fopen (filename, "r");
-
-    if (NULL == att_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s.\n", filename);
-    }
+    CheckFile (att_file, filename);
 
     atttbl->soil = (int *)malloc (numele * sizeof (int));
     atttbl->geol = (int *)malloc (numele * sizeof (int));
@@ -503,17 +473,7 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
     int             ptf_used = 0;
 
     soil_file = fopen (filename, "r");
-
-    if (NULL == soil_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s.\n", filename);
-    }
+    CheckFile (soil_file, filename);
 
     /* Start reading soil file */
     NextLine (soil_file, cmdstr);
@@ -746,17 +706,7 @@ void ReadLC (char *filename, lctbl_struct *lctbl)
     int             index;
 
     lc_file = fopen (filename, "r");
-
-    if (NULL == lc_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s.\n", filename);
-    }
+    CheckFile (lc_file, filename);
 
     /* Start reading land cover file */
     NextLine (lc_file, cmdstr);
@@ -854,17 +804,7 @@ void ReadForc (char *filename, forc_struct *forc)
     int             index;
 
     meteo_file = fopen (filename, "r");
-
-    if (NULL == meteo_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s.\n", filename);
-    }
+    CheckFile (meteo_file, filename);
 
     FindLine (meteo_file, "BOF");
 
@@ -950,17 +890,7 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
     if (read_lai)
     {
         lai_file = fopen (filename, "r");
-
-        if (NULL == lai_file)
-        {
-            fprintf (stderr, "Error opening %s.\n", filename);
-            PIHMExit (EXIT_FAILURE);
-        }
-
-        if (verbose_mode)
-        {
-            printf ("Reading %s.\n", filename);
-        }
+        CheckFile (lai_file, filename);
 
         /* start reading lai_file */
         FindLine (lai_file, "BOF");
@@ -1038,17 +968,7 @@ void ReadBC (char *filename, forc_struct *forc)
     int             index;
 
     bc_file = fopen (filename, "r");
-
-    if (NULL == bc_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s.\n", filename);
-    }
+    CheckFile (bc_file, filename);
 
     /*
      * Start reading bc_file 
@@ -1130,17 +1050,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     }
 
     para_file = fopen (filename, "r");
-
-    if (NULL == para_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s.\n", filename);
-    }
+    CheckFile (para_file, filename);
 
     /* start reading para_file */
     /* Read through parameter file to find parameters */
@@ -1442,17 +1352,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     FILE           *global_calib;       /* Pointer to .calib file */
 
     global_calib = fopen (filename, "r");
-
-    if (NULL == global_calib)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s.\n", filename);
-    }
+    CheckFile (global_calib, filename);
 
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "KSATH", &cal->ksath, 'd'))
@@ -1745,17 +1645,7 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
     int             size;
 
     ic_file = fopen (filename, "rb");
-
-    if (NULL == ic_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s.\n", filename);
-    }
+    CheckFile (ic_file, filename);
 
     fseek (ic_file, 0L, SEEK_END);
     size = ftell (ic_file);

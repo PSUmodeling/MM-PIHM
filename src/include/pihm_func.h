@@ -28,6 +28,7 @@ double          AvgYsfc (double, double, double);
 double          AvgY (double, double, double);
 void            BKInput (char *, char *);
 void            CalcModelStep (ctrl_struct *);
+void            CheckFile (FILE *, char *);
 void            CorrectElevation (elem_struct *, int, river_struct *, int);
 int             CountLine (FILE *, char *, int, ...);
 int             CountOccurance (FILE *, char *);

@@ -4,8 +4,6 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
     int numele)
 {
     FILE           *simctrl_file;
-    //time_t          rawtime;
-    //struct tm      *timestamp;
     char            cmdstr[MAXSTRING];
     char            optstr[MAXSTRING];
     int             i;
@@ -14,17 +12,7 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
 
     /* Open simulation control file */
     simctrl_file = fopen (filename, "r");
-
-    if (NULL == simctrl_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s...\n", filename);
-    }
+    CheckFile (simctrl_file, filename);
 
     agtbl->op = (int *)malloc (numele * sizeof (int));
     agtbl->rotsz = (int *)malloc (numele * sizeof (int));
@@ -225,17 +213,7 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
      * Open soil initialization file
      */
     soil_file = fopen (filename, "r");
-
-    if (NULL == soil_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s...\n", filename);
-    }
+    CheckFile (soil_file, filename);
 
     soiltbl->totalLayers = (int *)malloc (soiltbl->number * sizeof (int));
     soiltbl->clay_lyr =
@@ -324,17 +302,7 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
     int             j;
 
     crop_file = fopen (filename, "r");
-
-    if (NULL == crop_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s...\n", filename);
-    }
+    CheckFile (crop_file, filename);
 
     /* Read crop description file */
     /* First count how many crop types are there in the description file */
@@ -781,17 +749,7 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
 
         sprintf (filename, "input/%s/%s", project, agtbl->opfilen[i]);
         op_file = fopen (filename, "r");
-
-        if (NULL == op_file)
-        {
-            fprintf (stderr, "Error opening %s.\n", filename);
-            PIHMExit (EXIT_FAILURE);
-        }
-
-        if (verbose_mode)
-        {
-            printf ("Reading %s...\n", filename);
-        }
+        CheckFile (op_file, filename);
 
         FindLine (op_file, "BOF");
         nplnt = CountOccurance (op_file, "PLANTING");

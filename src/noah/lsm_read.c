@@ -15,17 +15,7 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
      * Open *.lsm file
      */
     lsm_file = fopen (filename, "r");
-
-    if (NULL == lsm_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s.\n", filename);
-    }
+    CheckFile (lsm_file, filename);
 
     /*
      * Start reading lsm_file
@@ -261,17 +251,7 @@ void ReadRad (char *filename, forc_struct *forc)
     char            cmdstr[MAXSTRING];
 
     rad_file = fopen (filename, "r");
-
-    if (NULL == rad_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s.\n", filename);
-    }
+    CheckFile (rad_file, filename);
 
     FindLine (rad_file, "BOF");
 
