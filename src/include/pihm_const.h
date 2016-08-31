@@ -260,6 +260,11 @@
 #ifdef _CYCLES_
 #define MAXOP               100
 
+#define PLANT_OP    0
+#define TILLAGE_OP  1
+#define FIXIRR_OP   2
+#define FIXFERT_OP  3
+
 #define REMOVE_CLIPPING     0
 #define RETURN_CLIPPING     1
 #define GRAZING_CLIPPING    2

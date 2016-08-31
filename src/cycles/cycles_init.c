@@ -128,28 +128,28 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
         if (nplnt > 0)
         {
             cropmgmt->plantingOrder =
-                (op_struct *)malloc (nplnt * sizeof (op_struct));
+                (plant_struct *)malloc (nplnt * sizeof (plant_struct));
         }
 
         ntill = mgmttbl->cropmgmt[opind].numTillage;
         if (ntill > 0)
         {
             cropmgmt->Tillage =
-                (op_struct *)malloc (ntill * sizeof (op_struct));
+                (tillage_struct *)malloc (ntill * sizeof (tillage_struct));
         }
 
         nfert = mgmttbl->cropmgmt[opind].numFertilization;
         if (nfert > 0)
         {
             cropmgmt->FixedFertilization =
-                (op_struct *)malloc (nfert * sizeof (op_struct));
+                (fixfert_struct *)malloc (nfert * sizeof (fixfert_struct));
         }
 
         nirrg = mgmttbl->cropmgmt[opind].numIrrigation;
         if (nirrg > 0)
         {
             cropmgmt->FixedIrrigation =
-                (op_struct *)malloc (nirrg * sizeof (op_struct));
+                (fixirr_struct *)malloc (nirrg * sizeof (fixirr_struct));
         }
 
         nautoirrg = mgmttbl->cropmgmt[opind].numAutoIrrigation;
