@@ -104,17 +104,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv,
     if (!spinup)
     {
         init_file = fopen (fn, "rb");
-
-        if (NULL == init_file)
-        {
-            fprintf (stderr, "Error reading %s.\n", fn);
-            PIHMExit (EXIT_FAILURE);
-        }
-
-        if (verbose_mode)
-        {
-            printf ("Reading %s...", fn);
-        }
+        CheckFile (init_file, fn);
 
         for (i = 0; i < numele; i++)
         {

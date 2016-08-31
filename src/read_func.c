@@ -139,6 +139,22 @@ int CountLine (FILE * fid, char *cmdstr, int num_arg, ...)
     return (count);
 }
 
+void CheckFile (FILE *fid, char *fn)
+{
+    if (NULL == fid)
+    {
+        fprintf (stderr, "Error opening %s.\n", fn);
+        PIHMExit (EXIT_FAILURE);
+    }
+    else
+    {
+        if (verbose_mode)
+        {
+            printf (" Reading %s\n", fn);
+        }
+    }
+}
+
 int ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
 {
     int             match;

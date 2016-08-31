@@ -28,6 +28,7 @@ double          AvgYsfc (double, double, double);
 double          AvgY (double, double, double);
 void            BKInput (char *, char *);
 void            CalcModelStep (ctrl_struct *);
+void            CheckFile (FILE *, char *);
 void            CorrectElevation (elem_struct *, int, river_struct *, int);
 int             CountLine (FILE *, char *, int, ...);
 int             CountOccurance (FILE *, char *);
@@ -370,19 +371,19 @@ void            AddCrop (crop_struct *);
 void            KillCrop (crop_struct *);
 void            UpdateCommunity (comm_struct *);
 double          ComputeHarvestIndex (double, double, double, double, double);
-int             IsOperationToday (int, int, op_struct *, int, int *);
-void            ApplyFertilizer (op_struct *, soil_struct *,
+int             IsOperationToday (int, int, void *, int, int *, int);
+void            ApplyFertilizer (fixfert_struct *, soil_struct *,
     residue_struct *);
-void            UpdateOperationStatus (op_struct *, int);
+void            UpdateOperationStatus (void *, int, int);
 void            FieldOperation (int, int, int, cropmgmt_struct *,
     comm_struct *, soil_struct *, residue_struct *, ctrl_struct *,
     soilc_struct *, weather_struct *);
-void            ExecuteTillage (double *, const op_struct *, double *,
+void            ExecuteTillage (double *, const tillage_struct *, double *,
     soil_struct *, residue_struct *);
 void            TillageFactorSettling (double *, int, const double *,
     const double *);
 double          Fraction (double, double, double, double, double);
-void            ComputeTillageFactor (const op_struct *, double *,
+void            ComputeTillageFactor (const tillage_struct *, double *,
     const soil_struct *, const double *, double);
 double          ComputeTextureFactor (double);
 void            ComputeResidueCover (residue_struct *);
@@ -415,10 +416,10 @@ double          LinearEquilibriumSoluteMass (double, double, double, double,
 void            Elem2ElemSolTrnsp (const elem_struct *, const elem_struct *,
     double *, const double *, double, double *, double *);
 void            Elem2RiverSolTrnsp (const elem_struct *, const river_struct *,
-    double, double *, const double *, const double *, double, double *,
+    double, double *, const double *, double, double, double *,
     double *);
 void            River2RiverSolTrnsp (river_struct *, const river_struct *,
-    double *, const double *, const double *, double, double *, double *);
+    double *, double, double, double, double *, double *);
 void            InitCropSV (crop_struct *);
 #endif
 

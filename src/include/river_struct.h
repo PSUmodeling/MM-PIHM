@@ -199,6 +199,16 @@ typedef struct river_nflux_struct
 } river_nflux_struct;
 #endif
 
+#ifdef _CYCLES_
+typedef struct river_solute_struct
+{
+    double          soluteMass;
+    double          soluteMassAdsorbed;
+    double          soluteConc;
+    double          soluteFluxLat[4];
+} river_solute_struct;
+#endif
+
 /*****************************************************************************
  * River structure
  * ---------------------------------------------------------------------------
@@ -232,8 +242,10 @@ typedef struct river_struct
     river_daily_struct daily;
 #endif
 #ifdef _CYCLES_
-    solute_struct   NO3sol;
-    solute_struct   NH4sol;
+    river_solute_struct NO3sol;
+    river_solute_struct NH4sol;
+    double          NO3Leaching[4];
+    double          NH4Leaching[4];
 #endif
 #ifdef _BGC_
     river_stor_struct stor;     /* meteorological data array */

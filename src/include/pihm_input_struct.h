@@ -651,36 +651,53 @@ typedef struct croptbl_struct
     double         *transpirationMax;
 } croptbl_struct;
 
-typedef struct op_struct
+typedef struct plant_struct
 {
+    /* Planting */
     int             opYear;
     int             opDay;
     int             status;
-
-    /* Planting Order */
-    char            cropName[MAXSTRING];
+    char            cropName[128];
     int             usesAutoIrrigation;
     int             usesAutoFertilization;
     int             plantID;
     double          plantingDensity;
     int             clippingStart;
     int             clippingEnd;
+} plant_struct;
 
+typedef struct tillage_struct
+{
     /* Tillage */
+    int             opYear;
+    int             opDay;
+    int             status;
     char            opToolName[MAXSTRING];
     double          opDepth;
     double          opSDR;
     double          opMixingEfficiency;
-    char            cropNameT[MAXSTRING];
+    char            cropNameT[128];
     double          fractionThermalTime;
     double          killEfficiency;
     int             grainHarvest;
     double          forageHarvest;
+} tillage_struct;
 
+typedef struct fixirr_struct
+{
     /* Fixed Irrigation */
+    int             opYear;
+    int             opDay;
+    int             status;
     double          opVolume;
+} fixirr_struct;
 
+typedef struct fixfert_struct
+{
     /* Fixed Fertilization */
+    int             opYear;
+    int             opDay;
+    int             status;
     char            opSource[MAXSTRING];
     double          opMass;
     char            opForm[MAXSTRING];
@@ -697,7 +714,7 @@ typedef struct op_struct
     double          opP_Inorganic;
     double          opK;
     double          opS;
-} op_struct;
+} fixfert_struct;
 
 typedef struct autoirr_struct
 {
@@ -717,17 +734,17 @@ typedef struct cropmgmt_struct
     int             automaticSulfur;
     int             rotationYear;
 
-    op_struct      *FixedFertilization;
+    fixfert_struct *FixedFertilization;
     int             numFertilization;
 
-    op_struct      *FixedIrrigation;
+    fixirr_struct  *FixedIrrigation;
     int             numIrrigation;
 
-    op_struct      *Tillage;
+    tillage_struct *Tillage;
     int             numTillage;
     double          tillageFactor[MAXLYR];
 
-    op_struct      *plantingOrder;
+    plant_struct   *plantingOrder;
     int             totalCropsPerRotation;
 
     autoirr_struct *autoIrrigation;

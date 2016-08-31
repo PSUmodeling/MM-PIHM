@@ -12,12 +12,7 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
 
     /* Read bgc simulation control file */
     bgc_file = fopen (fn, "r");
-
-    if (NULL == bgc_file)
-    {
-        fprintf (stderr, "Error opening %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    CheckFile (bgc_file, fn);
 
     FindLine (bgc_file, "TIME_DEFINE");
     NextLine (bgc_file, cmdstr);
@@ -386,16 +381,7 @@ void ReadEPC (epctbl_struct *epctbl)
 
         if (strcasecmp (fn, "N/A") != 0)
         {
-            if (NULL == epc_file)
-            {
-                fprintf (stderr, "Error opening %s.\n", fn);
-                PIHMExit (EXIT_FAILURE);
-            }
-
-            if (verbose_mode)
-            {
-                printf ("\nReading %s...\n", fn);
-            }
+            CheckFile (epc_file, fn);
 
             /* Skip header file */
             fgets (cmdstr, MAXSTRING, epc_file);
@@ -735,17 +721,7 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
     fid = fopen (fn, "r");
-
-    if (NULL == fid)
-    {
-        fprintf (stderr, "Error opening %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
-
-    if (verbose_mode)
-    {
-        printf ("Reading %s...\n", fn);
-    }
+    CheckFile (fid, fn);
 
     ts->length = CountLine (fid, cmdstr, 1, "EOF");
     ts->ftime = (int *)malloc (ts->length * sizeof (int));
