@@ -61,9 +61,6 @@ int main (int argc, char *argv[])
 #endif
 
         printf ("\n");
-#ifdef _ENKF_
-    }
-#endif
 
     /*
      * Read command line arguments
@@ -115,11 +112,7 @@ int main (int argc, char *argv[])
     /*
      * Create output directory
      */
-#ifdef _ENKF_
-    if (id == 0)
-    {
-#endif
-        CreateOutputDir (outputdir, spec_output_mode);
+    CreateOutputDir (outputdir, spec_output_mode);
 #ifdef _ENKF_
     }
 #endif
@@ -128,6 +121,11 @@ int main (int argc, char *argv[])
      * Run PIHM (or EnKF system)
      */
 #ifdef _ENKF_
+    MPI_Bcast (project, MAXSTRING, MPI_CHAR, 0, MPI_COMM_WORLD);
+    MPI_Bcast (outputdir, MAXSTRING, MPI_CHAR, 0, MPI_COMM_WORLD);
+    MPI_Bcast (&debug_mode, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast (&verbose_mode, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
     Parallel (id, p, outputdir);
 #else
     /* The name of the simulation is the same as the project for single
@@ -135,7 +133,14 @@ int main (int argc, char *argv[])
     PIHMRun (project, outputdir, 1);
 #endif
 
+#ifdef _ENKF_
+    if (0 == id)
+    {
+#endif
     printf ("\nSimulation completed.\n");
+#ifdef _ENKF_
+    }
+#endif
 
 #ifdef _ENKF_
     ierr = MPI_Finalize ();
@@ -190,7 +195,6 @@ void Parallel (int id, int p, char *outputdir)
 
     /* Broadcast jobs per node and output directory to all nodes */
     MPI_Bcast (&job_per_node, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast (outputdir, MAXSTRING, MPI_CHAR, 0, MPI_COMM_WORLD);
     param =
         (double *)malloc (job_per_node * (p - 1) * MAXPARAM *
         sizeof (double));
