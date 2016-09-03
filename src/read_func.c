@@ -146,13 +146,6 @@ void CheckFile (FILE *fid, char *fn)
         fprintf (stderr, "Error opening %s.\n", fn);
         PIHMExit (EXIT_FAILURE);
     }
-    else
-    {
-        if (verbose_mode)
-        {
-            printf (" Reading %s\n", fn);
-        }
-    }
 }
 
 int ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)

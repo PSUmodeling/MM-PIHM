@@ -15,6 +15,10 @@ void EnKFRead (enkf_struct ens)
     sprintf (fn, "input/%s/%s.enkf", project, project);
     enkf_file = fopen (fn, "r");
     CheckFile (enkf_file, fn);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", fn);
+    }
 
     /*
      * Read .enkf file

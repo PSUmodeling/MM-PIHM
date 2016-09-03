@@ -13,6 +13,10 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     /* Read bgc simulation control file */
     bgc_file = fopen (fn, "r");
     CheckFile (bgc_file, fn);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", fn);
+    }
 
     FindLine (bgc_file, "TIME_DEFINE");
     NextLine (bgc_file, cmdstr);
@@ -382,6 +386,10 @@ void ReadEPC (epctbl_struct *epctbl)
         if (strcasecmp (fn, "N/A") != 0)
         {
             CheckFile (epc_file, fn);
+            if (verbose_mode)
+            {
+                printf (" Reading %s\n", fn);
+            }
 
             /* Skip header file */
             fgets (cmdstr, MAXSTRING, epc_file);
@@ -722,6 +730,10 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
 
     fid = fopen (fn, "r");
     CheckFile (fid, fn);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", fn);
+    }
 
     ts->length = CountLine (fid, cmdstr, 1, "EOF");
     ts->ftime = (int *)malloc (ts->length * sizeof (int));

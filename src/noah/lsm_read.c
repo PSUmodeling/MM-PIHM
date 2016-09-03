@@ -16,6 +16,10 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
      */
     lsm_file = fopen (filename, "r");
     CheckFile (lsm_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     /*
      * Start reading lsm_file
@@ -252,6 +256,10 @@ void ReadRad (char *filename, forc_struct *forc)
 
     rad_file = fopen (filename, "r");
     CheckFile (rad_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     FindLine (rad_file, "BOF");
 

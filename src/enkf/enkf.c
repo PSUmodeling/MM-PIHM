@@ -526,6 +526,10 @@ void ReadObs (int obs_time, char *fn, double *obs, double *obs_error)
 
     fid = fopen (fn, "r");
     CheckFile (fid, fn);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", fn);
+    }
 
     FindLine (fid, "BOF");
 

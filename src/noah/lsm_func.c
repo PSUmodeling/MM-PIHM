@@ -386,16 +386,15 @@ void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
             elem[i].topo.svf += 0.5 / PI * integrable * 10.0 / 180.0 * PI;
         }
 
-        if (verbose_mode)
+#ifdef _DEBUG_
+        printf ("ele: slope = %lf, aspect = %lf, svf = %lf\t",
+            elem[i].topo.slope, elem[i].topo.aspect, elem[i].topo.svf);
+        for (ind = 0; ind < 36; ind++)
         {
-            printf ("ele: slope = %lf, aspect = %lf, svf = %lf\t",
-                elem[i].topo.slope, elem[i].topo.aspect, elem[i].topo.svf);
-            for (ind = 0; ind < 36; ind++)
-            {
-                printf ("%lf\t", elem[i].topo.h_phi[ind]);
-            }
-            printf ("\n");
+            printf ("%lf\t", elem[i].topo.h_phi[ind]);
         }
+        printf ("\n");
+#endif
     }
 }
 

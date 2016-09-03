@@ -105,6 +105,10 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv,
     {
         init_file = fopen (fn, "rb");
         CheckFile (init_file, fn);
+        if (verbose_mode)
+        {
+            printf (" Reading %s\n", fn);
+        }
 
         for (i = 0; i < numele; i++)
         {

@@ -13,6 +13,10 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
     /* Open simulation control file */
     simctrl_file = fopen (filename, "r");
     CheckFile (simctrl_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     agtbl->op = (int *)malloc (numele * sizeof (int));
     agtbl->rotsz = (int *)malloc (numele * sizeof (int));
@@ -214,6 +218,10 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
      */
     soil_file = fopen (filename, "r");
     CheckFile (soil_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     soiltbl->totalLayers = (int *)malloc (soiltbl->number * sizeof (int));
     soiltbl->clay_lyr =
@@ -303,6 +311,10 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
 
     crop_file = fopen (filename, "r");
     CheckFile (crop_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     /* Read crop description file */
     /* First count how many crop types are there in the description file */
@@ -753,6 +765,10 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
         sprintf (filename, "input/%s/%s", project, agtbl->opfilen[i]);
         op_file = fopen (filename, "r");
         CheckFile (op_file, filename);
+        if (verbose_mode)
+        {
+            printf (" Reading %s\n", filename);
+        }
 
         FindLine (op_file, "BOF");
         nplnt = CountOccurance (op_file, "PLANTING");

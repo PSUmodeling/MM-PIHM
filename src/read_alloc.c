@@ -144,6 +144,10 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     /** Open .riv input file */
     riv_file = fopen (filename, "r");
     CheckFile (riv_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     /*
      * Read river segment block
@@ -341,6 +345,10 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
      */
     mesh_file = fopen (filename, "r");
     CheckFile (mesh_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     /*
      * Read element mesh block
@@ -426,6 +434,10 @@ void ReadAtt (char *filename, atttbl_struct *atttbl, int numele)
 
     att_file = fopen (filename, "r");
     CheckFile (att_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     atttbl->soil = (int *)malloc (numele * sizeof (int));
     atttbl->geol = (int *)malloc (numele * sizeof (int));
@@ -474,6 +486,10 @@ void ReadSoil (char *filename, soiltbl_struct *soiltbl)
 
     soil_file = fopen (filename, "r");
     CheckFile (soil_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     /* Start reading soil file */
     NextLine (soil_file, cmdstr);
@@ -707,6 +723,10 @@ void ReadLC (char *filename, lctbl_struct *lctbl)
 
     lc_file = fopen (filename, "r");
     CheckFile (lc_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     /* Start reading land cover file */
     NextLine (lc_file, cmdstr);
@@ -805,6 +825,10 @@ void ReadForc (char *filename, forc_struct *forc)
 
     meteo_file = fopen (filename, "r");
     CheckFile (meteo_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     FindLine (meteo_file, "BOF");
 
@@ -891,6 +915,10 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
     {
         lai_file = fopen (filename, "r");
         CheckFile (lai_file, filename);
+        if (verbose_mode)
+        {
+            printf (" Reading %s\n", filename);
+        }
 
         /* start reading lai_file */
         FindLine (lai_file, "BOF");
@@ -969,6 +997,10 @@ void ReadBC (char *filename, forc_struct *forc)
 
     bc_file = fopen (filename, "r");
     CheckFile (bc_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     /*
      * Start reading bc_file 
@@ -1051,6 +1083,10 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
 
     para_file = fopen (filename, "r");
     CheckFile (para_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     /* start reading para_file */
     /* Read through parameter file to find parameters */
@@ -1353,6 +1389,10 @@ void ReadCalib (char *filename, calib_struct *cal)
 
     global_calib = fopen (filename, "r");
     CheckFile (global_calib, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     NextLine (global_calib, cmdstr);
     if (!ReadKeyword (cmdstr, "KSATH", &cal->ksath, 'd'))
@@ -1646,6 +1686,10 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
 
     ic_file = fopen (filename, "rb");
     CheckFile (ic_file, filename);
+    if (verbose_mode)
+    {
+        printf (" Reading %s\n", filename);
+    }
 
     fseek (ic_file, 0L, SEEK_END);
     size = ftell (ic_file);
