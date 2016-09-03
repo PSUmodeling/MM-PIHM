@@ -133,25 +133,25 @@ endif
 #-------------------
 # Flux-PIHM-EnKF
 #-------------------
-#ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
-#  CC = mpicc
-#  SFLAGS = -D_PIHM_ -D_ENKF_ -D_NOAH_
-#  MODULE_SRCS_ = \
-#	enkf/enkf.c\
-#	enkf/enkf_func.c\
-#	enkf/obs_oper.c\
-#  	enkf/read_enkf.c\
-#	noah/lsm_func.c\
-#	noah/lsm_init.c\
-#	noah/lsm_read.c\
-#  	noah/noah.c\
-#	spa/spa.c
-#  MODULE_HEADERS_ = \
-#  	include/enkf.h\
-#  	include/spa.h 
-#  EXECUTABLE = flux-pihm-enkf
-#  MSG = "... Compiling Flux-PIHM-EnKF ..."
-#endif
+ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
+  CC = mpicc
+  SFLAGS = -D_PIHM_ -D_NOAH_ -D_ENKF_
+  MODULE_SRCS_ = \
+	enkf/enkf.c\
+	enkf/enkf_func.c\
+	enkf/obs_oper.c\
+  	enkf/read_enkf.c\
+	noah/lsm_func.c\
+	noah/lsm_init.c\
+	noah/lsm_read.c\
+  	noah/noah.c\
+	spa/spa.c
+  MODULE_HEADERS_ = \
+  	include/enkf.h\
+  	include/spa.h 
+  EXECUTABLE = flux-pihm-enkf
+  MSG = "... Compiling Flux-PIHM-EnKF ..."
+endif
 
 #-------------------
 # Flux-PIHM-Cycles
@@ -224,6 +224,13 @@ pihm:	$(OBJS)
 
 flux-pihm:		## Complile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
 flux-pihm: $(OBJS) $(MODULE_OBJS)
+	@echo
+	@echo $(MSG)
+	@echo
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
+
+flux-pihm-enkf:		## Complile Flux-PIHM-EnKF (Flux-PIHM EnKF data assimilation system)
+flux-pihm-enkf: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo

@@ -532,7 +532,7 @@ void ReadObs (int obs_time, char *fn, double *obs, double *obs_error)
     while (1)
     {
         NextLine (fid, cmdstr);
-        match = sscanf (cmdstr, "\"%d-%d-%d %d:%d\" %lf %lf",
+        match = sscanf (cmdstr, "%d-%d-%d %d:%d %lf %lf",
             &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
             &timeinfo->tm_hour, &timeinfo->tm_min, &temp1, &temp2);
         timeinfo->tm_year = timeinfo->tm_year - 1900;
@@ -549,12 +549,12 @@ void ReadObs (int obs_time, char *fn, double *obs, double *obs_error)
         else if (strcasecmp (cmdstr, "EOF") == 0)
         {
             printf ("\nFATAL ERROR: No observation availablein %s!\n", fn);
-            PihmExit (1);
+            PIHMExit (EXIT_FAILURE);
         }
         else if (match != 7)
         {
             printf ("ERROR: Observation file %s format error!\n", fn);
-            PihmExit (1);
+            PIHMExit (EXIT_FAILURE);
         }
     }
 
@@ -603,7 +603,7 @@ void ReadFcst (enkf_struct ens, obs_struct obs, double *xf)
     xf[ne] /= (double)ne;
 }
 
-void ReadVar (char *project, char *outputdir, enkf_struct ens, int obs_time)
+void ReadVar (char *outputdir, enkf_struct ens, int obs_time)
 {
     int             i, j, k;
     int             ii;
@@ -660,7 +660,7 @@ void ReadVar (char *project, char *outputdir, enkf_struct ens, int obs_time)
                     printf
                         ("Fatal Error: No %s output available for member %d at %d (%d)!",
                         ens->var[k].name, i + 1, obs_time, (int)buffer[0]);
-                    PihmExit (1);
+                    PIHMExit (EXIT_FAILURE);
                 }
             }
         }
@@ -763,11 +763,11 @@ void WriteEnKFOut (char *project, enkf_struct ens, char *outputdir, int t)
         /*
          * Write PIHM initial condition
          */
-        sprintf (fn, "input/%s/%s.%3.3d.init", project, project, i + 1);
+        sprintf (fn, "input/%s/%s.%3.3d.ic", project, project, i + 1);
         fid = fopen (fn, "wb");
         CheckFile (fid, fn);
 
-        sprintf (fn, "input/%s/%s.%3.3d.init.txt", project, project, i + 1);
+        sprintf (fn, "input/%s/%s.%3.3d.ic.txt", project, project, i + 1);
         fid1 = fopen (fn, "w");
         CheckFile (fid1, fn);
 
@@ -820,8 +820,10 @@ void WriteEnKFOut (char *project, enkf_struct ens, char *outputdir, int t)
                 sprintf (varn, "swc%d", k);
                 id = FindVar (ens->var, varn);
                 fwrite (&ens->member[i].var[id][j], sizeof (double), 1, fid);
-                fprintf (fid1, "%lf\n", ens->member[i].var[id][j]);
+                fprintf (fid1, "%lf\t", ens->member[i].var[id][j]);
             }
+
+            fprintf (fid1, "\n");
         }
 
         for (j = 0; j < ens->numriv; j++)

@@ -102,7 +102,7 @@ void InitOper (pihm_struct pihm, enkf_struct ens)
         {
             printf ("ERROR: Cannot find the operator for %s!\n",
                 ens->obs[i].name);
-            PihmExit (1);
+            PIHMExit (EXIT_FAILURE);
         }
     }
 }
@@ -215,7 +215,7 @@ void InitEns (enkf_struct ens)
     free (pihm);
 }
 
-void Perturb (char *project, enkf_struct ens, char *outputdir)
+void Perturb (enkf_struct ens, char *outputdir)
 {
     int             ne;
     int             i, j;
@@ -565,7 +565,7 @@ void MapVar (var_struct *var, int numele, int numriv)
             case CMC_CTRL:
                 strcpy (var[n].name, "is");
                 var[n].dim = numele;
-                var[n].min = BADVAL;
+                var[n].min = 0.0;
                 var[n].max = BADVAL;
                 n++;
                 break;
@@ -764,11 +764,11 @@ void Calib2Mbr (calib_struct cal, double *param)
     param[RIVDEPTH] = cal.rivdepth;
     param[RIVSHPCOEFF] = cal.rivshpcoeff;
 #ifdef _NOAH_
-    param[THETAREF] = cal.thetaref;
-    param[THETAW] = cal.thetaw;
+    param[THETAREF] = cal.smcref;
+    param[THETAW] = cal.smcwlt;
     param[RSMIN] = cal.rsmin;
     param[DRIP] = cal.drip;
-    param[INTCP] = cal.intcp;
+    param[INTCP] = cal.cmcmax;
     param[CZIL] = cal.czil;
     param[FXEXP] = cal.fxexp;
     param[CFACTR] = cal.cfactr;
@@ -807,11 +807,11 @@ void Mbr2Cal (calib_struct *cal, const double *param)
     cal->rivdepth = param[RIVDEPTH];
     cal->rivshpcoeff = param[RIVSHPCOEFF];
 #ifdef _NOAH_
-    cal->thetaref = param[THETAREF];
-    cal->thetaw = param[THETAW];
+    cal->smcref = param[THETAREF];
+    cal->smcwlt = param[THETAW];
     cal->rsmin = param[RSMIN];
     cal->drip = param[DRIP];
-    cal->intcp = param[INTCP];
+    cal->cmcmax = param[INTCP];
     cal->czil = param[CZIL];
     cal->fxexp = param[FXEXP];
     cal->cfactr = param[CFACTR];
@@ -971,13 +971,26 @@ void WriteCalFile (enkf_struct ens, char *project)
         sprintf (fn, "input/%s/%s.%3.3d.calib", project, project, i + 1);
         fid = fopen (fn, "w");
 
-        for (j = 0; j < MAXPARAM; j++)
+        for (j = 0; j <= RIVSHPCOEFF; j++)
         {
-            if (ens->param[j].name[0] != '\0')
-            {
-                fprintf (fid, "%-16s%-6lf\n", ens->param[j].name,
-                    ens->member[i].param[j]);
-            }
+            fprintf (fid, "%-16s%-6lf\n", ens->param[j].name,
+                ens->member[i].param[j]);
+        }
+
+        fprintf (fid, "\nLSM_CALIBRATION\n");
+
+        for (j = DRIP; j <= THETAW; j++)
+        {
+            fprintf (fid, "%-16s%-6lf\n", ens->param[j].name,
+                ens->member[i].param[j]);
+        }
+
+        fprintf (fid, "\nSCENARIO\n");
+
+        for (j = PRCP; j <= SFCTMP; j++)
+        {
+            fprintf (fid, "%-16s%-6lf\n", ens->param[j].name,
+                ens->member[i].param[j]);
         }
 
         fflush (fid);

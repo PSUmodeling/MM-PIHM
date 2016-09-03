@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void EnKFRead (char *project, enkf_struct ens)
+void EnKFRead (enkf_struct ens)
 {
     char            fn[MAXSTRING];
     char            cmdstr[MAXSTRING];
@@ -22,20 +22,20 @@ void EnKFRead (char *project, enkf_struct ens)
     FindLine (enkf_file, "BOF");
 
     NextLine (enkf_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NUM_ENSEMBLE_MEMBER", &ens->ne);
+    ReadKeyword (cmdstr, "NUM_ENSEMBLE_MEMBER", &ens->ne, 'i');
 
     NextLine (enkf_file, cmdstr);
-    ReadKeywordInt (cmdstr, "ASSIMILATION_INTERVAL", &ens->interval);
+    ReadKeyword (cmdstr, "ASSIMILATION_INTERVAL", &ens->interval, 'i');
     ens->interval *= 3600;
 
     NextLine (enkf_file, cmdstr);
-    ReadKeywordInt (cmdstr, "START_MODE", &ens->start_mode);
+    ReadKeyword (cmdstr, "START_MODE", &ens->start_mode, 'i');
 
     NextLine (enkf_file, cmdstr);
-    ReadKeywordDouble (cmdstr, "INFLATION_WEIGHT", &ens->weight);
+    ReadKeyword (cmdstr, "INFLATION_WEIGHT", &ens->weight, 'd');
 
     NextLine (enkf_file, cmdstr);
-    ReadKeywordTime (cmdstr, "ASSIMILATION_END_TIME", &ens->end_time);
+    ReadKeyword (cmdstr, "ASSIMILATION_END_TIME", &ens->end_time, 't');
 
     FindLine (enkf_file, "PARAMETER");
     n = CountLine (enkf_file, cmdstr, 1, "NUM_OBS");
@@ -55,7 +55,7 @@ void EnKFRead (char *project, enkf_struct ens)
     }
 
     NextLine (enkf_file, cmdstr);
-    ReadKeywordInt (cmdstr, "NUM_OBS", &ens->nobs);
+    ReadKeyword (cmdstr, "NUM_OBS", &ens->nobs, 'i');
 
     if (ens->nobs > 0)
     {
@@ -64,23 +64,23 @@ void EnKFRead (char *project, enkf_struct ens)
         for (i = 0; i < ens->nobs; i++)
         {
             NextLine (enkf_file, cmdstr);
-            ReadKeywordStr (cmdstr, "OBS_TYPE", ens->obs[i].name);
+            ReadKeyword (cmdstr, "OBS_TYPE", ens->obs[i].name, 's');
 
             NextLine (enkf_file, cmdstr);
-            ReadKeywordStr (cmdstr, "OBS_FILE", ens->obs[i].fn);
+            ReadKeyword (cmdstr, "OBS_FILE", ens->obs[i].fn, 's');
 
 
             NextLine (enkf_file, cmdstr);
-            ReadKeywordDouble (cmdstr, "OBS_LOCATION_X", &ens->obs[i].x);
+            ReadKeyword (cmdstr, "OBS_LOCATION_X", &ens->obs[i].x, 'd');
 
             NextLine (enkf_file, cmdstr);
-            ReadKeywordDouble (cmdstr, "OBS_LOCATION_Y", &ens->obs[i].y);
+            ReadKeyword (cmdstr, "OBS_LOCATION_Y", &ens->obs[i].y, 'd');
 
             NextLine (enkf_file, cmdstr);
-            ReadKeywordDouble (cmdstr, "OBS_RADIUS", &ens->obs[i].rad);
+            ReadKeyword (cmdstr, "OBS_RADIUS", &ens->obs[i].rad, 'd');
 
             NextLine (enkf_file, cmdstr);
-            ReadKeywordDouble (cmdstr, "OBS_DEPTH", &ens->obs[i].depth);
+            ReadKeyword (cmdstr, "OBS_DEPTH", &ens->obs[i].depth, 'd');
         }
     }
 

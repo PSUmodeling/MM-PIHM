@@ -18,17 +18,19 @@ int main (int argc, char *argv[])
     ierr = MPI_Comm_rank (MPI_COMM_WORLD, &id);
     ierr = MPI_Comm_size (MPI_COMM_WORLD, &p);
 
-    //{
-    //    int ii = 0;
-    //    char hostname[256];
-    //    gethostname(hostname, sizeof(hostname));
-    //    printf("PID %d (%d) on %s ready for attach\n", getpid(), id, hostname);
-    //    fflush(stdout);
-    //    while (0 == ii)
-    //        sleep(5);
-    //}
+#ifdef _DEBUG_
+    int ii = 0;
+    char hostname[256];
+    gethostname (hostname, sizeof (hostname));
+    printf ("PID %d (%d) on %s ready for attach\n", getpid (), id, hostname);
+    fflush (stdout);
+    while (0 == ii)
+    {
+        sleep (5);
+    }
+#endif
 
-    if (id == 0)
+    if (0 == id)
     {
 #endif
         printf ("\n");
@@ -39,24 +41,26 @@ int main (int argc, char *argv[])
         printf ("\t\t##         ##  ##     ## ##     ##\n");
         printf ("\t\t##         ##  ##     ## ##     ##\n");
         printf ("\t\t##        #### ##     ## ##     ##\n");
-        printf ("\n\t    The Penn State Integrated Hydrologic Model\n");
+        printf ("\n\t    The Penn State Integrated Hydrologic Model\n\n");
 
 #ifdef _NOAH_
-        printf ("\n\t    * Land surface module turned on.\n");
+        printf ("\t    * Land surface module turned on.\n");
 #endif
 #ifdef _RT_
         printf
-            ("\n\t    * Reactive transport land surface hydrological mode.\n");
+            ("\t       * Reactive transport module turned on.\n");
 #endif
 #ifdef _BGC_
-        printf ("\n\t    * Biogeochemistry module turned on.\n");
+        printf ("\t    * Biogeochemistry module turned on.\n");
 #endif
 #ifdef _ENKF_
-        printf ("\n\t    * Ensemble Kalman filter turned on.\n");
+        printf ("\t    * Ensemble Kalman filter turned on.\n");
 #endif
 #ifdef _CYCLES_
-        printf ("\n\t    * Crop module turned on.\n");
+        printf ("\t    * Crop module turned on.\n");
 #endif
+
+        printf ("\n");
 #ifdef _ENKF_
     }
 #endif
@@ -155,7 +159,7 @@ void Parallel (int id, int p, char *outputdir)
     int             ii;
     enkf_struct     ens;
 
-    if (id == 0)
+    if (0 == id)
     {
         /*
          * EnKF initialization
@@ -163,14 +167,14 @@ void Parallel (int id, int p, char *outputdir)
         ens = (enkf_struct)malloc (sizeof *ens);
 
         /* Read EnKF input file */
-        EnKFRead (project, ens);
+        EnKFRead (ens);
 
         /* Check if node number is appropriate */
         if (ens->ne % (p - 1) != 0)
         {
             fprintf (stderr,
                 "Error: Please specify a correct node number!\n");
-            PIHMError (1, __FUNCTION__);
+            PIHMExit (EXIT_FAILURE);
         }
         else
         {
@@ -181,7 +185,7 @@ void Parallel (int id, int p, char *outputdir)
         InitEns (ens);
 
         /* Perturb model parameters */
-        Perturb (project, ens, outputdir);
+        Perturb (ens, outputdir);
     }
 
     /* Broadcast jobs per node and output directory to all nodes */
@@ -196,7 +200,7 @@ void Parallel (int id, int p, char *outputdir)
      */
     while (1)
     {
-        if (id == 0)
+        if (0 == id)
         {
             if (ens->cycle_start_time >= ens->end_time)
             {
@@ -227,13 +231,13 @@ void Parallel (int id, int p, char *outputdir)
             /*
              * Read variables from PIHM output files
              */
-            ReadVar (project, outputdir, ens, ens->cycle_end_time);
+            ReadVar (outputdir, ens, ens->cycle_end_time);
 
             /* EnKF data assimilation */
             EnKF (ens, ens->cycle_end_time, outputdir);
 
             /* Proceed to next cycle */
-            ens->mbr_start_mode = 3;
+            ens->mbr_start_mode = RST_FILE;
             ens->cycle_start_time = ens->cycle_end_time;
             ens->cycle_end_time += ens->interval;
         }
@@ -269,7 +273,7 @@ void Parallel (int id, int p, char *outputdir)
         }
     }
 
-    if (id == 0)
+    if (0 == id)
     {
         FreeEns (ens);
         free (ens);
