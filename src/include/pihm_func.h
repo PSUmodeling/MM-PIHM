@@ -39,7 +39,7 @@ double          EffKinf (double, double, int, double, double, double);
 double          EffKV (double, double, int, double, double, double);
 double          EqWid (int, double, double);
 double          FieldCapacity (double, double, double, double, double);
-int             FindLine (FILE *, char *);
+void            FindLine (FILE *, char *, int *, const char *);
 void            FreeData (pihm_struct);
 int             Hydrol (realtype, N_Vector, N_Vector, void *);
 void            Initialize (pihm_struct, N_Vector);
@@ -75,7 +75,7 @@ void            MapOutput (char *, pihm_struct, char *);
 double          MonthlyLAI (int, int);
 double          MonthlyMF (int);
 double          MonthlyRL (int, int);
-void            NextLine (FILE *, char *);
+void            NextLine (FILE *, char *, int *);
 double          OverlandFlow (double, double, double, double, double);
 double          OLFEleToRiv (double, double, double, double, double, double);
 #define PIHMExit(i)  _PIHMExit(__FILE__, __LINE__, __FUNCTION__, i)
@@ -101,7 +101,7 @@ void            ReadCalib (char *, calib_struct *);
 void            ReadForc (char *, forc_struct *);
 void            ReadGeol (char *, geoltbl_struct *);
 void            ReadIC (char *, elem_struct *, int, river_struct *, int);
-int             ReadKeyword (char *, char *, void *, char);
+int             ReadKeyword (char *, char *, void *, char, char *, int);
 void            ReadLAI (char *, forc_struct *, int, const atttbl_struct *);
 void            ReadLC (char *, lctbl_struct *);
 void            ReadMesh (char *, meshtbl_struct *);
@@ -416,8 +416,7 @@ double          LinearEquilibriumSoluteMass (double, double, double, double,
 void            Elem2ElemSolTrnsp (const elem_struct *, const elem_struct *,
     double *, const double *, double, double *, double *);
 void            Elem2RiverSolTrnsp (const elem_struct *, const river_struct *,
-    double, double *, const double *, double, double, double *,
-    double *);
+    double, double *, const double *, double, double, double *, double *);
 void            River2RiverSolTrnsp (river_struct *, const river_struct *,
     double *, double, double, double, double *, double *);
 void            InitCropSV (crop_struct *);

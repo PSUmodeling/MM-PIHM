@@ -7,6 +7,7 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     struct tm      *timestamp;
     time_t          rawtime;
     char            cmdstr[MAXSTRING];
+    int             lno = 0;
 
     timestamp = (struct tm *)malloc (sizeof (struct tm));
 
@@ -18,10 +19,10 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
         printf (" Reading %s\n", fn);
     }
 
-    FindLine (bgc_file, "TIME_DEFINE");
-    NextLine (bgc_file, cmdstr);
+    FindLine (bgc_file, "TIME_DEFINE", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ctrl->spinupstartyear);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ctrl->spinupendyear);
 
     timestamp->tm_year = ctrl->spinupstartyear - 1900;
@@ -37,137 +38,97 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     rawtime = timegm (timestamp);
     ctrl->spinupend = (int)rawtime;
 
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ctrl->bgc_spinup);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ctrl->maxspinyears);
 
-    FindLine (bgc_file, "CO2_CONTROL");
-    NextLine (bgc_file, cmdstr);
+    FindLine (bgc_file, "CO2_CONTROL", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &co2->varco2);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &co2->co2ppm);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%s", co2_fn);
 
-    FindLine (bgc_file, "NDEP_CONTROL");
-    NextLine (bgc_file, cmdstr);
+    FindLine (bgc_file, "NDEP_CONTROL", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ndepctrl->varndep);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ndepctrl->ndep);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ndepctrl->nfix);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%s", ndep_fn);
 
-    FindLine (bgc_file, "C_STATE");
-    NextLine (bgc_file, cmdstr);
+    FindLine (bgc_file, "C_STATE", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cinit.max_leafc);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cinit.max_stemc);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.cwdc);
     ctrl->ns.cwdn = BADVAL;
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.litr1c);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.litr2c);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.litr3c);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.litr4c);
     ctrl->ns.litr2n = BADVAL;
     ctrl->ns.litr3n = BADVAL;
     ctrl->ns.litr4n = BADVAL;
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.soil1c);
     ctrl->ns.soil1n = BADVAL;
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.soil2c);
     ctrl->ns.soil2n = BADVAL;
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.soil3c);
     ctrl->ns.soil3n = BADVAL;
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.soil4c);
     ctrl->ns.soil4n = BADVAL;
 
-    FindLine (bgc_file, "N_STATE");
-    NextLine (bgc_file, cmdstr);
+    FindLine (bgc_file, "N_STATE", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->ns.litr1n);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->ns.sminn);
 
-    FindLine (bgc_file, "DAILY_OUTPUT");
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    FindLine (bgc_file, "DAILY_OUTPUT", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL], 'i', fn, lno);
 
 
     fclose (bgc_file);
@@ -725,6 +686,7 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
     char            cmdstr[MAXSTRING];
     int             i;
     int             match;
+    int             lno = 0;
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
@@ -739,11 +701,11 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
     ts->ftime = (int *)malloc (ts->length * sizeof (int));
     ts->data = (double **)malloc (ts->length * sizeof (double *));
 
-    FindLine (fid, "BOF");
+    FindLine (fid, "BOF", &lno, fn);
     for (i = 0; i < ts->length; i++)
     {
         ts->data[i] = (double *)malloc (sizeof (double));
-        NextLine (fid, cmdstr);
+        NextLine (fid, cmdstr, &lno);
         match =
             sscanf (cmdstr, "%d %lf", &timeinfo->tm_year, &ts->data[i][0]);
 

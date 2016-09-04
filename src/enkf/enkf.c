@@ -521,6 +521,7 @@ void ReadObs (int obs_time, char *fn, double *obs, double *obs_error)
     FILE           *fid;
     char            cmdstr[MAXSTRING];
     int             match;
+    int             lno = 0;
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
@@ -531,11 +532,11 @@ void ReadObs (int obs_time, char *fn, double *obs, double *obs_error)
         printf (" Reading %s\n", fn);
     }
 
-    FindLine (fid, "BOF");
+    FindLine (fid, "BOF", &lno, fn);
 
     while (1)
     {
-        NextLine (fid, cmdstr);
+        NextLine (fid, cmdstr, &lno);
         match = sscanf (cmdstr, "%d-%d-%d %d:%d %lf %lf",
             &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
             &timeinfo->tm_hour, &timeinfo->tm_min, &temp1, &temp2);

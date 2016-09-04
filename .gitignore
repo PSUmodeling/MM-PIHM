@@ -71,6 +71,7 @@
 /flux-pihm
 /flux-pihm-bgc
 /flux-pihm-cycles
+/flux-pihm-enkf
 
 # PBS scripts
 /run-*

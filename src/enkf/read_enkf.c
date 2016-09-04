@@ -8,6 +8,7 @@ void EnKFRead (enkf_struct ens)
     int             i;
     int             n;
     ctrl_struct     ctrl;
+    int             lno = 0;
 
     /*
      * Open .enkf file
@@ -23,34 +24,36 @@ void EnKFRead (enkf_struct ens)
     /*
      * Read .enkf file
      */
-    FindLine (enkf_file, "BOF");
+    FindLine (enkf_file, "BOF", &lno, fn);
 
-    NextLine (enkf_file, cmdstr);
-    ReadKeyword (cmdstr, "NUM_ENSEMBLE_MEMBER", &ens->ne, 'i');
+    NextLine (enkf_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "NUM_ENSEMBLE_MEMBER", &ens->ne, 'i', fn, lno);
 
-    NextLine (enkf_file, cmdstr);
-    ReadKeyword (cmdstr, "ASSIMILATION_INTERVAL", &ens->interval, 'i');
+    NextLine (enkf_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "ASSIMILATION_INTERVAL", &ens->interval, 'i', fn,
+        lno);
     ens->interval *= 3600;
 
-    NextLine (enkf_file, cmdstr);
-    ReadKeyword (cmdstr, "START_MODE", &ens->start_mode, 'i');
+    NextLine (enkf_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "START_MODE", &ens->start_mode, 'i', fn, lno);
 
-    NextLine (enkf_file, cmdstr);
-    ReadKeyword (cmdstr, "INFLATION_WEIGHT", &ens->weight, 'd');
+    NextLine (enkf_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "INFLATION_WEIGHT", &ens->weight, 'd', fn, lno);
 
-    NextLine (enkf_file, cmdstr);
-    ReadKeyword (cmdstr, "ASSIMILATION_END_TIME", &ens->end_time, 't');
+    NextLine (enkf_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "ASSIMILATION_END_TIME", &ens->end_time, 't', fn,
+        lno);
 
-    FindLine (enkf_file, "PARAMETER");
+    FindLine (enkf_file, "PARAMETER", &lno, fn);
     n = CountLine (enkf_file, cmdstr, 1, "NUM_OBS");
 
     /* Rewind to read */
-    FindLine (enkf_file, "PARAMETER");
+    FindLine (enkf_file, "PARAMETER", &lno, fn);
 
     /* Start reading EnKF file */
     for (i = 0; i < n; i++)
     {
-        NextLine (enkf_file, cmdstr);
+        NextLine (enkf_file, cmdstr, &lno);
         sscanf (cmdstr, "%s %d %d %lf %lf %lf %lf %d",
             ens->param[i].name,
             &ens->param[i].perturb, &ens->param[i].update,
@@ -58,8 +61,8 @@ void EnKFRead (enkf_struct ens)
             &ens->param[i].min, &ens->param[i].max, &ens->param[i].type);
     }
 
-    NextLine (enkf_file, cmdstr);
-    ReadKeyword (cmdstr, "NUM_OBS", &ens->nobs, 'i');
+    NextLine (enkf_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "NUM_OBS", &ens->nobs, 'i', fn, lno);
 
     if (ens->nobs > 0)
     {
@@ -67,24 +70,28 @@ void EnKFRead (enkf_struct ens)
 
         for (i = 0; i < ens->nobs; i++)
         {
-            NextLine (enkf_file, cmdstr);
-            ReadKeyword (cmdstr, "OBS_TYPE", ens->obs[i].name, 's');
+            NextLine (enkf_file, cmdstr, &lno);
+            ReadKeyword (cmdstr, "OBS_TYPE", ens->obs[i].name, 's', fn, lno);
 
-            NextLine (enkf_file, cmdstr);
-            ReadKeyword (cmdstr, "OBS_FILE", ens->obs[i].fn, 's');
+            NextLine (enkf_file, cmdstr, &lno);
+            ReadKeyword (cmdstr, "OBS_FILE", ens->obs[i].fn, 's', fn, lno);
 
 
-            NextLine (enkf_file, cmdstr);
-            ReadKeyword (cmdstr, "OBS_LOCATION_X", &ens->obs[i].x, 'd');
+            NextLine (enkf_file, cmdstr, &lno);
+            ReadKeyword (cmdstr, "OBS_LOCATION_X", &ens->obs[i].x, 'd', fn,
+                lno);
 
-            NextLine (enkf_file, cmdstr);
-            ReadKeyword (cmdstr, "OBS_LOCATION_Y", &ens->obs[i].y, 'd');
+            NextLine (enkf_file, cmdstr, &lno);
+            ReadKeyword (cmdstr, "OBS_LOCATION_Y", &ens->obs[i].y, 'd', fn,
+                lno);
 
-            NextLine (enkf_file, cmdstr);
-            ReadKeyword (cmdstr, "OBS_RADIUS", &ens->obs[i].rad, 'd');
+            NextLine (enkf_file, cmdstr, &lno);
+            ReadKeyword (cmdstr, "OBS_RADIUS", &ens->obs[i].rad, 'd', fn,
+                lno);
 
-            NextLine (enkf_file, cmdstr);
-            ReadKeyword (cmdstr, "OBS_DEPTH", &ens->obs[i].depth, 'd');
+            NextLine (enkf_file, cmdstr, &lno);
+            ReadKeyword (cmdstr, "OBS_DEPTH", &ens->obs[i].depth, 'd', fn,
+                lno);
         }
     }
 

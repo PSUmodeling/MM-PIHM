@@ -39,16 +39,18 @@ int Readable (char *cmdstr)
     return (readable);
 }
 
-int FindLine (FILE * fid, char *token)
+void FindLine (FILE *fid, char *token, int *lno, const char *filename)
 {
     int             success = 0;
     char            cmdstr[MAXSTRING];
     char            optstr[MAXSTRING];
 
-    rewind (fid);
-
     if (strcasecmp ("BOF", token) == 0)
+    {
+        rewind (fid);
+        *lno = 0;
         success = 1;
+    }
     else
     {
         /* Initialize cmdstr */
@@ -67,13 +69,19 @@ int FindLine (FILE * fid, char *token)
             }
 
             fgets (cmdstr, MAXSTRING, fid);
+            (*lno)++;
         }
     }
 
-    return (success);
+    if (0 == success)
+    {
+        fprintf (stderr, "Cannot find keyword %s.\n", token);
+        fprintf (stderr, "Error reading %s.\n", filename);
+        PIHMExit (EXIT_FAILURE);
+    }
 }
 
-void NextLine (FILE * fid, char *cmdstr)
+void NextLine (FILE *fid, char *cmdstr, int *lno)
 {
     /*
      * Read a non-blank line into cmdstr
@@ -87,11 +95,14 @@ void NextLine (FILE * fid, char *cmdstr)
             strcpy (cmdstr, "EOF");
             break;
         }
-
+        else
+        {
+            (*lno)++;
+        }
     }
 }
 
-int CountLine (FILE * fid, char *cmdstr, int num_arg, ...)
+int CountLine (FILE *fid, char *cmdstr, int num_arg, ...)
 {
     /*
      * Count number of non-blank lines between current location to where
@@ -213,7 +224,8 @@ int ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
     return (success);
 }
 
-int ReadKeyword (char *buffer, char *keyword, void *value, char type)
+int ReadKeyword (char *buffer, char *keyword, void *value, char type,
+    char *filename, int lno)
 {
     int             match;
     char            optstr[MAXSTRING];
@@ -226,8 +238,8 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type)
             match = sscanf (buffer, "%s %lf", optstr, (double *)value);
             if (match != 2 || strcasecmp (keyword, optstr) != 0)
             {
-                printf ("Expected keyword \"%s\", detected keyword \"%s\".\n",
-                    keyword, optstr);
+                fprintf (stderr, "Expected keyword \"%s\", "
+                    "detected keyword \"%s\".\n", keyword, optstr);
                 success = 0;
             }
             break;
@@ -235,8 +247,8 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type)
             match = sscanf (buffer, "%s %d", optstr, (int *)value);
             if (match != 2 || strcasecmp (keyword, optstr) != 0)
             {
-                printf ("Expected keyword \"%s\", detected keyword \"%s\".\n",
-                    keyword, optstr);
+                fprintf (stderr, "Expected keyword \"%s\", "
+                    "detected keyword \"%s\".\n", keyword, optstr);
                 success = 0;
             }
             break;
@@ -244,8 +256,8 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type)
             match = sscanf (buffer, "%s %[^\n]", optstr, (char *)value);
             if (match != 2 || strcasecmp (keyword, optstr) != 0)
             {
-                printf ("Expected keyword \"%s\", detected keyword \"%s\".\n",
-                    keyword, optstr);
+                fprintf (stderr, "Expected keyword \"%s\", "
+                    "detected keyword \"%s\".\n", keyword, optstr);
                 success = 0;
             }
             break;
@@ -258,8 +270,8 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type)
             timeinfo->tm_sec = 0;
             if (match != 6 || strcasecmp (keyword, optstr) != 0)
             {
-                printf ("Expected keyword \"%s\", detected keyword \"%s\".\n",
-                    keyword, optstr);
+                fprintf (stderr, "Expected keyword \"%s\", "
+                    "detected keyword \"%s\".\n", keyword, optstr);
                 success = 0;
             }
             else
@@ -277,10 +289,16 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type)
             PIHMExit (EXIT_FAILURE);
     }
 
+    if (0 == success)
+    {
+        fprintf (stderr, "Error reading %s near Line %d.\n", filename, lno);
+        PIHMExit (EXIT_FAILURE);
+    }
+
     return (success);
 }
 
-int CountOccurance (FILE * fid, char *token)
+int CountOccurance (FILE *fid, char *token)
 {
     /*
      * Count number of occurance of keyword from the current line to the end
