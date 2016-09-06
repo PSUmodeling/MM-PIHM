@@ -111,8 +111,9 @@ int FindVar (var_struct *var, char *varname)
 
     if (id == -999)
     {
-        printf ("Cannot find variable \"%s\"!\n", varname);
-        PIHMExit (EXIT_FAILURE);
+        PIHMprintf (VL_ERROR,
+            "Cannot find variable \"%s\".\n", varname);
+        PIHMexit (EXIT_FAILURE);
     }
 
     return (id);

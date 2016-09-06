@@ -22,6 +22,11 @@
 /* Default bad value */
 #define BADVAL	    -999
 
+/* Verbosity level */
+#define VL_ERROR    -1
+#define VL_NORMAL   0
+#define VL_VERBOSE  1
+
 /* Maximum string length */
 #define MAXSTRING   1024
 

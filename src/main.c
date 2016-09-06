@@ -61,6 +61,7 @@ int main (int argc, char *argv[])
 #endif
 
         printf ("\n");
+        fflush (stdout);
 
     /*
      * Read command line arguments
@@ -92,6 +93,8 @@ int main (int argc, char *argv[])
             default:
                 break;
         }
+
+        fflush (stdout);
     }
 
     if (optind >= argc)
@@ -102,7 +105,7 @@ int main (int argc, char *argv[])
         fprintf (stderr, "\t-o Specify output directory.\n");
         fprintf (stderr, "\t-v Verbose mode\n");
         fprintf (stderr, "\t-d Debug mode\n");
-        PIHMExit (EXIT_FAILURE);
+        PIHMexit (EXIT_FAILURE);
     }
     else
     {
@@ -138,6 +141,7 @@ int main (int argc, char *argv[])
     {
 #endif
     printf ("\nSimulation completed.\n");
+    fflush (stdout);
 #ifdef _ENKF_
     }
 #endif
@@ -179,7 +183,7 @@ void Parallel (int id, int p, char *outputdir)
         {
             fprintf (stderr,
                 "Error: Please specify a correct node number!\n");
-            PIHMExit (EXIT_FAILURE);
+            PIHMexit (EXIT_FAILURE);
         }
         else
         {

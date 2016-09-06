@@ -92,21 +92,6 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
             weather->vpd[y] = (double *)malloc (366 * sizeof (double));
         }
 
-        //sprintf (start_year_str, "%4.4d", start_year);
-
-        ///* Read weather file */
-        //FindLine (weather_file, "BOF");
-
-        ///* Read in site information and count number of weather records */
-        //NextLine (weather_file, cmdstr);
-        //ReadKeywordDouble (cmdstr, "LATITUDE", &Weather->siteLatitude);
-
-        //NextLine (weather_file, cmdstr);
-        //ReadKeywordDouble (cmdstr, "ALTITUDE", &Weather->siteAltitude);
-
-        //NextLine (weather_file, cmdstr);
-        //ReadKeywordDouble (cmdstr, "SCREENING_HEIGHT", &Weather->screeningHeight);
-
         /*
          * Copy crop management to each element
          */
@@ -114,12 +99,10 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
         if (agtbl->op[i] > agtbl->nopfile)
         {
-            printf
-                ("ERROR: Operation file for operation index %d is not provided!\n",
-                agtbl->op[i]);
-            printf ("Exiting from Function %s at %s, Line %d.\n",
-                __FUNCTION__, __FILE__, __LINE__);
-            exit (1);
+            Cycles_printf (VL_ERROR,
+                "ERROR: Operation file for operation index %d "
+                "is not provided.\n", agtbl->op[i]);
+            Cycles_exit (EXIT_FAILURE);
         }
 
         opind = agtbl->op[i] - 1;

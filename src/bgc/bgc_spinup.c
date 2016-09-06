@@ -75,7 +75,7 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
             metyr = 0;
         }
 
-        printf ("Year: %6d\n", spinyears);
+        PIHMprintf (VL_NORMAL, "Year: %6d\n", spinyears);
 
         for (j = 0;
             j < (pihm->ctrl.spinupend - pihm->ctrl.spinupstart) / 24 / 3600;
@@ -155,9 +155,10 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
             {
                 if (spinup_complete[i] == 0)
                 {
-                    printf ("Ele %d spinup %d Avg daily soilc = %lf (%lf)\n",
-                        i, steady1[i] &&
-                        steady2[i], tally1[i], pihm->elem[i].summary.soilc);
+                    PIHMprintf (VL_NORMAL,
+                        "Ele %d spinup %d Avg daily soilc = %lf (%lf)\n", i,
+                        steady1[i] && steady2[i], tally1[i],
+                        pihm->elem[i].summary.soilc);
                     spinup_year[i] = spinyears;
                 }
                 spinup_complete[i] = 1;
@@ -179,7 +180,8 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
             total_complete += spinup_complete[i];
         }
 
-        printf ("%d elements completed spin-up, %d elements to go\n",
+        PIHMprintf (VL_NORMAL,
+            "%d elements completed spin-up, %d elements to go\n",
             total_complete, pihm->numele - total_complete);
 
         /* spinup control */

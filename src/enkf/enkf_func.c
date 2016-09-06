@@ -47,17 +47,17 @@ void PrintEnKFStatus (int starttime, int endtime)
     time_t          rawtime;
     struct tm      *timestamp;
 
-    printf ("\nRunning ensemble members from ");
+    PIHMprintf (VL_NORMAL, "\nRunning ensemble members from ");
 
     rawtime = (int)starttime;
     timestamp = gmtime (&rawtime);
-    printf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d to ",
+    PIHMprintf (VL_NORMAL, "%4.4d-%2.2d-%2.2d %2.2d:%2.2d to ",
         timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday,
         timestamp->tm_hour, timestamp->tm_min);
 
     rawtime = (int)endtime;
     timestamp = gmtime (&rawtime);
-    printf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
+    PIHMprintf (VL_NORMAL, "%4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
         timestamp->tm_year + 1900, timestamp->tm_mon + 1, timestamp->tm_mday,
         timestamp->tm_hour, timestamp->tm_min);
 }
@@ -78,7 +78,6 @@ void JobHandIn (int total_jobs)
             MPI_COMM_WORLD, &status);
         received++;
         source = status.MPI_SOURCE;
-        //printf("PIHM job handed in from Node: %d\n", source);
     }
 }
 
@@ -100,9 +99,10 @@ void InitOper (pihm_struct pihm, enkf_struct ens)
         }
         else
         {
-            printf ("ERROR: Cannot find the operator for %s!\n",
+            PIHMprintf (VL_ERROR,
+                "Error finding observation operator for %s.\n",
                 ens->obs[i].name);
-            PIHMExit (EXIT_FAILURE);
+            PIHMexit (EXIT_FAILURE);
         }
     }
 }
@@ -180,20 +180,21 @@ void InitEns (enkf_struct ens)
 
     InitOper (pihm, ens);
 
-    printf ("Ensemble members: %d\n", ne);
-    printf ("Default observation cycle: %-d hour(s)\n", ens->interval / 3600);
-    printf ("Observations:");
+    PIHMprintf (VL_NORMAL, "Ensemble members: %d\n", ne);
+    PIHMprintf (VL_NORMAL, "Default observation cycle: %-d hour(s)\n",
+        ens->interval / 3600);
+    PIHMprintf (VL_NORMAL, "Observations:");
     if (ens->nobs == 0)
     {
-        printf (" none");
+        PIHMprintf (VL_NORMAL, " none");
     }
     else
     {
         for (i = 0; i < ens->nobs - 1; i++)
         {
-            printf (" %s,", ens->obs[i].name);
+            PIHMprintf (VL_NORMAL, " %s,", ens->obs[i].name);
         }
-        printf (" %s\n", ens->obs[ens->nobs - 1].name);
+        PIHMprintf (VL_NORMAL, " %s\n", ens->obs[ens->nobs - 1].name);
     }
 
     for (i = 0; i < ne; i++)
@@ -476,28 +477,28 @@ void Perturb (enkf_struct ens, char *outputdir)
         free (randnum);
     }
 
-    printf ("\nInitial parameters\n");
+    PIHMprintf (VL_NORMAL, "\nInitial parameters\n");
 
     for (i = 0; i < MAXPARAM; i++)
     {
         if (ens->param[i].perturb == 1)
         {
-            printf ("%s:\n", ens->param[i].name);
+            PIHMprintf (VL_NORMAL, "%s:\n", ens->param[i].name);
 
             prior = 0.0;
 
             for (j = 0; j < ne; j++)
             {
-                printf ("%lf\t", ens->member[j].param[i]);
+                PIHMprintf (VL_NORMAL, "%lf\t", ens->member[j].param[i]);
 
                 prior += ens->member[j].param[i];
             }
 
             prior /= (double)ne;
 
-            printf ("mean: %lf\n", prior);
+            PIHMprintf (VL_NORMAL, "mean: %lf\n", prior);
 
-            printf ("Initial std %lf\n", ens->param[i].init_std);
+            PIHMprintf (VL_NORMAL, "Initial std %lf\n", ens->param[i].init_std);
 
             WriteParamOutput (ens->cycle_start_time, ens, i, outputdir);
         }

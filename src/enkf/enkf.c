@@ -97,7 +97,7 @@ void EnKF (enkf_struct ens, int obs_time, char *outputdir)
     rawtime = obs_time;
     timestamp = gmtime (&rawtime);
 
-    printf ("\nStarting EnKF ... \n");
+    PIHMprintf (VL_NORMAL, "\nStarting EnKF ... \n");
 
     /*
      * Copy prior from ens to ens0
@@ -145,7 +145,7 @@ void EnKF (enkf_struct ens, int obs_time, char *outputdir)
 
         for (i = 0; i < ens->nobs; i++)
         {
-            printf ("\n*****%s******\n", ens->obs[i].name);
+            PIHMprintf (VL_NORMAL, "\n*****%s******\n", ens->obs[i].name);
 
             /* 
              * Read observations
@@ -153,8 +153,8 @@ void EnKF (enkf_struct ens, int obs_time, char *outputdir)
             sprintf (obsin_fn, "input/%s/%s", project, ens->obs[i].fn);
             ReadObs (obs_time, obsin_fn, &obs, &obs_error);
 
-            printf ("observation = %lf\n", obs);
-            printf ("error = %lf\n", obs_error);
+            PIHMprintf (VL_NORMAL, "observation = %lf\n", obs);
+            PIHMprintf (VL_NORMAL, "error = %lf\n", obs_error);
 
             /*
              * Read ensemble forecasts
@@ -164,12 +164,12 @@ void EnKF (enkf_struct ens, int obs_time, char *outputdir)
             /* 
              * Prepare forecast vectors
              */
-            printf ("prediction = ");
+            PIHMprintf (VL_NORMAL, "prediction = ");
             for (j = 0; j < ne; j++)
             {
-                printf ("%f\t", xf[j]);
+                PIHMprintf (VL_NORMAL, "%f\t", xf[j]);
             }
-            printf ("mean: %f\n", xf[ne]);
+            PIHMprintf (VL_NORMAL, "mean: %f\n", xf[ne]);
 
             /* 
              * Write observations to files
@@ -334,13 +334,13 @@ void CovInflt (enkf_struct ens, enkf_struct ens0)
     x = (double **)malloc (ne * sizeof (double));
     x0 = (double *)malloc (ne * sizeof (double));
 
-    printf ("\n*****Parameters********\n");
+    PIHMprintf (VL_NORMAL, "\n*****Parameters********\n");
 
     for (i = 0; i < MAXPARAM; i++)
     {
         if (ens->param[i].update == 1 && ens->update_param == 1)
         {
-            printf ("%s\n", ens->param[i].name);
+            PIHMprintf (VL_NORMAL, "%s\n", ens->param[i].name);
             /* Make pointers point to the parameter that needs to be updated */
             for (j = 0; j < ne; j++)
             {
@@ -423,19 +423,19 @@ void CovInflt (enkf_struct ens, enkf_struct ens0)
                     {
                         *x[j] = pow (10.0, *x[j]);
                     }
-                    printf ("%lf\t", *x[j]);
+                    PIHMprintf (VL_NORMAL, "%lf\t", *x[j]);
                 }
                 if (ens->param[i].type == LOG_TYPE)
                 {
                     average = pow (10.0, average);
                 }
-                printf ("mean: %lf\n", average);
+                PIHMprintf (VL_NORMAL, "mean: %lf\n", average);
             }
             else
             {
-                printf
-                    ("EnKF analysis %lf is out of range. Parameter is not updated\n",
-                    average);
+                PIHMprintf (VL_NORMAL,
+                    "EnKF analysis %lf is out of range. "
+                    "Parameter is not updated\n", average);
                 average = average0;
                 for (j = 0; j < ne; j++)
                 {
@@ -510,7 +510,7 @@ void CovInflt (enkf_struct ens, enkf_struct ens0)
     free (x);
     free (x0);
 
-    printf ("Inflation done!\n");
+    PIHMprintf (VL_NORMAL, "Inflation done!\n");
 }
 
 void ReadObs (int obs_time, char *fn, double *obs, double *obs_error)
@@ -527,10 +527,7 @@ void ReadObs (int obs_time, char *fn, double *obs, double *obs_error)
 
     fid = fopen (fn, "r");
     CheckFile (fid, fn);
-    if (verbose_mode)
-    {
-        printf (" Reading %s\n", fn);
-    }
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
 
     FindLine (fid, "BOF", &lno, fn);
 
@@ -553,13 +550,15 @@ void ReadObs (int obs_time, char *fn, double *obs, double *obs_error)
         }
         else if (strcasecmp (cmdstr, "EOF") == 0)
         {
-            printf ("\nFATAL ERROR: No observation availablein %s!\n", fn);
-            PIHMExit (EXIT_FAILURE);
+            PIHMprintf (VL_ERROR,
+                "\nError finding observation in %s.\n", fn);
+            PIHMexit (EXIT_FAILURE);
         }
         else if (match != 7)
         {
-            printf ("ERROR: Observation file %s format error!\n", fn);
-            PIHMExit (EXIT_FAILURE);
+            PIHMprintf (VL_ERROR,
+                "Error reading observation in %s near Line %d.\n", fn, lno);
+            PIHMexit (EXIT_FAILURE);
         }
     }
 
@@ -662,10 +661,10 @@ void ReadVar (char *outputdir, enkf_struct ens, int obs_time)
 
                 if (success == 0)
                 {
-                    printf
-                        ("Fatal Error: No %s output available for member %d at %d (%d)!",
-                        ens->var[k].name, i + 1, obs_time, (int)buffer[0]);
-                    PIHMExit (EXIT_FAILURE);
+                    PIHMprintf (VL_ERROR,
+                        "Error finding %s output for member %d.",
+                        ens->var[k].name, i + 1);
+                    PIHMexit (EXIT_FAILURE);
                 }
             }
         }

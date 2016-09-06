@@ -145,13 +145,13 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
     if (cs->litr1c > 0.0)
     {
         plitr1c_loss = kl1 * cs->litr1c;
-        //        printf ("kl1 = %lf, litr1c = %lf\n", kl1, cs->litr1c);
+
         if (ns->litr1n > 0.0)
             ratio = cn_s1 / cn_l1;
         else
             ratio = 0.0;
+
         pmnf_l1s1 = (plitr1c_loss * (1.0 - rfl1s1 - (ratio))) / cn_s1;
-        //        printf ("plitr1c_loss = %lf, rfl1s1 = %lf, ratio = %lf, cn_s1 = %lf\n", plitr1c_loss, rfl1s1, ratio, cn_s1);
     }
 
     /* 2. cellulose litter to medium microbial recycling pool */

@@ -14,10 +14,7 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
     /* Open simulation control file */
     simctrl_file = fopen (filename, "r");
     CheckFile (simctrl_file, filename);
-    if (verbose_mode)
-    {
-        printf (" Reading %s\n", filename);
-    }
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
 
     agtbl->op = (int *)malloc (numele * sizeof (int));
     agtbl->rotsz = (int *)malloc (numele * sizeof (int));
@@ -38,9 +35,12 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
             &agtbl->auto_S[i]);
         if (match != 6)
         {
-            printf ("Cannot read information of the %dth element!\n", i + 1);
-            printf (".cycles file format error!\n");
-            exit (1);
+            PIHMprintf (VL_ERROR,
+                "Error reading information of the %dth element for Cycles.\n",
+                i + 1);
+            PIHMprintf (VL_ERROR,
+                "Error in %s near Line %d.\n", filename, lno);
+            PIHMexit (EXIT_FAILURE);
         }
     }
 
@@ -61,9 +61,11 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
         match = sscanf (cmdstr, "%d %s", &index, agtbl->opfilen[i]);
         if (match != 2 || i != index - 1)
         {
-            fprintf (stderr, "Error reading %s.\n", filename),
-                fprintf (stderr, "Please check file format.\n");
-            PIHMExit (EXIT_FAILURE);
+            PIHMprintf (VL_ERROR,
+                "Error reading operation description.\n");
+            PIHMprintf (VL_ERROR,
+                "Error in %s near Line %d.\n", filename, lno);
+            PIHMexit (EXIT_FAILURE);
         }
         i++;
     }
@@ -159,10 +161,7 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
      */
     soil_file = fopen (filename, "r");
     CheckFile (soil_file, filename);
-    if (verbose_mode)
-    {
-        printf (" Reading %s\n", filename);
-    }
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
 
     soiltbl->totalLayers = (int *)malloc (soiltbl->number * sizeof (int));
     soiltbl->clay_lyr =
@@ -187,10 +186,12 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
 
         if (i != index - 1)
         {
-            printf ("Cannot read information of the %dth soil type!\n",
+            PIHMprintf (VL_ERROR,
+                "Error reading soil description of the %dth soil type.\n",
                 i + 1);
-            printf (".soilinit file format error!\n");
-            exit (1);
+            PIHMprintf (VL_ERROR,
+                "Error in %s near Line %d.\n", filename, lno);
+            PIHMexit (EXIT_FAILURE);
         }
 
         NextLine (soil_file, cmdstr, &lno);
@@ -223,11 +224,12 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
 
             if (match != 7 || j != layer - 1)
             {
-                printf
-                    ("Cannot read information of the %dth layer of the %dth"
-                    "soil type!\n", j + 1, i + 1);
-                printf (".soilinit file format error!\n");
-                exit (1);
+                PIHMprintf (VL_ERROR,
+                    "Error reading description of the %dth layer of the %dth"
+                    "soil type.\n", j + 1, i + 1);
+                PIHMprintf (VL_ERROR,
+                    "Error in %s near Line %d.\n", filename, lno);
+                PIHMexit (EXIT_FAILURE);
             }
         }
     }
@@ -245,10 +247,7 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
 
     crop_file = fopen (filename, "r");
     CheckFile (crop_file, filename);
-    if (verbose_mode)
-    {
-        printf (" Reading %s\n", filename);
-    }
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
 
     /* Read crop description file */
     /* First count how many crop types are there in the description file */
@@ -415,8 +414,12 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
         }
         else
         {
-            printf ("Option %s not recoganized!\n", temp);
-            exit (1);
+            PIHMprintf (VL_ERROR,
+                "Error: Clipping biomass destiny Option %s not defined.\n",
+                temp);
+            PIHMprintf (VL_ERROR,
+                "Error in %s near Line %d.\n", filename, lno);
+            PIHMexit (EXIT_FAILURE);
         }
 
         NextLine (crop_file, cmdstr, &lno);
@@ -554,10 +557,7 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
         sprintf (filename, "input/%s/%s", project, agtbl->opfilen[i]);
         op_file = fopen (filename, "r");
         CheckFile (op_file, filename);
-        if (verbose_mode)
-        {
-            printf (" Reading %s\n", filename);
-        }
+        PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
 
         FindLine (op_file, "BOF", &lno, filename);
         nplnt = CountOccurance (op_file, "PLANTING");
@@ -631,9 +631,12 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 if (planting->clippingStart > 366 ||
                     planting->clippingStart < 1)
                 {
-                    printf
-                        ("ERROR: Please specify valid DOY for clipping start date!\n");
-                    exit (1);
+                    PIHMprintf (VL_ERROR,
+                        "Error: Please specify valid DOY "
+                        "for clipping start date.\n");
+                    PIHMprintf (VL_ERROR,
+                        "Error in %s near Line %d.\n", filename, lno);
+                    PIHMexit (EXIT_FAILURE);
                 }
 
                 NextLine (op_file, cmdstr, &lno);
@@ -641,9 +644,12 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                     'i', filename, lno);
                 if (planting->clippingEnd > 366 || planting->clippingEnd < 1)
                 {
-                    printf
-                        ("ERROR: Please specify valid DOY for clipping end date!\n");
-                    exit (1);
+                    PIHMprintf (VL_ERROR,
+                        "Error: Please specify valid DOY "
+                        "for clipping end date.\n");
+                    PIHMprintf (VL_ERROR,
+                        "Error in %s near Line %d.\n", filename, lno);
+                    PIHMexit (EXIT_FAILURE);
                 }
 
                 planting->status = 0;
@@ -660,10 +666,11 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 }
                 if (k >= croptbl->number)
                 {
-                    printf
-                        ("ERROR: Cannot find the plant description of %s, please check your input file\n",
+                    PIHMprintf (VL_ERROR,
+                        "Error finding description of %s.\n",
                         planting->cropName);
-                    exit (1);
+                    PIHMprintf (VL_ERROR, "Please check %s.\n", filename);
+                    PIHMexit (EXIT_FAILURE);
                 }
             }
         }
@@ -716,9 +723,12 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                     strcasecmp (tillage->cropNameT, "All") != 0 &&
                     !CropExist (tillage->cropNameT, croptbl))
                 {
-                    printf ("ERROR: Crop name %s not recognized!\n",
+                    PIHMprintf (VL_ERROR,
+                        "Error finding crop description of %s.\n",
                         tillage->cropNameT);
-                    exit (1);
+                    PIHMprintf (VL_ERROR,
+                        "Error in %s near Line %d.\n", filename, lno);
+                    PIHMexit (EXIT_FAILURE);
                 }
 
                 NextLine (op_file, cmdstr, &lno);
@@ -840,9 +850,12 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 }
                 else
                 {
-                    printf
-                        ("ERROR: Added fertilization fractions must be <= 1\n");
-                    exit (1);
+                    PIHMprintf (VL_ERROR,
+                        "Error: Added fertilization fractions"
+                        "must be <= 1.\n");
+                    PIHMprintf (VL_ERROR,
+                        "Please check %s.\n", filename);
+                    PIHMexit (EXIT_FAILURE);
                 }
             }
         }
@@ -934,10 +947,11 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 }
                 if (k >= nautoirrg)
                 {
-                    printf
-                        ("ERROR: Cannot find the description of auto irrigation for %s!\n",
-                        cropmgmt->plantingOrder[j].cropName);
-                    exit (1);
+                    PIHMprintf (VL_ERROR,
+                        "Error finding the description of auto irrigation"
+                        "for %s!\n", cropmgmt->plantingOrder[j].cropName);
+                    PIHMprintf (VL_ERROR, "Please check %s.\n", filename);
+                    PIHMexit (EXIT_FAILURE);
                 }
             }
             else

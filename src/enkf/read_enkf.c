@@ -16,10 +16,7 @@ void EnKFRead (enkf_struct ens)
     sprintf (fn, "input/%s/%s.enkf", project, project);
     enkf_file = fopen (fn, "r");
     CheckFile (enkf_file, fn);
-    if (verbose_mode)
-    {
-        printf (" Reading %s\n", fn);
-    }
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
 
     /*
      * Read .enkf file
@@ -48,6 +45,7 @@ void EnKFRead (enkf_struct ens)
     n = CountLine (enkf_file, cmdstr, 1, "NUM_OBS");
 
     /* Rewind to read */
+    FindLine (enkf_file, "BOF", &lno, fn);
     FindLine (enkf_file, "PARAMETER", &lno, fn);
 
     /* Start reading EnKF file */

@@ -17,10 +17,7 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
      */
     lsm_file = fopen (filename, "r");
     CheckFile (lsm_file, filename);
-    if (verbose_mode)
-    {
-        printf (" Reading %s\n", filename);
-    }
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
 
     /*
      * Start reading lsm_file
@@ -37,11 +34,12 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
     ReadKeyword (cmdstr, "NSOIL", &ctrl->nsoil, 'i', filename, lno);
     if (ctrl->nsoil > MAXLYR - 1)
     {
-        fprintf (stderr, "Error reading %s.\n", filename);
-        fprintf (stderr,
+        PIHMprintf (VL_ERROR,
             "The number of soil layers should not be larger than %d.\n",
             MAXLYR - 1);
-        PIHMExit (EXIT_FAILURE);
+        PIHMprintf (VL_ERROR,
+            "Error in %s near Line %d.\n", filename, lno);
+        PIHMexit (EXIT_FAILURE);
     }
 
     NextLine (lsm_file, cmdstr, &lno);
@@ -54,9 +52,11 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
             &bytes_now);
         if (match != 1)
         {
-            fprintf (stderr, "Error reading %s.\n", filename);
-            fprintf (stderr, "Please check SLDPTH_DATA.\n");
-            PIHMExit (EXIT_FAILURE);
+            PIHMprintf (VL_ERROR,
+                "Error reading soil layer depths.\n");
+            PIHMprintf (VL_ERROR,
+                "Error in %s near Line %d.\n", filename, lno);
+            PIHMexit (EXIT_FAILURE);
         }
         bytes_consumed += bytes_now;
     }
@@ -155,10 +155,7 @@ void ReadRad (char *filename, forc_struct *forc)
 
     rad_file = fopen (filename, "r");
     CheckFile (rad_file, filename);
-    if (verbose_mode)
-    {
-        printf (" Reading %s\n", filename);
-    }
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
 
     FindLine (rad_file, "BOF", &lno, filename);
 
@@ -166,10 +163,11 @@ void ReadRad (char *filename, forc_struct *forc)
 
     if (forc->nrad != forc->nmeteo)
     {
-        fprintf (stderr, "Error reading %s.\n", filename);
-        fprintf (stderr,
-            "The number of radiation forcing time series should be the same as the number of meteorlogical forcing time series.\n");
-        PIHMExit (EXIT_FAILURE);
+        PIHMprintf (VL_ERROR,
+            "The number of radiation forcing time series should be the same "
+            "as the number of meteorlogical forcing time series.\n");
+        PIHMprintf (VL_ERROR, "Error in %s.\n", filename);
+        PIHMexit (EXIT_FAILURE);
     }
 
     forc->rad = (tsdata_struct *)malloc (forc->nrad * sizeof (tsdata_struct));
@@ -183,11 +181,12 @@ void ReadRad (char *filename, forc_struct *forc)
 
         if (i != index - 1)
         {
-            fprintf (stderr, "Error reading %s.\n", filename);
-            fprintf (stderr,
-                "Cannot read information of the %dth forcing series.\n",
+            PIHMprintf (VL_ERROR,
+                "Error reading the %dth radiation forcing time series.\n",
                 i + 1);
-            PIHMExit (EXIT_FAILURE);
+            PIHMprintf (VL_ERROR,
+                "Error in %s near Line %d.\n", filename, lno);
+            PIHMexit (EXIT_FAILURE);
         }
 
         /* Skip header lines */

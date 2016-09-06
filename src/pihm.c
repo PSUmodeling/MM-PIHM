@@ -45,8 +45,8 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle
     cvode_mem = CVodeCreate (CV_BDF, CV_NEWTON);
     if (cvode_mem == NULL)
     {
-        fprintf (stderr, "Error in allocating memory for solver.\n");
-        PIHMExit (EXIT_FAILURE);
+        PIHMprintf (VL_ERROR, "Error in allocating memory for solver.\n");
+        PIHMexit (EXIT_FAILURE);
     }
 
     /* Create output structures */
@@ -61,10 +61,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle
         InitOutputFile (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii);
     }
 
-    if (verbose_mode)
-    {
-        printf ("\n\nSolving ODE system ... \n\n");
-    }
+    PIHMprintf (VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 
     /* Set solver parameters */
     SetCVodeParam (pihm, cvode_mem, CV_Y);
@@ -217,14 +214,14 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
 
     if (verbose_mode)
     {
-        printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
+        PIHMprintf (VL_VERBOSE, " Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
             timestamp->tm_year + 1900, timestamp->tm_mon + 1,
             timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, *t);
     }
 #ifndef _ENKF_
     else if (rawtime % 3600 == 0)
     {
-        printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
+        PIHMprintf (VL_NORMAL, " Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
             timestamp->tm_year + 1900, timestamp->tm_mon + 1,
             timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
     }

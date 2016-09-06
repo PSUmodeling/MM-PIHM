@@ -78,8 +78,11 @@ double          MonthlyRL (int, int);
 void            NextLine (FILE *, char *, int *);
 double          OverlandFlow (double, double, double, double, double);
 double          OLFEleToRiv (double, double, double, double, double, double);
-#define PIHMExit(i)  _PIHMExit(__FILE__, __LINE__, __FUNCTION__, i)
-void            _PIHMExit (const char *, int, const char *, int);
+#define PIHMexit(...)  _PIHMexit(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+void            _PIHMexit (const char *, int, const char *, int);
+#define PIHMprintf(...)   _PIHMprintf(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+void            _PIHMprintf (const char *, int, const char *, int,
+    const char *, ...);
 void            PIHMRun (char *, char *, int
 #ifdef _ENKF_
     , int, int, int, double *
@@ -276,6 +279,8 @@ void            WriteParamOutput (int, enkf_struct, int, char *);
 #endif
 
 #ifdef _CYCLES_
+#define Cycles_printf   PIHMprintf
+#define Cycles_exit     PIHMexit
 void            DailyCycles (int, pihm_struct);
 void            FirstDOY (int *, int, int, soilc_struct *, residue_struct *,
     const soil_struct *);

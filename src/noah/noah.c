@@ -262,9 +262,10 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
         ps->sndens = ws->sneqv / ps->snowh;
         if (ps->sndens > 1.0)
         {
-            fprintf (stderr,
-                "Error: Physical snow depth is less than snow water equiv.\n");
-            PIHMExit (EXIT_FAILURE);
+            PIHMprintf (VL_ERROR,
+                "Error: Physical snow depth is less than "
+                "snow water equiv.\n");
+            PIHMexit (EXIT_FAILURE);
         }
         ps->sncond = CSnow (ps->sndens);
     }
@@ -3242,10 +3243,8 @@ double Pslhs (double zz)
     double          x;
 
     rfac = ric / (fhneu * rfc * rfc);
-    //  x = zz * rfac -2.076* (1. -1./ (zz +1.));
     x = zz * rfac - 2.076 * (1. - exp (-1.2 * zz));
-    printf ("now: %lf, before: %lf\n", x,
-        zz * rfac - 2.076 * (1. - 1. / (zz + 1.)));
+
     return x;
 }
 

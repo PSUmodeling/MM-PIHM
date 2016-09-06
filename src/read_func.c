@@ -75,9 +75,9 @@ void FindLine (FILE *fid, char *token, int *lno, const char *filename)
 
     if (0 == success)
     {
-        fprintf (stderr, "Cannot find keyword %s.\n", token);
-        fprintf (stderr, "Error reading %s.\n", filename);
-        PIHMExit (EXIT_FAILURE);
+        PIHMprintf (VL_ERROR, "Cannot find required keyword %s.\n", token);
+        PIHMprintf (VL_ERROR, "Error reading %s.\n", filename);
+        PIHMexit (EXIT_FAILURE);
     }
 }
 
@@ -154,8 +154,8 @@ void CheckFile (FILE *fid, char *fn)
 {
     if (NULL == fid)
     {
-        fprintf (stderr, "Error opening %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
+        PIHMprintf (VL_ERROR, "Error opening %s.\n", fn);
+        PIHMexit (EXIT_FAILURE);
     }
 }
 
@@ -238,7 +238,7 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
             match = sscanf (buffer, "%s %lf", optstr, (double *)value);
             if (match != 2 || strcasecmp (keyword, optstr) != 0)
             {
-                fprintf (stderr, "Expected keyword \"%s\", "
+                PIHMprintf (VL_ERROR, "Expected keyword \"%s\", "
                     "detected keyword \"%s\".\n", keyword, optstr);
                 success = 0;
             }
@@ -247,7 +247,7 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
             match = sscanf (buffer, "%s %d", optstr, (int *)value);
             if (match != 2 || strcasecmp (keyword, optstr) != 0)
             {
-                fprintf (stderr, "Expected keyword \"%s\", "
+                PIHMprintf (VL_ERROR, "Expected keyword \"%s\", "
                     "detected keyword \"%s\".\n", keyword, optstr);
                 success = 0;
             }
@@ -256,7 +256,7 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
             match = sscanf (buffer, "%s %[^\n]", optstr, (char *)value);
             if (match != 2 || strcasecmp (keyword, optstr) != 0)
             {
-                fprintf (stderr, "Expected keyword \"%s\", "
+                PIHMprintf (VL_ERROR, "Expected keyword \"%s\", "
                     "detected keyword \"%s\".\n", keyword, optstr);
                 success = 0;
             }
@@ -270,7 +270,7 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
             timeinfo->tm_sec = 0;
             if (match != 6 || strcasecmp (keyword, optstr) != 0)
             {
-                fprintf (stderr, "Expected keyword \"%s\", "
+                PIHMprintf (VL_ERROR, "Expected keyword \"%s\", "
                     "detected keyword \"%s\".\n", keyword, optstr);
                 success = 0;
             }
@@ -284,15 +284,15 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
             free (timeinfo);
             break;
         default:
-            fprintf (stderr, "Error: Keyword type \'%c\' is not defined.\n",
-                type);
-            PIHMExit (EXIT_FAILURE);
+            PIHMprintf (VL_ERROR,
+                "Error: Keyword type \'%c\' is not defined.\n", type);
+            PIHMexit (EXIT_FAILURE);
     }
 
     if (0 == success)
     {
-        fprintf (stderr, "Error reading %s near Line %d.\n", filename, lno);
-        PIHMExit (EXIT_FAILURE);
+        PIHMprintf (VL_ERROR, "Error reading %s near Line %d.\n", filename, lno);
+        PIHMexit (EXIT_FAILURE);
     }
 
     return (success);
