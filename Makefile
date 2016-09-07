@@ -137,10 +137,16 @@ ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
   CC = mpicc
   SFLAGS = -D_PIHM_ -D_NOAH_ -D_ENKF_
   MODULE_SRCS_ = \
+	enkf/cov_inflt.c\
+	enkf/da.c\
 	enkf/enkf.c\
 	enkf/enkf_func.c\
+	enkf/enkf_init.c\
+	enkf/enkf_print.c\
+	enkf/enkf_read.c\
 	enkf/obs_oper.c\
-  	enkf/read_enkf.c\
+	enkf/perturb.c\
+	enkf/pihm_paral.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\
 	noah/lsm_read.c\
@@ -164,12 +170,13 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	cycles/CropProcess.c\
 	cycles/CropThermalTime.c\
 	cycles/CropTranspiration.c\
-  	cycles/cycles_read.c\
-	cycles/cycles_init.c\
 	cycles/cycles_func.c\
+	cycles/cycles_init.c\
+  	cycles/cycles_read.c\
 	cycles/DailyOperation.c\
 	cycles/Fertilization.c\
 	cycles/FieldOperation.c\
+	cycles/Irrigation.c\
 	cycles/Residue.c\
 	cycles/Soil.c\
 	cycles/SoilCarbon.c\
@@ -177,7 +184,6 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	cycles/SoilNitrogen.c\
 	cycles/SoilSolute.c\
 	cycles/Tillage.c\
-	cycles/Irrigation.c\
 	noah/daily.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\

@@ -1,5 +1,57 @@
 #include "pihm.h"
 
+void ParseCmdLineParam (int argc, char *argv[], int *spec_output_mode,
+    char *outputdir)
+{
+    int             c;
+
+    while ((c = getopt (argc, argv, "o:dvl")) != -1)
+    {
+        switch (c)
+        {
+            case 'o':
+                /* Specify output directory */
+                sprintf (outputdir, "output/%s/", optarg);
+                *spec_output_mode = 1;
+                printf
+                    ("Output directory is specified as \"%s\".\n", outputdir);
+                break;
+            case 'd':
+                /* Debug mode */
+                debug_mode = 1;
+                printf ("Debug mode turned on.\n");
+                break;
+            case 'v':
+                /* Verbose mode */
+                verbose_mode = 1;
+                printf ("Verbose mode turned on.\n");
+                break;
+            case '?':
+                printf ("Option not recognisable %s\n", argv[optind]);
+                break;
+            default:
+                break;
+        }
+
+        fflush (stdout);
+    }
+
+    if (optind >= argc)
+    {
+        fprintf (stderr, "Error:You must specify the name of project!\n");
+        fprintf (stderr,
+            "Usage: ./pihm [-o output_dir] [-d] [-v] <project name>\n");
+        fprintf (stderr, "\t-o Specify output directory.\n");
+        fprintf (stderr, "\t-v Verbose mode\n");
+        fprintf (stderr, "\t-d Debug mode\n");
+        PIHMexit (EXIT_FAILURE);
+    }
+    else
+    {
+        strcpy (project, argv[optind]);
+    }
+}
+
 void CreateOutputDir (char *outputdir, int spec_output_mode)
 {
     time_t          rawtime;
@@ -69,6 +121,56 @@ void BKInput (char *simulation, char *outputdir)
             simulation);
         system (system_cmd);
     }
+}
+
+void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
+{
+    int             flag;
+
+    flag = CVodeSetFdata (cvode_mem, pihm);
+    flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
+    flag = CVodeSetStabLimDet (cvode_mem, TRUE);
+    flag = CVodeSetMaxStep (cvode_mem, (realtype) pihm->ctrl.maxstep);
+    flag = CVodeMalloc (cvode_mem, Hydrol, (realtype) pihm->ctrl.starttime,
+        CV_Y, CV_SS, (realtype) pihm->ctrl.reltol, &pihm->ctrl.abstol);
+    flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
+}
+
+void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
+    N_Vector CV_Y)
+{
+    realtype        solvert;
+    realtype        cvode_val;
+    struct tm      *timestamp;
+    time_t          rawtime;
+    int             flag;
+
+    solvert = (realtype) (*t);
+
+    flag = CVodeSetMaxNumSteps (cvode_mem, (long int)(stepsize * 20));
+    flag = CVodeSetStopTime (cvode_mem, (realtype) nextptr);
+    flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert,
+        CV_NORMAL_TSTOP);
+    flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
+
+    *t = (int)solvert;
+    rawtime = (time_t) (*t);
+    timestamp = gmtime (&rawtime);
+
+    if (verbose_mode)
+    {
+        PIHMprintf (VL_VERBOSE, " Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
+            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, *t);
+    }
+#ifndef _ENKF_
+    else if (rawtime % 3600 == 0)
+    {
+        PIHMprintf (VL_NORMAL, " Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
+            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+    }
+#endif
 }
 
 void _PIHMexit (const char *fn, int lineno, const char *func, int error)

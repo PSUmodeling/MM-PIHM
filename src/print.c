@@ -1,5 +1,36 @@
 #include "pihm.h"
 
+void AsciiArt ()
+{
+    PIHMprintf (VL_NORMAL, "\n");
+    PIHMprintf (VL_NORMAL, "\t\t########  #### ##     ## ##     ##\n");
+    PIHMprintf (VL_NORMAL, "\t\t##     ##  ##  ##     ## ###   ###\n");
+    PIHMprintf (VL_NORMAL, "\t\t##     ##  ##  ##     ## #### ####\n");
+    PIHMprintf (VL_NORMAL, "\t\t########   ##  ######### ## ### ##\n");
+    PIHMprintf (VL_NORMAL, "\t\t##         ##  ##     ## ##     ##\n");
+    PIHMprintf (VL_NORMAL, "\t\t##         ##  ##     ## ##     ##\n");
+    PIHMprintf (VL_NORMAL, "\t\t##        #### ##     ## ##     ##\n");
+    PIHMprintf (VL_NORMAL, "\n\t    The Penn State Integrated Hydrologic Model\n\n");
+
+#ifdef _NOAH_
+    PIHMprintf (VL_NORMAL, "\t    * Land surface module turned on.\n");
+#endif
+#ifdef _RT_
+    PIHMprintf (VL_NORMAL, "\t       * Reactive transport module turned on.\n");
+#endif
+#ifdef _BGC_
+    PIHMprintf (VL_NORMAL, "\t    * Biogeochemistry module turned on.\n");
+#endif
+#ifdef _ENKF_
+    PIHMprintf (VL_NORMAL, "\t    * Ensemble Kalman filter turned on.\n");
+#endif
+#ifdef _CYCLES_
+    PIHMprintf (VL_NORMAL, "\t    * Crop module turned on.\n");
+#endif
+
+    PIHMprintf (VL_NORMAL, "\n");
+}
+
 void _PIHMprintf (const char *fn, int lineno, const char *func, int verbosity,
     const char *fmt, ...)
 {

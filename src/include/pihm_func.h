@@ -22,6 +22,7 @@ void            ApplyForcing (forc_struct *, elem_struct *, int,
 void            ApplyLAI (forc_struct *, elem_struct *, int, int);
 void            ApplyMeteoForc (forc_struct *, elem_struct *, int, int);
 void            ApplyRiverBC (forc_struct *, river_struct *, int, int);
+void            AsciiArt ();
 double          AvgKV (double, double, double, double, double, double, double,
     double, double);
 double          AvgYsfc (double, double, double);
@@ -78,12 +79,13 @@ double          MonthlyRL (int, int);
 void            NextLine (FILE *, char *, int *);
 double          OverlandFlow (double, double, double, double, double);
 double          OLFEleToRiv (double, double, double, double, double, double);
+void            ParseCmdLineParam (int, char *[], int *, char *);
 #define PIHMexit(...)  _PIHMexit(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 void            _PIHMexit (const char *, int, const char *, int);
 #define PIHMprintf(...)   _PIHMprintf(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 void            _PIHMprintf (const char *, int, const char *, int,
     const char *, ...);
-void            PIHMRun (char *, char *, int
+void            PIHM (char *, char *, int
 #ifdef _ENKF_
     , int, int, int, double *
 #endif
@@ -249,9 +251,8 @@ void            Calib2Mbr (calib_struct, double *);
 void            COSMOSOper (obs_struct *, var_struct *, pihm_struct);
 void            CovInflt (enkf_struct, enkf_struct);
 void            DisOper (obs_struct *, var_struct *, pihm_struct);
-void            EnKF (enkf_struct, int, char *);
-void            EnKFCore (double *, double, double, double *, int);
-void            EnKFRead (enkf_struct);
+void            EnKF (double *, double, double, double *, int);
+void            EnKFDA (enkf_struct, int, char *);
 int             FindVar (var_struct *, char *);
 void            FreeEns (enkf_struct);
 void            GenRandNum (int, int, double **, double, double);
@@ -264,12 +265,14 @@ void            JobRecv (int *, int *, int *, double *, int);
 void            LandSfcTmpOper (obs_struct *, var_struct *, pihm_struct);
 void            MapVar (var_struct *, int, int);
 void            Mbr2Cal (calib_struct *, const double *);
+void            PauseParal (int);
+void            ReadEnKF (enkf_struct);
 void            ReadFcst (enkf_struct, obs_struct, double *);
 void            ReadObs (int, char *, double *, double *);
 void            ReadVar (char *, enkf_struct, int);
-void            Parallel (int, int, char *);
 void            Perturb (enkf_struct, char *);
 double          Randn ();
+void            PIHMParal (int, int, char *);
 void            PrintEnKFStatus (int, int);
 void            UpdAnlys (enkf_struct, double, double, double *);
 void            WriteCalFile (enkf_struct, char *);

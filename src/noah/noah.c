@@ -3278,19 +3278,3 @@ double Psphs (double yy)
     x = 5. * yy;
     return x;
 }
-
-//double EFFKV (double ksatfunc, double elemsatn, int status, double mackv,
-//    double kv, double areaf)
-//{
-//    //return (kv * ksatfunc);
-//    if (status == MTX_CTRL)
-//        return kv * ksatfunc;
-//    else
-//    {
-//        if (status == APP_CTRL)
-//            return (mackv * areaf * ksatfunc + kv * (1. -
-//                        areaf) * ksatfunc);
-//        else
-//            return (mackv * areaf + kv * (1. - areaf) * ksatfunc);
-//    }
-//}

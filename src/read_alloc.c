@@ -1,11 +1,5 @@
 #include "pihm.h"
 
-void PihmFree (void **ptr)
-{
-    free (*ptr);
-    *ptr = NULL;
-}
-
 void ReadAlloc (char *simulation, pihm_struct pihm)
 {
     PIHMprintf (VL_VERBOSE, "\nRead input files:\n");
