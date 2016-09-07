@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void PIHMRun (char *simulation, char *outputdir, int first_cycle
+void PIHM (char *simulation, char *outputdir, int first_cycle
 #ifdef _ENKF_
     , int starttime, int endtime, int startmode, double *param
 #endif
@@ -45,14 +45,14 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle
     cvode_mem = CVodeCreate (CV_BDF, CV_NEWTON);
     if (cvode_mem == NULL)
     {
-        fprintf (stderr, "Error in allocating memory for solver.\n");
-        PIHMExit (EXIT_FAILURE);
+        PIHMprintf (VL_ERROR, "Error in allocating memory for solver.\n");
+        PIHMexit (EXIT_FAILURE);
     }
 
     /* Create output structures */
     MapOutput (simulation, pihm, outputdir);
 
-    if (first_cycle == 1)
+    if (first_cycle)
     {
         /* Backup input files */
         BKInput (simulation, outputdir);
@@ -61,10 +61,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle
         InitOutputFile (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii);
     }
 
-    if (verbose_mode)
-    {
-        printf ("\n\nSolving ODE system ... \n\n");
-    }
+    PIHMprintf (VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 
     /* Set solver parameters */
     SetCVodeParam (pihm, cvode_mem, CV_Y);
@@ -106,14 +103,12 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle
          */
         Summary (pihm, CV_Y, (double)pihm->ctrl.stepsize);
 
-#ifdef _DAILY_
-        DailyVar (t, pihm->ctrl.starttime, pihm);
-#endif
-
         /*
          * Daily timestep modules
          */
 #ifdef _DAILY_
+        DailyVar (t, pihm->ctrl.starttime, pihm);
+
         if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
         {
 #ifdef _CYCLES_
@@ -139,6 +134,7 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle
         SoluteTransport (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
             (double)pihm->ctrl.stepsize);
 #endif
+
         /*
          * Print outputs
          */
@@ -179,54 +175,4 @@ void PIHMRun (char *simulation, char *outputdir, int first_cycle
 
     FreeData (pihm);
     free (pihm);
-}
-
-void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
-{
-    int             flag;
-
-    flag = CVodeSetFdata (cvode_mem, pihm);
-    flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
-    flag = CVodeSetStabLimDet (cvode_mem, TRUE);
-    flag = CVodeSetMaxStep (cvode_mem, (realtype) pihm->ctrl.maxstep);
-    flag = CVodeMalloc (cvode_mem, Hydrol, (realtype) pihm->ctrl.starttime,
-        CV_Y, CV_SS, (realtype) pihm->ctrl.reltol, &pihm->ctrl.abstol);
-    flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
-}
-
-void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
-    N_Vector CV_Y)
-{
-    realtype        solvert;
-    realtype        cvode_val;
-    struct tm      *timestamp;
-    time_t          rawtime;
-    int             flag;
-
-    solvert = (realtype) (*t);
-
-    flag = CVodeSetMaxNumSteps (cvode_mem, (long int)(stepsize * 20));
-    flag = CVodeSetStopTime (cvode_mem, (realtype) nextptr);
-    flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert,
-        CV_NORMAL_TSTOP);
-    flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
-
-    *t = (int)solvert;
-    rawtime = (time_t) (*t);
-    timestamp = gmtime (&rawtime);
-
-    if (verbose_mode)
-    {
-        printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
-            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, *t);
-    }
-#ifndef _ENKF_
-    else if (rawtime % 3600 == 0)
-    {
-        printf (" Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
-            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-    }
-#endif
 }

@@ -1,5 +1,72 @@
 #include "pihm.h"
 
+double FieldCapacity (double alpha, double beta, double kv, double smcmax,
+    double smcmin)
+{
+    /*
+     * Solve field capacity using Newton's method
+     * Field capacity is defined as (Chen and Dudhia 2001 MWR)
+     * Theta_ref = Theta_s * (1 / 3 + 2 / 3 * satn_ref)
+     * where satn_ref is the soil saturation ratio when the soil hydraulic
+     * conductivity reaches 5.70E-9 m/s
+     */
+    double          satn;
+    double          satnk;
+    double          denom;
+    double          df;
+    double          dsatn;
+    double          mx;
+    double          ftheta;
+    int             n;
+    double          smcref;
+    const double    KFC = 5.79E-9;
+    const double    ERROR = 1.0E-3;
+
+    mx = 1.0 - 1.0 / beta;
+
+    n = 0;
+
+    satn = 0.75;
+
+    while (n < 10 && dsatn > ERROR)
+    {
+        n++;
+
+        df = KrFunc (alpha, beta, satn) - KFC / kv;
+
+        ftheta = 1.0 - pow (satn, 1.0 / mx);
+
+        denom = 0.5 * pow (satn, -0.5) * pow (1.0 - pow (ftheta, mx), 2.0) +
+            2.0 * pow (satn, 1.0 / mx - 0.5) * (pow (ftheta,
+                mx - 1.0) - pow (ftheta, 2.0 * mx - 1.0));
+
+        satnk = satn - df / denom;
+        satnk = (satnk > 1.0 - 1.0E-3) ? 1.0 - 1.0E-3 : satnk;
+        satnk = (satnk < SATMIN) ? SATMIN : satnk;
+
+        dsatn = fabs (satnk - satn);
+
+        satn = satnk;
+    }
+
+    if (dsatn > ERROR)
+    {
+        satn = 0.75;
+    }
+
+    smcref = (1.0 / 3.0 + 2.0 / 3.0 * satn) * (smcmax - smcmin) + smcmin;
+
+    return (smcref);
+}
+
+double WiltingPoint (double smcmax, double smcmin, double alpha, double beta)
+{
+    const double    PSIW = 200.0;
+
+    return (0.5 * (smcmax - smcmin) * pow (1.0 / (1.0 + pow (PSIW * alpha,
+                    beta)), 1.0 - 1.0 / beta) + smcmin);
+}
+
 int SoilTex (double silt, double clay)
 {
     /*
@@ -15,21 +82,24 @@ int SoilTex (double silt, double clay)
 
     if (silt < 0.0 || silt > 1.0)
     {
-        fprintf (stderr, "Error: Silt percentage (%lf) out of range.\n",
-            silt * 100.0);
-        PIHMExit (EXIT_FAILURE);
+        PIHMprintf (VL_ERROR,
+            "Error: Silt percentage (%lf) out of range.\n", silt * 100.0);
+        PIHMprintf (VL_ERROR, "Please check your soil input file.\n");
+        PIHMexit (EXIT_FAILURE);
     }
     if (clay < 0.0 || clay > 1.0)
     {
-        fprintf (stderr, "Error: Clay percentage (%lf) out of range.\n",
-            clay * 100.0);
-        PIHMExit (EXIT_FAILURE);
+        PIHMprintf (VL_ERROR,
+            "Error: Clay percentage (%lf) out of range.\n", clay * 100.0);
+        PIHMprintf (VL_ERROR, "Please check your soil input file.\n");
+        PIHMexit (EXIT_FAILURE);
     }
     if (sand < 0.0 || sand > 1.0)
     {
-        fprintf (stderr, "Error: Sand percentage (%lf) out of range.\n",
-            sand * 100.0);
-        PIHMExit (EXIT_FAILURE);
+        PIHMprintf (VL_ERROR,
+            "Error: Sand percentage (%lf) out of range.\n", sand * 100.0);
+        PIHMprintf (VL_ERROR, "Please check your soil input file.\n");
+        PIHMexit (EXIT_FAILURE);
     }
 
     if (silt + 1.5 * clay < 0.15)
@@ -86,7 +156,9 @@ int SoilTex (double silt, double clay)
     }
     else
     {
-        printf ("Soil texture not recognized!\n");
+        PIHMprintf (VL_ERROR, "Error: Soil texture %d not defined.\n",
+            texture);
+        PIHMexit (EXIT_FAILURE);
     }
 
     return (texture);
@@ -135,9 +207,9 @@ double Qtz (int texture)
             qtz = 0.25;
             break;
         default:
-            fprintf (stderr, "Error: Soil type (%d) not recognized.\n",
+            PIHMprintf (VL_ERROR, "Error: Soil texture %d not defined.\n",
                 texture);
-            PIHMExit (EXIT_FAILURE);
+            PIHMexit (EXIT_FAILURE);
             break;
     }
 

@@ -165,21 +165,17 @@ void IntrplForcing (tsdata_struct ts, int t, int nvrbl)
 
     if (t <= ts.ftime[0])
     {
-        fprintf (stderr, "Error finding forcing for current time step.\n");
-        PIHMExit (EXIT_FAILURE);
-        //for (j = 0; j < nvrbl; j++)
-        //{
-        //    ts.value[j] = ts.data[0][j];
-        //}
+        PIHMprintf (VL_ERROR,
+            "Error finding forcing for current time step.\n");
+        PIHMprintf (VL_ERROR, "Please check your forcing file.\n");
+        PIHMexit (EXIT_FAILURE);
     }
     else if (t >= ts.ftime[ts.length - 1])
     {
-        fprintf (stderr, "Error finding forcing for current time step.\n");
-        PIHMExit (EXIT_FAILURE);
-        //for (j = 0; j < nvrbl; j++)
-        //{
-        //    ts.value[j] = ts.data[ts.length - 1][j];
-        //}
+        PIHMprintf (VL_ERROR,
+            "Error finding forcing for current time step.\n");
+        PIHMprintf (VL_ERROR, "Please check your forcing file.\n");
+        PIHMexit (EXIT_FAILURE);
     }
     else
     {

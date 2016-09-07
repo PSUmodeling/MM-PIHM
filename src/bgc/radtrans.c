@@ -53,9 +53,10 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
         ps->plaishade = ps->proj_lai - ps->plaisun;
         if (ps->plaishade < 0.0)
         {
-            printf ("FATAL ERROR: Negative plaishade\n");
-            printf ("LAI of shaded canopy = %lf\n", ps->plaishade);
-            exit (1);
+            PIHMprintf (VL_ERROR, "FATAL ERROR: Negative plaishade.\n");
+            PIHMprintf (VL_ERROR, "LAI of shaded canopy = %lf\n", 
+                ps->plaishade);
+            PIHMexit (EXIT_FAILURE);
         }
 
         /* calculate the projected specific leaf area for sunlit and 
@@ -75,9 +76,9 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
     }
     else
     {
-        printf ("FATAL ERROR: Negative leaf carbon pool\n");
-        printf ("leafc = %.7e\n", cs->leafc);
-        exit (1);
+        PIHMprintf (VL_ERROR, "FATAL ERROR: Negative leaf carbon pool.\n");
+        PIHMprintf (VL_ERROR, "leafc = %.7e\n", cs->leafc);
+        PIHMexit (EXIT_FAILURE);
     }
 
     k = epc->ext_coef;

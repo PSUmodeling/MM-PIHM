@@ -49,17 +49,21 @@ void CheckCarbonBalance (cstate_struct *cs, double *old_balance,
     {
         if (fabs (*old_balance - balance) > 1e-8)
         {
-            printf ("FATAL ERRROR: carbon balance error:\n");
-            printf ("Balance from previous day = %lf\n", *old_balance);
-            printf ("Balance from current day  = %lf\n", balance);
-            printf ("Difference (previous - current) = %lf\n",
+            PIHMprintf (VL_ERROR, "FATAL ERRROR: carbon balance error:\n");
+            PIHMprintf (VL_ERROR, "Balance from previous day = %lf\n",
+                *old_balance);
+            PIHMprintf (VL_ERROR, "Balance from current day  = %lf\n",
+                balance);
+            PIHMprintf (VL_ERROR, "Difference (previous - current) = %lf\n",
                 *old_balance - balance);
-            printf ("Components of current balance:\n");
-            printf ("Sources (summed over entire run)  = %lf\n", in);
-            printf ("Sinks   (summed over entire run)  = %lf\n", out);
-            printf ("Storage (current state variables) = %lf\n", store);
-            printf ("Exiting...\n");
-            exit (1);
+            PIHMprintf (VL_ERROR, "Components of current balance:\n");
+            PIHMprintf (VL_ERROR,
+                "Sources (summed over entire run)  = %lf\n", in);
+            PIHMprintf (VL_ERROR,
+                "Sinks   (summed over entire run)  = %lf\n", out);
+            PIHMprintf (VL_ERROR,
+                "Storage (current state variables) = %lf\n", store);
+            PIHMexit (EXIT_FAILURE);
         }
     }
     *old_balance = balance;
@@ -97,17 +101,21 @@ void CheckNitrogenBalance (nstate_struct *ns, double *old_balance,
     {
         if (fabs (*old_balance - balance) > 1e-8)
         {
-            printf ("FATAL ERRROR: nitrogen balance error:\n");
-            printf ("Balance from previous day = %lf\n", *old_balance);
-            printf ("Balance from current day  = %lf\n", balance);
-            printf ("Difference (previous - current) = %lf\n",
+            PIHMprintf (VL_ERROR, "FATAL ERRROR: carbon balance error:\n");
+            PIHMprintf (VL_ERROR, "Balance from previous day = %lf\n",
+                *old_balance);
+            PIHMprintf (VL_ERROR, "Balance from current day  = %lf\n",
+                balance);
+            PIHMprintf (VL_ERROR, "Difference (previous - current) = %lf\n",
                 *old_balance - balance);
-            printf ("Components of current balance:\n");
-            printf ("Sources (summed over entire run)  = %lf\n", in);
-            printf ("Sinks   (summed over entire run)  = %lf\n", out);
-            printf ("Storage (current state variables) = %lf\n", store);
-            printf ("Exiting...\n");
-            exit (1);
+            PIHMprintf (VL_ERROR, "Components of current balance:\n");
+            PIHMprintf (VL_ERROR,
+                "Sources (summed over entire run)  = %lf\n", in);
+            PIHMprintf (VL_ERROR,
+                "Sinks   (summed over entire run)  = %lf\n", out);
+            PIHMprintf (VL_ERROR,
+                "Storage (current state variables) = %lf\n", store);
+            PIHMexit (EXIT_FAILURE);
         }
     }
     *old_balance = balance;

@@ -386,16 +386,16 @@ void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
             elem[i].topo.svf += 0.5 / PI * integrable * 10.0 / 180.0 * PI;
         }
 
-        if (verbose_mode)
+#ifdef _DEBUG_
+        PIHMprintf (VL_NORMAL,
+            "ele: slope = %lf, aspect = %lf, svf = %lf\t",
+            elem[i].topo.slope, elem[i].topo.aspect, elem[i].topo.svf);
+        for (ind = 0; ind < 36; ind++)
         {
-            printf ("ele: slope = %lf, aspect = %lf, svf = %lf\t",
-                elem[i].topo.slope, elem[i].topo.aspect, elem[i].topo.svf);
-            for (ind = 0; ind < 36; ind++)
-            {
-                printf ("%lf\t", elem[i].topo.h_phi[ind]);
-            }
-            printf ("\n");
+            PIHMprintf (VL_NORMAL, "%lf\t", elem[i].topo.h_phi[ind]);
         }
+        PIHMprintf (VL_NORMAL, "\n");
+#endif
     }
 }
 
@@ -481,8 +481,9 @@ void SunPos (int t, double latitude, double longitude, double elevation,
 
     if (spa_result != 0)
     {
-        fprintf (stderr, "Error spa error code: %d.\n", spa_result);
-        PIHMExit (EXIT_FAILURE);
+        PIHMprintf (VL_ERROR,
+            "Error with spa error code: %d.\n", spa_result);
+        PIHMexit (EXIT_FAILURE);
     }
 
     *azimuth = Mod ((360.0 + spa.azimuth180), 360.0);

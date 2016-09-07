@@ -22,6 +22,7 @@ void            ApplyForcing (forc_struct *, elem_struct *, int,
 void            ApplyLAI (forc_struct *, elem_struct *, int, int);
 void            ApplyMeteoForc (forc_struct *, elem_struct *, int, int);
 void            ApplyRiverBC (forc_struct *, river_struct *, int, int);
+void            AsciiArt ();
 double          AvgKV (double, double, double, double, double, double, double,
     double, double);
 double          AvgYsfc (double, double, double);
@@ -39,7 +40,7 @@ double          EffKinf (double, double, int, double, double, double);
 double          EffKV (double, double, int, double, double, double);
 double          EqWid (int, double, double);
 double          FieldCapacity (double, double, double, double, double);
-int             FindLine (FILE *, char *);
+void            FindLine (FILE *, char *, int *, const char *);
 void            FreeData (pihm_struct);
 int             Hydrol (realtype, N_Vector, N_Vector, void *);
 void            Initialize (pihm_struct, N_Vector);
@@ -75,12 +76,16 @@ void            MapOutput (char *, pihm_struct, char *);
 double          MonthlyLAI (int, int);
 double          MonthlyMF (int);
 double          MonthlyRL (int, int);
-void            NextLine (FILE *, char *);
+void            NextLine (FILE *, char *, int *);
 double          OverlandFlow (double, double, double, double, double);
 double          OLFEleToRiv (double, double, double, double, double, double);
-#define PIHMExit(i)  _PIHMExit(__FILE__, __LINE__, __FUNCTION__, i)
-void            _PIHMExit (const char *, int, const char *, int);
-void            PIHMRun (char *, char *, int
+void            ParseCmdLineParam (int, char *[], int *, char *);
+#define PIHMexit(...)  _PIHMexit(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+void            _PIHMexit (const char *, int, const char *, int);
+#define PIHMprintf(...)   _PIHMprintf(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+void            _PIHMprintf (const char *, int, const char *, int,
+    const char *, ...);
+void            PIHM (char *, char *, int
 #ifdef _ENKF_
     , int, int, int, double *
 #endif
@@ -101,7 +106,7 @@ void            ReadCalib (char *, calib_struct *);
 void            ReadForc (char *, forc_struct *);
 void            ReadGeol (char *, geoltbl_struct *);
 void            ReadIC (char *, elem_struct *, int, river_struct *, int);
-int             ReadKeyword (char *, char *, void *, char);
+int             ReadKeyword (char *, char *, void *, char, char *, int);
 void            ReadLAI (char *, forc_struct *, int, const atttbl_struct *);
 void            ReadLC (char *, lctbl_struct *);
 void            ReadMesh (char *, meshtbl_struct *);
@@ -246,9 +251,8 @@ void            Calib2Mbr (calib_struct, double *);
 void            COSMOSOper (obs_struct *, var_struct *, pihm_struct);
 void            CovInflt (enkf_struct, enkf_struct);
 void            DisOper (obs_struct *, var_struct *, pihm_struct);
-void            EnKF (enkf_struct, int, char *);
-void            EnKFCore (double *, double, double, double *, int);
-void            EnKFRead (char *, enkf_struct);
+void            EnKF (double *, double, double, double *, int);
+void            EnKFDA (enkf_struct, int, char *);
 int             FindVar (var_struct *, char *);
 void            FreeEns (enkf_struct);
 void            GenRandNum (int, int, double **, double, double);
@@ -261,12 +265,14 @@ void            JobRecv (int *, int *, int *, double *, int);
 void            LandSfcTmpOper (obs_struct *, var_struct *, pihm_struct);
 void            MapVar (var_struct *, int, int);
 void            Mbr2Cal (calib_struct *, const double *);
+void            PauseParal (int);
+void            ReadEnKF (enkf_struct);
 void            ReadFcst (enkf_struct, obs_struct, double *);
 void            ReadObs (int, char *, double *, double *);
-void            ReadVar (char *, char *, enkf_struct, int);
-void            Parallel (int, int, char *);
-void            Perturb (char *, enkf_struct, char *);
+void            ReadVar (char *, enkf_struct, int);
+void            Perturb (enkf_struct, char *);
 double          Randn ();
+void            PIHMParal (int, int, char *);
 void            PrintEnKFStatus (int, int);
 void            UpdAnlys (enkf_struct, double, double, double *);
 void            WriteCalFile (enkf_struct, char *);
@@ -276,6 +282,8 @@ void            WriteParamOutput (int, enkf_struct, int, char *);
 #endif
 
 #ifdef _CYCLES_
+#define Cycles_printf   PIHMprintf
+#define Cycles_exit     PIHMexit
 void            DailyCycles (int, pihm_struct);
 void            FirstDOY (int *, int, int, soilc_struct *, residue_struct *,
     const soil_struct *);
@@ -416,8 +424,7 @@ double          LinearEquilibriumSoluteMass (double, double, double, double,
 void            Elem2ElemSolTrnsp (const elem_struct *, const elem_struct *,
     double *, const double *, double, double *, double *);
 void            Elem2RiverSolTrnsp (const elem_struct *, const river_struct *,
-    double, double *, const double *, double, double, double *,
-    double *);
+    double, double *, const double *, double, double, double *, double *);
 void            River2RiverSolTrnsp (river_struct *, const river_struct *,
     double *, double, double, double, double *, double *);
 void            InitCropSV (crop_struct *);

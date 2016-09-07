@@ -4,10 +4,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
 {
     int             i, j;
 
-    if (verbose_mode)
-    {
-        printf ("\n\nInitialize data structure\n");
-    }
+    PIHMprintf (VL_VERBOSE, "\n\nInitialize data structure\n");
 
     pihm->elem = (elem_struct *)malloc (pihm->numele * sizeof (elem_struct));
     pihm->riv = (river_struct *)malloc (pihm->numriv * sizeof (river_struct));
@@ -189,9 +186,9 @@ void InitSoil (elem_struct *elem, int numele, soiltbl_struct soiltbl,
         elem[i].soil.porosity = elem[i].soil.smcmax - elem[i].soil.smcmin;
         if (elem[i].soil.porosity > 1.0 || elem[i].soil.porosity <= 0.0)
         {
-            fprintf (stderr,
-                "Error: Porosity value out of bounds for element %d", i + 1);
-            PIHMExit (EXIT_FAILURE);
+            PIHMprintf (VL_ERROR, 
+                "Error: Porosity value out of bounds for Element %d", i + 1);
+            PIHMexit (EXIT_FAILURE);
         }
         elem[i].soil.alpha = cal.alpha * soiltbl.alpha[soil_ind];
         elem[i].soil.beta = cal.beta * soiltbl.beta[soil_ind];
@@ -225,73 +222,6 @@ void InitSoil (elem_struct *elem, int numele, soiltbl_struct soiltbl,
         elem[i].soil.smcdry = elem[i].soil.smcwlt;
 #endif
     }
-}
-
-double FieldCapacity (double alpha, double beta, double kv, double smcmax,
-    double smcmin)
-{
-    /*
-     * Solve field capacity using Newton's method
-     * Field capacity is defined as (Chen and Dudhia 2001 MWR)
-     * Theta_ref = Theta_s * (1 / 3 + 2 / 3 * satn_ref)
-     * where satn_ref is the soil saturation ratio when the soil hydraulic
-     * conductivity reaches 5.70E-9 m/s
-     */
-    double          satn;
-    double          satnk;
-    double          denom;
-    double          df;
-    double          dsatn;
-    double          mx;
-    double          ftheta;
-    int             n;
-    double          smcref;
-    const double    KFC = 5.79E-9;
-    const double    ERROR = 1.0E-3;
-
-    mx = 1.0 - 1.0 / beta;
-
-    n = 0;
-
-    satn = 0.75;
-
-    while (n < 10 && dsatn > ERROR)
-    {
-        n++;
-
-        df = KrFunc (alpha, beta, satn) - KFC / kv;
-
-        ftheta = 1.0 - pow (satn, 1.0 / mx);
-
-        denom = 0.5 * pow (satn, -0.5) * pow (1.0 - pow (ftheta, mx), 2.0) +
-            2.0 * pow (satn, 1.0 / mx - 0.5) * (pow (ftheta,
-                mx - 1.0) - pow (ftheta, 2.0 * mx - 1.0));
-
-        satnk = satn - df / denom;
-        satnk = (satnk > 1.0 - 1.0E-3) ? 1.0 - 1.0E-3 : satnk;
-        satnk = (satnk < SATMIN) ? SATMIN : satnk;
-
-        dsatn = fabs (satnk - satn);
-
-        satn = satnk;
-    }
-
-    if (dsatn > ERROR)
-    {
-        satn = 0.75;
-    }
-
-    smcref = (1.0 / 3.0 + 2.0 / 3.0 * satn) * (smcmax - smcmin) + smcmin;
-
-    return (smcref);
-}
-
-double WiltingPoint (double smcmax, double smcmin, double alpha, double beta)
-{
-    const double    PSIW = 200.0;
-
-    return (0.5 * (smcmax - smcmin) * pow (1.0 / (1.0 + pow (PSIW * alpha,
-                    beta)), 1.0 - 1.0 / beta) + smcmin);
 }
 
 void InitLC (elem_struct *elem, int numele, lctbl_struct lctbl,
@@ -524,10 +454,12 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
 
         if (sink == 1)
         {
-            printf ("Ele %d (surface) is sink", i + 1);
+            PIHMprintf (VL_NORMAL, "Ele %d (surface) is sink", i + 1);
+
             /* Note: Following correction is being applied for debug==1
              * case only */
-            printf ("\tBefore: %lf Corrected using: ", elem[i].topo.zmax);
+            PIHMprintf (VL_NORMAL, "\tBefore: %lf Corrected using: ",
+                elem[i].topo.zmax);
             new_elevation = 1.0e7;
             for (j = 0; j < NUM_EDGE; j++)
             {
@@ -538,14 +470,14 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
                         riv[0 - elem[i].nabr[j] - 1].topo.zmax;
                     new_elevation = (new_elevation > elem[i].topo.zmax) ?
                         elem[i].topo.zmax : new_elevation;
-                    printf ("(%d)%lf  ", j + 1,
+                    PIHMprintf (VL_NORMAL, "(%d)%lf  ", j + 1,
                         (elem[i].nabr[j] > 0) ?
                         elem[elem[i].nabr[j] - 1].topo.zmax :
                         riv[0 - elem[i].nabr[j] - 1].topo.zmax);
                 }
             }
             elem[i].topo.zmax = new_elevation;
-            printf ("=(New)%lf\n", elem[i].topo.zmax);
+            PIHMprintf (VL_NORMAL, "=(New)%lf\n", elem[i].topo.zmax);
         }
     }
     /* Correction of BedRck Elev. Is this needed? */
@@ -572,10 +504,11 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
             }
             if (sink == 1)
             {
-                printf ("Ele %d (bedrock) is sink", i + 1);
+                PIHMprintf (VL_NORMAL, "Ele %d (bedrock) is sink", i + 1);
                 /* Note: Following correction is being applied for debug==1
                  * case only */
-                printf ("\tBefore: %lf Corrected using:", elem[i].topo.zmin);
+                PIHMprintf (VL_NORMAL, "\tBefore: %lf Corrected using:",
+                    elem[i].topo.zmin);
                 new_elevation = 1.0e7;
                 for (j = 0; j < NUM_EDGE; j++)
                 {
@@ -586,14 +519,14 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
                             riv[0 - elem[i].nabr[j] - 1].topo.zmin;
                         new_elevation = (new_elevation > elem[i].topo.zmin) ?
                             elem[i].topo.zmin : new_elevation;
-                        printf ("(%d)%lf  ", j + 1,
+                        PIHMprintf (VL_NORMAL, "(%d)%lf  ", j + 1,
                             (elem[i].nabr[j] > 0) ?
                             elem[elem[i].nabr[j] - 1].topo.zmin :
                             riv[0 - elem[i].nabr[j] - 1].topo.zmin);
                     }
                 }
                 elem[i].topo.zmin = new_elevation;
-                printf ("=(New)%lf\n", elem[i].topo.zmin);
+                PIHMprintf (VL_NORMAL, "=(New)%lf\n", elem[i].topo.zmin);
             }
         }
     }
@@ -605,14 +538,15 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
             if (riv[i].topo.zbed < riv[riv[i].down - 1].topo.zbed)
             {
                 river_flag = 1;
-                printf ("Riv %d is lower than downstream Riv %d\n",
+                PIHMprintf (VL_NORMAL,
+                    "Riv %d is lower than downstream Riv %d\n",
                     i + 1, riv[i].down);
             }
         }
     }
     if (river_flag == 1)
     {
-        printf ("\n\tRiver elevation correction needed\n");
+        PIHMprintf (VL_NORMAL, "\n\tRiver elevation correction needed\n");
         getchar ();
     }
 }

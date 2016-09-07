@@ -1,5 +1,31 @@
 #include "pihm.h"
 
+void InitOper (pihm_struct pihm, enkf_struct ens)
+{
+    int             i;
+
+    for (i = 0; i < ens->nobs; i++)
+    {
+        if (strcasecmp (ens->obs[i].name, "discharge") == 0)
+        {
+            ens->obs[i].type = RUNOFF_OBS;
+            DisOper (&ens->obs[i], ens->var, pihm);
+        }
+        else if (strcasecmp (ens->obs[i].name, "skin_temperature") == 0)
+        {
+            ens->obs[i].type = TSKIN_OBS;
+            LandSfcTmpOper (&ens->obs[i], ens->var, pihm);
+        }
+        else
+        {
+            PIHMprintf (VL_ERROR,
+                "Error finding observation operator for %s.\n",
+                ens->obs[i].name);
+            PIHMexit (EXIT_FAILURE);
+        }
+    }
+}
+
 void DisOper (obs_struct *obs, var_struct *var, pihm_struct pihm)
 {
     double          dist;
@@ -111,8 +137,9 @@ int FindVar (var_struct *var, char *varname)
 
     if (id == -999)
     {
-        printf ("Cannot find variable \"%s\"!\n", varname);
-        PihmExit (1);
+        PIHMprintf (VL_ERROR,
+            "Cannot find variable \"%s\".\n", varname);
+        PIHMexit (EXIT_FAILURE);
     }
 
     return (id);

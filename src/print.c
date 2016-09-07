@@ -1,12 +1,73 @@
 #include "pihm.h"
 
+void AsciiArt ()
+{
+    PIHMprintf (VL_NORMAL, "\n");
+    PIHMprintf (VL_NORMAL, "\t\t########  #### ##     ## ##     ##\n");
+    PIHMprintf (VL_NORMAL, "\t\t##     ##  ##  ##     ## ###   ###\n");
+    PIHMprintf (VL_NORMAL, "\t\t##     ##  ##  ##     ## #### ####\n");
+    PIHMprintf (VL_NORMAL, "\t\t########   ##  ######### ## ### ##\n");
+    PIHMprintf (VL_NORMAL, "\t\t##         ##  ##     ## ##     ##\n");
+    PIHMprintf (VL_NORMAL, "\t\t##         ##  ##     ## ##     ##\n");
+    PIHMprintf (VL_NORMAL, "\t\t##        #### ##     ## ##     ##\n");
+    PIHMprintf (VL_NORMAL, "\n\t    The Penn State Integrated Hydrologic Model\n\n");
+
+#ifdef _NOAH_
+    PIHMprintf (VL_NORMAL, "\t    * Land surface module turned on.\n");
+#endif
+#ifdef _RT_
+    PIHMprintf (VL_NORMAL, "\t       * Reactive transport module turned on.\n");
+#endif
+#ifdef _BGC_
+    PIHMprintf (VL_NORMAL, "\t    * Biogeochemistry module turned on.\n");
+#endif
+#ifdef _ENKF_
+    PIHMprintf (VL_NORMAL, "\t    * Ensemble Kalman filter turned on.\n");
+#endif
+#ifdef _CYCLES_
+    PIHMprintf (VL_NORMAL, "\t    * Crop module turned on.\n");
+#endif
+
+    PIHMprintf (VL_NORMAL, "\n");
+}
+
+void _PIHMprintf (const char *fn, int lineno, const char *func, int verbosity,
+    const char *fmt, ...)
+{
+    va_list         va;
+
+    va_start (va, fmt);
+
+    if (VL_ERROR == verbosity)
+    {
+        vfprintf (stderr, fmt, va);
+        if (debug_mode)
+        {
+            fprintf (stderr, "Printed from %s", func);
+            fprintf (stderr, " (%s, Line %d.\n)", fn, lineno);
+        }
+        fflush (stderr);
+    }
+    else if (verbosity <= verbose_mode)
+    {
+        vfprintf (stdout, fmt, va);
+        if (debug_mode)
+        {
+            printf ("Printed from %s", func);
+            printf (" (%s, Line %d.\n)", fn, lineno);
+        }
+        fflush (stderr);
+    }
+
+    va_end (va);
+}
+
 void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
 {
     int             i, j, k;
     int             n;
 
-    if (verbose_mode)
-        printf ("\nInitializing PIHM output files\n");
+    PIHMprintf (VL_VERBOSE, "\nInitializing PIHM output files\n");
 
     n = 0;
 
@@ -1120,10 +1181,10 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
 
     if (n > MAXPRINT)
     {
-        fprintf (stderr, "Error: Too many output files. ");
-        fprintf (stderr, " The maximum number of output files is %d.\n",
+        PIHMprintf (VL_ERROR, "Error: Too many output files. ");
+        PIHMprintf (VL_ERROR, "The maximum number of output files is %d.\n",
             MAXPRINT);
-        PIHMExit (EXIT_FAILURE);
+        PIHMexit (EXIT_FAILURE);
     }
 
     pihm->ctrl.nprint = n;

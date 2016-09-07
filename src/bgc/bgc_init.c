@@ -6,11 +6,7 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv,
     int             i;
     int             epc_ind;
 
-    /* Detect if model is running in ensemble mode */
-    if (verbose_mode)
-    {
-        printf ("BGC: Initializing BGC structures\n");
-    }
+    PIHMprintf (VL_VERBOSE, "BGC: Initializing BGC structures\n");
 
     for (i = 0; i < numele; i++)
     {
@@ -23,10 +19,10 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv,
             epc_ind != GRASS - 1 &&
             epc_ind != CLOSE_SHRUB - 1 && epc_ind != OPEN_SHRUB - 1)
         {
-            fprintf (stderr,
-                "Error: Land cover type %d not been defined in Flux-PIHM-BGC.\n",
+            PIHMprintf (VL_ERROR,
+                "Error: Land cover type %d not defined in Flux-PIHM-BGC.\n",
                 elem[i].attrib.lc_type);
-            PIHMExit (EXIT_FAILURE);
+            PIHMexit (EXIT_FAILURE);
         }
 
         elem[i].epc.woody = epctbl->woody[epc_ind];
@@ -105,6 +101,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv,
     {
         init_file = fopen (fn, "rb");
         CheckFile (init_file, fn);
+        PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
 
         for (i = 0; i < numele; i++)
         {

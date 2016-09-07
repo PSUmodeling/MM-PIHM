@@ -70,10 +70,11 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
                 co2lvl = GetCO2 (pihm->forc.co2[0], t);
             if (co2lvl < -999)
             {
-                printf ("Error finding CO2 value on %4.4d-%2.2d-%2.2d\n",
+                PIHMprintf (VL_ERROR,
+                    "Error finding CO2 value on %4.4d-%2.2d-%2.2d\n",
                     timestamp->tm_year + 1900, timestamp->tm_mon + 1,
                     timestamp->tm_mday);
-                exit (1);
+                PIHMexit (EXIT_FAILURE);
             }
 
             /* When varco2 = 2, use the constant CO2 value, but can vary
@@ -93,10 +94,11 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
                 daily_nfix = ndepctrl->nfix / 365.0;
                 if (daily_ndep < -999)
                 {
-                    printf ("Error finding NDEP %4.4d-%2.2d-%2.2d\n",
+                    PIHMprintf (VL_ERROR,
+                        "Error finding NDEP %4.4d-%2.2d-%2.2d\n",
                         timestamp->tm_year + 1900, timestamp->tm_mon + 1,
                         timestamp->tm_mday);
-                    exit (1);
+                    PIHMexit (EXIT_FAILURE);
                 }
                 else
                 {

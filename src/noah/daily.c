@@ -97,17 +97,6 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         {
             riv->daily.avg_rivflow[j] += riv->wf.rivflow[j];
         }
-        //daily->wf.fluxsub[0] += riv->wf.fluxriv[0];
-        //daily->wf.fluxsurf[0] += riv->wf.fluxriv[10];
-
-        //daily->wf.fluxsub[1] += riv->wf.fluxriv[1];
-        //daily->wf.fluxsurf[1] += riv->wf.fluxriv[9];
-
-        //daily->wf.fluxsub[2] += riv->wf.fluxriv[2];
-        //daily->wf.fluxsurf[2] += riv->wf.fluxriv[4] + riv->wf.fluxriv[7];
-
-        //daily->wf.fluxsub[3] += riv->wf.fluxriv[3];
-        //daily->wf.fluxsurf[3] += riv->wf.fluxriv[5] + riv->wf.fluxriv[8];
 
         (riv->daily.counter)++;
     }

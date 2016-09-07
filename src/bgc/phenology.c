@@ -515,10 +515,9 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
                 drate =
                     2.0 * (cs->leafc -
                     leaflitfallc * ndays) / (ndays * ndays);
-                //printf ("drate = 2.0 * (%lf - %lf * %lf) / (%lf * %lf)\n", cs->leafc, epv->day_leafc_litfall_increment, ndays, ndays, ndays);
                 epv->day_leafc_litfall_increment += drate;
                 leaflitfallc = epv->day_leafc_litfall_increment;
-                //printf ("days = %lf, phen->remdays_litfall = %lf, drate = %lf, leafc = %lf, litfallc = %lf\n", ndays, phen->remdays_litfall, drate, cs->leafc, leaflitfallc);
+
                 frootlitfallc = epv->day_frootc_litfall_increment;
                 drate =
                     2.0 * (cs->frootc -
@@ -529,13 +528,12 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
             /* leaf litterfall */
             if (leaflitfallc > cs->leafc)
                 leaflitfallc = cs->leafc;
-            //            if (leaflitfallc)
-            //printf ("leafc = %lf, leaflitfallc = %lf\n", cs->leafc, leaflitfallc);
+
             LeafLitFall (epc, leaflitfallc, cf, nf);
             /* fine root litterfall */
             if (frootlitfallc > cs->frootc)
                 frootlitfallc = cs->frootc;
-            //            if (frootlitfallc)
+
             FRootLitFall (epc, frootlitfallc, cf, nf);
         }                       /* end if deciduous litterfall day */
 
@@ -581,8 +579,6 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
         }
 
     }                           /* end else phenology model block */
-
-    //printf ("evergreen = %d, woody = %d, w_s_flag = %1.1d, onset_flag = %1.0lf, dormant_flag = %1.0lf, tsoil = %lf, onset_gddflag = %1.0lf, onset_gdd = %lf, onset_counter = %lf, remdays_transfer = %lf, remdays_litfall = %lf\n", evergreen, woody, ws_flag, epv->onset_flag, epv->dormant_flag, metv->tsoil, epv->onset_gddflag, epv->onset_gdd, epv->onset_counter, phen->remdays_transfer, phen->remdays_litfall);
 
     /* for woody types, find annual maximum value for live stemc and live crootc
      * calculation of livewood turnover rates */
@@ -637,8 +633,6 @@ void LeafLitFall (const epconst_struct *epc, double litfallc,
     c4 = litfallc * epc->leaflitr_flig;
     n4 = litfalln * epc->leaflitr_flig;
     nretrans = (litfallc / avg_cn) - (litfalln);
-    ////printf ("litfallc = %lf, avg_cn = %lf, litfalln = %lf, litr_cn = %lf, nretrans = %lf\n", litfallc, avg_cn, litfalln, epc->leaflitr_cn, nretrans);
-    //printf ("litfallc = %lf, c1 = %lf, c2 = %lf, c3 = %lf, c4 = %lf, c1+c2+c3+c4 = %lf\n", litfallc, c1, c2, c3, c4, c1 + c2 + c3 + c4);
 
     /* set fluxes in daily flux structure */
     cf->leafc_to_litr1c = c1;

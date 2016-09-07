@@ -173,10 +173,10 @@ void RiverFlow (pihm_struct pihm)
                         crossa * sqrt (GRAV * riv->ws.stage);
                     break;
                 default:
-                    fprintf (stderr,
-                        "Error: River routing boundary condition type (%d) is not recognized.\n",
-                        riv->down);
-                    PIHMExit (EXIT_FAILURE);
+                    PIHMprintf (VL_ERROR,
+                        "Error: River routing boundary condition type (%d) "
+                        "is not recognized.\n", riv->down);
+                    PIHMexit (EXIT_FAILURE);
             }
             /* Note: boundary condition for subsurface element can be changed.
              * Assumption: no flow condition */
@@ -351,9 +351,9 @@ double EqWid (int riv_order, double riv_depth, double riv_coeff)
                 1.0 / (riv_order - 1));
             break;
         default:
-            fprintf (stderr, "Error: River order %d is not defined.\n",
+            PIHMprintf (VL_ERROR, "Error: River order %d is not defined.\n",
                 riv_order);
-            PIHMExit (EXIT_FAILURE);
+            PIHMexit (EXIT_FAILURE);
     }
     return (eq_wid);
 }
@@ -449,9 +449,9 @@ double RivArea (int riv_order, double riv_depth, double riv_coeff)
                     1.0 / 3.0));
             break;
         default:
-            fprintf (stderr, "Error: River order %d is not defined!\n",
+            PIHMprintf (VL_ERROR, "Error: River order %d is not defined.\n",
                 riv_order);
-            PIHMExit (EXIT_FAILURE);
+            PIHMexit (EXIT_FAILURE);
     }
 
     return (riv_area);
@@ -492,9 +492,9 @@ double RivPerim (int riv_order, double riv_depth, double riv_coeff)
                             0.5)) / (9.0 * pow (riv_coeff, 1.0 / 3.0))));
             break;
         default:
-            fprintf (stderr, "Error: River order %d is not defined!\n",
+            PIHMprintf (VL_ERROR, "Error: River order %d is not defined.\n",
                 riv_order);
-            PIHMExit (EXIT_FAILURE);
+            PIHMexit (EXIT_FAILURE);
     }
     return (riv_perim);
 }

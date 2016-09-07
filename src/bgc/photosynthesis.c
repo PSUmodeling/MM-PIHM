@@ -52,7 +52,6 @@ void TotalPhotosynthesis (const epconst_struct *epc,
     cf->psnsun_to_cpool =
         (epv->assim_sun +
         epv->dlmr_area_sun) * ps->plaisun * daily->dayl * 12.011e-9;
-    //printf ("Photo %lf\n", cf->psnsun_to_cpool);
 
     /* SHADED canopy fraction photosynthesis */
     psn_shade->c3 = epc->c3_flag;
@@ -235,8 +234,9 @@ void Photosynthesis (psn_struct *psn)
 
     if ((det = b * b - 4.0 * a * c) < 0.0)
     {
-        printf ("ERROR: negative root error in psn routine\n");
-        exit (1);
+        PIHMprintf (VL_ERROR,
+            "ERROR: negative root error in psn routine\n");
+        PIHMexit (EXIT_FAILURE);
     }
 
     psn->Av = Av = (-b + sqrt (det)) / (2.0 * a);
@@ -248,8 +248,9 @@ void Photosynthesis (psn_struct *psn)
 
     if ((det = b * b - 4.0 * a * c) < 0.0)
     {
-        printf ("ERROR: negative root error in psn routine\n");
-        exit (1);
+        PIHMprintf (VL_ERROR,
+            "ERROR: negative root error in psn routine\n");
+        PIHMexit (EXIT_FAILURE);
     }
 
     psn->Aj = Aj = (-b + sqrt (det)) / (2.0 * a);

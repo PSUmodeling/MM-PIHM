@@ -7,17 +7,19 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     struct tm      *timestamp;
     time_t          rawtime;
     char            cmdstr[MAXSTRING];
+    int             lno = 0;
 
     timestamp = (struct tm *)malloc (sizeof (struct tm));
 
     /* Read bgc simulation control file */
     bgc_file = fopen (fn, "r");
     CheckFile (bgc_file, fn);
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
 
-    FindLine (bgc_file, "TIME_DEFINE");
-    NextLine (bgc_file, cmdstr);
+    FindLine (bgc_file, "TIME_DEFINE", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ctrl->spinupstartyear);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ctrl->spinupendyear);
 
     timestamp->tm_year = ctrl->spinupstartyear - 1900;
@@ -33,252 +35,101 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     rawtime = timegm (timestamp);
     ctrl->spinupend = (int)rawtime;
 
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ctrl->bgc_spinup);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ctrl->maxspinyears);
 
-    FindLine (bgc_file, "CO2_CONTROL");
-    NextLine (bgc_file, cmdstr);
+    FindLine (bgc_file, "CO2_CONTROL", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &co2->varco2);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &co2->co2ppm);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%s", co2_fn);
 
-    FindLine (bgc_file, "NDEP_CONTROL");
-    NextLine (bgc_file, cmdstr);
+    FindLine (bgc_file, "NDEP_CONTROL", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ndepctrl->varndep);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ndepctrl->ndep);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ndepctrl->nfix);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%s", ndep_fn);
 
-    FindLine (bgc_file, "C_STATE");
-    NextLine (bgc_file, cmdstr);
+    FindLine (bgc_file, "C_STATE", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cinit.max_leafc);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cinit.max_stemc);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.cwdc);
     ctrl->ns.cwdn = BADVAL;
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.litr1c);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.litr2c);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.litr3c);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.litr4c);
     ctrl->ns.litr2n = BADVAL;
     ctrl->ns.litr3n = BADVAL;
     ctrl->ns.litr4n = BADVAL;
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.soil1c);
     ctrl->ns.soil1n = BADVAL;
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.soil2c);
     ctrl->ns.soil2n = BADVAL;
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.soil3c);
     ctrl->ns.soil3n = BADVAL;
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->cs.soil4c);
     ctrl->ns.soil4n = BADVAL;
 
-    FindLine (bgc_file, "N_STATE");
-    NextLine (bgc_file, cmdstr);
+    FindLine (bgc_file, "N_STATE", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->ns.litr1n);
-    NextLine (bgc_file, cmdstr);
+    NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%lf", &ctrl->ns.sminn);
 
-    FindLine (bgc_file, "DAILY_OUTPUT");
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    FindLine (bgc_file, "DAILY_OUTPUT", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL], 'i', fn, lno);
 
-    NextLine (bgc_file, cmdstr);
-    if (!ReadKeyword (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL], 'i'))
-    {
-        fprintf (stderr, "Error reading %s.\n", fn);
-        PIHMExit (EXIT_FAILURE);
-    }
+    NextLine (bgc_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL], 'i', fn, lno);
 
 
     fclose (bgc_file);
 }
-
-//    /* Read soil moisture and soil temperature "forcing" */
-//    if (ctrl->spinup == 1)
-//    {
-//        /* Read root zone soil water content forcing */
-//        bgc->forcing.ts[SWC_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-//        sprintf (fn, "input/%s/%s.rootw.dat", project, project);
-//        ReadBinFile (&bgc->forcing.ts[SWC_TS][0], fn, pihm->numele);
-//
-//        /* Read total soil water storage forcing */
-//        bgc->forcing.ts[TOTALW_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-//        sprintf (fn, "input/%s/%s.totalw.dat", project, project);
-//        ReadBinFile (&bgc->forcing.ts[TOTALW_TS][0], fn, pihm->numele + pihm->numriv);
-//
-//        /* Read soil temperature forcing */
-//        bgc->forcing.ts[STC_TS] = (ts_struct *) malloc (sizeof (ts_struct));
-//        sprintf (fn, "input/%s/%s.stc0.dat", project, project);
-//        ReadBinFile (&bgc->forcing.ts[STC_TS][0], fn, pihm->numele);
-//
-//        /* Read subsurface flux forcing */
-//        bgc->forcing.ts[SUBFLX_TS] = (ts_struct *) malloc (3 * sizeof (ts_struct));
-//        for (k = 0; k < 3; k++)
-//        {
-//            sprintf (fn, "input/%s/%s.subflx%d.dat", project, project, k);
-//            ReadBinFile (&bgc->forcing.ts[SUBFLX_TS][k], fn, pihm->numele);
-//        }
-//
-//        /* Read surface flux forcing */
-//        bgc->forcing.ts[SURFFLX_TS] = (ts_struct *) malloc (3 * sizeof (ts_struct));
-//        for (k = 0; k < 3; k++)
-//        {
-//            sprintf (fn, "input/%s/%s.surfflx%d.dat", project, project, k);
-//            ReadBinFile (&bgc->forcing.ts[SURFFLX_TS][k], fn, pihm->numele);
-//        }
-//
-//        /* Read river flux forcing */
-//        bgc->forcing.ts[RIVFLX_TS] = (ts_struct *) malloc (11 * sizeof (ts_struct));
-//        for (k = 0; k < 11; k++)
-//        {
-//            sprintf (fn, "input/%s/%s.rivflx%d.dat", project, project, k);
-//            ReadBinFile (&bgc->forcing.ts[RIVFLX_TS][k], fn, pihm->numriv);
-//        }
-//    }
-//
-//    /* Copy initial conditions to every model grid */
-//    bgc->grid = (bgc_grid *) malloc (pihm->numele * sizeof (bgc_grid));
-//
-//    for (i = 0; i < pihm->numele; i++)
-//    {
-//        bgc->grid[i].ws = ws;
-//        bgc->grid[i].cinit = cinit;
-//        bgc->grid[i].cs = ctrl->cs;
-//        bgc->grid[i].ns = ctrl->ns;
-//        if (pihm->attrib_tbl.lc[i] == 4)
-//        {
-//            bgc->grid[i].epc = bgc->epclist.epc[EPC_DBF];
-//        }
-//        else if (pihm->attrib_tbl.lc[i] == 1)
-//        {
-//            bgc->grid[i].epc = bgc->epclist.epc[EPC_ENF];
-//        }
-//        else if (pihm->attrib_tbl.lc[i] == 5)
-//        {
-//            bgc->grid[i].epc = bgc->epclist.epc[EPC_MIXED];
-//        }
-//
-//        bgc->grid[i].ns.cwdn = cs.cwdc / bgc->grid[i].epc.deadwood_cn;
-//        bgc->grid[i].ns.litr2n = cs.litr2c / bgc->grid[i].epc.leaflitr_cn;
-//        bgc->grid[i].ns.litr3n = cs.litr3c / bgc->grid[i].epc.leaflitr_cn;
-//        bgc->grid[i].ns.litr4n = cs.litr4c / bgc->grid[i].epc.leaflitr_cn;
-//        bgc->grid[i].ns.soil1n = cs.soil1c / SOIL1_CN;
-//        bgc->grid[i].ns.soil2n = cs.soil2c / SOIL2_CN;
-//        bgc->grid[i].ns.soil3n = cs.soil3c / SOIL3_CN;
-//        bgc->grid[i].ns.soil4n = cs.soil4c / SOIL4_CN;
-//
-//        if (bgc->grid[i].epc.evergreen == 1)
-//        {
-//            bgc->grid[i].epv.dormant_flag = 0.0;
-//        }
-//        else
-//        {
-//            bgc->grid[i].epv.dormant_flag = 1.0;
-//        }
-//        //bgc->grid[i].epv.days_active = 0.;
-//        bgc->grid[i].epv.onset_flag = 0.0;
-//        bgc->grid[i].epv.onset_counter = 0.0;
-//        bgc->grid[i].epv.onset_gddflag = 0.0;
-//        bgc->grid[i].epv.onset_fdd = 0.0;
-//        bgc->grid[i].epv.onset_gdd = 0.0;
-//        bgc->grid[i].epv.onset_swi = 0.0;
-//        bgc->grid[i].epv.offset_flag = 0.0;
-//        bgc->grid[i].epv.offset_counter = 0.0;
-//        bgc->grid[i].epv.offset_fdd = 0.0;
-//        bgc->grid[i].epv.offset_swi = 0.0;
-//        bgc->grid[i].epv.lgsf = 0.0;
-//        bgc->grid[i].epv.bglfr = 0.0;
-//        bgc->grid[i].epv.bgtr = 0.0;
-//        bgc->grid[i].epv.annavg_t2m = 280.0;
-//        bgc->grid[i].epv.tempavg_t2m = 0.0;
-//    }
-//
-//    bgc->riv = (bgc_river *)malloc (pihm->numriv * sizeof (bgc_river));
-//
-//    for (i = 0; i < pihm->numriv; i++)
-//    {
-//        bgc->riv[i].soilw = 0.0;
-//        bgc->riv[i].sminn = 0.0;
-//        bgc->riv[i].nleached_snk = 0.0;
-//        bgc->riv[i].sminn_leached = 0.0;
-//    }
-//}
 
 void ReadEPC (epctbl_struct *epctbl)
 {
@@ -338,10 +189,7 @@ void ReadEPC (epctbl_struct *epctbl)
     epctbl->deadwood_flig = (double *)malloc (NLCTYPE * sizeof (double));
 
     /* Read epc files */
-    if (verbose_mode)
-    {
-        printf ("\nRead ecophysiological constant files\n");
-    }
+    PIHMprintf (VL_VERBOSE, "\nRead ecophysiological constant files\n");
 
     for (i = 0; i < NLCTYPE; i++)
     {
@@ -382,6 +230,7 @@ void ReadEPC (epctbl_struct *epctbl)
         if (strcasecmp (fn, "N/A") != 0)
         {
             CheckFile (epc_file, fn);
+            PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
 
             /* Skip header file */
             fgets (cmdstr, MAXSTRING, epc_file);
@@ -450,11 +299,11 @@ void ReadEPC (epctbl_struct *epctbl)
             /* test for leaflitter C:N > leaf C:N */
             if (epctbl->leaflitr_cn[i] < epctbl->leaf_cn[i])
             {
-                printf ("Error: leaf litter C:N must be >= leaf C:N\n");
-                printf
-                    ("change the values in ECOPHYS block of initialization file %s\n",
-                    fn);
-                exit (1);
+                PIHMprintf (VL_ERROR,
+                    "Error: leaf litter C:N must be >= leaf C:N.\n");
+                PIHMprintf (VL_ERROR,
+                    "Change the values in epc file %s.\n", fn);
+                PIHMexit (EXIT_FAILURE);
             }
             /* initial fine root C:N */
             fgets (cmdstr, MAXSTRING, epc_file);
@@ -468,10 +317,11 @@ void ReadEPC (epctbl_struct *epctbl)
             /* test for deadwood C:N > livewood C:N */
             if (epctbl->deadwood_cn[i] < epctbl->livewood_cn[i])
             {
-                printf ("Error: livewood C:N must be >= deadwood C:N\n");
-                printf
-                    ("change the values in ECOPHYS block of initialization file\n");
-                exit (1);
+                PIHMprintf (VL_ERROR,
+                    "Error: livewood C:N must be >= deadwood C:N.\n");
+                PIHMprintf (VL_ERROR,
+                    "Change the values in epc file %s.\n", fn);
+                PIHMexit (EXIT_FAILURE);
             }
             /* leaf litter labile proportion */
             fgets (cmdstr, MAXSTRING, epc_file);
@@ -488,13 +338,11 @@ void ReadEPC (epctbl_struct *epctbl)
             /* test for litter fractions sum to 1.0 */
             if (fabs (t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
             {
-                printf ("Error:\n");
-                printf
-                    ("leaf litter proportions of labile, cellulose, and lignin\n");
-                printf
-                    ("must sum to 1.0. Check initialization file and try again %s.\n",
-                    fn);
-                exit (1);
+                PIHMprintf (VL_ERROR,
+                    "Error: leaf litter proportions of labile, cellulose, and lignin\n");
+                PIHMprintf (VL_ERROR,
+                    "must sum to 1.0. Check epc file %s and try again.\n", fn);
+                PIHMexit (EXIT_FAILURE);
             }
             /* calculate shielded and unshielded cellulose fraction */
             r1 = t3 / t2;
@@ -529,12 +377,12 @@ void ReadEPC (epctbl_struct *epctbl)
             /* test for litter fractions sum to 1.0 */
             if (fabs (t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
             {
-                printf ("Error:\n");
-                printf
-                    ("froot litter proportions of labile, cellulose, and lignin\n");
-                printf
-                    ("must sum to 1.0. Check initialization file and try again.\n");
-                exit (1);
+                PIHMprintf (VL_ERROR,
+                    "Error: froot litter proportions of labile, cellulose, "
+                    "and lignin\n");
+                PIHMprintf (VL_ERROR,
+                    "must sum to 1.0. Check epc file %s and try again.\n", fn);
+                PIHMexit (EXIT_FAILURE);
             }
             /* calculate shielded and unshielded cellulose fraction */
             r1 = t3 / t2;
@@ -564,11 +412,12 @@ void ReadEPC (epctbl_struct *epctbl)
             /* test for litter fractions sum to 1.0 */
             if (fabs (t1 + t2 - 1.0) > FLT_COND_TOL)
             {
-                printf ("Error:\n");
-                printf
-                    ("deadwood proportions of cellulose and lignin must sum\n");
-                printf ("to 1.0. Check initialization file and try again.\n");
-                exit (1);
+                PIHMprintf (VL_ERROR,
+                   "Error: deadwood proportions of cellulose and lignin "
+                   "must sum\n");
+                PIHMprintf (VL_ERROR,
+                    "to 1.0. Check epc file %s and try again.\n", fn);
+                PIHMexit (EXIT_FAILURE);
             }
             /* calculate shielded and unshielded cellulose fraction */
             r1 = t2 / t1;
@@ -615,50 +464,6 @@ void ReadEPC (epctbl_struct *epctbl)
             /* vpd_min */
             fgets (cmdstr, MAXSTRING, epc_file);
             sscanf (cmdstr, "%lf", &epctbl->vpd_close[i]);
-
-#ifdef _DEBUG_
-            printf ("WOODY%d\t", epctbl->woody[i]);
-            printf ("EVERGREEN%d\t", epctbl->evergreen[i]);
-            printf ("C3%d\t", epctbl->c3_flag[i]);
-            printf ("TRANSFERDAY%lf\t", epctbl->transfer_days[i]);
-            printf ("LITFALLDAY%lf\t", epctbl->litfall_days[i]);
-            printf ("LEAFTURNOVER%lf\t", epctbl->leaf_turnover[i]);
-            printf ("FROOTTURNOVER%lf\t", epctbl->froot_turnover[i]);
-            printf ("LIVEWOODTURNOVER%lf\t", epctbl->livewood_turnover[i]);
-            printf ("DAILYMORTALITYTURNOVER%lf\t",
-                epctbl->daily_mortality_turnover[i]);
-            printf ("DAILYFIRETURNOVER%lf\t", epctbl->daily_fire_turnover[i]);
-            printf ("FROOTC/LEAFC%lf\t", epctbl->alloc_frootc_leafc[i]);
-            printf ("NEWSTEMC/NEWLEAFC%lf\t",
-                epctbl->alloc_newstemc_newleafc[i]);
-            printf ("NEWLIVEWOODC/NEWWOODC%lf\t",
-                epctbl->alloc_newlivewoodc_newwoodc[i]);
-            printf ("CROOTC/STEMC%lf\t", epctbl->alloc_crootc_stemc[i]);
-            printf ("PROP%lf\t", epctbl->alloc_prop_curgrowth[i]);
-            printf ("LEAFCN%lf\t", epctbl->leaf_cn[i]);
-            printf ("LEAFLITRCN%lf\t", epctbl->leaflitr_cn[i]);
-            printf ("FROOTCN%lf\t", epctbl->froot_cn[i]);
-            printf ("LIVEWOODCN%lf\t", epctbl->livewood_cn[i]);
-            printf ("DEADWOODCN%lf\t", epctbl->deadwood_cn[i]);
-            printf ("LEAFLITR %lf %lf %lf\t", epctbl->leaflitr_fscel[i],
-                epctbl->leaflitr_fucel[i], epctbl->leaflitr_flig[i]);
-            printf ("FROOTLITR %lf %lf %lf\t", epctbl->frootlitr_fscel[i],
-                epctbl->frootlitr_fucel[i], epctbl->frootlitr_flig[i]);
-            printf ("DEADWOOD %lf %lf %lf\t", epctbl->deadwood_fscel[i],
-                epctbl->deadwood_fucel[i], epctbl->deadwood_flig[i]);
-            printf ("EXTCOEF %lf\t", epctbl->ext_coef[i]);
-            printf ("LAIRATIO %lf\t", epctbl->lai_ratio[i]);
-            printf ("PROJSLA %lf\t", epctbl->avg_proj_sla[i]);
-            printf ("SLARATIO %lf\t", epctbl->sla_ratio[i]);
-            printf ("FLNR %lf\t", epctbl->flnr[i]);
-            printf ("GLMAX %lf\t", epctbl->gl_smax[i]);
-            printf ("GLC %lf\t", epctbl->gl_c[i]);
-            printf ("GL_BL %lf\t", epctbl->gl_bl[i]);
-            printf ("PSIOPEN %lf\t", epctbl->psi_open[i]);
-            printf ("PSICLOSE %lf\t", epctbl->psi_close[i]);
-            printf ("VPDOPEN %lf\t", epctbl->vpd_open[i]);
-            printf ("VPDCLOSE%lf\n", epctbl->vpd_close[i]);
-#endif
         }
         else
         {
@@ -717,29 +522,32 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
     char            cmdstr[MAXSTRING];
     int             i;
     int             match;
+    int             lno = 0;
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
     fid = fopen (fn, "r");
     CheckFile (fid, fn);
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
 
     ts->length = CountLine (fid, cmdstr, 1, "EOF");
     ts->ftime = (int *)malloc (ts->length * sizeof (int));
     ts->data = (double **)malloc (ts->length * sizeof (double *));
 
-    FindLine (fid, "BOF");
+    FindLine (fid, "BOF", &lno, fn);
     for (i = 0; i < ts->length; i++)
     {
         ts->data[i] = (double *)malloc (sizeof (double));
-        NextLine (fid, cmdstr);
+        NextLine (fid, cmdstr, &lno);
         match =
             sscanf (cmdstr, "%d %lf", &timeinfo->tm_year, &ts->data[i][0]);
 
         if (match != 2)
         {
-            fprintf (stderr, "Error reading %s.\n", fn);
-            fprintf (stderr, "Please check file format.\n");
-            PIHMExit (EXIT_FAILURE);
+            PIHMprintf (VL_ERROR, "Error reading %s.\n", fn);
+            PIHMprintf (VL_ERROR,
+                "Please check file format near Line %s.\n", lno);
+            PIHMexit (EXIT_FAILURE);
         }
 
         timeinfo->tm_year = timeinfo->tm_year - 1900;
