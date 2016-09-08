@@ -331,7 +331,7 @@ enum prmt_type
 };
 
 enum obs_type
-{ RUNOFF_OBS, TSKIN_OBS };
+{ RUNOFF_OBS, TSKIN_OBS, COSMOS_OBS};
 
 #endif
 
