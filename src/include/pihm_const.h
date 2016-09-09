@@ -53,6 +53,10 @@
 /* Number of edges of an element */
 #define NUM_EDGE    3
 
+#define RIVER_WDTH  0
+#define RIVER_AREA  1   
+#define RIVER_PERIM 2
+
 /* Number of river fluxes of a river segment */
 #define NUM_RIVFLX  11
 /* Hydrology parameters */

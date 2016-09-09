@@ -38,7 +38,6 @@ double          DhByDl (double *, double *, double *);
 double          EffKH (double, double, double, double, double, double);
 double          EffKinf (double, double, int, double, double, double);
 double          EffKV (double, double, int, double, double, double);
-double          EqWid (int, double, double);
 double          FieldCapacity (double, double, double, double, double);
 void            FindLine (FILE *, char *, int *, const char *);
 void            FreeData (pihm_struct);
@@ -116,11 +115,13 @@ void            ReadRiv (char *, rivtbl_struct *, shptbl_struct *,
 void            ReadSoil (char *, soiltbl_struct *);
 int             ReadTS (char *, int *, double *, int);
 int             Readable (char *);
-double          RivArea (int, double, double);
-double          RivPerim (int, double, double);
 void            RiverFlow (pihm_struct);
 void            RiverToEle (river_struct *, elem_struct *, elem_struct *,
     int, double *, double *, double *, double);
+double          _RivWdthAreaPerim (int, int, double, double);
+#define RivArea(...)    _RivWdthAreaPerim(RIVER_AREA, __VA_ARGS__)
+#define RivEqWid(...)   _RivWdthAreaPerim(RIVER_WDTH, __VA_ARGS__)
+#define RivPerim(...)   _RivWdthAreaPerim(RIVER_PERIM, __VA_ARGS__)
 void            SaturationIC (elem_struct *, int, river_struct *, int);
 void            SetCVodeParam (pihm_struct, void *, N_Vector);
 int             SoilTex (double, double);

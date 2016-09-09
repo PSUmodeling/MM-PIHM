@@ -344,7 +344,7 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem,
             elem[riv[i].rightele - 1].soil.porosity);
 
         riv[i].topo.area = riv[i].shp.length *
-            EqWid (riv[i].shp.intrpl_ord, riv[i].shp.depth, riv[i].shp.coeff);
+            RivEqWid (riv[i].shp.intrpl_ord, riv[i].shp.depth, riv[i].shp.coeff);
     }
 }
 
