@@ -16,7 +16,12 @@ void InitOper (pihm_struct pihm, enkf_struct ens)
             ens->obs[i].type = TSKIN_OBS;
             LandSfcTmpOper (&ens->obs[i], ens->var, pihm);
         }
-        else
+        else if (strcasecmp (ens->obs[i].name, "COSMOS") == 0)
+        {
+            ens->obs[i].type = COSMOS_OBS;
+            COSMOSOper (&ens->obs[i], ens->var, pihm);
+        }
+	else
         {
             PIHMprintf (VL_ERROR,
                 "Error finding observation operator for %s.\n",

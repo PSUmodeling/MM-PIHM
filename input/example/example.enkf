@@ -51,7 +51,7 @@ WLTSMC		0	0	0	1.0	0	1.0	0
 #################
 # OBSERVATIONS  #
 #################
-NUM_OBS         1
+NUM_OBS         2
 
 OBS_TYPE        discharge
 OBS_FILE        discharge.txt
@@ -60,9 +60,16 @@ OBS_LOCATION_Y  4505410.76
 OBS_RADIUS      0.0
 OBS_DEPTH       0.0
 
-OBS_TYPE        skin_temperature
-OBS_FILE        t1.dat
-OBS_LOCATION_X  254448.31
-OBS_LOCATION_Y  4505380.39
-OBS_RADIUS      500.0
+OBS_TYPE        COSMOS
+OBS_FILE        COSMOS.dat
+OBS_LOCATION_X  254476.61
+OBS_LOCATION_Y  4505398.95
+OBS_RADIUS      350.0
 OBS_DEPTH       0.0
+
+#OBS_TYPE        skin_temperature
+#OBS_FILE        t1.dat
+#OBS_LOCATION_X  254448.31
+#OBS_LOCATION_Y  4505380.39
+#OBS_RADIUS      500.0
+#OBS_DEPTH       0.0
