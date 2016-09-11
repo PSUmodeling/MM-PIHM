@@ -330,6 +330,13 @@ enum prmt_type
     INTCP, RSMIN, CZIL, FXEXP, CFACTR, RGL, HS, THETAREF, THETAW, PRCP, SFCTMP
 };
 
+#define PRMT_NAME (const char*[37]){ "KSATH", "KSATV", "KINF", "KMACSATH",\
+    "KMACSATV", "DINF", "DROOT", "DMAC", "POROSITY", "ALPHA", "BETA",\
+    "MACVF", "MACHF", "VEGFRAC", "ALBEDO", "ROUGH", "EC", "ETT", "EDIR",\
+    "ROUGH_RIV", "KRIVH", "KRIVV", "BEDTHCK", "RIV_DPTH", "RIV_WDTH", "DRIP",\
+    "CMCMAX", "RS", "CZIL", "FXEXP", "CFACTR", "RGL", "HS", "REFSMC",\
+    "WLTSMC", "PRCP", "SFCTMP"}
+
 enum obs_type
 { RUNOFF_OBS, TSKIN_OBS, COSMOS_OBS};
 

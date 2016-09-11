@@ -57,6 +57,16 @@ void ReadEnKF (enkf_struct ens)
             &ens->param[i].perturb, &ens->param[i].update,
             &ens->param[i].perturb_min, &ens->param[i].perturb_max,
             &ens->param[i].min, &ens->param[i].max, &ens->param[i].type);
+
+        if (strcasecmp (ens->param[i].name, PRMT_NAME[i]) != 0)
+        {
+            PIHMprintf (VL_ERROR, "Expected parameter description of \"%s\", "
+                "detected parameter \"%s\".\n",
+                PRMT_NAME[i], ens->param[i].name);
+            PIHMprintf (VL_ERROR, "Error reading %s near Line %d.\n",
+                fn, lno);
+            PIHMexit (EXIT_FAILURE);
+        }
     }
 
     NextLine (enkf_file, cmdstr, &lno);
