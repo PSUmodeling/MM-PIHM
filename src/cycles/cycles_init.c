@@ -34,32 +34,6 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
     for (i = 0; i < numele; i++)
     {
-        if (agtbl->op[i] == 1)
-        {
-            elem[i].soil.IOM[0] = 5.54;
-            elem[i].soil.IOM[1] = 1.79;
-            elem[i].soil.IOM[2] = 1.82;
-            elem[i].soil.IOM[3] = 1.23;
-            elem[i].soil.IOM[4] = 0.87;
-            elem[i].soil.IOM[5] = 0.53;
-            elem[i].soil.IOM[6] = 0.23;
-            elem[i].soil.IOM[7] = 0.10;
-        }
-        else
-        {
-            elem[i].soil.IOM[0] = 5.42;
-            elem[i].soil.IOM[1] = 1.12;
-            elem[i].soil.IOM[2] = 1.90;
-            elem[i].soil.IOM[3] = 1.42;
-            elem[i].soil.IOM[4] = 1.00;
-            elem[i].soil.IOM[5] = 0.61;
-            elem[i].soil.IOM[6] = 0.29;
-            elem[i].soil.IOM[7] = 0.15;
-        }
-    }
-
-    for (i = 0; i < numele; i++)
-    {
         /*
          * Initialize weather structure
          */

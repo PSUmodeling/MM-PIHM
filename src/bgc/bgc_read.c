@@ -35,6 +35,24 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     rawtime = timegm (timestamp);
     ctrl->spinupend = (int)rawtime;
 
+    if (ctrl->spinupend > ctrl->endtime)
+    {
+        PIHMprintf (VL_ERROR, "Error setting BGC spinup period "
+            "or PIHM simulation period.\n");
+
+        PIHMprintf (VL_ERROR, "BGC spinup ends on %2.2d/%2.2d/%4.4d\n",
+            timestamp->tm_mon + 1, timestamp->tm_mday,
+            timestamp->tm_year + 1900);
+
+        rawtime = (time_t)ctrl->endtime;
+        timestamp = gmtime (&rawtime);
+        PIHMprintf (VL_ERROR, "PIHM simulation ends on %2.2d/%2.2d/%4.4d.\n",
+            timestamp->tm_mon + 1, timestamp->tm_mday,
+            timestamp->tm_year + 1900);
+        PIHMprintf (VL_ERROR, "Please check .para file and .bgc file.\n");
+        PIHMexit (EXIT_FAILURE);
+    }
+
     NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ctrl->bgc_spinup);
     NextLine (bgc_file, cmdstr, &lno);
