@@ -165,6 +165,14 @@ void PIHM (char *simulation, char *outputdir, int first_cycle
     if (pihm->ctrl.write_ic)
     {
         PrtInit (pihm, simulation);
+
+#ifdef _BGC_
+        if (!pihm->ctrl.bgc_spinup)
+        {
+            WriteBGCIC (pihm->filename.bgcic, pihm->elem, pihm->numele,
+                pihm->riv, pihm->numriv);
+        }
+#endif
     }
 
     /* Free memory */

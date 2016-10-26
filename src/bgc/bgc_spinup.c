@@ -5,10 +5,8 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
     FILE           *soilc_file;
     FILE           *vegc_file;
     FILE           *spinyr_file;
-    FILE           *restart_file;
     FILE           *sminn_file;
     char            fn[MAXSTRING];
-    char            restart_fn[MAXSTRING];
     int             i, j;
     struct tm      *timestamp;
     int             metyr;
@@ -103,6 +101,9 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
         }
     } while (spinyears < pihm->ctrl.maxspinyears);
 
+    WriteBGCIC (pihm->filename.bgcic, pihm->elem, pihm->numele, pihm->riv,
+        pihm->numriv);
+
     sprintf (fn, "%ssoilc.dat", outputdir);
     soilc_file = fopen (fn, "w");
 
@@ -115,28 +116,20 @@ void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
     sprintf (fn, "%ssminn.dat", outputdir);
     sminn_file = fopen (fn, "w");
 
-    sprintf (restart_fn, "input/%s/%s.bgcic", simulation, simulation);
-    restart_file = fopen (restart_fn, "wb");
     for (i = 0; i < pihm->numele; i++)
     {
-        RestartOutput (&pihm->elem[i].cs, &pihm->elem[i].ns,
-            &pihm->elem[i].epv, &pihm->elem[i].restart_output);
-        fwrite (&(pihm->elem[i].restart_output), sizeof (bgcic_struct), 1,
-            restart_file);
         fprintf (soilc_file, "%lf\t", pihm->elem[i].summary.soilc);
         fprintf (vegc_file, "%lf\t", pihm->elem[i].summary.vegc);
         fprintf (sminn_file, "%lf\t", pihm->elem[i].ns.sminn);
     }
     for (i = 0; i < pihm->numriv; i++)
     {
-        fwrite (&pihm->riv[i].ns.sminn, sizeof (double), 1, restart_file);
         fprintf (sminn_file, "%lf\t", pihm->riv[i].ns.sminn);
     }
 
     fclose (sminn_file);
     fclose (soilc_file);
     fclose (vegc_file);
-    fclose (restart_file);
     fclose (spinyr_file);
     free (steady);
     free (tally1);

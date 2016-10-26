@@ -495,6 +495,7 @@ void            SoilPsi (const soil_struct *, double, double *);
 void            TotalPhotosynthesis (const epconst_struct *,
     const daily_struct *, const pstate_struct *, epvar_struct *,
     cflux_struct *, psn_struct *, psn_struct *);
+void            WriteBGCIC (char *, elem_struct *, int, river_struct *, int);
 void            ZeroSrcSnk (cstate_struct *, nstate_struct *,
     summary_struct *);
 #endif
