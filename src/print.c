@@ -1309,6 +1309,8 @@ void PrtInit (pihm_struct pihm, char *simulation)
 
     sprintf (fn, "input/%s/%s.ic", project, simulation);
     init_file = fopen (fn, "wb");
+    CheckFile (init_file, fn);
+    PIHMprintf (VL_ERROR, "Writing initial conditions.\n");
 
     for (i = 0; i < pihm->numele; i++)
     {
