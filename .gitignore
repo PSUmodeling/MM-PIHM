@@ -83,6 +83,8 @@
 # Input, output and logs
 !/input/
 /input/*
+!/input/*.txt
+!/input/*.tbl
 !/input/example
 /input/example/example.*.calib
 !/input/example/example.ic
