@@ -44,7 +44,11 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     InitLC (pihm->elem, pihm->numele, pihm->lctbl, pihm->cal);
 
     InitForcing (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
-        pihm->atttbl, pihm->rivtbl, &pihm->forc, pihm->cal);
+        pihm->atttbl, pihm->rivtbl, &pihm->forc, pihm->cal
+#ifdef _BGC_
+        , pihm->ctrl.bgc_spinup, pihm->co2.varco2, pihm->ndepctrl.varndep
+#endif
+        );
 
     InitRiver (pihm->riv, pihm->numriv, pihm->elem, pihm->rivtbl,
         pihm->shptbl, pihm->matltbl, pihm->meshtbl, pihm->cal);
@@ -350,7 +354,11 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem,
 
 void InitForcing (elem_struct *elem, int numele, river_struct *riv,
     int numriv, atttbl_struct atttbl, rivtbl_struct rivtbl,
-    forc_struct *forc, calib_struct cal)
+    forc_struct *forc, calib_struct cal
+#ifdef _BGC_
+    , int bgc_spinup, int varco2, int varndep
+#endif
+    )
 {
     int             i, j;
 
@@ -411,8 +419,15 @@ void InitForcing (elem_struct *elem, int numele, river_struct *riv,
 #endif
 
 #ifdef _BGC_
-    forc->co2[0].value = (double *)malloc (sizeof (double));
-    forc->ndep[0].value = (double *)malloc (sizeof (double));
+    if (!bgc_spinup && varco2)
+    {
+        forc->co2[0].value = (double *)malloc (sizeof (double));
+    }
+
+    if (!bgc_spinup && varndep)
+    {
+        forc->ndep[0].value = (double *)malloc (sizeof (double));
+    }
 #endif
 
     for (i = 0; i < numele; i++)

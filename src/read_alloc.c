@@ -108,15 +108,16 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     ReadEPC (&pihm->epctbl);
 
     /* Read CO2 and Ndep files */
+    pihm->forc.co2 = (tsdata_struct *)malloc (sizeof (tsdata_struct));
+    pihm->forc.ndep = (tsdata_struct *)malloc (sizeof (tsdata_struct));
+
     if (pihm->co2.varco2)
     {
-        pihm->forc.co2 = (tsdata_struct *)malloc (sizeof (tsdata_struct));
         ReadAnnFile (&pihm->forc.co2[0], pihm->filename.co2);
     }
 
     if (pihm->ndepctrl.varndep)
     {
-        pihm->forc.ndep = (tsdata_struct *)malloc (sizeof (tsdata_struct));
         ReadAnnFile (&pihm->forc.ndep[0], pihm->filename.ndep);
     }
 #endif

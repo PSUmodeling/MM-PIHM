@@ -46,7 +46,11 @@ void            Initialize (pihm_struct, N_Vector);
 void            InitEFlux (eflux_struct *);
 void            InitEState (estate_struct *);
 void            InitForcing (elem_struct *, int, river_struct *, int,
-    atttbl_struct, rivtbl_struct, forc_struct *, calib_struct);
+    atttbl_struct, rivtbl_struct, forc_struct *, calib_struct
+#ifdef _BGC_
+    , int, int, int
+#endif
+    );
 void            InitLC (elem_struct *, int, lctbl_struct, calib_struct);
 void            InitMeshStruct (elem_struct *, int, meshtbl_struct);
 void            InitOutputFile (prtctrl_struct *, int, int);
