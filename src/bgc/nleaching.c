@@ -52,7 +52,7 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
 
     for (i = 0; i < numele; i++)
     {
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             if (elem[i].nabr[j] > 0)
             {
@@ -72,7 +72,7 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
 
         elem[i].nf.sminn_leached = 0.0;
 
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             latflux = (elem[i].daily.avg_subsurf[j] +
                 elem[i].daily.avg_ovlflow[j]) *
