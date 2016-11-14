@@ -54,7 +54,7 @@ void CheckCarbonBalance (cstate_struct *cs, double *old_balance,
                 *old_balance);
             PIHMprintf (VL_ERROR, "Balance from current day  = %lf\n",
                 balance);
-            PIHMprintf (VL_ERROR, "Difference (previous - current) = %lf\n",
+            PIHMprintf (VL_ERROR, "Difference (previous - current) = %lg\n",
                 *old_balance - balance);
             PIHMprintf (VL_ERROR, "Components of current balance:\n");
             PIHMprintf (VL_ERROR,
@@ -101,12 +101,12 @@ void CheckNitrogenBalance (nstate_struct *ns, double *old_balance,
     {
         if (fabs (*old_balance - balance) > 1e-8)
         {
-            PIHMprintf (VL_ERROR, "FATAL ERRROR: carbon balance error:\n");
+            PIHMprintf (VL_ERROR, "FATAL ERRROR: nitrogen balance error:\n");
             PIHMprintf (VL_ERROR, "Balance from previous day = %lf\n",
                 *old_balance);
             PIHMprintf (VL_ERROR, "Balance from current day  = %lf\n",
                 balance);
-            PIHMprintf (VL_ERROR, "Difference (previous - current) = %lf\n",
+            PIHMprintf (VL_ERROR, "Difference (previous - current) = %lg\n",
                 *old_balance - balance);
             PIHMprintf (VL_ERROR, "Components of current balance:\n");
             PIHMprintf (VL_ERROR,
