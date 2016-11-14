@@ -14,7 +14,7 @@
 void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
 {
     double         *nconc;
-    int             i, j;
+    int             i, j, k;
     double          nleached;
     double          nabr_nconc[4];
     double          totwater;
@@ -36,10 +36,15 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
 
     for (i = 0; i < numele; i++)
     {
-        totwater =
-            (elem[i].daily.avg_surf +
-            elem[i].daily.avg_unsat * elem[i].soil.porosity +
-            elem[i].daily.avg_gw * elem[i].soil.porosity) * 1000.0;
+        totwater = elem[i].daily.avg_surf;
+
+        for (k = 0; k < elem[i].ps.nsoil; k++)
+        {
+            totwater += elem[i].daily.avg_smc[k] * elem[i].ps.sldpth[k];
+        }
+
+        totwater *= 1000.0;
+
         nconc[i] = elem[i].ns.sminn / totwater;
     }
 
