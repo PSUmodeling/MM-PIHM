@@ -747,6 +747,21 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     }
                     n++;
                     break;
+                case NEP_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.nep", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].nvar = pihm->numele;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < pihm->numele; j++)
+                    {
+                        pihm->prtctrl[n].var[j] =
+                            &pihm->elem[j].summary.daily_nep;
+                    }
+                    n++;
+                    break;
                 case NEE_CTRL:
                     sprintf (pihm->prtctrl[n].name, "%s%s.nee", outputdir,
                         simulation);
