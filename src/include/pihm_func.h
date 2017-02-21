@@ -176,6 +176,8 @@ void            NoPac (wstate_struct *, wflux_struct *, const wflux_struct *,
 #endif
     const double *, double, double);
 void            Noah (int, pihm_struct);
+void            PcpDrp (wstate_struct *, wflux_struct *, const lc_struct *,
+    double, double);
 void            Penman (wflux_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, double *, double, int, int);
 double          Pslhs (double);
@@ -211,11 +213,11 @@ void            ShFlx (wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const lc_struct *, const soil_struct *, double, double,
     double, const double *, double);
 void            SmFlx (wstate_struct *, wflux_struct *, const wflux_struct *,
-    pstate_struct *, const lc_struct *, const soil_struct *,
+    pstate_struct *, const soil_struct *,
 #ifdef _CYCLES_
     residue_struct *,
 #endif
-    const double *, double, double);
+    const double *, double );
 double          SnFrac (double, double, double, double);
 void            SnkSrc (double *, double, double, double *,
     const soil_struct *, const double *, int, double, int, double);
@@ -230,8 +232,8 @@ void            SnowNew (const estate_struct *, double, pstate_struct *);
 void            SnowPack (double, double, double *, double *, double, double);
 double          Snowz0 (double, double, double);
 void            SStep (wstate_struct *, wflux_struct *, const wflux_struct *,
-    pstate_struct *, const soil_struct *, double *, double,
-    const double *, double *, double *, double *, double *, double);
+    pstate_struct *, const soil_struct *, double *, const double *, double *,
+    double *, double *, double *, double);
 void            SunPos (int, double, double, double, double, double *,
     double *);
 double          TBnd (double, double, const double *, double, int, int);

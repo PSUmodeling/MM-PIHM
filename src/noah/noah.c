@@ -1337,11 +1337,13 @@ void NoPac (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
 
         wf->eta = wf->etns;
 
-        SmFlx (ws, wf, avgwf, ps, lc, soil,
+        PcpDrp (ws, wf, lc, prcpf, dt);
+
+        SmFlx (ws, wf, avgwf, ps, soil,
 #ifdef _CYCLES_
             residue,
 #endif
-            zsoil, prcpf, dt);
+            zsoil, dt);
     }
     else
     {
@@ -1351,13 +1353,13 @@ void NoPac (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
 
         /* Add dew amount to prcp */
         prcpf += wf->dew;
-        SmFlx (ws, wf, avgwf, ps, lc, soil,
+        PcpDrp (ws, wf, lc, prcpf, dt);
+
+        SmFlx (ws, wf, avgwf, ps, soil,
 #ifdef _CYCLES_
             residue,
 #endif
-            zsoil, prcpf, dt);
-
-        /* Convert modeled evapotranspiration from 'm s-1' to 'kg m-2 s-1'. */
+            zsoil, dt);
     }
 
     /* Based on etp and e values, determine beta */
@@ -1566,26 +1568,15 @@ void ShFlx (wstate_struct *ws, estate_struct *es, eflux_struct *ef,
     ef->ssoil = df1 * (es->stc[0] - es->t1) / (0.5 * zsoil[0]);
 }
 
-void SmFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
-    pstate_struct *ps, const lc_struct *lc, const soil_struct *soil,
-#ifdef _CYCLES_
-    residue_struct *residue,
-#endif
-    const double *zsoil, double prcp, double dt)
+void PcpDrp (wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
+    double prcp, double dt)
 {
     /*
-     * Function SmFlx
+     * Function PcpDrp
      *
-     * Calculate soil moisture flux. The soil moisture content (smc - a per
-     * unit volume measurement) is a dependent variable that is updated with
-     * prognostic eqns. The canopy moisture content (cmc) is also updated.
-     * Frozen ground version: new states added: sh2o, and frozen ground
-     * correction factor, frzfact and parameter slope.
+     * Separated from Noah SmFlx function
+     * The canopy moisture content (cmc) is updated.
      */
-    int             i;
-    double          ai[MAXLYR], bi[MAXLYR], ci[MAXLYR];
-    double          rhstt[MAXLYR];
-    double          sice[MAXLYR];
     double          excess;
     double          rhsct;
     double          trhsct;
@@ -1593,9 +1584,8 @@ void SmFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
     const double    BFACTR = 3.89;
 
     /* Executable code begins here.
-     * Compute the right hand side of the canopy eqn term (rhsct) */
-
-    /* Convert rhsct (a rate) to trhsct (an amount) and add it to existing
+     * Compute the right hand side of the canopy eqn term (rhsct)
+     * Convert rhsct (a rate) to trhsct (an amount) and add it to existing
      * cmc. If resulting amt exceeds max capacity, it becomes drip and will
      * fall to the grnd. */
     rhsct = lc->shdfac * prcp - wf->ec;
@@ -1623,6 +1613,38 @@ void SmFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
     }
     wf->pcpdrp = (1.0 - lc->shdfac) * prcp + wf->drip;
 
+    /* Update canopy water content/interception (cmc). Convert rhsct to an
+     * "amount" value and add to previous cmc value to get new cmc. */
+    ws->cmc += dt * rhsct;
+    if (ws->cmc < 1.0e-20)
+    {
+        ws->cmc = 0.0;
+    }
+    ws->cmc = (ws->cmc < ws->cmcmax) ? ws->cmc : ws->cmcmax;
+
+}
+
+void SmFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
+    pstate_struct *ps, const soil_struct *soil,
+#ifdef _CYCLES_
+    residue_struct *residue,
+#endif
+    const double *zsoil, double dt)
+{
+    /*
+     * Function SmFlx
+     *
+     * Calculate soil moisture flux. The soil moisture content (smc - a per
+     * unit volume measurement) is a dependent variable that is updated with
+     * prognostic eqns.
+     * Frozen ground version: new states added: sh2o, and frozen ground
+     * correction factor, frzfact and parameter slope.
+     */
+    int             i;
+    double          ai[MAXLYR], bi[MAXLYR], ci[MAXLYR];
+    double          rhstt[MAXLYR];
+    double          sice[MAXLYR];
+
     /* Store ice content at each soil layer before calling SRT and SStep */
     for (i = 0; i < ps->nsoil; i++)
     {
@@ -1641,7 +1663,7 @@ void SmFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
      * smc states replaced by sh2o states in SRT subr. sh2o & sice states
      * included in SStep subr. Frozen ground correction factor, frzfact added.
      * All water balance calculations using unfrozen water */
-    if (ps->nwtbl == 0)
+    if (0 == ps->nwtbl)
     {
         for (i = 0; i < ps->nsoil; i++)
         {
@@ -1656,7 +1678,7 @@ void SmFlx (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
             residue,
 #endif
             rhstt, sice, ai, bi, ci, zsoil, dt);
-        SStep (ws, wf, avgwf, ps, soil, rhstt, rhsct, zsoil, sice, ai, bi, ci,
+        SStep (ws, wf, avgwf, ps, soil, rhstt, zsoil, sice, ai, bi, ci,
             dt);
     }
 }
@@ -2035,11 +2057,13 @@ void SnoPac (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
          * SmFlx returns updated soil moisture values for non-glacial land. */
     }
 
-    SmFlx (ws, wf, avgwf, ps, lc, soil,
+    PcpDrp (ws, wf, lc, prcpf, dt);
+
+    SmFlx (ws, wf, avgwf, ps, soil,
 #ifdef _CYCLES_
         residue,
 #endif
-        zsoil, prcpf, dt);
+        zsoil, dt);
 
     /* Before call ShFlx in this snowpack case, set zz1 and yy arguments to
      * special values that ensure that ground heat flux calculated in ShFlx
@@ -2440,7 +2464,7 @@ void SRT (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
 }
 
 void SStep (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
-    pstate_struct *ps, const soil_struct *soil, double *rhstt, double rhsct,
+    pstate_struct *ps, const soil_struct *soil, double *rhstt, 
     const double *zsoil, double *sice, double *ai, double *bi, double *ci,
     double dt)
 {
@@ -2569,15 +2593,7 @@ void SStep (wstate_struct *ws, wflux_struct *wf, const wflux_struct *avgwf,
             avgwf->runoff2_lyr[k] + wf->et[k] + wf->smflxv[k];
     }
 
-    /* Update canopy water content/interception (cmc). Convert rhsct to an
-     * "amount" value and add to previous cmc value to get new cmc. */
     wf->runoff3 = wplus / dt;
-    ws->cmc += dt * rhsct;
-    if (ws->cmc < 1.0e-20)
-    {
-        ws->cmc = 0.0;
-    }
-    ws->cmc = (ws->cmc < ws->cmcmax) ? ws->cmc : ws->cmcmax;
 }
 
 double TBnd (double tu, double tb, const double *zsoil, double zbot, int k,
