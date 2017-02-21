@@ -25,6 +25,7 @@ void InitElemStor (stor_struct *stor, int start_time, int end_time)
     {
         stor->stc[k] = (double *)malloc (length * sizeof (double));
         stor->sh2o[k] = (double *)malloc (length * sizeof (double));
+        stor->smc[k] = (double *)malloc (length * sizeof (double));
     }
     stor->surf = (double *)malloc (length * sizeof (double));
     stor->unsat = (double *)malloc (length * sizeof (double));
@@ -100,6 +101,7 @@ void Save2Stor (pihm_struct pihm, int t, int start_time, int end_time)
             {
                 stor->stc[k][ind] = daily->avg_stc[k];
                 stor->sh2o[k][ind] = daily->avg_sh2o[k];
+                stor->smc[k][ind] = daily->avg_sh2o[k];
             }
             stor->surf[ind] = daily->avg_surf;
             stor->unsat[ind] = daily->avg_unsat;

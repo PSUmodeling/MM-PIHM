@@ -38,7 +38,6 @@ double          DhByDl (double *, double *, double *);
 double          EffKH (double, double, double, double, double, double);
 double          EffKinf (double, double, int, double, double, double);
 double          EffKV (double, double, int, double, double, double);
-double          EqWid (int, double, double);
 double          FieldCapacity (double, double, double, double, double);
 void            FindLine (FILE *, char *, int *, const char *);
 void            FreeData (pihm_struct);
@@ -47,7 +46,11 @@ void            Initialize (pihm_struct, N_Vector);
 void            InitEFlux (eflux_struct *);
 void            InitEState (estate_struct *);
 void            InitForcing (elem_struct *, int, river_struct *, int,
-    atttbl_struct, rivtbl_struct, forc_struct *, calib_struct);
+    atttbl_struct, rivtbl_struct, forc_struct *, calib_struct
+#ifdef _BGC_
+    , int, int, int
+#endif
+    );
 void            InitLC (elem_struct *, int, lctbl_struct, calib_struct);
 void            InitMeshStruct (elem_struct *, int, meshtbl_struct);
 void            InitOutputFile (prtctrl_struct *, int, int);
@@ -116,11 +119,13 @@ void            ReadRiv (char *, rivtbl_struct *, shptbl_struct *,
 void            ReadSoil (char *, soiltbl_struct *);
 int             ReadTS (char *, int *, double *, int);
 int             Readable (char *);
-double          RivArea (int, double, double);
-double          RivPerim (int, double, double);
 void            RiverFlow (pihm_struct);
 void            RiverToEle (river_struct *, elem_struct *, elem_struct *,
     int, double *, double *, double *, double);
+double          _RivWdthAreaPerim (int, int, double, double);
+#define RivArea(...)    _RivWdthAreaPerim(RIVER_AREA, __VA_ARGS__)
+#define RivEqWid(...)   _RivWdthAreaPerim(RIVER_WDTH, __VA_ARGS__)
+#define RivPerim(...)   _RivWdthAreaPerim(RIVER_PERIM, __VA_ARGS__)
 void            SaturationIC (elem_struct *, int, river_struct *, int);
 void            SetCVodeParam (pihm_struct, void *, N_Vector);
 int             SoilTex (double, double);
@@ -494,6 +499,7 @@ void            SoilPsi (const soil_struct *, double, double *);
 void            TotalPhotosynthesis (const epconst_struct *,
     const daily_struct *, const pstate_struct *, epvar_struct *,
     cflux_struct *, psn_struct *, psn_struct *);
+void            WriteBGCIC (char *, elem_struct *, int, river_struct *, int);
 void            ZeroSrcSnk (cstate_struct *, nstate_struct *,
     summary_struct *);
 #endif

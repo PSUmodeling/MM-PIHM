@@ -36,6 +36,7 @@ void DayMet (const stor_struct *stor, daily_struct *daily, int metday)
     for (k = 0; k < MAXLYR; k++)
     {
         daily->avg_sh2o[k] = stor->sh2o[k][metday];
+        daily->avg_smc[k] = stor->smc[k][metday];
     }
 
     for (k = 0; k < NUM_EDGE; k++)

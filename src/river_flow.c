@@ -83,9 +83,9 @@ void RiverFlow (pihm_struct pihm)
              * and ebr */
             total_y = riv->ws.gw + riv->topo.zmin;
             total_y_down = down->ws.gw + down->topo.zmin;
-            wid = EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff);
+            wid = RivEqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff);
             wid_down =
-                EqWid (down->shp.intrpl_ord, down->shp.depth,
+                RivEqWid (down->shp.intrpl_ord, down->shp.depth,
                 down->shp.coeff);
             avg_wid = (wid + wid_down) / 2.0;
             distance = 0.5 * (riv->shp.length + down->shp.length);
@@ -202,7 +202,7 @@ void RiverFlow (pihm_struct pihm)
                 &riv->wf.rivflow[RIGHT_AQUIF2AQUIF], dt);
         }
 
-        avg_wid = EqWid (riv->shp.intrpl_ord, riv->ws.stage, riv->shp.coeff);
+        avg_wid = RivEqWid (riv->shp.intrpl_ord, riv->ws.stage, riv->shp.coeff);
         if (riv->topo.zbed - (riv->ws.gw + riv->topo.zmin) > 0.0)
         {
             dif_y = riv->ws.stage;
@@ -321,43 +321,6 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     }
 }
 
-double EqWid (int riv_order, double riv_depth, double riv_coeff)
-{
-    double          eq_wid = 0.0;
-
-    riv_depth = (riv_depth > 0.0) ? riv_depth : 0.0;
-
-    switch (riv_order)
-    {
-        case RECTANGLE:
-            eq_wid = riv_coeff;
-            break;
-        case TRIANGLE:
-            eq_wid =
-                2.0 * pow (riv_depth + RIVDPTHMIN,
-                1.0 / (riv_order - 1)) / pow (riv_coeff,
-                1.0 / (riv_order - 1));
-            break;
-        case QUADRATIC:
-            eq_wid =
-                2.0 * pow (riv_depth + RIVDPTHMIN,
-                1.0 / (riv_order - 1)) / pow (riv_coeff,
-                1.0 / (riv_order - 1));
-            break;
-        case CUBIC:
-            eq_wid =
-                2.0 * pow (riv_depth + RIVDPTHMIN,
-                1.0 / (riv_order - 1)) / pow (riv_coeff,
-                1.0 / (riv_order - 1));
-            break;
-        default:
-            PIHMprintf (VL_ERROR, "Error: River order %d is not defined.\n",
-                riv_order);
-            PIHMexit (EXIT_FAILURE);
-    }
-    return (eq_wid);
-}
-
 double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
     double rivytot, double length)
 {
@@ -425,55 +388,39 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
     return (flux);
 }
 
-double RivArea (int riv_order, double riv_depth, double riv_coeff)
+double _RivWdthAreaPerim (int type, int riv_order, double riv_depth, double riv_coeff)
 {
+    double          eq_wid = 0.0;
     double          riv_area = 0.0;
-
-    riv_depth = (riv_depth > 0.0) ? riv_depth : 0.0;
-
-    switch (riv_order)
-    {
-        case RECTANGLE:
-            riv_area = riv_depth * riv_coeff;
-            break;
-        case TRIANGLE:
-            riv_area = pow (riv_depth, 2) / riv_coeff;
-            break;
-        case QUADRATIC:
-            riv_area =
-                4.0 * pow (riv_depth, 1.5) / (3.0 * pow (riv_coeff, 0.5));
-            break;
-        case CUBIC:
-            riv_area =
-                3.0 * pow (riv_depth, 4.0 / 3.0) / (2.0 * pow (riv_coeff,
-                    1.0 / 3.0));
-            break;
-        default:
-            PIHMprintf (VL_ERROR, "Error: River order %d is not defined.\n",
-                riv_order);
-            PIHMexit (EXIT_FAILURE);
-    }
-
-    return (riv_area);
-}
-
-double RivPerim (int riv_order, double riv_depth, double riv_coeff)
-{
     double          riv_perim = 0.0;
+    double          ans;
 
     riv_depth = (riv_depth > 0.0) ? riv_depth : 0.0;
 
     switch (riv_order)
     {
         case RECTANGLE:
+            eq_wid = riv_coeff;
+            riv_area = riv_depth * riv_coeff;
             riv_perim = 2.0 * riv_depth + riv_coeff;
             break;
         case TRIANGLE:
+            eq_wid =
+                2.0 * pow (riv_depth + RIVDPTHMIN,
+                1.0 / (riv_order - 1)) / pow (riv_coeff,
+                1.0 / (riv_order - 1));
+            riv_area = pow (riv_depth, 2) / riv_coeff;
             riv_perim =
                 2.0 * riv_depth * pow (1.0 + pow (riv_coeff, 2),
                 0.5) / riv_coeff;
             break;
         case QUADRATIC:
+            eq_wid =
+                2.0 * pow (riv_depth + RIVDPTHMIN,
+                1.0 / (riv_order - 1)) / pow (riv_coeff,
+                1.0 / (riv_order - 1));
+            riv_area =
+                4.0 * pow (riv_depth, 1.5) / (3.0 * pow (riv_coeff, 0.5));
             riv_perim =
                 (pow (riv_depth * (1.0 +
                         4.0 * riv_coeff * riv_depth) / riv_coeff,
@@ -482,6 +429,13 @@ double RivPerim (int riv_order, double riv_depth, double riv_coeff)
                         0.5)) / (2.0 * riv_coeff));
             break;
         case CUBIC:
+            eq_wid =
+                2.0 * pow (riv_depth + RIVDPTHMIN,
+                1.0 / (riv_order - 1)) / pow (riv_coeff,
+                1.0 / (riv_order - 1));
+            riv_area =
+                3.0 * pow (riv_depth, 4.0 / 3.0) / (2.0 * pow (riv_coeff,
+                    1.0 / 3.0));
             riv_perim =
                 2.0 * ((pow (riv_depth * (1.0 + 9.0 * pow (riv_coeff,
                                 2.0 / 3.0) * riv_depth),
@@ -496,5 +450,23 @@ double RivPerim (int riv_order, double riv_depth, double riv_coeff)
                 riv_order);
             PIHMexit (EXIT_FAILURE);
     }
-    return (riv_perim);
+
+    switch (type)
+    {
+        case RIVER_WDTH:
+            ans = eq_wid;
+            break;
+        case RIVER_AREA:
+            ans = riv_area;
+            break;
+        case RIVER_PERIM:
+            ans = riv_perim;
+            break;
+        default:
+            PIHMprintf (VL_ERROR,
+                "Error: Return value type %d id not defined.\n", type);
+            PIHMexit (EXIT_FAILURE);
+    }
+
+    return (ans);
 }

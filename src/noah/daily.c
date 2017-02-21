@@ -41,6 +41,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         {
             elem->daily.avg_stc[k] += elem->es.stc[k];
             elem->daily.avg_sh2o[k] += elem->ws.sh2o[k];
+            elem->daily.avg_smc[k] += elem->ws.smc[k];
             elem->daily.avg_smflxv[k] += elem->wf.smflxv[k];
         }
 
@@ -163,6 +164,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             {
                 elem->daily.avg_stc[k] /= (double)elem->daily.counter;
                 elem->daily.avg_sh2o[k] /= (double)elem->daily.counter;
+                elem->daily.avg_smc[k] /= (double)elem->daily.counter;
                 elem->daily.avg_smflxv[k] /= (double)elem->daily.counter;
             }
 
@@ -229,6 +231,7 @@ void InitDailyStruct (pihm_struct pihm)
         for (k = 0; k < MAXLYR; k++)
         {
             elem->daily.avg_sh2o[k] = 0.0;
+            elem->daily.avg_smc[k] = 0.0;
         }
 
         for (k = 0; k < NUM_EDGE; k++)

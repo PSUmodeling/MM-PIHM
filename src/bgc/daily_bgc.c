@@ -55,7 +55,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
     }
     else                        /* Model mode */
     {
-        /* atmospheric CO2 and Ndep handling */
+        /* Atmospheric CO2 handling */
         if (!(co2->varco2))
         {
             /* constant CO2, constant Ndep */
@@ -65,9 +65,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
         }
         else
         {
-            /* When varco2 = 1, use file for co2 */
-            if (co2->varco2 == 1)
-                co2lvl = GetCO2 (pihm->forc.co2[0], t);
+            co2lvl = GetCO2 (pihm->forc.co2[0], t);
             if (co2lvl < -999)
             {
                 PIHMprintf (VL_ERROR,
@@ -76,34 +74,30 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
                     timestamp->tm_mday);
                 PIHMexit (EXIT_FAILURE);
             }
+        }
 
-            /* When varco2 = 2, use the constant CO2 value, but can vary
-             * Ndep */
-            if (co2->varco2 == 2)
-                co2lvl = co2->co2ppm;
-
-            if (ndepctrl->varndep == 0)
+        /* Ndep handling */
+        if (!(ndepctrl->varndep))
+        {
+            /* Constant Ndep */
+            daily_ndep = ndepctrl->ndep / 365.0;
+            daily_nfix = ndepctrl->nfix / 365.0;
+        }
+        else
+        {
+            daily_ndep = GetNdep (pihm->forc.ndep[0], t);
+            daily_nfix = ndepctrl->nfix / 365.0;
+            if (daily_ndep < -999)
             {
-                /* Increasing CO2, constant Ndep */
-                daily_ndep = ndepctrl->ndep / 365.0;
-                daily_nfix = ndepctrl->nfix / 365.0;
+                PIHMprintf (VL_ERROR,
+                    "Error finding NDEP %4.4d-%2.2d-%2.2d\n",
+                    timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+                    timestamp->tm_mday);
+                PIHMexit (EXIT_FAILURE);
             }
             else
             {
-                daily_ndep = GetNdep (pihm->forc.ndep[0], t);
-                daily_nfix = ndepctrl->nfix / 365.0;
-                if (daily_ndep < -999)
-                {
-                    PIHMprintf (VL_ERROR,
-                        "Error finding NDEP %4.4d-%2.2d-%2.2d\n",
-                        timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-                        timestamp->tm_mday);
-                    PIHMexit (EXIT_FAILURE);
-                }
-                else
-                {
-                    daily_ndep = daily_ndep / 365.0;
-                }
+                daily_ndep = daily_ndep / 365.0;
             }
         }
     }
