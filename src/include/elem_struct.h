@@ -192,6 +192,7 @@ typedef struct soil_struct
     double          NO3_Denitrification;
     double          N2O_Denitrification;
     double          NH4_Volatilization;
+    double          Rock[MAXLYR];
 #endif
 } soil_struct;
 
