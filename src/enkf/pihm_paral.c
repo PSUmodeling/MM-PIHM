@@ -32,8 +32,13 @@ void PIHMParal (int id, int p, char *outputdir)
         /* Check if node number is appropriate */
         if (ens->ne % (p - 1) != 0)
         {
-            fprintf (stderr,
-                "Error: Please specify a correct node number!\n");
+            PIHMprintf (VL_ERROR,
+                "Error: Number of nodes (p) = %d, "
+                "number of ensemble members (ne) = %d.\n", p, ens->ne);
+            PIHMprintf (VL_ERROR,
+                "The number (p - 1) should be a factor of ne.\n"
+                "Please specify a different ne or "
+                "a different p and try again.\n");
             PIHMexit (EXIT_FAILURE);
         }
         else
