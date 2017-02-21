@@ -162,34 +162,36 @@ endif
 #-------------------
 # Flux-PIHM-Cycles
 #-------------------
+CYCLES_PATH = ../Cycles/src
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS = -D_PIHM_ -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
-	cycles/Crop.c\
-	cycles/CropHarvest.c\
-	cycles/CropProcess.c\
-	cycles/CropThermalTime.c\
-	cycles/CropTranspiration.c\
 	cycles/cycles_func.c\
 	cycles/cycles_init.c\
   	cycles/cycles_read.c\
-	cycles/DailyOperation.c\
-	cycles/Fertilization.c\
-	cycles/FieldOperation.c\
-	cycles/Irrigation.c\
-	cycles/Residue.c\
-	cycles/Soil.c\
-	cycles/SoilCarbon.c\
-	cycles/SoilEvaporation.c\
-	cycles/SoilNitrogen.c\
-	cycles/SoilSolute.c\
-	cycles/Tillage.c\
 	noah/daily.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\
 	noah/lsm_read.c\
   	noah/noah.c\
 	spa/spa.c
+  CYCLES_SRCS_ = \
+	Crop.c\
+	CropHarvest.c\
+	CropProcess.c\
+	CropThermalTime.c\
+	CropTranspiration.c\
+	DailyOperation.c\
+	Fertilization.c\
+	FieldOperation.c\
+	Irrigation.c\
+	Residue.c\
+	Soil.c\
+	SoilCarbon.c\
+	SoilEvaporation.c\
+	SoilNitrogen.c\
+	SoilSolute.c\
+	Tillage.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."
@@ -202,6 +204,9 @@ OBJS = $(SRCS:.c=.o)
 MODULE_SRCS = $(patsubst %,$(SRCDIR)/%,$(MODULE_SRCS_))
 MODULE_HEADERS = $(patsubst %,$(SRCDIR)/%,$(MODULE_HEADERS_))
 MODULE_OBJS = $(MODULE_SRCS:.c=.o)
+
+CYCLES_SRCS = $(patsubst %,$(CYCLES_PATH)/%,$(CYCLES_SRCS_))
+CYCLES_OBJS = $(CYCLES_SRCS:.c=.o)
 
 .PHONY: all clean help sundials
 
@@ -250,11 +255,11 @@ flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
 flux-pihm-cycles:	## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
-flux-pihm-cycles: $(OBJS) $(MODULE_OBJS)
+flux-pihm-cycles: $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS) $(LFLAGS) $(LIBS)
 
 tool:
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o convert src/tool/convert.c
@@ -267,4 +272,4 @@ clean:			## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ pihm flux-pihm flux-pihm-bgc flux-pihm-cycles rt-flux-pihm flux-pihm-enkf
+	$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm flux-pihm-bgc flux-pihm-cycles rt-flux-pihm flux-pihm-enkf
