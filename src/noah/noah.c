@@ -85,9 +85,8 @@ void Noah (int t, pihm_struct pihm)
             elem->soil.waterContent[j] = elem->ws.sh2o[j];
 #endif
 
-            elem->avgwf.runoff2_lyr[j] =
-                (elem->avgwf.smflxh[0][j] + elem->avgwf.smflxh[1][j] +
-                elem->avgwf.smflxh[2][j]) / elem->topo.area;
+            elem->avgwf.runoff2_lyr[j] = elem->avgwf.smflxh[0][j] +
+                elem->avgwf.smflxh[1][j] + elem->avgwf.smflxh[2][j];
         }
 
         /*

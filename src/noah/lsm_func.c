@@ -614,12 +614,12 @@ double AvgElev (elem_struct *elem, int numele)
 }
 
 void CalcLatFlx (const wstate_struct *ws, const pstate_struct *ps,
-    wflux_struct *wf)
+    wflux_struct *wf, double area)
 {
     double          sattot;
     int             k, ks;
 
-    for (k = 0; k < 3; k++)
+    for (k = 0; k < NUM_EDGE; k++)
     {
         for (ks = 0; ks < MAXLYR; ks++)
         {
@@ -634,17 +634,18 @@ void CalcLatFlx (const wstate_struct *ws, const pstate_struct *ps,
         sattot += ps->satdpth[ks];
     }
 
-    for (k = 0; k < 3; k++)
+    for (k = 0; k < NUM_EDGE; k++)
     {
         if (sattot <= 0.0)
         {
-            wf->smflxh[k][ps->nsoil - 1] = wf->subsurf[k];
+            wf->smflxh[k][ps->nsoil - 1] = wf->subsurf[k] / area;
         }
         else
         {
             for (ks = 0; ks < ps->nsoil; ks++)
             {
-                wf->smflxh[k][ks] = ps->satdpth[ks] / sattot * wf->subsurf[k];
+                wf->smflxh[k][ks] =
+                    ps->satdpth[ks] / sattot * wf->subsurf[k] / area;
             }
         }
     }
