@@ -550,54 +550,6 @@ double FrozRain (double prcp, double sfctmp)
     return (ffrozp);
 }
 
-void AvgFlux (elem_struct *elem, int numele, int op)
-{
-    static int      counter;
-    int             i, j, k;
-    double          denom;
-
-    if (op == SUM)
-    {
-        for (i = 0; i < numele; i++)
-        {
-            elem[i].avgwf.infil += elem[i].wf.infil;
-            elem[i].avgwf.runoff2 += elem[i].wf.runoff2;
-
-            for (j = 0; j < 3; j++)
-            {
-                elem[i].avgwf.subsurf[j] += elem[i].wf.subsurf[j];
-
-                for (k = 0; k < elem[i].ps.nsoil; k++)
-                {
-                    elem[i].avgwf.smflxh[j][k] += elem[i].wf.smflxh[j][k];
-                }
-            }
-        }
-        counter++;
-    }
-    else
-    {
-        denom = (counter == 0) ? 1.0 : (double)counter;
-
-        for (i = 0; i < numele; i++)
-        {
-            elem[i].avgwf.infil /= denom;
-            elem[i].avgwf.runoff2 /= denom;
-
-            for (j = 0; j < 3; j++)
-            {
-                elem[i].avgwf.subsurf[j] /= denom;
-
-                for (k = 0; k < elem[i].ps.nsoil; k++)
-                {
-                    elem[i].avgwf.smflxh[j][k] /= denom;
-                }
-            }
-        }
-        counter = 0;
-    }
-}
-
 double AvgElev (elem_struct *elem, int numele)
 {
     double          elev = 0.0;

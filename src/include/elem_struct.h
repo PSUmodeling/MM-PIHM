@@ -2624,9 +2624,6 @@ typedef struct elem_struct
     wflux_struct    wf;
     estate_struct   es;
     eflux_struct    ef;
-#ifdef _NOAH_
-    wflux_struct    avgwf;
-#endif
     pstate_struct   ps;
 #ifdef _DAILY_
     daily_struct    daily;

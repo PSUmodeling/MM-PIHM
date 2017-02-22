@@ -744,8 +744,6 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
         InitWFlux (&elem[i].wf);
 
 #ifdef _NOAH_
-        InitWFlux (&elem[i].avgwf);
-
         elem[i].ps.snotime1 = 0.0;
         elem[i].ps.ribb = 0.0;
         elem[i].ps.fcr = 1.0;

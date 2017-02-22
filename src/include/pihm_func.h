@@ -140,7 +140,6 @@ double          WiltingPoint (double, double, double, double);
 #ifdef _NOAH_
 void            AlCalc (pstate_struct *, double, int);
 double          AvgElev (elem_struct *, int);
-void            AvgFlux (elem_struct *, int, int);
 double          CSnow (double);
 void            CalHum (pstate_struct *, estate_struct *);
 void            CalcLatFlx (const wstate_struct *, const pstate_struct *,
@@ -168,9 +167,8 @@ void            HRT (wstate_struct *, estate_struct *, eflux_struct *,
     double *);
 void            InitLsm (elem_struct *, int, ctrl_struct, noahtbl_struct,
     calib_struct);
-void            NoPac (wstate_struct *, wflux_struct *, const wflux_struct *,
-    estate_struct *, eflux_struct *, pstate_struct *, lc_struct *,
-    soil_struct *,
+void            NoPac (wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *,
 #ifdef _CYCLES_
     comm_struct *, residue_struct *,
 #endif
@@ -196,15 +194,15 @@ void            Rosr12 (double *, double *, double *, double *, double *,
     double *, int);
 void            SfcDifOff (pstate_struct *, const lc_struct *, double, double,
     int);
-void            SFlx (wstate_struct *, wflux_struct *, const wflux_struct *,
-    estate_struct *, eflux_struct *, pstate_struct *, lc_struct *,
-    epconst_struct *, soil_struct *,
+void            SFlx (wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
+    soil_struct *,
 #ifdef _CYCLES_
     comm_struct *, residue_struct *,
 #endif
     int);
-void            SRT (wstate_struct *, wflux_struct *, const wflux_struct *,
-    pstate_struct *, const soil_struct *,
+void            SRT (wstate_struct *, wflux_struct *, pstate_struct *,
+    const soil_struct *,
 #ifdef _CYCLES_
     residue_struct *,
 #endif
@@ -212,8 +210,8 @@ void            SRT (wstate_struct *, wflux_struct *, const wflux_struct *,
 void            ShFlx (wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const lc_struct *, const soil_struct *, double, double,
     double, const double *, double);
-void            SmFlx (wstate_struct *, wflux_struct *, const wflux_struct *,
-    pstate_struct *, const soil_struct *,
+void            SmFlx (wstate_struct *, wflux_struct *, pstate_struct *,
+    const soil_struct *,
 #ifdef _CYCLES_
     residue_struct *,
 #endif
@@ -221,9 +219,8 @@ void            SmFlx (wstate_struct *, wflux_struct *, const wflux_struct *,
 double          SnFrac (double, double, double, double);
 void            SnkSrc (double *, double, double, double *,
     const soil_struct *, const double *, int, double, int, double);
-void            SnoPac (wstate_struct *, wflux_struct *, const wflux_struct *,
-    estate_struct *, eflux_struct *, pstate_struct *, lc_struct *,
-    soil_struct *,
+void            SnoPac (wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *,
 #ifdef _CYCLES_
     comm_struct *, residue_struct *,
 #endif
@@ -231,9 +228,9 @@ void            SnoPac (wstate_struct *, wflux_struct *, const wflux_struct *,
 void            SnowNew (const estate_struct *, double, pstate_struct *);
 void            SnowPack (double, double, double *, double *, double, double);
 double          Snowz0 (double, double, double);
-void            SStep (wstate_struct *, wflux_struct *, const wflux_struct *,
-    pstate_struct *, const soil_struct *, double *, const double *, double *,
-    double *, double *, double *, double);
+void            SStep (wstate_struct *, wflux_struct *, pstate_struct *,
+    const soil_struct *, double *, const double *, double *, double *,
+    double *, double *, double);
 void            SunPos (int, double, double, double, double, double *,
     double *);
 double          TBnd (double, double, const double *, double, int, int);
