@@ -79,9 +79,6 @@ void Noah (int t, pihm_struct pihm)
 #ifdef _CYCLES_
             elem->soil.waterContent[j] = elem->ws.sh2o[j];
 #endif
-
-            elem->wf.runoff2_lyr[j] = elem->wf.smflxh[0][j] +
-                elem->wf.smflxh[1][j] + elem->wf.smflxh[2][j];
         }
 
         /*
@@ -101,6 +98,46 @@ void Noah (int t, pihm_struct pihm)
     }
 }
 
+void NoahHydrol (pihm_struct pihm, double dt)
+{
+    int             i, j, kz;
+    double          zsoil[MAXLYR];
+    elem_struct    *elem;
+
+    for (i = 0; i < pihm->numele; i++)
+    {
+        elem = &pihm->elem[i];
+
+        zsoil[0] = -elem->ps.sldpth[0];
+        for (kz = 1; kz < elem->ps.nsoil; kz++)
+        {
+            zsoil[kz] = -elem->ps.sldpth[kz] + zsoil[kz - 1];
+        }
+
+        for (j = 0; j < elem->ps.nsoil; j++)
+        {
+            elem->ws.smc[j] = (elem->ws.smc[j] > elem->soil.smcmin + 0.02) ?
+                elem->ws.smc[j] : elem->soil.smcmin + 0.02;
+            elem->ws.smc[j] = (elem->ws.smc[j] < elem->soil.smcmax) ?
+                elem->ws.smc[j] : elem->soil.smcmax;
+            elem->ws.sh2o[j] = (elem->ws.sh2o[j] < elem->ws.smc[j]) ?
+                elem->ws.sh2o[j] : elem->ws.smc[j];
+#ifdef _CYCLES_
+            elem->soil.waterContent[j] = elem->ws.sh2o[j];
+#endif
+
+            elem->wf.runoff2_lyr[j] = elem->wf.smflxh[0][j] +
+                elem->wf.smflxh[1][j] + elem->wf.smflxh[2][j];
+        }
+
+        SmFlx (&elem->ws, &elem->wf, &elem->ps, &elem->soil,
+#ifdef _CYCLES_
+            &elem->residue,
+#endif
+            zsoil, dt);
+    }
+}
+    
 void SFlx (wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
     soil_struct *soil,
@@ -1329,12 +1366,6 @@ void NoPac (wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         wf->eta = wf->etns;
 
         PcpDrp (ws, wf, lc, prcpf, dt);
-
-        SmFlx (ws, wf, ps, soil,
-#ifdef _CYCLES_
-            residue,
-#endif
-            zsoil, dt);
     }
     else
     {
@@ -1345,12 +1376,6 @@ void NoPac (wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         /* Add dew amount to prcp */
         prcpf += wf->dew;
         PcpDrp (ws, wf, lc, prcpf, dt);
-
-        SmFlx (ws, wf, ps, soil,
-#ifdef _CYCLES_
-            residue,
-#endif
-            zsoil, dt);
     }
 
     /* Based on etp and e values, determine beta */

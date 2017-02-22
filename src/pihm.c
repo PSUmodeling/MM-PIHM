@@ -103,6 +103,9 @@ void PIHM (char *simulation, char *outputdir, int first_cycle
          */
         Summary (pihm, CV_Y, (double)pihm->ctrl.stepsize);
 
+#ifdef _NOAH_
+        NoahHydrol (pihm, (double)pihm->ctrl.stepsize);
+#endif
         /*
          * Daily timestep modules
          */
