@@ -65,9 +65,6 @@ void Noah (int t, pihm_struct pihm)
         elem->ef.solnet = elem->ef.soldn * (1.0 - elem->ps.albedo);
         elem->ef.lwdn = elem->ef.longwave * elem->ps.emissi;
 
-        elem->ps.nwtbl = FindWT (elem->ps.sldpth, elem->ps.nsoil,
-            elem->ws.gw, elem->ps.satdpth);
-
         for (j = 0; j < elem->ps.nsoil; j++)
         {
             elem->ws.smc[j] = (elem->ws.smc[j] > elem->soil.smcmin + 0.02) ?
@@ -107,6 +104,10 @@ void NoahHydrol (pihm_struct pihm, double dt)
     for (i = 0; i < pihm->numele; i++)
     {
         elem = &pihm->elem[i];
+
+        /* Find water table position */
+        elem->ps.nwtbl = FindWT (elem->ps.sldpth, elem->ps.nsoil,
+            elem->ws.gw, elem->ps.satdpth);
 
         zsoil[0] = -elem->ps.sldpth[0];
         for (kz = 1; kz < elem->ps.nsoil; kz++)
@@ -1996,12 +1997,6 @@ void SnoPac (wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     }
 
     PcpDrp (ws, wf, lc, prcpf, dt);
-
-    SmFlx (ws, wf, ps, soil,
-#ifdef _CYCLES_
-        residue,
-#endif
-        zsoil, dt);
 
     /* Before call ShFlx in this snowpack case, set zz1 and yy arguments to
      * special values that ensure that ground heat flux calculated in ShFlx
