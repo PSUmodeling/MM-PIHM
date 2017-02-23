@@ -2,8 +2,8 @@
 
 void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele,
     river_struct *riv, int numriv, int t
-#ifdef _BGC_
-    , ctrl_struct *ctrl
+#ifdef _NOAH_
+    , ctrl_struct *ctrl, double lat, double lon, double elev, double tavg
 #endif
     )
 {
@@ -14,7 +14,11 @@ void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele,
     }
 
     /* Meteorological forcing */
-    ApplyMeteoForc (forc, elem, numele, t);
+    ApplyMeteoForc (forc, elem, numele, t
+#ifdef _NOAH_
+        , ctrl->rad_mode, lat, lon, elev, tavg
+#endif
+        );
 
     /* LAI forcing */
 #ifndef _CYCLES_
@@ -66,10 +70,17 @@ void ApplyBC (forc_struct *forc, elem_struct *elem, int numele, int t)
     }
 }
 
-void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t)
+void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t
+#ifdef _NOAH_
+    , int rad_mode, double lat, double lon, double elev, double tavg
+#endif
+    )
 {
     int             ind;
     int             i, k;
+#ifdef _NOAH_
+    double          zenith, azimuth;
+#endif
 
     for (k = 0; k < forc->nmeteo; k++)
     {
@@ -77,6 +88,7 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t)
     }
 
 #ifdef _NOAH_
+    /* Calculate Sun position for topographic solar radiation */
     if (forc->nrad > 0)
     {
         for (k = 0; k < forc->nrad; k++)
@@ -84,6 +96,12 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t)
             IntrplForcing (forc->rad[k], t, 2);
         }
     }
+
+    if (rad_mode > 0)
+    {
+        SunPos (t, lat, lon, elev, tavg, &zenith, &azimuth);
+    }
+
 #endif
 
     for (i = 0; i < numele; i++)
@@ -101,10 +119,18 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t)
         elem[i].ps.sfcprs = forc->meteo[ind].value[PRES_TS];
 
 #ifdef _NOAH_
-        if (forc->nrad > 0)
+        /* Calculate solar radiation */
+        if (rad_mode > 0)
         {
-            elem[i].ef.soldir = forc->rad[ind].value[SOLDIR_TS];
-            elem[i].ef.soldif = forc->rad[ind].value[SOLDIF_TS];
+            if (forc->nrad > 0)
+            {
+                elem[i].ef.soldir = forc->rad[ind].value[SOLDIR_TS];
+                elem[i].ef.soldif = forc->rad[ind].value[SOLDIF_TS];
+            }
+
+            elem[i].ef.soldn = TopoRadn (elem[i].ef.soldir, elem[i].ef.soldif,
+                zenith, azimuth, elem[i].topo.slope, elem[i].topo.aspect,
+                elem[i].topo.h_phi, elem[i].topo.svf);
         }
 #endif
     }

@@ -79,11 +79,8 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     {
 #ifdef _NOAH_
         ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv,
-            pihm->numriv, pihm->ctrl.starttime
-#ifdef _BGC_
-            , &pihm->ctrl
-#endif
-            );
+            pihm->numriv, pihm->ctrl.starttime , &pihm->ctrl, pihm->latitude,
+            pihm->longitude, pihm->elevation, pihm->noahtbl.tbot);
 #endif
         SaturationIC (pihm->elem, pihm->numele, pihm->riv, pihm->numriv);
     }

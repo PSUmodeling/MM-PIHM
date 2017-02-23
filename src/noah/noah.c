@@ -7,30 +7,12 @@ void Noah (int t, pihm_struct pihm)
     double          ksolar;
     double          tau;
 #endif
-    double          zenith, azimuth;
-    double          sdir, sdif;
     elem_struct    *elem;
 
-    /*
-     * Calculate Sun position for topographic solar radiation
-     */
-    SunPos (t, pihm->latitude, pihm->longitude, pihm->elevation,
-        pihm->noahtbl.tbot, &zenith, &azimuth);
 
     for (i = 0; i < pihm->numele; i++)
     {
         elem = &pihm->elem[i];
-
-        /* Calculate solar radiation */
-        if (pihm->ctrl.rad_mode > 0)
-        {
-            sdir = elem->ef.soldir;
-            sdif = elem->ef.soldif;
-
-            elem->ef.soldn =
-                TopoRadn (sdir, sdif, zenith, azimuth, elem->topo.slope,
-                elem->topo.aspect, elem->topo.h_phi, elem->topo.svf);
-        }
 
         CalHum (&elem->ps, &elem->es);
 

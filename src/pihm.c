@@ -75,8 +75,9 @@ void PIHM (char *simulation, char *outputdir, int first_cycle
         /* Apply forcing */
         ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv,
             pihm->numriv, t
-#ifdef _BGC_
-            , &pihm->ctrl
+#ifdef _NOAH_
+            , &pihm->ctrl, pihm->latitude, pihm->longitude, pihm->elevation,
+            pihm->noahtbl.tbot
 #endif
             );
 

@@ -15,12 +15,16 @@
 void            ApplyBC (forc_struct *, elem_struct *, int, int);
 void            ApplyForcing (forc_struct *, elem_struct *, int,
     river_struct *, int, int
-#ifdef _BGC_
-    , ctrl_struct *
+#ifdef _NOAH_
+    , ctrl_struct *, double, double, double, double
 #endif
     );
 void            ApplyLAI (forc_struct *, elem_struct *, int, int);
-void            ApplyMeteoForc (forc_struct *, elem_struct *, int, int);
+void            ApplyMeteoForc (forc_struct *, elem_struct *, int, int
+#ifdef _NOAH_
+    , int, double, double, double, double
+#endif
+    );
 void            ApplyRiverBC (forc_struct *, river_struct *, int, int);
 void            AsciiArt ();
 double          AvgKV (double, double, double, double, double, double, double,
