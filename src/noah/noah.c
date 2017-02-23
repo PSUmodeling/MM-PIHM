@@ -3,12 +3,7 @@
 void Noah (int t, pihm_struct pihm)
 {
     int             i, j;
-#ifdef _CYCLES_
-    double          ksolar;
-    double          tau;
-#endif
     elem_struct    *elem;
-
 
     for (i = 0; i < pihm->numele; i++)
     {
@@ -19,23 +14,6 @@ void Noah (int t, pihm_struct pihm)
         elem->ps.ffrozp = FrozRain (elem->wf.prcp, elem->es.sfctmp);
 
         elem->ps.alb = BADVAL;
-
-#ifdef _CYCLES_
-        if (elem->comm.svRadiationInterception > 0.0)
-        {
-            ksolar = 0.5;
-
-            tau =
-                1.0 - ((elem->comm.svRadiationInterception >
-                    0.98) ? 0.98 : elem->comm.svRadiationInterception);
-
-            elem->ps.proj_lai = -log (tau) / ksolar;
-        }
-        else
-        {
-            elem->ps.proj_lai = 0.0;
-        }
-#endif
 
         elem->ws.cmcmax = elem->lc.cmcfactr * elem->ps.proj_lai;
 
