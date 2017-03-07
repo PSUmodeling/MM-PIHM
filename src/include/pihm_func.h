@@ -19,7 +19,11 @@ void            ApplyForcing (forc_struct *, elem_struct *, int,
     , ctrl_struct *, double, double, double, double
 #endif
     );
-void            ApplyLAI (forc_struct *, elem_struct *, int, int);
+void            ApplyLAI (forc_struct *, elem_struct *, int, int
+#ifdef _BGC_
+    ,int
+#endif
+    );
 void            ApplyMeteoForc (forc_struct *, elem_struct *, int, int
 #ifdef _NOAH_
     , int, double, double, double, double
