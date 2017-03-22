@@ -1,4 +1,4 @@
-MM-PIHM
+MM-PIHM [![Build Status](https://travis-ci.org/PSUmodeling/MM-PIHM.svg?branch=master)](https://travis-ci.org/PSUmodeling/MM-PIHM)
 =======
 
 The Penn State Integrated Hydrologic Model with multi-modules.
