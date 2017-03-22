@@ -262,7 +262,6 @@ double AvgY (double diff, double yi, double yinabr)
     return (avg_y);
 }
 
-
 double DhByDl (double *l1, double *l2, double *surfh)
 {
     return (-1.0 * (l1[2] * (surfh[1] - surfh[0]) + l1[1] * (surfh[0] -
