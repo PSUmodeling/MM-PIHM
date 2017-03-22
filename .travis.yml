@@ -1,0 +1,6 @@
+language: c
+compiler: gcc
+script:
+  - make sundials
+  - make pihm
+  - make clean; make flux-pihm
