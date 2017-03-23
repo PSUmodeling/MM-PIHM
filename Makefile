@@ -8,7 +8,7 @@ CFLAGS = -g -O0 -Wall
 CVODE_PATH = ./cvode/instdir
 
 SRCDIR = ./src
-LIBS = -lm /usr/lib64/librt.so -Wl,-rpath,${CVODE_PATH}/lib
+LIBS = -lm -Wl,-rpath,${CVODE_PATH}/lib
 INCLUDES = \
 	-I${SRCDIR}/include\
 	-I${CVODE_PATH}/include\
