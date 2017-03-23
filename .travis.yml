@@ -1,10 +1,9 @@
 language: c
 compiler: gcc
 script:
-  - make sundials
-  - make pihm
-  - make clean; make flux-pihm
-  - make clean; make flux-pihm-bgc
+  - make cvode && make pihm
+  - make clean && make flux-pihm
+  - make clean && make flux-pihm-bgc
 branches:
   only:
   - master
