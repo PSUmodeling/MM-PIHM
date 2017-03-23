@@ -13,8 +13,6 @@ void ParseCmdLineParam (int argc, char *argv[], int *spec_output_mode,
                 /* Specify output directory */
                 sprintf (outputdir, "output/%s/", optarg);
                 *spec_output_mode = 1;
-                printf
-                    ("Output directory is specified as \"%s\".\n", outputdir);
                 break;
             case 'd':
                 /* Debug mode */
@@ -73,6 +71,13 @@ void CreateOutputDir (char *outputdir, int spec_output_mode)
         sprintf (outputdir, "output/%s.%s/", project, str);
 
         PIHMprintf (VL_NORMAL, "\nOutput directory: %s\n", outputdir);
+    }
+    else
+    {
+        
+        PIHMprintf
+            (VL_NORMAL, "Output directory is specified as \"%s\".\n",
+            outputdir);
     }
 
     mkdir (outputdir, 0755);
