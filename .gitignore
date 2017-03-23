@@ -30,42 +30,6 @@
 *.x86_64
 *.hex
 
-# SUNDIALS files
-/sundials/Makefile
-/sundials/config.h
-/sundials/config.status
-/sundials/config.log
-/sundials/config/sundials_config.h
-/sundials/cvode/examples_par/Makefile
-/sundials/cvode/examples_ser/Makefile
-/sundials/cvode/fcmix/.libs/
-/sundials/cvode/fcmix/Makefile
-/sundials/cvode/source/.libs/
-/sundials/cvode/source/Makefile
-/sundials/cvodes/examples_par/Makefile
-/sundials/cvodes/examples_ser/Makefile
-/sundials/cvodes/source/.libs/
-/sundials/cvodes/source/Makefile
-/sundials/ida/examples_par/Makefile
-/sundials/ida/examples_ser/Makefile
-/sundials/ida/fcmix/.libs/
-/sundials/ida/fcmix/Makefile
-/sundials/ida/source/.libs/
-/sundials/ida/source/Makefile
-/sundials/include/
-/sundials/kinsol/examples_par/Makefile
-/sundials/kinsol/examples_ser/Makefile
-/sundials/kinsol/fcmix/.libs/
-/sundials/kinsol/fcmix/Makefile
-/sundials/kinsol/source/.libs/
-/sundials/kinsol/source/Makefile
-/sundials/libtool
-/sundials/nvec_par/.libs/
-/sundials/nvec_par/Makefile
-/sundials/nvec_ser/.libs/
-/sundials/nvec_ser/Makefile
-/sundials/shared/source/Makefile
-
 # PIHM executables
 /pihm
 /flux-pihm
