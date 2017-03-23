@@ -5,19 +5,19 @@
 CC = gcc
 CFLAGS = -g -O0 -Wall
 
-SUNDIALS_PATH = ../sundials/instdir
+CVODE_PATH = ./cvode/instdir
 
 SRCDIR = ./src
-LIBS = -lm /usr/lib64/librt.so
+LIBS = -lm /usr/lib64/librt.so -Wl,-rpath,${CVODE_PATH}/lib
 INCLUDES = \
 	-I${SRCDIR}/include\
-	-I${SUNDIALS_PATH}/include\
-	-I${SUNDIALS_PATH}/include/cvode\
-	-I${SUNDIALS_PATH}/include/sundials\
-	-I${SUNDIALS_PATH}/include/nvector
+	-I${CVODE_PATH}/include\
+	-I${CVODE_PATH}/include/cvode\
+	-I${CVODE_PATH}/include/sundials\
+	-I${CVODE_PATH}/include/nvector
 
 
-LFLAGS = -lsundials_cvode -lsundials_nvecserial -L${SUNDIALS_PATH}/lib
+LFLAGS = -lsundials_cvode -lsundials_nvecserial -L${CVODE_PATH}/lib
 
 SFLAGS = -D_PIHM_
 
@@ -210,7 +210,7 @@ MODULE_OBJS = $(MODULE_SRCS:.c=.o)
 CYCLES_SRCS = $(patsubst %,$(CYCLES_PATH)/%,$(CYCLES_SRCS_))
 CYCLES_OBJS = $(CYCLES_SRCS:.c=.o)
 
-.PHONY: all clean help sundials
+.PHONY: all clean help cvode
 
 help:			## Show this help
 	@echo
@@ -223,17 +223,18 @@ help:			## Show this help
 	@echo "NOTE: Please always \"make clean\" when switching from one module to another!"
 	@echo
 
-all:			## Install sundials and compile PIHM
-all:	sundials pihm
+all:			## Install cvode and compile PIHM
+all:	cvode pihm
 
-sundials:		## Install sundials library
-sundials:
-	cd sundials; ./configure; make; make install; cd ../
+cvode:			## Install cvode library
+cvode:
+	@cd cvode && mkdir -p instdir && mkdir -p builddir
+	@cd ${CVODE_PATH} && cmake -DCMAKE_INSTALL_PREFIX=../instdir -DEXAMPLES_INSTALL=OFF ../ && make && make install
 	@echo "SUNDIALS library installed."
 
 pihm:			## Compile PIHM
 pihm:	$(OBJS)
-	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS) -Wl,-rpath,/gpfs/home/yzs123/work/Projects/sundials/instdir/lib
+	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
 
 flux-pihm:		## Complile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
 flux-pihm: $(OBJS) $(MODULE_OBJS)
