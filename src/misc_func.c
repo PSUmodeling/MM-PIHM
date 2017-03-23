@@ -69,9 +69,7 @@ void CreateOutputDir (char *outputdir, int spec_output_mode)
         timestamp = localtime (&rawtime);
 
         /* Create output directory based on projectname and time */
-        sprintf (str, "%2.2d%2.2d%2.2d%2.2d%2.2d",
-            timestamp->tm_year + 1900 - 2000, timestamp->tm_mon + 1,
-            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+        strftime (str, 11, "%y%m%d%H%M", timestamp);
         sprintf (outputdir, "output/%s.%s/", project, str);
 
         PIHMprintf (VL_NORMAL, "\nOutput directory: %s\n", outputdir);
@@ -141,6 +139,7 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
 {
     realtype        solvert;
     realtype        cvode_val;
+    char            timestr[MAXSTRING];
     struct tm      *timestamp;
     time_t          rawtime;
     int             flag;
@@ -156,19 +155,16 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
     *t = (int)solvert;
     rawtime = (time_t) (*t);
     timestamp = gmtime (&rawtime);
+    strftime (timestr, 17, "%Y-%m-%d %H:%M", timestamp);
 
     if (verbose_mode)
     {
-        PIHMprintf (VL_VERBOSE, " Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d (%d)\n",
-            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, *t);
+        PIHMprintf (VL_VERBOSE, " Step = %s (%d)\n", timestr, *t);
     }
 #ifndef _ENKF_
     else if (rawtime % 3600 == 0)
     {
-        PIHMprintf (VL_NORMAL, " Step = %4.4d-%2.2d-%2.2d %2.2d:%2.2d\n",
-            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+        PIHMprintf (VL_NORMAL, " Step = %s\n", timestr);
     }
 #endif
 }

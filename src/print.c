@@ -1241,6 +1241,7 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
     time_t          rawtime;
     char            ascii_fn[MAXSTRING];
     char            dat_fn[MAXSTRING];
+    char            timestr[MAXSTRING];
     FILE           *fid;
     double          outval;
     double          outtime;
@@ -1263,10 +1264,8 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
                 fid = fopen (ascii_fn, "a");
                 CheckFile (fid, ascii_fn);
 
-                fprintf (fid, "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"",
-                    timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-                    timestamp->tm_mday, timestamp->tm_hour,
-                    timestamp->tm_min);
+                strftime (timestr, 17, "%Y-%m-%d %H:%M", timestamp);
+                fprintf (fid, "\"%s\"", timestr);
                 for (j = 0; j < prtctrl[i].nvar; j++)
                 {
                     if (prtctrl[i].intvl > dt)
