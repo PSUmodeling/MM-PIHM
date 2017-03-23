@@ -6,7 +6,7 @@ int Readable (char *cmdstr)
     int             i;
     char            ch;
 
-    for (i = 0; i < strlen (cmdstr); i++)
+    for (i = 0; i < (int)(strlen (cmdstr)); i++)
     {
         if (cmdstr[i] == 32 || cmdstr[i] == '\t' || cmdstr[i] == ' ')
         {
@@ -18,7 +18,7 @@ int Readable (char *cmdstr)
         }
     }
 
-    if (i >= strlen (cmdstr))
+    if (i >= (int)(strlen (cmdstr)))
     {
         readable = 0;
     }
