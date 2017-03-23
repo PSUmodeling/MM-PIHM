@@ -128,7 +128,7 @@ int             ReadTS (char *, int *, double *, int);
 int             Readable (char *);
 void            RiverFlow (pihm_struct);
 void            RiverToEle (river_struct *, elem_struct *, elem_struct *,
-    int, double *, double *, double *, double);
+    int, double *, double *, double *);
 double          _RivWdthAreaPerim (int, int, double, double);
 #define RivArea(...)    _RivWdthAreaPerim(RIVER_AREA, __VA_ARGS__)
 #define RivEqWid(...)   _RivWdthAreaPerim(RIVER_WDTH, __VA_ARGS__)

@@ -191,7 +191,7 @@ void RiverFlow (pihm_struct pihm)
             RiverToEle (riv, left, right, i + 1,
                 &riv->wf.rivflow[LEFT_SURF2CHANL],
                 &riv->wf.rivflow[LEFT_AQUIF2CHANL],
-                &riv->wf.rivflow[LEFT_AQUIF2AQUIF], dt);
+                &riv->wf.rivflow[LEFT_AQUIF2AQUIF]);
         }
 
         if (riv->rightele > 0)
@@ -199,7 +199,7 @@ void RiverFlow (pihm_struct pihm)
             RiverToEle (riv, right, left, i + 1,
                 &riv->wf.rivflow[RIGHT_SURF2CHANL],
                 &riv->wf.rivflow[RIGHT_AQUIF2CHANL],
-                &riv->wf.rivflow[RIGHT_AQUIF2AQUIF], dt);
+                &riv->wf.rivflow[RIGHT_AQUIF2AQUIF]);
         }
 
         avg_wid = RivEqWid (riv->shp.intrpl_ord, riv->ws.stage, riv->shp.coeff);
@@ -220,7 +220,7 @@ void RiverFlow (pihm_struct pihm)
 }
 
 void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
-    int ind, double *fluxsurf, double *fluxriv, double *fluxsub, double dt)
+    int ind, double *fluxsurf, double *fluxriv, double *fluxsub)
 {
     double          total_y;
     double          dif_y_sub;
