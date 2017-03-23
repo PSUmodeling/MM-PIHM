@@ -463,6 +463,7 @@ double _RivWdthAreaPerim (int type, int riv_order, double riv_depth, double riv_
             ans = riv_perim;
             break;
         default:
+            ans = BADVAL;
             PIHMprintf (VL_ERROR,
                 "Error: Return value type %d id not defined.\n", type);
             PIHMexit (EXIT_FAILURE);
