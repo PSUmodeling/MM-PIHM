@@ -125,12 +125,16 @@ void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             flag;
 
-    flag = CVodeSetFdata (cvode_mem, pihm);
+    flag = CVodeInit (cvode_mem, Hydrol, (realtype)pihm->ctrl.starttime,
+        CV_Y);
+    flag = CVodeSStolerances (cvode_mem,(realtype) pihm->ctrl.reltol,
+        pihm->ctrl.abstol);
+    flag = CVodeSetUserData (cvode_mem, pihm);
     flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
     flag = CVodeSetStabLimDet (cvode_mem, TRUE);
     flag = CVodeSetMaxStep (cvode_mem, (realtype) pihm->ctrl.maxstep);
-    flag = CVodeMalloc (cvode_mem, Hydrol, (realtype) pihm->ctrl.starttime,
-        CV_Y, CV_SS, (realtype) pihm->ctrl.reltol, &pihm->ctrl.abstol);
+    //flag = CVodeMalloc (cvode_mem, Hydrol, (realtype) pihm->ctrl.starttime,
+    //    CV_Y, CV_SS, ;
     flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
 }
 
@@ -149,7 +153,7 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
     flag = CVodeSetMaxNumSteps (cvode_mem, (long int)(stepsize * 20));
     flag = CVodeSetStopTime (cvode_mem, (realtype) nextptr);
     flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert,
-        CV_NORMAL_TSTOP);
+        CV_NORMAL);
     flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
 
     *t = (int)solvert;

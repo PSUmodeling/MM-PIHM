@@ -5,17 +5,19 @@
 CC = gcc
 CFLAGS = -g -O0 -Wall
 
-SUNDIALS_PATH = ./sundials
+SUNDIALS_PATH = ../sundials/instdir
 
 SRCDIR = ./src
-LIBS = -lm
+LIBS = -lm /usr/lib64/librt.so
 INCLUDES = \
 	-I${SRCDIR}/include\
 	-I${SUNDIALS_PATH}/include\
 	-I${SUNDIALS_PATH}/include/cvode\
-	-I${SUNDIALS_PATH}/include/sundials
+	-I${SUNDIALS_PATH}/include/sundials\
+	-I${SUNDIALS_PATH}/include/nvector
 
-LFLAGS = -L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
+
+LFLAGS = -lsundials_cvode -lsundials_nvecserial -L${SUNDIALS_PATH}/lib
 
 SFLAGS = -D_PIHM_
 
@@ -231,7 +233,7 @@ sundials:
 
 pihm:			## Compile PIHM
 pihm:	$(OBJS)
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
+	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS) -Wl,-rpath,/gpfs/home/yzs123/work/Projects/sundials/instdir/lib
 
 flux-pihm:		## Complile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
 flux-pihm: $(OBJS) $(MODULE_OBJS)
