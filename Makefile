@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------
 
 CC = gcc
-CFLAGS = -g -O2 -Wall
+CFLAGS = -g -O2 -Wall -Wextra
 
 CVODE_PATH = ./cvode/instdir
 
