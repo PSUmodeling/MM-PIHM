@@ -448,7 +448,7 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      */
     if (lc->shdfac > 0.0)
     {
-        CanRes (ws, es, ef, ps, zsoil, soil, lc, epc);
+        CanRes (ws, es, ef, ps, zsoil, soil, epc);
     }
     else
     {
@@ -615,7 +615,7 @@ void AlCalc (pstate_struct *ps, double dt, int snowng)
 
 void CanRes (wstate_struct *ws, estate_struct *es, eflux_struct *ef,
     pstate_struct *ps, const double *zsoil, const soil_struct *soil,
-    const lc_struct *lc, const epconst_struct *epc)
+    const epconst_struct *epc)
 {
     /*
      * Function CanRes
