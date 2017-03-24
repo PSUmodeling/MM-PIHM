@@ -180,7 +180,7 @@ void            NoPac (wstate_struct *, wflux_struct *, estate_struct *,
     comm_struct *, residue_struct *,
 #endif
     const double *, double, double);
-void            Noah (int, pihm_struct);
+void            Noah (pihm_struct);
 void            NoahHydrol (pihm_struct, double);
 void            PcpDrp (wstate_struct *, wflux_struct *, const lc_struct *,
     double, double);

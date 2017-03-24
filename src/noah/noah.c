@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Noah (int t, pihm_struct pihm)
+void Noah (pihm_struct pihm)
 {
     int             i, j;
     elem_struct    *elem;

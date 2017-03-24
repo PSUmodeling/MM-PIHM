@@ -86,7 +86,7 @@ void PIHM (char *simulation, char *outputdir, int first_cycle
         {
 #ifdef _NOAH_
             /* Calculate surface energy balance */
-            Noah (t, pihm);
+            Noah (pihm);
 #else
             /* Calculate Interception storage and ET */
             IntcpSnowET (t, (double)pihm->ctrl.etstep, pihm);
