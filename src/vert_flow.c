@@ -161,7 +161,7 @@ void VerticalFlow (pihm_struct pihm)
             //kavg = (deficit * keff + elem->ws.gw * elem->soil.ksatv) / (deficit + elem->ws.gw);
             kavg =
                 AvgKV (elem->soil.dmac, deficit, elem->ws.gw,
-                elem->ps.macpore_status, satn, satkfunc, elem->soil.kmacv,
+                elem->ps.macpore_status, satkfunc, elem->soil.kmacv,
                 elem->soil.ksatv, elem->soil.areafh);
 
             elem->wf.rechg = (deficit <= 0.0) ? 0.0 : kavg * dh_by_dz;
@@ -175,7 +175,7 @@ void VerticalFlow (pihm_struct pihm)
 }
 
 double AvgKV (double dmac, double deficit, double gw, double macp_status,
-    double satn, double satkfunc, double kmacv, double ksatv, double areafh)
+    double satkfunc, double kmacv, double ksatv, double areafh)
 {
     double          k1, k2, k3;
     double          d1, d2, d3;

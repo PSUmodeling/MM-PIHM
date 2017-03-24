@@ -32,7 +32,7 @@ void            ApplyMeteoForc (forc_struct *, elem_struct *, int, int
 void            ApplyRiverBC (forc_struct *, river_struct *, int, int);
 void            AsciiArt ();
 double          AvgKV (double, double, double, double, double, double, double,
-    double, double);
+    double);
 double          AvgYsfc (double, double, double);
 double          AvgY (double, double, double);
 void            BKInput (char *, char *);
