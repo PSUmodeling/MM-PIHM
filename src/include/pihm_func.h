@@ -443,7 +443,7 @@ void            InitCropSV (crop_struct *);
 
 #ifdef _BGC_
 void            AnnualRates (const epconst_struct *, epvar_struct *);
-void            BGCSpinup (char *, pihm_struct, char *);
+void            BGCSpinup (pihm_struct, char *);
 void            CanopyCond (const epconst_struct *, const daily_struct *,
     pstate_struct *, const soil_struct *, epvar_struct *);
 void            CheckCarbonBalance (cstate_struct *, double *, int);

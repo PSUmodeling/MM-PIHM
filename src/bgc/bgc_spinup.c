@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void BGCSpinup (char *simulation, pihm_struct pihm, char *outputdir)
+void BGCSpinup (pihm_struct pihm, char *outputdir)
 {
     FILE           *soilc_file;
     FILE           *vegc_file;

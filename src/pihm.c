@@ -159,7 +159,7 @@ void PIHM (char *simulation, char *outputdir, int first_cycle
 #ifdef _BGC_
     if (pihm->ctrl.bgc_spinup)
     {
-        BGCSpinup (simulation, pihm, outputdir);
+        BGCSpinup (pihm, outputdir);
     }
 #endif
 
