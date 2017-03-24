@@ -69,7 +69,7 @@ void InitRiverStor (river_stor_struct *stor, int start_time, int end_time)
     }
 }
 
-void Save2Stor (pihm_struct pihm, int t, int start_time, int end_time)
+void Save2Stor (pihm_struct pihm, int t, int start_time)
 {
     int             i, k;
     int             ind;

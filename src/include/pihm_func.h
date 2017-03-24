@@ -500,7 +500,7 @@ void            RestartOutput (cstate_struct *, nstate_struct *,
     epvar_struct *, bgcic_struct *);
 void            RiverDayMet (const river_stor_struct *, river_daily_struct *,
     int);
-void            Save2Stor (pihm_struct, int, int, int);
+void            Save2Stor (pihm_struct, int, int);
 void            SoilPsi (const soil_struct *, double, double *);
 void            TotalPhotosynthesis (const epconst_struct *,
     const daily_struct *, const pstate_struct *, epvar_struct *,
