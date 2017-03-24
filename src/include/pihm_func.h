@@ -225,7 +225,7 @@ void            SmFlx (wstate_struct *, wflux_struct *, pstate_struct *,
     const double *, double );
 double          SnFrac (double, double, double, double);
 void            SnkSrc (double *, double, double, double *,
-    const soil_struct *, const double *, int, double, int, double);
+    const soil_struct *, const double *, double, int, double);
 void            SnoPac (wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, lc_struct *, soil_struct *,
 #ifdef _CYCLES_

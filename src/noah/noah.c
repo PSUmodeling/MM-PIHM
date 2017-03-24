@@ -1078,7 +1078,7 @@ void HRT (wstate_struct *ws, estate_struct *es, eflux_struct *ef,
         {
             tavg = TmpAvg (tsurf, es->stc[0], tbk, zsoil, ps->nsoil, 0);
             SnkSrc (&tsnsr, tavg, ws->smc[0], &ws->sh2o[0], soil, zsoil,
-                ps->nsoil, dt, 0, qtot);
+                dt, 0, qtot);
             rhsts[0] -= tsnsr / denom;
         }
     }
@@ -1087,7 +1087,7 @@ void HRT (wstate_struct *ws, estate_struct *es, eflux_struct *ef,
         if ((sice > 0.0) || (es->stc[0] < TFREEZ))
         {
             SnkSrc (&tsnsr, es->stc[0], ws->smc[0], &ws->sh2o[0], soil, zsoil,
-                ps->nsoil, dt, 0, qtot);
+                dt, 0, qtot);
             rhsts[0] -= tsnsr / denom;
         }
         /* This ends section for top soil layer. */
@@ -1179,7 +1179,7 @@ void HRT (wstate_struct *ws, estate_struct *es, eflux_struct *ef,
                 (tbk < TFREEZ) || (tbk1 < TFREEZ))
             {
                 SnkSrc (&tsnsr, tavg, ws->smc[k], &ws->sh2o[k], soil, zsoil,
-                    ps->nsoil, dt, k, qtot);
+                    dt, k, qtot);
                 rhsts[k] = rhsts[k] - tsnsr / denom;
             }
         }
@@ -1188,7 +1188,7 @@ void HRT (wstate_struct *ws, estate_struct *es, eflux_struct *ef,
             if ((sice > 0.0) || (es->stc[k] < TFREEZ))
             {
                 SnkSrc (&tsnsr, es->stc[k], ws->smc[k], &ws->sh2o[k], soil,
-                    zsoil, ps->nsoil, dt, k, qtot);
+                    zsoil, dt, k, qtot);
                 rhsts[k] = rhsts[k] - tsnsr / denom;
             }
         }
@@ -1650,7 +1650,7 @@ double SnFrac (double sneqv, double snup, double salp, double snowh)
 }
 
 void SnkSrc (double *tsnsr, double tavg, double smc, double *sh2o,
-    const soil_struct *soil, const double *zsoil, int nsoil, double dt, int k,
+    const soil_struct *soil, const double *zsoil, double dt, int k,
     double qtot)
 {
     /*
