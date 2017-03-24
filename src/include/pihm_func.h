@@ -242,7 +242,7 @@ void            SunPos (int, double, double, double, double, double *,
     double *);
 double          TBnd (double, double, const double *, double, int, int);
 double          TDfCnd (double, double, double, double, double);
-double          TmpAvg (double, double, double, const double *, int, int);
+double          TmpAvg (double, double, double, const double *, int);
 double          TopoRadn (double, double, double, double, double, double,
     const double *, double);
 void            Transp (const wstate_struct *, wflux_struct *,

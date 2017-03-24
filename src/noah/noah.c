@@ -1076,7 +1076,7 @@ void HRT (wstate_struct *ws, estate_struct *es, eflux_struct *ef,
         if ((sice > 0.0) || (es->stc[0] < TFREEZ) ||
             (tsurf < TFREEZ) || (tbk < TFREEZ))
         {
-            tavg = TmpAvg (tsurf, es->stc[0], tbk, zsoil, ps->nsoil, 0);
+            tavg = TmpAvg (tsurf, es->stc[0], tbk, zsoil, 0);
             SnkSrc (&tsnsr, tavg, ws->smc[0], &ws->sh2o[0], soil, zsoil,
                 dt, 0, qtot);
             rhsts[0] -= tsnsr / denom;
@@ -1174,7 +1174,7 @@ void HRT (wstate_struct *ws, estate_struct *es, eflux_struct *ef,
 
         if (itavg)
         {
-            tavg = TmpAvg (tbk, es->stc[k], tbk1, zsoil, ps->nsoil, k);
+            tavg = TmpAvg (tbk, es->stc[k], tbk1, zsoil, k);
             if ((sice > 0.0) || (es->stc[k] < TFREEZ) ||
                 (tbk < TFREEZ) || (tbk1 < TFREEZ))
             {
@@ -2612,7 +2612,7 @@ double TDfCnd (double smc, double qz, double smcmax, double smcmin,
 }
 
 double TmpAvg (double tup, double tm, double tdn, const double *zsoil,
-    int nsoil, int k)
+    int k)
 {
     /*
      * Function TmpAvg
