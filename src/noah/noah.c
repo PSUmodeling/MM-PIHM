@@ -2271,7 +2271,7 @@ void SRT (wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     mxsmc = ws->sh2o[0];
 
     dsmdz = (ws->sh2o[0] - ws->sh2o[1]) / (-0.5 * zsoil[1]);
-    WDfCnd (&wdf, &wcnd, mxsmc, sicemax, dsmdz, macpore[0], soil, ps);
+    WDfCnd (&wdf, &wcnd, mxsmc, sicemax, macpore[0], soil, ps);
 
     /* Calc the matrix coefficients ai, bi, and ci for the top layer */
     ddz = 1.0 / (-0.5 * zsoil[1]);
@@ -2295,8 +2295,7 @@ void SRT (wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
             mxsmc2 = ws->sh2o[k];
             denom = zsoil[k - 1] - zsoil[k + 1];
             dsmdz2 = (ws->sh2o[k] - ws->sh2o[k + 1]) / (denom * 0.5);
-            WDfCnd (&wdf2, &wcnd2, mxsmc2, sicemax, dsmdz2, macpore[k], soil,
-                ps);
+            WDfCnd (&wdf2, &wcnd2, mxsmc2, sicemax, macpore[k], soil, ps);
             /* Calc some partial products for later use in calc'ng rhstt
              * Calc the matrix coef, ci, after calc'ng its partial product */
             ddz2 = 2.0 / denom;
@@ -2805,8 +2804,7 @@ void Transp (const wstate_struct *ws, wflux_struct *wf,
 }
 
 void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
-    double dsmdz, int macpore, const soil_struct *soil,
-    const pstate_struct *ps)
+    int macpore, const soil_struct *soil, const pstate_struct *ps)
 {
     /*
      * Function WDfCnd

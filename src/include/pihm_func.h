@@ -248,7 +248,7 @@ double          TopoRadn (double, double, double, double, double, double,
 void            Transp (const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *,
     const double *);
-void            WDfCnd (double *, double *, double, double, double, int,
+void            WDfCnd (double *, double *, double, double, int,
     const soil_struct *, const pstate_struct *);
 #endif
 

@@ -243,6 +243,7 @@ void ReadEPC (epctbl_struct *epctbl)
                 break;
             default:
                 strcpy (fn, "N/A");
+                epc_file = NULL;
         }
 
         if (strcasecmp (fn, "N/A") != 0)
