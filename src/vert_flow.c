@@ -182,7 +182,7 @@ double AvgKV (double dmac, double deficit, double gw, double macp_status,
 
     if (deficit > dmac)
     {
-        k1 = EffKV (satkfunc, satn, macp_status, kmacv, ksatv, areafh);
+        k1 = EffKV (satkfunc, macp_status, kmacv, ksatv, areafh);
         d1 = dmac;
 
         k2 = satkfunc * ksatv;
@@ -193,7 +193,7 @@ double AvgKV (double dmac, double deficit, double gw, double macp_status,
     }
     else
     {
-        k1 = EffKV (satkfunc, satn, macp_status, kmacv, ksatv, areafh);
+        k1 = EffKV (satkfunc, macp_status, kmacv, ksatv, areafh);
         d1 = deficit;
 
         k2 = kmacv * areafh + ksatv * (1.0 - areafh);
@@ -237,8 +237,8 @@ double EffKinf (double ksatfunc, double elemsatn, int status, double mackv,
     return (keff);
 }
 
-double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
-    double kv, double areaf)
+double EffKV (double ksatfunc, int status, double mackv, double kv,
+    double areaf)
 {
     double          keff = 0.0;
 

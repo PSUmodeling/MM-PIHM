@@ -45,7 +45,7 @@ void            CreateOutputDir (char *, int);
 double          DhByDl (double *, double *, double *);
 double          EffKH (double, double, double, double, double, double);
 double          EffKinf (double, double, int, double, double, double);
-double          EffKV (double, double, int, double, double, double);
+double          EffKV (double, int, double, double, double);
 double          FieldCapacity (double, double, double, double, double);
 void            FindLine (FILE *, char *, int *, const char *);
 void            FreeData (pihm_struct);

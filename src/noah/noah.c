@@ -2841,7 +2841,7 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
     if (macpore && ps->macpore_status > MTX_CTRL)
     {
         *wcnd =
-            EffKV (satkfunc, factr2, ps->macpore_status, soil->kmacv,
+            EffKV (satkfunc, ps->macpore_status, soil->kmacv,
             soil->ksatv, soil->areafh);
     }
     else
@@ -2864,7 +2864,7 @@ void WDfCnd (double *wdf, double *wcnd, double smc, double sicemax,
         {
             *wdf =
                 vkwgt * *wdf + (1.0 - vkwgt) * dpsidsm * EffKV (satkfunc,
-                factr1, ps->macpore_status, soil->kmacv, soil->ksatv,
+                ps->macpore_status, soil->kmacv, soil->ksatv,
                 soil->areafh);
         }
         else
