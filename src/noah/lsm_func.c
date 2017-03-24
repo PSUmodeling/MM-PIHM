@@ -565,8 +565,7 @@ double AvgElev (elem_struct *elem, int numele)
     return (elev);
 }
 
-void CalcLatFlx (const wstate_struct *ws, const pstate_struct *ps,
-    wflux_struct *wf, double area)
+void CalcLatFlx (const pstate_struct *ps, wflux_struct *wf, double area)
 {
     double          sattot;
     int             k, ks;

@@ -149,8 +149,7 @@ void            AlCalc (pstate_struct *, double, int);
 double          AvgElev (elem_struct *, int);
 double          CSnow (double);
 void            CalHum (pstate_struct *, estate_struct *);
-void            CalcLatFlx (const wstate_struct *, const pstate_struct *,
-    wflux_struct *, double);
+void            CalcLatFlx (const pstate_struct *, wflux_struct *, double);
 void            CalcSlopeAspect (elem_struct *, int, meshtbl_struct);
 void            CanRes (wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const double *, const soil_struct *, const lc_struct *,
