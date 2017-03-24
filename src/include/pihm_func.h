@@ -213,7 +213,7 @@ void            SRT (wstate_struct *, wflux_struct *, pstate_struct *,
 #ifdef _CYCLES_
     residue_struct *,
 #endif
-    double *, double *, double *, double *, double *, const double *, double);
+    double *, double *, double *, double *, double *, const double *);
 void            ShFlx (wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const lc_struct *, const soil_struct *, double, double,
     double, const double *, double);

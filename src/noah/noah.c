@@ -1611,7 +1611,7 @@ void SmFlx (wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
 #ifdef _CYCLES_
             residue,
 #endif
-            rhstt, sice, ai, bi, ci, zsoil, dt);
+            rhstt, sice, ai, bi, ci, zsoil);
         SStep (ws, wf, ps, soil, rhstt, zsoil, sice, ai, bi, ci, dt);
     }
 }
@@ -2173,7 +2173,7 @@ void SRT (wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     residue_struct *residue,
 #endif
     double *rhstt, double *sice, double *ai, double *bi, double *ci,
-    const double *zsoil, double dt)
+    const double *zsoil)
 {
     /*
      * Function SRT
