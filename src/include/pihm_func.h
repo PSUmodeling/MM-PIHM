@@ -81,7 +81,7 @@ void            IntrplForcing (tsdata_struct, int, int);
 double          KrFunc (double, double, double);
 void            LateralFlow (pihm_struct);
 int             MacroporeStatus (double, double, double, double, double,
-    double, double);
+    double);
 void            MapOutput (char *, pihm_struct, char *);
 double          MonthlyLAI (int, int);
 double          MonthlyMF (int);
