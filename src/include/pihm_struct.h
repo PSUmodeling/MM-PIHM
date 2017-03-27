@@ -263,6 +263,8 @@ typedef struct prtctrl_struct
     int             nvar;
     double        **var;
     double         *buffer;
+    FILE           *txtfile;
+    FILE           *datfile;
 } prtctrl_struct;
 
 /*****************************************************************************

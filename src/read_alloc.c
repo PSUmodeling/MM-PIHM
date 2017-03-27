@@ -1458,6 +1458,11 @@ void FreeData (pihm_struct pihm)
     {
         free (pihm->prtctrl[i].var);
         free (pihm->prtctrl[i].buffer);
+        fclose (pihm->prtctrl[i].datfile);
+        if (pihm->ctrl.ascii)
+        {
+            fclose (pihm->prtctrl[i].txtfile);
+        }
     }
 
     free (pihm->elem);

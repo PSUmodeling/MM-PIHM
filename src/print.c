@@ -1213,7 +1213,6 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
 
 void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii)
 {
-    FILE           *fid;
     char            ascii_fn[MAXSTRING];
     char            dat_fn[MAXSTRING];
     int             i;
@@ -1221,14 +1220,12 @@ void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii)
     for (i = 0; i < nprint; i++)
     {
         sprintf (dat_fn, "%s.dat", prtctrl[i].name);
-        fid = fopen (dat_fn, "w");
-        fclose (fid);
+        prtctrl[i].datfile = fopen (dat_fn, "w");
 
         if (ascii)
         {
             sprintf (ascii_fn, "%s.txt", prtctrl[i].name);
-            fid = fopen (ascii_fn, "w");
-            fclose (fid);
+            prtctrl[i].txtfile = fopen (ascii_fn, "w");
         }
     }
 }
@@ -1239,10 +1236,7 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
     int             i, j;
     struct tm      *timestamp;
     time_t          rawtime;
-    char            ascii_fn[MAXSTRING];
-    char            dat_fn[MAXSTRING];
     char            timestr[MAXSTRING];
-    FILE           *fid;
     double          outval;
     double          outtime;
 
@@ -1260,36 +1254,27 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
 
             if (ascii)
             {
-                sprintf (ascii_fn, "%s.txt", prtctrl[i].name);
-                fid = fopen (ascii_fn, "a");
-                CheckFile (fid, ascii_fn);
-
                 strftime (timestr, 17, "%Y-%m-%d %H:%M", timestamp);
-                fprintf (fid, "\"%s\"", timestr);
+                fprintf (prtctrl[i].txtfile, "\"%s\"", timestr);
                 for (j = 0; j < prtctrl[i].nvar; j++)
                 {
                     if (prtctrl[i].intvl > dt)
                     {
-                        fprintf (fid, "\t%lf",
+                        fprintf (prtctrl[i].txtfile, "\t%lf",
                             prtctrl[i].buffer[j] /
                             ((double)(prtctrl[i].intvl / dt)));
                     }
                     else
                     {
-                        fprintf (fid, "\t%lf", prtctrl[i].buffer[j]);
+                        fprintf (prtctrl[i].txtfile, "\t%lf", prtctrl[i].buffer[j]);
                     }
                 }
-                fprintf (fid, "\n");
-                fflush (fid);
-                fclose (fid);
+                fprintf (prtctrl[i].txtfile, "\n");
+                fflush (prtctrl[i].txtfile);
             }
 
-            sprintf (dat_fn, "%s.dat", prtctrl[i].name);
-            fid = fopen (dat_fn, "ab");
-            CheckFile (fid, dat_fn);
-
             outtime = (double)t;
-            fwrite (&outtime, sizeof (double), 1, fid);
+            fwrite (&outtime, sizeof (double), 1, prtctrl[i].datfile);
             for (j = 0; j < prtctrl[i].nvar; j++)
             {
                 if (prtctrl[i].intvl > dt)
@@ -1302,12 +1287,11 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
                 {
                     outval = prtctrl[i].buffer[j];
                 }
-                fwrite (&outval, sizeof (double), 1, fid);
+                fwrite (&outval, sizeof (double), 1, prtctrl[i].datfile);
 
                 prtctrl[i].buffer[j] = 0.0;
             }
-            fflush (fid);
-            fclose (fid);
+            fflush (prtctrl[i].datfile);
         }
     }
 }
