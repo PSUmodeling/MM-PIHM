@@ -656,7 +656,6 @@ typedef struct plant_struct
     /* Planting */
     int             opYear;
     int             opDay;
-    int             status;
     char            cropName[128];
     int             usesAutoIrrigation;
     int             usesAutoFertilization;
@@ -671,7 +670,6 @@ typedef struct tillage_struct
     /* Tillage */
     int             opYear;
     int             opDay;
-    int             status;
     char            opToolName[MAXSTRING];
     double          opDepth;
     double          opSDR;
@@ -688,7 +686,6 @@ typedef struct fixirr_struct
     /* Fixed Irrigation */
     int             opYear;
     int             opDay;
-    int             status;
     double          opVolume;
 } fixirr_struct;
 
@@ -697,7 +694,6 @@ typedef struct fixfert_struct
     /* Fixed Fertilization */
     int             opYear;
     int             opDay;
-    int             status;
     char            opSource[MAXSTRING];
     double          opMass;
     char            opForm[MAXSTRING];
@@ -728,7 +724,7 @@ typedef struct autoirr_struct
 typedef struct cropmgmt_struct
 {
     int             yearsInRotation;
-    int             adjustedYields;
+    //int             adjustedYields;
     int             automaticNitrogen;
     int             automaticPhosphorus;
     int             automaticSulfur;
@@ -749,6 +745,8 @@ typedef struct cropmgmt_struct
 
     autoirr_struct *autoIrrigation;
     int             numAutoIrrigation;
+
+    int            *op_status[4];
 
     int             usingAutoIrr;
     int             usingAutoFert;

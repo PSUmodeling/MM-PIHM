@@ -81,48 +81,44 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
         opind = agtbl->op[i] - 1;
 
-        nplnt = mgmttbl->cropmgmt[opind].totalCropsPerRotation;
-        if (nplnt > 0)
-        {
-            cropmgmt->plantingOrder =
-                (plant_struct *)malloc (nplnt * sizeof (plant_struct));
-        }
-
-        ntill = mgmttbl->cropmgmt[opind].numTillage;
-        if (ntill > 0)
-        {
-            cropmgmt->Tillage =
-                (tillage_struct *)malloc (ntill * sizeof (tillage_struct));
-        }
-
-        nfert = mgmttbl->cropmgmt[opind].numFertilization;
-        if (nfert > 0)
-        {
-            cropmgmt->FixedFertilization =
-                (fixfert_struct *)malloc (nfert * sizeof (fixfert_struct));
-        }
-
-        nirrg = mgmttbl->cropmgmt[opind].numIrrigation;
-        if (nirrg > 0)
-        {
-            cropmgmt->FixedIrrigation =
-                (fixirr_struct *)malloc (nirrg * sizeof (fixirr_struct));
-        }
-
-        nautoirrg = mgmttbl->cropmgmt[opind].numAutoIrrigation;
-        if (nautoirrg > 0)
-        {
-            cropmgmt->autoIrrigation =
-                (autoirr_struct *)malloc (nautoirrg *
-                sizeof (autoirr_struct));
-        }
-
-        *cropmgmt = mgmttbl->cropmgmt[opind];
-
         cropmgmt->yearsInRotation = agtbl->rotsz[i];
         cropmgmt->automaticNitrogen = agtbl->auto_N[i];
         cropmgmt->automaticPhosphorus = agtbl->auto_P[i];
         cropmgmt->automaticSulfur = agtbl->auto_S[i];
+
+        cropmgmt->rotationYear = 0;
+
+        cropmgmt->totalCropsPerRotation = mgmttbl->cropmgmt[opind].totalCropsPerRotation;
+        cropmgmt->plantingOrder = mgmttbl->cropmgmt[opind].plantingOrder;
+
+        cropmgmt->numTillage = mgmttbl->cropmgmt[opind].numTillage;
+        cropmgmt->Tillage = mgmttbl->cropmgmt[opind].Tillage;
+
+        cropmgmt->numFertilization = mgmttbl->cropmgmt[opind].numFertilization;
+        cropmgmt->FixedFertilization = mgmttbl->cropmgmt[opind].FixedFertilization;
+
+        cropmgmt->numIrrigation = mgmttbl->cropmgmt[opind].numIrrigation;
+        cropmgmt->FixedIrrigation = mgmttbl->cropmgmt[opind].FixedIrrigation;
+
+        cropmgmt->numAutoIrrigation = mgmttbl->cropmgmt[opind].numAutoIrrigation;
+        cropmgmt->autoIrrigation = mgmttbl->cropmgmt[opind].autoIrrigation;
+
+        cropmgmt->op_status[PLANT_OP] =
+            (int *)calloc (cropmgmt->totalCropsPerRotation, sizeof (int));
+        cropmgmt->op_status[TILLAGE_OP] =
+            (int *)calloc (cropmgmt->numTillage, sizeof (int));
+        cropmgmt->op_status[FIXIRR_OP] =
+            (int *)calloc (cropmgmt->numIrrigation, sizeof (int));
+        cropmgmt->op_status[FIXFERT_OP] =
+            (int *)calloc (cropmgmt->numFertilization, sizeof (int));
+
+        for (k = 0; k < elem[i].ps.nsoil; k++)
+        {
+            cropmgmt->tillageFactor[k] = 0.0;
+        }
+
+        cropmgmt->usingAutoIrr = mgmttbl->cropmgmt[opind].usingAutoIrr;
+        cropmgmt->usingAutoFert = mgmttbl->cropmgmt[opind].usingAutoFert;
 
         /*
          * Copy crop description to each element
@@ -238,12 +234,6 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
         elem[i].comm.NumActiveCrop = 0;
 
-        elem[i].cropmgmt.rotationYear = 0;
-
-        for (k = 0; k < elem[i].ps.nsoil; k++)
-        {
-            elem[i].cropmgmt.tillageFactor[k] = 0.0;
-        }
     }
 
     for (i = 0; i < numriv; i++)

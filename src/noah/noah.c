@@ -1609,7 +1609,7 @@ void SmFlx (wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     {
         SRT (ws, wf, ps, soil,
 #ifdef _CYCLES_
-            residue,
+            residue, dt,
 #endif
             rhstt, sice, ai, bi, ci, zsoil);
         SStep (ws, wf, ps, soil, rhstt, zsoil, sice, ai, bi, ci, dt);
@@ -2170,7 +2170,7 @@ void SnowNew (const estate_struct *es, double newsn, pstate_struct *ps)
 void SRT (wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     const soil_struct *soil,
 #ifdef _CYCLES_
-    residue_struct *residue,
+    residue_struct *residue, double dt,
 #endif
     double *rhstt, double *sice, double *ai, double *bi, double *ci,
     const double *zsoil)

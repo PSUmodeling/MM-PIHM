@@ -211,7 +211,7 @@ void            SFlx (wstate_struct *, wflux_struct *, estate_struct *,
 void            SRT (wstate_struct *, wflux_struct *, pstate_struct *,
     const soil_struct *,
 #ifdef _CYCLES_
-    residue_struct *,
+    residue_struct *, double,
 #endif
     double *, double *, double *, double *, double *, const double *);
 void            ShFlx (wstate_struct *, estate_struct *, eflux_struct *,
@@ -390,10 +390,11 @@ void            AddCrop (crop_struct *);
 void            KillCrop (crop_struct *);
 void            UpdateCommunity (comm_struct *);
 double          ComputeHarvestIndex (double, double, double, double, double);
-int             IsOperationToday (int, int, void *, int, int *, int);
-void            ApplyFertilizer (fixfert_struct *, soil_struct *,
+int             IsOperationToday (int, int, const void *, int, int *, int *,
+    int);
+void            ApplyFertilizer (const fixfert_struct *, soil_struct *,
     residue_struct *);
-void            UpdateOperationStatus (void *, int, int);
+void            UpdateOperationStatus (int *, int);
 void            FieldOperation (int, int, int, cropmgmt_struct *,
     comm_struct *, soil_struct *, residue_struct *, ctrl_struct *,
     soilc_struct *, weather_struct *);

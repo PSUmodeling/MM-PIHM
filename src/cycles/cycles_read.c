@@ -652,8 +652,6 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                     PIHMexit (EXIT_FAILURE);
                 }
 
-                planting->status = 0;
-
                 /* Link planting order and crop description */
                 for (k = 0; k < croptbl->number; k++)
                 {
@@ -746,8 +744,6 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 NextLine (op_file, cmdstr, &lno);
                 ReadKeyword (cmdstr, "FORAGE_HARVEST",
                     &tillage->forageHarvest, 'd', filename, lno);
-
-                tillage->status = 0;
             }
         }
 
@@ -837,8 +833,6 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 NextLine (op_file, cmdstr, &lno);
                 ReadKeyword (cmdstr, "S", &fixfert->opS, 'd', filename, lno);
 
-                fixfert->status = 0;
-
                 if (fixfert->opC_Organic + fixfert->opC_Charcoal +
                     fixfert->opN_Organic + fixfert->opN_Charcoal +
                     fixfert->opN_NH4 + fixfert->opN_NO3 +
@@ -887,8 +881,6 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 NextLine (op_file, cmdstr, &lno);
                 ReadKeyword (cmdstr, "VOLUME", &fixirr->opVolume, 'd',
                     filename, lno);
-
-                fixirr->status = 0;
             }
         }
 
