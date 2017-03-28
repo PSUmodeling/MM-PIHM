@@ -115,20 +115,20 @@ double TopoRadn (double sdir, double sdif, double zenith,
     return (soldown);
 }
 
-void DefSldpth (double *sldpth, int *nsoil, double total_depth,
+void DefSldpth (double *sldpth, int *nsoil, double *zsoil, double total_depth,
     const double *std_sldpth, int std_nsoil)
 {
     int             j, k;
-    double          zsoil[MAXLYR];
+    double          std_zsoil[MAXLYR];
 
-    zsoil[0] = std_sldpth[0];
+    std_zsoil[0] = std_sldpth[0];
 
     for (j = 1; j < MAXLYR; j++)
     {
-        zsoil[j] = zsoil[j - 1] + std_sldpth[j];
+        std_zsoil[j] = std_zsoil[j - 1] + std_sldpth[j];
     }
 
-    if (total_depth <= zsoil[0])
+    if (total_depth <= std_zsoil[0])
     {
         sldpth[0] = total_depth;
         *nsoil = 1;
@@ -137,17 +137,17 @@ void DefSldpth (double *sldpth, int *nsoil, double total_depth,
             sldpth[j] = BADVAL;
         }
     }
-    else if (total_depth <= zsoil[std_nsoil - 1])
+    else if (total_depth <= std_zsoil[std_nsoil - 1])
     {
         for (j = 1; j < std_nsoil + 1; j++)
         {
-            if (total_depth <= zsoil[j])
+            if (total_depth <= std_zsoil[j])
             {
                 for (k = 0; k < j; k++)
                 {
                     sldpth[k] = std_sldpth[k];
                 }
-                sldpth[j] = total_depth - zsoil[j - 1];
+                sldpth[j] = total_depth - std_zsoil[j - 1];
                 *nsoil = j + 1;
 
                 /* The following calculations gurantee that each layer is
@@ -172,7 +172,7 @@ void DefSldpth (double *sldpth, int *nsoil, double total_depth,
         {
             sldpth[j] = std_sldpth[j];
         }
-        sldpth[std_nsoil] = total_depth - zsoil[std_nsoil - 1];
+        sldpth[std_nsoil] = total_depth - std_zsoil[std_nsoil - 1];
         *nsoil = std_nsoil + 1;
         if (sldpth[std_nsoil] < sldpth[std_nsoil - 1])
         {
@@ -180,6 +180,15 @@ void DefSldpth (double *sldpth, int *nsoil, double total_depth,
             sldpth[std_nsoil] = BADVAL;
             *nsoil -= 1;
         }
+    }
+
+    /* Calculate depth (negative) below ground from top skin sfc to bottom of
+     * each soil layer.  note:  sign of zsoil is negative (denoting below
+     * ground) */
+    zsoil[0] = -sldpth[0];
+    for (k = 1; k < *nsoil; k++)
+    {
+        zsoil[k] = -sldpth[k] + zsoil[k - 1];
     }
 }
 

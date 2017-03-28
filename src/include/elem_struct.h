@@ -521,6 +521,7 @@ typedef struct pstate_struct
     double          rtdis[MAXLYR];
     int             nsoil;
     double          sldpth[MAXLYR];
+    double          zsoil[MAXLYR];
     double          soilw;
     double          frzk;
     double          frzx;

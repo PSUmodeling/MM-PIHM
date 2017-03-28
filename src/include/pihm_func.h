@@ -152,25 +152,24 @@ void            CalHum (pstate_struct *, estate_struct *);
 void            CalcLatFlx (const pstate_struct *, wflux_struct *, double);
 void            CalcSlopeAspect (elem_struct *, int, meshtbl_struct);
 void            CanRes (wstate_struct *, estate_struct *, eflux_struct *,
-    pstate_struct *, const double *, const soil_struct *,
+    pstate_struct *, const soil_struct *,
     const epconst_struct *);
 void            DEvap (const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
-void            DefSldpth (double *, int *, double, const double *, int);
+void            DefSldpth (double *, int *, double *, double, const double *, int);
 void            Evapo (wstate_struct *, wflux_struct *, pstate_struct *,
     const lc_struct *, soil_struct *,
 #ifdef _CYCLES_
     comm_struct *, residue_struct *, const estate_struct *,
 #endif
-    const double *, double);
+    double);
 int             FindLayer (const double *, int, double);
 int             FindWT (const double *, int, double, double *);
 double          FrozRain (double, double);
 double          GWTransp (double, double *, int, int);
 void            HRT (wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const lc_struct *, const soil_struct *, double *,
-    const double *, double, double, double, double, double *, double *,
-    double *);
+    double, double, double, double, double *, double *, double *);
 void            InitLsm (elem_struct *, int, ctrl_struct, noahtbl_struct,
     calib_struct);
 void            NoPac (wstate_struct *, wflux_struct *, estate_struct *,
@@ -178,7 +177,7 @@ void            NoPac (wstate_struct *, wflux_struct *, estate_struct *,
 #ifdef _CYCLES_
     comm_struct *, residue_struct *,
 #endif
-    const double *, double, double);
+    double, double);
 void            Noah (pihm_struct);
 void            NoahHydrol (pihm_struct, double);
 void            PcpDrp (wstate_struct *, wflux_struct *, const lc_struct *,
@@ -213,16 +212,16 @@ void            SRT (wstate_struct *, wflux_struct *, pstate_struct *,
 #ifdef _CYCLES_
     residue_struct *, double,
 #endif
-    double *, double *, double *, double *, double *, const double *);
+    double *, double *, double *, double *, double *);
 void            ShFlx (wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const lc_struct *, const soil_struct *, double, double,
-    double, const double *, double);
+    double, double);
 void            SmFlx (wstate_struct *, wflux_struct *, pstate_struct *,
     const soil_struct *,
 #ifdef _CYCLES_
     residue_struct *,
 #endif
-    const double *, double );
+    double );
 double          SnFrac (double, double, double, double);
 void            SnkSrc (double *, double, double, double *,
     const soil_struct *, const double *, double, int, double);
@@ -231,13 +230,13 @@ void            SnoPac (wstate_struct *, wflux_struct *, estate_struct *,
 #ifdef _CYCLES_
     comm_struct *, residue_struct *,
 #endif
-    int, const double *, double, double, double, double);
+    int, double, double, double, double);
 void            SnowNew (const estate_struct *, double, pstate_struct *);
 void            SnowPack (double, double, double *, double *, double, double);
 double          Snowz0 (double, double, double);
 void            SStep (wstate_struct *, wflux_struct *, pstate_struct *,
-    const soil_struct *, double *, const double *, double *, double *,
-    double *, double *, double);
+    const soil_struct *, double *, double *, double *, double *, double *,
+    double);
 void            SunPos (int, double, double, double, double, double *,
     double *);
 double          TBnd (double, double, const double *, double, int, int);
@@ -246,8 +245,7 @@ double          TmpAvg (double, double, double, const double *, int);
 double          TopoRadn (double, double, double, double, double, double,
     const double *, double);
 void            Transp (const wstate_struct *, wflux_struct *,
-    const pstate_struct *, const lc_struct *, const soil_struct *,
-    const double *);
+    const pstate_struct *, const lc_struct *, const soil_struct *);
 void            WDfCnd (double *, double *, double, double, int,
     const soil_struct *, const pstate_struct *);
 #endif

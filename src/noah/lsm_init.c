@@ -10,8 +10,8 @@ void InitLsm (elem_struct *elem, int numele, ctrl_struct ctrl,
     {
 
         /* Set-up soil layer depths */
-        DefSldpth (elem[i].ps.sldpth, &elem[i].ps.nsoil, elem[i].soil.depth,
-            ctrl.sldpth, ctrl.nsoil);
+        DefSldpth (elem[i].ps.sldpth, &elem[i].ps.nsoil, elem[i].ps.zsoil,
+            elem[i].soil.depth, ctrl.sldpth, ctrl.nsoil);
 
         /* Set-up soil parameters */
         elem[i].ps.nmacd =
