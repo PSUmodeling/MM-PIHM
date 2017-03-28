@@ -5,11 +5,6 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
     const agtbl_struct *agtbl, const croptbl_struct *croptbl,
     const soiltbl_struct *soiltbl)
 {
-    int             ntill;
-    int             nplnt;
-    int             nirrg;
-    int             nfert;
-    int             nautoirrg;
     int             opind;
     int             i, j, k;
     int             start_year;
