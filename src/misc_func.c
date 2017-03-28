@@ -166,7 +166,7 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
     timestamp = gmtime (&rawtime);
     strftime (timestr, 17, "%Y-%m-%d %H:%M", timestamp);
 
-    if (verbose_mode)
+    if (debug_mode)
     {
         PIHMprintf (VL_VERBOSE, " Step = %s (%d)\n", timestr, *t);
     }
