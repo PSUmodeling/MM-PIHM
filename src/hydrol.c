@@ -10,8 +10,8 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     elem_struct    *elem;
     river_struct   *riv;
 
-    y = NV_DATA_S (CV_Y);
-    dy = NV_DATA_S (CV_Ydot);
+    y = NV_DATA (CV_Y);
+    dy = NV_DATA (CV_Ydot);
     pihm = (pihm_struct)pihm_data;
 
     dt = (double)pihm->ctrl.stepsize;

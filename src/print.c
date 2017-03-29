@@ -16,7 +16,7 @@ void AsciiArt ()
     PIHMprintf (VL_NORMAL, "\t    * Land surface module turned on.\n");
 #endif
 #ifdef _RT_
-    PIHMprintf (VL_NORMAL, "\t       * Reactive transport module turned on.\n");
+    PIHMprintf (VL_NORMAL, "\t    * Reactive transport module turned on.\n");
 #endif
 #ifdef _BGC_
     PIHMprintf (VL_NORMAL, "\t    * Biogeochemistry module turned on.\n");
@@ -26,6 +26,9 @@ void AsciiArt ()
 #endif
 #ifdef _CYCLES_
     PIHMprintf (VL_NORMAL, "\t    * Crop module turned on.\n");
+#endif
+#ifdef _OPENMP
+    PIHMprintf (VL_NORMAL, "\t    * OpenMP (# of threads = %d).\n", nthreads);
 #endif
 
     PIHMprintf (VL_NORMAL, "\n");

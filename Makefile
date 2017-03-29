@@ -4,6 +4,9 @@
 
 CC = gcc
 CFLAGS = -g -O2 -Wall -Wextra
+ifeq ($(OPENMP), on)
+CFLAGS += -fopenmp
+endif
 
 CVODE_PATH = ./cvode/instdir
 
@@ -17,7 +20,12 @@ INCLUDES = \
 	-I${CVODE_PATH}/include/nvector
 
 
-LFLAGS = -lsundials_cvode -lsundials_nvecserial -L${CVODE_PATH}/lib
+LFLAGS = -lsundials_cvode -L${CVODE_PATH}/lib
+ifeq ($(OPENMP), on)
+LFLAGS += -lsundials_nvecopenmp
+else
+LFLAGS += -lsundials_nvecserial
+endif
 
 SFLAGS = -D_PIHM_
 

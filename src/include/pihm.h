@@ -10,15 +10,27 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <stdarg.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
-/* SUNDIAL Header Files */
-#include "cvode.h"              /* CVODE header file */
-#include "cvode_spgmr.h"        /* CVSPGMR linear header file */
-#include "nvector_serial.h"     /* contains the definition of type
-                                 * N_Vector */
-#include "sundials_math.h"      /* contains UnitRoundoff, RSqrt,
-                                 * SQR functions  */
-#include "cvode_dense.h"        /* CVDENSE header file */
+/* 
+ * SUNDIAL Header Files
+ */
+/* CVODE header file */
+#include "cvode.h"
+/* CVSPGMR linear header file */
+#include "cvode_spgmr.h"
+/* Definition of type N_Vector */
+#ifdef _OPENMP
+#include "nvector_openmp.h"
+#else
+#include "nvector_serial.h"
+#endif
+/* UnitRoundoff, RSqrt, SQR functions */
+#include "sundials_math.h"
+/* CVDENSE header file */      
+#include "cvode_dense.h"
 
 #ifdef _ENKF_
 #include "mpi.h"

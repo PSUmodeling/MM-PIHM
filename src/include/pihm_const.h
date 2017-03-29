@@ -350,4 +350,7 @@ enum obs_type
 extern int          verbose_mode;
 extern int          debug_mode;
 extern char         project[MAXSTRING];
+#ifdef _OPENMP
+extern int          nthreads;
+#endif
 #endif

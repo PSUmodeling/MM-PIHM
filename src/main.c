@@ -3,6 +3,9 @@
 int             verbose_mode;
 int             debug_mode;
 char            project[MAXSTRING];
+#ifdef _OPENMP
+int             nthreads;
+#endif
 
 int main (int argc, char *argv[])
 {
@@ -27,6 +30,11 @@ int main (int argc, char *argv[])
     if (0 == id)
     {
 #endif
+
+#ifdef _OPENMP
+    nthreads = omp_get_max_threads();
+#endif
+
     /*
      * Read command line arguments
      */

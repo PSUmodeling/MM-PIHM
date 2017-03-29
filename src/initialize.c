@@ -703,9 +703,9 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
         elem[i].ws.unsat = elem[i].ic.unsat;
         elem[i].ws.gw = elem[i].ic.gw;
 
-        NV_Ith_S (CV_Y, i) = elem[i].ic.surf;
-        NV_Ith_S (CV_Y, i + numele) = elem[i].ic.unsat;
-        NV_Ith_S (CV_Y, i + 2 * numele) = elem[i].ic.gw;
+        NV_Ith (CV_Y, i) = elem[i].ic.surf;
+        NV_Ith (CV_Y, i + numele) = elem[i].ic.unsat;
+        NV_Ith (CV_Y, i + 2 * numele) = elem[i].ic.gw;
 
 #ifdef _NOAH_
         elem[i].es.t1 = elem[i].ic.t1;
@@ -727,8 +727,8 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
         riv[i].ws.stage = riv[i].ic.stage;
         riv[i].ws.gw = riv[i].ic.gw;
 
-        NV_Ith_S (CV_Y, i + 3 * numele) = riv[i].ic.stage;
-        NV_Ith_S (CV_Y, i + 3 * numele + numriv) = riv[i].ic.gw;
+        NV_Ith (CV_Y, i + 3 * numele) = riv[i].ic.stage;
+        NV_Ith (CV_Y, i + 3 * numele + numriv) = riv[i].ic.gw;
 
         riv[i].ws0 = riv[i].ws;
     }

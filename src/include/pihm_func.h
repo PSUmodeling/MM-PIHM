@@ -86,7 +86,19 @@ void            MapOutput (char *, pihm_struct, char *);
 double          MonthlyLAI (int, int);
 double          MonthlyMF (int);
 double          MonthlyRL (int, int);
+#ifdef _OPENMP
+#define N_VNew(N)       N_VNew_OpenMP(N, nthreads)
+#else
+#define N_VNew(N)       N_VNew_Serial(N);
+#endif
 void            NextLine (FILE *, char *, int *);
+#ifdef _OPENMP
+#define NV_DATA         NV_DATA_OMP
+#define NV_Ith          NV_Ith_OMP
+#else
+#define NV_DATA         NV_DATA_S
+#define NV_Ith          NV_Ith_S
+#endif
 double          OverlandFlow (double, double, double, double, double);
 double          OLFEleToRiv (double, double, double, double, double, double);
 void            ParseCmdLineParam (int, char *[], int *, char *);

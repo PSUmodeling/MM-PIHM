@@ -36,7 +36,7 @@ void PIHM (char *simulation, char *outputdir, int first_cycle
     nsv = 3 * pihm->numele + 2 * pihm->numriv;
 
     /* Initialize CVode state variables */
-    CV_Y = N_VNew_Serial (nsv);
+    CV_Y = N_VNew (nsv);
 
     /* Initialize PIHM structure */
     Initialize (pihm, CV_Y);
@@ -179,7 +179,7 @@ void PIHM (char *simulation, char *outputdir, int first_cycle
     }
 
     /* Free memory */
-    N_VDestroy_Serial (CV_Y);
+    N_VDestroy (CV_Y);
 
     /* Free integrator memory */
     CVodeFree (&cvode_mem);
