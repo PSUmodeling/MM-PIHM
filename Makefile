@@ -237,7 +237,7 @@ all:	cvode pihm
 cvode:			## Install cvode library
 cvode:
 	@cd cvode && mkdir -p instdir && mkdir -p builddir
-	@cd ${CVODE_PATH} && cmake -DCMAKE_INSTALL_PREFIX=../instdir -DEXAMPLES_INSTALL=OFF ../ && make && make install
+	@cd ${CVODE_PATH} && cmake -DCMAKE_INSTALL_PREFIX=../instdir -DEXAMPLES_INSTALL=OFF -DOPENMP_ENABLE=ON ../ && make && make install
 	@echo "SUNDIALS library installed."
 
 pihm:			## Compile PIHM

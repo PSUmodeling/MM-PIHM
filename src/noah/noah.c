@@ -4,7 +4,9 @@ void Noah (pihm_struct pihm)
 {
     int             i, j;
 
+#ifdef _OPENMP
 #pragma omp parallel for private(j)
+#endif
     for (i = 0; i < pihm->numele; i++)
     {
         CalHum (&pihm->elem[i].ps, &pihm->elem[i].es);
@@ -65,7 +67,9 @@ void NoahHydrol (elem_struct *elem, int numele, double dt)
 {
     int             i, j;
 
+#ifdef _OPENMP
 #pragma omp parallel for private(j)
+#endif
     for (i = 0; i < numele; i++)
     {
         /* Find water table position */
