@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------
 
 CC = gcc
-CFLAGS = -g -O0 -Wall -Wextra
+CFLAGS = -g -O2 -Wall -Wextra
 ifeq ($(OPENMP), on)
 CFLAGS += -fopenmp
 endif

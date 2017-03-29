@@ -3,55 +3,61 @@
 void Noah (pihm_struct pihm)
 {
     int             i, j;
-    elem_struct    *elem;
 
+#pragma omp parallel for private(j)
     for (i = 0; i < pihm->numele; i++)
     {
-        elem = &pihm->elem[i];
+        CalHum (&pihm->elem[i].ps, &pihm->elem[i].es);
 
-        CalHum (&elem->ps, &elem->es);
+        pihm->elem[i].ps.ffrozp =
+            FrozRain (pihm->elem[i].wf.prcp, pihm->elem[i].es.sfctmp);
 
-        elem->ps.ffrozp = FrozRain (elem->wf.prcp, elem->es.sfctmp);
+        pihm->elem[i].ps.alb = BADVAL;
 
-        elem->ps.alb = BADVAL;
+        pihm->elem[i].ws.cmcmax =
+            pihm->elem[i].lc.cmcfactr * pihm->elem[i].ps.proj_lai;
 
-        elem->ws.cmcmax = elem->lc.cmcfactr * elem->ps.proj_lai;
-
-        if (elem->ps.q1 == BADVAL)
+        if (pihm->elem[i].ps.q1 == BADVAL)
         {
-            elem->ps.q1 = elem->ps.q2;
+            pihm->elem[i].ps.q1 = pihm->elem[i].ps.q2;
         }
 
-        elem->ef.solnet = elem->ef.soldn * (1.0 - elem->ps.albedo);
-        elem->ef.lwdn = elem->ef.longwave * elem->ps.emissi;
+        pihm->elem[i].ef.solnet =
+            pihm->elem[i].ef.soldn * (1.0 - pihm->elem[i].ps.albedo);
+        pihm->elem[i].ef.lwdn =
+            pihm->elem[i].ef.longwave * pihm->elem[i].ps.emissi;
 
-        for (j = 0; j < elem->ps.nsoil; j++)
+        for (j = 0; j < pihm->elem[i].ps.nsoil; j++)
         {
-            elem->ws.smc[j] = (elem->ws.smc[j] > elem->soil.smcmin + 0.02) ?
-                elem->ws.smc[j] : elem->soil.smcmin + 0.02;
-            elem->ws.smc[j] = (elem->ws.smc[j] < elem->soil.smcmax) ?
-                elem->ws.smc[j] : elem->soil.smcmax;
-            elem->ws.sh2o[j] = (elem->ws.sh2o[j] < elem->ws.smc[j]) ?
-                elem->ws.sh2o[j] : elem->ws.smc[j];
+            pihm->elem[i].ws.smc[j] =
+                (pihm->elem[i].ws.smc[j] > pihm->elem[i].soil.smcmin + 0.02) ?
+                pihm->elem[i].ws.smc[j] : pihm->elem[i].soil.smcmin + 0.02;
+            pihm->elem[i].ws.smc[j] =
+                (pihm->elem[i].ws.smc[j] < pihm->elem[i].soil.smcmax) ?
+                pihm->elem[i].ws.smc[j] : pihm->elem[i].soil.smcmax;
+            pihm->elem[i].ws.sh2o[j] =
+                (pihm->elem[i].ws.sh2o[j] < pihm->elem[i].ws.smc[j]) ?
+                pihm->elem[i].ws.sh2o[j] : pihm->elem[i].ws.smc[j];
 #ifdef _CYCLES_
-            elem->soil.waterContent[j] = elem->ws.sh2o[j];
+            pihm->elem[i].soil.waterContent[j] = pihm->elem[i].ws.sh2o[j];
 #endif
         }
 
         /*
          * Run Noah LSM
          */
-        SFlx (&elem->ws, &elem->wf, &elem->es, &elem->ef,
-            &elem->ps, &elem->lc, &elem->epc, &elem->soil,
+        SFlx (&pihm->elem[i].ws, &pihm->elem[i].wf, &pihm->elem[i].es,
+            &pihm->elem[i].ef, &pihm->elem[i].ps, &pihm->elem[i].lc,
+            &pihm->elem[i].epc, &pihm->elem[i].soil,
 #ifdef _CYCLES_
-            &elem->comm, &elem->residue,
+            &pihm->elem[i].comm, &pihm->elem[i].residue,
 #endif
             pihm->ctrl.etstep);
 
         /* ET: convert from w m-2 to m s-1 */
-        elem->wf.ec = elem->ef.ec / LVH2O / 1000.0;
-        elem->wf.ett = elem->ef.ett / LVH2O / 1000.0;
-        elem->wf.edir = elem->ef.edir / LVH2O / 1000.0;
+        pihm->elem[i].wf.ec = pihm->elem[i].ef.ec / LVH2O / 1000.0;
+        pihm->elem[i].wf.ett = pihm->elem[i].ef.ett / LVH2O / 1000.0;
+        pihm->elem[i].wf.edir = pihm->elem[i].ef.edir / LVH2O / 1000.0;
     }
 }
 
