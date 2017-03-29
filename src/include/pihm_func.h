@@ -191,7 +191,7 @@ void            NoPac (wstate_struct *, wflux_struct *, estate_struct *,
 #endif
     double, double);
 void            Noah (pihm_struct);
-void            NoahHydrol (pihm_struct, double);
+void            NoahHydrol (elem_struct *, int, double);
 void            PcpDrp (wstate_struct *, wflux_struct *, const lc_struct *,
     double, double);
 void            Penman (wflux_struct *, estate_struct *, eflux_struct *,

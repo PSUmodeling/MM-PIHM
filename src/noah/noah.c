@@ -61,38 +61,41 @@ void Noah (pihm_struct pihm)
     }
 }
 
-void NoahHydrol (pihm_struct pihm, double dt)
+void NoahHydrol (elem_struct *elem, int numele, double dt)
 {
-    int             i, j, kz;
-    elem_struct    *elem;
+    int             i, j;
 
-    for (i = 0; i < pihm->numele; i++)
+#pragma omp parallel for private(j)
+    for (i = 0; i < numele; i++)
     {
-        elem = &pihm->elem[i];
-
         /* Find water table position */
-        elem->ps.nwtbl = FindWT (elem->ps.sldpth, elem->ps.nsoil,
-            elem->ws.gw, elem->ps.satdpth);
+        elem[i].ps.nwtbl = FindWT (elem[i].ps.sldpth,
+            elem[i].ps.nsoil, elem[i].ws.gw,
+            elem[i].ps.satdpth);
 
-        for (j = 0; j < elem->ps.nsoil; j++)
+        for (j = 0; j < elem[i].ps.nsoil; j++)
         {
-            elem->ws.smc[j] = (elem->ws.smc[j] > elem->soil.smcmin + 0.02) ?
-                elem->ws.smc[j] : elem->soil.smcmin + 0.02;
-            elem->ws.smc[j] = (elem->ws.smc[j] < elem->soil.smcmax) ?
-                elem->ws.smc[j] : elem->soil.smcmax;
-            elem->ws.sh2o[j] = (elem->ws.sh2o[j] < elem->ws.smc[j]) ?
-                elem->ws.sh2o[j] : elem->ws.smc[j];
+            elem[i].ws.smc[j] =
+                (elem[i].ws.smc[j] > elem[i].soil.smcmin + 0.02) ?
+                elem[i].ws.smc[j] : elem[i].soil.smcmin + 0.02;
+            elem[i].ws.smc[j] =
+                (elem[i].ws.smc[j] < elem[i].soil.smcmax) ?
+                elem[i].ws.smc[j] : elem[i].soil.smcmax;
+            elem[i].ws.sh2o[j] =
+                (elem[i].ws.sh2o[j] < elem[i].ws.smc[j]) ?
+                elem[i].ws.sh2o[j] : elem[i].ws.smc[j];
 #ifdef _CYCLES_
-            elem->soil.waterContent[j] = elem->ws.sh2o[j];
+            elem[i].soil.waterContent[j] = elem[i].ws.sh2o[j];
 #endif
 
-            elem->wf.runoff2_lyr[j] = elem->wf.smflxh[0][j] +
-                elem->wf.smflxh[1][j] + elem->wf.smflxh[2][j];
+            elem[i].wf.runoff2_lyr[j] = elem[i].wf.smflxh[0][j] +
+                elem[i].wf.smflxh[1][j] + elem[i].wf.smflxh[2][j];
         }
 
-        SmFlx (&elem->ws, &elem->wf, &elem->ps, &elem->soil,
+        SmFlx (&elem[i].ws, &elem[i].wf, &elem[i].ps,
+            &elem[i].soil,
 #ifdef _CYCLES_
-            &elem->residue,
+            &elem[i].residue,
 #endif
             dt);
     }
