@@ -14,7 +14,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
     elem_struct    *elem;
     river_struct   *riv;
 
-    y = NV_DATA_S (CV_Y);
+    y = NV_DATA (CV_Y);
 
     for (i = 0; i < pihm->numele; i++)
     {
