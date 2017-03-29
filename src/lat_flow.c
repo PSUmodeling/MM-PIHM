@@ -99,10 +99,7 @@ void LateralFlow (pihm_struct pihm)
                     (elem->ws.gw + elem->topo.zmin) - (nabr->ws.gw +
                     nabr->topo.zmin);
                 avg_y_sub = AvgY (dif_y_sub, elem->ws.gw, nabr->ws.gw);
-                distance =
-                    sqrt (pow (elem->topo.x - nabr->topo.x, 2) +
-                    pow (elem->topo.y - nabr->topo.y, 2));
-                grad_y_sub = dif_y_sub / distance;
+                grad_y_sub = dif_y_sub / elem->topo.nabrdist[j];
                 /* Take into account macropore effect */
                 effk =
                     EffKH (elem->ws.gw, elem->soil.depth, elem->soil.dmac,
@@ -130,11 +127,11 @@ void LateralFlow (pihm_struct pihm)
                         nabr->topo.zmax);
                 }
                 avg_y_surf = AvgY (dif_y_surf, elem->ws.surf, nabr->ws.surf);
-                grad_y_surf = dif_y_surf / distance;
-                avg_sf =
-                    0.5 * (sqrt (pow (dhbydx[i], 2) + pow (dhbydy[i],
-                            2)) + sqrt (pow (dhbydx[nabr->ind - 1],
-                            2) + pow (dhbydy[nabr->ind - 1], 2)));
+                grad_y_surf = dif_y_surf / elem->topo.nabrdist[j];
+                avg_sf = 0.5 *
+                    (sqrt (dhbydx[i] * dhbydx[i] + dhbydy[i] * dhbydy[i]) +
+                    sqrt (dhbydx[nabr->ind - 1] * dhbydx[nabr->ind - 1] +
+                    dhbydy[nabr->ind - 1] * dhbydy[nabr->ind - 1]));
                 if (pihm->ctrl.surf_mode == KINEMATIC)
                 {
                     avg_sf = (grad_y_surf > 0.0) ? grad_y_surf : GRADMIN;
@@ -173,16 +170,12 @@ void LateralFlow (pihm_struct pihm)
                         elem->bc.head[j] - elem->topo.zmin);
                     /* Minimum distance from circumcenter to the edge of the
                      * triangle on which boundary condition is defined */
-                    distance =
-                        sqrt (pow (elem->topo.edge[0] * elem->topo.edge[1] *
-                            elem->topo.edge[2] / (4.0 * elem->topo.area),
-                            2) - pow (elem->topo.edge[j] / 2.0, 2));
                     effk =
                         EffKH (elem->ws.gw, elem->soil.depth, elem->soil.dmac,
                         elem->soil.kmach, elem->soil.areafv,
                         elem->soil.ksath);
                     avg_ksat = effk;
-                    grad_y_sub = dif_y_sub / distance;
+                    grad_y_sub = dif_y_sub / elem->topo.nabrdist[j];
                     elem->wf.subsurf[j] =
                         avg_ksat * grad_y_sub * avg_y_sub *
                         elem->topo.edge[j];
