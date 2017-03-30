@@ -83,6 +83,8 @@ void            LateralFlow (pihm_struct);
 int             MacroporeStatus (double, double, double, double, double,
     double);
 void            MapOutput (char *, pihm_struct, char *);
+void            MassBalance (wstate_struct *, wstate_struct *, wflux_struct *,
+    double *, const soil_struct *, double, double);
 double          MonthlyLAI (int, int);
 double          MonthlyMF (int);
 double          MonthlyRL (int, int);
