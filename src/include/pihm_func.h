@@ -86,13 +86,13 @@ void            MapOutput (char *, pihm_struct, char *);
 double          MonthlyLAI (int, int);
 double          MonthlyMF (int);
 double          MonthlyRL (int, int);
-#ifdef _OPENMP
+#ifdef _CVODE_OMP
 #define N_VNew(N)       N_VNew_OpenMP(N, nthreads)
 #else
 #define N_VNew(N)       N_VNew_Serial(N);
 #endif
 void            NextLine (FILE *, char *, int *);
-#ifdef _OPENMP
+#ifdef _CVODE_OMP
 #define NV_DATA         NV_DATA_OMP
 #define NV_Ith          NV_Ith_OMP
 #else

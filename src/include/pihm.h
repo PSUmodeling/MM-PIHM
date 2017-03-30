@@ -22,7 +22,7 @@
 /* CVSPGMR linear header file */
 #include "cvode_spgmr.h"
 /* Definition of type N_Vector */
-#ifdef _OPENMP
+#ifdef _CVODE_OMP
 #include "nvector_openmp.h"
 #else
 #include "nvector_serial.h"

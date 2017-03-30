@@ -4,7 +4,7 @@
 
 CC = gcc
 CFLAGS = -g -O2 -Wall -Wextra
-ifeq ($(OPENMP), on)
+ifeq ($(OMP), on)
 CFLAGS += -fopenmp
 endif
 
@@ -21,7 +21,7 @@ INCLUDES = \
 
 
 LFLAGS = -lsundials_cvode -L${CVODE_PATH}/lib
-ifeq ($(OPENMP), on)
+ifeq ($(CVODE_OMP), on)
 LFLAGS += -lsundials_nvecopenmp
 else
 LFLAGS += -lsundials_nvecserial
@@ -237,7 +237,7 @@ all:	cvode pihm
 cvode:			## Install cvode library
 cvode:
 	@cd cvode && mkdir -p instdir && mkdir -p builddir
-	@cd ${CVODE_PATH} && cmake -DCMAKE_INSTALL_PREFIX=../instdir -DCXX_ENABLE=OFF -DEXAMPLES_ENABLE=OFF -DEXAMPLES_INSTALL=OFF -DOPENMP_ENABLE=ON ../
+	@cd ${CVODE_PATH} && cmake -DCMAKE_INSTALL_PREFIX=../instdir -DEXAMPLES_ENABLE=OFF -DEXAMPLES_INSTALL=OFF ../
 	@cd ${CVODE_PATH} && make && make install
 	@echo "SUNDIALS library installed."
 
@@ -275,9 +275,6 @@ flux-pihm-cycles: $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS) $(LFLAGS) $(LIBS)
-
-tool:
-	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o convert src/tool/convert.c
 
 %.o: %.c $(HEADERS) $(MODULE_HEADERS)
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@
