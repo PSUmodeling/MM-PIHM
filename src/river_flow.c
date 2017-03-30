@@ -82,7 +82,6 @@ void RiverFlow (pihm_struct pihm)
             total_y = riv->ws.gw + riv->topo.zmin;
             total_y_down = down->ws.gw + down->topo.zmin;
             avg_wid = (riv->shp.width + down->shp.width) / 2.0;
-            distance = 0.5 * (riv->shp.length + down->shp.length);
             dif_y_sub = total_y - total_y_down;
             avg_y_sub = AvgY (dif_y_sub, riv->ws.gw, down->ws.gw);
             grad_y_sub = dif_y_sub / distance;
@@ -183,6 +182,7 @@ void RiverFlow (pihm_struct pihm)
         if (riv->leftele > 0)
         {
             RiverToEle (riv, left, right, i + 1,
+                riv->topo.dist_left,
                 &riv->wf.rivflow[LEFT_SURF2CHANL],
                 &riv->wf.rivflow[LEFT_AQUIF2CHANL],
                 &riv->wf.rivflow[LEFT_AQUIF2AQUIF]);
@@ -191,6 +191,7 @@ void RiverFlow (pihm_struct pihm)
         if (riv->rightele > 0)
         {
             RiverToEle (riv, right, left, i + 1,
+                riv->topo.dist_right,
                 &riv->wf.rivflow[RIGHT_SURF2CHANL],
                 &riv->wf.rivflow[RIGHT_AQUIF2CHANL],
                 &riv->wf.rivflow[RIGHT_AQUIF2AQUIF]);
@@ -213,13 +214,12 @@ void RiverFlow (pihm_struct pihm)
 }
 
 void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
-    int ind, double *fluxsurf, double *fluxriv, double *fluxsub)
+    int ind, double distance, double *fluxsurf, double *fluxriv, double *fluxsub)
 {
     double          total_y;
     double          dif_y_sub;
     double          avg_y_sub;
     double          effk;
-    double          distance;
     double          grad_y_sub;
     double          effk_nabr;
     double          avg_ksat;
@@ -253,9 +253,6 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     }
     avg_y_sub = AvgY (dif_y_sub, riv->ws.stage, avg_y_sub);
     effk = riv->matl.ksath;
-    distance =
-        sqrt (pow (riv->topo.x - elem->topo.x,
-            2) + pow (riv->topo.y - elem->topo.y, 2));
     grad_y_sub = dif_y_sub / distance;
     /* Take into account macropore effect */
     effk_nabr =

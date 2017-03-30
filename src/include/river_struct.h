@@ -25,6 +25,8 @@ typedef struct river_attrib_struct
  * zmax                     double      river bank elevation [m]
  * zbed                     double      river bed elevation [m]
  * node_zmax                double      elevation of the downstream node [m]
+ * dist_left                double      distance to left neighbor [m]
+ * dist_right                double      distance to right neighbor [m]
  ****************************************************************************/
 typedef struct river_topo_struct
 {
@@ -35,6 +37,8 @@ typedef struct river_topo_struct
     double          zmax;
     double          zbed;
     double          node_zmax;
+    double          dist_left;
+    double          dist_right;
 } river_topo_struct;
 
 /*****************************************************************************

@@ -321,6 +321,16 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem,
             0.5 * (elem[riv[i].leftele - 1].topo.zmin + elem[riv[i].rightele -
                     1].topo.zmin));
         riv[i].topo.node_zmax = meshtbl.zmax[riv[i].tonode - 1];
+        riv[i].topo.dist_left = sqrt(
+            (riv[i].topo.x - elem[riv[i].leftele - 1].topo.x) *
+            (riv[i].topo.x - elem[riv[i].leftele - 1].topo.x) +
+            (riv[i].topo.y - elem[riv[i].leftele - 1].topo.y) *
+            (riv[i].topo.y - elem[riv[i].leftele - 1].topo.y));
+        riv[i].topo.dist_right = sqrt(
+            (riv[i].topo.x - elem[riv[i].rightele - 1].topo.x) *
+            (riv[i].topo.x - elem[riv[i].rightele - 1].topo.x) +
+            (riv[i].topo.y - elem[riv[i].rightele - 1].topo.y) *
+            (riv[i].topo.y - elem[riv[i].rightele - 1].topo.y));
 
         riv[i].shp.depth = cal.rivdepth * shptbl.depth[rivtbl.shp[i] - 1];
         riv[i].shp.intrpl_ord = shptbl.intrpl_ord[rivtbl.shp[i] - 1];
