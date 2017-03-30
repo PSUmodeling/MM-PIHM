@@ -330,6 +330,8 @@ void InitRiver (river_struct *riv, int numriv, elem_struct *elem,
                 meshtbl.x[riv[i].tonode - 1],
                 2) + pow (meshtbl.y[riv[i].fromnode - 1] -
                 meshtbl.y[riv[i].tonode - 1], 2));
+        riv[i].shp.width = RivEqWid (riv->shp.intrpl_ord, riv->shp.depth,
+            riv->shp.coeff);
 
         riv[i].topo.zbed = riv[i].topo.zmax - riv[i].shp.depth;
 

@@ -88,10 +88,11 @@ typedef struct river_stor_struct
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * depth                    double      river channel depth
+ * depth                    double      river channel depth [m]
  * intrpl_ord               int         interpolation order (shape of channel)
  * shpcoeff                 double      width coefficient
- * length                   double      length of channel
+ * length                   double      length of channel [m]
+ * width                    double      width of channel [m]
  ****************************************************************************/
 typedef struct shp_struct
 {
@@ -99,6 +100,7 @@ typedef struct shp_struct
     int             intrpl_ord;
     double          coeff;
     double          length;
+    double          width;
 } shp_struct;
 
 /*****************************************************************************

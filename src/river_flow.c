@@ -22,7 +22,6 @@ void RiverFlow (pihm_struct pihm)
     double          crossa_down;
     double          avg_crossa;
     double          avg_y;
-    double          wid;
     double          avg_ksat;
     double          effk_nabr;
     double          effk;
@@ -30,7 +29,6 @@ void RiverFlow (pihm_struct pihm)
     double          grad_y_sub;
     double          avg_y_sub;
     double          dif_y_sub;
-    double          wid_down;
     double          avg_wid;
     double          dt;
 
@@ -83,11 +81,7 @@ void RiverFlow (pihm_struct pihm)
              * and ebr */
             total_y = riv->ws.gw + riv->topo.zmin;
             total_y_down = down->ws.gw + down->topo.zmin;
-            wid = RivEqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff);
-            wid_down =
-                RivEqWid (down->shp.intrpl_ord, down->shp.depth,
-                down->shp.coeff);
-            avg_wid = (wid + wid_down) / 2.0;
+            avg_wid = (riv->shp.width + down->shp.width) / 2.0;
             distance = 0.5 * (riv->shp.length + down->shp.length);
             dif_y_sub = total_y - total_y_down;
             avg_y_sub = AvgY (dif_y_sub, riv->ws.gw, down->ws.gw);
@@ -202,7 +196,6 @@ void RiverFlow (pihm_struct pihm)
                 &riv->wf.rivflow[RIGHT_AQUIF2AQUIF]);
         }
 
-        avg_wid = RivEqWid (riv->shp.intrpl_ord, riv->ws.stage, riv->shp.coeff);
         if (riv->topo.zbed - (riv->ws.gw + riv->topo.zmin) > 0.0)
         {
             dif_y = riv->ws.stage;
@@ -215,7 +208,7 @@ void RiverFlow (pihm_struct pihm)
         }
         grad_y = dif_y / riv->matl.bedthick;
         riv->wf.rivflow[CHANL_LKG] =
-            riv->matl.ksatv * avg_wid * riv->shp.length * grad_y;
+            riv->matl.ksatv * riv->shp.width * riv->shp.length * grad_y;
     }
 }
 
