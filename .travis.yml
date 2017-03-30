@@ -2,7 +2,7 @@ language: c
 compiler: gcc
 script:
   - cd cvode && mkdir -p instdir && mkdir -p builddir
-  - cd builddir && cmake -DCMAKE_INSTALL_PREFIX=../instdir -DCXX_ENABLE=OFF -DEXAMPLES_ENABLE=OFF -DEXAMPLES_INSTALL=OFF -DOPENMP_ENABLE=ON ../
+  - cd builddir && cmake -DCMAKE_CXX_FLAGS=-fopenmp -DCMAKE_INSTALL_PREFIX=../instdir -DCXX_ENABLE=OFF -DEXAMPLES_ENABLE=OFF -DEXAMPLES_INSTALL=OFF -DOPENMP_ENABLE=ON ../
   - make && make install
   - cd ../../
   - make pihm
