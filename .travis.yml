@@ -1,8 +1,11 @@
 language: c
 compiler: gcc
 script:
-  - cmake --version
-  - make cvode && make pihm
+  - cd cvode && mkdir -p instdir && mkdir -p builddir
+  - cd cvode/builddir && cmake -DCMAKE_INSTALL_PREFIX=../instdir -DCXX_ENABLE=OFF -DEXAMPLES_ENABLE=OFF -DEXAMPLES_INSTALL=OFF -DOPENMP_ENABLE=ON ../
+  - make && make install
+  - cd ../../
+  - make pihm
   - make clean && make flux-pihm
   - make clean && make flux-pihm-bgc
   - make clean && make OPENMP=on pihm
