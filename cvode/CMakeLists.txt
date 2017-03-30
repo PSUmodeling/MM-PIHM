@@ -32,7 +32,7 @@ endif(COMMAND cmake_policy)
 
 # Project SUNDIALS (initially only C supported)
 
-PROJECT(sundials C)
+project(sundials C)
 
 # Set some variables with info on the SUNDIALS project
 
