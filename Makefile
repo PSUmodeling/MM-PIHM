@@ -4,6 +4,11 @@
 
 CC = gcc
 CFLAGS = -g -O2 -Wall -Wextra
+
+ifeq ($(CVODE_OMP), on)
+OMP=on
+endif
+
 ifeq ($(OMP), on)
 CFLAGS += -fopenmp
 endif
