@@ -376,7 +376,7 @@ double _RivWdthAreaPerim (int type, int riv_order, double riv_depth, double riv_
             eq_wid = 2.0 *
                 pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
                 pow (riv_coeff, 1.0 / (riv_order - 1));
-            riv_area = pow (riv_depth, 2) / riv_coeff;
+            riv_area = riv_depth * riv_depth / riv_coeff;
             riv_perim = 2.0 * riv_depth * sqrt (1.0 + riv_coeff * riv_coeff) /
                 riv_coeff;
             break;
@@ -385,7 +385,7 @@ double _RivWdthAreaPerim (int type, int riv_order, double riv_depth, double riv_
                 pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
                 pow (riv_coeff, 1.0 / (riv_order - 1));
             riv_area =
-                4.0 * pow (riv_depth, 1.5) / (3.0 * pow (riv_coeff, 0.5));
+                4.0 * riv_depth * sqrt (riv_depth) / (3.0 * sqrt (riv_coeff));
             riv_perim =
                 sqrt (riv_depth * (1.0 + 4.0 * riv_coeff * riv_depth) /
                 riv_coeff) +
@@ -402,8 +402,7 @@ double _RivWdthAreaPerim (int type, int riv_order, double riv_depth, double riv_
                 (pow (riv_depth * (1.0 + 9.0 * pow (riv_coeff, 2.0 / 3.0) *
                 riv_depth), 0.5) / 3.0) +
                 (log (3.0 * pow (riv_coeff, 1.0 / 3.0) *
-                pow (riv_depth, 0.5) +
-                pow (1.0 + 9.0 *
+                sqrt (riv_depth) + pow (1.0 + 9.0 *
                 pow (riv_coeff, 2.0 / 3.0) * riv_depth, 0.5)) /
                 (9.0 * pow (riv_coeff, 1.0 / 3.0))));
             break;
