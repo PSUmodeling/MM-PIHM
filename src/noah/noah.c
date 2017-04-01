@@ -3091,32 +3091,21 @@ void SfcDifOff (pstate_struct *ps, const lc_struct *lc, double t1v,
 /* Lech's surface functions */
 double Pslmu (double zz)
 {
-    double          x;
-
-    x = -0.96 * log (1.0 - 4.5 * zz);
-
-    return (x);
+    return (-0.96 * log (1.0 - 4.5 * zz));
 }
 
 double Pslms (double zz)
 {
     const double    RIC = 0.183;
     double          rric;
-    double          x;
 
     rric = 1.0 / RIC;
-    x = zz * rric - 2.076 * (1.0 - 1.0 / (zz + 1.0));
-
-    return (x);
+    return (zz * rric - 2.076 * (1.0 - 1.0 / (zz + 1.0)));
 }
 
 double Pslhu (double zz)
 {
-    double          x;
-
-    x = -0.96 * log (1.0 - 4.5 * zz);
-
-    return (x);
+    return (-0.96 * log (1.0 - 4.5 * zz));
 }
 
 double Pslhs (double zz)
@@ -3125,49 +3114,29 @@ double Pslhs (double zz)
     const double    FHNEU = 0.8;
     const double    RFC = 0.191;
     double          rfac;
-    double          x;
 
     rfac = RIC / (FHNEU * RFC * RFC);
-    x = zz * rfac - 2.076 * (1.0 - exp (-1.2 * zz));
-
-    return (x);
+    return (zz * rfac - 2.076 * (1.0 - exp (-1.2 * zz)));
 }
 
 /* Paulson's surface functions */
 double Pspmu (double xx)
 {
-    double          pihf = 3.14159265 / 2.0;
-    double          x;
-
-    x = -2.0 * log ((xx + 1.0) * 0.5) - log ((xx * xx + 1.0) * 0.5) +
-        2.0 * atan (xx) - pihf;
-
-    return (x);
+    return (-2.0 * log ((xx + 1.0) * 0.5) - log ((xx * xx + 1.0) * 0.5) +
+        2.0 * atan (xx) - PI * 0.5);
 }
 
 double Pspms (double yy)
 {
-    double          x;
-
-    x = 5.0 * yy;
-
-    return (x);
+    return (5.0 * yy);
 }
 
 double Psphu (double xx)
 {
-    double          x;
-
-    x = -2.0 * log ((xx * xx + 1.0) * 0.5);
-
-    return (x);
+    return (-2.0 * log ((xx * xx + 1.0) * 0.5));
 }
 
 double Psphs (double yy)
 {
-    double          x;
-
-    x = 5.0 * yy;
-
-    return (x);
+    return (5.0 * yy);
 }
