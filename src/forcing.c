@@ -99,6 +99,9 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t
 
 #endif
 
+#ifdef _OPENMP
+#pragma omp parallel for private(ind)
+#endif
     for (i = 0; i < numele; i++)
     {
         ind = elem[i].attrib.meteo_type - 1;
