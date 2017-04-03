@@ -2,6 +2,7 @@
 
 int             verbose_mode;
 int             debug_mode;
+int             corr_mode;
 char            project[MAXSTRING];
 #ifdef _OPENMP
 int             nthreads;

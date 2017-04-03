@@ -5,7 +5,7 @@ void ParseCmdLineParam (int argc, char *argv[], int *spec_output_mode,
 {
     int             c;
 
-    while ((c = getopt (argc, argv, "o:dvl")) != -1)
+    while ((c = getopt (argc, argv, "o:cdvl")) != -1)
     {
         switch (c)
         {
@@ -13,6 +13,11 @@ void ParseCmdLineParam (int argc, char *argv[], int *spec_output_mode,
                 /* Specify output directory */
                 sprintf (outputdir, "output/%s/", optarg);
                 *spec_output_mode = 1;
+                break;
+            case 'c':
+                /* Surface elevatoin correction mode */
+                corr_mode = 1;
+                printf ("Surface elevation correction mode turned on.\n");
                 break;
             case 'd':
                 /* Debug mode */
@@ -38,8 +43,9 @@ void ParseCmdLineParam (int argc, char *argv[], int *spec_output_mode,
     {
         fprintf (stderr, "Error:You must specify the name of project!\n");
         fprintf (stderr,
-            "Usage: ./pihm [-o output_dir] [-d] [-v] <project name>\n");
-        fprintf (stderr, "\t-o Specify output directory.\n");
+            "Usage: ./pihm [-o output_dir] [-c] [-d] [-v] <project name>\n");
+        fprintf (stderr, "\t-o Specify output directory\n");
+        fprintf (stderr, "\t-c Correct surface elevation\n");
         fprintf (stderr, "\t-v Verbose mode\n");
         fprintf (stderr, "\t-d Debug mode\n");
         PIHMexit (EXIT_FAILURE);

@@ -52,7 +52,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     InitRiver (pihm->riv, pihm->numriv, pihm->elem, pihm->rivtbl,
         pihm->shptbl, pihm->matltbl, pihm->meshtbl, pihm->cal);
 
-    if (debug_mode)
+    if (corr_mode)
     {
         CorrectElevation (pihm->elem, pihm->numele, pihm->riv, pihm->numriv);
     }
@@ -451,11 +451,14 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
     int             sink;
     int             bedrock_flag = 1;
     int             river_flag = 0;
+    double          nabr_zmax;
     double          new_elevation;
+
+    PIHMprintf (VL_VERBOSE, "Correct surface elevation.\n");
 
     for (i = 0; i < numele; i++)
     {
-        /* Correction of Surf Elev (artifacts due to coarse scale
+        /* Correction of surface elevation (artifacts due to coarse scale
          * discretization). Not needed if there is lake feature. */
         sink = 1;
 
@@ -463,10 +466,10 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
         {
             if (elem[i].nabr[j] != 0)
             {
-                new_elevation = (elem[i].nabr[j] > 0) ?
+                nabr_zmax = (elem[i].nabr[j] > 0) ?
                     elem[elem[i].nabr[j] - 1].topo.zmax :
                     riv[0 - elem[i].nabr[j] - 1].topo.zmax;
-                if (elem[i].topo.zmax - new_elevation >= 0)
+                if (elem[i].topo.zmax >= nabr_zmax)
                 {
                     sink = 0;
                     break;
@@ -476,81 +479,90 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
 
         if (sink == 1)
         {
-            PIHMprintf (VL_NORMAL, "Ele %d (surface) is sink", i + 1);
+            PIHMprintf (VL_NORMAL, "Element %d is a sink\n", i + 1);
 
-            /* Note: Following correction is being applied for debug==1
-             * case only */
-            PIHMprintf (VL_NORMAL, "\tBefore: %lf Corrected using: ",
-                elem[i].topo.zmax);
+            /* Note: Following correction is being applied for correction
+             * mode only */
+            PIHMprintf (VL_NORMAL, "\tBefore: surface %lf, "
+                "bedrock %lf. Neighbors surface:",
+                elem[i].topo.zmax, elem[i].topo.zmin);
+
             new_elevation = 1.0e7;
             for (j = 0; j < NUM_EDGE; j++)
             {
                 if (elem[i].nabr[j] != 0)
                 {
-                    elem[i].topo.zmax = (elem[i].nabr[j] > 0) ?
+                    nabr_zmax = (elem[i].nabr[j] > 0) ?
                         elem[elem[i].nabr[j] - 1].topo.zmax :
                         riv[0 - elem[i].nabr[j] - 1].topo.zmax;
-                    new_elevation = (new_elevation > elem[i].topo.zmax) ?
-                        elem[i].topo.zmax : new_elevation;
-                    PIHMprintf (VL_NORMAL, "(%d)%lf  ", j + 1,
+                    new_elevation = (nabr_zmax < new_elevation) ?
+                        nabr_zmax : new_elevation;
+                    PIHMprintf (VL_NORMAL, " (%d)%lf", j + 1,
                         (elem[i].nabr[j] > 0) ?
                         elem[elem[i].nabr[j] - 1].topo.zmax :
                         riv[0 - elem[i].nabr[j] - 1].topo.zmax);
                 }
             }
+
+            /* Lift bedrock elevation by the same amount */
+            elem[i].topo.zmin += (new_elevation - elem[i].topo.zmax);
+
+            /* Apply new surface elevation */
             elem[i].topo.zmax = new_elevation;
-            PIHMprintf (VL_NORMAL, "=(New)%lf\n", elem[i].topo.zmax);
+
+            PIHMprintf (VL_NORMAL, ". Corrected = %lf, %lf\n",
+                elem[i].topo.zmax, elem[i].topo.zmin);
         }
     }
 
-    /* Correction of BedRck Elev. Is this needed? */
-    if (bedrock_flag == 1)
-    {
-        for (i = 0; i < numele; i++)
-        {
-            sink = 1;
-            for (j = 0; j < NUM_EDGE; j++)
-            {
-                if (elem[i].nabr[j] != 0)
-                {
-                    new_elevation = (elem[i].nabr[j] > 0) ?
-                        elem[elem[i].nabr[j] - 1].topo.zmin :
-                        riv[-elem[i].nabr[j] - 1].topo.zmin;
-                    if (elem[i].topo.zmin - new_elevation >= 0.0)
-                    {
-                        sink = 0;
-                        break;
-                    }
-                }
-            }
-            if (sink == 1)
-            {
-                PIHMprintf (VL_NORMAL, "Ele %d (bedrock) is sink", i + 1);
-                /* Note: Following correction is being applied for debug==1
-                 * case only */
-                PIHMprintf (VL_NORMAL, "\tBefore: %lf Corrected using:",
-                    elem[i].topo.zmin);
-                new_elevation = 1.0e7;
-                for (j = 0; j < NUM_EDGE; j++)
-                {
-                    if (elem[i].nabr[j] != 0)
-                    {
-                        elem[i].topo.zmin = (elem[i].nabr[j] > 0) ?
-                            elem[elem[i].nabr[j] - 1].topo.zmin :
-                            riv[0 - elem[i].nabr[j] - 1].topo.zmin;
-                        new_elevation = (new_elevation > elem[i].topo.zmin) ?
-                            elem[i].topo.zmin : new_elevation;
-                        PIHMprintf (VL_NORMAL, "(%d)%lf  ", j + 1,
-                            (elem[i].nabr[j] > 0) ?
-                            elem[elem[i].nabr[j] - 1].topo.zmin :
-                            riv[0 - elem[i].nabr[j] - 1].topo.zmin);
-                    }
-                }
-                elem[i].topo.zmin = new_elevation;
-                PIHMprintf (VL_NORMAL, "=(New)%lf\n", elem[i].topo.zmin);
-            }
-        }
-    }
+    ///* Correction of BedRck Elev. Is this needed? */
+    //if (bedrock_flag == 1)
+    //{
+    //    for (i = 0; i < numele; i++)
+    //    {
+    //        sink = 1;
+    //        for (j = 0; j < NUM_EDGE; j++)
+    //        {
+    //            if (elem[i].nabr[j] != 0)
+    //            {
+    //                new_elevation = (elem[i].nabr[j] > 0) ?
+    //                    elem[elem[i].nabr[j] - 1].topo.zmin :
+    //                    riv[-elem[i].nabr[j] - 1].topo.zmin;
+    //                if (elem[i].topo.zmin - new_elevation >= 0.0)
+    //                {
+    //                    sink = 0;
+    //                    break;
+    //                }
+    //            }
+    //        }
+    //        if (sink == 1)
+    //        {
+    //            PIHMprintf (VL_NORMAL, "Ele %d (bedrock) is sink", i + 1);
+    //            /* Note: Following correction is being applied for debug==1
+    //             * case only */
+    //            PIHMprintf (VL_NORMAL, "\tBefore: %lf Corrected using:",
+    //                elem[i].topo.zmin);
+    //            new_elevation = 1.0e7;
+    //            for (j = 0; j < NUM_EDGE; j++)
+    //            {
+    //                if (elem[i].nabr[j] != 0)
+    //                {
+    //                    elem[i].topo.zmin = (elem[i].nabr[j] > 0) ?
+    //                        elem[elem[i].nabr[j] - 1].topo.zmin :
+    //                        riv[0 - elem[i].nabr[j] - 1].topo.zmin;
+    //                    new_elevation = (new_elevation > elem[i].topo.zmin) ?
+    //                        elem[i].topo.zmin : new_elevation;
+    //                    PIHMprintf (VL_NORMAL, "(%d)%lf  ", j + 1,
+    //                        (elem[i].nabr[j] > 0) ?
+    //                        elem[elem[i].nabr[j] - 1].topo.zmin :
+    //                        riv[0 - elem[i].nabr[j] - 1].topo.zmin);
+    //                }
+    //            }
+    //            elem[i].topo.zmin = new_elevation;
+    //            PIHMprintf (VL_NORMAL, "=(New)%lf\n", elem[i].topo.zmin);
+    //        }
+    //    }
+    //}
 
     for (i = 0; i < numriv; i++)
     {
@@ -560,69 +572,29 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
             {
                 river_flag = 1;
                 PIHMprintf (VL_NORMAL,
-                    "Riv %d is lower than downstream Riv %d\n",
+                    "River %d is lower than downstream River %d.\n",
                     i + 1, riv[i].down);
             }
         }
+        else
+        {
+            if (riv[i].topo.zbed <= riv[i].topo.node_zmax - riv[i].shp.depth)
+            {
+                river_flag = 1;
+                PIHMprintf (VL_NORMAL,
+                    "River outlet is higher than the channel (River %d).\n",
+                    i + 1);
+            }
+        }
     }
+
     if (river_flag == 1)
     {
-        PIHMprintf (VL_NORMAL, "\n\tRiver elevation correction needed\n");
+        PIHMprintf (VL_NORMAL, "\nRiver elevation correction needed "
+            "but PIHM will continue without fixing river elevation.\n\n");
     }
 
-    PIHMprintf (VL_NORMAL,
-        "\nPIHM will continue without fixing river elevation...\n");
     sleep (5);
-
-    for (i = 0; i < numele; i++)
-    {
-        /* Correction of Surf Elev (artifacts due to coarse scale
-         * discretization). Not needed if there is lake feature. */
-        sink = 1;
-
-        for (j = 0; j < NUM_EDGE; j++)
-        {
-            if (elem[i].nabr[j] != 0)
-            {
-                new_elevation = (elem[i].nabr[j] > 0) ?
-                    elem[elem[i].nabr[j] - 1].topo.zmax :
-                    riv[0 - elem[i].nabr[j] - 1].topo.zmax;
-                if (elem[i].topo.zmax - new_elevation >= 0)
-                {
-                    sink = 0;
-                    break;
-                }
-            }
-        }
-
-        if (sink == 1)
-        {
-            PIHMprintf (VL_NORMAL, "Ele %d (surface) is sink", i + 1);
-
-            /* Note: Following correction is being applied for debug==1
-             * case only */
-            PIHMprintf (VL_NORMAL, "\tBefore: %lf Corrected using: ",
-                elem[i].topo.zmax);
-            new_elevation = 1.0e7;
-            for (j = 0; j < NUM_EDGE; j++)
-            {
-                if (elem[i].nabr[j] != 0)
-                {
-                    elem[i].topo.zmax = (elem[i].nabr[j] > 0) ?
-                        elem[elem[i].nabr[j] - 1].topo.zmax :
-                        riv[0 - elem[i].nabr[j] - 1].topo.zmax;
-                    new_elevation = (new_elevation > elem[i].topo.zmax) ?
-                        elem[i].topo.zmax : new_elevation;
-                    PIHMprintf (VL_NORMAL, "(%d)%lf  ", j + 1,
-                        (elem[i].nabr[j] > 0) ?
-                        elem[elem[i].nabr[j] - 1].topo.zmax :
-                        riv[0 - elem[i].nabr[j] - 1].topo.zmax);
-                }
-            }
-            elem[i].topo.zmax = new_elevation;
-            PIHMprintf (VL_NORMAL, "=(New)%lf\n", elem[i].topo.zmax);
-        }
-    }
 }
 
 void InitSurfL (elem_struct *elem, int numele, river_struct *riv,

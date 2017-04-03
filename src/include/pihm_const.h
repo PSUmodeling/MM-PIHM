@@ -349,6 +349,7 @@ enum obs_type
 /* External variable */
 extern int          verbose_mode;
 extern int          debug_mode;
+extern int          corr_mode;
 extern char         project[MAXSTRING];
 #ifdef _OPENMP
 extern int          nthreads;
