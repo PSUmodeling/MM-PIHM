@@ -2,77 +2,39 @@
 
 void LateralFlow (pihm_struct pihm)
 {
-    int             i, j;
-    double          dif_y_sub;
-    double          avg_y_sub;
-    double          distance;
-    double          grad_y_sub;
-    double          surfh[NUM_EDGE];
+    int             i;
     double         *dhbydx;
     double         *dhbydy;
-    double          effk;
-    double          effk_nabr;
-    double          avg_ksat;
-    double          dif_y_surf;
-    double          avg_y_surf;
-    double          grad_y_surf;
-    double          avg_sf;
-    double          avg_rough;
-    double          crossa;
-
-    elem_struct    *elem;
-    elem_struct    *nabr;
-    river_struct   *riv;
 
     dhbydx = (double *)malloc (pihm->numele * sizeof (double));
     dhbydy = (double *)malloc (pihm->numele * sizeof (double));
 
+    FrictSlope (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
+        pihm->ctrl.surf_mode, dhbydx, dhbydy);
+
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numele; i++)
     {
-        elem = &pihm->elem[i];
+        int         j;
+        double      dif_y_sub;
+        double      avg_y_sub;
+        double      grad_y_sub;
+        double      effk;
+        double      effk_nabr;
+        double      avg_ksat;
+        double      dif_y_surf;
+        double      avg_y_surf;
+        double      grad_y_surf;
+        double      avg_sf;
+        double      avg_rough;
+        double      crossa;
 
-        if (pihm->ctrl.surf_mode == DIFF_WAVE)
-        {
-            for (j = 0; j < 3; j++)
-            {
-                if (elem->nabr[j] > 0)
-                {
-                    nabr = &pihm->elem[elem->nabr[j] - 1];
-                    surfh[j] = nabr->topo.zmax + nabr->ws.surf;
-                }
-                else if (elem->nabr[j] < 0)
-                {
-                    riv = &pihm->riv[-elem->nabr[j] - 1];
+        elem_struct *elem;
+        elem_struct *nabr;
+        river_struct *riv;
 
-                    if (riv->ws.stage > riv->shp.depth)
-                    {
-                        surfh[j] = riv->topo.zbed + riv->ws.stage;
-                    }
-                    else
-                    {
-                        surfh[j] = riv->topo.zmax;
-                    }
-                }
-                else
-                {
-                    if (elem->attrib.bc_type[j] == 0)
-                    {
-                        surfh[j] = elem->topo.zmax + elem->ws.surf;
-                    }
-                    else
-                    {
-                        surfh[j] = elem->bc.head[j];
-                    }
-                }
-            }
-
-            dhbydx[i] = DhByDl (elem->topo.nabrdist_y, elem->topo.nabrdist_x, surfh);
-            dhbydy[i] = DhByDl (elem->topo.nabrdist_x, elem->topo.nabrdist_y, surfh);
-        }
-    }
-
-    for (i = 0; i < pihm->numele; i++)
-    {
         elem = &pihm->elem[i];
 
         for (j = 0; j < NUM_EDGE; j++)
@@ -193,6 +155,63 @@ void LateralFlow (pihm_struct pihm)
 
     free (dhbydx);
     free (dhbydy);
+}
+
+void FrictSlope (elem_struct *elem, int numele, river_struct *riv,
+    int numriv, int surf_mode, double *dhbydx, double *dhbydy)
+{
+    int             i;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < numele; i++)
+    {
+    int             j;
+    double          surfh[NUM_EDGE];
+    elem_struct    *nabr;
+    river_struct   *rivnabr;
+
+        if (surf_mode == DIFF_WAVE)
+        {
+            for (j = 0; j < NUM_EDGE; j++)
+            {
+                if (elem[i].nabr[j] > 0)
+                {
+                    nabr = &elem[elem[i].nabr[j] - 1];
+                    surfh[j] = nabr->topo.zmax + nabr->ws.surf;
+                }
+                else if (elem[i].nabr[j] < 0)
+                {
+                    rivnabr = &riv[-elem[i].nabr[j] - 1];
+
+                    if (rivnabr->ws.stage > rivnabr->shp.depth)
+                    {
+                        surfh[j] = rivnabr->topo.zbed + rivnabr->ws.stage;
+                    }
+                    else
+                    {
+                        surfh[j] = rivnabr->topo.zmax;
+                    }
+                }
+                else
+                {
+                    if (elem[i].attrib.bc_type[j] == 0)
+                    {
+                        surfh[j] = elem[i].topo.zmax + elem[i].ws.surf;
+                    }
+                    else
+                    {
+                        surfh[j] = elem[i].bc.head[j];
+                    }
+                }
+            }
+
+            dhbydx[i] = DhByDl (elem[i].topo.nabrdist_y,
+                elem[i].topo.nabrdist_x, surfh);
+            dhbydy[i] = DhByDl (elem[i].topo.nabrdist_x,
+                elem[i].topo.nabrdist_y, surfh);
+        }
+    }
 }
 
 double AvgYsfc (double diff, double yi, double yinabr)

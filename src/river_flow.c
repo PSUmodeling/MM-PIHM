@@ -2,34 +2,7 @@
 
 void RiverFlow (pihm_struct pihm)
 {
-    river_struct   *riv;
-    river_struct   *down;
-    elem_struct    *left;
-    elem_struct    *right;
-
     int             i;
-    double          total_y;
-    double          perim;
-    double          total_y_down;
-    double          perim_down;
-    double          avg_perim;
-    double          avg_rough;
-    double          distance;
-    double          dif_y;
-    double          grad_y;
-    double          avg_sf;
-    double          crossa;
-    double          crossa_down;
-    double          avg_crossa;
-    double          avg_y;
-    double          avg_ksat;
-    double          effk_nabr;
-    double          effk;
-    double          aquifer_depth;
-    double          grad_y_sub;
-    double          avg_y_sub;
-    double          dif_y_sub;
-    double          avg_wid;
     double          dt;
 
     dt = (double)pihm->ctrl.stepsize;
@@ -38,8 +11,38 @@ void RiverFlow (pihm_struct pihm)
      * Lateral flux calculation between river-river and river-triangular
      * elements
      */
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numriv; i++)
     {
+        river_struct *riv;
+        river_struct *down;
+        elem_struct  *left;
+        elem_struct  *right;
+        double      total_y;
+        double      perim;
+        double      total_y_down;
+        double      perim_down;
+        double      avg_perim;
+        double      avg_rough;
+        double      distance;
+        double      dif_y;
+        double      grad_y;
+        double      avg_sf;
+        double      crossa;
+        double      crossa_down;
+        double      avg_crossa;
+        double      avg_y;
+        double      avg_ksat;
+        double      effk_nabr;
+        double      effk;
+        double      aquifer_depth;
+        double      grad_y_sub;
+        double      avg_y_sub;
+        double      dif_y_sub;
+        double      avg_wid;
+
         riv = &pihm->riv[i];
 
         total_y = riv->ws.stage + riv->topo.zbed;

@@ -3,23 +3,27 @@
 void VerticalFlow (pihm_struct pihm)
 {
     int             i;
-    double          satn;
-    double          satkfunc;
-    double          dh_by_dz;
-    double          psi_u;
-    double          h_u;
-    double          kinf;
-    double          kavg;
     double          dt;
-    double          deficit;
-    double          applrate;
-    double          wetfrac;
-    elem_struct    *elem;
 
     dt = (double)pihm->ctrl.stepsize;
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numele; i++)
     {
+        double      satn;
+        double      satkfunc;
+        double      dh_by_dz;
+        double      psi_u;
+        double      h_u;
+        double      kinf;
+        double      kavg;
+        double      deficit;
+        double      applrate;
+        double      wetfrac;
+        elem_struct *elem;
+
         elem = &pihm->elem[i];
 
         applrate = elem->wf.pcpdrp + elem->ws.surf / dt;

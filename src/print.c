@@ -1236,15 +1236,19 @@ void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii)
 void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
     int ascii)
 {
-    int             i, j;
-    struct tm      *timestamp;
-    time_t          rawtime;
-    char            timestr[MAXSTRING];
-    double          outval;
-    double          outtime;
-
+    int             i;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < nprint; i++)
     {
+        int         j;
+        struct tm  *timestamp;
+        time_t      rawtime;
+        char        timestr[MAXSTRING];
+        double      outval;
+        double      outtime;
+
         for (j = 0; j < prtctrl[i].nvar; j++)
         {
             prtctrl[i].buffer[j] += *prtctrl[i].var[j];

@@ -49,6 +49,8 @@ double          EffKV (double, int, double, double, double);
 double          FieldCapacity (double, double, double, double, double);
 void            FindLine (FILE *, char *, int *, const char *);
 void            FreeData (pihm_struct);
+void            FrictSlope (elem_struct *, int, river_struct *, int, int,
+    double *, double *);
 int             Hydrol (realtype, N_Vector, N_Vector, void *);
 void            Initialize (pihm_struct, N_Vector);
 void            InitEFlux (eflux_struct *);
