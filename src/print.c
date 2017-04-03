@@ -47,7 +47,7 @@ void _PIHMprintf (const char *fn, int lineno, const char *func, int verbosity,
         if (debug_mode)
         {
             fprintf (stderr, "Printed from %s", func);
-            fprintf (stderr, " (%s, Line %d.\n)", fn, lineno);
+            fprintf (stderr, " (%s, Line %d.)\n", fn, lineno);
         }
         fflush (stderr);
     }
@@ -57,7 +57,7 @@ void _PIHMprintf (const char *fn, int lineno, const char *func, int verbosity,
         if (debug_mode)
         {
             printf ("Printed from %s", func);
-            printf (" (%s, Line %d.\n)", fn, lineno);
+            printf (" (%s, Line %d.)\n", fn, lineno);
         }
         fflush (stderr);
     }

@@ -5,6 +5,10 @@
 CC = gcc
 CFLAGS = -g -O2 -Wall -Wextra
 
+ifeq ($(DEBUG), on)
+CFLAGS += -O0
+endif
+
 ifeq ($(CVODE_OMP), on)
 OMP=on
 endif

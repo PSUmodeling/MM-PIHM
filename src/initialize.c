@@ -449,8 +449,8 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
 {
     int             i, j;
     int             sink;
-    int             bedrock_flag;
-    int             river_flag;
+    int             bedrock_flag = 1;
+    int             river_flag = 0;
     double          new_elevation;
 
     for (i = 0; i < numele; i++)
@@ -502,9 +502,8 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
             PIHMprintf (VL_NORMAL, "=(New)%lf\n", elem[i].topo.zmax);
         }
     }
-    /* Correction of BedRck Elev. Is this needed? */
 
-    bedrock_flag = 1;
+    /* Correction of BedRck Elev. Is this needed? */
     if (bedrock_flag == 1)
     {
         for (i = 0; i < numele; i++)
@@ -569,7 +568,60 @@ void CorrectElevation (elem_struct *elem, int numele, river_struct *riv,
     if (river_flag == 1)
     {
         PIHMprintf (VL_NORMAL, "\n\tRiver elevation correction needed\n");
-        getchar ();
+    }
+
+    PIHMprintf (VL_NORMAL,
+        "\nPIHM will continue without fixing river elevation...\n");
+    sleep (5);
+
+    for (i = 0; i < numele; i++)
+    {
+        /* Correction of Surf Elev (artifacts due to coarse scale
+         * discretization). Not needed if there is lake feature. */
+        sink = 1;
+
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            if (elem[i].nabr[j] != 0)
+            {
+                new_elevation = (elem[i].nabr[j] > 0) ?
+                    elem[elem[i].nabr[j] - 1].topo.zmax :
+                    riv[0 - elem[i].nabr[j] - 1].topo.zmax;
+                if (elem[i].topo.zmax - new_elevation >= 0)
+                {
+                    sink = 0;
+                    break;
+                }
+            }
+        }
+
+        if (sink == 1)
+        {
+            PIHMprintf (VL_NORMAL, "Ele %d (surface) is sink", i + 1);
+
+            /* Note: Following correction is being applied for debug==1
+             * case only */
+            PIHMprintf (VL_NORMAL, "\tBefore: %lf Corrected using: ",
+                elem[i].topo.zmax);
+            new_elevation = 1.0e7;
+            for (j = 0; j < NUM_EDGE; j++)
+            {
+                if (elem[i].nabr[j] != 0)
+                {
+                    elem[i].topo.zmax = (elem[i].nabr[j] > 0) ?
+                        elem[elem[i].nabr[j] - 1].topo.zmax :
+                        riv[0 - elem[i].nabr[j] - 1].topo.zmax;
+                    new_elevation = (new_elevation > elem[i].topo.zmax) ?
+                        elem[i].topo.zmax : new_elevation;
+                    PIHMprintf (VL_NORMAL, "(%d)%lf  ", j + 1,
+                        (elem[i].nabr[j] > 0) ?
+                        elem[elem[i].nabr[j] - 1].topo.zmax :
+                        riv[0 - elem[i].nabr[j] - 1].topo.zmax);
+                }
+            }
+            elem[i].topo.zmax = new_elevation;
+            PIHMprintf (VL_NORMAL, "=(New)%lf\n", elem[i].topo.zmax);
+        }
     }
 }
 

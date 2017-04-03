@@ -168,7 +168,7 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
 
     if (debug_mode)
     {
-        PIHMprintf (VL_VERBOSE, " Step = %s (%d)\n", timestr, *t);
+        PIHMprintf (VL_NORMAL, " Step = %s (%d)\n", timestr, *t);
     }
 #ifndef _ENKF_
     else if (rawtime % 3600 == 0)

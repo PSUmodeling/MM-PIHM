@@ -3,46 +3,49 @@
 void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
 {
     int             i;
-    double          satn;
-    double          betas;
-    double          fr;
-    double          alphar;
-    double          etas;
-    double          gammas;
-    double          rs;
-    double          pc;
-    double          delta, gamma;
-    double          radnet;
-    double          sfctmp;
-    double          wind;
-    double          rh;
-    double          vp;
-    double          pres;
-    double          lai;
-    double          z0;
-    double          ra;
-    double          qvsat;
-    double          qv;
-    double          etp;
-    double          isval = 0.0;
-    double          frac_snow;
-    double          snow_rate;
-    double          melt_rate_grnd;
-    double          melt_rate_canopy;
-    double          snow_grnd = 0.0;
-    double          snow_canopy = 0.0;
-    double          snow_intcp_max;
-    double          intcp_max;
-    double          meltf;
     const double    TSNOW = -3.0;
     const double    TRAIN = 1.0;
     const double    T0 = 0.0;
-    double          ret = 0.0;
 
-    elem_struct    *elem;
-
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numele; i++)
     {
+        double      satn;
+        double      betas;
+        double      fr;
+        double      alphar;
+        double      etas;
+        double      gammas;
+        double      rs;
+        double      pc;
+        double      delta, gamma;
+        double      radnet;
+        double      sfctmp;
+        double      wind;
+        double      rh;
+        double      vp;
+        double      pres;
+        double      lai;
+        double      z0;
+        double      ra;
+        double      qvsat;
+        double      qv;
+        double      etp;
+        double      isval = 0.0;
+        double      frac_snow;
+        double      snow_rate;
+        double      melt_rate_grnd;
+        double      melt_rate_canopy;
+        double      snow_grnd = 0.0;
+        double      snow_canopy = 0.0;
+        double      snow_intcp_max;
+        double      intcp_max;
+        double      meltf;
+        double      ret = 0.0;
+        elem_struct *elem;
+
         elem = &pihm->elem[i];
 
         /* Note the dependence on physical units */
