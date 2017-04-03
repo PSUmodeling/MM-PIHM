@@ -98,10 +98,10 @@ export OMP_NUM_THREADS=8
 ./pihm example
 ```
 
-Now you can run MM-PIHM models.
+Now you can run MM-PIHM models:
 
 ```shell
-$ ./<model> [-v] [-d] [-c] [-o dir_name ] <project >
+$ ./<model> [-v] [-d] [-c] [-o dir_name] <project>
 ```
 
 where `<model>` is the name of the MM-PIHM model, `<project>` is the name of the project, and [-vdco] are
