@@ -35,7 +35,12 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     rawtime = timegm (timestamp);
     ctrl->spinupend = (int)rawtime;
 
-    if (ctrl->spinupend > ctrl->endtime)
+    NextLine (bgc_file, cmdstr, &lno);
+    sscanf (cmdstr, "%d", &ctrl->bgc_spinup);
+    NextLine (bgc_file, cmdstr, &lno);
+    sscanf (cmdstr, "%d", &ctrl->maxspinyears);
+
+    if (ctrl->bgc_spinup && ctrl->spinupend > ctrl->endtime)
     {
         PIHMprintf (VL_ERROR, "Error setting BGC spinup period "
             "or PIHM simulation period.\n");
@@ -52,11 +57,6 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
         PIHMprintf (VL_ERROR, "Please check .para file and .bgc file.\n");
         PIHMexit (EXIT_FAILURE);
     }
-
-    NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%d", &ctrl->bgc_spinup);
-    NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%d", &ctrl->maxspinyears);
 
     FindLine (bgc_file, "CO2_CONTROL", &lno, fn);
     NextLine (bgc_file, cmdstr, &lno);
