@@ -111,11 +111,7 @@ void            _PIHMexit (const char *, int, const char *, int);
 #define PIHMprintf(...)   _PIHMprintf(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 void            _PIHMprintf (const char *, int, const char *, int,
     const char *, ...);
-void            PIHM (char *, char *, int
-#ifdef _ENKF_
-    , int, int, int, double *
-#endif
-    );
+void            PIHM (char *, char *, int);
 void            PrintData (prtctrl_struct *, int, int, int, int, int);
 void            PrtInit (pihm_struct, char *);
 double          Psi (double, double, double);
@@ -269,41 +265,6 @@ void            WDfCnd (double *, double *, double, double, int,
 #ifdef _DAILY_
 void            DailyVar (int, int, pihm_struct);
 void            InitDailyStruct (pihm_struct);
-#endif
-
-#ifdef _ENKF_
-void            Calib2Mbr (calib_struct, double *);
-void            COSMOSOper (obs_struct *, var_struct *, pihm_struct);
-void            CovInflt (enkf_struct, enkf_struct);
-void            DisOper (obs_struct *, var_struct *, pihm_struct);
-void            EnKF (double *, double, double, double *, int);
-void            EnKFDA (enkf_struct, int, char *);
-int             FindVar (var_struct *, char *);
-void            FreeEns (enkf_struct);
-void            GenRandNum (int, int, double **, double, double);
-void            InitEns (enkf_struct);
-void            InitOper (pihm_struct, enkf_struct);
-void            JobHandIn (int);
-void            JobHandout (int, int, int, ensmbr_struct *, double *, int,
-    int);
-void            JobRecv (int *, int *, int *, double *, int);
-void            LandSfcTmpOper (obs_struct *, var_struct *, pihm_struct);
-void            MapVar (var_struct *, int, int);
-void            Mbr2Cal (calib_struct *, const double *);
-void            PauseParal (int);
-void            ReadEnKF (enkf_struct);
-void            ReadFcst (enkf_struct, obs_struct, double *);
-void            ReadObs (int, char *, double *, double *);
-void            ReadVar (char *, enkf_struct, int);
-void            Perturb (enkf_struct, char *);
-double          Randn ();
-void            PIHMParal (int, int, char *);
-void            PrintEnKFStatus (int, int);
-void            UpdAnlys (enkf_struct, double, double, double *);
-void            WriteCalFile (enkf_struct, char *);
-void            WriteEnKFOut (char *, enkf_struct, char *, int);
-void            WritePara (char *, int, int, int);
-void            WriteParamOutput (int, enkf_struct, int, char *);
 #endif
 
 #ifdef _CYCLES_

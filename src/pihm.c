@@ -1,10 +1,6 @@
 #include "pihm.h"
 
-void PIHM (char *simulation, char *outputdir, int first_cycle
-#ifdef _ENKF_
-    , int starttime, int endtime, int startmode, double *param
-#endif
-    )
+void PIHM (char *simulation, char *outputdir, int first_cycle)
 {
     pihm_struct     pihm;
     N_Vector        CV_Y;       /* State Variables Vector */
@@ -21,16 +17,6 @@ void PIHM (char *simulation, char *outputdir, int first_cycle
 
     /* Read PIHM input files */
     ReadAlloc (simulation, pihm);
-
-#ifdef _ENKF_
-    /* When running in ensemble mode, use parameters and calibration
-     * determined by EnKF module */
-    pihm->ctrl.init_type = startmode;
-    pihm->ctrl.starttime = starttime;
-    pihm->ctrl.endtime = endtime;
-
-    Mbr2Cal (&pihm->cal, param);
-#endif
 
     /* Number of state variables */
     nsv = 3 * pihm->numele + 2 * pihm->numriv;

@@ -317,35 +317,6 @@ enum stage
 
 #endif
 
-#ifdef _ENKF_
-#define MAXPARAM        100
-#define MAXVAR          100
-#define MAXINT          2147483647
-#define CORRMAX         0.25
-#define SUCCESS_TAG     2
-#define CYCLE_TAG       1
-#define PARAM_TAG       3
-#define LOG_TYPE        1
-
-enum prmt_type
-{ KSATH, KSATV, KINF, KMACH, KMACV, DINF, RZD, DMAC, POROSITY,
-    ALPHA, BETA, AREAFV, AREAFH, VEGFRAC, ALBEDO, ROUGH, EC, ETT, EDIR,
-    RIVROUGH, RIVKSATH, RIVKSATV, RIVBEDTHICK, RIVDEPTH, RIVSHPCOEFF, DRIP,
-    INTCP, RSMIN, CZIL, FXEXP, CFACTR, RGL, HS, THETAREF, THETAW, PRCP, SFCTMP
-};
-
-#define PRMT_NAME (const char*[37]){ "KSATH", "KSATV", "KINF", "KMACSATH",\
-    "KMACSATV", "DINF", "DROOT", "DMAC", "POROSITY", "ALPHA", "BETA",\
-    "MACVF", "MACHF", "VEGFRAC", "ALBEDO", "ROUGH", "EC", "ETT", "EDIR",\
-    "ROUGH_RIV", "KRIVH", "KRIVV", "BEDTHCK", "RIV_DPTH", "RIV_WDTH", "DRIP",\
-    "CMCMAX", "RS", "CZIL", "FXEXP", "CFACTR", "RGL", "HS", "REFSMC",\
-    "WLTSMC", "PRCP", "SFCTMP"}
-
-enum obs_type
-{ RUNOFF_OBS, TSKIN_OBS, COSMOS_OBS};
-
-#endif
-
 /* External variable */
 extern int          verbose_mode;
 extern int          debug_mode;

@@ -176,25 +176,14 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
     {
         PIHMprintf (VL_NORMAL, " Step = %s (%d)\n", timestr, *t);
     }
-#ifndef _ENKF_
     else if (rawtime % 3600 == 0)
     {
         PIHMprintf (VL_NORMAL, " Step = %s\n", timestr);
     }
-#endif
 }
 
 void _PIHMexit (const char *fn, int lineno, const char *func, int error)
 {
-#ifdef _ENKF_
-    int             id;
-    int             ierr;
-
-    ierr = MPI_Comm_rank (MPI_COMM_WORLD, &id);
-    PIHMprintf (VL_ERROR, "Error in %s\n", func);
-    PIHMprintf (VL_ERROR, "Exiting from Node %d\n", id);
-    MPI_Abort (MPI_COMM_WORLD, error);
-#else
     PIHMprintf (VL_ERROR, "\n");
     PIHMprintf (VL_ERROR, "Exiting from %s", func);
     if (debug_mode)
@@ -204,5 +193,4 @@ void _PIHMexit (const char *fn, int lineno, const char *func, int error)
     PIHMprintf (VL_ERROR, "...\n\n");
 
     exit (error);
-#endif
 }

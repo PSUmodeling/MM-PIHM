@@ -149,35 +149,6 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 endif
 
 #-------------------
-# Flux-PIHM-EnKF
-#-------------------
-ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
-  CC = mpicc
-  SFLAGS = -D_PIHM_ -D_NOAH_ -D_ENKF_
-  MODULE_SRCS_ = \
-	enkf/cov_inflt.c\
-	enkf/da.c\
-	enkf/enkf.c\
-	enkf/enkf_func.c\
-	enkf/enkf_init.c\
-	enkf/enkf_print.c\
-	enkf/enkf_read.c\
-	enkf/obs_oper.c\
-	enkf/perturb.c\
-	enkf/pihm_paral.c\
-	noah/lsm_func.c\
-	noah/lsm_init.c\
-	noah/lsm_read.c\
-  	noah/noah.c\
-	spa/spa.c
-  MODULE_HEADERS_ = \
-  	include/enkf.h\
-  	include/spa.h 
-  EXECUTABLE = flux-pihm-enkf
-  MSG = "... Compiling Flux-PIHM-EnKF ..."
-endif
-
-#-------------------
 # Flux-PIHM-Cycles
 #-------------------
 CYCLES_PATH = ../Cycles/src
@@ -263,13 +234,6 @@ flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-flux-pihm-enkf:		## Complile Flux-PIHM-EnKF (Flux-PIHM EnKF data assimilation system)
-flux-pihm-enkf: $(OBJS) $(MODULE_OBJS)
-	@echo
-	@echo $(MSG)
-	@echo
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
-
 flux-pihm-bgc:		## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
 flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
 	@echo
@@ -292,4 +256,4 @@ clean:			## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm flux-pihm-bgc flux-pihm-cycles rt-flux-pihm flux-pihm-enkf
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm flux-pihm-bgc flux-pihm-cycles rt-flux-pihm

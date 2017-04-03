@@ -32,17 +32,11 @@
 /* CVDENSE header file */      
 #include "cvode_dense.h"
 
-#ifdef _ENKF_
-#include "mpi.h"
-#endif
 #ifdef _NOAH_
 #include "spa.h"
 #endif
 
 #include "pihm_const.h"
-#ifdef _ENKF_
-#include "enkf.h"
-#endif
 #include "pihm_input_struct.h"
 #include "elem_struct.h"
 #include "river_struct.h"

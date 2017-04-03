@@ -21,9 +21,6 @@ void AsciiArt ()
 #ifdef _BGC_
     PIHMprintf (VL_NORMAL, "\t    * Biogeochemistry module turned on.\n");
 #endif
-#ifdef _ENKF_
-    PIHMprintf (VL_NORMAL, "\t    * Ensemble Kalman filter turned on.\n");
-#endif
 #ifdef _CYCLES_
     PIHMprintf (VL_NORMAL, "\t    * Crop module turned on.\n");
 #endif
