@@ -3,17 +3,13 @@
 # -----------------------------------------------------------------
 
 CC = gcc
-CFLAGS = -g -O2 -Wall -Wextra
+CFLAGS = -g -O2
 
 ifeq ($(DEBUG), on)
-CFLAGS += -O0
+CFLAGS += -O0 -Wall -Wextra
 endif
 
-ifeq ($(CVODE_OMP), on)
-OMP=on
-endif
-
-ifeq ($(OMP), on)
+ifneq ($(OMP), off)
 CFLAGS += -fopenmp
 endif
 
@@ -37,6 +33,9 @@ LFLAGS += -lsundials_nvecserial
 endif
 
 SFLAGS = -D_PIHM_
+ifeq ($(CVODE_OMP), on)
+SFLAGS += -D_CVODE_OMP
+endif
 
 SRCS_ = main.c\
 	forcing.c\
