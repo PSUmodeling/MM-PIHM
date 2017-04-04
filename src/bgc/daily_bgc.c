@@ -7,57 +7,33 @@
 
 void DailyBgc (pihm_struct pihm, int t, int simstart)
 {
-    co2control_struct *co2;
-    ndepcontrol_struct *ndepctrl;
-    ctrl_struct    *ctrl;
-    epconst_struct *epc;
-    epvar_struct   *epv;
-    psn_struct     *psn_sun, *psn_shade;
-    daily_struct   *daily;
-    cstate_struct  *cs;
-    cflux_struct   *cf;
-    nstate_struct  *ns;
-    nflux_struct   *nf;
-    ntemp_struct   *nt;
-    eflux_struct   *ef;
-    pstate_struct  *ps;
-    soil_struct    *soil;
-    phenology_struct *phen;
-    summary_struct *summary;
-    int             i, k;
+
+    int             i;
     int             simday;
     struct tm      *timestamp;
     time_t          rawtime;
     double          co2lvl;
-    double          vwc;
-    double          droot;
-    int             annual_alloc;
-
     double          daily_ndep, daily_nfix;
 
     rawtime = (int)t;
     timestamp = gmtime (&rawtime);
 
-    co2 = &pihm->co2;
-    ndepctrl = &pihm->ndepctrl;
-    ctrl = &pihm->ctrl;
-
     /* Get co2 and ndep */
-    if (ctrl->bgc_spinup)       /* Spinup mode */
+    if (pihm->ctrl.bgc_spinup)       /* Spinup mode */
     {
-        co2lvl = co2->co2ppm;
-        daily_ndep = ndepctrl->ndep / 365.0;
-        daily_nfix = ndepctrl->nfix / 365.0;
+        co2lvl = pihm->co2.co2ppm;
+        daily_ndep = pihm->ndepctrl.ndep / 365.0;
+        daily_nfix = pihm->ndepctrl.nfix / 365.0;
     }
     else                        /* Model mode */
     {
         /* Atmospheric CO2 handling */
-        if (!(co2->varco2))
+        if (!(pihm->co2.varco2))
         {
             /* constant CO2, constant Ndep */
-            co2lvl = co2->co2ppm;
-            daily_ndep = ndepctrl->ndep / 365.0;
-            daily_nfix = ndepctrl->nfix / 365.0;
+            co2lvl = pihm->co2.co2ppm;
+            daily_ndep = pihm->ndepctrl.ndep / 365.0;
+            daily_nfix = pihm->ndepctrl.nfix / 365.0;
         }
         else
         {
@@ -73,16 +49,16 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
         }
 
         /* Ndep handling */
-        if (!(ndepctrl->varndep))
+        if (!(pihm->ndepctrl.varndep))
         {
             /* Constant Ndep */
-            daily_ndep = ndepctrl->ndep / 365.0;
-            daily_nfix = ndepctrl->nfix / 365.0;
+            daily_ndep = pihm->ndepctrl.ndep / 365.0;
+            daily_nfix = pihm->ndepctrl.nfix / 365.0;
         }
         else
         {
             daily_ndep = GetNdep (pihm->forc.ndep[0], t);
-            daily_nfix = ndepctrl->nfix / 365.0;
+            daily_nfix = pihm->ndepctrl.nfix / 365.0;
             if (daily_ndep < -999)
             {
                 PIHMprintf (VL_ERROR,
@@ -100,21 +76,49 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
 
     simday = (t - simstart) / 24 / 3600 - 1;
 
-    if (ctrl->bgc_spinup)       /* Spinup mode */
+    if (pihm->ctrl.bgc_spinup)       /* Spinup mode */
     {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
         for (i = 0; i < pihm->numele; i++)
         {
             DayMet (&pihm->elem[i].stor, &pihm->elem[i].daily, simday);
         }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
         for (i = 0; i < pihm->numriv; i++)
         {
             RiverDayMet (&pihm->riv[i].stor, &pihm->riv[i].daily, simday);
         }
     }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numele; i++)
     {
+        int         k;
+        epconst_struct *epc;
+        epvar_struct *epv;
+        soil_struct *soil;
+        daily_struct *daily;
+        cstate_struct *cs;
+        cflux_struct *cf;
+        nstate_struct *ns;
+        nflux_struct *nf;
+        ntemp_struct *nt;
+        eflux_struct *ef;
+        pstate_struct *ps;
+        phenology_struct *phen;
+        psn_struct *psn_sun, *psn_shade;
+        summary_struct *summary;
+        double      vwc;
+        double      droot;
+        int         annual_alloc;
+
         epc = &pihm->elem[i].epc;
         epv = &pihm->elem[i].epv;
         soil = &pihm->elem[i].soil;
@@ -241,8 +245,19 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
      * to avoid negative sminn under heavy leaching potential */
     NLeaching (pihm->elem, pihm->numele, pihm->riv, pihm->numriv);
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numele; i++)
     {
+        epconst_struct *epc;
+        epvar_struct *epv;
+        cstate_struct *cs;
+        cflux_struct *cf;
+        nstate_struct *ns;
+        nflux_struct *nf;
+        summary_struct *summary;
+
         epc = &pihm->elem[i].epc;
         epv = &pihm->elem[i].epv;
         cs = &pihm->elem[i].cs;
