@@ -11,7 +11,6 @@ void BGCSpinup (pihm_struct pihm, char *outputdir)
     struct tm      *timestamp;
     int             metyr;
     int             t;
-    int             first_balance = 1;
     int             metyears;
     int            *steady;
     int             metcycle = 0;
@@ -50,9 +49,9 @@ void BGCSpinup (pihm_struct pihm, char *outputdir)
         {
             t = pihm->ctrl.spinupstart + (j + 1) * 24 * 3600;
 
-            DailyBgc (pihm, t, pihm->ctrl.spinupstart, first_balance);
+            DailyBgc (pihm, t, pihm->ctrl.spinupstart);
 
-            first_balance = 0;
+            first_day = 0;
 
             for (i = 0; i < pihm->numele; i++)
             {

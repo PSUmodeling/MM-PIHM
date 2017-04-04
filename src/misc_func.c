@@ -1,9 +1,10 @@
 #include "pihm.h"
 
-void ParseCmdLineParam (int argc, char *argv[], int *spec_output_mode,
-    char *outputdir)
+void ParseCmdLineParam (int argc, char *argv[], char *outputdir)
 {
     int             c;
+
+    outputdir[0] = '\0';
 
     while ((c = getopt (argc, argv, "o:cdvl")) != -1)
     {
@@ -12,7 +13,6 @@ void ParseCmdLineParam (int argc, char *argv[], int *spec_output_mode,
             case 'o':
                 /* Specify output directory */
                 sprintf (outputdir, "output/%s/", optarg);
-                *spec_output_mode = 1;
                 break;
             case 'c':
                 /* Surface elevatoin correction mode */
@@ -56,7 +56,7 @@ void ParseCmdLineParam (int argc, char *argv[], int *spec_output_mode,
     }
 }
 
-void CreateOutputDir (char *outputdir, int spec_output_mode)
+void CreateOutputDir (char *outputdir)
 {
     time_t          rawtime;
     struct tm      *timestamp;
@@ -67,24 +67,16 @@ void CreateOutputDir (char *outputdir, int spec_output_mode)
         PIHMprintf (VL_NORMAL, " Output directory was created.\n\n");
     }
 
-    if (!spec_output_mode)
+    if (outputdir[0] == '\0')
     {
+        /* Create default output directory name based on project and time */
         time (&rawtime);
         timestamp = localtime (&rawtime);
-
-        /* Create output directory based on projectname and time */
         strftime (str, 11, "%y%m%d%H%M", timestamp);
         sprintf (outputdir, "output/%s.%s/", project, str);
+    }
 
-        PIHMprintf (VL_NORMAL, "\nOutput directory: %s\n", outputdir);
-    }
-    else
-    {
-        
-        PIHMprintf
-            (VL_NORMAL, "Output directory is specified as \"%s\".\n",
-            outputdir);
-    }
+    PIHMprintf (VL_NORMAL, "\nOutput directory: %s\n", outputdir);
 
     mkdir (outputdir, 0755);
 }

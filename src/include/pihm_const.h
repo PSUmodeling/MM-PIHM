@@ -325,4 +325,8 @@ extern char         project[MAXSTRING];
 #ifdef _OPENMP
 extern int          nthreads;
 #endif
+#ifdef _DAILY_
+extern int          first_day;
+#endif
+
 #endif

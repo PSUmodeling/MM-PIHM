@@ -6,7 +6,7 @@
 
 #include "pihm.h"
 
-void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
+void DailyBgc (pihm_struct pihm, int t, int simstart)
 {
     //metvar_struct  *metv;
     co2control_struct *co2;
@@ -262,10 +262,10 @@ void DailyBgc (pihm_struct pihm, int t, int simstart, int first_balance)
         Mortality (epc, cs, cf, ns, nf);
 
         /* Test for carbon balance */
-        CheckCarbonBalance (cs, &epv->old_c_balance, first_balance);
+        CheckCarbonBalance (cs, &epv->old_c_balance, first_day);
 
         /* Test for nitrogen balance */
-        CheckNitrogenBalance (ns, &epv->old_n_balance, first_balance);
+        CheckNitrogenBalance (ns, &epv->old_n_balance, first_day);
 
         /* Calculate carbon summary variables */
         CSummary (cf, cs, summary);

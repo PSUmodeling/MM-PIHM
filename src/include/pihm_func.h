@@ -41,7 +41,7 @@ void            CheckFile (FILE *, char *);
 void            CorrectElevation (elem_struct *, int, river_struct *, int);
 int             CountLine (FILE *, char *, int, ...);
 int             CountOccurance (FILE *, char *);
-void            CreateOutputDir (char *, int);
+void            CreateOutputDir (char *);
 double          DhByDl (double *, double *, double *);
 double          EffKH (double, double, double, double, double, double);
 double          EffKinf (double, double, int, double, double, double);
@@ -105,13 +105,13 @@ void            NextLine (FILE *, char *, int *);
 #endif
 double          OverlandFlow (double, double, double, double, double);
 double          OLFEleToRiv (double, double, double, double, double, double);
-void            ParseCmdLineParam (int, char *[], int *, char *);
+void            ParseCmdLineParam (int, char *[], char *);
 #define PIHMexit(...)  _PIHMexit(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 void            _PIHMexit (const char *, int, const char *, int);
 #define PIHMprintf(...)   _PIHMprintf(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 void            _PIHMprintf (const char *, int, const char *, int,
     const char *, ...);
-void            PIHM (char *, char *, int);
+void            PIHM (pihm_struct, void *, N_Vector, int, int);
 void            PrintData (prtctrl_struct *, int, int, int, int, int);
 void            PrtInit (pihm_struct, char *);
 double          Psi (double, double, double);
@@ -428,7 +428,7 @@ void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
 void            DailyAllocation (cflux_struct *, cstate_struct *,
     nflux_struct *, nstate_struct *, epconst_struct *, epvar_struct *,
     ntemp_struct *, const int);
-void            DailyBgc (pihm_struct, int, int, int);
+void            DailyBgc (pihm_struct, int, int);
 void            DailyCarbonStateUpdate (cflux_struct *, cstate_struct *, int,
     int, int);
 void            DailyNitrogenStateUpdate (nflux_struct *, nstate_struct *,
