@@ -2,24 +2,28 @@
 
 void DailyVar (int t, int start_time, pihm_struct pihm)
 {
-    elem_struct    *elem;
-    river_struct   *riv;
     double          dayl;
     double          prev_dayl;
     spa_data        spa;
     int             spa_result;
     time_t          rawtime;
     struct tm      *timestamp;
-    int             i, j, k;
-    double          sfctmp;
-    double          solar;
+    int             i;
 
     /*
      * Cumulates daily variables
      */
     /* Triangular grids */
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numele; i++)
     {
+        double      sfctmp;
+        double      solar;
+        int         k;
+        elem_struct *elem;
+
         elem = &pihm->elem[i];
 
         /* Air temperature */
@@ -43,13 +47,12 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             elem->daily.avg_sh2o[k] += elem->ws.sh2o[k];
             elem->daily.avg_smc[k] += elem->ws.smc[k];
             elem->daily.avg_smflxv[k] += elem->wf.smflxv[k];
+#ifdef _CYCLES_
+            elem->daily.avg_et[k] += elem->wf.et[k];
+#endif
         }
 
 #ifdef _CYCLES_
-        for (k = 0; k < elem->ps.nsoil; k++)
-        {
-            elem->daily.avg_et[k] += elem->wf.et[k];
-        }
         elem->daily.avg_sncovr += elem->ps.sncovr;
 #endif
 
@@ -59,7 +62,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         elem->daily.avg_gw += elem->ws.gw;
 
         /* Lateral flux */
-        for (k = 0; k < 3; k++)
+        for (k = 0; k < NUM_EDGE; k++)
         {
             elem->daily.avg_subsurf[k] += elem->wf.subsurf[k];
             elem->daily.avg_ovlflow[k] += elem->wf.ovlflow[k];
@@ -85,8 +88,14 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
     }
 
     /* River segments */
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numriv; i++)
     {
+        river_struct *riv;
+        int         j;
+
         riv = &pihm->riv[i];
 
         /* Water storage terms */
@@ -94,7 +103,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         riv->daily.avg_gw += riv->ws.gw;
 
         /* Lateral flux */
-        for (j = 0; j < 11; j++)
+        for (j = 0; j < NUM_RIVFLX; j++)
         {
             riv->daily.avg_rivflow[j] += riv->wf.rivflow[j];
         }
@@ -123,9 +132,8 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         spa.latitude = pihm->latitude;
         spa.elevation = pihm->elevation;
 
-        /*
-         * Calculate surface pressure based on FAO 1998 method (Narasimhan 2002) 
-         */
+        /* Calculate surface pressure based on FAO 1998 method
+         * (Narasimhan 2002) */
         spa.pressure =
             1013.25 * pow ((293. - 0.0065 * spa.elevation) / 293.0, 5.26);
         spa.temperature = pihm->noahtbl.tbot;
@@ -150,8 +158,14 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         prev_dayl =
             (prev_dayl < 0.0) ? (prev_dayl + 12.0 * 3600.0) : prev_dayl;
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
         for (i = 0; i < pihm->numele; i++)
         {
+            int     k;
+            elem_struct *elem;
+
             elem = &pihm->elem[i];
 
             elem->daily.avg_sfctmp /= (double)elem->daily.counter;
@@ -166,13 +180,12 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
                 elem->daily.avg_sh2o[k] /= (double)elem->daily.counter;
                 elem->daily.avg_smc[k] /= (double)elem->daily.counter;
                 elem->daily.avg_smflxv[k] /= (double)elem->daily.counter;
+#ifdef _CYCLES_
+                elem->daily.avg_et[k] /= (double)elem->daily.counter;
+#endif
             }
 
 #ifdef _CYCLES_
-            for (k = 0; k < pihm->elem[i].ps.nsoil; k++)
-            {
-                elem->daily.avg_et[k] /= (double)elem->daily.counter;
-            }
             elem->daily.avg_sncovr /= (double)elem->daily.counter;
 #endif
 
@@ -180,7 +193,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             elem->daily.avg_unsat /= (double)elem->daily.counter;
             elem->daily.avg_gw /= (double)elem->daily.counter;
 
-            for (k = 0; k < 3; k++)
+            for (k = 0; k < NUM_EDGE; k++)
             {
                 elem->daily.avg_subsurf[k] /= (double)elem->daily.counter;
                 elem->daily.avg_ovlflow[k] /= (double)elem->daily.counter;
@@ -197,14 +210,20 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
                 elem->daily.daylight_counter);
         }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
         for (i = 0; i < pihm->numriv; i++)
         {
+            int     j;
+            river_struct *riv;
+
             riv = &pihm->riv[i];
 
             riv->daily.avg_stage /= (double)riv->daily.counter;
             riv->daily.avg_gw /= (double)riv->daily.counter;
 
-            for (j = 0; j < 11; j++)
+            for (j = 0; j < NUM_RIVFLX; j++)
             {
                 riv->daily.avg_rivflow[j] /= (double)riv->daily.counter;
             }
@@ -214,12 +233,16 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 
 void InitDailyStruct (pihm_struct pihm)
 {
-    int             i, k;
-    elem_struct    *elem;
-    river_struct   *riv;
+    int             i;
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numele; i++)
     {
+        int         k;
+        elem_struct *elem;
+
         elem = &pihm->elem[i];
 
         elem->daily.counter = 0;
@@ -232,18 +255,15 @@ void InitDailyStruct (pihm_struct pihm)
         {
             elem->daily.avg_sh2o[k] = 0.0;
             elem->daily.avg_smc[k] = 0.0;
+            elem->daily.avg_et[k] = 0.0;
+            elem->daily.avg_smflxv[k] = 0.0;
+            elem->daily.avg_stc[k] = 0.0;
         }
 
         for (k = 0; k < NUM_EDGE; k++)
         {
             elem->daily.avg_ovlflow[k] = 0.0;
             elem->daily.avg_subsurf[k] = 0.0;
-        }
-
-        for (k = 0; k < MAXLYR; k++)
-        {
-            elem->daily.avg_et[k] = 0.0;
-            elem->daily.avg_smflxv[k] = 0.0;
         }
 
         elem->daily.dayl = BADVAL;
@@ -259,17 +279,19 @@ void InitDailyStruct (pihm_struct pihm)
         elem->daily.avg_sfctmp = 0.0;
         elem->daily.tday = 0.0;
         elem->daily.tnight = 0.0;
-        for (k = 0; k < MAXLYR; k++)
-        {
-            elem->daily.avg_stc[k] = 0.0;
-        }
 
         elem->daily.avg_soldn = 0.0;
         elem->daily.solar_total = 0.0;
     }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numriv; i++)
     {
+        int         k;
+        river_struct *riv;
+
         riv = &pihm->riv[i];
 
         riv->daily.counter = 0;
