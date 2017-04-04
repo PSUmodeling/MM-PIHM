@@ -427,7 +427,7 @@ void            CheckNitrogenBalance (nstate_struct *, double *, int);
 void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
 void            DailyAllocation (cflux_struct *, cstate_struct *,
     nflux_struct *, nstate_struct *, epconst_struct *, epvar_struct *,
-    ntemp_struct *, const int);
+    ntemp_struct *);
 void            DailyBgc (pihm_struct, int, int);
 void            DailyCarbonStateUpdate (cflux_struct *, cstate_struct *, int,
     int, int);

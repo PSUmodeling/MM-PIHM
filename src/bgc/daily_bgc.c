@@ -1,4 +1,3 @@
-
 /*
  * daily_bgc.c
  * Daily BGC model logic
@@ -8,7 +7,6 @@
 
 void DailyBgc (pihm_struct pihm, int t, int simstart)
 {
-    //metvar_struct  *metv;
     co2control_struct *co2;
     ndepcontrol_struct *ndepctrl;
     ctrl_struct    *ctrl;
@@ -33,8 +31,6 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
     double          co2lvl;
     double          vwc;
     double          droot;
-
-    /* miscelaneous variables for program control in main */
     int             annual_alloc;
 
     double          daily_ndep, daily_nfix;
@@ -218,7 +214,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
          * day, because the competition between decomp immobilization fluxes and
          * plant growth N demand is resolved here.  On days with no growth, no
          * allocation occurs, but immobilization fluxes are updated normally */
-        DailyAllocation (cf, cs, nf, ns, epc, epv, nt, ctrl->bgc_spinup);
+        DailyAllocation (cf, cs, nf, ns, epc, epv, nt);
 
         /* Reassess the annual turnover rates for livewood --> deadwood, and for
          * evergreen leaf and fine root litterfall. This happens once each year,
