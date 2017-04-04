@@ -67,45 +67,51 @@ void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv)
     for (i = 0; i < numele; i++)
     {
         int         j;
-        double      nabr_nconc[4];
+        double      nabr_nconc[NUM_EDGE];
+        double      srcnconc;
         double      latflux;
-
-        for (j = 0; j < NUM_EDGE; j++)
-        {
-            if (elem[i].nabr[j] > 0)
-            {
-                nabr_nconc[j] = nconc[elem[i].nabr[j] - 1];
-            }
-            else if (elem[i].nabr[j] < 0)
-            {
-                nabr_nconc[j] = nconc[numele - elem[i].nabr[j] - 1];
-            }
-            else
-            {
-                nabr_nconc[j] = 0.0;
-            }
-
-            nabr_nconc[j] = (nabr_nconc[j] > 0.0) ? nabr_nconc[j] : 0.0;
-        }
 
         elem[i].nf.sminn_leached = 0.0;
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            latflux = (elem[i].daily.avg_subsurf[j] +
-                elem[i].daily.avg_ovlflow[j]) *
-                24.0 * 3600.0 * 1000.0 / elem[i].topo.area;
-
-            if (latflux > 0.0)
+            if (elem[i].nabr[j] > 0)
             {
-                elem[i].nf.sminn_leached +=
-                    MOBILEN_PROPORTION * nconc[i] * latflux;
+                nabr_nconc[j] =
+                    (nconc[elem[i].nabr[j] - 1] > 0.0) ?
+                    nconc[elem[i].nabr[j] - 1] : 0.0;
+
+                latflux = (elem[i].daily.avg_subsurf[j] +
+                    elem[i].daily.avg_ovlflow[j]) *
+                    24.0 * 3600.0 * 1000.0 / elem[i].topo.area;
+            }
+            else if (elem[i].nabr[j] < 0)
+            {
+                nabr_nconc[j] =
+                    (nconc[numele - elem[i].nabr[j] - 1] > 0.0) ?
+                    nconc[numele - elem[i].nabr[j] - 1] : 0.0;
+
+                latflux = (elem[i].daily.avg_subsurf[j] +
+                    elem[i].daily.avg_ovlflow[j]) *
+                    24.0 * 3600.0 * 1000.0 / elem[i].topo.area;
             }
             else
             {
-                elem[i].nf.sminn_leached +=
-                    MOBILEN_PROPORTION * nabr_nconc[j] * latflux;
+                nabr_nconc[j] = 0.0;
+                latflux = 0.0;
             }
+
+            if (latflux > 0.0)
+            {
+                srcnconc = nconc[i];
+            }
+            else
+            {
+                srcnconc = nabr_nconc[j];
+            }
+
+            elem[i].nf.sminn_leached +=
+                MOBILEN_PROPORTION * srcnconc * latflux;
         }
 
         elem[i].nf.sminn_leached =
