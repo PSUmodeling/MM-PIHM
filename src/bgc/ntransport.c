@@ -1,4 +1,3 @@
-
 /* 
  * nleaching.c
  * daily nitrogen leaching to groundwater
@@ -11,14 +10,10 @@
 
 #include "pihm.h"
 
-void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
+void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv)
 {
     double         *nconc;
-    int             i, j, k;
-    double          nleached;
-    double          nabr_nconc[4];
-    double          totwater;
-    double          latflux;
+    int             i;
     const int       UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3;
 
     /* N leaching flux is calculated after all the other nfluxes are
@@ -34,8 +29,14 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
 
     nconc = (double *)malloc ((numele + numriv) * sizeof (double));
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < numele; i++)
     {
+        int         k;
+        double      totwater;
+
         totwater = elem[i].daily.avg_surf;
 
         for (k = 0; k < elem[i].ps.nsoil; k++)
@@ -48,15 +49,27 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
         nconc[i] = elem[i].ns.sminn / totwater;
     }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < numriv; i++)
     {
+        double      totwater;
+
         totwater = (riv[i].daily.avg_stage +
             riv[i].daily.avg_gw * riv[i].matl.porosity) * 1000.0;
         nconc[i + numele] = riv[i].ns.sminn / totwater;
     }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < numele; i++)
     {
+        int         j;
+        double      nabr_nconc[4];
+        double      latflux;
+
         for (j = 0; j < NUM_EDGE; j++)
         {
             if (elem[i].nabr[j] > 0)
@@ -103,9 +116,14 @@ void NLeaching (elem_struct *elem, int numele, river_struct *riv, int numriv)
         elem[i].ns.sminn -= elem[i].nf.sminn_leached;
     }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < numriv; i++)
     {
-        nleached = 0.0;
+        double      nleached = 0.0;
+        double      nabr_nconc[4];
+        double      latflux;
 
         /* Upstream */
         if (riv[i].up > 0)

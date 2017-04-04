@@ -458,7 +458,7 @@ void            MaintResp (const cstate_struct *, const nstate_struct *,
 void            MakeZeroFluxStruct (cflux_struct *, nflux_struct *);
 void            Mortality (const epconst_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
-void            NLeaching (elem_struct *, int, river_struct *, int);
+void            NTransport (elem_struct *, int, river_struct *, int);
 void            Phenology (const epconst_struct *, const daily_struct *,
     phenology_struct *, epvar_struct *, cstate_struct *, cflux_struct *,
     nstate_struct *, nflux_struct *nf);

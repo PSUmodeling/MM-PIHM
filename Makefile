@@ -126,7 +126,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/make_zero_flux_struct.c\
 	bgc/metarr_init.c\
 	bgc/mortality.c\
-	bgc/nleaching.c\
+	bgc/ntransport.c\
 	bgc/phenology.c\
 	bgc/photosynthesis.c\
 	bgc/precision_control.c\
