@@ -13,19 +13,30 @@ ifneq ($(OMP), off)
 CFLAGS += -fopenmp
 endif
 
+CMAKETEST=$(shell cmake --version 2> /dev/null)
+
+ifeq ($(CMAKETEST),)
+CMAKE_EXIST = 0
+CMAKE_VERS = cmake-3.7.2-Linux-x86_64
+CMAKE = $(PWD)/$(CMAKE_VERS)/bin/cmake
+else
+CMAKE_EXIST = 1
+CMAKE=cmake
+endif
+
 CVODE_PATH = ./cvode/instdir
 
 SRCDIR = ./src
-LIBS = -lm -Wl,-rpath,${CVODE_PATH}/lib
+LIBS = -lm -Wl,-rpath,$(CVODE_PATH)/lib
 INCLUDES = \
-	-I${SRCDIR}/include\
-	-I${CVODE_PATH}/include\
-	-I${CVODE_PATH}/include/cvode\
-	-I${CVODE_PATH}/include/sundials\
-	-I${CVODE_PATH}/include/nvector
+	-I$(SRCDIR)/include\
+	-I$(CVODE_PATH)/include\
+	-I$(CVODE_PATH)/include/cvode\
+	-I$(CVODE_PATH)/include/sundials\
+	-I$(CVODE_PATH)/include/nvector
 
 
-LFLAGS = -lsundials_cvode -L${CVODE_PATH}/lib
+LFLAGS = -lsundials_cvode -L$(CVODE_PATH)/lib
 ifeq ($(CVODE_OMP), on)
 LFLAGS += -lsundials_nvecopenmp
 else
@@ -197,7 +208,7 @@ MODULE_OBJS = $(MODULE_SRCS:.c=.o)
 CYCLES_SRCS = $(patsubst %,$(CYCLES_PATH)/%,$(CYCLES_SRCS_))
 CYCLES_OBJS = $(CYCLES_SRCS:.c=.o)
 
-.PHONY: all clean help cvode
+.PHONY: all clean help cvode cmake
 
 help:			## Show this help
 	@echo
@@ -213,12 +224,25 @@ help:			## Show this help
 all:			## Install cvode and compile PIHM
 all:	cvode pihm
 
+cmake:
+ifneq ($(CMAKE_EXIST),1)
+	@echo "Download CMake from cmake.org"
+	@wget https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz &> /dev/null
+	@echo
+	@echo "Extract $(CMAKE_VERS).tar.gz"
+	@tar xzf $(CMAKE_VERS).tar.gz
+endif
 cvode:			## Install cvode library
-cvode:
+cvode:	cmake
+	@echo "Install CVODE library"
 	@cd cvode && mkdir -p instdir && mkdir -p builddir
-	@cd ${CVODE_PATH} && cmake -DCMAKE_INSTALL_PREFIX=../instdir -DEXAMPLES_ENABLE=OFF -DEXAMPLES_INSTALL=OFF ../
-	@cd ${CVODE_PATH} && make && make install
-	@echo "SUNDIALS library installed."
+	@cd $(CVODE_PATH) && $(CMAKE) -DCMAKE_INSTALL_PREFIX=../instdir -DEXAMPLES_ENABLE=OFF -DEXAMPLES_INSTALL=OFF ../
+	@cd $(CVODE_PATH) && make && make install
+	@echo "CVODE library installed."
+ifneq ($(CMAKE_EXIST),1)
+	@echo "Remove CMake files"
+	@$(RM) $(CMAKE_VERS).tar.gz -r $(CMAKE_VERS)
+endif
 
 pihm:			## Compile PIHM
 pihm:	$(OBJS)
