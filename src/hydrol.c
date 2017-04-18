@@ -2,13 +2,11 @@
 
 int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 {
-    int             i, j;
+    int             i;
     double         *y;
     double         *dy;
     double          dt;
     pihm_struct     pihm;
-    elem_struct    *elem;
-    river_struct   *riv;
 
     y = NV_DATA (CV_Y);
     dy = NV_DATA (CV_Ydot);
@@ -17,15 +15,19 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     dt = (double)pihm->ctrl.stepsize;
 
     /*
-     * Initialization of temporary state variables 
+     * Initialization of temporary state variables
      */
     for (i = 0; i < 3 * pihm->numele + 2 * pihm->numriv; i++)
     {
         dy[i] = 0.0;
     }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numele; i++)
     {
+        elem_struct *elem;
         elem = &pihm->elem[i];
 
         elem->ws.surf = (y[SURF(i)] >= 0.0) ? y[SURF(i)] : 0.0;
@@ -33,8 +35,12 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
     }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numriv; i++)
     {
+        river_struct *riv;
         riv = &pihm->riv[i];
 
         riv->ws.stage = (y[RIVSTG (i)] >= 0.0) ? y[RIVSTG (i)] : 0.0;
@@ -47,8 +53,13 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * Determine source of ET
      */
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numele; i++)
     {
+        elem_struct *elem;
+
         elem = &pihm->elem[i];
 
         /* Source of direct evaporation */
@@ -118,8 +129,14 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * RHS of ODEs
      */
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numele; i++)
     {
+        int         j;
+        elem_struct *elem;
+
         elem = &pihm->elem[i];
 
         dy[SURF(i)] += elem->wf.pcpdrp - elem->wf.infil - elem->wf.edir_surf;
@@ -127,7 +144,7 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             elem->wf.edir_unsat - elem->wf.ett_unsat;
         dy[GW(i)] += elem->wf.rechg - elem->wf.edir_gw - elem->wf.ett_gw;
 
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             dy[SURF(i)] -= elem->wf.ovlflow[j] / elem->topo.area;
             dy[GW(i)] -= elem->wf.subsurf[j] / elem->topo.area;
@@ -159,8 +176,14 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         }
     }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < pihm->numriv; i++)
     {
+        int         j;
+        river_struct *riv;
+
         riv = &(pihm->riv[i]);
 
         for (j = 0; j <= 6; j++)
