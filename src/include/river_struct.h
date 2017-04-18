@@ -203,6 +203,12 @@ typedef struct river_nflux_struct
 {
     double          sminn_leached;
 } river_nflux_struct;
+
+typedef struct river_solute_struct
+{
+    double          conc;
+    double          transp_flux;
+} river_solute_struct;
 #endif
 
 #ifdef _CYCLES_
@@ -257,6 +263,7 @@ typedef struct river_struct
     river_stor_struct stor;     /* meteorological data array */
     river_nstate_struct ns;
     river_nflux_struct nf;
+    river_solute_struct nsol;
 #endif
 } river_struct;
 #endif

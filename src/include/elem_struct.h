@@ -2595,6 +2595,13 @@ typedef struct summary_struct
     double          soilc;
     double          totalc;
 } summary_struct;
+
+typedef struct solute_struct
+{
+    double          conc;
+    double          trnsp_flux;
+} solute_struct;
+
 #endif
 
 /*****************************************************************************
@@ -2657,6 +2664,7 @@ typedef struct elem_struct
     summary_struct  summary;
     phenology_struct phen;
     epvar_struct    epv;
+    solute_struct   nsol;
 #endif
 } elem_struct;
 #endif

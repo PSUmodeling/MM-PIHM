@@ -12,9 +12,7 @@
 
 void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv)
 {
-    double         *nconc;
     int             i;
-    const int       UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3;
 
     /* N leaching flux is calculated after all the other nfluxes are
      * reconciled to avoid the possibility of removing more N than is there.
@@ -26,8 +24,6 @@ void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv)
      * leaching happens when there is outflow, as a function of the presumed
      * proportion of the soil mineral N pool which is soluble (nitrates), the
      * soil water content, and the outflow */
-
-    nconc = (double *)malloc ((numele + numriv) * sizeof (double));
 
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -46,7 +42,9 @@ void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv)
 
         totwater *= 1000.0;
 
-        nconc[i] = elem[i].ns.sminn / totwater;
+        elem[i].nsol.conc = MOBILEN_PROPORTION * elem[i].ns.sminn / totwater;
+        elem[i].nsol.conc = (elem[i].nsol.conc > 0.0) ?
+            elem[i].nsol.conc : 0.0;
     }
 
 #ifdef _OPENMP
@@ -58,7 +56,9 @@ void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv)
 
         totwater = (riv[i].daily.avg_stage +
             riv[i].daily.avg_gw * riv[i].matl.porosity) * 1000.0;
-        nconc[i + numele] = riv[i].ns.sminn / totwater;
+        riv[i].nsol.conc = MOBILEN_PROPORTION * riv[i].ns.sminn / totwater;
+        riv[i].nsol.conc = (riv[i].nsol.conc > 0.0) ?
+            riv[i].nsol.conc : 0.0;
     }
 
 #ifdef _OPENMP
@@ -67,51 +67,34 @@ void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv)
     for (i = 0; i < numele; i++)
     {
         int         j;
-        double      nabr_nconc[NUM_EDGE];
-        double      srcnconc;
-        double      latflux;
+        double      wflux;
 
         elem[i].nf.sminn_leached = 0.0;
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            if (elem[i].nabr[j] > 0)
-            {
-                nabr_nconc[j] =
-                    (nconc[elem[i].nabr[j] - 1] > 0.0) ?
-                    nconc[elem[i].nabr[j] - 1] : 0.0;
+            wflux = (elem[i].daily.avg_subsurf[j] +
+                elem[i].daily.avg_ovlflow[j]) *
+                24.0 * 3600.0 * 1000.0 / elem[i].topo.area;
 
-                latflux = (elem[i].daily.avg_subsurf[j] +
-                    elem[i].daily.avg_ovlflow[j]) *
-                    24.0 * 3600.0 * 1000.0 / elem[i].topo.area;
-            }
-            else if (elem[i].nabr[j] < 0)
+            if (wflux > 0.0)
             {
-                nabr_nconc[j] =
-                    (nconc[numele - elem[i].nabr[j] - 1] > 0.0) ?
-                    nconc[numele - elem[i].nabr[j] - 1] : 0.0;
-
-                latflux = (elem[i].daily.avg_subsurf[j] +
-                    elem[i].daily.avg_ovlflow[j]) *
-                    24.0 * 3600.0 * 1000.0 / elem[i].topo.area;
+                elem[i].nf.sminn_leached +=
+                    wflux * elem[i].nsol.conc;
             }
             else
             {
-                nabr_nconc[j] = 0.0;
-                latflux = 0.0;
+                if (elem[i].nabr[j] > 0)
+                {
+                    elem[i].nf.sminn_leached +=
+                        wflux * elem[elem[i].nabr[j] - 1].nsol.conc;
+                }
+                else if (elem[i].nabr[j] < 0)
+                {
+                    elem[i].nf.sminn_leached +=
+                        wflux * riv[-elem[i].nabr[j] - 1].nsol.conc;
+                }
             }
-
-            if (latflux > 0.0)
-            {
-                srcnconc = nconc[i];
-            }
-            else
-            {
-                srcnconc = nabr_nconc[j];
-            }
-
-            elem[i].nf.sminn_leached +=
-                MOBILEN_PROPORTION * srcnconc * latflux;
         }
 
         elem[i].nf.sminn_leached =
@@ -127,118 +110,89 @@ void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv)
 #endif
     for (i = 0; i < numriv; i++)
     {
-        double      nleached = 0.0;
-        double      nabr_nconc[4];
-        double      latflux;
+        double      wflux;
+
+        riv[i].nf.sminn_leached = 0.0;
 
         /* Upstream */
-        if (riv[i].up > 0)
-        {
-            nabr_nconc[UP] = nconc[numele + riv[i].up - 1];
-        }
-        else
-        {
-            nabr_nconc[UP] = 0.0;
-        }
-        nabr_nconc[UP] = (nabr_nconc[UP] > 0.0) ? nabr_nconc[UP] : 0.0;
-
-        latflux = (riv[i].daily.avg_rivflow[UP_CHANL2CHANL] +
+        wflux = (riv[i].daily.avg_rivflow[UP_CHANL2CHANL] +
             riv[i].daily.avg_rivflow[UP_AQUIF2AQUIF]) *
             1000.0 * 24.0 * 3600.0 / riv[i].topo.area;
 
-        if (latflux > 0.0)
+        if (wflux > 0.0)
         {
-            nleached += MOBILEN_PROPORTION * nconc[numele + i] * latflux;
+            riv[i].nf.sminn_leached +=
+                wflux * riv[i].nsol.conc;
         }
         else
         {
-            nleached += MOBILEN_PROPORTION * nabr_nconc[UP] * latflux;
+            if (riv[i].up > 0)
+            {
+                riv[i].nf.sminn_leached +=
+                    wflux * riv[riv[i].up - 1].nsol.conc;
+            }
         }
 
         /* Downstream */
-        if (riv[i].down > 0)
-        {
-            nabr_nconc[DOWN] = nconc[numele + riv[i].down - 1];
-        }
-        else
-        {
-            nabr_nconc[DOWN] = 0.0;
-        }
-        nabr_nconc[DOWN] = (nabr_nconc[DOWN] > 0.0) ? nabr_nconc[DOWN] : 0.0;
-
-        latflux = (riv[i].daily.avg_rivflow[DOWN_CHANL2CHANL] +
+        wflux = (riv[i].daily.avg_rivflow[DOWN_CHANL2CHANL] +
             riv[i].daily.avg_rivflow[DOWN_AQUIF2AQUIF]) *
             1000.0 * 24.0 * 3600.0 / riv[i].topo.area;
 
-        if (latflux > 0.0)
+        if (wflux > 0.0)
         {
-            nleached += MOBILEN_PROPORTION * nconc[numele + i] * latflux;
+            riv[i].nf.sminn_leached +=
+                wflux * riv[i].nsol.conc;
         }
         else
         {
-            nleached += MOBILEN_PROPORTION * nabr_nconc[DOWN] * latflux;
+            if (riv[i].down > 0)
+            {
+                riv[i].nf.sminn_leached +=
+                    wflux * riv[riv[i].down - 1].nsol.conc;
+            }
         }
 
         /* Left bank */
-        if (riv[i].leftele > 0)
-        {
-            nabr_nconc[LEFT] = nconc[riv[i].leftele - 1];
-        }
-        else
-        {
-            nabr_nconc[LEFT] = 0.0;
-        }
-        nabr_nconc[LEFT] = (nabr_nconc[LEFT] > 0.0) ? nabr_nconc[LEFT] : 0.0;
-
-        latflux = (riv[i].daily.avg_rivflow[LEFT_SURF2CHANL] +
+        wflux = (riv[i].daily.avg_rivflow[LEFT_SURF2CHANL] +
             riv[i].daily.avg_rivflow[LEFT_AQUIF2CHANL] +
             riv[i].daily.avg_rivflow[LEFT_AQUIF2AQUIF]) *
             1000.0 * 24.0 * 3600.0 / riv[i].topo.area;
 
-        if (latflux > 0.0)
+        if (wflux > 0.0)
         {
-            nleached += MOBILEN_PROPORTION * nconc[numele + i] * latflux;
+            riv[i].nf.sminn_leached +=
+                wflux * riv[i].nsol.conc;
         }
         else
         {
-            nleached += MOBILEN_PROPORTION * nabr_nconc[LEFT] * latflux;
+            riv[i].nf.sminn_leached +=
+                wflux * elem[riv[i].leftele - 1].nsol.conc;
         }
 
-        if (riv[i].rightele > 0)
-        {
-            nabr_nconc[RIGHT] = nconc[riv[i].rightele - 1];
-        }
-        else
-        {
-            nabr_nconc[RIGHT] = 0.0;
-        }
-        nabr_nconc[RIGHT] =
-            (nabr_nconc[RIGHT] > 0.0) ? nabr_nconc[RIGHT] : 0.0;
-
-        latflux = (riv[i].daily.avg_rivflow[RIGHT_SURF2CHANL] +
+        /* Right bank */
+        wflux = (riv[i].daily.avg_rivflow[RIGHT_SURF2CHANL] +
             riv[i].daily.avg_rivflow[RIGHT_AQUIF2CHANL] +
             riv[i].daily.avg_rivflow[RIGHT_AQUIF2AQUIF]) *
             1000.0 * 24.0 * 3600.0 / riv[i].topo.area;
 
-        if (latflux > 0.0)
+        if (wflux > 0.0)
         {
-            nleached += MOBILEN_PROPORTION * nconc[numele + i] * latflux;
+            riv[i].nf.sminn_leached +=
+                wflux * riv[i].nsol.conc;
         }
         else
         {
-            nleached += MOBILEN_PROPORTION * nabr_nconc[RIGHT] * latflux;
+            riv[i].nf.sminn_leached +=
+                wflux * elem[riv[i].rightele - 1].nsol.conc;
         }
 
-        if (nleached > riv[i].ns.sminn)
+        if (riv[i].nf.sminn_leached > riv[i].ns.sminn)
         {
-            nleached = riv[i].ns.sminn;
+            riv[i].nf.sminn_leached = riv[i].ns.sminn;
         }
 
-        riv[i].nf.sminn_leached = nleached;
-        riv[i].ns.sminn -= nleached;
+        riv[i].ns.sminn -= riv[i].nf.sminn_leached;
     }
-
-    free (nconc);
 }
 
 //void nleaching_nt (bgc_grid *grid, int numele, bgc_river *riv, int numriv)
