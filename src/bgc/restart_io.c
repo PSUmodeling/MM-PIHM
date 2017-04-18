@@ -3,7 +3,7 @@
  * restart_io.c
  * functions called to copy restart info between restart structure and
  * active structures
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information

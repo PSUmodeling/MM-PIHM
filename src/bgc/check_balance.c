@@ -1,8 +1,8 @@
 
-/* 
+/*
  * check_balance.c
  * daily test of mass balance (water, carbon, and nitrogen state variables)
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information

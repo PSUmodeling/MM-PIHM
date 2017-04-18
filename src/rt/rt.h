@@ -1,5 +1,5 @@
 /******************************************************************************
- * File        : rt.h                                                          
+ * File        : rt.h
  * Function    : Declaration and Definition of reaction variables & data struc\
  *               ture. Data could be mainly be classified into three classes: \
  *               chemical knowledge, concentration distribution and grid struc\
@@ -10,7 +10,7 @@
 
 typedef struct Debye_Huckel_structure
 {
-  // parameters of Debye_Huckel Equation;                                                                                                                         
+  // parameters of Debye_Huckel Equation;
   double adh;
   double bdh;
   double bdt;
@@ -59,7 +59,7 @@ typedef struct vol_conc_type
   double sat_o;          /* Saturation of last time step */
   double height_o;       /* height of volume, at previous time step */
   double height_t;       /* height of volume, at current time step */
-  double height_tl;      // 
+  double height_tl;      //
   double height_int;     /* temporary variable for intrapolation of gw height */
   double height_sp;      /* slope of the height change during this period */
   double height_v;       /* height of the total block, static */
@@ -89,7 +89,7 @@ typedef struct face_type
   double velocity;       /* linear velocity of flux at this face, in m/d */
   double flux;           /* flux at surface, in cubic m per day  */
   double s_area;         /* contact surface area, in square m */
-  double q;              
+  double q;
 } face;
 
 typedef struct species_type
@@ -101,16 +101,16 @@ typedef struct species_type
   double Charge;          /* Array of species charge*/
   double SizeF;           /* Array of species size factor for DH equation */
   char*  ChemName;        /* usually the molecular formula of the very chemical, or any convenient name as long as the database has it */
-  int    itype;           /* type of primary species,                                                                                                            
-                             1: primary aqueous                                                                                                                  
-			     2: primary adsorption                                                                                                              
+  int    itype;           /* type of primary species,
+                             1: primary aqueous
+			     2: primary adsorption
 			     3: primary cation exchange
 			     4: primary mineral
 			  */
   int    mtype;           /* type of the mass action species
 			     1: mobile mass action species
 			     0: immobile mass action species
-			     2: mixed mobility mass action species 
+			     2: mixed mobility mass action species
 			   */
 } species;
 

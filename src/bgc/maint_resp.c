@@ -57,7 +57,7 @@ void MaintResp (const cstate_struct *cs, const nstate_struct *ns,
          * correct for temperature */
         dlmr_area_sun = n_area_sun * mrpern * pow (q10, exponent);
         dlmr_area_shade = n_area_shade * mrpern * pow (q10, exponent);
-        /* finally, convert from mass to molar units, and from a daily rate to 
+        /* finally, convert from mass to molar units, and from a daily rate to
          * a rate per second */
         epv->dlmr_area_sun = dlmr_area_sun / (86400.0 * 12.011e-9);
         epv->dlmr_area_shade = dlmr_area_shade / (86400.0 * 12.011e-9);

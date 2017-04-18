@@ -1,8 +1,8 @@
 
-/* 
+/*
  * mortality.c
  * daily mortality fluxes
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information
@@ -314,7 +314,7 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
 
     /* update state variables for fire fluxes */
     /* this is the only place other than daily_state_update() routines where
-     * state variables get changed.  Mortality is taken care of last and 
+     * state variables get changed.  Mortality is taken care of last and
      * given special treatment for state update so that it doesn't interfere
      * with the other fluxes that are based on proportions of state variables,
      * especially the phenological fluxes */

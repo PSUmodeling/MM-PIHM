@@ -74,7 +74,7 @@ void LateralFlow (pihm_struct pihm)
                 elem->wf.subsurf[j] =
                     avg_ksat * grad_y_sub * avg_y_sub * elem->topo.edge[j];
 
-                /* 
+                /*
                  * Surface lateral flux calculation between triangular
                  * elements
                  */

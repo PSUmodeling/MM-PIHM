@@ -54,7 +54,7 @@
 #define NUM_EDGE    3
 
 #define RIVER_WDTH  0
-#define RIVER_AREA  1   
+#define RIVER_AREA  1
 #define RIVER_PERIM 2
 
 /* Number of river fluxes of a river segment */
@@ -187,7 +187,7 @@
 
 /* This constant is used in if conditions where floating point values are
  * compared */
-#define FLT_COND_TOL    1e-10      
+#define FLT_COND_TOL    1e-10
 
 /* Maximum allowable trend in slow soil carbon at steady-state
  * [kgC m-2 yr-1] */

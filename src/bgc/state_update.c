@@ -2,7 +2,7 @@
 /*
  * state_update.c
  * Resolve the fluxes in bgc() daily loop to update state variables
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information

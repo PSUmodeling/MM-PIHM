@@ -104,7 +104,7 @@ void NoahHydrol (elem_struct *elem, int numele, double dt)
             dt);
     }
 }
-    
+
 void SFlx (wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
     soil_struct *soil,

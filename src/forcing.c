@@ -164,7 +164,7 @@ void ApplyLAI (forc_struct *forc, elem_struct *elem, int numele, int t
         }
     }
 #endif
-    
+
 #ifdef _BGC_
     if (spinup)
     {

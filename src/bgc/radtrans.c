@@ -1,10 +1,10 @@
 
-/* 
+/*
  * radtrans.c
  * calculate leaf area index, sun and shade fractions, and specific
  * leaf area for sun and shade canopy fractions, then calculate
- * canopy radiation interception and transmission 
- * 
+ * canopy radiation interception and transmission
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information
@@ -19,7 +19,7 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
 {
     /* calculate the projected leaf area and SLA for sun and shade fractions
      * and the canopy transmission and absorption of shortwave radiation
-     * based on the Beer's Law assumption of radiation attenuation as a 
+     * based on the Beer's Law assumption of radiation attenuation as a
      * function of projected LAI.
      */
 
@@ -35,7 +35,7 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
     double          parabs_plaisun, parabs_plaishade;
     double          parabs_per_plaisun, parabs_per_plaishade;
 
-    /* The following equations estimate the albedo and extinction 
+    /* The following equations estimate the albedo and extinction
      * coefficients for the shortwave and PAR spectra from the values given for the
      * entire shortwave range (from Jones, H.G., 1992. Plants and Microclimate,
      * 2nd  Edition. Cambridge University Press. pp. 30-38.) These conversions
@@ -54,12 +54,12 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
         if (ps->plaishade < 0.0)
         {
             PIHMprintf (VL_ERROR, "FATAL ERROR: Negative plaishade.\n");
-            PIHMprintf (VL_ERROR, "LAI of shaded canopy = %lf\n", 
+            PIHMprintf (VL_ERROR, "LAI of shaded canopy = %lf\n",
                 ps->plaishade);
             PIHMexit (EXIT_FAILURE);
         }
 
-        /* calculate the projected specific leaf area for sunlit and 
+        /* calculate the projected specific leaf area for sunlit and
          * shaded canopy fractions */
         epv->sun_proj_sla =
             (ps->plaisun + (ps->plaishade / epc->sla_ratio)) / cs->leafc;
@@ -114,7 +114,7 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
         swabs_plaishade = 0;
     }
 
-    /* convert this to the shortwave absorbed per unit LAI in the sunlit and 
+    /* convert this to the shortwave absorbed per unit LAI in the sunlit and
      * shaded canopy fractions */
     if (proj_lai > 0.0)
     {
@@ -138,7 +138,7 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
         parabs_plaishade = 0.0;
     }
 
-    /* convert this to the PAR absorbed per unit LAI in the sunlit and 
+    /* convert this to the PAR absorbed per unit LAI in the sunlit and
      * shaded canopy fractions */
     if (proj_lai > 0.0)
     {

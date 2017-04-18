@@ -156,7 +156,7 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
     int             i, j;
     int             lno = 0;
 
-    /* 
+    /*
      * Open soil initialization file
      */
     soil_file = fopen (filename, "r");

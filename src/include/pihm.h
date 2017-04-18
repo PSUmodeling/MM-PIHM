@@ -14,7 +14,7 @@
 #include <omp.h>
 #endif
 
-/* 
+/*
  * SUNDIAL Header Files
  */
 /* CVODE header file */
@@ -29,7 +29,7 @@
 #endif
 /* UnitRoundoff, RSqrt, SQR functions */
 #include "sundials_math.h"
-/* CVDENSE header file */      
+/* CVDENSE header file */
 #include "cvode_dense.h"
 
 #ifdef _NOAH_

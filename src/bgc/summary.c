@@ -1,8 +1,8 @@
 
-/* 
+/*
  * summary.c
  * summary variables for potential output
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information

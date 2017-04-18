@@ -1,9 +1,9 @@
 
-/* 
+/*
  * firstday.c
  * Initializes the state variables for the first day of a simulation that
  * is not using a restart file.
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information
@@ -158,7 +158,7 @@ void FirstDay (const epconst_struct *epc, const cinit_struct *cinit,
     }                           /* end if transfer */
 
     /* add the growth respiration requirement for the first year's
-     * leaf and fine root growth from transfer pools to the 
+     * leaf and fine root growth from transfer pools to the
      * gresp_transfer pool */
     cs->gresp_transfer = 0.0;
     cs->gresp_transfer += (cs->leafc_transfer + cs->frootc_transfer) * GRPERC;

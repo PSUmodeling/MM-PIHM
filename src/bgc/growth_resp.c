@@ -1,8 +1,8 @@
 
-/* 
+/*
  * growth_resp.c
  * daily growth respiration rates
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information

@@ -1,9 +1,9 @@
 
-/* 
+/*
  * precision_control.c
  * Detects very low values in state variable structures, and forces them to
  * 0.0, in order to avoid rounding and overflow errors.
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information

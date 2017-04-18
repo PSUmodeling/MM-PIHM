@@ -2485,7 +2485,7 @@ typedef struct cinit_struct
  *                                        [kg Nleaf m-2]
  * flnr                     double      fract. of leaf N in Rubisco
  *                                        [kg NRub/kg Nleaf]
- * ppfd                     double      PAR flux per unit sunlit leaf area 
+ * ppfd                     double      PAR flux per unit sunlit leaf area
  *                                        [umol m-2 s-1]
  * g                        double      conductance to CO2 [umol m-2 s-1 Pa-1]
  * dlmr                     double      day leaf maintenance respiration,

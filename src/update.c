@@ -118,7 +118,7 @@ void MassBalance (wstate_struct *ws, wstate_struct *ws0, wflux_struct *wf,
     soilw1 = (soilw1 > soil->depth) ? soil->depth : soilw1;
     soilw1 = (soilw1 < 0.0) ? 0.0 : soilw1;
 
-    /* 
+    /*
      * Subsurface runoff rate
      */
     *subrunoff = 0.0;

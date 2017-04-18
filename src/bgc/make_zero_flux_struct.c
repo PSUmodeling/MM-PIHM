@@ -1,9 +1,9 @@
 
-/* 
+/*
  * make_zero_flux_struct.c
  * create structures initialized with zero for forcing fluxes to zero
  * between simulation days
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information

@@ -186,7 +186,7 @@ void InitSoil (elem_struct *elem, int numele, soiltbl_struct soiltbl,
         elem[i].soil.porosity = elem[i].soil.smcmax - elem[i].soil.smcmin;
         if (elem[i].soil.porosity > 1.0 || elem[i].soil.porosity <= 0.0)
         {
-            PIHMprintf (VL_ERROR, 
+            PIHMprintf (VL_ERROR,
                 "Error: Porosity value out of bounds for Element %d", i + 1);
             PIHMexit (EXIT_FAILURE);
         }

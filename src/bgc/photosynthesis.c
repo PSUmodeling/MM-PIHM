@@ -2,7 +2,7 @@
 /*
  * photosynthesis.c
  * C3/C4 photosynthesis model
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information
@@ -197,7 +197,7 @@ void Photosynthesis (psn_struct *psn)
 
     /* kg Nleaf   kg NRub    kg Rub      umol            umol
      * -------- X -------  X ------- X ---------   =   --------
-     *  m2         kg Nleaf   kg NRub   kg RUB * s       m2 * s       
+     *  m2         kg Nleaf   kg NRub   kg RUB * s       m2 * s
      *
      * (lnc)  X  (flnr)  X  (fnr)  X   (act)     =    (Vmax) */
     psn->Vmax = Vmax = psn->lnc * psn->flnr * fnr * act;

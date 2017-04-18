@@ -1,11 +1,11 @@
 
-/* 
+/*
  * decomp.c
  * daily decomposition fluxes
  * Note that final immobilization fluxes are not reconciled until the
  * end of the daily allocation function, in order to allow competition
  * between microbes and plants for available N.
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information

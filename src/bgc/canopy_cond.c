@@ -1,9 +1,9 @@
 
-/* 
+/*
  * canopy_et.c
  * A single-function treatment of canopy evaporation and transpiration
- * fluxes.  
- * 
+ * fluxes.
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information
@@ -156,7 +156,7 @@ void CanopyCond (const epconst_struct *epc, const daily_struct *daily,
     gl_t_wv_sun = gl_bl * gl_s_sun / (gl_bl + gl_s_sun);
     gl_t_wv_shade = gl_bl * gl_s_shade / (gl_bl + gl_s_shade);
 
-    /* assign leaf-level conductance to transpired water vapor, 
+    /* assign leaf-level conductance to transpired water vapor,
      * for use in calculating co2 conductance for farq_psn() */
     epv->gl_t_wv_sun = gl_t_wv_sun;
     epv->gl_t_wv_shade = gl_t_wv_shade;

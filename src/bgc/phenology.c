@@ -1,8 +1,8 @@
 
-/* 
+/*
  * phenology.c
  * daily phenology fluxes
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information
@@ -261,7 +261,7 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
         //                    {
         //                        if (py==0 && pday<182)
         //                        {
-        //                            /* use the end of the first year to fill the 
+        //                            /* use the end of the first year to fill the
         //                               beginning of a southern hemisphere phenological
         //                               year */
         //                            tmax = metarr->tmax[183+pday];
@@ -309,7 +309,7 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
         //                    {
         //                        if (py==0 && pday<182)
         //                        {
-        //                            /* use the end of the first year to fill the 
+        //                            /* use the end of the first year to fill the
         //                               beginning of a southern hemisphere phenological
         //                               year */
         //                            phensoilt = metarr->tavg_ra[183+pday];
@@ -392,7 +392,7 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
         //                        /* test for hot and dry conditions */
         //                        if (offset_day == -1)
         //                        {
-        //                            if (grass_prcpprev < grass_prcpprevcrit && 
+        //                            if (grass_prcpprev < grass_prcpprevcrit &&
         //                                    grass_prcpnext < grass_prcpnextcrit &&
         //                                    grass_tmaxyear[pday] > tmax_ann)
         //                                offset_day = pday;
@@ -451,7 +451,7 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
 
         /* now the onset and offset days are established for each phenyear,
          * either by the deciduous tree or the grass model.  Next loop through
-         * phenyears filling the phenology signal arrays and copying them to 
+         * phenyears filling the phenology signal arrays and copying them to
          * the permanent phen struct arrays */
 
         /* deciduous */
@@ -509,7 +509,7 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
             }
             else
             {
-                /* otherwise, assess litterfall 
+                /* otherwise, assess litterfall
                  * rates as described above */
                 leaflitfallc = epv->day_leafc_litfall_increment;
                 drate =

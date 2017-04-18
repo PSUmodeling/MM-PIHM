@@ -1,21 +1,21 @@
 
-/* 
+/*
  * daily_allocation.c
  * daily allocation of carbon and nitrogen, as well as the final reconciliation
  * of N immobilization by microbes (see decomp.c)
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information
- * 
+ *
  * Revisions from version 4.1.2:
- * Merged spinup_daily_allocation.c with daily_allocation.c to eliminate 
+ * Merged spinup_daily_allocation.c with daily_allocation.c to eliminate
  * code redundency.
- * 
+ *
  * Revisions from version 4.1.1:
  * daily_allocation.c:
  * heterotrophic respiration fractions now coming from bgc_conbstants.h
- * 
+ *
  * spinup_daily_allocation.c:
  * Using the same treatment of DAYSNDEPLOY, DAYSCRECOVER, and BULK_DENITRIF_PROPORTION
  * as in the non-spinup code.  This had been left out of the previous code version.

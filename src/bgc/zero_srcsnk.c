@@ -1,8 +1,8 @@
 
-/* 
+/*
  * zero_srcsnk.c
  * fill the source and sink variables with 0.0 at the start of the simulation
- * 
+ *
  * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
  * Biome-BGC version 4.2 (final release)
  * See copyright.txt for Copyright information
