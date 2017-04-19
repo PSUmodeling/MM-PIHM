@@ -1231,10 +1231,18 @@ typedef struct daily_struct
     int             counter;
     int             daylight_counter;
 
+    double          prev_surf;
+    double          surf;
     double          avg_surf;
+    double          prev_unsat;
+    double          unsat;
     double          avg_unsat;
+    double          prev_gw;
+    double          gw;
     double          avg_gw;
     double          avg_sh2o[MAXLYR];
+    double          prev_smc[MAXLYR];
+    double          smc[MAXLYR];
     double          avg_smc[MAXLYR];
 
     double          avg_ovlflow[NUM_EDGE];
@@ -1311,10 +1319,18 @@ typedef struct stor_struct
     double         *soldn;      /* (W/m2)  daylight avg shortwave flux density */
     double         *stc[MAXLYR];
     double         *sh2o[MAXLYR];
+    double         *prev_smc[MAXLYR];
     double         *smc[MAXLYR];
+    double         *avg_smc[MAXLYR];
+    double         *prev_surf;
     double         *surf;
+    double         *avg_surf;
+    double         *prev_unsat;
     double         *unsat;
+    double         *avg_unsat;
+    double         *prev_gw;
     double         *gw;
+    double         *avg_gw;
     double         *albedo;
     double         *ch;
     double         *surfflx[NUM_EDGE];

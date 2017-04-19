@@ -55,7 +55,7 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
             timestamp->tm_mon + 1, timestamp->tm_mday,
             timestamp->tm_year + 1900);
         PIHMprintf (VL_ERROR, "Please check .para file and .bgc file.\n");
-        PIHMexit (EXIT_FAILURE);
+        //PIHMexit (EXIT_FAILURE);
     }
 
     FindLine (bgc_file, "CO2_CONTROL", &lno, fn);

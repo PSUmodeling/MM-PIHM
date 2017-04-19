@@ -25,10 +25,18 @@ void InitElemStor (stor_struct *stor, int start_time, int end_time)
     {
         stor->stc[k] = (double *)malloc (length * sizeof (double));
         stor->sh2o[k] = (double *)malloc (length * sizeof (double));
+        stor->prev_smc[k] = (double *)malloc (length * sizeof (double));
+        stor->avg_smc[k] = (double *)malloc (length * sizeof (double));
         stor->smc[k] = (double *)malloc (length * sizeof (double));
     }
+    stor->prev_surf = (double *)malloc (length * sizeof (double));
+    stor->avg_surf = (double *)malloc (length * sizeof (double));
     stor->surf = (double *)malloc (length * sizeof (double));
+    stor->prev_unsat = (double *)malloc (length * sizeof (double));
+    stor->avg_unsat = (double *)malloc (length * sizeof (double));
     stor->unsat = (double *)malloc (length * sizeof (double));
+    stor->prev_gw = (double *)malloc (length * sizeof (double));
+    stor->avg_gw = (double *)malloc (length * sizeof (double));
     stor->gw = (double *)malloc (length * sizeof (double));
     stor->albedo = (double *)malloc (length * sizeof (double));
     stor->ch = (double *)malloc (length * sizeof (double));
@@ -55,7 +63,11 @@ void InitRiverStor (river_stor_struct *stor, int start_time, int end_time)
 
     length = (end_time - start_time) / 24 / 3600;
 
+    stor->prev_stage = (double *)malloc (length * sizeof (double));
+    stor->avg_stage = (double *)malloc (length * sizeof (double));
     stor->stage = (double *)malloc (length * sizeof (double));
+    stor->prev_gw = (double *)malloc (length * sizeof (double));
+    stor->avg_gw = (double *)malloc (length * sizeof (double));
     stor->gw = (double *)malloc (length * sizeof (double));
     for (j = 0; j < 11; j++)
     {
@@ -96,20 +108,27 @@ void Save2Stor (pihm_struct pihm, int t, int start_time)
             stor->q2d[ind] = daily->avg_q2d;
             stor->sfcprs[ind] = daily->avg_sfcprs;
             stor->soldn[ind] = daily->avg_soldn;
-            //stor->par[ind] = stor->soldn[ind] * RAD2PAR;
             for (k = 0; k < MAXLYR; k++)
             {
                 stor->stc[k][ind] = daily->avg_stc[k];
                 stor->sh2o[k][ind] = daily->avg_sh2o[k];
-                stor->smc[k][ind] = daily->avg_sh2o[k];
+                stor->prev_smc[k][ind] = daily->prev_smc[k];
+                stor->avg_smc[k][ind] = daily->avg_smc[k];
+                stor->smc[k][ind] = daily->smc[k];
             }
-            stor->surf[ind] = daily->avg_surf;
-            stor->unsat[ind] = daily->avg_unsat;
-            stor->gw[ind] = daily->avg_gw;
+            stor->prev_surf[ind] = daily->prev_surf;
+            stor->avg_surf[ind] = daily->avg_surf;
+            stor->surf[ind] = daily->surf;
+            stor->prev_unsat[ind] = daily->prev_unsat;
+            stor->avg_unsat[ind] = daily->avg_unsat;
+            stor->unsat[ind] = daily->unsat;
+            stor->prev_gw[ind] = daily->prev_gw;
+            stor->avg_gw[ind] = daily->avg_gw;
+            stor->gw[ind] = daily->gw;
             stor->albedo[ind] = daily->avg_albedo;
             stor->ch[ind] = daily->avg_ch;
 
-            for (k = 0; k < 3; k++)
+            for (k = 0; k < NUM_EDGE; k++)
             {
                 stor->subsurfflx[k][ind] = daily->avg_subsurf[k];
                 stor->surfflx[k][ind] = daily->avg_ovlflow[k];
@@ -120,8 +139,12 @@ void Save2Stor (pihm_struct pihm, int t, int start_time)
 
         for (i = 0; i < pihm->numriv; i++)
         {
-            pihm->riv[i].stor.stage[ind] = pihm->riv[i].daily.avg_stage;
-            pihm->riv[i].stor.gw[ind] = pihm->riv[i].daily.avg_gw;
+            pihm->riv[i].stor.prev_stage[ind] = pihm->riv[i].daily.prev_stage;
+            pihm->riv[i].stor.avg_stage[ind] = pihm->riv[i].daily.avg_stage;
+            pihm->riv[i].stor.stage[ind] = pihm->riv[i].daily.stage;
+            pihm->riv[i].stor.prev_gw[ind] = pihm->riv[i].daily.prev_gw;
+            pihm->riv[i].stor.avg_gw[ind] = pihm->riv[i].daily.avg_gw;
+            pihm->riv[i].stor.gw[ind] = pihm->riv[i].daily.gw;
 
             for (k = 0; k < 11; k++)
             {

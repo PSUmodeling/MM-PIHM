@@ -178,6 +178,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             {
                 elem->daily.avg_stc[k] /= (double)elem->daily.counter;
                 elem->daily.avg_sh2o[k] /= (double)elem->daily.counter;
+                elem->daily.smc[k] = elem->ws.smc[k];
                 elem->daily.avg_smc[k] /= (double)elem->daily.counter;
                 elem->daily.avg_smflxv[k] /= (double)elem->daily.counter;
 #ifdef _CYCLES_
@@ -189,8 +190,11 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             elem->daily.avg_sncovr /= (double)elem->daily.counter;
 #endif
 
+            elem->daily.surf = elem->ws.surf;
             elem->daily.avg_surf /= (double)elem->daily.counter;
+            elem->daily.unsat = elem->ws.unsat;
             elem->daily.avg_unsat /= (double)elem->daily.counter;
+            elem->daily.gw = elem->ws.gw;
             elem->daily.avg_gw /= (double)elem->daily.counter;
 
             for (k = 0; k < NUM_EDGE; k++)
@@ -220,7 +224,9 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 
             riv = &pihm->riv[i];
 
+            riv->daily.stage = riv->ws.stage;
             riv->daily.avg_stage /= (double)riv->daily.counter;
+            riv->daily.gw = riv->ws.gw;
             riv->daily.avg_gw /= (double)riv->daily.counter;
 
             for (j = 0; j < NUM_RIVFLX; j++)
@@ -248,12 +254,16 @@ void InitDailyStruct (pihm_struct pihm)
         elem->daily.counter = 0;
         elem->daily.daylight_counter = 0;
 
+        elem->daily.prev_surf = elem->ws.surf;
         elem->daily.avg_surf = 0.0;
+        elem->daily.prev_unsat = elem->ws.unsat;
         elem->daily.avg_unsat = 0.0;
+        elem->daily.prev_gw = elem->ws.gw;
         elem->daily.avg_gw = 0.0;
         for (k = 0; k < MAXLYR; k++)
         {
             elem->daily.avg_sh2o[k] = 0.0;
+            elem->daily.prev_smc[k] = elem->ws.smc[k];
             elem->daily.avg_smc[k] = 0.0;
             elem->daily.avg_et[k] = 0.0;
             elem->daily.avg_smflxv[k] = 0.0;
@@ -296,7 +306,9 @@ void InitDailyStruct (pihm_struct pihm)
 
         riv->daily.counter = 0;
 
+        riv->daily.prev_stage = riv->ws.stage;
         riv->daily.avg_stage = 0.0;
+        riv->daily.prev_gw = riv->ws.gw;
         riv->daily.avg_gw = 0.0;
         for (k = 0; k < NUM_RIVFLX; k++)
         {

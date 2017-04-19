@@ -81,8 +81,12 @@ typedef struct river_wflux_struct
 typedef struct river_stor_struct
 {
     int            *flag;
+    double         *prev_stage;
     double         *stage;
+    double         *avg_stage;
+    double         *prev_gw;
     double         *gw;
+    double         *avg_gw;
     double         *rivflow[NUM_RIVFLX];
 } river_stor_struct;
 #endif
@@ -174,7 +178,11 @@ typedef struct river_daily_struct
 {
     int             counter;
 
+    double          prev_stage;
+    double          stage;
     double          avg_stage;
+    double          prev_gw;
+    double          gw;
     double          avg_gw;
 
     double          avg_rivflow[NUM_RIVFLX];
