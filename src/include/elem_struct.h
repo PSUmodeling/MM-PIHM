@@ -2616,6 +2616,9 @@ typedef struct solute_struct
 {
     double          conc;
     double          trnsp_flux;
+    double          prev_strg;
+    double          strg;
+    double          wflux[NUM_EDGE];
 } solute_struct;
 
 #endif

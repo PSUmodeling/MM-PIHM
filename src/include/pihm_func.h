@@ -418,6 +418,8 @@ void            InitCropSV (crop_struct *);
 #endif
 
 #ifdef _BGC_
+void            AdptStepTrnsp (elem_struct *, int, river_struct *, int,
+    double, int);
 void            AnnualRates (const epconst_struct *, epvar_struct *);
 void            BGCSpinup (pihm_struct, char *);
 void            CanopyCond (const epconst_struct *, const daily_struct *,
@@ -458,7 +460,7 @@ void            MaintResp (const cstate_struct *, const nstate_struct *,
 void            MakeZeroFluxStruct (cflux_struct *, nflux_struct *);
 void            Mortality (const epconst_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
-void            NTransport (elem_struct *, int, river_struct *, int);
+void            NTransport (elem_struct *, int, river_struct *, int, double);
 void            Phenology (const epconst_struct *, const daily_struct *,
     phenology_struct *, epvar_struct *, cstate_struct *, cflux_struct *,
     nstate_struct *, nflux_struct *nf);

@@ -243,7 +243,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
     /* Calculate N leaching loss.  This is a special state variable update
      * routine, done after the other fluxes and states are reconciled in order
      * to avoid negative sminn under heavy leaching potential */
-    NTransport (pihm->elem, pihm->numele, pihm->riv, pihm->numriv);
+    NTransport (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, DAYINSEC);
 
 #ifdef _OPENMP
 #pragma omp parallel for

@@ -214,8 +214,11 @@ typedef struct river_nflux_struct
 
 typedef struct river_solute_struct
 {
+    double          wflux[4];
+    double          strg;
+    double          prev_strg;
     double          conc;
-    double          transp_flux;
+    double          trnsp_flux;
 } river_solute_struct;
 #endif
 
