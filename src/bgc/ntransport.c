@@ -43,16 +43,21 @@ void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv,
     {
         int         j, k;
 
-        elem[i].nsol.prev_strg = elem[i].daily.prev_surf;
-        elem[i].nsol.strg = elem[i].daily.surf;
+        elem[i].nsol.prev_strg = elem[i].daily.prev_surf +
+            (elem[i].daily.prev_unsat + elem[i].daily.prev_gw) *
+            elem[i].soil.porosity;
+        elem[i].nsol.strg = elem[i].daily.surf +
+            (elem[i].daily.unsat + elem[i].daily.gw) * elem[i].soil.porosity;
+        //elem[i].nsol.prev_strg = elem[i].daily.prev_surf;
+        //elem[i].nsol.strg = elem[i].daily.surf;
 
-        for (k = 0; k < elem[i].ps.nsoil; k++)
-        {
-            elem[i].nsol.prev_strg +=
-                elem[i].daily.prev_smc[k] * elem[i].ps.sldpth[k];
-            elem[i].nsol.strg +=
-                elem[i].daily.smc[k] * elem[i].ps.sldpth[k];
-        }
+        //for (k = 0; k < elem[i].ps.nsoil; k++)
+        //{
+        //    elem[i].nsol.prev_strg +=
+        //        elem[i].daily.prev_smc[k] * elem[i].ps.sldpth[k];
+        //    elem[i].nsol.strg +=
+        //        elem[i].daily.smc[k] * elem[i].ps.sldpth[k];
+        //}
 
         elem[i].nsol.prev_strg = (elem[i].nsol.prev_strg > MINSTRG) ?
             elem[i].nsol.prev_strg : MINSTRG;

@@ -105,8 +105,8 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
     kl4_base = KL4_BASE;        /* lignin litter pool */
     ks1_base = KS1_BASE;        /* fast microbial recycling pool */
     ks2_base = KS2_BASE;        /* medium microbial recycling pool */
-    ks3_base = KS3_BASE;        /* slow microbial recycling pool */
-    ks4_base = KS4_BASE;        /* recalcitrant SOM (humus) pool */
+    ks3_base = KS3_BASE * 5.0;        /* slow microbial recycling pool */
+    ks4_base = KS4_BASE * 70.0;        /* recalcitrant SOM (humus) pool */
     kfrag_base = KFRAG_BASE;    /* physical fragmentation of coarse woody debris */
     kl1 = kl1_base * rate_scalar;
     kl2 = kl2_base * rate_scalar;
