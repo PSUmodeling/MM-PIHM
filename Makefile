@@ -44,8 +44,13 @@ LFLAGS += -lsundials_nvecserial
 endif
 
 SFLAGS = -D_PIHM_
+
 ifeq ($(CVODE_OMP), on)
 SFLAGS += -D_CVODE_OMP
+endif
+
+ifeq ($(DEBUG), on)
+SFLAGS += -D_DEBUG_
 endif
 
 SRCS_ = main.c\
@@ -81,7 +86,7 @@ MSG = "...  Compiling PIHM  ..."
 # Flux-PIHM
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm)
-  SFLAGS = -D_PIHM_ -D_NOAH_ 
+  SFLAGS += -D_NOAH_
   MODULE_SRCS_ = \
   	noah/lsm_func.c\
 	noah/lsm_init.c\
@@ -97,7 +102,7 @@ endif
 # RT-Flux-PIHM
 #-------------------
 #ifeq ($(MAKECMDGOALS),rt-flux-pihm)
-#  SFLAGS = -D_PIHM_ -D_RT_ -D_NOAH_
+#  SFLAGS += -D_RT_ -D_NOAH_
 #  MODULE_SRCS_=\
 #  	noah/coupling.c\
 #	noah/module_sf_noahlsm.c\
@@ -117,7 +122,7 @@ endif
 # Flux-PIHM-BGC
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
-  SFLAGS = -D_PIHM_ -D_NOAH_ -D_BGC_ -D_DAILY_
+  SFLAGS += -D_NOAH_ -D_BGC_ -D_DAILY_
   MODULE_SRCS_= \
 	bgc/annual_rates.c\
 	bgc/bgc_init.c\
@@ -164,7 +169,7 @@ endif
 #-------------------
 CYCLES_PATH = ../Cycles/src
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
-  SFLAGS = -D_PIHM_ -D_NOAH_ -D_CYCLES_ -D_DAILY_
+  SFLAGS += -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
 	cycles/cycles_func.c\
 	cycles/cycles_init.c\
