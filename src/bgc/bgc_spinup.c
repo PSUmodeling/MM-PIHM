@@ -36,6 +36,12 @@ void BGCSpinup (pihm_struct pihm, char *outputdir)
 
     do
     {
+        for (i = 0; i < pihm->numele; i++)
+        {
+            tally2[i] = 0.0;
+            tally2b[i] = 0.0;
+        }
+
         if (metyr == metyears)
         {
             metyr = 0;
