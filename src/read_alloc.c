@@ -35,14 +35,12 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     /* Read river input file */
     ReadRiv (pihm->filename.riv, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl,
         &pihm->forc);
-    pihm->numriv = pihm->rivtbl.number;
 
     /* Read mesh structure input file */
     ReadMesh (pihm->filename.mesh, &pihm->meshtbl);
-    pihm->numele = pihm->meshtbl.numele;
 
     /* Read attribute table input file */
-    ReadAtt (pihm->filename.att, &pihm->atttbl, pihm->numele);
+    ReadAtt (pihm->filename.att, &pihm->atttbl);
 
     /* Read soil input file */
     ReadSoil (pihm->filename.soil, &pihm->soiltbl);
@@ -57,7 +55,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     ReadForc (pihm->filename.meteo, &pihm->forc);
 
     /* Read LAI input file */
-    ReadLAI (pihm->filename.lai, &pihm->forc, pihm->numele, &pihm->atttbl);
+    ReadLAI (pihm->filename.lai, &pihm->forc, &pihm->atttbl);
 
     /* Read source and sink input file */
     pihm->forc.nsource = 0;
@@ -87,8 +85,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 
 #ifdef _CYCLES_
     /* Read Cycles simulation control file */
-    ReadCyclesCtrl (pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl,
-        pihm->numele);
+    ReadCyclesCtrl (pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl);
 
     /* Read soil initialization file */
     ReadSoilInit (pihm->filename.soilinit, &pihm->soiltbl);
@@ -145,24 +142,24 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     /* Read number of river segments */
     FindLine (riv_file, "BOF", &lno, filename);
     NextLine (riv_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NUMRIV", &rivtbl->number, 'i', filename, lno);
+    ReadKeyword (cmdstr, "NUMRIV", &nriver, 'i', filename, lno);
 
     /* Allocate */
-    rivtbl->fromnode = (int *)malloc (rivtbl->number * sizeof (int));
-    rivtbl->tonode = (int *)malloc (rivtbl->number * sizeof (int));
-    rivtbl->down = (int *)malloc (rivtbl->number * sizeof (int));
-    rivtbl->leftele = (int *)malloc (rivtbl->number * sizeof (int));
-    rivtbl->rightele = (int *)malloc (rivtbl->number * sizeof (int));
-    rivtbl->shp = (int *)malloc (rivtbl->number * sizeof (int));
-    rivtbl->matl = (int *)malloc (rivtbl->number * sizeof (int));
-    rivtbl->bc = (int *)malloc (rivtbl->number * sizeof (int));
-    rivtbl->rsvr = (int *)malloc (rivtbl->number * sizeof (int));
+    rivtbl->fromnode = (int *)malloc (nriver * sizeof (int));
+    rivtbl->tonode = (int *)malloc (nriver * sizeof (int));
+    rivtbl->down = (int *)malloc (nriver * sizeof (int));
+    rivtbl->leftele = (int *)malloc (nriver * sizeof (int));
+    rivtbl->rightele = (int *)malloc (nriver * sizeof (int));
+    rivtbl->shp = (int *)malloc (nriver * sizeof (int));
+    rivtbl->matl = (int *)malloc (nriver * sizeof (int));
+    rivtbl->bc = (int *)malloc (nriver * sizeof (int));
+    rivtbl->rsvr = (int *)malloc (nriver * sizeof (int));
 
     /* Skip header line */
     NextLine (riv_file, cmdstr, &lno);
 
     /* Read river segment information */
-    for (i = 0; i < rivtbl->number; i++)
+    for (i = 0; i < nriver; i++)
     {
         NextLine (riv_file, cmdstr, &lno);
         match = sscanf (cmdstr, "%d %d %d %d %d %d %d %d %d %d",
@@ -333,15 +330,15 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
      * Read element mesh block
      */
     NextLine (mesh_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NUMELE", &meshtbl->numele, 'i', filename, lno);
+    ReadKeyword (cmdstr, "NUMELE", &nelem, 'i', filename, lno);
 
-    meshtbl->node = (int **)malloc (meshtbl->numele * sizeof (int *));
-    meshtbl->nabr = (int **)malloc (meshtbl->numele * sizeof (int *));
+    meshtbl->node = (int **)malloc (nelem * sizeof (int *));
+    meshtbl->nabr = (int **)malloc (nelem * sizeof (int *));
 
     /* Skip header line */
     NextLine (mesh_file, cmdstr, &lno);
 
-    for (i = 0; i < meshtbl->numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         meshtbl->node[i] = (int *)malloc (3 * sizeof (int));
         meshtbl->nabr[i] = (int *)malloc (3 * sizeof (int));
@@ -398,7 +395,7 @@ void ReadMesh (char *filename, meshtbl_struct *meshtbl)
     fclose (mesh_file);
 }
 
-void ReadAtt (char *filename, atttbl_struct *atttbl, int numele)
+void ReadAtt (char *filename, atttbl_struct *atttbl)
 {
     int             i;
     FILE           *att_file;   /* Pointer to .att file */
@@ -411,20 +408,20 @@ void ReadAtt (char *filename, atttbl_struct *atttbl, int numele)
     CheckFile (att_file, filename);
     PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
 
-    atttbl->soil = (int *)malloc (numele * sizeof (int));
-    atttbl->geol = (int *)malloc (numele * sizeof (int));
-    atttbl->lc = (int *)malloc (numele * sizeof (int));
-    atttbl->bc = (int **)malloc (numele * sizeof (int *));
-    for (i = 0; i < numele; i++)
+    atttbl->soil = (int *)malloc (nelem * sizeof (int));
+    atttbl->geol = (int *)malloc (nelem * sizeof (int));
+    atttbl->lc = (int *)malloc (nelem * sizeof (int));
+    atttbl->bc = (int **)malloc (nelem * sizeof (int *));
+    for (i = 0; i < nelem; i++)
     {
-        atttbl->bc[i] = (int *)malloc (3 * sizeof (int));
+        atttbl->bc[i] = (int *)malloc (NUM_EDGE * sizeof (int));
     }
-    atttbl->meteo = (int *)malloc (numele * sizeof (int));
-    atttbl->lai = (int *)malloc (numele * sizeof (int));
-    atttbl->source = (int *)malloc (numele * sizeof (int));
+    atttbl->meteo = (int *)malloc (nelem * sizeof (int));
+    atttbl->lai = (int *)malloc (nelem * sizeof (int));
+    atttbl->source = (int *)malloc (nelem * sizeof (int));
 
     NextLine (att_file, cmdstr, &lno);
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         NextLine (att_file, cmdstr, &lno);
         match = sscanf (cmdstr, "%d %d %d %d %d %d %d %d %d %d", &index,
@@ -761,8 +758,7 @@ void ReadForc (char *filename, forc_struct *forc)
     fclose (meteo_file);
 }
 
-void ReadLAI (char *filename, forc_struct *forc, int numele,
-    const atttbl_struct *atttbl)
+void ReadLAI (char *filename, forc_struct *forc, const atttbl_struct *atttbl)
 {
     char            cmdstr[MAXSTRING];
     int             read_lai = 0;
@@ -771,7 +767,7 @@ void ReadLAI (char *filename, forc_struct *forc, int numele,
     int             index;
     int             lno = 0;
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         if (atttbl->lai[i] > 0)
         {
@@ -1251,8 +1247,7 @@ void ReadCalib (char *filename, calib_struct *cal)
     fclose (global_calib);
 }
 
-void ReadIC (char *filename, elem_struct *elem, int numele,
-    river_struct *riv, int numriv)
+void ReadIC (char *filename, elem_struct *elem, river_struct *riv)
 {
     FILE           *ic_file;
     int             i;
@@ -1266,8 +1261,8 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
     size = ftell (ic_file);
 
     if (size !=
-        (int)(sizeof (ic_struct)) * numele +
-        (int)(sizeof (river_ic_struct)) * numriv)
+        (int)(sizeof (ic_struct)) * nelem +
+        (int)(sizeof (river_ic_struct)) * nriver)
     {
         PIHMprintf (VL_ERROR,
             "Error in initial condion file %s.\n"
@@ -1279,12 +1274,12 @@ void ReadIC (char *filename, elem_struct *elem, int numele,
 
     fseek (ic_file, 0L, SEEK_SET);
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         fread (&elem[i].ic, sizeof (ic_struct), 1, ic_file);
     }
 
-    for (i = 0; i < numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         fread (&riv[i].ic, sizeof (river_ic_struct), 1, ic_file);
     }
@@ -1318,7 +1313,7 @@ void FreeData (pihm_struct pihm)
     free (pihm->matltbl.bedthick);
 
     /* Free mesh input structure */
-    for (i = 0; i < pihm->meshtbl.numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         free (pihm->meshtbl.node[i]);
         free (pihm->meshtbl.nabr[i]);
@@ -1331,7 +1326,7 @@ void FreeData (pihm_struct pihm)
     free (pihm->meshtbl.zmax);
 
     /* Free attribute input structure */
-    for (i = 0; i < pihm->meshtbl.numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         free (pihm->atttbl.bc[i]);
     }

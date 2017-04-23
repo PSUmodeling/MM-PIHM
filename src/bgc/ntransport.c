@@ -16,8 +16,7 @@ const int           DOWN = 1;
 const int           LEFT = 2;
 const int           RIGHT = 3;
 
-void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv,
-    double dt)
+void NTransport (elem_struct *elem, river_struct *riv, double dt)
 {
     int             i;
     int             nsteps = 1;
@@ -39,7 +38,7 @@ void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv,
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         int         j, k;
 
@@ -77,7 +76,7 @@ void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv,
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         riv[i].nsol.prev_strg = riv[i].daily.prev_stage +
             riv[i].daily.prev_gw * riv[i].matl.porosity;
@@ -113,7 +112,7 @@ void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv,
             1000.0 / riv[i].topo.area;
     }
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         int         j;
         double      totsnk;
@@ -136,7 +135,7 @@ void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv,
         }
     }
 
-    for (i = 0; i < numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         int         j;
         double      totsnk;
@@ -159,11 +158,11 @@ void NTransport (elem_struct *elem, int numele, river_struct *riv, int numriv,
         }
     }
 
-    AdptStepTrnsp (elem, numele, riv, numriv, dt, nsteps);
+    AdptStepTrnsp (elem, riv, dt, nsteps);
 }
 
-void AdptStepTrnsp (elem_struct *elem, int numele, river_struct *riv,
-    int numriv, double dt, int nsteps)
+void AdptStepTrnsp (elem_struct *elem, river_struct *riv, double dt,
+    int nsteps)
 {
     int             i;
     int             step;
@@ -175,12 +174,12 @@ void AdptStepTrnsp (elem_struct *elem, int numele, river_struct *riv,
     /*
      * Initialize nf.sminn_leached fluxes
      */
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         elem[i].nf.sminn_leached = 0.0;
     }
 
-    for (i = 0; i < numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         riv[i].nf.sminn_leached = 0.0;
     }
@@ -198,7 +197,7 @@ void AdptStepTrnsp (elem_struct *elem, int numele, river_struct *riv,
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-        for (i = 0; i < numele; i++)
+        for (i = 0; i < nelem; i++)
         {
             double  local_strg;
 
@@ -215,7 +214,7 @@ void AdptStepTrnsp (elem_struct *elem, int numele, river_struct *riv,
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-        for (i = 0; i < numriv; i++)
+        for (i = 0; i < nriver; i++)
         {
             double      local_strg;
 
@@ -232,7 +231,7 @@ void AdptStepTrnsp (elem_struct *elem, int numele, river_struct *riv,
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-        for (i = 0; i < numele; i++)
+        for (i = 0; i < nelem; i++)
         {
             int         j;
 
@@ -274,7 +273,7 @@ void AdptStepTrnsp (elem_struct *elem, int numele, river_struct *riv,
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-        for (i = 0; i < numriv; i++)
+        for (i = 0; i < nriver; i++)
         {
             riv[i].nsol.trnsp_flux = 0.0;
 

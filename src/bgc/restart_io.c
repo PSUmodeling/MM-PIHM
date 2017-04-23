@@ -192,8 +192,7 @@ void RestartOutput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     restart->offset_swi = epv->offset_swi;
 }
 
-void WriteBGCIC (char *restart_fn, elem_struct *elem, int numele,
-    river_struct *riv, int numriv)
+void WriteBGCIC (char *restart_fn, elem_struct *elem, river_struct *riv)
 {
     int         i;
     FILE       *restart_file;
@@ -202,7 +201,7 @@ void WriteBGCIC (char *restart_fn, elem_struct *elem, int numele,
     CheckFile (restart_file, restart_fn);
     PIHMprintf (VL_VERBOSE, "Writing BGC initial conditions.\n");
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         RestartOutput (&elem[i].cs, &elem[i].ns, &elem[i].epv,
             &elem[i].restart_output);
@@ -211,7 +210,7 @@ void WriteBGCIC (char *restart_fn, elem_struct *elem, int numele,
             restart_file);
     }
 
-    for (i = 0; i < numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         fwrite (&riv[i].ns.sminn, sizeof (double), 1, restart_file);
     }

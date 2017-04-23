@@ -81,7 +81,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-        for (i = 0; i < pihm->numele; i++)
+        for (i = 0; i < nelem; i++)
         {
             DayMet (&pihm->elem[i].stor, &pihm->elem[i].daily, simday);
         }
@@ -89,7 +89,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-        for (i = 0; i < pihm->numriv; i++)
+        for (i = 0; i < nriver; i++)
         {
             RiverDayMet (&pihm->riv[i].stor, &pihm->riv[i].daily, simday);
         }
@@ -98,7 +98,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         int         k;
         epconst_struct *epc;
@@ -243,12 +243,12 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
     /* Calculate N leaching loss.  This is a special state variable update
      * routine, done after the other fluxes and states are reconciled in order
      * to avoid negative sminn under heavy leaching potential */
-    NTransport (pihm->elem, pihm->numele, pihm->riv, pihm->numriv, DAYINSEC);
+    NTransport (pihm->elem, pihm->riv, DAYINSEC);
 
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         epconst_struct *epc;
         epvar_struct *epv;

@@ -10,7 +10,7 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         double      satn;
         double      betas;

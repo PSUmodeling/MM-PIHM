@@ -192,7 +192,7 @@ void DefSldpth (double *sldpth, int *nsoil, double *zsoil, double total_depth,
     }
 }
 
-void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
+void CalcSlopeAspect (elem_struct *elem, meshtbl_struct meshtbl)
 {
     const int       XCOMP = 0;
     const int       YCOMP = 1;
@@ -212,7 +212,7 @@ void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
     int             ind, ind1, ind2;
     int             i, j, k;
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         for (j = 0; j < 3; j++)
         {
@@ -274,7 +274,7 @@ void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
         }
 
         /* Consider every edge of every triangular grid */
-        for (j = 0; j < numele; j++)
+        for (j = 0; j < nelem; j++)
         {
             for (k = 0; k < 3; k++)
             {
@@ -559,17 +559,17 @@ double FrozRain (double prcp, double sfctmp)
     return (ffrozp);
 }
 
-double AvgElev (elem_struct *elem, int numele)
+double AvgElev (elem_struct *elem)
 {
     double          elev = 0.0;
     int             i;
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         elev += elem[i].topo.zmax;
     }
 
-    elev /= (double)numele;
+    elev /= (double)nelem;
 
     return (elev);
 }

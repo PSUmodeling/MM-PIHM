@@ -17,7 +17,7 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * Initialization of temporary state variables
      */
-    for (i = 0; i < 3 * pihm->numele + 2 * pihm->numriv; i++)
+    for (i = 0; i < 3 * nelem + 2 * nriver; i++)
     {
         dy[i] = 0.0;
     }
@@ -25,7 +25,7 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         elem_struct *elem;
         elem = &pihm->elem[i];
@@ -38,7 +38,7 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         river_struct *riv;
         riv = &pihm->riv[i];
@@ -56,7 +56,7 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         elem_struct *elem;
 
@@ -132,7 +132,7 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         int         j;
         elem_struct *elem;
@@ -179,7 +179,7 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         int         j;
         river_struct *riv;

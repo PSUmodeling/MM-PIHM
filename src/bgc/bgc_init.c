@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv,
+void InitBGC (elem_struct *elem, river_struct *riv,
     const epctbl_struct *epctbl, const ctrl_struct *ctrl)
 {
     int             i;
@@ -8,7 +8,7 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
     PIHMprintf (VL_VERBOSE, "BGC: Initializing BGC structures\n");
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         epc_ind = elem[i].attrib.lc_type - 1;
 
@@ -80,7 +80,7 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv,
         }
     }
 
-    for (i = 0; i < numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         if (ctrl->bgc_spinup)
         {
@@ -89,9 +89,8 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv,
     }
 }
 
-void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv,
-    cinit_struct cinit, cstate_struct cs, nstate_struct ns, char *fn,
-    int spinup)
+void InitBGCVar (elem_struct *elem, river_struct *riv, cinit_struct cinit,
+    cstate_struct cs, nstate_struct ns, char *fn, int spinup)
 {
     int             i;
     FILE           *init_file;
@@ -103,7 +102,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv,
         CheckFile (init_file, fn);
         PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
 
-        for (i = 0; i < numele; i++)
+        for (i = 0; i < nelem; i++)
         {
             fread (&elem[i].restart_input, sizeof (bgcic_struct), 1,
                 init_file);
@@ -116,7 +115,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv,
             elem[i].epv.annavg_t2m = elem[i].ps.tbot;
         }
 
-        for (i = 0; i < numriv; i++)
+        for (i = 0; i < nriver; i++)
         {
             fread (&riv[i].ns.sminn, sizeof (double), 1, init_file);
         }
@@ -125,7 +124,7 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv,
     }
     else
     {
-        for (i = 0; i < numele; i++)
+        for (i = 0; i < nelem; i++)
         {
             elem[i].cinit = cinit;
             elem[i].cs = cs;
@@ -166,18 +165,18 @@ void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv,
                 &elem[i].ns);
         }
 
-        for (i = 0; i < numriv; i++)
+        for (i = 0; i < nriver; i++)
         {
             riv[i].ns.sminn = 0.0;
         }
     }
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         ZeroSrcSnk (&elem[i].cs, &elem[i].ns, &elem[i].summary);
     }
 
-    for (i = 0; i < numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         //riv[i].nleached_snk = 0.0;
         riv[i].nf.sminn_leached = 0.0;

@@ -322,6 +322,8 @@ extern int          verbose_mode;
 extern int          debug_mode;
 extern int          corr_mode;
 extern char         project[MAXSTRING];
+extern int          nelem;
+extern int          nriver;
 #ifdef _OPENMP
 extern int          nthreads;
 #endif

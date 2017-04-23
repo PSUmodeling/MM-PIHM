@@ -1,12 +1,12 @@
 #include "pihm.h"
 
-void InitLsm (elem_struct *elem, int numele, ctrl_struct ctrl,
-    noahtbl_struct noahtbl, calib_struct cal)
+void InitLsm (elem_struct *elem, ctrl_struct ctrl, noahtbl_struct noahtbl,
+    calib_struct cal)
 {
     int             i;
     double          frzfact;
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
 
         /* Set-up soil layer depths */

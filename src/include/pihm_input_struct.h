@@ -75,7 +75,6 @@ typedef struct filename_struct
  ****************************************************************************/
 typedef struct rivtbl_struct
 {
-    int             number;
     int            *fromnode;
     int            *tonode;
     int            *down;
@@ -136,7 +135,6 @@ typedef struct matltbl_struct
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * numele                   int         number of triangular elements
  * numnode                  int         number of nodes
  * node                     int**       nodes of element
  * nabr                     int**       neighbors of element
@@ -147,7 +145,6 @@ typedef struct matltbl_struct
  ****************************************************************************/
 typedef struct meshtbl_struct
 {
-    int             numele;
     int             numnode;
     int           **node;
     int           **nabr;

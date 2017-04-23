@@ -1,5 +1,5 @@
 INIT_MODE	    0                   # Initialization type 0: Relaxation, 1: use .att file, 3: use .init file
-ASCII_OUTPUT        1                   # Write ASCII output? 0: no, 1: yes
+ASCII_OUTPUT        0                   # Write ASCII output? 0: no, 1: yes
 WRITE_IC	    0                   # Write initial condition? 0: Standard model run, 1: Outputs will be written to .init files
 UNSAT_MODE	    2
 SURF_MODE	    2

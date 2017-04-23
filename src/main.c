@@ -4,6 +4,8 @@ int             verbose_mode;
 int             debug_mode;
 int             corr_mode;
 char            project[MAXSTRING];
+int             nelem;
+int             nriver;
 #ifdef _OPENMP
 int             nthreads;
 #endif
@@ -40,7 +42,7 @@ int main (int argc, char *argv[])
     ReadAlloc (project, pihm);
 
     /* Number of state variables */
-    nsv = 3 * pihm->numele + 2 * pihm->numriv;
+    nsv = 3 * nelem + 2 * nriver;
 
     /* Initialize CVode state variables */
     CV_Y = N_VNew (nsv);
@@ -99,13 +101,12 @@ int main (int argc, char *argv[])
      */
     if (pihm->ctrl.write_ic)
     {
-        PrtInit (pihm, project);
+        PrtInit (pihm->elem, pihm->riv, project);
 
 #ifdef _BGC_
         if (!pihm->ctrl.bgc_spinup)
         {
-            WriteBGCIC (pihm->filename.bgcic, pihm->elem, pihm->numele,
-                pihm->riv, pihm->numriv);
+            WriteBGCIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
         }
 #endif
     }

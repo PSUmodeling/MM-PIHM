@@ -6,16 +6,15 @@ void LateralFlow (pihm_struct pihm)
     double         *dhbydx;
     double         *dhbydy;
 
-    dhbydx = (double *)malloc (pihm->numele * sizeof (double));
-    dhbydy = (double *)malloc (pihm->numele * sizeof (double));
+    dhbydx = (double *)malloc (nelem * sizeof (double));
+    dhbydy = (double *)malloc (nelem * sizeof (double));
 
-    FrictSlope (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
-        pihm->ctrl.surf_mode, dhbydx, dhbydy);
+    FrictSlope (pihm->elem, pihm->riv, pihm->ctrl.surf_mode, dhbydx, dhbydy);
 
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         int         j;
         double      dif_y_sub;
@@ -157,14 +156,14 @@ void LateralFlow (pihm_struct pihm)
     free (dhbydy);
 }
 
-void FrictSlope (elem_struct *elem, int numele, river_struct *riv,
-    int numriv, int surf_mode, double *dhbydx, double *dhbydy)
+void FrictSlope (elem_struct *elem, river_struct *riv, int surf_mode,
+    double *dhbydx, double *dhbydy)
 {
     int             i;
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
     int             j;
     double          surfh[NUM_EDGE];

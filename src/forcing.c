@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele,
-    river_struct *riv, int numriv, int t
+void ApplyForcing (forc_struct *forc, elem_struct *elem, river_struct *riv,
+    int t
 #ifdef _NOAH_
     , ctrl_struct *ctrl, double lat, double lon, double elev, double tavg
 #endif
@@ -10,18 +10,18 @@ void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele,
     /* Boundary conditions */
     if (forc->nbc > 0)
     {
-        ApplyBC (forc, elem, numele, t);
+        ApplyBC (forc, elem, t);
     }
 
     /* Meteorological forcing */
-    ApplyMeteoForc (forc, elem, numele, t
+    ApplyMeteoForc (forc, elem, t
 #ifdef _NOAH_
         , ctrl->rad_mode, lat, lon, elev, tavg
 #endif
         );
 
     /* LAI forcing */
-    ApplyLAI (forc, elem, numele, t
+    ApplyLAI (forc, elem, t
 #ifdef _BGC_
         , ctrl->bgc_spinup
 #endif
@@ -30,12 +30,12 @@ void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele,
     /* River boundary condition */
     if (forc->nriverbc > 0)
     {
-        ApplyRiverBC (forc, riv, numriv, t);
+        ApplyRiverBC (forc, riv, t);
     }
 }
 
 
-void ApplyBC (forc_struct *forc, elem_struct *elem, int numele, int t)
+void ApplyBC (forc_struct *forc, elem_struct *elem, int t)
 {
     int             ind;
     int             i, j, k;
@@ -45,7 +45,7 @@ void ApplyBC (forc_struct *forc, elem_struct *elem, int numele, int t)
         IntrplForcing (forc->bc[k], t, 1);
     }
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         for (j = 0; j < 3; j++)
         {
@@ -65,7 +65,7 @@ void ApplyBC (forc_struct *forc, elem_struct *elem, int numele, int t)
     }
 }
 
-void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t
+void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
 #ifdef _NOAH_
     , int rad_mode, double lat, double lon, double elev, double tavg
 #endif
@@ -102,7 +102,7 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t
 #ifdef _OPENMP
 #pragma omp parallel for private(ind)
 #endif
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         ind = elem[i].attrib.meteo_type - 1;
 
@@ -134,7 +134,7 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t
     }
 }
 
-void ApplyLAI (forc_struct *forc, elem_struct *elem, int numele, int t
+void ApplyLAI (forc_struct *forc, elem_struct *elem, int t
 #ifdef _BGC_
     , int spinup
 #endif
@@ -146,7 +146,7 @@ void ApplyLAI (forc_struct *forc, elem_struct *elem, int numele, int t
     double          ksolar;
     double          tau;
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         if (elem[i].comm.svRadiationInterception > 0.0)
         {
@@ -177,7 +177,7 @@ void ApplyLAI (forc_struct *forc, elem_struct *elem, int numele, int t
             }
         }
 
-        for (i = 0; i < numele; i++)
+        for (i = 0; i < nelem; i++)
         {
             if (elem[i].attrib.lai_type > 0)
             {
@@ -194,7 +194,7 @@ void ApplyLAI (forc_struct *forc, elem_struct *elem, int numele, int t
     }
     else
     {
-        for (i = 0; i < numele; i++)
+        for (i = 0; i < nelem; i++)
         {
             elem[i].ps.proj_lai = elem[i].cs.leafc * elem[i].epc.avg_proj_sla;
         }
@@ -202,7 +202,7 @@ void ApplyLAI (forc_struct *forc, elem_struct *elem, int numele, int t
 #endif
 }
 
-void ApplyRiverBC (forc_struct *forc, river_struct *riv, int numriv, int t)
+void ApplyRiverBC (forc_struct *forc, river_struct *riv, int t)
 {
     int             ind;
     int             i, k;
@@ -212,7 +212,7 @@ void ApplyRiverBC (forc_struct *forc, river_struct *riv, int numriv, int t)
         IntrplForcing (forc->riverbc[k], t, 1);
     }
 
-    for (i = 0; i < numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         if (riv[i].attrib.riverbc_type > 0)
         {

@@ -3,8 +3,7 @@
 void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
 {
     /* Apply forcing */
-    ApplyForcing (&pihm->forc, pihm->elem, pihm->numele, pihm->riv,
-        pihm->numriv, t
+    ApplyForcing (&pihm->forc, pihm->elem, pihm->riv, t
 #ifdef _NOAH_
         , &pihm->ctrl, pihm->latitude, pihm->longitude, pihm->elevation,
         pihm->noahtbl.tbot
@@ -33,7 +32,7 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
     Summary (pihm, CV_Y, (double)pihm->ctrl.stepsize);
 
 #ifdef _NOAH_
-    NoahHydrol (pihm->elem, pihm->numele, (double)pihm->ctrl.stepsize);
+    NoahHydrol (pihm->elem, (double)pihm->ctrl.stepsize);
 #endif
 
     /*
@@ -62,8 +61,7 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
 #endif
 
 #ifdef _CYCLES_
-    SoluteTransport (pihm->elem, pihm->numele, pihm->riv, pihm->numriv,
-            (double)pihm->ctrl.stepsize);
+    SoluteTransport (pihm->elem, pihm->riv, (double)pihm->ctrl.stepsize);
 #endif
 
 #ifdef _DAILY_

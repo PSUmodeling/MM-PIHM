@@ -17,7 +17,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         double      sfctmp;
         double      solar;
@@ -91,7 +91,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         river_struct *riv;
         int         j;
@@ -161,7 +161,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-        for (i = 0; i < pihm->numele; i++)
+        for (i = 0; i < nelem; i++)
         {
             int     k;
             elem_struct *elem;
@@ -217,7 +217,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-        for (i = 0; i < pihm->numriv; i++)
+        for (i = 0; i < nriver; i++)
         {
             int     j;
             river_struct *riv;
@@ -244,7 +244,7 @@ void InitDailyStruct (pihm_struct pihm)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         int         k;
         elem_struct *elem;
@@ -297,7 +297,7 @@ void InitDailyStruct (pihm_struct pihm)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         int         k;
         river_struct *riv;

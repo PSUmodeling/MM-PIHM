@@ -272,16 +272,12 @@ typedef struct prtctrl_struct
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * numele                   int         number of triagular elements
- * numriv                   int         number of river segments
  * longitude                double      domain logitude
  * latitude                 double      domain latitude
  * elevation                double      average domain elevation
  ****************************************************************************/
 typedef struct pihm_struct
 {
-    int             numele;
-    int             numriv;
     double          longitude;
     double          latitude;
     double          elevation;

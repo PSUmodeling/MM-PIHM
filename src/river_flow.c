@@ -14,7 +14,7 @@ void RiverFlow (pihm_struct pihm)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         river_struct *riv;
         river_struct *down;

@@ -22,11 +22,11 @@ void BGCSpinup (pihm_struct pihm, char *outputdir)
 
     timestamp = (struct tm *)malloc (sizeof (struct tm));
 
-    steady = (int *)malloc (pihm->numele * sizeof (int));
-    tally1 = (double *)malloc (pihm->numele * sizeof (double));
-    tally1b = (double *)malloc (pihm->numele * sizeof (double));
-    tally2 = (double *)malloc (pihm->numele * sizeof (double));
-    tally2b = (double *)malloc (pihm->numele * sizeof (double));
+    steady = (int *)malloc (nelem * sizeof (int));
+    tally1 = (double *)malloc (nelem * sizeof (double));
+    tally1b = (double *)malloc (nelem * sizeof (double));
+    tally2 = (double *)malloc (nelem * sizeof (double));
+    tally2b = (double *)malloc (nelem * sizeof (double));
 
     metyears = pihm->ctrl.spinupendyear - pihm->ctrl.spinupstartyear + 1;
     metyr = 0;
@@ -36,7 +36,7 @@ void BGCSpinup (pihm_struct pihm, char *outputdir)
 
     do
     {
-        for (i = 0; i < pihm->numele; i++)
+        for (i = 0; i < nelem; i++)
         {
             tally2[i] = 0.0;
             tally2b[i] = 0.0;
@@ -59,7 +59,7 @@ void BGCSpinup (pihm_struct pihm, char *outputdir)
 
             first_day = 0;
 
-            for (i = 0; i < pihm->numele; i++)
+            for (i = 0; i < nelem; i++)
             {
                 tally2[i] += pihm->elem[i].summary.soilc;
                 tally2b[i] += pihm->elem[i].summary.totalc;
@@ -70,7 +70,7 @@ void BGCSpinup (pihm_struct pihm, char *outputdir)
 
         spinyears = spinyears + j / 365;
 
-        for (i = 0; i < pihm->numele; i++)
+        for (i = 0; i < nelem; i++)
         {
             if (metcycle > 0)
             {
@@ -90,24 +90,23 @@ void BGCSpinup (pihm_struct pihm, char *outputdir)
         metcycle++;
 
         total_complete = 0;
-        for (i = 0; i < pihm->numele; i++)
+        for (i = 0; i < nelem; i++)
         {
             total_complete += steady[i];
         }
 
         PIHMprintf (VL_NORMAL,
             "%d elements steady, %d elements to go\n",
-            total_complete, pihm->numele - total_complete);
+            total_complete, nelem - total_complete);
 
-        if (total_complete == pihm->numele)
+        if (total_complete == nelem)
         {
             PIHMprintf (VL_NORMAL, "All elements steady after %d year.\n",
                 spinyears);
         }
     } while (spinyears < pihm->ctrl.maxspinyears);
 
-    WriteBGCIC (pihm->filename.bgcic, pihm->elem, pihm->numele, pihm->riv,
-        pihm->numriv);
+    WriteBGCIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
 
     sprintf (fn, "%ssoilc.dat", outputdir);
     soilc_file = fopen (fn, "w");
@@ -121,13 +120,13 @@ void BGCSpinup (pihm_struct pihm, char *outputdir)
     sprintf (fn, "%ssminn.dat", outputdir);
     sminn_file = fopen (fn, "w");
 
-    for (i = 0; i < pihm->numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         fprintf (soilc_file, "%lf\t", pihm->elem[i].summary.soilc);
         fprintf (vegc_file, "%lf\t", pihm->elem[i].summary.vegc);
         fprintf (sminn_file, "%lf\t", pihm->elem[i].ns.sminn);
     }
-    for (i = 0; i < pihm->numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         fprintf (sminn_file, "%lf\t", pihm->riv[i].ns.sminn);
     }

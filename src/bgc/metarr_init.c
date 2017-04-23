@@ -92,7 +92,7 @@ void Save2Stor (pihm_struct pihm, int t, int start_time)
     {
         ind = (t - start_time) / 24 / 3600 - 1; /* t is already the end of day */
 
-        for (i = 0; i < pihm->numele; i++)
+        for (i = 0; i < nelem; i++)
         {
             stor = &(pihm->elem[i].stor);
             daily = &(pihm->elem[i].daily);
@@ -137,7 +137,7 @@ void Save2Stor (pihm_struct pihm, int t, int start_time)
             stor->flag[ind] = 1;
         }
 
-        for (i = 0; i < pihm->numriv; i++)
+        for (i = 0; i < nriver; i++)
         {
             pihm->riv[i].stor.prev_stage[ind] = pihm->riv[i].daily.prev_stage;
             pihm->riv[i].stor.avg_stage[ind] = pihm->riv[i].daily.avg_stage;

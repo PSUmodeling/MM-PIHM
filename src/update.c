@@ -11,7 +11,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
 #ifdef _OPENMP
 #pragma omp parallel for private(subrunoff)
 #endif
-    for (i = 0; i < pihm->numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         pihm->elem[i].ws.surf = y[SURF (i)];
         pihm->elem[i].ws.unsat = y[UNSAT (i)];
@@ -38,7 +38,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < pihm->numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         pihm->riv[i].ws.stage = y[RIVSTG (i)];
         pihm->riv[i].ws.gw = y[RIVGW (i)];
