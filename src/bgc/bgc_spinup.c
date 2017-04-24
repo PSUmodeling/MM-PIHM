@@ -55,7 +55,7 @@ void BGCSpinup (pihm_struct pihm, char *outputdir)
         {
             t = pihm->ctrl.spinupstart + (j + 1) * 24 * 3600;
 
-            DailyBgc (pihm, t, pihm->ctrl.spinupstart);
+            Bgc (pihm, t, pihm->ctrl.spinupstart, DAYINSEC);
 
             first_day = 0;
 

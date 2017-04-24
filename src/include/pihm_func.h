@@ -419,6 +419,7 @@ void            InitCropSV (crop_struct *);
 #ifdef _BGC_
 void            AdptStepTrnsp (elem_struct *, river_struct *, double, int);
 void            AnnualRates (const epconst_struct *, epvar_struct *);
+void            Bgc (pihm_struct, int, int, double);
 void            BGCSpinup (pihm_struct, char *);
 void            CanopyCond (const epconst_struct *, const daily_struct *,
     pstate_struct *, const soil_struct *, epvar_struct *);
@@ -428,11 +429,10 @@ void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
 void            DailyAllocation (cflux_struct *, cstate_struct *,
     nflux_struct *, nstate_struct *, epconst_struct *, epvar_struct *,
     ntemp_struct *);
-void            DailyBgc (pihm_struct, int, int);
 void            DailyCarbonStateUpdate (cflux_struct *, cstate_struct *, int,
     int, int);
 void            DailyNitrogenStateUpdate (nflux_struct *, nstate_struct *,
-    int alloc, int woody, int evergreen);
+    int, int, int, double);
 void            DayMet (const stor_struct *, daily_struct *, int);
 void            Decomp (double, const epconst_struct *, epvar_struct *,
     cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,

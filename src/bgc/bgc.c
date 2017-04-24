@@ -5,72 +5,48 @@
 
 #include "pihm.h"
 
-void DailyBgc (pihm_struct pihm, int t, int simstart)
+void Bgc (pihm_struct pihm, int t, int simstart, double dt)
 {
 
     int             i;
     int             simday;
-    struct tm      *timestamp;
-    time_t          rawtime;
     double          co2lvl;
-    double          daily_ndep, daily_nfix;
-
-    rawtime = (int)t;
-    timestamp = gmtime (&rawtime);
+    double          ndep, nfix;
 
     /* Get co2 and ndep */
     if (pihm->ctrl.bgc_spinup)       /* Spinup mode */
     {
         co2lvl = pihm->co2.co2ppm;
-        daily_ndep = pihm->ndepctrl.ndep / 365.0;
-        daily_nfix = pihm->ndepctrl.nfix / 365.0;
+        ndep = pihm->ndepctrl.ndep / 365.0 / DAYINSEC;
+        nfix = pihm->ndepctrl.nfix / 365.0 / DAYINSEC;
     }
-    else                        /* Model mode */
+    else                            /* Model mode */
     {
         /* Atmospheric CO2 handling */
         if (!(pihm->co2.varco2))
         {
             /* constant CO2, constant Ndep */
             co2lvl = pihm->co2.co2ppm;
-            daily_ndep = pihm->ndepctrl.ndep / 365.0;
-            daily_nfix = pihm->ndepctrl.nfix / 365.0;
+            ndep = pihm->ndepctrl.ndep / 365.0 / DAYINSEC;
+            nfix = pihm->ndepctrl.nfix / 365.0 / DAYINSEC;
         }
         else
         {
             co2lvl = GetCO2 (pihm->forc.co2[0], t);
-            if (co2lvl < -999)
-            {
-                PIHMprintf (VL_ERROR,
-                    "Error finding CO2 value on %4.4d-%2.2d-%2.2d\n",
-                    timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-                    timestamp->tm_mday);
-                PIHMexit (EXIT_FAILURE);
-            }
         }
 
         /* Ndep handling */
         if (!(pihm->ndepctrl.varndep))
         {
             /* Constant Ndep */
-            daily_ndep = pihm->ndepctrl.ndep / 365.0;
-            daily_nfix = pihm->ndepctrl.nfix / 365.0;
+            ndep = pihm->ndepctrl.ndep / 365.0 / DAYINSEC;
+            nfix = pihm->ndepctrl.nfix / 365.0 / DAYINSEC;
         }
         else
         {
-            daily_ndep = GetNdep (pihm->forc.ndep[0], t);
-            daily_nfix = pihm->ndepctrl.nfix / 365.0;
-            if (daily_ndep < -999)
-            {
-                PIHMprintf (VL_ERROR,
-                    "Error finding NDEP %4.4d-%2.2d-%2.2d\n",
-                    timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-                    timestamp->tm_mday);
-                PIHMexit (EXIT_FAILURE);
-            }
-            else
-            {
-                daily_ndep = daily_ndep / 365.0;
-            }
+            ndep = GetNdep (pihm->forc.ndep[0], t);
+            ndep = ndep / 365.0 / DAYINSEC;
+            nfix = pihm->ndepctrl.nfix / 365.0 / DAYINSEC;
         }
     }
 
@@ -146,7 +122,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
         Phenology (epc, daily, phen, epv, cs, cf, ns, nf);
 
         /* Test for the annual allocation day */
-        if (phen->remdays_litfall == 1)
+        if (phen->remdays_litfall == 1.0)
         {
             annual_alloc = 1;
         }
@@ -167,7 +143,6 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
         }
 
         /* Soil water potential */
-        //vwc = (ws->unsat + ws->gw) / soil->depth * soil->smcmax;
         vwc = daily->avg_sh2o[0] * ps->sldpth[0];
         droot = ps->sldpth[0];
 
@@ -208,8 +183,8 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
             epv->assim_sun = epv->assim_shade = 0.0;
         }
 
-        nf->ndep_to_sminn = daily_ndep;
-        nf->nfix_to_sminn = daily_nfix;
+        nf->ndep_to_sminn = ndep;
+        nf->nfix_to_sminn = nfix;
 
         /* Daily litter and soil decomp and nitrogen fluxes */
         Decomp (daily->avg_stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt);
@@ -237,7 +212,7 @@ void DailyBgc (pihm_struct pihm, int t, int simstart)
 
         /* Daily update of nitrogen state variables */
         DailyNitrogenStateUpdate (nf, ns, annual_alloc, epc->woody,
-            epc->evergreen);
+            epc->evergreen, dt);
     }
 
     /* Calculate N leaching loss.  This is a special state variable update

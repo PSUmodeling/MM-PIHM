@@ -53,7 +53,7 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
         }
         else
         {
-            DailyBgc (pihm, t, pihm->ctrl.starttime);
+            Bgc (pihm, t, pihm->ctrl.starttime, DAYINSEC);
             first_day = 0;
         }
 #endif

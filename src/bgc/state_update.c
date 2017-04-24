@@ -282,7 +282,7 @@ void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
 }
 
 void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
-    int woody, int evergreen)
+    int woody, int evergreen, double dt)
 {
     /* N state variables are updated below in the order of the relevant fluxes
      * in the daily model loop */
@@ -341,8 +341,8 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
     ns->livecrootn -= nf->livecrootn_to_retransn;
 
     /* Nitrogen deposition */
-    ns->sminn += nf->ndep_to_sminn;
-    ns->ndep_src += nf->ndep_to_sminn;
+    ns->sminn += nf->ndep_to_sminn * dt;
+    ns->ndep_src += nf->ndep_to_sminn * dt;
     ns->sminn += nf->nfix_to_sminn;
     ns->nfix_src += nf->nfix_to_sminn;
 
