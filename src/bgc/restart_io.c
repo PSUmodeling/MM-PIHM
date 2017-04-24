@@ -77,16 +77,8 @@ void RestartInput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     ns->retransn = restart->retransn;
     ns->npool = restart->npool;
 
-    epv->day_leafc_litfall_increment = restart->day_leafc_litfall_increment;
-    epv->day_frootc_litfall_increment = restart->day_frootc_litfall_increment;
-    epv->day_livestemc_turnover_increment =
-        restart->day_livestemc_turnover_increment;
-    epv->day_livecrootc_turnover_increment =
-        restart->day_livecrootc_turnover_increment;
-    epv->annmax_leafc = restart->annmax_leafc;
-    epv->annmax_frootc = restart->annmax_frootc;
-    epv->annmax_livestemc = restart->annmax_livestemc;
-    epv->annmax_livecrootc = restart->annmax_livecrootc;
+    epv->prev_leafc_to_litter = restart->prev_leafc_to_litter;
+    epv->prev_frootc_to_litter = restart->prev_frootc_to_litter;
     epv->dsr = restart->dsr;
 
     epv->dormant_flag = restart->dormant_flag;
@@ -167,16 +159,8 @@ void RestartOutput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     restart->retransn = ns->retransn;
     restart->npool = ns->npool;
 
-    restart->day_leafc_litfall_increment = epv->day_leafc_litfall_increment;
-    restart->day_frootc_litfall_increment = epv->day_frootc_litfall_increment;
-    restart->day_livestemc_turnover_increment =
-        epv->day_livestemc_turnover_increment;
-    restart->day_livecrootc_turnover_increment =
-        epv->day_livecrootc_turnover_increment;
-    restart->annmax_leafc = epv->annmax_leafc;
-    restart->annmax_frootc = epv->annmax_frootc;
-    restart->annmax_livestemc = epv->annmax_livestemc;
-    restart->annmax_livecrootc = epv->annmax_livecrootc;
+    restart->prev_leafc_to_litter = epv->prev_leafc_to_litter;
+    restart->prev_frootc_to_litter = epv->prev_frootc_to_litter;
     restart->dsr = epv->dsr;
 
     restart->dormant_flag = epv->dormant_flag;

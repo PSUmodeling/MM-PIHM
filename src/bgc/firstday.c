@@ -173,30 +173,29 @@ void FirstDay (const epconst_struct *epc, const cinit_struct *cinit,
     if (epc->evergreen)
     {
         /* leaf and fineroot litterfall rates */
-        epv->day_leafc_litfall_increment =
-            max_leafc * epc->leaf_turnover / 365.0;
-        epv->day_frootc_litfall_increment =
-            max_frootc * epc->froot_turnover / 365.0;
+        epv->bg_leafc_litfall_rate =
+            max_leafc * epc->leaf_turnover / 365.0 / DAYINSEC;
+        epv->bg_frootc_litfall_rate =
+            max_frootc * epc->froot_turnover / 365.0 / DAYINSEC;
+        epv->prev_leafc_to_litter = 0.0;
+        epv->prev_frootc_to_litter = 0.0;
     }
     else
     {
         /* deciduous: reset the litterfall rates to 0.0 for the start of the
          * next litterfall season */
-        epv->day_leafc_litfall_increment = 0.0;
-        epv->day_frootc_litfall_increment = 0.0;
+        epv->bg_leafc_litfall_rate = 0.0;
+        epv->bg_frootc_litfall_rate = 0.0;
+        epv->prev_leafc_to_litter = 0.0;
+        epv->prev_frootc_to_litter = 0.0;
     }
-    /* all types can use annmax leafc and frootc */
-    epv->annmax_leafc = 0.0;
-    epv->annmax_frootc = 0.0;
 
     if (epc->woody)
     {
         /* live wood turnover rates */
-        epv->day_livestemc_turnover_increment =
-            cs->livestemc * epc->livewood_turnover / 365.0;
-        epv->day_livecrootc_turnover_increment =
-            cs->livecrootc * epc->livewood_turnover / 365.0;
-        epv->annmax_livestemc = 0.0;
-        epv->annmax_livecrootc = 0.0;
+        epv->livestemc_turnover_rate =
+            cs->livestemc * epc->livewood_turnover / 365.0 / DAYINSEC;
+        epv->livecrootc_turnover_rate =
+            cs->livecrootc * epc->livewood_turnover / 365.0 / DAYINSEC;
     }
 }

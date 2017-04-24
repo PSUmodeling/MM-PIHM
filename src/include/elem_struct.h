@@ -1135,24 +1135,18 @@ typedef struct bgcic_struct
     double          sminn;
     double          retransn;
     double          npool;
-    double          day_leafc_litfall_increment;
-    double          day_frootc_litfall_increment;
-    double          day_livestemc_turnover_increment;
-    double          day_livecrootc_turnover_increment;
-    double          annmax_leafc;
-    double          annmax_frootc;
-    double          annmax_livestemc;
-    double          annmax_livecrootc;
+    double          prev_leafc_to_litter;
+    double          prev_frootc_to_litter;
     double          dsr;
-    double          dormant_flag;
-    double          onset_flag;
-    double          onset_counter;
-    double          onset_gddflag;
+    int             dormant_flag;
+    int             onset_flag;
+    int             onset_counter;
+    int             onset_gddflag;
     double          onset_fdd;
     double          onset_gdd;
     double          onset_swi;
-    double          offset_flag;
-    double          offset_counter;
+    int             offset_flag;
+    int             offset_counter;
     double          offset_fdd;
     double          offset_swi;
 } bgcic_struct;
@@ -2307,47 +2301,15 @@ typedef struct ntemp_struct
     double          kl4;
 } ntemp_struct;
 
-
-/*****************************************************************************
- * Daily phenological data array
- * ---------------------------------------------------------------------------
- * Variables                Type        Description
- * ==========               ==========  ====================
- * remdays_curgrowth        double      days left in current growth season
- * remdays_transfer         double      number of transfer days remaining
- * remdays_litfall          double      number of litfall days remaining
- * predays_transfer         double      number of transfer days previous
- * predays_litfall          double      number of litfall days previous
- ****************************************************************************/
-typedef struct phenology_struct
-{
-    double          remdays_curgrowth;
-    double          remdays_transfer;
-    double          remdays_litfall;
-    double          predays_transfer;
-    double          predays_litfall;
-} phenology_struct;
-
-
 /*****************************************************************************
  * Ecophysiological variables
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * day_leafc_litfall_increment
- *                          double      rate leaf litfall [kgC m-2 day-1]
- * day_frootc_litfall_increment
- *                          double      rate froot litfall [kgC m-2 day-1]
- * day_livestemc_turnover_increment
- *                          double      rate livestem turnover [kgC m-2 day-1]
- * day_livecrootc_turnover_increment
- *                          double      rate livecroot turnover [kgC m-2 day-1]
- * annmax_leafc             double      annual maximum daily leaf C [kgC m-2]
- * annmax_frootc            double      annual maximum daily froot C [kgC m-2]
- * annmax_livestemc         double      annual maximum daily livestem C
- *                                        [kgC m-2]
- * annmax_livecrootc        double      annual maximum daily livecroot C
- *                                        [kgC m-2]
+ * bg_leafc_litfall_rate    double      rate leaf litfall [kgC m-2 s-1]
+ * bg_frootc_litfall_rate   double      rate froot litfall [kgC m-2 s-1]
+ * livestemc_turnover_rate  double      rate livestem turnover [kgC m-2 s-1]
+ * livecrootc_turnover_rate double      rate livecroot turnover [kgC m-2 s-1]
  * dsr                      double      number of days since rain
  * sun_proj_sla             double      sunlit projected SLA [m2 kgC-1]
  * shade_proj_sla           double      shaded projected SLA [m2 kgC-1]
@@ -2385,16 +2347,16 @@ typedef struct phenology_struct
  * m_final_sun              double      product of all other multipliers [-]
  * m_final_shade            double      product of all other multipliers [-]
  * ytd_maxplai              double      year-to-date maximum projected LAI [-]
- * dormant_flag             double      dormancy flag
+ * dormant_flag             int         dormancy flag
  * days_active              double      number of days since last dormancy
- * onset_flag               double      onset flag
- * onset_counter            double      onset days counter
- * onset_gddflag            double      onset flag for growing degree day sum
+ * onset_flag               int         onset flag
+ * onset_counter            int         onset days counter
+ * onset_gddflag            int         onset flag for growing degree day sum
  * onset_fdd                double      onset freezing degree days counter
  * onset_gdd                double      onset growing degree days
  * onset_swi                double      onset soil water index
- * offset_flag              double      offset flag
- * offset_counter           double      offset days counter
+ * offset_flag              int         offset flag
+ * offset_counter           int         offset second counter
  * offset_fdd               double      offset freezing degree days counter
  * offset_swi               double      offset soil water index
  * lgsf                     double      long growing season factor (0-1)
@@ -2414,14 +2376,10 @@ typedef struct phenology_struct
  ****************************************************************************/
 typedef struct epvar_struct
 {
-    double          day_leafc_litfall_increment;
-    double          day_frootc_litfall_increment;
-    double          day_livestemc_turnover_increment;
-    double          day_livecrootc_turnover_increment;
-    double          annmax_leafc;
-    double          annmax_frootc;
-    double          annmax_livestemc;
-    double          annmax_livecrootc;
+    double          bg_leafc_litfall_rate;
+    double          bg_frootc_litfall_rate;
+    double          livestemc_turnover_rate;
+    double          livecrootc_turnover_rate;
     double          dsr;
     double          sun_proj_sla;
     double          shade_proj_sla;
@@ -2448,15 +2406,15 @@ typedef struct epvar_struct
     double          m_final_sun;
     double          m_final_shade;
     double          ytd_maxplai;
-    double          dormant_flag;
+    int             dormant_flag;
     double          days_active;
-    double          onset_flag;
-    double          onset_counter;
-    double          onset_gddflag;
+    int             onset_flag;
+    int             onset_counter;
+    int             onset_gddflag;
     double          onset_fdd;
     double          onset_gdd;
     double          onset_swi;
-    double          offset_flag;
+    int             offset_flag;
     double          offset_counter;
     double          offset_fdd;
     double          offset_swi;
@@ -2681,7 +2639,6 @@ typedef struct elem_struct
     psn_struct      psn_shade;
     ntemp_struct    nt;
     summary_struct  summary;
-    phenology_struct phen;
     epvar_struct    epv;
     solute_struct   nsol;
 #endif

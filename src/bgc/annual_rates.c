@@ -7,8 +7,6 @@ void AnnualRates (const epconst_struct *epc, epvar_struct *epv)
         /* leaf and fineroot litterfall rates */
         //epv->day_leafc_litfall_increment = epv->annmax_leafc * epc->leaf_turnover / 365.0;
         //epv->day_frootc_litfall_increment = epv->annmax_frootc * epc->froot_turnover / 365.0;
-        epv->annmax_leafc = 0.0;
-        epv->annmax_frootc = 0.0;
     }
     else
     {
@@ -23,8 +21,6 @@ void AnnualRates (const epconst_struct *epc, epvar_struct *epv)
         /* live wood turnover rates */
         //epv->day_livestemc_turnover_increment = epv->annmax_livestemc * epc->livewood_turnover / 365.0;
         //epv->day_livecrootc_turnover_increment = epv->annmax_livecrootc * epc->livewood_turnover / 365.0;
-        epv->annmax_livestemc = 0.0;
-        epv->annmax_livecrootc = 0.0;
     }
 
 }

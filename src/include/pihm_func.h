@@ -419,6 +419,9 @@ void            InitCropSV (crop_struct *);
 #ifdef _BGC_
 void            AdptStepTrnsp (elem_struct *, river_struct *, double, int);
 void            AnnualRates (const epconst_struct *, epvar_struct *);
+void            BackgroundLitterfall (const epconst_struct *, epvar_struct *,
+    const cstate_struct *, cflux_struct *, const nstate_struct *,
+    nflux_struct *, double);
 void            Bgc (pihm_struct, int, int, double);
 void            BGCSpinup (pihm_struct, char *);
 void            CanopyCond (const epconst_struct *, const daily_struct *,
@@ -430,13 +433,15 @@ void            DailyAllocation (cflux_struct *, cstate_struct *,
     nflux_struct *, nstate_struct *, epconst_struct *, epvar_struct *,
     ntemp_struct *);
 void            DailyCarbonStateUpdate (cflux_struct *, cstate_struct *, int,
-    int, int);
+    int, int, double);
 void            DailyNitrogenStateUpdate (nflux_struct *, nstate_struct *,
     int, int, int, double);
 void            DayMet (const stor_struct *, daily_struct *, int);
 void            Decomp (double, const epconst_struct *, epvar_struct *,
     cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
     ntemp_struct *);
+void            EvergreenPhenology (const epconst_struct *, epvar_struct *,
+    cstate_struct *);
 void            FRootLitFall (const epconst_struct *, double, cflux_struct *,
     nflux_struct *);
 void            FirstDay (const epconst_struct *, const cinit_struct *,
@@ -452,6 +457,9 @@ void            InitElemStor (stor_struct *, int, int);
 void            InitRiverStor (river_stor_struct *, int, int);
 void            LeafLitFall (const epconst_struct *, double, cflux_struct *,
     nflux_struct *);
+void            LivewoodTurnover (const epconst_struct *, epvar_struct *,
+    const cstate_struct *, cflux_struct *, const nstate_struct *,
+    nflux_struct *, double);
 void            MaintResp (const cstate_struct *, const nstate_struct *,
     const epconst_struct *, const daily_struct *, cflux_struct *,
     epvar_struct *);
@@ -459,9 +467,15 @@ void            MakeZeroFluxStruct (cflux_struct *, nflux_struct *);
 void            Mortality (const epconst_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
 void            NTransport (elem_struct *, river_struct *, double);
+void            OffsetLitterfall (const epconst_struct *, epvar_struct *,
+    const cstate_struct *, cflux_struct *, const nstate_struct *,
+    nflux_struct *, double);
+void            OnsetGrowth (const epconst_struct *, const epvar_struct *,
+    const cstate_struct *, cflux_struct *, const nstate_struct *,
+    nflux_struct *, double);
 void            Phenology (const epconst_struct *, const daily_struct *,
-    phenology_struct *, epvar_struct *, cstate_struct *, cflux_struct *,
-    nstate_struct *, nflux_struct *nf);
+    epvar_struct *, cstate_struct *, cflux_struct *, nstate_struct *,
+    nflux_struct *, double);
 void            Photosynthesis (psn_struct *);
 void            PrecisionControl (cstate_struct *cs, nstate_struct *ns);
 void            RadTrans (const cstate_struct *, const daily_struct *,
@@ -477,6 +491,8 @@ void            RestartOutput (cstate_struct *, nstate_struct *,
 void            RiverDayMet (const river_stor_struct *, river_daily_struct *,
     int);
 void            Save2Stor (pihm_struct, int, int);
+void            SeasonDecidPhenology (const epconst_struct *, const daily_struct *,
+    epvar_struct *, const cstate_struct *, double);
 void            SoilPsi (const soil_struct *, double, double *);
 void            TotalPhotosynthesis (const epconst_struct *,
     const daily_struct *, const pstate_struct *, epvar_struct *,

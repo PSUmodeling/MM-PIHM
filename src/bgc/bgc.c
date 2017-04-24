@@ -88,7 +88,6 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         ntemp_struct *nt;
         eflux_struct *ef;
         pstate_struct *ps;
-        phenology_struct *phen;
         psn_struct *psn_sun, *psn_shade;
         summary_struct *summary;
         double      vwc;
@@ -106,7 +105,6 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         nt = &pihm->elem[i].nt;
         ef = &pihm->elem[i].ef;
         ps = &pihm->elem[i].ps;
-        phen = &pihm->elem[i].phen;
         psn_sun = &pihm->elem[i].psn_sun;
         psn_shade = &pihm->elem[i].psn_shade;
         summary = &pihm->elem[i].summary;
@@ -119,10 +117,10 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         MakeZeroFluxStruct (cf, nf);
 
         /* Phenology fluxes */
-        Phenology (epc, daily, phen, epv, cs, cf, ns, nf);
+        Phenology (epc, daily, epv, cs, cf, ns, nf, dt);
 
         /* Test for the annual allocation day */
-        if (phen->remdays_litfall == 1.0)
+        if (epv->offset_flag == 1 && epv->offset_counter <= (int)round (dt))
         {
             annual_alloc = 1;
         }
@@ -195,20 +193,12 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
          * allocation occurs, but immobilization fluxes are updated normally */
         DailyAllocation (cf, cs, nf, ns, epc, epv, nt);
 
-        /* Reassess the annual turnover rates for livewood --> deadwood, and for
-         * evergreen leaf and fine root litterfall. This happens once each year,
-         * on the annual_alloc day (the last litterfall day) */
-        if (annual_alloc)
-        {
-            AnnualRates (epc, epv);
-        }
-
         /* Daily growth respiration */
         GrowthResp (epc, cf);
 
         /* Daily update of carbon state variables */
         DailyCarbonStateUpdate (cf, cs, annual_alloc, epc->woody,
-            epc->evergreen);
+            epc->evergreen, dt);
 
         /* Daily update of nitrogen state variables */
         DailyNitrogenStateUpdate (nf, ns, annual_alloc, epc->woody,

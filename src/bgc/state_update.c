@@ -12,7 +12,7 @@
 #include "pihm.h"
 
 void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
-    int woody, int evergreen)
+    int woody, int evergreen, double dt)
 {
     /* daily update of the carbon state variables */
 
@@ -27,46 +27,46 @@ void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
 
     /* Phenology fluxes */
     /* leaf and fine root transfer growth */
-    cs->leafc += cf->leafc_transfer_to_leafc;
-    cs->leafc_transfer -= cf->leafc_transfer_to_leafc;
-    cs->frootc += cf->frootc_transfer_to_frootc;
-    cs->frootc_transfer -= cf->frootc_transfer_to_frootc;
+    cs->leafc += cf->leafc_transfer_to_leafc * dt;
+    cs->leafc_transfer -= cf->leafc_transfer_to_leafc * dt;
+    cs->frootc += cf->frootc_transfer_to_frootc * dt;
+    cs->frootc_transfer -= cf->frootc_transfer_to_frootc * dt;
     if (woody)
     {
         /* Stem and coarse root transfer growth */
-        cs->livestemc += cf->livestemc_transfer_to_livestemc;
-        cs->livestemc_transfer -= cf->livestemc_transfer_to_livestemc;
-        cs->deadstemc += cf->deadstemc_transfer_to_deadstemc;
-        cs->deadstemc_transfer -= cf->deadstemc_transfer_to_deadstemc;
-        cs->livecrootc += cf->livecrootc_transfer_to_livecrootc;
-        cs->livecrootc_transfer -= cf->livecrootc_transfer_to_livecrootc;
-        cs->deadcrootc += cf->deadcrootc_transfer_to_deadcrootc;
-        cs->deadcrootc_transfer -= cf->deadcrootc_transfer_to_deadcrootc;
+        cs->livestemc += cf->livestemc_transfer_to_livestemc * dt;
+        cs->livestemc_transfer -= cf->livestemc_transfer_to_livestemc * dt;
+        cs->deadstemc += cf->deadstemc_transfer_to_deadstemc * dt;
+        cs->deadstemc_transfer -= cf->deadstemc_transfer_to_deadstemc * dt;
+        cs->livecrootc += cf->livecrootc_transfer_to_livecrootc * dt;
+        cs->livecrootc_transfer -= cf->livecrootc_transfer_to_livecrootc * dt;
+        cs->deadcrootc += cf->deadcrootc_transfer_to_deadcrootc * dt;
+        cs->deadcrootc_transfer -= cf->deadcrootc_transfer_to_deadcrootc * dt;
     }
     /* Leaf and fine root litterfall */
-    cs->litr1c += cf->leafc_to_litr1c;
-    cs->leafc -= cf->leafc_to_litr1c;
-    cs->litr2c += cf->leafc_to_litr2c;
-    cs->leafc -= cf->leafc_to_litr2c;
-    cs->litr3c += cf->leafc_to_litr3c;
-    cs->leafc -= cf->leafc_to_litr3c;
-    cs->litr4c += cf->leafc_to_litr4c;
-    cs->leafc -= cf->leafc_to_litr4c;
-    cs->litr1c += cf->frootc_to_litr1c;
-    cs->frootc -= cf->frootc_to_litr1c;
-    cs->litr2c += cf->frootc_to_litr2c;
-    cs->frootc -= cf->frootc_to_litr2c;
-    cs->litr3c += cf->frootc_to_litr3c;
-    cs->frootc -= cf->frootc_to_litr3c;
-    cs->litr4c += cf->frootc_to_litr4c;
-    cs->frootc -= cf->frootc_to_litr4c;
+    cs->litr1c += cf->leafc_to_litr1c * dt;
+    cs->leafc -= cf->leafc_to_litr1c * dt;
+    cs->litr2c += cf->leafc_to_litr2c * dt;
+    cs->leafc -= cf->leafc_to_litr2c * dt;
+    cs->litr3c += cf->leafc_to_litr3c * dt;
+    cs->leafc -= cf->leafc_to_litr3c * dt;
+    cs->litr4c += cf->leafc_to_litr4c * dt;
+    cs->leafc -= cf->leafc_to_litr4c * dt;
+    cs->litr1c += cf->frootc_to_litr1c * dt;
+    cs->frootc -= cf->frootc_to_litr1c * dt;
+    cs->litr2c += cf->frootc_to_litr2c * dt;
+    cs->frootc -= cf->frootc_to_litr2c * dt;
+    cs->litr3c += cf->frootc_to_litr3c * dt;
+    cs->frootc -= cf->frootc_to_litr3c * dt;
+    cs->litr4c += cf->frootc_to_litr4c * dt;
+    cs->frootc -= cf->frootc_to_litr4c * dt;
     /* livewood turnover fluxes */
     if (woody)
     {
-        cs->deadstemc += cf->livestemc_to_deadstemc;
-        cs->livestemc -= cf->livestemc_to_deadstemc;
-        cs->deadcrootc += cf->livecrootc_to_deadcrootc;
-        cs->livecrootc -= cf->livecrootc_to_deadcrootc;
+        cs->deadstemc += cf->livestemc_to_deadstemc * dt;
+        cs->livestemc -= cf->livestemc_to_deadstemc * dt;
+        cs->deadcrootc += cf->livecrootc_to_deadcrootc * dt;
+        cs->livecrootc -= cf->livecrootc_to_deadcrootc * dt;
     }
 
     /* Maintenance respiration fluxes */
@@ -295,50 +295,50 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
 
     /* Phenology fluxes */
     /* Leaf and fine root transfer growth */
-    ns->leafn += nf->leafn_transfer_to_leafn;
-    ns->leafn_transfer -= nf->leafn_transfer_to_leafn;
-    ns->frootn += nf->frootn_transfer_to_frootn;
-    ns->frootn_transfer -= nf->frootn_transfer_to_frootn;
+    ns->leafn += nf->leafn_transfer_to_leafn * dt;
+    ns->leafn_transfer -= nf->leafn_transfer_to_leafn * dt;
+    ns->frootn += nf->frootn_transfer_to_frootn * dt;
+    ns->frootn_transfer -= nf->frootn_transfer_to_frootn * dt;
     if (woody)
     {
         /* Stem and coarse root transfer growth */
-        ns->livestemn += nf->livestemn_transfer_to_livestemn;
-        ns->livestemn_transfer -= nf->livestemn_transfer_to_livestemn;
-        ns->deadstemn += nf->deadstemn_transfer_to_deadstemn;
-        ns->deadstemn_transfer -= nf->deadstemn_transfer_to_deadstemn;
-        ns->livecrootn += nf->livecrootn_transfer_to_livecrootn;
-        ns->livecrootn_transfer -= nf->livecrootn_transfer_to_livecrootn;
-        ns->deadcrootn += nf->deadcrootn_transfer_to_deadcrootn;
-        ns->deadcrootn_transfer -= nf->deadcrootn_transfer_to_deadcrootn;
+        ns->livestemn += nf->livestemn_transfer_to_livestemn * dt;
+        ns->livestemn_transfer -= nf->livestemn_transfer_to_livestemn * dt;
+        ns->deadstemn += nf->deadstemn_transfer_to_deadstemn * dt;
+        ns->deadstemn_transfer -= nf->deadstemn_transfer_to_deadstemn * dt;
+        ns->livecrootn += nf->livecrootn_transfer_to_livecrootn * dt;
+        ns->livecrootn_transfer -= nf->livecrootn_transfer_to_livecrootn * dt;
+        ns->deadcrootn += nf->deadcrootn_transfer_to_deadcrootn * dt;
+        ns->deadcrootn_transfer -= nf->deadcrootn_transfer_to_deadcrootn * dt;
     }
     /* Leaf and fine root litterfall */
-    ns->litr1n += nf->leafn_to_litr1n;
-    ns->leafn -= nf->leafn_to_litr1n;
-    ns->litr2n += nf->leafn_to_litr2n;
-    ns->leafn -= nf->leafn_to_litr2n;
-    ns->litr3n += nf->leafn_to_litr3n;
-    ns->leafn -= nf->leafn_to_litr3n;
-    ns->litr4n += nf->leafn_to_litr4n;
-    ns->leafn -= nf->leafn_to_litr4n;
-    ns->retransn += nf->leafn_to_retransn;      /* N retranslocation */
-    ns->leafn -= nf->leafn_to_retransn;
-    ns->litr1n += nf->frootn_to_litr1n;
-    ns->frootn -= nf->frootn_to_litr1n;
-    ns->litr2n += nf->frootn_to_litr2n;
-    ns->frootn -= nf->frootn_to_litr2n;
-    ns->litr3n += nf->frootn_to_litr3n;
-    ns->frootn -= nf->frootn_to_litr3n;
-    ns->litr4n += nf->frootn_to_litr4n;
-    ns->frootn -= nf->frootn_to_litr4n;
+    ns->litr1n += nf->leafn_to_litr1n * dt;
+    ns->leafn -= nf->leafn_to_litr1n * dt;
+    ns->litr2n += nf->leafn_to_litr2n * dt;
+    ns->leafn -= nf->leafn_to_litr2n * dt;
+    ns->litr3n += nf->leafn_to_litr3n * dt;
+    ns->leafn -= nf->leafn_to_litr3n * dt;
+    ns->litr4n += nf->leafn_to_litr4n * dt;
+    ns->leafn -= nf->leafn_to_litr4n * dt;
+    ns->retransn += nf->leafn_to_retransn * dt;      /* N retranslocation */
+    ns->leafn -= nf->leafn_to_retransn * dt;
+    ns->litr1n += nf->frootn_to_litr1n * dt;
+    ns->frootn -= nf->frootn_to_litr1n * dt;
+    ns->litr2n += nf->frootn_to_litr2n * dt;
+    ns->frootn -= nf->frootn_to_litr2n * dt;
+    ns->litr3n += nf->frootn_to_litr3n * dt;
+    ns->frootn -= nf->frootn_to_litr3n * dt;
+    ns->litr4n += nf->frootn_to_litr4n * dt;
+    ns->frootn -= nf->frootn_to_litr4n * dt;
     /* live wood turnover to dead wood */
-    ns->deadstemn += nf->livestemn_to_deadstemn;
-    ns->livestemn -= nf->livestemn_to_deadstemn;
-    ns->retransn += nf->livestemn_to_retransn;  /* N retranslocation */
-    ns->livestemn -= nf->livestemn_to_retransn;
-    ns->deadcrootn += nf->livecrootn_to_deadcrootn;
-    ns->livecrootn -= nf->livecrootn_to_deadcrootn;
-    ns->retransn += nf->livecrootn_to_retransn; /* N retranslocation */
-    ns->livecrootn -= nf->livecrootn_to_retransn;
+    ns->deadstemn += nf->livestemn_to_deadstemn * dt;
+    ns->livestemn -= nf->livestemn_to_deadstemn * dt;
+    ns->retransn += nf->livestemn_to_retransn * dt;  /* N retranslocation */
+    ns->livestemn -= nf->livestemn_to_retransn * dt;
+    ns->deadcrootn += nf->livecrootn_to_deadcrootn * dt;
+    ns->livecrootn -= nf->livecrootn_to_deadcrootn * dt;
+    ns->retransn += nf->livecrootn_to_retransn * dt; /* N retranslocation */
+    ns->livecrootn -= nf->livecrootn_to_retransn * dt;
 
     /* Nitrogen deposition */
     ns->sminn += nf->ndep_to_sminn * dt;
