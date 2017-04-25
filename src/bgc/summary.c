@@ -1,14 +1,3 @@
-
-/*
- * summary.c
- * summary variables for potential output
- *
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
 void CSummary (cflux_struct *cf, cstate_struct *cs, summary_struct *summary)
@@ -16,11 +5,10 @@ void CSummary (cflux_struct *cf, cstate_struct *cs, summary_struct *summary)
     double          gpp, mr, gr, hr, fire;
     double          npp, nep, nee;
 
-    /* calculate daily NPP, positive for net growth */
+    /* calculate NPP, positive for net growth */
     /* NPP = Gross PSN - Maintenance Resp - Growth Resp */
     gpp = cf->psnsun_to_cpool + cf->psnshade_to_cpool;
-    mr = cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr +
-        cf->livestem_mr + cf->livecroot_mr;
+    mr = cf->leaf_mr + cf->froot_mr + cf->livestem_mr + cf->livecroot_mr;
     gr = cf->cpool_leaf_gr + cf->cpool_leaf_storage_gr +
         cf->transfer_leaf_gr + cf->cpool_froot_gr +
         cf->cpool_froot_storage_gr + cf->transfer_froot_gr +
@@ -32,7 +20,7 @@ void CSummary (cflux_struct *cf, cstate_struct *cs, summary_struct *summary)
         cf->cpool_deadcroot_storage_gr + cf->transfer_deadcroot_gr;
     npp = gpp - mr - gr;
 
-    /* calculate daily NEP, positive for net sink */
+    /* calculate NEP, positive for net sink */
     /* NEP = NPP - Autotrophic Resp */
     hr = cf->litr1_hr + cf->litr2_hr + cf->litr4_hr + cf->soil1_hr +
         cf->soil2_hr + cf->soil3_hr + cf->soil4_hr;
@@ -56,14 +44,14 @@ void CSummary (cflux_struct *cf, cstate_struct *cs, summary_struct *summary)
         cf->m_cwdc_to_fire;
     nee = nep - fire;
 
-    summary->daily_npp = npp;
-    summary->daily_nep = nep;
-    summary->daily_nee = nee;
-    summary->daily_gpp = gpp;
-    summary->daily_mr = mr;
-    summary->daily_gr = gr;
-    summary->daily_hr = hr;
-    summary->daily_fire = fire;
+    summary->npp = npp;
+    summary->nep = nep;
+    summary->nee = nee;
+    summary->gpp = gpp;
+    summary->mr = mr;
+    summary->gr = gr;
+    summary->hr = hr;
+    summary->fire = fire;
     summary->cum_npp += npp;
     summary->cum_nep += nep;
     summary->cum_nee += nee;
@@ -74,7 +62,7 @@ void CSummary (cflux_struct *cf, cstate_struct *cs, summary_struct *summary)
     summary->cum_fire += fire;
 
     /* other flux summary variables */
-    summary->daily_litfallc =
+    summary->litfallc =
         cf->m_leafc_to_litr1c + cf->m_leafc_to_litr2c +
         cf->m_leafc_to_litr3c + cf->m_leafc_to_litr4c +
         cf->m_frootc_to_litr1c + cf->m_frootc_to_litr2c +

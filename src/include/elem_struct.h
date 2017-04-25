@@ -2435,18 +2435,18 @@ typedef struct psn_struct
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * daily_npp                double      = GPP - Rmaint - Rgrowth
+ * npp                      double      = GPP - Rmaint - Rgrowth
+ *                                          [kgC m-2 day-1]
+ * nep                      double      = NPP - Rheterotroph [kgC m-2 day-1]
+ * nee                      double      = NEP - fire losses [kgC m-2 day-1]
+ * gpp                      double      gross PSN source [kgC m-2 day-1]
+ * mr                       double      maintenance respiration
  *                                        [kgC m-2 day-1]
- * daily_nep                double      = NPP - Rheterotroph [kgC m-2 day-1]
- * daily_nee                double      = NEP - fire losses [kgC m-2 day-1]
- * daily_gpp                double      gross PSN source [kgC m-2 day-1]
- * daily_mr                 double      maintenance respiration
+ * gr                       double      growth respiration [kgC m-2 day-1]
+ * hr                       double      heterotrophic respiration
  *                                        [kgC m-2 day-1]
- * daily_gr                 double      growth respiration [kgC m-2 day-1]
- * daily_hr                 double      heterotrophic respiration
- *                                        [kgC m-2 day-1]
- * daily_fire               double      fire losses [kgC m-2 day-1]
- * daily_litfallc           double      total litterfall [kgC m-2 day-1]
+ * fire                     double      fire losses [kgC m-2 day-1]
+ * litfallc                 double      total litterfall [kgC m-2 day-1]
  * cum_npp                  double      Summed over entire simulation
  *                                        [kgC m-2]
  * cum_nep                  double      Summed over entire simulation
@@ -2471,15 +2471,15 @@ typedef struct psn_struct
  ****************************************************************************/
 typedef struct summary_struct
 {
-    double          daily_npp;
-    double          daily_nep;
-    double          daily_nee;
-    double          daily_gpp;
-    double          daily_mr;
-    double          daily_gr;
-    double          daily_hr;
-    double          daily_fire;
-    double          daily_litfallc;
+    double          npp;
+    double          nep;
+    double          nee;
+    double          gpp;
+    double          mr;
+    double          gr;
+    double          hr;
+    double          fire;
+    double          litfallc;
     double          cum_npp;
     double          cum_nep;
     double          cum_nee;

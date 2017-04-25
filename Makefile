@@ -146,6 +146,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/radtrans.c\
 	bgc/restart_io.c\
 	bgc/soilpsi.c\
+	bgc/summary.c\
 	bgc/state_update.c\
 	bgc/zero_srcsnk.c\
 	noah/lsm_func.c\
@@ -155,7 +156,6 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	spa/spa.c
 	#bgc/metarr_init.c
 	#bgc/ntransport.c
-	#bgc/summary.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-bgc
   MSG = "... Compiling Flux-PIHM-BGC ..."

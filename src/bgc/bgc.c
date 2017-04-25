@@ -195,7 +195,7 @@ void Bgc (pihm_struct pihm, int t, double dt, int first_balance)
         /* Test for nitrogen balance */
         CheckNitrogenBalance (ns, &epv->old_n_balance, first_balance);
 
-        ///* Calculate carbon summary variables */
-        //CSummary (cf, cs, summary);
+        /* Calculate carbon summary variables */
+        CSummary (cf, cs, summary);
     }
 }

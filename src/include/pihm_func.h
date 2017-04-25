@@ -431,9 +431,9 @@ void            CanopyCond (const epconst_struct *, epvar_struct *,
     eflux_struct *, pstate_struct *);
 void            CarbonStateUpdate (cflux_struct *, cstate_struct *, int,
     int, int, double);
-//void            CheckCarbonBalance (cstate_struct *, double *, int);
-//void            CheckNitrogenBalance (nstate_struct *, double *, int);
-//void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
+void            CheckCarbonBalance (cstate_struct *, double *, int);
+void            CheckNitrogenBalance (nstate_struct *, double *, int);
+void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
 void            Decomp (double, const epconst_struct *, epvar_struct *,
     cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
     ntemp_struct *, double);
