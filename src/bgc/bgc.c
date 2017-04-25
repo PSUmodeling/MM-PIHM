@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Bgc (pihm_struct pihm, int t, int simstart, double dt)
+void Bgc (pihm_struct pihm, int t, double dt, int first_balance)
 {
 
     int             i;
@@ -189,11 +189,11 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
          * other proportional fluxes */
         Mortality (epc, cs, cf, ns, nf, dt);
 
-        ///* Test for carbon balance */
-        //CheckCarbonBalance (cs, &epv->old_c_balance, first_day);
+        /* Test for carbon balance */
+        CheckCarbonBalance (cs, &epv->old_c_balance, first_balance);
 
-        ///* Test for nitrogen balance */
-        //CheckNitrogenBalance (ns, &epv->old_n_balance, first_day);
+        /* Test for nitrogen balance */
+        CheckNitrogenBalance (ns, &epv->old_n_balance, first_balance);
 
         ///* Calculate carbon summary variables */
         //CSummary (cf, cs, summary);

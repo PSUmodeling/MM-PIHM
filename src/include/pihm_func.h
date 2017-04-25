@@ -425,7 +425,7 @@ void            Allocation (cflux_struct *, cstate_struct *, nflux_struct *,
 void            BackgroundLitterfall (const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, const nstate_struct *,
     nflux_struct *, double);
-void            Bgc (pihm_struct, int, int, double);
+void            Bgc (pihm_struct, int, double, int);
 //void            BGCSpinup (pihm_struct, char *);
 void            CanopyCond (const epconst_struct *, epvar_struct *,
     eflux_struct *, pstate_struct *);

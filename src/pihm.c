@@ -2,6 +2,7 @@
 
 void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
 {
+    int             first_balance;
     /* Apply forcing */
     ApplyForcing (&pihm->forc, pihm->elem, pihm->riv, t
 #ifdef _NOAH_
@@ -26,7 +27,8 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
     /* Run Bgc module hourly */
     if ((t - pihm->ctrl.starttime) % 3600 == 0)
     {
-        Bgc (pihm, t, pihm->ctrl.starttime, 3600);
+        first_balance = (t == pihm->ctrl.starttime) ? 1 : 0;
+        Bgc (pihm, t, 3600, first_balance);
     }
 #endif
 
