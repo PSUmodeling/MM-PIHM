@@ -145,16 +145,16 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
          * allocation occurs, but immobilization fluxes are updated normally */
         Allocation (cf, cs, nf, ns, epc, epv, nt, dt);
 
-        ///* Daily growth respiration */
-        //GrowthResp (epc, cf);
+        /* Growth respiration */
+        GrowthResp (epc, cf);
 
-        ///* Daily update of carbon state variables */
-        //DailyCarbonStateUpdate (cf, cs, annual_alloc, epc->woody,
-        //    epc->evergreen, dt);
+        /* Update of carbon state variables */
+        CarbonStateUpdate (cf, cs, annual_alloc, epc->woody, epc->evergreen,
+            dt);
 
-        ///* Daily update of nitrogen state variables */
-        //DailyNitrogenStateUpdate (nf, ns, annual_alloc, epc->woody,
-        //    epc->evergreen, dt);
+        /* Update of nitrogen state variables */
+        NitrogenStateUpdate (nf, ns, annual_alloc, epc->woody, epc->evergreen,
+            dt);
     }
 
     /* Calculate N leaching loss.  This is a special state variable update

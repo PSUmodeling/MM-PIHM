@@ -429,13 +429,11 @@ void            Bgc (pihm_struct, int, int, double);
 //void            BGCSpinup (pihm_struct, char *);
 void            CanopyCond (const epconst_struct *, epvar_struct *,
     eflux_struct *, pstate_struct *);
+void            CarbonStateUpdate (cflux_struct *, cstate_struct *, int,
+    int, int, double);
 //void            CheckCarbonBalance (cstate_struct *, double *, int);
 //void            CheckNitrogenBalance (nstate_struct *, double *, int);
 //void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
-//void            DailyCarbonStateUpdate (cflux_struct *, cstate_struct *, int,
-//    int, int, double);
-//void            DailyNitrogenStateUpdate (nflux_struct *, nstate_struct *,
-//    int, int, int, double);
 void            Decomp (double, const epconst_struct *, epvar_struct *,
     cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
     ntemp_struct *, double);
@@ -447,7 +445,7 @@ void            FirstDay (const epconst_struct *, const cinit_struct *,
     epvar_struct *, cstate_struct *, nstate_struct *);
 double          GetCO2 (tsdata_struct, int);
 double          GetNdep (tsdata_struct, int);
-//void            GrowthResp (epconst_struct *, cflux_struct *);
+void            GrowthResp (epconst_struct *, cflux_struct *);
 void            InitBGC (elem_struct *, river_struct *, const epctbl_struct *,
     const ctrl_struct *);
 void            InitBGCVar (elem_struct *, river_struct *, cinit_struct,
@@ -464,6 +462,8 @@ void            MakeZeroFluxStruct (cflux_struct *, nflux_struct *);
 //void            Mortality (const epconst_struct *, cstate_struct *,
 //    cflux_struct *, nstate_struct *, nflux_struct *);
 //void            NTransport (elem_struct *, river_struct *, double);
+void            NitrogenStateUpdate (nflux_struct *, nstate_struct *,
+    int, int, int, double);
 void            OffsetLitterfall (const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, const nstate_struct *,
     nflux_struct *, double);

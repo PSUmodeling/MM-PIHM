@@ -134,6 +134,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/firstday.c\
 	bgc/get_co2.c\
 	bgc/get_ndep.c\
+	bgc/growth_resp.c\
 	bgc/maint_resp.c\
 	bgc/make_zero_flux_struct.c\
 	bgc/phenology.c\
@@ -143,6 +144,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/radtrans.c\
 	bgc/restart_io.c\
 	bgc/soilpsi.c\
+	bgc/state_update.c\
 	bgc/zero_srcsnk.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\
@@ -150,11 +152,9 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	noah/noah.c\
 	spa/spa.c
 	#bgc/check_balance.c
-	#bgc/growth_resp.c
 	#bgc/metarr_init.c
 	#bgc/mortality.c
 	#bgc/ntransport.c
-	#bgc/state_update.c
 	#bgc/summary.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-bgc
