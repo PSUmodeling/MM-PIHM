@@ -2254,8 +2254,6 @@ typedef struct ntemp_struct
  * t_scalar                 double      decomp temperature scalar [-]
  * w_scalar                 double      decomp water scalar [-]
  * rate_scalar              double      decomp combined scalar [-]
- * daily_gross_nmin         double      daily gross N mineralization
- *                                        [kgN m-2 d-1]
  * daily_gross_nimmob       double      daily gross N immobilization
  *                                        [kgN m-2 d-1]
  * daily_net_nmin           double      daily net N mineralization
@@ -2318,7 +2316,6 @@ typedef struct epvar_struct
     double          t_scalar;
     double          w_scalar;
     double          rate_scalar;
-    double          daily_gross_nmin;
     double          daily_gross_nimmob;
     double          daily_net_nmin;
     double          fpi;

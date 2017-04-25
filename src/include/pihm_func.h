@@ -436,9 +436,9 @@ void            CanopyCond (const epconst_struct *, epvar_struct *,
 //    int, int, double);
 //void            DailyNitrogenStateUpdate (nflux_struct *, nstate_struct *,
 //    int, int, int, double);
-//void            Decomp (double, const epconst_struct *, epvar_struct *,
-//    cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
-//    ntemp_struct *);
+void            Decomp (double, const epconst_struct *, epvar_struct *,
+    cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
+    ntemp_struct *, double);
 void            EvergreenPhenology (const epconst_struct *, epvar_struct *,
     cstate_struct *);
 void            FRootLitFall (const epconst_struct *, double, cflux_struct *,

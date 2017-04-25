@@ -92,12 +92,12 @@ void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
 
     /* Litter decomposition fluxes */
     /* Fluxes out of coarse woody debris into litter pools */
-    cs->litr2c += cf->cwdc_to_litr2c;
-    cs->cwdc -= cf->cwdc_to_litr2c;
-    cs->litr3c += cf->cwdc_to_litr3c;
-    cs->cwdc -= cf->cwdc_to_litr3c;
-    cs->litr4c += cf->cwdc_to_litr4c;
-    cs->cwdc -= cf->cwdc_to_litr4c;
+    cs->litr2c += cf->cwdc_to_litr2c * dt;
+    cs->cwdc -= cf->cwdc_to_litr2c * dt;
+    cs->litr3c += cf->cwdc_to_litr3c * dt;
+    cs->cwdc -= cf->cwdc_to_litr3c * dt;
+    cs->litr4c += cf->cwdc_to_litr4c * dt;
+    cs->cwdc -= cf->cwdc_to_litr4c * dt;
     /* Fluxes out of labile litter pool */
     cs->litr1_hr_snk += cf->litr1_hr;
     cs->litr1c -= cf->litr1_hr;
@@ -343,17 +343,17 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
     /* Nitrogen deposition */
     ns->sminn += nf->ndep_to_sminn * dt;
     ns->ndep_src += nf->ndep_to_sminn * dt;
-    ns->sminn += nf->nfix_to_sminn;
-    ns->nfix_src += nf->nfix_to_sminn;
+    ns->sminn += nf->nfix_to_sminn * dt;
+    ns->nfix_src += nf->nfix_to_sminn * dt;
 
     /* Litter and soil decomposition fluxes */
     /* Fluxes out of coarse woody debris into litter pools */
-    ns->litr2n += nf->cwdn_to_litr2n;
-    ns->cwdn -= nf->cwdn_to_litr2n;
-    ns->litr3n += nf->cwdn_to_litr3n;
-    ns->cwdn -= nf->cwdn_to_litr3n;
-    ns->litr4n += nf->cwdn_to_litr4n;
-    ns->cwdn -= nf->cwdn_to_litr4n;
+    ns->litr2n += nf->cwdn_to_litr2n * dt;
+    ns->cwdn -= nf->cwdn_to_litr2n * dt;
+    ns->litr3n += nf->cwdn_to_litr3n * dt;
+    ns->cwdn -= nf->cwdn_to_litr3n * dt;
+    ns->litr4n += nf->cwdn_to_litr4n * dt;
+    ns->cwdn -= nf->cwdn_to_litr4n * dt;
     /* N fluxes for immobilization and mineralization */
     ns->soil1n += nf->litr1n_to_soil1n;
     ns->litr1n -= nf->litr1n_to_soil1n;
