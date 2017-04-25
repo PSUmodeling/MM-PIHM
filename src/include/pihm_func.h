@@ -473,7 +473,7 @@ void            OnsetGrowth (const epconst_struct *, const epvar_struct *,
 void            Phenology (const epconst_struct *, epvar_struct *,
     const estate_struct *, cstate_struct *, cflux_struct *, nstate_struct *,
     nflux_struct *, double);
-//void            Photosynthesis (psn_struct *);
+void            Photosynthesis (psn_struct *);
 void            PrecisionControl (cstate_struct *cs, nstate_struct *ns);
 void            RadTrans (const cstate_struct *, eflux_struct *,
     pstate_struct *, const epconst_struct *, epvar_struct *);
@@ -488,9 +488,9 @@ void            ReadEPC (epctbl_struct *);
 void            SeasonDecidPhenology (const epconst_struct *, epvar_struct *,
     const estate_struct *, const cstate_struct *, double);
 void            SoilPsi (const soil_struct *, double, double *);
-//void            TotalPhotosynthesis (const epconst_struct *,
-//    const daily_struct *, const pstate_struct *, epvar_struct *,
-//    cflux_struct *, psn_struct *, psn_struct *);
+void            TotalPhotosynthesis (const epconst_struct *, epvar_struct *,
+    const estate_struct *, const pstate_struct *, cflux_struct *,
+    psn_struct *, psn_struct *);
 //void            WriteBGCIC (char *, elem_struct *, river_struct *);
 void            ZeroSrcSnk (cstate_struct *, nstate_struct *,
     summary_struct *);

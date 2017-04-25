@@ -135,6 +135,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/maint_resp.c\
 	bgc/make_zero_flux_struct.c\
 	bgc/phenology.c\
+	bgc/photosynthesis.c\
 	bgc/precision_control.c\
 	bgc/presim_state_init.c\
 	bgc/radtrans.c\
@@ -153,7 +154,6 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	#bgc/metarr_init.c
 	#bgc/mortality.c
 	#bgc/ntransport.c
-	#bgc/photosynthesis.c
 	#bgc/state_update.c
 	#bgc/summary.c
   MODULE_HEADERS_ = include/spa.h

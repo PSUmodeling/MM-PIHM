@@ -120,19 +120,18 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
             CanopyCond (epc, epv, ef, ps);
         }
 
-        ///* Do photosynthesis only when it is part of the current growth season, as
-        // * defined by the remdays_curgrowth flag.  This keeps the occurrence of
-        // * new growth consistent with the treatment of litterfall and
-        // * allocation */
-
-        //if (cs->leafc && !epv->dormant_flag && daily->dayl)
-        //{
-        //    TotalPhotosynthesis (epc, daily, ps, epv, cf, psn_sun, psn_shade);
-        //}
-        //else
-        //{
-        //    epv->assim_sun = epv->assim_shade = 0.0;
-        //}
+        /* Do photosynthesis only when it is part of the current growth season, as
+         * defined by the remdays_curgrowth flag.  This keeps the occurrence of
+         * new growth consistent with the treatment of litterfall and
+         * allocation */
+        if (cs->leafc && !epv->dormant_flag && ef->soldn > 0.0)
+        {
+            TotalPhotosynthesis (epc, epv, es, ps, cf, psn_sun, psn_shade);
+        }
+        else
+        {
+            epv->assim_sun = epv->assim_shade = 0.0;
+        }
 
         //nf->ndep_to_sminn = ndep;
         //nf->nfix_to_sminn = nfix;
