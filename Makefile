@@ -137,6 +137,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/presim_state_init.c\
 	bgc/radtrans.c\
 	bgc/restart_io.c\
+	bgc/soilpsi.c\
 	bgc/zero_srcsnk.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\
@@ -153,7 +154,6 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	#bgc/mortality.c
 	#bgc/ntransport.c
 	#bgc/photosynthesis.c
-	#bgc/soilpsi.c
 	#bgc/state_update.c
 	#bgc/summary.c
   MODULE_HEADERS_ = include/spa.h

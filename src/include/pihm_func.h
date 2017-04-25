@@ -487,7 +487,7 @@ void            ReadEPC (epctbl_struct *);
 //    epvar_struct *, bgcic_struct *);
 void            SeasonDecidPhenology (const epconst_struct *, epvar_struct *,
     const estate_struct *, const cstate_struct *, double);
-//void            SoilPsi (const soil_struct *, double, double *);
+void            SoilPsi (const soil_struct *, double, double *);
 //void            TotalPhotosynthesis (const epconst_struct *,
 //    const daily_struct *, const pstate_struct *, epvar_struct *,
 //    cflux_struct *, psn_struct *, psn_struct *);

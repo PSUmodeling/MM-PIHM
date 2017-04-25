@@ -53,31 +53,31 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         epconst_struct *epc;
         epvar_struct *epv;
         soil_struct *soil;
+        wstate_struct *ws;
+        estate_struct *es;
+        eflux_struct *ef;
+        pstate_struct *ps;
         cstate_struct *cs;
         cflux_struct *cf;
         nstate_struct *ns;
         nflux_struct *nf;
         ntemp_struct *nt;
-        estate_struct *es;
-        eflux_struct *ef;
-        pstate_struct *ps;
         psn_struct *psn_sun, *psn_shade;
         summary_struct *summary;
-        double      vwc;
-        double      droot;
         int         annual_alloc;
 
         epc = &pihm->elem[i].epc;
         epv = &pihm->elem[i].epv;
         soil = &pihm->elem[i].soil;
+        ws = &pihm->elem[i].ws;
+        es = &pihm->elem[i].es;
+        ef = &pihm->elem[i].ef;
+        ps = &pihm->elem[i].ps;
         cs = &pihm->elem[i].cs;
         cf = &pihm->elem[i].cf;
         ns = &pihm->elem[i].ns;
         nf = &pihm->elem[i].nf;
         nt = &pihm->elem[i].nt;
-        es = &pihm->elem[i].es;
-        ef = &pihm->elem[i].ef;
-        ps = &pihm->elem[i].ps;
         psn_sun = &pihm->elem[i].psn_sun;
         psn_shade = &pihm->elem[i].psn_shade;
         summary = &pihm->elem[i].summary;
@@ -107,28 +107,8 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
          * canopy radiation interception and transmission */
         RadTrans (cs, ef, ps, epc, epv);
 
-        ///* Update the ann max LAI for annual diagnostic output */
-        //if (ps->proj_lai > epv->ytd_maxplai)
-        //{
-        //    epv->ytd_maxplai = ps->proj_lai;
-        //}
-
-        ///* Soil water potential */
-        //vwc = daily->avg_sh2o[0] * ps->sldpth[0];
-        //droot = ps->sldpth[0];
-
-        //if (ps->nsoil > 1)
-        //{
-        //    for (k = 1; k < ps->nsoil; k++)
-        //    {
-        //        vwc += daily->avg_sh2o[k] * ps->sldpth[k];
-        //        droot += ps->sldpth[k];
-        //    }
-        //}
-
-        //vwc /= droot;
-
-        //SoilPsi (soil, vwc, &epv->psi);
+        /* Soil water potential */
+        SoilPsi (soil, ws->soilm / soil->depth, &epv->psi);
 
         ///* Maintenance respiration */
         //MaintResp (cs, ns, epc, daily, cf, epv);
