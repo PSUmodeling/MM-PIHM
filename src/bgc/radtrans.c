@@ -1,10 +1,10 @@
 #include "pihm.h"
 
-void RadTrans (const cstate_struct *cs, const daily_struct *daily,
-    eflux_struct *ef, pstate_struct *ps, const epconst_struct *epc,
-    epvar_struct *epv)
+void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
+    const epconst_struct *epc, epvar_struct *epv)
 {
-    /* Calculate the projected leaf area and SLA for sun and shade fractions
+    /*
+     * Calculate the projected leaf area and SLA for sun and shade fractions
      * and the canopy transmission and absorption of shortwave radiation
      * based on the Beer's Law assumption of radiation attenuation as a
      * function of projected LAI.
@@ -25,9 +25,7 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
      * coefficients for the shortwave and PAR spectra from the values given for the
      * entire shortwave range (from Jones, H.G., 1992. Plants and Microclimate,
      * 2nd  Edition. Cambridge University Press. pp. 30-38.) These conversions
-     * are approximated from the information given in Jones.
-     */
-
+     * are approximated from the information given in Jones. */
     if (cs->leafc > 0.0)
     {
         /* Calculate whole-canopy projected and all-sided LAI */
@@ -72,18 +70,17 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
 
     /* Calculate total shortwave absorbed */
     k_sw = k;
-    albedo_sw = daily->avg_albedo;
+    albedo_sw = ps->albedo;
 
-    sw = ((daily->avg_soldn > 0.0) ? daily->avg_soldn : 0.0) *
-        (1.0 - albedo_sw);
+    sw = ((ef->soldn > 0.0) ? ef->soldn : 0.0) * (1.0 - albedo_sw);
     swabs = sw * (1.0 - exp (-k_sw * proj_lai));
     swtrans = sw - swabs;
 
     /* Calculate PAR absorbed */
     k_par = k * 1.0;
-    albedo_par = daily->avg_albedo / 3.0;
+    albedo_par = ps->albedo / 3.0;
 
-    par = ((daily->avg_soldn > 0.0) ? daily->avg_soldn : 0.0) *
+    par = ((ef->soldn > 0.0) ? ef->soldn : 0.0) *
         RAD2PAR * (1.0 - albedo_par);
     parabs = par * (1.0 - exp (-k_par * proj_lai));
 
@@ -92,11 +89,10 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
     swabs_plaisun = k_sw * sw * ps->plaisun;
     swabs_plaishade = swabs - swabs_plaisun;
 
-    /* FIXED 02/05/04 */
     if (swabs_plaishade < 0.0)
     {
         swabs_plaisun = swabs;
-        swabs_plaishade = 0;
+        swabs_plaishade = 0.0;
     }
 
     /* Convert this to the shortwave absorbed per unit LAI in the sunlit and
@@ -116,7 +112,6 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
     parabs_plaisun = k_par * par * ps->plaisun;
     parabs_plaishade = parabs - parabs_plaisun;
 
-    /* FIXED 02/05/04 */
     if (parabs_plaishade < 0.0)
     {
         parabs_plaisun = parabs;

@@ -67,30 +67,6 @@ typedef struct river_wflux_struct
     double          rivflow[NUM_RIVFLX];
 } river_wflux_struct;
 
-#ifdef _BGC_
-/*****************************************************************************
- * Storage of daily average (only used in Flux-PIHM-BGC)
- * ---------------------------------------------------------------------------
- * Variables                Type        Description
- * ==========               ==========  ====================
- * flag                     int*        flag indicating storage status
- * stage                    double      river stage [m]
- * gw                       double      groundwater level [m]
- * rivflow                  double[]    river fluxes [m3 s-1]
- ****************************************************************************/
-typedef struct river_stor_struct
-{
-    int            *flag;
-    double         *prev_stage;
-    double         *stage;
-    double         *avg_stage;
-    double         *prev_gw;
-    double         *gw;
-    double         *avg_gw;
-    double         *rivflow[NUM_RIVFLX];
-} river_stor_struct;
-#endif
-
 /*****************************************************************************
  * River shape parameters
  * ---------------------------------------------------------------------------
@@ -162,32 +138,6 @@ typedef struct river_ic_struct
     double          stage;
     double          gw;
 } river_ic_struct;
-
-#ifdef _DAILY_
-/*****************************************************************************
- * River daily average
- * ---------------------------------------------------------------------------
- * Variables                Type        Description
- * ==========               ==========  ====================
- * counter                  int         counter used for averaging
- * avg_stage                double      daily average river stage [m]
- * avg_gw                   double      daily average groundwater level [m]
- * avg_rivflow              double[]    daily average river flux [m3 s-1]
- ****************************************************************************/
-typedef struct river_daily_struct
-{
-    int             counter;
-
-    double          prev_stage;
-    double          stage;
-    double          avg_stage;
-    double          prev_gw;
-    double          gw;
-    double          avg_gw;
-
-    double          avg_rivflow[NUM_RIVFLX];
-} river_daily_struct;
-#endif
 
 #ifdef _BGC_
 /*****************************************************************************
@@ -261,17 +211,14 @@ typedef struct river_struct
     river_wflux_struct wf;
     river_ic_struct ic;
     river_bc_struct bc;
-#ifdef _DAILY_
-    river_daily_struct daily;
-#endif
 #ifdef _CYCLES_
+    river_daily_struct daily;
     river_solute_struct NO3sol;
     river_solute_struct NH4sol;
     double          NO3Leaching[4];
     double          NH4Leaching[4];
 #endif
 #ifdef _BGC_
-    river_stor_struct stor;     /* meteorological data array */
     river_nstate_struct ns;
     river_nflux_struct nf;
     river_solute_struct nsol;

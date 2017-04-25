@@ -73,19 +73,6 @@ void InitBGC (elem_struct *elem, river_struct *riv,
         elem[i].epc.deadwood_fucel = epctbl->deadwood_fucel[epc_ind];
         elem[i].epc.deadwood_fscel = epctbl->deadwood_fscel[epc_ind];
         elem[i].epc.deadwood_flig = epctbl->deadwood_flig[epc_ind];
-
-        if (ctrl->bgc_spinup)
-        {
-            InitElemStor (&elem[i].stor, ctrl->spinupstart, ctrl->spinupend);
-        }
-    }
-
-    for (i = 0; i < nriver; i++)
-    {
-        if (ctrl->bgc_spinup)
-        {
-            InitRiverStor (&riv[i].stor, ctrl->spinupstart, ctrl->spinupend);
-        }
     }
 }
 
@@ -148,15 +135,14 @@ void InitBGCVar (elem_struct *elem, river_struct *riv, cinit_struct cinit,
                 elem[i].epv.dormant_flag = 1.0;
             }
 
-            //elem[i].epv.days_active = 0.;
-            elem[i].epv.onset_flag = 0.0;
-            elem[i].epv.onset_counter = 0.0;
-            elem[i].epv.onset_gddflag = 0.0;
+            elem[i].epv.onset_flag = 0;
+            elem[i].epv.onset_counter = 0;
+            elem[i].epv.onset_gddflag = 0;
             elem[i].epv.onset_fdd = 0.0;
             elem[i].epv.onset_gdd = 0.0;
             elem[i].epv.onset_swi = 0.0;
-            elem[i].epv.offset_flag = 0.0;
-            elem[i].epv.offset_counter = 0.0;
+            elem[i].epv.offset_flag = 0;
+            elem[i].epv.offset_counter = 0;
             elem[i].epv.offset_fdd = 0.0;
             elem[i].epv.offset_swi = 0.0;
             elem[i].epv.annavg_t2m = elem[i].ps.tbot;
@@ -178,7 +164,6 @@ void InitBGCVar (elem_struct *elem, river_struct *riv, cinit_struct cinit,
 
     for (i = 0; i < nriver; i++)
     {
-        //riv[i].nleached_snk = 0.0;
         riv[i].nf.sminn_leached = 0.0;
     }
 }

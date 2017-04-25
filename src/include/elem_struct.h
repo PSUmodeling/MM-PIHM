@@ -1267,72 +1267,6 @@ typedef struct daily_struct
 
 #ifdef _BGC_
 /*****************************************************************************
- * Storage of daily average (only used in Flux-PIHM-BGC)
- * ---------------------------------------------------------------------------
- * Variables                Type        Description
- * ==========               ==========  ====================
- * flag                     int*        flag indicating storage status
- * dayl                     double*     day length [s]
- * prev_dayl                double*     day length of previous day [s]
- * tmax                     double*     daily maximum air temperature [K]
- * tmin                     double*     daily minimum air temperature [K]
- * sfctmp                   double*     daily average air temperature [K]
- * tday                     double*     daytime average air temperature [K]
- * tnight                   double*     nighttime average air temperature [K]
- * q2d                      double*     daily average mixing ratio deficit
- *                                *       [kg kg-1]
- * sfcprs                   double*     daily average air pressure [Pa]
- * avg_soldn                double*     daytime average downward solar
- *                                *       radiation [W m-2]
- * avg_stc[MAXLYR]          double*     daily average soil temperature [K]
- * avg_sh2o                 double*     daily average unfrozen soil moisture
- *                                *       content [m3 m-3]
- * avg_surf                 double*     daily average surface water level [m]
- * avg_unsat                double*     daily average unsaturated water
- *                                *       storage [m]
- * avg_gw                   double*     daily average groundwater level [m]
- * avg_albedo               double*     daily average surface albedo [-]
- * avg_ch                   double*     daily average surface exchange
- *                                       coefficient for heat and moisture
- *                                       [m s-1]
- * surfflx                  double[]*   daily average overland flow [m3 s-1]
- * subsurfflx               double[]*   daily average subsurface flow [m3 s-1]
- ****************************************************************************/
-typedef struct stor_struct
-{
-    int            *flag;
-    double         *dayl;       /* (s)     daylength */
-    double         *prev_dayl;
-    double         *tmax;       /* (deg C) daily maximum air temperature */
-    double         *tmin;       /* (deg C) daily minimum air temperature */
-    double         *sfctmp;     /* (deg C) daily average temperature */
-    double         *tday;
-    double         *tnight;
-    double         *q2d;        /* (m3/m3) mixing ratio deficit */
-    double         *sfcprs;
-    double         *soldn;      /* (W/m2)  daylight avg shortwave flux density */
-    double         *stc[MAXLYR];
-    double         *sh2o[MAXLYR];
-    double         *prev_smc[MAXLYR];
-    double         *smc[MAXLYR];
-    double         *avg_smc[MAXLYR];
-    double         *prev_surf;
-    double         *surf;
-    double         *avg_surf;
-    double         *prev_unsat;
-    double         *unsat;
-    double         *avg_unsat;
-    double         *prev_gw;
-    double         *gw;
-    double         *avg_gw;
-    double         *albedo;
-    double         *ch;
-    double         *surfflx[NUM_EDGE];
-    double         *subsurfflx[NUM_EDGE];
-} stor_struct;
-
-
-/*****************************************************************************
  * Carbon state variables (including sums for sources and sinks)
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
@@ -2427,6 +2361,8 @@ typedef struct epvar_struct
     double          prev_frootc_to_litter;
     double          old_c_balance;
     double          old_n_balance;
+    double          dayl;
+    double          prev_dayl;
 } epvar_struct;
 
 
@@ -2612,11 +2548,8 @@ typedef struct elem_struct
     estate_struct   es;
     eflux_struct    ef;
     pstate_struct   ps;
-#ifdef _DAILY_
-    daily_struct    daily;
-#endif
-
 #ifdef _CYCLES_
+    daily_struct    daily;
     cropmgmt_struct cropmgmt;
     comm_struct     comm;
     residue_struct  residue;
@@ -2629,7 +2562,6 @@ typedef struct elem_struct
 #ifdef _BGC_
     bgcic_struct    restart_input;
     bgcic_struct    restart_output;
-    stor_struct     stor;
     cinit_struct    cinit;
     cstate_struct   cs;
     cflux_struct    cf;

@@ -1,20 +1,14 @@
-/*
- * daily_bgc.c
- * Daily BGC model logic
- */
-
 #include "pihm.h"
 
 void Bgc (pihm_struct pihm, int t, int simstart, double dt)
 {
 
     int             i;
-    int             simday;
     double          co2lvl;
     double          ndep, nfix;
 
     /* Get co2 and ndep */
-    if (pihm->ctrl.bgc_spinup)       /* Spinup mode */
+    if (pihm->ctrl.bgc_spinup)      /* Spinup mode */
     {
         co2lvl = pihm->co2.co2ppm;
         ndep = pihm->ndepctrl.ndep / 365.0 / DAYINSEC;
@@ -25,7 +19,7 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         /* Atmospheric CO2 handling */
         if (!(pihm->co2.varco2))
         {
-            /* constant CO2, constant Ndep */
+            /* Constant CO2, constant Ndep */
             co2lvl = pihm->co2.co2ppm;
             ndep = pihm->ndepctrl.ndep / 365.0 / DAYINSEC;
             nfix = pihm->ndepctrl.nfix / 365.0 / DAYINSEC;
@@ -50,27 +44,6 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         }
     }
 
-    simday = (t - simstart) / 24 / 3600 - 1;
-
-    if (pihm->ctrl.bgc_spinup)       /* Spinup mode */
-    {
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-        for (i = 0; i < nelem; i++)
-        {
-            DayMet (&pihm->elem[i].stor, &pihm->elem[i].daily, simday);
-        }
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-        for (i = 0; i < nriver; i++)
-        {
-            RiverDayMet (&pihm->riv[i].stor, &pihm->riv[i].daily, simday);
-        }
-    }
-
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
@@ -80,12 +53,12 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         epconst_struct *epc;
         epvar_struct *epv;
         soil_struct *soil;
-        daily_struct *daily;
         cstate_struct *cs;
         cflux_struct *cf;
         nstate_struct *ns;
         nflux_struct *nf;
         ntemp_struct *nt;
+        estate_struct *es;
         eflux_struct *ef;
         pstate_struct *ps;
         psn_struct *psn_sun, *psn_shade;
@@ -97,12 +70,12 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         epc = &pihm->elem[i].epc;
         epv = &pihm->elem[i].epv;
         soil = &pihm->elem[i].soil;
-        daily = &pihm->elem[i].daily;
         cs = &pihm->elem[i].cs;
         cf = &pihm->elem[i].cf;
         ns = &pihm->elem[i].ns;
         nf = &pihm->elem[i].nf;
         nt = &pihm->elem[i].nt;
+        es = &pihm->elem[i].es;
         ef = &pihm->elem[i].ef;
         ps = &pihm->elem[i].ps;
         psn_sun = &pihm->elem[i].psn_sun;
@@ -113,11 +86,11 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
 
         PrecisionControl (cs, ns);
 
-        /* Zero all the daily flux variables */
+        /* Zero all the flux variables */
         MakeZeroFluxStruct (cf, nf);
 
         /* Phenology fluxes */
-        Phenology (epc, daily, epv, cs, cf, ns, nf, dt);
+        Phenology (epc, epv, es, cs, cf, ns, nf, dt);
 
         /* Test for the annual allocation day */
         if (epv->offset_flag == 1 && epv->offset_counter <= (int)round (dt))
@@ -132,83 +105,83 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         /* Calculate leaf area index, sun and shade fractions, and specific
          * leaf area for sun and shade canopy fractions, then calculate
          * canopy radiation interception and transmission */
-        RadTrans (cs, daily, ef, ps, epc, epv);
+        RadTrans (cs, ef, ps, epc, epv);
 
-        /* Update the ann max LAI for annual diagnostic output */
-        if (ps->proj_lai > epv->ytd_maxplai)
-        {
-            epv->ytd_maxplai = ps->proj_lai;
-        }
+        ///* Update the ann max LAI for annual diagnostic output */
+        //if (ps->proj_lai > epv->ytd_maxplai)
+        //{
+        //    epv->ytd_maxplai = ps->proj_lai;
+        //}
 
-        /* Soil water potential */
-        vwc = daily->avg_sh2o[0] * ps->sldpth[0];
-        droot = ps->sldpth[0];
+        ///* Soil water potential */
+        //vwc = daily->avg_sh2o[0] * ps->sldpth[0];
+        //droot = ps->sldpth[0];
 
-        if (ps->nsoil > 1)
-        {
-            for (k = 1; k < ps->nsoil; k++)
-            {
-                vwc += daily->avg_sh2o[k] * ps->sldpth[k];
-                droot += ps->sldpth[k];
-            }
-        }
+        //if (ps->nsoil > 1)
+        //{
+        //    for (k = 1; k < ps->nsoil; k++)
+        //    {
+        //        vwc += daily->avg_sh2o[k] * ps->sldpth[k];
+        //        droot += ps->sldpth[k];
+        //    }
+        //}
 
-        vwc /= droot;
+        //vwc /= droot;
 
-        SoilPsi (soil, vwc, &epv->psi);
+        //SoilPsi (soil, vwc, &epv->psi);
 
-        /* daily maintenance respiration */
-        MaintResp (cs, ns, epc, daily, cf, epv);
+        ///* Maintenance respiration */
+        //MaintResp (cs, ns, epc, daily, cf, epv);
 
-        /* Begin canopy bio-physical process simulation */
-        if (cs->leafc && daily->dayl)
-        {
-            /* Conductance */
-            CanopyCond (epc, daily, ps, soil, epv);
-        }
+        ///* Begin canopy bio-physical process simulation */
+        //if (cs->leafc && daily->dayl)
+        //{
+        //    /* Conductance */
+        //    CanopyCond (epc, daily, ps, soil, epv);
+        //}
 
-        /* Do photosynthesis only when it is part of the current growth season, as
-         * defined by the remdays_curgrowth flag.  This keeps the occurrence of
-         * new growth consistent with the treatment of litterfall and
-         * allocation */
+        ///* Do photosynthesis only when it is part of the current growth season, as
+        // * defined by the remdays_curgrowth flag.  This keeps the occurrence of
+        // * new growth consistent with the treatment of litterfall and
+        // * allocation */
 
-        if (cs->leafc && !epv->dormant_flag && daily->dayl)
-        {
-            TotalPhotosynthesis (epc, daily, ps, epv, cf, psn_sun, psn_shade);
-        }
-        else
-        {
-            epv->assim_sun = epv->assim_shade = 0.0;
-        }
+        //if (cs->leafc && !epv->dormant_flag && daily->dayl)
+        //{
+        //    TotalPhotosynthesis (epc, daily, ps, epv, cf, psn_sun, psn_shade);
+        //}
+        //else
+        //{
+        //    epv->assim_sun = epv->assim_shade = 0.0;
+        //}
 
-        nf->ndep_to_sminn = ndep;
-        nf->nfix_to_sminn = nfix;
+        //nf->ndep_to_sminn = ndep;
+        //nf->nfix_to_sminn = nfix;
 
-        /* Daily litter and soil decomp and nitrogen fluxes */
-        Decomp (daily->avg_stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt);
+        ///* Daily litter and soil decomp and nitrogen fluxes */
+        //Decomp (daily->avg_stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt);
 
-        /* Daily allocation gets called whether or not this is a current growth
-         * day, because the competition between decomp immobilization fluxes and
-         * plant growth N demand is resolved here.  On days with no growth, no
-         * allocation occurs, but immobilization fluxes are updated normally */
-        DailyAllocation (cf, cs, nf, ns, epc, epv, nt);
+        ///* Daily allocation gets called whether or not this is a current growth
+        // * day, because the competition between decomp immobilization fluxes and
+        // * plant growth N demand is resolved here.  On days with no growth, no
+        // * allocation occurs, but immobilization fluxes are updated normally */
+        //DailyAllocation (cf, cs, nf, ns, epc, epv, nt);
 
-        /* Daily growth respiration */
-        GrowthResp (epc, cf);
+        ///* Daily growth respiration */
+        //GrowthResp (epc, cf);
 
-        /* Daily update of carbon state variables */
-        DailyCarbonStateUpdate (cf, cs, annual_alloc, epc->woody,
-            epc->evergreen, dt);
+        ///* Daily update of carbon state variables */
+        //DailyCarbonStateUpdate (cf, cs, annual_alloc, epc->woody,
+        //    epc->evergreen, dt);
 
-        /* Daily update of nitrogen state variables */
-        DailyNitrogenStateUpdate (nf, ns, annual_alloc, epc->woody,
-            epc->evergreen, dt);
+        ///* Daily update of nitrogen state variables */
+        //DailyNitrogenStateUpdate (nf, ns, annual_alloc, epc->woody,
+        //    epc->evergreen, dt);
     }
 
     /* Calculate N leaching loss.  This is a special state variable update
      * routine, done after the other fluxes and states are reconciled in order
      * to avoid negative sminn under heavy leaching potential */
-    NTransport (pihm->elem, pihm->riv, DAYINSEC);
+    //NTransport (pihm->elem, pihm->riv, DAYINSEC);
 
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -235,15 +208,15 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         /* This is done last, with a special state update procedure, to insure
          * that pools don't go negative due to mortality fluxes conflicting with
          * other proportional fluxes */
-        Mortality (epc, cs, cf, ns, nf);
+        //Mortality (epc, cs, cf, ns, nf);
 
-        /* Test for carbon balance */
-        CheckCarbonBalance (cs, &epv->old_c_balance, first_day);
+        ///* Test for carbon balance */
+        //CheckCarbonBalance (cs, &epv->old_c_balance, first_day);
 
-        /* Test for nitrogen balance */
-        CheckNitrogenBalance (ns, &epv->old_n_balance, first_day);
+        ///* Test for nitrogen balance */
+        //CheckNitrogenBalance (ns, &epv->old_n_balance, first_day);
 
-        /* Calculate carbon summary variables */
-        CSummary (cf, cs, summary);
+        ///* Calculate carbon summary variables */
+        //CSummary (cf, cs, summary);
     }
 }

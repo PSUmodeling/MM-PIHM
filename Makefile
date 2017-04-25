@@ -122,43 +122,40 @@ endif
 # Flux-PIHM-BGC
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
-  SFLAGS += -D_NOAH_ -D_BGC_ -D_DAILY_
+  SFLAGS += -D_NOAH_ -D_BGC_
   MODULE_SRCS_= \
 	bgc/annual_rates.c\
 	bgc/bgc.c\
 	bgc/bgc_init.c\
 	bgc/bgc_read.c\
-	bgc/bgc_spinup.c\
-	bgc/canopy_cond.c\
-	bgc/check_balance.c\
-	bgc/daily_allocation.c\
-	bgc/daymet.c\
-	bgc/decomp.c\
 	bgc/firstday.c\
 	bgc/get_co2.c\
 	bgc/get_ndep.c\
-	bgc/growth_resp.c\
-	bgc/maint_resp.c\
 	bgc/make_zero_flux_struct.c\
-	bgc/metarr_init.c\
-	bgc/mortality.c\
-	bgc/ntransport.c\
 	bgc/phenology.c\
-	bgc/photosynthesis.c\
 	bgc/precision_control.c\
 	bgc/presim_state_init.c\
 	bgc/radtrans.c\
 	bgc/restart_io.c\
-	bgc/soilpsi.c\
-	bgc/state_update.c\
-	bgc/summary.c\
 	bgc/zero_srcsnk.c\
-  	noah/daily.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\
 	noah/lsm_read.c\
 	noah/noah.c\
 	spa/spa.c
+	#bgc/canopy_cond.c
+	#bgc/check_balance.c
+	#bgc/daily_allocation.c
+	#bgc/decomp.c
+	#bgc/growth_resp.c
+	#bgc/maint_resp.c
+	#bgc/metarr_init.c
+	#bgc/mortality.c
+	#bgc/ntransport.c
+	#bgc/photosynthesis.c
+	#bgc/soilpsi.c
+	#bgc/state_update.c
+	#bgc/summary.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-bgc
   MSG = "... Compiling Flux-PIHM-BGC ..."

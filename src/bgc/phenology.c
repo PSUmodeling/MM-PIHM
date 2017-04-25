@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-void Phenology (const epconst_struct *epc, const daily_struct *daily,
-    epvar_struct *epv, cstate_struct *cs, cflux_struct *cf, nstate_struct *ns,
-    nflux_struct *nf, double dt)
+void Phenology (const epconst_struct *epc, epvar_struct *epv,
+    const estate_struct *es, cstate_struct *cs, cflux_struct *cf,
+    nstate_struct *ns, nflux_struct *nf, double dt)
 {
     /* Define the phenology signals for cases in which the phenology signals
      * are constant between years */
@@ -14,7 +14,7 @@ void Phenology (const epconst_struct *epc, const daily_struct *daily,
     {
         if (epc->woody)
         {
-            SeasonDecidPhenology (epc, daily, epv, cs, dt);
+            SeasonDecidPhenology (epc, epv, es, cs, dt);
         }
     }
 
@@ -39,8 +39,8 @@ void EvergreenPhenology (const epconst_struct *epc, epvar_struct *epv,
         cs->frootc * epc->froot_turnover / 365.0 / DAYINSEC;
 }
 
-void SeasonDecidPhenology (const epconst_struct *epc, const daily_struct *daily,
-    epvar_struct *epv, const cstate_struct *cs, double dt)
+void SeasonDecidPhenology (const epconst_struct *epc, epvar_struct *epv,
+    const estate_struct *es, const cstate_struct *cs, double dt)
 {
     int             ws_flag;
     double          onset_critsum;
@@ -49,14 +49,14 @@ void SeasonDecidPhenology (const epconst_struct *epc, const daily_struct *daily,
 
     onset_critsum = exp (4.795 + 0.129 * (epv->annavg_t2m - TFREEZ));
 
-    tsoil = daily->avg_stc[0] - TFREEZ;
+    tsoil = es->stc[0] - TFREEZ;
 
     epv->bg_leafc_litfall_rate = 0.0;
     epv->bg_frootc_litfall_rate = 0.0;
 
     /* Set flag for solstice period
      * (winter->summer = 1, summer->winter = 0) */
-    if (daily->dayl >= daily->prev_dayl)
+    if (epv->dayl >= epv->prev_dayl)
     {
         ws_flag = 1;
     }
@@ -148,7 +148,7 @@ void SeasonDecidPhenology (const epconst_struct *epc, const daily_struct *daily,
     {
         /* Only begin to test for offset daylength once past the
          * summer sol */
-        if (ws_flag == 0 && daily->dayl < critdayl)
+        if (ws_flag == 0 && epv->dayl < critdayl)
         {
             epv->offset_flag = 1;
             epv->offset_counter = epc->litfall_days * DAYINSEC;
@@ -363,7 +363,7 @@ void LeafLitFall (const epconst_struct *epc, double litfallc,
     n4 = litfalln * epc->leaflitr_flig;
     nretrans = (litfallc / avg_cn) - (litfalln);
 
-    /* set fluxes in daily flux structure */
+    /* set fluxes */
     cf->leafc_to_litr1c = c1;
     cf->leafc_to_litr2c = c2;
     cf->leafc_to_litr3c = c3;
@@ -393,7 +393,7 @@ void FRootLitFall (const epconst_struct *epc, double litfallc,
     c4 = litfallc * epc->frootlitr_flig;
     n4 = c4 / avg_cn;
 
-    /* set fluxes in daily flux structure */
+    /* set fluxes */
     cf->frootc_to_litr1c = c1;
     cf->frootc_to_litr2c = c2;
     cf->frootc_to_litr3c = c3;

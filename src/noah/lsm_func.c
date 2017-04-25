@@ -496,6 +496,7 @@ void SunPos (int t, double latitude, double longitude, double elevation,
     }
 
     *azimuth = Mod ((360.0 + spa.azimuth180), 360.0);
+    printf ("%lf %lf\n", *azimuth, spa.azimuth);
     *zenith = spa.zenith;
 }
 

@@ -22,6 +22,14 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
 #endif
     }
 
+#ifdef _BGC_
+    /* Run Bgc module hourly */
+    if ((t - pihm->ctrl.starttime) % 3600 == 0)
+    {
+        Bgc (pihm, t, pihm->ctrl.starttime, 3600);
+    }
+#endif
+
     /*
      * Solve PIHM hydrology ODE using CVODE
      */
@@ -38,33 +46,16 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
     /*
      * Daily timestep modules
      */
-#ifdef _DAILY_
+#ifdef _CYCLES_
     DailyVar (t, pihm->ctrl.starttime, pihm);
 
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
-#ifdef _CYCLES_
         DailyCycles (t - DAYINSEC, pihm);
-#endif
-#ifdef _BGC_
-        if (pihm->ctrl.bgc_spinup)
-        {
-            Save2Stor (pihm, t, pihm->ctrl.spinupstart);
-        }
-        else
-        {
-            Bgc (pihm, t, pihm->ctrl.starttime, DAYINSEC);
-            first_day = 0;
-        }
-#endif
     }
-#endif
 
-#ifdef _CYCLES_
     SoluteTransport (pihm->elem, pihm->riv, (double)pihm->ctrl.stepsize);
-#endif
 
-#ifdef _DAILY_
     /*
      * Initialize daily structures
      */
