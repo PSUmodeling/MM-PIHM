@@ -760,11 +760,8 @@ typedef struct estate_struct
  * ---------------------------------------------------------------------------
  * Variables below only used in Flux-PIHM-BGC
  * ---------------------------------------------------------------------------
- * swabs                    double      canopy absorbed shortwave flux [W m-2]
- * swtrans                  double      transmitted shortwave flux [W m-2]
  * swabs_per_plaisun        double      swabs per unit sunlit proj LAI [W m-2]
  * swabs_per_plaishade      double      swabs per unit shaded proj LAI [W m-2]
- * parabs                   double      PAR absorbed by canopy [W m-2]
  ****************************************************************************/
 typedef struct eflux_struct
 {
@@ -790,11 +787,8 @@ typedef struct eflux_struct
     double          flx3;
 #endif
 #ifdef _BGC_
-    double          swabs;
-    double          swtrans;
     double          swabs_per_plaisun;
     double          swabs_per_plaishade;
-    double          parabs;
 #endif
 } eflux_struct;
 

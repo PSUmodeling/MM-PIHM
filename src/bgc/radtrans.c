@@ -131,13 +131,10 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
     }
 
     /* Assign structure values */
-    ef->swabs = swabs;
-    ef->swtrans = swtrans;
     ef->swabs_per_plaisun = swabs_per_plaisun;
     ef->swabs_per_plaishade = swabs_per_plaishade;
     /* Calculate PPFD: assumes an average energy for PAR photon (EPAR, umol/J)
      * unit conversion: W/m2 --> umol/m2/s. */
     ps->ppfd_per_plaisun = parabs_per_plaisun * EPAR;
     ps->ppfd_per_plaishade = parabs_per_plaishade * EPAR;
-    ef->parabs = parabs;
 }

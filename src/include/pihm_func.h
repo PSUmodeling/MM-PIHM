@@ -424,8 +424,8 @@ void            BackgroundLitterfall (const epconst_struct *, epvar_struct *,
     nflux_struct *, double);
 void            Bgc (pihm_struct, int, int, double);
 //void            BGCSpinup (pihm_struct, char *);
-//void            CanopyCond (const epconst_struct *, const daily_struct *,
-//    pstate_struct *, const soil_struct *, epvar_struct *);
+void            CanopyCond (const epconst_struct *, epvar_struct *,
+    eflux_struct *, pstate_struct *);
 //void            CheckCarbonBalance (cstate_struct *, double *, int);
 //void            CheckNitrogenBalance (nstate_struct *, double *, int);
 //void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);

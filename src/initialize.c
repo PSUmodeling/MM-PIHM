@@ -944,10 +944,7 @@ void InitEFlux (eflux_struct *ef)
     ef->flx3 = 0.0;
 #endif
 #ifdef _BGC_
-    ef->swabs = 0.0;
-    ef->swtrans = 0.0;
     ef->swabs_per_plaisun = 0.0;
     ef->swabs_per_plaishade = 0.0;
-    ef->parabs = 0.0;
 #endif
 }

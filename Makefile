@@ -128,6 +128,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/bgc.c\
 	bgc/bgc_init.c\
 	bgc/bgc_read.c\
+	bgc/canopy_cond.c\
 	bgc/firstday.c\
 	bgc/get_co2.c\
 	bgc/get_ndep.c\
@@ -145,7 +146,6 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	noah/lsm_read.c\
 	noah/noah.c\
 	spa/spa.c
-	#bgc/canopy_cond.c
 	#bgc/check_balance.c
 	#bgc/daily_allocation.c
 	#bgc/decomp.c

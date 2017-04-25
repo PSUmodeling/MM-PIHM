@@ -113,12 +113,12 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         /* Maintenance respiration */
         MaintResp (epc, epv, es, ef, cs, cf, ns);
 
-        ///* Begin canopy bio-physical process simulation */
-        //if (cs->leafc && daily->dayl)
-        //{
-        //    /* Conductance */
-        //    CanopyCond (epc, daily, ps, soil, epv);
-        //}
+        /* Begin canopy bio-physical process simulation */
+        if (cs->leafc && ef->soldn)
+        {
+            /* Conductance */
+            CanopyCond (epc, epv, ef, ps);
+        }
 
         ///* Do photosynthesis only when it is part of the current growth season, as
         // * defined by the remdays_curgrowth flag.  This keeps the occurrence of
