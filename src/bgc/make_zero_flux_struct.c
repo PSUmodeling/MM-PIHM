@@ -68,8 +68,7 @@ void MakeZeroFluxStruct (cflux_struct *cf, nflux_struct *nf)
     cf->frootc_to_litr2c = 0.0;
     cf->frootc_to_litr3c = 0.0;
     cf->frootc_to_litr4c = 0.0;
-    cf->leaf_day_mr = 0.0;
-    cf->leaf_night_mr = 0.0;
+    cf->leaf_mr = 0.0;
     cf->froot_mr = 0.0;
     cf->livestem_mr = 0.0;
     cf->livecroot_mr = 0.0;

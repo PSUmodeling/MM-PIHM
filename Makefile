@@ -131,6 +131,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/firstday.c\
 	bgc/get_co2.c\
 	bgc/get_ndep.c\
+	bgc/maint_resp.c\
 	bgc/make_zero_flux_struct.c\
 	bgc/phenology.c\
 	bgc/precision_control.c\
@@ -149,7 +150,6 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	#bgc/daily_allocation.c
 	#bgc/decomp.c
 	#bgc/growth_resp.c
-	#bgc/maint_resp.c
 	#bgc/metarr_init.c
 	#bgc/mortality.c
 	#bgc/ntransport.c

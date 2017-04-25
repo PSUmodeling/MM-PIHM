@@ -110,8 +110,8 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         /* Soil water potential */
         SoilPsi (soil, ws->soilm / soil->depth, &epv->psi);
 
-        ///* Maintenance respiration */
-        //MaintResp (cs, ns, epc, daily, cf, epv);
+        /* Maintenance respiration */
+        MaintResp (epc, epv, es, ef, cs, cf, ns);
 
         ///* Begin canopy bio-physical process simulation */
         //if (cs->leafc && daily->dayl)
