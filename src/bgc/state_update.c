@@ -85,10 +85,10 @@ void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
     }
 
     /* Photosynthesis fluxes */
-    cs->cpool += cf->psnsun_to_cpool;
-    cs->psnsun_src += cf->psnsun_to_cpool;
-    cs->cpool += cf->psnshade_to_cpool;
-    cs->psnshade_src += cf->psnshade_to_cpool;
+    cs->cpool += cf->psnsun_to_cpool * dt;
+    cs->psnsun_src += cf->psnsun_to_cpool * dt;
+    cs->cpool += cf->psnshade_to_cpool * dt;
+    cs->psnshade_src += cf->psnshade_to_cpool * dt;
 
     /* Litter decomposition fluxes */
     /* Fluxes out of coarse woody debris into litter pools */

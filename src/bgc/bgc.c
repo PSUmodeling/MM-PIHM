@@ -133,8 +133,8 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
             epv->assim_sun = epv->assim_shade = 0.0;
         }
 
-        //nf->ndep_to_sminn = ndep;
-        //nf->nfix_to_sminn = nfix;
+        nf->ndep_to_sminn = ndep;
+        nf->nfix_to_sminn = nfix;
 
         ///* Daily litter and soil decomp and nitrogen fluxes */
         //Decomp (daily->avg_stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt);
