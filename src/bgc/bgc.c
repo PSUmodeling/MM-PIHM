@@ -139,11 +139,11 @@ void Bgc (pihm_struct pihm, int t, int simstart, double dt)
         /* Daily litter and soil decomp and nitrogen fluxes */
         Decomp (es->stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt, dt);
 
-        ///* Daily allocation gets called whether or not this is a current growth
-        // * day, because the competition between decomp immobilization fluxes and
-        // * plant growth N demand is resolved here.  On days with no growth, no
-        // * allocation occurs, but immobilization fluxes are updated normally */
-        //DailyAllocation (cf, cs, nf, ns, epc, epv, nt);
+        /* Allocation gets called whether or not this is a current growth
+         * day, because the competition between decomp immobilization fluxes and
+         * plant growth N demand is resolved here.  On days with no growth, no
+         * allocation occurs, but immobilization fluxes are updated normally */
+        Allocation (cf, cs, nf, ns, epc, epv, nt, dt);
 
         ///* Daily growth respiration */
         //GrowthResp (epc, cf);

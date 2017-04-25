@@ -418,6 +418,9 @@ void            InitCropSV (crop_struct *);
 
 #ifdef _BGC_
 //void            AdptStepTrnsp (elem_struct *, river_struct *, double, int);
+void            Allocation (cflux_struct *, cstate_struct *, nflux_struct *,
+    nstate_struct *, epconst_struct *, epvar_struct *, ntemp_struct *,
+    double);
 //void            AnnualRates (const epconst_struct *, epvar_struct *);
 void            BackgroundLitterfall (const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, const nstate_struct *,
@@ -429,9 +432,6 @@ void            CanopyCond (const epconst_struct *, epvar_struct *,
 //void            CheckCarbonBalance (cstate_struct *, double *, int);
 //void            CheckNitrogenBalance (nstate_struct *, double *, int);
 //void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
-//void            DailyAllocation (cflux_struct *, cstate_struct *,
-//    nflux_struct *, nstate_struct *, epconst_struct *, epvar_struct *,
-//    ntemp_struct *);
 //void            DailyCarbonStateUpdate (cflux_struct *, cstate_struct *, int,
 //    int, int, double);
 //void            DailyNitrogenStateUpdate (nflux_struct *, nstate_struct *,

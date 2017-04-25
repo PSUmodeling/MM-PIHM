@@ -34,7 +34,7 @@ void TotalPhotosynthesis (const epconst_struct *epc, epvar_struct *epv,
     /* for the final flux assignment, the assimilation output needs to have
      * the maintenance respiration rate added, this sum multiplied by the
      * projected leaf area in the relevant canopy fraction, and this total
-     * converted from umol/m2/s -> kgC/m2/d */
+     * converted from umol/m2/s -> kgC/m2/s */
     cf->psnsun_to_cpool = (epv->assim_sun + epv->dlmr_area_sun) *
         ps->plaisun * 12.011e-9;
 

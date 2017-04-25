@@ -99,79 +99,79 @@ void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
     cs->litr4c += cf->cwdc_to_litr4c * dt;
     cs->cwdc -= cf->cwdc_to_litr4c * dt;
     /* Fluxes out of labile litter pool */
-    cs->litr1_hr_snk += cf->litr1_hr;
-    cs->litr1c -= cf->litr1_hr;
-    cs->soil1c += cf->litr1c_to_soil1c;
-    cs->litr1c -= cf->litr1c_to_soil1c;
+    cs->litr1_hr_snk += cf->litr1_hr * dt;
+    cs->litr1c -= cf->litr1_hr * dt;
+    cs->soil1c += cf->litr1c_to_soil1c * dt;
+    cs->litr1c -= cf->litr1c_to_soil1c * dt;
     /* Fluxes out of cellulose litter pool */
-    cs->litr2_hr_snk += cf->litr2_hr;
-    cs->litr2c -= cf->litr2_hr;
-    cs->soil2c += cf->litr2c_to_soil2c;
-    cs->litr2c -= cf->litr2c_to_soil2c;
+    cs->litr2_hr_snk += cf->litr2_hr * dt;
+    cs->litr2c -= cf->litr2_hr * dt;
+    cs->soil2c += cf->litr2c_to_soil2c * dt;
+    cs->litr2c -= cf->litr2c_to_soil2c * dt;
     /* Fluxes from shielded to unshielded cellulose pools */
-    cs->litr2c += cf->litr3c_to_litr2c;
-    cs->litr3c -= cf->litr3c_to_litr2c;
+    cs->litr2c += cf->litr3c_to_litr2c * dt;
+    cs->litr3c -= cf->litr3c_to_litr2c * dt;
     /* Fluxes out of lignin litter pool */
-    cs->litr4_hr_snk += cf->litr4_hr;
-    cs->litr4c -= cf->litr4_hr;
-    cs->soil3c += cf->litr4c_to_soil3c;
-    cs->litr4c -= cf->litr4c_to_soil3c;
+    cs->litr4_hr_snk += cf->litr4_hr * dt;
+    cs->litr4c -= cf->litr4_hr * dt;
+    cs->soil3c += cf->litr4c_to_soil3c * dt;
+    cs->litr4c -= cf->litr4c_to_soil3c * dt;
     /* Fluxes out of fast soil pool */
-    cs->soil1_hr_snk += cf->soil1_hr;
-    cs->soil1c -= cf->soil1_hr;
-    cs->soil2c += cf->soil1c_to_soil2c;
-    cs->soil1c -= cf->soil1c_to_soil2c;
+    cs->soil1_hr_snk += cf->soil1_hr * dt;
+    cs->soil1c -= cf->soil1_hr * dt;
+    cs->soil2c += cf->soil1c_to_soil2c * dt;
+    cs->soil1c -= cf->soil1c_to_soil2c * dt;
     /* Fluxes out of medium soil pool */
-    cs->soil2_hr_snk += cf->soil2_hr;
-    cs->soil2c -= cf->soil2_hr;
-    cs->soil3c += cf->soil2c_to_soil3c;
-    cs->soil2c -= cf->soil2c_to_soil3c;
+    cs->soil2_hr_snk += cf->soil2_hr * dt;
+    cs->soil2c -= cf->soil2_hr * dt;
+    cs->soil3c += cf->soil2c_to_soil3c * dt;
+    cs->soil2c -= cf->soil2c_to_soil3c * dt;
     /* Fluxes out of slow soil pool */
-    cs->soil3_hr_snk += cf->soil3_hr;
-    cs->soil3c -= cf->soil3_hr;
-    cs->soil4c += cf->soil3c_to_soil4c;
-    cs->soil3c -= cf->soil3c_to_soil4c;
+    cs->soil3_hr_snk += cf->soil3_hr * dt;
+    cs->soil3c -= cf->soil3_hr * dt;
+    cs->soil4c += cf->soil3c_to_soil4c * dt;
+    cs->soil3c -= cf->soil3c_to_soil4c * dt;
     /* Fluxes out of recalcitrant SOM pool */
-    cs->soil4_hr_snk += cf->soil4_hr;
-    cs->soil4c -= cf->soil4_hr;
+    cs->soil4_hr_snk += cf->soil4_hr * dt;
+    cs->soil4c -= cf->soil4_hr * dt;
 
     /* Daily allocation fluxes */
     /* daily leaf allocation fluxes */
-    cs->leafc += cf->cpool_to_leafc;
-    cs->cpool -= cf->cpool_to_leafc;
-    cs->leafc_storage += cf->cpool_to_leafc_storage;
-    cs->cpool -= cf->cpool_to_leafc_storage;
+    cs->leafc += cf->cpool_to_leafc * dt;
+    cs->cpool -= cf->cpool_to_leafc * dt;
+    cs->leafc_storage += cf->cpool_to_leafc_storage * dt;
+    cs->cpool -= cf->cpool_to_leafc_storage * dt;
     /* Daily fine root allocation fluxes */
-    cs->frootc += cf->cpool_to_frootc;
-    cs->cpool -= cf->cpool_to_frootc;
-    cs->frootc_storage += cf->cpool_to_frootc_storage;
-    cs->cpool -= cf->cpool_to_frootc_storage;
+    cs->frootc += cf->cpool_to_frootc * dt;
+    cs->cpool -= cf->cpool_to_frootc * dt;
+    cs->frootc_storage += cf->cpool_to_frootc_storage * dt;
+    cs->cpool -= cf->cpool_to_frootc_storage * dt;
     if (woody)
     {
         /* Daily live stem wood allocation fluxes */
-        cs->livestemc += cf->cpool_to_livestemc;
-        cs->cpool -= cf->cpool_to_livestemc;
-        cs->livestemc_storage += cf->cpool_to_livestemc_storage;
-        cs->cpool -= cf->cpool_to_livestemc_storage;
+        cs->livestemc += cf->cpool_to_livestemc * dt;
+        cs->cpool -= cf->cpool_to_livestemc * dt;
+        cs->livestemc_storage += cf->cpool_to_livestemc_storage * dt;
+        cs->cpool -= cf->cpool_to_livestemc_storage * dt;
         /* Daily dead stem wood allocation fluxes */
-        cs->deadstemc += cf->cpool_to_deadstemc;
-        cs->cpool -= cf->cpool_to_deadstemc;
-        cs->deadstemc_storage += cf->cpool_to_deadstemc_storage;
-        cs->cpool -= cf->cpool_to_deadstemc_storage;
+        cs->deadstemc += cf->cpool_to_deadstemc * dt;
+        cs->cpool -= cf->cpool_to_deadstemc * dt;
+        cs->deadstemc_storage += cf->cpool_to_deadstemc_storage * dt;
+        cs->cpool -= cf->cpool_to_deadstemc_storage * dt;
         /* Daily live coarse root wood allocation fluxes */
-        cs->livecrootc += cf->cpool_to_livecrootc;
-        cs->cpool -= cf->cpool_to_livecrootc;
-        cs->livecrootc_storage += cf->cpool_to_livecrootc_storage;
-        cs->cpool -= cf->cpool_to_livecrootc_storage;
+        cs->livecrootc += cf->cpool_to_livecrootc * dt;
+        cs->cpool -= cf->cpool_to_livecrootc * dt;
+        cs->livecrootc_storage += cf->cpool_to_livecrootc_storage * dt;
+        cs->cpool -= cf->cpool_to_livecrootc_storage * dt;
         /* Daily dead coarse root wood allocation fluxes */
-        cs->deadcrootc += cf->cpool_to_deadcrootc;
-        cs->cpool -= cf->cpool_to_deadcrootc;
-        cs->deadcrootc_storage += cf->cpool_to_deadcrootc_storage;
-        cs->cpool -= cf->cpool_to_deadcrootc_storage;
+        cs->deadcrootc += cf->cpool_to_deadcrootc * dt;
+        cs->cpool -= cf->cpool_to_deadcrootc * dt;
+        cs->deadcrootc_storage += cf->cpool_to_deadcrootc_storage * dt;
+        cs->cpool -= cf->cpool_to_deadcrootc_storage * dt;
     }
     /* Daily allocation for transfer growth respiration */
-    cs->gresp_storage += cf->cpool_to_gresp_storage;
-    cs->cpool -= cf->cpool_to_gresp_storage;
+    cs->gresp_storage += cf->cpool_to_gresp_storage * dt;
+    cs->cpool -= cf->cpool_to_gresp_storage * dt;
 
     /* Daily growth respiration fluxes */
     /* Leaf growth respiration */
@@ -355,130 +355,154 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
     ns->litr4n += nf->cwdn_to_litr4n * dt;
     ns->cwdn -= nf->cwdn_to_litr4n * dt;
     /* N fluxes for immobilization and mineralization */
-    ns->soil1n += nf->litr1n_to_soil1n;
-    ns->litr1n -= nf->litr1n_to_soil1n;
+    ns->soil1n += nf->litr1n_to_soil1n * dt;
+    ns->litr1n -= nf->litr1n_to_soil1n * dt;
     if (nf->sminn_to_soil1n_l1 < 0.0)
+    {
         nf->sminn_to_nvol_l1s1 =
             -DENITRIF_PROPORTION * nf->sminn_to_soil1n_l1;
+    }
     else
+    {
         nf->sminn_to_nvol_l1s1 = 0.0;
-    ns->soil1n += nf->sminn_to_soil1n_l1;
-    ns->sminn -= nf->sminn_to_soil1n_l1;
+    }
+    ns->soil1n += nf->sminn_to_soil1n_l1 * dt;
+    ns->sminn -= nf->sminn_to_soil1n_l1 * dt;
     ns->nvol_snk += nf->sminn_to_nvol_l1s1;
     ns->sminn -= nf->sminn_to_nvol_l1s1;
 
-    ns->soil2n += nf->litr2n_to_soil2n;
-    ns->litr2n -= nf->litr2n_to_soil2n;
+    ns->soil2n += nf->litr2n_to_soil2n * dt;
+    ns->litr2n -= nf->litr2n_to_soil2n * dt;
     if (nf->sminn_to_soil2n_l2 < 0.0)
+    {
         nf->sminn_to_nvol_l2s2 =
             -DENITRIF_PROPORTION * nf->sminn_to_soil2n_l2;
+    }
     else
+    {
         nf->sminn_to_nvol_l2s2 = 0.0;
-    ns->soil2n += nf->sminn_to_soil2n_l2;
-    ns->sminn -= nf->sminn_to_soil2n_l2;
+    }
+    ns->soil2n += nf->sminn_to_soil2n_l2 * dt;
+    ns->sminn -= nf->sminn_to_soil2n_l2 * dt;
     ns->nvol_snk += nf->sminn_to_nvol_l2s2;
     ns->sminn -= nf->sminn_to_nvol_l2s2;
 
-    ns->litr2n += nf->litr3n_to_litr2n;
-    ns->litr3n -= nf->litr3n_to_litr2n;
+    ns->litr2n += nf->litr3n_to_litr2n * dt;
+    ns->litr3n -= nf->litr3n_to_litr2n * dt;
 
-    ns->soil3n += nf->litr4n_to_soil3n;
-    ns->litr4n -= nf->litr4n_to_soil3n;
+    ns->soil3n += nf->litr4n_to_soil3n * dt;
+    ns->litr4n -= nf->litr4n_to_soil3n * dt;
     if (nf->sminn_to_soil3n_l4 < 0.0)
+    {
         nf->sminn_to_nvol_l4s3 =
             -DENITRIF_PROPORTION * nf->sminn_to_soil3n_l4;
+    }
     else
+    {
         nf->sminn_to_nvol_l4s3 = 0.0;
-    ns->soil3n += nf->sminn_to_soil3n_l4;
-    ns->sminn -= nf->sminn_to_soil3n_l4;
+    }
+    ns->soil3n += nf->sminn_to_soil3n_l4 * dt;
+    ns->sminn -= nf->sminn_to_soil3n_l4 * dt;
     ns->nvol_snk += nf->sminn_to_nvol_l4s3;
     ns->sminn -= nf->sminn_to_nvol_l4s3;
 
-    ns->soil2n += nf->soil1n_to_soil2n;
-    ns->soil1n -= nf->soil1n_to_soil2n;
+    ns->soil2n += nf->soil1n_to_soil2n * dt;
+    ns->soil1n -= nf->soil1n_to_soil2n * dt;
     if (nf->sminn_to_soil2n_s1 < 0.0)
+    {
         nf->sminn_to_nvol_s1s2 =
             -DENITRIF_PROPORTION * nf->sminn_to_soil2n_s1;
+    }
     else
+    {
         nf->sminn_to_nvol_s1s2 = 0.0;
-    ns->soil2n += nf->sminn_to_soil2n_s1;
-    ns->sminn -= nf->sminn_to_soil2n_s1;
+    }
+    ns->soil2n += nf->sminn_to_soil2n_s1 * dt;
+    ns->sminn -= nf->sminn_to_soil2n_s1 * dt;
     ns->nvol_snk += nf->sminn_to_nvol_s1s2;
     ns->sminn -= nf->sminn_to_nvol_s1s2;
 
-    ns->soil3n += nf->soil2n_to_soil3n;
-    ns->soil2n -= nf->soil2n_to_soil3n;
+    ns->soil3n += nf->soil2n_to_soil3n * dt;
+    ns->soil2n -= nf->soil2n_to_soil3n * dt;
     if (nf->sminn_to_soil3n_s2 < 0.0)
+    {
         nf->sminn_to_nvol_s2s3 =
             -DENITRIF_PROPORTION * nf->sminn_to_soil3n_s2;
+    }
     else
+    {
         nf->sminn_to_nvol_s2s3 = 0.0;
-    ns->soil3n += nf->sminn_to_soil3n_s2;
-    ns->sminn -= nf->sminn_to_soil3n_s2;
+    }
+    ns->soil3n += nf->sminn_to_soil3n_s2 * dt;
+    ns->sminn -= nf->sminn_to_soil3n_s2 * dt;
     ns->nvol_snk += nf->sminn_to_nvol_s2s3;
     ns->sminn -= nf->sminn_to_nvol_s2s3;
 
-    ns->soil4n += nf->soil3n_to_soil4n;
-    ns->soil3n -= nf->soil3n_to_soil4n;
+    ns->soil4n += nf->soil3n_to_soil4n * dt;
+    ns->soil3n -= nf->soil3n_to_soil4n * dt;
     if (nf->sminn_to_soil4n_s3 < 0.0)
+    {
         nf->sminn_to_nvol_s3s4 =
             -DENITRIF_PROPORTION * nf->sminn_to_soil4n_s3;
+    }
     else
+    {
         nf->sminn_to_nvol_s3s4 = 0.0;
-    ns->soil4n += nf->sminn_to_soil4n_s3;
-    ns->sminn -= nf->sminn_to_soil4n_s3;
+    }
+    ns->soil4n += nf->sminn_to_soil4n_s3 * dt;
+    ns->sminn -= nf->sminn_to_soil4n_s3 * dt;
     ns->nvol_snk += nf->sminn_to_nvol_s3s4;
     ns->sminn -= nf->sminn_to_nvol_s3s4;
 
     nf->sminn_to_nvol_s4 = DENITRIF_PROPORTION * nf->soil4n_to_sminn;
-    ns->sminn += nf->soil4n_to_sminn;
-    ns->soil4n -= nf->soil4n_to_sminn;
+    ns->sminn += nf->soil4n_to_sminn * dt;
+    ns->soil4n -= nf->soil4n_to_sminn * dt;
     ns->nvol_snk += nf->sminn_to_nvol_s4;
     ns->sminn -= nf->sminn_to_nvol_s4;
 
     /* Bulk denitrification of soil mineral N */
-    ns->sminn -= nf->sminn_to_denitrif;
-    ns->nvol_snk += nf->sminn_to_denitrif;
+    ns->sminn -= nf->sminn_to_denitrif * dt;
+    ns->nvol_snk += nf->sminn_to_denitrif * dt;
 
     /* Plant allocation flux, from N retrans pool and soil mineral N pool */
-    ns->npool += nf->retransn_to_npool;
-    ns->retransn -= nf->retransn_to_npool;
-    ns->npool += nf->sminn_to_npool;
-    ns->sminn -= nf->sminn_to_npool;
+    ns->npool += nf->retransn_to_npool * dt;
+    ns->retransn -= nf->retransn_to_npool * dt;
+    ns->npool += nf->sminn_to_npool * dt;
+    ns->sminn -= nf->sminn_to_npool * dt;
 
     /* Daily allocation fluxes */
     /* Daily leaf allocation fluxes */
-    ns->leafn += nf->npool_to_leafn;
-    ns->npool -= nf->npool_to_leafn;
-    ns->leafn_storage += nf->npool_to_leafn_storage;
-    ns->npool -= nf->npool_to_leafn_storage;
+    ns->leafn += nf->npool_to_leafn * dt;
+    ns->npool -= nf->npool_to_leafn * dt;
+    ns->leafn_storage += nf->npool_to_leafn_storage * dt;
+    ns->npool -= nf->npool_to_leafn_storage * dt;
     /* Daily fine root allocation fluxes */
-    ns->frootn += nf->npool_to_frootn;
-    ns->npool -= nf->npool_to_frootn;
-    ns->frootn_storage += nf->npool_to_frootn_storage;
-    ns->npool -= nf->npool_to_frootn_storage;
+    ns->frootn += nf->npool_to_frootn * dt;
+    ns->npool -= nf->npool_to_frootn * dt;
+    ns->frootn_storage += nf->npool_to_frootn_storage * dt;
+    ns->npool -= nf->npool_to_frootn_storage * dt;
     if (woody)
     {
         /* Daily live stem allocation fluxes */
-        ns->livestemn += nf->npool_to_livestemn;
-        ns->npool -= nf->npool_to_livestemn;
-        ns->livestemn_storage += nf->npool_to_livestemn_storage;
-        ns->npool -= nf->npool_to_livestemn_storage;
+        ns->livestemn += nf->npool_to_livestemn * dt;
+        ns->npool -= nf->npool_to_livestemn * dt;
+        ns->livestemn_storage += nf->npool_to_livestemn_storage * dt;
+        ns->npool -= nf->npool_to_livestemn_storage * dt;
         /* Daily dead stem allocation fluxes */
-        ns->deadstemn += nf->npool_to_deadstemn;
-        ns->npool -= nf->npool_to_deadstemn;
-        ns->deadstemn_storage += nf->npool_to_deadstemn_storage;
-        ns->npool -= nf->npool_to_deadstemn_storage;
+        ns->deadstemn += nf->npool_to_deadstemn * dt;
+        ns->npool -= nf->npool_to_deadstemn * dt;
+        ns->deadstemn_storage += nf->npool_to_deadstemn_storage * dt;
+        ns->npool -= nf->npool_to_deadstemn_storage * dt;
         /* Daily live coarse root allocation fluxes */
-        ns->livecrootn += nf->npool_to_livecrootn;
-        ns->npool -= nf->npool_to_livecrootn;
-        ns->livecrootn_storage += nf->npool_to_livecrootn_storage;
-        ns->npool -= nf->npool_to_livecrootn_storage;
+        ns->livecrootn += nf->npool_to_livecrootn * dt;
+        ns->npool -= nf->npool_to_livecrootn * dt;
+        ns->livecrootn_storage += nf->npool_to_livecrootn_storage * dt;
+        ns->npool -= nf->npool_to_livecrootn_storage * dt;
         /* Daily dead coarse root allocation fluxes */
-        ns->deadcrootn += nf->npool_to_deadcrootn;
-        ns->npool -= nf->npool_to_deadcrootn;
-        ns->deadcrootn_storage += nf->npool_to_deadcrootn_storage;
-        ns->npool -= nf->npool_to_deadcrootn_storage;
+        ns->deadcrootn += nf->npool_to_deadcrootn * dt;
+        ns->npool -= nf->npool_to_deadcrootn * dt;
+        ns->deadcrootn_storage += nf->npool_to_deadcrootn_storage * dt;
+        ns->npool -= nf->npool_to_deadcrootn_storage * dt;
     }
 
     /* Annual allocation fluxes, one day per year */
