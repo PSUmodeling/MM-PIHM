@@ -3,13 +3,24 @@
 
 #define _ARITH_
 
+#ifdef _BGC_
+#define NSV             5 * nelem + 4 * nriver
+#else
 #define NSV             3 * nelem + 2 * nriver
+#endif
 
 #define SURF(i)         i
 #define UNSAT(i)        i + nelem
 #define GW(i)           i + 2 * nelem
 #define RIVSTG(i)       i + 3 * nelem
 #define RIVGW(i)        i + 3 * nelem + nriver
+
+#ifdef _BGC_
+#define SURFN(i)        i + 3 * nelem + 2 * nriver
+#define SMINN(i)        i + 4 * nelem + 2 * nriver
+#define STREAMN(i)      i + 5 * nelem + 2 * nriver
+#define RIVBEDN(i)      i + 5 * nelem + 3 * nriver
+#endif
 
 /*
  * Function Declarations
