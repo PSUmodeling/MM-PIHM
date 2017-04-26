@@ -32,11 +32,7 @@ void            ApplyForcing (forc_struct *, elem_struct *, river_struct *,
     , ctrl_struct *, double, double, double, double
 #endif
     );
-void            ApplyLAI (forc_struct *, elem_struct *, int
-#ifdef _BGC_
-    ,int
-#endif
-    );
+void            ApplyLAI (forc_struct *, elem_struct *, int);
 void            ApplyMeteoForc (forc_struct *, elem_struct *, int
 #ifdef _NOAH_
     , int, double, double, double, double

@@ -21,11 +21,7 @@ void ApplyForcing (forc_struct *forc, elem_struct *elem, river_struct *riv,
         );
 
     /* LAI forcing */
-    ApplyLAI (forc, elem, t
-#ifdef _BGC_
-        , ctrl->bgc_spinup
-#endif
-        );
+    ApplyLAI (forc, elem, t);
 
     /* River boundary condition */
     if (forc->nriverbc > 0)
@@ -136,11 +132,7 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
     }
 }
 
-void ApplyLAI (forc_struct *forc, elem_struct *elem, int t
-#ifdef _BGC_
-    , int spinup
-#endif
-    )
+void ApplyLAI (forc_struct *forc, elem_struct *elem, int t)
 {
     int             ind;
     int             i, k;
@@ -192,6 +184,7 @@ void ApplyLAI (forc_struct *forc, elem_struct *elem, int t
             elem->ps.proj_lai = MonthlyLAI (t, elem->attrib.lc_type);
         }
     }
+#endif
 }
 
 void ApplyRiverBC (forc_struct *forc, river_struct *riv, int t)
