@@ -454,15 +454,13 @@ void            EvergreenPhenology (const epconst_struct *, epvar_struct *,
     cstate_struct *);
 void            FRootLitFall (const epconst_struct *, double, cflux_struct *,
     nflux_struct *);
-void            FirstDay (const epconst_struct *, const cinit_struct *,
-    epvar_struct *, cstate_struct *, nstate_struct *);
+void            FirstDay (elem_struct *, river_struct *,
+    const cninit_struct *);
 double          GetCO2 (tsdata_struct, int);
 double          GetNdep (tsdata_struct, int);
 void            GrowthResp (epconst_struct *, cflux_struct *);
-void            InitBGC (elem_struct *, river_struct *, const epctbl_struct *,
-    const ctrl_struct *);
-void            InitBGCVar (elem_struct *, river_struct *, cinit_struct,
-    cstate_struct, nstate_struct, char *, int);
+void            InitBgc (elem_struct *, const epctbl_struct *);
+void            InitBgcVar (elem_struct *, river_struct *, N_Vector);
 void            LeafLitFall (const epconst_struct *, double, cflux_struct *,
     nflux_struct *);
 void            LivewoodTurnover (const epconst_struct *, epvar_struct *,
@@ -491,20 +489,21 @@ void            PrecisionControl (cstate_struct *cs, nstate_struct *ns);
 void            RadTrans (const cstate_struct *, eflux_struct *,
     pstate_struct *, const epconst_struct *, epvar_struct *);
 void            ReadAnnFile (tsdata_struct *, char *);
-void            ReadBGC (char *, ctrl_struct *, co2control_struct *,
-    ndepcontrol_struct *, char *, char *);
+void            ReadBgc (char *, ctrl_struct *, co2control_struct *,
+    ndepcontrol_struct *, cninit_struct *, char *, char *);
+void            ReadBgcIC (char *, elem_struct *, river_struct *);
 void            ReadEPC (epctbl_struct *);
-//void            RestartInput (cstate_struct *, nstate_struct *,
-//    epvar_struct *, bgcic_struct *);
-//void            RestartOutput (cstate_struct *, nstate_struct *,
-//    epvar_struct *, bgcic_struct *);
+void            RestartInput (cstate_struct *, nstate_struct *,
+    epvar_struct *, bgcic_struct *);
+void            RestartOutput (cstate_struct *, nstate_struct *,
+    epvar_struct *, bgcic_struct *);
 void            SeasonDecidPhenology (const epconst_struct *, epvar_struct *,
     const estate_struct *, const cstate_struct *, double);
 void            SoilPsi (const soil_struct *, double, double *);
 void            TotalPhotosynthesis (const epconst_struct *, epvar_struct *,
     const estate_struct *, const pstate_struct *, cflux_struct *,
     psn_struct *, psn_struct *);
-//void            WriteBGCIC (char *, elem_struct *, river_struct *);
+void            WriteBgcIC (char *, elem_struct *, river_struct *);
 void            ZeroSrcSnk (cstate_struct *, nstate_struct *,
     summary_struct *);
 #endif

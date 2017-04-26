@@ -1,15 +1,3 @@
-
-/*
- * restart_io.c
- * functions called to copy restart info between restart structure and
- * active structures
- *
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
 void RestartInput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
@@ -176,7 +164,7 @@ void RestartOutput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     restart->offset_swi = epv->offset_swi;
 }
 
-void WriteBGCIC (char *restart_fn, elem_struct *elem, river_struct *riv)
+void WriteBgcIC (char *restart_fn, elem_struct *elem, river_struct *riv)
 {
     int         i;
     FILE       *restart_file;
@@ -196,6 +184,10 @@ void WriteBGCIC (char *restart_fn, elem_struct *elem, river_struct *riv)
 
     for (i = 0; i < nriver; i++)
     {
-        fwrite (&riv[i].ns.sminn, sizeof (double), 1, restart_file);
+        riv[i].restart_output.streamn = riv[i].ns.streamn;
+        riv[i].restart_output.sminn = riv[i].ns.sminn;
+
+        fwrite (&(riv[i].restart_output), sizeof (river_bgcic_struct), 1,
+            restart_file);
     }
 }

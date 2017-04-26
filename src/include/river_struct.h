@@ -170,6 +170,13 @@ typedef struct river_solute_struct
     double          conc_bed;
     double          flux[NUM_RIVFLX];
 } river_solute_struct;
+
+typedef struct river_bgcic_struct
+{
+    double          streamn;
+    double          sminn;
+} river_bgcic_struct;
+
 #endif
 
 #ifdef _CYCLES_
@@ -222,6 +229,8 @@ typedef struct river_struct
     river_nstate_struct ns;
     river_nflux_struct nf;
     river_solute_struct nsol;
+    river_bgcic_struct restart_input;
+    river_bgcic_struct restart_output;
 #endif
 } river_struct;
 #endif

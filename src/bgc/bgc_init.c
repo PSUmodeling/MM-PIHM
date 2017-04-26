@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void InitBGC (elem_struct *elem, river_struct *riv,
-    const epctbl_struct *epctbl, const ctrl_struct *ctrl)
+void InitBgc (elem_struct *elem, const epctbl_struct *epctbl)
 {
     int             i;
     int             epc_ind;
@@ -76,94 +75,23 @@ void InitBGC (elem_struct *elem, river_struct *riv,
     }
 }
 
-void InitBGCVar (elem_struct *elem, river_struct *riv, cinit_struct cinit,
-    cstate_struct cs, nstate_struct ns, char *fn, int spinup)
+void InitBgcVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
 {
     int             i;
-    FILE           *init_file;
-
-    /* Read initial conditions */
-    if (!spinup)
-    {
-        init_file = fopen (fn, "rb");
-        CheckFile (init_file, fn);
-        PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
-
-        for (i = 0; i < nelem; i++)
-        {
-            fread (&elem[i].restart_input, sizeof (bgcic_struct), 1,
-                init_file);
-
-            RestartInput (&elem[i].cs, &elem[i].ns, &elem[i].epv,
-                &elem[i].restart_input);
-
-            /* Calculate LAI for the coupling with Noah */
-            elem[i].ps.proj_lai = elem[i].cs.leafc * elem[i].epc.avg_proj_sla;
-            elem[i].epv.annavg_t2m = elem[i].ps.tbot;
-        }
-
-        for (i = 0; i < nriver; i++)
-        {
-            fread (&riv[i].ns.sminn, sizeof (double), 1, init_file);
-        }
-
-        fclose (init_file);
-    }
-    else
-    {
-        for (i = 0; i < nelem; i++)
-        {
-            elem[i].cinit = cinit;
-            elem[i].cs = cs;
-            elem[i].ns = ns;
-
-            elem[i].ns.cwdn = cs.cwdc / elem[i].epc.deadwood_cn;
-            elem[i].ns.litr2n = cs.litr2c / elem[i].epc.leaflitr_cn;
-            elem[i].ns.litr3n = cs.litr3c / elem[i].epc.leaflitr_cn;
-            elem[i].ns.litr4n = cs.litr4c / elem[i].epc.leaflitr_cn;
-            elem[i].ns.soil1n = cs.soil1c / SOIL1_CN;
-            elem[i].ns.soil2n = cs.soil2c / SOIL2_CN;
-            elem[i].ns.soil3n = cs.soil3c / SOIL3_CN;
-            elem[i].ns.soil4n = cs.soil4c / SOIL4_CN;
-
-            if (elem[i].epc.evergreen)
-            {
-                elem[i].epv.dormant_flag = 0.0;
-            }
-            else
-            {
-                elem[i].epv.dormant_flag = 1.0;
-            }
-
-            elem[i].epv.onset_flag = 0;
-            elem[i].epv.onset_counter = 0;
-            elem[i].epv.onset_gddflag = 0;
-            elem[i].epv.onset_fdd = 0.0;
-            elem[i].epv.onset_gdd = 0.0;
-            elem[i].epv.onset_swi = 0.0;
-            elem[i].epv.offset_flag = 0;
-            elem[i].epv.offset_counter = 0;
-            elem[i].epv.offset_fdd = 0.0;
-            elem[i].epv.offset_swi = 0.0;
-            elem[i].epv.annavg_t2m = elem[i].ps.tbot;
-
-            FirstDay (&elem[i].epc, &elem[i].cinit, &elem[i].epv, &elem[i].cs,
-                &elem[i].ns);
-        }
-
-        for (i = 0; i < nriver; i++)
-        {
-            riv[i].ns.sminn = 0.0;
-        }
-    }
 
     for (i = 0; i < nelem; i++)
     {
+        RestartInput (&elem[i].cs, &elem[i].ns, &elem[i].epv,
+            &elem[i].restart_input);
+
         ZeroSrcSnk (&elem[i].cs, &elem[i].ns, &elem[i].summary);
+        elem[i].epv.annavg_t2m = elem[i].ps.tbot;
     }
 
     for (i = 0; i < nriver; i++)
     {
+        riv[i].ns.streamn = riv[i].restart_input.streamn;
+        riv[i].ns.sminn = riv[i].restart_input.sminn;
         riv[i].nf.sminn_leached = 0.0;
     }
 }

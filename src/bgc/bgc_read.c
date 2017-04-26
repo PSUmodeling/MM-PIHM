@@ -1,7 +1,8 @@
 #include "pihm.h"
 
-void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
-    ndepcontrol_struct *ndepctrl, char *co2_fn, char *ndep_fn)
+void ReadBgc (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
+    ndepcontrol_struct *ndepctrl, cninit_struct *cninit, char *co2_fn,
+    char *ndep_fn)
 {
     FILE           *bgc_file;
     struct tm      *timestamp;
@@ -78,41 +79,33 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
 
     FindLine (bgc_file, "C_STATE", &lno, fn);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cinit.max_leafc);
+    sscanf (cmdstr, "%lf", &cninit->max_leafc);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cinit.max_stemc);
+    sscanf (cmdstr, "%lf", &cninit->max_stemc);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.cwdc);
-    ctrl->ns.cwdn = BADVAL;
+    sscanf (cmdstr, "%lf", &cninit->cwdc);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.litr1c);
+    sscanf (cmdstr, "%lf", &cninit->litr1c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.litr2c);
+    sscanf (cmdstr, "%lf", &cninit->litr2c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.litr3c);
+    sscanf (cmdstr, "%lf", &cninit->litr3c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.litr4c);
-    ctrl->ns.litr2n = BADVAL;
-    ctrl->ns.litr3n = BADVAL;
-    ctrl->ns.litr4n = BADVAL;
+    sscanf (cmdstr, "%lf", &cninit->litr4c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.soil1c);
-    ctrl->ns.soil1n = BADVAL;
+    sscanf (cmdstr, "%lf", &cninit->soil1c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.soil2c);
-    ctrl->ns.soil2n = BADVAL;
+    sscanf (cmdstr, "%lf", &cninit->soil2c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.soil3c);
-    ctrl->ns.soil3n = BADVAL;
+    sscanf (cmdstr, "%lf", &cninit->soil3c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.soil4c);
-    ctrl->ns.soil4n = BADVAL;
+    sscanf (cmdstr, "%lf", &cninit->soil4c);
 
     FindLine (bgc_file, "N_STATE", &lno, fn);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->ns.litr1n);
+    sscanf (cmdstr, "%lf", &cninit->litr1n);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->ns.sminn);
+    sscanf (cmdstr, "%lf", &cninit->sminn);
 
     FindLine (bgc_file, "DAILY_OUTPUT", &lno, fn);
     NextLine (bgc_file, cmdstr, &lno);
@@ -531,6 +524,30 @@ void ReadEPC (epctbl_struct *epctbl)
             epctbl->deadwood_flig[i] = BADVAL;
         }
     }
+}
+
+void ReadBgcIC (char *fn, elem_struct *elem, river_struct *riv)
+{
+    FILE           *init_file;
+    int             i;
+
+    init_file = fopen (fn, "rb");
+    CheckFile (init_file, fn);
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
+
+    for (i = 0; i < nelem; i++)
+    {
+        fread (&elem[i].restart_input, sizeof (bgcic_struct), 1,
+            init_file);
+    }
+
+    for (i = 0; i < nriver; i++)
+    {
+        fread (&riv[i].restart_input, sizeof (river_bgcic_struct), 1,
+            init_file);
+    }
+
+    fclose (init_file);
 }
 
 void ReadAnnFile (tsdata_struct *ts, char *fn)

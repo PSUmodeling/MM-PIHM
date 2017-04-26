@@ -103,7 +103,7 @@ int main (int argc, char *argv[])
 #ifdef _BGC_
         if (!pihm->ctrl.bgc_spinup)
         {
-            WriteBGCIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
+            WriteBgcIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
         }
 #endif
     }

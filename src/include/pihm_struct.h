@@ -2,7 +2,6 @@
 #define PIHM_STRUCT_HEADER
 
 #ifdef _BGC_
-
 /*****************************************************************************
  * A structure to hold information on the annual co2 concentration
  * ---------------------------------------------------------------------------
@@ -37,6 +36,48 @@ typedef struct ndepcontrol_struct
     double          ndep;
     double          nfix;
 } ndepcontrol_struct;
+
+/*****************************************************************************
+ * Carbon and nitrogen state initialization structure
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * max_leafc                double      first-year displayed + stored leafc
+ *                                        [kgC m-2]
+ * max_stemc                double      first-year total stem carbon [kgC m-2]
+ * cwdc                     double      coarse woody debris C [kgC m-2]
+ * litr1c                   double      litter labile C [kgC m-2]
+ * litr2c                   double      litter unshielded cellulose C
+ *                                        [kgC m-2]
+ * litr3c                   double      litter shielded cellulose C [kgC m-2]
+ * litr4c                   double      litter lignin C [kgC m-2]
+ * soil1c                   double      microbial recycling pool C (fast)
+ *                                        [kgC m-2]
+ * soil2c                   double      microbial recycling pool C (medium)
+ *                                        [kgC m-2]
+ * soil3c                   double      microbial recycling pool C (slow)
+ *                                        [kgC m-2]
+ * soil4c                   double      recalcitrant SOM C (humus, slowest)
+ *                                        [kgC m-2]
+ * litr1n                   double      litter labile N [kgN m-2]
+ * sminn                    double      soil mineral N [kgN m-2]
+ ****************************************************************************/
+typedef struct cninit_struct
+{
+    double          max_leafc;
+    double          max_stemc;
+    double          cwdc;
+    double          litr1c;
+    double          litr2c;
+    double          litr3c;
+    double          litr4c;
+    double          soil1c;
+    double          soil2c;
+    double          soil3c;
+    double          soil4c;
+    double          litr1n;
+    double          sminn;
+} cninit_struct;
 #endif
 
 /*****************************************************************************
@@ -195,12 +236,6 @@ typedef struct calib_struct
  * spinupendyear            int         last met year for BGC spinup
  * spinupstart              int         start time of BGC spinup [ctime]
  * spinupend                int         end time of BGC spinup [ctime]
- * cs                       cstate_struct
- *                                      carbon state for initialization
- * ns                       nstate_struct
- *                                      nitrogen state for initialization
- * cinit                    cinit_struct
- *                                      carbon initialization parameters
  ****************************************************************************/
 typedef struct ctrl_struct
 {
@@ -239,9 +274,6 @@ typedef struct ctrl_struct
     int             spinupendyear;
     int             spinupstart;
     int             spinupend;
-    cstate_struct   cs;
-    nstate_struct   ns;
-    cinit_struct    cinit;
 #endif
 } ctrl_struct;
 
@@ -302,6 +334,7 @@ typedef struct pihm_struct
     co2control_struct co2;
     ndepcontrol_struct ndepctrl;
     epctbl_struct   epctbl;
+    cninit_struct   cninit;
 #endif
     forc_struct     forc;
     elem_struct    *elem;

@@ -70,9 +70,12 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
 #endif
 
 #ifdef _BGC_
-    InitBGC (pihm->elem, pihm->riv, &pihm->epctbl, &pihm->ctrl);
+    InitBgc (pihm->elem, &pihm->epctbl);
 #endif
 
+    /*
+     * Initialize land surface and hydrologic variables
+     */
     if (pihm->ctrl.init_type == RELAX)
     {
 #ifdef _NOAH_
@@ -90,9 +93,19 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     InitVar (pihm->elem, pihm->riv, CV_Y);
 
 #ifdef _BGC_
-    InitBGCVar (pihm->elem, pihm->riv,
-        pihm->ctrl.cinit, pihm->ctrl.cs, pihm->ctrl.ns, pihm->filename.bgcic,
-        pihm->ctrl.bgc_spinup);
+    /*
+     * Initialize CN variables
+     */
+    if (pihm->ctrl.bgc_spinup)
+    {
+        FirstDay (pihm->elem, pihm->riv, &pihm->cninit);
+    }
+    else
+    {
+        ReadBgcIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
+    }
+
+    InitBgcVar (pihm->elem, pihm->riv, CV_Y);
 #endif
 
     CalcModelStep (&pihm->ctrl);

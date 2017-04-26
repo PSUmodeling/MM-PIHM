@@ -2355,23 +2355,6 @@ typedef struct epvar_struct
     double          prev_dayl;
 } epvar_struct;
 
-
-/*****************************************************************************
- * Carbon state initialization structure
- * ---------------------------------------------------------------------------
- * Variables                Type        Description
- * ==========               ==========  ====================
- * max_leafc                double      first-year displayed + stored leafc
- *                                        [kgC m-2]
- * max_stemc                double      first-year total stem carbon [kgC m-2]
- ****************************************************************************/
-typedef struct cinit_struct
-{
-    double          max_leafc;
-    double          max_stemc;
-} cinit_struct;
-
-
 /*****************************************************************************
  * Structure for the photosynthesis routine
  * ---------------------------------------------------------------------------
@@ -2551,7 +2534,6 @@ typedef struct elem_struct
 #ifdef _BGC_
     bgcic_struct    restart_input;
     bgcic_struct    restart_output;
-    cinit_struct    cinit;
     cstate_struct   cs;
     cflux_struct    cf;
     nstate_struct   ns;
