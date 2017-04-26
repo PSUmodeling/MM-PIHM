@@ -248,8 +248,7 @@ double          Snowz0 (double, double, double);
 void            SStep (wstate_struct *, wflux_struct *, pstate_struct *,
     const soil_struct *, double *, double *, double *, double *, double *,
     double);
-void            SunPos (int, double, double, double, double, double *,
-    double *);
+void            SunPos (int, double, double, double, double, spa_data *);
 double          TBnd (double, double, const double *, double, int, int);
 double          TDfCnd (double, double, double, double, double);
 double          TmpAvg (double, double, double, const double *, int);

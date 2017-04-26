@@ -74,7 +74,7 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
     int             ind;
     int             i, k;
 #ifdef _NOAH_
-    double          zenith, azimuth;
+    spa_data        spa;
 #endif
 
     for (k = 0; k < forc->nmeteo; k++)
@@ -94,7 +94,7 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
 
     if (rad_mode > 0)
     {
-        SunPos (t, lat, lon, elev, tavg, &zenith, &azimuth);
+        SunPos (t, lat, lon, elev, tavg, &spa);
     }
 
 #endif
@@ -128,8 +128,8 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
             }
 
             elem[i].ef.soldn = TopoRadn (elem[i].ef.soldir, elem[i].ef.soldif,
-                zenith, azimuth, elem[i].topo.slope, elem[i].topo.aspect,
-                elem[i].topo.h_phi, elem[i].topo.svf);
+                spa.zenith, spa.azimuth180, elem[i].topo.slope,
+                elem[i].topo.aspect, elem[i].topo.h_phi, elem[i].topo.svf);
             elem[i].ef.soldn = (elem[i].ef.soldn > 0.0) ? elem[i].ef.soldn : 0.0;
         }
 #endif

@@ -94,6 +94,8 @@ double TopoRadn (double sdir, double sdif, double zenith,
     double          gvf;
     double          soldown;
 
+    azimuth180 = Mod ((360.0 + azimuth180), 360.0);
+
     if (zenith > h_phi[(int)floor (azimuth180 / 10.0)])
     {
         sdir = 0.0;
@@ -453,9 +455,8 @@ void RootDist (const double *sldpth, int nsoil, int nroot, double *rtdis)
 }
 
 void SunPos (int t, double latitude, double longitude, double elevation,
-    double tmp, double *zenith, double *azimuth)
+    double tmp, spa_data *spa)
 {
-    spa_data        spa;
     int             spa_result;
     time_t          rawtime;
     struct tm      *timestamp;
@@ -463,30 +464,29 @@ void SunPos (int t, double latitude, double longitude, double elevation,
     rawtime = (time_t) t;
     timestamp = gmtime (&rawtime);
 
-    spa.year = timestamp->tm_year + 1900;
-    spa.month = timestamp->tm_mon + 1;
-    spa.day = timestamp->tm_mday;
-    spa.hour = timestamp->tm_hour;
-    spa.minute = timestamp->tm_min;
-    spa.second = timestamp->tm_sec;
-    spa.timezone = 0;
+    spa->year = timestamp->tm_year + 1900;
+    spa->month = timestamp->tm_mon + 1;
+    spa->day = timestamp->tm_mday;
+    spa->hour = timestamp->tm_hour;
+    spa->minute = timestamp->tm_min;
+    spa->second = timestamp->tm_sec;
+    spa->timezone = 0;
 
-    spa.delta_t = 67;
-    spa.delta_ut1 = 0;
-    spa.atmos_refract = 0.5667;
+    spa->delta_t = 67;
+    spa->delta_ut1 = 0;
+    spa->atmos_refract = 0.5667;
 
-    spa.longitude = longitude;
-    spa.latitude = latitude;
-
-    spa.elevation = elevation;
+    spa->longitude = longitude;
+    spa->latitude = latitude;
+    spa->elevation = elevation;
 
     /* Calculate surface pressure based on fao 1998 method (narasimhan 2002) */
-    spa.pressure =
-        1013.25 * pow ((293.0 - 0.0065 * spa.elevation) / 293.0, 5.26);
-    spa.temperature = tmp;
+    spa->pressure =
+        1013.25 * pow ((293.0 - 0.0065 * spa->elevation) / 293.0, 5.26);
+    spa->temperature = tmp;
 
-    spa.function = SPA_ZA;
-    spa_result = spa_calculate (&spa);
+    spa->function = SPA_ZA;
+    spa_result = spa_calculate (spa);
 
     if (spa_result != 0)
     {
@@ -495,9 +495,6 @@ void SunPos (int t, double latitude, double longitude, double elevation,
         PIHMexit (EXIT_FAILURE);
     }
 
-    *azimuth = Mod ((360.0 + spa.azimuth180), 360.0);
-    printf ("%lf %lf\n", *azimuth, spa.azimuth);
-    *zenith = spa.zenith;
 }
 
 void CalHum (pstate_struct *ps, estate_struct *es)

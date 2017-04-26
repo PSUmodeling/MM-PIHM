@@ -2,7 +2,10 @@
 
 void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
 {
+#ifdef _BGC_
     int             first_balance;
+#endif
+
     /* Apply forcing */
     ApplyForcing (&pihm->forc, pihm->elem, pihm->riv, t
 #ifdef _NOAH_
