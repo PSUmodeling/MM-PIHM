@@ -174,33 +174,33 @@ void OnsetGrowth (const epconst_struct *epc, const epvar_struct *epv,
         {
             t1 = 2.0 / (double)epv->onset_counter;
         }
-    }
 
-    /* Transfer rate is defined to be a linearly decreasing
-     * function that reaches zero on the last day of the transfer
-     * period */
-    cf->leafc_transfer_to_leafc = t1 * cs->leafc_transfer;
-    nf->leafn_transfer_to_leafn = t1 * ns->leafn_transfer;
-    cf->frootc_transfer_to_frootc = t1 * cs->frootc_transfer;
-    nf->frootn_transfer_to_frootn = t1 * ns->frootn_transfer;
-    if (epc->woody)
-    {
-        cf->livestemc_transfer_to_livestemc =
-            t1 * cs->livestemc_transfer;
-        nf->livestemn_transfer_to_livestemn =
-            t1 * ns->livestemn_transfer;
-        cf->deadstemc_transfer_to_deadstemc =
-            t1 * cs->deadstemc_transfer;
-        nf->deadstemn_transfer_to_deadstemn =
-            t1 * ns->deadstemn_transfer;
-        cf->livecrootc_transfer_to_livecrootc =
-            t1 * cs->livecrootc_transfer;
-        nf->livecrootn_transfer_to_livecrootn =
-            t1 * ns->livecrootn_transfer;
-        cf->deadcrootc_transfer_to_deadcrootc =
-            t1 * cs->deadcrootc_transfer;
-        nf->deadcrootn_transfer_to_deadcrootn =
-            t1 * ns->deadcrootn_transfer;
+        /* Transfer rate is defined to be a linearly decreasing
+         * function that reaches zero on the last day of the transfer
+         * period */
+        cf->leafc_transfer_to_leafc = t1 * cs->leafc_transfer;
+        nf->leafn_transfer_to_leafn = t1 * ns->leafn_transfer;
+        cf->frootc_transfer_to_frootc = t1 * cs->frootc_transfer;
+        nf->frootn_transfer_to_frootn = t1 * ns->frootn_transfer;
+        if (epc->woody)
+        {
+            cf->livestemc_transfer_to_livestemc =
+                t1 * cs->livestemc_transfer;
+            nf->livestemn_transfer_to_livestemn =
+                t1 * ns->livestemn_transfer;
+            cf->deadstemc_transfer_to_deadstemc =
+                t1 * cs->deadstemc_transfer;
+            nf->deadstemn_transfer_to_deadstemn =
+                t1 * ns->deadstemn_transfer;
+            cf->livecrootc_transfer_to_livecrootc =
+                t1 * cs->livecrootc_transfer;
+            nf->livecrootn_transfer_to_livecrootn =
+                t1 * ns->livecrootn_transfer;
+            cf->deadcrootc_transfer_to_deadcrootc =
+                t1 * cs->deadcrootc_transfer;
+            nf->deadcrootn_transfer_to_deadcrootn =
+                t1 * ns->deadcrootn_transfer;
+        }
     }
 }
 
