@@ -124,56 +124,6 @@ void BKInput (char *simulation, char *outputdir)
     }
 }
 
-void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
-{
-    int             flag;
-
-    flag = CVodeInit (cvode_mem, Hydrol, (realtype)pihm->ctrl.starttime,
-        CV_Y);
-    flag = CVodeSStolerances (cvode_mem,(realtype) pihm->ctrl.reltol,
-        pihm->ctrl.abstol);
-    flag = CVodeSetUserData (cvode_mem, pihm);
-    flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
-    flag = CVodeSetStabLimDet (cvode_mem, TRUE);
-    flag = CVodeSetMaxStep (cvode_mem, (realtype) pihm->ctrl.maxstep);
-    //flag = CVodeMalloc (cvode_mem, Hydrol, (realtype) pihm->ctrl.starttime,
-    //    CV_Y, CV_SS, ;
-    flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
-}
-
-void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
-    N_Vector CV_Y)
-{
-    realtype        solvert;
-    realtype        cvode_val;
-    char            timestr[MAXSTRING];
-    struct tm      *timestamp;
-    time_t          rawtime;
-    int             flag;
-
-    solvert = (realtype) (*t);
-
-    flag = CVodeSetMaxNumSteps (cvode_mem, (long int)(stepsize * 20));
-    flag = CVodeSetStopTime (cvode_mem, (realtype) nextptr);
-    flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert,
-        CV_NORMAL);
-    flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
-
-    *t = (int)solvert;
-    rawtime = (time_t) (*t);
-    timestamp = gmtime (&rawtime);
-    strftime (timestr, 17, "%Y-%m-%d %H:%M", timestamp);
-
-    if (debug_mode)
-    {
-        PIHMprintf (VL_NORMAL, " Step = %s (%d)\n", timestr, *t);
-    }
-    else if (rawtime % 3600 == 0)
-    {
-        PIHMprintf (VL_NORMAL, " Step = %s\n", timestr);
-    }
-}
-
 void _PIHMexit (const char *fn, int lineno, const char *func, int error)
 {
     PIHMprintf (VL_ERROR, "\n");
@@ -186,3 +136,4 @@ void _PIHMexit (const char *fn, int lineno, const char *func, int error)
 
     exit (error);
 }
+

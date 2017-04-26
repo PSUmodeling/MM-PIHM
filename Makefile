@@ -60,6 +60,7 @@ SRCS_ = main.c\
 	is_sm_et.c\
 	lat_flow.c\
 	misc_func.c\
+	ode.c\
 	pihm.c\
 	print.c\
 	read_alloc.c\

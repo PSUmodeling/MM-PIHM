@@ -51,7 +51,7 @@ void            FindLine (FILE *, char *, int *, const char *);
 void            FreeData (pihm_struct);
 void            FrictSlope (elem_struct *, river_struct *, int, double *,
     double *);
-int             Hydrol (realtype, N_Vector, N_Vector, void *);
+void            Hydrol (pihm_struct);
 void            Initialize (pihm_struct, N_Vector);
 void            InitEFlux (eflux_struct *);
 void            InitEState (estate_struct *);
@@ -102,6 +102,7 @@ void            NextLine (FILE *, char *, int *);
 #define NV_DATA         NV_DATA_S
 #define NV_Ith          NV_Ith_S
 #endif
+int             ODE (realtype, N_Vector, N_Vector, void *);
 double          OverlandFlow (double, double, double, double, double);
 double          OLFEleToRiv (double, double, double, double, double, double);
 void            ParseCmdLineParam (int, char *[], char *);
