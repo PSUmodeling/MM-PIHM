@@ -41,11 +41,8 @@ int main (int argc, char *argv[])
     /* Read PIHM input files */
     ReadAlloc (project, pihm);
 
-    /* Number of state variables */
-    nsv = 3 * nelem + 2 * nriver;
-
     /* Initialize CVode state variables */
-    CV_Y = N_VNew (nsv);
+    CV_Y = N_VNew (NSV);
 
     /* Initialize PIHM structure */
     Initialize (pihm, CV_Y);

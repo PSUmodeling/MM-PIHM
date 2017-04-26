@@ -17,7 +17,7 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * Initialization of temporary state variables
      */
-    for (i = 0; i < 3 * nelem + 2 * nriver; i++)
+    for (i = 0; i < NSV; i++)
     {
         dy[i] = 0.0;
     }

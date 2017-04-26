@@ -47,7 +47,7 @@ void ApplyBC (forc_struct *forc, elem_struct *elem, int t)
 
     for (i = 0; i < nelem; i++)
     {
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             if (elem[i].attrib.bc_type[j] > 0)
             {

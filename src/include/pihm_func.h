@@ -3,6 +3,8 @@
 
 #define _ARITH_
 
+#define NSV             3 * nelem + 2 * nriver
+
 #define SURF(i)         i
 #define UNSAT(i)        i + nelem
 #define GW(i)           i + 2 * nelem
