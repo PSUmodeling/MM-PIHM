@@ -86,6 +86,9 @@ void InitBgcVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
 
         ZeroSrcSnk (&elem[i].cs, &elem[i].ns, &elem[i].summary);
         elem[i].epv.annavg_t2m = elem[i].ps.tbot;
+
+        NV_Ith (CV_Y, SURFN(i)) = elem[i].ns.surfn;
+        NV_Ith (CV_Y, SMINN(i)) = elem[i].ns.sminn;
     }
 
     for (i = 0; i < nriver; i++)
@@ -93,5 +96,8 @@ void InitBgcVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
         riv[i].ns.streamn = riv[i].restart_input.streamn;
         riv[i].ns.sminn = riv[i].restart_input.sminn;
         riv[i].nf.sminn_leached = 0.0;
+
+        NV_Ith (CV_Y, STREAMN(i)) = riv[i].ns.streamn;
+        NV_Ith (CV_Y, RIVBEDN(i)) = riv[i].ns.sminn;
     }
 }
