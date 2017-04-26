@@ -165,43 +165,33 @@ void ApplyLAI (forc_struct *forc, elem_struct *elem, int t
             elem[i].ps.proj_lai = 0.0;
         }
     }
-#endif
-
-#ifdef _BGC_
-    if (spinup)
+#elif  _BGC_
+    for (i = 0; i < nelem; i++)
     {
-#endif
-        if (forc->nlai > 0)
-        {
-            for (k = 0; k < forc->nlai; k++)
-            {
-                IntrplForcing (forc->lai[k], t, 1);
-            }
-        }
-
-        for (i = 0; i < nelem; i++)
-        {
-            if (elem[i].attrib.lai_type > 0)
-            {
-                ind = elem[i].attrib.lai_type - 1;
-
-                elem[i].ps.proj_lai = forc->lai[ind].value[0];
-            }
-            else
-            {
-                elem->ps.proj_lai = MonthlyLAI (t, elem->attrib.lc_type);
-            }
-        }
-#ifdef _BGC_
+        elem[i].ps.proj_lai = elem[i].cs.leafc * elem[i].epc.avg_proj_sla;
     }
-    else
+#else
+    if (forc->nlai > 0)
     {
-        for (i = 0; i < nelem; i++)
+        for (k = 0; k < forc->nlai; k++)
         {
-            elem[i].ps.proj_lai = elem[i].cs.leafc * elem[i].epc.avg_proj_sla;
+            IntrplForcing (forc->lai[k], t, 1);
         }
     }
-#endif
+
+    for (i = 0; i < nelem; i++)
+    {
+        if (elem[i].attrib.lai_type > 0)
+        {
+            ind = elem[i].attrib.lai_type - 1;
+
+            elem[i].ps.proj_lai = forc->lai[ind].value[0];
+        }
+        else
+        {
+            elem->ps.proj_lai = MonthlyLAI (t, elem->attrib.lc_type);
+        }
+    }
 }
 
 void ApplyRiverBC (forc_struct *forc, river_struct *riv, int t)
