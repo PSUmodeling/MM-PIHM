@@ -38,19 +38,9 @@ void LateralFlow (pihm_struct pihm)
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            if (elem->nabr[j] != 0)
+            if (elem->nabr[j] > 0)
             {
-                if (elem->nabr[j] > 0)
-                {
-                    nabr = &pihm->elem[elem->nabr[j] - 1];
-                }
-                else
-                {
-                    riv = &pihm->riv[-elem->nabr[j] - 1];
-                    nabr = (i == riv->leftele - 1) ?
-                        &pihm->elem[riv->rightele - 1] :
-                        &pihm->elem[riv->leftele - 1];
-                }
+                nabr = &pihm->elem[elem->nabr[j] - 1];
 
                 /*
                  * Subsurface lateral flux calculation between triangular
@@ -108,7 +98,12 @@ void LateralFlow (pihm_struct pihm)
                     OverlandFlow (avg_y_surf, grad_y_surf, avg_sf, crossa,
                     avg_rough);
             }
-            else                /* Boundary condition flux */
+            else if (elem->nabr[j] < 0)
+            {
+                /* Do nothing. River-element interactions are calculated
+                 * in river_flow.c */
+            }
+            else                        /* Boundary condition flux */
             {
                 /* No flow (natural) boundary condition is default */
                 if (elem->attrib.bc_type[j] == 0)

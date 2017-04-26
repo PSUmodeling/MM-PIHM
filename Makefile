@@ -140,6 +140,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/maint_resp.c\
 	bgc/make_zero_flux_struct.c\
 	bgc/mortality.c\
+	bgc/ntransport.c\
 	bgc/phenology.c\
 	bgc/photosynthesis.c\
 	bgc/precision_control.c\
@@ -156,7 +157,6 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	noah/noah.c\
 	spa/spa.c
 	#bgc/metarr_init.c
-	#bgc/ntransport.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-bgc
   MSG = "... Compiling Flux-PIHM-BGC ..."

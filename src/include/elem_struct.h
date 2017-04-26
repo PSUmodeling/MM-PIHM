@@ -2484,7 +2484,8 @@ typedef struct solute_struct
 {
     double          conc_surf;
     double          conc_subsurf;
-    double          surfflux[NUM_EDGE];
+    double          infilflux;
+    double          ovlflux[NUM_EDGE];
     double          subflux[NUM_EDGE];
 } solute_struct;
 

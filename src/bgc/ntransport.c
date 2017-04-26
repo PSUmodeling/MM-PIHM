@@ -1,355 +1,223 @@
-/*
- * nleaching.c
- * daily nitrogen leaching to groundwater
- *
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
 const double        MINSTRG = 1.0E-4;
-const int           UP = 0;
-const int           DOWN = 1;
-const int           LEFT = 2;
-const int           RIGHT = 3;
 
-void NTransport (elem_struct *elem, river_struct *riv, double dt)
+void NTransport (pihm_struct pihm)
 {
     int             i;
-    int             nsteps = 1;
-
-    /* N leaching flux is calculated after all the other nfluxes are
-     * reconciled to avoid the possibility of removing more N than is there.
-     * This follows the implicit logic of precedence for soil mineral N
-     * resources:
-     * 1) microbial processes and plant uptake (competing)
-     * 2) leaching
-     *
-     * leaching happens when there is outflow, as a function of the presumed
-     * proportion of the soil mineral N pool which is soluble (nitrates), the
-     * soil water content, and the outflow */
 
     /*
-     * Copy information to solute structures
+     * Calculate solute N concentrantions
      */
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int         j, k;
+        elem_struct *elem;
+        double      strg;
 
-        elem[i].nsol.prev_strg = elem[i].daily.prev_surf +
-            (elem[i].daily.prev_unsat + elem[i].daily.prev_gw) *
-            elem[i].soil.porosity;
-        elem[i].nsol.strg = elem[i].daily.surf +
-            (elem[i].daily.unsat + elem[i].daily.gw) * elem[i].soil.porosity;
-        //elem[i].nsol.prev_strg = elem[i].daily.prev_surf;
-        //elem[i].nsol.strg = elem[i].daily.surf;
+        elem = &pihm->elem[i];
 
-        //for (k = 0; k < elem[i].ps.nsoil; k++)
-        //{
-        //    elem[i].nsol.prev_strg +=
-        //        elem[i].daily.prev_smc[k] * elem[i].ps.sldpth[k];
-        //    elem[i].nsol.strg +=
-        //        elem[i].daily.smc[k] * elem[i].ps.sldpth[k];
-        //}
+        /* Element surface */
+        strg = elem->ws.surf;
+        strg = (strg > MINSTRG) ? strg : MINSTRG;
+        elem->nsol.conc_surf = elem->ns.surfn / strg / 1000.0;
+        elem->nsol.conc_surf = (elem->nsol.conc_surf > 0.0) ?
+            elem->nsol.conc_surf : 0.0;
 
-        elem[i].nsol.prev_strg = (elem[i].nsol.prev_strg > MINSTRG) ?
-            elem[i].nsol.prev_strg : MINSTRG;
-        elem[i].nsol.prev_strg *= 1000.0;
-        elem[i].nsol.strg = (elem[i].nsol.strg > MINSTRG) ?
-            elem[i].nsol.strg : MINSTRG;
-        elem[i].nsol.strg *= 1000.0;
+        /* Element subsurface */
+        strg = (elem->ws.unsat + elem->ws.gw) * elem->soil.porosity;
+        strg = (strg > MINSTRG) ? strg : MINSTRG;
+        elem->nsol.conc_subsurf =
+            MOBILEN_PROPORTION * elem->ns.sminn / strg / 1000.0;
+        elem->nsol.conc_subsurf = (elem->nsol.conc_subsurf > 0.0) ?
+            elem->nsol.conc_subsurf : 0.0;
+    }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < nriver; i++)
+    {
+        river_struct *riv;
+        double      strg;
+
+        riv = &pihm->riv[i];
+
+        /* River stream */
+        strg = riv->ws.stage;
+        strg = (strg > MINSTRG) ? strg : MINSTRG;
+        riv->nsol.conc_stream = riv->ns.streamn / strg / 1000.0;
+        riv->nsol.conc_stream = (riv->nsol.conc_stream > 0.0) ?
+            riv->nsol.conc_stream : 0.0;
+
+        /* River bed */
+        strg = riv->ws.gw * riv->matl.porosity;
+        strg = (strg > MINSTRG) ? strg : MINSTRG;
+        riv->nsol.conc_bed =
+            MOBILEN_PROPORTION * riv->ns.sminn / strg / 1000.0;
+        riv->nsol.conc_bed = (riv->nsol.conc_bed > 0.0) ?
+            riv->nsol.conc_bed : 0.0;
+    }
+
+    /*
+     * Calculate solute fluxes
+     */
+    for (i = 0; i < nelem; i++)
+    {
+        elem_struct *elem;
+        elem_struct *nabr;
+        int         j;
+
+        elem = &pihm->elem[i];
+
+        /* Infiltration */
+        elem->nsol.infilflux = (elem->wf.infil > 0.0) ?
+            elem->wf.infil * 1000.0 * elem->nsol.conc_surf :
+            elem->wf.infil * 1000.0 * elem->nsol.conc_subsurf;
+
+        /* Element to element */
         for (j = 0; j < NUM_EDGE; j++)
         {
-            elem[i].nsol.wflux[j] = (elem[i].daily.avg_ovlflow[j] +
-                elem[i].daily.avg_subsurf[j]) *
-                1000.0 / elem[i].topo.area;
-        }
-    }
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (i = 0; i < nriver; i++)
-    {
-        riv[i].nsol.prev_strg = riv[i].daily.prev_stage +
-            riv[i].daily.prev_gw * riv[i].matl.porosity;
-        riv[i].nsol.strg = riv[i].daily.stage +
-            riv[i].daily.gw * riv[i].matl.porosity;
-
-        riv[i].nsol.prev_strg = (riv[i].nsol.prev_strg > MINSTRG) ?
-            riv[i].nsol.prev_strg : MINSTRG;
-        riv[i].nsol.prev_strg *= 1000.0;
-        riv[i].nsol.strg = (riv[i].nsol.strg > MINSTRG) ?
-            riv[i].nsol.strg : MINSTRG;
-        riv[i].nsol.strg *= 1000.0;
-
-        riv[i].nsol.wflux[UP] = (riv[i].daily.avg_rivflow[UP_CHANL2CHANL] +
-            riv[i].daily.avg_rivflow[UP_AQUIF2AQUIF]) *
-            1000.0 / riv[i].topo.area;
-
-        riv[i].nsol.wflux[DOWN] =
-            (riv[i].daily.avg_rivflow[DOWN_CHANL2CHANL] +
-            riv[i].daily.avg_rivflow[DOWN_AQUIF2AQUIF]) *
-            1000.0 / riv[i].topo.area;
-
-        riv[i].nsol.wflux[LEFT] =
-            (riv[i].daily.avg_rivflow[LEFT_SURF2CHANL] +
-            riv[i].daily.avg_rivflow[LEFT_AQUIF2CHANL] +
-            riv[i].daily.avg_rivflow[LEFT_AQUIF2AQUIF]) *
-            1000.0 / riv[i].topo.area;
-
-        riv[i].nsol.wflux[RIGHT] =
-            (riv[i].daily.avg_rivflow[RIGHT_SURF2CHANL] +
-            riv[i].daily.avg_rivflow[RIGHT_AQUIF2CHANL] +
-            riv[i].daily.avg_rivflow[RIGHT_AQUIF2AQUIF]) *
-            1000.0 / riv[i].topo.area;
-    }
-
-    for (i = 0; i < nelem; i++)
-    {
-        int         j;
-        double      totsnk;
-        int         ratio;
-
-        totsnk = 0.0;
-
-        for (j = 0; j < NUM_EDGE; j++)
-        {
-            if (elem[i].nsol.wflux[j] > 0.0)
+            if (elem->nabr[j] > 0)
             {
-                totsnk += elem[i].nsol.wflux[j] * dt;
+                nabr = &pihm->elem[elem->nabr[j] - 1];
+
+                elem->nsol.subflux[j] = (elem->nsol.subflux[j] > 0.0) ?
+                    elem->wf.subsurf[j] * 1000.0 * elem->nsol.conc_subsurf :
+                    elem->wf.subsurf[j] * 1000.0 * nabr->nsol.conc_subsurf;
+
+                elem->nsol.ovlflux[j] = (elem->nsol.ovlflux[j] > 0.0) ?
+                    elem->wf.ovlflow[j] * 1000.0 * elem->nsol.conc_surf :
+                    elem->wf.ovlflow[j] * 1000.0 * nabr->nsol.conc_surf;
+            }
+            else if (elem->nabr[j] < 0)
+            {
+                /* Do nothing. River-element interactions are calculated
+                 * later */
+            }
+            else                        /* Boundary condition flux */
+            {
+                elem->nsol.ovlflux[j] = 0.0;
+                elem->nsol.subflux[j] = 0.0;
             }
         }
-
-        if (totsnk > elem[i].nsol.prev_strg)
-        {
-            ratio = (int)ceil (totsnk / elem[i].nsol.prev_strg);
-            nsteps = (ratio > nsteps) ? ratio : nsteps;
-        }
     }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < nriver; i++)
     {
+        river_struct *riv;
+        river_struct *down;
+        elem_struct  *left;
+        elem_struct  *right;
         int         j;
-        double      totsnk;
-        int         ratio;
 
-        totsnk = 0.0;
+        riv = &pihm->riv[i];
 
-        for (j = 0; j < 4; j++)
+        /* Downstream and upstream */
+        if (riv->down > 0)
         {
-            if (riv[i].nsol.wflux[j] > 0.0)
-            {
-                totsnk += riv[i].nsol.wflux[j] * dt;
-            }
+            down = &pihm->riv[riv->down - 1];
+
+            /* Stream */
+            riv->nsol.flux[DOWN_CHANL2CHANL] =
+                riv->wf.rivflow[DOWN_CHANL2CHANL] * 1000.0 *
+                ((riv->wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
+                riv->nsol.conc_stream : down->nsol.conc_stream);
+
+            down->nsol.flux[UP_CHANL2CHANL] =
+                -riv->nsol.flux[DOWN_CHANL2CHANL];
+
+            /* Bed */
+            riv->nsol.flux[DOWN_AQUIF2AQUIF] =
+                riv->wf.rivflow[DOWN_AQUIF2AQUIF] * 1000.0 *
+                ((riv->wf.rivflow[DOWN_AQUIF2AQUIF] > 0.0) ?
+                riv->nsol.conc_bed : down->nsol.conc_bed);
+
+            down->nsol.flux[UP_AQUIF2AQUIF] =
+                -riv->nsol.flux[DOWN_AQUIF2AQUIF];
+        }
+        else
+        {
+            riv->nsol.flux[DOWN_CHANL2CHANL] =
+                riv->wf.rivflow[DOWN_CHANL2CHANL] * 1000.0 *
+                riv->nsol.conc_stream;
+
+            riv->nsol.flux[DOWN_AQUIF2AQUIF] = 0.0;
         }
 
-        if (totsnk > riv[i].nsol.prev_strg)
+        /* Left and right banks */
+        left = &pihm->elem[riv->leftele - 1];
+        right = &pihm->elem[riv->rightele - 1];
+
+        if (riv->leftele > 0)
         {
-            ratio = (int)ceil (totsnk / riv[i].nsol.prev_strg);
-            nsteps = (ratio > nsteps) ? ratio : nsteps;
-        }
-    }
+            riv->nsol.flux[LEFT_SURF2CHANL] =
+                riv->wf.rivflow[LEFT_SURF2CHANL] * 1000.0 *
+                ((riv->wf.rivflow[LEFT_SURF2CHANL] > 0.0) ?
+                riv->nsol.conc_stream : left->nsol.conc_surf);
 
-    AdptStepTrnsp (elem, riv, dt, nsteps);
-}
+            riv->nsol.flux[LEFT_AQUIF2CHANL] =
+                riv->wf.rivflow[LEFT_AQUIF2CHANL] * 1000.0 *
+                ((riv->wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
+                riv->nsol.conc_stream : left->nsol.conc_subsurf);
 
-void AdptStepTrnsp (elem_struct *elem, river_struct *riv, double dt,
-    int nsteps)
-{
-    int             i;
-    int             step;
-    double          frac;
-    double          adpt_dt;
-
-    adpt_dt = dt / (double)nsteps;
-
-    /*
-     * Initialize nf.sminn_leached fluxes
-     */
-    for (i = 0; i < nelem; i++)
-    {
-        elem[i].nf.sminn_leached = 0.0;
-    }
-
-    for (i = 0; i < nriver; i++)
-    {
-        riv[i].nf.sminn_leached = 0.0;
-    }
-
-    /*
-     * Local time step loops
-     */
-    for (step = 0; step < nsteps; step++)
-    {
-        frac = (double)(step + 1) / (double)nsteps;
-
-        /*
-         * Calculate soluble N concentrations
-         */
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-        for (i = 0; i < nelem; i++)
-        {
-            double  local_strg;
-
-            local_strg = elem[i].nsol.prev_strg +
-                (elem[i].nsol.strg - elem[i].nsol.prev_strg) * frac;
-
-            elem[i].nsol.conc =
-                MOBILEN_PROPORTION * elem[i].ns.sminn / local_strg;
-
-            elem[i].nsol.conc = (elem[i].nsol.conc > 0.0) ?
-                elem[i].nsol.conc : 0.0;
-        }
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-        for (i = 0; i < nriver; i++)
-        {
-            double      local_strg;
-
-            local_strg = riv[i].nsol.prev_strg +
-                (riv[i].nsol.strg - riv[i].nsol.prev_strg) * frac;
-
-            riv[i].nsol.conc =
-                MOBILEN_PROPORTION * riv[i].ns.sminn / local_strg;
-
-            riv[i].nsol.conc = (riv[i].nsol.conc > 0.0) ?
-                riv[i].nsol.conc : 0.0;
-        }
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-        for (i = 0; i < nelem; i++)
-        {
-            int         j;
-
-            elem[i].nsol.trnsp_flux = 0.0;
+            riv->nsol.flux[LEFT_AQUIF2AQUIF] =
+                riv->wf.rivflow[LEFT_AQUIF2AQUIF] * 1000.0 *
+                ((riv->wf.rivflow[LEFT_AQUIF2AQUIF] > 0.0) ?
+                riv->nsol.conc_bed : left->nsol.conc_subsurf);
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                if (elem[i].nabr[j] > 0)
+                if (left->nabr[j] == - (i + 1))
                 {
-                    elem[i].nsol.trnsp_flux += (elem[i].nsol.wflux[j] > 0.0) ?
-                        elem[i].nsol.conc * elem[i].nsol.wflux[j] * adpt_dt :
-                        elem[elem[i].nabr[j] - 1].nsol.conc *
-                        elem[i].nsol.wflux[j] * adpt_dt;
-                }
-                else if (elem[i].nabr[j] < 0)
-                {
-                    elem[i].nsol.trnsp_flux += (elem[i].nsol.wflux[j] > 0.0) ?
-                        elem[i].nsol.conc * elem[i].nsol.wflux[j] * adpt_dt :
-                        riv[-elem[i].nabr[j] - 1].nsol.conc *
-                        elem[i].nsol.wflux[j] * adpt_dt;
+                    left->nsol.ovlflux[j] = -riv->nsol.flux[LEFT_SURF2CHANL];
+                    left->nsol.subflux[j] =
+                        -(riv->nsol.flux[LEFT_AQUIF2CHANL] +
+                        riv->nsol.flux[LEFT_AQUIF2AQUIF]);
+                    break;
                 }
             }
 
-            elem[i].nsol.trnsp_flux =
-                (elem[i].nsol.trnsp_flux < elem[i].ns.sminn) ?
-                elem[i].nsol.trnsp_flux : elem[i].ns.sminn;
-
-            elem[i].nf.sminn_leached += elem[i].nsol.trnsp_flux;
-            elem[i].ns.nleached_snk += elem[i].nsol.trnsp_flux;
-            elem[i].ns.sminn -= elem[i].nsol.trnsp_flux;
-#ifdef _DEBUG_
-            if (fabs(elem[i].nsol.trnsp_flux) > 1.0e3)
-            {
-                printf ("Error\n");
-            }
-#endif
         }
 
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-        for (i = 0; i < nriver; i++)
+        if (riv->rightele > 0)
         {
-            riv[i].nsol.trnsp_flux = 0.0;
+            riv->nsol.flux[RIGHT_SURF2CHANL] =
+                riv->wf.rivflow[RIGHT_SURF2CHANL] * 1000.0 *
+                ((riv->wf.rivflow[RIGHT_SURF2CHANL] > 0.0) ?
+                riv->nsol.conc_stream : right->nsol.conc_surf);
 
-            /* Upstream */
-            if (riv[i].up > 0)
+            riv->nsol.flux[RIGHT_AQUIF2CHANL] =
+                riv->wf.rivflow[RIGHT_AQUIF2CHANL] * 1000.0 *
+                ((riv->wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
+                riv->nsol.conc_stream : right->nsol.conc_subsurf);
+
+            riv->nsol.flux[RIGHT_AQUIF2AQUIF] =
+                riv->wf.rivflow[RIGHT_AQUIF2AQUIF] * 1000.0 *
+                ((riv->wf.rivflow[RIGHT_AQUIF2AQUIF] > 0.0) ?
+                riv->nsol.conc_bed : right->nsol.conc_subsurf);
+
+            for (j = 0; j < NUM_EDGE; j++)
             {
-                riv[i].nsol.trnsp_flux += (riv[i].nsol.wflux[UP] > 0.0) ?
-                    riv[i].nsol.conc * riv[i].nsol.wflux[UP] * adpt_dt :
-                    riv[riv[i].up - 1].nsol.conc *
-                    riv[i].nsol.wflux[UP] * adpt_dt;
+                if (right->nabr[j] == - (i + 1))
+                {
+                    right->nsol.ovlflux[j] =
+                        -riv->nsol.flux[RIGHT_SURF2CHANL];
+                    right->nsol.subflux[j] =
+                        -(riv->nsol.flux[RIGHT_AQUIF2CHANL] +
+                        riv->nsol.flux[RIGHT_AQUIF2AQUIF]);
+                    break;
+                }
             }
-
-            /* Downstream */
-            if (riv[i].down > 0)
-            {
-                riv[i].nsol.trnsp_flux += (riv[i].nsol.wflux[DOWN] > 0.0) ?
-                    riv[i].nsol.conc * riv[i].nsol.wflux[DOWN] * adpt_dt :
-                    riv[riv[i].down - 1].nsol.conc *
-                    riv[i].nsol.wflux[DOWN] * adpt_dt;
-            }
-            else
-            {
-                riv[i].nsol.trnsp_flux +=
-                    riv[i].nsol.conc * riv[i].nsol.wflux[DOWN] * adpt_dt;
-            }
-
-            /* Left bank */
-            riv[i].nsol.trnsp_flux += (riv[i].nsol.wflux[LEFT] > 0.0) ?
-                riv[i].nsol.conc * riv[i].nsol.wflux[LEFT] * adpt_dt :
-                elem[riv[i].leftele - 1].nsol.conc *
-                riv[i].nsol.wflux[LEFT] * adpt_dt;
-
-            /* Right bank */
-            riv[i].nsol.trnsp_flux += (riv[i].nsol.wflux[RIGHT] > 0.0) ?
-                riv[i].nsol.conc * riv[i].nsol.wflux[RIGHT] * adpt_dt :
-                elem[riv[i].rightele - 1].nsol.conc *
-                riv[i].nsol.wflux[RIGHT] * adpt_dt;
-
-            riv[i].nsol.trnsp_flux =
-                (riv[i].nsol.trnsp_flux < riv[i].ns.sminn) ?
-                riv[i].nsol.trnsp_flux : riv[i].ns.sminn;
-
-            riv[i].nf.sminn_leached += riv[i].nsol.trnsp_flux;
-            riv[i].ns.sminn -= riv[i].nsol.trnsp_flux;
         }
+
+        riv->nsol.flux[CHANL_LKG] = riv->wf.rivflow[CHANL_LKG] * 1000.0 *
+            ((riv->wf.rivflow[CHANL_LKG] > 0.0) ?
+            riv->nsol.conc_stream : riv->nsol.conc_bed);
     }
 }
-
-//void nleaching_nt (bgc_grid *grid, int numele, bgc_river *riv, int numriv)
-//{
-//    double          nconc;
-//    int             i;
-//    double          total_soilwater = 0.0;
-//    double          total_sminn = 0.0;
-//    double          nleached;
-//    double          outflow;
-//
-//    for (i = 0; i < numele; i++)
-//    {
-//        total_soilwater += grid[i].ws.soilw;
-//        total_sminn += grid[i].ns.sminn;
-//    }
-//
-//    nconc = total_sminn / total_soilwater;
-//
-//    outflow = riv[numriv - 1].metv.latflux[1];
-//
-//    nleached = MOBILEN_PROPORTION * nconc * outflow;
-//
-//    for (i = 0; i < numele; i++)
-//    {
-//        grid[i].nf.sminn_leached = nleached / numele;
-//
-//        grid[i].nf.sminn_leached = (grid[i].nf.sminn_leached < grid[i].ns.sminn) ? grid[i].nf.sminn_leached : grid[i].ns.sminn;
-//
-//        grid[i].ns.nleached_snk += grid[i].nf.sminn_leached;
-//        grid[i].ns.sminn -= grid[i].nf.sminn_leached;
-//    }
-//}
