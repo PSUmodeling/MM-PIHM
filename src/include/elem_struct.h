@@ -1795,6 +1795,7 @@ typedef struct cflux_struct
  *                                        [kgN m-2]
  * soil4n                   double      recalcitrant SOM N (humus, slowest)
  *                                        [kgN m-2]
+ * surfn                    double      surface mineral N [kgN m-2]
  * sminn                    double      soil mineral N [kgN m-2]
  * retransn                 double      plant pool of retranslocated N
  *                                        [kgN m-2]
@@ -1835,6 +1836,7 @@ typedef struct nstate_struct
     double          soil2n;
     double          soil3n;
     double          soil4n;
+    double          surfn;
     double          sminn;
     double          retransn;
     double          npool;
@@ -2496,11 +2498,10 @@ typedef struct summary_struct
 
 typedef struct solute_struct
 {
-    double          conc;
-    double          trnsp_flux;
-    double          prev_strg;
-    double          strg;
-    double          wflux[NUM_EDGE];
+    double          conc_surf;
+    double          conc_subsurf;
+    double          surfflux[NUM_EDGE];
+    double          subflux[NUM_EDGE];
 } solute_struct;
 
 #endif
