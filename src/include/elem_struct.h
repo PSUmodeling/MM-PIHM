@@ -2178,6 +2178,10 @@ typedef struct nflux_struct
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
+ * surfn0                   double      surface N of previous time step
+ *                                        [kg N m-2]
+ * sminn0                   double      subsurface N of previous time step
+ *                                        [kg N m-2]
  * mineralized              double      N mineralization [kgN m-2 day-1]
  * potential_immob          double      potential N immobilization [kgN m-2]
  * plitr1c_loss             double      potential loss from litter labile pool
@@ -2211,6 +2215,8 @@ typedef struct nflux_struct
  ****************************************************************************/
 typedef struct ntemp_struct
 {
+    double          surfn0;
+    double          sminn0;
     double          mineralized;
     double          potential_immob;
     double          plitr1c_loss;
@@ -2340,7 +2346,7 @@ typedef struct epvar_struct
     double          onset_gdd;
     double          onset_swi;
     int             offset_flag;
-    double          offset_counter;
+    int             offset_counter;
     double          offset_fdd;
     double          offset_swi;
     double          lgsf;
@@ -2485,6 +2491,7 @@ typedef struct solute_struct
     double          conc_surf;
     double          conc_subsurf;
     double          infilflux;
+    double          snksrc;
     double          ovlflux[NUM_EDGE];
     double          subflux[NUM_EDGE];
 } solute_struct;

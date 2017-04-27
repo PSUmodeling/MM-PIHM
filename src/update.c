@@ -33,6 +33,21 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
 #endif
 
         pihm->elem[i].ws0 = pihm->elem[i].ws;
+
+#ifdef _BGC_
+        pihm->elem[i].ns.surfn = (y[SURFN (i)] > 0.0) ? y[SURFN (i)] : 0.0;
+        pihm->elem[i].ns.sminn = (y[SMINN (i)] > 0.0) ? y[SMINN (i)] : 0.0;
+
+        pihm->elem[i].ns.nleached_snk +=
+            (pihm->elem[i].nt.surfn0 + pihm->elem[i].nt.sminn0) -
+            (pihm->elem[i].ns.surfn + pihm->elem[i].ns.sminn) +
+            pihm->elem[i].nf.ndep_to_sminn * stepsize +
+            pihm->elem[i].nf.nfix_to_sminn * stepsize +
+            pihm->elem[i].nsol.snksrc * stepsize;
+
+        pihm->elem[i].nt.surfn0 = pihm->elem[i].ns.surfn;
+        pihm->elem[i].nt.sminn0 = pihm->elem[i].ns.sminn;
+#endif
     }
 
 #ifdef _OPENMP

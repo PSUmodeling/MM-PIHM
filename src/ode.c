@@ -65,6 +65,10 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
      */
     Hydrol (pihm);
 
+#ifdef _BGC_
+    NTransport (pihm);
+#endif
+
     /*
      * Build RHS of ODEs
      */
@@ -113,6 +117,18 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
                 i + 1, t);
             PIHMexit (EXIT_FAILURE);
         }
+
+#ifdef _BGC_
+        dy[SURFN(i)] += elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn -
+            elem->nsol.infilflux;
+        dy[SMINN(i)] += elem->nsol.infilflux + elem->nsol.snksrc;
+
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            dy[SURFN(i)] -= elem->nsol.ovlflux[j] / elem->topo.area;
+            dy[SMINN(i)] -= elem->nsol.subflux[j] / elem->topo.area;
+        }
+#endif
     }
 
 #ifdef _OPENMP
@@ -155,6 +171,21 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
                 "%lf\n", i + 1, t);
             PIHMexit (EXIT_FAILURE);
         }
+
+#ifdef _BGC_
+        for (j = 0; j <= 6; j++)
+        {
+            dy[STREAMN (i)] -= riv->nsol.flux[j] / riv->topo.area;
+        }
+
+        dy[RIVBEDN (i)] += 0.0 -
+            riv->nsol.flux[LEFT_AQUIF2AQUIF] -
+            riv->nsol.flux[RIGHT_AQUIF2AQUIF] -
+            riv->nsol.flux[DOWN_AQUIF2AQUIF] -
+            riv->nsol.flux[UP_AQUIF2AQUIF] + riv->nsol.flux[CHANL_LKG];
+
+        dy[RIVBEDN (i)] /= riv->topo.area;
+#endif
     }
 
     return (0);

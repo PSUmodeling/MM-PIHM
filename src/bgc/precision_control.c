@@ -117,11 +117,11 @@ void PrecisionControl (cstate_struct *cs, nstate_struct *ns)
     }
 
     /* Additional tests for soil mineral N and retranslocated N */
-    if (ns->sminn < CRIT_PREC)
-    {
-        ns->nvol_snk += ns->sminn;
-        ns->sminn = 0.0;
-    }
+    //if (ns->sminn < CRIT_PREC)
+    //{
+    //    ns->nvol_snk += ns->sminn;
+    //    ns->sminn = 0.0;
+    //}
     if (ns->retransn < CRIT_PREC)
     {
         ns->litr1n += ns->retransn;

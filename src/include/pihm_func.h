@@ -470,7 +470,7 @@ void            Mortality (const epconst_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *, double);
 //void            NTransport (elem_struct *, river_struct *, double);
 void            NitrogenStateUpdate (nflux_struct *, nstate_struct *,
-    int, int, int, double);
+    solute_struct *, int, int, int, double);
 void            OffsetLitterfall (const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, const nstate_struct *,
     nflux_struct *, double);
@@ -494,7 +494,7 @@ void            RestartInput (cstate_struct *, nstate_struct *,
 void            RestartOutput (cstate_struct *, nstate_struct *,
     epvar_struct *, bgcic_struct *);
 void            SeasonDecidPhenology (const epconst_struct *, epvar_struct *,
-    const estate_struct *, const cstate_struct *, double);
+    const estate_struct *, double);
 void            SoilPsi (const soil_struct *, double, double *);
 void            TotalPhotosynthesis (const epconst_struct *, epvar_struct *,
     const estate_struct *, const pstate_struct *, cflux_struct *,

@@ -485,7 +485,7 @@ void SunPos (int t, double latitude, double longitude, double elevation,
         1013.25 * pow ((293.0 - 0.0065 * spa->elevation) / 293.0, 5.26);
     spa->temperature = tmp;
 
-    spa->function = SPA_ZA;
+    spa->function = SPA_ZA_RTS;
     spa_result = spa_calculate (spa);
 
     if (spa_result != 0)

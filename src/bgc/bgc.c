@@ -62,6 +62,7 @@ void Bgc (pihm_struct pihm, int t, double dt, int first_balance)
         nstate_struct *ns;
         nflux_struct *nf;
         ntemp_struct *nt;
+        solute_struct *nsol;
         psn_struct *psn_sun, *psn_shade;
         summary_struct *summary;
         int         annual_alloc;
@@ -78,6 +79,7 @@ void Bgc (pihm_struct pihm, int t, double dt, int first_balance)
         ns = &pihm->elem[i].ns;
         nf = &pihm->elem[i].nf;
         nt = &pihm->elem[i].nt;
+        nsol = &pihm->elem[i].nsol;
         psn_sun = &pihm->elem[i].psn_sun;
         psn_shade = &pihm->elem[i].psn_shade;
         summary = &pihm->elem[i].summary;
@@ -153,35 +155,8 @@ void Bgc (pihm_struct pihm, int t, double dt, int first_balance)
             dt);
 
         /* Update of nitrogen state variables */
-        NitrogenStateUpdate (nf, ns, annual_alloc, epc->woody, epc->evergreen,
-            dt);
-    }
-
-    /* Calculate N leaching loss.  This is a special state variable update
-     * routine, done after the other fluxes and states are reconciled in order
-     * to avoid negative sminn under heavy leaching potential */
-    //NTransport (pihm->elem, pihm->riv, DAYINSEC);
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (i = 0; i < nelem; i++)
-    {
-        epconst_struct *epc;
-        epvar_struct *epv;
-        cstate_struct *cs;
-        cflux_struct *cf;
-        nstate_struct *ns;
-        nflux_struct *nf;
-        summary_struct *summary;
-
-        epc = &pihm->elem[i].epc;
-        epv = &pihm->elem[i].epv;
-        cs = &pihm->elem[i].cs;
-        cf = &pihm->elem[i].cf;
-        ns = &pihm->elem[i].ns;
-        nf = &pihm->elem[i].nf;
-        summary = &pihm->elem[i].summary;
+        NitrogenStateUpdate (nf, ns, nsol, annual_alloc, epc->woody,
+            epc->evergreen, dt);
 
         /* Calculate mortality fluxes and update state variables */
         /* This is done last, with a special state update procedure, to insure
@@ -192,8 +167,8 @@ void Bgc (pihm_struct pihm, int t, double dt, int first_balance)
         /* Test for carbon balance */
         CheckCarbonBalance (cs, &epv->old_c_balance, first_balance);
 
-        /* Test for nitrogen balance */
-        CheckNitrogenBalance (ns, &epv->old_n_balance, first_balance);
+        ///* Test for nitrogen balance */
+        //CheckNitrogenBalance (ns, &epv->old_n_balance, first_balance);
 
         /* Calculate carbon summary variables */
         CSummary (cf, cs, summary);

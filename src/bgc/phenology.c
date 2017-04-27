@@ -9,20 +9,20 @@ void Phenology (const epconst_struct *epc, epvar_struct *epv,
     if (epc->evergreen)
     {
         EvergreenPhenology (epc, epv, cs);
+
+        BackgroundLitterfall (epc, epv, cs, cf, ns, nf, dt);
     }
     else
     {
         if (epc->woody)
         {
-            SeasonDecidPhenology (epc, epv, es, cs, dt);
+            SeasonDecidPhenology (epc, epv, es, dt);
+
+            OnsetGrowth (epc, epv, cs, cf, ns, nf, dt);
+
+            OffsetLitterfall (epc, epv, cs, cf, ns, nf, dt);
         }
     }
-
-    OnsetGrowth (epc, epv, cs, cf, ns, nf, dt);
-
-    OffsetLitterfall (epc, epv, cs, cf, ns, nf, dt);
-
-    BackgroundLitterfall (epc, epv, cs, cf, ns, nf, dt);
 
     LivewoodTurnover (epc, epv, cs, cf, ns, nf, dt);
 }
@@ -40,7 +40,7 @@ void EvergreenPhenology (const epconst_struct *epc, epvar_struct *epv,
 }
 
 void SeasonDecidPhenology (const epconst_struct *epc, epvar_struct *epv,
-    const estate_struct *es, const cstate_struct *cs, double dt)
+    const estate_struct *es, double dt)
 {
     int             ws_flag;
     double          onset_critsum;
@@ -227,15 +227,13 @@ void OffsetLitterfall (const epconst_struct *epc, epvar_struct *epv,
         {
             /* Otherwise, assess litterfall rates as described above */
             leaflitfallc = epv->prev_leafc_to_litter;
-            drate = 2.0 * dt *
-                (cs->leafc - leaflitfallc * epv->offset_counter) /
-                (epv->offset_counter * epv->offset_counter);
+            drate = 2.0 * dt * (cs->leafc - leaflitfallc * (double)epv->offset_counter) /
+                ((double)epv->offset_counter * (double)epv->offset_counter);
             leaflitfallc += drate;
 
-            frootlitfallc = epv->prev_leafc_to_litter;
-            drate = 2.0 * dt *
-                (cs->frootc - frootlitfallc * epv->offset_counter) /
-                (epv->offset_counter * epv->offset_counter);
+            frootlitfallc = epv->prev_frootc_to_litter;
+            drate = 2.0 * dt * (cs->frootc - frootlitfallc * (double)epv->offset_counter) /
+                ((double)epv->offset_counter * (double)epv->offset_counter);
             frootlitfallc += drate;
         }
 

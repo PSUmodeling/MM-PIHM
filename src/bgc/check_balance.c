@@ -80,7 +80,7 @@ void CheckNitrogenBalance (nstate_struct *ns, double *old_balance,
         ns->livecrootn_storage + ns->livecrootn_transfer + ns->deadcrootn +
         ns->deadcrootn_storage + ns->deadcrootn_transfer + ns->cwdn +
         ns->litr1n + ns->litr2n + ns->litr3n + ns->litr4n + ns->soil1n +
-        ns->soil2n + ns->soil3n + ns->soil4n + ns->sminn + ns->npool +
+        ns->soil2n + ns->soil3n + ns->soil4n + ns->surfn + ns->sminn + ns->npool +
         ns->retransn;
 
     /* calculate current balance */
@@ -91,9 +91,9 @@ void CheckNitrogenBalance (nstate_struct *ns, double *old_balance,
         if (fabs (*old_balance - balance) > 1e-8)
         {
             PIHMprintf (VL_ERROR, "FATAL ERRROR: nitrogen balance error:\n");
-            PIHMprintf (VL_ERROR, "Balance from previous day = %lf\n",
+            PIHMprintf (VL_ERROR, "Balance from previous day = %lg\n",
                 *old_balance);
-            PIHMprintf (VL_ERROR, "Balance from current day  = %lf\n",
+            PIHMprintf (VL_ERROR, "Balance from current day  = %lg\n",
                 balance);
             PIHMprintf (VL_ERROR, "Difference (previous - current) = %lg\n",
                 *old_balance - balance);

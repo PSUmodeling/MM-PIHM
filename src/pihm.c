@@ -3,6 +3,7 @@
 void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
 {
 #ifdef _BGC_
+    int             i;
     int             first_balance;
 #endif
 
@@ -43,6 +44,18 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
 
     /* Use mass balance to calculate model fluxes or variables */
     Summary (pihm, CV_Y, (double)pihm->ctrl.stepsize);
+
+#ifdef _BGC_
+    if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
+    {
+        for (i = 0; i < nelem; i++)
+        {
+        /* Test for nitrogen balance */
+        CheckNitrogenBalance (&pihm->elem[i].ns,
+            &pihm->elem[i].epv.old_n_balance, first_balance);
+        }
+    }
+#endif
 
 #ifdef _NOAH_
     NoahHydrol (pihm->elem, (double)pihm->ctrl.stepsize);

@@ -227,8 +227,6 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
     /*
      *Fire mortality: these fluxes all enter atmospheric sinks  *
      */
-    fire = epc->daily_fire_turnover;
-
     /* daily carbon fluxes due to fireality */
     /* fireality fluxes out of leaf and fine root pools */
     cf->m_leafc_to_fire = fire * cs->leafc;

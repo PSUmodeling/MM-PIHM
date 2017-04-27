@@ -71,6 +71,9 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
     int             i, k;
 #ifdef _NOAH_
     spa_data        spa;
+#ifdef _BGC_
+    spa_data        prev_spa;
+#endif
 #endif
 
     for (k = 0; k < forc->nmeteo; k++)
@@ -88,11 +91,15 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
         }
     }
 
+#ifdef _BGC_
+    SunPos (t, lat, lon, elev, tavg, &spa);
+    SunPos (t - DAYINSEC, lat, lon, elev, tavg, &prev_spa);
+#else
     if (rad_mode > 0)
     {
         SunPos (t, lat, lon, elev, tavg, &spa);
     }
-
+#endif
 #endif
 
 #ifdef _OPENMP
@@ -128,6 +135,15 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
                 elem[i].topo.aspect, elem[i].topo.h_phi, elem[i].topo.svf);
             elem[i].ef.soldn = (elem[i].ef.soldn > 0.0) ? elem[i].ef.soldn : 0.0;
         }
+#endif
+#ifdef _BGC_
+        elem[i].epv.dayl = (spa.sunset - spa.sunrise) * 3600.0;
+        elem[i].epv.dayl = (elem[i].epv.dayl < 0.0) ?
+            elem[i].epv.dayl + 24.0 * 3600.0 : elem[i].epv.dayl;
+
+        elem[i].epv.prev_dayl = (prev_spa.sunset - prev_spa.sunrise) * 3600.0;
+        elem[i].epv.prev_dayl = (elem[i].epv.prev_dayl < 0.0) ?
+            elem[i].epv.prev_dayl + 24.0 * 3600.0 : elem[i].epv.prev_dayl;
 #endif
     }
 }
