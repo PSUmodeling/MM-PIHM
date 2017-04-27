@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Bgc (pihm_struct pihm, int t, double dt, int first_balance)
+void Bgc (pihm_struct pihm, int t, double dt)
 {
 
     int             i;
@@ -8,7 +8,7 @@ void Bgc (pihm_struct pihm, int t, double dt, int first_balance)
     double          ndep, nfix;
 
     /* Get co2 and ndep */
-    if (pihm->ctrl.bgc_spinup)      /* Spinup mode */
+    if (spinup_mode)      /* Spinup mode */
     {
         co2lvl = pihm->co2.co2ppm;
         ndep = pihm->ndepctrl.ndep / 365.0 / DAYINSEC;
@@ -165,10 +165,10 @@ void Bgc (pihm_struct pihm, int t, double dt, int first_balance)
         Mortality (epc, cs, cf, ns, nf, dt);
 
         /* Test for carbon balance */
-        CheckCarbonBalance (cs, &epv->old_c_balance, first_balance);
+        CheckCarbonBalance (cs, &epv->old_c_balance);
 
         ///* Test for nitrogen balance */
-        //CheckNitrogenBalance (ns, &epv->old_n_balance, first_balance);
+        //CheckNitrogenBalance (ns, &epv->old_n_balance);
 
         /* Calculate carbon summary variables */
         CSummary (cf, cs, summary);

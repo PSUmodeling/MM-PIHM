@@ -1,143 +1,91 @@
 #include "pihm.h"
 
-void BGCSpinup (pihm_struct pihm, char *outputdir)
+void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 {
-    FILE           *soilc_file;
-    FILE           *vegc_file;
-    FILE           *spinyr_file;
-    FILE           *sminn_file;
-    char            fn[MAXSTRING];
-    int             i, j;
-    struct tm      *timestamp;
-    int             metyr;
-    int             t;
-    int             metyears;
-    int            *steady;
-    int             metcycle = 0;
+    int             i;
     int             spinyears = 0;
-    double         *tally1, *tally1b;
-    double         *tally2, *tally2b;
-    double          t1;
-    int             total_complete;
+    int             first_spin_cycle = 1;
+    double          metyears;
 
-    timestamp = (struct tm *)malloc (sizeof (struct tm));
-
-    steady = (int *)malloc (nelem * sizeof (int));
-    tally1 = (double *)malloc (nelem * sizeof (double));
-    tally1b = (double *)malloc (nelem * sizeof (double));
-    tally2 = (double *)malloc (nelem * sizeof (double));
-    tally2b = (double *)malloc (nelem * sizeof (double));
-
-    metyears = pihm->ctrl.spinupendyear - pihm->ctrl.spinupstartyear + 1;
-    metyr = 0;
-
-    spinyears = 0;
-    metcycle = 0;
+    metyears =
+        (pihm->ctrl.endtime - pihm->ctrl.starttime) / 3600 / 24 / 365;
 
     do
     {
-        for (i = 0; i < nelem; i++)
+        PIHMprintf (VL_NORMAL, "Spinup year: %6d\n", spinyears + 1);
+
+        ResetSpinupStat (pihm->elem);
+
+        for (i = 0; i < pihm->ctrl.nstep; i++)
         {
-            tally2[i] = 0.0;
-            tally2b[i] = 0.0;
+            PIHM (pihm, cvode_mem, CV_Y,
+                    pihm->ctrl.tout[i], pihm->ctrl.tout[i + 1]);
         }
 
-        if (metyr == metyears)
-        {
-            metyr = 0;
-        }
+        /* Reset solver parameters */
+        SetCVodeParam (pihm, cvode_mem, CV_Y);
 
-        PIHMprintf (VL_NORMAL, "Year: %6d\n", spinyears);
+        spinyears += metyears;
 
-        for (j = 0;
-            j < (pihm->ctrl.spinupend - pihm->ctrl.spinupstart) / 24 / 3600;
-            j++)
-        {
-            t = pihm->ctrl.spinupstart + (j + 1) * 24 * 3600;
+        CheckBgcSS (pihm->elem, first_spin_cycle, metyears, spinyears);
 
-            Bgc (pihm, t, pihm->ctrl.spinupstart, DAYINSEC);
-
-            first_day = 0;
-
-            for (i = 0; i < nelem; i++)
-            {
-                tally2[i] += pihm->elem[i].summary.soilc;
-                tally2b[i] += pihm->elem[i].summary.totalc;
-            }
-        }
-
-        metyr++;
-
-        spinyears = spinyears + j / 365;
-
-        for (i = 0; i < nelem; i++)
-        {
-            if (metcycle > 0)
-            {
-                /* convert tally1 and tally2 to average daily soilc */
-                tally2[i] /= (double)metyears * 365.0;
-                t1 = (tally2[i] - tally1[i]) / (double)metyears;
-                steady[i] = (fabs (t1) < SPINUP_TOLERANCE);
-            }
-            else
-            {
-                steady[i] = 0;
-            }
-
-            tally1[i] = tally2[i];
-        }
-
-        metcycle++;
-
-        total_complete = 0;
-        for (i = 0; i < nelem; i++)
-        {
-            total_complete += steady[i];
-        }
-
-        PIHMprintf (VL_NORMAL,
-            "%d elements steady, %d elements to go\n",
-            total_complete, nelem - total_complete);
-
-        if (total_complete == nelem)
-        {
-            PIHMprintf (VL_NORMAL, "All elements steady after %d year.\n",
-                spinyears);
-        }
+        first_spin_cycle = 0;
     } while (spinyears < pihm->ctrl.maxspinyears);
+}
 
-    WriteBGCIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
-
-    sprintf (fn, "%ssoilc.dat", outputdir);
-    soilc_file = fopen (fn, "w");
-
-    sprintf (fn, "%svegc.dat", outputdir);
-    vegc_file = fopen (fn, "w");
-
-    sprintf (fn, "%sspinyr.dat", outputdir);
-    spinyr_file = fopen (fn, "w");
-
-    sprintf (fn, "%ssminn.dat", outputdir);
-    sminn_file = fopen (fn, "w");
+void ResetSpinupStat (elem_struct *elem)
+{
+    int             i;
 
     for (i = 0; i < nelem; i++)
     {
-        fprintf (soilc_file, "%lf\t", pihm->elem[i].summary.soilc);
-        fprintf (vegc_file, "%lf\t", pihm->elem[i].summary.vegc);
-        fprintf (sminn_file, "%lf\t", pihm->elem[i].ns.sminn);
+        elem[i].spinup.soilc = 0.0;
+        elem[i].spinup.totalc = 0.0;
     }
-    for (i = 0; i < nriver; i++)
+}
+
+void CheckBgcSS (elem_struct *elem, int first_cycle, int metyears,
+    int spinyears)
+{
+    int             i;
+    double          t1;
+    int             total_complete = 0;
+
+    for (i = 0; i < nelem; i++)
     {
-        fprintf (sminn_file, "%lf\t", pihm->riv[i].ns.sminn);
+        elem[i].spinup.soilc /= (double)metyears * 365.0 * 8.0;
+        elem[i].spinup.totalc /= (double)metyears * 365.0 * 8.0;
+
+        if (!first_cycle)
+        {
+            /* Convert soilc and totalc to average daily soilc */
+            t1 = (elem[i].spinup.soilc - elem[i].spinup.soilc_prev) /
+                (double)metyears;
+
+            /* Check if element reaches steady state */
+            elem[i].spinup.steady = (fabs (t1) < SPINUP_TOLERANCE);
+
+            PIHMprintf (VL_NORMAL, "Elem %d: "
+                "spinyears = %d soilc_prev = %lg soilc = %lg pdif = %lg\n",
+                i + 1, spinyears, elem[i].spinup.soilc_prev,
+                elem[i].spinup.soilc, t1);
+        }
+        else
+        {
+            elem[i].spinup.steady = 0;
+        }
+
+        elem[i].spinup.soilc_prev = elem[i].spinup.soilc;
+
+        total_complete += elem[i].spinup.steady;
     }
 
-    fclose (sminn_file);
-    fclose (soilc_file);
-    fclose (vegc_file);
-    fclose (spinyr_file);
-    free (steady);
-    free (tally1);
-    free (tally1b);
-    free (tally2);
-    free (tally2b);
+    PIHMprintf (VL_NORMAL, "%d elements steady, %d elements to go.\n",
+            total_complete, nelem - total_complete);
+
+    if (total_complete == nelem)
+    {
+        PIHMprintf (VL_NORMAL, "All elements steady after %d year.\n",
+                spinyears);
+    }
 }

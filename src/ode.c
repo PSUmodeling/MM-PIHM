@@ -225,6 +225,7 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
     flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
 
     *t = (int)solvert;
+
     rawtime = (time_t) (*t);
     timestamp = gmtime (&rawtime);
     strftime (timestr, 17, "%Y-%m-%d %H:%M", timestamp);
@@ -232,6 +233,13 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
     if (debug_mode)
     {
         PIHMprintf (VL_NORMAL, " Step = %s (%d)\n", timestr, *t);
+    }
+    else if (spinup_mode)
+    {
+        if (rawtime % DAYINSEC == 0)
+        {
+            PIHMprintf (VL_NORMAL, " Step = %s\n", timestr);
+        }
     }
     else if (rawtime % 3600 == 0)
     {

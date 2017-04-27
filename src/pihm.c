@@ -4,7 +4,6 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
 {
 #ifdef _BGC_
     int             i;
-    int             first_balance;
 #endif
 
     /* Apply forcing */
@@ -29,10 +28,18 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
 
 #ifdef _BGC_
     /* Run Bgc module hourly */
-    if ((t - pihm->ctrl.starttime) % 3600 == 0)
+    if ((t - pihm->ctrl.starttime) % pihm->ctrl.bgcstep == 0)
     {
-        first_balance = (t == pihm->ctrl.starttime) ? 1 : 0;
-        Bgc (pihm, t, 3600, first_balance);
+        Bgc (pihm, t, (double)pihm->ctrl.bgcstep);
+
+        if (spinup_mode)
+        {
+            for (i = 0; i < nelem; i++)
+            {
+                pihm->elem[i].spinup.soilc += pihm->elem[i].summary.soilc;
+                pihm->elem[i].spinup.totalc += pihm->elem[i].summary.totalc;
+            }
+        }
     }
 #endif
 
@@ -46,14 +53,16 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
     Summary (pihm, CV_Y, (double)pihm->ctrl.stepsize);
 
 #ifdef _BGC_
-    if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
+    if ((t - pihm->ctrl.starttime) % pihm->ctrl.bgcstep == 0)
     {
         for (i = 0; i < nelem; i++)
         {
-        /* Test for nitrogen balance */
-        CheckNitrogenBalance (&pihm->elem[i].ns,
-            &pihm->elem[i].epv.old_n_balance, first_balance);
+            /* Test for nitrogen balance */
+            CheckNitrogenBalance (&pihm->elem[i].ns,
+                &pihm->elem[i].epv.old_n_balance);
         }
+
+        first_balance = 0;
     }
 #endif
 

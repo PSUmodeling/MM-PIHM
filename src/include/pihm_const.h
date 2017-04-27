@@ -19,6 +19,11 @@
 #define TFREEZ      273.15      /* freezing point [K] */
 #define LSUBS       2.83e6      /* latent heat of sublimation [J kg-1] */
 
+/* Simulation mode */
+#define NORMAL_MODE     0
+#define SPINUP_MODE     1
+#define ACC_SPINUP_MODE 2
+
 /* Default bad value */
 #define BADVAL	    -999
 
@@ -321,14 +326,15 @@ enum stage
 extern int          verbose_mode;
 extern int          debug_mode;
 extern int          corr_mode;
+extern int          spinup_mode;
 extern char         project[MAXSTRING];
 extern int          nelem;
 extern int          nriver;
 #ifdef _OPENMP
 extern int          nthreads;
 #endif
-#ifdef _DAILY_
-extern int          first_day;
+#if defined(_BGC_) || defined (_CYCLES_)
+extern int          first_balance;
 #endif
 
 #endif

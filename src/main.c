@@ -3,14 +3,15 @@
 int             verbose_mode;
 int             debug_mode;
 int             corr_mode;
+int             spinup_mode;
 char            project[MAXSTRING];
 int             nelem;
 int             nriver;
 #ifdef _OPENMP
 int             nthreads;
 #endif
-#ifdef _DAILY_
-int             first_day;
+#if defined(_BGC_) || defined (_CYCLES_)
+int             first_balance;
 #endif
 
 int main (int argc, char *argv[])
@@ -68,11 +69,20 @@ int main (int argc, char *argv[])
     /* Set solver parameters */
     SetCVodeParam (pihm, cvode_mem, CV_Y);
 
+#if defined(_BGC_) || defined (_CYCLES_)
+    first_balance = 1;
+#endif
+
     /*
      * Run PIHM
      */
-#ifdef _DAILY_
-    first_day = 1;
+#ifdef _BGC_
+    if (spinup_mode)
+    {
+        BgcSpinup (pihm, CV_Y, cvode_mem);
+    }
+    else
+    {
 #endif
     for (i = 0; i < pihm->ctrl.nstep; i++)
     {
@@ -84,11 +94,7 @@ int main (int argc, char *argv[])
             pihm->ctrl.tout[i + 1] - pihm->ctrl.starttime,
             pihm->ctrl.stepsize, pihm->ctrl.ascii);
     }
-
 #ifdef _BGC_
-    if (pihm->ctrl.bgc_spinup)
-    {
-        //BGCSpinup (pihm, outputdir);
     }
 #endif
 
@@ -100,7 +106,7 @@ int main (int argc, char *argv[])
         PrtInit (pihm->elem, pihm->riv, project);
 
 #ifdef _BGC_
-        if (pihm->ctrl.bgc_spinup)
+        if (spinup_mode)
         {
             WriteBgcIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
         }

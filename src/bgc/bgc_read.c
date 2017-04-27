@@ -7,6 +7,8 @@ void ReadBgc (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     FILE           *bgc_file;
     struct tm      *timestamp;
     time_t          rawtime;
+    int             mon1, mday1, hour1, min1;
+    int             mon2, mday2, hour2, min2;
     char            cmdstr[MAXSTRING];
     int             lno = 0;
 
@@ -17,46 +19,46 @@ void ReadBgc (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     CheckFile (bgc_file, fn);
     PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
 
+    FindLine (bgc_file, "RESTART", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
+    sscanf (cmdstr, "%d", &ctrl->read_bgc_restart);
+    NextLine (bgc_file, cmdstr, &lno);
+    sscanf (cmdstr, "%d", &ctrl->write_bgc_restart);
+
     FindLine (bgc_file, "TIME_DEFINE", &lno, fn);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%d", &ctrl->spinupstartyear);
-    NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%d", &ctrl->spinupendyear);
-
-    timestamp->tm_year = ctrl->spinupstartyear - 1900;
-    timestamp->tm_mon = 1 - 1;
-    timestamp->tm_mday = 1;
-    timestamp->tm_hour = 0;
-    timestamp->tm_min = 0;
-    timestamp->tm_sec = 0;
-    rawtime = timegm (timestamp);
-    ctrl->spinupstart = (int)rawtime;
-
-    timestamp->tm_year = ctrl->spinupendyear + 1 - 1900;
-    rawtime = timegm (timestamp);
-    ctrl->spinupend = (int)rawtime;
-
-    NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%d", &ctrl->bgc_spinup);
+    sscanf (cmdstr, "%d", &spinup_mode);
     NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ctrl->maxspinyears);
+    NextLine (bgc_file, cmdstr, &lno);
+    sscanf (cmdstr, "%d", &ctrl->bgcstep);
 
-    if (ctrl->bgc_spinup && ctrl->spinupend > ctrl->endtime)
+    /* In spinup mode, simulation time should be full years */
+    if (spinup_mode)
     {
-        PIHMprintf (VL_ERROR, "Error setting BGC spinup period "
-            "or PIHM simulation period.\n");
-
-        PIHMprintf (VL_ERROR, "BGC spinup ends on %2.2d/%2.2d/%4.4d\n",
-            timestamp->tm_mon + 1, timestamp->tm_mday,
-            timestamp->tm_year + 1900);
+        rawtime = (time_t)ctrl->starttime;
+        timestamp = gmtime (&rawtime);
+        mon1 = timestamp->tm_mon;
+        mday1 = timestamp->tm_mday;
+        hour1 = timestamp->tm_hour;
+        min1 = timestamp->tm_min;
 
         rawtime = (time_t)ctrl->endtime;
         timestamp = gmtime (&rawtime);
-        PIHMprintf (VL_ERROR, "PIHM simulation ends on %2.2d/%2.2d/%4.4d.\n",
-            timestamp->tm_mon + 1, timestamp->tm_mday,
-            timestamp->tm_year + 1900);
-        PIHMprintf (VL_ERROR, "Please check .para file and .bgc file.\n");
-        //PIHMexit (EXIT_FAILURE);
+        mon2 = timestamp->tm_mon;
+        mday2 = timestamp->tm_mday;
+        hour2 = timestamp->tm_hour;
+        min2 = timestamp->tm_min;
+
+        if (mon1 != mon2 || mday1 != mday2 || hour1 != hour2 || min1 != min2)
+        {
+            PIHMprintf (VL_ERROR,
+                "Error: In BGC spinup mode, "
+                "simulation period should be full years.\n");
+            PIHMprintf (VL_ERROR,
+                "Please check your .para input file.\n");
+            PIHMexit (EXIT_FAILURE);
+        }
     }
 
     FindLine (bgc_file, "CO2_CONTROL", &lno, fn);
@@ -137,7 +139,6 @@ void ReadBgc (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
 
     NextLine (bgc_file, cmdstr, &lno);
     ReadKeyword (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL], 'i', fn, lno);
-
 
     fclose (bgc_file);
 }

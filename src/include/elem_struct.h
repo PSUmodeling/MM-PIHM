@@ -1145,6 +1145,15 @@ typedef struct bgcic_struct
     double          offset_fdd;
     double          offset_swi;
 } bgcic_struct;
+
+typedef struct spinup_struct
+{
+    double          soilc_prev;
+    double          totalc_prev;
+    double          soilc;
+    double          totalc;
+    int             steady;
+} spinup_struct;
 #endif
 
 #ifdef _CYCLES_
@@ -2553,6 +2562,7 @@ typedef struct elem_struct
     summary_struct  summary;
     epvar_struct    epv;
     solute_struct   nsol;
+    spinup_struct   spinup;
 #endif
 } elem_struct;
 #endif

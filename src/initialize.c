@@ -45,7 +45,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
 
     InitForcing (pihm->elem, &pihm->forc, pihm->cal
 #ifdef _BGC_
-        , pihm->ctrl.bgc_spinup, pihm->co2.varco2, pihm->ndepctrl.varndep
+        , pihm->co2.varco2, pihm->ndepctrl.varndep
 #endif
         );
 
@@ -96,7 +96,7 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     /*
      * Initialize CN variables
      */
-    if (pihm->ctrl.bgc_spinup)
+    if (spinup_mode)
     {
         FirstDay (pihm->elem, pihm->riv, &pihm->cninit);
     }
@@ -372,7 +372,7 @@ void InitRiver (river_struct *riv, elem_struct *elem, rivtbl_struct rivtbl,
 
 void InitForcing (elem_struct *elem, forc_struct *forc, calib_struct cal
 #ifdef _BGC_
-    , int bgc_spinup, int varco2, int varndep
+    , int varco2, int varndep
 #endif
     )
 {
@@ -435,12 +435,12 @@ void InitForcing (elem_struct *elem, forc_struct *forc, calib_struct cal
 #endif
 
 #ifdef _BGC_
-    if (!bgc_spinup && varco2)
+    if (!spinup_mode && varco2)
     {
         forc->co2[0].value = (double *)malloc (sizeof (double));
     }
 
-    if (!bgc_spinup && varndep)
+    if (!spinup_mode && varndep)
     {
         forc->ndep[0].value = (double *)malloc (sizeof (double));
     }

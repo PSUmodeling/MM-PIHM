@@ -134,6 +134,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/bgc.c\
 	bgc/bgc_init.c\
 	bgc/bgc_read.c\
+	bgc/bgc_spinup.c\
 	bgc/canopy_cond.c\
 	bgc/check_balance.c\
 	bgc/decomp.c\
@@ -160,7 +161,6 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	noah/lsm_read.c\
 	noah/noah.c\
 	spa/spa.c
-	#bgc/metarr_init.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-bgc
   MSG = "... Compiling Flux-PIHM-BGC ..."

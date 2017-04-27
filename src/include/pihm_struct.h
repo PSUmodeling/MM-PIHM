@@ -226,16 +226,9 @@ typedef struct calib_struct
  * ---------------------------------------------------------------------------
  * Variables below only used in Flux-PIHM-BGC
  * ---------------------------------------------------------------------------
- * simstarttime             double      start time of BGC simulation
- * simendtime               double      end time of BGC simulation
- * bgc_spinup               int         flag: 1=spinup run, 0=normal run
  * maxspinyears             int         maximum number of years for spinup run
- * read_restart             int         flag to read BGC restart file
- * write_restart            int         flag to write BGC restart file
- * spinupstartyear          int         first met year for BGC spinup
- * spinupendyear            int         last met year for BGC spinup
- * spinupstart              int         start time of BGC spinup [ctime]
- * spinupend                int         end time of BGC spinup [ctime]
+ * read_bgc_restart         int         flag to read BGC restart file
+ * write_bgc_restart        int         flag to write BGC restart file
  ****************************************************************************/
 typedef struct ctrl_struct
 {
@@ -264,16 +257,10 @@ typedef struct ctrl_struct
     int             rad_mode;
 #endif
 #ifdef _BGC_
-    int             simstarttime;
-    int             simendtime;
-    int             bgc_spinup;
+    int             bgcstep;
     int             maxspinyears;
-    int             read_restart;
-    int             write_restart;
-    int             spinupstartyear;
-    int             spinupendyear;
-    int             spinupstart;
-    int             spinupend;
+    int             read_bgc_restart;
+    int             write_bgc_restart;
 #endif
 } ctrl_struct;
 

@@ -66,7 +66,7 @@ void            InitEFlux (eflux_struct *);
 void            InitEState (estate_struct *);
 void            InitForcing (elem_struct *, forc_struct *, calib_struct
 #ifdef _BGC_
-    , int, int, int
+    , int, int
 #endif
     );
 void            InitLC (elem_struct *, lctbl_struct, calib_struct);
@@ -431,14 +431,15 @@ void            Allocation (cflux_struct *, cstate_struct *, nflux_struct *,
     double);
 void            BackgroundLitterfall (const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *, double);
-void            Bgc (pihm_struct, int, double, int);
-//void            BGCSpinup (pihm_struct, char *);
+void            Bgc (pihm_struct, int, double);
+void            BgcSpinup (pihm_struct, N_Vector, void *);
 void            CanopyCond (const epconst_struct *, epvar_struct *,
     eflux_struct *, pstate_struct *);
 void            CarbonStateUpdate (cflux_struct *, cstate_struct *, int,
     int, int, double);
-void            CheckCarbonBalance (cstate_struct *, double *, int);
-void            CheckNitrogenBalance (nstate_struct *, double *, int);
+void            CheckBgcSS (elem_struct *, int, int, int);
+void            CheckCarbonBalance (cstate_struct *, double *);
+void            CheckNitrogenBalance (nstate_struct *, double *);
 void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
 void            Decomp (double, const epconst_struct *, epvar_struct *,
     cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
@@ -485,6 +486,7 @@ void            ReadBgc (char *, ctrl_struct *, co2control_struct *,
     ndepcontrol_struct *, cninit_struct *, char *, char *);
 void            ReadBgcIC (char *, elem_struct *, river_struct *);
 void            ReadEPC (epctbl_struct *);
+void            ResetSpinupStat (elem_struct *);
 void            RestartInput (cstate_struct *, nstate_struct *,
     epvar_struct *, bgcic_struct *);
 void            RestartOutput (cstate_struct *, nstate_struct *,
