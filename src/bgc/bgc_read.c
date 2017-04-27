@@ -527,30 +527,6 @@ void ReadEPC (epctbl_struct *epctbl)
     }
 }
 
-void ReadBgcIC (char *fn, elem_struct *elem, river_struct *riv)
-{
-    FILE           *init_file;
-    int             i;
-
-    init_file = fopen (fn, "rb");
-    CheckFile (init_file, fn);
-    PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
-
-    for (i = 0; i < nelem; i++)
-    {
-        fread (&elem[i].restart_input, sizeof (bgcic_struct), 1,
-            init_file);
-    }
-
-    for (i = 0; i < nriver; i++)
-    {
-        fread (&riv[i].restart_input, sizeof (river_bgcic_struct), 1,
-            init_file);
-    }
-
-    fclose (init_file);
-}
-
 void ReadAnnFile (tsdata_struct *ts, char *fn)
 {
     FILE           *fid;

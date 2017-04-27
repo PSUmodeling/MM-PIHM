@@ -104,14 +104,14 @@ int main (int argc, char *argv[])
     if (pihm->ctrl.write_ic)
     {
         PrtInit (pihm->elem, pihm->riv, project);
+    }
 
 #ifdef _BGC_
-        if (spinup_mode)
-        {
-            WriteBgcIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
-        }
-#endif
+    if (pihm->ctrl.write_bgc_restart)
+    {
+        WriteBgcIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
     }
+#endif
 
     /* Free memory */
     N_VDestroy (CV_Y);

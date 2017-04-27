@@ -96,13 +96,13 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     /*
      * Initialize CN variables
      */
-    if (spinup_mode)
+    if (pihm->ctrl.read_bgc_restart)
     {
-        FirstDay (pihm->elem, pihm->riv, &pihm->cninit);
+        ReadBgcIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
     }
     else
     {
-        ReadBgcIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
+        FirstDay (pihm->elem, pihm->riv, &pihm->cninit);
     }
 
     InitBgcVar (pihm->elem, pihm->riv, CV_Y);

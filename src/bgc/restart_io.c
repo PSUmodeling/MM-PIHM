@@ -166,14 +166,63 @@ void RestartOutput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     restart->offset_swi = epv->offset_swi;
 }
 
+void ReadBgcIC (char *fn, elem_struct *elem, river_struct *riv)
+{
+    FILE           *init_file;
+    int             acc_flag;
+    int             i;
+
+    init_file = fopen (fn, "rb");
+    CheckFile (init_file, fn);
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
+
+    fread (&acc_flag, sizeof (int), 1, init_file);
+
+    for (i = 0; i < nelem; i++)
+    {
+        fread (&elem[i].restart_input, sizeof (bgcic_struct), 1,
+            init_file);
+
+        /* If initial conditions are obtained using accelerated spinup,
+         * adjust soil C pool sizes if needed */
+        if (acc_flag == 1 && spinup_mode != ACC_SPINUP_MODE)
+        {
+            elem[i].restart_input.soil1c *= KS1_ACC;
+            elem[i].restart_input.soil2c *= KS2_ACC;
+            elem[i].restart_input.soil3c *= KS3_ACC;
+            elem[i].restart_input.soil4c *= KS4_ACC;
+        }
+    }
+
+    for (i = 0; i < nriver; i++)
+    {
+        fread (&riv[i].restart_input, sizeof (river_bgcic_struct), 1,
+            init_file);
+    }
+
+    fclose (init_file);
+}
+
 void WriteBgcIC (char *restart_fn, elem_struct *elem, river_struct *riv)
 {
     int         i;
+    int         acc_flag = 0;
     FILE       *restart_file;
 
     restart_file = fopen (restart_fn, "wb");
     CheckFile (restart_file, restart_fn);
     PIHMprintf (VL_VERBOSE, "Writing BGC initial conditions.\n");
+
+    if (spinup_mode == ACC_SPINUP_MODE)
+    {
+        acc_flag = 1;
+    }
+    else
+    {
+        acc_flag = 0;
+    }
+
+    fwrite (&acc_flag, sizeof (int), 1, restart_file);
 
     for (i = 0; i < nelem; i++)
     {

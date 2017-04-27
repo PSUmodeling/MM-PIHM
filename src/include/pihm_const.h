@@ -186,6 +186,12 @@
 #define KFRAG_BASE  0.001       /* physical fragmentation of coarse woody
                                  * debris */
 
+/* Decomposition acceleration terms */
+#define KS1_ACC     1.0
+#define KS2_ACC     1.0
+#define KS3_ACC     5.0
+#define KS4_ACC     70.0
+
 /* This constant determines the lower limit of state variables before they are
  * set to 0.0 to control rounding and overflow errors */
 #define CRIT_PREC   1e-20

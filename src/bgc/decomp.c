@@ -123,6 +123,14 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
     ks4_base = 1.0 - exp (-ks4_base * dtd);
     kfrag_base = -log (1.0 - KFRAG_BASE * dtd);
 
+    if (spinup_mode == ACC_SPINUP_MODE)
+    {
+        ks1_base *= KS1_ACC;
+        ks2_base *= KS2_ACC;
+        ks3_base *= KS3_ACC;
+        ks4_base *= KS4_ACC;
+    }
+
     kl1 = kl1_base * rate_scalar;
     kl2 = kl2_base * rate_scalar;
     kl4 = kl4_base * rate_scalar;
