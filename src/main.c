@@ -19,7 +19,6 @@ int main (int argc, char *argv[])
     pihm_struct     pihm;
     N_Vector        CV_Y;       /* State Variables Vector */
     void           *cvode_mem;  /* Model Data Pointer */
-    int             nsv;        /* Problem size */
     int             i;          /* Loop index */
 
 #ifdef _OPENMP
@@ -101,7 +100,7 @@ int main (int argc, char *argv[])
         PrtInit (pihm->elem, pihm->riv, project);
 
 #ifdef _BGC_
-        if (!pihm->ctrl.bgc_spinup)
+        if (pihm->ctrl.bgc_spinup)
         {
             WriteBgcIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
         }

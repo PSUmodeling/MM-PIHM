@@ -150,12 +150,14 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
 
 void ApplyLAI (forc_struct *forc, elem_struct *elem, int t)
 {
-    int             ind;
     int             i, k;
+    int             ind;
 #ifdef _CYCLES_
     double          ksolar;
     double          tau;
+#endif
 
+#ifdef _CYCLES_
     for (i = 0; i < nelem; i++)
     {
         if (elem[i].comm.svRadiationInterception > 0.0)

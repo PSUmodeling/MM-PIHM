@@ -426,14 +426,11 @@ void            InitCropSV (crop_struct *);
 #endif
 
 #ifdef _BGC_
-//void            AdptStepTrnsp (elem_struct *, river_struct *, double, int);
 void            Allocation (cflux_struct *, cstate_struct *, nflux_struct *,
     nstate_struct *, epconst_struct *, epvar_struct *, ntemp_struct *,
     double);
-//void            AnnualRates (const epconst_struct *, epvar_struct *);
 void            BackgroundLitterfall (const epconst_struct *, epvar_struct *,
-    const cstate_struct *, cflux_struct *, const nstate_struct *,
-    nflux_struct *, double);
+    const cstate_struct *, cflux_struct *, nflux_struct *, double);
 void            Bgc (pihm_struct, int, double, int);
 //void            BGCSpinup (pihm_struct, char *);
 void            CanopyCond (const epconst_struct *, epvar_struct *,
@@ -468,12 +465,11 @@ void            MaintResp (const epconst_struct *, epvar_struct *,
 void            MakeZeroFluxStruct (cflux_struct *, nflux_struct *);
 void            Mortality (const epconst_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *, double);
-//void            NTransport (elem_struct *, river_struct *, double);
+void            NTransport (pihm_struct);
 void            NitrogenStateUpdate (nflux_struct *, nstate_struct *,
     solute_struct *, int, int, int, double);
 void            OffsetLitterfall (const epconst_struct *, epvar_struct *,
-    const cstate_struct *, cflux_struct *, const nstate_struct *,
-    nflux_struct *, double);
+    const cstate_struct *, cflux_struct *, nflux_struct *, double);
 void            OnsetGrowth (const epconst_struct *, const epvar_struct *,
     const cstate_struct *, cflux_struct *, const nstate_struct *,
     nflux_struct *, double);

@@ -25,7 +25,7 @@ void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
     double          gresp_storage;
     double          c_allometry, n_allometry;
     double          plant_ndemand, sum_ndemand;
-    double          actual_immob;
+    double          actual_immob = 0.0;
     double          plant_nalloc, plant_calloc;
     double          fpi = 0.0;
     double          plant_remaining_ndemand;

@@ -124,7 +124,6 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      */
     int             frzgra, snowng;
     const int       IZ0TLND = 0;
-    int             kz;
     double          df1;
     double          df1a;
     double          dsoil;

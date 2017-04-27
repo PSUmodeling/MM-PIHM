@@ -32,7 +32,6 @@ void LateralFlow (pihm_struct pihm)
 
         elem_struct *elem;
         elem_struct *nabr;
-        river_struct *riv;
 
         elem = &pihm->elem[i];
 

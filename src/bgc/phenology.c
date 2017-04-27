@@ -10,7 +10,7 @@ void Phenology (const epconst_struct *epc, epvar_struct *epv,
     {
         EvergreenPhenology (epc, epv, cs);
 
-        BackgroundLitterfall (epc, epv, cs, cf, ns, nf, dt);
+        BackgroundLitterfall (epc, epv, cs, cf, nf, dt);
     }
     else
     {
@@ -20,7 +20,7 @@ void Phenology (const epconst_struct *epc, epvar_struct *epv,
 
             OnsetGrowth (epc, epv, cs, cf, ns, nf, dt);
 
-            OffsetLitterfall (epc, epv, cs, cf, ns, nf, dt);
+            OffsetLitterfall (epc, epv, cs, cf, nf, dt);
         }
     }
 
@@ -205,8 +205,7 @@ void OnsetGrowth (const epconst_struct *epc, const epvar_struct *epv,
 }
 
 void OffsetLitterfall (const epconst_struct *epc, epvar_struct *epv,
-    const cstate_struct *cs, cflux_struct *cf, const nstate_struct *ns,
-    nflux_struct *nf, double dt)
+    const cstate_struct *cs, cflux_struct *cf, nflux_struct *nf, double dt)
 {
     double          leaflitfallc, frootlitfallc;
     double          drate;
@@ -256,8 +255,7 @@ void OffsetLitterfall (const epconst_struct *epc, epvar_struct *epv,
 }
 
 void BackgroundLitterfall (const epconst_struct *epc, epvar_struct *epv,
-    const cstate_struct *cs, cflux_struct *cf, const nstate_struct *ns,
-    nflux_struct *nf, double dt)
+    const cstate_struct *cs, cflux_struct *cf, nflux_struct *nf, double dt)
 {
     double          leaflitfallc, frootlitfallc;
 

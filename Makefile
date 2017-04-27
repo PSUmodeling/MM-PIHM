@@ -5,8 +5,12 @@
 CC = gcc
 CFLAGS = -g -O2
 
+ifeq ($(WARNING), on)
+CFLAGS += -Wall -Wextra
+endif
+
 ifeq ($(DEBUG), on)
-CFLAGS += -O0 -Wall -Wextra
+CFLAGS += -O0
 endif
 
 ifneq ($(OMP), off)
