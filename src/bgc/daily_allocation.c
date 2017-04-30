@@ -1,12 +1,12 @@
 #include "pihm.h"
 
-void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
-    nstate_struct *ns, epconst_struct *epc, epvar_struct *epv,
-    ntemp_struct *nt, double dt)
+void DailyAllocation (cflux_struct *cf, const cstate_struct *cs,
+    nflux_struct *nf, const nstate_struct *ns, const epconst_struct *epc,
+    epvar_struct *epv, ntemp_struct *nt)
 {
-    double          gpp;        /* gross production */
-    double          mresp;      /* total maintenance respiration */
-    double          avail_c;    /* C flux available for new production */
+    double          day_gpp;    /* daily gross production */
+    double          day_mresp;  /* daily total maintenance respiration */
+    double          avail_c;    /* total C available for new production */
     double          f1;         /* RATIO new fine root C : new leaf C */
     double          f2;         /* RATIO new coarse root C : new stem C */
     double          f3;         /* RATIO new stem C : new leaf C */
@@ -39,17 +39,18 @@ void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
 
     /* Assess the carbon availability on the basis of this day's gross
      * production and maintenance respiration costs */
-    gpp = cf->psnsun_to_cpool + cf->psnshade_to_cpool;
+    day_gpp = cf->psnsun_to_cpool + cf->psnshade_to_cpool;
     if (epc->woody)
     {
-        mresp = cf->leaf_mr + cf->leaf_mr + cf->froot_mr +
+        day_mresp =
+            cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr +
             cf->livestem_mr + cf->livecroot_mr;
     }
     else
     {
-        mresp = cf->leaf_mr + cf->leaf_mr + cf->froot_mr;
+        day_mresp = cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr;
     }
-    avail_c = gpp - mresp;
+    avail_c = day_gpp - day_mresp;
 
     /* No allocation when the daily C balance is negative */
     if (avail_c < 0.0)
@@ -60,12 +61,12 @@ void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
     /* Test for cpool deficit */
     if (cs->cpool < 0.0)
     {
-        /* Running a deficit in cpool, so the first priority is to let some
-         * of step's available C accumulate in cpool. The actual accumulation
-         * in the cpool is resolved in day_carbon_state(). */
-        /* First determine how much of the deficit should be recovered
-         * this step */
-        cpool_recovery = -cs->cpool / DAYSCRECOVER / DAYINSEC;
+        /* Running a deficit in cpool, so the first priority is to let some of
+         * today's available C accumulate in cpool. The actual accumulation in
+         * the cpool is resolved in day_carbon_state(). */
+        /* First determine how much of the deficit should be recovered today */
+        cpool_recovery = -cs->cpool / DAYSCRECOVER;
+
         /* Potential recovery of cpool deficit is less than the available
          * carbon for the day, so aleviate cpool deficit and use the rest of
          * the available carbon for new growth and storage. Remember that
@@ -76,8 +77,9 @@ void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
         {
             avail_c -= cpool_recovery;
         }
-        /* cpool deficit is >= available C, so all of the GPP, if any, is used
-         * to alleviate negative cpool */
+
+        /* cpool deficit is >= available C, so all of the daily GPP, if any,
+         * is used to alleviate negative cpool */
         else
         {
             avail_c = 0.0;
@@ -116,18 +118,18 @@ void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
 
     /* Now compare the combined decomposition immobilization and plant growth
      * N demands against the available soil mineral N pool. */
-    avail_retransn = ns->retransn / DAYSNDEPLOY / DAYINSEC;
+    avail_retransn = ns->retransn / DAYSNDEPLOY;
     sum_ndemand = plant_ndemand + nt->potential_immob;
 
-    if (sum_ndemand * dt <= ns->sminn)
+    if (sum_ndemand <= ns->sminn)
     {
         /* N availability is not limiting immobilization or plant uptake, and
          * both can proceed at their potential rates */
         actual_immob = nt->potential_immob;
         nlimit = 0;
 
-        /* Determine the split between retranslocation N and soil mineral N
-         * to meet the plant demand */
+        /* Determine the split between retranslocation N and soil mineral N to
+         * meet the plant demand */
         if (plant_ndemand > avail_retransn)
         {
             nf->retransn_to_npool = avail_retransn;
@@ -144,7 +146,7 @@ void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
         /* Under conditions of excess N, some proportion of excess N is
          * assumed to be lost to denitrification, in addition to the constant
          * proportion lost in the decomposition pathways. */
-        excessn = ns->sminn / dt - sum_ndemand;
+        excessn = ns->sminn - sum_ndemand;
         nf->sminn_to_denitrif = excessn * BULK_DENITRIF_PROPORTION;
     }
     else
@@ -155,8 +157,7 @@ void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
         nlimit = 1;
         if (sum_ndemand)
         {
-            actual_immob =
-                ns->sminn * (nt->potential_immob / sum_ndemand) / dt;
+            actual_immob = ns->sminn * (nt->potential_immob / sum_ndemand);
         }
         if (nt->potential_immob)
         {
@@ -166,7 +167,7 @@ void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
         {
             fpi = 0.0;
         }
-        nf->sminn_to_npool = ns->sminn / dt - actual_immob;
+        nf->sminn_to_npool = ns->sminn - actual_immob;
         plant_remaining_ndemand = plant_ndemand - nf->sminn_to_npool;
         /* The demand not satisfied by uptake from soil mineral N is now
          * sought from the retranslocated N pool */
@@ -188,9 +189,9 @@ void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
             plant_nalloc = nf->retransn_to_npool + nf->sminn_to_npool;
             plant_calloc = plant_nalloc * (c_allometry / n_allometry);
             excess_c = avail_c - plant_calloc;
-            cf->psnsun_to_cpool -= excess_c * (cf->psnsun_to_cpool / gpp);
+            cf->psnsun_to_cpool -= excess_c * (cf->psnsun_to_cpool / day_gpp);
             cf->psnshade_to_cpool -=
-                excess_c * (cf->psnshade_to_cpool / gpp);
+                excess_c * (cf->psnshade_to_cpool / day_gpp);
         }
     }
 
@@ -201,7 +202,7 @@ void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
      * remainder going into storage for display next year through the transfer
      * pools */
     nlc = plant_calloc / c_allometry;
-    /* C fluxes out of cpool and into new growth or storage */
+    /* Daily C fluxes out of cpool and into new growth or storage */
     cf->cpool_to_leafc = nlc * pnow;
     cf->cpool_to_leafc_storage = nlc * (1.0 - pnow);
     cf->cpool_to_frootc = nlc * f1 * pnow;
@@ -218,7 +219,7 @@ void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
         cf->cpool_to_deadcrootc_storage =
             nlc * f2 * f3 * (1.0 - f4) * (1.0 - pnow);
     }
-    /* daily N fluxes out of npool and into new growth or storage */
+    /* Daily N fluxes out of npool and into new growth or storage */
     nf->npool_to_leafn = (nlc / cnl) * pnow;
     nf->npool_to_leafn_storage = (nlc / cnl) * (1.0 - pnow);
     nf->npool_to_frootn = (nlc * f1 / cnfr) * pnow;
@@ -422,6 +423,5 @@ void Allocation (cflux_struct *cf, cstate_struct *cs, nflux_struct *nf,
         nf->soil4n_to_sminn = nt->psoil4c_loss / cn_s4;
     }
 
-    /* Store the day's net N mineralization */
     epv->fpi = fpi;
 }

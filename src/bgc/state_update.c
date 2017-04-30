@@ -59,8 +59,9 @@ void CarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
     }
 
     /* Maintenance respiration fluxes */
-    cs->leaf_mr_snk += cf->leaf_mr * dt;
-    cs->cpool -= cf->leaf_mr * dt;
+    cs->leaf_mr_snk += cf->leaf_day_mr;
+    cs->leaf_mr_snk += cf->leaf_night_mr;
+    cs->cpool -= cf->leaf_day_mr + cf->leaf_night_mr;
     cs->froot_mr_snk += cf->froot_mr * dt;
     cs->cpool -= cf->froot_mr * dt;
     if (woody)

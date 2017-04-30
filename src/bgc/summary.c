@@ -8,7 +8,7 @@ void CSummary (cflux_struct *cf, cstate_struct *cs, summary_struct *summary)
     /* calculate NPP, positive for net growth */
     /* NPP = Gross PSN - Maintenance Resp - Growth Resp */
     gpp = cf->psnsun_to_cpool + cf->psnshade_to_cpool;
-    mr = cf->leaf_mr + cf->froot_mr + cf->livestem_mr + cf->livecroot_mr;
+    mr = cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr + cf->livestem_mr + cf->livecroot_mr;
     gr = cf->cpool_leaf_gr + cf->cpool_leaf_storage_gr +
         cf->transfer_leaf_gr + cf->cpool_froot_gr +
         cf->cpool_froot_storage_gr + cf->transfer_froot_gr +

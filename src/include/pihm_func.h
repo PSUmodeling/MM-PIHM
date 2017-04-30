@@ -426,9 +426,6 @@ void            InitCropSV (crop_struct *);
 #endif
 
 #ifdef _BGC_
-void            Allocation (cflux_struct *, cstate_struct *, nflux_struct *,
-    nstate_struct *, epconst_struct *, epvar_struct *, ntemp_struct *,
-    double);
 void            BackgroundLitterfall (const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *, double);
 void            Bgc (pihm_struct, int, double);
@@ -441,6 +438,9 @@ void            CheckBgcSS (elem_struct *, int, int, int, double);
 void            CheckCarbonBalance (cstate_struct *, double *);
 void            CheckNitrogenBalance (nstate_struct *, double *);
 void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
+void            DailyAllocation (cflux_struct *, const cstate_struct *,
+    nflux_struct *, const nstate_struct *, const epconst_struct *,
+    epvar_struct *, ntemp_struct *);
 void            Decomp (double, const epconst_struct *, epvar_struct *,
     cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
     ntemp_struct *, double);

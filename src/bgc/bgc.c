@@ -162,7 +162,7 @@ void Bgc (pihm_struct pihm, int t, double dt)
          * day, because the competition between decomp immobilization fluxes and
          * plant growth N demand is resolved here.  On days with no growth, no
          * allocation occurs, but immobilization fluxes are updated normally */
-        Allocation (cf, cs, nf, ns, epc, epv, nt, dt);
+        DailyAllocation (cf, cs, nf, ns, epc, epv, nt);
 
         /* Growth respiration */
         GrowthResp (epc, cf);

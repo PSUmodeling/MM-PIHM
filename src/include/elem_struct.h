@@ -1476,7 +1476,9 @@ typedef struct cstate_struct
  *                                        [kgC m-2 day-1]
  * frootc_to_litr4c         double      leaf and fine root litterfall
  *                                        [kgC m-2 day-1]
- * leaf_mr                  double      maintenance respiration flux
+ * leaf_day_mr              double      daytime maintenance respiration flux
+ *                                        [kgC m-2 day-1]
+ * leaf_night_mr            double      night maintenance respiration flux
  *                                        [kgC m-2 day-1]
  * froot_mr                 double      maintenance respiration flux
  *                                        [kgC m-2 day-1]
@@ -1683,7 +1685,8 @@ typedef struct cflux_struct
     double          frootc_to_litr2c;
     double          frootc_to_litr3c;
     double          frootc_to_litr4c;
-    double          leaf_mr;
+    double          leaf_day_mr;
+    double          leaf_night_mr;
     double          froot_mr;
     double          livestem_mr;
     double          livecroot_mr;

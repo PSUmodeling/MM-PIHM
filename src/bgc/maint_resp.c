@@ -43,7 +43,7 @@ void MaintResp (const epconst_struct *epc, epvar_struct *epv,
         t1 = ns->leafn * MRPERN;
 
         exponent = (tair - 20.0) / 10.0;
-        cf->leaf_mr = t1 * pow (Q10, exponent);
+        cf->leaf_day_mr = t1 * pow (Q10, exponent);
 
         /* For day respiration, also determine rates of maintenance respiration
          * per unit of projected leaf area in the sunlit and shaded portions of
@@ -70,7 +70,7 @@ void MaintResp (const epconst_struct *epc, epvar_struct *epv,
     }
     else                        /* No leaves on */
     {
-        cf->leaf_mr = 0.0;
+        cf->leaf_day_mr = 0.0;
         epv->dlmr_area_sun = 0.0;
         epv->dlmr_area_shade = 0.0;
     }
