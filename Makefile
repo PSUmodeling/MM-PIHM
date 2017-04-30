@@ -129,13 +129,13 @@ endif
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
   SFLAGS += -D_NOAH_ -D_BGC_ -D_DAILY_
   MODULE_SRCS_= \
-	bgc/allocation.c\
 	bgc/bgc.c\
 	bgc/bgc_init.c\
 	bgc/bgc_read.c\
 	bgc/bgc_spinup.c\
 	bgc/canopy_cond.c\
 	bgc/check_balance.c\
+	bgc/daily_allocation.c\
 	bgc/decomp.c\
 	bgc/firstday.c\
 	bgc/get_co2.c\

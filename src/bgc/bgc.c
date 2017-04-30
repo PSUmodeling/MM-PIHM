@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Bgc (pihm_struct pihm, int t, double dt)
+void DailyBgc (pihm_struct pihm, int t)
 {
 
     int             i;
@@ -109,10 +109,10 @@ void Bgc (pihm_struct pihm, int t, double dt)
         MakeZeroFluxStruct (cf, nf);
 
         /* Phenology fluxes */
-        Phenology (epc, epv, es, cs, cf, ns, nf, dt);
+        Phenology (epc, epv, es, cs, cf, ns, nf, DAYINSEC);
 
         /* Test for the annual allocation day */
-        if (epv->offset_flag == 1 && epv->offset_counter <= (int)round (dt))
+        if (epv->offset_flag == 1 && epv->offset_counter <= DAYINSEC)
         {
             annual_alloc = 1;
         }
@@ -156,7 +156,7 @@ void Bgc (pihm_struct pihm, int t, double dt)
         nf->nfix_to_sminn = nfix;
 
         /* Daily litter and soil decomp and nitrogen fluxes */
-        Decomp (es->stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt, dt);
+        Decomp (es->stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt, DAYINSEC);
 
         /* Allocation gets called whether or not this is a current growth
          * day, because the competition between decomp immobilization fluxes and
@@ -169,17 +169,17 @@ void Bgc (pihm_struct pihm, int t, double dt)
 
         /* Update of carbon state variables */
         CarbonStateUpdate (cf, cs, annual_alloc, epc->woody, epc->evergreen,
-            dt);
+            DAYINSEC);
 
         /* Update of nitrogen state variables */
         NitrogenStateUpdate (nf, ns, nsol, annual_alloc, epc->woody,
-            epc->evergreen, dt);
+            epc->evergreen, DAYINSEC);
 
         /* Calculate mortality fluxes and update state variables */
         /* This is done last, with a special state update procedure, to insure
          * that pools don't go negative due to mortality fluxes conflicting with
          * other proportional fluxes */
-        Mortality (epc, cs, cf, ns, nf, dt);
+        Mortality (epc, cs, cf, ns, nf, DAYINSEC);
 
         /* Test for carbon balance */
         CheckCarbonBalance (cs, &epv->old_c_balance);

@@ -26,23 +26,6 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
 #endif
     }
 
-#ifdef _BGC_
-    /* Run Bgc module hourly */
-    if ((t - pihm->ctrl.starttime) % pihm->ctrl.bgcstep == 0)
-    {
-        Bgc (pihm, t, (double)pihm->ctrl.bgcstep);
-
-        if (spinup_mode)
-        {
-            for (i = 0; i < nelem; i++)
-            {
-                pihm->elem[i].spinup.soilc += pihm->elem[i].summary.soilc;
-                pihm->elem[i].spinup.totalc += pihm->elem[i].summary.totalc;
-            }
-        }
-    }
-#endif
-
     /*
      * Solve PIHM hydrology ODE using CVODE
      */
@@ -52,8 +35,12 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
     /* Use mass balance to calculate model fluxes or variables */
     Summary (pihm, CV_Y, (double)pihm->ctrl.stepsize);
 
+#ifdef _NOAH_
+    NoahHydrol (pihm->elem, (double)pihm->ctrl.stepsize);
+#endif
+
 #ifdef _BGC_
-    if ((t - pihm->ctrl.starttime) % pihm->ctrl.bgcstep == 0)
+    if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
         for (i = 0; i < nelem; i++)
         {
@@ -66,23 +53,37 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
     }
 #endif
 
-#ifdef _NOAH_
-    NoahHydrol (pihm->elem, (double)pihm->ctrl.stepsize);
-#endif
-
     /*
      * Daily timestep modules
      */
-#ifdef _CYCLES_
+#ifdef _DAILY_
     DailyVar (t, pihm->ctrl.starttime, pihm);
 
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
+#ifdef _BGC_
+        DailyBgc (pihm, t - DAYINSEC);
+
+        if (spinup_mode)
+        {
+            for (i = 0; i < nelem; i++)
+            {
+                pihm->elem[i].spinup.soilc += pihm->elem[i].summary.soilc;
+                pihm->elem[i].spinup.totalc += pihm->elem[i].summary.totalc;
+            }
+        }
+#endif
+#ifdef _CYCLES_
         DailyCycles (t - DAYINSEC, pihm);
+#endif
     }
+#endif
 
+#ifdef _CYCLES_
     SoluteTransport (pihm->elem, pihm->riv, (double)pihm->ctrl.stepsize);
+#endif
 
+#ifdef _DAYLY_
     /*
      * Initialize daily structures
      */

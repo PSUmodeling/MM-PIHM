@@ -33,8 +33,7 @@ void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 
         spinyears += metyears;
 
-        CheckBgcSS (pihm->elem, first_spin_cycle, metyears, spinyears,
-            (double)pihm->ctrl.bgcstep);
+        CheckBgcSS (pihm->elem, first_spin_cycle, metyears, spinyears);
 
         first_spin_cycle = 0;
     } while (spinyears < pihm->ctrl.maxspinyears);
@@ -52,7 +51,7 @@ void ResetSpinupStat (elem_struct *elem)
 }
 
 void CheckBgcSS (elem_struct *elem, int first_cycle, int metyears,
-    int spinyears, double dt)
+    int spinyears)
 {
     int             i;
     double          t1;
@@ -60,8 +59,8 @@ void CheckBgcSS (elem_struct *elem, int first_cycle, int metyears,
 
     for (i = 0; i < nelem; i++)
     {
-        elem[i].spinup.soilc /= (double)metyears * 365.0 * (DAYINSEC / dt);
-        elem[i].spinup.totalc /= (double)metyears * 365.0 * (DAYINSEC / dt);
+        elem[i].spinup.soilc /= (double)metyears * 365.0;
+        elem[i].spinup.totalc /= (double)metyears * 365.0;
 
         if (!first_cycle)
         {
