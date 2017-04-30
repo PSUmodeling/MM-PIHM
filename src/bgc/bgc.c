@@ -116,7 +116,7 @@ void DailyBgc (pihm_struct pihm, int t)
         Phenology (epc, epv, es, cs, cf, ns, nf, daily);
 
         /* Test for the annual allocation day */
-        if (epv->offset_flag == 1 && epv->offset_counter <= DAYINSEC)
+        if (epv->offset_flag == 1 && epv->offset_counter == 1)
         {
             annual_alloc = 1;
         }
