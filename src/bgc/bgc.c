@@ -80,6 +80,7 @@ void DailyBgc (pihm_struct pihm, int t)
         solute_struct *nsol;
         psn_struct *psn_sun, *psn_shade;
         summary_struct *summary;
+        double      vwc;
         int         annual_alloc;
 
         daily = &pihm->elem[i].daily;
@@ -128,10 +129,20 @@ void DailyBgc (pihm_struct pihm, int t)
         /* Calculate leaf area index, sun and shade fractions, and specific
          * leaf area for sun and shade canopy fractions, then calculate
          * canopy radiation interception and transmission */
-        RadTrans (cs, ef, ps, epc, epv);
+        RadTrans (cs, ef, ps, epc, epv, daily);
 
         /* Soil water potential */
-        SoilPsi (soil, ws->soilm / soil->depth, &epv->psi);
+        vwc = daily->avg_sh2o[0] * ps->sldpth[0];
+        if (ps->nsoil > 1)
+        {
+            for (k = 1; k < ps->nsoil; k++)
+            {
+                vwc += daily->avg_sh2o[k] * ps->sldpth[k];
+            }
+        }
+        vwc /= soil->depth;
+
+        SoilPsi (soil, vwc, &epv->psi);
 
         /* Maintenance respiration */
         MaintResp (epc, epv, es, ef, cs, cf, ns);

@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
-    const epconst_struct *epc, epvar_struct *epv)
+    const epconst_struct *epc, epvar_struct *epv, const daily_struct *daily)
 {
     /*
      * Calculate the projected leaf area and SLA for sun and shade fractions
@@ -21,11 +21,12 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
     double          parabs_plaisun, parabs_plaishade;
     double          parabs_per_plaisun, parabs_per_plaishade;
 
-    /* The following equations estimate the albedo and extinction
-     * coefficients for the shortwave and PAR spectra from the values given for the
-     * entire shortwave range (from Jones, H.G., 1992. Plants and Microclimate,
-     * 2nd  Edition. Cambridge University Press. pp. 30-38.) These conversions
-     * are approximated from the information given in Jones. */
+    /* The following equations estimate the albedo and extinction coefficients
+     * for the shortwave and PAR spectra from the values given for the entire
+     * shortwave range (from Jones, H.G., 1992. Plants and Microclimate, 2nd
+     * Edition. Cambridge University Press. pp. 30-38.) These conversions are
+     * approximated from the information given in Jones. */
+
     if (cs->leafc > 0.0)
     {
         /* Calculate whole-canopy projected and all-sided LAI */
@@ -68,19 +69,20 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
     k = epc->ext_coef;
     proj_lai = ps->proj_lai;
 
-    /* Calculate total shortwave absorbed */
+    /* calculate total shortwave absorbed */
     k_sw = k;
-    albedo_sw = ps->albedo;
+    albedo_sw = daily->avg_albedo;
 
-    sw = ((ef->soldn > 0.0) ? ef->soldn : 0.0) * (1.0 - albedo_sw);
+    sw = ((daily->avg_soldn > 0.0) ? daily->avg_soldn : 0.0) *
+        (1.0 - albedo_sw);
     swabs = sw * (1.0 - exp (-k_sw * proj_lai));
     swtrans = sw - swabs;
 
     /* Calculate PAR absorbed */
     k_par = k * 1.0;
-    albedo_par = ps->albedo / 3.0;
+    albedo_par = daily->avg_albedo / 3.0;
 
-    par = ((ef->soldn > 0.0) ? ef->soldn : 0.0) *
+    par = ((daily->avg_soldn > 0.0) ? daily->avg_soldn : 0.0) *
         RAD2PAR * (1.0 - albedo_par);
     parabs = par * (1.0 - exp (-k_par * proj_lai));
 
@@ -107,8 +109,8 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
         swabs_per_plaisun = swabs_per_plaishade = 0.0;
     }
 
-    /* Calculate the total PAR absorbed by the sunlit and
-     * shaded canopy fractions */
+    /* Calculate the total PAR absorbed by the sunlit and shaded canopy
+     * fractions */
     parabs_plaisun = k_par * par * ps->plaisun;
     parabs_plaishade = parabs - parabs_plaisun;
 
@@ -130,9 +132,9 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
         parabs_per_plaisun = parabs_per_plaishade = 0.0;
     }
 
-    /* Assign structure values */
     ef->swabs_per_plaisun = swabs_per_plaisun;
     ef->swabs_per_plaishade = swabs_per_plaishade;
+
     /* Calculate PPFD: assumes an average energy for PAR photon (EPAR, umol/J)
      * unit conversion: W/m2 --> umol/m2/s. */
     ps->ppfd_per_plaisun = parabs_per_plaisun * EPAR;

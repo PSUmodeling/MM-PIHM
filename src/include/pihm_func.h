@@ -480,7 +480,8 @@ void            Phenology (const epconst_struct *, epvar_struct *,
 void            Photosynthesis (psn_struct *);
 void            PrecisionControl (cstate_struct *cs, nstate_struct *ns);
 void            RadTrans (const cstate_struct *, eflux_struct *,
-    pstate_struct *, const epconst_struct *, epvar_struct *);
+    pstate_struct *, const epconst_struct *, epvar_struct *,
+    const daily_struct *);
 void            ReadAnnFile (tsdata_struct *, char *);
 void            ReadBgc (char *, ctrl_struct *, co2control_struct *,
     ndepcontrol_struct *, cninit_struct *, char *, char *);
