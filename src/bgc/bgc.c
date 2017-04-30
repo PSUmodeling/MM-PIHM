@@ -5,7 +5,9 @@ void Bgc (pihm_struct pihm, int t, double dt)
 
     int             i;
     double          co2lvl;
+    double          dayl, prev_dayl;
     double          ndep, nfix;
+    spa_data        spa, prev_spa;
 
     /* Get co2 and ndep */
     if (spinup_mode)      /* Spinup mode */
@@ -43,6 +45,18 @@ void Bgc (pihm_struct pihm, int t, double dt)
             nfix = pihm->ndepctrl.nfix / 365.0 / DAYINSEC;
         }
     }
+
+    /* Calculate daylengths */
+    SunPos (t, pihm->latitude, pihm->longitude, pihm->elevation,
+        pihm->noahtbl.tbot, &spa);
+    SunPos (t, pihm->latitude, pihm->longitude, pihm->elevation,
+        pihm->noahtbl.tbot, &prev_spa);
+
+    dayl = (spa.sunset - spa.sunrise) * 3600.0;
+    dayl = (dayl < 0.0) ? dayl + 24.0 * 3600.0 : dayl;
+
+    prev_dayl = (prev_spa.sunset - prev_spa.sunrise) * 3600.0;
+    prev_dayl = (prev_dayl < 0.0) ? dayl + 24.0 * 3600.0 : prev_dayl;
 
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -83,6 +97,9 @@ void Bgc (pihm_struct pihm, int t, double dt)
         psn_sun = &pihm->elem[i].psn_sun;
         psn_shade = &pihm->elem[i].psn_shade;
         summary = &pihm->elem[i].summary;
+
+        epv->dayl = dayl;
+        epv->prev_dayl = prev_dayl;
 
         ps->co2 = co2lvl;
 

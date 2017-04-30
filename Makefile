@@ -127,7 +127,7 @@ endif
 # Flux-PIHM-BGC
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
-  SFLAGS += -D_NOAH_ -D_BGC_
+  SFLAGS += -D_NOAH_ -D_BGC_ -D_DAILY_
   MODULE_SRCS_= \
 	bgc/allocation.c\
 	bgc/annual_rates.c\
@@ -156,6 +156,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/summary.c\
 	bgc/state_update.c\
 	bgc/zero_srcsnk.c\
+	noah/daily.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\
 	noah/lsm_read.c\

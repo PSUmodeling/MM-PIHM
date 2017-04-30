@@ -1197,20 +1197,17 @@ typedef struct solute_struct
  * avg_gw                   double      daily average groundwater level [m]
  * avg_sh2o                 double      daily average unfrozen soil moisture
  *                                        content [m3 m-3]
- * avg_ovlflow              double[]    daily average overland flow [m3 s-1]
- * avg_subsurf              double[]    daily average subsurface flow [m3 s-1]
  * avg_et                   double[]    daily average evaportranspiration
  *                                        [m s-1]
  * avg_smflxv               double[]    daily average vertical soil moisture
  *                                        flux [m s-1]
- * dayl                     double      day length [s]
- * prev_dayl                double      day length of previous day [s]
  * avg_q2d                  double      daily average mixing ratio deficit
  *                                        [kg kg-1]
  * avg_sfcprs               double      daily average air pressure [Pa]
- * avg_ch                   double      daily average surface exchange
- *                                        coefficient for heat and moisture
- *                                        [m s-1]
+ * avg_ra                   double      daily average aerodynamic resistance
+ *                                        [s m-1]
+ * avg_rc                   double      dailly average stomatal resistance
+ *                                        [s m-1]
  * avg_albedo               double      daily average surface albedo [-]
  * avg_sfcspd               double      daily average wind speed [m s-1]
  * avg_sncovr               double      daily average snow cover fraction [-]
@@ -1228,42 +1225,26 @@ typedef struct daily_struct
 {
     int             counter;
     int             daylight_counter;
-
-    double          prev_surf;
-    double          surf;
     double          avg_surf;
-    double          prev_unsat;
-    double          unsat;
     double          avg_unsat;
-    double          prev_gw;
-    double          gw;
     double          avg_gw;
     double          avg_sh2o[MAXLYR];
-    double          prev_smc[MAXLYR];
-    double          smc[MAXLYR];
     double          avg_smc[MAXLYR];
-
-    double          avg_ovlflow[NUM_EDGE];
-    double          avg_subsurf[NUM_EDGE];
     double          avg_et[MAXLYR];
     double          avg_smflxv[MAXLYR];
-
-    double          dayl;
-    double          prev_dayl;
     double          avg_q2d;
     double          avg_sfcprs;
-    double          avg_ch;
+    double          avg_ra;
+    double          avg_rc;
     double          avg_albedo;
     double          avg_sfcspd;
     double          avg_sncovr;
-
     double          tmax;
     double          tmin;
     double          avg_sfctmp;
     double          tday;
     double          tnight;
     double          avg_stc[MAXLYR];
-
     double          avg_soldn;
     double          solar_total;
 } daily_struct;
@@ -2538,8 +2519,10 @@ typedef struct elem_struct
     estate_struct   es;
     eflux_struct    ef;
     pstate_struct   ps;
-#ifdef _CYCLES_
+#ifdef _DAILY_
     daily_struct    daily;
+#endif
+#ifdef _CYCLES_
     cropmgmt_struct cropmgmt;
     comm_struct     comm;
     residue_struct  residue;

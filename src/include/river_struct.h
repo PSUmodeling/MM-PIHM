@@ -219,7 +219,6 @@ typedef struct river_struct
     river_ic_struct ic;
     river_bc_struct bc;
 #ifdef _CYCLES_
-    river_daily_struct daily;
     river_solute_struct NO3sol;
     river_solute_struct NH4sol;
     double          NO3Leaching[4];
