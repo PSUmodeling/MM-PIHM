@@ -437,7 +437,7 @@ void            CanopyCond (const epconst_struct *, epvar_struct *,
     eflux_struct *, pstate_struct *);
 void            CarbonStateUpdate (cflux_struct *, cstate_struct *, int,
     int, int, double);
-void            CheckBgcSS (elem_struct *, int, int, int);
+void            CheckBgcSS (elem_struct *, int, int, int, double);
 void            CheckCarbonBalance (cstate_struct *, double *);
 void            CheckNitrogenBalance (nstate_struct *, double *);
 void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
