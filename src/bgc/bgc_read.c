@@ -30,8 +30,6 @@ void ReadBgc (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     sscanf (cmdstr, "%d", &spinup_mode);
     NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ctrl->maxspinyears);
-    NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%d", &ctrl->bgcstep);
 
     /* In spinup mode, simulation time should be full years */
     if (spinup_mode)

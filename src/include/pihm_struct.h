@@ -257,7 +257,6 @@ typedef struct ctrl_struct
     int             rad_mode;
 #endif
 #ifdef _BGC_
-    int             bgcstep;
     int             maxspinyears;
     int             read_bgc_restart;
     int             write_bgc_restart;
