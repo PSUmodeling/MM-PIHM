@@ -2281,12 +2281,9 @@ typedef struct ntemp_struct
  * onset_gdd                double      onset growing degree days
  * onset_swi                double      onset soil water index
  * offset_flag              int         offset flag
- * offset_counter           int         offset second counter
+ * offset_counter           int         offset days counter
  * offset_fdd               double      offset freezing degree days counter
  * offset_swi               double      offset soil water index
- * lgsf                     double      long growing season factor (0-1)
- * bglfr                    double      background litterfall rate [s-1]
- * bgtr                     double      background transfer growth rate [s-1]
  * annavg_t2m               double      annual average 2m air temperature [K]
  * gpp                      double      GPP flux before downregulation
  *                                        [gC m-2 s-1]
@@ -2342,9 +2339,6 @@ typedef struct epvar_struct
     int             offset_counter;
     double          offset_fdd;
     double          offset_swi;
-    double          lgsf;
-    double          bglfr;
-    double          bgtr;
     double          annavg_t2m;
     double          gpp;
     double          prev_leafc_to_litter;

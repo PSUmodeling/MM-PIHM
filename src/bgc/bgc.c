@@ -64,6 +64,7 @@ void DailyBgc (pihm_struct pihm, int t)
     for (i = 0; i < nelem; i++)
     {
         int         k;
+        daily_struct *daily;
         epconst_struct *epc;
         epvar_struct *epv;
         soil_struct *soil;
@@ -81,6 +82,7 @@ void DailyBgc (pihm_struct pihm, int t)
         summary_struct *summary;
         int         annual_alloc;
 
+        daily = &pihm->elem[i].daily;
         epc = &pihm->elem[i].epc;
         epv = &pihm->elem[i].epv;
         soil = &pihm->elem[i].soil;
@@ -98,9 +100,11 @@ void DailyBgc (pihm_struct pihm, int t)
         psn_shade = &pihm->elem[i].psn_shade;
         summary = &pihm->elem[i].summary;
 
+        /* Determine daylengths */
         epv->dayl = dayl;
         epv->prev_dayl = prev_dayl;
 
+        /* Determine CO2 level */
         ps->co2 = co2lvl;
 
         PrecisionControl (cs, ns);
@@ -109,7 +113,7 @@ void DailyBgc (pihm_struct pihm, int t)
         MakeZeroFluxStruct (cf, nf);
 
         /* Phenology fluxes */
-        Phenology (epc, epv, es, cs, cf, ns, nf, DAYINSEC);
+        Phenology (epc, epv, es, cs, cf, ns, nf, daily);
 
         /* Test for the annual allocation day */
         if (epv->offset_flag == 1 && epv->offset_counter <= DAYINSEC)

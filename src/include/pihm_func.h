@@ -427,7 +427,7 @@ void            InitCropSV (crop_struct *);
 
 #ifdef _BGC_
 void            BackgroundLitterfall (const epconst_struct *, epvar_struct *,
-    const cstate_struct *, cflux_struct *, nflux_struct *, double);
+    const cstate_struct *, cflux_struct *, nflux_struct *);
 void            BgcSpinup (pihm_struct, N_Vector, void *);
 void            CanopyCond (const epconst_struct *, epvar_struct *,
     eflux_struct *, pstate_struct *);
@@ -459,7 +459,7 @@ void            LeafLitFall (const epconst_struct *, double, cflux_struct *,
     nflux_struct *);
 void            LivewoodTurnover (const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, const nstate_struct *,
-    nflux_struct *, double);
+    nflux_struct *);
 void            MaintResp (const epconst_struct *, epvar_struct *,
     const estate_struct *, const eflux_struct *, const cstate_struct *,
      cflux_struct *, const nstate_struct *);
@@ -470,13 +470,13 @@ void            NTransport (pihm_struct);
 void            NitrogenStateUpdate (nflux_struct *, nstate_struct *,
     solute_struct *, int, int, int, double);
 void            OffsetLitterfall (const epconst_struct *, epvar_struct *,
-    const cstate_struct *, cflux_struct *, nflux_struct *, double);
+    const cstate_struct *, cflux_struct *, nflux_struct *);
 void            OnsetGrowth (const epconst_struct *, const epvar_struct *,
     const cstate_struct *, cflux_struct *, const nstate_struct *,
-    nflux_struct *, double);
+    nflux_struct *);
 void            Phenology (const epconst_struct *, epvar_struct *,
     const estate_struct *, cstate_struct *, cflux_struct *, nstate_struct *,
-    nflux_struct *, double);
+    nflux_struct *, const daily_struct *);
 void            Photosynthesis (psn_struct *);
 void            PrecisionControl (cstate_struct *cs, nstate_struct *ns);
 void            RadTrans (const cstate_struct *, eflux_struct *,
@@ -492,7 +492,7 @@ void            RestartInput (cstate_struct *, nstate_struct *,
 void            RestartOutput (cstate_struct *, nstate_struct *,
     epvar_struct *, bgcic_struct *);
 void            SeasonDecidPhenology (const epconst_struct *, epvar_struct *,
-    const estate_struct *, double);
+    const estate_struct *, const daily_struct *);
 void            SoilPsi (const soil_struct *, double, double *);
 void            TotalPhotosynthesis (const epconst_struct *, epvar_struct *,
     const estate_struct *, const pstate_struct *, cflux_struct *,
