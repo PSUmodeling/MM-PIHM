@@ -467,7 +467,7 @@ void            MaintResp (const epconst_struct *, epvar_struct *,
     const daily_struct *);
 void            MakeZeroFluxStruct (cflux_struct *, nflux_struct *);
 void            Mortality (const epconst_struct *, cstate_struct *,
-    cflux_struct *, nstate_struct *, nflux_struct *, double);
+    cflux_struct *, nstate_struct *, nflux_struct *);
 void            NTransport (pihm_struct);
 void            OffsetLitterfall (const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *);

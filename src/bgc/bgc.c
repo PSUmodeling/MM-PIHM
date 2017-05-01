@@ -194,7 +194,7 @@ void DailyBgc (pihm_struct pihm, int t)
         /* This is done last, with a special state update procedure, to insure
          * that pools don't go negative due to mortality fluxes conflicting with
          * other proportional fluxes */
-        Mortality (epc, cs, cf, ns, nf, DAYINSEC);
+        Mortality (epc, cs, cf, ns, nf);
 
         /* Test for carbon balance */
         CheckCarbonBalance (cs, &epv->old_c_balance);
