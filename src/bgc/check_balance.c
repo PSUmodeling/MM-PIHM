@@ -57,7 +57,7 @@ void CheckCarbonBalance (cstate_struct *cs, double *old_balance)
     *old_balance = balance;
 }
 
-void CheckNitrogenBalance (nstate_struct *ns, ntemp_struct *nt, double *old_balance)
+void CheckNitrogenBalance (nstate_struct *ns, double *old_balance)
 {
     double          in, out, store, balance;
 

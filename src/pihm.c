@@ -50,7 +50,7 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
         for (i = 0; i < nelem; i++)
         {
             /* Test for nitrogen balance */
-            CheckNitrogenBalance (&pihm->elem[i].ns, &pihm->elem[i].nt,
+            CheckNitrogenBalance (&pihm->elem[i].ns,
                 &pihm->elem[i].epv.old_n_balance);
         }
     }

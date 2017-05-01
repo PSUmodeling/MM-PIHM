@@ -1,8 +1,8 @@
 #include "pihm.h"
 
 void Phenology (const epconst_struct *epc, epvar_struct *epv,
-    const estate_struct *es, cstate_struct *cs, cflux_struct *cf,
-    nstate_struct *ns, nflux_struct *nf, const daily_struct *daily)
+    cstate_struct *cs, cflux_struct *cf, nstate_struct *ns, nflux_struct *nf,
+    const daily_struct *daily)
 {
     /* Define the phenology signals for cases in which the phenology signals
      * are constant between years */
@@ -16,7 +16,7 @@ void Phenology (const epconst_struct *epc, epvar_struct *epv,
     {
         if (epc->woody)
         {
-            SeasonDecidPhenology (epc, epv, es, daily);
+            SeasonDecidPhenology (epc, epv, daily);
 
             OnsetGrowth (epc, epv, cs, cf, ns, nf);
 
@@ -40,7 +40,7 @@ void EvergreenPhenology (const epconst_struct *epc, epvar_struct *epv,
 }
 
 void SeasonDecidPhenology (const epconst_struct *epc, epvar_struct *epv,
-    const estate_struct *es, const daily_struct *daily)
+    const daily_struct *daily)
 {
     int             ws_flag;
     double          onset_critsum;

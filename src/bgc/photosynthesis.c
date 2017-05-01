@@ -1,8 +1,8 @@
 #include "pihm.h"
 
 void TotalPhotosynthesis (const epconst_struct *epc, epvar_struct *epv,
-    const estate_struct *es, const pstate_struct *ps, cflux_struct *cf,
-    psn_struct *psn_sun, psn_struct *psn_shade, daily_struct *daily)
+    const pstate_struct *ps, cflux_struct *cf, psn_struct *psn_sun,
+    psn_struct *psn_shade, daily_struct *daily)
 {
     /*
      * This function is a wrapper and replacement for the photosynthesis code

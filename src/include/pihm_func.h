@@ -434,7 +434,7 @@ void            CanopyCond (const epconst_struct *, epvar_struct *,
     const daily_struct *);
 void            CheckBgcSS (elem_struct *, int, int, int);
 void            CheckCarbonBalance (cstate_struct *, double *);
-void            CheckNitrogenBalance (nstate_struct *, ntemp_struct *, double *);
+void            CheckNitrogenBalance (nstate_struct *, double *);
 void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
 void            DailyAllocation (cflux_struct *, const cstate_struct *,
     nflux_struct *, const nstate_struct *, const epconst_struct *,
@@ -476,8 +476,8 @@ void            OnsetGrowth (const epconst_struct *, const epvar_struct *,
     const cstate_struct *, cflux_struct *, const nstate_struct *,
     nflux_struct *);
 void            Phenology (const epconst_struct *, epvar_struct *,
-    const estate_struct *, cstate_struct *, cflux_struct *, nstate_struct *,
-    nflux_struct *, const daily_struct *);
+    cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
+    const daily_struct *);
 void            Photosynthesis (psn_struct *);
 void            PrecisionControl (cstate_struct *cs, nstate_struct *ns);
 void            RadTrans (const cstate_struct *, eflux_struct *,
@@ -494,11 +494,11 @@ void            RestartInput (cstate_struct *, nstate_struct *,
 void            RestartOutput (cstate_struct *, nstate_struct *,
     epvar_struct *, bgcic_struct *);
 void            SeasonDecidPhenology (const epconst_struct *, epvar_struct *,
-    const estate_struct *, const daily_struct *);
+    const daily_struct *);
 void            SoilPsi (const soil_struct *, double, double *);
 void            TotalPhotosynthesis (const epconst_struct *, epvar_struct *,
-    const estate_struct *, const pstate_struct *, cflux_struct *,
-    psn_struct *, psn_struct *, daily_struct *);
+    const pstate_struct *, cflux_struct *, psn_struct *, psn_struct *,
+    daily_struct *);
 void            WriteBgcIC (char *, elem_struct *, river_struct *);
 void            ZeroSrcSnk (cstate_struct *, nstate_struct *,
     summary_struct *);

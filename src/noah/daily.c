@@ -2,8 +2,6 @@
 
 void DailyVar (int t, int start_time, pihm_struct pihm)
 {
-    time_t          rawtime;
-    struct tm      *timestamp;
     int             i;
 
     /*

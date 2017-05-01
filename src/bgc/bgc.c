@@ -114,7 +114,7 @@ void DailyBgc (pihm_struct pihm, int t)
         MakeZeroFluxStruct (cf, nf);
 
         /* Phenology fluxes */
-        Phenology (epc, epv, es, cs, cf, ns, nf, daily);
+        Phenology (epc, epv, cs, cf, ns, nf, daily);
 
         /* Test for the annual allocation day */
         if (epv->offset_flag == 1 && epv->offset_counter == 1)
@@ -160,7 +160,7 @@ void DailyBgc (pihm_struct pihm, int t)
          * allocation */
         if (cs->leafc && !epv->dormant_flag && epv->dayl)
         {
-            TotalPhotosynthesis (epc, epv, es, ps, cf, psn_sun, psn_shade, daily);
+            TotalPhotosynthesis (epc, epv, ps, cf, psn_sun, psn_shade, daily);
         }
         else
         {
