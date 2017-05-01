@@ -171,7 +171,7 @@ void DailyBgc (pihm_struct pihm, int t)
         nf->nfix_to_sminn = nfix;
 
         /* Daily litter and soil decomp and nitrogen fluxes */
-        Decomp (es->stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt, DAYINSEC);
+        Decomp (daily->avg_stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt);
 
         /* Allocation gets called whether or not this is a current growth
          * day, because the competition between decomp immobilization fluxes and

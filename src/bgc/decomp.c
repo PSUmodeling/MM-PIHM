@@ -2,23 +2,21 @@
 
 void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
     cstate_struct *cs, cflux_struct *cf, nstate_struct *ns, nflux_struct *nf,
-    ntemp_struct *nt, double dt)
+    ntemp_struct *nt)
 {
-    double          dtd;
     double          rate_scalar, t_scalar, w_scalar;
     double          tk;
     double          minpsi, maxpsi;
     double          rfl1s1, rfl2s2, rfl4s3, rfs1s2, rfs2s3, rfs3s4;
-    double          kl1_base, kl2_base, kl4_base, ks1_base, ks2_base,
-        ks3_base, ks4_base, kfrag_base;
+    double          kl1_base, kl2_base, kl4_base;
+    double          ks1_base, ks2_base, ks3_base, ks4_base, kfrag_base;
     double          kl1, kl2, kl4, ks1, ks2, ks3, ks4, kfrag;
     double          cn_l1, cn_l2, cn_l4, cn_s1, cn_s2, cn_s3, cn_s4;
-    double          cwdc_loss_rate;
-    double          plitr1c_loss_rate, plitr2c_loss_rate, plitr4c_loss_rate;
-    double          psoil1c_loss_rate, psoil2c_loss_rate, psoil3c_loss_rate,
-        psoil4c_loss_rate;
-    double          pmnf_l1s1, pmnf_l2s2, pmnf_l4s3, pmnf_s1s2, pmnf_s2s3,
-        pmnf_s3s4, pmnf_s4;
+    double          cwdc_loss;
+    double          plitr1c_loss, plitr2c_loss, plitr4c_loss;
+    double          psoil1c_loss, psoil2c_loss, psoil3c_loss, psoil4c_loss;
+    double          pmnf_l1s1, pmnf_l2s2, pmnf_l4s3;
+    double          pmnf_s1s2, pmnf_s2s3, pmnf_s3s4, pmnf_s4;
     double          potential_immob, mineralized;
     int             nlimit;
     double          ratio;
@@ -31,7 +29,7 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
      * This equation is a modification of their eqn. 11, changing the base
      * temperature from 10 C to 25 C, since most of the microcosm studies used
      * to get the base decomp rates were controlled at 25 C. */
-    /* no decomp processes for tsoil < -10.0 C */
+    /* No decomp processes for tsoil < -10.0 C */
     if (tsoil < -10.0)
     {
         t_scalar = 0.0;
@@ -42,15 +40,16 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
         t_scalar = exp (308.56 * ((1.0 / 71.02) - (1.0 / (tk - 227.13))));
     }
 
-    /* Calculate the rate constant scalar for soil water content. Uses the
-     * log relationship with water potential given in Andren, O., and K.
-     * Paustian, 1987. Barley straw decomposition in the field: A comparison
+    /* Calculate the rate constant scalar for soil water content. Uses the log
+     * relationship with water potential given in Andren, O., and K.
+     * Paustian, 1987. Barley straw decomposition in the field: a comparison
      * of models. Ecology, 68(5):1190-1200 and supported by data in Orchard,
      * V.A., and F.J. Cook, 1983. Relationship between soil respiration and
      * soil moisture. Soil Biol. Biochem., 15(4):447-453. */
     /* Set the maximum and minimum values for water potential limits (MPa) */
     minpsi = -10.0;
     maxpsi = -0.005;
+
     /* No decomp below the minimum soil water potential */
     if (epv->psi < minpsi)
     {
@@ -69,7 +68,7 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
      * water scalars */
     rate_scalar = w_scalar * t_scalar;
 
-    /* assign output variables */
+    /* Assign output variables */
     epv->t_scalar = t_scalar;
     epv->w_scalar = w_scalar;
     epv->rate_scalar = rate_scalar;
@@ -102,26 +101,15 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
 
     /* Calculate the corrected rate constants from the rate scalar and their
      * base values. All rate constants are (1/day) */
-    kl1_base = -log (1.0 - KL1_BASE);   /* labile litter pool */
-    kl2_base = -log (1.0 - KL2_BASE);   /* cellulose litter pool */
-    kl4_base = -log (1.0 - KL4_BASE);   /* lignin litter pool */
-    ks1_base = -log (1.0 - KS1_BASE);   /* fast microbial recycling pool */
-    ks2_base = -log (1.0 - KS2_BASE);   /* medium microbial recycling pool */
-    ks3_base = -log (1.0 - KS3_BASE);   /* slow microbial recycling pool */
-    ks4_base = -log (1.0 - KS4_BASE);   /* recalcitrant SOM (humus) pool */
-    kfrag_base = -log (1.0 - KFRAG_BASE);/* physical fragmentation of coarse
-                                          * woody debris */
-
-    dtd = dt / DAYINSEC;
-
-    kl1_base = 1.0 - exp (-kl1_base * dtd);
-    kl2_base = 1.0 - exp (-kl2_base * dtd);
-    kl4_base = 1.0 - exp (-kl4_base * dtd);
-    ks1_base = 1.0 - exp (-ks1_base * dtd);
-    ks2_base = 1.0 - exp (-ks2_base * dtd);
-    ks3_base = 1.0 - exp (-ks3_base * dtd);
-    ks4_base = 1.0 - exp (-ks4_base * dtd);
-    kfrag_base = -log (1.0 - KFRAG_BASE * dtd);
+    kl1_base = KL1_BASE;        /* labile litter pool */
+    kl2_base = KL2_BASE;        /* cellulose litter pool */
+    kl4_base = KL4_BASE;        /* lignin litter pool */
+    ks1_base = KS1_BASE;        /* fast microbial recycling pool */
+    ks2_base = KS2_BASE;        /* medium microbial recycling pool */
+    ks3_base = KS3_BASE;        /* slow microbial recycling pool */
+    ks4_base = KS4_BASE;        /* recalcitrant SOM (humus) pool */
+    kfrag_base = KFRAG_BASE;    /* physical fragmentation of coarse woody
+                                 * debris */
 
     if (spinup_mode == ACC_SPINUP_MODE)
     {
@@ -145,19 +133,18 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
     {
         /* Calculate the flux from CWD to litter lignin and cellulose
          * compartments, due to physical fragmentation */
-        cwdc_loss_rate = kfrag * cs->cwdc / dt;
-        cf->cwdc_to_litr2c = cwdc_loss_rate * epc->deadwood_fucel;
-        cf->cwdc_to_litr3c = cwdc_loss_rate * epc->deadwood_fscel;
-        cf->cwdc_to_litr4c = cwdc_loss_rate * epc->deadwood_flig;
+        cwdc_loss = kfrag * cs->cwdc;
+        cf->cwdc_to_litr2c = cwdc_loss * epc->deadwood_fucel;
+        cf->cwdc_to_litr3c = cwdc_loss * epc->deadwood_fscel;
+        cf->cwdc_to_litr4c = cwdc_loss * epc->deadwood_flig;
         nf->cwdn_to_litr2n = cf->cwdc_to_litr2c / epc->deadwood_cn;
         nf->cwdn_to_litr3n = cf->cwdc_to_litr3c / epc->deadwood_cn;
         nf->cwdn_to_litr4n = cf->cwdc_to_litr4c / epc->deadwood_cn;
     }
 
     /* Initialize the potential loss and mineral N flux variables */
-    plitr1c_loss_rate = plitr2c_loss_rate = plitr4c_loss_rate = 0.0;
-    psoil1c_loss_rate = psoil2c_loss_rate = psoil3c_loss_rate =
-        psoil4c_loss_rate = 0.0;
+    plitr1c_loss = plitr2c_loss = plitr4c_loss = 0.0;
+    psoil1c_loss = psoil2c_loss = psoil3c_loss = psoil4c_loss = 0.0;
     pmnf_l1s1 = pmnf_l2s2 = pmnf_l4s3 = 0.0;
     pmnf_s1s2 = pmnf_s2s3 = pmnf_s3s4 = pmnf_s4 = 0.0;
 
@@ -168,7 +155,8 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
     /* 1. labile litter to fast microbial recycling pool */
     if (cs->litr1c > 0.0)
     {
-        plitr1c_loss_rate = kl1 * cs->litr1c / dt;
+        plitr1c_loss = kl1 * cs->litr1c;
+
         if (ns->litr1n > 0.0)
         {
             ratio = cn_s1 / cn_l1;
@@ -178,13 +166,13 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
             ratio = 0.0;
         }
 
-        pmnf_l1s1 = (plitr1c_loss_rate * (1.0 - rfl1s1 - ratio)) / cn_s1;
+        pmnf_l1s1 = (plitr1c_loss * (1.0 - rfl1s1 - (ratio))) / cn_s1;
     }
 
     /* 2. cellulose litter to medium microbial recycling pool */
     if (cs->litr2c > 0.0)
     {
-        plitr2c_loss_rate = kl2 * cs->litr2c / dt;
+        plitr2c_loss = kl2 * cs->litr2c;
         if (ns->litr2n > 0.0)
         {
             ratio = cn_s2 / cn_l2;
@@ -193,13 +181,14 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
         {
             ratio = 0.0;
         }
-        pmnf_l2s2 = (plitr2c_loss_rate * (1.0 - rfl2s2 - (ratio))) / cn_s2;
+
+        pmnf_l2s2 = (plitr2c_loss * (1.0 - rfl2s2 - (ratio))) / cn_s2;
     }
 
     /* 3. lignin litter to slow microbial recycling pool */
     if (cs->litr4c > 0.0)
     {
-        plitr4c_loss_rate = kl4 * cs->litr4c / dt;
+        plitr4c_loss = kl4 * cs->litr4c;
         if (ns->litr4n > 0.0)
         {
             ratio = cn_s3 / cn_l4;
@@ -208,38 +197,36 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
         {
             ratio = 0.0;
         }
-        pmnf_l4s3 = (plitr4c_loss_rate * (1.0 - rfl4s3 - (ratio))) / cn_s3;
+
+        pmnf_l4s3 = (plitr4c_loss * (1.0 - rfl4s3 - (ratio))) / cn_s3;
     }
 
     /* 4. fast microbial recycling pool to medium microbial recycling pool */
     if (cs->soil1c > 0.0)
     {
-        psoil1c_loss_rate = ks1 * cs->soil1c / dt;
-        pmnf_s1s2 =
-            (psoil1c_loss_rate * (1.0 - rfs1s2 - (cn_s2 / cn_s1))) / cn_s2;
+        psoil1c_loss = ks1 * cs->soil1c;
+        pmnf_s1s2 = (psoil1c_loss * (1.0 - rfs1s2 - (cn_s2 / cn_s1))) / cn_s2;
     }
 
     /* 5. medium microbial recycling pool to slow microbial recycling pool */
     if (cs->soil2c > 0.0)
     {
-        psoil2c_loss_rate = ks2 * cs->soil2c / dt;
-        pmnf_s2s3 =
-            (psoil2c_loss_rate * (1.0 - rfs2s3 - (cn_s3 / cn_s2))) / cn_s3;
+        psoil2c_loss = ks2 * cs->soil2c;
+        pmnf_s2s3 = (psoil2c_loss * (1.0 - rfs2s3 - (cn_s3 / cn_s2))) / cn_s3;
     }
 
     /* 6. slow microbial recycling pool to recalcitrant SOM pool */
     if (cs->soil3c > 0.0)
     {
-        psoil3c_loss_rate = ks3 * cs->soil3c / dt;
-        pmnf_s3s4 =
-            (psoil3c_loss_rate * (1.0 - rfs3s4 - (cn_s4 / cn_s3))) / cn_s4;
+        psoil3c_loss = ks3 * cs->soil3c;
+        pmnf_s3s4 = (psoil3c_loss * (1.0 - rfs3s4 - (cn_s4 / cn_s3))) / cn_s4;
     }
 
     /* 7. mineralization of recalcitrant SOM */
     if (cs->soil4c > 0.0)
     {
-        psoil4c_loss_rate = ks4 * cs->soil4c / dt;
-        pmnf_s4 = -psoil4c_loss_rate / cn_s4;
+        psoil4c_loss = ks4 * cs->soil4c;
+        pmnf_s4 = -psoil4c_loss / cn_s4;
     }
 
     /* Determine if there is sufficient mineral N to support potential
@@ -303,18 +290,18 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
      * demands */
     nt->mineralized = mineralized;
     nt->potential_immob = potential_immob;
-    nt->plitr1c_loss = plitr1c_loss_rate;
+    nt->plitr1c_loss = plitr1c_loss;
     nt->pmnf_l1s1 = pmnf_l1s1;
-    nt->plitr2c_loss = plitr2c_loss_rate;
+    nt->plitr2c_loss = plitr2c_loss;
     nt->pmnf_l2s2 = pmnf_l2s2;
-    nt->plitr4c_loss = plitr4c_loss_rate;
+    nt->plitr4c_loss = plitr4c_loss;
     nt->pmnf_l4s3 = pmnf_l4s3;
-    nt->psoil1c_loss = psoil1c_loss_rate;
+    nt->psoil1c_loss = psoil1c_loss;
     nt->pmnf_s1s2 = pmnf_s1s2;
-    nt->psoil2c_loss = psoil2c_loss_rate;
+    nt->psoil2c_loss = psoil2c_loss;
     nt->pmnf_s2s3 = pmnf_s2s3;
-    nt->psoil3c_loss = psoil3c_loss_rate;
+    nt->psoil3c_loss = psoil3c_loss;
     nt->pmnf_s3s4 = pmnf_s3s4;
-    nt->psoil4c_loss = psoil4c_loss_rate;
+    nt->psoil4c_loss = psoil4c_loss;
     nt->kl4 = kl4;
 }

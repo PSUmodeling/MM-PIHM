@@ -443,7 +443,7 @@ void            DailyAllocation (cflux_struct *, const cstate_struct *,
 void            DailyBgc (pihm_struct, int);
 void            Decomp (double, const epconst_struct *, epvar_struct *,
     cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
-    ntemp_struct *, double);
+    ntemp_struct *);
 void            EvergreenPhenology (const epconst_struct *, epvar_struct *,
     cstate_struct *);
 void            FRootLitFall (const epconst_struct *, double, cflux_struct *,
