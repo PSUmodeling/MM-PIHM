@@ -148,10 +148,10 @@ void DailyBgc (pihm_struct pihm, int t)
         MaintResp (epc, epv, cs, cf, ns, daily);
 
         /* Begin canopy bio-physical process simulation */
-        if (cs->leafc && ef->soldn)
+        if (cs->leafc && epv->dayl)
         {
             /* Conductance */
-            CanopyCond (epc, epv, ef, ps);
+            CanopyCond (epc, epv, ef, ps, daily);
         }
 
         /* Do photosynthesis only when it is part of the current growth season, as
