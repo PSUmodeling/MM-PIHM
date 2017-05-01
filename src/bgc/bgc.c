@@ -158,9 +158,9 @@ void DailyBgc (pihm_struct pihm, int t)
          * defined by the remdays_curgrowth flag.  This keeps the occurrence of
          * new growth consistent with the treatment of litterfall and
          * allocation */
-        if (cs->leafc && !epv->dormant_flag && ef->soldn > 0.0)
+        if (cs->leafc && !epv->dormant_flag && epv->dayl)
         {
-            TotalPhotosynthesis (epc, epv, es, ps, cf, psn_sun, psn_shade);
+            TotalPhotosynthesis (epc, epv, es, ps, cf, psn_sun, psn_shade, daily);
         }
         else
         {
