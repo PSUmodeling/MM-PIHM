@@ -431,8 +431,6 @@ void            BackgroundLitterfall (const epconst_struct *, epvar_struct *,
 void            BgcSpinup (pihm_struct, N_Vector, void *);
 void            CanopyCond (const epconst_struct *, epvar_struct *,
     const eflux_struct *, const pstate_struct *, const daily_struct *);
-void            CarbonStateUpdate (cflux_struct *, cstate_struct *, int,
-    int, int, double);
 void            CheckBgcSS (elem_struct *, int, int, int);
 void            CheckCarbonBalance (cstate_struct *, double *);
 void            CheckNitrogenBalance (nstate_struct *, double *);
@@ -441,6 +439,10 @@ void            DailyAllocation (cflux_struct *, const cstate_struct *,
     nflux_struct *, const nstate_struct *, const epconst_struct *,
     epvar_struct *, ntemp_struct *);
 void            DailyBgc (pihm_struct, int);
+void            DailyCarbonStateUpdate (cflux_struct *, cstate_struct *, int,
+    int, int);
+void            DailyNitrogenStateUpdate (nflux_struct *, nstate_struct *,
+    solute_struct *, int, int, int);
 void            Decomp (double, const epconst_struct *, epvar_struct *,
     cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
     ntemp_struct *);
@@ -467,8 +469,6 @@ void            MakeZeroFluxStruct (cflux_struct *, nflux_struct *);
 void            Mortality (const epconst_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *, double);
 void            NTransport (pihm_struct);
-void            NitrogenStateUpdate (nflux_struct *, nstate_struct *,
-    solute_struct *, int, int, int, double);
 void            OffsetLitterfall (const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *);
 void            OnsetGrowth (const epconst_struct *, const epvar_struct *,

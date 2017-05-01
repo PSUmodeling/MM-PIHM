@@ -173,9 +173,9 @@ void DailyBgc (pihm_struct pihm, int t)
         /* Daily litter and soil decomp and nitrogen fluxes */
         Decomp (daily->avg_stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt);
 
-        /* Allocation gets called whether or not this is a current growth
-         * day, because the competition between decomp immobilization fluxes and
-         * plant growth N demand is resolved here.  On days with no growth, no
+        /* Allocation gets called whether or not this is a current growth day,
+         * because the competition between decomp immobilization fluxes and
+         * plant growth N demand is resolved here. On days with no growth, no
          * allocation occurs, but immobilization fluxes are updated normally */
         DailyAllocation (cf, cs, nf, ns, epc, epv, nt);
 
@@ -183,12 +183,12 @@ void DailyBgc (pihm_struct pihm, int t)
         GrowthResp (epc, cf);
 
         /* Update of carbon state variables */
-        CarbonStateUpdate (cf, cs, annual_alloc, epc->woody, epc->evergreen,
-            DAYINSEC);
+        DailyCarbonStateUpdate (cf, cs, annual_alloc, epc->woody,
+            epc->evergreen);
 
         /* Update of nitrogen state variables */
-        NitrogenStateUpdate (nf, ns, nsol, annual_alloc, epc->woody,
-            epc->evergreen, DAYINSEC);
+        DailyNitrogenStateUpdate (nf, ns, nsol, annual_alloc, epc->woody,
+            epc->evergreen);
 
         /* Calculate mortality fluxes and update state variables */
         /* This is done last, with a special state update procedure, to insure
