@@ -1,18 +1,27 @@
 #include "pihm.h"
 
-void ApplyForcing (forc_struct *forc, elem_struct *elem, river_struct *riv,
-    int t
+void ApplyBC (forc_struct *forc, elem_struct *elem, river_struct *riv,
+    int t)
+{
+    /* Element boundary conditions */
+    if (forc->nbc > 0)
+    {
+        ApplyElemBC (forc, elem, t);
+    }
+
+    /* River boundary condition */
+    if (forc->nriverbc > 0)
+    {
+        ApplyRiverBC (forc, riv, t);
+    }
+}
+
+void ApplyForcing (forc_struct *forc, elem_struct *elem, int t
 #ifdef _NOAH_
     , ctrl_struct *ctrl, double lat, double lon, double elev, double tavg
 #endif
     )
 {
-    /* Boundary conditions */
-    if (forc->nbc > 0)
-    {
-        ApplyBC (forc, elem, t);
-    }
-
     /* Meteorological forcing */
     ApplyMeteoForc (forc, elem, t
 #ifdef _NOAH_
@@ -22,16 +31,10 @@ void ApplyForcing (forc_struct *forc, elem_struct *elem, river_struct *riv,
 
     /* LAI forcing */
     ApplyLAI (forc, elem, t);
-
-    /* River boundary condition */
-    if (forc->nriverbc > 0)
-    {
-        ApplyRiverBC (forc, riv, t);
-    }
 }
 
 
-void ApplyBC (forc_struct *forc, elem_struct *elem, int t)
+void ApplyElemBC (forc_struct *forc, elem_struct *elem, int t)
 {
     int             ind;
     int             i, j, k;

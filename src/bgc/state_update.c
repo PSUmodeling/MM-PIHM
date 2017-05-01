@@ -336,9 +336,9 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
     ns->livecrootn -= nf->livecrootn_to_retransn;
 
     /* Nitrogen deposition */
-    nsol->snksrc += nf->ndep_to_sminn;
+    //nsol->snksrc += nf->ndep_to_sminn;
     ns->ndep_src += nf->ndep_to_sminn;
-    nsol->snksrc += nf->nfix_to_sminn;
+    //nsol->snksrc += nf->nfix_to_sminn;
     ns->nfix_src += nf->nfix_to_sminn;
 
     /* Litter and soil decomposition fluxes */

@@ -79,9 +79,9 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     if (pihm->ctrl.init_type == RELAX)
     {
 #ifdef _NOAH_
-        ApplyForcing (&pihm->forc, pihm->elem, pihm->riv,
-            pihm->ctrl.starttime , &pihm->ctrl, pihm->latitude,
-            pihm->longitude, pihm->elevation, pihm->noahtbl.tbot);
+        ApplyForcing (&pihm->forc, pihm->elem, pihm->ctrl.starttime,
+            &pihm->ctrl, pihm->latitude, pihm->longitude, pihm->elevation,
+            pihm->noahtbl.tbot);
 #endif
         SaturationIC (pihm->elem, pihm->riv);
     }

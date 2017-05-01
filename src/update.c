@@ -41,8 +41,8 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         pihm->elem[i].ns.nleached_snk +=
             (pihm->elem[i].nt.surfn0 + pihm->elem[i].nt.sminn0) -
             (pihm->elem[i].ns.surfn + pihm->elem[i].ns.sminn) +
-            pihm->elem[i].nf.ndep_to_sminn * stepsize +
-            pihm->elem[i].nf.nfix_to_sminn * stepsize +
+            pihm->elem[i].nf.ndep_to_sminn / DAYINSEC * stepsize +
+            pihm->elem[i].nf.nfix_to_sminn / DAYINSEC * stepsize +
             pihm->elem[i].nsol.snksrc * stepsize;
 
         pihm->elem[i].nt.surfn0 = pihm->elem[i].ns.surfn;

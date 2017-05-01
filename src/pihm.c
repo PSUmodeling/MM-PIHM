@@ -6,17 +6,22 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
     int             i;
 #endif
 
-    /* Apply forcing */
-    ApplyForcing (&pihm->forc, pihm->elem, pihm->riv, t
-#ifdef _NOAH_
-        , &pihm->ctrl, pihm->latitude, pihm->longitude, pihm->elevation,
-        pihm->noahtbl.tbot
-#endif
-        );
+    /*
+     * Apply boundary conditions
+     */
+    ApplyBC (&pihm->forc, pihm->elem, pihm->riv, t);
 
     /* Determine if land surface simulation is needed */
     if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
     {
+        /* Apply forcing */
+        ApplyForcing (&pihm->forc, pihm->elem, t
+    #ifdef _NOAH_
+            , &pihm->ctrl, pihm->latitude, pihm->longitude, pihm->elevation,
+            pihm->noahtbl.tbot
+    #endif
+            );
+
 #ifdef _NOAH_
         /* Calculate surface energy balance */
         Noah (pihm);
@@ -45,11 +50,9 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
         for (i = 0; i < nelem; i++)
         {
             /* Test for nitrogen balance */
-            CheckNitrogenBalance (&pihm->elem[i].ns,
+            CheckNitrogenBalance (&pihm->elem[i].ns, &pihm->elem[i].nt,
                 &pihm->elem[i].epv.old_n_balance);
         }
-
-        first_balance = 0;
     }
 #endif
 
@@ -63,6 +66,8 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
     {
 #ifdef _BGC_
         DailyBgc (pihm, t - DAYINSEC);
+
+        first_balance = 0;
 
         if (spinup_mode)
         {
@@ -83,7 +88,7 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
     SoluteTransport (pihm->elem, pihm->riv, (double)pihm->ctrl.stepsize);
 #endif
 
-#ifdef _DAYLY_
+#ifdef _DAILY_
     /*
      * Initialize daily structures
      */

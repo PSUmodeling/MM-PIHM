@@ -13,8 +13,8 @@ void DailyBgc (pihm_struct pihm, int t)
     if (spinup_mode)      /* Spinup mode */
     {
         co2lvl = pihm->co2.co2ppm;
-        ndep = pihm->ndepctrl.ndep / 365.0 / DAYINSEC;
-        nfix = pihm->ndepctrl.nfix / 365.0 / DAYINSEC;
+        ndep = pihm->ndepctrl.ndep / 365.0;
+        nfix = pihm->ndepctrl.nfix / 365.0;
     }
     else                            /* Model mode */
     {
@@ -23,8 +23,8 @@ void DailyBgc (pihm_struct pihm, int t)
         {
             /* Constant CO2, constant Ndep */
             co2lvl = pihm->co2.co2ppm;
-            ndep = pihm->ndepctrl.ndep / 365.0 / DAYINSEC;
-            nfix = pihm->ndepctrl.nfix / 365.0 / DAYINSEC;
+            ndep = pihm->ndepctrl.ndep / 365.0;
+            nfix = pihm->ndepctrl.nfix / 365.0;
         }
         else
         {
@@ -35,28 +35,28 @@ void DailyBgc (pihm_struct pihm, int t)
         if (!(pihm->ndepctrl.varndep))
         {
             /* Constant Ndep */
-            ndep = pihm->ndepctrl.ndep / 365.0 / DAYINSEC;
-            nfix = pihm->ndepctrl.nfix / 365.0 / DAYINSEC;
+            ndep = pihm->ndepctrl.ndep / 365.0;
+            nfix = pihm->ndepctrl.nfix / 365.0;
         }
         else
         {
             ndep = GetNdep (pihm->forc.ndep[0], t);
-            ndep = ndep / 365.0 / DAYINSEC;
-            nfix = pihm->ndepctrl.nfix / 365.0 / DAYINSEC;
+            ndep = ndep / 365.0;
+            nfix = pihm->ndepctrl.nfix / 365.0;
         }
     }
 
     /* Calculate daylengths */
     SunPos (t, pihm->latitude, pihm->longitude, pihm->elevation,
         pihm->noahtbl.tbot, &spa);
-    SunPos (t, pihm->latitude, pihm->longitude, pihm->elevation,
+    SunPos (t - DAYINSEC, pihm->latitude, pihm->longitude, pihm->elevation,
         pihm->noahtbl.tbot, &prev_spa);
 
     dayl = (spa.sunset - spa.sunrise) * 3600.0;
     dayl = (dayl < 0.0) ? dayl + 24.0 * 3600.0 : dayl;
 
     prev_dayl = (prev_spa.sunset - prev_spa.sunrise) * 3600.0;
-    prev_dayl = (prev_dayl < 0.0) ? dayl + 24.0 * 3600.0 : prev_dayl;
+    prev_dayl = (prev_dayl < 0.0) ? prev_dayl + 24.0 * 3600.0 : prev_dayl;
 
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -151,7 +151,7 @@ void DailyBgc (pihm_struct pihm, int t)
         if (cs->leafc && epv->dayl)
         {
             /* Conductance */
-            CanopyCond (epc, epv, ef, ps, daily);
+            CanopyCond (epc, epv, ef, ps, soil, daily);
         }
 
         /* Do photosynthesis only when it is part of the current growth season, as
@@ -189,6 +189,25 @@ void DailyBgc (pihm_struct pihm, int t)
         /* Update of nitrogen state variables */
         DailyNitrogenStateUpdate (nf, ns, nsol, annual_alloc, epc->woody,
             epc->evergreen);
+
+#ifdef _DEBUG_
+        if (i == 0 && cs->leafc && !epv->dormant_flag && epv->dayl)
+        {
+            printf ("t = %d: A %lg sun %lg shade %lg\n",
+                    t,
+                    psn_sun->A,
+                    cf->psnsun_to_cpool,
+                    cf->psnshade_to_cpool
+                   );
+            //printf ("vegc %lg gpp %lg npp %lg nep %lg\n", summary->vegc, summary->daily_gpp, summary->daily_nep, summary->daily_nee);
+            //printf ("soilc %lg\n", summary->soilc);
+            //printf ("%lg, %lg, %lg\n", cf->litr1c_to_soil1c, -cf->soil1_hr, -cf->soil1c_to_soil2c);
+            //printf ("%lg, %lg, %lg, %lg\n", cf->litr2c_to_soil2c, -cf->soil2_hr, cf->soil1c_to_soil2c, -cf->soil2c_to_soil3c);
+            //printf ("%lg, %lg, %lg, %lg\n", cf->litr4c_to_soil3c, -cf->soil3_hr, cf->soil2c_to_soil3c, -cf->soil3c_to_soil4c);
+            //printf ("%lg, %lg\n", cf->soil3c_to_soil4c, cf->soil4_hr);
+        }
+#endif
+
 
         /* Calculate mortality fluxes and update state variables */
         /* This is done last, with a special state update procedure, to insure

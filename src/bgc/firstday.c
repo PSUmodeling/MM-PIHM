@@ -2,14 +2,15 @@
 
 void FirstDay (elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
 {
-    bgcic_struct   *restart;
-    epconst_struct *epc;
     int             i;
-    double          max_leafc, max_frootc, max_stemc;
-    double          new_stemc;
 
     for (i = 0; i < nelem; i++)
     {
+        bgcic_struct *restart;
+        epconst_struct *epc;
+        double      max_leafc, max_frootc, max_stemc;
+        double      new_stemc;
+
         restart = &elem[i].restart_input;
         epc = &elem[i].epc;
 

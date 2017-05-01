@@ -2,38 +2,63 @@
 
 void CanopyCond (const epconst_struct *epc, epvar_struct *epv,
     const eflux_struct *ef, const pstate_struct *ps,
-    const daily_struct *daily)
+    const soil_struct *soil, const daily_struct *daily)
 {
-    double          sw, sw_sun, sw_shade;
-    double          ff, ff_sun, ff_shade;
-    double          rcs, rcs_sun, rcs_shade;
-    double          gl_s, gl_s_sun, gl_s_shade;
+    int             k;
+    double          part[MAXLYR];
+    double          gx;
+    double          rct = 0.0;
+    double          rcq = 0.0;
+    double          rcsoil = 0.0;
+    double          sw_sun, sw_shade;
+    double          ff_sun, ff_shade;
+    double          rcs_sun, rcs_shade;
+    double          gl_s_sun, gl_s_shade;
     double          gl_bl;
-
-    sw = daily->avg_soldn;
-    ff = 0.55 * 2.0 * sw / (epc->rgl * ps->proj_lai);
-    rcs = (ff + epc->rsmin / epc->rsmax) / (1.0 + ff);
-    rcs = (rcs > 0.0001) ? rcs : 0.0001;
 
     sw_sun = (ef->swabs_per_plaisun * ps->plaisun) /
         (ef->swabs_per_plaisun * ps->plaisun +
-        ef->swabs_per_plaishade * ps->plaishade) * sw;
+        ef->swabs_per_plaishade * ps->plaishade) * daily->avg_soldn;
     ff_sun = 0.55 * 2.0 * sw_sun / (epc->rgl * ps->plaisun);
     rcs_sun = (ff_sun + epc->rsmin / epc->rsmax) / (1.0 + ff_sun);
     rcs_sun = (rcs_sun > 0.0001) ? rcs_sun : 0.0001;
 
     sw_shade = daily->avg_soldn - sw_sun;
-    ff_shade = 0.55 * 2.0 * sw_shade / (epc->rgl * ps->plaisun);
+    ff_shade = 0.55 * 2.0 * sw_shade / (epc->rgl * ps->plaishade);
     rcs_shade = (ff_shade + epc->rsmin / epc->rsmax) / (1.0 + ff_shade);
     rcs_shade = (rcs_shade > 0.0001) ? rcs_shade : 0.0001;
 
-    /* Stomatal conductance per LAI calculated in Noah */
-    gl_s = 1.0 / daily->avg_rc / ps->proj_lai;
+    rct = 1.0 - 0.0016 * pow (epc->topt - daily->tday, 2.0);
+    rct = (rct > 0.0001) ? rct : 0.0001;
+
+    rcq = 1.0 / (1.0 + epc->hs * daily->avg_q2d);
+    rcq = (rcq > 0.01) ? rcq : 0.01;
+
+    gx = (daily->avg_sh2o[0] - soil->smcwlt) / (soil->smcref - soil->smcwlt);
+    gx = (gx > 1.0) ? 1.0 : gx;
+    gx = (gx < 0.0) ? 0.0 : gx;
+
+    part[0] = ps->sldpth[0] / soil->depth * gx;
+    for (k = 1; k < ps->nroot; k++)
+    {
+        gx = (daily->avg_sh2o[k] - soil->smcwlt) /
+            (soil->smcref - soil->smcwlt);
+        gx = (gx > 1.0) ? 1.0 : gx;
+        gx = (gx < 0.0) ? 0.0 : gx;
+
+        part[k] = ps->sldpth[k] / soil->depth * gx;
+    }
+
+    for (k = 0; k < ps->nroot; k++)
+    {
+        rcsoil += part[k];
+    }
+    rcsoil = (rcsoil > 0.0001) ? rcsoil : 0.0001;
 
     /* Adjust Noah stomatal conductance to calculate sunlit and shaded
      * conductance */
-    gl_s_sun = rcs_sun / rcs * gl_s;
-    gl_s_shade = rcs_shade / rcs * gl_s;
+    gl_s_sun = rcs_sun * rct * rcq * rcsoil / epc->rsmin;
+    gl_s_shade = rcs_shade *rct * rcq * rcsoil / epc->rsmin;
 
     gl_bl = 1.0 / daily->avg_ra;
 

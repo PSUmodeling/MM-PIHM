@@ -119,7 +119,8 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         }
 
 #ifdef _BGC_
-        dy[SURFN(i)] += elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn -
+        dy[SURFN(i)] +=
+            (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC -
             elem->nsol.infilflux;
         dy[SMINN(i)] += elem->nsol.infilflux + elem->nsol.snksrc;
 

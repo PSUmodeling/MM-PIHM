@@ -55,6 +55,12 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             elem->daily.tday += elem->es.sfctmp;
             elem->daily.avg_q2d += elem->ps.q2sat - elem->ps.q2;
             elem->daily.avg_ra += 1.0 / elem->ps.ch;
+#ifdef _DEBUG_
+            if (i == 0)
+            {
+                printf ("soldn = %lf, ra = %lf, q2sat = %lf, q2 = %lf\n", elem->ef.soldn, elem->ps.rc, elem->ps.q2sat, elem->ps.q2);
+            }
+#endif
             elem->daily.avg_rc += elem->ps.rc;
             elem->daily.avg_sfcprs += elem->ps.sfcprs;
             elem->daily.avg_albedo += elem->ps.albedo;
@@ -133,6 +139,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
             elem->daily.avg_gw /= (double)elem->daily.counter;
 
             elem->daily.tday /= (double)elem->daily.daylight_counter;
+            elem->daily.avg_q2d /= (double)elem->daily.daylight_counter;
             elem->daily.avg_ra /= (double)elem->daily.daylight_counter;
             elem->daily.avg_rc /= (double)elem->daily.daylight_counter;
             elem->daily.avg_sfcprs /= (double)elem->daily.daylight_counter;

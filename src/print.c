@@ -743,7 +743,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->prtctrl[n].var[j] =
-                            &pihm->elem[j].summary.npp;
+                            &pihm->elem[j].summary.daily_npp;
                     }
                     n++;
                     break;
@@ -758,7 +758,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->prtctrl[n].var[j] =
-                            &pihm->elem[j].summary.nep;
+                            &pihm->elem[j].summary.daily_nep;
                     }
                     n++;
                     break;
@@ -773,7 +773,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->prtctrl[n].var[j] =
-                            &pihm->elem[j].summary.nee;
+                            &pihm->elem[j].summary.daily_nee;
                     }
                     n++;
                     break;
@@ -788,7 +788,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->prtctrl[n].var[j] =
-                            &pihm->elem[j].summary.gpp;
+                            &pihm->elem[j].summary.daily_gpp;
                     }
                     n++;
                     break;

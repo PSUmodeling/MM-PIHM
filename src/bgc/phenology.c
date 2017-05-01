@@ -70,7 +70,7 @@ void SeasonDecidPhenology (const epconst_struct *epc, epvar_struct *epv,
     if (epv->offset_flag == 1)
     {
         /* Decrement counter for offset period */
-        epv->offset_counter --;
+        epv->offset_counter--;
 
         /* If this is the end of the offset_period, reset phenology
          * flags and indices */

@@ -25,9 +25,9 @@
 /*
  * Function Declarations
  */
-void            ApplyBC (forc_struct *, elem_struct *, int);
-void            ApplyForcing (forc_struct *, elem_struct *, river_struct *,
-    int
+void            ApplyBC (forc_struct *, elem_struct *, river_struct *, int);
+void            ApplyElemBC (forc_struct *, elem_struct *, int);
+void            ApplyForcing (forc_struct *, elem_struct *, int
 #ifdef _NOAH_
     , ctrl_struct *, double, double, double, double
 #endif
@@ -430,10 +430,11 @@ void            BackgroundLitterfall (const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *);
 void            BgcSpinup (pihm_struct, N_Vector, void *);
 void            CanopyCond (const epconst_struct *, epvar_struct *,
-    const eflux_struct *, const pstate_struct *, const daily_struct *);
+    const eflux_struct *, const pstate_struct *, const soil_struct *,
+    const daily_struct *);
 void            CheckBgcSS (elem_struct *, int, int, int);
 void            CheckCarbonBalance (cstate_struct *, double *);
-void            CheckNitrogenBalance (nstate_struct *, double *);
+void            CheckNitrogenBalance (nstate_struct *, ntemp_struct *, double *);
 void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);
 void            DailyAllocation (cflux_struct *, const cstate_struct *,
     nflux_struct *, const nstate_struct *, const epconst_struct *,

@@ -86,6 +86,7 @@ void InitBgcVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
 
         ZeroSrcSnk (&elem[i].cs, &elem[i].ns, &elem[i].summary);
         elem[i].epv.annavg_t2m = elem[i].ps.tbot;
+        elem[i].nsol.snksrc = 0.0;
 
         NV_Ith (CV_Y, SURFN(i)) = elem[i].ns.surfn;
         NV_Ith (CV_Y, SMINN(i)) = elem[i].ns.sminn;
