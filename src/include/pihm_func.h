@@ -461,8 +461,8 @@ void            LivewoodTurnover (const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, const nstate_struct *,
     nflux_struct *);
 void            MaintResp (const epconst_struct *, epvar_struct *,
-    const estate_struct *, const eflux_struct *, const cstate_struct *,
-     cflux_struct *, const nstate_struct *);
+    const cstate_struct *, cflux_struct *, const nstate_struct *,
+    const daily_struct *);
 void            MakeZeroFluxStruct (cflux_struct *, nflux_struct *);
 void            Mortality (const epconst_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *, double);

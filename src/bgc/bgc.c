@@ -145,7 +145,7 @@ void DailyBgc (pihm_struct pihm, int t)
         SoilPsi (soil, vwc, &epv->psi);
 
         /* Maintenance respiration */
-        MaintResp (epc, epv, es, ef, cs, cf, ns);
+        MaintResp (epc, epv, cs, cf, ns, daily);
 
         /* Begin canopy bio-physical process simulation */
         if (cs->leafc && ef->soldn)
