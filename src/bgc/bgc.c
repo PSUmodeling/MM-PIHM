@@ -190,25 +190,6 @@ void DailyBgc (pihm_struct pihm, int t)
         DailyNitrogenStateUpdate (nf, ns, nsol, annual_alloc, epc->woody,
             epc->evergreen);
 
-#ifdef _DEBUG_
-        if (i == 0 && cs->leafc && !epv->dormant_flag && epv->dayl)
-        {
-            printf ("t = %d: A %lg sun %lg shade %lg\n",
-                    t,
-                    psn_sun->A,
-                    cf->psnsun_to_cpool,
-                    cf->psnshade_to_cpool
-                   );
-            //printf ("vegc %lg gpp %lg npp %lg nep %lg\n", summary->vegc, summary->daily_gpp, summary->daily_nep, summary->daily_nee);
-            //printf ("soilc %lg\n", summary->soilc);
-            //printf ("%lg, %lg, %lg\n", cf->litr1c_to_soil1c, -cf->soil1_hr, -cf->soil1c_to_soil2c);
-            //printf ("%lg, %lg, %lg, %lg\n", cf->litr2c_to_soil2c, -cf->soil2_hr, cf->soil1c_to_soil2c, -cf->soil2c_to_soil3c);
-            //printf ("%lg, %lg, %lg, %lg\n", cf->litr4c_to_soil3c, -cf->soil3_hr, cf->soil2c_to_soil3c, -cf->soil3c_to_soil4c);
-            //printf ("%lg, %lg\n", cf->soil3c_to_soil4c, cf->soil4_hr);
-        }
-#endif
-
-
         /* Calculate mortality fluxes and update state variables */
         /* This is done last, with a special state update procedure, to insure
          * that pools don't go negative due to mortality fluxes conflicting with

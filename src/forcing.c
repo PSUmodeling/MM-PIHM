@@ -1,15 +1,18 @@
 #include "pihm.h"
 
-void ApplyBC (forc_struct *forc, elem_struct *elem, river_struct *riv,
-    int t)
+void ApplyBC (forc_struct *forc, elem_struct *elem, river_struct *riv, int t)
 {
-    /* Element boundary conditions */
+    /*
+     * Element boundary conditions
+     */
     if (forc->nbc > 0)
     {
         ApplyElemBC (forc, elem, t);
     }
 
-    /* River boundary condition */
+    /*
+     * River boundary condition
+     */
     if (forc->nriverbc > 0)
     {
         ApplyRiverBC (forc, riv, t);
@@ -22,14 +25,18 @@ void ApplyForcing (forc_struct *forc, elem_struct *elem, int t
 #endif
     )
 {
-    /* Meteorological forcing */
+    /*
+     * Meteorological forcing
+     */
     ApplyMeteoForc (forc, elem, t
 #ifdef _NOAH_
         , ctrl->rad_mode, lat, lon, elev, tavg
 #endif
         );
 
-    /* LAI forcing */
+    /*
+     * LAI forcing
+     */
     ApplyLAI (forc, elem, t);
 }
 
@@ -70,38 +77,45 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
 #endif
     )
 {
-    int             ind;
     int             i, k;
 #ifdef _NOAH_
     spa_data        spa;
 #endif
 
+    /*
+     * Meteorological forcing for PIHM
+     */
     for (k = 0; k < forc->nmeteo; k++)
     {
         IntrplForcing (forc->meteo[k], t, NUM_METEO_VAR);
     }
 
 #ifdef _NOAH_
-    /* Calculate Sun position for topographic solar radiation */
-    if (forc->nrad > 0)
-    {
-        for (k = 0; k < forc->nrad; k++)
-        {
-            IntrplForcing (forc->rad[k], t, 2);
-        }
-    }
-
+    /*
+     * Topographic radiation for Noah
+     */
     if (rad_mode > 0)
     {
+        if (forc->nrad > 0)
+        {
+            for (k = 0; k < forc->nrad; k++)
+            {
+                IntrplForcing (forc->rad[k], t, 2);
+            }
+        }
+
+        /* Calculate Sun position for topographic solar radiation */
         SunPos (t, lat, lon, elev, tavg, &spa);
     }
 #endif
 
 #ifdef _OPENMP
-#pragma omp parallel for private(ind)
+#pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
+        int         ind;
+
         ind = elem[i].attrib.meteo_type - 1;
 
         elem[i].wf.prcp = forc->meteo[ind].value[PRCP_TS] / 1000.0;
@@ -136,22 +150,22 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
 
 void ApplyLAI (forc_struct *forc, elem_struct *elem, int t)
 {
-    int             i, k;
-    int             ind;
-#ifdef _CYCLES_
-    double          ksolar;
-    double          tau;
-#endif
+    int             i;
 
 #ifdef _CYCLES_
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
+        double      ksolar;
+        double      tau;
+
         if (elem[i].comm.svRadiationInterception > 0.0)
         {
             ksolar = 0.5;
 
-            tau =
-                1.0 - ((elem[i].comm.svRadiationInterception > 0.98) ?
+            tau = 1.0 - ((elem[i].comm.svRadiationInterception > 0.98) ?
                     0.98 : elem[i].comm.svRadiationInterception);
 
             elem[i].ps.proj_lai = -log (tau) / ksolar;
@@ -162,11 +176,16 @@ void ApplyLAI (forc_struct *forc, elem_struct *elem, int t)
         }
     }
 #elif  _BGC_
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
         elem[i].ps.proj_lai = elem[i].cs.leafc * elem[i].epc.avg_proj_sla;
     }
 #else
+    int             k;
+
     if (forc->nlai > 0)
     {
         for (k = 0; k < forc->nlai; k++)
@@ -175,8 +194,13 @@ void ApplyLAI (forc_struct *forc, elem_struct *elem, int t)
         }
     }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
+        int         ind;
+
         if (elem[i].attrib.lai_type > 0)
         {
             ind = elem[i].attrib.lai_type - 1;
