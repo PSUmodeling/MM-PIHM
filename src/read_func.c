@@ -291,7 +291,8 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
 
     if (0 == success)
     {
-        PIHMprintf (VL_ERROR, "Error reading %s near Line %d.\n", filename, lno);
+        PIHMprintf (VL_ERROR, "Error reading %s near Line %d.\n", filename,
+            lno);
         PIHMexit (EXIT_FAILURE);
     }
 

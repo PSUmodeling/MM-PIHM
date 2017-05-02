@@ -458,18 +458,16 @@ void SunPos (int t, double latitude, double longitude, double elevation,
     double tmp, spa_data *spa)
 {
     int             spa_result;
-    time_t          rawtime;
-    struct tm      *timestamp;
+    pihm_t_struct   pihm_time;
 
-    rawtime = (time_t) t;
-    timestamp = gmtime (&rawtime);
+    pihm_time = PIHMTime (t);
 
-    spa->year = timestamp->tm_year + 1900;
-    spa->month = timestamp->tm_mon + 1;
-    spa->day = timestamp->tm_mday;
-    spa->hour = timestamp->tm_hour;
-    spa->minute = timestamp->tm_min;
-    spa->second = timestamp->tm_sec;
+    spa->year = pihm_time.year;
+    spa->month = pihm_time.month;
+    spa->day = pihm_time.day;
+    spa->hour = pihm_time.hour;
+    spa->minute = pihm_time.minute;
+    spa->second = pihm_time.second;
     spa->timezone = 0;
 
     spa->delta_t = 67;

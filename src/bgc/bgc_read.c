@@ -5,14 +5,9 @@ void ReadBgc (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     char *ndep_fn)
 {
     FILE           *bgc_file;
-    struct tm      *timestamp;
-    time_t          rawtime;
-    int             mon1, mday1, hour1, min1;
-    int             mon2, mday2, hour2, min2;
+    pihm_t_struct   pihm_time1, pihm_time2;
     char            cmdstr[MAXSTRING];
     int             lno = 0;
-
-    timestamp = (struct tm *)malloc (sizeof (struct tm));
 
     /* Read bgc simulation control file */
     bgc_file = fopen (fn, "r");
@@ -34,21 +29,13 @@ void ReadBgc (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     /* In spinup mode, simulation time should be full years */
     if (spinup_mode)
     {
-        rawtime = (time_t)ctrl->starttime;
-        timestamp = gmtime (&rawtime);
-        mon1 = timestamp->tm_mon;
-        mday1 = timestamp->tm_mday;
-        hour1 = timestamp->tm_hour;
-        min1 = timestamp->tm_min;
+        pihm_time1 = PIHMTime (ctrl->starttime);
+        pihm_time2 = PIHMTime (ctrl->endtime);
 
-        rawtime = (time_t)ctrl->endtime;
-        timestamp = gmtime (&rawtime);
-        mon2 = timestamp->tm_mon;
-        mday2 = timestamp->tm_mday;
-        hour2 = timestamp->tm_hour;
-        min2 = timestamp->tm_min;
-
-        if (mon1 != mon2 || mday1 != mday2 || hour1 != hour2 || min1 != min2)
+        if (pihm_time1.month != pihm_time2.month ||
+            pihm_time1.day != pihm_time2.day ||
+            pihm_time1.hour != pihm_time2.hour ||
+            pihm_time1.minute != pihm_time2.minute)
         {
             PIHMprintf (VL_ERROR,
                 "Error: In BGC spinup mode, "

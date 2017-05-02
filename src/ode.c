@@ -212,9 +212,7 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
 {
     realtype        solvert;
     realtype        cvode_val;
-    char            timestr[MAXSTRING];
-    struct tm      *timestamp;
-    time_t          rawtime;
+    pihm_t_struct   pihm_time;
     int             flag;
 
     solvert = (realtype) (*t);
@@ -227,23 +225,21 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
 
     *t = (int)solvert;
 
-    rawtime = (time_t) (*t);
-    timestamp = gmtime (&rawtime);
-    strftime (timestr, 17, "%Y-%m-%d %H:%M", timestamp);
+    pihm_time = PIHMTime (*t);
 
     if (debug_mode)
     {
-        PIHMprintf (VL_NORMAL, " Step = %s (%d)\n", timestr, *t);
+        PIHMprintf (VL_NORMAL, " Step = %s (%d)\n", pihm_time.str, *t);
     }
     else if (spinup_mode)
     {
-        if (rawtime % DAYINSEC == 0)
+        if (pihm_time.t % DAYINSEC == 0)
         {
-            PIHMprintf (VL_NORMAL, " Step = %s\n", timestr);
+            PIHMprintf (VL_NORMAL, " Step = %s\n", pihm_time.str);
         }
     }
-    else if (rawtime % 3600 == 0)
+    else if (pihm_time.t % 3600 == 0)
     {
-        PIHMprintf (VL_NORMAL, " Step = %s\n", timestr);
+        PIHMprintf (VL_NORMAL, " Step = %s\n", pihm_time.str);
     }
 }

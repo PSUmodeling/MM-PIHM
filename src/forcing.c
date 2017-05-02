@@ -292,8 +292,7 @@ double MonthlyLAI (int t, int lc_type)
      * Monly LAI data come from WRF MPTABLE.TBL for Noah MODIS land
      * cover categories
      */
-    time_t          rawtime;
-    struct tm      *timestamp;
+    pihm_t_struct   pihm_time;
 
     double          lai_tbl[40][12] = {
         /* Evergreen Needleleaf Forest */
@@ -398,10 +397,9 @@ double MonthlyLAI (int t, int lc_type)
                 0.24}
     };
 
-    rawtime = t;
-    timestamp = gmtime (&rawtime);
+    pihm_time = PIHMTime (t);
 
-    return (lai_tbl[lc_type - 1][timestamp->tm_mon]);
+    return (lai_tbl[lc_type - 1][pihm_time.month - 1]);
 }
 
 double MonthlyRL (int t, int lc_type)
@@ -411,8 +409,7 @@ double MonthlyRL (int t, int lc_type)
      * data above with max/min LAI and max/min roughness length data
      * in the vegprmt.tbl
      */
-    time_t          rawtime;
-    struct tm      *timestamp;
+    pihm_t_struct   pihm_time;
 
     double          rl_tbl[40][12] = {
         /* Evergreen Needleleaf Forest */
@@ -537,17 +534,14 @@ double MonthlyRL (int t, int lc_type)
                 0.027, 0.027}
     };
 
+    pihm_time = PIHMTime (t);
 
-    rawtime = t;
-    timestamp = gmtime (&rawtime);
-
-    return (rl_tbl[lc_type - 1][timestamp->tm_mon]);
+    return (rl_tbl[lc_type - 1][pihm_time.month - 1]);
 }
 
 double MonthlyMF (int t)
 {
-    time_t          rawtime;
-    struct tm      *timestamp;
+    pihm_t_struct   pihm_time;
 
     double          mf_tbl[12] =
         { 0.001308019, 0.001633298, 0.002131198, 0.002632776, 0.003031171,
@@ -555,8 +549,7 @@ double MonthlyMF (int t)
         0.001373646, 0.001202083
     };
 
-    rawtime = t;
-    timestamp = gmtime (&rawtime);
+    pihm_time = PIHMTime (t);
 
-    return (mf_tbl[timestamp->tm_mon]);
+    return (mf_tbl[pihm_time.month - 1]);
 }

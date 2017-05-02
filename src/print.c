@@ -10,7 +10,8 @@ void AsciiArt ()
     PIHMprintf (VL_NORMAL, "\t\t##         ##  ##     ## ##     ##\n");
     PIHMprintf (VL_NORMAL, "\t\t##         ##  ##     ## ##     ##\n");
     PIHMprintf (VL_NORMAL, "\t\t##        #### ##     ## ##     ##\n");
-    PIHMprintf (VL_NORMAL, "\n\t    The Penn State Integrated Hydrologic Model\n\n");
+    PIHMprintf (VL_NORMAL,
+        "\n\t    The Penn State Integrated Hydrologic Model\n\n");
 
 #ifdef _NOAH_
     PIHMprintf (VL_NORMAL, "\t    * Land surface module turned on.\n");
@@ -1240,9 +1241,7 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
     for (i = 0; i < nprint; i++)
     {
         int         j;
-        struct tm  *timestamp;
-        time_t      rawtime;
-        char        timestr[MAXSTRING];
+        pihm_t_struct pihm_time;
         double      outval;
         double      outtime;
 
@@ -1253,13 +1252,11 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
 
         if (lapse % prtctrl[i].intvl == 0 && lapse > 0)
         {
-            rawtime = t;
-            timestamp = gmtime (&rawtime);
+            pihm_time = PIHMTime (t);
 
             if (ascii)
             {
-                strftime (timestr, 17, "%Y-%m-%d %H:%M", timestamp);
-                fprintf (prtctrl[i].txtfile, "\"%s\"", timestr);
+                fprintf (prtctrl[i].txtfile, "\"%s\"", pihm_time.str);
                 for (j = 0; j < prtctrl[i].nvar; j++)
                 {
                     if (prtctrl[i].intvl > dt)
@@ -1270,7 +1267,8 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
                     }
                     else
                     {
-                        fprintf (prtctrl[i].txtfile, "\t%lf", prtctrl[i].buffer[j]);
+                        fprintf (prtctrl[i].txtfile, "\t%lf",
+                            prtctrl[i].buffer[j]);
                     }
                 }
                 fprintf (prtctrl[i].txtfile, "\n");
@@ -1283,9 +1281,8 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse, int dt,
             {
                 if (prtctrl[i].intvl > dt)
                 {
-                    outval =
-                        prtctrl[i].buffer[j] / ((double)(prtctrl[i].intvl /
-                            dt));
+                    outval = prtctrl[i].buffer[j] /
+                        ((double)(prtctrl[i].intvl / dt));
                 }
                 else
                 {

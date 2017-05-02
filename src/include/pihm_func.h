@@ -124,6 +124,7 @@ void            _PIHMexit (const char *, int, const char *, int);
 void            _PIHMprintf (const char *, int, const char *, int,
     const char *, ...);
 void            PIHM (pihm_struct, void *, N_Vector, int, int);
+pihm_t_struct   PIHMTime (int);
 void            PrintData (prtctrl_struct *, int, int, int, int, int);
 void            PrtInit (elem_struct *, river_struct *, char *);
 double          Psi (double, double, double);
