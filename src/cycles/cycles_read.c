@@ -426,7 +426,7 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
             &croptbl->userTranspirationMinTemperature[j], 'd', filename, lno);
 
         NextLine (crop_file, cmdstr, &lno);
-        ReadKeyword (cmdstr, "THRESHOLD_TEMPERATURE_FOR_TRANPIRATION",
+        ReadKeyword (cmdstr, "THRESHOLD_TEMPERATURE_FOR_TRANSPIRATION",
             &croptbl->userTranspirationThresholdTemperature[j], 'd', filename,
             lno);
 
