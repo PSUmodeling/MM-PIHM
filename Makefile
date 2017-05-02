@@ -71,6 +71,7 @@ SRCS_ = main.c\
 	read_func.c\
 	river_flow.c\
 	soil.c\
+	time_func.c\
 	update.c\
 	vert_flow.c
 

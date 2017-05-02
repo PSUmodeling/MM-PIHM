@@ -1,6 +1,18 @@
 #ifndef PIHM_STRUCT_HEADER
 #define PIHM_STRUCT_HEADER
 
+typedef struct pihm_t_struct
+{
+    int             t;
+    int             year;
+    int             month;
+    int             day;
+    int             hour;
+    int             minute;
+    int             second;
+    char            str[17];
+} pihm_t_struct;
+
 #ifdef _BGC_
 /*****************************************************************************
  * A structure to hold information on the annual co2 concentration
