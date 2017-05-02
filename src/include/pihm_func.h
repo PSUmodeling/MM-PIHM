@@ -291,7 +291,7 @@ void            ReadCrop (char *, croptbl_struct *);
 void            ReadOperation (const agtbl_struct *, mgmttbl_struct *,
     const croptbl_struct *);
 int             CropExist (char *, const croptbl_struct *);
-void            InitCycles (elem_struct *, int, river_struct *, int,
+void            InitCycles (elem_struct *, river_struct *,
     const ctrl_struct *, const mgmttbl_struct *, const agtbl_struct *,
     const croptbl_struct *, const soiltbl_struct *);
 void            InitializeSoil (soil_struct *, const soiltbl_struct *,

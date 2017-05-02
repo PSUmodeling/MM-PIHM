@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
+void InitCycles (elem_struct *elem, river_struct *riv,
     const ctrl_struct *ctrl, const mgmttbl_struct *mgmttbl,
     const agtbl_struct *agtbl, const croptbl_struct *croptbl,
     const soiltbl_struct *soiltbl)
@@ -27,7 +27,7 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
     total_years = end_year - start_year + 1;
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         /*
          * Initialize weather structure
@@ -231,7 +231,7 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
     }
 
-    for (i = 0; i < numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         riv[i].NO3sol.soluteMass = 0.0;
         riv[i].NH4sol.soluteMass = 0.0;
