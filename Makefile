@@ -170,7 +170,7 @@ endif
 #-------------------
 # Flux-PIHM-Cycles
 #-------------------
-CYCLES_PATH = ../Cycles/src
+CYCLES_PATH = ../Cycles_dev/src
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS += -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
