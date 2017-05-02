@@ -285,7 +285,7 @@ void            InitDailyStruct (pihm_struct);
 void            DailyCycles (int, pihm_struct);
 void            FirstDOY (int *, int, int, soilc_struct *, residue_struct *,
     const soil_struct *);
-void            ReadCyclesCtrl (char *, agtbl_struct *, ctrl_struct *, int);
+void            ReadCyclesCtrl (char *, agtbl_struct *, ctrl_struct *);
 void            ReadSoilInit (char *, soiltbl_struct *);
 void            ReadCrop (char *, croptbl_struct *);
 void            ReadOperation (const agtbl_struct *, mgmttbl_struct *,
@@ -412,8 +412,7 @@ double          AirMolarDensity (double, double);
 double          BoundaryLayerConductance (double, double, double, double);
 void            ResidueWetting (residue_struct *, double *);
 double          FindIrrigationVolume (int, double, const soil_struct *);
-void            SoluteTransport (elem_struct *, int, river_struct *, int,
-    double);
+void            SoluteTransport (elem_struct *, river_struct *, double);
 void            Adsorption (const double *sldpth, const double *,
     const double *, int, double, solute_struct *);
 double          LinearEquilibriumConcentration (double, double, double,

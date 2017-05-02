@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
-    int numele)
+void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl)
 {
     FILE           *simctrl_file;
     char            cmdstr[MAXSTRING];
@@ -16,17 +15,17 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
     CheckFile (simctrl_file, filename);
     PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
 
-    agtbl->op = (int *)malloc (numele * sizeof (int));
-    agtbl->rotsz = (int *)malloc (numele * sizeof (int));
-    agtbl->auto_N = (int *)malloc (numele * sizeof (int));
-    agtbl->auto_P = (int *)malloc (numele * sizeof (int));
-    agtbl->auto_S = (int *)malloc (numele * sizeof (int));
+    agtbl->op = (int *)malloc (nelem * sizeof (int));
+    agtbl->rotsz = (int *)malloc (nelem * sizeof (int));
+    agtbl->auto_N = (int *)malloc (nelem * sizeof (int));
+    agtbl->auto_P = (int *)malloc (nelem * sizeof (int));
+    agtbl->auto_S = (int *)malloc (nelem * sizeof (int));
 
     /* Read simulation control file */
     FindLine (simctrl_file, "BOF", &lno, filename);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         NextLine (simctrl_file, cmdstr, &lno);
         match =
