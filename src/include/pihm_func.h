@@ -64,30 +64,33 @@ void            Hydrol (pihm_struct);
 void            Initialize (pihm_struct, N_Vector);
 void            InitEFlux (eflux_struct *);
 void            InitEState (estate_struct *);
-void            InitForcing (elem_struct *, forc_struct *, calib_struct
+void            InitForcing (elem_struct *, forc_struct *,
+    const calib_struct *
 #ifdef _BGC_
     , int, int
 #endif
     );
-void            InitLC (elem_struct *, lctbl_struct, calib_struct);
-void            InitMeshStruct (elem_struct *, meshtbl_struct);
+void            InitLC (elem_struct *, const lctbl_struct *,
+    const calib_struct *);
+void            InitMeshStruct (elem_struct *, const meshtbl_struct *);
 void            InitOutputFile (prtctrl_struct *, int, int);
-void            InitRiver (river_struct *, elem_struct *, rivtbl_struct,
-    shptbl_struct, matltbl_struct, meshtbl_struct, calib_struct);
+void            InitRiver (river_struct *, elem_struct *, const rivtbl_struct *,
+    const shptbl_struct *, const matltbl_struct *, const meshtbl_struct *,
+    const calib_struct *);
 void            InitRiverWFlux (river_wflux_struct *);
 void            InitRiverWState (river_wstate_struct *);
-void            InitSoil (elem_struct *, soiltbl_struct,
+void            InitSoil (elem_struct *, const soiltbl_struct *,
 #ifdef _NOAH_
-    noahtbl_struct,
+    const noahtbl_struct *,
 #endif
-    calib_struct);
-void            InitSurfL (elem_struct *, river_struct *, meshtbl_struct);
-void            InitTopo (elem_struct *, meshtbl_struct);
+    const calib_struct *);
+void            InitSurfL (elem_struct *, river_struct *, const meshtbl_struct *);
+void            InitTopo (elem_struct *, const meshtbl_struct *);
 void            InitVar (elem_struct *, river_struct *, N_Vector);
 void            InitWFlux (wflux_struct *);
 void            InitWState (wstate_struct *);
 void            IntcpSnowET (int, double, pihm_struct);
-void            IntrplForcing (tsdata_struct, int, int);
+void            IntrplForcing (tsdata_struct *, int, int);
 double          KrFunc (double, double, double);
 void            LateralFlow (pihm_struct);
 int             MacroporeStatus (double, double, double, double, double,
@@ -171,7 +174,7 @@ double          AvgElev (elem_struct *);
 double          CSnow (double);
 void            CalHum (pstate_struct *, estate_struct *);
 void            CalcLatFlx (const pstate_struct *, wflux_struct *, double);
-void            CalcSlopeAspect (elem_struct *, meshtbl_struct);
+void            CalcSlopeAspect (elem_struct *, const meshtbl_struct *);
 void            CanRes (wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const soil_struct *,
     const epconst_struct *);
@@ -191,8 +194,8 @@ double          GWTransp (double, double *, int, int);
 void            HRT (wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const lc_struct *, const soil_struct *, double *,
     double, double, double, double, double *, double *, double *);
-void            InitLsm (elem_struct *, ctrl_struct, noahtbl_struct,
-    calib_struct);
+void            InitLsm (elem_struct *, const ctrl_struct *,
+    const noahtbl_struct *, const calib_struct *);
 void            NoPac (wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, lc_struct *, soil_struct *,
 #ifdef _CYCLES_

@@ -194,7 +194,7 @@ void DefSldpth (double *sldpth, int *nsoil, double *zsoil, double total_depth,
     }
 }
 
-void CalcSlopeAspect (elem_struct *elem, meshtbl_struct meshtbl)
+void CalcSlopeAspect (elem_struct *elem, const meshtbl_struct *meshtbl)
 {
     const int       XCOMP = 0;
     const int       YCOMP = 1;
@@ -216,11 +216,11 @@ void CalcSlopeAspect (elem_struct *elem, meshtbl_struct meshtbl)
 
     for (i = 0; i < nelem; i++)
     {
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
-            x[j] = meshtbl.x[elem[i].node[j] - 1];
-            y[j] = meshtbl.y[elem[i].node[j] - 1];
-            zmax[j] = meshtbl.zmax[elem[i].node[j] - 1];
+            x[j] = meshtbl->x[elem[i].node[j] - 1];
+            y[j] = meshtbl->y[elem[i].node[j] - 1];
+            zmax[j] = meshtbl->zmax[elem[i].node[j] - 1];
         }
 
         edge_vector[0][XCOMP] = x[0] - x[2];
@@ -278,7 +278,7 @@ void CalcSlopeAspect (elem_struct *elem, meshtbl_struct meshtbl)
         /* Consider every edge of every triangular grid */
         for (j = 0; j < nelem; j++)
         {
-            for (k = 0; k < 3; k++)
+            for (k = 0; k < NUM_EDGE; k++)
             {
                 switch (k)
                 {
@@ -295,12 +295,12 @@ void CalcSlopeAspect (elem_struct *elem, meshtbl_struct meshtbl)
                         nodes[1] = 1;
                         break;
                 }
-                x1 = meshtbl.x[elem[j].node[nodes[0]] - 1];
-                y1 = meshtbl.y[elem[j].node[nodes[0]] - 1];
-                z1 = meshtbl.zmax[elem[j].node[nodes[0]] - 1];
-                x2 = meshtbl.x[elem[j].node[nodes[1]] - 1];
-                y2 = meshtbl.y[elem[j].node[nodes[1]] - 1];
-                z2 = meshtbl.zmax[elem[j].node[nodes[1]] - 1];
+                x1 = meshtbl->x[elem[j].node[nodes[0]] - 1];
+                y1 = meshtbl->y[elem[j].node[nodes[0]] - 1];
+                z1 = meshtbl->zmax[elem[j].node[nodes[0]] - 1];
+                x2 = meshtbl->x[elem[j].node[nodes[1]] - 1];
+                y2 = meshtbl->y[elem[j].node[nodes[1]] - 1];
+                z2 = meshtbl->zmax[elem[j].node[nodes[1]] - 1];
 
                 xc = 0.5 * (x1 + x2);
                 yc = 0.5 * (y1 + y2);

@@ -48,7 +48,7 @@ void ApplyElemBC (forc_struct *forc, elem_struct *elem, int t)
 
     for (k = 0; k < forc->nbc; k++)
     {
-        IntrplForcing (forc->bc[k], t, 1);
+        IntrplForcing (&forc->bc[k], t, 1);
     }
 
     for (i = 0; i < nelem; i++)
@@ -87,7 +87,7 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
      */
     for (k = 0; k < forc->nmeteo; k++)
     {
-        IntrplForcing (forc->meteo[k], t, NUM_METEO_VAR);
+        IntrplForcing (&forc->meteo[k], t, NUM_METEO_VAR);
     }
 
 #ifdef _NOAH_
@@ -100,7 +100,7 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
         {
             for (k = 0; k < forc->nrad; k++)
             {
-                IntrplForcing (forc->rad[k], t, 2);
+                IntrplForcing (&forc->rad[k], t, 2);
             }
         }
 
@@ -190,7 +190,7 @@ void ApplyLAI (forc_struct *forc, elem_struct *elem, int t)
     {
         for (k = 0; k < forc->nlai; k++)
         {
-            IntrplForcing (forc->lai[k], t, 1);
+            IntrplForcing (&forc->lai[k], t, 1);
         }
     }
 
@@ -222,7 +222,7 @@ void ApplyRiverBC (forc_struct *forc, river_struct *riv, int t)
 
     for (k = 0; k < forc->nriverbc; k++)
     {
-        IntrplForcing (forc->riverbc[k], t, 1);
+        IntrplForcing (&forc->riverbc[k], t, 1);
     }
 
     for (i = 0; i < nriver; i++)
@@ -235,19 +235,19 @@ void ApplyRiverBC (forc_struct *forc, river_struct *riv, int t)
     }
 }
 
-void IntrplForcing (tsdata_struct ts, int t, int nvrbl)
+void IntrplForcing (tsdata_struct *ts, int t, int nvrbl)
 {
     int             j;
     int             first, middle, last;
 
-    if (t < ts.ftime[0])
+    if (t < ts->ftime[0])
     {
         PIHMprintf (VL_ERROR,
             "Error finding forcing for current time step.\n");
         PIHMprintf (VL_ERROR, "Please check your forcing file.\n");
         PIHMexit (EXIT_FAILURE);
     }
-    else if (t > ts.ftime[ts.length - 1])
+    else if (t > ts->ftime[ts->length - 1])
     {
         PIHMprintf (VL_ERROR,
             "Error finding forcing for current time step.\n");
@@ -257,24 +257,24 @@ void IntrplForcing (tsdata_struct ts, int t, int nvrbl)
     else
     {
         first = 1;
-        last = ts.length - 1;
+        last = ts->length - 1;
 
         while (first <= last)
         {
             middle = (first + last) / 2;
-            if (t >= ts.ftime[middle - 1] && t <= ts.ftime[middle])
+            if (t >= ts->ftime[middle - 1] && t <= ts->ftime[middle])
             {
                 for (j = 0; j < nvrbl; j++)
                 {
-                    ts.value[j] =
-                        ((double)(ts.ftime[middle] - t) * ts.data[middle -
-                            1][j] + (double)(t - ts.ftime[middle -
-                                1]) * ts.data[middle][j]) /
-                        (double)(ts.ftime[middle] - ts.ftime[middle - 1]);
+                    ts->value[j] =
+                        ((double)(ts->ftime[middle] - t) * ts->data[middle -
+                            1][j] + (double)(t - ts->ftime[middle -
+                                1]) * ts->data[middle][j]) /
+                        (double)(ts->ftime[middle] - ts->ftime[middle - 1]);
                 }
                 break;
             }
-            else if (ts.ftime[middle] > t)
+            else if (ts->ftime[middle] > t)
             {
                 last = middle - 1;
             }

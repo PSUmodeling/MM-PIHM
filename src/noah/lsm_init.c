@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void InitLsm (elem_struct *elem, ctrl_struct ctrl, noahtbl_struct noahtbl,
-    calib_struct cal)
+void InitLsm (elem_struct *elem, const ctrl_struct *ctrl,
+    const noahtbl_struct *noahtbl, const calib_struct *cal)
 {
     int             i;
     double          frzfact;
@@ -11,7 +11,7 @@ void InitLsm (elem_struct *elem, ctrl_struct ctrl, noahtbl_struct noahtbl,
 
         /* Set-up soil layer depths */
         DefSldpth (elem[i].ps.sldpth, &elem[i].ps.nsoil, elem[i].ps.zsoil,
-            elem[i].soil.depth, ctrl.sldpth, ctrl.nsoil);
+            elem[i].soil.depth, ctrl->sldpth, ctrl->nsoil);
 
         /* Set-up soil parameters */
         elem[i].ps.nmacd =
@@ -25,14 +25,14 @@ void InitLsm (elem_struct *elem, ctrl_struct ctrl, noahtbl_struct noahtbl,
             elem[i].ps.rtdis);
         /* Set-up universal parameters (not dependent on soil type or
          * vegetation type */
-        elem[i].ps.sbeta = noahtbl.sbeta;
-        elem[i].ps.salp = noahtbl.salp;
-        elem[i].ps.frzk = noahtbl.frzk;
-        elem[i].ps.fxexp = cal.fxexp * noahtbl.fxexp;
-        elem[i].ps.czil = cal.czil * noahtbl.czil;
-        elem[i].ps.lvcoef = noahtbl.lvcoef;
-        elem[i].ps.zbot = noahtbl.zbot;
-        elem[i].ps.tbot = noahtbl.tbot;
+        elem[i].ps.sbeta = noahtbl->sbeta;
+        elem[i].ps.salp = noahtbl->salp;
+        elem[i].ps.frzk = noahtbl->frzk;
+        elem[i].ps.fxexp = cal->fxexp * noahtbl->fxexp;
+        elem[i].ps.czil = cal->czil * noahtbl->czil;
+        elem[i].ps.lvcoef = noahtbl->lvcoef;
+        elem[i].ps.zbot = noahtbl->zbot;
+        elem[i].ps.tbot = noahtbl->tbot;
 
         /* To adjust frzk parameter to actual soil type */
         frzfact =
