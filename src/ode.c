@@ -223,7 +223,7 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
         CV_NORMAL);
     flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
 
-    *t = (int)solvert;
+    *t = (int)round (solvert);
 
     pihm_time = PIHMTime (*t);
 

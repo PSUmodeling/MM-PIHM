@@ -1261,8 +1261,7 @@ void ReadIC (char *filename, elem_struct *elem, river_struct *riv)
     size = ftell (ic_file);
 
     if (size !=
-        (int)(sizeof (ic_struct)) * nelem +
-        (int)(sizeof (river_ic_struct)) * nriver)
+        (int)(sizeof (ic_struct) * nelem + sizeof (river_ic_struct) * nriver))
     {
         PIHMprintf (VL_ERROR,
             "Error in initial condion file %s.\n"
