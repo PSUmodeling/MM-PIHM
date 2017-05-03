@@ -15,7 +15,6 @@ pihm_t_struct PIHMTime (int t)
     pihm_time.day = timestamp->tm_mday;
     pihm_time.hour = timestamp->tm_hour;
     pihm_time.minute = timestamp->tm_min;
-    pihm_time.second = timestamp->tm_sec;
     strftime (pihm_time.str, 17, "%Y-%m-%d %H:%M", timestamp);
 
     return (pihm_time);

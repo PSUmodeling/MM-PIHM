@@ -467,7 +467,7 @@ void SunPos (int t, double latitude, double longitude, double elevation,
     spa->day = pihm_time.day;
     spa->hour = pihm_time.hour;
     spa->minute = pihm_time.minute;
-    spa->second = pihm_time.second;
+    spa->second = 0;
     spa->timezone = 0;
 
     spa->delta_t = 67;

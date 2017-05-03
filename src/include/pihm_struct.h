@@ -9,7 +9,6 @@ typedef struct pihm_t_struct
     int             day;
     int             hour;
     int             minute;
-    int             second;
     char            str[17];
 } pihm_t_struct;
 
