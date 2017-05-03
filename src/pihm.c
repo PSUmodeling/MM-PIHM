@@ -29,6 +29,10 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
         /* Calculate Interception storage and ET */
         IntcpSnowET (t, (double)pihm->ctrl.etstep, pihm);
 #endif
+        /*
+         * Update print variables for land surface step variables
+         */
+        UpdPrintVar (pihm->prtctrl, pihm->ctrl.nprint, LS_STEP);
     }
 
     /*
@@ -43,6 +47,16 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
 #ifdef _NOAH_
     NoahHydrol (pihm->elem, (double)pihm->ctrl.stepsize);
 #endif
+
+#ifdef _CYCLES_
+    SoluteTransport (pihm->elem, pihm->riv, (double)pihm->ctrl.stepsize);
+#endif
+
+
+    /*
+     * Update print variables for hydrology step variables
+     */
+    UpdPrintVar (pihm->prtctrl, pihm->ctrl.nprint, HYDROL_STEP);
 
 #ifdef _BGC_
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
@@ -73,11 +87,12 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
 #ifdef _CYCLES_
         DailyCycles (t - DAYINSEC, pihm);
 #endif
-    }
-#endif
 
-#ifdef _CYCLES_
-    SoluteTransport (pihm->elem, pihm->riv, (double)pihm->ctrl.stepsize);
+        /*
+         * Update print variables for CN (daily) step variables
+         */
+        UpdPrintVar (pihm->prtctrl, pihm->ctrl.nprint, CN_STEP);
+    }
 #endif
 
 #ifdef _DAILY_

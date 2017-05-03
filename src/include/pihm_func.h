@@ -125,7 +125,7 @@ void            _PIHMprintf (const char *, int, const char *, int,
     const char *, ...);
 void            PIHM (pihm_struct, void *, N_Vector, int, int);
 pihm_t_struct   PIHMTime (int);
-void            PrintData (prtctrl_struct *, int, int, int, int, int);
+void            PrintData (prtctrl_struct *, int, int, int, int);
 void            PrtInit (elem_struct *, river_struct *, char *);
 double          Psi (double, double, double);
 double          PtfAlpha (double, double, double, double, int);
@@ -164,6 +164,7 @@ int             SoilTex (double, double);
 void            SolveCVode (int *, int, int, void *, N_Vector);
 int             StrTime (const char *);
 void            Summary (pihm_struct, N_Vector, double);
+void            UpdPrintVar (prtctrl_struct *, int, int);
 void            VerticalFlow (pihm_struct);
 double          WiltingPoint (double, double, double, double);
 

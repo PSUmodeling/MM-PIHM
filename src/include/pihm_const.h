@@ -32,6 +32,11 @@
 #define VL_NORMAL   0
 #define VL_VERBOSE  1
 
+/* Model steps */
+#define HYDROL_STEP 0
+#define LS_STEP     1
+#define CN_STEP     2
+
 /* Maximum string length */
 #define MAXSTRING   1024
 

@@ -91,8 +91,7 @@ int main (int argc, char *argv[])
 
         /* Print outputs */
         PrintData (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.tout[i + 1],
-            pihm->ctrl.tout[i + 1] - pihm->ctrl.starttime,
-            pihm->ctrl.stepsize, pihm->ctrl.ascii);
+            pihm->ctrl.tout[i + 1] - pihm->ctrl.starttime, pihm->ctrl.ascii);
     }
 #ifdef _BGC_
     }

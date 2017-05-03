@@ -25,7 +25,7 @@ void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
             PrintData (pihm->prtctrl, pihm->ctrl.nprint,
                 pihm->ctrl.tout[i + 1],
                 pihm->ctrl.tout[i + 1] - pihm->ctrl.starttime,
-                pihm->ctrl.stepsize, pihm->ctrl.ascii);
+                pihm->ctrl.ascii);
         }
 
         /* Reset solver parameters */

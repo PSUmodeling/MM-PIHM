@@ -281,17 +281,22 @@ typedef struct ctrl_struct
  * ==========               ==========  ====================
  * name                     char[]      name of output file
  * intvl                    int         output interval [s]
+ * upd_intvl                int         0: hydrology step 1: land surface step
+ *                                        2: CN step
  * nvar                     int         number of variables for print
  * var                      double**    pointers to model variables
  * buffer                   double*     buffer for averaging variables
+ * counter                  int         counter for averaging variables
  ****************************************************************************/
 typedef struct prtctrl_struct
 {
     char            name[MAXSTRING];
     int             intvl;
+    int             upd_intvl;
     int             nvar;
     double        **var;
     double         *buffer;
+    int             counter;
     FILE           *txtfile;
     FILE           *datfile;
 } prtctrl_struct;
