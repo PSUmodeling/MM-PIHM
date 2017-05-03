@@ -154,10 +154,10 @@ void DailyBgc (pihm_struct pihm, int t)
             CanopyCond (epc, epv, ef, ps, soil, daily);
         }
 
-        /* Do photosynthesis only when it is part of the current growth season, as
-         * defined by the remdays_curgrowth flag.  This keeps the occurrence of
-         * new growth consistent with the treatment of litterfall and
-         * allocation */
+        /* Do photosynthesis only when it is part of the current growth
+         * season, as * defined by the remdays_curgrowth flag.  This keeps the
+         * occurrence of * new growth consistent with the treatment of
+         * litterfall and allocation */
         if (cs->leafc && !epv->dormant_flag && epv->dayl)
         {
             TotalPhotosynthesis (epc, epv, ps, cf, psn_sun, psn_shade, daily);
@@ -176,7 +176,8 @@ void DailyBgc (pihm_struct pihm, int t)
         /* Allocation gets called whether or not this is a current growth day,
          * because the competition between decomp immobilization fluxes and
          * plant growth N demand is resolved here. On days with no growth, no
-         * allocation occurs, but immobilization fluxes are updated normally */
+         * allocation occurs, but immobilization fluxes are updated
+         * normally */
         DailyAllocation (cf, cs, nf, ns, epc, epv, nt);
 
         /* Growth respiration */
@@ -191,18 +192,25 @@ void DailyBgc (pihm_struct pihm, int t)
             epc->evergreen);
 
         /* Calculate mortality fluxes and update state variables */
-        /* This is done last, with a special state update procedure, to insure
-         * that pools don't go negative due to mortality fluxes conflicting with
-         * other proportional fluxes */
+        /* This is done last, with a special state update procedure, to ensure
+         * that pools don't go negative due to mortality fluxes conflicting
+         * with other proportional fluxes */
         Mortality (epc, cs, cf, ns, nf);
 
         /* Test for carbon balance */
         CheckCarbonBalance (cs, &epv->old_c_balance);
 
-        ///* Test for nitrogen balance */
+        /* Nitrogen balance is checked outside DailyBgc function because a bgc
+         * cycle is not finished until N transport is caluculated by CVODE */
         //CheckNitrogenBalance (ns, &epv->old_n_balance);
 
         /* Calculate carbon summary variables */
         CSummary (cf, cs, summary);
+
+        if (spinup_mode)
+        {
+            pihm->elem[i].spinup.soilc += summary->soilc;
+            pihm->elem[i].spinup.totalc += summary->totalc;
+        }
     }
 }

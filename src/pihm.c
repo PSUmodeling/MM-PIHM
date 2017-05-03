@@ -68,16 +68,8 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
         DailyBgc (pihm, t - DAYINSEC);
 
         first_balance = 0;
-
-        if (spinup_mode)
-        {
-            for (i = 0; i < nelem; i++)
-            {
-                pihm->elem[i].spinup.soilc += pihm->elem[i].summary.soilc;
-                pihm->elem[i].spinup.totalc += pihm->elem[i].summary.totalc;
-            }
-        }
 #endif
+
 #ifdef _CYCLES_
         DailyCycles (t - DAYINSEC, pihm);
 #endif
