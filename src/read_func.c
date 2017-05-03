@@ -170,53 +170,33 @@ int ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
 
     timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
-    if (1 == nvrbl)
-    {
-        match = sscanf (cmdstr, "%d-%d-%d %d:%d %lf",
+    match = sscanf (cmdstr + bytes_consumed, "%d-%d-%d %d:%d%n",
             &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
-            &timeinfo->tm_hour, &timeinfo->tm_min, &data[0]);
-        timeinfo->tm_sec = 0;
-        if (match != nvrbl + 5)
-        {
-            success = 0;
-        }
-        else
-        {
-            timeinfo->tm_year = timeinfo->tm_year - 1900;
-            timeinfo->tm_mon = timeinfo->tm_mon - 1;
-            *ftime = timegm (timeinfo);
-        }
+            &timeinfo->tm_hour, &timeinfo->tm_min, &bytes_now);
+    bytes_consumed += bytes_now;
+
+    if (match != 5)
+    {
+        success = 0;
     }
     else
     {
-        match = sscanf (cmdstr + bytes_consumed, "%d-%d-%d %d:%d%n",
-            &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
-            &timeinfo->tm_hour, &timeinfo->tm_min, &bytes_now);
-        bytes_consumed += bytes_now;
-
-        if (match != 5)
+        for (i = 0; i < nvrbl; i++)
         {
-            success = 0;
-        }
-        else
-        {
-            for (i = 0; i < nvrbl; i++)
+            match =
+                sscanf (cmdstr + bytes_consumed, "%lf%n", &data[i],
+                        &bytes_now);
+            if (match != 1)
             {
-                match =
-                    sscanf (cmdstr + bytes_consumed, "%lf%n", &data[i],
-                    &bytes_now);
-                if (match != 1)
-                {
-                    success = 0;
-                }
-                bytes_consumed += bytes_now;
+                success = 0;
             }
-
-            timeinfo->tm_year = timeinfo->tm_year - 1900;
-            timeinfo->tm_mon = timeinfo->tm_mon - 1;
-            timeinfo->tm_sec = 0;
-            *ftime = timegm (timeinfo);
+            bytes_consumed += bytes_now;
         }
+
+        timeinfo->tm_year = timeinfo->tm_year - 1900;
+        timeinfo->tm_mon = timeinfo->tm_mon - 1;
+        timeinfo->tm_sec = 0;
+        *ftime = timegm (timeinfo);
     }
 
     free (timeinfo);
