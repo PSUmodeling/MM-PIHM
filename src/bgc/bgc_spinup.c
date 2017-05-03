@@ -8,7 +8,7 @@ void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
     double          metyears;
 
     metyears =
-        (pihm->ctrl.endtime - pihm->ctrl.starttime) / 3600 / 24 / 365;
+        (pihm->ctrl.endtime - pihm->ctrl.starttime) / DAYINSEC / 365;
 
     do
     {
@@ -33,7 +33,8 @@ void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 
         spinyears += metyears;
 
-        CheckBgcSS (pihm->elem, first_spin_cycle, metyears, spinyears);
+        CheckBgcSS (pihm->elem, first_spin_cycle,
+            pihm->ctrl.endtime - pihm->ctrl.starttime, spinyears);
 
         first_spin_cycle = 0;
     } while (spinyears < pihm->ctrl.maxspinyears);
@@ -50,7 +51,7 @@ void ResetSpinupStat (elem_struct *elem)
     }
 }
 
-void CheckBgcSS (elem_struct *elem, int first_cycle, int metyears,
+void CheckBgcSS (elem_struct *elem, int first_cycle, int totalt,
     int spinyears)
 {
     int             i;
@@ -59,14 +60,14 @@ void CheckBgcSS (elem_struct *elem, int first_cycle, int metyears,
 
     for (i = 0; i < nelem; i++)
     {
-        elem[i].spinup.soilc /= (double)metyears * 365.0;
-        elem[i].spinup.totalc /= (double)metyears * 365.0;
+        elem[i].spinup.soilc /= (double)(totalt / DAYINSEC);
+        elem[i].spinup.totalc /= (double)(totalt / DAYINSEC);
 
         if (!first_cycle)
         {
             /* Convert soilc and totalc to average daily soilc */
             t1 = (elem[i].spinup.soilc - elem[i].spinup.soilc_prev) /
-                (double)metyears;
+                (double)(totalt / DAYINSEC / 365);
 
             /* Check if element reaches steady state */
             elem[i].spinup.steady = (fabs (t1) < SPINUP_TOLERANCE);
