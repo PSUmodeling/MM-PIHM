@@ -515,14 +515,11 @@ void ReadEPC (epctbl_struct *epctbl)
 void ReadAnnFile (tsdata_struct *ts, char *fn)
 {
     FILE           *fid;
-    time_t          rawtime;
-    struct tm      *timeinfo;
+    char            timestr[MAXSTRING];
     char            cmdstr[MAXSTRING];
     int             i;
     int             match;
     int             lno = 0;
-
-    timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
     fid = fopen (fn, "r");
     CheckFile (fid, fn);
@@ -538,7 +535,7 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
         ts->data[i] = (double *)malloc (sizeof (double));
         NextLine (fid, cmdstr, &lno);
         match =
-            sscanf (cmdstr, "%d %lf", &timeinfo->tm_year, &ts->data[i][0]);
+            sscanf (cmdstr, "%s %lf", timestr, &ts->data[i][0]);
 
         if (match != 2)
         {
@@ -548,14 +545,7 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
             PIHMexit (EXIT_FAILURE);
         }
 
-        timeinfo->tm_year = timeinfo->tm_year - 1900;
-        timeinfo->tm_mon = 0;
-        timeinfo->tm_mday = 1;
-        timeinfo->tm_hour = 0;
-        timeinfo->tm_min = 0;
-        timeinfo->tm_sec = 0;
-        rawtime = timegm (timeinfo);
-        ts->ftime[i] = (int)rawtime;
+        ts->ftime[i] = StrTime (timestr);
     }
 
     fclose (fid);

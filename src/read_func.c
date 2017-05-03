@@ -162,20 +162,16 @@ void CheckFile (FILE *fid, char *fn)
 int ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
 {
     int             match;
-    struct tm      *timeinfo;
+    char            timestr[MAXSTRING], ts1[MAXSTRING], ts2[MAXSTRING];
     int             bytes_now;
     int             bytes_consumed = 0;
     int             i;
     int             success = 1;
 
-    timeinfo = (struct tm *)malloc (sizeof (struct tm));
-
-    match = sscanf (cmdstr + bytes_consumed, "%d-%d-%d %d:%d%n",
-            &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
-            &timeinfo->tm_hour, &timeinfo->tm_min, &bytes_now);
+    match = sscanf (cmdstr + bytes_consumed, "%s %s%n", ts1, ts2, &bytes_now);
     bytes_consumed += bytes_now;
 
-    if (match != 5)
+    if (match != 2)
     {
         success = 0;
     }
@@ -193,13 +189,9 @@ int ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
             bytes_consumed += bytes_now;
         }
 
-        timeinfo->tm_year = timeinfo->tm_year - 1900;
-        timeinfo->tm_mon = timeinfo->tm_mon - 1;
-        timeinfo->tm_sec = 0;
-        *ftime = timegm (timeinfo);
+        sprintf (timestr, "%s %s", ts1, ts2);
+        *ftime = StrTime (timestr);
     }
-
-    free (timeinfo);
 
     return (success);
 }
@@ -208,9 +200,9 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
     char *filename, int lno)
 {
     int             match;
+    char            timestr[MAXSTRING], ts1[MAXSTRING], ts2[MAXSTRING];
     char            optstr[MAXSTRING];
     int             success = 1;
-    struct tm      *timeinfo;
 
     switch (type)
     {
@@ -242,13 +234,8 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
             }
             break;
         case 't':
-            timeinfo = (struct tm *)malloc (sizeof (struct tm));
-
-            match = sscanf (buffer, "%s %d-%d-%d %d:%d", optstr,
-                &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
-                &timeinfo->tm_hour, &timeinfo->tm_min);
-            timeinfo->tm_sec = 0;
-            if (match != 6 || strcasecmp (keyword, optstr) != 0)
+            match = sscanf (buffer, "%s %s %s", optstr, ts1, ts2);
+            if (match != 3 || strcasecmp (keyword, optstr) != 0)
             {
                 PIHMprintf (VL_ERROR, "Expected keyword \"%s\", "
                     "detected keyword \"%s\".\n", keyword, optstr);
@@ -256,12 +243,9 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
             }
             else
             {
-                timeinfo->tm_year = timeinfo->tm_year - 1900;
-                timeinfo->tm_mon = timeinfo->tm_mon - 1;
-                *((int *)value) = timegm (timeinfo);
+                sprintf (timestr, "%s %s", ts1, ts2);
+                *((int *)value) = StrTime (timestr);
             }
-
-            free (timeinfo);
             break;
         default:
             PIHMprintf (VL_ERROR,
