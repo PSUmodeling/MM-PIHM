@@ -142,6 +142,10 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
     ReadKeyword (cmdstr, "SOLAR", &ctrl->prtvrbl[SOLAR_CTRL], 'i', filename,
         lno);
 
+    NextLine (lsm_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "CH", &ctrl->prtvrbl[CH_CTRL], 'i', filename,
+        lno);
+
     fclose (lsm_file);
 }
 

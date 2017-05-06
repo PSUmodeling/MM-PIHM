@@ -695,6 +695,21 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     }
                     n++;
                     break;
+                case CH_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.ch", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].upd_intvl = LS_STEP;
+                    pihm->prtctrl[n].nvar = nelem;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < nelem; j++)
+                    {
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].ps.ch;
+                    }
+                    n++;
+                    break;
 #endif
 
 #ifdef _BGC_
