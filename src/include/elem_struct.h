@@ -1204,8 +1204,8 @@ typedef struct solute_struct
  * avg_q2d                  double      daily average mixing ratio deficit
  *                                        [kg kg-1]
  * avg_sfcprs               double      daily average air pressure [Pa]
- * avg_ra                   double      daily average aerodynamic resistance
- *                                        [s m-1]
+ * avg_ch                   double      daily average surface exchange
+ *                                        coefficient [m s-1]
  * avg_rc                   double      dailly average stomatal resistance
  *                                        [s m-1]
  * avg_albedo               double      daily average surface albedo [-]
@@ -1234,7 +1234,7 @@ typedef struct daily_struct
     double          avg_et[MAXLYR];
     double          avg_q2d;
     double          avg_sfcprs;
-    double          avg_ra;
+    double          avg_ch;
     double          avg_rc;
     double          avg_albedo;
     double          avg_sfcspd;

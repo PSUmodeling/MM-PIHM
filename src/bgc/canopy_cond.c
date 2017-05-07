@@ -60,7 +60,7 @@ void CanopyCond (const epconst_struct *epc, epvar_struct *epv,
     gl_s_sun = rcs_sun * rct * rcq * rcsoil / epc->rsmin;
     gl_s_shade = rcs_shade *rct * rcq * rcsoil / epc->rsmin;
 
-    gl_bl = 1.0 / daily->avg_ra;
+    gl_bl = daily->avg_ch;
 
     /* Leaf conductance to transpired water vapor, per unit projected LAI.
      * This formula is derived from stomatal and cuticular conductances in

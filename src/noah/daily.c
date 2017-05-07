@@ -52,7 +52,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         {
             elem->daily.tday += elem->es.sfctmp;
             elem->daily.avg_q2d += elem->ps.q2sat - elem->ps.q2;
-            elem->daily.avg_ra += 1.0 / elem->ps.ch;
+            elem->daily.avg_ch += elem->ps.ch;
 #ifdef _DEBUG_
             if (i == 0)
             {
@@ -138,7 +138,7 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 
             elem->daily.tday /= (double)elem->daily.daylight_counter;
             elem->daily.avg_q2d /= (double)elem->daily.daylight_counter;
-            elem->daily.avg_ra /= (double)elem->daily.daylight_counter;
+            elem->daily.avg_ch /= (double)elem->daily.daylight_counter;
             elem->daily.avg_rc /= (double)elem->daily.daylight_counter;
             elem->daily.avg_sfcprs /= (double)elem->daily.daylight_counter;
             elem->daily.avg_albedo /= (double)elem->daily.daylight_counter;
@@ -202,7 +202,7 @@ void InitDailyStruct (pihm_struct pihm)
 
         elem->daily.avg_q2d = 0.0;
         elem->daily.avg_sfcprs = 0.0;
-        elem->daily.avg_ra = 0.0;
+        elem->daily.avg_ch = 0.0;
         elem->daily.avg_rc = 0.0;
         elem->daily.avg_albedo = 0.0;
         elem->daily.avg_sfcspd = 0.0;
