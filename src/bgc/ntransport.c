@@ -1,6 +1,5 @@
 #include "pihm.h"
 
-const double        MINSTRG = 1.0E-4;
 
 void NTransport (pihm_struct pihm)
 {
@@ -21,16 +20,15 @@ void NTransport (pihm_struct pihm)
 
         /* Element surface */
         strg = elem->ws.surf;
-        strg = (strg > MINSTRG) ? strg : MINSTRG;
-        elem->nsol.conc_surf = elem->ns.surfn / strg / 1000.0;
+        elem->nsol.conc_surf = (strg > 0.0) ?
+            elem->ns.surfn / strg / 1000.0 : 0.0;
         elem->nsol.conc_surf = (elem->nsol.conc_surf > 0.0) ?
             elem->nsol.conc_surf : 0.0;
 
         /* Element subsurface */
         strg = (elem->ws.unsat + elem->ws.gw) * elem->soil.porosity;
-        strg = (strg > MINSTRG) ? strg : MINSTRG;
-        elem->nsol.conc_subsurf =
-            MOBILEN_PROPORTION * elem->ns.sminn / strg / 1000.0;
+        elem->nsol.conc_subsurf = (strg > 0.0) ?
+            MOBILEN_PROPORTION * elem->ns.sminn / strg / 1000.0 : 0.0;
         elem->nsol.conc_subsurf = (elem->nsol.conc_subsurf > 0.0) ?
             elem->nsol.conc_subsurf : 0.0;
     }
@@ -47,16 +45,15 @@ void NTransport (pihm_struct pihm)
 
         /* River stream */
         strg = riv->ws.stage;
-        strg = (strg > MINSTRG) ? strg : MINSTRG;
-        riv->nsol.conc_stream = riv->ns.streamn / strg / 1000.0;
+        riv->nsol.conc_stream = (strg > 0.0) ?
+            riv->ns.streamn / strg / 1000.0 : 0.0;
         riv->nsol.conc_stream = (riv->nsol.conc_stream > 0.0) ?
             riv->nsol.conc_stream : 0.0;
 
         /* River bed */
         strg = riv->ws.gw * riv->matl.porosity;
-        strg = (strg > MINSTRG) ? strg : MINSTRG;
-        riv->nsol.conc_bed =
-            MOBILEN_PROPORTION * riv->ns.sminn / strg / 1000.0;
+        riv->nsol.conc_bed = (strg > 0.0) ?
+            MOBILEN_PROPORTION * riv->ns.sminn / strg / 1000.0 : 0.0;
         riv->nsol.conc_bed = (riv->nsol.conc_bed > 0.0) ?
             riv->nsol.conc_bed : 0.0;
     }
@@ -84,11 +81,11 @@ void NTransport (pihm_struct pihm)
             {
                 nabr = &pihm->elem[elem->nabr[j] - 1];
 
-                elem->nsol.subflux[j] = (elem->nsol.subflux[j] > 0.0) ?
+                elem->nsol.subflux[j] = (elem->wf.subsurf[j] > 0.0) ?
                     elem->wf.subsurf[j] * 1000.0 * elem->nsol.conc_subsurf :
                     elem->wf.subsurf[j] * 1000.0 * nabr->nsol.conc_subsurf;
 
-                elem->nsol.ovlflux[j] = (elem->nsol.ovlflux[j] > 0.0) ?
+                elem->nsol.ovlflux[j] = (elem->wf.ovlflow[j] > 0.0) ?
                     elem->wf.ovlflow[j] * 1000.0 * elem->nsol.conc_surf :
                     elem->wf.ovlflow[j] * 1000.0 * nabr->nsol.conc_surf;
             }

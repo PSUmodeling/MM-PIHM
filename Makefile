@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------
 
 CC = gcc
-CFLAGS = -g -O2 -static
+CFLAGS = -g -O2
 
 ifeq ($(WARNING), on)
 CFLAGS += -Wall -Wextra

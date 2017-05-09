@@ -65,8 +65,10 @@ void DailyBgc (pihm_struct pihm, int t)
     prev_dayl = (prev_spa.sunset - prev_spa.sunrise) * 3600.0;
     prev_dayl = (prev_dayl < 0.0) ? prev_dayl + 24.0 * 3600.0 : prev_dayl;
 
+#ifndef _DEBUG_
 #ifdef _OPENMP
 #pragma omp parallel for
+#endif
 #endif
     for (i = 0; i < nelem; i++)
     {
