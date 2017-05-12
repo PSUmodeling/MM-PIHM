@@ -167,28 +167,30 @@ void RestartOutput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
 void ReadBgcIC (char *fn, elem_struct *elem, river_struct *riv)
 {
     FILE           *init_file;
-    int             acc_flag;
     int             i;
 
     init_file = fopen (fn, "rb");
     CheckFile (init_file, fn);
     PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
 
-    fread (&acc_flag, sizeof (int), 1, init_file);
-
     for (i = 0; i < nelem; i++)
     {
         fread (&elem[i].restart_input, sizeof (bgcic_struct), 1,
             init_file);
 
-        /* If initial conditions are obtained using accelerated spinup,
-         * adjust soil C pool sizes if needed */
-        if (acc_flag == 1 && spinup_mode != ACC_SPINUP_MODE)
+        /* If simulation is accelerated spinup, adjust soil C pool sizes if
+         * needed */
+        if (spinup_mode == ACC_SPINUP_MODE)
         {
-            elem[i].restart_input.soil1c *= KS1_ACC;
-            elem[i].restart_input.soil2c *= KS2_ACC;
-            elem[i].restart_input.soil3c *= KS3_ACC;
-            elem[i].restart_input.soil4c *= KS4_ACC;
+            elem[i].restart_input.soil1c /= KS1_ACC;
+            elem[i].restart_input.soil2c /= KS2_ACC;
+            elem[i].restart_input.soil3c /= KS3_ACC;
+            elem[i].restart_input.soil4c /= KS4_ACC;
+
+            elem[i].restart_input.soil1n /= KS1_ACC;
+            elem[i].restart_input.soil2n /= KS2_ACC;
+            elem[i].restart_input.soil3n /= KS3_ACC;
+            elem[i].restart_input.soil4n /= KS4_ACC;
         }
     }
 
@@ -204,28 +206,31 @@ void ReadBgcIC (char *fn, elem_struct *elem, river_struct *riv)
 void WriteBgcIC (char *restart_fn, elem_struct *elem, river_struct *riv)
 {
     int         i;
-    int         acc_flag = 0;
     FILE       *restart_file;
 
     restart_file = fopen (restart_fn, "wb");
     CheckFile (restart_file, restart_fn);
     PIHMprintf (VL_VERBOSE, "Writing BGC initial conditions.\n");
 
-    if (spinup_mode == ACC_SPINUP_MODE)
-    {
-        acc_flag = 1;
-    }
-    else
-    {
-        acc_flag = 0;
-    }
-
-    fwrite (&acc_flag, sizeof (int), 1, restart_file);
-
     for (i = 0; i < nelem; i++)
     {
         RestartOutput (&elem[i].cs, &elem[i].ns, &elem[i].epv,
             &elem[i].restart_output);
+
+        /* If initial conditions are obtained using accelerated spinup,
+         * adjust soil C pool sizes if needed */
+        if (spinup_mode == ACC_SPINUP_MODE)
+        {
+            elem[i].restart_output.soil1c *= KS1_ACC;
+            elem[i].restart_output.soil2c *= KS2_ACC;
+            elem[i].restart_output.soil3c *= KS3_ACC;
+            elem[i].restart_output.soil4c *= KS4_ACC;
+
+            elem[i].restart_output.soil1n *= KS1_ACC;
+            elem[i].restart_output.soil2n *= KS2_ACC;
+            elem[i].restart_output.soil3n *= KS3_ACC;
+            elem[i].restart_output.soil4n *= KS4_ACC;
+        }
 
         fwrite (&(elem[i].restart_output), sizeof (bgcic_struct), 1,
             restart_file);
