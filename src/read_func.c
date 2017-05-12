@@ -263,6 +263,50 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
     return (success);
 }
 
+int ReadPrtCtrl (char *buffer, char *keyword, char *filename, int lno)
+{
+    int             match;
+    int             prtvrbl;
+    char            ctrlstr[MAXSTRING];
+    char            optstr[MAXSTRING];
+
+    match = sscanf (buffer, "%s %[^\n]", optstr, ctrlstr);
+    if (match != 2 || strcasecmp (keyword, optstr) != 0)
+    {
+        PIHMprintf (VL_ERROR, "Expected keyword \"%s\", "
+                "detected keyword \"%s\".\n", keyword, optstr);
+    }
+
+    if (strcasecmp (ctrlstr, "YEARLY") == 0)
+    {
+        prtvrbl = YEARLY_OUTPUT;
+    }
+    else if (strcasecmp (ctrlstr, "MONTHLY") == 0)
+    {
+        prtvrbl = MONTHLY_OUTPUT;
+    }
+    else if (strcasecmp (ctrlstr, "DAILY") == 0)
+    {
+        prtvrbl = DAILY_OUTPUT;
+    }
+    else if (strcasecmp (ctrlstr, "HOURLY") == 0)
+    {
+        prtvrbl = HOURLY_OUTPUT;
+    }
+    else
+    {
+        match = sscanf (ctrlstr, "%d", &prtvrbl);
+        if (match != 1)
+        {
+            PIHMprintf (VL_ERROR, "Unknown output control option %s.\n",
+                ctrlstr);
+            PIHMexit (EXIT_FAILURE);
+        }
+    }
+
+    return (prtvrbl);
+}
+
 int CountOccurance (FILE *fid, char *token)
 {
     /*

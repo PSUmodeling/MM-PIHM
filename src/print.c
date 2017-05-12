@@ -74,7 +74,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
 
     for (i = 0; i < MAXPRINT; i++)
     {
-        if (pihm->ctrl.prtvrbl[i] > 0)
+        if (pihm->ctrl.prtvrbl[i] != 0)
         {
             switch (i)
             {
@@ -1346,20 +1346,76 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse,
     int ascii)
 {
     int             i;
+    pihm_t_struct   pihm_time;
+
+    pihm_time = PIHMTime (t);
+
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
     for (i = 0; i < nprint; i++)
     {
         int         j;
-        pihm_t_struct pihm_time;
+        int         print = 0;
         double      outval;
         double      outtime;
 
-        if (lapse % prtctrl[i].intvl == 0 && lapse > 0)
+        switch (prtctrl[i].intvl)
         {
-            pihm_time = PIHMTime (t);
+            case YEARLY_OUTPUT:
+                if (pihm_time.month == 1 && pihm_time.day == 1 &&
+                    pihm_time.hour == 0 && pihm_time.minute == 0)
+                {
+                    print = 1;
+                }
+                else
+                {
+                    print = 0;
+                }
+                break;
+            case MONTHLY_OUTPUT:
+                if (pihm_time.day == 1 && pihm_time.hour == 0 &&
+                    pihm_time.minute == 0)
+                {
+                    print = 1;
+                }
+                else
+                {
+                    print = 0;
+                }
+                break;
+            case DAILY_OUTPUT:
+                if (pihm_time.hour == 0 && pihm_time.minute == 0)
+                {
+                    print = 1;
+                }
+                else
+                {
+                    print = 0;
+                }
+                break;
+            case HOURLY_OUTPUT:
+                if (pihm_time.minute == 0)
+                {
+                    print = 1;
+                }
+                else
+                {
+                    print = 0;
+                }
+            default:
+                if (lapse % prtctrl[i].intvl == 0 && lapse > 0)
+                {
+                    print = 1;
+                }
+                else
+                {
+                    print = 0;
+                }
+        }
 
+        if (print)
+        {
             if (ascii)
             {
                 fprintf (prtctrl[i].txtfile, "\"%s\"", pihm_time.str);

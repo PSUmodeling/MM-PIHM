@@ -994,100 +994,93 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
         lno);
 
     NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SURF", &ctrl->prtvrbl[SURF_CTRL], 'i', filename,
+    ctrl->prtvrbl[SURF_CTRL] = ReadPrtCtrl (cmdstr, "SURF", filename, lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[UNSAT_CTRL] = ReadPrtCtrl (cmdstr, "UNSAT", filename, lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[GW_CTRL] = ReadPrtCtrl (cmdstr, "GW", filename, lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[RIVSTG_CTRL] = ReadPrtCtrl (cmdstr, "RIVSTG", filename, lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[RIVGW_CTRL] = ReadPrtCtrl (cmdstr, "RIVGW", filename, lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[SNOW_CTRL] = ReadPrtCtrl (cmdstr, "SNOW", filename, lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[CMC_CTRL] = ReadPrtCtrl (cmdstr, "CMC", filename, lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[INFIL_CTRL] = ReadPrtCtrl (cmdstr, "INFIL", filename, lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[RECHARGE_CTRL] = ReadPrtCtrl (cmdstr, "RECHARGE", filename,
         lno);
 
     NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "UNSAT", &ctrl->prtvrbl[UNSAT_CTRL], 'i', filename,
+    ctrl->prtvrbl[EC_CTRL] = ReadPrtCtrl (cmdstr, "EC", filename, lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[ETT_CTRL] = ReadPrtCtrl (cmdstr, "ETT", filename, lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[EDIR_CTRL] = ReadPrtCtrl (cmdstr, "EDIR", filename, lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[RIVFLX0_CTRL] = ReadPrtCtrl (cmdstr, "RIVFLX0", filename,
         lno);
 
     NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "GW", &ctrl->prtvrbl[GW_CTRL], 'i', filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVSTG", &ctrl->prtvrbl[RIVSTG_CTRL], 'i', filename,
+    ctrl->prtvrbl[RIVFLX1_CTRL] = ReadPrtCtrl (cmdstr, "RIVFLX1", filename,
         lno);
 
     NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVGW", &ctrl->prtvrbl[RIVGW_CTRL], 'i', filename,
+    ctrl->prtvrbl[RIVFLX2_CTRL] = ReadPrtCtrl (cmdstr, "RIVFLX2", filename,
         lno);
 
     NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SNOW", &ctrl->prtvrbl[SNOW_CTRL], 'i', filename,
+    ctrl->prtvrbl[RIVFLX3_CTRL] = ReadPrtCtrl (cmdstr, "RIVFLX3", filename,
         lno);
 
     NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "CMC", &ctrl->prtvrbl[CMC_CTRL], 'i', filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "INFIL", &ctrl->prtvrbl[INFIL_CTRL], 'i', filename,
+    ctrl->prtvrbl[RIVFLX4_CTRL] = ReadPrtCtrl (cmdstr, "RIVFLX4", filename,
         lno);
 
     NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RECHARGE", &ctrl->prtvrbl[RECHARGE_CTRL], 'i',
-        filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "EC", &ctrl->prtvrbl[EC_CTRL], 'i', filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "ETT", &ctrl->prtvrbl[ETT_CTRL], 'i', filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "EDIR", &ctrl->prtvrbl[EDIR_CTRL], 'i', filename,
+    ctrl->prtvrbl[RIVFLX5_CTRL] = ReadPrtCtrl (cmdstr, "RIVFLX5", filename,
         lno);
 
     NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVFLX0", &ctrl->prtvrbl[RIVFLX0_CTRL], 'i',
-        filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVFLX1", &ctrl->prtvrbl[RIVFLX1_CTRL], 'i',
-        filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVFLX2", &ctrl->prtvrbl[RIVFLX2_CTRL], 'i',
-        filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVFLX3", &ctrl->prtvrbl[RIVFLX3_CTRL], 'i',
-        filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVFLX4", &ctrl->prtvrbl[RIVFLX4_CTRL], 'i',
-        filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVFLX5", &ctrl->prtvrbl[RIVFLX5_CTRL], 'i',
-        filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVFLX6", &ctrl->prtvrbl[RIVFLX6_CTRL], 'i',
-        filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVFLX7", &ctrl->prtvrbl[RIVFLX7_CTRL], 'i',
-        filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVFLX8", &ctrl->prtvrbl[RIVFLX8_CTRL], 'i',
-        filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVFLX9", &ctrl->prtvrbl[RIVFLX9_CTRL], 'i',
-        filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RIVFLX10", &ctrl->prtvrbl[RIVFLX10_CTRL], 'i',
-        filename, lno);
-
-    NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SUBFLX", &ctrl->prtvrbl[SUBFLX_CTRL], 'i', filename,
+    ctrl->prtvrbl[RIVFLX6_CTRL] = ReadPrtCtrl (cmdstr, "RIVFLX6", filename,
         lno);
 
     NextLine (para_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SURFFLX", &ctrl->prtvrbl[SURFFLX_CTRL], 'i',
-        filename, lno);
+    ctrl->prtvrbl[RIVFLX7_CTRL] = ReadPrtCtrl (cmdstr, "RIVFLX7", filename,
+        lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[RIVFLX8_CTRL] = ReadPrtCtrl (cmdstr, "RIVFLX8", filename,
+        lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[RIVFLX9_CTRL] = ReadPrtCtrl (cmdstr, "RIVFLX9", filename,
+        lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[RIVFLX10_CTRL] = ReadPrtCtrl (cmdstr, "RIVFLX10", filename,
+        lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[SUBFLX_CTRL] = ReadPrtCtrl (cmdstr, "SUBFLX", filename,
+        lno);
+
+    NextLine (para_file, cmdstr, &lno);
+    ctrl->prtvrbl[SURFFLX_CTRL] = ReadPrtCtrl (cmdstr, "SURFFLX", filename,
+        lno);
 
     fclose (para_file);
 

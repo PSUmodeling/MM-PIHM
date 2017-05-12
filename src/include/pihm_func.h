@@ -145,6 +145,7 @@ void            ReadLAI (char *, forc_struct *, const atttbl_struct *);
 void            ReadLC (char *, lctbl_struct *);
 void            ReadMesh (char *, meshtbl_struct *);
 void            ReadPara (char *, ctrl_struct *);
+int             ReadPrtCtrl (char *, char *, char *, int);
 void            ReadRiv (char *, rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
 void            ReadSoil (char *, soiltbl_struct *);

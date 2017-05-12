@@ -76,71 +76,71 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl)
     FindLine (simctrl_file, "PRINT_CTRL", &lno, filename);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "BIOMASS", &ctrl->prtvrbl[BIOMASS_CTRL], 'i',
+    ctrl->prtvrbl[BIOMASS_CTRL] = ReadPrtCtrl (cmdstr, "BIOMASS", filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[LAI_CTRL] = ReadPrtCtrl (cmdstr, "LAI", filename, lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[RADNINTCP_CTRL] = ReadPrtCtrl (cmdstr, "RADN_INTCP",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i', filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RADN_INTCP", &ctrl->prtvrbl[RADNINTCP_CTRL], 'i',
+    ctrl->prtvrbl[WATER_STS_CTRL] = ReadPrtCtrl (cmdstr, "WATER_STRESS",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "WATER_STRESS", &ctrl->prtvrbl[WATER_STS_CTRL], 'i',
+    ctrl->prtvrbl[N_STS_CTRL] = ReadPrtCtrl (cmdstr, "N_STRESS", filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[CROP_TR_CTRL] = ReadPrtCtrl (cmdstr, "CROP_TR", filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[CROP_POTTR_CTRL] = ReadPrtCtrl (cmdstr, "CROP_POT_TR",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "N_STRESS", &ctrl->prtvrbl[N_STS_CTRL], 'i',
+    ctrl->prtvrbl[RES_EVAP_CTRL] = ReadPrtCtrl (cmdstr, "RES_EVAP", filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[NO3_PROF_CTRL] = ReadPrtCtrl (cmdstr, "NO3_PROF", filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[NO3_RIVER_CTRL] = ReadPrtCtrl (cmdstr, "NO3_RIVER",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "CROP_TR", &ctrl->prtvrbl[CROP_TR_CTRL], 'i',
+    ctrl->prtvrbl[NH4_PROF_CTRL] = ReadPrtCtrl (cmdstr, "NH4_PROF", filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[NH4_RIVER_CTRL] = ReadPrtCtrl (cmdstr, "NH4_RIVER",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "CROP_POT_TR", &ctrl->prtvrbl[CROP_POTTR_CTRL], 'i',
+    ctrl->prtvrbl[NO3_DENIT_CTRL] = ReadPrtCtrl (cmdstr, "NO3_DENITRIF",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RES_EVAP", &ctrl->prtvrbl[RES_EVAP_CTRL], 'i',
+    ctrl->prtvrbl[NO3_LEACH_CTRL] = ReadPrtCtrl (cmdstr, "NO3_LEACH",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NO3_PROF", &ctrl->prtvrbl[NO3_PROF_CTRL], 'i',
+    ctrl->prtvrbl[NH4_LEACH_CTRL] = ReadPrtCtrl (cmdstr, "NH4_LEACH",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NO3_RIVER", &ctrl->prtvrbl[NO3_RIVER_CTRL], 'i',
-        filename, lno);
+    ctrl->prtvrbl[NO3_LEACH_RIVER_CTRL] = ReadPrtCtrl (cmdstr,
+        "NO3_LEACH_RIVER", filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NH4_PROF", &ctrl->prtvrbl[NH4_PROF_CTRL], 'i',
-        filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NH4_RIVER", &ctrl->prtvrbl[NH4_RIVER_CTRL], 'i',
-        filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NO3_DENITRIF", &ctrl->prtvrbl[NO3_DENIT_CTRL], 'i',
-        filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NO3_LEACH", &ctrl->prtvrbl[NO3_LEACH_CTRL], 'i',
-        filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NH4_LEACH", &ctrl->prtvrbl[NH4_LEACH_CTRL], 'i',
-        filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NO3_LEACH_RIVER",
-        &ctrl->prtvrbl[NO3_LEACH_RIVER_CTRL], 'i', filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NH4_LEACH_RIVER",
-        &ctrl->prtvrbl[NH4_LEACH_RIVER_CTRL], 'i', filename, lno);
+    ctrl->prtvrbl[NH4_LEACH_RIVER_CTRL] = ReadPrtCtrl (cmdstr,
+        "NH4_LEACH_RIVER", filename, lno);
 
     fclose (simctrl_file);
 }

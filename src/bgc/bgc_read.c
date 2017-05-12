@@ -95,35 +95,36 @@ void ReadBgc (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     sscanf (cmdstr, "%lf", &cninit->sminn);
 
     FindLine (bgc_file, "DAILY_OUTPUT", &lno, fn);
-    NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i', fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[LAI_CTRL] = ReadPrtCtrl (cmdstr, "LAI", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[VEGC_CTRL] = ReadPrtCtrl (cmdstr, "VEGC", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[LITRC_CTRL] = ReadPrtCtrl (cmdstr, "LITRC", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[SOILC_CTRL] = ReadPrtCtrl (cmdstr, "SOILC", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[TOTALC_CTRL] = ReadPrtCtrl (cmdstr, "TOTALC", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[NPP_CTRL] = ReadPrtCtrl (cmdstr, "NPP", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[NEP_CTRL] = ReadPrtCtrl (cmdstr, "NEP", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[NEE_CTRL] = ReadPrtCtrl (cmdstr, "NEE", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[GPP_CTRL] = ReadPrtCtrl (cmdstr, "GPP", fn, lno);
+
+    NextLine (bgc_file, cmdstr, &lno);
+    ctrl->prtvrbl[SMINN_CTRL] = ReadPrtCtrl (cmdstr, "SMINN", fn, lno);
 
     fclose (bgc_file);
 }
