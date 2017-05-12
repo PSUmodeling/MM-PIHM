@@ -275,6 +275,7 @@ int ReadPrtCtrl (char *buffer, char *keyword, char *filename, int lno)
     {
         PIHMprintf (VL_ERROR, "Expected keyword \"%s\", "
                 "detected keyword \"%s\".\n", keyword, optstr);
+        PIHMexit (EXIT_FAILURE);
     }
 
     if (strcasecmp (ctrlstr, "YEARLY") == 0)
