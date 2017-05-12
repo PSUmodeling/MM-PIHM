@@ -91,7 +91,10 @@ void            PIHM (char *, char *, int
 #endif
     );
 void            PrintData (prtctrl_struct *, int, int, int, int, int);
+void            PrintDataTecplot(prtctrlT_struct *, int, int, int, int, int);
 void            PrtInit (pihm_struct, char *);
+void			PrintStats(void *);
+void			PrintWaterBalance(FILE *, int, elem_struct *, int, river_struct *, int, int);
 double          Psi (double, double, double);
 double          PtfAlpha (double, double, double, double, int);
 double          PtfBeta (double, double, double, double, int);
@@ -122,9 +125,9 @@ void            RiverFlow (pihm_struct);
 void            RiverToEle (river_struct *, elem_struct *, elem_struct *,
     int, double *, double *, double *, double);
 void            SaturationIC (elem_struct *, int, river_struct *, int);
-void            SetCVodeParam (pihm_struct, void *, N_Vector);
+void            SetCVodeParam (pihm_struct, void *, N_Vector, N_Vector);
 int             SoilTex (double, double);
-void            SolveCVode (int *, int, int, void *, N_Vector);
+void            SolveCVode (int, int *, int, int, double, double, void *, N_Vector, int, char *, char *);
 void            Summary (pihm_struct, N_Vector, double);
 void            VerticalFlow (pihm_struct);
 double          WiltingPoint (double, double, double, double);

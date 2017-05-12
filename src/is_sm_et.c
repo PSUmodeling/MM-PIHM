@@ -143,6 +143,7 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
             (satn * elem->soil.porosity + elem->soil.smcmin -
             elem->soil.smcwlt) / (elem->soil.smcref - elem->soil.smcwlt);
         betas = (betas < 0.0001) ? 0.0001 : (betas > 1.0 ? 1.0 : betas);
+		elem->wf.edir = etp;
         elem->wf.edir = (1.0 - elem->lc.shdfac) * pow (betas, 2) * etp;
         elem->wf.edir = elem->wf.edir < 0.0 ? 0.0 : elem->wf.edir;
 

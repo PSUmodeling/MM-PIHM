@@ -102,7 +102,7 @@ typedef struct shp_struct
 } shp_struct;
 
 /*****************************************************************************
- * River channel matierial parameters
+ * River channel material parameters
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================

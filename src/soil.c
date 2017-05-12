@@ -14,7 +14,7 @@ double FieldCapacity (double alpha, double beta, double kv, double smcmax,
     double          satnk;
     double          denom;
     double          df;
-    double          dsatn;
+    double          dsatn=1000.;
     double          mx;
     double          ftheta;
     int             n;

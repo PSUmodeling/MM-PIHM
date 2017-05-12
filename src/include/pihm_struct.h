@@ -149,6 +149,7 @@ typedef struct calib_struct
  * Variables                Type        Description
  * ==========               ==========  ====================
  * ascii                    int         flag to turn on ascii output
+ * Tecplot                  int         flag to turn on Tecplot output
  * write_ic                 int         flag to write model output at the last
  *                                        time step as initial conditions
  * solver                   int         solver type
@@ -156,6 +157,7 @@ typedef struct calib_struct
  *                                        results can be printed) for the
  *                                        whole simulation
  * nprint                   int         number of variables for output
+ * nprintT                  int         number of variables for Tecplot output
  * prtvrbl                  int[]       time interval to output average values
  *                                        of variables; 0=turn off output
  * init_type                int         initialization mode:
@@ -205,10 +207,14 @@ typedef struct calib_struct
 typedef struct ctrl_struct
 {
     int             ascii;
+	int             tecplot;
+	int				cvode_perf;
+	int				waterB;
     int             write_ic;
     int             solver;
     int             nstep;
     int             nprint;
+	int             nprintT;
     int             prtvrbl[MAXPRINT];
     int             init_type;
     int             unsat_mode;
@@ -266,6 +272,33 @@ typedef struct prtctrl_struct
 } prtctrl_struct;
 
 /*****************************************************************************
+* Tecplot print control structure
+* ---------------------------------------------------------------------------
+* Variables                Type        Description
+* ==========               ==========  ====================
+* name                     char[]      name of output file
+* intvl                    int         output interval [s]
+* intr                     int         river identifier 
+* nvar                     int         number of variables for print
+* var                      double**    pointers to model variables
+* x, y, z                  double**    pointers to model coordinates 
+* nnodes                   int         number of nodes
+* buffer                   double*     buffer for averaging variables
+****************************************************************************/
+typedef struct prtctrlT_struct
+{
+	char            name[MAXSTRING];
+	int             intvl;
+	int             intr;
+	int             nvar;
+	double        **var;
+	double        **x, **y, **zmax, **zmin;
+	int             nnodes;
+	int           **node0, **node1, **node2;
+	double         *buffer;
+} prtctrlT_struct;
+
+/*****************************************************************************
  * Print control structure
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
@@ -311,5 +344,6 @@ typedef struct pihm_struct
     calib_struct    cal;
     ctrl_struct     ctrl;
     prtctrl_struct  prtctrl[MAXPRINT];
+	prtctrlT_struct prtctrlT[MAXPRINT];
 } *pihm_struct;
 #endif

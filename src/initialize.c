@@ -112,7 +112,7 @@ void InitMeshStruct (elem_struct *elem, int numele, meshtbl_struct meshtbl)
     {
         elem[i].ind = i + 1;
 
-        for (j = 0; j < NUM_EDGE; j++)
+		for (j = 0; j < NUM_EDGE; j++)
         {
             elem[i].node[j] = meshtbl.node[i][j];
             elem[i].nabr[j] = meshtbl.nabr[i][j];
@@ -574,7 +574,7 @@ void InitSurfL (elem_struct *elem, int numele, river_struct *riv,
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            /* Note: Assumption here is that the forumulation is circumcenter
+            /* Note: Assumption here is that the formulation is circumcenter
              * based */
             switch (j)
             {
@@ -596,6 +596,13 @@ void InitSurfL (elem_struct *elem, int numele, river_struct *riv,
             {
                 elem[i].topo.nabrdist_x[j] = elem[i].topo.x - 2.0 * distx;
                 elem[i].topo.nabrdist_y[j] = elem[i].topo.y - 2.0 * disty;
+				if (elem[i].attrib.bc_type[j] > 0)
+				{
+					elem[i].topo.distSurf[j] =
+						sqrt(pow(elem[i].topo.edge[0] * elem[i].topo.edge[1] *
+							elem[i].topo.edge[2] / (4.0 * elem[i].topo.area),
+							2) - pow(elem[i].topo.edge[j] / 2.0, 2));
+				}
             }
             else
             {
@@ -605,6 +612,23 @@ void InitSurfL (elem_struct *elem, int numele, river_struct *riv,
                 elem[i].topo.nabrdist_y[j] = (elem[i].nabr[j] > 0) ?
                     elem[elem[i].nabr[j] - 1].topo.y :
                     riv[0 - elem[i].nabr[j] - 1].topo.y;
+				if (elem[i].nabr[j] > 0)
+				{
+					elem[i].topo.distSurf[j] = sqrt(((elem[i].topo.x - elem[elem[i].nabr[j] - 1].topo.x)*(elem[i].topo.x - elem[elem[i].nabr[j] - 1].topo.x)) + ((elem[i].topo.y - elem[elem[i].nabr[j] - 1].topo.y)*(elem[i].topo.y - elem[elem[i].nabr[j] - 1].topo.y)));
+				}
+				else
+				{
+					if (i == riv[-elem[i].nabr[j] - 1].leftele - 1)
+					{
+						elem[i].topo.distSurf[j] = sqrt(((elem[i].topo.x - elem[riv[-elem[i].nabr[j] - 1].rightele - 1].topo.x)*(elem[i].topo.x - elem[riv[-elem[i].nabr[j] - 1].rightele - 1].topo.x)) + ((elem[i].topo.y - elem[riv[-elem[i].nabr[j] - 1].rightele - 1].topo.y)*(elem[i].topo.y - elem[riv[-elem[i].nabr[j] - 1].rightele - 1].topo.y)));
+					}
+					else
+					{
+						elem[i].topo.distSurf[j] = sqrt(((elem[i].topo.x - elem[riv[-elem[i].nabr[j] - 1].leftele - 1].topo.x)*(elem[i].topo.x - elem[riv[-elem[i].nabr[j] - 1].leftele - 1].topo.x)) + ((elem[i].topo.y - elem[riv[-elem[i].nabr[j] - 1].leftele - 1].topo.y)*(elem[i].topo.y - elem[riv[-elem[i].nabr[j] - 1].leftele - 1].topo.y)));
+
+					}
+				}
+				
             }
         }
     }
@@ -693,9 +717,15 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
         elem[i].ws.unsat = elem[i].ic.unsat;
         elem[i].ws.gw = elem[i].ic.gw;
 
-        NV_Ith_S (CV_Y, i) = elem[i].ic.surf;
-        NV_Ith_S (CV_Y, i + numele) = elem[i].ic.unsat;
-        NV_Ith_S (CV_Y, i + 2 * numele) = elem[i].ic.gw;
+#ifdef _OPENMP
+		NV_Ith_OMP(CV_Y, i) = elem[i].ic.surf;
+		NV_Ith_OMP(CV_Y, i + numele) = elem[i].ic.unsat;
+		NV_Ith_OMP(CV_Y, i + 2 * numele) = elem[i].ic.gw;
+#else
+		NV_Ith_S(CV_Y, i) = elem[i].ic.surf;
+		NV_Ith_S(CV_Y, i + numele) = elem[i].ic.unsat;
+		NV_Ith_S(CV_Y, i + 2 * numele) = elem[i].ic.gw;
+#endif
 
 #ifdef _NOAH_
         elem[i].es.t1 = elem[i].ic.t1;
@@ -717,9 +747,13 @@ void InitVar (elem_struct *elem, int numele, river_struct *riv,
         riv[i].ws.stage = riv[i].ic.stage;
         riv[i].ws.gw = riv[i].ic.gw;
 
-        NV_Ith_S (CV_Y, i + 3 * numele) = riv[i].ic.stage;
+#ifdef _OPENMP
+		NV_Ith_OMP(CV_Y, i + 3 * numele) = riv[i].ic.stage;
+		NV_Ith_OMP(CV_Y, i + 3 * numele + numriv) = riv[i].ic.gw;
+#else
+		NV_Ith_S (CV_Y, i + 3 * numele) = riv[i].ic.stage;
         NV_Ith_S (CV_Y, i + 3 * numele + numriv) = riv[i].ic.gw;
-
+#endif
         riv[i].ws0 = riv[i].ws;
     }
 

@@ -27,10 +27,12 @@ int main (int argc, char *argv[])
     if (0 == id)
     {
 #endif
+
+
     /*
      * Read command line arguments
      */
-    ParseCmdLineParam (argc, argv, &spec_output_mode, outputdir);
+     ParseCmdLineParam (argc, argv, &spec_output_mode, outputdir);
 
     /*
      * Print AscII art

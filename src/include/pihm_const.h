@@ -261,7 +261,11 @@
 #define NEE_CTRL                63
 #define GPP_CTRL                64
 #define SMINN_CTRL              65
-
+#define SURFTEC_CTRL            66
+#define UNSATTEC_CTRL           67
+#define GWTEC_CTRL              68
+#define RIVSTGTEC_CTRL          69
+#define RIVGWTEC_CTRL           70
 #ifdef _CYCLES_
 #define MAXOP               100
 

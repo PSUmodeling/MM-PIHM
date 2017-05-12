@@ -34,7 +34,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 
     /* Read river input file */
     ReadRiv (pihm->filename.riv, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl,
-        &pihm->forc);
+       &pihm->forc);
     pihm->numriv = pihm->rivtbl.number;
 
     /* Read mesh structure input file */
@@ -142,9 +142,9 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
      * Read river segment block
      */
     /* Read number of river segments */
-    FindLine (riv_file, "BOF", &lno, filename);
-    NextLine (riv_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NUMRIV", &rivtbl->number, 'i', filename, lno);
+      FindLine (riv_file, "BOF", &lno, filename);
+      NextLine (riv_file, cmdstr, &lno);
+      ReadKeyword (cmdstr, "NUMRIV", &rivtbl->number, 'i', filename, lno);
 
     /* Allocate */
     rivtbl->fromnode = (int *)malloc (rivtbl->number * sizeof (int));
@@ -265,7 +265,7 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
             {
                 PIHMprintf (VL_ERROR,
                     "Error reading description "
-                    "of the %dth river boudnary condition.\n", i);
+                    "of the %dth river boundary condition.\n", i);
                 PIHMprintf (VL_ERROR, "Error in %s near Line %d.\n",
                     filename, lno);
                 PIHMexit (EXIT_FAILURE);
@@ -954,6 +954,15 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr, &lno);
     ReadKeyword (cmdstr, "ASCII_OUTPUT", &ctrl->ascii, 'i', filename, lno);
 
+	NextLine(para_file, cmdstr, &lno);
+	ReadKeyword(cmdstr, "TECPLOT_OUTPUT", &ctrl->tecplot, 'i', filename, lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ReadKeyword(cmdstr, "CVODE_PERF", &ctrl->cvode_perf, 'i', filename, lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ReadKeyword(cmdstr, "WATERB", &ctrl->waterB, 'i', filename, lno);
+
     NextLine (para_file, cmdstr, &lno);
     ReadKeyword (cmdstr, "WRITE_IC", &ctrl->write_ic, 'i', filename, lno);
 
@@ -1091,6 +1100,25 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr, &lno);
     ReadKeyword (cmdstr, "SURFFLX", &ctrl->prtvrbl[SURFFLX_CTRL], 'i',
         filename, lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ReadKeyword(cmdstr, "SURFTEC", &ctrl->prtvrbl[SURFTEC_CTRL], 'i', filename,
+		lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ReadKeyword(cmdstr, "UNSATTEC", &ctrl->prtvrbl[UNSATTEC_CTRL], 'i', filename,
+		lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ReadKeyword(cmdstr, "GWTEC", &ctrl->prtvrbl[GWTEC_CTRL], 'i', filename, lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ReadKeyword(cmdstr, "RIVSTGTEC", &ctrl->prtvrbl[RIVSTGTEC_CTRL], 'i', filename,
+		lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ReadKeyword(cmdstr, "RIVGWTEC", &ctrl->prtvrbl[RIVGWTEC_CTRL], 'i', filename,
+		lno);
 
     fclose (para_file);
 
@@ -1456,6 +1484,8 @@ void FreeData (pihm_struct pihm)
     {
         free (pihm->prtctrl[i].var);
         free (pihm->prtctrl[i].buffer);
+		free(pihm->prtctrlT[i].var);
+		free(pihm->prtctrlT[i].buffer);
     }
 
     free (pihm->elem);

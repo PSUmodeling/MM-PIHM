@@ -110,7 +110,7 @@ typedef struct shptbl_struct
 } shptbl_struct;
 
 /*****************************************************************************
- * River channel matierial parameters
+ * River channel material parameters
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
@@ -165,7 +165,7 @@ typedef struct meshtbl_struct
  * soil                     int*        element soil type
  * geol                     int*        element geology type
  * lc                       int*        element land cover type
- * bc                       int**       element boudnary condition type
+ * bc                       int**       element boundary condition type
  * meteo                    int*        element meteorological forcing type
  * lai_type                 int*        element leaf area index forcing type
  *                                        0: use climatological values;
@@ -219,12 +219,12 @@ typedef struct atttbl_struct
  *                                        head gradient is calculated for
  *                                        infiltration [m]
  * kmacv_ro                 double      ratio between vertical macropore
- *                                        hydarulic conductivity and vertical
- *                                        saturated infiltration hydarulic
+ *                                        hydraulic conductivity and vertical
+ *                                        saturated infiltration hydraulic
  *                                        conductivity [-]
  * kmach_ro                 double      ratio between horizontal macropore
- *                                        hydarulic conductivity and
- *                                        horizontal saturated hydarulic
+ *                                        hydraulic conductivity and
+ *                                        horizontal saturated hydraulic
  *                                        conductivity [-]
  ****************************************************************************/
 typedef struct soiltbl_struct
