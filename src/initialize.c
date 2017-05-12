@@ -261,7 +261,7 @@ void InitLC (elem_struct *elem, const lctbl_struct *lctbl,
         elem[i].lc.z0min = lctbl->z0min[lc_ind];
         elem[i].lc.z0max = lctbl->z0max[lc_ind];
         elem[i].lc.rough = cal->rough * lctbl->rough[lc_ind];
-        elem[i].lc.cmcfactr = 0.0002;
+        elem[i].lc.cmcfactr = CMCFACTR;
         elem[i].lc.cfactr = lctbl->cfactr;
         elem[i].lc.bare = (elem[i].attrib.lc_type == lctbl->bare) ? 1 : 0;
         elem[i].lc.shdfac = (elem[i].lc.bare == 1) ? 0.0 : elem[i].lc.shdfac;

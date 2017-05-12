@@ -69,6 +69,7 @@
 
 /* Number of river fluxes of a river segment */
 #define NUM_RIVFLX  11
+
 /* Hydrology parameters */
 #define PSIMIN	    -70.0       /* minimum psi allowed [m] */
 #define DEPRSTG     1e-4        /* depressio storage [m] */
@@ -76,6 +77,7 @@
 #define SATMIN      0.1         /* minimum saturation ratio [-] */
 #define RIVDPTHMIN  0.05        /* minimum river depth [m] */
 #define RIVGRADMIN  0.05        /* minimum river hydarulic gradient [m m-1] */
+#define CMCFACTR    2E-4        /* canopy water capacity per LAI [m] */
 
 /* Maximum of soil layers in Flux-PIHM */
 #define MAXLYR      11

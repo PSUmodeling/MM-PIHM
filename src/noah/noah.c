@@ -16,7 +16,7 @@ void Noah (pihm_struct pihm)
 
         pihm->elem[i].ps.alb = BADVAL;
 
-        pihm->elem[i].ws.cmcmax =
+        pihm->elem[i].ws.cmcmax = pihm->elem[i].lc.shdfac *
             pihm->elem[i].lc.cmcfactr * pihm->elem[i].ps.proj_lai;
 
         if (pihm->elem[i].ps.q1 == BADVAL)
