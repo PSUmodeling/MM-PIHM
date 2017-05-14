@@ -73,6 +73,17 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl)
 
     /* Output control */
     FindLine (simctrl_file, "BOF", &lno, filename);
+
+    FindLine (simctrl_file, "RESTART_CTRL", &lno, filename);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "READ_IC", &ctrl->read_cycles_restart, 'd', filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "WRITE_IC", &ctrl->write_cycles_restart, 'd',
+        filename, lno);
+
     FindLine (simctrl_file, "PRINT_CTRL", &lno, filename);
 
     NextLine (simctrl_file, cmdstr, &lno);

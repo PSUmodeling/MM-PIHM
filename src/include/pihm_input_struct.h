@@ -24,6 +24,8 @@
  * co2                      char[]      co2 forcing file name
  * ndep                     char[]      nitrogen deposition forcing file name
  * bgcic                    char[]      bgc module initial condition file name
+ * cyclesic                 char[]      cycles module initial condition file
+ *                                        name
  ****************************************************************************/
 typedef struct filename_struct
 {
@@ -48,6 +50,7 @@ typedef struct filename_struct
     char            soilinit[MAXSTRING];
     char            crop[MAXSTRING];
     char            op[MAXOP][MAXSTRING];
+    char            cyclesic[MAXSTRING];
 #endif
 #ifdef _BGC_
     char            bgc[MAXSTRING];

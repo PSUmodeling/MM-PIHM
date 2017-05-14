@@ -428,6 +428,7 @@ void            Elem2RiverSolTrnsp (const elem_struct *, const river_struct *,
 void            River2RiverSolTrnsp (river_struct *, const river_struct *,
     double *, double, double, double, double *, double *);
 void            InitCropSV (crop_struct *);
+void            WriteCyclesIC (char *, elem_struct *, river_struct *);
 #endif
 
 #ifdef _BGC_

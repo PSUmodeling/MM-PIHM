@@ -112,6 +112,13 @@ int main (int argc, char *argv[])
     }
 #endif
 
+#ifdef _CYCLES_
+    if (pihm->ctrl.write_cycles_restart)
+    {
+        WriteCyclesIC (pihm->filename.cyclesic, pihm->elem, pihm->riv);
+    }
+#endif
+
     /* Free memory */
     N_VDestroy (CV_Y);
 

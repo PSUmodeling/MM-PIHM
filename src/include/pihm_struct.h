@@ -272,6 +272,10 @@ typedef struct ctrl_struct
     int             read_bgc_restart;
     int             write_bgc_restart;
 #endif
+#ifdef _CYCLES_
+    int             read_cycles_restart;
+    int             write_cycles_restart;
+#endif
 } ctrl_struct;
 
 /*****************************************************************************

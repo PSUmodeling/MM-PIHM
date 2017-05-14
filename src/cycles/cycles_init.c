@@ -253,3 +253,49 @@ void InitCycles (elem_struct *elem, river_struct *riv,
         }
     }
 }
+
+void WriteCyclesIC (char *restart_fn, elem_struct *elem, river_struct *riv)
+{
+    int             i, j;
+    FILE           *restart_file;
+
+    restart_file = fopen (restart_fn, "wb");
+    CheckFile (restart_file, restart_fn);
+    PIHMprintf (VL_VERBOSE, "Writing Cycles initial conditions.\n");
+
+    for (i = 0; i < nelem; i++)
+    {
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&elem[i].soil.SOC_Mass[j], sizeof (double), 1, restart_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&elem[i].soil.SON_Mass[j], sizeof (double), 1, restart_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&elem[i].soil.MBC_Mass[j], sizeof (double), 1, restart_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&elem[i].soil.MBN_Mass[j], sizeof (double), 1, restart_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&elem[i].soil.NO3[j], sizeof (double), 1, restart_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&elem[i].soil.NH4[j], sizeof (double), 1, restart_file);
+        }
+    }
+
+    for (i = 0; i < nriver; i++)
+    {
+       fwrite (&riv[i].NO3sol.soluteMass, sizeof (double), 1, restart_file);
+       fwrite (&riv[i].NH4sol.soluteMass, sizeof (double), 1, restart_file);
+    }
+
+    fclose (restart_file);
+}
