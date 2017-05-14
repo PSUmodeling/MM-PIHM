@@ -205,6 +205,12 @@ typedef struct river_solute_struct
     double          soluteConc;
     double          soluteFluxLat[4];
 } river_solute_struct;
+
+typedef struct river_cyclesic_struct
+{
+    double          NO3_Mass;
+    double          NH4_Mass;
+} river_cyclesic_struct;
 #endif
 
 /*****************************************************************************
@@ -240,6 +246,7 @@ typedef struct river_struct
     river_daily_struct daily;
     river_solute_struct NO3sol;
     river_solute_struct NH4sol;
+    river_cyclesic_struct cycles_restart;
     double          NO3Leaching[4];
     double          NH4Leaching[4];
 #endif

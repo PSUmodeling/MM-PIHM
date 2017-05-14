@@ -26,6 +26,8 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     sprintf (pihm->filename.soilinit, "input/%s/%s.soilinit", project,
         project);
     sprintf (pihm->filename.crop, "input/%s/%s.crop", project, project);
+    sprintf (pihm->filename.cyclesic, "input/%s/%s.cyclesic", project,
+        project);
 #endif
 #ifdef _BGC_
     sprintf (pihm->filename.bgc, "input/%s/%s.bgc", project, project);

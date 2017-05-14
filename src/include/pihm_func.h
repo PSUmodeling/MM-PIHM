@@ -288,6 +288,7 @@ void            DailyCycles (int, pihm_struct);
 void            FirstDOY (int *, int, int, soilc_struct *, residue_struct *,
     const soil_struct *);
 void            ReadCyclesCtrl (char *, agtbl_struct *, ctrl_struct *);
+void            ReadCyclesIC (char *, elem_struct *, river_struct *);
 void            ReadSoilInit (char *, soiltbl_struct *);
 void            ReadCrop (char *, croptbl_struct *);
 void            ReadOperation (const agtbl_struct *, mgmttbl_struct *,
@@ -297,7 +298,7 @@ void            InitCycles (elem_struct *, river_struct *,
     const ctrl_struct *, const mgmttbl_struct *, const agtbl_struct *,
     const croptbl_struct *, const soiltbl_struct *);
 void            InitializeSoil (soil_struct *, const soiltbl_struct *,
-    const pstate_struct *, int);
+    const pstate_struct *, const cyclesic_struct *, int, int);
 double          BulkDensity (double, double, double);
 void            InitializeResidue (residue_struct *, int);
 void            InitializeSoilCarbon (soilc_struct *, int);

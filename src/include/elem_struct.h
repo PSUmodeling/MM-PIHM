@@ -1011,6 +1011,16 @@ typedef struct soilc_struct
     double          annualNitrateLeaching;
     double          annualAmmoniumLeaching;
 } soilc_struct;
+
+typedef struct cyclesic_struct
+{
+    double          SOC_Mass[MAXLYR];
+    double          SON_Mass[MAXLYR];
+    double          MBC_Mass[MAXLYR];
+    double          MBN_Mass[MAXLYR];
+    double          NO3[MAXLYR];
+    double          NH4[MAXLYR];
+} cyclesic_struct;
 #endif
 
 /*****************************************************************************
@@ -2519,6 +2529,7 @@ typedef struct elem_struct
     snow_struct     snow;
     solute_struct   NO3sol;
     solute_struct   NH4sol;
+    cyclesic_struct cycles_restart;
 #endif
 #ifdef _BGC_
     bgcic_struct    restart_input;

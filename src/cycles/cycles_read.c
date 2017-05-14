@@ -77,11 +77,11 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl)
     FindLine (simctrl_file, "RESTART_CTRL", &lno, filename);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "READ_IC", &ctrl->read_cycles_restart, 'd', filename,
+    ReadKeyword (cmdstr, "READ_IC", &ctrl->read_cycles_restart, 'i', filename,
         lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "WRITE_IC", &ctrl->write_cycles_restart, 'd',
+    ReadKeyword (cmdstr, "WRITE_IC", &ctrl->write_cycles_restart, 'i',
         filename, lno);
 
     FindLine (simctrl_file, "PRINT_CTRL", &lno, filename);
@@ -979,4 +979,28 @@ int CropExist (char *cropName, const croptbl_struct *croptbl)
     }
 
     return (exist);
+}
+
+void ReadCyclesIC (char *fn, elem_struct *elem, river_struct *riv)
+{
+    FILE           *init_file;
+    int             i;
+
+    init_file = fopen (fn, "rb");
+    CheckFile (init_file, fn);
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
+
+    for (i = 0; i < nelem; i++)
+    {
+        fread (&elem[i].cycles_restart, sizeof (cyclesic_struct), 1,
+            init_file);
+    }
+
+    for (i = 0; i < nriver; i++)
+    {
+        fread (&riv[i].cycles_restart, sizeof (river_cyclesic_struct), 1,
+            init_file);
+    }
+
+    fclose (init_file);
 }

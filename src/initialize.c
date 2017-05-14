@@ -64,6 +64,11 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
 #endif
 
 #ifdef _CYCLES_
+    if (pihm->ctrl.read_cycles_restart)
+    {
+        ReadCyclesIC (pihm->filename.cyclesic, pihm->elem, pihm->riv);
+    }
+
     InitCycles (pihm->elem, pihm->riv,
         &pihm->ctrl, &pihm->mgmttbl, &pihm->agtbl, &pihm->croptbl,
         &pihm->soiltbl);

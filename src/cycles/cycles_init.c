@@ -221,7 +221,8 @@ void InitCycles (elem_struct *elem, river_struct *riv,
         UpdateCommunity (comm);
 
         InitializeSoil (&elem[i].soil, soiltbl, &elem[i].ps,
-            elem[i].attrib.soil_type);
+            &elem[i].cycles_restart, elem[i].attrib.soil_type,
+            ctrl->read_cycles_restart);
 
         InitializeResidue (&elem[i].residue, elem[i].ps.nsoil);
 
@@ -231,25 +232,36 @@ void InitCycles (elem_struct *elem, river_struct *riv,
 
     }
 
-    for (i = 0; i < nriver; i++)
+    if (ctrl->read_cycles_restart)
     {
-        riv[i].NO3sol.soluteMass = 0.0;
-        riv[i].NH4sol.soluteMass = 0.0;
-
-        for (k = 0; k < elem[riv[i].rightele - 1].ps.nsoil; k++)
+        for (i = 0; i < nriver; i++)
         {
-            riv[i].NO3sol.soluteMass +=
-                elem[riv[i].rightele - 1].soil.NO3[k];
-            riv[i].NH4sol.soluteMass +=
-                elem[riv[i].rightele - 1].soil.NH4[k];
+            riv[i].NO3sol.soluteMass = riv[i].cycles_restart.NO3_Mass;
+            riv[i].NH4sol.soluteMass = riv[i].cycles_restart.NH4_Mass;
         }
-
-        for (k = 0; k < elem[riv[i].leftele - 1].ps.nsoil; k++)
+    }
+    else
+    {
+        for (i = 0; i < nriver; i++)
         {
-            riv[i].NO3sol.soluteMass +=
-                elem[riv[i].leftele - 1].soil.NO3[k];
-            riv[i].NH4sol.soluteMass +=
-                elem[riv[i].leftele - 1].soil.NH4[k];
+            riv[i].NO3sol.soluteMass = 0.0;
+            riv[i].NH4sol.soluteMass = 0.0;
+
+            for (k = 0; k < elem[riv[i].rightele - 1].ps.nsoil; k++)
+            {
+                riv[i].NO3sol.soluteMass +=
+                    elem[riv[i].rightele - 1].soil.NO3[k];
+                riv[i].NH4sol.soluteMass +=
+                    elem[riv[i].rightele - 1].soil.NH4[k];
+            }
+
+            for (k = 0; k < elem[riv[i].leftele - 1].ps.nsoil; k++)
+            {
+                riv[i].NO3sol.soluteMass +=
+                    elem[riv[i].leftele - 1].soil.NO3[k];
+                riv[i].NH4sol.soluteMass +=
+                    elem[riv[i].leftele - 1].soil.NH4[k];
+            }
         }
     }
 }
