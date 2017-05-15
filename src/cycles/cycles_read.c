@@ -265,9 +265,9 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
 
     croptbl->cropName = (char **)malloc (croptbl->number * sizeof (char *));
     croptbl->userFloweringTT =
-        (double *)malloc (croptbl->number * sizeof (int));
+        (double *)malloc (croptbl->number * sizeof (double));
     croptbl->userMaturityTT =
-        (double *)malloc (croptbl->number * sizeof (int));
+        (double *)malloc (croptbl->number * sizeof (double));
     croptbl->userMaximumSoilCoverage =
         (double *)malloc (croptbl->number * sizeof (double));
 
