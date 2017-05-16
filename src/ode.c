@@ -35,6 +35,7 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
 
 #ifdef _BGC_
+        elem->ns.surfn = (y[SURFN(i)] >= 0.0) ? y[SURFN(i)] : 0.0;
         elem->ns.sminn = (y[SMINN(i)] >= 0.0) ? y[SMINN(i)] : 0.0;
 #endif
     }
@@ -118,13 +119,15 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         }
 
 #ifdef _BGC_
-        dy[SMINN(i)] +=
-            (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC +
-            elem->nsol.snksrc;
+        dy[SURFN(i)] +=
+            (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC -
+            elem->nsol.infilflux;
+        dy[SMINN(i)] += elem->nsol.infilflux + elem->nsol.snksrc;
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            dy[SMINN(i)] -= elem->nsol.flux[j] / elem->topo.area;
+            dy[SURFN(i)] -= elem->nsol.ovlflux[j] / elem->topo.area;
+            dy[SMINN(i)] -= elem->nsol.subflux[j] / elem->topo.area;
         }
 #endif
     }

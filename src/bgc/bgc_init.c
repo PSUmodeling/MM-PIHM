@@ -88,8 +88,10 @@ void InitBgcVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
         elem[i].epv.annavg_t2m = elem[i].ps.tbot;
         elem[i].nsol.snksrc = 0.0;
 
+        NV_Ith (CV_Y, SURFN(i)) = elem[i].ns.surfn;
         NV_Ith (CV_Y, SMINN(i)) = elem[i].ns.sminn;
 
+        elem[i].nt.surfn0 = elem[i].ns.surfn;
         elem[i].nt.sminn0 = elem[i].ns.sminn;
     }
 
