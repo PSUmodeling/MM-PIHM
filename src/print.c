@@ -1403,6 +1403,7 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse,
                 {
                     print = 0;
                 }
+                break;
             default:
                 if (lapse % prtctrl[i].intvl == 0 && lapse > 0)
                 {
