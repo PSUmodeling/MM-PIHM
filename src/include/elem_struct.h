@@ -578,12 +578,13 @@ typedef struct pstate_struct
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * surf                     double      surface water level [m]
+ * surf                     double      equivalent surface water level [m]
  * unsat                    double      unsaturated zone water storage [m]
  * gw                       double      groundwater level [m]
  * sneqv                    double      liquid water-equivalent snow depth [m]
  * cmcmax                   double      maximum canopy water capacity [m]
  * cmc                      double      interception storage [m]
+ * surfh                    double      actual surface water level [m]
  * ---------------------------------------------------------------------------
  * Variables below only used in Flux-PIHM
  * ---------------------------------------------------------------------------
@@ -600,6 +601,7 @@ typedef struct wstate_struct
     double          sneqv;
     double          cmcmax;
     double          cmc;
+    double          surfh;
 #ifdef _NOAH_
     double          smc[MAXLYR];
     double          sh2o[MAXLYR];

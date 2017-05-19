@@ -165,6 +165,7 @@ int             SoilTex (double, double);
 void            SolveCVode (int *, int, int, void *, N_Vector);
 int             StrTime (const char *);
 void            Summary (pihm_struct, N_Vector, double);
+double          SurfH (double);
 void            UpdPrintVar (prtctrl_struct *, int, int);
 void            VerticalFlow (pihm_struct);
 double          WiltingPoint (double, double, double, double);

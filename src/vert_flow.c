@@ -28,17 +28,15 @@ void VerticalFlow (pihm_struct pihm)
 
         applrate = elem->wf.pcpdrp + elem->ws.surf / dt;
 
-        wetfrac = (elem->ws.surf > DEPRSTG) ?
-            1.0 :
-            ((elem->ws.surf < 0.0) ?
-            0.0 : (elem->ws.surf / DEPRSTG) * (elem->ws.surf / DEPRSTG));
+        wetfrac = (elem->ws.surfh > DEPRSTG) ?  1.0 :
+            ((elem->ws.surfh < 0.0) ?  0.0 : elem->ws.surfh / DEPRSTG);
 
         if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
         {
             /* Assumption: Dinf < Dmac */
-            dh_by_dz = (elem->ws.surf + elem->topo.zmax -
+            dh_by_dz = (elem->ws.surfh + elem->topo.zmax -
                 (elem->ws.gw + elem->topo.zmin)) / elem->soil.dinf;
-            dh_by_dz = (elem->ws.surf < 0.0 && dh_by_dz > 0.0) ?
+            dh_by_dz = (elem->ws.surfh < 0.0 && dh_by_dz > 0.0) ?
                 0.0 : dh_by_dz;
             dh_by_dz = (dh_by_dz < 1.0 && dh_by_dz > 0.0) ? 1.0 : dh_by_dz;
 
@@ -102,9 +100,9 @@ void VerticalFlow (pihm_struct pihm)
 
             h_u = psi_u + elem->topo.zmax - 0.5 * elem->soil.dinf;
             dh_by_dz =
-                (0.5 * elem->ws.surf + elem->topo.zmax -
-                h_u) / (0.5 * (elem->ws.surf + elem->soil.dinf));
-            dh_by_dz = (elem->ws.surf < 0.0 && dh_by_dz > 0.0) ?
+                (0.5 * elem->ws.surfh + elem->topo.zmax -
+                h_u) / (0.5 * (elem->ws.surfh + elem->soil.dinf));
+            dh_by_dz = (elem->ws.surfh < 0.0 && dh_by_dz > 0.0) ?
                 0.0 : dh_by_dz;
 
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);

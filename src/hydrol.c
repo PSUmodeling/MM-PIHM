@@ -16,6 +16,9 @@ void Hydrol (pihm_struct pihm)
 
         elem = &pihm->elem[i];
 
+        /* Calculate actual surface water depth */
+        elem->ws.surfh = SurfH (elem->ws.surf);
+
         /* Source of direct evaporation */
 #ifdef _NOAH_
         if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
@@ -31,7 +34,7 @@ void Hydrol (pihm_struct pihm)
             elem->wf.edir_gw = 0.0;
         }
 #else
-        if (elem->ws.surf >= DEPRSTG)
+        if (elem->ws.surfh >= DEPRSTG)
         {
             elem->wf.edir_surf = elem->wf.edir;
             elem->wf.edir_unsat = 0.0;
@@ -79,4 +82,31 @@ void Hydrol (pihm_struct pihm)
     LateralFlow (pihm);
 
     RiverFlow (pihm);
+}
+
+double SurfH (double surfeqv)
+{
+    /*
+     * Following Panday and Huyakorn (2004) AWR:
+     * Use a parabolic curve to express the equivalent surface water depth
+     * (surfeqv) in terms of actual flow depth (surfh) when the actual flow
+     * depth is below depression storage; assume that
+     * d(surfeqv) / d(surfh) = 1.0 when surfh = DEPRSTG
+     */
+    double          surfh;
+
+    if (surfeqv < 0.0)
+    {
+        surfh = 0.0;
+    }
+    else if (surfeqv <= 0.5 * DEPRSTG)
+    {
+        surfh = sqrt (2.0 * DEPRSTG * surfeqv);
+    }
+    else
+    {
+        surfh = DEPRSTG + (surfeqv - 0.5 * DEPRSTG);
+    }
+
+    return (surfh);
 }

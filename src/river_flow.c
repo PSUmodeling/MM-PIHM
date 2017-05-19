@@ -221,8 +221,9 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     total_y = riv->ws.stage + riv->topo.zbed;
 
     /* Lateral surface flux calculation between river-triangular element */
-    *fluxsurf = OLFEleToRiv (elem->ws.surf + elem->topo.zmax, elem->topo.zmax,
-        riv->matl.cwr, riv->topo.zmax, total_y, riv->shp.length);
+    *fluxsurf = OLFEleToRiv (elem->ws.surfh + elem->topo.zmax,
+        elem->topo.zmax, riv->matl.cwr, riv->topo.zmax, total_y,
+        riv->shp.length);
 
     /* Lateral subsurface flux calculation between river-triangular element */
     dif_y_sub =

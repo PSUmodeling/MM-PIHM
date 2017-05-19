@@ -72,11 +72,11 @@ void LateralFlow (pihm_struct pihm)
                 }
                 else
                 {
-                    dif_y_surf =
-                        (elem->ws.surf + elem->topo.zmax) - (nabr->ws.surf +
-                        nabr->topo.zmax);
+                    dif_y_surf = (elem->ws.surfh + elem->topo.zmax) -
+                        (nabr->ws.surfh + nabr->topo.zmax);
                 }
-                avg_y_surf = AvgY (dif_y_surf, elem->ws.surf, nabr->ws.surf);
+                avg_y_surf = AvgYsfc (dif_y_surf, elem->ws.surfh,
+                    nabr->ws.surfh);
                 grad_y_surf = dif_y_surf / elem->topo.nabrdist[j];
                 avg_sf = 0.5 *
                     (sqrt (dhbydx[i] * dhbydx[i] + dhbydy[i] * dhbydy[i]) +
@@ -171,7 +171,7 @@ void FrictSlope (elem_struct *elem, river_struct *riv, int surf_mode,
                 if (elem[i].nabr[j] > 0)
                 {
                     nabr = &elem[elem[i].nabr[j] - 1];
-                    surfh[j] = nabr->topo.zmax + nabr->ws.surf;
+                    surfh[j] = nabr->topo.zmax + nabr->ws.surfh;
                 }
                 else if (elem[i].nabr[j] < 0)
                 {
@@ -190,7 +190,7 @@ void FrictSlope (elem_struct *elem, river_struct *riv, int surf_mode,
                 {
                     if (elem[i].attrib.bc_type[j] == 0)
                     {
-                        surfh[j] = elem[i].topo.zmax + elem[i].ws.surf;
+                        surfh[j] = elem[i].topo.zmax + elem[i].ws.surfh;
                     }
                     else
                     {
