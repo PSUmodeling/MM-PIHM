@@ -119,16 +119,20 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
             (radnet * delta + gamma * (1.2 * LVH2O * (qvsat -
                     qv) / ra)) / (1000.0 * LVH2O * (delta + gamma));
 
-        if (elem->soil.depth - elem->ws0.gw < elem->ps.rzd)
+        if (elem->soil.depth - elem->ws.gw < elem->ps.rzd)
+        {
             satn = 1.0;
+        }
         else
+        {
             satn =
-                ((elem->ws0.unsat / (elem->soil.depth - elem->ws0.gw)) >
-                1.0) ? 1.0 : ((elem->ws0.unsat / (elem->soil.depth -
-                        elem->ws0.gw)) <
+                ((elem->ws.unsat / (elem->soil.depth - elem->ws.gw)) >
+                1.0) ? 1.0 : ((elem->ws.unsat / (elem->soil.depth -
+                        elem->ws.gw)) <
                 0.0) ? 0.0 : 0.5 * (1.0 -
-                cos (3.14 * (elem->ws0.unsat / (elem->soil.depth -
-                            elem->ws0.gw))));
+                cos (3.14 * (elem->ws.unsat / (elem->soil.depth -
+                            elem->ws.gw))));
+        }
 
         betas =
             (satn * elem->soil.porosity + elem->soil.smcmin -
@@ -219,17 +223,6 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
         {
             elem->ws.cmc = isval;
         }
-
-#ifdef _DEBUG_
-        if (i == 0)
-        {
-            printf ("isval %lf, cmc %lf, drip %lf, ec %lf\n",
-                isval,
-                elem->ws.cmc,
-                elem->wf.drip * stepsize,
-                elem->wf.ec * stepsize);
-        }
-#endif
 
         elem->wf.pcpdrp =
             (1.0 - elem->lc.shdfac) * (1.0 - frac_snow) * elem->wf.prcp +

@@ -206,7 +206,8 @@ void RiverFlow (pihm_struct pihm)
 }
 
 void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
-    int ind, double distance, double *fluxsurf, double *fluxriv, double *fluxsub)
+    int ind, double distance, double *fluxsurf, double *fluxriv,
+    double *fluxsub)
 {
     double          total_y;
     double          dif_y_sub;
@@ -360,7 +361,8 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
     return (flux);
 }
 
-double _RivWdthAreaPerim (int type, int riv_order, double riv_depth, double riv_coeff)
+double _RivWdthAreaPerim (int type, int riv_order, double riv_depth,
+    double riv_coeff)
 {
     double          eq_wid = 0.0;
     double          riv_area = 0.0;

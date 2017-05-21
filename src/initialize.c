@@ -351,29 +351,33 @@ void InitRiver (river_struct *riv, elem_struct *elem,
 
         riv[i].shp.depth = cal->rivdepth * shptbl->depth[rivtbl->shp[i] - 1];
         riv[i].shp.intrpl_ord = shptbl->intrpl_ord[rivtbl->shp[i] - 1];
-        riv[i].shp.coeff = cal->rivshpcoeff * shptbl->coeff[rivtbl->shp[i] - 1];
-        riv[i].shp.length =
-            sqrt (pow (meshtbl->x[riv[i].fromnode - 1] -
-                meshtbl->x[riv[i].tonode - 1],
-                2) + pow (meshtbl->y[riv[i].fromnode - 1] -
-                meshtbl->y[riv[i].tonode - 1], 2));
+        riv[i].shp.coeff =
+            cal->rivshpcoeff * shptbl->coeff[rivtbl->shp[i] - 1];
+        riv[i].shp.length = sqrt (
+            pow (meshtbl->x[riv[i].fromnode - 1] -
+            meshtbl->x[riv[i].tonode - 1], 2) +
+            pow (meshtbl->y[riv[i].fromnode - 1] -
+            meshtbl->y[riv[i].tonode - 1], 2));
         riv[i].shp.width = RivEqWid (riv->shp.intrpl_ord, riv->shp.depth,
             riv->shp.coeff);
 
         riv[i].topo.zbed = riv[i].topo.zmax - riv[i].shp.depth;
 
-        riv[i].matl.rough = cal->rivrough * matltbl->rough[rivtbl->matl[i] - 1];
+        riv[i].matl.rough =
+            cal->rivrough * matltbl->rough[rivtbl->matl[i] - 1];
         riv[i].matl.cwr = matltbl->cwr[rivtbl->matl[i] - 1];
-        riv[i].matl.ksath = cal->rivksath * matltbl->ksath[rivtbl->matl[i] - 1];
-        riv[i].matl.ksatv = cal->rivksatv * matltbl->ksatv[rivtbl->matl[i] - 1];
+        riv[i].matl.ksath =
+            cal->rivksath * matltbl->ksath[rivtbl->matl[i] - 1];
+        riv[i].matl.ksatv =
+            cal->rivksatv * matltbl->ksatv[rivtbl->matl[i] - 1];
         riv[i].matl.bedthick =
             cal->rivbedthick * matltbl->bedthick[rivtbl->matl[i] - 1];
-        riv[i].matl.porosity =
-            0.5 * (elem[riv[i].leftele - 1].soil.porosity +
+        riv[i].matl.porosity = 0.5 * (elem[riv[i].leftele - 1].soil.porosity +
             elem[riv[i].rightele - 1].soil.porosity);
 
         riv[i].topo.area = riv[i].shp.length *
-            RivEqWid (riv[i].shp.intrpl_ord, riv[i].shp.depth, riv[i].shp.coeff);
+            RivEqWid (riv[i].shp.intrpl_ord, riv[i].shp.depth,
+            riv[i].shp.coeff);
     }
 }
 

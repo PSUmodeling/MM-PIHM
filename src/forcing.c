@@ -142,7 +142,8 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
             elem[i].ef.soldn = TopoRadn (elem[i].ef.soldir, elem[i].ef.soldif,
                 spa.zenith, spa.azimuth180, elem[i].topo.slope,
                 elem[i].topo.aspect, elem[i].topo.h_phi, elem[i].topo.svf);
-            elem[i].ef.soldn = (elem[i].ef.soldn > 0.0) ? elem[i].ef.soldn : 0.0;
+            elem[i].ef.soldn = (elem[i].ef.soldn > 0.0) ?
+                elem[i].ef.soldn : 0.0;
         }
 #endif
     }

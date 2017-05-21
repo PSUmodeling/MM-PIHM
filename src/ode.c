@@ -161,7 +161,7 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         if (isnan (dy[RIVSTG (i)]))
         {
             PIHMprintf (VL_ERROR,
-                "Error: NAN error for River Segment %d (river stage) at %lf\n",
+                "Error: NAN error for River Segment %d (stage) at %lf\n",
                 i + 1, t);
             PIHMexit (EXIT_FAILURE);
         }

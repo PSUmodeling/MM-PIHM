@@ -269,9 +269,10 @@ double AvgY (double diff, double yi, double yinabr)
 
 double DhByDl (double *l1, double *l2, double *surfh)
 {
-    return (-1.0 * (l1[2] * (surfh[1] - surfh[0]) + l1[1] * (surfh[0] -
-                surfh[2]) + l1[0] * (surfh[2] - surfh[1])) / (l2[2] * (l1[1] -
-                l1[0]) + l2[1] * (l1[0] - l1[2]) + l2[0] * (l1[2] - l1[1])));
+    return (-1.0 * (l1[2] * (surfh[1] - surfh[0]) +
+        l1[1] * (surfh[0] - surfh[2]) + l1[0] * (surfh[2] - surfh[1])) /
+        (l2[2] * (l1[1] - l1[0]) + l2[1] * (l1[0] - l1[2]) +
+        l2[0] * (l1[2] - l1[1])));
 }
 
 double EffKH (double tmpy, double aqdepth, double macd, double macksath,

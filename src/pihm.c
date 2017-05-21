@@ -1,11 +1,8 @@
 #include "pihm.h"
 
-void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
+void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
+    int next_t)
 {
-#ifdef _BGC_
-    int             i;
-#endif
-
     /*
      * Apply boundary conditions
      */
@@ -59,6 +56,8 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t, int next_t)
     UpdPrintVar (pihm->prtctrl, pihm->ctrl.nprint, HYDROL_STEP);
 
 #ifdef _BGC_
+    int             i;
+
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
         for (i = 0; i < nelem; i++)
