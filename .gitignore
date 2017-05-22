@@ -1,7 +1,5 @@
 # Object files
 *.o
-*/*.o
-*/*/*.o
 *.ko
 *.obj
 *.elf
@@ -38,14 +36,12 @@
 /flux-pihm
 /flux-pihm-bgc
 /flux-pihm-cycles
-/flux-pihm-enkf
 
 # PBS scripts
-/run-*
+*.pbs
 
 # Indent temp files
-/src/*~
-/src/*/*~
+*~
 
 # Input, output and logs
 !/input/
@@ -56,6 +52,5 @@
 /input/example/example.*.calib
 !/input/example/example.ic
 /input/example/example.*.ic
-/input/example/example.*.ic.txt
 /output/
 /*.log
