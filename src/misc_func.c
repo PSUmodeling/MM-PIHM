@@ -48,11 +48,13 @@ void ParseCmdLineParam (int argc, char *argv[], char *outputdir)
     {
         fprintf (stderr, "Error:You must specify the name of project!\n");
         fprintf (stderr,
-            "Usage: ./pihm [-o output_dir] [-c] [-d] [-v] <project name>\n");
+            "Usage: ./pihm [-o output_dir] [-c] [-d] [-v] [-V]"
+            " <project name>\n");
         fprintf (stderr, "\t-o Specify output directory\n");
         fprintf (stderr, "\t-c Correct surface elevation\n");
-        fprintf (stderr, "\t-v Verbose mode\n");
         fprintf (stderr, "\t-d Debug mode\n");
+        fprintf (stderr, "\t-v Verbose mode\n");
+        fprintf (stderr, "\t-V Version number\n");
         PIHMexit (EXIT_FAILURE);
     }
     else
