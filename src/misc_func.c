@@ -6,7 +6,7 @@ void ParseCmdLineParam (int argc, char *argv[], char *outputdir)
 
     outputdir[0] = '\0';
 
-    while ((c = getopt (argc, argv, "o:cdvl")) != -1)
+    while ((c = getopt (argc, argv, "o:cdvV")) != -1)
     {
         switch (c)
         {
@@ -28,6 +28,11 @@ void ParseCmdLineParam (int argc, char *argv[], char *outputdir)
                 /* Verbose mode */
                 verbose_mode = 1;
                 printf ("Verbose mode turned on.\n");
+                break;
+            case 'V':
+                /* Print version number */
+                printf ("\nMM-PIHM Version %s.\n", VERSION);
+                PIHMexit (EXIT_SUCCESS);
                 break;
             case '?':
                 printf ("Option not recognisable %s\n", argv[optind]);

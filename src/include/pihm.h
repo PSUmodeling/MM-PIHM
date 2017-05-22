@@ -14,6 +14,8 @@
 #include <omp.h>
 #endif
 
+#define VERSION     "0.1.0-alpha"
+
 /*
  * SUNDIAL Header Files
  */
