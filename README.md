@@ -107,7 +107,7 @@ The optional `-o` parameter will specify the name of directory to store model ou
 All model output variables will be stored in the `output/dir_name` directory when `-o` option is used.
 Otherwise, model output will be stored in a directory named after the project and the system time when the simulation is executed.
 
-### PENN STATE USERS
+### Penn State Users
 
 The Penn State Lion-X clusters support both batch job submissions and interactive jobs.
 The clusters for batch job submissions, Lion-XX clusters, usually support eight processors per node for OMP jobs.
