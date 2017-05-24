@@ -1138,7 +1138,6 @@ typedef struct bgcic_struct
     double          soil2n;
     double          soil3n;
     double          soil4n;
-    double          surfn;
     double          sminn;
     double          retransn;
     double          npool;
@@ -1801,7 +1800,6 @@ typedef struct cflux_struct
  *                                        [kgN m-2]
  * soil4n                   double      recalcitrant SOM N (humus, slowest)
  *                                        [kgN m-2]
- * surfn                    double      surface mineral N [kgN m-2]
  * sminn                    double      soil mineral N [kgN m-2]
  * retransn                 double      plant pool of retranslocated N
  *                                        [kgN m-2]
@@ -1842,7 +1840,6 @@ typedef struct nstate_struct
     double          soil2n;
     double          soil3n;
     double          soil4n;
-    double          surfn;
     double          sminn;
     double          retransn;
     double          npool;
@@ -2183,8 +2180,6 @@ typedef struct nflux_struct
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * surfn0                   double      surface N of previous time step
- *                                        [kg N m-2]
  * sminn0                   double      subsurface N of previous time step
  *                                        [kg N m-2]
  * mineralized              double      N mineralization [kgN m-2 day-1]
@@ -2220,7 +2215,6 @@ typedef struct nflux_struct
  ****************************************************************************/
 typedef struct ntemp_struct
 {
-    double          surfn0;
     double          sminn0;
     double          mineralized;
     double          potential_immob;
@@ -2487,12 +2481,9 @@ typedef struct summary_struct
 
 typedef struct solute_struct
 {
-    double          conc_surf;
-    double          conc_subsurf;
-    double          infilflux;
+    double          conc;
     double          snksrc;
-    double          ovlflux[NUM_EDGE];
-    double          subflux[NUM_EDGE];
+    double          flux[NUM_EDGE];
 } solute_struct;
 
 #endif
