@@ -63,68 +63,14 @@ void MassBalance (wstate_struct *ws, wstate_struct *ws0, wflux_struct *wf,
     double *subrunoff, const soil_struct *soil, double area, double stepsize)
 {
     int             j;
-    double          wtd0, wtd1;
-    double          elemsatn0, elemsatn1;
-    double          realunsat0, realunsat1;
-    double          realgw0, realgw1;
-    double          recharge;
     double          soilw0, soilw1;
 
     /*
      * Calculate infiltration based on mass conservation
      */
-    wtd0 = soil->depth - ((ws0->gw > 0.0) ? ws0->gw : 0.0);
-    wtd0 = (wtd0 < 0.0) ? 0.0 : wtd0;
-
-    if (wtd0 <= 0.0)
-    {
-        elemsatn0 = 1.0;
-    }
-    else if (ws0->unsat < 0.0)
-    {
-        elemsatn0 = 0.0;
-    }
-    else
-    {
-        elemsatn0 = ws0->unsat / wtd0;
-    }
-
-    elemsatn0 = (elemsatn0 > 1.0) ? 1.0 : elemsatn0;
-    elemsatn0 = (elemsatn0 < 0.0) ? 0.0 : elemsatn0;
-
-    realunsat0 = elemsatn0 * wtd0;
-
-    realgw0 = ws0->gw;
-    realgw0 = (realgw0 > soil->depth) ? soil->depth : realgw0;
-    realgw0 = (realgw0 < 0.0) ? 0.0 : realgw0;
-
     soilw0 = ws0->gw + ws0->unsat;
     soilw0 = (soilw0 > soil->depth) ? soil->depth : soilw0;
     soilw0 = (soilw0 < 0.0) ? 0.0 : soilw0;
-
-    wtd1 = soil->depth - ((ws->gw > 0.0) ? ws->gw : 0.0);
-    wtd1 = (wtd1 < 0.0) ? 0.0 : wtd1;
-
-    if (wtd1 <= 0.0)
-    {
-        elemsatn1 = 1.0;
-    }
-    else if (ws->unsat < 0.0)
-    {
-        elemsatn1 = 0.0;
-    }
-    else
-    {
-        elemsatn1 = ws->unsat / wtd1;
-    }
-
-    elemsatn1 = (elemsatn1 > 1.0) ? 1.0 : elemsatn1;
-    elemsatn1 = (elemsatn1 > 0.0) ? 0.0 : elemsatn1;
-
-    realunsat1 = elemsatn1 * wtd1;
-
-    realgw1 =
-        (ws->gw > soil->depth) ? soil->depth : ws->gw;
 
     soilw1 = ws->gw + ws->unsat;
     soilw1 = (soilw1 > soil->depth) ? soil->depth : soilw1;
@@ -139,12 +85,8 @@ void MassBalance (wstate_struct *ws, wstate_struct *ws0, wflux_struct *wf,
         *subrunoff += wf->subsurf[j] / area;
     }
 
-    recharge = (realgw1 - realgw0) * soil->porosity / stepsize +
-        *subrunoff + wf->edir_gw + wf->ett_gw;
-
-    wf->infil = (soilw1 - soilw0) * soil->porosity / stepsize +
-        *subrunoff + wf->edir_unsat + wf->edir_gw +
-        wf->ett_unsat + wf->ett_gw;
+    wf->infil = (soilw1 - soilw0) * soil->porosity / stepsize + *subrunoff +
+        wf->edir_unsat + wf->edir_gw + wf->ett_unsat + wf->ett_gw;
 
     if (wf->infil < 0.0)
     {
