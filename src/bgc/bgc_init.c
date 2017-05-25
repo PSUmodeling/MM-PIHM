@@ -95,11 +95,9 @@ void InitBgcVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
 
     for (i = 0; i < nriver; i++)
     {
-        riv[i].ns.streamn = riv[i].restart_input.streamn;
-        riv[i].ns.sminn = riv[i].restart_input.sminn;
+        riv[i].ns.rivern = riv[i].restart_input.rivern;
         riv[i].nf.sminn_leached = 0.0;
 
-        NV_Ith (CV_Y, STREAMN(i)) = riv[i].ns.streamn;
-        NV_Ith (CV_Y, RIVBEDN(i)) = riv[i].ns.sminn;
+        NV_Ith (CV_Y, RIVERN(i)) = riv[i].ns.rivern;
     }
 }

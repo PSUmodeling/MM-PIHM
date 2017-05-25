@@ -155,7 +155,6 @@ void FirstDay (elem_struct *elem, river_struct *riv, const cninit_struct *cninit
 
     for (i = 0; i < nriver; i++)
     {
-        riv[i].restart_input.streamn = 0.0;
-        riv[i].restart_input.sminn = 0.0;
+        riv[i].restart_input.rivern = 0.0;
     }
 }

@@ -4,7 +4,7 @@
 #define _ARITH_
 
 #ifdef _BGC_
-#define NSV             4 * nelem + 4 * nriver
+#define NSV             4 * nelem + 3 * nriver
 #else
 #define NSV             3 * nelem + 2 * nriver
 #endif
@@ -17,8 +17,7 @@
 
 #ifdef _BGC_
 #define SMINN(i)        i + 3 * nelem + 2 * nriver
-#define STREAMN(i)      i + 4 * nelem + 2 * nriver
-#define RIVBEDN(i)      i + 4 * nelem + 3 * nriver
+#define RIVERN(i)       i + 4 * nelem + 2 * nriver
 #endif
 
 /*
