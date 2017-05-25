@@ -91,9 +91,6 @@ void NoahHydrol (elem_struct *elem, double dt)
 #ifdef _CYCLES_
             elem[i].soil.waterContent[j] = elem[i].ws.sh2o[j];
 #endif
-
-            elem[i].wf.runoff2_lyr[j] = elem[i].wf.smflxh[0][j] +
-                elem[i].wf.smflxh[1][j] + elem[i].wf.smflxh[2][j];
         }
 
         SmFlx (&elem[i].ws, &elem[i].wf, &elem[i].ps,

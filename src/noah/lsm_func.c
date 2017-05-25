@@ -575,6 +575,7 @@ void CalcLatFlx (const pstate_struct *ps, wflux_struct *wf, double area)
     double          sattot;
     int             k, ks;
 
+#ifdef _CYCLES_
     for (k = 0; k < NUM_EDGE; k++)
     {
         for (ks = 0; ks < MAXLYR; ks++)
@@ -582,6 +583,7 @@ void CalcLatFlx (const pstate_struct *ps, wflux_struct *wf, double area)
             wf->smflxh[k][ks] = 0.0;
         }
     }
+#endif
 
     /* Determine runoff from each layer */
     sattot = 0;
@@ -590,19 +592,30 @@ void CalcLatFlx (const pstate_struct *ps, wflux_struct *wf, double area)
         sattot += ps->satdpth[ks];
     }
 
-    for (k = 0; k < NUM_EDGE; k++)
+    if (sattot <= 0.0)
     {
-        if (sattot <= 0.0)
+        wf->runoff2_lyr[ps->nsoil - 1] = wf->runoff2;
+
+#ifdef _CYCLES_
+        for (k = 0; k < NUM_EDGE; k++)
         {
             wf->smflxh[k][ps->nsoil - 1] = wf->subsurf[k] / area;
         }
-        else
+#endif
+    }
+    else
+    {
+        for (ks = 0; ks < ps->nsoil; ks++)
         {
-            for (ks = 0; ks < ps->nsoil; ks++)
+            wf->runoff2_lyr[ks] = ps->satdpth[ks] / sattot * wf->runoff2;
+
+#ifdef _CYCLES_
+            for (k = 0; k < NUM_EDGE; k++)
             {
                 wf->smflxh[k][ks] =
                     ps->satdpth[ks] / sattot * wf->subsurf[k] / area;
             }
+#endif
         }
     }
 }
