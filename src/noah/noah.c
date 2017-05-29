@@ -674,7 +674,8 @@ void CanRes (wstate_struct *ws, estate_struct *es, eflux_struct *ef,
         /* Use root distribution as weighting factor */
         //part[k] = rtdis[k] * gx;
         /* Use soil depth as weighting factor */
-        part[k] = ((ps->zsoil[k] - ps->zsoil[k - 1]) / ps->zsoil[ps->nroot - 1]) * gx;
+        part[k] = ((ps->zsoil[k] - ps->zsoil[k - 1]) /
+            ps->zsoil[ps->nroot - 1]) * gx;
     }
 
     for (k = 0; k < ps->nroot; k++)

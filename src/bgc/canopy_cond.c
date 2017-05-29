@@ -38,7 +38,7 @@ void CanopyCond (const epconst_struct *epc, epvar_struct *epv,
     gx = (gx > 1.0) ? 1.0 : gx;
     gx = (gx < 0.0) ? 0.0 : gx;
 
-    part[0] = ps->sldpth[0] / soil->depth * gx;
+    part[0] = (ps->zsoil[0] / ps->zsoil[ps->nroot - 1]) * gx;
     for (k = 1; k < ps->nroot; k++)
     {
         gx = (daily->avg_sh2o[k] - soil->smcwlt) /
@@ -46,7 +46,8 @@ void CanopyCond (const epconst_struct *epc, epvar_struct *epv,
         gx = (gx > 1.0) ? 1.0 : gx;
         gx = (gx < 0.0) ? 0.0 : gx;
 
-        part[k] = ps->sldpth[k] / soil->depth * gx;
+        part[k] = ((ps->zsoil[k] - ps->zsoil[k - 1]) /
+            ps->zsoil[ps->nroot - 1]) * gx;
     }
 
     for (k = 0; k < ps->nroot; k++)

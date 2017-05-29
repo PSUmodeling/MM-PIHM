@@ -396,17 +396,6 @@ void CalcSlopeAspect (elem_struct *elem, const meshtbl_struct *meshtbl)
 
             elem[i].topo.svf += 0.5 / PI * integrable * 10.0 / 180.0 * PI;
         }
-
-#ifdef _DEBUG_
-        PIHMprintf (VL_NORMAL,
-            "ele: slope = %lf, aspect = %lf, svf = %lf\t",
-            elem[i].topo.slope, elem[i].topo.aspect, elem[i].topo.svf);
-        for (ind = 0; ind < 36; ind++)
-        {
-            PIHMprintf (VL_NORMAL, "%lf\t", elem[i].topo.h_phi[ind]);
-        }
-        PIHMprintf (VL_NORMAL, "\n");
-#endif
     }
 }
 
