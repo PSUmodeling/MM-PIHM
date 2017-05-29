@@ -5,6 +5,7 @@ void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
     int             i;
     int             spinyears = 0;
     int             first_spin_cycle = 1;
+    int             ss_total;
     double          metyears;
 
     metyears =
@@ -33,11 +34,11 @@ void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 
         spinyears += metyears;
 
-        CheckBgcSS (pihm->elem, first_spin_cycle,
+        ss_total = CheckBgcSS (pihm->elem, first_spin_cycle,
             pihm->ctrl.endtime - pihm->ctrl.starttime, spinyears);
 
         first_spin_cycle = 0;
-    } while (spinyears < pihm->ctrl.maxspinyears);
+    } while (spinyears < pihm->ctrl.maxspinyears || ss_total < nelem);
 }
 
 void ResetSpinupStat (elem_struct *elem)
@@ -51,7 +52,7 @@ void ResetSpinupStat (elem_struct *elem)
     }
 }
 
-void CheckBgcSS (elem_struct *elem, int first_cycle, int totalt,
+int CheckBgcSS (elem_struct *elem, int first_cycle, int totalt,
     int spinyears)
 {
     int             i;
@@ -95,4 +96,6 @@ void CheckBgcSS (elem_struct *elem, int first_cycle, int totalt,
         PIHMprintf (VL_NORMAL, "All elements steady after %d year.\n",
                 spinyears);
     }
+
+    return (total_complete);
 }
