@@ -1298,6 +1298,11 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
             (double *)calloc (pihm->prtctrl[i].nvar, sizeof (double));
 
         pihm->prtctrl[i].counter = 0;
+
+        if (spinup_mode)
+        {
+            pihm->prtctrl[i].intvl = MONTHLY_OUTPUT;
+        }
     }
 }
 
