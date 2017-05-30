@@ -5,7 +5,7 @@ void NTransport (pihm_struct pihm)
     int             i;
 
     /*
-     * Calculate solute N concentrantions and initialize N fluxes
+     * Calculate solute N concentrantions
      */
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -13,7 +13,6 @@ void NTransport (pihm_struct pihm)
     for (i = 0; i < nelem; i++)
     {
         elem_struct *elem;
-        int         j;
         double      strg;
 
         elem = &pihm->elem[i];
@@ -25,11 +24,6 @@ void NTransport (pihm_struct pihm)
             MOBILEN_PROPORTION * elem->ns.sminn / strg / 1000.0 : 0.0;
         elem->nsol.conc = (elem->nsol.conc > 0.0) ?
             elem->nsol.conc : 0.0;
-
-        for (j = 0; j < NUM_EDGE; j++)
-        {
-            elem->nsol.flux[j] = 0.0;
-        }
     }
 
 #ifdef _OPENMP
@@ -38,7 +32,6 @@ void NTransport (pihm_struct pihm)
     for (i = 0; i < nriver; i++)
     {
         river_struct *riv;
-        int         j;
         double      strg;
 
         riv = &pihm->riv[i];
@@ -50,11 +43,6 @@ void NTransport (pihm_struct pihm)
             MOBILEN_PROPORTION * riv->ns.rivern / strg / 1000.0 : 0.0;
         riv->nsol.conc = (riv->nsol.conc > 0.0) ?
             riv->nsol.conc : 0.0;
-
-        for (j = 0; j < 4; j++)
-        {
-            riv->nsol.flux[j] = 0.0;
-        }
     }
 
     /*
