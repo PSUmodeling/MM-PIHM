@@ -86,12 +86,8 @@ int main (int argc, char *argv[])
 #endif
     for (i = 0; i < pihm->ctrl.nstep; i++)
     {
-        PIHM (pihm, cvode_mem, CV_Y,
-            pihm->ctrl.tout[i], pihm->ctrl.tout[i + 1]);
-
-        /* Print outputs */
-        PrintData (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.tout[i + 1],
-            pihm->ctrl.tout[i + 1] - pihm->ctrl.starttime, pihm->ctrl.ascii);
+        PIHM (pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
+            pihm->ctrl.tout[i + 1]);
     }
 #ifdef _BGC_
     }

@@ -19,14 +19,8 @@ void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 
         for (i = 0; i < pihm->ctrl.nstep; i++)
         {
-            PIHM (pihm, cvode_mem, CV_Y,
-                    pihm->ctrl.tout[i], pihm->ctrl.tout[i + 1]);
-
-            /* Print outputs */
-            PrintData (pihm->prtctrl, pihm->ctrl.nprint,
-                pihm->ctrl.tout[i + 1],
-                pihm->ctrl.tout[i + 1] - pihm->ctrl.starttime,
-                pihm->ctrl.ascii);
+            PIHM (pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
+                pihm->ctrl.tout[i + 1]);
         }
 
         /* Reset solver parameters */

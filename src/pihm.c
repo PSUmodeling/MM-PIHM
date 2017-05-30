@@ -102,4 +102,10 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         InitDailyStruct (pihm);
     }
 #endif
+
+    /*
+     * Print outputs
+     */
+    PrintData (pihm->prtctrl, pihm->ctrl.nprint, t, t - pihm->ctrl.starttime,
+        pihm->ctrl.ascii);
 }
