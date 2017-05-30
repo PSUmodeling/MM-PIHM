@@ -1,5 +1,5 @@
-INIT_MODE	    0                   # Initialization type 0: Relaxation, 1: use .att file, 3: use .init file
-ASCII_OUTPUT        0                   # Write ASCII output? 0: no, 1: yes
+INIT_MODE	    0                   # Initialization type 0: relaxation, 1: use .init file
+ASCII_OUTPUT        1                   # Write ASCII output? 0: no, 1: yes
 WRITE_IC	    0                   # Write initial condition? 0: Standard model run, 1: Outputs will be written to .init files
 UNSAT_MODE	    2
 SURF_MODE	    2
@@ -19,28 +19,28 @@ MODEL_STEPSIZE	    60                  # PIHM step size (unit: s)
 #  Use "#" to comment out the variables you do not want to output, or set     #
 #  the output interval (in secends) to 0.                                     #
 ###############################################################################
-SURF		    3600
-UNSAT		    3600
-GW		    3600
-RIVSTG		    3600
-RIVGW               3600
-SNOW		    3600
-CMC		    3600
-INFIL               3600
-RECHARGE	    3600
-EC                  3600
-ETT                 3600
-EDIR		    3600
-RIVFLX0             3600
-RIVFLX1	    	    3600
-RIVFLX2             3600
-RIVFLX3	            3600
-RIVFLX4    	    3600
-RIVFLX5    	    3600
-RIVFLX6    	    3600
-RIVFLX7    	    3600
-RIVFLX8             3600
-RIVFLX9    	    3600
-RIVFLX10    	    3600
-SUBFLX              3600
-SURFFLX             3600
+SURF		    HOURLY
+UNSAT		    HOURLY
+GW		    HOURLY
+RIVSTG		    HOURLY
+RIVGW               HOURLY
+SNOW		    HOURLY
+CMC		    HOURLY
+INFIL               HOURLY
+RECHARGE	    HOURLY
+EC                  HOURLY
+ETT                 HOURLY
+EDIR		    HOURLY
+RIVFLX0             HOURLY
+RIVFLX1	    	    HOURLY
+RIVFLX2             HOURLY
+RIVFLX3	            HOURLY
+RIVFLX4    	    HOURLY
+RIVFLX5    	    HOURLY
+RIVFLX6    	    HOURLY
+RIVFLX7    	    HOURLY
+RIVFLX8             HOURLY
+RIVFLX9    	    HOURLY
+RIVFLX10    	    HOURLY
+SUBFLX              HOURLY
+SURFFLX             HOURLY
