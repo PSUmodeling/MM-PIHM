@@ -63,6 +63,7 @@ SRCS_ = main.c\
 	initialize.c\
 	is_sm_et.c\
 	lat_flow.c\
+	map_output.c\
 	misc_func.c\
 	ode.c\
 	pihm.c\
