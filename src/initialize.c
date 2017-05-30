@@ -371,6 +371,8 @@ void InitRiver (river_struct *riv, elem_struct *elem,
             cal->rivbedthick * matltbl->bedthick[rivtbl->matl[i] - 1];
         riv[i].matl.porosity = 0.5 * (elem[riv[i].leftele - 1].soil.porosity +
             elem[riv[i].rightele - 1].soil.porosity);
+        riv[i].matl.smcmin = 0.5 * (elem[riv[i].leftele - 1].soil.smcmin +
+            elem[riv[i].rightele - 1].soil.smcmin);
 
         riv[i].topo.area = riv[i].shp.length *
             RivEqWid (riv[i].shp.intrpl_ord, riv[i].shp.depth,

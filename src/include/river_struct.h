@@ -26,7 +26,7 @@ typedef struct river_attrib_struct
  * zbed                     double      river bed elevation [m]
  * node_zmax                double      elevation of the downstream node [m]
  * dist_left                double      distance to left neighbor [m]
- * dist_right                double      distance to right neighbor [m]
+ * dist_right               double      distance to right neighbor [m]
  ****************************************************************************/
 typedef struct river_topo_struct
 {
@@ -98,6 +98,8 @@ typedef struct shp_struct
  * ksatv                    double      bed hydraulic conductivity [m s-1]
  * bedthick                 double      bed thickness [m]
  * porosity                 double      bed porosity [m3 m-3]
+ * smcmin                   double      bed residual soil moisture content
+ *                                        [m3 m-3]
  ****************************************************************************/
 typedef struct matl_struct
 {
@@ -107,6 +109,7 @@ typedef struct matl_struct
     double          ksatv;
     double          bedthick;
     double          porosity;
+    double          smcmin;
 } matl_struct;
 
 /*****************************************************************************
