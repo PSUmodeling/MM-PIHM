@@ -467,7 +467,7 @@ void SunPos (int t, double latitude, double longitude, double elevation,
     spa->latitude = latitude;
     spa->elevation = elevation;
 
-    /* Calculate surface pressure based on fao 1998 method (narasimhan 2002) */
+    /* Calculate surface pressure based on FAO 1998 method (Narasimhan 2002)*/
     spa->pressure =
         1013.25 * pow ((293.0 - 0.0065 * spa->elevation) / 293.0, 5.26);
     spa->temperature = tmp;
@@ -562,9 +562,11 @@ double AvgElev (elem_struct *elem)
 void CalcLatFlx (const pstate_struct *ps, wflux_struct *wf, double area)
 {
     double          sattot;
-    int             k, ks;
+    int             ks;
 
 #ifdef _CYCLES_
+    int             k;
+
     for (k = 0; k < NUM_EDGE; k++)
     {
         for (ks = 0; ks < MAXLYR; ks++)

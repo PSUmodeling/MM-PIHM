@@ -64,7 +64,7 @@ void DailyAllocation (cflux_struct *cf, const cstate_struct *cs,
         /* Running a deficit in cpool, so the first priority is to let some of
          * today's available C accumulate in cpool. The actual accumulation in
          * the cpool is resolved in day_carbon_state(). */
-        /* First determine how much of the deficit should be recovered today */
+        /* First determine how much of the deficit should be recovered today*/
         cpool_recovery = -cs->cpool / DAYSCRECOVER;
 
         /* Potential recovery of cpool deficit is less than the available

@@ -1,6 +1,7 @@
 #include "pihm.h"
 
-void FirstDay (elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
+void FirstDay (elem_struct *elem, river_struct *riv,
+    const cninit_struct *cninit)
 {
     int             i;
 
@@ -87,8 +88,8 @@ void FirstDay (elem_struct *elem, river_struct *riv, const cninit_struct *cninit
         restart->dsr = 0.0;
 
         /*
-         * Establish the initial partitioning between displayed growth and growth
-         * ready for transfer
+         * Establish the initial partitioning between displayed growth and
+         * growth ready for transfer
          */
         max_leafc = cninit->max_leafc;
         restart->leafc_transfer = max_leafc * epc->leaf_turnover;
@@ -100,39 +101,50 @@ void FirstDay (elem_struct *elem, river_struct *riv, const cninit_struct *cninit
         if (epc->woody)
         {
             max_stemc = cninit->max_stemc;
-            new_stemc = restart->leafc_transfer * epc->alloc_newstemc_newleafc;
-            restart->livestemc_transfer = new_stemc * epc->alloc_newlivewoodc_newwoodc;
-            restart->livestemc = restart->livestemc_transfer / epc->livewood_turnover;
-            restart->deadstemc_transfer = new_stemc - restart->livestemc_transfer;
-            restart->deadstemc = max_stemc - restart->livestemc_transfer - restart->livestemc -
-                restart->deadstemc_transfer;
+            new_stemc =
+                restart->leafc_transfer * epc->alloc_newstemc_newleafc;
+            restart->livestemc_transfer =
+                new_stemc * epc->alloc_newlivewoodc_newwoodc;
+            restart->livestemc =
+                restart->livestemc_transfer / epc->livewood_turnover;
+            restart->deadstemc_transfer =
+                new_stemc - restart->livestemc_transfer;
+            restart->deadstemc = max_stemc - restart->livestemc_transfer -
+                restart->livestemc - restart->deadstemc_transfer;
             if (restart->deadstemc < 0.0)
             {
                 restart->deadstemc = 0.0;
             }
             restart->livecrootc_transfer =
                 restart->livestemc_transfer * epc->alloc_crootc_stemc;
-            restart->livecrootc = restart->livestemc * epc->alloc_crootc_stemc;
+            restart->livecrootc =
+                restart->livestemc * epc->alloc_crootc_stemc;
             restart->deadcrootc_transfer =
                 restart->deadstemc_transfer * epc->alloc_crootc_stemc;
-            restart->deadcrootc = restart->deadstemc * epc->alloc_crootc_stemc;
+            restart->deadcrootc =
+                restart->deadstemc * epc->alloc_crootc_stemc;
         }
 
-        /* Calculate initial leaf and froot nitrogen pools from carbon pools and
-         * user-specified initial C:N for each component */
+        /* Calculate initial leaf and froot nitrogen pools from carbon pools
+         * and user-specified initial C:N for each component */
         restart->leafn_transfer = restart->leafc_transfer / epc->leaf_cn;
         restart->leafn = restart->leafc / epc->leaf_cn;
         restart->frootn_transfer = restart->frootc_transfer / epc->froot_cn;
         restart->frootn = restart->frootc / epc->froot_cn;
         if (epc->woody)
         {
-            restart->livestemn_transfer = restart->livestemc_transfer / epc->livewood_cn;
+            restart->livestemn_transfer =
+                restart->livestemc_transfer / epc->livewood_cn;
             restart->livestemn = restart->livestemc / epc->livewood_cn;
-            restart->deadstemn_transfer = restart->deadstemc_transfer / epc->deadwood_cn;
-            restart->deadstemn = restart->deadstemc / epc->deadwood_cn;
-            restart->livecrootn_transfer = restart->livecrootc_transfer / epc->livewood_cn;
+            restart->deadstemn_transfer =
+                restart->deadstemc_transfer / epc->deadwood_cn;
+            restart->deadstemn =
+                restart->deadstemc / epc->deadwood_cn;
+            restart->livecrootn_transfer =
+                restart->livecrootc_transfer / epc->livewood_cn;
             restart->livecrootn = restart->livecrootc / epc->livewood_cn;
-            restart->deadcrootn_transfer = restart->deadcrootc_transfer / epc->deadwood_cn;
+            restart->deadcrootn_transfer =
+                restart->deadcrootc_transfer / epc->deadwood_cn;
             restart->deadcrootn = restart->deadcrootc / epc->deadwood_cn;
         }
 
@@ -140,12 +152,14 @@ void FirstDay (elem_struct *elem, river_struct *riv, const cninit_struct *cninit
          * leaf and fine root growth from transfer pools to the
          * gresp_transfer pool */
         restart->gresp_transfer = 0.0;
-        restart->gresp_transfer += (restart->leafc_transfer + restart->frootc_transfer) * GRPERC;
+        restart->gresp_transfer +=
+            (restart->leafc_transfer + restart->frootc_transfer) * GRPERC;
         if (epc->woody)
         {
             restart->gresp_transfer +=
                 (restart->livestemc_transfer + restart->deadstemc_transfer +
-                restart->livecrootc_transfer + restart->deadcrootc_transfer) * GRPERC;
+                restart->livecrootc_transfer + restart->deadcrootc_transfer) *
+                GRPERC;
         }
 
         /* Set the initial rates of litterfall and live wood turnover */

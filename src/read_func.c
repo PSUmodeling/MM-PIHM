@@ -299,8 +299,8 @@ int ReadPrtCtrl (char *buffer, char *keyword, char *filename, int lno)
         match = sscanf (ctrlstr, "%d", &prtvrbl);
         if (match != 1)
         {
-            PIHMprintf (VL_ERROR, "Unknown output control option %s.\n",
-                ctrlstr);
+            PIHMprintf (VL_ERROR, "Unknown output control option %s "
+                "in %s near Line %d.\n", ctrlstr, filename, lno);
             PIHMexit (EXIT_FAILURE);
         }
     }

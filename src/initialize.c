@@ -154,9 +154,8 @@ void InitTopo (elem_struct *elem, const meshtbl_struct *meshtbl)
             zmax[j] = meshtbl->zmax[elem[i].node[j] - 1];
         }
 
-        elem[i].topo.area =
-            0.5 * ((x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] -
-                x[0]));
+        elem[i].topo.area = 0.5 * ((x[1] - x[0]) * (y[2] - y[0]) -
+            (y[1] - y[0]) * (x[2] - x[0]));
         /* Calculate centroid of triangle */
         elem[i].topo.x = (x[0] + x[1] + x[2]) / 3.0;
         elem[i].topo.y = (y[0] + y[1] + y[2]) / 3.0;
@@ -323,20 +322,18 @@ void InitRiver (river_struct *riv, elem_struct *elem,
             }
         }
 
-        riv[i].topo.x =
-            (meshtbl->x[riv[i].fromnode - 1] + meshtbl->x[riv[i].tonode -
-                1]) / 2.0;
-        riv[i].topo.y =
-            (meshtbl->y[riv[i].fromnode - 1] + meshtbl->y[riv[i].tonode -
-                1]) / 2.0;
-        riv[i].topo.zmax =
+        riv[i].topo.x = 0.5 *
+            (meshtbl->x[riv[i].fromnode - 1] + meshtbl->x[riv[i].tonode - 1]);
+        riv[i].topo.y = 0.5 *
+            (meshtbl->y[riv[i].fromnode - 1] + meshtbl->y[riv[i].tonode - 1]);
+        riv[i].topo.zmax = 0.5 *
             (meshtbl->zmax[riv[i].fromnode - 1] +
-            meshtbl->zmax[riv[i].tonode - 1]) / 2.0;
-        riv[i].topo.zmin =
-            riv[i].topo.zmax - (0.5 * (elem[riv[i].leftele - 1].topo.zmax +
-                elem[riv[i].rightele - 1].topo.zmax) -
-            0.5 * (elem[riv[i].leftele - 1].topo.zmin + elem[riv[i].rightele -
-                    1].topo.zmin));
+            meshtbl->zmax[riv[i].tonode - 1]);
+        riv[i].topo.zmin = riv[i].topo.zmax -
+            (0.5 * (elem[riv[i].leftele - 1].topo.zmax +
+            elem[riv[i].rightele - 1].topo.zmax) -
+            0.5 * (elem[riv[i].leftele - 1].topo.zmin +
+            elem[riv[i].rightele - 1].topo.zmin));
         riv[i].topo.node_zmax = meshtbl->zmax[riv[i].tonode - 1];
         riv[i].topo.dist_left = sqrt(
             (riv[i].topo.x - elem[riv[i].leftele - 1].topo.x) *

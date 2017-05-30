@@ -338,9 +338,11 @@ void ReadEPC (epctbl_struct *epctbl)
             if (fabs (t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
             {
                 PIHMprintf (VL_ERROR,
-                    "Error: leaf litter proportions of labile, cellulose, and lignin\n");
+                    "Error: leaf litter proportions of labile, cellulose, "
+                    "and lignin\n");
                 PIHMprintf (VL_ERROR,
-                    "must sum to 1.0. Check epc file %s and try again.\n", fn);
+                    "must sum to 1.0. Check epc file %s and try again.\n",
+                    fn);
                 PIHMexit (EXIT_FAILURE);
             }
             /* calculate shielded and unshielded cellulose fraction */
@@ -380,7 +382,8 @@ void ReadEPC (epctbl_struct *epctbl)
                     "Error: froot litter proportions of labile, cellulose, "
                     "and lignin\n");
                 PIHMprintf (VL_ERROR,
-                    "must sum to 1.0. Check epc file %s and try again.\n", fn);
+                    "must sum to 1.0. Check epc file %s and try again.\n",
+                    fn);
                 PIHMexit (EXIT_FAILURE);
             }
             /* calculate shielded and unshielded cellulose fraction */

@@ -267,10 +267,10 @@ void IntrplForcing (tsdata_struct *ts, int t, int nvrbl)
             {
                 for (j = 0; j < nvrbl; j++)
                 {
-                    ts->value[j] =
-                        ((double)(ts->ftime[middle] - t) * ts->data[middle -
-                            1][j] + (double)(t - ts->ftime[middle -
-                                1]) * ts->data[middle][j]) /
+                    ts->value[j] = ((double)(ts->ftime[middle] - t) *
+                        ts->data[middle - 1][j] +
+                        (double)(t - ts->ftime[middle - 1]) *
+                        ts->data[middle][j]) /
                         (double)(ts->ftime[middle] - ts->ftime[middle - 1]);
                 }
                 break;

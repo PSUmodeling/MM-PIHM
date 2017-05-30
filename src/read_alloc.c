@@ -1005,7 +1005,8 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     ctrl->prtvrbl[GW_CTRL] = ReadPrtCtrl (cmdstr, "GW", filename, lno);
 
     NextLine (para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVSTG_CTRL] = ReadPrtCtrl (cmdstr, "RIVSTG", filename, lno);
+    ctrl->prtvrbl[RIVSTG_CTRL] =
+        ReadPrtCtrl (cmdstr, "RIVSTG", filename, lno);
 
     NextLine (para_file, cmdstr, &lno);
     ctrl->prtvrbl[RIVGW_CTRL] = ReadPrtCtrl (cmdstr, "RIVGW", filename, lno);

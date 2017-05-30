@@ -230,8 +230,8 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
     }
 
     /* Determine if there is sufficient mineral N to support potential
-     * immobilization. Immobilization fluxes are positive, mineralization fluxes
-     * are negative */
+     * immobilization. Immobilization fluxes are positive, mineralization
+     * fluxes are negative */
     nlimit = 0;
     potential_immob = 0.0;
     mineralized = 0.0;

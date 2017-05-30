@@ -56,7 +56,7 @@ void Noah (pihm_struct pihm)
 #endif
             pihm->ctrl.etstep);
 
-        /* ET: convert from w m-2 to m s-1 */
+        /* ET: convert from W m-2 to m s-1 */
         pihm->elem[i].wf.ec = pihm->elem[i].ef.ec / LVH2O / 1000.0;
         pihm->elem[i].wf.ett = pihm->elem[i].ef.ett / LVH2O / 1000.0;
         pihm->elem[i].wf.edir = pihm->elem[i].ef.edir / LVH2O / 1000.0;
@@ -477,7 +477,8 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     ps->q1 = ps->q2 + ps->eta_kinematic * CP / ps->rch;
 
     /* Determine sensible heat (H) in energy units (W m-2) */
-    ef->sheat = - (ps->ch * CP * ps->sfcprs) / (RD * t2v) * (es->th2 - es->t1);
+    ef->sheat =
+        - (ps->ch * CP * ps->sfcprs) / (RD * t2v) * (es->th2 - es->t1);
 
     /* Convert evap terms from rate (m s-1) to energy units (w m-2) */
     ef->edir = wf->edir * 1000.0 * LVH2O;
@@ -538,9 +539,10 @@ void SFlx (wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     {
         for (k = 1; k < ps->nroot; k++)
         {
-            soilwm +=
-                (soil->smcmax - soil->smcwlt) * (ps->zsoil[k - 1] - ps->zsoil[k]);
-            soilww += (ws->smc[k] - soil->smcwlt) * (ps->zsoil[k - 1] - ps->zsoil[k]);
+            soilwm += (soil->smcmax - soil->smcwlt) *
+                (ps->zsoil[k - 1] - ps->zsoil[k]);
+            soilww += (ws->smc[k] - soil->smcwlt) *
+                (ps->zsoil[k - 1] - ps->zsoil[k]);
         }
     }
 
@@ -819,8 +821,8 @@ void Evapo (wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
 
         if (lc->shdfac > 0.0)
         {
-            /* Initialize plant total transpiration, retrieve plant transpiration,
-             * and accumulate it for all soil layers. */
+            /* Initialize plant total transpiration, retrieve plant
+             * transpiration, and accumulate it for all soil layers. */
 #ifdef _CYCLES_
             WaterUptake (comm, soil, es->sfctmp, wf, ps->pc, dt);
 #else
@@ -1065,7 +1067,8 @@ void HRT (wstate_struct *ws, estate_struct *es, eflux_struct *ef,
          * interface temperatures below freezing, then call SnkSrc to
          * compute heat source/sink (and change in frozen water content)
          * due to possible soil water phase change */
-        tbk = TBnd (es->stc[0], es->stc[1], ps->zsoil, ps->zbot, 0, ps->nsoil);
+        tbk =
+            TBnd (es->stc[0], es->stc[1], ps->zsoil, ps->zbot, 0, ps->nsoil);
 
         if ((sice > 0.0) || (es->stc[0] < TFREEZ) ||
             (tsurf < TFREEZ) || (tbk < TFREEZ))
@@ -1173,7 +1176,7 @@ void HRT (wstate_struct *ws, estate_struct *es, eflux_struct *ef,
             if ((sice > 0.0) || (es->stc[k] < TFREEZ) ||
                 (tbk < TFREEZ) || (tbk1 < TFREEZ))
             {
-                SnkSrc (&tsnsr, tavg, ws->smc[k], &ws->sh2o[k], soil,\
+                SnkSrc (&tsnsr, tavg, ws->smc[k], &ws->sh2o[k], soil,
                     ps->zsoil, dt, k, qtot);
                 rhsts[k] = rhsts[k] - tsnsr / denom;
             }
@@ -1489,7 +1492,7 @@ void Rosr12 (double *p, double *a, double *b, double *c, double *d,
      * # 0  , . . . , 0 ,   0   , a[m-1], b[m-1], c[m-1]# #p(m-1)#   #d[m-1]#
      * # 0  , . . . , 0 ,   0   ,   0   ,  a(m) ,  b[m] # # p(m) #   # d[m] #
      * ###                                            ### ###  ###   ###  ###
-     * --------------------------------------------------------------------*/
+     */
 
     int             k, kk;
 

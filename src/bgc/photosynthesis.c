@@ -77,8 +77,10 @@ void Photosynthesis (psn_struct *psn)
      * lnc        (kg Nleaf/m2) leaf N concentration, per unit projected LAI
      * flnr       (kg NRub/kg Nleaf) fraction of leaf N in Rubisco
      * ppfd       (umol photons/m2/s) PAR flux density, per unit projected LAI
-     * g          (umol CO2/m2/s/Pa) leaf-scale conductance to CO2, proj area basis
-     * dlmr       (umol CO2/m2/s) day leaf maint resp, on projected leaf area basis
+     * g          (umol CO2/m2/s/Pa) leaf-scale conductance to CO2, proj area
+     *              basis
+     * dlmr       (umol CO2/m2/s) day leaf maint resp, on projected leaf area
+     *              basis
      *
      * The following variables in psn struct are defined upon function return:
      * Ci         (Pa) intercellular [CO2]
@@ -116,22 +118,27 @@ void Photosynthesis (psn_struct *psn)
      * All other parameters, including the q10's for Kc and Ko are the same as
      * in Woodrow and Berry. */
 
-    static double   Kc25 = 404.0;       /* (ubar) MM const carboxylase, 25 deg C */
+    static double   Kc25 = 404.0;       /* (ubar) MM const carboxylase,
+                                            25 deg C */
     static double   q10Kc = 2.1;        /* (DIM) Q_10 for Kc */
-    static double   Ko25 = 248.0;       /* (mbar) MM const oxygenase, 25 deg C */
+    static double   Ko25 = 248.0;       /* (mbar) MM const oxygenase,
+                                            25 deg C */
     static double   q10Ko = 1.2;        /* (DIM) Q_10 for Ko */
-    static double   act25 = 3.6;        /* (umol/mgRubisco/min) Rubisco activity */
+    static double   act25 = 3.6;        /* (umol/mgRubisco/min) Rubisco
+                                            activity */
     static double   q10act = 2.4;       /* (DIM) Q_10 for Rubisco activity */
-    static double   pabs = 0.85;        /* (DIM) fPAR effectively absorbed by PSII */
+    static double   pabs = 0.85;        /* (DIM) fPAR effectively absorbed by
+                                            PSII */
 
     /* local variables */
     double          t;          /* (deg C) temperature */
     double          tk;         /* (K) absolute temperature */
-    double          Kc;         /* (Pa) MM constant for carboxylase reaction */
+    double          Kc;         /* (Pa) MM constant for carboxylase reaction*/
     double          Ko;         /* (Pa) MM constant for oxygenase reaction */
     double          act;        /* (umol CO2/kgRubisco/s) Rubisco activity */
     double          Jmax;       /* (umol/m2/s) max rate electron transport */
-    double          ppe;        /* (mol/mol) photons absorbed by PSII per e- transported */
+    double          ppe;        /* (mol/mol) photons absorbed by PSII per e-
+                                    transported */
     double          Vmax, J, gamma, Ca, Rd, O2, g;
     double          a, b, c, det;
     double          Av, Aj, A;

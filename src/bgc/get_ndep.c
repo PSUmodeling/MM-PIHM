@@ -1,14 +1,3 @@
-
-/*
- * get_ndep.c
- * retrieve the appropriate nitrogen deposition value for the current simulation year
- *
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
 double GetNdep (tsdata_struct ndep_ts, int t)

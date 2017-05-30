@@ -14,12 +14,12 @@ void MaintResp (const epconst_struct *epc, epvar_struct *epv,
      * Uses the same value of Q_10 (2.0) for all compartments, leaf, stem,
      * coarse and fine roots.
      *
-     * From Ryan's figures and regressions equations, the maintenance respiration
-     * in kgC/day per kg of tissue N is:
+     * From Ryan's figures and regressions equations, the maintenance
+     * respiration in kgC/day per kg of tissue N is:
      * mrpern = 0.218 (kgC/kgN/d)
      *
-     * Leaf maintenance respiration is calculated separately for day and night,
-     * since the PSN routine needs the daylight value.
+     * Leaf maintenance respiration is calculated separately for day and
+     * night, since the PSN routine needs the daylight value.
      * Leaf and fine root respiration are dependent on phenology.
      */
 
@@ -47,9 +47,10 @@ void MaintResp (const epconst_struct *epc, epvar_struct *epv,
         exponent = (tday - 20.0) / 10.0;
         cf->leaf_day_mr = t1 * pow (Q10, exponent) * epv->dayl / 86400.0;
 
-        /* For day respiration, also determine rates of maintenance respiration
-         * per unit of projected leaf area in the sunlit and shaded portions of
-         * the canopy, for use in the photosynthesis routine */
+        /* For day respiration, also determine rates of maintenance
+         * respiration per unit of projected leaf area in the sunlit and
+         * shaded portions of the canopy, for use in the photosynthesis
+         * routine */
         /* First, calculate the mass of N per unit of projected leaf area
          * in each canopy fraction (kg N/m2 projected area) */
         n_area_sun = 1.0 / (epv->sun_proj_sla * epc->leaf_cn);
@@ -105,5 +106,4 @@ void MaintResp (const epconst_struct *epc, epvar_struct *epv,
         t1 = pow (Q10, exponent);
         cf->livecroot_mr = ns->livecrootn * MRPERN * t1;
     }
-
 }

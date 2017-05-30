@@ -49,7 +49,6 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     SoluteTransport (pihm->elem, pihm->riv, (double)pihm->ctrl.stepsize);
 #endif
 
-
     /*
      * Update print variables for hydrology step variables
      */
