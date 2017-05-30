@@ -19,7 +19,8 @@ void NTransport (pihm_struct pihm)
         elem = &pihm->elem[i];
 
         strg = elem->ws.surf +
-            (elem->ws.unsat + elem->ws.gw) * elem->soil.porosity;
+            (elem->ws.unsat + elem->ws.gw) * elem->soil.porosity +
+            elem->soil.depth * elem->soil.smcmin;
         elem->nsol.conc = (strg > 0.0) ?
             MOBILEN_PROPORTION * elem->ns.sminn / strg / 1000.0 : 0.0;
         elem->nsol.conc = (elem->nsol.conc > 0.0) ?
@@ -43,7 +44,8 @@ void NTransport (pihm_struct pihm)
         riv = &pihm->riv[i];
 
         /* River stream */
-        strg = riv->ws.stage + riv->ws.gw * riv->matl.porosity;
+        strg = riv->ws.stage + riv->ws.gw * riv->matl.porosity +
+            riv->matl.bedthick * riv->matl.smcmin;
         riv->nsol.conc = (strg > 0.0) ?
             MOBILEN_PROPORTION * riv->ns.rivern / strg / 1000.0 : 0.0;
         riv->nsol.conc = (riv->nsol.conc > 0.0) ?
