@@ -140,11 +140,6 @@
 #define DOWN_AQUIF2AQUIF    9
 #define UP_AQUIF2AQUIF      10
 
-#define UP                  0
-#define DOWN                1
-#define LEFT                2
-#define RIGHT               3
-
 /* River segment interpolation order */
 #define RECTANGLE           1
 #define TRIANGLE            2

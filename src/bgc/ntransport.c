@@ -37,12 +37,18 @@ void NTransport (pihm_struct pihm)
         riv = &pihm->riv[i];
 
         /* River stream */
-        strg = riv->ws.stage + riv->ws.gw * riv->matl.porosity +
-            riv->matl.bedthick * riv->matl.smcmin;
-        riv->nsol.conc = (strg > 0.0) ?
-            MOBILEN_PROPORTION * riv->ns.rivern / strg / 1000.0 : 0.0;
-        riv->nsol.conc = (riv->nsol.conc > 0.0) ?
-            riv->nsol.conc : 0.0;
+        strg = riv->ws.stage;
+        riv->nsol.conc_stream = (strg > 0.0) ?
+            riv->ns.streamn / strg / 1000.0 : 0.0;
+        riv->nsol.conc_stream = (riv->nsol.conc_stream > 0.0) ?
+            riv->nsol.conc_stream : 0.0;
+
+        /* River bed */
+        strg = riv->ws.gw * riv->matl.porosity;
+        riv->nsol.conc_bed = (strg > 0.0) ?
+            MOBILEN_PROPORTION * riv->ns.sminn / strg / 1000.0 : 0.0;
+        riv->nsol.conc_bed = (riv->nsol.conc_bed > 0.0) ?
+            riv->nsol.conc_bed : 0.0;
     }
 
     /*
@@ -52,7 +58,6 @@ void NTransport (pihm_struct pihm)
     {
         elem_struct *elem;
         elem_struct *nabr;
-        double      wflux;
         int         j;
 
         elem = &pihm->elem[i];
@@ -64,10 +69,10 @@ void NTransport (pihm_struct pihm)
             {
                 nabr = &pihm->elem[elem->nabr[j] - 1];
 
-                wflux = elem->wf.ovlflow[j] + elem->wf.subsurf[j];
-
-                elem->nsol.flux[j] = wflux * 1000.0 *
-                    ((wflux > 0.0) ?  elem->nsol.conc : nabr->nsol.conc);
+                elem->nsol.flux[j] =
+                    (elem->wf.ovlflow[j] + elem->wf.subsurf[j]) * 1000.0 *
+                    ((elem->wf.ovlflow[j] + elem->wf.subsurf[j] > 0.0) ?
+                    elem->nsol.conc : nabr->nsol.conc);
             }
             else if (elem->nabr[j] < 0)
             {
@@ -90,37 +95,40 @@ void NTransport (pihm_struct pihm)
         river_struct *down;
         elem_struct  *left;
         elem_struct  *right;
-        double      wflux;
         int         j;
 
         riv = &pihm->riv[i];
 
-        /*
-         * Initialize solute fluxes
-         */
-        for (j = 0; j < 4; j++)
-        {
-            riv->nsol.flux[j] = 0.0;
-        }
-
         /* Downstream and upstream */
-        wflux = riv->wf.rivflow[DOWN_CHANL2CHANL] +
-            riv->wf.rivflow[DOWN_AQUIF2AQUIF];
-
         if (riv->down > 0)
         {
             down = &pihm->riv[riv->down - 1];
 
-            riv->nsol.flux[DOWN] = wflux * 1000.0 *
-                ((wflux > 0.0) ? riv->nsol.conc : down->nsol.conc);
+            /* Stream */
+            riv->nsol.flux[DOWN_CHANL2CHANL] =
+                riv->wf.rivflow[DOWN_CHANL2CHANL] * 1000.0 *
+                ((riv->wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
+                riv->nsol.conc_stream : down->nsol.conc_stream);
 
-            /* Uptream */
-            down->nsol.flux[UP] = -riv->nsol.flux[DOWN];
+            down->nsol.flux[UP_CHANL2CHANL] =
+                -riv->nsol.flux[DOWN_CHANL2CHANL];
+
+            /* Bed */
+            riv->nsol.flux[DOWN_AQUIF2AQUIF] =
+                riv->wf.rivflow[DOWN_AQUIF2AQUIF] * 1000.0 *
+                ((riv->wf.rivflow[DOWN_AQUIF2AQUIF] > 0.0) ?
+                riv->nsol.conc_bed : down->nsol.conc_bed);
+
+            down->nsol.flux[UP_AQUIF2AQUIF] =
+                -riv->nsol.flux[DOWN_AQUIF2AQUIF];
         }
         else
         {
-            /* Outlet */
-            riv->nsol.flux[DOWN] = wflux * 1000.0 * riv->nsol.conc;
+            riv->nsol.flux[DOWN_CHANL2CHANL] =
+                riv->wf.rivflow[DOWN_CHANL2CHANL] * 1000.0 *
+                riv->nsol.conc_stream;
+
+            riv->nsol.flux[DOWN_AQUIF2AQUIF] = 0.0;
         }
 
         /* Left and right banks */
@@ -129,18 +137,28 @@ void NTransport (pihm_struct pihm)
 
         if (riv->leftele > 0)
         {
-            wflux = riv->wf.rivflow[LEFT_SURF2CHANL] +
-                riv->wf.rivflow[LEFT_AQUIF2CHANL] +
-                riv->wf.rivflow[LEFT_AQUIF2AQUIF];
+            riv->nsol.flux[LEFT_SURF2CHANL] =
+                riv->wf.rivflow[LEFT_SURF2CHANL] * 1000.0 *
+                ((riv->wf.rivflow[LEFT_SURF2CHANL] > 0.0) ?
+                riv->nsol.conc_stream : left->nsol.conc);
 
-            riv->nsol.flux[LEFT] = wflux * 1000.0 *
-                ((wflux > 0.0) ? riv->nsol.conc: left->nsol.conc);
+            riv->nsol.flux[LEFT_AQUIF2CHANL] =
+                riv->wf.rivflow[LEFT_AQUIF2CHANL] * 1000.0 *
+                ((riv->wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
+                riv->nsol.conc_stream : left->nsol.conc);
+
+            riv->nsol.flux[LEFT_AQUIF2AQUIF] =
+                riv->wf.rivflow[LEFT_AQUIF2AQUIF] * 1000.0 *
+                ((riv->wf.rivflow[LEFT_AQUIF2AQUIF] > 0.0) ?
+                riv->nsol.conc_bed : left->nsol.conc);
 
             for (j = 0; j < NUM_EDGE; j++)
             {
                 if (left->nabr[j] == - (i + 1))
                 {
-                    left->nsol.flux[j] = -riv->nsol.flux[LEFT];
+                    left->nsol.flux[j] = -(riv->nsol.flux[LEFT_SURF2CHANL] +
+                        riv->nsol.flux[LEFT_AQUIF2CHANL] +
+                        riv->nsol.flux[LEFT_AQUIF2AQUIF]);
                     break;
                 }
             }
@@ -149,21 +167,36 @@ void NTransport (pihm_struct pihm)
 
         if (riv->rightele > 0)
         {
-            wflux = riv->wf.rivflow[RIGHT_SURF2CHANL] +
-                riv->wf.rivflow[RIGHT_AQUIF2CHANL] +
-                riv->wf.rivflow[RIGHT_AQUIF2AQUIF];
+            riv->nsol.flux[RIGHT_SURF2CHANL] =
+                riv->wf.rivflow[RIGHT_SURF2CHANL] * 1000.0 *
+                ((riv->wf.rivflow[RIGHT_SURF2CHANL] > 0.0) ?
+                riv->nsol.conc_stream : right->nsol.conc);
 
-            riv->nsol.flux[RIGHT] = wflux * 1000.0 *
-                ((wflux > 0.0) ?  riv->nsol.conc: right->nsol.conc);
+            riv->nsol.flux[RIGHT_AQUIF2CHANL] =
+                riv->wf.rivflow[RIGHT_AQUIF2CHANL] * 1000.0 *
+                ((riv->wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
+                riv->nsol.conc_stream : right->nsol.conc);
+
+            riv->nsol.flux[RIGHT_AQUIF2AQUIF] =
+                riv->wf.rivflow[RIGHT_AQUIF2AQUIF] * 1000.0 *
+                ((riv->wf.rivflow[RIGHT_AQUIF2AQUIF] > 0.0) ?
+                riv->nsol.conc_bed : right->nsol.conc);
 
             for (j = 0; j < NUM_EDGE; j++)
             {
                 if (right->nabr[j] == - (i + 1))
                 {
-                    right->nsol.flux[j] = -riv->nsol.flux[RIGHT];
+                    right->nsol.flux[j] =
+                        -(riv->nsol.flux[RIGHT_SURF2CHANL] +
+                        riv->nsol.flux[RIGHT_AQUIF2CHANL] +
+                        riv->nsol.flux[RIGHT_AQUIF2AQUIF]);
                     break;
                 }
             }
         }
+
+        riv->nsol.flux[CHANL_LKG] = riv->wf.rivflow[CHANL_LKG] * 1000.0 *
+            ((riv->wf.rivflow[CHANL_LKG] > 0.0) ?
+            riv->nsol.conc_stream : riv->nsol.conc_bed);
     }
 }

@@ -146,13 +146,13 @@ typedef struct river_ic_struct
 /*****************************************************************************
  * River nitrogen state variables
  * ---------------------------------------------------------------------------
- * Variables                Type        Description
- * ==========               ==========  ====================
- * rivern                   double      soil mineral N [kgN m-2]
+ * streamn                  double      stream N [kgN m-2]
+ * sminn                    double      soil mineral N [kgN m-2]
  ****************************************************************************/
 typedef struct river_nstate_struct
 {
-    double          rivern;
+    double          streamn;
+    double          sminn;
 } river_nstate_struct;
 
 /*****************************************************************************
@@ -169,13 +169,15 @@ typedef struct river_nflux_struct
 
 typedef struct river_solute_struct
 {
-    double          conc;
-    double          flux[4];
+    double          conc_stream;
+    double          conc_bed;
+    double          flux[NUM_RIVFLX];
 } river_solute_struct;
 
 typedef struct river_bgcic_struct
 {
-    double          rivern;
+    double          streamn;
+    double          sminn;
 } river_bgcic_struct;
 
 #endif

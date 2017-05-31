@@ -238,7 +238,8 @@ void WriteBgcIC (char *restart_fn, elem_struct *elem, river_struct *riv)
 
     for (i = 0; i < nriver; i++)
     {
-        riv[i].restart_output.rivern = riv[i].ns.rivern;
+        riv[i].restart_output.streamn = riv[i].ns.streamn;
+        riv[i].restart_output.sminn = riv[i].ns.sminn;
 
         fwrite (&(riv[i].restart_output), sizeof (river_bgcic_struct), 1,
             restart_file);
