@@ -15,8 +15,8 @@ VEGFRAC		1.0
 ALBEDO		1.0
 ROUGH		1.0
 EC		1.0
-ETT		1.0     
-EDIR		1.0
+ETT		0.5     
+EDIR		0.5
 ROUGH_RIV	1.0     # 50
 KRIVH	        1.0     # 10
 KRIVV		1.0     # 50
@@ -39,3 +39,4 @@ WLTSMC		1.0
 SCENARIO
 PRCP            1.0     # Multiplier
 SFCTMP          0.0     # Offset in K
+:
