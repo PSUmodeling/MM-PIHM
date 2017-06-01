@@ -90,3 +90,7 @@
 /input/example/example.*.ic.txt
 /output/
 /*.log
+
+# Third party libraries
+third_party
+advisor
