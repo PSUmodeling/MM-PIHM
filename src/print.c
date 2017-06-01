@@ -1640,16 +1640,27 @@ void PrintDataTecplot(prtctrlT_struct *prtctrlT, int nprintT, int t, int lapse, 
 	}
 
 }
-void PrtInit (pihm_struct pihm, char *simulation)
+void PrtInit (pihm_struct pihm, char *simulation, int t)
 {
     FILE           *init_file;
     char            fn[MAXSTRING];
     int             i;
+	struct tm      *timestamp;
+	time_t          rawtime;
 #ifdef _NOAH_
     int             j;
 #endif
 
-    sprintf (fn, "input/%s/%s.ic", project, simulation);
+	rawtime = t;
+	timestamp = gmtime(&rawtime);
+
+
+
+    //sprintf (fn, "input/%s/%s%d.ic", project, simulation, t);
+	sprintf(fn, "input/%s/%s%4.4d-%2.2d-%2.2d %2.2d:%2.2d.ic", project, simulation, timestamp->tm_year + 1900, timestamp->tm_mon + 1,
+		timestamp->tm_mday, timestamp->tm_hour,
+		timestamp->tm_min);
+
     init_file = fopen (fn, "wb");
 
     for (i = 0; i < pihm->numele; i++)

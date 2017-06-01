@@ -92,7 +92,7 @@ void            PIHM (char *, char *, int
     );
 void            PrintData (prtctrl_struct *, int, int, int, int, int);
 void            PrintDataTecplot(prtctrlT_struct *, int, int, int, int, int);
-void            PrtInit (pihm_struct, char *);
+void            PrtInit (pihm_struct, char *, int);
 void			PrintStats(void *);
 void			PrintWaterBalance(FILE *, int, elem_struct *, int, river_struct *, int, int);
 double          Psi (double, double, double);

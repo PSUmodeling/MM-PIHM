@@ -1005,7 +1005,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     ReadKeyword (cmdstr, "MODEL_STEPSIZE", &ctrl->stepsize, 'i', filename,
         lno);
 
-    NextLine (para_file, cmdstr, &lno);
+	NextLine (para_file, cmdstr, &lno);
     ReadKeyword (cmdstr, "SURF", &ctrl->prtvrbl[SURF_CTRL], 'i', filename,
         lno);
 
@@ -1118,6 +1118,10 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
 
 	NextLine(para_file, cmdstr, &lno);
 	ReadKeyword(cmdstr, "RIVGWTEC", &ctrl->prtvrbl[RIVGWTEC_CTRL], 'i', filename,
+		lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ReadKeyword(cmdstr, "IC", &ctrl->prtvrbl[IC_CTRL], 'i', filename,
 		lno);
 
     fclose (para_file);

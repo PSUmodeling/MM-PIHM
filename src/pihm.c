@@ -20,7 +20,7 @@ void PIHM (char *simulation, char *outputdir, int first_cycle
 	int			    num_threads;       /* Number of threads for OMP */
 	long int		nst, nfe, nfeLS, nni, ncfn, netf; /*Variables for monitoring performance */
 	int				flag;
-	char			WBname[50];
+	char			WBname[100];
 	FILE            *WaterBalance; /* Water balance file */
 
 
@@ -219,6 +219,18 @@ void PIHM (char *simulation, char *outputdir, int first_cycle
 
         PrintData (pihm->prtctrl, pihm->ctrl.nprint, t,
             t - pihm->ctrl.starttime, pihm->ctrl.stepsize, pihm->ctrl.ascii);
+
+		if (pihm->ctrl.prtvrbl[IC_CTRL] > 0)
+		{
+			/*
+			* Write init files
+			*/
+			if (pihm->ctrl.write_ic && (t - pihm->ctrl.starttime) % pihm->ctrl.prtvrbl[IC_CTRL] == 0)
+			{
+				PrtInit(pihm, simulation, t);
+			}
+		}
+
 		
 
 #ifdef _DAILY_
@@ -239,13 +251,6 @@ void PIHM (char *simulation, char *outputdir, int first_cycle
     }
 #endif
 
-    /*
-     * Write init files
-     */
-    if (pihm->ctrl.write_ic)
-    {
-        PrtInit (pihm, simulation);
-    }
 
 	flag = CVodeGetNumSteps(cvode_mem, &nst);
 	flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);

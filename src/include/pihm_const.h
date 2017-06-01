@@ -266,6 +266,7 @@
 #define GWTEC_CTRL              68
 #define RIVSTGTEC_CTRL          69
 #define RIVGWTEC_CTRL           70
+#define IC_CTRL					71
 #ifdef _CYCLES_
 #define MAXOP               100
 
