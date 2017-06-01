@@ -3,7 +3,7 @@ ASCII_OUTPUT        1                   # Write ASCII output? 0: no, 1: yes
 TECPLOT_OUTPUT      1                   # Write Tecplot output? 0: no, 1: yes
 CVODE_PERF	    0                   # Write CVODE stats?  0: no, 1: yes
 WATERB	            1                   # Write water balance? 0: no, 1: yes
-WRITE_IC	    0                   # Write initial condition? 0: Standard model run, 1: Outputs will be written to .init files
+WRITE_IC	    1                   # Write initial condition? 0: Standard model run, 1: Outputs will be written to .init files
 UNSAT_MODE	    2
 SURF_MODE	    2
 RIV_MODE	    2
@@ -13,8 +13,8 @@ RELTOL	            1E-3
 INIT_SOLVER_STEP    5E-5
 MAX_SOLVER_STEP	    60                  # Maximum solver step (DANGER ZONE)
 LSM_STEP	    60	                # LSM (or ET) step size (unit: s)
-START		    2008-01-01 05:00
-END		    2008-01-02 00:00
+START		    2008-01-01 07:00
+END		    2008-01-04 09:00
 MODEL_STEPSIZE	    60                  # PIHM step size (unit: s)
 ###############################################################################
 # OUTPUT CONTROL:                                                             #
@@ -52,3 +52,4 @@ UNSATTEC            3600
 GWTEC		    3600
 RIVSTGTEC	    3600
 RIVGWTEC            3600
+IC		   3600
