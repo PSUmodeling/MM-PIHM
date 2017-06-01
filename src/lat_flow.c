@@ -215,7 +215,7 @@ double AvgYsfc (double diff, double yi, double yinabr)
     {
         if (yi > DEPRSTG)
         {
-            avg_y = 1.0 * yi;
+            avg_y = 1.0 * (yi - DEPRSTG);
         }
         else
         {
@@ -226,7 +226,7 @@ double AvgYsfc (double diff, double yi, double yinabr)
     {
         if (yinabr > DEPRSTG)
         {
-            avg_y = 1.0 * yinabr;
+            avg_y = 1.0 * (yinabr - DEPRSTG);
         }
         else
         {
