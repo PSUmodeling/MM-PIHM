@@ -81,6 +81,7 @@ void FirstDay (elem_struct *elem, river_struct *riv,
         restart->deadcrootn_storage = 0.0;
         restart->retransn = 0.0;
         restart->npool = 0.0;
+        restart->surfn =  0.0;
 
         /*
          * Initialize days-since-rain counter

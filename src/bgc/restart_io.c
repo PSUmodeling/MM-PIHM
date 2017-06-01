@@ -61,6 +61,7 @@ void RestartInput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     ns->soil2n = restart->soil2n;
     ns->soil3n = restart->soil3n;
     ns->soil4n = restart->soil4n;
+    ns->surfn = restart->surfn;
     ns->sminn = restart->sminn;
     ns->retransn = restart->retransn;
     ns->npool = restart->npool;
@@ -143,6 +144,7 @@ void RestartOutput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     restart->soil2n = ns->soil2n;
     restart->soil3n = ns->soil3n;
     restart->soil4n = ns->soil4n;
+    restart->surfn = ns->surfn;
     restart->sminn = ns->sminn;
     restart->retransn = ns->retransn;
     restart->npool = ns->npool;
