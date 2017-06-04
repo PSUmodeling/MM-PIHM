@@ -13,9 +13,18 @@ void NTransport (pihm_struct pihm)
     for (i = 0; i < nelem; i++)
     {
         elem_struct *elem;
+        int         j;
         double      strg;
 
         elem = &pihm->elem[i];
+
+        /* Initialize N fluxes */
+        elem->nsol.infilflux = 0.0;
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            elem->nsol.ovlflux[j] = 0.0;
+            elem->nsol.subflux[j] = 0.0;
+        }
 
         /* Element surface */
         strg = elem->ws.surf;
@@ -39,9 +48,16 @@ void NTransport (pihm_struct pihm)
     for (i = 0; i < nriver; i++)
     {
         river_struct *riv;
+        int         j;
         double      strg;
 
         riv = &pihm->riv[i];
+
+        /* Initialize N fluxes */
+        for (j = 0; j < NUM_RIVFLX; j++)
+        {
+            riv->nsol.flux[j] = 0.0;
+        }
 
         /* River stream */
         strg = riv->ws.stage;
@@ -72,14 +88,6 @@ void NTransport (pihm_struct pihm)
         int         j;
 
         elem = &pihm->elem[i];
-
-        /* Initialize N fluxes */
-        elem->nsol.infilflux = 0.0;
-        for (j = 0; j < NUM_EDGE; j++)
-        {
-            elem->nsol.ovlflux[j] = 0.0;
-            elem->nsol.subflux[j] = 0.0;
-        }
 
         /* Infiltration */
         elem->nsol.infilflux = elem->wf.infil * 1000.0 *
@@ -128,12 +136,6 @@ void NTransport (pihm_struct pihm)
         int         j;
 
         riv = &pihm->riv[i];
-
-        /* Initialize N fluxes */
-        for (j = 0; j < NUM_RIVFLX; j++)
-        {
-            riv->nsol.flux[j] = 0.0;
-        }
 
         /* Downstream and upstream */
         if (riv->down > 0)
