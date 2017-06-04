@@ -12,6 +12,15 @@ typedef struct pihm_t_struct
     char            str[17];
 } pihm_t_struct;
 
+typedef struct siteinfo_struct
+{
+    double          longitude;
+    double          latitude;
+    double          elevation;
+    double          area;
+    double          tavg;
+} siteinfo_struct;
+
 #ifdef _BGC_
 /*****************************************************************************
  * A structure to hold information on the annual co2 concentration
@@ -316,9 +325,7 @@ typedef struct prtctrl_struct
  ****************************************************************************/
 typedef struct pihm_struct
 {
-    double          longitude;
-    double          latitude;
-    double          elevation;
+    siteinfo_struct siteinfo;
     filename_struct filename;
     meshtbl_struct  meshtbl;
     atttbl_struct   atttbl;

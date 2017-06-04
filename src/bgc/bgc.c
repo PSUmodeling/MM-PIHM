@@ -54,10 +54,10 @@ void DailyBgc (pihm_struct pihm, int t)
     }
 
     /* Calculate daylengths */
-    SunPos (t, pihm->latitude, pihm->longitude, pihm->elevation,
-        pihm->noahtbl.tbot, &spa);
-    SunPos (t - DAYINSEC, pihm->latitude, pihm->longitude, pihm->elevation,
-        pihm->noahtbl.tbot, &prev_spa);
+    SunPos (t, pihm->siteinfo.latitude, pihm->siteinfo.longitude,
+        pihm->siteinfo.elevation, pihm->siteinfo.tavg, &spa);
+    SunPos (t - DAYINSEC, pihm->siteinfo.latitude, pihm->siteinfo.longitude,
+        pihm->siteinfo.elevation, pihm->siteinfo.tavg, &prev_spa);
 
     dayl = (spa.sunset - spa.sunrise) * 3600.0;
     dayl = (dayl < 0.0) ? dayl + 24.0 * 3600.0 : dayl;

@@ -29,13 +29,13 @@ void            ApplyBC (forc_struct *, elem_struct *, river_struct *, int);
 void            ApplyElemBC (forc_struct *, elem_struct *, int);
 void            ApplyForcing (forc_struct *, elem_struct *, int
 #ifdef _NOAH_
-    , ctrl_struct *, double, double, double, double
+    , ctrl_struct *, siteinfo_struct *
 #endif
     );
 void            ApplyLAI (forc_struct *, elem_struct *, int);
 void            ApplyMeteoForc (forc_struct *, elem_struct *, int
 #ifdef _NOAH_
-    , int, double, double, double, double
+    , int, siteinfo_struct *
 #endif
     );
 void            ApplyRiverBC (forc_struct *, river_struct *, int);
@@ -221,7 +221,7 @@ double          Psphs (double);
 double          Psphu (double);
 double          Pspms (double);
 double          Pspmu (double);
-void            ReadLsm (char *, double *, double *, ctrl_struct *,
+void            ReadLsm (char *, siteinfo_struct *, ctrl_struct *,
     noahtbl_struct *);
 void            ReadRad (char *, forc_struct *);
 void            RootDist (const double *, int, int, double *);
@@ -272,6 +272,7 @@ double          TDfCnd (double, double, double, double, double);
 double          TmpAvg (double, double, double, const double *, int);
 double          TopoRadn (double, double, double, double, double, double,
     const double *, double);
+double          TotalArea (elem_struct *);
 void            Transp (const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
 void            WDfCnd (double *, double *, double, double, int,

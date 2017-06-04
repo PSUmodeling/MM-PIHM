@@ -14,8 +14,7 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         /* Apply forcing */
         ApplyForcing (&pihm->forc, pihm->elem, t
     #ifdef _NOAH_
-            , &pihm->ctrl, pihm->latitude, pihm->longitude, pihm->elevation,
-            pihm->noahtbl.tbot
+            , &pihm->ctrl, &pihm->siteinfo
     #endif
             );
 

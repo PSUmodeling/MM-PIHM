@@ -75,7 +75,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 
 #ifdef _NOAH_
     /* Read LSM input file */
-    ReadLsm (pihm->filename.lsm, &pihm->latitude, &pihm->longitude,
+    ReadLsm (pihm->filename.lsm, &pihm->siteinfo,
         &pihm->ctrl, &pihm->noahtbl);
 
     if (pihm->ctrl.rad_mode == TOPO_SOL)

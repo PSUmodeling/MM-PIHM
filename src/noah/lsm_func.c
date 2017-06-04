@@ -559,6 +559,19 @@ double AvgElev (elem_struct *elem)
     return (elev);
 }
 
+double TotalArea (elem_struct *elem)
+{
+    double          area = 0.0;
+    int             i;
+
+    for (i = 0; i < nelem; i++)
+    {
+        area += elem[i].topo.area;
+    }
+
+    return (area);
+}
+
 void CalcLatFlx (const pstate_struct *ps, wflux_struct *wf, double area)
 {
     double          sattot;
