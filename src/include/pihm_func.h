@@ -442,7 +442,7 @@ void            BgcSpinup (pihm_struct, N_Vector, void *);
 void            CanopyCond (const epconst_struct *, epvar_struct *,
     const eflux_struct *, const pstate_struct *, const soil_struct *,
     const daily_struct *);
-int             CheckBgcSS (elem_struct *, int, int, int);
+int             CheckBgcSS (elem_struct *, double, int, int, int);
 void            CheckCarbonBalance (cstate_struct *, double *);
 void            CheckNitrogenBalance (nstate_struct *, double *);
 void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);

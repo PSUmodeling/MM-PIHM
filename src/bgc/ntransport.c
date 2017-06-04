@@ -83,8 +83,8 @@ void NTransport (pihm_struct pihm)
 
         /* Infiltration */
         elem->nsol.infilflux = elem->wf.infil * 1000.0 *
-            (elem->wf.infil > 0.0) ?  elem->nsol.conc_surf :
-            MOBILEN_PROPORTION * elem->nsol.conc_subsurf;
+            ((elem->wf.infil > 0.0) ?  elem->nsol.conc_surf :
+            MOBILEN_PROPORTION * elem->nsol.conc_subsurf);
 
         /* Element to element */
         for (j = 0; j < NUM_EDGE; j++)
@@ -99,9 +99,9 @@ void NTransport (pihm_struct pihm)
                     MOBILEN_PROPORTION * nabr->nsol.conc_subsurf);
 
                 elem->nsol.ovlflux[j] = elem->wf.ovlflow[j] * 1000.0 *
-                    (elem->wf.ovlflow[j] > 0.0) ?
+                    ((elem->wf.ovlflow[j] > 0.0) ?
                     MOBILEN_PROPORTION * elem->nsol.conc_surf :
-                    MOBILEN_PROPORTION * nabr->nsol.conc_surf;
+                    MOBILEN_PROPORTION * nabr->nsol.conc_surf);
             }
             else if (elem->nabr[j] < 0)
             {
