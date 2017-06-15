@@ -93,16 +93,6 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
          * multiplication of Area on either side of equation */
         intcp_max = elem->lc.cmcfactr * lai * elem->lc.shdfac;
 
-#ifdef _DEBUG_
-        if (i == 0)
-        {
-            printf ("Max is %lf (%lf * %lf * %lf)\n", intcp_max,
-                elem->lc.cmcfactr,
-                lai,
-                elem->lc.shdfac);
-        }
-#endif
-
         z0 = MonthlyRL (t, elem->attrib.lc_type);
 
         ra = log (elem->ps.zlvl_wind / z0) * log (10.0 *

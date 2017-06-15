@@ -8,13 +8,6 @@ void DailyBgc (pihm_struct pihm, int t)
     double          dayl, prev_dayl;
     double          ndep, nfix;
     spa_data        spa, prev_spa;
-#ifdef _DEBUG_
-    FILE           *before, *after;
-
-    before = fopen ("before.txt", "a");
-    after = fopen ("after.txt", "a");
-#endif
-
 
     /* Get co2 and ndep */
     if (spinup_mode)      /* Spinup mode */
@@ -65,10 +58,8 @@ void DailyBgc (pihm_struct pihm, int t)
     prev_dayl = (prev_spa.sunset - prev_spa.sunrise) * 3600.0;
     prev_dayl = (prev_dayl < 0.0) ? prev_dayl + 24.0 * 3600.0 : prev_dayl;
 
-#ifndef _DEBUG_
 #ifdef _OPENMP
 #pragma omp parallel for
-#endif
 #endif
     for (i = 0; i < nelem; i++)
     {
@@ -182,10 +173,6 @@ void DailyBgc (pihm_struct pihm, int t)
         /* Daily litter and soil decomp and nitrogen fluxes */
         Decomp (daily->avg_stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt);
 
-#ifdef _DEBUG_
-        fprintf (before, "%lf\t", cf->psnsun_to_cpool);
-#endif
-
         /* Allocation gets called whether or not this is a current growth day,
          * because the competition between decomp immobilization fluxes and
          * plant growth N demand is resolved here. On days with no growth, no
@@ -193,9 +180,6 @@ void DailyBgc (pihm_struct pihm, int t)
          * normally */
         DailyAllocation (cf, cs, nf, ns, epc, epv, nt);
 
-#ifdef _DEBUG_
-        fprintf (after, "%lf\t", cf->psnsun_to_cpool);
-#endif
         /* Growth respiration */
         GrowthResp (epc, cf);
 
@@ -229,11 +213,4 @@ void DailyBgc (pihm_struct pihm, int t)
             pihm->elem[i].spinup.totalc += summary->totalc;
         }
     }
-
-#ifdef _DEBUG_
-    fprintf (before, "\n");
-    fprintf (after, "\n");
-    fclose (before);
-    fclose (after);
-#endif
 }
