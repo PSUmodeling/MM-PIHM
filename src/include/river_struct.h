@@ -25,6 +25,8 @@ typedef struct river_attrib_struct
  * zmax                     double      river bank elevation [m]
  * zbed                     double      river bed elevation [m]
  * node_zmax                double      elevation of the downstream node [m]
+ * dist_left                double      distance to left neighbor [m]
+ * dist_right               double      distance to right neighbor [m]
  ****************************************************************************/
 typedef struct river_topo_struct
 {
@@ -35,6 +37,8 @@ typedef struct river_topo_struct
     double          zmax;
     double          zbed;
     double          node_zmax;
+    double          dist_left;
+    double          dist_right;
 } river_topo_struct;
 
 /*****************************************************************************
@@ -63,35 +67,16 @@ typedef struct river_wflux_struct
     double          rivflow[NUM_RIVFLX];
 } river_wflux_struct;
 
-#ifdef _BGC_
-/*****************************************************************************
- * Storage of daily average (only used in Flux-PIHM-BGC)
- * ---------------------------------------------------------------------------
- * Variables                Type        Description
- * ==========               ==========  ====================
- * flag                     int*        flag indicating storage status
- * stage                    double      river stage [m]
- * gw                       double      groundwater level [m]
- * rivflow                  double[]    river fluxes [m3 s-1]
- ****************************************************************************/
-typedef struct river_stor_struct
-{
-    int            *flag;
-    double         *stage;
-    double         *gw;
-    double         *rivflow[NUM_RIVFLX];
-} river_stor_struct;
-#endif
-
 /*****************************************************************************
  * River shape parameters
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * depth                    double      river channel depth
+ * depth                    double      river channel depth [m]
  * intrpl_ord               int         interpolation order (shape of channel)
  * shpcoeff                 double      width coefficient
- * length                   double      length of channel
+ * length                   double      length of channel [m]
+ * width                    double      width of channel [m]
  ****************************************************************************/
 typedef struct shp_struct
 {
@@ -99,6 +84,7 @@ typedef struct shp_struct
     int             intrpl_ord;
     double          coeff;
     double          length;
+    double          width;
 } shp_struct;
 
 /*****************************************************************************
@@ -112,6 +98,8 @@ typedef struct shp_struct
  * ksatv                    double      bed hydraulic conductivity [m s-1]
  * bedthick                 double      bed thickness [m]
  * porosity                 double      bed porosity [m3 m-3]
+ * smcmin                   double      bed residual soil moisture content
+ *                                        [m3 m-3]
  ****************************************************************************/
 typedef struct matl_struct
 {
@@ -121,6 +109,7 @@ typedef struct matl_struct
     double          ksatv;
     double          bedthick;
     double          porosity;
+    double          smcmin;
 } matl_struct;
 
 /*****************************************************************************
@@ -153,37 +142,17 @@ typedef struct river_ic_struct
     double          gw;
 } river_ic_struct;
 
-#ifdef _DAILY_
-/*****************************************************************************
- * River daily average
- * ---------------------------------------------------------------------------
- * Variables                Type        Description
- * ==========               ==========  ====================
- * counter                  int         counter used for averaging
- * avg_stage                double      daily average river stage [m]
- * avg_gw                   double      daily average groundwater level [m]
- * avg_rivflow              double[]    daily average river flux [m3 s-1]
- ****************************************************************************/
-typedef struct river_daily_struct
-{
-    int             counter;
-
-    double          avg_stage;
-    double          avg_gw;
-
-    double          avg_rivflow[NUM_RIVFLX];
-} river_daily_struct;
-#endif
-
 #ifdef _BGC_
 /*****************************************************************************
  * River nitrogen state variables
  * ---------------------------------------------------------------------------
- * sminn                    double      soil mineral N [kgN m-2]
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * rivern                   double      soil mineral N [kgN m-2]
  ****************************************************************************/
 typedef struct river_nstate_struct
 {
-    double          sminn;
+    double          rivern;
 } river_nstate_struct;
 
 /*****************************************************************************
@@ -197,9 +166,39 @@ typedef struct river_nflux_struct
 {
     double          sminn_leached;
 } river_nflux_struct;
+
+typedef struct river_solute_struct
+{
+    double          conc;
+    double          flux[4];
+} river_solute_struct;
+
+typedef struct river_bgcic_struct
+{
+    double          rivern;
+} river_bgcic_struct;
+
 #endif
 
 #ifdef _CYCLES_
+/*****************************************************************************
+ * River daily average
+ * ---------------------------------------------------------------------------
+ * Variables                Type        Description
+ * ==========               ==========  ====================
+ * counter                  int         counter used for averaging
+ * avg_stage                double      daily average river stage [m]
+ * avg_gw                   double      daily average groundwater level [m]
+ * avg_rivflow              double[]    daily average river flux [m3 s-1]
+ ****************************************************************************/
+typedef struct river_daily_struct
+{
+    int             counter;
+    double          avg_stage;
+    double          avg_gw;
+    double          avg_rivflow[NUM_RIVFLX];
+} river_daily_struct;
+
 typedef struct river_solute_struct
 {
     double          soluteMass;
@@ -207,6 +206,12 @@ typedef struct river_solute_struct
     double          soluteConc;
     double          soluteFluxLat[4];
 } river_solute_struct;
+
+typedef struct river_cyclesic_struct
+{
+    double          NO3_Mass;
+    double          NH4_Mass;
+} river_cyclesic_struct;
 #endif
 
 /*****************************************************************************
@@ -238,19 +243,20 @@ typedef struct river_struct
     river_wflux_struct wf;
     river_ic_struct ic;
     river_bc_struct bc;
-#ifdef _DAILY_
-    river_daily_struct daily;
-#endif
 #ifdef _CYCLES_
+    river_daily_struct daily;
     river_solute_struct NO3sol;
     river_solute_struct NH4sol;
+    river_cyclesic_struct cycles_restart;
     double          NO3Leaching[4];
     double          NH4Leaching[4];
 #endif
 #ifdef _BGC_
-    river_stor_struct stor;     /* meteorological data array */
     river_nstate_struct ns;
     river_nflux_struct nf;
+    river_solute_struct nsol;
+    river_bgcic_struct restart_input;
+    river_bgcic_struct restart_output;
 #endif
 } river_struct;
 #endif

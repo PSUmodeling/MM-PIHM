@@ -1,10 +1,10 @@
 #include "pihm.h"
 
 void presim_state_init (cstate_struct *cs, nstate_struct *ns,
-    cinit_struct *cinit)
+    cninit_struct *cninit)
 {
-    cinit->max_leafc = 0.0;
-    cinit->max_stemc = 0.0;
+    cninit->max_leafc = 0.0;
+    cninit->max_stemc = 0.0;
 
     cs->leafc = 0.0;
     cs->leafc_storage = 0.0;

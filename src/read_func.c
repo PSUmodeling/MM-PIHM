@@ -6,7 +6,7 @@ int Readable (char *cmdstr)
     int             i;
     char            ch;
 
-    for (i = 0; i < strlen (cmdstr); i++)
+    for (i = 0; i < (int)(strlen (cmdstr)); i++)
     {
         if (cmdstr[i] == 32 || cmdstr[i] == '\t' || cmdstr[i] == ' ')
         {
@@ -18,7 +18,7 @@ int Readable (char *cmdstr)
         }
     }
 
-    if (i >= strlen (cmdstr))
+    if (i >= (int)(strlen (cmdstr)))
     {
         readable = 0;
     }
@@ -167,67 +167,36 @@ void CheckFile (FILE *fid, char *fn)
 int ReadTS (char *cmdstr, int *ftime, double *data, int nvrbl)
 {
     int             match;
-    struct tm      *timeinfo;
+    char            timestr[MAXSTRING], ts1[MAXSTRING], ts2[MAXSTRING];
     int             bytes_now;
     int             bytes_consumed = 0;
     int             i;
     int             success = 1;
 
-	#if defined(_MSC_VER)
-		#define timegm _mkgmtime
-	#endif
-    timeinfo = (struct tm *)malloc (sizeof (struct tm));
+    match = sscanf (cmdstr + bytes_consumed, "%s %s%n", ts1, ts2, &bytes_now);
+    bytes_consumed += bytes_now;
 
-    if (1 == nvrbl)
+    if (match != 2)
     {
-        match = sscanf (cmdstr, "%d-%d-%d %d:%d %lf",
-            &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
-            &timeinfo->tm_hour, &timeinfo->tm_min, &data[0]);
-        timeinfo->tm_sec = 0;
-        if (match != nvrbl + 5)
-        {
-            success = 0;
-        }
-        else
-        {
-            timeinfo->tm_year = timeinfo->tm_year - 1900;
-            timeinfo->tm_mon = timeinfo->tm_mon - 1;
-            *ftime = timegm (timeinfo);
-        }
+        success = 0;
     }
     else
     {
-        match = sscanf (cmdstr + bytes_consumed, "%d-%d-%d %d:%d%n",
-            &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
-            &timeinfo->tm_hour, &timeinfo->tm_min, &bytes_now);
-        bytes_consumed += bytes_now;
-
-        if (match != 5)
+        for (i = 0; i < nvrbl; i++)
         {
-            success = 0;
-        }
-        else
-        {
-            for (i = 0; i < nvrbl; i++)
+            match =
+                sscanf (cmdstr + bytes_consumed, "%lf%n", &data[i],
+                        &bytes_now);
+            if (match != 1)
             {
-                match =
-                    sscanf (cmdstr + bytes_consumed, "%lf%n", &data[i],
-                    &bytes_now);
-                if (match != 1)
-                {
-                    success = 0;
-                }
-                bytes_consumed += bytes_now;
+                success = 0;
             }
-
-            timeinfo->tm_year = timeinfo->tm_year - 1900;
-            timeinfo->tm_mon = timeinfo->tm_mon - 1;
-            timeinfo->tm_sec = 0;
-            *ftime = timegm (timeinfo);
+            bytes_consumed += bytes_now;
         }
-    }
 
-    free (timeinfo);
+        sprintf (timestr, "%s %s", ts1, ts2);
+        *ftime = StrTime (timestr);
+    }
 
     return (success);
 }
@@ -236,9 +205,9 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
     char *filename, int lno)
 {
     int             match;
+    char            timestr[MAXSTRING], ts1[MAXSTRING], ts2[MAXSTRING];
     char            optstr[MAXSTRING];
     int             success = 1;
-    struct tm      *timeinfo;
 
     #if defined(_MSC_VER)
 		#define strncasecmp _strnicmp
@@ -275,13 +244,8 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
             }
             break;
         case 't':
-            timeinfo = (struct tm *)malloc (sizeof (struct tm));
-
-            match = sscanf (buffer, "%s %d-%d-%d %d:%d", optstr,
-                &timeinfo->tm_year, &timeinfo->tm_mon, &timeinfo->tm_mday,
-                &timeinfo->tm_hour, &timeinfo->tm_min);
-            timeinfo->tm_sec = 0;
-            if (match != 6 || strcasecmp (keyword, optstr) != 0)
+            match = sscanf (buffer, "%s %s %s", optstr, ts1, ts2);
+            if (match != 3 || strcasecmp (keyword, optstr) != 0)
             {
                 PIHMprintf (VL_ERROR, "Expected keyword \"%s\", "
                     "detected keyword \"%s\".\n", keyword, optstr);
@@ -289,12 +253,9 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
             }
             else
             {
-                timeinfo->tm_year = timeinfo->tm_year - 1900;
-                timeinfo->tm_mon = timeinfo->tm_mon - 1;
-                *((int *)value) = timegm (timeinfo);
+                sprintf (timestr, "%s %s", ts1, ts2);
+                *((int *)value) = StrTime (timestr);
             }
-
-            free (timeinfo);
             break;
         default:
             PIHMprintf (VL_ERROR,
@@ -304,11 +265,57 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
 
     if (0 == success)
     {
-        PIHMprintf (VL_ERROR, "Error reading %s near Line %d.\n", filename, lno);
+        PIHMprintf (VL_ERROR, "Error reading %s near Line %d.\n", filename,
+            lno);
         PIHMexit (EXIT_FAILURE);
     }
 
     return (success);
+}
+
+int ReadPrtCtrl (char *buffer, char *keyword, char *filename, int lno)
+{
+    int             match;
+    int             prtvrbl;
+    char            ctrlstr[MAXSTRING];
+    char            optstr[MAXSTRING];
+
+    match = sscanf (buffer, "%s %[^\n]", optstr, ctrlstr);
+    if (match != 2 || strcasecmp (keyword, optstr) != 0)
+    {
+        PIHMprintf (VL_ERROR, "Expected keyword \"%s\", "
+                "detected keyword \"%s\".\n", keyword, optstr);
+        PIHMexit (EXIT_FAILURE);
+    }
+
+    if (strcasecmp (ctrlstr, "YEARLY") == 0)
+    {
+        prtvrbl = YEARLY_OUTPUT;
+    }
+    else if (strcasecmp (ctrlstr, "MONTHLY") == 0)
+    {
+        prtvrbl = MONTHLY_OUTPUT;
+    }
+    else if (strcasecmp (ctrlstr, "DAILY") == 0)
+    {
+        prtvrbl = DAILY_OUTPUT;
+    }
+    else if (strcasecmp (ctrlstr, "HOURLY") == 0)
+    {
+        prtvrbl = HOURLY_OUTPUT;
+    }
+    else
+    {
+        match = sscanf (ctrlstr, "%d", &prtvrbl);
+        if (match != 1)
+        {
+            PIHMprintf (VL_ERROR, "Unknown output control option %s "
+                "in %s near Line %d.\n", ctrlstr, filename, lno);
+            PIHMexit (EXIT_FAILURE);
+        }
+    }
+
+    return (prtvrbl);
 }
 
 int CountOccurance (FILE *fid, char *token)

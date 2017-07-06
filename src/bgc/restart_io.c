@@ -1,15 +1,3 @@
-
-/*
- * restart_io.c
- * functions called to copy restart info between restart structure and
- * active structures
- * 
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
 void RestartInput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
@@ -77,16 +65,8 @@ void RestartInput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     ns->retransn = restart->retransn;
     ns->npool = restart->npool;
 
-    epv->day_leafc_litfall_increment = restart->day_leafc_litfall_increment;
-    epv->day_frootc_litfall_increment = restart->day_frootc_litfall_increment;
-    epv->day_livestemc_turnover_increment =
-        restart->day_livestemc_turnover_increment;
-    epv->day_livecrootc_turnover_increment =
-        restart->day_livecrootc_turnover_increment;
-    epv->annmax_leafc = restart->annmax_leafc;
-    epv->annmax_frootc = restart->annmax_frootc;
-    epv->annmax_livestemc = restart->annmax_livestemc;
-    epv->annmax_livecrootc = restart->annmax_livecrootc;
+    epv->prev_leafc_to_litter = restart->prev_leafc_to_litter;
+    epv->prev_frootc_to_litter = restart->prev_frootc_to_litter;
     epv->dsr = restart->dsr;
 
     epv->dormant_flag = restart->dormant_flag;
@@ -167,16 +147,8 @@ void RestartOutput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     restart->retransn = ns->retransn;
     restart->npool = ns->npool;
 
-    restart->day_leafc_litfall_increment = epv->day_leafc_litfall_increment;
-    restart->day_frootc_litfall_increment = epv->day_frootc_litfall_increment;
-    restart->day_livestemc_turnover_increment =
-        epv->day_livestemc_turnover_increment;
-    restart->day_livecrootc_turnover_increment =
-        epv->day_livecrootc_turnover_increment;
-    restart->annmax_leafc = epv->annmax_leafc;
-    restart->annmax_frootc = epv->annmax_frootc;
-    restart->annmax_livestemc = epv->annmax_livestemc;
-    restart->annmax_livecrootc = epv->annmax_livecrootc;
+    restart->prev_leafc_to_litter = epv->prev_leafc_to_litter;
+    restart->prev_frootc_to_litter = epv->prev_frootc_to_litter;
     restart->dsr = epv->dsr;
 
     restart->dormant_flag = epv->dormant_flag;
@@ -190,4 +162,85 @@ void RestartOutput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     restart->offset_counter = epv->offset_counter;
     restart->offset_fdd = epv->offset_fdd;
     restart->offset_swi = epv->offset_swi;
+}
+
+void ReadBgcIC (char *fn, elem_struct *elem, river_struct *riv)
+{
+    FILE           *init_file;
+    int             i;
+
+    init_file = fopen (fn, "rb");
+    CheckFile (init_file, fn);
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
+
+    for (i = 0; i < nelem; i++)
+    {
+        fread (&elem[i].restart_input, sizeof (bgcic_struct), 1,
+            init_file);
+
+        /* If simulation is accelerated spinup, adjust soil C pool sizes if
+         * needed */
+        if (spinup_mode == ACC_SPINUP_MODE)
+        {
+            elem[i].restart_input.soil1c /= KS1_ACC;
+            elem[i].restart_input.soil2c /= KS2_ACC;
+            elem[i].restart_input.soil3c /= KS3_ACC;
+            elem[i].restart_input.soil4c /= KS4_ACC;
+
+            elem[i].restart_input.soil1n /= KS1_ACC;
+            elem[i].restart_input.soil2n /= KS2_ACC;
+            elem[i].restart_input.soil3n /= KS3_ACC;
+            elem[i].restart_input.soil4n /= KS4_ACC;
+        }
+    }
+
+    for (i = 0; i < nriver; i++)
+    {
+        fread (&riv[i].restart_input, sizeof (river_bgcic_struct), 1,
+            init_file);
+    }
+
+    fclose (init_file);
+}
+
+void WriteBgcIC (char *restart_fn, elem_struct *elem, river_struct *riv)
+{
+    int         i;
+    FILE       *restart_file;
+
+    restart_file = fopen (restart_fn, "wb");
+    CheckFile (restart_file, restart_fn);
+    PIHMprintf (VL_VERBOSE, "Writing BGC initial conditions.\n");
+
+    for (i = 0; i < nelem; i++)
+    {
+        RestartOutput (&elem[i].cs, &elem[i].ns, &elem[i].epv,
+            &elem[i].restart_output);
+
+        /* If initial conditions are obtained using accelerated spinup,
+         * adjust soil C pool sizes if needed */
+        if (spinup_mode == ACC_SPINUP_MODE)
+        {
+            elem[i].restart_output.soil1c *= KS1_ACC;
+            elem[i].restart_output.soil2c *= KS2_ACC;
+            elem[i].restart_output.soil3c *= KS3_ACC;
+            elem[i].restart_output.soil4c *= KS4_ACC;
+
+            elem[i].restart_output.soil1n *= KS1_ACC;
+            elem[i].restart_output.soil2n *= KS2_ACC;
+            elem[i].restart_output.soil3n *= KS3_ACC;
+            elem[i].restart_output.soil4n *= KS4_ACC;
+        }
+
+        fwrite (&(elem[i].restart_output), sizeof (bgcic_struct), 1,
+            restart_file);
+    }
+
+    for (i = 0; i < nriver; i++)
+    {
+        riv[i].restart_output.rivern = riv[i].ns.rivern;
+
+        fwrite (&(riv[i].restart_output), sizeof (river_bgcic_struct), 1,
+            restart_file);
+    }
 }

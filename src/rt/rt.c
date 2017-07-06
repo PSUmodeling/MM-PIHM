@@ -1,22 +1,22 @@
 
 /******************************************************************************
  * PIHM-RT is a finite volume based, reactive transport module that operate
- * on top of the hydrological processes described by PIHM. PIHM-RT track the 
+ * on top of the hydrological processes described by PIHM. PIHM-RT track the
  * transportation and reaction in a given watershed. PIHM-RT uses operator
- * splitting technique to couple transport and reaction. 
+ * splitting technique to couple transport and reaction.
  *
- * PIHM-RT requires two additional input files: 
+ * PIHM-RT requires two additional input files:
  *     a. chemical condition file:     projectname.chem
  *     b. index of initial conditions: projectname.cini
  *
  *
  *
- * If you have any questions, concerns, suggestions, please contact me at 
+ * If you have any questions, concerns, suggestions, please contact me at
  * the following address:
  *
  *     Developer: Chen Bao <baochen.d.s@gmail.com>
  *     Version  : 0.4
- *     Date     : Feb, 2015   
+ *     Date     : Feb, 2015
  *****************************************************************************/
 
 #include <stdio.h>
@@ -96,7 +96,7 @@ void Monitor (realtype t, realtype stepsize, void *DS, Chem_Data CD)
     /* unit of t and stepsize: min */
     /* DS: model data              */
 
-    // this is to obtain the infiltration rate that can not be obtained from reading f.c 
+    // this is to obtain the infiltration rate that can not be obtained from reading f.c
     // f.c outputs the last trial value, rather the best values of infiltration
 
     int             i, j, k = 0, num_face = 0;
@@ -165,7 +165,7 @@ void Monitor (realtype t, realtype stepsize, void *DS, Chem_Data CD)
     for (i = 0; i < CD->PIHMFac; i++)
     {
 
-        if (CD->Flux[i].nodelo <= CD->NumEle)   // averaging the partition ratio between neighbors. 
+        if (CD->Flux[i].nodelo <= CD->NumEle)   // averaging the partition ratio between neighbors.
             A = (tmpflux[CD->Flux[i].nodeup - 1]
                 + tmpflux[CD->Flux[i].nodelo - 1]) * 0.5;
         else
@@ -175,12 +175,12 @@ void Monitor (realtype t, realtype stepsize, void *DS, Chem_Data CD)
         }
         //      if ( A > 1) fprintf(stderr, " partition is wrong\n");
 
-        /*      
+        /*
          * flux   = CD->Flux[i].flux;
-         * 
+         *
          * CD->Flux[ i + CD->PIHMFac].flux     = A * CD->Flux[i].flux;
          * CD->Flux[ i + CD->PIHMFac].velocity = A * CD->Flux[i].velocity ; // this is not accurate, but check if we really used velocity in CFL and OS3D
-         * 
+         *
          * CD->Flux[ i ].flux                  = ( 1.0 - A ) * CD->Flux[i].flux;
          * CD->Flux[ i ].velocity              = ( 1.0 - A ) * CD->Flux[i].velocity;
          */
@@ -475,13 +475,13 @@ void ConditionAssign (int condition, char *str, int *index)
         strcpy (tmpstr, words[i]);
         value[i] = atoi (tmpstr);
     }
-    /* 
+    /*
      * for ( i = 0; i < length; i ++)
      * fprintf(stderr, "%s\t%c\n",words[i],separator[i]);
-     * 
+     *
      * for ( i = 0; i < length; i ++)
      * fprintf(stderr, "%d\n",value[i]);
-     * 
+     *
      * fprintf(stderr, "condition = %d\n", condition);
      */
     for (i = 0; i < length; i++)
@@ -622,7 +622,7 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
             CD->TEMcpl = (int)tmpval[0];
             fprintf (stderr, " Coupling of thermo modelling is set to %d.\n",
                 CD->DHEdel);
-            // 0 for delay and 1 for no delay (solving together )                            
+            // 0 for delay and 1 for no delay (solving together )
         }
         if (keymatch (line, "relmin", tmpval, tmpstr) == 1)
         {
@@ -1474,7 +1474,7 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
      * break;
      * }
      */
-    /* 0         ~   NumEle-1       : Triangular GW Element; 
+    /* 0         ~   NumEle-1       : Triangular GW Element;
      * NumEle    ~ 2*NumEle-1       : Triangular unsat Element;
      * 2*NumEle  ~ 2*NumEle+NumRiv-1: EBR (Element Beneath River);
      * 2*NumEle+NumRiv ~ 2*NumEle+2*NumRiv-1 : River Element;
@@ -1485,7 +1485,7 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
 
 
     /* Initializing volumetric parameters, inherit from pihm
-     * That is, if pihm is started from a hot start, rt is also 
+     * That is, if pihm is started from a hot start, rt is also
      * initialized with the hot data */
 
     /* Initializing volumetrics for groundwater (GW) cells */
@@ -1969,9 +1969,9 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
      * CD->Flux[k].s_area   = 0.0;
      * k++;
      * }
-     * 
+     *
      * // To downstream 1
-     * 
+     *
      * for ( i = 0; i <MD->NumRiv; i++){
      * if ( i == MD->NumRiv - 1){
      * CD->Flux[k].nodeup = i + 2 * MD->NumEle + 1;
@@ -2039,7 +2039,7 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
      * CD->Flux[k].s_area   = 0.0;
      * k++;
      * }
-     * 
+     *
      * // From EBR to river -6
      * for ( i = 0; i <MD->NumRiv; i++){
      * CD->Flux[k].nodelo = i + 2 * MD->NumEle + 1;
@@ -2241,7 +2241,7 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                         CD->chemtype[j].MolarVolume / CD->Vcele[i].porosity;
                     CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
                     // relative mineral volume fraction
-                    // porosity can be 1.0 so the relative fraction option need a small modification 
+                    // porosity can be 1.0 so the relative fraction option need a small modification
                 }
             }
             if (CD->chemtype[j].itype == 3)
@@ -2298,10 +2298,10 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
      * #pragma omp parallel num_threads(2)
      * {
      * int tid, nthreads;
-     * 
+     *
      * tid = omp_get_thread_num();
      * nthreads = omp_get_num_threads();
-     * 
+     *
      * printf("Hello world from thread %3d of %3d\n", tid, nthreads);
      * }
      */
@@ -2405,11 +2405,11 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
 
     /*
      * FILE * btcv = fopen("shp.btcv2","a+");
-     * 
+     *
      * fprintf(btcv, " 1071 %6.4g\n", CD->Vcele[1070].p_conc[2]);
-     * 
+     *
      * fclose(btcv);
-     * 
+     *
      */
 
     for (i = 0; i < NumEle; i++)
@@ -2466,7 +2466,7 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
 
 
     /* Update the fluxes for river related block */
-    /*  
+    /*
      * for ( i = 0; i <MD->NumRiv; i++){
      * //    CD->Flux[k].flux     += MD->FluxRiv[i][0];
      * //    CD->Flux[k].velocity += CD->Flux[k].flux / CD->Vcele[CD->Flux[k].nodelo-1].area;
@@ -2567,8 +2567,8 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
             {
                 CD->Flux[k].velocity = 1.0E-10;
             }
-            // velocity is calculated according to the flux_avg and the area_avg. 
-        }                       // for gw cells, contact area is needed for dispersion;                                                                                                                     
+            // velocity is calculated according to the flux_avg and the area_avg.
+        }                       // for gw cells, contact area is needed for dispersion;
 
         for (i = 0; i < CD->PIHMFac * 2; i++)
             for (j = CD->PIHMFac * 2; j < CD->NumFac; j++)
@@ -2670,7 +2670,7 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
          * }
          * }
          * }
-         * 
+         *
          */
 
         for (i = 0; i < NumVol; i++)
@@ -2811,7 +2811,7 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
             CD->Flux[k].velocity = 0.0;
             CD->Flux[k].flux = 0.0;
             CD->Flux[k].s_area = 0.0;
-        }                       // for gw cells, contact area is needed for dispersion;  
+        }                       // for gw cells, contact area is needed for dispersion;
 
         for (k; k < CD->NumFac; k++)
         {
@@ -2956,7 +2956,7 @@ void PrintChem (char *filename, Chem_Data CD, realtype t)
         }
 
         // Output the breakthrough curves "stream chemistry"
-        // River is not updated in reaction stage, so a speciation is required before output 
+        // River is not updated in reaction stage, so a speciation is required before output
 
         if (t == CD->StartTime + CD->OutItv * 60)
         {
@@ -2987,7 +2987,7 @@ void PrintChem (char *filename, Chem_Data CD, realtype t)
          * fprintf(Cfile[2], "%6s\t", CD->chemtype[i+CD->NumStc].ChemName);
          * fprintf(Cfile[2],"\n");
          * }
-         * // print the header of file if first time entered 
+         * // print the header of file if first time entered
          * fprintf(Cfile[2],"\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",timestamp->tm_year+1900,timestamp->tm_mon+1,timestamp->tm_mday,timestamp->tm_hour,timestamp->tm_min);
          * for (j = 0; j < CD->NumStc; j++)
          * fprintf(Cfile[2], "%12.8f\t",log10(CD->Vcele[15].p_conc[j]));

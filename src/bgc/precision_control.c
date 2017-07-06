@@ -1,26 +1,14 @@
-
-/* 
- * precision_control.c
- * Detects very low values in state variable structures, and forces them to
- * 0.0, in order to avoid rounding and overflow errors.
- * 
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
 void PrecisionControl (cstate_struct *cs, nstate_struct *ns)
 {
     /* CARBON AND NITROGEN STATE VARIABLES */
-    /* force very low leaf C to 0.0, to avoid roundoff
-     * error in canopy radiation routines. Send excess to litter 1.
+    /* Force very low leaf C to 0.0, to avoid roundoff error in canopy
+     * radiation routines. Send excess to litter 1.
      * Fine root C and N follow leaf C and N. This control is triggered
      * at a higher value than the others because leafc is used in exp()
      * in radtrans, and so can cause rounding error at larger values. */
-    if (cs->leafc < 1e-7)
+    if (cs->leafc < 1.0e-7)
     {
         cs->litr1c += cs->leafc;
         ns->litr1n += ns->leafn;
@@ -32,7 +20,7 @@ void PrecisionControl (cstate_struct *cs, nstate_struct *ns)
         ns->frootn = 0.0;
     }
 
-    /* tests for other plant pools. Excess goes to litter 1 */
+    /* Tests for other plant pools. Excess goes to litter 1 */
     if (cs->livestemc < CRIT_PREC)
     {
         cs->litr1c += cs->livestemc;
@@ -69,7 +57,7 @@ void PrecisionControl (cstate_struct *cs, nstate_struct *ns)
         ns->cwdn = 0.0;
     }
 
-    /* test for litter and soil poils. Excess goes to hr sink (C)
+    /* Test for litter and soil poils. Excess goes to hr sink (C)
      * or volatilized sink (N) */
     if (cs->litr1c < CRIT_PREC)
     {
@@ -128,12 +116,12 @@ void PrecisionControl (cstate_struct *cs, nstate_struct *ns)
         ns->soil4n = 0.0;
     }
 
-    /* additional tests for soil mineral N and retranslocated N */
-    if (ns->sminn < CRIT_PREC)
-    {
-        ns->nvol_snk += ns->sminn;
-        ns->sminn = 0.0;
-    }
+    /* Additional tests for soil mineral N and retranslocated N */
+    //if (ns->sminn < CRIT_PREC)
+    //{
+    //    ns->nvol_snk += ns->sminn;
+    //    ns->sminn = 0.0;
+    //}
     if (ns->retransn < CRIT_PREC)
     {
         ns->litr1n += ns->retransn;

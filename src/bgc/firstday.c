@@ -1,202 +1,174 @@
-
-/* 
- * firstday.c
- * Initializes the state variables for the first day of a simulation that
- * is not using a restart file.
- * 
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
-void FirstDay (const epconst_struct *epc, const cinit_struct *cinit,
-    epvar_struct *epv, cstate_struct *cs, nstate_struct *ns)
+void FirstDay (elem_struct *elem, river_struct *riv,
+    const cninit_struct *cninit)
 {
-    int             woody;
-    int             predays, remdays;
-    double          max_leafc, max_frootc;
-    double          max_stemc, new_stemc;
-    double          prop_transfer, transfer;
-    double          prop_litfall;
+    int             i;
 
-    /* initialize the c and n storage state variables */
-    cs->leafc_storage = 0.0;
-    cs->frootc_storage = 0.0;
-    cs->livestemc_storage = 0.0;
-    cs->deadstemc_storage = 0.0;
-    cs->livecrootc_storage = 0.0;
-    cs->deadcrootc_storage = 0.0;
-    cs->gresp_storage = 0.0;
-    cs->cpool = 0.0;
-    ns->leafn_storage = 0.0;
-    ns->frootn_storage = 0.0;
-    ns->livestemn_storage = 0.0;
-    ns->deadstemn_storage = 0.0;
-    ns->livecrootn_storage = 0.0;
-    ns->deadcrootn_storage = 0.0;
-    ns->retransn = 0.0;
-    ns->npool = 0.0;
-
-    /* initialize days-since-rain counter */
-    epv->dsr = 0.0;
-
-    woody = epc->woody;
-    /* establish the initial partitioning between displayed growth
-     * and growth ready for transfer */
-    max_leafc = cinit->max_leafc;
-    cs->leafc_transfer = max_leafc * epc->leaf_turnover;
-    cs->leafc = max_leafc - cs->leafc_transfer;
-    max_frootc = max_leafc * epc->alloc_frootc_leafc;
-    cs->frootc_transfer =
-        cinit->max_leafc * epc->alloc_frootc_leafc * epc->froot_turnover;
-    cs->frootc = max_frootc - cs->frootc_transfer;
-    if (epc->woody)
+    for (i = 0; i < nelem; i++)
     {
-        max_stemc = cinit->max_stemc;
-        new_stemc = cs->leafc_transfer * epc->alloc_newstemc_newleafc;
-        cs->livestemc_transfer = new_stemc * epc->alloc_newlivewoodc_newwoodc;
-        cs->livestemc = cs->livestemc_transfer / epc->livewood_turnover;
-        cs->deadstemc_transfer = new_stemc - cs->livestemc_transfer;
-        cs->deadstemc =
-            max_stemc - cs->livestemc_transfer - cs->livestemc -
-            cs->deadstemc_transfer;
-        if (cs->deadstemc < 0.0)
-            cs->deadstemc = 0.0;
-        cs->livecrootc_transfer =
-            cs->livestemc_transfer * epc->alloc_crootc_stemc;
-        cs->livecrootc = cs->livestemc * epc->alloc_crootc_stemc;
-        cs->deadcrootc_transfer =
-            cs->deadstemc_transfer * epc->alloc_crootc_stemc;
-        cs->deadcrootc = cs->deadstemc * epc->alloc_crootc_stemc;
-    }
+        bgcic_struct *restart;
+        epconst_struct *epc;
+        double      max_leafc, max_frootc, max_stemc;
+        double      new_stemc;
 
-    /* calculate initial leaf and froot nitrogen pools from carbon pools and
-     * user-specified initial C:N for each component */
-    ns->leafn_transfer = cs->leafc_transfer / epc->leaf_cn;
-    ns->leafn = cs->leafc / epc->leaf_cn;
-    ns->frootn_transfer = cs->frootc_transfer / epc->froot_cn;
-    ns->frootn = cs->frootc / epc->froot_cn;
-    if (epc->woody)
-    {
-        ns->livestemn_transfer = cs->livestemc_transfer / epc->livewood_cn;
-        ns->livestemn = cs->livestemc / epc->livewood_cn;
-        ns->deadstemn_transfer = cs->deadstemc_transfer / epc->deadwood_cn;
-        ns->deadstemn = cs->deadstemc / epc->deadwood_cn;
-        ns->livecrootn_transfer = cs->livecrootc_transfer / epc->livewood_cn;
-        ns->livecrootn = cs->livecrootc / epc->livewood_cn;
-        ns->deadcrootn_transfer = cs->deadcrootc_transfer / epc->deadwood_cn;
-        ns->deadcrootn = cs->deadcrootc / epc->deadwood_cn;
-    }
+        restart = &elem[i].restart_input;
+        epc = &elem[i].epc;
 
-    /* use then penology array information to determine, for the first
-     * day of simulation, how many days of transfer and litterfall have
-     * already occurred for this year */
-    predays = 0;
-    remdays = 0;
+        /*
+         * Copy from CN initialization structure
+         */
+        restart->cwdc = cninit->cwdc;
+        restart->litr1c = cninit->litr1c;
+        restart->litr2c = cninit->litr2c;
+        restart->litr3c = cninit->litr3c;
+        restart->litr4c = cninit->litr4c;
+        restart->soil1c = cninit->soil1c;
+        restart->soil2c = cninit->soil2c;
+        restart->soil3c = cninit->soil3c;
+        restart->soil4c = cninit->soil4c;
+        restart->litr1n = cninit->litr1n;
+        restart->sminn = cninit->sminn;
 
-    if (predays > 0)
-    {
-        prop_transfer = (double)predays / (double)(predays + remdays);
-        /* perform these transfers */
-        transfer = prop_transfer * cs->leafc_transfer;
-        cs->leafc += transfer;
-        cs->leafc_transfer -= transfer;
-        transfer = prop_transfer * ns->leafn_transfer;
-        ns->leafn += transfer;
-        ns->leafn_transfer -= transfer;
-        transfer = prop_transfer * cs->frootc_transfer;
-        cs->frootc += transfer;
-        cs->frootc_transfer -= transfer;
-        transfer = prop_transfer * ns->frootn_transfer;
-        ns->frootn += transfer;
-        ns->frootn_transfer -= transfer;
-        if (woody)
+        /*
+         * Calculate N states from C states
+         */
+        restart->cwdn = restart->cwdc / epc->deadwood_cn;
+        restart->litr2n = restart->litr2c / epc->leaflitr_cn;
+        restart->litr3n = restart->litr3c / epc->leaflitr_cn;
+        restart->litr4n = restart->litr4c / epc->leaflitr_cn;
+        restart->soil1n = restart->soil1c / SOIL1_CN;
+        restart->soil2n = restart->soil2c / SOIL2_CN;
+        restart->soil3n = restart->soil3c / SOIL3_CN;
+        restart->soil4n = restart->soil4c / SOIL4_CN;
+
+        /*
+         * Set phenology flags
+         */
+        if (epc->evergreen)
         {
-            transfer = prop_transfer * cs->livestemc_transfer;
-            cs->livestemc += transfer;
-            cs->livestemc_transfer -= transfer;
-            transfer = prop_transfer * ns->livestemn_transfer;
-            ns->livestemn += transfer;
-            ns->livestemn_transfer -= transfer;
-            transfer = prop_transfer * cs->deadstemc_transfer;
-            cs->deadstemc += transfer;
-            cs->deadstemc_transfer -= transfer;
-            transfer = prop_transfer * ns->deadstemn_transfer;
-            ns->deadstemn += transfer;
-            ns->deadstemn_transfer -= transfer;
-            transfer = prop_transfer * cs->livecrootc_transfer;
-            cs->livecrootc += transfer;
-            cs->livecrootc_transfer -= transfer;
-            transfer = prop_transfer * ns->livecrootn_transfer;
-            ns->livecrootn += transfer;
-            ns->livecrootn_transfer -= transfer;
-            transfer = prop_transfer * cs->deadcrootc_transfer;
-            cs->deadcrootc += transfer;
-            cs->deadcrootc_transfer -= transfer;
-            transfer = prop_transfer * ns->deadcrootn_transfer;
-            ns->deadcrootn += transfer;
-            ns->deadcrootn_transfer -= transfer;
+            restart->dormant_flag = 0;
+        }
+        else
+        {
+            restart->dormant_flag = 1;
+        }
+        restart->onset_flag = 0;
+        restart->onset_counter = 0;
+        restart->onset_gddflag = 0;
+        restart->onset_fdd = 0.0;
+        restart->onset_gdd = 0.0;
+        restart->onset_swi = 0.0;
+        restart->offset_flag = 0;
+        restart->offset_counter = 0;
+        restart->offset_fdd = 0.0;
+        restart->offset_swi = 0.0;
+
+        /* Initialize other C and N storage state variables */
+        restart->leafc_storage = 0.0;
+        restart->frootc_storage = 0.0;
+        restart->livestemc_storage = 0.0;
+        restart->deadstemc_storage = 0.0;
+        restart->livecrootc_storage = 0.0;
+        restart->deadcrootc_storage = 0.0;
+        restart->gresp_storage = 0.0;
+        restart->cpool = 0.0;
+        restart->leafn_storage = 0.0;
+        restart->frootn_storage = 0.0;
+        restart->livestemn_storage = 0.0;
+        restart->deadstemn_storage = 0.0;
+        restart->livecrootn_storage = 0.0;
+        restart->deadcrootn_storage = 0.0;
+        restart->retransn = 0.0;
+        restart->npool = 0.0;
+
+        /*
+         * Initialize days-since-rain counter
+         */
+        restart->dsr = 0.0;
+
+        /*
+         * Establish the initial partitioning between displayed growth and
+         * growth ready for transfer
+         */
+        max_leafc = cninit->max_leafc;
+        restart->leafc_transfer = max_leafc * epc->leaf_turnover;
+        restart->leafc = max_leafc - restart->leafc_transfer;
+        max_frootc = max_leafc * epc->alloc_frootc_leafc;
+        restart->frootc_transfer =
+            cninit->max_leafc * epc->alloc_frootc_leafc * epc->froot_turnover;
+        restart->frootc = max_frootc - restart->frootc_transfer;
+        if (epc->woody)
+        {
+            max_stemc = cninit->max_stemc;
+            new_stemc =
+                restart->leafc_transfer * epc->alloc_newstemc_newleafc;
+            restart->livestemc_transfer =
+                new_stemc * epc->alloc_newlivewoodc_newwoodc;
+            restart->livestemc =
+                restart->livestemc_transfer / epc->livewood_turnover;
+            restart->deadstemc_transfer =
+                new_stemc - restart->livestemc_transfer;
+            restart->deadstemc = max_stemc - restart->livestemc_transfer -
+                restart->livestemc - restart->deadstemc_transfer;
+            if (restart->deadstemc < 0.0)
+            {
+                restart->deadstemc = 0.0;
+            }
+            restart->livecrootc_transfer =
+                restart->livestemc_transfer * epc->alloc_crootc_stemc;
+            restart->livecrootc =
+                restart->livestemc * epc->alloc_crootc_stemc;
+            restart->deadcrootc_transfer =
+                restart->deadstemc_transfer * epc->alloc_crootc_stemc;
+            restart->deadcrootc =
+                restart->deadstemc * epc->alloc_crootc_stemc;
         }
 
-        /* only test for litterfall if there has already been some
-         * transfer growth this year */
-        predays = 0;
-        remdays = 0;
-
-        if (predays > 0)
+        /* Calculate initial leaf and froot nitrogen pools from carbon pools
+         * and user-specified initial C:N for each component */
+        restart->leafn_transfer = restart->leafc_transfer / epc->leaf_cn;
+        restart->leafn = restart->leafc / epc->leaf_cn;
+        restart->frootn_transfer = restart->frootc_transfer / epc->froot_cn;
+        restart->frootn = restart->frootc / epc->froot_cn;
+        if (epc->woody)
         {
-            /* some litterfall has already occurred. in this case, just
-             * remove material from the displayed compartments, and don't
-             * bother with the transfer to litter compartments */
-            prop_litfall = (double)predays / (double)(predays + remdays);
-            cs->leafc -= prop_litfall * cs->leafc * epc->leaf_turnover;
-            cs->frootc -= prop_litfall * cs->frootc * epc->froot_turnover;
+            restart->livestemn_transfer =
+                restart->livestemc_transfer / epc->livewood_cn;
+            restart->livestemn = restart->livestemc / epc->livewood_cn;
+            restart->deadstemn_transfer =
+                restart->deadstemc_transfer / epc->deadwood_cn;
+            restart->deadstemn =
+                restart->deadstemc / epc->deadwood_cn;
+            restart->livecrootn_transfer =
+                restart->livecrootc_transfer / epc->livewood_cn;
+            restart->livecrootn = restart->livecrootc / epc->livewood_cn;
+            restart->deadcrootn_transfer =
+                restart->deadcrootc_transfer / epc->deadwood_cn;
+            restart->deadcrootn = restart->deadcrootc / epc->deadwood_cn;
         }
-    }                           /* end if transfer */
 
-    /* add the growth respiration requirement for the first year's
-     * leaf and fine root growth from transfer pools to the 
-     * gresp_transfer pool */
-    cs->gresp_transfer = 0.0;
-    cs->gresp_transfer += (cs->leafc_transfer + cs->frootc_transfer) * GRPERC;
-    if (woody)
-    {
-        cs->gresp_transfer +=
-            (cs->livestemc_transfer + cs->deadstemc_transfer +
-            cs->livecrootc_transfer + cs->deadcrootc_transfer) * GRPERC;
+        /* Add the growth respiration requirement for the first year's
+         * leaf and fine root growth from transfer pools to the
+         * gresp_transfer pool */
+        restart->gresp_transfer = 0.0;
+        restart->gresp_transfer +=
+            (restart->leafc_transfer + restart->frootc_transfer) * GRPERC;
+        if (epc->woody)
+        {
+            restart->gresp_transfer +=
+                (restart->livestemc_transfer + restart->deadstemc_transfer +
+                restart->livecrootc_transfer + restart->deadcrootc_transfer) *
+                GRPERC;
+        }
+
+        /* Set the initial rates of litterfall and live wood turnover */
+        restart->prev_leafc_to_litter = 0.0;
+        restart->prev_frootc_to_litter = 0.0;
     }
 
-    /* set the initial rates of litterfall and live wood turnover */
-    if (epc->evergreen)
+    for (i = 0; i < nriver; i++)
     {
-        /* leaf and fineroot litterfall rates */
-        epv->day_leafc_litfall_increment =
-            max_leafc * epc->leaf_turnover / 365.0;
-        epv->day_frootc_litfall_increment =
-            max_frootc * epc->froot_turnover / 365.0;
-    }
-    else
-    {
-        /* deciduous: reset the litterfall rates to 0.0 for the start of the
-         * next litterfall season */
-        epv->day_leafc_litfall_increment = 0.0;
-        epv->day_frootc_litfall_increment = 0.0;
-    }
-    /* all types can use annmax leafc and frootc */
-    epv->annmax_leafc = 0.0;
-    epv->annmax_frootc = 0.0;
-
-    if (epc->woody)
-    {
-        /* live wood turnover rates */
-        epv->day_livestemc_turnover_increment =
-            cs->livestemc * epc->livewood_turnover / 365.0;
-        epv->day_livecrootc_turnover_increment =
-            cs->livecrootc * epc->livewood_turnover / 365.0;
-        epv->annmax_livestemc = 0.0;
-        epv->annmax_livecrootc = 0.0;
+        riv[i].restart_input.rivern = 0.0;
     }
 }

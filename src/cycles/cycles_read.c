@@ -1,7 +1,6 @@
 #include "pihm.h"
 
-void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
-    int numele)
+void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl)
 {
     FILE           *simctrl_file;
     char            cmdstr[MAXSTRING];
@@ -16,17 +15,17 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
     CheckFile (simctrl_file, filename);
     PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
 
-    agtbl->op = (int *)malloc (numele * sizeof (int));
-    agtbl->rotsz = (int *)malloc (numele * sizeof (int));
-    agtbl->auto_N = (int *)malloc (numele * sizeof (int));
-    agtbl->auto_P = (int *)malloc (numele * sizeof (int));
-    agtbl->auto_S = (int *)malloc (numele * sizeof (int));
+    agtbl->op = (int *)malloc (nelem * sizeof (int));
+    agtbl->rotsz = (int *)malloc (nelem * sizeof (int));
+    agtbl->auto_N = (int *)malloc (nelem * sizeof (int));
+    agtbl->auto_P = (int *)malloc (nelem * sizeof (int));
+    agtbl->auto_S = (int *)malloc (nelem * sizeof (int));
 
     /* Read simulation control file */
     FindLine (simctrl_file, "BOF", &lno, filename);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         NextLine (simctrl_file, cmdstr, &lno);
         match =
@@ -74,74 +73,85 @@ void ReadCyclesCtrl (char *filename, agtbl_struct *agtbl, ctrl_struct *ctrl,
 
     /* Output control */
     FindLine (simctrl_file, "BOF", &lno, filename);
+
+    FindLine (simctrl_file, "RESTART_CTRL", &lno, filename);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "READ_IC", &ctrl->read_cycles_restart, 'i', filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ReadKeyword (cmdstr, "WRITE_IC", &ctrl->write_cycles_restart, 'i',
+        filename, lno);
+
     FindLine (simctrl_file, "PRINT_CTRL", &lno, filename);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "BIOMASS", &ctrl->prtvrbl[BIOMASS_CTRL], 'i',
+    ctrl->prtvrbl[BIOMASS_CTRL] = ReadPrtCtrl (cmdstr, "BIOMASS", filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[LAI_CTRL] = ReadPrtCtrl (cmdstr, "LAI", filename, lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[RADNINTCP_CTRL] = ReadPrtCtrl (cmdstr, "RADN_INTCP",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i', filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RADN_INTCP", &ctrl->prtvrbl[RADNINTCP_CTRL], 'i',
+    ctrl->prtvrbl[WATER_STS_CTRL] = ReadPrtCtrl (cmdstr, "WATER_STRESS",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "WATER_STRESS", &ctrl->prtvrbl[WATER_STS_CTRL], 'i',
+    ctrl->prtvrbl[N_STS_CTRL] = ReadPrtCtrl (cmdstr, "N_STRESS", filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[CROP_TR_CTRL] = ReadPrtCtrl (cmdstr, "CROP_TR", filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[CROP_POTTR_CTRL] = ReadPrtCtrl (cmdstr, "CROP_POT_TR",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "N_STRESS", &ctrl->prtvrbl[N_STS_CTRL], 'i',
+    ctrl->prtvrbl[RES_EVAP_CTRL] = ReadPrtCtrl (cmdstr, "RES_EVAP", filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[NO3_PROF_CTRL] = ReadPrtCtrl (cmdstr, "NO3_PROF", filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[NO3_RIVER_CTRL] = ReadPrtCtrl (cmdstr, "NO3_RIVER",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "CROP_TR", &ctrl->prtvrbl[CROP_TR_CTRL], 'i',
+    ctrl->prtvrbl[NH4_PROF_CTRL] = ReadPrtCtrl (cmdstr, "NH4_PROF", filename,
+        lno);
+
+    NextLine (simctrl_file, cmdstr, &lno);
+    ctrl->prtvrbl[NH4_RIVER_CTRL] = ReadPrtCtrl (cmdstr, "NH4_RIVER",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "CROP_POT_TR", &ctrl->prtvrbl[CROP_POTTR_CTRL], 'i',
+    ctrl->prtvrbl[NO3_DENIT_CTRL] = ReadPrtCtrl (cmdstr, "NO3_DENITRIF",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "RES_EVAP", &ctrl->prtvrbl[RES_EVAP_CTRL], 'i',
+    ctrl->prtvrbl[NO3_LEACH_CTRL] = ReadPrtCtrl (cmdstr, "NO3_LEACH",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NO3_PROF", &ctrl->prtvrbl[NO3_PROF_CTRL], 'i',
+    ctrl->prtvrbl[NH4_LEACH_CTRL] = ReadPrtCtrl (cmdstr, "NH4_LEACH",
         filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NO3_RIVER", &ctrl->prtvrbl[NO3_RIVER_CTRL], 'i',
-        filename, lno);
+    ctrl->prtvrbl[NO3_LEACH_RIVER_CTRL] = ReadPrtCtrl (cmdstr,
+        "NO3_LEACH_RIVER", filename, lno);
 
     NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NH4_PROF", &ctrl->prtvrbl[NH4_PROF_CTRL], 'i',
-        filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NH4_RIVER", &ctrl->prtvrbl[NH4_RIVER_CTRL], 'i',
-        filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NO3_DENITRIF", &ctrl->prtvrbl[NO3_DENIT_CTRL], 'i',
-        filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NO3_LEACH", &ctrl->prtvrbl[NO3_LEACH_CTRL], 'i',
-        filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NH4_LEACH", &ctrl->prtvrbl[NH4_LEACH_CTRL], 'i',
-        filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NO3_LEACH_RIVER",
-        &ctrl->prtvrbl[NO3_LEACH_RIVER_CTRL], 'i', filename, lno);
-
-    NextLine (simctrl_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NH4_LEACH_RIVER",
-        &ctrl->prtvrbl[NH4_LEACH_RIVER_CTRL], 'i', filename, lno);
+    ctrl->prtvrbl[NH4_LEACH_RIVER_CTRL] = ReadPrtCtrl (cmdstr,
+        "NH4_LEACH_RIVER", filename, lno);
 
     fclose (simctrl_file);
 }
@@ -156,7 +166,7 @@ void ReadSoilInit (char *filename, soiltbl_struct *soiltbl)
     int             i, j;
     int             lno = 0;
 
-    /* 
+    /*
      * Open soil initialization file
      */
     soil_file = fopen (filename, "r");
@@ -255,9 +265,9 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
 
     croptbl->cropName = (char **)malloc (croptbl->number * sizeof (char *));
     croptbl->userFloweringTT =
-        (double *)malloc (croptbl->number * sizeof (int));
+        (double *)malloc (croptbl->number * sizeof (double));
     croptbl->userMaturityTT =
-        (double *)malloc (croptbl->number * sizeof (int));
+        (double *)malloc (croptbl->number * sizeof (double));
     croptbl->userMaximumSoilCoverage =
         (double *)malloc (croptbl->number * sizeof (double));
 
@@ -427,7 +437,7 @@ void ReadCrop (char *filename, croptbl_struct *croptbl)
             &croptbl->userTranspirationMinTemperature[j], 'd', filename, lno);
 
         NextLine (crop_file, cmdstr, &lno);
-        ReadKeyword (cmdstr, "THRESHOLD_TEMPERATURE_FOR_TRANPIRATION",
+        ReadKeyword (cmdstr, "THRESHOLD_TEMPERATURE_FOR_TRANSPIRATION",
             &croptbl->userTranspirationThresholdTemperature[j], 'd', filename,
             lno);
 
@@ -652,8 +662,6 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                     PIHMexit (EXIT_FAILURE);
                 }
 
-                planting->status = 0;
-
                 /* Link planting order and crop description */
                 for (k = 0; k < croptbl->number; k++)
                 {
@@ -746,8 +754,6 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 NextLine (op_file, cmdstr, &lno);
                 ReadKeyword (cmdstr, "FORAGE_HARVEST",
                     &tillage->forageHarvest, 'd', filename, lno);
-
-                tillage->status = 0;
             }
         }
 
@@ -837,8 +843,6 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 NextLine (op_file, cmdstr, &lno);
                 ReadKeyword (cmdstr, "S", &fixfert->opS, 'd', filename, lno);
 
-                fixfert->status = 0;
-
                 if (fixfert->opC_Organic + fixfert->opC_Charcoal +
                     fixfert->opN_Organic + fixfert->opN_Charcoal +
                     fixfert->opN_NH4 + fixfert->opN_NO3 +
@@ -887,8 +891,6 @@ void ReadOperation (const agtbl_struct *agtbl, mgmttbl_struct *mgmttbl,
                 NextLine (op_file, cmdstr, &lno);
                 ReadKeyword (cmdstr, "VOLUME", &fixirr->opVolume, 'd',
                     filename, lno);
-
-                fixirr->status = 0;
             }
         }
 
@@ -977,4 +979,28 @@ int CropExist (char *cropName, const croptbl_struct *croptbl)
     }
 
     return (exist);
+}
+
+void ReadCyclesIC (char *fn, elem_struct *elem, river_struct *riv)
+{
+    FILE           *init_file;
+    int             i;
+
+    init_file = fopen (fn, "rb");
+    CheckFile (init_file, fn);
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
+
+    for (i = 0; i < nelem; i++)
+    {
+        fread (&elem[i].cycles_restart, sizeof (cyclesic_struct), 1,
+            init_file);
+    }
+
+    for (i = 0; i < nriver; i++)
+    {
+        fread (&riv[i].cycles_restart, sizeof (river_cyclesic_struct), 1,
+            init_file);
+    }
+
+    fclose (init_file);
 }

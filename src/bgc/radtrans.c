@@ -1,28 +1,14 @@
-
-/* 
- * radtrans.c
- * calculate leaf area index, sun and shade fractions, and specific
- * leaf area for sun and shade canopy fractions, then calculate
- * canopy radiation interception and transmission 
- * 
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
-void RadTrans (const cstate_struct *cs, const daily_struct *daily,
-    eflux_struct *ef, pstate_struct *ps, const epconst_struct *epc,
-    epvar_struct *epv)
+void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
+    const epconst_struct *epc, epvar_struct *epv, const daily_struct *daily)
 {
-    /* calculate the projected leaf area and SLA for sun and shade fractions
+    /*
+     * Calculate the projected leaf area and SLA for sun and shade fractions
      * and the canopy transmission and absorption of shortwave radiation
-     * based on the Beer's Law assumption of radiation attenuation as a 
+     * based on the Beer's Law assumption of radiation attenuation as a
      * function of projected LAI.
      */
-
     double          proj_lai;
     double          albedo_sw, albedo_par;
     double          sw, par;
@@ -35,12 +21,11 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
     double          parabs_plaisun, parabs_plaishade;
     double          parabs_per_plaisun, parabs_per_plaishade;
 
-    /* The following equations estimate the albedo and extinction 
-     * coefficients for the shortwave and PAR spectra from the values given for the
-     * entire shortwave range (from Jones, H.G., 1992. Plants and Microclimate,
-     * 2nd  Edition. Cambridge University Press. pp. 30-38.) These conversions
-     * are approximated from the information given in Jones.
-     */
+    /* The following equations estimate the albedo and extinction coefficients
+     * for the shortwave and PAR spectra from the values given for the entire
+     * shortwave range (from Jones, H.G., 1992. Plants and Microclimate, 2nd
+     * Edition. Cambridge University Press. pp. 30-38.) These conversions are
+     * approximated from the information given in Jones. */
 
     if (cs->leafc > 0.0)
     {
@@ -54,12 +39,12 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
         if (ps->plaishade < 0.0)
         {
             PIHMprintf (VL_ERROR, "FATAL ERROR: Negative plaishade.\n");
-            PIHMprintf (VL_ERROR, "LAI of shaded canopy = %lf\n", 
+            PIHMprintf (VL_ERROR, "LAI of shaded canopy = %lf\n",
                 ps->plaishade);
             PIHMexit (EXIT_FAILURE);
         }
 
-        /* calculate the projected specific leaf area for sunlit and 
+        /* Calculate the projected specific leaf area for sunlit and
          * shaded canopy fractions */
         epv->sun_proj_sla =
             (ps->plaisun + (ps->plaishade / epc->sla_ratio)) / cs->leafc;
@@ -93,28 +78,26 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
     swabs = sw * (1.0 - exp (-k_sw * proj_lai));
     swtrans = sw - swabs;
 
-    /* calculate PAR absorbed */
+    /* Calculate PAR absorbed */
     k_par = k * 1.0;
     albedo_par = daily->avg_albedo / 3.0;
 
-    par =
-        ((daily->avg_soldn >
-            0.0) ? daily->avg_soldn : 0.0) * RAD2PAR * (1.0 - albedo_par);
+    par = ((daily->avg_soldn > 0.0) ? daily->avg_soldn : 0.0) *
+        RAD2PAR * (1.0 - albedo_par);
     parabs = par * (1.0 - exp (-k_par * proj_lai));
 
-    /* calculate the total shortwave absorbed by the sunlit and
+    /* Calculate the total shortwave absorbed by the sunlit and
      * shaded canopy fractions */
     swabs_plaisun = k_sw * sw * ps->plaisun;
     swabs_plaishade = swabs - swabs_plaisun;
 
-    /* FIXED 02/05/04 */
     if (swabs_plaishade < 0.0)
     {
         swabs_plaisun = swabs;
-        swabs_plaishade = 0;
+        swabs_plaishade = 0.0;
     }
 
-    /* convert this to the shortwave absorbed per unit LAI in the sunlit and 
+    /* Convert this to the shortwave absorbed per unit LAI in the sunlit and
      * shaded canopy fractions */
     if (proj_lai > 0.0)
     {
@@ -126,20 +109,19 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
         swabs_per_plaisun = swabs_per_plaishade = 0.0;
     }
 
-    /* calculate the total PAR absorbed by the sunlit and
-     * shaded canopy fractions */
+    /* Calculate the total PAR absorbed by the sunlit and shaded canopy
+     * fractions */
     parabs_plaisun = k_par * par * ps->plaisun;
     parabs_plaishade = parabs - parabs_plaisun;
 
-    /* FIXED 02/05/04 */
     if (parabs_plaishade < 0.0)
     {
         parabs_plaisun = parabs;
         parabs_plaishade = 0.0;
     }
 
-    /* convert this to the PAR absorbed per unit LAI in the sunlit and 
-     * shaded canopy fractions */
+    /* Convert this to the PAR absorbed per unit LAI in the sunlit and shaded
+     * canopy fractions */
     if (proj_lai > 0.0)
     {
         parabs_per_plaisun = parabs_plaisun / ps->plaisun;
@@ -150,14 +132,11 @@ void RadTrans (const cstate_struct *cs, const daily_struct *daily,
         parabs_per_plaisun = parabs_per_plaishade = 0.0;
     }
 
-    /* assign structure values */
-    ef->swabs = swabs;
-    ef->swtrans = swtrans;
     ef->swabs_per_plaisun = swabs_per_plaisun;
     ef->swabs_per_plaishade = swabs_per_plaishade;
-    /* calculate PPFD: assumes an average energy for PAR photon (EPAR, umol/J)
+
+    /* Calculate PPFD: assumes an average energy for PAR photon (EPAR, umol/J)
      * unit conversion: W/m2 --> umol/m2/s. */
     ps->ppfd_per_plaisun = parabs_per_plaisun * EPAR;
     ps->ppfd_per_plaishade = parabs_per_plaishade * EPAR;
-    ef->parabs = parabs;
 }

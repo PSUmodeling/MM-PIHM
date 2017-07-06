@@ -1,54 +1,59 @@
 #include "pihm.h"
 
-void ApplyForcing (forc_struct *forc, elem_struct *elem, int numele,
-    river_struct *riv, int numriv, int t
-#ifdef _BGC_
-    , ctrl_struct *ctrl
-#endif
-    )
+void ApplyBC (forc_struct *forc, elem_struct *elem, river_struct *riv, int t)
 {
-    /* Boundary conditions */
+    /*
+     * Element boundary conditions
+     */
     if (forc->nbc > 0)
     {
-        ApplyBC (forc, elem, numele, t);
+        ApplyElemBC (forc, elem, t);
     }
 
-    /* Meteorological forcing */
-    ApplyMeteoForc (forc, elem, numele, t);
-
-    /* LAI forcing */
-#ifndef _CYCLES_
-#ifdef _BGC_
-    if (ctrl->bgc_spinup)
-    {
-        ApplyLAI (forc, elem, numele, t);
-    }
-#else
-    ApplyLAI (forc, elem, numele, t);
-#endif
-#endif
-
-    /* River boundary condition */
+    /*
+     * River boundary condition
+     */
     if (forc->nriverbc > 0)
     {
-        ApplyRiverBC (forc, riv, numriv, t);
+        ApplyRiverBC (forc, riv, t);
     }
 }
 
+void ApplyForcing (forc_struct *forc, elem_struct *elem, int t
+#ifdef _NOAH_
+    , ctrl_struct *ctrl, double lat, double lon, double elev, double tavg
+#endif
+    )
+{
+    /*
+     * Meteorological forcing
+     */
+    ApplyMeteoForc (forc, elem, t
+#ifdef _NOAH_
+        , ctrl->rad_mode, lat, lon, elev, tavg
+#endif
+        );
 
-void ApplyBC (forc_struct *forc, elem_struct *elem, int numele, int t)
+    /*
+     * LAI forcing
+     */
+    ApplyLAI (forc, elem, t);
+}
+
+
+void ApplyElemBC (forc_struct *forc, elem_struct *elem, int t)
 {
     int             ind;
     int             i, j, k;
 
     for (k = 0; k < forc->nbc; k++)
     {
-        IntrplForcing (forc->bc[k], t, 1);
+        IntrplForcing (&forc->bc[k], t, 1);
     }
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             if (elem[i].attrib.bc_type[j] > 0)
             {
@@ -66,28 +71,51 @@ void ApplyBC (forc_struct *forc, elem_struct *elem, int numele, int t)
     }
 }
 
-void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t)
+void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
+#ifdef _NOAH_
+    , int rad_mode, double lat, double lon, double elev, double tavg
+#endif
+    )
 {
-    int             ind;
     int             i, k;
+#ifdef _NOAH_
+    spa_data        spa;
+#endif
 
+    /*
+     * Meteorological forcing for PIHM
+     */
     for (k = 0; k < forc->nmeteo; k++)
     {
-        IntrplForcing (forc->meteo[k], t, NUM_METEO_VAR);
+        IntrplForcing (&forc->meteo[k], t, NUM_METEO_VAR);
     }
 
 #ifdef _NOAH_
-    if (forc->nrad > 0)
+    /*
+     * Topographic radiation for Noah
+     */
+    if (rad_mode > 0)
     {
-        for (k = 0; k < forc->nrad; k++)
+        if (forc->nrad > 0)
         {
-            IntrplForcing (forc->rad[k], t, 2);
+            for (k = 0; k < forc->nrad; k++)
+            {
+                IntrplForcing (&forc->rad[k], t, 2);
+            }
         }
+
+        /* Calculate Sun position for topographic solar radiation */
+        SunPos (t, lat, lon, elev, tavg, &spa);
     }
 #endif
 
-    for (i = 0; i < numele; i++)
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
     {
+        int         ind;
+
         ind = elem[i].attrib.meteo_type - 1;
 
         elem[i].wf.prcp = forc->meteo[ind].value[PRCP_TS] / 1000.0;
@@ -95,36 +123,85 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int numele, int t)
         elem[i].ps.rh = forc->meteo[ind].value[RH_TS];
         elem[i].ps.sfcspd = forc->meteo[ind].value[SFCSPD_TS];
         elem[i].ef.soldn = forc->meteo[ind].value[SOLAR_TS];
+        elem[i].ef.soldn = (elem[i].ef.soldn > 0.0) ? elem[i].ef.soldn : 0.0;
 #ifdef _NOAH_
         elem[i].ef.longwave = forc->meteo[ind].value[LONGWAVE_TS];
 #endif
         elem[i].ps.sfcprs = forc->meteo[ind].value[PRES_TS];
 
 #ifdef _NOAH_
-        if (forc->nrad > 0)
+        /* Calculate solar radiation */
+        if (rad_mode > 0)
         {
-            elem[i].ef.soldir = forc->rad[ind].value[SOLDIR_TS];
-            elem[i].ef.soldif = forc->rad[ind].value[SOLDIF_TS];
+            if (forc->nrad > 0)
+            {
+                elem[i].ef.soldir = forc->rad[ind].value[SOLDIR_TS];
+                elem[i].ef.soldif = forc->rad[ind].value[SOLDIF_TS];
+            }
+
+            elem[i].ef.soldn = TopoRadn (elem[i].ef.soldir, elem[i].ef.soldif,
+                spa.zenith, spa.azimuth180, elem[i].topo.slope,
+                elem[i].topo.aspect, elem[i].topo.h_phi, elem[i].topo.svf);
+            elem[i].ef.soldn = (elem[i].ef.soldn > 0.0) ?
+                elem[i].ef.soldn : 0.0;
         }
 #endif
     }
 }
 
-void ApplyLAI (forc_struct *forc, elem_struct *elem, int numele, int t)
+void ApplyLAI (forc_struct *forc, elem_struct *elem, int t)
 {
-    int             ind;
-    int             i, k;
+    int             i;
+
+#ifdef _CYCLES_
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+        double      ksolar;
+        double      tau;
+
+        if (elem[i].comm.svRadiationInterception > 0.0)
+        {
+            ksolar = 0.5;
+
+            tau = 1.0 - ((elem[i].comm.svRadiationInterception > 0.98) ?
+                    0.98 : elem[i].comm.svRadiationInterception);
+
+            elem[i].ps.proj_lai = -log (tau) / ksolar;
+        }
+        else
+        {
+            elem[i].ps.proj_lai = 0.0;
+        }
+    }
+#elif  _BGC_
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+        elem[i].ps.proj_lai = elem[i].cs.leafc * elem[i].epc.avg_proj_sla;
+    }
+#else
+    int             k;
 
     if (forc->nlai > 0)
     {
         for (k = 0; k < forc->nlai; k++)
         {
-            IntrplForcing (forc->lai[k], t, 1);
+            IntrplForcing (&forc->lai[k], t, 1);
         }
     }
 
-    for (i = 0; i < numele; i++)
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
     {
+        int         ind;
+
         if (elem[i].attrib.lai_type > 0)
         {
             ind = elem[i].attrib.lai_type - 1;
@@ -136,19 +213,20 @@ void ApplyLAI (forc_struct *forc, elem_struct *elem, int numele, int t)
             elem->ps.proj_lai = MonthlyLAI (t, elem->attrib.lc_type);
         }
     }
+#endif
 }
 
-void ApplyRiverBC (forc_struct *forc, river_struct *riv, int numriv, int t)
+void ApplyRiverBC (forc_struct *forc, river_struct *riv, int t)
 {
     int             ind;
     int             i, k;
 
     for (k = 0; k < forc->nriverbc; k++)
     {
-        IntrplForcing (forc->riverbc[k], t, 1);
+        IntrplForcing (&forc->riverbc[k], t, 1);
     }
 
-    for (i = 0; i < numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
         if (riv[i].attrib.riverbc_type > 0)
         {
@@ -158,19 +236,19 @@ void ApplyRiverBC (forc_struct *forc, river_struct *riv, int numriv, int t)
     }
 }
 
-void IntrplForcing (tsdata_struct ts, int t, int nvrbl)
+void IntrplForcing (tsdata_struct *ts, int t, int nvrbl)
 {
     int             j;
     int             first, middle, last;
 
-    if (t <= ts.ftime[0])
+    if (t < ts->ftime[0])
     {
         PIHMprintf (VL_ERROR,
             "Error finding forcing for current time step.\n");
         PIHMprintf (VL_ERROR, "Please check your forcing file.\n");
         PIHMexit (EXIT_FAILURE);
     }
-    else if (t >= ts.ftime[ts.length - 1])
+    else if (t > ts->ftime[ts->length - 1])
     {
         PIHMprintf (VL_ERROR,
             "Error finding forcing for current time step.\n");
@@ -180,24 +258,24 @@ void IntrplForcing (tsdata_struct ts, int t, int nvrbl)
     else
     {
         first = 1;
-        last = ts.length - 1;
+        last = ts->length - 1;
 
         while (first <= last)
         {
             middle = (first + last) / 2;
-            if (t >= ts.ftime[middle - 1] && t <= ts.ftime[middle])
+            if (t >= ts->ftime[middle - 1] && t <= ts->ftime[middle])
             {
                 for (j = 0; j < nvrbl; j++)
                 {
-                    ts.value[j] =
-                        ((double)(ts.ftime[middle] - t) * ts.data[middle -
-                            1][j] + (double)(t - ts.ftime[middle -
-                                1]) * ts.data[middle][j]) /
-                        (double)(ts.ftime[middle] - ts.ftime[middle - 1]);
+                    ts->value[j] = ((double)(ts->ftime[middle] - t) *
+                        ts->data[middle - 1][j] +
+                        (double)(t - ts->ftime[middle - 1]) *
+                        ts->data[middle][j]) /
+                        (double)(ts->ftime[middle] - ts->ftime[middle - 1]);
                 }
                 break;
             }
-            else if (ts.ftime[middle] > t)
+            else if (ts->ftime[middle] > t)
             {
                 last = middle - 1;
             }
@@ -215,8 +293,7 @@ double MonthlyLAI (int t, int lc_type)
      * Monly LAI data come from WRF MPTABLE.TBL for Noah MODIS land
      * cover categories
      */
-    time_t          rawtime;
-    struct tm      *timestamp;
+    pihm_t_struct   pihm_time;
 
     double          lai_tbl[40][12] = {
         /* Evergreen Needleleaf Forest */
@@ -321,10 +398,9 @@ double MonthlyLAI (int t, int lc_type)
                 0.24}
     };
 
-    rawtime = t;
-    timestamp = gmtime (&rawtime);
+    pihm_time = PIHMTime (t);
 
-    return (lai_tbl[lc_type - 1][timestamp->tm_mon]);
+    return (lai_tbl[lc_type - 1][pihm_time.month - 1]);
 }
 
 double MonthlyRL (int t, int lc_type)
@@ -334,8 +410,7 @@ double MonthlyRL (int t, int lc_type)
      * data above with max/min LAI and max/min roughness length data
      * in the vegprmt.tbl
      */
-    time_t          rawtime;
-    struct tm      *timestamp;
+    pihm_t_struct   pihm_time;
 
     double          rl_tbl[40][12] = {
         /* Evergreen Needleleaf Forest */
@@ -460,17 +535,14 @@ double MonthlyRL (int t, int lc_type)
                 0.027, 0.027}
     };
 
+    pihm_time = PIHMTime (t);
 
-    rawtime = t;
-    timestamp = gmtime (&rawtime);
-
-    return (rl_tbl[lc_type - 1][timestamp->tm_mon]);
+    return (rl_tbl[lc_type - 1][pihm_time.month - 1]);
 }
 
 double MonthlyMF (int t)
 {
-    time_t          rawtime;
-    struct tm      *timestamp;
+    pihm_t_struct   pihm_time;
 
     double          mf_tbl[12] =
         { 0.001308019, 0.001633298, 0.002131198, 0.002632776, 0.003031171,
@@ -478,8 +550,7 @@ double MonthlyMF (int t)
         0.001373646, 0.001202083
     };
 
-    rawtime = t;
-    timestamp = gmtime (&rawtime);
+    pihm_time = PIHMTime (t);
 
-    return (mf_tbl[timestamp->tm_mon]);
+    return (mf_tbl[pihm_time.month - 1]);
 }

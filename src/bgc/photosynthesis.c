@@ -1,19 +1,8 @@
-
-/*
- * photosynthesis.c
- * C3/C4 photosynthesis model
- * 
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
-void TotalPhotosynthesis (const epconst_struct *epc,
-    const daily_struct *daily, const pstate_struct *ps, epvar_struct *epv,
-    cflux_struct *cf, psn_struct *psn_sun, psn_struct *psn_shade)
+void TotalPhotosynthesis (const epconst_struct *epc, epvar_struct *epv,
+    const pstate_struct *ps, cflux_struct *cf, psn_struct *psn_sun,
+    psn_struct *psn_shade, daily_struct *daily)
 {
     /*
      * This function is a wrapper and replacement for the photosynthesis code
@@ -24,10 +13,8 @@ void TotalPhotosynthesis (const epconst_struct *epc,
 
     tday = daily->tday - TFREEZ;
 
-    /* psn_struct psn_sun, psn_shade; */
-
     /* SUNLIT canopy fraction photosynthesis */
-    /* set the input variables */
+    /* Set the input variables */
     psn_sun->c3 = epc->c3_flag;
     psn_sun->co2 = ps->co2;
     psn_sun->pa = daily->avg_sfcprs;
@@ -35,7 +22,7 @@ void TotalPhotosynthesis (const epconst_struct *epc,
     psn_sun->lnc = 1.0 / (epv->sun_proj_sla * epc->leaf_cn);
     psn_sun->flnr = epc->flnr;
     psn_sun->ppfd = ps->ppfd_per_plaisun;
-    /* convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
+    /* Convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
      * water vapor */
     psn_sun->g = epv->gl_t_wv_sun * 1.0e6 / (1.6 * 8.3143 * (tday + TFREEZ));
     psn_sun->dlmr = epv->dlmr_area_sun;
@@ -45,13 +32,12 @@ void TotalPhotosynthesis (const epconst_struct *epc,
 
     epv->assim_sun = psn_sun->A;
 
-    /* for the final flux assignment, the assimilation output needs to have
+    /* For the final flux assignment, the assimilation output needs to have
      * the maintenance respiration rate added, this sum multiplied by the
      * projected leaf area in the relevant canopy fraction, and this total
      * converted from umol/m2/s -> kgC/m2/d */
-    cf->psnsun_to_cpool =
-        (epv->assim_sun +
-        epv->dlmr_area_sun) * ps->plaisun * daily->dayl * 12.011e-9;
+    cf->psnsun_to_cpool = (epv->assim_sun + epv->dlmr_area_sun) *
+        ps->plaisun * epv->dayl * 12.011e-9;
 
     /* SHADED canopy fraction photosynthesis */
     psn_shade->c3 = epc->c3_flag;
@@ -61,25 +47,23 @@ void TotalPhotosynthesis (const epconst_struct *epc,
     psn_shade->lnc = 1.0 / (epv->shade_proj_sla * epc->leaf_cn);
     psn_shade->flnr = epc->flnr;
     psn_shade->ppfd = ps->ppfd_per_plaishade;
-    /* convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
+    /* Convert conductance from m/s --> umol/m2/s/Pa, and correct for CO2 vs.
      * water vapor */
     psn_shade->g =
-        epv->gl_t_wv_shade * 1e6 / (1.6 * 8.3143 * (tday + TFREEZ));
+        epv->gl_t_wv_shade * 1.0e6 / (1.6 * 8.3143 * (tday + TFREEZ));
     psn_shade->dlmr = epv->dlmr_area_shade;
     /* Calculate photosynthesis for shaded leaves */
     Photosynthesis (psn_shade);
 
     epv->assim_shade = psn_shade->A;
 
-    /* for the final flux assignment, the assimilation output needs to have
+    /* For the final flux assignment, the assimilation output needs to have
      * the maintenance respiration rate added, this sum multiplied by the
      * projected leaf area in the relevant canopy fraction, and this total
      * converted from umol/m2/s -> kgC/m2/d */
-    cf->psnshade_to_cpool =
-        (epv->assim_shade +
-        epv->dlmr_area_shade) * ps->plaishade * daily->dayl * 12.011e-9;
+    cf->psnshade_to_cpool = (epv->assim_shade + epv->dlmr_area_shade) *
+        ps->plaishade * epv->dayl * 12.011e-9;
 }
-
 
 void Photosynthesis (psn_struct *psn)
 {
@@ -93,8 +77,10 @@ void Photosynthesis (psn_struct *psn)
      * lnc        (kg Nleaf/m2) leaf N concentration, per unit projected LAI
      * flnr       (kg NRub/kg Nleaf) fraction of leaf N in Rubisco
      * ppfd       (umol photons/m2/s) PAR flux density, per unit projected LAI
-     * g          (umol CO2/m2/s/Pa) leaf-scale conductance to CO2, proj area basis
-     * dlmr       (umol CO2/m2/s) day leaf maint resp, on projected leaf area basis
+     * g          (umol CO2/m2/s/Pa) leaf-scale conductance to CO2, proj area
+     *              basis
+     * dlmr       (umol CO2/m2/s) day leaf maint resp, on projected leaf area
+     *              basis
      *
      * The following variables in psn struct are defined upon function return:
      * Ci         (Pa) intercellular [CO2]
@@ -132,22 +118,27 @@ void Photosynthesis (psn_struct *psn)
      * All other parameters, including the q10's for Kc and Ko are the same as
      * in Woodrow and Berry. */
 
-    static double   Kc25 = 404.0;       /* (ubar) MM const carboxylase, 25 deg C */
+    static double   Kc25 = 404.0;       /* (ubar) MM const carboxylase,
+                                            25 deg C */
     static double   q10Kc = 2.1;        /* (DIM) Q_10 for Kc */
-    static double   Ko25 = 248.0;       /* (mbar) MM const oxygenase, 25 deg C */
+    static double   Ko25 = 248.0;       /* (mbar) MM const oxygenase,
+                                            25 deg C */
     static double   q10Ko = 1.2;        /* (DIM) Q_10 for Ko */
-    static double   act25 = 3.6;        /* (umol/mgRubisco/min) Rubisco activity */
+    static double   act25 = 3.6;        /* (umol/mgRubisco/min) Rubisco
+                                            activity */
     static double   q10act = 2.4;       /* (DIM) Q_10 for Rubisco activity */
-    static double   pabs = 0.85;        /* (DIM) fPAR effectively absorbed by PSII */
+    static double   pabs = 0.85;        /* (DIM) fPAR effectively absorbed by
+                                            PSII */
 
     /* local variables */
     double          t;          /* (deg C) temperature */
     double          tk;         /* (K) absolute temperature */
-    double          Kc;         /* (Pa) MM constant for carboxylase reaction */
+    double          Kc;         /* (Pa) MM constant for carboxylase reaction*/
     double          Ko;         /* (Pa) MM constant for oxygenase reaction */
     double          act;        /* (umol CO2/kgRubisco/s) Rubisco activity */
     double          Jmax;       /* (umol/m2/s) max rate electron transport */
-    double          ppe;        /* (mol/mol) photons absorbed by PSII per e- transported */
+    double          ppe;        /* (mol/mol) photons absorbed by PSII per e-
+                                    transported */
     double          Vmax, J, gamma, Ca, Rd, O2, g;
     double          a, b, c, det;
     double          Av, Aj, A;
@@ -163,7 +154,9 @@ void Photosynthesis (psn_struct *psn)
 
     /* set parameters for C3 vs C4 model */
     if (psn->c3)
+    {
         ppe = 2.6;
+    }
     else                        /* C4 */
     {
         ppe = 3.5;
@@ -197,7 +190,7 @@ void Photosynthesis (psn_struct *psn)
 
     /* kg Nleaf   kg NRub    kg Rub      umol            umol
      * -------- X -------  X ------- X ---------   =   --------
-     *  m2         kg Nleaf   kg NRub   kg RUB * s       m2 * s       
+     *  m2         kg Nleaf   kg NRub   kg RUB * s       m2 * s
      *
      * (lnc)  X  (flnr)  X  (fnr)  X   (act)     =    (Vmax) */
     psn->Vmax = Vmax = psn->lnc * psn->flnr * fnr * act;
@@ -257,9 +250,13 @@ void Photosynthesis (psn_struct *psn)
 
     /* estimate A as the minimum of (Av,Aj) */
     if (Av < Aj)
+    {
         A = Av;
+    }
     else
+    {
         A = Aj;
+    }
     psn->A = A;
     psn->Ci = Ca - (A / g);
 }

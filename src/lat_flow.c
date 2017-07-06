@@ -2,94 +2,44 @@
 
 void LateralFlow (pihm_struct pihm)
 {
-    int             i, j;
-    double          dif_y_sub;
-    double          avg_y_sub;
-    double          distance;
-    double          grad_y_sub;
-    double          surfh[NUM_EDGE];
+    int             i;
     double         *dhbydx;
     double         *dhbydy;
-    double          effk;
-    double          effk_nabr;
-    double          avg_ksat;
-    double          dif_y_surf;
-    double          avg_y_surf;
-    double          grad_y_surf;
-    double          avg_sf;
-    double          avg_rough;
-    double          crossa;
 
-    elem_struct    *elem;
-    elem_struct    *nabr;
-    river_struct   *riv;
+    dhbydx = (double *)malloc (nelem * sizeof (double));
+    dhbydy = (double *)malloc (nelem * sizeof (double));
 
-    dhbydx = (double *)malloc (pihm->numele * sizeof (double));
-    dhbydy = (double *)malloc (pihm->numele * sizeof (double));
+    FrictSlope (pihm->elem, pihm->riv, pihm->ctrl.surf_mode, dhbydx, dhbydy);
 
-    for (i = 0; i < pihm->numele; i++)
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
     {
-        elem = &pihm->elem[i];
+        int         j;
+        double      dif_y_sub;
+        double      avg_y_sub;
+        double      grad_y_sub;
+        double      effk;
+        double      effk_nabr;
+        double      avg_ksat;
+        double      dif_y_surf;
+        double      avg_y_surf;
+        double      grad_y_surf;
+        double      avg_sf;
+        double      avg_rough;
+        double      crossa;
 
-        if (pihm->ctrl.surf_mode == DIFF_WAVE)
-        {
-            for (j = 0; j < 3; j++)
-            {
-                if (elem->nabr[j] > 0)
-                {
-                    nabr = &pihm->elem[elem->nabr[j] - 1];
-                    surfh[j] = nabr->topo.zmax + nabr->ws.surf;
-                }
-                else if (elem->nabr[j] < 0)
-                {
-                    riv = &pihm->riv[-elem->nabr[j] - 1];
+        elem_struct *elem;
+        elem_struct *nabr;
 
-                    if (riv->ws.stage > riv->shp.depth)
-                    {
-                        surfh[j] = riv->topo.zbed + riv->ws.stage;
-                    }
-                    else
-                    {
-                        surfh[j] = riv->topo.zmax;
-                    }
-                }
-                else
-                {
-                    if (elem->attrib.bc_type[j] == 0)
-                    {
-                        surfh[j] = elem->topo.zmax + elem->ws.surf;
-                    }
-                    else
-                    {
-                        surfh[j] = elem->bc.head[j];
-                    }
-                }
-            }
-
-            dhbydx[i] = DhByDl (elem->topo.nabrdist_y, elem->topo.nabrdist_x, surfh);
-            dhbydy[i] = DhByDl (elem->topo.nabrdist_x, elem->topo.nabrdist_y, surfh);
-        }
-    }
-
-    for (i = 0; i < pihm->numele; i++)
-    {
         elem = &pihm->elem[i];
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            if (elem->nabr[j] != 0)
+            if (elem->nabr[j] > 0)
             {
-                if (elem->nabr[j] > 0)
-                {
-                    nabr = &pihm->elem[elem->nabr[j] - 1];
-                }
-                else
-                {
-                    riv = &pihm->riv[-elem->nabr[j] - 1];
-                    nabr = (i == riv->leftele - 1) ?
-                        &pihm->elem[riv->rightele - 1] :
-                        &pihm->elem[riv->leftele - 1];
-                }
+                nabr = &pihm->elem[elem->nabr[j] - 1];
 
                 /*
                  * Subsurface lateral flux calculation between triangular
@@ -99,8 +49,7 @@ void LateralFlow (pihm_struct pihm)
                     (elem->ws.gw + elem->topo.zmin) - (nabr->ws.gw +
                     nabr->topo.zmin);
                 avg_y_sub = AvgY (dif_y_sub, elem->ws.gw, nabr->ws.gw);
-				distance = elem->topo.distSurf[j];
-                grad_y_sub = dif_y_sub / distance;
+                grad_y_sub = dif_y_sub / elem->topo.nabrdist[j];
                 /* Take into account macropore effect */
                 effk =
                     EffKH (elem->ws.gw, elem->soil.depth, elem->soil.dmac,
@@ -113,7 +62,7 @@ void LateralFlow (pihm_struct pihm)
                 elem->wf.subsurf[j] =
                     avg_ksat * grad_y_sub * avg_y_sub * elem->topo.edge[j];
 
-                /* 
+                /*
                  * Surface lateral flux calculation between triangular
                  * elements
                  */
@@ -123,20 +72,16 @@ void LateralFlow (pihm_struct pihm)
                 }
                 else
                 {
-                    dif_y_surf =
-                        (elem->ws.surf + elem->topo.zmax) - (nabr->ws.surf +
-                        nabr->topo.zmax);
+                    dif_y_surf = (elem->ws.surfh + elem->topo.zmax) -
+                        (nabr->ws.surfh + nabr->topo.zmax);
                 }
-                avg_y_surf = AvgY (dif_y_surf, elem->ws.surf, nabr->ws.surf);
-                grad_y_surf = dif_y_surf / distance;
-                //avg_sf =
-                //    0.5 * (sqrt (pow (dhbydx[i], 2) + pow (dhbydy[i],
-                //            2)) + sqrt (pow (dhbydx[nabr->ind - 1],
-                //            2) + pow (dhbydy[nabr->ind - 1], 2)));
-				avg_sf =
-					0.5 * (sqrt((dhbydx[i]*dhbydx[i]) + (dhbydy[i]* dhbydy[i]))
-						+  sqrt((dhbydx[nabr->ind - 1]* dhbydx[nabr->ind - 1])
-							    + (dhbydy[nabr->ind - 1]* dhbydy[nabr->ind - 1])));
+                avg_y_surf = AvgYsfc (dif_y_surf, elem->ws.surfh,
+                    nabr->ws.surfh);
+                grad_y_surf = dif_y_surf / elem->topo.nabrdist[j];
+                avg_sf = 0.5 *
+                    (sqrt (dhbydx[i] * dhbydx[i] + dhbydy[i] * dhbydy[i]) +
+                    sqrt (dhbydx[nabr->ind - 1] * dhbydx[nabr->ind - 1] +
+                    dhbydy[nabr->ind - 1] * dhbydy[nabr->ind - 1]));
                 if (pihm->ctrl.surf_mode == KINEMATIC)
                 {
                     avg_sf = (grad_y_surf > 0.0) ? grad_y_surf : GRADMIN;
@@ -152,7 +97,12 @@ void LateralFlow (pihm_struct pihm)
                     OverlandFlow (avg_y_surf, grad_y_surf, avg_sf, crossa,
                     avg_rough);
             }
-            else                /* Boundary condition flux */
+            else if (elem->nabr[j] < 0)
+            {
+                /* Do nothing. River-element interactions are calculated
+                 * in river_flow.c */
+            }
+            else                        /* Boundary condition flux */
             {
                 /* No flow (natural) boundary condition is default */
                 if (elem->attrib.bc_type[j] == 0)
@@ -175,13 +125,12 @@ void LateralFlow (pihm_struct pihm)
                         elem->bc.head[j] - elem->topo.zmin);
                     /* Minimum distance from circumcenter to the edge of the
                      * triangle on which boundary condition is defined */
-                    distance = elem->topo.distSurf[j];
                     effk =
                         EffKH (elem->ws.gw, elem->soil.depth, elem->soil.dmac,
                         elem->soil.kmach, elem->soil.areafv,
                         elem->soil.ksath);
                     avg_ksat = effk;
-                    grad_y_sub = dif_y_sub / distance;
+                    grad_y_sub = dif_y_sub / elem->topo.nabrdist[j];
                     elem->wf.subsurf[j] =
                         avg_ksat * grad_y_sub * avg_y_sub *
                         elem->topo.edge[j];
@@ -201,6 +150,63 @@ void LateralFlow (pihm_struct pihm)
     free (dhbydy);
 }
 
+void FrictSlope (elem_struct *elem, river_struct *riv, int surf_mode,
+    double *dhbydx, double *dhbydy)
+{
+    int             i;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+    int             j;
+    double          surfh[NUM_EDGE];
+    elem_struct    *nabr;
+    river_struct   *rivnabr;
+
+        if (surf_mode == DIFF_WAVE)
+        {
+            for (j = 0; j < NUM_EDGE; j++)
+            {
+                if (elem[i].nabr[j] > 0)
+                {
+                    nabr = &elem[elem[i].nabr[j] - 1];
+                    surfh[j] = nabr->topo.zmax + nabr->ws.surfh;
+                }
+                else if (elem[i].nabr[j] < 0)
+                {
+                    rivnabr = &riv[-elem[i].nabr[j] - 1];
+
+                    if (rivnabr->ws.stage > rivnabr->shp.depth)
+                    {
+                        surfh[j] = rivnabr->topo.zbed + rivnabr->ws.stage;
+                    }
+                    else
+                    {
+                        surfh[j] = rivnabr->topo.zmax;
+                    }
+                }
+                else
+                {
+                    if (elem[i].attrib.bc_type[j] == 0)
+                    {
+                        surfh[j] = elem[i].topo.zmax + elem[i].ws.surfh;
+                    }
+                    else
+                    {
+                        surfh[j] = elem[i].bc.head[j];
+                    }
+                }
+            }
+
+            dhbydx[i] = DhByDl (elem[i].topo.nabrdist_y,
+                elem[i].topo.nabrdist_x, surfh);
+            dhbydy[i] = DhByDl (elem[i].topo.nabrdist_x,
+                elem[i].topo.nabrdist_y, surfh);
+        }
+    }
+}
+
 double AvgYsfc (double diff, double yi, double yinabr)
 {
     double          avg_y;
@@ -209,7 +215,7 @@ double AvgYsfc (double diff, double yi, double yinabr)
     {
         if (yi > DEPRSTG)
         {
-            avg_y = 1.0 * yi;
+            avg_y = 1.0 * (yi - DEPRSTG);
         }
         else
         {
@@ -220,7 +226,7 @@ double AvgYsfc (double diff, double yi, double yinabr)
     {
         if (yinabr > DEPRSTG)
         {
-            avg_y = 1.0 * yinabr;
+            avg_y = 1.0 * (yinabr - DEPRSTG);
         }
         else
         {
@@ -253,12 +259,12 @@ double AvgY (double diff, double yi, double yinabr)
     return (avg_y);
 }
 
-
 double DhByDl (double *l1, double *l2, double *surfh)
 {
-    return (-1.0 * (l1[2] * (surfh[1] - surfh[0]) + l1[1] * (surfh[0] -
-                surfh[2]) + l1[0] * (surfh[2] - surfh[1])) / (l2[2] * (l1[1] -
-                l1[0]) + l2[1] * (l1[0] - l1[2]) + l2[0] * (l1[2] - l1[1])));
+    return (-1.0 * (l1[2] * (surfh[1] - surfh[0]) +
+        l1[1] * (surfh[0] - surfh[2]) + l1[0] * (surfh[2] - surfh[1])) /
+        (l2[2] * (l1[1] - l1[0]) + l2[1] * (l1[0] - l1[2]) +
+        l2[0] * (l1[2] - l1[1])));
 }
 
 double EffKH (double tmpy, double aqdepth, double macd, double macksath, double areaf, double ksath)

@@ -1,44 +1,50 @@
 #include "pihm.h"
 
-void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
-    ndepcontrol_struct *ndepctrl, char *co2_fn, char *ndep_fn)
+void ReadBgc (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
+    ndepcontrol_struct *ndepctrl, cninit_struct *cninit, char *co2_fn,
+    char *ndep_fn)
 {
     FILE           *bgc_file;
-    struct tm      *timestamp;
-    time_t          rawtime;
+    pihm_t_struct   pihm_time1, pihm_time2;
     char            cmdstr[MAXSTRING];
     int             lno = 0;
-
-    timestamp = (struct tm *)malloc (sizeof (struct tm));
 
     /* Read bgc simulation control file */
     bgc_file = fopen (fn, "r");
     CheckFile (bgc_file, fn);
     PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
 
+    FindLine (bgc_file, "RESTART", &lno, fn);
+    NextLine (bgc_file, cmdstr, &lno);
+    sscanf (cmdstr, "%d", &ctrl->read_bgc_restart);
+    NextLine (bgc_file, cmdstr, &lno);
+    sscanf (cmdstr, "%d", &ctrl->write_bgc_restart);
+
     FindLine (bgc_file, "TIME_DEFINE", &lno, fn);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%d", &ctrl->spinupstartyear);
-    NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%d", &ctrl->spinupendyear);
-
-    timestamp->tm_year = ctrl->spinupstartyear - 1900;
-    timestamp->tm_mon = 1 - 1;
-    timestamp->tm_mday = 1;
-    timestamp->tm_hour = 0;
-    timestamp->tm_min = 0;
-    timestamp->tm_sec = 0;
-    rawtime = timegm (timestamp);
-    ctrl->spinupstart = (int)rawtime;
-
-    timestamp->tm_year = ctrl->spinupendyear + 1 - 1900;
-    rawtime = timegm (timestamp);
-    ctrl->spinupend = (int)rawtime;
-
-    NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%d", &ctrl->bgc_spinup);
+    sscanf (cmdstr, "%d", &spinup_mode);
     NextLine (bgc_file, cmdstr, &lno);
     sscanf (cmdstr, "%d", &ctrl->maxspinyears);
+
+    /* In spinup mode, simulation time should be full years */
+    if (spinup_mode)
+    {
+        pihm_time1 = PIHMTime (ctrl->starttime);
+        pihm_time2 = PIHMTime (ctrl->endtime);
+
+        if (pihm_time1.month != pihm_time2.month ||
+            pihm_time1.day != pihm_time2.day ||
+            pihm_time1.hour != pihm_time2.hour ||
+            pihm_time1.minute != pihm_time2.minute)
+        {
+            PIHMprintf (VL_ERROR,
+                "Error: In BGC spinup mode, "
+                "simulation period should be full years.\n");
+            PIHMprintf (VL_ERROR,
+                "Please check your .para input file.\n");
+            PIHMexit (EXIT_FAILURE);
+        }
+    }
 
     FindLine (bgc_file, "CO2_CONTROL", &lno, fn);
     NextLine (bgc_file, cmdstr, &lno);
@@ -60,73 +66,65 @@ void ReadBGC (char *fn, ctrl_struct *ctrl, co2control_struct *co2,
 
     FindLine (bgc_file, "C_STATE", &lno, fn);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cinit.max_leafc);
+    sscanf (cmdstr, "%lf", &cninit->max_leafc);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cinit.max_stemc);
+    sscanf (cmdstr, "%lf", &cninit->max_stemc);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.cwdc);
-    ctrl->ns.cwdn = BADVAL;
+    sscanf (cmdstr, "%lf", &cninit->cwdc);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.litr1c);
+    sscanf (cmdstr, "%lf", &cninit->litr1c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.litr2c);
+    sscanf (cmdstr, "%lf", &cninit->litr2c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.litr3c);
+    sscanf (cmdstr, "%lf", &cninit->litr3c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.litr4c);
-    ctrl->ns.litr2n = BADVAL;
-    ctrl->ns.litr3n = BADVAL;
-    ctrl->ns.litr4n = BADVAL;
+    sscanf (cmdstr, "%lf", &cninit->litr4c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.soil1c);
-    ctrl->ns.soil1n = BADVAL;
+    sscanf (cmdstr, "%lf", &cninit->soil1c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.soil2c);
-    ctrl->ns.soil2n = BADVAL;
+    sscanf (cmdstr, "%lf", &cninit->soil2c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.soil3c);
-    ctrl->ns.soil3n = BADVAL;
+    sscanf (cmdstr, "%lf", &cninit->soil3c);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->cs.soil4c);
-    ctrl->ns.soil4n = BADVAL;
+    sscanf (cmdstr, "%lf", &cninit->soil4c);
 
     FindLine (bgc_file, "N_STATE", &lno, fn);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->ns.litr1n);
+    sscanf (cmdstr, "%lf", &cninit->litr1n);
     NextLine (bgc_file, cmdstr, &lno);
-    sscanf (cmdstr, "%lf", &ctrl->ns.sminn);
+    sscanf (cmdstr, "%lf", &cninit->sminn);
 
     FindLine (bgc_file, "DAILY_OUTPUT", &lno, fn);
-    NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "LAI", &ctrl->prtvrbl[LAI_CTRL], 'i', fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "VEGC", &ctrl->prtvrbl[VEGC_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[LAI_CTRL] = ReadPrtCtrl (cmdstr, "LAI", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "LITRC", &ctrl->prtvrbl[LITRC_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[VEGC_CTRL] = ReadPrtCtrl (cmdstr, "VEGC", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SOILC", &ctrl->prtvrbl[SOILC_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[LITRC_CTRL] = ReadPrtCtrl (cmdstr, "LITRC", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "TOTALC", &ctrl->prtvrbl[TOTALC_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[SOILC_CTRL] = ReadPrtCtrl (cmdstr, "SOILC", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NPP", &ctrl->prtvrbl[NPP_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[TOTALC_CTRL] = ReadPrtCtrl (cmdstr, "TOTALC", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NEP", &ctrl->prtvrbl[NEP_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[NPP_CTRL] = ReadPrtCtrl (cmdstr, "NPP", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "NEE", &ctrl->prtvrbl[NEE_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[NEP_CTRL] = ReadPrtCtrl (cmdstr, "NEP", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "GPP", &ctrl->prtvrbl[GPP_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[NEE_CTRL] = ReadPrtCtrl (cmdstr, "NEE", fn, lno);
 
     NextLine (bgc_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SMINN", &ctrl->prtvrbl[SMINN_CTRL], 'i', fn, lno);
+    ctrl->prtvrbl[GPP_CTRL] = ReadPrtCtrl (cmdstr, "GPP", fn, lno);
 
+    NextLine (bgc_file, cmdstr, &lno);
+    ctrl->prtvrbl[SMINN_CTRL] = ReadPrtCtrl (cmdstr, "SMINN", fn, lno);
 
     fclose (bgc_file);
 }
@@ -225,6 +223,7 @@ void ReadEPC (epctbl_struct *epctbl)
                 break;
             default:
                 strcpy (fn, "N/A");
+                epc_file = NULL;
         }
 
         if (strcasecmp (fn, "N/A") != 0)
@@ -339,9 +338,11 @@ void ReadEPC (epctbl_struct *epctbl)
             if (fabs (t1 + t2 + t3 - 1.0) > FLT_COND_TOL)
             {
                 PIHMprintf (VL_ERROR,
-                    "Error: leaf litter proportions of labile, cellulose, and lignin\n");
+                    "Error: leaf litter proportions of labile, cellulose, "
+                    "and lignin\n");
                 PIHMprintf (VL_ERROR,
-                    "must sum to 1.0. Check epc file %s and try again.\n", fn);
+                    "must sum to 1.0. Check epc file %s and try again.\n",
+                    fn);
                 PIHMexit (EXIT_FAILURE);
             }
             /* calculate shielded and unshielded cellulose fraction */
@@ -381,7 +382,8 @@ void ReadEPC (epctbl_struct *epctbl)
                     "Error: froot litter proportions of labile, cellulose, "
                     "and lignin\n");
                 PIHMprintf (VL_ERROR,
-                    "must sum to 1.0. Check epc file %s and try again.\n", fn);
+                    "must sum to 1.0. Check epc file %s and try again.\n",
+                    fn);
                 PIHMexit (EXIT_FAILURE);
             }
             /* calculate shielded and unshielded cellulose fraction */
@@ -517,14 +519,11 @@ void ReadEPC (epctbl_struct *epctbl)
 void ReadAnnFile (tsdata_struct *ts, char *fn)
 {
     FILE           *fid;
-    time_t          rawtime;
-    struct tm      *timeinfo;
+    char            timestr[MAXSTRING];
     char            cmdstr[MAXSTRING];
     int             i;
     int             match;
     int             lno = 0;
-
-    timeinfo = (struct tm *)malloc (sizeof (struct tm));
 
     fid = fopen (fn, "r");
     CheckFile (fid, fn);
@@ -540,7 +539,7 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
         ts->data[i] = (double *)malloc (sizeof (double));
         NextLine (fid, cmdstr, &lno);
         match =
-            sscanf (cmdstr, "%d %lf", &timeinfo->tm_year, &ts->data[i][0]);
+            sscanf (cmdstr, "%s %lf", timestr, &ts->data[i][0]);
 
         if (match != 2)
         {
@@ -550,14 +549,7 @@ void ReadAnnFile (tsdata_struct *ts, char *fn)
             PIHMexit (EXIT_FAILURE);
         }
 
-        timeinfo->tm_year = timeinfo->tm_year - 1900;
-        timeinfo->tm_mon = 0;
-        timeinfo->tm_mday = 1;
-        timeinfo->tm_hour = 0;
-        timeinfo->tm_min = 0;
-        timeinfo->tm_sec = 0;
-        rawtime = timegm (timeinfo);
-        ts->ftime[i] = (int)rawtime;
+        ts->ftime[i] = StrTime (timestr);
     }
 
     fclose (fid);

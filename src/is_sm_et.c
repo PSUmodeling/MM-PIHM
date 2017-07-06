@@ -3,46 +3,44 @@
 void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
 {
     int             i;
-    double          satn;
-    double          betas;
-    double          fr;
-    double          alphar;
-    double          etas;
-    double          gammas;
-    double          rs;
-    double          pc;
-    double          delta, gamma;
-    double          radnet;
-    double          sfctmp;
-    double          wind;
-    double          rh;
-    double          vp;
-    double          pres;
-    double          lai;
-    double          z0;
-    double          ra;
-    double          qvsat;
-    double          qv;
-    double          etp;
-    double          isval = 0.0;
-    double          frac_snow;
-    double          snow_rate;
-    double          melt_rate_grnd;
-    double          melt_rate_canopy;
-    double          snow_grnd = 0.0;
-    double          snow_canopy = 0.0;
-    double          snow_intcp_max;
-    double          intcp_max;
-    double          meltf;
     const double    TSNOW = -3.0;
     const double    TRAIN = 1.0;
     const double    T0 = 0.0;
-    double          ret = 0.0;
 
-    elem_struct    *elem;
-
-    for (i = 0; i < pihm->numele; i++)
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
     {
+        double      satn;
+        double      betas;
+        double      fr;
+        double      alphar;
+        double      etas;
+        double      gammas;
+        double      rs;
+        double      pc;
+        double      delta, gamma;
+        double      radnet;
+        double      sfctmp;
+        double      wind;
+        double      rh;
+        double      vp;
+        double      pres;
+        double      lai;
+        double      z0;
+        double      ra;
+        double      qvsat;
+        double      qv;
+        double      etp;
+        double      isval = 0.0;
+        double      frac_snow;
+        double      snow_rate;
+        double      melt_rate;
+        double      intcp_max;
+        double      meltf;
+        elem_struct *elem;
+
         elem = &pihm->elem[i];
 
         /* Note the dependence on physical units */
@@ -70,39 +68,22 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
         meltf = MonthlyMF (t);
 
         /* Snow accumulation and snow melt calculation */
-        frac_snow =
-            sfctmp < TSNOW ? 1.0 : sfctmp >
-            TRAIN ? 0 : (TRAIN - sfctmp) / (TRAIN - TSNOW);
+        frac_snow = (sfctmp < TSNOW) ? 1.0 :
+            ((sfctmp > TRAIN) ? 0 : (TRAIN - sfctmp) / (TRAIN - TSNOW));
         snow_rate = frac_snow * elem->wf.prcp;
-        /* snow_grnd, snow_canopy, snow_intcp_max, melt_rate_grnd,
-         * melt_rate_canopy are the average value prorated over the whole
-         * elemental area */
-        snow_grnd =
-            snow_grnd + (1.0 - elem->lc.shdfac) * snow_rate * stepsize;
-        snow_canopy = snow_canopy + elem->lc.shdfac * snow_rate * stepsize;
-        snow_intcp_max =
-            snow_canopy > 0.0 ? 0.003 * lai * elem->lc.shdfac : 0.0;
-        if (snow_canopy > snow_intcp_max)
-        {
-            snow_grnd += snow_canopy - snow_intcp_max;
-            snow_canopy = snow_intcp_max;
-        }
-        melt_rate_grnd = melt_rate_canopy =
-            (sfctmp > T0 ? (sfctmp - T0) * meltf : 0.0);
 
-        if (snow_grnd > melt_rate_grnd * stepsize)
-            snow_grnd = snow_grnd - melt_rate_grnd * stepsize;
-        else
+        elem->ws.sneqv += snow_rate * stepsize;
+
+        melt_rate = (sfctmp > T0 ? (sfctmp - T0) * meltf : 0.0);
+
+        if (elem->ws.sneqv > melt_rate * stepsize)
         {
-            melt_rate_grnd = snow_grnd / stepsize;
-            snow_grnd = 0.0;
+            elem->ws.sneqv -= melt_rate * stepsize;
         }
-        if (snow_canopy > melt_rate_canopy * stepsize)
-            snow_canopy = snow_canopy - melt_rate_canopy * stepsize;
         else
         {
-            melt_rate_canopy = snow_canopy / stepsize;
-            snow_canopy = 0.0;
+            melt_rate = elem->ws.sneqv / stepsize;
+            elem->ws.sneqv = 0.0;
         }
 
         /* ThroughFall and Evaporation from canopy */
@@ -111,6 +92,16 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
          * Logistics are simpler if assumed in volumetric form by
          * multiplication of Area on either side of equation */
         intcp_max = elem->lc.cmcfactr * lai * elem->lc.shdfac;
+
+#ifdef _DEBUG_
+        if (i == 0)
+        {
+            printf ("Max is %lf (%lf * %lf * %lf)\n", intcp_max,
+                elem->lc.cmcfactr,
+                lai,
+                elem->lc.shdfac);
+        }
+#endif
 
         z0 = MonthlyRL (t, elem->attrib.lc_type);
 
@@ -128,16 +119,20 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
             (radnet * delta + gamma * (1.2 * LVH2O * (qvsat -
                     qv) / ra)) / (1000.0 * LVH2O * (delta + gamma));
 
-        if (elem->soil.depth - elem->ws0.gw < elem->ps.rzd)
+        if (elem->soil.depth - elem->ws.gw < elem->ps.rzd)
+        {
             satn = 1.0;
+        }
         else
+        {
             satn =
-                ((elem->ws0.unsat / (elem->soil.depth - elem->ws0.gw)) >
-                1.0) ? 1.0 : ((elem->ws0.unsat / (elem->soil.depth -
-                        elem->ws0.gw)) <
+                ((elem->ws.unsat / (elem->soil.depth - elem->ws.gw)) >
+                1.0) ? 1.0 : ((elem->ws.unsat / (elem->soil.depth -
+                        elem->ws.gw)) <
                 0.0) ? 0.0 : 0.5 * (1.0 -
-                cos (3.14 * (elem->ws0.unsat / (elem->soil.depth -
-                            elem->ws0.gw))));
+                cos (3.14 * (elem->ws.unsat / (elem->soil.depth -
+                            elem->ws.gw))));
+        }
 
         betas =
             (satn * elem->soil.porosity + elem->soil.smcmin -
@@ -150,18 +145,17 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
         /* Note the dependence on physical units */
         if (lai > 0.0)
         {
-            elem->wf.ec =
-                elem->lc.shdfac * (pow ((elem->ws.cmc <
-                        0.0 ? 0.0 : (elem->ws.cmc >
-                            intcp_max ? intcp_max : elem->ws.cmc)) /
-                    intcp_max, elem->lc.cfactr)) * etp;
+            elem->wf.ec = elem->lc.shdfac *
+                pow (((elem->ws.cmc < 0.0) ? 0.0 :
+                ((elem->ws.cmc > intcp_max) ? intcp_max : elem->ws.cmc)) /
+                    intcp_max, elem->lc.cfactr) * etp;
 			elem->wf.ec = elem->wf.ec * pihm->cal.ec;
             elem->wf.ec = elem->wf.ec < 0.0 ? 0.0 : elem->wf.ec;
 
             fr = 1.1 * radnet / (elem->epc.rgl * lai);
-            fr = fr < 0.0 ? 0.0 : fr;
+            fr = (fr < 0.0) ? 0.0 : fr;
             alphar = (1.0 + fr) / (fr + (elem->epc.rsmin / elem->epc.rsmax));
-            alphar = alphar > 10000.0 ? 10000.0 : alphar;
+            alphar = (alphar > 10000.0) ? 10000.0 : alphar;
             etas =
                 1.0 - 0.0016 * (pow ((elem->epc.topt - 273.15 - sfctmp), 2));
             etas = etas < 0.0001 ? 0.0001 : etas;
@@ -172,21 +166,20 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
 
             pc = (1.0 + delta / gamma) / (1.0 + rs / ra + delta / gamma);
 
-            elem->wf.ett =
-                elem->lc.shdfac * pc * (1.0 - pow (((elem->ws.cmc +
-                            snow_canopy <
-                            0.0) ? 0.0 : (elem->ws.cmc +
-                            snow_canopy)) / (intcp_max + snow_intcp_max),
-                    elem->lc.cfactr)) * etp;
+            elem->wf.ett = elem->lc.shdfac * pc *
+                (1.0 - pow ((elem->ws.cmc < 0.0) ? 0.0 :
+                ((elem->ws.cmc > intcp_max) ? intcp_max : elem->ws.cmc) /
+                intcp_max, elem->lc.cfactr)) * etp;
 			elem->wf.ett = elem->wf.ett * pihm->cal.ett;
             elem->wf.ett = elem->wf.ett < 0.0 ? 0.0 : elem->wf.ett;
             elem->wf.ett = ((elem->ws.gw < (elem->soil.depth - elem->ps.rzd))
                 && elem->ws.unsat <= 0.0) ? 0.0 : elem->wf.ett;
 
-            elem->wf.drip =
-                elem->ws.cmc <=
-                0.0 ? 0.0 : 5.65e-2 * intcp_max * exp (3.89 * (elem->ws.cmc <
-                    0.0 ? 0.0 : elem->ws.cmc) / intcp_max);
+            /* Drip function from Rutter and Morton, 1977, Journal of Applied
+             * Ecology
+             * D0 = 3.91E-5 m/min = 6.52E-7 m/s */
+            elem->wf.drip = (elem->ws.cmc <= 0.0) ? 0.0 :
+                6.52E-7 * intcp_max * exp (3.89 * elem->ws.cmc / intcp_max);
         }
         else
         {
@@ -196,102 +189,46 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
         }
 
         if (elem->wf.drip < 0.0)
+        {
             elem->wf.drip = 0.0;
+        }
         if (elem->wf.drip * stepsize > elem->ws.cmc)
+        {
             elem->wf.drip = elem->ws.cmc / stepsize;
-        if (elem->ws.cmc >= intcp_max)
-        {
-            if (((1.0 - frac_snow) * elem->wf.prcp * elem->lc.shdfac +
-                    melt_rate_canopy) >= elem->wf.ec + elem->wf.drip)
-            {
-                ret =
-                    elem->wf.drip + (elem->ws.cmc - intcp_max) / stepsize +
-                    (((1.0 - frac_snow) * elem->wf.prcp * elem->lc.shdfac +
-                        melt_rate_canopy) - (elem->wf.ec + elem->wf.drip));
-                isval = intcp_max;
-            }
-            else if ((((1.0 - frac_snow) * elem->wf.prcp * elem->lc.shdfac +
-                        melt_rate_canopy) < elem->wf.ec + elem->wf.drip) &&
-                (elem->ws.cmc + stepsize * ((1.0 -
-                            frac_snow) * elem->wf.prcp * elem->lc.shdfac +
-                        melt_rate_canopy - elem->wf.ec - elem->wf.drip) <=
-                    0.0))
-            {
-                elem->wf.ec =
-                    (elem->wf.ec / (elem->wf.ec +
-                        elem->wf.drip)) * (elem->ws.cmc / stepsize + ((1.0 -
-                            frac_snow) * elem->wf.prcp * elem->lc.shdfac +
-                        melt_rate_canopy));
-                ret =
-                    (elem->wf.drip / (elem->wf.ec +
-                        elem->wf.drip)) * (elem->ws.cmc / stepsize + ((1.0 -
-                            frac_snow) * elem->wf.prcp * elem->lc.shdfac +
-                        melt_rate_canopy));
-                isval = 0.0;
-            }
-            else
-            {
-                isval =
-                    elem->ws.cmc + stepsize * (((1.0 -
-                            frac_snow) * elem->wf.prcp * elem->lc.shdfac +
-                        melt_rate_canopy) - elem->wf.ec - elem->wf.drip);
-                ret = elem->wf.drip;
-            }
         }
-        else if ((elem->ws.cmc < intcp_max) &&
-            ((elem->ws.cmc + (((1.0 -
-                                frac_snow) * elem->wf.prcp * elem->lc.shdfac +
-                            melt_rate_canopy) - elem->wf.ec -
-                        elem->wf.drip) * stepsize) >= intcp_max))
+
+        isval = elem->ws.cmc +
+            (1.0 - frac_snow) * elem->wf.prcp * elem->lc.shdfac * stepsize -
+            elem->wf.ec * stepsize - elem->wf.drip * stepsize;
+
+        if (isval > intcp_max)
         {
-            isval = intcp_max;
-            ret =
-                elem->wf.drip + (((elem->ws.cmc + (((1.0 -
-                                    frac_snow) * elem->wf.prcp *
-                                elem->lc.shdfac + melt_rate_canopy) -
-                            elem->wf.ec - elem->wf.drip) * stepsize) -
-                    intcp_max)) / stepsize;
+            elem->ws.cmc = intcp_max;
+            elem->wf.drip += (isval - intcp_max) / stepsize;
         }
-        else if ((elem->ws.cmc < intcp_max) &&
-            ((elem->ws.cmc + (((1.0 -
-                                frac_snow) * elem->wf.prcp * elem->lc.shdfac +
-                            melt_rate_canopy) - elem->wf.ec -
-                        elem->wf.drip) * stepsize) <= 0.0))
+        else if (isval < 0.0)
         {
-            if ((elem->wf.ec > 0.0) || (elem->wf.drip > 0.0))
+            elem->ws.cmc = 0.0;
+            if (elem->wf.ec + elem->wf.drip > 0.0)
             {
-                elem->wf.ec =
-                    (elem->wf.ec / (elem->wf.ec +
-                        elem->wf.drip)) * (elem->ws.cmc / stepsize + ((1.0 -
-                            frac_snow) * elem->wf.prcp * elem->lc.shdfac +
-                        melt_rate_canopy));
-                ret =
-                    (elem->wf.drip / (elem->wf.ec +
-                        elem->wf.drip)) * (elem->ws.cmc / stepsize + ((1.0 -
-                            frac_snow) * elem->wf.prcp * elem->lc.shdfac +
-                        melt_rate_canopy));
+                elem->wf.ec = elem->wf.ec / (elem->wf.ec + elem->wf.drip) *
+                    (elem->ws.cmc +
+                    (1.0 - frac_snow) * elem->wf.prcp * elem->lc.shdfac *
+                    stepsize);
+                elem->wf.drip =
+                    elem->wf.drip / (elem->wf.ec + elem->wf.drip) *
+                    (elem->ws.cmc +
+                    (1.0 - frac_snow) * elem->wf.prcp * elem->lc.shdfac *
+                    stepsize);
             }
-            else
-            {
-                elem->wf.ec = 0.0;
-                ret = 0.0;
-            }
-            isval = 0.0;
         }
         else
         {
-            isval =
-                elem->ws.cmc + (((1.0 -
-                        frac_snow) * elem->wf.prcp * elem->lc.shdfac +
-                    melt_rate_canopy) - elem->wf.ec -
-                elem->wf.drip) * stepsize;
-            ret = elem->wf.drip;
+            elem->ws.cmc = isval;
         }
 
         elem->wf.pcpdrp =
             (1.0 - elem->lc.shdfac) * (1.0 - frac_snow) * elem->wf.prcp +
-            ret + melt_rate_grnd;
-        elem->wf.drip = ret;
-        elem->ws.cmc = isval;
+            elem->wf.drip + melt_rate;
     }
 }

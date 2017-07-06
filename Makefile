@@ -3,21 +3,59 @@
 # -----------------------------------------------------------------
 
 CC = gcc
-CFLAGS = -g -O0 -Wall
+CFLAGS = -g -O2
 
-SUNDIALS_PATH = ./sundials
+ifeq ($(WARNING), on)
+CFLAGS += -Wall -Wextra
+endif
+
+ifeq ($(DEBUG), on)
+CFLAGS += -O0
+endif
+
+ifneq ($(OMP), off)
+CFLAGS += -fopenmp
+endif
+
+CMAKETEST=$(shell cmake --version 2> /dev/null)
+
+ifeq ($(CMAKETEST),)
+CMAKE_EXIST = 0
+CMAKE_VERS = cmake-3.7.2-Linux-x86_64
+CMAKE = $(PWD)/$(CMAKE_VERS)/bin/cmake
+else
+CMAKE_EXIST = 1
+CMAKE=cmake
+endif
+
+CVODE_PATH = ./cvode/instdir
 
 SRCDIR = ./src
-LIBS = -lm
+LIBS = -lm -Wl,-rpath,$(CVODE_PATH)/lib
 INCLUDES = \
-	-I${SRCDIR}/include\
-	-I${SUNDIALS_PATH}/include\
-	-I${SUNDIALS_PATH}/include/cvode\
-	-I${SUNDIALS_PATH}/include/sundials
+	-I$(SRCDIR)/include\
+	-I$(CVODE_PATH)/include\
+	-I$(CVODE_PATH)/include/cvode\
+	-I$(CVODE_PATH)/include/sundials\
+	-I$(CVODE_PATH)/include/nvector
 
-LFLAGS = -L${SUNDIALS_PATH}/lib -lsundials_cvode -lsundials_nvecserial
+
+LFLAGS = -lsundials_cvode -L$(CVODE_PATH)/lib
+ifeq ($(CVODE_OMP), on)
+LFLAGS += -lsundials_nvecopenmp
+else
+LFLAGS += -lsundials_nvecserial
+endif
 
 SFLAGS = -D_PIHM_
+
+ifeq ($(CVODE_OMP), on)
+SFLAGS += -D_CVODE_OMP
+endif
+
+ifeq ($(DEBUG), on)
+SFLAGS += -D_DEBUG_
+endif
 
 SRCS_ = main.c\
 	forcing.c\
@@ -25,13 +63,16 @@ SRCS_ = main.c\
 	initialize.c\
 	is_sm_et.c\
 	lat_flow.c\
+	map_output.c\
 	misc_func.c\
+	ode.c\
 	pihm.c\
 	print.c\
 	read_alloc.c\
 	read_func.c\
 	river_flow.c\
 	soil.c\
+	time_func.c\
 	update.c\
 	vert_flow.c
 
@@ -52,7 +93,7 @@ MSG = "...  Compiling PIHM  ..."
 # Flux-PIHM
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm)
-  SFLAGS = -D_PIHM_ -D_NOAH_ 
+  SFLAGS += -D_NOAH_
   MODULE_SRCS_ = \
   	noah/lsm_func.c\
 	noah/lsm_init.c\
@@ -68,7 +109,7 @@ endif
 # RT-Flux-PIHM
 #-------------------
 #ifeq ($(MAKECMDGOALS),rt-flux-pihm)
-#  SFLAGS = -D_PIHM_ -D_RT_ -D_NOAH_
+#  SFLAGS += -D_RT_ -D_NOAH_
 #  MODULE_SRCS_=\
 #  	noah/coupling.c\
 #	noah/module_sf_noahlsm.c\
@@ -88,17 +129,15 @@ endif
 # Flux-PIHM-BGC
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
-  SFLAGS = -D_PIHM_ -D_NOAH_ -D_BGC_ -D_DAILY_
+  SFLAGS += -D_NOAH_ -D_BGC_ -D_DAILY_
   MODULE_SRCS_= \
-	bgc/annual_rates.c\
+	bgc/bgc.c\
 	bgc/bgc_init.c\
 	bgc/bgc_read.c\
 	bgc/bgc_spinup.c\
 	bgc/canopy_cond.c\
 	bgc/check_balance.c\
 	bgc/daily_allocation.c\
-	bgc/daily_bgc.c\
-	bgc/daymet.c\
 	bgc/decomp.c\
 	bgc/firstday.c\
 	bgc/get_co2.c\
@@ -106,9 +145,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/growth_resp.c\
 	bgc/maint_resp.c\
 	bgc/make_zero_flux_struct.c\
-	bgc/metarr_init.c\
 	bgc/mortality.c\
-	bgc/nleaching.c\
+	bgc/ntransport.c\
 	bgc/phenology.c\
 	bgc/photosynthesis.c\
 	bgc/precision_control.c\
@@ -116,10 +154,10 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/radtrans.c\
 	bgc/restart_io.c\
 	bgc/soilpsi.c\
-	bgc/state_update.c\
 	bgc/summary.c\
+	bgc/state_update.c\
 	bgc/zero_srcsnk.c\
-  	noah/daily.c\
+	noah/daily.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\
 	noah/lsm_read.c\
@@ -131,65 +169,38 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 endif
 
 #-------------------
-# Flux-PIHM-EnKF
-#-------------------
-ifeq ($(MAKECMDGOALS),flux-pihm-enkf)
-  CC = mpicc
-  SFLAGS = -D_PIHM_ -D_NOAH_ -D_ENKF_
-  MODULE_SRCS_ = \
-	enkf/cov_inflt.c\
-	enkf/da.c\
-	enkf/enkf.c\
-	enkf/enkf_func.c\
-	enkf/enkf_init.c\
-	enkf/enkf_print.c\
-	enkf/enkf_read.c\
-	enkf/obs_oper.c\
-	enkf/perturb.c\
-	enkf/pihm_paral.c\
-	noah/lsm_func.c\
-	noah/lsm_init.c\
-	noah/lsm_read.c\
-  	noah/noah.c\
-	spa/spa.c
-  MODULE_HEADERS_ = \
-  	include/enkf.h\
-  	include/spa.h 
-  EXECUTABLE = flux-pihm-enkf
-  MSG = "... Compiling Flux-PIHM-EnKF ..."
-endif
-
-#-------------------
 # Flux-PIHM-Cycles
 #-------------------
+CYCLES_PATH = ../Cycles_dev/src
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
-  SFLAGS = -D_PIHM_ -D_NOAH_ -D_CYCLES_ -D_DAILY_
+  SFLAGS += -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
-	cycles/Crop.c\
-	cycles/CropHarvest.c\
-	cycles/CropProcess.c\
-	cycles/CropThermalTime.c\
-	cycles/CropTranspiration.c\
 	cycles/cycles_func.c\
 	cycles/cycles_init.c\
   	cycles/cycles_read.c\
-	cycles/DailyOperation.c\
-	cycles/Fertilization.c\
-	cycles/FieldOperation.c\
-	cycles/Irrigation.c\
-	cycles/Residue.c\
-	cycles/Soil.c\
-	cycles/SoilCarbon.c\
-	cycles/SoilEvaporation.c\
-	cycles/SoilNitrogen.c\
-	cycles/SoilSolute.c\
-	cycles/Tillage.c\
 	noah/daily.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\
 	noah/lsm_read.c\
   	noah/noah.c\
 	spa/spa.c
+  CYCLES_SRCS_ = \
+	Crop.c\
+	CropHarvest.c\
+	CropProcess.c\
+	CropThermalTime.c\
+	CropTranspiration.c\
+	DailyOperation.c\
+	Fertilization.c\
+	FieldOperation.c\
+	Irrigation.c\
+	Residue.c\
+	Soil.c\
+	SoilCarbon.c\
+	SoilEvaporation.c\
+	SoilNitrogen.c\
+	SoilSolute.c\
+	Tillage.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."
@@ -203,7 +214,10 @@ MODULE_SRCS = $(patsubst %,$(SRCDIR)/%,$(MODULE_SRCS_))
 MODULE_HEADERS = $(patsubst %,$(SRCDIR)/%,$(MODULE_HEADERS_))
 MODULE_OBJS = $(MODULE_SRCS:.c=.o)
 
-.PHONY: all clean help sundials
+CYCLES_SRCS = $(patsubst %,$(CYCLES_PATH)/%,$(CYCLES_SRCS_))
+CYCLES_OBJS = $(CYCLES_SRCS:.c=.o)
+
+.PHONY: all clean help cvode cmake
 
 help:			## Show this help
 	@echo
@@ -216,27 +230,38 @@ help:			## Show this help
 	@echo "NOTE: Please always \"make clean\" when switching from one module to another!"
 	@echo
 
-all:			## Install sundials and compile PIHM
-all:	sundials pihm
+all:			## Install cvode and compile PIHM
+all:	cvode pihm
 
-sundials:		## Install sundials library
-sundials:
-	cd sundials; ./configure; make; make install; cd ../
-	@echo "SUNDIALS library installed."
+cmake:
+ifneq ($(CMAKE_EXIST),1)
+	@echo "Download CMake from cmake.org"
+	@wget https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz &> /dev/null
+	@echo
+	@echo "Extract $(CMAKE_VERS).tar.gz"
+	@tar xzf $(CMAKE_VERS).tar.gz
+endif
+cvode:			## Install cvode library
+cvode:	cmake
+	@echo "Install CVODE library"
+	@cd cvode && mkdir -p instdir && mkdir -p builddir
+	@cd $(CVODE_PATH) && $(CMAKE) -DCMAKE_INSTALL_PREFIX=../instdir -DEXAMPLES_ENABLE=OFF -DEXAMPLES_INSTALL=OFF ../
+	@cd $(CVODE_PATH) && make && make install
+	@echo "CVODE library installed."
+ifneq ($(CMAKE_EXIST),1)
+	@echo "Remove CMake files"
+	@$(RM) $(CMAKE_VERS).tar.gz -r $(CMAKE_VERS)
+endif
 
 pihm:			## Compile PIHM
 pihm:	$(OBJS)
+	@echo
+	@echo $(MSG)
+	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
 
 flux-pihm:		## Complile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
 flux-pihm: $(OBJS) $(MODULE_OBJS)
-	@echo
-	@echo $(MSG)
-	@echo
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
-
-flux-pihm-enkf:		## Complile Flux-PIHM-EnKF (Flux-PIHM EnKF data assimilation system)
-flux-pihm-enkf: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
@@ -250,14 +275,11 @@ flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
 flux-pihm-cycles:	## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
-flux-pihm-cycles: $(OBJS) $(MODULE_OBJS)
+flux-pihm-cycles: $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
-
-tool:
-	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o convert src/tool/convert.c
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS) $(LFLAGS) $(LIBS)
 
 %.o: %.c $(HEADERS) $(MODULE_HEADERS)
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@
@@ -267,4 +289,4 @@ clean:			## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o *~ pihm flux-pihm flux-pihm-bgc flux-pihm-cycles rt-flux-pihm flux-pihm-enkf
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm flux-pihm-bgc flux-pihm-cycles rt-flux-pihm

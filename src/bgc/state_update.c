@@ -1,20 +1,9 @@
-
-/*
- * state_update.c
- * Resolve the fluxes in bgc() daily loop to update state variables
- * 
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
 void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
     int woody, int evergreen)
 {
-    /* daily update of the carbon state variables */
+    /* Daily update of the carbon state variables */
 
     /* C state variables are updated below in the order of the relevant fluxes
      * in the daily model loop */
@@ -26,7 +15,7 @@ void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
      * negative would create big, unnecessary headaches. */
 
     /* Phenology fluxes */
-    /* leaf and fine root transfer growth */
+    /* Leaf and fine root transfer growth */
     cs->leafc += cf->leafc_transfer_to_leafc;
     cs->leafc_transfer -= cf->leafc_transfer_to_leafc;
     cs->frootc += cf->frootc_transfer_to_frootc;
@@ -60,7 +49,7 @@ void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
     cs->frootc -= cf->frootc_to_litr3c;
     cs->litr4c += cf->frootc_to_litr4c;
     cs->frootc -= cf->frootc_to_litr4c;
-    /* livewood turnover fluxes */
+    /* Livewood turnover fluxes */
     if (woody)
     {
         cs->deadstemc += cf->livestemc_to_deadstemc;
@@ -136,7 +125,7 @@ void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
     cs->soil4c -= cf->soil4_hr;
 
     /* Daily allocation fluxes */
-    /* daily leaf allocation fluxes */
+    /* Daily leaf allocation fluxes */
     cs->leafc += cf->cpool_to_leafc;
     cs->cpool -= cf->cpool_to_leafc;
     cs->leafc_storage += cf->cpool_to_leafc_storage;
@@ -242,7 +231,7 @@ void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
             cf->deadcrootc_storage_to_deadcrootc_transfer =
                 cs->deadcrootc_storage;
         }
-        /* update states variables */
+        /* Update states variables */
         cs->leafc_transfer += cf->leafc_storage_to_leafc_transfer;
         cs->leafc_storage -= cf->leafc_storage_to_leafc_transfer;
         cs->frootc_transfer += cf->frootc_storage_to_frootc_transfer;
@@ -269,29 +258,35 @@ void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
                 cf->deadcrootc_storage_to_deadcrootc_transfer;
         }
 
-        /* for deciduous system, force leafc and frootc to exactly 0.0 on the
+        /* For deciduous system, force leafc and frootc to exactly 0.0 on the
          * last day */
         if (!evergreen)
         {
-            if (cs->leafc < 1e-10)
+            if (cs->leafc < 1.0e-10)
+            {
                 cs->leafc = 0.0;
-            if (cs->frootc < 1e-10)
+            }
+            if (cs->frootc < 1.0e-10)
+            {
                 cs->frootc = 0.0;
+            }
         }
-    }                           /* end if allocation day */
+    }                           /* End if allocation day */
 }
 
-void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
-    int woody, int evergreen)
+void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
+    solute_struct *nsol, int alloc, int woody, int evergreen)
 {
     /* N state variables are updated below in the order of the relevant fluxes
      * in the daily model loop */
 
     /* NOTE: Mortality fluxes are all accounted for in a separate routine,
-     * which is to be called after this routine.  This is a special case where
+     * which is to be called after this routine. This is a special case where
      * the updating of state variables is order-sensitive, since otherwise the
      * complications of possibly having mortality fluxes drive the pools
      * negative would create big, unnecessary headaches. */
+
+    nsol->snksrc = 0.0;
 
     /* Phenology fluxes */
     /* Leaf and fine root transfer growth */
@@ -330,7 +325,7 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
     ns->frootn -= nf->frootn_to_litr3n;
     ns->litr4n += nf->frootn_to_litr4n;
     ns->frootn -= nf->frootn_to_litr4n;
-    /* live wood turnover to dead wood */
+    /* Live wood turnover to dead wood */
     ns->deadstemn += nf->livestemn_to_deadstemn;
     ns->livestemn -= nf->livestemn_to_deadstemn;
     ns->retransn += nf->livestemn_to_retransn;  /* N retranslocation */
@@ -341,9 +336,9 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
     ns->livecrootn -= nf->livecrootn_to_retransn;
 
     /* Nitrogen deposition */
-    ns->sminn += nf->ndep_to_sminn;
+    //nsol->snksrc += nf->ndep_to_sminn;
     ns->ndep_src += nf->ndep_to_sminn;
-    ns->sminn += nf->nfix_to_sminn;
+    //nsol->snksrc += nf->nfix_to_sminn;
     ns->nfix_src += nf->nfix_to_sminn;
 
     /* Litter and soil decomposition fluxes */
@@ -358,26 +353,34 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
     ns->soil1n += nf->litr1n_to_soil1n;
     ns->litr1n -= nf->litr1n_to_soil1n;
     if (nf->sminn_to_soil1n_l1 < 0.0)
+    {
         nf->sminn_to_nvol_l1s1 =
             -DENITRIF_PROPORTION * nf->sminn_to_soil1n_l1;
+    }
     else
+    {
         nf->sminn_to_nvol_l1s1 = 0.0;
+    }
     ns->soil1n += nf->sminn_to_soil1n_l1;
-    ns->sminn -= nf->sminn_to_soil1n_l1;
+    nsol->snksrc -= nf->sminn_to_soil1n_l1;
     ns->nvol_snk += nf->sminn_to_nvol_l1s1;
-    ns->sminn -= nf->sminn_to_nvol_l1s1;
+    nsol->snksrc -= nf->sminn_to_nvol_l1s1;
 
     ns->soil2n += nf->litr2n_to_soil2n;
     ns->litr2n -= nf->litr2n_to_soil2n;
     if (nf->sminn_to_soil2n_l2 < 0.0)
+    {
         nf->sminn_to_nvol_l2s2 =
             -DENITRIF_PROPORTION * nf->sminn_to_soil2n_l2;
+    }
     else
+    {
         nf->sminn_to_nvol_l2s2 = 0.0;
+    }
     ns->soil2n += nf->sminn_to_soil2n_l2;
-    ns->sminn -= nf->sminn_to_soil2n_l2;
+    nsol->snksrc -= nf->sminn_to_soil2n_l2;
     ns->nvol_snk += nf->sminn_to_nvol_l2s2;
-    ns->sminn -= nf->sminn_to_nvol_l2s2;
+    nsol->snksrc -= nf->sminn_to_nvol_l2s2;
 
     ns->litr2n += nf->litr3n_to_litr2n;
     ns->litr3n -= nf->litr3n_to_litr2n;
@@ -385,66 +388,82 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
     ns->soil3n += nf->litr4n_to_soil3n;
     ns->litr4n -= nf->litr4n_to_soil3n;
     if (nf->sminn_to_soil3n_l4 < 0.0)
+    {
         nf->sminn_to_nvol_l4s3 =
             -DENITRIF_PROPORTION * nf->sminn_to_soil3n_l4;
+    }
     else
+    {
         nf->sminn_to_nvol_l4s3 = 0.0;
+    }
     ns->soil3n += nf->sminn_to_soil3n_l4;
-    ns->sminn -= nf->sminn_to_soil3n_l4;
+    nsol->snksrc -= nf->sminn_to_soil3n_l4;
     ns->nvol_snk += nf->sminn_to_nvol_l4s3;
-    ns->sminn -= nf->sminn_to_nvol_l4s3;
+    nsol->snksrc -= nf->sminn_to_nvol_l4s3;
 
     ns->soil2n += nf->soil1n_to_soil2n;
     ns->soil1n -= nf->soil1n_to_soil2n;
     if (nf->sminn_to_soil2n_s1 < 0.0)
+    {
         nf->sminn_to_nvol_s1s2 =
             -DENITRIF_PROPORTION * nf->sminn_to_soil2n_s1;
+    }
     else
+    {
         nf->sminn_to_nvol_s1s2 = 0.0;
+    }
     ns->soil2n += nf->sminn_to_soil2n_s1;
-    ns->sminn -= nf->sminn_to_soil2n_s1;
+    nsol->snksrc -= nf->sminn_to_soil2n_s1;
     ns->nvol_snk += nf->sminn_to_nvol_s1s2;
-    ns->sminn -= nf->sminn_to_nvol_s1s2;
+    nsol->snksrc -= nf->sminn_to_nvol_s1s2;
 
     ns->soil3n += nf->soil2n_to_soil3n;
     ns->soil2n -= nf->soil2n_to_soil3n;
     if (nf->sminn_to_soil3n_s2 < 0.0)
+    {
         nf->sminn_to_nvol_s2s3 =
             -DENITRIF_PROPORTION * nf->sminn_to_soil3n_s2;
+    }
     else
+    {
         nf->sminn_to_nvol_s2s3 = 0.0;
+    }
     ns->soil3n += nf->sminn_to_soil3n_s2;
-    ns->sminn -= nf->sminn_to_soil3n_s2;
+    nsol->snksrc -= nf->sminn_to_soil3n_s2;
     ns->nvol_snk += nf->sminn_to_nvol_s2s3;
-    ns->sminn -= nf->sminn_to_nvol_s2s3;
+    nsol->snksrc -= nf->sminn_to_nvol_s2s3;
 
     ns->soil4n += nf->soil3n_to_soil4n;
     ns->soil3n -= nf->soil3n_to_soil4n;
     if (nf->sminn_to_soil4n_s3 < 0.0)
+    {
         nf->sminn_to_nvol_s3s4 =
             -DENITRIF_PROPORTION * nf->sminn_to_soil4n_s3;
+    }
     else
+    {
         nf->sminn_to_nvol_s3s4 = 0.0;
+    }
     ns->soil4n += nf->sminn_to_soil4n_s3;
-    ns->sminn -= nf->sminn_to_soil4n_s3;
+    nsol->snksrc -= nf->sminn_to_soil4n_s3;
     ns->nvol_snk += nf->sminn_to_nvol_s3s4;
-    ns->sminn -= nf->sminn_to_nvol_s3s4;
+    nsol->snksrc -= nf->sminn_to_nvol_s3s4;
 
     nf->sminn_to_nvol_s4 = DENITRIF_PROPORTION * nf->soil4n_to_sminn;
-    ns->sminn += nf->soil4n_to_sminn;
+    nsol->snksrc += nf->soil4n_to_sminn;
     ns->soil4n -= nf->soil4n_to_sminn;
     ns->nvol_snk += nf->sminn_to_nvol_s4;
-    ns->sminn -= nf->sminn_to_nvol_s4;
+    nsol->snksrc -= nf->sminn_to_nvol_s4;
 
     /* Bulk denitrification of soil mineral N */
-    ns->sminn -= nf->sminn_to_denitrif;
+    nsol->snksrc -= nf->sminn_to_denitrif;
     ns->nvol_snk += nf->sminn_to_denitrif;
 
     /* Plant allocation flux, from N retrans pool and soil mineral N pool */
     ns->npool += nf->retransn_to_npool;
     ns->retransn -= nf->retransn_to_npool;
     ns->npool += nf->sminn_to_npool;
-    ns->sminn -= nf->sminn_to_npool;
+    nsol->snksrc -= nf->sminn_to_npool;
 
     /* Daily allocation fluxes */
     /* Daily leaf allocation fluxes */
@@ -502,7 +521,7 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
             nf->deadcrootn_storage_to_deadcrootn_transfer =
                 ns->deadcrootn_storage;
         }
-        /* update states variables */
+        /* Update states variables */
         ns->leafn_transfer += nf->leafn_storage_to_leafn_transfer;
         ns->leafn_storage -= nf->leafn_storage_to_leafn_transfer;
         ns->frootn_transfer += nf->frootn_storage_to_frootn_transfer;
@@ -526,14 +545,21 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns, int alloc,
             ns->deadcrootn_storage -=
                 nf->deadcrootn_storage_to_deadcrootn_transfer;
         }
-        /* for deciduous system, force leafn and frootn to exactly 0.0 on the
+        /* For deciduous system, force leafn and frootn to exactly 0.0 on the
          * last day */
         if (!evergreen)
         {
-            if (ns->leafn < 1e-10)
+            if (ns->leafn < 1.0e-10)
+            {
                 ns->leafn = 0.0;
-            if (ns->frootn < 1e-10)
+            }
+            if (ns->frootn < 1.0e-10)
+            {
                 ns->frootn = 0.0;
+            }
         }
-    }                           /* end if annual allocation day */
+    }                           /* End if annual allocation day */
+
+    nsol->snksrc /= DAYINSEC;
 }
+

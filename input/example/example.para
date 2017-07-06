@@ -1,4 +1,4 @@
-INIT_MODE	    0                   # Initialization type 0: Relaxation, 1: use .att file, 3: use .init file
+INIT_MODE	    0                   # Initialization type 0: relaxation, 1: use .init file
 ASCII_OUTPUT        1                   # Write ASCII output? 0: no, 1: yes
 TECPLOT_OUTPUT      1                   # Write Tecplot output? 0: no, 1: yes
 CVODE_PERF	    0                   # Write CVODE stats?  0: no, 1: yes
@@ -21,35 +21,34 @@ MODEL_STEPSIZE	    60                  # PIHM step size (unit: s)
 #  All options are listed below.                                              #
 #  Use "#" to comment out the variables you do not want to output, or set     #
 #  the output interval (in secends) to 0.                                     #
-###############################################################################
-SURF		    3600
-UNSAT		    3600
-GW		    3600
-RIVSTG		    3600
-RIVGW               3600
-SNOW		   0
-CMC		    0
-INFIL               0
-RECHARGE	    0
-EC                  0
-ETT                 0
-EDIR		    0
-RIVFLX0             0
-RIVFLX1	    	    0
-RIVFLX2             0
-RIVFLX3	            0
-RIVFLX4    	    0
-RIVFLX5    	    0
-RIVFLX6    	    0
-RIVFLX7    	    0
-RIVFLX8             0
-RIVFLX9    	    0
-RIVFLX10    	    0
-SUBFLX              0
-SURFFLX             0
-SURFTEC		    3600
-UNSATTEC            3600
-GWTEC		    3600
-RIVSTGTEC	    3600
-RIVGWTEC            3600
-IC		   3600
+###############################################################################SURF		    HOURLY
+UNSAT		    HOURLY
+GW		    HOURLY
+RIVSTG		    HOURLY
+RIVGW               HOURLY
+SNOW		    HOURLY
+CMC		    HOURLY
+INFIL               HOURLY
+RECHARGE	    HOURLY
+EC                  HOURLY
+ETT                 HOURLY
+EDIR		    HOURLY
+RIVFLX0             HOURLY
+RIVFLX1	    	    HOURLY
+RIVFLX2             HOURLY
+RIVFLX3	            HOURLY
+RIVFLX4    	    HOURLY
+RIVFLX5    	    HOURLY
+RIVFLX6    	    HOURLY
+RIVFLX7    	    HOURLY
+RIVFLX8             HOURLY
+RIVFLX9    	    HOURLY
+RIVFLX10    	    HOURLY
+SUBFLX              HOURLY
+SURFFLX             HOURLY
+SURFTEC		    HOURLY
+UNSATTEC            HOURLY
+GWTEC		    HOURLY
+RIVSTGTEC	    HOURLY
+RIVGWTEC            HOURLY
+IC		   HOURLY

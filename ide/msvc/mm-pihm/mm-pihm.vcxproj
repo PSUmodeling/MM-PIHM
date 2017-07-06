@@ -298,7 +298,9 @@
     <ClCompile Include="..\..\..\src\is_sm_et.c" />
     <ClCompile Include="..\..\..\src\lat_flow.c" />
     <ClCompile Include="..\..\..\src\main.c" />
+    <ClCompile Include="..\..\..\src\map_output.c" />
     <ClCompile Include="..\..\..\src\misc_func.c" />
+    <ClCompile Include="..\..\..\src\ode.c" />
     <ClCompile Include="..\..\..\src\optparse.c" />
     <ClCompile Include="..\..\..\src\pihm.c" />
     <ClCompile Include="..\..\..\src\print.c" />
@@ -306,12 +308,12 @@
     <ClCompile Include="..\..\..\src\read_func.c" />
     <ClCompile Include="..\..\..\src\river_flow.c" />
     <ClCompile Include="..\..\..\src\soil.c" />
+    <ClCompile Include="..\..\..\src\time_func.c" />
     <ClCompile Include="..\..\..\src\update.c" />
     <ClCompile Include="..\..\..\src\vert_flow.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\include\elem_struct.h" />
-    <ClInclude Include="..\..\..\src\include\enkf.h" />
     <ClInclude Include="..\..\..\src\include\optparse.h" />
     <ClInclude Include="..\..\..\src\include\pihm.h" />
     <ClInclude Include="..\..\..\src\include\pihm_const.h" />

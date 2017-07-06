@@ -33,6 +33,7 @@ typedef struct attrib_struct
  * zmax                     double      surface elevation [m]
  * edge                     double[]    length of edge (Edge i is from node i
  *                                        to node i + 1) [m]
+ * nabrdist                 double[]    distance to neighbor [m]
  * nabrdist_x               double[]    distance to neighbor in x direction
  *                                        [m]
  * nabrdist_y               double[]    distance to neighbor in y direction
@@ -59,6 +60,7 @@ typedef struct topo_struct
     double          zmin;
     double          zmax;
     double          edge[NUM_EDGE];
+    double          nabrdist[NUM_EDGE];
     double          nabrdist_x[NUM_EDGE];
     double          nabrdist_y[NUM_EDGE];
 	double			distSurf[NUM_EDGE];
@@ -194,6 +196,7 @@ typedef struct soil_struct
     double          NO3_Denitrification;
     double          N2O_Denitrification;
     double          NH4_Volatilization;
+    double          Rock[MAXLYR];
 #endif
 } soil_struct;
 
@@ -522,6 +525,7 @@ typedef struct pstate_struct
     double          rtdis[MAXLYR];
     int             nsoil;
     double          sldpth[MAXLYR];
+    double          zsoil[MAXLYR];
     double          soilw;
     double          frzk;
     double          frzx;
@@ -576,12 +580,13 @@ typedef struct pstate_struct
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * surf                     double      surface water level [m]
+ * surf                     double      equivalent surface water level [m]
  * unsat                    double      unsaturated zone water storage [m]
  * gw                       double      groundwater level [m]
  * sneqv                    double      liquid water-equivalent snow depth [m]
  * cmcmax                   double      maximum canopy water capacity [m]
  * cmc                      double      interception storage [m]
+ * surfh                    double      actual surface water level [m]
  * ---------------------------------------------------------------------------
  * Variables below only used in Flux-PIHM
  * ---------------------------------------------------------------------------
@@ -598,6 +603,7 @@ typedef struct wstate_struct
     double          sneqv;
     double          cmcmax;
     double          cmc;
+    double          surfh;
 #ifdef _NOAH_
     double          smc[MAXLYR];
     double          sh2o[MAXLYR];
@@ -758,11 +764,8 @@ typedef struct estate_struct
  * ---------------------------------------------------------------------------
  * Variables below only used in Flux-PIHM-BGC
  * ---------------------------------------------------------------------------
- * swabs                    double      canopy absorbed shortwave flux [W m-2]
- * swtrans                  double      transmitted shortwave flux [W m-2]
  * swabs_per_plaisun        double      swabs per unit sunlit proj LAI [W m-2]
  * swabs_per_plaishade      double      swabs per unit shaded proj LAI [W m-2]
- * parabs                   double      PAR absorbed by canopy [W m-2]
  ****************************************************************************/
 typedef struct eflux_struct
 {
@@ -788,11 +791,8 @@ typedef struct eflux_struct
     double          flx3;
 #endif
 #ifdef _BGC_
-    double          swabs;
-    double          swtrans;
     double          swabs_per_plaisun;
     double          swabs_per_plaishade;
-    double          parabs;
 #endif
 } eflux_struct;
 
@@ -1015,6 +1015,16 @@ typedef struct soilc_struct
     double          annualNitrateLeaching;
     double          annualAmmoniumLeaching;
 } soilc_struct;
+
+typedef struct cyclesic_struct
+{
+    double          SOC_Mass[MAXLYR];
+    double          SON_Mass[MAXLYR];
+    double          MBC_Mass[MAXLYR];
+    double          MBN_Mass[MAXLYR];
+    double          NO3[MAXLYR];
+    double          NH4[MAXLYR];
+} cyclesic_struct;
 #endif
 
 /*****************************************************************************
@@ -1133,27 +1143,30 @@ typedef struct bgcic_struct
     double          sminn;
     double          retransn;
     double          npool;
-    double          day_leafc_litfall_increment;
-    double          day_frootc_litfall_increment;
-    double          day_livestemc_turnover_increment;
-    double          day_livecrootc_turnover_increment;
-    double          annmax_leafc;
-    double          annmax_frootc;
-    double          annmax_livestemc;
-    double          annmax_livecrootc;
+    double          prev_leafc_to_litter;
+    double          prev_frootc_to_litter;
     double          dsr;
-    double          dormant_flag;
-    double          onset_flag;
-    double          onset_counter;
-    double          onset_gddflag;
+    int             dormant_flag;
+    int             onset_flag;
+    int             onset_counter;
+    int             onset_gddflag;
     double          onset_fdd;
     double          onset_gdd;
     double          onset_swi;
-    double          offset_flag;
-    double          offset_counter;
+    int             offset_flag;
+    int             offset_counter;
     double          offset_fdd;
     double          offset_swi;
 } bgcic_struct;
+
+typedef struct spinup_struct
+{
+    double          soilc_prev;
+    double          totalc_prev;
+    double          soilc;
+    double          totalc;
+    int             steady;
+} spinup_struct;
 #endif
 
 #ifdef _CYCLES_
@@ -1197,20 +1210,17 @@ typedef struct solute_struct
  * avg_gw                   double      daily average groundwater level [m]
  * avg_sh2o                 double      daily average unfrozen soil moisture
  *                                        content [m3 m-3]
- * avg_ovlflow              double[]    daily average overland flow [m3 s-1]
- * avg_subsurf              double[]    daily average subsurface flow [m3 s-1]
- * avg_et                   double[]    daily average evaportranspiration
- *                                        [m s-1]
  * avg_smflxv               double[]    daily average vertical soil moisture
  *                                        flux [m s-1]
- * dayl                     double      day length [s]
- * prev_dayl                double      day length of previous day [s]
+ * avg_et                   double[]    daily average evaportranspiration
+ *                                        [m s-1]
  * avg_q2d                  double      daily average mixing ratio deficit
  *                                        [kg kg-1]
  * avg_sfcprs               double      daily average air pressure [Pa]
  * avg_ch                   double      daily average surface exchange
- *                                        coefficient for heat and moisture
- *                                        [m s-1]
+ *                                        coefficient [m s-1]
+ * avg_rc                   double      dailly average stomatal resistance
+ *                                        [s m-1]
  * avg_albedo               double      daily average surface albedo [-]
  * avg_sfcspd               double      daily average wind speed [m s-1]
  * avg_sncovr               double      daily average snow cover fraction [-]
@@ -1228,96 +1238,32 @@ typedef struct daily_struct
 {
     int             counter;
     int             daylight_counter;
-
     double          avg_surf;
     double          avg_unsat;
     double          avg_gw;
     double          avg_sh2o[MAXLYR];
-
-    double          avg_ovlflow[NUM_EDGE];
-    double          avg_subsurf[NUM_EDGE];
-    double          avg_et[MAXLYR];
+    double          avg_smc[MAXLYR];
     double          avg_smflxv[MAXLYR];
-
-    double          dayl;
-    double          prev_dayl;
+    double          avg_et[MAXLYR];
     double          avg_q2d;
     double          avg_sfcprs;
     double          avg_ch;
+    double          avg_rc;
     double          avg_albedo;
     double          avg_sfcspd;
     double          avg_sncovr;
-
     double          tmax;
     double          tmin;
     double          avg_sfctmp;
     double          tday;
     double          tnight;
     double          avg_stc[MAXLYR];
-
     double          avg_soldn;
     double          solar_total;
 } daily_struct;
 #endif
 
 #ifdef _BGC_
-/*****************************************************************************
- * Storage of daily average (only used in Flux-PIHM-BGC)
- * ---------------------------------------------------------------------------
- * Variables                Type        Description
- * ==========               ==========  ====================
- * flag                     int*        flag indicating storage status
- * dayl                     double*     day length [s]
- * prev_dayl                double*     day length of previous day [s]
- * tmax                     double*     daily maximum air temperature [K]
- * tmin                     double*     daily minimum air temperature [K]
- * sfctmp                   double*     daily average air temperature [K]
- * tday                     double*     daytime average air temperature [K]
- * tnight                   double*     nighttime average air temperature [K]
- * q2d                      double*     daily average mixing ratio deficit
- *                                *       [kg kg-1]
- * sfcprs                   double*     daily average air pressure [Pa]
- * avg_soldn                double*     daytime average downward solar
- *                                *       radiation [W m-2]
- * avg_stc[MAXLYR]          double*     daily average soil temperature [K]
- * avg_sh2o                 double*     daily average unfrozen soil moisture
- *                                *       content [m3 m-3]
- * avg_surf                 double*     daily average surface water level [m]
- * avg_unsat                double*     daily average unsaturated water
- *                                *       storage [m]
- * avg_gw                   double*     daily average groundwater level [m]
- * avg_albedo               double*     daily average surface albedo [-]
- * avg_ch                   double*     daily average surface exchange
- *                                       coefficient for heat and moisture
- *                                       [m s-1]
- * surfflx                  double[]*   daily average overland flow [m3 s-1]
- * subsurfflx               double[]*   daily average subsurface flow [m3 s-1]
- ****************************************************************************/
-typedef struct stor_struct
-{
-    int            *flag;
-    double         *dayl;       /* (s)     daylength */
-    double         *prev_dayl;
-    double         *tmax;       /* (deg C) daily maximum air temperature */
-    double         *tmin;       /* (deg C) daily minimum air temperature */
-    double         *sfctmp;     /* (deg C) daily average temperature */
-    double         *tday;
-    double         *tnight;
-    double         *q2d;        /* (m3/m3) mixing ratio deficit */
-    double         *sfcprs;
-    double         *soldn;      /* (W/m2)  daylight avg shortwave flux density */
-    double         *stc[MAXLYR];
-    double         *sh2o[MAXLYR];
-    double         *surf;
-    double         *unsat;
-    double         *gw;
-    double         *albedo;
-    double         *ch;
-    double         *surfflx[NUM_EDGE];
-    double         *subsurfflx[NUM_EDGE];
-} stor_struct;
-
-
 /*****************************************************************************
  * Carbon state variables (including sums for sources and sinks)
  * ---------------------------------------------------------------------------
@@ -1543,9 +1489,9 @@ typedef struct cstate_struct
  *                                        [kgC m-2 day-1]
  * frootc_to_litr4c         double      leaf and fine root litterfall
  *                                        [kgC m-2 day-1]
- * leaf_day_mr              double      maintenance respiration flux
+ * leaf_day_mr              double      daytime maintenance respiration flux
  *                                        [kgC m-2 day-1]
- * leaf_night_mr            double      maintenance respiration flux
+ * leaf_night_mr            double      night maintenance respiration flux
  *                                        [kgC m-2 day-1]
  * froot_mr                 double      maintenance respiration flux
  *                                        [kgC m-2 day-1]
@@ -1856,6 +1802,7 @@ typedef struct cflux_struct
  *                                        [kgN m-2]
  * soil4n                   double      recalcitrant SOM N (humus, slowest)
  *                                        [kgN m-2]
+ * surfn                    double      surface mineral N [kgN m-2]
  * sminn                    double      soil mineral N [kgN m-2]
  * retransn                 double      plant pool of retranslocated N
  *                                        [kgN m-2]
@@ -1896,6 +1843,7 @@ typedef struct nstate_struct
     double          soil2n;
     double          soil3n;
     double          soil4n;
+	double          surfn;
     double          sminn;
     double          retransn;
     double          npool;
@@ -2236,6 +2184,10 @@ typedef struct nflux_struct
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
+ * surfn0                   double      surface N of previous time step
+ *                                        [kg N m-2]
+ * sminn0                   double      subsurface N of previous time step
+ *                                        [kg N m-2]
  * mineralized              double      N mineralization [kgN m-2 day-1]
  * potential_immob          double      potential N immobilization [kgN m-2]
  * plitr1c_loss             double      potential loss from litter labile pool
@@ -2269,6 +2221,8 @@ typedef struct nflux_struct
  ****************************************************************************/
 typedef struct ntemp_struct
 {
+	double          surfn0;
+    double          sminn0;
     double          mineralized;
     double          potential_immob;
     double          plitr1c_loss;
@@ -2287,47 +2241,15 @@ typedef struct ntemp_struct
     double          kl4;
 } ntemp_struct;
 
-
-/*****************************************************************************
- * Daily phenological data array
- * ---------------------------------------------------------------------------
- * Variables                Type        Description
- * ==========               ==========  ====================
- * remdays_curgrowth        double      days left in current growth season
- * remdays_transfer         double      number of transfer days remaining
- * remdays_litfall          double      number of litfall days remaining
- * predays_transfer         double      number of transfer days previous
- * predays_litfall          double      number of litfall days previous
- ****************************************************************************/
-typedef struct phenology_struct
-{
-    double          remdays_curgrowth;
-    double          remdays_transfer;
-    double          remdays_litfall;
-    double          predays_transfer;
-    double          predays_litfall;
-} phenology_struct;
-
-
 /*****************************************************************************
  * Ecophysiological variables
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * day_leafc_litfall_increment
- *                          double      rate leaf litfall [kgC m-2 day-1]
- * day_frootc_litfall_increment
- *                          double      rate froot litfall [kgC m-2 day-1]
- * day_livestemc_turnover_increment
- *                          double      rate livestem turnover [kgC m-2 day-1]
- * day_livecrootc_turnover_increment
- *                          double      rate livecroot turnover [kgC m-2 day-1]
- * annmax_leafc             double      annual maximum daily leaf C [kgC m-2]
- * annmax_frootc            double      annual maximum daily froot C [kgC m-2]
- * annmax_livestemc         double      annual maximum daily livestem C
- *                                        [kgC m-2]
- * annmax_livecrootc        double      annual maximum daily livecroot C
- *                                        [kgC m-2]
+ * bg_leafc_litfall_rate    double      rate leaf litfall [kgC m-2 s-1]
+ * bg_frootc_litfall_rate   double      rate froot litfall [kgC m-2 s-1]
+ * livestemc_turnover_rate  double      rate livestem turnover [kgC m-2 s-1]
+ * livecrootc_turnover_rate double      rate livecroot turnover [kgC m-2 s-1]
  * dsr                      double      number of days since rain
  * sun_proj_sla             double      sunlit projected SLA [m2 kgC-1]
  * shade_proj_sla           double      shaded projected SLA [m2 kgC-1]
@@ -2347,8 +2269,6 @@ typedef struct phenology_struct
  * t_scalar                 double      decomp temperature scalar [-]
  * w_scalar                 double      decomp water scalar [-]
  * rate_scalar              double      decomp combined scalar [-]
- * daily_gross_nmin         double      daily gross N mineralization
- *                                        [kgN m-2 d-1]
  * daily_gross_nimmob       double      daily gross N immobilization
  *                                        [kgN m-2 d-1]
  * daily_net_nmin           double      daily net N mineralization
@@ -2365,21 +2285,18 @@ typedef struct phenology_struct
  * m_final_sun              double      product of all other multipliers [-]
  * m_final_shade            double      product of all other multipliers [-]
  * ytd_maxplai              double      year-to-date maximum projected LAI [-]
- * dormant_flag             double      dormancy flag
+ * dormant_flag             int         dormancy flag
  * days_active              double      number of days since last dormancy
- * onset_flag               double      onset flag
- * onset_counter            double      onset days counter
- * onset_gddflag            double      onset flag for growing degree day sum
+ * onset_flag               int         onset flag
+ * onset_counter            int         onset days counter
+ * onset_gddflag            int         onset flag for growing degree day sum
  * onset_fdd                double      onset freezing degree days counter
  * onset_gdd                double      onset growing degree days
  * onset_swi                double      onset soil water index
- * offset_flag              double      offset flag
- * offset_counter           double      offset days counter
+ * offset_flag              int         offset flag
+ * offset_counter           int         offset days counter
  * offset_fdd               double      offset freezing degree days counter
  * offset_swi               double      offset soil water index
- * lgsf                     double      long growing season factor (0-1)
- * bglfr                    double      background litterfall rate [s-1]
- * bgtr                     double      background transfer growth rate [s-1]
  * annavg_t2m               double      annual average 2m air temperature [K]
  * gpp                      double      GPP flux before downregulation
  *                                        [gC m-2 s-1]
@@ -2394,14 +2311,10 @@ typedef struct phenology_struct
  ****************************************************************************/
 typedef struct epvar_struct
 {
-    double          day_leafc_litfall_increment;
-    double          day_frootc_litfall_increment;
-    double          day_livestemc_turnover_increment;
-    double          day_livecrootc_turnover_increment;
-    double          annmax_leafc;
-    double          annmax_frootc;
-    double          annmax_livestemc;
-    double          annmax_livecrootc;
+    double          bg_leafc_litfall_rate;
+    double          bg_frootc_litfall_rate;
+    double          livestemc_turnover_rate;
+    double          livecrootc_turnover_rate;
     double          dsr;
     double          sun_proj_sla;
     double          shade_proj_sla;
@@ -2415,7 +2328,6 @@ typedef struct epvar_struct
     double          t_scalar;
     double          w_scalar;
     double          rate_scalar;
-    double          daily_gross_nmin;
     double          daily_gross_nimmob;
     double          daily_net_nmin;
     double          fpi;
@@ -2428,45 +2340,27 @@ typedef struct epvar_struct
     double          m_final_sun;
     double          m_final_shade;
     double          ytd_maxplai;
-    double          dormant_flag;
+    int             dormant_flag;
     double          days_active;
-    double          onset_flag;
-    double          onset_counter;
-    double          onset_gddflag;
+    int             onset_flag;
+    int             onset_counter;
+    int             onset_gddflag;
     double          onset_fdd;
     double          onset_gdd;
     double          onset_swi;
-    double          offset_flag;
-    double          offset_counter;
+    int             offset_flag;
+    int             offset_counter;
     double          offset_fdd;
     double          offset_swi;
-    double          lgsf;
-    double          bglfr;
-    double          bgtr;
     double          annavg_t2m;
     double          gpp;
     double          prev_leafc_to_litter;
     double          prev_frootc_to_litter;
     double          old_c_balance;
     double          old_n_balance;
+    double          dayl;
+    double          prev_dayl;
 } epvar_struct;
-
-
-/*****************************************************************************
- * Carbon state initialization structure
- * ---------------------------------------------------------------------------
- * Variables                Type        Description
- * ==========               ==========  ====================
- * max_leafc                double      first-year displayed + stored leafc
- *                                        [kgC m-2]
- * max_stemc                double      first-year total stem carbon [kgC m-2]
- ****************************************************************************/
-typedef struct cinit_struct
-{
-    double          max_leafc;
-    double          max_stemc;
-} cinit_struct;
-
 
 /*****************************************************************************
  * Structure for the photosynthesis routine
@@ -2481,7 +2375,7 @@ typedef struct cinit_struct
  *                                        [kg Nleaf m-2]
  * flnr                     double      fract. of leaf N in Rubisco
  *                                        [kg NRub/kg Nleaf]
- * ppfd                     double      PAR flux per unit sunlit leaf area 
+ * ppfd                     double      PAR flux per unit sunlit leaf area
  *                                        [umol m-2 s-1]
  * g                        double      conductance to CO2 [umol m-2 s-1 Pa-1]
  * dlmr                     double      day leaf maintenance respiration,
@@ -2542,7 +2436,7 @@ typedef struct psn_struct
  *                                        [kgC m-2 day-1]
  * daily_gr                 double      growth respiration [kgC m-2 day-1]
  * daily_hr                 double      heterotrophic respiration
- *                                        [kgC m-2 day-1]
+ * daily_                                 [kgC m-2 day-1]
  * daily_fire               double      fire losses [kgC m-2 day-1]
  * daily_litfallc           double      total litterfall [kgC m-2 day-1]
  * cum_npp                  double      Summed over entire simulation
@@ -2591,6 +2485,17 @@ typedef struct summary_struct
     double          soilc;
     double          totalc;
 } summary_struct;
+
+typedef struct solute_struct
+{
+	double          conc_surf;
+	double          conc_subsurf;
+	double          infilflux;
+	double          snksrc;
+	double          ovlflux[NUM_EDGE];
+	double          subflux[NUM_EDGE];
+} solute_struct;
+
 #endif
 
 /*****************************************************************************
@@ -2623,14 +2528,10 @@ typedef struct elem_struct
     wflux_struct    wf;
     estate_struct   es;
     eflux_struct    ef;
-#ifdef _NOAH_
-    wflux_struct    avgwf;
-#endif
     pstate_struct   ps;
 #ifdef _DAILY_
     daily_struct    daily;
 #endif
-
 #ifdef _CYCLES_
     cropmgmt_struct cropmgmt;
     comm_struct     comm;
@@ -2640,12 +2541,11 @@ typedef struct elem_struct
     snow_struct     snow;
     solute_struct   NO3sol;
     solute_struct   NH4sol;
+    cyclesic_struct cycles_restart;
 #endif
 #ifdef _BGC_
     bgcic_struct    restart_input;
     bgcic_struct    restart_output;
-    stor_struct     stor;
-    cinit_struct    cinit;
     cstate_struct   cs;
     cflux_struct    cf;
     nstate_struct   ns;
@@ -2654,8 +2554,9 @@ typedef struct elem_struct
     psn_struct      psn_shade;
     ntemp_struct    nt;
     summary_struct  summary;
-    phenology_struct phen;
     epvar_struct    epv;
+    solute_struct   nsol;
+    spinup_struct   spinup;
 #endif
 } elem_struct;
 #endif

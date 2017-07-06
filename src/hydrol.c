@@ -1,61 +1,23 @@
 #include "pihm.h"
 
-int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
+void Hydrol (pihm_struct pihm)
 {
-    int             i, j;
-    double         *y;
-    double         *dy;
-    double          dt;
-    pihm_struct     pihm;
-    elem_struct    *elem;
-    river_struct   *riv;
-
-
-#ifdef _OPENMP
-	y = NV_DATA_OMP(CV_Y);
-	dy = NV_DATA_OMP(CV_Ydot);
-#else
-	y = NV_DATA_S(CV_Y);
-	dy = NV_DATA_S(CV_Ydot);
-#endif
-    pihm = (pihm_struct)pihm_data;
-
-    dt = (double)pihm->ctrl.stepsize;
-
-    /*
-     * Initialization of temporary state variables 
-     */
-    for (i = 0; i < 3 * pihm->numele + 2 * pihm->numriv; i++)
-    {
-        dy[i] = 0.0;
-    }
-
-    for (i = 0; i < pihm->numele; i++)
-    {
-        elem = &pihm->elem[i];
-
-        elem->ws.surf = (y[SURF(i)] >= 0.0) ? y[SURF(i)] : 0.0;
-        elem->ws.unsat = (y[UNSAT(i)] >= 0.0) ? y[UNSAT(i)] : 0.0;
-        elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
-    }
-
-    for (i = 0; i < pihm->numriv; i++)
-    {
-        riv = &pihm->riv[i];
-
-        riv->ws.stage = (y[RIVSTG (i)] >= 0.0) ? y[RIVSTG (i)] : 0.0;
-        riv->ws.gw = (y[RIVGW (i)] >= 0.0) ? y[RIVGW (i)] : 0.0;
-
-        riv->wf.rivflow[UP_CHANL2CHANL] = 0.0;
-        riv->wf.rivflow[UP_AQUIF2AQUIF] = 0.0;
-    }
+    int             i;
 
     /*
      * Determine source of ET
      */
-    for (i = 0; i < pihm->numele; i++)
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
     {
+        elem_struct *elem;
+
         elem = &pihm->elem[i];
+
+        /* Calculate actual surface water depth */
+        elem->ws.surfh = SurfH (elem->ws.surf);
 
         /* Source of direct evaporation */
 #ifdef _NOAH_
@@ -72,7 +34,7 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             elem->wf.edir_gw = 0.0;
         }
 #else
-        if (elem->ws.surf >= DEPRSTG)
+        if (elem->ws.surfh >= DEPRSTG)
         {
             elem->wf.edir_surf = elem->wf.edir;
             elem->wf.edir_unsat = 0.0;
@@ -120,86 +82,31 @@ int Hydrol (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     LateralFlow (pihm);
 
     RiverFlow (pihm);
+}
 
+double SurfH (double surfeqv)
+{
     /*
-     * RHS of ODEs
+     * Following Panday and Huyakorn (2004) AWR:
+     * Use a parabolic curve to express the equivalent surface water depth
+     * (surfeqv) in terms of actual flow depth (surfh) when the actual flow
+     * depth is below depression storage; assume that
+     * d(surfeqv) / d(surfh) = 1.0 when surfh = DEPRSTG
      */
-    for (i = 0; i < pihm->numele; i++)
+    double          surfh;
+
+    if (surfeqv < 0.0)
     {
-        elem = &pihm->elem[i];
-
-        dy[SURF(i)] += elem->wf.pcpdrp - elem->wf.infil - elem->wf.edir_surf;
-        dy[UNSAT(i)] += elem->wf.infil - elem->wf.rechg -
-            elem->wf.edir_unsat - elem->wf.ett_unsat;
-        dy[GW(i)] += elem->wf.rechg - elem->wf.edir_gw - elem->wf.ett_gw;
-
-        for (j = 0; j < 3; j++)
-        {
-            dy[SURF(i)] -= elem->wf.ovlflow[j] / elem->topo.area;
-            dy[GW(i)] -= elem->wf.subsurf[j] / elem->topo.area;
-        }
-
-        dy[UNSAT(i)] /= elem->soil.porosity;
-        dy[GW(i)] /= elem->soil.porosity;
-
-        if (isnan (dy[SURF(i)]))
-        {
-            PIHMprintf (VL_ERROR,
-                "Error: NAN error for Element %d (surface water) at %lf\n",
-                i + 1, t);
-            PIHMexit (EXIT_FAILURE);
-        }
-        if (isnan (dy[UNSAT(i)]))
-        {
-            PIHMprintf (VL_ERROR,
-                "Error: NAN error for Element %d (unsat water) at %lf\n",
-                i + 1, t);
-            PIHMexit (EXIT_FAILURE);
-        }
-        if (isnan (dy[GW(i)]))
-        {
-            PIHMprintf (VL_ERROR,
-                "Error: NAN error for Element %d (groundwater) at %lf\n",
-                i + 1, t);
-            PIHMexit (EXIT_FAILURE);
-        }
+        surfh = 0.0;
+    }
+    else if (surfeqv <= 0.5 * DEPRSTG)
+    {
+        surfh = sqrt (2.0 * DEPRSTG * surfeqv);
+    }
+    else
+    {
+        surfh = DEPRSTG + (surfeqv - 0.5 * DEPRSTG);
     }
 
-    for (i = 0; i < pihm->numriv; i++)
-    {
-        riv = &(pihm->riv[i]);
-
-        for (j = 0; j <= 6; j++)
-        {
-            /* Note the limitation due to
-             * d(v)/dt=a*dy/dt+y*da/dt
-             * for cs other than rectangle */
-            dy[RIVSTG (i)] -= riv->wf.rivflow[j] / riv->topo.area;
-        }
-
-        dy[RIVGW (i)] += 0.0 -
-            riv->wf.rivflow[LEFT_AQUIF2AQUIF] -
-            riv->wf.rivflow[RIGHT_AQUIF2AQUIF] -
-            riv->wf.rivflow[DOWN_AQUIF2AQUIF] -
-            riv->wf.rivflow[UP_AQUIF2AQUIF] + riv->wf.rivflow[CHANL_LKG];
-
-        dy[RIVGW (i)] /= riv->matl.porosity * riv->topo.area;
-
-        if (isnan (dy[RIVSTG (i)]))
-        {
-            PIHMprintf (VL_ERROR,
-                "Error: NAN error for River Segment %d (river stage) at %lf\n",
-                i + 1, t);
-            PIHMexit (EXIT_FAILURE);
-        }
-        if (isnan (dy[RIVGW (i)]))
-        {
-            PIHMprintf (VL_ERROR,
-                "Error: NAN error for River Segment %d (groundwater) at"
-                "%lf\n", i + 1, t);
-            PIHMexit (EXIT_FAILURE);
-        }
-    }
-
-    return (0);
+    return (surfh);
 }

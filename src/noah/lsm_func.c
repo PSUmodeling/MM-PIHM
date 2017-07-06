@@ -94,6 +94,8 @@ double TopoRadn (double sdir, double sdif, double zenith,
     double          gvf;
     double          soldown;
 
+    azimuth180 = Mod ((360.0 + azimuth180), 360.0);
+
     if (zenith > h_phi[(int)floor (azimuth180 / 10.0)])
     {
         sdir = 0.0;
@@ -115,20 +117,20 @@ double TopoRadn (double sdir, double sdif, double zenith,
     return (soldown);
 }
 
-void DefSldpth (double *sldpth, int *nsoil, double total_depth,
+void DefSldpth (double *sldpth, int *nsoil, double *zsoil, double total_depth,
     const double *std_sldpth, int std_nsoil)
 {
     int             j, k;
-    double          zsoil[MAXLYR];
+    double          std_zsoil[MAXLYR];
 
-    zsoil[0] = std_sldpth[0];
+    std_zsoil[0] = std_sldpth[0];
 
     for (j = 1; j < MAXLYR; j++)
     {
-        zsoil[j] = zsoil[j - 1] + std_sldpth[j];
+        std_zsoil[j] = std_zsoil[j - 1] + std_sldpth[j];
     }
 
-    if (total_depth <= zsoil[0])
+    if (total_depth <= std_zsoil[0])
     {
         sldpth[0] = total_depth;
         *nsoil = 1;
@@ -137,17 +139,17 @@ void DefSldpth (double *sldpth, int *nsoil, double total_depth,
             sldpth[j] = BADVAL;
         }
     }
-    else if (total_depth <= zsoil[std_nsoil - 1])
+    else if (total_depth <= std_zsoil[std_nsoil - 1])
     {
         for (j = 1; j < std_nsoil + 1; j++)
         {
-            if (total_depth <= zsoil[j])
+            if (total_depth <= std_zsoil[j])
             {
                 for (k = 0; k < j; k++)
                 {
                     sldpth[k] = std_sldpth[k];
                 }
-                sldpth[j] = total_depth - zsoil[j - 1];
+                sldpth[j] = total_depth - std_zsoil[j - 1];
                 *nsoil = j + 1;
 
                 /* The following calculations gurantee that each layer is
@@ -172,7 +174,7 @@ void DefSldpth (double *sldpth, int *nsoil, double total_depth,
         {
             sldpth[j] = std_sldpth[j];
         }
-        sldpth[std_nsoil] = total_depth - zsoil[std_nsoil - 1];
+        sldpth[std_nsoil] = total_depth - std_zsoil[std_nsoil - 1];
         *nsoil = std_nsoil + 1;
         if (sldpth[std_nsoil] < sldpth[std_nsoil - 1])
         {
@@ -181,9 +183,18 @@ void DefSldpth (double *sldpth, int *nsoil, double total_depth,
             *nsoil -= 1;
         }
     }
+
+    /* Calculate depth (negative) below ground from top skin sfc to bottom of
+     * each soil layer.  note:  sign of zsoil is negative (denoting below
+     * ground) */
+    zsoil[0] = -sldpth[0];
+    for (k = 1; k < *nsoil; k++)
+    {
+        zsoil[k] = -sldpth[k] + zsoil[k - 1];
+    }
 }
 
-void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
+void CalcSlopeAspect (elem_struct *elem, const meshtbl_struct *meshtbl)
 {
     const int       XCOMP = 0;
     const int       YCOMP = 1;
@@ -203,13 +214,13 @@ void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
     int             ind, ind1, ind2;
     int             i, j, k;
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
-            x[j] = meshtbl.x[elem[i].node[j] - 1];
-            y[j] = meshtbl.y[elem[i].node[j] - 1];
-            zmax[j] = meshtbl.zmax[elem[i].node[j] - 1];
+            x[j] = meshtbl->x[elem[i].node[j] - 1];
+            y[j] = meshtbl->y[elem[i].node[j] - 1];
+            zmax[j] = meshtbl->zmax[elem[i].node[j] - 1];
         }
 
         edge_vector[0][XCOMP] = x[0] - x[2];
@@ -265,9 +276,9 @@ void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
         }
 
         /* Consider every edge of every triangular grid */
-        for (j = 0; j < numele; j++)
+        for (j = 0; j < nelem; j++)
         {
-            for (k = 0; k < 3; k++)
+            for (k = 0; k < NUM_EDGE; k++)
             {
                 switch (k)
                 {
@@ -284,12 +295,12 @@ void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
                         nodes[1] = 1;
                         break;
                 }
-                x1 = meshtbl.x[elem[j].node[nodes[0]] - 1];
-                y1 = meshtbl.y[elem[j].node[nodes[0]] - 1];
-                z1 = meshtbl.zmax[elem[j].node[nodes[0]] - 1];
-                x2 = meshtbl.x[elem[j].node[nodes[1]] - 1];
-                y2 = meshtbl.y[elem[j].node[nodes[1]] - 1];
-                z2 = meshtbl.zmax[elem[j].node[nodes[1]] - 1];
+                x1 = meshtbl->x[elem[j].node[nodes[0]] - 1];
+                y1 = meshtbl->y[elem[j].node[nodes[0]] - 1];
+                z1 = meshtbl->zmax[elem[j].node[nodes[0]] - 1];
+                x2 = meshtbl->x[elem[j].node[nodes[1]] - 1];
+                y2 = meshtbl->y[elem[j].node[nodes[1]] - 1];
+                z2 = meshtbl->zmax[elem[j].node[nodes[1]] - 1];
 
                 xc = 0.5 * (x1 + x2);
                 yc = 0.5 * (y1 + y2);
@@ -385,17 +396,6 @@ void CalcSlopeAspect (elem_struct *elem, int numele, meshtbl_struct meshtbl)
 
             elem[i].topo.svf += 0.5 / PI * integrable * 10.0 / 180.0 * PI;
         }
-
-#ifdef _DEBUG_
-        PIHMprintf (VL_NORMAL,
-            "ele: slope = %lf, aspect = %lf, svf = %lf\t",
-            elem[i].topo.slope, elem[i].topo.aspect, elem[i].topo.svf);
-        for (ind = 0; ind < 36; ind++)
-        {
-            PIHMprintf (VL_NORMAL, "%lf\t", elem[i].topo.h_phi[ind]);
-        }
-        PIHMprintf (VL_NORMAL, "\n");
-#endif
     }
 }
 
@@ -444,40 +444,36 @@ void RootDist (const double *sldpth, int nsoil, int nroot, double *rtdis)
 }
 
 void SunPos (int t, double latitude, double longitude, double elevation,
-    double tmp, double *zenith, double *azimuth)
+    double tmp, spa_data *spa)
 {
-    spa_data        spa;
     int             spa_result;
-    time_t          rawtime;
-    struct tm      *timestamp;
+    pihm_t_struct   pihm_time;
 
-    rawtime = (time_t) t;
-    timestamp = gmtime (&rawtime);
+    pihm_time = PIHMTime (t);
 
-    spa.year = timestamp->tm_year + 1900;
-    spa.month = timestamp->tm_mon + 1;
-    spa.day = timestamp->tm_mday;
-    spa.hour = timestamp->tm_hour;
-    spa.minute = timestamp->tm_min;
-    spa.second = timestamp->tm_sec;
-    spa.timezone = 0;
+    spa->year = pihm_time.year;
+    spa->month = pihm_time.month;
+    spa->day = pihm_time.day;
+    spa->hour = pihm_time.hour;
+    spa->minute = pihm_time.minute;
+    spa->second = 0;
+    spa->timezone = 0;
 
-    spa.delta_t = 67;
-    spa.delta_ut1 = 0;
-    spa.atmos_refract = 0.5667;
+    spa->delta_t = 67;
+    spa->delta_ut1 = 0;
+    spa->atmos_refract = 0.5667;
 
-    spa.longitude = longitude;
-    spa.latitude = latitude;
+    spa->longitude = longitude;
+    spa->latitude = latitude;
+    spa->elevation = elevation;
 
-    spa.elevation = elevation;
+    /* Calculate surface pressure based on FAO 1998 method (Narasimhan 2002)*/
+    spa->pressure =
+        1013.25 * pow ((293.0 - 0.0065 * spa->elevation) / 293.0, 5.26);
+    spa->temperature = tmp;
 
-    /* Calculate surface pressure based on fao 1998 method (narasimhan 2002) */
-    spa.pressure =
-        1013.25 * pow ((293.0 - 0.0065 * spa.elevation) / 293.0, 5.26);
-    spa.temperature = tmp;
-
-    spa.function = SPA_ZA;
-    spa_result = spa_calculate (&spa);
+    spa->function = SPA_ZA_RTS;
+    spa_result = spa_calculate (spa);
 
     if (spa_result != 0)
     {
@@ -486,8 +482,6 @@ void SunPos (int t, double latitude, double longitude, double elevation,
         PIHMexit (EXIT_FAILURE);
     }
 
-    *azimuth = Mod ((360.0 + spa.azimuth180), 360.0);
-    *zenith = spa.zenith;
 }
 
 void CalHum (pstate_struct *ps, estate_struct *es)
@@ -550,82 +544,37 @@ double FrozRain (double prcp, double sfctmp)
     return (ffrozp);
 }
 
-void AvgFlux (elem_struct *elem, int numele, int op)
-{
-    static int      counter;
-    int             i, j, k;
-    double          denom;
-
-    if (op == SUM)
-    {
-        for (i = 0; i < numele; i++)
-        {
-            elem[i].avgwf.infil += elem[i].wf.infil;
-            elem[i].avgwf.runoff2 += elem[i].wf.runoff2;
-
-            for (j = 0; j < 3; j++)
-            {
-                elem[i].avgwf.subsurf[j] += elem[i].wf.subsurf[j];
-
-                for (k = 0; k < elem[i].ps.nsoil; k++)
-                {
-                    elem[i].avgwf.smflxh[j][k] += elem[i].wf.smflxh[j][k];
-                }
-            }
-        }
-        counter++;
-    }
-    else
-    {
-        denom = (counter == 0) ? 1.0 : (double)counter;
-
-        for (i = 0; i < numele; i++)
-        {
-            elem[i].avgwf.infil /= denom;
-            elem[i].avgwf.runoff2 /= denom;
-
-            for (j = 0; j < 3; j++)
-            {
-                elem[i].avgwf.subsurf[j] /= denom;
-
-                for (k = 0; k < elem[i].ps.nsoil; k++)
-                {
-                    elem[i].avgwf.smflxh[j][k] /= denom;
-                }
-            }
-        }
-        counter = 0;
-    }
-}
-
-double AvgElev (elem_struct *elem, int numele)
+double AvgElev (elem_struct *elem)
 {
     double          elev = 0.0;
     int             i;
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         elev += elem[i].topo.zmax;
     }
 
-    elev /= (double)numele;
+    elev /= (double)nelem;
 
     return (elev);
 }
 
-void CalcLatFlx (const wstate_struct *ws, const pstate_struct *ps,
-    wflux_struct *wf)
+void CalcLatFlx (const pstate_struct *ps, wflux_struct *wf, double area)
 {
     double          sattot;
-    int             k, ks;
+    int             ks;
 
-    for (k = 0; k < 3; k++)
+#ifdef _CYCLES_
+    int             k;
+
+    for (k = 0; k < NUM_EDGE; k++)
     {
         for (ks = 0; ks < MAXLYR; ks++)
         {
             wf->smflxh[k][ks] = 0.0;
         }
     }
+#endif
 
     /* Determine runoff from each layer */
     sattot = 0;
@@ -634,18 +583,30 @@ void CalcLatFlx (const wstate_struct *ws, const pstate_struct *ps,
         sattot += ps->satdpth[ks];
     }
 
-    for (k = 0; k < 3; k++)
+    if (sattot <= 0.0)
     {
-        if (sattot <= 0.0)
+        wf->runoff2_lyr[ps->nsoil - 1] = wf->runoff2;
+
+#ifdef _CYCLES_
+        for (k = 0; k < NUM_EDGE; k++)
         {
-            wf->smflxh[k][ps->nsoil - 1] = wf->subsurf[k];
+            wf->smflxh[k][ps->nsoil - 1] = wf->subsurf[k] / area;
         }
-        else
+#endif
+    }
+    else
+    {
+        for (ks = 0; ks < ps->nsoil; ks++)
         {
-            for (ks = 0; ks < ps->nsoil; ks++)
+            wf->runoff2_lyr[ks] = ps->satdpth[ks] / sattot * wf->runoff2;
+
+#ifdef _CYCLES_
+            for (k = 0; k < NUM_EDGE; k++)
             {
-                wf->smflxh[k][ks] = ps->satdpth[ks] / sattot * wf->subsurf[k];
+                wf->smflxh[k][ks] =
+                    ps->satdpth[ks] / sattot * wf->subsurf[k] / area;
             }
+#endif
         }
     }
 }

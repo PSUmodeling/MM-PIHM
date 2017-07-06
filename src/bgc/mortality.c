@@ -1,30 +1,19 @@
-
-/* 
- * mortality.c
- * daily mortality fluxes
- * 
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
 void Mortality (const epconst_struct *epc, cstate_struct *cs,
     cflux_struct *cf, nstate_struct *ns, nflux_struct *nf)
 {
     double          mort;
-    /* dead stem combustion proportion */
-    double          dscp = 0.2;
+    /* Dead stem combustion proportion */
+    const double    DSCP = 0.2;
 
     /*
      * Non-fire mortality: these fluxes all enter litter or CWD pools
      */
     mort = epc->daily_mortality_turnover;
 
-    /* daily carbon fluxes due to mortality */
-    /* mortality fluxes out of leaf and fine root pools */
+    /* Daily carbon fluxes due to mortality */
+    /* Mortality fluxes out of leaf and fine root pools */
     cf->m_leafc_to_litr1c = mort * cs->leafc * epc->leaflitr_flab;
     cf->m_leafc_to_litr2c = mort * cs->leafc * epc->leaflitr_fucel;
     cf->m_leafc_to_litr3c = mort * cs->leafc * epc->leaflitr_fscel;
@@ -34,7 +23,7 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
     cf->m_frootc_to_litr3c = mort * cs->frootc * epc->frootlitr_fscel;
     cf->m_frootc_to_litr4c = mort * cs->frootc * epc->frootlitr_flig;
 
-    /* mortality fluxes out of storage and transfer pools */
+    /* Mortality fluxes out of storage and transfer pools */
     cf->m_leafc_storage_to_litr1c = mort * cs->leafc_storage;
     cf->m_frootc_storage_to_litr1c = mort * cs->frootc_storage;
     cf->m_livestemc_storage_to_litr1c = mort * cs->livestemc_storage;
@@ -55,14 +44,14 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
     {
         cf->m_livestemc_to_cwdc = mort * cs->livestemc;
         cf->m_deadstemc_to_cwdc =
-            (mort + (1.0 - dscp) * epc->daily_fire_turnover) * cs->deadstemc;
+            (mort + (1.0 - DSCP) * epc->daily_fire_turnover) * cs->deadstemc;
         cf->m_livecrootc_to_cwdc = mort * cs->livecrootc;
         cf->m_deadcrootc_to_cwdc =
-            (mort + (1.0 - dscp) * epc->daily_fire_turnover) * cs->deadcrootc;
+            (mort + (1.0 - DSCP) * epc->daily_fire_turnover) * cs->deadcrootc;
     }
 
-    /* daily nitrogen fluxes due to mortality */
-    /* mortality fluxes out of leaf and fine root pools */
+    /* Daily nitrogen fluxes due to mortality */
+    /* Mortality fluxes out of leaf and fine root pools */
     nf->m_leafn_to_litr1n = cf->m_leafc_to_litr1c / epc->leaf_cn;
     nf->m_leafn_to_litr2n = cf->m_leafc_to_litr2c / epc->leaf_cn;
     nf->m_leafn_to_litr3n = cf->m_leafc_to_litr3c / epc->leaf_cn;
@@ -72,7 +61,7 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
     nf->m_frootn_to_litr3n = cf->m_frootc_to_litr3c / epc->froot_cn;
     nf->m_frootn_to_litr4n = cf->m_frootc_to_litr4c / epc->froot_cn;
 
-    /* mortality fluxes out of storage and transfer */
+    /* Mortality fluxes out of storage and transfer */
     nf->m_leafn_storage_to_litr1n = mort * ns->leafn_storage;
     nf->m_frootn_storage_to_litr1n = mort * ns->frootn_storage;
     nf->m_livestemn_storage_to_litr1n = mort * ns->livestemn_storage;
@@ -87,7 +76,7 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
     nf->m_deadcrootn_transfer_to_litr1n = mort * ns->deadcrootn_transfer;
     nf->m_retransn_to_litr1n = mort * ns->retransn;
 
-    /* woody-specific nitrogen fluxes */
+    /* Woody-specific nitrogen fluxes */
     if (epc->woody)
     {
         nf->m_livestemn_to_cwdn = cf->m_livestemc_to_cwdc / epc->deadwood_cn;
@@ -102,8 +91,8 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
             cf->m_deadcrootc_to_cwdc / epc->deadwood_cn;
     }
 
-    /* update state variables */
-    /* this is the only place other than daily_state_update() routines where
+    /* Update state variables */
+    /* This is the only place other than daily_state_update() routines where
      * state variables get changed.  Mortality is taken care of last and
      * given special treatment for state update so that it doesn't interfere
      * with the other fluxes that are based on proportions of state variables,
@@ -232,18 +221,17 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
         ns->deadcrootn -= nf->m_deadcrootn_to_cwdn;
     }
 
-    /************************************************************/
-    /* Fire mortality: these fluxes all enter atmospheric sinks */
-
-    /************************************************************/
+    /*
+     * Fire mortality: these fluxes all enter atmospheric sinks
+     */
     mort = epc->daily_fire_turnover;
 
-    /* daily carbon fluxes due to mortality */
-    /* mortality fluxes out of leaf and fine root pools */
+    /* Daily carbon fluxes due to mortality */
+    /* Mortality fluxes out of leaf and fine root pools */
     cf->m_leafc_to_fire = mort * cs->leafc;
     cf->m_frootc_to_fire = mort * cs->frootc;
 
-    /* mortality fluxes out of storage and transfer pools */
+    /* Mortality fluxes out of storage and transfer pools */
     cf->m_leafc_storage_to_fire = mort * cs->leafc_storage;
     cf->m_frootc_storage_to_fire = mort * cs->frootc_storage;
     cf->m_livestemc_storage_to_fire = mort * cs->livestemc_storage;
@@ -263,12 +251,12 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
     if (epc->woody)
     {
         cf->m_livestemc_to_fire = mort * cs->livestemc;
-        cf->m_deadstemc_to_fire = dscp * mort * cs->deadstemc;
+        cf->m_deadstemc_to_fire = DSCP * mort * cs->deadstemc;
         cf->m_livecrootc_to_fire = mort * cs->livecrootc;
-        cf->m_deadcrootc_to_fire = dscp * mort * cs->deadcrootc;
+        cf->m_deadcrootc_to_fire = DSCP * mort * cs->deadcrootc;
     }
 
-    /* litter and CWD fire fluxes */
+    /* Litter and CWD fire fluxes */
     cf->m_litr1c_to_fire = mort * cs->litr1c;
     cf->m_litr2c_to_fire = mort * cs->litr2c;
     cf->m_litr3c_to_fire = mort * cs->litr3c;
@@ -276,12 +264,12 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
     cf->m_cwdc_to_fire = 0.30 * mort * cs->cwdc;
 
 
-    /* daily nitrogen fluxes due to mortality */
-    /* mortality fluxes out of leaf and fine root pools */
+    /* Daily nitrogen fluxes due to mortality */
+    /* Mortality fluxes out of leaf and fine root pools */
     nf->m_leafn_to_fire = cf->m_leafc_to_fire / epc->leaf_cn;
     nf->m_frootn_to_fire = cf->m_frootc_to_fire / epc->froot_cn;
 
-    /* mortality fluxes out of storage and transfer */
+    /* Mortality fluxes out of storage and transfer */
     nf->m_leafn_storage_to_fire = mort * ns->leafn_storage;
     nf->m_frootn_storage_to_fire = mort * ns->frootn_storage;
     nf->m_livestemn_storage_to_fire = mort * ns->livestemn_storage;
@@ -296,25 +284,25 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
     nf->m_deadcrootn_transfer_to_fire = mort * ns->deadcrootn_transfer;
     nf->m_retransn_to_fire = mort * ns->retransn;
 
-    /* woody-specific nitrogen fluxes */
+    /* Woody-specific nitrogen fluxes */
     if (epc->woody)
     {
         nf->m_livestemn_to_fire = mort * ns->livestemn;
-        nf->m_deadstemn_to_fire = dscp * mort * ns->deadstemn;
+        nf->m_deadstemn_to_fire = DSCP * mort * ns->deadstemn;
         nf->m_livecrootn_to_fire = mort * ns->livecrootn;
-        nf->m_deadcrootn_to_fire = dscp * mort * ns->deadcrootn;
+        nf->m_deadcrootn_to_fire = DSCP * mort * ns->deadcrootn;
     }
 
-    /* litter and CWD fire fluxes */
+    /* Litter and CWD fire fluxes */
     nf->m_litr1n_to_fire = mort * ns->litr1n;
     nf->m_litr2n_to_fire = mort * ns->litr2n;
     nf->m_litr3n_to_fire = mort * ns->litr3n;
     nf->m_litr4n_to_fire = mort * ns->litr4n;
     nf->m_cwdn_to_fire = 0.30 * mort * ns->cwdn;
 
-    /* update state variables for fire fluxes */
-    /* this is the only place other than daily_state_update() routines where
-     * state variables get changed.  Mortality is taken care of last and 
+    /* Update state variables for fire fluxes */
+    /* This is the only place other than daily_state_update() routines where
+     * state variables get changed.  Mortality is taken care of last and
      * given special treatment for state update so that it doesn't interfere
      * with the other fluxes that are based on proportions of state variables,
      * especially the phenological fluxes */
@@ -425,7 +413,7 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
         ns->fire_snk += nf->m_deadcrootn_to_fire;
         ns->deadcrootn -= nf->m_deadcrootn_to_fire;
     }
-    /* litter and CWD nitrogen state updates */
+    /* Litter and CWD nitrogen state updates */
     ns->fire_snk += nf->m_litr1n_to_fire;
     ns->litr1n -= nf->m_litr1n_to_fire;
     ns->fire_snk += nf->m_litr2n_to_fire;

@@ -1,0 +1,47 @@
+KSATH		5.0	# Horizontal saturated hydraulic conductivity
+KSATV		1.0	# Vertital saturated hydraulic conductivity
+KINF		1.0	# Infiltration conductivity
+KMACSATH	4.0	# Horizontal saturated macropore hydraulic conductivity
+KMACSATV	1.0	# Vertital saturated macropore hydraulic conductivity
+DINF		1.0	# Infiltration depth
+DROOT		1.0	# Rooting depth
+DMAC		1.6	# Macropore depth
+POROSITY	0.78
+ALPHA		1.0
+BETA		1.14
+MACVF		5.0
+MACHF		5.0
+VEGFRAC		1.0
+ALBEDO		1.0
+ROUGH		1.0
+EC		1.0
+<<<<<<< HEAD
+ETT		0.5     
+EDIR		0.5
+=======
+ETT		1.0
+EDIR		1.0
+>>>>>>> master
+ROUGH_RIV	1.0     # 50
+KRIVH	        1.0     # 10
+KRIVV		1.0     # 50
+BEDTHCK		1.0
+RIV_DPTH	1.0
+RIV_WDTH	1.0
+
+LSM_CALIBRATION
+DRIP		1.0
+CMCMAX		2.0
+RS		1.0
+CZIL		0.7
+FXEXP		1.0
+CFACTR		1.0
+RGL		1.0
+HS		1.0
+REFSMC		1.0
+WLTSMC		1.0
+
+SCENARIO
+PRCP            1.0     # Multiplier
+SFCTMP          0.0     # Offset in K
+:

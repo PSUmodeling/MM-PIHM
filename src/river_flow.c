@@ -2,36 +2,7 @@
 
 void RiverFlow (pihm_struct pihm)
 {
-    river_struct   *riv;
-    river_struct   *down;
-    elem_struct    *left;
-    elem_struct    *right;
-
     int             i;
-    double          total_y;
-    double          perim;
-    double          total_y_down;
-    double          perim_down;
-    double          avg_perim;
-    double          avg_rough;
-    double          distance;
-    double          dif_y;
-    double          grad_y;
-    double          avg_sf;
-    double          crossa;
-    double          crossa_down;
-    double          avg_crossa;
-    double          avg_y;
-    double          wid;
-    double          avg_ksat;
-    double          effk_nabr;
-    double          effk;
-    double          aquifer_depth;
-    double          grad_y_sub;
-    double          avg_y_sub;
-    double          dif_y_sub;
-    double          wid_down;
-    double          avg_wid;
     double          dt;
 
     dt = (double)pihm->ctrl.stepsize;
@@ -40,8 +11,38 @@ void RiverFlow (pihm_struct pihm)
      * Lateral flux calculation between river-river and river-triangular
      * elements
      */
-    for (i = 0; i < pihm->numriv; i++)
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < nriver; i++)
     {
+        river_struct *riv;
+        river_struct *down;
+        elem_struct  *left;
+        elem_struct  *right;
+        double      total_y;
+        double      perim;
+        double      total_y_down;
+        double      perim_down;
+        double      avg_perim;
+        double      avg_rough;
+        double      distance;
+        double      dif_y;
+        double      grad_y;
+        double      avg_sf;
+        double      crossa;
+        double      crossa_down;
+        double      avg_crossa;
+        double      avg_y;
+        double      avg_ksat;
+        double      effk_nabr;
+        double      effk;
+        double      aquifer_depth;
+        double      grad_y_sub;
+        double      avg_y_sub;
+        double      dif_y_sub;
+        double      avg_wid;
+
         riv = &pihm->riv[i];
 
         total_y = riv->ws.stage + riv->topo.zbed;
@@ -53,29 +54,24 @@ void RiverFlow (pihm_struct pihm)
 
             /* Lateral flux calculation between river-river element */
             total_y_down = down->ws.stage + down->topo.zbed;
-            perim_down =
-                RivPerim (down->shp.intrpl_ord, down->ws.stage,
+            perim_down = RivPerim (down->shp.intrpl_ord, down->ws.stage,
                 down->shp.coeff);
             avg_perim = (perim + perim_down) / 2.0;
             avg_rough = (riv->matl.rough + down->matl.rough) / 2.0;
             distance = 0.5 * (riv->shp.length + down->shp.length);
-            dif_y =
-                (pihm->ctrl.riv_mode ==
-                1) ? (riv->topo.zbed - down->topo.zbed) : (total_y -
-                total_y_down);
+            dif_y = (pihm->ctrl.riv_mode == 1) ?
+                (riv->topo.zbed - down->topo.zbed) : (total_y - total_y_down);
             grad_y = dif_y / distance;
             avg_sf = (grad_y > 0.0) ? grad_y : RIVGRADMIN;
             crossa =
                 RivArea (riv->shp.intrpl_ord, riv->ws.stage, riv->shp.coeff);
-            crossa_down =
-                RivArea (down->shp.intrpl_ord, down->ws.stage,
+            crossa_down = RivArea (down->shp.intrpl_ord, down->ws.stage,
                 down->shp.coeff);
             avg_crossa = 0.5 * (crossa + crossa_down);
             avg_y = (avg_perim == 0.0) ? 0.0 : (avg_crossa / avg_perim);
             riv->wf.rivflow[DOWN_CHANL2CHANL] =
                 OverlandFlow (avg_y, grad_y, avg_sf, crossa, avg_rough);
-            /* Accumulate to get in-flow for down segments:
-             * [0] for inflow, [1] for outflow */
+            /* Accumulate to get in-flow for down segments */
             down->wf.rivflow[UP_CHANL2CHANL] -=
                 riv->wf.rivflow[DOWN_CHANL2CHANL];
 
@@ -83,16 +79,10 @@ void RiverFlow (pihm_struct pihm)
              * and ebr */
             total_y = riv->ws.gw + riv->topo.zmin;
             total_y_down = down->ws.gw + down->topo.zmin;
-            wid = EqWid (riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff);
-            wid_down =
-                EqWid (down->shp.intrpl_ord, down->shp.depth,
-                down->shp.coeff);
-            avg_wid = (wid + wid_down) / 2.0;
-            distance = 0.5 * (riv->shp.length + down->shp.length);
+            avg_wid = (riv->shp.width + down->shp.width) / 2.0;
             dif_y_sub = total_y - total_y_down;
             avg_y_sub = AvgY (dif_y_sub, riv->ws.gw, down->ws.gw);
             grad_y_sub = dif_y_sub / distance;
-            /* take care of macropore effect */
             aquifer_depth = riv->topo.zbed - riv->topo.zmin;
             left = &pihm->elem[riv->leftele - 1];
             right = &pihm->elem[riv->rightele - 1];
@@ -116,8 +106,7 @@ void RiverFlow (pihm_struct pihm)
             /* Groundwater flow modeled by Darcy's law */
             riv->wf.rivflow[DOWN_AQUIF2AQUIF] =
                 avg_ksat * grad_y_sub * avg_y_sub * avg_wid;
-            /* Accumulate to get in-flow for down segments:
-             * [10] for inflow, [9] for outflow */
+            /* Accumulate to get in-flow for down segments */
             down->wf.rivflow[UP_AQUIF2AQUIF] -=
                 riv->wf.rivflow[DOWN_AQUIF2AQUIF];
         }
@@ -135,8 +124,7 @@ void RiverFlow (pihm_struct pihm)
                     avg_rough = riv->matl.rough;
                     avg_y = AvgY (grad_y, riv->ws.stage, riv->bc.head);
                     avg_perim = perim;
-                    crossa =
-                        RivArea (riv->shp.intrpl_ord, riv->ws.stage,
+                    crossa = RivArea (riv->shp.intrpl_ord, riv->ws.stage,
                         riv->shp.coeff);
                     avg_y = (avg_perim == 0.0) ? 0.0 : (crossa / avg_perim);
                     riv->wf.rivflow[DOWN_CHANL2CHANL] =
@@ -150,24 +138,22 @@ void RiverFlow (pihm_struct pihm)
                 case -3:
                     /* Zero-depth-gradient boundary conditions */
                     distance = 0.5 * riv->shp.length;
-                    grad_y =
-                        (riv->topo.zbed - (riv->topo.node_zmax -
-                            riv->shp.depth)) / distance;
+                    grad_y = (riv->topo.zbed -
+                        (riv->topo.node_zmax - riv->shp.depth)) / distance;
                     avg_rough = riv->matl.rough;
                     avg_y = riv->ws.stage;
                     avg_perim = perim;
-                    crossa =
-                        RivArea (riv->shp.intrpl_ord, riv->ws.stage,
+                    crossa = RivArea (riv->shp.intrpl_ord, riv->ws.stage,
                         riv->shp.coeff);
                     riv->wf.rivflow[DOWN_CHANL2CHANL] =
-                        sqrt (grad_y) * crossa * ((avg_perim >
-                            0.0) ? pow (crossa / avg_perim,
-                            2.0 / 3.0) : 0.0) / avg_rough;
+                        sqrt (grad_y) * crossa *
+                        ((avg_perim > 0.0) ?
+                        pow (crossa / avg_perim, 2.0 / 3.0) : 0.0) /
+                        avg_rough;
                     break;
                 case -4:
                     /* Critical depth boundary conditions */
-                    crossa =
-                        RivArea (riv->shp.intrpl_ord, riv->ws.stage,
+                    crossa = RivArea (riv->shp.intrpl_ord, riv->ws.stage,
                         riv->shp.coeff);
                     riv->wf.rivflow[DOWN_CHANL2CHANL] =
                         crossa * sqrt (GRAV * riv->ws.stage);
@@ -189,44 +175,44 @@ void RiverFlow (pihm_struct pihm)
         if (riv->leftele > 0)
         {
             RiverToEle (riv, left, right, i + 1,
+                riv->topo.dist_left,
                 &riv->wf.rivflow[LEFT_SURF2CHANL],
                 &riv->wf.rivflow[LEFT_AQUIF2CHANL],
-                &riv->wf.rivflow[LEFT_AQUIF2AQUIF], dt);
+                &riv->wf.rivflow[LEFT_AQUIF2AQUIF]);
         }
 
         if (riv->rightele > 0)
         {
             RiverToEle (riv, right, left, i + 1,
+                riv->topo.dist_right,
                 &riv->wf.rivflow[RIGHT_SURF2CHANL],
                 &riv->wf.rivflow[RIGHT_AQUIF2CHANL],
-                &riv->wf.rivflow[RIGHT_AQUIF2AQUIF], dt);
+                &riv->wf.rivflow[RIGHT_AQUIF2AQUIF]);
         }
 
-        avg_wid = EqWid (riv->shp.intrpl_ord, riv->ws.stage, riv->shp.coeff);
         if (riv->topo.zbed - (riv->ws.gw + riv->topo.zmin) > 0.0)
         {
             dif_y = riv->ws.stage;
         }
         else
         {
-            dif_y =
-                riv->ws.stage + riv->topo.zbed - (riv->ws.gw +
-                riv->topo.zmin);
+            dif_y = riv->ws.stage + riv->topo.zbed -
+                (riv->ws.gw + riv->topo.zmin);
         }
         grad_y = dif_y / riv->matl.bedthick;
         riv->wf.rivflow[CHANL_LKG] =
-            riv->matl.ksatv * avg_wid * riv->shp.length * grad_y;
+            riv->matl.ksatv * riv->shp.width * riv->shp.length * grad_y;
     }
 }
 
 void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
-    int ind, double *fluxsurf, double *fluxriv, double *fluxsub, double dt)
+    int ind, double distance, double *fluxsurf, double *fluxriv,
+    double *fluxsub)
 {
     double          total_y;
     double          dif_y_sub;
     double          avg_y_sub;
     double          effk;
-    double          distance;
     double          grad_y_sub;
     double          effk_nabr;
     double          avg_ksat;
@@ -236,15 +222,13 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     total_y = riv->ws.stage + riv->topo.zbed;
 
     /* Lateral surface flux calculation between river-triangular element */
-    *fluxsurf =
-        OLFEleToRiv (elem->ws.surf + elem->topo.zmax, elem->topo.zmax,
-        riv->matl.cwr, riv->topo.zmax, total_y, riv->shp.length);
+    *fluxsurf = OLFEleToRiv (elem->ws.surfh + elem->topo.zmax,
+        elem->topo.zmax, riv->matl.cwr, riv->topo.zmax, total_y,
+        riv->shp.length);
 
     /* Lateral subsurface flux calculation between river-triangular element */
     dif_y_sub =
         (riv->ws.stage + riv->topo.zbed) - (elem->ws.gw + elem->topo.zmin);
-    /* This is head at river edge representation */
-    //avg_y_sub = ((md->riv[i].zmax-(md->ele[md->riv[i].leftele-1].zmax-md->ele[md->riv[i].leftele-1].zmin)+md->dummyy[md->riv[i].leftele-1 + 2*md->numele])>md->riv[i].zmin)?((md->riv[i].zmax-(md->ele[md->riv[i].leftele-1].zmax-md->ele[md->riv[i].leftele-1].zmin)+md->dummyy[md->riv[i].leftele-1 + 2*md->numele])-md->riv[i].zmin):0;
     /* This is head in neighboring cell represention */
     if (elem->topo.zmin > riv->topo.zbed)
     {
@@ -260,13 +244,9 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     }
     avg_y_sub = AvgY (dif_y_sub, riv->ws.stage, avg_y_sub);
     effk = riv->matl.ksath;
-    distance =
-        sqrt (pow (riv->topo.x - elem->topo.x,
-            2) + pow (riv->topo.y - elem->topo.y, 2));
     grad_y_sub = dif_y_sub / distance;
     /* Take into account macropore effect */
-    effk_nabr =
-        EffKH (elem->ws.gw, elem->soil.depth, elem->soil.dmac,
+    effk_nabr = EffKH (elem->ws.gw, elem->soil.depth, elem->soil.dmac,
         elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
     avg_ksat = 0.5 * (effk + effk_nabr);
     *fluxriv = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
@@ -275,8 +255,6 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
      * element */
     dif_y_sub =
         (riv->ws.gw + riv->topo.zmin) - (elem->ws.gw + elem->topo.zmin);
-    /* This is head at river edge representation */
-    //avg_y_sub = ((md->riv[i].zmax-(md->ele[md->riv[i].leftele-1].zmax-md->ele[md->riv[i].leftele-1].zmin)+md->dummyy[md->riv[i].leftele-1 + 2*md->numele])>md->riv[i].zmin)?md->riv[i].zmin-(md->riv[i].zmax-(md->ele[md->riv[i].leftele-1].zmax-md->ele[md->riv[i].leftele-1].zmin)):md->dummyy[md->riv[i].leftele-1 + 2*md->numele];
     /* this is head in neighboring cell represention */
     if (elem->topo.zmin > riv->topo.zbed)
     {
@@ -306,7 +284,6 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     avg_ksat = 2.0 / (1.0 / effk + 1.0 / effk_nabr);
 #endif
     grad_y_sub = dif_y_sub / distance;
-    /* Take into account macropore effect */
     *fluxsub = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
 
     /* Replace flux term */
@@ -319,43 +296,6 @@ void RiverToEle (river_struct *riv, elem_struct *elem, elem_struct *oppbank,
             break;
         }
     }
-}
-
-double EqWid (int riv_order, double riv_depth, double riv_coeff)
-{
-    double          eq_wid = 0.0;
-
-    riv_depth = (riv_depth > 0.0) ? riv_depth : 0.0;
-
-    switch (riv_order)
-    {
-        case RECTANGLE:
-            eq_wid = riv_coeff;
-            break;
-        case TRIANGLE:
-            eq_wid =
-                2.0 * pow (riv_depth + RIVDPTHMIN,
-                1.0 / (riv_order - 1)) / pow (riv_coeff,
-                1.0 / (riv_order - 1));
-            break;
-        case QUADRATIC:
-            eq_wid =
-                2.0 * pow (riv_depth + RIVDPTHMIN,
-                1.0 / (riv_order - 1)) / pow (riv_coeff,
-                1.0 / (riv_order - 1));
-            break;
-        case CUBIC:
-            eq_wid =
-                2.0 * pow (riv_depth + RIVDPTHMIN,
-                1.0 / (riv_order - 1)) / pow (riv_coeff,
-                1.0 / (riv_order - 1));
-            break;
-        default:
-            PIHMprintf (VL_ERROR, "Error: River order %d is not defined.\n",
-                riv_order);
-            PIHMexit (EXIT_FAILURE);
-    }
-    return (eq_wid);
 }
 
 double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
@@ -374,18 +314,16 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
         if (eleytot > zbank)
         {
             /* Submerged weir */
-            flux =
-                cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (rivytot -
-                eleytot) * (rivytot - zbank) / 3.0;
+            flux = cwr * 2.0 * sqrt (2.0 * GRAV) * length *
+                sqrt (rivytot - eleytot) * (rivytot - zbank) / 3.0;
         }
         else
         {
             if (zbank < rivytot)
             {
                 /* Free-flowing weir */
-                flux =
-                    cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (rivytot -
-                    zbank) * (rivytot - zbank) / 3.0;
+                flux = cwr * 2.0 * sqrt (2.0 * GRAV) * length *
+                    sqrt (rivytot - zbank) * (rivytot - zbank) / 3.0;
             }
             else
             {
@@ -398,18 +336,16 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
         if (rivytot > zbank)
         {
             /* Submerged weir */
-            flux =
-                -cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (eleytot -
-                rivytot) * (eleytot - zbank) / 3.0;
+            flux = -cwr * 2.0 * sqrt (2.0 * GRAV) * length *
+                sqrt (eleytot - rivytot) * (eleytot - zbank) / 3.0;
         }
         else
         {
             if (zbank < eleytot)
             {
                 /* Free-flowing weir */
-                flux =
-                    -cwr * 2.0 * sqrt (2.0 * GRAV) * length * sqrt (eleytot -
-                    zbank) * (eleytot - zbank) / 3.0;
+                flux = -cwr * 2.0 * sqrt (2.0 * GRAV) * length *
+                    sqrt (eleytot - zbank) * (eleytot - zbank) / 3.0;
             }
             else
             {
@@ -425,76 +361,80 @@ double OLFEleToRiv (double eleytot, double elez, double cwr, double rivzmax,
     return (flux);
 }
 
-double RivArea (int riv_order, double riv_depth, double riv_coeff)
+double _RivWdthAreaPerim (int type, int riv_order, double riv_depth,
+    double riv_coeff)
 {
+    double          eq_wid = 0.0;
     double          riv_area = 0.0;
-
-    riv_depth = (riv_depth > 0.0) ? riv_depth : 0.0;
-
-    switch (riv_order)
-    {
-        case RECTANGLE:
-            riv_area = riv_depth * riv_coeff;
-            break;
-        case TRIANGLE:
-            riv_area = pow (riv_depth, 2) / riv_coeff;
-            break;
-        case QUADRATIC:
-            riv_area =
-                4.0 * pow (riv_depth, 1.5) / (3.0 * pow (riv_coeff, 0.5));
-            break;
-        case CUBIC:
-            riv_area =
-                3.0 * pow (riv_depth, 4.0 / 3.0) / (2.0 * pow (riv_coeff,
-                    1.0 / 3.0));
-            break;
-        default:
-            PIHMprintf (VL_ERROR, "Error: River order %d is not defined.\n",
-                riv_order);
-            PIHMexit (EXIT_FAILURE);
-    }
-
-    return (riv_area);
-}
-
-double RivPerim (int riv_order, double riv_depth, double riv_coeff)
-{
     double          riv_perim = 0.0;
+    double          ans;
 
     riv_depth = (riv_depth > 0.0) ? riv_depth : 0.0;
 
     switch (riv_order)
     {
         case RECTANGLE:
+            eq_wid = riv_coeff;
+            riv_area = riv_depth * riv_coeff;
             riv_perim = 2.0 * riv_depth + riv_coeff;
             break;
         case TRIANGLE:
-            riv_perim =
-                2.0 * riv_depth * pow (1.0 + pow (riv_coeff, 2),
-                0.5) / riv_coeff;
+            eq_wid = 2.0 *
+                pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
+                pow (riv_coeff, 1.0 / (riv_order - 1));
+            riv_area = riv_depth * riv_depth / riv_coeff;
+            riv_perim = 2.0 * riv_depth * sqrt (1.0 + riv_coeff * riv_coeff) /
+                riv_coeff;
             break;
         case QUADRATIC:
+            eq_wid = 2.0 *
+                pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
+                pow (riv_coeff, 1.0 / (riv_order - 1));
+            riv_area =
+                4.0 * riv_depth * sqrt (riv_depth) / (3.0 * sqrt (riv_coeff));
             riv_perim =
-                (pow (riv_depth * (1.0 +
-                        4.0 * riv_coeff * riv_depth) / riv_coeff,
-                    0.5)) + (log (2.0 * pow (riv_coeff * riv_depth,
-                        0.5) + pow (1.0 + 4.0 * riv_coeff * riv_depth,
-                        0.5)) / (2.0 * riv_coeff));
+                sqrt (riv_depth * (1.0 + 4.0 * riv_coeff * riv_depth) /
+                riv_coeff) +
+                log (2.0 * sqrt (riv_coeff * riv_depth) +
+                sqrt (1.0 + 4.0 * riv_coeff * riv_depth)) / (2.0 * riv_coeff);
             break;
         case CUBIC:
-            riv_perim =
-                2.0 * ((pow (riv_depth * (1.0 + 9.0 * pow (riv_coeff,
-                                2.0 / 3.0) * riv_depth),
-                        0.5) / 3.0) + (log (3.0 * pow (riv_coeff,
-                            1.0 / 3.0) * pow (riv_depth,
-                            0.5) + pow (1.0 + 9.0 * pow (riv_coeff,
-                                2.0 / 3.0) * riv_depth,
-                            0.5)) / (9.0 * pow (riv_coeff, 1.0 / 3.0))));
+            eq_wid = 2.0 *
+                pow (riv_depth + RIVDPTHMIN, 1.0 / (riv_order - 1)) /
+                pow (riv_coeff, 1.0 / (riv_order - 1));
+            riv_area = 3.0 * pow (riv_depth, 4.0 / 3.0) /
+                (2.0 * pow (riv_coeff, 1.0 / 3.0));
+            riv_perim = 2.0 * (
+                (pow (riv_depth * (1.0 + 9.0 * pow (riv_coeff, 2.0 / 3.0) *
+                riv_depth), 0.5) / 3.0) +
+                (log (3.0 * pow (riv_coeff, 1.0 / 3.0) *
+                sqrt (riv_depth) + pow (1.0 + 9.0 *
+                pow (riv_coeff, 2.0 / 3.0) * riv_depth, 0.5)) /
+                (9.0 * pow (riv_coeff, 1.0 / 3.0))));
             break;
         default:
             PIHMprintf (VL_ERROR, "Error: River order %d is not defined.\n",
                 riv_order);
             PIHMexit (EXIT_FAILURE);
     }
-    return (riv_perim);
+
+    switch (type)
+    {
+        case RIVER_WDTH:
+            ans = eq_wid;
+            break;
+        case RIVER_AREA:
+            ans = riv_area;
+            break;
+        case RIVER_PERIM:
+            ans = riv_perim;
+            break;
+        default:
+            ans = BADVAL;
+            PIHMprintf (VL_ERROR,
+                "Error: Return value type %d id not defined.\n", type);
+            PIHMexit (EXIT_FAILURE);
+    }
+
+    return (ans);
 }

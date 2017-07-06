@@ -24,6 +24,8 @@
  * co2                      char[]      co2 forcing file name
  * ndep                     char[]      nitrogen deposition forcing file name
  * bgcic                    char[]      bgc module initial condition file name
+ * cyclesic                 char[]      cycles module initial condition file
+ *                                        name
  ****************************************************************************/
 typedef struct filename_struct
 {
@@ -48,6 +50,7 @@ typedef struct filename_struct
     char            soilinit[MAXSTRING];
     char            crop[MAXSTRING];
     char            op[MAXOP][MAXSTRING];
+    char            cyclesic[MAXSTRING];
 #endif
 #ifdef _BGC_
     char            bgc[MAXSTRING];
@@ -75,7 +78,6 @@ typedef struct filename_struct
  ****************************************************************************/
 typedef struct rivtbl_struct
 {
-    int             number;
     int            *fromnode;
     int            *tonode;
     int            *down;
@@ -136,7 +138,6 @@ typedef struct matltbl_struct
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * numele                   int         number of triangular elements
  * numnode                  int         number of nodes
  * node                     int**       nodes of element
  * nabr                     int**       neighbors of element
@@ -147,7 +148,6 @@ typedef struct matltbl_struct
  ****************************************************************************/
 typedef struct meshtbl_struct
 {
-    int             numele;
     int             numnode;
     int           **node;
     int           **nabr;
@@ -656,7 +656,6 @@ typedef struct plant_struct
     /* Planting */
     int             opYear;
     int             opDay;
-    int             status;
     char            cropName[128];
     int             usesAutoIrrigation;
     int             usesAutoFertilization;
@@ -671,7 +670,6 @@ typedef struct tillage_struct
     /* Tillage */
     int             opYear;
     int             opDay;
-    int             status;
     char            opToolName[MAXSTRING];
     double          opDepth;
     double          opSDR;
@@ -688,7 +686,6 @@ typedef struct fixirr_struct
     /* Fixed Irrigation */
     int             opYear;
     int             opDay;
-    int             status;
     double          opVolume;
 } fixirr_struct;
 
@@ -697,7 +694,6 @@ typedef struct fixfert_struct
     /* Fixed Fertilization */
     int             opYear;
     int             opDay;
-    int             status;
     char            opSource[MAXSTRING];
     double          opMass;
     char            opForm[MAXSTRING];
@@ -728,7 +724,7 @@ typedef struct autoirr_struct
 typedef struct cropmgmt_struct
 {
     int             yearsInRotation;
-    int             adjustedYields;
+    //int             adjustedYields;
     int             automaticNitrogen;
     int             automaticPhosphorus;
     int             automaticSulfur;
@@ -749,6 +745,8 @@ typedef struct cropmgmt_struct
 
     autoirr_struct *autoIrrigation;
     int             numAutoIrrigation;
+
+    int            *op_status[4];
 
     int             usingAutoIrr;
     int             usingAutoFert;

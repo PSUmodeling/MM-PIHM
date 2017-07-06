@@ -1,25 +1,14 @@
-
-/* 
- * growth_resp.c
- * daily growth respiration rates
- * 
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
 void GrowthResp (epconst_struct *epc, cflux_struct *cf)
 {
-    double          g1;         /* RATIO   C respired for growth : C grown  */
-    double          g2;         /* proportion of growth resp to release at fixation */
+    double          g1; /* RATIO   C respired for growth : C grown  */
+    double          g2; /* proportion of growth resp to release at fixation */
 
     g1 = GRPERC;
     g2 = GRPNOW;
 
-    /* leaf and fine root growth respiration for both trees and grass */
+    /* Leaf and fine root growth respiration for both trees and grass */
     cf->cpool_leaf_gr = cf->cpool_to_leafc * g1;
     cf->cpool_froot_gr = cf->cpool_to_frootc * g1;
     cf->cpool_leaf_storage_gr = cf->cpool_to_leafc_storage * g1 * g2;
@@ -27,7 +16,7 @@ void GrowthResp (epconst_struct *epc, cflux_struct *cf)
     cf->transfer_leaf_gr = cf->leafc_transfer_to_leafc * g1 * (1.0 - g2);
     cf->transfer_froot_gr = cf->frootc_transfer_to_frootc * g1 * (1.0 - g2);
 
-    /* woody tissue growth respiration only for trees */
+    /* Woody tissue growth respiration only for trees */
     if (epc->woody)
     {
         cf->cpool_livestem_gr = cf->cpool_to_livestemc * g1;

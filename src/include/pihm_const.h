@@ -19,6 +19,11 @@
 #define TFREEZ      273.15      /* freezing point [K] */
 #define LSUBS       2.83e6      /* latent heat of sublimation [J kg-1] */
 
+/* Simulation mode */
+#define NORMAL_MODE     0
+#define SPINUP_MODE     1
+#define ACC_SPINUP_MODE 2
+
 /* Default bad value */
 #define BADVAL	    -999
 
@@ -26,6 +31,11 @@
 #define VL_ERROR    -1
 #define VL_NORMAL   0
 #define VL_VERBOSE  1
+
+/* Model steps */
+#define HYDROL_STEP 0
+#define LS_STEP     1
+#define CN_STEP     2
 
 /* Maximum string length */
 #define MAXSTRING   1024
@@ -53,8 +63,13 @@
 /* Number of edges of an element */
 #define NUM_EDGE    3
 
+#define RIVER_WDTH  0
+#define RIVER_AREA  1
+#define RIVER_PERIM 2
+
 /* Number of river fluxes of a river segment */
 #define NUM_RIVFLX  11
+
 /* Hydrology parameters */
 #define PSIMIN	    -70.0       /* minimum psi allowed [m] */
 #define DEPRSTG     1e-4        /* depressio storage [m] */
@@ -62,6 +77,7 @@
 #define SATMIN      0.1         /* minimum saturation ratio [-] */
 #define RIVDPTHMIN  0.05        /* minimum river depth [m] */
 #define RIVGRADMIN  0.05        /* minimum river hydarulic gradient [m m-1] */
+#define CMCFACTR    2E-4        /* canopy water capacity per LAI [m] */
 
 /* Maximum of soil layers in Flux-PIHM */
 #define MAXLYR      11
@@ -124,6 +140,11 @@
 #define DOWN_AQUIF2AQUIF    9
 #define UP_AQUIF2AQUIF      10
 
+#define UP                  0
+#define DOWN                1
+#define LEFT                2
+#define RIGHT               3
+
 /* River segment interpolation order */
 #define RECTANGLE           1
 #define TRIANGLE            2
@@ -177,13 +198,19 @@
 #define KFRAG_BASE  0.001       /* physical fragmentation of coarse woody
                                  * debris */
 
+/* Decomposition acceleration terms */
+#define KS1_ACC     1.0
+#define KS2_ACC     1.0
+#define KS3_ACC     5.0
+#define KS4_ACC     70.0
+
 /* This constant determines the lower limit of state variables before they are
  * set to 0.0 to control rounding and overflow errors */
 #define CRIT_PREC   1e-20
 
 /* This constant is used in if conditions where floating point values are
  * compared */
-#define FLT_COND_TOL    1e-10      
+#define FLT_COND_TOL    1e-10
 
 /* Maximum allowable trend in slow soil carbon at steady-state
  * [kgC m-2 yr-1] */
@@ -195,6 +222,11 @@
 #define BULK_DENITRIF_PROPORTION    0.5
 
 /* Output variables */
+#define YEARLY_OUTPUT           -1
+#define MONTHLY_OUTPUT          -2
+#define DAILY_OUTPUT            -3
+#define HOURLY_OUTPUT           -4
+
 #define SURF_CTRL               0
 #define UNSAT_CTRL              1
 #define GW_CTRL                 2
@@ -234,39 +266,41 @@
 #define ROOTW_CTRL              36
 #define SOILM_CTRL              37
 #define SOLAR_CTRL              38
-#define BIOMASS_CTRL            39
-#define RADNINTCP_CTRL          40
-#define WATER_STS_CTRL          41
-#define N_STS_CTRL              42
-#define CROP_TR_CTRL            43
-#define CROP_POTTR_CTRL         44
-#define RES_EVAP_CTRL           45
-#define NO3_PROF_CTRL           46
-#define NO3_RIVER_CTRL          47
-#define NH4_PROF_CTRL           48
-#define NH4_RIVER_CTRL          49
-#define NO3_DENIT_CTRL          50
-#define NO3_LEACH_CTRL          51
-#define NH4_LEACH_CTRL          52
-#define NO3_LEACH_RIVER_CTRL    53
-#define NH4_LEACH_RIVER_CTRL    54
-#define N_LEACH_CTRL            55
-#define LAI_CTRL                56
-#define VEGC_CTRL               57
-#define LITRC_CTRL              58
-#define SOILC_CTRL              59
-#define TOTALC_CTRL             60
-#define NPP_CTRL                61
-#define NEP_CTRL                62
-#define NEE_CTRL                63
-#define GPP_CTRL                64
-#define SMINN_CTRL              65
-#define SURFTEC_CTRL            66
-#define UNSATTEC_CTRL           67
-#define GWTEC_CTRL              68
-#define RIVSTGTEC_CTRL          69
-#define RIVGWTEC_CTRL           70
-#define IC_CTRL					71
+#define CH_CTRL                 39
+#define BIOMASS_CTRL            40
+#define RADNINTCP_CTRL          41
+#define WATER_STS_CTRL          42
+#define N_STS_CTRL              43
+#define CROP_TR_CTRL            44
+#define CROP_POTTR_CTRL         45
+#define RES_EVAP_CTRL           46
+#define NO3_PROF_CTRL           47
+#define NO3_RIVER_CTRL          48
+#define NH4_PROF_CTRL           49
+#define NH4_RIVER_CTRL          50
+#define NO3_DENIT_CTRL          51
+#define NO3_LEACH_CTRL          52
+#define NH4_LEACH_CTRL          53
+#define NO3_LEACH_RIVER_CTRL    54
+#define NH4_LEACH_RIVER_CTRL    55
+#define N_LEACH_CTRL            56
+#define LAI_CTRL                57
+#define VEGC_CTRL               58
+#define LITRC_CTRL              59
+#define SOILC_CTRL              60
+#define TOTALC_CTRL             61
+#define NPP_CTRL                62
+#define NEP_CTRL                63
+#define NEE_CTRL                64
+#define GPP_CTRL                65
+#define SMINN_CTRL              66
+#define SURFTEC_CTRL            67
+#define UNSATTEC_CTRL           68
+#define GWTEC_CTRL              69
+#define RIVSTGTEC_CTRL          70
+#define RIVGWTEC_CTRL           71
+#define IC_CTRL					72
+#define WB_CTRL					72
 #ifdef _CYCLES_
 #define MAXOP               100
 
@@ -318,37 +352,19 @@ enum stage
 
 #endif
 
-#ifdef _ENKF_
-#define MAXPARAM        100
-#define MAXVAR          100
-#define MAXINT          2147483647
-#define CORRMAX         0.25
-#define SUCCESS_TAG     2
-#define CYCLE_TAG       1
-#define PARAM_TAG       3
-#define LOG_TYPE        1
-
-enum prmt_type
-{ KSATH, KSATV, KINF, KMACH, KMACV, DINF, RZD, DMAC, POROSITY,
-    ALPHA, BETA, AREAFV, AREAFH, VEGFRAC, ALBEDO, ROUGH, EC, ETT, EDIR,
-    RIVROUGH, RIVKSATH, RIVKSATV, RIVBEDTHICK, RIVDEPTH, RIVSHPCOEFF, DRIP,
-    INTCP, RSMIN, CZIL, FXEXP, CFACTR, RGL, HS, THETAREF, THETAW, PRCP, SFCTMP
-};
-
-#define PRMT_NAME (const char*[37]){ "KSATH", "KSATV", "KINF", "KMACSATH",\
-    "KMACSATV", "DINF", "DROOT", "DMAC", "POROSITY", "ALPHA", "BETA",\
-    "MACVF", "MACHF", "VEGFRAC", "ALBEDO", "ROUGH", "EC", "ETT", "EDIR",\
-    "ROUGH_RIV", "KRIVH", "KRIVV", "BEDTHCK", "RIV_DPTH", "RIV_WDTH", "DRIP",\
-    "CMCMAX", "RS", "CZIL", "FXEXP", "CFACTR", "RGL", "HS", "REFSMC",\
-    "WLTSMC", "PRCP", "SFCTMP"}
-
-enum obs_type
-{ RUNOFF_OBS, TSKIN_OBS, COSMOS_OBS};
-
-#endif
-
 /* External variable */
 extern int          verbose_mode;
 extern int          debug_mode;
+extern int          corr_mode;
+extern int          spinup_mode;
 extern char         project[MAXSTRING];
+extern int          nelem;
+extern int          nriver;
+#ifdef _OPENMP
+extern int          nthreads;
+#endif
+#if defined(_BGC_) || defined (_CYCLES_)
+extern int          first_balance;
+#endif
+
 #endif

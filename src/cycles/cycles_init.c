@@ -1,15 +1,10 @@
 #include "pihm.h"
 
-void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
+void InitCycles (elem_struct *elem, river_struct *riv,
     const ctrl_struct *ctrl, const mgmttbl_struct *mgmttbl,
     const agtbl_struct *agtbl, const croptbl_struct *croptbl,
     const soiltbl_struct *soiltbl)
 {
-    int             ntill;
-    int             nplnt;
-    int             nirrg;
-    int             nfert;
-    int             nautoirrg;
     int             opind;
     int             i, j, k;
     int             start_year;
@@ -32,33 +27,7 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
     total_years = end_year - start_year + 1;
 
-    for (i = 0; i < numele; i++)
-    {
-        if (agtbl->op[i] == 1)
-        {
-            elem[i].soil.IOM[0] = 5.54;
-            elem[i].soil.IOM[1] = 1.79;
-            elem[i].soil.IOM[2] = 1.82;
-            elem[i].soil.IOM[3] = 1.23;
-            elem[i].soil.IOM[4] = 0.87;
-            elem[i].soil.IOM[5] = 0.53;
-            elem[i].soil.IOM[6] = 0.23;
-            elem[i].soil.IOM[7] = 0.10;
-        }
-        else
-        {
-            elem[i].soil.IOM[0] = 5.42;
-            elem[i].soil.IOM[1] = 1.12;
-            elem[i].soil.IOM[2] = 1.90;
-            elem[i].soil.IOM[3] = 1.42;
-            elem[i].soil.IOM[4] = 1.00;
-            elem[i].soil.IOM[5] = 0.61;
-            elem[i].soil.IOM[6] = 0.29;
-            elem[i].soil.IOM[7] = 0.15;
-        }
-    }
-
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         /*
          * Initialize weather structure
@@ -107,48 +76,44 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
         opind = agtbl->op[i] - 1;
 
-        nplnt = mgmttbl->cropmgmt[opind].totalCropsPerRotation;
-        if (nplnt > 0)
-        {
-            cropmgmt->plantingOrder =
-                (plant_struct *)malloc (nplnt * sizeof (plant_struct));
-        }
-
-        ntill = mgmttbl->cropmgmt[opind].numTillage;
-        if (ntill > 0)
-        {
-            cropmgmt->Tillage =
-                (tillage_struct *)malloc (ntill * sizeof (tillage_struct));
-        }
-
-        nfert = mgmttbl->cropmgmt[opind].numFertilization;
-        if (nfert > 0)
-        {
-            cropmgmt->FixedFertilization =
-                (fixfert_struct *)malloc (nfert * sizeof (fixfert_struct));
-        }
-
-        nirrg = mgmttbl->cropmgmt[opind].numIrrigation;
-        if (nirrg > 0)
-        {
-            cropmgmt->FixedIrrigation =
-                (fixirr_struct *)malloc (nirrg * sizeof (fixirr_struct));
-        }
-
-        nautoirrg = mgmttbl->cropmgmt[opind].numAutoIrrigation;
-        if (nautoirrg > 0)
-        {
-            cropmgmt->autoIrrigation =
-                (autoirr_struct *)malloc (nautoirrg *
-                sizeof (autoirr_struct));
-        }
-
-        *cropmgmt = mgmttbl->cropmgmt[opind];
-
         cropmgmt->yearsInRotation = agtbl->rotsz[i];
         cropmgmt->automaticNitrogen = agtbl->auto_N[i];
         cropmgmt->automaticPhosphorus = agtbl->auto_P[i];
         cropmgmt->automaticSulfur = agtbl->auto_S[i];
+
+        cropmgmt->rotationYear = 0;
+
+        cropmgmt->totalCropsPerRotation = mgmttbl->cropmgmt[opind].totalCropsPerRotation;
+        cropmgmt->plantingOrder = mgmttbl->cropmgmt[opind].plantingOrder;
+
+        cropmgmt->numTillage = mgmttbl->cropmgmt[opind].numTillage;
+        cropmgmt->Tillage = mgmttbl->cropmgmt[opind].Tillage;
+
+        cropmgmt->numFertilization = mgmttbl->cropmgmt[opind].numFertilization;
+        cropmgmt->FixedFertilization = mgmttbl->cropmgmt[opind].FixedFertilization;
+
+        cropmgmt->numIrrigation = mgmttbl->cropmgmt[opind].numIrrigation;
+        cropmgmt->FixedIrrigation = mgmttbl->cropmgmt[opind].FixedIrrigation;
+
+        cropmgmt->numAutoIrrigation = mgmttbl->cropmgmt[opind].numAutoIrrigation;
+        cropmgmt->autoIrrigation = mgmttbl->cropmgmt[opind].autoIrrigation;
+
+        cropmgmt->op_status[PLANT_OP] =
+            (int *)calloc (cropmgmt->totalCropsPerRotation, sizeof (int));
+        cropmgmt->op_status[TILLAGE_OP] =
+            (int *)calloc (cropmgmt->numTillage, sizeof (int));
+        cropmgmt->op_status[FIXIRR_OP] =
+            (int *)calloc (cropmgmt->numIrrigation, sizeof (int));
+        cropmgmt->op_status[FIXFERT_OP] =
+            (int *)calloc (cropmgmt->numFertilization, sizeof (int));
+
+        for (k = 0; k < elem[i].ps.nsoil; k++)
+        {
+            cropmgmt->tillageFactor[k] = 0.0;
+        }
+
+        cropmgmt->usingAutoIrr = mgmttbl->cropmgmt[opind].usingAutoIrr;
+        cropmgmt->usingAutoFert = mgmttbl->cropmgmt[opind].usingAutoFert;
 
         /*
          * Copy crop description to each element
@@ -256,7 +221,8 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
         UpdateCommunity (comm);
 
         InitializeSoil (&elem[i].soil, soiltbl, &elem[i].ps,
-            elem[i].attrib.soil_type);
+            &elem[i].cycles_restart, elem[i].attrib.soil_type,
+            ctrl->read_cycles_restart);
 
         InitializeResidue (&elem[i].residue, elem[i].ps.nsoil);
 
@@ -264,33 +230,84 @@ void InitCycles (elem_struct *elem, int numele, river_struct *riv, int numriv,
 
         elem[i].comm.NumActiveCrop = 0;
 
-        elem[i].cropmgmt.rotationYear = 0;
-
-        for (k = 0; k < elem[i].ps.nsoil; k++)
-        {
-            elem[i].cropmgmt.tillageFactor[k] = 0.0;
-        }
     }
 
-    for (i = 0; i < numriv; i++)
+    if (ctrl->read_cycles_restart)
     {
-        riv[i].NO3sol.soluteMass = 0.0;
-        riv[i].NH4sol.soluteMass = 0.0;
-
-        for (k = 0; k < elem[riv[i].rightele - 1].ps.nsoil; k++)
+        for (i = 0; i < nriver; i++)
         {
-            riv[i].NO3sol.soluteMass +=
-                elem[riv[i].rightele - 1].soil.NO3[k];
-            riv[i].NH4sol.soluteMass +=
-                elem[riv[i].rightele - 1].soil.NH4[k];
-        }
-
-        for (k = 0; k < elem[riv[i].leftele - 1].ps.nsoil; k++)
-        {
-            riv[i].NO3sol.soluteMass +=
-                elem[riv[i].leftele - 1].soil.NO3[k];
-            riv[i].NH4sol.soluteMass +=
-                elem[riv[i].leftele - 1].soil.NH4[k];
+            riv[i].NO3sol.soluteMass = riv[i].cycles_restart.NO3_Mass;
+            riv[i].NH4sol.soluteMass = riv[i].cycles_restart.NH4_Mass;
         }
     }
+    else
+    {
+        for (i = 0; i < nriver; i++)
+        {
+            riv[i].NO3sol.soluteMass = 0.0;
+            riv[i].NH4sol.soluteMass = 0.0;
+
+            for (k = 0; k < elem[riv[i].rightele - 1].ps.nsoil; k++)
+            {
+                riv[i].NO3sol.soluteMass +=
+                    elem[riv[i].rightele - 1].soil.NO3[k];
+                riv[i].NH4sol.soluteMass +=
+                    elem[riv[i].rightele - 1].soil.NH4[k];
+            }
+
+            for (k = 0; k < elem[riv[i].leftele - 1].ps.nsoil; k++)
+            {
+                riv[i].NO3sol.soluteMass +=
+                    elem[riv[i].leftele - 1].soil.NO3[k];
+                riv[i].NH4sol.soluteMass +=
+                    elem[riv[i].leftele - 1].soil.NH4[k];
+            }
+        }
+    }
+}
+
+void WriteCyclesIC (char *restart_fn, elem_struct *elem, river_struct *riv)
+{
+    int             i, j;
+    FILE           *restart_file;
+
+    restart_file = fopen (restart_fn, "wb");
+    CheckFile (restart_file, restart_fn);
+    PIHMprintf (VL_VERBOSE, "Writing Cycles initial conditions.\n");
+
+    for (i = 0; i < nelem; i++)
+    {
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&elem[i].soil.SOC_Mass[j], sizeof (double), 1, restart_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&elem[i].soil.SON_Mass[j], sizeof (double), 1, restart_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&elem[i].soil.MBC_Mass[j], sizeof (double), 1, restart_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&elem[i].soil.MBN_Mass[j], sizeof (double), 1, restart_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&elem[i].soil.NO3[j], sizeof (double), 1, restart_file);
+        }
+        for (j = 0; j < MAXLYR; j++)
+        {
+            fwrite (&elem[i].soil.NH4[j], sizeof (double), 1, restart_file);
+        }
+    }
+
+    for (i = 0; i < nriver; i++)
+    {
+       fwrite (&riv[i].NO3sol.soluteMass, sizeof (double), 1, restart_file);
+       fwrite (&riv[i].NH4sol.soluteMass, sizeof (double), 1, restart_file);
+    }
+
+    fclose (restart_file);
 }

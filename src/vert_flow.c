@@ -3,39 +3,41 @@
 void VerticalFlow (pihm_struct pihm)
 {
     int             i;
-    double          satn;
-    double          satkfunc;
-    double          dh_by_dz;
-    double          psi_u;
-    double          h_u;
-    double          kinf;
-    double          kavg;
     double          dt;
-    double          deficit;
-    double          applrate;
-    double          wetfrac;
-    elem_struct    *elem;
 
     dt = (double)pihm->ctrl.stepsize;
 
-    for (i = 0; i < pihm->numele; i++)
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
     {
+        double      satn;
+        double      satkfunc;
+        double      dh_by_dz;
+        double      psi_u;
+        double      h_u;
+        double      kinf;
+        double      kavg;
+        double      deficit;
+        double      applrate;
+        double      wetfrac;
+        elem_struct *elem;
+
         elem = &pihm->elem[i];
 
         applrate = elem->wf.pcpdrp + elem->ws.surf / dt;
 
-        wetfrac =
-            (elem->ws.surf > DEPRSTG) ? 1.0 : ((elem->ws.surf <
-                0.0) ? 0.0 : pow (elem->ws.surf / DEPRSTG, 2.0));
+        wetfrac = (elem->ws.surfh > DEPRSTG) ?  1.0 :
+            ((elem->ws.surfh < 0.0) ?  0.0 : elem->ws.surfh / DEPRSTG);
 
         if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
         {
             /* Assumption: Dinf < Dmac */
-            dh_by_dz =
-                (elem->ws.surf + elem->topo.zmax - (elem->ws.gw +
-                    elem->topo.zmin)) / elem->soil.dinf;
-            dh_by_dz = (elem->ws.surf < 0.0 &&
-                dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
+            dh_by_dz = (elem->ws.surfh + elem->topo.zmax -
+                (elem->ws.gw + elem->topo.zmin)) / elem->soil.dinf;
+            dh_by_dz = (elem->ws.surfh < 0.0 && dh_by_dz > 0.0) ?
+                0.0 : dh_by_dz;
             dh_by_dz = (dh_by_dz < 1.0 && dh_by_dz > 0.0) ? 1.0 : dh_by_dz;
 
             satn = 1.0;
@@ -48,14 +50,13 @@ void VerticalFlow (pihm_struct pihm)
             else
             {
                 elem->ps.macpore_status =
-                    MacroporeStatus (dh_by_dz, satkfunc, satn, applrate,
+                    MacroporeStatus (dh_by_dz, satkfunc, applrate,
                     elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
             }
 
             if (dh_by_dz < 0.0)
             {
-                kinf =
-                    elem->soil.kmacv * elem->soil.areafh +
+                kinf = elem->soil.kmacv * elem->soil.areafh +
                     elem->soil.kinfv * (1.0 - elem->soil.areafh);
             }
             else
@@ -67,15 +68,14 @@ void VerticalFlow (pihm_struct pihm)
             elem->wf.infil = kinf * dh_by_dz;
 
             /* Note: infiltration can be negative in this case */
-            elem->wf.infil =
-                (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
+            elem->wf.infil = (elem->wf.infil < applrate) ?
+                elem->wf.infil : applrate;
 
             elem->wf.infil *= wetfrac;
 
 #ifdef _NOAH_
             elem->wf.infil *= elem->ps.fcr;
 #endif
-
 
             elem->wf.rechg = elem->wf.infil;
         }
@@ -90,19 +90,20 @@ void VerticalFlow (pihm_struct pihm)
 #endif
             satn = (satn > 1.0) ? 1.0 : satn;
             satn = (satn < SATMIN) ? SATMIN : satn;
+
+            psi_u = Psi (satn, elem->soil.alpha, elem->soil.beta);
             /* Note: for psi calculation using van genuchten relation, cutting
              * the psi-sat tail at small saturation can be performed for
              * computational advantage. if you dont' want to perform this,
              * comment the statement that follows */
-            psi_u = Psi (satn, elem->soil.alpha, elem->soil.beta);
             psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
 
             h_u = psi_u + elem->topo.zmax - 0.5 * elem->soil.dinf;
             dh_by_dz =
-                (0.5 * elem->ws.surf + elem->topo.zmax -
-                h_u) / (0.5 * (elem->ws.surf + elem->soil.dinf));
-            dh_by_dz = (elem->ws.surf < 0.0 &&
-                dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
+                (0.5 * elem->ws.surfh + elem->topo.zmax -
+                h_u) / (0.5 * (elem->ws.surfh + elem->soil.dinf));
+            dh_by_dz = (elem->ws.surfh < 0.0 && dh_by_dz > 0.0) ?
+                0.0 : dh_by_dz;
 
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
 
@@ -113,7 +114,7 @@ void VerticalFlow (pihm_struct pihm)
             else
             {
                 elem->ps.macpore_status =
-                    MacroporeStatus (dh_by_dz, satkfunc, satn, applrate,
+                    MacroporeStatus (dh_by_dz, satkfunc, applrate,
                     elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
             }
 
@@ -122,8 +123,8 @@ void VerticalFlow (pihm_struct pihm)
 
             elem->wf.infil = kinf * dh_by_dz;
 
-            elem->wf.infil =
-                (elem->wf.infil < applrate) ? elem->wf.infil : applrate;
+            elem->wf.infil = (elem->wf.infil < applrate) ?
+                elem->wf.infil : applrate;
             elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
 
             elem->wf.infil *= wetfrac;
@@ -132,10 +133,6 @@ void VerticalFlow (pihm_struct pihm)
             elem->wf.infil *= elem->ps.fcr;
 #endif
 
-            /* Harmonic mean formulation.
-             * Note that if unsaturated zone has low saturation, satkfunc
-             * becomes very small. use arithmetic mean instead */
-            //elem->rechg = (satn==0.0)?0:(deficit<=0)?0:(md->ele[i].ksatv*satkfunc*(md->ele[i].alpha*deficit-2*pow(-1+pow(satn,md->ele[i].beta/(-md->ele[i].beta+1)),1/md->ele[i].beta))/(md->ele[i].alpha*((deficit+md->dummyy[i+2*md->numele]*satkfunc))));
             /* Arithmetic mean formulation */
             satn = elem->ws.unsat / deficit;
             satn = (satn > 1.0) ? 1.0 : satn;
@@ -143,46 +140,34 @@ void VerticalFlow (pihm_struct pihm)
 
             satkfunc = KrFunc (elem->soil.alpha, elem->soil.beta, satn);
 
-            //if (elem->ps.macpore_status > MTX_CTRL && elem->ws.gw > elem->soil.depth - elem->soil.dmac)
-            //{
-            //    keff = EffKV (satkfunc, satn, elem->ps.macpore_status, elem->soil.kmacv, elem->soil.ksatv, elem->soil.areafh);
-            //}
-            //else
-            //{
-            //    keff = elem->soil.ksatv * satkfunc;
-            //}
-
             psi_u = Psi (satn, elem->soil.alpha, elem->soil.beta);
 
             dh_by_dz =
                 (0.5 * deficit + psi_u) / (0.5 * (deficit + elem->ws.gw));
 
-            //kavg = 1.0 / (deficit / effk[KMTX] + elem->ws.gw / elem->soil.ksatv);
-            //kavg = (deficit * keff + elem->ws.gw * elem->soil.ksatv) / (deficit + elem->ws.gw);
-            kavg =
-                AvgKV (elem->soil.dmac, deficit, elem->ws.gw,
-                elem->ps.macpore_status, satn, satkfunc, elem->soil.kmacv,
+            kavg = AvgKV (elem->soil.dmac, deficit, elem->ws.gw,
+                elem->ps.macpore_status, satkfunc, elem->soil.kmacv,
                 elem->soil.ksatv, elem->soil.areafh);
 
             elem->wf.rechg = (deficit <= 0.0) ? 0.0 : kavg * dh_by_dz;
 
-            elem->wf.rechg = (elem->wf.rechg > 0.0 &&
-                elem->ws.unsat <= 0.0) ? 0.0 : elem->wf.rechg;
-            elem->wf.rechg = (elem->wf.rechg < 0.0 &&
-                elem->ws.gw <= 0.0) ? 0.0 : elem->wf.rechg;
+            elem->wf.rechg = (elem->wf.rechg > 0.0 && elem->ws.unsat <= 0.0) ?
+                0.0 : elem->wf.rechg;
+            elem->wf.rechg = (elem->wf.rechg < 0.0 && elem->ws.gw <= 0.0) ?
+                0.0 : elem->wf.rechg;
         }
     }
 }
 
 double AvgKV (double dmac, double deficit, double gw, double macp_status,
-    double satn, double satkfunc, double kmacv, double ksatv, double areafh)
+    double satkfunc, double kmacv, double ksatv, double areafh)
 {
     double          k1, k2, k3;
     double          d1, d2, d3;
 
     if (deficit > dmac)
     {
-        k1 = EffKV (satkfunc, satn, macp_status, kmacv, ksatv, areafh);
+        k1 = EffKV (satkfunc, macp_status, kmacv, ksatv, areafh);
         d1 = dmac;
 
         k2 = satkfunc * ksatv;
@@ -193,7 +178,7 @@ double AvgKV (double dmac, double deficit, double gw, double macp_status,
     }
     else
     {
-        k1 = EffKV (satkfunc, satn, macp_status, kmacv, ksatv, areafh);
+        k1 = EffKV (satkfunc, macp_status, kmacv, ksatv, areafh);
         d1 = deficit;
 
         k2 = kmacv * areafh + ksatv * (1.0 - areafh);
@@ -214,6 +199,8 @@ double EffKinf (double ksatfunc, double elemsatn, int status, double mackv,
     double kinf, double areaf)
 {
     double          keff = 0.0;
+    const double    ALPHA_CRACK = 10.0;
+    const double    BETA_CRACK = 2.0;
 
     switch (status)
     {
@@ -221,9 +208,8 @@ double EffKinf (double ksatfunc, double elemsatn, int status, double mackv,
             keff = kinf * ksatfunc;
             break;
         case APP_CTRL:
-            keff =
-                kinf * (1.0 - areaf) * ksatfunc +
-                mackv * areaf * KrFunc (10.0, 2.0, elemsatn);
+            keff = kinf * (1.0 - areaf) * ksatfunc +
+                mackv * areaf * KrFunc (ALPHA_CRACK, BETA_CRACK, elemsatn);
             break;
         case MAC_CTRL:
             keff = kinf * (1.0 - areaf) * ksatfunc + mackv * areaf;
@@ -237,8 +223,8 @@ double EffKinf (double ksatfunc, double elemsatn, int status, double mackv,
     return (keff);
 }
 
-double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
-    double kv, double areaf)
+double EffKV (double ksatfunc, int status, double mackv, double kv,
+    double areaf)
 {
     double          keff = 0.0;
 
@@ -248,7 +234,7 @@ double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
             keff = kv * ksatfunc;
             break;
         case APP_CTRL:
-            keff = kv * (1.0 - areaf) * ksatfunc + mackv * areaf * ksatfunc;    //KrFunc (10.0, 2.0, elemsatn);
+            keff = kv * (1.0 - areaf) * ksatfunc + mackv * areaf * ksatfunc;
             break;
         case MAC_CTRL:
             keff = kv * (1.0 - areaf) * ksatfunc + mackv * areaf;
@@ -264,22 +250,22 @@ double EffKV (double ksatfunc, double elemsatn, int status, double mackv,
 
 double KrFunc (double alpha, double beta, double satn)
 {
-	double n, kr=0.0;
+    // If satn < 0.4 kr~0
 	if (satn < 0.4)
 	{
-		return kr;
+		return 0.0;
 	}
 	else
 	{
-		n = (beta - 1.0) / beta;
+		double n = (beta - 1.0) / beta;
 		return (sqrt(satn) * (-1.0 + pow(1.0 - pow(satn,
 			1.0 / n), n))*(-1.0 + pow(1.0 - pow(satn,
 				1.0 / n), n)));
 	}
 }
 
-int MacroporeStatus (double dh_by_dz, double ksatfunc, double elemsatn,
-    double applrate, double mackv, double kv, double areaf)
+int MacroporeStatus (double dh_by_dz, double ksatfunc, double applrate,
+    double mackv, double kv, double areaf)
 {
     dh_by_dz = (dh_by_dz < 1.0) ? 1.0 : dh_by_dz;
 
@@ -305,6 +291,7 @@ double Psi (double satn, double alpha, double beta)
 {
 	double n1, n2, invsat, rv=0.0;
 
+    //TODO remove this?
 	if (satn < 0.9999999) 
 	{ 
 		n1 = beta / (beta - 1.0);
@@ -313,5 +300,7 @@ double Psi (double satn, double alpha, double beta)
 		rv = -pow(pow(invsat, n1) - 1.0, n2) / alpha; 
 	}
     /* van Genuchten 1980 SSSAJ */
-    return (rv);
+    return (0.0 -
+        pow (pow (1.0 / satn, beta / (beta - 1.0)) - 1.0,
+            1.0 / beta) / alpha);
 }

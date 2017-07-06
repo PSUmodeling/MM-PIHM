@@ -1,20 +1,8 @@
-
-/* 
- * make_zero_flux_struct.c
- * create structures initialized with zero for forcing fluxes to zero
- * between simulation days
- * 
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- * Biome-BGC version 4.2 (final release)
- * See copyright.txt for Copyright information
- * *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
- */
-
 #include "pihm.h"
 
 void MakeZeroFluxStruct (cflux_struct *cf, nflux_struct *nf)
 {
-    /* daily carbon fluxes */
+    /* Carbon fluxes */
     cf->m_leafc_to_litr1c = 0.0;
     cf->m_leafc_to_litr2c = 0.0;
     cf->m_leafc_to_litr3c = 0.0;
@@ -145,7 +133,7 @@ void MakeZeroFluxStruct (cflux_struct *cf, nflux_struct *nf)
     cf->livestemc_to_deadstemc = 0.0;
     cf->livecrootc_to_deadcrootc = 0.0;
 
-    /* daily nitrogen fluxes */
+    /* Nitrogen fluxes */
     nf->m_leafn_to_litr1n = 0.0;
     nf->m_leafn_to_litr2n = 0.0;
     nf->m_leafn_to_litr3n = 0.0;
@@ -239,7 +227,8 @@ void MakeZeroFluxStruct (cflux_struct *cf, nflux_struct *nf)
     nf->sminn_to_nvol_s3s4 = 0.0;
     nf->sminn_to_nvol_s4 = 0.0;
     nf->sminn_to_denitrif = 0.0;
-    nf->sminn_leached = 0.0;
+    /* sminn_leached is calculated out of bgc functions */
+    //nf->sminn_leached = 0.0;
     nf->retransn_to_npool = 0.0;
     nf->sminn_to_npool = 0.0;
     nf->npool_to_leafn = 0.0;

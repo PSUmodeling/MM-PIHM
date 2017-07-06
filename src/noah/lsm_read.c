@@ -94,53 +94,50 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
 
     /* Output control */
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "T1", &ctrl->prtvrbl[T1_CTRL], 'i', filename, lno);
+    ctrl->prtvrbl[T1_CTRL] = ReadPrtCtrl (cmdstr, "T1", filename, lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "STC", &ctrl->prtvrbl[STC_CTRL], 'i', filename, lno);
+    ctrl->prtvrbl[STC_CTRL] = ReadPrtCtrl (cmdstr, "STC", filename, lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SMC", &ctrl->prtvrbl[SMC_CTRL], 'i', filename, lno);
+    ctrl->prtvrbl[SMC_CTRL] = ReadPrtCtrl (cmdstr, "SMC", filename, lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SH2O", &ctrl->prtvrbl[SH2O_CTRL], 'i', filename,
+    ctrl->prtvrbl[SH2O_CTRL] = ReadPrtCtrl (cmdstr, "SH2O", filename, lno);
+
+    NextLine (lsm_file, cmdstr, &lno);
+    ctrl->prtvrbl[SNOWH_CTRL] = ReadPrtCtrl (cmdstr, "SNOWH", filename, lno);
+
+    NextLine (lsm_file, cmdstr, &lno);
+    ctrl->prtvrbl[ALBEDO_CTRL] = ReadPrtCtrl (cmdstr, "ALBEDO", filename,
         lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SNOWH", &ctrl->prtvrbl[SNOWH_CTRL], 'i', filename,
-        lno);
+    ctrl->prtvrbl[LE_CTRL] = ReadPrtCtrl (cmdstr, "LE", filename, lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "ALBEDO", &ctrl->prtvrbl[ALBEDO_CTRL], 'i', filename,
-        lno);
+    ctrl->prtvrbl[SH_CTRL] = ReadPrtCtrl (cmdstr, "SH", filename, lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "LE", &ctrl->prtvrbl[LE_CTRL], 'i', filename, lno);
+    ctrl->prtvrbl[G_CTRL] = ReadPrtCtrl (cmdstr, "G", filename, lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SH", &ctrl->prtvrbl[SH_CTRL], 'i', filename, lno);
+    ctrl->prtvrbl[ETP_CTRL] = ReadPrtCtrl (cmdstr, "ETP", filename, lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "G", &ctrl->prtvrbl[G_CTRL], 'i', filename, lno);
+    ctrl->prtvrbl[ESNOW_CTRL] = ReadPrtCtrl (cmdstr, "ESNOW", filename, lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "ETP", &ctrl->prtvrbl[ETP_CTRL], 'i', filename, lno);
+    ctrl->prtvrbl[ROOTW_CTRL] = ReadPrtCtrl (cmdstr, "ROOTW", filename, lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "ESNOW", &ctrl->prtvrbl[ESNOW_CTRL], 'i', filename,
-        lno);
+    ctrl->prtvrbl[SOILM_CTRL] = ReadPrtCtrl (cmdstr, "SOILM", filename, lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "ROOTW", &ctrl->prtvrbl[ROOTW_CTRL], 'i', filename,
-        lno);
+    ctrl->prtvrbl[SOLAR_CTRL] = ReadPrtCtrl (cmdstr, "SOLAR", filename, lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SOILM", &ctrl->prtvrbl[SOILM_CTRL], 'i', filename,
-        lno);
-
-    NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "SOLAR", &ctrl->prtvrbl[SOLAR_CTRL], 'i', filename,
-        lno);
+    ctrl->prtvrbl[CH_CTRL] = ReadPrtCtrl (cmdstr, "CH", filename, lno);
 
     fclose (lsm_file);
 }

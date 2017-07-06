@@ -20,6 +20,9 @@
 #endif
 
 #include <stdarg.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 /* SUNDIAL Header Files */
 #include "sundials_types.h"     /* realtype, integertype, booleantype
@@ -37,17 +40,29 @@
                                  * SQR functions  */
 #include "cvode_dense.h"        /* CVDENSE header file */
 
-#ifdef _ENKF_
-#include "mpi.h"
+/*
+ * SUNDIAL Header Files
+ */
+/* CVODE header file */
+#include "cvode.h"
+/* CVSPGMR linear header file */
+#include "cvode_spgmr.h"
+/* Definition of type N_Vector */
+#ifdef _CVODE_OMP
+#include "nvector_openmp.h"
+#else
+#include "nvector_serial.h"
 #endif
+/* UnitRoundoff, RSqrt, SQR functions */
+#include "sundials_math.h"
+/* CVDENSE header file */
+#include "cvode_dense.h"
+
 #ifdef _NOAH_
 #include "spa.h"
 #endif
 
 #include "pihm_const.h"
-#ifdef _ENKF_
-#include "enkf.h"
-#endif
 #include "pihm_input_struct.h"
 #include "elem_struct.h"
 #include "river_struct.h"

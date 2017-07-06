@@ -456,7 +456,7 @@ void Lookup (FILE * database, Chem_Data CD, int lookupflg)
      * CD->chemtype[i].Charge   = tmpval[0];;
      * fprintf(stderr, " Charge = %6.4f\n", CD->chemtype[i].Charge);
      * }
-     * 
+     *
      * }
      * fgets(line, LINE_WIDTH, database);
      * }
@@ -847,10 +847,10 @@ int Speciation (Chem_Data CD, int cell)
                             (1 + bdh * CD->chemtype[i].SizeF * Iroot) +
                             bdt * I;
                     //          fprintf(stderr, " Log10gamma of %s %6.4f\n", CD->chemtype[i].ChemName, gamma[i]);
-                    // log a  = log c + log gamma; log c = log a - log gamma;                                                                                            
+                    // log a  = log c + log gamma; log c = log a - log gamma;
                 }
             }
-            // gamma stores log10gamma[i].                                                                                                                           
+            // gamma stores log10gamma[i].
             //   fprintf(stderr, "\n Ionic strength is %6.4f\n", I);
             // fprintf(stderr, "\n NEWTON ITERATION = %d\n",control);
             for (i = 0; i < CD->NumSsc; i++)
@@ -946,7 +946,7 @@ int Speciation (Chem_Data CD, int cell)
         }
         tmpval -= Keq[i] + gamma[i + CD->NumStc];
         tmpconc[i + CD->NumStc] = tmpval;
-        //  fprintf(stderr, " UPDATE %s %6.4f\n", CD->chemtype[i+CD->NumStc].ChemName, (tmpconc[i+CD->NumStc]));                                                     
+        //  fprintf(stderr, " UPDATE %s %6.4f\n", CD->chemtype[i+CD->NumStc].ChemName, (tmpconc[i+CD->NumStc]));
     }
     for (i = 0; i < CD->NumStc; i++)
     {
@@ -954,7 +954,7 @@ int Speciation (Chem_Data CD, int cell)
         for (j = 0; j < CD->NumStc + CD->NumSsc; j++)
         {
             tmpval += CD->Totalconc[i][j] * pow (10, tmpconc[j]);
-            //  fprintf(stderr, " %s %6.4f\t %6.4f\n", CD->chemtype[j].ChemName,CD->Totalconc[i][j], tmpconc[j]);                                                        
+            //  fprintf(stderr, " %s %6.4f\t %6.4f\n", CD->chemtype[j].ChemName,CD->Totalconc[i][j], tmpconc[j]);
         }
         totconc[i] = tmpval;
         residue[i] = tmpval - CD->Vcele[cell].t_conc[i];
@@ -1041,7 +1041,7 @@ React (realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
             exp ((-ACT_ENERGY / 1.987E-3) * ((1 /
                     CD->Vcele[cell].temperature) - (1 / (CD->Temperature +
                         273.15))));
-    // Arrhenius equation. 
+    // Arrhenius equation.
     if (cell == 1)
         fprintf (stderr, " KM: %6.4f ", kinetic_multiplier);
 
@@ -1093,7 +1093,7 @@ React (realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
             (1 - (IAP[i] / tmpKeq)) * 60;
         /* Rate_pre: in mol/L water       / min   rate per reaction
          * area: m2/L water
-         * rate: mol/m2/s 
+         * rate: mol/m2/s
          * dependency: dimensionless;
          */
         if (CD->TEMcpl)
@@ -1236,7 +1236,7 @@ React (realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
                 (IAP[i] / tmpKeq)) * 60;
             /* Rate_pre: in mol/L water       / min
              * area: m2/L water
-             * rate: mol/m2/s 
+             * rate: mol/m2/s
              * dependency: dimensionless;
              */
             if (CD->TEMcpl)

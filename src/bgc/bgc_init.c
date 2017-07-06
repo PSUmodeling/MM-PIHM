@@ -1,14 +1,13 @@
 #include "pihm.h"
 
-void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv,
-    const epctbl_struct *epctbl, const ctrl_struct *ctrl)
+void InitBgc (elem_struct *elem, const epctbl_struct *epctbl)
 {
     int             i;
     int             epc_ind;
 
     PIHMprintf (VL_VERBOSE, "BGC: Initializing BGC structures\n");
 
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
         epc_ind = elem[i].attrib.lc_type - 1;
 
@@ -73,113 +72,32 @@ void InitBGC (elem_struct *elem, int numele, river_struct *riv, int numriv,
         elem[i].epc.deadwood_fucel = epctbl->deadwood_fucel[epc_ind];
         elem[i].epc.deadwood_fscel = epctbl->deadwood_fscel[epc_ind];
         elem[i].epc.deadwood_flig = epctbl->deadwood_flig[epc_ind];
-
-        if (ctrl->bgc_spinup)
-        {
-            InitElemStor (&elem[i].stor, ctrl->spinupstart, ctrl->spinupend);
-        }
-    }
-
-    for (i = 0; i < numriv; i++)
-    {
-        if (ctrl->bgc_spinup)
-        {
-            InitRiverStor (&riv[i].stor, ctrl->spinupstart, ctrl->spinupend);
-        }
     }
 }
 
-void InitBGCVar (elem_struct *elem, int numele, river_struct *riv, int numriv,
-    cinit_struct cinit, cstate_struct cs, nstate_struct ns, char *fn,
-    int spinup)
+void InitBgcVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
 {
     int             i;
-    FILE           *init_file;
 
-    /* Read initial conditions */
-    if (!spinup)
+    for (i = 0; i < nelem; i++)
     {
-        init_file = fopen (fn, "rb");
-        CheckFile (init_file, fn);
-        PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
+        RestartInput (&elem[i].cs, &elem[i].ns, &elem[i].epv,
+            &elem[i].restart_input);
 
-        for (i = 0; i < numele; i++)
-        {
-            fread (&elem[i].restart_input, sizeof (bgcic_struct), 1,
-                init_file);
-
-            RestartInput (&elem[i].cs, &elem[i].ns, &elem[i].epv,
-                &elem[i].restart_input);
-
-            /* Calculate LAI for the coupling with Noah */
-            elem[i].ps.proj_lai = elem[i].cs.leafc * elem[i].epc.avg_proj_sla;
-            elem[i].epv.annavg_t2m = elem[i].ps.tbot;
-        }
-
-        for (i = 0; i < numriv; i++)
-        {
-            fread (&riv[i].ns.sminn, sizeof (double), 1, init_file);
-        }
-
-        fclose (init_file);
-    }
-    else
-    {
-        for (i = 0; i < numele; i++)
-        {
-            elem[i].cinit = cinit;
-            elem[i].cs = cs;
-            elem[i].ns = ns;
-
-            elem[i].ns.cwdn = cs.cwdc / elem[i].epc.deadwood_cn;
-            elem[i].ns.litr2n = cs.litr2c / elem[i].epc.leaflitr_cn;
-            elem[i].ns.litr3n = cs.litr3c / elem[i].epc.leaflitr_cn;
-            elem[i].ns.litr4n = cs.litr4c / elem[i].epc.leaflitr_cn;
-            elem[i].ns.soil1n = cs.soil1c / SOIL1_CN;
-            elem[i].ns.soil2n = cs.soil2c / SOIL2_CN;
-            elem[i].ns.soil3n = cs.soil3c / SOIL3_CN;
-            elem[i].ns.soil4n = cs.soil4c / SOIL4_CN;
-
-            if (elem[i].epc.evergreen)
-            {
-                elem[i].epv.dormant_flag = 0.0;
-            }
-            else
-            {
-                elem[i].epv.dormant_flag = 1.0;
-            }
-
-            //elem[i].epv.days_active = 0.;
-            elem[i].epv.onset_flag = 0.0;
-            elem[i].epv.onset_counter = 0.0;
-            elem[i].epv.onset_gddflag = 0.0;
-            elem[i].epv.onset_fdd = 0.0;
-            elem[i].epv.onset_gdd = 0.0;
-            elem[i].epv.onset_swi = 0.0;
-            elem[i].epv.offset_flag = 0.0;
-            elem[i].epv.offset_counter = 0.0;
-            elem[i].epv.offset_fdd = 0.0;
-            elem[i].epv.offset_swi = 0.0;
-            elem[i].epv.annavg_t2m = elem[i].ps.tbot;
-
-            FirstDay (&elem[i].epc, &elem[i].cinit, &elem[i].epv, &elem[i].cs,
-                &elem[i].ns);
-        }
-
-        for (i = 0; i < numriv; i++)
-        {
-            riv[i].ns.sminn = 0.0;
-        }
-    }
-
-    for (i = 0; i < numele; i++)
-    {
         ZeroSrcSnk (&elem[i].cs, &elem[i].ns, &elem[i].summary);
+        elem[i].epv.annavg_t2m = elem[i].ps.tbot;
+        elem[i].nsol.snksrc = 0.0;
+
+        NV_Ith (CV_Y, SMINN(i)) = elem[i].ns.sminn;
+
+        elem[i].nt.sminn0 = elem[i].ns.sminn;
     }
 
-    for (i = 0; i < numriv; i++)
+    for (i = 0; i < nriver; i++)
     {
-        //riv[i].nleached_snk = 0.0;
+        riv[i].ns.rivern = riv[i].restart_input.rivern;
         riv[i].nf.sminn_leached = 0.0;
+
+        NV_Ith (CV_Y, RIVERN(i)) = riv[i].ns.rivern;
     }
 }
