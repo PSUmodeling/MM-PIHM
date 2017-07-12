@@ -1,7 +1,7 @@
 INIT_MODE	    0                   # Initialization type 0: relaxation, 1: use .init file
 ASCII_OUTPUT        1                   # Write ASCII output? 0: no, 1: yes
 TECPLOT_OUTPUT      1                   # Write Tecplot output? 0: no, 1: yes
-CVODE_PERF	    1                   # Write Performance file and CVODE stats?  0: no, 1: yes
+CVODE_PERF	    0                   # Write CVODE stats?  0: no, 1: yes
 WATERB	            1                   # Write water balance? 0: no, 1: yes
 WRITE_IC	    1                   # Write initial condition? 0: Standard model run, 1: Outputs will be written to .init files
 UNSAT_MODE	    2
@@ -12,17 +12,16 @@ ABSTOL		    1E-4
 RELTOL	            1E-3
 INIT_SOLVER_STEP    5E-5
 MAX_SOLVER_STEP	    60                  # Maximum solver step (DANGER ZONE)
-LSM_STEP	    900	                # LSM (or ET) step size (unit: s)
-START		    2009-01-01 01:00
-END		    2009-01-08 03:00
+LSM_STEP	    60	                # LSM (or ET) step size (unit: s)
+START		    2008-01-01 07:00
+END		    2008-01-04 09:00
 MODEL_STEPSIZE	    60                  # PIHM step size (unit: s)
 ###############################################################################
 # OUTPUT CONTROL:                                                             #
 #  All options are listed below.                                              #
 #  Use "#" to comment out the variables you do not want to output, or set     #
 #  the output interval (in secends) to 0.                                     #
-###############################################################################
-SURF		    HOURLY
+###############################################################################SURF		    HOURLY
 UNSAT		    HOURLY
 GW		    HOURLY
 RIVSTG		    HOURLY
@@ -52,4 +51,4 @@ UNSATTEC            HOURLY
 GWTEC		    HOURLY
 RIVSTGTEC	    HOURLY
 RIVGWTEC            HOURLY
-IC		    HOURLY
+IC		   HOURLY

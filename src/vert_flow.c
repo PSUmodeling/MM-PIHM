@@ -250,18 +250,11 @@ double EffKV (double ksatfunc, int status, double mackv, double kv,
 
 double KrFunc (double alpha, double beta, double satn)
 {
-    // If satn < 0.4 kr~0
-	if (satn < 0.4)
-	{
-		return 0.0;
-	}
-	else
-	{
-		double n = (beta - 1.0) / beta;
-		return (sqrt(satn) * (-1.0 + pow(1.0 - pow(satn,
-			1.0 / n), n))*(-1.0 + pow(1.0 - pow(satn,
-				1.0 / n), n)));
-	}
+    return (sqrt (satn) *
+        (1.0 - pow (1.0 - pow (satn, beta / (beta - 1.0)),
+        (beta - 1.0) / beta)) *
+        (1.0 - pow (1.0 - pow (satn, beta / (beta - 1.0)),
+        (beta - 1.0) / beta)));
 }
 
 int MacroporeStatus (double dh_by_dz, double ksatfunc, double applrate,
@@ -289,16 +282,6 @@ int MacroporeStatus (double dh_by_dz, double ksatfunc, double applrate,
 
 double Psi (double satn, double alpha, double beta)
 {
-	double n1, n2, invsat, rv=0.0;
-
-    //TODO remove this?
-	if (satn < 0.9999999) 
-	{ 
-		n1 = beta / (beta - 1.0);
-		n2 = 1.0 / beta;
-		invsat = 1.0 / satn;	
-		rv = -pow(pow(invsat, n1) - 1.0, n2) / alpha; 
-	}
     /* van Genuchten 1980 SSSAJ */
     return (0.0 -
         pow (pow (1.0 / satn, beta / (beta - 1.0)) - 1.0,

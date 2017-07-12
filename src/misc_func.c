@@ -13,21 +13,10 @@
 #define pihm_access(path, amode) access((path), (amode))
 #endif
 
-#if defined(_WIN32)
-/* Do windows stuff here */
-#include <direct.h>
-#define pihm_mkdir(path) _mkdir((path))
-#define pihm_access(path, amode) _access((path), (amode))
-#define F_OK    0
-#else
-#define pihm_mkdir(path) mkdir(path, 0755)
-#define pihm_access(path, amode) access((path), (amode))
-#endif
-
 extern char            project[MAXSTRING];
 
 
-void ParseCmdLineParam (int argc, char *argv[], int *spec_output_mode, char *outputdir)
+void ParseCmdLineParam (int argc, char *argv[], char *outputdir)
 {
 	struct optparse options;
 	optparse_init(&options, argv);
@@ -47,9 +36,7 @@ void ParseCmdLineParam (int argc, char *argv[], int *spec_output_mode, char *out
 	    {
 	        case 'o':
 	            /* Specify output directory */
-				sprintf(outputdir, "output/%s/", options.optarg);
-				*spec_output_mode = 1;
-				printf ("Output directory is specified as \"%s\".\n", outputdir);
+                sprintf (outputdir, "output/%s/", options.optarg);
 	            break;
             case 'c':
                 /* Surface elevation correction mode */
@@ -68,12 +55,11 @@ void ParseCmdLineParam (int argc, char *argv[], int *spec_output_mode, char *out
 	            break;
             case 'V':
                 /* Print version number */
-                //printf ("\nMM-PIHM Version %s.\n", VERSION);
-				printf("\nMM-PIHM Version %s.\n");
+                printf ("\nMM-PIHM Version %s.\n", VERSION);
                 PIHMexit (EXIT_SUCCESS);
                 break;
 	        case '?':
-                printf ("Option not recognisable %s\n", argv[0], options.errmsg);
+                printf ("Option not recognisable %s\n", options.errmsg);
                 break;
             default:
 	            break;
@@ -158,6 +144,7 @@ void BKInput (char *simulation, char *outputdir)
     {
         sprintf (system_cmd, "cp %s ./%s/%s.calib.bak", source_file,
             outputdir, simulation);
+		system(system_cmd);
     }
     sprintf (source_file, "input/%s/%s.init", project, simulation);
     if (pihm_access(source_file, F_OK) != -1)

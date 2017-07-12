@@ -63,12 +63,14 @@ void _PIHMprintf (const char *fn, int lineno, const char *func, int verbosity,
     va_end (va);
 }
 
-void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii)
+void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii, prtctrlT_struct *prtctrlT, int nprintT, int tecplot)
 {
     char            ascii_fn[MAXSTRING];
     char            dat_fn[MAXSTRING];
+	char            tec_fn[MAXSTRING];
     int             i;
 
+	
     for (i = 0; i < nprint; i++)
     {
         sprintf (dat_fn, "%s.dat", prtctrl[i].name);
@@ -80,6 +82,12 @@ void InitOutputFile (prtctrl_struct *prtctrl, int nprint, int ascii)
             prtctrl[i].txtfile = fopen (ascii_fn, "w");
         }
     }
+	if (tecplot)
+		for (i = 0; i < nprintT; i++)
+		{
+			sprintf(tec_fn, "%s.plt", prtctrlT[i].name);
+			prtctrlT[i].datfile = fopen(tec_fn, "w");
+		}
 }
 
 void UpdPrintVar (prtctrl_struct *prtctrl, int nprint, int module_step)
@@ -102,6 +110,24 @@ void UpdPrintVar (prtctrl_struct *prtctrl, int nprint, int module_step)
             prtctrl[i].counter++;
         }
     }
+}
+
+void UpdPrintVarT(prtctrlT_struct *prtctrlT, int nprintT)
+{
+	int             i;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+	for (i = 0; i < nprintT; i++)
+	{
+		int         j;
+			for (j = 0; j < prtctrlT[i].nvar; j++)
+			{
+				prtctrlT[i].buffer[j] += *prtctrlT[i].var[j];
+			}
+
+			prtctrlT[i].counter++;
+	}
 }
 
 void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse,
@@ -251,192 +277,216 @@ void PrtInit(elem_struct *elem, river_struct *river, char *simulation)
 	fclose(init_file);
 }
 
-//void PrintDataTecplot(prtctrlT_struct *prtctrlT, int nprintT, int t, int lapse, int dt, int count)
-//{
-//	int             i, j;
-//	char            dat_fn[MAXSTRING];
-//	FILE           *fid;
-//	double          outval;
-//	double          outtime;
-//	const char		*str1_Tec, *str2_Tec, *str3_Tec;
-//	realtype        *hnodes;   /* h at nodes */
-//	int				*inodes;
-//
-//
-//	outtime = (double)t;	
-//    str1_Tec = "VARIABLES = \"X\" \"Y\" \"Zmin\" \"Zmax\" \"h\"";
-//	for (i = 0; i < nprintT; i++)
-//	{
-//		
-//		for (j = 0; j < prtctrlT[i].nvar; j++)
-//		{
-//			prtctrlT[i].buffer[j] += *prtctrlT[i].var[j];
-//		}
-//
-//		  sprintf(dat_fn, "%s.plt", prtctrlT[i].name);
-//		  fid = fopen(dat_fn, "a");
-//		  CheckFile(fid, dat_fn);	
-//		if (lapse % prtctrlT[i].intvl == 0 && lapse > 0)
-//		{
-//	
-//  		  if (prtctrlT[i].intr == 1)
-//			{
-//				/*Print river files */
-//				str2_Tec = "ZONE T = \"Water Depth River\" ";
-//				str3_Tec = "StrandID=1, SolutionTime=";
-//
-//				fprintf(fid, "%s \n", str1_Tec);
-//				fprintf(fid, "%s \n", str2_Tec);
-//				fprintf(fid, "%s %d \n", str3_Tec, t);
-//				for (j = 0; j < prtctrlT[i].nvar; j++)
-//				{
-//					if (prtctrlT[i].intvl > dt)
-//					{
-//						outval =
-//							prtctrlT[i].buffer[j] / ((double)(prtctrlT[i].intvl /
-//								dt));
-//					}
-//					else
-//					{
-//						outval = prtctrlT[i].buffer[j];
-//					}
-//
-//					fprintf(fid, "%lf %lf %lf %lf %lf \n", *prtctrlT[i].x[j], *prtctrlT[i].y[j], *prtctrlT[i].zmin[j], *prtctrlT[i].zmax[j], outval);
-//					prtctrlT[i].buffer[j] = 0.0;
-//				}
-//			}
-//			else
-//			{
-//
-//				/*Print element files */
-//				hnodes = (double *)calloc(prtctrlT[i].nnodes, sizeof(double));
-//				inodes = (int *)calloc(prtctrlT[i].nnodes, sizeof(int));
-//				for (j = 0; j < prtctrlT[i].nnodes; j++)
-//				{
-//					hnodes[j] = 0.0;
-//					inodes[j] = 0;
-//				}
-//				if ( (int)(count/dt) <= 0)
-//				{
-//					fprintf(fid, "%s \n", str1_Tec);
-//					fprintf(fid, "%s %s %s %d %s %d %s %lf %s\n", "ZONE T=\"", prtctrlT[i].name, "\", N=", prtctrlT[i].nnodes, ", E=", prtctrlT[i].nvar, "DATAPACKING=POINT, SOLUTIONTIME = ", 0.0000, ", ZONETYPE=FETRIANGLE");
-//
-//					for (j = 0; j < prtctrlT[i].nnodes; j++)
-//					{
-//						fprintf(fid, "%lf %lf %lf %lf %lf\n", *prtctrlT[i].x[j], *prtctrlT[i].y[j], *prtctrlT[i].zmin[j], *prtctrlT[i].zmax[j], 0.000001);
-//					}
-//					for (j = 0; j < prtctrlT[i].nvar; j++)
-//					{
-//						fprintf(fid, "%d %d %d \n", *prtctrlT[i].node0[j], *prtctrlT[i].node1[j], *prtctrlT[i].node2[j]);
-//					}
-//				}
-//				str3_Tec = "VARSHARELIST = ([1, 2, 3, 4]=1), CONNECTIVITYSHAREZONE = 1";
-//				fprintf(fid, "%s %s %s %d %s %d %s %lf %s\n", "ZONE T=\"", prtctrlT[i].name, "\", N=", prtctrlT[i].nnodes, ", E=", prtctrlT[i].nvar, "DATAPACKING=POINT, SOLUTIONTIME = ", outtime, ", ZONETYPE=FETRIANGLE,");
-//				fprintf(fid, "%s \n", str3_Tec);
-//				for (j = 0; j < prtctrlT[i].nvar; j++)
-//				{
-//					if (prtctrlT[i].intvl > dt)
-//					{
-//						outval =
-//							prtctrlT[i].buffer[j] / ((double)(prtctrlT[i].intvl /
-//								dt));
-//					}
-//					else
-//					{
-//						outval = prtctrlT[i].buffer[j];
-//					}
-//
-//					hnodes[*prtctrlT[i].node0[j] - 1] = hnodes[*prtctrlT[i].node0[j] - 1] + outval;
-//					hnodes[*prtctrlT[i].node1[j] - 1] = hnodes[*prtctrlT[i].node1[j] - 1] + outval;
-//					hnodes[*prtctrlT[i].node2[j] - 1] = hnodes[*prtctrlT[i].node2[j] - 1] + outval;
-//					inodes[*prtctrlT[i].node0[j] - 1] = inodes[*prtctrlT[i].node0[j] - 1] + 1;
-//					inodes[*prtctrlT[i].node1[j] - 1] = inodes[*prtctrlT[i].node1[j] - 1] + 1;
-//					inodes[*prtctrlT[i].node2[j] - 1] = inodes[*prtctrlT[i].node2[j] - 1] + 1;
-//					prtctrlT[i].buffer[j] = 0.0;
-//				}
-//				for (j = 0; j < prtctrlT[i].nnodes; j++) 
-//				{
-//					if (inodes[j] == 0) {
-//						fprintf(fid, "%8.6f \n", 0.0);
-//					}
-//					else {
-//						fprintf(fid, "%8.6f \n", hnodes[j] / inodes[j]);
-//					}			
-//				}
-//			}
-//			
-//		}
-//		fclose(fid);
-//	}
+void PrintDataTecplot(prtctrlT_struct *prtctrlT, int nprintT, int t, int lapse)
+{
+		int             i;
+		pihm_t_struct   pihm_time;
+		const char		*str1_Tec, *str2_Tec, *str3_Tec;
+		pihm_time = PIHMTime(t);
+		realtype        *hnodes;   /* h at nodes */
+		int				*inodes;
+	
+		str1_Tec = "VARIABLES = \"X\" \"Y\" \"Zmin\" \"Zmax\" \"h\"";
+		for (i = 0; i < nprintT; i++)
+		{
+			int         j;
+			int         print = 0;
+			double      outval;
+			double      outtime;
 
-//void PrintStats(void *cvode_mem)
-//{
-//	long int nst, nfe, nfeLS, nni, ncfn, netf;
-//	int flag;
-//	FILE *Converg; /* Convergence file */
-//	Converg = fopen("CVODE.log", "a");
-//
-//	flag = CVodeGetNumSteps(cvode_mem, &nst);
-//	flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-//	flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-//	flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-//	flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
-//	flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-//	
-//	//fprintf(Converg, "\nCVODE Statistics:\n");
-//	fprintf(Converg, "nst = %-6ld nni = %-6ld nfe = %-6ld netf = %-6ld ncfn = %-6ld nfeLS = %-6ld\n",
-//		nst, nni, nfe, netf, ncfn, nfeLS);
-//	fclose(Converg);
-//}
+			switch (prtctrlT[i].intvl)
+			{
+			case YEARLY_OUTPUT:
+				if (pihm_time.month == 1 && pihm_time.day == 1 &&
+					pihm_time.hour == 0 && pihm_time.minute == 0)
+				{
+					print = 1;
+				}
+				break;
+			case MONTHLY_OUTPUT:
+				if (pihm_time.day == 1 && pihm_time.hour == 0 &&
+					pihm_time.minute == 0)
+				{
+					print = 1;
+				}
+				break;
+			case DAILY_OUTPUT:
+				if (pihm_time.hour == 0 && pihm_time.minute == 0)
+				{
+					print = 1;
+				}
+				break;
+			case HOURLY_OUTPUT:
+				if (pihm_time.minute == 0)
+				{
+					print = 1;
+				}
+				break;
+			default:
+				if (lapse % prtctrlT[i].intvl == 0 && lapse > 0)
+				{
+					print = 1;
+				}
+			}
+			if (print)
+			{
+				outtime = (double)t;
 
-//void PrintWaterBalance(FILE *WaterBalance, int dt, elem_struct *elem, int numele, river_struct *riv, int numriv, int count)
-//{
-//	long int i,j;
-//	const char		*str1_Tec;
-//	realtype        totarea = 0., totlenght = 0.;
-//	realtype        totPrep = 0., totNetPrep = 0., totInf = 0., totRecharge = 0., totEsoil = 0., \
-//		            totETplant = 0., totEcan = 0., totPET = 0., totET = 0., totES = 0., totEU = 0., \
-//		            totEGW = 0., totTU = 0., totTGW = 0.;
-//	realtype        outflow, RE_OLF = 0., R_Exf = 0.;
-//
-//
-//	str1_Tec = "VARIABLES = \"TIME (s)\" \"Outflow (cms)\" \"Surf2Chan (cms)\" \"AqF2Chan (cms)\" \
-//          \"Precipitation (cms)\" \"NetPrec (cms)\" \"Infiltration (cms)\" \"Recharge (cms)\" \
-//          \"E_soil (cms)\" \"ET_plant (cms)\" \"E_canopy (cms)\" \"PET (cms)\" \"ET (cms)\" \
-//          \"E_Surface (cms)\" \"E_Unsat (cms)\" \"E_GW (cms)\" \"T_Unsat (cms)\" \"T_GW (cms)\"";
-//	
-//	if (count == 0) {
-//		fprintf(WaterBalance, "%s\n", str1_Tec);
-//	}
-//
-//	for (i = 0; i < numele; i++) {
-//		totarea = totarea + elem[i].topo.area;
-//		totPrep = totPrep + elem[i].wf.prcp * elem[i].topo.area;
-//		totNetPrep = totNetPrep + elem[i].wf.pcpdrp * elem[i].topo.area;
-//		totInf = totInf + elem[i].wf.infil * elem[i].topo.area;
-//		totRecharge = totRecharge + elem[i].wf.rechg * elem[i].topo.area;
-//		totEsoil = totEsoil + elem[i].wf.edir * elem[i].topo.area;
-//		totETplant = totETplant + elem[i].wf.ett * elem[i].topo.area;
-//		totEcan = totEcan + elem[i].wf.ec * elem[i].topo.area;
-//		totPET = totPET + elem[i].wf.etp * elem[i].topo.area;
-//		totET = totET + elem[i].wf.eta * elem[i].topo.area;
-//		totES = totES + elem[i].wf.edir_surf * elem[i].topo.area;
-//		totEU = totEU + elem[i].wf.edir_unsat * elem[i].topo.area;
-//		totEGW = totEGW + elem[i].wf.edir_gw * elem[i].topo.area;
-//		totTU = totTU + elem[i].wf.ett_unsat * elem[i].topo.area;
-//		totTGW = totTGW + elem[i].wf.ett_gw * elem[i].topo.area;
-//	}
-//
-//	for (j = 0; j < numriv; j++) {
-//		totlenght = totlenght + riv[j].shp.length;
-//		if (riv[j].down < 0) {
-//			outflow = riv[j].wf.rivflow[DOWN_CHANL2CHANL];
-//		}
-//		RE_OLF = RE_OLF + (riv[j].wf.rivflow[LEFT_SURF2CHANL] + riv[j].wf.rivflow[RIGHT_SURF2CHANL]);
-//		R_Exf = R_Exf = +(riv[j].wf.rivflow[LEFT_AQUIF2CHANL] + riv[j].wf.rivflow[RIGHT_AQUIF2CHANL]);
-//
-//	}
-//
-//	fprintf(WaterBalance, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
-//		dt, outflow, RE_OLF, R_Exf, totPrep, totNetPrep, totInf, totRecharge, totEsoil, totETplant, totEcan, totPET, totET, totES, totEU, totEGW, totTU, totTGW);
-//}
+				if (prtctrlT[i].intr == 1)
+				{
+					/*Print river files */
+					str2_Tec = "ZONE T = \"Water Depth River\" ";
+					str3_Tec = "StrandID=1, SolutionTime=";
+
+					fprintf(prtctrlT[i].datfile, "%s \n", str1_Tec);
+					fprintf(prtctrlT[i].datfile, "%s \n", str2_Tec);
+					fprintf(prtctrlT[i].datfile, "%s %d \n", str3_Tec, t);
+					for (j = 0; j < prtctrlT[i].nvar; j++)
+					{
+						if (prtctrlT[i].counter > 0)
+						{
+							outval = prtctrlT[i].buffer[j] /
+								(double)prtctrlT[i].counter;
+						}
+						else
+						{
+							outval = prtctrlT[i].buffer[j];
+						}
+
+						fprintf(prtctrlT[i].datfile, "%lf %lf %lf %lf %lf \n", *prtctrlT[i].x[j], *prtctrlT[i].y[j], *prtctrlT[i].zmin[j], *prtctrlT[i].zmax[j], outval);
+						prtctrlT[i].buffer[j] = 0.0;
+					}
+					prtctrlT[i].counter = 0;
+					fflush(prtctrlT[i].datfile);
+				}
+					else
+					{
+
+						/*Print element files */
+						hnodes = (double *)calloc(prtctrlT[i].nnodes, sizeof(double));
+						inodes = (int *)calloc(prtctrlT[i].nnodes, sizeof(int));
+						for (j = 0; j < prtctrlT[i].nnodes; j++)
+						{
+							hnodes[j] = 0.0;
+							inodes[j] = 0;
+						}
+						if (prtctrlT[i].first)
+						{
+							fprintf(prtctrlT[i].datfile, "%s \n", str1_Tec);
+							fprintf(prtctrlT[i].datfile, "%s %s %s %d %s %d %s %lf %s\n", "ZONE T=\"", prtctrlT[i].name, "\", N=", prtctrlT[i].nnodes, ", E=", prtctrlT[i].nvar, "DATAPACKING=POINT, SOLUTIONTIME = ", 0.0000, ", ZONETYPE=FETRIANGLE");
+
+							for (j = 0; j < prtctrlT[i].nnodes; j++)
+							{
+								fprintf(prtctrlT[i].datfile, "%lf %lf %lf %lf %lf\n", *prtctrlT[i].x[j], *prtctrlT[i].y[j], *prtctrlT[i].zmin[j], *prtctrlT[i].zmax[j], 0.000001);
+							}
+							for (j = 0; j < prtctrlT[i].nvar; j++)
+							{
+								fprintf(prtctrlT[i].datfile, "%d %d %d \n", *prtctrlT[i].node0[j], *prtctrlT[i].node1[j], *prtctrlT[i].node2[j]);
+							}
+							prtctrlT[i].first = 0;
+						}
+						str3_Tec = "VARSHARELIST = ([1, 2, 3, 4]=1), CONNECTIVITYSHAREZONE = 1";
+						fprintf(prtctrlT[i].datfile, "%s %s %s %d %s %d %s %lf %s\n", "ZONE T=\"", prtctrlT[i].name, "\", N=", prtctrlT[i].nnodes, ", E=", prtctrlT[i].nvar, "DATAPACKING=POINT, SOLUTIONTIME = ", outtime, ", ZONETYPE=FETRIANGLE,");
+						fprintf(prtctrlT[i].datfile, "%s \n", str3_Tec);
+						for (j = 0; j < prtctrlT[i].nvar; j++)
+						{
+							if (prtctrlT[i].counter > 0)
+							{
+								outval = prtctrlT[i].buffer[j] /
+									(double)prtctrlT[i].counter;
+							}
+							else
+							{
+								outval = prtctrlT[i].buffer[j];
+							}
+
+							hnodes[*prtctrlT[i].node0[j] - 1] = hnodes[*prtctrlT[i].node0[j] - 1] + outval;
+							hnodes[*prtctrlT[i].node1[j] - 1] = hnodes[*prtctrlT[i].node1[j] - 1] + outval;
+							hnodes[*prtctrlT[i].node2[j] - 1] = hnodes[*prtctrlT[i].node2[j] - 1] + outval;
+							inodes[*prtctrlT[i].node0[j] - 1] = inodes[*prtctrlT[i].node0[j] - 1] + 1;
+							inodes[*prtctrlT[i].node1[j] - 1] = inodes[*prtctrlT[i].node1[j] - 1] + 1;
+							inodes[*prtctrlT[i].node2[j] - 1] = inodes[*prtctrlT[i].node2[j] - 1] + 1;
+							prtctrlT[i].buffer[j] = 0.0;
+						}
+						for (j = 0; j < prtctrlT[i].nnodes; j++)
+						{
+							if (inodes[j] == 0) {
+								fprintf(prtctrlT[i].datfile, "%8.6f \n", 0.0);
+							}
+							else {
+								fprintf(prtctrlT[i].datfile, "%8.6f \n", hnodes[j] / inodes[j]);
+							}
+						}
+						prtctrlT[i].counter = 0;
+						fflush(prtctrlT[i].datfile);
+					}
+			}
+		}
+	}
+
+void PrintStats(void *cvode_mem, FILE *Conv)
+{
+	long int nst, nfe, nni, ncfn, netf;
+	int flag;
+
+	flag = CVodeGetNumSteps(cvode_mem, &nst);
+	flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+	flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+	flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+	flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+	
+	fprintf(Conv, "nst = %-6ld nni = %-6ld nfe = %-6ld netf = %-6ld ncfn = %-6ld\n",
+		nst, nni, nfe, netf, ncfn);
+}
+
+
+void PrintWaterBalance(FILE *WaterBalance, int t, int tstart, int dt, elem_struct *elem, int numele, river_struct *riv, int numriv)
+{
+	long int i,j;
+	const char		*str1_Tec;
+	realtype        totarea = 0., totlenght = 0.;
+	realtype        totPrep = 0., totNetPrep = 0., totInf = 0., totRecharge = 0., totEsoil = 0., \
+		            totETplant = 0., totEcan = 0., totPET = 0., totET = 0., totES = 0., totEU = 0., \
+		            totEGW = 0., totTU = 0., totTGW = 0.;
+	realtype        outflow, RE_OLF = 0., R_Exf = 0.;
+
+
+	str1_Tec = "VARIABLES = \"TIME (s)\" \"Outflow (cms)\" \"Surf2Chan (cms)\" \"AqF2Chan (cms)\" \
+          \"Precipitation (cms)\" \"NetPrec (cms)\" \"Infiltration (cms)\" \"Recharge (cms)\" \
+          \"E_soil (cms)\" \"ET_plant (cms)\" \"E_canopy (cms)\" \"PET (cms)\" \"ET (cms)\" \
+          \"E_Surface (cms)\" \"E_Unsat (cms)\" \"E_GW (cms)\" \"T_Unsat (cms)\" \"T_GW (cms)\"";
+	
+	if (t == tstart + dt) {
+		fprintf(WaterBalance, "%s\n", str1_Tec);
+	}
+	for (i = 0; i < numele; i++) {
+		totarea = totarea + elem[i].topo.area;
+		totPrep = totPrep + elem[i].wf.prcp * elem[i].topo.area;
+		totNetPrep = totNetPrep + elem[i].wf.pcpdrp * elem[i].topo.area;
+		totInf = totInf + elem[i].wf.infil * elem[i].topo.area;
+		totRecharge = totRecharge + elem[i].wf.rechg * elem[i].topo.area;
+		totEsoil = totEsoil + elem[i].wf.edir * elem[i].topo.area;
+		totETplant = totETplant + elem[i].wf.ett * elem[i].topo.area;
+		totEcan = totEcan + elem[i].wf.ec * elem[i].topo.area;
+		totPET = totPET + elem[i].wf.etp * elem[i].topo.area;
+		totET = totET + elem[i].wf.eta * elem[i].topo.area;
+		totES = totES + elem[i].wf.edir_surf * elem[i].topo.area;
+		totEU = totEU + elem[i].wf.edir_unsat * elem[i].topo.area;
+		totEGW = totEGW + elem[i].wf.edir_gw * elem[i].topo.area;
+		totTU = totTU + elem[i].wf.ett_unsat * elem[i].topo.area;
+		totTGW = totTGW + elem[i].wf.ett_gw * elem[i].topo.area;
+	}
+
+	for (j = 0; j < numriv; j++) {
+		totlenght = totlenght + riv[j].shp.length;
+		if (riv[j].down < 0) {
+			outflow = riv[j].wf.rivflow[DOWN_CHANL2CHANL];
+		}
+		RE_OLF = RE_OLF + (riv[j].wf.rivflow[LEFT_SURF2CHANL] + riv[j].wf.rivflow[RIGHT_SURF2CHANL]);
+		R_Exf = R_Exf = +(riv[j].wf.rivflow[LEFT_AQUIF2CHANL] + riv[j].wf.rivflow[RIGHT_AQUIF2CHANL]);
+
+	}
+
+	fprintf(WaterBalance, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
+		(t-tstart), outflow, RE_OLF, R_Exf, totPrep, totNetPrep, totInf, totRecharge, totEsoil, totETplant, totEcan, totPET, totET, totES, totEU, totEGW, totTU, totTGW);
+}

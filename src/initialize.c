@@ -1,5 +1,10 @@
 #include "pihm.h"
 
+#if defined(_WIN32)
+#include <Windows.h>
+#define sleep Sleep
+#endif
+
 void Initialize (pihm_struct pihm, N_Vector CV_Y)
 {
     int             i, j;

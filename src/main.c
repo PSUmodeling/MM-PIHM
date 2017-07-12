@@ -4,41 +4,49 @@ int             verbose_mode;
 int             debug_mode;
 int             corr_mode;
 int             spinup_mode;
-int             num_threads;
 char            project[MAXSTRING];
 int             nelem;
 int             nriver;
 clock_t         ptime, start, ct;
-/* Time cpu duration */
+realtype        cputime, cputime_dt;/* Time cpu duration */
+static double	dtime = 0;
+long int		nst, nfe, nfeLS, nni, ncfn, netf; /*Variables for monitoring performance */
+int				flag;
+char			WBname[100];
+char			Perfname[50];
+char			Convname[50];
+FILE            *WaterBalance; /* Water balance file */
+FILE            *Perf; /* Performance file */
+FILE			*Conv; /* CVODE convergence file */
+
+
 #ifdef _OPENMP
 	realtype	ptime_omp, start_omp, ct_omp;
-#else
-    realtype    cputime, cputime_dt;
 #endif
 #ifdef _OPENMP
-int             nthreads;
+int             nthreads=1;  /* default value */
 #endif
 #if defined(_BGC_) || defined (_CYCLES_)
 int             first_balance;
 #endif
 
-int main(int argc, char *argv[])
+int main (int argc, char *argv[])
 {
 	char            outputdir[MAXSTRING];
-	int             spec_output_mode = 0;
 	pihm_struct     pihm;
 	N_Vector        CV_Y, abstol;       /* State Variables Vector */
 	void           *cvode_mem;  /* Model Data Pointer */
 	int             i;          /* Loop index */
 
-	/* Set the number of threads to use */
-	num_threads = 1;     /* default value */
+	memset(outputdir, 0, MAXSTRING);
+
+	/* Set the number of threads to use */    
 #ifdef _OPENMP
     nthreads = omp_get_max_threads();
 #endif
 
     /* Read command line arguments */
-    ParseCmdLineParam (argc, argv, &spec_output_mode, outputdir);
+    ParseCmdLineParam (argc, argv, outputdir);
 
     /* Print AscII art */
     AsciiArt ();
@@ -54,8 +62,8 @@ int main(int argc, char *argv[])
 
 /* Initialize CVode state variables */
 #ifdef _OPENMP
-	CV_Y = N_VNew_OpenMP(NSV, num_threads);
-	abstol = N_VNew_OpenMP(NSV, num_threads);
+	CV_Y = N_VNew_OpenMP(NSV, nthreads);
+	abstol = N_VNew_OpenMP(NSV, nthreads);
 #else
 	CV_Y = N_VNew_Serial(NSV);
 	abstol = N_VNew_Serial(NSV);
@@ -88,12 +96,32 @@ int main(int argc, char *argv[])
 #endif
 
     /* Initialize output files and structures */
-    InitOutputFile (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii);
+
+
+	if (pihm->ctrl.waterB)
+	{
+		sprintf(WBname, "%s%s_WaterBalance.plt", outputdir, project);
+		WaterBalance = fopen(WBname, "w");
+		CheckFile(WaterBalance, WBname);
+	}
+	if (pihm->ctrl.cvode_perf) {
+		sprintf(Perfname, "%s%s_Performance.txt", outputdir, project);
+		Perf = fopen(Perfname, "w");
+		CheckFile(Perf, Perfname);
+		dtime = dtime + cputime_dt;
+		fprintf(Perf, " Time step, cpu_dt, cpu_time\n");
+		sprintf(Convname, "%s%s_CVODE.log", outputdir, project);
+		Conv = fopen(Convname, "w");
+		CheckFile(Conv, Convname);
+       }
+
+
+    InitOutputFile (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii, pihm->prtctrlT, pihm->ctrl.nprintT, pihm->ctrl.tecplot);
 
     PIHMprintf (VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 
     /* Set solver parameters */
-    SetCVodeParam (pihm, cvode_mem, CV_Y, abstol);
+    SetCVodeParam (pihm, cvode_mem, CV_Y);
 
 #if defined(_BGC_) || defined (_CYCLES_)
     first_balance = 1;
@@ -130,8 +158,18 @@ int main(int argc, char *argv[])
           cputime = ((double)(ct - start)) / CLOCKS_PER_SEC;
           ptime = ct;
 #endif
-        PIHM (pihm, cvode_mem, CV_Y, abstol, pihm->ctrl.tout[i],
-            pihm->ctrl.tout[i + 1], outputdir, project, cputime_dt, cputime);
+     	PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
+				  pihm->ctrl.tout[i + 1], outputdir, project, cputime, WaterBalance);
+		if (pihm->ctrl.cvode_perf) {
+			dtime = dtime + cputime_dt;
+			if (pihm->ctrl.tout[i] % 3600 == 0)
+			{
+				fprintf(Perf, "%d %f %f \n", (pihm->ctrl.tout[i]- pihm->ctrl.starttime), cputime_dt, cputime);
+				dtime = 0.;
+			}
+		//		/* Print CVODE statistics */
+				PrintStats(cvode_mem, Conv);
+		}
     }
 #ifdef _BGC_
     }
@@ -159,6 +197,19 @@ int main(int argc, char *argv[])
     }
 #endif
 
+	/* Print some CVODE statistics */
+	flag = CVodeGetNumSteps(cvode_mem, &nst);
+	flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+	flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+	flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+	flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+
+	printf("nst = %-6ld nfe  = %-6ld \n",
+		nst, nfe);
+	printf("nni = %-6ld ncfn = %-6ld netf = %-6ld\n \n",
+		nni, ncfn, netf);
+
+
     /* Free memory */
 #ifdef _OPENMP
 	N_VDestroy_OpenMP(CV_Y);
@@ -169,7 +220,14 @@ int main(int argc, char *argv[])
 #endif
     /* Free integrator memory */
     CVodeFree (&cvode_mem);
-
+	if (pihm->ctrl.waterB)
+	{
+		fclose(WaterBalance);
+	}
+	if (pihm->ctrl.cvode_perf) {
+		fclose(Perf);
+		fclose(Conv);
+	}
     FreeData (pihm);
     free (pihm);
     PIHMprintf (VL_NORMAL, "\nSimulation completed.\n");

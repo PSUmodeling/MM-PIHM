@@ -1,21 +1,16 @@
 #include "pihm.h"
 
-void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, N_Vector abstol, int t,
-    int next_t, char *outputdir, char *simulation, double cputime_dt, double cputime)
+void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
+    int next_t, char *outputdir, char *simulation, double cputime, FILE *WaterBalance)
 
 {
-	long int		nst, nfe, nfeLS, nni, ncfn, netf; /*Variables for monitoring performance */
-	int				flag;
-	char			WBname[100];
-	FILE            *WaterBalance; /* Water balance file */
+
     /*
      * Apply boundary conditions
      */
     ApplyBC (&pihm->forc, pihm->elem, pihm->riv, t);
 
-	sprintf(WBname, "%s%s_WaterBalance.plt", outputdir, simulation);
-	WaterBalance = fopen(WBname, "w");
-	CheckFile(WaterBalance, WBname);
+
 
     /* Determine if land surface simulation is needed */
     if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
@@ -23,8 +18,7 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, N_Vector abstol, in
         /* Apply forcing */
         ApplyForcing (&pihm->forc, pihm->elem, t
     #ifdef _NOAH_
-            , &pihm->ctrl, pihm->latitude, pihm->longitude, pihm->elevation,
-            pihm->noahtbl.tbot
+            , &pihm->ctrl, &pihm->siteinfo
     #endif
             );
 
@@ -44,19 +38,18 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, N_Vector abstol, in
     /*
      * Solve PIHM hydrology ODE using CVODE
      */		
-         SolveCVode (pihm->ctrl.starttime, &t, next_t, pihm->ctrl.stepsize, cputime_dt, cputime,
-            cvode_mem, CV_Y, pihm->ctrl.cvode_perf, simulation, outputdir);
-
-		 if (pihm->ctrl.waterB)
-		 {
-
-			 /* Print water balance */
-			/* PrintWaterBalance(WaterBalance, (next_t-pihm->ctrl.starttime), pihm->elem, nelem, pihm->riv, nriver, t);*/
-		 }
+         SolveCVode (pihm->ctrl.starttime, &t, next_t, pihm->ctrl.stepsize, cputime,
+            cvode_mem, CV_Y, simulation, outputdir);
 
     /* Use mass balance to calculate model fluxes or variables */
     Summary (pihm, CV_Y, (double)pihm->ctrl.stepsize);
 
+	if (pihm->ctrl.waterB)
+	{
+
+		/* Print water balance */
+		PrintWaterBalance(WaterBalance, t, pihm->ctrl.starttime, pihm->ctrl.stepsize, pihm->elem, nelem, pihm->riv, nriver);
+	}
 #ifdef _NOAH_
     NoahHydrol (pihm->elem, (double)pihm->ctrl.stepsize);
 #endif
@@ -121,40 +114,13 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, N_Vector abstol, in
         /*
          * Print outputs
          */
-
+	    PrintData (pihm->prtctrl, pihm->ctrl.nprint, t,
+            t - pihm->ctrl.starttime, pihm->ctrl.ascii);
 		if (pihm->ctrl.tecplot)
 		{
-			PrintDataTecplot(pihm->prtctrlT, pihm->ctrl.nprintT, (next_t - pihm->ctrl.starttime),
-				t - pihm->ctrl.starttime, pihm->ctrl.stepsize, t);
+			UpdPrintVarT(pihm->prtctrlT, pihm->ctrl.nprintT);
+			PrintDataTecplot(pihm->prtctrlT, pihm->ctrl.nprintT, t, 
+				t - pihm->ctrl.starttime);
 		}
 
-        PrintData (pihm->prtctrl, pihm->ctrl.nprint, t,
-            t - pihm->ctrl.starttime, pihm->ctrl.stepsize, pihm->ctrl.ascii);
-
-		if (pihm->ctrl.prtvrbl[IC_CTRL] > 0)
-		{
-			/*
-			* Write init files
-			*/
-			if (pihm->ctrl.write_ic && (t - pihm->ctrl.starttime) % pihm->ctrl.prtvrbl[IC_CTRL] == 0)
-			{
-				PrtInit(pihm, simulation, t);
-			}
-		}
-
-
-	flag = CVodeGetNumSteps(cvode_mem, &nst);
-	flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-	flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);	
-	flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-	flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-	flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-
-	printf("nst = %-6ld nfe  = %-6ld nfeLS = %-6ld\n",
-		nst, nfe,  nfeLS);
-	printf("nni = %-6ld ncfn = %-6ld netf = %-6ld\n \n",
-		nni, ncfn, netf);
-
-
-	fclose(WaterBalance);
 }

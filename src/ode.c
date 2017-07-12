@@ -206,8 +206,6 @@ void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             flag;
 
-    /*flag = CVodeInit (cvode_mem, ODE, (realtype)pihm->ctrl.starttime,
-        CV_Y);*/
     flag = CVodeInit (cvode_mem, ODE, (realtype)0.0,
         CV_Y);
     flag = CVodeSStolerances (cvode_mem,(realtype) pihm->ctrl.reltol,
@@ -219,8 +217,8 @@ void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
 }
 
-void SolveCVode (int starttime, int *t, int nextptr, int stepsize, double cputime_dt, double cputime,
-		void *cvode_mem, N_Vector CV_Y, int cvode_perf, char *simulation, char *outputdir)
+void SolveCVode (int starttime, int *t, int nextptr, int stepsize, double cputime,
+		void *cvode_mem, N_Vector CV_Y, char *simulation, char *outputdir)
 
 {
     realtype        solvert;
@@ -228,11 +226,8 @@ void SolveCVode (int starttime, int *t, int nextptr, int stepsize, double cputim
     realtype        tout = (realtype)(nextptr - starttime);
     pihm_t_struct   pihm_time;
     int             flag;
-	static double	dtime = 0;
-	char			Perfname[50];
-	FILE            *Perf; /* Performance file */
 
-    solvert = (realtype) (*t);
+	solvert = (realtype) (*t);
 
     flag = CVodeSetMaxNumSteps (cvode_mem, (long int)(stepsize * 20));
     flag = CVodeSetStopTime (cvode_mem, tout);
@@ -243,7 +238,6 @@ void SolveCVode (int starttime, int *t, int nextptr, int stepsize, double cputim
     *t = (int)round (solvert + starttime);
 
     pihm_time = PIHMTime (*t);
-
     if (debug_mode)
     {
         PIHMprintf (VL_NORMAL, " Step = %s (%d)\n", pihm_time.str, *t);
@@ -257,20 +251,6 @@ void SolveCVode (int starttime, int *t, int nextptr, int stepsize, double cputim
     }
     else if (pihm_time.t % 3600 == 0)
     {
-        PIHMprintf (VL_NORMAL, " Step = %s\n", pihm_time.str);
+        PIHMprintf (VL_NORMAL, " Step = %s %f\n", pihm_time.str, cputime);
     }
-	sprintf(Perfname, "%s%s_Performance.txt", outputdir, simulation);
-	Perf = fopen(Perfname, "a");
-	CheckFile(Perf, Perfname);
-	if (pihm_time.t % 3600 == 0)
-	{
-		fprintf(Perf, " Step = %s CPU time =  %f %f \n",pihm_time.str, dtime, cputime);
-		dtime = 0.;
-	}
-	fclose(Perf);
-	if (cvode_perf)
-	{
-		/* Print some CVODE statistics */
-		//PrintStats(cvode_mem);
-	}
 }

@@ -1,5 +1,9 @@
 #include "pihm.h"
 
+#if defined(_MSC_VER)
+#define timegm _mkgmtime
+#endif
+
 pihm_t_struct PIHMTime (int t)
 {
     pihm_t_struct   pihm_time;

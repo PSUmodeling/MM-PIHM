@@ -75,7 +75,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 
 #ifdef _NOAH_
     /* Read LSM input file */
-    ReadLsm (pihm->filename.lsm, &pihm->latitude, &pihm->longitude,
+    ReadLsm (pihm->filename.lsm, &pihm->siteinfo,
         &pihm->ctrl, &pihm->noahtbl);
 
     if (pihm->ctrl.rad_mode == TOPO_SOL)
@@ -1095,29 +1095,30 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
         lno);
 
 	NextLine(para_file, cmdstr, &lno);
-	ReadKeyword(cmdstr, "SURFTEC", &ctrl->prtvrbl[SURFTEC_CTRL], 'i', filename,
+	ctrl->prtvrbl[SURFTEC_CTRL] = ReadPrtCtrl(cmdstr, "SURFTEC", filename,
 		lno);
 
 	NextLine(para_file, cmdstr, &lno);
-	ReadKeyword(cmdstr, "UNSATTEC", &ctrl->prtvrbl[UNSATTEC_CTRL], 'i', filename,
+	ctrl->prtvrbl[UNSATTEC_CTRL] = ReadPrtCtrl(cmdstr, "UNSATTEC", filename,
 		lno);
 
 	NextLine(para_file, cmdstr, &lno);
-	ReadKeyword(cmdstr, "GWTEC", &ctrl->prtvrbl[GWTEC_CTRL], 'i', filename, lno);
-
-	NextLine(para_file, cmdstr, &lno);
-	ReadKeyword(cmdstr, "RIVSTGTEC", &ctrl->prtvrbl[RIVSTGTEC_CTRL], 'i', filename,
+	ctrl->prtvrbl[GWTEC_CTRL] = ReadPrtCtrl(cmdstr, "GWTEC", filename,
 		lno);
 
 	NextLine(para_file, cmdstr, &lno);
-	ReadKeyword(cmdstr, "RIVGWTEC", &ctrl->prtvrbl[RIVGWTEC_CTRL], 'i', filename,
+	ctrl->prtvrbl[RIVSTGTEC_CTRL] = ReadPrtCtrl(cmdstr, "RIVSTGTEC", filename,
 		lno);
 
 	NextLine(para_file, cmdstr, &lno);
-	ReadKeyword(cmdstr, "IC", &ctrl->prtvrbl[IC_CTRL], 'i', filename,
+	ctrl->prtvrbl[RIVGWTEC_CTRL] = ReadPrtCtrl(cmdstr, "RIVGWTEC", filename,
 		lno);
 
-    fclose (para_file);
+	NextLine(para_file, cmdstr, &lno);
+	ctrl->prtvrbl[IC_CTRL] = ReadPrtCtrl(cmdstr, "IC", filename,
+		lno);
+
+	fclose (para_file);
 
     if (ctrl->etstep < ctrl->stepsize || ctrl->etstep % ctrl->stepsize > 0)
     {
@@ -1486,7 +1487,12 @@ void FreeData (pihm_struct pihm)
             fclose (pihm->prtctrl[i].txtfile);
         }
     }
-
+	if (pihm->ctrl.tecplot) {
+		for (i = 0; i < pihm->ctrl.nprintT; i++)
+		{
+			fclose(pihm->prtctrlT[i].datfile);
+		}
+	}
     free (pihm->elem);
     free (pihm->riv);
 }

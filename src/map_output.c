@@ -1460,5 +1460,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
 	{
 		pihm->prtctrlT[i].buffer =
 			(double *)calloc(pihm->prtctrlT[i].nvar, sizeof(double));
+		pihm->prtctrlT[i].counter = 0;
+		pihm->prtctrlT[i].first = 1;
 	}
 }

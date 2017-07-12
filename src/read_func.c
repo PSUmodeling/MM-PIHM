@@ -209,11 +209,11 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
     char            optstr[MAXSTRING];
     int             success = 1;
 
-    #if defined(_MSC_VER)
-		#define strncasecmp _strnicmp
-		#define strcasecmp _stricmp
-		#define timegm _mkgmtime
-	#endif
+ //   #if defined(_MSC_VER)
+	//	#define strncasecmp _strnicmp
+	//	#define strcasecmp _stricmp
+	//	#define timegm _mkgmtime
+	//#endif
     switch (type)
     {
         case 'd':

@@ -7,10 +7,12 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
     double          subrunoff;
 
 #ifdef _OPENMP
-    #pragma omp parallel for private(subrunoff)
 	y = NV_DATA_OMP(CV_Y);
 #else
 	y = NV_DATA_S(CV_Y);
+#endif
+#ifdef _OPENMP
+#pragma omp parallel for private(subrunoff)
 #endif
     for (i = 0; i < nelem; i++)
     {
@@ -36,14 +38,17 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
         pihm->elem[i].ws0 = pihm->elem[i].ws;
 
 #ifdef _BGC_
+        pihm->elem[i].ns.surfn = (y[SURFN (i)] > 0.0) ? y[SURFN (i)] : 0.0;
         pihm->elem[i].ns.sminn = (y[SMINN (i)] > 0.0) ? y[SMINN (i)] : 0.0;
 
         pihm->elem[i].ns.nleached_snk +=
-            (pihm->elem[i].nt.sminn0 - pihm->elem[i].ns.sminn) +
+            (pihm->elem[i].nt.surfn0 + pihm->elem[i].nt.sminn0) -
+            (pihm->elem[i].ns.surfn + pihm->elem[i].ns.sminn) +
             pihm->elem[i].nf.ndep_to_sminn / DAYINSEC * stepsize +
             pihm->elem[i].nf.nfix_to_sminn / DAYINSEC * stepsize +
             pihm->elem[i].nsol.snksrc * stepsize;
 
+        pihm->elem[i].nt.surfn0 = pihm->elem[i].ns.surfn;
         pihm->elem[i].nt.sminn0 = pihm->elem[i].ns.sminn;
 #endif
     }

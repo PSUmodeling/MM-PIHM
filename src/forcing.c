@@ -21,7 +21,7 @@ void ApplyBC (forc_struct *forc, elem_struct *elem, river_struct *riv, int t)
 
 void ApplyForcing (forc_struct *forc, elem_struct *elem, int t
 #ifdef _NOAH_
-    , ctrl_struct *ctrl, double lat, double lon, double elev, double tavg
+    , ctrl_struct *ctrl, siteinfo_struct *siteinfo
 #endif
     )
 {
@@ -30,7 +30,7 @@ void ApplyForcing (forc_struct *forc, elem_struct *elem, int t
      */
     ApplyMeteoForc (forc, elem, t
 #ifdef _NOAH_
-        , ctrl->rad_mode, lat, lon, elev, tavg
+        , ctrl->rad_mode, siteinfo
 #endif
         );
 
@@ -73,7 +73,7 @@ void ApplyElemBC (forc_struct *forc, elem_struct *elem, int t)
 
 void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
 #ifdef _NOAH_
-    , int rad_mode, double lat, double lon, double elev, double tavg
+    , int rad_mode, siteinfo_struct *siteinfo
 #endif
     )
 {
@@ -105,7 +105,8 @@ void ApplyMeteoForc (forc_struct *forc, elem_struct *elem, int t
         }
 
         /* Calculate Sun position for topographic solar radiation */
-        SunPos (t, lat, lon, elev, tavg, &spa);
+        SunPos (t, siteinfo->latitude, siteinfo->longitude,
+            siteinfo->elevation, siteinfo->tavg, &spa);
     }
 #endif
 
