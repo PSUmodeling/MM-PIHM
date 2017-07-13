@@ -227,8 +227,7 @@ void SolveCVode (int starttime, int *t, int nextptr, int stepsize, double cputim
     int             flag;
 
 	solvert = (realtype) (*t);
-
-    flag = CVodeSetMaxNumSteps (cvode_mem, (long int)(stepsize * 20));
+    flag = CVodeSetMaxNumSteps (cvode_mem, 0);
     flag = CVodeSetStopTime (cvode_mem, tout);
     flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert, CV_NORMAL);
     flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);

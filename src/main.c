@@ -10,14 +10,16 @@ int             nriver;
 clock_t         ptime, start, ct;
 realtype        cputime, cputime_dt;/* Time cpu duration */
 static double	dtime = 0;
-long int		nst, nfe, nfeLS, nni, ncfn, netf, ncfni = 0; /*Variables for monitoring performance */
+long int		nst, nfe, nfeLS, nni, ncfn, netf, ncfni = 0; nnii = 10; /*Variables for monitoring performance */
 int				flag;
 char			WBname[100];
 char			Perfname[50];
 char			Convname[50];
+double			maxstep;
 FILE            *WaterBalance; /* Water balance file */
 FILE            *Perf; /* Performance file */
 FILE			*Conv; /* CVODE convergence file */
+
 
 
 #ifdef _OPENMP
@@ -114,15 +116,14 @@ int main (int argc, char *argv[])
 		Conv = fopen(Convname, "w");
 		CheckFile(Conv, Convname);
        }
-
-
+	
     InitOutputFile (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii, pihm->prtctrlT, pihm->ctrl.nprintT, pihm->ctrl.tecplot);
 
     PIHMprintf (VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 
     /* Set solver parameters */
     SetCVodeParam (pihm, cvode_mem, CV_Y);
-
+	maxstep = pihm->ctrl.maxstep;
 #if defined(_BGC_) || defined (_CYCLES_)
     first_balance = 1;
 #endif
@@ -159,20 +160,33 @@ int main (int argc, char *argv[])
           ptime = ct;
 #endif
 		ncfni = ncfn;
+		nnii = nni;
      	PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
 				  pihm->ctrl.tout[i + 1], outputdir, project, cputime, WaterBalance);
-		if (ncfni - ncfn > 0) {
-			pihm->ctrl.maxstep = pihm->ctrl.maxstep / 2.;
-		}
+
 		if (pihm->ctrl.cvode_perf) {
 			dtime = dtime + cputime_dt;
-			if (pihm->ctrl.tout[i] % 3600 == 0)
+			//if (pihm->ctrl.tout[i] % 3600 == 0)
 			{
-				fprintf(Perf, "%d %f %f \n", (pihm->ctrl.tout[i]- pihm->ctrl.starttime), cputime_dt, cputime);
+				fprintf(Perf, "%d %f %f %f\n", (pihm->ctrl.tout[i]- pihm->ctrl.starttime), cputime_dt, cputime, maxstep);
 				dtime = 0.;
 			}
-		//		/* Print CVODE statistics */
+				/* Print CVODE statistics */
 				PrintStats(cvode_mem, Conv);
+		}
+		flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+		flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+
+		/* Variable CVode Max Step */
+		if (ncfn - ncfni > 0 || nni - nnii > 4)
+		{
+			maxstep = maxstep / 1.2;
+			flag = CVodeSetMaxStep(cvode_mem, (realtype) maxstep);
+		}
+		if (ncfn == ncfni && maxstep < pihm->ctrl.maxstep && nni - nnii < 3)
+		{
+			maxstep = maxstep*1.005;
+			flag = CVodeSetMaxStep(cvode_mem, (realtype) maxstep);
 		}
     }
 #ifdef _BGC_
@@ -205,8 +219,6 @@ int main (int argc, char *argv[])
 	flag = CVodeGetNumSteps(cvode_mem, &nst);
 	flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
 	flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-	flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-	flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
 
 	printf("nst = %-6ld nfe  = %-6ld \n",
 		nst, nfe);
