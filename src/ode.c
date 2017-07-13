@@ -206,10 +206,9 @@ void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             flag;
 
-    flag = CVodeInit (cvode_mem, ODE, (realtype)0.0,
-        CV_Y);
+    flag = CVodeInit (cvode_mem, ODE, (realtype)0.0, CV_Y);
     flag = CVodeSStolerances (cvode_mem,(realtype) pihm->ctrl.reltol,
-        pihm->ctrl.abstol);
+		(realtype) pihm->ctrl.abstol);
     flag = CVodeSetUserData (cvode_mem, pihm);
     flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
     flag = CVodeSetStabLimDet (cvode_mem, TRUE);
@@ -231,8 +230,7 @@ void SolveCVode (int starttime, int *t, int nextptr, int stepsize, double cputim
 
     flag = CVodeSetMaxNumSteps (cvode_mem, (long int)(stepsize * 20));
     flag = CVodeSetStopTime (cvode_mem, tout);
-    flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert,
-        CV_NORMAL);
+    flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert, CV_NORMAL);
     flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
 
     *t = (int)round (solvert + starttime);

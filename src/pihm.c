@@ -4,13 +4,10 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     int next_t, char *outputdir, char *simulation, double cputime, FILE *WaterBalance)
 
 {
-
-    /*
+	  /*
      * Apply boundary conditions
      */
     ApplyBC (&pihm->forc, pihm->elem, pihm->riv, t);
-
-
 
     /* Determine if land surface simulation is needed */
     if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
@@ -41,12 +38,12 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
          SolveCVode (pihm->ctrl.starttime, &t, next_t, pihm->ctrl.stepsize, cputime,
             cvode_mem, CV_Y, simulation, outputdir);
 
+		 pihm->ctrl.maxstep;
     /* Use mass balance to calculate model fluxes or variables */
     Summary (pihm, CV_Y, (double)pihm->ctrl.stepsize);
 
 	if (pihm->ctrl.waterB)
 	{
-
 		/* Print water balance */
 		PrintWaterBalance(WaterBalance, t, pihm->ctrl.starttime, pihm->ctrl.stepsize, pihm->elem, nelem, pihm->riv, nriver);
 	}

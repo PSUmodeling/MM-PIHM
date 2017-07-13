@@ -10,7 +10,7 @@ int             nriver;
 clock_t         ptime, start, ct;
 realtype        cputime, cputime_dt;/* Time cpu duration */
 static double	dtime = 0;
-long int		nst, nfe, nfeLS, nni, ncfn, netf; /*Variables for monitoring performance */
+long int		nst, nfe, nfeLS, nni, ncfn, netf, ncfni = 0; /*Variables for monitoring performance */
 int				flag;
 char			WBname[100];
 char			Perfname[50];
@@ -158,8 +158,12 @@ int main (int argc, char *argv[])
           cputime = ((double)(ct - start)) / CLOCKS_PER_SEC;
           ptime = ct;
 #endif
+		ncfni = ncfn;
      	PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
 				  pihm->ctrl.tout[i + 1], outputdir, project, cputime, WaterBalance);
+		if (ncfni - ncfn > 0) {
+			pihm->ctrl.maxstep = pihm->ctrl.maxstep / 2.;
+		}
 		if (pihm->ctrl.cvode_perf) {
 			dtime = dtime + cputime_dt;
 			if (pihm->ctrl.tout[i] % 3600 == 0)
