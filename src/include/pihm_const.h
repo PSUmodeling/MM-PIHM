@@ -289,6 +289,10 @@
 #define NEE_CTRL                64
 #define GPP_CTRL                65
 #define SMINN_CTRL              66
+#define LEAFC_CTRL              67
+#define LIVESTEMC_CTRL          68
+#define DEADSTEMC_CTRL          69
+
 
 #ifdef _CYCLES_
 #define MAXOP               100
