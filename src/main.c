@@ -9,16 +9,16 @@ int             nelem;
 int             nriver;
 clock_t         ptime, start, ct;
 realtype        cputime, cputime_dt;/* Time cpu duration */
-static double	dtime = 0;
-long int		nst, nfe, nfeLS, nni, ncfn, netf, ncfni = 0, nnii = 10; /*Variables for monitoring performance */
-int				flag;
-char			WBname[100];
-char			Perfname[50];
-char			Convname[50];
-double			maxstep;
+static double   dtime = 0;
+long int        nst, nfe, nfeLS, nni, ncfn, netf, ncfni = 0, nnii = 10; /*Variables for monitoring performance */
+int             flag;
+char            WBname[100];
+char            Perfname[50];
+char            Convname[50];
+double          maxstep;
 FILE            *WaterBalance; /* Water balance file */
 FILE            *Perf; /* Performance file */
-FILE			*Conv; /* CVODE convergence file */
+FILE            *Conv; /* CVODE convergence file */
 
 
 
@@ -166,7 +166,7 @@ int main (int argc, char *argv[])
 
 		if (pihm->ctrl.cvode_perf) {
 			dtime = dtime + cputime_dt;
-			//if (pihm->ctrl.tout[i] % 3600 == 0)
+			if (pihm->ctrl.tout[i] % 3600 == 0)
 			{
 				fprintf(Perf, "%d %f %f %f\n", (pihm->ctrl.tout[i]- pihm->ctrl.starttime), cputime_dt, cputime, maxstep);
 				dtime = 0.;

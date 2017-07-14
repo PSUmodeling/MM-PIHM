@@ -254,14 +254,14 @@ typedef struct calib_struct
 typedef struct ctrl_struct
 {
     int             ascii;
-	int             tecplot;
-	int				cvode_perf;
-	int				waterB;
+    int             tecplot;
+    int             cvode_perf;
+    int             waterB;
     int             write_ic;
     int             solver;
     int             nstep;
     int             nprint;
-	int             nprintT;
+    int             nprintT;
     int             prtvrbl[MAXPRINT];
     int             init_type;
     int             unsat_mode;
