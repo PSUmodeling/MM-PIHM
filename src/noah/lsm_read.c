@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void ReadLsm (char *filename, double *latitude, double *longitude,
-    ctrl_struct *ctrl, noahtbl_struct *noahtbl)
+void ReadLsm (char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
+    noahtbl_struct *noahtbl)
 {
     int             i;
     FILE           *lsm_file;
@@ -25,10 +25,11 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
     FindLine (lsm_file, "BOF", &lno, filename);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "LATITUDE", latitude, 'd', filename, lno);
+    ReadKeyword (cmdstr, "LATITUDE", &siteinfo->latitude, 'd', filename, lno);
 
     NextLine (lsm_file, cmdstr, &lno);
-    ReadKeyword (cmdstr, "LONGITUDE", longitude, 'd', filename, lno);
+    ReadKeyword (cmdstr, "LONGITUDE", &siteinfo->longitude, 'd', filename,
+        lno);
 
     NextLine (lsm_file, cmdstr, &lno);
     ReadKeyword (cmdstr, "NSOIL", &ctrl->nsoil, 'i', filename, lno);
@@ -85,6 +86,7 @@ void ReadLsm (char *filename, double *latitude, double *longitude,
 
     NextLine (lsm_file, cmdstr, &lno);
     ReadKeyword (cmdstr, "TBOT_DATA", &noahtbl->tbot, 'd', filename, lno);
+    siteinfo->tavg = noahtbl->tbot;
 
     NextLine (lsm_file, cmdstr, &lno);
     ReadKeyword (cmdstr, "CZIL_DATA", &noahtbl->czil, 'd', filename, lno);

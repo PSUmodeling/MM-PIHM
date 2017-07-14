@@ -47,10 +47,10 @@ void DailyBgc (pihm_struct pihm, int t)
     }
 
     /* Calculate daylengths */
-    SunPos (t, pihm->latitude, pihm->longitude, pihm->elevation,
-        pihm->noahtbl.tbot, &spa);
-    SunPos (t - DAYINSEC, pihm->latitude, pihm->longitude, pihm->elevation,
-        pihm->noahtbl.tbot, &prev_spa);
+    SunPos (t, pihm->siteinfo.latitude, pihm->siteinfo.longitude,
+        pihm->siteinfo.elevation, pihm->siteinfo.tavg, &spa);
+    SunPos (t - DAYINSEC, pihm->siteinfo.latitude, pihm->siteinfo.longitude,
+        pihm->siteinfo.elevation, pihm->siteinfo.tavg, &prev_spa);
 
     dayl = (spa.sunset - spa.sunrise) * 3600.0;
     dayl = (dayl < 0.0) ? dayl + 24.0 * 3600.0 : dayl;
@@ -58,10 +58,8 @@ void DailyBgc (pihm_struct pihm, int t)
     prev_dayl = (prev_spa.sunset - prev_spa.sunrise) * 3600.0;
     prev_dayl = (prev_dayl < 0.0) ? prev_dayl + 24.0 * 3600.0 : prev_dayl;
 
-#ifndef _DEBUG_
 #ifdef _OPENMP
 #pragma omp parallel for
-#endif
 #endif
     for (i = 0; i < nelem; i++)
     {
@@ -174,7 +172,6 @@ void DailyBgc (pihm_struct pihm, int t)
 
         /* Daily litter and soil decomp and nitrogen fluxes */
         Decomp (daily->avg_stc[0] - TFREEZ, epc, epv, cs, cf, ns, nf, nt);
-
 
         /* Allocation gets called whether or not this is a current growth day,
          * because the competition between decomp immobilization fluxes and

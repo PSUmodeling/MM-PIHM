@@ -78,7 +78,7 @@ void CheckNitrogenBalance (nstate_struct *ns, double *old_balance)
         ns->livecrootn_storage + ns->livecrootn_transfer + ns->deadcrootn +
         ns->deadcrootn_storage + ns->deadcrootn_transfer + ns->cwdn +
         ns->litr1n + ns->litr2n + ns->litr3n + ns->litr4n + ns->soil1n +
-        ns->soil2n + ns->soil3n + ns->soil4n + ns->sminn + ns->npool +
+        ns->soil2n + ns->soil3n + ns->soil4n + ns->surfn + ns->sminn + ns->npool +
         ns->retransn;
 
     /* calculate current balance */

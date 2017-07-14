@@ -4,7 +4,7 @@
 #define _ARITH_
 
 #ifdef _BGC_
-#define NSV             4 * nelem + 3 * nriver
+#define NSV             5 * nelem + 4 * nriver
 #else
 #define NSV             3 * nelem + 2 * nriver
 #endif
@@ -16,8 +16,10 @@
 #define RIVGW(i)        i + 3 * nelem + nriver
 
 #ifdef _BGC_
-#define SMINN(i)        i + 3 * nelem + 2 * nriver
-#define RIVERN(i)       i + 4 * nelem + 2 * nriver
+#define SURFN(i)        i + 3 * nelem + 2 * nriver
+#define SMINN(i)        i + 4 * nelem + 2 * nriver
+#define STREAMN(i)      i + 5 * nelem + 2 * nriver
+#define RIVBEDN(i)      i + 5 * nelem + 3 * nriver
 #endif
 
 /*
@@ -27,13 +29,13 @@ void            ApplyBC (forc_struct *, elem_struct *, river_struct *, int);
 void            ApplyElemBC (forc_struct *, elem_struct *, int);
 void            ApplyForcing (forc_struct *, elem_struct *, int
 #ifdef _NOAH_
-    , ctrl_struct *, double, double, double, double
+    , ctrl_struct *, siteinfo_struct *
 #endif
     );
 void            ApplyLAI (forc_struct *, elem_struct *, int);
 void            ApplyMeteoForc (forc_struct *, elem_struct *, int
 #ifdef _NOAH_
-    , int, double, double, double, double
+    , int, siteinfo_struct *
 #endif
     );
 void            ApplyRiverBC (forc_struct *, river_struct *, int);
@@ -224,7 +226,7 @@ double          Psphs (double);
 double          Psphu (double);
 double          Pspms (double);
 double          Pspmu (double);
-void            ReadLsm (char *, double *, double *, ctrl_struct *,
+void            ReadLsm (char *, siteinfo_struct *, ctrl_struct *,
     noahtbl_struct *);
 void            ReadRad (char *, forc_struct *);
 void            RootDist (const double *, int, int, double *);
@@ -275,6 +277,7 @@ double          TDfCnd (double, double, double, double, double);
 double          TmpAvg (double, double, double, const double *, int);
 double          TopoRadn (double, double, double, double, double, double,
     const double *, double);
+double          TotalArea (elem_struct *);
 void            Transp (const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
 void            WDfCnd (double *, double *, double, double, int,
@@ -444,7 +447,7 @@ void            BgcSpinup (pihm_struct, N_Vector, void *);
 void            CanopyCond (const epconst_struct *, epvar_struct *,
     const eflux_struct *, const pstate_struct *, const soil_struct *,
     const daily_struct *);
-int             CheckBgcSS (elem_struct *, int, int, int);
+int             CheckBgcSS (elem_struct *, double, int, int, int);
 void            CheckCarbonBalance (cstate_struct *, double *);
 void            CheckNitrogenBalance (nstate_struct *, double *);
 void            CSummary (cflux_struct *, cstate_struct *, summary_struct *);

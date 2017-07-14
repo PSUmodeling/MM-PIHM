@@ -5,7 +5,7 @@ void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
     int             i;
     int             spinyears = 0;
     int             first_spin_cycle = 1;
-    int             ss_total;
+    int             steady;
     double          metyears;
 
     metyears =
@@ -28,11 +28,11 @@ void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 
         spinyears += metyears;
 
-        ss_total = CheckBgcSS (pihm->elem, first_spin_cycle,
+        steady = CheckBgcSS (pihm->elem, pihm->siteinfo.area,first_spin_cycle,
             pihm->ctrl.endtime - pihm->ctrl.starttime, spinyears);
 
         first_spin_cycle = 0;
-    } while (spinyears < pihm->ctrl.maxspinyears && ss_total < nelem);
+    } while (spinyears < pihm->ctrl.maxspinyears && steady == 0);
 }
 
 void ResetSpinupStat (elem_struct *elem)
@@ -46,50 +46,48 @@ void ResetSpinupStat (elem_struct *elem)
     }
 }
 
-int CheckBgcSS (elem_struct *elem, int first_cycle, int totalt,
-    int spinyears)
+int CheckBgcSS (elem_struct *elem, double total_area, int first_cycle,
+    int totalt, int spinyears)
 {
     int             i;
     double          t1;
-    int             total_complete = 0;
+    double          soilc = 0.0;
+    double          totalc = 0.0;
+    int             steady;
+    static double   soilc_prev = 0.0;
 
+    /* Convert soilc and totalc to average daily soilc */
     for (i = 0; i < nelem; i++)
     {
-        elem[i].spinup.soilc /= (double)(totalt / DAYINSEC);
-        elem[i].spinup.totalc /= (double)(totalt / DAYINSEC);
-
-        if (!first_cycle)
-        {
-            /* Convert soilc and totalc to average daily soilc */
-            t1 = (elem[i].spinup.soilc - elem[i].spinup.soilc_prev) /
-                (double)(totalt / DAYINSEC / 365);
-
-            /* Check if element reaches steady state */
-            elem[i].spinup.steady = (fabs (t1) < SPINUP_TOLERANCE);
-
-            PIHMprintf (VL_NORMAL, "Elem %d: "
-                "spinyears = %d soilc_prev = %lg soilc = %lg pdif = %lg\n",
-                i + 1, spinyears, elem[i].spinup.soilc_prev,
-                elem[i].spinup.soilc, t1);
-        }
-        else
-        {
-            elem[i].spinup.steady = 0;
-        }
-
-        elem[i].spinup.soilc_prev = elem[i].spinup.soilc;
-
-        total_complete += elem[i].spinup.steady;
+        soilc += elem[i].spinup.soilc * elem[i].topo.area /
+            (double)(totalt / DAYINSEC) / total_area;
+        totalc += elem[i].spinup.totalc * elem[i].topo.area /
+            (double)(totalt / DAYINSEC) / total_area;
     }
 
-    PIHMprintf (VL_NORMAL, "%d elements steady, %d elements to go.\n",
-            total_complete, nelem - total_complete);
-
-    if (total_complete == nelem)
+    if (!first_cycle)
     {
-        PIHMprintf (VL_NORMAL, "All elements steady after %d year.\n",
-                spinyears);
+        t1 = (soilc - soilc_prev) / (double)(totalt / DAYINSEC / 365);
+
+        /* Check if domain reaches steady state */
+        steady = (fabs (t1) < SPINUP_TOLERANCE);
+
+        PIHMprintf (VL_NORMAL,
+                "spinyears = %d soilc_prev = %lg soilc = %lg pdif = %lg\n",
+                spinyears, soilc_prev, soilc, t1);
+    }
+    else
+    {
+        steady = 0;
     }
 
-    return (total_complete);
+    soilc_prev = soilc;
+
+    if (steady)
+    {
+        PIHMprintf (VL_NORMAL, "Reaches steady state after %d year.\n",
+            spinyears);
+    }
+
+    return (steady);
 }

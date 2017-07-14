@@ -1140,6 +1140,7 @@ typedef struct bgcic_struct
     double          soil2n;
     double          soil3n;
     double          soil4n;
+    double          surfn;
     double          sminn;
     double          retransn;
     double          npool;
