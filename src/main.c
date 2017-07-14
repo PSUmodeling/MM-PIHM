@@ -10,7 +10,7 @@ int             nriver;
 clock_t         ptime, start, ct;
 realtype        cputime, cputime_dt;/* Time cpu duration */
 static double	dtime = 0;
-long int		nst, nfe, nfeLS, nni, ncfn, netf, ncfni = 0; nnii = 10; /*Variables for monitoring performance */
+long int		nst, nfe, nfeLS, nni, ncfn, netf, ncfni = 0, nnii = 10; /*Variables for monitoring performance */
 int				flag;
 char			WBname[100];
 char			Perfname[50];
