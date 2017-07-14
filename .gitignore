@@ -55,6 +55,9 @@
 /output/
 /*.log
 
+# Winmerge backups
+*.bak
+
 # Third party libraries
 third_party
 advisor

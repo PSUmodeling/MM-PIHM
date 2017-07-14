@@ -23,7 +23,8 @@
 #include <omp.h>
 #endif
 
-#define VERSION     "0.2.0-alpha"
+#define VERSION     "0.4.0-alpha"
+
 /*
  * SUNDIAL Header Files
  */

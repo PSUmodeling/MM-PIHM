@@ -809,6 +809,51 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     }
                     n++;
                     break;
+                case LEAFC_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.leafc", outputdir,
+                        simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].upd_intvl = CN_STEP;
+                    pihm->prtctrl[n].nvar = nelem;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < nelem; j++)
+                    {
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].cs.leafc;
+                    }
+                    n++;
+                    break;
+                case LIVESTEMC_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.livestemc",
+                        outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].upd_intvl = CN_STEP;
+                    pihm->prtctrl[n].nvar = nelem;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < nelem; j++)
+                    {
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].cs.livestemc;
+                    }
+                    n++;
+                    break;
+                case DEADSTEMC_CTRL:
+                    sprintf (pihm->prtctrl[n].name, "%s%s.deadstemc",
+                        outputdir, simulation);
+                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
+                    pihm->prtctrl[n].upd_intvl = CN_STEP;
+                    pihm->prtctrl[n].nvar = nelem;
+                    pihm->prtctrl[n].var =
+                        (double **)malloc (pihm->prtctrl[n].nvar *
+                        sizeof (double *));
+                    for (j = 0; j < nelem; j++)
+                    {
+                        pihm->prtctrl[n].var[j] = &pihm->elem[j].cs.deadstemc;
+                    }
+                    n++;
+                    break;
 #endif
 #ifdef _CYCLES_
                 case BIOMASS_CTRL:

@@ -32,7 +32,7 @@ void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
             pihm->ctrl.endtime - pihm->ctrl.starttime, spinyears);
 
         first_spin_cycle = 0;
-    } while (spinyears < pihm->ctrl.maxspinyears && steady == 0);
+    } while (spinyears < pihm->ctrl.maxspinyears);
 }
 
 void ResetSpinupStat (elem_struct *elem)
