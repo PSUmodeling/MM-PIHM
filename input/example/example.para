@@ -1,6 +1,9 @@
 INIT_MODE	    0                   # Initialization type 0: relaxation, 1: use .init file
 ASCII_OUTPUT        1                   # Write ASCII output? 0: no, 1: yes
-WRITE_IC	    0                   # Write initial condition? 0: Standard model run, 1: Outputs will be written to .init files
+TECPLOT_OUTPUT      0                   # Write Tecplot output? 0: no, 1: yes
+CVODE_PERF	    1                   # Write Performance file and CVODE stats?  0: no, 1: yes
+WATERB	            1                   # Write water balance? 0: no, 1: yes
+WRITE_IC	    1                   # Write initial condition? 0: Standard model run, 1: Outputs will be written to .init files
 UNSAT_MODE	    2
 SURF_MODE	    2
 RIV_MODE	    2
@@ -11,36 +14,42 @@ INIT_SOLVER_STEP    5E-5
 MAX_SOLVER_STEP	    60                  # Maximum solver step (DANGER ZONE)
 LSM_STEP	    900	                # LSM (or ET) step size (unit: s)
 START		    2009-01-01 00:00
-END		    2010-01-01 00:00
-MODEL_STEPSIZE	    60                  # PIHM step size (unit: s)
+END		    2009-01-07 00:00
+MODEL_STEPSIZE	    60                 # PIHM step size (unit: s)
 ###############################################################################
 # OUTPUT CONTROL:                                                             #
 #  All options are listed below.                                              #
 #  Use "#" to comment out the variables you do not want to output, or set     #
 #  the output interval (in secends) to 0.                                     #
 ###############################################################################
-SURF		    HOURLY
-UNSAT		    HOURLY
-GW		    HOURLY
-RIVSTG		    HOURLY
-RIVGW               HOURLY
-SNOW		    HOURLY
-CMC		    HOURLY
-INFIL               HOURLY
-RECHARGE	    HOURLY
-EC                  HOURLY
-ETT                 HOURLY
-EDIR		    HOURLY
-RIVFLX0             HOURLY
-RIVFLX1	    	    HOURLY
-RIVFLX2             HOURLY
-RIVFLX3	            HOURLY
-RIVFLX4    	    HOURLY
-RIVFLX5    	    HOURLY
-RIVFLX6    	    HOURLY
-RIVFLX7    	    HOURLY
-RIVFLX8             HOURLY
-RIVFLX9    	    HOURLY
-RIVFLX10    	    HOURLY
-SUBFLX              HOURLY
-SURFFLX             HOURLY
+SURF		    86400
+UNSAT		    86400
+GW		    86400
+RIVSTG		    86400
+RIVGW               86400
+SNOW		    86400
+CMC		    86400
+INFIL               86400
+RECHARGE	    86400
+EC                  86400
+ETT                 86400
+EDIR		    86400
+RIVFLX0             86400
+RIVFLX1             86400
+RIVFLX2             86400
+RIVFLX3             86400
+RIVFLX4    	    86400
+RIVFLX5    	    86400
+RIVFLX6    	    86400
+RIVFLX7    	    86400
+RIVFLX8             86400
+RIVFLX9    	    86400
+RIVFLX10    	    86400
+SUBFLX              86400
+SURFFLX             86400
+SURFTEC		    86400
+UNSATTEC            86400
+GWTEC		    86400
+RIVSTGTEC	    86400
+RIVGWTEC            86400
+IC		    86400

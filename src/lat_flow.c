@@ -239,28 +239,20 @@ double AvgYsfc (double diff, double yi, double yinabr)
 
 double AvgY (double diff, double yi, double yinabr)
 {
-    double          avg_y;
+    double          avg_y=0;
 
     if (diff > 0.0)
     {
         if (yi > 0.0)
         {
-            avg_y = 1.0 * yi;
-        }
-        else
-        {
-            avg_y = 0.0;
+            avg_y = yi;
         }
     }
     else
     {
         if (yinabr > 0.0)
         {
-            avg_y = 1.0 * yinabr;
-        }
-        else
-        {
-            avg_y = 0.0;
+            avg_y = yinabr;
         }
     }
 
@@ -275,8 +267,7 @@ double DhByDl (double *l1, double *l2, double *surfh)
         l2[0] * (l1[2] - l1[1])));
 }
 
-double EffKH (double tmpy, double aqdepth, double macd, double macksath,
-    double areaf, double ksath)
+double EffKH (double tmpy, double aqdepth, double macd, double macksath, double areaf, double ksath)
 {
     tmpy = (tmpy > 0.0) ? tmpy : 0.0;
 
@@ -305,5 +296,5 @@ double OverlandFlow (double avg_y, double grad_y, double avg_sf,
     double crossa, double avg_rough)
 {
     return (crossa * pow (avg_y,
-            2.0 / 3.0) * grad_y / (sqrt (fabs (avg_sf)) * avg_rough));
+            0.6666667) * grad_y / (sqrt (avg_sf) * avg_rough));
 }

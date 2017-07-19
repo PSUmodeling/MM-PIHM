@@ -73,7 +73,8 @@ void            InitForcing (elem_struct *, forc_struct *,
 void            InitLC (elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMeshStruct (elem_struct *, const meshtbl_struct *);
-void            InitOutputFile (prtctrl_struct *, int, int);
+void            InitOutputFile (prtctrl_struct *, int, int, prtctrlT_struct *, int, int);
+void            InitWBFile(char *, char *, FILE *);
 void            InitRiver (river_struct *, elem_struct *, const rivtbl_struct *,
     const shptbl_struct *, const matltbl_struct *, const meshtbl_struct *,
     const calib_struct *);
@@ -117,16 +118,19 @@ void            NextLine (FILE *, char *, int *);
 int             ODE (realtype, N_Vector, N_Vector, void *);
 double          OverlandFlow (double, double, double, double, double);
 double          OLFEleToRiv (double, double, double, double, double, double);
-void            ParseCmdLineParam (int, char *[], char *);
+void            ParseCmdLineParam(int, char *[], char *);
 #define PIHMexit(...)  _PIHMexit(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 void            _PIHMexit (const char *, int, const char *, int);
 #define PIHMprintf(...)   _PIHMprintf(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 void            _PIHMprintf (const char *, int, const char *, int,
     const char *, ...);
-void            PIHM (pihm_struct, void *, N_Vector, int, int);
-pihm_t_struct   PIHMTime (int);
+void            PIHM(pihm_struct, void *, N_Vector, int, int, char *, char *, double, FILE *);
+pihm_t_struct   PIHMTime(int);
 void            PrintData (prtctrl_struct *, int, int, int, int);
-void            PrtInit (elem_struct *, river_struct *, char *);
+void            PrintDataTecplot (prtctrlT_struct *, int, int, int);
+void            PrtInit (elem_struct *, river_struct *, char *, int);
+void			PrintStats (void *, FILE *);
+void			PrintWaterBalance (FILE *, int, int, int, elem_struct *, int, river_struct *, int);
 double          Psi (double, double, double);
 double          PtfAlpha (double, double, double, double, int);
 double          PtfBeta (double, double, double, double, int);
@@ -150,6 +154,7 @@ int             ReadPrtCtrl (char *, char *, char *, int);
 void            ReadRiv (char *, rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
 void            ReadSoil (char *, soiltbl_struct *);
+void            ReadSunpara(char *, ctrl_struct *);
 int             ReadTS (char *, int *, double *, int);
 int             Readable (char *);
 void            RiverFlow (pihm_struct);
@@ -162,11 +167,12 @@ double          _RivWdthAreaPerim (int, int, double, double);
 void            SaturationIC (elem_struct *, river_struct *);
 void            SetCVodeParam (pihm_struct, void *, N_Vector);
 int             SoilTex (double, double);
-void            SolveCVode (int *, int, int, void *, N_Vector);
+void            SolveCVode (int, int *, int, int, double, void *, N_Vector, char *, char *);
 int             StrTime (const char *);
 void            Summary (pihm_struct, N_Vector, double);
 double          SurfH (double);
 void            UpdPrintVar (prtctrl_struct *, int, int);
+void            UpdPrintVarT (prtctrlT_struct *, int);
 void            VerticalFlow (pihm_struct);
 double          WiltingPoint (double, double, double, double);
 

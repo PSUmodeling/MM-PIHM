@@ -1,9 +1,10 @@
 #include "pihm.h"
 
 void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
-    int next_t)
+    int next_t, char *outputdir, char *simulation, double cputime, FILE *WaterBalance)
+
 {
-    /*
+	  /*
      * Apply boundary conditions
      */
     ApplyBC (&pihm->forc, pihm->elem, pihm->riv, t);
@@ -33,13 +34,18 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
 
     /*
      * Solve PIHM hydrology ODE using CVODE
-     */
-    SolveCVode (&t, next_t, pihm->ctrl.stepsize,
-            cvode_mem, CV_Y);
+     */		
+         SolveCVode (pihm->ctrl.starttime, &t, next_t, pihm->ctrl.stepsize, cputime,
+            cvode_mem, CV_Y, simulation, outputdir);
 
     /* Use mass balance to calculate model fluxes or variables */
     Summary (pihm, CV_Y, (double)pihm->ctrl.stepsize);
 
+	if (pihm->ctrl.waterB)
+	{
+		/* Print water balance */
+		PrintWaterBalance(WaterBalance, t, pihm->ctrl.starttime, pihm->ctrl.stepsize, pihm->elem, nelem, pihm->riv, nriver);
+	}
 #ifdef _NOAH_
     NoahHydrol (pihm->elem, (double)pihm->ctrl.stepsize);
 #endif
@@ -101,10 +107,16 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         InitDailyStruct (pihm);
     }
 #endif
+        /*
+         * Print outputs
+         */
+	    PrintData (pihm->prtctrl, pihm->ctrl.nprint, t,
+            t - pihm->ctrl.starttime, pihm->ctrl.ascii);
+		if (pihm->ctrl.tecplot)
+		{
+			UpdPrintVarT(pihm->prtctrlT, pihm->ctrl.nprintT);
+			PrintDataTecplot(pihm->prtctrlT, pihm->ctrl.nprintT, t, 
+				t - pihm->ctrl.starttime);
+		}
 
-    /*
-     * Print outputs
-     */
-    PrintData (pihm->prtctrl, pihm->ctrl.nprint, t, t - pihm->ctrl.starttime,
-        pihm->ctrl.ascii);
 }

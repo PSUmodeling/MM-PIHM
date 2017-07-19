@@ -8,8 +8,14 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     double          dt;
     pihm_struct     pihm;
 
-    y = NV_DATA (CV_Y);
-    dy = NV_DATA (CV_Ydot);
+
+#ifdef _OPENMP
+		y = NV_DATA_OMP(CV_Y);
+		dy = NV_DATA_OMP(CV_Ydot);
+#else
+		y = NV_DATA_S(CV_Y);
+		dy = NV_DATA_S(CV_Ydot);
+#endif
     pihm = (pihm_struct)pihm_data;
 
     dt = (double)pihm->ctrl.stepsize;
@@ -196,10 +202,9 @@ void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             flag;
 
-    flag = CVodeInit (cvode_mem, ODE, (realtype)pihm->ctrl.starttime,
-        CV_Y);
+    flag = CVodeInit (cvode_mem, ODE, (realtype)0.0, CV_Y);
     flag = CVodeSStolerances (cvode_mem,(realtype) pihm->ctrl.reltol,
-        pihm->ctrl.abstol);
+		(realtype) pihm->ctrl.abstol);
     flag = CVodeSetUserData (cvode_mem, pihm);
     flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
     flag = CVodeSetStabLimDet (cvode_mem, TRUE);
@@ -207,26 +212,25 @@ void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
 }
 
-void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
-    N_Vector CV_Y)
+void SolveCVode (int starttime, int *t, int nextptr, int stepsize, double cputime,
+		void *cvode_mem, N_Vector CV_Y, char *simulation, char *outputdir)
+
 {
     realtype        solvert;
     realtype        cvode_val;
+    realtype        tout = (realtype)(nextptr - starttime);
     pihm_t_struct   pihm_time;
     int             flag;
 
-    solvert = (realtype) (*t);
-
-    flag = CVodeSetMaxNumSteps (cvode_mem, (long int)(stepsize * 20));
-    flag = CVodeSetStopTime (cvode_mem, (realtype) nextptr);
-    flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert,
-        CV_NORMAL);
+	solvert = (realtype) (*t);
+    flag = CVodeSetMaxNumSteps (cvode_mem, 0);
+    flag = CVodeSetStopTime (cvode_mem, tout);
+    flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert, CV_NORMAL);
     flag = CVodeGetCurrentTime (cvode_mem, &cvode_val);
 
-    *t = (int)round (solvert);
+    *t = (int)round (solvert + starttime);
 
     pihm_time = PIHMTime (*t);
-
     if (debug_mode)
     {
         PIHMprintf (VL_NORMAL, " Step = %s (%d)\n", pihm_time.str, *t);
@@ -240,6 +244,6 @@ void SolveCVode (int *t, int nextptr, int stepsize, void *cvode_mem,
     }
     else if (pihm_time.t % 3600 == 0)
     {
-        PIHMprintf (VL_NORMAL, " Step = %s\n", pihm_time.str);
+        PIHMprintf (VL_NORMAL, " Step = %s %f\n", pihm_time.str, cputime);
     }
 }

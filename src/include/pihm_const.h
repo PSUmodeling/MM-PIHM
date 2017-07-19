@@ -72,7 +72,7 @@
 
 /* Hydrology parameters */
 #define PSIMIN	    -70.0       /* minimum psi allowed [m] */
-#define DEPRSTG     1e-4        /* depressio storage [m] */
+#define DEPRSTG     1e-4        /* depression storage [m] */
 #define GRADMIN     5e-8        /* minimum hydraulic gradient [m m-1] */
 #define SATMIN      0.1         /* minimum saturation ratio [-] */
 #define RIVDPTHMIN  0.05        /* minimum river depth [m] */
@@ -139,6 +139,8 @@
 #define RIGHT_AQUIF2AQUIF   8
 #define DOWN_AQUIF2AQUIF    9
 #define UP_AQUIF2AQUIF      10
+
+
 
 /* River segment interpolation order */
 #define RECTANGLE           1
@@ -292,7 +294,13 @@
 #define LEAFC_CTRL              67
 #define LIVESTEMC_CTRL          68
 #define DEADSTEMC_CTRL          69
-
+#define SURFTEC_CTRL            70
+#define UNSATTEC_CTRL           71
+#define GWTEC_CTRL              72
+#define RIVSTGTEC_CTRL          73
+#define RIVGWTEC_CTRL           74
+#define IC_CTRL					75
+#define WB_CTRL					76
 
 #ifdef _CYCLES_
 #define MAXOP               100

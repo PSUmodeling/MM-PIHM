@@ -54,3 +54,14 @@
 /input/example/example.*.ic
 /output/
 /*.log
+
+# Winmerge backups
+*.bak
+
+# Third party libraries
+third_party
+advisor
+
+src/old
+src_sam
+src_to_Sam

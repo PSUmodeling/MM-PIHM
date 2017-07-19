@@ -1,50 +1,74 @@
 #include "pihm.h"
+#include "optparse.h"
+
+
+#if defined(_WIN32)
+/* Do windows stuff here */
+#include <direct.h>
+#define pihm_mkdir(path) _mkdir((path))
+#define pihm_access(path, amode) _access((path), (amode))
+#define F_OK    0
+#else 
+#define pihm_mkdir(path) mkdir(path, 0755)
+#define pihm_access(path, amode) access((path), (amode))
+#endif
+
+extern char            project[MAXSTRING];
+
 
 void ParseCmdLineParam (int argc, char *argv[], char *outputdir)
 {
-    int             c;
+	struct optparse options;
+	optparse_init(&options, argv);
+	struct optparse_long longopts[] = {
+		{ "output", 'o', OPTPARSE_REQUIRED },
+		{ "elevation_correction", 'c', OPTPARSE_NONE },
+		{ "debug", 'd', OPTPARSE_NONE },
+		{ "verbose", 'v', OPTPARSE_NONE },
+        { "print_version", 'V', OPTPARSE_NONE },
+		{ 0 }
+	};
 
-    outputdir[0] = '\0';
-
-    while ((c = getopt (argc, argv, "o:cdvV")) != -1)
-    {
-        switch (c)
-        {
-            case 'o':
-                /* Specify output directory */
-                sprintf (outputdir, "output/%s/", optarg);
-                break;
+    int option;
+	while ((option = optparse_long (&options, longopts, NULL)) != -1)
+	{
+	    switch (option)
+	    {
+	        case 'o':
+	            /* Specify output directory */
+                sprintf (outputdir, "output/%s/", options.optarg);
+	            break;
             case 'c':
-                /* Surface elevatoin correction mode */
+                /* Surface elevation correction mode */
                 corr_mode = 1;
                 printf ("Surface elevation correction mode turned on.\n");
                 break;
-            case 'd':
-                /* Debug mode */
-                debug_mode = 1;
-                printf ("Debug mode turned on.\n");
-                break;
-            case 'v':
-                /* Verbose mode */
-                verbose_mode = 1;
-                printf ("Verbose mode turned on.\n");
-                break;
+	        case 'd':
+	            /* Debug mode */
+	            debug_mode = 1;
+	            printf ("Debug mode turned on.\n");
+	            break;
+	        case 'v':
+	            /* Verbose mode */
+	            verbose_mode = 1;
+	            printf ("Verbose mode turned on.\n");
+	            break;
             case 'V':
                 /* Print version number */
                 printf ("\nMM-PIHM Version %s.\n", VERSION);
                 PIHMexit (EXIT_SUCCESS);
                 break;
-            case '?':
-                printf ("Option not recognisable %s\n", argv[optind]);
+	        case '?':
+                printf ("Option not recognisable %s\n", options.errmsg);
                 break;
             default:
-                break;
-        }
+	            break;
+	    }
 
         fflush (stdout);
     }
 
-    if (optind >= argc)
+    if (options.optind >= argc)
     {
         fprintf (stderr, "Error:You must specify the name of project!\n");
         fprintf (stderr,
@@ -59,7 +83,11 @@ void ParseCmdLineParam (int argc, char *argv[], char *outputdir)
     }
     else
     {
-        strcpy (project, argv[optind]);
+        //Parse remaining arguments
+
+        strcpy(project, optparse_arg(&options));
+        if (project == NULL)
+            PIHMexit(EXIT_FAILURE);
     }
 }
 
@@ -69,10 +97,10 @@ void CreateOutputDir (char *outputdir)
     struct tm      *timestamp;
     char            str[11];
 
-    if (0 == (mkdir ("output", 0755)))
-    {
-        PIHMprintf (VL_NORMAL, " Output directory was created.\n\n");
-    }
+    if (0 == (pihm_mkdir(outputdir)))
+	{
+		PIHMprintf(VL_NORMAL, " Output directory was created.\n\n");
+	}
 
     if (outputdir[0] == '\0')
     {
@@ -82,10 +110,7 @@ void CreateOutputDir (char *outputdir)
         strftime (str, 11, "%y%m%d%H%M", timestamp);
         sprintf (outputdir, "output/%s.%s/", project, str);
     }
-
-    PIHMprintf (VL_NORMAL, "\nOutput directory: %s\n", outputdir);
-
-    mkdir (outputdir, 0755);
+    pihm_mkdir(outputdir);
 }
 
 void BKInput (char *simulation, char *outputdir)
@@ -109,27 +134,30 @@ void BKInput (char *simulation, char *outputdir)
 
     /* Save input files into output directory */
     sprintf (source_file, "input/%s/%s.para", project, project);
-    if (access (source_file, F_OK) != -1)
+    if (pihm_access(source_file, F_OK) != -1)
     {
-        sprintf (system_cmd, "cp %s ./%s/%s.para.bak", source_file, outputdir,
-            project);
-        system (system_cmd);
-    }
+		sprintf (system_cmd, "cp %s ./%s/%s.para.bak", source_file, outputdir, project);
+		system(system_cmd);
+	}
     sprintf (source_file, "input/%s/%s.calib", project, simulation);
-    if (access (source_file, F_OK) != -1)
+    if (pihm_access(source_file, F_OK) != -1)
     {
         sprintf (system_cmd, "cp %s ./%s/%s.calib.bak", source_file,
             outputdir, simulation);
-        system (system_cmd);
+		system(system_cmd);
     }
     sprintf (source_file, "input/%s/%s.init", project, simulation);
-    if (access (source_file, F_OK) != -1)
+    if (pihm_access(source_file, F_OK) != -1)
     {
+
         sprintf (system_cmd, "cp %s ./%s/%s.init.bak", source_file, outputdir,
             simulation);
         system (system_cmd);
     }
 }
+
+
+
 
 void _PIHMexit (const char *fn, int lineno, const char *func, int error)
 {
