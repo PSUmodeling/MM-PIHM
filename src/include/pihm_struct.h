@@ -238,6 +238,14 @@ typedef struct calib_struct
  * stepsize                 int         model step size [s]
  * tout                     int*        model output times [ctime]
  * ---------------------------------------------------------------------------
+ * Variables below used to control sundials convergence
+ * ---------------------------------------------------------------------------
+ * nncfn                    int         number of non-convergence failures
+ * nnimax                   int         maximum number of non-linear iterations
+ * nnimin                   int         minimum number of non-linear iterations
+ * decr-                    double      decrease factor
+ * incr                     double      increase factor
+ * ---------------------------------------------------------------------------
  * Variables below only used in Flux-PIHM
  * ---------------------------------------------------------------------------
  * nsoil                    int         number of standard soil layers
@@ -276,6 +284,11 @@ typedef struct ctrl_struct
     int             endtime;
     int             stepsize;
     int            *tout;
+    int             nncfn;
+    int             nnimax;
+    int             nnimin;
+    double          decr;
+    double          incr; 
 #ifdef _NOAH_
     int             nsoil;
     double          sldpth[MAXLYR];
@@ -317,6 +330,7 @@ typedef struct prtctrl_struct
     int             counter;
     FILE           *txtfile;
     FILE           *datfile;
+    FILE           *ic;
 } prtctrl_struct;
 
 /*****************************************************************************

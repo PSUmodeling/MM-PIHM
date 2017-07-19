@@ -1,0 +1,6 @@
+Nncfn	    0                # Number of non-convergence failures
+Nnnimax     4                # Maximum number of non-linear iterations
+Nnnimin     3                # Minimum number of non-linear iterations
+DECR        1.2              # Decrease factor
+INCR        1.005            # Increase factor
+

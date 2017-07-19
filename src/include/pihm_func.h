@@ -128,7 +128,7 @@ void            PIHM(pihm_struct, void *, N_Vector, int, int, char *, char *, do
 pihm_t_struct   PIHMTime(int);
 void            PrintData (prtctrl_struct *, int, int, int, int);
 void            PrintDataTecplot (prtctrlT_struct *, int, int, int);
-void            PrtInit (elem_struct *, river_struct *, char *);
+void            PrtInit (elem_struct *, river_struct *, char *, int);
 void			PrintStats (void *, FILE *);
 void			PrintWaterBalance (FILE *, int, int, int, elem_struct *, int, river_struct *, int);
 double          Psi (double, double, double);
@@ -154,6 +154,7 @@ int             ReadPrtCtrl (char *, char *, char *, int);
 void            ReadRiv (char *, rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
 void            ReadSoil (char *, soiltbl_struct *);
+void            ReadSunpara(char *, ctrl_struct *);
 int             ReadTS (char *, int *, double *, int);
 int             Readable (char *);
 void            RiverFlow (pihm_struct);

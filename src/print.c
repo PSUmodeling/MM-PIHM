@@ -229,19 +229,29 @@ void PrintData (prtctrl_struct *prtctrl, int nprint, int t, int lapse,
     }
 }
 
-void PrtInit(elem_struct *elem, river_struct *river, char *simulation)
+void PrtInit(elem_struct *elem, river_struct *river, char *simulation, int t)
 {
 	FILE           *init_file;
 	char            fn[MAXSTRING];
 	int             i;
+    char            name[14];
+
+    pihm_t_struct   pihm_time;
+
+    pihm_time = PIHMTime(t);
+    strcpy(name, pihm_time.str);
+    name[13] = 0;
+
+
 #ifdef _NOAH_
 	int             j;
 #endif
 
-	sprintf(fn, "input/%s/%s.ic", project, simulation);
-	init_file = fopen(fn, "wb");
+	sprintf(fn, "input/%s/ic/%s %s.ic", project, simulation, name);
+
+    init_file = fopen(fn, "wb");
 	CheckFile(init_file, fn);
-	PIHMprintf(VL_ERROR, "Writing initial conditions.\n");
+	//PIHMprintf(VL_ERROR, "Writing initial conditions.\n");
 
 	for (i = 0; i < nelem; i++)
 	{

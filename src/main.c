@@ -111,7 +111,7 @@ int main (int argc, char *argv[])
 		Perf = fopen(Perfname, "w");
 		CheckFile(Perf, Perfname);
 		dtime = dtime + cputime_dt;
-		fprintf(Perf, " Time step, cpu_dt, cpu_time\n");
+		fprintf(Perf, " Time step, cpu_dt, cpu_time, solver_step\n");
 		sprintf(Convname, "%s%s_CVODE.log", outputdir, project);
 		Conv = fopen(Convname, "w");
 		CheckFile(Conv, Convname);
@@ -178,28 +178,29 @@ int main (int argc, char *argv[])
 		flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
 
 		/* Variable CVode Max Step */
-		if (ncfn - ncfni > 0 || nni - nnii > 4)
+		if (ncfn - ncfni > pihm->ctrl.nncfn || nni - nnii > pihm->ctrl.nnimax)
 		{
-			maxstep = maxstep / 1.2;
+			maxstep = maxstep / pihm->ctrl.decr;
 			flag = CVodeSetMaxStep(cvode_mem, (realtype) maxstep);
 		}
-		if (ncfn == ncfni && maxstep < pihm->ctrl.maxstep && nni - nnii < 3)
+		if (ncfn == ncfni && maxstep < pihm->ctrl.maxstep && nni - nnii < pihm->ctrl.nnimin)
 		{
-			maxstep = maxstep*1.005;
+			maxstep = maxstep*pihm->ctrl.incr;
 			flag = CVodeSetMaxStep(cvode_mem, (realtype) maxstep);
 		}
+
+        /*
+        * Write init files
+        */
+        if (pihm->ctrl.write_ic && (pihm->ctrl.tout[i] - pihm->ctrl.starttime) % pihm->ctrl.prtvrbl[IC_CTRL] == 0)
+        {
+            PrtInit(pihm->elem, pihm->riv, project, pihm->ctrl.tout[i]);
+        }
     }
 #ifdef _BGC_
     }
 #endif
 
-    /*
-     * Write init files
-     */
-    if (pihm->ctrl.write_ic)
-    {
-        PrtInit (pihm->elem, pihm->riv, project);
-    }
 
 #ifdef _BGC_
     if (pihm->ctrl.write_bgc_restart)

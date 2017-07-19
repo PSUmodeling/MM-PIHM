@@ -17,6 +17,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     sprintf (pihm->filename.para, "input/%s/%s.para", project, project);
     sprintf (pihm->filename.calib, "input/%s/%s.calib", project, simulation);
     sprintf (pihm->filename.ic, "input/%s/%s.ic", project, simulation);
+    sprintf(pihm->filename.sunpara, "input/%s/%s.sunpara", project, project);
 #ifdef _NOAH_
     sprintf (pihm->filename.lsm, "input/%s/%s.lsm", project, project);
     sprintf (pihm->filename.rad, "input/%s/%s.rad", project, project);
@@ -72,6 +73,9 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 
     /* Read calibration input file */
     ReadCalib (pihm->filename.calib, &pihm->cal);
+
+    /* Read sundial model control file */
+    ReadSunpara(pihm->filename.sunpara, &pihm->ctrl);
 
 #ifdef _NOAH_
     /* Read LSM input file */
@@ -1313,6 +1317,37 @@ void ReadIC (char *filename, elem_struct *elem, river_struct *riv)
     }
 
     fclose (ic_file);
+}
+
+void ReadSunpara(char *filename, ctrl_struct *ctrl)
+{
+    FILE           *sunpara_file;  /* Pointer to .sunpara file */
+    char            cmdstr[MAXSTRING];
+    int             lno = 0;
+
+
+    sunpara_file = fopen(filename, "r");
+    CheckFile(sunpara_file, filename);
+    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+
+    /* start reading para_file */
+    /* Read through sundials parameter file to find parameters */
+    NextLine(sunpara_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "Nncfn", &ctrl->nncfn, 'i', filename, lno);
+
+    NextLine(sunpara_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "Nnnimax", &ctrl->nnimax, 'i', filename, lno);
+
+    NextLine(sunpara_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "Nnnimin", &ctrl->nnimin, 'i', filename, lno);
+
+    NextLine(sunpara_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "DECR", &ctrl->decr, 'd', filename, lno);
+
+    NextLine(sunpara_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "INCR", &ctrl->incr, 'd', filename, lno);
+
+    fclose(sunpara_file);
 }
 
 void FreeData (pihm_struct pihm)
