@@ -289,6 +289,7 @@ typedef struct ctrl_struct
     int             nnimin;
     double          decr;
     double          incr; 
+    double          stmin;
 #ifdef _NOAH_
     int             nsoil;
     double          sldpth[MAXLYR];

@@ -1347,6 +1347,9 @@ void ReadSunpara(char *filename, ctrl_struct *ctrl)
     NextLine(sunpara_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "INCR", &ctrl->incr, 'd', filename, lno);
 
+    NextLine(sunpara_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "StepMin", &ctrl->stmin, 'd', filename, lno);
+
     fclose(sunpara_file);
 }
 

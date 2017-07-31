@@ -178,7 +178,7 @@ int main (int argc, char *argv[])
 		flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
 
 		/* Variable CVode Max Step */
-		if (ncfn - ncfni > pihm->ctrl.nncfn || nni - nnii > pihm->ctrl.nnimax)
+		if ((ncfn - ncfni > pihm->ctrl.nncfn || nni - nnii > pihm->ctrl.nnimax) && maxstep > pihm->ctrl.stmin)
 		{
 			maxstep = maxstep / pihm->ctrl.decr;
 			flag = CVodeSetMaxStep(cvode_mem, (realtype) maxstep);

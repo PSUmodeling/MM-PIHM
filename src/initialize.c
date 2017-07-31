@@ -36,9 +36,8 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     InitTopo (pihm->elem, &pihm->meshtbl);
 
 #ifdef _NOAH_
-    /* Calculate average elevation and total area of model domain */
-    pihm->siteinfo.elevation = AvgElev (pihm->elem);
-    pihm->siteinfo.area = TotalArea (pihm->elem);
+    /* Calculate average elevation of model domain */
+    pihm->elevation = AvgElev (pihm->elem);
 #endif
 
     InitSoil (pihm->elem, &pihm->soiltbl,
@@ -91,7 +90,8 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     {
 #ifdef _NOAH_
         ApplyForcing (&pihm->forc, pihm->elem, pihm->ctrl.starttime,
-            &pihm->ctrl, &pihm->siteinfo);
+            &pihm->ctrl, pihm->latitude, pihm->longitude, pihm->elevation,
+            pihm->noahtbl.tbot);
 #endif
         SaturationIC (pihm->elem, pihm->riv);
     }

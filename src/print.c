@@ -234,7 +234,7 @@ void PrtInit(elem_struct *elem, river_struct *river, char *simulation, int t)
 	FILE           *init_file;
 	char            fn[MAXSTRING];
 	int             i;
-    char            name[14];
+    char            name[20];
 
     pihm_t_struct   pihm_time;
 
@@ -458,11 +458,11 @@ void PrintWaterBalance(FILE *WaterBalance, int t, int tstart, int dt, elem_struc
 	realtype        totPrep = 0., totNetPrep = 0., totInf = 0., totRecharge = 0., totEsoil = 0., \
 		            totETplant = 0., totEcan = 0., totPET = 0., totET = 0., totES = 0., totEU = 0., \
 		            totEGW = 0., totTU = 0., totTGW = 0.;
-	realtype        outflow, RE_OLF = 0., R_Exf = 0.;
+	realtype        outflow, RE_OLF = 0., R_Exf = 0., R_LKG=0.;
 
 
 	str1_Tec = "VARIABLES = \"TIME (s)\" \"Outflow (cms)\" \"Surf2Chan (cms)\" \"AqF2Chan (cms)\" \
-          \"Precipitation (cms)\" \"NetPrec (cms)\" \"Infiltration (cms)\" \"Recharge (cms)\" \
+          \"Chan_LKG (cms)\" \"Precipitation (cms)\" \"NetPrec (cms)\" \"Infiltration (cms)\" \"Recharge (cms)\" \
           \"E_soil (cms)\" \"ET_plant (cms)\" \"E_canopy (cms)\" \"PET (cms)\" \"ET (cms)\" \
           \"E_Surface (cms)\" \"E_Unsat (cms)\" \"E_GW (cms)\" \"T_Unsat (cms)\" \"T_GW (cms)\"";
 	
@@ -493,10 +493,11 @@ void PrintWaterBalance(FILE *WaterBalance, int t, int tstart, int dt, elem_struc
 			outflow = riv[j].wf.rivflow[DOWN_CHANL2CHANL];
 		}
 		RE_OLF = RE_OLF + (riv[j].wf.rivflow[LEFT_SURF2CHANL] + riv[j].wf.rivflow[RIGHT_SURF2CHANL]);
-		R_Exf = R_Exf = +(riv[j].wf.rivflow[LEFT_AQUIF2CHANL] + riv[j].wf.rivflow[RIGHT_AQUIF2CHANL]);
+		R_Exf = R_Exf + (riv[j].wf.rivflow[LEFT_AQUIF2CHANL] + riv[j].wf.rivflow[RIGHT_AQUIF2CHANL]);
+		R_LKG = R_LKG + riv[j].wf.rivflow[CHANL_LKG];
 
 	}
 
-	fprintf(WaterBalance, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
-		(t-tstart), outflow, RE_OLF, R_Exf, totPrep, totNetPrep, totInf, totRecharge, totEsoil, totETplant, totEcan, totPET, totET, totES, totEU, totEGW, totTU, totTGW);
+	fprintf(WaterBalance, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
+		(t-tstart), outflow, RE_OLF, R_Exf, R_LKG, totPrep, totNetPrep, totInf, totRecharge, totEsoil, totETplant, totEcan, totPET, totET, totES, totEU, totEGW, totTU, totTGW);
 }
