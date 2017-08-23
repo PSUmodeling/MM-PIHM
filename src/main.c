@@ -42,7 +42,7 @@ int main (int argc, char *argv[])
 
 	memset(outputdir, 0, MAXSTRING);
 
-	/* Set the number of threads to use */    
+	/* Set the number of threads to use */
 #ifdef _OPENMP
     nthreads = omp_get_max_threads();
 #endif
@@ -116,7 +116,7 @@ int main (int argc, char *argv[])
 		Conv = fopen(Convname, "w");
 		CheckFile(Conv, Convname);
        }
-	
+
     InitOutputFile (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii, pihm->prtctrlT, pihm->ctrl.nprintT, pihm->ctrl.tecplot);
 
     PIHMprintf (VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
@@ -177,8 +177,8 @@ int main (int argc, char *argv[])
 		flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
 		flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
 
-		/* Variable CVode Max Step */
-		if (ncfn - ncfni > pihm->ctrl.nncfn || nni - nnii > pihm->ctrl.nnimax)
+		/* Variable CVode Max Step (to reduce oscillations)*/
+		if ((ncfn - ncfni > pihm->ctrl.nncfn || nni - nnii > pihm->ctrl.nnimax) && maxstep > pihm->ctrl.stmin)
 		{
 			maxstep = maxstep / pihm->ctrl.decr;
 			flag = CVodeSetMaxStep(cvode_mem, (realtype) maxstep);

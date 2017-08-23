@@ -63,7 +63,7 @@ typedef struct topo_struct
     double          nabrdist[NUM_EDGE];
     double          nabrdist_x[NUM_EDGE];
     double          nabrdist_y[NUM_EDGE];
-    double			distSurf[NUM_EDGE];
+	double			distSurf[NUM_EDGE];
 #ifdef _NOAH_
     double          slope;
     double          aspect;
@@ -1140,7 +1140,6 @@ typedef struct bgcic_struct
     double          soil2n;
     double          soil3n;
     double          soil4n;
-    double          surfn;
     double          sminn;
     double          retransn;
     double          npool;
@@ -1844,7 +1843,7 @@ typedef struct nstate_struct
     double          soil2n;
     double          soil3n;
     double          soil4n;
-    double          surfn;
+	double          surfn;
     double          sminn;
     double          retransn;
     double          npool;
@@ -2222,7 +2221,7 @@ typedef struct nflux_struct
  ****************************************************************************/
 typedef struct ntemp_struct
 {
-    double          surfn0;
+	double          surfn0;
     double          sminn0;
     double          mineralized;
     double          potential_immob;
@@ -2489,12 +2488,12 @@ typedef struct summary_struct
 
 typedef struct solute_struct
 {
-    double          conc_surf;
-    double          conc_subsurf;
-    double          infilflux;
-    double          snksrc;
-    double          ovlflux[NUM_EDGE];
-    double          subflux[NUM_EDGE];
+	double          conc_surf;
+	double          conc_subsurf;
+	double          infilflux;
+	double          snksrc;
+	double          ovlflux[NUM_EDGE];
+	double          subflux[NUM_EDGE];
 } solute_struct;
 
 #endif
