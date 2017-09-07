@@ -93,16 +93,6 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
          * multiplication of Area on either side of equation */
         intcp_max = elem->lc.cmcfactr * lai * elem->lc.shdfac;
 
-#ifdef _DEBUG_
-        if (i == 0)
-        {
-            printf ("Max is %lf (%lf * %lf * %lf)\n", intcp_max,
-                elem->lc.cmcfactr,
-                lai,
-                elem->lc.shdfac);
-        }
-#endif
-
         z0 = MonthlyRL (t, elem->attrib.lc_type);
 
         ra = log (elem->ps.zlvl_wind / z0) * log (10.0 *
@@ -138,8 +128,8 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
             (satn * elem->soil.porosity + elem->soil.smcmin -
             elem->soil.smcwlt) / (elem->soil.smcref - elem->soil.smcwlt);
         betas = (betas < 0.0001) ? 0.0001 : (betas > 1.0 ? 1.0 : betas);
-		elem->wf.edir = etp;
-        elem->wf.edir = (1.0 - elem->lc.shdfac) * pow (betas, 2) * etp * pihm->cal.edir;
+        elem->wf.edir = (1.0 - elem->lc.shdfac) * pow (betas, 2) * etp;
+        elem->wf.edir *= pihm->cal.edir;
         elem->wf.edir = elem->wf.edir < 0.0 ? 0.0 : elem->wf.edir;
 
         /* Note the dependence on physical units */
@@ -149,8 +139,8 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
                 pow (((elem->ws.cmc < 0.0) ? 0.0 :
                 ((elem->ws.cmc > intcp_max) ? intcp_max : elem->ws.cmc)) /
                     intcp_max, elem->lc.cfactr) * etp;
-			elem->wf.ec = elem->wf.ec * pihm->cal.ec;
-            elem->wf.ec = elem->wf.ec < 0.0 ? 0.0 : elem->wf.ec;
+            elem->wf.ec *= pihm->cal.ec;
+            elem->wf.ec = (elem->wf.ec < 0.0) ? 0.0 : elem->wf.ec;
 
             fr = 1.1 * radnet / (elem->epc.rgl * lai);
             fr = (fr < 0.0) ? 0.0 : fr;
@@ -170,8 +160,8 @@ void IntcpSnowET (int t, double stepsize, pihm_struct pihm)
                 (1.0 - pow ((elem->ws.cmc < 0.0) ? 0.0 :
                 ((elem->ws.cmc > intcp_max) ? intcp_max : elem->ws.cmc) /
                 intcp_max, elem->lc.cfactr)) * etp;
-			elem->wf.ett = elem->wf.ett * pihm->cal.ett;
-            elem->wf.ett = elem->wf.ett < 0.0 ? 0.0 : elem->wf.ett;
+            elem->wf.ett *= pihm->cal.ett;
+            elem->wf.ett = (elem->wf.ett < 0.0) ? 0.0 : elem->wf.ett;
             elem->wf.ett = ((elem->ws.gw < (elem->soil.depth - elem->ps.rzd))
                 && elem->ws.unsat <= 0.0) ? 0.0 : elem->wf.ett;
 
