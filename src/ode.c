@@ -8,9 +8,8 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     double          dt;
     pihm_struct     pihm;
 
-
-    y = NV_DATA(CV_Y);
-    dy = NV_DATA(CV_Ydot);
+    y = NV_DATA (CV_Y);
+    dy = NV_DATA (CV_Ydot);
     pihm = (pihm_struct)pihm_data;
 
     dt = (double)pihm->ctrl.stepsize;
@@ -36,6 +35,7 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
 
 #ifdef _BGC_
+        elem->ns.surfn = (y[SURFN(i)] >= 0.0) ? y[SURFN(i)] : 0.0;
         elem->ns.sminn = (y[SMINN(i)] >= 0.0) ? y[SMINN(i)] : 0.0;
 #endif
     }
@@ -52,7 +52,8 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         riv->ws.gw = (y[RIVGW (i)] >= 0.0) ? y[RIVGW (i)] : 0.0;
 
 #ifdef _BGC_
-        riv->ns.rivern = (y[RIVERN(i)] >= 0.0) ? y[RIVERN(i)] : 0.0;
+        riv->ns.streamn = (y[STREAMN(i)] >= 0.0) ? y[STREAMN(i)] : 0.0;
+        riv->ns.sminn = (y[RIVBEDN(i)] >= 0.0) ? y[RIVBEDN(i)] : 0.0;
 #endif
 
         riv->wf.rivflow[UP_CHANL2CHANL] = 0.0;
@@ -118,21 +119,15 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         }
 
 #ifdef _BGC_
-        dy[SMINN(i)] +=
-            (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC +
-            elem->nsol.snksrc;
+        dy[SURFN(i)] +=
+            (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC -
+            elem->nsol.infilflux;
+        dy[SMINN(i)] += elem->nsol.infilflux + elem->nsol.snksrc;
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            dy[SMINN(i)] -= elem->nsol.flux[j] / elem->topo.area;
-        }
-
-        if (isnan (dy[SMINN(i)]))
-        {
-            PIHMprintf (VL_ERROR,
-                "Error: NAN error for Element %d (soil mineral N) at %lf\n",
-                i + 1, t);
-            PIHMexit (EXIT_FAILURE);
+            dy[SURFN(i)] -= elem->nsol.ovlflux[j] / elem->topo.area;
+            dy[SMINN(i)] -= elem->nsol.subflux[j] / elem->topo.area;
         }
 #endif
     }
@@ -179,18 +174,18 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         }
 
 #ifdef _BGC_
-        dy[RIVERN (i)] -= riv->nsol.flux[UP] + riv->nsol.flux[DOWN] +
-            riv->nsol.flux[LEFT] + riv->nsol.flux[RIGHT];
-
-        dy[RIVERN (i)] /= riv->topo.area;
-
-        if (isnan (dy[RIVERN(i)]))
+        for (j = 0; j <= 6; j++)
         {
-            PIHMprintf (VL_ERROR,
-                "Error: NAN error for River Segment %d (mineral N) at %lf\n",
-                i + 1, t);
-            PIHMexit (EXIT_FAILURE);
+            dy[STREAMN (i)] -= riv->nsol.flux[j] / riv->topo.area;
         }
+
+        dy[RIVBEDN (i)] += 0.0 -
+            riv->nsol.flux[LEFT_AQUIF2AQUIF] -
+            riv->nsol.flux[RIGHT_AQUIF2AQUIF] -
+            riv->nsol.flux[DOWN_AQUIF2AQUIF] -
+            riv->nsol.flux[UP_AQUIF2AQUIF] + riv->nsol.flux[CHANL_LKG];
+
+        dy[RIVBEDN (i)] /= riv->topo.area;
 #endif
     }
 
@@ -201,9 +196,10 @@ void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             flag;
 
-    flag = CVodeInit (cvode_mem, ODE, (realtype)0.0, CV_Y);
+    flag = CVodeInit (cvode_mem, ODE, (realtype)pihm->ctrl.starttime,
+        CV_Y);
     flag = CVodeSStolerances (cvode_mem,(realtype) pihm->ctrl.reltol,
-		(realtype) pihm->ctrl.abstol);
+        (realtype)pihm->ctrl.abstol);
     flag = CVodeSetUserData (cvode_mem, pihm);
     flag = CVodeSetInitStep (cvode_mem, (realtype) pihm->ctrl.initstep);
     flag = CVodeSetStabLimDet (cvode_mem, TRUE);
@@ -211,9 +207,9 @@ void SetCVodeParam (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     flag = CVSpgmr (cvode_mem, PREC_NONE, 0);
 }
 
-void SolveCVode (int starttime, int *t, int nextptr, int stepsize, double cputime,
-		void *cvode_mem, N_Vector CV_Y, char *simulation, char *outputdir)
-
+void SolveCVode (int starttime, int *t, int nextptr, int stepsize,
+    double cputime, void *cvode_mem, N_Vector CV_Y, char *simulation,
+    char *outputdir)
 {
     realtype        solvert;
     realtype        cvode_val;
@@ -221,7 +217,8 @@ void SolveCVode (int starttime, int *t, int nextptr, int stepsize, double cputim
     pihm_t_struct   pihm_time;
     int             flag;
 
-	solvert = (realtype) (*t);
+    solvert = (realtype) (*t);
+
     flag = CVodeSetMaxNumSteps (cvode_mem, 0);
     flag = CVodeSetStopTime (cvode_mem, tout);
     flag = CVode (cvode_mem, (realtype) nextptr, CV_Y, &solvert, CV_NORMAL);
@@ -230,6 +227,7 @@ void SolveCVode (int starttime, int *t, int nextptr, int stepsize, double cputim
     *t = (int)round (solvert + starttime);
 
     pihm_time = PIHMTime (*t);
+
     if (debug_mode)
     {
         PIHMprintf (VL_NORMAL, " Step = %s (%d)\n", pihm_time.str, *t);
