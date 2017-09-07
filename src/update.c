@@ -6,11 +6,7 @@ void Summary (pihm_struct pihm, N_Vector CV_Y, double stepsize)
     int             i;
     double          subrunoff;
 
-#ifdef _OPENMP
-	y = NV_DATA_OMP(CV_Y);
-#else
-	y = NV_DATA_S(CV_Y);
-#endif
+	y = NV_DATA(CV_Y);
 #ifdef _OPENMP
 #pragma omp parallel for private(subrunoff)
 #endif

@@ -9,13 +9,8 @@ int ODE (realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     pihm_struct     pihm;
 
 
-#ifdef _OPENMP
-		y = NV_DATA_OMP(CV_Y);
-		dy = NV_DATA_OMP(CV_Ydot);
-#else
-		y = NV_DATA_S(CV_Y);
-		dy = NV_DATA_S(CV_Ydot);
-#endif
+    y = NV_DATA(CV_Y);
+    dy = NV_DATA(CV_Ydot);
     pihm = (pihm_struct)pihm_data;
 
     dt = (double)pihm->ctrl.stepsize;
