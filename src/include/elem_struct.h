@@ -38,6 +38,7 @@ typedef struct attrib_struct
  *                                        [m]
  * nabrdist_y               double[]    distance to neighbor in y direction
  *                                        [m]
+ * distSurf                 double[]    distance to neighbor [m]
  * ---------------------------------------------------------------------------
  * Variables below only used in Flux-PIHM
  * ---------------------------------------------------------------------------
@@ -62,6 +63,7 @@ typedef struct topo_struct
     double          nabrdist[NUM_EDGE];
     double          nabrdist_x[NUM_EDGE];
     double          nabrdist_y[NUM_EDGE];
+	double			distSurf[NUM_EDGE];
 #ifdef _NOAH_
     double          slope;
     double          aspect;
@@ -616,7 +618,7 @@ typedef struct wstate_struct
  * ==========               ==========  ====================
  * ovlflow                  double[]    overland flow [m3 s-1]
  * subsurf                  double[]    subsurface flow [m3 s-1]
- * prcp                     double      precepitation on each element [m s-1]
+ * prcp                     double      precipitation on each element [m s-1]
  * pcpdrp                   double      combined prcp and drip (from canopy)
  *                                        that goes into the soil [m s-1]
  * infil                    double      variable infiltration rate [m s-1]
@@ -1138,7 +1140,6 @@ typedef struct bgcic_struct
     double          soil2n;
     double          soil3n;
     double          soil4n;
-    double          surfn;
     double          sminn;
     double          retransn;
     double          npool;
@@ -1842,7 +1843,7 @@ typedef struct nstate_struct
     double          soil2n;
     double          soil3n;
     double          soil4n;
-    double          surfn;
+	double          surfn;
     double          sminn;
     double          retransn;
     double          npool;
@@ -2220,7 +2221,7 @@ typedef struct nflux_struct
  ****************************************************************************/
 typedef struct ntemp_struct
 {
-    double          surfn0;
+	double          surfn0;
     double          sminn0;
     double          mineralized;
     double          potential_immob;
@@ -2487,12 +2488,12 @@ typedef struct summary_struct
 
 typedef struct solute_struct
 {
-    double          conc_surf;
-    double          conc_subsurf;
-    double          infilflux;
-    double          snksrc;
-    double          ovlflux[NUM_EDGE];
-    double          subflux[NUM_EDGE];
+	double          conc_surf;
+	double          conc_subsurf;
+	double          infilflux;
+	double          snksrc;
+	double          ovlflux[NUM_EDGE];
+	double          subflux[NUM_EDGE];
 } solute_struct;
 
 #endif
@@ -2502,7 +2503,7 @@ typedef struct solute_struct
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * node                     int[]       nodes of triagular element
+ * node                     int[]       nodes of triangular element
  *                                        (Counterclock-wise)
  * nabr                     int[]       neighbor elements (neighbor i shares
  *                                        edge i (0: on boundary)

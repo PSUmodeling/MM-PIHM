@@ -20,7 +20,6 @@ typedef struct siteinfo_struct
     double          area;
     double          tavg;
 } siteinfo_struct;
-
 #ifdef _BGC_
 /*****************************************************************************
  * A structure to hold information on the annual co2 concentration
@@ -210,6 +209,7 @@ typedef struct calib_struct
  * Variables                Type        Description
  * ==========               ==========  ====================
  * ascii                    int         flag to turn on ascii output
+ * Tecplot                  int         flag to turn on Tecplot output
  * write_ic                 int         flag to write model output at the last
  *                                        time step as initial conditions
  * solver                   int         solver type
@@ -217,6 +217,7 @@ typedef struct calib_struct
  *                                        results can be printed) for the
  *                                        whole simulation
  * nprint                   int         number of variables for output
+ * nprintT                  int         number of variables for Tecplot output
  * prtvrbl                  int[]       time interval to output average values
  *                                        of variables; 0=turn off output
  * init_type                int         initialization mode:
@@ -237,6 +238,14 @@ typedef struct calib_struct
  * stepsize                 int         model step size [s]
  * tout                     int*        model output times [ctime]
  * ---------------------------------------------------------------------------
+ * Variables below used to control sundials convergence
+ * ---------------------------------------------------------------------------
+ * nncfn                    int         number of non-convergence failures
+ * nnimax                   int         maximum number of non-linear iterations
+ * nnimin                   int         minimum number of non-linear iterations
+ * decr-                    double      decrease factor
+ * incr                     double      increase factor
+ * ---------------------------------------------------------------------------
  * Variables below only used in Flux-PIHM
  * ---------------------------------------------------------------------------
  * nsoil                    int         number of standard soil layers
@@ -253,10 +262,14 @@ typedef struct calib_struct
 typedef struct ctrl_struct
 {
     int             ascii;
+    int             tecplot;
+    int             cvode_perf;
+    int             waterB;
     int             write_ic;
     int             solver;
     int             nstep;
     int             nprint;
+    int             nprintT;
     int             prtvrbl[MAXPRINT];
     int             init_type;
     int             unsat_mode;
@@ -271,6 +284,12 @@ typedef struct ctrl_struct
     int             endtime;
     int             stepsize;
     int            *tout;
+    int             nncfn;
+    int             nnimax;
+    int             nnimin;
+    double          decr;
+    double          incr; 
+    double          stmin;
 #ifdef _NOAH_
     int             nsoil;
     double          sldpth[MAXLYR];
@@ -312,7 +331,38 @@ typedef struct prtctrl_struct
     int             counter;
     FILE           *txtfile;
     FILE           *datfile;
+    FILE           *ic;
 } prtctrl_struct;
+
+/*****************************************************************************
+* Tecplot print control structure
+* ---------------------------------------------------------------------------
+* Variables                Type        Description
+* ==========               ==========  ====================
+* name                     char[]      name of output file
+* intvl                    int         output interval [s]
+* intr                     int         river identifier 
+* nvar                     int         number of variables for print
+* var                      double**    pointers to model variables
+* x, y, z                  double**    pointers to model coordinates 
+* nnodes                   int         number of nodes
+* buffer                   double*     buffer for averaging variables
+****************************************************************************/
+typedef struct prtctrlT_struct
+{
+	char            name[MAXSTRING];
+	int             intvl;
+	int             intr;
+	int             nvar;
+	double        **var;
+	double        **x, **y, **zmax, **zmin;
+	int             nnodes;
+	int           **node0, **node1, **node2;
+	double         *buffer;
+	int             counter;
+	int             first;
+	FILE           *datfile;
+} prtctrlT_struct;
 
 /*****************************************************************************
  * Print control structure
@@ -355,5 +405,6 @@ typedef struct pihm_struct
     calib_struct    cal;
     ctrl_struct     ctrl;
     prtctrl_struct  prtctrl[MAXPRINT];
+	prtctrlT_struct prtctrlT[MAXPRINT];
 } *pihm_struct;
 #endif

@@ -45,6 +45,9 @@ void FindLine (FILE *fid, char *token, int *lno, const char *filename)
     char            cmdstr[MAXSTRING];
     char            optstr[MAXSTRING];
 
+	#if defined(_MSC_VER)
+      #define strcasecmp _stricmp
+    #endif
     if (strcasecmp ("BOF", token) == 0)
     {
         rewind (fid);
@@ -114,7 +117,9 @@ int CountLine (FILE *fid, char *cmdstr, int num_arg, ...)
     int             count;
     int             success = 0;
     int             i;
-
+	#if defined(_MSC_VER)
+		#define strcasecmp _stricmp
+	#endif
 
     /* access all the arguments assigned to valist */
     /* Initialize cmdstr */
@@ -204,6 +209,11 @@ int ReadKeyword (char *buffer, char *keyword, void *value, char type,
     char            optstr[MAXSTRING];
     int             success = 1;
 
+ //   #if defined(_MSC_VER)
+	//	#define strncasecmp _strnicmp
+	//	#define strcasecmp _stricmp
+	//	#define timegm _mkgmtime
+	//#endif
     switch (type)
     {
         case 'd':

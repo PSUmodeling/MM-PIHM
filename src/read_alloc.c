@@ -17,6 +17,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
     sprintf (pihm->filename.para, "input/%s/%s.para", project, project);
     sprintf (pihm->filename.calib, "input/%s/%s.calib", project, simulation);
     sprintf (pihm->filename.ic, "input/%s/%s.ic", project, simulation);
+    sprintf(pihm->filename.sunpara, "input/%s/%s.sunpara", project, project);
 #ifdef _NOAH_
     sprintf (pihm->filename.lsm, "input/%s/%s.lsm", project, project);
     sprintf (pihm->filename.rad, "input/%s/%s.rad", project, project);
@@ -36,7 +37,7 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 
     /* Read river input file */
     ReadRiv (pihm->filename.riv, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl,
-        &pihm->forc);
+       &pihm->forc);
 
     /* Read mesh structure input file */
     ReadMesh (pihm->filename.mesh, &pihm->meshtbl);
@@ -72,6 +73,9 @@ void ReadAlloc (char *simulation, pihm_struct pihm)
 
     /* Read calibration input file */
     ReadCalib (pihm->filename.calib, &pihm->cal);
+
+    /* Read sundial model control file */
+    ReadSunpara(pihm->filename.sunpara, &pihm->ctrl);
 
 #ifdef _NOAH_
     /* Read LSM input file */
@@ -142,8 +146,8 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
      * Read river segment block
      */
     /* Read number of river segments */
-    FindLine (riv_file, "BOF", &lno, filename);
-    NextLine (riv_file, cmdstr, &lno);
+      FindLine (riv_file, "BOF", &lno, filename);
+      NextLine (riv_file, cmdstr, &lno);
     ReadKeyword (cmdstr, "NUMRIV", &nriver, 'i', filename, lno);
 
     /* Allocate */
@@ -265,7 +269,7 @@ void ReadRiv (char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
             {
                 PIHMprintf (VL_ERROR,
                     "Error reading description "
-                    "of the %dth river boudnary condition.\n", i);
+                    "of the %dth river boundary condition.\n", i);
                 PIHMprintf (VL_ERROR, "Error in %s near Line %d.\n",
                     filename, lno);
                 PIHMexit (EXIT_FAILURE);
@@ -953,6 +957,15 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     NextLine (para_file, cmdstr, &lno);
     ReadKeyword (cmdstr, "ASCII_OUTPUT", &ctrl->ascii, 'i', filename, lno);
 
+	NextLine(para_file, cmdstr, &lno);
+	ReadKeyword(cmdstr, "TECPLOT_OUTPUT", &ctrl->tecplot, 'i', filename, lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ReadKeyword(cmdstr, "CVODE_PERF", &ctrl->cvode_perf, 'i', filename, lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ReadKeyword(cmdstr, "WATERB", &ctrl->waterB, 'i', filename, lno);
+
     NextLine (para_file, cmdstr, &lno);
     ReadKeyword (cmdstr, "WRITE_IC", &ctrl->write_ic, 'i', filename, lno);
 
@@ -995,7 +1008,7 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     ReadKeyword (cmdstr, "MODEL_STEPSIZE", &ctrl->stepsize, 'i', filename,
         lno);
 
-    NextLine (para_file, cmdstr, &lno);
+	NextLine (para_file, cmdstr, &lno);
     ctrl->prtvrbl[SURF_CTRL] = ReadPrtCtrl (cmdstr, "SURF", filename, lno);
 
     NextLine (para_file, cmdstr, &lno);
@@ -1085,7 +1098,31 @@ void ReadPara (char *filename, ctrl_struct *ctrl)
     ctrl->prtvrbl[SURFFLX_CTRL] = ReadPrtCtrl (cmdstr, "SURFFLX", filename,
         lno);
 
-    fclose (para_file);
+	NextLine(para_file, cmdstr, &lno);
+	ctrl->prtvrbl[SURFTEC_CTRL] = ReadPrtCtrl(cmdstr, "SURFTEC", filename,
+		lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ctrl->prtvrbl[UNSATTEC_CTRL] = ReadPrtCtrl(cmdstr, "UNSATTEC", filename,
+		lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ctrl->prtvrbl[GWTEC_CTRL] = ReadPrtCtrl(cmdstr, "GWTEC", filename,
+		lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ctrl->prtvrbl[RIVSTGTEC_CTRL] = ReadPrtCtrl(cmdstr, "RIVSTGTEC", filename,
+		lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ctrl->prtvrbl[RIVGWTEC_CTRL] = ReadPrtCtrl(cmdstr, "RIVGWTEC", filename,
+		lno);
+
+	NextLine(para_file, cmdstr, &lno);
+	ctrl->prtvrbl[IC_CTRL] = ReadPrtCtrl(cmdstr, "IC", filename,
+		lno);
+
+	fclose (para_file);
 
     if (ctrl->etstep < ctrl->stepsize || ctrl->etstep % ctrl->stepsize > 0)
     {
@@ -1282,6 +1319,40 @@ void ReadIC (char *filename, elem_struct *elem, river_struct *riv)
     fclose (ic_file);
 }
 
+void ReadSunpara(char *filename, ctrl_struct *ctrl)
+{
+    FILE           *sunpara_file;  /* Pointer to .sunpara file */
+    char            cmdstr[MAXSTRING];
+    int             lno = 0;
+
+
+    sunpara_file = fopen(filename, "r");
+    CheckFile(sunpara_file, filename);
+    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+
+    /* start reading para_file */
+    /* Read through sundials parameter file to find parameters */
+    NextLine(sunpara_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "Nncfn", &ctrl->nncfn, 'i', filename, lno);
+
+    NextLine(sunpara_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "Nnnimax", &ctrl->nnimax, 'i', filename, lno);
+
+    NextLine(sunpara_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "Nnnimin", &ctrl->nnimin, 'i', filename, lno);
+
+    NextLine(sunpara_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "DECR", &ctrl->decr, 'd', filename, lno);
+
+    NextLine(sunpara_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "INCR", &ctrl->incr, 'd', filename, lno);
+
+    NextLine(sunpara_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "StepMin", &ctrl->stmin, 'd', filename, lno);
+
+    fclose(sunpara_file);
+}
+
 void FreeData (pihm_struct pihm)
 {
     int             i, j;
@@ -1454,7 +1525,12 @@ void FreeData (pihm_struct pihm)
             fclose (pihm->prtctrl[i].txtfile);
         }
     }
-
+	if (pihm->ctrl.tecplot) {
+		for (i = 0; i < pihm->ctrl.nprintT; i++)
+		{
+			fclose(pihm->prtctrlT[i].datfile);
+		}
+	}
     free (pihm->elem);
     free (pihm->riv);
 }

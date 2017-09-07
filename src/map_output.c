@@ -3,11 +3,12 @@
 void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
 {
     int             i, j, k;
-    int             n;
+    int             n, nT;
 
     PIHMprintf (VL_VERBOSE, "\nInitializing PIHM output files\n");
 
     n = 0;
+	nT = 0;
 
     for (i = 0; i < MAXPRINT; i++)
     {
@@ -808,51 +809,6 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     }
                     n++;
                     break;
-                case LEAFC_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.leafc", outputdir,
-                        simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].upd_intvl = CN_STEP;
-                    pihm->prtctrl[n].nvar = nelem;
-                    pihm->prtctrl[n].var =
-                        (double **)malloc (pihm->prtctrl[n].nvar *
-                        sizeof (double *));
-                    for (j = 0; j < nelem; j++)
-                    {
-                        pihm->prtctrl[n].var[j] = &pihm->elem[j].cs.leafc;
-                    }
-                    n++;
-                    break;
-                case LIVESTEMC_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.livestemc",
-                        outputdir, simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].upd_intvl = CN_STEP;
-                    pihm->prtctrl[n].nvar = nelem;
-                    pihm->prtctrl[n].var =
-                        (double **)malloc (pihm->prtctrl[n].nvar *
-                        sizeof (double *));
-                    for (j = 0; j < nelem; j++)
-                    {
-                        pihm->prtctrl[n].var[j] = &pihm->elem[j].cs.livestemc;
-                    }
-                    n++;
-                    break;
-                case DEADSTEMC_CTRL:
-                    sprintf (pihm->prtctrl[n].name, "%s%s.deadstemc",
-                        outputdir, simulation);
-                    pihm->prtctrl[n].intvl = pihm->ctrl.prtvrbl[i];
-                    pihm->prtctrl[n].upd_intvl = CN_STEP;
-                    pihm->prtctrl[n].nvar = nelem;
-                    pihm->prtctrl[n].var =
-                        (double **)malloc (pihm->prtctrl[n].nvar *
-                        sizeof (double *));
-                    for (j = 0; j < nelem; j++)
-                    {
-                        pihm->prtctrl[n].var[j] = &pihm->elem[j].cs.deadstemc;
-                    }
-                    n++;
-                    break;
 #endif
 #ifdef _CYCLES_
                 case BIOMASS_CTRL:
@@ -1258,6 +1214,218 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
                     break;
 
 #endif
+				case SURFTEC_CTRL:
+					sprintf(pihm->prtctrlT[nT].name, "%s%s_surf", outputdir,
+						simulation);
+					pihm->prtctrlT[nT].intvl = pihm->ctrl.prtvrbl[i];
+					pihm->prtctrlT[nT].intr = 0;
+					pihm->prtctrlT[nT].nvar = nelem;
+					pihm->prtctrlT[nT].nnodes = pihm->meshtbl.numnode;
+
+					pihm->prtctrlT[nT].x =
+						(double **)malloc(pihm->prtctrlT[nT].nnodes *
+							sizeof(double *));
+					pihm->prtctrlT[nT].y =
+						(double **)malloc(pihm->prtctrlT[nT].nnodes *
+							sizeof(double *));
+					pihm->prtctrlT[nT].zmin =
+						(double **)malloc(pihm->prtctrlT[nT].nnodes *
+							sizeof(double *));
+					pihm->prtctrlT[nT].zmax =
+						(double **)malloc(pihm->prtctrlT[nT].nnodes *
+							sizeof(double *));
+					for (j = 0; j < pihm->prtctrlT[nT].nnodes; j++)
+					{
+						pihm->prtctrlT[nT].x[j] = &pihm->meshtbl.x[j];
+						pihm->prtctrlT[nT].y[j] = &pihm->meshtbl.y[j];
+						pihm->prtctrlT[nT].zmax[j] = &pihm->meshtbl.zmax[j];
+						pihm->prtctrlT[nT].zmin[j] = &pihm->meshtbl.zmin[j];
+
+					}
+					pihm->prtctrlT[nT].node0 =
+						(int **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(int *));
+					pihm->prtctrlT[nT].node1 =
+						(int **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(int *));
+					pihm->prtctrlT[nT].node2 =
+						(int **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(int *));
+					pihm->prtctrlT[nT].var =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+
+					for (j = 0; j < nelem; j++)
+					{
+						pihm->prtctrlT[nT].var[j] = &pihm->elem[j].ws.surf;
+						pihm->prtctrlT[nT].node0[j] = &pihm->elem[j].node[0];
+						pihm->prtctrlT[nT].node1[j] = &pihm->elem[j].node[1];
+						pihm->prtctrlT[nT].node2[j] = &pihm->elem[j].node[2];
+					}
+					nT++;
+					break;
+				case UNSATTEC_CTRL:
+					sprintf(pihm->prtctrlT[nT].name, "%s%s_unsat", outputdir,
+						simulation);
+					pihm->prtctrlT[nT].intvl = pihm->ctrl.prtvrbl[i];
+					pihm->prtctrlT[nT].intr = 0;
+					pihm->prtctrlT[nT].nvar = nelem;
+					pihm->prtctrlT[nT].nnodes = pihm->meshtbl.numnode;
+
+					pihm->prtctrlT[nT].x =
+						(double **)malloc(pihm->prtctrlT[nT].nnodes *
+							sizeof(double *));
+					pihm->prtctrlT[nT].y =
+						(double **)malloc(pihm->prtctrlT[nT].nnodes *
+							sizeof(double *));
+					pihm->prtctrlT[nT].zmin =
+						(double **)malloc(pihm->prtctrlT[nT].nnodes *
+							sizeof(double *));
+					pihm->prtctrlT[nT].zmax =
+						(double **)malloc(pihm->prtctrlT[nT].nnodes *
+							sizeof(double *));
+					for (j = 0; j < pihm->prtctrlT[nT].nnodes; j++)
+					{
+						pihm->prtctrlT[nT].x[j] = &pihm->meshtbl.x[j];
+						pihm->prtctrlT[nT].y[j] = &pihm->meshtbl.y[j];
+						pihm->prtctrlT[nT].zmax[j] = &pihm->meshtbl.zmax[j];
+						pihm->prtctrlT[nT].zmin[j] = &pihm->meshtbl.zmin[j];
+
+					}
+					pihm->prtctrlT[nT].node0 =
+						(int **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(int *));
+					pihm->prtctrlT[nT].node1 =
+						(int **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(int *));
+					pihm->prtctrlT[nT].node2 =
+						(int **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(int *));
+					pihm->prtctrlT[nT].var =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+
+					for (j = 0; j < nelem; j++)
+					{
+						pihm->prtctrlT[nT].var[j] = &pihm->elem[j].ws.unsat;
+						pihm->prtctrlT[nT].node0[j] = &pihm->elem[j].node[0];
+						pihm->prtctrlT[nT].node1[j] = &pihm->elem[j].node[1];
+						pihm->prtctrlT[nT].node2[j] = &pihm->elem[j].node[2];
+					}
+					nT++;
+					break;
+				case GWTEC_CTRL:
+					sprintf(pihm->prtctrlT[nT].name, "%s%s_gw", outputdir,
+						simulation);
+					pihm->prtctrlT[nT].intvl = pihm->ctrl.prtvrbl[i];
+					pihm->prtctrlT[nT].intr = 0;
+					pihm->prtctrlT[nT].nvar = nelem;
+					pihm->prtctrlT[nT].nnodes = pihm->meshtbl.numnode;
+
+					pihm->prtctrlT[nT].x =
+						(double **)malloc(pihm->prtctrlT[nT].nnodes *
+							sizeof(double *));
+					pihm->prtctrlT[nT].y =
+						(double **)malloc(pihm->prtctrlT[nT].nnodes *
+							sizeof(double *));
+					pihm->prtctrlT[nT].zmin =
+						(double **)malloc(pihm->prtctrlT[nT].nnodes *
+							sizeof(double *));
+					pihm->prtctrlT[nT].zmax =
+						(double **)malloc(pihm->prtctrlT[nT].nnodes *
+							sizeof(double *));
+					for (j = 0; j < pihm->prtctrlT[nT].nnodes; j++)
+					{
+						pihm->prtctrlT[nT].x[j] = &pihm->meshtbl.x[j];
+						pihm->prtctrlT[nT].y[j] = &pihm->meshtbl.y[j];
+						pihm->prtctrlT[nT].zmax[j] = &pihm->meshtbl.zmax[j];
+						pihm->prtctrlT[nT].zmin[j] = &pihm->meshtbl.zmin[j];
+
+					}
+					pihm->prtctrlT[nT].node0 =
+						(int **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(int *));
+					pihm->prtctrlT[nT].node1 =
+						(int **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(int *));
+					pihm->prtctrlT[nT].node2 =
+						(int **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(int *));
+					pihm->prtctrlT[nT].var =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+
+					for (j = 0; j < nelem; j++)
+					{
+						pihm->prtctrlT[nT].var[j] = &pihm->elem[j].ws.gw;
+						pihm->prtctrlT[nT].node0[j] = &pihm->elem[j].node[0];
+						pihm->prtctrlT[nT].node1[j] = &pihm->elem[j].node[1];
+						pihm->prtctrlT[nT].node2[j] = &pihm->elem[j].node[2];
+					}
+					nT++;
+					break;
+				case RIVSTGTEC_CTRL:
+					sprintf(pihm->prtctrlT[nT].name, "%s%s_stage", outputdir,
+						simulation);
+					pihm->prtctrlT[nT].intvl = pihm->ctrl.prtvrbl[i];
+					pihm->prtctrlT[nT].intr = 1;
+					pihm->prtctrlT[nT].nvar = nriver;
+					pihm->prtctrlT[nT].var =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+					pihm->prtctrlT[nT].x =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+					pihm->prtctrlT[nT].y =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+					pihm->prtctrlT[nT].zmin =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+					pihm->prtctrlT[nT].zmax =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+					for (j = 0; j < nriver; j++)
+					{
+						pihm->prtctrlT[nT].var[j] = &pihm->riv[j].ws.stage;
+						pihm->prtctrlT[nT].x[j] = &pihm->riv[j].topo.x;
+						pihm->prtctrlT[nT].y[j] = &pihm->riv[j].topo.y;
+						pihm->prtctrlT[nT].zmax[j] = &pihm->riv[j].topo.zmax;
+						pihm->prtctrlT[nT].zmin[j] = &pihm->riv[j].topo.zmin;
+					}
+					nT++;
+					break;
+				case RIVGWTEC_CTRL:
+					sprintf(pihm->prtctrlT[nT].name, "%s%s_rivgw", outputdir,
+						simulation);
+					pihm->prtctrlT[nT].intvl = pihm->ctrl.prtvrbl[i];
+					pihm->prtctrlT[nT].intr = 1;
+					pihm->prtctrlT[nT].nvar = nriver;
+					pihm->prtctrlT[nT].var =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+					pihm->prtctrlT[nT].x =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+					pihm->prtctrlT[nT].y =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+					pihm->prtctrlT[nT].zmin =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+					pihm->prtctrlT[nT].zmax =
+						(double **)malloc(pihm->prtctrlT[nT].nvar *
+							sizeof(double *));
+					for (j = 0; j < nriver; j++)
+					{
+						pihm->prtctrlT[nT].var[j] = &pihm->riv[j].ws.gw;
+						pihm->prtctrlT[nT].x[j] = &pihm->riv[j].topo.x;
+						pihm->prtctrlT[nT].y[j] = &pihm->riv[j].topo.y;
+						pihm->prtctrlT[nT].zmax[j] = &pihm->riv[j].topo.zmax;
+						pihm->prtctrlT[nT].zmin[j] = &pihm->riv[j].topo.zmin;
+					}
+					nT++;
+					break;
                 default:
                     break;
             }
@@ -1273,6 +1441,7 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
     }
 
     pihm->ctrl.nprint = n;
+	pihm->ctrl.nprintT = nT;
 
     for (i = 0; i < pihm->ctrl.nprint; i++)
     {
@@ -1285,5 +1454,13 @@ void MapOutput (char *simulation, pihm_struct pihm, char *outputdir)
         {
             pihm->prtctrl[i].intvl = MONTHLY_OUTPUT;
         }
+
     }
+	for (i = 0; i < pihm->ctrl.nprintT; i++)
+	{
+		pihm->prtctrlT[i].buffer =
+			(double *)calloc(pihm->prtctrlT[i].nvar, sizeof(double));
+		pihm->prtctrlT[i].counter = 0;
+		pihm->prtctrlT[i].first = 1;
+	}
 }

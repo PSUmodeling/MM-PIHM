@@ -1,5 +1,10 @@
 #include "pihm.h"
 
+#if defined(_WIN32)
+#include <Windows.h>
+#define sleep Sleep
+#endif
+
 void Initialize (pihm_struct pihm, N_Vector CV_Y)
 {
     int             i, j;
@@ -31,9 +36,8 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     InitTopo (pihm->elem, &pihm->meshtbl);
 
 #ifdef _NOAH_
-    /* Calculate average elevation and total area of model domain */
-    pihm->siteinfo.elevation = AvgElev (pihm->elem);
-    pihm->siteinfo.area = TotalArea (pihm->elem);
+    /* Calculate average elevation of model domain */
+    pihm->elevation = AvgElev (pihm->elem);
 #endif
 
     InitSoil (pihm->elem, &pihm->soiltbl,
@@ -86,7 +90,8 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     {
 #ifdef _NOAH_
         ApplyForcing (&pihm->forc, pihm->elem, pihm->ctrl.starttime,
-            &pihm->ctrl, &pihm->siteinfo);
+            &pihm->ctrl, pihm->latitude, pihm->longitude, pihm->elevation,
+            pihm->noahtbl.tbot);
 #endif
         SaturationIC (pihm->elem, pihm->riv);
     }
@@ -128,7 +133,7 @@ void InitMeshStruct (elem_struct *elem, const meshtbl_struct *meshtbl)
     {
         elem[i].ind = i + 1;
 
-        for (j = 0; j < NUM_EDGE; j++)
+		for (j = 0; j < NUM_EDGE; j++)
         {
             elem[i].node[j] = meshtbl->node[i][j];
             elem[i].nabr[j] = meshtbl->nabr[i][j];
@@ -639,7 +644,7 @@ void InitSurfL (elem_struct *elem, river_struct *riv,
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            /* Note: Assumption here is that the forumulation is circumcenter
+            /* Note: Assumption here is that the formulation is circumcenter
              * based */
             switch (j)
             {
@@ -767,9 +772,15 @@ void InitVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
         elem[i].ws.unsat = elem[i].ic.unsat;
         elem[i].ws.gw = elem[i].ic.gw;
 
-        NV_Ith (CV_Y, SURF(i)) = elem[i].ic.surf;
-        NV_Ith (CV_Y, UNSAT(i)) = elem[i].ic.unsat;
-        NV_Ith (CV_Y, GW(i)) = elem[i].ic.gw;
+#ifdef _OPENMP
+		NV_Ith_OMP(CV_Y, SURF(i)) = elem[i].ic.surf;
+		NV_Ith_OMP(CV_Y, UNSAT(i)) = elem[i].ic.unsat;
+		NV_Ith_OMP(CV_Y, GW(i)) = elem[i].ic.gw;
+#else
+		NV_Ith_S(CV_Y, SURF(i)) = elem[i].ic.surf;
+		NV_Ith_S(CV_Y, UNSAT(i)) = elem[i].ic.unsat;
+		NV_Ith_S(CV_Y, GW(i)) = elem[i].ic.gw;
+#endif
 
 #ifdef _NOAH_
         elem[i].es.t1 = elem[i].ic.t1;
@@ -791,9 +802,13 @@ void InitVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
         riv[i].ws.stage = riv[i].ic.stage;
         riv[i].ws.gw = riv[i].ic.gw;
 
-        NV_Ith (CV_Y, RIVSTG(i)) = riv[i].ic.stage;
-        NV_Ith (CV_Y, RIVGW(i)) = riv[i].ic.gw;
-
+#ifdef _OPENMP
+		NV_Ith_OMP(CV_Y, RIVSTG(i)) = riv[i].ic.stage;
+		NV_Ith_OMP(CV_Y, RIVGW(i)) = riv[i].ic.gw;
+#else
+		NV_Ith_S (CV_Y, RIVSTG(i)) = riv[i].ic.stage;
+        NV_Ith_S (CV_Y, RIVGW(i)) = riv[i].ic.gw;
+#endif
         riv[i].ws0 = riv[i].ws;
     }
 
