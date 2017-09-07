@@ -37,8 +37,10 @@
 /flux-pihm-bgc
 /flux-pihm-cycles
 
-# PBS scripts
+# PBS and shell scripts
+*.sh
 *.pbs
+*.pbs.o*
 
 # Indent temp files
 *~
@@ -62,6 +64,5 @@
 third_party
 advisor
 
-src/old
-src_sam
-src_to_Sam
+# IDE
+/ide
