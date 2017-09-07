@@ -66,6 +66,7 @@ SRCS_ = main.c\
 	map_output.c\
 	misc_func.c\
 	ode.c\
+	optparse.c\
 	pihm.c\
 	print.c\
 	read_alloc.c\

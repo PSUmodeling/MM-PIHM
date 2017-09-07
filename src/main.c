@@ -63,23 +63,14 @@ int main (int argc, char *argv[])
     ReadAlloc (project, pihm);
 
 /* Initialize CVode state variables */
-#ifdef _OPENMP
-	CV_Y = N_VNew_OpenMP(NSV, nthreads);
-	abstol = N_VNew_OpenMP(NSV, nthreads);
-#else
-	CV_Y = N_VNew_Serial(NSV);
-	abstol = N_VNew_Serial(NSV);
-#endif
+	CV_Y = N_VNew(NSV);
+	abstol = N_VNew(NSV);
 
     /* Initialize PIHM structure */
     Initialize (pihm, CV_Y);
 	/* Set the vector absolute tolerance */
 	for (i = 0; i < NSV; i++) {
-#ifdef _OPENMP
-		NV_Ith_OMP(abstol, i) = pihm->ctrl.abstol;
-#else
-		NV_Ith_S(abstol, i) = pihm->ctrl.abstol;
-#endif
+		NV_Ith(abstol, i) = pihm->ctrl.abstol;
 	}
     /* Allocate memory for solver */
     cvode_mem = CVodeCreate (CV_BDF, CV_NEWTON);
@@ -228,13 +219,9 @@ int main (int argc, char *argv[])
 
 
     /* Free memory */
-#ifdef _OPENMP
-	N_VDestroy_OpenMP(CV_Y);
-	N_VDestroy_OpenMP(abstol);
-#else
-	N_VDestroy_Serial(CV_Y);
-	N_VDestroy_Serial(abstol);
-#endif
+	N_VDestroy(CV_Y);
+	N_VDestroy(abstol);
+
     /* Free integrator memory */
     CVodeFree (&cvode_mem);
 	if (pihm->ctrl.waterB)
