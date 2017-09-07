@@ -22,6 +22,15 @@
 #define RIVBEDN(i)      i + 5 * nelem + 3 * nriver
 #endif
 
+#if defined(_WIN32)
+#define pihm_mkdir(path) _mkdir((path))
+#define pihm_access(path, amode) _access((path), (amode))
+#define F_OK    0
+#else
+#define pihm_mkdir(path) mkdir(path, 0755)
+#define pihm_access(path, amode) access((path), (amode))
+#endif
+
 /*
  * Function Declarations
  */

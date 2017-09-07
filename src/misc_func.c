@@ -1,16 +1,8 @@
 #include "pihm.h"
 #include "optparse.h"
-
-
 #if defined(_WIN32)
 /* Do windows stuff here */
 #include <direct.h>
-#define pihm_mkdir(path) _mkdir((path))
-#define pihm_access(path, amode) _access((path), (amode))
-#define F_OK    0
-#else 
-#define pihm_mkdir(path) mkdir(path, 0755)
-#define pihm_access(path, amode) access((path), (amode))
 #endif
 
 extern char            project[MAXSTRING];

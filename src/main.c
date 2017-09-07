@@ -110,6 +110,13 @@ int main (int argc, char *argv[])
 
     InitOutputFile (pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii, pihm->prtctrlT, pihm->ctrl.nprintT, pihm->ctrl.tecplot);
 
+    if (pihm->ctrl.write_ic)
+    {
+        char            icdir[MAXSTRING];
+        sprintf(icdir, "input/%s/ic/", project);
+        pihm_mkdir(icdir);
+    }
+
     PIHMprintf (VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 
     /* Set solver parameters */
