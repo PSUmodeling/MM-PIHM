@@ -206,9 +206,8 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     flag = CVSpgmr(cvode_mem, PREC_NONE, 0);
 }
 
-void SolveCVode(int starttime, int *t, int nextptr, int stepsize,
-    double cputime, void *cvode_mem, N_Vector CV_Y, char *simulation,
-    char *outputdir)
+void SolveCVode(int starttime, int *t, int nextptr, double cputime,
+    void *cvode_mem, N_Vector CV_Y)
 {
     realtype        solvert;
     realtype        cvode_val;

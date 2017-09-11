@@ -1,8 +1,7 @@
 #include "pihm.h"
 
 void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
-    int next_t, char *outputdir, char *simulation, double cputime,
-    FILE *WaterBalance)
+    int next_t, double cputime, FILE *WaterBalance)
 {
     /*
      * Apply boundary conditions
@@ -35,8 +34,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     /*
      * Solve PIHM hydrology ODE using CVODE
      */
-    SolveCVode(pihm->ctrl.starttime, &t, next_t, pihm->ctrl.stepsize, cputime,
-        cvode_mem, CV_Y, simulation, outputdir);
+    SolveCVode(pihm->ctrl.starttime, &t, next_t, cputime, cvode_mem, CV_Y);
 
     /* Use mass balance to calculate model fluxes or variables */
     Summary(pihm, CV_Y, (double)pihm->ctrl.stepsize);

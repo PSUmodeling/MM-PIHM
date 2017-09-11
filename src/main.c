@@ -158,8 +158,7 @@ int main(int argc, char *argv[])
             ncfni = ncfn;
             nnii = nni;
             PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
-                pihm->ctrl.tout[i + 1], outputdir, project, cputime,
-                WaterBalance);
+                pihm->ctrl.tout[i + 1], cputime, WaterBalance);
 
             if (pihm->ctrl.cvode_perf)
             {

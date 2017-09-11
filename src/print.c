@@ -482,7 +482,7 @@ void PrintWaterBalance(FILE *WaterBalance, int t, int tstart, int dt,
     realtype        totPrep = 0., totNetPrep = 0., totInf = 0., totRecharge =
         0., totEsoil = 0., totETplant = 0., totEcan = 0., totPET = 0., totET =
         0., totES = 0., totEU = 0., totEGW = 0., totTU = 0., totTGW = 0.;
-    realtype        outflow, RE_OLF = 0., R_Exf = 0., R_LKG = 0.;
+    realtype        outflow = 0.0, RE_OLF = 0., R_Exf = 0., R_LKG = 0.;
 
 
     str1_Tec =

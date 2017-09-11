@@ -18,7 +18,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
         {"debug", 'd', OPTPARSE_NONE},
         {"verbose", 'v', OPTPARSE_NONE},
         {"print_version", 'V', OPTPARSE_NONE},
-        {0}
+        {0, 0, 0}
     };
 
     int             option;

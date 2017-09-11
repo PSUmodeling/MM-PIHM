@@ -133,8 +133,7 @@ void            _PIHMexit(const char *, int, const char *, int);
 #define PIHMprintf(...)   _PIHMprintf(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 void            _PIHMprintf(const char *, int, const char *, int,
     const char *, ...);
-void            PIHM(pihm_struct, void *, N_Vector, int, int, char *, char *,
-    double, FILE *);
+void            PIHM(pihm_struct, void *, N_Vector, int, int, double, FILE *);
 pihm_t_struct   PIHMTime(int);
 void            PrintData(prtctrl_struct *, int, int, int, int);
 void            PrintDataTecplot(prtctrlT_struct *, int, int, int);
@@ -178,8 +177,7 @@ double          _RivWdthAreaPerim(int, int, double, double);
 void            SaturationIC(elem_struct *, river_struct *);
 void            SetCVodeParam(pihm_struct, void *, N_Vector);
 int             SoilTex(double, double);
-void            SolveCVode(int, int *, int, int, double, void *, N_Vector,
-    char *, char *);
+void            SolveCVode(int, int *, int, double, void *, N_Vector);
 int             StrTime(const char *);
 void            Summary(pihm_struct, N_Vector, double);
 double          SurfH(double);
