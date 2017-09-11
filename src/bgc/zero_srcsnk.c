@@ -1,8 +1,7 @@
 #include "pihm.h"
 
 /* zero the source and sink state variables */
-void ZeroSrcSnk (cstate_struct *cs, nstate_struct *ns,
-    summary_struct *summary)
+void ZeroSrcSnk(cstate_struct *cs, nstate_struct *ns, summary_struct *summary)
 {
     /* zero the carbon sources and sinks */
     cs->psnsun_src = 0.0;
@@ -42,5 +41,4 @@ void ZeroSrcSnk (cstate_struct *cs, nstate_struct *ns,
     summary->cum_gr = 0.0;
     summary->cum_hr = 0.0;
     summary->cum_fire = 0.0;
-
 }

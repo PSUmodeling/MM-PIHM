@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void NTransport (pihm_struct pihm)
+void NTransport(pihm_struct pihm)
 {
     int             i;
 
@@ -12,9 +12,9 @@ void NTransport (pihm_struct pihm)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        elem_struct *elem;
-        int         j;
-        double      strg;
+        elem_struct    *elem;
+        int             j;
+        double          strg;
 
         elem = &pihm->elem[i];
 
@@ -47,9 +47,9 @@ void NTransport (pihm_struct pihm)
 #endif
     for (i = 0; i < nriver; i++)
     {
-        river_struct *riv;
-        int         j;
-        double      strg;
+        river_struct   *riv;
+        int             j;
+        double          strg;
 
         riv = &pihm->riv[i];
 
@@ -69,8 +69,7 @@ void NTransport (pihm_struct pihm)
         /* River bed */
         strg = riv->ws.gw * riv->matl.porosity +
             riv->matl.bedthick * riv->matl.smcmin;
-        riv->nsol.conc_bed = (strg > 0.0) ?
-            riv->ns.sminn / strg / 1000.0 : 0.0;
+        riv->nsol.conc_bed = (strg > 0.0) ? riv->ns.sminn / strg / 1000.0 : 0.0;
         riv->nsol.conc_bed = (riv->nsol.conc_bed > 0.0) ?
             riv->nsol.conc_bed : 0.0;
     }
@@ -83,15 +82,15 @@ void NTransport (pihm_struct pihm)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        elem_struct *elem;
-        elem_struct *nabr;
-        int         j;
+        elem_struct    *elem;
+        elem_struct    *nabr;
+        int             j;
 
         elem = &pihm->elem[i];
 
         /* Infiltration */
         elem->nsol.infilflux = elem->wf.infil * 1000.0 *
-            ((elem->wf.infil > 0.0) ?  elem->nsol.conc_surf :
+            ((elem->wf.infil > 0.0) ? elem->nsol.conc_surf :
             MOBILEN_PROPORTION * elem->nsol.conc_subsurf);
 
         /* Element to element */
@@ -116,7 +115,7 @@ void NTransport (pihm_struct pihm)
                 /* Do nothing. River-element interactions are calculated
                  * later */
             }
-            else                        /* Boundary condition flux */
+            else    /* Boundary condition flux */
             {
                 elem->nsol.ovlflux[j] = 0.0;
                 elem->nsol.subflux[j] = 0.0;
@@ -129,11 +128,11 @@ void NTransport (pihm_struct pihm)
 #endif
     for (i = 0; i < nriver; i++)
     {
-        river_struct *riv;
-        river_struct *down;
-        elem_struct  *left;
-        elem_struct  *right;
-        int         j;
+        river_struct   *riv;
+        river_struct   *down;
+        elem_struct    *left;
+        elem_struct    *right;
+        int             j;
 
         riv = &pihm->riv[i];
 
@@ -148,8 +147,7 @@ void NTransport (pihm_struct pihm)
                 ((riv->wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
                 riv->nsol.conc_stream : down->nsol.conc_stream);
 
-            down->nsol.flux[UP_CHANL2CHANL] =
-                -riv->nsol.flux[DOWN_CHANL2CHANL];
+            down->nsol.flux[UP_CHANL2CHANL] = -riv->nsol.flux[DOWN_CHANL2CHANL];
 
             /* Bed */
             riv->nsol.flux[DOWN_AQUIF2AQUIF] =
@@ -158,8 +156,7 @@ void NTransport (pihm_struct pihm)
                 MOBILEN_PROPORTION * riv->nsol.conc_bed :
                 MOBILEN_PROPORTION * down->nsol.conc_bed);
 
-            down->nsol.flux[UP_AQUIF2AQUIF] =
-                -riv->nsol.flux[DOWN_AQUIF2AQUIF];
+            down->nsol.flux[UP_AQUIF2AQUIF] = -riv->nsol.flux[DOWN_AQUIF2AQUIF];
         }
         else
         {
@@ -196,7 +193,7 @@ void NTransport (pihm_struct pihm)
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                if (left->nabr[j] == - (i + 1))
+                if (left->nabr[j] == -(i + 1))
                 {
                     left->nsol.ovlflux[j] = -riv->nsol.flux[LEFT_SURF2CHANL];
                     left->nsol.subflux[j] =
@@ -230,10 +227,9 @@ void NTransport (pihm_struct pihm)
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                if (right->nabr[j] == - (i + 1))
+                if (right->nabr[j] == -(i + 1))
                 {
-                    right->nsol.ovlflux[j] =
-                        -riv->nsol.flux[RIGHT_SURF2CHANL];
+                    right->nsol.ovlflux[j] = -riv->nsol.flux[RIGHT_SURF2CHANL];
                     right->nsol.subflux[j] =
                         -(riv->nsol.flux[RIGHT_AQUIF2CHANL] +
                         riv->nsol.flux[RIGHT_AQUIF2AQUIF]);

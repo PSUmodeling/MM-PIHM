@@ -21,6 +21,7 @@ typedef struct siteinfo_struct
     double          tavg;
 } siteinfo_struct;
 #ifdef _BGC_
+
 /*****************************************************************************
  * A structure to hold information on the annual co2 concentration
  * ---------------------------------------------------------------------------
@@ -288,7 +289,7 @@ typedef struct ctrl_struct
     int             nnimax;
     int             nnimin;
     double          decr;
-    double          incr; 
+    double          incr;
     double          stmin;
 #ifdef _NOAH_
     int             nsoil;
@@ -341,27 +342,27 @@ typedef struct prtctrl_struct
 * ==========               ==========  ====================
 * name                     char[]      name of output file
 * intvl                    int         output interval [s]
-* intr                     int         river identifier 
+* intr                     int         river identifier
 * nvar                     int         number of variables for print
 * var                      double**    pointers to model variables
-* x, y, z                  double**    pointers to model coordinates 
+* x, y, z                  double**    pointers to model coordinates
 * nnodes                   int         number of nodes
 * buffer                   double*     buffer for averaging variables
 ****************************************************************************/
 typedef struct prtctrlT_struct
 {
-	char            name[MAXSTRING];
-	int             intvl;
-	int             intr;
-	int             nvar;
-	double        **var;
-	double        **x, **y, **zmax, **zmin;
-	int             nnodes;
-	int           **node0, **node1, **node2;
-	double         *buffer;
-	int             counter;
-	int             first;
-	FILE           *datfile;
+    char            name[MAXSTRING];
+    int             intvl;
+    int             intr;
+    int             nvar;
+    double        **var;
+    double        **x, **y, **zmax, **zmin;
+    int             nnodes;
+    int           **node0, **node1, **node2;
+    double         *buffer;
+    int             counter;
+    int             first;
+    FILE           *datfile;
 } prtctrlT_struct;
 
 /*****************************************************************************
@@ -405,6 +406,6 @@ typedef struct pihm_struct
     calib_struct    cal;
     ctrl_struct     ctrl;
     prtctrl_struct  prtctrl[MAXPRINT];
-	prtctrlT_struct prtctrlT[MAXPRINT];
+    prtctrlT_struct prtctrlT[MAXPRINT];
 } *pihm_struct;
 #endif

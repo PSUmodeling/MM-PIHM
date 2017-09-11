@@ -1,11 +1,10 @@
 #include "pihm.h"
 
-void Mortality (const epconst_struct *epc, cstate_struct *cs,
+void Mortality(const epconst_struct *epc, cstate_struct *cs,
     cflux_struct *cf, nstate_struct *ns, nflux_struct *nf)
 {
     double          mort;
-    /* Dead stem combustion proportion */
-    const double    DSCP = 0.2;
+    const double    DSCP = 0.2;    /* Dead stem combustion proportion */
 
     /*
      * Non-fire mortality: these fluxes all enter litter or CWD pools
@@ -83,20 +82,18 @@ void Mortality (const epconst_struct *epc, cstate_struct *cs,
         nf->m_livestemn_to_litr1n =
             (mort * ns->livestemn) - nf->m_livestemn_to_cwdn;
         nf->m_deadstemn_to_cwdn = cf->m_deadstemc_to_cwdc / epc->deadwood_cn;
-        nf->m_livecrootn_to_cwdn =
-            cf->m_livecrootc_to_cwdc / epc->deadwood_cn;
+        nf->m_livecrootn_to_cwdn = cf->m_livecrootc_to_cwdc / epc->deadwood_cn;
         nf->m_livecrootn_to_litr1n =
             (mort * ns->livecrootn) - nf->m_livecrootn_to_cwdn;
-        nf->m_deadcrootn_to_cwdn =
-            cf->m_deadcrootc_to_cwdc / epc->deadwood_cn;
+        nf->m_deadcrootn_to_cwdn = cf->m_deadcrootc_to_cwdc / epc->deadwood_cn;
     }
 
     /* Update state variables */
     /* This is the only place other than daily_state_update() routines where
-     * state variables get changed.  Mortality is taken care of last and
-     * given special treatment for state update so that it doesn't interfere
-     * with the other fluxes that are based on proportions of state variables,
-     * especially the phenological fluxes */
+     * state variables get changed.  Mortality is taken care of last and given
+     * special treatment for state update so that it doesn't interfere with the
+     * other fluxes that are based on proportions of state variables, especially
+     * the phenological fluxes */
     /* CARBON mortality state variable update */
     /*   Leaf mortality */
     cs->litr1c += cf->m_leafc_to_litr1c;

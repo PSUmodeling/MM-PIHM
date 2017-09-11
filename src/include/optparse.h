@@ -43,28 +43,31 @@
  * field to 0 after initialization.
  */
 
-struct optparse {
-    char **argv;
-    int permute;
-    int optind;
-    int optopt;
-    char *optarg;
-    char errmsg[64];
-    int subopt;
+struct optparse
+{
+    char          **argv;
+    int             permute;
+    int             optind;
+    int             optopt;
+    char           *optarg;
+    char            errmsg[64];
+    int             subopt;
 };
 
-enum optparse_argtype { OPTPARSE_NONE, OPTPARSE_REQUIRED, OPTPARSE_OPTIONAL };
+enum optparse_argtype
+{ OPTPARSE_NONE, OPTPARSE_REQUIRED, OPTPARSE_OPTIONAL };
 
-struct optparse_long {
-    const char *longname;
-    int shortname;
+struct optparse_long
+{
+    const char     *longname;
+    int             shortname;
     enum optparse_argtype argtype;
 };
 
 /**
  * Initializes the parser state.
  */
-void optparse_init(struct optparse *options, char **argv);
+void            optparse_init(struct optparse *options, char **argv);
 
 /**
  * Read the next option in the argv array.
@@ -75,7 +78,7 @@ void optparse_init(struct optparse *options, char **argv);
  * argument. One colon means the option has a required argument. Two
  * colons means the option takes an optional argument.
  */
-int optparse(struct optparse *options, const char *optstring);
+int             optparse(struct optparse *options, const char *optstring);
 
 /**
  * Handles GNU-style long options in addition to getopt() options.
@@ -84,9 +87,14 @@ int optparse(struct optparse *options, const char *optstring);
  * longindex argument may be NULL.
  */
 int
+ 
+ 
+ 
+ 
+ 
+ 
 optparse_long(struct optparse *options,
-              const struct optparse_long *longopts,
-              int *longindex);
+    const struct optparse_long *longopts, int *longindex);
 
 /**
  * Used for stepping over non-option arguments.
@@ -97,6 +105,6 @@ optparse_long(struct optparse *options,
  * subcommand returned by optparse_arg(). This function allows you to
  * ignore the value of optind.
  */
-char *optparse_arg(struct optparse *options);
+char           *optparse_arg(struct optparse *options);
 
 #endif

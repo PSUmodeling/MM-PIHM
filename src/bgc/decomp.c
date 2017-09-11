@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
+void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
     cstate_struct *cs, cflux_struct *cf, nstate_struct *ns, nflux_struct *nf,
     ntemp_struct *nt)
 {
@@ -37,7 +37,7 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
     else
     {
         tk = tsoil + 273.15;
-        t_scalar = exp (308.56 * ((1.0 / 71.02) - (1.0 / (tk - 227.13))));
+        t_scalar = exp(308.56 * ((1.0 / 71.02) - (1.0 / (tk - 227.13))));
     }
 
     /* Calculate the rate constant scalar for soil water content. Uses the log
@@ -61,7 +61,7 @@ void Decomp (double tsoil, const epconst_struct *epc, epvar_struct *epv,
     }
     else
     {
-        w_scalar = log (minpsi / epv->psi) / log (minpsi / maxpsi);
+        w_scalar = log(minpsi / epv->psi) / log(minpsi / maxpsi);
     }
 
     /* Calculate the final rate scalar as the product of the temperature and

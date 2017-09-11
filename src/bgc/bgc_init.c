@@ -1,11 +1,11 @@
 #include "pihm.h"
 
-void InitBgc (elem_struct *elem, const epctbl_struct *epctbl)
+void InitBgc(elem_struct *elem, const epctbl_struct *epctbl)
 {
     int             i;
     int             epc_ind;
 
-    PIHMprintf (VL_VERBOSE, "BGC: Initializing BGC structures\n");
+    PIHMprintf(VL_VERBOSE, "BGC: Initializing BGC structures\n");
 
     for (i = 0; i < nelem; i++)
     {
@@ -18,10 +18,10 @@ void InitBgc (elem_struct *elem, const epctbl_struct *epctbl)
             epc_ind != GRASS - 1 &&
             epc_ind != CLOSE_SHRUB - 1 && epc_ind != OPEN_SHRUB - 1)
         {
-            PIHMprintf (VL_ERROR,
+            PIHMprintf(VL_ERROR,
                 "Error: Land cover type %d not defined in Flux-PIHM-BGC.\n",
                 elem[i].attrib.lc_type);
-            PIHMexit (EXIT_FAILURE);
+            PIHMexit(EXIT_FAILURE);
         }
 
         elem[i].epc.woody = epctbl->woody[epc_ind];
@@ -37,8 +37,7 @@ void InitBgc (elem_struct *elem, const epctbl_struct *epctbl)
         elem[i].epc.livewood_turnover = epctbl->livewood_turnover[epc_ind];
         elem[i].epc.daily_mortality_turnover =
             epctbl->daily_mortality_turnover[epc_ind];
-        elem[i].epc.daily_fire_turnover =
-            epctbl->daily_fire_turnover[epc_ind];
+        elem[i].epc.daily_fire_turnover = epctbl->daily_fire_turnover[epc_ind];
         elem[i].epc.alloc_frootc_leafc = epctbl->alloc_frootc_leafc[epc_ind];
         elem[i].epc.alloc_newstemc_newleafc =
             epctbl->alloc_newstemc_newleafc[epc_ind];
@@ -75,21 +74,21 @@ void InitBgc (elem_struct *elem, const epctbl_struct *epctbl)
     }
 }
 
-void InitBgcVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
+void InitBgcVar(elem_struct *elem, river_struct *riv, N_Vector CV_Y)
 {
     int             i;
 
     for (i = 0; i < nelem; i++)
     {
-        RestartInput (&elem[i].cs, &elem[i].ns, &elem[i].epv,
+        RestartInput(&elem[i].cs, &elem[i].ns, &elem[i].epv,
             &elem[i].restart_input);
 
-        ZeroSrcSnk (&elem[i].cs, &elem[i].ns, &elem[i].summary);
+        ZeroSrcSnk(&elem[i].cs, &elem[i].ns, &elem[i].summary);
         elem[i].epv.annavg_t2m = elem[i].ps.tbot;
         elem[i].nsol.snksrc = 0.0;
 
-        NV_Ith (CV_Y, SURFN(i)) = elem[i].ns.surfn;
-        NV_Ith (CV_Y, SMINN(i)) = elem[i].ns.sminn;
+        NV_Ith(CV_Y, SURFN(i)) = elem[i].ns.surfn;
+        NV_Ith(CV_Y, SMINN(i)) = elem[i].ns.sminn;
 
         elem[i].nt.surfn0 = elem[i].ns.surfn;
         elem[i].nt.sminn0 = elem[i].ns.sminn;
@@ -101,7 +100,7 @@ void InitBgcVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
         riv[i].ns.sminn = riv[i].restart_input.sminn;
         riv[i].nf.sminn_leached = 0.0;
 
-        NV_Ith (CV_Y, STREAMN(i)) = riv[i].ns.streamn;
-        NV_Ith (CV_Y, RIVBEDN(i)) = riv[i].ns.sminn;
+        NV_Ith(CV_Y, STREAMN(i)) = riv[i].ns.streamn;
+        NV_Ith(CV_Y, RIVBEDN(i)) = riv[i].ns.sminn;
     }
 }

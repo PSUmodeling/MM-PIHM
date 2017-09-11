@@ -1,63 +1,64 @@
 #include "pihm.h"
 
-void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
-    int next_t, char *outputdir, char *simulation, double cputime, FILE *WaterBalance)
-
+void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
+    int next_t, char *outputdir, char *simulation, double cputime,
+    FILE *WaterBalance)
 {
-	  /*
+    /*
      * Apply boundary conditions
      */
-    ApplyBC (&pihm->forc, pihm->elem, pihm->riv, t);
+    ApplyBC(&pihm->forc, pihm->elem, pihm->riv, t);
 
     /* Determine if land surface simulation is needed */
     if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
     {
         /* Apply forcing */
-        ApplyForcing (&pihm->forc, pihm->elem, t
-    #ifdef _NOAH_
+        ApplyForcing(&pihm->forc, pihm->elem, t
+#ifdef _NOAH_
             , &pihm->ctrl, &pihm->siteinfo
-    #endif
+#endif
             );
 
 #ifdef _NOAH_
         /* Calculate surface energy balance */
-        Noah (pihm);
+        Noah(pihm);
 #else
         /* Calculate Interception storage and ET */
-        IntcpSnowET (t, (double)pihm->ctrl.etstep, pihm);
+        IntcpSnowET(t, (double)pihm->ctrl.etstep, pihm);
 #endif
         /*
          * Update print variables for land surface step variables
          */
-        UpdPrintVar (pihm->prtctrl, pihm->ctrl.nprint, LS_STEP);
+        UpdPrintVar(pihm->prtctrl, pihm->ctrl.nprint, LS_STEP);
     }
 
     /*
      * Solve PIHM hydrology ODE using CVODE
-     */		
-         SolveCVode (pihm->ctrl.starttime, &t, next_t, pihm->ctrl.stepsize, cputime,
-            cvode_mem, CV_Y, simulation, outputdir);
+     */
+    SolveCVode(pihm->ctrl.starttime, &t, next_t, pihm->ctrl.stepsize, cputime,
+        cvode_mem, CV_Y, simulation, outputdir);
 
     /* Use mass balance to calculate model fluxes or variables */
-    Summary (pihm, CV_Y, (double)pihm->ctrl.stepsize);
+    Summary(pihm, CV_Y, (double)pihm->ctrl.stepsize);
 
-	if (pihm->ctrl.waterB)
-	{
-		/* Print water balance */
-		PrintWaterBalance(WaterBalance, t, pihm->ctrl.starttime, pihm->ctrl.stepsize, pihm->elem, nelem, pihm->riv, nriver);
-	}
+    if (pihm->ctrl.waterB)
+    {
+        /* Print water balance */
+        PrintWaterBalance(WaterBalance, t, pihm->ctrl.starttime,
+            pihm->ctrl.stepsize, pihm->elem, nelem, pihm->riv, nriver);
+    }
 #ifdef _NOAH_
-    NoahHydrol (pihm->elem, (double)pihm->ctrl.stepsize);
+    NoahHydrol(pihm->elem, (double)pihm->ctrl.stepsize);
 #endif
 
 #ifdef _CYCLES_
-    SoluteTransport (pihm->elem, pihm->riv, (double)pihm->ctrl.stepsize);
+    SoluteTransport(pihm->elem, pihm->riv, (double)pihm->ctrl.stepsize);
 #endif
 
     /*
      * Update print variables for hydrology step variables
      */
-    UpdPrintVar (pihm->prtctrl, pihm->ctrl.nprint, HYDROL_STEP);
+    UpdPrintVar(pihm->prtctrl, pihm->ctrl.nprint, HYDROL_STEP);
 
 #ifdef _BGC_
     int             i;
@@ -67,7 +68,7 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         for (i = 0; i < nelem; i++)
         {
             /* Test for nitrogen balance */
-            CheckNitrogenBalance (&pihm->elem[i].ns,
+            CheckNitrogenBalance(&pihm->elem[i].ns,
                 &pihm->elem[i].epv.old_n_balance);
         }
     }
@@ -77,24 +78,24 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
      * Daily timestep modules
      */
 #ifdef _DAILY_
-    DailyVar (t, pihm->ctrl.starttime, pihm);
+    DailyVar(t, pihm->ctrl.starttime, pihm);
 
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
 #ifdef _BGC_
-        DailyBgc (pihm, t - DAYINSEC);
+        DailyBgc(pihm, t - DAYINSEC);
 
         first_balance = 0;
 #endif
 
 #ifdef _CYCLES_
-        DailyCycles (t - DAYINSEC, pihm);
+        DailyCycles(t - DAYINSEC, pihm);
 #endif
 
         /*
          * Update print variables for CN (daily) step variables
          */
-        UpdPrintVar (pihm->prtctrl, pihm->ctrl.nprint, CN_STEP);
+        UpdPrintVar(pihm->prtctrl, pihm->ctrl.nprint, CN_STEP);
     }
 #endif
 
@@ -104,19 +105,18 @@ void PIHM (pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
      */
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
-        InitDailyStruct (pihm);
+        InitDailyStruct(pihm);
     }
 #endif
-        /*
-         * Print outputs
-         */
-	    PrintData (pihm->prtctrl, pihm->ctrl.nprint, t,
-            t - pihm->ctrl.starttime, pihm->ctrl.ascii);
-		if (pihm->ctrl.tecplot)
-		{
-			UpdPrintVarT(pihm->prtctrlT, pihm->ctrl.nprintT);
-			PrintDataTecplot(pihm->prtctrlT, pihm->ctrl.nprintT, t, 
-				t - pihm->ctrl.starttime);
-		}
-
+    /*
+     * Print outputs
+     */
+    PrintData(pihm->prtctrl, pihm->ctrl.nprint, t, t - pihm->ctrl.starttime,
+        pihm->ctrl.ascii);
+    if (pihm->ctrl.tecplot)
+    {
+        UpdPrintVarT(pihm->prtctrlT, pihm->ctrl.nprintT);
+        PrintDataTecplot(pihm->prtctrlT, pihm->ctrl.nprintT, t,
+            t - pihm->ctrl.starttime);
+    }
 }

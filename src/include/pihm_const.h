@@ -1,5 +1,6 @@
 #ifndef PIHM_CONST_HEADER
 #define PIHM_CONST_HEADER
+
 /* Physical parameters */
 #define PI          3.14159265
 #define DAYINSEC    86400       /* number of seconds in a day */
@@ -9,7 +10,7 @@
 #define LVH2O       2.501e6     /* latent heat of vaporization [J kg-1] */
 #define SIGMA       5.67e-8     /* stefan-Boltzmann constant [W m-2 K-4] */
 #define RD          287.04      /* gas constant for dry air [J kg-1 K-1] */
-#define RV          461.5       /* gas constant for water vapor [J kg-1 K-1]*/
+#define RV          461.5       /* gas constant for water vapor [J kg-1 K-1] */
 #define CPH2O	    4.218e3     /* specific heat capacity of water
                                  * [J kg-1 K-1] */
 #define CPICE	    2.106e3     /* specific heat capacity of ice
@@ -58,7 +59,7 @@
 #define TOPO_SOL    1
 
 #define SOLDIR_TS   0           /* index of direct solar radiation forcing */
-#define SOLDIF_TS   1           /* index of diffused solar radiation forcing*/
+#define SOLDIF_TS   1           /* index of diffused solar radiation forcing */
 
 /* Number of edges of an element */
 #define NUM_EDGE    3
@@ -163,18 +164,18 @@
 /* Ecosystem constants */
 #define RAD2PAR             0.45    /* ratio PAR / SWtotal [-] */
 #define EPAR                4.55    /* (umol/J) PAR photon energy ratio */
-#define SOIL1_CN            12.0    /* C:N for fast microbial recycling pool*/
-#define SOIL2_CN            12.0    /* C:N for slow microbial recycling pool*/
-#define SOIL3_CN            10.0    /* C:N for recalcitrant SOM pool (humus)*/
-#define SOIL4_CN            10.0    /* C:N for recalcitrant SOM pool (humus)*/
-#define GRPERC              0.3     /* growth resp per unit of C grown [-] */
-#define GRPNOW              1.0     /* proportion of storage growth resp at
-                                     * fixation [-] */
+#define SOIL1_CN            12.0    /* C:N for fast microbial recycling pool */
+#define SOIL2_CN            12.0    /* C:N for slow microbial recycling pool */
+#define SOIL3_CN            10.0    /* C:N for recalcitrant SOM pool (humus) */
+#define SOIL4_CN            10.0    /* C:N for recalcitrant SOM pool (humus) */
+#define GRPERC              0.3 /* growth resp per unit of C grown [-] */
+#define GRPNOW              1.0 /* proportion of storage growth resp at
+                                 * fixation [-] */
 #define PPFD50              75.0    /* PPFD for 1/2 stomatal closure
                                      * [umol m-2 s-1] */
 #define DENITRIF_PROPORTION 0.01    /* fraction of mineralization to
                                      * volatile */
-#define MOBILEN_PROPORTION  0.1     /* fraction mineral N avail for leaching*/
+#define MOBILEN_PROPORTION  0.1 /* fraction mineral N avail for leaching */
 
 /* Respiration fractions for fluxes between compartments [-] */
 #define	RFL1S1	    0.39        /* transfer from litter 1 to soil 1 */
@@ -316,14 +317,14 @@
 #define STAN_RESIDUE_SA     4.0 /* Standing residue area to mass ratio
                                  * (m2/kg) */
 #define FLAT_RESIDUE_SA     4.0 /* Flat residue area to mass ratio (m2/kg) */
-#define STAN_RESIDUE_K      0.25        /* Standing residue extinction coefficient */
+#define STAN_RESIDUE_K      0.25    /* Standing residue extinction coefficient */
 #define FLAT_RESIDUE_K      1.0 /* flat residue extinction */
 
-#define MAXIMUM_UNDISTURBED_SOC_DECOMPOSITION_RATE  0.00015     /* (1 + 0.056) ^ (1 / 365) - 1  ' 1/day (1/5 for Urbana) */
-#define MAXIMUM_RESIDUE_DECOMPOSITION_RATE          0.05        /* 1/day */
-#define MAXIMUM_ROOT_DECOMPOSITION_RATE             0.05        /* 1/day */
+#define MAXIMUM_UNDISTURBED_SOC_DECOMPOSITION_RATE  0.00015 /* (1 + 0.056) ^ (1 / 365) - 1  ' 1/day (1/5 for Urbana) */
+#define MAXIMUM_RESIDUE_DECOMPOSITION_RATE          0.05    /* 1/day */
+#define MAXIMUM_ROOT_DECOMPOSITION_RATE             0.05    /* 1/day */
 #define MAXIMUM_RHIZO_DECOMPOSITION_RATE            0.1 /*  1/day */
-#define MAXIMUM_MANURE_DECOMPOSITION_RATE           0.05        /* 1/day */
+#define MAXIMUM_MANURE_DECOMPOSITION_RATE           0.05    /* 1/day */
 #define MAXIMUM_MICROBIAL_DECOMPOSITION_RATE        1.0 /* calculated internaly
                                                          * 1/day */
 #define FRACTION_CARBON_PLANT               0.43
@@ -333,7 +334,7 @@
 #define SOC_DECOMPOSITION_POWER             0.5
 #define SOC_HUMIFICATION_POWER              6.0
 
-#define WATER_DENSITY                       1000.0      /* kg/m3 */
+#define WATER_DENSITY                       1000.0  /* kg/m3 */
 
 #define THRESHOLD_TEMPERATURE_SNOWFALL      1   /* degree C */
 #define THRESHOLD_TEMPERATURE_SNOWMELT      -1  /* degree C */
@@ -341,8 +342,8 @@
                                                  * melting factor */
 
 #define NITRIFICATION_CONSTANT              0.2 /* 1/day */
-#define POTENTIAL_DENITRIFICATION           0.000032    /* kg N / kg soil / day */
-#define DENITRIFICATION_HALF_RATE           0.00006     /* kg N / kg Soil */
+#define POTENTIAL_DENITRIFICATION           0.000032  /* kg N / kg soil / day */
+#define DENITRIFICATION_HALF_RATE           0.00006 /* kg N / kg Soil */
 #define NITRIFICATION_NO3_NH4_RATIO         8   /* NO3-N / NH4-N */
 
 enum stage
@@ -353,18 +354,18 @@ enum stage
 #endif
 
 /* External variable */
-extern int          verbose_mode;
-extern int          debug_mode;
-extern int          corr_mode;
-extern int          spinup_mode;
-extern char         project[MAXSTRING];
-extern int          nelem;
-extern int          nriver;
+extern int      verbose_mode;
+extern int      debug_mode;
+extern int      corr_mode;
+extern int      spinup_mode;
+extern char     project[MAXSTRING];
+extern int      nelem;
+extern int      nriver;
 #ifdef _OPENMP
-extern int          nthreads;
+extern int      nthreads;
 #endif
 #if defined(_BGC_) || defined (_CYCLES_)
-extern int          first_balance;
+extern int      first_balance;
 #endif
 
 #endif

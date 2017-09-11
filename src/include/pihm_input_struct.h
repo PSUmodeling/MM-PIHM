@@ -18,7 +18,8 @@
  * para                     char[]      control parameter file name
  * calib                    char[]      calibration file name
  * ic                       char[]      initial condition file name
- * sunpara                  char[]      sudials cvode control parameter file name
+ * sunpara                  char[]      sudials cvode control parameter file
+ *                                        name
  * lsm                      char[]      land surface module control file name
  * rad                      char[]      radiation forcing file name
  * bgc                      char[]      bgc module control file name
@@ -475,6 +476,7 @@ typedef struct noahtbl_struct
 #endif
 
 #ifdef _BGC_
+
 /*****************************************************************************
  * Ecophysiological parameters
  * ---------------------------------------------------------------------------

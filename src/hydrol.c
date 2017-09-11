@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Hydrol (pihm_struct pihm)
+void Hydrol(pihm_struct pihm)
 {
     int             i;
 
@@ -12,12 +12,12 @@ void Hydrol (pihm_struct pihm)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        elem_struct *elem;
+        elem_struct    *elem;
 
         elem = &pihm->elem[i];
 
         /* Calculate actual surface water depth */
-        elem->ws.surfh = SurfH (elem->ws.surf);
+        elem->ws.surfh = SurfH(elem->ws.surf);
 
         /* Source of direct evaporation */
 #ifdef _NOAH_
@@ -56,7 +56,7 @@ void Hydrol (pihm_struct pihm)
 
         /* Source of transpiration */
 #ifdef _NOAH_
-        elem->ps.gwet = GWTransp (elem->wf.ett, elem->wf.et, elem->ps.nwtbl,
+        elem->ps.gwet = GWTransp(elem->wf.ett, elem->wf.et, elem->ps.nwtbl,
             elem->ps.nroot);
         elem->wf.ett_unsat = (1.0 - elem->ps.gwet) * elem->wf.ett;
         elem->wf.ett_gw = elem->ps.gwet * elem->wf.ett;
@@ -77,14 +77,14 @@ void Hydrol (pihm_struct pihm)
     /*
      * Water flow
      */
-    VerticalFlow (pihm);
+    VerticalFlow(pihm);
 
-    LateralFlow (pihm);
+    LateralFlow(pihm);
 
-    RiverFlow (pihm);
+    RiverFlow(pihm);
 }
 
-double SurfH (double surfeqv)
+double SurfH(double surfeqv)
 {
     /*
      * Following Panday and Huyakorn (2004) AWR:
@@ -101,12 +101,12 @@ double SurfH (double surfeqv)
     }
     else if (surfeqv <= 0.5 * DEPRSTG)
     {
-        surfh = sqrt (2.0 * DEPRSTG * surfeqv);
+        surfh = sqrt(2.0 * DEPRSTG * surfeqv);
     }
     else
     {
         surfh = DEPRSTG + (surfeqv - 0.5 * DEPRSTG);
     }
 
-    return (surfh);
+    return surfh;
 }

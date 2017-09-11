@@ -42,56 +42,56 @@
 #define RTdepth 5.0
 
 /* Functions declarations and usage */
-realtype        rivArea (int, realtype, realtype);
-realtype        returnVal (realtype rArea, realtype rPerem, realtype eqWid,
+realtype        rivArea(int, realtype, realtype);
+realtype        returnVal(realtype rArea, realtype rPerem, realtype eqWid,
     realtype ap_Bool);
-realtype        CS_AreaOrPerem (int rivOrder, realtype rivDepth,
+realtype        CS_AreaOrPerem(int rivOrder, realtype rivDepth,
     realtype rivCoeff, realtype a_pBool);
-static double   timer ();
+static double   timer();
 // timer, system function called to time subroutines
-void            Monitor (realtype, realtype, void *, Chem_Data);
+void            Monitor(realtype, realtype, void *, Chem_Data);
 // adjust unphysical PIHM flux outputs by mass balance
-int             upstream (element, element, const void *);
+int             upstream(element, element, const void *);
 // locate upstream nodes for TVD calculation
-int             realcheck (const char *);
+int             realcheck(const char *);
 // check real number or real number range
-int             keymatch (const char *, const char *, double *, char **);
+int             keymatch(const char *, const char *, double *, char **);
 // keyword matching and data reading
-void            ConditionAssign (int, char *, int *);
+void            ConditionAssign(int, char *, int *);
 // Assign conditions to different cells
-void            chem_alloc (char *, const void *, const Control_Data,
+void            chem_alloc(char *, const void *, const Control_Data,
     Chem_Data, realtype);
 // chemical component initialization
-void            fluxtrans (realtype, realtype, const void *, Chem_Data,
+void            fluxtrans(realtype, realtype, const void *, Chem_Data,
     N_Vector);
 // translational function to take PIHM outputs to RT calculation
-void            chem_updater (Chem_Data, void *);
+void            chem_updater(Chem_Data, void *);
 // unused subroutine to update field properties from chemical reactions
-void            OS3D (realtype, realtype, Chem_Data);
+void            OS3D(realtype, realtype, Chem_Data);
 // operator splitting 3D (finite volume) for transport
-int             React (realtype, realtype, Chem_Data, int, int *);
+int             React(realtype, realtype, Chem_Data, int, int *);
 // kinetic reaction component
-void            Lookup (FILE *, Chem_Data, int);
+void            Lookup(FILE *, Chem_Data, int);
 // database fetching
-int             Speciation (Chem_Data, int);
+int             Speciation(Chem_Data, int);
 // chemical condition initialization from 1) total concentration. 2) total concentration with pH
-int             SpeciationType (FILE *, char *);
+int             SpeciationType(FILE *, char *);
 // determine the type of solutes from database
-void            AdptTime (Chem_Data, realtype, double, double, double *, int);
+void            AdptTime(Chem_Data, realtype, double, double, double *, int);
 // adaptive time stepping
-void            Reset (Chem_Data, int);
+void            Reset(Chem_Data, int);
 // unused subroutine to reset chemical conditions for failed cell. Not used anymore given successful time control
 
 /* Fucntion declarations finished   */
 // Timer
-static double timer ()
+static double timer()
 {
     struct timeval  tp;
-    gettimeofday (&tp, NULL);
+    gettimeofday(&tp, NULL);
     return ((double)(tp.tv_sec) + 1e-6 * tp.tv_usec);
 }
 
-void Monitor (realtype t, realtype stepsize, void *DS, Chem_Data CD)
+void Monitor(realtype t, realtype stepsize, void *DS, Chem_Data CD)
 {
     /* unit of t and stepsize: min */
     /* DS: model data              */
@@ -111,9 +111,9 @@ void Monitor (realtype t, realtype stepsize, void *DS, Chem_Data CD)
 
     Model_Data      MD;
     MD = (Model_Data) DS;
-    rawtime = (time_t *) malloc (sizeof (time_t));
+    rawtime = (time_t *)malloc(sizeof (time_t));
     *rawtime = (int)(t * 60);
-    timestamp = gmtime (rawtime);
+    timestamp = gmtime(rawtime);
     timelps = t - CD->StartTime;
 
     double          unit_c = stepsize / UNIT_C;
@@ -122,8 +122,8 @@ void Monitor (realtype t, realtype stepsize, void *DS, Chem_Data CD)
     //    fprintf(logfile," Time step is %6.4f\n", stepsize);
 
 
-    double         *tmpflux = (double *)malloc (CD->NumOsv * sizeof (double));
-    double         *resflux = (double *)malloc (CD->NumOsv * sizeof (double));
+    double         *tmpflux = (double *)malloc(CD->NumOsv * sizeof (double));
+    double         *resflux = (double *)malloc(CD->NumOsv * sizeof (double));
     swi = 0.2;
     inv_swi = 2.0 / (1.0 - swi);
     for (i = 0; i < CD->NumOsv; i++)
@@ -145,7 +145,7 @@ void Monitor (realtype t, realtype stepsize, void *DS, Chem_Data CD)
         if (hg <= 0)
             partratio = 1.00E3; // no groundwater and flow essentially
         if (ht <= 0)
-            partratio = 1.00E-3;        // no transient zone flow essentially
+            partratio = 1.00E-3;    // no transient zone flow essentially
 
         A = partratio / (1 + partratio);
         tmpflux[j] = A;
@@ -156,7 +156,7 @@ void Monitor (realtype t, realtype stepsize, void *DS, Chem_Data CD)
     {
         if (!CD->Flux[i].flux_type)
         {
-            resflux[CD->Flux[i].nodeup - 1] -= CD->Flux[i].flux * unit_c;       // sum lateral fluxes
+            resflux[CD->Flux[i].nodeup - 1] -= CD->Flux[i].flux * unit_c;   // sum lateral fluxes
             //      if ( CD->Flux[i].nodeup == 1)
             //      fprintf(logfile, " 1 flux: %f\t", CD->Flux[i].flux);
         }
@@ -254,9 +254,9 @@ void Monitor (realtype t, realtype stepsize, void *DS, Chem_Data CD)
         correction = -sumflux2 * UNIT_C / stepsize / CD->Vcele[i].q;
         A = CD->Flux[CD->Vcele[i].ErrDumper].flux;
         CD->Vcele[i].q = sumflux2 * UNIT_C / stepsize;
-        CD->Vcele[i].q = MAX (CD->Vcele[i].q, 0.0);
+        CD->Vcele[i].q = MAX(CD->Vcele[i].q, 0.0);
         // input of rain water chemistry can not be negative;
-        CD->Vcele[i].q += fabs (MD->EleET[i - MD->NumEle][2] * MF_CONVERT)
+        CD->Vcele[i].q += fabs(MD->EleET[i - MD->NumEle][2] * MF_CONVERT)
             * MD->Ele[i - MD->NumEle].area;
         // in addition, the soil evaporation leaves chemicals inside
         // The above code is , ensure the q term, which is the net input of water resulted from precipitation, should be net precipitation plus soil evaporation. Note
@@ -278,12 +278,12 @@ void Monitor (realtype t, realtype stepsize, void *DS, Chem_Data CD)
 
     //    fclose(logfile);
 
-    free (tmpflux);
-    free (resflux);
-    free (rawtime);
+    free(tmpflux);
+    free(resflux);
+    free(rawtime);
 }
 
-int upstream (element up, element lo, const void *DS)
+int upstream(element up, element lo, const void *DS)
 {
     /* Locate the upstream grid of up -> lo flow */
     /* Require verification                      */
@@ -336,14 +336,14 @@ int upstream (element up, element lo, const void *DS)
     return (0);
 }
 
-int realcheck (const char *words)
+int realcheck(const char *words)
 {
 
     int             flg = 1, i;
     if (((words[0] < 58) && (words[0] > 47)) || (words[0] == 46)
         || (words[0] == 45) || (words[0] == 43))
     {
-        for (i = 0; i < strlen (words); i++)
+        for (i = 0; i < strlen(words); i++)
             if ((words[i] > 57 || words[i] < 43) && (words[i] != 69)
                 && (words[i] != 101) && (words[i] != 10) && (words[i] != 13))
                 flg = 0;
@@ -355,7 +355,7 @@ int realcheck (const char *words)
 
 
 int
-keymatch (const char *line, const char *keyword, double *value, char **strval)
+keymatch(const char *line, const char *keyword, double *value, char **strval)
 {
     /* A very general and convinient way of reading datafile and input file */
     /* find keyword in line, assign the value after keyword to value array if there is any */
@@ -378,17 +378,17 @@ keymatch (const char *line, const char *keyword, double *value, char **strval)
     int             keyfoundflag = 0;
 
     char          **words;
-    words = (char **)malloc (WORDS_LINE * sizeof (char *));
+    words = (char **)malloc(WORDS_LINE * sizeof (char *));
 
     for (i = 0; i < WORDS_LINE; i++)
     {
-        words[i] = (char *)malloc (WORD_WIDTH * sizeof (char));
-        memset (words[i], 0, WORD_WIDTH);
+        words[i] = (char *)malloc(WORD_WIDTH * sizeof (char));
+        memset(words[i], 0, WORD_WIDTH);
     }
     i = j = k = 0;
 
     /* Partition the line into words */
-    while (i < strlen (line))
+    while (i < strlen(line))
     {
         if (line[i] != 39)
         {
@@ -419,40 +419,40 @@ keymatch (const char *line, const char *keyword, double *value, char **strval)
     words_line = k + 1;
 
     for (i = 0; i < words_line; i++)
-        if (strcmp (words[i], keyword) == 0)
+        if (strcmp(words[i], keyword) == 0)
             keyfoundflag = 1;
 
     j = k = 0;
     for (i = 0; i < words_line; i++)
     {
         //    fprintf(stderr, "word#%d=%s, length=%d\n" , i, words[i], strlen(words[i]));
-        strcpy (strval[k++], words[i]);
+        strcpy(strval[k++], words[i]);
         //    if ((( words[i][0] < 58)&&(words[i][0] > 47))||(words[i][0] == 46)||(words[i][0]==45)||(words[i][0]==43))
-        if (realcheck (words[i]) == 1)
-            value[j++] = atof (words[i]);
+        if (realcheck(words[i]) == 1)
+            value[j++] = atof(words[i]);
     }
 
     for (i = 0; i < WORDS_LINE; i++)
-        free (words[i]);
-    free (words);
+        free(words[i]);
+    free(words);
     return (keyfoundflag);
 
 }
 
-void ConditionAssign (int condition, char *str, int *index)
+void ConditionAssign(int condition, char *str, int *index)
 {
     /* This subroutine takes in input strings and output an index array that record the conditions each blocks assigned to */
     /* input strings could use separators like - and , */
 
-    int             i, j, k, l, length = strlen (str);
-    char          **words = (char **)malloc (length * sizeof (char *));
+    int             i, j, k, l, length = strlen(str);
+    char          **words = (char **)malloc(length * sizeof (char *));
     for (i = 0; i < length; i++)
-        words[i] = (char *)malloc (WORD_WIDTH * sizeof (char));
+        words[i] = (char *)malloc(WORD_WIDTH * sizeof (char));
 
-    char           *tmpstr = (char *)malloc (WORD_WIDTH * sizeof (char));
+    char           *tmpstr = (char *)malloc(WORD_WIDTH * sizeof (char));
 
-    char           *separator = (char *)malloc (length * sizeof (char));
-    int            *value = (int *)malloc (length * sizeof (char));
+    char           *separator = (char *)malloc(length * sizeof (char));
+    int            *value = (int *)malloc(length * sizeof (char));
 
     i = j = k = l = 0;
     while (i < length)
@@ -472,8 +472,8 @@ void ConditionAssign (int condition, char *str, int *index)
 
     for (i = 0; i < length; i++)
     {
-        strcpy (tmpstr, words[i]);
-        value[i] = atoi (tmpstr);
+        strcpy(tmpstr, words[i]);
+        value[i] = atoi(tmpstr);
     }
     /*
      * for ( i = 0; i < length; i ++)
@@ -494,11 +494,11 @@ void ConditionAssign (int condition, char *str, int *index)
     }
 
     for (i = 0; i < length; i++)
-        free (words[i]);
-    free (words);
-    free (separator);
-    free (value);
-    free (tmpstr);
+        free(words[i]);
+    free(words);
+    free(separator);
+    free(value);
+    free(tmpstr);
 
 }
 
@@ -506,7 +506,7 @@ void ConditionAssign (int condition, char *str, int *index)
 
 
 void
-chem_alloc (char *filename, const void *DS, const Control_Data CS,
+chem_alloc(char *filename, const void *DS, const Control_Data CS,
     Chem_Data CD, realtype t)
 {
 
@@ -523,30 +523,30 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
     MD = (Model_Data) DS;
 
     char            keyword[WORD_WIDTH], line[256], word[WORD_WIDTH];
-    char          **tmpstr = (char **)malloc (WORDS_LINE * sizeof (char *));
+    char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof (char *));
 
-    timeinfo = (struct tm *)malloc (sizeof (struct tm));
+    timeinfo = (struct tm *)malloc(sizeof (struct tm));
 
     for (i = 0; i < words_line; i++)
-        tmpstr[i] = (char *)malloc (WORD_WIDTH * sizeof (char));
+        tmpstr[i] = (char *)malloc(WORD_WIDTH * sizeof (char));
 
     char           *chemfn =
-        (char *)malloc ((strlen (filename) + 30) * sizeof (char));
-    sprintf (chemfn, "input/%s/%s.chem", filename, filename);
-    FILE           *chemfile = fopen (chemfn, "r");
+        (char *)malloc((strlen(filename) + 30) * sizeof (char));
+    sprintf(chemfn, "input/%s/%s.chem", filename, filename);
+    FILE           *chemfile = fopen(chemfn, "r");
     char           *datafn =
-        (char *)malloc ((strlen (filename) + 30) * sizeof (char));
-    sprintf (datafn, "input/%s/%s.cdbs", filename, filename);
-    FILE           *database = fopen (datafn, "r");
+        (char *)malloc((strlen(filename) + 30) * sizeof (char));
+    sprintf(datafn, "input/%s/%s.cdbs", filename, filename);
+    FILE           *database = fopen(datafn, "r");
     char           *forcfn =
-        (char *)malloc ((strlen (filename) + 30) * sizeof (char));
-    sprintf (forcfn, "input/%s/%s.prep", filename, filename);
-    FILE           *prepconc = fopen (forcfn, "r");
+        (char *)malloc((strlen(filename) + 30) * sizeof (char));
+    sprintf(forcfn, "input/%s/%s.prep", filename, filename);
+    FILE           *prepconc = fopen(forcfn, "r");
 
 
-    assert (chemfile != NULL);
-    assert (database != NULL);
-    assert (prepconc != NULL);
+    assert(chemfile != NULL);
+    assert(database != NULL);
+    assert(prepconc != NULL);
 
     /* get rid of the following paragraph after testing real input */
 
@@ -578,262 +578,257 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
     /* default control variable if not found in input file */
 
 
-    rewind (chemfile);
-    fgets (line, line_width, chemfile);
-    while (keymatch (line, "RUNTIME", tmpval, tmpstr) != 1)
-        fgets (line, line_width, chemfile);
-    while (keymatch (line, "END", tmpval, tmpstr) != 1)
+    rewind(chemfile);
+    fgets(line, line_width, chemfile);
+    while (keymatch(line, "RUNTIME", tmpval, tmpstr) != 1)
+        fgets(line, line_width, chemfile);
+    while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
-        fgets (line, line_width, chemfile);
-        if (keymatch (line, "tvd", tmpval, tmpstr) == 1)
+        fgets(line, line_width, chemfile);
+        if (keymatch(line, "tvd", tmpval, tmpstr) == 1)
         {
-            if (strcmp (tmpstr[1], "false") == 0)
+            if (strcmp(tmpstr[1], "false") == 0)
                 CD->TVDFlg = 0;
-            if (strcmp (tmpstr[1], "true") == 0)
+            if (strcmp(tmpstr[1], "true") == 0)
                 CD->TVDFlg = 1;
-            if (strcmp (tmpstr[1], "false") && strcmp (tmpstr[1], "true"))
-                fprintf (stderr, "TVD FLAG INPUT ERROR!\n");
-            fprintf (stderr, " Total variation diminishing set to %d %s.\n",
+            if (strcmp(tmpstr[1], "false") && strcmp(tmpstr[1], "true"))
+                fprintf(stderr, "TVD FLAG INPUT ERROR!\n");
+            fprintf(stderr, " Total variation diminishing set to %d %s.\n",
                 CD->TVDFlg, tmpstr[1]);
         }
-        if (keymatch (line, "output", tmpval, tmpstr) == 1)
+        if (keymatch(line, "output", tmpval, tmpstr) == 1)
         {
             CD->OutItv = (int)tmpval[0];
-            fprintf (stderr, " Output interval set to %d hours.\n",
-                CD->OutItv);
+            fprintf(stderr, " Output interval set to %d hours.\n", CD->OutItv);
         }
-        if (keymatch (line, "activity", tmpval, tmpstr) == 1)
+        if (keymatch(line, "activity", tmpval, tmpstr) == 1)
         {
             CD->ACTmod = (int)tmpval[0];
-            fprintf (stderr, " Activity correction is set to %d.\n",
-                CD->ACTmod);
+            fprintf(stderr, " Activity correction is set to %d.\n", CD->ACTmod);
             // 0 for unity activity coefficient and 1 for DH equation update
         }
-        if (keymatch (line, "act_coe_delay", tmpval, tmpstr) == 1)
+        if (keymatch(line, "act_coe_delay", tmpval, tmpstr) == 1)
         {
             CD->DHEdel = (int)tmpval[0];
-            fprintf (stderr,
+            fprintf(stderr,
                 " Activity coefficient update delay is set to %d.\n",
                 CD->DHEdel);
             // 0 for delay and 1 for no delay (solving together )
         }
-        if (keymatch (line, "thermo", tmpval, tmpstr) == 1)
+        if (keymatch(line, "thermo", tmpval, tmpstr) == 1)
         {
             CD->TEMcpl = (int)tmpval[0];
-            fprintf (stderr, " Coupling of thermo modelling is set to %d.\n",
+            fprintf(stderr, " Coupling of thermo modelling is set to %d.\n",
                 CD->DHEdel);
             // 0 for delay and 1 for no delay (solving together )
         }
-        if (keymatch (line, "relmin", tmpval, tmpstr) == 1)
+        if (keymatch(line, "relmin", tmpval, tmpstr) == 1)
         {
             CD->RelMin = (int)tmpval[0];
             switch (CD->RelMin)
             {
                 case 0:
-                    fprintf (stderr,
+                    fprintf(stderr,
                         " Using absolute mineral volume fraction.\n");
                     break;
                 case 1:
-                    fprintf (stderr,
+                    fprintf(stderr,
                         " Using relative mineral volume fraction.\n");
                     break;
             }
         }
-        if (keymatch (line, "effads", tmpval, tmpstr) == 1)
+        if (keymatch(line, "effads", tmpval, tmpstr) == 1)
         {
             CD->EffAds = (int)tmpval[0];
             switch (CD->EffAds)
             {
                 case 0:
-                    fprintf (stderr, " Using the normal adsorption model.\n");
+                    fprintf(stderr, " Using the normal adsorption model.\n");
                     break;
                 case 1:
-                    fprintf (stderr,
+                    fprintf(stderr,
                         " Using the coupled MIM and adsorption model. \n");
                     break;
                     // under construction.
             }
         }
-        if (keymatch (line, "transport_only", tmpval, tmpstr) == 1)
+        if (keymatch(line, "transport_only", tmpval, tmpstr) == 1)
         {
             CD->RecFlg = (int)tmpval[0];
             switch (CD->RecFlg)
             {
                 case 0:
-                    fprintf (stderr, " Transport only mode disabled.\n");
+                    fprintf(stderr, " Transport only mode disabled.\n");
                     break;
                 case 1:
-                    fprintf (stderr, " Transport only mode enabled. \n");
+                    fprintf(stderr, " Transport only mode enabled. \n");
                     break;
                     // under construction.
             }
         }
-        if (keymatch (line, "precipitation", tmpval, tmpstr) == 1)
+        if (keymatch(line, "precipitation", tmpval, tmpstr) == 1)
         {
             CD->PrpFlg = (int)tmpval[0];
             switch (CD->PrpFlg)
             {
                 case 0:
-                    fprintf (stderr, " No precipitation condition.\n");
+                    fprintf(stderr, " No precipitation condition.\n");
                     break;
                 case 1:
-                    fprintf (stderr,
+                    fprintf(stderr,
                         " Precipitation condition is to be specified. \n");
                     break;
                 case 2:
-                    fprintf (stderr,
+                    fprintf(stderr,
                         " Precipitation condition is specified via file .prep. \n");
                     break;
                     // under construction.
             }
         }
-        if (keymatch (line, "RT_delay", tmpval, tmpstr) == 1)
+        if (keymatch(line, "RT_delay", tmpval, tmpstr) == 1)
         {
             CD->Delay = (int)tmpval[0];
-            fprintf (stderr,
+            fprintf(stderr,
                 " Flux-PIHM-RT will start after running PIHM for %d days.\n",
                 CD->Delay);
             CD->Delay *= UNIT_C;
             // under construction.
         }
-        if (keymatch (line, "Condensation", tmpval, tmpstr) == 1)
+        if (keymatch(line, "Condensation", tmpval, tmpstr) == 1)
         {
             CD->Condensation = tmpval[0];
-            fprintf (stderr,
+            fprintf(stderr,
                 " The concentrations of infiltrating rainfall is set to be %f times of concentrations in precipitation.\n",
                 CD->Condensation);
             // under construction.
             CD->Condensation *= CS->Cal.Prep_conc;
-            fprintf (stderr,
+            fprintf(stderr,
                 " The concentrations of infiltrating rainfall is set to be %f times of concentrations in precipitation.\n",
                 CD->Condensation);
         }
-        if (keymatch (line, "SUFEFF", tmpval, tmpstr) == 1)
+        if (keymatch(line, "SUFEFF", tmpval, tmpstr) == 1)
         {
             CD->SUFEFF = tmpval[0];
-            fprintf (stderr, " Effective surface area mode set to %d.\n",
+            fprintf(stderr, " Effective surface area mode set to %d.\n",
                 CD->SUFEFF);
             // under construction.
         }
-        if (keymatch (line, "AvgScl", tmpval, tmpstr) == 1)
+        if (keymatch(line, "AvgScl", tmpval, tmpstr) == 1)
         {
             CD->React_delay = tmpval[0];
-            fprintf (stderr,
+            fprintf(stderr,
                 " Averaging window for asynchronous reaction%d.\n",
                 CD->React_delay);
             // under construction.
         }
-        if (keymatch (line, "Mobile_exchange", tmpval, tmpstr) == 1)
+        if (keymatch(line, "Mobile_exchange", tmpval, tmpstr) == 1)
         {
             CD->TimRiv = tmpval[0];
-            fprintf (stderr, " Ratio of immobile ion exchange site %f.\n",
+            fprintf(stderr, " Ratio of immobile ion exchange site %f.\n",
                 CD->TimRiv);
             // under construction.
         }
     }
 
 
-    rewind (chemfile);
-    fgets (line, line_width, chemfile);
-    while (keymatch (line, "OUTPUT", tmpval, tmpstr) != 1)
-        fgets (line, line_width, chemfile);
+    rewind(chemfile);
+    fgets(line, line_width, chemfile);
+    while (keymatch(line, "OUTPUT", tmpval, tmpstr) != 1)
+        fgets(line, line_width, chemfile);
     CD->NumBTC = tmpval[0];
-    fprintf (stderr, " %d breakthrough points specified\n", CD->NumBTC);
-    CD->BTC_loc = (int *)malloc (CD->NumBTC * sizeof (int));
+    fprintf(stderr, " %d breakthrough points specified\n", CD->NumBTC);
+    CD->BTC_loc = (int *)malloc(CD->NumBTC * sizeof (int));
     i = 0;
-    fprintf (stderr, " --");
-    while (keymatch (line, "END", tmpval, tmpstr) != 1)
+    fprintf(stderr, " --");
+    while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
-        fgets (line, line_width, chemfile);
-        if (keymatch (line, " ", tmpval, tmpstr) != 2)
+        fgets(line, line_width, chemfile);
+        if (keymatch(line, " ", tmpval, tmpstr) != 2)
         {
             CD->BTC_loc[i] = (int)tmpval[0];
-            fprintf (stderr, " Grid %d ", CD->BTC_loc[i]);
+            fprintf(stderr, " Grid %d ", CD->BTC_loc[i]);
             i++;
         }
         if (i >= CD->NumBTC)
             break;
     }
-    fprintf (stderr, " are breakthrough points\n");
+    fprintf(stderr, " are breakthrough points\n");
 
     species         Global_type;
-    Global_type.ChemName = (char *)malloc (WORD_WIDTH * sizeof (char));
-    strcpy (Global_type.ChemName, "GLOBAL");
+    Global_type.ChemName = (char *)malloc(WORD_WIDTH * sizeof (char));
+    strcpy(Global_type.ChemName, "GLOBAL");
 
-    rewind (chemfile);
-    fgets (line, line_width, chemfile);
-    while (keymatch (line, "GLOBAL", tmpval, tmpstr) != 1)
-        fgets (line, line_width, chemfile);
-    while (keymatch (line, "END", tmpval, tmpstr) != 1)
+    rewind(chemfile);
+    fgets(line, line_width, chemfile);
+    while (keymatch(line, "GLOBAL", tmpval, tmpstr) != 1)
+        fgets(line, line_width, chemfile);
+    while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
-        fgets (line, line_width, chemfile);
-        if (keymatch (line, "t_species", tmpval, tmpstr) == 1)
+        fgets(line, line_width, chemfile);
+        if (keymatch(line, "t_species", tmpval, tmpstr) == 1)
         {
             CD->NumStc = (int)tmpval[0];
-            fprintf (stderr, " %d chemical species specified.\n", CD->NumStc);
+            fprintf(stderr, " %d chemical species specified.\n", CD->NumStc);
             /* H2O is always a primary species */
         }
-        if (keymatch (line, "s_species", tmpval, tmpstr) == 1)
+        if (keymatch(line, "s_species", tmpval, tmpstr) == 1)
         {
             CD->NumSsc = (int)tmpval[0];
-            fprintf (stderr, " %d secondary species specified.\n",
+            fprintf(stderr, " %d secondary species specified.\n",
                 (int)tmpval[0]);
         }
-        if (keymatch (line, "minerals", tmpval, tmpstr) == 1)
+        if (keymatch(line, "minerals", tmpval, tmpstr) == 1)
         {
             CD->NumMin = (int)tmpval[0];
-            fprintf (stderr, " %d minerals specified.\n", CD->NumMin);
+            fprintf(stderr, " %d minerals specified.\n", CD->NumMin);
         }
-        if (keymatch (line, "adsorption", tmpval, tmpstr) == 1)
+        if (keymatch(line, "adsorption", tmpval, tmpstr) == 1)
         {
             CD->NumAds = (int)tmpval[0];
-            fprintf (stderr, " %d surface complexation specified.\n",
+            fprintf(stderr, " %d surface complexation specified.\n",
                 CD->NumAds);
         }
-        if (keymatch (line, "cation_exchange", tmpval, tmpstr) == 1)
+        if (keymatch(line, "cation_exchange", tmpval, tmpstr) == 1)
         {
             CD->NumCex = (int)tmpval[0];
-            fprintf (stderr, " %d cation exchange specified.\n", CD->NumCex);
+            fprintf(stderr, " %d cation exchange specified.\n", CD->NumCex);
         }
-        if (keymatch (line, "mineral_kinetic", tmpval, tmpstr) == 1)
+        if (keymatch(line, "mineral_kinetic", tmpval, tmpstr) == 1)
         {
             CD->NumMkr = (int)tmpval[0];
-            fprintf (stderr, " %d mineral kinetic reaction(s) specified.\n",
+            fprintf(stderr, " %d mineral kinetic reaction(s) specified.\n",
                 CD->NumMkr);
         }
-        if (keymatch (line, "aqueous_kinetic", tmpval, tmpstr) == 1)
+        if (keymatch(line, "aqueous_kinetic", tmpval, tmpstr) == 1)
         {
             CD->NumAkr = (int)tmpval[0];
-            fprintf (stderr, " %d aqueous kinetic reaction(s) specified.\n",
+            fprintf(stderr, " %d aqueous kinetic reaction(s) specified.\n",
                 CD->NumAkr);
         }
-        if (keymatch (line, "diffusion", tmpval, tmpstr) == 1)
+        if (keymatch(line, "diffusion", tmpval, tmpstr) == 1)
         {
-            fprintf (stderr, " Diffusion coefficient =%6.4f cm2/s.\n",
+            fprintf(stderr, " Diffusion coefficient =%6.4f cm2/s.\n",
                 tmpval[0]);
             Global_type.DiffCoe = tmpval[0] * 60.0 * 60.0 * 24.0 / 10000.0;
             Global_diff = 1;
             /* Require unit conversion ! */
         }
-        if (keymatch (line, "dispersion", tmpval, tmpstr) == 1)
+        if (keymatch(line, "dispersion", tmpval, tmpstr) == 1)
         {
-            fprintf (stderr, " Dispersion coefficient =%6.4f m.\n",
-                tmpval[0]);
+            fprintf(stderr, " Dispersion coefficient =%6.4f m.\n", tmpval[0]);
             Global_type.DispCoe = tmpval[0];
             Global_disp = 1;
             /* Set global flags to indicate the global values are present */
         }
-        if (keymatch (line, "cementation", tmpval, tmpstr) == 1)
+        if (keymatch(line, "cementation", tmpval, tmpstr) == 1)
         {
-            fprintf (stderr, " Cementation factor set to %6.4f. \n",
-                tmpval[0]);
+            fprintf(stderr, " Cementation factor set to %6.4f. \n", tmpval[0]);
             CD->Cementation = tmpval[0];
         }
-        if (keymatch (line, "temperature", tmpval, tmpstr) == 1)
+        if (keymatch(line, "temperature", tmpval, tmpstr) == 1)
         {
             CD->Temperature = tmpval[0];
-            fprintf (stderr, " Temperature set to %6.4f. \n",
-                CD->Temperature);
+            fprintf(stderr, " Temperature set to %6.4f. \n", CD->Temperature);
         }
     }
 
@@ -842,50 +837,48 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
     CD->NumSdc = CD->NumStc - (CD->NumMin);
     /* the number of species that others depend on */
 
-    CD->Dependency = (double **)malloc (CD->NumSsc * sizeof (double *));
+    CD->Dependency = (double **)malloc(CD->NumSsc * sizeof (double *));
     for (i = 0; i < CD->NumSsc; i++)
     {
-        CD->Dependency[i] = (double *)malloc (CD->NumSdc * sizeof (double));
+        CD->Dependency[i] = (double *)malloc(CD->NumSdc * sizeof (double));
         /* convert secondary species as an expression of primary species */
         for (j = 0; j < CD->NumSdc; j++)
             CD->Dependency[i][j] = 0.0;
     }
     CD->Dep_kinetic =
-        (double **)malloc ((CD->NumMkr + CD->NumAkr) * sizeof (double *));
+        (double **)malloc((CD->NumMkr + CD->NumAkr) * sizeof (double *));
     for (i = 0; i < CD->NumMkr + CD->NumAkr; i++)
     {
-        CD->Dep_kinetic[i] = (double *)malloc (CD->NumStc * sizeof (double));
+        CD->Dep_kinetic[i] = (double *)malloc(CD->NumStc * sizeof (double));
         /* express kinetic species as function of primary species */
         for (j = 0; j < CD->NumStc; j++)
             CD->Dep_kinetic[i][j] = 0.0;
     }
-    CD->Dep_kinetic_all =
-        (double **)malloc ((CD->NumMin) * sizeof (double *));
+    CD->Dep_kinetic_all = (double **)malloc((CD->NumMin) * sizeof (double *));
     for (i = 0; i < CD->NumMin; i++)
     {
-        CD->Dep_kinetic_all[i] =
-            (double *)malloc (CD->NumStc * sizeof (double));
+        CD->Dep_kinetic_all[i] = (double *)malloc(CD->NumStc * sizeof (double));
         /* Dependencies of minearls, all */
         for (j = 0; j < CD->NumStc; j++)
             CD->Dep_kinetic_all[i][j] = 0.0;
     }
-    CD->Keq = (double *)malloc (CD->NumSsc * sizeof (double));
+    CD->Keq = (double *)malloc(CD->NumSsc * sizeof (double));
     CD->KeqKinect =
-        (double *)malloc ((CD->NumMkr + CD->NumAkr) * sizeof (double));
-    CD->KeqKinect_all = (double *)malloc (CD->NumMin * sizeof (double));
+        (double *)malloc((CD->NumMkr + CD->NumAkr) * sizeof (double));
+    CD->KeqKinect_all = (double *)malloc(CD->NumMin * sizeof (double));
     /* Keqs of equilibrium/ kinetic and kinetic all */
 
 
-    CD->Totalconc = (double **)malloc (CD->NumStc * sizeof (double *));
+    CD->Totalconc = (double **)malloc(CD->NumStc * sizeof (double *));
     for (i = 0; i < CD->NumStc; i++)
         CD->Totalconc[i] =
-            (double *)malloc ((CD->NumStc + CD->NumSsc) * sizeof (double));
+            (double *)malloc((CD->NumStc + CD->NumSsc) * sizeof (double));
     /* convert total concentration as an expression of all species */
 
-    CD->Totalconck = (double **)malloc (CD->NumStc * sizeof (double *));
+    CD->Totalconck = (double **)malloc(CD->NumStc * sizeof (double *));
     for (i = 0; i < CD->NumStc; i++)
         CD->Totalconck[i] =
-            (double *)malloc ((CD->NumStc + CD->NumSsc) * sizeof (double));
+            (double *)malloc((CD->NumStc + CD->NumSsc) * sizeof (double));
     /* convert total concentration as an expression of all species */
 
     for (i = 0; i < CD->NumStc; i++)
@@ -898,34 +891,33 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
 
     num_species = CD->NumSpc;
 
-    rewind (chemfile);
-    fgets (line, line_width, chemfile);
-    while (keymatch (line, "INITIAL_CONDITIONS", tmpval, tmpstr) != 1)
-        fgets (line, line_width, chemfile);
-    fgets (line, line_width, chemfile);
-    while (keymatch (line, "END", tmpval, tmpstr) != 1)
+    rewind(chemfile);
+    fgets(line, line_width, chemfile);
+    while (keymatch(line, "INITIAL_CONDITIONS", tmpval, tmpstr) != 1)
+        fgets(line, line_width, chemfile);
+    fgets(line, line_width, chemfile);
+    while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
-        if (keymatch (line, " ", tmpval, tmpstr) != 2)
+        if (keymatch(line, " ", tmpval, tmpstr) != 2)
         {
             num_conditions++;
         }
-        fgets (line, line_width, chemfile);
+        fgets(line, line_width, chemfile);
     }
-    fprintf (stderr, " %d conditions assigned.\n", num_conditions);
+    fprintf(stderr, " %d conditions assigned.\n", num_conditions);
 
 
 
-    char          **chemcon =
-        (char **)malloc (num_conditions * sizeof (char *));
+    char          **chemcon = (char **)malloc(num_conditions * sizeof (char *));
     for (i = 0; i < num_conditions; i++)
-        chemcon[i] = (char *)malloc (word_width * sizeof (char));
+        chemcon[i] = (char *)malloc(word_width * sizeof (char));
     char         ***con_chem_name =
-        (char ***)malloc ((num_conditions + 1) * sizeof (char **));
+        (char ***)malloc((num_conditions + 1) * sizeof (char **));
     for (i = 0; i < num_conditions + 1; i++)
     {                           // all conditions + precipitation
-        con_chem_name[i] = (char **)malloc (CD->NumStc * sizeof (char *));
+        con_chem_name[i] = (char **)malloc(CD->NumStc * sizeof (char *));
         for (j = 0; j < CD->NumStc; j++)
-            con_chem_name[i][j] = (char *)malloc (WORD_WIDTH * sizeof (char));
+            con_chem_name[i][j] = (char *)malloc(WORD_WIDTH * sizeof (char));
     }
 
 
@@ -933,24 +925,24 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
 
 
     int            *condition_index =
-        (int *)malloc ((CD->NumVol + 1) * sizeof (int));
+        (int *)malloc((CD->NumVol + 1) * sizeof (int));
     /* when user assign conditions to blocks, they start from 1 */
 
     for (i = 0; i < CD->NumVol; i++)
         condition_index[i] = 0;
 
     vol_conc       *Condition_vcele =
-        (vol_conc *) malloc (num_conditions * sizeof (vol_conc));
+        (vol_conc *) malloc(num_conditions * sizeof (vol_conc));
     for (i = 0; i < num_conditions; i++)
     {
         Condition_vcele[i].index = i + 1;
         Condition_vcele[i].t_conc =
-            (double *)malloc (CD->NumStc * sizeof (double));
+            (double *)malloc(CD->NumStc * sizeof (double));
         Condition_vcele[i].p_conc =
-            (double *)malloc (CD->NumStc * sizeof (double));
+            (double *)malloc(CD->NumStc * sizeof (double));
         Condition_vcele[i].p_para =
-            (double *)malloc (CD->NumStc * sizeof (double));
-        Condition_vcele[i].p_type = (int *)malloc (CD->NumStc * sizeof (int));
+            (double *)malloc(CD->NumStc * sizeof (double));
+        Condition_vcele[i].p_type = (int *)malloc(CD->NumStc * sizeof (int));
         Condition_vcele[i].s_conc = NULL;
         /* we do not input cocentration for secondary speices in rt */
         for (j = 0; j < CD->NumStc; j++)
@@ -964,12 +956,12 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
     {
 
         CD->Precipitation.t_conc =
-            (double *)malloc (CD->NumStc * sizeof (double));
+            (double *)malloc(CD->NumStc * sizeof (double));
         CD->Precipitation.p_conc =
-            (double *)malloc (CD->NumStc * sizeof (double));
+            (double *)malloc(CD->NumStc * sizeof (double));
         CD->Precipitation.p_para =
-            (double *)malloc (CD->NumStc * sizeof (double));
-        CD->Precipitation.p_type = (int *)malloc (CD->NumStc * sizeof (int));
+            (double *)malloc(CD->NumStc * sizeof (double));
+        CD->Precipitation.p_type = (int *)malloc(CD->NumStc * sizeof (int));
         CD->Precipitation.s_conc = NULL;
         for (i = 0; i < CD->NumStc; i++)
         {
@@ -980,9 +972,9 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
     }
 
     CD->chemtype =
-        (species *) malloc ((CD->NumStc + CD->NumSsc) * sizeof (species));
+        (species *) malloc((CD->NumStc + CD->NumSsc) * sizeof (species));
     if (CD->chemtype == NULL)
-        fprintf (stderr, " Memory allocation error\n");
+        fprintf(stderr, " Memory allocation error\n");
 
     for (i = 0; i < CD->NumStc + CD->NumSsc; i++)
     {
@@ -998,10 +990,9 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
             CD->chemtype[i].DispCoe = Global_type.DispCoe;
         else
             CD->chemtype[i].DispCoe = ZERO;
-        CD->chemtype[i].ChemName =
-            (char *)malloc (WORD_WIDTH * sizeof (char));
-        assert (CD->chemtype[i].ChemName != NULL);
-        memset (CD->chemtype[i].ChemName, 0, WORD_WIDTH);
+        CD->chemtype[i].ChemName = (char *)malloc(WORD_WIDTH * sizeof (char));
+        assert(CD->chemtype[i].ChemName != NULL);
+        memset(CD->chemtype[i].ChemName, 0, WORD_WIDTH);
         CD->chemtype[i].Charge = 0.0;
         CD->chemtype[i].SizeF = 1.0;
         CD->chemtype[i].itype = 0;
@@ -1012,83 +1003,83 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
     k = 0;
     int             initfile = 0;
     FILE           *cheminitfile = NULL;
-    rewind (chemfile);
-    fgets (line, line_width, chemfile);
-    while (keymatch (line, "INITIAL_CONDITIONS", tmpval, tmpstr) != 1)
-        fgets (line, line_width, chemfile);
-    if (strcmp (tmpstr[1], "FILE") == 0)
+    rewind(chemfile);
+    fgets(line, line_width, chemfile);
+    while (keymatch(line, "INITIAL_CONDITIONS", tmpval, tmpstr) != 1)
+        fgets(line, line_width, chemfile);
+    if (strcmp(tmpstr[1], "FILE") == 0)
     {                           // initialize chemical distribution from file evoked. This will nullify all the condition assignment given in the next lines. But for now, please keep those lines to let the code work.
-        fprintf (stderr,
+        fprintf(stderr,
             " Initializing the initial chemical distribution from file %s\n",
             tmpstr[2]);
         char            cheminit[30];
-        strcpy (cheminit, "input/");
-        strcat (cheminit, filename);
-        strcat (cheminit, "/");
-        strcat (cheminit, tmpstr[2]);
-        cheminitfile = fopen (cheminit, "r");
+        strcpy(cheminit, "input/");
+        strcat(cheminit, filename);
+        strcat(cheminit, "/");
+        strcat(cheminit, tmpstr[2]);
+        cheminitfile = fopen(cheminit, "r");
         if (cheminitfile == NULL)
-            fprintf (stderr,
+            fprintf(stderr,
                 " Chemical initial distribution file is missing from input directory!\n");
         initfile = 1;
     }
-    fgets (line, line_width, chemfile);
-    while (keymatch (line, "END", tmpval, tmpstr) != 1)
+    fgets(line, line_width, chemfile);
+    while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
-        if (keymatch (line, " ", tmpval, tmpstr) != 2)
+        if (keymatch(line, " ", tmpval, tmpstr) != 2)
         {
-            strcpy (chemcon[k++], tmpstr[0]);
+            strcpy(chemcon[k++], tmpstr[0]);
             if (initfile == 0)
             {
-                fprintf (stderr, " Condition %s assigned to cells %s.\n",
+                fprintf(stderr, " Condition %s assigned to cells %s.\n",
                     chemcon[k - 1], tmpstr[1]);
-                ConditionAssign (k, tmpstr[1], condition_index);
+                ConditionAssign(k, tmpstr[1], condition_index);
             }
         }
-        fgets (line, line_width, chemfile);
+        fgets(line, line_width, chemfile);
     }
     if (initfile == 1)
     {
         for (i = 0; i < CD->NumVol; i++)
         {
-            fscanf (cheminitfile, "%d %d", &k, condition_index + i + 1);
+            fscanf(cheminitfile, "%d %d", &k, condition_index + i + 1);
             // fprintf(stderr, "%6d %6d %6s\n", i+1, condition_index[i+1], chemcon[condition_index[i+1]-1]);
         }
     }
 
     if (cheminitfile != NULL)
-        fclose (cheminitfile);
+        fclose(cheminitfile);
 
     for (i = 0; i < num_conditions; i++)
     {
-        rewind (chemfile);
+        rewind(chemfile);
         num_species = 0;
         num_mineral = 0;
         num_ads = 0;
         num_cex = 0;
         num_other = 0;
-        fgets (line, line_width, chemfile);
-        while ((keymatch (line, "Condition", tmpval, tmpstr) != 1)
-            || (keymatch (line, chemcon[i], tmpval, tmpstr) != 1))
-            fgets (line, line_width, chemfile);
-        if (strcmp (tmpstr[1], chemcon[i]) == 0)
-            fprintf (stderr, " %s", line);
-        fgets (line, line_width, chemfile);
-        while (keymatch (line, "END", tmpval, tmpstr) != 1)
+        fgets(line, line_width, chemfile);
+        while ((keymatch(line, "Condition", tmpval, tmpstr) != 1)
+            || (keymatch(line, chemcon[i], tmpval, tmpstr) != 1))
+            fgets(line, line_width, chemfile);
+        if (strcmp(tmpstr[1], chemcon[i]) == 0)
+            fprintf(stderr, " %s", line);
+        fgets(line, line_width, chemfile);
+        while (keymatch(line, "END", tmpval, tmpstr) != 1)
         {
-            if (keymatch (line, "NULL", tmpval, tmpstr) != 2)
+            if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
             {
 
-                specflg = SpeciationType (database, tmpstr[0]);
+                specflg = SpeciationType(database, tmpstr[0]);
 
                 if (specflg == 1)
                 {
                     num_other = num_mineral + num_ads + num_cex;
                     Condition_vcele[i].t_conc[num_species - num_other] =
                         tmpval[0];
-                    strcpy (con_chem_name[i][num_species - num_other],
+                    strcpy(con_chem_name[i][num_species - num_other],
                         tmpstr[0]);
-                    fprintf (stderr, " %s\t%6.4f\n",
+                    fprintf(stderr, " %s\t%6.4f\n",
                         con_chem_name[i][num_species - num_other], tmpval[0]);
                     Condition_vcele[i].p_type[num_species - num_other] = 1;
                 }
@@ -1097,14 +1088,13 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                 {
                     Condition_vcele[i].t_conc[CD->NumSpc + CD->NumAds +
                         CD->NumCex + num_mineral] = tmpval[0];
-                    if (strcmp (tmpstr[2], "-ssa") == 0)
+                    if (strcmp(tmpstr[2], "-ssa") == 0)
                         Condition_vcele[i].p_para[CD->NumSpc + CD->NumAds +
-                            CD->NumCex + num_mineral] =
-                            tmpval[1] * CS->Cal.SSA;
-                    strcpy (con_chem_name[i]
+                            CD->NumCex + num_mineral] = tmpval[1] * CS->Cal.SSA;
+                    strcpy(con_chem_name[i]
                         [CD->NumSpc + CD->NumAds + CD->NumCex +
                             num_mineral], tmpstr[0]);
-                    fprintf (stderr,
+                    fprintf(stderr,
                         " mineral %s\t%6.4f specific surface area %6.4f\n",
                         con_chem_name[i][CD->NumSpc + CD->NumAds +
                             CD->NumCex + num_mineral], tmpval[0], tmpval[1]);
@@ -1114,13 +1104,12 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                 }
                 if ((tmpstr[0][0] == '>') || (specflg == 2))
                 {               // adsorptive sites and species start with >
-                    Condition_vcele[i].t_conc[CD->NumSpc + num_ads] = tmpval[0] * CS->Cal.Site_den;     // this is the site density of the adsorptive species.
+                    Condition_vcele[i].t_conc[CD->NumSpc + num_ads] = tmpval[0] * CS->Cal.Site_den; // this is the site density of the adsorptive species.
                     Condition_vcele[i].p_type[CD->NumSpc + num_ads] = 2;
                     Condition_vcele[i].p_para[CD->NumSpc + num_ads] = 0;
                     // update when fill in the parameters for adsorption.
-                    strcpy (con_chem_name[i][CD->NumSpc + num_ads],
-                        tmpstr[0]);
-                    fprintf (stderr, " surface complex %s\t %6.4f\n",
+                    strcpy(con_chem_name[i][CD->NumSpc + num_ads], tmpstr[0]);
+                    fprintf(stderr, " surface complex %s\t %6.4f\n",
                         con_chem_name[i][CD->NumSpc + num_ads], tmpval[0]);
                     num_ads++;
                     // under construction
@@ -1134,9 +1123,9 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                     Condition_vcele[i].p_para[CD->NumSpc + CD->NumAds +
                         num_cex] = 0;
                     // update when fill in the parameters for cation exchange.
-                    strcpy (con_chem_name[i][CD->NumSpc + CD->NumAds +
+                    strcpy(con_chem_name[i][CD->NumSpc + CD->NumAds +
                             num_cex], tmpstr[0]);
-                    fprintf (stderr, " cation exchange %s\t %6.4f\n",
+                    fprintf(stderr, " cation exchange %s\t %6.4f\n",
                         con_chem_name[i][CD->NumSpc + CD->NumAds + num_cex],
                         tmpval[0]);
                     num_cex++;
@@ -1144,39 +1133,39 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                 }
                 num_species++;
             }
-            fgets (line, line_width, chemfile);
+            fgets(line, line_width, chemfile);
         }
     }
     if (CD->PrpFlg)
     {
-        rewind (chemfile);
-        fgets (line, line_width, chemfile);
-        while (keymatch (line, "PRECIPITATION", tmpval, tmpstr) != 1)
-            fgets (line, line_width, chemfile);
-        fgets (line, line_width, chemfile);
-        fprintf (stderr, " ---------------------------------\n");
-        fprintf (stderr, " The condition of precipitation is \n");
-        fprintf (stderr, " ---------------------------------\n");
+        rewind(chemfile);
+        fgets(line, line_width, chemfile);
+        while (keymatch(line, "PRECIPITATION", tmpval, tmpstr) != 1)
+            fgets(line, line_width, chemfile);
+        fgets(line, line_width, chemfile);
+        fprintf(stderr, " ---------------------------------\n");
+        fprintf(stderr, " The condition of precipitation is \n");
+        fprintf(stderr, " ---------------------------------\n");
         num_species = 0;
         num_mineral = 0;
         num_ads = 0;
         num_cex = 0;
         num_other = 0;
-        while (keymatch (line, "END", tmpval, tmpstr) != 1)
+        while (keymatch(line, "END", tmpval, tmpstr) != 1)
         {
-            if (keymatch (line, "NULL", tmpval, tmpstr) != 2)
+            if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
             {
 
-                specflg = SpeciationType (database, tmpstr[0]);
+                specflg = SpeciationType(database, tmpstr[0]);
 
                 if (specflg == 1)
                 {
                     num_other = num_mineral + num_ads + num_cex;
                     CD->Precipitation.t_conc[num_species - num_other] =
                         tmpval[0];
-                    strcpy (con_chem_name[num_conditions]
+                    strcpy(con_chem_name[num_conditions]
                         [num_species - num_other], tmpstr[0]);
-                    fprintf (stderr, " %s\t%6.4f\n",
+                    fprintf(stderr, " %s\t%6.4f\n",
                         con_chem_name[num_conditions][num_species -
                             num_other], tmpval[0]);
                     CD->Precipitation.p_type[num_species - num_other] = 1;
@@ -1186,13 +1175,13 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                 {
                     CD->Precipitation.t_conc[CD->NumSpc + CD->NumAds +
                         CD->NumCex + num_mineral] = tmpval[0];
-                    if (strcmp (tmpstr[2], "-ssa") == 0)
+                    if (strcmp(tmpstr[2], "-ssa") == 0)
                         CD->Precipitation.p_para[CD->NumSpc + CD->NumAds +
                             CD->NumCex + num_mineral] = tmpval[1];
-                    strcpy (con_chem_name[num_conditions]
+                    strcpy(con_chem_name[num_conditions]
                         [CD->NumSpc + CD->NumAds + CD->NumCex +
                             num_mineral], tmpstr[0]);
-                    fprintf (stderr,
+                    fprintf(stderr,
                         " mineral %s\t%6.4f specific surface area %6.4f\n",
                         con_chem_name[num_conditions][CD->NumSpc +
                             CD->NumAds +
@@ -1207,9 +1196,9 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                     CD->Precipitation.p_type[CD->NumSpc + num_ads] = 2;
                     CD->Precipitation.p_para[CD->NumSpc + num_ads] = 0;
                     // update when fill in the parameters for adsorption.
-                    strcpy (con_chem_name[num_conditions][CD->NumSpc +
+                    strcpy(con_chem_name[num_conditions][CD->NumSpc +
                             num_ads], tmpstr[0]);
-                    fprintf (stderr, " surface complex %s\t %6.4f\n",
+                    fprintf(stderr, " surface complex %s\t %6.4f\n",
                         con_chem_name[num_conditions][CD->NumSpc + num_ads],
                         tmpval[0]);
                     num_ads++;
@@ -1224,9 +1213,9 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                     CD->Precipitation.p_para[CD->NumSpc + CD->NumAds +
                         num_cex] = 0;
                     // update when fill in the parameters for cation exchange.
-                    strcpy (con_chem_name[num_conditions]
+                    strcpy(con_chem_name[num_conditions]
                         [CD->NumSpc + CD->NumAds + num_cex], tmpstr[0]);
-                    fprintf (stderr, " cation exchange %s\t %6.4f\n",
+                    fprintf(stderr, " cation exchange %s\t %6.4f\n",
                         con_chem_name[num_conditions][CD->NumSpc +
                             CD->NumAds + num_cex], tmpval[0]);
                     num_cex++;
@@ -1234,7 +1223,7 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                 }
                 num_species++;
             }
-            fgets (line, line_width, chemfile);
+            fgets(line, line_width, chemfile);
         }
 
     }
@@ -1247,20 +1236,19 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
         check_conditions_num = num_conditions;
 
     if (num_species != CD->NumStc)
-        fprintf (stderr,
-            " Number of species does not match indicated value!\n");
+        fprintf(stderr, " Number of species does not match indicated value!\n");
 
     for (i = 1; i < check_conditions_num; i++)
     {
         for (j = 0; j < num_species; j++)
         {
-            if (strcmp (con_chem_name[i][j], con_chem_name[i - 1][j]) != 0)
+            if (strcmp(con_chem_name[i][j], con_chem_name[i - 1][j]) != 0)
             {
                 error_flag = 1;
             }
         }
         if (error_flag == 1)
-            fprintf (stderr,
+            fprintf(stderr,
                 " The order of the chemicals in condition <%s> is incorrect!\n",
                 chemcon[i - 1]);
     }
@@ -1268,118 +1256,115 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
 
     for (i = 0; i < CD->NumStc; i++)
     {
-        strcpy (CD->chemtype[i].ChemName, con_chem_name[0][i]);
+        strcpy(CD->chemtype[i].ChemName, con_chem_name[0][i]);
         CD->chemtype[i].itype = Condition_vcele[0].p_type[i];
-        fprintf (stderr, " %12s\t%10d\n", CD->chemtype[i].ChemName,
+        fprintf(stderr, " %12s\t%10d\n", CD->chemtype[i].ChemName,
             CD->chemtype[i].itype);
     }
 
     if (CD->PrpFlg)
     {
-        fprintf (stderr, " Total concentraions in precipitataion:\n");
+        fprintf(stderr, " Total concentraions in precipitataion:\n");
         for (i = 0; i < CD->NumSpc; i++)
         {
-            if (!strcmp (con_chem_name[num_conditions][i], "pH"))
+            if (!strcmp(con_chem_name[num_conditions][i], "pH"))
                 if (CD->Precipitation.t_conc[i] < 7)
                     CD->Precipitation.t_conc[i] =
-                        pow (10, -CD->Precipitation.t_conc[i]);
+                        pow(10, -CD->Precipitation.t_conc[i]);
                 else
                     CD->Precipitation.t_conc[i] =
-                        -pow (10, CD->Precipitation.t_conc[i] - 14);
+                        -pow(10, CD->Precipitation.t_conc[i] - 14);
             // change the pH of precipitation into total concentraion of H
             // We skip the speciation for rain and assume it is OK to calculate this way.
-            fprintf (stderr, " %12s: %10g M\n",
-                con_chem_name[num_conditions][i],
-                CD->Precipitation.t_conc[i]);
+            fprintf(stderr, " %12s: %10g M\n",
+                con_chem_name[num_conditions][i], CD->Precipitation.t_conc[i]);
         }
     }
 
 
-    rewind (chemfile);
-    fgets (line, line_width, chemfile);
-    while (keymatch (line, "SECONDARY_SPECIES", tmpval, tmpstr) != 1)
-        fgets (line, line_width, chemfile);
-    fgets (line, line_width, chemfile);
-    while (keymatch (line, "END", tmpval, tmpstr) != 1)
+    rewind(chemfile);
+    fgets(line, line_width, chemfile);
+    while (keymatch(line, "SECONDARY_SPECIES", tmpval, tmpstr) != 1)
+        fgets(line, line_width, chemfile);
+    fgets(line, line_width, chemfile);
+    while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
-        if (keymatch (line, "NULL", tmpval, tmpstr) != 2)
+        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
         {
-            strcpy (CD->chemtype[num_species++].ChemName, tmpstr[0]);
-            fprintf (stderr, " %s\n", CD->chemtype[num_species - 1].ChemName);
+            strcpy(CD->chemtype[num_species++].ChemName, tmpstr[0]);
+            fprintf(stderr, " %s\n", CD->chemtype[num_species - 1].ChemName);
         }
-        fgets (line, line_width, chemfile);
+        fgets(line, line_width, chemfile);
     }
     int             num_dep = 2;
 
     CD->kinetics =
-        (Kinetic_Reaction *) malloc (CD->NumMkr * sizeof (Kinetic_Reaction));
+        (Kinetic_Reaction *) malloc(CD->NumMkr * sizeof (Kinetic_Reaction));
     for (i = 0; i < CD->NumMkr; i++)
     {
-        CD->kinetics[i].species = (char *)malloc (WORD_WIDTH * sizeof (char));
-        CD->kinetics[i].Label = (char *)malloc (WORD_WIDTH * sizeof (char));
+        CD->kinetics[i].species = (char *)malloc(WORD_WIDTH * sizeof (char));
+        CD->kinetics[i].Label = (char *)malloc(WORD_WIDTH * sizeof (char));
         CD->kinetics[i].dep_species =
-            (char **)malloc (num_dep * sizeof (char *));
-        CD->kinetics[i].dep_power =
-            (double *)malloc (num_dep * sizeof (double));
-        CD->kinetics[i].monod = (char **)malloc (num_dep * sizeof (char *));
+            (char **)malloc(num_dep * sizeof (char *));
+        CD->kinetics[i].dep_power = (double *)malloc(num_dep * sizeof (double));
+        CD->kinetics[i].monod = (char **)malloc(num_dep * sizeof (char *));
         CD->kinetics[i].monod_para =
-            (double *)malloc (num_dep * sizeof (double));
-        CD->kinetics[i].inhibition =
-            (char **)malloc (num_dep * sizeof (char *));
+            (double *)malloc(num_dep * sizeof (double));
+        CD->kinetics[i].inhibition = (char **)malloc(num_dep * sizeof (char *));
         CD->kinetics[i].inhibition_para =
-            (double *)malloc (num_dep * sizeof (double));
-        CD->kinetics[i].dep_position = (int *)malloc (num_dep * sizeof (int));
+            (double *)malloc(num_dep * sizeof (double));
+        CD->kinetics[i].dep_position = (int *)malloc(num_dep * sizeof (int));
         for (j = 0; j < num_dep; j++)
         {
             CD->kinetics[i].dep_species[j] =
-                (char *)malloc (WORD_WIDTH * sizeof (char));
+                (char *)malloc(WORD_WIDTH * sizeof (char));
             CD->kinetics[i].monod[j] =
-                (char *)malloc (WORD_WIDTH * sizeof (char));
+                (char *)malloc(WORD_WIDTH * sizeof (char));
             CD->kinetics[i].inhibition[j] =
-                (char *)malloc (WORD_WIDTH * sizeof (char));
+                (char *)malloc(WORD_WIDTH * sizeof (char));
             CD->kinetics[i].dep_position[j] = 0;
         }
     }
     k = 0;
-    rewind (chemfile);
-    fgets (line, line_width, chemfile);
-    while (keymatch (line, "MINERALS", tmpval, tmpstr) != 1)
-        fgets (line, line_width, chemfile);
-    fgets (line, line_width, chemfile);
-    while (keymatch (line, "END", tmpval, tmpstr) != 1)
+    rewind(chemfile);
+    fgets(line, line_width, chemfile);
+    while (keymatch(line, "MINERALS", tmpval, tmpstr) != 1)
+        fgets(line, line_width, chemfile);
+    fgets(line, line_width, chemfile);
+    while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
-        if (keymatch (line, " ", tmpval, tmpstr) != 2)
+        if (keymatch(line, " ", tmpval, tmpstr) != 2)
         {
-            strcpy (CD->kinetics[k].species, tmpstr[0]);
-            if (strcmp (tmpstr[1], "-label") == 0)
-                strcpy (CD->kinetics[k].Label, tmpstr[2]);
+            strcpy(CD->kinetics[k].species, tmpstr[0]);
+            if (strcmp(tmpstr[1], "-label") == 0)
+                strcpy(CD->kinetics[k].Label, tmpstr[2]);
             k++;
         }
-        fgets (line, line_width, chemfile);
+        fgets(line, line_width, chemfile);
     }
     for (i = 0; i < k; i++)
-        fprintf (stderr, " Kinetic reaction on %s is specified, label %s\n",
+        fprintf(stderr, " Kinetic reaction on %s is specified, label %s\n",
             CD->kinetics[i].species, CD->kinetics[i].Label);
 
     // start of concentration in precipitation read in
     if (CD->PrpFlg == 2)
     {
 
-        CD->TSD_prepconc = (TSD *) malloc (sizeof (TSD));
+        CD->TSD_prepconc = (TSD *) malloc(sizeof (TSD));
 
-        fscanf (prepconc, "%s %d %d", &(CD->TSD_prepconc->name),
+        fscanf(prepconc, "%s %d %d", &(CD->TSD_prepconc->name),
             &(CD->TSD_prepconc->index), &(CD->TSD_prepconc->length));
 
         CD->prepconcindex =
-            (int *)malloc (CD->TSD_prepconc->index * sizeof (int));
+            (int *)malloc(CD->TSD_prepconc->index * sizeof (int));
         // here prepconc.index is used to save the number of primary species. Must be equal to the number of primary species specified before.
         for (i = 0; i < CD->TSD_prepconc->index; i++)
         {
-            fscanf (prepconc, "%d", &(CD->prepconcindex[i]));
+            fscanf(prepconc, "%d", &(CD->prepconcindex[i]));
             if (CD->prepconcindex[i] > 0)
             {
-                assert (CD->prepconcindex[i] <= CD->NumSpc);
-                fprintf (stderr,
+                assert(CD->prepconcindex[i] <= CD->NumSpc);
+                fprintf(stderr,
                     " Concentration of %s specified in input file is a time series\n",
                     CD->chemtype[CD->prepconcindex[i] - 1].ChemName);
             }
@@ -1387,23 +1372,23 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
 
 
         CD->TSD_prepconc->TS =
-            (realtype **) malloc ((CD->TSD_prepconc->length) *
+            (realtype **) malloc((CD->TSD_prepconc->length) *
             sizeof (realtype *));
         for (i = 0; i < CD->TSD_prepconc->length; i++)
         {
             CD->TSD_prepconc->TS[i] =
-                (realtype *) malloc ((1 + CD->TSD_prepconc->index) *
+                (realtype *) malloc((1 + CD->TSD_prepconc->index) *
                 sizeof (realtype));
-            fscanf (prepconc, "%d-%d-%d %d:%d:%d", &timeinfo->tm_year,
+            fscanf(prepconc, "%d-%d-%d %d:%d:%d", &timeinfo->tm_year,
                 &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour,
                 &timeinfo->tm_min, &timeinfo->tm_sec);
             timeinfo->tm_year = timeinfo->tm_year - 1900;
             timeinfo->tm_mon = timeinfo->tm_mon - 1;
-            rawtime = timegm (timeinfo);
+            rawtime = timegm(timeinfo);
             CD->TSD_prepconc->TS[i][0] = (realtype) rawtime;
             for (j = 0; j < CD->TSD_prepconc->index; j++)
             {
-                fscanf (prepconc, "%lf", &CD->TSD_prepconc->TS[i][j + 1]);      // [i][0] stores the time
+                fscanf(prepconc, "%lf", &CD->TSD_prepconc->TS[i][j + 1]);   // [i][0] stores the time
             }
             /*
              * fprintf(stderr, " %8.4f\t", CD->TSD_prepconc->TS[i][0] );
@@ -1417,19 +1402,19 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
     }
 
 
-    rewind (chemfile);
-    fgets (line, line_width, chemfile);
-    while (keymatch (line, "PUMP", tmpval, tmpstr) != 1)
-        fgets (line, line_width, chemfile);
+    rewind(chemfile);
+    fgets(line, line_width, chemfile);
+    while (keymatch(line, "PUMP", tmpval, tmpstr) != 1)
+        fgets(line, line_width, chemfile);
     CD->NumPUMP = tmpval[0];
-    fprintf (stderr, " %d pumps specified\n", CD->NumPUMP);
-    CD->pumps = (Pump *) malloc (CD->NumPUMP * sizeof (Pump));
+    fprintf(stderr, " %d pumps specified\n", CD->NumPUMP);
+    CD->pumps = (Pump *) malloc(CD->NumPUMP * sizeof (Pump));
     i = 0;
 
-    while (keymatch (line, "END", tmpval, tmpstr) != 1)
+    while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
-        fgets (line, line_width, chemfile);
-        if (keymatch (line, " ", tmpval, tmpstr) != 2)
+        fgets(line, line_width, chemfile);
+        if (keymatch(line, " ", tmpval, tmpstr) != 2)
         {
             CD->pumps[i].Pump_Location = (int)tmpval[0];
             CD->pumps[i].Injection_rate = (double)tmpval[1];
@@ -1437,8 +1422,8 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
             CD->pumps[i].flow_rate =
                 CD->pumps[i].Injection_rate / CD->pumps[i].Injection_conc /
                 365 * 1E-3;
-            CD->pumps[i].Name_Species = (char *)malloc (20 * sizeof (char));
-            strcpy (CD->pumps[i].Name_Species, tmpstr[1]);
+            CD->pumps[i].Name_Species = (char *)malloc(20 * sizeof (char));
+            strcpy(CD->pumps[i].Name_Species, tmpstr[1]);
             //      wrap(CD->pumps[i].Name_Species);
             CD->pumps[i].Position_Species = -1;
             for (j = 0; j < CD->NumStc; j++)
@@ -1449,12 +1434,12 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                     CD->pumps[i].Position_Species = j;
                 }
             }
-            fprintf (stderr,
+            fprintf(stderr,
                 " -- Rate %f moles/year of %s (%d) at Grid %d with a concentration of %f moles/L\n",
                 CD->pumps[i].Injection_rate, CD->pumps[i].Name_Species,
                 CD->pumps[i].Position_Species, CD->pumps[i].Pump_Location,
                 CD->pumps[i].Injection_conc);
-            fprintf (stderr, " -- Flow rate is then %f cubic meter per day\n",
+            fprintf(stderr, " -- Flow rate is then %f cubic meter per day\n",
                 CD->pumps[i].flow_rate);
             //      CD->pumps[i].Injection_rate *= 1E-3 / 365;
             i++;
@@ -1481,7 +1466,7 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
      * index = subscript + 1;
      */
 
-    CD->Vcele = (vol_conc *) malloc (CD->NumVol * sizeof (vol_conc));
+    CD->Vcele = (vol_conc *) malloc(CD->NumVol * sizeof (vol_conc));
 
 
     /* Initializing volumetric parameters, inherit from pihm
@@ -1530,7 +1515,7 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
         //      CD->Vcele[i].temperature = MD->Ele[i - MD->NumEle].temp;
         /* The saturation of unsaturated zone is the Hu divided by height of this cell */
         if (CD->Vcele[i].sat > 1.0)
-            fprintf (stderr,
+            fprintf(stderr,
                 "Fatal Error, Unsaturated Zone Initialization For RT Failed!\n");
         CD->Vcele[i].reset_ref = i - MD->NumEle + 1;
         // default reset reference of unsaturated cells are the groundwater cells underneath
@@ -1545,7 +1530,7 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
         CD->Vcele[i].height_t = CD->Vcele[i].height_o;
         CD->Vcele[i].area =
             MD->Riv[j].Length *
-            CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[j].shape - 1].interpOrd,
+            CS_AreaOrPerem(MD->Riv_Shape[MD->Riv[j].shape - 1].interpOrd,
             MD->DummyY[j + 3 * MD->NumEle], MD->Riv[j].coeff, 3);
         CD->Vcele[i].porosity = 1.0;
         CD->Vcele[i].sat = 1.0;
@@ -1567,7 +1552,7 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
         CD->Vcele[i].height_t = CD->Vcele[i].height_o;
         CD->Vcele[i].area =
             MD->Riv[j].Length *
-            CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[j].shape - 1].interpOrd,
+            CS_AreaOrPerem(MD->Riv_Shape[MD->Riv[j].shape - 1].interpOrd,
             MD->DummyY[j + 3 * MD->NumEle], MD->Riv[j].coeff, 3);
         CD->Vcele[i].porosity = 1.0;
         CD->Vcele[i].sat = 1.0;
@@ -1587,14 +1572,14 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
         tmpval[0] += CD->Vcele[i].height_v;
     }
     tmpval[0] = tmpval[0] / CD->NumEle;
-    fprintf (stderr, " Average bedrock depth is %f\n", tmpval[0]);
+    fprintf(stderr, " Average bedrock depth is %f\n", tmpval[0]);
 
 
 
     for (i = 0; i < CD->NumSpc; i++)
-        if (strcmp (CD->chemtype[i].ChemName, "pH") == 0)
+        if (strcmp(CD->chemtype[i].ChemName, "pH") == 0)
         {
-            strcpy (CD->chemtype[i].ChemName, "H+");
+            strcpy(CD->chemtype[i].ChemName, "H+");
             speciation_flg = 1;
         }
 
@@ -1620,15 +1605,15 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
         CD->Vcele[i].index = i + 1;
         CD->Vcele[i].NumStc = CD->NumStc;
         CD->Vcele[i].NumSsc = CD->NumSsc;
-        CD->Vcele[i].t_conc = (double *)malloc (CD->NumStc * sizeof (double));
-        CD->Vcele[i].t_rate = (double *)malloc (CD->NumStc * sizeof (double));
-        CD->Vcele[i].t_tol = (double *)malloc (CD->NumStc * sizeof (double));
-        CD->Vcele[i].p_conc = (double *)malloc (CD->NumStc * sizeof (double));
-        CD->Vcele[i].s_conc = (double *)malloc (CD->NumSsc * sizeof (double));
-        CD->Vcele[i].p_actv = (double *)malloc (CD->NumStc * sizeof (double));
-        CD->Vcele[i].s_actv = (double *)malloc (CD->NumSsc * sizeof (double));
-        CD->Vcele[i].p_para = (double *)malloc (CD->NumStc * sizeof (double));
-        CD->Vcele[i].p_type = (int *)malloc (CD->NumStc * sizeof (int));
+        CD->Vcele[i].t_conc = (double *)malloc(CD->NumStc * sizeof (double));
+        CD->Vcele[i].t_rate = (double *)malloc(CD->NumStc * sizeof (double));
+        CD->Vcele[i].t_tol = (double *)malloc(CD->NumStc * sizeof (double));
+        CD->Vcele[i].p_conc = (double *)malloc(CD->NumStc * sizeof (double));
+        CD->Vcele[i].s_conc = (double *)malloc(CD->NumSsc * sizeof (double));
+        CD->Vcele[i].p_actv = (double *)malloc(CD->NumStc * sizeof (double));
+        CD->Vcele[i].s_actv = (double *)malloc(CD->NumSsc * sizeof (double));
+        CD->Vcele[i].p_para = (double *)malloc(CD->NumStc * sizeof (double));
+        CD->Vcele[i].p_type = (int *)malloc(CD->NumStc * sizeof (int));
 
         //NewCell(&(CD->Vcele[i]), CD->NumStc, CD->NumSsc);
 
@@ -1645,10 +1630,10 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
         for (j = 0; j < CD->NumStc; j++)
         {
             if ((speciation_flg == 1)
-                && (strcmp (CD->chemtype[j].ChemName, "H+") == 0))
+                && (strcmp(CD->chemtype[j].ChemName, "H+") == 0))
             {
                 CD->Vcele[i].p_conc[j] =
-                    pow (10,
+                    pow(10,
                     -(Condition_vcele[condition_index[i + 1] - 1].t_conc[j]));
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].p_conc[j];
 
@@ -1699,13 +1684,13 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
     num_face += 2 * MD->NumEle + 6 * MD->NumRiv;
     // A river + EBR taks 6 faces
 
-    fprintf (stderr, " Total area of the watershed is %f m^2\n", total_area);
+    fprintf(stderr, " Total area of the watershed is %f m^2\n", total_area);
 
     CD->NumFac = num_face;
 
     /* Configure the lateral connectivity of gw grid blocks */
 
-    CD->Flux = (face *) malloc (CD->NumFac * sizeof (face));
+    CD->Flux = (face *) malloc(CD->NumFac * sizeof (face));
     k = 0;
 
     double          dist1, dist2, para_a, para_b, para_c, x_0, x_1, y_0, y_1;
@@ -1720,35 +1705,33 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                 CD->Flux[k].nodeup = i + 1;
                 CD->Flux[k].nodelo = MD->Ele[i].nabr[j];
                 CD->Flux[k].nodeuu =
-                    upstream (MD->Ele[i], MD->Ele[MD->Ele[i].nabr[j] - 1],
-                    MD);
+                    upstream(MD->Ele[i], MD->Ele[MD->Ele[i].nabr[j] - 1], MD);
                 CD->Flux[k].nodell =
-                    upstream (MD->Ele[MD->Ele[i].nabr[j] - 1], MD->Ele[i],
-                    MD);
+                    upstream(MD->Ele[MD->Ele[i].nabr[j] - 1], MD->Ele[i], MD);
                 CD->Flux[k].flux_type = 0;
                 CD->Flux[k].BC = 0;
                 if (CD->Flux[k].nodeuu > 0)
                     CD->Flux[k].distuu =
-                        sqrt (pow
+                        sqrt(pow
                         (MD->Ele[i].x - MD->Ele[CD->Flux[k].nodeuu - 1].x,
-                            2) + pow (MD->Ele[i].y -
+                            2) + pow(MD->Ele[i].y -
                             MD->Ele[CD->Flux[k].nodeuu - 1].y, 2));
                 else
                     CD->Flux[k].distuu = 0.0;
                 if (CD->Flux[k].nodell > 0)
                     CD->Flux[k].distll =
-                        sqrt (pow
+                        sqrt(pow
                         (MD->Ele[MD->Ele[i].nabr[j] - 1].x -
                             MD->Ele[CD->Flux[k].nodell - 1].x,
-                            2) + pow (MD->Ele[MD->Ele[i].nabr[j] - 1].y -
+                            2) + pow(MD->Ele[MD->Ele[i].nabr[j] - 1].y -
                             MD->Ele[CD->Flux[k].nodell - 1].y, 2));
                 else
                     CD->Flux[k].distll = 0.0;
 
                 CD->Flux[k].distance =
-                    sqrt (pow (MD->Ele[i].x - MD->Ele[MD->Ele[i].nabr[j] -
+                    sqrt(pow(MD->Ele[i].x - MD->Ele[MD->Ele[i].nabr[j] -
                             1].x,
-                        2) + pow (MD->Ele[i].y - MD->Ele[MD->Ele[i].nabr[j] -
+                        2) + pow(MD->Ele[i].y - MD->Ele[MD->Ele[i].nabr[j] -
                             1].y, 2));
 
 
@@ -1768,27 +1751,26 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                         para_c) * (para_a * MD->Ele[MD->Ele[i].nabr[j] -
                             1].x + para_b * MD->Ele[MD->Ele[i].nabr[j] -
                             1].y + para_c) > 0.0)
-                    fprintf (stderr,
-                        " two points at the same side of edge!\n");
+                    fprintf(stderr, " two points at the same side of edge!\n");
                 dist1 =
-                    fabs (para_a * MD->Ele[i].x + para_b * MD->Ele[i].y +
-                    para_c) / sqrt (para_a * para_a + para_b * para_b);
+                    fabs(para_a * MD->Ele[i].x + para_b * MD->Ele[i].y +
+                    para_c) / sqrt(para_a * para_a + para_b * para_b);
                 dist2 =
-                    fabs (para_a * MD->Ele[MD->Ele[i].nabr[j] - 1].x +
+                    fabs(para_a * MD->Ele[MD->Ele[i].nabr[j] - 1].x +
                     para_b * MD->Ele[MD->Ele[i].nabr[j] - 1].y +
-                    para_c) / sqrt (para_a * para_a + para_b * para_b);
+                    para_c) / sqrt(para_a * para_a + para_b * para_b);
                 if ((CD->Flux[k].distance < dist1) ||
                     (CD->Flux[k].distance < dist2))
                 {
-                    fprintf (stderr,
+                    fprintf(stderr,
                         "\n Checking the distance calculation wrong, total is %f, from ele to edge is %f, from edge to neighbor is %f\n",
                         CD->Flux[k].distance, dist1, dist2);
-                    fprintf (stderr,
+                    fprintf(stderr,
                         " Ele coordinates, x: %f, y: %f\n Node_1 coordinates, x: %f, y: %f\n Node_2 coordinates, x: %f, y: %f\n Nabr x:%f, y:%f\n",
                         MD->Ele[i].x, MD->Ele[i].y, x_0, y_0, x_1, y_1,
                         MD->Ele[MD->Ele[i].nabr[j] - 1].x,
                         MD->Ele[MD->Ele[i].nabr[j] - 1].y);
-                    fprintf (stderr,
+                    fprintf(stderr,
                         " node_1 x:%f y:%f\t node_2 x:%f y:%f node_3 x:%f y:%f nabr x:%f y:%f, no:%d\n",
                         MD->Node[MD->Ele[i].node[0] - 1].x,
                         MD->Node[MD->Ele[i].node[0] - 1].y,
@@ -1839,34 +1821,34 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                 CD->Flux[k].nodeup = i + 1 + MD->NumEle;
                 CD->Flux[k].nodelo = MD->Ele[i].nabr[j] + MD->NumEle;
                 CD->Flux[k].nodeuu =
-                    upstream (MD->Ele[i], MD->Ele[MD->Ele[i].nabr[j] - 1],
+                    upstream(MD->Ele[i], MD->Ele[MD->Ele[i].nabr[j] - 1],
                     MD) + MD->NumEle;
                 CD->Flux[k].nodell =
-                    upstream (MD->Ele[MD->Ele[i].nabr[j] - 1], MD->Ele[i],
+                    upstream(MD->Ele[MD->Ele[i].nabr[j] - 1], MD->Ele[i],
                     MD) + MD->NumEle;
                 CD->Flux[k].flux_type = 0;
                 CD->Flux[k].BC = 0;
                 if (CD->Flux[k].nodeuu > 0)
                     CD->Flux[k].distuu =
-                        sqrt (pow
+                        sqrt(pow
                         (MD->Ele[i].x - MD->Ele[CD->Flux[k].nodeuu - 1].x,
-                            2) + pow (MD->Ele[i].y -
+                            2) + pow(MD->Ele[i].y -
                             MD->Ele[CD->Flux[k].nodeuu - 1].y, 2));
                 else
                     CD->Flux[k].distuu = 0.0;
                 if (CD->Flux[k].nodell > 0)
                     CD->Flux[k].distll =
-                        sqrt (pow
+                        sqrt(pow
                         (MD->Ele[MD->Ele[i].nabr[j] - 1].x -
                             MD->Ele[CD->Flux[k].nodell - 1].x,
-                            2) + pow (MD->Ele[MD->Ele[i].nabr[j] - 1].y -
+                            2) + pow(MD->Ele[MD->Ele[i].nabr[j] - 1].y -
                             MD->Ele[CD->Flux[k].nodell - 1].y, 2));
                 else
                     CD->Flux[k].distll = 0.0;
                 CD->Flux[k].distance =
-                    sqrt (pow (MD->Ele[i].x - MD->Ele[MD->Ele[i].nabr[j] -
+                    sqrt(pow(MD->Ele[i].x - MD->Ele[MD->Ele[i].nabr[j] -
                             1].x,
-                        2) + pow (MD->Ele[i].y - MD->Ele[MD->Ele[i].nabr[j] -
+                        2) + pow(MD->Ele[i].y - MD->Ele[MD->Ele[i].nabr[j] -
                             1].y, 2));
                 index_0 = MD->Ele[i].node[(j + 1) % 3] - 1;
                 index_1 = MD->Ele[i].node[(j + 2) % 3] - 1;
@@ -1878,12 +1860,12 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
                 para_b = x_0 - x_1;
                 para_c = (x_1 - x_0) * y_0 - (y_1 - y_0) * x_0;
                 dist1 =
-                    fabs (para_a * MD->Ele[i].x + para_b * MD->Ele[i].y +
-                    para_c) / sqrt (para_a * para_a + para_b * para_b);
+                    fabs(para_a * MD->Ele[i].x + para_b * MD->Ele[i].y +
+                    para_c) / sqrt(para_a * para_a + para_b * para_b);
                 dist2 =
-                    fabs (para_a * MD->Ele[MD->Ele[i].nabr[j] - 1].x +
+                    fabs(para_a * MD->Ele[MD->Ele[i].nabr[j] - 1].x +
                     para_b * MD->Ele[MD->Ele[i].nabr[j] - 1].y +
-                    para_c) / sqrt (para_a * para_a + para_b * para_b);
+                    para_c) / sqrt(para_a * para_a + para_b * para_b);
                 CD->Flux[k].distance = dist1;
                 for (rivi = 0; rivi < CD->NumRiv; rivi++)
                 {
@@ -2145,7 +2127,7 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
 
 
     CD->SPCFlg = speciation_flg;
-    Lookup (database, CD, 0);
+    Lookup(database, CD, 0);
     // update the concentration of mineral after get the molar volume of mineral
 
     for (i = 0; i < CD->NumAkr + CD->NumMkr; i++)
@@ -2154,11 +2136,11 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
             (CD->chemtype[i + CD->NumSpc + CD->NumAds + CD->NumCex].ChemName,
                 "'CO2(*g)'"))
         {
-            CD->KeqKinect[i] += log10 (CS->Cal.PCO2);
+            CD->KeqKinect[i] += log10(CS->Cal.PCO2);
         }
         else
         {
-            CD->KeqKinect[i] += log10 (CS->Cal.Keq);
+            CD->KeqKinect[i] += log10(CS->Cal.Keq);
         }
     }
 
@@ -2166,29 +2148,29 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
 
     for (i = 0; i < CD->NumStc; i++)
     {
-        fprintf (stderr, " Conc and SSA of each species: %6.4g %6.4g\n",
+        fprintf(stderr, " Conc and SSA of each species: %6.4g %6.4g\n",
             CD->Vcele[200].t_conc[i], CD->Vcele[200].p_para[i]);
     }
 
-    fprintf (stderr, " Kinetic Mass Matrx!\n\t\t");
+    fprintf(stderr, " Kinetic Mass Matrx!\n\t\t");
     for (i = 0; i < CD->NumStc; i++)
-        fprintf (stderr, " %6s\t", CD->chemtype[i].ChemName);
-    fprintf (stderr, "\n");
+        fprintf(stderr, " %6s\t", CD->chemtype[i].ChemName);
+    fprintf(stderr, "\n");
     for (j = 0; j < CD->NumMkr + CD->NumAkr; j++)
     {
-        fprintf (stderr, " %6s\t",
+        fprintf(stderr, " %6s\t",
             CD->chemtype[j + CD->NumSpc + CD->NumAds + CD->NumCex].ChemName);
         for (i = 0; i < CD->NumStc; i++)
         {
-            fprintf (stderr, " %6.2f\t", CD->Dep_kinetic[j][i]);
+            fprintf(stderr, " %6.2f\t", CD->Dep_kinetic[j][i]);
         }
-        fprintf (stderr, "\tKeq = %6.2f\n", CD->KeqKinect[j]);
+        fprintf(stderr, "\tKeq = %6.2f\n", CD->KeqKinect[j]);
     }
     // use calibration coefficient to produce new Keq values for 1) CO2, 2) other kinetic reaction
 
 
 
-    fprintf (stderr,
+    fprintf(stderr,
         " Mass action species type determination (0: immobile, 1: mobile, 2: Mixed)\n");
     for (i = 0; i < CD->NumSpc; i++)
     {
@@ -2206,16 +2188,16 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
          * if (strcmp( CD->chemtype[i].ChemName, "'H+'") == 0)
          * CD->chemtype[i].mtype = 1;
          */
-        fprintf (stderr, " %12s\t%10d\n", CD->chemtype[i].ChemName,
+        fprintf(stderr, " %12s\t%10d\n", CD->chemtype[i].ChemName,
             CD->chemtype[i].mtype);
     }
 
 
-    fprintf (stderr,
+    fprintf(stderr,
         " Individual species type determination (1: aqueous, 2: adsorption, 3: ion exchange, 4: solid)\n");
     for (i = 0; i < CD->NumStc + CD->NumSsc; i++)
     {
-        fprintf (stderr, " %12s\t%10d\n", CD->chemtype[i].ChemName,
+        fprintf(stderr, " %12s\t%10d\n", CD->chemtype[i].ChemName,
             CD->chemtype[i].itype);
     }
 
@@ -2266,7 +2248,7 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
     {
 
         for (i = 0; i < CD->NumEle; i++)
-            Speciation (CD, i);
+            Speciation(CD, i);
     }
     CD->SPCFlg = 0;
 
@@ -2327,43 +2309,43 @@ chem_alloc (char *filename, const void *DS, const Control_Data CS,
 
     for (i = 0; i < num_conditions; i++)
     {
-        free (Condition_vcele[i].t_conc);
-        free (Condition_vcele[i].p_conc);
-        free (Condition_vcele[i].p_para);
-        free (Condition_vcele[i].p_type);
+        free(Condition_vcele[i].t_conc);
+        free(Condition_vcele[i].p_conc);
+        free(Condition_vcele[i].p_para);
+        free(Condition_vcele[i].p_type);
     }
 
-    free (Condition_vcele);
+    free(Condition_vcele);
 
 
     for (i = 0; i < num_conditions; i++)
-        free (chemcon[i]);
-    free (chemcon);
+        free(chemcon[i]);
+    free(chemcon);
 
 
     for (i = 0; i < num_conditions + 1; i++)
     {
         for (j = 0; j < CD->NumStc; j++)
-            free (con_chem_name[i][j]);
-        free (con_chem_name[i]);
+            free(con_chem_name[i][j]);
+        free(con_chem_name[i]);
     }
-    free (con_chem_name);
+    free(con_chem_name);
 
 
-    free (chemfn);
-    free (datafn);
-    free (forcfn);
-    free (condition_index);
+    free(chemfn);
+    free(datafn);
+    free(forcfn);
+    free(condition_index);
 
 
-    fclose (chemfile);
-    fclose (database);
-    fclose (prepconc);
+    fclose(chemfile);
+    fclose(database);
+    fclose(prepconc);
 
 }
 
 void
-fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
+fluxtrans(realtype t, realtype stepsize, const void *DS, Chem_Data CD,
     N_Vector VY)
 {
 
@@ -2384,10 +2366,10 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
     k = 0;
     MF_CONVERT = (realtype) (24 * 60 * 60);
     rt_step = stepsize * (double)CD->AvgScl;    // by default, the largest averaging period is per 10 mins. Longer default averaging value will fail
-    Y = NV_DATA_S (VY);
-    rawtime = (time_t *) malloc (sizeof (time_t));
+    Y = NV_DATA_S(VY);
+    rawtime = (time_t *)malloc(sizeof (time_t));
     *rawtime = (int)(t * 60);
-    timestamp = gmtime (rawtime);
+    timestamp = gmtime(rawtime);
     timelps = (t - CD->StartTime);
     Model_Data      MD;
     MD = (Model_Data) DS;
@@ -2397,7 +2379,7 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
     {
         j = i - NumEle;
         CD->Vcele[i].q +=
-            MAX (MD->ElePrep[j], 0.0) * CD->Vcele[i].area * MF_CONVERT;
+            MAX(MD->ElePrep[j], 0.0) * CD->Vcele[i].area * MF_CONVERT;
     }
 
 
@@ -2536,13 +2518,12 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
                 {
                     j = CD->prepconcindex[i] - 1;
                     if (CD->Precipitation.t_conc[j] !=
-                        CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][i +
-                            1])
+                        CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][i + 1])
                     {
                         CD->Precipitation.t_conc[j] =
-                            CD->TSD_prepconc->TS[CD->TSD_prepconc->
-                            iCounter][i + 1];
-                        fprintf (stderr,
+                            CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][i +
+                            1];
+                        fprintf(stderr,
                             " %s in precipitation is changed to %6.4g\n",
                             CD->chemtype[j].ChemName,
                             CD->Precipitation.t_conc[j]);
@@ -2585,7 +2566,7 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
         for (i = 0; i < NumEle; i++)
         {
             CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_t = MAX (Y[i + 2 * NumEle], 1.0E-5);
+            CD->Vcele[i].height_t = MAX(Y[i + 2 * NumEle], 1.0E-5);
             CD->Vcele[i].height_int = CD->Vcele[i].height_t;
             CD->Vcele[i].height_sp =
                 (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
@@ -2598,7 +2579,7 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
         {
             j = i - NumEle;
             CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_t = MAX (Y[i], 1.0E-5);
+            CD->Vcele[i].height_t = MAX(Y[i], 1.0E-5);
             CD->Vcele[i].height_int = CD->Vcele[i].height_t;
             CD->Vcele[i].height_sp =
                 (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
@@ -2616,13 +2597,13 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
         {
             j = i - 2 * NumEle;
             CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_t = MAX (Y[i + NumEle], 1.0E-5);
+            CD->Vcele[i].height_t = MAX(Y[i + NumEle], 1.0E-5);
             CD->Vcele[i].height_int = CD->Vcele[i].height_t;
             CD->Vcele[i].height_sp =
                 (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
             CD->Vcele[i].area =
                 MD->Riv[j].Length *
-                CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[j].shape - 1].interpOrd,
+                CS_AreaOrPerem(MD->Riv_Shape[MD->Riv[j].shape - 1].interpOrd,
                 Y[j + 3 * NumEle], MD->Riv[j].coeff, 3);
             CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
             CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
@@ -2633,21 +2614,21 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
             j = i - 2 * NumEle - MD->NumRiv;
             CD->Vcele[i].height_o = CD->Vcele[i].height_t;
             CD->Vcele[i].height_t =
-                MAX (Y[i + NumEle],
-                1.0E-5) + MAX (Y[i + NumEle - MD->NumRiv],
+                MAX(Y[i + NumEle],
+                1.0E-5) + MAX(Y[i + NumEle - MD->NumRiv],
                 1.0E-5) / CD->Vcele[i].porosity;
             CD->Vcele[i].height_int = CD->Vcele[i].height_t;
             CD->Vcele[i].height_sp =
                 (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
             CD->Vcele[i].area =
                 MD->Riv[j].Length *
-                CS_AreaOrPerem (MD->Riv_Shape[MD->Riv[j].shape - 1].interpOrd,
+                CS_AreaOrPerem(MD->Riv_Shape[MD->Riv[j].shape - 1].interpOrd,
                 Y[j + 3 * NumEle], MD->Riv[j].coeff, 3);
             CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
             CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
         }
 
-        Monitor (t, stepsize * (double)CD->AvgScl, MD, CD);
+        Monitor(t, stepsize * (double)CD->AvgScl, MD, CD);
 
         for (k = 0; k < CD->NumStc; k++)
         {
@@ -2680,20 +2661,20 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
             for (j = 0; j < CD->NumSpc; j++)
             {
                 peclet =
-                    fabs (CD->Flux[i].velocity * CD->Flux[i].distance /
+                    fabs(CD->Flux[i].velocity * CD->Flux[i].distance /
                     (CD->chemtype[j].DiffCoe +
                         CD->chemtype[j].DispCoe * CD->Flux[i].velocity));
-                peclet = MAX (peclet, 1.0E-8);
+                peclet = MAX(peclet, 1.0E-8);
                 if (i < CD->NumDis)
                 {
                     temp_rt_step =
-                        fabs (CD->Flux[i].flux /
+                        fabs(CD->Flux[i].flux /
                         CD->Vcele[CD->Flux[i].nodeup - 1].vol) * (1 +
                         peclet) / peclet;
                 }
                 else
                     temp_rt_step =
-                        fabs (CD->Flux[i].flux /
+                        fabs(CD->Flux[i].flux /
                         CD->Vcele[CD->Flux[i].nodeup - 1].vol);
                 CD->Vcele[CD->Flux[i].nodeup - 1].rt_step += temp_rt_step;
             }
@@ -2734,7 +2715,7 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
 
             //      fprintf (stderr," Calling RT from %f to %f, mean timestep = %f\n", CD->TimLst, stepsize * (double)CD->AvgScl + CD->TimLst, invavg);
             rt_step = stepsize * (double)CD->AvgScl;
-            AdptTime (CD, CD->TimLst, rt_step, stepsize * (double)CD->AvgScl,
+            AdptTime(CD, CD->TimLst, rt_step, stepsize * (double)CD->AvgScl,
                 &rt_step, NumEle * 2);
             // AdptTime(CD, CD->TimLst, stepsize * (double)CD->AvgScl , stepsize * (double)CD->AvgScl, &rt_step, NumEle * 2);
 
@@ -2762,8 +2743,7 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
                             CD->Vcele[i +
                                 NumEle].t_conc[j] *
                             (CD->Vcele[i].height_v -
-                                CD->Vcele[i].height_t)) /
-                            CD->Vcele[i].height_v;
+                                CD->Vcele[i].height_t)) / CD->Vcele[i].height_v;
                         CD->Vcele[i + NumEle].t_conc[j] =
                             CD->Vcele[i].t_conc[j];
                         CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
@@ -2776,17 +2756,17 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
 
             for (i = 0; i < CD->NumOsv; i++)
             {
-                if (fabs (CD->Vcele[i].height_t - CD->Vcele[i].height_int) >
+                if (fabs(CD->Vcele[i].height_t - CD->Vcele[i].height_int) >
                     1.0E-6)
-                    fprintf (stderr, "%d %6.4f\t%6.4f\n", i,
+                    fprintf(stderr, "%d %6.4f\t%6.4f\n", i,
                         CD->Vcele[i].height_t, CD->Vcele[i].height_int);
-                assert (fabs (CD->Vcele[i].height_t -
+                assert(fabs(CD->Vcele[i].height_t -
                         CD->Vcele[i].height_int) < 1.0E-6);
                 if (CD->Vcele[i].illness >= 20)
                 {
                     for (j = 0; j < CD->NumStc; j++)
                         CD->Vcele[i].t_conc[j] = 1.0E-10;
-                    fprintf (stderr,
+                    fprintf(stderr,
                         " Cell %d isolated due to proneness to err!\n",
                         CD->Vcele[i].index);
                 }
@@ -2795,7 +2775,7 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
         }
         /* step control ends */
 
-        chem_updater (CD, MD);  /* update essential chem/physical information for pihm */
+        chem_updater(CD, MD);   /* update essential chem/physical information for pihm */
         CD->TimLst = timelps;
 
         for (i = NumEle; i < 2 * NumEle; i++)
@@ -2819,41 +2799,41 @@ fluxtrans (realtype t, realtype stepsize, const void *DS, Chem_Data CD,
             CD->Flux[k].velocity = 0.0;
         }                       // for riv cells, contact area is not needed;
     }
-    free (rawtime);
+    free(rawtime);
 
 }
 
-void InitialChemFile (char *filename, int NumBTC, int *BTC_loc)
+void InitialChemFile(char *filename, int NumBTC, int *BTC_loc)
 {
 
     FILE           *Cfile[10];
     char           *cfn[10];
     int             i;
 
-    cfn[0] = (char *)malloc ((strlen (filename) + 20) * sizeof (char));
-    sprintf (cfn[0], "output/%s.conc", filename);
-    cfn[1] = (char *)malloc ((strlen (filename) + 20) * sizeof (char));
-    sprintf (cfn[1], "output/%s.gwt", filename);
-    cfn[2] = (char *)malloc ((strlen (filename) + 20) * sizeof (char));
-    sprintf (cfn[2], "output/%s.btcv", filename);
+    cfn[0] = (char *)malloc((strlen(filename) + 20) * sizeof (char));
+    sprintf(cfn[0], "output/%s.conc", filename);
+    cfn[1] = (char *)malloc((strlen(filename) + 20) * sizeof (char));
+    sprintf(cfn[1], "output/%s.gwt", filename);
+    cfn[2] = (char *)malloc((strlen(filename) + 20) * sizeof (char));
+    sprintf(cfn[2], "output/%s.btcv", filename);
     for (i = 3; i < 3 + NumBTC; i++)
     {
-        cfn[i] = (char *)malloc ((strlen (filename) + 20) * sizeof (char));
-        sprintf (cfn[i], "output/%s%d.btcv", filename, BTC_loc[i - 3]);
+        cfn[i] = (char *)malloc((strlen(filename) + 20) * sizeof (char));
+        sprintf(cfn[i], "output/%s%d.btcv", filename, BTC_loc[i - 3]);
     }
 
     for (i = 0; i < 3 + NumBTC; i++)
     {
-        Cfile[i] = fopen (cfn[i], "w");
-        free (cfn[i]);
-        fclose (Cfile[i]);
+        Cfile[i] = fopen(cfn[i], "w");
+        free(cfn[i]);
+        fclose(Cfile[i]);
     }
 
 
 }
 
 
-void PrintChem (char *filename, Chem_Data CD, realtype t)
+void PrintChem(char *filename, Chem_Data CD, realtype t)
 {
 
     FILE           *Cfile[10];
@@ -2865,9 +2845,9 @@ void PrintChem (char *filename, Chem_Data CD, realtype t)
 
     NumEle = CD->NumEle;
     NumVol = CD->NumVol;
-    rawtime = (time_t *) malloc (sizeof (time_t));
+    rawtime = (time_t *)malloc(sizeof (time_t));
     *rawtime = (int)(t * 60);
-    timestamp = gmtime (rawtime);
+    timestamp = gmtime(rawtime);
     timelps = t - CD->StartTime;
 
     if ((int)timelps % (720) == 0)
@@ -2883,76 +2863,69 @@ void PrintChem (char *filename, Chem_Data CD, realtype t)
                         CD->Vcele[j].p_conc[i] = CD->Vcele[j].t_conc[i];
                     else
                         CD->Vcele[j].p_conc[i] =
-                            fabs (CD->Vcele[j].t_conc[i] * 0.1);
+                            fabs(CD->Vcele[j].t_conc[i] * 0.1);
             }
         }
         if (!CD->RecFlg)
             for (i = NumEle * 2 + CD->NumRiv; i < CD->NumOsv; i++)
-                Speciation (CD, i);
+                Speciation(CD, i);
         else
             for (i = 0; i < CD->NumOsv; i++)
-                Speciation (CD, i);
+                Speciation(CD, i);
     }
 
     if ((int)timelps % (CD->OutItv * 60) == 0)
     {
 
-        cfn[0] = (char *)malloc ((strlen (filename) + 12) * sizeof (char));
-        sprintf (cfn[0], "output/%s.conc", filename);
-        Cfile[0] = fopen (cfn[0], "a+");
-        cfn[1] = (char *)malloc ((strlen (filename) + 12) * sizeof (char));
-        sprintf (cfn[1], "output/%s.btcv", filename);
-        Cfile[1] = fopen (cfn[1], "a+");
-        cfn[2] = (char *)malloc ((strlen (filename) + 12) * sizeof (char));
-        sprintf (cfn[2], "output/%s.gwt", filename);
-        Cfile[2] = fopen (cfn[2], "a+");
+        cfn[0] = (char *)malloc((strlen(filename) + 12) * sizeof (char));
+        sprintf(cfn[0], "output/%s.conc", filename);
+        Cfile[0] = fopen(cfn[0], "a+");
+        cfn[1] = (char *)malloc((strlen(filename) + 12) * sizeof (char));
+        sprintf(cfn[1], "output/%s.btcv", filename);
+        Cfile[1] = fopen(cfn[1], "a+");
+        cfn[2] = (char *)malloc((strlen(filename) + 12) * sizeof (char));
+        sprintf(cfn[2], "output/%s.gwt", filename);
+        Cfile[2] = fopen(cfn[2], "a+");
         for (i = 3; i < 3 + CD->NumBTC; i++)
         {
-            cfn[i] =
-                (char *)malloc ((strlen (filename) + 20) * sizeof (char));
-            sprintf (cfn[i], "output/%s%d.btcv", filename,
-                CD->BTC_loc[i - 3]);
-            Cfile[i] = fopen (cfn[i], "a+");
+            cfn[i] = (char *)malloc((strlen(filename) + 20) * sizeof (char));
+            sprintf(cfn[i], "output/%s%d.btcv", filename, CD->BTC_loc[i - 3]);
+            Cfile[i] = fopen(cfn[i], "a+");
             if (Cfile[i] == NULL)
-                fprintf (stderr, " Output BTC not found \n");
+                fprintf(stderr, " Output BTC not found \n");
         }
 
 
-        fprintf (Cfile[0], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\n",
+        fprintf(Cfile[0], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\n",
             timestamp->tm_year + 1900, timestamp->tm_mon + 1,
             timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-        fprintf (Cfile[0], "Cell\t");
+        fprintf(Cfile[0], "Cell\t");
         for (i = 0; i < CD->NumStc; i++)
-            fprintf (Cfile[0], "%6s\t", CD->chemtype[i].ChemName);
+            fprintf(Cfile[0], "%6s\t", CD->chemtype[i].ChemName);
         for (i = 0; i < CD->NumSsc; i++)
-            fprintf (Cfile[0], "%6s\t",
-                CD->chemtype[i + CD->NumStc].ChemName);
-        fprintf (Cfile[0], "\n");
+            fprintf(Cfile[0], "%6s\t", CD->chemtype[i + CD->NumStc].ChemName);
+        fprintf(Cfile[0], "\n");
 
         for (i = 0; i < NumEle * 2; i++)
         {
-            fprintf (Cfile[0], "%d\t", i + 1);
+            fprintf(Cfile[0], "%d\t", i + 1);
             for (j = 0; j < CD->NumStc; j++)
-                fprintf (Cfile[0], "%12.8f\t",
-                    log10 (CD->Vcele[i].p_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[i].p_conc[j]));
             for (j = 0; j < CD->NumSsc; j++)
-                fprintf (Cfile[0], "%12.8f\t",
-                    log10 (CD->Vcele[i].s_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[i].s_conc[j]));
 
-            fprintf (Cfile[0], "\n");
+            fprintf(Cfile[0], "\n");
         }
 
         for (i = NumEle * 2; i < CD->NumOsv; i++)
         {
-            fprintf (Cfile[0], "%d\t", i + 1);
+            fprintf(Cfile[0], "%d\t", i + 1);
             for (j = 0; j < CD->NumStc; j++)
-                fprintf (Cfile[0], "%12.8f\t",
-                    log10 (CD->Vcele[i].p_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[i].p_conc[j]));
             for (j = 0; j < CD->NumSsc; j++)
-                fprintf (Cfile[0], "%12.8f\t",
-                    log10 (CD->Vcele[i].s_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[i].s_conc[j]));
 
-            fprintf (Cfile[0], "\n");
+            fprintf(Cfile[0], "\n");
         }
 
         // Output the breakthrough curves "stream chemistry"
@@ -2960,23 +2933,23 @@ void PrintChem (char *filename, Chem_Data CD, realtype t)
 
         if (t == CD->StartTime + CD->OutItv * 60)
         {
-            fprintf (Cfile[1], "\t\t\t");
+            fprintf(Cfile[1], "\t\t\t");
             for (i = 0; i < CD->NumStc; i++)
-                fprintf (Cfile[1], "%6s\t", CD->chemtype[i].ChemName);
+                fprintf(Cfile[1], "%6s\t", CD->chemtype[i].ChemName);
             for (i = 0; i < CD->NumSsc; i++)
-                fprintf (Cfile[1], "%6s\t",
+                fprintf(Cfile[1], "%6s\t",
                     CD->chemtype[i + CD->NumStc].ChemName);
-            fprintf (Cfile[1], "\n");
+            fprintf(Cfile[1], "\n");
         }
         /* print the header of file if first time entered */
-        fprintf (Cfile[1], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",
+        fprintf(Cfile[1], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",
             timestamp->tm_year + 1900, timestamp->tm_mon + 1,
             timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
         for (j = 0; j < CD->NumStc; j++)
-            fprintf (Cfile[1], "%12.8f\t", log10 (CD->Vcele[1109].p_conc[j]));
+            fprintf(Cfile[1], "%12.8f\t", log10(CD->Vcele[1109].p_conc[j]));
         for (j = 0; j < CD->NumSsc; j++)
-            fprintf (Cfile[1], "%12.8f\t", log10 (CD->Vcele[1109].s_conc[j]));
-        fprintf (Cfile[1], "\n");
+            fprintf(Cfile[1], "%12.8f\t", log10(CD->Vcele[1109].s_conc[j]));
+        fprintf(Cfile[1], "\n");
 
         /*
          * if ( t == CD->StartTime + CD->OutItv * 60){
@@ -2995,30 +2968,30 @@ void PrintChem (char *filename, Chem_Data CD, realtype t)
          * fprintf(Cfile[2], "%12.8f\t",log10(CD->Vcele[15].s_conc[j]));
          * fprintf(Cfile[2], "\n");
          */
-        fprintf (Cfile[2], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",
+        fprintf(Cfile[2], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",
             timestamp->tm_year + 1900, timestamp->tm_mon + 1,
             timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
         for (j = 0; j < NumEle * 2; j++)
         {
-            fprintf (Cfile[2], "%6.4f\t", CD->Vcele[j].height_t);
+            fprintf(Cfile[2], "%6.4f\t", CD->Vcele[j].height_t);
         }
-        fprintf (Cfile[2], "\n");
+        fprintf(Cfile[2], "\n");
 
 
         for (k = 3; k < 3 + CD->NumBTC; k++)
         {
             if (t == CD->StartTime + CD->OutItv * 60)
             {
-                fprintf (Cfile[k], "\t\t\t");
+                fprintf(Cfile[k], "\t\t\t");
                 for (i = 0; i < CD->NumStc; i++)
-                    fprintf (Cfile[k], "%6s\t", CD->chemtype[i].ChemName);
+                    fprintf(Cfile[k], "%6s\t", CD->chemtype[i].ChemName);
                 for (i = 0; i < CD->NumSsc; i++)
-                    fprintf (Cfile[k], "%6s\t",
+                    fprintf(Cfile[k], "%6s\t",
                         CD->chemtype[i + CD->NumStc].ChemName);
-                fprintf (Cfile[k], "\n");
+                fprintf(Cfile[k], "\n");
             }
             /* print the header of file if first time entered */
-            fprintf (Cfile[k], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",
+            fprintf(Cfile[k], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",
                 timestamp->tm_year + 1900, timestamp->tm_mon + 1,
                 timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
             for (j = 0; j < CD->NumStc; j++)
@@ -3033,34 +3006,33 @@ void PrintChem (char *filename, Chem_Data CD, realtype t)
                  * CD->pumps[i].flow_rate)));
                  * else
                  */
-                fprintf (Cfile[k], "%12.8f\t",
-                    log10 (CD->Vcele[CD->BTC_loc[k - 3]].t_conc[j]));
+                fprintf(Cfile[k], "%12.8f\t",
+                    log10(CD->Vcele[CD->BTC_loc[k - 3]].t_conc[j]));
             }
             for (j = 0; j < CD->NumSsc; j++)
-                fprintf (Cfile[k], "%12.8f\t",
-                    log10 (CD->Vcele[CD->BTC_loc[k - 3]].s_conc[j]));
-            fprintf (Cfile[k], "\n");
+                fprintf(Cfile[k], "%12.8f\t",
+                    log10(CD->Vcele[CD->BTC_loc[k - 3]].s_conc[j]));
+            fprintf(Cfile[k], "\n");
         }
 
         for (i = 0; i < 3 + CD->NumBTC; i++)
         {
-            free (cfn[i]);
-            fclose (Cfile[i]);
+            free(cfn[i]);
+            fclose(Cfile[i]);
         }
 
     }
-    free (rawtime);
+    free(rawtime);
 
 }
 
 void
-AdptTime (Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
+AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     double *start_step, int num_blocks)
 {
     double          stepsize, org_time, step_rst, end_time, substep;
     double          timer1, timer2;
-    int             i, j, k, m, nr_tmp, nr_max, int_flg, tot_nr, NumEle,
-        NumVol;
+    int             i, j, k, m, nr_tmp, nr_max, int_flg, tot_nr, NumEle, NumVol;
 
     NumEle = CD->NumEle;
     NumVol = CD->NumVol;
@@ -3106,7 +3078,7 @@ AdptTime (Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
             }
         }
 
-        timer1 = timer ();
+        timer1 = timer();
 
         for (i = 0; i < num_blocks; i++)
             for (j = 0; j < CD->NumSpc; j++)
@@ -3134,7 +3106,7 @@ AdptTime (Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
          * }
          * }
          */
-        OS3D (timelps, stepsize, CD);
+        OS3D(timelps, stepsize, CD);
 
 
         for (i = 0; i < num_blocks; i++)
@@ -3169,7 +3141,7 @@ AdptTime (Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
          * }
          */
 
-        timer2 = timer ();
+        timer2 = timer();
         //    fprintf(stderr, " takes %6.4f seconds\n", timer2- timer1);
 
         if (int_flg)
@@ -3177,12 +3149,11 @@ AdptTime (Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
             for (i = 0; i < NumVol; i++)
             {
                 CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-                CD->Vcele[i].vol_o =
-                    CD->Vcele[i].area * CD->Vcele[i].height_o;
+                CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
             }
         }
 
-        timer1 = timer ();
+        timer1 = timer();
         m = 0;
 
         if ((!CD->RecFlg)
@@ -3196,14 +3167,14 @@ AdptTime (Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                         (timelps - (CD->React_delay * stepsize),
                             stepsize * CD->React_delay, CD, i, &nr_tmp))
                     {
-                        fprintf (stderr,
+                        fprintf(stderr,
                             "  ---> React failed at cell %12d.\t",
                             CD->Vcele[i].index);
 
                         substep = 0.5 * stepsize;
                         k = 2;
 
-                        while (j = React (timelps, substep, CD, i, &nr_tmp))
+                        while (j = React(timelps, substep, CD, i, &nr_tmp))
                         {
                             substep = 0.5 * substep;
                             k = 2 * k;
@@ -3214,12 +3185,12 @@ AdptTime (Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                         if (j == 0)
                         {
                             tot_nr += nr_tmp;
-                            fprintf (stderr,
+                            fprintf(stderr,
                                 " Reaction passed with step equals to %f (1/%d)\n",
                                 substep, k);
                             for (j = 1; j < k; j++)
                             {
-                                React (timelps + j * substep, substep, CD, i,
+                                React(timelps + j * substep, substep, CD, i,
                                     &nr_tmp);
                                 tot_nr += nr_tmp;
                             }
@@ -3246,7 +3217,7 @@ AdptTime (Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                 tot_nr += nr_tmp;
             }
         }
-        timer2 = timer ();
+        timer2 = timer();
         timelps += stepsize;
         if (timelps >= org_time + hydro_step)
             break;
@@ -3255,7 +3226,7 @@ AdptTime (Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     if ((!CD->RecFlg)
         && ((int)(timelps) % (int)(CD->React_delay * stepsize) == 0))
     {
-        fprintf (stderr,
+        fprintf(stderr,
             "  React from %f to %f, Temp:%f/%f, Average NR taken: %f, time elapsed %6.4f seconds\n",
             timelps - (CD->React_delay * stepsize), timelps,
             CD->Temperature_avg, CD->Temperature + 273.15,
@@ -3263,6 +3234,6 @@ AdptTime (Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     }
 }
 
-void chem_updater (Chem_Data CD, void *DS)
+void chem_updater(Chem_Data CD, void *DS)
 {
 }

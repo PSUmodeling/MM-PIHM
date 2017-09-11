@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
+void BgcSpinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 {
     int             i;
     int             spinyears = 0;
@@ -8,34 +8,33 @@ void BgcSpinup (pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
     int             steady;
     double          metyears;
 
-    metyears =
-        (pihm->ctrl.endtime - pihm->ctrl.starttime) / DAYINSEC / 365;
+    metyears = (pihm->ctrl.endtime - pihm->ctrl.starttime) / DAYINSEC / 365;
 
     do
     {
-        PIHMprintf (VL_NORMAL, "Spinup year: %6d\n", spinyears + 1);
+        PIHMprintf(VL_NORMAL, "Spinup year: %6d\n", spinyears + 1);
 
-        ResetSpinupStat (pihm->elem);
+        ResetSpinupStat(pihm->elem);
 
         for (i = 0; i < pihm->ctrl.nstep; i++)
         {
-            PIHM (pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
+            PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
                 pihm->ctrl.tout[i + 1]);
         }
 
         /* Reset solver parameters */
-        SetCVodeParam (pihm, cvode_mem, CV_Y);
+        SetCVodeParam(pihm, cvode_mem, CV_Y);
 
         spinyears += metyears;
 
-        steady = CheckBgcSS (pihm->elem, pihm->siteinfo.area,first_spin_cycle,
+        steady = CheckBgcSS(pihm->elem, pihm->siteinfo.area, first_spin_cycle,
             pihm->ctrl.endtime - pihm->ctrl.starttime, spinyears);
 
         first_spin_cycle = 0;
     } while (spinyears < pihm->ctrl.maxspinyears);
 }
 
-void ResetSpinupStat (elem_struct *elem)
+void ResetSpinupStat(elem_struct *elem)
 {
     int             i;
 
@@ -46,7 +45,7 @@ void ResetSpinupStat (elem_struct *elem)
     }
 }
 
-int CheckBgcSS (elem_struct *elem, double total_area, int first_cycle,
+int CheckBgcSS(elem_struct *elem, double total_area, int first_cycle,
     int totalt, int spinyears)
 {
     int             i;
@@ -70,11 +69,11 @@ int CheckBgcSS (elem_struct *elem, double total_area, int first_cycle,
         t1 = (soilc - soilc_prev) / (double)(totalt / DAYINSEC / 365);
 
         /* Check if domain reaches steady state */
-        steady = (fabs (t1) < SPINUP_TOLERANCE);
+        steady = (fabs(t1) < SPINUP_TOLERANCE);
 
-        PIHMprintf (VL_NORMAL,
-                "spinyears = %d soilc_prev = %lg soilc = %lg pdif = %lg\n",
-                spinyears, soilc_prev, soilc, t1);
+        PIHMprintf(VL_NORMAL,
+            "spinyears = %d soilc_prev = %lg soilc = %lg pdif = %lg\n",
+            spinyears, soilc_prev, soilc, t1);
     }
     else
     {
@@ -85,9 +84,9 @@ int CheckBgcSS (elem_struct *elem, double total_area, int first_cycle,
 
     if (steady)
     {
-        PIHMprintf (VL_NORMAL, "Reaches steady state after %d year.\n",
+        PIHMprintf(VL_NORMAL, "Reaches steady state after %d year.\n",
             spinyears);
     }
 
-    return (steady);
+    return steady;
 }

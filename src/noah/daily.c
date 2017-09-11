@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void DailyVar (int t, int start_time, pihm_struct pihm)
+void DailyVar(int t, int start_time, pihm_struct pihm)
 {
     int             i;
 
@@ -8,12 +8,12 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
      * Cumulates daily variables
      */
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int         k;
-        elem_struct *elem;
+        int             k;
+        elem_struct    *elem;
 
         elem = &pihm->elem[i];
 
@@ -70,13 +70,13 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
 
 #ifdef _CYCLES_
     /* River segments */
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
+# ifdef _OPENMP
+#  pragma omp parallel for
+# endif
     for (i = 0; i < nriver; i++)
     {
-        river_struct *riv;
-        int         j;
+        river_struct   *riv;
+        int             j;
 
         riv = &pihm->riv[i];
 
@@ -98,12 +98,12 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
     if ((t - start_time) % DAYINSEC == 0 && t > start_time)
     {
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
         for (i = 0; i < nelem; i++)
         {
-            int     k;
-            elem_struct *elem;
+            int             k;
+            elem_struct    *elem;
 
             elem = &pihm->elem[i];
 
@@ -143,13 +143,13 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
         }
 
 #ifdef _CYCLES_
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
+# ifdef _OPENMP
+#  pragma omp parallel for
+# endif
         for (i = 0; i < nriver; i++)
         {
-            int     j;
-            river_struct *riv;
+            int             j;
+            river_struct   *riv;
 
             riv = &pihm->riv[i];
 
@@ -165,17 +165,17 @@ void DailyVar (int t, int start_time, pihm_struct pihm)
     }
 }
 
-void InitDailyStruct (pihm_struct pihm)
+void InitDailyStruct(pihm_struct pihm)
 {
     int             i;
 
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int         k;
-        elem_struct *elem;
+        int             k;
+        elem_struct    *elem;
 
         elem = &pihm->elem[i];
 
@@ -212,13 +212,13 @@ void InitDailyStruct (pihm_struct pihm)
     }
 
 #ifdef _CYCLES_
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
+# ifdef _OPENMP
+#  pragma omp parallel for
+# endif
     for (i = 0; i < nriver; i++)
     {
-        int         k;
-        river_struct *riv;
+        int             k;
+        river_struct   *riv;
 
         riv = &pihm->riv[i];
 

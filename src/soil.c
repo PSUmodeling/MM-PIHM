@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-double FieldCapacity (double alpha, double beta, double kv, double smcmax,
+double FieldCapacity(double alpha, double beta, double kv, double smcmax,
     double smcmin)
 {
     /*
@@ -32,19 +32,19 @@ double FieldCapacity (double alpha, double beta, double kv, double smcmax,
     {
         n++;
 
-        df = KrFunc (alpha, beta, satn) - KFC / kv;
+        df = KrFunc(alpha, beta, satn) - KFC / kv;
 
-        ftheta = 1.0 - pow (satn, 1.0 / mx);
+        ftheta = 1.0 - pow(satn, 1.0 / mx);
 
-        denom = 0.5 * pow (satn, -0.5) * pow (1.0 - pow (ftheta, mx), 2.0) +
-            2.0 * pow (satn, 1.0 / mx - 0.5) * (pow (ftheta,
-                mx - 1.0) - pow (ftheta, 2.0 * mx - 1.0));
+        denom = 0.5 * pow(satn, -0.5) * pow(1.0 - pow(ftheta, mx), 2.0) +
+            2.0 * pow(satn, 1.0 / mx - 0.5) *
+            (pow(ftheta, mx - 1.0) - pow(ftheta, 2.0 * mx - 1.0));
 
         satnk = satn - df / denom;
         satnk = (satnk > 1.0 - 1.0E-3) ? 1.0 - 1.0E-3 : satnk;
         satnk = (satnk < SATMIN) ? SATMIN : satnk;
 
-        dsatn = fabs (satnk - satn);
+        dsatn = fabs(satnk - satn);
 
         satn = satnk;
     }
@@ -56,18 +56,18 @@ double FieldCapacity (double alpha, double beta, double kv, double smcmax,
 
     smcref = (1.0 / 3.0 + 2.0 / 3.0 * satn) * (smcmax - smcmin) + smcmin;
 
-    return (smcref);
+    return smcref;
 }
 
-double WiltingPoint (double smcmax, double smcmin, double alpha, double beta)
+double WiltingPoint(double smcmax, double smcmin, double alpha, double beta)
 {
     const double    PSIW = 200.0;
 
-    return (0.5 * (smcmax - smcmin) * pow (1.0 / (1.0 + pow (PSIW * alpha,
-                    beta)), 1.0 - 1.0 / beta) + smcmin);
+    return 0.5 * (smcmax - smcmin) *
+        pow(1.0 / (1.0 + pow(PSIW * alpha, beta)), 1.0 - 1.0 / beta) + smcmin;
 }
 
-int SoilTex (double silt, double clay)
+int SoilTex(double silt, double clay)
 {
     /*
      * Define soil texture using USDA Textural Classes
@@ -82,24 +82,24 @@ int SoilTex (double silt, double clay)
 
     if (silt < 0.0 || silt > 1.0)
     {
-        PIHMprintf (VL_ERROR,
+        PIHMprintf(VL_ERROR,
             "Error: Silt percentage (%lf) out of range.\n", silt * 100.0);
-        PIHMprintf (VL_ERROR, "Please check your soil input file.\n");
-        PIHMexit (EXIT_FAILURE);
+        PIHMprintf(VL_ERROR, "Please check your soil input file.\n");
+        PIHMexit(EXIT_FAILURE);
     }
     if (clay < 0.0 || clay > 1.0)
     {
-        PIHMprintf (VL_ERROR,
+        PIHMprintf(VL_ERROR,
             "Error: Clay percentage (%lf) out of range.\n", clay * 100.0);
-        PIHMprintf (VL_ERROR, "Please check your soil input file.\n");
-        PIHMexit (EXIT_FAILURE);
+        PIHMprintf(VL_ERROR, "Please check your soil input file.\n");
+        PIHMexit(EXIT_FAILURE);
     }
     if (sand < 0.0 || sand > 1.0)
     {
-        PIHMprintf (VL_ERROR,
+        PIHMprintf(VL_ERROR,
             "Error: Sand percentage (%lf) out of range.\n", sand * 100.0);
-        PIHMprintf (VL_ERROR, "Please check your soil input file.\n");
-        PIHMexit (EXIT_FAILURE);
+        PIHMprintf(VL_ERROR, "Please check your soil input file.\n");
+        PIHMexit(EXIT_FAILURE);
     }
 
     if (silt + 1.5 * clay < 0.15)
@@ -156,15 +156,14 @@ int SoilTex (double silt, double clay)
     }
     else
     {
-        PIHMprintf (VL_ERROR, "Error: Soil texture %d not defined.\n",
-            texture);
-        PIHMexit (EXIT_FAILURE);
+        PIHMprintf(VL_ERROR, "Error: Soil texture %d not defined.\n", texture);
+        PIHMexit(EXIT_FAILURE);
     }
 
-    return (texture);
+    return texture;
 }
 
-double Qtz (int texture)
+double Qtz(int texture)
 {
     double          qtz = 0.0;
 
@@ -207,50 +206,50 @@ double Qtz (int texture)
             qtz = 0.25;
             break;
         default:
-            PIHMprintf (VL_ERROR, "Error: Soil texture %d not defined.\n",
+            PIHMprintf(VL_ERROR, "Error: Soil texture %d not defined.\n",
                 texture);
-            PIHMexit (EXIT_FAILURE);
+            PIHMexit(EXIT_FAILURE);
             break;
     }
 
-    return (qtz);
+    return qtz;
 }
 
 /*
  * Pedotransfer functions to calculate soil hydraulic properties
  * Wosten et al. 1999 Geoderma Table 5
  */
-double PtfKV (double silt, double clay, double om, double bd, int topsoil)
+double PtfKV(double silt, double clay, double om, double bd, int topsoil)
 {
     double          kv;
 
     /* Calculate Kv in cm/day */
-    kv = exp (7.755 + 0.0352 * silt + 0.93 * (double)topsoil -
+    kv = exp(7.755 + 0.0352 * silt + 0.93 * (double)topsoil -
         0.967 * bd * bd - 0.000484 * clay * clay - 0.000322 * silt * silt +
-        0.001 / silt - 0.0748 / om - 0.643 * log (silt) -
+        0.001 / silt - 0.0748 / om - 0.643 * log(silt) -
         0.01398 * bd * clay - 0.1673 * bd * om +
         0.02986 * (double)topsoil * clay - 0.03305 * (double)topsoil * silt);
 
     /* Convert from cm/day to m/s */
     kv /= 100.0 * 24.0 * 3600.0;
 
-    return (kv);
+    return kv;
 }
 
-double PtfThetaS (double silt, double clay, double om, double bd, int topsoil)
+double PtfThetaS(double silt, double clay, double om, double bd, int topsoil)
 {
     double          thetas;
 
     thetas = 0.7919 + 0.001691 * clay - 0.29619 * bd -
         0.000001491 * silt * silt + 0.0000821 * om * om + 0.02427 / clay +
-        0.01113 / silt + 0.01472 * log (silt) - 0.0000733 * om * clay -
+        0.01113 / silt + 0.01472 * log(silt) - 0.0000733 * om * clay -
         0.000619 * bd * clay - 0.001183 * bd * om -
         0.0001664 * (double)topsoil *silt;
 
-    return (thetas);
+    return thetas;
 }
 
-double PtfThetaR (double silt, double clay, double om, double bd, int topsoil)
+double PtfThetaR(double silt, double clay, double om, double bd, int topsoil)
 {
     double          thetar;
 
@@ -263,36 +262,36 @@ double PtfThetaR (double silt, double clay, double om, double bd, int topsoil)
         thetar = 0.05;
     }
 
-    return (thetar);
+    return thetar;
 }
 
-double PtfAlpha (double silt, double clay, double om, double bd, int topsoil)
+double PtfAlpha(double silt, double clay, double om, double bd, int topsoil)
 {
     double          alpha;
 
     /* Calcualte alpha in cm */
-    alpha = exp (-14.96 + 0.03135 * clay + 0.0351 * silt + 0.646 * om +
+    alpha = exp(-14.96 + 0.03135 * clay + 0.0351 * silt + 0.646 * om +
         15.29 * bd - 0.192 * (double)topsoil - 4.671 * bd * bd -
         0.000781 * clay * clay - 0.00687 * om * om + 0.0449 / om +
-        0.0663 * log (silt) + 0.1482 * log (om) - 0.04546 * bd * silt -
+        0.0663 * log(silt) + 0.1482 * log(om) - 0.04546 * bd * silt -
         0.4852 * bd * om + 0.00673 * (double)topsoil * clay);
 
-    /* Convert from cm to m */
+    /* Convert from 1/cm to 1/m */
     alpha *= 100.0;
 
-    return (alpha);
+    return alpha;
 }
 
-double PtfBeta (double silt, double clay, double om, double bd, int topsoil)
+double PtfBeta(double silt, double clay, double om, double bd, int topsoil)
 {
     double          beta;
 
-    beta = 1.0 + exp (-25.23 - 0.02195 * clay + 0.0074 * silt - 0.1940 * om +
+    beta = 1.0 + exp(-25.23 - 0.02195 * clay + 0.0074 * silt - 0.1940 * om +
         45.5 * bd - 7.24 * bd * bd + 0.0003658 * clay * clay +
         0.002885 * om * om - 12.81 / bd - 0.1524 / silt - 0.01958 / om -
-        0.2876 * log (silt) - 0.0709 * log (om) - 44.6 * log (bd) -
+        0.2876 * log(silt) - 0.0709 * log(om) - 44.6 * log(bd) -
         0.02264 * bd * clay + 0.0896 * bd * om +
         0.00718 * (double)topsoil * clay);
 
-    return (beta);
+    return beta;
 }

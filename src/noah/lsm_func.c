@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-int FindWT (const double *sldpth, int nsoil, double gw, double *satdpth)
+int FindWT(const double *sldpth, int nsoil, double gw, double *satdpth)
 {
     int             layer = -999;
     int             j;
@@ -49,10 +49,10 @@ int FindWT (const double *sldpth, int nsoil, double gw, double *satdpth)
         }
     }
 
-    return (layer);
+    return layer;
 }
 
-int FindLayer (const double *sldpth, int nsoil, double depth)
+int FindLayer(const double *sldpth, int nsoil, double depth)
 {
     int             layer;
     int             j = 0;
@@ -78,46 +78,45 @@ int FindLayer (const double *sldpth, int nsoil, double depth)
         layer = ind + 1;
         layer = (layer > nsoil) ? nsoil : layer;
     }
-    return (layer);
+    return layer;
 }
 
-double Mod (double a, double n)
+double Mod(double a, double n)
 {
-    return (a - n * floor (a / n));
+    return a - n * floor(a / n);
 }
 
-double TopoRadn (double sdir, double sdif, double zenith,
-    double azimuth180, double slope, double aspect, const double *h_phi,
-    double svf)
+double TopoRadn(double sdir, double sdif, double zenith, double azimuth180,
+    double slope, double aspect, const double *h_phi, double svf)
 {
     double          incidence;
     double          gvf;
     double          soldown;
 
-    azimuth180 = Mod ((360.0 + azimuth180), 360.0);
+    azimuth180 = Mod((360.0 + azimuth180), 360.0);
 
-    if (zenith > h_phi[(int)floor (azimuth180 / 10.0)])
+    if (zenith > h_phi[(int)floor(azimuth180 / 10.0)])
     {
         sdir = 0.0;
     }
 
-    incidence = acos (cos (zenith * PI / 180.0) * cos (slope * PI / 180.0) +
-        sin (zenith * PI / 180.0) * sin (slope * PI / 180.0) *
-        cos ((azimuth180 - aspect) * PI / 180.0));
+    incidence = acos(cos(zenith * PI / 180.0) * cos(slope * PI / 180.0) +
+        sin(zenith * PI / 180.0) * sin(slope * PI / 180.0) *
+        cos((azimuth180 - aspect) * PI / 180.0));
     incidence *= 180.0 / PI;
     incidence = incidence > 90.0 ? 90.0 : incidence;
 
-    gvf = (1.0 + cos (slope * PI / 180.0)) / 2.0 - svf;
+    gvf = (1.0 + cos(slope * PI / 180.0)) / 2.0 - svf;
     gvf = (gvf < 0.0) ? 0.0 : gvf;
 
-    soldown = sdir * cos (incidence * PI / 180.0) +
-        svf * sdif + 0.2 * gvf * (sdir * cos (zenith * PI / 180.0) + sdif);
+    soldown = sdir * cos(incidence * PI / 180.0) +
+        svf * sdif + 0.2 * gvf * (sdir * cos(zenith * PI / 180.0) + sdif);
     soldown = soldown < 0.0 ? 0.0 : soldown;
 
-    return (soldown);
+    return soldown;
 }
 
-void DefSldpth (double *sldpth, int *nsoil, double *zsoil, double total_depth,
+void DefSldpth(double *sldpth, int *nsoil, double *zsoil, double total_depth,
     const double *std_sldpth, int std_nsoil)
 {
     int             j, k;
@@ -194,17 +193,17 @@ void DefSldpth (double *sldpth, int *nsoil, double *zsoil, double total_depth,
     }
 }
 
-void CalcSlopeAspect (elem_struct *elem, const meshtbl_struct *meshtbl)
+void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
 {
     const int       XCOMP = 0;
     const int       YCOMP = 1;
     const int       ZCOMP = 2;
-    double          x[3];
-    double          y[3];
-    double          zmax[3];
-    double          edge_vector[2][3];
-    double          normal_vector[3];
-    double          vector[3];
+    double          x[NUM_EDGE];
+    double          y[NUM_EDGE];
+    double          zmax[NUM_EDGE];
+    double          edge_vector[2][NUM_EDGE];
+    double          normal_vector[NUM_EDGE];
+    double          vector[NUM_EDGE];
     double          h, c;
     double          se, ce;
     int             nodes[2];
@@ -247,22 +246,21 @@ void CalcSlopeAspect (elem_struct *elem, const meshtbl_struct *meshtbl)
         }
 
         /* Calculate slope */
-        c = sqrt (normal_vector[XCOMP] * normal_vector[XCOMP] +
+        c = sqrt(normal_vector[XCOMP] * normal_vector[XCOMP] +
             normal_vector[YCOMP] * normal_vector[YCOMP]);
-        elem[i].topo.slope = atan (c / normal_vector[ZCOMP]) * 180.0 / PI;
+        elem[i].topo.slope = atan(c / normal_vector[ZCOMP]) * 180.0 / PI;
 
         /* Calculte aspect */
         ce = normal_vector[XCOMP] / c;
         se = normal_vector[YCOMP] / c;
-        elem[i].topo.aspect = acos (ce) * 180.0 / PI;
+        elem[i].topo.aspect = acos(ce) * 180.0 / PI;
 
         if (se < 0.0)
         {
             elem[i].topo.aspect = 360.0 - elem[i].topo.aspect;
         }
 
-        elem[i].topo.aspect =
-            Mod (360.0 - elem[i].topo.aspect + 270.0, 360.0);
+        elem[i].topo.aspect = Mod(360.0 - elem[i].topo.aspect + 270.0, 360.0);
 
         /*
          * Calculate sky view factor (Dozier and Frew 1990)
@@ -309,10 +307,10 @@ void CalcSlopeAspect (elem_struct *elem, const meshtbl_struct *meshtbl)
                 vector[XCOMP] = xc - elem[i].topo.x;
                 vector[YCOMP] = yc - elem[i].topo.y;
                 vector[ZCOMP] = zc - elem[i].topo.zmax;
-                c = sqrt (vector[XCOMP] * vector[XCOMP] +
+                c = sqrt(vector[XCOMP] * vector[XCOMP] +
                     vector[YCOMP] * vector[YCOMP]);
                 /* Unobstructed angle of the kth edge of the jth grid */
-                h = atan (c / vector[ZCOMP]) * 180.0 / PI;
+                h = atan(c / vector[ZCOMP]) * 180.0 / PI;
                 h = (h < 0.0) ? 90.0 : h;
 
                 /* Find out which directions are blocked */
@@ -323,33 +321,33 @@ void CalcSlopeAspect (elem_struct *elem, const meshtbl_struct *meshtbl)
                 edge_vector[1][YCOMP] = y2 - elem[i].topo.y;
                 edge_vector[1][ZCOMP] = z2 - elem[i].topo.zmax;
 
-                c1 = sqrt (edge_vector[0][XCOMP] * edge_vector[0][XCOMP] +
+                c1 = sqrt(edge_vector[0][XCOMP] * edge_vector[0][XCOMP] +
                     edge_vector[0][YCOMP] * edge_vector[0][YCOMP]);
-                c2 = sqrt (edge_vector[1][XCOMP] * edge_vector[1][XCOMP] +
+                c2 = sqrt(edge_vector[1][XCOMP] * edge_vector[1][XCOMP] +
                     edge_vector[1][YCOMP] * edge_vector[1][YCOMP]);
 
                 ce1 = edge_vector[0][XCOMP] / c1;
                 se1 = edge_vector[0][YCOMP] / c1;
-                phi1 = acos (ce1) * 180.0 / PI;
+                phi1 = acos(ce1) * 180.0 / PI;
                 if (se1 < 0.0)
                 {
                     phi1 = 360.0 - phi1;
                 }
-                phi1 = Mod (360.0 - phi1 + 270.0, 360.0);
+                phi1 = Mod(360.0 - phi1 + 270.0, 360.0);
 
                 ce2 = edge_vector[1][XCOMP] / c2;
                 se2 = edge_vector[1][YCOMP] / c2;
-                phi2 = acos (ce2) * 180.0 / PI;
+                phi2 = acos(ce2) * 180.0 / PI;
                 if (se2 < 0.0)
                 {
                     phi2 = 360.0 - phi2;
                 }
-                phi2 = Mod (360.0 - phi2 + 270.0, 360.0);
+                phi2 = Mod(360.0 - phi2 + 270.0, 360.0);
 
-                if (fabs (phi1 - phi2) > 180.0)
+                if (fabs(phi1 - phi2) > 180.0)
                 {
                     ind1 = 0;
-                    ind2 = (int)floor ((phi1 < phi2 ? phi1 : phi2) / 10.0);
+                    ind2 = (int)floor((phi1 < phi2 ? phi1 : phi2) / 10.0);
                     for (ind = ind1; ind <= ind2; ind++)
                     {
                         if (h < elem[i].topo.h_phi[ind])
@@ -358,7 +356,7 @@ void CalcSlopeAspect (elem_struct *elem, const meshtbl_struct *meshtbl)
                         }
                     }
 
-                    ind1 = (int)floor ((phi1 > phi2 ? phi1 : phi2) / 10.0);
+                    ind1 = (int)floor((phi1 > phi2 ? phi1 : phi2) / 10.0);
                     ind2 = 35;
                     for (ind = ind1; ind <= ind2; ind++)
                     {
@@ -370,8 +368,8 @@ void CalcSlopeAspect (elem_struct *elem, const meshtbl_struct *meshtbl)
                 }
                 else
                 {
-                    ind1 = (int)floor ((phi1 < phi2 ? phi1 : phi2) / 10.0);
-                    ind2 = (int)floor ((phi1 > phi2 ? phi1 : phi2) / 10.0);
+                    ind1 = (int)floor((phi1 < phi2 ? phi1 : phi2) / 10.0);
+                    ind2 = (int)floor((phi1 > phi2 ? phi1 : phi2) / 10.0);
                     for (ind = ind1; ind <= ind2; ind++)
                     {
                         if (h < elem[i].topo.h_phi[ind])
@@ -386,20 +384,20 @@ void CalcSlopeAspect (elem_struct *elem, const meshtbl_struct *meshtbl)
         /* Calculate sky view factor (Eq. 7b) */
         for (ind = 0; ind < 36; ind++)
         {
-            integrable = sin (elem[i].topo.slope * PI / 180.0) *
-                cos ((ind * 10.0 + 5.0 - elem[i].topo.aspect) * PI / 180.0);
+            integrable = sin(elem[i].topo.slope * PI / 180.0) *
+                cos((ind * 10.0 + 5.0 - elem[i].topo.aspect) * PI / 180.0);
             integrable *= elem[i].topo.h_phi[ind] * PI / 180.0 -
-                sin (elem[i].topo.h_phi[ind] * PI / 180.0) *
-                cos (elem[i].topo.h_phi[ind] * PI / 180.0);
-            integrable += cos (elem[i].topo.slope * PI / 180.0) *
-                pow (sin (elem[i].topo.h_phi[ind] * PI / 180.0), 2);
+                sin(elem[i].topo.h_phi[ind] * PI / 180.0) *
+                cos(elem[i].topo.h_phi[ind] * PI / 180.0);
+            integrable += cos(elem[i].topo.slope * PI / 180.0) *
+                pow(sin(elem[i].topo.h_phi[ind] * PI / 180.0), 2);
 
             elem[i].topo.svf += 0.5 / PI * integrable * 10.0 / 180.0 * PI;
         }
     }
 }
 
-double GWTransp (double ett, double *et, int nwtbl, int nroot)
+double GWTransp(double ett, double *et, int nwtbl, int nroot)
 {
     /* Calculate transpiration from saturated zone */
     int             j;
@@ -420,14 +418,14 @@ double GWTransp (double ett, double *et, int nwtbl, int nroot)
         }
     }
 
-    return (gw_transp);
+    return gw_transp;
 }
 
-void RootDist (const double *sldpth, int nsoil, int nroot, double *rtdis)
+void RootDist(const double *sldpth, int nsoil, int nroot, double *rtdis)
 {
     /* Calculate root distribution.
-     * Present version assumes uniform distribution based on soil layer
-     * depths. */
+     * Present version assumes uniform distribution based on soil layer depths.
+     */
     double          zsoil[MAXLYR];
     int             j, kz;
 
@@ -443,13 +441,13 @@ void RootDist (const double *sldpth, int nsoil, int nroot, double *rtdis)
     }
 }
 
-void SunPos (int t, double latitude, double longitude, double elevation,
-    double tmp, spa_data *spa)
+void SunPos(int t, double latitude, double longitude, double elevation,
+    double tmp, spa_data * spa)
 {
     int             spa_result;
     pihm_t_struct   pihm_time;
 
-    pihm_time = PIHMTime (t);
+    pihm_time = PIHMTime(t);
 
     spa->year = pihm_time.year;
     spa->month = pihm_time.month;
@@ -467,24 +465,23 @@ void SunPos (int t, double latitude, double longitude, double elevation,
     spa->latitude = latitude;
     spa->elevation = elevation;
 
-    /* Calculate surface pressure based on FAO 1998 method (Narasimhan 2002)*/
+    /* Calculate surface pressure based on FAO 1998 method (Narasimhan 2002) */
     spa->pressure =
-        1013.25 * pow ((293.0 - 0.0065 * spa->elevation) / 293.0, 5.26);
+        1013.25 * pow((293.0 - 0.0065 * spa->elevation) / 293.0, 5.26);
     spa->temperature = tmp;
 
     spa->function = SPA_ZA_RTS;
-    spa_result = spa_calculate (spa);
+    spa_result = spa_calculate(spa);
 
     if (spa_result != 0)
     {
-        PIHMprintf (VL_ERROR,
-            "Error with spa error code: %d.\n", spa_result);
-        PIHMexit (EXIT_FAILURE);
+        PIHMprintf(VL_ERROR, "Error with spa error code: %d.\n", spa_result);
+        PIHMexit(EXIT_FAILURE);
     }
 
 }
 
-void CalHum (pstate_struct *ps, estate_struct *es)
+void CalHum(pstate_struct *ps, estate_struct *es)
 {
     const double    A2 = 17.67;
     const double    A3 = 273.15;
@@ -508,7 +505,7 @@ void CalHum (pstate_struct *ps, estate_struct *es)
 
     rh = ps->rh / 100.0;
 
-    svp = SVP1 * exp (SVP2 * (es->sfctmp - SVPT0) / (es->sfctmp - SVP3));
+    svp = SVP1 * exp(SVP2 * (es->sfctmp - SVPT0) / (es->sfctmp - SVP3));
     e = rh * svp;
 
     ps->q2 = (0.622 * e) / (ps->sfcprs - (1.0 - 0.622) * e);
@@ -521,14 +518,14 @@ void CalHum (pstate_struct *ps, estate_struct *es)
 
     a23m4 = A2 * (A3 - A4);
 
-    esat = E0 * exp (ELWV / RVV * (1.0 / A3 - 1.0 / es->sfctmp));
+    esat = E0 * exp(ELWV / RVV * (1.0 / A3 - 1.0 / es->sfctmp));
 
     ps->q2sat = EPSILON * esat / (ps->sfcprs - (1.0 - EPSILON) * esat);
 
-    ps->dqsdt2 = ps->q2sat * a23m4 / pow (es->sfctmp - A4, 2);
+    ps->dqsdt2 = ps->q2sat * a23m4 / pow(es->sfctmp - A4, 2);
 }
 
-double FrozRain (double prcp, double sfctmp)
+double FrozRain(double prcp, double sfctmp)
 {
     double          ffrozp;
 
@@ -541,10 +538,10 @@ double FrozRain (double prcp, double sfctmp)
         ffrozp = 0.0;
     }
 
-    return (ffrozp);
+    return ffrozp;
 }
 
-double AvgElev (elem_struct *elem)
+double AvgElev(elem_struct *elem)
 {
     double          elev = 0.0;
     int             i;
@@ -556,10 +553,10 @@ double AvgElev (elem_struct *elem)
 
     elev /= (double)nelem;
 
-    return (elev);
+    return elev;
 }
 
-double TotalArea (elem_struct *elem)
+double TotalArea(elem_struct *elem)
 {
     double          area = 0.0;
     int             i;
@@ -569,10 +566,10 @@ double TotalArea (elem_struct *elem)
         area += elem[i].topo.area;
     }
 
-    return (area);
+    return area;
 }
 
-void CalcLatFlx (const pstate_struct *ps, wflux_struct *wf, double area)
+void CalcLatFlx(const pstate_struct *ps, wflux_struct *wf, double area)
 {
     double          sattot;
     int             ks;

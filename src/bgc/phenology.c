@@ -1,53 +1,51 @@
 #include "pihm.h"
 
-void Phenology (const epconst_struct *epc, epvar_struct *epv,
-    cstate_struct *cs, cflux_struct *cf, nstate_struct *ns, nflux_struct *nf,
+void Phenology(const epconst_struct *epc, epvar_struct *epv, cstate_struct *cs,
+    cflux_struct *cf, nstate_struct *ns, nflux_struct *nf,
     const daily_struct *daily)
 {
-    /* Define the phenology signals for cases in which the phenology signals
-     * are constant between years */
+    /* Define the phenology signals for cases in which the phenology signals are
+     * constant between years */
     if (epc->evergreen)
     {
-        EvergreenPhenology (epc, epv, cs);
+        EvergreenPhenology(epc, epv, cs);
 
-        BackgroundLitterfall (epc, epv, cs, cf, nf);
+        BackgroundLitterfall(epc, epv, cs, cf, nf);
     }
     else
     {
         if (epc->woody)
         {
-            SeasonDecidPhenology (epc, epv, daily);
+            SeasonDecidPhenology(epc, epv, daily);
 
-            OnsetGrowth (epc, epv, cs, cf, ns, nf);
+            OnsetGrowth(epc, epv, cs, cf, ns, nf);
 
-            OffsetLitterfall (epc, epv, cs, cf, nf);
+            OffsetLitterfall(epc, epv, cs, cf, nf);
         }
     }
 
-    LivewoodTurnover (epc, epv, cs, cf, ns, nf);
+    LivewoodTurnover(epc, epv, cs, cf, ns, nf);
 }
 
-void EvergreenPhenology (const epconst_struct *epc, epvar_struct *epv,
+void EvergreenPhenology(const epconst_struct *epc, epvar_struct *epv,
     cstate_struct *cs)
 {
     epv->dormant_flag = 0;
     epv->onset_flag = 0;
     epv->offset_flag = 0;
-    epv->bg_leafc_litfall_rate =
-        cs->leafc * epc->leaf_turnover / 365.0;
-    epv->bg_frootc_litfall_rate =
-        cs->frootc * epc->froot_turnover / 365.0;
+    epv->bg_leafc_litfall_rate = cs->leafc * epc->leaf_turnover / 365.0;
+    epv->bg_frootc_litfall_rate = cs->frootc * epc->froot_turnover / 365.0;
 }
 
-void SeasonDecidPhenology (const epconst_struct *epc, epvar_struct *epv,
+void SeasonDecidPhenology(const epconst_struct *epc, epvar_struct *epv,
     const daily_struct *daily)
 {
     int             ws_flag;
     double          onset_critsum;
-    double          critdayl = 39300.0; /* seconds */
+    double          critdayl = 39300.0;    /* seconds */
     double          tsoil;
 
-    onset_critsum = exp (4.795 + 0.129 * (epv->annavg_t2m - TFREEZ));
+    onset_critsum = exp(4.795 + 0.129 * (epv->annavg_t2m - TFREEZ));
 
     tsoil = daily->avg_stc[0] - TFREEZ;
 
@@ -86,15 +84,14 @@ void SeasonDecidPhenology (const epconst_struct *epc, epvar_struct *epv,
         }
     }
 
-    /* Update onset_counter and test for the end of the onset
-     * period */
+    /* Update onset_counter and test for the end of the onset period */
     if (epv->onset_flag == 1)
     {
         /* Decrement counter for onset period */
         epv->onset_counter--;
 
-        /* If this is the end of the onset period, reset phenology
-         * flags and indices */
+        /* If this is the end of the onset period, reset phenology flags and
+         * indices */
         if (epv->onset_counter == 0)
         {
             epv->onset_flag = 0;
@@ -106,8 +103,7 @@ void SeasonDecidPhenology (const epconst_struct *epc, epvar_struct *epv,
     if (epv->dormant_flag == 1)
     {
         /* Test to turn on growing degree-day sum, if off.
-         * switch on the growing degree day sum on the winter
-         * solstice */
+         * Switch on the growing degree day sum on the winter solstice */
         if (epv->onset_gddflag == 0 && ws_flag == 1)
         {
             epv->onset_gddflag = 1;
@@ -115,25 +111,24 @@ void SeasonDecidPhenology (const epconst_struct *epc, epvar_struct *epv,
         }
 
         /* Test to turn off growing degree-day sum, if on.
-         * This test resets the growing degree day sum if it gets past
-         * the summer solstice without reaching the threshold value.
-         * In that case, it will take until the next winter solstice
-         * before the growing degree-day summation starts again. */
+         * This test resets the growing degree day sum if it gets past the
+         * summer solstice without reaching the threshold value.
+         * In that case, it will take until the next winter solstice before the
+         * growing degree-day summation starts again. */
         if (epv->onset_gddflag == 1 && ws_flag == 0)
         {
             epv->onset_gddflag = 0;
             epv->onset_gdd = 0.0;
         }
 
-        /* If the gdd flag is set, and if the soil is above freezing
-         * then accumulate growing degree days for onset trigger */
+        /* If the gdd flag is set, and if the soil is above freezing then
+         * accumulate growing degree days for onset trigger */
         if (epv->onset_gddflag == 1 && tsoil > 0.0)
         {
             epv->onset_gdd += tsoil;
         }
 
-        /* Set onset_flag if critical growing degree-day sum is
-         * exceeded */
+        /* Set onset_flag if critical growing degree-day sum is exceeded */
         if (epv->onset_gdd > onset_critsum)
         {
             epv->onset_flag = 1;
@@ -146,8 +141,7 @@ void SeasonDecidPhenology (const epconst_struct *epc, epvar_struct *epv,
     /* Test for switching from growth period to offset period */
     else if (epv->offset_flag == 0)
     {
-        /* Only begin to test for offset daylength once past the
-         * summer sol */
+        /* Only begin to test for offset daylength once past the summer sol */
         if (ws_flag == 0 && epv->dayl < critdayl)
         {
             epv->offset_flag = 1;
@@ -158,7 +152,7 @@ void SeasonDecidPhenology (const epconst_struct *epc, epvar_struct *epv,
     }
 }
 
-void OnsetGrowth (const epconst_struct *epc, const epvar_struct *epv,
+void OnsetGrowth(const epconst_struct *epc, const epvar_struct *epv,
     const cstate_struct *cs, cflux_struct *cf, const nstate_struct *ns,
     nflux_struct *nf)
 {
@@ -175,23 +169,18 @@ void OnsetGrowth (const epconst_struct *epc, const epvar_struct *epv,
             t1 = 2.0 / (double)epv->onset_counter;
         }
 
-        /* Transfer rate is defined to be a linearly decreasing
-         * function that reaches zero on the last day of the transfer
-         * period */
+        /* Transfer rate is defined to be a linearly decreasing function that
+         * reaches zero on the last day of the transfer period */
         cf->leafc_transfer_to_leafc = t1 * cs->leafc_transfer;
         nf->leafn_transfer_to_leafn = t1 * ns->leafn_transfer;
         cf->frootc_transfer_to_frootc = t1 * cs->frootc_transfer;
         nf->frootn_transfer_to_frootn = t1 * ns->frootn_transfer;
         if (epc->woody)
         {
-            cf->livestemc_transfer_to_livestemc =
-                t1 * cs->livestemc_transfer;
-            nf->livestemn_transfer_to_livestemn =
-                t1 * ns->livestemn_transfer;
-            cf->deadstemc_transfer_to_deadstemc =
-                t1 * cs->deadstemc_transfer;
-            nf->deadstemn_transfer_to_deadstemn =
-                t1 * ns->deadstemn_transfer;
+            cf->livestemc_transfer_to_livestemc = t1 * cs->livestemc_transfer;
+            nf->livestemn_transfer_to_livestemn = t1 * ns->livestemn_transfer;
+            cf->deadstemc_transfer_to_deadstemc = t1 * cs->deadstemc_transfer;
+            nf->deadstemn_transfer_to_deadstemn = t1 * ns->deadstemn_transfer;
             cf->livecrootc_transfer_to_livecrootc =
                 t1 * cs->livecrootc_transfer;
             nf->livecrootn_transfer_to_livecrootn =
@@ -204,15 +193,15 @@ void OnsetGrowth (const epconst_struct *epc, const epvar_struct *epv,
     }
 }
 
-void OffsetLitterfall (const epconst_struct *epc, epvar_struct *epv,
+void OffsetLitterfall(const epconst_struct *epc, epvar_struct *epv,
     const cstate_struct *cs, cflux_struct *cf, nflux_struct *nf)
 {
     double          leaflitfallc, frootlitfallc;
     double          drate;
 
     /* Defined such that all live material is removed by the end of the
-     * litterfall period, with a linearly ramping removal rate. assumes that
-     * the initial rate on the first day of litterfall is 0.0. */
+     * litterfall period, with a linearly ramping removal rate. assumes that the
+     * initial rate on the first day of litterfall is 0.0. */
     if (epv->offset_flag == 1)
     {
         if (epv->offset_counter == 1)
@@ -226,14 +215,14 @@ void OffsetLitterfall (const epconst_struct *epc, epvar_struct *epv,
         {
             /* Otherwise, assess litterfall rates as described above */
             leaflitfallc = epv->prev_leafc_to_litter;
-            drate = 2.0 * (cs->leafc - leaflitfallc *
-                (double)epv->offset_counter) /
+            drate = 2.0 *
+                (cs->leafc - leaflitfallc * (double)epv->offset_counter) /
                 ((double)epv->offset_counter * (double)epv->offset_counter);
             leaflitfallc += drate;
 
             frootlitfallc = epv->prev_frootc_to_litter;
-            drate = 2.0 * (cs->frootc - frootlitfallc *
-                (double)epv->offset_counter) /
+            drate = 2.0 *
+                (cs->frootc - frootlitfallc * (double)epv->offset_counter) /
                 ((double)epv->offset_counter * (double)epv->offset_counter);
             frootlitfallc += drate;
         }
@@ -243,7 +232,7 @@ void OffsetLitterfall (const epconst_struct *epc, epvar_struct *epv,
         {
             leaflitfallc = cs->leafc;
         }
-        LeafLitFall (epc, leaflitfallc, cf, nf);
+        LeafLitFall(epc, leaflitfallc, cf, nf);
         epv->prev_leafc_to_litter = leaflitfallc;
 
         /* Fine root litterfall */
@@ -251,19 +240,19 @@ void OffsetLitterfall (const epconst_struct *epc, epvar_struct *epv,
         {
             frootlitfallc = cs->frootc;
         }
-        FRootLitFall (epc, frootlitfallc, cf, nf);
+        FRootLitFall(epc, frootlitfallc, cf, nf);
         epv->prev_frootc_to_litter = frootlitfallc;
     }
 }
 
-void BackgroundLitterfall (const epconst_struct *epc, epvar_struct *epv,
+void BackgroundLitterfall(const epconst_struct *epc, epvar_struct *epv,
     const cstate_struct *cs, cflux_struct *cf, nflux_struct *nf)
 {
     double          leaflitfallc, frootlitfallc;
 
-    /* Litterfall happens everyday. To prevent litterfall from driving
-     * pools negative in the case of a very high mortality, fluxes are
-     * checked and set to zero when the pools get too small. */
+    /* Litterfall happens everyday. To prevent litterfall from driving pools
+     * negative in the case of a very high mortality, fluxes are checked and set
+     * to zero when the pools get too small. */
 
     /* Leaf litterfall */
     leaflitfallc = epv->bg_leafc_litfall_rate;
@@ -271,7 +260,7 @@ void BackgroundLitterfall (const epconst_struct *epc, epvar_struct *epv,
     {
         leaflitfallc = cs->leafc;
     }
-    LeafLitFall (epc, leaflitfallc, cf, nf);
+    LeafLitFall(epc, leaflitfallc, cf, nf);
 
     /* Fine root litterfall */
     frootlitfallc = epv->bg_frootc_litfall_rate;
@@ -279,19 +268,19 @@ void BackgroundLitterfall (const epconst_struct *epc, epvar_struct *epv,
     {
         frootlitfallc = cs->frootc;
     }
-    FRootLitFall (epc, frootlitfallc, cf, nf);
+    FRootLitFall(epc, frootlitfallc, cf, nf);
 }
 
-void LivewoodTurnover (const epconst_struct *epc, epvar_struct *epv,
-    const cstate_struct *cs, cflux_struct *cf,
-    const nstate_struct *ns, nflux_struct *nf)
+void LivewoodTurnover(const epconst_struct *epc, epvar_struct *epv,
+    const cstate_struct *cs, cflux_struct *cf, const nstate_struct *ns,
+    nflux_struct *nf)
 {
     double          livestemtovrc, livestemtovrn;
     double          livecroottovrc, livecroottovrn;
 
-    /* Turnover of live wood to dead wood also happens every day, at a
-     * rate determined once each year, using the annual maximum livewoody
-     * compartment masses and the specified livewood turnover rate */
+    /* Turnover of live wood to dead wood also happens every day, at a rate
+     * determined once each year, using the annual maximum livewoody compartment
+     * masses and the specified livewood turnover rate */
     if (epc->woody)
     {
         /* Turnover from live stem wood to dead stem wood */
@@ -331,16 +320,15 @@ void LivewoodTurnover (const epconst_struct *epc, epvar_struct *epv,
         if (livecroottovrc && livecroottovrn)
         {
             cf->livecrootc_to_deadcrootc = livecroottovrc;
-            nf->livecrootn_to_deadcrootn =
-                livecroottovrc / epc->deadwood_cn;
+            nf->livecrootn_to_deadcrootn = livecroottovrc / epc->deadwood_cn;
             nf->livecrootn_to_retransn =
                 livecroottovrn - nf->livecrootn_to_deadcrootn;
         }
     }
 }
 
-void LeafLitFall (const epconst_struct *epc, double litfallc,
-    cflux_struct *cf, nflux_struct *nf)
+void LeafLitFall(const epconst_struct *epc, double litfallc, cflux_struct *cf,
+    nflux_struct *nf)
 {
     double          c1, c2, c3, c4;
     double          n1, n2, n3, n4;
@@ -373,8 +361,8 @@ void LeafLitFall (const epconst_struct *epc, double litfallc,
     nf->leafn_to_retransn = nretrans;
 }
 
-void FRootLitFall (const epconst_struct *epc, double litfallc,
-    cflux_struct *cf, nflux_struct *nf)
+void FRootLitFall(const epconst_struct *epc, double litfallc, cflux_struct *cf,
+    nflux_struct *nf)
 {
     double          c1, c2, c3, c4;
     double          n1, n2, n3, n4;

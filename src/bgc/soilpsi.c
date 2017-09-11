@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void SoilPsi (const soil_struct *soil, double vwc, double *psi)
+void SoilPsi(const soil_struct *soil, double vwc, double *psi)
 {
     /*
      * Given a list of site constants and the soil water content,
@@ -19,5 +19,5 @@ void SoilPsi (const soil_struct *soil, double vwc, double *psi)
     theta = (theta < SATMIN) ? SATMIN : theta;
 
     /* calculate psi */
-    *psi = Psi (theta, soil->alpha, soil->beta) * 1000.0 * GRAV / 1.0e6;
+    *psi = Psi(theta, soil->alpha, soil->beta) * 1000.0 * GRAV / 1.0e6;
 }

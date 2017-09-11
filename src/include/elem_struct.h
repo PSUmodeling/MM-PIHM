@@ -6,19 +6,21 @@
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
- * soil_type                int         element soil type
- * lc_type                  int         element land cover type
- * bc_type                  int[]       element boundary condition type
- * meteo_type               int         element meteorological forcing type
- * lai_type                 int         element leaf area index forcing type
+ * soil_type                int
+ * lc_type                  int
+ * bc_type                  int[]
+ * meteo_type               int
+ * lai_type                 int
  ****************************************************************************/
 typedef struct attrib_struct
 {
-    int             soil_type;
-    int             lc_type;
-    int             bc_type[NUM_EDGE];
-    int             meteo_type;
-    int             lai_type;
+    int             soil_type;            /* element soil type */
+    int             lc_type;              /* element land cover type */
+    int             bc_type[NUM_EDGE];    /* element boundary condition type */
+    int             meteo_type;           /* element meteorological forcing type
+                                           */
+    int             lai_type;             /* element leaf area index forcing
+                                           * type */
 } attrib_struct;
 
 /*****************************************************************************
@@ -936,7 +938,7 @@ typedef struct comm_struct
     double          svShootDailyGrowth;
     double          svRootDailyGrowth;
     double          svRizhoDailyDeposition;
-    double          svRootingDepth;     /* maximum */
+    double          svRootingDepth; /* maximum */
     double          svTranspiration;
     double          svTranspirationPotential;
     double          svN_Shoot;
@@ -1196,6 +1198,7 @@ typedef struct solute_struct
 #endif
 
 #ifdef _DAILY_
+
 /*****************************************************************************
  * Daily average
  * ---------------------------------------------------------------------------
@@ -1263,6 +1266,7 @@ typedef struct daily_struct
 #endif
 
 #ifdef _BGC_
+
 /*****************************************************************************
  * Carbon state variables (including sums for sources and sinks)
  * ---------------------------------------------------------------------------
@@ -2510,9 +2514,9 @@ typedef struct solute_struct
  ****************************************************************************/
 typedef struct elem_struct
 {
-    int             node[NUM_EDGE];     /* Counterclock-wise */
-    int             nabr[NUM_EDGE];     /* neighbor i shares edge i
-                                         * (0: on boundary) */
+    int             node[NUM_EDGE]; /* Counterclock-wise */
+    int             nabr[NUM_EDGE]; /* neighbor i shares edge i
+                                     * (0: on boundary) */
     int             ind;
 
     attrib_struct   attrib;

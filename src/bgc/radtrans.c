@@ -1,13 +1,13 @@
 #include "pihm.h"
 
-void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
+void RadTrans(const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
     const epconst_struct *epc, epvar_struct *epv, const daily_struct *daily)
 {
     /*
-     * Calculate the projected leaf area and SLA for sun and shade fractions
-     * and the canopy transmission and absorption of shortwave radiation
-     * based on the Beer's Law assumption of radiation attenuation as a
-     * function of projected LAI.
+     * Calculate the projected leaf area and SLA for sun and shade fractions and
+     * the canopy transmission and absorption of shortwave radiation based on
+     * the Beer's Law assumption of radiation attenuation as a function of
+     * projected LAI.
      */
     double          proj_lai;
     double          albedo_sw, albedo_par;
@@ -34,18 +34,17 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
         ps->all_lai = ps->proj_lai * epc->lai_ratio;
 
         /* Calculate projected LAI for sunlit and shaded canopy portions */
-        ps->plaisun = 1.0 - exp (-ps->proj_lai);
+        ps->plaisun = 1.0 - exp(-ps->proj_lai);
         ps->plaishade = ps->proj_lai - ps->plaisun;
         if (ps->plaishade < 0.0)
         {
-            PIHMprintf (VL_ERROR, "FATAL ERROR: Negative plaishade.\n");
-            PIHMprintf (VL_ERROR, "LAI of shaded canopy = %lf\n",
-                ps->plaishade);
-            PIHMexit (EXIT_FAILURE);
+            PIHMprintf(VL_ERROR, "FATAL ERROR: Negative plaishade.\n");
+            PIHMprintf(VL_ERROR, "LAI of shaded canopy = %lf\n", ps->plaishade);
+            PIHMexit(EXIT_FAILURE);
         }
 
-        /* Calculate the projected specific leaf area for sunlit and
-         * shaded canopy fractions */
+        /* Calculate the projected specific leaf area for sunlit and shaded
+         * canopy fractions */
         epv->sun_proj_sla =
             (ps->plaisun + (ps->plaishade / epc->sla_ratio)) / cs->leafc;
         epv->shade_proj_sla = epv->sun_proj_sla * epc->sla_ratio;
@@ -61,9 +60,9 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
     }
     else
     {
-        PIHMprintf (VL_ERROR, "FATAL ERROR: Negative leaf carbon pool.\n");
-        PIHMprintf (VL_ERROR, "leafc = %.7e\n", cs->leafc);
-        PIHMexit (EXIT_FAILURE);
+        PIHMprintf(VL_ERROR, "FATAL ERROR: Negative leaf carbon pool.\n");
+        PIHMprintf(VL_ERROR, "leafc = %.7e\n", cs->leafc);
+        PIHMexit(EXIT_FAILURE);
     }
 
     k = epc->ext_coef;
@@ -75,7 +74,7 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
 
     sw = ((daily->avg_soldn > 0.0) ? daily->avg_soldn : 0.0) *
         (1.0 - albedo_sw);
-    swabs = sw * (1.0 - exp (-k_sw * proj_lai));
+    swabs = sw * (1.0 - exp(-k_sw * proj_lai));
     swtrans = sw - swabs;
 
     /* Calculate PAR absorbed */
@@ -84,10 +83,10 @@ void RadTrans (const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
 
     par = ((daily->avg_soldn > 0.0) ? daily->avg_soldn : 0.0) *
         RAD2PAR * (1.0 - albedo_par);
-    parabs = par * (1.0 - exp (-k_par * proj_lai));
+    parabs = par * (1.0 - exp(-k_par * proj_lai));
 
-    /* Calculate the total shortwave absorbed by the sunlit and
-     * shaded canopy fractions */
+    /* Calculate the total shortwave absorbed by the sunlit and shaded canopy
+     * fractions */
     swabs_plaisun = k_sw * sw * ps->plaisun;
     swabs_plaishade = swabs - swabs_plaisun;
 

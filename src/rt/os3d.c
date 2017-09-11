@@ -25,19 +25,18 @@
 
 #define EPSILON 1.0E-20
 
-void OS3D (realtype t, realtype stepsize, Chem_Data CD)
+void OS3D(realtype t, realtype stepsize, Chem_Data CD)
 {
 
     // input t and stepsize in the unit of minute
 
-    double        **dconc =
-        (double **)malloc (CD->NumOsv * sizeof (double *));
+    double        **dconc = (double **)malloc(CD->NumOsv * sizeof (double *));
     int             i, j, k, jj, node_1, node_2, node_3, node_4, abnormalflg,
         nr_tmp;
     double          flux_t, diff_flux, disp_flux, distance, temp_dconc,
         velocity, temp_conc, inv_dist, diff_conc, unit_c, area, r_, beta_,
         var_height, total_prep_mass, timelps, invavg, adpstep;
-    double         *tmpconc = (double *)malloc (CD->NumSpc * sizeof (double));
+    double         *tmpconc = (double *)malloc(CD->NumSpc * sizeof (double));
 
     abnormalflg = 0;
     unit_c = 1.0 / 1440;
@@ -47,7 +46,7 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
 
     for (i = 0; i < CD->NumOsv; i++)
     {
-        dconc[i] = (double *)malloc (CD->NumSpc * sizeof (double));
+        dconc[i] = (double *)malloc(CD->NumSpc * sizeof (double));
         for (j = 0; j < CD->NumSpc; j++)
             dconc[i][j] = 0.0;
     }
@@ -69,13 +68,13 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
         for (j = 0; j < CD->NumSpc; j++)
         {
 
-            diff_conc = CD->Vcele[node_2].t_conc[j] - CD->Vcele[node_1].t_conc[j];      /* difference in concentration, in M/kg w */
+            diff_conc = CD->Vcele[node_2].t_conc[j] - CD->Vcele[node_1].t_conc[j];  /* difference in concentration, in M/kg w */
             diff_flux = 0.0;
             disp_flux = 0.0;
             if (CD->Flux[i].BC == 0)
             {
                 diff_flux =
-                    CD->chemtype[j].DiffCoe * pow (CD->Vcele[node_1].porosity,
+                    CD->chemtype[j].DiffCoe * pow(CD->Vcele[node_1].porosity,
                     CD->Cementation);
                 /* diffusion flux, effective diffusion coefficient  */
                 if (velocity < 0.0)
@@ -117,7 +116,7 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
                             CD->Vcele[node_4].t_conc[j] +
                             EPSILON) / (CD->Vcele[node_1].t_conc[j] -
                             CD->Vcele[node_2].t_conc[j] + EPSILON);
-                        beta_ = MAX (0, MIN (MIN (2, 2 * r_), (2 + r_) / 3));
+                        beta_ = MAX(0, MIN(MIN(2, 2 * r_), (2 + r_) / 3));
                         temp_conc =
                             CD->Vcele[node_2].t_conc[j] +
                             beta_ * (CD->Vcele[node_1].t_conc[j] -
@@ -134,7 +133,7 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
                             CD->Vcele[node_3].t_conc[j] +
                             EPSILON) / (CD->Vcele[node_2].t_conc[j] -
                             CD->Vcele[node_1].t_conc[j] + EPSILON);
-                        beta_ = MAX (0, MIN (MIN (2, 2 * r_), (2 + r_) / 3));
+                        beta_ = MAX(0, MIN(MIN(2, 2 * r_), (2 + r_) / 3));
                         temp_conc =
                             CD->Vcele[node_1].t_conc[j] +
                             beta_ * (CD->Vcele[node_2].t_conc[j] -
@@ -225,31 +224,29 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
                                 }
                             }
                             if ((tmpconc[j] < 0.0)
-                                && (strcmp (CD->chemtype[j].ChemName,
-                                        "'H+'")))
+                                && (strcmp(CD->chemtype[j].ChemName, "'H+'")))
                             {
-                                fprintf (stderr,
-                                    "Local time stepping check\n");
-                                fprintf (stderr,
+                                fprintf(stderr, "Local time stepping check\n");
+                                fprintf(stderr,
                                     "negative concentration change at species %s !\n",
                                     CD->chemtype[j].ChemName);
-                                fprintf (stderr,
+                                fprintf(stderr,
                                     "Change from fluxes: %8.4g\n",
                                     dconc[i][j] * adpstep);
-                                fprintf (stderr,
+                                fprintf(stderr,
                                     "Change from precipitation: %8.4g\n",
                                     CD->Precipitation.t_conc[j] *
                                     CD->Vcele[i].q * adpstep * unit_c *
                                     CD->Condensation);
-                                fprintf (stderr, "Original mass: %8.4g\n",
+                                fprintf(stderr, "Original mass: %8.4g\n",
                                     CD->Vcele[i].t_conc[j] *
                                     (CD->Vcele[i].porosity * 0.5 *
                                         (CD->Vcele[i].vol_o +
                                             CD->Vcele[i].vol)));
-                                fprintf (stderr,
+                                fprintf(stderr,
                                     "Old Conc: %8.4g\t New Conc: %8.4g\n",
                                     CD->Vcele[i].t_conc[j], tmpconc[j]);
-                                ReportError (CD->Vcele[i], CD);
+                                ReportError(CD->Vcele[i], CD);
                                 abnormalflg = 1;
                                 CD->Vcele[i].illness++;
                             }
@@ -259,7 +256,7 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
                             if (CD->Vcele[i].illness < 20)
                             {
                                 diff_conc =
-                                    MAX (fabs
+                                    MAX(fabs
                                     (CD->Vcele[i].t_conc[j] - tmpconc[j]),
                                     diff_conc);
                                 CD->Vcele[i].t_conc[j] = tmpconc[j];
@@ -296,8 +293,8 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
                                         {
                                             diff_flux =
                                                 CD->chemtype[j].DiffCoe *
-                                                pow (CD->Vcele[node_1].
-                                                porosity, CD->Cementation);
+                                                pow(CD->Vcele[node_1].porosity,
+                                                CD->Cementation);
 
                                             if (velocity < 0.0)
                                                 disp_flux =
@@ -325,14 +322,12 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
                                             if (flux_t > 0)
                                             {
                                                 temp_conc =
-                                                    CD->Vcele[node_2].
-                                                    t_conc[j];
+                                                    CD->Vcele[node_2].t_conc[j];
                                             }
                                             else
                                             {
                                                 temp_conc =
-                                                    CD->Vcele[node_1].
-                                                    t_conc[j];
+                                                    CD->Vcele[node_1].t_conc[j];
                                             }
                                         }
                                         if (CD->TVDFlg == 1)
@@ -341,77 +336,63 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
                                             {
                                                 if (node_4 > 0)
                                                 {
-                                                    r_ = (CD->
-                                                        Vcele[node_2].t_conc
-                                                        [j] -
-                                                        CD->
-                                                        Vcele[node_4].t_conc
-                                                        [j] +
+                                                    r_ = (CD->Vcele[node_2].
+                                                        t_conc[j] -
+                                                        CD->Vcele[node_4].
+                                                        t_conc[j] +
                                                         EPSILON) /
-                                                        (CD->
-                                                        Vcele[node_1].t_conc
-                                                        [j] -
-                                                        CD->
-                                                        Vcele[node_2].t_conc
-                                                        [j] + EPSILON);
+                                                        (CD->Vcele[node_1].
+                                                        t_conc[j] -
+                                                        CD->Vcele[node_2].
+                                                        t_conc[j] + EPSILON);
                                                     beta_ =
-                                                        MAX (0, MIN (MIN (2,
+                                                        MAX(0, MIN(MIN(2,
                                                                 2 * r_),
                                                             (2 + r_) / 3));
                                                     temp_conc =
-                                                        CD->
-                                                        Vcele[node_2].t_conc
-                                                        [j] +
+                                                        CD->Vcele[node_2].
+                                                        t_conc[j] +
                                                         beta_ *
-                                                        (CD->
-                                                        Vcele[node_1].t_conc
-                                                        [j] -
-                                                        CD->
-                                                        Vcele[node_2].t_conc
-                                                        [j]) * 0.5;
+                                                        (CD->Vcele[node_1].
+                                                        t_conc[j] -
+                                                        CD->Vcele[node_2].
+                                                        t_conc[j]) * 0.5;
                                                 }
                                                 else
                                                     temp_conc =
-                                                        CD->Vcele[node_2].
-                                                        t_conc[j];
+                                                        CD->
+                                                        Vcele[node_2].t_conc[j];
                                             }
                                             else
                                             {
                                                 if (node_3 > 0)
                                                 {
-                                                    r_ = (CD->
-                                                        Vcele[node_1].t_conc
-                                                        [j] -
-                                                        CD->
-                                                        Vcele[node_3].t_conc
-                                                        [j] +
+                                                    r_ = (CD->Vcele[node_1].
+                                                        t_conc[j] -
+                                                        CD->Vcele[node_3].
+                                                        t_conc[j] +
                                                         EPSILON) /
-                                                        (CD->
-                                                        Vcele[node_2].t_conc
-                                                        [j] -
-                                                        CD->
-                                                        Vcele[node_1].t_conc
-                                                        [j] + EPSILON);
+                                                        (CD->Vcele[node_2].
+                                                        t_conc[j] -
+                                                        CD->Vcele[node_1].
+                                                        t_conc[j] + EPSILON);
                                                     beta_ =
-                                                        MAX (0, MIN (MIN (2,
+                                                        MAX(0, MIN(MIN(2,
                                                                 2 * r_),
                                                             (2 + r_) / 3));
                                                     temp_conc =
-                                                        CD->
-                                                        Vcele[node_1].t_conc
-                                                        [j] +
+                                                        CD->Vcele[node_1].
+                                                        t_conc[j] +
                                                         beta_ *
-                                                        (CD->
-                                                        Vcele[node_2].t_conc
-                                                        [j] -
-                                                        CD->
-                                                        Vcele[node_1].t_conc
-                                                        [j]) * 0.5;
+                                                        (CD->Vcele[node_2].
+                                                        t_conc[j] -
+                                                        CD->Vcele[node_1].
+                                                        t_conc[j]) * 0.5;
                                                 }
                                                 else
                                                     temp_conc =
-                                                        CD->Vcele[node_1].
-                                                        t_conc[j];
+                                                        CD->
+                                                        Vcele[node_1].t_conc[j];
                                             }
                                         }
 
@@ -419,20 +400,17 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
                                         {
                                             if (flux_t > 0)
                                                 temp_conc =
-                                                    CD->Vcele[node_2].
-                                                    t_conc[j];
+                                                    CD->Vcele[node_2].t_conc[j];
                                             else
                                                 temp_conc =
-                                                    CD->Vcele[node_1].
-                                                    t_conc[j];
+                                                    CD->Vcele[node_1].t_conc[j];
 
                                         }
 
                                         if (CD->Flux[k].BC != 2)
                                             temp_dconc += temp_conc * flux_t;
                                         if (CD->Flux[k].BC == 0)
-                                            temp_dconc -=
-                                                diff_flux + disp_flux;
+                                            temp_dconc -= diff_flux + disp_flux;
 
                                         temp_dconc *= unit_c;
 
@@ -464,8 +442,7 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
             {
                 if (CD->Vcele[i].rt_step < stepsize)
                     continue;   // treated in the above section
-                if ((i >= 2 * CD->NumEle) &&
-                    (i < 2 * CD->NumEle + CD->NumRiv))
+                if ((i >= 2 * CD->NumEle) && (i < 2 * CD->NumEle + CD->NumRiv))
                     continue;   // treated in the above section
             }
             // For blocks with very small content, we just skip it.
@@ -490,26 +467,25 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
                         }
                     }
                     tmpconc[j] =
-                        tmpconc[j] / (CD->Vcele[i].porosity *
-                        CD->Vcele[i].vol);
+                        tmpconc[j] / (CD->Vcele[i].porosity * CD->Vcele[i].vol);
                 }
                 if (CD->Vcele[i].illness < 20)
                     for (j = 0; j < CD->NumSpc; j++)
                     {
 
                         if ((tmpconc[j] < 0.0)
-                            && (strcmp (CD->chemtype[j].ChemName, "'H+'"))
+                            && (strcmp(CD->chemtype[j].ChemName, "'H+'"))
                             && (i < CD->NumEle * 2))
                         {
-                            fprintf (stderr,
+                            fprintf(stderr,
                                 "negative concentration change at species %s !\n",
                                 CD->chemtype[j].ChemName);
-                            fprintf (stderr, "Change from fluxes: %8.4g\t",
+                            fprintf(stderr, "Change from fluxes: %8.4g\t",
                                 dconc[i][j] * stepsize);
-                            fprintf (stderr, "Original mass: %8.4g\n",
+                            fprintf(stderr, "Original mass: %8.4g\n",
                                 CD->Vcele[i].t_conc[j] *
                                 (CD->Vcele[i].porosity * CD->Vcele[i].vol_o));
-                            fprintf (stderr,
+                            fprintf(stderr,
                                 "New mass: %8.4g\t New Volume: %8.4g\t Old Conc: %8.4g\t New Conc: %8.4g\t Timestep: %8.4g\n",
                                 dconc[i][j] * stepsize +
                                 CD->Vcele[i].t_conc[j] *
@@ -518,7 +494,7 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
                                 CD->Vcele[i].height_t * CD->Vcele[i].area,
                                 CD->Vcele[i].t_conc[j], tmpconc[j],
                                 CD->Vcele[i].rt_step);
-                            ReportError (CD->Vcele[i], CD);
+                            ReportError(CD->Vcele[i], CD);
                             CD->Vcele[i].illness++;
                             abnormalflg = 1;
                         }
@@ -528,8 +504,8 @@ void OS3D (realtype t, realtype stepsize, Chem_Data CD)
         }
     }
     for (i = 0; i < CD->NumOsv; i++)
-        free (dconc[i]);
+        free(dconc[i]);
 
-    free (dconc);
-    free (tmpconc);
+    free(dconc);
+    free(tmpconc);
 }

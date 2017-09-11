@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitCycles (elem_struct *elem, river_struct *riv,
+void InitCycles(elem_struct *elem, river_struct *riv,
     const ctrl_struct *ctrl, const mgmttbl_struct *mgmttbl,
     const agtbl_struct *agtbl, const croptbl_struct *croptbl,
     const soiltbl_struct *soiltbl)
@@ -17,12 +17,12 @@ void InitCycles (elem_struct *elem, river_struct *riv,
     weather_struct *weather;
     cropmgmt_struct *cropmgmt;
 
-    rawtime = (time_t) ctrl->starttime;
-    timestamp = gmtime (&rawtime);
+    rawtime = (time_t)ctrl->starttime;
+    timestamp = gmtime(&rawtime);
     start_year = timestamp->tm_year + 1900;
 
-    rawtime = (time_t) (ctrl->endtime - DAYINSEC);
-    timestamp = gmtime (&rawtime);
+    rawtime = (time_t)(ctrl->endtime - DAYINSEC);
+    timestamp = gmtime(&rawtime);
     end_year = timestamp->tm_year + 1900;
 
     total_years = end_year - start_year + 1;
@@ -34,31 +34,31 @@ void InitCycles (elem_struct *elem, river_struct *riv,
          */
         weather = &elem[i].weather;
 
-        weather->wind = (double **)malloc (total_years * sizeof (double *));
-        //weather->ETref = (double **)malloc (total_years * sizeof (double *));
-        //weather->precipitation = (double **)malloc (total_years * sizeof (double *));
-        //weather->RHmax = (double **)malloc (total_years * sizeof (double *));
-        //weather->RHmin = (double **)malloc (total_years * sizeof (double *));
+        weather->wind = (double **)malloc(total_years * sizeof(double *));
+        //weather->ETref = (double **)malloc (total_years * sizeof(double *));
+        //weather->precipitation = (double **)malloc (total_years * sizeof(double *));
+        //weather->RHmax = (double **)malloc (total_years * sizeof(double *));
+        //weather->RHmin = (double **)malloc (total_years * sizeof(double *));
         weather->solarRadiation =
-            (double **)malloc (total_years * sizeof (double *));
-        weather->tMax = (double **)malloc (total_years * sizeof (double *));
-        weather->tMin = (double **)malloc (total_years * sizeof (double *));
-        weather->vpd = (double **)malloc (total_years * sizeof (double *));
-        //weather->yearlyAmplitude = (double *)malloc (total_years * sizeof (double));
-        //weather->annualAverageTemperature = (double *)malloc (total_years * sizeof (double));
-        weather->lastDoy = (int *)malloc (total_years * sizeof (int));
+            (double **)malloc(total_years * sizeof(double *));
+        weather->tMax = (double **)malloc(total_years * sizeof(double *));
+        weather->tMin = (double **)malloc(total_years * sizeof(double *));
+        weather->vpd = (double **)malloc(total_years * sizeof(double *));
+        //weather->yearlyAmplitude = (double *)malloc (total_years * sizeof(double));
+        //weather->annualAverageTemperature = (double *)malloc (total_years * sizeof(double));
+        weather->lastDoy = (int *)malloc(total_years * sizeof(int));
         for (y = 0; y < total_years; y++)
         {
-            weather->wind[y] = (double *)malloc (366 * sizeof (double));
-            //weather->ETref[y] = (double *)malloc (366 * sizeof (double));
-            //weather->precipitation[y] = (double *)malloc (366 * sizeof (double));
-            //weather->RHmax[y] = (double *)malloc (366 * sizeof (double));
-            //weather->RHmin[y] = (double *)malloc (366 * sizeof (double));
+            weather->wind[y] = (double *)malloc(366 * sizeof(double));
+            //weather->ETref[y] = (double *)malloc (366 * sizeof(double));
+            //weather->precipitation[y] = (double *)malloc (366 * sizeof(double));
+            //weather->RHmax[y] = (double *)malloc (366 * sizeof(double));
+            //weather->RHmin[y] = (double *)malloc (366 * sizeof(double));
             weather->solarRadiation[y] =
-                (double *)malloc (366 * sizeof (double));
-            weather->tMax[y] = (double *)malloc (366 * sizeof (double));
-            weather->tMin[y] = (double *)malloc (366 * sizeof (double));
-            weather->vpd[y] = (double *)malloc (366 * sizeof (double));
+                (double *)malloc(366 * sizeof(double));
+            weather->tMax[y] = (double *)malloc(366 * sizeof(double));
+            weather->tMin[y] = (double *)malloc(366 * sizeof(double));
+            weather->vpd[y] = (double *)malloc(366 * sizeof(double));
         }
 
         /*
@@ -68,10 +68,10 @@ void InitCycles (elem_struct *elem, river_struct *riv,
 
         if (agtbl->op[i] > agtbl->nopfile)
         {
-            Cycles_printf (VL_ERROR,
+            Cycles_printf(VL_ERROR,
                 "ERROR: Operation file for operation index %d "
                 "is not provided.\n", agtbl->op[i]);
-            Cycles_exit (EXIT_FAILURE);
+            Cycles_exit(EXIT_FAILURE);
         }
 
         opind = agtbl->op[i] - 1;
@@ -83,29 +83,32 @@ void InitCycles (elem_struct *elem, river_struct *riv,
 
         cropmgmt->rotationYear = 0;
 
-        cropmgmt->totalCropsPerRotation = mgmttbl->cropmgmt[opind].totalCropsPerRotation;
+        cropmgmt->totalCropsPerRotation =
+            mgmttbl->cropmgmt[opind].totalCropsPerRotation;
         cropmgmt->plantingOrder = mgmttbl->cropmgmt[opind].plantingOrder;
 
         cropmgmt->numTillage = mgmttbl->cropmgmt[opind].numTillage;
         cropmgmt->Tillage = mgmttbl->cropmgmt[opind].Tillage;
 
         cropmgmt->numFertilization = mgmttbl->cropmgmt[opind].numFertilization;
-        cropmgmt->FixedFertilization = mgmttbl->cropmgmt[opind].FixedFertilization;
+        cropmgmt->FixedFertilization =
+            mgmttbl->cropmgmt[opind].FixedFertilization;
 
         cropmgmt->numIrrigation = mgmttbl->cropmgmt[opind].numIrrigation;
         cropmgmt->FixedIrrigation = mgmttbl->cropmgmt[opind].FixedIrrigation;
 
-        cropmgmt->numAutoIrrigation = mgmttbl->cropmgmt[opind].numAutoIrrigation;
+        cropmgmt->numAutoIrrigation =
+            mgmttbl->cropmgmt[opind].numAutoIrrigation;
         cropmgmt->autoIrrigation = mgmttbl->cropmgmt[opind].autoIrrigation;
 
         cropmgmt->op_status[PLANT_OP] =
-            (int *)calloc (cropmgmt->totalCropsPerRotation, sizeof (int));
+            (int *)calloc(cropmgmt->totalCropsPerRotation, sizeof(int));
         cropmgmt->op_status[TILLAGE_OP] =
-            (int *)calloc (cropmgmt->numTillage, sizeof (int));
+            (int *)calloc(cropmgmt->numTillage, sizeof(int));
         cropmgmt->op_status[FIXIRR_OP] =
-            (int *)calloc (cropmgmt->numIrrigation, sizeof (int));
+            (int *)calloc(cropmgmt->numIrrigation, sizeof(int));
         cropmgmt->op_status[FIXFERT_OP] =
-            (int *)calloc (cropmgmt->numFertilization, sizeof (int));
+            (int *)calloc(cropmgmt->numFertilization, sizeof(int));
 
         for (k = 0; k < elem[i].ps.nsoil; k++)
         {
@@ -122,11 +125,11 @@ void InitCycles (elem_struct *elem, river_struct *riv,
 
         comm->NumCrop = croptbl->number;
         comm->Crop =
-            (crop_struct *)malloc (comm->NumCrop * sizeof (crop_struct));
+            (crop_struct *)malloc(comm->NumCrop * sizeof(crop_struct));
 
         for (j = 0; j < comm->NumCrop; j++)
         {
-            strcpy (comm->Crop[j].cropName, croptbl->cropName[j]);
+            strcpy(comm->Crop[j].cropName, croptbl->cropName[j]);
 
             comm->Crop[j].userFloweringTT = croptbl->userFloweringTT[j];
             comm->Crop[j].userMaturityTT = croptbl->userMaturityTT[j];
@@ -151,8 +154,7 @@ void InitCycles (elem_struct *elem, river_struct *riv,
             comm->Crop[j].userClippingBiomassThresholdLower =
                 croptbl->userClippingBiomassThresholdLower[j];
             comm->Crop[j].userClippingTiming = croptbl->userClippingTiming[j];
-            comm->Crop[j].userClippingDestiny =
-                croptbl->userClippingDestiny[j];
+            comm->Crop[j].userClippingDestiny = croptbl->userClippingDestiny[j];
             comm->Crop[j].userTranspirationMinTemperature =
                 croptbl->userTranspirationMinTemperature[j];
             comm->Crop[j].userTranspirationThresholdTemperature =
@@ -161,8 +163,7 @@ void InitCycles (elem_struct *elem, river_struct *riv,
                 croptbl->userColdDamageMinTemperature[j];
             comm->Crop[j].userColdDamageThresholdTemperature =
                 croptbl->userColdDamageThresholdTemperature[j];
-            comm->Crop[j].userTemperatureBase =
-                croptbl->userTemperatureBase[j];
+            comm->Crop[j].userTemperatureBase = croptbl->userTemperatureBase[j];
             comm->Crop[j].userTemperatureOptimum =
                 croptbl->userTemperatureOptimum[j];
             comm->Crop[j].userTemperatureMaximum =
@@ -188,8 +189,7 @@ void InitCycles (elem_struct *elem, river_struct *riv,
             comm->Crop[j].userC3orC4 = croptbl->userC3orC4[j];
             comm->Crop[j].userExtinctionCoefficient =
                 croptbl->userExtinctionCoefficient[j];
-            comm->Crop[j].userPlantingDensity =
-                croptbl->userPlantingDensity[j];
+            comm->Crop[j].userPlantingDensity = croptbl->userPlantingDensity[j];
             comm->Crop[j].userClippingStart = croptbl->userClippingStart[j];
             comm->Crop[j].userClippingEnd = croptbl->userClippingEnd[j];
             comm->Crop[j].LWP_StressOnset = croptbl->LWP_StressOnset[j];
@@ -215,18 +215,18 @@ void InitCycles (elem_struct *elem, river_struct *riv,
 
             comm->Crop[j].stageGrowth = NO_CROP;
 
-            InitCropSV (&comm->Crop[j]);
+            InitCropSV(&comm->Crop[j]);
         }
 
-        UpdateCommunity (comm);
+        UpdateCommunity(comm);
 
-        InitializeSoil (&elem[i].soil, soiltbl, &elem[i].ps,
+        InitializeSoil(&elem[i].soil, soiltbl, &elem[i].ps,
             &elem[i].cycles_restart, elem[i].attrib.soil_type,
             ctrl->read_cycles_restart);
 
-        InitializeResidue (&elem[i].residue, elem[i].ps.nsoil);
+        InitializeResidue(&elem[i].residue, elem[i].ps.nsoil);
 
-        InitializeSoilCarbon (&elem[i].soilc, elem[i].ps.nsoil);
+        InitializeSoilCarbon(&elem[i].soilc, elem[i].ps.nsoil);
 
         elem[i].comm.NumActiveCrop = 0;
 
@@ -266,48 +266,48 @@ void InitCycles (elem_struct *elem, river_struct *riv,
     }
 }
 
-void WriteCyclesIC (char *restart_fn, elem_struct *elem, river_struct *riv)
+void WriteCyclesIC(char *restart_fn, elem_struct *elem, river_struct *riv)
 {
     int             i, j;
     FILE           *restart_file;
 
-    restart_file = fopen (restart_fn, "wb");
-    CheckFile (restart_file, restart_fn);
-    PIHMprintf (VL_VERBOSE, "Writing Cycles initial conditions.\n");
+    restart_file = fopen(restart_fn, "wb");
+    CheckFile(restart_file, restart_fn);
+    PIHMprintf(VL_VERBOSE, "Writing Cycles initial conditions.\n");
 
     for (i = 0; i < nelem; i++)
     {
         for (j = 0; j < MAXLYR; j++)
         {
-            fwrite (&elem[i].soil.SOC_Mass[j], sizeof (double), 1, restart_file);
+            fwrite(&elem[i].soil.SOC_Mass[j], sizeof(double), 1, restart_file);
         }
         for (j = 0; j < MAXLYR; j++)
         {
-            fwrite (&elem[i].soil.SON_Mass[j], sizeof (double), 1, restart_file);
+            fwrite(&elem[i].soil.SON_Mass[j], sizeof(double), 1, restart_file);
         }
         for (j = 0; j < MAXLYR; j++)
         {
-            fwrite (&elem[i].soil.MBC_Mass[j], sizeof (double), 1, restart_file);
+            fwrite(&elem[i].soil.MBC_Mass[j], sizeof(double), 1, restart_file);
         }
         for (j = 0; j < MAXLYR; j++)
         {
-            fwrite (&elem[i].soil.MBN_Mass[j], sizeof (double), 1, restart_file);
+            fwrite(&elem[i].soil.MBN_Mass[j], sizeof(double), 1, restart_file);
         }
         for (j = 0; j < MAXLYR; j++)
         {
-            fwrite (&elem[i].soil.NO3[j], sizeof (double), 1, restart_file);
+            fwrite(&elem[i].soil.NO3[j], sizeof(double), 1, restart_file);
         }
         for (j = 0; j < MAXLYR; j++)
         {
-            fwrite (&elem[i].soil.NH4[j], sizeof (double), 1, restart_file);
+            fwrite(&elem[i].soil.NH4[j], sizeof(double), 1, restart_file);
         }
     }
 
     for (i = 0; i < nriver; i++)
     {
-       fwrite (&riv[i].NO3sol.soluteMass, sizeof (double), 1, restart_file);
-       fwrite (&riv[i].NH4sol.soluteMass, sizeof (double), 1, restart_file);
+        fwrite(&riv[i].NO3sol.soluteMass, sizeof(double), 1, restart_file);
+        fwrite(&riv[i].NH4sol.soluteMass, sizeof(double), 1, restart_file);
     }
 
-    fclose (restart_file);
+    fclose(restart_file);
 }

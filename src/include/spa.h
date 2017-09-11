@@ -99,17 +99,17 @@ typedef struct
     double          pressure;   // Annual average local pressure [millibars]
     // valid range:    0 to 5000 millibars,       error code: 12
 
-    double          temperature;        // Annual average local temperature [degrees Celsius]
+    double          temperature;    // Annual average local temperature [degrees Celsius]
     // valid range: -273 to 6000 degrees Celsius, error code; 13
 
     double          slope;      // Surface slope (measured from the horizontal plane)
     // valid range: -360 to 360 degrees, error code: 14
 
-    double          azm_rotation;       // Surface azimuth rotation (measured from south to projection of
+    double          azm_rotation;   // Surface azimuth rotation (measured from south to projection of
     //     surface normal on horizontal plane, negative west)
     // valid range: -360 to 360 degrees, error code: 15
 
-    double          atmos_refract;      // Atmospheric refraction at sunrise and sunset (0.5667 deg is typical)
+    double          atmos_refract;  // Atmospheric refraction at sunrise and sunset (0.5667 deg is typical)
     // valid range: -5   to   5 degrees, error code: 16
 
     int             function;   // Switch to choose functions for desired output (from enumeration)
@@ -137,7 +137,7 @@ typedef struct
     double          x4;         //ascending longitude (moon) [degrees]
 
     double          del_psi;    //nutation longitude [degrees]
-    double          del_epsilon;        //nutation obliquity [degrees]
+    double          del_epsilon;    //nutation obliquity [degrees]
     double          epsilon0;   //ecliptic mean obliquity [arc seconds]
     double          epsilon;    //ecliptic true obliquity  [degrees]
 
@@ -152,8 +152,8 @@ typedef struct
     double          h;          //observer hour angle [degrees]
     double          xi;         //sun equatorial horizontal parallax [degrees]
     double          del_alpha;  //sun right ascension parallax [degrees]
-    double          delta_prime;        //topocentric sun declination [degrees]
-    double          alpha_prime;        //topocentric sun right ascension [degrees]
+    double          delta_prime;    //topocentric sun declination [degrees]
+    double          alpha_prime;    //topocentric sun right ascension [degrees]
     double          h_prime;    //topocentric local hour angle [degrees]
 
     double          e0;         //topocentric elevation angle (uncorrected) [degrees]
@@ -179,36 +179,36 @@ typedef struct
 } spa_data;
 
 //-------------- Utility functions for other applications (such as NREL's SAMPA) --------------
-double          deg2rad (double degrees);
-double          rad2deg (double radians);
-double          limit_degrees (double degrees);
-double          third_order_polynomial (double a, double b, double c,
+double          deg2rad(double degrees);
+double          rad2deg(double radians);
+double          limit_degrees(double degrees);
+double          third_order_polynomial(double a, double b, double c,
     double d, double x);
-double          geocentric_right_ascension (double lamda, double epsilon,
+double          geocentric_right_ascension(double lamda, double epsilon,
     double beta);
-double          geocentric_declination (double beta, double epsilon,
+double          geocentric_declination(double beta, double epsilon,
     double lamda);
-double          observer_hour_angle (double nu, double longitude,
+double          observer_hour_angle(double nu, double longitude,
     double alpha_deg);
-void            right_ascension_parallax_and_topocentric_dec (double latitude,
+void            right_ascension_parallax_and_topocentric_dec(double latitude,
     double elevation, double xi, double h, double delta, double *delta_alpha,
     double *delta_prime);
-double          topocentric_right_ascension (double alpha_deg,
+double          topocentric_right_ascension(double alpha_deg,
     double delta_alpha);
-double          topocentric_local_hour_angle (double h, double delta_alpha);
-double          topocentric_elevation_angle (double latitude,
+double          topocentric_local_hour_angle(double h, double delta_alpha);
+double          topocentric_elevation_angle(double latitude,
     double delta_prime, double h_prime);
-double          atmospheric_refraction_correction (double pressure,
+double          atmospheric_refraction_correction(double pressure,
     double temperature, double atmos_refract, double e0);
-double          topocentric_elevation_angle_corrected (double e0,
+double          topocentric_elevation_angle_corrected(double e0,
     double delta_e);
-double          topocentric_zenith_angle (double e);
-double          topocentric_azimuth_angle_neg180_180 (double h_prime,
+double          topocentric_zenith_angle(double e);
+double          topocentric_azimuth_angle_neg180_180(double h_prime,
     double latitude, double delta_prime);
-double          topocentric_azimuth_angle_zero_360 (double azimuth180);
+double          topocentric_azimuth_angle_zero_360(double azimuth180);
 
 
 //Calculate SPA output values (in structure) based on input values passed in structure
-int             spa_calculate (spa_data * spa);
+int             spa_calculate(spa_data * spa);
 
 #endif

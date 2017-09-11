@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
+void DailyCarbonStateUpdate(cflux_struct *cf, cstate_struct *cs, int alloc,
     int woody, int evergreen)
 {
     /* Daily update of the carbon state variables */
@@ -222,10 +222,8 @@ void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
         cf->gresp_storage_to_gresp_transfer = cs->gresp_storage;
         if (woody)
         {
-            cf->livestemc_storage_to_livestemc_transfer =
-                cs->livestemc_storage;
-            cf->deadstemc_storage_to_deadstemc_transfer =
-                cs->deadstemc_storage;
+            cf->livestemc_storage_to_livestemc_transfer = cs->livestemc_storage;
+            cf->deadstemc_storage_to_deadstemc_transfer = cs->deadstemc_storage;
             cf->livecrootc_storage_to_livecrootc_transfer =
                 cs->livecrootc_storage;
             cf->deadcrootc_storage_to_deadcrootc_transfer =
@@ -271,10 +269,10 @@ void DailyCarbonStateUpdate (cflux_struct *cf, cstate_struct *cs, int alloc,
                 cs->frootc = 0.0;
             }
         }
-    }                           /* End if allocation day */
+    }    /* End if allocation day */
 }
 
-void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
+void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
     solute_struct *nsol, int alloc, int woody, int evergreen)
 {
     /* N state variables are updated below in the order of the relevant fluxes
@@ -315,7 +313,7 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
     ns->leafn -= nf->leafn_to_litr3n;
     ns->litr4n += nf->leafn_to_litr4n;
     ns->leafn -= nf->leafn_to_litr4n;
-    ns->retransn += nf->leafn_to_retransn;      /* N retranslocation */
+    ns->retransn += nf->leafn_to_retransn;         /* N retranslocation */
     ns->leafn -= nf->leafn_to_retransn;
     ns->litr1n += nf->frootn_to_litr1n;
     ns->frootn -= nf->frootn_to_litr1n;
@@ -328,17 +326,15 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
     /* Live wood turnover to dead wood */
     ns->deadstemn += nf->livestemn_to_deadstemn;
     ns->livestemn -= nf->livestemn_to_deadstemn;
-    ns->retransn += nf->livestemn_to_retransn;  /* N retranslocation */
+    ns->retransn += nf->livestemn_to_retransn;     /* N retranslocation */
     ns->livestemn -= nf->livestemn_to_retransn;
     ns->deadcrootn += nf->livecrootn_to_deadcrootn;
     ns->livecrootn -= nf->livecrootn_to_deadcrootn;
-    ns->retransn += nf->livecrootn_to_retransn; /* N retranslocation */
+    ns->retransn += nf->livecrootn_to_retransn;    /* N retranslocation */
     ns->livecrootn -= nf->livecrootn_to_retransn;
 
     /* Nitrogen deposition */
-    //nsol->snksrc += nf->ndep_to_sminn;
     ns->ndep_src += nf->ndep_to_sminn;
-    //nsol->snksrc += nf->nfix_to_sminn;
     ns->nfix_src += nf->nfix_to_sminn;
 
     /* Litter and soil decomposition fluxes */
@@ -354,8 +350,7 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
     ns->litr1n -= nf->litr1n_to_soil1n;
     if (nf->sminn_to_soil1n_l1 < 0.0)
     {
-        nf->sminn_to_nvol_l1s1 =
-            -DENITRIF_PROPORTION * nf->sminn_to_soil1n_l1;
+        nf->sminn_to_nvol_l1s1 = -DENITRIF_PROPORTION * nf->sminn_to_soil1n_l1;
     }
     else
     {
@@ -370,8 +365,7 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
     ns->litr2n -= nf->litr2n_to_soil2n;
     if (nf->sminn_to_soil2n_l2 < 0.0)
     {
-        nf->sminn_to_nvol_l2s2 =
-            -DENITRIF_PROPORTION * nf->sminn_to_soil2n_l2;
+        nf->sminn_to_nvol_l2s2 = -DENITRIF_PROPORTION * nf->sminn_to_soil2n_l2;
     }
     else
     {
@@ -389,8 +383,7 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
     ns->litr4n -= nf->litr4n_to_soil3n;
     if (nf->sminn_to_soil3n_l4 < 0.0)
     {
-        nf->sminn_to_nvol_l4s3 =
-            -DENITRIF_PROPORTION * nf->sminn_to_soil3n_l4;
+        nf->sminn_to_nvol_l4s3 = -DENITRIF_PROPORTION * nf->sminn_to_soil3n_l4;
     }
     else
     {
@@ -405,8 +398,7 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
     ns->soil1n -= nf->soil1n_to_soil2n;
     if (nf->sminn_to_soil2n_s1 < 0.0)
     {
-        nf->sminn_to_nvol_s1s2 =
-            -DENITRIF_PROPORTION * nf->sminn_to_soil2n_s1;
+        nf->sminn_to_nvol_s1s2 = -DENITRIF_PROPORTION * nf->sminn_to_soil2n_s1;
     }
     else
     {
@@ -421,8 +413,7 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
     ns->soil2n -= nf->soil2n_to_soil3n;
     if (nf->sminn_to_soil3n_s2 < 0.0)
     {
-        nf->sminn_to_nvol_s2s3 =
-            -DENITRIF_PROPORTION * nf->sminn_to_soil3n_s2;
+        nf->sminn_to_nvol_s2s3 = -DENITRIF_PROPORTION * nf->sminn_to_soil3n_s2;
     }
     else
     {
@@ -437,8 +428,7 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
     ns->soil3n -= nf->soil3n_to_soil4n;
     if (nf->sminn_to_soil4n_s3 < 0.0)
     {
-        nf->sminn_to_nvol_s3s4 =
-            -DENITRIF_PROPORTION * nf->sminn_to_soil4n_s3;
+        nf->sminn_to_nvol_s3s4 = -DENITRIF_PROPORTION * nf->sminn_to_soil4n_s3;
     }
     else
     {
@@ -512,10 +502,8 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
         nf->frootn_storage_to_frootn_transfer = ns->frootn_storage;
         if (woody)
         {
-            nf->livestemn_storage_to_livestemn_transfer =
-                ns->livestemn_storage;
-            nf->deadstemn_storage_to_deadstemn_transfer =
-                ns->deadstemn_storage;
+            nf->livestemn_storage_to_livestemn_transfer = ns->livestemn_storage;
+            nf->deadstemn_storage_to_deadstemn_transfer = ns->deadstemn_storage;
             nf->livecrootn_storage_to_livecrootn_transfer =
                 ns->livecrootn_storage;
             nf->deadcrootn_storage_to_deadcrootn_transfer =
@@ -558,8 +546,7 @@ void DailyNitrogenStateUpdate (nflux_struct *nf, nstate_struct *ns,
                 ns->frootn = 0.0;
             }
         }
-    }                           /* End if annual allocation day */
+    }    /* End if annual allocation day */
 
     nsol->snksrc /= DAYINSEC;
 }
-

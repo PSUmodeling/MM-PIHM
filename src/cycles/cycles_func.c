@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-int DOY (int t)
+int DOY(int t)
 {
     struct tm      *timestamp;
     int             year, month, mday;
@@ -11,19 +11,19 @@ int DOY (int t)
     };
     int             leap;
 
-    rawtime = (time_t) t;
-    timestamp = gmtime (&rawtime);
+    rawtime = (time_t)t;
+    timestamp = gmtime(&rawtime);
 
     year = timestamp->tm_year + 1900;
     month = timestamp->tm_mon + 1;
     mday = timestamp->tm_mday;
 
-    leap = IsLeapYear (year);
+    leap = IsLeapYear(year);
 
     return (days[leap][month] + mday);
 }
 
-int IsLeapYear (int year)
+int IsLeapYear(int year)
 {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }

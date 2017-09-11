@@ -1,27 +1,27 @@
 #include "pihm.h"
 
-void DailyAllocation (cflux_struct *cf, const cstate_struct *cs,
+void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
     nflux_struct *nf, const nstate_struct *ns, const epconst_struct *epc,
     epvar_struct *epv, ntemp_struct *nt)
 {
-    double          day_gpp;    /* daily gross production */
-    double          day_mresp;  /* daily total maintenance respiration */
-    double          avail_c;    /* total C available for new production */
-    double          f1;         /* RATIO new fine root C : new leaf C */
-    double          f2;         /* RATIO new coarse root C : new stem C */
-    double          f3;         /* RATIO new stem C : new leaf C */
-    double          f4;         /* RATIO new live wood C : new wood C */
-    double          g1;         /* RATIO C respired for growth : C grown */
-    double          g2;         /* proportion of growth resp to release at
-                                 * fixation */
-    double          cnl;        /* RATIO leaf C:N */
-    double          cnfr;       /* RATIO fine root C:N */
-    double          cnlw;       /* RATIO live wood C:N */
-    double          cndw;       /* RATIO dead wood C:N */
-    double          nlc;        /* actual new leaf C, minimum of C and N
-                                 * limits   */
-    double          pnow;       /* proportion of growth displayed on current
-                                 * day */
+    double          day_gpp;      /* daily gross production */
+    double          day_mresp;    /* daily total maintenance respiration */
+    double          avail_c;      /* total C available for new production */
+    double          f1;           /* RATIO new fine root C : new leaf C */
+    double          f2;           /* RATIO new coarse root C : new stem C */
+    double          f3;           /* RATIO new stem C : new leaf C */
+    double          f4;           /* RATIO new live wood C : new wood C */
+    double          g1;           /* RATIO C respired for growth : C grown */
+    double          g2;           /* proportion of growth resp to release at
+                                   * fixation */
+    double          cnl;          /* RATIO leaf C:N */
+    double          cnfr;         /* RATIO fine root C:N */
+    double          cnlw;         /* RATIO live wood C:N */
+    double          cndw;         /* RATIO dead wood C:N */
+    double          nlc;          /* actual new leaf C, minimum of C and N
+                                   * limits   */
+    double          pnow;         /* proportion of growth displayed on current
+                                   * day */
     double          gresp_storage;
     double          c_allometry, n_allometry;
     double          plant_ndemand, sum_ndemand;
@@ -42,8 +42,7 @@ void DailyAllocation (cflux_struct *cf, const cstate_struct *cs,
     day_gpp = cf->psnsun_to_cpool + cf->psnshade_to_cpool;
     if (epc->woody)
     {
-        day_mresp =
-            cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr +
+        day_mresp = cf->leaf_day_mr + cf->leaf_night_mr + cf->froot_mr +
             cf->livestem_mr + cf->livecroot_mr;
     }
     else
@@ -64,7 +63,7 @@ void DailyAllocation (cflux_struct *cf, const cstate_struct *cs,
         /* Running a deficit in cpool, so the first priority is to let some of
          * today's available C accumulate in cpool. The actual accumulation in
          * the cpool is resolved in day_carbon_state(). */
-        /* First determine how much of the deficit should be recovered today*/
+        /* First determine how much of the deficit should be recovered today */
         cpool_recovery = -cs->cpool / DAYSCRECOVER;
 
         /* Potential recovery of cpool deficit is less than the available
@@ -78,13 +77,13 @@ void DailyAllocation (cflux_struct *cf, const cstate_struct *cs,
             avail_c -= cpool_recovery;
         }
 
-        /* cpool deficit is >= available C, so all of the daily GPP, if any,
-         * is used to alleviate negative cpool */
+        /* cpool deficit is >= available C, so all of the daily GPP, if any, is
+         * used to alleviate negative cpool */
         else
         {
             avail_c = 0.0;
         }
-    }                           /* end if negative cpool */
+    }    /* end if negative cpool */
 
     /* Assign local values for the allocation control parameters */
     f1 = epc->alloc_frootc_leafc;
@@ -105,14 +104,13 @@ void DailyAllocation (cflux_struct *cf, const cstate_struct *cs,
     if (epc->woody)
     {
         c_allometry = ((1.0 + g1) * (1.0 + f1 + f3 * (1.0 + f2)));
-        n_allometry =
-            (1.0 / cnl + f1 / cnfr + (f3 * f4 * (1.0 + f2)) / cnlw +
-            (f3 * (1.0 - f4) * (1.0 + f2)) / cndw);
+        n_allometry = 1.0 / cnl + f1 / cnfr + (f3 * f4 * (1.0 + f2)) / cnlw +
+            (f3 * (1.0 - f4) * (1.0 + f2)) / cndw;
     }
     else
     {
-        c_allometry = (1.0 + g1 + f1 + f1 * g1);
-        n_allometry = (1.0 / cnl + f1 / cnfr);
+        c_allometry = 1.0 + g1 + f1 + f1 * g1;
+        n_allometry = 1.0 / cnl + f1 / cnfr;
     }
     plant_ndemand = avail_c * (n_allometry / c_allometry);
 
@@ -227,8 +225,7 @@ void DailyAllocation (cflux_struct *cf, const cstate_struct *cs,
     if (epc->woody)
     {
         nf->npool_to_livestemn = (nlc * f3 * f4 / cnlw) * pnow;
-        nf->npool_to_livestemn_storage =
-            (nlc * f3 * f4 / cnlw) * (1.0 - pnow);
+        nf->npool_to_livestemn_storage = (nlc * f3 * f4 / cnlw) * (1.0 - pnow);
         nf->npool_to_deadstemn = (nlc * f3 * (1.0 - f4) / cndw) * pnow;
         nf->npool_to_deadstemn_storage =
             (nlc * f3 * (1.0 - f4) / cndw) * (1.0 - pnow);
@@ -254,22 +251,22 @@ void DailyAllocation (cflux_struct *cf, const cstate_struct *cs,
         gresp_storage =
             (cf->cpool_to_leafc_storage + cf->cpool_to_frootc_storage +
             cf->cpool_to_livestemc_storage + cf->cpool_to_deadstemc_storage +
-            cf->cpool_to_livecrootc_storage +
-            cf->cpool_to_deadcrootc_storage) * g1 * (1.0 - g2);
+            cf->cpool_to_livecrootc_storage + cf->cpool_to_deadcrootc_storage) *
+            g1 * (1.0 - g2);
     }
     else
     {
         gresp_storage =
-            (cf->cpool_to_leafc_storage +
-            cf->cpool_to_frootc_storage) * g1 * (1.0 - g2);
+            (cf->cpool_to_leafc_storage + cf->cpool_to_frootc_storage) *
+            g1 * (1.0 - g2);
     }
     cf->cpool_to_gresp_storage = gresp_storage;
 
     /* Now use the N limitation information to assess the final decomposition
      * fluxes. Mineralizing fluxes (pmnf* < 0.0) occur at the potential rate
      * regardless of the competing N demands between microbial processes and
-     * plant uptake, but immobilizing fluxes are reduced when soil mineral N
-     * is limiting */
+     * plant uptake, but immobilizing fluxes are reduced when soil mineral N is
+     * limiting */
     /* Calculate litter and soil compartment C:N ratios */
     if (ns->litr1n > 0.0)
     {

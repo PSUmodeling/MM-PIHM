@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void MakeZeroFluxStruct (cflux_struct *cf, nflux_struct *nf)
+void MakeZeroFluxStruct(cflux_struct *cf, nflux_struct *nf)
 {
     /* Carbon fluxes */
     cf->m_leafc_to_litr1c = 0.0;

@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void RestartInput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
+void RestartInput(cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     bgcic_struct *restart)
 {
     cs->leafc = restart->leafc;
@@ -83,7 +83,7 @@ void RestartInput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     epv->offset_swi = restart->offset_swi;
 }
 
-void RestartOutput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
+void RestartOutput(cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     bgcic_struct *restart)
 {
     restart->leafc = cs->leafc;
@@ -166,19 +166,18 @@ void RestartOutput (cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     restart->offset_swi = epv->offset_swi;
 }
 
-void ReadBgcIC (char *fn, elem_struct *elem, river_struct *riv)
+void ReadBgcIC(char *fn, elem_struct *elem, river_struct *riv)
 {
     FILE           *init_file;
     int             i;
 
-    init_file = fopen (fn, "rb");
-    CheckFile (init_file, fn);
-    PIHMprintf (VL_VERBOSE, " Reading %s\n", fn);
+    init_file = fopen(fn, "rb");
+    CheckFile(init_file, fn);
+    PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 
     for (i = 0; i < nelem; i++)
     {
-        fread (&elem[i].restart_input, sizeof (bgcic_struct), 1,
-            init_file);
+        fread(&elem[i].restart_input, sizeof(bgcic_struct), 1, init_file);
 
         /* If simulation is accelerated spinup, adjust soil C pool sizes if
          * needed */
@@ -198,25 +197,24 @@ void ReadBgcIC (char *fn, elem_struct *elem, river_struct *riv)
 
     for (i = 0; i < nriver; i++)
     {
-        fread (&riv[i].restart_input, sizeof (river_bgcic_struct), 1,
-            init_file);
+        fread(&riv[i].restart_input, sizeof(river_bgcic_struct), 1, init_file);
     }
 
-    fclose (init_file);
+    fclose(init_file);
 }
 
-void WriteBgcIC (char *restart_fn, elem_struct *elem, river_struct *riv)
+void WriteBgcIC(char *restart_fn, elem_struct *elem, river_struct *riv)
 {
-    int         i;
-    FILE       *restart_file;
+    int             i;
+    FILE           *restart_file;
 
-    restart_file = fopen (restart_fn, "wb");
-    CheckFile (restart_file, restart_fn);
-    PIHMprintf (VL_VERBOSE, "Writing BGC initial conditions.\n");
+    restart_file = fopen(restart_fn, "wb");
+    CheckFile(restart_file, restart_fn);
+    PIHMprintf(VL_VERBOSE, "Writing BGC initial conditions.\n");
 
     for (i = 0; i < nelem; i++)
     {
-        RestartOutput (&elem[i].cs, &elem[i].ns, &elem[i].epv,
+        RestartOutput(&elem[i].cs, &elem[i].ns, &elem[i].epv,
             &elem[i].restart_output);
 
         /* If initial conditions are obtained using accelerated spinup,
@@ -234,7 +232,7 @@ void WriteBgcIC (char *restart_fn, elem_struct *elem, river_struct *riv)
             elem[i].restart_output.soil4n *= KS4_ACC;
         }
 
-        fwrite (&(elem[i].restart_output), sizeof (bgcic_struct), 1,
+        fwrite(&(elem[i].restart_output), sizeof(bgcic_struct), 1,
             restart_file);
     }
 
@@ -243,7 +241,7 @@ void WriteBgcIC (char *restart_fn, elem_struct *elem, river_struct *riv)
         riv[i].restart_output.streamn = riv[i].ns.streamn;
         riv[i].restart_output.sminn = riv[i].ns.sminn;
 
-        fwrite (&(riv[i].restart_output), sizeof (river_bgcic_struct), 1,
+        fwrite(&(riv[i].restart_output), sizeof(river_bgcic_struct), 1,
             restart_file);
     }
 }

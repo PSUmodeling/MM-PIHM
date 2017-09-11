@@ -1,16 +1,15 @@
 #include "pihm.h"
 
-void FirstDay (elem_struct *elem, river_struct *riv,
-    const cninit_struct *cninit)
+void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
 {
     int             i;
 
     for (i = 0; i < nelem; i++)
     {
-        bgcic_struct *restart;
+        bgcic_struct   *restart;
         epconst_struct *epc;
-        double      max_leafc, max_frootc, max_stemc;
-        double      new_stemc;
+        double          max_leafc, max_frootc, max_stemc;
+        double          new_stemc;
 
         restart = &elem[i].restart_input;
         epc = &elem[i].epc;
@@ -81,7 +80,7 @@ void FirstDay (elem_struct *elem, river_struct *riv,
         restart->deadcrootn_storage = 0.0;
         restart->retransn = 0.0;
         restart->npool = 0.0;
-        restart->surfn =  0.0;
+        restart->surfn = 0.0;
 
         /*
          * Initialize days-since-rain counter
@@ -102,8 +101,7 @@ void FirstDay (elem_struct *elem, river_struct *riv,
         if (epc->woody)
         {
             max_stemc = cninit->max_stemc;
-            new_stemc =
-                restart->leafc_transfer * epc->alloc_newstemc_newleafc;
+            new_stemc = restart->leafc_transfer * epc->alloc_newstemc_newleafc;
             restart->livestemc_transfer =
                 new_stemc * epc->alloc_newlivewoodc_newwoodc;
             restart->livestemc =
@@ -118,12 +116,10 @@ void FirstDay (elem_struct *elem, river_struct *riv,
             }
             restart->livecrootc_transfer =
                 restart->livestemc_transfer * epc->alloc_crootc_stemc;
-            restart->livecrootc =
-                restart->livestemc * epc->alloc_crootc_stemc;
+            restart->livecrootc = restart->livestemc * epc->alloc_crootc_stemc;
             restart->deadcrootc_transfer =
                 restart->deadstemc_transfer * epc->alloc_crootc_stemc;
-            restart->deadcrootc =
-                restart->deadstemc * epc->alloc_crootc_stemc;
+            restart->deadcrootc = restart->deadstemc * epc->alloc_crootc_stemc;
         }
 
         /* Calculate initial leaf and froot nitrogen pools from carbon pools
@@ -139,8 +135,7 @@ void FirstDay (elem_struct *elem, river_struct *riv,
             restart->livestemn = restart->livestemc / epc->livewood_cn;
             restart->deadstemn_transfer =
                 restart->deadstemc_transfer / epc->deadwood_cn;
-            restart->deadstemn =
-                restart->deadstemc / epc->deadwood_cn;
+            restart->deadstemn = restart->deadstemc / epc->deadwood_cn;
             restart->livecrootn_transfer =
                 restart->livecrootc_transfer / epc->livewood_cn;
             restart->livecrootn = restart->livecrootc / epc->livewood_cn;

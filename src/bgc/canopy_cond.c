@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void CanopyCond (const epconst_struct *epc, epvar_struct *epv,
+void CanopyCond(const epconst_struct *epc, epvar_struct *epv,
     const eflux_struct *ef, const pstate_struct *ps,
     const soil_struct *soil, const daily_struct *daily)
 {
@@ -28,7 +28,7 @@ void CanopyCond (const epconst_struct *epc, epvar_struct *epv,
     rcs_shade = (ff_shade + epc->rsmin / epc->rsmax) / (1.0 + ff_shade);
     rcs_shade = (rcs_shade > 0.0001) ? rcs_shade : 0.0001;
 
-    rct = 1.0 - 0.0016 * pow (epc->topt - daily->tday, 2.0);
+    rct = 1.0 - 0.0016 * pow(epc->topt - daily->tday, 2.0);
     rct = (rct > 0.0001) ? rct : 0.0001;
 
     rcq = 1.0 / (1.0 + epc->hs * daily->avg_q2d);
@@ -59,7 +59,7 @@ void CanopyCond (const epconst_struct *epc, epvar_struct *epv,
     /* Adjust Noah stomatal conductance to calculate sunlit and shaded
      * conductance */
     gl_s_sun = rcs_sun * rct * rcq * rcsoil / epc->rsmin;
-    gl_s_shade = rcs_shade *rct * rcq * rcsoil / epc->rsmin;
+    gl_s_shade = rcs_shade * rct * rcq * rcsoil / epc->rsmin;
 
     gl_bl = daily->avg_ch;
 

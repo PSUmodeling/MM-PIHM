@@ -1,13 +1,13 @@
 #include "pihm.h"
 
-void TotalPhotosynthesis (const epconst_struct *epc, epvar_struct *epv,
+void TotalPhotosynthesis(const epconst_struct *epc, epvar_struct *epv,
     const pstate_struct *ps, cflux_struct *cf, psn_struct *psn_sun,
     psn_struct *psn_shade, daily_struct *daily)
 {
     /*
      * This function is a wrapper and replacement for the photosynthesis code
-     * which used to be in the central bgc.c code. At Mott Jolly's request,
-     * all of the science code is being moved into funtions.
+     * which used to be in the central bgc.c code. At Mott Jolly's request, all
+     * of the science code is being moved into funtions.
      */
     double          tday;
 
@@ -28,16 +28,16 @@ void TotalPhotosynthesis (const epconst_struct *epc, epvar_struct *epv,
     psn_sun->dlmr = epv->dlmr_area_sun;
 
     /* Calculate photosynthesis for sunlit leaves */
-    Photosynthesis (psn_sun);
+    Photosynthesis(psn_sun);
 
     epv->assim_sun = psn_sun->A;
 
-    /* For the final flux assignment, the assimilation output needs to have
-     * the maintenance respiration rate added, this sum multiplied by the
-     * projected leaf area in the relevant canopy fraction, and this total
-     * converted from umol/m2/s -> kgC/m2/d */
-    cf->psnsun_to_cpool = (epv->assim_sun + epv->dlmr_area_sun) *
-        ps->plaisun * epv->dayl * 12.011e-9;
+    /* For the final flux assignment, the assimilation output needs to have the
+     * maintenance respiration rate added, this sum multiplied by the projected
+     * leaf area in the relevant canopy fraction, and this total converted from
+     * umol/m2/s -> kgC/m2/d */
+    cf->psnsun_to_cpool = (epv->assim_sun + epv->dlmr_area_sun) * ps->plaisun *
+        epv->dayl * 12.011e-9;
 
     /* SHADED canopy fraction photosynthesis */
     psn_shade->c3 = epc->c3_flag;
@@ -53,19 +53,19 @@ void TotalPhotosynthesis (const epconst_struct *epc, epvar_struct *epv,
         epv->gl_t_wv_shade * 1.0e6 / (1.6 * 8.3143 * (tday + TFREEZ));
     psn_shade->dlmr = epv->dlmr_area_shade;
     /* Calculate photosynthesis for shaded leaves */
-    Photosynthesis (psn_shade);
+    Photosynthesis(psn_shade);
 
     epv->assim_shade = psn_shade->A;
 
-    /* For the final flux assignment, the assimilation output needs to have
-     * the maintenance respiration rate added, this sum multiplied by the
-     * projected leaf area in the relevant canopy fraction, and this total
-     * converted from umol/m2/s -> kgC/m2/d */
+    /* For the final flux assignment, the assimilation output needs to have the
+     * maintenance respiration rate added, this sum multiplied by the projected
+     * leaf area in the relevant canopy fraction, and this total converted from
+     * umol/m2/s -> kgC/m2/d */
     cf->psnshade_to_cpool = (epv->assim_shade + epv->dlmr_area_shade) *
         ps->plaishade * epv->dayl * 12.011e-9;
 }
 
-void Photosynthesis (psn_struct *psn)
+void Photosynthesis(psn_struct *psn)
 {
     /*
      * The following variables are assumed to be defined in the psn struct
@@ -118,27 +118,27 @@ void Photosynthesis (psn_struct *psn)
      * All other parameters, including the q10's for Kc and Ko are the same as
      * in Woodrow and Berry. */
 
-    static double   Kc25 = 404.0;       /* (ubar) MM const carboxylase,
-                                            25 deg C */
-    static double   q10Kc = 2.1;        /* (DIM) Q_10 for Kc */
-    static double   Ko25 = 248.0;       /* (mbar) MM const oxygenase,
-                                            25 deg C */
-    static double   q10Ko = 1.2;        /* (DIM) Q_10 for Ko */
-    static double   act25 = 3.6;        /* (umol/mgRubisco/min) Rubisco
-                                            activity */
-    static double   q10act = 2.4;       /* (DIM) Q_10 for Rubisco activity */
-    static double   pabs = 0.85;        /* (DIM) fPAR effectively absorbed by
-                                            PSII */
+    static double   Kc25 = 404.0;   /* (ubar) MM const carboxylase,
+                                     * 25 deg C */
+    static double   q10Kc = 2.1;    /* (DIM) Q_10 for Kc */
+    static double   Ko25 = 248.0;   /* (mbar) MM const oxygenase,
+                                     * 25 deg C */
+    static double   q10Ko = 1.2;    /* (DIM) Q_10 for Ko */
+    static double   act25 = 3.6;    /* (umol/mgRubisco/min) Rubisco
+                                     * activity */
+    static double   q10act = 2.4;   /* (DIM) Q_10 for Rubisco activity */
+    static double   pabs = 0.85;    /* (DIM) fPAR effectively absorbed by
+                                     * PSII */
 
     /* local variables */
-    double          t;          /* (deg C) temperature */
-    double          tk;         /* (K) absolute temperature */
-    double          Kc;         /* (Pa) MM constant for carboxylase reaction*/
-    double          Ko;         /* (Pa) MM constant for oxygenase reaction */
-    double          act;        /* (umol CO2/kgRubisco/s) Rubisco activity */
-    double          Jmax;       /* (umol/m2/s) max rate electron transport */
-    double          ppe;        /* (mol/mol) photons absorbed by PSII per e-
-                                    transported */
+    double          t;       /* (deg C) temperature */
+    double          tk;      /* (K) absolute temperature */
+    double          Kc;      /* (Pa) MM constant for carboxylase reaction */
+    double          Ko;      /* (Pa) MM constant for oxygenase reaction */
+    double          act;     /* (umol CO2/kgRubisco/s) Rubisco activity */
+    double          Jmax;    /* (umol/m2/s) max rate electron transport */
+    double          ppe;     /* (mol/mol) photons absorbed by PSII per e-
+                              * transported */
     double          Vmax, J, gamma, Ca, Rd, O2, g;
     double          a, b, c, det;
     double          Av, Aj, A;
@@ -157,7 +157,7 @@ void Photosynthesis (psn_struct *psn)
     {
         ppe = 2.6;
     }
-    else                        /* C4 */
+    else    /* C4 */
     {
         ppe = 3.5;
         Ca *= 10.0;
@@ -168,20 +168,20 @@ void Photosynthesis (psn_struct *psn)
     psn->O2 = O2 = 0.21 * psn->pa;
 
     /* correct kinetic constants for temperature, and do unit conversions */
-    Ko = Ko25 * pow (q10Ko, (t - 25.0) / 10.0);
-    psn->Ko = Ko = Ko * 100.0;  /* mbar --> Pa */
+    Ko = Ko25 * pow(q10Ko, (t - 25.0) / 10.0);
+    psn->Ko = Ko = Ko * 100.0;    /* mbar --> Pa */
     if (t > 15.0)
     {
-        Kc = Kc25 * pow (q10Kc, (t - 25.0) / 10.0);
-        act = act25 * pow (q10act, (t - 25.0) / 10.0);
+        Kc = Kc25 * pow(q10Kc, (t - 25.0) / 10.0);
+        act = act25 * pow(q10act, (t - 25.0) / 10.0);
     }
     else
     {
-        Kc = Kc25 * pow (1.8 * q10Kc, (t - 15.0) / 10.0) / q10Kc;
-        act = act25 * pow (1.8 * q10act, (t - 15.0) / 10.0) / q10act;
+        Kc = Kc25 * pow(1.8 * q10Kc, (t - 15.0) / 10.0) / q10Kc;
+        act = act25 * pow(1.8 * q10act, (t - 15.0) / 10.0) / q10act;
     }
-    psn->Kc = Kc = Kc * 0.10;   /* ubar --> Pa */
-    act = act * 1e6 / 60.0;     /* umol/mg/min --> umol/kg/s */
+    psn->Kc = Kc = Kc * 0.10;    /* ubar --> Pa */
+    act = act * 1e6 / 60.0;      /* umol/mg/min --> umol/kg/s */
 
     /* calculate gamma (Pa), assumes Vomax/Vcmax = 0.21 */
     psn->gamma = gamma = 0.5 * 0.21 * Kc * psn->O2 / Ko;
@@ -206,7 +206,7 @@ void Photosynthesis (psn_struct *psn)
     a = 0.7;
     b = -Jmax - (psn->ppfd * pabs / ppe);
     c = Jmax * psn->ppfd * pabs / ppe;
-    psn->J = J = (-b - sqrt (b * b - 4.0 * a * c)) / (2.0 * a);
+    psn->J = J = (-b - sqrt(b * b - 4.0 * a * c)) / (2.0 * a);
 
     /* solve for Av and Aj using the quadratic equation, substitution for Ci
      * from A = g(Ca-Ci) into the equations from Farquhar and von Caemmerer:
@@ -227,12 +227,11 @@ void Photosynthesis (psn_struct *psn)
 
     if ((det = b * b - 4.0 * a * c) < 0.0)
     {
-        PIHMprintf (VL_ERROR,
-            "ERROR: negative root error in psn routine\n");
-        PIHMexit (EXIT_FAILURE);
+        PIHMprintf(VL_ERROR, "ERROR: negative root error in psn routine\n");
+        PIHMexit(EXIT_FAILURE);
     }
 
-    psn->Av = Av = (-b + sqrt (det)) / (2.0 * a);
+    psn->Av = Av = (-b + sqrt(det)) / (2.0 * a);
 
     /* quadratic solution for Aj */
     a = -4.5 / g;
@@ -241,12 +240,11 @@ void Photosynthesis (psn_struct *psn)
 
     if ((det = b * b - 4.0 * a * c) < 0.0)
     {
-        PIHMprintf (VL_ERROR,
-            "ERROR: negative root error in psn routine\n");
-        PIHMexit (EXIT_FAILURE);
+        PIHMprintf(VL_ERROR, "ERROR: negative root error in psn routine\n");
+        PIHMexit(EXIT_FAILURE);
     }
 
-    psn->Aj = Aj = (-b + sqrt (det)) / (2.0 * a);
+    psn->Aj = Aj = (-b + sqrt(det)) / (2.0 * a);
 
     /* estimate A as the minimum of (Av,Aj) */
     if (Av < Aj)

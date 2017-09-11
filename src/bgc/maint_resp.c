@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void MaintResp (const epconst_struct *epc, epvar_struct *epv,
+void MaintResp(const epconst_struct *epc, epvar_struct *epv,
     const cstate_struct *cs, cflux_struct *cf, const nstate_struct *ns,
     const daily_struct *daily)
 {
@@ -22,7 +22,6 @@ void MaintResp (const epconst_struct *epc, epvar_struct *epv,
      * night, since the PSN routine needs the daylight value.
      * Leaf and fine root respiration are dependent on phenology.
      */
-
     double          tday, tnight;
     double          tavg;
     double          tsoil;
@@ -45,7 +44,7 @@ void MaintResp (const epconst_struct *epc, epvar_struct *epv,
 
         /* Leaf, day */
         exponent = (tday - 20.0) / 10.0;
-        cf->leaf_day_mr = t1 * pow (Q10, exponent) * epv->dayl / 86400.0;
+        cf->leaf_day_mr = t1 * pow(Q10, exponent) * epv->dayl / 86400.0;
 
         /* For day respiration, also determine rates of maintenance
          * respiration per unit of projected leaf area in the sunlit and
@@ -58,8 +57,8 @@ void MaintResp (const epconst_struct *epc, epvar_struct *epv,
 
         /* Convert to respiration flux in kg C/m2 projected area/day, and
          * correct for temperature */
-        dlmr_area_sun = n_area_sun * MRPERN * pow (Q10, exponent);
-        dlmr_area_shade = n_area_shade * MRPERN * pow (Q10, exponent);
+        dlmr_area_sun = n_area_sun * MRPERN * pow(Q10, exponent);
+        dlmr_area_shade = n_area_shade * MRPERN * pow(Q10, exponent);
 
         /* Finally, convert from mass to molar units, and from a daily rate to
          * a rate per second */
@@ -69,9 +68,9 @@ void MaintResp (const epconst_struct *epc, epvar_struct *epv,
         /* Leaf, night */
         exponent = (tnight - 20.0) / 10.0;
         cf->leaf_night_mr =
-            t1 * pow (Q10, exponent) * (86400.0 - epv->dayl) / 86400.0;
+            t1 * pow(Q10, exponent) * (86400.0 - epv->dayl) / 86400.0;
     }
-    else                        /* No leaves on */
+    else    /* No leaves on */
     {
         cf->leaf_day_mr = 0.0;
         epv->dlmr_area_sun = 0.0;
@@ -85,10 +84,10 @@ void MaintResp (const epconst_struct *epc, epvar_struct *epv,
     if (cs->frootc)
     {
         exponent = (tsoil - 20.0) / 10.0;
-        t1 = pow (Q10, exponent);
+        t1 = pow(Q10, exponent);
         cf->froot_mr = ns->frootn * MRPERN * t1;
     }
-    else                        /* No fine roots on */
+    else    /* No fine roots on */
     {
         cf->froot_mr = 0.0;
     }
@@ -98,12 +97,12 @@ void MaintResp (const epconst_struct *epc, epvar_struct *epv,
     {
         /* Live stem maintenance respiration */
         exponent = (tavg - 20.0) / 10.0;
-        t1 = pow (Q10, exponent);
+        t1 = pow(Q10, exponent);
         cf->livestem_mr = ns->livestemn * MRPERN * t1;
 
         /* Live coarse root maintenance respiration */
         exponent = (tsoil - 20.0) / 10.0;
-        t1 = pow (Q10, exponent);
+        t1 = pow(Q10, exponent);
         cf->livecroot_mr = ns->livecrootn * MRPERN * t1;
     }
 }

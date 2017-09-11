@@ -1,13 +1,13 @@
 #include "pihm.h"
 
-void Initialize (pihm_struct pihm, N_Vector CV_Y)
+void Initialize(pihm_struct pihm, N_Vector CV_Y)
 {
     int             i, j;
 
-    PIHMprintf (VL_VERBOSE, "\n\nInitialize data structure\n");
+    PIHMprintf(VL_VERBOSE, "\n\nInitialize data structure\n");
 
-    pihm->elem = (elem_struct *)malloc (nelem * sizeof (elem_struct));
-    pihm->riv = (river_struct *)malloc (nriver * sizeof (river_struct));
+    pihm->elem = (elem_struct *)malloc(nelem * sizeof(elem_struct));
+    pihm->riv = (river_struct *)malloc(nriver * sizeof(river_struct));
 
     for (i = 0; i < nelem; i++)
     {
@@ -26,57 +26,56 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
         pihm->riv[i].attrib.riverbc_type = pihm->rivtbl.bc[i];
     }
 
-    InitMeshStruct (pihm->elem, &pihm->meshtbl);
+    InitMeshStruct(pihm->elem, &pihm->meshtbl);
 
-    InitTopo (pihm->elem, &pihm->meshtbl);
+    InitTopo(pihm->elem, &pihm->meshtbl);
 
 #ifdef _NOAH_
     /* Calculate average elevation and total area of model domain */
-    pihm->siteinfo.elevation = AvgElev (pihm->elem);
-    pihm->siteinfo.area = TotalArea (pihm->elem);
+    pihm->siteinfo.elevation = AvgElev(pihm->elem);
+    pihm->siteinfo.area = TotalArea(pihm->elem);
 #endif
 
-    InitSoil (pihm->elem, &pihm->soiltbl,
+    InitSoil(pihm->elem, &pihm->soiltbl,
 #ifdef _NOAH_
         &pihm->noahtbl,
 #endif
         &pihm->cal);
 
-    InitLC (pihm->elem, &pihm->lctbl, &pihm->cal);
+    InitLC(pihm->elem, &pihm->lctbl, &pihm->cal);
 
-    InitForcing (pihm->elem, &pihm->forc, &pihm->cal
+    InitForcing(pihm->elem, &pihm->forc, &pihm->cal
 #ifdef _BGC_
         , pihm->co2.varco2, pihm->ndepctrl.varndep
 #endif
         );
 
-    InitRiver (pihm->riv, pihm->elem, &pihm->rivtbl,
-        &pihm->shptbl, &pihm->matltbl, &pihm->meshtbl, &pihm->cal);
+    InitRiver(pihm->riv, pihm->elem, &pihm->rivtbl, &pihm->shptbl,
+        &pihm->matltbl, &pihm->meshtbl, &pihm->cal);
 
     if (corr_mode)
     {
-        CorrectElevation (pihm->elem, pihm->riv);
+        CorrectElevation(pihm->elem, pihm->riv);
     }
 
-    InitSurfL (pihm->elem, pihm->riv, &pihm->meshtbl);
+    InitSurfL(pihm->elem, pihm->riv, &pihm->meshtbl);
 
 #ifdef _NOAH_
-    InitLsm (pihm->elem, &pihm->ctrl, &pihm->noahtbl, &pihm->cal);
+    InitLsm(pihm->elem, &pihm->ctrl, &pihm->noahtbl, &pihm->cal);
 #endif
 
 #ifdef _CYCLES_
     if (pihm->ctrl.read_cycles_restart)
     {
-        ReadCyclesIC (pihm->filename.cyclesic, pihm->elem, pihm->riv);
+        ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->riv);
     }
 
-    InitCycles (pihm->elem, pihm->riv,
-        &pihm->ctrl, &pihm->mgmttbl, &pihm->agtbl, &pihm->croptbl,
-        &pihm->soiltbl);
+    InitCycles(pihm->elem, pihm->riv, &pihm->ctrl, &pihm->mgmttbl, &pihm->agtbl,
+        &pihm->croptbl, &pihm->soiltbl);
 #endif
 
 #ifdef _BGC_
-    InitBgc (pihm->elem, &pihm->epctbl);
+    InitBgc(pihm->elem, &pihm->epctbl);
 #endif
 
     /*
@@ -85,17 +84,17 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
     if (pihm->ctrl.init_type == RELAX)
     {
 #ifdef _NOAH_
-        ApplyForcing (&pihm->forc, pihm->elem, pihm->ctrl.starttime,
-            &pihm->ctrl, &pihm->siteinfo);
+        ApplyForcing(&pihm->forc, pihm->elem, pihm->ctrl.starttime, &pihm->ctrl,
+            &pihm->siteinfo);
 #endif
-        SaturationIC (pihm->elem, pihm->riv);
+        SaturationIC(pihm->elem, pihm->riv);
     }
     else if (pihm->ctrl.init_type == RST_FILE)
     {
-        ReadIC (pihm->filename.ic, pihm->elem, pihm->riv);
+        ReadIC(pihm->filename.ic, pihm->elem, pihm->riv);
     }
 
-    InitVar (pihm->elem, pihm->riv, CV_Y);
+    InitVar(pihm->elem, pihm->riv, CV_Y);
 
 #ifdef _BGC_
     /*
@@ -103,24 +102,24 @@ void Initialize (pihm_struct pihm, N_Vector CV_Y)
      */
     if (pihm->ctrl.read_bgc_restart)
     {
-        ReadBgcIC (pihm->filename.bgcic, pihm->elem, pihm->riv);
+        ReadBgcIC(pihm->filename.bgcic, pihm->elem, pihm->riv);
     }
     else
     {
-        FirstDay (pihm->elem, pihm->riv, &pihm->cninit);
+        FirstDay(pihm->elem, pihm->riv, &pihm->cninit);
     }
 
-    InitBgcVar (pihm->elem, pihm->riv, CV_Y);
+    InitBgcVar(pihm->elem, pihm->riv, CV_Y);
 #endif
 
-    CalcModelStep (&pihm->ctrl);
+    CalcModelStep(&pihm->ctrl);
 
 #ifdef _DAILY_
-    InitDailyStruct (pihm);
+    InitDailyStruct(pihm);
 #endif
 }
 
-void InitMeshStruct (elem_struct *elem, const meshtbl_struct *meshtbl)
+void InitMeshStruct(elem_struct *elem, const meshtbl_struct *meshtbl)
 {
     int             i, j;
 
@@ -136,7 +135,7 @@ void InitMeshStruct (elem_struct *elem, const meshtbl_struct *meshtbl)
     }
 }
 
-void InitTopo (elem_struct *elem, const meshtbl_struct *meshtbl)
+void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
 {
     int             i, j;
     double          x[NUM_EDGE];
@@ -154,8 +153,8 @@ void InitTopo (elem_struct *elem, const meshtbl_struct *meshtbl)
             zmax[j] = meshtbl->zmax[elem[i].node[j] - 1];
         }
 
-        elem[i].topo.area = 0.5 * ((x[1] - x[0]) * (y[2] - y[0]) -
-            (y[1] - y[0]) * (x[2] - x[0]));
+        elem[i].topo.area = 0.5 *
+            ((x[1] - x[0]) * (y[2] - y[0]) - (y[1] - y[0]) * (x[2] - x[0]));
         /* Calculate centroid of triangle */
         elem[i].topo.x = (x[0] + x[1] + x[2]) / 3.0;
         elem[i].topo.y = (y[0] + y[1] + y[2]) / 3.0;
@@ -163,19 +162,19 @@ void InitTopo (elem_struct *elem, const meshtbl_struct *meshtbl)
         elem[i].topo.zmin = (zmin[0] + zmin[1] + zmin[2]) / 3.0;
         elem[i].topo.zmax = (zmax[0] + zmax[1] + zmax[2]) / 3.0;
         elem[i].topo.edge[0] =
-            sqrt (pow ((x[1] - x[2]), 2) + pow ((y[1] - y[2]), 2));
+            sqrt(pow((x[1] - x[2]), 2) + pow((y[1] - y[2]), 2));
         elem[i].topo.edge[1] =
-            sqrt (pow ((x[2] - x[0]), 2) + pow ((y[2] - y[0]), 2));
+            sqrt(pow((x[2] - x[0]), 2) + pow((y[2] - y[0]), 2));
         elem[i].topo.edge[2] =
-            sqrt (pow ((x[0] - x[1]), 2) + pow ((y[0] - y[1]), 2));
+            sqrt(pow((x[0] - x[1]), 2) + pow((y[0] - y[1]), 2));
     }
 
 #ifdef _NOAH_
-    CalcSlopeAspect (elem, meshtbl);
+    CalcSlopeAspect(elem, meshtbl);
 #endif
 }
 
-void InitSoil (elem_struct *elem, const soiltbl_struct *soiltbl,
+void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
 #ifdef _NOAH_
     const noahtbl_struct *noahtbl,
 #endif
@@ -201,9 +200,9 @@ void InitSoil (elem_struct *elem, const soiltbl_struct *soiltbl,
         elem[i].soil.porosity = elem[i].soil.smcmax - elem[i].soil.smcmin;
         if (elem[i].soil.porosity > 1.0 || elem[i].soil.porosity <= 0.0)
         {
-            PIHMprintf (VL_ERROR,
+            PIHMprintf(VL_ERROR,
                 "Error: Porosity value out of bounds for Element %d", i + 1);
-            PIHMexit (EXIT_FAILURE);
+            PIHMexit(EXIT_FAILURE);
         }
         elem[i].soil.alpha = cal->alpha * soiltbl->alpha[soil_ind];
         elem[i].soil.beta = cal->beta * soiltbl->beta[soil_ind];
@@ -239,7 +238,7 @@ void InitSoil (elem_struct *elem, const soiltbl_struct *soiltbl,
     }
 }
 
-void InitLC (elem_struct *elem, const lctbl_struct *lctbl,
+void InitLC(elem_struct *elem, const lctbl_struct *lctbl,
     const calib_struct *cal)
 {
     int             i;
@@ -286,7 +285,7 @@ void InitLC (elem_struct *elem, const lctbl_struct *lctbl,
     }
 }
 
-void InitRiver (river_struct *riv, elem_struct *elem,
+void InitRiver(river_struct *riv, elem_struct *elem,
     const rivtbl_struct *rivtbl, const shptbl_struct *shptbl,
     const matltbl_struct *matltbl, const meshtbl_struct *meshtbl,
     const calib_struct *cal)
@@ -348,40 +347,36 @@ void InitRiver (river_struct *riv, elem_struct *elem,
 
         riv[i].shp.depth = cal->rivdepth * shptbl->depth[rivtbl->shp[i] - 1];
         riv[i].shp.intrpl_ord = shptbl->intrpl_ord[rivtbl->shp[i] - 1];
-        riv[i].shp.coeff =
-            cal->rivshpcoeff * shptbl->coeff[rivtbl->shp[i] - 1];
-        riv[i].shp.length = sqrt (
-            pow (meshtbl->x[riv[i].fromnode - 1] -
+        riv[i].shp.coeff = cal->rivshpcoeff * shptbl->coeff[rivtbl->shp[i] - 1];
+        riv[i].shp.length = sqrt(
+            pow(meshtbl->x[riv[i].fromnode - 1] -
             meshtbl->x[riv[i].tonode - 1], 2) +
-            pow (meshtbl->y[riv[i].fromnode - 1] -
+            pow(meshtbl->y[riv[i].fromnode - 1] -
             meshtbl->y[riv[i].tonode - 1], 2));
-        riv[i].shp.width = RivEqWid (riv->shp.intrpl_ord, riv->shp.depth,
+        riv[i].shp.width = RivEqWid(riv->shp.intrpl_ord, riv->shp.depth,
             riv->shp.coeff);
 
         riv[i].topo.zbed = riv[i].topo.zmax - riv[i].shp.depth;
 
-        riv[i].matl.rough =
-            cal->rivrough * matltbl->rough[rivtbl->matl[i] - 1];
+        riv[i].matl.rough = cal->rivrough * matltbl->rough[rivtbl->matl[i] - 1];
         riv[i].matl.cwr = matltbl->cwr[rivtbl->matl[i] - 1];
-        riv[i].matl.ksath =
-            cal->rivksath * matltbl->ksath[rivtbl->matl[i] - 1];
-        riv[i].matl.ksatv =
-            cal->rivksatv * matltbl->ksatv[rivtbl->matl[i] - 1];
+        riv[i].matl.ksath = cal->rivksath * matltbl->ksath[rivtbl->matl[i] - 1];
+        riv[i].matl.ksatv = cal->rivksatv * matltbl->ksatv[rivtbl->matl[i] - 1];
         riv[i].matl.bedthick =
             cal->rivbedthick * matltbl->bedthick[rivtbl->matl[i] - 1];
-        riv[i].matl.porosity = 0.5 * (elem[riv[i].leftele - 1].soil.porosity +
+        riv[i].matl.porosity = 0.5 *
+            (elem[riv[i].leftele - 1].soil.porosity +
             elem[riv[i].rightele - 1].soil.porosity);
-        riv[i].matl.smcmin = 0.5 * (elem[riv[i].leftele - 1].soil.smcmin +
+        riv[i].matl.smcmin = 0.5 *
+            (elem[riv[i].leftele - 1].soil.smcmin +
             elem[riv[i].rightele - 1].soil.smcmin);
 
         riv[i].topo.area = riv[i].shp.length *
-            RivEqWid (riv[i].shp.intrpl_ord, riv[i].shp.depth,
-            riv[i].shp.coeff);
+            RivEqWid(riv[i].shp.intrpl_ord, riv[i].shp.depth, riv[i].shp.coeff);
     }
 }
 
-void InitForcing (elem_struct *elem, forc_struct *forc,
-    const calib_struct *cal
+void InitForcing(elem_struct *elem, forc_struct *forc, const calib_struct *cal
 #ifdef _BGC_
     , int varco2, int varndep
 #endif
@@ -403,7 +398,7 @@ void InitForcing (elem_struct *elem, forc_struct *forc,
     {
         for (i = 0; i < forc->nbc; i++)
         {
-            forc->bc[i].value = (double *)malloc (sizeof (double));
+            forc->bc[i].value = (double *)malloc(sizeof(double));
         }
     }
     if (forc->nmeteo > 0)
@@ -411,28 +406,28 @@ void InitForcing (elem_struct *elem, forc_struct *forc,
         for (i = 0; i < forc->nmeteo; i++)
         {
             forc->meteo[i].value =
-                (double *)malloc (NUM_METEO_VAR * sizeof (double));
+                (double *)malloc(NUM_METEO_VAR * sizeof(double));
         }
     }
     if (forc->nlai > 0)
     {
         for (i = 0; i < forc->nlai; i++)
         {
-            forc->lai[i].value = (double *)malloc (sizeof (double));
+            forc->lai[i].value = (double *)malloc(sizeof(double));
         }
     }
     if (forc->nriverbc > 0)
     {
         for (i = 0; i < forc->nriverbc; i++)
         {
-            forc->riverbc[i].value = (double *)malloc (sizeof (double));
+            forc->riverbc[i].value = (double *)malloc(sizeof(double));
         }
     }
     if (forc->nsource > 0)
     {
         for (i = 0; i < forc->nsource; i++)
         {
-            forc->source[i].value = (double *)malloc (sizeof (double));
+            forc->source[i].value = (double *)malloc(sizeof(double));
         }
     }
 #ifdef _NOAH_
@@ -440,7 +435,7 @@ void InitForcing (elem_struct *elem, forc_struct *forc,
     {
         for (i = 0; i < forc->nrad; i++)
         {
-            forc->rad[i].value = (double *)malloc (2 * sizeof (double));
+            forc->rad[i].value = (double *)malloc(2 * sizeof(double));
         }
     }
 #endif
@@ -448,12 +443,12 @@ void InitForcing (elem_struct *elem, forc_struct *forc,
 #ifdef _BGC_
     if (!spinup_mode && varco2)
     {
-        forc->co2[0].value = (double *)malloc (sizeof (double));
+        forc->co2[0].value = (double *)malloc(sizeof(double));
     }
 
     if (!spinup_mode && varndep)
     {
-        forc->ndep[0].value = (double *)malloc (sizeof (double));
+        forc->ndep[0].value = (double *)malloc(sizeof(double));
     }
 #endif
 
@@ -464,7 +459,7 @@ void InitForcing (elem_struct *elem, forc_struct *forc,
     }
 }
 
-void CorrectElevation (elem_struct *elem, river_struct *riv)
+void CorrectElevation(elem_struct *elem, river_struct *riv)
 {
     int             i, j;
     int             sink;
@@ -473,7 +468,7 @@ void CorrectElevation (elem_struct *elem, river_struct *riv)
     double          nabr_zmax;
     double          new_elevation;
 
-    PIHMprintf (VL_VERBOSE, "Correct surface elevation.\n");
+    PIHMprintf(VL_VERBOSE, "Correct surface elevation.\n");
 
     for (i = 0; i < nelem; i++)
     {
@@ -498,11 +493,11 @@ void CorrectElevation (elem_struct *elem, river_struct *riv)
 
         if (sink == 1)
         {
-            PIHMprintf (VL_NORMAL, "Element %d is a sink\n", i + 1);
+            PIHMprintf(VL_NORMAL, "Element %d is a sink\n", i + 1);
 
             /* Note: Following correction is being applied for correction
              * mode only */
-            PIHMprintf (VL_NORMAL, "\tBefore: surface %lf, "
+            PIHMprintf(VL_NORMAL, "\tBefore: surface %lf, "
                 "bedrock %lf. Neighbors surface:",
                 elem[i].topo.zmax, elem[i].topo.zmin);
 
@@ -516,7 +511,7 @@ void CorrectElevation (elem_struct *elem, river_struct *riv)
                         riv[0 - elem[i].nabr[j] - 1].topo.zmax;
                     new_elevation = (nabr_zmax < new_elevation) ?
                         nabr_zmax : new_elevation;
-                    PIHMprintf (VL_NORMAL, " (%d)%lf", j + 1,
+                    PIHMprintf(VL_NORMAL, " (%d)%lf", j + 1,
                         (elem[i].nabr[j] > 0) ?
                         elem[elem[i].nabr[j] - 1].topo.zmax :
                         riv[0 - elem[i].nabr[j] - 1].topo.zmax);
@@ -529,59 +524,61 @@ void CorrectElevation (elem_struct *elem, river_struct *riv)
             /* Apply new surface elevation */
             elem[i].topo.zmax = new_elevation;
 
-            PIHMprintf (VL_NORMAL, ". Corrected = %lf, %lf\n",
+            PIHMprintf(VL_NORMAL, ". Corrected = %lf, %lf\n",
                 elem[i].topo.zmax, elem[i].topo.zmin);
         }
     }
 
-    ///* Correction of BedRck Elev. Is this needed? */
-    //if (bedrock_flag == 1)
-    //{
-    //    for (i = 0; i < numele; i++)
-    //    {
-    //        sink = 1;
-    //        for (j = 0; j < NUM_EDGE; j++)
-    //        {
-    //            if (elem[i].nabr[j] != 0)
-    //            {
-    //                new_elevation = (elem[i].nabr[j] > 0) ?
-    //                    elem[elem[i].nabr[j] - 1].topo.zmin :
-    //                    riv[-elem[i].nabr[j] - 1].topo.zmin;
-    //                if (elem[i].topo.zmin - new_elevation >= 0.0)
-    //                {
-    //                    sink = 0;
-    //                    break;
-    //                }
-    //            }
-    //        }
-    //        if (sink == 1)
-    //        {
-    //            PIHMprintf (VL_NORMAL, "Ele %d (bedrock) is sink", i + 1);
-    //            /* Note: Following correction is being applied for debug==1
-    //             * case only */
-    //            PIHMprintf (VL_NORMAL, "\tBefore: %lf Corrected using:",
-    //                elem[i].topo.zmin);
-    //            new_elevation = 1.0e7;
-    //            for (j = 0; j < NUM_EDGE; j++)
-    //            {
-    //                if (elem[i].nabr[j] != 0)
-    //                {
-    //                    elem[i].topo.zmin = (elem[i].nabr[j] > 0) ?
-    //                        elem[elem[i].nabr[j] - 1].topo.zmin :
-    //                        riv[0 - elem[i].nabr[j] - 1].topo.zmin;
-    //                    new_elevation = (new_elevation > elem[i].topo.zmin) ?
-    //                        elem[i].topo.zmin : new_elevation;
-    //                    PIHMprintf (VL_NORMAL, "(%d)%lf  ", j + 1,
-    //                        (elem[i].nabr[j] > 0) ?
-    //                        elem[elem[i].nabr[j] - 1].topo.zmin :
-    //                        riv[0 - elem[i].nabr[j] - 1].topo.zmin);
-    //                }
-    //            }
-    //            elem[i].topo.zmin = new_elevation;
-    //            PIHMprintf (VL_NORMAL, "=(New)%lf\n", elem[i].topo.zmin);
-    //        }
-    //    }
-    //}
+#ifdef OBSOLETE
+    /* Correction of BedRck Elev. Is this needed? */
+    if (bedrock_flag == 1)
+    {
+        for (i = 0; i < numele; i++)
+        {
+            sink = 1;
+            for (j = 0; j < NUM_EDGE; j++)
+            {
+                if (elem[i].nabr[j] != 0)
+                {
+                    new_elevation = (elem[i].nabr[j] > 0) ?
+                        elem[elem[i].nabr[j] - 1].topo.zmin :
+                        riv[-elem[i].nabr[j] - 1].topo.zmin;
+                    if (elem[i].topo.zmin - new_elevation >= 0.0)
+                    {
+                        sink = 0;
+                        break;
+                    }
+                }
+            }
+            if (sink == 1)
+            {
+                PIHMprintf (VL_NORMAL, "Ele %d (bedrock) is sink", i + 1);
+                /* Note: Following correction is being applied for debug==1
+                 * case only */
+                PIHMprintf (VL_NORMAL, "\tBefore: %lf Corrected using:",
+                    elem[i].topo.zmin);
+                new_elevation = 1.0e7;
+                for (j = 0; j < NUM_EDGE; j++)
+                {
+                    if (elem[i].nabr[j] != 0)
+                    {
+                        elem[i].topo.zmin = (elem[i].nabr[j] > 0) ?
+                            elem[elem[i].nabr[j] - 1].topo.zmin :
+                            riv[0 - elem[i].nabr[j] - 1].topo.zmin;
+                        new_elevation = (new_elevation > elem[i].topo.zmin) ?
+                            elem[i].topo.zmin : new_elevation;
+                        PIHMprintf (VL_NORMAL, "(%d)%lf  ", j + 1,
+                            (elem[i].nabr[j] > 0) ?
+                            elem[elem[i].nabr[j] - 1].topo.zmin :
+                            riv[0 - elem[i].nabr[j] - 1].topo.zmin);
+                    }
+                }
+                elem[i].topo.zmin = new_elevation;
+                PIHMprintf (VL_NORMAL, "=(New)%lf\n", elem[i].topo.zmin);
+            }
+        }
+    }
+#endif
 
     for (i = 0; i < nriver; i++)
     {
@@ -590,7 +587,7 @@ void CorrectElevation (elem_struct *elem, river_struct *riv)
             if (riv[i].topo.zbed < riv[riv[i].down - 1].topo.zbed)
             {
                 river_flag = 1;
-                PIHMprintf (VL_NORMAL,
+                PIHMprintf(VL_NORMAL,
                     "River %d is lower than downstream River %d.\n",
                     i + 1, riv[i].down);
             }
@@ -600,7 +597,7 @@ void CorrectElevation (elem_struct *elem, river_struct *riv)
             if (riv[i].topo.zbed <= riv[i].topo.node_zmax - riv[i].shp.depth)
             {
                 river_flag = 1;
-                PIHMprintf (VL_NORMAL,
+                PIHMprintf(VL_NORMAL,
                     "River outlet is higher than the channel (River %d).\n",
                     i + 1);
             }
@@ -609,14 +606,14 @@ void CorrectElevation (elem_struct *elem, river_struct *riv)
 
     if (river_flag == 1)
     {
-        PIHMprintf (VL_NORMAL, "\nRiver elevation correction needed "
+        PIHMprintf(VL_NORMAL, "\nRiver elevation correction needed "
             "but PIHM will continue without fixing river elevation.\n\n");
     }
 
-    sleep (5);
+    sleep(5);
 }
 
-void InitSurfL (elem_struct *elem, river_struct *riv,
+void InitSurfL(elem_struct *elem, river_struct *riv,
     const meshtbl_struct *meshtbl)
 {
     int             i, j;
@@ -662,9 +659,9 @@ void InitSurfL (elem_struct *elem, river_struct *riv,
                 elem[i].topo.nabrdist_x[j] = elem[i].topo.x - 2.0 * distx;
                 elem[i].topo.nabrdist_y[j] = elem[i].topo.y - 2.0 * disty;
                 elem[i].topo.nabrdist[j] =
-                    sqrt (pow (elem->topo.edge[0] * elem->topo.edge[1] *
+                    sqrt(pow(elem->topo.edge[0] * elem->topo.edge[1] *
                     elem->topo.edge[2] / (4.0 * elem->topo.area), 2) -
-                    pow (elem->topo.edge[j] / 2.0, 2));
+                    pow(elem->topo.edge[j] / 2.0, 2));
             }
             else
             {
@@ -680,13 +677,13 @@ void InitSurfL (elem_struct *elem, river_struct *riv,
                 elem[i].topo.nabrdist[j] +=
                     (elem[i].topo.y - elem[i].topo.nabrdist_y[j]) *
                     (elem[i].topo.y - elem[i].topo.nabrdist_y[j]);
-                elem[i].topo.nabrdist[j] = sqrt (elem[i].topo.nabrdist[j]);
+                elem[i].topo.nabrdist[j] = sqrt(elem[i].topo.nabrdist[j]);
             }
         }
     }
 }
 
-void SaturationIC (elem_struct *elem, river_struct *riv)
+void SaturationIC(elem_struct *elem, river_struct *riv)
 {
     int             i;
 #ifdef _NOAH_
@@ -750,7 +747,7 @@ void SaturationIC (elem_struct *elem, river_struct *riv)
     }
 }
 
-void InitVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
+void InitVar(elem_struct *elem, river_struct *riv, N_Vector CV_Y)
 {
     int             i;
 #ifdef _NOAH_
@@ -767,9 +764,9 @@ void InitVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
         elem[i].ws.unsat = elem[i].ic.unsat;
         elem[i].ws.gw = elem[i].ic.gw;
 
-        NV_Ith (CV_Y, SURF(i)) = elem[i].ic.surf;
-        NV_Ith (CV_Y, UNSAT(i)) = elem[i].ic.unsat;
-        NV_Ith (CV_Y, GW(i)) = elem[i].ic.gw;
+        NV_Ith(CV_Y, SURF(i)) = elem[i].ic.surf;
+        NV_Ith(CV_Y, UNSAT(i)) = elem[i].ic.unsat;
+        NV_Ith(CV_Y, GW(i)) = elem[i].ic.gw;
 
 #ifdef _NOAH_
         elem[i].es.t1 = elem[i].ic.t1;
@@ -791,8 +788,8 @@ void InitVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
         riv[i].ws.stage = riv[i].ic.stage;
         riv[i].ws.gw = riv[i].ic.gw;
 
-        NV_Ith (CV_Y, RIVSTG(i)) = riv[i].ic.stage;
-        NV_Ith (CV_Y, RIVGW(i)) = riv[i].ic.gw;
+        NV_Ith(CV_Y, RIVSTG(i)) = riv[i].ic.stage;
+        NV_Ith(CV_Y, RIVGW(i)) = riv[i].ic.gw;
 
         riv[i].ws0 = riv[i].ws;
     }
@@ -800,7 +797,7 @@ void InitVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
     /* Other variables */
     for (i = 0; i < nelem; i++)
     {
-        InitWFlux (&elem[i].wf);
+        InitWFlux(&elem[i].wf);
 
 #ifdef _NOAH_
         elem[i].ps.snotime1 = 0.0;
@@ -850,13 +847,13 @@ void InitVar (elem_struct *elem, river_struct *riv, N_Vector CV_Y)
     }
 }
 
-void CalcModelStep (ctrl_struct *ctrl)
+void CalcModelStep(ctrl_struct *ctrl)
 {
     int             i;
 
     ctrl->nstep = (ctrl->endtime - ctrl->starttime) / ctrl->stepsize;
 
-    ctrl->tout = (int *)malloc ((ctrl->nstep + 1) * sizeof (int));
+    ctrl->tout = (int *)malloc((ctrl->nstep + 1) * sizeof(int));
 
     for (i = 0; i < ctrl->nstep + 1; i++)
     {
@@ -870,7 +867,7 @@ void CalcModelStep (ctrl_struct *ctrl)
     }
 }
 
-void InitWFlux (wflux_struct *wf)
+void InitWFlux(wflux_struct *wf)
 {
     int             j;
 
@@ -929,17 +926,17 @@ void InitWFlux (wflux_struct *wf)
 #endif
 }
 
-void InitRiverWFlux (river_wflux_struct *wf)
+void InitRiverWFlux(river_wflux_struct *wf)
 {
     int             j;
 
-    for (j = 0; j < 11; j++)
+    for (j = 0; j < NUM_RIVFLX; j++)
     {
         wf->rivflow[j] = 0.0;
     }
 }
 
-void InitEFlux (eflux_struct *ef)
+void InitEFlux(eflux_struct *ef)
 {
     ef->soldn = 0.0;
 
