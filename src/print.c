@@ -63,36 +63,35 @@ void _PIHMprintf(const char *fn, int lineno, const char *func, int verbosity,
     va_end(va);
 }
 
-void InitOutputFile(prtctrl_struct *prtctrl, int nprint, int ascii,
-    prtctrlT_struct *prtctrlT, int nprintT, int tecplot)
+void InitOutputFile(print_struct *print, int ascii, int tecplot)
 {
     char            ascii_fn[MAXSTRING];
     char            dat_fn[MAXSTRING];
     char            tec_fn[MAXSTRING];
     int             i;
 
-    for (i = 0; i < nprint; i++)
+    for (i = 0; i < print->nprint; i++)
     {
-        sprintf(dat_fn, "%s.dat", prtctrl[i].name);
-        prtctrl[i].datfile = fopen(dat_fn, "w");
+        sprintf(dat_fn, "%s.dat", print->varctrl[i].name);
+        print->varctrl[i].datfile = fopen(dat_fn, "w");
 
         if (ascii)
         {
-            sprintf(ascii_fn, "%s.txt", prtctrl[i].name);
-            prtctrl[i].txtfile = fopen(ascii_fn, "w");
+            sprintf(ascii_fn, "%s.txt", print->varctrl[i].name);
+            print->varctrl[i].txtfile = fopen(ascii_fn, "w");
         }
     }
     if (tecplot)
     {
-        for (i = 0; i < nprintT; i++)
+        for (i = 0; i < print->ntpprint; i++)
         {
-            sprintf(tec_fn, "%s.plt", prtctrlT[i].name);
-            prtctrlT[i].datfile = fopen(tec_fn, "w");
+            sprintf(tec_fn, "%s.plt", print->tp_varctrl[i].name);
+            print->tp_varctrl[i].datfile = fopen(tec_fn, "w");
         }
     }
 }
 
-void UpdPrintVar(prtctrl_struct *prtctrl, int nprint, int module_step)
+void UpdPrintVar(varctrl_struct *prtctrl, int nprint, int module_step)
 {
     int             i;
 #ifdef _OPENMP
@@ -114,7 +113,7 @@ void UpdPrintVar(prtctrl_struct *prtctrl, int nprint, int module_step)
     }
 }
 
-void UpdPrintVarT(prtctrlT_struct *prtctrlT, int nprintT)
+void UpdPrintVarT(varctrl_struct *prtctrlT, int nprintT)
 {
     int             i;
 #ifdef _OPENMP
@@ -132,7 +131,7 @@ void UpdPrintVarT(prtctrlT_struct *prtctrlT, int nprintT)
     }
 }
 
-void PrintData(prtctrl_struct *prtctrl, int nprint, int t, int lapse, int ascii)
+void PrintData(varctrl_struct *prtctrl, int nprint, int t, int lapse, int ascii)
 {
     int             i;
     pihm_t_struct   pihm_time;
@@ -284,7 +283,7 @@ void PrtInit(elem_struct *elem, river_struct *river, char *simulation, int t)
     fclose(init_file);
 }
 
-void PrintDataTecplot(prtctrlT_struct *prtctrlT, int nprintT, int t, int lapse)
+void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
 {
     int             i;
     pihm_t_struct   pihm_time;
@@ -294,14 +293,14 @@ void PrintDataTecplot(prtctrlT_struct *prtctrlT, int nprintT, int t, int lapse)
     int            *inodes;
 
     str1_Tec = "VARIABLES = \"X\" \"Y\" \"Zmin\" \"Zmax\" \"h\"";
-    for (i = 0; i < nprintT; i++)
+    for (i = 0; i < nprint; i++)
     {
         int             j;
         int             print = 0;
         double          outval;
         double          outtime;
 
-        switch (prtctrlT[i].intvl)
+        switch (varctrl[i].intvl)
         {
             case YEARLY_OUTPUT:
                 if (pihm_time.month == 1 && pihm_time.day == 1 &&
@@ -330,7 +329,7 @@ void PrintDataTecplot(prtctrlT_struct *prtctrlT, int nprintT, int t, int lapse)
                 }
                 break;
             default:
-                if (lapse % prtctrlT[i].intvl == 0 && lapse > 0)
+                if (lapse % varctrl[i].intvl == 0 && lapse > 0)
                 {
                     print = 1;
                 }
@@ -339,118 +338,118 @@ void PrintDataTecplot(prtctrlT_struct *prtctrlT, int nprintT, int t, int lapse)
         {
             outtime = (double)t;
 
-            if (prtctrlT[i].intr == 1)
+            if (varctrl[i].intr == 1)
             {
                 /*Print river files */
                 str2_Tec = "ZONE T = \"Water Depth River\" ";
                 str3_Tec = "StrandID=1, SolutionTime=";
 
-                fprintf(prtctrlT[i].datfile, "%s \n", str1_Tec);
-                fprintf(prtctrlT[i].datfile, "%s \n", str2_Tec);
-                fprintf(prtctrlT[i].datfile, "%s %d \n", str3_Tec, t);
-                for (j = 0; j < prtctrlT[i].nvar; j++)
+                fprintf(varctrl[i].datfile, "%s \n", str1_Tec);
+                fprintf(varctrl[i].datfile, "%s \n", str2_Tec);
+                fprintf(varctrl[i].datfile, "%s %d \n", str3_Tec, t);
+                for (j = 0; j < varctrl[i].nvar; j++)
                 {
-                    if (prtctrlT[i].counter > 0)
+                    if (varctrl[i].counter > 0)
                     {
-                        outval = prtctrlT[i].buffer[j] /
-                            (double)prtctrlT[i].counter;
+                        outval = varctrl[i].buffer[j] /
+                            (double)varctrl[i].counter;
                     }
                     else
                     {
-                        outval = prtctrlT[i].buffer[j];
+                        outval = varctrl[i].buffer[j];
                     }
 
-                    fprintf(prtctrlT[i].datfile, "%lf %lf %lf %lf %lf \n",
-                        *prtctrlT[i].x[j], *prtctrlT[i].y[j],
-                        *prtctrlT[i].zmin[j], *prtctrlT[i].zmax[j], outval);
-                    prtctrlT[i].buffer[j] = 0.0;
+                    fprintf(varctrl[i].datfile, "%lf %lf %lf %lf %lf \n",
+                        *varctrl[i].x[j], *varctrl[i].y[j],
+                        *varctrl[i].zmin[j], *varctrl[i].zmax[j], outval);
+                    varctrl[i].buffer[j] = 0.0;
                 }
-                prtctrlT[i].counter = 0;
-                fflush(prtctrlT[i].datfile);
+                varctrl[i].counter = 0;
+                fflush(varctrl[i].datfile);
             }
             else
             {
                 /*Print element files */
-                hnodes = (double *)calloc(prtctrlT[i].nnodes, sizeof(double));
-                inodes = (int *)calloc(prtctrlT[i].nnodes, sizeof(int));
-                for (j = 0; j < prtctrlT[i].nnodes; j++)
+                hnodes = (double *)calloc(varctrl[i].nnodes, sizeof(double));
+                inodes = (int *)calloc(varctrl[i].nnodes, sizeof(int));
+                for (j = 0; j < varctrl[i].nnodes; j++)
                 {
                     hnodes[j] = 0.0;
                     inodes[j] = 0;
                 }
-                if (prtctrlT[i].first)
+                if (varctrl[i].first)
                 {
-                    fprintf(prtctrlT[i].datfile, "%s \n", str1_Tec);
-                    fprintf(prtctrlT[i].datfile,
+                    fprintf(varctrl[i].datfile, "%s \n", str1_Tec);
+                    fprintf(varctrl[i].datfile,
                         "%s %s %s %d %s %d %s %lf %s\n", "ZONE T=\"",
-                        prtctrlT[i].name, "\", N=", prtctrlT[i].nnodes, ", E=",
-                        prtctrlT[i].nvar, "DATAPACKING=POINT, SOLUTIONTIME = ",
+                        varctrl[i].name, "\", N=", varctrl[i].nnodes, ", E=",
+                        varctrl[i].nvar, "DATAPACKING=POINT, SOLUTIONTIME = ",
                         0.0000, ", ZONETYPE=FETRIANGLE");
 
-                    for (j = 0; j < prtctrlT[i].nnodes; j++)
+                    for (j = 0; j < varctrl[i].nnodes; j++)
                     {
-                        fprintf(prtctrlT[i].datfile, "%lf %lf %lf %lf %lf\n",
-                            *prtctrlT[i].x[j], *prtctrlT[i].y[j],
-                            *prtctrlT[i].zmin[j], *prtctrlT[i].zmax[j],
+                        fprintf(varctrl[i].datfile, "%lf %lf %lf %lf %lf\n",
+                            *varctrl[i].x[j], *varctrl[i].y[j],
+                            *varctrl[i].zmin[j], *varctrl[i].zmax[j],
                             0.000001);
                     }
-                    for (j = 0; j < prtctrlT[i].nvar; j++)
+                    for (j = 0; j < varctrl[i].nvar; j++)
                     {
-                        fprintf(prtctrlT[i].datfile, "%d %d %d \n",
-                            *prtctrlT[i].node0[j], *prtctrlT[i].node1[j],
-                            *prtctrlT[i].node2[j]);
+                        fprintf(varctrl[i].datfile, "%d %d %d \n",
+                            *varctrl[i].node0[j], *varctrl[i].node1[j],
+                            *varctrl[i].node2[j]);
                     }
-                    prtctrlT[i].first = 0;
+                    varctrl[i].first = 0;
                 }
                 str3_Tec =
                     "VARSHARELIST = ([1, 2, 3, 4]=1), "
                     "CONNECTIVITYSHAREZONE = 1";
-                fprintf(prtctrlT[i].datfile, "%s %s %s %d %s %d %s %lf %s\n",
-                    "ZONE T=\"", prtctrlT[i].name, "\", N=", prtctrlT[i].nnodes,
-                    ", E=", prtctrlT[i].nvar,
+                fprintf(varctrl[i].datfile, "%s %s %s %d %s %d %s %lf %s\n",
+                    "ZONE T=\"", varctrl[i].name, "\", N=", varctrl[i].nnodes,
+                    ", E=", varctrl[i].nvar,
                     "DATAPACKING=POINT, SOLUTIONTIME = ", outtime,
                     ", ZONETYPE=FETRIANGLE,");
-                fprintf(prtctrlT[i].datfile, "%s \n", str3_Tec);
-                for (j = 0; j < prtctrlT[i].nvar; j++)
+                fprintf(varctrl[i].datfile, "%s \n", str3_Tec);
+                for (j = 0; j < varctrl[i].nvar; j++)
                 {
-                    if (prtctrlT[i].counter > 0)
+                    if (varctrl[i].counter > 0)
                     {
-                        outval = prtctrlT[i].buffer[j] /
-                            (double)prtctrlT[i].counter;
+                        outval = varctrl[i].buffer[j] /
+                            (double)varctrl[i].counter;
                     }
                     else
                     {
-                        outval = prtctrlT[i].buffer[j];
+                        outval = varctrl[i].buffer[j];
                     }
 
-                    hnodes[*prtctrlT[i].node0[j] - 1] =
-                        hnodes[*prtctrlT[i].node0[j] - 1] + outval;
-                    hnodes[*prtctrlT[i].node1[j] - 1] =
-                        hnodes[*prtctrlT[i].node1[j] - 1] + outval;
-                    hnodes[*prtctrlT[i].node2[j] - 1] =
-                        hnodes[*prtctrlT[i].node2[j] - 1] + outval;
-                    inodes[*prtctrlT[i].node0[j] - 1] =
-                        inodes[*prtctrlT[i].node0[j] - 1] + 1;
-                    inodes[*prtctrlT[i].node1[j] - 1] =
-                        inodes[*prtctrlT[i].node1[j] - 1] + 1;
-                    inodes[*prtctrlT[i].node2[j] - 1] =
-                        inodes[*prtctrlT[i].node2[j] - 1] + 1;
-                    prtctrlT[i].buffer[j] = 0.0;
+                    hnodes[*varctrl[i].node0[j] - 1] =
+                        hnodes[*varctrl[i].node0[j] - 1] + outval;
+                    hnodes[*varctrl[i].node1[j] - 1] =
+                        hnodes[*varctrl[i].node1[j] - 1] + outval;
+                    hnodes[*varctrl[i].node2[j] - 1] =
+                        hnodes[*varctrl[i].node2[j] - 1] + outval;
+                    inodes[*varctrl[i].node0[j] - 1] =
+                        inodes[*varctrl[i].node0[j] - 1] + 1;
+                    inodes[*varctrl[i].node1[j] - 1] =
+                        inodes[*varctrl[i].node1[j] - 1] + 1;
+                    inodes[*varctrl[i].node2[j] - 1] =
+                        inodes[*varctrl[i].node2[j] - 1] + 1;
+                    varctrl[i].buffer[j] = 0.0;
                 }
-                for (j = 0; j < prtctrlT[i].nnodes; j++)
+                for (j = 0; j < varctrl[i].nnodes; j++)
                 {
                     if (inodes[j] == 0)
                     {
-                        fprintf(prtctrlT[i].datfile, "%8.6f \n", 0.0);
+                        fprintf(varctrl[i].datfile, "%8.6f \n", 0.0);
                     }
                     else
                     {
-                        fprintf(prtctrlT[i].datfile, "%8.6f \n",
+                        fprintf(varctrl[i].datfile, "%8.6f \n",
                             hnodes[j] / inodes[j]);
                     }
                 }
-                prtctrlT[i].counter = 0;
-                fflush(prtctrlT[i].datfile);
+                varctrl[i].counter = 0;
+                fflush(varctrl[i].datfile);
             }
         }
     }

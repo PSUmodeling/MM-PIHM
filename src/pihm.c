@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
-    int next_t, double cputime, FILE *WaterBalance)
+    int next_t, double cputime)
 {
     /*
      * Apply boundary conditions
@@ -28,7 +28,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         /*
          * Update print variables for land surface step variables
          */
-        UpdPrintVar(pihm->prtctrl, pihm->ctrl.nprint, LS_STEP);
+        UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, LS_STEP);
     }
 
     /*
@@ -42,7 +42,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     if (pihm->ctrl.waterB)
     {
         /* Print water balance */
-        PrintWaterBalance(WaterBalance, t, pihm->ctrl.starttime,
+        PrintWaterBalance(pihm->print.walbal_file, t, pihm->ctrl.starttime,
             pihm->ctrl.stepsize, pihm->elem, nelem, pihm->riv, nriver);
     }
 #ifdef _NOAH_
@@ -56,7 +56,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     /*
      * Update print variables for hydrology step variables
      */
-    UpdPrintVar(pihm->prtctrl, pihm->ctrl.nprint, HYDROL_STEP);
+    UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, HYDROL_STEP);
 
 #ifdef _BGC_
     int             i;
@@ -93,7 +93,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         /*
          * Update print variables for CN (daily) step variables
          */
-        UpdPrintVar(pihm->prtctrl, pihm->ctrl.nprint, CN_STEP);
+        UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, CN_STEP);
     }
 #endif
 
@@ -109,12 +109,12 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     /*
      * Print outputs
      */
-    PrintData(pihm->prtctrl, pihm->ctrl.nprint, t, t - pihm->ctrl.starttime,
-        pihm->ctrl.ascii);
+    PrintData(pihm->print.varctrl, pihm->print.nprint, t,
+        t - pihm->ctrl.starttime, pihm->ctrl.ascii);
     if (pihm->ctrl.tecplot)
     {
-        UpdPrintVarT(pihm->prtctrlT, pihm->ctrl.nprintT);
-        PrintDataTecplot(pihm->prtctrlT, pihm->ctrl.nprintT, t,
+        UpdPrintVarT(pihm->print.tp_varctrl, pihm->print.ntpprint);
+        PrintDataTecplot(pihm->print.tp_varctrl, pihm->print.ntpprint, t,
             t - pihm->ctrl.starttime);
     }
 }

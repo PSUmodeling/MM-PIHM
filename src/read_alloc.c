@@ -1476,21 +1476,21 @@ void FreeData(pihm_struct pihm)
 
     free(pihm->ctrl.tout);
 
-    for (i = 0; i < pihm->ctrl.nprint; i++)
+    for (i = 0; i < pihm->print.nprint; i++)
     {
-        free(pihm->prtctrl[i].var);
-        free(pihm->prtctrl[i].buffer);
-        fclose(pihm->prtctrl[i].datfile);
+        free(pihm->print.varctrl[i].var);
+        free(pihm->print.varctrl[i].buffer);
+        fclose(pihm->print.varctrl[i].datfile);
         if (pihm->ctrl.ascii)
         {
-            fclose(pihm->prtctrl[i].txtfile);
+            fclose(pihm->print.varctrl[i].txtfile);
         }
     }
     if (pihm->ctrl.tecplot)
     {
-        for (i = 0; i < pihm->ctrl.nprintT; i++)
+        for (i = 0; i < pihm->print.ntpprint; i++)
         {
-            fclose(pihm->prtctrlT[i].datfile);
+            fclose(pihm->print.tp_varctrl[i].datfile);
         }
     }
     free(pihm->elem);

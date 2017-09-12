@@ -81,8 +81,7 @@ void            InitForcing(elem_struct *, forc_struct *, const calib_struct *
 void            InitLC(elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMeshStruct(elem_struct *, const meshtbl_struct *);
-void            InitOutputFile(prtctrl_struct *, int, int, prtctrlT_struct *,
-    int, int);
+void            InitOutputFile(print_struct *, int, int);
 void            InitWBFile(char *, char *, FILE *);
 void            InitRiver(river_struct *, elem_struct *, const rivtbl_struct *,
     const shptbl_struct *, const matltbl_struct *, const meshtbl_struct *,
@@ -133,10 +132,10 @@ void            _PIHMexit(const char *, int, const char *, int);
 #define PIHMprintf(...)   _PIHMprintf(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 void            _PIHMprintf(const char *, int, const char *, int,
     const char *, ...);
-void            PIHM(pihm_struct, void *, N_Vector, int, int, double, FILE *);
+void            PIHM(pihm_struct, void *, N_Vector, int, int, double);
 pihm_t_struct   PIHMTime(int);
-void            PrintData(prtctrl_struct *, int, int, int, int);
-void            PrintDataTecplot(prtctrlT_struct *, int, int, int);
+void            PrintData(varctrl_struct *, int, int, int, int);
+void            PrintDataTecplot(varctrl_struct *, int, int, int);
 void            PrtInit(elem_struct *, river_struct *, char *, int);
 void            PrintStats(void *, FILE *);
 void            PrintWaterBalance(FILE *, int, int, int, elem_struct *, int,
@@ -181,8 +180,8 @@ void            SolveCVode(int, int *, int, double, void *, N_Vector);
 int             StrTime(const char *);
 void            Summary(pihm_struct, N_Vector, double);
 double          SurfH(double);
-void            UpdPrintVar(prtctrl_struct *, int, int);
-void            UpdPrintVarT(prtctrlT_struct *, int);
+void            UpdPrintVar(varctrl_struct *, int, int);
+void            UpdPrintVarT(varctrl_struct *, int);
 void            VerticalFlow(pihm_struct);
 double          WiltingPoint(double, double, double, double);
 

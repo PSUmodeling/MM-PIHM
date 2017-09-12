@@ -217,8 +217,6 @@ typedef struct calib_struct
  * nstep                    int         number of external time steps (when
  *                                        results can be printed) for the
  *                                        whole simulation
- * nprint                   int         number of variables for output
- * nprintT                  int         number of variables for Tecplot output
  * prtvrbl                  int[]       time interval to output average values
  *                                        of variables; 0=turn off output
  * init_type                int         initialization mode:
@@ -269,8 +267,6 @@ typedef struct ctrl_struct
     int             write_ic;
     int             solver;
     int             nstep;
-    int             nprint;
-    int             nprintT;
     int             prtvrbl[MAXPRINT];
     int             init_type;
     int             unsat_mode;
@@ -308,7 +304,7 @@ typedef struct ctrl_struct
 } ctrl_struct;
 
 /*****************************************************************************
- * Print control structure
+ * Print variable control structure
  * ---------------------------------------------------------------------------
  * Variables                Type        Description
  * ==========               ==========  ====================
@@ -321,10 +317,11 @@ typedef struct ctrl_struct
  * buffer                   double*     buffer for averaging variables
  * counter                  int         counter for averaging variables
  ****************************************************************************/
-typedef struct prtctrl_struct
+typedef struct varctrl_struct
 {
     char            name[MAXSTRING];
     int             intvl;
+    int             intr;
     int             upd_intvl;
     int             nvar;
     double        **var;
@@ -332,48 +329,28 @@ typedef struct prtctrl_struct
     int             counter;
     FILE           *txtfile;
     FILE           *datfile;
-    FILE           *ic;
-} prtctrl_struct;
-
-/*****************************************************************************
-* Tecplot print control structure
-* ---------------------------------------------------------------------------
-* Variables                Type        Description
-* ==========               ==========  ====================
-* name                     char[]      name of output file
-* intvl                    int         output interval [s]
-* intr                     int         river identifier
-* nvar                     int         number of variables for print
-* var                      double**    pointers to model variables
-* x, y, z                  double**    pointers to model coordinates
-* nnodes                   int         number of nodes
-* buffer                   double*     buffer for averaging variables
-****************************************************************************/
-typedef struct prtctrlT_struct
-{
-    char            name[MAXSTRING];
-    int             intvl;
-    int             intr;
-    int             nvar;
-    double        **var;
-    double        **x, **y, **zmax, **zmin;
+    double        **x;
+    double        **y;
+    double        **zmax;
+    double        **zmin;
     int             nnodes;
-    int           **node0, **node1, **node2;
-    double         *buffer;
-    int             counter;
+    int           **node0;
+    int           **node1;
+    int           **node2;
     int             first;
-    FILE           *datfile;
-} prtctrlT_struct;
+} varctrl_struct;
 
-/*****************************************************************************
- * Print control structure
- * ---------------------------------------------------------------------------
- * Variables                Type        Description
- * ==========               ==========  ====================
- * longitude                double      domain logitude
- * latitude                 double      domain latitude
- * elevation                double      average domain elevation
- ****************************************************************************/
+typedef struct print_struct
+{
+    varctrl_struct  varctrl[MAXPRINT];
+    varctrl_struct  tp_varctrl[MAXPRINT];
+    int             nprint;
+    int             ntpprint;
+    FILE           *walbal_file;
+    FILE           *cvodeperf_file;
+    FILE           *cvodeconv_file;
+} print_struct;
+
 typedef struct pihm_struct
 {
     siteinfo_struct siteinfo;
@@ -405,7 +382,6 @@ typedef struct pihm_struct
     river_struct   *riv;
     calib_struct    cal;
     ctrl_struct     ctrl;
-    prtctrl_struct  prtctrl[MAXPRINT];
-    prtctrlT_struct prtctrlT[MAXPRINT];
+    print_struct    print;
 } *pihm_struct;
 #endif

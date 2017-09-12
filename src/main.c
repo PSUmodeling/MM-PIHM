@@ -16,9 +16,6 @@ char            WBname[100];
 char            Perfname[50];
 char            Convname[50];
 double          maxstep;
-FILE           *WaterBalance;   /* Water balance file */
-FILE           *Perf;           /* Performance file */
-FILE           *Conv;           /* CVODE convergence file */
 #ifdef _OPENMP
 realtype        ptime_omp, start_omp, ct_omp;
 #endif
@@ -90,23 +87,22 @@ int main(int argc, char *argv[])
     if (pihm->ctrl.waterB)
     {
         sprintf(WBname, "%s%s_WaterBalance.plt", outputdir, project);
-        WaterBalance = fopen(WBname, "w");
-        CheckFile(WaterBalance, WBname);
+        pihm->print.walbal_file = fopen(WBname, "w");
+        CheckFile(pihm->print.walbal_file, WBname);
     }
     if (pihm->ctrl.cvode_perf)
     {
         sprintf(Perfname, "%s%s_Performance.txt", outputdir, project);
-        Perf = fopen(Perfname, "w");
-        CheckFile(Perf, Perfname);
+        pihm->print.cvodeperf_file = fopen(Perfname, "w");
+        CheckFile(pihm->print.cvodeperf_file, Perfname);
         dtime = dtime + cputime_dt;
-        fprintf(Perf, " Time step, cpu_dt, cpu_time, solver_step\n");
+        fprintf(pihm->print.cvodeperf_file, " Time step, cpu_dt, cpu_time, solver_step\n");
         sprintf(Convname, "%s%s_CVODE.log", outputdir, project);
-        Conv = fopen(Convname, "w");
-        CheckFile(Conv, Convname);
+        pihm->print.cvodeconv_file = fopen(Convname, "w");
+        CheckFile(pihm->print.cvodeconv_file, Convname);
     }
 
-    InitOutputFile(pihm->prtctrl, pihm->ctrl.nprint, pihm->ctrl.ascii,
-        pihm->prtctrlT, pihm->ctrl.nprintT, pihm->ctrl.tecplot);
+    InitOutputFile(&pihm->print, pihm->ctrl.ascii, pihm->ctrl.tecplot);
 
     if (pihm->ctrl.write_ic)
     {
@@ -158,20 +154,20 @@ int main(int argc, char *argv[])
             ncfni = ncfn;
             nnii = nni;
             PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
-                pihm->ctrl.tout[i + 1], cputime, WaterBalance);
+                pihm->ctrl.tout[i + 1], cputime);
 
             if (pihm->ctrl.cvode_perf)
             {
                 dtime = dtime + cputime_dt;
                 if (pihm->ctrl.tout[i] % 3600 == 0)
                 {
-                    fprintf(Perf, "%d %f %f %f\n",
+                    fprintf(pihm->print.cvodeperf_file, "%d %f %f %f\n",
                         (pihm->ctrl.tout[i] - pihm->ctrl.starttime), cputime_dt,
                         cputime, maxstep);
                     dtime = 0.0;
                 }
                 /* Print CVODE statistics */
-                PrintStats(cvode_mem, Conv);
+                PrintStats(cvode_mem, pihm->print.cvodeconv_file);
             }
             flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
             flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
@@ -236,12 +232,12 @@ int main(int argc, char *argv[])
     CVodeFree(&cvode_mem);
     if (pihm->ctrl.waterB)
     {
-        fclose(WaterBalance);
+        fclose(pihm->print.walbal_file);
     }
     if (pihm->ctrl.cvode_perf)
     {
-        fclose(Perf);
-        fclose(Conv);
+        fclose(pihm->print.cvodeperf_file);
+        fclose(pihm->print.cvodeconv_file);
     }
     FreeData(pihm);
     free(pihm);
