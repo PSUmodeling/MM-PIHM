@@ -16,6 +16,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
         {"output", 'o', OPTPARSE_REQUIRED},
         {"elevation_correction", 'c', OPTPARSE_NONE},
         {"debug", 'd', OPTPARSE_NONE},
+        {"tecplot", 't', OPTPARSE_NONE},
         {"verbose", 'v', OPTPARSE_NONE},
         {"print_version", 'V', OPTPARSE_NONE},
         {0, 0, 0}
@@ -33,17 +34,22 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
             case 'c':
                 /* Surface elevation correction mode */
                 corr_mode = 1;
-                printf("Surface elevation correction mode turned on.\n");
+                printf("\tSurface elevation correction mode turned on.\n");
                 break;
             case 'd':
                 /* Debug mode */
                 debug_mode = 1;
-                printf("Debug mode turned on.\n");
+                printf("\tDebug mode turned on.\n");
+                break;
+            case 't':
+                /* Tecplot output */
+                tecplot = 1;
+                printf("\tTecplot output turned on.\n");
                 break;
             case 'v':
                 /* Verbose mode */
                 verbose_mode = 1;
-                printf("Verbose mode turned on.\n");
+                printf("\tVerbose mode turned on.\n");
                 break;
             case 'V':
                 /* Print version number */

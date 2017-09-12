@@ -81,7 +81,7 @@ void            InitForcing(elem_struct *, forc_struct *, const calib_struct *
 void            InitLC(elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMeshStruct(elem_struct *, const meshtbl_struct *);
-void            InitOutputFile(print_struct *, int, int);
+void            InitOutputFile(print_struct *, int);
 void            InitWBFile(char *, char *, FILE *);
 void            InitRiver(river_struct *, elem_struct *, const rivtbl_struct *,
     const shptbl_struct *, const matltbl_struct *, const meshtbl_struct *,

@@ -3,30 +3,30 @@
 void AsciiArt()
 {
     PIHMprintf(VL_NORMAL, "\n");
-    PIHMprintf(VL_NORMAL, "\t\t########  #### ##     ## ##     ##\n");
-    PIHMprintf(VL_NORMAL, "\t\t##     ##  ##  ##     ## ###   ###\n");
-    PIHMprintf(VL_NORMAL, "\t\t##     ##  ##  ##     ## #### ####\n");
-    PIHMprintf(VL_NORMAL, "\t\t########   ##  ######### ## ### ##\n");
-    PIHMprintf(VL_NORMAL, "\t\t##         ##  ##     ## ##     ##\n");
-    PIHMprintf(VL_NORMAL, "\t\t##         ##  ##     ## ##     ##\n");
-    PIHMprintf(VL_NORMAL, "\t\t##        #### ##     ## ##     ##\n");
+    PIHMprintf(VL_NORMAL, "\t########    ####   ##     ##   ##     ##\n");
+    PIHMprintf(VL_NORMAL, "\t##     ##    ##    ##     ##   ###   ###\n");
+    PIHMprintf(VL_NORMAL, "\t##     ##    ##    ##     ##   #### ####\n");
+    PIHMprintf(VL_NORMAL, "\t########     ##    #########   ## ### ##\n");
+    PIHMprintf(VL_NORMAL, "\t##           ##    ##     ##   ##     ##\n");
+    PIHMprintf(VL_NORMAL, "\t##           ##    ##     ##   ##     ##\n");
+    PIHMprintf(VL_NORMAL, "\t##          ####   ##     ##   ##     ##\n");
     PIHMprintf(VL_NORMAL,
-        "\n\t    The Penn State Integrated Hydrologic Model\n\n");
+        "\n\tThe Penn State Integrated Hydrologic Model\n\n");
 
 #ifdef _NOAH_
-    PIHMprintf(VL_NORMAL, "\t    * Land surface module turned on.\n");
+    PIHMprintf(VL_NORMAL, "\t* Land surface module turned on.\n");
 #endif
 #ifdef _RT_
-    PIHMprintf(VL_NORMAL, "\t    * Reactive transport module turned on.\n");
+    PIHMprintf(VL_NORMAL, "\t* Reactive transport module turned on.\n");
 #endif
 #ifdef _BGC_
-    PIHMprintf(VL_NORMAL, "\t    * Biogeochemistry module turned on.\n");
+    PIHMprintf(VL_NORMAL, "\t* Biogeochemistry module turned on.\n");
 #endif
 #ifdef _CYCLES_
-    PIHMprintf(VL_NORMAL, "\t    * Crop module turned on.\n");
+    PIHMprintf(VL_NORMAL, "\t* Crop module turned on.\n");
 #endif
 #ifdef _OPENMP
-    PIHMprintf(VL_NORMAL, "\t    * OpenMP (# of threads = %d).\n", nthreads);
+    PIHMprintf(VL_NORMAL, "\t* OpenMP (# of threads = %d).\n", nthreads);
 #endif
 
     PIHMprintf(VL_NORMAL, "\n");
@@ -63,7 +63,7 @@ void _PIHMprintf(const char *fn, int lineno, const char *func, int verbosity,
     va_end(va);
 }
 
-void InitOutputFile(print_struct *print, int ascii, int tecplot)
+void InitOutputFile(print_struct *print, int ascii)
 {
     char            ascii_fn[MAXSTRING];
     char            dat_fn[MAXSTRING];

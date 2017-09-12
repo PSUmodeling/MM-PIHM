@@ -1,6 +1,5 @@
 INIT_MODE	    0                   # Initialization type 0: relaxation, 1: use .init file
 ASCII_OUTPUT        1                   # Write ASCII output? 0: no, 1: yes
-TECPLOT_OUTPUT      1                   # Write Tecplot output? 0: no, 1: yes
 CVODE_PERF	    1                   # Write Performance file and CVODE stats?  0: no, 1: yes
 WATERB	        1                   # Write water balance? 0: no, 1: yes
 WRITE_IC	    1                   # Write initial condition? 0: Standard model run, 1: Outputs will be written to .init files

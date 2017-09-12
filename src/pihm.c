@@ -111,7 +111,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
      */
     PrintData(pihm->print.varctrl, pihm->print.nprint, t,
         t - pihm->ctrl.starttime, pihm->ctrl.ascii);
-    if (pihm->ctrl.tecplot)
+    if (tecplot)
     {
         UpdPrintVarT(pihm->print.tp_varctrl, pihm->print.ntpprint);
         PrintDataTecplot(pihm->print.tp_varctrl, pihm->print.ntpprint, t,

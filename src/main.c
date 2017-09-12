@@ -5,6 +5,7 @@ int             verbose_mode;
 int             debug_mode;
 int             corr_mode;
 int             spinup_mode;
+int             tecplot;
 char            project[MAXSTRING];
 int             nelem;
 int             nriver;
@@ -49,11 +50,11 @@ int main(int argc, char *argv[])
 
     memset(outputdir, 0, MAXSTRING);
 
-    /* Read command line arguments */
-    ParseCmdLineParam(argc, argv, outputdir);
-
     /* Print AscII art */
     AsciiArt();
+
+    /* Read command line arguments */
+    ParseCmdLineParam(argc, argv, outputdir);
 
     /* Create output directory */
     CreateOutputDir(outputdir);
@@ -112,7 +113,7 @@ int main(int argc, char *argv[])
         CheckFile(pihm->print.cvodeconv_file, Convname);
     }
 
-    InitOutputFile(&pihm->print, pihm->ctrl.ascii, pihm->ctrl.tecplot);
+    InitOutputFile(&pihm->print, pihm->ctrl.ascii);
 
     if (pihm->ctrl.write_ic)
     {

@@ -939,9 +939,6 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
     ReadKeyword(cmdstr, "ASCII_OUTPUT", &ctrl->ascii, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "TECPLOT_OUTPUT", &ctrl->tecplot, 'i', filename, lno);
-
-    NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "CVODE_PERF", &ctrl->cvode_perf, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
@@ -1486,7 +1483,7 @@ void FreeData(pihm_struct pihm)
             fclose(pihm->print.varctrl[i].txtfile);
         }
     }
-    if (pihm->ctrl.tecplot)
+    if (tecplot)
     {
         for (i = 0; i < pihm->print.ntpprint; i++)
         {
