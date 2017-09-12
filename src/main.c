@@ -1,5 +1,6 @@
 #include "pihm.h"
 
+/* Global variables */
 int             verbose_mode;
 int             debug_mode;
 int             corr_mode;
@@ -7,20 +8,8 @@ int             spinup_mode;
 char            project[MAXSTRING];
 int             nelem;
 int             nriver;
-clock_t         ptime, start, ct;
-realtype        cputime, cputime_dt;    /* Time cpu duration */
-static double   dtime = 0;
-long int        nst, nfe, nfeLS, nni, ncfn, netf, ncfni = 0, nnii = 10; /*Variables for monitoring performance */
-int             flag;
-char            WBname[100];
-char            Perfname[50];
-char            Convname[50];
-double          maxstep;
 #ifdef _OPENMP
-realtype        ptime_omp, start_omp, ct_omp;
-#endif
-#ifdef _OPENMP
-int             nthreads = 1;   /* default value */
+int             nthreads = 1;    /* Default value */
 #endif
 #if defined(_BGC_) || defined (_CYCLES_)
 int             first_balance;
@@ -33,13 +22,32 @@ int main(int argc, char *argv[])
     N_Vector        CV_Y, abstol;
     void           *cvode_mem;
     int             i;
-
-    memset(outputdir, 0, MAXSTRING);
-
-    /* Set the number of threads to use */
+    clock_t         ptime, start, ct;
+    realtype        cputime, cputime_dt;    /* Time cpu duration */
+    static double   dtime = 0;
+    long int        nst;
+    long int        nfe;
+    long int        nfeLS;
+    long int        nni;
+    long int        ncfn;
+    long int        netf;
+    long int        ncfni = 0;
+    long int        nnii = 10;
+    int             flag;
+    char            WBname[MAXSTRING];
+    char            Perfname[MAXSTRING];
+    char            Convname[MAXSTRING];
+    double          maxstep;
 #ifdef _OPENMP
+    realtype        ptime_omp, start_omp, ct_omp;
+#endif
+
+#ifdef _OPENMP
+    /* Set the number of threads to use */
     nthreads = omp_get_max_threads();
 #endif
+
+    memset(outputdir, 0, MAXSTRING);
 
     /* Read command line arguments */
     ParseCmdLineParam(argc, argv, outputdir);
@@ -62,11 +70,13 @@ int main(int argc, char *argv[])
 
     /* Initialize PIHM structure */
     Initialize(pihm, CV_Y);
+
     /* Set the vector absolute tolerance */
     for (i = 0; i < NSV; i++)
     {
         NV_Ith(abstol, i) = pihm->ctrl.abstol;
     }
+
     /* Allocate memory for solver */
     cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
     if (cvode_mem == NULL)
