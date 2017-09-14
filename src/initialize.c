@@ -84,6 +84,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y)
     if (pihm->ctrl.init_type == RELAX)
     {
 #ifdef _NOAH_
+        /* Noah initialization needs air temperature thus forcing is applied */
         ApplyForcing(&pihm->forc, pihm->elem, pihm->ctrl.starttime, &pihm->ctrl,
             &pihm->siteinfo);
 #endif
@@ -313,11 +314,11 @@ void InitRiver(river_struct *riv, elem_struct *elem,
             /* Note: Strategy to use BC < -4 for river identification */
             if (elem[riv[i].leftele - 1].nabr[j] == riv[i].rightele)
             {
-                elem[riv[i].leftele - 1].nabr[j] = 0 - (i + 1);
+                elem[riv[i].leftele - 1].nabr[j] = -(i + 1);
             }
             if (elem[riv[i].rightele - 1].nabr[j] == riv[i].leftele)
             {
-                elem[riv[i].rightele - 1].nabr[j] = 0 - (i + 1);
+                elem[riv[i].rightele - 1].nabr[j] = -(i + 1);
             }
         }
 
