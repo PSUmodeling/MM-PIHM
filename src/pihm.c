@@ -40,12 +40,6 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     /* Use mass balance to calculate model fluxes or variables */
     Summary(pihm, CV_Y, (double)pihm->ctrl.stepsize);
 
-    if (pihm->ctrl.waterB)
-    {
-        /* Print water balance */
-        PrintWatBal(pihm->print.walbal_file, t, pihm->ctrl.starttime,
-            pihm->ctrl.stepsize, pihm->elem, pihm->riv);
-    }
 #ifdef _NOAH_
     NoahHydrol(pihm->elem, (double)pihm->ctrl.stepsize);
 #endif
@@ -82,15 +76,15 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
 
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
-#ifdef _BGC_
+# ifdef _BGC_
         DailyBgc(pihm, t - DAYINSEC);
 
         first_balance = 0;
-#endif
+# endif
 
-#ifdef _CYCLES_
+# ifdef _CYCLES_
         DailyCycles(t - DAYINSEC, pihm);
-#endif
+# endif
 
         /*
          * Update print variables for CN (daily) step variables
@@ -98,22 +92,29 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, CN_STEP);
         UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, CN_STEP);
     }
-#endif
 
-#ifdef _DAILY_
-    /*
-     * Initialize daily structures
-     */
+    /* Initialize daily structures */
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
         InitDailyStruct(pihm);
     }
 #endif
+
     /*
      * Print outputs
      */
+    /* Print water balance */
+    if (pihm->ctrl.waterB)
+    {
+        PrintWatBal(pihm->print.walbal_file, t, pihm->ctrl.starttime,
+            pihm->ctrl.stepsize, pihm->elem, pihm->riv);
+    }
+
+    /* Print binary and txt output files */
     PrintData(pihm->print.varctrl, pihm->print.nprint, t,
         t - pihm->ctrl.starttime, pihm->ctrl.ascii);
+
+    /* Print tecplot output files */
     if (tecplot)
     {
         PrintDataTecplot(pihm->print.tp_varctrl, pihm->print.ntpprint, t,
