@@ -1,10 +1,13 @@
 #include "pihm.h"
 
-void Initialize(pihm_struct pihm, N_Vector CV_Y)
+void Initialize(pihm_struct pihm, N_Vector *CV_Y)
 {
     int             i, j;
 
     PIHMprintf(VL_VERBOSE, "\n\nInitialize data structure\n");
+
+    /* Initialize CVode state variables */
+    *CV_Y = N_VNew(NSV);
 
     pihm->elem = (elem_struct *)malloc(nelem * sizeof(elem_struct));
     pihm->riv = (river_struct *)malloc(nriver * sizeof(river_struct));
@@ -95,7 +98,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y)
         ReadIC(pihm->filename.ic, pihm->elem, pihm->riv);
     }
 
-    InitVar(pihm->elem, pihm->riv, CV_Y);
+    InitVar(pihm->elem, pihm->riv, *CV_Y);
 
 #ifdef _BGC_
     /*
@@ -110,7 +113,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y)
         FirstDay(pihm->elem, pihm->riv, &pihm->cninit);
     }
 
-    InitBgcVar(pihm->elem, pihm->riv, CV_Y);
+    InitBgcVar(pihm->elem, pihm->riv, *CV_Y);
 #endif
 
     CalcModelStep(&pihm->ctrl);

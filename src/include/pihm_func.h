@@ -70,7 +70,7 @@ void            FreeData(pihm_struct);
 void            FrictSlope(elem_struct *, river_struct *, int, double *,
     double *);
 void            Hydrol(pihm_struct);
-void            Initialize(pihm_struct, N_Vector);
+void            Initialize(pihm_struct, N_Vector *);
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
 void            InitForcing(elem_struct *, forc_struct *, const calib_struct *

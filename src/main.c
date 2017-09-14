@@ -65,11 +65,8 @@ int main(int argc, char *argv[])
     /* Read PIHM input files */
     ReadAlloc(pihm);
 
-    /* Initialize CVode state variables */
-    CV_Y = N_VNew(NSV);
-
     /* Initialize PIHM structure */
-    Initialize(pihm, CV_Y);
+    Initialize(pihm, &CV_Y);
 
     /* Allocate memory for solver */
     cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
