@@ -107,6 +107,7 @@ void            IntrplForcing(tsdata_struct *, int, int);
 double          KrFunc(double, double, double);
 void            LateralFlow(pihm_struct);
 int             MacroporeStatus(double, double, double, double, double, double);
+void            MapTecplotOutput(char *, pihm_struct, char *);
 void            MapOutput(char *, pihm_struct, char *);
 void            MassBalance(wstate_struct *, wstate_struct *, wflux_struct *,
     double *, const soil_struct *, double, double);
@@ -141,8 +142,8 @@ void            PrintData(varctrl_struct *, int, int, int, int);
 void            PrintDataTecplot(varctrl_struct *, int, int, int);
 void            PrtInit(elem_struct *, river_struct *, char *, int);
 void            PrintStats(void *, FILE *);
-void            PrintWaterBalance(FILE *, int, int, int, elem_struct *, int,
-    river_struct *, int);
+void            PrintWatBal(FILE *, int, int, int, elem_struct *,
+    river_struct *);
 double          Psi(double, double, double);
 double          PtfAlpha(double, double, double, double, int);
 double          PtfBeta(double, double, double, double, int);

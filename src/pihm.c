@@ -43,8 +43,8 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     if (pihm->ctrl.waterB)
     {
         /* Print water balance */
-        PrintWaterBalance(pihm->print.walbal_file, t, pihm->ctrl.starttime,
-            pihm->ctrl.stepsize, pihm->elem, nelem, pihm->riv, nriver);
+        PrintWatBal(pihm->print.walbal_file, t, pihm->ctrl.starttime,
+            pihm->ctrl.stepsize, pihm->elem, pihm->riv);
     }
 #ifdef _NOAH_
     NoahHydrol(pihm->elem, (double)pihm->ctrl.stepsize);

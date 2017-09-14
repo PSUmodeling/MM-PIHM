@@ -459,62 +459,75 @@ void PrintStats(void *cvode_mem, FILE *Conv)
 }
 
 
-void PrintWaterBalance(FILE *WaterBalance, int t, int tstart, int dt,
-    elem_struct *elem, int numele, river_struct *riv, int numriv)
+void PrintWatBal(FILE *watbal_file, int t, int tstart, int dt,
+    elem_struct *elem, river_struct *riv)
 {
-    long int        i, j;
-    realtype        totarea = 0., totlenght = 0.;
-    realtype        totPrep = 0., totNetPrep = 0., totInf = 0., totRecharge =
-        0., totEsoil = 0., totETplant = 0., totEcan = 0., totPET = 0., totET =
-        0., totES = 0., totEU = 0., totEGW = 0., totTU = 0., totTGW = 0.;
-    realtype        outflow = 0.0, RE_OLF = 0., R_Exf = 0., R_LKG = 0.;
-
-
+    int             i, j;
+    double          totarea = 0.0;
+    double          totlength = 0.0;
+    double          tot_prep = 0.0;
+    double          tot_net_prep = 0.;
+    double          tot_inf = 0.0;
+    double          tot_rechg = 0.0;
+    double          tot_esoil = 0.0;
+    double          tot_ett = 0.0;
+    double          tot_ec = 0.0;
+    double          tot_pet = 0.0;
+    double          tot_et = 0.0;
+    double          tot_edir_surf = 0.0;
+    double          tot_edir_unsat = 0.0;
+    double          tot_edir_gw = 0.0;
+    double          tot_ett_unsat = 0.0;
+    double          tot_ett_gw = 0.0;
+    double          outflow = 0.0;
+    double          riv2elem_olf = 0.0;
+    double          riv_base = 0.0;
+    double          riv_lkg = 0.0;
 
     if (t == tstart + dt)
     {
-        fprintf(WaterBalance, "%s\n", WB_HEADER);
+        fprintf(watbal_file, "%s\n", WB_HEADER);
     }
-    for (i = 0; i < numele; i++)
+    for (i = 0; i < nelem; i++)
     {
-        totarea = totarea + elem[i].topo.area;
-        totPrep = totPrep + elem[i].wf.prcp * elem[i].topo.area;
-        totNetPrep = totNetPrep + elem[i].wf.pcpdrp * elem[i].topo.area;
-        totInf = totInf + elem[i].wf.infil * elem[i].topo.area;
-        totRecharge = totRecharge + elem[i].wf.rechg * elem[i].topo.area;
-        totEsoil = totEsoil + elem[i].wf.edir * elem[i].topo.area;
-        totETplant = totETplant + elem[i].wf.ett * elem[i].topo.area;
-        totEcan = totEcan + elem[i].wf.ec * elem[i].topo.area;
-        totPET = totPET + elem[i].wf.etp * elem[i].topo.area;
-        totET = totET + elem[i].wf.eta * elem[i].topo.area;
-        totES = totES + elem[i].wf.edir_surf * elem[i].topo.area;
-        totEU = totEU + elem[i].wf.edir_unsat * elem[i].topo.area;
-        totEGW = totEGW + elem[i].wf.edir_gw * elem[i].topo.area;
-        totTU = totTU + elem[i].wf.ett_unsat * elem[i].topo.area;
-        totTGW = totTGW + elem[i].wf.ett_gw * elem[i].topo.area;
+        totarea += elem[i].topo.area;
+        tot_prep += elem[i].wf.prcp * elem[i].topo.area;
+        tot_net_prep += elem[i].wf.pcpdrp * elem[i].topo.area;
+        tot_inf += elem[i].wf.infil * elem[i].topo.area;
+        tot_rechg += elem[i].wf.rechg * elem[i].topo.area;
+        tot_esoil += elem[i].wf.edir * elem[i].topo.area;
+        tot_ett += elem[i].wf.ett * elem[i].topo.area;
+        tot_ec += elem[i].wf.ec * elem[i].topo.area;
+        tot_pet += elem[i].wf.etp * elem[i].topo.area;
+        tot_et += elem[i].wf.eta * elem[i].topo.area;
+        tot_edir_surf += elem[i].wf.edir_surf * elem[i].topo.area;
+        tot_edir_unsat += elem[i].wf.edir_unsat * elem[i].topo.area;
+        tot_edir_gw += elem[i].wf.edir_gw * elem[i].topo.area;
+        tot_ett_unsat += elem[i].wf.ett_unsat * elem[i].topo.area;
+        tot_ett_gw += elem[i].wf.ett_gw * elem[i].topo.area;
     }
 
-    for (j = 0; j < numriv; j++)
+    for (j = 0; j < nriver; j++)
     {
-        totlenght = totlenght + riv[j].shp.length;
+        totlength += riv[j].shp.length;
         if (riv[j].down < 0)
         {
             outflow = riv[j].wf.rivflow[DOWN_CHANL2CHANL];
         }
-        RE_OLF =
-            RE_OLF + (riv[j].wf.rivflow[LEFT_SURF2CHANL] +
-            riv[j].wf.rivflow[RIGHT_SURF2CHANL]);
-        R_Exf =
-            R_Exf + (riv[j].wf.rivflow[LEFT_AQUIF2CHANL] +
-            riv[j].wf.rivflow[RIGHT_AQUIF2CHANL]);
-        R_LKG = R_LKG + riv[j].wf.rivflow[CHANL_LKG];
-
+        riv2elem_olf +=
+            riv[j].wf.rivflow[LEFT_SURF2CHANL] +
+            riv[j].wf.rivflow[RIGHT_SURF2CHANL];
+        riv_base +=
+            riv[j].wf.rivflow[LEFT_AQUIF2CHANL] +
+            riv[j].wf.rivflow[RIGHT_AQUIF2CHANL];
+        riv_lkg += riv[j].wf.rivflow[CHANL_LKG];
     }
 
-    fprintf(WaterBalance,
+    fprintf(watbal_file,
         "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf "
         "%lf %lf\n",
-        (t - tstart), outflow, RE_OLF, R_Exf, R_LKG, totPrep, totNetPrep,
-        totInf, totRecharge, totEsoil, totETplant, totEcan, totPET, totET,
-        totES, totEU, totEGW, totTU, totTGW);
+        t - tstart, outflow, riv2elem_olf, riv_base, riv_lkg, tot_prep,
+        tot_net_prep, tot_inf, tot_rechg, tot_esoil, tot_ett, tot_ec, tot_pet,
+        tot_et, tot_edir_surf, tot_edir_unsat, tot_edir_gw, tot_ett_unsat,
+        tot_ett_gw);
 }
