@@ -60,7 +60,15 @@ int main(int argc, char *argv[])
     ReadAlloc(pihm);
 
     /* Initialize PIHM structure */
-    Initialize(pihm, &CV_Y, &cvode_mem);
+    Initialize(pihm, &CV_Y);
+
+    /* Allocate memory for solver */
+    cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+    if (cvode_mem == NULL)
+    {
+        PIHMprintf(VL_ERROR, "Error in allocating memory for solver.\n");
+        PIHMexit(EXIT_FAILURE);
+    }
 
     /* Create output directory */
     CreateOutputDir(outputdir);
