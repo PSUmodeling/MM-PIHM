@@ -38,9 +38,6 @@ int main(int argc, char *argv[])
     long int        ncfni = 0;
     long int        nnii = 10;
     int             flag;
-    char            watbal_fn[MAXSTRING];
-    char            perf_fn[MAXSTRING];
-    char            conv_fn[MAXSTRING];
     double          maxstep;
 
 #ifdef _OPENMP
@@ -56,9 +53,6 @@ int main(int argc, char *argv[])
     /* Read command line arguments */
     ParseCmdLineParam(argc, argv, outputdir);
 
-    /* Create output directory */
-    CreateOutputDir(outputdir);
-
     /* Allocate memory for model data structure */
     pihm = (pihm_struct)malloc(sizeof(*pihm));
 
@@ -67,6 +61,9 @@ int main(int argc, char *argv[])
 
     /* Initialize PIHM structure */
     Initialize(pihm, &CV_Y, &cvode_mem);
+
+    /* Create output directory */
+    CreateOutputDir(pihm->ctrl.write_ic, outputdir);
 
     /* Create output structures */
     MapOutput(pihm, outputdir);
@@ -77,36 +74,8 @@ int main(int argc, char *argv[])
     BKInput(outputdir);
 #endif
 
-    /* Initialize output files and structures */
-    if (pihm->ctrl.waterB)
-    {
-        sprintf(watbal_fn, "%s%s_WaterBalance.plt", outputdir, project);
-        pihm->print.walbal_file = fopen(watbal_fn, "w");
-        CheckFile(pihm->print.walbal_file, watbal_fn);
-    }
-
-    if (debug_mode)
-    {
-        sprintf(perf_fn, "%s%s.perf.txt", outputdir, project);
-        pihm->print.cvodeperf_file = fopen(perf_fn, "w");
-        CheckFile(pihm->print.cvodeperf_file, perf_fn);
-
-        fprintf(pihm->print.cvodeperf_file,
-            " Time step, cpu_dt, cpu_time, solver_step\n");
-
-        sprintf(conv_fn, "%s%s.CVODE.log", outputdir, project);
-        pihm->print.cvodeconv_file = fopen(conv_fn, "w");
-        CheckFile(pihm->print.cvodeconv_file, conv_fn);
-    }
-
-    InitOutputFile(&pihm->print, pihm->ctrl.ascii);
-
-    if (pihm->ctrl.write_ic)
-    {
-        char            icdir[MAXSTRING];
-        sprintf(icdir, "input/%s/ic/", project);
-        pihm_mkdir(icdir);
-    }
+    InitOutputFile(&pihm->print, outputdir, pihm->ctrl.waterB,
+        pihm->ctrl.ascii);
 
     PIHMprintf(VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 

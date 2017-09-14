@@ -1028,4 +1028,3 @@ void InitTecPrtVarCtrl(char *outputdir, char *ext, int intvl, int intr,
     varctrl->buffer = (double *)calloc(nvar, sizeof(double));
     varctrl->counter = 0;
 }
-

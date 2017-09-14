@@ -69,13 +69,41 @@ void _PIHMprintf(const char *fn, int lineno, const char *func, int verbosity,
     va_end(va);
 }
 
-void InitOutputFile(print_struct *print, int ascii)
+void InitOutputFile(print_struct *print, char *outputdir, int watbal, int ascii)
 {
     char            ascii_fn[MAXSTRING];
     char            dat_fn[MAXSTRING];
     char            tec_fn[MAXSTRING];
+    char            watbal_fn[MAXSTRING];
+    char            perf_fn[MAXSTRING];
+    char            conv_fn[MAXSTRING];
     int             i;
 
+    /* Initialize water balance file*/
+    if (watbal)
+    {
+        sprintf(watbal_fn, "%s%s.watbal.plt", outputdir, project);
+        print->walbal_file = fopen(watbal_fn, "w");
+        CheckFile(print->walbal_file, watbal_fn);
+    }
+
+    /* Initialize cvode output files */
+    if (debug_mode)
+    {
+        sprintf(perf_fn, "%s%s.perf.txt", outputdir, project);
+        print->cvodeperf_file = fopen(perf_fn, "w");
+        CheckFile(print->cvodeperf_file, perf_fn);
+        fprintf(print->cvodeperf_file,
+            " Time step, cpu_dt, cpu_time, solver_step\n");
+
+        sprintf(conv_fn, "%s%s.cvode.log", outputdir, project);
+        print->cvodeconv_file = fopen(conv_fn, "w");
+        CheckFile(print->cvodeconv_file, conv_fn);
+    }
+
+    /*
+     * Initialize model variable output files
+     */
     for (i = 0; i < print->nprint; i++)
     {
         sprintf(dat_fn, "%s.dat", print->varctrl[i].name);

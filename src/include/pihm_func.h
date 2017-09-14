@@ -59,7 +59,7 @@ void            CheckFile(FILE *, char *);
 void            CorrectElevation(elem_struct *, river_struct *);
 int             CountLine(FILE *, char *, int, ...);
 int             CountOccurance(FILE *, char *);
-void            CreateOutputDir(char *);
+void            CreateOutputDir(int, char *);
 double          DhByDl(double *, double *, double *);
 double          EffKH(double, double, double, double, double, double);
 double          EffKinf(double, double, int, double, double, double);
@@ -81,7 +81,7 @@ void            InitForcing(elem_struct *, forc_struct *, const calib_struct *
 void            InitLC(elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMeshStruct(elem_struct *, const meshtbl_struct *);
-void            InitOutputFile(print_struct *, int);
+void            InitOutputFile(print_struct *, char *, int, int);
 void            InitPrtVarCtrl(char *, char *, int, int, int, varctrl_struct *);
 void            InitWBFile(char *, char *, FILE *);
 void            InitRiver(river_struct *, elem_struct *, const rivtbl_struct *,
