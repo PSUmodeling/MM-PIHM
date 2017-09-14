@@ -4,11 +4,8 @@ void Hydrol(pihm_struct pihm)
 {
     int             i;
 
-    /*
-     * Determine source of ET
-     */
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
@@ -16,9 +13,14 @@ void Hydrol(pihm_struct pihm)
 
         elem = &pihm->elem[i];
 
-        /* Calculate actual surface water depth */
+        /*
+         * Calculate actual surface water depth
+         */
         elem->ws.surfh = SurfH(elem->ws.surf);
 
+        /*
+         * Determine source of ET
+         */
         /* Source of direct evaporation */
 #ifdef _NOAH_
         if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
