@@ -261,7 +261,6 @@ typedef struct calib_struct
 typedef struct ctrl_struct
 {
     int             ascii;
-    int             cvode_perf;
     int             waterB;
     int             write_ic;
     int             solver;

@@ -944,9 +944,6 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
     ReadKeyword(cmdstr, "ASCII_OUTPUT", &ctrl->ascii, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CVODE_PERF", &ctrl->cvode_perf, 'i', filename, lno);
-
-    NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "WATERB", &ctrl->waterB, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
@@ -1567,6 +1564,18 @@ void FreeData(pihm_struct pihm)
 
     free(pihm->ctrl.tout);
 
+    /*
+     * Close files
+     */
+    if (pihm->ctrl.waterB)
+    {
+        fclose(pihm->print.walbal_file);
+    }
+    if (debug_mode)
+    {
+        fclose(pihm->print.cvodeperf_file);
+        fclose(pihm->print.cvodeconv_file);
+    }
     for (i = 0; i < pihm->print.nprint; i++)
     {
         free(pihm->print.varctrl[i].var);

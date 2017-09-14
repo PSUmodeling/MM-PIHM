@@ -23,9 +23,13 @@ int main(int argc, char *argv[])
     N_Vector        CV_Y, abstol;
     void           *cvode_mem;
     int             i;
+#ifdef _OPENMP
+    double          ptime_omp, start_omp, ct_omp;
+#else
     clock_t         ptime, start, ct;
-    realtype        cputime, cputime_dt;    /* Time cpu duration */
-    static double   dtime = 0;
+#endif
+    double          cputime, cputime_dt;    /* Time cpu duration */
+    static double   dtime = 0.0;
     long int        nst;
     long int        nfe;
     long int        nfeLS;
@@ -35,13 +39,10 @@ int main(int argc, char *argv[])
     long int        ncfni = 0;
     long int        nnii = 10;
     int             flag;
-    char            WBname[MAXSTRING];
-    char            Perfname[MAXSTRING];
-    char            Convname[MAXSTRING];
+    char            watbal_fn[MAXSTRING];
+    char            perf_fn[MAXSTRING];
+    char            conv_fn[MAXSTRING];
     double          maxstep;
-#ifdef _OPENMP
-    realtype        ptime_omp, start_omp, ct_omp;
-#endif
 
 #ifdef _OPENMP
     /* Set the number of threads to use */
@@ -98,20 +99,24 @@ int main(int argc, char *argv[])
     /* Initialize output files and structures */
     if (pihm->ctrl.waterB)
     {
-        sprintf(WBname, "%s%s_WaterBalance.plt", outputdir, project);
-        pihm->print.walbal_file = fopen(WBname, "w");
-        CheckFile(pihm->print.walbal_file, WBname);
+        sprintf(watbal_fn, "%s%s_WaterBalance.plt", outputdir, project);
+        pihm->print.walbal_file = fopen(watbal_fn, "w");
+        CheckFile(pihm->print.walbal_file, watbal_fn);
     }
-    if (pihm->ctrl.cvode_perf)
+
+    if (debug_mode)
     {
-        sprintf(Perfname, "%s%s_Performance.txt", outputdir, project);
-        pihm->print.cvodeperf_file = fopen(Perfname, "w");
-        CheckFile(pihm->print.cvodeperf_file, Perfname);
-        dtime = dtime + cputime_dt;
-        fprintf(pihm->print.cvodeperf_file, " Time step, cpu_dt, cpu_time, solver_step\n");
-        sprintf(Convname, "%s%s_CVODE.log", outputdir, project);
-        pihm->print.cvodeconv_file = fopen(Convname, "w");
-        CheckFile(pihm->print.cvodeconv_file, Convname);
+        sprintf(perf_fn, "%s%s.perf.txt", outputdir, project);
+        pihm->print.cvodeperf_file = fopen(perf_fn, "w");
+        CheckFile(pihm->print.cvodeperf_file, perf_fn);
+
+        dtime += cputime_dt;
+        fprintf(pihm->print.cvodeperf_file,
+            " Time step, cpu_dt, cpu_time, solver_step\n");
+
+        sprintf(conv_fn, "%s%s.CVODE.log", outputdir, project);
+        pihm->print.cvodeconv_file = fopen(conv_fn, "w");
+        CheckFile(pihm->print.cvodeconv_file, conv_fn);
     }
 
     InitOutputFile(&pihm->print, pihm->ctrl.ascii);
@@ -128,6 +133,7 @@ int main(int argc, char *argv[])
     /* Set solver parameters */
     SetCVodeParam(pihm, cvode_mem, CV_Y);
     maxstep = pihm->ctrl.maxstep;
+
 #if defined(_BGC_) || defined (_CYCLES_)
     first_balance = 1;
 #endif
@@ -168,34 +174,36 @@ int main(int argc, char *argv[])
             PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
                 pihm->ctrl.tout[i + 1], cputime);
 
-            if (pihm->ctrl.cvode_perf)
+            if (debug_mode)
             {
-                dtime = dtime + cputime_dt;
+                dtime += cputime_dt;
+
                 if (pihm->ctrl.tout[i] % 3600 == 0)
                 {
                     fprintf(pihm->print.cvodeperf_file, "%d %f %f %f\n",
-                        (pihm->ctrl.tout[i] - pihm->ctrl.starttime), cputime_dt,
+                        pihm->ctrl.tout[i] - pihm->ctrl.starttime, cputime_dt,
                         cputime, maxstep);
                     dtime = 0.0;
                 }
                 /* Print CVODE statistics */
                 PrintStats(cvode_mem, pihm->print.cvodeconv_file);
             }
+
             flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
             flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
 
-            /* Variable CVode Max Step (to reduce oscillations) */
+            /* Variable CVODE max step (to reduce oscillations) */
             if ((ncfn - ncfni > pihm->ctrl.nncfn ||
                 nni - nnii > pihm->ctrl.nnimax) &&
                 maxstep > pihm->ctrl.stmin)
             {
-                maxstep = maxstep / pihm->ctrl.decr;
+                maxstep /= pihm->ctrl.decr;
                 flag = CVodeSetMaxStep(cvode_mem, (realtype)maxstep);
             }
             if (ncfn == ncfni && maxstep < pihm->ctrl.maxstep &&
                 nni - nnii < pihm->ctrl.nnimin)
             {
-                maxstep = maxstep * pihm->ctrl.incr;
+                maxstep *= pihm->ctrl.incr;
                 flag = CVodeSetMaxStep(cvode_mem, (realtype)maxstep);
             }
 
@@ -228,13 +236,16 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    /* Print some CVODE statistics */
-    flag = CVodeGetNumSteps(cvode_mem, &nst);
-    flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-    flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+    if (debug_mode)
+    {
+        /* Print some CVODE statistics */
+        flag = CVodeGetNumSteps(cvode_mem, &nst);
+        flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+        flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
 
-    printf("nst = %-6ld nfe  = %-6ld \n", nst, nfe);
-    printf("nni = %-6ld ncfn = %-6ld netf = %-6ld\n \n", nni, ncfn, netf);
+        printf("nst = %-6ld nfe  = %-6ld \n", nst, nfe);
+        printf("nni = %-6ld ncfn = %-6ld netf = %-6ld\n \n", nni, ncfn, netf);
+    }
 
     /* Free memory */
     N_VDestroy(CV_Y);
@@ -242,15 +253,6 @@ int main(int argc, char *argv[])
 
     /* Free integrator memory */
     CVodeFree(&cvode_mem);
-    if (pihm->ctrl.waterB)
-    {
-        fclose(pihm->print.walbal_file);
-    }
-    if (pihm->ctrl.cvode_perf)
-    {
-        fclose(pihm->print.cvodeperf_file);
-        fclose(pihm->print.cvodeconv_file);
-    }
     FreeData(pihm);
     free(pihm);
     PIHMprintf(VL_NORMAL, "\nSimulation completed.\n");
