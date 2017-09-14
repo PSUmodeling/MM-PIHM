@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void LateralFlow(pihm_struct pihm)
+void LateralFlow(elem_struct *elem, river_struct *riv, int surf_mode)
 {
     int             i;
     double         *dhbydx;
@@ -9,7 +9,7 @@ void LateralFlow(pihm_struct pihm)
     dhbydx = (double *)malloc(nelem * sizeof(double));
     dhbydy = (double *)malloc(nelem * sizeof(double));
 
-    FrictSlope(pihm->elem, pihm->riv, pihm->ctrl.surf_mode, dhbydx, dhbydy);
+    FrictSlope(elem, riv, surf_mode, dhbydx, dhbydy);
 
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -30,58 +30,55 @@ void LateralFlow(pihm_struct pihm)
         double          avg_rough;
         double          crossa;
 
-        elem_struct    *elem;
         elem_struct    *nabr;
-
-        elem = &pihm->elem[i];
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            if (elem->nabr[j] > 0)
+            if (elem[i].nabr[j] > 0)
             {
-                nabr = &pihm->elem[elem->nabr[j] - 1];
+                nabr = &elem[elem[i].nabr[j] - 1];
 
                 /*
                  * Subsurface lateral flux calculation between triangular
                  * elements
                  */
-                dif_y_sub = (elem->ws.gw + elem->topo.zmin) -
+                dif_y_sub = (elem[i].ws.gw + elem[i].topo.zmin) -
                     (nabr->ws.gw + nabr->topo.zmin);
-                avg_y_sub = AvgY(dif_y_sub, elem->ws.gw, nabr->ws.gw);
-                grad_y_sub = dif_y_sub / elem->topo.nabrdist[j];
+                avg_y_sub = AvgY(dif_y_sub, elem[i].ws.gw, nabr->ws.gw);
+                grad_y_sub = dif_y_sub / elem[i].topo.nabrdist[j];
                 /* Take into account macropore effect */
                 effk =
-                    EffKH(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
-                    elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
+                    EffKH(elem[i].ws.gw, elem[i].soil.depth, elem[i].soil.dmac,
+                    elem[i].soil.kmach, elem[i].soil.areafv, elem[i].soil.ksath);
                 effk_nabr =
                     EffKH(nabr->ws.gw, nabr->soil.depth, nabr->soil.dmac,
                     nabr->soil.kmach, nabr->soil.areafv, nabr->soil.ksath);
                 avg_ksat = 0.5 * (effk + effk_nabr);
                 /* Groundwater flow modeled by Darcy's Law */
-                elem->wf.subsurf[j] =
-                    avg_ksat * grad_y_sub * avg_y_sub * elem->topo.edge[j];
+                elem[i].wf.subsurf[j] =
+                    avg_ksat * grad_y_sub * avg_y_sub * elem[i].topo.edge[j];
 
                 /*
                  * Surface lateral flux calculation between triangular
                  * elements
                  */
-                if (pihm->ctrl.surf_mode == KINEMATIC)
+                if (surf_mode == KINEMATIC)
                 {
-                    dif_y_surf = elem->topo.zmax - nabr->topo.zmax;
+                    dif_y_surf = elem[i].topo.zmax - nabr->topo.zmax;
                 }
                 else
                 {
-                    dif_y_surf = (elem->ws.surfh + elem->topo.zmax) -
+                    dif_y_surf = (elem[i].ws.surfh + elem[i].topo.zmax) -
                         (nabr->ws.surfh + nabr->topo.zmax);
                 }
-                avg_y_surf = AvgYsfc(dif_y_surf, elem->ws.surfh,
+                avg_y_surf = AvgYsfc(dif_y_surf, elem[i].ws.surfh,
                     nabr->ws.surfh);
-                grad_y_surf = dif_y_surf / elem->topo.nabrdist[j];
+                grad_y_surf = dif_y_surf / elem[i].topo.nabrdist[j];
                 avg_sf = 0.5 *
                     (sqrt(dhbydx[i] * dhbydx[i] + dhbydy[i] * dhbydy[i]) +
                     sqrt(dhbydx[nabr->ind - 1] * dhbydx[nabr->ind - 1] +
                     dhbydy[nabr->ind - 1] * dhbydy[nabr->ind - 1]));
-                if (pihm->ctrl.surf_mode == KINEMATIC)
+                if (surf_mode == KINEMATIC)
                 {
                     avg_sf = (grad_y_surf > 0.0) ? grad_y_surf : GRADMIN;
                 }
@@ -90,13 +87,13 @@ void LateralFlow(pihm_struct pihm)
                     avg_sf = (avg_sf > GRADMIN) ? avg_sf : GRADMIN;
                 }
                 /* Weighting needed */
-                avg_rough = 0.5 * (elem->lc.rough + nabr->lc.rough);
-                crossa = avg_y_surf * elem->topo.edge[j];
-                elem->wf.ovlflow[j] =
+                avg_rough = 0.5 * (elem[i].lc.rough + nabr->lc.rough);
+                crossa = avg_y_surf * elem[i].topo.edge[j];
+                elem[i].wf.ovlflow[j] =
                     OverlandFlow(avg_y_surf, grad_y_surf, avg_sf, crossa,
                     avg_rough);
             }
-            else if (elem->nabr[j] < 0)
+            else if (elem[i].nabr[j] < 0)
             {
                 /* Do nothing. River-element interactions are calculated
                  * in river_flow.c */
@@ -104,39 +101,39 @@ void LateralFlow(pihm_struct pihm)
             else                /* Boundary condition flux */
             {
                 /* No flow (natural) boundary condition is default */
-                if (elem->attrib.bc_type[j] == 0)
+                if (elem[i].attrib.bc_type[j] == 0)
                 {
-                    elem->wf.ovlflow[j] = 0.0;
-                    elem->wf.subsurf[j] = 0.0;
+                    elem[i].wf.ovlflow[j] = 0.0;
+                    elem[i].wf.subsurf[j] = 0.0;
                 }
                 /* Note: ideally different boundary conditions need to be
                  * incorporated for surf and subsurf respectively */
-                else if (elem->attrib.bc_type[j] > 0)
+                else if (elem[i].attrib.bc_type[j] > 0)
                 {
                     /* Note: the formulation assumes only Dirichlet TS right
                      * now */
                     /* note the assumption here is no flow for surface */
-                    elem->wf.ovlflow[j] = 0.0;
+                    elem[i].wf.ovlflow[j] = 0.0;
                     dif_y_sub =
-                        elem->ws.gw + elem->topo.zmin - elem->bc.head[j];
-                    avg_y_sub = AvgY(dif_y_sub, elem->ws.gw,
-                        elem->bc.head[j] - elem->topo.zmin);
+                        elem[i].ws.gw + elem[i].topo.zmin - elem[i].bc.head[j];
+                    avg_y_sub = AvgY(dif_y_sub, elem[i].ws.gw,
+                        elem[i].bc.head[j] - elem[i].topo.zmin);
                     /* Minimum distance from circumcenter to the edge of the
                      * triangle on which boundary condition is defined */
                     effk =
-                        EffKH(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
-                        elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
+                        EffKH(elem[i].ws.gw, elem[i].soil.depth, elem[i].soil.dmac,
+                        elem[i].soil.kmach, elem[i].soil.areafv, elem[i].soil.ksath);
                     avg_ksat = effk;
-                    grad_y_sub = dif_y_sub / elem->topo.nabrdist[j];
-                    elem->wf.subsurf[j] =
-                        avg_ksat * grad_y_sub * avg_y_sub * elem->topo.edge[j];
+                    grad_y_sub = dif_y_sub / elem[i].topo.nabrdist[j];
+                    elem[i].wf.subsurf[j] =
+                        avg_ksat * grad_y_sub * avg_y_sub * elem[i].topo.edge[j];
                 }
                 else
                 {
                     /* Neumann bc (note: md->ele[i].bc[j] value has to be
                      * = 2+(index of neumann boundary ts) */
-                    elem->wf.ovlflow[j] = elem->bc.flux[j];
-                    elem->wf.subsurf[j] = elem->bc.flux[j];
+                    elem[i].wf.ovlflow[j] = elem[i].bc.flux[j];
+                    elem[i].wf.subsurf[j] = elem[i].bc.flux[j];
                 }
             }    /* End of specified boundary condition */
         }    /* End of neighbor loop */
@@ -293,6 +290,5 @@ double EffKH(double tmpy, double aqdepth, double macd, double macksath,
 double OverlandFlow(double avg_y, double grad_y, double avg_sf, double crossa,
     double avg_rough)
 {
-    return crossa * pow(avg_y, 0.6666667) * grad_y /
-        (sqrt(avg_sf) * avg_rough);
+    return crossa * pow(avg_y, 0.6666667) * grad_y / (sqrt(avg_sf) * avg_rough);
 }

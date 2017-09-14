@@ -9,7 +9,7 @@ void IntcpSnowET(int t, double stepsize, elem_struct *elem,
     const double    T0 = 0.0;
 
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {

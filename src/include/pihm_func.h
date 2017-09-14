@@ -105,7 +105,7 @@ void            InitWState(wstate_struct *);
 void            IntcpSnowET(int, double, elem_struct *, const calib_struct *);
 void            IntrplForcing(tsdata_struct *, int, int);
 double          KrFunc(double, double, double);
-void            LateralFlow(pihm_struct);
+void            LateralFlow(elem_struct *, river_struct *, int);
 int             MacroporeStatus(double, double, double, double, double, double);
 void            MapTecplotOutput(char *, pihm_struct, char *);
 void            MapOutput(char *, pihm_struct, char *);
