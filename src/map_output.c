@@ -17,8 +17,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
             switch (i)
             {
                 case SURF_CTRL:
-                    InitPrtVarCtrl(outputdir, "surf", pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "surf", pihm->ctrl.prtvrbl[i],
+                        HYDROL_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ws.surf;
@@ -26,8 +26,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case UNSAT_CTRL:
-                    InitPrtVarCtrl(outputdir, "unsat", pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "unsat", pihm->ctrl.prtvrbl[i],
+                        HYDROL_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ws.unsat;
@@ -35,8 +35,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case GW_CTRL:
-                    InitPrtVarCtrl(outputdir, "gw", pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "gw", pihm->ctrl.prtvrbl[i],
+                        HYDROL_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ws.gw;
@@ -44,8 +44,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVSTG_CTRL:
-                    InitPrtVarCtrl(outputdir, "stage", pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                        nriver, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "stage", pihm->ctrl.prtvrbl[i],
+                        HYDROL_STEP, nriver, &pihm->print.varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->riv[j].ws.stage;
@@ -53,8 +53,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVGW_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivgw", pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                        nriver, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "rivgw", pihm->ctrl.prtvrbl[i],
+                        HYDROL_STEP, nriver, &pihm->print.varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->riv[j].ws.gw;
@@ -62,8 +62,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case SNOW_CTRL:
-                    InitPrtVarCtrl(outputdir, "snow", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "snow", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ws.sneqv;
@@ -71,8 +71,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case CMC_CTRL:
-                    InitPrtVarCtrl(outputdir, "is", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "is", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ws.cmc;
@@ -80,8 +80,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case INFIL_CTRL:
-                    InitPrtVarCtrl(outputdir, "infil", pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "infil", pihm->ctrl.prtvrbl[i],
+                        HYDROL_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].wf.infil;
@@ -98,8 +98,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case EC_CTRL:
-                    InitPrtVarCtrl(outputdir, "ec", pihm->ctrl.prtvrbl[i], LS_STEP, nelem,
-                        &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "ec", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].wf.ec;
@@ -107,8 +107,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case ETT_CTRL:
-                    InitPrtVarCtrl(outputdir, "ett", pihm->ctrl.prtvrbl[i], LS_STEP, nelem,
-                        &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "ett", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].wf.ett;
@@ -116,8 +116,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case EDIR_CTRL:
-                    InitPrtVarCtrl(outputdir, "edir", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "edir", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].wf.edir;
@@ -238,8 +238,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (k = 0; k < NUM_EDGE; k++)
                     {
                         sprintf(ext, "subflx%d", k);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            HYDROL_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -252,8 +252,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (k = 0; k < NUM_EDGE; k++)
                     {
                         sprintf(ext, "surfflx%d", k);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            HYDROL_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -264,8 +264,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     break;
 #ifdef _NOAH_
                 case T1_CTRL:
-                    InitPrtVarCtrl(outputdir, "t1", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "t1", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].es.t1;
@@ -276,8 +276,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (k = 0; k < MAXLYR; k++)
                     {
                         sprintf(ext, "stc%d", k);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], LS_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            LS_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -290,8 +290,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (k = 0; k < MAXLYR; k++)
                     {
                         sprintf(ext, "smc%d", k);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            HYDROL_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -304,8 +304,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (k = 0; k < MAXLYR; k++)
                     {
                         sprintf(ext, "swc%d", k);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            HYDROL_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -315,8 +315,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     }
                     break;
                 case SNOWH_CTRL:
-                    InitPrtVarCtrl(outputdir, "snowh", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "snowh", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ps.snowh;
@@ -324,8 +324,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case ALBEDO_CTRL:
-                    InitPrtVarCtrl(outputdir, "albedo", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "albedo", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -334,8 +334,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case LE_CTRL:
-                    InitPrtVarCtrl(outputdir, "le", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "le", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ef.eta;
@@ -343,8 +343,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case SH_CTRL:
-                    InitPrtVarCtrl(outputdir, "sh", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "sh", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ef.sheat;
@@ -352,8 +352,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case G_CTRL:
-                    InitPrtVarCtrl(outputdir, "g", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "g", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ef.ssoil;
@@ -361,8 +361,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case ETP_CTRL:
-                    InitPrtVarCtrl(outputdir, "etp", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "etp", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ef.etp;
@@ -370,8 +370,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case ESNOW_CTRL:
-                    InitPrtVarCtrl(outputdir, "esnow", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "esnow", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ef.esnow;
@@ -379,8 +379,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case ROOTW_CTRL:
-                    InitPrtVarCtrl(outputdir, "rootw", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "rootw", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ps.soilw;
@@ -388,8 +388,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case SOILM_CTRL:
-                    InitPrtVarCtrl(outputdir, "soilm", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "soilm", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ws.soilm;
@@ -397,8 +397,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case SOLAR_CTRL:
-                    InitPrtVarCtrl(outputdir, "solar", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "solar", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ef.soldn;
@@ -406,8 +406,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case CH_CTRL:
-                    InitPrtVarCtrl(outputdir, "ch", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "ch", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ps.ch;
@@ -417,8 +417,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
 #endif
 #ifdef _BGC_
                 case LAI_CTRL:
-                    InitPrtVarCtrl(outputdir, "lai", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "lai", pihm->ctrl.prtvrbl[i],
+                        CN_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -427,8 +427,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case VEGC_CTRL:
-                    InitPrtVarCtrl(outputdir, "vegc", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "vegc", pihm->ctrl.prtvrbl[i],
+                        CN_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -437,8 +437,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case LITRC_CTRL:
-                    InitPrtVarCtrl(outputdir, "litrc", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "litrc", pihm->ctrl.prtvrbl[i],
+                        CN_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -447,8 +447,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case SOILC_CTRL:
-                    InitPrtVarCtrl(outputdir, "soilc", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "soilc", pihm->ctrl.prtvrbl[i],
+                        CN_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -457,8 +457,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case TOTALC_CTRL:
-                    InitPrtVarCtrl(outputdir, "totalc", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "totalc", pihm->ctrl.prtvrbl[i],
+                        CN_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -467,8 +467,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case NPP_CTRL:
-                    InitPrtVarCtrl(outputdir, "npp", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "npp", pihm->ctrl.prtvrbl[i],
+                        CN_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -477,8 +477,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case NEP_CTRL:
-                    InitPrtVarCtrl(outputdir, "nep", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "nep", pihm->ctrl.prtvrbl[i],
+                        CN_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -487,8 +487,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case NEE_CTRL:
-                    InitPrtVarCtrl(outputdir, "nee", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "nee", pihm->ctrl.prtvrbl[i],
+                        CN_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -497,8 +497,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case GPP_CTRL:
-                    InitPrtVarCtrl(outputdir, "gpp", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "gpp", pihm->ctrl.prtvrbl[i],
+                        CN_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -507,8 +507,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case SMINN_CTRL:
-                    InitPrtVarCtrl(outputdir, "sminn", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "sminn", pihm->ctrl.prtvrbl[i],
+                        CN_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].ns.sminn;
@@ -516,8 +516,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case LEAFC_CTRL:
-                    InitPrtVarCtrl(outputdir, "leafc", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "leafc", pihm->ctrl.prtvrbl[i],
+                        CN_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].cs.leafc;
@@ -525,8 +525,9 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case LIVESTEMC_CTRL:
-                    InitPrtVarCtrl(outputdir, "livestemc", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "livestemc",
+                        pihm->ctrl.prtvrbl[i], CN_STEP, nelem,
+                        &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -535,8 +536,9 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case DEADSTEMC_CTRL:
-                    InitPrtVarCtrl(outputdir, "deadstemc", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "deadstemc",
+                        pihm->ctrl.prtvrbl[i], CN_STEP, nelem,
+                        &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -551,8 +553,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     {
                         sprintf(ext, "%s.biomass",
                             pihm->elem[0].comm.Crop[k].cropName);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], CN_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            CN_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -561,8 +563,9 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                         n++;
                     }
 
-                    InitPrtVarCtrl(outputdir, "comm.biomass", pihm->ctrl.prtvrbl[i],
-                        CN_STEP, nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "comm.biomass",
+                        pihm->ctrl.prtvrbl[i], CN_STEP, nelem,
+                        &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -575,19 +578,20 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     {
                         sprintf(ext, "%s.radintcp",
                             pihm->elem[0].comm.Crop[k].cropName);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], CN_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            CN_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
-                                &pihm->elem[j].comm.
-                                Crop[k].svRadiationInterception;
+                                &pihm->elem[j].comm.Crop[k].
+                                svRadiationInterception;
                         }
                         n++;
                     }
 
-                    InitPrtVarCtrl(outputdir, "comm.radintcp", pihm->ctrl.prtvrbl[i],
-                        CN_STEP, nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "comm.radintcp",
+                        pihm->ctrl.prtvrbl[i], CN_STEP, nelem,
+                        &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -600,8 +604,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     {
                         sprintf(ext, "%s.waterstress",
                             pihm->elem[0].comm.Crop[k].cropName);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], CN_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            CN_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -610,8 +614,9 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                         n++;
                     }
 
-                    InitPrtVarCtrl(outputdir, "comm.waterstress", pihm->ctrl.prtvrbl[i],
-                        CN_STEP, nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "comm.waterstress",
+                        pihm->ctrl.prtvrbl[i], CN_STEP, nelem,
+                        &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -624,8 +629,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     {
                         sprintf(ext, "%s.nstress",
                             pihm->elem[0].comm.Crop[k].cropName);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], CN_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            CN_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -634,8 +639,9 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                         n++;
                     }
 
-                    InitPrtVarCtrl(outputdir, "comm.nstress", pihm->ctrl.prtvrbl[i],
-                        CN_STEP, nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "comm.nstress",
+                        pihm->ctrl.prtvrbl[i], CN_STEP, nelem,
+                        &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -648,8 +654,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     {
                         sprintf(ext, "%s.transp",
                             pihm->elem[0].comm.Crop[k].cropName);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], LS_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            LS_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -658,8 +664,9 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                         n++;
                     }
 
-                    InitPrtVarCtrl(outputdir, "comm.transp", pihm->ctrl.prtvrbl[i],
-                        LS_STEP, nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "comm.transp",
+                        pihm->ctrl.prtvrbl[i], LS_STEP, nelem,
+                        &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -672,19 +679,20 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     {
                         sprintf("%s.pottransp",
                             pihm->elem[0].comm.Crop[k].cropName);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], LS_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            LS_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
-                                &pihm->elem[j].comm.
-                                Crop[k].svTranspirationPotential;
+                                &pihm->elem[j].comm.Crop[k].
+                                svTranspirationPotential;
                         }
                         n++;
                     }
 
-                    InitPrtVarCtrl(outputdir, "comm.pottransp", pihm->ctrl.prtvrbl[i],
-                        LS_STEP, nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "comm.pottransp",
+                        pihm->ctrl.prtvrbl[i], LS_STEP, nelem,
+                        &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -693,8 +701,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RES_EVAP_CTRL:
-                    InitPrtVarCtrl(outputdir, "eres", pihm->ctrl.prtvrbl[i], LS_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "eres", pihm->ctrl.prtvrbl[i],
+                        LS_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] = &pihm->elem[j].wf.eres;
@@ -702,8 +710,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case NO3_PROF_CTRL:
-                    InitPrtVarCtrl(outputdir, "NO3", pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "NO3", pihm->ctrl.prtvrbl[i],
+                        HYDROL_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -712,8 +720,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case NO3_RIVER_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivNO3", pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                        nriver, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "rivNO3", pihm->ctrl.prtvrbl[i],
+                        HYDROL_STEP, nriver, &pihm->print.varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -722,8 +730,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case NH4_PROF_CTRL:
-                    InitPrtVarCtrl(outputdir, "NH4", pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "NH4", pihm->ctrl.prtvrbl[i],
+                        HYDROL_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -732,8 +740,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case NH4_RIVER_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivNH4", pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                        nriver, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "rivNH4", pihm->ctrl.prtvrbl[i],
+                        HYDROL_STEP, nriver, &pihm->print.varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -742,8 +750,9 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case NO3_DENIT_CTRL:
-                    InitPrtVarCtrl(outputdir, "NO3denitrif", pihm->ctrl.prtvrbl[i],
-                        CN_STEP, nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "NO3denitrif",
+                        pihm->ctrl.prtvrbl[i], CN_STEP, nelem,
+                        &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -755,8 +764,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (k = 0; k < NUM_EDGE; k++)
                     {
                         sprintf(ext, "NO3leach%d", k);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            HYDROL_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -769,8 +778,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (k = 0; k < NUM_EDGE; k++)
                     {
                         sprintf(ext, "NH4leach%d", k);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                            nelem, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            HYDROL_STEP, nelem, &pihm->print.varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -783,8 +792,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (k = 0; k < 4; k++)
                     {
                         sprintf(ext, "rivNO3leach%d", k);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                            nriver, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            HYDROL_STEP, nriver, &pihm->print.varctrl[n]);
                         for (j = 0; j < nriver; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -797,8 +806,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (k = 0; k < 4; k++)
                     {
                         sprintf(ext, "rivNH4leach%d", k);
-                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i], HYDROL_STEP,
-                            nriver, &pihm->print.varctrl[n]);
+                        InitPrtVarCtrl(outputdir, ext, pihm->ctrl.prtvrbl[i],
+                            HYDROL_STEP, nriver, &pihm->print.varctrl[n]);
                         for (j = 0; j < nriver; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
@@ -808,8 +817,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     }
                     break;
                 case LAI_CTRL:
-                    InitPrtVarCtrl(outputdir, "lai", pihm->ctrl.prtvrbl[i], CN_STEP,
-                        nelem, &pihm->print.varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "lai", pihm->ctrl.prtvrbl[i],
+                        CN_STEP, nelem, &pihm->print.varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
@@ -860,9 +869,9 @@ void MapTecplotOutput(pihm_struct pihm, char *outputdir)
             switch (i)
             {
                 case SURF_CTRL:
-                    InitTecPrtVarCtrl(outputdir, "surf", pihm->ctrl.tpprtvrbl[i], 0,
-                        HYDROL_STEP, nelem, pihm->meshtbl.numnode,
-                        &pihm->print.tp_varctrl[n]);
+                    InitTecPrtVarCtrl(outputdir, "surf",
+                        pihm->ctrl.tpprtvrbl[i], 0, HYDROL_STEP, nelem,
+                        pihm->meshtbl.numnode, &pihm->print.tp_varctrl[n]);
 
                     for (j = 0; j < pihm->print.tp_varctrl[n].nnodes; j++)
                     {
@@ -888,9 +897,9 @@ void MapTecplotOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case UNSAT_CTRL:
-                    InitTecPrtVarCtrl(outputdir, "unsat", pihm->ctrl.tpprtvrbl[i], 0,
-                        HYDROL_STEP, nelem, pihm->meshtbl.numnode,
-                        &pihm->print.tp_varctrl[n]);
+                    InitTecPrtVarCtrl(outputdir, "unsat",
+                        pihm->ctrl.tpprtvrbl[i], 0, HYDROL_STEP, nelem,
+                        pihm->meshtbl.numnode, &pihm->print.tp_varctrl[n]);
                     for (j = 0; j < pihm->print.tp_varctrl[n].nnodes; j++)
                     {
                         pihm->print.tp_varctrl[n].x[j] = pihm->meshtbl.x[j];
@@ -914,8 +923,8 @@ void MapTecplotOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case GW_CTRL:
-                    InitTecPrtVarCtrl(outputdir, "gw", pihm->ctrl.tpprtvrbl[i], 0,
-                        HYDROL_STEP, nelem, pihm->meshtbl.numnode,
+                    InitTecPrtVarCtrl(outputdir, "gw", pihm->ctrl.tpprtvrbl[i],
+                        0, HYDROL_STEP, nelem, pihm->meshtbl.numnode,
                         &pihm->print.tp_varctrl[n]);
                     for (j = 0; j < pihm->print.tp_varctrl[n].nnodes; j++)
                     {
@@ -929,8 +938,7 @@ void MapTecplotOutput(pihm_struct pihm, char *outputdir)
                     }
                     for (j = 0; j < nelem; j++)
                     {
-                        pihm->print.tp_varctrl[n].var[j] =
-                            &pihm->elem[j].ws.gw;
+                        pihm->print.tp_varctrl[n].var[j] = &pihm->elem[j].ws.gw;
                         pihm->print.tp_varctrl[n].node0[j] =
                             pihm->elem[j].node[0];
                         pihm->print.tp_varctrl[n].node1[j] =
@@ -941,8 +949,8 @@ void MapTecplotOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVSTG_CTRL:
-                    InitTecPrtVarCtrl(outputdir, "stage", pihm->ctrl.tpprtvrbl[i], 1,
-                        HYDROL_STEP, nriver, nriver,
+                    InitTecPrtVarCtrl(outputdir, "stage",
+                        pihm->ctrl.tpprtvrbl[i], 1, HYDROL_STEP, nriver, nriver,
                         &pihm->print.tp_varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
@@ -958,14 +966,13 @@ void MapTecplotOutput(pihm_struct pihm, char *outputdir)
                     n++;
                     break;
                 case RIVGW_CTRL:
-                    InitTecPrtVarCtrl(outputdir, "rivgw", pihm->ctrl.tpprtvrbl[i], 1,
-                        HYDROL_STEP, nriver, nriver,
+                    InitTecPrtVarCtrl(outputdir, "rivgw",
+                        pihm->ctrl.tpprtvrbl[i], 1, HYDROL_STEP, nriver, nriver,
                         &pihm->print.tp_varctrl[n]);
 
                     for (j = 0; j < nriver; j++)
                     {
-                        pihm->print.tp_varctrl[n].var[j] =
-                            &pihm->riv[j].ws.gw;
+                        pihm->print.tp_varctrl[n].var[j] = &pihm->riv[j].ws.gw;
                         pihm->print.tp_varctrl[n].x[j] = pihm->riv[j].topo.x;
                         pihm->print.tp_varctrl[n].y[j] = pihm->riv[j].topo.y;
                         pihm->print.tp_varctrl[n].zmax[j] =
@@ -993,7 +1000,7 @@ void MapTecplotOutput(pihm_struct pihm, char *outputdir)
 }
 
 void InitPrtVarCtrl(char *outputdir, char *ext, int intvl, int upd_intvl,
-    int nvar, varctrl_struct *varctrl)
+    int nvar, varctrl_struct * varctrl)
 {
     sprintf(varctrl->name, "%s%s.%s", outputdir, project, ext);
     varctrl->intvl = intvl;
@@ -1005,7 +1012,7 @@ void InitPrtVarCtrl(char *outputdir, char *ext, int intvl, int upd_intvl,
 }
 
 void InitTecPrtVarCtrl(char *outputdir, char *ext, int intvl, int intr,
-    int upd_intvl, int nvar, int nnode, varctrl_struct *varctrl)
+    int upd_intvl, int nvar, int nnode, varctrl_struct * varctrl)
 {
     sprintf(varctrl->name, "%s%s.%s", outputdir, project, ext);
     varctrl->intvl = intvl;
