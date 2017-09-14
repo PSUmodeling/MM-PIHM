@@ -203,10 +203,13 @@ void ReadBgcIC(char *fn, elem_struct *elem, river_struct *riv)
     fclose(init_file);
 }
 
-void WriteBgcIC(char *restart_fn, elem_struct *elem, river_struct *riv)
+void WriteBgcIC(char *outputdir, elem_struct *elem, river_struct *riv)
 {
     int             i;
     FILE           *restart_file;
+    char            restart_fn[MAXSTRING];
+
+    sprintf(restart_fn, "%s/restart/%s.bgcic", outputdir, project);
 
     restart_file = fopen(restart_fn, "wb");
     CheckFile(restart_file, restart_fn);

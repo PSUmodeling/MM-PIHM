@@ -271,24 +271,17 @@ void PrintData(varctrl_struct *prtctrl, int nprint, int t, int lapse, int ascii)
     }
 }
 
-void PrtInit(elem_struct *elem, river_struct *river, int t)
+void PrtInit(elem_struct *elem, river_struct *river, char *outputdir, int t)
 {
     FILE           *init_file;
     char            fn[MAXSTRING];
     int             i;
-    char            name[20];
 
     pihm_t_struct   pihm_time;
 
     pihm_time = PIHMTime(t);
-    strcpy(name, pihm_time.str);
-    name[13] = 0;
 
-#ifdef _NOAH_
-    int             j;
-#endif
-
-    sprintf(fn, "input/%s/ic/%s %s.ic", project, project, name);
+    sprintf(fn, "%s/restart/%s.%s.ic", outputdir, project, pihm_time.str);
 
     init_file = fopen(fn, "wb");
     CheckFile(init_file, fn);
@@ -303,6 +296,9 @@ void PrtInit(elem_struct *elem, river_struct *river, int t)
 #ifdef _NOAH_
         fwrite(&elem[i].es.t1, sizeof(double), 1, init_file);
         fwrite(&elem[i].ps.snowh, sizeof(double), 1, init_file);
+
+        int             j;
+
         for (j = 0; j < MAXLYR; j++)
         {
             fwrite(&elem[i].es.stc[j], sizeof(double), 1, init_file);

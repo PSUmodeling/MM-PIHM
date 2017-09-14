@@ -118,8 +118,6 @@ int main(int argc, char *argv[])
             cputime = ((double)(ct - start)) / CLOCKS_PER_SEC;
             ptime = ct;
 #endif
-            ncfni = ncfn;
-            nnii = nni;
             PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
                 pihm->ctrl.tout[i + 1], cputime);
 
@@ -138,10 +136,13 @@ int main(int argc, char *argv[])
                 PrintStats(cvode_mem, pihm->print.cvodeconv_file);
             }
 
+            /* Variable CVODE max step (to reduce oscillations) */
+            ncfni = ncfn;
+            nnii = nni;
+
             flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
             flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
 
-            /* Variable CVODE max step (to reduce oscillations) */
             if ((ncfn - ncfni > pihm->ctrl.nncfn ||
                 nni - nnii > pihm->ctrl.nnimax) &&
                 maxstep > pihm->ctrl.stmin)
@@ -160,10 +161,11 @@ int main(int argc, char *argv[])
              * Write init files
              */
             if (pihm->ctrl.write_ic &&
-                (pihm->ctrl.tout[i] - pihm->ctrl.starttime) %
-                pihm->ctrl.prtvrbl[IC_CTRL] == 0)
+                ((pihm->ctrl.tout[i] - pihm->ctrl.starttime) %
+                pihm->ctrl.prtvrbl[IC_CTRL] == 0 ||
+                i == pihm->ctrl.nstep - 1))
             {
-                PrtInit(pihm->elem, pihm->riv, pihm->ctrl.tout[i]);
+                PrtInit(pihm->elem, pihm->riv, outputdir, pihm->ctrl.tout[i]);
             }
         }
 #ifdef _BGC_
@@ -174,7 +176,7 @@ int main(int argc, char *argv[])
 #ifdef _BGC_
     if (pihm->ctrl.write_bgc_restart)
     {
-        WriteBgcIC(pihm->filename.bgcic, pihm->elem, pihm->riv);
+        WriteBgcIC(outputdir, pihm->elem, pihm->riv);
     }
 #endif
 
@@ -192,8 +194,15 @@ int main(int argc, char *argv[])
         flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
         flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
 
-        printf("nst = %-6ld nfe  = %-6ld \n", nst, nfe);
-        printf("nni = %-6ld ncfn = %-6ld netf = %-6ld\n \n", nni, ncfn, netf);
+        PIHMprintf(VL_NORMAL,
+            "number of steps = %-6ld "
+            "number of rhs evals = %-6ld\n",
+            nst, nfe);
+        PIHMprintf(VL_NORMAL,
+            "number of nonlin solv iters = %-6ld "
+            "number of nonlin solv conv fails = %-6ld "
+            "number of err test fails = %-6ld\n",
+            nni, ncfn, netf);
     }
 
     /* Free memory */
