@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
             cputime = ((double)(ct - start)) / CLOCKS_PER_SEC;
             ptime = ct;
 #endif
+
             PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
                 pihm->ctrl.tout[i + 1], cputime);
 

@@ -16,9 +16,7 @@ void AsciiArt()
     PIHMprintf(VL_NORMAL, "\t##           ##    ##     ##   ##     ##\n");
     PIHMprintf(VL_NORMAL, "\t##           ##    ##     ##   ##     ##\n");
     PIHMprintf(VL_NORMAL, "\t##          ####   ##     ##   ##     ##\n");
-    PIHMprintf(VL_NORMAL,
-        "\n\tThe Penn State Integrated Hydrologic Model\n\n");
-
+    PIHMprintf(VL_NORMAL, "\n\tThe Penn State Integrated Hydrologic Model\n\n");
 #ifdef _NOAH_
     PIHMprintf(VL_NORMAL, "\t* Land surface module turned on.\n");
 #endif
@@ -34,7 +32,6 @@ void AsciiArt()
 #ifdef _OPENMP
     PIHMprintf(VL_NORMAL, "\t* OpenMP (# of threads = %d).\n", nthreads);
 #endif
-
     PIHMprintf(VL_NORMAL, "\n");
 }
 
@@ -73,7 +70,6 @@ void InitOutputFile(print_struct *print, char *outputdir, int watbal, int ascii)
 {
     char            ascii_fn[MAXSTRING];
     char            dat_fn[MAXSTRING];
-    char            tec_fn[MAXSTRING];
     char            watbal_fn[MAXSTRING];
     char            perf_fn[MAXSTRING];
     char            conv_fn[MAXSTRING];
@@ -115,6 +111,8 @@ void InitOutputFile(print_struct *print, char *outputdir, int watbal, int ascii)
             print->varctrl[i].txtfile = fopen(ascii_fn, "w");
         }
     }
+
+    /* Tecplot files */
     if (tecplot)
     {
         for (i = 0; i < print->ntpprint; i++)
@@ -128,54 +126,55 @@ void InitOutputFile(print_struct *print, char *outputdir, int watbal, int ascii)
             {
                 fprintf(print->tp_varctrl[i].datfile, "%s \n", TEC_HEADER);
                 fprintf(print->tp_varctrl[i].datfile,
-                        "ZONE T=\"%s\", N=%d, E=%d, DATAPACKING=%s, SOLUTIONTIME=%lf, "
-                        "ZONETYPE=%s\n",
-                        print->tp_varctrl[i].name, print->tp_varctrl[i].nnodes,
-                        print->tp_varctrl[i].nvar, "POINT", 0.0000, "FETRIANGLE");
+                    "ZONE T=\"%s\", N=%d, E=%d, DATAPACKING=%s, "
+                    "SOLUTIONTIME=%lf, ZONETYPE=%s\n",
+                    print->tp_varctrl[i].name, print->tp_varctrl[i].nnodes,
+                    print->tp_varctrl[i].nvar, "POINT", 0.0000, "FETRIANGLE");
 
                 for (j = 0; j < print->tp_varctrl[i].nnodes; j++)
                 {
                     fprintf(print->tp_varctrl[i].datfile,
-                            "%lf %lf %lf %lf %lf\n",
-                            print->tp_varctrl[i].x[j], print->tp_varctrl[i].y[j],
-                            print->tp_varctrl[i].zmin[j], print->tp_varctrl[i].zmax[j],
-                            0.000001);
+                        "%lf %lf %lf %lf %lf\n",
+                        print->tp_varctrl[i].x[j], print->tp_varctrl[i].y[j],
+                        print->tp_varctrl[i].zmin[j],
+                        print->tp_varctrl[i].zmax[j],
+                        0.000001);
                 }
                 for (j = 0; j < print->tp_varctrl[i].nvar; j++)
                 {
                     fprintf(print->tp_varctrl[i].datfile, "%d %d %d\n",
-                            print->tp_varctrl[i].node0[j],
-                            print->tp_varctrl[i].node1[j],
-                            print->tp_varctrl[i].node2[j]);
+                        print->tp_varctrl[i].node0[j],
+                        print->tp_varctrl[i].node1[j],
+                        print->tp_varctrl[i].node2[j]);
                 }
             }
         }
     }
 }
 
-void UpdPrintVar(varctrl_struct *prtctrl, int nprint, int module_step)
+void UpdPrintVar(varctrl_struct *varctrl, int nprint, int module_step)
 {
     int             i;
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nprint; i++)
     {
         int             j;
 
-        if (prtctrl[i].upd_intvl == module_step)
+        if (varctrl[i].upd_intvl == module_step)
         {
-            for (j = 0; j < prtctrl[i].nvar; j++)
+            for (j = 0; j < varctrl[i].nvar; j++)
             {
-                prtctrl[i].buffer[j] += *prtctrl[i].var[j];
+                varctrl[i].buffer[j] += *varctrl[i].var[j];
             }
 
-            prtctrl[i].counter++;
+            varctrl[i].counter++;
         }
     }
 }
 
-void PrintData(varctrl_struct *prtctrl, int nprint, int t, int lapse, int ascii)
+void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
 {
     int             i;
     pihm_t_struct   pihm_time;
@@ -192,7 +191,7 @@ void PrintData(varctrl_struct *prtctrl, int nprint, int t, int lapse, int ascii)
         double          outval;
         double          outtime;
 
-        switch (prtctrl[i].intvl)
+        switch (varctrl[i].intvl)
         {
             case YEARLY_OUTPUT:
                 if (pihm_time.month == 1 && pihm_time.day == 1 &&
@@ -221,7 +220,7 @@ void PrintData(varctrl_struct *prtctrl, int nprint, int t, int lapse, int ascii)
                 }
                 break;
             default:
-                if (lapse % prtctrl[i].intvl == 0 && lapse > 0)
+                if (lapse % varctrl[i].intvl == 0 && lapse > 0)
                 {
                     print = 1;
                 }
@@ -231,42 +230,42 @@ void PrintData(varctrl_struct *prtctrl, int nprint, int t, int lapse, int ascii)
         {
             if (ascii)
             {
-                fprintf(prtctrl[i].txtfile, "\"%s\"", pihm_time.str);
-                for (j = 0; j < prtctrl[i].nvar; j++)
+                fprintf(varctrl[i].txtfile, "\"%s\"", pihm_time.str);
+                for (j = 0; j < varctrl[i].nvar; j++)
                 {
-                    if (prtctrl[i].counter > 0)
+                    if (varctrl[i].counter > 0)
                     {
-                        fprintf(prtctrl[i].txtfile, "\t%lf",
-                            prtctrl[i].buffer[j] / (double)prtctrl[i].counter);
+                        fprintf(varctrl[i].txtfile, "\t%lf",
+                            varctrl[i].buffer[j] / (double)varctrl[i].counter);
                     }
                     else
                     {
-                        fprintf(prtctrl[i].txtfile, "\t%lf",
-                            prtctrl[i].buffer[j]);
+                        fprintf(varctrl[i].txtfile, "\t%lf",
+                            varctrl[i].buffer[j]);
                     }
                 }
-                fprintf(prtctrl[i].txtfile, "\n");
-                fflush(prtctrl[i].txtfile);
+                fprintf(varctrl[i].txtfile, "\n");
+                fflush(varctrl[i].txtfile);
             }
 
             outtime = (double)t;
-            fwrite(&outtime, sizeof(double), 1, prtctrl[i].datfile);
-            for (j = 0; j < prtctrl[i].nvar; j++)
+            fwrite(&outtime, sizeof(double), 1, varctrl[i].datfile);
+            for (j = 0; j < varctrl[i].nvar; j++)
             {
-                if (prtctrl[i].counter > 0)
+                if (varctrl[i].counter > 0)
                 {
-                    outval = prtctrl[i].buffer[j] / (double)prtctrl[i].counter;
+                    outval = varctrl[i].buffer[j] / (double)varctrl[i].counter;
                 }
                 else
                 {
-                    outval = prtctrl[i].buffer[j];
+                    outval = varctrl[i].buffer[j];
                 }
-                fwrite(&outval, sizeof(double), 1, prtctrl[i].datfile);
+                fwrite(&outval, sizeof(double), 1, varctrl[i].datfile);
 
-                prtctrl[i].buffer[j] = 0.0;
+                varctrl[i].buffer[j] = 0.0;
             }
-            prtctrl[i].counter = 0;
-            fflush(prtctrl[i].datfile);
+            varctrl[i].counter = 0;
+            fflush(varctrl[i].datfile);
         }
     }
 }
@@ -466,7 +465,7 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
     }
 }
 
-void PrintStats(void *cvode_mem, FILE *Conv)
+void PrintStats(void *cvode_mem, FILE *conv_file)
 {
     long int        nst, nfe, nni, ncfn, netf;
     int             flag;
@@ -477,9 +476,9 @@ void PrintStats(void *cvode_mem, FILE *Conv)
     flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
     flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
 
-    fprintf(Conv,
-        "nst = %-6ld nni = %-6ld nfe = %-6ld netf = %-6ld ncfn = %-6ld\n", nst,
-        nni, nfe, netf, ncfn);
+    fprintf(conv_file,
+        "nst = %-6ld nni = %-6ld nfe = %-6ld netf = %-6ld ncfn = %-6ld\n",
+        nst, nni, nfe, netf, ncfn);
 }
 
 

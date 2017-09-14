@@ -846,7 +846,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
 
 void MapTecplotOutput(pihm_struct pihm, char *outputdir)
 {
-    int             i, j, k;
+    int             i, j;
     int             n;
 
     PIHMprintf(VL_VERBOSE, "\nInitializing PIHM tecplot output files\n");
