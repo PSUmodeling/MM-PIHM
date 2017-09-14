@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 {
     char            outputdir[MAXSTRING];
     pihm_struct     pihm;
-    N_Vector        CV_Y, abstol;
+    N_Vector        CV_Y;
     void           *cvode_mem;
     int             i;
 #ifdef _OPENMP
@@ -68,16 +68,9 @@ int main(int argc, char *argv[])
 
     /* Initialize CVode state variables */
     CV_Y = N_VNew(NSV);
-    abstol = N_VNew(NSV);
 
     /* Initialize PIHM structure */
     Initialize(pihm, CV_Y);
-
-    /* Set the vector absolute tolerance */
-    for (i = 0; i < NSV; i++)
-    {
-        NV_Ith(abstol, i) = pihm->ctrl.abstol;
-    }
 
     /* Allocate memory for solver */
     cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
@@ -249,7 +242,6 @@ int main(int argc, char *argv[])
 
     /* Free memory */
     N_VDestroy(CV_Y);
-    N_VDestroy(abstol);
 
     /* Free integrator memory */
     CVodeFree(&cvode_mem);
