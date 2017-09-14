@@ -44,6 +44,7 @@ typedef struct filename_struct
     char            calib[MAXSTRING];
     char            ic[MAXSTRING];
     char            sunpara[MAXSTRING];
+    char            tecplot[MAXSTRING];
 #ifdef _NOAH_
     char            lsm[MAXSTRING];
     char            rad[MAXSTRING];

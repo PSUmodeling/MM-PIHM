@@ -1,5 +1,11 @@
 #include "pihm.h"
 
+#define TEC_HEADER          "VARIABLES = \"X\" \"Y\" \"Zmin\" \"Zmax\" \"h\""
+#define WB_HEADER           "VARIABLES = \"TIME (s)\" \"Outflow (cms)\" \"Surf2Chan (cms)\" \"AqF2Chan (cms)\" \"Chan_LKG (cms)\" \"Precipitation (cms)\" \"NetPrec (cms)\" \"Infiltration (cms)\" \"Recharge (cms)\" \"E_soil (cms)\" \"ET_plant (cms)\" \"E_canopy (cms)\" \"PET (cms)\" \"ET (cms)\" \"E_Surface (cms)\" \"E_Unsat (cms)\" \"E_GW (cms)\" \"T_Unsat (cms)\" \"T_GW (cms)\""
+#define RIVER_TEC_HEADER2   "ZONE T = \"Water Depth River\""
+#define RIVER_TEC_HEADER3   "StrandID=1, SolutionTime="
+#define ELEM_TEC_HEADER3    "VARSHARELIST = ([1, 2, 3, 4]=1), CONNECTIVITYSHAREZONE = 1"
+
 void AsciiArt()
 {
     PIHMprintf(VL_NORMAL, "\n");
@@ -85,8 +91,36 @@ void InitOutputFile(print_struct *print, int ascii)
     {
         for (i = 0; i < print->ntpprint; i++)
         {
-            sprintf(tec_fn, "%s.plt", print->tp_varctrl[i].name);
-            print->tp_varctrl[i].datfile = fopen(tec_fn, "w");
+            int             j;
+
+            sprintf(dat_fn, "%s.plt", print->tp_varctrl[i].name);
+            print->tp_varctrl[i].datfile = fopen(dat_fn, "w");
+
+            if (print->tp_varctrl[i].intr == 0)
+            {
+                fprintf(print->tp_varctrl[i].datfile, "%s \n", TEC_HEADER);
+                fprintf(print->tp_varctrl[i].datfile,
+                        "ZONE T=\"%s\", N=%d, E=%d, DATAPACKING=%s, SOLUTIONTIME=%lf, "
+                        "ZONETYPE=%s\n",
+                        print->tp_varctrl[i].name, print->tp_varctrl[i].nnodes,
+                        print->tp_varctrl[i].nvar, "POINT", 0.0000, "FETRIANGLE");
+
+                for (j = 0; j < print->tp_varctrl[i].nnodes; j++)
+                {
+                    fprintf(print->tp_varctrl[i].datfile,
+                            "%lf %lf %lf %lf %lf\n",
+                            print->tp_varctrl[i].x[j], print->tp_varctrl[i].y[j],
+                            print->tp_varctrl[i].zmin[j], print->tp_varctrl[i].zmax[j],
+                            0.000001);
+                }
+                for (j = 0; j < print->tp_varctrl[i].nvar; j++)
+                {
+                    fprintf(print->tp_varctrl[i].datfile, "%d %d %d\n",
+                            print->tp_varctrl[i].node0[j],
+                            print->tp_varctrl[i].node1[j],
+                            print->tp_varctrl[i].node2[j]);
+                }
+            }
         }
     }
 }
@@ -110,24 +144,6 @@ void UpdPrintVar(varctrl_struct *prtctrl, int nprint, int module_step)
 
             prtctrl[i].counter++;
         }
-    }
-}
-
-void UpdPrintVarT(varctrl_struct *prtctrlT, int nprintT)
-{
-    int             i;
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (i = 0; i < nprintT; i++)
-    {
-        int             j;
-        for (j = 0; j < prtctrlT[i].nvar; j++)
-        {
-            prtctrlT[i].buffer[j] += *prtctrlT[i].var[j];
-        }
-
-        prtctrlT[i].counter++;
     }
 }
 
@@ -287,12 +303,11 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
 {
     int             i;
     pihm_t_struct   pihm_time;
-    const char     *str1_Tec, *str2_Tec, *str3_Tec;
-    pihm_time = PIHMTime(t);
     realtype       *hnodes;    /* h at nodes */
     int            *inodes;
 
-    str1_Tec = "VARIABLES = \"X\" \"Y\" \"Zmin\" \"Zmax\" \"h\"";
+    pihm_time = PIHMTime(t);
+
     for (i = 0; i < nprint; i++)
     {
         int             j;
@@ -341,12 +356,9 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
             if (varctrl[i].intr == 1)
             {
                 /*Print river files */
-                str2_Tec = "ZONE T = \"Water Depth River\" ";
-                str3_Tec = "StrandID=1, SolutionTime=";
-
-                fprintf(varctrl[i].datfile, "%s \n", str1_Tec);
-                fprintf(varctrl[i].datfile, "%s \n", str2_Tec);
-                fprintf(varctrl[i].datfile, "%s %d \n", str3_Tec, t);
+                fprintf(varctrl[i].datfile, "%s\n", TEC_HEADER);
+                fprintf(varctrl[i].datfile, "%s\n", RIVER_TEC_HEADER2);
+                fprintf(varctrl[i].datfile, "%s %d\n", RIVER_TEC_HEADER3, t);
                 for (j = 0; j < varctrl[i].nvar; j++)
                 {
                     if (varctrl[i].counter > 0)
@@ -359,13 +371,11 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
                         outval = varctrl[i].buffer[j];
                     }
 
-                    fprintf(varctrl[i].datfile, "%lf %lf %lf %lf %lf \n",
-                        *varctrl[i].x[j], *varctrl[i].y[j],
-                        *varctrl[i].zmin[j], *varctrl[i].zmax[j], outval);
+                    fprintf(varctrl[i].datfile, "%lf %lf %lf %lf %lf\n",
+                        varctrl[i].x[j], varctrl[i].y[j],
+                        varctrl[i].zmin[j], varctrl[i].zmax[j], outval);
                     varctrl[i].buffer[j] = 0.0;
                 }
-                varctrl[i].counter = 0;
-                fflush(varctrl[i].datfile);
             }
             else
             {
@@ -377,39 +387,12 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
                     hnodes[j] = 0.0;
                     inodes[j] = 0;
                 }
-                if (varctrl[i].first)
-                {
-                    fprintf(varctrl[i].datfile, "%s \n", str1_Tec);
-                    fprintf(varctrl[i].datfile,
-                        "%s %s %s %d %s %d %s %lf %s\n", "ZONE T=\"",
-                        varctrl[i].name, "\", N=", varctrl[i].nnodes, ", E=",
-                        varctrl[i].nvar, "DATAPACKING=POINT, SOLUTIONTIME = ",
-                        0.0000, ", ZONETYPE=FETRIANGLE");
-
-                    for (j = 0; j < varctrl[i].nnodes; j++)
-                    {
-                        fprintf(varctrl[i].datfile, "%lf %lf %lf %lf %lf\n",
-                            *varctrl[i].x[j], *varctrl[i].y[j],
-                            *varctrl[i].zmin[j], *varctrl[i].zmax[j],
-                            0.000001);
-                    }
-                    for (j = 0; j < varctrl[i].nvar; j++)
-                    {
-                        fprintf(varctrl[i].datfile, "%d %d %d \n",
-                            *varctrl[i].node0[j], *varctrl[i].node1[j],
-                            *varctrl[i].node2[j]);
-                    }
-                    varctrl[i].first = 0;
-                }
-                str3_Tec =
-                    "VARSHARELIST = ([1, 2, 3, 4]=1), "
-                    "CONNECTIVITYSHAREZONE = 1";
-                fprintf(varctrl[i].datfile, "%s %s %s %d %s %d %s %lf %s\n",
-                    "ZONE T=\"", varctrl[i].name, "\", N=", varctrl[i].nnodes,
-                    ", E=", varctrl[i].nvar,
-                    "DATAPACKING=POINT, SOLUTIONTIME = ", outtime,
-                    ", ZONETYPE=FETRIANGLE,");
-                fprintf(varctrl[i].datfile, "%s \n", str3_Tec);
+                fprintf(varctrl[i].datfile,
+                    "ZONE T=\"%s\", N=%d, E=%d, DATAPACKING=%s, "
+                    "SOLUTIONTIME=%lf, ZONETYPE=%s\n",
+                    varctrl[i].name, varctrl[i].nnodes, varctrl[i].nvar,
+                    "POINT", outtime, "FETRIANGLE");
+                fprintf(varctrl[i].datfile, "%s\n", ELEM_TEC_HEADER3);
                 for (j = 0; j < varctrl[i].nvar; j++)
                 {
                     if (varctrl[i].counter > 0)
@@ -422,18 +405,18 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
                         outval = varctrl[i].buffer[j];
                     }
 
-                    hnodes[*varctrl[i].node0[j] - 1] =
-                        hnodes[*varctrl[i].node0[j] - 1] + outval;
-                    hnodes[*varctrl[i].node1[j] - 1] =
-                        hnodes[*varctrl[i].node1[j] - 1] + outval;
-                    hnodes[*varctrl[i].node2[j] - 1] =
-                        hnodes[*varctrl[i].node2[j] - 1] + outval;
-                    inodes[*varctrl[i].node0[j] - 1] =
-                        inodes[*varctrl[i].node0[j] - 1] + 1;
-                    inodes[*varctrl[i].node1[j] - 1] =
-                        inodes[*varctrl[i].node1[j] - 1] + 1;
-                    inodes[*varctrl[i].node2[j] - 1] =
-                        inodes[*varctrl[i].node2[j] - 1] + 1;
+                    hnodes[varctrl[i].node0[j] - 1] =
+                        hnodes[varctrl[i].node0[j] - 1] + outval;
+                    hnodes[varctrl[i].node1[j] - 1] =
+                        hnodes[varctrl[i].node1[j] - 1] + outval;
+                    hnodes[varctrl[i].node2[j] - 1] =
+                        hnodes[varctrl[i].node2[j] - 1] + outval;
+                    inodes[varctrl[i].node0[j] - 1] =
+                        inodes[varctrl[i].node0[j] - 1] + 1;
+                    inodes[varctrl[i].node1[j] - 1] =
+                        inodes[varctrl[i].node1[j] - 1] + 1;
+                    inodes[varctrl[i].node2[j] - 1] =
+                        inodes[varctrl[i].node2[j] - 1] + 1;
                     varctrl[i].buffer[j] = 0.0;
                 }
                 for (j = 0; j < varctrl[i].nnodes; j++)
@@ -448,9 +431,13 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
                             hnodes[j] / inodes[j]);
                     }
                 }
-                varctrl[i].counter = 0;
-                fflush(varctrl[i].datfile);
+
+                free(hnodes);
+                free(inodes);
             }
+
+            varctrl[i].counter = 0;
+            fflush(varctrl[i].datfile);
         }
     }
 }
@@ -476,7 +463,6 @@ void PrintWaterBalance(FILE *WaterBalance, int t, int tstart, int dt,
     elem_struct *elem, int numele, river_struct *riv, int numriv)
 {
     long int        i, j;
-    const char     *str1_Tec;
     realtype        totarea = 0., totlenght = 0.;
     realtype        totPrep = 0., totNetPrep = 0., totInf = 0., totRecharge =
         0., totEsoil = 0., totETplant = 0., totEcan = 0., totPET = 0., totET =
@@ -484,17 +470,10 @@ void PrintWaterBalance(FILE *WaterBalance, int t, int tstart, int dt,
     realtype        outflow = 0.0, RE_OLF = 0., R_Exf = 0., R_LKG = 0.;
 
 
-    str1_Tec =
-        "VARIABLES = \"TIME (s)\" \"Outflow (cms)\" \"Surf2Chan (cms)\""
-        "\"AqF2Chan (cms)\" \"Chan_LKG (cms)\" \"Precipitation (cms)\""
-        "\"NetPrec (cms)\" \"Infiltration (cms)\" \"Recharge (cms)\""
-        "\"E_soil (cms)\" \"ET_plant (cms)\" \"E_canopy (cms)\" \"PET (cms)\""
-        "\"ET (cms)\" \"E_Surface (cms)\" \"E_Unsat (cms)\" \"E_GW (cms)\""
-        "\"T_Unsat (cms)\" \"T_GW (cms)\"";
 
     if (t == tstart + dt)
     {
-        fprintf(WaterBalance, "%s\n", str1_Tec);
+        fprintf(WaterBalance, "%s\n", WB_HEADER);
     }
     for (i = 0; i < numele; i++)
     {

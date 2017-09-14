@@ -29,6 +29,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
          * Update print variables for land surface step variables
          */
         UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, LS_STEP);
+        UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, LS_STEP);
     }
 
     /*
@@ -57,6 +58,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
      * Update print variables for hydrology step variables
      */
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, HYDROL_STEP);
+    UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, HYDROL_STEP);
 
 #ifdef _BGC_
     int             i;
@@ -94,6 +96,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
          * Update print variables for CN (daily) step variables
          */
         UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, CN_STEP);
+        UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, CN_STEP);
     }
 #endif
 
@@ -113,7 +116,6 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         t - pihm->ctrl.starttime, pihm->ctrl.ascii);
     if (tecplot)
     {
-        UpdPrintVarT(pihm->print.tp_varctrl, pihm->print.ntpprint);
         PrintDataTecplot(pihm->print.tp_varctrl, pihm->print.ntpprint, t,
             t - pihm->ctrl.starttime);
     }

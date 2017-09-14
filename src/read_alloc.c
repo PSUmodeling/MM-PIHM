@@ -18,6 +18,7 @@ void ReadAlloc(char *simulation, pihm_struct pihm)
     sprintf(pihm->filename.calib, "input/%s/%s.calib", project, simulation);
     sprintf(pihm->filename.ic, "input/%s/%s.ic", project, simulation);
     sprintf(pihm->filename.sunpara, "input/%s/%s.sunpara", project, project);
+    sprintf(pihm->filename.tecplot, "input/%s/%s.tecplot", project, project);
 #ifdef _NOAH_
     sprintf(pihm->filename.lsm, "input/%s/%s.lsm", project, project);
     sprintf(pihm->filename.rad, "input/%s/%s.rad", project, project);
@@ -75,6 +76,10 @@ void ReadAlloc(char *simulation, pihm_struct pihm)
     /* Read sundial model control file */
     ReadSunpara(pihm->filename.sunpara, &pihm->ctrl);
 
+    if (tecplot)
+    {
+        ReadTecplot(pihm->filename.tecplot, &pihm->ctrl);
+    }
 #ifdef _NOAH_
     /* Read LSM input file */
     ReadLsm(pihm->filename.lsm, &pihm->siteinfo, &pihm->ctrl, &pihm->noahtbl);
@@ -1062,24 +1067,6 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
     ctrl->prtvrbl[SURFFLX_CTRL] = ReadPrtCtrl(cmdstr, "SURFFLX", filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[SURFTEC_CTRL] = ReadPrtCtrl(cmdstr, "SURFTEC", filename, lno);
-
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[UNSATTEC_CTRL] = ReadPrtCtrl(cmdstr, "UNSATTEC", filename,
-        lno);
-
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[GWTEC_CTRL] = ReadPrtCtrl(cmdstr, "GWTEC", filename, lno);
-
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVSTGTEC_CTRL] = ReadPrtCtrl(cmdstr, "RIVSTGTEC", filename,
-        lno);
-
-    NextLine(para_file, cmdstr, &lno);
-    ctrl->prtvrbl[RIVGWTEC_CTRL] = ReadPrtCtrl(cmdstr, "RIVGWTEC", filename,
-        lno);
-
-    NextLine(para_file, cmdstr, &lno);
     ctrl->prtvrbl[IC_CTRL] = ReadPrtCtrl(cmdstr, "IC", filename, lno);
 
     fclose(para_file);
@@ -1309,6 +1296,113 @@ void ReadSunpara(char *filename, ctrl_struct *ctrl)
     ReadKeyword(cmdstr, "StepMin", &ctrl->stmin, 'd', filename, lno);
 
     fclose(sunpara_file);
+}
+
+void ReadTecplot(char *filename, ctrl_struct *ctrl)
+{
+    FILE           *tecplot_file;
+    char            cmdstr[MAXSTRING];
+    int             i;
+    int             lno = 0;
+
+    for (i = 0; i < MAXPRINT; i++)
+    {
+        ctrl->tpprtvrbl[i] = 0;
+    }
+
+    tecplot_file = fopen(filename, "r");
+    CheckFile(tecplot_file, filename);
+    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[SURF_CTRL] = ReadPrtCtrl(cmdstr, "SURF", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[UNSAT_CTRL] = ReadPrtCtrl(cmdstr, "UNSAT", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[GW_CTRL] = ReadPrtCtrl(cmdstr, "GW", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVSTG_CTRL] = ReadPrtCtrl(cmdstr, "RIVSTG", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVGW_CTRL] = ReadPrtCtrl(cmdstr, "RIVGW", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[SNOW_CTRL] = ReadPrtCtrl(cmdstr, "SNOW", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[CMC_CTRL] = ReadPrtCtrl(cmdstr, "CMC", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[INFIL_CTRL] = ReadPrtCtrl(cmdstr, "INFIL", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RECHARGE_CTRL] = ReadPrtCtrl(cmdstr, "RECHARGE", filename,
+        lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[EC_CTRL] = ReadPrtCtrl(cmdstr, "EC", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[ETT_CTRL] = ReadPrtCtrl(cmdstr, "ETT", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[EDIR_CTRL] = ReadPrtCtrl(cmdstr, "EDIR", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVFLX0_CTRL] =
+        ReadPrtCtrl(cmdstr, "RIVFLX0", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVFLX1_CTRL] =
+        ReadPrtCtrl(cmdstr, "RIVFLX1", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVFLX2_CTRL] =
+        ReadPrtCtrl(cmdstr, "RIVFLX2", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVFLX3_CTRL] =
+        ReadPrtCtrl(cmdstr, "RIVFLX3", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVFLX4_CTRL] =
+        ReadPrtCtrl(cmdstr, "RIVFLX4", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVFLX5_CTRL] =
+        ReadPrtCtrl(cmdstr, "RIVFLX5", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVFLX6_CTRL] =
+        ReadPrtCtrl(cmdstr, "RIVFLX6", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVFLX7_CTRL] =
+        ReadPrtCtrl(cmdstr, "RIVFLX7", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVFLX8_CTRL] =
+        ReadPrtCtrl(cmdstr, "RIVFLX8", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVFLX9_CTRL] =
+        ReadPrtCtrl(cmdstr, "RIVFLX9", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[RIVFLX10_CTRL] =
+        ReadPrtCtrl(cmdstr, "RIVFLX10", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[SUBFLX_CTRL] = ReadPrtCtrl(cmdstr, "SUBFLX", filename, lno);
+
+    NextLine(tecplot_file, cmdstr, &lno);
+    ctrl->tpprtvrbl[SURFFLX_CTRL] =
+        ReadPrtCtrl(cmdstr, "SURFFLX", filename, lno);
+
+    fclose(tecplot_file);
 }
 
 void FreeData(pihm_struct pihm)

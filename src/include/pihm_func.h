@@ -82,6 +82,7 @@ void            InitLC(elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMeshStruct(elem_struct *, const meshtbl_struct *);
 void            InitOutputFile(print_struct *, int);
+void            InitPrtVarCtrl(char *, char *, int, int, int, varctrl_struct *);
 void            InitWBFile(char *, char *, FILE *);
 void            InitRiver(river_struct *, elem_struct *, const rivtbl_struct *,
     const shptbl_struct *, const matltbl_struct *, const meshtbl_struct *,
@@ -95,6 +96,8 @@ void            InitSoil(elem_struct *, const soiltbl_struct *,
     const calib_struct *);
 void            InitSurfL(elem_struct *, river_struct *,
     const meshtbl_struct *);
+void            InitTecPrtVarCtrl(char *, char *, int, int, int, int, int,
+    varctrl_struct *);
 void            InitTopo(elem_struct *, const meshtbl_struct *);
 void            InitVar(elem_struct *, river_struct *, N_Vector);
 void            InitWFlux(wflux_struct *);
@@ -164,6 +167,7 @@ void            ReadRiv(char *, rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
 void            ReadSoil(char *, soiltbl_struct *);
 void            ReadSunpara(char *, ctrl_struct *);
+void            ReadTecplot(char *, ctrl_struct *);
 int             ReadTS(char *, int *, double *, int);
 int             Readable(char *);
 void            RiverFlow(pihm_struct);

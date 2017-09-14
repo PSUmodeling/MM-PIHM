@@ -267,6 +267,7 @@ typedef struct ctrl_struct
     int             solver;
     int             nstep;
     int             prtvrbl[MAXPRINT];
+    int             tpprtvrbl[MAXPRINT];
     int             init_type;
     int             unsat_mode;
     int             surf_mode;
@@ -328,15 +329,15 @@ typedef struct varctrl_struct
     int             counter;
     FILE           *txtfile;
     FILE           *datfile;
-    double        **x;
-    double        **y;
-    double        **zmax;
-    double        **zmin;
+    double         *x;
+    double         *y;
+    double         *zmax;
+    double         *zmin;
     int             nnodes;
-    int           **node0;
-    int           **node1;
-    int           **node2;
-    int             first;
+    int           *node0;
+    int           *node1;
+    int           *node2;
+    //int             first;
 } varctrl_struct;
 
 typedef struct print_struct
