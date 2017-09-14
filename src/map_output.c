@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void MapOutput(char *simulation, pihm_struct pihm, char *outputdir)
+void MapOutput(pihm_struct pihm, char *outputdir)
 {
     int             i, j, k;
     int             n;
@@ -844,7 +844,7 @@ void MapOutput(char *simulation, pihm_struct pihm, char *outputdir)
     }
 }
 
-void MapTecplotOutput(char *simulation, pihm_struct pihm, char *outputdir)
+void MapTecplotOutput(pihm_struct pihm, char *outputdir)
 {
     int             i, j, k;
     int             n;

@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadAlloc(char *simulation, pihm_struct pihm)
+void ReadAlloc(pihm_struct pihm)
 {
     PIHMprintf(VL_VERBOSE, "\nRead input files:\n");
 
@@ -15,8 +15,8 @@ void ReadAlloc(char *simulation, pihm_struct pihm)
     sprintf(pihm->filename.lai, "input/%s/%s.lai", project, project);
     sprintf(pihm->filename.bc, "input/%s/%s.bc", project, project);
     sprintf(pihm->filename.para, "input/%s/%s.para", project, project);
-    sprintf(pihm->filename.calib, "input/%s/%s.calib", project, simulation);
-    sprintf(pihm->filename.ic, "input/%s/%s.ic", project, simulation);
+    sprintf(pihm->filename.calib, "input/%s/%s.calib", project, project);
+    sprintf(pihm->filename.ic, "input/%s/%s.ic", project, project);
     sprintf(pihm->filename.sunpara, "input/%s/%s.sunpara", project, project);
     sprintf(pihm->filename.tecplot, "input/%s/%s.tecplot", project, project);
 #ifdef _NOAH_
@@ -31,7 +31,7 @@ void ReadAlloc(char *simulation, pihm_struct pihm)
 #endif
 #ifdef _BGC_
     sprintf(pihm->filename.bgc, "input/%s/%s.bgc", project, project);
-    sprintf(pihm->filename.bgcic, "input/%s/%s.bgcic", project, simulation);
+    sprintf(pihm->filename.bgcic, "input/%s/%s.bgcic", project, project);
 #endif
 
     /* Read river input file */

@@ -12,7 +12,7 @@ void LateralFlow(elem_struct *elem, river_struct *riv, int surf_mode)
     FrictSlope(elem, riv, surf_mode, dhbydx, dhbydy);
 
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
@@ -148,7 +148,7 @@ void FrictSlope(elem_struct *elem, river_struct *riv, int surf_mode,
 {
     int             i;
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {

@@ -243,7 +243,7 @@ void PrintData(varctrl_struct *prtctrl, int nprint, int t, int lapse, int ascii)
     }
 }
 
-void PrtInit(elem_struct *elem, river_struct *river, char *simulation, int t)
+void PrtInit(elem_struct *elem, river_struct *river, int t)
 {
     FILE           *init_file;
     char            fn[MAXSTRING];
@@ -260,7 +260,7 @@ void PrtInit(elem_struct *elem, river_struct *river, char *simulation, int t)
     int             j;
 #endif
 
-    sprintf(fn, "input/%s/ic/%s %s.ic", project, simulation, name);
+    sprintf(fn, "input/%s/ic/%s %s.ic", project, project, name);
 
     init_file = fopen(fn, "wb");
     CheckFile(init_file, fn);

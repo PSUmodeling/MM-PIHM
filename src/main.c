@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
     static double   dtime = 0.0;
     long int        nst;
     long int        nfe;
-    long int        nfeLS;
     long int        nni;
     long int        ncfn;
     long int        netf;
@@ -64,7 +63,7 @@ int main(int argc, char *argv[])
     pihm = (pihm_struct)malloc(sizeof(*pihm));
 
     /* Read PIHM input files */
-    ReadAlloc(project, pihm);
+    ReadAlloc(pihm);
 
     /* Initialize CVode state variables */
     CV_Y = N_VNew(NSV);
@@ -81,12 +80,12 @@ int main(int argc, char *argv[])
     }
 
     /* Create output structures */
-    MapOutput(project, pihm, outputdir);
-    MapTecplotOutput(project, pihm, outputdir);
+    MapOutput(pihm, outputdir);
+    MapTecplotOutput(pihm, outputdir);
 
     /* Backup input files */
 #if !defined(_MSC_VER)
-    BKInput(project, outputdir);
+    BKInput(outputdir);
 #endif
 
     /* Initialize output files and structures */
@@ -103,7 +102,6 @@ int main(int argc, char *argv[])
         pihm->print.cvodeperf_file = fopen(perf_fn, "w");
         CheckFile(pihm->print.cvodeperf_file, perf_fn);
 
-        dtime += cputime_dt;
         fprintf(pihm->print.cvodeperf_file,
             " Time step, cpu_dt, cpu_time, solver_step\n");
 
@@ -207,7 +205,7 @@ int main(int argc, char *argv[])
                 (pihm->ctrl.tout[i] - pihm->ctrl.starttime) %
                 pihm->ctrl.prtvrbl[IC_CTRL] == 0)
             {
-                PrtInit(pihm->elem, pihm->riv, project, pihm->ctrl.tout[i]);
+                PrtInit(pihm->elem, pihm->riv, pihm->ctrl.tout[i]);
             }
         }
 #ifdef _BGC_

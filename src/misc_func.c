@@ -110,7 +110,7 @@ void CreateOutputDir(char *outputdir)
     pihm_mkdir(outputdir);
 }
 
-void BKInput(char *simulation, char *outputdir)
+void BKInput(char *outputdir)
 {
     char            project[MAXSTRING];
     char           *token;
@@ -118,7 +118,7 @@ void BKInput(char *simulation, char *outputdir)
     char            system_cmd[MAXSTRING];
     char            source_file[MAXSTRING];
 
-    strcpy(tempname, simulation);
+    strcpy(tempname, project);
     if (strstr(tempname, ".") != 0)
     {
         token = strtok(tempname, ".");
@@ -126,7 +126,7 @@ void BKInput(char *simulation, char *outputdir)
     }
     else
     {
-        strcpy(project, simulation);
+        strcpy(project, project);
     }
 
     /* Save input files into output directory */
@@ -137,19 +137,19 @@ void BKInput(char *simulation, char *outputdir)
             project);
         system(system_cmd);
     }
-    sprintf(source_file, "input/%s/%s.calib", project, simulation);
+    sprintf(source_file, "input/%s/%s.calib", project, project);
     if (pihm_access(source_file, F_OK) != -1)
     {
         sprintf(system_cmd, "cp %s ./%s/%s.calib.bak", source_file,
-            outputdir, simulation);
+            outputdir, project);
         system(system_cmd);
     }
-    sprintf(source_file, "input/%s/%s.init", project, simulation);
+    sprintf(source_file, "input/%s/%s.init", project, project);
     if (pihm_access(source_file, F_OK) != -1)
     {
 
         sprintf(system_cmd, "cp %s ./%s/%s.init.bak", source_file, outputdir,
-            simulation);
+            project);
         system(system_cmd);
     }
 }

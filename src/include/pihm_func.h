@@ -53,7 +53,7 @@ double          AvgKV(double, double, double, double, double, double, double,
     double);
 double          AvgYsfc(double, double, double);
 double          AvgY(double, double, double);
-void            BKInput(char *, char *);
+void            BKInput(char *);
 void            CalcModelStep(ctrl_struct *);
 void            CheckFile(FILE *, char *);
 void            CorrectElevation(elem_struct *, river_struct *);
@@ -107,8 +107,8 @@ void            IntrplForcing(tsdata_struct *, int, int);
 double          KrFunc(double, double, double);
 void            LateralFlow(elem_struct *, river_struct *, int);
 int             MacroporeStatus(double, double, double, double, double, double);
-void            MapTecplotOutput(char *, pihm_struct, char *);
-void            MapOutput(char *, pihm_struct, char *);
+void            MapTecplotOutput(pihm_struct, char *);
+void            MapOutput(pihm_struct, char *);
 void            MassBalance(wstate_struct *, wstate_struct *, wflux_struct *,
     double *, const soil_struct *, double, double);
 double          MonthlyLAI(int, int);
@@ -140,7 +140,7 @@ void            PIHM(pihm_struct, void *, N_Vector, int, int, double);
 pihm_t_struct   PIHMTime(int);
 void            PrintData(varctrl_struct *, int, int, int, int);
 void            PrintDataTecplot(varctrl_struct *, int, int, int);
-void            PrtInit(elem_struct *, river_struct *, char *, int);
+void            PrtInit(elem_struct *, river_struct *, int);
 void            PrintStats(void *, FILE *);
 void            PrintWatBal(FILE *, int, int, int, elem_struct *,
     river_struct *);
@@ -151,7 +151,7 @@ double          PtfKV(double, double, double, double, int);
 double          PtfThetaR(double, double, double, double, int);
 double          PtfThetaS(double, double, double, double, int);
 double          Qtz(int);
-void            ReadAlloc(char *, pihm_struct);
+void            ReadAlloc(pihm_struct);
 void            ReadAtt(char *, atttbl_struct *);
 void            ReadBC(char *, forc_struct *);
 void            ReadCalib(char *, calib_struct *);
