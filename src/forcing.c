@@ -40,19 +40,26 @@ void ApplyForcing(forc_struct *forc, elem_struct *elem, int t
     ApplyLAI(forc, elem, t);
 }
 
-
 void ApplyElemBC(forc_struct *forc, elem_struct *elem, int t)
 {
     int             ind;
-    int             i, j, k;
+    int             i, k;
 
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
     for (k = 0; k < forc->nbc; k++)
     {
         IntrplForcing(&forc->bc[k], t, 1);
     }
 
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
+        int         j;
+
         for (j = 0; j < NUM_EDGE; j++)
         {
             if (elem[i].attrib.bc_type[j] > 0)
@@ -85,6 +92,9 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t
     /*
      * Meteorological forcing for PIHM
      */
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
     for (k = 0; k < forc->nmeteo; k++)
     {
         IntrplForcing(&forc->meteo[k], t, NUM_METEO_VAR);
@@ -98,6 +108,9 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t
     {
         if (forc->nrad > 0)
         {
+# ifdef _OPENMP
+#  pragma omp parallel for
+# endif
             for (k = 0; k < forc->nrad; k++)
             {
                 IntrplForcing(&forc->rad[k], t, 2);
@@ -111,7 +124,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t
 #endif
 
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
@@ -191,6 +204,9 @@ void ApplyLAI(forc_struct *forc, elem_struct *elem, int t)
 
     if (forc->nlai > 0)
     {
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
         for (k = 0; k < forc->nlai; k++)
         {
             IntrplForcing(&forc->lai[k], t, 1);
@@ -220,16 +236,23 @@ void ApplyLAI(forc_struct *forc, elem_struct *elem, int t)
 
 void ApplyRiverBC(forc_struct *forc, river_struct *riv, int t)
 {
-    int             ind;
     int             i, k;
 
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
     for (k = 0; k < forc->nriverbc; k++)
     {
         IntrplForcing(&forc->riverbc[k], t, 1);
     }
 
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
     for (i = 0; i < nriver; i++)
     {
+        int             ind;
+
         if (riv[i].attrib.riverbc_type > 0)
         {
             ind = riv[i].attrib.riverbc_type - 1;
@@ -291,7 +314,7 @@ void IntrplForcing(tsdata_struct *ts, int t, int nvrbl)
 double MonthlyLAI(int t, int lc_type)
 {
     /*
-     * Monly LAI data come from WRF MPTABLE.TBL for Noah MODIS land
+     * Monthly LAI data come from WRF MPTABLE.TBL for Noah MODIS land
      * cover categories
      */
     pihm_t_struct   pihm_time;
@@ -406,7 +429,7 @@ double MonthlyLAI(int t, int lc_type)
 double MonthlyRL(int t, int lc_type)
 {
     /*
-     * Monly roughness length data are calculated using monthly LAI
+     * Monthly roughness length data are calculated using monthly LAI
      * data above with max/min LAI and max/min roughness length data
      * in the vegprmt.tbl
      */
