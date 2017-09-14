@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     Initialize(pihm, &CV_Y, &cvode_mem);
 
     /* Create output directory */
-    CreateOutputDir(pihm->ctrl.write_ic, outputdir);
+    CreateOutputDir(outputdir);
 
     /* Create output structures */
     MapOutput(pihm, outputdir);

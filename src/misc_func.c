@@ -88,7 +88,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
     }
 }
 
-void CreateOutputDir(int write_ic, char *outputdir)
+void CreateOutputDir(char *outputdir)
 {
     time_t          rawtime;
     struct tm      *timestamp;
@@ -110,12 +110,8 @@ void CreateOutputDir(int write_ic, char *outputdir)
     }
     pihm_mkdir(outputdir);
 
-    if (write_ic)
-    {
-        sprintf(icdir, "%srestart/", outputdir);
-        pihm_mkdir(icdir);
-    }
-
+    sprintf(icdir, "%srestart/", outputdir);
+    pihm_mkdir(icdir);
 }
 
 void BKInput(char *outputdir)

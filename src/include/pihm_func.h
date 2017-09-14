@@ -59,7 +59,7 @@ void            CheckFile(FILE *, char *);
 void            CorrectElevation(elem_struct *, river_struct *);
 int             CountLine(FILE *, char *, int, ...);
 int             CountOccurance(FILE *, char *);
-void            CreateOutputDir(int, char *);
+void            CreateOutputDir(char *);
 double          DhByDl(double *, double *, double *);
 double          EffKH(double, double, double, double, double, double);
 double          EffKinf(double, double, int, double, double, double);
