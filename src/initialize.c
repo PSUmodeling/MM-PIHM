@@ -1,11 +1,22 @@
 #include "pihm.h"
 
-void Initialize(pihm_struct pihm, N_Vector CV_Y)
+void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 {
     int             i, j;
 
     PIHMprintf(VL_VERBOSE, "\n\nInitialize data structure\n");
 
+    /* Allocate memory for solver */
+    *cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+    if (*cvode_mem == NULL)
+    {
+        PIHMprintf(VL_ERROR, "Error in allocating memory for solver.\n");
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    /*
+     * Initialize PIHM structure
+     */
     pihm->elem = (elem_struct *)malloc(nelem * sizeof(elem_struct));
     pihm->riv = (river_struct *)malloc(nriver * sizeof(river_struct));
 
