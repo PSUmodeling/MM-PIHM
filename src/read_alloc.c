@@ -80,6 +80,7 @@ void ReadAlloc(pihm_struct pihm)
     {
         ReadTecplot(pihm->filename.tecplot, &pihm->ctrl);
     }
+
 #ifdef _NOAH_
     /* Read LSM input file */
     ReadLsm(pihm->filename.lsm, &pihm->siteinfo, &pihm->ctrl, &pihm->noahtbl);

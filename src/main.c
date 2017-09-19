@@ -70,7 +70,6 @@ int main(int argc, char *argv[])
 
     /* Create output structures */
     MapOutput(pihm, outputdir);
-    MapTecplotOutput(pihm, outputdir);
 
     /* Backup input files */
 #if !defined(_MSC_VER)

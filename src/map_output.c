@@ -851,15 +851,10 @@ void MapOutput(pihm_struct pihm, char *outputdir)
         }
 
     }
-}
 
-void MapTecplotOutput(pihm_struct pihm, char *outputdir)
-{
-    int             i, j;
-    int             n;
-
-    PIHMprintf(VL_VERBOSE, "\nInitializing PIHM tecplot output files\n");
-
+    /*
+     * Tecplot output
+     */
     n = 0;
 
     for (i = 0; i < MAXPRINT; i++)
