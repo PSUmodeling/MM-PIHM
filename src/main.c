@@ -29,7 +29,6 @@ int main(int argc, char *argv[])
     clock_t         ptime, start, ct;
 #endif
     double          cputime, cputime_dt;    /* Time cpu duration */
-    static double   dtime = 0.0;
     long int        nst;
     long int        nfe;
     long int        nni;
@@ -126,14 +125,11 @@ int main(int argc, char *argv[])
 
             if (debug_mode)
             {
-                dtime += cputime_dt;
-
                 if (pihm->ctrl.tout[i] % 3600 == 0)
                 {
                     fprintf(pihm->print.cvodeperf_file, "%d %f %f %f\n",
                         pihm->ctrl.tout[i] - pihm->ctrl.starttime, cputime_dt,
                         cputime, maxstep);
-                    dtime = 0.0;
                 }
                 /* Print CVODE statistics */
                 PrintStats(cvode_mem, pihm->print.cvodeconv_file);
