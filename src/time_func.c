@@ -68,3 +68,29 @@ int StrTime(const char *timestr)
 
     return t;
 }
+
+#ifdef _OPENMP
+void RunTime(double start_omp, double *cputime, double *cputime_dt)
+{
+    static double   ptime_omp;
+    double          ct_omp;
+
+    ptime_omp = (ptime_omp == 0.0) ? start_omp : ptime_omp;
+    ct_omp = omp_get_wtime();
+    *cputime_dt = (double)(ct_omp - ptime_omp);
+    *cputime = (double)(ct_omp - start_omp);
+    ptime_omp = ct_omp;
+}
+#else
+void RunTime (clock_t start, double *cputime, double *cputime_dt)
+{
+    static clock_t  ptime;
+    clock_t         ct;
+
+    ptime = (ptime == 0.0) ? start : ptime;
+    ct = clock();
+    *cputime_dt = ((double)(ct - ptime)) / CLOCKS_PER_SEC;
+    *cputime = ((double)(ct - start)) / CLOCKS_PER_SEC;
+    ptime = ct;
+}
+#endif

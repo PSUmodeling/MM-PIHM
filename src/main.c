@@ -24,9 +24,9 @@ int main(int argc, char *argv[])
     void           *cvode_mem;
     int             i;
 #ifdef _OPENMP
-    double          ptime_omp, start_omp, ct_omp;
+    double          start_omp;
 #else
-    clock_t         ptime, start, ct;
+    clock_t         start;
 #endif
     double          cputime, cputime_dt;    /* Time cpu duration */
     long int        nst;
@@ -87,6 +87,12 @@ int main(int argc, char *argv[])
     /*
      * Run PIHM
      */
+#ifdef _OPENMP
+        start_omp = omp_get_wtime();
+#else
+        start = clock();
+#endif
+
 #ifdef _BGC_
     if (spinup_mode)
     {
@@ -95,25 +101,12 @@ int main(int argc, char *argv[])
     else
     {
 #endif
-#ifdef _OPENMP
-        start_omp = omp_get_wtime();
-        ptime_omp = start_omp;
-#else
-        start = clock();
-        ptime = start;
-#endif
         for (i = 0; i < pihm->ctrl.nstep; i++)
         {
 #ifdef _OPENMP
-            ct_omp = omp_get_wtime();
-            cputime_dt = ((double)(ct_omp - ptime_omp));
-            cputime = ((double)(ct_omp - start_omp));
-            ptime_omp = ct_omp;
+            RunTime(start_omp, &cputime, &cputime_dt);
 #else
-            ct = clock();
-            cputime_dt = ((double)(ct - ptime)) / CLOCKS_PER_SEC;
-            cputime = ((double)(ct - start)) / CLOCKS_PER_SEC;
-            ptime = ct;
+            RunTime(start, &cputime, &cputime_dt);
 #endif
 
             PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
@@ -129,6 +122,7 @@ int main(int argc, char *argv[])
                     fprintf(pihm->print.cvodeperf_file, "%d %f %f %f\n",
                         pihm->ctrl.tout[i] - pihm->ctrl.starttime, cputime_dt,
                         cputime, pihm->ctrl.maxstep);
+                    fflush(pihm->print.cvodeperf_file);
                 }
                 /* Print CVODE statistics */
                 PrintStats(cvode_mem, pihm->print.cvodeconv_file);

@@ -178,6 +178,11 @@ double          _RivWdthAreaPerim(int, int, double, double);
 #define RivArea(...)    _RivWdthAreaPerim(RIVER_AREA, __VA_ARGS__)
 #define RivEqWid(...)   _RivWdthAreaPerim(RIVER_WDTH, __VA_ARGS__)
 #define RivPerim(...)   _RivWdthAreaPerim(RIVER_PERIM, __VA_ARGS__)
+#ifdef _OPENMP
+void            RunTime(double, double *, double *);
+#else
+void            RunTime (clock_t, double *, double *);
+#endif
 void            SaturationIC(elem_struct *, river_struct *);
 void            SetCVodeParam(pihm_struct, void *, N_Vector);
 int             SoilTex(double, double);
