@@ -34,10 +34,7 @@ int main(int argc, char *argv[])
     long int        nni;
     long int        ncfn;
     long int        netf;
-    long int        ncfni = 0;
-    long int        nnii = 10;
     int             flag;
-    double          maxstep;
 
 #ifdef _OPENMP
     /* Set the number of threads to use */
@@ -82,7 +79,6 @@ int main(int argc, char *argv[])
 
     /* Set solver parameters */
     SetCVodeParam(pihm, cvode_mem, CV_Y);
-    maxstep = pihm->ctrl.maxstep;
 
 #if defined(_BGC_) || defined (_CYCLES_)
     first_balance = 1;
@@ -123,37 +119,19 @@ int main(int argc, char *argv[])
             PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
                 pihm->ctrl.tout[i + 1], cputime);
 
+            /* Adjust CVODE max step to reduce oscillation */
+            AdjCVodeMaxStep(cvode_mem, &pihm->ctrl);
+
             if (debug_mode)
             {
                 if (pihm->ctrl.tout[i] % 3600 == 0)
                 {
                     fprintf(pihm->print.cvodeperf_file, "%d %f %f %f\n",
                         pihm->ctrl.tout[i] - pihm->ctrl.starttime, cputime_dt,
-                        cputime, maxstep);
+                        cputime, pihm->ctrl.maxstep);
                 }
                 /* Print CVODE statistics */
                 PrintStats(cvode_mem, pihm->print.cvodeconv_file);
-            }
-
-            /* Variable CVODE max step (to reduce oscillations) */
-            ncfni = ncfn;
-            nnii = nni;
-
-            flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-            flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-
-            if ((ncfn - ncfni > pihm->ctrl.nncfn ||
-                nni - nnii > pihm->ctrl.nnimax) &&
-                maxstep > pihm->ctrl.stmin)
-            {
-                maxstep /= pihm->ctrl.decr;
-                flag = CVodeSetMaxStep(cvode_mem, (realtype)maxstep);
-            }
-            if (ncfn == ncfni && maxstep < pihm->ctrl.maxstep &&
-                nni - nnii < pihm->ctrl.nnimin)
-            {
-                maxstep *= pihm->ctrl.incr;
-                flag = CVodeSetMaxStep(cvode_mem, (realtype)maxstep);
             }
 
             /*
@@ -192,6 +170,8 @@ int main(int argc, char *argv[])
         flag = CVodeGetNumSteps(cvode_mem, &nst);
         flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
         flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+        flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+        flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
 
         PIHMprintf(VL_NORMAL,
             "number of steps = %-6ld "

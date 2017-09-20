@@ -275,6 +275,8 @@ typedef struct ctrl_struct
     double          reltol;
     double          initstep;
     double          maxstep;
+    double          stmax;
+    double          stmin;
     int             etstep;
     int             starttime;
     int             endtime;
@@ -285,7 +287,6 @@ typedef struct ctrl_struct
     int             nnimin;
     double          decr;
     double          incr;
-    double          stmin;
 #ifdef _NOAH_
     int             nsoil;
     double          sldpth[MAXLYR];

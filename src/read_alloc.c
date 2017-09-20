@@ -973,7 +973,7 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
         lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MAX_SOLVER_STEP", &ctrl->maxstep, 'd', filename, lno);
+    ReadKeyword(cmdstr, "MAX_SOLVER_STEP", &ctrl->stmax, 'd', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "LSM_STEP", &ctrl->etstep, 'i', filename, lno);

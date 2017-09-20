@@ -196,6 +196,8 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             flag;
 
+    pihm->ctrl.maxstep = pihm->ctrl.stmax;
+
     flag = CVodeInit(cvode_mem, ODE, 0.0, CV_Y);
     flag = CVodeSStolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
         (realtype)pihm->ctrl.abstol);
@@ -241,4 +243,35 @@ void SolveCVode(int starttime, int *t, int nextptr, double cputime,
     {
         PIHMprintf(VL_NORMAL, " Step = %s %f\n", pihm_time.str, cputime);
     }
+}
+
+void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
+{
+    /* Variable CVODE max step (to reduce oscillations) */
+    long int        ncfn;
+    long int        nni;
+    static long int ncfni;
+    static long int nnii;
+    int             flag;
+
+    flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+    flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+
+    if (ncfn - ncfni > ctrl->nncfn || nni - nnii > ctrl->nnimax)
+    {
+        ctrl->maxstep /= ctrl->decr;
+    }
+
+    if (ncfn == ncfni && nni - nnii < ctrl->nnimin)
+    {
+        ctrl->maxstep *= ctrl->incr;
+    }
+
+    ctrl->maxstep = (ctrl->maxstep < ctrl->stmax) ? ctrl->maxstep : ctrl->stmax;
+    ctrl->maxstep = (ctrl->maxstep > ctrl->stmin) ? ctrl->maxstep : ctrl->stmin;
+
+    flag = CVodeSetMaxStep(cvode_mem, (realtype)ctrl->maxstep);
+
+    ncfni = ncfn;
+    nnii = nni;
 }

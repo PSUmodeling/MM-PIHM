@@ -34,6 +34,7 @@
 /*
  * Function Declarations
  */
+void            AdjCVodeMaxStep(void *, ctrl_struct *);
 void            ApplyBC(forc_struct *, elem_struct *, river_struct *, int);
 void            ApplyElemBC(forc_struct *, elem_struct *, int);
 void            ApplyForcing(forc_struct *, elem_struct *, int
