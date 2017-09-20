@@ -1,14 +1,11 @@
 #include "pihm.h"
 
-void VerticalFlow(pihm_struct pihm)
+void VerticalFlow(elem_struct *elem, double dt)
 {
     int             i;
-    double          dt;
-
-    dt = (double)pihm->ctrl.stepsize;
 
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
@@ -22,138 +19,139 @@ void VerticalFlow(pihm_struct pihm)
         double          deficit;
         double          applrate;
         double          wetfrac;
-        elem_struct    *elem;
 
-        elem = &pihm->elem[i];
+        applrate = elem[i].wf.pcpdrp + elem[i].ws.surf / dt;
 
-        applrate = elem->wf.pcpdrp + elem->ws.surf / dt;
+        wetfrac = (elem[i].ws.surfh > DEPRSTG) ? 1.0 :
+            ((elem[i].ws.surfh < 0.0) ? 0.0 : elem[i].ws.surfh / DEPRSTG);
 
-        wetfrac = (elem->ws.surfh > DEPRSTG) ? 1.0 :
-            ((elem->ws.surfh < 0.0) ? 0.0 : elem->ws.surfh / DEPRSTG);
-
-        if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
+        if (elem[i].ws.gw > elem[i].soil.depth - elem[i].soil.dinf)
         {
             /* Assumption: Dinf < Dmac */
-            dh_by_dz = (elem->ws.surfh + elem->topo.zmax -
-                (elem->ws.gw + elem->topo.zmin)) / elem->soil.dinf;
-            dh_by_dz = (elem->ws.surfh < 0.0 && dh_by_dz > 0.0) ?
+            dh_by_dz = (elem[i].ws.surfh + elem[i].topo.zmax -
+                (elem[i].ws.gw + elem[i].topo.zmin)) / elem[i].soil.dinf;
+            dh_by_dz = (elem[i].ws.surfh < 0.0 && dh_by_dz > 0.0) ?
                 0.0 : dh_by_dz;
             dh_by_dz = (dh_by_dz < 1.0 && dh_by_dz > 0.0) ? 1.0 : dh_by_dz;
 
             satn = 1.0;
-            satkfunc = KrFunc(elem->soil.alpha, elem->soil.beta, satn);
+            satkfunc = KrFunc(elem[i].soil.alpha, elem[i].soil.beta, satn);
 
-            if (elem->soil.areafh == 0.0)
+            if (elem[i].soil.areafh == 0.0)
             {
-                elem->ps.macpore_status = MTX_CTRL;
+                elem[i].ps.macpore_status = MTX_CTRL;
             }
             else
             {
-                elem->ps.macpore_status =
+                elem[i].ps.macpore_status =
                     MacroporeStatus(dh_by_dz, satkfunc, applrate,
-                    elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
+                    elem[i].soil.kmacv, elem[i].soil.kinfv, elem[i].soil.areafh);
             }
 
             if (dh_by_dz < 0.0)
             {
-                kinf = elem->soil.kmacv * elem->soil.areafh +
-                    elem->soil.kinfv * (1.0 - elem->soil.areafh);
+                kinf = elem[i].soil.kmacv * elem[i].soil.areafh +
+                    elem[i].soil.kinfv * (1.0 - elem[i].soil.areafh);
             }
             else
             {
-                kinf = EffKinf(satkfunc, satn, elem->ps.macpore_status,
-                    elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
+                kinf = EffKinf(satkfunc, satn, elem[i].ps.macpore_status,
+                    elem[i].soil.kmacv, elem[i].soil.kinfv,
+                    elem[i].soil.areafh);
             }
 
-            elem->wf.infil = kinf * dh_by_dz;
+            elem[i].wf.infil = kinf * dh_by_dz;
 
             /* Note: infiltration can be negative in this case */
-            elem->wf.infil = (elem->wf.infil < applrate) ?
-                elem->wf.infil : applrate;
+            elem[i].wf.infil = (elem[i].wf.infil < applrate) ?
+                elem[i].wf.infil : applrate;
 
-            elem->wf.infil *= wetfrac;
+            elem[i].wf.infil *= wetfrac;
 
 #ifdef _NOAH_
-            elem->wf.infil *= elem->ps.fcr;
+            elem[i].wf.infil *= elem[i].ps.fcr;
 #endif
 
-            elem->wf.rechg = elem->wf.infil;
+            elem[i].wf.rechg = elem[i].wf.infil;
         }
         else
         {
-            deficit = elem->soil.depth - elem->ws.gw;
+            deficit = elem[i].soil.depth - elem[i].ws.gw;
 #ifdef _NOAH_
-            satn = (elem->ws.sh2o[0] - elem->soil.smcmin) /
-                (elem->soil.smcmax - elem->soil.smcmin);
+            satn = (elem[i].ws.sh2o[0] - elem[i].soil.smcmin) /
+                (elem[i].soil.smcmax - elem[i].soil.smcmin);
 #else
-            satn = elem->ws.unsat / deficit;
+            satn = elem[i].ws.unsat / deficit;
 #endif
             satn = (satn > 1.0) ? 1.0 : satn;
             satn = (satn < SATMIN) ? SATMIN : satn;
 
-            psi_u = Psi(satn, elem->soil.alpha, elem->soil.beta);
+            psi_u = Psi(satn, elem[i].soil.alpha, elem[i].soil.beta);
             /* Note: for psi calculation using van genuchten relation, cutting
              * the psi-sat tail at small saturation can be performed for
              * computational advantage. if you dont' want to perform this,
              * comment the statement that follows */
             psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
 
-            h_u = psi_u + elem->topo.zmax - 0.5 * elem->soil.dinf;
-            dh_by_dz = (0.5 * elem->ws.surfh + elem->topo.zmax - h_u) /
-                (0.5 * (elem->ws.surfh + elem->soil.dinf));
-            dh_by_dz = (elem->ws.surfh < 0.0 && dh_by_dz > 0.0) ?
+            h_u = psi_u + elem[i].topo.zmax - 0.5 * elem[i].soil.dinf;
+            dh_by_dz = (0.5 * elem[i].ws.surfh + elem[i].topo.zmax - h_u) /
+                (0.5 * (elem[i].ws.surfh + elem[i].soil.dinf));
+            dh_by_dz = (elem[i].ws.surfh < 0.0 && dh_by_dz > 0.0) ?
                 0.0 : dh_by_dz;
 
-            satkfunc = KrFunc(elem->soil.alpha, elem->soil.beta, satn);
+            satkfunc = KrFunc(elem[i].soil.alpha, elem[i].soil.beta, satn);
 
-            if (elem->soil.areafh == 0.0)
+            if (elem[i].soil.areafh == 0.0)
             {
-                elem->ps.macpore_status = MTX_CTRL;
+                elem[i].ps.macpore_status = MTX_CTRL;
             }
             else
             {
-                elem->ps.macpore_status = MacroporeStatus(dh_by_dz, satkfunc,
-                    applrate, elem->soil.kmacv, elem->soil.kinfv,
-                    elem->soil.areafh);
+                elem[i].ps.macpore_status = MacroporeStatus(dh_by_dz, satkfunc,
+                    applrate, elem[i].soil.kmacv, elem[i].soil.kinfv,
+                    elem[i].soil.areafh);
             }
 
-            kinf = EffKinf(satkfunc, satn, elem->ps.macpore_status,
-                elem->soil.kmacv, elem->soil.kinfv, elem->soil.areafh);
+            kinf = EffKinf(satkfunc, satn, elem[i].ps.macpore_status,
+                elem[i].soil.kmacv, elem[i].soil.kinfv, elem[i].soil.areafh);
 
-            elem->wf.infil = kinf * dh_by_dz;
+            elem[i].wf.infil = kinf * dh_by_dz;
 
-            elem->wf.infil = (elem->wf.infil < applrate) ?
-                elem->wf.infil : applrate;
-            elem->wf.infil = (elem->wf.infil > 0.0) ? elem->wf.infil : 0.0;
+            elem[i].wf.infil = (elem[i].wf.infil < applrate) ?
+                elem[i].wf.infil : applrate;
+            elem[i].wf.infil = (elem[i].wf.infil > 0.0) ?
+                elem[i].wf.infil : 0.0;
 
-            elem->wf.infil *= wetfrac;
+            elem[i].wf.infil *= wetfrac;
 
 #ifdef _NOAH_
-            elem->wf.infil *= elem->ps.fcr;
+            elem[i].wf.infil *= elem[i].ps.fcr;
 #endif
 
             /* Arithmetic mean formulation */
-            satn = elem->ws.unsat / deficit;
+            satn = elem[i].ws.unsat / deficit;
             satn = (satn > 1.0) ? 1.0 : satn;
             satn = (satn < SATMIN) ? SATMIN : satn;
 
-            satkfunc = KrFunc(elem->soil.alpha, elem->soil.beta, satn);
+            satkfunc = KrFunc(elem[i].soil.alpha, elem[i].soil.beta, satn);
 
-            psi_u = Psi(satn, elem->soil.alpha, elem->soil.beta);
+            psi_u = Psi(satn, elem[i].soil.alpha, elem[i].soil.beta);
 
             dh_by_dz =
-                (0.5 * deficit + psi_u) / (0.5 * (deficit + elem->ws.gw));
+                (0.5 * deficit + psi_u) / (0.5 * (deficit + elem[i].ws.gw));
 
-            kavg = AvgKV(elem->soil.dmac, deficit, elem->ws.gw,
-                elem->ps.macpore_status, satkfunc, elem->soil.kmacv,
-                elem->soil.ksatv, elem->soil.areafh);
+            kavg = AvgKV(elem[i].soil.dmac, deficit, elem[i].ws.gw,
+                elem[i].ps.macpore_status, satkfunc, elem[i].soil.kmacv,
+                elem[i].soil.ksatv, elem[i].soil.areafh);
 
-            elem->wf.rechg = (deficit <= 0.0) ? 0.0 : kavg * dh_by_dz;
+            elem[i].wf.rechg = (deficit <= 0.0) ? 0.0 : kavg * dh_by_dz;
 
-            elem->wf.rechg = (elem->wf.rechg > 0.0 && elem->ws.unsat <= 0.0) ?
-                0.0 : elem->wf.rechg;
-            elem->wf.rechg = (elem->wf.rechg < 0.0 && elem->ws.gw <= 0.0) ?
-                0.0 : elem->wf.rechg;
+            elem[i].wf.rechg =
+                (elem[i].wf.rechg > 0.0 && elem[i].ws.unsat <= 0.0) ?
+                0.0 : elem[i].wf.rechg;
+            elem[i].wf.rechg =
+                (elem[i].wf.rechg < 0.0 && elem[i].ws.gw <= 0.0) ?
+                0.0 : elem[i].wf.rechg;
         }
     }
 }

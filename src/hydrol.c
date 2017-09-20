@@ -79,7 +79,7 @@ void Hydrol(pihm_struct pihm)
     /*
      * Water flow
      */
-    VerticalFlow(pihm);
+    VerticalFlow(pihm->elem, (double)pihm->ctrl.stepsize);
 
     LateralFlow(pihm->elem, pihm->riv, pihm->ctrl.surf_mode);
 

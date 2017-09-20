@@ -198,7 +198,7 @@ void            Summary(pihm_struct, N_Vector, double);
 double          SurfH(double);
 void            UpdPrintVar(varctrl_struct *, int, int);
 void            UpdPrintVarT(varctrl_struct *, int);
-void            VerticalFlow(pihm_struct);
+void            VerticalFlow(elem_struct *, double);
 double          WiltingPoint(double, double, double, double);
 
 /*
