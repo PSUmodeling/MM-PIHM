@@ -4,14 +4,16 @@ void Summary(pihm_struct pihm, N_Vector CV_Y, double stepsize)
 {
     double         *y;
     int             i;
-    double          subrunoff;
 
     y = NV_DATA(CV_Y);
+
 #ifdef _OPENMP
-# pragma omp parallel for private(subrunoff)
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
+        double          subrunoff;
+
         pihm->elem[i].ws.surf = y[SURF(i)];
         pihm->elem[i].ws.unsat = y[UNSAT(i)];
         pihm->elem[i].ws.gw = y[GW(i)];
