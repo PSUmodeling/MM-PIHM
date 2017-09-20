@@ -273,14 +273,56 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
 void PrtInit(elem_struct *elem, river_struct *river, char *outputdir, int t,
     int starttime, int endtime, int intvl)
 {
-    if ((t - starttime) % intvl == 0 || t == endtime)
+    pihm_t_struct   pihm_time;
+    int             print = 0;
+
+    pihm_time = PIHMTime(t);
+
+    switch (intvl)
+    {
+        case YEARLY_OUTPUT:
+            if (pihm_time.month == 1 && pihm_time.day == 1 &&
+                    pihm_time.hour == 0 && pihm_time.minute == 0)
+            {
+                print = 1;
+            }
+            break;
+        case MONTHLY_OUTPUT:
+            if (pihm_time.day == 1 && pihm_time.hour == 0 &&
+                    pihm_time.minute == 0)
+            {
+                print = 1;
+            }
+            break;
+        case DAILY_OUTPUT:
+            if (pihm_time.hour == 0 && pihm_time.minute == 0)
+            {
+                print = 1;
+            }
+            break;
+        case HOURLY_OUTPUT:
+            if (pihm_time.minute == 0)
+            {
+                print = 1;
+            }
+            break;
+        default:
+            if ((t - starttime) % intvl == 0)
+            {
+                print = 1;
+            }
+    }
+
+    if (t == endtime)
+    {
+        print = 1;
+    }
+
+    if (print)
     {
         FILE           *init_file;
         char            fn[MAXSTRING];
         int             i;
-        pihm_t_struct   pihm_time;
-
-        pihm_time = PIHMTime(t);
 
         sprintf(fn, "%s/restart/%s.%s.ic", outputdir, project, pihm_time.str);
 
