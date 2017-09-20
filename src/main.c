@@ -29,12 +29,6 @@ int main(int argc, char *argv[])
     clock_t         start;
 #endif
     double          cputime, cputime_dt;    /* Time cpu duration */
-    long int        nst;
-    long int        nfe;
-    long int        nni;
-    long int        ncfn;
-    long int        netf;
-    int             flag;
 
 #ifdef _OPENMP
     /* Set the number of threads to use */
@@ -88,9 +82,9 @@ int main(int argc, char *argv[])
      * Run PIHM
      */
 #ifdef _OPENMP
-        start_omp = omp_get_wtime();
+    start_omp = omp_get_wtime();
 #else
-        start = clock();
+    start = clock();
 #endif
 
 #ifdef _BGC_
@@ -154,22 +148,7 @@ int main(int argc, char *argv[])
 
     if (debug_mode)
     {
-        /* Print some CVODE statistics */
-        flag = CVodeGetNumSteps(cvode_mem, &nst);
-        flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-        flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-        flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-        flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-
-        PIHMprintf(VL_NORMAL,
-            "number of steps = %-6ld "
-            "number of rhs evals = %-6ld\n",
-            nst, nfe);
-        PIHMprintf(VL_NORMAL,
-            "number of nonlin solv iters = %-6ld "
-            "number of nonlin solv conv fails = %-6ld "
-            "number of err test fails = %-6ld\n",
-            nni, ncfn, netf);
+        PrtCVodeFinalStats(cvode_mem);
     }
 
     /* Free memory */

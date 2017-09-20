@@ -615,3 +615,28 @@ void PrintWatBal(FILE *watbal_file, int t, int tstart, int dt,
         tot_et, tot_edir_surf, tot_edir_unsat, tot_edir_gw, tot_ett_unsat,
         tot_ett_gw);
 }
+
+void PrtCVodeFinalStats(void *cvode_mem)
+{
+    int             flag;
+    long int        nst;
+    long int        nfe;
+    long int        netf;
+    long int        nni;
+    long int        ncfn;
+
+    flag = CVodeGetNumSteps(cvode_mem, &nst);
+    flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+    flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+    flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+    flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+
+    PIHMprintf(VL_NORMAL, "\n");
+    PIHMprintf(VL_NORMAL,
+        "num of steps = %-6ld num of rhs evals = %-6ld\n", nst, nfe);
+    PIHMprintf(VL_NORMAL,
+        "num of nonlin solv iters = %-6ld "
+        "num of nonlin solv conv fails = %-6ld "
+        "num of err test fails = %-6ld\n",
+        nni, ncfn, netf);
+}
