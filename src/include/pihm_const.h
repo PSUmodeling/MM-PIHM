@@ -20,6 +20,8 @@
 #define TFREEZ      273.15      /* freezing point [K] */
 #define LSUBS       2.83e6      /* latent heat of sublimation [J kg-1] */
 
+#define F_OK            0
+
 /* Simulation mode */
 #define NORMAL_MODE     0
 #define SPINUP_MODE     1

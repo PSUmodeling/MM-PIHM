@@ -1,7 +1,4 @@
 #include "pihm.h"
-#if defined(_MSC_VER)
-# define strcasecmp _stricmp
-#endif
 
 int Readable(char *cmdstr)
 {

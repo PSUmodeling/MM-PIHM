@@ -363,6 +363,7 @@ void PrtInit(elem_struct *elem, river_struct *river, char *outputdir, int t,
             fwrite(&river[i].ws.gw, sizeof(double), 1, init_file);
         }
 
+        fflush(init_file);
         fclose(init_file);
     }
 }
