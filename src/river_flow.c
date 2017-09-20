@@ -1,10 +1,5 @@
 #include "pihm.h"
 
-#define DIRICHLET         -1
-#define NEUMANN           -2
-#define ZERO_DPTH_GRAD    -3
-#define CRIT_DPTH         -4
-
 void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
 {
     int             i;

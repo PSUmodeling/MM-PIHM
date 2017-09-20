@@ -144,6 +144,11 @@
 #define UP_AQUIF2AQUIF      10
 
 
+/* River boundary condition types */
+#define DIRICHLET         -1
+#define NEUMANN           -2
+#define ZERO_DPTH_GRAD    -3
+#define CRIT_DPTH         -4
 
 /* River segment interpolation order */
 #define RECTANGLE           1
