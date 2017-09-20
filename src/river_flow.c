@@ -1,11 +1,8 @@
 #include "pihm.h"
 
-void RiverFlow(pihm_struct pihm)
+void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
 {
     int             i;
-    double          dt;
-
-    dt = (double)pihm->ctrl.stepsize;
 
     /*
      * Lateral flux calculation between river-river and river-triangular
@@ -16,7 +13,6 @@ void RiverFlow(pihm_struct pihm)
 #endif
     for (i = 0; i < nriver; i++)
     {
-        river_struct   *riv;
         river_struct   *down;
         elem_struct    *left;
         elem_struct    *right;
@@ -43,56 +39,56 @@ void RiverFlow(pihm_struct pihm)
         double          dif_y_sub;
         double          avg_wid;
 
-        riv = &pihm->riv[i];
+        total_y = riv[i].ws.stage + riv[i].topo.zbed;
+        perim = RivPerim(riv[i].shp.intrpl_ord, riv[i].ws.stage,
+            riv[i].shp.coeff);
 
-        total_y = riv->ws.stage + riv->topo.zbed;
-        perim = RivPerim(riv->shp.intrpl_ord, riv->ws.stage, riv->shp.coeff);
-
-        if (riv->down > 0)
+        if (riv[i].down > 0)
         {
-            down = &pihm->riv[riv->down - 1];
+            down = &riv[riv[i].down - 1];
 
             /* Lateral flux calculation between river-river element */
             total_y_down = down->ws.stage + down->topo.zbed;
             perim_down =
                 RivPerim(down->shp.intrpl_ord, down->ws.stage, down->shp.coeff);
             avg_perim = (perim + perim_down) / 2.0;
-            avg_rough = (riv->matl.rough + down->matl.rough) / 2.0;
-            distance = 0.5 * (riv->shp.length + down->shp.length);
-            dif_y = (pihm->ctrl.riv_mode == 1) ?
-                (riv->topo.zbed - down->topo.zbed) : (total_y - total_y_down);
+            avg_rough = (riv[i].matl.rough + down->matl.rough) / 2.0;
+            distance = 0.5 * (riv[i].shp.length + down->shp.length);
+            dif_y = (riv_mode == 1) ?
+                (riv[i].topo.zbed - down->topo.zbed) : (total_y - total_y_down);
             grad_y = dif_y / distance;
             avg_sf = (grad_y > 0.0) ? grad_y : RIVGRADMIN;
             crossa =
-                RivArea(riv->shp.intrpl_ord, riv->ws.stage, riv->shp.coeff);
+                RivArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
+                riv[i].shp.coeff);
             crossa_down =
                 RivArea(down->shp.intrpl_ord, down->ws.stage, down->shp.coeff);
             avg_crossa = 0.5 * (crossa + crossa_down);
             avg_y = (avg_perim == 0.0) ? 0.0 : (avg_crossa / avg_perim);
-            riv->wf.rivflow[DOWN_CHANL2CHANL] =
+            riv[i].wf.rivflow[DOWN_CHANL2CHANL] =
                 OverlandFlow(avg_y, grad_y, avg_sf, crossa, avg_rough);
             /* Accumulate to get in-flow for down segments */
             down->wf.rivflow[UP_CHANL2CHANL] -=
-                riv->wf.rivflow[DOWN_CHANL2CHANL];
+                riv[i].wf.rivflow[DOWN_CHANL2CHANL];
 
             /* Lateral flux calculation between element beneath river (ebr)
              * and ebr */
-            total_y = riv->ws.gw + riv->topo.zmin;
+            total_y = riv[i].ws.gw + riv[i].topo.zmin;
             total_y_down = down->ws.gw + down->topo.zmin;
-            avg_wid = (riv->shp.width + down->shp.width) / 2.0;
+            avg_wid = (riv[i].shp.width + down->shp.width) / 2.0;
             dif_y_sub = total_y - total_y_down;
-            avg_y_sub = AvgY(dif_y_sub, riv->ws.gw, down->ws.gw);
+            avg_y_sub = AvgY(dif_y_sub, riv[i].ws.gw, down->ws.gw);
             grad_y_sub = dif_y_sub / distance;
-            aquifer_depth = riv->topo.zbed - riv->topo.zmin;
-            left = &pihm->elem[riv->leftele - 1];
-            right = &pihm->elem[riv->rightele - 1];
+            aquifer_depth = riv[i].topo.zbed - riv[i].topo.zmin;
+            left = &elem[riv[i].leftele - 1];
+            right = &elem[riv[i].rightele - 1];
             effk = 0.5 *
                 (EffKH(left->ws.gw, left->soil.depth, left->soil.dmac,
                 left->soil.kmach, left->soil.areafv, left->soil.ksath) +
                 EffKH(right->ws.gw, right->soil.depth, right->soil.dmac,
                 right->soil.kmach, left->soil.areafv, right->soil.ksath));
-            left = &pihm->elem[down->leftele - 1];
-            right = &pihm->elem[down->rightele - 1];
+            left = &elem[down->leftele - 1];
+            right = &elem[down->rightele - 1];
             effk_nabr = 0.5 *
                 (EffKH(left->ws.gw, left->soil.depth, left->soil.dmac,
                 left->soil.kmach, left->soil.areafv, left->soil.ksath) +
@@ -104,100 +100,100 @@ void RiverFlow(pihm_struct pihm)
             avg_ksat = 2.0 / (1.0 / effk + 1.0 / effk_nabr);
 #endif
             /* Groundwater flow modeled by Darcy's law */
-            riv->wf.rivflow[DOWN_AQUIF2AQUIF] =
+            riv[i].wf.rivflow[DOWN_AQUIF2AQUIF] =
                 avg_ksat * grad_y_sub * avg_y_sub * avg_wid;
             /* Accumulate to get in-flow for down segments */
             down->wf.rivflow[UP_AQUIF2AQUIF] -=
-                riv->wf.rivflow[DOWN_AQUIF2AQUIF];
+                riv[i].wf.rivflow[DOWN_AQUIF2AQUIF];
         }
         else
         {
-            switch (riv->down)
+            switch (riv[i].down)
             {
                 case -1:
                     /* Dirichlet boundary condition */
-                    total_y_down =
-                        riv->bc.head + (riv->topo.node_zmax - riv->shp.depth);
-                    distance = 0.5 * riv->shp.length;
+                    total_y_down = riv[i].bc.head +
+                        (riv[i].topo.node_zmax - riv[i].shp.depth);
+                    distance = 0.5 * riv[i].shp.length;
                     grad_y = (total_y - total_y_down) / distance;
                     avg_sf = grad_y;
-                    avg_rough = riv->matl.rough;
-                    avg_y = AvgY(grad_y, riv->ws.stage, riv->bc.head);
+                    avg_rough = riv[i].matl.rough;
+                    avg_y = AvgY(grad_y, riv[i].ws.stage, riv[i].bc.head);
                     avg_perim = perim;
-                    crossa = RivArea(riv->shp.intrpl_ord, riv->ws.stage,
-                        riv->shp.coeff);
+                    crossa = RivArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
+                        riv[i].shp.coeff);
                     avg_y = (avg_perim == 0.0) ? 0.0 : (crossa / avg_perim);
-                    riv->wf.rivflow[DOWN_CHANL2CHANL] =
+                    riv[i].wf.rivflow[DOWN_CHANL2CHANL] =
                         OverlandFlow(avg_y, grad_y, avg_sf, crossa, avg_rough);
                     break;
                 case -2:
                     /* Neumann boundary condition */
-                    riv->wf.rivflow[DOWN_CHANL2CHANL] = riv->bc.flux;
+                    riv[i].wf.rivflow[DOWN_CHANL2CHANL] = riv[i].bc.flux;
                     break;
                 case -3:
                     /* Zero-depth-gradient boundary conditions */
-                    distance = 0.5 * riv->shp.length;
-                    grad_y = (riv->topo.zbed -
-                        (riv->topo.node_zmax - riv->shp.depth)) / distance;
-                    avg_rough = riv->matl.rough;
-                    avg_y = riv->ws.stage;
+                    distance = 0.5 * riv[i].shp.length;
+                    grad_y = (riv[i].topo.zbed -
+                        (riv[i].topo.node_zmax - riv[i].shp.depth)) / distance;
+                    avg_rough = riv[i].matl.rough;
+                    avg_y = riv[i].ws.stage;
                     avg_perim = perim;
-                    crossa = RivArea(riv->shp.intrpl_ord, riv->ws.stage,
-                        riv->shp.coeff);
-                    riv->wf.rivflow[DOWN_CHANL2CHANL] =
+                    crossa = RivArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
+                        riv[i].shp.coeff);
+                    riv[i].wf.rivflow[DOWN_CHANL2CHANL] =
                         sqrt(grad_y) * crossa *
                         ((avg_perim > 0.0) ?
                         pow(crossa / avg_perim, 2.0 / 3.0) : 0.0) / avg_rough;
                     break;
                 case -4:
                     /* Critical depth boundary conditions */
-                    crossa = RivArea(riv->shp.intrpl_ord, riv->ws.stage,
-                        riv->shp.coeff);
-                    riv->wf.rivflow[DOWN_CHANL2CHANL] =
-                        crossa * sqrt(GRAV * riv->ws.stage);
+                    crossa = RivArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
+                        riv[i].shp.coeff);
+                    riv[i].wf.rivflow[DOWN_CHANL2CHANL] =
+                        crossa * sqrt(GRAV * riv[i].ws.stage);
                     break;
                 default:
                     PIHMprintf(VL_ERROR,
                         "Error: River routing boundary condition type (%d) "
-                        "is not recognized.\n", riv->down);
+                        "is not recognized.\n", riv[i].down);
                     PIHMexit(EXIT_FAILURE);
             }
             /* Note: boundary condition for subsurface element can be changed.
              * Assumption: no flow condition */
-            riv->wf.rivflow[DOWN_AQUIF2AQUIF] = 0.0;
+            riv[i].wf.rivflow[DOWN_AQUIF2AQUIF] = 0.0;
         }
 
-        left = &pihm->elem[riv->leftele - 1];
-        right = &pihm->elem[riv->rightele - 1];
+        left = &elem[riv[i].leftele - 1];
+        right = &elem[riv[i].rightele - 1];
 
-        if (riv->leftele > 0)
+        if (riv[i].leftele > 0)
         {
-            RiverToEle(riv, left, right, i + 1, riv->topo.dist_left,
-                &riv->wf.rivflow[LEFT_SURF2CHANL],
-                &riv->wf.rivflow[LEFT_AQUIF2CHANL],
-                &riv->wf.rivflow[LEFT_AQUIF2AQUIF]);
+            RiverToEle(&riv[i], left, right, i + 1, riv[i].topo.dist_left,
+                &riv[i].wf.rivflow[LEFT_SURF2CHANL],
+                &riv[i].wf.rivflow[LEFT_AQUIF2CHANL],
+                &riv[i].wf.rivflow[LEFT_AQUIF2AQUIF]);
         }
 
-        if (riv->rightele > 0)
+        if (riv[i].rightele > 0)
         {
-            RiverToEle(riv, right, left, i + 1, riv->topo.dist_right,
-                &riv->wf.rivflow[RIGHT_SURF2CHANL],
-                &riv->wf.rivflow[RIGHT_AQUIF2CHANL],
-                &riv->wf.rivflow[RIGHT_AQUIF2AQUIF]);
+            RiverToEle(&riv[i], right, left, i + 1, riv[i].topo.dist_right,
+                &riv[i].wf.rivflow[RIGHT_SURF2CHANL],
+                &riv[i].wf.rivflow[RIGHT_AQUIF2CHANL],
+                &riv[i].wf.rivflow[RIGHT_AQUIF2AQUIF]);
         }
 
-        if (riv->topo.zbed - (riv->ws.gw + riv->topo.zmin) > 0.0)
+        if (riv[i].topo.zbed - (riv[i].ws.gw + riv[i].topo.zmin) > 0.0)
         {
-            dif_y = riv->ws.stage;
+            dif_y = riv[i].ws.stage;
         }
         else
         {
-            dif_y = riv->ws.stage + riv->topo.zbed -
-                (riv->ws.gw + riv->topo.zmin);
+            dif_y = riv[i].ws.stage + riv[i].topo.zbed -
+                (riv[i].ws.gw + riv[i].topo.zmin);
         }
-        grad_y = dif_y / riv->matl.bedthick;
-        riv->wf.rivflow[CHANL_LKG] =
-            riv->matl.ksatv * riv->shp.width * riv->shp.length * grad_y;
+        grad_y = dif_y / riv[i].matl.bedthick;
+        riv[i].wf.rivflow[CHANL_LKG] =
+            riv[i].matl.ksatv * riv[i].shp.width * riv[i].shp.length * grad_y;
     }
 }
 

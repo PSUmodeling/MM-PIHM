@@ -83,7 +83,7 @@ void Hydrol(pihm_struct pihm)
 
     LateralFlow(pihm->elem, pihm->riv, pihm->ctrl.surf_mode);
 
-    RiverFlow(pihm);
+    RiverFlow(pihm->elem, pihm->riv, pihm->ctrl.riv_mode);
 }
 
 double SurfH(double surfeqv)

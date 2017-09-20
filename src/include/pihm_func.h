@@ -176,7 +176,7 @@ void            ReadSunpara(char *, ctrl_struct *);
 void            ReadTecplot(char *, ctrl_struct *);
 int             ReadTS(char *, int *, double *, int);
 int             Readable(char *);
-void            RiverFlow(pihm_struct);
+void            RiverFlow(elem_struct *, river_struct *, int);
 void            RiverToEle(river_struct *, elem_struct *, elem_struct *,
     int, double, double *, double *, double *);
 double          _RivWdthAreaPerim(int, int, double, double);
