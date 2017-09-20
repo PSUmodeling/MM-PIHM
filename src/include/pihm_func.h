@@ -4,9 +4,9 @@
 #define _ARITH_
 
 #ifdef _BGC_
-#define NSV             5 * nelem + 4 * nriver
+# define NSV            5 * nelem + 4 * nriver
 #else
-#define NSV             3 * nelem + 2 * nriver
+# define NSV            3 * nelem + 2 * nriver
 #endif
 
 #define SURF(i)         i
@@ -16,22 +16,23 @@
 #define RIVGW(i)        i + 3 * nelem + nriver
 
 #ifdef _BGC_
-#define SURFN(i)        i + 3 * nelem + 2 * nriver
-#define SMINN(i)        i + 4 * nelem + 2 * nriver
-#define STREAMN(i)      i + 5 * nelem + 2 * nriver
-#define RIVBEDN(i)      i + 5 * nelem + 3 * nriver
+# define SURFN(i)       i + 3 * nelem + 2 * nriver
+# define SMINN(i)       i + 4 * nelem + 2 * nriver
+# define STREAMN(i)     i + 5 * nelem + 2 * nriver
+# define RIVBEDN(i)     i + 5 * nelem + 3 * nriver
 #endif
 
 #if defined(_WIN32) || defined(_WIN64)
-#define pihm_mkdir(path) _mkdir((path))
-#define pihm_access(path, amode) _access((path), (amode))
+# define pihm_mkdir(path)            _mkdir((path))
+# define pihm_access(path, amode)    _access((path), (amode))
 #else
-#define pihm_mkdir(path) mkdir(path, 0755)
-#define pihm_access(path, amode) access((path), (amode))
+# define pihm_mkdir(path)            mkdir(path, 0755)
+# define pihm_access(path, amode)    access((path), (amode))
 #endif
 
 #if defined(_MSC_VER)
-# define strcasecmp _stricmp
+# define timegm                      _mkgmtime
+# define strcasecmp                  _stricmp
 #endif
 /*
  * Function Declarations

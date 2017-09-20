@@ -1,9 +1,5 @@
 #include "pihm.h"
 
-#if defined(_MSC_VER)
-#define timegm _mkgmtime
-#endif
-
 pihm_t_struct PIHMTime(int t)
 {
     pihm_t_struct   pihm_time;
@@ -42,19 +38,15 @@ int StrTime(const char *timestr)
             timestamp->tm_min = 0;
             timestamp->tm_sec = 0;
             timestamp->tm_isdst = 0;
-            //timestamp->tm_gmtoff = 0;
-            //timestamp->tm_zone = 0;
             break;
         case 16:
-            sscanf(timestr, "%d-%d-%d %d:%d", &timestamp->tm_year,
-                &timestamp->tm_mon, &timestamp->tm_mday, &timestamp->tm_hour,
-                &timestamp->tm_min);
+            sscanf(timestr, "%d-%d-%d %d:%d",
+                &timestamp->tm_year, &timestamp->tm_mon, &timestamp->tm_mday,
+                &timestamp->tm_hour, &timestamp->tm_min);
             timestamp->tm_year -= 1900;
             timestamp->tm_mon--;
             timestamp->tm_sec = 0;
             timestamp->tm_isdst = 0;
-            //timestamp->tm_gmtoff = 0;
-            //timestamp->tm_zone = 0;
             break;
         default:
             PIHMprintf(VL_ERROR,
