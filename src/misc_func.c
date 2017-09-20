@@ -1,12 +1,5 @@
 #include "pihm.h"
 #include "optparse.h"
-#if defined(_WIN32)
-
-/* Do windows stuff here */
-#include <direct.h>
-#endif
-
-extern char     project[MAXSTRING];
 
 void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
 {

@@ -8,14 +8,17 @@
 #include <time.h>
 #include <sys/stat.h>
 #include <ctype.h>
-#if !defined(_WIN32)
-#include <unistd.h>
+#if defined(_WIN32) || defined(_WIN64)
+# include <io.h>
 #else
-#include <io.h>
+# include <unistd.h>
 #endif
 #include <stdarg.h>
+#if defined(_WIN32) || defined(_WIN64)
+# include <direct.h>
+#endif
 #ifdef _OPENMP
-#include <omp.h>
+# include <omp.h>
 #endif
 
 #define VERSION     "0.5.0-alpha"
@@ -31,9 +34,9 @@
 
 /* Definition of type N_Vector */
 #ifdef _CVODE_OMP
-#include "nvector_openmp.h"
+# include "nvector_openmp.h"
 #else
-#include "nvector_serial.h"
+# include "nvector_serial.h"
 #endif
 
 /* UnitRoundoff, RSqrt, SQR functions */
@@ -43,7 +46,7 @@
 #include "cvode_dense.h"
 
 #ifdef _NOAH_
-#include "spa.h"
+# include "spa.h"
 #endif
 
 #include "pihm_const.h"
