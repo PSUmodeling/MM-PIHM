@@ -3,20 +3,18 @@
 void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     int next_t, double cputime)
 {
-    /*
-     * Apply boundary conditions
-     */
+    /* Apply boundary conditions */
     ApplyBC(&pihm->forc, pihm->elem, pihm->riv, t);
 
     /* Determine if land surface simulation is needed */
     if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
     {
         /* Apply forcing */
-        ApplyForcing(&pihm->forc, pihm->elem, t
 #ifdef _NOAH_
-            , &pihm->ctrl, &pihm->siteinfo
+        ApplyForcing(&pihm->forc, pihm->elem, t , &pihm->ctrl, &pihm->siteinfo);
+#else
+        ApplyForcing(&pihm->forc, pihm->elem, t);
 #endif
-            );
 
 #ifdef _NOAH_
         /* Calculate surface energy balance */
@@ -32,9 +30,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, LS_STEP);
     }
 
-    /*
-     * Solve PIHM hydrology ODE using CVODE
-     */
+    /* Solve PIHM hydrology ODE using CVode */
     SolveCVode(pihm->ctrl.starttime, &t, next_t, cputime, cvode_mem, CV_Y);
 
     /* Use mass balance to calculate model fluxes or variables */
@@ -48,9 +44,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     SoluteTransport(pihm->elem, pihm->riv, (double)pihm->ctrl.stepsize);
 #endif
 
-    /*
-     * Update print variables for hydrology step variables
-     */
+    /* Update print variables for hydrology step variables */
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, HYDROL_STEP);
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, HYDROL_STEP);
 
@@ -68,9 +62,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     }
 #endif
 
-    /*
-     * Daily timestep modules
-     */
+    /* Daily timestep modules */
 #ifdef _DAILY_
     DailyVar(t, pihm->ctrl.starttime, pihm);
 
@@ -91,11 +83,8 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
          */
         UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, CN_STEP);
         UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, CN_STEP);
-    }
 
-    /* Initialize daily structures */
-    if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
-    {
+        /* Initialize daily structures */
         InitDailyStruct(pihm);
     }
 #endif
