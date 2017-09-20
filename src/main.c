@@ -115,28 +115,22 @@ int main(int argc, char *argv[])
             /* Adjust CVODE max step to reduce oscillation */
             AdjCVodeMaxStep(cvode_mem, &pihm->ctrl);
 
+            /* Print CVODE performance and statistics */
             if (debug_mode)
             {
-                if (pihm->ctrl.tout[i] % 3600 == 0)
-                {
-                    fprintf(pihm->print.cvodeperf_file, "%d %f %f %f\n",
-                        pihm->ctrl.tout[i] - pihm->ctrl.starttime, cputime_dt,
-                        cputime, pihm->ctrl.maxstep);
-                    fflush(pihm->print.cvodeperf_file);
-                }
-                /* Print CVODE statistics */
+                PrintPerf(pihm->ctrl.tout[i + 1], pihm->ctrl.starttime,
+                    cputime_dt, cputime, pihm->ctrl.maxstep,
+                    pihm->print.cvodeperf_file);
+
                 PrintStats(cvode_mem, pihm->print.cvodeconv_file);
             }
 
-            /*
-             * Write init files
-             */
-            if (pihm->ctrl.write_ic &&
-                ((pihm->ctrl.tout[i] - pihm->ctrl.starttime) %
-                pihm->ctrl.prtvrbl[IC_CTRL] == 0 ||
-                i == pihm->ctrl.nstep - 1))
+            /* Write init files */
+            if (pihm->ctrl.write_ic)
             {
-                PrtInit(pihm->elem, pihm->riv, outputdir, pihm->ctrl.tout[i]);
+                PrtInit(pihm->elem, pihm->riv, outputdir,
+                    pihm->ctrl.tout[i + 1], pihm->ctrl.starttime,
+                    pihm->ctrl.endtime, pihm->ctrl.prtvrbl[IC_CTRL]);
             }
         }
 #ifdef _BGC_
@@ -185,6 +179,7 @@ int main(int argc, char *argv[])
     CVodeFree(&cvode_mem);
     FreeData(pihm);
     free(pihm);
+
     PIHMprintf(VL_NORMAL, "\nSimulation completed.\n");
 
     return EXIT_SUCCESS;

@@ -270,56 +270,59 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
     }
 }
 
-void PrtInit(elem_struct *elem, river_struct *river, char *outputdir, int t)
+void PrtInit(elem_struct *elem, river_struct *river, char *outputdir, int t,
+    int starttime, int endtime, int intvl)
 {
-    FILE           *init_file;
-    char            fn[MAXSTRING];
-    int             i;
-
-    pihm_t_struct   pihm_time;
-
-    pihm_time = PIHMTime(t);
-
-    sprintf(fn, "%s/restart/%s.%s.ic", outputdir, project, pihm_time.str);
-
-    init_file = fopen(fn, "wb");
-    CheckFile(init_file, fn);
-
-    for (i = 0; i < nelem; i++)
+    if ((t - starttime) % intvl == 0 || t == endtime)
     {
-        fwrite(&elem[i].ws.cmc, sizeof(double), 1, init_file);
-        fwrite(&elem[i].ws.sneqv, sizeof(double), 1, init_file);
-        fwrite(&elem[i].ws.surf, sizeof(double), 1, init_file);
-        fwrite(&elem[i].ws.unsat, sizeof(double), 1, init_file);
-        fwrite(&elem[i].ws.gw, sizeof(double), 1, init_file);
+        FILE           *init_file;
+        char            fn[MAXSTRING];
+        int             i;
+        pihm_t_struct   pihm_time;
+
+        pihm_time = PIHMTime(t);
+
+        sprintf(fn, "%s/restart/%s.%s.ic", outputdir, project, pihm_time.str);
+
+        init_file = fopen(fn, "wb");
+        CheckFile(init_file, fn);
+
+        for (i = 0; i < nelem; i++)
+        {
+            fwrite(&elem[i].ws.cmc, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.sneqv, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.surf, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.unsat, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.gw, sizeof(double), 1, init_file);
 #ifdef _NOAH_
-        fwrite(&elem[i].es.t1, sizeof(double), 1, init_file);
-        fwrite(&elem[i].ps.snowh, sizeof(double), 1, init_file);
+            fwrite(&elem[i].es.t1, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ps.snowh, sizeof(double), 1, init_file);
 
-        int             j;
+            int             j;
 
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fwrite(&elem[i].es.stc[j], sizeof(double), 1, init_file);
-        }
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fwrite(&elem[i].ws.smc[j], sizeof(double), 1, init_file);
-        }
-        for (j = 0; j < MAXLYR; j++)
-        {
-            fwrite(&elem[i].ws.sh2o[j], sizeof(double), 1, init_file);
-        }
+            for (j = 0; j < MAXLYR; j++)
+            {
+                fwrite(&elem[i].es.stc[j], sizeof(double), 1, init_file);
+            }
+            for (j = 0; j < MAXLYR; j++)
+            {
+                fwrite(&elem[i].ws.smc[j], sizeof(double), 1, init_file);
+            }
+            for (j = 0; j < MAXLYR; j++)
+            {
+                fwrite(&elem[i].ws.sh2o[j], sizeof(double), 1, init_file);
+            }
 #endif
-    }
+        }
 
-    for (i = 0; i < nriver; i++)
-    {
-        fwrite(&river[i].ws.stage, sizeof(double), 1, init_file);
-        fwrite(&river[i].ws.gw, sizeof(double), 1, init_file);
-    }
+        for (i = 0; i < nriver; i++)
+        {
+            fwrite(&river[i].ws.stage, sizeof(double), 1, init_file);
+            fwrite(&river[i].ws.gw, sizeof(double), 1, init_file);
+        }
 
-    fclose(init_file);
+        fclose(init_file);
+    }
 }
 
 void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
@@ -481,6 +484,22 @@ void PrintStats(void *cvode_mem, FILE *conv_file)
         nst, nni, nfe, netf, ncfn);
 }
 
+void PrintPerf(int t, int starttime, double cputime_dt, double cputime,
+    double maxstep, FILE *perf_file)
+{
+    static double   dt;
+
+    dt += cputime_dt;
+
+    if (t % 3600 == 0)
+    {
+        fprintf(perf_file, "%d %f %f %f\n",
+            t - starttime, dt, cputime, maxstep);
+        fflush(perf_file);
+
+        dt = 0.0;
+    }
+}
 
 void PrintWatBal(FILE *watbal_file, int t, int tstart, int dt,
     elem_struct *elem, river_struct *riv)
