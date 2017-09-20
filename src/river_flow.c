@@ -1,5 +1,10 @@
 #include "pihm.h"
 
+#define DIRICHLET         -1
+#define NEUMANN           -2
+#define ZERO_DPTH_GRAD    -3
+#define CRIT_DPTH         -4
+
 void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
 {
     int             i;
@@ -110,7 +115,7 @@ void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
         {
             switch (riv[i].down)
             {
-                case -1:
+                case DIRICHLET:
                     /* Dirichlet boundary condition */
                     total_y_down = riv[i].bc.head +
                         (riv[i].topo.node_zmax - riv[i].shp.depth);
@@ -126,11 +131,11 @@ void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
                     riv[i].wf.rivflow[DOWN_CHANL2CHANL] =
                         OverlandFlow(avg_y, grad_y, avg_sf, crossa, avg_rough);
                     break;
-                case -2:
+                case NEUMANN:
                     /* Neumann boundary condition */
                     riv[i].wf.rivflow[DOWN_CHANL2CHANL] = riv[i].bc.flux;
                     break;
-                case -3:
+                case ZERO_DPTH_GRAD:
                     /* Zero-depth-gradient boundary conditions */
                     distance = 0.5 * riv[i].shp.length;
                     grad_y = (riv[i].topo.zbed -
@@ -145,7 +150,7 @@ void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
                         ((avg_perim > 0.0) ?
                         pow(crossa / avg_perim, 2.0 / 3.0) : 0.0) / avg_rough;
                     break;
-                case -4:
+                case CRIT_DPTH:
                     /* Critical depth boundary conditions */
                     crossa = RivArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
                         riv[i].shp.coeff);
@@ -277,7 +282,7 @@ void RiverToEle(river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     *fluxsub = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
 
     /* Replace flux term */
-    for (j = 0; j < 3; j++)
+    for (j = 0; j < NUM_EDGE; j++)
     {
         if (elem->nabr[j] == -ind)
         {
