@@ -20,7 +20,7 @@ double FieldCapacity(double alpha, double beta, double kv, double smcmax,
     int             n;
     double          smcref;
     const double    KFC = 5.79E-9;
-    const double    ERROR = 1.0E-3;
+    const double    TOL = 1.0E-3;
 
     mx = 1.0 - 1.0 / beta;
 
@@ -28,7 +28,7 @@ double FieldCapacity(double alpha, double beta, double kv, double smcmax,
 
     satn = 0.75;
 
-    while (n < 10 && dsatn > ERROR)
+    while (n < 10 && dsatn > TOL)
     {
         n++;
 
@@ -49,7 +49,7 @@ double FieldCapacity(double alpha, double beta, double kv, double smcmax,
         satn = satnk;
     }
 
-    if (dsatn > ERROR)
+    if (dsatn > TOL)
     {
         satn = 0.75;
     }
