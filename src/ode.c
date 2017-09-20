@@ -212,17 +212,14 @@ void SolveCVode(int starttime, int *t, int nextptr, double cputime,
     void *cvode_mem, N_Vector CV_Y)
 {
     realtype        solvert;
-    realtype        cvode_val;
     realtype        tout = (realtype)(nextptr - starttime);
     pihm_t_struct   pihm_time;
     int             flag;
 
     solvert = (realtype)(*t);
 
-    flag = CVodeSetMaxNumSteps(cvode_mem, 0);
     flag = CVodeSetStopTime(cvode_mem, tout);
     flag = CVode(cvode_mem, (realtype)nextptr, CV_Y, &solvert, CV_NORMAL);
-    flag = CVodeGetCurrentTime(cvode_mem, &cvode_val);
 
     *t = (int)round(solvert + starttime);
 
