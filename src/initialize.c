@@ -47,19 +47,20 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     pihm->siteinfo.area = TotalArea(pihm->elem);
 #endif
 
-    InitSoil(pihm->elem, &pihm->soiltbl,
 #ifdef _NOAH_
-        &pihm->noahtbl,
+    InitSoil(pihm->elem, &pihm->soiltbl, &pihm->noahtbl, &pihm->cal);
+#else
+    InitSoil(pihm->elem, &pihm->soiltbl, &pihm->cal);
 #endif
-        &pihm->cal);
 
     InitLC(pihm->elem, &pihm->lctbl, &pihm->cal);
 
-    InitForcing(pihm->elem, &pihm->forc, &pihm->cal
 #ifdef _BGC_
-        , pihm->co2.varco2, pihm->ndepctrl.varndep
+    InitForcing(pihm->elem, &pihm->forc, &pihm->cal, pihm->co2.varco2,
+        pihm->ndepctrl.varndep);
+#else
+    InitForcing(pihm->elem, &pihm->forc, &pihm->cal);
 #endif
-        );
 
     InitRiver(pihm->riv, pihm->elem, &pihm->rivtbl, &pihm->shptbl,
         &pihm->matltbl, &pihm->meshtbl, &pihm->cal);
@@ -186,11 +187,13 @@ void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
 #endif
 }
 
-void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
 #ifdef _NOAH_
-    const noahtbl_struct *noahtbl,
-#endif
+void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
+    const noahtbl_struct *noahtbl, const calib_struct *cal)
+#else
+void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
     const calib_struct *cal)
+#endif
 {
     int             i;
     int             soil_ind;
@@ -388,11 +391,12 @@ void InitRiver(river_struct *riv, elem_struct *elem,
     }
 }
 
-void InitForcing(elem_struct *elem, forc_struct *forc, const calib_struct *cal
 #ifdef _BGC_
-    , int varco2, int varndep
+void InitForcing(elem_struct *elem, forc_struct *forc, const calib_struct *cal,
+    int varco2, int varndep)
+#else
+void InitForcing(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
 #endif
-    )
 {
     int             i, j;
 

@@ -9,14 +9,12 @@
 #include <sys/stat.h>
 #include <ctype.h>
 #if defined(_WIN32) || defined(_WIN64)
+# include <direct.h>
 # include <io.h>
 #else
 # include <unistd.h>
 #endif
 #include <stdarg.h>
-#if defined(_WIN32) || defined(_WIN64)
-# include <direct.h>
-#endif
 #ifdef _OPENMP
 # include <omp.h>
 #endif

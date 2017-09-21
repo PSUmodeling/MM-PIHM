@@ -88,7 +88,7 @@ void CreateOutputDir(char *outputdir)
     char            str[11];
     char            icdir[MAXSTRING];
 
-    if (0 == (pihm_mkdir(outputdir)))
+    if (0 == (PIHMmkdir(outputdir)))
     {
         PIHMprintf(VL_NORMAL, " Output directory was created.\n\n");
     }
@@ -101,10 +101,10 @@ void CreateOutputDir(char *outputdir)
         strftime(str, 11, "%y%m%d%H%M", timestamp);
         sprintf(outputdir, "output/%s.%s/", project, str);
     }
-    pihm_mkdir(outputdir);
+    PIHMmkdir(outputdir);
 
     sprintf(icdir, "%srestart/", outputdir);
-    pihm_mkdir(icdir);
+    PIHMmkdir(icdir);
 }
 
 void BKInput(char *outputdir)
@@ -128,21 +128,21 @@ void BKInput(char *outputdir)
 
     /* Save input files into output directory */
     sprintf(source_file, "input/%s/%s.para", project, project);
-    if (pihm_access(source_file, F_OK) != -1)
+    if (PIHMaccess(source_file, F_OK) != -1)
     {
         sprintf(system_cmd, "cp %s ./%s/%s.para.bak", source_file, outputdir,
             project);
         system(system_cmd);
     }
     sprintf(source_file, "input/%s/%s.calib", project, project);
-    if (pihm_access(source_file, F_OK) != -1)
+    if (PIHMaccess(source_file, F_OK) != -1)
     {
         sprintf(system_cmd, "cp %s ./%s/%s.calib.bak", source_file,
             outputdir, project);
         system(system_cmd);
     }
     sprintf(source_file, "input/%s/%s.init", project, project);
-    if (pihm_access(source_file, F_OK) != -1)
+    if (PIHMaccess(source_file, F_OK) != -1)
     {
 
         sprintf(system_cmd, "cp %s ./%s/%s.init.bak", source_file, outputdir,

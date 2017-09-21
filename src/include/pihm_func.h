@@ -3,60 +3,88 @@
 
 #define _ARITH_
 
+/* Number of state variables */
 #ifdef _BGC_
-# define NSV            5 * nelem + 4 * nriver
+# define NSV    5 * nelem + 4 * nriver
 #else
-# define NSV            3 * nelem + 2 * nriver
+# define NSV    3 * nelem + 2 * nriver
 #endif
 
-#define SURF(i)         i
-#define UNSAT(i)        i + nelem
-#define GW(i)           i + 2 * nelem
-#define RIVSTG(i)       i + 3 * nelem
-#define RIVGW(i)        i + 3 * nelem + nriver
-
+/* State variables */
+#define SURF(i)        i
+#define UNSAT(i)       i + nelem
+#define GW(i)          i + 2 * nelem
+#define RIVSTG(i)      i + 3 * nelem
+#define RIVGW(i)       i + 3 * nelem + nriver
 #ifdef _BGC_
-# define SURFN(i)       i + 3 * nelem + 2 * nriver
-# define SMINN(i)       i + 4 * nelem + 2 * nriver
-# define STREAMN(i)     i + 5 * nelem + 2 * nriver
-# define RIVBEDN(i)     i + 5 * nelem + 3 * nriver
+# define SURFN(i)      i + 3 * nelem + 2 * nriver
+# define SMINN(i)      i + 4 * nelem + 2 * nriver
+# define STREAMN(i)    i + 5 * nelem + 2 * nriver
+# define RIVBEDN(i)    i + 5 * nelem + 3 * nriver
 #endif
 
+#define RivArea(...)     _RivWdthAreaPerim(RIVER_AREA, __VA_ARGS__)
+#define RivEqWid(...)    _RivWdthAreaPerim(RIVER_WDTH, __VA_ARGS__)
+#define RivPerim(...)    _RivWdthAreaPerim(RIVER_PERIM, __VA_ARGS__)
+
+/* CVode functions */
+#ifdef _CVODE_OMP
+# define N_VNew(N)    N_VNew_OpenMP(N, nthreads)
+# define NV_DATA      NV_DATA_OMP
+# define NV_Ith       NV_Ith_OMP
+#else
+# define N_VNew(N)    N_VNew_Serial(N)
+# define NV_DATA      NV_DATA_S
+# define NV_Ith       NV_Ith_S
+#endif
+
+/* PIHM system function */
+#define PIHMexit(...)               _PIHMexit(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+#define PIHMprintf(...)             _PIHMprintf(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 #if defined(_WIN32) || defined(_WIN64)
-# define pihm_mkdir(path)            _mkdir((path))
-# define pihm_access(path, amode)    _access((path), (amode))
+# define PIHMmkdir(path)            _mkdir((path))
+# define PIHMaccess(path, amode)    _access((path), (amode))
 #else
-# define pihm_mkdir(path)            mkdir(path, 0755)
-# define pihm_access(path, amode)    access((path), (amode))
+# define PIHMmkdir(path)            mkdir(path, 0755)
+# define PIHMaccess(path, amode)    access((path), (amode))
+#endif
+#if defined(_MSC_VER)
+# define timegm                     _mkgmtime
+# define strcasecmp                 _stricmp
 #endif
 
-#if defined(_MSC_VER)
-# define timegm                      _mkgmtime
-# define strcasecmp                  _stricmp
-#endif
+#define Cycles_exit      PIHMexit
+#define Cycles_printf    PIHMprintf
+
 /*
  * Function Declarations
  */
+void            _PIHMexit(const char *, int, const char *, int);
+void            _PIHMprintf(const char *, int, const char *, int,
+    const char *, ...);
+double          _RivWdthAreaPerim(int, int, double, double);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
 void            ApplyBC(forc_struct *, elem_struct *, river_struct *, int);
 void            ApplyElemBC(forc_struct *, elem_struct *, int);
-void            ApplyForcing(forc_struct *, elem_struct *, int
 #ifdef _NOAH_
-    , ctrl_struct *, siteinfo_struct *
+void            ApplyForcing(forc_struct *, elem_struct *, int, ctrl_struct *,
+    siteinfo_struct *);
+#else
+void            ApplyForcing(forc_struct *, elem_struct *, int);
 #endif
-    );
 void            ApplyLAI(forc_struct *, elem_struct *, int);
-void            ApplyMeteoForc(forc_struct *, elem_struct *, int
 #ifdef _NOAH_
-    , int, siteinfo_struct *
+void            ApplyMeteoForc(forc_struct *, elem_struct *, int, int,
+    siteinfo_struct *);
+#else
+void            ApplyMeteoForc(forc_struct *, elem_struct *, int);
 #endif
-    );
 void            ApplyRiverBC(forc_struct *, river_struct *, int);
 void            AsciiArt();
 double          AvgKV(double, double, double, double, double, double, double,
     double);
-double          AvgYsfc(double, double, double);
 double          AvgY(double, double, double);
+double          AvgYsfc(double, double, double);
 void            BKInput(char *);
 void            CalcModelStep(ctrl_struct *);
 void            CheckFile(FILE *, char *);
@@ -74,36 +102,39 @@ void            FreeData(pihm_struct);
 void            FrictSlope(elem_struct *, river_struct *, int, double *,
     double *);
 void            Hydrol(pihm_struct);
-void            Initialize(pihm_struct, N_Vector, void **);
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
-void            InitForcing(elem_struct *, forc_struct *, const calib_struct *
 #ifdef _BGC_
-    , int, int
+void            InitForcing(elem_struct *, forc_struct *, const calib_struct *,
+    int, int);
+#else
+void            InitForcing(elem_struct *, forc_struct *, const calib_struct *);
 #endif
-    );
+void            Initialize(pihm_struct, N_Vector, void **);
 void            InitLC(elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMeshStruct(elem_struct *, const meshtbl_struct *);
 void            InitOutputFile(print_struct *, char *, int, int);
 void            InitPrtVarCtrl(char *, char *, int, int, int, varctrl_struct *);
-void            InitWBFile(char *, char *, FILE *);
 void            InitRiver(river_struct *, elem_struct *, const rivtbl_struct *,
     const shptbl_struct *, const matltbl_struct *, const meshtbl_struct *,
     const calib_struct *);
 void            InitRiverWFlux(river_wflux_struct *);
 void            InitRiverWState(river_wstate_struct *);
-void            InitSoil(elem_struct *, const soiltbl_struct *,
 #ifdef _NOAH_
-    const noahtbl_struct *,
-#endif
+void            InitSoil(elem_struct *, const soiltbl_struct *,
+    const noahtbl_struct *, const calib_struct *);
+#else
+void            InitSoil(elem_struct *, const soiltbl_struct *,
     const calib_struct *);
+#endif
 void            InitSurfL(elem_struct *, river_struct *,
     const meshtbl_struct *);
 void            InitTecPrtVarCtrl(char *, char *, int, int, int, int, int,
     varctrl_struct *);
 void            InitTopo(elem_struct *, const meshtbl_struct *);
 void            InitVar(elem_struct *, river_struct *, N_Vector);
+void            InitWBFile(char *, char *, FILE *);
 void            InitWFlux(wflux_struct *);
 void            InitWState(wstate_struct *);
 void            IntcpSnowET(int, double, elem_struct *, const calib_struct *);
@@ -117,39 +148,22 @@ void            MassBalance(wstate_struct *, wstate_struct *, wflux_struct *,
 double          MonthlyLAI(int, int);
 double          MonthlyMF(int);
 double          MonthlyRL(int, int);
-#ifdef _CVODE_OMP
-# define N_VNew(N)       N_VNew_OpenMP(N, nthreads)
-#else
-# define N_VNew(N)       N_VNew_Serial(N);
-#endif
 void            NextLine(FILE *, char *, int *);
-#ifdef _CVODE_OMP
-# define NV_DATA         NV_DATA_OMP
-# define NV_Ith          NV_Ith_OMP
-#else
-# define NV_DATA         NV_DATA_S
-# define NV_Ith          NV_Ith_S
-#endif
 int             ODE(realtype, N_Vector, N_Vector, void *);
 double          OverlandFlow(double, double, double, double, double);
 double          OLFEleToRiv(double, double, double, double, double, double);
 void            ParseCmdLineParam(int, char *[], char *);
-#define PIHMexit(...)  _PIHMexit(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-void            _PIHMexit(const char *, int, const char *, int);
-#define PIHMprintf(...)   _PIHMprintf(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-void            _PIHMprintf(const char *, int, const char *, int,
-    const char *, ...);
 void            PIHM(pihm_struct, void *, N_Vector, int, int, double);
 pihm_t_struct   PIHMTime(int);
 void            PrintData(varctrl_struct *, int, int, int, int);
 void            PrintDataTecplot(varctrl_struct *, int, int, int);
-void            PrtCVodeFinalStats(void *);
-void            PrtInit(elem_struct *, river_struct *, char *, int, int, int,
-    int);
 void            PrintPerf(int, int, double, double, double, FILE *);
 void            PrintStats(void *, FILE *);
 void            PrintWatBal(FILE *, int, int, int, elem_struct *,
     river_struct *);
+void            PrtCVodeFinalStats(void *);
+void            PrtInit(elem_struct *, river_struct *, char *, int, int, int,
+    int);
 double          Psi(double, double, double);
 double          PtfAlpha(double, double, double, double, int);
 double          PtfBeta(double, double, double, double, int);
@@ -157,6 +171,7 @@ double          PtfKV(double, double, double, double, int);
 double          PtfThetaR(double, double, double, double, int);
 double          PtfThetaS(double, double, double, double, int);
 double          Qtz(int);
+int             Readable(char *);
 void            ReadAlloc(pihm_struct);
 void            ReadAtt(char *, atttbl_struct *);
 void            ReadBC(char *, forc_struct *);
@@ -176,14 +191,9 @@ void            ReadSoil(char *, soiltbl_struct *);
 void            ReadSunpara(char *, ctrl_struct *);
 void            ReadTecplot(char *, ctrl_struct *);
 int             ReadTS(char *, int *, double *, int);
-int             Readable(char *);
 void            RiverFlow(elem_struct *, river_struct *, int);
-void            RiverToEle(river_struct *, elem_struct *, elem_struct *,
-    int, double, double *, double *, double *);
-double          _RivWdthAreaPerim(int, int, double, double);
-#define RivArea(...)    _RivWdthAreaPerim(RIVER_AREA, __VA_ARGS__)
-#define RivEqWid(...)   _RivWdthAreaPerim(RIVER_WDTH, __VA_ARGS__)
-#define RivPerim(...)   _RivWdthAreaPerim(RIVER_PERIM, __VA_ARGS__)
+void            RiverToEle(river_struct *, elem_struct *, elem_struct *, int,
+    double, double *, double *, double *);
 #ifdef _OPENMP
 void            RunTime(double, double *, double *);
 #else
@@ -207,22 +217,24 @@ double          WiltingPoint(double, double, double, double);
 #ifdef _NOAH_
 void            AlCalc(pstate_struct *, double, int);
 double          AvgElev(elem_struct *);
-double          CSnow(double);
-void            CalHum(pstate_struct *, estate_struct *);
 void            CalcLatFlx(const pstate_struct *, wflux_struct *, double);
 void            CalcSlopeAspect(elem_struct *, const meshtbl_struct *);
+void            CalHum(pstate_struct *, estate_struct *);
 void            CanRes(wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const soil_struct *, const epconst_struct *);
-void            DEvap(const wstate_struct *, wflux_struct *,
-    const pstate_struct *, const lc_struct *, const soil_struct *);
+double          CSnow(double);
 void            DefSldpth(double *, int *, double *, double, const double *,
     int);
-void            Evapo(wstate_struct *, wflux_struct *, pstate_struct *,
-    const lc_struct *, soil_struct *,
+void            DEvap(const wstate_struct *, wflux_struct *,
+    const pstate_struct *, const lc_struct *, const soil_struct *);
 # ifdef _CYCLES_
-    comm_struct *, residue_struct *, const estate_struct *,
+void            Evapo(wstate_struct *, wflux_struct *, pstate_struct *,
+    const lc_struct *, soil_struct *, comm_struct *, residue_struct *,
+    const estate_struct *, double);
+# else
+void            Evapo(wstate_struct *, wflux_struct *, pstate_struct *,
+    const lc_struct *, soil_struct *, double);
 # endif
-    double);
 int             FindLayer(const double *, int, double);
 int             FindWT(const double *, int, double, double *);
 double          FrozRain(double, double);
@@ -232,22 +244,25 @@ void            HRT(wstate_struct *, estate_struct *, eflux_struct *,
     double, double, double, double, double *, double *, double *);
 void            InitLsm(elem_struct *, const ctrl_struct *,
     const noahtbl_struct *, const calib_struct *);
-void            NoPac(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *,
-# ifdef _CYCLES_
-    comm_struct *, residue_struct *,
-# endif
-    double, double);
 void            Noah(pihm_struct);
 void            NoahHydrol(elem_struct *, double);
+# ifdef _CYCLES_
+void            NoPac(wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *, comm_struct *,
+    residue_struct *, double, double);
+#else
+void            NoPac(wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *, double,
+    double);
+# endif
 void            PcpDrp(wstate_struct *, wflux_struct *, const lc_struct *,
     double, double);
 void            Penman(wflux_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, double *, double, int, int);
 double          Pslhs(double);
 double          Pslhu(double);
-double          Pslmu(double);
 double          Pslms(double);
+double          Pslmu(double);
 double          Psphs(double);
 double          Psphu(double);
 double          Pspms(double);
@@ -260,40 +275,48 @@ void            Rosr12(double *, double *, double *, double *, double *,
     double *, int);
 void            SfcDifOff(pstate_struct *, const lc_struct *, double, double,
     int);
+# ifdef _CYCLES_
 void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
-    soil_struct *,
-# ifdef _CYCLES_
-    comm_struct *, residue_struct *,
+    soil_struct *, comm_struct *, residue_struct *, int);
+# else
+void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
+    soil_struct *, int);
 # endif
-    int);
-void            SRT(wstate_struct *, wflux_struct *, pstate_struct *,
-    const soil_struct *,
-# ifdef _CYCLES_
-    residue_struct *, double,
-# endif
-    double *, double *, double *, double *, double *);
 void            ShFlx(wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const lc_struct *, const soil_struct *, double, double,
     double, double);
-void            SmFlx(wstate_struct *, wflux_struct *, pstate_struct *,
-    const soil_struct *,
 # ifdef _CYCLES_
-    residue_struct *,
+void            SmFlx(wstate_struct *, wflux_struct *, pstate_struct *,
+    const soil_struct *, residue_struct *, double);
+# else
+void            SmFlx(wstate_struct *, wflux_struct *, pstate_struct *,
+    const soil_struct *, double);
 # endif
-    double);
 double          SnFrac(double, double, double, double);
 void            SnkSrc(double *, double, double, double *,
     const soil_struct *, const double *, double, int, double);
-void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *,
 # ifdef _CYCLES_
-    comm_struct *, residue_struct *,
+void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *, comm_struct *,
+    residue_struct *, int, double, double, double, double);
+# else
+void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *, int, double,
+    double, double, double);
 # endif
-    int, double, double, double, double);
 void            SnowNew(const estate_struct *, double, pstate_struct *);
 void            SnowPack(double, double, double *, double *, double, double);
 double          Snowz0(double, double, double);
+# ifdef _CYCLES_
+void            SRT(wstate_struct *, wflux_struct *, pstate_struct *,
+    const soil_struct *, residue_struct *, double, double *, double *, double *,
+    double *, double *);
+# else
+void            SRT(wstate_struct *, wflux_struct *, pstate_struct *,
+    const soil_struct *, double *, double *, double *, double *, double *);
+# endif
 void            SStep(wstate_struct *, wflux_struct *, pstate_struct *,
     const soil_struct *, double *, double *, double *, double *, double *,
     double);
@@ -316,8 +339,6 @@ void            InitDailyStruct(pihm_struct);
 #endif
 
 #ifdef _CYCLES_
-# define Cycles_printf   PIHMprintf
-# define Cycles_exit     PIHMexit
 void            DailyCycles(int, pihm_struct);
 void            FirstDOY(int *, int, int, soilc_struct *, residue_struct *,
     const soil_struct *);
@@ -488,9 +509,9 @@ void            Decomp(double, const epconst_struct *, epvar_struct *,
     ntemp_struct *);
 void            EvergreenPhenology(const epconst_struct *, epvar_struct *,
     cstate_struct *);
+void            FirstDay(elem_struct *, river_struct *, const cninit_struct *);
 void            FRootLitFall(const epconst_struct *, double, cflux_struct *,
     nflux_struct *);
-void            FirstDay(elem_struct *, river_struct *, const cninit_struct *);
 double          GetCO2(tsdata_struct, int);
 double          GetNdep(tsdata_struct, int);
 void            GrowthResp(epconst_struct *, cflux_struct *);
@@ -540,4 +561,5 @@ void            TotalPhotosynthesis(const epconst_struct *, epvar_struct *,
 void            WriteBgcIC(char *, elem_struct *, river_struct *);
 void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *);
 #endif
+
 #endif
