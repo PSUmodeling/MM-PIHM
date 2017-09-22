@@ -978,9 +978,6 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
         lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MAX_SOLVER_STEP", &ctrl->stmax, 'd', filename, lno);
-
-    NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "NUM_NONCOV_FAIL", &ctrl->nncfn, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);

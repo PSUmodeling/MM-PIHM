@@ -196,7 +196,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             flag;
 
-    pihm->ctrl.maxstep = pihm->ctrl.stmax;
+    pihm->ctrl.maxstep = pihm->ctrl.stepsize;
 
     flag = CVodeInit(cvode_mem, ODE, 0.0, CV_Y);
     flag = CVodeSStolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
@@ -264,7 +264,8 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
         ctrl->maxstep *= ctrl->incr;
     }
 
-    ctrl->maxstep = (ctrl->maxstep < ctrl->stmax) ? ctrl->maxstep : ctrl->stmax;
+    ctrl->maxstep = (ctrl->maxstep < ctrl->stepsize) ?
+        ctrl->maxstep : ctrl->stepsize;
     ctrl->maxstep = (ctrl->maxstep > ctrl->stmin) ? ctrl->maxstep : ctrl->stmin;
 
     flag = CVodeSetMaxStep(cvode_mem, (realtype)ctrl->maxstep);

@@ -153,8 +153,6 @@ typedef struct ctrl_struct
     double          reltol;                 /* relative solver tolerance (-) */
     double          initstep;               /* initial step size (s) */
     double          maxstep;                /* CVode maximum step size (s) */
-    double          stmax;                  /* maximum allowed CVode max step
-                                             * size (s) */
     double          stmin;                  /* minimum allowed CVode max step
                                              * size (s) */
     int             nncfn;                  /* number of non-convergence
