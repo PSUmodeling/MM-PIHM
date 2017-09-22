@@ -188,7 +188,6 @@ int             ReadPrtCtrl(char *, char *, char *, int);
 void            ReadRiv(char *, rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
 void            ReadSoil(char *, soiltbl_struct *);
-void            ReadSunpara(char *, ctrl_struct *);
 void            ReadTecplot(char *, ctrl_struct *);
 int             ReadTS(char *, int *, double *, int);
 void            RiverFlow(elem_struct *, river_struct *, int);

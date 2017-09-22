@@ -17,8 +17,6 @@ typedef struct filename_struct
     char            para[MAXSTRING];        /* control parameter file name */
     char            calib[MAXSTRING];       /* calibration file name */
     char            ic[MAXSTRING];          /* initial condition file name */
-    char            sunpara[MAXSTRING];     /* sudials cvode control parameter
-                                             * file name */
     char            tecplot[MAXSTRING];     /* tecplot control file name */
 #ifdef _NOAH_
     char            lsm[MAXSTRING];         /* land surface module control file

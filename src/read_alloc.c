@@ -17,7 +17,6 @@ void ReadAlloc(pihm_struct pihm)
     sprintf(pihm->filename.para, "input/%s/%s.para", project, project);
     sprintf(pihm->filename.calib, "input/%s/%s.calib", project, project);
     sprintf(pihm->filename.ic, "input/%s/%s.ic", project, project);
-    sprintf(pihm->filename.sunpara, "input/%s/%s.sunpara", project, project);
     sprintf(pihm->filename.tecplot, "input/%s/%s.tecplot", project, project);
 #ifdef _NOAH_
     sprintf(pihm->filename.lsm, "input/%s/%s.lsm", project, project);
@@ -72,9 +71,6 @@ void ReadAlloc(pihm_struct pihm)
 
     /* Read calibration input file */
     ReadCalib(pihm->filename.calib, &pihm->cal);
-
-    /* Read sundial model control file */
-    ReadSunpara(pihm->filename.sunpara, &pihm->ctrl);
 
     if (tecplot)
     {
@@ -945,7 +941,7 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
     ReadKeyword(cmdstr, "ASCII_OUTPUT", &ctrl->ascii, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "WATERB", &ctrl->waterB, 'i', filename, lno);
+    ReadKeyword(cmdstr, "WATBAL_OUTPUT", &ctrl->waterB, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "WRITE_IC", &ctrl->write_ic, 'i', filename, lno);
@@ -963,6 +959,18 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
     ReadKeyword(cmdstr, "SOLVER", &ctrl->solver, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "START", &ctrl->starttime, 't', filename, lno);
+
+    NextLine(para_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "END", &ctrl->endtime, 't', filename, lno);
+
+    NextLine(para_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MODEL_STEPSIZE", &ctrl->stepsize, 'i', filename, lno);
+
+    NextLine(para_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "LSM_STEP", &ctrl->etstep, 'i', filename, lno);
+
+    NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "ABSTOL", &ctrl->abstol, 'd', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
@@ -976,16 +984,22 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
     ReadKeyword(cmdstr, "MAX_SOLVER_STEP", &ctrl->stmax, 'd', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "LSM_STEP", &ctrl->etstep, 'i', filename, lno);
+    ReadKeyword(cmdstr, "NUM_NONCOV_FAIL", &ctrl->nncfn, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "START", &ctrl->starttime, 't', filename, lno);
+    ReadKeyword(cmdstr, "MAX_NONLIN_ITER", &ctrl->nnimax, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "END", &ctrl->endtime, 't', filename, lno);
+    ReadKeyword(cmdstr, "MIN_NONLIN_ITER", &ctrl->nnimin, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MODEL_STEPSIZE", &ctrl->stepsize, 'i', filename, lno);
+    ReadKeyword(cmdstr, "DECR_FACTOR", &ctrl->decr, 'd', filename, lno);
+
+    NextLine(para_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "INCR_FACTOR", &ctrl->incr, 'd', filename, lno);
+
+    NextLine(para_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MIN_MAXSTEP", &ctrl->stmin, 'd', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
     ctrl->prtvrbl[SURF_CTRL] = ReadPrtCtrl(cmdstr, "SURF", filename, lno);
@@ -1275,24 +1289,6 @@ void ReadSunpara(char *filename, ctrl_struct *ctrl)
 
     /* start reading para_file */
     /* Read through sundials parameter file to find parameters */
-    NextLine(sunpara_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "Nncfn", &ctrl->nncfn, 'i', filename, lno);
-
-    NextLine(sunpara_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "Nnnimax", &ctrl->nnimax, 'i', filename, lno);
-
-    NextLine(sunpara_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "Nnnimin", &ctrl->nnimin, 'i', filename, lno);
-
-    NextLine(sunpara_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DECR", &ctrl->decr, 'd', filename, lno);
-
-    NextLine(sunpara_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "INCR", &ctrl->incr, 'd', filename, lno);
-
-    NextLine(sunpara_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "StepMin", &ctrl->stmin, 'd', filename, lno);
-
     fclose(sunpara_file);
 }
 
@@ -1326,79 +1322,6 @@ void ReadTecplot(char *filename, ctrl_struct *ctrl)
 
     NextLine(tecplot_file, cmdstr, &lno);
     ctrl->tpprtvrbl[RIVGW_CTRL] = ReadPrtCtrl(cmdstr, "RIVGW", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[SNOW_CTRL] = ReadPrtCtrl(cmdstr, "SNOW", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[CMC_CTRL] = ReadPrtCtrl(cmdstr, "CMC", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[INFIL_CTRL] = ReadPrtCtrl(cmdstr, "INFIL", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[RECHARGE_CTRL] = ReadPrtCtrl(cmdstr, "RECHARGE", filename,
-        lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[EC_CTRL] = ReadPrtCtrl(cmdstr, "EC", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[ETT_CTRL] = ReadPrtCtrl(cmdstr, "ETT", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[EDIR_CTRL] = ReadPrtCtrl(cmdstr, "EDIR", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[RIVFLX0_CTRL] =
-        ReadPrtCtrl(cmdstr, "RIVFLX0", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[RIVFLX1_CTRL] =
-        ReadPrtCtrl(cmdstr, "RIVFLX1", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[RIVFLX2_CTRL] =
-        ReadPrtCtrl(cmdstr, "RIVFLX2", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[RIVFLX3_CTRL] =
-        ReadPrtCtrl(cmdstr, "RIVFLX3", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[RIVFLX4_CTRL] =
-        ReadPrtCtrl(cmdstr, "RIVFLX4", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[RIVFLX5_CTRL] =
-        ReadPrtCtrl(cmdstr, "RIVFLX5", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[RIVFLX6_CTRL] =
-        ReadPrtCtrl(cmdstr, "RIVFLX6", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[RIVFLX7_CTRL] =
-        ReadPrtCtrl(cmdstr, "RIVFLX7", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[RIVFLX8_CTRL] =
-        ReadPrtCtrl(cmdstr, "RIVFLX8", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[RIVFLX9_CTRL] =
-        ReadPrtCtrl(cmdstr, "RIVFLX9", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[RIVFLX10_CTRL] =
-        ReadPrtCtrl(cmdstr, "RIVFLX10", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[SUBFLX_CTRL] = ReadPrtCtrl(cmdstr, "SUBFLX", filename, lno);
-
-    NextLine(tecplot_file, cmdstr, &lno);
-    ctrl->tpprtvrbl[SURFFLX_CTRL] =
-        ReadPrtCtrl(cmdstr, "SURFFLX", filename, lno);
 
     fclose(tecplot_file);
 }
