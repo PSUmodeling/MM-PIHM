@@ -150,8 +150,8 @@ typedef struct ctrl_struct
     int             endtime;                /* end time of simulation (ctime) */
     int             stepsize;               /* model step size (s) */
     int            *tout;                   /* model output times (ctime) */
-    double          abstol;                 /* absolute tolerance (m) */
-    double          reltol;                 /* relative tolerance (-) */
+    double          abstol;                 /* absolute solver tolerance (m) */
+    double          reltol;                 /* relative solver tolerance (-) */
     double          initstep;               /* initial step size (s) */
     double          maxstep;                /* CVode maximum step size (s) */
     double          stmax;                  /* maximum allowed CVode max step

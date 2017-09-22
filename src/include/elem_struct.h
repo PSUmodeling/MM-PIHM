@@ -149,7 +149,7 @@ typedef struct lc_struct
                                    * vegetation type (m2 m-2) */
     double          snup;         /* threshold snow depth (in water equivalent)
                                    * that implies 100% snow cover (m) */
-    double          cfactr;       /* parameter used in the canopy inteception
+    double          cfactr;       /* parameter used in the canopy interception
                                    * calculation (-) */
     double          emissmax;     /* minimum emissivity (-) */
     double          emissmin;     /* maximum emissivity (-) */
@@ -301,7 +301,7 @@ typedef struct pstate_struct
     double          frzk;                   /* frozen ground parameter (-) */
     double          frzx;                   /* adjusted frozen ground parameter
                                              * (-) */
-    double          czil;                   /* zilitinkevich constant (-) */
+    double          czil;                   /* Zilitinkevich constant (-) */
     double          emissi;                 /* surface emissivity (between 0 and
                                              * 1) (-) */
     double          ch;                     /* surface exchange coefficient for

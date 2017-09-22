@@ -12,7 +12,7 @@ CO2_CONTROL     (keyword - do not remove)
 input/co2.txt   (file)    annual variable CO2 filename
 
 NDEP_CONTROL    (keyword - do not remove)
-0               (flag) 0=constant, 1=vary with file
+0               (flag)    0=constant, 1=vary with file
 0.0001          (kgN/m2/yr) wet+dry atmospheric deposition of N
 0.0008          (kgN/m2/yr) symbiotic+asymbiotic fixation of N
 input/ndep.txt  (file)    annual variable N filename

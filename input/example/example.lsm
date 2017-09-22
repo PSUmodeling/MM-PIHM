@@ -1,32 +1,32 @@
 LATITUDE        40.6646917
 LONGITUDE       -77.904627
-NSOIL   	10
+NSOIL   	    10
 SLDPTH_DATA     0.107	0.123	0.142	0.165	0.192	0.223	0.260	0.301	0.350	0.377
 RAD_MODE_DATA	1
-SBETA_DATA	-2.0
-FXEXP_DATA	2.0
-CSOIL_DATA	2E6
+SBETA_DATA	    -2.0
+FXEXP_DATA	    2.0
+CSOIL_DATA	    2E6
 SALP_DATA       2.6
-FRZK_DATA	0.15
-ZBOT_DATA	-8.0
+FRZK_DATA	    0.15
+ZBOT_DATA	    -8.0
 TBOT_DATA       282.15
 CZIL_DATA       0.1
-LVCOEF_DATA	0.5
+LVCOEF_DATA	    0.5
 ######################
 # Print Control      #
 ######################
-T1              3600
-STC             3600
-SMC             3600
-SH2O            3600
-SNOWH           3600
-ALBEDO          3600
-LE              3600
-SH              3600
-G               3600
-ETP             3600
-ESNOW           3600
-ROOTW           3600
-SOILM           3600
-SOLAR           3600
-CH              3600
+T1              HOURLY
+STC             HOURLY
+SMC             HOURLY
+SH2O            HOURLY
+SNOWH           HOURLY
+ALBEDO          HOURLY
+LE              HOURLY
+SH              HOURLY
+G               HOURLY
+ETP             HOURLY
+ESNOW           HOURLY
+ROOTW           HOURLY
+SOILM           HOURLY
+SOLAR           HOURLY
+CH              HOURLY
