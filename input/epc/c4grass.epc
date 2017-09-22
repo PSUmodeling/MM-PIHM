@@ -15,8 +15,8 @@ ECOPHYS       C4 grass
 0.5           (prop.)   (ALLOCATION) current growth proportion 
 24.0          (kgC/kgN) C:N of leaves
 49.0          (kgC/kgN) C:N of leaf litter, after retranslocation
-42.0          (kgC/kgN) C:N of fine roots 
-0.0          *(kgC/kgN) C:N of live wood 
+42.0          (kgC/kgN) C:N of fine roots
+0.0          *(kgC/kgN) C:N of live wood
 0.0          *(kgC/kgN) C:N of dead wood
 0.39          (DIM)     leaf litter labile proportion
 0.44          (DIM)     leaf litter cellulose proportion

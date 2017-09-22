@@ -1,21 +1,21 @@
-INIT_MODE	        0                   # initialization type: 0 = relaxation, 1 = use .ic file
+INIT_MODE           0                   # initialization type: 0 = relaxation, 1 = use .ic file
 ASCII_OUTPUT        1                   # write ASCII output? 0 = no, 1 = yes
-WATBAL_OUTPUT	    1                   # write water balance? 0 = no, 1 = yes
-WRITE_IC	        1                   # write initial condition? 0 = no, 1 = outputs will be written to restart directory
-UNSAT_MODE	        2                   # unsaturation formulation: 1 = kinematic, 2 = diffusion
-SURF_MODE	        2                   # surface overland flow formulation: 1 = kinematic, 2 = diffusion
-RIV_MODE	        2                   # river routing formulation: 1 = kinematic, 2 = diffusion
-START		        2009-01-01 00:00    # simulation start time
-END		            2009-01-07 00:00    # simulation end time
-MODEL_STEPSIZE	    60                  # model step size (s)
-LSM_STEP	        900	                # land surface (ET) step size (s)
+WATBAL_OUTPUT       1                   # write water balance? 0 = no, 1 = yes
+WRITE_IC            1                   # write initial condition? 0 = no, 1 = outputs will be written to restart directory
+UNSAT_MODE          2                   # unsaturation formulation: 1 = kinematic, 2 = diffusion
+SURF_MODE           2                   # surface overland flow formulation: 1 = kinematic, 2 = diffusion
+RIV_MODE            2                   # river routing formulation: 1 = kinematic, 2 = diffusion
+START               2009-01-01 00:00    # simulation start time
+END                 2009-01-07 00:00    # simulation end time
+MODEL_STEPSIZE      60                  # model step size (s)
+LSM_STEP            900                 # land surface (ET) step size (s)
 ################################################################################
 # CVode parameters                                                             #
 ################################################################################
-ABSTOL		        1E-4                # absolute solver tolerance (m)
-RELTOL	            1E-3                # relative solver tolerance (-)
+ABSTOL              1E-4                # absolute solver tolerance (m)
+RELTOL              1E-3                # relative solver tolerance (-)
 INIT_SOLVER_STEP    0.5                 # initial solver step size (s)
-MAX_SOLVER_STEP	    60                  # maximum solver step (s)
+MAX_SOLVER_STEP     60                  # maximum solver step (s)
 NUM_NONCOV_FAIL     0                   # Number of non-convergence failures
 MAX_NONLIN_ITER     10                  # Maximum number of non-linear iterations
 MIN_NONLIN_ITER     3                   # Minimum number of non-linear iterations
@@ -28,29 +28,29 @@ MIN_MAXSTEP         1.0                 # Minimum CVode max step
 # positive integer to indicate intervals in seconds. Setting interval to 0     #
 # will turn off the output for the corresponding variable.                     #
 ################################################################################
-SURF		        DAILY
-UNSAT		        DAILY
-GW		            DAILY
-RIVSTG		        DAILY
+SURF                DAILY
+UNSAT               DAILY
+GW                  DAILY
+RIVSTG              DAILY
 RIVGW               DAILY
-SNOW		        DAILY
-CMC		            DAILY
+SNOW                DAILY
+CMC                 DAILY
 INFIL               DAILY
-RECHARGE	        DAILY
+RECHARGE            DAILY
 EC                  DAILY
 ETT                 DAILY
-EDIR		        DAILY
+EDIR                DAILY
 RIVFLX0             DAILY
-RIVFLX1	            DAILY
+RIVFLX1             DAILY
 RIVFLX2             DAILY
-RIVFLX3	            DAILY
-RIVFLX4    	        DAILY
-RIVFLX5    	        DAILY
-RIVFLX6    	        DAILY
-RIVFLX7    	        DAILY
+RIVFLX3             DAILY
+RIVFLX4             DAILY
+RIVFLX5             DAILY
+RIVFLX6             DAILY
+RIVFLX7             DAILY
 RIVFLX8             DAILY
-RIVFLX9    	        DAILY
+RIVFLX9             DAILY
 RIVFLX10            DAILY
 SUBFLX              DAILY
 SURFFLX             DAILY
-IC		            MONTHLY
+IC                  MONTHLY

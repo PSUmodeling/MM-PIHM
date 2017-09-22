@@ -3055,7 +3055,7 @@ Begin surface complexation
 '>SO-'     2  -1.0 'H+'   1.0 '>SOH'   500  10.3  500  500  500 500 500 500
 '>SOH2-CrO4-'    3   1.0  'H+'   1.0 'CrO4--'     1.0  '>SOH'    500  -10.1  500  500  500 500 500 500
 '>SOH2-HCrO4'    3   2.0  'H+'   1.0 'CrO4--'     1.0  '>SOH'    500  -19.3  500  500  500 500 500 500
-'>SOMg+'         3   -1.0 'H+'   1.0 'Mg++'       1.0  '>SOH'    500  3.5   500  500  500 500 500 500     
+'>SOMg+'         3   -1.0 'H+'   1.0 'Mg++'       1.0  '>SOH'    500  3.5   500  500  500 500 500 500
 '>SOCa+'         3   -1.0 'H+'   1.0 'Ca++'       1.0  '>SOH'    500  2.5  500  500  500 500 500 500
 End of surface complexation
 Begin aqueous kinetics
@@ -3286,35 +3286,35 @@ Katoite
   type = tst
   rate(25C) = -9
   activation = 0.0 (kcal/mole)
-  dependence :    
+  dependence :
 +---------------------------------------------------
 CSH(1.8)
   label = default
   type = tst
   rate(25C) = -9
   activation = 0.0 (kcal/mole)
-  dependence :    
+  dependence :
 +---------------------------------------------------
 Portlandite
   label = default
   type = tst
   rate(25C) = -9
   activation = 0.0 (kcal/mole)
-  dependence :    
+  dependence :
 +---------------------------------------------------
 Ca-Oxalate
   label = default
   type = tst
   rate(25C) = -9
   activation = 0.0 (kcal/mole)
-  dependence :    
+  dependence :
 +---------------------------------------------------
 Ca-Oxalate-3Waters
   label = default
   type = tst
   rate(25C) = -9
   activation = 0.0 (kcal/mole)
-  dependence :    
+  dependence :
 +---------------------------------------------------
 Aragonite
   label = default
@@ -3541,14 +3541,14 @@ PlagOelkers
   type = tst
   rate(25C) = -10.5
   activation = 0.0  (kcal/mole)
-  dependence :  
+  dependence :
 +---------------------------------------------------
 PlagHekpoort
   label = default
   type = tst
   rate(25C) = -10.5
   activation = 0.0  (kcal/mole)
-  dependence :  
+  dependence :
 +---------------------------------------------------
 PlagHekpoort
   label = pH
@@ -3583,7 +3583,7 @@ Magnetite
   type  = tst
   rate(25C) = -12.00
   activation = 0.0  (kcal/mole)
-  dependence :  
+  dependence :
 +---------------------------------------------------
 Ilmenite
   label = default
@@ -3618,7 +3618,7 @@ Smectite-low-Fe-Mg
   type  = tst
   rate(25C) = -12.5
   activation = 0.0  (kcal/mole)
-  dependence :  
+  dependence :
 +---------------------------------------------------
 Gibbsite
   label = default
@@ -3779,14 +3779,14 @@ Begin exchange
 'NaXhan_zach2' 2  1.0 'Na+' 1.0 'Xhan_zach2-'             2.20  0.000
 'CsXhan_zach1' 2  1.0 'Cs+' 1.0 'Xhan_zach1-'             0.00  0.000
 'CsXhan_zach2' 2  1.0 'Cs+' 1.0 'Xhan_zach2-'             0.00  0.000
-'NaXhan1' 2  1.0 'Na+' 1.0 'Xhan_col1-'                   6.99  0.000  
+'NaXhan1' 2  1.0 'Na+' 1.0 'Xhan_col1-'                   6.99  0.000
 'NaXhan2' 2  1.0 'Na+' 1.0 'Xhan_col2-'                   2.52  0.000
 'CsXhan1' 2  1.0 'Cs+' 1.0 'Xhan_col1-'                   0.00  0.000
 'CsXhan2' 2  1.0 'Cs+' 1.0 'Xhan_col2-'                   0.00  0.000
-'NaXhan1' 2  1.0 'Na+' 1.0 'Xhan1-'             7.388  0.000  
+'NaXhan1' 2  1.0 'Na+' 1.0 'Xhan1-'             7.388  0.000
 'NaXhan2' 2  1.0 'Na+' 1.0 'Xhan2-'             4.301  0.000
-'NaXhan3' 2  1.0 'Na+' 1.0 'Xhan3-'             1.906  0.000    
-'KXhan1' 2  1.0 'K+' 1.0 'Xhan1-'               5.034  0.000 
+'NaXhan3' 2  1.0 'Na+' 1.0 'Xhan3-'             1.906  0.000
+'KXhan1' 2  1.0 'K+' 1.0 'Xhan1-'               5.034  0.000
 'KXhan2' 2  1.0 'K+' 1.0 'Xhan2-'               2.287  0.000
 'KXhan3' 2  1.0 'K+' 1.0 'Xhan3-'               1.050  0.000
 'Ca0.5Xhan1' 2  0.5 'Ca++' 1.0 'Xhan1-'         7.906  0.000
@@ -3795,8 +3795,8 @@ Begin exchange
 'CsXhan1' 2  1.0 'Cs+' 1.0 'Xhan1-'             0.00  0.000
 'CsXhan2' 2  1.0 'Cs+' 1.0 'Xhan2-'             0.00  0.000
 'CsXhan3' 2  1.0 'Cs+' 1.0 'Xhan3-'             0.00  0.000
-'NaXhan1' 2  1.0 'Na+' 1.0 'Xhan1a-'             6.99  0.000  
-'NaXhan2' 2  1.0 'Na+' 1.0 'Xhan2a-'             2.34  0.000    
+'NaXhan1' 2  1.0 'Na+' 1.0 'Xhan1a-'             6.99  0.000
+'NaXhan2' 2  1.0 'Na+' 1.0 'Xhan2a-'             2.34  0.000
 'CsXhan1' 2  1.0 'Cs+' 1.0 'Xhan1a-'             0.00  0.000
 'CsXhan2' 2  1.0 'Cs+' 1.0 'Xhan2a-'             0.00  0.000
 'Ca-XB8814-1' 2  1.0 'Ca++' 2.0 'XB8814-1'       4.00  0.000
