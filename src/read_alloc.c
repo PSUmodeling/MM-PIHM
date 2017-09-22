@@ -956,9 +956,6 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
     ReadKeyword(cmdstr, "RIV_MODE", &ctrl->riv_mode, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "SOLVER", &ctrl->solver, 'i', filename, lno);
-
-    NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "START", &ctrl->starttime, 't', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);

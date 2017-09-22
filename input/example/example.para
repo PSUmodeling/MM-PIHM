@@ -5,7 +5,6 @@ WRITE_IC	        1                   # write initial condition? 0 = no, 1 = outp
 UNSAT_MODE	        2                   # unsaturation formulation: 1 = kinematic, 2 = diffusion
 SURF_MODE	        2                   # surface overland flow formulation: 1 = kinematic, 2 = diffusion
 RIV_MODE	        2                   # river routing formulation: 1 = kinematic, 2 = diffusion
-SOLVER		        2                   # solver type
 START		        2009-01-01 00:00    # simulation start time
 END		            2009-01-07 00:00    # simulation end time
 MODEL_STEPSIZE	    60                  # model step size (s)

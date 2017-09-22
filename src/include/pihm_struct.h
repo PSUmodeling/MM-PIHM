@@ -124,7 +124,6 @@ typedef struct ctrl_struct
                                              * diagnostic output */
     int             write_ic;               /* flag to write model output as
                                              * initial conditions */
-    int             solver;                 /* solver type */
     int             nstep;                  /* number of external time steps
                                              * (when results can be printed) for
                                              * the whole simulation */
