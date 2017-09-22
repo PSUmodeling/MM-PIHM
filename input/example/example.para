@@ -14,7 +14,7 @@ LSM_STEP	        900	                # land surface (ET) step size (s)
 ################################################################################
 ABSTOL		        1E-4                # absolute solver tolerance (m)
 RELTOL	            1E-3                # relative solver tolerance (-)
-INIT_SOLVER_STEP    5E-5                # initial solver step size (s)
+INIT_SOLVER_STEP    0.5                 # initial solver step size (s)
 MAX_SOLVER_STEP	    60                  # maximum solver step (s)
 NUM_NONCOV_FAIL     0                   # Number of non-convergence failures
 MAX_NONLIN_ITER     10                  # Maximum number of non-linear iterations
@@ -28,29 +28,29 @@ MIN_MAXSTEP         1.0                 # Minimum CVode max step
 # positive integer to indicate intervals in seconds. Setting interval to 0     #
 # will turn off the output for the corresponding variable.                     #
 ################################################################################
-SURF		        HOURLY
-UNSAT		        HOURLY
-GW		            HOURLY
-RIVSTG		        HOURLY
-RIVGW               HOURLY
-SNOW		        HOURLY
-CMC		            HOURLY
-INFIL               HOURLY
-RECHARGE	        HOURLY
-EC                  HOURLY
-ETT                 HOURLY
-EDIR		        HOURLY
-RIVFLX0             HOURLY
-RIVFLX1	            HOURLY
-RIVFLX2             HOURLY
-RIVFLX3	            HOURLY
-RIVFLX4    	        HOURLY
-RIVFLX5    	        HOURLY
-RIVFLX6    	        HOURLY
-RIVFLX7    	        HOURLY
-RIVFLX8             HOURLY
-RIVFLX9    	        HOURLY
-RIVFLX10            HOURLY
-SUBFLX              HOURLY
-SURFFLX             HOURLY
+SURF		        DAILY
+UNSAT		        DAILY
+GW		            DAILY
+RIVSTG		        DAILY
+RIVGW               DAILY
+SNOW		        DAILY
+CMC		            DAILY
+INFIL               DAILY
+RECHARGE	        DAILY
+EC                  DAILY
+ETT                 DAILY
+EDIR		        DAILY
+RIVFLX0             DAILY
+RIVFLX1	            DAILY
+RIVFLX2             DAILY
+RIVFLX3	            DAILY
+RIVFLX4    	        DAILY
+RIVFLX5    	        DAILY
+RIVFLX6    	        DAILY
+RIVFLX7    	        DAILY
+RIVFLX8             DAILY
+RIVFLX9    	        DAILY
+RIVFLX10            DAILY
+SUBFLX              DAILY
+SURFFLX             DAILY
 IC		            MONTHLY
