@@ -236,7 +236,7 @@ all:	cvode pihm
 cmake:
 ifneq ($(CMAKE_EXIST),1)
 	@echo "Download CMake from cmake.org"
-	@wget https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz &> /dev/null
+	@curl https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake-3.7.3-Linux-x86_64.tar.gz &> /dev/null
 	@echo
 	@echo "Extract $(CMAKE_VERS).tar.gz"
 	@tar xzf $(CMAKE_VERS).tar.gz
