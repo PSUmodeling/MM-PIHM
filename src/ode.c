@@ -63,7 +63,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * PIHM Hydrology
      */
-    Hydrol(pihm);
+    Hydrol(pihm->elem, pihm->riv, &pihm->ctrl);
 
 #ifdef _BGC_
     NTransport(pihm);

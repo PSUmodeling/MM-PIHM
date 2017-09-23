@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Hydrol(pihm_struct pihm)
+void Hydrol(elem_struct *elem, river_struct *riv, ctrl_struct *ctrl)
 {
     int             i;
 
@@ -9,81 +9,84 @@ void Hydrol(pihm_struct pihm)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        elem_struct    *elem;
+        /* Calculate actual surface water depth */
+        elem[i].ws.surfh = SurfH(elem[i].ws.surf);
+    }
 
-        elem = &pihm->elem[i];
+    /* Determine which layers does ET extract water from */
+    ETExtract(elem);
 
-        /*
-         * Calculate actual surface water depth
-         */
-        elem->ws.surfh = SurfH(elem->ws.surf);
+    /* Water flow */
+    VerticalFlow(elem, (double)ctrl->stepsize);
 
-        /*
-         * Determine source of ET
-         */
+    LateralFlow(elem, riv, ctrl->surf_mode);
+
+    RiverFlow(elem, riv, ctrl->riv_mode);
+}
+
+void ETExtract(elem_struct *elem)
+{
+    int             i;
+
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
         /* Source of direct evaporation */
 #ifdef _NOAH_
-        if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
+        if (elem[i].ws.gw > elem[i].soil.depth - elem[i].soil.dinf)
         {
-            elem->wf.edir_surf = 0.0;
-            elem->wf.edir_unsat = 0.0;
-            elem->wf.edir_gw = elem->wf.edir;
+            elem[i].wf.edir_surf = 0.0;
+            elem[i].wf.edir_unsat = 0.0;
+            elem[i].wf.edir_gw = elem[i].wf.edir;
         }
         else
         {
-            elem->wf.edir_surf = 0.0;
-            elem->wf.edir_unsat = elem->wf.edir;
-            elem->wf.edir_gw = 0.0;
+            elem[i].wf.edir_surf = 0.0;
+            elem[i].wf.edir_unsat = elem[i].wf.edir;
+            elem[i].wf.edir_gw = 0.0;
         }
 #else
-        if (elem->ws.surfh >= DEPRSTG)
+        if (elem[i].ws.surfh >= DEPRSTG)
         {
-            elem->wf.edir_surf = elem->wf.edir;
-            elem->wf.edir_unsat = 0.0;
-            elem->wf.edir_gw = 0.0;
+            elem[i].wf.edir_surf = elem[i].wf.edir;
+            elem[i].wf.edir_unsat = 0.0;
+            elem[i].wf.edir_gw = 0.0;
         }
-        else if (elem->ws.gw > elem->soil.depth - elem->soil.dinf)
+        else if (elem[i].ws.gw > elem[i].soil.depth - elem[i].soil.dinf)
         {
-            elem->wf.edir_surf = 0.0;
-            elem->wf.edir_unsat = 0.0;
-            elem->wf.edir_gw = elem->wf.edir;
+            elem[i].wf.edir_surf = 0.0;
+            elem[i].wf.edir_unsat = 0.0;
+            elem[i].wf.edir_gw = elem[i].wf.edir;
         }
         else
         {
-            elem->wf.edir_surf = 0.0;
-            elem->wf.edir_unsat = elem->wf.edir;
-            elem->wf.edir_gw = 0.0;
+            elem[i].wf.edir_surf = 0.0;
+            elem[i].wf.edir_unsat = elem[i].wf.edir;
+            elem[i].wf.edir_gw = 0.0;
         }
 #endif
 
         /* Source of transpiration */
 #ifdef _NOAH_
-        elem->ps.gwet = GWTransp(elem->wf.ett, elem->wf.et, elem->ps.nwtbl,
-            elem->ps.nroot);
-        elem->wf.ett_unsat = (1.0 - elem->ps.gwet) * elem->wf.ett;
-        elem->wf.ett_gw = elem->ps.gwet * elem->wf.ett;
+        elem[i].ps.gwet = GWTransp(elem[i].wf.ett, elem[i].wf.et, elem[i].ps.nwtbl,
+            elem[i].ps.nroot);
+        elem[i].wf.ett_unsat = (1.0 - elem[i].ps.gwet) * elem[i].wf.ett;
+        elem[i].wf.ett_gw = elem[i].ps.gwet * elem[i].wf.ett;
 #else
-        if (elem->ws.gw > elem->soil.depth - elem->ps.rzd)
+        if (elem[i].ws.gw > elem[i].soil.depth - elem[i].ps.rzd)
         {
-            elem->wf.ett_unsat = 0.0;
-            elem->wf.ett_gw = elem->wf.ett;
+            elem[i].wf.ett_unsat = 0.0;
+            elem[i].wf.ett_gw = elem[i].wf.ett;
         }
         else
         {
-            elem->wf.ett_unsat = elem->wf.ett;
-            elem->wf.ett_gw = 0.0;
+            elem[i].wf.ett_unsat = elem[i].wf.ett;
+            elem[i].wf.ett_gw = 0.0;
         }
 #endif
     }
-
-    /*
-     * Water flow
-     */
-    VerticalFlow(pihm->elem, (double)pihm->ctrl.stepsize);
-
-    LateralFlow(pihm->elem, pihm->riv, pihm->ctrl.surf_mode);
-
-    RiverFlow(pihm->elem, pihm->riv, pihm->ctrl.riv_mode);
 }
 
 double SurfH(double surfeqv)

@@ -2,17 +2,13 @@
 
 void ApplyBC(forc_struct *forc, elem_struct *elem, river_struct *riv, int t)
 {
-    /*
-     * Element boundary conditions
-     */
+    /* Element boundary conditions */
     if (forc->nbc > 0)
     {
         ApplyElemBC(forc, elem, t);
     }
 
-    /*
-     * River boundary condition
-     */
+    /* River boundary condition */
     if (forc->nriverbc > 0)
     {
         ApplyRiverBC(forc, riv, t);
@@ -26,18 +22,14 @@ void ApplyForcing(forc_struct *forc, elem_struct *elem, int t,
 void ApplyForcing(forc_struct *forc, elem_struct *elem, int t)
 #endif
 {
-    /*
-     * Meteorological forcing
-     */
+    /* Meteorological forcing */
 #ifdef _NOAH_
     ApplyMeteoForc(forc, elem, t, ctrl->rad_mode, siteinfo);
 #else
     ApplyMeteoForc(forc, elem, t);
 #endif
 
-    /*
-     * LAI forcing
-     */
+    /* LAI forcing */
     ApplyLAI(forc, elem, t);
 }
 
@@ -79,11 +71,12 @@ void ApplyElemBC(forc_struct *forc, elem_struct *elem, int t)
     }
 }
 
-void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t
 #ifdef _NOAH_
-    , int rad_mode, siteinfo_struct * siteinfo
+void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
+    siteinfo_struct * siteinfo)
+#else
+void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
-    )
 {
     int             i, k;
 #ifdef _NOAH_
@@ -157,8 +150,8 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t
             elem[i].ef.soldn = TopoRadn(elem[i].ef.soldir, elem[i].ef.soldif,
                 spa.zenith, spa.azimuth180, elem[i].topo.slope,
                 elem[i].topo.aspect, elem[i].topo.h_phi, elem[i].topo.svf);
-            elem[i].ef.soldn = (elem[i].ef.soldn > 0.0) ?
-                elem[i].ef.soldn : 0.0;
+            elem[i].ef.soldn =
+                (elem[i].ef.soldn > 0.0) ? elem[i].ef.soldn : 0.0;
         }
 #endif
     }

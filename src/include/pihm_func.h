@@ -96,12 +96,13 @@ double          DhByDl(double *, double *, double *);
 double          EffKH(double, double, double, double, double, double);
 double          EffKinf(double, double, int, double, double, double);
 double          EffKV(double, int, double, double, double);
+void            ETExtract(elem_struct *);
 double          FieldCapacity(double, double, double, double, double);
 void            FindLine(FILE *, char *, int *, const char *);
 void            FreeData(pihm_struct);
 void            FrictSlope(elem_struct *, river_struct *, int, double *,
     double *);
-void            Hydrol(pihm_struct);
+void            Hydrol(elem_struct *, river_struct *, ctrl_struct *);
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
 #ifdef _BGC_
