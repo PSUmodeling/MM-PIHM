@@ -6,26 +6,32 @@ CC = gcc
 CFLAGS = -g -O2
 
 ifeq ($(WARNING), on)
-CFLAGS += -Wall -Wextra
+  CFLAGS += -Wall -Wextra
 endif
 
 ifeq ($(DEBUG), on)
-CFLAGS += -O0
+  CFLAGS += -O0
 endif
 
 ifneq ($(OMP), off)
-CFLAGS += -fopenmp
+  CFLAGS += -fopenmp
 endif
 
 CMAKETEST=$(shell cmake --version 2> /dev/null)
 
 ifeq ($(CMAKETEST),)
-CMAKE_EXIST = 0
-CMAKE_VERS = cmake-3.7.2-Linux-x86_64
-CMAKE = $(PWD)/$(CMAKE_VERS)/bin/cmake
+  CMAKE_EXIST = 0
+  OS := $(shell uname)
+ifeq ($(OS),Darwin)
+    CMAKE_VERS = cmake-3.7.2-Darwin-x86_64
+    CMAKE = $(PWD)/$(CMAKE_VERS)/CMake.app/Contents/bin/cmake
 else
-CMAKE_EXIST = 1
-CMAKE=cmake
+    CMAKE_VERS = cmake-3.7.2-Linux-x86_64
+    CMAKE = $(PWD)/$(CMAKE_VERS)/bin/cmake
+endif
+else
+  CMAKE_EXIST = 1
+  CMAKE=cmake
 endif
 
 CVODE_PATH = ./cvode/instdir
@@ -39,22 +45,21 @@ INCLUDES = \
 	-I$(CVODE_PATH)/include/sundials\
 	-I$(CVODE_PATH)/include/nvector
 
-
 LFLAGS = -lsundials_cvode -L$(CVODE_PATH)/lib
 ifeq ($(CVODE_OMP), on)
-LFLAGS += -lsundials_nvecopenmp
+  LFLAGS += -lsundials_nvecopenmp
 else
-LFLAGS += -lsundials_nvecserial
+  LFLAGS += -lsundials_nvecserial
 endif
 
 SFLAGS = -D_PIHM_
 
 ifeq ($(CVODE_OMP), on)
-SFLAGS += -D_CVODE_OMP
+  SFLAGS += -D_CVODE_OMP
 endif
 
 ifeq ($(DEBUG), on)
-SFLAGS += -D_DEBUG_
+  SFLAGS += -D_DEBUG_
 endif
 
 SRCS_ = main.c\
@@ -79,11 +84,11 @@ SRCS_ = main.c\
 
 HEADERS_ = \
 	include/elem_struct.h\
-	include/pihm.h\
 	include/pihm_const.h\
 	include/pihm_func.h\
 	include/pihm_input_struct.h\
 	include/pihm_struct.h\
+	include/pihm.h\
 	include/river_struct.h
 
 MODULE_HEADERS_ =
@@ -96,10 +101,10 @@ MSG = "...  Compiling PIHM  ..."
 ifeq ($(MAKECMDGOALS),flux-pihm)
   SFLAGS += -D_NOAH_
   MODULE_SRCS_ = \
-  	noah/lsm_func.c\
 	noah/lsm_init.c\
-  	noah/lsm_read.c\
 	noah/noah.c\
+	noah/lsm_func.c\
+	noah/lsm_read.c\
 	spa/spa.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm
@@ -132,10 +137,10 @@ endif
 ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
   SFLAGS += -D_NOAH_ -D_BGC_ -D_DAILY_
   MODULE_SRCS_= \
-	bgc/bgc.c\
 	bgc/bgc_init.c\
 	bgc/bgc_read.c\
 	bgc/bgc_spinup.c\
+	bgc/bgc.c\
 	bgc/canopy_cond.c\
 	bgc/check_balance.c\
 	bgc/daily_allocation.c\
@@ -155,8 +160,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm-bgc)
 	bgc/radtrans.c\
 	bgc/restart_io.c\
 	bgc/soilpsi.c\
-	bgc/summary.c\
 	bgc/state_update.c\
+	bgc/summary.c\
 	bgc/zero_srcsnk.c\
 	noah/daily.c\
 	noah/lsm_func.c\
@@ -178,12 +183,12 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   MODULE_SRCS_= \
 	cycles/cycles_func.c\
 	cycles/cycles_init.c\
-  	cycles/cycles_read.c\
+	cycles/cycles_read.c\
 	noah/daily.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\
 	noah/lsm_read.c\
-  	noah/noah.c\
+	noah/noah.c\
 	spa/spa.c
   CYCLES_SRCS_ = \
 	Crop.c\
@@ -237,11 +242,12 @@ all:	cvode pihm
 cmake:
 ifneq ($(CMAKE_EXIST),1)
 	@echo "Download CMake from cmake.org"
-	@curl https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz -o cmake-3.7.3-Linux-x86_64.tar.gz &> /dev/null
+	@curl https://cmake.org/files/v3.7/$(CMAKE_VERS).tar.gz -o $(CMAKE_VERS).tar.gz &> /dev/null
 	@echo
 	@echo "Extract $(CMAKE_VERS).tar.gz"
 	@tar xzf $(CMAKE_VERS).tar.gz
 endif
+
 cvode:			## Install cvode library
 cvode:	cmake
 	@echo "Install CVODE library"
@@ -251,7 +257,7 @@ cvode:	cmake
 	@echo "CVODE library installed."
 ifneq ($(CMAKE_EXIST),1)
 	@echo "Remove CMake files"
-	@$(RM) $(CMAKE_VERS).tar.gz -r $(CMAKE_VERS)
+	@$(RM) -r $(CMAKE_VERS).tar.gz $(CMAKE_VERS)
 endif
 
 pihm:			## Compile PIHM
