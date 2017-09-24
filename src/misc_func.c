@@ -76,8 +76,6 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
     {
         /* Parse remaining arguments */
         strcpy(project, optparse_arg(&options));
-        if (project == NULL)
-            PIHMexit(EXIT_FAILURE);
     }
 }
 
