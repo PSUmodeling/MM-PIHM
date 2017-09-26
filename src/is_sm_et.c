@@ -53,6 +53,7 @@ void IntcpSnowET(int t, double stepsize, elem_struct *elem,
             pow((293.0 - 0.0065 * elem[i].topo.zmax) / 293.0, 5.26);
         qv = 0.622 * vp / pres;
         qvsat = 0.622 * (vp / rh) / pres;
+
         if (elem[i].attrib.lai_type > 0)
         {
             lai = elem[i].ps.proj_lai;
@@ -85,10 +86,6 @@ void IntcpSnowET(int t, double stepsize, elem_struct *elem,
         }
 
         /* ThroughFall and Evaporation from canopy */
-        /*
-         * EleIS, EleET[0] and ret are prorated for the whole element.
-         * Logistics are simpler if assumed in volumetric form by
-         * multiplication of Area on either side of equation */
         intcp_max = elem[i].lc.cmcfactr * lai * elem[i].lc.shdfac;
 
         z0 = MonthlyRL(t, elem[i].attrib.lc_type);

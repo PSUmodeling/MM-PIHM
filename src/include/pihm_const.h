@@ -8,7 +8,7 @@
 #define CP          1004.0     /* specific heat capacity of air
                                 * (J kg-1 K-1) */
 #define LVH2O       2.501e6    /* latent heat of vaporization (J kg-1) */
-#define SIGMA       5.67e-8    /* stefan-Boltzmann constant (W m-2 K-4) */
+#define SIGMA       5.67e-8    /* Stefan-Boltzmann constant (W m-2 K-4) */
 #define RD          287.04     /* gas constant for dry air (J kg-1 K-1) */
 #define RV          461.5      /* gas constant for water vapor (J kg-1 K-1) */
 #define CPH2O	    4.218e3    /* specific heat capacity of water
@@ -47,7 +47,7 @@
 #define MAXPRINT    1024
 
 /* Meteorological forcing related */
-#define NUM_METEO_VAR    7    /* number of meteo forcing variables */
+#define NUM_METEO_VAR    7    /* number of meteorological forcing variables */
 #define PRCP_TS          0    /* index of precipitation forcing */
 #define SFCTMP_TS        1    /* index of air temperature forcing */
 #define RH_TS            2    /* index of RH forcing */
@@ -74,11 +74,11 @@
 
 /* Hydrology parameters */
 #define PSIMIN	      -70.0    /* minimum psi allowed (m) */
-#define DEPRSTG       1e-4     /* depressio storage (m) */
+#define DEPRSTG       1e-4     /* depression storage (m) */
 #define GRADMIN       5e-8     /* minimum hydraulic gradient (m m-1) */
 #define SATMIN        0.1      /* minimum saturation ratio (-) */
 #define RIVDPTHMIN    0.05     /* minimum river depth (m) */
-#define RIVGRADMIN    0.05     /* minimum river hydarulic gradient (m m-1) */
+#define RIVGRADMIN    0.05     /* minimum river hydraulic gradient (m m-1) */
 #define CMCFACTR      2E-4     /* canopy water capacity per LAI (m) */
 
 /* Maximum of soil layers in Flux-PIHM */
@@ -329,7 +329,7 @@
 #define MAXIMUM_ROOT_DECOMPOSITION_RATE             0.05    /* 1/day */
 #define MAXIMUM_RHIZO_DECOMPOSITION_RATE            0.1 /*  1/day */
 #define MAXIMUM_MANURE_DECOMPOSITION_RATE           0.05    /* 1/day */
-#define MAXIMUM_MICROBIAL_DECOMPOSITION_RATE        1.0 /* calculated internaly
+#define MAXIMUM_MICROBIAL_DECOMPOSITION_RATE        1.0 /* calculated internally
                                                          * 1/day */
 #define FRACTION_CARBON_PLANT     0.43
 #define FRACTION_CARBON_RIZHO     0.43

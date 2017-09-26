@@ -220,8 +220,8 @@ void WriteBgcIC(char *outputdir, elem_struct *elem, river_struct *riv)
         RestartOutput(&elem[i].cs, &elem[i].ns, &elem[i].epv,
             &elem[i].restart_output);
 
-        /* If initial conditions are obtained using accelerated spinup,
-         * adjust soil C pool sizes if needed */
+        /* If initial conditions are obtained using accelerated spinup, adjust
+         * soil C pool sizes if needed */
         if (spinup_mode == ACC_SPINUP_MODE)
         {
             elem[i].restart_output.soil1c *= KS1_ACC;

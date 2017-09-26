@@ -9,7 +9,7 @@ void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
      * elements
      */
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nriver; i++)
     {
@@ -40,8 +40,8 @@ void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
         double          avg_wid;
 
         total_y = riv[i].ws.stage + riv[i].topo.zbed;
-        perim = RivPerim(riv[i].shp.intrpl_ord, riv[i].ws.stage,
-            riv[i].shp.coeff);
+        perim =
+            RivPerim(riv[i].shp.intrpl_ord, riv[i].ws.stage, riv[i].shp.coeff);
 
         if (riv[i].down > 0)
         {

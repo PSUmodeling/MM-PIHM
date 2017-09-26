@@ -47,12 +47,12 @@ void LateralFlow(elem_struct *elem, river_struct *riv, int surf_mode)
                 avg_y_sub = AvgY(dif_y_sub, elem[i].ws.gw, nabr->ws.gw);
                 grad_y_sub = dif_y_sub / elem[i].topo.nabrdist[j];
                 /* Take into account macropore effect */
-                effk =
-                    EffKH(elem[i].ws.gw, elem[i].soil.depth, elem[i].soil.dmac,
-                    elem[i].soil.kmach, elem[i].soil.areafv, elem[i].soil.ksath);
-                effk_nabr =
-                    EffKH(nabr->ws.gw, nabr->soil.depth, nabr->soil.dmac,
-                    nabr->soil.kmach, nabr->soil.areafv, nabr->soil.ksath);
+                effk = EffKH(elem[i].ws.gw, elem[i].soil.depth,
+                    elem[i].soil.dmac, elem[i].soil.kmach, elem[i].soil.areafv,
+                    elem[i].soil.ksath);
+                effk_nabr = EffKH(nabr->ws.gw, nabr->soil.depth,
+                    nabr->soil.dmac, nabr->soil.kmach, nabr->soil.areafv,
+                    nabr->soil.ksath);
                 avg_ksat = 0.5 * (effk + effk_nabr);
                 /* Groundwater flow modeled by Darcy's Law */
                 elem[i].wf.subsurf[j] =
@@ -71,8 +71,8 @@ void LateralFlow(elem_struct *elem, river_struct *riv, int surf_mode)
                     dif_y_surf = (elem[i].ws.surfh + elem[i].topo.zmax) -
                         (nabr->ws.surfh + nabr->topo.zmax);
                 }
-                avg_y_surf = AvgYsfc(dif_y_surf, elem[i].ws.surfh,
-                    nabr->ws.surfh);
+                avg_y_surf =
+                    AvgYsfc(dif_y_surf, elem[i].ws.surfh, nabr->ws.surfh);
                 grad_y_surf = dif_y_surf / elem[i].topo.nabrdist[j];
                 avg_sf = 0.5 *
                     (sqrt(dhbydx[i] * dhbydx[i] + dhbydy[i] * dhbydy[i]) +
@@ -98,7 +98,7 @@ void LateralFlow(elem_struct *elem, river_struct *riv, int surf_mode)
                 /* Do nothing. River-element interactions are calculated
                  * in river_flow.c */
             }
-            else                /* Boundary condition flux */
+            else    /* Boundary condition flux */
             {
                 /* No flow (natural) boundary condition is default */
                 if (elem[i].attrib.bc_type[j] == 0)
@@ -120,18 +120,18 @@ void LateralFlow(elem_struct *elem, river_struct *riv, int surf_mode)
                         elem[i].bc.head[j] - elem[i].topo.zmin);
                     /* Minimum distance from circumcenter to the edge of the
                      * triangle on which boundary condition is defined */
-                    effk =
-                        EffKH(elem[i].ws.gw, elem[i].soil.depth, elem[i].soil.dmac,
-                        elem[i].soil.kmach, elem[i].soil.areafv, elem[i].soil.ksath);
+                    effk = EffKH(elem[i].ws.gw, elem[i].soil.depth,
+                        elem[i].soil.dmac, elem[i].soil.kmach,
+                        elem[i].soil.areafv, elem[i].soil.ksath);
                     avg_ksat = effk;
                     grad_y_sub = dif_y_sub / elem[i].topo.nabrdist[j];
-                    elem[i].wf.subsurf[j] =
-                        avg_ksat * grad_y_sub * avg_y_sub * elem[i].topo.edge[j];
+                    elem[i].wf.subsurf[j] = avg_ksat * grad_y_sub * avg_y_sub *
+                        elem[i].topo.edge[j];
                 }
                 else
                 {
                     /* Neumann bc (note: md->ele[i].bc[j] value has to be
-                     * = 2+(index of neumann boundary ts) */
+                     * = 2+(index of Neumann boundary ts) */
                     elem[i].wf.ovlflow[j] = elem[i].bc.flux[j];
                     elem[i].wf.subsurf[j] = elem[i].bc.flux[j];
                 }
@@ -227,7 +227,7 @@ double AvgYsfc(double diff, double yi, double yinabr)
         }
     }
 
-    return (avg_y);
+    return avg_y;
 }
 
 double AvgY(double diff, double yi, double yinabr)

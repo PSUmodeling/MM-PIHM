@@ -227,8 +227,10 @@ void MakeZeroFluxStruct(cflux_struct *cf, nflux_struct *nf)
     nf->sminn_to_nvol_s3s4 = 0.0;
     nf->sminn_to_nvol_s4 = 0.0;
     nf->sminn_to_denitrif = 0.0;
+#if OBSOLETE
     /* sminn_leached is calculated out of bgc functions */
-    //nf->sminn_leached = 0.0;
+    nf->sminn_leached = 0.0;
+#endif
     nf->retransn_to_npool = 0.0;
     nf->sminn_to_npool = 0.0;
     nf->npool_to_leafn = 0.0;

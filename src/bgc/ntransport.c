@@ -5,10 +5,10 @@ void NTransport(pihm_struct pihm)
     int             i;
 
     /*
-     * Calculate solute N concentrantions
+     * Calculate solute N concentrations
      */
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
@@ -43,7 +43,7 @@ void NTransport(pihm_struct pihm)
     }
 
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nriver; i++)
     {
@@ -78,7 +78,7 @@ void NTransport(pihm_struct pihm)
      * Calculate solute fluxes
      */
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
@@ -124,7 +124,7 @@ void NTransport(pihm_struct pihm)
     }
 
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nriver; i++)
     {

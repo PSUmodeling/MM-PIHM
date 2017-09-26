@@ -145,13 +145,12 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         for (j = 0; j <= 6; j++)
         {
             /* Note the limitation due to
-             * d(v)/dt=a*dy/dt+y*da/dt
+             * d(v) / dt = a * dy / dt + y * da / dt
              * for cs other than rectangle */
             dy[RIVSTG(i)] -= riv->wf.rivflow[j] / riv->topo.area;
         }
 
-        dy[RIVGW(i)] += 0.0 -
-            riv->wf.rivflow[LEFT_AQUIF2AQUIF] -
+        dy[RIVGW(i)] += -riv->wf.rivflow[LEFT_AQUIF2AQUIF] -
             riv->wf.rivflow[RIGHT_AQUIF2AQUIF] -
             riv->wf.rivflow[DOWN_AQUIF2AQUIF] -
             riv->wf.rivflow[UP_AQUIF2AQUIF] + riv->wf.rivflow[CHANL_LKG];
@@ -179,8 +178,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[STREAMN(i)] -= riv->nsol.flux[j] / riv->topo.area;
         }
 
-        dy[RIVBEDN(i)] += 0.0 -
-            riv->nsol.flux[LEFT_AQUIF2AQUIF] -
+        dy[RIVBEDN(i)] += -riv->nsol.flux[LEFT_AQUIF2AQUIF] -
             riv->nsol.flux[RIGHT_AQUIF2AQUIF] -
             riv->nsol.flux[DOWN_AQUIF2AQUIF] -
             riv->nsol.flux[UP_AQUIF2AQUIF] + riv->nsol.flux[CHANL_LKG];

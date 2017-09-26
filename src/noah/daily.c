@@ -5,7 +5,7 @@ void DailyVar(int t, int start_time, pihm_struct pihm)
     int             i;
 
     /*
-     * Cumulates daily variables
+     * Sum daily variables
      */
 #ifdef _OPENMP
 # pragma omp parallel for

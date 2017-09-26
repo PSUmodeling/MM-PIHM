@@ -16,7 +16,7 @@ void DailyBgc(pihm_struct pihm, int t)
         ndep = pihm->ndepctrl.ndep / 365.0;
         nfix = pihm->ndepctrl.nfix / 365.0;
     }
-    else                /* Model mode */
+    else    /* Model mode */
     {
         /* Atmospheric CO2 handling */
         if (!(pihm->co2.varco2))
@@ -53,13 +53,13 @@ void DailyBgc(pihm_struct pihm, int t)
         pihm->siteinfo.elevation, pihm->siteinfo.tavg, &prev_spa);
 
     dayl = (spa.sunset - spa.sunrise) * 3600.0;
-    dayl = (dayl < 0.0) ? dayl + 24.0 * 3600.0 : dayl;
+    dayl = (dayl < 0.0) ? (dayl + 24.0 * 3600.0) : dayl;
 
     prev_dayl = (prev_spa.sunset - prev_spa.sunrise) * 3600.0;
-    prev_dayl = (prev_dayl < 0.0) ? prev_dayl + 24.0 * 3600.0 : prev_dayl;
+    prev_dayl = (prev_dayl < 0.0) ? (prev_dayl + 24.0 * 3600.0) : prev_dayl;
 
 #ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
@@ -126,9 +126,9 @@ void DailyBgc(pihm_struct pihm, int t)
             annual_alloc = 0;
         }
 
-        /* Calculate leaf area index, sun and shade fractions, and specific
-         * leaf area for sun and shade canopy fractions, then calculate
-         * canopy radiation interception and transmission */
+        /* Calculate leaf area index, sun and shade fractions, and specific leaf
+         * area for sun and shade canopy fractions, then calculate canopy
+         * radiation interception and transmission */
         RadTrans(cs, ef, ps, epc, epv, daily);
 
         /* Soil water potential */
@@ -176,8 +176,7 @@ void DailyBgc(pihm_struct pihm, int t)
         /* Allocation gets called whether or not this is a current growth day,
          * because the competition between decomp immobilization fluxes and
          * plant growth N demand is resolved here. On days with no growth, no
-         * allocation occurs, but immobilization fluxes are updated
-         * normally */
+         * allocation occurs, but immobilization fluxes are updated normally. */
         DailyAllocation(cf, cs, nf, ns, epc, epv, nt);
 
         /* Growth respiration */
@@ -202,7 +201,7 @@ void DailyBgc(pihm_struct pihm, int t)
 
 #if OBSOLETE
         /* Nitrogen balance is checked outside DailyBgc function because a bgc
-         * cycle is not finished until N transport is caluculated by CVODE */
+         * cycle is not finished until N transport is calculated by CVode */
         CheckNitrogenBalance (ns, &epv->old_n_balance);
 #endif
 

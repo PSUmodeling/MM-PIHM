@@ -5,32 +5,32 @@ void ReadAlloc(pihm_struct pihm)
     PIHMprintf(VL_VERBOSE, "\nRead input files:\n");
 
     /* Set file names of the input files */
-    sprintf(pihm->filename.riv, "input/%s/%s.riv", project, project);
-    sprintf(pihm->filename.mesh, "input/%s/%s.mesh", project, project);
-    sprintf(pihm->filename.att, "input/%s/%s.att", project, project);
-    sprintf(pihm->filename.soil, "input/%s/%s.soil", project, project);
-    sprintf(pihm->filename.geol, "input/%s/%s.geol", project, project);
-    sprintf(pihm->filename.lc, "input/vegprmt.tbl");
-    sprintf(pihm->filename.meteo, "input/%s/%s.meteo", project, project);
-    sprintf(pihm->filename.lai, "input/%s/%s.lai", project, project);
-    sprintf(pihm->filename.bc, "input/%s/%s.bc", project, project);
-    sprintf(pihm->filename.para, "input/%s/%s.para", project, project);
-    sprintf(pihm->filename.calib, "input/%s/%s.calib", project, project);
-    sprintf(pihm->filename.ic, "input/%s/%s.ic", project, project);
-    sprintf(pihm->filename.tecplot, "input/%s/%s.tecplot", project, project);
+    sprintf(pihm->filename.riv,      "input/%s/%s.riv",      project, project);
+    sprintf(pihm->filename.mesh,     "input/%s/%s.mesh",     project, project);
+    sprintf(pihm->filename.att,      "input/%s/%s.att",      project, project);
+    sprintf(pihm->filename.soil,     "input/%s/%s.soil",     project, project);
+    sprintf(pihm->filename.geol,     "input/%s/%s.geol",     project, project);
+    sprintf(pihm->filename.lc,       "input/vegprmt.tbl");
+    sprintf(pihm->filename.meteo,    "input/%s/%s.meteo",    project, project);
+    sprintf(pihm->filename.lai,      "input/%s/%s.lai",      project, project);
+    sprintf(pihm->filename.bc,       "input/%s/%s.bc",       project, project);
+    sprintf(pihm->filename.para,     "input/%s/%s.para",     project, project);
+    sprintf(pihm->filename.calib,    "input/%s/%s.calib",    project, project);
+    sprintf(pihm->filename.ic,       "input/%s/%s.ic",       project, project);
+    sprintf(pihm->filename.tecplot,  "input/%s/%s.tecplot",  project, project);
 #ifdef _NOAH_
-    sprintf(pihm->filename.lsm, "input/%s/%s.lsm", project, project);
-    sprintf(pihm->filename.rad, "input/%s/%s.rad", project, project);
+    sprintf(pihm->filename.lsm,      "input/%s/%s.lsm",      project, project);
+    sprintf(pihm->filename.rad,      "input/%s/%s.rad",      project, project);
 #endif
 #ifdef _CYCLES_
-    sprintf(pihm->filename.cycles, "input/%s/%s.cycles", project, project);
+    sprintf(pihm->filename.cycles,   "input/%s/%s.cycles",   project, project);
     sprintf(pihm->filename.soilinit, "input/%s/%s.soilinit", project, project);
-    sprintf(pihm->filename.crop, "input/%s/%s.crop", project, project);
+    sprintf(pihm->filename.crop,     "input/%s/%s.crop",     project, project);
     sprintf(pihm->filename.cyclesic, "input/%s/%s.cyclesic", project, project);
 #endif
 #ifdef _BGC_
-    sprintf(pihm->filename.bgc, "input/%s/%s.bgc", project, project);
-    sprintf(pihm->filename.bgcic, "input/%s/%s.bgcic", project, project);
+    sprintf(pihm->filename.bgc,      "input/%s/%s.bgc",      project, project);
+    sprintf(pihm->filename.bgcic,    "input/%s/%s.bgcic",    project, project);
 #endif
 
     /* Read river input file */
@@ -47,7 +47,9 @@ void ReadAlloc(pihm_struct pihm)
     ReadSoil(pihm->filename.soil, &pihm->soiltbl);
 
     /* Read geology input file */
-    //ReadGeol (pihm->filename.geol, &pihm->geoltbl);
+#if NOT_YET_IMPLEMENTED
+    ReadGeol (pihm->filename.geol, &pihm->geoltbl);
+#endif
 
     /* Read land cover input file */
     ReadLC(pihm->filename.lc, &pihm->lctbl);
@@ -60,7 +62,9 @@ void ReadAlloc(pihm_struct pihm)
 
     /* Read source and sink input file */
     pihm->forc.nsource = 0;
-    //ReadSS ();
+#if NOT_YET_IMPLEMENTED
+    ReadSS ();
+#endif
 
     /* Read boundary condition input file */
     pihm->forc.nbc = 0;
@@ -136,7 +140,7 @@ void ReadRiv(char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     int             index;
     int             lno = 0;
 
-    /** Open .riv input file */
+    /* Open .riv input file */
     riv_file = fopen(filename, "r");
     CheckFile(riv_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
@@ -169,11 +173,9 @@ void ReadRiv(char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
         NextLine(riv_file, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d %d",
             &index,
-            &rivtbl->fromnode[i], &rivtbl->tonode[i],
-            &rivtbl->down[i],
-            &rivtbl->leftele[i], &rivtbl->rightele[i],
-            &rivtbl->shp[i], &rivtbl->matl[i],
-            &rivtbl->bc[i], &rivtbl->rsvr[i]);
+            &rivtbl->fromnode[i], &rivtbl->tonode[i], &rivtbl->down[i],
+            &rivtbl->leftele[i], &rivtbl->rightele[i], &rivtbl->shp[i],
+            &rivtbl->matl[i], &rivtbl->bc[i], &rivtbl->rsvr[i]);
         if (match != 10 || i != index - 1)
         {
             PIHMprintf(VL_ERROR,
@@ -201,8 +203,8 @@ void ReadRiv(char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     {
         NextLine(riv_file, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %lf %d %lf",
-            &index, &shptbl->depth[i],
-            &shptbl->intrpl_ord[i], &shptbl->coeff[i]);
+            &index,
+            &shptbl->depth[i], &shptbl->intrpl_ord[i], &shptbl->coeff[i]);
         if (match != 4 || i != index - 1)
         {
             PIHMprintf(VL_ERROR,
@@ -346,9 +348,8 @@ void ReadMesh(char *filename, meshtbl_struct *meshtbl)
         NextLine(mesh_file, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %d %d %d %d %d %d",
             &index,
-            &meshtbl->node[i][0], &meshtbl->node[i][1],
-            &meshtbl->node[i][2], &meshtbl->nabr[i][0],
-            &meshtbl->nabr[i][1], &meshtbl->nabr[i][2]);
+            &meshtbl->node[i][0], &meshtbl->node[i][1], &meshtbl->node[i][2],
+            &meshtbl->nabr[i][0], &meshtbl->nabr[i][1], &meshtbl->nabr[i][2]);
         if (match != 7 || i != index - 1)
         {
             PIHMprintf(VL_ERROR,
@@ -435,7 +436,7 @@ void ReadAtt(char *filename, atttbl_struct *atttbl)
         }
     }
 
-    /* finish reading att_files */
+    /* Finish reading att_files */
     fclose(att_file);
 }
 
@@ -509,16 +510,14 @@ void ReadSoil(char *filename, soiltbl_struct *soiltbl)
         /* Fill missing hydraulic properties using PTFs */
         if (soiltbl->kinfv[i] < 0.0)
         {
-            soiltbl->kinfv[i] =
-                PtfKV(soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
-                soiltbl->bd[i], TOPSOIL);
+            soiltbl->kinfv[i] = PtfKV(soiltbl->silt[i], soiltbl->clay[i],
+                soiltbl->om[i], soiltbl->bd[i], TOPSOIL);
             ptf_used = 1;
         }
         if (soiltbl->ksatv[i] < 0.0)
         {
-            soiltbl->ksatv[i] =
-                PtfKV(soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
-                soiltbl->bd[i], SUBSOIL);
+            soiltbl->ksatv[i] = PtfKV(soiltbl->silt[i], soiltbl->clay[i],
+                soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
         }
         if (soiltbl->ksath[i] < 0.0)
@@ -528,30 +527,26 @@ void ReadSoil(char *filename, soiltbl_struct *soiltbl)
         }
         if (soiltbl->smcmax[i] < 0.0)
         {
-            soiltbl->smcmax[i] =
-                PtfThetaS(soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
-                soiltbl->bd[i], SUBSOIL);
+            soiltbl->smcmax[i] = PtfThetaS(soiltbl->silt[i], soiltbl->clay[i],
+                soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
         }
         if (soiltbl->smcmin[i] < 0.0)
         {
-            soiltbl->smcmin[i] =
-                PtfThetaR(soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
-                soiltbl->bd[i], SUBSOIL);
+            soiltbl->smcmin[i] = PtfThetaR(soiltbl->silt[i], soiltbl->clay[i],
+                soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
         }
         if (soiltbl->alpha[i] < 0.0)
         {
-            soiltbl->alpha[i] =
-                PtfAlpha(soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
-                soiltbl->bd[i], SUBSOIL);
+            soiltbl->alpha[i] = PtfAlpha(soiltbl->silt[i], soiltbl->clay[i],
+                soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
         }
         if (soiltbl->beta[i] < 0.0)
         {
-            soiltbl->beta[i] =
-                PtfBeta(soiltbl->silt[i], soiltbl->clay[i], soiltbl->om[i],
-                soiltbl->bd[i], SUBSOIL);
+            soiltbl->beta[i] = PtfBeta(soiltbl->silt[i], soiltbl->clay[i],
+                soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
         }
         if (soiltbl->qtz[i] < 0.0)
@@ -562,12 +557,10 @@ void ReadSoil(char *filename, soiltbl_struct *soiltbl)
         }
 
         /* Calculate field capacity and wilting point */
-        soiltbl->smcref[i] =
-            FieldCapacity(soiltbl->alpha[i], soiltbl->beta[i],
+        soiltbl->smcref[i] = FieldCapacity(soiltbl->alpha[i], soiltbl->beta[i],
             soiltbl->ksatv[i], soiltbl->smcmax[i], soiltbl->smcmin[i]);
-        soiltbl->smcwlt[i] =
-            WiltingPoint(soiltbl->smcmax[i], soiltbl->smcmin[i],
-            soiltbl->alpha[i], soiltbl->beta[i]);
+        soiltbl->smcwlt[i] = WiltingPoint(soiltbl->smcmax[i],
+            soiltbl->smcmin[i], soiltbl->alpha[i], soiltbl->beta[i]);
     }
 
     NextLine(soil_file, cmdstr, &lno);
@@ -641,12 +634,13 @@ void ReadLC(char *filename, lctbl_struct *lctbl)
         match =
             sscanf(cmdstr,
             "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-            &index, &lctbl->vegfrac[i], &lctbl->rzd[i], &lctbl->rsmin[i],
+            &index,
+            &lctbl->vegfrac[i], &lctbl->rzd[i], &lctbl->rsmin[i],
             &lctbl->rgl[i], &lctbl->hs[i], &lctbl->snup[i],
-            &lctbl->laimin[i], &lctbl->laimax[i], &lctbl->emissmin[i],
-            &lctbl->emissmax[i], &lctbl->albedomin[i],
-            &lctbl->albedomax[i], &lctbl->z0min[i], &lctbl->z0max[i],
-            &lctbl->rough[i]);
+            &lctbl->laimin[i], &lctbl->laimax[i],
+            &lctbl->emissmin[i], &lctbl->emissmax[i],
+            &lctbl->albedomin[i], &lctbl->albedomax[i],
+            &lctbl->z0min[i], &lctbl->z0max[i], &lctbl->rough[i]);
         if (match != 16 || i != index - 1)
         {
             PIHMprintf(VL_ERROR,
@@ -677,7 +671,7 @@ void ReadLC(char *filename, lctbl_struct *lctbl)
 
 void ReadForc(char *filename, forc_struct *forc)
 {
-    FILE           *meteo_file; /* Pointer to .forc file */
+    FILE           *meteo_file;
     char            cmdstr[MAXSTRING];
     int             i, j;
     int             match;
@@ -779,7 +773,7 @@ void ReadLAI(char *filename, forc_struct *forc, const atttbl_struct *atttbl)
         CheckFile(lai_file, filename);
         PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
-        /* start reading lai_file */
+        /* Start reading lai_file */
         FindLine(lai_file, "BOF", &lno, filename);
 
         forc->nlai = CountOccurance(lai_file, "LAI_TS");
@@ -871,8 +865,8 @@ void ReadBC(char *filename, forc_struct *forc)
             if (match != 1 || i != index - 1)
             {
                 PIHMprintf(VL_ERROR,
-                    "Error reading the %dth boundary condition"
-                    " time series.\n", i + 1);
+                    "Error reading the %dth boundary condition time series.\n",
+                    i + 1);
                 PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
                     filename, lno);
                 PIHMexit(EXIT_FAILURE);
@@ -917,7 +911,7 @@ void ReadBC(char *filename, forc_struct *forc)
 
 void ReadPara(char *filename, ctrl_struct *ctrl)
 {
-    FILE           *para_file;  /* Pointer to .para file */
+    FILE           *para_file;    /* Pointer to .para file */
     char            cmdstr[MAXSTRING];
     int             i;
     int             lno = 0;
@@ -931,11 +925,11 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
     CheckFile(para_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
-    /* start reading para_file */
+    /* Start reading para_file */
     /* Read through parameter file to find parameters */
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "INIT_MODE", &ctrl->init_type, 'i', filename, lno);
-    ctrl->init_type = (ctrl->init_type > 0) ? 1 : 0;
+    ctrl->init_type = (ctrl->init_type > RELAX) ? RST_FILE : RELAX;
 
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "ASCII_OUTPUT", &ctrl->ascii, 'i', filename, lno);
@@ -1276,12 +1270,11 @@ void ReadSunpara(char *filename, ctrl_struct *ctrl)
     char            cmdstr[MAXSTRING];
     int             lno = 0;
 
-
     sunpara_file = fopen(filename, "r");
     CheckFile(sunpara_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
-    /* start reading para_file */
+    /* Start reading para_file */
     /* Read through sundials parameter file to find parameters */
     fclose(sunpara_file);
 }

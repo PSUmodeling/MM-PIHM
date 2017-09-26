@@ -18,8 +18,8 @@ void MaintResp(const epconst_struct *epc, epvar_struct *epv,
      * respiration in kgC/day per kg of tissue N is:
      * mrpern = 0.218 (kgC/kgN/d)
      *
-     * Leaf maintenance respiration is calculated separately for day and
-     * night, since the PSN routine needs the daylight value.
+     * Leaf maintenance respiration is calculated separately for day and night,
+     * since the PSN routine needs the daylight value.
      * Leaf and fine root respiration are dependent on phenology.
      */
     double          tday, tnight;
@@ -46,12 +46,11 @@ void MaintResp(const epconst_struct *epc, epvar_struct *epv,
         exponent = (tday - 20.0) / 10.0;
         cf->leaf_day_mr = t1 * pow(Q10, exponent) * epv->dayl / 86400.0;
 
-        /* For day respiration, also determine rates of maintenance
-         * respiration per unit of projected leaf area in the sunlit and
-         * shaded portions of the canopy, for use in the photosynthesis
-         * routine */
-        /* First, calculate the mass of N per unit of projected leaf area
-         * in each canopy fraction (kg N/m2 projected area) */
+        /* For day respiration, also determine rates of maintenance respiration
+         * per unit of projected leaf area in the sunlit and shaded portions of
+         * the canopy, for use in the photosynthesis routine */
+        /* First, calculate the mass of N per unit of projected leaf area in
+         * each canopy fraction (kg N/m2 projected area) */
         n_area_sun = 1.0 / (epv->sun_proj_sla * epc->leaf_cn);
         n_area_shade = 1.0 / (epv->shade_proj_sla * epc->leaf_cn);
 
@@ -60,8 +59,8 @@ void MaintResp(const epconst_struct *epc, epvar_struct *epv,
         dlmr_area_sun = n_area_sun * MRPERN * pow(Q10, exponent);
         dlmr_area_shade = n_area_shade * MRPERN * pow(Q10, exponent);
 
-        /* Finally, convert from mass to molar units, and from a daily rate to
-         * a rate per second */
+        /* Finally, convert from mass to molar units, and from a daily rate to a
+         * rate per second */
         epv->dlmr_area_sun = dlmr_area_sun / (86400.0 * 12.011e-9);
         epv->dlmr_area_shade = dlmr_area_shade / (86400.0 * 12.011e-9);
 
@@ -79,8 +78,8 @@ void MaintResp(const epconst_struct *epc, epvar_struct *epv,
     }
 
     /* Fine root maintenance respiration when fine roots on */
-    /* Ammended to consider only the specified n concentration,
-     * to avoid excessive MR with n-loading to fine roots */
+    /* Amended to consider only the specified n concentration, to avoid
+     * excessive MR with n-loading to fine roots */
     if (cs->frootc)
     {
         exponent = (tsoil - 20.0) / 10.0;

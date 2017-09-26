@@ -1,9 +1,9 @@
 #include "pihm.h"
 
-/* zero the source and sink state variables */
+/* Zero the source and sink state variables */
 void ZeroSrcSnk(cstate_struct *cs, nstate_struct *ns, summary_struct *summary)
 {
-    /* zero the carbon sources and sinks */
+    /* Zero the carbon sources and sinks */
     cs->psnsun_src = 0.0;
     cs->psnshade_src = 0.0;
     cs->leaf_mr_snk = 0.0;
@@ -25,14 +25,14 @@ void ZeroSrcSnk(cstate_struct *cs, nstate_struct *ns, summary_struct *summary)
     cs->soil4_hr_snk = 0.0;
     cs->fire_snk = 0.0;
 
-    /* zero the nitrogen sources and sinks */
+    /* Zero the nitrogen sources and sinks */
     ns->nfix_src = 0.0;
     ns->ndep_src = 0.0;
     ns->nleached_snk = 0.0;
     ns->nvol_snk = 0.0;
     ns->fire_snk = 0.0;
 
-    /* zero the summary variables */
+    /* Zero the summary variables */
     summary->cum_npp = 0.0;
     summary->cum_nep = 0.0;
     summary->cum_nee = 0.0;

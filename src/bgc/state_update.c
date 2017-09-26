@@ -8,9 +8,9 @@ void DailyCarbonStateUpdate(cflux_struct *cf, cstate_struct *cs, int alloc,
     /* C state variables are updated below in the order of the relevant fluxes
      * in the daily model loop */
 
-    /* NOTE: Mortality fluxes are all accounted for in a separate routine,
-     * which is to be called after this routine.  This is a special case where
-     * the updating of state variables is order-sensitive, since otherwise the
+    /* NOTE: Mortality fluxes are all accounted for in a separate routine, which
+     * is to be called after this routine. This is a special case where the
+     * updating of state variables is order-sensitive, since otherwise the
      * complications of possibly having mortality fluxes drive the pools
      * negative would create big, unnecessary headaches. */
 
@@ -213,8 +213,8 @@ void DailyCarbonStateUpdate(cflux_struct *cf, cstate_struct *cs, int alloc,
     if (alloc)
     {
         /* Move storage material into transfer compartments on the annual
-         * allocation day. This is a special case, where a flux is assessed
-         * in the state_variable update routine.  This is required to have the
+         * allocation day. This is a special case, where a flux is assessed in
+         * the state_variable update routine.  This is required to have the
          * allocation of excess C and N show up as new growth in the next
          * growing season, instead of two growing seasons from now. */
         cf->leafc_storage_to_leafc_transfer = cs->leafc_storage;
@@ -313,7 +313,7 @@ void DailyNitrogenStateUpdate(nflux_struct *nf, nstate_struct *ns,
     ns->leafn -= nf->leafn_to_litr3n;
     ns->litr4n += nf->leafn_to_litr4n;
     ns->leafn -= nf->leafn_to_litr4n;
-    ns->retransn += nf->leafn_to_retransn;         /* N retranslocation */
+    ns->retransn += nf->leafn_to_retransn;    /* N retranslocation */
     ns->leafn -= nf->leafn_to_retransn;
     ns->litr1n += nf->frootn_to_litr1n;
     ns->frootn -= nf->frootn_to_litr1n;

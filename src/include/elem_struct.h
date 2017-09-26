@@ -51,7 +51,7 @@ typedef struct soil_struct
                                   * (m s-1) */
     double          kinfv;       /* saturated infiltration conductivity (m s-1)
                                   */
-    double          dinf;        /* depth from ground surface accross which head
+    double          dinf;        /* depth from ground surface across which head
                                   * gradient is calculated for infiltration (m)
                                   */
     double          alpha;       /* alpha from van Genuchten eqn (m-1) */
@@ -75,7 +75,7 @@ typedef struct soil_struct
     double          csoil;       /* soil heat capacity (J m-3 K-1) */
     double          quartz;      /* soil quartz content (-) */
     double          smcdry;      /* dry soil moisture threshold where direct
-                                  * evap frm top layer ends (m3 m-3) */
+                                  * evap from top layer ends (m3 m-3) */
 #endif
 #ifdef _CYCLES_
     int             totalLayers;
@@ -185,11 +185,11 @@ typedef struct epconst_struct
     int             phenology_flag;         /* flag: 1 = phenology mode
                                              * 0 = user defined */
     int             onday;                  /* day of year when leaves on */
-    int             offday;                 /* day of year yearday leaves off */
+    int             offday;                 /* day of year when leaves off */
     int             transfer_days;          /* growth period for transfer (day)
                                              */
-    int             litfall_days;           /* growth period for litfall (day)
-                                             */
+    int             litfall_days;           /* growth period for litter fall
+                                             * (day) */
     double          leaf_turnover;          /* annual leaf turnover fraction
                                              * (yr-1) */
     double          froot_turnover;         /* annual fine root turnover
@@ -248,7 +248,7 @@ typedef struct epconst_struct
                                              * cellulose fraction (-) */
     double          frootlitr_flig;         /* fine root litter lignin fraction
                                              * (-) */
-    double          deadwood_fucel;         /* dead wood unshileded cellulose
+    double          deadwood_fucel;         /* dead wood unshielded cellulose
                                              * fraction (-) */
     double          deadwood_fscel;         /* dead wood shielded cellulose
                                              * fraction (-) */
@@ -281,9 +281,9 @@ typedef struct pstate_struct
                                              * ground (m s-1) */
     double          rh;                     /* relative humidity (100%) */
     double          sfcprs;                 /* surface pressure at height zlvl
-                                             * abouve ground (Pa) */
+                                             * above ground (Pa) */
 #ifdef _NOAH_
-    double          alb;                    /* backround snow-free surface
+    double          alb;                    /* background snow-free surface
                                              * albedo (-) */
     double          snoalb;                 /* upper bound on maximum albedo
                                              * over deep snow (-) */
@@ -328,7 +328,7 @@ typedef struct pstate_struct
                                              * cover (-) */
     double          snotime1;               /* age of the snow on the ground (s)
                                              */
-    double          ribb;                   /* bulk richardson number used to
+    double          ribb;                   /* bulk Richardson number used to
                                              * limit the dew/frost (-) */
     double          beta;                   /* ratio of actual/potential evap
                                              * (-) */
@@ -357,10 +357,10 @@ typedef struct pstate_struct
     double          sncond;                 /* snow thermal conductivity
                                              * (W m-1 K-1) */
     double          rr;                     /* parameter in Penman potential
-                                             * evaopration (-) */
+                                             * evaporation (-) */
     double          epsca;                  /* parameter in Penman potential
-                                             * evaopration (K) */
-    double          eta_kinematic;          /* atctual latent heat flux
+                                             * evaporation (K) */
+    double          eta_kinematic;          /* actual latent heat flux
                                              * (kg m-2 s-1) */
     double          zbot;                   /* depth of lower boundary soil
                                              * temperature (m) */
@@ -449,11 +449,11 @@ typedef struct wflux_struct
     double          runoff2;                /* total subsurface flow (m s-1) */
     double          runoff2_lyr[MAXLYR];    /* subsurface flow from each soil
                                              * layer (m s-1) */
-    double          runoff3;                /* numerical trunctation in excess
+    double          runoff3;                /* numerical truncation in excess
                                              * of porosity (smcmax) for a given
                                              * soil layer at the end of a time
                                              * step (m s-1) */
-    double          smflxv[MAXLYR];         /* vertical soil mositure flux
+    double          smflxv[MAXLYR];         /* vertical soil moisture flux
                                              * between soil layers (m s-1) */
     double          smflxh[NUM_EDGE][MAXLYR];/* horizontal soil moisture flux at
                                              * each soil layer from each edge
@@ -768,7 +768,7 @@ typedef struct cyclesic_struct
 /* Boundary conditions */
 typedef struct bc_struct
 {
-    double          head[NUM_EDGE];    /* value of Dirichlet-type boudnary
+    double          head[NUM_EDGE];    /* value of Dirichlet-type boundary
                                         * condition (m) */
     double          flux[NUM_EDGE];    /* value of Neumann-type boundary
                                         * condition (m3 s-1) */
@@ -872,7 +872,7 @@ typedef struct bgcic_struct
     double          offset_swi;
 } bgcic_struct;
 
-/* CN spinup varaibles */
+/* CN spinup variables */
 typedef struct spinup_struct
 {
     double          soilc_prev;
@@ -930,14 +930,14 @@ typedef struct daily_struct
                                             * moisture content (m3 m-3) */
     double          avg_smflxv[MAXLYR];    /* daily average vertical soil
                                             * moisture flux (m s-1) */
-    double          avg_et[MAXLYR];        /* daily average evaportranspiration
+    double          avg_et[MAXLYR];        /* daily average evapotranspiration
                                             * (m s-1) */
     double          avg_q2d;               /* daily average mixing ratio deficit
                                             * (kg kg-1) */
     double          avg_sfcprs;            /* daily average air pressure (Pa) */
     double          avg_ch;                /* daily average surface exchange
                                             * coefficient (m s-1) */
-    double          avg_rc;                /* dailly average stomatal resistance
+    double          avg_rc;                /* daily average stomatal resistance
                                             * (s m-1) */
     double          avg_albedo;            /* daily average surface albedo
                                             * (-) */
@@ -1012,7 +1012,7 @@ typedef struct cstate_struct
                                              * slowest) (kgC m-2) */
     double          cpool;                  /* temporary photosynthate C pool
                                              * (kgC m-2) */
-    double          psnsun_src;             /* SUM of gross PSN from sulit
+    double          psnsun_src;             /* SUM of gross PSN from sunlit
                                              * canopy (kgC m-2) */
     double          psnshade_src;           /* SUM of gross PSN from shaded
                                              * canopy (kgC m-2) */
@@ -1602,7 +1602,7 @@ typedef struct solute_struct
 typedef struct elem_struct
 {
     int             node[NUM_EDGE];    /* nodes of triangular element
-                                        * (counterclock-wise) */
+                                        * (counterclockwise) */
     int             nabr[NUM_EDGE];    /* neighbor elements (neighbor i shares
                                         * edge i (0: on boundary) */
     int             ind;               /* index */

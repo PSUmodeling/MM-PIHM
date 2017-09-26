@@ -22,10 +22,10 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
     double          ratio;
 
     /* Calculate the rate constant scalar for soil temperature, assuming that
-     * the base rate constants are assigned for non-moisture limiting
-     * conditions at 25 C. The function used here is taken from Lloyd, J., and
-     * J.A. Taylor, 1994. On the temperature dependence of soil respiration.
-     * Functional Ecology, 8:315-323.
+     * the base rate constants are assigned for non-moisture limiting conditions
+     * at 25 C. The function used here is taken from Lloyd, J., and J.A. Taylor,
+     * 1994. On the temperature dependence of soil respiration. Functional
+     * Ecology, 8:315-323.
      * This equation is a modification of their eqn. 11, changing the base
      * temperature from 10 C to 25 C, since most of the microcosm studies used
      * to get the base decomp rates were controlled at 25 C. */
@@ -41,11 +41,11 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
     }
 
     /* Calculate the rate constant scalar for soil water content. Uses the log
-     * relationship with water potential given in Andren, O., and K.
-     * Paustian, 1987. Barley straw decomposition in the field: a comparison
-     * of models. Ecology, 68(5):1190-1200 and supported by data in Orchard,
-     * V.A., and F.J. Cook, 1983. Relationship between soil respiration and
-     * soil moisture. Soil Biol. Biochem., 15(4):447-453. */
+     * relationship with water potential given in Andren, O., and K. Paustian,
+     * 1987. Barley straw decomposition in the field: a comparison of models.
+     * Ecology, 68(5):1190-1200 and supported by data in Orchard, V.A., and F.J.
+     * Cook, 1983. Relationship between soil respiration and soil moisture. Soil
+     * Biol. Biochem., 15(4):447-453. */
     /* Set the maximum and minimum values for water potential limits (MPa) */
     minpsi = -10.0;
     maxpsi = -0.005;
@@ -149,10 +149,10 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
     pmnf_s1s2 = pmnf_s2s3 = pmnf_s3s4 = pmnf_s4 = 0.0;
 
     /* Calculate the non-nitrogen limited fluxes between litter and soil
-     * compartments. These will be ammended for N limitation if it turns out
-     * the potential gross immobilization is greater than potential gross
+     * compartments. These will be amended for N limitation if it turns out the
+     * potential gross immobilization is greater than potential gross
      * mineralization. */
-    /* 1. labile litter to fast microbial recycling pool */
+    /* 1. Labile litter to fast microbial recycling pool */
     if (cs->litr1c > 0.0)
     {
         plitr1c_loss = kl1 * cs->litr1c;
@@ -169,7 +169,7 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
         pmnf_l1s1 = (plitr1c_loss * (1.0 - rfl1s1 - (ratio))) / cn_s1;
     }
 
-    /* 2. cellulose litter to medium microbial recycling pool */
+    /* 2. Cellulose litter to medium microbial recycling pool */
     if (cs->litr2c > 0.0)
     {
         plitr2c_loss = kl2 * cs->litr2c;
@@ -185,7 +185,7 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
         pmnf_l2s2 = (plitr2c_loss * (1.0 - rfl2s2 - (ratio))) / cn_s2;
     }
 
-    /* 3. lignin litter to slow microbial recycling pool */
+    /* 3. Lignin litter to slow microbial recycling pool */
     if (cs->litr4c > 0.0)
     {
         plitr4c_loss = kl4 * cs->litr4c;
@@ -201,28 +201,28 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
         pmnf_l4s3 = (plitr4c_loss * (1.0 - rfl4s3 - (ratio))) / cn_s3;
     }
 
-    /* 4. fast microbial recycling pool to medium microbial recycling pool */
+    /* 4. Fast microbial recycling pool to medium microbial recycling pool */
     if (cs->soil1c > 0.0)
     {
         psoil1c_loss = ks1 * cs->soil1c;
         pmnf_s1s2 = (psoil1c_loss * (1.0 - rfs1s2 - (cn_s2 / cn_s1))) / cn_s2;
     }
 
-    /* 5. medium microbial recycling pool to slow microbial recycling pool */
+    /* 5. Medium microbial recycling pool to slow microbial recycling pool */
     if (cs->soil2c > 0.0)
     {
         psoil2c_loss = ks2 * cs->soil2c;
         pmnf_s2s3 = (psoil2c_loss * (1.0 - rfs2s3 - (cn_s3 / cn_s2))) / cn_s3;
     }
 
-    /* 6. slow microbial recycling pool to recalcitrant SOM pool */
+    /* 6. Slow microbial recycling pool to recalcitrant SOM pool */
     if (cs->soil3c > 0.0)
     {
         psoil3c_loss = ks3 * cs->soil3c;
         pmnf_s3s4 = (psoil3c_loss * (1.0 - rfs3s4 - (cn_s4 / cn_s3))) / cn_s4;
     }
 
-    /* 7. mineralization of recalcitrant SOM */
+    /* 7. Mineralization of recalcitrant SOM */
     if (cs->soil4c > 0.0)
     {
         psoil4c_loss = ks4 * cs->soil4c;
@@ -230,8 +230,8 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
     }
 
     /* Determine if there is sufficient mineral N to support potential
-     * immobilization. Immobilization fluxes are positive, mineralization
-     * fluxes are negative */
+     * immobilization. Immobilization fluxes are positive, mineralization fluxes
+     * are negative */
     nlimit = 0;
     potential_immob = 0.0;
     mineralized = 0.0;
@@ -285,9 +285,8 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
     }
     mineralized += -pmnf_s4;
 
-    /* Save the potential fluxes until plant demand has been assessed, to
-     * allow competition between immobilization fluxes and plant growth
-     * demands */
+    /* Save the potential fluxes until plant demand has been assessed, to allow
+     * competition between immobilization fluxes and plant growth demands */
     nt->mineralized = mineralized;
     nt->potential_immob = potential_immob;
     nt->plitr1c_loss = plitr1c_loss;

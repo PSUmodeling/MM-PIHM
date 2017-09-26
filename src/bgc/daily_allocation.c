@@ -67,10 +67,10 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
         cpool_recovery = -cs->cpool / DAYSCRECOVER;
 
         /* Potential recovery of cpool deficit is less than the available
-         * carbon for the day, so aleviate cpool deficit and use the rest of
+         * carbon for the day, so alleviate cpool deficit and use the rest of
          * the available carbon for new growth and storage. Remember that
          * fluxes in and out of the cpool are reconciled at the end of the
-         * daily loop, so for now, just keep trackof the amount of daily
+         * daily loop, so for now, just keep track of the amount of daily
          * GPP-MR that is not needed to restore a negative cpool. */
         if (cpool_recovery < avail_c)
         {
@@ -83,7 +83,7 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
         {
             avail_c = 0.0;
         }
-    }    /* end if negative cpool */
+    }    /* End if negative cpool */
 
     /* Assign local values for the allocation control parameters */
     f1 = epc->alloc_frootc_leafc;
@@ -98,9 +98,8 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
     cndw = epc->deadwood_cn;
     pnow = epc->alloc_prop_curgrowth;
 
-    /* Given the available C, use constant allometric relationships to
-     * determine how much N is required to meet this potential growth
-     * demand */
+    /* Given the available C, use constant allometric relationships to determine
+     * how much N is required to meet this potential growth demand */
     if (epc->woody)
     {
         c_allometry = ((1.0 + g1) * (1.0 + f1 + f3 * (1.0 + f2)));
@@ -114,8 +113,8 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
     }
     plant_ndemand = avail_c * (n_allometry / c_allometry);
 
-    /* Now compare the combined decomposition immobilization and plant growth
-     * N demands against the available soil mineral N pool. */
+    /* Now compare the combined decomposition immobilization and plant growth N
+     * demands against the available soil mineral N pool. */
     avail_retransn = ns->retransn / DAYSNDEPLOY;
     sum_ndemand = plant_ndemand + nt->potential_immob;
 
@@ -141,9 +140,9 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
         plant_nalloc = nf->retransn_to_npool + nf->sminn_to_npool;
         plant_calloc = avail_c;
 
-        /* Under conditions of excess N, some proportion of excess N is
-         * assumed to be lost to denitrification, in addition to the constant
-         * proportion lost in the decomposition pathways. */
+        /* Under conditions of excess N, some proportion of excess N is assumed
+         * to be lost to denitrification, in addition to the constant proportion
+         * lost in the decomposition pathways. */
         excessn = ns->sminn - sum_ndemand;
         nf->sminn_to_denitrif = excessn * BULK_DENITRIF_PROPORTION;
     }
@@ -167,12 +166,12 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
         }
         nf->sminn_to_npool = ns->sminn - actual_immob;
         plant_remaining_ndemand = plant_ndemand - nf->sminn_to_npool;
-        /* The demand not satisfied by uptake from soil mineral N is now
-         * sought from the retranslocated N pool */
+        /* The demand not satisfied by uptake from soil mineral N is now sought
+         * from the retranslocated N pool */
         if (plant_remaining_ndemand <= avail_retransn)
         {
-            /* There is enough N available from retranslocation pool to
-             * satisfy the remaining plant N demand */
+            /* There is enough N available from retranslocation pool to satisfy
+             * the remaining plant N demand */
             nf->retransn_to_npool = plant_remaining_ndemand;
             plant_calloc = avail_c;
         }
@@ -196,7 +195,7 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
     /* Calculate the amount of new leaf C dictated by these allocation
      * decisions, and figure the daily fluxes of C and N to current growth and
      * storage pools */
-    /* pnow is the proportion of this day's growth that is displayed now, the
+    /* Pnow is the proportion of this day's growth that is displayed now, the
      * remainder going into storage for display next year through the transfer
      * pools */
     nlc = plant_calloc / c_allometry;
@@ -238,14 +237,13 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
     }
 
     /* Calculate the amount of carbon that needs to go into growth respiration
-     * storage to satisfy all of the storage growth demands.  Note that in
-     * version 4.1, this function has been changed to allow for the fraction
-     * of growth respiration that is released at the time of fixation, versus
-     * the remaining fraction that is stored for release at the time of
-     * display. Note that all the growth respiration fluxes that get released
-     * on a given day are calculated in growth_resp(), but that the storage of
-     * C for growth resp during display of transferred growth is assigned
-     * here. */
+     * storage to satisfy all of the storage growth demands. Note that in
+     * version 4.1, this function has been changed to allow for the fraction of
+     * growth respiration that is released at the time of fixation, versus the
+     * remaining fraction that is stored for release at the time of display.
+     * Note that all the growth respiration fluxes that get released on a given
+     * day are calculated in growth_resp(), but that the storage of C for growth
+     * resp during display of transferred growth is assigned here. */
     if (epc->woody)
     {
         gresp_storage =

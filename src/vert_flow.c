@@ -43,9 +43,9 @@ void VerticalFlow(elem_struct *elem, double dt)
             }
             else
             {
-                elem[i].ps.macpore_status =
-                    MacroporeStatus(dh_by_dz, satkfunc, applrate,
-                    elem[i].soil.kmacv, elem[i].soil.kinfv, elem[i].soil.areafh);
+                elem[i].ps.macpore_status = MacroporeStatus(dh_by_dz, satkfunc,
+                    applrate, elem[i].soil.kmacv, elem[i].soil.kinfv,
+                    elem[i].soil.areafh);
             }
 
             if (dh_by_dz < 0.0)
@@ -87,9 +87,9 @@ void VerticalFlow(elem_struct *elem, double dt)
             satn = (satn < SATMIN) ? SATMIN : satn;
 
             psi_u = Psi(satn, elem[i].soil.alpha, elem[i].soil.beta);
-            /* Note: for psi calculation using van genuchten relation, cutting
+            /* Note: for psi calculation using van Genuchten relation, cutting
              * the psi-sat tail at small saturation can be performed for
-             * computational advantage. if you dont' want to perform this,
+             * computational advantage. If you do not want to perform this,
              * comment the statement that follows */
             psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
 

@@ -52,8 +52,7 @@ void SeasonDecidPhenology(const epconst_struct *epc, epvar_struct *epv,
     epv->bg_leafc_litfall_rate = 0.0;
     epv->bg_frootc_litfall_rate = 0.0;
 
-    /* Set flag for solstice period
-     * (winter->summer = 1, summer->winter = 0) */
+    /* Set flag for solstice period (winter->summer = 1, summer->winter = 0) */
     if (epv->dayl >= epv->prev_dayl)
     {
         ws_flag = 1;
@@ -63,15 +62,14 @@ void SeasonDecidPhenology(const epconst_struct *epc, epvar_struct *epv,
         ws_flag = 0;
     }
 
-    /* Update offset_counter and test for the end of the offset
-     * period */
+    /* Update offset_counter and test for the end of the offset period */
     if (epv->offset_flag == 1)
     {
         /* Decrement counter for offset period */
         epv->offset_counter--;
 
-        /* If this is the end of the offset_period, reset phenology
-         * flags and indices */
+        /* If this is the end of the offset_period, reset phenology flags and
+         * indices */
         if (epv->offset_counter == 0)
         {
             epv->offset_flag = 0;
@@ -206,7 +204,7 @@ void OffsetLitterfall(const epconst_struct *epc, epvar_struct *epv,
     {
         if (epv->offset_counter == 1)
         {
-            /* Last time step of litterfall, special case to gaurantee that
+            /* Last time step of litterfall, special case to guarantee that
              * pools go to 0.0 */
             leaflitfallc = cs->leafc;
             frootlitfallc = cs->frootc;
@@ -349,7 +347,7 @@ void LeafLitFall(const epconst_struct *epc, double litfallc, cflux_struct *cf,
     n4 = litfalln * epc->leaflitr_flig;
     nretrans = (litfallc / avg_cn) - (litfalln);
 
-    /* set fluxes */
+    /* Set fluxes */
     cf->leafc_to_litr1c = c1;
     cf->leafc_to_litr2c = c2;
     cf->leafc_to_litr3c = c3;
@@ -379,7 +377,7 @@ void FRootLitFall(const epconst_struct *epc, double litfallc, cflux_struct *cf,
     c4 = litfallc * epc->frootlitr_flig;
     n4 = c4 / avg_cn;
 
-    /* set fluxes */
+    /* Set fluxes */
     cf->frootc_to_litr1c = c1;
     cf->frootc_to_litr2c = c2;
     cf->frootc_to_litr3c = c3;

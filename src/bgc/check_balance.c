@@ -6,10 +6,10 @@ void CheckCarbonBalance (cstate_struct *cs, double *old_balance)
 
     /* DAILY CHECK ON CARBON BALANCE */
 
-    /* sum of sources */
+    /* Sum of sources */
     in = cs->psnsun_src + cs->psnshade_src;
 
-    /* sum of sinks */
+    /* Sum of sinks */
     out =
         cs->leaf_mr_snk + cs->leaf_gr_snk + cs->froot_mr_snk +
         cs->froot_gr_snk + cs->livestem_mr_snk + cs->livestem_gr_snk +
@@ -18,7 +18,7 @@ void CheckCarbonBalance (cstate_struct *cs, double *old_balance)
         cs->litr4_hr_snk + cs->soil1_hr_snk + cs->soil2_hr_snk +
         cs->soil3_hr_snk + cs->soil4_hr_snk + cs->fire_snk;
 
-    /* sum of current storage */
+    /* Sum of current storage */
     store =
         cs->leafc + cs->leafc_storage + cs->leafc_transfer + cs->frootc +
         cs->frootc_storage + cs->frootc_transfer + cs->livestemc +
@@ -30,7 +30,7 @@ void CheckCarbonBalance (cstate_struct *cs, double *old_balance)
         cs->litr4c + cs->soil1c + cs->soil2c + cs->soil3c + cs->soil4c +
         cs->cpool;
 
-    /* calculate current balance */
+    /* Calculate current balance */
     balance = in - out - store;
 
     if (!first_balance)
@@ -63,13 +63,13 @@ void CheckNitrogenBalance (nstate_struct *ns, double *old_balance)
 
     /* DAILY CHECK ON NITROGEN BALANCE */
 
-    /* sum of sources */
+    /* Sum of sources */
     in = ns->nfix_src + ns->ndep_src;
 
-    /* sum of sinks */
+    /* Sum of sinks */
     out = ns->nleached_snk + ns->nvol_snk + ns->fire_snk;
 
-    /* sum of current storage */
+    /* Sum of current storage */
     store =
         ns->leafn + ns->leafn_storage + ns->leafn_transfer + ns->frootn +
         ns->frootn_storage + ns->frootn_transfer + ns->livestemn +
@@ -81,7 +81,7 @@ void CheckNitrogenBalance (nstate_struct *ns, double *old_balance)
         ns->soil2n + ns->soil3n + ns->soil4n + ns->surfn + ns->sminn +
         ns->npool + ns->retransn;
 
-    /* calculate current balance */
+    /* Calculate current balance */
     balance = in - out - store;
 
     if (!first_balance)

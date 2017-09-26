@@ -250,7 +250,7 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
             normal_vector[YCOMP] * normal_vector[YCOMP]);
         elem[i].topo.slope = atan(c / normal_vector[ZCOMP]) * 180.0 / PI;
 
-        /* Calculte aspect */
+        /* Calculate aspect */
         ce = normal_vector[XCOMP] / c;
         se = normal_vector[YCOMP] / c;
         elem[i].topo.aspect = acos(ce) * 180.0 / PI;

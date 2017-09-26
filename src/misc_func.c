@@ -109,10 +109,10 @@ void BKInput(char *outputdir)
 {
     char            project[MAXSTRING];
     char           *token;
-    char            tempname[MAXSTRING];
     char            system_cmd[MAXSTRING];
     char            source_file[MAXSTRING];
 
+#if OBSOLETE
     strcpy(tempname, project);
     if (strstr(tempname, ".") != 0)
     {
@@ -123,6 +123,7 @@ void BKInput(char *outputdir)
     {
         strcpy(project, project);
     }
+#endif
 
     /* Save input files into output directory */
     sprintf(source_file, "input/%s/%s.para", project, project);

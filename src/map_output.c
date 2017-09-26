@@ -1022,9 +1022,9 @@ void InitTecPrtVarCtrl(char *outputdir, char *ext, int intvl, int intr,
     varctrl->zmax = (double *)malloc(nnode * sizeof(double));
     if (intr == 0)
     {
-        varctrl->node0 = (int *)malloc(nvar * sizeof(int *));
-        varctrl->node1 = (int *)malloc(nvar * sizeof(int *));
-        varctrl->node2 = (int *)malloc(nvar * sizeof(int *));
+        varctrl->node0 = (int *)malloc(nvar * sizeof(int));
+        varctrl->node1 = (int *)malloc(nvar * sizeof(int));
+        varctrl->node2 = (int *)malloc(nvar * sizeof(int));
     }
     varctrl->var = (double **)malloc(nvar * sizeof(double *));
     varctrl->buffer = (double *)calloc(nvar, sizeof(double));

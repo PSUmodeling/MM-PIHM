@@ -57,7 +57,7 @@ void PrecisionControl(cstate_struct *cs, nstate_struct *ns)
         ns->cwdn = 0.0;
     }
 
-    /* Test for litter and soil poils. Excess goes to hr sink (C) or volatilized
+    /* Test for litter and soil pools. Excess goes to hr sink (C) or volatilized
      * sink (N) */
     if (cs->litr1c < CRIT_PREC)
     {
@@ -116,8 +116,9 @@ void PrecisionControl(cstate_struct *cs, nstate_struct *ns)
         ns->soil4n = 0.0;
     }
 
-#if OBSOLETE
     /* Additional tests for soil mineral N and retranslocated N */
+#if OBSOLETE
+    /* Sminn should not be changed outside CVode */
     if (ns->sminn < CRIT_PREC)
     {
         ns->nvol_snk += ns->sminn;

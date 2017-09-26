@@ -122,8 +122,8 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
             restart->deadcrootc = restart->deadstemc * epc->alloc_crootc_stemc;
         }
 
-        /* Calculate initial leaf and froot nitrogen pools from carbon pools
-         * and user-specified initial C:N for each component */
+        /* Calculate initial leaf and froot nitrogen pools from carbon pools and
+         * user-specified initial C:N for each component */
         restart->leafn_transfer = restart->leafc_transfer / epc->leaf_cn;
         restart->leafn = restart->leafc / epc->leaf_cn;
         restart->frootn_transfer = restart->frootc_transfer / epc->froot_cn;
@@ -144,9 +144,8 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
             restart->deadcrootn = restart->deadcrootc / epc->deadwood_cn;
         }
 
-        /* Add the growth respiration requirement for the first year's
-         * leaf and fine root growth from transfer pools to the
-         * gresp_transfer pool */
+        /* Add the growth respiration requirement for the first year's leaf and
+         * fine root growth from transfer pools to the gresp_transfer pool */
         restart->gresp_transfer = 0.0;
         restart->gresp_transfer +=
             (restart->leafc_transfer + restart->frootc_transfer) * GRPERC;

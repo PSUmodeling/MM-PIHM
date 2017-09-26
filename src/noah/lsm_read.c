@@ -46,8 +46,7 @@ void ReadLsm(char *filename, siteinfo_struct * siteinfo, ctrl_struct *ctrl,
 
     for (i = 0; i < ctrl->nsoil; i++)
     {
-        match =
-            sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->sldpth[i],
+        match = sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->sldpth[i],
             &bytes_now);
         if (match != 1)
         {

@@ -131,7 +131,7 @@ typedef struct soiltbl_struct
     double         *areafv;      /* macropore area fraction on a vertical
                                   * cross-section (m2 m-2) */
     double         *dmac;        /* macropore depth (m) */
-    double          dinf;        /* depth from ground surface accross which head
+    double          dinf;        /* depth from ground surface across which head
                                   * gradient is calculated for infiltration (m)
                                   */
     double          kmacv_ro;    /* ratio between vertical macropore hydraulic
@@ -200,7 +200,7 @@ typedef struct lctbl_struct
                                    * ground */
     int             natural;      /* the land-use category representing non-
                                    * urban portion of urban land-use points */
-    double          cfactr;       /* parameter used in the canopy inteception
+    double          cfactr;       /* parameter used in the canopy interception
                                    * calculation (-) */
     double          topt;         /* optimum transpiration air temperature (K)
                                    */
@@ -213,8 +213,8 @@ typedef struct tsdata_struct
     int            *ftime;        /* forcing time */
     double        **data;         /* forcing values at forcing time */
     double         *value;        /* forcing values at model time t */
-    double          zlvl_wind;    /* height above groundof wind observations (m)
-                                   */
+    double          zlvl_wind;    /* height above ground of wind observations
+                                     (m) */
 } tsdata_struct;
 
 /* Forcing structure */
@@ -256,7 +256,7 @@ typedef struct noahtbl_struct
                                 */
     double          tbot;      /* bottom soil temperature (local yearly-mean
                                 * surface air temperature) (K) */
-    double          czil;      /* zilitinkevich constant (-) */
+    double          czil;      /* Zilitinkevich constant (-) */
     double          lvcoef;    /* parameter controls surface snow albedo in the
                                 * presence of snowcover (-) */
 } noahtbl_struct;
@@ -273,7 +273,7 @@ typedef struct epctbl_struct
     int            *phenology_flag;         /* flag: 1 = phenology model,
                                              * 0 = user defined */
     int            *onday;                  /* day of year when leaves on */
-    int            *offday;                 /* day of year yearday leaves off */
+    int            *offday;                 /* day of year when leaves off */
     int            *transfer_days;          /* growth period for transfer (day)
                                              */
     int            *litfall_days;           /* growth period for litfall (day)
@@ -336,7 +336,7 @@ typedef struct epctbl_struct
                                              * cellulose fraction (-) */
     double         *frootlitr_flig;         /* fine root litter lignin fraction
                                              * (-) */
-    double         *deadwood_fucel;         /* dead wood unshileded cellulose
+    double         *deadwood_fucel;         /* dead wood unshielded cellulose
                                              * fraction (-) */
     double         *deadwood_fscel;         /* dead wood shielded cellulose
                                              * fraction (-) */

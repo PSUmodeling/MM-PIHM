@@ -26,7 +26,6 @@ void RadTrans(const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
      * shortwave range (from Jones, H.G., 1992. Plants and Microclimate, 2nd
      * Edition. Cambridge University Press. pp. 30-38.) These conversions are
      * approximated from the information given in Jones. */
-
     if (cs->leafc > 0.0)
     {
         /* Calculate whole-canopy projected and all-sided LAI */
@@ -68,7 +67,7 @@ void RadTrans(const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
     k = epc->ext_coef;
     proj_lai = ps->proj_lai;
 
-    /* calculate total shortwave absorbed */
+    /* Calculate total shortwave absorbed */
     k_sw = k;
     albedo_sw = daily->avg_albedo;
 

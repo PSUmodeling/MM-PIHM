@@ -37,8 +37,10 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         pihm->riv[i].attrib.riverbc_type = pihm->rivtbl.bc[i];
     }
 
+    /* Initialize element mesh sturctures */
     InitMeshStruct(pihm->elem, &pihm->meshtbl);
 
+    /* Initialize element topography */
     InitTopo(pihm->elem, &pihm->meshtbl);
 
 #ifdef _NOAH_
@@ -47,14 +49,17 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     pihm->siteinfo.area = TotalArea(pihm->elem);
 #endif
 
+    /* Initialize element soil properties */
 #ifdef _NOAH_
     InitSoil(pihm->elem, &pihm->soiltbl, &pihm->noahtbl, &pihm->cal);
 #else
     InitSoil(pihm->elem, &pihm->soiltbl, &pihm->cal);
 #endif
 
+    /* Initialize element land cover properties */
     InitLC(pihm->elem, &pihm->lctbl, &pihm->cal);
 
+    /* Initialize element forcing */
 #ifdef _BGC_
     InitForcing(pihm->elem, &pihm->forc, &pihm->cal, pihm->co2.varco2,
         pihm->ndepctrl.varndep);
@@ -62,21 +67,26 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     InitForcing(pihm->elem, &pihm->forc, &pihm->cal);
 #endif
 
+    /* Initialize river segment properties */
     InitRiver(pihm->riv, pihm->elem, &pihm->rivtbl, &pihm->shptbl,
         &pihm->matltbl, &pihm->meshtbl, &pihm->cal);
 
+    /* Correct element elevations to avoid sinks */
     if (corr_mode)
     {
         CorrectElevation(pihm->elem, pihm->riv);
     }
 
+    /* Calculate distances between elements */
     InitSurfL(pihm->elem, pihm->riv, &pihm->meshtbl);
 
 #ifdef _NOAH_
+    /* Initialize land surface module (Noah) */
     InitLsm(pihm->elem, &pihm->ctrl, &pihm->noahtbl, &pihm->cal);
 #endif
 
 #ifdef _CYCLES_
+    /* Initialize Cycles modeule */
     if (pihm->ctrl.read_cycles_restart)
     {
         ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->riv);
@@ -87,14 +97,16 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
 #ifdef _BGC_
+    /* Initialize CN (Biome-BGC) module */
     InitBgc(pihm->elem, &pihm->epctbl);
 #endif
 
     /*
-     * Initialize land surface and hydrologic variables
+     * Create hydrological and land surface initial conditions
      */
     if (pihm->ctrl.init_type == RELAX)
     {
+        /* Relaxation mode */
 #ifdef _NOAH_
         /* Noah initialization needs air temperature thus forcing is applied */
         ApplyForcing(&pihm->forc, pihm->elem, pihm->ctrl.starttime, &pihm->ctrl,
@@ -104,15 +116,15 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     }
     else if (pihm->ctrl.init_type == RST_FILE)
     {
+        /* Hot start (using .ic file) */
         ReadIC(pihm->filename.ic, pihm->elem, pihm->riv);
     }
 
+    /* Initialize state variables */
     InitVar(pihm->elem, pihm->riv, CV_Y);
 
 #ifdef _BGC_
-    /*
-     * Initialize CN variables
-     */
+    /* Initialize CN variables */
     if (pihm->ctrl.read_bgc_restart)
     {
         ReadBgcIC(pihm->filename.bgcic, pihm->elem, pihm->riv);
@@ -125,6 +137,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     InitBgcVar(pihm->elem, pihm->riv, CV_Y);
 #endif
 
+    /* Calculate model time steps */
     CalcModelStep(&pihm->ctrl);
 
 #ifdef _DAILY_
@@ -221,7 +234,6 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
         }
         elem[i].soil.alpha = cal->alpha * soiltbl->alpha[soil_ind];
         elem[i].soil.beta = cal->beta * soiltbl->beta[soil_ind];
-
 
         /* Calculate field capacity and wilting point following Chan and
          * Dudhia 2001 MWR, but replacing Campbell with van Genuchten */
@@ -368,8 +380,8 @@ void InitRiver(river_struct *riv, elem_struct *elem,
             meshtbl->x[riv[i].tonode - 1], 2) +
             pow(meshtbl->y[riv[i].fromnode - 1] -
             meshtbl->y[riv[i].tonode - 1], 2));
-        riv[i].shp.width = RivEqWid(riv->shp.intrpl_ord, riv->shp.depth,
-            riv->shp.coeff);
+        riv[i].shp.width =
+            RivEqWid(riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff);
 
         riv[i].topo.zbed = riv[i].topo.zmax - riv[i].shp.depth;
 

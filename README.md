@@ -37,10 +37,10 @@ Note: If you want to switch from one MM-PIHM family model to another one, you al
 
 #### Installation options
 
-By default, MM-PIHM is paralledled using OpenMP, which significantly improves the computational efficiency of MM-PIHM models, especially Flux-PIHM and Flux-PIHM-BGC.
+By default, MM-PIHM is paralleled using OpenMP, which significantly improves the computational efficiency of MM-PIHM models, especially Flux-PIHM and Flux-PIHM-BGC.
 CVODE, however, is not implemented using OpenMP by default.
 According to CVODE document, CVODE state variables (i.e., unknowns) "should be of length at least 100, 000 before the overhead associated with creating and using the threads is made up by the parallelism in the vector calculations".
-If you do want to test using OpenMP for CVODE for, you can compile MM-PIHM models using 
+If you do want to test using OpenMP for CVODE for, you can compile MM-PIHM models using
 
 ```shell
 $ make CVODE_OMP=on [model]
@@ -72,7 +72,7 @@ For example, in command line
 $ export OMP_NUM_THREADS=20
 ```
 
-The command above will enable MM-PIHM model simulaions using twenty (20) OpenMP threads.
+The command above will enable MM-PIHM model simulations using twenty (20) OpenMP threads.
 
 If you use a PBS script, you must require the right number of ppn (processor cores per node) before setting the number of threads.
 The ppn should be the same as the number of threads you want to use.
