@@ -158,6 +158,7 @@ void            PIHM(pihm_struct, void *, N_Vector, int, int, double);
 pihm_t_struct   PIHMTime(int);
 void            PrintData(varctrl_struct *, int, int, int, int);
 void            PrintDataTecplot(varctrl_struct *, int, int, int);
+int             PrintNow(int, int, pihm_t_struct *);
 void            PrintPerf(int, int, double, double, double, FILE *);
 void            PrintStats(void *, FILE *);
 void            PrintWatBal(FILE *, int, int, int, elem_struct *,

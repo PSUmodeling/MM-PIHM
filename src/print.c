@@ -187,46 +187,10 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
     for (i = 0; i < nprint; i++)
     {
         int             j;
-        int             print = 0;
         double          outval;
         double          outtime;
 
-        switch (varctrl[i].intvl)
-        {
-            case YEARLY_OUTPUT:
-                if (pihm_time.month == 1 && pihm_time.day == 1 &&
-                    pihm_time.hour == 0 && pihm_time.minute == 0)
-                {
-                    print = 1;
-                }
-                break;
-            case MONTHLY_OUTPUT:
-                if (pihm_time.day == 1 && pihm_time.hour == 0 &&
-                    pihm_time.minute == 0)
-                {
-                    print = 1;
-                }
-                break;
-            case DAILY_OUTPUT:
-                if (pihm_time.hour == 0 && pihm_time.minute == 0)
-                {
-                    print = 1;
-                }
-                break;
-            case HOURLY_OUTPUT:
-                if (pihm_time.minute == 0)
-                {
-                    print = 1;
-                }
-                break;
-            default:
-                if (lapse % varctrl[i].intvl == 0 && lapse > 0)
-                {
-                    print = 1;
-                }
-        }
-
-        if (print)
+        if(PrintNow(varctrl[i].intvl, lapse, &pihm_time))
         {
             if (ascii)
             {
@@ -274,51 +238,11 @@ void PrtInit(elem_struct *elem, river_struct *river, char *outputdir, int t,
     int starttime, int endtime, int intvl)
 {
     pihm_t_struct   pihm_time;
-    int             print = 0;
 
     pihm_time = PIHMTime(t);
 
-    switch (intvl)
-    {
-        case YEARLY_OUTPUT:
-            if (pihm_time.month == 1 && pihm_time.day == 1 &&
-                    pihm_time.hour == 0 && pihm_time.minute == 0)
-            {
-                print = 1;
-            }
-            break;
-        case MONTHLY_OUTPUT:
-            if (pihm_time.day == 1 && pihm_time.hour == 0 &&
-                    pihm_time.minute == 0)
-            {
-                print = 1;
-            }
-            break;
-        case DAILY_OUTPUT:
-            if (pihm_time.hour == 0 && pihm_time.minute == 0)
-            {
-                print = 1;
-            }
-            break;
-        case HOURLY_OUTPUT:
-            if (pihm_time.minute == 0)
-            {
-                print = 1;
-            }
-            break;
-        default:
-            if ((t - starttime) % intvl == 0)
-            {
-                print = 1;
-            }
-    }
 
-    if (t == endtime)
-    {
-        print = 1;
-    }
-
-    if (print)
+    if(PrintNow(intvl, t - starttime, &pihm_time) || t == endtime)
     {
         FILE           *init_file;
         char            fn[MAXSTRING];
@@ -380,45 +304,10 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
     for (i = 0; i < nprint; i++)
     {
         int             j;
-        int             print = 0;
         double          outval;
         double          outtime;
 
-        switch (varctrl[i].intvl)
-        {
-            case YEARLY_OUTPUT:
-                if (pihm_time.month == 1 && pihm_time.day == 1 &&
-                    pihm_time.hour == 0 && pihm_time.minute == 0)
-                {
-                    print = 1;
-                }
-                break;
-            case MONTHLY_OUTPUT:
-                if (pihm_time.day == 1 && pihm_time.hour == 0 &&
-                    pihm_time.minute == 0)
-                {
-                    print = 1;
-                }
-                break;
-            case DAILY_OUTPUT:
-                if (pihm_time.hour == 0 && pihm_time.minute == 0)
-                {
-                    print = 1;
-                }
-                break;
-            case HOURLY_OUTPUT:
-                if (pihm_time.minute == 0)
-                {
-                    print = 1;
-                }
-                break;
-            default:
-                if (lapse % varctrl[i].intvl == 0 && lapse > 0)
-                {
-                    print = 1;
-                }
-        }
-        if (print)
+        if(PrintNow(varctrl[i].intvl, lapse, &pihm_time))
         {
             outtime = (double)t;
 
@@ -640,4 +529,46 @@ void PrtCVodeFinalStats(void *cvode_mem)
         "num of nonlin solv conv fails = %-6ld "
         "num of err test fails = %-6ld\n",
         nni, ncfn, netf);
+}
+
+int PrintNow(int intvl, int lapse, pihm_t_struct *pihm_time)
+{
+    int             print = 0;
+
+    switch (intvl)
+    {
+        case YEARLY_OUTPUT:
+            if (pihm_time->month == 1 && pihm_time->day == 1 &&
+                pihm_time->hour == 0 && pihm_time->minute == 0)
+            {
+                print = 1;
+            }
+            break;
+        case MONTHLY_OUTPUT:
+            if (pihm_time->day == 1 && pihm_time->hour == 0 &&
+                pihm_time->minute == 0)
+            {
+                print = 1;
+            }
+            break;
+        case DAILY_OUTPUT:
+            if (pihm_time->hour == 0 && pihm_time->minute == 0)
+            {
+                print = 1;
+            }
+            break;
+        case HOURLY_OUTPUT:
+            if (pihm_time->minute == 0)
+            {
+                print = 1;
+            }
+            break;
+        default:
+            if (lapse % intvl == 0)
+            {
+                print = 1;
+            }
+    }
+
+    return print;
 }
