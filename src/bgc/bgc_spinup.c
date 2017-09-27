@@ -27,8 +27,9 @@ void BgcSpinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 
         spinyears += metyears;
 
-        steady = CheckBgcSteadyState(pihm->elem, pihm->siteinfo.area, first_spin_cycle,
-            pihm->ctrl.endtime - pihm->ctrl.starttime, spinyears);
+        steady = CheckBgcSteadyState(pihm->elem, pihm->siteinfo.area,
+            first_spin_cycle, pihm->ctrl.endtime - pihm->ctrl.starttime,
+            spinyears);
 
         first_spin_cycle = 0;
     } while (spinyears < pihm->ctrl.maxspinyears);

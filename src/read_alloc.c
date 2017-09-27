@@ -5,7 +5,7 @@ void ReadAlloc(pihm_struct pihm)
     PIHMprintf(VL_VERBOSE, "\nRead input files:\n");
 
     /* Set file names of the input files */
-    sprintf(pihm->filename.riv,      "input/%s/%s.riv",      project, project);
+    sprintf(pihm->filename.riv,      "input/%s/%s.rivseg",   project, project);
     sprintf(pihm->filename.mesh,     "input/%s/%s.mesh",     project, project);
     sprintf(pihm->filename.att,      "input/%s/%s.att",      project, project);
     sprintf(pihm->filename.soil,     "input/%s/%s.soil",     project, project);
@@ -140,7 +140,7 @@ void ReadRiver(char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     int             index;
     int             lno = 0;
 
-    /* Open .riv input file */
+    /* Open .rivseg input file */
     riv_file = fopen(filename, "r");
     CheckFile(riv_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
@@ -935,7 +935,7 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
     ReadKeyword(cmdstr, "ASCII_OUTPUT", &ctrl->ascii, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "WATBAL_OUTPUT", &ctrl->waterB, 'i', filename, lno);
+    ReadKeyword(cmdstr, "WATBAL_OUTPUT", &ctrl->waterbal, 'i', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "WRITE_IC", &ctrl->write_ic, 'i', filename, lno);
@@ -1226,7 +1226,7 @@ void ReadCalib(char *filename, calib_struct *cal)
     fclose(global_calib);
 }
 
-void ReadIc(char *filename, elem_struct *elem, river_struct *riv)
+void ReadIc(char *filename, elem_struct *elem, river_struct *rivseg)
 {
     FILE           *ic_file;
     int             i;
@@ -1258,7 +1258,7 @@ void ReadIc(char *filename, elem_struct *elem, river_struct *riv)
 
     for (i = 0; i < nriver; i++)
     {
-        fread(&riv[i].ic, sizeof(river_ic_struct), 1, ic_file);
+        fread(&rivseg[i].ic, sizeof(river_ic_struct), 1, ic_file);
     }
 
     fclose(ic_file);
@@ -1463,7 +1463,7 @@ void FreeData(pihm_struct pihm)
     /*
      * Close files
      */
-    if (pihm->ctrl.waterB)
+    if (pihm->ctrl.waterbal)
     {
         fclose(pihm->print.walbal_file);
     }
@@ -1490,5 +1490,5 @@ void FreeData(pihm_struct pihm)
         }
     }
     free(pihm->elem);
-    free(pihm->riv);
+    free(pihm->rivseg);
 }

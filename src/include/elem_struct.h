@@ -994,7 +994,8 @@ typedef struct cstate_struct
                                              * (kgC m-2) */
     double          gresp_transfer;         /* growth respiration transfer
                                              * (kgC m-2) */
-    double          cwdc;                   /* coarse woody debris C (kgC m-2) */
+    double          cwdc;                   /* coarse woody debris C (kgC m-2)
+                                             */
     double          litr1c;                 /* litter labile C (kgC m-2) */
     double          litr2c;                 /* litter unshielded cellulose C
                                              * (kgC m-2) */

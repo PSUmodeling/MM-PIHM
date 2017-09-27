@@ -166,7 +166,7 @@ void RestartOutput(cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     restart->offset_swi = epv->offset_swi;
 }
 
-void ReadBgcIc(char *fn, elem_struct *elem, river_struct *riv)
+void ReadBgcIc(char *fn, elem_struct *elem, river_struct *rivseg)
 {
     FILE           *init_file;
     int             i;
@@ -197,13 +197,14 @@ void ReadBgcIc(char *fn, elem_struct *elem, river_struct *riv)
 
     for (i = 0; i < nriver; i++)
     {
-        fread(&riv[i].restart_input, sizeof(river_bgcic_struct), 1, init_file);
+        fread(&rivseg[i].restart_input, sizeof(river_bgcic_struct), 1,
+            init_file);
     }
 
     fclose(init_file);
 }
 
-void WriteBgcIc(char *outputdir, elem_struct *elem, river_struct *riv)
+void WriteBgcIc(char *outputdir, elem_struct *elem, river_struct *rivseg)
 {
     int             i;
     FILE           *restart_file;
@@ -241,10 +242,10 @@ void WriteBgcIc(char *outputdir, elem_struct *elem, river_struct *riv)
 
     for (i = 0; i < nriver; i++)
     {
-        riv[i].restart_output.streamn = riv[i].ns.streamn;
-        riv[i].restart_output.sminn = riv[i].ns.sminn;
+        rivseg[i].restart_output.streamn = rivseg[i].ns.streamn;
+        rivseg[i].restart_output.sminn = rivseg[i].ns.sminn;
 
-        fwrite(&(riv[i].restart_output), sizeof(river_bgcic_struct), 1,
+        fwrite(&(rivseg[i].restart_output), sizeof(river_bgcic_struct), 1,
             restart_file);
     }
 }

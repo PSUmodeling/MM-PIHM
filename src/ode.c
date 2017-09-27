@@ -45,28 +45,28 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
     for (i = 0; i < nriver; i++)
     {
-        river_struct   *riv;
-        riv = &pihm->riv[i];
+        river_struct   *rivseg;
+        rivseg = &pihm->rivseg[i];
 
-        riv->ws.stage = (y[RIVSTG(i)] >= 0.0) ? y[RIVSTG(i)] : 0.0;
-        riv->ws.gw = (y[RIVGW(i)] >= 0.0) ? y[RIVGW(i)] : 0.0;
+        rivseg->ws.stage = (y[RIVSTG(i)] >= 0.0) ? y[RIVSTG(i)] : 0.0;
+        rivseg->ws.gw = (y[RIVGW(i)] >= 0.0) ? y[RIVGW(i)] : 0.0;
 
 #ifdef _BGC_
-        riv->ns.streamn = (y[STREAMN(i)] >= 0.0) ? y[STREAMN(i)] : 0.0;
-        riv->ns.sminn = (y[RIVBEDN(i)] >= 0.0) ? y[RIVBEDN(i)] : 0.0;
+        rivseg->ns.streamn = (y[STREAMN(i)] >= 0.0) ? y[STREAMN(i)] : 0.0;
+        rivseg->ns.sminn = (y[RIVBEDN(i)] >= 0.0) ? y[RIVBEDN(i)] : 0.0;
 #endif
 
-        riv->wf.rivflow[UP_CHANL2CHANL] = 0.0;
-        riv->wf.rivflow[UP_AQUIF2AQUIF] = 0.0;
+        rivseg->wf.rivflow[UP_CHANL2CHANL] = 0.0;
+        rivseg->wf.rivflow[UP_AQUIF2AQUIF] = 0.0;
     }
 
     /*
      * PIHM Hydrology
      */
-    Hydrol(pihm->elem, pihm->riv, &pihm->ctrl);
+    Hydrol(pihm->elem, pihm->rivseg, &pihm->ctrl);
 
 #ifdef _BGC_
-    NTransport(pihm->elem, pihm->riv);
+    NTransport(pihm->elem, pihm->rivseg);
 #endif
 
     /*
@@ -138,24 +138,24 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     for (i = 0; i < nriver; i++)
     {
         int             j;
-        river_struct   *riv;
+        river_struct   *rivseg;
 
-        riv = &(pihm->riv[i]);
+        rivseg = &(pihm->rivseg[i]);
 
         for (j = 0; j <= 6; j++)
         {
             /* Note the limitation due to
              * d(v) / dt = a * dy / dt + y * da / dt
              * for cs other than rectangle */
-            dy[RIVSTG(i)] -= riv->wf.rivflow[j] / riv->topo.area;
+            dy[RIVSTG(i)] -= rivseg->wf.rivflow[j] / rivseg->topo.area;
         }
 
-        dy[RIVGW(i)] += -riv->wf.rivflow[LEFT_AQUIF2AQUIF] -
-            riv->wf.rivflow[RIGHT_AQUIF2AQUIF] -
-            riv->wf.rivflow[DOWN_AQUIF2AQUIF] -
-            riv->wf.rivflow[UP_AQUIF2AQUIF] + riv->wf.rivflow[CHANL_LKG];
+        dy[RIVGW(i)] += -rivseg->wf.rivflow[LEFT_AQUIF2AQUIF] -
+            rivseg->wf.rivflow[RIGHT_AQUIF2AQUIF] -
+            rivseg->wf.rivflow[DOWN_AQUIF2AQUIF] -
+            rivseg->wf.rivflow[UP_AQUIF2AQUIF] + rivseg->wf.rivflow[CHANL_LKG];
 
-        dy[RIVGW(i)] /= riv->matl.porosity * riv->topo.area;
+        dy[RIVGW(i)] /= rivseg->matl.porosity * rivseg->topo.area;
 
         if (isnan(dy[RIVSTG(i)]))
         {
@@ -175,15 +175,15 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #ifdef _BGC_
         for (j = 0; j <= 6; j++)
         {
-            dy[STREAMN(i)] -= riv->nsol.flux[j] / riv->topo.area;
+            dy[STREAMN(i)] -= rivseg->nsol.flux[j] / rivseg->topo.area;
         }
 
-        dy[RIVBEDN(i)] += -riv->nsol.flux[LEFT_AQUIF2AQUIF] -
-            riv->nsol.flux[RIGHT_AQUIF2AQUIF] -
-            riv->nsol.flux[DOWN_AQUIF2AQUIF] -
-            riv->nsol.flux[UP_AQUIF2AQUIF] + riv->nsol.flux[CHANL_LKG];
+        dy[RIVBEDN(i)] += -rivseg->nsol.flux[LEFT_AQUIF2AQUIF] -
+            rivseg->nsol.flux[RIGHT_AQUIF2AQUIF] -
+            rivseg->nsol.flux[DOWN_AQUIF2AQUIF] -
+            rivseg->nsol.flux[UP_AQUIF2AQUIF] + rivseg->nsol.flux[CHANL_LKG];
 
-        dy[RIVBEDN(i)] /= riv->topo.area;
+        dy[RIVBEDN(i)] /= rivseg->topo.area;
 #endif
     }
 

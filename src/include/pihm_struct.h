@@ -120,7 +120,7 @@ typedef struct calib_struct
 typedef struct ctrl_struct
 {
     int             ascii;                  /* flag to turn on ascii output */
-    int             waterB;                 /* flag to turn on water balance
+    int             waterbal;                 /* flag to turn on water balance
                                              * diagnostic output */
     int             write_ic;               /* flag to write model output as
                                              * initial conditions */
@@ -247,7 +247,7 @@ typedef struct pihm_struct
 #endif
     forc_struct     forc;
     elem_struct    *elem;
-    river_struct   *riv;
+    river_struct   *rivseg;
     calib_struct    cal;
     ctrl_struct     ctrl;
     print_struct    print;

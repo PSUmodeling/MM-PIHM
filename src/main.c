@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     BackupInput(outputdir);
 #endif
 
-    InitOutputFile(&pihm->print, outputdir, pihm->ctrl.waterB,
+    InitOutputFile(&pihm->print, outputdir, pihm->ctrl.waterbal,
         pihm->ctrl.ascii);
 
     PIHMprintf(VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
             /* Write init files */
             if (pihm->ctrl.write_ic)
             {
-                PrintInit(pihm->elem, pihm->riv, outputdir,
+                PrintInit(pihm->elem, pihm->rivseg, outputdir,
                     pihm->ctrl.tout[i + 1], pihm->ctrl.starttime,
                     pihm->ctrl.endtime, pihm->ctrl.prtvrbl[IC_CTRL]);
             }
@@ -135,14 +135,14 @@ int main(int argc, char *argv[])
 #ifdef _BGC_
     if (pihm->ctrl.write_bgc_restart)
     {
-        WriteBgcIc(outputdir, pihm->elem, pihm->riv);
+        WriteBgcIc(outputdir, pihm->elem, pihm->rivseg);
     }
 #endif
 
 #ifdef _CYCLES_
     if (pihm->ctrl.write_cycles_restart)
     {
-        WriteCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->riv);
+        WriteCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->rivseg);
     }
 #endif
 

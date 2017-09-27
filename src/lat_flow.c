@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void LateralFlow(elem_struct *elem, river_struct *riv, int surf_mode)
+void LateralFlow(elem_struct *elem, river_struct *rivseg, int surf_mode)
 {
     int             i;
     double         *dhbydx;
@@ -9,7 +9,7 @@ void LateralFlow(elem_struct *elem, river_struct *riv, int surf_mode)
     dhbydx = (double *)malloc(nelem * sizeof(double));
     dhbydy = (double *)malloc(nelem * sizeof(double));
 
-    FrictSlope(elem, riv, surf_mode, dhbydx, dhbydy);
+    FrictSlope(elem, rivseg, surf_mode, dhbydx, dhbydy);
 
 #ifdef _OPENMP
 # pragma omp parallel for
@@ -143,7 +143,7 @@ void LateralFlow(elem_struct *elem, river_struct *riv, int surf_mode)
     free(dhbydy);
 }
 
-void FrictSlope(elem_struct *elem, river_struct *riv, int surf_mode,
+void FrictSlope(elem_struct *elem, river_struct *rivseg, int surf_mode,
     double *dhbydx, double *dhbydy)
 {
     int             i;
@@ -168,7 +168,7 @@ void FrictSlope(elem_struct *elem, river_struct *riv, int surf_mode,
                 }
                 else if (elem[i].nabr[j] < 0)
                 {
-                    rivnabr = &riv[-elem[i].nabr[j] - 1];
+                    rivnabr = &rivseg[-elem[i].nabr[j] - 1];
 
                     if (rivnabr->ws.stage > rivnabr->shp.depth)
                     {

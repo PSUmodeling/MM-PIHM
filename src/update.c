@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Summary(elem_struct *elem, river_struct *riv, N_Vector CV_Y,
+void Summary(elem_struct *elem, river_struct *rivseg, N_Vector CV_Y,
     double stepsize)
 {
     double         *y;
@@ -53,10 +53,10 @@ void Summary(elem_struct *elem, river_struct *riv, N_Vector CV_Y,
 #endif
     for (i = 0; i < nriver; i++)
     {
-        riv[i].ws.stage = y[RIVSTG(i)];
-        riv[i].ws.gw = y[RIVGW(i)];
+        rivseg[i].ws.stage = y[RIVSTG(i)];
+        rivseg[i].ws.gw = y[RIVGW(i)];
 
-        riv[i].ws0 = riv[i].ws;
+        rivseg[i].ws0 = rivseg[i].ws;
     }
 }
 

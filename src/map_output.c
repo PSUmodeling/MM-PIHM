@@ -48,7 +48,8 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                         HYDROL_STEP, nriver, &pihm->print.varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
-                        pihm->print.varctrl[n].var[j] = &pihm->riv[j].ws.stage;
+                        pihm->print.varctrl[n].var[j] =
+                            &pihm->rivseg[j].ws.stage;
                     }
                     n++;
                     break;
@@ -57,7 +58,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                         HYDROL_STEP, nriver, &pihm->print.varctrl[n]);
                     for (j = 0; j < nriver; j++)
                     {
-                        pihm->print.varctrl[n].var[j] = &pihm->riv[j].ws.gw;
+                        pihm->print.varctrl[n].var[j] = &pihm->rivseg[j].ws.gw;
                     }
                     n++;
                     break;
@@ -130,7 +131,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].wf.rivflow[0];
+                            &pihm->rivseg[j].wf.rivflow[0];
                     }
                     n++;
                     break;
@@ -140,7 +141,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].wf.rivflow[1];
+                            &pihm->rivseg[j].wf.rivflow[1];
                     }
                     n++;
                     break;
@@ -150,7 +151,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].wf.rivflow[2];
+                            &pihm->rivseg[j].wf.rivflow[2];
                     }
                     n++;
                     break;
@@ -160,7 +161,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].wf.rivflow[3];
+                            &pihm->rivseg[j].wf.rivflow[3];
                     }
                     n++;
                     break;
@@ -170,7 +171,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].wf.rivflow[4];
+                            &pihm->rivseg[j].wf.rivflow[4];
                     }
                     n++;
                     break;
@@ -180,7 +181,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].wf.rivflow[5];
+                            &pihm->rivseg[j].wf.rivflow[5];
                     }
                     n++;
                     break;
@@ -190,7 +191,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].wf.rivflow[6];
+                            &pihm->rivseg[j].wf.rivflow[6];
                     }
                     n++;
                     break;
@@ -200,7 +201,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].wf.rivflow[7];
+                            &pihm->rivseg[j].wf.rivflow[7];
                     }
                     n++;
                     break;
@@ -210,7 +211,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].wf.rivflow[8];
+                            &pihm->rivseg[j].wf.rivflow[8];
                     }
                     n++;
                     break;
@@ -220,7 +221,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].wf.rivflow[9];
+                            &pihm->rivseg[j].wf.rivflow[9];
                     }
                     n++;
                     break;
@@ -230,7 +231,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].wf.rivflow[10];
+                            &pihm->rivseg[j].wf.rivflow[10];
                     }
                     n++;
                     break;
@@ -725,7 +726,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].NO3sol.soluteMass;
+                            &pihm->rivseg[j].NO3sol.soluteMass;
                     }
                     n++;
                     break;
@@ -745,7 +746,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.varctrl[n].var[j] =
-                            &pihm->riv[j].NH4sol.soluteMass;
+                            &pihm->rivseg[j].NH4sol.soluteMass;
                     }
                     n++;
                     break;
@@ -797,7 +798,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                         for (j = 0; j < nriver; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
-                                &pihm->riv[j].NO3Leaching[k];
+                                &pihm->rivseg[j].NO3Leaching[k];
                         }
                         n++;
                     }
@@ -811,7 +812,7 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                         for (j = 0; j < nriver; j++)
                         {
                             pihm->print.varctrl[n].var[j] =
-                                &pihm->riv[j].NH4Leaching[k];
+                                &pihm->rivseg[j].NH4Leaching[k];
                         }
                         n++;
                     }
@@ -950,13 +951,13 @@ void MapOutput(pihm_struct pihm, char *outputdir)
                     for (j = 0; j < nriver; j++)
                     {
                         pihm->print.tp_varctrl[n].var[j] =
-                            &pihm->riv[j].ws.stage;
-                        pihm->print.tp_varctrl[n].x[j] = pihm->riv[j].topo.x;
-                        pihm->print.tp_varctrl[n].y[j] = pihm->riv[j].topo.y;
+                            &pihm->rivseg[j].ws.stage;
+                        pihm->print.tp_varctrl[n].x[j] = pihm->rivseg[j].topo.x;
+                        pihm->print.tp_varctrl[n].y[j] = pihm->rivseg[j].topo.y;
                         pihm->print.tp_varctrl[n].zmax[j] =
-                            pihm->riv[j].topo.zmax;
+                            pihm->rivseg[j].topo.zmax;
                         pihm->print.tp_varctrl[n].zmin[j] =
-                            pihm->riv[j].topo.zmin;
+                            pihm->rivseg[j].topo.zmin;
                     }
                     n++;
                     break;
@@ -967,13 +968,14 @@ void MapOutput(pihm_struct pihm, char *outputdir)
 
                     for (j = 0; j < nriver; j++)
                     {
-                        pihm->print.tp_varctrl[n].var[j] = &pihm->riv[j].ws.gw;
-                        pihm->print.tp_varctrl[n].x[j] = pihm->riv[j].topo.x;
-                        pihm->print.tp_varctrl[n].y[j] = pihm->riv[j].topo.y;
+                        pihm->print.tp_varctrl[n].var[j] =
+                            &pihm->rivseg[j].ws.gw;
+                        pihm->print.tp_varctrl[n].x[j] = pihm->rivseg[j].topo.x;
+                        pihm->print.tp_varctrl[n].y[j] = pihm->rivseg[j].topo.y;
                         pihm->print.tp_varctrl[n].zmax[j] =
-                            pihm->riv[j].topo.zmax;
+                            pihm->rivseg[j].topo.zmax;
                         pihm->print.tp_varctrl[n].zmin[j] =
-                            pihm->riv[j].topo.zmin;
+                            pihm->rivseg[j].topo.zmin;
                     }
                     n++;
                     break;

@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Hydrol(elem_struct *elem, river_struct *riv, ctrl_struct *ctrl)
+void Hydrol(elem_struct *elem, river_struct *rivseg, ctrl_struct *ctrl)
 {
     int             i;
 
@@ -19,9 +19,9 @@ void Hydrol(elem_struct *elem, river_struct *riv, ctrl_struct *ctrl)
     /* Water flow */
     VerticalFlow(elem, (double)ctrl->stepsize);
 
-    LateralFlow(elem, riv, ctrl->surf_mode);
+    LateralFlow(elem, rivseg, ctrl->surf_mode);
 
-    RiverFlow(elem, riv, ctrl->riv_mode);
+    RiverFlow(elem, rivseg, ctrl->riv_mode);
 }
 
 void EtExtract(elem_struct *elem)

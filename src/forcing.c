@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *riv, int t)
+void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *rivseg, int t)
 {
     /* Element boundary conditions */
     if (forc->nbc > 0)
@@ -11,7 +11,7 @@ void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *riv, int t)
     /* River boundary condition */
     if (forc->nriverbc > 0)
     {
-        ApplyRiverBc(forc, riv, t);
+        ApplyRiverBc(forc, rivseg, t);
     }
 }
 
@@ -228,7 +228,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 #endif
 }
 
-void ApplyRiverBc(forc_struct *forc, river_struct *riv, int t)
+void ApplyRiverBc(forc_struct *forc, river_struct *rivseg, int t)
 {
     int             i, k;
 
@@ -247,10 +247,10 @@ void ApplyRiverBc(forc_struct *forc, river_struct *riv, int t)
     {
         int             ind;
 
-        if (riv[i].attrib.riverbc_type > 0)
+        if (rivseg[i].attrib.riverbc_type > 0)
         {
-            ind = riv[i].attrib.riverbc_type - 1;
-            riv[i].bc.head = forc->riverbc[ind].value[0];
+            ind = rivseg[i].attrib.riverbc_type - 1;
+            rivseg[i].bc.head = forc->riverbc[ind].value[0];
         }
     }
 }
