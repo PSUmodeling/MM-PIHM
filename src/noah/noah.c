@@ -1,47 +1,44 @@
 #include "pihm.h"
 
-void Noah(pihm_struct pihm)
+void Noah(elem_struct *elem, double dt)
 {
-    int             i, j;
+    int             i;
 
 #ifdef _OPENMP
-# pragma omp parallel for private(j)
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
-        CalHum(&pihm->elem[i].ps, &pihm->elem[i].es);
+        int             j;
 
-        pihm->elem[i].ps.ffrozp =
-            FrozRain(pihm->elem[i].wf.prcp, pihm->elem[i].es.sfctmp);
+        CalHum(&elem[i].ps, &elem[i].es);
 
-        pihm->elem[i].ps.alb = BADVAL;
+        elem[i].ps.ffrozp = FrozRain(elem[i].wf.prcp, elem[i].es.sfctmp);
 
-        pihm->elem[i].ws.cmcmax = pihm->elem[i].lc.shdfac *
-            pihm->elem[i].lc.cmcfactr * pihm->elem[i].ps.proj_lai;
+        elem[i].ps.alb = BADVAL;
 
-        if (pihm->elem[i].ps.q1 == BADVAL)
+        elem[i].ws.cmcmax =
+            elem[i].lc.shdfac * elem[i].lc.cmcfactr * elem[i].ps.proj_lai;
+
+        if (elem[i].ps.q1 == BADVAL)
         {
-            pihm->elem[i].ps.q1 = pihm->elem[i].ps.q2;
+            elem[i].ps.q1 = elem[i].ps.q2;
         }
 
-        pihm->elem[i].ef.solnet =
-            pihm->elem[i].ef.soldn * (1.0 - pihm->elem[i].ps.albedo);
-        pihm->elem[i].ef.lwdn =
-            pihm->elem[i].ef.longwave * pihm->elem[i].ps.emissi;
+        elem[i].ef.solnet = elem[i].ef.soldn * (1.0 - elem[i].ps.albedo);
+        elem[i].ef.lwdn = elem[i].ef.longwave * elem[i].ps.emissi;
 
-        for (j = 0; j < pihm->elem[i].ps.nsoil; j++)
+        for (j = 0; j < elem[i].ps.nsoil; j++)
         {
-            pihm->elem[i].ws.smc[j] =
-                (pihm->elem[i].ws.smc[j] > pihm->elem[i].soil.smcmin + 0.02) ?
-                pihm->elem[i].ws.smc[j] : pihm->elem[i].soil.smcmin + 0.02;
-            pihm->elem[i].ws.smc[j] =
-                (pihm->elem[i].ws.smc[j] < pihm->elem[i].soil.smcmax) ?
-                pihm->elem[i].ws.smc[j] : pihm->elem[i].soil.smcmax;
-            pihm->elem[i].ws.sh2o[j] =
-                (pihm->elem[i].ws.sh2o[j] < pihm->elem[i].ws.smc[j]) ?
-                pihm->elem[i].ws.sh2o[j] : pihm->elem[i].ws.smc[j];
+            elem[i].ws.smc[j] =
+                (elem[i].ws.smc[j] > elem[i].soil.smcmin + 0.02) ?
+                elem[i].ws.smc[j] : elem[i].soil.smcmin + 0.02;
+            elem[i].ws.smc[j] = (elem[i].ws.smc[j] < elem[i].soil.smcmax) ?
+                elem[i].ws.smc[j] : elem[i].soil.smcmax;
+            elem[i].ws.sh2o[j] = (elem[i].ws.sh2o[j] < elem[i].ws.smc[j]) ?
+                elem[i].ws.sh2o[j] : elem[i].ws.smc[j];
 #ifdef _CYCLES_
-            pihm->elem[i].soil.waterContent[j] = pihm->elem[i].ws.sh2o[j];
+            elem[i].soil.waterContent[j] = elem[i].ws.sh2o[j];
 #endif
         }
 
@@ -49,32 +46,32 @@ void Noah(pihm_struct pihm)
          * Run Noah LSM
          */
 #ifdef _CYCLES_
-        SFlx(&pihm->elem[i].ws, &pihm->elem[i].wf, &pihm->elem[i].es,
-            &pihm->elem[i].ef, &pihm->elem[i].ps, &pihm->elem[i].lc,
-            &pihm->elem[i].epc, &pihm->elem[i].soil, &pihm->elem[i].comm,
-            &pihm->elem[i].residue, pihm->ctrl.etstep);
+        SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef, &elem[i].ps,
+            &elem[i].lc, &elem[i].epc, &elem[i].soil, &elem[i].comm,
+            &elem[i].residue, dt);
 #else
-        SFlx(&pihm->elem[i].ws, &pihm->elem[i].wf, &pihm->elem[i].es,
-            &pihm->elem[i].ef, &pihm->elem[i].ps, &pihm->elem[i].lc,
-            &pihm->elem[i].epc, &pihm->elem[i].soil, pihm->ctrl.etstep);
+        SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef, &elem[i].ps,
+            &elem[i].lc, &elem[i].epc, &elem[i].soil, dt);
 #endif
 
         /* ET: convert from W m-2 to m s-1 */
-        pihm->elem[i].wf.ec = pihm->elem[i].ef.ec / LVH2O / 1000.0;
-        pihm->elem[i].wf.ett = pihm->elem[i].ef.ett / LVH2O / 1000.0;
-        pihm->elem[i].wf.edir = pihm->elem[i].ef.edir / LVH2O / 1000.0;
+        elem[i].wf.ec = elem[i].ef.ec / LVH2O / 1000.0;
+        elem[i].wf.ett = elem[i].ef.ett / LVH2O / 1000.0;
+        elem[i].wf.edir = elem[i].ef.edir / LVH2O / 1000.0;
     }
 }
 
 void NoahHydrol(elem_struct *elem, double dt)
 {
-    int             i, j;
+    int             i;
 
 #ifdef _OPENMP
-# pragma omp parallel for private(j)
+# pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
+        int             j;
+
         /* Find water table position */
         elem[i].ps.nwtbl = FindWT(elem[i].ps.sldpth, elem[i].ps.nsoil,
             elem[i].ws.gw, elem[i].ps.satdpth);
@@ -107,11 +104,11 @@ void NoahHydrol(elem_struct *elem, double dt)
 #ifdef _CYCLES_
 void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
-    soil_struct *soil, comm_struct *comm, residue_struct *residue, int etstep)
+    soil_struct *soil, comm_struct *comm, residue_struct *residue, double dt)
 #else
 void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
-    soil_struct *soil, int etstep)
+    soil_struct *soil, double dt)
 #endif
 {
     /*
@@ -136,14 +133,11 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     double          t24;
     double          interp_fraction;
     double          sn_new;
-    double          dt;
     double          prcpf;
     double          soilwm;
     double          soilww;
     double          smav[MAXLYR];
     int             k;
-
-    dt = (double)etstep;
 
     /*
      * Initialization

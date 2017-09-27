@@ -1,6 +1,7 @@
 #include "pihm.h"
 
-void Summary(pihm_struct pihm, N_Vector CV_Y, double stepsize)
+void Summary(elem_struct *elem, river_struct *riv, N_Vector CV_Y,
+    double stepsize)
 {
     double         *y;
     int             i;
@@ -14,39 +15,36 @@ void Summary(pihm_struct pihm, N_Vector CV_Y, double stepsize)
     {
         double          subrunoff;
 
-        pihm->elem[i].ws.surf = y[SURF(i)];
-        pihm->elem[i].ws.unsat = y[UNSAT(i)];
-        pihm->elem[i].ws.gw = y[GW(i)];
+        elem[i].ws.surf = y[SURF(i)];
+        elem[i].ws.unsat = y[UNSAT(i)];
+        elem[i].ws.gw = y[GW(i)];
 
-        MassBalance(&pihm->elem[i].ws, &pihm->elem[i].ws0, &pihm->elem[i].wf,
-            &subrunoff, &pihm->elem[i].soil, pihm->elem[i].topo.area, stepsize);
+        MassBalance(&elem[i].ws, &elem[i].ws0, &elem[i].wf, &subrunoff,
+            &elem[i].soil, elem[i].topo.area, stepsize);
 
 #ifdef _NOAH_
-        pihm->elem[i].wf.runoff2 = subrunoff;
+        elem[i].wf.runoff2 = subrunoff;
 
-        pihm->elem[i].ps.nwtbl = FindWT(pihm->elem[i].ps.sldpth,
-            pihm->elem[i].ps.nsoil, pihm->elem[i].ws.gw,
-            pihm->elem[i].ps.satdpth);
+        elem[i].ps.nwtbl = FindWT(elem[i].ps.sldpth, elem[i].ps.nsoil,
+            elem[i].ws.gw, elem[i].ps.satdpth);
 
-        CalcLatFlx(&pihm->elem[i].ps, &pihm->elem[i].wf,
-            pihm->elem[i].topo.area);
+        CalcLatFlx(&elem[i].ps, &elem[i].wf, elem[i].topo.area);
 #endif
 
-        pihm->elem[i].ws0 = pihm->elem[i].ws;
+        elem[i].ws0 = elem[i].ws;
 
 #ifdef _BGC_
-        pihm->elem[i].ns.surfn = (y[SURFN(i)] > 0.0) ? y[SURFN(i)] : 0.0;
-        pihm->elem[i].ns.sminn = (y[SMINN(i)] > 0.0) ? y[SMINN(i)] : 0.0;
+        elem[i].ns.surfn = (y[SURFN(i)] > 0.0) ? y[SURFN(i)] : 0.0;
+        elem[i].ns.sminn = (y[SMINN(i)] > 0.0) ? y[SMINN(i)] : 0.0;
 
-        pihm->elem[i].ns.nleached_snk +=
-            (pihm->elem[i].nt.surfn0 + pihm->elem[i].nt.sminn0) -
-            (pihm->elem[i].ns.surfn + pihm->elem[i].ns.sminn) +
-            pihm->elem[i].nf.ndep_to_sminn / DAYINSEC * stepsize +
-            pihm->elem[i].nf.nfix_to_sminn / DAYINSEC * stepsize +
-            pihm->elem[i].nsol.snksrc * stepsize;
+        elem[i].ns.nleached_snk += (elem[i].nt.surfn0 + elem[i].nt.sminn0) -
+            (elem[i].ns.surfn + elem[i].ns.sminn) +
+            elem[i].nf.ndep_to_sminn / DAYINSEC * stepsize +
+            elem[i].nf.nfix_to_sminn / DAYINSEC * stepsize +
+            elem[i].nsol.snksrc * stepsize;
 
-        pihm->elem[i].nt.surfn0 = pihm->elem[i].ns.surfn;
-        pihm->elem[i].nt.sminn0 = pihm->elem[i].ns.sminn;
+        elem[i].nt.surfn0 = elem[i].ns.surfn;
+        elem[i].nt.sminn0 = elem[i].ns.sminn;
 #endif
     }
 
@@ -55,10 +53,10 @@ void Summary(pihm_struct pihm, N_Vector CV_Y, double stepsize)
 #endif
     for (i = 0; i < nriver; i++)
     {
-        pihm->riv[i].ws.stage = y[RIVSTG(i)];
-        pihm->riv[i].ws.gw = y[RIVGW(i)];
+        riv[i].ws.stage = y[RIVSTG(i)];
+        riv[i].ws.gw = y[RIVGW(i)];
 
-        pihm->riv[i].ws0 = pihm->riv[i].ws;
+        riv[i].ws0 = riv[i].ws;
     }
 }
 

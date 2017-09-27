@@ -18,7 +18,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
 
 #ifdef _NOAH_
         /* Calculate surface energy balance */
-        Noah(pihm);
+        Noah(pihm->elem, (double)pihm->ctrl.etstep);
 #else
         /* Calculate Interception storage and ET */
         IntcpSnowET(t, (double)pihm->ctrl.etstep, pihm->elem, &pihm->cal);
@@ -34,7 +34,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     SolveCVode(pihm->ctrl.starttime, &t, next_t, cputime, cvode_mem, CV_Y);
 
     /* Use mass balance to calculate model fluxes or variables */
-    Summary(pihm, CV_Y, (double)pihm->ctrl.stepsize);
+    Summary(pihm->elem, pihm->riv, CV_Y, (double)pihm->ctrl.stepsize);
 
 #ifdef _NOAH_
     NoahHydrol(pihm->elem, (double)pihm->ctrl.stepsize);
@@ -64,7 +64,8 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
 
     /* Daily timestep modules */
 #ifdef _DAILY_
-    DailyVar(t, pihm->ctrl.starttime, pihm);
+    DailyVar(t, pihm->ctrl.starttime, pihm->elem, pihm->riv,
+        pihm->ctrl.stepsize);
 
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
@@ -85,7 +86,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, CN_STEP);
 
         /* Initialize daily structures */
-        InitDailyStruct(pihm);
+        InitDailyStruct(pihm->elem, pihm->riv);
     }
 #endif
 

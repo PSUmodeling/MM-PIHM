@@ -141,7 +141,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     CalcModelStep(&pihm->ctrl);
 
 #ifdef _DAILY_
-    InitDailyStruct(pihm);
+    InitDailyStruct(pihm->elem, pihm->riv);
 #endif
 }
 

@@ -205,7 +205,7 @@ void            SetCVodeParam(pihm_struct, void *, N_Vector);
 int             SoilTex(double, double);
 void            SolveCVode(int, int *, int, double, void *, N_Vector);
 int             StrTime(const char *);
-void            Summary(pihm_struct, N_Vector, double);
+void            Summary(elem_struct *, river_struct *, N_Vector, double);
 double          SurfH(double);
 void            UpdPrintVar(varctrl_struct *, int, int);
 void            UpdPrintVarT(varctrl_struct *, int);
@@ -245,7 +245,7 @@ void            HRT(wstate_struct *, estate_struct *, eflux_struct *,
     double, double, double, double, double *, double *, double *);
 void            InitLsm(elem_struct *, const ctrl_struct *,
     const noahtbl_struct *, const calib_struct *);
-void            Noah(pihm_struct);
+void            Noah(elem_struct *, double);
 void            NoahHydrol(elem_struct *, double);
 # ifdef _CYCLES_
 void            NoPac(wstate_struct *, wflux_struct *, estate_struct *,
@@ -279,11 +279,11 @@ void            SfcDifOff(pstate_struct *, const lc_struct *, double, double,
 # ifdef _CYCLES_
 void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
-    soil_struct *, comm_struct *, residue_struct *, int);
+    soil_struct *, comm_struct *, residue_struct *, double);
 # else
 void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
-    soil_struct *, int);
+    soil_struct *, double);
 # endif
 void            ShFlx(wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const lc_struct *, const soil_struct *, double, double,
@@ -335,8 +335,8 @@ void            WDfCnd(double *, double *, double, double, int,
 #endif
 
 #ifdef _DAILY_
-void            DailyVar(int, int, pihm_struct);
-void            InitDailyStruct(pihm_struct);
+void            DailyVar(int, int, elem_struct *, river_struct *, double);
+void            InitDailyStruct(elem_struct *, river_struct *);
 #endif
 
 #ifdef _CYCLES_
@@ -529,7 +529,7 @@ void            MaintResp(const epconst_struct *, epvar_struct *,
 void            MakeZeroFluxStruct(cflux_struct *, nflux_struct *);
 void            Mortality(const epconst_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
-void            NTransport(pihm_struct);
+void            NTransport(elem_struct *, river_struct *);
 void            OffsetLitterfall(const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *);
 void            OnsetGrowth(const epconst_struct *, const epvar_struct *,
