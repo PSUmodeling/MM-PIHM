@@ -5,7 +5,7 @@ void ReadAlloc(pihm_struct pihm)
     PIHMprintf(VL_VERBOSE, "\nRead input files:\n");
 
     /* Set file names of the input files */
-    sprintf(pihm->filename.riv,      "input/%s/%s.rivseg",   project, project);
+    sprintf(pihm->filename.riv,      "input/%s/%s.riv",      project, project);
     sprintf(pihm->filename.mesh,     "input/%s/%s.mesh",     project, project);
     sprintf(pihm->filename.att,      "input/%s/%s.att",      project, project);
     sprintf(pihm->filename.soil,     "input/%s/%s.soil",     project, project);
