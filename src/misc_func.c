@@ -108,7 +108,6 @@ void CreateOutputDir(char *outputdir)
 void BKInput(char *outputdir)
 {
     char            project[MAXSTRING];
-    char           *token;
     char            system_cmd[MAXSTRING];
     char            source_file[MAXSTRING];
 

@@ -1264,21 +1264,6 @@ void ReadIC(char *filename, elem_struct *elem, river_struct *riv)
     fclose(ic_file);
 }
 
-void ReadSunpara(char *filename, ctrl_struct *ctrl)
-{
-    FILE           *sunpara_file;   /* Pointer to .sunpara file */
-    char            cmdstr[MAXSTRING];
-    int             lno = 0;
-
-    sunpara_file = fopen(filename, "r");
-    CheckFile(sunpara_file, filename);
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
-
-    /* Start reading para_file */
-    /* Read through sundials parameter file to find parameters */
-    fclose(sunpara_file);
-}
-
 void ReadTecplot(char *filename, ctrl_struct *ctrl)
 {
     FILE           *tecplot_file;
