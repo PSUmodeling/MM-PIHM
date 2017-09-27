@@ -41,7 +41,7 @@ void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
 
         total_y = riv[i].ws.stage + riv[i].topo.zbed;
         perim =
-            RivPerim(riv[i].shp.intrpl_ord, riv[i].ws.stage, riv[i].shp.coeff);
+            RiverPerim(riv[i].shp.intrpl_ord, riv[i].ws.stage, riv[i].shp.coeff);
 
         if (riv[i].down > 0)
         {
@@ -50,7 +50,7 @@ void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
             /* Lateral flux calculation between river-river element */
             total_y_down = down->ws.stage + down->topo.zbed;
             perim_down =
-                RivPerim(down->shp.intrpl_ord, down->ws.stage, down->shp.coeff);
+                RiverPerim(down->shp.intrpl_ord, down->ws.stage, down->shp.coeff);
             avg_perim = (perim + perim_down) / 2.0;
             avg_rough = (riv[i].matl.rough + down->matl.rough) / 2.0;
             distance = 0.5 * (riv[i].shp.length + down->shp.length);
@@ -59,14 +59,14 @@ void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
             grad_y = dif_y / distance;
             avg_sf = (grad_y > 0.0) ? grad_y : RIVGRADMIN;
             crossa =
-                RivArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
+                RiverArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
                 riv[i].shp.coeff);
             crossa_down =
-                RivArea(down->shp.intrpl_ord, down->ws.stage, down->shp.coeff);
+                RiverArea(down->shp.intrpl_ord, down->ws.stage, down->shp.coeff);
             avg_crossa = 0.5 * (crossa + crossa_down);
             avg_y = (avg_perim == 0.0) ? 0.0 : (avg_crossa / avg_perim);
             riv[i].wf.rivflow[DOWN_CHANL2CHANL] =
-                OverlandFlow(avg_y, grad_y, avg_sf, crossa, avg_rough);
+                OverLandFlow(avg_y, grad_y, avg_sf, crossa, avg_rough);
             /* Accumulate to get in-flow for down segments */
             down->wf.rivflow[UP_CHANL2CHANL] -=
                 riv[i].wf.rivflow[DOWN_CHANL2CHANL];
@@ -83,16 +83,16 @@ void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
             left = &elem[riv[i].leftele - 1];
             right = &elem[riv[i].rightele - 1];
             effk = 0.5 *
-                (EffKH(left->ws.gw, left->soil.depth, left->soil.dmac,
+                (EffKh(left->ws.gw, left->soil.depth, left->soil.dmac,
                 left->soil.kmach, left->soil.areafv, left->soil.ksath) +
-                EffKH(right->ws.gw, right->soil.depth, right->soil.dmac,
+                EffKh(right->ws.gw, right->soil.depth, right->soil.dmac,
                 right->soil.kmach, left->soil.areafv, right->soil.ksath));
             left = &elem[down->leftele - 1];
             right = &elem[down->rightele - 1];
             effk_nabr = 0.5 *
-                (EffKH(left->ws.gw, left->soil.depth, left->soil.dmac,
+                (EffKh(left->ws.gw, left->soil.depth, left->soil.dmac,
                 left->soil.kmach, left->soil.areafv, left->soil.ksath) +
-                EffKH(right->ws.gw, right->soil.depth, right->soil.dmac,
+                EffKh(right->ws.gw, right->soil.depth, right->soil.dmac,
                 right->soil.kmach, left->soil.areafv, right->soil.ksath));
 #ifdef _ARITH_
             avg_ksat = 0.5 * (effk + effk_nabr);
@@ -120,11 +120,11 @@ void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
                     avg_rough = riv[i].matl.rough;
                     avg_y = AvgY(grad_y, riv[i].ws.stage, riv[i].bc.head);
                     avg_perim = perim;
-                    crossa = RivArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
+                    crossa = RiverArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
                         riv[i].shp.coeff);
                     avg_y = (avg_perim == 0.0) ? 0.0 : (crossa / avg_perim);
                     riv[i].wf.rivflow[DOWN_CHANL2CHANL] =
-                        OverlandFlow(avg_y, grad_y, avg_sf, crossa, avg_rough);
+                        OverLandFlow(avg_y, grad_y, avg_sf, crossa, avg_rough);
                     break;
                 case NEUMANN:
                     /* Neumann boundary condition */
@@ -138,7 +138,7 @@ void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
                     avg_rough = riv[i].matl.rough;
                     avg_y = riv[i].ws.stage;
                     avg_perim = perim;
-                    crossa = RivArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
+                    crossa = RiverArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
                         riv[i].shp.coeff);
                     riv[i].wf.rivflow[DOWN_CHANL2CHANL] =
                         sqrt(grad_y) * crossa *
@@ -147,7 +147,7 @@ void RiverFlow(elem_struct *elem, river_struct *riv, int riv_mode)
                     break;
                 case CRIT_DPTH:
                     /* Critical depth boundary conditions */
-                    crossa = RivArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
+                    crossa = RiverArea(riv[i].shp.intrpl_ord, riv[i].ws.stage,
                         riv[i].shp.coeff);
                     riv[i].wf.rivflow[DOWN_CHANL2CHANL] =
                         crossa * sqrt(GRAV * riv[i].ws.stage);
@@ -214,7 +214,7 @@ void RiverToEle(river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     total_y = riv->ws.stage + riv->topo.zbed;
 
     /* Lateral surface flux calculation between river-triangular element */
-    *fluxsurf = OLFEleToRiv(elem->ws.surfh + elem->topo.zmax, elem->topo.zmax,
+    *fluxsurf = OlfEleToRiver(elem->ws.surfh + elem->topo.zmax, elem->topo.zmax,
         riv->matl.cwr, riv->topo.zmax, total_y, riv->shp.length);
 
     /* Lateral subsurface flux calculation between river-triangular element */
@@ -237,7 +237,7 @@ void RiverToEle(river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     effk = riv->matl.ksath;
     grad_y_sub = dif_y_sub / distance;
     /* Take into account macropore effect */
-    effk_nabr = EffKH(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
+    effk_nabr = EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
         elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
     avg_ksat = 0.5 * (effk + effk_nabr);
     *fluxriv = riv->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
@@ -261,12 +261,12 @@ void RiverToEle(river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     avg_y_sub = AvgY(dif_y_sub, riv->ws.gw, avg_y_sub);
     aquifer_depth = riv->topo.zbed - riv->topo.zmin;
     effk = 0.5 *
-        (EffKH(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
+        (EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
         elem->soil.kmach, elem->soil.areafv, elem->soil.ksath) +
-        EffKH(oppbank->ws.gw, oppbank->soil.depth, oppbank->soil.dmac,
+        EffKh(oppbank->ws.gw, oppbank->soil.depth, oppbank->soil.dmac,
         oppbank->soil.kmach, oppbank->soil.areafv, oppbank->soil.ksath));
     effk_nabr =
-        EffKH(elem->ws.gw, elem->soil.depth, elem->soil.dmac, elem->soil.kmach,
+        EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac, elem->soil.kmach,
         elem->soil.areafv, elem->soil.ksath);
 #ifdef _ARITH_
     avg_ksat = 0.5 * (effk + effk_nabr);
@@ -288,7 +288,7 @@ void RiverToEle(river_struct *riv, elem_struct *elem, elem_struct *oppbank,
     }
 }
 
-double OLFEleToRiv(double eleytot, double elez, double cwr, double rivzmax,
+double OlfEleToRiver(double eleytot, double elez, double cwr, double rivzmax,
     double rivytot, double length)
 {
     double          flux;
@@ -351,7 +351,7 @@ double OLFEleToRiv(double eleytot, double elez, double cwr, double rivzmax,
     return flux;
 }
 
-double _RivWdthAreaPerim(int type, int riv_order, double riv_depth,
+double _RiverWdthAreaPerim(int type, int riv_order, double riv_depth,
     double riv_coeff)
 {
     double          eq_wid = 0.0;

@@ -23,9 +23,9 @@
 # define RIVBEDN(i)    i + 5 * nelem + 3 * nriver
 #endif
 
-#define RivArea(...)     _RivWdthAreaPerim(RIVER_AREA, __VA_ARGS__)
-#define RivEqWid(...)    _RivWdthAreaPerim(RIVER_WDTH, __VA_ARGS__)
-#define RivPerim(...)    _RivWdthAreaPerim(RIVER_PERIM, __VA_ARGS__)
+#define RiverArea(...)     _RiverWdthAreaPerim(RIVER_AREA, __VA_ARGS__)
+#define RiverEqWid(...)    _RiverWdthAreaPerim(RIVER_WDTH, __VA_ARGS__)
+#define RiverPerim(...)    _RiverWdthAreaPerim(RIVER_PERIM, __VA_ARGS__)
 
 /* CVode functions */
 #ifdef _CVODE_OMP
@@ -60,43 +60,43 @@
  * Function Declarations
  */
 void            _PIHMexit(const char *, int, const char *, int);
-void            _PIHMprintf(const char *, int, const char *, int,
-    const char *, ...);
-double          _RivWdthAreaPerim(int, int, double, double);
+void            _PIHMprintf(const char *, int, const char *, int, const char *,
+    ...);
+double          _RiverWdthAreaPerim(int, int, double, double);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
-void            ApplyBC(forc_struct *, elem_struct *, river_struct *, int);
-void            ApplyElemBC(forc_struct *, elem_struct *, int);
+void            ApplyBc(forc_struct *, elem_struct *, river_struct *, int);
+void            ApplyElemBc(forc_struct *, elem_struct *, int);
 #ifdef _NOAH_
-void            ApplyForcing(forc_struct *, elem_struct *, int, ctrl_struct *,
+void            ApplyForc(forc_struct *, elem_struct *, int, ctrl_struct *,
     siteinfo_struct *);
 #else
-void            ApplyForcing(forc_struct *, elem_struct *, int);
+void            ApplyForc(forc_struct *, elem_struct *, int);
 #endif
-void            ApplyLAI(forc_struct *, elem_struct *, int);
+void            ApplyLai(forc_struct *, elem_struct *, int);
 #ifdef _NOAH_
 void            ApplyMeteoForc(forc_struct *, elem_struct *, int, int,
     siteinfo_struct *);
 #else
 void            ApplyMeteoForc(forc_struct *, elem_struct *, int);
 #endif
-void            ApplyRiverBC(forc_struct *, river_struct *, int);
+void            ApplyRiverBc(forc_struct *, river_struct *, int);
 void            AsciiArt();
-double          AvgKV(double, double, double, double, double, double, double,
+double          AvgKv(double, double, double, double, double, double, double,
     double);
 double          AvgY(double, double, double);
 double          AvgYsfc(double, double, double);
-void            BKInput(char *);
+void            BackupInput(char *);
 void            CalcModelStep(ctrl_struct *);
 void            CheckFile(FILE *, char *);
-void            CorrectElevation(elem_struct *, river_struct *);
+void            CorrElev(elem_struct *, river_struct *);
 int             CountLine(FILE *, char *, int, ...);
-int             CountOccurance(FILE *, char *);
+int             CountOccurr(FILE *, char *);
 void            CreateOutputDir(char *);
 double          DhByDl(double *, double *, double *);
-double          EffKH(double, double, double, double, double, double);
+double          EffKh(double, double, double, double, double, double);
 double          EffKinf(double, double, int, double, double, double);
-double          EffKV(double, int, double, double, double);
-void            ETExtract(elem_struct *);
+double          EffKv(double, int, double, double, double);
+void            EtExtract(elem_struct *);
 double          FieldCapacity(double, double, double, double, double);
 void            FindLine(FILE *, char *, int *, const char *);
 void            FreeData(pihm_struct);
@@ -106,15 +106,15 @@ void            Hydrol(elem_struct *, river_struct *, ctrl_struct *);
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
 #ifdef _BGC_
-void            InitForcing(elem_struct *, forc_struct *, const calib_struct *,
+void            InitForc(elem_struct *, forc_struct *, const calib_struct *,
     int, int);
 #else
-void            InitForcing(elem_struct *, forc_struct *, const calib_struct *);
+void            InitForc(elem_struct *, forc_struct *, const calib_struct *);
 #endif
 void            Initialize(pihm_struct, N_Vector, void **);
-void            InitLC(elem_struct *, const lctbl_struct *,
+void            InitLc(elem_struct *, const lctbl_struct *,
     const calib_struct *);
-void            InitMeshStruct(elem_struct *, const meshtbl_struct *);
+void            InitMesh(elem_struct *, const meshtbl_struct *);
 void            InitOutputFile(print_struct *, char *, int, int);
 void            InitPrtVarCtrl(char *, char *, int, int, int, varctrl_struct *);
 void            InitRiver(river_struct *, elem_struct *, const rivtbl_struct *,
@@ -135,59 +135,59 @@ void            InitTecPrtVarCtrl(char *, char *, int, int, int, int, int,
     varctrl_struct *);
 void            InitTopo(elem_struct *, const meshtbl_struct *);
 void            InitVar(elem_struct *, river_struct *, N_Vector);
-void            InitWBFile(char *, char *, FILE *);
+void            InitWbFile(char *, char *, FILE *);
 void            InitWFlux(wflux_struct *);
 void            InitWState(wstate_struct *);
-void            IntcpSnowET(int, double, elem_struct *, const calib_struct *);
-void            IntrplForcing(tsdata_struct *, int, int);
+void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
+void            IntrplForc(tsdata_struct *, int, int);
 double          KrFunc(double, double, double);
 void            LateralFlow(elem_struct *, river_struct *, int);
 int             MacroporeStatus(double, double, double, double, double, double);
 void            MapOutput(pihm_struct, char *);
 void            MassBalance(wstate_struct *, wstate_struct *, wflux_struct *,
     double *, const soil_struct *, double, double);
-double          MonthlyLAI(int, int);
-double          MonthlyMF(int);
-double          MonthlyRL(int, int);
+double          MonthlyLai(int, int);
+double          MonthlyMf(int);
+double          MonthlyRl(int, int);
 void            NextLine(FILE *, char *, int *);
-int             ODE(realtype, N_Vector, N_Vector, void *);
-double          OverlandFlow(double, double, double, double, double);
-double          OLFEleToRiv(double, double, double, double, double, double);
+int             Ode(realtype, N_Vector, N_Vector, void *);
+double          OverLandFlow(double, double, double, double, double);
+double          OlfEleToRiver(double, double, double, double, double, double);
 void            ParseCmdLineParam(int, char *[], char *);
 void            PIHM(pihm_struct, void *, N_Vector, int, int, double);
 pihm_t_struct   PIHMTime(int);
+void            PrintCVodeFinalStats(void *);
 void            PrintData(varctrl_struct *, int, int, int, int);
 void            PrintDataTecplot(varctrl_struct *, int, int, int);
+void            PrintInit(elem_struct *, river_struct *, char *, int, int, int,
+    int);
 int             PrintNow(int, int, pihm_t_struct *);
 void            PrintPerf(int, int, double, double, double, FILE *);
 void            PrintStats(void *, FILE *);
-void            PrintWatBal(FILE *, int, int, int, elem_struct *,
+void            PrintWaterBal(FILE *, int, int, int, elem_struct *,
     river_struct *);
-void            PrtCVodeFinalStats(void *);
-void            PrtInit(elem_struct *, river_struct *, char *, int, int, int,
-    int);
 double          Psi(double, double, double);
 double          PtfAlpha(double, double, double, double, int);
 double          PtfBeta(double, double, double, double, int);
-double          PtfKV(double, double, double, double, int);
-double          PtfThetaR(double, double, double, double, int);
-double          PtfThetaS(double, double, double, double, int);
+double          PtfKv(double, double, double, double, int);
+double          PtfThetar(double, double, double, double, int);
+double          PtfThetas(double, double, double, double, int);
 double          Qtz(int);
 int             Readable(char *);
 void            ReadAlloc(pihm_struct);
 void            ReadAtt(char *, atttbl_struct *);
-void            ReadBC(char *, forc_struct *);
+void            ReadBc(char *, forc_struct *);
 void            ReadCalib(char *, calib_struct *);
 void            ReadForc(char *, forc_struct *);
 void            ReadGeol(char *, geoltbl_struct *);
-void            ReadIC(char *, elem_struct *, river_struct *);
+void            ReadIc(char *, elem_struct *, river_struct *);
 int             ReadKeyword(char *, char *, void *, char, char *, int);
-void            ReadLAI(char *, forc_struct *, const atttbl_struct *);
-void            ReadLC(char *, lctbl_struct *);
+void            ReadLai(char *, forc_struct *, const atttbl_struct *);
+void            ReadLc(char *, lctbl_struct *);
 void            ReadMesh(char *, meshtbl_struct *);
 void            ReadPara(char *, ctrl_struct *);
 int             ReadPrtCtrl(char *, char *, char *, int);
-void            ReadRiv(char *, rivtbl_struct *, shptbl_struct *,
+void            ReadRiver(char *, rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
 void            ReadSoil(char *, soiltbl_struct *);
 void            ReadTecplot(char *, ctrl_struct *);
@@ -200,7 +200,7 @@ void            RunTime(double, double *, double *);
 #else
 void            RunTime (clock_t, double *, double *);
 #endif
-void            SaturationIC(elem_struct *, river_struct *);
+void            RelaxIc(elem_struct *, river_struct *);
 void            SetCVodeParam(pihm_struct, void *, N_Vector);
 int             SoilTex(double, double);
 void            SolveCVode(int, int *, int, double, void *, N_Vector);
@@ -237,9 +237,9 @@ void            Evapo(wstate_struct *, wflux_struct *, pstate_struct *,
     const lc_struct *, soil_struct *, double);
 # endif
 int             FindLayer(const double *, int, double);
-int             FindWT(const double *, int, double, double *);
+int             FindWaterTable(const double *, int, double, double *);
 double          FrozRain(double, double);
-double          GWTransp(double, double *, int, int);
+double          GwTransp(double, double *, int, int);
 void            HRT(wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const lc_struct *, const soil_struct *, double *,
     double, double, double, double, double *, double *, double *);
@@ -493,7 +493,7 @@ void            BgcSpinup(pihm_struct, N_Vector, void *);
 void            CanopyCond(const epconst_struct *, epvar_struct *,
     const eflux_struct *, const pstate_struct *, const soil_struct *,
     const daily_struct *);
-int             CheckBgcSS(elem_struct *, double, int, int, int);
+int             CheckBgcSteadyState(elem_struct *, double, int, int, int);
 void            CheckCarbonBalance(cstate_struct *, double *);
 void            CheckNitrogenBalance(nstate_struct *, double *);
 void            CSummary(cflux_struct *, cstate_struct *, summary_struct *);
@@ -546,8 +546,8 @@ void            RadTrans(const cstate_struct *, eflux_struct *,
 void            ReadAnnFile(tsdata_struct *, char *);
 void            ReadBgc(char *, ctrl_struct *, co2control_struct *,
     ndepcontrol_struct *, cninit_struct *, char *, char *);
-void            ReadBgcIC(char *, elem_struct *, river_struct *);
-void            ReadEPC(epctbl_struct *);
+void            ReadBgcIc(char *, elem_struct *, river_struct *);
+void            ReadEpc(epctbl_struct *);
 void            ResetSpinupStat(elem_struct *);
 void            RestartInput(cstate_struct *, nstate_struct *,
     epvar_struct *, bgcic_struct *);
@@ -559,7 +559,7 @@ void            SoilPsi(const soil_struct *, double, double *);
 void            TotalPhotosynthesis(const epconst_struct *, epvar_struct *,
     const pstate_struct *, cflux_struct *, psn_struct *, psn_struct *,
     daily_struct *);
-void            WriteBgcIC(char *, elem_struct *, river_struct *);
+void            WriteBgcIc(char *, elem_struct *, river_struct *);
 void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *);
 #endif
 

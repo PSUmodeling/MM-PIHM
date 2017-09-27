@@ -234,7 +234,7 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
     }
 }
 
-void PrtInit(elem_struct *elem, river_struct *river, char *outputdir, int t,
+void PrintInit(elem_struct *elem, river_struct *river, char *outputdir, int t,
     int starttime, int endtime, int intvl)
 {
     pihm_t_struct   pihm_time;
@@ -433,7 +433,7 @@ void PrintPerf(int t, int starttime, double cputime_dt, double cputime,
     }
 }
 
-void PrintWatBal(FILE *watbal_file, int t, int tstart, int dt,
+void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
     elem_struct *elem, river_struct *riv)
 {
     int             i, j;
@@ -506,7 +506,7 @@ void PrintWatBal(FILE *watbal_file, int t, int tstart, int dt,
         tot_ett_gw);
 }
 
-void PrtCVodeFinalStats(void *cvode_mem)
+void PrintCVodeFinalStats(void *cvode_mem)
 {
     int             flag;
     long int        nst;

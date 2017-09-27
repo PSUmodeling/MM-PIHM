@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-int FindWT(const double *sldpth, int nsoil, double gw, double *satdpth)
+int FindWaterTable(const double *sldpth, int nsoil, double gw, double *satdpth)
 {
     int             layer = -999;
     int             j;
@@ -397,7 +397,7 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
     }
 }
 
-double GWTransp(double ett, double *et, int nwtbl, int nroot)
+double GwTransp(double ett, double *et, int nwtbl, int nroot)
 {
     /* Calculate transpiration from saturated zone */
     int             j;

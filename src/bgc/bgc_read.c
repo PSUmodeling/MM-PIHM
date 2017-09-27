@@ -137,7 +137,7 @@ void ReadBgc(char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     fclose(bgc_file);
 }
 
-void ReadEPC(epctbl_struct *epctbl)
+void ReadEpc(epctbl_struct *epctbl)
 {
     int             i;
     char            fn[MAXSTRING];

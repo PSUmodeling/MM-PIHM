@@ -151,7 +151,7 @@ void ReadRad(char *filename, forc_struct *forc)
 
     FindLine(rad_file, "BOF", &lno, filename);
 
-    forc->nrad = CountOccurance(rad_file, "RAD_TS");
+    forc->nrad = CountOccurr(rad_file, "RAD_TS");
 
     if (forc->nrad != forc->nmeteo)
     {

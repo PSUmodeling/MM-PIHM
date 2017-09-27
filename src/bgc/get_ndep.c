@@ -4,7 +4,7 @@ double GetNdep(tsdata_struct ndep_ts, int t)
 {
     double          ndep;
 
-    IntrplForcing(&ndep_ts, t, 1);
+    IntrplForc(&ndep_ts, t, 1);
 
     ndep = ndep_ts.value[0];
 

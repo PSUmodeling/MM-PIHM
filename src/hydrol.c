@@ -14,7 +14,7 @@ void Hydrol(elem_struct *elem, river_struct *riv, ctrl_struct *ctrl)
     }
 
     /* Determine which layers does ET extract water from */
-    ETExtract(elem);
+    EtExtract(elem);
 
     /* Water flow */
     VerticalFlow(elem, (double)ctrl->stepsize);
@@ -24,7 +24,7 @@ void Hydrol(elem_struct *elem, river_struct *riv, ctrl_struct *ctrl)
     RiverFlow(elem, riv, ctrl->riv_mode);
 }
 
-void ETExtract(elem_struct *elem)
+void EtExtract(elem_struct *elem)
 {
     int             i;
 
@@ -70,7 +70,7 @@ void ETExtract(elem_struct *elem)
 
         /* Source of transpiration */
 #ifdef _NOAH_
-        elem[i].ps.gwet = GWTransp(elem[i].wf.ett, elem[i].wf.et,
+        elem[i].ps.gwet = GwTransp(elem[i].wf.ett, elem[i].wf.et,
             elem[i].ps.nwtbl, elem[i].ps.nroot);
         elem[i].wf.ett_unsat = (1.0 - elem[i].ps.gwet) * elem[i].wf.ett;
         elem[i].wf.ett_gw = elem[i].ps.gwet * elem[i].wf.ett;

@@ -4,16 +4,16 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     int next_t, double cputime)
 {
     /* Apply boundary conditions */
-    ApplyBC(&pihm->forc, pihm->elem, pihm->riv, t);
+    ApplyBc(&pihm->forc, pihm->elem, pihm->riv, t);
 
     /* Determine if land surface simulation is needed */
     if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
     {
         /* Apply forcing */
 #ifdef _NOAH_
-        ApplyForcing(&pihm->forc, pihm->elem, t , &pihm->ctrl, &pihm->siteinfo);
+        ApplyForc(&pihm->forc, pihm->elem, t , &pihm->ctrl, &pihm->siteinfo);
 #else
-        ApplyForcing(&pihm->forc, pihm->elem, t);
+        ApplyForc(&pihm->forc, pihm->elem, t);
 #endif
 
 #ifdef _NOAH_
@@ -21,7 +21,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         Noah(pihm->elem, (double)pihm->ctrl.etstep);
 #else
         /* Calculate Interception storage and ET */
-        IntcpSnowET(t, (double)pihm->ctrl.etstep, pihm->elem, &pihm->cal);
+        IntcpSnowEt(t, (double)pihm->ctrl.etstep, pihm->elem, &pihm->cal);
 #endif
         /*
          * Update print variables for land surface step variables
@@ -96,7 +96,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     /* Print water balance */
     if (pihm->ctrl.waterB)
     {
-        PrintWatBal(pihm->print.walbal_file, t, pihm->ctrl.starttime,
+        PrintWaterBal(pihm->print.walbal_file, t, pihm->ctrl.starttime,
             pihm->ctrl.stepsize, pihm->elem, pihm->riv);
     }
 

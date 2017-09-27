@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
     /* Backup input files */
 #if !defined(_MSC_VER)
-    BKInput(outputdir);
+    BackupInput(outputdir);
 #endif
 
     InitOutputFile(&pihm->print, outputdir, pihm->ctrl.waterB,
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
             /* Write init files */
             if (pihm->ctrl.write_ic)
             {
-                PrtInit(pihm->elem, pihm->riv, outputdir,
+                PrintInit(pihm->elem, pihm->riv, outputdir,
                     pihm->ctrl.tout[i + 1], pihm->ctrl.starttime,
                     pihm->ctrl.endtime, pihm->ctrl.prtvrbl[IC_CTRL]);
             }
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
 #ifdef _BGC_
     if (pihm->ctrl.write_bgc_restart)
     {
-        WriteBgcIC(outputdir, pihm->elem, pihm->riv);
+        WriteBgcIc(outputdir, pihm->elem, pihm->riv);
     }
 #endif
 
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 
     if (debug_mode)
     {
-        PrtCVodeFinalStats(cvode_mem);
+        PrintCVodeFinalStats(cvode_mem);
     }
 
     /* Free memory */

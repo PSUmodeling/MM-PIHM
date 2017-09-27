@@ -166,7 +166,7 @@ void RestartOutput(cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     restart->offset_swi = epv->offset_swi;
 }
 
-void ReadBgcIC(char *fn, elem_struct *elem, river_struct *riv)
+void ReadBgcIc(char *fn, elem_struct *elem, river_struct *riv)
 {
     FILE           *init_file;
     int             i;
@@ -203,7 +203,7 @@ void ReadBgcIC(char *fn, elem_struct *elem, river_struct *riv)
     fclose(init_file);
 }
 
-void WriteBgcIC(char *outputdir, elem_struct *elem, river_struct *riv)
+void WriteBgcIc(char *outputdir, elem_struct *elem, river_struct *riv)
 {
     int             i;
     FILE           *restart_file;

@@ -219,7 +219,7 @@ double Qtz(int texture)
  * Pedotransfer functions to calculate soil hydraulic properties
  * Wosten et al. 1999 Geoderma Table 5
  */
-double PtfKV(double silt, double clay, double om, double bd, int topsoil)
+double PtfKv(double silt, double clay, double om, double bd, int topsoil)
 {
     double          kv;
 
@@ -236,7 +236,7 @@ double PtfKV(double silt, double clay, double om, double bd, int topsoil)
     return kv;
 }
 
-double PtfThetaS(double silt, double clay, double om, double bd, int topsoil)
+double PtfThetas(double silt, double clay, double om, double bd, int topsoil)
 {
     double          thetas;
 
@@ -249,7 +249,7 @@ double PtfThetaS(double silt, double clay, double om, double bd, int topsoil)
     return thetas;
 }
 
-double PtfThetaR(double silt, double clay, double om, double bd, int topsoil)
+double PtfThetar(double silt, double clay, double om, double bd, int topsoil)
 {
     double          thetar;
 

@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void IntcpSnowET(int t, double stepsize, elem_struct *elem,
+void IntcpSnowEt(int t, double stepsize, elem_struct *elem,
     const calib_struct *cal)
 {
     int             i;
@@ -60,10 +60,10 @@ void IntcpSnowET(int t, double stepsize, elem_struct *elem,
         }
         else
         {
-            lai = MonthlyLAI(t, elem[i].attrib.lc_type);
+            lai = MonthlyLai(t, elem[i].attrib.lc_type);
         }
 
-        meltf = MonthlyMF(t);
+        meltf = MonthlyMf(t);
 
         /* Snow accumulation and snow melt calculation */
         frac_snow = (sfctmp < TSNOW) ?
@@ -88,7 +88,7 @@ void IntcpSnowET(int t, double stepsize, elem_struct *elem,
         /* ThroughFall and Evaporation from canopy */
         intcp_max = elem[i].lc.cmcfactr * lai * elem[i].lc.shdfac;
 
-        z0 = MonthlyRL(t, elem[i].attrib.lc_type);
+        z0 = MonthlyRl(t, elem[i].attrib.lc_type);
 
         ra = log(elem[i].ps.zlvl_wind / z0) *
             log(10.0 * elem[i].ps.zlvl_wind / z0) / (wind * 0.16);

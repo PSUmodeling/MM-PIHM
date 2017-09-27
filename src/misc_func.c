@@ -105,7 +105,7 @@ void CreateOutputDir(char *outputdir)
     PIHMmkdir(icdir);
 }
 
-void BKInput(char *outputdir)
+void BackupInput(char *outputdir)
 {
     char            project[MAXSTRING];
     char            system_cmd[MAXSTRING];

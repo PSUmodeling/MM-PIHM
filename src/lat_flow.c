@@ -47,10 +47,10 @@ void LateralFlow(elem_struct *elem, river_struct *riv, int surf_mode)
                 avg_y_sub = AvgY(dif_y_sub, elem[i].ws.gw, nabr->ws.gw);
                 grad_y_sub = dif_y_sub / elem[i].topo.nabrdist[j];
                 /* Take into account macropore effect */
-                effk = EffKH(elem[i].ws.gw, elem[i].soil.depth,
+                effk = EffKh(elem[i].ws.gw, elem[i].soil.depth,
                     elem[i].soil.dmac, elem[i].soil.kmach, elem[i].soil.areafv,
                     elem[i].soil.ksath);
-                effk_nabr = EffKH(nabr->ws.gw, nabr->soil.depth,
+                effk_nabr = EffKh(nabr->ws.gw, nabr->soil.depth,
                     nabr->soil.dmac, nabr->soil.kmach, nabr->soil.areafv,
                     nabr->soil.ksath);
                 avg_ksat = 0.5 * (effk + effk_nabr);
@@ -90,7 +90,7 @@ void LateralFlow(elem_struct *elem, river_struct *riv, int surf_mode)
                 avg_rough = 0.5 * (elem[i].lc.rough + nabr->lc.rough);
                 crossa = avg_y_surf * elem[i].topo.edge[j];
                 elem[i].wf.ovlflow[j] =
-                    OverlandFlow(avg_y_surf, grad_y_surf, avg_sf, crossa,
+                    OverLandFlow(avg_y_surf, grad_y_surf, avg_sf, crossa,
                     avg_rough);
             }
             else if (elem[i].nabr[j] < 0)
@@ -120,7 +120,7 @@ void LateralFlow(elem_struct *elem, river_struct *riv, int surf_mode)
                         elem[i].bc.head[j] - elem[i].topo.zmin);
                     /* Minimum distance from circumcenter to the edge of the
                      * triangle on which boundary condition is defined */
-                    effk = EffKH(elem[i].ws.gw, elem[i].soil.depth,
+                    effk = EffKh(elem[i].ws.gw, elem[i].soil.depth,
                         elem[i].soil.dmac, elem[i].soil.kmach,
                         elem[i].soil.areafv, elem[i].soil.ksath);
                     avg_ksat = effk;
@@ -261,7 +261,7 @@ double DhByDl(double *l1, double *l2, double *surfh)
         l2[0] * (l1[2] - l1[1]));
 }
 
-double EffKH(double tmpy, double aqdepth, double macd, double macksath,
+double EffKh(double tmpy, double aqdepth, double macd, double macksath,
     double areaf, double ksath)
 {
     tmpy = (tmpy > 0.0) ? tmpy : 0.0;
@@ -287,7 +287,7 @@ double EffKH(double tmpy, double aqdepth, double macd, double macksath,
 }
 
 
-double OverlandFlow(double avg_y, double grad_y, double avg_sf, double crossa,
+double OverLandFlow(double avg_y, double grad_y, double avg_sf, double crossa,
     double avg_rough)
 {
     return crossa * pow(avg_y, 0.6666667) * grad_y / (sqrt(avg_sf) * avg_rough);

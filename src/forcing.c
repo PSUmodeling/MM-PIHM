@@ -1,25 +1,25 @@
 #include "pihm.h"
 
-void ApplyBC(forc_struct *forc, elem_struct *elem, river_struct *riv, int t)
+void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *riv, int t)
 {
     /* Element boundary conditions */
     if (forc->nbc > 0)
     {
-        ApplyElemBC(forc, elem, t);
+        ApplyElemBc(forc, elem, t);
     }
 
     /* River boundary condition */
     if (forc->nriverbc > 0)
     {
-        ApplyRiverBC(forc, riv, t);
+        ApplyRiverBc(forc, riv, t);
     }
 }
 
 #ifdef _NOAH_
-void ApplyForcing(forc_struct *forc, elem_struct *elem, int t,
+void ApplyForc(forc_struct *forc, elem_struct *elem, int t,
     ctrl_struct *ctrl, siteinfo_struct * siteinfo)
 #else
-void ApplyForcing(forc_struct *forc, elem_struct *elem, int t)
+void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
 {
     /* Meteorological forcing */
@@ -30,10 +30,10 @@ void ApplyForcing(forc_struct *forc, elem_struct *elem, int t)
 #endif
 
     /* LAI forcing */
-    ApplyLAI(forc, elem, t);
+    ApplyLai(forc, elem, t);
 }
 
-void ApplyElemBC(forc_struct *forc, elem_struct *elem, int t)
+void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 {
     int             ind;
     int             i, k;
@@ -43,7 +43,7 @@ void ApplyElemBC(forc_struct *forc, elem_struct *elem, int t)
 #endif
     for (k = 0; k < forc->nbc; k++)
     {
-        IntrplForcing(&forc->bc[k], t, 1);
+        IntrplForc(&forc->bc[k], t, 1);
     }
 
 #ifdef _OPENMP
@@ -91,7 +91,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
     for (k = 0; k < forc->nmeteo; k++)
     {
-        IntrplForcing(&forc->meteo[k], t, NUM_METEO_VAR);
+        IntrplForc(&forc->meteo[k], t, NUM_METEO_VAR);
     }
 
 #ifdef _NOAH_
@@ -107,7 +107,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 # endif
             for (k = 0; k < forc->nrad; k++)
             {
-                IntrplForcing(&forc->rad[k], t, 2);
+                IntrplForc(&forc->rad[k], t, 2);
             }
         }
 
@@ -157,7 +157,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
     }
 }
 
-void ApplyLAI(forc_struct *forc, elem_struct *elem, int t)
+void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 {
     int             i;
 
@@ -203,7 +203,7 @@ void ApplyLAI(forc_struct *forc, elem_struct *elem, int t)
 #endif
         for (k = 0; k < forc->nlai; k++)
         {
-            IntrplForcing(&forc->lai[k], t, 1);
+            IntrplForc(&forc->lai[k], t, 1);
         }
     }
 
@@ -222,13 +222,13 @@ void ApplyLAI(forc_struct *forc, elem_struct *elem, int t)
         }
         else
         {
-            elem->ps.proj_lai = MonthlyLAI(t, elem->attrib.lc_type);
+            elem->ps.proj_lai = MonthlyLai(t, elem->attrib.lc_type);
         }
     }
 #endif
 }
 
-void ApplyRiverBC(forc_struct *forc, river_struct *riv, int t)
+void ApplyRiverBc(forc_struct *forc, river_struct *riv, int t)
 {
     int             i, k;
 
@@ -237,7 +237,7 @@ void ApplyRiverBC(forc_struct *forc, river_struct *riv, int t)
 #endif
     for (k = 0; k < forc->nriverbc; k++)
     {
-        IntrplForcing(&forc->riverbc[k], t, 1);
+        IntrplForc(&forc->riverbc[k], t, 1);
     }
 
 #ifdef _OPENMP
@@ -255,7 +255,7 @@ void ApplyRiverBC(forc_struct *forc, river_struct *riv, int t)
     }
 }
 
-void IntrplForcing(tsdata_struct *ts, int t, int nvrbl)
+void IntrplForc(tsdata_struct *ts, int t, int nvrbl)
 {
     int             j;
     int             first, middle, last;
@@ -305,7 +305,7 @@ void IntrplForcing(tsdata_struct *ts, int t, int nvrbl)
     }
 }
 
-double MonthlyLAI(int t, int lc_type)
+double MonthlyLai(int t, int lc_type)
 {
     /*
      * Monthly LAI data come from WRF MPTABLE.TBL for Noah MODIS land
@@ -420,7 +420,7 @@ double MonthlyLAI(int t, int lc_type)
     return lai_tbl[lc_type - 1][pihm_time.month - 1];
 }
 
-double MonthlyRL(int t, int lc_type)
+double MonthlyRl(int t, int lc_type)
 {
     /*
      * Monthly roughness length data are calculated using monthly LAI
@@ -557,7 +557,7 @@ double MonthlyRL(int t, int lc_type)
     return rl_tbl[lc_type - 1][pihm_time.month - 1];
 }
 
-double MonthlyMF(int t)
+double MonthlyMf(int t)
 {
     pihm_t_struct   pihm_time;
 

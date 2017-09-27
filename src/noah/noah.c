@@ -73,7 +73,7 @@ void NoahHydrol(elem_struct *elem, double dt)
         int             j;
 
         /* Find water table position */
-        elem[i].ps.nwtbl = FindWT(elem[i].ps.sldpth, elem[i].ps.nsoil,
+        elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.sldpth, elem[i].ps.nsoil,
             elem[i].ws.gw, elem[i].ps.satdpth);
 
         for (j = 0; j < elem[i].ps.nsoil; j++)
@@ -2811,7 +2811,7 @@ void WDfCnd(double *wdf, double *wcnd, double smc, double sicemax, int macpore,
 
     if (macpore && ps->macpore_status > MTX_CTRL)
     {
-        *wcnd = EffKV(satkfunc, ps->macpore_status, soil->kmacv, soil->ksatv,
+        *wcnd = EffKv(satkfunc, ps->macpore_status, soil->kmacv, soil->ksatv,
             soil->areafh);
     }
     else
@@ -2832,7 +2832,7 @@ void WDfCnd(double *wdf, double *wcnd, double smc, double sicemax, int macpore,
         if (macpore == 1 && ps->macpore_status > MTX_CTRL)
         {
             *wdf = vkwgt * *wdf + (1.0 - vkwgt) * dpsidsm *
-                EffKV(satkfunc, ps->macpore_status, soil->kmacv, soil->ksatv,
+                EffKv(satkfunc, ps->macpore_status, soil->kmacv, soil->ksatv,
                 soil->areafh);
         }
         else

@@ -140,7 +140,7 @@ void VerticalFlow(elem_struct *elem, double dt)
             dh_by_dz =
                 (0.5 * deficit + psi_u) / (0.5 * (deficit + elem[i].ws.gw));
 
-            kavg = AvgKV(elem[i].soil.dmac, deficit, elem[i].ws.gw,
+            kavg = AvgKv(elem[i].soil.dmac, deficit, elem[i].ws.gw,
                 elem[i].ps.macpore_status, satkfunc, elem[i].soil.kmacv,
                 elem[i].soil.ksatv, elem[i].soil.areafh);
 
@@ -156,7 +156,7 @@ void VerticalFlow(elem_struct *elem, double dt)
     }
 }
 
-double AvgKV(double dmac, double deficit, double gw, double macp_status,
+double AvgKv(double dmac, double deficit, double gw, double macp_status,
     double satkfunc, double kmacv, double ksatv, double areafh)
 {
     double          k1, k2, k3;
@@ -164,7 +164,7 @@ double AvgKV(double dmac, double deficit, double gw, double macp_status,
 
     if (deficit > dmac)
     {
-        k1 = EffKV(satkfunc, macp_status, kmacv, ksatv, areafh);
+        k1 = EffKv(satkfunc, macp_status, kmacv, ksatv, areafh);
         d1 = dmac;
 
         k2 = satkfunc * ksatv;
@@ -175,7 +175,7 @@ double AvgKV(double dmac, double deficit, double gw, double macp_status,
     }
     else
     {
-        k1 = EffKV(satkfunc, macp_status, kmacv, ksatv, areafh);
+        k1 = EffKv(satkfunc, macp_status, kmacv, ksatv, areafh);
         d1 = deficit;
 
         k2 = kmacv * areafh + ksatv * (1.0 - areafh);
@@ -220,7 +220,7 @@ double EffKinf(double ksatfunc, double elemsatn, int status, double mackv,
     return keff;
 }
 
-double EffKV(double ksatfunc, int status, double mackv, double kv, double areaf)
+double EffKv(double ksatfunc, int status, double mackv, double kv, double areaf)
 {
     double          keff = 0.0;
 

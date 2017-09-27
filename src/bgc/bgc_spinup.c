@@ -27,7 +27,7 @@ void BgcSpinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 
         spinyears += metyears;
 
-        steady = CheckBgcSS(pihm->elem, pihm->siteinfo.area, first_spin_cycle,
+        steady = CheckBgcSteadyState(pihm->elem, pihm->siteinfo.area, first_spin_cycle,
             pihm->ctrl.endtime - pihm->ctrl.starttime, spinyears);
 
         first_spin_cycle = 0;
@@ -45,7 +45,7 @@ void ResetSpinupStat(elem_struct *elem)
     }
 }
 
-int CheckBgcSS(elem_struct *elem, double total_area, int first_cycle,
+int CheckBgcSteadyState(elem_struct *elem, double total_area, int first_cycle,
     int totalt, int spinyears)
 {
     int             i;

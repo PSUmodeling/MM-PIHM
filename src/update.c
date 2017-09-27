@@ -25,7 +25,7 @@ void Summary(elem_struct *elem, river_struct *riv, N_Vector CV_Y,
 #ifdef _NOAH_
         elem[i].wf.runoff2 = subrunoff;
 
-        elem[i].ps.nwtbl = FindWT(elem[i].ps.sldpth, elem[i].ps.nsoil,
+        elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.sldpth, elem[i].ps.nsoil,
             elem[i].ws.gw, elem[i].ps.satdpth);
 
         CalcLatFlx(&elem[i].ps, &elem[i].wf, elem[i].topo.area);

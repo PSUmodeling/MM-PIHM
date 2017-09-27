@@ -305,7 +305,7 @@ int ReadPrtCtrl(char *buffer, char *keyword, char *filename, int lno)
     return prtvrbl;
 }
 
-int CountOccurance(FILE *fid, char *token)
+int CountOccurr(FILE *fid, char *token)
 {
     /*
      * Count number of occurrence of keyword from the current line to the end

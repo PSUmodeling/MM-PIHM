@@ -34,7 +34,7 @@ void ReadAlloc(pihm_struct pihm)
 #endif
 
     /* Read river input file */
-    ReadRiv(pihm->filename.riv, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl,
+    ReadRiver(pihm->filename.riv, &pihm->rivtbl, &pihm->shptbl, &pihm->matltbl,
         &pihm->forc);
 
     /* Read mesh structure input file */
@@ -52,13 +52,13 @@ void ReadAlloc(pihm_struct pihm)
 #endif
 
     /* Read land cover input file */
-    ReadLC(pihm->filename.lc, &pihm->lctbl);
+    ReadLc(pihm->filename.lc, &pihm->lctbl);
 
     /* Read meteorological forcing input file */
     ReadForc(pihm->filename.meteo, &pihm->forc);
 
     /* Read LAI input file */
-    ReadLAI(pihm->filename.lai, &pihm->forc, &pihm->atttbl);
+    ReadLai(pihm->filename.lai, &pihm->forc, &pihm->atttbl);
 
     /* Read source and sink input file */
     pihm->forc.nsource = 0;
@@ -68,7 +68,7 @@ void ReadAlloc(pihm_struct pihm)
 
     /* Read boundary condition input file */
     pihm->forc.nbc = 0;
-    ReadBC(pihm->filename.bc, &pihm->forc);
+    ReadBc(pihm->filename.bc, &pihm->forc);
 
     /* Read model control file */
     ReadPara(pihm->filename.para, &pihm->ctrl);
@@ -111,7 +111,7 @@ void ReadAlloc(pihm_struct pihm)
         &pihm->cninit, pihm->filename.co2, pihm->filename.ndep);
 
     /* Read Biome-BGC epc files */
-    ReadEPC(&pihm->epctbl);
+    ReadEpc(&pihm->epctbl);
 
     /* Read CO2 and Ndep files */
     pihm->forc.co2 = (tsdata_struct *)malloc(sizeof(tsdata_struct));
@@ -130,7 +130,7 @@ void ReadAlloc(pihm_struct pihm)
 
 }
 
-void ReadRiv(char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
+void ReadRiver(char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     matltbl_struct *matltbl, forc_struct *forc)
 {
     int             i, j;
@@ -510,13 +510,13 @@ void ReadSoil(char *filename, soiltbl_struct *soiltbl)
         /* Fill missing hydraulic properties using PTFs */
         if (soiltbl->kinfv[i] < 0.0)
         {
-            soiltbl->kinfv[i] = PtfKV(soiltbl->silt[i], soiltbl->clay[i],
+            soiltbl->kinfv[i] = PtfKv(soiltbl->silt[i], soiltbl->clay[i],
                 soiltbl->om[i], soiltbl->bd[i], TOPSOIL);
             ptf_used = 1;
         }
         if (soiltbl->ksatv[i] < 0.0)
         {
-            soiltbl->ksatv[i] = PtfKV(soiltbl->silt[i], soiltbl->clay[i],
+            soiltbl->ksatv[i] = PtfKv(soiltbl->silt[i], soiltbl->clay[i],
                 soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
         }
@@ -527,13 +527,13 @@ void ReadSoil(char *filename, soiltbl_struct *soiltbl)
         }
         if (soiltbl->smcmax[i] < 0.0)
         {
-            soiltbl->smcmax[i] = PtfThetaS(soiltbl->silt[i], soiltbl->clay[i],
+            soiltbl->smcmax[i] = PtfThetas(soiltbl->silt[i], soiltbl->clay[i],
                 soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
         }
         if (soiltbl->smcmin[i] < 0.0)
         {
-            soiltbl->smcmin[i] = PtfThetaR(soiltbl->silt[i], soiltbl->clay[i],
+            soiltbl->smcmin[i] = PtfThetar(soiltbl->silt[i], soiltbl->clay[i],
                 soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
             ptf_used = 1;
         }
@@ -592,7 +592,7 @@ void ReadSoil(char *filename, soiltbl_struct *soiltbl)
     fclose(soil_file);
 }
 
-void ReadLC(char *filename, lctbl_struct *lctbl)
+void ReadLc(char *filename, lctbl_struct *lctbl)
 {
     FILE           *lc_file;    /* Pointer to .lc file */
     int             i;
@@ -684,7 +684,7 @@ void ReadForc(char *filename, forc_struct *forc)
 
     FindLine(meteo_file, "BOF", &lno, filename);
 
-    forc->nmeteo = CountOccurance(meteo_file, "METEO_TS");
+    forc->nmeteo = CountOccurr(meteo_file, "METEO_TS");
 
     FindLine(meteo_file, "BOF", &lno, filename);
     if (forc->nmeteo > 0)
@@ -747,7 +747,7 @@ void ReadForc(char *filename, forc_struct *forc)
     fclose(meteo_file);
 }
 
-void ReadLAI(char *filename, forc_struct *forc, const atttbl_struct *atttbl)
+void ReadLai(char *filename, forc_struct *forc, const atttbl_struct *atttbl)
 {
     char            cmdstr[MAXSTRING];
     int             read_lai = 0;
@@ -776,7 +776,7 @@ void ReadLAI(char *filename, forc_struct *forc, const atttbl_struct *atttbl)
         /* Start reading lai_file */
         FindLine(lai_file, "BOF", &lno, filename);
 
-        forc->nlai = CountOccurance(lai_file, "LAI_TS");
+        forc->nlai = CountOccurr(lai_file, "LAI_TS");
 
         FindLine(lai_file, "BOF", &lno, filename);
         if (forc->nlai > 0)
@@ -836,7 +836,7 @@ void ReadLAI(char *filename, forc_struct *forc, const atttbl_struct *atttbl)
     }
 }
 
-void ReadBC(char *filename, forc_struct *forc)
+void ReadBc(char *filename, forc_struct *forc)
 {
     int             i, j;
     FILE           *bc_file;    /* Pointer to .ibc file */
@@ -851,7 +851,7 @@ void ReadBC(char *filename, forc_struct *forc)
 
     FindLine(bc_file, "BOF", &lno, filename);
 
-    forc->nbc = CountOccurance(bc_file, "BC_TS");
+    forc->nbc = CountOccurr(bc_file, "BC_TS");
 
     FindLine(bc_file, "BOF", &lno, filename);
     if (forc->nbc > 0)
@@ -1226,7 +1226,7 @@ void ReadCalib(char *filename, calib_struct *cal)
     fclose(global_calib);
 }
 
-void ReadIC(char *filename, elem_struct *elem, river_struct *riv)
+void ReadIc(char *filename, elem_struct *elem, river_struct *riv)
 {
     FILE           *ic_file;
     int             i;

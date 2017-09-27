@@ -37,8 +37,8 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         pihm->riv[i].attrib.riverbc_type = pihm->rivtbl.bc[i];
     }
 
-    /* Initialize element mesh sturctures */
-    InitMeshStruct(pihm->elem, &pihm->meshtbl);
+    /* Initialize element mesh structures */
+    InitMesh(pihm->elem, &pihm->meshtbl);
 
     /* Initialize element topography */
     InitTopo(pihm->elem, &pihm->meshtbl);
@@ -57,14 +57,14 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
     /* Initialize element land cover properties */
-    InitLC(pihm->elem, &pihm->lctbl, &pihm->cal);
+    InitLc(pihm->elem, &pihm->lctbl, &pihm->cal);
 
     /* Initialize element forcing */
 #ifdef _BGC_
-    InitForcing(pihm->elem, &pihm->forc, &pihm->cal, pihm->co2.varco2,
+    InitForc(pihm->elem, &pihm->forc, &pihm->cal, pihm->co2.varco2,
         pihm->ndepctrl.varndep);
 #else
-    InitForcing(pihm->elem, &pihm->forc, &pihm->cal);
+    InitForc(pihm->elem, &pihm->forc, &pihm->cal);
 #endif
 
     /* Initialize river segment properties */
@@ -74,7 +74,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     /* Correct element elevations to avoid sinks */
     if (corr_mode)
     {
-        CorrectElevation(pihm->elem, pihm->riv);
+        CorrElev(pihm->elem, pihm->riv);
     }
 
     /* Calculate distances between elements */
@@ -109,15 +109,15 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         /* Relaxation mode */
 #ifdef _NOAH_
         /* Noah initialization needs air temperature thus forcing is applied */
-        ApplyForcing(&pihm->forc, pihm->elem, pihm->ctrl.starttime, &pihm->ctrl,
+        ApplyForc(&pihm->forc, pihm->elem, pihm->ctrl.starttime, &pihm->ctrl,
             &pihm->siteinfo);
 #endif
-        SaturationIC(pihm->elem, pihm->riv);
+        RelaxIc(pihm->elem, pihm->riv);
     }
     else if (pihm->ctrl.init_type == RST_FILE)
     {
         /* Hot start (using .ic file) */
-        ReadIC(pihm->filename.ic, pihm->elem, pihm->riv);
+        ReadIc(pihm->filename.ic, pihm->elem, pihm->riv);
     }
 
     /* Initialize state variables */
@@ -127,7 +127,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     /* Initialize CN variables */
     if (pihm->ctrl.read_bgc_restart)
     {
-        ReadBgcIC(pihm->filename.bgcic, pihm->elem, pihm->riv);
+        ReadBgcIc(pihm->filename.bgcic, pihm->elem, pihm->riv);
     }
     else
     {
@@ -145,7 +145,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 }
 
-void InitMeshStruct(elem_struct *elem, const meshtbl_struct *meshtbl)
+void InitMesh(elem_struct *elem, const meshtbl_struct *meshtbl)
 {
     int             i, j;
 
@@ -265,7 +265,7 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
     }
 }
 
-void InitLC(elem_struct *elem, const lctbl_struct *lctbl,
+void InitLc(elem_struct *elem, const lctbl_struct *lctbl,
     const calib_struct *cal)
 {
     int             i;
@@ -381,7 +381,7 @@ void InitRiver(river_struct *riv, elem_struct *elem,
             pow(meshtbl->y[riv[i].fromnode - 1] -
             meshtbl->y[riv[i].tonode - 1], 2));
         riv[i].shp.width =
-            RivEqWid(riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff);
+            RiverEqWid(riv->shp.intrpl_ord, riv->shp.depth, riv->shp.coeff);
 
         riv[i].topo.zbed = riv[i].topo.zmax - riv[i].shp.depth;
 
@@ -399,15 +399,15 @@ void InitRiver(river_struct *riv, elem_struct *elem,
             elem[riv[i].rightele - 1].soil.smcmin);
 
         riv[i].topo.area = riv[i].shp.length *
-            RivEqWid(riv[i].shp.intrpl_ord, riv[i].shp.depth, riv[i].shp.coeff);
+            RiverEqWid(riv[i].shp.intrpl_ord, riv[i].shp.depth, riv[i].shp.coeff);
     }
 }
 
 #ifdef _BGC_
-void InitForcing(elem_struct *elem, forc_struct *forc, const calib_struct *cal,
+void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal,
     int varco2, int varndep)
 #else
-void InitForcing(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
+void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
 #endif
 {
     int             i, j;
@@ -487,7 +487,7 @@ void InitForcing(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
     }
 }
 
-void CorrectElevation(elem_struct *elem, river_struct *riv)
+void CorrElev(elem_struct *elem, river_struct *riv)
 {
     int             i, j;
     int             sink;
@@ -711,7 +711,7 @@ void InitSurfL(elem_struct *elem, river_struct *riv,
     }
 }
 
-void SaturationIC(elem_struct *elem, river_struct *riv)
+void RelaxIc(elem_struct *elem, river_struct *riv)
 {
     int             i;
 #ifdef _NOAH_
