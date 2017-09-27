@@ -6,7 +6,7 @@ UNSAT_MODE          2                   # unsaturation formulation: 1 = kinemati
 SURF_MODE           2                   # surface overland flow formulation: 1 = kinematic, 2 = diffusion
 RIV_MODE            2                   # river routing formulation: 1 = kinematic, 2 = diffusion
 START               2009-01-01 00:00    # simulation start time
-END                 2009-01-07 00:00    # simulation end time
+END                 2010-01-01 00:00    # simulation end time
 MODEL_STEPSIZE      60                  # model step size (s)
 LSM_STEP            900                 # land surface (ET) step size (s)
 ################################################################################
@@ -14,10 +14,10 @@ LSM_STEP            900                 # land surface (ET) step size (s)
 ################################################################################
 ABSTOL              1E-4                # absolute solver tolerance (m)
 RELTOL              1E-3                # relative solver tolerance (-)
-INIT_SOLVER_STEP    0.5                 # initial solver step size (s)
+INIT_SOLVER_STEP    5E-5                # initial solver step size (s)
 NUM_NONCOV_FAIL     0                   # Number of non-convergence failures
 MAX_NONLIN_ITER     10                  # Maximum number of non-linear iterations
-MIN_NONLIN_ITER     3                   # Minimum number of non-linear iterations
+MIN_NONLIN_ITER     5                   # Minimum number of non-linear iterations
 DECR_FACTOR         1.2                 # CVode max step decrease factor
 INCR_FACTOR         1.005               # CVode max step increase factor
 MIN_MAXSTEP         1.0                 # Minimum CVode max step (s)
