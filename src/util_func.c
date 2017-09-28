@@ -86,7 +86,7 @@ void CreateOutputDir(char *outputdir)
     char            str[11];
     char            icdir[MAXSTRING];
 
-    if (0 == (PIHMmkdir(outputdir)))
+    if (0 == (PIHMmkdir("output")))
     {
         PIHMprintf(VL_NORMAL, " Output directory was created.\n\n");
     }
@@ -99,10 +99,19 @@ void CreateOutputDir(char *outputdir)
         strftime(str, 11, "%y%m%d%H%M", timestamp);
         sprintf(outputdir, "output/%s.%s/", project, str);
     }
-    PIHMmkdir(outputdir);
+
+    if (PIHMmkdir(outputdir) != 0)
+    {
+        PIHMprintf(VL_ERROR, "Error creating output directory %s", outputdir);
+        PIHMexit(EXIT_FAILURE);
+    }
 
     sprintf(icdir, "%srestart/", outputdir);
-    PIHMmkdir(icdir);
+    if (PIHMmkdir(icdir) != 0)
+    {
+        PIHMprintf(VL_ERROR, "Error creating restart directory %s", outputdir);
+        PIHMexit(EXIT_FAILURE);
+    }
 }
 
 void BackupInput(char *outputdir)
