@@ -104,11 +104,13 @@ void InitOutputFile(print_struct *print, char *outputdir, int watbal, int ascii)
     {
         sprintf(dat_fn, "%s.dat", print->varctrl[i].name);
         print->varctrl[i].datfile = fopen(dat_fn, "w");
+        CheckFile(print->varctrl[i].datfile, dat_fn);
 
         if (ascii)
         {
             sprintf(ascii_fn, "%s.txt", print->varctrl[i].name);
             print->varctrl[i].txtfile = fopen(ascii_fn, "w");
+            CheckFile(print->varctrl[i].txtfile, ascii_fn);
         }
     }
 
@@ -121,6 +123,7 @@ void InitOutputFile(print_struct *print, char *outputdir, int watbal, int ascii)
 
             sprintf(dat_fn, "%s.plt", print->tp_varctrl[i].name);
             print->tp_varctrl[i].datfile = fopen(dat_fn, "w");
+            CheckFile(print->tp_varctrl[i].datfile, dat_fn);
 
             if (print->tp_varctrl[i].intr == 0)
             {
