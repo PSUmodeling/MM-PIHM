@@ -69,7 +69,6 @@ SRCS_ = main.c\
 	is_sm_et.c\
 	lat_flow.c\
 	map_output.c\
-	misc_func.c\
 	ode.c\
 	optparse.c\
 	pihm.c\
@@ -80,6 +79,7 @@ SRCS_ = main.c\
 	soil.c\
 	time_func.c\
 	update.c\
+	util_func.c\
 	vert_flow.c
 
 HEADERS_ = \
