@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     ReadAlloc(pihm);
 
     /* Initialize CVode state variables */
-    CV_Y = N_VNew(NSV);
+    CV_Y = N_VNew(NumStateVar());
 
     /* Initialize PIHM structure */
     Initialize(pihm, CV_Y, &cvode_mem);

@@ -3,13 +3,6 @@
 
 #define _ARITH_
 
-/* Number of state variables */
-#ifdef _BGC_
-# define NSV    5 * nelem + 4 * nriver
-#else
-# define NSV    3 * nelem + 2 * nriver
-#endif
-
 /* State variables */
 #define SURF(i)        i
 #define UNSAT(i)       i + nelem
@@ -150,6 +143,7 @@ double          MonthlyLai(int, int);
 double          MonthlyMf(int);
 double          MonthlyRl(int, int);
 void            NextLine(FILE *, char *, int *);
+int             NumStateVar(void);
 int             Ode(realtype, N_Vector, N_Vector, void *);
 double          OverLandFlow(double, double, double, double, double);
 double          OlfEleToRiver(double, double, double, double, double, double);

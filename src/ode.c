@@ -17,7 +17,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * Initialization of temporary state variables
      */
-    for (i = 0; i < NSV; i++)
+    for (i = 0; i < NumStateVar(); i++)
     {
         dy[i] = 0.0;
     }
@@ -190,6 +190,21 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     return 0;
 }
 
+int NumStateVar(void)
+{
+    /*
+     * Return number of state variables
+     */
+    int             nsv;
+
+#ifdef _BGC_
+    nsv = 5 * nelem + 4 * nriver;
+#else
+    nsv = 3 * nelem + 2 * nriver;
+#endif
+
+    return nsv;
+}
 void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             flag;
