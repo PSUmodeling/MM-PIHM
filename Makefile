@@ -267,7 +267,7 @@ pihm:	$(OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
 
-flux-pihm:		## Complile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
+flux-pihm:		## Compile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
 flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)

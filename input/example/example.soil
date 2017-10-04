@@ -8,3 +8,5 @@ INDEX   SILT    CLAY    OM      BD      KINF        KSATV       KSATH       MAXS
 DINF        0.10
 KMACV_RO    100.0
 KMACH_RO    1000.0
+
+# If data are not available, KINF, KSATV, KSATH, MAXSMC, MINSMC, ALPHA, BETA, and QTZ values can be -999, in which case, pedotransfer functions will be used to calculate those properties from soil texture.
