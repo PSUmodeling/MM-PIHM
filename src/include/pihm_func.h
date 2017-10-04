@@ -83,6 +83,10 @@ void            BoundFluxElem(int, int, const bc_struct *,
     const wstate_struct *, const topo_struct *, const soil_struct *,
     wflux_struct *);
 void            CalcModelStep(ctrl_struct *);
+double          ChannnelFlow(const river_wstate_struct *,
+    const river_topo_struct *, const shp_struct *, const matl_struct *,
+    const river_wstate_struct *, const river_topo_struct *, const shp_struct *,
+    const matl_struct *, int);
 void            CheckFile(FILE *, char *);
 void            CorrElev(elem_struct *, river_struct *);
 int             CountLine(FILE *, char *, int, ...);
@@ -209,6 +213,10 @@ int             StrTime(const char *);
 double          SubFlowElemToElem(const wstate_struct *, const topo_struct *,
     const soil_struct *, int, const wstate_struct *, const topo_struct *,
     const soil_struct *);
+double          SubFlowRiverToRiver(const river_wstate_struct *,
+    const river_topo_struct *, const shp_struct *, double,
+    const river_wstate_struct *, const river_topo_struct *, const shp_struct *,
+    double);
 void            Summary(elem_struct *, river_struct *, N_Vector, double);
 double          SurfH(double);
 void            UpdPrintVar(varctrl_struct *, int, int);

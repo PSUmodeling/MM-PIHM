@@ -17,9 +17,7 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
         elem_struct    *left;
         elem_struct    *right;
         double          total_y;
-        double          perim;
         double          total_y_down;
-        double          perim_down;
         double          avg_perim;
         double          avg_rough;
         double          distance;
@@ -27,60 +25,28 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
         double          grad_y;
         double          avg_sf;
         double          crossa;
-        double          crossa_down;
-        double          avg_crossa;
         double          avg_y;
-        double          avg_ksat;
         double          effk_nabr;
         double          effk;
-        double          aquifer_depth;
-        double          grad_y_sub;
-        double          avg_y_sub;
-        double          dif_y_sub;
-        double          avg_wid;
-
-        total_y = rivseg[i].ws.stage + rivseg[i].topo.zbed;
-        perim = RiverPerim(rivseg[i].shp.intrpl_ord, rivseg[i].ws.stage,
-            rivseg[i].shp.coeff);
 
         if (rivseg[i].down > 0)
         {
             down = &rivseg[rivseg[i].down - 1];
 
-            /* Lateral flux calculation between river-river element */
-            total_y_down = down->ws.stage + down->topo.zbed;
-            perim_down = RiverPerim(down->shp.intrpl_ord, down->ws.stage,
-                down->shp.coeff);
-            avg_perim = (perim + perim_down) / 2.0;
-            avg_rough = (rivseg[i].matl.rough + down->matl.rough) / 2.0;
-            distance = 0.5 * (rivseg[i].shp.length + down->shp.length);
-            dif_y = (riv_mode == 1) ?
-                (rivseg[i].topo.zbed - down->topo.zbed) :
-                (total_y - total_y_down);
-            grad_y = dif_y / distance;
-            avg_sf = (grad_y > 0.0) ? grad_y : RIVGRADMIN;
-            crossa =
-                RiverArea(rivseg[i].shp.intrpl_ord, rivseg[i].ws.stage,
-                rivseg[i].shp.coeff);
-            crossa_down = RiverArea(down->shp.intrpl_ord, down->ws.stage,
-                down->shp.coeff);
-            avg_crossa = 0.5 * (crossa + crossa_down);
-            avg_y = (avg_perim == 0.0) ? 0.0 : (avg_crossa / avg_perim);
+            /*
+             * Channel flow between river-river segments
+             */
             rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] =
-                OverLandFlow(avg_y, grad_y, avg_sf, crossa, avg_rough);
+                ChannnelFlow(&rivseg[i].ws, &rivseg[i].topo, &rivseg[i].shp,
+                &rivseg[i].matl, &down->ws, &down->topo, &down->shp,
+                &down->matl, riv_mode);
             /* Accumulate to get in-flow for down segments */
             down->wf.rivflow[UP_CHANL2CHANL] -=
                 rivseg[i].wf.rivflow[DOWN_CHANL2CHANL];
 
-            /* Lateral flux calculation between element beneath river (ebr)
-             * and ebr */
-            total_y = rivseg[i].ws.gw + rivseg[i].topo.zmin;
-            total_y_down = down->ws.gw + down->topo.zmin;
-            avg_wid = (rivseg[i].shp.width + down->shp.width) / 2.0;
-            dif_y_sub = total_y - total_y_down;
-            avg_y_sub = AvgH(dif_y_sub, rivseg[i].ws.gw, down->ws.gw);
-            grad_y_sub = dif_y_sub / distance;
-            aquifer_depth = rivseg[i].topo.zbed - rivseg[i].topo.zmin;
+            /*
+             * Subsurface flow between river-river segments
+             */
             left = &elem[rivseg[i].leftele - 1];
             right = &elem[rivseg[i].rightele - 1];
             effk = 0.5 *
@@ -95,14 +61,11 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
                 left->soil.kmach, left->soil.areafv, left->soil.ksath) +
                 EffKh(right->ws.gw, right->soil.depth, right->soil.dmac,
                 right->soil.kmach, left->soil.areafv, right->soil.ksath));
-#ifdef _ARITH_
-            avg_ksat = 0.5 * (effk + effk_nabr);
-#else
-            avg_ksat = 2.0 / (1.0 / effk + 1.0 / effk_nabr);
-#endif
-            /* Groundwater flow modeled by Darcy's law */
+
             rivseg[i].wf.rivflow[DOWN_AQUIF2AQUIF] =
-                avg_ksat * grad_y_sub * avg_y_sub * avg_wid;
+                SubFlowRiverToRiver(&rivseg[i].ws, &rivseg[i].topo,
+                &rivseg[i].shp, effk, &down->ws, &down->topo, &down->shp,
+                effk_nabr);
             /* Accumulate to get in-flow for down segments */
             down->wf.rivflow[UP_AQUIF2AQUIF] -=
                 rivseg[i].wf.rivflow[DOWN_AQUIF2AQUIF];
@@ -113,6 +76,7 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
             {
                 case DIRICHLET:
                     /* Dirichlet boundary condition */
+                    total_y = rivseg[i].ws.gw + rivseg[i].topo.zmin;
                     total_y_down = rivseg[i].bc.head +
                         (rivseg[i].topo.node_zmax - rivseg[i].shp.depth);
                     distance = 0.5 * rivseg[i].shp.length;
@@ -120,7 +84,8 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
                     avg_sf = grad_y;
                     avg_rough = rivseg[i].matl.rough;
                     avg_y = AvgH(grad_y, rivseg[i].ws.stage, rivseg[i].bc.head);
-                    avg_perim = perim;
+                    avg_perim = RiverPerim(rivseg[i].shp.intrpl_ord,
+                        rivseg[i].ws.stage, rivseg[i].shp.coeff);
                     crossa = RiverArea(rivseg[i].shp.intrpl_ord,
                         rivseg[i].ws.stage, rivseg[i].shp.coeff);
                     avg_y = (avg_perim == 0.0) ? 0.0 : (crossa / avg_perim);
@@ -139,7 +104,8 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
                         distance;
                     avg_rough = rivseg[i].matl.rough;
                     avg_y = rivseg[i].ws.stage;
-                    avg_perim = perim;
+                    avg_perim = RiverPerim(rivseg[i].shp.intrpl_ord,
+                        rivseg[i].ws.stage, rivseg[i].shp.coeff);
                     crossa = RiverArea(rivseg[i].shp.intrpl_ord,
                         rivseg[i].ws.stage, rivseg[i].shp.coeff);
                     rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] =
@@ -433,4 +399,80 @@ double _RiverWdthAreaPerim(int type, int riv_order, double riv_depth,
     }
 
     return ans;
+}
+
+double ChannnelFlow(const river_wstate_struct *ws,
+    const river_topo_struct *topo, const shp_struct *shp,
+    const matl_struct *matl, const river_wstate_struct *down_ws,
+    const river_topo_struct *down_topo, const shp_struct *down_shp,
+    const matl_struct *down_matl, int riv_mode)
+{
+    double          total_h;
+    double          perim;
+    double          total_h_down;
+    double          perim_down;
+    double          avg_perim;
+    double          avg_rough;
+    double          distance;
+    double          diff_h;
+    double          grad_h;
+    double          avg_sf;
+    double          crossa;
+    double          crossa_down;
+    double          avg_crossa;
+    double          avg_h;
+
+    total_h = ws->stage + topo->zbed;
+    perim = RiverPerim(shp->intrpl_ord, ws->stage, shp->coeff);
+
+    total_h_down = down_ws->stage + down_topo->zbed;
+    perim_down = RiverPerim(down_shp->intrpl_ord, down_ws->stage,
+        down_shp->coeff);
+    avg_perim = (perim + perim_down) / 2.0;
+    avg_rough = (matl->rough + down_matl->rough) / 2.0;
+    distance = 0.5 * (shp->length + down_shp->length);
+    diff_h = (riv_mode == 1) ?
+        (topo->zbed - down_topo->zbed) : (total_h - total_h_down);
+    grad_h = diff_h / distance;
+    avg_sf = (grad_h > 0.0) ? grad_h : RIVGRADMIN;
+    crossa = RiverArea(shp->intrpl_ord, ws->stage, shp->coeff);
+    crossa_down =
+        RiverArea(down_shp->intrpl_ord, down_ws->stage, down_shp->coeff);
+    avg_crossa = 0.5 * (crossa + crossa_down);
+    avg_h = (avg_perim == 0.0) ? 0.0 : (avg_crossa / avg_perim);
+    return OverLandFlow(avg_h, grad_h, avg_sf, crossa, avg_rough);
+}
+
+double SubFlowRiverToRiver(const river_wstate_struct *ws,
+    const river_topo_struct *topo, const shp_struct *shp, double effk,
+    const river_wstate_struct *down_ws, const river_topo_struct *down_topo,
+    const shp_struct *down_shp, double effk_nabr)
+{
+    double          total_h;
+    double          total_h_down;
+    double          avg_wid;
+    double          diff_h;
+    double          avg_h;
+    double          distance;
+    double          grad_h;
+    double          aquifer_depth;
+    double          avg_ksat;
+
+    /* Lateral flux calculation between element beneath river (ebr)
+     * and ebr */
+    total_h = ws->gw + topo->zmin;
+    total_h_down = down_ws->gw + down_topo->zmin;
+    avg_wid = (shp->width + down_shp->width) / 2.0;
+    diff_h = total_h - total_h_down;
+    avg_h = AvgH(diff_h, ws->gw, down_ws->gw);
+    distance = 0.5 * (shp->length + down_shp->length);
+    grad_h = diff_h / distance;
+    aquifer_depth = topo->zbed - topo->zmin;
+#ifdef _ARITH_
+    avg_ksat = 0.5 * (effk + effk_nabr);
+#else
+    avg_ksat = 2.0 / (1.0 / effk + 1.0 / effk_nabr);
+#endif
+    /* Groundwater flow modeled by Darcy's law */
+    return avg_ksat * grad_h * avg_h * avg_wid;
 }
