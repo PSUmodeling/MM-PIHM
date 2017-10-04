@@ -78,89 +78,106 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
         left = &elem[rivseg[i].leftele - 1];
         right = &elem[rivseg[i].rightele - 1];
 
-        if (rivseg[i].leftele > 0)
-        {
-            RiverToElem(&rivseg[i], left, right, i + 1,
-                rivseg[i].topo.dist_left,
-                &rivseg[i].wf.rivflow[LEFT_SURF2CHANL],
-                &rivseg[i].wf.rivflow[LEFT_AQUIF2CHANL],
-                &rivseg[i].wf.rivflow[LEFT_AQUIF2AQUIF]);
-        }
+        RiverToElem(&rivseg[i], left, right, i + 1);
 
-        if (rivseg[i].rightele > 0)
-        {
-            RiverToElem(&rivseg[i], right, left, i + 1,
-                rivseg[i].topo.dist_right,
-                &rivseg[i].wf.rivflow[RIGHT_SURF2CHANL],
-                &rivseg[i].wf.rivflow[RIGHT_AQUIF2CHANL],
-                &rivseg[i].wf.rivflow[RIGHT_AQUIF2AQUIF]);
-        }
-
-        if (rivseg[i].topo.zbed - (rivseg[i].ws.gw + rivseg[i].topo.zmin) > 0.0)
-        {
-            dif_y = rivseg[i].ws.stage;
-        }
-        else
-        {
-            dif_y = rivseg[i].ws.stage + rivseg[i].topo.zbed -
-                (rivseg[i].ws.gw + rivseg[i].topo.zmin);
-        }
-        grad_y = dif_y / rivseg[i].matl.bedthick;
-        rivseg[i].wf.rivflow[CHANL_LKG] = rivseg[i].matl.ksatv *
-            rivseg[i].shp.width * rivseg[i].shp.length * grad_y;
+        /*
+         * Flux between river channel and subsurface
+         */
+        rivseg[i].wf.rivflow[CHANL_LKG] =
+            ChanLeak(rivseg[i].ws.stage, rivseg[i].ws.gw,
+            rivseg[i].topo.zbed, rivseg[i].topo.zmin, rivseg[i].matl.ksatv,
+            rivseg[i].matl.bedthick, rivseg[i].shp.width, rivseg[i].shp.length);
     }
 }
 
-void RiverToElem(river_struct *rivseg, elem_struct *elem, elem_struct *oppbank,
-    int ind, double distance, double *fluxsurf, double *fluxriv,
-    double *fluxsub)
+void RiverToElem(river_struct *rivseg, elem_struct *left, elem_struct *right,
+    int ind)
 {
-    double          dif_y_sub;
-    double          avg_y_sub;
-    double          effk;
-    double          grad_y_sub;
-    double          effk_nabr;
-    double          avg_ksat;
-    double          aquifer_depth;
+    double          effk_left, effk_right;
     double          zbank;
     int             j;
 
+    effk_left = EffKh(left->ws.gw, left->soil.depth, left->soil.dmac,
+        left->soil.kmach, left->soil.areafv, left->soil.ksath);
+    effk_right = EffKh(right->ws.gw, right->soil.depth, right->soil.dmac,
+        right->soil.kmach, right->soil.areafv, right->soil.ksath);
+
     /* Lateral surface flux calculation between river-triangular element */
-    zbank = (rivseg->topo.zmax > elem->topo.zmax) ?
-        rivseg->topo.zmax : elem->topo.zmax;
-    *fluxsurf = OvlFlowElemToRiver(elem->topo.zmax, elem->ws.surfh, zbank,
-        rivseg->ws.stage, rivseg->topo.zbed, rivseg->matl.cwr,
-        rivseg->shp.length);
+    if (rivseg->leftele > 0)
+    {
+        zbank = (rivseg->topo.zmax > left->topo.zmax) ?
+            rivseg->topo.zmax : left->topo.zmax;
+        rivseg->wf.rivflow[LEFT_SURF2CHANL] =
+            OvlFlowElemToRiver(left->topo.zmax, left->ws.surfh, zbank,
+            rivseg->ws.stage, rivseg->topo.zbed, rivseg->matl.cwr,
+            rivseg->shp.length);
+    }
+    if (rivseg->rightele > 0)
+    {
+        zbank = (rivseg->topo.zmax > right->topo.zmax) ?
+            rivseg->topo.zmax : right->topo.zmax;
+        rivseg->wf.rivflow[RIGHT_SURF2CHANL] =
+            OvlFlowElemToRiver(right->topo.zmax, right->ws.surfh, zbank,
+            rivseg->ws.stage, rivseg->topo.zbed, rivseg->matl.cwr,
+            rivseg->shp.length);
+    }
 
     /* Lateral subsurface flux calculation between river-triangular element */
-    effk = EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
-        elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
-
-    *fluxriv = ChanFlowElemToRiver(elem->ws.gw, elem->topo.zmin, effk,
-        rivseg->ws.stage, rivseg->topo.zbed, rivseg->matl.ksath,
-        rivseg->shp.length, distance);
+    if (rivseg->leftele > 0)
+    {
+        rivseg->wf.rivflow[LEFT_AQUIF2CHANL] =
+            ChanFlowElemToRiver(left->ws.gw, left->topo.zmin, effk_left,
+            rivseg->ws.stage, rivseg->topo.zbed, rivseg->matl.ksath,
+            rivseg->shp.length, rivseg->topo.dist_left);
+    }
+    if (rivseg->rightele > 0)
+    {
+        rivseg->wf.rivflow[RIGHT_AQUIF2CHANL] =
+            ChanFlowElemToRiver(right->ws.gw, right->topo.zmin, effk_right,
+            rivseg->ws.stage, rivseg->topo.zbed, rivseg->matl.ksath,
+            rivseg->shp.length, rivseg->topo.dist_right);
+    }
 
     /* Lateral flux between rectangular element (beneath river) and triangular
      * element */
-    effk = 0.5 *
-        (EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
-        elem->soil.kmach, elem->soil.areafv, elem->soil.ksath) +
-        EffKh(oppbank->ws.gw, oppbank->soil.depth, oppbank->soil.dmac,
-        oppbank->soil.kmach, oppbank->soil.areafv, oppbank->soil.ksath));
-    effk_nabr =
-        EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac, elem->soil.kmach,
-        elem->soil.areafv, elem->soil.ksath);
-    *fluxsub = SubFlowElemToRiver(elem->ws.gw, elem->topo.zmin, effk_nabr,
-        rivseg->ws.gw, rivseg->topo.zmin, rivseg->topo.zbed, effk,
-        rivseg->shp.length, distance);
+    if (rivseg->leftele > 0)
+    {
+        rivseg->wf.rivflow[LEFT_AQUIF2AQUIF] =
+            SubFlowElemToRiver(left->ws.gw, left->topo.zmin, effk_left,
+            rivseg->ws.gw, rivseg->topo.zmin, rivseg->topo.zbed,
+            0.5 * (effk_left + effk_right), rivseg->shp.length,
+            rivseg->topo.dist_left);
+    }
+    if (rivseg->rightele > 0)
+    {
+        rivseg->wf.rivflow[RIGHT_AQUIF2AQUIF] =
+            SubFlowElemToRiver(right->ws.gw, right->topo.zmin, effk_right,
+            rivseg->ws.gw, rivseg->topo.zmin, rivseg->topo.zbed,
+            0.5 * (effk_left + effk_right), rivseg->shp.length,
+            rivseg->topo.dist_right);
+    }
 
     /* Replace flux term */
+    /* Left */
     for (j = 0; j < NUM_EDGE; j++)
     {
-        if (elem->nabr[j] == -ind)
+        if (left->nabr[j] == -ind)
         {
-            elem->wf.ovlflow[j] = -(*fluxsurf);
-            elem->wf.subsurf[j] = -(*fluxriv + *fluxsub);
+            left->wf.ovlflow[j] = -rivseg->wf.rivflow[LEFT_SURF2CHANL];
+            left->wf.subsurf[j] = -(rivseg->wf.rivflow[LEFT_AQUIF2CHANL] +
+                rivseg->wf.rivflow[LEFT_AQUIF2AQUIF]);
+            break;
+        }
+    }
+
+    /* Right */
+    for (j = 0; j < NUM_EDGE; j++)
+    {
+        if (right->nabr[j] == -ind)
+        {
+            right->wf.ovlflow[j] = -rivseg->wf.rivflow[RIGHT_SURF2CHANL];
+            right->wf.subsurf[j] = -(rivseg->wf.rivflow[RIGHT_AQUIF2CHANL] +
+                rivseg->wf.rivflow[RIGHT_AQUIF2AQUIF]);
             break;
         }
     }
@@ -507,4 +524,24 @@ double SubFlowElemToRiver(double gw, double zmin, double effk, double rivgw,
     grad_h = diff_h / distance;
 
     return length * avg_ksat * grad_h * avg_h;
+}
+
+double ChanLeak(double stage, double gw, double zbed, double zmin, double ksatv,
+    double bedthick, double width, double length)
+{
+    double          diff_h;
+    double          grad_h;
+
+    if (zbed - (gw + zmin) > 0.0)
+    {
+        diff_h = stage;
+    }
+    else
+    {
+        diff_h = stage + zbed - (gw + zmin);
+    }
+
+    grad_h = diff_h / bedthick;
+
+    return ksatv * width * length * grad_h;
 }

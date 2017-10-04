@@ -89,6 +89,8 @@ double          ChanFlowRiverToRiver(const river_wstate_struct *,
     const river_topo_struct *, const shp_struct *, const matl_struct *,
     const river_wstate_struct *, const river_topo_struct *, const shp_struct *,
     const matl_struct *, int);
+double          ChanLeak(double, double, double, double, double, double, double,
+    double);
 void            CheckFile(FILE *, char *);
 void            CorrElev(elem_struct *, river_struct *);
 int             CountLine(FILE *, char *, int, ...);
@@ -204,8 +206,7 @@ void            ReadSoil(char *, soiltbl_struct *);
 void            ReadTecplot(char *, ctrl_struct *);
 int             ReadTS(char *, int *, double *, int);
 void            RiverFlow(elem_struct *, river_struct *, int);
-void            RiverToElem(river_struct *, elem_struct *, elem_struct *, int,
-    double, double *, double *, double *);
+void            RiverToElem(river_struct *, elem_struct *, elem_struct *, int);
 #ifdef _OPENMP
 void            RunTime(double, double *, double *);
 #else
