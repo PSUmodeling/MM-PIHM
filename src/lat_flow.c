@@ -22,12 +22,7 @@ void LateralFlow(elem_struct *elem, river_struct *rivseg, int surf_mode)
         double          grad_y_sub;
         double          effk;
         double          avg_ksat;
-        double          dif_y_surf;
-        double          avg_y_surf;
-        double          grad_y_surf;
         double          avg_sf;
-        double          avg_rough;
-        double          crossa;
 
         elem_struct    *nabr;
 
@@ -45,36 +40,13 @@ void LateralFlow(elem_struct *elem, river_struct *rivseg, int surf_mode)
                  * Surface lateral flux calculation between triangular
                  * elements
                  */
-                if (surf_mode == KINEMATIC)
-                {
-                    dif_y_surf = elem[i].topo.zmax - nabr->topo.zmax;
-                }
-                else
-                {
-                    dif_y_surf = (elem[i].ws.surfh + elem[i].topo.zmax) -
-                        (nabr->ws.surfh + nabr->topo.zmax);
-                }
-                avg_y_surf =
-                    AvgYsfc(dif_y_surf, elem[i].ws.surfh, nabr->ws.surfh);
-                grad_y_surf = dif_y_surf / elem[i].topo.nabrdist[j];
                 avg_sf = 0.5 *
                     (sqrt(dhbydx[i] * dhbydx[i] + dhbydy[i] * dhbydy[i]) +
-                    sqrt(dhbydx[nabr->ind - 1] * dhbydx[nabr->ind - 1] +
-                    dhbydy[nabr->ind - 1] * dhbydy[nabr->ind - 1]));
-                if (surf_mode == KINEMATIC)
-                {
-                    avg_sf = (grad_y_surf > 0.0) ? grad_y_surf : GRADMIN;
-                }
-                else
-                {
-                    avg_sf = (avg_sf > GRADMIN) ? avg_sf : GRADMIN;
-                }
-                /* Weighting needed */
-                avg_rough = 0.5 * (elem[i].lc.rough + nabr->lc.rough);
-                crossa = avg_y_surf * elem[i].topo.edge[j];
+                     sqrt(dhbydx[nabr->ind - 1] * dhbydx[nabr->ind - 1] +
+                     dhbydy[nabr->ind - 1] * dhbydy[nabr->ind - 1]));
                 elem[i].wf.ovlflow[j] =
-                    OverLandFlow(avg_y_surf, grad_y_surf, avg_sf, crossa,
-                    avg_rough);
+                    OvlFlowElemToElem(&elem[i].ws, &elem[i].topo, &elem[i].lc,
+                    j, &nabr->ws, &nabr->topo, &nabr->lc, avg_sf, surf_mode);
             }
             else if (elem[i].nabr[j] < 0)
             {
@@ -305,3 +277,33 @@ double SubFlowElemToElem(const wstate_struct *ws, const topo_struct *topo,
     return avg_ksat * grad_h * avg_h * topo->edge[j];
 }
 
+double OvlFlowElemToElem(const wstate_struct *ws, const topo_struct *topo,
+    const lc_struct *lc, int j, const wstate_struct *nabr_ws,
+    const topo_struct *nabr_topo, const lc_struct *nabr_lc, double avg_sf,
+    int surf_mode)
+{
+    double          diff_h;
+    double          avg_h;
+    double          grad_h;
+    double          avg_rough;
+    double          crossa;
+
+    diff_h = (surf_mode == KINEMATIC) ?
+        topo->zmax - nabr_topo->zmax :
+        (ws->surfh + topo->zmax) - (nabr_ws->surfh + nabr_topo->zmax);
+    avg_h = AvgYsfc(diff_h, ws->surfh, nabr_ws->surfh);
+    grad_h = diff_h / topo->nabrdist[j];
+    if (surf_mode == KINEMATIC)
+    {
+        avg_sf = (grad_h > 0.0) ? grad_h : GRADMIN;
+    }
+    else
+    {
+        avg_sf = (avg_sf > GRADMIN) ? avg_sf : GRADMIN;
+    }
+    /* Weighting needed */
+    avg_rough = 0.5 * (lc->rough + nabr_lc->rough);
+    crossa = avg_h * topo->edge[j];
+
+    return OverLandFlow(avg_h, grad_h, avg_sf, crossa, avg_rough);
+}
