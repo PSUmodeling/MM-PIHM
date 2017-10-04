@@ -160,7 +160,8 @@ double          OverLandFlow(double, double, double, double, double);
 double          OvlFlowElemToElem(const wstate_struct *, const topo_struct *,
     const lc_struct *, int, const wstate_struct *, const topo_struct *,
     const lc_struct *, double, int surf_mode);
-double          OlfEleToRiver(double, double, double, double, double, double);
+double          OvlFlowElemToRiver(double, double, double, double, double,
+    double, double);
 void            ParseCmdLineParam(int, char *[], char *);
 void            PIHM(pihm_struct, void *, N_Vector, int, int, double);
 pihm_t_struct   PIHMTime(int);

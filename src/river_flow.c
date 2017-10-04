@@ -115,7 +115,6 @@ void RiverToElem(river_struct *rivseg, elem_struct *elem, elem_struct *oppbank,
     int ind, double distance, double *fluxsurf, double *fluxriv,
     double *fluxsub)
 {
-    double          total_y;
     double          dif_y_sub;
     double          avg_y_sub;
     double          effk;
@@ -123,13 +122,15 @@ void RiverToElem(river_struct *rivseg, elem_struct *elem, elem_struct *oppbank,
     double          effk_nabr;
     double          avg_ksat;
     double          aquifer_depth;
+    double          zbank;
     int             j;
 
-    total_y = rivseg->ws.stage + rivseg->topo.zbed;
-
     /* Lateral surface flux calculation between river-triangular element */
-    *fluxsurf = OlfEleToRiver(elem->ws.surfh + elem->topo.zmax, elem->topo.zmax,
-        rivseg->matl.cwr, rivseg->topo.zmax, total_y, rivseg->shp.length);
+    zbank = (rivseg->topo.zmax > elem->topo.zmax) ?
+        rivseg->topo.zmax : elem->topo.zmax;
+    *fluxsurf = OvlFlowElemToRiver(elem->topo.zmax, elem->ws.surfh, zbank,
+        rivseg->ws.stage, rivseg->topo.zbed, rivseg->matl.cwr,
+        rivseg->shp.length);
 
     /* Lateral subsurface flux calculation between river-triangular element */
     dif_y_sub =
@@ -204,32 +205,31 @@ void RiverToElem(river_struct *rivseg, elem_struct *elem, elem_struct *oppbank,
     }
 }
 
-double OlfEleToRiver(double eleytot, double elez, double cwr, double rivzmax,
-    double rivytot, double length)
+double OvlFlowElemToRiver(double zmax, double surfh, double zbank,
+    double stage, double zbed, double cwr, double length)
 {
     double          flux;
-    double          zbank;
+    double          elem_h = zmax + surfh;
+    double          rivseg_h = stage + zbed;
 
     /*
      * Panday and Hyakorn 2004 AWR Eqs. (23) and (24)
      */
-    zbank = (rivzmax < elez) ? elez : rivzmax;
-
-    if (rivytot > eleytot)
+    if (rivseg_h > elem_h)
     {
-        if (eleytot > zbank)
+        if (elem_h > zbank)
         {
             /* Submerged weir */
             flux = cwr * 2.0 * sqrt(2.0 * GRAV) * length *
-                sqrt(rivytot - eleytot) * (rivytot - zbank) / 3.0;
+                sqrt(rivseg_h - elem_h) * (rivseg_h - zbank) / 3.0;
         }
         else
         {
-            if (zbank < rivytot)
+            if (zbank < rivseg_h)
             {
                 /* Free-flowing weir */
                 flux = cwr * 2.0 * sqrt(2.0 * GRAV) * length *
-                    sqrt(rivytot - zbank) * (rivytot - zbank) / 3.0;
+                    sqrt(rivseg_h - zbank) * (rivseg_h - zbank) / 3.0;
             }
             else
             {
@@ -237,21 +237,21 @@ double OlfEleToRiver(double eleytot, double elez, double cwr, double rivzmax,
             }
         }
     }
-    else if (eleytot - elez > DEPRSTG)
+    else if (surfh > DEPRSTG)
     {
-        if (rivytot > zbank)
+        if (rivseg_h > zbank)
         {
             /* Submerged weir */
             flux = -cwr * 2.0 * sqrt(2.0 * GRAV) * length *
-                sqrt(eleytot - rivytot) * (eleytot - zbank) / 3.0;
+                sqrt(elem_h - rivseg_h) * (elem_h - zbank) / 3.0;
         }
         else
         {
-            if (zbank < eleytot)
+            if (zbank < elem_h)
             {
                 /* Free-flowing weir */
                 flux = -cwr * 2.0 * sqrt(2.0 * GRAV) * length *
-                    sqrt(eleytot - zbank) * (eleytot - zbank) / 3.0;
+                    sqrt(elem_h - zbank) * (elem_h - zbank) / 3.0;
             }
             else
             {
