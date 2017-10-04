@@ -200,6 +200,9 @@ void            SetCVodeParam(pihm_struct, void *, N_Vector);
 int             SoilTex(double, double);
 void            SolveCVode(int, int *, int, double, void *, N_Vector);
 int             StrTime(const char *);
+double          SubFlowElemToElem(const wstate_struct *, const topo_struct *,
+    const soil_struct *, int, const wstate_struct *, const topo_struct *,
+    const soil_struct *);
 void            Summary(elem_struct *, river_struct *, N_Vector, double);
 double          SurfH(double);
 void            UpdPrintVar(varctrl_struct *, int, int);

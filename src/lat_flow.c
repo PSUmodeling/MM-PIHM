@@ -21,7 +21,6 @@ void LateralFlow(elem_struct *elem, river_struct *rivseg, int surf_mode)
         double          avg_y_sub;
         double          grad_y_sub;
         double          effk;
-        double          effk_nabr;
         double          avg_ksat;
         double          dif_y_surf;
         double          avg_y_surf;
@@ -38,25 +37,9 @@ void LateralFlow(elem_struct *elem, river_struct *rivseg, int surf_mode)
             {
                 nabr = &elem[elem[i].nabr[j] - 1];
 
-                /*
-                 * Subsurface lateral flux calculation between triangular
-                 * elements
-                 */
-                dif_y_sub = (elem[i].ws.gw + elem[i].topo.zmin) -
-                    (nabr->ws.gw + nabr->topo.zmin);
-                avg_y_sub = AvgY(dif_y_sub, elem[i].ws.gw, nabr->ws.gw);
-                grad_y_sub = dif_y_sub / elem[i].topo.nabrdist[j];
-                /* Take into account macropore effect */
-                effk = EffKh(elem[i].ws.gw, elem[i].soil.depth,
-                    elem[i].soil.dmac, elem[i].soil.kmach, elem[i].soil.areafv,
-                    elem[i].soil.ksath);
-                effk_nabr = EffKh(nabr->ws.gw, nabr->soil.depth,
-                    nabr->soil.dmac, nabr->soil.kmach, nabr->soil.areafv,
-                    nabr->soil.ksath);
-                avg_ksat = 0.5 * (effk + effk_nabr);
-                /* Groundwater flow modeled by Darcy's Law */
                 elem[i].wf.subsurf[j] =
-                    avg_ksat * grad_y_sub * avg_y_sub * elem[i].topo.edge[j];
+                    SubFlowElemToElem(&elem[i].ws, &elem[i].topo,
+                    &elem[i].soil, j, &nabr->ws, &nabr->topo, &nabr->soil);
 
                 /*
                  * Surface lateral flux calculation between triangular
@@ -292,3 +275,33 @@ double OverLandFlow(double avg_y, double grad_y, double avg_sf, double crossa,
 {
     return crossa * pow(avg_y, 0.6666667) * grad_y / (sqrt(avg_sf) * avg_rough);
 }
+
+double SubFlowElemToElem(const wstate_struct *ws, const topo_struct *topo,
+    const soil_struct *soil, int j, const wstate_struct *nabr_ws,
+    const topo_struct *nabr_topo, const soil_struct *nabr_soil)
+{
+    double          diff_h;
+    double          avg_h;
+    double          grad_h;
+    double          effk, effk_nabr;
+    double          avg_ksat;
+
+    /*
+     * Subsurface lateral flux calculation between triangular
+     * elements
+     */
+    diff_h = (ws->gw + topo->zmin) - (nabr_ws->gw + nabr_topo->zmin);
+    avg_h = AvgY(diff_h, ws->gw, nabr_ws->gw);
+    grad_h = diff_h / topo->nabrdist[j];
+
+    /* Take into account macropore effect */
+    effk = EffKh(ws->gw, soil->depth, soil->dmac, soil->kmach, soil->areafv,
+        soil->ksath);
+    effk_nabr = EffKh(nabr_ws->gw, nabr_soil->depth, nabr_soil->dmac,
+        nabr_soil->kmach, nabr_soil->areafv, nabr_soil->ksath);
+    avg_ksat = 0.5 * (effk + effk_nabr);
+
+    /* Groundwater flow modeled by Darcy's Law */
+    return avg_ksat * grad_h * avg_h * topo->edge[j];
+}
+
