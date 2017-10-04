@@ -102,14 +102,28 @@ void CreateOutputDir(char *outputdir)
 
     if (PIHMmkdir(outputdir) != 0)
     {
-        PIHMprintf(VL_ERROR, "Error creating output directory %s", outputdir);
-        PIHMexit(EXIT_FAILURE);
+        if (errno != EEXIST)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error creating output directory %s\n", outputdir);
+            PIHMexit(EXIT_FAILURE);
+        }
+        else
+        {
+            PIHMprintf(VL_NORMAL,
+                "Output directory %s already exists. Overwriting.\n", outputdir);
+        }
+    }
+    else
+    {
+        PIHMprintf(VL_NORMAL, "Output directory %s was created.\n", outputdir);
     }
 
     sprintf(icdir, "%srestart/", outputdir);
-    if (PIHMmkdir(icdir) != 0)
+    if (PIHMmkdir(icdir) != 0 && errno != EEXIST)
     {
-        PIHMprintf(VL_ERROR, "Error creating restart directory %s", outputdir);
+        PIHMprintf(VL_ERROR,
+            "Error creating restart directory %s\n", outputdir);
         PIHMexit(EXIT_FAILURE);
     }
 }
