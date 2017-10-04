@@ -153,6 +153,9 @@ double          MonthlyRl(int, int);
 void            NextLine(FILE *, char *, int *);
 int             NumStateVar(void);
 int             Ode(realtype, N_Vector, N_Vector, void *);
+double          OutletFlux(int, const river_wstate_struct *,
+    const river_topo_struct *, const shp_struct *, const matl_struct *,
+    const river_bc_struct *);
 double          OverLandFlow(double, double, double, double, double);
 double          OvlFlowElemToElem(const wstate_struct *, const topo_struct *,
     const lc_struct *, int, const wstate_struct *, const topo_struct *,
@@ -198,7 +201,7 @@ void            ReadSoil(char *, soiltbl_struct *);
 void            ReadTecplot(char *, ctrl_struct *);
 int             ReadTS(char *, int *, double *, int);
 void            RiverFlow(elem_struct *, river_struct *, int);
-void            RiverToEle(river_struct *, elem_struct *, elem_struct *, int,
+void            RiverToElem(river_struct *, elem_struct *, elem_struct *, int,
     double, double *, double *, double *);
 #ifdef _OPENMP
 void            RunTime(double, double *, double *);

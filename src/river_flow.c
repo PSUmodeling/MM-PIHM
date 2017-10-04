@@ -4,10 +4,6 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
 {
     int             i;
 
-    /*
-     * Lateral flux calculation between river-river and river-triangular
-     * elements
-     */
 #ifdef _OPENMP
 # pragma omp parallel for
 #endif
@@ -16,16 +12,8 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
         river_struct   *down;
         elem_struct    *left;
         elem_struct    *right;
-        double          total_y;
-        double          total_y_down;
-        double          avg_perim;
-        double          avg_rough;
-        double          distance;
         double          dif_y;
         double          grad_y;
-        double          avg_sf;
-        double          crossa;
-        double          avg_y;
         double          effk_nabr;
         double          effk;
 
@@ -72,71 +60,24 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
         }
         else
         {
-            switch (rivseg[i].down)
-            {
-                case DIRICHLET:
-                    /* Dirichlet boundary condition */
-                    total_y = rivseg[i].ws.gw + rivseg[i].topo.zmin;
-                    total_y_down = rivseg[i].bc.head +
-                        (rivseg[i].topo.node_zmax - rivseg[i].shp.depth);
-                    distance = 0.5 * rivseg[i].shp.length;
-                    grad_y = (total_y - total_y_down) / distance;
-                    avg_sf = grad_y;
-                    avg_rough = rivseg[i].matl.rough;
-                    avg_y = AvgH(grad_y, rivseg[i].ws.stage, rivseg[i].bc.head);
-                    avg_perim = RiverPerim(rivseg[i].shp.intrpl_ord,
-                        rivseg[i].ws.stage, rivseg[i].shp.coeff);
-                    crossa = RiverArea(rivseg[i].shp.intrpl_ord,
-                        rivseg[i].ws.stage, rivseg[i].shp.coeff);
-                    avg_y = (avg_perim == 0.0) ? 0.0 : (crossa / avg_perim);
-                    rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] =
-                        OverLandFlow(avg_y, grad_y, avg_sf, crossa, avg_rough);
-                    break;
-                case NEUMANN:
-                    /* Neumann boundary condition */
-                    rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] = rivseg[i].bc.flux;
-                    break;
-                case ZERO_DPTH_GRAD:
-                    /* Zero-depth-gradient boundary conditions */
-                    distance = 0.5 * rivseg[i].shp.length;
-                    grad_y = (rivseg[i].topo.zbed -
-                        (rivseg[i].topo.node_zmax - rivseg[i].shp.depth)) /
-                        distance;
-                    avg_rough = rivseg[i].matl.rough;
-                    avg_y = rivseg[i].ws.stage;
-                    avg_perim = RiverPerim(rivseg[i].shp.intrpl_ord,
-                        rivseg[i].ws.stage, rivseg[i].shp.coeff);
-                    crossa = RiverArea(rivseg[i].shp.intrpl_ord,
-                        rivseg[i].ws.stage, rivseg[i].shp.coeff);
-                    rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] =
-                        sqrt(grad_y) * crossa *
-                        ((avg_perim > 0.0) ?
-                        pow(crossa / avg_perim, 2.0 / 3.0) : 0.0) / avg_rough;
-                    break;
-                case CRIT_DPTH:
-                    /* Critical depth boundary conditions */
-                    crossa = RiverArea(rivseg[i].shp.intrpl_ord,
-                        rivseg[i].ws.stage, rivseg[i].shp.coeff);
-                    rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] =
-                        crossa * sqrt(GRAV * rivseg[i].ws.stage);
-                    break;
-                default:
-                    PIHMprintf(VL_ERROR,
-                        "Error: River routing boundary condition type (%d) "
-                        "is not recognized.\n", rivseg[i].down);
-                    PIHMexit(EXIT_FAILURE);
-            }
             /* Note: boundary condition for subsurface element can be changed.
              * Assumption: no flow condition */
+            rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] =
+                OutletFlux(rivseg[i].down, &rivseg[i].ws, &rivseg[i].topo,
+                &rivseg[i].shp, &rivseg[i].matl, &rivseg[i].bc);
+
             rivseg[i].wf.rivflow[DOWN_AQUIF2AQUIF] = 0.0;
         }
 
+        /*
+         * Flux between river segments and triangular elements
+         */
         left = &elem[rivseg[i].leftele - 1];
         right = &elem[rivseg[i].rightele - 1];
 
         if (rivseg[i].leftele > 0)
         {
-            RiverToEle(&rivseg[i], left, right, i + 1,
+            RiverToElem(&rivseg[i], left, right, i + 1,
                 rivseg[i].topo.dist_left,
                 &rivseg[i].wf.rivflow[LEFT_SURF2CHANL],
                 &rivseg[i].wf.rivflow[LEFT_AQUIF2CHANL],
@@ -145,7 +86,7 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
 
         if (rivseg[i].rightele > 0)
         {
-            RiverToEle(&rivseg[i], right, left, i + 1,
+            RiverToElem(&rivseg[i], right, left, i + 1,
                 rivseg[i].topo.dist_right,
                 &rivseg[i].wf.rivflow[RIGHT_SURF2CHANL],
                 &rivseg[i].wf.rivflow[RIGHT_AQUIF2CHANL],
@@ -167,7 +108,7 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
     }
 }
 
-void RiverToEle(river_struct *rivseg, elem_struct *elem, elem_struct *oppbank,
+void RiverToElem(river_struct *rivseg, elem_struct *elem, elem_struct *oppbank,
     int ind, double distance, double *fluxsurf, double *fluxriv,
     double *fluxsub)
 {
@@ -475,4 +416,61 @@ double SubFlowRiverToRiver(const river_wstate_struct *ws,
 #endif
     /* Groundwater flow modeled by Darcy's law */
     return avg_ksat * grad_h * avg_h * avg_wid;
+}
+
+double OutletFlux(int down, const river_wstate_struct *ws,
+    const river_topo_struct *topo, const shp_struct *shp,
+    const matl_struct *matl, const river_bc_struct *bc)
+{
+    double          total_h;
+    double          total_h_down;
+    double          distance;
+    double          grad_h;
+    double          avg_h;
+    double          avg_perim;
+    double          crossa;
+    double          discharge = 0.0;
+
+    switch (down)
+    {
+        case DIRICHLET:
+            /* Dirichlet boundary condition */
+            total_h = ws->gw + topo->zmin;
+            total_h_down = bc->head + (topo->node_zmax - shp->depth);
+            distance = 0.5 * shp->length;
+            grad_h = (total_h - total_h_down) / distance;
+            avg_h = AvgH(grad_h, ws->stage, bc->head);
+            avg_perim = RiverPerim(shp->intrpl_ord, ws->stage, shp->coeff);
+            crossa = RiverArea(shp->intrpl_ord, ws->stage, shp->coeff);
+            avg_h = (avg_perim == 0.0) ? 0.0 : (crossa / avg_perim);
+            discharge =
+                OverLandFlow(avg_h, grad_h, grad_h, crossa, matl->rough);
+            break;
+        case NEUMANN:
+            /* Neumann boundary condition */
+            discharge = bc->flux;
+            break;
+        case ZERO_DPTH_GRAD:
+            /* Zero-depth-gradient boundary conditions */
+            distance = 0.5 * shp->length;
+            grad_h = (topo->zbed - (topo->node_zmax - shp->depth)) / distance;
+            avg_h = ws->stage;
+            avg_perim = RiverPerim(shp->intrpl_ord, ws->stage, shp->coeff);
+            crossa = RiverArea(shp->intrpl_ord, ws->stage, shp->coeff);
+            discharge = sqrt(grad_h) * crossa * ((avg_perim > 0.0) ?
+                pow(crossa / avg_perim, 2.0 / 3.0) : 0.0) / matl->rough;
+            break;
+        case CRIT_DPTH:
+            /* Critical depth boundary conditions */
+            crossa = RiverArea(shp->intrpl_ord, ws->stage, shp->coeff);
+            discharge = crossa * sqrt(GRAV * ws->stage);
+            break;
+        default:
+            PIHMprintf(VL_ERROR,
+                "Error: River routing boundary condition type (%d) "
+                "is not recognized.\n", down);
+            PIHMexit(EXIT_FAILURE);
+    }
+
+    return discharge;
 }
