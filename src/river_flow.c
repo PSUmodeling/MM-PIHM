@@ -25,9 +25,9 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
              * Channel flow between river-river segments
              */
             rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] =
-                ChannnelFlow(&rivseg[i].ws, &rivseg[i].topo, &rivseg[i].shp,
-                &rivseg[i].matl, &down->ws, &down->topo, &down->shp,
-                &down->matl, riv_mode);
+                ChanFlowRiverToRiver(&rivseg[i].ws, &rivseg[i].topo,
+                &rivseg[i].shp, &rivseg[i].matl, &down->ws, &down->topo,
+                &down->shp, &down->matl, riv_mode);
             /* Accumulate to get in-flow for down segments */
             down->wf.rivflow[UP_CHANL2CHANL] -=
                 rivseg[i].wf.rivflow[DOWN_CHANL2CHANL];
@@ -60,6 +60,9 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
         }
         else
         {
+            /*
+             * Outlet flux
+             */
             /* Note: boundary condition for subsurface element can be changed.
              * Assumption: no flow condition */
             rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] =
@@ -342,7 +345,7 @@ double _RiverWdthAreaPerim(int type, int riv_order, double riv_depth,
     return ans;
 }
 
-double ChannnelFlow(const river_wstate_struct *ws,
+double ChanFlowRiverToRiver(const river_wstate_struct *ws,
     const river_topo_struct *topo, const shp_struct *shp,
     const matl_struct *matl, const river_wstate_struct *down_ws,
     const river_topo_struct *down_topo, const shp_struct *down_shp,
