@@ -142,23 +142,6 @@ void RiverToElem(river_struct *rivseg, elem_struct *elem, elem_struct *oppbank,
 
     /* Lateral flux between rectangular element (beneath river) and triangular
      * element */
-    dif_y_sub =
-        (rivseg->ws.gw + rivseg->topo.zmin) - (elem->ws.gw + elem->topo.zmin);
-    /* this is head in neighboring cell represention */
-    if (elem->topo.zmin > rivseg->topo.zbed)
-    {
-        avg_y_sub = 0.0;
-    }
-    else if (elem->topo.zmin + elem->ws.gw > rivseg->topo.zbed)
-    {
-        avg_y_sub = rivseg->topo.zbed - elem->topo.zmin;
-    }
-    else
-    {
-        avg_y_sub = elem->ws.gw;
-    }
-    avg_y_sub = AvgH(dif_y_sub, rivseg->ws.gw, avg_y_sub);
-    aquifer_depth = rivseg->topo.zbed - rivseg->topo.zmin;
     effk = 0.5 *
         (EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
         elem->soil.kmach, elem->soil.areafv, elem->soil.ksath) +
@@ -167,13 +150,9 @@ void RiverToElem(river_struct *rivseg, elem_struct *elem, elem_struct *oppbank,
     effk_nabr =
         EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac, elem->soil.kmach,
         elem->soil.areafv, elem->soil.ksath);
-#ifdef _ARITH_
-    avg_ksat = 0.5 * (effk + effk_nabr);
-#else
-    avg_ksat = 2.0 / (1.0 / effk + 1.0 / effk_nabr);
-#endif
-    grad_y_sub = dif_y_sub / distance;
-    *fluxsub = rivseg->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
+    *fluxsub = SubFlowElemToRiver(elem->ws.gw, elem->topo.zmin, effk_nabr,
+        rivseg->ws.gw, rivseg->topo.zmin, rivseg->topo.zbed, effk,
+        rivseg->shp.length, distance);
 
     /* Replace flux term */
     for (j = 0; j < NUM_EDGE; j++)
@@ -490,4 +469,42 @@ double ChanFlowElemToRiver(double gw, double zmin, double effk, double stage,
     avg_ksat = 0.5 * (effk + effk_riv);
 
     return  length * avg_ksat * grad_h * avg_h;
+}
+
+double SubFlowElemToRiver(double gw, double zmin, double effk, double rivgw,
+    double rivzmin, double zbed, double effk_riv, double length,
+    double distance)
+{
+    double          diff_h;
+    double          avg_h;
+    double          aquifer_depth;
+    double          avg_ksat;
+    double          grad_h;
+
+    diff_h = (rivgw + rivzmin) - (gw + zmin);
+
+    /* This is head in neighboring cell represention */
+    if (zmin > zbed)
+    {
+        avg_h = 0.0;
+    }
+    else if (zmin + gw > zbed)
+    {
+        avg_h = zbed - zmin;
+    }
+    else
+    {
+        avg_h = gw;
+    }
+    avg_h = AvgH(diff_h, rivgw, avg_h);
+    aquifer_depth = zbed - rivzmin;
+
+#ifdef _ARITH_
+    avg_ksat = 0.5 * (effk + effk_riv);
+#else
+    avg_ksat = 2.0 / (1.0 / effk + 1.0 / effk_riv);
+#endif
+    grad_h = diff_h / distance;
+
+    return length * avg_ksat * grad_h * avg_h;
 }

@@ -219,6 +219,8 @@ int             StrTime(const char *);
 double          SubFlowElemToElem(const wstate_struct *, const topo_struct *,
     const soil_struct *, int, const wstate_struct *, const topo_struct *,
     const soil_struct *);
+double          SubFlowElemToRiver(double, double, double, double, double,
+    double, double, double, double);
 double          SubFlowRiverToRiver(const river_wstate_struct *,
     const river_topo_struct *, const shp_struct *, double,
     const river_wstate_struct *, const river_topo_struct *, const shp_struct *,
