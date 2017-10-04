@@ -214,10 +214,9 @@ void SolveCVode(int starttime, int *t, int nextptr, double cputime,
     pihm_t_struct   pihm_time;
     int             flag;
 
-    solvert = (realtype)(*t);
-
     flag = CVodeSetStopTime(cvode_mem, tout);
-    flag = CVode(cvode_mem, (realtype)nextptr, CV_Y, &solvert, CV_NORMAL);
+    flag = CVode(cvode_mem, (realtype)(nextptr - starttime), CV_Y, &solvert,
+        CV_NORMAL);
 
     *t = (int)round(solvert + starttime);
 
