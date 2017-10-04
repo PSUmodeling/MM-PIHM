@@ -133,30 +133,12 @@ void RiverToElem(river_struct *rivseg, elem_struct *elem, elem_struct *oppbank,
         rivseg->shp.length);
 
     /* Lateral subsurface flux calculation between river-triangular element */
-    dif_y_sub =
-        (rivseg->ws.stage + rivseg->topo.zbed) -
-        (elem->ws.gw + elem->topo.zmin);
-    /* This is head in neighboring cell representation */
-    if (elem->topo.zmin > rivseg->topo.zbed)
-    {
-        avg_y_sub = elem->ws.gw;
-    }
-    else if (elem->topo.zmin + elem->ws.gw > rivseg->topo.zbed)
-    {
-        avg_y_sub = elem->topo.zmin + elem->ws.gw - rivseg->topo.zbed;
-    }
-    else
-    {
-        avg_y_sub = 0.0;
-    }
-    avg_y_sub = AvgH(dif_y_sub, rivseg->ws.stage, avg_y_sub);
-    effk = rivseg->matl.ksath;
-    grad_y_sub = dif_y_sub / distance;
-    /* Take into account macropore effect */
-    effk_nabr = EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
+    effk = EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
         elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
-    avg_ksat = 0.5 * (effk + effk_nabr);
-    *fluxriv = rivseg->shp.length * avg_ksat * grad_y_sub * avg_y_sub;
+
+    *fluxriv = ChanFlowElemToRiver(elem->ws.gw, elem->topo.zmin, effk,
+        rivseg->ws.stage, rivseg->topo.zbed, rivseg->matl.ksath,
+        rivseg->shp.length, distance);
 
     /* Lateral flux between rectangular element (beneath river) and triangular
      * element */
@@ -476,4 +458,36 @@ double OutletFlux(int down, const river_wstate_struct *ws,
     }
 
     return discharge;
+}
+
+double ChanFlowElemToRiver(double gw, double zmin, double effk, double stage,
+    double zbed, double effk_riv, double length, double distance)
+{
+    double          diff_h;
+    double          avg_h;
+    double          grad_h;
+    double          avg_ksat;
+
+    diff_h = (stage + zbed) - (gw + zmin);
+
+    /* This is head in neighboring cell representation */
+    if (zmin > zbed)
+    {
+        avg_h = gw;
+    }
+    else if (zmin + gw > zbed)
+    {
+        avg_h = zmin + gw - zbed;
+    }
+    else
+    {
+        avg_h = 0.0;
+    }
+    avg_h = AvgH(diff_h, stage, avg_h);
+
+    grad_h = diff_h / distance;
+
+    avg_ksat = 0.5 * (effk + effk_riv);
+
+    return  length * avg_ksat * grad_h * avg_h;
 }

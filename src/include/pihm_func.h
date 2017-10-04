@@ -83,6 +83,8 @@ void            BoundFluxElem(int, int, const bc_struct *,
     const wstate_struct *, const topo_struct *, const soil_struct *,
     wflux_struct *);
 void            CalcModelStep(ctrl_struct *);
+double          ChanFlowElemToRiver(double, double, double, double, double,
+    double, double, double);
 double          ChanFlowRiverToRiver(const river_wstate_struct *,
     const river_topo_struct *, const shp_struct *, const matl_struct *,
     const river_wstate_struct *, const river_topo_struct *, const shp_struct *,
