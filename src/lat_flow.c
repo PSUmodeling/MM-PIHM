@@ -17,13 +17,7 @@ void LateralFlow(elem_struct *elem, river_struct *rivseg, int surf_mode)
     for (i = 0; i < nelem; i++)
     {
         int             j;
-        double          dif_y_sub;
-        double          avg_y_sub;
-        double          grad_y_sub;
-        double          effk;
-        double          avg_ksat;
         double          avg_sf;
-
         elem_struct    *nabr;
 
         for (j = 0; j < NUM_EDGE; j++)
@@ -32,14 +26,12 @@ void LateralFlow(elem_struct *elem, river_struct *rivseg, int surf_mode)
             {
                 nabr = &elem[elem[i].nabr[j] - 1];
 
+                /* Subsurface flow between triangular elements */
                 elem[i].wf.subsurf[j] =
                     SubFlowElemToElem(&elem[i].ws, &elem[i].topo,
                     &elem[i].soil, j, &nabr->ws, &nabr->topo, &nabr->soil);
 
-                /*
-                 * Surface lateral flux calculation between triangular
-                 * elements
-                 */
+                /* Surface flux between triangular elements */
                 avg_sf = 0.5 *
                     (sqrt(dhbydx[i] * dhbydx[i] + dhbydy[i] * dhbydy[i]) +
                      sqrt(dhbydx[nabr->ind - 1] * dhbydx[nabr->ind - 1] +
@@ -55,42 +47,9 @@ void LateralFlow(elem_struct *elem, river_struct *rivseg, int surf_mode)
             }
             else    /* Boundary condition flux */
             {
-                /* No flow (natural) boundary condition is default */
-                if (elem[i].attrib.bc_type[j] == 0)
-                {
-                    elem[i].wf.ovlflow[j] = 0.0;
-                    elem[i].wf.subsurf[j] = 0.0;
-                }
-                /* Note: ideally different boundary conditions need to be
-                 * incorporated for surf and subsurf respectively */
-                else if (elem[i].attrib.bc_type[j] > 0)
-                {
-                    /* Note: the formulation assumes only Dirichlet TS right
-                     * now */
-                    /* note the assumption here is no flow for surface */
-                    elem[i].wf.ovlflow[j] = 0.0;
-                    dif_y_sub =
-                        elem[i].ws.gw + elem[i].topo.zmin - elem[i].bc.head[j];
-                    avg_y_sub = AvgY(dif_y_sub, elem[i].ws.gw,
-                        elem[i].bc.head[j] - elem[i].topo.zmin);
-                    /* Minimum distance from circumcenter to the edge of the
-                     * triangle on which boundary condition is defined */
-                    effk = EffKh(elem[i].ws.gw, elem[i].soil.depth,
-                        elem[i].soil.dmac, elem[i].soil.kmach,
-                        elem[i].soil.areafv, elem[i].soil.ksath);
-                    avg_ksat = effk;
-                    grad_y_sub = dif_y_sub / elem[i].topo.nabrdist[j];
-                    elem[i].wf.subsurf[j] = avg_ksat * grad_y_sub * avg_y_sub *
-                        elem[i].topo.edge[j];
-                }
-                else
-                {
-                    /* Neumann bc (note: md->ele[i].bc[j] value has to be
-                     * = 2+(index of Neumann boundary ts) */
-                    elem[i].wf.ovlflow[j] = elem[i].bc.flux[j];
-                    elem[i].wf.subsurf[j] = elem[i].bc.flux[j];
-                }
-            }    /* End of specified boundary condition */
+                BoundFluxElem(elem[i].attrib.bc_type[j], j, &elem[i].bc,
+                    &elem[i].ws, &elem[i].topo, &elem[i].soil, &elem[i].wf);
+            }
         }    /* End of neighbor loop */
     }    /* End of element loop */
 
@@ -306,4 +265,47 @@ double OvlFlowElemToElem(const wstate_struct *ws, const topo_struct *topo,
     crossa = avg_h * topo->edge[j];
 
     return OverLandFlow(avg_h, grad_h, avg_sf, crossa, avg_rough);
+}
+
+void BoundFluxElem(int bc_type, int j, const bc_struct *bc,
+    const wstate_struct *ws, const topo_struct *topo,
+    const soil_struct *soil, wflux_struct *wf)
+{
+    double          diff_h;
+    double          avg_h;
+    double          effk;
+    double          avg_ksat;
+    double          grad_h;
+
+    /* No flow (natural) boundary condition is default */
+    if (bc_type == 0)
+    {
+        wf->ovlflow[j] = 0.0;
+        wf->subsurf[j] = 0.0;
+    }
+    /* Note: ideally different boundary conditions need to be
+     * incorporated for surf and subsurf respectively */
+    else if (bc_type > 0)
+    {
+        /* Note: the formulation assumes only Dirichlet TS right now */
+        /* note the assumption here is no flow for surface */
+        wf->ovlflow[j] = 0.0;
+
+        diff_h = ws->gw + topo->zmin - bc->head[j];
+        avg_h = AvgY(diff_h, ws->gw, bc->head[j] - topo->zmin);
+        /* Minimum distance from circumcenter to the edge of the triangle
+         * on which boundary condition is defined */
+        effk = EffKh(ws->gw, soil->depth, soil->dmac, soil->kmach,
+            soil->areafv, soil->ksath);
+        avg_ksat = effk;
+        grad_h = diff_h / topo->nabrdist[j];
+        wf->subsurf[j] = avg_ksat * grad_h * avg_h * topo->edge[j];
+    }
+    else
+    {
+        /* Neumann bc (note: md->ele[i].bc[j] value has to be
+         * = 2+(index of Neumann boundary ts) */
+        wf->ovlflow[j] = 0.0;
+        wf->subsurf[j] = bc->flux[j];
+    }
 }

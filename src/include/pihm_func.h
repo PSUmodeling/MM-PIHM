@@ -79,6 +79,9 @@ double          AvgKv(double, double, double, double, double, double, double,
 double          AvgY(double, double, double);
 double          AvgYsfc(double, double, double);
 void            BackupInput(char *);
+void            BoundFluxElem(int, int, const bc_struct *,
+    const wstate_struct *, const topo_struct *, const soil_struct *,
+    wflux_struct *);
 void            CalcModelStep(ctrl_struct *);
 void            CheckFile(FILE *, char *);
 void            CorrElev(elem_struct *, river_struct *);
