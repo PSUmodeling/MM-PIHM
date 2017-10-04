@@ -60,15 +60,15 @@ void            AdjCVodeMaxStep(void *, ctrl_struct *);
 void            ApplyBc(forc_struct *, elem_struct *, river_struct *, int);
 void            ApplyElemBc(forc_struct *, elem_struct *, int);
 #ifdef _NOAH_
-void            ApplyForc(forc_struct *, elem_struct *, int, ctrl_struct *,
-    siteinfo_struct *);
+void            ApplyForc(forc_struct *, elem_struct *, int, int,
+    const siteinfo_struct *);
 #else
 void            ApplyForc(forc_struct *, elem_struct *, int);
 #endif
 void            ApplyLai(forc_struct *, elem_struct *, int);
 #ifdef _NOAH_
 void            ApplyMeteoForc(forc_struct *, elem_struct *, int, int,
-    siteinfo_struct *);
+    const siteinfo_struct *);
 #else
 void            ApplyMeteoForc(forc_struct *, elem_struct *, int);
 #endif
@@ -95,7 +95,7 @@ void            FindLine(FILE *, char *, int *, const char *);
 void            FreeData(pihm_struct);
 void            FrictSlope(elem_struct *, river_struct *, int, double *,
     double *);
-void            Hydrol(elem_struct *, river_struct *, ctrl_struct *);
+void            Hydrol(elem_struct *, river_struct *, const ctrl_struct *);
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
 #ifdef _BGC_
@@ -136,7 +136,7 @@ void            IntrplForc(tsdata_struct *, int, int);
 double          KrFunc(double, double, double);
 void            LateralFlow(elem_struct *, river_struct *, int);
 int             MacroporeStatus(double, double, double, double, double, double);
-void            MapOutput(pihm_struct, char *);
+void            MapOutput(pihm_struct, const char *);
 void            MassBalance(wstate_struct *, wstate_struct *, wflux_struct *,
     double *, const soil_struct *, double, double);
 double          MonthlyLai(int, int);

@@ -16,15 +16,15 @@ void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *rivseg, int t)
 }
 
 #ifdef _NOAH_
-void ApplyForc(forc_struct *forc, elem_struct *elem, int t,
-    ctrl_struct *ctrl, siteinfo_struct * siteinfo)
+void ApplyForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
+    const siteinfo_struct *siteinfo)
 #else
 void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
 {
     /* Meteorological forcing */
 #ifdef _NOAH_
-    ApplyMeteoForc(forc, elem, t, ctrl->rad_mode, siteinfo);
+    ApplyMeteoForc(forc, elem, t, rad_mode, siteinfo);
 #else
     ApplyMeteoForc(forc, elem, t);
 #endif
@@ -73,7 +73,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 
 #ifdef _NOAH_
 void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
-    siteinfo_struct * siteinfo)
+    const siteinfo_struct *siteinfo)
 #else
 void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 #endif

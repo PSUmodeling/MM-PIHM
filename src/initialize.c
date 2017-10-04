@@ -109,8 +109,8 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         /* Relaxation mode */
 #ifdef _NOAH_
         /* Noah initialization needs air temperature thus forcing is applied */
-        ApplyForc(&pihm->forc, pihm->elem, pihm->ctrl.starttime, &pihm->ctrl,
-            &pihm->siteinfo);
+        ApplyForc(&pihm->forc, pihm->elem, pihm->ctrl.starttime,
+            pihm->ctrl.rad_mode, &pihm->siteinfo);
 #endif
         RelaxIc(pihm->elem, pihm->rivseg);
     }
@@ -898,10 +898,8 @@ void CalcModelStep(ctrl_struct *ctrl)
             ctrl->starttime : ctrl->tout[i - 1] + ctrl->stepsize;
     }
 
-    if (ctrl->tout[ctrl->nstep] < ctrl->endtime)
-    {
-        ctrl->tout[ctrl->nstep] = ctrl->endtime;
-    }
+    ctrl->tout[ctrl->nstep] = (ctrl->tout[ctrl->nstep] < ctrl->endtime) ?
+        ctrl->endtime : ctrl->tout[ctrl->nstep];
 }
 
 void InitWFlux(wflux_struct *wf)
