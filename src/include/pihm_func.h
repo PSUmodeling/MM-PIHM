@@ -161,9 +161,8 @@ double          OutletFlux(int, const river_wstate_struct *,
     const river_topo_struct *, const shp_struct *, const matl_struct *,
     const river_bc_struct *);
 double          OverLandFlow(double, double, double, double, double);
-double          OvlFlowElemToElem(const wstate_struct *, const topo_struct *,
-    const lc_struct *, int, const wstate_struct *, const topo_struct *,
-    const lc_struct *, double, int surf_mode);
+double          OvlFlowElemToElem(const elem_struct *, const elem_struct *, int,
+    double, int);
 double          OvlFlowElemToRiver(double, double, double, double, double,
     double, double);
 void            ParseCmdLineParam(int, char *[], char *);
@@ -217,9 +216,8 @@ void            SetCVodeParam(pihm_struct, void *, N_Vector);
 int             SoilTex(double, double);
 void            SolveCVode(int, int *, int, double, void *, N_Vector);
 int             StrTime(const char *);
-double          SubFlowElemToElem(const wstate_struct *, const topo_struct *,
-    const soil_struct *, int, const wstate_struct *, const topo_struct *,
-    const soil_struct *);
+double          SubFlowElemToElem(const elem_struct *, const elem_struct *,
+    int);
 double          SubFlowElemToRiver(double, double, double, double, double,
     double, double, double, double);
 double          SubFlowRiverToRiver(const river_wstate_struct *,

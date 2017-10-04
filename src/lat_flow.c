@@ -28,8 +28,7 @@ void LateralFlow(elem_struct *elem, river_struct *rivseg, int surf_mode)
 
                 /* Subsurface flow between triangular elements */
                 elem[i].wf.subsurf[j] =
-                    SubFlowElemToElem(&elem[i].ws, &elem[i].topo,
-                    &elem[i].soil, j, &nabr->ws, &nabr->topo, &nabr->soil);
+                    SubFlowElemToElem(&elem[i], nabr, j);
 
                 /* Surface flux between triangular elements */
                 avg_sf = 0.5 *
@@ -37,8 +36,7 @@ void LateralFlow(elem_struct *elem, river_struct *rivseg, int surf_mode)
                      sqrt(dhbydx[nabr->ind - 1] * dhbydx[nabr->ind - 1] +
                      dhbydy[nabr->ind - 1] * dhbydy[nabr->ind - 1]));
                 elem[i].wf.ovlflow[j] =
-                    OvlFlowElemToElem(&elem[i].ws, &elem[i].topo, &elem[i].lc,
-                    j, &nabr->ws, &nabr->topo, &nabr->lc, avg_sf, surf_mode);
+                    OvlFlowElemToElem(&elem[i], nabr, j, avg_sf, surf_mode);
             }
             else if (elem[i].nabr[j] < 0)
             {
@@ -114,56 +112,56 @@ void FrictSlope(elem_struct *elem, river_struct *rivseg, int surf_mode,
     }
 }
 
-double AvgHsurf(double diff, double yi, double yinabr)
+double AvgHsurf(double diff, double hsurf, double hnabr)
 {
-    double          avg_y;
+    double          avg_h;
 
     if (diff > 0.0)
     {
-        if (yi > DEPRSTG)
+        if (hsurf > DEPRSTG)
         {
-            avg_y = 1.0 * (yi - DEPRSTG);
+            avg_h = 1.0 * (hsurf - DEPRSTG);
         }
         else
         {
-            avg_y = 0.0;
+            avg_h = 0.0;
         }
     }
     else
     {
-        if (yinabr > DEPRSTG)
+        if (hnabr > DEPRSTG)
         {
-            avg_y = 1.0 * (yinabr - DEPRSTG);
+            avg_h = 1.0 * (hnabr - DEPRSTG);
         }
         else
         {
-            avg_y = 0.0;
+            avg_h = 0.0;
         }
     }
 
-    return avg_y;
+    return avg_h;
 }
 
-double AvgH(double diff, double yi, double yinabr)
+double AvgH(double diff, double hsub, double hnabr)
 {
-    double          avg_y = 0.0;
+    double          avg_h = 0.0;
 
     if (diff > 0.0)
     {
-        if (yi > 0.0)
+        if (hsub > 0.0)
         {
-            avg_y = yi;
+            avg_h = hsub;
         }
     }
     else
     {
-        if (yinabr > 0.0)
+        if (hnabr > 0.0)
         {
-            avg_y = yinabr;
+            avg_h = hnabr;
         }
     }
 
-    return avg_y;
+    return avg_h;
 }
 
 double DhByDl(double *l1, double *l2, double *surfh)
@@ -175,23 +173,23 @@ double DhByDl(double *l1, double *l2, double *surfh)
         l2[0] * (l1[2] - l1[1]));
 }
 
-double EffKh(double tmpy, double aqdepth, double macd, double macksath,
+double EffKh(double gw, double aqdepth, double macd, double macksath,
     double areaf, double ksath)
 {
-    tmpy = (tmpy > 0.0) ? tmpy : 0.0;
+    gw = (gw > 0.0) ? gw : 0.0;
 
-    if (tmpy > aqdepth - macd)
+    if (gw > aqdepth - macd)
     {
-        if (tmpy > aqdepth)
+        if (gw > aqdepth)
         {
             return (macksath * macd * areaf + ksath * (aqdepth -
                 macd * areaf)) / aqdepth;
         }
         else
         {
-            return (macksath * (tmpy - (aqdepth - macd)) * areaf +
-                ksath * (aqdepth - macd + (tmpy - (aqdepth - macd)) *
-                (1.0 - areaf))) / tmpy;
+            return (macksath * (gw - (aqdepth - macd)) * areaf +
+                ksath * (aqdepth - macd + (gw - (aqdepth - macd)) *
+                (1.0 - areaf))) / gw;
         }
     }
     else
@@ -200,16 +198,14 @@ double EffKh(double tmpy, double aqdepth, double macd, double macksath,
     }
 }
 
-
-double OverLandFlow(double avg_y, double grad_y, double avg_sf, double crossa,
+double OverLandFlow(double avg_h, double grad_h, double avg_sf, double crossa,
     double avg_rough)
 {
-    return crossa * pow(avg_y, 0.6666667) * grad_y / (sqrt(avg_sf) * avg_rough);
+    return crossa * pow(avg_h, 0.6666667) * grad_h / (sqrt(avg_sf) * avg_rough);
 }
 
-double SubFlowElemToElem(const wstate_struct *ws, const topo_struct *topo,
-    const soil_struct *soil, int j, const wstate_struct *nabr_ws,
-    const topo_struct *nabr_topo, const soil_struct *nabr_soil)
+double SubFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
+    int j)
 {
     double          diff_h;
     double          avg_h;
@@ -221,25 +217,23 @@ double SubFlowElemToElem(const wstate_struct *ws, const topo_struct *topo,
      * Subsurface lateral flux calculation between triangular
      * elements
      */
-    diff_h = (ws->gw + topo->zmin) - (nabr_ws->gw + nabr_topo->zmin);
-    avg_h = AvgH(diff_h, ws->gw, nabr_ws->gw);
-    grad_h = diff_h / topo->nabrdist[j];
+    diff_h = (elem->ws.gw + elem->topo.zmin) - (nabr->ws.gw + nabr->topo.zmin);
+    avg_h = AvgH(diff_h, elem->ws.gw, nabr->ws.gw);
+    grad_h = diff_h / elem->topo.nabrdist[j];
 
     /* Take into account macropore effect */
-    effk = EffKh(ws->gw, soil->depth, soil->dmac, soil->kmach, soil->areafv,
-        soil->ksath);
-    effk_nabr = EffKh(nabr_ws->gw, nabr_soil->depth, nabr_soil->dmac,
-        nabr_soil->kmach, nabr_soil->areafv, nabr_soil->ksath);
+    effk = EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
+        elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
+    effk_nabr = EffKh(nabr->ws.gw, nabr->soil.depth, nabr->soil.dmac,
+        nabr->soil.kmach, nabr->soil.areafv, nabr->soil.ksath);
     avg_ksat = 0.5 * (effk + effk_nabr);
 
     /* Groundwater flow modeled by Darcy's Law */
-    return avg_ksat * grad_h * avg_h * topo->edge[j];
+    return avg_ksat * grad_h * avg_h * elem->topo.edge[j];
 }
 
-double OvlFlowElemToElem(const wstate_struct *ws, const topo_struct *topo,
-    const lc_struct *lc, int j, const wstate_struct *nabr_ws,
-    const topo_struct *nabr_topo, const lc_struct *nabr_lc, double avg_sf,
-    int surf_mode)
+double OvlFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
+    int j, double avg_sf, int surf_mode)
 {
     double          diff_h;
     double          avg_h;
@@ -248,10 +242,10 @@ double OvlFlowElemToElem(const wstate_struct *ws, const topo_struct *topo,
     double          crossa;
 
     diff_h = (surf_mode == KINEMATIC) ?
-        topo->zmax - nabr_topo->zmax :
-        (ws->surfh + topo->zmax) - (nabr_ws->surfh + nabr_topo->zmax);
-    avg_h = AvgHsurf(diff_h, ws->surfh, nabr_ws->surfh);
-    grad_h = diff_h / topo->nabrdist[j];
+        elem->topo.zmax - nabr->topo.zmax :
+        (elem->ws.surfh + elem->topo.zmax) - (nabr->ws.surfh + nabr->topo.zmax);
+    avg_h = AvgHsurf(diff_h, elem->ws.surfh, nabr->ws.surfh);
+    grad_h = diff_h / elem->topo.nabrdist[j];
     if (surf_mode == KINEMATIC)
     {
         avg_sf = (grad_h > 0.0) ? grad_h : GRADMIN;
@@ -261,15 +255,15 @@ double OvlFlowElemToElem(const wstate_struct *ws, const topo_struct *topo,
         avg_sf = (avg_sf > GRADMIN) ? avg_sf : GRADMIN;
     }
     /* Weighting needed */
-    avg_rough = 0.5 * (lc->rough + nabr_lc->rough);
-    crossa = avg_h * topo->edge[j];
+    avg_rough = 0.5 * (elem->lc.rough + nabr->lc.rough);
+    crossa = avg_h * elem->topo.edge[j];
 
     return OverLandFlow(avg_h, grad_h, avg_sf, crossa, avg_rough);
 }
 
 void BoundFluxElem(int bc_type, int j, const bc_struct *bc,
-    const wstate_struct *ws, const topo_struct *topo,
-    const soil_struct *soil, wflux_struct *wf)
+    const wstate_struct *ws, const topo_struct *topo, const soil_struct *soil,
+    wflux_struct *wf)
 {
     double          diff_h;
     double          avg_h;
