@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadLsm(char *filename, siteinfo_struct * siteinfo, ctrl_struct *ctrl,
+void ReadLsm(char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     noahtbl_struct *noahtbl)
 {
     int             i;

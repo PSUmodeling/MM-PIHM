@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Hydrol(elem_struct *elem, river_struct *rivseg, ctrl_struct *ctrl)
+void Hydrol(elem_struct *elem, river_struct *rivseg, const ctrl_struct *ctrl)
 {
     int             i;
 

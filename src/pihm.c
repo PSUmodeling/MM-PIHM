@@ -11,7 +11,8 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     {
         /* Apply forcing */
 #ifdef _NOAH_
-        ApplyForc(&pihm->forc, pihm->elem, t , &pihm->ctrl, &pihm->siteinfo);
+        ApplyForc(&pihm->forc, pihm->elem, t , pihm->ctrl.rad_mode,
+            &pihm->siteinfo);
 #else
         ApplyForc(&pihm->forc, pihm->elem, t);
 #endif

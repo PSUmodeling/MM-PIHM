@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void MapOutput(pihm_struct pihm, char *outputdir)
+void MapOutput(pihm_struct pihm, const char *outputdir)
 {
     int             i, j, k;
     int             n;
