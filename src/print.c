@@ -244,14 +244,14 @@ void PrintInit(elem_struct *elem, river_struct *river, char *outputdir, int t,
 
     pihm_time = PIHMTime(t);
 
-
     if(PrintNow(intvl, t - starttime, &pihm_time) || t == endtime)
     {
         FILE           *init_file;
         char            fn[MAXSTRING];
         int             i;
 
-        sprintf(fn, "%s/restart/%s.%s.ic", outputdir, project, pihm_time.str);
+        sprintf(fn, "%s/restart/%s.%s.ic", outputdir, project,
+            pihm_time.strshort);
 
         init_file = fopen(fn, "wb");
         CheckFile(init_file, fn);

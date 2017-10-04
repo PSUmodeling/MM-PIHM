@@ -11,6 +11,7 @@ typedef struct pihm_t_struct
     int             hour;
     int             minute;
     char            str[17];
+    char            strshort[13];
 } pihm_t_struct;
 
 /* Site information structure */

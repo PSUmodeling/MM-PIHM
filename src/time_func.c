@@ -16,6 +16,7 @@ pihm_t_struct PIHMTime(int t)
     pihm_time.hour = timestamp->tm_hour;
     pihm_time.minute = timestamp->tm_min;
     strftime(pihm_time.str, 17, "%Y-%m-%d %H:%M", timestamp);
+    strftime(pihm_time.strshort, 13, "%Y%m%d%H%M", timestamp);
 
     return pihm_time;
 }
