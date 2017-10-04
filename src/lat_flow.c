@@ -114,7 +114,7 @@ void FrictSlope(elem_struct *elem, river_struct *rivseg, int surf_mode,
     }
 }
 
-double AvgYsfc(double diff, double yi, double yinabr)
+double AvgHsurf(double diff, double yi, double yinabr)
 {
     double          avg_y;
 
@@ -144,7 +144,7 @@ double AvgYsfc(double diff, double yi, double yinabr)
     return avg_y;
 }
 
-double AvgY(double diff, double yi, double yinabr)
+double AvgH(double diff, double yi, double yinabr)
 {
     double          avg_y = 0.0;
 
@@ -222,7 +222,7 @@ double SubFlowElemToElem(const wstate_struct *ws, const topo_struct *topo,
      * elements
      */
     diff_h = (ws->gw + topo->zmin) - (nabr_ws->gw + nabr_topo->zmin);
-    avg_h = AvgY(diff_h, ws->gw, nabr_ws->gw);
+    avg_h = AvgH(diff_h, ws->gw, nabr_ws->gw);
     grad_h = diff_h / topo->nabrdist[j];
 
     /* Take into account macropore effect */
@@ -250,7 +250,7 @@ double OvlFlowElemToElem(const wstate_struct *ws, const topo_struct *topo,
     diff_h = (surf_mode == KINEMATIC) ?
         topo->zmax - nabr_topo->zmax :
         (ws->surfh + topo->zmax) - (nabr_ws->surfh + nabr_topo->zmax);
-    avg_h = AvgYsfc(diff_h, ws->surfh, nabr_ws->surfh);
+    avg_h = AvgHsurf(diff_h, ws->surfh, nabr_ws->surfh);
     grad_h = diff_h / topo->nabrdist[j];
     if (surf_mode == KINEMATIC)
     {
@@ -292,7 +292,7 @@ void BoundFluxElem(int bc_type, int j, const bc_struct *bc,
         wf->ovlflow[j] = 0.0;
 
         diff_h = ws->gw + topo->zmin - bc->head[j];
-        avg_h = AvgY(diff_h, ws->gw, bc->head[j] - topo->zmin);
+        avg_h = AvgH(diff_h, ws->gw, bc->head[j] - topo->zmin);
         /* Minimum distance from circumcenter to the edge of the triangle
          * on which boundary condition is defined */
         effk = EffKh(ws->gw, soil->depth, soil->dmac, soil->kmach,

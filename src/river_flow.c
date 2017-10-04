@@ -78,7 +78,7 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
             total_y_down = down->ws.gw + down->topo.zmin;
             avg_wid = (rivseg[i].shp.width + down->shp.width) / 2.0;
             dif_y_sub = total_y - total_y_down;
-            avg_y_sub = AvgY(dif_y_sub, rivseg[i].ws.gw, down->ws.gw);
+            avg_y_sub = AvgH(dif_y_sub, rivseg[i].ws.gw, down->ws.gw);
             grad_y_sub = dif_y_sub / distance;
             aquifer_depth = rivseg[i].topo.zbed - rivseg[i].topo.zmin;
             left = &elem[rivseg[i].leftele - 1];
@@ -119,7 +119,7 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
                     grad_y = (total_y - total_y_down) / distance;
                     avg_sf = grad_y;
                     avg_rough = rivseg[i].matl.rough;
-                    avg_y = AvgY(grad_y, rivseg[i].ws.stage, rivseg[i].bc.head);
+                    avg_y = AvgH(grad_y, rivseg[i].ws.stage, rivseg[i].bc.head);
                     avg_perim = perim;
                     crossa = RiverArea(rivseg[i].shp.intrpl_ord,
                         rivseg[i].ws.stage, rivseg[i].shp.coeff);
@@ -238,7 +238,7 @@ void RiverToEle(river_struct *rivseg, elem_struct *elem, elem_struct *oppbank,
     {
         avg_y_sub = 0.0;
     }
-    avg_y_sub = AvgY(dif_y_sub, rivseg->ws.stage, avg_y_sub);
+    avg_y_sub = AvgH(dif_y_sub, rivseg->ws.stage, avg_y_sub);
     effk = rivseg->matl.ksath;
     grad_y_sub = dif_y_sub / distance;
     /* Take into account macropore effect */
@@ -264,7 +264,7 @@ void RiverToEle(river_struct *rivseg, elem_struct *elem, elem_struct *oppbank,
     {
         avg_y_sub = elem->ws.gw;
     }
-    avg_y_sub = AvgY(dif_y_sub, rivseg->ws.gw, avg_y_sub);
+    avg_y_sub = AvgH(dif_y_sub, rivseg->ws.gw, avg_y_sub);
     aquifer_depth = rivseg->topo.zbed - rivseg->topo.zmin;
     effk = 0.5 *
         (EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac,

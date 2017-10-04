@@ -76,8 +76,8 @@ void            ApplyRiverBc(forc_struct *, river_struct *, int);
 void            AsciiArt();
 double          AvgKv(double, double, double, double, double, double, double,
     double);
-double          AvgY(double, double, double);
-double          AvgYsfc(double, double, double);
+double          AvgH(double, double, double);
+double          AvgHsurf(double, double, double);
 void            BackupInput(char *);
 void            BoundFluxElem(int, int, const bc_struct *,
     const wstate_struct *, const topo_struct *, const soil_struct *,
