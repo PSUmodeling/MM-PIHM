@@ -109,7 +109,8 @@ void            InitLc(elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMesh(elem_struct *, const meshtbl_struct *);
 void            InitOutputFile(print_struct *, char *, int, int);
-void            InitPrtVarCtrl(char *, char *, int, int, int, varctrl_struct *);
+void            InitPrtVarCtrl(const char *, const char *, int, int, int,
+    varctrl_struct *);
 void            InitRiver(river_struct *, elem_struct *, const rivtbl_struct *,
     const shptbl_struct *, const matltbl_struct *, const meshtbl_struct *,
     const calib_struct *);
@@ -124,8 +125,8 @@ void            InitSoil(elem_struct *, const soiltbl_struct *,
 #endif
 void            InitSurfL(elem_struct *, river_struct *,
     const meshtbl_struct *);
-void            InitTecPrtVarCtrl(char *, char *, int, int, int, int, int,
-    varctrl_struct *);
+void            InitTecPrtVarCtrl(const char *, const char *, int, int, int,
+    int, int, varctrl_struct *);
 void            InitTopo(elem_struct *, const meshtbl_struct *);
 void            InitVar(elem_struct *, river_struct *, N_Vector);
 void            InitWbFile(char *, char *, FILE *);

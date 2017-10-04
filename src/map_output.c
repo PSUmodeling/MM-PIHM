@@ -996,8 +996,8 @@ void MapOutput(pihm_struct pihm, const char *outputdir)
     pihm->print.ntpprint = n;
 }
 
-void InitPrtVarCtrl(char *outputdir, char *ext, int intvl, int upd_intvl,
-    int nvar, varctrl_struct * varctrl)
+void InitPrtVarCtrl(const char *outputdir, const char *ext, int intvl,
+    int upd_intvl, int nvar, varctrl_struct *varctrl)
 {
     sprintf(varctrl->name, "%s%s.%s", outputdir, project, ext);
     varctrl->intvl = intvl;
@@ -1008,8 +1008,8 @@ void InitPrtVarCtrl(char *outputdir, char *ext, int intvl, int upd_intvl,
     varctrl->counter = 0;
 }
 
-void InitTecPrtVarCtrl(char *outputdir, char *ext, int intvl, int intr,
-    int upd_intvl, int nvar, int nnode, varctrl_struct * varctrl)
+void InitTecPrtVarCtrl(const char *outputdir, const char *ext, int intvl,
+    int intr, int upd_intvl, int nvar, int nnode, varctrl_struct *varctrl)
 {
     sprintf(varctrl->name, "%s%s.%s", outputdir, project, ext);
     varctrl->intvl = intvl;
