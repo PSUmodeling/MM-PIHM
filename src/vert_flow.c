@@ -32,94 +32,101 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
     double          psi_u;
     double          h_u;
 
-    applrate = wf->pcpdrp + ws->surf / dt;
-
-    wetfrac = ws->surfh / DEPRSTG;
-    wetfrac = (wetfrac > 0.0) ? wetfrac : 0.0;
-    wetfrac = (wetfrac < 1.0) ? wetfrac : 1.0;
-
-    if (ws->gw > soil->depth - soil->dinf)
+    if (ws->unsat + ws->gw > soil->depth)
     {
-        /* Assumption: Dinf < Dmac */
-        dh_by_dz =
-            (ws->surfh + topo->zmax - (ws->gw + topo->zmin)) / soil->dinf;
-        dh_by_dz = (ws->surfh < 0.0 && dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
-        dh_by_dz = (dh_by_dz < 1.0 && dh_by_dz > 0.0) ? 1.0 : dh_by_dz;
-
-        satn = 1.0;
-        satkfunc = KrFunc(soil->alpha, soil->beta, satn);
-
-        if (soil->areafh == 0.0)
-        {
-            ps->macpore_status = MTX_CTRL;
-        }
-        else
-        {
-            ps->macpore_status =
-                MacroporeStatus(soil, dh_by_dz, satkfunc, applrate);
-        }
-
-        if (dh_by_dz < 0.0)
-        {
-            kinf = soil->kmacv * soil->areafh +
-                soil->kinfv * (1.0 - soil->areafh);
-        }
-        else
-        {
-            kinf = EffKinf(soil, satkfunc, satn, ps->macpore_status);
-        }
-
-        infil = kinf * dh_by_dz;
+        infil = 0.0;
     }
     else
     {
-        deficit = soil->depth - ws->gw;
-#ifdef _NOAH_
-        satn = (ws->sh2o[0] - soil->smcmin) / (soil->smcmax - soil->smcmin);
-#else
-        satn = ws->unsat / deficit;
-#endif
-        satn = (satn > 1.0) ? 1.0 : satn;
-        satn = (satn < SATMIN) ? SATMIN : satn;
+        applrate = wf->pcpdrp + ws->surf / dt;
 
-        psi_u = Psi(satn, soil->alpha, soil->beta);
-        /* Note: for psi calculation using van Genuchten relation, cutting
-         * the psi-sat tail at small saturation can be performed for
-         * computational advantage. If you do not want to perform this,
-         * comment the statement that follows */
-        psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
+        wetfrac = ws->surfh / DEPRSTG;
+        wetfrac = (wetfrac > 0.0) ? wetfrac : 0.0;
+        wetfrac = (wetfrac < 1.0) ? wetfrac : 1.0;
 
-        h_u = psi_u + topo->zmax - 0.5 * soil->dinf;
-        dh_by_dz = (0.5 * ws->surfh + topo->zmax - h_u) /
-            (0.5 * (ws->surfh + soil->dinf));
-        dh_by_dz = (ws->surfh < 0.0 && dh_by_dz > 0.0) ?  0.0 : dh_by_dz;
-
-        satkfunc = KrFunc(soil->alpha, soil->beta, satn);
-
-        if (soil->areafh == 0.0)
+        if (ws->gw > soil->depth - soil->dinf)
         {
-            ps->macpore_status = MTX_CTRL;
+            /* Assumption: Dinf < Dmac */
+            dh_by_dz =
+                (ws->surfh + topo->zmax - (ws->gw + topo->zmin)) / soil->dinf;
+            dh_by_dz = (ws->surfh < 0.0 && dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
+            dh_by_dz = (dh_by_dz < 1.0 && dh_by_dz > 0.0) ? 1.0 : dh_by_dz;
+
+            satn = 1.0;
+            satkfunc = KrFunc(soil->alpha, soil->beta, satn);
+
+            if (soil->areafh == 0.0)
+            {
+                ps->macpore_status = MTX_CTRL;
+            }
+            else
+            {
+                ps->macpore_status =
+                    MacroporeStatus(soil, dh_by_dz, satkfunc, applrate);
+            }
+
+            if (dh_by_dz < 0.0)
+            {
+                kinf = soil->kmacv * soil->areafh +
+                    soil->kinfv * (1.0 - soil->areafh);
+            }
+            else
+            {
+                kinf = EffKinf(soil, satkfunc, satn, ps->macpore_status);
+            }
+
+            infil = kinf * dh_by_dz;
         }
         else
         {
-            ps->macpore_status =
-                MacroporeStatus(soil, dh_by_dz, satkfunc, applrate);
+            deficit = soil->depth - ws->gw;
+#ifdef _NOAH_
+            satn = (ws->sh2o[0] - soil->smcmin) / (soil->smcmax - soil->smcmin);
+#else
+            satn = ws->unsat / deficit;
+#endif
+            satn = (satn > 1.0) ? 1.0 : satn;
+            satn = (satn < SATMIN) ? SATMIN : satn;
+
+            psi_u = Psi(satn, soil->alpha, soil->beta);
+            /* Note: for psi calculation using van Genuchten relation, cutting
+             * the psi-sat tail at small saturation can be performed for
+             * computational advantage. If you do not want to perform this,
+             * comment the statement that follows */
+            psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
+
+            h_u = psi_u + topo->zmax - 0.5 * soil->dinf;
+            dh_by_dz = (0.5 * ws->surfh + topo->zmax - h_u) /
+                (0.5 * (ws->surfh + soil->dinf));
+            dh_by_dz = (ws->surfh < 0.0 && dh_by_dz > 0.0) ?  0.0 : dh_by_dz;
+
+            satkfunc = KrFunc(soil->alpha, soil->beta, satn);
+
+            if (soil->areafh == 0.0)
+            {
+                ps->macpore_status = MTX_CTRL;
+            }
+            else
+            {
+                ps->macpore_status =
+                    MacroporeStatus(soil, dh_by_dz, satkfunc, applrate);
+            }
+
+            kinf = EffKinf(soil, satkfunc, satn, ps->macpore_status);
+
+            infil = kinf * dh_by_dz;
+
+            infil = (infil > 0.0) ? infil : 0.0;
         }
 
-        kinf = EffKinf(soil, satkfunc, satn, ps->macpore_status);
+        infil = (infil < applrate) ? infil : applrate;
 
-        infil = kinf * dh_by_dz;
-
-        infil = (infil > 0.0) ? infil : 0.0;
-    }
-
-    infil = (infil < applrate) ? infil : applrate;
-
-    infil *= wetfrac;
+        infil *= wetfrac;
 
 #ifdef _NOAH_
-    infil *= ps->fcr;
+        infil *= ps->fcr;
 #endif
+    }
 
     return infil;
 }

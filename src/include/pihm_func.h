@@ -93,7 +93,7 @@ void            CorrElev(elem_struct *, river_struct *);
 int             CountLine(FILE *, char *, int, ...);
 int             CountOccurr(FILE *, char *);
 void            CreateOutputDir(char *);
-double          DhByDl(double *, double *, double *);
+double          DhByDl(const double *, const double *, const double *);
 double          EffKh(const soil_struct *, double);
 double          EffKinf(const soil_struct *, double, double, int);
 double          EffKv(const soil_struct *, double, int);
@@ -101,8 +101,8 @@ void            EtExtract(elem_struct *);
 double          FieldCapacity(double, double, double, double, double);
 void            FindLine(FILE *, char *, int *, const char *);
 void            FreeData(pihm_struct);
-void            FrictSlope(elem_struct *, river_struct *, int, double *,
-    double *);
+void            FrictSlope(const elem_struct *, const river_struct *, int,
+    double *, double *);
 void            Hydrol(elem_struct *, river_struct *, const ctrl_struct *);
 double          Infil(const wstate_struct *, const wflux_struct *,
     const topo_struct *, const soil_struct *, double, pstate_struct *);

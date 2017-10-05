@@ -54,8 +54,8 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
     free(dhbydy);
 }
 
-void FrictSlope(elem_struct *elem, river_struct *river, int surf_mode,
-    double *dhbydx, double *dhbydy)
+void FrictSlope(const elem_struct *elem, const river_struct *river,
+    int surf_mode, double *dhbydx, double *dhbydy)
 {
     int             i;
 #ifdef _OPENMP
@@ -65,8 +65,8 @@ void FrictSlope(elem_struct *elem, river_struct *river, int surf_mode,
     {
         int             j;
         double          surfh[NUM_EDGE];
-        elem_struct    *nabr;
-        river_struct   *rivnabr;
+        const elem_struct *nabr;
+        const river_struct *rivnabr;
 
         if (surf_mode == DIFF_WAVE)
         {
@@ -163,7 +163,7 @@ double AvgH(double diff, double hsub, double hnabr)
     return avg_h;
 }
 
-double DhByDl(double *l1, double *l2, double *surfh)
+double DhByDl(const double *l1, const double *l2, const double *surfh)
 {
     return -1.0 *
         (l1[2] * (surfh[1] - surfh[0]) + l1[1] * (surfh[0] - surfh[2]) +
