@@ -86,8 +86,8 @@ double Mod(double a, double n)
     return a - n * floor(a / n);
 }
 
-double TopoRadn(double sdir, double sdif, double zenith, double azimuth180,
-    double slope, double aspect, const double *h_phi, double svf)
+double TopoRadn(const topo_struct *topo, double sdir, double sdif,
+    double zenith, double azimuth180)
 {
     double          incidence;
     double          gvf;
@@ -95,22 +95,22 @@ double TopoRadn(double sdir, double sdif, double zenith, double azimuth180,
 
     azimuth180 = Mod((360.0 + azimuth180), 360.0);
 
-    if (zenith > h_phi[(int)floor(azimuth180 / 10.0)])
+    if (zenith > topo->h_phi[(int)floor(azimuth180 / 10.0)])
     {
         sdir = 0.0;
     }
 
-    incidence = acos(cos(zenith * PI / 180.0) * cos(slope * PI / 180.0) +
-        sin(zenith * PI / 180.0) * sin(slope * PI / 180.0) *
-        cos((azimuth180 - aspect) * PI / 180.0));
+    incidence = acos(cos(zenith * PI / 180.0) * cos(topo->slope * PI / 180.0) +
+        sin(zenith * PI / 180.0) * sin(topo->slope * PI / 180.0) *
+        cos((azimuth180 - topo->aspect) * PI / 180.0));
     incidence *= 180.0 / PI;
     incidence = incidence > 90.0 ? 90.0 : incidence;
 
-    gvf = (1.0 + cos(slope * PI / 180.0)) / 2.0 - svf;
+    gvf = (1.0 + cos(topo->slope * PI / 180.0)) / 2.0 - topo->svf;
     gvf = (gvf < 0.0) ? 0.0 : gvf;
 
     soldown = sdir * cos(incidence * PI / 180.0) +
-        svf * sdif + 0.2 * gvf * (sdir * cos(zenith * PI / 180.0) + sdif);
+        topo->svf * sdif + 0.2 * gvf * (sdir * cos(zenith * PI / 180.0) + sdif);
     soldown = soldown < 0.0 ? 0.0 : soldown;
 
     return soldown;

@@ -342,8 +342,7 @@ void            SunPos(const siteinfo_struct *, int, spa_data *);
 double          TBnd(double, double, const double *, double, int, int);
 double          TDfCnd(double, double, double, double, double);
 double          TmpAvg(double, double, double, const double *, int);
-double          TopoRadn(double, double, double, double, double, double,
-    const double *, double);
+double          TopoRadn(const topo_struct *, double, double, double, double);
 double          TotalArea(elem_struct *);
 void            Transp(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
