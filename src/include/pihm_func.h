@@ -96,7 +96,7 @@ void            CreateOutputDir(char *);
 double          DhByDl(double *, double *, double *);
 double          EffKh(double, double, double, double, double, double);
 double          EffKinf(const soil_struct *, double, double, int);
-double          EffKv(double, int, double, double, double);
+double          EffKv(const soil_struct *, double, int);
 void            EtExtract(elem_struct *);
 double          FieldCapacity(double, double, double, double, double);
 void            FindLine(FILE *, char *, int *, const char *);

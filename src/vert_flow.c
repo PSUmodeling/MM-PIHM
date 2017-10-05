@@ -173,8 +173,7 @@ double AvgKv(const soil_struct *soil, double deficit, double gw,
 
     if (deficit > soil->dmac)
     {
-        k1 = EffKv(satkfunc, macp_status, soil->kmacv, soil->ksatv,
-            soil->areafh);
+        k1 = EffKv(soil, satkfunc, macp_status);
         d1 = soil->dmac;
 
         k2 = satkfunc * soil->ksatv;
@@ -185,8 +184,7 @@ double AvgKv(const soil_struct *soil, double deficit, double gw,
     }
     else
     {
-        k1 = EffKv(satkfunc, macp_status, soil->kmacv, soil->ksatv,
-            soil->areafh);
+        k1 = EffKv(soil, satkfunc, macp_status);
         d1 = deficit;
 
         k2 = soil->kmacv * soil->areafh + soil->ksatv * (1.0 - soil->areafh);
@@ -233,20 +231,22 @@ double EffKinf(const soil_struct *soil, double ksatfunc, double elemsatn,
     return keff;
 }
 
-double EffKv(double ksatfunc, int status, double mackv, double kv, double areaf)
+double EffKv(const soil_struct *soil, double ksatfunc, int status)
 {
     double          keff = 0.0;
 
     switch (status)
     {
         case MTX_CTRL:
-            keff = kv * ksatfunc;
+            keff = soil->ksatv * ksatfunc;
             break;
         case APP_CTRL:
-            keff = kv * (1.0 - areaf) * ksatfunc + mackv * areaf * ksatfunc;
+            keff = soil->ksatv * (1.0 - soil->areafh) * ksatfunc +
+                soil->kmacv * soil->areafh * ksatfunc;
             break;
         case MAC_CTRL:
-            keff = kv * (1.0 - areaf) * ksatfunc + mackv * areaf;
+            keff = soil->ksatv * (1.0 - soil->areafh) * ksatfunc +
+                soil->kmacv * soil->areafh;
             break;
         default:
             PIHMprintf(VL_ERROR,
