@@ -405,6 +405,7 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
 
 void PrintStats(void *cvode_mem, FILE *conv_file)
 {
+    static long int nst0, nfe0, nni0, ncfn0, netf0;
     long int        nst, nfe, nni, ncfn, netf;
     int             flag;
 
@@ -416,7 +417,14 @@ void PrintStats(void *cvode_mem, FILE *conv_file)
 
     fprintf(conv_file,
         "nst = %-6ld nni = %-6ld nfe = %-6ld netf = %-6ld ncfn = %-6ld\n",
-        nst, nni, nfe, netf, ncfn);
+        nst - nst0, nni - nni0, nfe - nfe0, netf - netf0, ncfn - ncfn0);
+    fflush(conv_file);
+
+    nst0 = nst;
+    nni0 = nni;
+    nfe0 = nfe;
+    netf0 = netf;
+    ncfn0 = ncfn;
 }
 
 void PrintPerf(int t, int starttime, double cputime_dt, double cputime,

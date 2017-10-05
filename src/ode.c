@@ -257,21 +257,31 @@ void SolveCVode(int starttime, int *t, int nextptr, double cputime,
 void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
 {
     /* Variable CVODE max step (to reduce oscillations) */
+    long int        nst;
     long int        ncfn;
     long int        nni;
-    static long int ncfni;
-    static long int nnii;
+    static long int nst0;
+    static long int ncfn0;
+    static long int nni0;
     int             flag;
+    double          nsteps;
+    double          nfails;
+    double          niters;
 
+    flag = CVodeGetNumSteps(cvode_mem, &nst);
     flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
     flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
 
-    if (ncfn - ncfni > ctrl->nncfn || nni - nnii > ctrl->nnimax)
+    nsteps = (double)(nst - nst0);
+    nfails = (double)(ncfn - ncfn0) / nsteps;
+    niters = (double)(nni - nni0) / nsteps;
+
+    if (nfails > ctrl->nncfn || niters > ctrl->nnimax)
     {
         ctrl->maxstep /= ctrl->decr;
     }
 
-    if (ncfn == ncfni && nni - nnii < ctrl->nnimin)
+    if (nfails == 0.0 && niters <= ctrl->nnimin)
     {
         ctrl->maxstep *= ctrl->incr;
     }
@@ -282,6 +292,7 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
 
     flag = CVodeSetMaxStep(cvode_mem, (realtype)ctrl->maxstep);
 
-    ncfni = ncfn;
-    nnii = nni;
+    nst0 = nst;
+    ncfn0 = ncfn;
+    nni0 = nni;
 }

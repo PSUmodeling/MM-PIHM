@@ -111,7 +111,8 @@ void CreateOutputDir(char *outputdir)
         else
         {
             PIHMprintf(VL_NORMAL,
-                "Output directory %s already exists. Overwriting.\n", outputdir);
+                "Output directory %s already exists. Overwriting.\n",
+                outputdir);
         }
     }
     else

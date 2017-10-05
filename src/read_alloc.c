@@ -972,13 +972,13 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
         lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NUM_NONCOV_FAIL", &ctrl->nncfn, 'i', filename, lno);
+    ReadKeyword(cmdstr, "NUM_NONCOV_FAIL", &ctrl->nncfn, 'd', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MAX_NONLIN_ITER", &ctrl->nnimax, 'i', filename, lno);
+    ReadKeyword(cmdstr, "MAX_NONLIN_ITER", &ctrl->nnimax, 'd', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MIN_NONLIN_ITER", &ctrl->nnimin, 'i', filename, lno);
+    ReadKeyword(cmdstr, "MIN_NONLIN_ITER", &ctrl->nnimin, 'd', filename, lno);
 
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "DECR_FACTOR", &ctrl->decr, 'd', filename, lno);

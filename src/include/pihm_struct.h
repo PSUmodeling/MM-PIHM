@@ -156,11 +156,11 @@ typedef struct ctrl_struct
     double          maxstep;                /* CVode maximum step size (s) */
     double          stmin;                  /* minimum allowed CVode max step
                                              * size (s) */
-    int             nncfn;                  /* number of non-convergence
-                                             * failures */
-    int             nnimax;                 /* maximum number of non-linear
+    double          nncfn;                  /* number of non-convergence
+                                             * failures tolerance */
+    double          nnimax;                 /* maximum number of non-linear
                                              * iterations */
-    int             nnimin;                 /* minimum number of non-linear
+    double          nnimin;                 /* minimum number of non-linear
                                              * iterations */
     double          decr;                   /* decrease factor (-)*/
     double          incr;                   /* increase factor (-)*/
