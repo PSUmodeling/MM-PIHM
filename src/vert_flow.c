@@ -13,122 +13,20 @@ void VerticalFlow(elem_struct *elem, double dt)
         double          satkfunc;
         double          dh_by_dz;
         double          psi_u;
-        double          h_u;
-        double          kinf;
         double          kavg;
         double          deficit;
-        double          applrate;
-        double          wetfrac;
 
-        applrate = elem[i].wf.pcpdrp + elem[i].ws.surf / dt;
-
-        wetfrac = (elem[i].ws.surfh > DEPRSTG) ? 1.0 :
-            ((elem[i].ws.surfh < 0.0) ? 0.0 : elem[i].ws.surfh / DEPRSTG);
+        elem[i].wf.infil = Infil(&elem[i].ws, &elem[i].wf, &elem[i].topo,
+            &elem[i].soil, dt, &elem[i].ps);
 
         if (elem[i].ws.gw > elem[i].soil.depth - elem[i].soil.dinf)
         {
-            /* Assumption: Dinf < Dmac */
-            dh_by_dz = (elem[i].ws.surfh + elem[i].topo.zmax -
-                (elem[i].ws.gw + elem[i].topo.zmin)) / elem[i].soil.dinf;
-            dh_by_dz = (elem[i].ws.surfh < 0.0 && dh_by_dz > 0.0) ?
-                0.0 : dh_by_dz;
-            dh_by_dz = (dh_by_dz < 1.0 && dh_by_dz > 0.0) ? 1.0 : dh_by_dz;
-
-            satn = 1.0;
-            satkfunc = KrFunc(elem[i].soil.alpha, elem[i].soil.beta, satn);
-
-            if (elem[i].soil.areafh == 0.0)
-            {
-                elem[i].ps.macpore_status = MTX_CTRL;
-            }
-            else
-            {
-                elem[i].ps.macpore_status = MacroporeStatus(dh_by_dz, satkfunc,
-                    applrate, elem[i].soil.kmacv, elem[i].soil.kinfv,
-                    elem[i].soil.areafh);
-            }
-
-            if (dh_by_dz < 0.0)
-            {
-                kinf = elem[i].soil.kmacv * elem[i].soil.areafh +
-                    elem[i].soil.kinfv * (1.0 - elem[i].soil.areafh);
-            }
-            else
-            {
-                kinf = EffKinf(satkfunc, satn, elem[i].ps.macpore_status,
-                    elem[i].soil.kmacv, elem[i].soil.kinfv,
-                    elem[i].soil.areafh);
-            }
-
-            elem[i].wf.infil = kinf * dh_by_dz;
-
-            /* Note: infiltration can be negative in this case */
-            elem[i].wf.infil = (elem[i].wf.infil < applrate) ?
-                elem[i].wf.infil : applrate;
-
-            elem[i].wf.infil *= wetfrac;
-
-#ifdef _NOAH_
-            elem[i].wf.infil *= elem[i].ps.fcr;
-#endif
-
             elem[i].wf.rechg = elem[i].wf.infil;
         }
         else
         {
-            deficit = elem[i].soil.depth - elem[i].ws.gw;
-#ifdef _NOAH_
-            satn = (elem[i].ws.sh2o[0] - elem[i].soil.smcmin) /
-                (elem[i].soil.smcmax - elem[i].soil.smcmin);
-#else
-            satn = elem[i].ws.unsat / deficit;
-#endif
-            satn = (satn > 1.0) ? 1.0 : satn;
-            satn = (satn < SATMIN) ? SATMIN : satn;
-
-            psi_u = Psi(satn, elem[i].soil.alpha, elem[i].soil.beta);
-            /* Note: for psi calculation using van Genuchten relation, cutting
-             * the psi-sat tail at small saturation can be performed for
-             * computational advantage. If you do not want to perform this,
-             * comment the statement that follows */
-            psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
-
-            h_u = psi_u + elem[i].topo.zmax - 0.5 * elem[i].soil.dinf;
-            dh_by_dz = (0.5 * elem[i].ws.surfh + elem[i].topo.zmax - h_u) /
-                (0.5 * (elem[i].ws.surfh + elem[i].soil.dinf));
-            dh_by_dz = (elem[i].ws.surfh < 0.0 && dh_by_dz > 0.0) ?
-                0.0 : dh_by_dz;
-
-            satkfunc = KrFunc(elem[i].soil.alpha, elem[i].soil.beta, satn);
-
-            if (elem[i].soil.areafh == 0.0)
-            {
-                elem[i].ps.macpore_status = MTX_CTRL;
-            }
-            else
-            {
-                elem[i].ps.macpore_status = MacroporeStatus(dh_by_dz, satkfunc,
-                    applrate, elem[i].soil.kmacv, elem[i].soil.kinfv,
-                    elem[i].soil.areafh);
-            }
-
-            kinf = EffKinf(satkfunc, satn, elem[i].ps.macpore_status,
-                elem[i].soil.kmacv, elem[i].soil.kinfv, elem[i].soil.areafh);
-
-            elem[i].wf.infil = kinf * dh_by_dz;
-
-            elem[i].wf.infil = (elem[i].wf.infil < applrate) ?
-                elem[i].wf.infil : applrate;
-            elem[i].wf.infil = (elem[i].wf.infil > 0.0) ?
-                elem[i].wf.infil : 0.0;
-
-            elem[i].wf.infil *= wetfrac;
-
-#ifdef _NOAH_
-            elem[i].wf.infil *= elem[i].ps.fcr;
-#endif
-
             /* Arithmetic mean formulation */
+            deficit = elem[i].soil.depth - elem[i].ws.gw;
             satn = elem[i].ws.unsat / deficit;
             satn = (satn > 1.0) ? 1.0 : satn;
             satn = (satn < SATMIN) ? SATMIN : satn;
@@ -154,6 +52,115 @@ void VerticalFlow(elem_struct *elem, double dt)
                 0.0 : elem[i].wf.rechg;
         }
     }
+}
+
+double Infil(const wstate_struct *ws, const wflux_struct *wf,
+    const topo_struct *topo, const soil_struct *soil, double dt,
+    pstate_struct *ps)
+{
+    double          applrate;
+    double          wetfrac;
+    double          dh_by_dz;
+    double          satn;
+    double          satkfunc;
+    double          infil;
+    double          kinf;
+    double          deficit;
+    double          psi_u;
+    double          h_u;
+
+    applrate = wf->pcpdrp + ws->surf / dt;
+
+    wetfrac = ws->surfh / DEPRSTG;
+    wetfrac = (wetfrac > 0.0) ? wetfrac : 0.0;
+    wetfrac = (wetfrac < 1.0) ? wetfrac : 1.0;
+
+    if (ws->gw > soil->depth - soil->dinf)
+    {
+        /* Assumption: Dinf < Dmac */
+        dh_by_dz =
+            (ws->surfh + topo->zmax - (ws->gw + topo->zmin)) / soil->dinf;
+        dh_by_dz = (ws->surfh < 0.0 && dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
+        dh_by_dz = (dh_by_dz < 1.0 && dh_by_dz > 0.0) ? 1.0 : dh_by_dz;
+
+        satn = 1.0;
+        satkfunc = KrFunc(soil->alpha, soil->beta, satn);
+
+        if (soil->areafh == 0.0)
+        {
+            ps->macpore_status = MTX_CTRL;
+        }
+        else
+        {
+            ps->macpore_status = MacroporeStatus(dh_by_dz, satkfunc,
+                applrate, soil->kmacv, soil->kinfv, soil->areafh);
+        }
+
+        if (dh_by_dz < 0.0)
+        {
+            kinf = soil->kmacv * soil->areafh +
+                soil->kinfv * (1.0 - soil->areafh);
+        }
+        else
+        {
+            kinf = EffKinf(satkfunc, satn, ps->macpore_status,
+                soil->kmacv, soil->kinfv, soil->areafh);
+        }
+
+        infil = kinf * dh_by_dz;
+    }
+    else
+    {
+        deficit = soil->depth - ws->gw;
+#ifdef _NOAH_
+        satn = (ws->sh2o[0] - soil->smcmin) / (soil->smcmax - soil->smcmin);
+#else
+        satn = ws->unsat / deficit;
+#endif
+        satn = (satn > 1.0) ? 1.0 : satn;
+        satn = (satn < SATMIN) ? SATMIN : satn;
+
+        psi_u = Psi(satn, soil->alpha, soil->beta);
+        /* Note: for psi calculation using van Genuchten relation, cutting
+         * the psi-sat tail at small saturation can be performed for
+         * computational advantage. If you do not want to perform this,
+         * comment the statement that follows */
+        psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
+
+        h_u = psi_u + topo->zmax - 0.5 * soil->dinf;
+        dh_by_dz = (0.5 * ws->surfh + topo->zmax - h_u) /
+            (0.5 * (ws->surfh + soil->dinf));
+        dh_by_dz = (ws->surfh < 0.0 && dh_by_dz > 0.0) ?  0.0 : dh_by_dz;
+
+        satkfunc = KrFunc(soil->alpha, soil->beta, satn);
+
+        if (soil->areafh == 0.0)
+        {
+            ps->macpore_status = MTX_CTRL;
+        }
+        else
+        {
+            ps->macpore_status = MacroporeStatus(dh_by_dz, satkfunc,
+                applrate, soil->kmacv, soil->kinfv, soil->areafh);
+        }
+
+        kinf = EffKinf(satkfunc, satn, ps->macpore_status,
+            soil->kmacv, soil->kinfv, soil->areafh);
+
+        infil = kinf * dh_by_dz;
+
+        infil = (infil > 0.0) ? infil : 0.0;
+    }
+
+    infil = (infil < applrate) ? infil : applrate;
+
+    infil *= wetfrac;
+
+#ifdef _NOAH_
+    infil *= ps->fcr;
+#endif
+
+    return infil;
 }
 
 double AvgKv(double dmac, double deficit, double gw, double macp_status,

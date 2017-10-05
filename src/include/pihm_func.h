@@ -105,6 +105,8 @@ void            FreeData(pihm_struct);
 void            FrictSlope(elem_struct *, river_struct *, int, double *,
     double *);
 void            Hydrol(elem_struct *, river_struct *, const ctrl_struct *);
+double          Infil(const wstate_struct *, const wflux_struct *,
+    const topo_struct *, const soil_struct *, double, pstate_struct *);
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
 #ifdef _BGC_
