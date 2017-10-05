@@ -55,8 +55,8 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
         }
         else
         {
-            ps->macpore_status = MacroporeStatus(dh_by_dz, satkfunc,
-                applrate, soil->kmacv, soil->kinfv, soil->areafh);
+            ps->macpore_status =
+                MacroporeStatus(soil, dh_by_dz, satkfunc, applrate);
         }
 
         if (dh_by_dz < 0.0)
@@ -102,8 +102,8 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
         }
         else
         {
-            ps->macpore_status = MacroporeStatus(dh_by_dz, satkfunc,
-                applrate, soil->kmacv, soil->kinfv, soil->areafh);
+            ps->macpore_status =
+                MacroporeStatus(soil, dh_by_dz, satkfunc, applrate);
         }
 
         kinf = EffKinf(soil, satkfunc, satn, ps->macpore_status);
@@ -264,19 +264,22 @@ double KrFunc(double alpha, double beta, double satn)
         (1.0 - pow(1.0 - pow(satn, beta / (beta - 1.0)), (beta - 1.0) / beta));
 }
 
-int MacroporeStatus(double dh_by_dz, double ksatfunc, double applrate,
-    double mackv, double kv, double areaf)
+int MacroporeStatus(const soil_struct *soil, double dh_by_dz, double ksatfunc,
+    double applrate)
 {
+    double          kmax;
+
     dh_by_dz = (dh_by_dz < 1.0) ? 1.0 : dh_by_dz;
 
-    if (applrate <= dh_by_dz * kv * ksatfunc)
+    if (applrate <= dh_by_dz * soil->kinfv * ksatfunc)
     {
         return MTX_CTRL;
     }
     else
     {
-        if (applrate <
-            dh_by_dz * (mackv * areaf + kv * (1.0 - areaf) * ksatfunc))
+        kmax = dh_by_dz * (soil->kmacv * soil->areafh +
+            soil->kinfv * (1.0 - soil->areafh) * ksatfunc);
+        if (applrate < kmax)
         {
             return APP_CTRL;
         }
