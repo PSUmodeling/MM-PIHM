@@ -9,48 +9,11 @@ void VerticalFlow(elem_struct *elem, double dt)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        double          satn;
-        double          satkfunc;
-        double          dh_by_dz;
-        double          psi_u;
-        double          kavg;
-        double          deficit;
-
         elem[i].wf.infil = Infil(&elem[i].ws, &elem[i].wf, &elem[i].topo,
             &elem[i].soil, dt, &elem[i].ps);
 
-        if (elem[i].ws.gw > elem[i].soil.depth - elem[i].soil.dinf)
-        {
-            elem[i].wf.rechg = elem[i].wf.infil;
-        }
-        else
-        {
-            /* Arithmetic mean formulation */
-            deficit = elem[i].soil.depth - elem[i].ws.gw;
-            satn = elem[i].ws.unsat / deficit;
-            satn = (satn > 1.0) ? 1.0 : satn;
-            satn = (satn < SATMIN) ? SATMIN : satn;
-
-            satkfunc = KrFunc(elem[i].soil.alpha, elem[i].soil.beta, satn);
-
-            psi_u = Psi(satn, elem[i].soil.alpha, elem[i].soil.beta);
-
-            dh_by_dz =
-                (0.5 * deficit + psi_u) / (0.5 * (deficit + elem[i].ws.gw));
-
-            kavg = AvgKv(elem[i].soil.dmac, deficit, elem[i].ws.gw,
-                elem[i].ps.macpore_status, satkfunc, elem[i].soil.kmacv,
-                elem[i].soil.ksatv, elem[i].soil.areafh);
-
-            elem[i].wf.rechg = (deficit <= 0.0) ? 0.0 : kavg * dh_by_dz;
-
-            elem[i].wf.rechg =
-                (elem[i].wf.rechg > 0.0 && elem[i].ws.unsat <= 0.0) ?
-                0.0 : elem[i].wf.rechg;
-            elem[i].wf.rechg =
-                (elem[i].wf.rechg < 0.0 && elem[i].ws.gw <= 0.0) ?
-                0.0 : elem[i].wf.rechg;
-        }
+        elem[i].wf.rechg = Recharge(&elem[i].ws, &elem[i].wf, &elem[i].ps,
+            &elem[i].soil);
     }
 }
 
@@ -161,6 +124,49 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
 #endif
 
     return infil;
+}
+
+double Recharge(const wstate_struct *ws, const wflux_struct *wf,
+    const pstate_struct *ps, const soil_struct *soil)
+{
+    double          satn;
+    double          satkfunc;
+    double          dh_by_dz;
+    double          psi_u;
+    double          kavg;
+    double          deficit;
+    double          rechg;
+
+    if (ws->gw > soil->depth - soil->dinf)
+    {
+        rechg = wf->infil;
+    }
+    else
+    {
+        /* Arithmetic mean formulation */
+        deficit = soil->depth - ws->gw;
+        satn = ws->unsat / deficit;
+        satn = (satn > 1.0) ? 1.0 : satn;
+        satn = (satn < SATMIN) ? SATMIN : satn;
+
+        satkfunc = KrFunc(soil->alpha, soil->beta, satn);
+
+        psi_u = Psi(satn, soil->alpha, soil->beta);
+
+        dh_by_dz =
+            (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->gw));
+
+        kavg = AvgKv(soil->dmac, deficit, ws->gw,
+            ps->macpore_status, satkfunc, soil->kmacv,
+            soil->ksatv, soil->areafh);
+
+        rechg = kavg * dh_by_dz;
+
+        rechg = (rechg > 0.0 && ws->unsat <= 0.0) ?  0.0 : rechg;
+        rechg = (rechg < 0.0 && ws->gw <= 0.0) ?  0.0 : rechg;
+    }
+
+    return rechg;
 }
 
 double AvgKv(double dmac, double deficit, double gw, double macp_status,

@@ -203,6 +203,8 @@ void            ReadRiver(char *, rivtbl_struct *, shptbl_struct *,
 void            ReadSoil(char *, soiltbl_struct *);
 void            ReadTecplot(char *, ctrl_struct *);
 int             ReadTS(char *, int *, double *, int);
+double          Recharge(const wstate_struct *, const wflux_struct *,
+    const pstate_struct *, const soil_struct *);
 void            RiverFlow(elem_struct *, river_struct *, int);
 void            RiverToElem(river_struct *, elem_struct *, elem_struct *, int);
 #ifdef _OPENMP
