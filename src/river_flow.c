@@ -12,8 +12,6 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
         river_struct   *down;
         elem_struct    *left;
         elem_struct    *right;
-        double          dif_y;
-        double          grad_y;
         double          effk_nabr;
         double          effk;
 
@@ -25,9 +23,7 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
              * Channel flow between river-river segments
              */
             rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] =
-                ChanFlowRiverToRiver(&rivseg[i].ws, &rivseg[i].topo,
-                &rivseg[i].shp, &rivseg[i].matl, &down->ws, &down->topo,
-                &down->shp, &down->matl, riv_mode);
+                ChanFlowRiverToRiver(&rivseg[i], down, riv_mode);
             /* Accumulate to get in-flow for down segments */
             down->wf.rivflow[UP_CHANL2CHANL] -=
                 rivseg[i].wf.rivflow[DOWN_CHANL2CHANL];
@@ -51,9 +47,7 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
                 right->soil.kmach, left->soil.areafv, right->soil.ksath));
 
             rivseg[i].wf.rivflow[DOWN_AQUIF2AQUIF] =
-                SubFlowRiverToRiver(&rivseg[i].ws, &rivseg[i].topo,
-                &rivseg[i].shp, effk, &down->ws, &down->topo, &down->shp,
-                effk_nabr);
+                SubFlowRiverToRiver(&rivseg[i], effk, down, effk_nabr);
             /* Accumulate to get in-flow for down segments */
             down->wf.rivflow[UP_AQUIF2AQUIF] -=
                 rivseg[i].wf.rivflow[DOWN_AQUIF2AQUIF];
@@ -84,9 +78,8 @@ void RiverFlow(elem_struct *elem, river_struct *rivseg, int riv_mode)
          * Flux between river channel and subsurface
          */
         rivseg[i].wf.rivflow[CHANL_LKG] =
-            ChanLeak(rivseg[i].ws.stage, rivseg[i].ws.gw,
-            rivseg[i].topo.zbed, rivseg[i].topo.zmin, rivseg[i].matl.ksatv,
-            rivseg[i].matl.bedthick, rivseg[i].shp.width, rivseg[i].shp.length);
+            ChanLeak(&rivseg[i].ws, &rivseg[i].topo, &rivseg[i].shp,
+            &rivseg[i].matl);
     }
 }
 
@@ -94,48 +87,37 @@ void RiverToElem(river_struct *rivseg, elem_struct *left, elem_struct *right,
     int ind)
 {
     double          effk_left, effk_right;
-    double          zbank;
     int             j;
+
+    /* Lateral surface flux calculation between river-triangular element */
+    if (rivseg->leftele > 0)
+    {
+        rivseg->wf.rivflow[LEFT_SURF2CHANL] =
+            OvlFlowElemToRiver(left, rivseg);
+    }
+    if (rivseg->rightele > 0)
+    {
+        rivseg->wf.rivflow[RIGHT_SURF2CHANL] =
+            OvlFlowElemToRiver(right, rivseg);
+    }
 
     effk_left = EffKh(left->ws.gw, left->soil.depth, left->soil.dmac,
         left->soil.kmach, left->soil.areafv, left->soil.ksath);
     effk_right = EffKh(right->ws.gw, right->soil.depth, right->soil.dmac,
         right->soil.kmach, right->soil.areafv, right->soil.ksath);
 
-    /* Lateral surface flux calculation between river-triangular element */
-    if (rivseg->leftele > 0)
-    {
-        zbank = (rivseg->topo.zmax > left->topo.zmax) ?
-            rivseg->topo.zmax : left->topo.zmax;
-        rivseg->wf.rivflow[LEFT_SURF2CHANL] =
-            OvlFlowElemToRiver(left->topo.zmax, left->ws.surfh, zbank,
-            rivseg->ws.stage, rivseg->topo.zbed, rivseg->matl.cwr,
-            rivseg->shp.length);
-    }
-    if (rivseg->rightele > 0)
-    {
-        zbank = (rivseg->topo.zmax > right->topo.zmax) ?
-            rivseg->topo.zmax : right->topo.zmax;
-        rivseg->wf.rivflow[RIGHT_SURF2CHANL] =
-            OvlFlowElemToRiver(right->topo.zmax, right->ws.surfh, zbank,
-            rivseg->ws.stage, rivseg->topo.zbed, rivseg->matl.cwr,
-            rivseg->shp.length);
-    }
-
     /* Lateral subsurface flux calculation between river-triangular element */
     if (rivseg->leftele > 0)
     {
         rivseg->wf.rivflow[LEFT_AQUIF2CHANL] =
-            ChanFlowElemToRiver(left->ws.gw, left->topo.zmin, effk_left,
-            rivseg->ws.stage, rivseg->topo.zbed, rivseg->matl.ksath,
-            rivseg->shp.length, rivseg->topo.dist_left);
+            ChanFlowElemToRiver(left, effk_left, rivseg,
+            rivseg->topo.dist_left);
     }
     if (rivseg->rightele > 0)
     {
         rivseg->wf.rivflow[RIGHT_AQUIF2CHANL] =
-            ChanFlowElemToRiver(right->ws.gw, right->topo.zmin, effk_right,
-            rivseg->ws.stage, rivseg->topo.zbed, rivseg->matl.ksath,
-            rivseg->shp.length, rivseg->topo.dist_right);
+            ChanFlowElemToRiver(right, effk_right, rivseg,
+            rivseg->topo.dist_right);
     }
 
     /* Lateral flux between rectangular element (beneath river) and triangular
@@ -143,18 +125,14 @@ void RiverToElem(river_struct *rivseg, elem_struct *left, elem_struct *right,
     if (rivseg->leftele > 0)
     {
         rivseg->wf.rivflow[LEFT_AQUIF2AQUIF] =
-            SubFlowElemToRiver(left->ws.gw, left->topo.zmin, effk_left,
-            rivseg->ws.gw, rivseg->topo.zmin, rivseg->topo.zbed,
-            0.5 * (effk_left + effk_right), rivseg->shp.length,
-            rivseg->topo.dist_left);
+            SubFlowElemToRiver(left, effk_left, rivseg,
+            0.5 * (effk_left + effk_right), rivseg->topo.dist_left);
     }
     if (rivseg->rightele > 0)
     {
         rivseg->wf.rivflow[RIGHT_AQUIF2AQUIF] =
-            SubFlowElemToRiver(right->ws.gw, right->topo.zmin, effk_right,
-            rivseg->ws.gw, rivseg->topo.zmin, rivseg->topo.zbed,
-            0.5 * (effk_left + effk_right), rivseg->shp.length,
-            rivseg->topo.dist_right);
+            SubFlowElemToRiver(right, effk_right, rivseg,
+            0.5 * (effk_left + effk_right), rivseg->topo.dist_right);
     }
 
     /* Replace flux term */
@@ -183,12 +161,18 @@ void RiverToElem(river_struct *rivseg, elem_struct *left, elem_struct *right,
     }
 }
 
-double OvlFlowElemToRiver(double zmax, double surfh, double zbank,
-    double stage, double zbed, double cwr, double length)
+double OvlFlowElemToRiver(const elem_struct *elem, const river_struct *rivseg)
 {
+    double          zbank;
     double          flux;
-    double          elem_h = zmax + surfh;
-    double          rivseg_h = stage + zbed;
+    double          elem_h;
+    double          rivseg_h;
+
+    zbank = (rivseg->topo.zmax > elem->topo.zmax) ?
+        rivseg->topo.zmax : elem->topo.zmax;
+
+    elem_h = elem->topo.zmax + elem->ws.surfh;
+    rivseg_h = rivseg->topo.zbed + rivseg->ws.stage;
 
     /*
      * Panday and Hyakorn 2004 AWR Eqs. (23) and (24)
@@ -198,16 +182,18 @@ double OvlFlowElemToRiver(double zmax, double surfh, double zbank,
         if (elem_h > zbank)
         {
             /* Submerged weir */
-            flux = cwr * 2.0 * sqrt(2.0 * GRAV) * length *
-                sqrt(rivseg_h - elem_h) * (rivseg_h - zbank) / 3.0;
+            flux = rivseg->matl.cwr * 2.0 * sqrt(2.0 * GRAV) *
+                rivseg->shp.length * sqrt(rivseg_h - elem_h) *
+                (rivseg_h - zbank) / 3.0;
         }
         else
         {
             if (zbank < rivseg_h)
             {
                 /* Free-flowing weir */
-                flux = cwr * 2.0 * sqrt(2.0 * GRAV) * length *
-                    sqrt(rivseg_h - zbank) * (rivseg_h - zbank) / 3.0;
+                flux = rivseg->matl.cwr * 2.0 * sqrt(2.0 * GRAV) *
+                    rivseg->shp.length * sqrt(rivseg_h - zbank) *
+                    (rivseg_h - zbank) / 3.0;
             }
             else
             {
@@ -215,21 +201,23 @@ double OvlFlowElemToRiver(double zmax, double surfh, double zbank,
             }
         }
     }
-    else if (surfh > DEPRSTG)
+    else if (elem->ws.surfh > DEPRSTG)
     {
         if (rivseg_h > zbank)
         {
             /* Submerged weir */
-            flux = -cwr * 2.0 * sqrt(2.0 * GRAV) * length *
-                sqrt(elem_h - rivseg_h) * (elem_h - zbank) / 3.0;
+            flux = -rivseg->matl.cwr * 2.0 * sqrt(2.0 * GRAV) *
+                rivseg->shp.length * sqrt(elem_h - rivseg_h) *
+                (elem_h - zbank) / 3.0;
         }
         else
         {
             if (zbank < elem_h)
             {
                 /* Free-flowing weir */
-                flux = -cwr * 2.0 * sqrt(2.0 * GRAV) * length *
-                    sqrt(elem_h - zbank) * (elem_h - zbank) / 3.0;
+                flux = -rivseg->matl.cwr * 2.0 * sqrt(2.0 * GRAV) *
+                    rivseg->shp.length * sqrt(elem_h - zbank) *
+                    (elem_h - zbank) / 3.0;
             }
             else
             {
@@ -323,11 +311,8 @@ double _RiverWdthAreaPerim(int type, int riv_order, double riv_depth,
     return ans;
 }
 
-double ChanFlowRiverToRiver(const river_wstate_struct *ws,
-    const river_topo_struct *topo, const shp_struct *shp,
-    const matl_struct *matl, const river_wstate_struct *down_ws,
-    const river_topo_struct *down_topo, const shp_struct *down_shp,
-    const matl_struct *down_matl, int riv_mode)
+double ChanFlowRiverToRiver(const river_struct *rivseg,
+    const river_struct *down, int riv_mode)
 {
     double          total_h;
     double          perim;
@@ -344,31 +329,32 @@ double ChanFlowRiverToRiver(const river_wstate_struct *ws,
     double          avg_crossa;
     double          avg_h;
 
-    total_h = ws->stage + topo->zbed;
-    perim = RiverPerim(shp->intrpl_ord, ws->stage, shp->coeff);
+    total_h = rivseg->ws.stage + rivseg->topo.zbed;
+    perim =
+        RiverPerim(rivseg->shp.intrpl_ord, rivseg->ws.stage, rivseg->shp.coeff);
 
-    total_h_down = down_ws->stage + down_topo->zbed;
-    perim_down = RiverPerim(down_shp->intrpl_ord, down_ws->stage,
-        down_shp->coeff);
+    total_h_down = down->ws.stage + down->topo.zbed;
+    perim_down =
+        RiverPerim(down->shp.intrpl_ord, down->ws.stage, down->shp.coeff);
     avg_perim = (perim + perim_down) / 2.0;
-    avg_rough = (matl->rough + down_matl->rough) / 2.0;
-    distance = 0.5 * (shp->length + down_shp->length);
-    diff_h = (riv_mode == 1) ?
-        (topo->zbed - down_topo->zbed) : (total_h - total_h_down);
+    avg_rough = (rivseg->matl.rough + down->matl.rough) / 2.0;
+    distance = 0.5 * (rivseg->shp.length + down->shp.length);
+    diff_h = (riv_mode == KINEMATIC) ?
+        (rivseg->topo.zbed - down->topo.zbed) : (total_h - total_h_down);
     grad_h = diff_h / distance;
     avg_sf = (grad_h > 0.0) ? grad_h : RIVGRADMIN;
-    crossa = RiverArea(shp->intrpl_ord, ws->stage, shp->coeff);
+    crossa =
+        RiverArea(rivseg->shp.intrpl_ord, rivseg->ws.stage, rivseg->shp.coeff);
     crossa_down =
-        RiverArea(down_shp->intrpl_ord, down_ws->stage, down_shp->coeff);
+        RiverArea(down->shp.intrpl_ord, down->ws.stage, down->shp.coeff);
     avg_crossa = 0.5 * (crossa + crossa_down);
     avg_h = (avg_perim == 0.0) ? 0.0 : (avg_crossa / avg_perim);
+
     return OverLandFlow(avg_h, grad_h, avg_sf, crossa, avg_rough);
 }
 
-double SubFlowRiverToRiver(const river_wstate_struct *ws,
-    const river_topo_struct *topo, const shp_struct *shp, double effk,
-    const river_wstate_struct *down_ws, const river_topo_struct *down_topo,
-    const shp_struct *down_shp, double effk_nabr)
+double SubFlowRiverToRiver(const river_struct *rivseg, double effk,
+    const river_struct *down, double effk_nabr)
 {
     double          total_h;
     double          total_h_down;
@@ -382,14 +368,14 @@ double SubFlowRiverToRiver(const river_wstate_struct *ws,
 
     /* Lateral flux calculation between element beneath river (ebr)
      * and ebr */
-    total_h = ws->gw + topo->zmin;
-    total_h_down = down_ws->gw + down_topo->zmin;
-    avg_wid = (shp->width + down_shp->width) / 2.0;
+    total_h = rivseg->ws.gw + rivseg->topo.zmin;
+    total_h_down = down->ws.gw + down->topo.zmin;
+    avg_wid = (rivseg->shp.width + down->shp.width) / 2.0;
     diff_h = total_h - total_h_down;
-    avg_h = AvgH(diff_h, ws->gw, down_ws->gw);
-    distance = 0.5 * (shp->length + down_shp->length);
+    avg_h = AvgH(diff_h, rivseg->ws.gw, down->ws.gw);
+    distance = 0.5 * (rivseg->shp.length + down->shp.length);
     grad_h = diff_h / distance;
-    aquifer_depth = topo->zbed - topo->zmin;
+    aquifer_depth = rivseg->topo.zbed - rivseg->topo.zmin;
 #ifdef _ARITH_
     avg_ksat = 0.5 * (effk + effk_nabr);
 #else
@@ -456,41 +442,41 @@ double OutletFlux(int down, const river_wstate_struct *ws,
     return discharge;
 }
 
-double ChanFlowElemToRiver(double gw, double zmin, double effk, double stage,
-    double zbed, double effk_riv, double length, double distance)
+double ChanFlowElemToRiver(const elem_struct *elem, double effk,
+    const river_struct *rivseg, double distance)
 {
     double          diff_h;
     double          avg_h;
     double          grad_h;
     double          avg_ksat;
 
-    diff_h = (stage + zbed) - (gw + zmin);
+    diff_h = (rivseg->ws.stage + rivseg->topo.zbed) -
+        (elem->ws.gw + elem->topo.zmin);
 
     /* This is head in neighboring cell representation */
-    if (zmin > zbed)
+    if (elem->topo.zmin > rivseg->topo.zbed)
     {
-        avg_h = gw;
+        avg_h = elem->ws.gw;
     }
-    else if (zmin + gw > zbed)
+    else if (elem->topo.zmin + elem->ws.gw > rivseg->topo.zbed)
     {
-        avg_h = zmin + gw - zbed;
+        avg_h = elem->topo.zmin + elem->ws.gw - rivseg->topo.zbed;
     }
     else
     {
         avg_h = 0.0;
     }
-    avg_h = AvgH(diff_h, stage, avg_h);
+    avg_h = AvgH(diff_h, rivseg->ws.stage, avg_h);
 
     grad_h = diff_h / distance;
 
-    avg_ksat = 0.5 * (effk + effk_riv);
+    avg_ksat = 0.5 * (effk + rivseg->matl.ksath);
 
-    return  length * avg_ksat * grad_h * avg_h;
+    return  rivseg->shp.length * avg_ksat * grad_h * avg_h;
 }
 
-double SubFlowElemToRiver(double gw, double zmin, double effk, double rivgw,
-    double rivzmin, double zbed, double effk_riv, double length,
-    double distance)
+double SubFlowElemToRiver(const elem_struct *elem, double effk,
+    const river_struct *rivseg, double effk_riv, double distance)
 {
     double          diff_h;
     double          avg_h;
@@ -498,23 +484,24 @@ double SubFlowElemToRiver(double gw, double zmin, double effk, double rivgw,
     double          avg_ksat;
     double          grad_h;
 
-    diff_h = (rivgw + rivzmin) - (gw + zmin);
+    diff_h = (rivseg->ws.gw + rivseg->topo.zmin) -
+        (elem->ws.gw + elem->topo.zmin);
 
     /* This is head in neighboring cell represention */
-    if (zmin > zbed)
+    if (elem->topo.zmin > rivseg->topo.zbed)
     {
         avg_h = 0.0;
     }
-    else if (zmin + gw > zbed)
+    else if (elem->topo.zmin + elem->ws.gw > rivseg->topo.zbed)
     {
-        avg_h = zbed - zmin;
+        avg_h = rivseg->topo.zbed - elem->topo.zmin;
     }
     else
     {
-        avg_h = gw;
+        avg_h = elem->ws.gw;
     }
-    avg_h = AvgH(diff_h, rivgw, avg_h);
-    aquifer_depth = zbed - rivzmin;
+    avg_h = AvgH(diff_h, rivseg->ws.gw, avg_h);
+    aquifer_depth = rivseg->topo.zbed - rivseg->topo.zmin;
 
 #ifdef _ARITH_
     avg_ksat = 0.5 * (effk + effk_riv);
@@ -523,25 +510,25 @@ double SubFlowElemToRiver(double gw, double zmin, double effk, double rivgw,
 #endif
     grad_h = diff_h / distance;
 
-    return length * avg_ksat * grad_h * avg_h;
+    return rivseg->shp.length * avg_ksat * grad_h * avg_h;
 }
 
-double ChanLeak(double stage, double gw, double zbed, double zmin, double ksatv,
-    double bedthick, double width, double length)
+double ChanLeak(const river_wstate_struct *ws, const river_topo_struct *topo,
+    const shp_struct *shp, const matl_struct *matl)
 {
     double          diff_h;
     double          grad_h;
 
-    if (zbed - (gw + zmin) > 0.0)
+    if (topo->zbed - (ws->gw + topo->zmin) > 0.0)
     {
-        diff_h = stage;
+        diff_h = ws->stage;
     }
     else
     {
-        diff_h = stage + zbed - (gw + zmin);
+        diff_h = ws->stage + topo->zbed - (ws->gw + topo->zmin);
     }
 
-    grad_h = diff_h / bedthick;
+    grad_h = diff_h / matl->bedthick;
 
-    return ksatv * width * length * grad_h;
+    return matl->ksatv * shp->width * shp->length * grad_h;
 }

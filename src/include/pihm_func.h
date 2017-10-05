@@ -83,14 +83,12 @@ void            BoundFluxElem(int, int, const bc_struct *,
     const wstate_struct *, const topo_struct *, const soil_struct *,
     wflux_struct *);
 void            CalcModelStep(ctrl_struct *);
-double          ChanFlowElemToRiver(double, double, double, double, double,
-    double, double, double);
-double          ChanFlowRiverToRiver(const river_wstate_struct *,
-    const river_topo_struct *, const shp_struct *, const matl_struct *,
-    const river_wstate_struct *, const river_topo_struct *, const shp_struct *,
-    const matl_struct *, int);
-double          ChanLeak(double, double, double, double, double, double, double,
-    double);
+double          ChanFlowElemToRiver(const elem_struct *, double,
+    const river_struct *, double);
+double          ChanFlowRiverToRiver(const river_struct *, const river_struct *,
+    int);
+double          ChanLeak(const river_wstate_struct *, const river_topo_struct *,
+    const shp_struct *, const matl_struct *);
 void            CheckFile(FILE *, char *);
 void            CorrElev(elem_struct *, river_struct *);
 int             CountLine(FILE *, char *, int, ...);
@@ -163,8 +161,7 @@ double          OutletFlux(int, const river_wstate_struct *,
 double          OverLandFlow(double, double, double, double, double);
 double          OvlFlowElemToElem(const elem_struct *, const elem_struct *, int,
     double, int);
-double          OvlFlowElemToRiver(double, double, double, double, double,
-    double, double);
+double          OvlFlowElemToRiver(const elem_struct *, const river_struct *);
 void            ParseCmdLineParam(int, char *[], char *);
 void            PIHM(pihm_struct, void *, N_Vector, int, int, double);
 pihm_t_struct   PIHMTime(int);
@@ -218,12 +215,10 @@ void            SolveCVode(int, int *, int, double, void *, N_Vector);
 int             StrTime(const char *);
 double          SubFlowElemToElem(const elem_struct *, const elem_struct *,
     int);
-double          SubFlowElemToRiver(double, double, double, double, double,
-    double, double, double, double);
-double          SubFlowRiverToRiver(const river_wstate_struct *,
-    const river_topo_struct *, const shp_struct *, double,
-    const river_wstate_struct *, const river_topo_struct *, const shp_struct *,
-    double);
+double          SubFlowElemToRiver(const elem_struct *, double,
+    const river_struct *, double, double);
+double          SubFlowRiverToRiver(const river_struct *, double,
+    const river_struct *, double);
 void            Summary(elem_struct *, river_struct *, N_Vector, double);
 double          SurfH(double);
 void            UpdPrintVar(varctrl_struct *, int, int);
