@@ -441,8 +441,7 @@ void RootDist(const double *sldpth, int nsoil, int nroot, double *rtdis)
     }
 }
 
-void SunPos(int t, double latitude, double longitude, double elevation,
-    double tmp, spa_data * spa)
+void SunPos(const siteinfo_struct *siteinfo, int t, spa_data *spa)
 {
     int             spa_result;
     pihm_t_struct   pihm_time;
@@ -461,14 +460,14 @@ void SunPos(int t, double latitude, double longitude, double elevation,
     spa->delta_ut1 = 0;
     spa->atmos_refract = 0.5667;
 
-    spa->longitude = longitude;
-    spa->latitude = latitude;
-    spa->elevation = elevation;
+    spa->longitude = siteinfo->longitude;
+    spa->latitude = siteinfo->latitude;
+    spa->elevation = siteinfo->elevation;
 
     /* Calculate surface pressure based on FAO 1998 method (Narasimhan 2002) */
     spa->pressure =
         1013.25 * pow((293.0 - 0.0065 * spa->elevation) / 293.0, 5.26);
-    spa->temperature = tmp;
+    spa->temperature = siteinfo->tavg;
 
     spa->function = SPA_ZA_RTS;
     spa_result = spa_calculate(spa);

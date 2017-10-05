@@ -112,8 +112,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
         }
 
         /* Calculate Sun position for topographic solar radiation */
-        SunPos(t, siteinfo->latitude, siteinfo->longitude, siteinfo->elevation,
-            siteinfo->tavg, &spa);
+        SunPos(siteinfo, t, &spa);
     }
 #endif
 
