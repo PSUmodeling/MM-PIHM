@@ -94,7 +94,7 @@ int             CountLine(FILE *, char *, int, ...);
 int             CountOccurr(FILE *, char *);
 void            CreateOutputDir(char *);
 double          DhByDl(double *, double *, double *);
-double          EffKh(double, double, double, double, double, double);
+double          EffKh(const soil_struct *, double);
 double          EffKinf(const soil_struct *, double, double, int);
 double          EffKv(const soil_struct *, double, int);
 void            EtExtract(elem_struct *);

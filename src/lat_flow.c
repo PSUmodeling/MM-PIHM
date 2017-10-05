@@ -173,28 +173,34 @@ double DhByDl(double *l1, double *l2, double *surfh)
         l2[0] * (l1[2] - l1[1]));
 }
 
-double EffKh(double gw, double aqdepth, double macd, double macksath,
-    double areaf, double ksath)
+double EffKh(const soil_struct *soil, double gw)
 {
+    double          k1, k2;
+    double          d1, d2;
+
     gw = (gw > 0.0) ? gw : 0.0;
 
-    if (gw > aqdepth - macd)
+    if (gw > soil->depth - soil->dmac)
     {
-        if (gw > aqdepth)
+        k1 = soil->kmach * soil->areafv + soil->ksath * (1.0 - soil->areafv);
+        k2 = soil->ksath;
+
+        if (gw > soil->depth)
         {
-            return (macksath * macd * areaf + ksath * (aqdepth -
-                macd * areaf)) / aqdepth;
+            d1 = soil->dmac;
+            d2 = soil->depth - soil->dmac;
         }
         else
         {
-            return (macksath * (gw - (aqdepth - macd)) * areaf +
-                ksath * (aqdepth - macd + (gw - (aqdepth - macd)) *
-                (1.0 - areaf))) / gw;
+            d1 = gw - (soil->depth - soil->dmac);
+            d2 = soil->depth - soil->dmac;
         }
+
+        return (k1 * d1 + k2 * d2) / (d1 + d2);
     }
     else
     {
-        return ksath;
+        return soil->ksath;
     }
 }
 
@@ -222,10 +228,8 @@ double SubFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
     grad_h = diff_h / elem->topo.nabrdist[j];
 
     /* Take into account macropore effect */
-    effk = EffKh(elem->ws.gw, elem->soil.depth, elem->soil.dmac,
-        elem->soil.kmach, elem->soil.areafv, elem->soil.ksath);
-    effk_nabr = EffKh(nabr->ws.gw, nabr->soil.depth, nabr->soil.dmac,
-        nabr->soil.kmach, nabr->soil.areafv, nabr->soil.ksath);
+    effk = EffKh(&elem->soil, elem->ws.gw);
+    effk_nabr = EffKh(&nabr->soil, nabr->ws.gw);
     avg_ksat = 0.5 * (effk + effk_nabr);
 
     /* Groundwater flow modeled by Darcy's Law */
@@ -289,8 +293,7 @@ void BoundFluxElem(int bc_type, int j, const bc_struct *bc,
         avg_h = AvgH(diff_h, ws->gw, bc->head[j] - topo->zmin);
         /* Minimum distance from circumcenter to the edge of the triangle
          * on which boundary condition is defined */
-        effk = EffKh(ws->gw, soil->depth, soil->dmac, soil->kmach,
-            soil->areafv, soil->ksath);
+        effk = EffKh(soil, ws->gw);
         avg_ksat = effk;
         grad_h = diff_h / topo->nabrdist[j];
         wf->subsurf[j] = avg_ksat * grad_h * avg_h * topo->edge[j];
