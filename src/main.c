@@ -131,7 +131,6 @@ int main(int argc, char *argv[])
     }
 #endif
 
-
 #ifdef _BGC_
     if (pihm->ctrl.write_bgc_restart)
     {
