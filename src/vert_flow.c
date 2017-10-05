@@ -156,9 +156,7 @@ double Recharge(const wstate_struct *ws, const wflux_struct *wf,
         dh_by_dz =
             (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->gw));
 
-        kavg = AvgKv(soil->dmac, deficit, ws->gw,
-            ps->macpore_status, satkfunc, soil->kmacv,
-            soil->ksatv, soil->areafh);
+        kavg = AvgKv(soil, deficit, ws->gw, ps->macpore_status, satkfunc);
 
         rechg = kavg * dh_by_dz;
 
@@ -169,33 +167,35 @@ double Recharge(const wstate_struct *ws, const wflux_struct *wf,
     return rechg;
 }
 
-double AvgKv(double dmac, double deficit, double gw, double macp_status,
-    double satkfunc, double kmacv, double ksatv, double areafh)
+double AvgKv(const soil_struct *soil, double deficit, double gw,
+    double macp_status, double satkfunc)
 {
     double          k1, k2, k3;
     double          d1, d2, d3;
 
-    if (deficit > dmac)
+    if (deficit > soil->dmac)
     {
-        k1 = EffKv(satkfunc, macp_status, kmacv, ksatv, areafh);
-        d1 = dmac;
+        k1 = EffKv(satkfunc, macp_status, soil->kmacv, soil->ksatv,
+            soil->areafh);
+        d1 = soil->dmac;
 
-        k2 = satkfunc * ksatv;
-        d2 = deficit - dmac;
+        k2 = satkfunc * soil->ksatv;
+        d2 = deficit - soil->dmac;
 
-        k3 = ksatv;
+        k3 = soil->ksatv;
         d3 = gw;
     }
     else
     {
-        k1 = EffKv(satkfunc, macp_status, kmacv, ksatv, areafh);
+        k1 = EffKv(satkfunc, macp_status, soil->kmacv, soil->ksatv,
+            soil->areafh);
         d1 = deficit;
 
-        k2 = kmacv * areafh + ksatv * (1.0 - areafh);
-        d2 = dmac - deficit;
+        k2 = soil->kmacv * soil->areafh + soil->ksatv * (1.0 - soil->areafh);
+        d2 = soil->dmac - deficit;
 
-        k3 = ksatv;
-        d3 = gw - (dmac - deficit);
+        k3 = soil->ksatv;
+        d3 = gw - (soil->dmac - deficit);
     }
 
 #ifdef _ARITH_

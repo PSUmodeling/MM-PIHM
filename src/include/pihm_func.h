@@ -74,8 +74,7 @@ void            ApplyMeteoForc(forc_struct *, elem_struct *, int);
 #endif
 void            ApplyRiverBc(forc_struct *, river_struct *, int);
 void            AsciiArt();
-double          AvgKv(double, double, double, double, double, double, double,
-    double);
+double          AvgKv(const soil_struct *, double, double, double, double);
 double          AvgH(double, double, double);
 double          AvgHsurf(double, double, double);
 void            BackupInput(char *);
