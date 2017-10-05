@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void DailyVar(int t, int start_time, elem_struct *elem, river_struct *rivseg,
+void DailyVar(int t, int start_time, elem_struct *elem, river_struct *river,
     double dt)
 {
     int             i;
@@ -76,16 +76,16 @@ void DailyVar(int t, int start_time, elem_struct *elem, river_struct *rivseg,
         int             j;
 
         /* Water storage terms */
-        rivseg[i].daily.avg_stage += rivseg[i].ws.stage;
-        rivseg[i].daily.avg_gw += rivseg[i].ws.gw;
+        river[i].daily.avg_stage += river[i].ws.stage;
+        river[i].daily.avg_gw += river[i].ws.gw;
 
         /* Lateral flux */
         for (j = 0; j < NUM_RIVFLX; j++)
         {
-            rivseg[i].daily.avg_rivflow[j] += rivseg[i].wf.rivflow[j];
+            river[i].daily.avg_rivflow[j] += river[i].wf.rivflow[j];
         }
 
-        (rivseg[i].daily.counter)++;
+        (river[i].daily.counter)++;
     }
 #endif
 
@@ -142,20 +142,20 @@ void DailyVar(int t, int start_time, elem_struct *elem, river_struct *rivseg,
         {
             int             j;
 
-            rivseg[i].daily.avg_stage /= (double)rivseg[i].daily.counter;
-            rivseg[i].daily.avg_gw /= (double)rivseg[i].daily.counter;
+            river[i].daily.avg_stage /= (double)river[i].daily.counter;
+            river[i].daily.avg_gw /= (double)river[i].daily.counter;
 
             for (j = 0; j < NUM_RIVFLX; j++)
             {
-                rivseg[i].daily.avg_rivflow[j] /=
-                    (double)rivseg[i].daily.counter;
+                river[i].daily.avg_rivflow[j] /=
+                    (double)river[i].daily.counter;
             }
         }
 #endif
     }
 }
 
-void InitDailyStruct(elem_struct *elem, river_struct *rivseg)
+void InitDailyStruct(elem_struct *elem, river_struct *river)
 {
     int             i;
 
@@ -206,13 +206,13 @@ void InitDailyStruct(elem_struct *elem, river_struct *rivseg)
     {
         int             k;
 
-        rivseg[i].daily.counter = 0;
+        river[i].daily.counter = 0;
 
-        rivseg[i].daily.avg_stage = 0.0;
-        rivseg[i].daily.avg_gw = 0.0;
+        river[i].daily.avg_stage = 0.0;
+        river[i].daily.avg_gw = 0.0;
         for (k = 0; k < NUM_RIVFLX; k++)
         {
-            rivseg[i].daily.avg_rivflow[k] = 0.0;
+            river[i].daily.avg_rivflow[k] = 0.0;
         }
     }
 #endif

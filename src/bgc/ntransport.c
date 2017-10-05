@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void NTransport(elem_struct *elem, river_struct *rivseg)
+void NTransport(elem_struct *elem, river_struct *river)
 {
     int             i;
 
@@ -50,23 +50,23 @@ void NTransport(elem_struct *elem, river_struct *rivseg)
         /* Initialize N fluxes */
         for (j = 0; j < NUM_RIVFLX; j++)
         {
-            rivseg[i].nsol.flux[j] = 0.0;
+            river[i].nsol.flux[j] = 0.0;
         }
 
         /* River stream */
-        strg = rivseg[i].ws.stage;
-        rivseg[i].nsol.conc_stream = (strg > 0.0) ?
-            rivseg[i].ns.streamn / strg / 1000.0 : 0.0;
-        rivseg[i].nsol.conc_stream = (rivseg[i].nsol.conc_stream > 0.0) ?
-            rivseg[i].nsol.conc_stream : 0.0;
+        strg = river[i].ws.stage;
+        river[i].nsol.conc_stream = (strg > 0.0) ?
+            river[i].ns.streamn / strg / 1000.0 : 0.0;
+        river[i].nsol.conc_stream = (river[i].nsol.conc_stream > 0.0) ?
+            river[i].nsol.conc_stream : 0.0;
 
         /* River bed */
-        strg = rivseg[i].ws.gw * rivseg[i].matl.porosity +
-            rivseg[i].matl.bedthick * rivseg[i].matl.smcmin;
-        rivseg[i].nsol.conc_bed = (strg > 0.0) ?
-            rivseg[i].ns.sminn / strg / 1000.0 : 0.0;
-        rivseg[i].nsol.conc_bed = (rivseg[i].nsol.conc_bed > 0.0) ?
-            rivseg[i].nsol.conc_bed : 0.0;
+        strg = river[i].ws.gw * river[i].matl.porosity +
+            river[i].matl.bedthick * river[i].matl.smcmin;
+        river[i].nsol.conc_bed = (strg > 0.0) ?
+            river[i].ns.sminn / strg / 1000.0 : 0.0;
+        river[i].nsol.conc_bed = (river[i].nsol.conc_bed > 0.0) ?
+            river[i].nsol.conc_bed : 0.0;
     }
 
     /*
@@ -126,60 +126,60 @@ void NTransport(elem_struct *elem, river_struct *rivseg)
         int             j;
 
         /* Downstream and upstream */
-        if (rivseg[i].down > 0)
+        if (river[i].down > 0)
         {
-            down = &rivseg[rivseg[i].down - 1];
+            down = &river[river[i].down - 1];
 
             /* Stream */
-            rivseg[i].nsol.flux[DOWN_CHANL2CHANL] =
-                rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] * 1000.0 *
-                ((rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
-                rivseg[i].nsol.conc_stream : down->nsol.conc_stream);
+            river[i].nsol.flux[DOWN_CHANL2CHANL] =
+                river[i].wf.rivflow[DOWN_CHANL2CHANL] * 1000.0 *
+                ((river[i].wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
+                river[i].nsol.conc_stream : down->nsol.conc_stream);
 
             down->nsol.flux[UP_CHANL2CHANL] =
-                -rivseg[i].nsol.flux[DOWN_CHANL2CHANL];
+                -river[i].nsol.flux[DOWN_CHANL2CHANL];
 
             /* Bed */
-            rivseg[i].nsol.flux[DOWN_AQUIF2AQUIF] =
-                rivseg[i].wf.rivflow[DOWN_AQUIF2AQUIF] * 1000.0 *
-                ((rivseg[i].wf.rivflow[DOWN_AQUIF2AQUIF] > 0.0) ?
-                MOBILEN_PROPORTION * rivseg[i].nsol.conc_bed :
+            river[i].nsol.flux[DOWN_AQUIF2AQUIF] =
+                river[i].wf.rivflow[DOWN_AQUIF2AQUIF] * 1000.0 *
+                ((river[i].wf.rivflow[DOWN_AQUIF2AQUIF] > 0.0) ?
+                MOBILEN_PROPORTION * river[i].nsol.conc_bed :
                 MOBILEN_PROPORTION * down->nsol.conc_bed);
 
             down->nsol.flux[UP_AQUIF2AQUIF] =
-                -rivseg[i].nsol.flux[DOWN_AQUIF2AQUIF];
+                -river[i].nsol.flux[DOWN_AQUIF2AQUIF];
         }
         else
         {
-            rivseg[i].nsol.flux[DOWN_CHANL2CHANL] =
-                rivseg[i].wf.rivflow[DOWN_CHANL2CHANL] * 1000.0 *
-                rivseg[i].nsol.conc_stream;
+            river[i].nsol.flux[DOWN_CHANL2CHANL] =
+                river[i].wf.rivflow[DOWN_CHANL2CHANL] * 1000.0 *
+                river[i].nsol.conc_stream;
 
-            rivseg[i].nsol.flux[DOWN_AQUIF2AQUIF] = 0.0;
+            river[i].nsol.flux[DOWN_AQUIF2AQUIF] = 0.0;
         }
 
         /* Left and right banks */
-        left = &elem[rivseg[i].leftele - 1];
-        right = &elem[rivseg[i].rightele - 1];
+        left = &elem[river[i].leftele - 1];
+        right = &elem[river[i].rightele - 1];
 
-        if (rivseg[i].leftele > 0)
+        if (river[i].leftele > 0)
         {
-            rivseg[i].nsol.flux[LEFT_SURF2CHANL] =
-                rivseg[i].wf.rivflow[LEFT_SURF2CHANL] * 1000.0 *
-                ((rivseg[i].wf.rivflow[LEFT_SURF2CHANL] > 0.0) ?
-                rivseg[i].nsol.conc_stream :
+            river[i].nsol.flux[LEFT_SURF2CHANL] =
+                river[i].wf.rivflow[LEFT_SURF2CHANL] * 1000.0 *
+                ((river[i].wf.rivflow[LEFT_SURF2CHANL] > 0.0) ?
+                river[i].nsol.conc_stream :
                 MOBILEN_PROPORTION * left->nsol.conc_surf);
 
-            rivseg[i].nsol.flux[LEFT_AQUIF2CHANL] =
-                rivseg[i].wf.rivflow[LEFT_AQUIF2CHANL] * 1000.0 *
-                ((rivseg[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
-                rivseg[i].nsol.conc_stream :
+            river[i].nsol.flux[LEFT_AQUIF2CHANL] =
+                river[i].wf.rivflow[LEFT_AQUIF2CHANL] * 1000.0 *
+                ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
+                river[i].nsol.conc_stream :
                 MOBILEN_PROPORTION * left->nsol.conc_subsurf);
 
-            rivseg[i].nsol.flux[LEFT_AQUIF2AQUIF] =
-                rivseg[i].wf.rivflow[LEFT_AQUIF2AQUIF] * 1000.0 *
-                ((rivseg[i].wf.rivflow[LEFT_AQUIF2AQUIF] > 0.0) ?
-                MOBILEN_PROPORTION * rivseg[i].nsol.conc_bed :
+            river[i].nsol.flux[LEFT_AQUIF2AQUIF] =
+                river[i].wf.rivflow[LEFT_AQUIF2AQUIF] * 1000.0 *
+                ((river[i].wf.rivflow[LEFT_AQUIF2AQUIF] > 0.0) ?
+                MOBILEN_PROPORTION * river[i].nsol.conc_bed :
                 MOBILEN_PROPORTION * left->nsol.conc_subsurf);
 
             for (j = 0; j < NUM_EDGE; j++)
@@ -187,34 +187,34 @@ void NTransport(elem_struct *elem, river_struct *rivseg)
                 if (left->nabr[j] == -(i + 1))
                 {
                     left->nsol.ovlflux[j] =
-                        -rivseg[i].nsol.flux[LEFT_SURF2CHANL];
+                        -river[i].nsol.flux[LEFT_SURF2CHANL];
                     left->nsol.subflux[j] =
-                        -(rivseg[i].nsol.flux[LEFT_AQUIF2CHANL] +
-                        rivseg[i].nsol.flux[LEFT_AQUIF2AQUIF]);
+                        -(river[i].nsol.flux[LEFT_AQUIF2CHANL] +
+                        river[i].nsol.flux[LEFT_AQUIF2AQUIF]);
                     break;
                 }
             }
 
         }
 
-        if (rivseg[i].rightele > 0)
+        if (river[i].rightele > 0)
         {
-            rivseg[i].nsol.flux[RIGHT_SURF2CHANL] =
-                rivseg[i].wf.rivflow[RIGHT_SURF2CHANL] * 1000.0 *
-                ((rivseg[i].wf.rivflow[RIGHT_SURF2CHANL] > 0.0) ?
-                rivseg[i].nsol.conc_stream :
+            river[i].nsol.flux[RIGHT_SURF2CHANL] =
+                river[i].wf.rivflow[RIGHT_SURF2CHANL] * 1000.0 *
+                ((river[i].wf.rivflow[RIGHT_SURF2CHANL] > 0.0) ?
+                river[i].nsol.conc_stream :
                 MOBILEN_PROPORTION * right->nsol.conc_surf);
 
-            rivseg[i].nsol.flux[RIGHT_AQUIF2CHANL] =
-                rivseg[i].wf.rivflow[RIGHT_AQUIF2CHANL] * 1000.0 *
-                ((rivseg[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
-                rivseg[i].nsol.conc_stream :
+            river[i].nsol.flux[RIGHT_AQUIF2CHANL] =
+                river[i].wf.rivflow[RIGHT_AQUIF2CHANL] * 1000.0 *
+                ((river[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
+                river[i].nsol.conc_stream :
                 MOBILEN_PROPORTION * right->nsol.conc_subsurf);
 
-            rivseg[i].nsol.flux[RIGHT_AQUIF2AQUIF] =
-                rivseg[i].wf.rivflow[RIGHT_AQUIF2AQUIF] * 1000.0 *
-                ((rivseg[i].wf.rivflow[RIGHT_AQUIF2AQUIF] > 0.0) ?
-                MOBILEN_PROPORTION * rivseg[i].nsol.conc_bed :
+            river[i].nsol.flux[RIGHT_AQUIF2AQUIF] =
+                river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] * 1000.0 *
+                ((river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] > 0.0) ?
+                MOBILEN_PROPORTION * river[i].nsol.conc_bed :
                 MOBILEN_PROPORTION * right->nsol.conc_subsurf);
 
             for (j = 0; j < NUM_EDGE; j++)
@@ -222,19 +222,19 @@ void NTransport(elem_struct *elem, river_struct *rivseg)
                 if (right->nabr[j] == -(i + 1))
                 {
                     right->nsol.ovlflux[j] =
-                        -rivseg[i].nsol.flux[RIGHT_SURF2CHANL];
+                        -river[i].nsol.flux[RIGHT_SURF2CHANL];
                     right->nsol.subflux[j] =
-                        -(rivseg[i].nsol.flux[RIGHT_AQUIF2CHANL] +
-                        rivseg[i].nsol.flux[RIGHT_AQUIF2AQUIF]);
+                        -(river[i].nsol.flux[RIGHT_AQUIF2CHANL] +
+                        river[i].nsol.flux[RIGHT_AQUIF2AQUIF]);
                     break;
                 }
             }
         }
 
-        rivseg[i].nsol.flux[CHANL_LKG] =
-            rivseg[i].wf.rivflow[CHANL_LKG] * 1000.0 *
-            ((rivseg[i].wf.rivflow[CHANL_LKG] > 0.0) ?
-            rivseg[i].nsol.conc_stream :
-            MOBILEN_PROPORTION * rivseg[i].nsol.conc_bed);
+        river[i].nsol.flux[CHANL_LKG] =
+            river[i].wf.rivflow[CHANL_LKG] * 1000.0 *
+            ((river[i].wf.rivflow[CHANL_LKG] > 0.0) ?
+            river[i].nsol.conc_stream :
+            MOBILEN_PROPORTION * river[i].nsol.conc_bed);
     }
 }

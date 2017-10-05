@@ -74,7 +74,7 @@ void InitBgc(elem_struct *elem, const epctbl_struct *epctbl)
     }
 }
 
-void InitBgcVar(elem_struct *elem, river_struct *rivseg, N_Vector CV_Y)
+void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 {
     int             i;
 
@@ -96,11 +96,11 @@ void InitBgcVar(elem_struct *elem, river_struct *rivseg, N_Vector CV_Y)
 
     for (i = 0; i < nriver; i++)
     {
-        rivseg[i].ns.streamn = rivseg[i].restart_input.streamn;
-        rivseg[i].ns.sminn = rivseg[i].restart_input.sminn;
-        rivseg[i].nf.sminn_leached = 0.0;
+        river[i].ns.streamn = river[i].restart_input.streamn;
+        river[i].ns.sminn = river[i].restart_input.sminn;
+        river[i].nf.sminn_leached = 0.0;
 
-        NV_Ith(CV_Y, STREAMN(i)) = rivseg[i].ns.streamn;
-        NV_Ith(CV_Y, RIVBEDN(i)) = rivseg[i].ns.sminn;
+        NV_Ith(CV_Y, STREAMN(i)) = river[i].ns.streamn;
+        NV_Ith(CV_Y, RIVBEDN(i)) = river[i].ns.sminn;
     }
 }

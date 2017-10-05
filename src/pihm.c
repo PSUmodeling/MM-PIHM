@@ -4,7 +4,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     int next_t, double cputime)
 {
     /* Apply boundary conditions */
-    ApplyBc(&pihm->forc, pihm->elem, pihm->rivseg, t);
+    ApplyBc(&pihm->forc, pihm->elem, pihm->river, t);
 
     /* Determine if land surface simulation is needed */
     if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
@@ -35,14 +35,14 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     SolveCVode(pihm->ctrl.starttime, &t, next_t, cputime, cvode_mem, CV_Y);
 
     /* Use mass balance to calculate model fluxes or variables */
-    Summary(pihm->elem, pihm->rivseg, CV_Y, (double)pihm->ctrl.stepsize);
+    Summary(pihm->elem, pihm->river, CV_Y, (double)pihm->ctrl.stepsize);
 
 #ifdef _NOAH_
     NoahHydrol(pihm->elem, (double)pihm->ctrl.stepsize);
 #endif
 
 #ifdef _CYCLES_
-    SoluteTransport(pihm->elem, pihm->rivseg, (double)pihm->ctrl.stepsize);
+    SoluteTransport(pihm->elem, pihm->river, (double)pihm->ctrl.stepsize);
 #endif
 
     /* Update print variables for hydrology step variables */
@@ -65,7 +65,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
 
     /* Daily timestep modules */
 #ifdef _DAILY_
-    DailyVar(t, pihm->ctrl.starttime, pihm->elem, pihm->rivseg,
+    DailyVar(t, pihm->ctrl.starttime, pihm->elem, pihm->river,
         pihm->ctrl.stepsize);
 
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
@@ -87,7 +87,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, CN_STEP);
 
         /* Initialize daily structures */
-        InitDailyStruct(pihm->elem, pihm->rivseg);
+        InitDailyStruct(pihm->elem, pihm->river);
     }
 #endif
 
@@ -98,7 +98,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     if (pihm->ctrl.waterbal)
     {
         PrintWaterBal(pihm->print.walbal_file, t, pihm->ctrl.starttime,
-            pihm->ctrl.stepsize, pihm->elem, pihm->rivseg);
+            pihm->ctrl.stepsize, pihm->elem, pihm->river);
     }
 
     /* Print binary and txt output files */

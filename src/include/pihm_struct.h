@@ -248,7 +248,7 @@ typedef struct pihm_struct
 #endif
     forc_struct     forc;
     elem_struct    *elem;
-    river_struct   *rivseg;
+    river_struct   *river;
     calib_struct    cal;
     ctrl_struct     ctrl;
     print_struct    print;

@@ -437,7 +437,7 @@ void PrintPerf(int t, int starttime, double cputime_dt, double cputime,
 }
 
 void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
-    elem_struct *elem, river_struct *rivseg)
+    elem_struct *elem, river_struct *river)
 {
     int             i, j;
     double          totarea = 0.0;
@@ -486,18 +486,18 @@ void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
 
     for (j = 0; j < nriver; j++)
     {
-        totlength += rivseg[j].shp.length;
-        if (rivseg[j].down < 0)
+        totlength += river[j].shp.length;
+        if (river[j].down < 0)
         {
-            outflow = rivseg[j].wf.rivflow[DOWN_CHANL2CHANL];
+            outflow = river[j].wf.rivflow[DOWN_CHANL2CHANL];
         }
         riv2elem_olf +=
-            rivseg[j].wf.rivflow[LEFT_SURF2CHANL] +
-            rivseg[j].wf.rivflow[RIGHT_SURF2CHANL];
+            river[j].wf.rivflow[LEFT_SURF2CHANL] +
+            river[j].wf.rivflow[RIGHT_SURF2CHANL];
         riv_base +=
-            rivseg[j].wf.rivflow[LEFT_AQUIF2CHANL] +
-            rivseg[j].wf.rivflow[RIGHT_AQUIF2CHANL];
-        riv_lkg += rivseg[j].wf.rivflow[CHANL_LKG];
+            river[j].wf.rivflow[LEFT_AQUIF2CHANL] +
+            river[j].wf.rivflow[RIGHT_AQUIF2CHANL];
+        riv_lkg += river[j].wf.rivflow[CHANL_LKG];
     }
 
     fprintf(watbal_file,

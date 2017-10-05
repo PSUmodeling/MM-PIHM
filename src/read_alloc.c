@@ -140,7 +140,7 @@ void ReadRiver(char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     int             index;
     int             lno = 0;
 
-    /* Open .rivseg input file */
+    /* Open .river input file */
     riv_file = fopen(filename, "r");
     CheckFile(riv_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
@@ -1226,7 +1226,7 @@ void ReadCalib(char *filename, calib_struct *cal)
     fclose(global_calib);
 }
 
-void ReadIc(char *filename, elem_struct *elem, river_struct *rivseg)
+void ReadIc(char *filename, elem_struct *elem, river_struct *river)
 {
     FILE           *ic_file;
     int             i;
@@ -1258,7 +1258,7 @@ void ReadIc(char *filename, elem_struct *elem, river_struct *rivseg)
 
     for (i = 0; i < nriver; i++)
     {
-        fread(&rivseg[i].ic, sizeof(river_ic_struct), 1, ic_file);
+        fread(&river[i].ic, sizeof(river_ic_struct), 1, ic_file);
     }
 
     fclose(ic_file);
@@ -1490,5 +1490,5 @@ void FreeData(pihm_struct pihm)
         }
     }
     free(pihm->elem);
-    free(pihm->rivseg);
+    free(pihm->river);
 }
