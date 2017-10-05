@@ -95,7 +95,7 @@ int             CountOccurr(FILE *, char *);
 void            CreateOutputDir(char *);
 double          DhByDl(double *, double *, double *);
 double          EffKh(double, double, double, double, double, double);
-double          EffKinf(double, double, int, double, double, double);
+double          EffKinf(const soil_struct *, double, double, int);
 double          EffKv(double, int, double, double, double);
 void            EtExtract(elem_struct *);
 double          FieldCapacity(double, double, double, double, double);

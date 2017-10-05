@@ -66,8 +66,7 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
         }
         else
         {
-            kinf = EffKinf(satkfunc, satn, ps->macpore_status,
-                soil->kmacv, soil->kinfv, soil->areafh);
+            kinf = EffKinf(soil, satkfunc, satn, ps->macpore_status);
         }
 
         infil = kinf * dh_by_dz;
@@ -107,8 +106,7 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
                 applrate, soil->kmacv, soil->kinfv, soil->areafh);
         }
 
-        kinf = EffKinf(satkfunc, satn, ps->macpore_status,
-            soil->kmacv, soil->kinfv, soil->areafh);
+        kinf = EffKinf(soil, satkfunc, satn, ps->macpore_status);
 
         infil = kinf * dh_by_dz;
 
@@ -205,8 +203,8 @@ double AvgKv(const soil_struct *soil, double deficit, double gw,
 #endif
 }
 
-double EffKinf(double ksatfunc, double elemsatn, int status, double mackv,
-    double kinf, double areaf)
+double EffKinf(const soil_struct *soil, double ksatfunc, double elemsatn,
+    int status)
 {
     double          keff = 0.0;
     const double    ALPHA_CRACK = 10.0;
@@ -215,14 +213,16 @@ double EffKinf(double ksatfunc, double elemsatn, int status, double mackv,
     switch (status)
     {
         case MTX_CTRL:
-            keff = kinf * ksatfunc;
+            keff = soil->kinfv * ksatfunc;
             break;
         case APP_CTRL:
-            keff = kinf * (1.0 - areaf) * ksatfunc +
-                mackv * areaf * KrFunc(ALPHA_CRACK, BETA_CRACK, elemsatn);
+            keff = soil->kinfv * (1.0 - soil->areafh) * ksatfunc +
+                soil->kmacv * soil->areafh *
+                KrFunc(ALPHA_CRACK, BETA_CRACK, elemsatn);
             break;
         case MAC_CTRL:
-            keff = kinf * (1.0 - areaf) * ksatfunc + mackv * areaf;
+            keff = soil->kinfv * (1.0 - soil->areafh) * ksatfunc +
+                soil->kmacv * soil->areafh;
             break;
         default:
             PIHMprintf(VL_ERROR,
