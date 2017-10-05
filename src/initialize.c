@@ -86,7 +86,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
 #ifdef _CYCLES_
-    /* Initialize Cycles modeule */
+    /* Initialize Cycles module */
     if (pihm->ctrl.read_cycles_restart)
     {
         ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
@@ -112,6 +112,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         ApplyForc(&pihm->forc, pihm->elem, pihm->ctrl.starttime,
             pihm->ctrl.rad_mode, &pihm->siteinfo);
 #endif
+
         RelaxIc(pihm->elem, pihm->river);
     }
     else if (pihm->ctrl.init_type == RST_FILE)
@@ -374,8 +375,7 @@ void InitRiver(river_struct *river, elem_struct *elem,
             (river[i].topo.y - elem[river[i].rightele - 1].topo.y) *
             (river[i].topo.y - elem[river[i].rightele - 1].topo.y));
 
-        river[i].shp.depth =
-            cal->rivdepth * shptbl->depth[rivtbl->shp[i] - 1];
+        river[i].shp.depth = cal->rivdepth * shptbl->depth[rivtbl->shp[i] - 1];
         river[i].shp.intrpl_ord = shptbl->intrpl_ord[rivtbl->shp[i] - 1];
         river[i].shp.coeff =
             cal->rivshpcoeff * shptbl->coeff[rivtbl->shp[i] - 1];
@@ -384,8 +384,8 @@ void InitRiver(river_struct *river, elem_struct *elem,
             meshtbl->x[river[i].tonode - 1], 2) +
             pow(meshtbl->y[river[i].fromnode - 1] -
             meshtbl->y[river[i].tonode - 1], 2));
-        river[i].shp.width = RiverEqWid(river->shp.intrpl_ord,
-            river->shp.depth, river->shp.coeff);
+        river[i].shp.width = RiverEqWid(river->shp.intrpl_ord, river->shp.depth,
+            river->shp.coeff);
 
         river[i].topo.zbed = river[i].topo.zmax - river[i].shp.depth;
 
@@ -420,7 +420,7 @@ void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
 {
     int             i, j;
 
-    /* Apply scenarios */
+    /* Apply climate scenarios */
     for (i = 0; i < forc->nmeteo; i++)
     {
         for (j = 0; j < forc->meteo[i].length; j++)
@@ -518,7 +518,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
             {
                 nabr_zmax = (elem[i].nabr[j] > 0) ?
                     elem[elem[i].nabr[j] - 1].topo.zmax :
-                    river[0 - elem[i].nabr[j] - 1].topo.zmax;
+                    river[-elem[i].nabr[j] - 1].topo.zmax;
                 if (elem[i].topo.zmax >= nabr_zmax)
                 {
                     sink = 0;
@@ -544,13 +544,13 @@ void CorrElev(elem_struct *elem, river_struct *river)
                 {
                     nabr_zmax = (elem[i].nabr[j] > 0) ?
                         elem[elem[i].nabr[j] - 1].topo.zmax :
-                        river[0 - elem[i].nabr[j] - 1].topo.zmax;
+                        river[-elem[i].nabr[j] - 1].topo.zmax;
                     new_elevation = (nabr_zmax < new_elevation) ?
                         nabr_zmax : new_elevation;
                     PIHMprintf(VL_NORMAL, " (%d)%lf", j + 1,
                         (elem[i].nabr[j] > 0) ?
                         elem[elem[i].nabr[j] - 1].topo.zmax :
-                        river[0 - elem[i].nabr[j] - 1].topo.zmax);
+                        river[-elem[i].nabr[j] - 1].topo.zmax);
                 }
             }
 
@@ -650,7 +650,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
     sleep(5);
 }
 
-void InitSurfL(elem_struct *elem, river_struct *river,
+void InitSurfL(elem_struct *elem, const river_struct *river,
     const meshtbl_struct *meshtbl)
 {
     int             i, j;
@@ -723,6 +723,7 @@ void InitSurfL(elem_struct *elem, river_struct *river,
 void RelaxIc(elem_struct *elem, river_struct *river)
 {
     int             i;
+    const double    INIT_UNSAT = 0.1;
 #ifdef _NOAH_
     int             j;
     double          sfctmp;
@@ -733,8 +734,8 @@ void RelaxIc(elem_struct *elem, river_struct *river)
         elem[i].ic.cmc = 0.0;
         elem[i].ic.sneqv = 0.0;
         elem[i].ic.surf = 0.0;
-        elem[i].ic.unsat = 0.1;
-        elem[i].ic.gw = elem[i].soil.depth - 0.1;
+        elem[i].ic.unsat = INIT_UNSAT;
+        elem[i].ic.gw = elem[i].soil.depth - INIT_UNSAT;
 
 #ifdef _NOAH_
         sfctmp = elem[i].es.sfctmp;

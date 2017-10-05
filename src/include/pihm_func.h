@@ -133,7 +133,7 @@ void            InitSoil(elem_struct *, const soiltbl_struct *,
 void            InitSoil(elem_struct *, const soiltbl_struct *,
     const calib_struct *);
 #endif
-void            InitSurfL(elem_struct *, river_struct *,
+void            InitSurfL(elem_struct *, const river_struct *,
     const meshtbl_struct *);
 void            InitTecPrtVarCtrl(const char *, const char *, int, int, int,
     int, int, varctrl_struct *);
