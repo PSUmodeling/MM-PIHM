@@ -145,7 +145,7 @@ void            InitWState(wstate_struct *);
 void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
 void            IntrplForc(tsdata_struct *, int, int);
 double          KrFunc(double, double, double);
-void            LateralFlow(elem_struct *, river_struct *, int);
+void            LateralFlow(elem_struct *, const river_struct *, int);
 int             MacroporeStatus(const soil_struct *, double, double, double);
 void            MapOutput(pihm_struct, const char *);
 void            MassBalance(wstate_struct *, wstate_struct *, wflux_struct *,

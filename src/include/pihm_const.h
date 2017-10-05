@@ -148,6 +148,9 @@
 #define ZERO_DPTH_GRAD    -3
 #define CRIT_DPTH         -4
 
+/* Element boundary condition types */
+#define NO_FLOW    0
+
 /* River segment interpolation order */
 #define RECTANGLE    1
 #define TRIANGLE     2

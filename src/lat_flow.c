@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void LateralFlow(elem_struct *elem, river_struct *river, int surf_mode)
+void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
 {
     int             i;
     double         *dhbydx;
@@ -27,8 +27,7 @@ void LateralFlow(elem_struct *elem, river_struct *river, int surf_mode)
                 nabr = &elem[elem[i].nabr[j] - 1];
 
                 /* Subsurface flow between triangular elements */
-                elem[i].wf.subsurf[j] =
-                    SubFlowElemToElem(&elem[i], nabr, j);
+                elem[i].wf.subsurf[j] = SubFlowElemToElem(&elem[i], nabr, j);
 
                 /* Surface flux between triangular elements */
                 avg_sf = 0.5 *
@@ -93,7 +92,7 @@ void FrictSlope(elem_struct *elem, river_struct *river, int surf_mode,
                 }
                 else
                 {
-                    if (elem[i].attrib.bc_type[j] == 0)
+                    if (elem[i].attrib.bc_type[j] == NO_FLOW)
                     {
                         surfh[j] = elem[i].topo.zmax + elem[i].ws.surfh;
                     }
@@ -276,7 +275,7 @@ void BoundFluxElem(int bc_type, int j, const bc_struct *bc,
     double          grad_h;
 
     /* No flow (natural) boundary condition is default */
-    if (bc_type == 0)
+    if (bc_type == NO_FLOW)
     {
         wf->ovlflow[j] = 0.0;
         wf->subsurf[j] = 0.0;
