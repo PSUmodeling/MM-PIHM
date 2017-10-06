@@ -1,6 +1,4 @@
 #include "pihm.h"
-#define ELEMVAR     0
-#define RIVERVAR    1
 
 void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     const elem_struct *elem, const river_struct *river,

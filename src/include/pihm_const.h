@@ -231,6 +231,10 @@
 #define DAILY_OUTPUT      -3
 #define HOURLY_OUTPUT     -4
 
+/* Output variable types */
+#define ELEMVAR     0
+#define RIVERVAR    1
+
 #define SURF_CTRL               0
 #define UNSAT_CTRL              1
 #define GW_CTRL                 2

@@ -119,7 +119,7 @@ void            Initialize(pihm_struct, N_Vector, void **);
 void            InitLc(elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMesh(elem_struct *, const meshtbl_struct *);
-void            InitOutputFile(print_struct *, char *, int, int);
+void            InitOutputFile(print_struct *, const char *, int, int);
 void            InitPrtVarCtrl(const char *, const char *, int, int, int,
     varctrl_struct *);
 void            InitRiver(river_struct *, elem_struct *, const rivtbl_struct *,
@@ -171,13 +171,13 @@ pihm_t_struct   PIHMTime(int);
 void            PrintCVodeFinalStats(void *);
 void            PrintData(varctrl_struct *, int, int, int, int);
 void            PrintDataTecplot(varctrl_struct *, int, int, int);
-void            PrintInit(elem_struct *, river_struct *, char *, int, int, int,
-    int);
-int             PrintNow(int, int, pihm_t_struct *);
+void            PrintInit(const elem_struct *, const river_struct *,
+    const char *, int, int, int, int);
+int             PrintNow(int, int, const pihm_t_struct *);
 void            PrintPerf(int, int, double, double, double, FILE *);
 void            PrintStats(void *, FILE *);
-void            PrintWaterBal(FILE *, int, int, int, elem_struct *,
-    river_struct *);
+void            PrintWaterBal(FILE *, int, int, int, const elem_struct *,
+    const river_struct *);
 double          Psi(double, double, double);
 double          PtfAlpha(double, double, double, double, int);
 double          PtfBeta(double, double, double, double, int);

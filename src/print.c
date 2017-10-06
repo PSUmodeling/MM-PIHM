@@ -48,7 +48,7 @@ void _PIHMprintf(const char *fn, int lineno, const char *func, int verbosity,
         if (debug_mode)
         {
             fprintf(stderr, "Printed from %s", func);
-            fprintf(stderr, " (%s, Line %d.)\n", fn, lineno);
+            fprintf(stderr, " (%s, Line %d).\n", fn, lineno);
         }
         fflush(stderr);
     }
@@ -58,7 +58,7 @@ void _PIHMprintf(const char *fn, int lineno, const char *func, int verbosity,
         if (debug_mode)
         {
             printf("Printed from %s", func);
-            printf(" (%s, Line %d.)\n", fn, lineno);
+            printf(" (%s, Line %d).\n", fn, lineno);
         }
         fflush(stderr);
     }
@@ -66,7 +66,8 @@ void _PIHMprintf(const char *fn, int lineno, const char *func, int verbosity,
     va_end(va);
 }
 
-void InitOutputFile(print_struct *print, char *outputdir, int watbal, int ascii)
+void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
+    int ascii)
 {
     char            ascii_fn[MAXSTRING];
     char            dat_fn[MAXSTRING];
@@ -89,6 +90,7 @@ void InitOutputFile(print_struct *print, char *outputdir, int watbal, int ascii)
         sprintf(perf_fn, "%s%s.perf.txt", outputdir, project);
         print->cvodeperf_file = fopen(perf_fn, "w");
         CheckFile(print->cvodeperf_file, perf_fn);
+        /* Print header lines */
         fprintf(print->cvodeperf_file,
             " Time step, cpu_dt, cpu_time, solver_step\n");
 
@@ -237,8 +239,8 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
     }
 }
 
-void PrintInit(elem_struct *elem, river_struct *river, char *outputdir, int t,
-    int starttime, int endtime, int intvl)
+void PrintInit(const elem_struct *elem, const river_struct *river,
+    const char *outputdir, int t, int starttime, int endtime, int intvl)
 {
     pihm_t_struct   pihm_time;
 
@@ -299,7 +301,7 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
 {
     int             i;
     pihm_t_struct   pihm_time;
-    realtype       *hnodes;    /* h at nodes */
+    double         *hnodes;    /* h at nodes */
     int            *inodes;
 
     pihm_time = PIHMTime(t);
@@ -314,7 +316,7 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
         {
             outtime = (double)t;
 
-            if (varctrl[i].intr == 1)
+            if (varctrl[i].intr == RIVERVAR)
             {
                 /*Print river files */
                 fprintf(varctrl[i].datfile, "%s\n", TEC_HEADER);
@@ -366,29 +368,23 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
                         outval = varctrl[i].buffer[j];
                     }
 
-                    hnodes[varctrl[i].node0[j] - 1] =
-                        hnodes[varctrl[i].node0[j] - 1] + outval;
-                    hnodes[varctrl[i].node1[j] - 1] =
-                        hnodes[varctrl[i].node1[j] - 1] + outval;
-                    hnodes[varctrl[i].node2[j] - 1] =
-                        hnodes[varctrl[i].node2[j] - 1] + outval;
-                    inodes[varctrl[i].node0[j] - 1] =
-                        inodes[varctrl[i].node0[j] - 1] + 1;
-                    inodes[varctrl[i].node1[j] - 1] =
-                        inodes[varctrl[i].node1[j] - 1] + 1;
-                    inodes[varctrl[i].node2[j] - 1] =
-                        inodes[varctrl[i].node2[j] - 1] + 1;
+                    hnodes[varctrl[i].node0[j] - 1] += outval;
+                    hnodes[varctrl[i].node1[j] - 1] += outval;
+                    hnodes[varctrl[i].node2[j] - 1] += outval;
+                    inodes[varctrl[i].node0[j] - 1] += 1;
+                    inodes[varctrl[i].node1[j] - 1] += 1;
+                    inodes[varctrl[i].node2[j] - 1] += 1;
                     varctrl[i].buffer[j] = 0.0;
                 }
                 for (j = 0; j < varctrl[i].nnodes; j++)
                 {
                     if (inodes[j] == 0)
                     {
-                        fprintf(varctrl[i].datfile, "%8.6f \n", 0.0);
+                        fprintf(varctrl[i].datfile, "%8.6f\n", 0.0);
                     }
                     else
                     {
-                        fprintf(varctrl[i].datfile, "%8.6f \n",
+                        fprintf(varctrl[i].datfile, "%8.6f\n",
                             hnodes[j] / inodes[j]);
                     }
                 }
@@ -445,13 +441,13 @@ void PrintPerf(int t, int starttime, double cputime_dt, double cputime,
 }
 
 void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
-    elem_struct *elem, river_struct *river)
+    const elem_struct *elem, const river_struct *river)
 {
     int             i, j;
     double          totarea = 0.0;
     double          totlength = 0.0;
     double          tot_prep = 0.0;
-    double          tot_net_prep = 0.;
+    double          tot_net_prep = 0.0;
     double          tot_inf = 0.0;
     double          tot_rechg = 0.0;
     double          tot_esoil = 0.0;
@@ -542,7 +538,7 @@ void PrintCVodeFinalStats(void *cvode_mem)
         nni, ncfn, netf);
 }
 
-int PrintNow(int intvl, int lapse, pihm_t_struct *pihm_time)
+int PrintNow(int intvl, int lapse, const pihm_t_struct *pihm_time)
 {
     int             print = 0;
 
