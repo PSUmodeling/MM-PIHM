@@ -28,6 +28,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     for (i = 0; i < nelem; i++)
     {
         elem_struct    *elem;
+
         elem = &pihm->elem[i];
 
         elem->ws.surf = (y[SURF(i)] >= 0.0) ? y[SURF(i)] : 0.0;
@@ -61,11 +62,14 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     }
 
     /*
-     * PIHM Hydrology
+     * PIHM Hydrology fluxes
      */
     Hydrol(pihm->elem, pihm->river, &pihm->ctrl);
 
 #ifdef _BGC_
+    /*
+     * Nitrogen transport fluxes
+     */
     NTransport(pihm->elem, pihm->river);
 #endif
 
@@ -96,27 +100,10 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[UNSAT(i)] /= elem->soil.porosity;
         dy[GW(i)] /= elem->soil.porosity;
 
-        if (isnan(dy[SURF(i)]))
-        {
-            PIHMprintf(VL_ERROR,
-                "Error: NAN error for Element %d (surface water) at %lf\n",
-                i + 1, t);
-            PIHMexit(EXIT_FAILURE);
-        }
-        if (isnan(dy[UNSAT(i)]))
-        {
-            PIHMprintf(VL_ERROR,
-                "Error: NAN error for Element %d (unsat water) at %lf\n",
-                i + 1, t);
-            PIHMexit(EXIT_FAILURE);
-        }
-        if (isnan(dy[GW(i)]))
-        {
-            PIHMprintf(VL_ERROR,
-                "Error: NAN error for Element %d (groundwater) at %lf\n",
-                i + 1, t);
-            PIHMexit(EXIT_FAILURE);
-        }
+        /* Check NAN errors for dy */
+        CheckDy(dy[SURF(i)], "element", "surface water", i + 1, (double)t);
+        CheckDy(dy[UNSAT(i)], "element", "unsat water", i + 1, (double)t);
+        CheckDy(dy[GW(i)], "element", "groundwater", i + 1, (double)t);
 
 #ifdef _BGC_
         dy[SURFN(i)] +=
@@ -129,6 +116,10 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[SURFN(i)] -= elem->nsol.ovlflux[j] / elem->topo.area;
             dy[SMINN(i)] -= elem->nsol.subflux[j] / elem->topo.area;
         }
+
+        /* Check NAN errors for dy */
+        CheckDy(dy[SURFN(i)], "element", "surface N", i + 1, (double)t);
+        CheckDy(dy[SMINNN(i)], "element", "soil mineral N", i + 1, (double)t);
 #endif
     }
 
@@ -157,20 +148,9 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         dy[RIVGW(i)] /= river->matl.porosity * river->topo.area;
 
-        if (isnan(dy[RIVSTG(i)]))
-        {
-            PIHMprintf(VL_ERROR,
-                "Error: NAN error for River Segment %d (stage) at %lf\n",
-                i + 1, t);
-            PIHMexit(EXIT_FAILURE);
-        }
-        if (isnan(dy[RIVGW(i)]))
-        {
-            PIHMprintf(VL_ERROR,
-                "Error: NAN error for River Segment %d (groundwater) at"
-                "%lf\n", i + 1, t);
-            PIHMexit(EXIT_FAILURE);
-        }
+        /* Check NAN errors for dy */
+        CheckDy(dy[RIVSTG(i)], "river", "stage", i + 1, (double)t);
+        CheckDy(dy[RIVGW(i)], "river", "groundwater", i + 1, (double)t);
 
 #ifdef _BGC_
         for (j = 0; j <= 6; j++)
@@ -184,10 +164,24 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             river->nsol.flux[UP_AQUIF2AQUIF] + river->nsol.flux[CHANL_LKG];
 
         dy[RIVBEDN(i)] /= river->topo.area;
+
+        /* Check NAN errors for dy */
+        CheckDy(dy[STREMN(i)], "river", "stream N", i + 1, (double)t);
+        CheckDy(dy[RIVBEDN(i)], "river", "bed mineral N", i + 1, (double)t);
 #endif
     }
 
     return 0;
+}
+
+void CheckDy(double dy, const char *type, const char *varname, int ind, double t)
+{
+    if (isnan(dy))
+    {
+        PIHMprintf(VL_ERROR,
+            "Error: NAN error for %s %d (%s) at %lf\n", type, ind, varname, t);
+        PIHMexit(EXIT_FAILURE);
+    }
 }
 
 int NumStateVar(void)
@@ -225,15 +219,16 @@ void SolveCVode(int starttime, int *t, int nextptr, double cputime,
     void *cvode_mem, N_Vector CV_Y)
 {
     realtype        solvert;
-    realtype        tout = (realtype)(nextptr - starttime);
+    realtype        tout;
     pihm_t_struct   pihm_time;
     int             flag;
 
-    flag = CVodeSetStopTime(cvode_mem, tout);
-    flag = CVode(cvode_mem, (realtype)(nextptr - starttime), CV_Y, &solvert,
-        CV_NORMAL);
+    tout = (realtype)(nextptr - starttime);
 
-    *t = (int)round(solvert + starttime);
+    flag = CVodeSetStopTime(cvode_mem, tout);
+    flag = CVode(cvode_mem, tout, CV_Y, &solvert, CV_NORMAL);
+
+    *t = (int)round(solvert) + starttime;
 
     pihm_time = PIHMTime(*t);
 
@@ -250,7 +245,8 @@ void SolveCVode(int starttime, int *t, int nextptr, double cputime,
     }
     else if (pihm_time.t % 3600 == 0)
     {
-        PIHMprintf(VL_NORMAL, " Step = %s %f\n", pihm_time.str, cputime);
+        PIHMprintf(VL_NORMAL,
+            " Step = %s (cputime %f)\n", pihm_time.str, cputime);
     }
 }
 
@@ -276,7 +272,7 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
     nfails = (double)(ncfn - ncfn0) / nsteps;
     niters = (double)(nni - nni0) / nsteps;
 
-    if (nfails > ctrl->nncfn || niters > ctrl->nnimax)
+    if (nfails > ctrl->nncfn || niters >= ctrl->nnimax)
     {
         ctrl->maxstep /= ctrl->decr;
     }
@@ -288,7 +284,8 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
 
     ctrl->maxstep = (ctrl->maxstep < ctrl->stepsize) ?
         ctrl->maxstep : ctrl->stepsize;
-    ctrl->maxstep = (ctrl->maxstep > ctrl->stmin) ? ctrl->maxstep : ctrl->stmin;
+    ctrl->maxstep = (ctrl->maxstep > ctrl->stmin) ?
+        ctrl->maxstep : ctrl->stmin;
 
     flag = CVodeSetMaxStep(cvode_mem, (realtype)ctrl->maxstep);
 
