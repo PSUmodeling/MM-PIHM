@@ -192,7 +192,7 @@ typedef struct varctrl_struct
                                          * 1: land surface step
                                          * 2: CN step */
     int             nvar;               /* number of variables for print */
-    double        **var;                /* pointers to model variables */
+    const double  **var;                /* pointers to model variables */
     double         *buffer;             /* buffer for averaging variables */
     int             counter;            /* counter for averaging variables */
     FILE           *txtfile;            /* pointer to txt file */

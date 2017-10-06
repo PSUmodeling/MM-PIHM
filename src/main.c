@@ -59,7 +59,8 @@ int main(int argc, char *argv[])
     CreateOutputDir(outputdir);
 
     /* Create output structures */
-    MapOutput(pihm, outputdir);
+    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->elem, pihm->river,
+        &pihm->meshtbl, outputdir, &pihm->print);
 
     /* Backup input files */
 #if !defined(_MSC_VER)

@@ -147,7 +147,8 @@ void            IntrplForc(tsdata_struct *, int, int);
 double          KrFunc(double, double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
 int             MacroporeStatus(const soil_struct *, double, double, double);
-void            MapOutput(pihm_struct, const char *);
+void            MapOutput(const int *, const int *, const elem_struct *,
+    const river_struct *, const meshtbl_struct *, const char *, print_struct *);
 void            MassBalance(wstate_struct *, wstate_struct *, wflux_struct *,
     double *, const soil_struct *, double, double);
 double          MonthlyLai(int, int);
