@@ -24,9 +24,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         /* Calculate Interception storage and ET */
         IntcpSnowEt(t, (double)pihm->ctrl.etstep, pihm->elem, &pihm->cal);
 #endif
-        /*
-         * Update print variables for land surface step variables
-         */
+        /* Update print variables for land surface step variables */
         UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, LS_STEP);
         UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, LS_STEP);
     }
@@ -72,7 +70,6 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     {
 # ifdef _BGC_
         DailyBgc(pihm, t - DAYINSEC);
-
         first_balance = 0;
 # endif
 
@@ -80,9 +77,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         DailyCycles(t - DAYINSEC, pihm);
 # endif
 
-        /*
-         * Update print variables for CN (daily) step variables
-         */
+        /* Update print variables for CN (daily) step variables */
         UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, CN_STEP);
         UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, CN_STEP);
 
