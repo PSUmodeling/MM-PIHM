@@ -384,11 +384,10 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
         }
     }
 
-    /* finish reading mesh_files */
     fclose(mesh_file);
 }
 
-void ReadAtt(char *filename, atttbl_struct *atttbl)
+void ReadAtt(const char *filename, atttbl_struct *atttbl)
 {
     int             i;
     FILE           *att_file;   /* Pointer to .att file */
@@ -431,11 +430,10 @@ void ReadAtt(char *filename, atttbl_struct *atttbl)
         }
     }
 
-    /* Finish reading att_files */
     fclose(att_file);
 }
 
-void ReadSoil(char *filename, soiltbl_struct *soiltbl)
+void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
 {
     FILE           *soil_file;
     int             i;
@@ -587,7 +585,7 @@ void ReadSoil(char *filename, soiltbl_struct *soiltbl)
     fclose(soil_file);
 }
 
-void ReadLc(char *filename, lctbl_struct *lctbl)
+void ReadLc(const char *filename, lctbl_struct *lctbl)
 {
     FILE           *lc_file;    /* Pointer to .lc file */
     int             i;
@@ -664,7 +662,7 @@ void ReadLc(char *filename, lctbl_struct *lctbl)
     fclose(lc_file);
 }
 
-void ReadForc(char *filename, forc_struct *forc)
+void ReadForc(const char *filename, forc_struct *forc)
 {
     FILE           *meteo_file;
     char            cmdstr[MAXSTRING];
@@ -742,7 +740,8 @@ void ReadForc(char *filename, forc_struct *forc)
     fclose(meteo_file);
 }
 
-void ReadLai(char *filename, forc_struct *forc, const atttbl_struct *atttbl)
+void ReadLai(const char *filename, forc_struct *forc,
+    const atttbl_struct *atttbl)
 {
     char            cmdstr[MAXSTRING];
     int             read_lai = 0;
@@ -831,7 +830,7 @@ void ReadLai(char *filename, forc_struct *forc, const atttbl_struct *atttbl)
     }
 }
 
-void ReadBc(char *filename, forc_struct *forc)
+void ReadBc(const char *filename, forc_struct *forc)
 {
     int             i, j;
     FILE           *bc_file;    /* Pointer to .ibc file */
@@ -904,7 +903,7 @@ void ReadBc(char *filename, forc_struct *forc)
     fclose(bc_file);
 }
 
-void ReadPara(char *filename, ctrl_struct *ctrl)
+void ReadPara(const char *filename, ctrl_struct *ctrl)
 {
     FILE           *para_file;    /* Pointer to .para file */
     char            cmdstr[MAXSTRING];
@@ -1076,7 +1075,7 @@ void ReadPara(char *filename, ctrl_struct *ctrl)
     }
 }
 
-void ReadCalib(char *filename, calib_struct *cal)
+void ReadCalib(const char *filename, calib_struct *cal)
 {
     char            cmdstr[MAXSTRING];
     FILE           *global_calib;   /* Pointer to .calib file */
@@ -1216,12 +1215,10 @@ void ReadCalib(char *filename, calib_struct *cal)
     NextLine(global_calib, cmdstr, &lno);
     ReadKeyword(cmdstr, "SFCTMP", &cal->sfctmp, 'd', filename, lno);
 
-
-    /* Finish reading calib file */
     fclose(global_calib);
 }
 
-void ReadIc(char *filename, elem_struct *elem, river_struct *river)
+void ReadIc(const char *filename, elem_struct *elem, river_struct *river)
 {
     FILE           *ic_file;
     int             i;
@@ -1259,7 +1256,7 @@ void ReadIc(char *filename, elem_struct *elem, river_struct *river)
     fclose(ic_file);
 }
 
-void ReadTecplot(char *filename, ctrl_struct *ctrl)
+void ReadTecplot(const char *filename, ctrl_struct *ctrl)
 {
     FILE           *tecplot_file;
     char            cmdstr[MAXSTRING];
@@ -1291,20 +1288,6 @@ void ReadTecplot(char *filename, ctrl_struct *ctrl)
     ctrl->tpprtvrbl[RIVGW_CTRL] = ReadPrtCtrl(cmdstr, "RIVGW", filename, lno);
 
     fclose(tecplot_file);
-}
-
-void ReadError(const char *fn, int lineno, const char *fmt, ...)
-{
-    va_list         va;
-
-    va_start(va, fmt);
-
-    PIHMprintf(VL_ERROR, fmt, va);
-    PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", fn, lineno);
-
-    va_end(va);
-
-    PIHMexit(EXIT_FAILURE);
 }
 
 void FreeData(pihm_struct pihm)

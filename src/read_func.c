@@ -260,7 +260,8 @@ int ReadKeyword(const char *buffer, const char *keyword, void *value, char type,
     return success;
 }
 
-int ReadPrtCtrl(char *buffer, char *keyword, char *filename, int lno)
+int ReadPrtCtrl(const char *buffer, const char *keyword, const char *filename,
+    int lno)
 {
     int             match;
     int             prtvrbl;

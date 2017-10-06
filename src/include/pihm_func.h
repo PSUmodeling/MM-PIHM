@@ -187,24 +187,23 @@ double          PtfThetas(double, double, double, double, int);
 double          Qtz(int);
 int             Readable(char *);
 void            ReadAlloc(pihm_struct);
-void            ReadAtt(char *, atttbl_struct *);
-void            ReadBc(char *, forc_struct *);
-void            ReadCalib(char *, calib_struct *);
-void            ReadError(const char *, int, const char *, ...);
-void            ReadForc(char *, forc_struct *);
-void            ReadGeol(char *, geoltbl_struct *);
-void            ReadIc(char *, elem_struct *, river_struct *);
+void            ReadAtt(const char *, atttbl_struct *);
+void            ReadBc(const char *, forc_struct *);
+void            ReadCalib(const char *, calib_struct *);
+void            ReadForc(const char *, forc_struct *);
+void            ReadGeol(const char *, geoltbl_struct *);
+void            ReadIc(const char *, elem_struct *, river_struct *);
 int             ReadKeyword(const char *, const char *, void *, char,
     const char *, int);
-void            ReadLai(char *, forc_struct *, const atttbl_struct *);
-void            ReadLc(char *, lctbl_struct *);
+void            ReadLai(const char *, forc_struct *, const atttbl_struct *);
+void            ReadLc(const char *, lctbl_struct *);
 void            ReadMesh(const char *, meshtbl_struct *);
-void            ReadPara(char *, ctrl_struct *);
-int             ReadPrtCtrl(char *, char *, char *, int);
+void            ReadPara(const char *, ctrl_struct *);
+int             ReadPrtCtrl(const char *, const char *, const char *, int);
 void            ReadRiver(const char *, rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
-void            ReadSoil(char *, soiltbl_struct *);
-void            ReadTecplot(char *, ctrl_struct *);
+void            ReadSoil(const char *, soiltbl_struct *);
+void            ReadTecplot(const char *, ctrl_struct *);
 int             ReadTS(char *, int *, double *, int);
 double          Recharge(const wstate_struct *, const wflux_struct *,
     const pstate_struct *, const soil_struct *);
