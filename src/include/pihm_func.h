@@ -526,8 +526,8 @@ void            DailyCarbonStateUpdate(cflux_struct *, cstate_struct *, int,
 void            DailyNitrogenStateUpdate(nflux_struct *, nstate_struct *,
     solute_struct *, int, int, int);
 void            Decomp(double, const epconst_struct *, epvar_struct *,
-    cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
-    ntemp_struct *);
+    const cstate_struct *, cflux_struct *, const nstate_struct *,
+    nflux_struct *, ntemp_struct *);
 void            EvergreenPhenology(const epconst_struct *, epvar_struct *,
     cstate_struct *);
 void            FirstDay(elem_struct *, river_struct *, const cninit_struct *);

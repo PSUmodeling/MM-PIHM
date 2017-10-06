@@ -1,8 +1,8 @@
 #include "pihm.h"
 
 void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
-    cstate_struct *cs, cflux_struct *cf, nstate_struct *ns, nflux_struct *nf,
-    ntemp_struct *nt)
+    const cstate_struct *cs, cflux_struct *cf, const nstate_struct *ns,
+    nflux_struct *nf, ntemp_struct *nt)
 {
     double          rate_scalar, t_scalar, w_scalar;
     double          tk;
