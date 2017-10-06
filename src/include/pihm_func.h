@@ -89,7 +89,7 @@ double          ChanFlowRiverToRiver(const river_struct *, const river_struct *,
 double          ChanLeak(const river_wstate_struct *, const river_topo_struct *,
     const shp_struct *, const matl_struct *);
 void            CheckDy(double, const char *, const char *, int, double);
-void            CheckFile(FILE *, char *);
+void            CheckFile(FILE *, const char *);
 void            CorrElev(elem_struct *, river_struct *);
 int             CountLine(FILE *, char *, int, ...);
 int             CountOccurr(FILE *, char *);
@@ -190,16 +190,18 @@ void            ReadAlloc(pihm_struct);
 void            ReadAtt(char *, atttbl_struct *);
 void            ReadBc(char *, forc_struct *);
 void            ReadCalib(char *, calib_struct *);
+void            ReadError(const char *, int, const char *, ...);
 void            ReadForc(char *, forc_struct *);
 void            ReadGeol(char *, geoltbl_struct *);
 void            ReadIc(char *, elem_struct *, river_struct *);
-int             ReadKeyword(char *, char *, void *, char, char *, int);
+int             ReadKeyword(const char *, const char *, void *, char,
+    const char *, int);
 void            ReadLai(char *, forc_struct *, const atttbl_struct *);
 void            ReadLc(char *, lctbl_struct *);
-void            ReadMesh(char *, meshtbl_struct *);
+void            ReadMesh(const char *, meshtbl_struct *);
 void            ReadPara(char *, ctrl_struct *);
 int             ReadPrtCtrl(char *, char *, char *, int);
-void            ReadRiver(char *, rivtbl_struct *, shptbl_struct *,
+void            ReadRiver(const char *, rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
 void            ReadSoil(char *, soiltbl_struct *);
 void            ReadTecplot(char *, ctrl_struct *);

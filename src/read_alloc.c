@@ -127,11 +127,10 @@ void ReadAlloc(pihm_struct pihm)
         ReadAnnFile(&pihm->forc.ndep[0], pihm->filename.ndep);
     }
 #endif
-
 }
 
-void ReadRiver(char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
-    matltbl_struct *matltbl, forc_struct *forc)
+void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
+    shptbl_struct *shptbl, matltbl_struct *matltbl, forc_struct *forc)
 {
     int             i, j;
     FILE           *riv_file;
@@ -140,7 +139,6 @@ void ReadRiver(char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     int             index;
     int             lno = 0;
 
-    /* Open .river input file */
     riv_file = fopen(filename, "r");
     CheckFile(riv_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
@@ -235,8 +233,7 @@ void ReadRiver(char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
     {
         NextLine(riv_file, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %lf %lf %lf %lf %lf",
-            &index,
-            &matltbl->rough[i], &matltbl->cwr[i],
+            &index, &matltbl->rough[i], &matltbl->cwr[i],
             &matltbl->ksath[i], &matltbl->ksatv[i], &matltbl->bedthick[i]);
         if (match != 6 || i != index - 1)
         {
@@ -306,13 +303,14 @@ void ReadRiver(char *filename, rivtbl_struct *rivtbl, shptbl_struct *shptbl,
         }
     }
 
+#if NOT_YET_IMPLEMENTED
     /* Read Reservoir information */
-    /* Empty */
+#endif
 
     fclose(riv_file);
 }
 
-void ReadMesh(char *filename, meshtbl_struct *meshtbl)
+void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
 {
     FILE           *mesh_file;
     int             i;
@@ -321,9 +319,6 @@ void ReadMesh(char *filename, meshtbl_struct *meshtbl)
     int             index;
     int             lno = 0;
 
-    /*
-     * Open .mesh input file
-     */
     mesh_file = fopen(filename, "r");
     CheckFile(mesh_file, filename);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
@@ -342,8 +337,8 @@ void ReadMesh(char *filename, meshtbl_struct *meshtbl)
 
     for (i = 0; i < nelem; i++)
     {
-        meshtbl->node[i] = (int *)malloc(3 * sizeof(int));
-        meshtbl->nabr[i] = (int *)malloc(3 * sizeof(int));
+        meshtbl->node[i] = (int *)malloc(NUM_EDGE * sizeof(int));
+        meshtbl->nabr[i] = (int *)malloc(NUM_EDGE * sizeof(int));
 
         NextLine(mesh_file, cmdstr, &lno);
         match = sscanf(cmdstr, "%d %d %d %d %d %d %d",
@@ -1296,6 +1291,20 @@ void ReadTecplot(char *filename, ctrl_struct *ctrl)
     ctrl->tpprtvrbl[RIVGW_CTRL] = ReadPrtCtrl(cmdstr, "RIVGW", filename, lno);
 
     fclose(tecplot_file);
+}
+
+void ReadError(const char *fn, int lineno, const char *fmt, ...)
+{
+    va_list         va;
+
+    va_start(va, fmt);
+
+    PIHMprintf(VL_ERROR, fmt, va);
+    PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", fn, lineno);
+
+    va_end(va);
+
+    PIHMexit(EXIT_FAILURE);
 }
 
 void FreeData(pihm_struct pihm)

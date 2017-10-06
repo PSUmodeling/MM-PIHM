@@ -149,7 +149,7 @@ int CountLine(FILE *fid, char *cmdstr, int num_arg, ...)
     return count;
 }
 
-void CheckFile(FILE *fid, char *fn)
+void CheckFile(FILE *fid, const char *fn)
 {
     if (NULL == fid)
     {
@@ -194,8 +194,8 @@ int ReadTS(char *cmdstr, int *ftime, double *data, int nvrbl)
     return success;
 }
 
-int ReadKeyword(char *buffer, char *keyword, void *value, char type,
-    char *filename, int lno)
+int ReadKeyword(const char *buffer, const char *keyword, void *value, char type,
+    const char *filename, int lno)
 {
     int             match;
     char            timestr[MAXSTRING], ts1[MAXSTRING], ts2[MAXSTRING];
