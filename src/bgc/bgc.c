@@ -28,7 +28,7 @@ void DailyBgc(pihm_struct pihm, int t)
         }
         else
         {
-            co2lvl = GetCO2(pihm->forc.co2[0], t);
+            co2lvl = GetCO2(&pihm->forc.co2[0], t);
         }
 
         /* Ndep handling */
@@ -40,7 +40,7 @@ void DailyBgc(pihm_struct pihm, int t)
         }
         else
         {
-            ndep = GetNdep(pihm->forc.ndep[0], t);
+            ndep = GetNdep(&pihm->forc.ndep[0], t);
             ndep = ndep / 365.0;
             nfix = pihm->ndepctrl.nfix / 365.0;
         }

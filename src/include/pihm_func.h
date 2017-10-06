@@ -533,9 +533,9 @@ void            EvergreenPhenology(const epconst_struct *, epvar_struct *,
 void            FirstDay(elem_struct *, river_struct *, const cninit_struct *);
 void            FRootLitFall(const epconst_struct *, double, cflux_struct *,
     nflux_struct *);
-double          GetCO2(tsdata_struct, int);
-double          GetNdep(tsdata_struct, int);
-void            GrowthResp(epconst_struct *, cflux_struct *);
+double          GetCO2(tsdata_struct *, int);
+double          GetNdep(tsdata_struct *, int);
+void            GrowthResp(const epconst_struct *, cflux_struct *);
 void            InitBgc(elem_struct *, const epctbl_struct *);
 void            InitBgcVar(elem_struct *, river_struct *, N_Vector);
 void            LeafLitFall(const epconst_struct *, double, cflux_struct *,
