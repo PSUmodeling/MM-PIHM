@@ -3,8 +3,8 @@
 
 void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
 {
+    int             option;
     struct optparse options;
-    optparse_init(&options, argv);
     struct optparse_long longopts[] = {
         {"output", 'o', OPTPARSE_REQUIRED},
         {"elevation_correction", 'c', OPTPARSE_NONE},
@@ -15,7 +15,8 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
         {0, 0, 0}
     };
 
-    int             option;
+    optparse_init(&options, argv);
+
     while ((option = optparse_long(&options, longopts, NULL)) != -1)
     {
         switch (option)
@@ -129,7 +130,7 @@ void CreateOutputDir(char *outputdir)
     }
 }
 
-void BackupInput(char *outputdir)
+void BackupInput(const char *outputdir)
 {
     char            project[MAXSTRING];
     char            system_cmd[MAXSTRING];

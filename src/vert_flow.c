@@ -9,9 +9,11 @@ void VerticalFlow(elem_struct *elem, double dt)
 #endif
     for (i = 0; i < nelem; i++)
     {
+        /* Calculate infiltration rate */
         elem[i].wf.infil = Infil(&elem[i].ws, &elem[i].wf, &elem[i].topo,
             &elem[i].soil, dt, &elem[i].ps);
 
+        /* Calculate recharge rate */
         elem[i].wf.rechg = Recharge(&elem[i].ws, &elem[i].wf, &elem[i].ps,
             &elem[i].soil);
     }
@@ -124,6 +126,7 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
         infil *= wetfrac;
 
 #ifdef _NOAH_
+        /* Constrain infiltration by frozen top soil */
         infil *= ps->fcr;
 #endif
     }

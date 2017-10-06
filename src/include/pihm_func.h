@@ -77,7 +77,7 @@ void            AsciiArt();
 double          AvgKv(const soil_struct *, double, double, double, double);
 double          AvgH(double, double, double);
 double          AvgHsurf(double, double, double);
-void            BackupInput(char *);
+void            BackupInput(const char *);
 void            BoundFluxElem(int, int, const bc_struct *,
     const wstate_struct *, const topo_struct *, const soil_struct *,
     wflux_struct *);
@@ -150,8 +150,8 @@ void            LateralFlow(elem_struct *, const river_struct *, int);
 int             MacroporeStatus(const soil_struct *, double, double, double);
 void            MapOutput(const int *, const int *, const elem_struct *,
     const river_struct *, const meshtbl_struct *, const char *, print_struct *);
-void            MassBalance(wstate_struct *, wstate_struct *, wflux_struct *,
-    double *, const soil_struct *, double, double);
+void            MassBalance(const wstate_struct *, const wstate_struct *,
+    wflux_struct *, double *, const soil_struct *, double, double);
 double          MonthlyLai(int, int);
 double          MonthlyMf(int);
 double          MonthlyRl(int, int);

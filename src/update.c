@@ -60,8 +60,9 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
     }
 }
 
-void MassBalance(wstate_struct *ws, wstate_struct *ws0, wflux_struct *wf,
-    double *subrunoff, const soil_struct *soil, double area, double stepsize)
+void MassBalance(const wstate_struct *ws, const wstate_struct *ws0,
+    wflux_struct *wf, double *subrunoff, const soil_struct *soil,
+    double area, double stepsize)
 {
     int             j;
     double          soilw0, soilw1;
