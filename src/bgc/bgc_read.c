@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadBgc(char *fn, ctrl_struct *ctrl, co2control_struct *co2,
+void ReadBgc(const char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     ndepcontrol_struct *ndepctrl, cninit_struct * cninit, char *co2_fn,
     char *ndep_fn)
 {
@@ -518,7 +518,7 @@ void ReadEpc(epctbl_struct *epctbl)
     }
 }
 
-void ReadAnnFile(tsdata_struct *ts, char *fn)
+void ReadAnnFile(tsdata_struct *ts, const char *fn)
 {
     FILE           *fid;
     char            timestr[MAXSTRING];
