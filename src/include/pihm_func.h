@@ -237,7 +237,7 @@ double          WiltingPoint(double, double, double, double);
  */
 #ifdef _NOAH_
 void            AlCalc(pstate_struct *, double, int);
-double          AvgElev(elem_struct *);
+double          AvgElev(const elem_struct *);
 void            CalcLatFlx(const pstate_struct *, wflux_struct *, double);
 void            CalcSlopeAspect(elem_struct *, const meshtbl_struct *);
 void            CalHum(pstate_struct *, estate_struct *);
@@ -259,7 +259,7 @@ void            Evapo(wstate_struct *, wflux_struct *, pstate_struct *,
 int             FindLayer(const double *, int, double);
 int             FindWaterTable(const double *, int, double, double *);
 double          FrozRain(double, double);
-double          GwTransp(double, double *, int, int);
+double          GwTransp(double, const double *, int, int);
 void            HRT(wstate_struct *, estate_struct *, eflux_struct *,
     pstate_struct *, const lc_struct *, const soil_struct *, double *,
     double, double, double, double, double *, double *, double *);
@@ -346,7 +346,7 @@ double          TBnd(double, double, const double *, double, int, int);
 double          TDfCnd(double, double, double, double, double);
 double          TmpAvg(double, double, double, const double *, int);
 double          TopoRadn(const topo_struct *, double, double, double, double);
-double          TotalArea(elem_struct *);
+double          TotalArea(const elem_struct *);
 void            Transp(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
 void            WDfCnd(double *, double *, double, double, int,

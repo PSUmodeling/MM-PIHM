@@ -89,29 +89,33 @@ double Mod(double a, double n)
 double TopoRadn(const topo_struct *topo, double sdir, double sdif,
     double zenith, double azimuth180)
 {
-    double          incidence;
-    double          gvf;
+    double          incidence;    /* Sun incidence angle (degree) */
+    double          tcf;          /* terrain configuration factor (-) */
     double          soldown;
 
     azimuth180 = Mod((360.0 + azimuth180), 360.0);
 
+    /* If the Sun is blocked, set direct solar radiation to 0.0 */
     if (zenith > topo->h_phi[(int)floor(azimuth180 / 10.0)])
     {
         sdir = 0.0;
     }
 
+    /* Calculate Sun incidence angle */
     incidence = acos(cos(zenith * PI / 180.0) * cos(topo->slope * PI / 180.0) +
         sin(zenith * PI / 180.0) * sin(topo->slope * PI / 180.0) *
         cos((azimuth180 - topo->aspect) * PI / 180.0));
     incidence *= 180.0 / PI;
-    incidence = incidence > 90.0 ? 90.0 : incidence;
+    incidence = (incidence > 90.0) ? 90.0 : incidence;
 
-    gvf = (1.0 + cos(topo->slope * PI / 180.0)) / 2.0 - topo->svf;
-    gvf = (gvf < 0.0) ? 0.0 : gvf;
+    /* Calculate terrain configuration factor
+     * Dozier and Frew 1990, IEEE Transactions on Geoscience and Remote Sensing, 28(5), 963--969 */
+    tcf = (1.0 + cos(topo->slope * PI / 180.0)) / 2.0 - topo->svf;
+    tcf = (tcf < 0.0) ? 0.0 : tcf;
 
     soldown = sdir * cos(incidence * PI / 180.0) +
-        topo->svf * sdif + 0.2 * gvf * (sdir * cos(zenith * PI / 180.0) + sdif);
-    soldown = soldown < 0.0 ? 0.0 : soldown;
+        topo->svf * sdif + 0.2 * tcf * (sdir * cos(zenith * PI / 180.0) + sdif);
+    soldown = (soldown < 0.0) ? 0.0 : soldown;
 
     return soldown;
 }
@@ -151,7 +155,7 @@ void DefSldpth(double *sldpth, int *nsoil, double *zsoil, double total_depth,
                 sldpth[j] = total_depth - std_zsoil[j - 1];
                 *nsoil = j + 1;
 
-                /* The following calculations gurantee that each layer is
+                /* The following calculations guarantee that each layer is
                  * thicker than the layer on top */
                 if (sldpth[j] < sldpth[j - 1])
                 {
@@ -184,8 +188,8 @@ void DefSldpth(double *sldpth, int *nsoil, double *zsoil, double total_depth,
     }
 
     /* Calculate depth (negative) below ground from top skin sfc to bottom of
-     * each soil layer.  note:  sign of zsoil is negative (denoting below
-     * ground) */
+     * each soil layer. Note: sign of zsoil is negative (denoting below ground)
+     */
     zsoil[0] = -sldpth[0];
     for (k = 1; k < *nsoil; k++)
     {
@@ -397,7 +401,7 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
     }
 }
 
-double GwTransp(double ett, double *et, int nwtbl, int nroot)
+double GwTransp(double ett, const double *et, int nwtbl, int nroot)
 {
     /* Calculate transpiration from saturated zone */
     int             j;
@@ -521,7 +525,7 @@ void CalHum(pstate_struct *ps, estate_struct *es)
 
     ps->q2sat = EPSILON * esat / (ps->sfcprs - (1.0 - EPSILON) * esat);
 
-    ps->dqsdt2 = ps->q2sat * a23m4 / pow(es->sfctmp - A4, 2);
+    ps->dqsdt2 = ps->q2sat * a23m4 / ((es->sfctmp - A4) * (es->sfctmp - A4));
 }
 
 double FrozRain(double prcp, double sfctmp)
@@ -540,7 +544,7 @@ double FrozRain(double prcp, double sfctmp)
     return ffrozp;
 }
 
-double AvgElev(elem_struct *elem)
+double AvgElev(const elem_struct *elem)
 {
     double          elev = 0.0;
     int             i;
@@ -555,7 +559,7 @@ double AvgElev(elem_struct *elem)
     return elev;
 }
 
-double TotalArea(elem_struct *elem)
+double TotalArea(const elem_struct *elem)
 {
     double          area = 0.0;
     int             i;
@@ -586,7 +590,7 @@ void CalcLatFlx(const pstate_struct *ps, wflux_struct *wf, double area)
 #endif
 
     /* Determine runoff from each layer */
-    sattot = 0;
+    sattot = 0.0;
     for (ks = 0; ks < ps->nsoil; ks++)
     {
         sattot += ps->satdpth[ks];
