@@ -119,7 +119,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         /* Check NAN errors for dy */
         CheckDy(dy[SURFN(i)], "element", "surface N", i + 1, (double)t);
-        CheckDy(dy[SMINNN(i)], "element", "soil mineral N", i + 1, (double)t);
+        CheckDy(dy[SMINN(i)], "element", "soil mineral N", i + 1, (double)t);
 #endif
     }
 
@@ -166,7 +166,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[RIVBEDN(i)] /= river->topo.area;
 
         /* Check NAN errors for dy */
-        CheckDy(dy[STREMN(i)], "river", "stream N", i + 1, (double)t);
+        CheckDy(dy[STREAMN(i)], "river", "stream N", i + 1, (double)t);
         CheckDy(dy[RIVBEDN(i)], "river", "bed mineral N", i + 1, (double)t);
 #endif
     }
