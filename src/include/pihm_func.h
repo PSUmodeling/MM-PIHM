@@ -241,27 +241,28 @@ double          AvgElev(const elem_struct *);
 void            CalcLatFlx(const pstate_struct *, wflux_struct *, double);
 void            CalcSlopeAspect(elem_struct *, const meshtbl_struct *);
 void            CalHum(pstate_struct *, estate_struct *);
-void            CanRes(wstate_struct *, estate_struct *, eflux_struct *,
-    pstate_struct *, const soil_struct *, const epconst_struct *);
+void            CanRes(const wstate_struct *, const estate_struct *,
+    const eflux_struct *, pstate_struct *, const soil_struct *,
+    const epconst_struct *);
 double          CSnow(double);
 void            DefSldpth(double *, int *, double *, double, const double *,
     int);
 void            DEvap(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
 # ifdef _CYCLES_
-void            Evapo(wstate_struct *, wflux_struct *, pstate_struct *,
-    const lc_struct *, soil_struct *, comm_struct *, residue_struct *,
-    const estate_struct *, double);
+void            Evapo(const wstate_struct *, wflux_struct *,
+    const pstate_struct *, const lc_struct *, const soil_struct *,
+    comm_struct *, residue_struct *, const estate_struct *, double);
 # else
-void            Evapo(wstate_struct *, wflux_struct *, pstate_struct *,
-    const lc_struct *, soil_struct *, double);
+void            Evapo(const wstate_struct *, wflux_struct *,
+    const pstate_struct *, const lc_struct *, const soil_struct *, double);
 # endif
 int             FindLayer(const double *, int, double);
 int             FindWaterTable(const double *, int, double, double *);
 double          FrozRain(double, double);
 double          GwTransp(double, const double *, int, int);
-void            HRT(wstate_struct *, estate_struct *, eflux_struct *,
-    pstate_struct *, const lc_struct *, const soil_struct *, double *,
+void            HRT(wstate_struct *, const estate_struct *, eflux_struct *,
+    const pstate_struct *, const lc_struct *, const soil_struct *, double *,
     double, double, double, double, double *, double *, double *);
 void            InitLsm(elem_struct *, const ctrl_struct *,
     const noahtbl_struct *, const calib_struct *);
@@ -269,16 +270,16 @@ void            Noah(elem_struct *, double);
 void            NoahHydrol(elem_struct *, double);
 # ifdef _CYCLES_
 void            NoPac(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *, comm_struct *,
-    residue_struct *, double, double);
+    eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
+    comm_struct *, residue_struct *, double, double);
 #else
 void            NoPac(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *, double,
-    double);
+    eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
+    double, double);
 # endif
 void            PcpDrp(wstate_struct *, wflux_struct *, const lc_struct *,
     double, double);
-void            Penman(wflux_struct *, estate_struct *, eflux_struct *,
+void            Penman(wflux_struct *, const estate_struct *, eflux_struct *,
     pstate_struct *, double *, double, int, int);
 double          Pslhs(double);
 double          Pslhu(double);
@@ -292,8 +293,8 @@ void            ReadLsm(const char *, siteinfo_struct *, ctrl_struct *,
     noahtbl_struct *);
 void            ReadRad(const char *, forc_struct *);
 void            RootDist(const double *, int, int, double *);
-void            Rosr12(double *, double *, double *, double *, double *,
-    double *, int);
+void            Rosr12(double *, const double *, const double *, double *,
+    const double *, double *, int);
 void            SfcDifOff(pstate_struct *, const lc_struct *, double, double,
     int);
 # ifdef _CYCLES_
@@ -306,8 +307,8 @@ void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
     soil_struct *, double);
 # endif
 void            ShFlx(wstate_struct *, estate_struct *, eflux_struct *,
-    pstate_struct *, const lc_struct *, const soil_struct *, double, double,
-    double, double);
+    const pstate_struct *, const lc_struct *, const soil_struct *, double,
+    double, double, double);
 # ifdef _CYCLES_
 void            SmFlx(wstate_struct *, wflux_struct *, pstate_struct *,
     const soil_struct *, residue_struct *, double);
@@ -320,12 +321,12 @@ void            SnkSrc(double *, double, double, double *,
     const soil_struct *, const double *, double, int, double);
 # ifdef _CYCLES_
 void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *, comm_struct *,
-    residue_struct *, int, double, double, double, double);
+    eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
+    comm_struct *, residue_struct *, int, double, double, double, double);
 # else
 void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *, int, double,
-    double, double, double);
+    eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
+    int, double, double, double, double);
 # endif
 void            SnowNew(const estate_struct *, double, pstate_struct *);
 void            SnowPack(double, double, double *, double *, double, double);

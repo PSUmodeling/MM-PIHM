@@ -479,15 +479,13 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     }
     ef->ett = wf->ett * 1000.0 * LVH2O;
     ef->esnow = wf->esnow * 1000.0 * LSUBS;
-    ef->etp = wf->etp * 1000.0 *
-        ((1.0 - ps->sncovr) * LVH2O + ps->sncovr * LSUBS);
+    ef->etp =
+        wf->etp * 1000.0 * ((1.0 - ps->sncovr) * LVH2O + ps->sncovr * LSUBS);
     if (ef->etp > 0.0)
     {
-#ifdef _CYCLES_
-        ef->eta =
-            ef->edir + ef->ec + ef->ett + wf->eres * 1000.0 * LVH2O + ef->esnow;
-#else
         ef->eta = ef->edir + ef->ec + ef->ett + ef->esnow;
+#ifdef _CYCLES_
+        ef->eta += wf->eres * 1000.0 * LVH2O;
 #endif
     }
     else
@@ -496,14 +494,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     }
 
     /* Determine beta (ratio of actual to potential evap) */
-    if (ef->etp == 0.0)
-    {
-        ps->beta = 0.0;
-    }
-    else
-    {
-        ps->beta = ef->eta / ef->etp;
-    }
+    ps->beta = (ef->etp == 0.0) ? 0.0 : (ef->eta / ef->etp);
 
     /* Convert the sign of soil heat flux so that:
      *   ssoil>0: warm the surface  (night time)
@@ -596,8 +587,9 @@ void AlCalc(pstate_struct *ps, double dt, int snowng)
     ps->albedo = (ps->albedo > snoalb2) ? snoalb2 : ps->albedo;
 }
 
-void CanRes(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
-    pstate_struct *ps, const soil_struct *soil, const epconst_struct *epc)
+void CanRes(const wstate_struct *ws, const estate_struct *es,
+    const eflux_struct *ef, pstate_struct *ps, const soil_struct *soil,
+    const epconst_struct *epc)
 {
     /*
      * Function CanRes
@@ -676,7 +668,7 @@ void CanRes(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
     /* Determine canopy resistance due to all factors.  convert canopy
      * resistance (rc) to plant coefficient (pc) to be used with potential evap
      * in determining actual evap. pc is determined by:
-     *   pc * linerized Penman potential evap =
+     *   pc * linearized Penman potential evap =
      *   Penman-Monteith actual evaporation (containing rc term). */
 #ifdef _CYCLES_
     ps->rc = RC;
@@ -695,8 +687,6 @@ void CanRes(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
 double CSnow(double dsnow)
 {
     /*
-     * Function CSnow
-     *
      * Calculate snow thermal conductivity
      */
     double          c;
@@ -755,12 +745,12 @@ void DEvap(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
 }
 
 #ifdef _CYCLES_
-void Evapo(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
-    const lc_struct *lc, soil_struct *soil, comm_struct *comm,
+void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
+    const lc_struct *lc, const soil_struct *soil, comm_struct *comm,
     residue_struct *residue, const estate_struct *es, double dt)
 #else
-void Evapo(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
-    const lc_struct *lc, soil_struct *soil, double dt)
+void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
+    const lc_struct *lc, const soil_struct *soil, double dt)
 #endif
 {
     /*
@@ -963,8 +953,8 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
     return freew;
 }
 
-void HRT(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
-    pstate_struct *ps, const lc_struct *lc, const soil_struct *soil,
+void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
+    const pstate_struct *ps, const lc_struct *lc, const soil_struct *soil,
     double *rhsts, double yy, double zz1, double dt, double df1, double *ai,
     double *bi, double *ci)
 {
@@ -995,14 +985,7 @@ void HRT(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
     const double    CH2O = 4.2e6;
 
     /* Urban */
-    if (lc->isurban)
-    {
-        csoil_loc = 3.0e6;
-    }
-    else
-    {
-        csoil_loc = soil->csoil;
-    }
+    csoil_loc = (lc->isurban) ? 3.0e6 : soil->csoil;
 
     /* Initialize logical for soil layer temperature averaging. */
     itavg = 1;
@@ -1095,10 +1078,7 @@ void HRT(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
                 ws->sh2o[k]);
 
             /* Urban */
-            if (lc->isurban)
-            {
-                df1n = 3.24;
-            }
+            df1n = (lc->isurban) ? 3.24 : df1n;
 
             denom = 0.5 * (ps->zsoil[k - 1] - ps->zsoil[k + 1]);
 
@@ -1123,10 +1103,7 @@ void HRT(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
                 ws->sh2o[k]);
 
             /* Urban */
-            if (lc->isurban)
-            {
-                df1n = 3.24;
-            }
+            df1n = (lc->isurban) ? 3.24 : df1n;
 
             /* Calc the vertical soil temp gradient thru bottom layer. */
             denom = 0.5 * (ps->zsoil[k - 1] + ps->zsoil[k]) - ps->zbot;
@@ -1228,12 +1205,13 @@ void HStep(estate_struct *es, double *rhsts, double dt, int nsoil, double *ai,
 
 #ifdef _CYCLES_
 void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, soil_struct *soil,
-    comm_struct *comm, residue_struct *residue, double dt, double t24)
+    eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
+    const soil_struct *soil, comm_struct *comm, residue_struct *residue,
+    double dt, double t24)
 #else
 void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, soil_struct *soil,
-    double dt, double t24)
+    eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
+    const soil_struct *soil, double dt, double t24)
 #endif
 {
     /*
@@ -1308,10 +1286,7 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         ws->sh2o[0]);
 
     /* Urban */
-    if (lc->isurban)
-    {
-        df1 = 3.24;
-    }
+    df1 = (lc->isurban) ? 3.24 : df1;
 
     /* Vegetation greenness fraction reduction in subsurface heat flux via
      * reduction factor, which is convenient to apply here to thermal
@@ -1391,7 +1366,7 @@ void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
     ws->cmc = (ws->cmc < ws->cmcmax) ? ws->cmc : ws->cmcmax;
 }
 
-void Penman(wflux_struct *wf, estate_struct *es, eflux_struct *ef,
+void Penman(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
     pstate_struct *ps, double *t24, double t2v, int snowng, int frzgra)
 {
     /*
@@ -1455,8 +1430,8 @@ void Penman(wflux_struct *wf, estate_struct *es, eflux_struct *ef,
     wf->etp = ps->epsca * ps->rch / lvs / 1000.0;
 }
 
-void Rosr12(double *p, double *a, double *b, double *c, double *d,
-    double *delta, int nsoil)
+void Rosr12(double *p, const double *a, const double *b, double *c,
+    const double *d, double *delta, int nsoil)
 {
     /*
      * Function Rosr12
@@ -1505,8 +1480,8 @@ void Rosr12(double *p, double *a, double *b, double *c, double *d,
 }
 
 void ShFlx(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
-    pstate_struct *ps, const lc_struct *lc, const soil_struct *soil, double dt,
-    double yy, double zz1, double df1)
+    const pstate_struct *ps, const lc_struct *lc, const soil_struct *soil,
+    double dt, double yy, double zz1, double df1)
 {
     /*
      * Function ShFlx
@@ -1626,7 +1601,7 @@ double SnFrac(double sneqv, double snup, double salp, double snowh)
     /* Formulation of Marshall et al. 1994 */
     //sncovr = sneqv / (sneqv + 2.0 * z0n);
 
-    return (sncovr);
+    return sncovr;
 }
 
 void SnkSrc(double *tsnsr, double tavg, double smc, double *sh2o,
@@ -1697,13 +1672,14 @@ void SnkSrc(double *tsnsr, double tavg, double smc, double *sh2o,
 
 #ifdef _CYCLES_
 void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, soil_struct *soil,
-    comm_struct *comm, residue_struct *residue, int snowng, double dt,
-    double t24, double prcpf, double df1)
+    eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
+    const soil_struct *soil, comm_struct *comm, residue_struct *residue,
+    int snowng, double dt, double t24, double prcpf, double df1)
 #else
 void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, soil_struct *soil,
-    int snowng, double dt, double t24, double prcpf, double df1)
+    eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
+    const soil_struct *soil, int snowng, double dt, double t24, double prcpf,
+    double df1)
 #endif
 {
     /*
@@ -1815,7 +1791,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         }
     }
 
-    dsoil = -(0.5 * ps->zsoil[0]);
+    dsoil = -0.5 * ps->zsoil[0];
     dtot = ps->snowh + dsoil;
     denom = 1.0 + df1 / (dtot * ps->rr * ps->rch);
 
@@ -1826,8 +1802,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * flx2 reflects freezing rain latent heat flux using t1 calculated in
      * Penman. */
     /* Surface emissivity weighted by snow cover fraction */
-    t12a =
-        ((ef->fdown - ef->flx1 - ef->flx2 - ps->emissi * SIGMA * t24) /
+    t12a = ((ef->fdown - ef->flx1 - ef->flx2 - ps->emissi * SIGMA * t24) /
         ps->rch + es->th2 - es->sfctmp - etanrg / ps->rch) / ps->rr;
     t12b = df1 * es->stc[0] / (dtot * ps->rr * ps->rch);
 
@@ -1851,19 +1826,21 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
         wf->snomlt = 0.0;
     }
-    /* If the 'effective snow-grnd sfc temp' is above freezing, snow melt will
-     * occur. Call the snow melt rate, ex and amt, snomlt. Revise the effective
-     * snow depth. Revise the skin temp because it would have chgd due to the
-     * latent heat released by the melting. Calc the latent heat released, flx3.
-     * Set the effective precip, prcp1 to the snow melt rate, ex for use in
-     * SmFlx. Adjustment to t1 to account for snow patches.
-     * Calculate qsat valid at freezing point. Note that esat (saturation vapor
-     * pressure) value of 6.11e+2 used here is that valid at freezing point.
-     * Note that etp from call Penman in sflx is ignored here in favor of bulk
-     * etp over 'open water' at freezing temp. Update soil heat flux (s) using
-     * new skin temperature (t1) */
     else
     {
+        /* If the 'effective snow-grnd sfc temp' is above freezing, snow melt
+         * will occur. Call the snow melt rate, ex and amt, snomlt. Revise the
+         * effective snow depth. Revise the skin temp because it would have chgd
+         * due to the latent heat released by the melting. Calc the latent heat
+         * released, flx3.
+         * Set the effective precip, prcp1 to the snow melt rate, ex for use in
+         * SmFlx. Adjustment to t1 to account for snow patches.
+         * Calculate qsat valid at freezing point. Note that esat (saturation
+         * vapor pressure) value of 6.11e+2 used here is that valid at freezing
+         * point.
+         * Note that etp from call Penman in sflx is ignored here in favor of
+         * bulk etp over 'open water' at freezing temp. Update soil heat flux
+         * (s) using new skin temperature (t1) */
         /* Above freezing block */
         es->t1 = TFREEZ * pow(ps->sncovr, SNOEXP) +
             t12 * (1.0 - pow(ps->sncovr, SNOEXP));
@@ -1893,10 +1870,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
             ef->flx3 =
                 ef->fdown - ef->flx1 - ef->flx2 - ps->emissi * SIGMA * t14 -
                 ef->ssoil - seh - etanrg;
-            if (ef->flx3 <= 0.0)
-            {
-                ef->flx3 = 0.0;
-            }
+            ef->flx3 = (ef->flx3 <= 0.0) ? 0.0 : ef->flx3;
 
             ex = ef->flx3 * 0.001 / LSUBF;
 
