@@ -89,10 +89,10 @@ double          ChanFlowRiverToRiver(const river_struct *, const river_struct *,
 double          ChanLeak(const river_wstate_struct *, const river_topo_struct *,
     const shp_struct *, const matl_struct *);
 void            CheckDy(double, const char *, const char *, int, double);
-void            CheckFile(FILE *, const char *);
+void            CheckFile(const FILE *, const char *);
 void            CorrElev(elem_struct *, river_struct *);
 int             CountLine(FILE *, char *, int, ...);
-int             CountOccurr(FILE *, char *);
+int             CountOccurr(FILE *, const char *);
 void            CreateOutputDir(char *);
 double          DhByDl(const double *, const double *, const double *);
 double          EffKh(const soil_struct *, double);
@@ -100,7 +100,7 @@ double          EffKinf(const soil_struct *, double, double, int);
 double          EffKv(const soil_struct *, double, int);
 void            EtExtract(elem_struct *);
 double          FieldCapacity(double, double, double, double, double);
-void            FindLine(FILE *, char *, int *, const char *);
+void            FindLine(FILE *, const char *, int *, const char *);
 void            FreeData(pihm_struct);
 void            FrictSlope(const elem_struct *, const river_struct *, int,
     double *, double *);
@@ -185,7 +185,7 @@ double          PtfKv(double, double, double, double, int);
 double          PtfThetar(double, double, double, double, int);
 double          PtfThetas(double, double, double, double, int);
 double          Qtz(int);
-int             Readable(char *);
+int             Readable(const char *);
 void            ReadAlloc(pihm_struct);
 void            ReadAtt(const char *, atttbl_struct *);
 void            ReadBc(const char *, forc_struct *);
@@ -204,7 +204,7 @@ void            ReadRiver(const char *, rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
 void            ReadSoil(const char *, soiltbl_struct *);
 void            ReadTecplot(const char *, ctrl_struct *);
-int             ReadTS(char *, int *, double *, int);
+int             ReadTS(const char *, int *, double *, int);
 double          Recharge(const wstate_struct *, const wflux_struct *,
     const pstate_struct *, const soil_struct *);
 void            RiverFlow(elem_struct *, river_struct *, int);

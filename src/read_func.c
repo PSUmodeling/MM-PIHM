@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-int Readable(char *cmdstr)
+int Readable(const char *cmdstr)
 {
     int             readable;
     int             i;
@@ -39,7 +39,7 @@ int Readable(char *cmdstr)
     return readable;
 }
 
-void FindLine(FILE *fid, char *token, int *lno, const char *filename)
+void FindLine(FILE *fid, const char *token, int *lno, const char *filename)
 {
     int             success = 0;
     char            cmdstr[MAXSTRING];
@@ -73,7 +73,7 @@ void FindLine(FILE *fid, char *token, int *lno, const char *filename)
         }
     }
 
-    if (0 == success)
+    if (!success)
     {
         PIHMprintf(VL_ERROR, "Cannot find required keyword %s.\n", token);
         PIHMprintf(VL_ERROR, "Error reading %s.\n", filename);
@@ -132,15 +132,21 @@ int CountLine(FILE *fid, char *cmdstr, int num_arg, ...)
             {
                 strcpy(token, va_arg(valist, char *));
                 if (strcasecmp(token, optstr) == 0)
+                {
                     success = 1;
+                }
             }
             /* clean memory reserved for valist */
             va_end(valist);
 
             if (success)
+            {
                 break;
+            }
             else
+            {
                 count++;
+            }
         }
 
         fgets(cmdstr, MAXSTRING, fid);
@@ -149,7 +155,7 @@ int CountLine(FILE *fid, char *cmdstr, int num_arg, ...)
     return count;
 }
 
-void CheckFile(FILE *fid, const char *fn)
+void CheckFile(const FILE *fid, const char *fn)
 {
     if (NULL == fid)
     {
@@ -158,7 +164,7 @@ void CheckFile(FILE *fid, const char *fn)
     }
 }
 
-int ReadTS(char *cmdstr, int *ftime, double *data, int nvrbl)
+int ReadTS(const char *cmdstr, int *ftime, double *data, int nvrbl)
 {
     int             match;
     char            timestr[MAXSTRING], ts1[MAXSTRING], ts2[MAXSTRING];
@@ -251,7 +257,7 @@ int ReadKeyword(const char *buffer, const char *keyword, void *value, char type,
             PIHMexit(EXIT_FAILURE);
     }
 
-    if (0 == success)
+    if (!success)
     {
         PIHMprintf(VL_ERROR, "Error reading %s near Line %d.\n", filename, lno);
         PIHMexit(EXIT_FAILURE);
@@ -306,7 +312,7 @@ int ReadPrtCtrl(const char *buffer, const char *keyword, const char *filename,
     return prtvrbl;
 }
 
-int CountOccurr(FILE *fid, char *token)
+int CountOccurr(FILE *fid, const char *token)
 {
     /*
      * Count number of occurrence of keyword from the current line to the end
@@ -326,7 +332,9 @@ int CountOccurr(FILE *fid, char *token)
         {
             sscanf(cmdstr, "%s", optstr);
             if (strcasecmp(token, optstr) == 0)
+            {
                 count++;
+            }
         }
 
         fgets(cmdstr, MAXSTRING, fid);
