@@ -288,9 +288,9 @@ double          Psphs(double);
 double          Psphu(double);
 double          Pspms(double);
 double          Pspmu(double);
-void            ReadLsm(char *, siteinfo_struct *, ctrl_struct *,
+void            ReadLsm(const char *, siteinfo_struct *, ctrl_struct *,
     noahtbl_struct *);
-void            ReadRad(char *, forc_struct *);
+void            ReadRad(const char *, forc_struct *);
 void            RootDist(const double *, int, int, double *);
 void            Rosr12(double *, double *, double *, double *, double *,
     double *, int);

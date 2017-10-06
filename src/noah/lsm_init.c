@@ -22,6 +22,7 @@ void InitLsm(elem_struct *elem, const ctrl_struct *ctrl,
 
         RootDist(elem[i].ps.sldpth, elem[i].ps.nsoil, elem[i].ps.nroot,
             elem[i].ps.rtdis);
+            
         /* Set-up universal parameters (not dependent on soil type or vegetation
          * type */
         elem[i].ps.sbeta = noahtbl->sbeta;

@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadLsm(char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
+void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     noahtbl_struct *noahtbl)
 {
     int             i;
@@ -137,7 +137,7 @@ void ReadLsm(char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     fclose(lsm_file);
 }
 
-void ReadRad(char *filename, forc_struct *forc)
+void ReadRad(const char *filename, forc_struct *forc)
 {
     int             i, j;
     FILE           *rad_file;
@@ -157,7 +157,7 @@ void ReadRad(char *filename, forc_struct *forc)
     {
         PIHMprintf(VL_ERROR,
             "The number of radiation forcing time series should be the same as "
-            "the number of meteorlogical forcing time series.\n");
+            "the number of meteorological forcing time series.\n");
         PIHMprintf(VL_ERROR, "Error in %s.\n", filename);
         PIHMexit(EXIT_FAILURE);
     }
