@@ -39,6 +39,9 @@ void ResetSpinupStat(elem_struct *elem)
 {
     int             i;
 
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
         elem[i].spinup.soilc = 0.0;
@@ -46,8 +49,8 @@ void ResetSpinupStat(elem_struct *elem)
     }
 }
 
-int CheckBgcSteadyState(elem_struct *elem, double total_area, int first_cycle,
-    int totalt, int spinyears)
+int CheckBgcSteadyState(const elem_struct *elem, double total_area,
+    int first_cycle, int totalt, int spinyears)
 {
     int             i;
     double          t1;
@@ -57,6 +60,9 @@ int CheckBgcSteadyState(elem_struct *elem, double total_area, int first_cycle,
     static double   soilc_prev = 0.0;
 
     /* Convert soilc and totalc to average daily soilc */
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
         soilc += elem[i].spinup.soilc * elem[i].topo.area /
