@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-void Phenology(const epconst_struct *epc, epvar_struct *epv, cstate_struct *cs,
-    cflux_struct *cf, nstate_struct *ns, nflux_struct *nf,
-    const daily_struct *daily)
+void Phenology(const epconst_struct *epc, epvar_struct *epv,
+    const cstate_struct *cs, cflux_struct *cf, const nstate_struct *ns,
+    nflux_struct *nf, const daily_struct *daily)
 {
     /* Define the phenology signals for cases in which the phenology signals are
      * constant between years */
@@ -28,7 +28,7 @@ void Phenology(const epconst_struct *epc, epvar_struct *epv, cstate_struct *cs,
 }
 
 void EvergreenPhenology(const epconst_struct *epc, epvar_struct *epv,
-    cstate_struct *cs)
+    const cstate_struct *cs)
 {
     epv->dormant_flag = 0;
     epv->onset_flag = 0;

@@ -529,7 +529,7 @@ void            Decomp(double, const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, const nstate_struct *,
     nflux_struct *, ntemp_struct *);
 void            EvergreenPhenology(const epconst_struct *, epvar_struct *,
-    cstate_struct *);
+    const cstate_struct *);
 void            FirstDay(elem_struct *, river_struct *, const cninit_struct *);
 void            FRootLitFall(const epconst_struct *, double, cflux_struct *,
     nflux_struct *);
@@ -556,8 +556,8 @@ void            OnsetGrowth(const epconst_struct *, const epvar_struct *,
     const cstate_struct *, cflux_struct *, const nstate_struct *,
     nflux_struct *);
 void            Phenology(const epconst_struct *, epvar_struct *,
-    cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *,
-    const daily_struct *);
+    const cstate_struct *, cflux_struct *, const nstate_struct *,
+    nflux_struct *, const daily_struct *);
 void            Photosynthesis(psn_struct *);
 void            PrecisionControl(cstate_struct *cs, nstate_struct *ns);
 void            RadTrans(const cstate_struct *, eflux_struct *,
