@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 void RestartInput(cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
-    bgcic_struct *restart)
+    const bgcic_struct *restart)
 {
     cs->leafc = restart->leafc;
     cs->leafc_storage = restart->leafc_storage;
@@ -83,8 +83,8 @@ void RestartInput(cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     epv->offset_swi = restart->offset_swi;
 }
 
-void RestartOutput(cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
-    bgcic_struct *restart)
+void RestartOutput(const cstate_struct *cs, const nstate_struct *ns,
+    const epvar_struct *epv, bgcic_struct *restart)
 {
     restart->leafc = cs->leafc;
     restart->leafc_storage = cs->leafc_storage;
@@ -166,7 +166,7 @@ void RestartOutput(cstate_struct *cs, nstate_struct *ns, epvar_struct *epv,
     restart->offset_swi = epv->offset_swi;
 }
 
-void ReadBgcIc(char *fn, elem_struct *elem, river_struct *river)
+void ReadBgcIc(const char *fn, elem_struct *elem, river_struct *river)
 {
     FILE           *init_file;
     int             i;
@@ -204,7 +204,7 @@ void ReadBgcIc(char *fn, elem_struct *elem, river_struct *river)
     fclose(init_file);
 }
 
-void WriteBgcIc(char *outputdir, elem_struct *elem, river_struct *river)
+void WriteBgcIc(const char *outputdir, elem_struct *elem, river_struct *river)
 {
     int             i;
     FILE           *restart_file;

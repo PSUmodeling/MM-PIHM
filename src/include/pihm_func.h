@@ -566,20 +566,20 @@ void            RadTrans(const cstate_struct *, eflux_struct *,
 void            ReadAnnFile(tsdata_struct *, const char *);
 void            ReadBgc(const char *, ctrl_struct *, co2control_struct *,
     ndepcontrol_struct *, cninit_struct *, char *, char *);
-void            ReadBgcIc(char *, elem_struct *, river_struct *);
+void            ReadBgcIc(const char *, elem_struct *, river_struct *);
 void            ReadEpc(epctbl_struct *);
 void            ResetSpinupStat(elem_struct *);
 void            RestartInput(cstate_struct *, nstate_struct *,
-    epvar_struct *, bgcic_struct *);
-void            RestartOutput(cstate_struct *, nstate_struct *,
-    epvar_struct *, bgcic_struct *);
+    epvar_struct *, const bgcic_struct *);
+void            RestartOutput(const cstate_struct *, const nstate_struct *,
+    const epvar_struct *, bgcic_struct *);
 void            SeasonDecidPhenology(const epconst_struct *, epvar_struct *,
     const daily_struct *);
 void            SoilPsi(const soil_struct *, double, double *);
 void            TotalPhotosynthesis(const epconst_struct *, epvar_struct *,
     const pstate_struct *, cflux_struct *, psn_struct *, psn_struct *,
     const daily_struct *);
-void            WriteBgcIc(char *, elem_struct *, river_struct *);
+void            WriteBgcIc(const char *, elem_struct *, river_struct *);
 void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *);
 #endif
 
