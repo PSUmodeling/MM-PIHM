@@ -1,6 +1,7 @@
 #include "pihm.h"
 
-void CSummary(cflux_struct *cf, cstate_struct *cs, summary_struct *summary)
+void CSummary(const cflux_struct *cf, const cstate_struct *cs,
+    summary_struct *summary)
 {
     double          gpp, mr, gr, hr, fire;
     double          npp, nep, nee;

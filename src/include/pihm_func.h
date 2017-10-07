@@ -516,7 +516,8 @@ void            CanopyCond(const epconst_struct *, epvar_struct *,
 int             CheckBgcSteadyState(const elem_struct *, double, int, int, int);
 void            CheckCarbonBalance(const cstate_struct *, double *);
 void            CheckNitrogenBalance(const nstate_struct *, double *);
-void            CSummary(cflux_struct *, cstate_struct *, summary_struct *);
+void            CSummary(const cflux_struct *, const cstate_struct *,
+    summary_struct *);
 void            DailyAllocation(cflux_struct *, const cstate_struct *,
     nflux_struct *, const nstate_struct *, const epconst_struct *,
     epvar_struct *, ntemp_struct *);
