@@ -578,7 +578,7 @@ void            SeasonDecidPhenology(const epconst_struct *, epvar_struct *,
 void            SoilPsi(const soil_struct *, double, double *);
 void            TotalPhotosynthesis(const epconst_struct *, epvar_struct *,
     const pstate_struct *, cflux_struct *, psn_struct *, psn_struct *,
-    daily_struct *);
+    const daily_struct *);
 void            WriteBgcIc(char *, elem_struct *, river_struct *);
 void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *);
 #endif
