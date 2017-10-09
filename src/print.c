@@ -73,7 +73,6 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
     char            dat_fn[MAXSTRING];
     char            watbal_fn[MAXSTRING];
     char            perf_fn[MAXSTRING];
-    char            conv_fn[MAXSTRING];
     int             i;
 
     /* Initialize water balance file*/
@@ -87,16 +86,14 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
     /* Initialize cvode output files */
     if (debug_mode)
     {
-        sprintf(perf_fn, "%s%s.perf.txt", outputdir, project);
+        sprintf(perf_fn, "%s%s.cvode.log", outputdir, project);
         print->cvodeperf_file = fopen(perf_fn, "w");
         CheckFile(print->cvodeperf_file, perf_fn);
         /* Print header lines */
         fprintf(print->cvodeperf_file,
-            " Time step, cpu_dt, cpu_time, solver_step\n");
-
-        sprintf(conv_fn, "%s%s.cvode.log", outputdir, project);
-        print->cvodeconv_file = fopen(conv_fn, "w");
-        CheckFile(print->cvodeconv_file, conv_fn);
+            "%-8s%-8s%-16s%-8s%-8s%-8s%-8s%-8s%-8s\n",
+            "step", "cpu_dt", "cputime", "maxstep",
+            "nsteps", "nevals", "niters", "ncfails", "nefails");
     }
 
     /*
@@ -399,8 +396,10 @@ void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
     }
 }
 
-void PrintStats(void *cvode_mem, FILE *conv_file)
+void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
+    double cputime, double maxstep, FILE *perf_file)
 {
+    static double   dt;
     static long int nst0, nfe0, nni0, ncfn0, netf0;
     long int        nst, nfe, nni, ncfn, netf;
     int             flag;
@@ -411,33 +410,21 @@ void PrintStats(void *cvode_mem, FILE *conv_file)
     flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
     flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
 
-    fprintf(conv_file,
-        "nst = %-6ld nni = %-6ld nfe = %-6ld netf = %-6ld ncfn = %-6ld\n",
-        nst - nst0, nni - nni0, nfe - nfe0, netf - netf0, ncfn - ncfn0);
-    fflush(conv_file);
+        fprintf(perf_file, "%-8d%-8.3f%-16.3f%-8.2f",
+            t - starttime, cputime_dt, cputime, maxstep);
+        fprintf(perf_file, "%-8ld%-8ld%-8ld%-8ld%-8ld\n",
+            nst - nst0, nni - nni0, nfe - nfe0, netf - netf0, ncfn - ncfn0);
+        fflush(perf_file);
+
+        dt = 0.0;
 
     nst0 = nst;
     nni0 = nni;
     nfe0 = nfe;
     netf0 = netf;
     ncfn0 = ncfn;
-}
-
-void PrintPerf(int t, int starttime, double cputime_dt, double cputime,
-    double maxstep, FILE *perf_file)
-{
-    static double   dt;
 
     dt += cputime_dt;
-
-    if (t % 3600 == 0)
-    {
-        fprintf(perf_file, "%d %f %f %f\n",
-            t - starttime, dt, cputime, maxstep);
-        fflush(perf_file);
-
-        dt = 0.0;
-    }
 }
 
 void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,

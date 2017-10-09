@@ -174,8 +174,7 @@ void            PrintDataTecplot(varctrl_struct *, int, int, int);
 void            PrintInit(const elem_struct *, const river_struct *,
     const char *, int, int, int, int);
 int             PrintNow(int, int, const pihm_t_struct *);
-void            PrintPerf(int, int, double, double, double, FILE *);
-void            PrintStats(void *, FILE *);
+void            PrintPerf(void *, int, int, double, double, double, FILE *);
 void            PrintWaterBal(FILE *, int, int, int, const elem_struct *,
     const river_struct *);
 double          Psi(double, double, double);

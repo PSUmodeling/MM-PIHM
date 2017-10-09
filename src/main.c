@@ -113,11 +113,9 @@ int main(int argc, char *argv[])
             /* Print CVODE performance and statistics */
             if (debug_mode)
             {
-                PrintPerf(pihm->ctrl.tout[i + 1], pihm->ctrl.starttime,
-                    cputime_dt, cputime, pihm->ctrl.maxstep,
-                    pihm->print.cvodeperf_file);
-
-                PrintStats(cvode_mem, pihm->print.cvodeconv_file);
+                PrintPerf(cvode_mem, pihm->ctrl.tout[i + 1],
+                    pihm->ctrl.starttime, cputime_dt, cputime,
+                    pihm->ctrl.maxstep, pihm->print.cvodeperf_file);
             }
 
             /* Write init files */

@@ -217,7 +217,6 @@ typedef struct print_struct
     int             ntpprint;          /* number of tecplot output variables */
     FILE           *walbal_file;       /* pointer to water balance file */
     FILE           *cvodeperf_file;    /* pointer to CVode performance file */
-    FILE           *cvodeconv_file;    /* pointer to CVode log file */
 } print_struct;
 
 typedef struct pihm_struct

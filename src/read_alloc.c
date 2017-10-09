@@ -1462,7 +1462,6 @@ void FreeData(pihm_struct pihm)
     if (debug_mode)
     {
         fclose(pihm->print.cvodeperf_file);
-        fclose(pihm->print.cvodeconv_file);
     }
     for (i = 0; i < pihm->print.nprint; i++)
     {
