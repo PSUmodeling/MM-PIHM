@@ -133,11 +133,11 @@ typedef struct river_cyclesic_struct
 /* River structure */
 typedef struct river_struct
 {
+    int             ind;         /* river index */
     int             leftele;     /* left neighboring element */
     int             rightele;    /* right neighboring element */
     int             fromnode;    /* upstream node */
     int             tonode;      /* downstream node */
-    int             up;          /* upstream channel segment */
     int             down;        /* down stream channel segment */
     river_attrib_struct attrib;
     river_topo_struct topo;

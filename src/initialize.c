@@ -318,23 +318,16 @@ void InitRiver(river_struct *river, elem_struct *elem,
     const matltbl_struct *matltbl, const meshtbl_struct *meshtbl,
     const calib_struct *cal)
 {
-    int             i, ii, j;
+    int             i, j;
 
     for (i = 0; i < nriver; i++)
     {
+        river[i].ind = i + 1;
         river[i].leftele = rivtbl->leftele[i];
         river[i].rightele = rivtbl->rightele[i];
         river[i].fromnode = rivtbl->fromnode[i];
         river[i].tonode = rivtbl->tonode[i];
         river[i].down = rivtbl->down[i];
-        river[i].up = 0;
-        for (ii = 0; ii < nriver; ii++)
-        {
-            if (rivtbl->down[ii] == i + 1)
-            {
-                river[i].up = ii + 1;
-            }
-        }
 
         for (j = 0; j < NUM_EDGE; j++)
         {

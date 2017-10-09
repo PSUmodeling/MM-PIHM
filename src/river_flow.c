@@ -67,7 +67,7 @@ void RiverFlow(elem_struct *elem, river_struct *river, int riv_mode)
         left = &elem[river[i].leftele - 1];
         right = &elem[river[i].rightele - 1];
 
-        RiverToElem(&river[i], left, right, i + 1);
+        RiverToElem(&river[i], left, right);
 
         /*
          * Flux between river channel and subsurface
@@ -78,8 +78,7 @@ void RiverFlow(elem_struct *elem, river_struct *river, int riv_mode)
     }
 }
 
-void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right,
-    int ind)
+void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right)
 {
     double          effk_left, effk_right;
     int             j;
@@ -106,7 +105,8 @@ void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right,
     if (river->rightele > 0)
     {
         river->wf.rivflow[RIGHT_AQUIF2CHANL] =
-            ChanFlowElemToRiver(right, effk_right, river, river->topo.dist_right);
+            ChanFlowElemToRiver(right, effk_right, river,
+            river->topo.dist_right);
     }
 
     /* Lateral flux between rectangular element (beneath river) and triangular
@@ -128,7 +128,7 @@ void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right,
     /* Left */
     for (j = 0; j < NUM_EDGE; j++)
     {
-        if (left->nabr[j] == -ind)
+        if (left->nabr[j] == -river->ind)
         {
             left->wf.ovlflow[j] = -river->wf.rivflow[LEFT_SURF2CHANL];
             left->wf.subsurf[j] = -(river->wf.rivflow[LEFT_AQUIF2CHANL] +
@@ -140,7 +140,7 @@ void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right,
     /* Right */
     for (j = 0; j < NUM_EDGE; j++)
     {
-        if (right->nabr[j] == -ind)
+        if (right->nabr[j] == -river->ind)
         {
             right->wf.ovlflow[j] = -river->wf.rivflow[RIGHT_SURF2CHANL];
             right->wf.subsurf[j] = -(river->wf.rivflow[RIGHT_AQUIF2CHANL] +
