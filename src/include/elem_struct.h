@@ -5,6 +5,9 @@
 typedef struct attrib_struct
 {
     int             soil_type;            /* element soil type */
+#ifdef _FBR_
+    int             geol_type;            /* element geology type */
+#endif
     int             lc_type;              /* element land cover type */
     int             bc_type[NUM_EDGE];    /* element boundary condition type */
     int             meteo_type;           /* element meteorological forcing type
@@ -19,8 +22,12 @@ typedef struct topo_struct
     double          area;                   /* area of element (m2) */
     double          x;                      /* x of centroid (m) */
     double          y;                      /* y of centroid (m) */
-    double          zmin;                   /* bedrock elevation (m) */
+    double          zmin;                   /* soil bottom elevation (m) */
     double          zmax;                   /* surface elevation (m) */
+#ifdef _FBR_
+    double          zbed;                   /* impermeable bedrock elevation (m)
+                                             */
+#endif
     double          edge[NUM_EDGE];         /* length of edge (Edge i is from
                                              * node i to node i + 1) (m) */
     double          nabrdist[NUM_EDGE];     /* distance to neighbor (m) */
