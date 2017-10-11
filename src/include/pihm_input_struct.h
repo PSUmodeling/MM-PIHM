@@ -8,7 +8,6 @@ typedef struct filename_struct
     char            mesh[MAXSTRING];        /* mesh structure file name */
     char            att[MAXSTRING];         /* element attribute file name */
     char            soil[MAXSTRING];        /* soil property file name */
-    char            geol[MAXSTRING];        /* geology property file name */
     char            lc[MAXSTRING];          /* land cover property file name */
     char            meteo[MAXSTRING];       /* meteorological forcing file name
                                              */
@@ -18,6 +17,10 @@ typedef struct filename_struct
     char            calib[MAXSTRING];       /* calibration file name */
     char            ic[MAXSTRING];          /* initial condition file name */
     char            tecplot[MAXSTRING];     /* tecplot control file name */
+#ifdef _FBR_
+    char            geol[MAXSTRING];        /* geology property file name */
+    char            bedrock[MAXSTRING];     /* bedrock elevation file name */
+#endif
 #ifdef _NOAH_
     char            lsm[MAXSTRING];         /* land surface module control file
                                              * name */
@@ -86,8 +89,11 @@ typedef struct meshtbl_struct
     int           **nabr;       /* neighbors of element */
     double         *x;          /* x of node (m) */
     double         *y;          /* y of node (m) */
-    double         *zmin;       /* bedrock elevation of node (m) */
+    double         *zmin;       /* soil bottom elevation of node (m) */
     double         *zmax;       /* surface elevation of node (m) */
+#ifdef _FBR_
+    double         *zbed;       /* impermeable bedrock elevation (m) */
+#endif
 } meshtbl_struct;
 
 /* Element attribute */

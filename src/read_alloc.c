@@ -9,7 +9,6 @@ void ReadAlloc(pihm_struct pihm)
     sprintf(pihm->filename.mesh,     "input/%s/%s.mesh",     project, project);
     sprintf(pihm->filename.att,      "input/%s/%s.att",      project, project);
     sprintf(pihm->filename.soil,     "input/%s/%s.soil",     project, project);
-    sprintf(pihm->filename.geol,     "input/%s/%s.geol",     project, project);
     sprintf(pihm->filename.lc,       "input/vegprmt.tbl");
     sprintf(pihm->filename.meteo,    "input/%s/%s.meteo",    project, project);
     sprintf(pihm->filename.lai,      "input/%s/%s.lai",      project, project);
@@ -18,6 +17,10 @@ void ReadAlloc(pihm_struct pihm)
     sprintf(pihm->filename.calib,    "input/%s/%s.calib",    project, project);
     sprintf(pihm->filename.ic,       "input/%s/%s.ic",       project, project);
     sprintf(pihm->filename.tecplot,  "input/%s/%s.tecplot",  project, project);
+#ifdef _FBR_
+    sprintf(pihm->filename.geol,     "input/%s/%s.geol",     project, project);
+    sprintf(pihm->filename.bedrock,  "input/%s/%s.br",       project, project);
+#endif
 #ifdef _NOAH_
     sprintf(pihm->filename.lsm,      "input/%s/%s.lsm",      project, project);
     sprintf(pihm->filename.rad,      "input/%s/%s.rad",      project, project);
@@ -46,8 +49,13 @@ void ReadAlloc(pihm_struct pihm)
     /* Read soil input file */
     ReadSoil(pihm->filename.soil, &pihm->soiltbl);
 
+#ifdef _FBR_
     /* Read geology input file */
     ReadGeol (pihm->filename.geol, &pihm->geoltbl);
+
+    /* Read bedrock elevation file */
+    ReadBedrock(pihm->filename.bedrock, &pihm->meshtbl);
+#endif
 
     /* Read land cover input file */
     ReadLc(pihm->filename.lc, &pihm->lctbl);
@@ -583,6 +591,7 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
     fclose(soil_file);
 }
 
+#ifdef _FBR_
 void ReadGeol(const char *filename, geoltbl_struct *geoltbl)
 {
     FILE           *geol_file;
@@ -629,6 +638,43 @@ void ReadGeol(const char *filename, geoltbl_struct *geoltbl)
 
     fclose (geol_file);
 }
+
+void ReadBedrock(const char *filename, meshtbl_struct *meshtbl)
+{
+    FILE           *br_file;
+    int             i;
+    char            cmdstr[MAXSTRING];
+    int             match;
+    int             index;
+    int             lno = 0;
+
+    br_file = fopen (filename, "r");
+    CheckFile (br_file, filename);
+    PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
+
+    /* Start reading bedrock file */
+    meshtbl->zbed = (double *)malloc (meshtbl->numnode * sizeof (double));
+
+    /* Skip header line */
+    NextLine (br_file, cmdstr, &lno);
+
+    for (i = 0; i < meshtbl->numnode; i++)
+    {
+        NextLine (br_file, cmdstr, &lno);
+        match = sscanf (cmdstr, "%d %lf", &index, &meshtbl->zbed[i]);
+
+        if (match != 2 || i != index - 1)
+        {
+            PIHMprintf (VL_ERROR,
+                "Error reading bedrock description of the %dth node.\n", i + 1);
+            PIHMprintf (VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            PIHMexit (EXIT_FAILURE);
+        }
+    }
+
+    fclose (br_file);
+}
+#endif
 
 void ReadLc(const char *filename, lctbl_struct *lctbl)
 {

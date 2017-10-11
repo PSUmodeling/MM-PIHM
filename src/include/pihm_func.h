@@ -194,7 +194,6 @@ void            ReadAtt(const char *, atttbl_struct *);
 void            ReadBc(const char *, forc_struct *);
 void            ReadCalib(const char *, calib_struct *);
 void            ReadForc(const char *, forc_struct *);
-void            ReadGeol(const char *, geoltbl_struct *);
 void            ReadIc(const char *, elem_struct *, river_struct *);
 int             ReadKeyword(const char *, const char *, void *, char,
     const char *, int);
@@ -234,6 +233,14 @@ void            UpdPrintVar(varctrl_struct *, int, int);
 void            UpdPrintVarT(varctrl_struct *, int);
 void            VerticalFlow(elem_struct *, double);
 double          WiltingPoint(double, double, double, double);
+
+/*
+ * Fractured bedrock functions
+ */
+#ifdef _FBR_
+void            ReadBedrock(const char *, meshtbl_struct *);
+void            ReadGeol(const char *, geoltbl_struct *);
+#endif
 
 /*
  * Noah functions
