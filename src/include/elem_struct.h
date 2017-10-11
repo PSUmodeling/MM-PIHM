@@ -134,6 +134,21 @@ typedef struct soil_struct
 #endif
 } soil_struct;
 
+/* Fractured bedrock layer parameters */
+typedef struct geol_struct
+{
+    double          depth;       /* soil depth (m) */
+    double          ksath;       /* horizontal saturated hydraulic conductivity
+                                  * (m s-1) */
+    double          ksatv;       /* vertical saturated hydraulic conductivity
+                                  * (m s-1) */
+    double          alpha;       /* alpha from van Genuchten eqn (m-1) */
+    double          beta;        /* beta (n) from van Genuchten eqn (-) */
+    double          porosity;    /* porosity (m3 m-3) */
+    double          smcmax;      /* maximum moisture content (m3 m-3) */
+    double          smcmin;      /* residual moisture content (m3 m-3) */
+} geol_struct;
+
 /* Land cover parameters */
 typedef struct lc_struct
 {
@@ -1621,6 +1636,9 @@ typedef struct elem_struct
     topo_struct     topo;
     soil_struct     soil;
     lc_struct       lc;
+#ifdef _FBR_
+    geol_struct     geol;
+#endif
     epconst_struct  epc;
     ic_struct       ic;
     bc_struct       bc;
