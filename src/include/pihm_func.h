@@ -9,6 +9,10 @@
 #define GW(i)          i + 2 * nelem
 #define RIVSTG(i)      i + 3 * nelem
 #define RIVGW(i)       i + 3 * nelem + nriver
+#ifdef _FBR_
+# define FBRUNSAT(i)   i + 3 * nelem + 2 * nriver
+# define FBRGW(i)      i + 4 * nelem + 2 * nriver
+#endif
 #ifdef _BGC_
 # define SURFN(i)      i + 3 * nelem + 2 * nriver
 # define SMINN(i)      i + 4 * nelem + 2 * nriver

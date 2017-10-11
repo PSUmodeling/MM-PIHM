@@ -391,19 +391,25 @@ typedef struct pstate_struct
 /* Water states */
 typedef struct wstate_struct
 {
-    double          surf;            /*  equivalent surface water level (m) */
-    double          unsat;           /*  unsaturated zone water storage (m) */
-    double          gw;              /*  groundwater level (m) */
-    double          sneqv;           /*  liquid water-equivalent snow depth (m)
+    double          surf;            /* equivalent surface water level (m) */
+    double          unsat;           /* unsaturated zone water storage (m) */
+    double          gw;              /* groundwater level (m) */
+    double          sneqv;           /* liquid water-equivalent snow depth (m)
                                       */
-    double          cmcmax;          /*  maximum canopy water capacity (m) */
-    double          cmc;             /*  interception storage (m) */
-    double          surfh;           /*  actual surface water level (m) */
+    double          cmcmax;          /* maximum canopy water capacity (m) */
+    double          cmc;             /* interception storage (m) */
+    double          surfh;           /* actual surface water level (m) */
+#ifdef _FBR_
+    double          fbr_unsat;       /* unsaturated storage in fractured bedrock
+                                      * layer (m) */
+    double          fbr_gw;          /* deep groundwater in fractured bedrock
+                                      * layer (m) */
+#endif
 #ifdef _NOAH_
-    double          smc[MAXLYR];     /*  total soil moisture content (m3 m-3) */
-    double          sh2o[MAXLYR];    /*  unfrozen soil moisture content (m3 m-3)
+    double          smc[MAXLYR];     /* total soil moisture content (m3 m-3) */
+    double          sh2o[MAXLYR];    /* unfrozen soil moisture content (m3 m-3)
                                       */
-    double          soilm;           /*  total soil column moisture content (m)
+    double          soilm;           /* total soil column moisture content (m)
                                       */
 #endif
 } wstate_struct;
@@ -782,6 +788,10 @@ typedef struct ic_struct
     double          surf;
     double          unsat;
     double          gw;
+#ifdef _FBR_
+    double          fbr_unsat;
+    double          fbr_gw;
+#endif
 #ifdef _NOAH_
     double          t1;
     double          snowh;

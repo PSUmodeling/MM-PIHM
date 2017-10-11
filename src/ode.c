@@ -193,6 +193,8 @@ int NumStateVar(void)
 
 #ifdef _BGC_
     nsv = 5 * nelem + 4 * nriver;
+#elif _FBR_
+    nsv = 5 * nelem + 2 * nriver;
 #else
     nsv = 3 * nelem + 2 * nriver;
 #endif
