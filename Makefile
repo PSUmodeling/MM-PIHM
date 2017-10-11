@@ -96,6 +96,17 @@ EXECUTABLE = pihm
 MSG = "...  Compiling PIHM  ..."
 
 #-------------------
+# PIHM-FBR
+#-------------------
+ifeq ($(MAKECMDGOALS),pihm-fbr)
+  SFLAGS += -D_FBR_
+  MODULE_SRCS_ =
+  MODULE_HEADERS_ =
+  EXECUTABLE = pihm-fbr
+  MSG = "... Compiling PIHM-FBR ..."
+endif
+
+#-------------------
 # Flux-PIHM
 #-------------------
 ifeq ($(MAKECMDGOALS),flux-pihm)
@@ -267,6 +278,13 @@ pihm:	$(OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
 
+pihm-fbr:		## Compile PIHM-FBR (PIHM with fractured bedrock module)
+pihm-fbr: $(OBJS) $(MODULE_OBJS)
+	@echo
+	@echo $(MSG)
+	@echo
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
+
 flux-pihm:		## Compile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
 flux-pihm: $(OBJS) $(MODULE_OBJS)
 	@echo
@@ -296,4 +314,4 @@ clean:			## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm flux-pihm-bgc flux-pihm-cycles rt-flux-pihm
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm pihm-fbr flux-pihm flux-pihm-bgc flux-pihm-cycles rt-flux-pihm
