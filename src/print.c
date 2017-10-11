@@ -262,6 +262,10 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
             fwrite(&elem[i].ws.surf, sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.unsat, sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.gw, sizeof(double), 1, init_file);
+#ifdef _FBR_
+            fwrite(&elem[i].ws.fbr_unsat, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.fbr_gw, sizeof(double), 1, init_file);
+#endif
 #ifdef _NOAH_
             fwrite(&elem[i].es.t1, sizeof(double), 1, init_file);
             fwrite(&elem[i].ps.snowh, sizeof(double), 1, init_file);

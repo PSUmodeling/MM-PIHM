@@ -765,6 +765,9 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 {
     int             i;
     const double    INIT_UNSAT = 0.1;
+#ifdef _FBR_
+    const double    INIT_FBR_GW = 5.0;
+#endif
 #ifdef _NOAH_
     int             j;
     double          sfctmp;
@@ -777,6 +780,12 @@ void RelaxIc(elem_struct *elem, river_struct *river)
         elem[i].ic.surf = 0.0;
         elem[i].ic.unsat = INIT_UNSAT;
         elem[i].ic.gw = elem[i].soil.depth - INIT_UNSAT;
+
+#ifdef _FBR_
+        elem[i].ic.fbr_unsat = 0.0;
+        elem[i].ic.fbr_gw = (elem[i].geol.depth > INIT_FBR_GW) ?
+            INIT_FBR_GW : elem[i].geol.depth;
+#endif
 
 #ifdef _NOAH_
         sfctmp = elem[i].es.sfctmp;
@@ -846,6 +855,14 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
         NV_Ith(CV_Y, SURF(i)) = elem[i].ic.surf;
         NV_Ith(CV_Y, UNSAT(i)) = elem[i].ic.unsat;
         NV_Ith(CV_Y, GW(i)) = elem[i].ic.gw;
+
+#ifdef _FBR_
+        elem[i].ws.fbr_unsat = elem[i].ic.fbr_unsat;
+        elem[i].ws.fbr_gw = elem[i].ic.fbr_gw;
+
+        NV_Ith(CV_Y, FBRUNSAT(i)) = elem[i].ic.fbr_unsat;
+        NV_Ith(CV_Y, FBRGW(i)) = elem[i].ic.fbr_gw;
+#endif
 
 #ifdef _NOAH_
         elem[i].es.t1 = elem[i].ic.t1;
