@@ -986,6 +986,15 @@ void InitWFlux(wflux_struct *wf)
     wf->ett_unsat = 0.0;
     wf->ett_gw = 0.0;
 
+#ifdef _FBR_
+    wf->fbr_infil = 0.0;
+    wf->fbr_rechg = 0.0;
+    for (j = 0; j < NUM_EDGE; j++)
+    {
+        wf->fbrflow[j] = 0.0;
+    }
+#endif
+
 #ifdef _NOAH_
     int             k;
 

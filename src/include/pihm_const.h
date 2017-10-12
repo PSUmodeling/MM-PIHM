@@ -312,6 +312,11 @@
 #define RIVGWTEC_CTRL           74
 #define IC_CTRL					75
 #define WB_CTRL					76
+#define FBRUNSAT_CTRL           77
+#define FBRGW_CTRL              78
+#define FBRINFIL_CTRL           79
+#define FBRRECHG_CTRL           80
+#define FBRFLOW_CTRL            81
 
 #ifdef _CYCLES_
 #define MAXOP       100

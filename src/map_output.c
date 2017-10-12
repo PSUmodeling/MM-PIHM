@@ -791,6 +791,57 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     n++;
                     break;
 #endif
+#ifdef _FBR_
+                case FBRUNSAT_CTRL:
+                    InitPrtVarCtrl(outputdir, "fbrunsat", prtvrbl[i],
+                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ws.fbr_unsat;
+                    }
+                    n++;
+                    break;
+                case FBRGW_CTRL:
+                    InitPrtVarCtrl(outputdir, "fbrgw", prtvrbl[i],
+                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ws.fbr_gw;
+                    }
+                    n++;
+                    break;
+                case FBRINFIL_CTRL:
+                    InitPrtVarCtrl(outputdir, "fbrinfil", prtvrbl[i],
+                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].wf.fbr_infil;
+                    }
+                    n++;
+                    break;
+                case FBRRECHG_CTRL:
+                    InitPrtVarCtrl(outputdir, "fbrrechg", prtvrbl[i],
+                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].wf.fbr_rechg;
+                    }
+                    n++;
+                    break;
+                case FBRFLOW_CTRL:
+                    for (k = 0; k < NUM_EDGE; k++)
+                    {
+                        sprintf(ext, "fbrflow%d", k);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            HYDROL_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] = &elem[j].wf.fbrflow[k];
+                        }
+                        n++;
+                    }
+                    break;
+#endif
                 default:
                     break;
             }

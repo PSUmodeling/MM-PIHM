@@ -240,7 +240,7 @@ double          WiltingPoint(double, double, double, double);
 #ifdef _FBR_
 void            InitGeol (elem_struct *, const geoltbl_struct *,
         const calib_struct *);
-void            ReadBedrock(const char *, meshtbl_struct *);
+void            ReadBedrock(const char *, meshtbl_struct *, ctrl_struct *);
 void            ReadGeol(const char *, geoltbl_struct *);
 #endif
 

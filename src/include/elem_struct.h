@@ -471,6 +471,14 @@ typedef struct wflux_struct
                                              * zone (m s-1) */
     double          ett_gw;                 /* transpiration from saturated zone
                                              * (m s-1) */
+#ifdef _FBR_
+    double          fbr_infil;              /* fractured bedrock infiltration
+                                             * (m s-1) */
+    double          fbr_rechg;              /* fractured bedrock recharge
+                                             * (m s-1) */
+    double          fbrflow[NUM_EDGE];      /* lateral fractured bedrock flow
+                                             * (m3 s-1) */
+#endif
 #ifdef _NOAH_
     double          et[MAXLYR];             /* plant transpiration from each
                                              * soil layer (m s-1) */
