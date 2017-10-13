@@ -24,9 +24,6 @@ void RiverFlow(elem_struct *elem, river_struct *river, int riv_mode)
              */
             river[i].wf.rivflow[DOWN_CHANL2CHANL] =
                 ChanFlowRiverToRiver(&river[i], down, riv_mode);
-            /* Accumulate to get in-flow for down segments */
-            down->wf.rivflow[UP_CHANL2CHANL] -=
-                river[i].wf.rivflow[DOWN_CHANL2CHANL];
 
             /*
              * Subsurface flow between river-river segments
@@ -44,9 +41,6 @@ void RiverFlow(elem_struct *elem, river_struct *river, int riv_mode)
 
             river[i].wf.rivflow[DOWN_AQUIF2AQUIF] =
                 SubFlowRiverToRiver(&river[i], effk, down, effk_nabr);
-            /* Accumulate to get in-flow for down segments */
-            down->wf.rivflow[UP_AQUIF2AQUIF] -=
-                river[i].wf.rivflow[DOWN_AQUIF2AQUIF];
         }
         else
         {
@@ -75,6 +69,28 @@ void RiverFlow(elem_struct *elem, river_struct *river, int riv_mode)
         river[i].wf.rivflow[CHANL_LKG] =
             ChanLeak(&river[i].ws, &river[i].topo, &river[i].shp,
             &river[i].matl);
+    }
+
+    /*
+     * Accumulate to get in-flow for down segments
+     *
+     * NOTE: Upstream flux summation must be calculated outside OMP to avoid
+     * different threads accessing the same variable at the same time
+     */
+    for (i = 0; i < nriver; i++)
+    {
+        river_struct   *down;
+
+        if (river[i].down > 0)
+        {
+            down = &river[river[i].down - 1];
+
+            down->wf.rivflow[UP_CHANL2CHANL] -=
+                river[i].wf.rivflow[DOWN_CHANL2CHANL];
+
+            down->wf.rivflow[UP_AQUIF2AQUIF] -=
+                river[i].wf.rivflow[DOWN_AQUIF2AQUIF];
+        }
     }
 }
 
