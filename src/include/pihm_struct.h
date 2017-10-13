@@ -215,7 +215,7 @@ typedef struct print_struct
     varctrl_struct  tp_varctrl[MAXPRINT];
     int             nprint;            /* number of output variables */
     int             ntpprint;          /* number of tecplot output variables */
-    FILE           *walbal_file;       /* pointer to water balance file */
+    FILE           *watbal_file;       /* pointer to water balance file */
     FILE           *cvodeperf_file;    /* pointer to CVode performance file */
 } print_struct;
 

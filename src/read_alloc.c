@@ -1457,7 +1457,7 @@ void FreeData(pihm_struct pihm)
      */
     if (pihm->ctrl.waterbal)
     {
-        fclose(pihm->print.walbal_file);
+        fclose(pihm->print.watbal_file);
     }
     if (debug_mode)
     {

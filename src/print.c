@@ -79,8 +79,8 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
     if (watbal)
     {
         sprintf(watbal_fn, "%s%s.watbal.plt", outputdir, project);
-        print->walbal_file = fopen(watbal_fn, "w");
-        CheckFile(print->walbal_file, watbal_fn);
+        print->watbal_file = fopen(watbal_fn, "w");
+        CheckFile(print->watbal_file, watbal_fn);
     }
 
     /* Initialize cvode output files */
