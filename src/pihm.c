@@ -92,7 +92,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     /* Print water balance */
     if (pihm->ctrl.waterbal)
     {
-        PrintWaterBal(pihm->print.walbal_file, t, pihm->ctrl.starttime,
+        PrintWaterBal(pihm->print.watbal_file, t, pihm->ctrl.starttime,
             pihm->ctrl.stepsize, pihm->elem, pihm->river);
     }
 

@@ -52,6 +52,64 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
 
     free(dhbydx);
     free(dhbydy);
+
+#ifdef _FBR_
+    /*
+     * Lateral fractured bedrock flow
+     */
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+        int             j, k;
+        elem_struct    *nabr;
+        double          dist = 0.0;
+
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            if (elem[i].nabr[j] == 0)
+            {
+                elem[i].wf.fbrflow[j] = 0.0;
+            }
+            else
+            {
+                if (elem[i].nabr[j] > 0)
+                {
+                    nabr = &elem[elem[i].nabr[j] - 1];
+                    dist = elem[i].topo.nabrdist[j];
+                }
+                else
+                {
+                    nabr =
+                        (river[-elem[i].nabr[j] - 1].leftele == elem[i].ind) ?
+                        &elem[river[-elem[i].nabr[j] - 1].rightele - 1] :
+                        &elem[river[-elem[i].nabr[j] - 1].leftele - 1];
+                    for (k = 0; k < NUM_EDGE; k++)
+                    {
+                        if (nabr->nabr[k] == elem[i].nabr[j])
+                        {
+                            dist = elem[i].topo.nabrdist[j] +
+                                nabr->topo.nabrdist[k];
+                            break;
+                        }
+                    }
+                }
+
+                if (dist == 0.0)
+                {
+                    PIHMprintf(VL_ERROR,
+                        "Error finding distance between elements.\n");
+                    PIHMexit(EXIT_FAILURE);
+                }
+
+                /* Groundwater flow modeled by Darcy's Law */
+                elem[i].wf.fbrflow[j] = FbrFlowElemToElem(&elem[i], nabr,
+                    dist, elem[i].topo.edge[j]);
+            }
+        }
+    }
+#endif
 }
 
 void FrictSlope(const elem_struct *elem, const river_struct *river,
@@ -305,3 +363,23 @@ void BoundFluxElem(int bc_type, int j, const bc_struct *bc,
         wf->subsurf[j] = bc->flux[j];
     }
 }
+
+#ifdef _FBR_
+double FbrFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
+    double dist, double edge)
+{
+    double          diff_h;
+    double          avg_h;
+    double          grad_h;
+    double          avg_ksat;
+
+    diff_h = (elem->ws.fbr_gw + elem->topo.zbed) -
+        (nabr->ws.fbr_gw + nabr->topo.zbed);
+    avg_h = AvgH(diff_h, elem->ws.fbr_gw, nabr->ws.fbr_gw);
+    grad_h = diff_h / dist;
+
+    avg_ksat = 0.5 * (elem->geol.ksath + nabr->geol.ksath);
+
+    return avg_ksat * grad_h * avg_h * edge;
+}
+#endif

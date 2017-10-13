@@ -471,6 +471,8 @@ typedef struct wflux_struct
                                              * zone (m s-1) */
     double          ett_gw;                 /* transpiration from saturated zone
                                              * (m s-1) */
+    double          esnow;                  /* sublimation from (or deposition
+                                             * to) snowpack (m s-1); */
 #ifdef _FBR_
     double          fbr_infil;              /* fractured bedrock infiltration
                                              * (m s-1) */
@@ -498,8 +500,6 @@ typedef struct wflux_struct
                                              * T < 273.15) (m s-1) */
     double          snomlt;                 /* water equivalent snow melt
                                              * (m s-1) */
-    double          esnow;                  /* sublimation from (or deposition
-                                             * to) snowpack (m s-1); */
     double          etns;                   /* (m s-1) */
 #endif
 #ifdef _CYCLES_

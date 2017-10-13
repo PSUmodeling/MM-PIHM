@@ -136,18 +136,12 @@ void NTransport(elem_struct *elem, river_struct *river)
                 ((river[i].wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
                 river[i].nsol.conc_stream : down->nsol.conc_stream);
 
-            down->nsol.flux[UP_CHANL2CHANL] =
-                -river[i].nsol.flux[DOWN_CHANL2CHANL];
-
             /* Bed */
             river[i].nsol.flux[DOWN_AQUIF2AQUIF] =
                 river[i].wf.rivflow[DOWN_AQUIF2AQUIF] * 1000.0 *
                 ((river[i].wf.rivflow[DOWN_AQUIF2AQUIF] > 0.0) ?
                 MOBILEN_PROPORTION * river[i].nsol.conc_bed :
                 MOBILEN_PROPORTION * down->nsol.conc_bed);
-
-            down->nsol.flux[UP_AQUIF2AQUIF] =
-                -river[i].nsol.flux[DOWN_AQUIF2AQUIF];
         }
         else
         {
@@ -236,5 +230,24 @@ void NTransport(elem_struct *elem, river_struct *river)
             ((river[i].wf.rivflow[CHANL_LKG] > 0.0) ?
             river[i].nsol.conc_stream :
             MOBILEN_PROPORTION * river[i].nsol.conc_bed);
+    }
+
+    /*
+     * Accumulate to get in-flow for down segments
+     */
+    for (i = 0; i < nriver; i++)
+    {
+        river_struct   *down;
+
+        if (river[i].down > 0)
+        {
+            down = &river[river[i].down - 1];
+
+            down->nsol.flux[UP_CHANL2CHANL] -=
+                river[i].nsol.flux[DOWN_CHANL2CHANL];
+
+            down->nsol.flux[UP_AQUIF2AQUIF] -=
+                river[i].nsol.flux[DOWN_AQUIF2AQUIF];
+        }
     }
 }

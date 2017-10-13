@@ -16,6 +16,13 @@ void VerticalFlow(elem_struct *elem, double dt)
         /* Calculate recharge rate */
         elem[i].wf.rechg = Recharge(&elem[i].ws, &elem[i].wf, &elem[i].ps,
             &elem[i].soil);
+
+#ifdef _FBR_
+        elem[i].wf.fbr_infil = FbrInfil(&elem[i].ws, &elem[i].soil,
+            &elem[i].geol, &elem[i].topo);
+        elem[i].wf.fbr_rechg = FbrRecharge(&elem[i].ws, &elem[i].wf,
+            &elem[i].geol);
+#endif
     }
 }
 
@@ -305,3 +312,99 @@ double Psi(double satn, double alpha, double beta)
     /* van Genuchten 1980 SSSAJ */
     return -pow(pow(1.0 / satn, beta / (beta - 1.0)) - 1.0, 1.0 / beta) / alpha;
 }
+
+#ifdef _FBR_
+/*
+ * Hydrology for fractured bedrock
+ */
+double FbrInfil(const wstate_struct *ws, const soil_struct *soil,
+    const geol_struct *geol, const topo_struct *topo)
+{
+    double          deficit;
+    double          satn;
+    double          psi_u;
+    double          h_u;
+    double          satkfunc;
+    double          dh_by_dz;
+    double          kavg;
+    double          infil;
+
+    if (ws->fbr_gw >= geol->depth)
+    {
+        infil = -soil->ksatv;
+    }
+    else
+    {
+        if (ws->fbr_unsat + ws->fbr_gw > geol->depth || ws->gw <= 0.0)
+        {
+            infil = 0.0;
+        }
+        else
+        {
+            deficit = geol->depth - ws->fbr_gw;
+
+            satn = ws->fbr_unsat / deficit;
+            satn = (satn > 1.0) ? 1.0 : satn;
+            satn = (satn < SATMIN) ? SATMIN : satn;
+
+            psi_u = Psi(satn, geol->alpha, geol->beta);
+            psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
+
+            h_u = psi_u + topo->zmin - 0.5 * deficit;
+
+            satkfunc = KrFunc(geol->alpha, geol->beta, satn);
+
+            dh_by_dz = (topo->zmin + ws->gw - h_u) / (0.5 * (ws->gw + deficit));
+
+            kavg = (ws->gw * soil->ksatv + deficit * geol->ksatv * satkfunc) /
+                (ws->gw + deficit);
+            infil = kavg * dh_by_dz;
+        }
+    }
+
+    return infil;
+}
+
+double FbrRecharge(const wstate_struct *ws, const wflux_struct *wf,
+    const geol_struct *geol)
+{
+    double          deficit;
+    double          satn;
+    double          psi_u;
+    double          satkfunc;
+    double          dh_by_dz;
+    double          kavg;
+    double          rechg;
+
+    if (ws->fbr_gw >= geol->depth)
+    {
+        rechg = wf->fbr_infil;
+    }
+    else
+    {
+        deficit = geol->depth - ws->fbr_gw;
+
+        satn = ws->fbr_unsat / deficit;
+        satn = (satn > 1.0) ? 1.0 : satn;
+        satn = (satn < SATMIN) ? SATMIN : satn;
+
+        psi_u = Psi(satn, geol->alpha, geol->beta);
+        psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
+
+        satkfunc = KrFunc(geol->alpha, geol->beta, satn);
+
+        dh_by_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->fbr_gw));
+
+        kavg = (ws->fbr_unsat * geol->ksatv * satkfunc +
+             ws->fbr_gw * geol->ksatv) /
+            (ws->fbr_unsat + ws->fbr_gw);
+
+        rechg = kavg * dh_by_dz;
+
+        rechg = (rechg > 0.0 && ws->fbr_unsat <= 0.0) ? 0.0 : rechg;
+        rechg = (rechg < 0.0 && ws->fbr_gw <= 0.0) ? 0.0 : rechg;
+    }
+
+    return rechg;
+}
+#endif

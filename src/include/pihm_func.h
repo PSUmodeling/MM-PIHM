@@ -238,6 +238,12 @@ double          WiltingPoint(double, double, double, double);
  * Fractured bedrock functions
  */
 #ifdef _FBR_
+double          FbrFlowElemToElem(const elem_struct *, const elem_struct *,
+    double, double);
+double          FbrInfil(const wstate_struct *, const soil_struct *,
+    const geol_struct *, const topo_struct *);
+double          FbrRecharge(const wstate_struct *, const wflux_struct *,
+    const geol_struct *);
 void            InitGeol (elem_struct *, const geoltbl_struct *,
         const calib_struct *);
 void            ReadBedrock(const char *, meshtbl_struct *, ctrl_struct *);

@@ -35,6 +35,11 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem->ws.unsat = (y[UNSAT(i)] >= 0.0) ? y[UNSAT(i)] : 0.0;
         elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
 
+#ifdef _FBR_
+        elem->ws.fbr_unsat = (y[FBRUNSAT(i)] >= 0.0) ? y[FBRUNSAT(i)] : 0.0;
+        elem->ws.fbr_gw = (y[FBRGW(i)] >= 0.0) ? y[FBRGW(i)] : 0.0;
+#endif
+
 #ifdef _BGC_
         elem->ns.surfn = (y[SURFN(i)] >= 0.0) ? y[SURFN(i)] : 0.0;
         elem->ns.sminn = (y[SMINN(i)] >= 0.0) ? y[SMINN(i)] : 0.0;
@@ -91,19 +96,38 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             elem->wf.ett_unsat;
         dy[GW(i)] += elem->wf.rechg - elem->wf.edir_gw - elem->wf.ett_gw;
 
+#ifdef _FBR_
+        dy[GW(i)] -= elem->wf.fbr_infil;
+
+        dy[FBRUNSAT(i)] += elem->wf.fbr_infil - elem->wf.fbr_rechg;
+        dy[FBRGW(i)] += elem->wf.fbr_rechg;
+#endif
+
         for (j = 0; j < NUM_EDGE; j++)
         {
             dy[SURF(i)] -= elem->wf.ovlflow[j] / elem->topo.area;
             dy[GW(i)] -= elem->wf.subsurf[j] / elem->topo.area;
+#ifdef _FBR_
+            dy[FBRGW(i)] -= elem->wf.fbrflow[j] / elem->topo.area;
+#endif
         }
 
         dy[UNSAT(i)] /= elem->soil.porosity;
         dy[GW(i)] /= elem->soil.porosity;
+#ifdef _FBR_
+        dy[FBRUNSAT(i)] /= elem->geol.porosity;
+        dy[FBRGW(i)] /= elem->geol.porosity;
+#endif
 
         /* Check NAN errors for dy */
         CheckDy(dy[SURF(i)], "element", "surface water", i + 1, (double)t);
         CheckDy(dy[UNSAT(i)], "element", "unsat water", i + 1, (double)t);
         CheckDy(dy[GW(i)], "element", "groundwater", i + 1, (double)t);
+#ifdef _FBR_
+        CheckDy(dy[FBRUNSAT(i)], "element", "fbr unsat water", i + 1,
+            (double)t);
+        CheckDy(dy[GW(i)], "element", "fbr groundwater", i + 1, (double)t);
+#endif
 
 #ifdef _BGC_
         dy[SURFN(i)] +=
