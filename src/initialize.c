@@ -871,7 +871,6 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
         elem[i].wf.drip = 0.0;
         elem[i].wf.dew = BADVAL;
         elem[i].wf.snomlt = BADVAL;
-        elem[i].wf.esnow = BADVAL;
 
         elem[i].ws.soilm = BADVAL;
 #endif
@@ -920,6 +919,7 @@ void InitWFlux(wflux_struct *wf)
     wf->edir_gw = 0.0;
     wf->ett_unsat = 0.0;
     wf->ett_gw = 0.0;
+    wf->esnow = 0.0;
 
 #ifdef _NOAH_
     int             k;
