@@ -356,8 +356,8 @@ double FbrInfil(const wstate_struct *ws, const soil_struct *soil,
 
             dh_by_dz = (topo->zmin + ws->gw - h_u) / (0.5 * (ws->gw + deficit));
 
-            kavg = (ws->gw * soil->ksatv + deficit * geol->ksatv * satkfunc) /
-                (ws->gw + deficit);
+            kavg = (ws->gw + deficit) /
+                (ws->gw / soil->ksatv + deficit / (geol->ksatv * satkfunc));
             infil = kavg * dh_by_dz;
         }
     }
