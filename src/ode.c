@@ -126,7 +126,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #ifdef _FBR_
         CheckDy(dy[FBRUNSAT(i)], "element", "fbr unsat water", i + 1,
             (double)t);
-        CheckDy(dy[GW(i)], "element", "fbr groundwater", i + 1, (double)t);
+        CheckDy(dy[FBRGW(i)], "element", "fbr groundwater", i + 1, (double)t);
 #endif
 
 #ifdef _BGC_
