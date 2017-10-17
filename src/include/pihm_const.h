@@ -11,11 +11,11 @@
 #define SIGMA       5.67e-8    /* Stefan-Boltzmann constant (W m-2 K-4) */
 #define RD          287.04     /* gas constant for dry air (J kg-1 K-1) */
 #define RV          461.5      /* gas constant for water vapor (J kg-1 K-1) */
-#define CPH2O	    4.218e3    /* specific heat capacity of water
+#define CPH2O       4.218e3    /* specific heat capacity of water
                                 * (J kg-1 K-1) */
-#define CPICE	    2.106e3    /* specific heat capacity of ice
+#define CPICE       2.106e3    /* specific heat capacity of ice
                                 * (J kg-1 K-1) */
-#define LSUBF	    3.335e5    /* latent heat of fusion (J kg-1) */
+#define LSUBF       3.335e5    /* latent heat of fusion (J kg-1) */
 #define EMISSI_S    0.95       /* emissivity of snow (-) */
 #define TFREEZ      273.15     /* freezing point (K) */
 #define LSUBS       2.83e6     /* latent heat of sublimation (J kg-1) */
@@ -73,7 +73,7 @@
 #define NUM_RIVFLX    11
 
 /* Hydrology parameters */
-#define PSIMIN	      -70.0    /* minimum psi allowed (m) */
+#define PSIMIN        -70.0    /* minimum psi allowed (m) */
 #define DEPRSTG       1e-4     /* depression storage (m) */
 #define GRADMIN       5e-8     /* minimum hydraulic gradient (m m-1) */
 #define SATMIN        0.1      /* minimum saturation ratio (-) */
@@ -185,12 +185,12 @@
 #define MOBILEN_PROPORTION  0.1     /* fraction mineral N avail for leaching */
 
 /* Respiration fractions for fluxes between compartments (-) */
-#define	RFL1S1    0.39    /* transfer from litter 1 to soil 1 */
-#define	RFL2S2    0.55    /* transfer from litter 2 to soil 2 */
-#define	RFL4S3    0.29    /* transfer from litter 4 to soil 3 */
-#define	RFS1S2    0.28    /* transfer from soil 1 to soil 2 */
-#define	RFS2S3    0.46    /* transfer from soil 2 to soil 3 */
-#define	RFS3S4    0.55    /* transfer from soil 3 to soil 4 */
+#define RFL1S1    0.39    /* transfer from litter 1 to soil 1 */
+#define RFL2S2    0.55    /* transfer from litter 2 to soil 2 */
+#define RFL4S3    0.29    /* transfer from litter 4 to soil 3 */
+#define RFS1S2    0.28    /* transfer from soil 1 to soil 2 */
+#define RFS2S3    0.46    /* transfer from soil 2 to soil 3 */
+#define RFS3S4    0.55    /* transfer from soil 3 to soil 4 */
 
 /* Base decomposition rate constants (day -1) */
 #define KL1_BASE      0.7       /* labile litter pool */
@@ -310,8 +310,8 @@
 #define GWTEC_CTRL              72
 #define RIVSTGTEC_CTRL          73
 #define RIVGWTEC_CTRL           74
-#define IC_CTRL					75
-#define WB_CTRL					76
+#define IC_CTRL                 75
+#define WB_CTRL                 76
 #define FBRUNSAT_CTRL           77
 #define FBRGW_CTRL              78
 #define FBRINFIL_CTRL           79

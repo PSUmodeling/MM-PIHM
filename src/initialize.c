@@ -782,9 +782,9 @@ void RelaxIc(elem_struct *elem, river_struct *river)
         elem[i].ic.gw = elem[i].soil.depth - INIT_UNSAT;
 
 #ifdef _FBR_
-        elem[i].ic.fbr_unsat = 0.0;
         elem[i].ic.fbr_gw = (elem[i].geol.depth > INIT_FBR_GW) ?
             INIT_FBR_GW : elem[i].geol.depth;
+        elem[i].ic.fbr_unsat = 0.5 * (elem[i].geol.depth - elem[i].ic.fbr_gw);
 #endif
 
 #ifdef _NOAH_

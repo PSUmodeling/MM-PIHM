@@ -1345,14 +1345,14 @@ void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
         {
             wf->drip =
                 (KD * ws->cmcmax * exp(BFACTR)) + (excess - ws->cmcmax) / dt;
-            rhsct -= KD * ws->cmcmax * exp(BFACTR);
         }
         else
         {
             wf->drip = (KD * ws->cmcmax * exp(BFACTR * excess / ws->cmcmax));
-            rhsct -= KD * ws->cmcmax * exp(BFACTR * excess / ws->cmcmax);
         }
     }
+
+    rhsct -= wf->drip;
 
     wf->pcpdrp = (1.0 - lc->shdfac) * prcp + wf->drip;
 
