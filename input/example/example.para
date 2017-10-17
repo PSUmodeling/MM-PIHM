@@ -15,11 +15,11 @@ LSM_STEP            900                 # land surface (ET) step size (s)
 ABSTOL              1E-4                # absolute solver tolerance (m)
 RELTOL              1E-3                # relative solver tolerance (-)
 INIT_SOLVER_STEP    5E-5                # initial solver step size (s)
-NUM_NONCOV_FAIL     0                   # Number of non-convergence failures
-MAX_NONLIN_ITER     10                  # Maximum number of non-linear iterations
-MIN_NONLIN_ITER     5                   # Minimum number of non-linear iterations
+NUM_NONCOV_FAIL     0.0                 # Number of non-convergence failures
+MAX_NONLIN_ITER     3.0                 # Maximum number of non-linear iterations
+MIN_NONLIN_ITER     1.0                 # Minimum number of non-linear iterations
 DECR_FACTOR         1.2                 # CVode max step decrease factor
-INCR_FACTOR         1.005               # CVode max step increase factor
+INCR_FACTOR         1.2                 # CVode max step increase factor
 MIN_MAXSTEP         1.0                 # Minimum CVode max step (s)
 ################################################################################
 # OUTPUT CONTROL                                                               #
