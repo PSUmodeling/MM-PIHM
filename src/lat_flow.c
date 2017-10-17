@@ -70,7 +70,10 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
         {
             if (elem[i].nabr[j] == 0)
             {
-                elem[i].wf.fbrflow[j] = 0.0;
+                elem[i].wf.fbrflow[j] =
+                    FbrBoundFluxElem(elem[i].attrib.fbrbc_type[j], j,
+                        &elem[i].fbr_bc, &elem[i].ws, &elem[i].topo,
+                        &elem[i].geol);
             }
             else
             {
@@ -381,5 +384,39 @@ double FbrFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
     avg_ksat = 0.5 * (elem->geol.ksath + nabr->geol.ksath);
 
     return avg_ksat * grad_h * avg_h * edge;
+}
+
+double FbrBoundFluxElem(int bc_type, int j, const bc_struct *bc,
+    const wstate_struct *ws, const topo_struct *topo, const geol_struct *geol)
+{
+    double          diff_h;
+    double          avg_h;
+    double          effk;
+    double          grad_h;
+    double          flux;
+
+    /* No flow (natural) boundary condition is default */
+    if (bc_type == NO_FLOW)
+    {
+        flux = 0.0;
+    }
+    else if (bc_type > 0)
+    {
+        /* Dirichlet boundary conditions */
+        diff_h = ws->fbr_gw + topo->zbed - bc->head[j];
+        avg_h = AvgH(diff_h, ws->fbr_gw, bc->head[j] - topo->zbed);
+        /* Minimum distance from circumcenter to the edge of the triangle
+         * on which boundary condition is defined */
+        effk = geol->ksath;
+        grad_h = diff_h / topo->nabrdist[j];
+        flux = effk * grad_h * avg_h * topo->edge[j];
+    }
+    else
+    {
+        /* Neumann boundary conditions */
+        flux = bc->flux[j];
+    }
+
+    return flux;
 }
 #endif
