@@ -19,7 +19,7 @@ void ReadAlloc(pihm_struct pihm)
     sprintf(pihm->filename.tecplot,  "input/%s/%s.tecplot",  project, project);
 #ifdef _FBR_
     sprintf(pihm->filename.geol,     "input/%s/%s.geol",     project, project);
-    sprintf(pihm->filename.bedrock,  "input/%s/%s.br",       project, project);
+    sprintf(pihm->filename.bedrock,  "input/%s/%s.bedrock",  project, project);
 #endif
 #ifdef _NOAH_
     sprintf(pihm->filename.lsm,      "input/%s/%s.lsm",      project, project);
@@ -84,7 +84,8 @@ void ReadAlloc(pihm_struct pihm)
     ReadGeol (pihm->filename.geol, &pihm->geoltbl);
 
     /* Read bedrock elevation file */
-    ReadBedrock(pihm->filename.bedrock, &pihm->meshtbl, &pihm->ctrl);
+    ReadBedrock(pihm->filename.bedrock, &pihm->atttbl, &pihm->meshtbl,
+        &pihm->ctrl);
 #endif
 
 #ifdef _NOAH_
@@ -639,8 +640,8 @@ void ReadGeol(const char *filename, geoltbl_struct *geoltbl)
     fclose (geol_file);
 }
 
-void ReadBedrock(const char *filename, meshtbl_struct *meshtbl,
-    ctrl_struct *ctrl)
+void ReadBedrock(const char *filename, atttbl_struct *atttbl,
+    meshtbl_struct *meshtbl, ctrl_struct *ctrl)
 {
     FILE           *br_file;
     int             i;
@@ -654,16 +655,41 @@ void ReadBedrock(const char *filename, meshtbl_struct *meshtbl,
     PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading bedrock file */
+    /* Read fbr boundary conditions */
+    atttbl->fbr_bc = (int **)malloc(nelem * sizeof(int *));
+    for (i = 0; i < nelem; i++)
+    {
+        atttbl->fbr_bc[i] = (int *)malloc(NUM_EDGE * sizeof(int));
+    }
+
+    /* Skip header line */
+    NextLine (br_file, cmdstr, &lno);
+    for (i = 0; i < nelem; i++)
+    {
+        NextLine (br_file, cmdstr, &lno);
+        match = sscanf(cmdstr, "%d %d %d %d",
+            &index,
+            &atttbl->fbr_bc[i][0], &atttbl->fbr_bc[i][1],
+            &atttbl->fbr_bc[i][2]);
+        if (match != 4 || i != index - 1)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error reading boundary condition type for fractured bedrock"
+                "layer of the %dth element.\n", i + 1);
+            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            PIHMexit(EXIT_FAILURE);
+        }
+    }
+
+    /* Read bedrock elevations */
     meshtbl->zbed = (double *)malloc (meshtbl->numnode * sizeof (double));
 
     /* Skip header line */
     NextLine (br_file, cmdstr, &lno);
-
     for (i = 0; i < meshtbl->numnode; i++)
     {
         NextLine (br_file, cmdstr, &lno);
         match = sscanf (cmdstr, "%d %lf", &index, &meshtbl->zbed[i]);
-
         if (match != 2 || i != index - 1)
         {
             PIHMprintf (VL_ERROR,

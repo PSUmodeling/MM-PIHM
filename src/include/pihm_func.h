@@ -246,7 +246,8 @@ double          FbrRecharge(const wstate_struct *, const wflux_struct *,
     const geol_struct *);
 void            InitGeol (elem_struct *, const geoltbl_struct *,
         const calib_struct *);
-void            ReadBedrock(const char *, meshtbl_struct *, ctrl_struct *);
+void            ReadBedrock(const char *, atttbl_struct *, meshtbl_struct *,
+    ctrl_struct *);
 void            ReadGeol(const char *, geoltbl_struct *);
 #endif
 

@@ -4,16 +4,21 @@
 /* Element attribute */
 typedef struct attrib_struct
 {
-    int             soil_type;            /* element soil type */
+    int             soil_type;              /* element soil type */
 #ifdef _FBR_
-    int             geol_type;            /* element geology type */
+    int             geol_type;              /* element geology type */
 #endif
-    int             lc_type;              /* element land cover type */
-    int             bc_type[NUM_EDGE];    /* element boundary condition type */
-    int             meteo_type;           /* element meteorological forcing type
-                                           */
-    int             lai_type;             /* element leaf area index forcing
-                                           * type */
+    int             lc_type;                /* element land cover type */
+    int             bc_type[NUM_EDGE];      /* element boundary condition type
+                                             */
+#ifdef _FBR_
+    int             fbrbc_type[NUM_EDGE];   /* element fractured bedrock layer
+                                             * boundary condition type */
+#endif
+    int             meteo_type;             /* element meteorological forcing
+                                             * type */
+    int             lai_type;               /* element leaf area index forcing
+                                             * type */
 } attrib_struct;
 
 /* Topography parameters */
@@ -1657,6 +1662,9 @@ typedef struct elem_struct
     epconst_struct  epc;
     ic_struct       ic;
     bc_struct       bc;
+#ifdef _FBR_
+    bc_struct       fbr_bc;
+#endif
     wstate_struct   ws;
     wstate_struct   ws0;
     wflux_struct    wf;

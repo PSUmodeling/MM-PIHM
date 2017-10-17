@@ -103,6 +103,10 @@ typedef struct atttbl_struct
     int            *geol;      /* element geology type */
     int            *lc;        /* element land cover type */
     int           **bc;        /* element boundary condition type */
+#ifdef _FBR_
+    int           **fbr_bc;    /* element boundary condition type for fractured
+                                * bedrock layer */
+#endif
     int            *meteo;     /* element meteorological forcing type */
     int            *lai;       /* element leaf area index forcing type
                                 * 0: use climatological values;

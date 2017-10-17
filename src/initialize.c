@@ -30,6 +30,9 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         for (j = 0; j < NUM_EDGE; j++)
         {
             pihm->elem[i].attrib.bc_type[j] = pihm->atttbl.bc[i][j];
+#ifdef _FBR_
+            pihm->elem[i].attrib.fbrbc_type[j] = pihm->atttbl.fbr_bc[i][j];
+#endif
         }
         pihm->elem[i].attrib.meteo_type = pihm->atttbl.meteo[i];
         pihm->elem[i].attrib.lai_type = pihm->atttbl.lai[i];
