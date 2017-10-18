@@ -24,29 +24,27 @@ typedef struct attrib_struct
 /* Topography parameters */
 typedef struct topo_struct
 {
-    double          area;                   /* area of element (m2) */
-    double          x;                      /* x of centroid (m) */
-    double          y;                      /* y of centroid (m) */
-    double          zmin;                   /* soil bottom elevation (m) */
-    double          zmax;                   /* surface elevation (m) */
+    double          area;                  /* area of element (m2) */
+    double          x;                     /* x of centroid (m) */
+    double          y;                     /* y of centroid (m) */
+    double          zmin;                  /* soil bottom elevation (m) */
+    double          zmax;                  /* surface elevation (m) */
 #ifdef _FBR_
-    double          zbed;                   /* impermeable bedrock elevation (m)
-                                             */
+    double          zbed;                  /* impermeable bedrock elevation (m)
+                                            */
 #endif
-    double          edge[NUM_EDGE];         /* length of edge (Edge i is from
-                                             * node i to node i + 1) (m) */
-    double          nabrdist[NUM_EDGE];     /* distance to neighbor (m) */
-    double          nabrdist_x[NUM_EDGE];   /* distance to neighbor in x
-                                             * direction (m) */
-    double          nabrdist_y[NUM_EDGE];   /* distance to neighbor in y
-                                             * direction (m) */
+    double          edge[NUM_EDGE];        /* length of edge (Edge i is from
+                                            * node i to node i + 1) (m) */
+    double          nabrdist[NUM_EDGE];    /* distance to neighbor (m) */
+    double          nabr_x[NUM_EDGE];      /* x of neighbor centroid (m) */
+    double          nabr_y[NUM_EDGE];      /* y of neighbor centroid (m) */
 #ifdef _NOAH_
-    double          slope;                  /* slope of element (degree) */
-    double          aspect;                 /* surface aspect of element
-                                             * (degree) */
-    double          svf;                    /* sky view factor (-) */
-    double          h_phi[36];              /* unobstructed angle in each
-                                             * direction (degree) */
+    double          slope;                 /* slope of element (degree) */
+    double          aspect;                /* surface aspect of element (degree)
+                                            */
+    double          svf;                   /* sky view factor (-) */
+    double          h_phi[36];             /* unobstructed angle in each
+                                            * direction (degree) */
 #endif
 #ifdef _RT_
     double          areasub[NUM_EDGE];

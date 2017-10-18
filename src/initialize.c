@@ -737,8 +737,8 @@ void InitSurfL(elem_struct *elem, const river_struct *river,
 
             if (elem[i].nabr[j] == 0)
             {
-                elem[i].topo.nabrdist_x[j] = elem[i].topo.x - 2.0 * distx;
-                elem[i].topo.nabrdist_y[j] = elem[i].topo.y - 2.0 * disty;
+                elem[i].topo.nabr_x[j] = elem[i].topo.x - 2.0 * distx;
+                elem[i].topo.nabr_y[j] = elem[i].topo.y - 2.0 * disty;
                 elem[i].topo.nabrdist[j] =
                     sqrt(pow(elem->topo.edge[0] * elem->topo.edge[1] *
                     elem->topo.edge[2] / (4.0 * elem->topo.area), 2) -
@@ -746,18 +746,18 @@ void InitSurfL(elem_struct *elem, const river_struct *river,
             }
             else
             {
-                elem[i].topo.nabrdist_x[j] = (elem[i].nabr[j] > 0) ?
+                elem[i].topo.nabr_x[j] = (elem[i].nabr[j] > 0) ?
                     elem[elem[i].nabr[j] - 1].topo.x :
                     river[0 - elem[i].nabr[j] - 1].topo.x;
-                elem[i].topo.nabrdist_y[j] = (elem[i].nabr[j] > 0) ?
+                elem[i].topo.nabr_y[j] = (elem[i].nabr[j] > 0) ?
                     elem[elem[i].nabr[j] - 1].topo.y :
                     river[0 - elem[i].nabr[j] - 1].topo.y;
                 elem[i].topo.nabrdist[j] =
-                    (elem[i].topo.x - elem[i].topo.nabrdist_x[j]) *
-                    (elem[i].topo.x - elem[i].topo.nabrdist_x[j]);
+                    (elem[i].topo.x - elem[i].topo.nabr_x[j]) *
+                    (elem[i].topo.x - elem[i].topo.nabr_x[j]);
                 elem[i].topo.nabrdist[j] +=
-                    (elem[i].topo.y - elem[i].topo.nabrdist_y[j]) *
-                    (elem[i].topo.y - elem[i].topo.nabrdist_y[j]);
+                    (elem[i].topo.y - elem[i].topo.nabr_y[j]) *
+                    (elem[i].topo.y - elem[i].topo.nabr_y[j]);
                 elem[i].topo.nabrdist[j] = sqrt(elem[i].topo.nabrdist[j]);
             }
         }

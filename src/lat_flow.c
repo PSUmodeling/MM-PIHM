@@ -165,9 +165,9 @@ void FrictSlope(const elem_struct *elem, const river_struct *river,
             }
 
             dhbydx[i] =
-                DhByDl(elem[i].topo.nabrdist_y, elem[i].topo.nabrdist_x, surfh);
+                DhByDl(elem[i].topo.nabr_y, elem[i].topo.nabr_x, surfh);
             dhbydy[i] =
-                DhByDl(elem[i].topo.nabrdist_x, elem[i].topo.nabrdist_y, surfh);
+                DhByDl(elem[i].topo.nabr_x, elem[i].topo.nabr_y, surfh);
         }
     }
 }
