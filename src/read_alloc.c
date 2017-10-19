@@ -1372,7 +1372,7 @@ void ReadIc(const char *filename, elem_struct *elem, river_struct *river)
         (int)(sizeof(ic_struct) * nelem + sizeof(river_ic_struct) * nriver))
     {
         PIHMprintf(VL_ERROR,
-            "Error in initial condion file %s.\n"
+            "Error in initial condition file %s.\n"
             "The file size does not match requirement.\n", filename);
         PIHMprintf(VL_ERROR, "Please use a correct initial condition file.\n");
         PIHMexit(EXIT_FAILURE);
