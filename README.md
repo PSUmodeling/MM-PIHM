@@ -1,17 +1,30 @@
 MM-PIHM [![Build Status](https://travis-ci.org/PSUmodeling/MM-PIHM.svg?branch=master)](https://travis-ci.org/PSUmodeling/MM-PIHM)
 =======
 
-The Multi-Modular Penn State Integrated Hydrologic Model is a physics based hydrologic model with multiple optional modules, including land surface, reactive transport, and biogeochemistry modules.
+The Multi-Modular Penn State Integrated Hydrologic Model (MM-PIHM) is a physically based watershed model with multiple optional modules.
 MM-PIHM is the **sweetest** PIHM, ever!
 
-The first release includes PIHM, Flux-PIHM, and Flux-PIHM-BGC.
-Future release will include RT-Flux-PIHM.
+The current release contains the source code for PIHM, PIHM-FBR, Flux-PIHM, and Flux-PIHM-BGC.
+
+PIHM is a spatially-distributed, physically based hydrologic model.
+PIHm-FBR adds fractured bedrock hydrology to PIHM to simulate deep groundwater processes.
+Flux-PIHM adds a land surface model (adapted from the Noah land surface model) to PIHM for
+the simulation of land surface processes.
+Flux-PIHM-BGC couples Flux-PIHM with a terrestrial ecosystem model (adapted from Biome-BGC) that enables the simulation of carbon and nitrogen cycles.
+The source code for the reactive transport (RT) module will be provided in future releases.
+
+MM-PIHM is open source software licensed under the MIT License.
+All bug reports and feature requests should be submitted using the [Issues](https://github.com/PSUmodeling/MM-PIHM/issues) page.
 
 ## Usage
 
-### Install CVODE
+### Installing CVODE
 
 MM-PIHM uses the SUNDIALS CVODE v2.9.0 implicit solvers.
+The CVODE Version 2.9.0 source code is provided with the MM-PIHM package for users' convenience.
+SUNDIALS (@copy;2012--2016) is copyrighted software produced at the Lawrence Livermore National Laboratory.
+A SUNDIALS copyright note can be found in the `cvode` directory.
+
 If you already have CVODE v2.9.0 installed, you can edit the Makefile and point `CVODE_PATH` to your CVODE directory.
 Otherwise, you need to install CVODE before compiling MM-PIHM, by doing
 
@@ -22,9 +35,9 @@ $ make cvode
 in your MM-PIHM directory.
 
 Currently CMake (version 2.8.1 or higher) is the only supported method of CVODE installation.
-If CMake is not available on your system, the CMake Version 3.7.2 binary for Linux will be downloaded from [http://www.cmake.org](http://www.cmake.org) automatically when you choose to `make cvode`.
+If CMake is not available on your system, the CMake Version 3.7.2 binary for Linux (or Mac OS, depending on your OS) will be downloaded from [http://www.cmake.org](http://www.cmake.org) automatically when you choose to `make cvode`.
 
-### Install MM-PIHM
+### Installing MM-PIHM
 
 Once CVODE is installed, you can compile MM-PIHM models from the MM-PIHM directory by doing
 
@@ -32,21 +45,35 @@ Once CVODE is installed, you can compile MM-PIHM models from the MM-PIHM directo
 $ make [model]
 ```
 
-The `[model]` should be replaced by the name of model that you want to compile, which could be `pihm`, `flux-pihm`, or `flux-pihm-bgc`.
-Note: If you want to switch from one MM-PIHM family model to another one, you always need to `make clean` before compiling another model.
+The `[model]` should be replaced by the name of model that you want to compile, which could be `pihm`, `pihm-fbr`, `flux-pihm`, or `flux-pihm-bgc`.
+
+The command
+
+```shell
+$ make clean
+```
+
+will clean the executables and object files.
+
+Note: If you want to switch from one MM-PIHM model to another one, you must `make clean` first.
+
+A help message will appear if you run `make`.
 
 #### Installation options
 
 By default, MM-PIHM is paralleled using OpenMP, which significantly improves the computational efficiency of MM-PIHM models, especially Flux-PIHM and Flux-PIHM-BGC.
 CVODE, however, is not implemented using OpenMP by default.
 According to CVODE document, CVODE state variables (i.e., unknowns) "should be of length at least 100, 000 before the overhead associated with creating and using the threads is made up by the parallelism in the vector calculations".
-If you do want to test using OpenMP for CVODE for, you can compile MM-PIHM models using
+In other words, you should using OpenMP for CVODE if your model domain has about 30, 000 or more model grids.
+If you do want to test using OpenMP for CVODE, you can compile MM-PIHM models using
 
 ```shell
 $ make CVODE_OMP=on [model]
 ```
 
-You can also turn off OpenMP (NOT RECOMMENDED):
+Note that in order to use OpenMP for CVODE, you also need to turn on the OPENMP_ENABLE option when using CMake to install CVODE.
+
+You can also turn off OpenMP for MM-PIHM (NOT RECOMMENDED):
 
 ```shell
 $ make OMP=off [model]
@@ -61,9 +88,9 @@ $ make DEBUG=on [model]
 
 which will compile using `-O0` gcc option.
 
-### Run MM-PIHM
+### Running MM-PIHM
 
-#### Set up OpenMP environment
+#### Setting up OpenMP environment
 
 To optimize PIHM efficiency, you need to set the number of threads in OpenMP.
 For example, in command line
@@ -90,22 +117,36 @@ export OMP_NUM_THREADS=8
 ./pihm example
 ```
 
-Now you can run MM-PIHM models:
+#### Running MM-PIHM models
+
+Now you can run MM-PIHM models using:
 
 ```shell
-$ ./<model> [-V] [-v] [-d] [-c] [-o dir_name] <project>
+$ ./[model] [-c] [-d] [-t] [-V] [-v] [-o dir_name] [project]
 ```
 
-where `<model>` is the name of the MM-PIHM model, `<project>` is the name of the project, and [-Vvdco] are
-optional parameters.
+where `[model]` is the installed executable, `[project]` is the name of the project, and `[-cdotVv]` are optional parameters.
 
-The optional `-V` parameter will print the version number.
-The optional `-v` parameter will turn on the verbose mode.
+The optional `-c` parameter will turn on the elevation correction mode.
+Surface elevation of all model grids will be checked, and changed if needed before simulation, to avoid surface sinks.
+
 The optional `-d` parameter will turn on the debug mode.
-The optional `-c` parameter will examine the surface elevation of all model elements and fix potential sinks.
+In debug mode, helpful information is displayed on screen and a CVODE log file will be produced.
+
+The optional `-t` parameter will turn on Tecplot output.
+
+The `-V` parameter will display model version.
+Note that model will quit after displaying the version information.
+No simulation will be performed when using the `-V` parameter.
+
+The optional `-v` parameter will turn on the verbose mode.
+
 The optional `-o` parameter will specify the name of directory to store model output.
 All model output variables will be stored in the `output/dir_name` directory when `-o` option is used.
-Otherwise, model output will be stored in a directory named after the project and the system time when the simulation is executed.
+If `-o` parameter is not used, model output will be stored in a directory named after the project and the system time when the simulation is executed.
+
+Example input files are provided with each release.
+For a description of input files, please refer to the *User's Guide* that can be downloaded from the release page.
 
 ### Penn State Users
 
