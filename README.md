@@ -7,7 +7,7 @@ MM-PIHM is the **sweetest** PIHM, ever!
 The current release contains the source code for PIHM, PIHM-FBR, Flux-PIHM, and Flux-PIHM-BGC.
 
 PIHM is a spatially-distributed, physically based hydrologic model.
-PIHm-FBR adds fractured bedrock hydrology to PIHM to simulate deep groundwater processes.
+PIHM-FBR adds fractured bedrock hydrology to PIHM to simulate deep groundwater processes.
 Flux-PIHM adds a land surface model (adapted from the Noah land surface model) to PIHM for
 the simulation of land surface processes.
 Flux-PIHM-BGC couples Flux-PIHM with a terrestrial ecosystem model (adapted from Biome-BGC) that enables the simulation of carbon and nitrogen cycles.
@@ -22,7 +22,7 @@ All bug reports and feature requests should be submitted using the [Issues](http
 
 MM-PIHM uses the SUNDIALS CVODE v2.9.0 implicit solvers.
 The CVODE Version 2.9.0 source code is provided with the MM-PIHM package for users' convenience.
-SUNDIALS (@copy;2012--2016) is copyrighted software produced at the Lawrence Livermore National Laboratory.
+SUNDIALS (:copyright:2012--2016) is copyrighted software produced at the Lawrence Livermore National Laboratory.
 A SUNDIALS copyright note can be found in the `cvode` directory.
 
 If you already have CVODE v2.9.0 installed, you can edit the Makefile and point `CVODE_PATH` to your CVODE directory.
