@@ -191,7 +191,7 @@ double          Qtz(int);
 int             Readable(const char *);
 void            ReadAlloc(pihm_struct);
 void            ReadAtt(const char *, atttbl_struct *);
-void            ReadBc(const char *, forc_struct *);
+void            ReadBc(const char *, forc_struct *, const atttbl_struct *);
 void            ReadCalib(const char *, calib_struct *);
 void            ReadForc(const char *, forc_struct *);
 void            ReadIc(const char *, elem_struct *, river_struct *);
