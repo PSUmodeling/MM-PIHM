@@ -378,7 +378,7 @@ typedef struct pstate_struct
                                              */
     double          sndens;                 /* snow density (dimensionless
                                              * fraction of H2O density) (-) */
-    double          snowh;                  /* actual snow depth (-) */
+    double          snowh;                  /* actual snow depth (m) */
     double          sncond;                 /* snow thermal conductivity
                                              * (W m-1 K-1) */
     double          rr;                     /* parameter in Penman potential

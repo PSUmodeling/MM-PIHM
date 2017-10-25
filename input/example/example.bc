@@ -1,4 +1,4 @@
-BC_TS       1
+BC_TS       1       # Dirichlet
 TIME                HEAD
 TS                  m
 2008-01-01 00:00    270.00
