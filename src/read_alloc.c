@@ -1491,16 +1491,25 @@ void FreeData(pihm_struct pihm)
     free(pihm->meshtbl.y);
     free(pihm->meshtbl.zmin);
     free(pihm->meshtbl.zmax);
+#ifdef _FBR_
+    free(pihm->meshtbl.zbed);
+#endif
 
     /* Free attribute input structure */
     for (i = 0; i < nelem; i++)
     {
         free(pihm->atttbl.bc[i]);
+#ifdef _FBR_
+        free(pihm->atttbl.fbr_bc[i]);
+#endif
     }
+    free(pihm->atttbl.bc);
+#ifdef _FBR_
+    free(pihm->atttbl.fbr_bc);
+#endif
     free(pihm->atttbl.soil);
     free(pihm->atttbl.geol);
     free(pihm->atttbl.lc);
-    free(pihm->atttbl.bc);
     free(pihm->atttbl.meteo);
     free(pihm->atttbl.lai);
     free(pihm->atttbl.source);
@@ -1524,16 +1533,15 @@ void FreeData(pihm_struct pihm)
     free(pihm->soiltbl.smcref);
     free(pihm->soiltbl.smcwlt);
 
+#ifdef _FBR_
     /* Free geol input structure */
-    //free (pihm->geol_tbl.ksath);
-    //free (pihm->geol_tbl.ksatv);
-    //free (pihm->geol_tbl.smcmax);
-    //free (pihm->geol_tbl.smcmin);
-    //free (pihm->geol_tbl.alpha);
-    //free (pihm->geol_tbl.beta);
-    //free (pihm->geol_tbl.areafv);
-    //free (pihm->geol_tbl.kmach);
-    //free (pihm->geol_tbl.dmac);
+    free (pihm->geoltbl.ksatv);
+    free (pihm->geoltbl.ksath);
+    free (pihm->geoltbl.smcmax);
+    free (pihm->geoltbl.smcmin);
+    free (pihm->geoltbl.alpha);
+    free (pihm->geoltbl.beta);
+#endif
 
     /* Free landcover input structure */
     free(pihm->lctbl.laimax);
@@ -1595,6 +1603,21 @@ void FreeData(pihm_struct pihm)
             free(pihm->forc.lai[i].value);
         }
         free(pihm->forc.lai);
+    }
+
+    if (pihm->forc.nbc > 0)
+    {
+        for (i = 0; i < pihm->forc.nbc; i++)
+        {
+            for (j = 0; j < pihm->forc.bc[i].length; j++)
+            {
+                free(pihm->forc.bc[i].data[j]);
+            }
+            free(pihm->forc.bc[i].ftime);
+            free(pihm->forc.bc[i].data);
+            free(pihm->forc.bc[i].value);
+        }
+        free(pihm->forc.bc);
     }
 
 #ifdef _NOAH_
