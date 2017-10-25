@@ -597,6 +597,7 @@ void            RestartOutput(const cstate_struct *, const nstate_struct *,
     const epvar_struct *, bgcic_struct *);
 void            SeasonDecidPhenology(const epconst_struct *, epvar_struct *,
     const daily_struct *);
+void            SetAbsTol(double, double, N_Vector);
 void            SoilPsi(const soil_struct *, double, double *);
 void            TotalPhotosynthesis(const epconst_struct *, epvar_struct *,
     const pstate_struct *, cflux_struct *, psn_struct *, psn_struct *,

@@ -228,18 +228,51 @@ int NumStateVar(void)
 void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             flag;
+#ifdef _BGC_
+    N_Vector        abstol;
+    const double    SMINN_TOL = 1.0E-5;
+#endif
 
     pihm->ctrl.maxstep = pihm->ctrl.stepsize;
 
     flag = CVodeInit(cvode_mem, ODE, 0.0, CV_Y);
+#ifdef _BGC_
+    /* When BGC module is turned on, both water storage and nitrogen storage
+     * variables are in the CVODE vector. A vector of absolute tolerances is
+     * needed to specify different absolute tolerances for water storage
+     * variables and nitrogen storage variables */
+    abstol = N_VNew(NumStateVar());
+    SetAbsTol(pihm->ctrl.abstol, SMINN_TOL, abstol);
+
+    flag = CVodeSVtolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
+        abstol);
+#else
     flag = CVodeSStolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
         (realtype)pihm->ctrl.abstol);
+#endif
     flag = CVodeSetUserData(cvode_mem, pihm);
     flag = CVodeSetInitStep(cvode_mem, (realtype)pihm->ctrl.initstep);
     flag = CVodeSetStabLimDet(cvode_mem, TRUE);
     flag = CVodeSetMaxStep(cvode_mem, (realtype)pihm->ctrl.maxstep);
     flag = CVSpgmr(cvode_mem, PREC_NONE, 0);
 }
+
+#ifdef _BGC_
+void SetAbsTol(double hydrol_tol, double sminn_tol, N_Vector abstol)
+{
+    int             i;
+
+    for (i = 0; i < 3 * nelem + 2 * nriver; i++)
+    {
+        NV_Ith(abstol, i) = (realtype)hydrol_tol;
+    }
+
+    for (i = 3 * nelem + 2 * nriver; i < NumStateVar(); i++)
+    {
+        NV_Ith(abstol, i) = (realtype)sminn_tol;
+    }
+}
+#endif
 
 void SolveCVode(int starttime, int *t, int nextptr, double cputime,
     void *cvode_mem, N_Vector CV_Y)
