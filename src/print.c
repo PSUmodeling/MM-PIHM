@@ -533,39 +533,42 @@ int PrintNow(int intvl, int lapse, const pihm_t_struct *pihm_time)
 {
     int             print = 0;
 
-    switch (intvl)
+    if (intvl != 0)
     {
-        case YEARLY_OUTPUT:
-            if (pihm_time->month == 1 && pihm_time->day == 1 &&
-                pihm_time->hour == 0 && pihm_time->minute == 0)
-            {
-                print = 1;
-            }
-            break;
-        case MONTHLY_OUTPUT:
-            if (pihm_time->day == 1 && pihm_time->hour == 0 &&
-                pihm_time->minute == 0)
-            {
-                print = 1;
-            }
-            break;
-        case DAILY_OUTPUT:
-            if (pihm_time->hour == 0 && pihm_time->minute == 0)
-            {
-                print = 1;
-            }
-            break;
-        case HOURLY_OUTPUT:
-            if (pihm_time->minute == 0)
-            {
-                print = 1;
-            }
-            break;
-        default:
-            if (lapse % intvl == 0)
-            {
-                print = 1;
-            }
+        switch (intvl)
+        {
+            case YEARLY_OUTPUT:
+                if (pihm_time->month == 1 && pihm_time->day == 1 &&
+                    pihm_time->hour == 0 && pihm_time->minute == 0)
+                {
+                    print = 1;
+                }
+                break;
+            case MONTHLY_OUTPUT:
+                if (pihm_time->day == 1 && pihm_time->hour == 0 &&
+                    pihm_time->minute == 0)
+                {
+                    print = 1;
+                }
+                break;
+            case DAILY_OUTPUT:
+                if (pihm_time->hour == 0 && pihm_time->minute == 0)
+                {
+                    print = 1;
+                }
+                break;
+            case HOURLY_OUTPUT:
+                if (pihm_time->minute == 0)
+                {
+                    print = 1;
+                }
+                break;
+            default:
+                if (lapse % intvl == 0)
+                {
+                    print = 1;
+                }
+        }
     }
 
     return print;
