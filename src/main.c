@@ -134,6 +134,15 @@ int main(int argc, char *argv[])
     if (pihm->ctrl.write_bgc_restart)
     {
         WriteBgcIc(outputdir, pihm->elem, pihm->river);
+
+        if (spinup_mode)
+        {
+            /* In spin-up mode, also print land surface and hydrologic initial
+             * conditions */
+            PrintInit(pihm->elem, pihm->river, outputdir,
+                pihm->ctrl.endtime, pihm->ctrl.starttime,
+                pihm->ctrl.endtime, pihm->ctrl.prtvrbl[IC_CTRL]);
+        }
     }
 #endif
 
