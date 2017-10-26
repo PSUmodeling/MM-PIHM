@@ -1637,6 +1637,76 @@ void FreeData(pihm_struct pihm)
     }
 #endif
 
+#ifdef _BGC_
+    free(pihm->epctbl.woody);
+    free(pihm->epctbl.evergreen);
+    free(pihm->epctbl.c3_flag);
+    free(pihm->epctbl.phenology_flag);
+    free(pihm->epctbl.onday);
+    free(pihm->epctbl.offday);
+    free(pihm->epctbl.transfer_days);
+    free(pihm->epctbl.litfall_days);
+    free(pihm->epctbl.leaf_turnover);
+    free(pihm->epctbl.froot_turnover);
+    free(pihm->epctbl.livewood_turnover);
+    free(pihm->epctbl.daily_mortality_turnover);
+    free(pihm->epctbl.daily_fire_turnover);
+    free(pihm->epctbl.alloc_frootc_leafc);
+    free(pihm->epctbl.alloc_newstemc_newleafc);
+    free(pihm->epctbl.alloc_newlivewoodc_newwoodc);
+    free(pihm->epctbl.alloc_crootc_stemc);
+    free(pihm->epctbl.alloc_prop_curgrowth);
+    free(pihm->epctbl.avg_proj_sla);
+    free(pihm->epctbl.sla_ratio);
+    free(pihm->epctbl.lai_ratio);
+    free(pihm->epctbl.ext_coef);
+    free(pihm->epctbl.flnr);
+    free(pihm->epctbl.psi_open);
+    free(pihm->epctbl.psi_close);
+    free(pihm->epctbl.vpd_open);
+    free(pihm->epctbl.vpd_close);
+    free(pihm->epctbl.froot_cn);
+    free(pihm->epctbl.leaf_cn);
+    free(pihm->epctbl.livewood_cn);
+    free(pihm->epctbl.deadwood_cn);
+    free(pihm->epctbl.leaflitr_cn);
+    free(pihm->epctbl.leaflitr_flab);
+    free(pihm->epctbl.leaflitr_fucel);
+    free(pihm->epctbl.leaflitr_fscel);
+    free(pihm->epctbl.leaflitr_flig);
+    free(pihm->epctbl.frootlitr_flab);
+    free(pihm->epctbl.frootlitr_fucel);
+    free(pihm->epctbl.frootlitr_fscel);
+    free(pihm->epctbl.frootlitr_flig);
+    free(pihm->epctbl.deadwood_fucel);
+    free(pihm->epctbl.deadwood_fscel);
+    free(pihm->epctbl.deadwood_flig);
+
+    if (pihm->co2.varco2 > 0)
+    {
+        for (j = 0; j < pihm->forc.co2[0].length; j++)
+        {
+            free(pihm->forc.co2[0].data[j]);
+        }
+        free(pihm->forc.co2[0].ftime);
+        free(pihm->forc.co2[0].data);
+        free(pihm->forc.co2[0].value);
+    }
+    free(pihm->forc.co2);
+
+    if (pihm->ndepctrl.varndep > 0)
+    {
+        for (j = 0; j < pihm->forc.ndep[0].length; j++)
+        {
+            free(pihm->forc.ndep[0].data[j]);
+        }
+        free(pihm->forc.ndep[0].ftime);
+        free(pihm->forc.ndep[0].data);
+        free(pihm->forc.ndep[0].value);
+    }
+    free(pihm->forc.ndep);
+#endif
+
     free(pihm->ctrl.tout);
 
     /*

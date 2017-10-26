@@ -246,6 +246,8 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 
     flag = CVodeSVtolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
         abstol);
+
+    N_VDestroy(abstol);
 #else
     flag = CVodeSStolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
         (realtype)pihm->ctrl.abstol);

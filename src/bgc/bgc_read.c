@@ -468,6 +468,8 @@ void ReadEpc(epctbl_struct *epctbl)
             /* Vpd_min */
             fgets(cmdstr, MAXSTRING, epc_file);
             sscanf(cmdstr, "%lf", &epctbl->vpd_close[i]);
+
+            fclose(epc_file);
         }
         else
         {

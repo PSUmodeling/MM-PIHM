@@ -248,4 +248,6 @@ void WriteBgcIc(const char *outputdir, elem_struct *elem, river_struct *river)
         fwrite(&(river[i].restart_output), sizeof(river_bgcic_struct), 1,
             restart_file);
     }
+
+    fclose(restart_file);
 }
