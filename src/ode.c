@@ -228,6 +228,7 @@ int NumStateVar(void)
 void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             flag;
+    static int      reset;
 #ifdef _BGC_
     N_Vector        abstol;
     const double    SMINN_TOL = 1.0E-5;
@@ -235,7 +236,18 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 
     pihm->ctrl.maxstep = pihm->ctrl.stepsize;
 
-    flag = CVodeInit(cvode_mem, ODE, 0.0, CV_Y);
+    if (reset)
+    {
+        /* When model spins-up and recycles forcing, use CVodeReInit to reset
+         * solver time, which does not allocates memory */
+        flag = CVodeReInit(cvode_mem, 0.0, CV_Y);
+    }
+    else
+    {
+        flag = CVodeInit(cvode_mem, ODE, 0.0, CV_Y);
+        reset = 1;
+    }
+
 #ifdef _BGC_
     /* When BGC module is turned on, both water storage and nitrogen storage
      * variables are in the CVODE vector. A vector of absolute tolerances is

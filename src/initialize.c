@@ -521,12 +521,12 @@ void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
 #endif
 
 #ifdef _BGC_
-    if (!spinup_mode && varco2)
+    if (varco2)
     {
         forc->co2[0].value = (double *)malloc(sizeof(double));
     }
 
-    if (!spinup_mode && varndep)
+    if (varndep)
     {
         forc->ndep[0].value = (double *)malloc(sizeof(double));
     }
