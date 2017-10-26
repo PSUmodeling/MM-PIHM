@@ -227,7 +227,7 @@ int NumStateVar(void)
 }
 void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
-    int             flag;
+    int             cv_flag;
     static int      reset;
 #ifdef _BGC_
     N_Vector        abstol;
@@ -240,11 +240,19 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     {
         /* When model spins-up and recycles forcing, use CVodeReInit to reset
          * solver time, which does not allocates memory */
-        flag = CVodeReInit(cvode_mem, 0.0, CV_Y);
+        cv_flag = CVodeReInit(cvode_mem, 0.0, CV_Y);
+        if (!CheckCVodeFlag(cv_flag))
+        {
+            PIHMexit(EXIT_FAILURE);
+        }
     }
     else
     {
-        flag = CVodeInit(cvode_mem, ODE, 0.0, CV_Y);
+        cv_flag = CVodeInit(cvode_mem, ODE, 0.0, CV_Y);
+        if (!CheckCVodeFlag(cv_flag))
+        {
+            PIHMexit(EXIT_FAILURE);
+        }
         reset = 1;
     }
 
@@ -256,19 +264,51 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     abstol = N_VNew(NumStateVar());
     SetAbsTol(pihm->ctrl.abstol, SMINN_TOL, abstol);
 
-    flag = CVodeSVtolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
+    cv_flag = CVodeSVtolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
         abstol);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
 
     N_VDestroy(abstol);
 #else
-    flag = CVodeSStolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
+    cv_flag = CVodeSStolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
         (realtype)pihm->ctrl.abstol);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
 #endif
-    flag = CVodeSetUserData(cvode_mem, pihm);
-    flag = CVodeSetInitStep(cvode_mem, (realtype)pihm->ctrl.initstep);
-    flag = CVodeSetStabLimDet(cvode_mem, TRUE);
-    flag = CVodeSetMaxStep(cvode_mem, (realtype)pihm->ctrl.maxstep);
-    flag = CVSpgmr(cvode_mem, PREC_NONE, 0);
+    cv_flag = CVodeSetUserData(cvode_mem, pihm);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVodeSetInitStep(cvode_mem, (realtype)pihm->ctrl.initstep);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVodeSetStabLimDet(cvode_mem, TRUE);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVodeSetMaxStep(cvode_mem, (realtype)pihm->ctrl.maxstep);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVSpgmr(cvode_mem, PREC_NONE, 0);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
 }
 
 #ifdef _BGC_
@@ -294,12 +334,21 @@ void SolveCVode(int starttime, int *t, int nextptr, double cputime,
     realtype        solvert;
     realtype        tout;
     pihm_t_struct   pihm_time;
-    int             flag;
+    int             cv_flag;
 
     tout = (realtype)(nextptr - starttime);
 
-    flag = CVodeSetStopTime(cvode_mem, tout);
-    flag = CVode(cvode_mem, tout, CV_Y, &solvert, CV_NORMAL);
+    cv_flag = CVodeSetStopTime(cvode_mem, tout);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVode(cvode_mem, tout, CV_Y, &solvert, CV_NORMAL);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
 
     *t = (int)round(solvert) + starttime;
 
@@ -332,14 +381,28 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
     static long int nst0;
     static long int ncfn0;
     static long int nni0;
-    int             flag;
+    int             cv_flag;
     double          nsteps;
     double          nfails;
     double          niters;
 
-    flag = CVodeGetNumSteps(cvode_mem, &nst);
-    flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-    flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+    cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
 
     nsteps = (double)(nst - nst0);
     nfails = (double)(ncfn - ncfn0) / nsteps;
@@ -360,7 +423,11 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
     ctrl->maxstep = (ctrl->maxstep > ctrl->stmin) ?
         ctrl->maxstep : ctrl->stmin;
 
-    flag = CVodeSetMaxStep(cvode_mem, (realtype)ctrl->maxstep);
+    cv_flag = CVodeSetMaxStep(cvode_mem, (realtype)ctrl->maxstep);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
 
     nst0 = nst;
     ncfn0 = ncfn;

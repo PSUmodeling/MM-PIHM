@@ -51,6 +51,11 @@ int main(int argc, char *argv[])
 
     /* Initialize CVode state variables */
     CV_Y = N_VNew(NumStateVar());
+    if (CV_Y == NULL)
+    {
+        PIHMprintf(VL_ERROR, "Error creating CVODE state variable vector.\n");
+        PIHMexit(EXIT_FAILURE);
+    }
 
     /* Initialize PIHM structure */
     Initialize(pihm, CV_Y, &cvode_mem);

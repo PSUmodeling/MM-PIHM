@@ -406,21 +406,45 @@ void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
     static double   dt;
     static long int nst0, nfe0, nni0, ncfn0, netf0;
     long int        nst, nfe, nni, ncfn, netf;
-    int             flag;
+    int             cv_flag;
 
-    flag = CVodeGetNumSteps(cvode_mem, &nst);
-    flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-    flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-    flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-    flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+    cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
 
-        fprintf(perf_file, "%-8d%-8.3f%-16.3f%-8.2f",
-            t - starttime, cputime_dt, cputime, maxstep);
-        fprintf(perf_file, "%-8ld%-8ld%-8ld%-8ld%-8ld\n",
-            nst - nst0, nni - nni0, nfe - nfe0, netf - netf0, ncfn - ncfn0);
-        fflush(perf_file);
+    cv_flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
 
-        dt = 0.0;
+    cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    fprintf(perf_file, "%-8d%-8.3f%-16.3f%-8.2f",
+        t - starttime, cputime_dt, cputime, maxstep);
+    fprintf(perf_file, "%-8ld%-8ld%-8ld%-8ld%-8ld\n",
+        nst - nst0, nni - nni0, nfe - nfe0, netf - netf0, ncfn - ncfn0);
+    fflush(perf_file);
+
+    dt = 0.0;
 
     nst0 = nst;
     nni0 = nni;
@@ -506,18 +530,42 @@ void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
 
 void PrintCVodeFinalStats(void *cvode_mem)
 {
-    int             flag;
+    int             cv_flag;
     long int        nst;
     long int        nfe;
     long int        netf;
     long int        nni;
     long int        ncfn;
 
-    flag = CVodeGetNumSteps(cvode_mem, &nst);
-    flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-    flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-    flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-    flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+    cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
 
     PIHMprintf(VL_NORMAL, "\n");
     PIHMprintf(VL_NORMAL,

@@ -174,6 +174,19 @@ void BackupInput(const char *outputdir)
     }
 }
 
+int CheckCVodeFlag(int cv_flag)
+{
+    if (cv_flag < 0)
+    {
+        PIHMprintf(VL_ERROR, "CVODE error %d\n", cv_flag);
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+}
+
 void _PIHMexit(const char *fn, int lineno, const char *func, int error)
 {
     PIHMprintf(VL_ERROR, "\n");

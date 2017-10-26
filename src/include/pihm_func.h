@@ -92,6 +92,7 @@ double          ChanFlowRiverToRiver(const river_struct *, const river_struct *,
     int);
 double          ChanLeak(const river_wstate_struct *, const river_topo_struct *,
     const shp_struct *, const matl_struct *);
+int             CheckCVodeFlag(int);
 void            CheckDy(double, const char *, const char *, int, double);
 void            CheckFile(const FILE *, const char *);
 void            CorrElev(elem_struct *, river_struct *);
