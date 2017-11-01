@@ -66,8 +66,6 @@ void DailyBgc(pihm_struct pihm, int t)
         epconst_struct *epc;
         epvar_struct   *epv;
         soil_struct    *soil;
-        wstate_struct  *ws;
-        estate_struct  *es;
         eflux_struct   *ef;
         pstate_struct  *ps;
         cstate_struct  *cs;
@@ -85,8 +83,6 @@ void DailyBgc(pihm_struct pihm, int t)
         epc = &pihm->elem[i].epc;
         epv = &pihm->elem[i].epv;
         soil = &pihm->elem[i].soil;
-        ws = &pihm->elem[i].ws;
-        es = &pihm->elem[i].es;
         ef = &pihm->elem[i].ef;
         ps = &pihm->elem[i].ps;
         cs = &pihm->elem[i].cs;
