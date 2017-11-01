@@ -961,18 +961,10 @@ typedef struct daily_struct
     int             counter;               /* counter used for averaging */
     int             daylight_counter;      /* counter used for daytime averaging
                                             */
-    double          avg_surf;              /* daily average surface water level
-                                            * (m) */
-    double          avg_unsat;             /* daily average unsaturated water
-                                            * storage (m) */
-    double          avg_gw;                /* daily average groundwater level
-                                            * (m) */
     double          avg_sh2o[MAXLYR];      /* daily average unfrozen soil water
                                             * content (m3 m-3) */
     double          avg_smc[MAXLYR];       /* daily average unfrozen soil
                                             * moisture content (m3 m-3) */
-    double          avg_smflxv[MAXLYR];    /* daily average vertical soil
-                                            * moisture flux (m s-1) */
     double          avg_et[MAXLYR];        /* daily average evapotranspiration
                                             * (m s-1) */
     double          avg_q2d;               /* daily average mixing ratio deficit

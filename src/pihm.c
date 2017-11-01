@@ -63,8 +63,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
 
     /* Daily timestep modules */
 #ifdef _DAILY_
-    DailyVar(t, pihm->ctrl.starttime, pihm->elem, pihm->river,
-        pihm->ctrl.stepsize);
+    DailyVar(t, pihm->ctrl.starttime, pihm->elem, pihm->ctrl.stepsize);
 
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
@@ -82,7 +81,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
         UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, CN_STEP);
 
         /* Initialize daily structures */
-        InitDailyStruct(pihm->elem, pihm->river);
+        InitDailyStruct(pihm->elem);
     }
 #endif
 
