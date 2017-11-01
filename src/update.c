@@ -33,7 +33,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 
         elem[i].ws0 = elem[i].ws;
 
-#ifdef _BGC_
+#if defined(_BGC_) && !defined(_LUMPED_)
         elem[i].ns.surfn = (y[SURFN(i)] > 0.0) ? y[SURFN(i)] : 0.0;
         elem[i].ns.sminn = (y[SMINN(i)] > 0.0) ? y[SMINN(i)] : 0.0;
 

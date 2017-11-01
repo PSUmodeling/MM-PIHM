@@ -13,7 +13,7 @@
 # define FBRUNSAT(i)   i + 3 * nelem + 2 * nriver
 # define FBRGW(i)      i + 4 * nelem + 2 * nriver
 #endif
-#ifdef _BGC_
+#if defined(_BGC_) && !defined(_LUMPED_)
 # define SURFN(i)      i + 3 * nelem + 2 * nriver
 # define SMINN(i)      i + 4 * nelem + 2 * nriver
 # define STREAMN(i)    i + 5 * nelem + 2 * nriver
@@ -572,7 +572,11 @@ void            MaintResp(const epconst_struct *, epvar_struct *,
 void            MakeZeroFluxStruct(cflux_struct *, nflux_struct *);
 void            Mortality(const epconst_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
+# if defined(_LUMPED_)
+void            NLeaching(elem_struct *, river_struct *, double);
+# else
 void            NTransport(elem_struct *, river_struct *);
+# endif
 void            OffsetLitterfall(const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *);
 void            OnsetGrowth(const epconst_struct *, const epvar_struct *,

@@ -1,9 +1,9 @@
 #include "pihm.h"
 
+#if !defined(_LUMPED_)
 void NTransport(elem_struct *elem, river_struct *river)
 {
     int             i;
-
     /*
      * Calculate solute N concentrations
      */
@@ -251,3 +251,46 @@ void NTransport(elem_struct *elem, river_struct *river)
         }
     }
 }
+#endif
+
+#if defined (_LUMPED_)
+void NLeaching(elem_struct *elem, river_struct *river, double stepsize)
+{
+    int             i;
+    double          strg = 0.0;      /* Total water storage (m3 m-2) */
+    double          total_area = 0.0;
+    double          runoff = 0.0;    /* Total runoff (kg m-2 s-1) */
+
+    for (i = 0; i < nelem; i++)
+    {
+        int             j;
+
+        strg += ((elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
+            elem[i].soil.depth * elem[i].soil.smcmin) * elem[i].topo.area;
+        total_area += elem[i].topo.area;
+    }
+
+    for (i = 0; i < nriver; i++)
+    {
+        if (river[i].down < 0)
+        {
+           runoff += river[i].wf.rivflow[DOWN_CHANL2CHANL] * 1000.0;
+        }
+    }
+
+    strg /= total_area;
+    runoff /= total_area;
+
+    elem[LUMPED].ns.sminn +=
+        (elem[LUMPED].nf.ndep_to_sminn + elem[LUMPED].nf.nfix_to_sminn) /
+        DAYINSEC * stepsize + elem[LUMPED].nsol.snksrc * stepsize;
+
+    elem[LUMPED].ns.sminn -= stepsize *((runoff > 0.0) ?
+        runoff * MOBILEN_PROPORTION * elem[LUMPED].ns.sminn / strg / 1000.0 :
+        0.0);
+
+    elem[LUMPED].ns.nleached_snk += stepsize *((runoff > 0.0) ?
+        runoff * MOBILEN_PROPORTION * elem[LUMPED].ns.sminn / strg / 1000.0 :
+        0.0);
+}
+#endif

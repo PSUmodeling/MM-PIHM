@@ -204,7 +204,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 # endif
     for (i = 0; i < nelem; i++)
     {
-# ifdef _LUMPED_
+# if defined(_LUMPED_)
         elem[i].ps.proj_lai =
             elem[LUMPED].cs.leafc * elem[LUMPED].epc.avg_proj_sla;
 # else

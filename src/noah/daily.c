@@ -4,6 +4,9 @@ void DailyVar(int t, int start_time, elem_struct *elem, river_struct *river,
     double dt)
 {
     int             i;
+#if defined(_LUMPED_)
+    double          total_area;
+#endif
 
     /*
      * Sum daily variables
@@ -132,6 +135,11 @@ void DailyVar(int t, int start_time, elem_struct *elem, river_struct *river,
 
             elem[i].daily.tnight /= (double)(elem[i].daily.counter -
                 elem[i].daily.daylight_counter);
+
+#if defined(_LUMPED_)
+            elem[LUMPED].daily.avg_sfctmp += elem[i].daily.avg_sfctmp;
+#endif
+
         }
 
 #ifdef _CYCLES_
@@ -162,7 +170,7 @@ void InitDailyStruct(elem_struct *elem, river_struct *river)
 #ifdef _OPENMP
 # pragma omp parallel for
 #endif
-#ifdef _LUMPED_
+#if defined(_LUMPED_)
     for (i = 0; i < nelem + 1; i++)
 #else
     for (i = 0; i < nelem; i++)

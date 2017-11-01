@@ -39,6 +39,10 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     NoahHydrol(pihm->elem, (double)pihm->ctrl.stepsize);
 #endif
 
+#if defined(_BGC_) && defined(_LUMPED_)
+    NLeaching(pihm->elem, pihm->river, (double)pihm->ctrl.stepsize);
+#endif
+
 #ifdef _CYCLES_
     SoluteTransport(pihm->elem, pihm->river, (double)pihm->ctrl.stepsize);
 #endif
@@ -47,17 +51,22 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, HYDROL_STEP);
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, HYDROL_STEP);
 
-#ifdef _BGC_
+#if defined(_BGC_)
     int             i;
 
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
+# if defined(_LUMPED_)
+        CheckNitrogenBalance(&pihm->elem[LUMPED].ns,
+            &pihm->elem[LUMPED].epv.old_n_balance);
+# else
         for (i = 0; i < nelem; i++)
         {
             /* Test for nitrogen balance */
             CheckNitrogenBalance(&pihm->elem[i].ns,
                 &pihm->elem[i].epv.old_n_balance);
         }
+# endif
     }
 #endif
 

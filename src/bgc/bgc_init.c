@@ -7,7 +7,7 @@ void InitBgc(elem_struct *elem, const epctbl_struct *epctbl)
 
     PIHMprintf(VL_VERBOSE, "BGC: Initializing BGC structures\n");
 
-#ifdef _LUMPED_
+#if defined(_LUMPED_)
     i = LUMPED;
 #else
     for (i = 0; i < nelem; i++)
@@ -82,7 +82,7 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 {
     int             i;
 
-#ifdef _LUMPED_
+#if defined(_LUMPED_)
     i = LUMPED;
 #else
     for (i = 0; i < nelem; i++)
@@ -95,14 +95,16 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
         elem[i].epv.annavg_t2m = elem[i].ps.tbot;
         elem[i].nsol.snksrc = 0.0;
 
+#if !defined(_LUMPED_)
         NV_Ith(CV_Y, SURFN(i)) = elem[i].ns.surfn;
         NV_Ith(CV_Y, SMINN(i)) = elem[i].ns.sminn;
 
         elem[i].nt.surfn0 = elem[i].ns.surfn;
         elem[i].nt.sminn0 = elem[i].ns.sminn;
+#endif
     }
 
-#ifndef _LUMPED_
+#if !defined(_LUMPED_)
     for (i = 0; i < nriver; i++)
     {
         river[i].ns.streamn = river[i].restart_input.streamn;

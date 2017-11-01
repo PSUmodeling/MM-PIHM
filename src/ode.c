@@ -40,7 +40,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem->ws.fbr_gw = (y[FBRGW(i)] >= 0.0) ? y[FBRGW(i)] : 0.0;
 #endif
 
-#ifdef _BGC_
+#if defined(_BGC_) && !defined(_LUMPED_)
         elem->ns.surfn = (y[SURFN(i)] >= 0.0) ? y[SURFN(i)] : 0.0;
         elem->ns.sminn = (y[SMINN(i)] >= 0.0) ? y[SMINN(i)] : 0.0;
 #endif
@@ -57,7 +57,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         river->ws.stage = (y[RIVSTG(i)] >= 0.0) ? y[RIVSTG(i)] : 0.0;
         river->ws.gw = (y[RIVGW(i)] >= 0.0) ? y[RIVGW(i)] : 0.0;
 
-#ifdef _BGC_
+#if defined(_BGC_) && !defined(_LUMPED_)
         river->ns.streamn = (y[STREAMN(i)] >= 0.0) ? y[STREAMN(i)] : 0.0;
         river->ns.sminn = (y[RIVBEDN(i)] >= 0.0) ? y[RIVBEDN(i)] : 0.0;
 #endif
@@ -71,7 +71,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
      */
     Hydrol(pihm->elem, pihm->river, &pihm->ctrl);
 
-#ifdef _BGC_
+#if defined(_BGC_) && !defined(_LUMPED_)
     /*
      * Nitrogen transport fluxes
      */
@@ -129,7 +129,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         CheckDy(dy[FBRGW(i)], "element", "fbr groundwater", i + 1, (double)t);
 #endif
 
-#ifdef _BGC_
+#if defined(_BGC_) && !defined(_LUMPED_)
         dy[SURFN(i)] +=
             (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC -
             elem->nsol.infilflux;
@@ -176,7 +176,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         CheckDy(dy[RIVSTG(i)], "river", "stage", i + 1, (double)t);
         CheckDy(dy[RIVGW(i)], "river", "groundwater", i + 1, (double)t);
 
-#ifdef _BGC_
+#if defined(_BGC_) && !defined(_LUMPED_)
         for (j = 0; j <= 6; j++)
         {
             dy[STREAMN(i)] -= river->nsol.flux[j] / river->topo.area;
@@ -215,9 +215,9 @@ int NumStateVar(void)
      */
     int             nsv;
 
-#ifdef _BGC_
+#if defined(_BGC_) && !defined(_LUMPED_)
     nsv = 5 * nelem + 4 * nriver;
-#elif _FBR_
+#elif defined(_FBR_)
     nsv = 5 * nelem + 2 * nriver;
 #else
     nsv = 3 * nelem + 2 * nriver;
@@ -229,7 +229,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             cv_flag;
     static int      reset;
-#ifdef _BGC_
+#if defined(_BGC_) && !defined(_LUMPED_)
     N_Vector        abstol;
     const double    SMINN_TOL = 1.0E-5;
 #endif
@@ -256,7 +256,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
         reset = 1;
     }
 
-#ifdef _BGC_
+#if defined(_BGC_) && !defined(_LUMPED_)
     /* When BGC module is turned on, both water storage and nitrogen storage
      * variables are in the CVODE vector. A vector of absolute tolerances is
      * needed to specify different absolute tolerances for water storage
@@ -311,7 +311,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     }
 }
 
-#ifdef _BGC_
+#if defined(_BGC_) && !defined(_LUMPED_)
 void SetAbsTol(double hydrol_tol, double sminn_tol, N_Vector abstol)
 {
     int             i;

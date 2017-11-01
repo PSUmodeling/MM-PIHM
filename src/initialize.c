@@ -3,7 +3,7 @@
 void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 {
     int             i, j;
-#ifdef _LUMPED_
+#if defined(_LUMPED_)
     int             soil_counter[100];
     int             lc_counter[100];
 
@@ -27,7 +27,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     /*
      * Initialize PIHM structure
      */
-#ifdef _LUMPED_
+#if defined(_LUMPED_)
     pihm->elem = (elem_struct *)malloc((nelem + 1) * sizeof(elem_struct));
 #else
     pihm->elem = (elem_struct *)malloc(nelem * sizeof(elem_struct));
@@ -41,7 +41,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         pihm->elem[i].attrib.geol_type = pihm->atttbl.geol[i];
 #endif
         pihm->elem[i].attrib.lc_type = pihm->atttbl.lc[i];
-#ifdef _LUMPED_
+#if defined(_LUMPED_)
         soil_counter[pihm->elem[i].attrib.soil_type]++;
         lc_counter[pihm->elem[i].attrib.lc_type]++;
 #endif
@@ -56,7 +56,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         pihm->elem[i].attrib.lai_type = pihm->atttbl.lai[i];
     }
 
-#ifdef _LUMPED_
+#if defined(_LUMPED_)
     pihm->elem[LUMPED].attrib.soil_type = 0;
     pihm->elem[LUMPED].attrib.lc_type = 0;
     for (i = 0; i < 100; i++)
@@ -266,7 +266,7 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
     int             i;
     int             soil_ind;
 
-#ifdef _LUMPED_
+#if defined(_LUMPED_)
     for (i = 0; i < nelem + 1; i++)
 #else
     for (i = 0; i < nelem; i++)
@@ -361,7 +361,7 @@ void InitLc(elem_struct *elem, const lctbl_struct *lctbl,
     int             i;
     int             lc_ind;
 
-#ifdef _LUMPED_
+#if defined(_LUMPED_)
     for (i = 0; i < nelem + 1; i++)
 #else
     for (i = 0; i < nelem; i++)

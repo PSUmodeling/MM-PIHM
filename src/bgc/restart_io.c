@@ -175,7 +175,7 @@ void ReadBgcIc(const char *fn, elem_struct *elem, river_struct *river)
     CheckFile(init_file, fn);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 
-#ifdef _LUMPED_
+#if defined(_LUMPED_)
     i = LUMPED;
 #else
     for (i = 0; i < nelem; i++)
@@ -199,7 +199,7 @@ void ReadBgcIc(const char *fn, elem_struct *elem, river_struct *river)
         }
     }
 
-#ifndef _LUMPED_
+#if !defined(_LUMPED_)
     for (i = 0; i < nriver; i++)
     {
         fread(&river[i].restart_input, sizeof(river_bgcic_struct), 1,
@@ -222,7 +222,11 @@ void WriteBgcIc(const char *outputdir, elem_struct *elem, river_struct *river)
     CheckFile(restart_file, restart_fn);
     PIHMprintf(VL_VERBOSE, "Writing BGC initial conditions.\n");
 
+#if defined(_LUMPED_)
+    i = LUMPED;
+#else
     for (i = 0; i < nelem; i++)
+#endif
     {
         RestartOutput(&elem[i].cs, &elem[i].ns, &elem[i].epv,
             &elem[i].restart_output);
@@ -246,6 +250,7 @@ void WriteBgcIc(const char *outputdir, elem_struct *elem, river_struct *river)
             restart_file);
     }
 
+#if !defined(_LUMPED_)
     for (i = 0; i < nriver; i++)
     {
         river[i].restart_output.streamn = river[i].ns.streamn;
@@ -254,6 +259,7 @@ void WriteBgcIc(const char *outputdir, elem_struct *elem, river_struct *river)
         fwrite(&(river[i].restart_output), sizeof(river_bgcic_struct), 1,
             restart_file);
     }
+#endif
 
     fclose(restart_file);
 }

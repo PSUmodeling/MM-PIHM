@@ -401,7 +401,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     break;
 #endif
 #ifdef _BGC_
-# ifdef _LUMPED_
+# if defined(_LUMPED_)
                 case LAI_CTRL:
                     InitPrtVarCtrl(outputdir, "lai", prtvrbl[i],
                         CN_STEP, nelem + 1, &print->varctrl[n]);
