@@ -93,7 +93,7 @@ void ReadBgc(const char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     NextLine(bgc_file, cmdstr, &lno);
     sscanf(cmdstr, "%lf", &cninit->sminn);
 
-    FindLine(bgc_file, "DAILY_OUTPUT", &lno, fn);
+    FindLine(bgc_file, "OUTPUT_CONTROL", &lno, fn);
 
     NextLine(bgc_file, cmdstr, &lno);
     ctrl->prtvrbl[LAI_CTRL] = ReadPrtCtrl(cmdstr, "LAI", fn, lno);

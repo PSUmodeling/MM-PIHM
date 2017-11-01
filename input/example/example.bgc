@@ -34,7 +34,7 @@ N_STATE         (keyword) start of nitrogen state variable initialization block
 0.0             (kgN/m2)  litter nitrogen, labile pool
 0.0             (kgN/m2)  soil nitrogen, mineral pool
 
-DAILY_OUTPUT    (keyword)
+OUTPUT_CONTROL  (keyword)
 LAI             DAILY
 VEGC            DAILY
 LITRC           DAILY
