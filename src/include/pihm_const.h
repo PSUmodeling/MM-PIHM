@@ -22,6 +22,10 @@
 
 #define F_OK    0
 
+#ifdef _LUMPED_
+# define LUMPED    nelem
+#endif
+
 /* Simulation mode */
 #define NORMAL_MODE        0
 #define SPINUP_MODE        1

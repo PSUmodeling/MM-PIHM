@@ -175,7 +175,11 @@ void ReadBgcIc(const char *fn, elem_struct *elem, river_struct *river)
     CheckFile(init_file, fn);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 
+#ifdef _LUMPED_
+    i = LUMPED;
+#else
     for (i = 0; i < nelem; i++)
+#endif
     {
         fread(&elem[i].restart_input, sizeof(bgcic_struct), 1, init_file);
 
@@ -195,11 +199,13 @@ void ReadBgcIc(const char *fn, elem_struct *elem, river_struct *river)
         }
     }
 
+#ifndef _LUMPED_
     for (i = 0; i < nriver; i++)
     {
         fread(&river[i].restart_input, sizeof(river_bgcic_struct), 1,
             init_file);
     }
+#endif
 
     fclose(init_file);
 }

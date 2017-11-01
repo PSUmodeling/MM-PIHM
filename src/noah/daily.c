@@ -162,7 +162,11 @@ void InitDailyStruct(elem_struct *elem, river_struct *river)
 #ifdef _OPENMP
 # pragma omp parallel for
 #endif
+#ifdef _LUMPED_
+    for (i = 0; i < nelem + 1; i++)
+#else
     for (i = 0; i < nelem; i++)
+#endif
     {
         int             k;
 

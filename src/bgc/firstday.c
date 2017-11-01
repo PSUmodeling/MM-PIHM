@@ -4,7 +4,11 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
 {
     int             i;
 
+#ifdef _LUMPED_
+    i = LUMPED;
+#else
     for (i = 0; i < nelem; i++)
+#endif
     {
         bgcic_struct   *restart;
         epconst_struct *epc;
@@ -162,9 +166,11 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
         restart->prev_frootc_to_litter = 0.0;
     }
 
+#ifndef _LUMPED_
     for (i = 0; i < nriver; i++)
     {
         riv[i].restart_input.streamn = 0.0;
         riv[i].restart_input.sminn = 0.0;
     }
+#endif
 }
