@@ -104,17 +104,6 @@ typedef struct river_bgcic_struct
 #endif
 
 #ifdef _CYCLES_
-/* River daily average */
-typedef struct river_daily_struct
-{
-    int             counter;                /* counter used for averaging */
-    double          avg_stage;              /* daily average river stage (m) */
-    double          avg_gw;                 /* daily average groundwater level
-                                             * (m) */
-    double          avg_rivflow[NUM_RIVFLX];/* daily average river flux (m3 s-1)
-                                             */
-} river_daily_struct;
-
 typedef struct river_solute_struct
 {
     double          soluteMass;
@@ -149,7 +138,6 @@ typedef struct river_struct
     river_ic_struct ic;
     river_bc_struct bc;
 #ifdef _CYCLES_
-    river_daily_struct daily;
     river_solute_struct NO3sol;
     river_solute_struct NH4sol;
     river_cyclesic_struct cycles_restart;

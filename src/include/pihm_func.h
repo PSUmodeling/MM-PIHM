@@ -377,8 +377,8 @@ void            WDfCnd(double *, double *, double, double, int,
 #endif
 
 #ifdef _DAILY_
-void            DailyVar(int, int, elem_struct *, river_struct *, double);
-void            InitDailyStruct(elem_struct *, river_struct *);
+void            DailyVar(int, int, elem_struct *, double);
+void            InitDailyStruct(elem_struct *);
 #endif
 
 #ifdef _CYCLES_
