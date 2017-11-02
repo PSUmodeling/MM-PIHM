@@ -19,7 +19,8 @@ typedef struct siteinfo_struct
 {
     double          longitude;    /* (degree) */
     double          latitude;     /* (degree) */
-    double          elevation;    /* average elevation (m) */
+    double          zmax;         /* average surface elevation (m) */
+    double          zmin;         /* average soil bottom elevation (m) */
     double          area;         /* total area (m2) */
     double          tavg;         /* annual average air temperature (K) */
 } siteinfo_struct;
