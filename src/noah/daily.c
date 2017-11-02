@@ -102,6 +102,8 @@ void DailyVar(int t, int start_time, elem_struct *elem, double dt)
 #if defined(_LUMPED_)
         int             k;
 
+        elem[LUMPED].daily.tmax = 0.0;
+        elem[LUMPED].daily.tmin = 0.0;
         for (i = 0; i < nelem; i++)
         {
             elem[LUMPED].daily.tmax += elem[i].daily.tmax * elem[i].topo.area;
