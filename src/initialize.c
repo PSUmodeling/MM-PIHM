@@ -88,6 +88,11 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     pihm->siteinfo.elevation = AvgElev(pihm->elem);
     pihm->siteinfo.area = TotalArea(pihm->elem);
 #endif
+#if defined(_LUMPED_)
+    pihm->elem[LUMPED].topo.zmax = pihm->siteinfo.zmax;
+    pihm->elem[LUMPED].topo.zmin = pihm->siteinfo.zmin;
+    pihm->elem[LUMPED].topo.area = pihm->siteinfo.area;
+#endif
 
     /* Initialize element soil properties */
 #ifdef _NOAH_

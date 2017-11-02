@@ -258,7 +258,6 @@ void NLeaching(elem_struct *elem, river_struct *river, double stepsize)
 {
     int             i;
     double          strg = 0.0;      /* Total water storage (m3 m-2) */
-    double          total_area = 0.0;
     double          runoff = 0.0;    /* Total runoff (kg m-2 s-1) */
 
     for (i = 0; i < nelem; i++)
@@ -267,7 +266,6 @@ void NLeaching(elem_struct *elem, river_struct *river, double stepsize)
 
         strg += ((elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
             elem[i].soil.depth * elem[i].soil.smcmin) * elem[i].topo.area;
-        total_area += elem[i].topo.area;
     }
 
     for (i = 0; i < nriver; i++)
@@ -278,8 +276,8 @@ void NLeaching(elem_struct *elem, river_struct *river, double stepsize)
         }
     }
 
-    strg /= total_area;
-    runoff /= total_area;
+    strg /= elem[LUMPED].topo.area;
+    runoff /= elem[LUMPED].topo.area;
 
     elem[LUMPED].ns.sminn +=
         (elem[LUMPED].nf.ndep_to_sminn + elem[LUMPED].nf.nfix_to_sminn) /

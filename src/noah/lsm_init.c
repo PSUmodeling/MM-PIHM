@@ -6,7 +6,11 @@ void InitLsm(elem_struct *elem, const ctrl_struct *ctrl,
     int             i;
     double          frzfact;
 
+#if defined(_LUMPED_)
+    for (i = 0; i < nelem + 1; i++)
+#else
     for (i = 0; i < nelem; i++)
+#endif
     {
 
         /* Set-up soil layer depths */
@@ -22,7 +26,7 @@ void InitLsm(elem_struct *elem, const ctrl_struct *ctrl,
 
         RootDist(elem[i].ps.sldpth, elem[i].ps.nsoil, elem[i].ps.nroot,
             elem[i].ps.rtdis);
-            
+
         /* Set-up universal parameters (not dependent on soil type or vegetation
          * type */
         elem[i].ps.sbeta = noahtbl->sbeta;

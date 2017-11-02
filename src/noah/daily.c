@@ -3,9 +3,6 @@
 void DailyVar(int t, int start_time, elem_struct *elem, double dt)
 {
     int             i;
-#if defined(_LUMPED_)
-    double          total_area;
-#endif
 
     /*
      * Sum daily variables
@@ -100,12 +97,71 @@ void DailyVar(int t, int start_time, elem_struct *elem, double dt)
 
             elem[i].daily.tnight /= (double)(elem[i].daily.counter -
                 elem[i].daily.daylight_counter);
+        }
 
 #if defined(_LUMPED_)
-            elem[LUMPED].daily.avg_sfctmp += elem[i].daily.avg_sfctmp;
-#endif
+        int             k;
 
+        for (i = 0; i < nelem; i++)
+        {
+            elem[LUMPED].daily.tmax += elem[i].daily.tmax * elem[i].topo.area;
+            elem[LUMPED].daily.tmin += elem[i].daily.tmin * elem[i].topo.area;
+            elem[LUMPED].daily.avg_sfctmp +=
+                elem[i].daily.avg_sfctmp * elem[i].topo.area;
+            elem[LUMPED].daily.avg_sfcspd +=
+                elem[i].daily.avg_sfcspd * elem[i].topo.area;
+            /* When running lumped model, only average root zone to avoid uneven
+             * layers */
+            for (k = 0; k < elem[i].ps.nroot; k++)
+            {
+                elem[LUMPED].daily.avg_stc[k] +=
+                    elem[i].daily.avg_stc[k] * elem[i].topo.area;
+                elem[LUMPED].daily.avg_sh2o[k] +=
+                    elem[i].daily.avg_sh2o[k] * elem[i].topo.area;
+                elem[LUMPED].daily.avg_smc[k] +=
+                    elem[i].daily.avg_smc[k] * elem[i].topo.area;
+            }
+
+            elem[LUMPED].daily.tday +=
+                elem[i].daily.tday * elem[i].topo.area;
+            elem[LUMPED].daily.avg_q2d +=
+                elem[i].daily.avg_q2d * elem[i].topo.area;
+            elem[LUMPED].daily.avg_ch +=
+                elem[i].daily.avg_ch * elem[i].topo.area;
+            elem[LUMPED].daily.avg_rc +=
+                elem[i].daily.avg_rc * elem[i].topo.area;
+            elem[LUMPED].daily.avg_sfcprs +=
+                elem[i].daily.avg_sfcprs * elem[i].topo.area;
+            elem[LUMPED].daily.avg_albedo +=
+                elem[i].daily.avg_albedo * elem[i].topo.area;
+            elem[LUMPED].daily.avg_soldn +=
+                elem[i].daily.avg_soldn * elem[i].topo.area;
+            elem[LUMPED].daily.tnight +=
+                elem[i].daily.tnight * elem[i].topo.area;
         }
+
+        elem[LUMPED].daily.tmax /= elem[LUMPED].topo.area;
+        elem[LUMPED].daily.tmin /= elem[LUMPED].topo.area;
+        elem[LUMPED].daily.avg_sfctmp /= elem[LUMPED].topo.area;
+        elem[LUMPED].daily.avg_sfcspd /= elem[LUMPED].topo.area;
+        /* When running lumped model, only average root zone to avoid uneven
+         * layers */
+        for (k = 0; k < elem[LUMPED].ps.nroot; k++)
+        {
+            elem[LUMPED].daily.avg_stc[k] /= elem[LUMPED].topo.area;
+            elem[LUMPED].daily.avg_sh2o[k] /= elem[LUMPED].topo.area;
+            elem[LUMPED].daily.avg_smc[k] /= elem[LUMPED].topo.area;
+        }
+
+        elem[LUMPED].daily.tday /= elem[LUMPED].topo.area;
+        elem[LUMPED].daily.avg_q2d /= elem[LUMPED].topo.area;
+        elem[LUMPED].daily.avg_ch /= elem[LUMPED].topo.area;
+        elem[LUMPED].daily.avg_rc /= elem[LUMPED].topo.area;
+        elem[LUMPED].daily.avg_sfcprs /= elem[LUMPED].topo.area;
+        elem[LUMPED].daily.avg_albedo /= elem[LUMPED].topo.area;
+        elem[LUMPED].daily.avg_soldn /= elem[LUMPED].topo.area;
+        elem[LUMPED].daily.tnight /= elem[LUMPED].topo.area;
+#endif
     }
 }
 
