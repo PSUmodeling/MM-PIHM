@@ -52,6 +52,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #ifdef _NOAH_
     /* Calculate average elevation and total area of model domain */
     pihm->siteinfo.zmax = AvgElev(pihm->elem);
+    pihm->siteinfo.zmin = AvgZmin(pihm->elem);
     pihm->siteinfo.area = TotalArea(pihm->elem);
 #endif
 
