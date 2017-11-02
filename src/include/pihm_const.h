@@ -73,6 +73,10 @@
 #define RIVER_AREA     1
 #define RIVER_PERIM    2
 
+#define WS_ZMAX    0
+#define WS_ZMIN    1
+#define WS_AREA    2
+
 /* Number of river fluxes of a river segment */
 #define NUM_RIVFLX    11
 

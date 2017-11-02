@@ -466,7 +466,7 @@ void SunPos(const siteinfo_struct *siteinfo, int t, spa_data *spa)
 
     spa->longitude = siteinfo->longitude;
     spa->latitude = siteinfo->latitude;
-    spa->elevation = siteinfo->elevation;
+    spa->elevation = siteinfo->zmax;
 
     /* Calculate surface pressure based on FAO 1998 method (Narasimhan 2002) */
     spa->pressure =
@@ -544,32 +544,40 @@ double FrozRain(double prcp, double sfctmp)
     return ffrozp;
 }
 
-double AvgElev(const elem_struct *elem)
+double _WsAreaElev(int type, const elem_struct *elem)
 {
-    double          elev = 0.0;
+    double          ans = 0.0;
     int             i;
 
     for (i = 0; i < nelem; i++)
     {
-        elev += elem[i].topo.zmax;
+        switch (type)
+        {
+            case WS_ZMAX:
+                ans += elem[i].topo.zmax;
+                break;
+            case WS_ZMIN:
+                ans += elem[i].topo.zmin;
+                break;
+            case WS_AREA:
+                ans += elem[i].topo.area;
+                break;
+            default:
+                ans = BADVAL;
+                PIHMprintf(VL_ERROR,
+                    "Error: Return value type %d id not defined.\n", type);
+                PIHMexit(EXIT_FAILURE);
+        }
     }
 
-    elev /= (double)nelem;
-
-    return elev;
-}
-
-double TotalArea(const elem_struct *elem)
-{
-    double          area = 0.0;
-    int             i;
-
-    for (i = 0; i < nelem; i++)
+    if (type == WS_AREA)
     {
-        area += elem[i].topo.area;
+        return ans;
     }
-
-    return area;
+    else
+    {
+        return ans / (double)nelem;
+    }
 }
 
 void CalcLatFlx(const pstate_struct *ps, wflux_struct *wf, double area)

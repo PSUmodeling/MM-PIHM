@@ -24,6 +24,10 @@
 #define RiverEqWid(...)    _RiverWdthAreaPerim(RIVER_WDTH, __VA_ARGS__)
 #define RiverPerim(...)    _RiverWdthAreaPerim(RIVER_PERIM, __VA_ARGS__)
 
+#define AvgElev(...)      _WsAreaElev(WS_ZMAX, __VA_ARGS__)
+#define AvgZmin(...)      _WsAreaElev(WS_ZMIN, __VA_ARGS__)
+#define TotalArea(...)    _WsAreaElev(WS_AREA, __VA_ARGS__)
+
 /* CVode functions */
 #ifdef _CVODE_OMP
 # define N_VNew(N)    N_VNew_OpenMP(N, nthreads)
@@ -258,8 +262,8 @@ void            ReadGeol(const char *, geoltbl_struct *);
  * Noah functions
  */
 #ifdef _NOAH_
+double          _WsAreaElev(int, const elem_struct *);
 void            AlCalc(pstate_struct *, double, int);
-double          AvgElev(const elem_struct *);
 void            CalcLatFlx(const pstate_struct *, wflux_struct *, double);
 void            CalcSlopeAspect(elem_struct *, const meshtbl_struct *);
 void            CalHum(pstate_struct *, estate_struct *);
@@ -369,7 +373,6 @@ double          TBnd(double, double, const double *, double, int, int);
 double          TDfCnd(double, double, double, double, double);
 double          TmpAvg(double, double, double, const double *, int);
 double          TopoRadn(const topo_struct *, double, double, double, double);
-double          TotalArea(const elem_struct *);
 void            Transp(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
 void            WDfCnd(double *, double *, double, double, int,
