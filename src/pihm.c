@@ -57,16 +57,18 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
 # if defined(_LUMPED_)
-        CheckNitrogenBalance(&pihm->elem[LUMPED].ns,
-            &pihm->elem[LUMPED].epv.old_n_balance);
+        i = LUMPED;
 # else
+#  ifdef _OPENMP
+#   pragma omp parallel for
+#  endif
         for (i = 0; i < nelem; i++)
+# endif
         {
             /* Test for nitrogen balance */
             CheckNitrogenBalance(&pihm->elem[i].ns,
                 &pihm->elem[i].epv.old_n_balance);
         }
-# endif
     }
 #endif
 

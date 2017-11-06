@@ -8,6 +8,7 @@ void DailyBgc(pihm_struct pihm, int t)
     double          dayl, prev_dayl;
     double          ndep, nfix;
     spa_data        spa, prev_spa;
+    double         *vwc;
 
     /* Get co2 and ndep */
     if (spinup_mode)    /* Spinup mode */
@@ -56,12 +57,49 @@ void DailyBgc(pihm_struct pihm, int t)
     prev_dayl = (prev_spa.sunset - prev_spa.sunrise) * 3600.0;
     prev_dayl = (prev_dayl < 0.0) ? (prev_dayl + 24.0 * 3600.0) : prev_dayl;
 
+    /* Calculate average soil water content for all model grids */
+#if defined(_LUMPED_)
+    vwc = (double *)malloc((nelem + 1) * sizeof(double));
+#else
+    vwc = (double *)malloc(nelem * sizeof(double));
+#endif
 #ifdef _OPENMP
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
         int             k;
+
+        vwc[i] = pihm->elem[i].daily.avg_sh2o[0] * pihm->elem[i].ps.sldpth[0];
+        if (pihm->elem[i].ps.nsoil > 1)
+        {
+            for (k = 1; k < pihm->elem[i].ps.nsoil; k++)
+            {
+                vwc[i] += pihm->elem[i].daily.avg_sh2o[k] *
+                    pihm->elem[i].ps.sldpth[k];
+            }
+        }
+        vwc[i] /= pihm->elem[i].soil.depth;
+    }
+
+#if defined(_LUMPED_)
+    vwc[LUMPED] = 0.0;
+    for (i = 0; i < nelem; i++)
+    {
+        vwc[LUMPED] += vwc[i] * pihm->elem[i].topo.area;
+    }
+    vwc[LUMPED] /= pihm->elem[LUMPED].topo.area;
+#endif
+
+#if defined(_LUMPED_)
+    i = LUMPED;
+#else
+# ifdef _OPENMP
+#  pragma omp parallel for
+# endif
+    for (i = 0; i < nelem; i++)
+#endif
+    {
         daily_struct   *daily;
         epconst_struct *epc;
         epvar_struct   *epv;
@@ -76,7 +114,6 @@ void DailyBgc(pihm_struct pihm, int t)
         solute_struct  *nsol;
         psn_struct     *psn_sun, *psn_shade;
         summary_struct *summary;
-        double          vwc;
         int             annual_alloc;
 
         daily = &pihm->elem[i].daily;
@@ -125,18 +162,7 @@ void DailyBgc(pihm_struct pihm, int t)
          * radiation interception and transmission */
         RadTrans(cs, ef, ps, epc, epv, daily);
 
-        /* Soil water potential */
-        vwc = daily->avg_sh2o[0] * ps->sldpth[0];
-        if (ps->nsoil > 1)
-        {
-            for (k = 1; k < ps->nsoil; k++)
-            {
-                vwc += daily->avg_sh2o[k] * ps->sldpth[k];
-            }
-        }
-        vwc /= soil->depth;
-
-        SoilPsi(soil, vwc, &epv->psi);
+        SoilPsi(soil, vwc[i], &epv->psi);
 
         /* Maintenance respiration */
         MaintResp(epc, epv, cs, cf, ns, daily);
@@ -208,4 +234,6 @@ void DailyBgc(pihm_struct pihm, int t)
             pihm->elem[i].spinup.totalc += summary->totalc;
         }
     }
+
+    free(vwc);
 }
