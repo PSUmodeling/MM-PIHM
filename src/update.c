@@ -48,6 +48,18 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 #endif
     }
 
+#if defined(_BGC_) && defined(_LUMPED_)
+    elem[LUMPED].ns.sminn = (y[LUMPED_SMINN] > 0.0) ? y[LUMPED_SMINN] : 0.0;
+
+    elem[LUMPED].ns.nleached_snk += (elem[LUMPED].nt.sminn0 -
+        elem[LUMPED].ns.sminn) +
+        elem[LUMPED].nf.ndep_to_sminn / DAYINSEC * stepsize +
+        elem[LUMPED].nf.nfix_to_sminn / DAYINSEC * stepsize +
+        elem[LUMPED].nsol.snksrc * stepsize;
+
+    elem[LUMPED].nt.sminn0 = elem[LUMPED].ns.sminn;
+#endif
+
 #ifdef _OPENMP
 # pragma omp parallel for
 #endif

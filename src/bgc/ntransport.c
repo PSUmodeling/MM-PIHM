@@ -254,7 +254,7 @@ void NTransport(elem_struct *elem, river_struct *river)
 #endif
 
 #if defined (_LUMPED_)
-void NLeaching(elem_struct *elem, river_struct *river, double stepsize)
+void NLeachingLumped(elem_struct *elem, river_struct *river)
 {
     int             i;
     double          strg = 0.0;      /* Total water storage (m3 m-2) */
@@ -279,16 +279,8 @@ void NLeaching(elem_struct *elem, river_struct *river, double stepsize)
     strg /= elem[LUMPED].topo.area;
     runoff /= elem[LUMPED].topo.area;
 
-    elem[LUMPED].ns.sminn +=
-        (elem[LUMPED].nf.ndep_to_sminn + elem[LUMPED].nf.nfix_to_sminn) /
-        DAYINSEC * stepsize + elem[LUMPED].nsol.snksrc * stepsize;
-
-    elem[LUMPED].ns.sminn -= stepsize *((runoff > 0.0) ?
+    elem[LUMPED].nf.sminn_leached = (runoff > 0.0) ?
         runoff * MOBILEN_PROPORTION * elem[LUMPED].ns.sminn / strg / 1000.0 :
-        0.0);
-
-    elem[LUMPED].ns.nleached_snk += stepsize *((runoff > 0.0) ?
-        runoff * MOBILEN_PROPORTION * elem[LUMPED].ns.sminn / strg / 1000.0 :
-        0.0);
+        0.0;
 }
 #endif

@@ -39,10 +39,6 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     NoahHydrol(pihm->elem, (double)pihm->ctrl.stepsize);
 #endif
 
-#if defined(_BGC_) && defined(_LUMPED_)
-    NLeaching(pihm->elem, pihm->river, (double)pihm->ctrl.stepsize);
-#endif
-
 #ifdef _CYCLES_
     SoluteTransport(pihm->elem, pihm->river, (double)pihm->ctrl.stepsize);
 #endif

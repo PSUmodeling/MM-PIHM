@@ -4,20 +4,22 @@
 #define _ARITH_
 
 /* State variables */
-#define SURF(i)        i
-#define UNSAT(i)       i + nelem
-#define GW(i)          i + 2 * nelem
-#define RIVSTG(i)      i + 3 * nelem
-#define RIVGW(i)       i + 3 * nelem + nriver
+#define SURF(i)          i
+#define UNSAT(i)         i + nelem
+#define GW(i)            i + 2 * nelem
+#define RIVSTG(i)        i + 3 * nelem
+#define RIVGW(i)         i + 3 * nelem + nriver
 #ifdef _FBR_
-# define FBRUNSAT(i)   i + 3 * nelem + 2 * nriver
-# define FBRGW(i)      i + 4 * nelem + 2 * nriver
+# define FBRUNSAT(i)     i + 3 * nelem + 2 * nriver
+# define FBRGW(i)        i + 4 * nelem + 2 * nriver
 #endif
 #if defined(_BGC_) && !defined(_LUMPED_)
-# define SURFN(i)      i + 3 * nelem + 2 * nriver
-# define SMINN(i)      i + 4 * nelem + 2 * nriver
-# define STREAMN(i)    i + 5 * nelem + 2 * nriver
-# define RIVBEDN(i)    i + 5 * nelem + 3 * nriver
+# define SURFN(i)        i + 3 * nelem + 2 * nriver
+# define SMINN(i)        i + 4 * nelem + 2 * nriver
+# define STREAMN(i)      i + 5 * nelem + 2 * nriver
+# define RIVBEDN(i)      i + 5 * nelem + 3 * nriver
+#else
+# define LUMPED_SMINN    3 * nelem + 2 * nriver
 #endif
 
 #define RiverArea(...)     _RiverWdthAreaPerim(RIVER_AREA, __VA_ARGS__)
@@ -576,7 +578,7 @@ void            MakeZeroFluxStruct(cflux_struct *, nflux_struct *);
 void            Mortality(const epconst_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
 # if defined(_LUMPED_)
-void            NLeaching(elem_struct *, river_struct *, double);
+void            NLeachingLumped(elem_struct *, river_struct *);
 # else
 void            NTransport(elem_struct *, river_struct *);
 # endif

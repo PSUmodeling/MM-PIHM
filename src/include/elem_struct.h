@@ -1393,7 +1393,7 @@ typedef struct nflux_struct
     double          sminn_to_nvol_s3s4;
     double          sminn_to_nvol_s4;
     double          sminn_to_denitrif;
-    /* leaching flux (kgN m-2 day-1) */
+    /* leaching flux (kgN m-2 s-1) */
     double          sminn_leached;
     /* daily allocation fluxes from (kgN m-2 day-1) */
     double          retransn_to_npool;

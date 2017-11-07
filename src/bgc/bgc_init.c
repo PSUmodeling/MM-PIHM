@@ -104,6 +104,11 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 #endif
     }
 
+#if defined(_LUMPED_)
+    NV_Ith(CV_Y, LUMPED_SMINN) = elem[LUMPED].ns.sminn;
+    elem[LUMPED].nt.sminn0 = elem[i].ns.sminn;
+#endif
+
 #if !defined(_LUMPED_)
     for (i = 0; i < nriver; i++)
     {

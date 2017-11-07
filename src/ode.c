@@ -46,6 +46,11 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
     }
 
+#if defined(_BGC_) && defined(_LUMPED_)
+    pihm->elem[LUMPED].ns.sminn = (y[LUMPED_SMINN] >= 0.0) ?
+        y[LUMPED_SMINN] : 0.0;
+#endif
+
 #ifdef _OPENMP
 # pragma omp parallel for
 #endif
@@ -71,11 +76,15 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
      */
     Hydrol(pihm->elem, pihm->river, &pihm->ctrl);
 
-#if defined(_BGC_) && !defined(_LUMPED_)
+#if defined(_BGC_)
     /*
      * Nitrogen transport fluxes
      */
+# if defined (_LUMPED_)
+    NLeachingLumped(pihm->elem, pihm->river);
+# else
     NTransport(pihm->elem, pihm->river);
+# endif
 #endif
 
     /*
@@ -147,6 +156,20 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
     }
 
+#if defined(_BGC_) && defined(_LUMPED_)
+    elem_struct    *elem;
+
+    elem = &pihm->elem[LUMPED];
+
+    dy[LUMPED_SMINN] +=
+        (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC +
+        elem->nsol.snksrc;
+
+    /* Check NAN errors for dy */
+    CheckDy(dy[LUMPED_SMINN], "lumped", "soil mineral N", LUMPED + 1,
+        (double)t);
+#endif
+
 #ifdef _OPENMP
 # pragma omp parallel for
 #endif
@@ -215,12 +238,18 @@ int NumStateVar(void)
      */
     int             nsv;
 
-#if defined(_BGC_) && !defined(_LUMPED_)
-    nsv = 5 * nelem + 4 * nriver;
-#elif defined(_FBR_)
-    nsv = 5 * nelem + 2 * nriver;
-#else
     nsv = 3 * nelem + 2 * nriver;
+
+#if defined(_BGC_)
+# if defined(_LUMPED_)
+    nsv += 1;
+# else
+    nsv += 2 * nelem + 2 * nriver;
+# endif
+#endif
+
+#if defined(_FBR_)
+    nsv += 2 * nelem;
 #endif
 
     return nsv;
@@ -229,7 +258,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             cv_flag;
     static int      reset;
-#if defined(_BGC_) && !defined(_LUMPED_)
+#if defined(_BGC_)
     N_Vector        abstol;
     const double    SMINN_TOL = 1.0E-5;
 #endif
@@ -256,7 +285,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
         reset = 1;
     }
 
-#if defined(_BGC_) && !defined(_LUMPED_)
+#if defined(_BGC_)
     /* When BGC module is turned on, both water storage and nitrogen storage
      * variables are in the CVODE vector. A vector of absolute tolerances is
      * needed to specify different absolute tolerances for water storage
@@ -280,6 +309,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
         PIHMexit(EXIT_FAILURE);
     }
 #endif
+
     cv_flag = CVodeSetUserData(cvode_mem, pihm);
     if (!CheckCVodeFlag(cv_flag))
     {
@@ -311,7 +341,6 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     }
 }
 
-#if defined(_BGC_) && !defined(_LUMPED_)
 void SetAbsTol(double hydrol_tol, double sminn_tol, N_Vector abstol)
 {
     int             i;
@@ -326,7 +355,6 @@ void SetAbsTol(double hydrol_tol, double sminn_tol, N_Vector abstol)
         NV_Ith(abstol, i) = (realtype)sminn_tol;
     }
 }
-#endif
 
 void SolveCVode(int starttime, int *t, int nextptr, double cputime,
     void *cvode_mem, N_Vector CV_Y)
