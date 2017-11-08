@@ -285,7 +285,9 @@ typedef struct epconst_struct
 typedef struct pstate_struct
 {
     double          rzd;                    /* rooting depth (m) */
-    int             macpore_status;         /* macropore status */
+    int             flow_ctrl;              /* flow control type: matrix,
+                                             * application, or macropore control
+                                             * (-) */
     double          rc;                     /* canopy resistance (s m-1) */
     double          pc;                     /* plant coefficient (-) */
     double          proj_lai;               /* live projected leaf area index

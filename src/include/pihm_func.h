@@ -112,6 +112,7 @@ double          EffKv(const soil_struct *, double, int);
 void            EtExtract(elem_struct *);
 double          FieldCapacity(double, double, double, double, double);
 void            FindLine(FILE *, const char *, int *, const char *);
+int             FlowCtrlType(const soil_struct *, double, double, double);
 void            FreeData(pihm_struct);
 void            FrictSlope(const elem_struct *, const river_struct *, int,
     double *, double *);
@@ -158,7 +159,6 @@ void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
 void            IntrplForc(tsdata_struct *, int, int);
 double          KrFunc(double, double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
-int             MacroporeStatus(const soil_struct *, double, double, double);
 void            MapOutput(const int *, const int *, const elem_struct *,
     const river_struct *, const meshtbl_struct *, const char *, print_struct *);
 void            MassBalance(const wstate_struct *, const wstate_struct *,

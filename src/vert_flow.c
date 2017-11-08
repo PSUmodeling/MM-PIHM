@@ -66,12 +66,12 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
 
             if (soil->areafh == 0.0)
             {
-                ps->macpore_status = MTX_CTRL;
+                ps->flow_ctrl = MTX_CTRL;
             }
             else
             {
-                ps->macpore_status =
-                    MacroporeStatus(soil, dh_by_dz, satkfunc, applrate);
+                ps->flow_ctrl =
+                    FlowCtrlType(soil, dh_by_dz, satkfunc, applrate);
             }
 
             if (dh_by_dz < 0.0)
@@ -81,7 +81,7 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
             }
             else
             {
-                kinf = EffKinf(soil, satkfunc, satn, ps->macpore_status);
+                kinf = EffKinf(soil, satkfunc, satn, ps->flow_ctrl);
             }
 
             infil = kinf * dh_by_dz;
@@ -113,15 +113,15 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
 
             if (soil->areafh == 0.0)
             {
-                ps->macpore_status = MTX_CTRL;
+                ps->flow_ctrl = MTX_CTRL;
             }
             else
             {
-                ps->macpore_status =
-                    MacroporeStatus(soil, dh_by_dz, satkfunc, applrate);
+                ps->flow_ctrl =
+                    FlowCtrlType(soil, dh_by_dz, satkfunc, applrate);
             }
 
-            kinf = EffKinf(soil, satkfunc, satn, ps->macpore_status);
+            kinf = EffKinf(soil, satkfunc, satn, ps->flow_ctrl);
 
             infil = kinf * dh_by_dz;
 
@@ -171,7 +171,7 @@ double Recharge(const wstate_struct *ws, const wflux_struct *wf,
         dh_by_dz =
             (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->gw));
 
-        kavg = AvgKv(soil, deficit, ws->gw, ps->macpore_status, satkfunc);
+        kavg = AvgKv(soil, deficit, ws->gw, ps->flow_ctrl, satkfunc);
 
         rechg = kavg * dh_by_dz;
 
@@ -183,14 +183,14 @@ double Recharge(const wstate_struct *ws, const wflux_struct *wf,
 }
 
 double AvgKv(const soil_struct *soil, double deficit, double gw,
-    double macp_status, double satkfunc)
+    double flow_ctrl, double satkfunc)
 {
     double          k1, k2, k3;
     double          d1, d2, d3;
 
     if (deficit > soil->dmac)
     {
-        k1 = EffKv(soil, satkfunc, macp_status);
+        k1 = EffKv(soil, satkfunc, flow_ctrl);
         d1 = soil->dmac;
 
         k2 = satkfunc * soil->ksatv;
@@ -201,7 +201,7 @@ double AvgKv(const soil_struct *soil, double deficit, double gw,
     }
     else
     {
-        k1 = EffKv(soil, satkfunc, macp_status);
+        k1 = EffKv(soil, satkfunc, flow_ctrl);
         d1 = deficit;
 
         k2 = soil->kmacv * soil->areafh + soil->ksatv * (1.0 - soil->areafh);
@@ -219,13 +219,13 @@ double AvgKv(const soil_struct *soil, double deficit, double gw,
 }
 
 double EffKinf(const soil_struct *soil, double ksatfunc, double elemsatn,
-    int status)
+    int flow_ctrl)
 {
     double          keff = 0.0;
     const double    ALPHA_CRACK = 10.0;
     const double    BETA_CRACK = 2.0;
 
-    switch (status)
+    switch (flow_ctrl)
     {
         case MTX_CTRL:
             keff = soil->kinfv * ksatfunc;
@@ -241,18 +241,18 @@ double EffKinf(const soil_struct *soil, double ksatfunc, double elemsatn,
             break;
         default:
             PIHMprintf(VL_ERROR,
-                "Error: Macropore status (%d) is not defined.\n", status);
+                "Error: Flow control type (%d) is not defined.\n", flow_ctrl);
             PIHMexit(EXIT_FAILURE);
     }
 
     return keff;
 }
 
-double EffKv(const soil_struct *soil, double ksatfunc, int status)
+double EffKv(const soil_struct *soil, double ksatfunc, int flow_ctrl)
 {
     double          keff = 0.0;
 
-    switch (status)
+    switch (flow_ctrl)
     {
         case MTX_CTRL:
             keff = soil->ksatv * ksatfunc;
@@ -267,7 +267,7 @@ double EffKv(const soil_struct *soil, double ksatfunc, int status)
             break;
         default:
             PIHMprintf(VL_ERROR,
-                "Error: Macropore status (%d) is not defined.\n", status);
+                "Error: Flow control type (%d) is not defined.\n", flow_ctrl);
             PIHMexit(EXIT_FAILURE);
     }
 
@@ -281,7 +281,7 @@ double KrFunc(double alpha, double beta, double satn)
         (1.0 - pow(1.0 - pow(satn, beta / (beta - 1.0)), (beta - 1.0) / beta));
 }
 
-int MacroporeStatus(const soil_struct *soil, double dh_by_dz, double ksatfunc,
+int FlowCtrlType(const soil_struct *soil, double dh_by_dz, double ksatfunc,
     double applrate)
 {
     double          kmax;
