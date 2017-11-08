@@ -613,7 +613,8 @@ void            TotalPhotosynthesis(const epconst_struct *, epvar_struct *,
     const pstate_struct *, cflux_struct *, psn_struct *, psn_struct *,
     const daily_struct *);
 void            WriteBgcIc(const char *, elem_struct *, river_struct *);
-void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *);
+void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
+    solute_struct *);
 #endif
 
 #endif

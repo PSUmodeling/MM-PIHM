@@ -175,6 +175,9 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
     int             i;
 
 #ifdef _CYCLES_
+    /*
+     * Cycles coupling
+     */
 # ifdef _OPENMP
 #  pragma omp parallel for
 # endif
@@ -199,6 +202,9 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
         }
     }
 #elif  _BGC_
+    /*
+     * BGC coupling
+     */
 # ifdef _OPENMP
 #  pragma omp parallel for
 # endif
@@ -212,6 +218,9 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 # endif
     }
 #else
+    /*
+     * Use LAI forcing
+     */
     int             k;
 
     if (forc->nlai > 0)

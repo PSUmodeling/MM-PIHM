@@ -1,13 +1,15 @@
 #include "pihm.h"
 
+#define MAX_TYPE    100
+
 void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 {
     int             i, j;
 #if defined(_LUMPED_)
-    int             soil_counter[100];
-    int             lc_counter[100];
+    int             soil_counter[MAX_TYPE];
+    int             lc_counter[MAX_TYPE];
 
-    for (i = 0; i < 100; i++)
+    for (i = 0; i < MAX_TYPE; i++)
     {
         soil_counter[i] = 0;
         lc_counter[i] = 0;
@@ -57,9 +59,11 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     }
 
 #if defined(_LUMPED_)
+    /* Use the soil type (land cover type) that covers the most number of model
+     * grids for the lumped grid */
     pihm->elem[LUMPED].attrib.soil_type = 0;
     pihm->elem[LUMPED].attrib.lc_type = 0;
-    for (i = 0; i < 100; i++)
+    for (i = 0; i < MAX_TYPE; i++)
     {
         pihm->elem[LUMPED].attrib.soil_type =
             (soil_counter[i] >
@@ -430,7 +434,7 @@ void InitRiver(river_struct *river, elem_struct *elem,
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            /* Note: Strategy to use BC < -4 for river identification */
+            /* Note: use element nabr < 0 for river identification */
             if (elem[river[i].leftele - 1].nabr[j] == river[i].rightele)
             {
                 elem[river[i].leftele - 1].nabr[j] = -(i + 1);

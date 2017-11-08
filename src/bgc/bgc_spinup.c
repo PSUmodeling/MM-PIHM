@@ -6,7 +6,7 @@ void BgcSpinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
     int             spinyears = 0;
     int             first_spin_cycle = 1;
     int             steady;
-    double          metyears;
+    int             metyears;
 
     metyears = (pihm->ctrl.endtime - pihm->ctrl.starttime) / DAYINSEC / 365;
 

@@ -5,17 +5,14 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     int             i;
     double         *y;
     double         *dy;
-    double          dt;
     pihm_struct     pihm;
 
     y = NV_DATA(CV_Y);
     dy = NV_DATA(CV_Ydot);
     pihm = (pihm_struct)pihm_data;
 
-    dt = (double)pihm->ctrl.stepsize;
-
     /*
-     * Initialization of temporary state variables
+     * Initialization of RHS of ODEs
      */
     for (i = 0; i < NumStateVar(); i++)
     {
@@ -133,8 +130,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         CheckDy(dy[UNSAT(i)], "element", "unsat water", i + 1, (double)t);
         CheckDy(dy[GW(i)], "element", "groundwater", i + 1, (double)t);
 #ifdef _FBR_
-        CheckDy(dy[FBRUNSAT(i)], "element", "fbr unsat water", i + 1,
-            (double)t);
+        CheckDy(dy[FBRUNSAT(i)], "element", "fbr unsat", i + 1, (double)t);
         CheckDy(dy[FBRGW(i)], "element", "fbr groundwater", i + 1, (double)t);
 #endif
 
@@ -170,6 +166,9 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         (double)t);
 #endif
 
+    /*
+     * ODEs for river segments
+     */
 #ifdef _OPENMP
 # pragma omp parallel for
 #endif
@@ -221,7 +220,8 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     return 0;
 }
 
-void CheckDy(double dy, const char *type, const char *varname, int ind, double t)
+void CheckDy(double dy, const char *type, const char *varname, int ind,
+    double t)
 {
     if (isnan(dy))
     {
@@ -345,11 +345,19 @@ void SetAbsTol(double hydrol_tol, double sminn_tol, N_Vector abstol)
 {
     int             i;
 
+    /* Set absolute errors for hydrologic state variables */
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
     for (i = 0; i < 3 * nelem + 2 * nriver; i++)
     {
         NV_Ith(abstol, i) = (realtype)hydrol_tol;
     }
 
+    /* Set absolute errors for nitrogen state variables */
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
     for (i = 3 * nelem + 2 * nriver; i < NumStateVar(); i++)
     {
         NV_Ith(abstol, i) = (realtype)sminn_tol;

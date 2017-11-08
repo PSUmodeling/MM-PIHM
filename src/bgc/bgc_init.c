@@ -91,9 +91,8 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
         RestartInput(&elem[i].cs, &elem[i].ns, &elem[i].epv,
             &elem[i].restart_input);
 
-        ZeroSrcSnk(&elem[i].cs, &elem[i].ns, &elem[i].summary);
+        ZeroSrcSnk(&elem[i].cs, &elem[i].ns, &elem[i].summary, &elem[i].nsol);
         elem[i].epv.annavg_t2m = elem[i].ps.tbot;
-        elem[i].nsol.snksrc = 0.0;
 
 #if !defined(_LUMPED_)
         NV_Ith(CV_Y, SURFN(i)) = elem[i].ns.surfn;

@@ -404,121 +404,80 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
 # if defined(_LUMPED_)
                 case LAI_CTRL:
                     InitPrtVarCtrl(outputdir, "lai", prtvrbl[i],
-                        CN_STEP, nelem + 1, &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].ps.proj_lai;
-                    }
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].ps.proj_lai;
                     n++;
                     break;
                 case VEGC_CTRL:
                     InitPrtVarCtrl(outputdir, "vegc", prtvrbl[i],
-                        CN_STEP, nelem + 1, &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].summary.vegc;
-                    }
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].summary.vegc;
                     n++;
                     break;
                 case LITRC_CTRL:
                     InitPrtVarCtrl(outputdir, "litrc", prtvrbl[i],
-                        CN_STEP, nelem + 1, &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].summary.litrc;
-                    }
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].summary.litrc;
                     n++;
                     break;
                 case SOILC_CTRL:
                     InitPrtVarCtrl(outputdir, "soilc", prtvrbl[i],
-                        CN_STEP, nelem + 1, &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].summary.soilc;
-                    }
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].summary.soilc;
                     n++;
                     break;
                 case TOTALC_CTRL:
                     InitPrtVarCtrl(outputdir, "totalc", prtvrbl[i],
-                        CN_STEP, nelem + 1, &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].summary.totalc;
-                    }
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].summary.totalc;
                     n++;
                     break;
                 case NPP_CTRL:
                     InitPrtVarCtrl(outputdir, "npp", prtvrbl[i],
-                        CN_STEP, nelem + 1, &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].summary.daily_npp;
-                    }
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].summary.daily_npp;
                     n++;
                     break;
                 case NEP_CTRL:
                     InitPrtVarCtrl(outputdir, "nep", prtvrbl[i],
-                        CN_STEP, nelem + 1, &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].summary.daily_nep;
-                    }
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].summary.daily_nep;
                     n++;
                     break;
                 case NEE_CTRL:
                     InitPrtVarCtrl(outputdir, "nee", prtvrbl[i],
-                        CN_STEP, nelem + 1, &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].summary.daily_nee;
-                    }
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].summary.daily_nee;
                     n++;
                     break;
                 case GPP_CTRL:
                     InitPrtVarCtrl(outputdir, "gpp", prtvrbl[i],
-                        CN_STEP, nelem + 1, &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].summary.daily_gpp;
-                    }
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].summary.daily_gpp;
                     n++;
                     break;
                 case SMINN_CTRL:
                     InitPrtVarCtrl(outputdir, "sminn", prtvrbl[i],
-                        CN_STEP, nelem + 1, &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].ns.sminn;
-                    }
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].ns.sminn;
                     n++;
                     break;
                 case LEAFC_CTRL:
                     InitPrtVarCtrl(outputdir, "leafc", prtvrbl[i],
-                        CN_STEP, nelem + 1, &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].cs.leafc;
-                    }
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].cs.leafc;
                     n++;
                     break;
                 case LIVESTEMC_CTRL:
-                    InitPrtVarCtrl(outputdir, "livestemc",
-                        prtvrbl[i], CN_STEP, nelem + 1,
-                        &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].cs.livestemc;
-                    }
+                    InitPrtVarCtrl(outputdir, "livestemc", prtvrbl[i],
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].cs.livestemc;
                     n++;
                     break;
                 case DEADSTEMC_CTRL:
-                    InitPrtVarCtrl(outputdir, "deadstemc",
-                        prtvrbl[i], CN_STEP, nelem + 1,
-                        &print->varctrl[n]);
-                    for (j = 0; j < nelem + 1; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].cs.deadstemc;
-                    }
+                    InitPrtVarCtrl(outputdir, "deadstemc", prtvrbl[i],
+                        CN_STEP, 1, &print->varctrl[n]);
+                    print->varctrl[n].var[0] = &elem[LUMPED].cs.deadstemc;
                     n++;
                     break;
 # else
@@ -622,9 +581,8 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     n++;
                     break;
                 case LIVESTEMC_CTRL:
-                    InitPrtVarCtrl(outputdir, "livestemc",
-                        prtvrbl[i], CN_STEP, nelem,
-                        &print->varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "livestemc", prtvrbl[i],
+                        CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].cs.livestemc;
@@ -632,9 +590,8 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     n++;
                     break;
                 case DEADSTEMC_CTRL:
-                    InitPrtVarCtrl(outputdir, "deadstemc",
-                        prtvrbl[i], CN_STEP, nelem,
-                        &print->varctrl[n]);
+                    InitPrtVarCtrl(outputdir, "deadstemc", prtvrbl[i],
+                        CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
                         print->varctrl[n].var[j] = &elem[j].cs.deadstemc;
@@ -980,16 +937,6 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
 
     print->nprint = n;
 
-    /* When spinning-up, print interval is set to monthly */
-    for (i = 0; i < print->nprint; i++)
-    {
-        if (spinup_mode)
-        {
-            print->varctrl[i].intvl = MONTHLY_OUTPUT;
-        }
-
-    }
-
     /*
      * Tecplot output
      */
@@ -1115,7 +1062,15 @@ void InitPrtVarCtrl(const char *outputdir, const char *ext, int intvl,
     int upd_intvl, int nvar, varctrl_struct *varctrl)
 {
     sprintf(varctrl->name, "%s%s.%s", outputdir, project, ext);
-    varctrl->intvl = intvl;
+    if (spinup_mode)
+    {
+        /* When spinning-up, print interval is set to monthly */
+        varctrl->intvl = MONTHLY_OUTPUT;
+    }
+    else
+    {
+        varctrl->intvl = intvl;
+    }
     varctrl->upd_intvl = upd_intvl;
     varctrl->nvar = nvar;
     varctrl->var = (const double **)malloc(nvar * sizeof(double *));

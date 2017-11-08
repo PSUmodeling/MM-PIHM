@@ -10,6 +10,23 @@ void DailyBgc(pihm_struct pihm, int t)
     spa_data        spa, prev_spa;
     double         *vwc;
 
+#if defined(_LUMPED_)
+    i = LUMPED;
+#else
+# ifdef _OPENMP
+#  pragma omp parallel for
+# endif
+    for (i = 0; i < nelem; i++)
+#endif
+    {
+        /* First test for nitrogen balance from previous day */
+        CheckNitrogenBalance(&pihm->elem[i].ns,
+            &pihm->elem[i].epv.old_n_balance);
+    }
+
+    /*
+     * BGC module for the current day
+     */
     /* Get co2 and ndep */
     if (spinup_mode)    /* Spinup mode */
     {
@@ -220,10 +237,13 @@ void DailyBgc(pihm_struct pihm, int t)
         CheckCarbonBalance(cs, &epv->old_c_balance);
 
 #if OBSOLETE
-        /* Nitrogen balance is checked outside DailyBgc function because a bgc
-         * cycle is not finished until N transport is calculated by CVode */
+        /* Nitrogen balance is checked the next day at the beginning of DailyBgc
+         * function because a bgc cycle is not finished until N state variables
+         * are solved by CVODE */
         CheckNitrogenBalance (ns, &epv->old_n_balance);
 #endif
+
+        first_balance = 0;
 
         /* Calculate carbon summary variables */
         CSummary(cf, cs, summary);
