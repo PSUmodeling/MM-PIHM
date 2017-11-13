@@ -108,7 +108,7 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
     elem[LUMPED].nt.sminn0 = elem[i].ns.sminn;
 #endif
 
-#if !defined(_LUMPED_)
+#if !defined(_LUMPED_) && !defined(_LEACHING_)
     for (i = 0; i < nriver; i++)
     {
         river[i].ns.streamn = river[i].restart_input.streamn;

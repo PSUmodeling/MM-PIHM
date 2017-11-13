@@ -166,7 +166,7 @@ void FirstDay(elem_struct *elem, river_struct *riv, const cninit_struct *cninit)
         restart->prev_frootc_to_litter = 0.0;
     }
 
-#if !defined(_LUMPED_)
+#if !defined(_LUMPED_) && !defined(_LEACHING_)
     for (i = 0; i < nriver; i++)
     {
         riv[i].restart_input.streamn = 0.0;

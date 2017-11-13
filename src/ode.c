@@ -59,7 +59,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         river->ws.stage = (y[RIVSTG(i)] >= 0.0) ? y[RIVSTG(i)] : 0.0;
         river->ws.gw = (y[RIVGW(i)] >= 0.0) ? y[RIVGW(i)] : 0.0;
 
-#if defined(_BGC_) && !defined(_LUMPED_)
+#if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
         river->ns.streamn = (y[STREAMN(i)] >= 0.0) ? y[STREAMN(i)] : 0.0;
         river->ns.sminn = (y[RIVBEDN(i)] >= 0.0) ? y[RIVBEDN(i)] : 0.0;
 #endif
@@ -77,8 +77,10 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * Nitrogen transport fluxes
      */
-# if defined (_LUMPED_)
+# if defined(_LUMPED_)
     NLeachingLumped(pihm->elem, pihm->river);
+# elif defined(_LEACHING_)
+    NLeaching(pihm->elem);
 # else
     NTransport(pihm->elem, pihm->river);
 # endif
@@ -135,14 +137,22 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
 
 #if defined(_BGC_) && !defined(_LUMPED_)
+# if !defined(_LEACHING_)
         dy[SURFN(i)] +=
             (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC -
             elem->nsol.infilflux;
         dy[SMINN(i)] += elem->nsol.infilflux + elem->nsol.snksrc;
+# else
+        dy[SMINN(i)] +=
+            (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC +
+            elem->nsol.snksrc;
+# endif
 
         for (j = 0; j < NUM_EDGE; j++)
         {
+# if !defined(_LEACHING_)
             dy[SURFN(i)] -= elem->nsol.ovlflux[j] / elem->topo.area;
+# endif
             dy[SMINN(i)] -= elem->nsol.subflux[j] / elem->topo.area;
         }
 
@@ -198,7 +208,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         CheckDy(dy[RIVSTG(i)], "river", "stage", i + 1, (double)t);
         CheckDy(dy[RIVGW(i)], "river", "groundwater", i + 1, (double)t);
 
-#if defined(_BGC_) && !defined(_LUMPED_)
+#if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
         for (j = 0; j <= 6; j++)
         {
             dy[STREAMN(i)] -= river->nsol.flux[j] / river->topo.area;

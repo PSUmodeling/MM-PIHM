@@ -1623,16 +1623,20 @@ typedef struct summary_struct
 /* Solute transport structure */
 typedef struct solute_struct
 {
+#if !defined(_LEACHING_)
     double          conc_surf;            /* surface pool concentration
                                            * (kg kgH2O-1) */
+#endif
     double          conc_subsurf;         /* subsurface pool concentration
                                            * (kg kgH2O-1) */
+#if !defined(_LEACHING_)
     double          infilflux;            /* solute infiltration flux
                                            * (kg m-2 s-1) */
+    double          ovlflux[NUM_EDGE];    /* overland solute flux (kg s-1) */
+#endif
+    double          subflux[NUM_EDGE];    /* subsurface solute flux (kg s-1) */
     double          snksrc;               /* subsurface sink/source term
                                            * (kg m-2 s-1) */
-    double          ovlflux[NUM_EDGE];    /* overland solute flux (kg s-1) */
-    double          subflux[NUM_EDGE];    /* subsurface solute flux (kg s-1) */
 } solute_struct;
 #endif
 

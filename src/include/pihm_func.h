@@ -578,7 +578,9 @@ void            MaintResp(const epconst_struct *, epvar_struct *,
 void            MakeZeroFluxStruct(cflux_struct *, nflux_struct *);
 void            Mortality(const epconst_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
-# if defined(_LUMPED_)
+# if defined(_LEACHING_)
+void            NLeaching(elem_struct *);
+# elif defined(_LUMPED_)
 void            NLeachingLumped(elem_struct *, river_struct *);
 # else
 void            NTransport(elem_struct *, river_struct *);

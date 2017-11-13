@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-#if !defined(_LUMPED_)
+#if !defined(_LUMPED_) && !defined(_LEACHING_)
 void NTransport(elem_struct *elem, river_struct *river)
 {
     int             i;
@@ -253,7 +253,7 @@ void NTransport(elem_struct *elem, river_struct *river)
 }
 #endif
 
-#if defined (_LUMPED_)
+#if defined(_LUMPED_)
 void NLeachingLumped(elem_struct *elem, river_struct *river)
 {
     int             i;
@@ -282,5 +282,63 @@ void NLeachingLumped(elem_struct *elem, river_struct *river)
     elem[LUMPED].nf.sminn_leached = (runoff > 0.0) ?
         runoff * MOBILEN_PROPORTION * elem[LUMPED].ns.sminn / strg / 1000.0 :
         0.0;
+}
+#endif
+
+#if defined(_LEACHING_)
+void NLeaching(elem_struct *elem)
+{
+    int             i;
+    /*
+     * Calculate solute N concentrations
+     */
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+        int             j;
+        double          strg;
+
+        /* Initialize N fluxes */
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            elem[i].nsol.subflux[j] = 0.0;
+        }
+
+        /* Element subsurface */
+        strg = (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
+            elem[i].soil.depth * elem[i].soil.smcmin;
+        elem[i].nsol.conc_subsurf = (strg > 0.0) ?
+            elem[i].ns.sminn / strg / 1000.0 : 0.0;
+        elem[i].nsol.conc_subsurf = (elem[i].nsol.conc_subsurf > 0.0) ?
+            elem[i].nsol.conc_subsurf : 0.0;
+    }
+
+    /*
+     * Calculate solute fluxes
+     */
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+        int             j;
+
+        /* Element to element */
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            if (elem[i].nabr[j] > 0)
+            {
+                elem[i].nsol.subflux[j] = elem[i].wf.subsurf[j] * 1000.0 *
+                    ((elem[i].wf.subsurf[j] > 0.0) ?
+                    MOBILEN_PROPORTION * elem[i].nsol.conc_subsurf : 0.0);
+            }
+            else
+            {
+                elem[i].nsol.subflux[j] = 0.0;
+            }
+        }
+    }
 }
 #endif

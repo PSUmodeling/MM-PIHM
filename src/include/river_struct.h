@@ -71,7 +71,7 @@ typedef struct river_ic_struct
     double          gw;
 } river_ic_struct;
 
-#if defined(_BGC_) && !defined(_LUMPED_)
+#if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
 /* River nitrogen state variables */
 typedef struct river_nstate_struct
 {
@@ -144,7 +144,7 @@ typedef struct river_struct
     double          NO3Leaching[4];
     double          NH4Leaching[4];
 #endif
-#if defined(_BGC_) && !defined(_LUMPED_)
+#if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
     river_nstate_struct ns;
     river_nflux_struct nf;
     river_solute_struct nsol;

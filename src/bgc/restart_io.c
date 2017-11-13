@@ -199,7 +199,7 @@ void ReadBgcIc(const char *fn, elem_struct *elem, river_struct *river)
         }
     }
 
-#if !defined(_LUMPED_)
+#if !defined(_LUMPED_) && !defined(_LEACHING_)
     for (i = 0; i < nriver; i++)
     {
         fread(&river[i].restart_input, sizeof(river_bgcic_struct), 1,
@@ -250,7 +250,7 @@ void WriteBgcIc(const char *outputdir, elem_struct *elem, river_struct *river)
             restart_file);
     }
 
-#if !defined(_LUMPED_)
+#if !defined(_LUMPED_) && !defined(_LEACHING_)
     for (i = 0; i < nriver; i++)
     {
         river[i].restart_output.streamn = river[i].ns.streamn;
