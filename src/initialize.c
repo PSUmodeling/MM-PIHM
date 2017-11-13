@@ -950,8 +950,6 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
     {
         InitWFlux(&elem[i].wf);
 
-        elem[i].ps.flow_ctrl = MTX_CTRL;
-
 #ifdef _NOAH_
         elem[i].ps.snotime1 = 0.0;
         elem[i].ps.ribb = 0.0;

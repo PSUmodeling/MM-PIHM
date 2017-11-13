@@ -112,7 +112,8 @@ double          EffKv(const soil_struct *, double, int);
 void            EtExtract(elem_struct *);
 double          FieldCapacity(double, double, double, double, double);
 void            FindLine(FILE *, const char *, int *, const char *);
-int             FlowCtrlType(const soil_struct *, double, double, double);
+int             FlowSituation(const soil_struct *, double, double, double,
+    double);
 void            FreeData(pihm_struct);
 void            FrictSlope(const elem_struct *, const river_struct *, int,
     double *, double *);

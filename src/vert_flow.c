@@ -40,14 +40,36 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
     double          deficit;
     double          psi_u;
     double          h_u;
+    int             j;
 
     if (ws->unsat + ws->gw > soil->depth)
     {
+        ps->flow_sit = (soil->areafh == 0.0) ? MTX_CTRL : MAC_CTRL;
+
         infil = 0.0;
+
+#if NOT_YET_IMPLEMENTED
+        if (ws->gw > soil->depth)
+        {
+            infil = -EffKinf(soil, 1.0, 1.0, ps->flow_sit);
+        }
+        else
+        {
+            infil = 0.0;
+        }
+#endif
     }
     else
     {
-        applrate = wf->pcpdrp + ws->surf / dt;
+        /* Water appliation rate is the sum of net gain of overland flow and net
+         * precipitation */
+        applrate = 0.0;
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            applrate += -wf->ovlflow[j] / topo->area;
+        }
+        applrate = (applrate > 0.0) ? applrate : 0.0;
+        applrate += wf->pcpdrp;
 
         wetfrac = ws->surfh / DEPRSTG;
         wetfrac = (wetfrac > 0.0) ? wetfrac : 0.0;
@@ -64,25 +86,10 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
             satn = 1.0;
             satkfunc = KrFunc(soil->alpha, soil->beta, satn);
 
-            if (soil->areafh == 0.0)
-            {
-                ps->flow_ctrl = MTX_CTRL;
-            }
-            else
-            {
-                ps->flow_ctrl =
-                    FlowCtrlType(soil, dh_by_dz, satkfunc, applrate);
-            }
+            ps->flow_sit = (soil->areafh == 0.0) ?  MTX_CTRL :
+                FlowSituation(soil, dh_by_dz, satkfunc, applrate, ws->surfh);
 
-            if (dh_by_dz < 0.0)
-            {
-                kinf = soil->kmacv * soil->areafh +
-                    soil->kinfv * (1.0 - soil->areafh);
-            }
-            else
-            {
-                kinf = EffKinf(soil, satkfunc, satn, ps->flow_ctrl);
-            }
+            kinf = EffKinf(soil, satkfunc, satn, ps->flow_sit);
 
             infil = kinf * dh_by_dz;
         }
@@ -111,20 +118,12 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
 
             satkfunc = KrFunc(soil->alpha, soil->beta, satn);
 
-            if (soil->areafh == 0.0)
-            {
-                ps->flow_ctrl = MTX_CTRL;
-            }
-            else
-            {
-                ps->flow_ctrl =
-                    FlowCtrlType(soil, dh_by_dz, satkfunc, applrate);
-            }
+            ps->flow_sit = (soil->areafh == 0.0) ? MTX_CTRL :
+                FlowSituation(soil, dh_by_dz, satkfunc, applrate, ws->surfh);
 
-            kinf = EffKinf(soil, satkfunc, satn, ps->flow_ctrl);
+            kinf = EffKinf(soil, satkfunc, satn, ps->flow_sit);
 
             infil = kinf * dh_by_dz;
-
             infil = (infil > 0.0) ? infil : 0.0;
         }
 
@@ -158,7 +157,6 @@ double Recharge(const wstate_struct *ws, const wflux_struct *wf,
     }
     else
     {
-        /* Arithmetic mean formulation */
         deficit = soil->depth - ws->gw;
         satn = ws->unsat / deficit;
         satn = (satn > 1.0) ? 1.0 : satn;
@@ -171,7 +169,7 @@ double Recharge(const wstate_struct *ws, const wflux_struct *wf,
         dh_by_dz =
             (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->gw));
 
-        kavg = AvgKv(soil, deficit, ws->gw, ps->flow_ctrl, satkfunc);
+        kavg = AvgKv(soil, deficit, ws->gw, ps->flow_sit, satkfunc);
 
         rechg = kavg * dh_by_dz;
 
@@ -183,14 +181,14 @@ double Recharge(const wstate_struct *ws, const wflux_struct *wf,
 }
 
 double AvgKv(const soil_struct *soil, double deficit, double gw,
-    double flow_ctrl, double satkfunc)
+    double flow_sit, double satkfunc)
 {
     double          k1, k2, k3;
     double          d1, d2, d3;
 
     if (deficit > soil->dmac)
     {
-        k1 = EffKv(soil, satkfunc, flow_ctrl);
+        k1 = EffKv(soil, satkfunc, flow_sit);
         d1 = soil->dmac;
 
         k2 = satkfunc * soil->ksatv;
@@ -201,7 +199,7 @@ double AvgKv(const soil_struct *soil, double deficit, double gw,
     }
     else
     {
-        k1 = EffKv(soil, satkfunc, flow_ctrl);
+        k1 = EffKv(soil, satkfunc, flow_sit);
         d1 = deficit;
 
         k2 = soil->kmacv * soil->areafh + soil->ksatv * (1.0 - soil->areafh);
@@ -212,6 +210,7 @@ double AvgKv(const soil_struct *soil, double deficit, double gw,
     }
 
 #ifdef _ARITH_
+    /* Arithmetic mean formulation */
     return (k1 * d1 + k2 * d2 + k3 * d3) / (d1 + d2 + d3);
 #else
     return (d1 + d2 + d3) / (d1 / k1 + d2 / k2 + d3 / k3);
@@ -219,13 +218,22 @@ double AvgKv(const soil_struct *soil, double deficit, double gw,
 }
 
 double EffKinf(const soil_struct *soil, double ksatfunc, double elemsatn,
-    int flow_ctrl)
+    int flow_sit)
 {
+    /*
+     * For infiltration, macropores act as cracks, and are hydraulically
+     * effective in rapidly conducting water flow (Chen and Wagenet, 1992,
+     * Journal of Hydrology, 130, 105-126).
+     * For macropore hydraulic conductivities, use van Genuchten parameters for
+     * fractures (Gerke and van Genuchten, 1993, Water Resources Research, 29,
+     * 1225-1238).
+     */
     double          keff = 0.0;
     const double    ALPHA_CRACK = 10.0;
     const double    BETA_CRACK = 2.0;
 
-    switch (flow_ctrl)
+
+    switch (flow_sit)
     {
         case MTX_CTRL:
             keff = soil->kinfv * ksatfunc;
@@ -241,33 +249,35 @@ double EffKinf(const soil_struct *soil, double ksatfunc, double elemsatn,
             break;
         default:
             PIHMprintf(VL_ERROR,
-                "Error: Flow control type (%d) is not defined.\n", flow_ctrl);
+                "Error: Flow situation (%d) is not defined.\n", flow_sit);
             PIHMexit(EXIT_FAILURE);
     }
 
     return keff;
 }
 
-double EffKv(const soil_struct *soil, double ksatfunc, int flow_ctrl)
+double EffKv(const soil_struct *soil, double ksatfunc, int flow_sit)
 {
+    /*
+     * For subsurface water flow, macroporosity belongs to the matrix domain but
+     * with increased conductivity. Application control and macropore control
+     * situations thus have the same effective hydraulic conductivity.
+     */
     double          keff = 0.0;
 
-    switch (flow_ctrl)
+    switch (flow_sit)
     {
         case MTX_CTRL:
             keff = soil->ksatv * ksatfunc;
             break;
         case APP_CTRL:
+        case MAC_CTRL:
             keff = soil->ksatv * (1.0 - soil->areafh) * ksatfunc +
                 soil->kmacv * soil->areafh * ksatfunc;
             break;
-        case MAC_CTRL:
-            keff = soil->ksatv * (1.0 - soil->areafh) * ksatfunc +
-                soil->kmacv * soil->areafh;
-            break;
         default:
             PIHMprintf(VL_ERROR,
-                "Error: Flow control type (%d) is not defined.\n", flow_ctrl);
+                "Error: Flow situation (%d) is not defined.\n", flow_sit);
             PIHMexit(EXIT_FAILURE);
     }
 
@@ -281,28 +291,38 @@ double KrFunc(double alpha, double beta, double satn)
         (1.0 - pow(1.0 - pow(satn, beta / (beta - 1.0)), (beta - 1.0) / beta));
 }
 
-int FlowCtrlType(const soil_struct *soil, double dh_by_dz, double ksatfunc,
-    double applrate)
+int FlowSituation(const soil_struct *soil, double dh_by_dz, double ksatfunc,
+    double applrate, double surfh)
 {
     double          kmax;
 
     dh_by_dz = (dh_by_dz < 1.0) ? 1.0 : dh_by_dz;
 
-    if (applrate <= dh_by_dz * soil->kinfv * ksatfunc)
+    if (surfh > DEPRSTG)
     {
-        return MTX_CTRL;
+        /* When surface wet fraction is larger than 1 (surface is totally
+         * ponded), i.e., surfh > DEPRSTG, flow situation is macropore control,
+         * regardless of the application rate */
+        return MAC_CTRL;
     }
     else
     {
-        kmax = dh_by_dz * (soil->kmacv * soil->areafh +
-            soil->kinfv * (1.0 - soil->areafh) * ksatfunc);
-        if (applrate < kmax)
+        if (applrate <= dh_by_dz * soil->kinfv * ksatfunc)
         {
-            return APP_CTRL;
+            return MTX_CTRL;
         }
         else
         {
-            return MAC_CTRL;
+            kmax = dh_by_dz * (soil->kmacv * soil->areafh +
+                soil->kinfv * (1.0 - soil->areafh) * ksatfunc);
+            if (applrate < kmax)
+            {
+                return APP_CTRL;
+            }
+            else
+            {
+                return MAC_CTRL;
+            }
         }
     }
 }

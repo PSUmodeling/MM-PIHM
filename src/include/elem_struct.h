@@ -285,7 +285,7 @@ typedef struct epconst_struct
 typedef struct pstate_struct
 {
     double          rzd;                    /* rooting depth (m) */
-    int             flow_ctrl;              /* flow control type: matrix,
+    int             flow_sit;               /* flow situation: matrix,
                                              * application, or macropore control
                                              * (-) */
     double          rc;                     /* canopy resistance (s m-1) */

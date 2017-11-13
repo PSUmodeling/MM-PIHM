@@ -2783,9 +2783,9 @@ void WDfCnd(double *wdf, double *wcnd, double smc, double sicemax, int macpore,
         pow(pow(factr2, -1.0 / expon) - 1.0, -expon) *
         pow(factr2, -(1.0 / expon + 1.0));
 
-    if (macpore && ps->flow_ctrl > MTX_CTRL)
+    if (macpore && ps->flow_sit > MTX_CTRL)
     {
-        *wcnd = EffKv(soil, satkfunc, ps->flow_ctrl);
+        *wcnd = EffKv(soil, satkfunc, ps->flow_sit);
     }
     else
     {
@@ -2802,10 +2802,10 @@ void WDfCnd(double *wdf, double *wcnd, double smc, double sicemax, int macpore,
             (soil->smcmax - soil->smcmin) *
             pow(pow(factr1, -1.0 / expon) - 1.0, -expon) *
             pow(factr1, -(1.0 / expon + 1.0));
-        if (macpore == 1 && ps->flow_ctrl > MTX_CTRL)
+        if (macpore == 1 && ps->flow_sit > MTX_CTRL)
         {
             *wdf = vkwgt * *wdf + (1.0 - vkwgt) * dpsidsm *
-                EffKv(soil, satkfunc, ps->flow_ctrl);
+                EffKv(soil, satkfunc, ps->flow_sit);
         }
         else
         {

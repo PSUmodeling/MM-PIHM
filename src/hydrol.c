@@ -17,9 +17,9 @@ void Hydrol(elem_struct *elem, river_struct *river, const ctrl_struct *ctrl)
     EtExtract(elem);
 
     /* Water flow */
-    VerticalFlow(elem, (double)ctrl->stepsize);
-
     LateralFlow(elem, river, ctrl->surf_mode);
+
+    VerticalFlow(elem, (double)ctrl->stepsize);
 
     RiverFlow(elem, river, ctrl->riv_mode);
 }
@@ -96,7 +96,9 @@ double SurfH(double surfeqv)
      * Use a parabolic curve to express the equivalent surface water depth
      * (surfeqv) in terms of actual flow depth (surfh) when the actual flow
      * depth is below depression storage; assume that
-     * d(surfeqv) / d(surfh) = 1.0 when surfh = DEPRSTG
+     * d(surfeqv) / d(surfh) = 1.0 when surfh = DEPRSTG. Thus
+     *   surfeqv = (1 / 2 * DEPRSTG) * surfh ^ 2, i.e.
+     *   surfh = sqrt(2 * DEPRSTG * surfeqv)
      */
     double          surfh;
 

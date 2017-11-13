@@ -334,6 +334,14 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
         PIHMexit(EXIT_FAILURE);
     }
 
+#if NOT_YET_IMPLEMENTED
+    cv_flag = CVodeSetMaxNumSteps(cvode_mem, -1);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
+#endif
+
     cv_flag = CVSpgmr(cvode_mem, PREC_NONE, 0);
     if (!CheckCVodeFlag(cv_flag))
     {
