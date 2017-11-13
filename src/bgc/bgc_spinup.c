@@ -67,9 +67,6 @@ int CheckBgcSteadyState(const elem_struct *elem, double total_area,
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-# ifdef _OPENMP
-#  pragma omp parallel for
-# endif
     for (i = 0; i < nelem; i++)
 #endif
     {
