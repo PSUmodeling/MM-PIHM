@@ -243,8 +243,6 @@ void DailyBgc(pihm_struct pihm, int t)
         CheckNitrogenBalance (ns, &epv->old_n_balance);
 #endif
 
-        first_balance = 0;
-
         /* Calculate carbon summary variables */
         CSummary(cf, cs, summary);
 
@@ -254,6 +252,8 @@ void DailyBgc(pihm_struct pihm, int t)
             pihm->elem[i].spinup.totalc += summary->totalc;
         }
     }
+
+    first_balance = 0;
 
     free(vwc);
 }
