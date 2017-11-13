@@ -35,7 +35,6 @@ void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
 
 void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 {
-    int             ind;
     int             i, k;
 
 #ifdef _OPENMP
@@ -51,7 +50,8 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int         j;
+        int             ind;
+        int             j;
 
         for (j = 0; j < NUM_EDGE; j++)
         {
