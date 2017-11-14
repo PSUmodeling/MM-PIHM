@@ -17,19 +17,19 @@ void AsciiArt()
     PIHMprintf(VL_NORMAL, "\t##           ##    ##     ##   ##     ##\n");
     PIHMprintf(VL_NORMAL, "\t##          ####   ##     ##   ##     ##\n");
     PIHMprintf(VL_NORMAL, "\n\tThe Penn State Integrated Hydrologic Model\n\n");
-#ifdef _NOAH_
+#if defined(_NOAH_)
     PIHMprintf(VL_NORMAL, "\t* Land surface module turned on.\n");
 #endif
-#ifdef _RT_
+#if defined(_RT_)
     PIHMprintf(VL_NORMAL, "\t* Reactive transport module turned on.\n");
 #endif
-#ifdef _BGC_
+#if defined(_BGC_)
     PIHMprintf(VL_NORMAL, "\t* Biogeochemistry module turned on.\n");
 #endif
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     PIHMprintf(VL_NORMAL, "\t* Crop module turned on.\n");
 #endif
-#ifdef _OPENMP
+#if defined(_OPENMP)
     PIHMprintf(VL_NORMAL, "\t* OpenMP (# of threads = %d).\n", nthreads);
 #endif
     PIHMprintf(VL_NORMAL, "\n");
@@ -157,7 +157,7 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
 void UpdPrintVar(varctrl_struct *varctrl, int nprint, int module_step)
 {
     int             i;
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nprint; i++)
@@ -183,7 +183,7 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
 
     pihm_time = PIHMTime(t);
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nprint; i++)
@@ -262,11 +262,11 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
             fwrite(&elem[i].ws.surf, sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.unsat, sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.gw, sizeof(double), 1, init_file);
-#ifdef _FBR_
+#if defined(_FBR_)
             fwrite(&elem[i].ws.fbr_unsat, sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.fbr_gw, sizeof(double), 1, init_file);
 #endif
-#ifdef _NOAH_
+#if defined(_NOAH_)
             fwrite(&elem[i].es.t1, sizeof(double), 1, init_file);
             fwrite(&elem[i].ps.snowh, sizeof(double), 1, init_file);
 

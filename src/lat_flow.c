@@ -11,7 +11,7 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
 
     FrictSlope(elem, river, surf_mode, dhbydx, dhbydy);
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -53,11 +53,11 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
     free(dhbydx);
     free(dhbydy);
 
-#ifdef _FBR_
+#if defined(_FBR_)
     /*
      * Lateral fractured bedrock flow
      */
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -119,7 +119,7 @@ void FrictSlope(const elem_struct *elem, const river_struct *river,
     int surf_mode, double *dhbydx, double *dhbydy)
 {
     int             i;
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -367,7 +367,7 @@ void BoundFluxElem(int bc_type, int j, const bc_struct *bc,
     }
 }
 
-#ifdef _FBR_
+#if defined(_FBR_)
 double FbrFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
     double dist, double edge)
 {

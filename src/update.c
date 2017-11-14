@@ -8,7 +8,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 
     y = NV_DATA(CV_Y);
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -22,7 +22,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         MassBalance(&elem[i].ws, &elem[i].ws0, &elem[i].wf, &subrunoff,
             &elem[i].soil, elem[i].topo.area, stepsize);
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
         elem[i].wf.runoff2 = subrunoff;
 
         elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.sldpth, elem[i].ps.nsoil,
@@ -60,7 +60,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
     elem[LUMPED].nt.sminn0 = elem[LUMPED].ns.sminn;
 #endif
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nriver; i++)

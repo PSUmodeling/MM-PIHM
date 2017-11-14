@@ -42,7 +42,7 @@ void ResetSpinupStat(elem_struct *elem)
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-# ifdef _OPENMP
+# if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
     for (i = 0; i < nelem; i++)

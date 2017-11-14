@@ -39,7 +39,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     for (i = 0; i < nelem; i++)
     {
         pihm->elem[i].attrib.soil_type = pihm->atttbl.soil[i];
-#ifdef _FBR_
+#if defined(_FBR_)
         pihm->elem[i].attrib.geol_type = pihm->atttbl.geol[i];
 #endif
         pihm->elem[i].attrib.lc_type = pihm->atttbl.lc[i];
@@ -50,7 +50,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         for (j = 0; j < NUM_EDGE; j++)
         {
             pihm->elem[i].attrib.bc_type[j] = pihm->atttbl.bc[i][j];
-#ifdef _FBR_
+#if defined(_FBR_)
             pihm->elem[i].attrib.fbrbc_type[j] = pihm->atttbl.fbr_bc[i][j];
 #endif
         }
@@ -87,7 +87,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     /* Initialize element topography */
     InitTopo(pihm->elem, &pihm->meshtbl);
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
     /* Calculate average elevation and total area of model domain */
     pihm->siteinfo.zmax = AvgElev(pihm->elem);
     pihm->siteinfo.zmin = AvgZmin(pihm->elem);
@@ -100,13 +100,13 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
     /* Initialize element soil properties */
-#ifdef _NOAH_
+#if defined(_NOAH_)
     InitSoil(pihm->elem, &pihm->soiltbl, &pihm->noahtbl, &pihm->cal);
 #else
     InitSoil(pihm->elem, &pihm->soiltbl, &pihm->cal);
 #endif
 
-#ifdef _FBR_
+#if defined(_FBR_)
     /* Initialize element geol properties */
     InitGeol(pihm->elem, &pihm->geoltbl, &pihm->cal);
 #endif
@@ -115,7 +115,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     InitLc(pihm->elem, &pihm->lctbl, &pihm->cal);
 
     /* Initialize element forcing */
-#ifdef _BGC_
+#if defined(_BGC_)
     InitForc(pihm->elem, &pihm->forc, &pihm->cal, pihm->co2.varco2,
         pihm->ndepctrl.varndep);
 #else
@@ -135,12 +135,12 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     /* Calculate distances between elements */
     InitSurfL(pihm->elem, pihm->river, &pihm->meshtbl);
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
     /* Initialize land surface module (Noah) */
     InitLsm(pihm->elem, &pihm->ctrl, &pihm->noahtbl, &pihm->cal);
 #endif
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     /* Initialize Cycles module */
     if (pihm->ctrl.read_cycles_restart)
     {
@@ -151,7 +151,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         &pihm->agtbl, &pihm->croptbl, &pihm->soiltbl);
 #endif
 
-#ifdef _BGC_
+#if defined(_BGC_)
     /* Initialize CN (Biome-BGC) module */
     InitBgc(pihm->elem, &pihm->epctbl);
 #endif
@@ -162,7 +162,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     if (pihm->ctrl.init_type == RELAX)
     {
         /* Relaxation mode */
-#ifdef _NOAH_
+#if defined(_NOAH_)
         /* Noah initialization needs air temperature thus forcing is applied */
         ApplyForc(&pihm->forc, pihm->elem, pihm->ctrl.starttime,
             pihm->ctrl.rad_mode, &pihm->siteinfo);
@@ -179,7 +179,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     /* Initialize state variables */
     InitVar(pihm->elem, pihm->river, CV_Y);
 
-#ifdef _BGC_
+#if defined(_BGC_)
     /* Initialize CN variables */
     if (pihm->ctrl.read_bgc_restart)
     {
@@ -196,7 +196,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     /* Calculate model time steps */
     CalcModelStep(&pihm->ctrl);
 
-#ifdef _DAILY_
+#if defined(_DAILY_)
     InitDailyStruct(pihm->elem);
 #endif
 }
@@ -224,7 +224,7 @@ void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
     double          y[NUM_EDGE];
     double          zmin[NUM_EDGE];
     double          zmax[NUM_EDGE];
-#ifdef _FBR_
+#if defined(_FBR_)
     double          zbed[NUM_EDGE];
 #endif
 
@@ -236,7 +236,7 @@ void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
             y[j] = meshtbl->y[elem[i].node[j] - 1];
             zmin[j] = meshtbl->zmin[elem[i].node[j] - 1];
             zmax[j] = meshtbl->zmax[elem[i].node[j] - 1];
-#ifdef _FBR_
+#if defined(_FBR_)
             zbed[j] = meshtbl->zbed[elem[i].node[j] - 1];
 #endif
         }
@@ -249,7 +249,7 @@ void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
 
         elem[i].topo.zmin = (zmin[0] + zmin[1] + zmin[2]) / 3.0;
         elem[i].topo.zmax = (zmax[0] + zmax[1] + zmax[2]) / 3.0;
-#ifdef _FBR_
+#if defined(_FBR_)
         elem[i].topo.zbed = (zbed[0] + zbed[1] + zbed[2]) / 3.0;
 #endif
         elem[i].topo.edge[0] =
@@ -260,12 +260,12 @@ void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
             sqrt(pow((x[0] - x[1]), 2) + pow((y[0] - y[1]), 2));
     }
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
     CalcSlopeAspect(elem, meshtbl);
 #endif
 }
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
 void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
     const noahtbl_struct *noahtbl, const calib_struct *cal)
 #else
@@ -307,11 +307,11 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
         /* Calculate field capacity and wilting point following Chan and
          * Dudhia 2001 MWR, but replacing Campbell with van Genuchten */
         elem[i].soil.smcwlt = cal->porosity * soiltbl->smcwlt[soil_ind];
-#ifdef _NOAH_
+#if defined(_NOAH_)
         elem[i].soil.smcwlt *= cal->smcwlt;
 #endif
         elem[i].soil.smcref = cal->porosity * soiltbl->smcref[soil_ind];
-#ifdef _NOAH_
+#if defined(_NOAH_)
         elem[i].soil.smcref *= cal->smcref;
 #endif
 
@@ -326,7 +326,7 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
             cal->kmacv * soiltbl->kmacv_ro * soiltbl->kinfv[soil_ind];
         elem[i].soil.kmach =
             cal->kmach * soiltbl->kmach_ro * soiltbl->ksath[soil_ind];
-#ifdef _NOAH_
+#if defined(_NOAH_)
         elem[i].soil.csoil = noahtbl->csoil;
         elem[i].soil.quartz = soiltbl->qtz[soil_ind];
         elem[i].soil.smcdry = elem[i].soil.smcwlt;
@@ -334,7 +334,7 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
     }
 }
 
-#ifdef _FBR_
+#if defined(_FBR_)
 void InitGeol (elem_struct *elem, const geoltbl_struct *geoltbl,
         const calib_struct *cal)
 {
@@ -399,14 +399,14 @@ void InitLc(elem_struct *elem, const lctbl_struct *lctbl,
         elem[i].lc.cfactr = lctbl->cfactr;
         elem[i].lc.bare = (elem[i].attrib.lc_type == lctbl->bare) ? 1 : 0;
         elem[i].lc.shdfac = (elem[i].lc.bare == 1) ? 0.0 : elem[i].lc.shdfac;
-#ifdef _NOAH_
+#if defined(_NOAH_)
         elem[i].lc.snup = lctbl->snup[lc_ind];
         elem[i].lc.isurban = (elem[i].attrib.lc_type == ISURBAN) ? 1 : 0;
         elem[i].lc.shdmin = 0.01;
         elem[i].lc.shdmax = 0.96;
 #endif
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
         elem[i].epc.rgl *= cal->rgl;
         elem[i].epc.hs *= cal->hs;
         elem[i].epc.rsmin *= cal->rsmin;
@@ -507,7 +507,7 @@ void InitRiver(river_struct *river, elem_struct *elem,
     }
 }
 
-#ifdef _BGC_
+#if defined(_BGC_)
 void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal,
     int varco2, int varndep)
 #else
@@ -562,7 +562,7 @@ void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
             forc->source[i].value = (double *)malloc(sizeof(double));
         }
     }
-#ifdef _NOAH_
+#if defined(_NOAH_)
     if (forc->nrad > 0)
     {
         for (i = 0; i < forc->nrad; i++)
@@ -572,7 +572,7 @@ void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
     }
 #endif
 
-#ifdef _BGC_
+#if defined(_BGC_)
     if (varco2)
     {
         forc->co2[0].value = (double *)malloc(sizeof(double));
@@ -661,7 +661,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
         }
     }
 
-#ifdef OBSOLETE
+#if defined(OBSOLETE)
     /* Correction of BedRck Elev. Is this needed? */
     if (bedrock_flag == 1)
     {
@@ -820,10 +820,10 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 {
     int             i;
     const double    INIT_UNSAT = 0.1;
-#ifdef _FBR_
+#if defined(_FBR_)
     const double    INIT_FBR_GW = 5.0;
 #endif
-#ifdef _NOAH_
+#if defined(_NOAH_)
     int             j;
     double          sfctmp;
 #endif
@@ -836,13 +836,13 @@ void RelaxIc(elem_struct *elem, river_struct *river)
         elem[i].ic.unsat = INIT_UNSAT;
         elem[i].ic.gw = elem[i].soil.depth - INIT_UNSAT;
 
-#ifdef _FBR_
+#if defined(_FBR_)
         elem[i].ic.fbr_gw = (elem[i].geol.depth > INIT_FBR_GW) ?
             INIT_FBR_GW : elem[i].geol.depth;
         elem[i].ic.fbr_unsat = 0.5 * (elem[i].geol.depth - elem[i].ic.fbr_gw);
 #endif
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
         sfctmp = elem[i].es.sfctmp;
 
         elem[i].ic.t1 = sfctmp;
@@ -893,7 +893,7 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 {
     int             i;
-#ifdef _NOAH_
+#if defined(_NOAH_)
     int             j;
 #endif
 
@@ -911,7 +911,7 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
         NV_Ith(CV_Y, UNSAT(i)) = elem[i].ic.unsat;
         NV_Ith(CV_Y, GW(i)) = elem[i].ic.gw;
 
-#ifdef _FBR_
+#if defined(_FBR_)
         elem[i].ws.fbr_unsat = elem[i].ic.fbr_unsat;
         elem[i].ws.fbr_gw = elem[i].ic.fbr_gw;
 
@@ -919,7 +919,7 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
         NV_Ith(CV_Y, FBRGW(i)) = elem[i].ic.fbr_gw;
 #endif
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
         elem[i].es.t1 = elem[i].ic.t1;
         elem[i].ps.snowh = elem[i].ic.snowh;
 
@@ -950,7 +950,7 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
     {
         InitWFlux(&elem[i].wf);
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
         elem[i].ps.snotime1 = 0.0;
         elem[i].ps.ribb = 0.0;
         elem[i].ps.fcr = 1.0;
@@ -1041,7 +1041,7 @@ void InitWFlux(wflux_struct *wf)
     wf->ett_gw = 0.0;
     wf->esnow = 0.0;
 
-#ifdef _FBR_
+#if defined(_FBR_)
     wf->fbr_infil = 0.0;
     wf->fbr_rechg = 0.0;
     for (j = 0; j < NUM_EDGE; j++)
@@ -1050,7 +1050,7 @@ void InitWFlux(wflux_struct *wf)
     }
 #endif
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
     int             k;
 
     for (k = 0; k < MAXLYR; k++)
@@ -1079,7 +1079,7 @@ void InitWFlux(wflux_struct *wf)
     wf->esnow = 0.0;
     wf->etns = 0.0;
 #endif
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     wf->eres = 0.0;
 #endif
 }
@@ -1098,7 +1098,7 @@ void InitEFlux(eflux_struct *ef)
 {
     ef->soldn = 0.0;
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
     int             k;
 
     ef->solnet = 0.0;
@@ -1123,7 +1123,7 @@ void InitEFlux(eflux_struct *ef)
     ef->flx2 = 0.0;
     ef->flx3 = 0.0;
 #endif
-#ifdef _BGC_
+#if defined(_BGC_)
     ef->swabs_per_plaisun = 0.0;
     ef->swabs_per_plaishade = 0.0;
 #endif

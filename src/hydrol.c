@@ -4,7 +4,7 @@ void Hydrol(elem_struct *elem, river_struct *river, const ctrl_struct *ctrl)
 {
     int             i;
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -28,13 +28,13 @@ void EtExtract(elem_struct *elem)
 {
     int             i;
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
         /* Source of direct evaporation */
-#ifdef _NOAH_
+#if defined(_NOAH_)
         if (elem[i].ws.gw > elem[i].soil.depth - elem[i].soil.dinf)
         {
             elem[i].wf.edir_surf = 0.0;
@@ -69,7 +69,7 @@ void EtExtract(elem_struct *elem)
 #endif
 
         /* Source of transpiration */
-#ifdef _NOAH_
+#if defined(_NOAH_)
         elem[i].ps.gwet = GwTransp(elem[i].wf.ett, elem[i].wf.et,
             elem[i].ps.nwtbl, elem[i].ps.nroot);
         elem[i].wf.ett_unsat = (1.0 - elem[i].ps.gwet) * elem[i].wf.ett;

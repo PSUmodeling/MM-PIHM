@@ -22,7 +22,7 @@
 
 #define F_OK    0
 
-#ifdef _LUMPED_
+#if defined(_LUMPED_)
 # define LUMPED    nelem
 #endif
 
@@ -326,7 +326,7 @@
 #define FBRRECHG_CTRL           80
 #define FBRFLOW_CTRL            81
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
 #define MAXOP       100
 
 #define PLANT_OP      0
@@ -385,7 +385,7 @@ extern int     tecplot;
 extern char    project[MAXSTRING];
 extern int     nelem;
 extern int     nriver;
-#ifdef _OPENMP
+#if defined(_OPENMP)
 extern int     nthreads;
 #endif
 #if defined(_BGC_) || defined (_CYCLES_)

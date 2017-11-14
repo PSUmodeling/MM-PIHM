@@ -16,7 +16,7 @@
 # include <unistd.h>
 #endif
 #include <stdarg.h>
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # include <omp.h>
 #endif
 
@@ -32,7 +32,7 @@
 #include "cvode_spgmr.h"
 
 /* Definition of type N_Vector */
-#ifdef _CVODE_OMP
+#if defined(_CVODE_OMP)
 # include "nvector_openmp.h"
 #else
 # include "nvector_serial.h"
@@ -44,7 +44,7 @@
 /* CVDENSE header file */
 #include "cvode_dense.h"
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
 # include "spa.h"
 #endif
 

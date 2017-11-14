@@ -5,13 +5,13 @@
 typedef struct attrib_struct
 {
     int             soil_type;              /* element soil type */
-#ifdef _FBR_
+#if defined(_FBR_)
     int             geol_type;              /* element geology type */
 #endif
     int             lc_type;                /* element land cover type */
     int             bc_type[NUM_EDGE];      /* element boundary condition type
                                              */
-#ifdef _FBR_
+#if defined(_FBR_)
     int             fbrbc_type[NUM_EDGE];   /* element fractured bedrock layer
                                              * boundary condition type */
 #endif
@@ -29,7 +29,7 @@ typedef struct topo_struct
     double          y;                     /* y of centroid (m) */
     double          zmin;                  /* soil bottom elevation (m) */
     double          zmax;                  /* surface elevation (m) */
-#ifdef _FBR_
+#if defined(_FBR_)
     double          zbed;                  /* impermeable bedrock elevation (m)
                                             */
 #endif
@@ -38,7 +38,7 @@ typedef struct topo_struct
     double          nabrdist[NUM_EDGE];    /* distance to neighbor (m) */
     double          nabr_x[NUM_EDGE];      /* x of neighbor centroid (m) */
     double          nabr_y[NUM_EDGE];      /* y of neighbor centroid (m) */
-#ifdef _NOAH_
+#if defined(_NOAH_)
     double          slope;                 /* slope of element (degree) */
     double          aspect;                /* surface aspect of element (degree)
                                             */
@@ -46,7 +46,7 @@ typedef struct topo_struct
     double          h_phi[36];             /* unobstructed angle in each
                                             * direction (degree) */
 #endif
-#ifdef _RT_
+#if defined(_RT_)
     double          areasub[NUM_EDGE];
 #endif
 } topo_struct;
@@ -81,13 +81,13 @@ typedef struct soil_struct
                                   * section (m2 m-2) */
     double          areafh;      /* macropore area fraction on a horizontal
                                   * cross-section (m2 m-2) */
-#ifdef _NOAH_
+#if defined(_NOAH_)
     double          csoil;       /* soil heat capacity (J m-3 K-1) */
     double          quartz;      /* soil quartz content (-) */
     double          smcdry;      /* dry soil moisture threshold where direct
                                   * evap from top layer ends (m3 m-3) */
 #endif
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     int             totalLayers;
     double          Curve_Number;
     double          Percent_Slope;
@@ -202,7 +202,7 @@ typedef struct epconst_struct
     double          topt;                   /* optimum transpiration air
                                              * temperature (K) */
     double          rsmax;                  /* cuticular resistance (s m-1) */
-#ifdef _BGC_
+#if defined(_BGC_)
     int             woody;                  /* flag: 1 = woody, 0 = non-woody */
     int             evergreen;              /* flag: 1 = evergreen,
                                              * 0 = deciduous */
@@ -309,7 +309,7 @@ typedef struct pstate_struct
     double          rh;                     /* relative humidity (100%) */
     double          sfcprs;                 /* surface pressure at height zlvl
                                              * above ground (Pa) */
-#ifdef _NOAH_
+#if defined(_NOAH_)
     double          alb;                    /* background snow-free surface
                                              * albedo (-) */
     double          snoalb;                 /* upper bound on maximum albedo
@@ -399,7 +399,7 @@ typedef struct pstate_struct
     double          satdpth[MAXLYR];        /* depth of groundwater in each soil
                                              * layer (m) */
 #endif
-#ifdef _BGC_
+#if defined(_BGC_)
     double          co2;                    /* atmospheric CO2 concentration
                                              * (ppm) */
     double          ppfd_per_plaisun;       /* ppfd per unit sunlit proj LAI
@@ -426,13 +426,13 @@ typedef struct wstate_struct
     double          cmcmax;          /* maximum canopy water capacity (m) */
     double          cmc;             /* interception storage (m) */
     double          surfh;           /* actual surface water level (m) */
-#ifdef _FBR_
+#if defined(_FBR_)
     double          fbr_unsat;       /* unsaturated storage in fractured bedrock
                                       * layer (m) */
     double          fbr_gw;          /* deep groundwater in fractured bedrock
                                       * layer (m) */
 #endif
-#ifdef _NOAH_
+#if defined(_NOAH_)
     double          smc[MAXLYR];     /* total soil moisture content (m3 m-3) */
     double          sh2o[MAXLYR];    /* unfrozen soil moisture content (m3 m-3)
                                       */
@@ -478,7 +478,7 @@ typedef struct wflux_struct
                                              * (m s-1) */
     double          esnow;                  /* sublimation from (or deposition
                                              * to) snowpack (m s-1); */
-#ifdef _FBR_
+#if defined(_FBR_)
     double          fbr_infil;              /* fractured bedrock infiltration
                                              * (m s-1) */
     double          fbr_rechg;              /* fractured bedrock recharge
@@ -486,7 +486,7 @@ typedef struct wflux_struct
     double          fbrflow[NUM_EDGE];      /* lateral fractured bedrock flow
                                              * (m3 s-1) */
 #endif
-#ifdef _NOAH_
+#if defined(_NOAH_)
     double          et[MAXLYR];             /* plant transpiration from each
                                              * soil layer (m s-1) */
     double          runoff2;                /* total subsurface flow (m s-1) */
@@ -507,7 +507,7 @@ typedef struct wflux_struct
                                              * (m s-1) */
     double          etns;                   /* (m s-1) */
 #endif
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     double          eres;                   /* evaporation from residue (m s-1)
                                              */
 #endif
@@ -518,7 +518,7 @@ typedef struct estate_struct
 {
     double          sfctmp;         /* air temperature at height zlvl above
                                      * ground (K) */
-#ifdef _NOAH_
+#if defined(_NOAH_)
     double          t1;             /* ground/canopy/snowpack effective skin
                                      * temperature (K) */
     double          th2;            /* air potential temperature at height zlvl
@@ -532,7 +532,7 @@ typedef struct eflux_struct
 {
     double          soldn;                  /* solar downward radiation (W m-2)
                                              */
-#ifdef _NOAH_
+#if defined(_NOAH_)
     double          solnet;                 /* net downward solar radiation
                                              * (W m-2) */
     double          etp;                    /* potential evaporation (W m-2) */
@@ -567,7 +567,7 @@ typedef struct eflux_struct
     double          flx3;                   /* snow melt latent heat flux
                                              * (W m-2) */
 #endif
-#ifdef _BGC_
+#if defined(_BGC_)
     double          swabs_per_plaisun;      /* swabs per unit sunlit proj LAI
                                              * (W m-2) */
     double          swabs_per_plaishade;    /* swabs per unit shaded proj LAI
@@ -575,7 +575,7 @@ typedef struct eflux_struct
 #endif
 } eflux_struct;
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
 typedef struct crop_struct
 {
     /* Instance of the crop that is being planted */
@@ -823,11 +823,11 @@ typedef struct ic_struct
     double          surf;
     double          unsat;
     double          gw;
-#ifdef _FBR_
+#if defined(_FBR_)
     double          fbr_unsat;
     double          fbr_gw;
 #endif
-#ifdef _NOAH_
+#if defined(_NOAH_)
     double          t1;
     double          snowh;
     double          stc[MAXLYR];
@@ -836,7 +836,7 @@ typedef struct ic_struct
 #endif
 } ic_struct;
 
-#ifdef _BGC_
+#if defined(_BGC_)
 /* CN initial conditions */
 typedef struct bgcic_struct
 {
@@ -928,7 +928,7 @@ typedef struct spinup_struct
 } spinup_struct;
 #endif
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
 typedef struct weather_struct
 {
     int            *lastDoy;
@@ -955,7 +955,7 @@ typedef struct solute_struct
 } solute_struct;
 #endif
 
-#ifdef _DAILY_
+#if defined(_DAILY_)
 
 /* Daily average variables */
 typedef struct daily_struct
@@ -1001,7 +1001,7 @@ typedef struct daily_struct
 } daily_struct;
 #endif
 
-#ifdef _BGC_
+#if defined(_BGC_)
 /* Carbon state variables (including sums for sources and sinks) */
 typedef struct cstate_struct
 {
@@ -1652,13 +1652,13 @@ typedef struct elem_struct
     topo_struct     topo;
     soil_struct     soil;
     lc_struct       lc;
-#ifdef _FBR_
+#if defined(_FBR_)
     geol_struct     geol;
 #endif
     epconst_struct  epc;
     ic_struct       ic;
     bc_struct       bc;
-#ifdef _FBR_
+#if defined(_FBR_)
     bc_struct       fbr_bc;
 #endif
     wstate_struct   ws;
@@ -1667,10 +1667,10 @@ typedef struct elem_struct
     estate_struct   es;
     eflux_struct    ef;
     pstate_struct   ps;
-#ifdef _DAILY_
+#if defined(_DAILY_)
     daily_struct    daily;
 #endif
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     cropmgmt_struct cropmgmt;
     comm_struct     comm;
     residue_struct  residue;
@@ -1681,7 +1681,7 @@ typedef struct elem_struct
     solute_struct   NH4sol;
     cyclesic_struct cycles_restart;
 #endif
-#ifdef _BGC_
+#if defined(_BGC_)
     bgcic_struct    restart_input;
     bgcic_struct    restart_output;
     cstate_struct   cs;

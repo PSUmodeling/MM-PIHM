@@ -4,7 +4,7 @@ void VerticalFlow(elem_struct *elem, double dt)
 {
     int             i;
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -17,7 +17,7 @@ void VerticalFlow(elem_struct *elem, double dt)
         elem[i].wf.rechg = Recharge(&elem[i].ws, &elem[i].wf, &elem[i].ps,
             &elem[i].soil);
 
-#ifdef _FBR_
+#if defined(_FBR_)
         elem[i].wf.fbr_infil = FbrInfil(&elem[i].ws, &elem[i].soil,
             &elem[i].geol, &elem[i].topo);
         elem[i].wf.fbr_rechg = FbrRecharge(&elem[i].ws, &elem[i].wf,
@@ -96,7 +96,7 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
         else
         {
             deficit = soil->depth - ws->gw;
-#ifdef _NOAH_
+#if defined(_NOAH_)
             satn = (ws->sh2o[0] - soil->smcmin) / (soil->smcmax - soil->smcmin);
 #else
             satn = ws->unsat / deficit;
@@ -131,7 +131,7 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
 
         infil *= wetfrac;
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
         /* Constrain infiltration by frozen top soil */
         infil *= ps->fcr;
 #endif
@@ -209,7 +209,7 @@ double AvgKv(const soil_struct *soil, double deficit, double gw,
         d3 = gw - (soil->dmac - deficit);
     }
 
-#ifdef _ARITH_
+#if defined(_ARITH_)
     /* Arithmetic mean formulation */
     return (k1 * d1 + k2 * d2 + k3 * d3) / (d1 + d2 + d3);
 #else
@@ -333,7 +333,7 @@ double Psi(double satn, double alpha, double beta)
     return -pow(pow(1.0 / satn, beta / (beta - 1.0)) - 1.0, 1.0 / beta) / alpha;
 }
 
-#ifdef _FBR_
+#if defined(_FBR_)
 /*
  * Hydrology for fractured bedrock
  */

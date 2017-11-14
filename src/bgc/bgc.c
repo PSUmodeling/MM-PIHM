@@ -13,7 +13,7 @@ void DailyBgc(pihm_struct pihm, int t)
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-# ifdef _OPENMP
+# if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
     for (i = 0; i < nelem; i++)
@@ -80,7 +80,7 @@ void DailyBgc(pihm_struct pihm, int t)
 #else
     vwc = (double *)malloc(nelem * sizeof(double));
 #endif
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -111,7 +111,7 @@ void DailyBgc(pihm_struct pihm, int t)
 #if defined(_LUMPED_)
     i = LUMPED;
 #else
-# ifdef _OPENMP
+# if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
     for (i = 0; i < nelem; i++)

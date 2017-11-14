@@ -9,7 +9,7 @@
 #define GW(i)            i + 2 * nelem
 #define RIVSTG(i)        i + 3 * nelem
 #define RIVGW(i)         i + 3 * nelem + nriver
-#ifdef _FBR_
+#if defined(_FBR_)
 # define FBRUNSAT(i)     i + 3 * nelem + 2 * nriver
 # define FBRGW(i)        i + 4 * nelem + 2 * nriver
 #endif
@@ -31,7 +31,7 @@
 #define TotalArea(...)    _WsAreaElev(WS_AREA, __VA_ARGS__)
 
 /* CVode functions */
-#ifdef _CVODE_OMP
+#if defined(_CVODE_OMP)
 # define N_VNew(N)    N_VNew_OpenMP(N, nthreads)
 # define NV_DATA      NV_DATA_OMP
 # define NV_Ith       NV_Ith_OMP
@@ -69,14 +69,14 @@ double          _RiverWdthAreaPerim(int, int, double, double);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
 void            ApplyBc(forc_struct *, elem_struct *, river_struct *, int);
 void            ApplyElemBc(forc_struct *, elem_struct *, int);
-#ifdef _NOAH_
+#if defined(_NOAH_)
 void            ApplyForc(forc_struct *, elem_struct *, int, int,
     const siteinfo_struct *);
 #else
 void            ApplyForc(forc_struct *, elem_struct *, int);
 #endif
 void            ApplyLai(forc_struct *, elem_struct *, int);
-#ifdef _NOAH_
+#if defined(_NOAH_)
 void            ApplyMeteoForc(forc_struct *, elem_struct *, int, int,
     const siteinfo_struct *);
 #else
@@ -122,7 +122,7 @@ double          Infil(const wstate_struct *, const wflux_struct *,
     const topo_struct *, const soil_struct *, double, pstate_struct *);
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
-#ifdef _BGC_
+#if defined(_BGC_)
 void            InitForc(elem_struct *, forc_struct *, const calib_struct *,
     int, int);
 #else
@@ -140,7 +140,7 @@ void            InitRiver(river_struct *, elem_struct *, const rivtbl_struct *,
     const calib_struct *);
 void            InitRiverWFlux(river_wflux_struct *);
 void            InitRiverWState(river_wstate_struct *);
-#ifdef _NOAH_
+#if defined(_NOAH_)
 void            InitSoil(elem_struct *, const soiltbl_struct *,
     const noahtbl_struct *, const calib_struct *);
 #else
@@ -219,7 +219,7 @@ double          Recharge(const wstate_struct *, const wflux_struct *,
     const pstate_struct *, const soil_struct *);
 void            RiverFlow(elem_struct *, river_struct *, int);
 void            RiverToElem(river_struct *, elem_struct *, elem_struct *);
-#ifdef _OPENMP
+#if defined(_OPENMP)
 void            RunTime(double, double *, double *);
 #else
 void            RunTime (clock_t, double *, double *);
@@ -245,7 +245,7 @@ double          WiltingPoint(double, double, double, double);
 /*
  * Fractured bedrock functions
  */
-#ifdef _FBR_
+#if defined(_FBR_)
 double          FbrBoundFluxElem(int, int, const bc_struct *,
     const wstate_struct *, const topo_struct *, const geol_struct *);
 double          FbrFlowElemToElem(const elem_struct *, const elem_struct *,
@@ -264,7 +264,7 @@ void            ReadGeol(const char *, geoltbl_struct *);
 /*
  * Noah functions
  */
-#ifdef _NOAH_
+#if defined(_NOAH_)
 double          _WsAreaElev(int, const elem_struct *);
 void            AlCalc(pstate_struct *, double, int);
 void            CalcLatFlx(const pstate_struct *, wflux_struct *, double);
@@ -278,7 +278,7 @@ void            DefSldpth(double *, int *, double *, double, const double *,
     int);
 void            DEvap(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
-# ifdef _CYCLES_
+# if defined(_CYCLES_)
 void            Evapo(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *,
     comm_struct *, residue_struct *, const estate_struct *, double);
@@ -297,7 +297,7 @@ void            InitLsm(elem_struct *, const ctrl_struct *,
     const noahtbl_struct *, const calib_struct *);
 void            Noah(elem_struct *, double);
 void            NoahHydrol(elem_struct *, double);
-# ifdef _CYCLES_
+# if defined(_CYCLES_)
 void            NoPac(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
     comm_struct *, residue_struct *, double, double);
@@ -326,7 +326,7 @@ void            Rosr12(double *, const double *, const double *, double *,
     const double *, double *, int);
 void            SfcDifOff(pstate_struct *, const lc_struct *, double, double,
     int);
-# ifdef _CYCLES_
+# if defined(_CYCLES_)
 void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
     soil_struct *, comm_struct *, residue_struct *, double);
@@ -338,7 +338,7 @@ void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
 void            ShFlx(wstate_struct *, estate_struct *, eflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *, double,
     double, double, double);
-# ifdef _CYCLES_
+# if defined(_CYCLES_)
 void            SmFlx(wstate_struct *, wflux_struct *, pstate_struct *,
     const soil_struct *, residue_struct *, double);
 # else
@@ -348,7 +348,7 @@ void            SmFlx(wstate_struct *, wflux_struct *, pstate_struct *,
 double          SnFrac(double, double, double, double);
 void            SnkSrc(double *, double, double, double *,
     const soil_struct *, const double *, double, int, double);
-# ifdef _CYCLES_
+# if defined(_CYCLES_)
 void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
     comm_struct *, residue_struct *, int, double, double, double, double);
@@ -360,7 +360,7 @@ void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
 void            SnowNew(const estate_struct *, double, pstate_struct *);
 void            SnowPack(double, double, double *, double *, double, double);
 double          Snowz0(double, double, double);
-# ifdef _CYCLES_
+# if defined(_CYCLES_)
 void            SRT(wstate_struct *, wflux_struct *, pstate_struct *,
     const soil_struct *, residue_struct *, double, double *, double *, double *,
     double *, double *);
@@ -382,12 +382,12 @@ void            WDfCnd(double *, double *, double, double, int,
     const soil_struct *, const pstate_struct *);
 #endif
 
-#ifdef _DAILY_
+#if defined(_DAILY_)
 void            DailyVar(int, int, elem_struct *, double);
 void            InitDailyStruct(elem_struct *);
 #endif
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
 void            DailyCycles(int, pihm_struct);
 void            FirstDOY(int *, int, int, soilc_struct *, residue_struct *,
     const soil_struct *);
@@ -534,7 +534,7 @@ void            InitCropSV(crop_struct *);
 void            WriteCyclesIC(char *, elem_struct *, river_struct *);
 #endif
 
-#ifdef _BGC_
+#if defined(_BGC_)
 void            BackgroundLitterfall(const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *);
 void            BgcSpinup(pihm_struct, N_Vector, void *);

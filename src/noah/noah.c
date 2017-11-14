@@ -4,7 +4,7 @@ void Noah(elem_struct *elem, double dt)
 {
     int             i;
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -37,7 +37,7 @@ void Noah(elem_struct *elem, double dt)
                 elem[i].ws.smc[j] : elem[i].soil.smcmax;
             elem[i].ws.sh2o[j] = (elem[i].ws.sh2o[j] < elem[i].ws.smc[j]) ?
                 elem[i].ws.sh2o[j] : elem[i].ws.smc[j];
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
             elem[i].soil.waterContent[j] = elem[i].ws.sh2o[j];
 #endif
         }
@@ -45,7 +45,7 @@ void Noah(elem_struct *elem, double dt)
         /*
          * Run Noah LSM
          */
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
         SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef, &elem[i].ps,
             &elem[i].lc, &elem[i].epc, &elem[i].soil, &elem[i].comm,
             &elem[i].residue, dt);
@@ -65,7 +65,7 @@ void NoahHydrol(elem_struct *elem, double dt)
 {
     int             i;
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -87,12 +87,12 @@ void NoahHydrol(elem_struct *elem, double dt)
             elem[i].ws.sh2o[j] =
                 (elem[i].ws.sh2o[j] < elem[i].ws.smc[j]) ?
                 elem[i].ws.sh2o[j] : elem[i].ws.smc[j];
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
             elem[i].soil.waterContent[j] = elem[i].ws.sh2o[j];
 #endif
         }
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
         SmFlx(&elem[i].ws, &elem[i].wf, &elem[i].ps, &elem[i].soil,
             &elem[i].residue, dt);
 #else
@@ -101,7 +101,7 @@ void NoahHydrol(elem_struct *elem, double dt)
     }
 }
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
 void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
     soil_struct *soil, comm_struct *comm, residue_struct *residue, double dt)
@@ -199,7 +199,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         }
     }
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     lc->shdfac = comm->svRadiationInterception;
 #else
     lc->shdfac = 1.0 - exp(-0.75 * (ps->proj_lai));
@@ -446,7 +446,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
     if (ws->sneqv == 0.0)
     {
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
         NoPac(ws, wf, es, ef, ps, lc, soil, comm, residue, dt, t24);
 #else
         NoPac(ws, wf, es, ef, ps, lc, soil, dt, t24);
@@ -455,7 +455,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     }
     else
     {
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
         SnoPac(ws, wf, es, ef, ps, lc, soil, comm, residue, snowng, dt, t24,
             prcpf, df1);
 #else
@@ -484,7 +484,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     if (ef->etp > 0.0)
     {
         ef->eta = ef->edir + ef->ec + ef->ett + ef->esnow;
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
         ef->eta += wf->eres * 1000.0 * LVH2O;
 #endif
     }
@@ -608,7 +608,7 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
     double          delta, ff, gx, rr;
     double          part[MAXLYR];
     const double    SLV = 2.501000e6;
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     const double    RC = 70.0;
 #endif
     /* Initialize canopy resistance multiplier terms. */
@@ -670,7 +670,7 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
      * in determining actual evap. pc is determined by:
      *   pc * linearized Penman potential evap =
      *   Penman-Monteith actual evaporation (containing rc term). */
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     ps->rc = RC;
 #else
     ps->rc = epc->rsmin /
@@ -744,7 +744,7 @@ void DEvap(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     wf->edir = fx * (1.0 - lc->shdfac) * wf->etp;
 }
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
 void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil, comm_struct *comm,
     residue_struct *residue, const estate_struct *es, double dt)
@@ -782,7 +782,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
             /* Retrieve direct evaporation from soil surface. Call this function
              * only if veg cover not complete.
              * Frozen ground version:  sh2o states replace smc states. */
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
             Evaporation(soil, comm, residue, wf->etp * 1000.0 * dt, ps->sncovr);
             wf->edir = soil->evaporationVol / 1000.0 / dt;
 #else
@@ -790,7 +790,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
 #endif
         }
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
         /* Evaporation from residue */
         ResidueEvaporation(residue, soil, comm, wf->etp * ps->pc * 1000.0 * dt,
             ps->sncovr);
@@ -801,7 +801,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
         {
             /* Initialize plant total transpiration, retrieve plant
              * transpiration, and accumulate it for all soil layers. */
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
             WaterUptake(comm, soil, es->sfctmp, wf, ps->pc, dt);
 #else
             Transp(ws, wf, ps, lc, soil);
@@ -832,7 +832,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     }
 
     /* Total up evap and transp types to obtain actual evapotransp */
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     wf->etns = wf->edir + wf->ett + wf->ec + wf->eres;
 #else
     wf->etns = wf->edir + wf->ett + wf->ec;
@@ -1203,7 +1203,7 @@ void HStep(estate_struct *es, double *rhsts, double dt, int nsoil, double *ai,
     }
 }
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
 void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
     const soil_struct *soil, comm_struct *comm, residue_struct *residue,
@@ -1244,7 +1244,7 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
     if (wf->etp > 0.0)
     {
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
         Evapo(ws, wf, ps, lc, soil, comm, residue, es, dt);
 #else
         Evapo(ws, wf, ps, lc, soil, dt);
@@ -1511,7 +1511,7 @@ void ShFlx(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
 }
 
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
 void SmFlx(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     const soil_struct *soil, residue_struct *residue, double dt)
 #else
@@ -1562,7 +1562,7 @@ void SmFlx(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     }
     else
     {
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
         SRT(ws, wf, ps, soil, residue, dt, rhstt, sice, ai, bi, ci);
 #else
         SRT(ws, wf, ps, soil, rhstt, sice, ai, bi, ci);
@@ -1670,7 +1670,7 @@ void SnkSrc(double *tsnsr, double tavg, double smc, double *sh2o,
     *sh2o = xh2o;
 }
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
 void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
     const soil_struct *soil, comm_struct *comm, residue_struct *residue,
@@ -1754,7 +1754,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         /* Land case */
         if (ps->sncovr < 1.0)
         {
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
             Evapo(ws, wf, ps, lc, soil, comm, residue, es, dt);
 #else
             Evapo(ws, wf, ps, lc, soil, dt);
@@ -2116,7 +2116,7 @@ void SnowNew(const estate_struct *es, double newsn, pstate_struct *ps)
     ps->snowh = snowhc * 0.01;
 }
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
 void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     const soil_struct *soil, residue_struct *residue, double dt, double *rhstt,
     double *sice, double *ai, double *bi, double *ci)
@@ -2153,7 +2153,7 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     double          sum;
     double          ialp1;
     int             macpore[MAXLYR];
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     double          infil_vol;
 #endif
     /* Frozen ground version:
@@ -2203,7 +2203,7 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     }
 
     /* Determine rainfall infiltration rate and runoff */
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     infil_vol = wf->infil * dt * 1000.0;
 
     ResidueWetting(residue, &infil_vol);

@@ -12,14 +12,14 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
     {
         /* Apply forcing */
-#ifdef _NOAH_
+#if defined(_NOAH_)
         ApplyForc(&pihm->forc, pihm->elem, t , pihm->ctrl.rad_mode,
             &pihm->siteinfo);
 #else
         ApplyForc(&pihm->forc, pihm->elem, t);
 #endif
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
         /* Calculate surface energy balance */
         Noah(pihm->elem, (double)pihm->ctrl.etstep);
 #else
@@ -40,11 +40,11 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     /* Use mass balance to calculate model fluxes or variables */
     Summary(pihm->elem, pihm->river, CV_Y, (double)pihm->ctrl.stepsize);
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
     NoahHydrol(pihm->elem, (double)pihm->ctrl.stepsize);
 #endif
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     SoluteTransport(pihm->elem, pihm->river, (double)pihm->ctrl.stepsize);
 #endif
 
@@ -52,7 +52,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, HYDROL_STEP);
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, HYDROL_STEP);
 
-#ifdef _DAILY_
+#if defined(_DAILY_)
     DailyVar(t, pihm->ctrl.starttime, pihm->elem, pihm->ctrl.stepsize);
 
     /*
@@ -60,12 +60,12 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
      */
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
-# ifdef _BGC_
+# if defined(_BGC_)
         /* Daily BGC processes */
         DailyBgc(pihm, t - DAYINSEC);
 # endif
 
-# ifdef _CYCLES_
+# if defined(_CYCLES_)
         DailyCycles(t - DAYINSEC, pihm);
 # endif
 

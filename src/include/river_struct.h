@@ -103,7 +103,7 @@ typedef struct river_bgcic_struct
 } river_bgcic_struct;
 #endif
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
 typedef struct river_solute_struct
 {
     double          soluteMass;
@@ -137,7 +137,7 @@ typedef struct river_struct
     river_wflux_struct wf;
     river_ic_struct ic;
     river_bc_struct bc;
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     river_solute_struct NO3sol;
     river_solute_struct NH4sol;
     river_cyclesic_struct cycles_restart;

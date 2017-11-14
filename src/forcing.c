@@ -15,7 +15,7 @@ void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *river, int t)
     }
 }
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
 void ApplyForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
     const siteinfo_struct *siteinfo)
 #else
@@ -23,7 +23,7 @@ void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
 {
     /* Meteorological forcing */
-#ifdef _NOAH_
+#if defined(_NOAH_)
     ApplyMeteoForc(forc, elem, t, rad_mode, siteinfo);
 #else
     ApplyMeteoForc(forc, elem, t);
@@ -37,7 +37,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 {
     int             i, k;
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (k = 0; k < forc->nbc; k++)
@@ -45,7 +45,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
         IntrplForc(&forc->bc[k], t, 1);
     }
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -68,7 +68,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
                 elem[i].bc.head[j] = BADVAL;
             }
 
-#ifdef _FBR_
+#if defined(_FBR_)
             if (elem[i].attrib.fbrbc_type[j] > 0)
             {
                 ind = elem[i].attrib.fbrbc_type[j] - 1;
@@ -86,7 +86,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
     }
 }
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
 void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
     const siteinfo_struct *siteinfo)
 #else
@@ -94,14 +94,14 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
 {
     int             i, k;
-#ifdef _NOAH_
+#if defined(_NOAH_)
     spa_data        spa;
 #endif
 
     /*
      * Meteorological forcing for PIHM
      */
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (k = 0; k < forc->nmeteo; k++)
@@ -109,7 +109,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
         IntrplForc(&forc->meteo[k], t, NUM_METEO_VAR);
     }
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
     /*
      * Topographic radiation for Noah
      */
@@ -117,7 +117,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
     {
         if (forc->nrad > 0)
         {
-# ifdef _OPENMP
+# if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
             for (k = 0; k < forc->nrad; k++)
@@ -131,7 +131,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
     }
 #endif
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -146,12 +146,12 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
         elem[i].ps.sfcspd = forc->meteo[ind].value[SFCSPD_TS];
         elem[i].ef.soldn = forc->meteo[ind].value[SOLAR_TS];
         elem[i].ef.soldn = (elem[i].ef.soldn > 0.0) ? elem[i].ef.soldn : 0.0;
-#ifdef _NOAH_
+#if defined(_NOAH_)
         elem[i].ef.longwave = forc->meteo[ind].value[LONGWAVE_TS];
 #endif
         elem[i].ps.sfcprs = forc->meteo[ind].value[PRES_TS];
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
         /* Calculate solar radiation */
         if (rad_mode > 0)
         {
@@ -174,11 +174,11 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 {
     int             i;
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     /*
      * Cycles coupling
      */
-# ifdef _OPENMP
+# if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
     for (i = 0; i < nelem; i++)
@@ -205,7 +205,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
     /*
      * BGC coupling
      */
-# ifdef _OPENMP
+# if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
     for (i = 0; i < nelem; i++)
@@ -225,7 +225,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 
     if (forc->nlai > 0)
     {
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
         for (k = 0; k < forc->nlai; k++)
@@ -234,7 +234,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
         }
     }
 
-# ifdef _OPENMP
+# if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
     for (i = 0; i < nelem; i++)
@@ -259,7 +259,7 @@ void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
 {
     int             i, k;
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (k = 0; k < forc->nriverbc; k++)
@@ -267,7 +267,7 @@ void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
         IntrplForc(&forc->riverbc[k], t, 1);
     }
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nriver; i++)

@@ -17,23 +17,23 @@ typedef struct filename_struct
     char            calib[MAXSTRING];       /* calibration file name */
     char            ic[MAXSTRING];          /* initial condition file name */
     char            tecplot[MAXSTRING];     /* tecplot control file name */
-#ifdef _FBR_
+#if defined(_FBR_)
     char            geol[MAXSTRING];        /* geology property file name */
     char            bedrock[MAXSTRING];     /* bedrock elevation file name */
 #endif
-#ifdef _NOAH_
+#if defined(_NOAH_)
     char            lsm[MAXSTRING];         /* land surface module control file
                                              * name */
     char            rad[MAXSTRING];         /* radiation forcing file name */
 #endif
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     char            cycles[MAXSTRING];
     char            soilinit[MAXSTRING];
     char            crop[MAXSTRING];
     char            op[MAXOP][MAXSTRING];
     char            cyclesic[MAXSTRING];
 #endif
-#ifdef _BGC_
+#if defined(_BGC_)
     char            bgc[MAXSTRING];         /* bgc module control file name */
     char            co2[MAXSTRING];         /* CO2 forcing file name */
     char            ndep[MAXSTRING];        /* nitrogen deposition forcing file
@@ -91,7 +91,7 @@ typedef struct meshtbl_struct
     double         *y;          /* y of node (m) */
     double         *zmin;       /* soil bottom elevation of node (m) */
     double         *zmax;       /* surface elevation of node (m) */
-#ifdef _FBR_
+#if defined(_FBR_)
     double         *zbed;       /* impermeable bedrock elevation (m) */
 #endif
 } meshtbl_struct;
@@ -103,7 +103,7 @@ typedef struct atttbl_struct
     int            *geol;      /* element geology type */
     int            *lc;        /* element land cover type */
     int           **bc;        /* element boundary condition type */
-#ifdef _FBR_
+#if defined(_FBR_)
     int           **fbr_bc;    /* element boundary condition type for fractured
                                 * bedrock layer */
 #endif
@@ -150,7 +150,7 @@ typedef struct soiltbl_struct
     double          kmach_ro;    /* ratio between horizontal macropore hydraulic
                                   * conductivity and horizontal saturated
                                   * hydraulic conductivity (-) */
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     int            *totalLayers;
     double        **clay_lyr;
     double        **sand_lyr;
@@ -240,17 +240,17 @@ typedef struct forc_struct
     tsdata_struct  *source;      /* source forcing series */
     int             nriverbc;    /* number of river boundary conditions */
     tsdata_struct  *riverbc;     /* river boundary condition series */
-#ifdef _NOAH_
+#if defined(_NOAH_)
     int             nrad;        /* number of radiation forcing series */
     tsdata_struct  *rad;         /* radiation forcing series */
 #endif
-#ifdef _BGC_
+#if defined(_BGC_)
     tsdata_struct  *co2;         /* CO2 forcing series */
     tsdata_struct  *ndep;        /* nitrogen deposition forcing series */
 #endif
 } forc_struct;
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
 /* Land surface parameters */
 typedef struct noahtbl_struct
 {
@@ -272,7 +272,7 @@ typedef struct noahtbl_struct
 } noahtbl_struct;
 #endif
 
-#ifdef _BGC_
+#if defined(_BGC_)
 /* Ecophysiological parameters */
 typedef struct epctbl_struct
 {
@@ -354,7 +354,7 @@ typedef struct epctbl_struct
 } epctbl_struct;
 #endif
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
 typedef struct agtbl_struct
 {
     int            *op;

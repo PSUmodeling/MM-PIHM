@@ -585,7 +585,7 @@ void CalcLatFlx(const pstate_struct *ps, wflux_struct *wf, double area)
     double          sattot;
     int             ks;
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     int             k;
 
     for (k = 0; k < NUM_EDGE; k++)
@@ -608,7 +608,7 @@ void CalcLatFlx(const pstate_struct *ps, wflux_struct *wf, double area)
     {
         wf->runoff2_lyr[ps->nsoil - 1] = wf->runoff2;
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
         for (k = 0; k < NUM_EDGE; k++)
         {
             wf->smflxh[k][ps->nsoil - 1] = wf->subsurf[k] / area;
@@ -621,7 +621,7 @@ void CalcLatFlx(const pstate_struct *ps, wflux_struct *wf, double area)
         {
             wf->runoff2_lyr[ks] = ps->satdpth[ks] / sattot * wf->runoff2;
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
             for (k = 0; k < NUM_EDGE; k++)
             {
                 wf->smflxh[k][ks] =

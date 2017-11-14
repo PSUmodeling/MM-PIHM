@@ -19,7 +19,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[i] = 0.0;
     }
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -32,7 +32,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem->ws.unsat = (y[UNSAT(i)] >= 0.0) ? y[UNSAT(i)] : 0.0;
         elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
 
-#ifdef _FBR_
+#if defined(_FBR_)
         elem->ws.fbr_unsat = (y[FBRUNSAT(i)] >= 0.0) ? y[FBRUNSAT(i)] : 0.0;
         elem->ws.fbr_gw = (y[FBRGW(i)] >= 0.0) ? y[FBRGW(i)] : 0.0;
 #endif
@@ -48,7 +48,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         y[LUMPED_SMINN] : 0.0;
 #endif
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nriver; i++)
@@ -89,7 +89,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * Build RHS of ODEs
      */
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -104,7 +104,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             elem->wf.ett_unsat;
         dy[GW(i)] += elem->wf.rechg - elem->wf.edir_gw - elem->wf.ett_gw;
 
-#ifdef _FBR_
+#if defined(_FBR_)
         dy[GW(i)] -= elem->wf.fbr_infil;
 
         dy[FBRUNSAT(i)] += elem->wf.fbr_infil - elem->wf.fbr_rechg;
@@ -115,14 +115,14 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         {
             dy[SURF(i)] -= elem->wf.ovlflow[j] / elem->topo.area;
             dy[GW(i)] -= elem->wf.subsurf[j] / elem->topo.area;
-#ifdef _FBR_
+#if defined(_FBR_)
             dy[FBRGW(i)] -= elem->wf.fbrflow[j] / elem->topo.area;
 #endif
         }
 
         dy[UNSAT(i)] /= elem->soil.porosity;
         dy[GW(i)] /= elem->soil.porosity;
-#ifdef _FBR_
+#if defined(_FBR_)
         dy[FBRUNSAT(i)] /= elem->geol.porosity;
         dy[FBRGW(i)] /= elem->geol.porosity;
 #endif
@@ -131,7 +131,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         CheckDy(dy[SURF(i)], "element", "surface water", i + 1, (double)t);
         CheckDy(dy[UNSAT(i)], "element", "unsat water", i + 1, (double)t);
         CheckDy(dy[GW(i)], "element", "groundwater", i + 1, (double)t);
-#ifdef _FBR_
+#if defined(_FBR_)
         CheckDy(dy[FBRUNSAT(i)], "element", "fbr unsat", i + 1, (double)t);
         CheckDy(dy[FBRGW(i)], "element", "fbr groundwater", i + 1, (double)t);
 #endif
@@ -179,7 +179,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * ODEs for river segments
      */
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nriver; i++)
@@ -365,7 +365,7 @@ void SetAbsTol(double hydrol_tol, double sminn_tol, N_Vector abstol)
     int             i;
 
     /* Set absolute errors for hydrologic state variables */
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < 3 * nelem + 2 * nriver; i++)
@@ -374,7 +374,7 @@ void SetAbsTol(double hydrol_tol, double sminn_tol, N_Vector abstol)
     }
 
     /* Set absolute errors for nitrogen state variables */
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 3 * nelem + 2 * nriver; i < NumStateVar(); i++)

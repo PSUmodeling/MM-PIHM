@@ -251,7 +251,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                         n++;
                     }
                     break;
-#ifdef _NOAH_
+#if defined(_NOAH_)
                 case T1_CTRL:
                     InitPrtVarCtrl(outputdir, "t1", prtvrbl[i],
                         LS_STEP, nelem, &print->varctrl[n]);
@@ -400,7 +400,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     n++;
                     break;
 #endif
-#ifdef _BGC_
+#if defined(_BGC_)
 # if defined(_LUMPED_)
                 case LAI_CTRL:
                     InitPrtVarCtrl(outputdir, "lai", prtvrbl[i],
@@ -600,7 +600,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     break;
 # endif
 #endif
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
                 case BIOMASS_CTRL:
                     for (k = 0; k < elem[0].comm.NumCrop; k++)
                     {
@@ -870,7 +870,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     n++;
                     break;
 #endif
-#ifdef _FBR_
+#if defined(_FBR_)
                 case FBRUNSAT_CTRL:
                     InitPrtVarCtrl(outputdir, "fbrunsat", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);

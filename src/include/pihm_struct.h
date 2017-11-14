@@ -25,7 +25,7 @@ typedef struct siteinfo_struct
     double          tavg;         /* annual average air temperature (K) */
 } siteinfo_struct;
 
-#ifdef _BGC_
+#if defined(_BGC_)
 /* A structure to hold information on the annual co2 concentration */
 typedef struct co2control_struct
 {
@@ -97,7 +97,7 @@ typedef struct calib_struct
     double          rivshpcoeff;
     double          prcp;      /* multiplier of precipitation (-) */
     double          sfctmp;    /* offset of surface air temperature (K) */
-#ifdef _NOAH_
+#if defined(_NOAH_)
     double          smcref;
     double          smcwlt;
     double          rsmin;
@@ -109,7 +109,7 @@ typedef struct calib_struct
     double          rgl;
     double          hs;
 #endif
-#ifdef _RT_
+#if defined(_RT_)
     double          pco2;
     double          keq;
     double          ssa;
@@ -165,19 +165,19 @@ typedef struct ctrl_struct
                                              * iterations */
     double          decr;                   /* decrease factor (-)*/
     double          incr;                   /* increase factor (-)*/
-#ifdef _NOAH_
+#if defined(_NOAH_)
     int             nsoil;                  /* number of standard soil layers */
     double          sldpth[MAXLYR];         /* thickness of soil layer (m) */
     int             rad_mode;               /* radiation forcing mode:
                                              * 0 = uniform, 1 = topographic */
 #endif
-#ifdef _BGC_
+#if defined(_BGC_)
     int             maxspinyears;           /* maximum number of years for
                                              * spinup run */
     int             read_bgc_restart;       /* flag to read BGC restart file */
     int             write_bgc_restart;      /* flag to write BGC restart file */
 #endif
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     int             read_cycles_restart;
     int             write_cycles_restart;
 #endif
@@ -232,15 +232,15 @@ typedef struct pihm_struct
     rivtbl_struct   rivtbl;
     shptbl_struct   shptbl;
     matltbl_struct  matltbl;
-#ifdef _NOAH_
+#if defined(_NOAH_)
     noahtbl_struct  noahtbl;
 #endif
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     agtbl_struct    agtbl;
     croptbl_struct  croptbl;
     mgmttbl_struct  mgmttbl;
 #endif
-#ifdef _BGC_
+#if defined(_BGC_)
     co2control_struct co2;
     ndepcontrol_struct ndepctrl;
     epctbl_struct   epctbl;

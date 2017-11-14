@@ -7,7 +7,7 @@ void DailyVar(int t, int start_time, elem_struct *elem, double dt)
     /*
      * Sum daily variables
      */
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -30,12 +30,12 @@ void DailyVar(int t, int start_time, elem_struct *elem, double dt)
             elem[i].daily.avg_stc[k] += elem[i].es.stc[k];
             elem[i].daily.avg_sh2o[k] += elem[i].ws.sh2o[k];
             elem[i].daily.avg_smc[k] += elem[i].ws.smc[k];
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
             elem[i].daily.avg_et[k] += elem[i].wf.et[k];
 #endif
         }
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
         elem[i].daily.avg_sncovr += elem[i].ps.sncovr;
 #endif
 
@@ -62,7 +62,7 @@ void DailyVar(int t, int start_time, elem_struct *elem, double dt)
     /* Calculate daily variables */
     if ((t - start_time) % DAYINSEC == 0 && t > start_time)
     {
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
         for (i = 0; i < nelem; i++)
@@ -78,12 +78,12 @@ void DailyVar(int t, int start_time, elem_struct *elem, double dt)
                 elem[i].daily.avg_stc[k] /= (double)elem[i].daily.counter;
                 elem[i].daily.avg_sh2o[k] /= (double)elem[i].daily.counter;
                 elem[i].daily.avg_smc[k] /= (double)elem[i].daily.counter;
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
                 elem[i].daily.avg_et[k] /= (double)elem[i].daily.counter;
 #endif
             }
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
             elem[i].daily.avg_sncovr /= (double)elem[i].daily.counter;
 #endif
 
@@ -171,7 +171,7 @@ void InitDailyStruct(elem_struct *elem)
 {
     int             i;
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
 #if defined(_LUMPED_)

@@ -4,7 +4,7 @@ void RiverFlow(elem_struct *elem, river_struct *river, int riv_mode)
 {
     int             i;
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nriver; i++)
@@ -382,7 +382,7 @@ double SubFlowRiverToRiver(const river_struct *river, double effk,
     distance = 0.5 * (river->shp.length + down->shp.length);
     grad_h = diff_h / distance;
     aquifer_depth = river->topo.zbed - river->topo.zmin;
-#ifdef _ARITH_
+#if defined(_ARITH_)
     avg_ksat = 0.5 * (effk + effk_nabr);
 #else
     avg_ksat = 2.0 / (1.0 / effk + 1.0 / effk_nabr);
@@ -509,7 +509,7 @@ double SubFlowElemToRiver(const elem_struct *elem, double effk,
     avg_h = AvgH(diff_h, river->ws.gw, avg_h);
     aquifer_depth = river->topo.zbed - river->topo.zmin;
 
-#ifdef _ARITH_
+#if defined(_ARITH_)
     avg_ksat = 0.5 * (effk + effk_riv);
 #else
     avg_ksat = 2.0 / (1.0 / effk + 1.0 / effk_riv);

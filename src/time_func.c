@@ -62,7 +62,7 @@ int StrTime(const char *timestr)
     return t;
 }
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 void RunTime(double start_omp, double *cputime, double *cputime_dt)
 {
     static double   ptime_omp;

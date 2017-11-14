@@ -17,21 +17,21 @@ void ReadAlloc(pihm_struct pihm)
     sprintf(pihm->filename.calib,    "input/%s/%s.calib",    project, project);
     sprintf(pihm->filename.ic,       "input/%s/%s.ic",       project, project);
     sprintf(pihm->filename.tecplot,  "input/%s/%s.tecplot",  project, project);
-#ifdef _FBR_
+#if defined(_FBR_)
     sprintf(pihm->filename.geol,     "input/%s/%s.geol",     project, project);
     sprintf(pihm->filename.bedrock,  "input/%s/%s.bedrock",  project, project);
 #endif
-#ifdef _NOAH_
+#if defined(_NOAH_)
     sprintf(pihm->filename.lsm,      "input/%s/%s.lsm",      project, project);
     sprintf(pihm->filename.rad,      "input/%s/%s.rad",      project, project);
 #endif
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     sprintf(pihm->filename.cycles,   "input/%s/%s.cycles",   project, project);
     sprintf(pihm->filename.soilinit, "input/%s/%s.soilinit", project, project);
     sprintf(pihm->filename.crop,     "input/%s/%s.crop",     project, project);
     sprintf(pihm->filename.cyclesic, "input/%s/%s.cyclesic", project, project);
 #endif
-#ifdef _BGC_
+#if defined(_BGC_)
     sprintf(pihm->filename.bgc,      "input/%s/%s.bgc",      project, project);
     sprintf(pihm->filename.bgcic,    "input/%s/%s.bgcic",    project, project);
 #endif
@@ -75,7 +75,7 @@ void ReadAlloc(pihm_struct pihm)
         ReadTecplot(pihm->filename.tecplot, &pihm->ctrl);
     }
 
-#ifdef _FBR_
+#if defined(_FBR_)
     /* Read geology input file */
     ReadGeol (pihm->filename.geol, &pihm->geoltbl);
 
@@ -89,7 +89,7 @@ void ReadAlloc(pihm_struct pihm)
      * reading bedrock input */
     ReadBc(pihm->filename.bc, &pihm->forc, &pihm->atttbl);
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
     /* Read LSM input file */
     ReadLsm(pihm->filename.lsm, &pihm->siteinfo, &pihm->ctrl, &pihm->noahtbl);
 
@@ -100,7 +100,7 @@ void ReadAlloc(pihm_struct pihm)
     }
 #endif
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     /* Read Cycles simulation control file */
     ReadCyclesCtrl(pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl);
 
@@ -114,7 +114,7 @@ void ReadAlloc(pihm_struct pihm)
     ReadOperation(&pihm->agtbl, &pihm->mgmttbl, &pihm->croptbl);
 #endif
 
-#ifdef _BGC_
+#if defined(_BGC_)
     ReadBgc(pihm->filename.bgc, &pihm->ctrl, &pihm->co2, &pihm->ndepctrl,
         &pihm->cninit, pihm->filename.co2, pihm->filename.ndep);
 
@@ -593,7 +593,7 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
     fclose(soil_file);
 }
 
-#ifdef _FBR_
+#if defined(_FBR_)
 void ReadGeol(const char *filename, geoltbl_struct *geoltbl)
 {
     FILE           *geol_file;
@@ -988,7 +988,7 @@ void ReadBc(const char *filename, forc_struct *forc,
                 read_bc = 1;
                 break;
             }
-#ifdef _FBR_
+#if defined(_FBR_)
              if (atttbl->fbr_bc[i][j] != 0)
              {
                 read_bc = 1;
@@ -1324,7 +1324,7 @@ void ReadCalib(const char *filename, calib_struct *cal)
     NextLine(global_calib, cmdstr, &lno);
     ReadKeyword(cmdstr, "RIV_WDTH", &cal->rivshpcoeff, 'd', filename, lno);
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
     FindLine(global_calib, "LSM_CALIBRATION", &lno, filename);
 
     NextLine(global_calib, cmdstr, &lno);
@@ -1358,7 +1358,7 @@ void ReadCalib(const char *filename, calib_struct *cal)
     ReadKeyword(cmdstr, "WLTSMC", &cal->smcwlt, 'd', filename, lno);
 #endif
 
-#ifdef _RT_
+#if defined(_RT_)
     FindLine(global_calib, "RT_CALIBRATION", &lno, filename);
 
     CS->Cal.PCO2 = 1.0;
@@ -1491,7 +1491,7 @@ void FreeData(pihm_struct pihm)
     free(pihm->meshtbl.y);
     free(pihm->meshtbl.zmin);
     free(pihm->meshtbl.zmax);
-#ifdef _FBR_
+#if defined(_FBR_)
     free(pihm->meshtbl.zbed);
 #endif
 
@@ -1499,12 +1499,12 @@ void FreeData(pihm_struct pihm)
     for (i = 0; i < nelem; i++)
     {
         free(pihm->atttbl.bc[i]);
-#ifdef _FBR_
+#if defined(_FBR_)
         free(pihm->atttbl.fbr_bc[i]);
 #endif
     }
     free(pihm->atttbl.bc);
-#ifdef _FBR_
+#if defined(_FBR_)
     free(pihm->atttbl.fbr_bc);
 #endif
     free(pihm->atttbl.soil);
@@ -1533,7 +1533,7 @@ void FreeData(pihm_struct pihm)
     free(pihm->soiltbl.smcref);
     free(pihm->soiltbl.smcwlt);
 
-#ifdef _FBR_
+#if defined(_FBR_)
     /* Free geol input structure */
     free (pihm->geoltbl.ksatv);
     free (pihm->geoltbl.ksath);
@@ -1620,7 +1620,7 @@ void FreeData(pihm_struct pihm)
         free(pihm->forc.bc);
     }
 
-#ifdef _NOAH_
+#if defined(_NOAH_)
     if (pihm->forc.nrad > 0)
     {
         for (i = 0; i < pihm->forc.nrad; i++)
@@ -1637,7 +1637,7 @@ void FreeData(pihm_struct pihm)
     }
 #endif
 
-#ifdef _BGC_
+#if defined(_BGC_)
     free(pihm->epctbl.woody);
     free(pihm->epctbl.evergreen);
     free(pihm->epctbl.c3_flag);

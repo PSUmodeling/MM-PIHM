@@ -7,7 +7,7 @@ void NTransport(elem_struct *elem, river_struct *river)
     /*
      * Calculate solute N concentrations
      */
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -39,7 +39,7 @@ void NTransport(elem_struct *elem, river_struct *river)
             elem[i].nsol.conc_subsurf : 0.0;
     }
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nriver; i++)
@@ -72,7 +72,7 @@ void NTransport(elem_struct *elem, river_struct *river)
     /*
      * Calculate solute fluxes
      */
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -115,7 +115,7 @@ void NTransport(elem_struct *elem, river_struct *river)
         }
     }
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nriver; i++)
@@ -292,7 +292,7 @@ void NLeaching(elem_struct *elem)
     /*
      * Calculate solute N concentrations
      */
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
@@ -318,7 +318,7 @@ void NLeaching(elem_struct *elem)
     /*
      * Calculate solute fluxes
      */
-#ifdef _OPENMP
+#if defined(_OPENMP)
 # pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)

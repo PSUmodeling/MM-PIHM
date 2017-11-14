@@ -9,7 +9,7 @@ int             tecplot;
 char            project[MAXSTRING];
 int             nelem;
 int             nriver;
-#ifdef _OPENMP
+#if defined(_OPENMP)
 int             nthreads = 1;    /* Default value */
 #endif
 #if defined(_BGC_) || defined (_CYCLES_)
@@ -23,14 +23,14 @@ int main(int argc, char *argv[])
     N_Vector        CV_Y;
     void           *cvode_mem;
     int             i;
-#ifdef _OPENMP
+#if defined(_OPENMP)
     double          start_omp;
 #else
     clock_t         start;
 #endif
     double          cputime, cputime_dt;    /* Time cpu duration */
 
-#ifdef _OPENMP
+#if defined(_OPENMP)
     /* Set the number of threads to use */
     nthreads = omp_get_max_threads();
 #endif
@@ -87,13 +87,13 @@ int main(int argc, char *argv[])
     /*
      * Run PIHM
      */
-#ifdef _OPENMP
+#if defined(_OPENMP)
     start_omp = omp_get_wtime();
 #else
     start = clock();
 #endif
 
-#ifdef _BGC_
+#if defined(_BGC_)
     if (spinup_mode)
     {
         BgcSpinup(pihm, CV_Y, cvode_mem);
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 #endif
         for (i = 0; i < pihm->ctrl.nstep; i++)
         {
-#ifdef _OPENMP
+#if defined(_OPENMP)
             RunTime(start_omp, &cputime, &cputime_dt);
 #else
             RunTime(start, &cputime, &cputime_dt);
@@ -131,11 +131,11 @@ int main(int argc, char *argv[])
                     pihm->ctrl.endtime, pihm->ctrl.prtvrbl[IC_CTRL]);
             }
         }
-#ifdef _BGC_
+#if defined(_BGC_)
     }
 #endif
 
-#ifdef _BGC_
+#if defined(_BGC_)
     if (pihm->ctrl.write_bgc_restart)
     {
         WriteBgcIc(outputdir, pihm->elem, pihm->river);
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
     }
 #endif
 
-#ifdef _CYCLES_
+#if defined(_CYCLES_)
     if (pihm->ctrl.write_cycles_restart)
     {
         WriteCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
