@@ -132,7 +132,6 @@ void CreateOutputDir(char *outputdir)
 
 void BackupInput(const char *outputdir)
 {
-    char            project[MAXSTRING];
     char            system_cmd[MAXSTRING];
     char            source_file[MAXSTRING];
 
