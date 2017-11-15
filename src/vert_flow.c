@@ -127,9 +127,9 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
             infil = (infil > 0.0) ? infil : 0.0;
         }
 
-        infil = (infil < applrate) ? infil : applrate;
-
         infil *= wetfrac;
+
+        infil = (infil < applrate) ? infil : applrate;
 
 #if defined(_NOAH_)
         /* Constrain infiltration by frozen top soil */
