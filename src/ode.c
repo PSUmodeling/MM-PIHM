@@ -345,8 +345,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     }
 
 #if NOT_YET_IMPLEMENTED
-    cv_flag = CVodeSetMaxNumSteps(cvode_mem,
-        (int)((double)pihm->ctrl.stepsize / 60.0 * 500.0));
+    cv_flag = CVodeSetMaxNumSteps(cvode_mem, -1);
     if (!CheckCVodeFlag(cv_flag))
     {
         PIHMexit(EXIT_FAILURE);

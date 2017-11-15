@@ -96,17 +96,6 @@ void CSummary(const cflux_struct *cf, const cstate_struct *cs,
         cs->gresp_transfer + cs->cpool;
     summary->litrc =
         cs->cwdc + cs->litr1c + cs->litr2c + cs->litr3c + cs->litr4c;
-    if (spinup_mode == ACC_SPINUP_MODE)
-    {
-        /* In accelerated spinup mode, adjust soil C pool sizes to compensate
-         * accelerated decomposition */
-        summary->soilc =
-            cs->soil1c * KS1_ACC + cs->soil2c * KS2_ACC +
-            cs->soil3c * KS3_ACC + cs->soil4c * KS4_ACC;
-    }
-    else
-    {
-        summary->soilc = cs->soil1c + cs->soil2c + cs->soil3c + cs->soil4c;
-    }
+    summary->soilc = cs->soil1c + cs->soil2c + cs->soil3c + cs->soil4c;
     summary->totalc = summary->vegc + summary->litrc + summary->soilc;
 }
