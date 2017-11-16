@@ -201,8 +201,6 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
 #if defined(_CYCLES_)
     lc->shdfac = comm->svRadiationInterception;
-#else
-    lc->shdfac = 1.0 - exp(-0.75 * (ps->proj_lai));
 #endif
 
     /* Initialize precipitation logicals. */
