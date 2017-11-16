@@ -132,11 +132,6 @@
 #define SILTY_CLAY         10
 #define CLAY               11
 
-/* Macropore status */
-#define MTX_CTRL    0    /* matrix control */
-#define APP_CTRL    1    /* application control */
-#define MAC_CTRL    2    /* macropore control */
-
 /* River fluxes */
 #define UP_CHANL2CHANL       0
 #define DOWN_CHANL2CHANL     1

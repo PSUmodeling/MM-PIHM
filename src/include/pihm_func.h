@@ -84,7 +84,7 @@ void            ApplyMeteoForc(forc_struct *, elem_struct *, int);
 #endif
 void            ApplyRiverBc(forc_struct *, river_struct *, int);
 void            AsciiArt();
-double          AvgKv(const soil_struct *, double, double, double, double);
+double          AvgKv(const soil_struct *, double, double, double);
 double          AvgH(double, double, double);
 double          AvgHsurf(double, double, double);
 void            BackupInput(const char *);
@@ -107,13 +107,12 @@ int             CountOccurr(FILE *, const char *);
 void            CreateOutputDir(char *);
 double          DhByDl(const double *, const double *, const double *);
 double          EffKh(const soil_struct *, double);
-double          EffKinf(const soil_struct *, double, double, int);
+double          EffKinf(const soil_struct *, double, double, double, double,
+    double);
 double          EffKv(const soil_struct *, double, int);
 void            EtExtract(elem_struct *);
 double          FieldCapacity(double, double, double, double, double);
 void            FindLine(FILE *, const char *, int *, const char *);
-int             FlowSituation(const soil_struct *, double, double, double,
-    double);
 void            FreeData(pihm_struct);
 void            FrictSlope(const elem_struct *, const river_struct *, int,
     double *, double *);
