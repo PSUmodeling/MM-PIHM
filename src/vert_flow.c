@@ -65,10 +65,9 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
         if (ws->gw > soil->depth - soil->dinf)
         {
             /* Assumption: Dinf < Dmac */
-            dh_by_dz =
-                (ws->surfh + topo->zmax - (ws->gw + topo->zmin)) / soil->dinf;
-            dh_by_dz = (ws->surfh < 0.0 && dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
-            dh_by_dz = (dh_by_dz < 1.0 && dh_by_dz > 0.0) ? 1.0 : dh_by_dz;
+            dh_by_dz = (ws->surfh + topo->zmax - (ws->gw + topo->zmin)) /
+                (0.5 * (ws->surfh + soil->dinf));
+            dh_by_dz = (ws->surfh <= 0.0 && dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
 
             satn = 1.0;
             satkfunc = KrFunc(soil->alpha, soil->beta, satn);
@@ -96,9 +95,9 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
             psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
 
             h_u = psi_u + topo->zmax - 0.5 * soil->dinf;
-            dh_by_dz = (0.5 * ws->surfh + topo->zmax - h_u) /
+            dh_by_dz = (ws->surfh + topo->zmax - h_u) /
                 (0.5 * (ws->surfh + soil->dinf));
-            dh_by_dz = (ws->surfh < 0.0 && dh_by_dz > 0.0) ?  0.0 : dh_by_dz;
+            dh_by_dz = (ws->surfh <= 0.0 && dh_by_dz > 0.0) ?  0.0 : dh_by_dz;
 
             satkfunc = KrFunc(soil->alpha, soil->beta, satn);
 
