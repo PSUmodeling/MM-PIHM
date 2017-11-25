@@ -107,6 +107,8 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
             infil = (infil > 0.0) ? infil : 0.0;
         }
 
+        infil = (infil > applrate + ws->surf / dt) ?
+            (applrate + ws->surf / dt) : infil;
         infil *= wetfrac;
 
 #if defined(_NOAH_)
@@ -213,8 +215,6 @@ double EffKinf(const soil_struct *soil, double dh_by_dz, double ksatfunc,
     const double    ALPHA_CRACK = 10.0;
     const double    BETA_CRACK = 2.0;
 
-    dh_by_dz = (dh_by_dz < 1.0) ? 1.0 : dh_by_dz;
-
     if (soil->areafh == 0.0)
     {
         /* Matrix */
@@ -248,6 +248,7 @@ double EffKinf(const soil_struct *soil, double dh_by_dz, double ksatfunc,
             }
             else
             {
+                /* Macropore control */
                 keff = soil->kinfv * (1.0 - soil->areafh) * ksatfunc +
                     soil->kmacv * soil->areafh;
             }
