@@ -102,18 +102,25 @@ double SurfH(double surfeqv)
      */
     double          surfh;
 
-    if (surfeqv < 0.0)
+    if (DEPRSTG == 0.0)
     {
-        surfh = 0.0;
-    }
-    else if (surfeqv <= 0.5 * DEPRSTG)
-    {
-        surfh = sqrt(2.0 * DEPRSTG * surfeqv);
+        return surfeqv;
     }
     else
     {
-        surfh = DEPRSTG + (surfeqv - 0.5 * DEPRSTG);
-    }
+        if (surfeqv < 0.0)
+        {
+            surfh = 0.0;
+        }
+        else if (surfeqv <= 0.5 * DEPRSTG)
+        {
+            surfh = sqrt(2.0 * DEPRSTG * surfeqv);
+        }
+        else
+        {
+            surfh = DEPRSTG + (surfeqv - 0.5 * DEPRSTG);
+        }
 
-    return surfh;
+        return surfh;
+    }
 }

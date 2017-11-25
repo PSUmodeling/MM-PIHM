@@ -58,9 +58,16 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
         applrate = (applrate > 0.0) ? applrate : 0.0;
         applrate += wf->pcpdrp;
 
-        wetfrac = ws->surfh / DEPRSTG;
-        wetfrac = (wetfrac > 0.0) ? wetfrac : 0.0;
-        wetfrac = (wetfrac < 1.0) ? wetfrac : 1.0;
+        if (DEPRSTG > 0.0)
+        {
+            wetfrac = ws->surfh / DEPRSTG;
+            wetfrac = (wetfrac > 0.0) ? wetfrac : 0.0;
+            wetfrac = (wetfrac < 1.0) ? wetfrac : 1.0;
+        }
+        else
+        {
+            wetfrac = (ws->surfh > 0.0) ? 1.0 : 0.0;
+        }
 
         if (ws->gw > soil->depth - soil->dinf)
         {

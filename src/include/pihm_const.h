@@ -82,8 +82,8 @@
 
 /* Hydrology parameters */
 #define PSIMIN        -70.0    /* minimum psi allowed (m) */
-#define DEPRSTG       1e-4     /* depression storage (m) */
-#define GRADMIN       5e-8     /* minimum hydraulic gradient (m m-1) */
+#define DEPRSTG       1E-4     /* depression storage (m) */
+#define GRADMIN       5E-8     /* minimum hydraulic gradient (m m-1) */
 #define SATMIN        0.1      /* minimum saturation ratio (-) */
 #define RIVDPTHMIN    0.05     /* minimum river depth (m) */
 #define RIVGRADMIN    0.05     /* minimum river hydraulic gradient (m m-1) */
