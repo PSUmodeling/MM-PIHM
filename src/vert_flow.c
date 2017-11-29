@@ -10,8 +10,8 @@ void VerticalFlow(elem_struct *elem, double dt)
     for (i = 0; i < nelem; i++)
     {
         /* Calculate infiltration rate */
-        elem[i].wf.infil = Infil(&elem[i].ws, &elem[i].wf, &elem[i].topo,
-            &elem[i].soil, dt, &elem[i].ps);
+        elem[i].wf.infil = Infil(&elem[i].ws, &elem[i].ws0, &elem[i].wf,
+            &elem[i].topo, &elem[i].soil, dt, &elem[i].ps);
 
         /* Calculate recharge rate */
         elem[i].wf.rechg = Recharge(&elem[i].ws, &elem[i].wf, &elem[i].ps,
@@ -26,9 +26,9 @@ void VerticalFlow(elem_struct *elem, double dt)
     }
 }
 
-double Infil(const wstate_struct *ws, const wflux_struct *wf,
-    const topo_struct *topo, const soil_struct *soil, double dt,
-    pstate_struct *ps)
+double Infil(const wstate_struct *ws, const wstate_struct *ws0,
+    const wflux_struct *wf, const topo_struct *topo, const soil_struct *soil,
+    double dt, pstate_struct *ps)
 {
     double          applrate;
     double          wetfrac;
@@ -36,6 +36,7 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
     double          satn;
     double          satkfunc;
     double          infil;
+    double          infil_max;
     double          kinf;
     double          deficit;
     double          psi_u;
@@ -114,8 +115,10 @@ double Infil(const wstate_struct *ws, const wflux_struct *wf,
             infil = (infil > 0.0) ? infil : 0.0;
         }
 
-        infil = (infil > applrate + ws->surf / dt) ?
-            (applrate + ws->surf / dt) : infil;
+        infil_max = applrate + ((ws0->surf > 0.0) ? ws0->surf / dt : 0.0);
+
+        infil = (infil > infil_max) ? infil_max : infil;
+
         infil *= wetfrac;
 
 #if defined(_NOAH_)
