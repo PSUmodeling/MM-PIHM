@@ -11,11 +11,15 @@ void VerticalFlow(elem_struct *elem, double dt)
     {
         /* Calculate infiltration rate */
         elem[i].wf.infil = Infil(&elem[i].ws, &elem[i].ws0, &elem[i].wf,
-            &elem[i].topo, &elem[i].soil, dt, &elem[i].ps);
+            &elem[i].topo, &elem[i].soil, dt);
+
+#if defined(_NOAH_)
+        /* Constrain infiltration by frozen top soil */
+        elem[i].wf.infil *= elem[i].ps.fcr;
+#endif
 
         /* Calculate recharge rate */
-        elem[i].wf.rechg = Recharge(&elem[i].ws, &elem[i].wf, &elem[i].ps,
-            &elem[i].soil);
+        elem[i].wf.rechg = Recharge(&elem[i].ws, &elem[i].wf, &elem[i].soil);
 
 #if defined(_FBR_)
         elem[i].wf.fbr_infil = FbrInfil(&elem[i].ws, &elem[i].soil,
@@ -28,7 +32,7 @@ void VerticalFlow(elem_struct *elem, double dt)
 
 double Infil(const wstate_struct *ws, const wstate_struct *ws0,
     const wflux_struct *wf, const topo_struct *topo, const soil_struct *soil,
-    double dt, pstate_struct *ps)
+    double dt)
 {
     double          applrate;
     double          wetfrac;
@@ -120,18 +124,13 @@ double Infil(const wstate_struct *ws, const wstate_struct *ws0,
         infil = (infil > infil_max) ? infil_max : infil;
 
         infil *= wetfrac;
-
-#if defined(_NOAH_)
-        /* Constrain infiltration by frozen top soil */
-        infil *= ps->fcr;
-#endif
     }
 
     return infil;
 }
 
 double Recharge(const wstate_struct *ws, const wflux_struct *wf,
-    const pstate_struct *ps, const soil_struct *soil)
+    const soil_struct *soil)
 {
     double          satn;
     double          satkfunc;

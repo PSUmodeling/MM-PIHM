@@ -118,8 +118,7 @@ void            FrictSlope(const elem_struct *, const river_struct *, int,
     double *, double *);
 void            Hydrol(elem_struct *, river_struct *, const ctrl_struct *);
 double          Infil(const wstate_struct *, const wstate_struct *,
-    const wflux_struct *, const topo_struct *, const soil_struct *, double,
-    pstate_struct *);
+    const wflux_struct *, const topo_struct *, const soil_struct *, double);
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
 #if defined(_BGC_)
@@ -216,7 +215,7 @@ void            ReadSoil(const char *, soiltbl_struct *);
 void            ReadTecplot(const char *, ctrl_struct *);
 int             ReadTS(const char *, int *, double *, int);
 double          Recharge(const wstate_struct *, const wflux_struct *,
-    const pstate_struct *, const soil_struct *);
+    const soil_struct *);
 void            RiverFlow(elem_struct *, river_struct *, int);
 void            RiverToElem(river_struct *, elem_struct *, elem_struct *);
 #if defined(_OPENMP)
@@ -378,8 +377,7 @@ double          TmpAvg(double, double, double, const double *, int);
 double          TopoRadn(const topo_struct *, double, double, double, double);
 void            Transp(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
-void            WDfCnd(double *, double *, double, double, int,
-    const soil_struct *, const pstate_struct *);
+void            WDfCnd(double *, double *, double, double, const soil_struct *);
 #endif
 
 #if defined(_DAILY_)
