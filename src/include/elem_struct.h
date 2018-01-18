@@ -1611,6 +1611,7 @@ typedef struct summary_struct
     double          cum_hr;
     double          cum_fire;
     double          vegc;              /* total vegetation C (kgC m-2) */
+    double          agc;               /* aboveground C (kgC m-2) */
     double          litrc;             /* total litter C (kgC m-2) */
     double          soilc;             /* total soil C (kgC m-2) */
     double          totalc;            /* total of vegc, litrc, and soilc

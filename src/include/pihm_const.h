@@ -305,21 +305,19 @@
 #define NEE_CTRL                64
 #define GPP_CTRL                65
 #define SMINN_CTRL              66
-#define LEAFC_CTRL              67
-#define LIVESTEMC_CTRL          68
-#define DEADSTEMC_CTRL          69
-#define SURFTEC_CTRL            70
-#define UNSATTEC_CTRL           71
-#define GWTEC_CTRL              72
-#define RIVSTGTEC_CTRL          73
-#define RIVGWTEC_CTRL           74
-#define IC_CTRL                 75
-#define WB_CTRL                 76
-#define FBRUNSAT_CTRL           77
-#define FBRGW_CTRL              78
-#define FBRINFIL_CTRL           79
-#define FBRRECHG_CTRL           80
-#define FBRFLOW_CTRL            81
+#define AGC_CTRL                67
+#define SURFTEC_CTRL            68
+#define UNSATTEC_CTRL           69
+#define GWTEC_CTRL              70
+#define RIVSTGTEC_CTRL          71
+#define RIVGWTEC_CTRL           72
+#define IC_CTRL                 73
+#define WB_CTRL                 74
+#define FBRUNSAT_CTRL           75
+#define FBRGW_CTRL              76
+#define FBRINFIL_CTRL           77
+#define FBRRECHG_CTRL           78
+#define FBRFLOW_CTRL            79
 
 #if defined(_CYCLES_)
 #define MAXOP       100

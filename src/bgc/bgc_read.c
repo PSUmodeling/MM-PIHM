@@ -126,13 +126,7 @@ void ReadBgc(const char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     ctrl->prtvrbl[SMINN_CTRL] = ReadPrtCtrl(cmdstr, "SMINN", fn, lno);
 
     NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[LEAFC_CTRL] = ReadPrtCtrl(cmdstr, "LEAFC", fn, lno);
-
-    NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[LIVESTEMC_CTRL] = ReadPrtCtrl(cmdstr, "LIVESTEMC", fn, lno);
-
-    NextLine(bgc_file, cmdstr, &lno);
-    ctrl->prtvrbl[DEADSTEMC_CTRL] = ReadPrtCtrl(cmdstr, "DEADSTEMC", fn, lno);
+    ctrl->prtvrbl[AGC_CTRL] = ReadPrtCtrl(cmdstr, "AGC", fn, lno);
 
     fclose(bgc_file);
 }

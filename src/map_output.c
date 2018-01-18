@@ -462,22 +462,10 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     print->varctrl[n].var[0] = &elem[LUMPED].ns.sminn;
                     n++;
                     break;
-                case LEAFC_CTRL:
-                    InitPrtVarCtrl(outputdir, "leafc", prtvrbl[i],
+                case AGC_CTRL:
+                    InitPrtVarCtrl(outputdir, "agc", prtvrbl[i],
                         CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].cs.leafc;
-                    n++;
-                    break;
-                case LIVESTEMC_CTRL:
-                    InitPrtVarCtrl(outputdir, "livestemc", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].cs.livestemc;
-                    n++;
-                    break;
-                case DEADSTEMC_CTRL:
-                    InitPrtVarCtrl(outputdir, "deadstemc", prtvrbl[i],
-                        CN_STEP, 1, &print->varctrl[n]);
-                    print->varctrl[n].var[0] = &elem[LUMPED].cs.deadstemc;
+                    print->varctrl[n].var[0] = &elem[LUMPED].summary.agc;
                     n++;
                     break;
 # else
@@ -571,30 +559,12 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     }
                     n++;
                     break;
-                case LEAFC_CTRL:
-                    InitPrtVarCtrl(outputdir, "leafc", prtvrbl[i],
+                case AGC_CTRL:
+                    InitPrtVarCtrl(outputdir, "agc", prtvrbl[i],
                         CN_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
-                        print->varctrl[n].var[j] = &elem[j].cs.leafc;
-                    }
-                    n++;
-                    break;
-                case LIVESTEMC_CTRL:
-                    InitPrtVarCtrl(outputdir, "livestemc", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].cs.livestemc;
-                    }
-                    n++;
-                    break;
-                case DEADSTEMC_CTRL:
-                    InitPrtVarCtrl(outputdir, "deadstemc", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].cs.deadstemc;
+                        print->varctrl[n].var[j] = &elem[j].summary.agc;
                     }
                     n++;
                     break;
