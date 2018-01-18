@@ -13,8 +13,8 @@ input/co2.txt   (file)    annual variable CO2 filename
 
 NDEP_CONTROL    (keyword - do not remove)
 0               (flag)    0=constant, 1=vary with file
-0.0001          (kgN/m2/yr) wet+dry atmospheric deposition of N
-0.0008          (kgN/m2/yr) symbiotic+asymbiotic fixation of N
+0.00075         (kgN/m2/yr) wet+dry atmospheric deposition of N
+0.0             (kgN/m2/yr) symbiotic+asymbiotic fixation of N
 input/ndep.txt  (file)    annual variable N filename
 
 C_STATE         (keyword) start of carbon state variable initialization block
@@ -36,15 +36,18 @@ N_STATE         (keyword) start of nitrogen state variable initialization block
 
 OUTPUT_CONTROL  (keyword)
 LAI             DAILY
-VEGC            DAILY
-LITRC           DAILY
-SOILC           DAILY
-TOTALC          DAILY
 NPP             DAILY
 NEP             DAILY
 NEE             DAILY
 GPP             DAILY
+MR              DAILY
+GR              DAILY
+HR              DAILY
+FIRE            DAILY
+LITFALLC        DAILY
+VEGC            DAILY
+AGC             DAILY
+LITRC           DAILY
+SOILC           DAILY
+TOTALC          DAILY
 SMINN           DAILY
-LEAFC           DAILY
-LIVESTEMC       DAILY
-DEADSTEMC       DAILY
