@@ -77,6 +77,7 @@ SRCS_ = main.c\
 	read_func.c\
 	river_flow.c\
 	soil.c\
+	spinup.c\
 	time_func.c\
 	update.c\
 	util_func.c\
@@ -156,7 +157,6 @@ endif
   MODULE_SRCS_= \
 	bgc/bgc_init.c\
 	bgc/bgc_read.c\
-	bgc/bgc_spinup.c\
 	bgc/bgc.c\
 	bgc/canopy_cond.c\
 	bgc/check_balance.c\

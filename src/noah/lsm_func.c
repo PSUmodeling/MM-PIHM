@@ -544,42 +544,6 @@ double FrozRain(double prcp, double sfctmp)
     return ffrozp;
 }
 
-double _WsAreaElev(int type, const elem_struct *elem)
-{
-    double          ans = 0.0;
-    int             i;
-
-    for (i = 0; i < nelem; i++)
-    {
-        switch (type)
-        {
-            case WS_ZMAX:
-                ans += elem[i].topo.zmax;
-                break;
-            case WS_ZMIN:
-                ans += elem[i].topo.zmin;
-                break;
-            case WS_AREA:
-                ans += elem[i].topo.area;
-                break;
-            default:
-                ans = BADVAL;
-                PIHMprintf(VL_ERROR,
-                    "Error: Return value type %d id not defined.\n", type);
-                PIHMexit(EXIT_FAILURE);
-        }
-    }
-
-    if (type == WS_AREA)
-    {
-        return ans;
-    }
-    else
-    {
-        return ans / (double)nelem;
-    }
-}
-
 void CalcLatFlx(const pstate_struct *ps, wflux_struct *wf, double area)
 {
     double          sattot;

@@ -87,12 +87,10 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     /* Initialize element topography */
     InitTopo(pihm->elem, &pihm->meshtbl);
 
-#if defined(_NOAH_)
     /* Calculate average elevation and total area of model domain */
     pihm->siteinfo.zmax = AvgElev(pihm->elem);
     pihm->siteinfo.zmin = AvgZmin(pihm->elem);
     pihm->siteinfo.area = TotalArea(pihm->elem);
-#endif
 #if defined(_LUMPED_)
     pihm->elem[LUMPED].topo.zmax = pihm->siteinfo.zmax;
     pihm->elem[LUMPED].topo.zmin = pihm->siteinfo.zmin;
@@ -813,6 +811,42 @@ void InitSurfL(elem_struct *elem, const river_struct *river,
                 elem[i].topo.nabrdist[j] = sqrt(elem[i].topo.nabrdist[j]);
             }
         }
+    }
+}
+
+double _WsAreaElev(int type, const elem_struct *elem)
+{
+    double          ans = 0.0;
+    int             i;
+
+    for (i = 0; i < nelem; i++)
+    {
+        switch (type)
+        {
+            case WS_ZMAX:
+                ans += elem[i].topo.zmax;
+                break;
+            case WS_ZMIN:
+                ans += elem[i].topo.zmin;
+                break;
+            case WS_AREA:
+                ans += elem[i].topo.area;
+                break;
+            default:
+                ans = BADVAL;
+                PIHMprintf(VL_ERROR,
+                    "Error: Return value type %d id not defined.\n", type);
+                PIHMexit(EXIT_FAILURE);
+        }
+    }
+
+    if (type == WS_AREA)
+    {
+        return ans;
+    }
+    else
+    {
+        return ans / (double)nelem;
     }
 }
 

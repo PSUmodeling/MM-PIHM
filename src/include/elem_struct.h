@@ -913,16 +913,6 @@ typedef struct bgcic_struct
     double          offset_fdd;
     double          offset_swi;
 } bgcic_struct;
-
-/* CN spinup variables */
-typedef struct spinup_struct
-{
-    double          soilc_prev;
-    double          totalc_prev;
-    double          soilc;
-    double          totalc;
-    int             steady;
-} spinup_struct;
 #endif
 
 #if defined(_CYCLES_)
@@ -1637,6 +1627,19 @@ typedef struct solute_struct
                                            * (kg m-2 s-1) */
 } solute_struct;
 #endif
+
+/* Spinup variables */
+typedef struct spinup_struct
+{
+    double          totalw_prev;
+    double          totalw;
+#if defined(_BGC_)
+    double          soilc_prev;
+    double          totalc_prev;
+    double          soilc;
+    double          totalc;
+#endif
+} spinup_struct;
 
 /* Element structure */
 typedef struct elem_struct

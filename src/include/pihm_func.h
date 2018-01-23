@@ -66,6 +66,7 @@ void            _PIHMexit(const char *, int, const char *, int);
 void            _PIHMprintf(const char *, int, const char *, int, const char *,
     ...);
 double          _RiverWdthAreaPerim(int, int, double, double);
+double          _WsAreaElev(int, const elem_struct *);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
 void            ApplyBc(forc_struct *, elem_struct *, river_struct *, int);
 void            ApplyElemBc(forc_struct *, elem_struct *, int);
@@ -101,6 +102,7 @@ double          ChanLeak(const river_wstate_struct *, const river_topo_struct *,
 int             CheckCVodeFlag(int);
 void            CheckDy(double, const char *, const char *, int, double);
 void            CheckFile(const FILE *, const char *);
+int             CheckSteadyState(const elem_struct *, double, int, int, int);
 void            CorrElev(elem_struct *, river_struct *);
 int             CountLine(FILE *, char *, int, ...);
 int             CountOccurr(FILE *, const char *);
@@ -227,6 +229,7 @@ void            RelaxIc(elem_struct *, river_struct *);
 void            SetCVodeParam(pihm_struct, void *, N_Vector);
 int             SoilTex(double, double);
 void            SolveCVode(int, int *, int, double, void *, N_Vector);
+void            Spinup(pihm_struct, N_Vector, void *);
 int             StrTime(const char *);
 double          SubFlowElemToElem(const elem_struct *, const elem_struct *,
     int);
@@ -264,7 +267,6 @@ void            ReadGeol(const char *, geoltbl_struct *);
  * Noah functions
  */
 #if defined(_NOAH_)
-double          _WsAreaElev(int, const elem_struct *);
 void            AlCalc(pstate_struct *, double, int);
 void            CalcLatFlx(const pstate_struct *, wflux_struct *, double);
 void            CalcSlopeAspect(elem_struct *, const meshtbl_struct *);
@@ -535,11 +537,9 @@ void            WriteCyclesIC(char *, elem_struct *, river_struct *);
 #if defined(_BGC_)
 void            BackgroundLitterfall(const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *);
-void            BgcSpinup(pihm_struct, N_Vector, void *);
 void            CanopyCond(const epconst_struct *, epvar_struct *,
     const eflux_struct *, const pstate_struct *, const soil_struct *,
     const daily_struct *);
-int             CheckBgcSteadyState(const elem_struct *, double, int, int, int);
 void            CheckCarbonBalance(const cstate_struct *, double *);
 void            CheckNitrogenBalance(const nstate_struct *, double *);
 void            CSummary(const cflux_struct *, const cstate_struct *,

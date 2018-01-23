@@ -172,6 +172,10 @@
 #define SUM    0
 #define AVG    1
 
+/* Maximum allowable difference between simulation cycles in subsurface water
+ * storage at steady-state (m) */
+#define SPINUP_W_TOLERANCE    0.01
+
 /* Ecosystem constants */
 #define RAD2PAR             0.45    /* ratio PAR / SWtotal (-) */
 #define EPAR                4.55    /* (umol/J) PAR photon energy ratio */
@@ -221,7 +225,7 @@
 #define FLT_COND_TOL    1e-10
 
 /* Maximum allowable trend in slow soil carbon at steady-state (kgC m-2 yr-1) */
-#define SPINUP_TOLERANCE    0.0005
+#define SPINUP_C_TOLERANCE    0.0005
 
 /* Allocation parameters */
 #define DAYSNDEPLOY                 365.0

@@ -5,7 +5,6 @@ void ReadBgc(const char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     char *ndep_fn)
 {
     FILE           *bgc_file;
-    pihm_t_struct   pihm_time1, pihm_time2;
     char            cmdstr[MAXSTRING];
     int             lno = 0;
 
@@ -19,31 +18,6 @@ void ReadBgc(const char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     sscanf(cmdstr, "%d", &ctrl->read_bgc_restart);
     NextLine(bgc_file, cmdstr, &lno);
     sscanf(cmdstr, "%d", &ctrl->write_bgc_restart);
-
-    FindLine(bgc_file, "TIME_DEFINE", &lno, fn);
-    NextLine(bgc_file, cmdstr, &lno);
-    sscanf(cmdstr, "%d", &spinup_mode);
-    NextLine(bgc_file, cmdstr, &lno);
-    sscanf(cmdstr, "%d", &ctrl->maxspinyears);
-
-    /* In spinup mode, simulation time should be full years */
-    if (spinup_mode)
-    {
-        pihm_time1 = PIHMTime(ctrl->starttime);
-        pihm_time2 = PIHMTime(ctrl->endtime);
-
-        if (pihm_time1.month != pihm_time2.month ||
-            pihm_time1.day != pihm_time2.day ||
-            pihm_time1.hour != pihm_time2.hour ||
-            pihm_time1.minute != pihm_time2.minute)
-        {
-            PIHMprintf(VL_ERROR,
-                "Error: In BGC spinup mode, "
-                "simulation period should be full years.\n");
-            PIHMprintf(VL_ERROR, "Please check your .para input file.\n");
-            PIHMexit(EXIT_FAILURE);
-        }
-    }
 
     FindLine(bgc_file, "CO2_CONTROL", &lno, fn);
     NextLine(bgc_file, cmdstr, &lno);

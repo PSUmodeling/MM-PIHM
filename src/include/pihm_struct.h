@@ -165,6 +165,8 @@ typedef struct ctrl_struct
                                              * iterations */
     double          decr;                   /* decrease factor (-)*/
     double          incr;                   /* increase factor (-)*/
+    int             maxspinyears;           /* maximum number of years for
+                                             * spinup run */
 #if defined(_NOAH_)
     int             nsoil;                  /* number of standard soil layers */
     double          sldpth[MAXLYR];         /* thickness of soil layer (m) */
@@ -172,8 +174,6 @@ typedef struct ctrl_struct
                                              * 0 = uniform, 1 = topographic */
 #endif
 #if defined(_BGC_)
-    int             maxspinyears;           /* maximum number of years for
-                                             * spinup run */
     int             read_bgc_restart;       /* flag to read BGC restart file */
     int             write_bgc_restart;      /* flag to write BGC restart file */
 #endif

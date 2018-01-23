@@ -1073,6 +1073,7 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
     char            cmdstr[MAXSTRING];
     int             i;
     int             lno = 0;
+    pihm_t_struct   pihm_time1, pihm_time2;
 
     for (i = 0; i < MAXPRINT; i++)
     {
@@ -1085,6 +1086,9 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
 
     /* Start reading para_file */
     /* Read through parameter file to find parameters */
+    NextLine(para_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "SIMULATION_MODE", &spinup_mode, 'i', filename, lno);
+
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "INIT_MODE", &ctrl->init_type, 'i', filename, lno);
     ctrl->init_type = (ctrl->init_type > RELAX) ? RST_FILE : RELAX;
@@ -1112,6 +1116,29 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
 
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "END", &ctrl->endtime, 't', filename, lno);
+
+    /* In spinup mode, simulation time should be full years */
+    if (spinup_mode)
+    {
+        pihm_time1 = PIHMTime(ctrl->starttime);
+        pihm_time2 = PIHMTime(ctrl->endtime);
+
+        if (pihm_time1.month != pihm_time2.month ||
+            pihm_time1.day != pihm_time2.day ||
+            pihm_time1.hour != pihm_time2.hour ||
+            pihm_time1.minute != pihm_time2.minute)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error: In BGC spinup mode, "
+                "simulation period should be full years.\n");
+            PIHMprintf(VL_ERROR, "Please check your .para input file.\n");
+            PIHMexit(EXIT_FAILURE);
+        }
+    }
+
+    NextLine(para_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MAX_SPINUP_YEAR", &ctrl->maxspinyears, 'i', filename,
+        lno);
 
     NextLine(para_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "MODEL_STEPSIZE", &ctrl->stepsize, 'i', filename, lno);

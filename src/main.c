@@ -93,14 +93,20 @@ int main(int argc, char *argv[])
     start = clock();
 #endif
 
-#if defined(_BGC_)
     if (spinup_mode)
     {
-        BgcSpinup(pihm, CV_Y, cvode_mem);
+        Spinup(pihm, CV_Y, cvode_mem);
+
+        /* In spin-up mode, initial conditions are always printed */
+        PrintInit(pihm->elem, pihm->river, outputdir,
+            pihm->ctrl.endtime, pihm->ctrl.starttime,
+            pihm->ctrl.endtime, pihm->ctrl.prtvrbl[IC_CTRL]);
+#if defined(_BGC_)
+        WriteBgcIc(outputdir, pihm->elem, pihm->river);
+#endif
     }
     else
     {
-#endif
         for (i = 0; i < pihm->ctrl.nstep; i++)
         {
 #if defined(_OPENMP)
@@ -131,32 +137,21 @@ int main(int argc, char *argv[])
                     pihm->ctrl.endtime, pihm->ctrl.prtvrbl[IC_CTRL]);
             }
         }
-#if defined(_BGC_)
-    }
-#endif
 
 #if defined(_BGC_)
-    if (pihm->ctrl.write_bgc_restart)
-    {
-        WriteBgcIc(outputdir, pihm->elem, pihm->river);
-
-        if (spinup_mode)
+        if (pihm->ctrl.write_bgc_restart)
         {
-            /* In spin-up mode, also print land surface and hydrologic initial
-             * conditions */
-            PrintInit(pihm->elem, pihm->river, outputdir,
-                pihm->ctrl.endtime, pihm->ctrl.starttime,
-                pihm->ctrl.endtime, pihm->ctrl.prtvrbl[IC_CTRL]);
+            WriteBgcIc(outputdir, pihm->elem, pihm->river);
         }
-    }
 #endif
 
 #if defined(_CYCLES_)
-    if (pihm->ctrl.write_cycles_restart)
-    {
-        WriteCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
-    }
+        if (pihm->ctrl.write_cycles_restart)
+        {
+            WriteCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
+        }
 #endif
+    }
 
     if (debug_mode)
     {
