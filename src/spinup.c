@@ -98,9 +98,9 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
         /* Check if domain reaches steady state */
 #if defined(_BGC_)
         steady = ((fabs(t1) < SPINUP_C_TOLERANCE) &&
-            (totalw - totalw_prev < SPINUP_W_TOLERANCE));
+            (fabs(totalw - totalw_prev) < SPINUP_W_TOLERANCE));
 #else
-        steady = (totalw - totalw_prev < SPINUP_W_TOLERANCE);
+        steady = (fabs(totalw - totalw_prev) < SPINUP_W_TOLERANCE);
 #endif
 
         PIHMprintf(VL_NORMAL, "spinyears = %d ", spinyears);
