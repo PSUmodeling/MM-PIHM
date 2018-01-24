@@ -80,6 +80,11 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
         totalw += (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity *
             elem[i].topo.area / total_area;
 
+#if defined(_FBR_)
+        totalw += (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
+            elem[i].geol.porosity * elem[i].topo.area / total_area;
+#endif
+
 #if defined(_BGC_)
         /* Convert soilc and totalc to average daily soilc */
         soilc += elem[i].spinup.soilc * elem[i].topo.area /
