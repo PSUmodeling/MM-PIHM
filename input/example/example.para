@@ -1,3 +1,4 @@
+SIMULATION_MODE     1                   # simulation type: 1 = spinup simulation, 2 = accelerated CN spinup, 0 = normal simulation
 INIT_MODE           0                   # initialization type: 0 = relaxation, 1 = use .ic file
 ASCII_OUTPUT        1                   # write ASCII output? 0 = no, 1 = yes
 WATBAL_OUTPUT       1                   # write water balance? 0 = no, 1 = yes
@@ -7,6 +8,7 @@ SURF_MODE           2                   # surface overland flow formulation: 1 =
 RIV_MODE            2                   # river routing formulation: 1 = kinematic, 2 = diffusion
 START               2009-01-01 00:00    # simulation start time
 END                 2010-01-01 00:00    # simulation end time
+MAX_SPINUP_YEAR     50                  # maximum number of spinup years (if spinup simulation)
 MODEL_STEPSIZE      60                  # model step size (s)
 LSM_STEP            900                 # land surface (ET) step size (s)
 ################################################################################

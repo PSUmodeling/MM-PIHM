@@ -2,10 +2,6 @@ RESTART         (keyword) start of restart control block
 0               (flag)    1 = read restart file     0 = don't read restart file
 0               (flag)    1 = write restart file    0 = don't write restart file
 
-TIME_DEFINE     (keyword - do not remove)
-2               (flag)    1 = spinup simulation, 2 = accelerated spinup, 0 = normal simulation
-500             (int)     maximum number of spinup years (if spinup simulation)
-
 CO2_CONTROL     (keyword - do not remove)
 1               (flag)    0=constant 1=vary with file
 386.28          (ppm)     constant atmospheric CO2 concentration
