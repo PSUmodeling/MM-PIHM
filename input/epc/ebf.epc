@@ -15,8 +15,8 @@ ECOPHYS       EBF (evergreen broadleaf forest - tropical)
 0.5           (prop.)   (ALLOCATION) current growth proportion
 42.0          (kgC/kgN) C:N of leaves
 49.0          (kgC/kgN) C:N of leaf litter, after retranslocation
-42.0          (kgC/kgN) C:N of fine roots 
-50.0          (kgC/kgN) C:N of live wood 
+42.0          (kgC/kgN) C:N of fine roots
+50.0          (kgC/kgN) C:N of live wood
 300.0         (kgC/kgN) C:N of dead wood (needs more data)
 0.32          (DIM)     leaf litter labile proportion
 0.44          (DIM)     leaf litter cellulose proportion

@@ -87,12 +87,12 @@ int             optparse(struct optparse *options, const char *optstring);
  * longindex argument may be NULL.
  */
 int
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
 optparse_long(struct optparse *options,
     const struct optparse_long *longopts, int *longindex);
 

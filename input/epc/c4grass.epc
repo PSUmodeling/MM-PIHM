@@ -12,7 +12,7 @@ ECOPHYS       C4 grass
 0.0          *(ratio)   (ALLOCATION) new stem C : new leaf C
 0.0          *(ratio)   (ALLOCATION) new live wood C : new total wood C
 0.0          *(ratio)   (ALLOCATION) new croot C : new stem C
-0.5           (prop.)   (ALLOCATION) current growth proportion 
+0.5           (prop.)   (ALLOCATION) current growth proportion
 24.0          (kgC/kgN) C:N of leaves
 49.0          (kgC/kgN) C:N of leaf litter, after retranslocation
 42.0          (kgC/kgN) C:N of fine roots
