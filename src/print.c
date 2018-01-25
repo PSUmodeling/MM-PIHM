@@ -29,6 +29,9 @@ void AsciiArt()
 #if defined(_CYCLES_)
     PIHMprintf(VL_NORMAL, "\t* Crop module turned on.\n");
 #endif
+#if defined(_FBR_)
+    PIHMprintf(VL_NORMAL, "\t* Fractured bedrock module turned on.\n");
+#endif
 #if defined(_OPENMP)
     PIHMprintf(VL_NORMAL, "\t* OpenMP (# of threads = %d).\n", nthreads);
 #endif
