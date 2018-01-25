@@ -109,7 +109,8 @@ double TopoRadn(const topo_struct *topo, double sdir, double sdif,
     incidence = (incidence > 90.0) ? 90.0 : incidence;
 
     /* Calculate terrain configuration factor
-     * Dozier and Frew 1990, IEEE Transactions on Geoscience and Remote Sensing, 28(5), 963--969 */
+     * Dozier and Frew 1990, IEEE Transactions on Geoscience and Remote Sensing,
+     * 28(5), 963--969 */
     tcf = (1.0 + cos(topo->slope * PI / 180.0)) / 2.0 - topo->svf;
     tcf = (tcf < 0.0) ? 0.0 : tcf;
 

@@ -1013,7 +1013,8 @@ void ReadBc(const char *filename, forc_struct *forc,
         FindLine(bc_file, "BOF", &lno, filename);
         if (forc->nbc > 0)
         {
-            forc->bc = (tsdata_struct *)malloc(forc->nbc * sizeof(tsdata_struct));
+            forc->bc =
+                (tsdata_struct *)malloc(forc->nbc * sizeof(tsdata_struct));
 
             NextLine(bc_file, cmdstr, &lno);
             for (i = 0; i < forc->nbc; i++)
@@ -1022,8 +1023,8 @@ void ReadBc(const char *filename, forc_struct *forc,
                 if (match != 1 || i != index - 1)
                 {
                     PIHMprintf(VL_ERROR,
-                        "Error reading the %dth boundary condition time series.\n",
-                        i + 1);
+                        "Error reading the %dth boundary condition "
+                        "time series.\n", i + 1);
                     PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
                         filename, lno);
                     PIHMexit(EXIT_FAILURE);
@@ -1054,7 +1055,8 @@ void ReadBc(const char *filename, forc_struct *forc,
                     if (!ReadTS(cmdstr, &forc->bc[i].ftime[j],
                         &forc->bc[i].data[j][0], 1))
                     {
-                        PIHMprintf(VL_ERROR, "Error reading boundary condition.");
+                        PIHMprintf(VL_ERROR,
+                            "Error reading boundary condition.");
                         PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
                             filename, lno);
                         PIHMexit(EXIT_FAILURE);
