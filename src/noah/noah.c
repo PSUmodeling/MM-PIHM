@@ -99,6 +99,25 @@ void NoahHydrol(elem_struct *elem, double dt)
         SmFlx(&elem[i].ws, &elem[i].wf, &elem[i].ps, &elem[i].soil, dt);
 #endif
     }
+
+#if defined(_DEBUG_)
+    for (i = 0; i < nelem; i++)
+    {
+        int             k;
+        double          pihm_soilm, noah_soilm;
+
+        pihm_soilm = ((elem[i].ws.unsat + elem[i].ws.gw > elem[i].soil.depth) ?
+            elem[i].soil.depth : elem[i].ws.unsat + elem[i].ws.gw) *
+            elem[i].soil.porosity + elem[i].soil.depth * elem[i].soil.smcmin;
+        noah_soilm = elem[i].ws.smc[0] * elem[i].ps.sldpth[0];
+        for (k = 1; k < elem[i].ps.nsoil; k++)
+        {
+            noah_soilm += elem[i].ws.smc[k] * elem[i].ps.sldpth[k];
+        }
+        PIHMprintf(VL_NORMAL, "%d: %lf, %lf\n",
+            i + 1, pihm_soilm, noah_soilm);
+    }
+#endif
 }
 
 #if defined(_CYCLES_)

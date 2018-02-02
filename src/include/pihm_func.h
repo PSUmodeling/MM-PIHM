@@ -163,8 +163,14 @@ double          KrFunc(double, double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
 void            MapOutput(const int *, const int *, const elem_struct *,
     const river_struct *, const meshtbl_struct *, const char *, print_struct *);
+#if defined(_FBR_)
+void            MassBalance(const wstate_struct *, const wstate_struct *,
+    wflux_struct *, double *, const soil_struct *, const geol_struct *, double,
+    double);
+#else
 void            MassBalance(const wstate_struct *, const wstate_struct *,
     wflux_struct *, double *, const soil_struct *, double, double);
+#endif
 double          MonthlyLai(int, int);
 double          MonthlyMf(int);
 double          MonthlyRl(int, int);

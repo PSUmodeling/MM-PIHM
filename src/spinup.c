@@ -70,6 +70,10 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
     double          totalc = 0.0;
     static double   soilc_prev = 0.0;
 #endif
+#if defined(_FBR_)
+    double          fbrgw = 0.0;
+    static double   fbrgw_prev = 0.0;
+#endif
 
 #if defined(_LUMPED_)
     i = LUMPED;
@@ -83,6 +87,8 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
 #if defined(_FBR_)
         totalw += (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
             elem[i].geol.porosity * elem[i].topo.area / total_area;
+
+        fbrgw += elem[i].ws.fbr_gw * elem[i].topo.area / total_area;
 #endif
 
 #if defined(_BGC_)
@@ -91,26 +97,28 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
             (double)(totalt / DAYINSEC) / total_area;
         totalc += elem[i].spinup.totalc * elem[i].topo.area /
             (double)(totalt / DAYINSEC) / total_area;
+        t1 = (soilc - soilc_prev) / (double)(totalt / DAYINSEC / 365);
 #endif
     }
 
     if (!first_cycle)
     {
-#if defined(_BGC_)
-        t1 = (soilc - soilc_prev) / (double)(totalt / DAYINSEC / 365);
-#endif
-
         /* Check if domain reaches steady state */
-#if defined(_BGC_)
-        steady = ((fabs(t1) < SPINUP_C_TOLERANCE) &&
-            (fabs(totalw - totalw_prev) < SPINUP_W_TOLERANCE));
-#else
         steady = (fabs(totalw - totalw_prev) < SPINUP_W_TOLERANCE);
+#if defined(_FBR_)
+        steady = (steady && (fabs(fbrgw - fbrgw_prev) < SPINUP_W_TOLERANCE));
+#endif
+#if defined(_BGC_)
+        steady = (steady && (fabs(t1) < SPINUP_C_TOLERANCE));
 #endif
 
         PIHMprintf(VL_NORMAL, "spinyears = %d ", spinyears);
         PIHMprintf(VL_NORMAL, "totalw_prev = %lg totalw = %lg wdif = %lg\n",
             totalw_prev, totalw, totalw - totalw_prev);
+#if defined(_FBR_)
+        PIHMprintf(VL_NORMAL, "fbrgw_prev = %lg fbrgw = %lg wdif = %lg\n",
+            fbrgw_prev, fbrgw, fbrgw - fbrgw_prev);
+#endif
 #if defined(_BGC_)
         PIHMprintf(VL_NORMAL, "soilc_prev = %lg soilc = %lg pdif = %lg\n",
             soilc_prev, soilc, t1);
@@ -122,6 +130,9 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
     }
 
     totalw_prev = totalw;
+#if defined(_FBR_)
+    fbrgw_prev = fbrgw;
+#endif
 #if defined(_BGC_)
     soilc_prev = soilc;
 #endif

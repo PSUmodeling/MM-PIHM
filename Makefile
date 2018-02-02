@@ -124,6 +124,22 @@ ifeq ($(MAKECMDGOALS),flux-pihm)
 endif
 
 #-------------------
+# Flux-PIHM-FBR
+#-------------------
+ifeq ($(MAKECMDGOALS),flux-pihm-fbr)
+  SFLAGS += -D_NOAH_ -D_FBR_
+  MODULE_SRCS_ = \
+	noah/lsm_init.c\
+	noah/noah.c\
+	noah/lsm_func.c\
+	noah/lsm_read.c\
+	spa/spa.c
+  MODULE_HEADERS_ = include/spa.h
+  EXECUTABLE = flux-pihm-fbr
+  MSG = "... Compiling Flux-PIHM-FBR ..."
+endif
+
+#-------------------
 # RT-Flux-PIHM
 #-------------------
 #ifeq ($(MAKECMDGOALS),rt-flux-pihm)
@@ -293,6 +309,13 @@ pihm-fbr: $(OBJS) $(MODULE_OBJS)
 
 flux-pihm:		## Compile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
 flux-pihm: $(OBJS) $(MODULE_OBJS)
+	@echo
+	@echo $(MSG)
+	@echo
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
+
+flux-pihm-fbr:		## Compile Flux-PIHM-FBR (PIHM with land surface and fractured bedrock modules)
+flux-pihm-fbr: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
