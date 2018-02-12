@@ -804,7 +804,7 @@ typedef struct cyclesic_struct
 #endif
 
 /* Boundary conditions */
-typedef struct bc_struct
+typedef union bc_struct
 {
     double          head[NUM_EDGE];    /* value of Dirichlet-type boundary
                                         * condition (m) */

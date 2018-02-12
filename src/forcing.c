@@ -59,13 +59,11 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
             {
                 ind = elem[i].attrib.bc_type[j] - 1;
                 elem[i].bc.head[j] = forc->bc[ind].value[0];
-                elem[i].bc.flux[j] = BADVAL;
             }
             else if (elem[i].attrib.bc_type[j] < 0)
             {
                 ind = -elem[i].attrib.bc_type[j] - 1;
                 elem[i].bc.flux[j] = forc->bc[ind].value[0];
-                elem[i].bc.head[j] = BADVAL;
             }
 
 #if defined(_FBR_)
@@ -73,13 +71,11 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
             {
                 ind = elem[i].attrib.fbrbc_type[j] - 1;
                 elem[i].fbr_bc.head[j] = forc->bc[ind].value[0];
-                elem[i].fbr_bc.flux[j] = BADVAL;
             }
             else if (elem[i].attrib.fbrbc_type[j] < 0)
             {
                 ind = -elem[i].attrib.fbrbc_type[j] - 1;
                 elem[i].fbr_bc.flux[j] = forc->bc[ind].value[0];
-                elem[i].fbr_bc.head[j] = BADVAL;
             }
 #endif
         }
