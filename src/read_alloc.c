@@ -263,9 +263,9 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
         forc->riverbc =
             (tsdata_struct *)malloc(forc->nriverbc * sizeof(tsdata_struct));
 
+        NextLine(riv_file, cmdstr, &lno);
         for (i = 0; i < forc->nriverbc; i++)
         {
-            NextLine(riv_file, cmdstr, &lno);
             match = sscanf(cmdstr, "%*s %d", &index);
             if (match != 1 || i != index - 1)
             {
@@ -284,6 +284,7 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
 
         FindLine(riv_file, "BOF", &lno, filename);
         FindLine(riv_file, "BC", &lno, filename);
+
         for (i = 0; i < forc->nriverbc; i++)
         {
             NextLine(riv_file, cmdstr, &lno);

@@ -275,6 +275,11 @@ void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
             ind = river[i].attrib.riverbc_type - 1;
             river[i].bc.head = forc->riverbc[ind].value[0];
         }
+        else if (river[i].attrib.riverbc_type < 0)
+        {
+            ind = -river[i].attrib.riverbc_type - 1;
+            river[i].bc.flux = forc->riverbc[ind].value[0];
+        }
     }
 }
 
