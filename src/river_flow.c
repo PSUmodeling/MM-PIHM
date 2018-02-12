@@ -422,11 +422,13 @@ double OutletFlux(int down, const river_wstate_struct *ws,
     {
         case DIRICHLET:
             /* Dirichlet boundary condition */
-            total_h = ws->gw + topo->zmin;
-            total_h_down = bc->head + (topo->node_zmax - shp->depth);
+            total_h = ws->stage + topo->zbed;
+            total_h_down = bc->head;
             distance = 0.5 * shp->length;
             grad_h = (total_h - total_h_down) / distance;
-            avg_h = AvgH(grad_h, ws->stage, bc->head);
+            avg_h = AvgH(grad_h, ws->stage,
+                ((bc->head - (topo->node_zmax - shp->depth) > 0.0) ?
+                bc->head - (topo->node_zmax - shp->depth) : 0.0));
             avg_perim = RiverPerim(shp->intrpl_ord, ws->stage, shp->coeff);
             crossa = RiverArea(shp->intrpl_ord, ws->stage, shp->coeff);
             avg_h = (avg_perim == 0.0) ? 0.0 : (crossa / avg_perim);
