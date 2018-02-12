@@ -363,7 +363,9 @@ void BoundFluxElem(int bc_type, int j, const bc_struct *bc,
         /* Neumann bc (note: md->ele[i].bc[j] value has to be
          * = 2+(index of Neumann boundary ts) */
         wf->ovlflow[j] = 0.0;
-        wf->subsurf[j] = bc->flux[j];
+        /* Negative sign is added so the positive numbers in forcing time series
+         * represents source */
+        wf->subsurf[j] = -bc->flux[j];
     }
 }
 
@@ -414,7 +416,7 @@ double FbrBoundFluxElem(int bc_type, int j, const bc_struct *bc,
     else
     {
         /* Neumann boundary conditions */
-        flux = bc->flux[j];
+        flux = -bc->flux[j];
     }
 
     return flux;

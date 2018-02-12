@@ -435,7 +435,7 @@ double OutletFlux(int down, const river_wstate_struct *ws,
             break;
         case NEUMANN:
             /* Neumann boundary condition */
-            discharge = bc->flux;
+            discharge = -bc->flux;
             break;
         case ZERO_DPTH_GRAD:
             /* Zero-depth-gradient boundary conditions */
