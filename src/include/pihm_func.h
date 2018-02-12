@@ -92,6 +92,9 @@ void            BackupInput(const char *);
 void            BoundFluxElem(int, int, const bc_struct *,
     const wstate_struct *, const topo_struct *, const soil_struct *,
     wflux_struct *);
+double          BoundFluxRiver(int, const river_wstate_struct *,
+    const river_topo_struct *, const shp_struct *, const matl_struct *,
+    const river_bc_struct *bc);
 void            CalcModelStep(ctrl_struct *);
 double          ChanFlowElemToRiver(const elem_struct *, double,
     const river_struct *, double);

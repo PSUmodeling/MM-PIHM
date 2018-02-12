@@ -17,6 +17,20 @@ void RiverFlow(elem_struct *elem, river_struct *river, int riv_mode)
 
         if (river[i].down > 0)
         {
+            /*
+             * Boundary conditions
+             *
+             * When a downstream segment is present, boundary conditions are
+             * always applied to the upstream node
+             */
+            if (river[i].attrib.riverbc_type != 0)
+            {
+                river[i].wf.rivflow[UP_CHANL2CHANL] +=
+                    BoundFluxRiver(river[i].attrib.riverbc_type, &river[i].ws,
+                    &river[i].topo, &river[i].shp, &river[i].matl,
+                    &river[i].bc);
+            }
+
             down = &river[river[i].down - 1];
 
             /*
@@ -446,6 +460,43 @@ double OutletFlux(int down, const river_wstate_struct *ws,
     }
 
     return discharge;
+}
+
+double BoundFluxRiver(int riverbc_type, const river_wstate_struct *ws,
+    const river_topo_struct *topo, const shp_struct *shp,
+    const matl_struct *matl, const river_bc_struct *bc)
+{
+    double          total_h;
+    double          total_h_down;
+    double          distance;
+    double          grad_h;
+    double          avg_h;
+    double          avg_perim;
+    double          crossa;
+    double          flux = 0.0;
+
+    if (riverbc_type > 0)
+    {
+        /* Dirichlet boundary condition */
+        total_h = ws->stage + topo->zbed;
+        total_h_down = bc->head;
+        distance = 0.5 * shp->length;
+        grad_h = (total_h - total_h_down) / distance;
+        avg_h = AvgH(grad_h, ws->stage,
+            ((bc->head - topo->zbed > 0.0) ? (bc->head - topo->zbed) : 0.0));
+        avg_perim = RiverPerim(shp->intrpl_ord, ws->stage, shp->coeff);
+        crossa = RiverArea(shp->intrpl_ord, ws->stage, shp->coeff);
+        avg_h = (avg_perim == 0.0) ? 0.0 : (crossa / avg_perim);
+        flux =
+            OverLandFlow(avg_h, grad_h, grad_h, crossa, matl->rough);
+    }
+    else if (riverbc_type < 0)
+    {
+        /* Neumann boundary condition */
+        flux = -bc->flux;
+    }
+
+    return flux;
 }
 
 double ChanFlowElemToRiver(const elem_struct *elem, double effk,
