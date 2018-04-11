@@ -100,7 +100,8 @@ void NoahHydrol(elem_struct *elem, double dt)
 #endif
     }
 
-#if defined(_DEBUG_)
+#if TEMP_DISABLED
+# if defined(_DEBUG_)
     for (i = 0; i < nelem; i++)
     {
         int             k;
@@ -114,9 +115,9 @@ void NoahHydrol(elem_struct *elem, double dt)
         {
             noah_soilm += elem[i].ws.smc[k] * elem[i].ps.sldpth[k];
         }
-        PIHMprintf(VL_NORMAL, "%d: %lf, %lf\n",
-            i + 1, pihm_soilm, noah_soilm);
+        PIHMprintf(VL_NORMAL, "%d: %lf, %lf\n", i + 1, pihm_soilm, noah_soilm);
     }
+# endif
 #endif
 }
 
@@ -1367,6 +1368,8 @@ void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
         {
             wf->drip = (KD * ws->cmcmax * exp(BFACTR * excess / ws->cmcmax));
         }
+
+        wf->drip = (wf->drip > excess / dt) ? excess / dt : wf->drip;
     }
 
     rhsct -= wf->drip;
@@ -1380,6 +1383,7 @@ void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
     {
         ws->cmc = 0.0;
     }
+
     ws->cmc = (ws->cmc < ws->cmcmax) ? ws->cmc : ws->cmcmax;
 }
 
@@ -1837,7 +1841,18 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         /* Sub-freezing block */
         es->t1 = t12;
         ef->ssoil = df1 * (es->t1 - es->stc[0]) / dtot;
-        ws->sneqv = (ws->sneqv - esnow2 > 0.0) ? ws->sneqv - esnow2 : 0.0;
+
+        if (ws->sneqv - esnow2 > 0.0)
+        {
+            ws->sneqv -= esnow2;
+        }
+        else
+        {
+            ws->sneqv = 0.0;
+            esnow2 = ws->sneqv;
+            wf->esnow = esnow2 / dt;
+        }
+
         ef->flx3 = 0.0;
         ex = 0.0;
 

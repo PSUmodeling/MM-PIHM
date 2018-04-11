@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 #define TEC_HEADER          "VARIABLES = \"X\" \"Y\" \"Zmin\" \"Zmax\" \"h\""
-#define WB_HEADER           "VARIABLES = \"TIME (s)\" \"Outflow (cms)\" \"Surf2Chan (cms)\" \"AqF2Chan (cms)\" \"Chan_LKG (cms)\" \"Precipitation (cms)\" \"NetPrec (cms)\" \"Infiltration (cms)\" \"Recharge (cms)\" \"E_soil (cms)\" \"ET_plant (cms)\" \"E_canopy (cms)\" \"PET (cms)\" \"ET (cms)\" \"E_Surface (cms)\" \"E_Unsat (cms)\" \"E_GW (cms)\" \"T_Unsat (cms)\" \"T_GW (cms)\""
+#define WB_HEADER           "VARIABLES = \"TIME (s)\" \"SRC (m)\" \"SNK (m)\" \"STRG (m)\""
 #define RIVER_TEC_HEADER2   "ZONE T = \"Water Depth River\""
 #define RIVER_TEC_HEADER3   "StrandID=1, SolutionTime="
 #define ELEM_TEC_HEADER3    "VARSHARELIST = ([1, 2, 3, 4]=1), CONNECTIVITYSHAREZONE = 1"
@@ -461,74 +461,58 @@ void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
 void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
     const elem_struct *elem, const river_struct *river)
 {
-    int             i, j;
-    double          totarea = 0.0;
-    double          totlength = 0.0;
-    double          tot_prep = 0.0;
-    double          tot_net_prep = 0.0;
-    double          tot_inf = 0.0;
-    double          tot_rechg = 0.0;
-    double          tot_esoil = 0.0;
-    double          tot_ett = 0.0;
-    double          tot_ec = 0.0;
-    double          tot_pet = 0.0;
-    double          tot_et = 0.0;
-    double          tot_edir_surf = 0.0;
-    double          tot_edir_unsat = 0.0;
-    double          tot_edir_gw = 0.0;
-    double          tot_ett_unsat = 0.0;
-    double          tot_ett_gw = 0.0;
-    double          outflow = 0.0;
-    double          riv2elem_olf = 0.0;
-    double          riv_base = 0.0;
-    double          riv_lkg = 0.0;
+    int             i;
+    double          tot_src = 0.0, tot_snk = 0.0, tot_strg = 0.0;
+    static double   tot_strg_prev = 0.0;
+    static double   error = 0.0;
 
     if (t == tstart + dt)
     {
         fprintf(watbal_file, "%s\n", WB_HEADER);
     }
+
     for (i = 0; i < nelem; i++)
     {
-        totarea += elem[i].topo.area;
-        tot_prep += elem[i].wf.prcp * elem[i].topo.area;
-        tot_net_prep += elem[i].wf.pcpdrp * elem[i].topo.area;
-        tot_inf += elem[i].wf.infil * elem[i].topo.area;
-        tot_rechg += elem[i].wf.rechg * elem[i].topo.area;
-        tot_esoil += elem[i].wf.edir * elem[i].topo.area;
-        tot_ett += elem[i].wf.ett * elem[i].topo.area;
-        tot_ec += elem[i].wf.ec * elem[i].topo.area;
-        tot_pet += elem[i].wf.etp * elem[i].topo.area;
-        tot_et += elem[i].wf.eta * elem[i].topo.area;
-        tot_edir_surf += elem[i].wf.edir_surf * elem[i].topo.area;
-        tot_edir_unsat += elem[i].wf.edir_unsat * elem[i].topo.area;
-        tot_edir_gw += elem[i].wf.edir_gw * elem[i].topo.area;
-        tot_ett_unsat += elem[i].wf.ett_unsat * elem[i].topo.area;
-        tot_ett_gw += elem[i].wf.ett_gw * elem[i].topo.area;
+        tot_src += elem[i].wf.prcp * elem[i].topo.area * dt;
+#if defined(_NOAH_)
+        tot_src += (elem[i].wf.dew + elem[i].wf.snomlt) *
+            elem[i].topo.area * dt;
+#endif
+
+        tot_snk += (elem[i].wf.edir + elem[i].wf.ett + elem[i].wf.ec) *
+            elem[i].topo.area * dt;
+#if defined(_NOAH_)
+        tot_snk += elem[i].wf.esnow * elem[i].topo.area * dt;
+#endif
+
+        tot_strg += (elem[i].ws.cmc + elem[i].ws.sneqv + elem[i].ws.surf +
+            (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity) *
+            elem[i].topo.area;
     }
 
-    for (j = 0; j < nriver; j++)
+    for (i = 0; i < nriver; i++)
     {
-        totlength += river[j].shp.length;
-        if (river[j].down < 0)
+        tot_strg +=
+            (river[i].ws.stage + river[i].ws.gw * river[i].matl.porosity) *
+            river[i].topo.area;
+
+        if (river[i].down < 0)
         {
-            outflow = river[j].wf.rivflow[DOWN_CHANL2CHANL];
+            tot_snk += river[i].wf.rivflow[DOWN_CHANL2CHANL] * dt;
         }
-        riv2elem_olf +=
-            river[j].wf.rivflow[LEFT_SURF2CHANL] +
-            river[j].wf.rivflow[RIGHT_SURF2CHANL];
-        riv_base +=
-            river[j].wf.rivflow[LEFT_AQUIF2CHANL] +
-            river[j].wf.rivflow[RIGHT_AQUIF2CHANL];
-        riv_lkg += river[j].wf.rivflow[CHANL_LKG];
     }
 
-    fprintf(watbal_file,
-        "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf "
-        "%lf %lf\n",
-        t - tstart, outflow, riv2elem_olf, riv_base, riv_lkg, tot_prep,
-        tot_net_prep, tot_inf, tot_rechg, tot_esoil, tot_ett, tot_ec, tot_pet,
-        tot_et, tot_edir_surf, tot_edir_unsat, tot_edir_gw, tot_ett_unsat,
-        tot_ett_gw);
+    if (tot_strg_prev != 0.0)
+    {
+        error += tot_src - tot_snk - (tot_strg - tot_strg_prev);
+
+        fprintf(watbal_file, "%d %lg %lg %lg %lg %lg\n", t - tstart,
+            tot_src, tot_snk, tot_strg - tot_strg_prev,
+            tot_src - tot_snk - (tot_strg - tot_strg_prev), error);
+        fflush(watbal_file);
+    }
+
+    tot_strg_prev = tot_strg;
 }
 
 void PrintCVodeFinalStats(void *cvode_mem)
