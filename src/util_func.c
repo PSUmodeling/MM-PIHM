@@ -86,6 +86,19 @@ void CreateOutputDir(char *outputdir)
     struct tm      *timestamp;
     char            str[11];
     char            icdir[MAXSTRING];
+    char            proj[MAXSTRING];
+    char           *token;
+
+    strcpy(proj, project);
+    if (strstr(proj, ".") != 0)
+    {
+        token = strtok(proj, ".");
+        strcpy(proj, token);
+    }
+    else
+    {
+        strcpy(proj, project);
+    }
 
     if (0 == (PIHMmkdir("output")))
     {
@@ -98,7 +111,7 @@ void CreateOutputDir(char *outputdir)
         time(&rawtime);
         timestamp = localtime(&rawtime);
         strftime(str, 11, "%y%m%d%H%M", timestamp);
-        sprintf(outputdir, "output/%s.%s/", project, str);
+        sprintf(outputdir, "output/%s.%s/", proj, str);
     }
 
     if (PIHMmkdir(outputdir) != 0)
@@ -130,45 +143,27 @@ void CreateOutputDir(char *outputdir)
     }
 }
 
-void BackupInput(const char *outputdir)
+void BackupInput(const char *outputdir, const filename_struct *filename)
 {
     char            system_cmd[MAXSTRING];
-    char            source_file[MAXSTRING];
-
-#if OBSOLETE
-    strcpy(tempname, project);
-    if (strstr(tempname, ".") != 0)
-    {
-        token = strtok(tempname, ".");
-        strcpy(project, token);
-    }
-    else
-    {
-        strcpy(project, project);
-    }
-#endif
 
     /* Save input files into output directory */
-    sprintf(source_file, "input/%s/%s.para", project, project);
-    if (PIHMaccess(source_file, F_OK) != -1)
+    if (PIHMaccess(filename->para, F_OK) != -1)
     {
-        sprintf(system_cmd, "cp %s ./%s/%s.para.bak", source_file, outputdir,
-            project);
+        sprintf(system_cmd, "cp %s ./%s/%s.para.bak",
+            filename->para, outputdir, project);
         system(system_cmd);
     }
-    sprintf(source_file, "input/%s/%s.calib", project, project);
-    if (PIHMaccess(source_file, F_OK) != -1)
+    if (PIHMaccess(filename->calib, F_OK) != -1)
     {
-        sprintf(system_cmd, "cp %s ./%s/%s.calib.bak", source_file,
-            outputdir, project);
+        sprintf(system_cmd, "cp %s ./%s/%s.calib.bak",
+            filename->calib, outputdir, project);
         system(system_cmd);
     }
-    sprintf(source_file, "input/%s/%s.init", project, project);
-    if (PIHMaccess(source_file, F_OK) != -1)
+    if (PIHMaccess(filename->ic, F_OK) != -1)
     {
-
-        sprintf(system_cmd, "cp %s ./%s/%s.init.bak", source_file, outputdir,
-            project);
+        sprintf(system_cmd, "cp %s ./%s/%s.ic.bak",
+            filename->ic, outputdir, project);
         system(system_cmd);
     }
 }

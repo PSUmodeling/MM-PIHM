@@ -2,38 +2,52 @@
 
 void ReadAlloc(pihm_struct pihm)
 {
+    char            proj[MAXSTRING];
+    char           *token;
+
     PIHMprintf(VL_VERBOSE, "\nRead input files:\n");
 
+    strcpy(proj, project);
+    if (strstr(proj, ".") != 0)
+    {
+        token = strtok(proj, ".");
+        strcpy(proj, token);
+    }
+    else
+    {
+        strcpy(proj, project);
+    }
+
     /* Set file names of the input files */
-    sprintf(pihm->filename.riv,      "input/%s/%s.riv",      project, project);
-    sprintf(pihm->filename.mesh,     "input/%s/%s.mesh",     project, project);
-    sprintf(pihm->filename.att,      "input/%s/%s.att",      project, project);
-    sprintf(pihm->filename.soil,     "input/%s/%s.soil",     project, project);
+    sprintf(pihm->filename.riv,      "input/%s/%s.riv",      proj, proj);
+    sprintf(pihm->filename.mesh,     "input/%s/%s.mesh",     proj, proj);
+    sprintf(pihm->filename.att,      "input/%s/%s.att",      proj, proj);
+    sprintf(pihm->filename.soil,     "input/%s/%s.soil",     proj, proj);
     sprintf(pihm->filename.lc,       "input/vegprmt.tbl");
-    sprintf(pihm->filename.meteo,    "input/%s/%s.meteo",    project, project);
-    sprintf(pihm->filename.lai,      "input/%s/%s.lai",      project, project);
-    sprintf(pihm->filename.bc,       "input/%s/%s.bc",       project, project);
-    sprintf(pihm->filename.para,     "input/%s/%s.para",     project, project);
-    sprintf(pihm->filename.calib,    "input/%s/%s.calib",    project, project);
-    sprintf(pihm->filename.ic,       "input/%s/%s.ic",       project, project);
-    sprintf(pihm->filename.tecplot,  "input/%s/%s.tecplot",  project, project);
+    sprintf(pihm->filename.meteo,    "input/%s/%s.meteo",    proj, proj);
+    sprintf(pihm->filename.lai,      "input/%s/%s.lai",      proj, proj);
+    sprintf(pihm->filename.bc,       "input/%s/%s.bc",       proj, proj);
+    sprintf(pihm->filename.para,     "input/%s/%s.para",     proj, proj);
+    sprintf(pihm->filename.calib,    "input/%s/%s.calib",    proj, project);
+    sprintf(pihm->filename.ic,       "input/%s/%s.ic",       proj, proj);
+    sprintf(pihm->filename.tecplot,  "input/%s/%s.tecplot",  proj, proj);
 #if defined(_FBR_)
-    sprintf(pihm->filename.geol,     "input/%s/%s.geol",     project, project);
-    sprintf(pihm->filename.bedrock,  "input/%s/%s.bedrock",  project, project);
+    sprintf(pihm->filename.geol,     "input/%s/%s.geol",     proj, proj);
+    sprintf(pihm->filename.bedrock,  "input/%s/%s.bedrock",  proj, proj);
 #endif
 #if defined(_NOAH_)
-    sprintf(pihm->filename.lsm,      "input/%s/%s.lsm",      project, project);
-    sprintf(pihm->filename.rad,      "input/%s/%s.rad",      project, project);
+    sprintf(pihm->filename.lsm,      "input/%s/%s.lsm",      proj, proj);
+    sprintf(pihm->filename.rad,      "input/%s/%s.rad",      proj, proj);
 #endif
 #if defined(_CYCLES_)
-    sprintf(pihm->filename.cycles,   "input/%s/%s.cycles",   project, project);
-    sprintf(pihm->filename.soilinit, "input/%s/%s.soilinit", project, project);
-    sprintf(pihm->filename.crop,     "input/%s/%s.crop",     project, project);
-    sprintf(pihm->filename.cyclesic, "input/%s/%s.cyclesic", project, project);
+    sprintf(pihm->filename.cycles,   "input/%s/%s.cycles",   proj, proj);
+    sprintf(pihm->filename.soilinit, "input/%s/%s.soilinit", proj, proj);
+    sprintf(pihm->filename.crop,     "input/%s/%s.crop",     proj, proj);
+    sprintf(pihm->filename.cyclesic, "input/%s/%s.cyclesic", proj, proj);
 #endif
 #if defined(_BGC_)
-    sprintf(pihm->filename.bgc,      "input/%s/%s.bgc",      project, project);
-    sprintf(pihm->filename.bgcic,    "input/%s/%s.bgcic",    project, project);
+    sprintf(pihm->filename.bgc,      "input/%s/%s.bgc",      proj, proj);
+    sprintf(pihm->filename.bgcic,    "input/%s/%s.bgcic",    proj, proj);
 #endif
 
     /* Read river input file */

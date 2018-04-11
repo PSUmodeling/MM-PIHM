@@ -88,7 +88,7 @@ void            AsciiArt();
 double          AvgKv(const soil_struct *, double, double, double);
 double          AvgH(double, double, double);
 double          AvgHsurf(double, double, double);
-void            BackupInput(const char *);
+void            BackupInput(const char *, const filename_struct *);
 void            BoundFluxElem(int, int, const bc_struct *,
     const wstate_struct *, const topo_struct *, const soil_struct *,
     wflux_struct *);

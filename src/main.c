@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 
     /* Backup input files */
 #if !defined(_MSC_VER)
-    BackupInput(outputdir);
+    BackupInput(outputdir, &pihm->filename);
 #endif
 
     InitOutputFile(&pihm->print, outputdir, pihm->ctrl.waterbal,
