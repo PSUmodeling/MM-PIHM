@@ -63,6 +63,7 @@ ifeq ($(DEBUG), on)
 endif
 
 SRCS_ = main.c\
+	custom_io.c\
 	forcing.c\
 	hydrol.c\
 	initialize.c\

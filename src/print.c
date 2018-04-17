@@ -38,37 +38,6 @@ void AsciiArt()
     PIHMprintf(VL_NORMAL, "\n");
 }
 
-void _PIHMprintf(const char *fn, int lineno, const char *func, int verbosity,
-    const char *fmt, ...)
-{
-    va_list         va;
-
-    va_start(va, fmt);
-
-    if (VL_ERROR == verbosity)
-    {
-        vfprintf(stderr, fmt, va);
-        if (debug_mode)
-        {
-            fprintf(stderr, "Printed from %s", func);
-            fprintf(stderr, " (%s, Line %d).\n", fn, lineno);
-        }
-        fflush(stderr);
-    }
-    else if (verbosity <= verbose_mode)
-    {
-        vfprintf(stdout, fmt, va);
-        if (debug_mode)
-        {
-            printf("Printed from %s", func);
-            printf(" (%s, Line %d).\n", fn, lineno);
-        }
-        fflush(stderr);
-    }
-
-    va_end(va);
-}
-
 void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
     int ascii)
 {

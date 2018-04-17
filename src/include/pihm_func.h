@@ -42,8 +42,8 @@
 #endif
 
 /* PIHM system function */
-#define PIHMexit(...)               _PIHMexit(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
-#define PIHMprintf(...)             _PIHMprintf(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+#define PIHMexit(...)               _custom_exit(__FILE__, __LINE__, __FUNCTION__, debug_mode,  __VA_ARGS__)
+#define PIHMprintf(...)             _custom_printf(__FILE__, __LINE__, __FUNCTION__, debug_mode, verbose_mode, __VA_ARGS__)
 #if defined(_WIN32) || defined(_WIN64)
 # define PIHMmkdir(path)            _mkdir((path))
 # define PIHMaccess(path, amode)    _access((path), (amode))
@@ -62,9 +62,6 @@
 /*
  * Function Declarations
  */
-void            _PIHMexit(const char *, int, const char *, int);
-void            _PIHMprintf(const char *, int, const char *, int, const char *,
-    ...);
 double          _RiverWdthAreaPerim(int, int, double, double);
 double          _WsAreaElev(int, const elem_struct *);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
@@ -104,11 +101,8 @@ double          ChanLeak(const river_wstate_struct *, const river_topo_struct *,
     const shp_struct *, const matl_struct *);
 int             CheckCVodeFlag(int);
 void            CheckDy(double, const char *, const char *, int, double);
-void            CheckFile(const FILE *, const char *);
 int             CheckSteadyState(const elem_struct *, double, int, int, int);
 void            CorrElev(elem_struct *, river_struct *);
-int             CountLine(FILE *, char *, int, ...);
-int             CountOccurr(FILE *, const char *);
 void            CreateOutputDir(char *);
 double          DhByDl(const double *, const double *, const double *);
 double          EffKh(const soil_struct *, double);
@@ -117,7 +111,6 @@ double          EffKinf(const soil_struct *, double, double, double, double,
 double          EffKv(const soil_struct *, double, int);
 void            EtExtract(elem_struct *);
 double          FieldCapacity(double, double, double, double, double);
-void            FindLine(FILE *, const char *, int *, const char *);
 void            FreeData(pihm_struct);
 void            FrictSlope(const elem_struct *, const river_struct *, int,
     double *, double *);
@@ -177,7 +170,6 @@ void            MassBalance(const wstate_struct *, const wstate_struct *,
 double          MonthlyLai(int, int);
 double          MonthlyMf(int);
 double          MonthlyRl(int, int);
-void            NextLine(FILE *, char *, int *);
 int             NumStateVar(void);
 int             Ode(realtype, N_Vector, N_Vector, void *);
 double          OutletFlux(int, const river_wstate_struct *,
@@ -206,7 +198,6 @@ double          PtfKv(double, double, double, double, int);
 double          PtfThetar(double, double, double, double, int);
 double          PtfThetas(double, double, double, double, int);
 double          Qtz(int);
-int             Readable(const char *);
 void            ReadAlloc(pihm_struct);
 void            ReadAtt(const char *, atttbl_struct *);
 void            ReadBc(const char *, forc_struct *, const atttbl_struct *);

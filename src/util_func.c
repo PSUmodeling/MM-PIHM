@@ -180,16 +180,3 @@ int CheckCVodeFlag(int cv_flag)
         return 1;
     }
 }
-
-void _PIHMexit(const char *fn, int lineno, const char *func, int error)
-{
-    PIHMprintf(VL_ERROR, "\n");
-    PIHMprintf(VL_ERROR, "Exiting from %s", func);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_ERROR, " (%s, Line %d)", fn, lineno);
-    }
-    PIHMprintf(VL_ERROR, "...\n\n");
-
-    exit(error);
-}
