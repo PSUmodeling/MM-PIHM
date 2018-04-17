@@ -75,7 +75,19 @@ SRCS_ = main.c\
 	pihm.c\
 	print.c\
 	read_alloc.c\
+	read_att.c\
+	read_bc.c\
+	read_calib.c\
+	read_forc.c\
 	read_func.c\
+	read_ic.c\
+	read_lai.c\
+	read_lc.c\
+	read_mesh.c\
+	read_para.c\
+	read_river.c\
+	read_soil.c\
+	read_tecplot.c\
 	river_flow.c\
 	soil.c\
 	spinup.c\
@@ -102,7 +114,9 @@ MSG = "...  Compiling PIHM  ..."
 #-------------------
 ifeq ($(MAKECMDGOALS),pihm-fbr)
   SFLAGS += -D_FBR_
-  MODULE_SRCS_ =
+  MODULE_SRCS_ = \
+	fbr/read_bedrock.c\
+  	fbr/read_geol.c
   MODULE_HEADERS_ =
   EXECUTABLE = pihm-fbr
   MSG = "... Compiling PIHM-FBR ..."
@@ -130,6 +144,8 @@ endif
 ifeq ($(MAKECMDGOALS),flux-pihm-fbr)
   SFLAGS += -D_NOAH_ -D_FBR_
   MODULE_SRCS_ = \
+	fbr/read_bedrock.c\
+	fbr/read_geol.c\
 	noah/lsm_init.c\
 	noah/noah.c\
 	noah/lsm_func.c\
