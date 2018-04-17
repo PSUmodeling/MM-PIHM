@@ -267,13 +267,6 @@ double EffKinf(const soil_struct *soil, double dh_by_dz, double ksatfunc,
     return keff;
 }
 
-double KrFunc(double alpha, double beta, double satn)
-{
-    return sqrt(satn) *
-        (1.0 - pow(1.0 - pow(satn, beta / (beta - 1.0)), (beta - 1.0) / beta)) *
-        (1.0 - pow(1.0 - pow(satn, beta / (beta - 1.0)), (beta - 1.0) / beta));
-}
-
 double Psi(double satn, double alpha, double beta)
 {
     /* van Genuchten 1980 SSSAJ */

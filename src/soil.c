@@ -1,5 +1,12 @@
 #include "pihm.h"
 
+double KrFunc(double alpha, double beta, double satn)
+{
+    return sqrt(satn) *
+        (1.0 - pow(1.0 - pow(satn, beta / (beta - 1.0)), (beta - 1.0) / beta)) *
+        (1.0 - pow(1.0 - pow(satn, beta / (beta - 1.0)), (beta - 1.0) / beta));
+}
+
 double FieldCapacity(double alpha, double beta, double kv, double smcmax,
     double smcmin)
 {
