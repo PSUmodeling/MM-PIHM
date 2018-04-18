@@ -296,6 +296,7 @@ void            HRT(wstate_struct *, const estate_struct *, eflux_struct *,
     double, double, double, double, double *, double *, double *);
 void            InitLsm(elem_struct *, const ctrl_struct *,
     const noahtbl_struct *, const calib_struct *);
+double          Mod(double, double);
 void            Noah(elem_struct *, double);
 void            NoahHydrol(elem_struct *, double);
 # if defined(_CYCLES_)

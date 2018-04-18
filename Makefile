@@ -66,6 +66,12 @@ SRCS_ = main.c\
 	custom_io.c\
 	forcing.c\
 	hydrol.c\
+	init_forc.c\
+	init_lc.c\
+	init_mesh.c\
+	init_river.c\
+	init_soil.c\
+	init_topo.c\
 	initialize.c\
 	is_sm_et.c\
 	lat_flow.c\
@@ -89,6 +95,7 @@ SRCS_ = main.c\
 	read_soil.c\
 	read_tecplot.c\
 	river_flow.c\
+	river_prop.c\
 	soil.c\
 	spinup.c\
 	time_func.c\
@@ -115,6 +122,7 @@ MSG = "...  Compiling PIHM  ..."
 ifeq ($(MAKECMDGOALS),pihm-fbr)
   SFLAGS += -D_FBR_
   MODULE_SRCS_ = \
+	fbr/init_geol.c\
 	fbr/read_bedrock.c\
   	fbr/read_geol.c
   MODULE_HEADERS_ =
@@ -144,6 +152,7 @@ endif
 ifeq ($(MAKECMDGOALS),flux-pihm-fbr)
   SFLAGS += -D_NOAH_ -D_FBR_
   MODULE_SRCS_ = \
+  	fbr/init_geol.c\
 	fbr/read_bedrock.c\
 	fbr/read_geol.c\
 	noah/lsm_init.c\
