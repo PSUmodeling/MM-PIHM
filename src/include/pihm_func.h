@@ -76,7 +76,6 @@ void            ApplyMeteoForc(forc_struct *, elem_struct *, int, int,
 void            ApplyMeteoForc(forc_struct *, elem_struct *, int);
 #endif
 void            ApplyRiverBc(forc_struct *, river_struct *, int);
-void            AsciiArt();
 double          AvgKv(const soil_struct *, double, double, double);
 double          AvgH(double, double, double);
 double          AvgHsurf(double, double, double);
@@ -228,6 +227,7 @@ void            SetCVodeParam(pihm_struct, void *, N_Vector);
 int             SoilTex(double, double);
 void            SolveCVode(int, int *, int, double, void *, N_Vector);
 void            Spinup(pihm_struct, N_Vector, void *);
+void            StartupScreen(void);
 int             StrTime(const char *);
 double          SubFlowElemToElem(const elem_struct *, const elem_struct *,
     int);

@@ -6,7 +6,7 @@
 #define RIVER_TEC_HEADER3   "StrandID=1, SolutionTime="
 #define ELEM_TEC_HEADER3    "VARSHARELIST = ([1, 2, 3, 4]=1), CONNECTIVITYSHAREZONE = 1"
 
-void AsciiArt()
+void StartupScreen(void)
 {
     PIHMprintf(VL_NORMAL, "\n");
     PIHMprintf(VL_NORMAL, "\t########    ####   ##     ##   ##     ##\n");
@@ -36,6 +36,27 @@ void AsciiArt()
     PIHMprintf(VL_NORMAL, "\t* OpenMP (# of threads = %d).\n", nthreads);
 #endif
     PIHMprintf(VL_NORMAL, "\n");
+
+    if (1 == corr_mode)
+    {
+        PIHMprintf(VL_NORMAL,
+            "\tSurface elevation correction mode turned on.\n");
+    }
+    if (1 == debug_mode)
+    {
+        PIHMprintf(VL_NORMAL,
+            "\tDebug mode turned on.\n");
+    }
+    if (1 == tecplot)
+    {
+        PIHMprintf(VL_NORMAL,
+            "\tTecplot output turned on.\n");
+    }
+    if (VL_VERBOSE == verbose_mode)
+    {
+        PIHMprintf(VL_NORMAL,
+            "\tVerbose mode turned on.\n");
+    }
 }
 
 void InitOutputFile(print_struct *print, const char *outputdir, int watbal,

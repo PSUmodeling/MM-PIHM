@@ -37,11 +37,11 @@ int main(int argc, char *argv[])
 
     memset(outputdir, 0, MAXSTRING);
 
-    /* Print AscII art */
-    AsciiArt();
-
     /* Read command line arguments */
     ParseCmdLineParam(argc, argv, outputdir);
+
+    /* Print AscII art */
+    StartupScreen();
 
     /* Allocate memory for model data structure */
     pihm = (pihm_struct)malloc(sizeof(*pihm));

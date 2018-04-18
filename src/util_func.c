@@ -6,12 +6,12 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
     int             option;
     struct optparse options;
     struct optparse_long longopts[] = {
-        {"output", 'o', OPTPARSE_REQUIRED},
-        {"elevation_correction", 'c', OPTPARSE_NONE},
-        {"debug", 'd', OPTPARSE_NONE},
-        {"tecplot", 't', OPTPARSE_NONE},
-        {"verbose", 'v', OPTPARSE_NONE},
-        {"print_version", 'V', OPTPARSE_NONE},
+        {"output",     'o', OPTPARSE_REQUIRED},
+        {"correction", 'c', OPTPARSE_NONE},
+        {"debug",      'd', OPTPARSE_NONE},
+        {"tecplot",    't', OPTPARSE_NONE},
+        {"version",    'V', OPTPARSE_NONE},
+        {"verbose",    'v', OPTPARSE_NONE},
         {0, 0, 0}
     };
 
@@ -28,22 +28,18 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
             case 'c':
                 /* Surface elevation correction mode */
                 corr_mode = 1;
-                printf("\tSurface elevation correction mode turned on.\n");
                 break;
             case 'd':
                 /* Debug mode */
                 debug_mode = 1;
-                printf("\tDebug mode turned on.\n");
                 break;
             case 't':
                 /* Tecplot output */
                 tecplot = 1;
-                printf("\tTecplot output turned on.\n");
                 break;
             case 'v':
                 /* Verbose mode */
                 verbose_mode = 1;
-                printf("\tVerbose mode turned on.\n");
                 break;
             case 'V':
                 /* Print version number */
@@ -51,7 +47,9 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
                 PIHMexit(EXIT_SUCCESS);
                 break;
             case '?':
-                printf("Option not recognisable %s\n", options.errmsg);
+                PIHMprintf(VL_ERROR,
+                    "Option not recognizable %s\n", options.errmsg);
+                PIHMexit(EXIT_FAILURE);
                 break;
             default:
                 break;
@@ -62,15 +60,16 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
 
     if (options.optind >= argc)
     {
-        fprintf(stderr, "Error:You must specify the name of project!\n");
-        fprintf(stderr,
-            "Usage: ./pihm [-o output_dir] [-c] [-d] [-v] [-V]"
+        PIHMprintf(VL_ERROR, "Error:You must specify the name of project!\n");
+        PIHMprintf(VL_ERROR,
+            "Usage: ./pihm [-o output_dir] [-c] [-d] [-t] [-v] [-V]"
             " <project name>\n");
-        fprintf(stderr, "\t-o Specify output directory\n");
-        fprintf(stderr, "\t-c Correct surface elevation\n");
-        fprintf(stderr, "\t-d Debug mode\n");
-        fprintf(stderr, "\t-v Verbose mode\n");
-        fprintf(stderr, "\t-V Version number\n");
+        PIHMprintf(VL_ERROR, "\t-o Specify output directory\n");
+        PIHMprintf(VL_ERROR, "\t-c Correct surface elevation\n");
+        PIHMprintf(VL_ERROR, "\t-d Debug mode\n");
+        PIHMprintf(VL_ERROR, "\t-t Tecplot output\n");
+        PIHMprintf(VL_ERROR, "\t-V Version number\n");
+        PIHMprintf(VL_ERROR, "\t-v Verbose mode\n");
         PIHMexit(EXIT_FAILURE);
     }
     else
