@@ -58,7 +58,6 @@
 /*
  * Function Declarations
  */
-double          _RiverWdthAreaPerim(int, int, double, double);
 double          _WsAreaElev(int, const elem_struct *);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
 void            ApplyBc(forc_struct *, elem_struct *, river_struct *, int);
