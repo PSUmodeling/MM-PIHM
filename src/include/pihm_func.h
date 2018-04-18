@@ -22,10 +22,6 @@
 # define LUMPED_SMINN    3 * nelem + 2 * nriver
 #endif
 
-#define RiverArea(...)     _RiverWdthAreaPerim(RIVER_AREA, __VA_ARGS__)
-#define RiverEqWid(...)    _RiverWdthAreaPerim(RIVER_WDTH, __VA_ARGS__)
-#define RiverPerim(...)    _RiverWdthAreaPerim(RIVER_PERIM, __VA_ARGS__)
-
 #define AvgElev(...)      _WsAreaElev(WS_ZMAX, __VA_ARGS__)
 #define AvgZmin(...)      _WsAreaElev(WS_ZMIN, __VA_ARGS__)
 #define TotalArea(...)    _WsAreaElev(WS_AREA, __VA_ARGS__)
@@ -218,7 +214,10 @@ void            ReadTecplot(const char *, ctrl_struct *);
 int             ReadTS(const char *, int *, double *, int);
 double          Recharge(const wstate_struct *, const wflux_struct *,
     const soil_struct *);
+double          RiverCroSectArea(int, double, double);
+double          RiverEqWid(int, double, double);
 void            RiverFlow(elem_struct *, river_struct *, int);
+double          RiverPerim(int, double, double);
 void            RiverToElem(river_struct *, elem_struct *, elem_struct *);
 #if defined(_OPENMP)
 void            RunTime(double, double *, double *);

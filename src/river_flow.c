@@ -287,9 +287,10 @@ double ChanFlowRiverToRiver(const river_struct *river, const river_struct *down,
     grad_h = diff_h / distance;
     avg_sf = (grad_h > 0.0) ? grad_h : RIVGRADMIN;
     crossa =
-        RiverArea(river->shp.intrpl_ord, river->ws.stage, river->shp.coeff);
+        RiverCroSectArea(river->shp.intrpl_ord, river->ws.stage,
+            river->shp.coeff);
     crossa_down =
-        RiverArea(down->shp.intrpl_ord, down->ws.stage, down->shp.coeff);
+        RiverCroSectArea(down->shp.intrpl_ord, down->ws.stage, down->shp.coeff);
     avg_crossa = 0.5 * (crossa + crossa_down);
     avg_h = (avg_perim == 0.0) ? 0.0 : (avg_crossa / avg_perim);
 
@@ -352,7 +353,7 @@ double OutletFlux(int down, const river_wstate_struct *ws,
                 ((bc->head - (topo->node_zmax - shp->depth) > 0.0) ?
                 bc->head - (topo->node_zmax - shp->depth) : 0.0));
             avg_perim = RiverPerim(shp->intrpl_ord, ws->stage, shp->coeff);
-            crossa = RiverArea(shp->intrpl_ord, ws->stage, shp->coeff);
+            crossa = RiverCroSectArea(shp->intrpl_ord, ws->stage, shp->coeff);
             avg_h = (avg_perim == 0.0) ? 0.0 : (crossa / avg_perim);
             discharge =
                 OverLandFlow(avg_h, grad_h, grad_h, crossa, matl->rough);
@@ -367,13 +368,13 @@ double OutletFlux(int down, const river_wstate_struct *ws,
             grad_h = (topo->zbed - (topo->node_zmax - shp->depth)) / distance;
             avg_h = ws->stage;
             avg_perim = RiverPerim(shp->intrpl_ord, ws->stage, shp->coeff);
-            crossa = RiverArea(shp->intrpl_ord, ws->stage, shp->coeff);
+            crossa = RiverCroSectArea(shp->intrpl_ord, ws->stage, shp->coeff);
             discharge = sqrt(grad_h) * crossa * ((avg_perim > 0.0) ?
                 pow(crossa / avg_perim, 2.0 / 3.0) : 0.0) / matl->rough;
             break;
         case CRIT_DPTH:
             /* Critical depth boundary conditions */
-            crossa = RiverArea(shp->intrpl_ord, ws->stage, shp->coeff);
+            crossa = RiverCroSectArea(shp->intrpl_ord, ws->stage, shp->coeff);
             discharge = crossa * sqrt(GRAV * ws->stage);
             break;
         default:
@@ -409,7 +410,7 @@ double BoundFluxRiver(int riverbc_type, const river_wstate_struct *ws,
         avg_h = AvgH(grad_h, ws->stage,
             ((bc->head - topo->zbed > 0.0) ? (bc->head - topo->zbed) : 0.0));
         avg_perim = RiverPerim(shp->intrpl_ord, ws->stage, shp->coeff);
-        crossa = RiverArea(shp->intrpl_ord, ws->stage, shp->coeff);
+        crossa = RiverCroSectArea(shp->intrpl_ord, ws->stage, shp->coeff);
         avg_h = (avg_perim == 0.0) ? 0.0 : (crossa / avg_perim);
         flux =
             OverLandFlow(avg_h, grad_h, grad_h, crossa, matl->rough);
@@ -512,4 +513,69 @@ double ChanLeak(const river_wstate_struct *ws, const river_topo_struct *topo,
     grad_h = diff_h / matl->bedthick;
 
     return matl->ksatv * shp->width * shp->length * grad_h;
+}
+
+double RiverCroSectArea(int order, double depth, double coeff)
+{
+    double          cs_area = 0.0;
+
+    depth = (depth > 0.0) ? depth : 0.0;
+
+    switch (order)
+    {
+        case RECTANGLE:
+            cs_area = depth * coeff;
+            break;
+        case TRIANGLE:
+            cs_area = depth * depth / coeff;
+            break;
+        case QUADRATIC:
+            cs_area = 4.0 * depth * sqrt(depth) / (3.0 * sqrt(coeff));
+            break;
+        case CUBIC:
+            cs_area =
+                3.0 * pow(depth, 4.0 / 3.0) / (2.0 * pow(coeff, 1.0 / 3.0));
+            break;
+        default:
+            PIHMprintf(VL_ERROR, "Error: River order %d is not defined.\n",
+                order);
+            PIHMexit(EXIT_FAILURE);
+    }
+
+    return cs_area;
+}
+
+double RiverPerim(int order, double depth, double coeff)
+{
+    double          perim = 0.0;
+
+    depth = (depth > 0.0) ? depth : 0.0;
+
+    switch (order)
+    {
+        case RECTANGLE:
+            perim = 2.0 * depth + coeff;
+            break;
+        case TRIANGLE:
+            perim = 2.0 * depth * sqrt(1.0 + coeff * coeff) / coeff;
+            break;
+        case QUADRATIC:
+            perim = sqrt(depth * (1.0 + 4.0 * coeff * depth) / coeff) +
+                log(2.0 * sqrt(coeff * depth) +
+                sqrt(1.0 + 4.0 * coeff * depth)) / (2.0 * coeff);
+            break;
+        case CUBIC:
+            perim = 2.0 * ((pow(depth * (1.0 + 9.0 * pow(coeff, 2.0 / 3.0) *
+                depth), 0.5) / 3.0) +
+                (log(3.0 * pow(coeff, 1.0 / 3.0) * sqrt(depth) +
+                pow(1.0 + 9.0 * pow(coeff, 2.0 / 3.0) * depth, 0.5)) /
+                (9.0 * pow(coeff, 1.0 / 3.0))));
+            break;
+        default:
+            PIHMprintf(VL_ERROR, "Error: River order %d is not defined.\n",
+                order);
+            PIHMexit(EXIT_FAILURE);
+    }
+
+    return perim;
 }

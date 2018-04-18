@@ -90,3 +90,30 @@ void InitRiver(river_struct *river, elem_struct *elem,
             river[i].shp.coeff);
     }
 }
+
+double RiverEqWid(int order, double depth, double coeff)
+{
+    double          eq_wid = 0.0;
+
+    depth = (depth > 0.0) ? depth : 0.0;
+
+    switch (order)
+    {
+        case RECTANGLE:
+            eq_wid = coeff;
+            break;
+        case TRIANGLE:
+        case QUADRATIC:
+        case CUBIC:
+            eq_wid = 2.0 *
+                pow(depth + RIVDPTHMIN, 1.0 / ((double)order - 1.0)) /
+                pow(coeff, 1.0 / ((double)order - 1.0));
+            break;
+        default:
+            PIHMprintf(VL_ERROR, "Error: River order %d is not defined.\n",
+                order);
+            PIHMexit(EXIT_FAILURE);
+    }
+
+    return eq_wid;
+}

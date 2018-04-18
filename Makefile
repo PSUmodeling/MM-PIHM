@@ -95,7 +95,6 @@ SRCS_ = main.c\
 	read_soil.c\
 	read_tecplot.c\
 	river_flow.c\
-	river_prop.c\
 	soil.c\
 	spinup.c\
 	time_func.c\
