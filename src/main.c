@@ -3,6 +3,7 @@
 /* Global variables */
 int             verbose_mode;
 int             debug_mode;
+int             append_mode;
 int             corr_mode;
 int             spinup_mode;
 int             tecplot;

@@ -63,6 +63,11 @@ void StartupScreen(void)
         PIHMprintf(VL_NORMAL,
             "\tVerbose mode turned on.\n");
     }
+    if (1 == append_mode)
+    {
+        PIHMprintf(VL_NORMAL,
+            "\tAppend mode turned on.\n");
+    }
 }
 
 void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
@@ -73,12 +78,22 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
     char            watbal_fn[MAXSTRING];
     char            perf_fn[MAXSTRING];
     int             i;
+    char            mode[2];
+
+    if (append_mode)
+    {
+        strcpy(mode, "a");
+    }
+    else
+    {
+        strcpy(mode, "w");
+    }
 
     /* Initialize water balance file*/
     if (watbal)
     {
         sprintf(watbal_fn, "%s%s.watbal.plt", outputdir, project);
-        print->watbal_file = fopen(watbal_fn, "w");
+        print->watbal_file = fopen(watbal_fn, mode);
         CheckFile(print->watbal_file, watbal_fn);
     }
 
@@ -86,7 +101,7 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
     if (debug_mode)
     {
         sprintf(perf_fn, "%s%s.cvode.log", outputdir, project);
-        print->cvodeperf_file = fopen(perf_fn, "w");
+        print->cvodeperf_file = fopen(perf_fn, mode);
         CheckFile(print->cvodeperf_file, perf_fn);
         /* Print header lines */
         fprintf(print->cvodeperf_file,
@@ -101,13 +116,13 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
     for (i = 0; i < print->nprint; i++)
     {
         sprintf(dat_fn, "%s.dat", print->varctrl[i].name);
-        print->varctrl[i].datfile = fopen(dat_fn, "w");
+        print->varctrl[i].datfile = fopen(dat_fn, mode);
         CheckFile(print->varctrl[i].datfile, dat_fn);
 
         if (ascii)
         {
             sprintf(ascii_fn, "%s.txt", print->varctrl[i].name);
-            print->varctrl[i].txtfile = fopen(ascii_fn, "w");
+            print->varctrl[i].txtfile = fopen(ascii_fn, mode);
             CheckFile(print->varctrl[i].txtfile, ascii_fn);
         }
     }
@@ -120,7 +135,7 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
             int             j;
 
             sprintf(dat_fn, "%s.plt", print->tp_varctrl[i].name);
-            print->tp_varctrl[i].datfile = fopen(dat_fn, "w");
+            print->tp_varctrl[i].datfile = fopen(dat_fn, mode);
             CheckFile(print->tp_varctrl[i].datfile, dat_fn);
 
             if (print->tp_varctrl[i].intr == 0)

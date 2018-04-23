@@ -369,6 +369,7 @@ enum stage
 /* External variable */
 extern int     verbose_mode;
 extern int     debug_mode;
+extern int     append_mode;
 extern int     corr_mode;
 extern int     spinup_mode;
 extern int     tecplot;

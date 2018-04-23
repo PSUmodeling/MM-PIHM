@@ -6,6 +6,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
     int             option;
     struct optparse options;
     struct optparse_long longopts[] = {
+        {"append",     'a', OPTPARSE_NONE},
         {"brief",      'b', OPTPARSE_NONE},
         {"correction", 'c', OPTPARSE_NONE},
         {"debug",      'd', OPTPARSE_NONE},
@@ -45,6 +46,10 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
             case 'b':
                 /* Brief mode */
                 verbose_mode = VL_BRIEF;
+                break;
+            case 'a':
+                /* Append mode */
+                append_mode = 1;
                 break;
             case 'V':
                 /* Print version number */
