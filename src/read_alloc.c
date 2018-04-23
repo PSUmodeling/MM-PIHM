@@ -29,7 +29,7 @@ void ReadAlloc(pihm_struct pihm)
     sprintf(pihm->filename.bc,       "input/%s/%s.bc",       proj, proj);
     sprintf(pihm->filename.para,     "input/%s/%s.para",     proj, proj);
     sprintf(pihm->filename.calib,    "input/%s/%s.calib",    proj, project);
-    sprintf(pihm->filename.ic,       "input/%s/%s.ic",       proj, proj);
+    sprintf(pihm->filename.ic,       "input/%s/%s.ic",       proj, project);
     sprintf(pihm->filename.tecplot,  "input/%s/%s.tecplot",  proj, proj);
 #if defined(_FBR_)
     sprintf(pihm->filename.geol,     "input/%s/%s.geol",     proj, proj);
