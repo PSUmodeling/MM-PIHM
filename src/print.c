@@ -16,26 +16,27 @@ void StartupScreen(void)
     PIHMprintf(VL_NORMAL, "\t##           ##    ##     ##   ##     ##\n");
     PIHMprintf(VL_NORMAL, "\t##           ##    ##     ##   ##     ##\n");
     PIHMprintf(VL_NORMAL, "\t##          ####   ##     ##   ##     ##\n");
-    PIHMprintf(VL_NORMAL, "\n\tThe Penn State Integrated Hydrologic Model\n\n");
+
+    PIHMprintf(VL_BRIEF, "\n\tThe Penn State Integrated Hydrologic Model\n\n");
 #if defined(_NOAH_)
-    PIHMprintf(VL_NORMAL, "\t* Land surface module turned on.\n");
+    PIHMprintf(VL_BRIEF, "\t* Land surface module turned on.\n");
 #endif
 #if defined(_RT_)
-    PIHMprintf(VL_NORMAL, "\t* Reactive transport module turned on.\n");
+    PIHMprintf(VL_BRIEF, "\t* Reactive transport module turned on.\n");
 #endif
 #if defined(_BGC_)
-    PIHMprintf(VL_NORMAL, "\t* Biogeochemistry module turned on.\n");
+    PIHMprintf(VL_BRIEF, "\t* Biogeochemistry module turned on.\n");
 #endif
 #if defined(_CYCLES_)
-    PIHMprintf(VL_NORMAL, "\t* Crop module turned on.\n");
+    PIHMprintf(VL_BRIEF, "\t* Crop module turned on.\n");
 #endif
 #if defined(_FBR_)
-    PIHMprintf(VL_NORMAL, "\t* Fractured bedrock module turned on.\n");
+    PIHMprintf(VL_BRIEF, "\t* Fractured bedrock module turned on.\n");
 #endif
 #if defined(_OPENMP)
-    PIHMprintf(VL_NORMAL, "\t* OpenMP (# of threads = %d).\n", nthreads);
+    PIHMprintf(VL_BRIEF, "\t* OpenMP (# of threads = %d).\n", nthreads);
 #endif
-    PIHMprintf(VL_NORMAL, "\n");
+    PIHMprintf(VL_BRIEF, "\n");
 
     if (1 == corr_mode)
     {
@@ -51,6 +52,11 @@ void StartupScreen(void)
     {
         PIHMprintf(VL_NORMAL,
             "\tTecplot output turned on.\n");
+    }
+    if (VL_BRIEF == verbose_mode)
+    {
+        PIHMprintf(VL_NORMAL,
+            "\tBrief mode turned on.\n");
     }
     if (VL_VERBOSE == verbose_mode)
     {

@@ -15,7 +15,8 @@ int             Readable(const char *);
 #define MAXSTRING    1024
 
 /* Verbosity level */
-#define VL_ERROR      -1
+#define VL_ERROR      -999
+#define VL_BRIEF      -1
 #define VL_NORMAL     0
 #define VL_VERBOSE    1
 

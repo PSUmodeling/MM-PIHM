@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
     FreeData(pihm);
     free(pihm);
 
-    PIHMprintf(VL_NORMAL, "\nSimulation completed.\n");
+    PIHMprintf(VL_BRIEF, "\nSimulation completed.\n");
 
     return EXIT_SUCCESS;
 }

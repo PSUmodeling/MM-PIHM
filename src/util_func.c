@@ -6,9 +6,10 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
     int             option;
     struct optparse options;
     struct optparse_long longopts[] = {
-        {"output",     'o', OPTPARSE_REQUIRED},
+        {"brief",      'b', OPTPARSE_NONE},
         {"correction", 'c', OPTPARSE_NONE},
         {"debug",      'd', OPTPARSE_NONE},
+        {"output",     'o', OPTPARSE_REQUIRED},
         {"tecplot",    't', OPTPARSE_NONE},
         {"version",    'V', OPTPARSE_NONE},
         {"verbose",    'v', OPTPARSE_NONE},
@@ -39,7 +40,11 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
                 break;
             case 'v':
                 /* Verbose mode */
-                verbose_mode = 1;
+                verbose_mode = VL_VERBOSE;
+                break;
+            case 'b':
+                /* Brief mode */
+                verbose_mode = VL_BRIEF;
                 break;
             case 'V':
                 /* Print version number */
@@ -65,6 +70,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
             "Usage: ./pihm [-o output_dir] [-c] [-d] [-t] [-v] [-V]"
             " <project name>\n");
         PIHMprintf(VL_ERROR, "\t-o Specify output directory\n");
+        PIHMprintf(VL_ERROR, "\t-b Brief mode\n");
         PIHMprintf(VL_ERROR, "\t-c Correct surface elevation\n");
         PIHMprintf(VL_ERROR, "\t-d Debug mode\n");
         PIHMprintf(VL_ERROR, "\t-t Tecplot output\n");
