@@ -159,6 +159,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-fbr)
 	noah/noah.c\
 	noah/lsm_func.c\
 	noah/lsm_read.c\
+	noah/topo_radn.c\
 	spa/spa.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-fbr
@@ -227,6 +228,7 @@ endif
 	noah/lsm_init.c\
 	noah/lsm_read.c\
 	noah/noah.c\
+	noah/topo_radn.c\
 	spa/spa.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-bgc
@@ -248,6 +250,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	noah/lsm_init.c\
 	noah/lsm_read.c\
 	noah/noah.c\
+	noah/topo_radn.c\
 	spa/spa.c
   CYCLES_SRCS_ = \
 	Crop.c\
