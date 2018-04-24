@@ -31,8 +31,8 @@ void Noah(elem_struct *elem, double dt)
         for (j = 0; j < elem[i].ps.nsoil; j++)
         {
             elem[i].ws.smc[j] =
-                (elem[i].ws.smc[j] > elem[i].soil.smcmin + 0.02) ?
-                elem[i].ws.smc[j] : elem[i].soil.smcmin + 0.02;
+                (elem[i].ws.smc[j] > elem[i].soil.smcmin + SH2OMIN) ?
+                elem[i].ws.smc[j] : elem[i].soil.smcmin + SH2OMIN;
             elem[i].ws.smc[j] = (elem[i].ws.smc[j] < elem[i].soil.smcmax) ?
                 elem[i].ws.smc[j] : elem[i].soil.smcmax;
             elem[i].ws.sh2o[j] = (elem[i].ws.sh2o[j] < elem[i].ws.smc[j]) ?
@@ -79,8 +79,8 @@ void NoahHydrol(elem_struct *elem, double dt)
         for (j = 0; j < elem[i].ps.nsoil; j++)
         {
             elem[i].ws.smc[j] =
-                (elem[i].ws.smc[j] > elem[i].soil.smcmin + 0.02) ?
-                elem[i].ws.smc[j] : elem[i].soil.smcmin + 0.02;
+                (elem[i].ws.smc[j] > elem[i].soil.smcmin + SH2OMIN) ?
+                elem[i].ws.smc[j] : elem[i].soil.smcmin + SH2OMIN;
             elem[i].ws.smc[j] =
                 (elem[i].ws.smc[j] < elem[i].soil.smcmax) ?
                 elem[i].ws.smc[j] : elem[i].soil.smcmax;
@@ -909,7 +909,7 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
             swl = smc - sh2o;
 
             /* Keep within bounds. */
-            swl = (swl > smc - 0.02) ? (smc - 0.02) : swl;
+            swl = (swl > smc - SH2OMIN) ? (smc - SH2OMIN) : swl;
             swl = (swl < 0.0) ? 0.0 : swl;
 
             /* Start of iterations */
@@ -932,7 +932,7 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
                 swlk = swl - df / denom;
 
                 /* Bounds useful for mathematical solution. */
-                swlk = (swlk > smc - 0.02) ? (smc - 0.02) : swlk;
+                swlk = (swlk > smc - SH2OMIN) ? (smc - SH2OMIN) : swlk;
                 swlk = (swlk < 0.0) ? 0.0 : swlk;
 
                 /* Mathematical solution bounds applied. */
@@ -962,7 +962,7 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
             fk = pow(pow(-(tkelv - TFREEZ) / tkelv * soil->alpha *
                     LSUBF / GRAV, soil->beta), 1.0 / mx) *
                 (soil->smcmax - soil->smcmin) - soil->smcmin;
-            fk = (fk < 0.02) ? 0.02 : fk;
+            fk = (fk < SH2OMIN) ? SH2OMIN : fk;
 
             freew = (fk < smc) ? fk : smc;
         }
@@ -2327,11 +2327,6 @@ void SStep(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     double          rhsttin[MAXLYR];
     double          ciin[MAXLYR];
     double          sh2o0[MAXLYR];
-    double          sh2omid[MAXLYR];
-    double          ddz;
-    double          stot;
-    double          wplus;
-    double          stotmin;
 
     /* Create 'amount' values of variables to be input to the tri-diagonal
      * matrix routine. */
@@ -2355,84 +2350,13 @@ void SStep(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     /* Call Rosr12 to solve the tri-diagonal matrix */
     Rosr12(ci, ai, bi, ciin, rhsttin, rhstt, ps->nsoil);
 
-    /* Runoff3: runoff within soil layers */
-    wplus = 0.0;
-    wf->runoff3 = 0.0;
-
-    /* Sum the previous smc value and the matrix solution to get a new value.
-     * Min allowable value of smc will be 0.02. */
-    /* In Flux-PIHM, the soil layers are gone thru twice:
-     * 1. From bottom to top, to make sure all layers below water table is
-     * saturated;
-     * 2. From top to bottom, to make sure soil moisture from all layers are
-     * within plausible ranges */
-    for (k = ps->nsoil - 1; k >= 0; k--)
-    {
-        if (k != 0)
-        {
-            ddz = ps->zsoil[k - 1] - ps->zsoil[k];
-        }
-        else
-        {
-            ddz = -ps->zsoil[0];
-        }
-
-        sh2omid[k] = ws->sh2o[k] + ci[k] + wplus / ddz;
-        stot = sh2omid[k] + sice[k];
-
-        if (stot > soil->smcmax)
-        {
-            ws->smc[k] = soil->smcmax;
-            wplus = (stot - soil->smcmax) * ddz;
-        }
-        else
-        {
-            stotmin = (ps->satdpth[k] * soil->smcmax +
-                (ps->sldpth[k] - ps->satdpth[k]) * (soil->smcmin + 0.02)) /
-                ps->sldpth[k];
-            stotmin = (stotmin > soil->smcmax) ? soil->smcmax : stotmin;
-            stotmin = (stotmin < soil->smcmin + 0.02) ?
-                (soil->smcmin + 0.02) : stotmin;
-
-            if (stot < stotmin)
-            {
-                ws->smc[k] = stotmin;
-                wplus = (stot - stotmin) * ddz;
-            }
-            else
-            {
-                ws->smc[k] = stot;
-                wplus = 0.0;
-            }
-        }
-
-        sh2omid[k] = ws->smc[k] - sice[k];
-    }
-
-    ddz = -ps->zsoil[0];
+    /* Sum the previous smc value and the matrix solution to get a new value. */
     for (k = 0; k < ps->nsoil; k++)
     {
-        if (k != 0)
-        {
-            ddz = ps->zsoil[k - 1] - ps->zsoil[k];
-        }
-        ws->sh2o[k] = sh2omid[k] + wplus / ddz;
-        stot = ws->sh2o[k] + sice[k];
-        if (stot > soil->smcmax)
-        {
-            wplus = (stot - soil->smcmax) * ddz;
-        }
-        else
-        {
-            wplus = 0.0;
-        }
-
-        ws->smc[k] = (stot < soil->smcmax) ? stot : soil->smcmax;
-        ws->smc[k] = (ws->smc[k] > soil->smcmin + 0.02) ?
-            ws->smc[k] : (soil->smcmin + 0.02);
-        ws->sh2o[k] = ws->smc[k] - sice[k];
-        ws->sh2o[k] = (ws->sh2o[k] > 0.0) ? ws->sh2o[k] : 0.0;
+        ws->sh2o[k] += ci[k];
     }
+
+    AdjSmProf(soil, ps, sice, dt, wf, ws);
 
     /* Calculate soil moisture flux within soil layers */
     for (k = ps->nsoil - 1; k > 0; k--)
@@ -2441,8 +2365,6 @@ void SStep(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
             (ws->sh2o[k] - sh2o0[k]) * ps->sldpth[k] / dt +
             wf->runoff2_lyr[k] + wf->et[k] + wf->smflxv[k];
     }
-
-    wf->runoff3 = wplus / dt;
 }
 
 double TBnd(double tu, double tb, const double *zsoil, double zbot, int k,
@@ -3042,6 +2964,97 @@ void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
 
         rlmo = rlma;
     }
+}
+
+void AdjSmProf(const soil_struct *soil, const pstate_struct *ps,
+    const double *sice, double dt, wflux_struct *wf, wstate_struct *ws)
+{
+    /* Min allowable value of smc will be SH2OMIN. */
+    /* In Flux-PIHM, the soil layers are gone thru twice:
+     * 1. From bottom to top, to make sure all layers below water table is
+     * saturated;
+     * 2. From top to bottom, to make sure soil moisture from all layers are
+     * within plausible ranges */
+    int             k;
+    double          ddz;
+    double          sh2omid[MAXLYR];
+    double          wplus;
+    double          stot;
+    double          stotmin;
+
+    /* Runoff3: runoff within soil layers */
+    wplus = 0.0;
+    wf->runoff3 = 0.0;
+
+    for (k = ps->nsoil - 1; k >= 0; k--)
+    {
+        if (k != 0)
+        {
+            ddz = ps->zsoil[k - 1] - ps->zsoil[k];
+        }
+        else
+        {
+            ddz = -ps->zsoil[0];
+        }
+
+        sh2omid[k] = ws->sh2o[k] + wplus / ddz;
+        stot = sh2omid[k] + sice[k];
+
+        if (stot > soil->smcmax)
+        {
+            ws->smc[k] = soil->smcmax;
+            wplus = (stot - soil->smcmax) * ddz;
+        }
+        else
+        {
+            stotmin = (ps->satdpth[k] * soil->smcmax +
+                (ps->sldpth[k] - ps->satdpth[k]) * (soil->smcmin + SH2OMIN)) /
+                ps->sldpth[k];
+            stotmin = (stotmin > soil->smcmax) ? soil->smcmax : stotmin;
+            stotmin = (stotmin < soil->smcmin + SH2OMIN) ?
+                (soil->smcmin + SH2OMIN) : stotmin;
+
+            if (stot < stotmin)
+            {
+                ws->smc[k] = stotmin;
+                wplus = (stot - stotmin) * ddz;
+            }
+            else
+            {
+                ws->smc[k] = stot;
+                wplus = 0.0;
+            }
+        }
+
+        sh2omid[k] = ws->smc[k] - sice[k];
+    }
+
+    ddz = -ps->zsoil[0];
+    for (k = 0; k < ps->nsoil; k++)
+    {
+        if (k != 0)
+        {
+            ddz = ps->zsoil[k - 1] - ps->zsoil[k];
+        }
+        ws->sh2o[k] = sh2omid[k] + wplus / ddz;
+        stot = ws->sh2o[k] + sice[k];
+        if (stot > soil->smcmax)
+        {
+            wplus = (stot - soil->smcmax) * ddz;
+        }
+        else
+        {
+            wplus = 0.0;
+        }
+
+        ws->smc[k] = (stot < soil->smcmax) ? stot : soil->smcmax;
+        ws->smc[k] = (ws->smc[k] > soil->smcmin + SH2OMIN) ?
+            ws->smc[k] : (soil->smcmin + SH2OMIN);
+        ws->sh2o[k] = ws->smc[k] - sice[k];
+        ws->sh2o[k] = (ws->sh2o[k] > 0.0) ? ws->sh2o[k] : 0.0;
+    }
+
+    wf->runoff3 = wplus / dt;
 }
 
 /* Lech's surface functions */

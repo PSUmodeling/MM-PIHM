@@ -76,6 +76,7 @@
 #define RIVDPTHMIN    0.05     /* minimum river depth (m) */
 #define RIVGRADMIN    0.05     /* minimum river hydraulic gradient (m m-1) */
 #define CMCFACTR      2E-4     /* canopy water capacity per LAI (m) */
+#define SH2OMIN       0.02     /* minimum sh2o (m3 m-3) in Noah LSM */
 
 /* Maximum of soil layers in Flux-PIHM */
 #define MAXLYR    11

@@ -265,6 +265,8 @@ void            ReadGeol(const char *, geoltbl_struct *);
  * Noah functions
  */
 #if defined(_NOAH_)
+void            AdjSmProf(const soil_struct *, const pstate_struct *,
+    const double *, double, wflux_struct *, wstate_struct *);
 void            AlCalc(pstate_struct *, double, int);
 void            CalcLatFlx(const pstate_struct *, wflux_struct *, double);
 void            CalcSlopeAspect(elem_struct *, const meshtbl_struct *);
