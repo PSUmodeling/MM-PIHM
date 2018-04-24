@@ -605,6 +605,50 @@ void AlCalc(pstate_struct *ps, double dt, int snowng)
     ps->albedo = (ps->albedo > snoalb2) ? snoalb2 : ps->albedo;
 }
 
+void CalHum(pstate_struct *ps, estate_struct *es)
+{
+    const double    A2 = 17.67;
+    const double    A3 = 273.15;
+    const double    A4 = 29.65;
+    const double    ELWV = 2.501e6;
+    double          a23m4;
+    const double    E0 = 611.0;
+    const double    RVV = 461.0;
+    const double    EPSILON = 0.622;
+    double          e;
+    double          esat;
+    double          svp;
+    const double    SVP1 = 611.2;
+    const double    SVP2 = 17.67;
+    const double    SVP3 = 29.65;
+    const double    SVPT0 = 273.15;
+
+    double          t2v;
+    double          rho;
+    double          rh;
+
+    rh = ps->rh / 100.0;
+
+    svp = SVP1 * exp(SVP2 * (es->sfctmp - SVPT0) / (es->sfctmp - SVP3));
+    e = rh * svp;
+
+    ps->q2 = (0.622 * e) / (ps->sfcprs - (1.0 - 0.622) * e);
+
+    es->th2 = es->sfctmp + (0.0098 * ps->zlvl);
+    //es->t1v = es->t1 * (1.0 + 0.61 * ps->q2);
+    //es->th2v = es->th2 * (1.0 + 0.61 * ps->q2);
+    t2v = es->sfctmp * (1.0 + 0.61 * ps->q2);
+    rho = ps->sfcprs / (RD * t2v);
+
+    a23m4 = A2 * (A3 - A4);
+
+    esat = E0 * exp(ELWV / RVV * (1.0 / A3 - 1.0 / es->sfctmp));
+
+    ps->q2sat = EPSILON * esat / (ps->sfcprs - (1.0 - EPSILON) * esat);
+
+    ps->dqsdt2 = ps->q2sat * a23m4 / ((es->sfctmp - A4) * (es->sfctmp - A4));
+}
+
 void CanRes(const wstate_struct *ws, const estate_struct *es,
     const eflux_struct *ef, pstate_struct *ps, const soil_struct *soil,
     const epconst_struct *epc)
@@ -855,6 +899,22 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
 #else
     wf->etns = wf->edir + wf->ett + wf->ec;
 #endif
+}
+
+double FrozRain(double prcp, double sfctmp)
+{
+    double          ffrozp;
+
+    if (prcp > 0.0 && sfctmp < TFREEZ)
+    {
+        ffrozp = 1.0;
+    }
+    else
+    {
+        ffrozp = 0.0;
+    }
+
+    return ffrozp;
 }
 
 double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
