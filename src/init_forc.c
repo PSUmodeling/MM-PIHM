@@ -1,11 +1,6 @@
 #include "pihm.h"
 
-#if defined(_BGC_)
-void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal,
-    int varco2, int varndep)
-#else
 void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
-#endif
 {
     int             i, j;
 
@@ -66,12 +61,12 @@ void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
 #endif
 
 #if defined(_BGC_)
-    if (varco2)
+    if (forc->nco2 > 0)
     {
         forc->co2[0].value = (double *)malloc(sizeof(double));
     }
 
-    if (varndep)
+    if (forc->nndep > 0)
     {
         forc->ndep[0].value = (double *)malloc(sizeof(double));
     }

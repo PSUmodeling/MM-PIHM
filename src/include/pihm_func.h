@@ -105,7 +105,16 @@ double          EffKinf(const soil_struct *, double, double, double, double,
 double          EffKv(const soil_struct *, double, int);
 void            EtExtract(elem_struct *);
 double          FieldCapacity(double, double, double, double, double);
-void            FreeData(pihm_struct);
+void            FreeAtttbl(atttbl_struct *);
+void            FreeCtrl(ctrl_struct *);
+void            FreeForc(forc_struct *);
+void            FreeLctbl(lctbl_struct *);
+void            FreeMatltbl(matltbl_struct *);
+void            FreeMeshTbl(meshtbl_struct *);
+void            FreeMem(pihm_struct);
+void            FreeRivtbl(rivtbl_struct *);
+void            FreeShptbl(shptbl_struct *);
+void            FreeSoiltbl(soiltbl_struct *);
 void            FrictSlope(const elem_struct *, const river_struct *, int,
     double *, double *);
 void            Hydrol(elem_struct *, river_struct *, const ctrl_struct *);
@@ -113,12 +122,7 @@ double          Infil(const wstate_struct *, const wstate_struct *,
     const wflux_struct *, const topo_struct *, const soil_struct *, double);
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
-#if defined(_BGC_)
-void            InitForc(elem_struct *, forc_struct *, const calib_struct *,
-    int, int);
-#else
 void            InitForc(elem_struct *, forc_struct *, const calib_struct *);
-#endif
 void            Initialize(pihm_struct, N_Vector, void **);
 void            InitLc(elem_struct *, const lctbl_struct *,
     const calib_struct *);
@@ -254,6 +258,7 @@ double          FbrInfil(const wstate_struct *, const soil_struct *,
     const geol_struct *, const topo_struct *);
 double          FbrRecharge(const wstate_struct *, const wflux_struct *,
     const geol_struct *);
+void            FreeGeoltbl(geoltbl_struct *);
 void            InitGeol (elem_struct *, const geoltbl_struct *,
         const calib_struct *);
 void            ReadBedrock(const char *, atttbl_struct *, meshtbl_struct *,
@@ -561,6 +566,7 @@ void            EvergreenPhenology(const epconst_struct *, epvar_struct *,
 void            FirstDay(elem_struct *, river_struct *, const cninit_struct *);
 void            FRootLitFall(const epconst_struct *, double, cflux_struct *,
     nflux_struct *);
+void            FreeEpctbl(epctbl_struct *);
 double          GetCO2(tsdata_struct *, int);
 double          GetNdep(tsdata_struct *, int);
 void            GrowthResp(const epconst_struct *, cflux_struct *);

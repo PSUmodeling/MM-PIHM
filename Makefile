@@ -65,6 +65,7 @@ endif
 SRCS_ = main.c\
 	custom_io.c\
 	forcing.c\
+	free_mem.c\
 	hydrol.c\
 	init_forc.c\
 	init_lc.c\

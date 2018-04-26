@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 
     /* Free integrator memory */
     CVodeFree(&cvode_mem);
-    FreeData(pihm);
+    FreeMem(pihm);
     free(pihm);
 
     PIHMprintf(VL_BRIEF, "\nSimulation completed.\n");

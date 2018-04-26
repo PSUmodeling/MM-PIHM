@@ -245,7 +245,9 @@ typedef struct forc_struct
     tsdata_struct  *rad;         /* radiation forcing series */
 #endif
 #if defined(_BGC_)
+    int             nco2;
     tsdata_struct  *co2;         /* CO2 forcing series */
+    int             nndep;
     tsdata_struct  *ndep;        /* nitrogen deposition forcing series */
 #endif
 } forc_struct;
