@@ -11,6 +11,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
         {"correction", 'c', OPTPARSE_NONE},
         {"debug",      'd', OPTPARSE_NONE},
         {"output",     'o', OPTPARSE_REQUIRED},
+        {"silent",     's', OPTPARSE_NONE},
         {"tecplot",    't', OPTPARSE_NONE},
         {"version",    'V', OPTPARSE_NONE},
         {"verbose",    'v', OPTPARSE_NONE},
@@ -46,6 +47,10 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
             case 'b':
                 /* Brief mode */
                 verbose_mode = VL_BRIEF;
+                break;
+            case 's':
+                /* Silent mode */
+                verbose_mode = VL_SILENT;
                 break;
             case 'a':
                 /* Append mode */
