@@ -10,7 +10,7 @@ void FreeMem(pihm_struct pihm)
 
     FreeMatltbl(&pihm->matltbl);
 
-    FreeMeshTbl(&pihm->meshtbl);
+    FreeMeshtbl(&pihm->meshtbl);
 
     FreeAtttbl(&pihm->atttbl);
 
@@ -91,7 +91,7 @@ void FreeMatltbl(matltbl_struct *matltbl)
     free(matltbl->bedthick);
 }
 
-void FreeMeshTbl(meshtbl_struct *meshtbl)
+void FreeMeshtbl(meshtbl_struct *meshtbl)
 {
     int             i;
 

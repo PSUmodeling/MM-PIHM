@@ -110,7 +110,7 @@ void            FreeCtrl(ctrl_struct *);
 void            FreeForc(forc_struct *);
 void            FreeLctbl(lctbl_struct *);
 void            FreeMatltbl(matltbl_struct *);
-void            FreeMeshTbl(meshtbl_struct *);
+void            FreeMeshtbl(meshtbl_struct *);
 void            FreeMem(pihm_struct);
 void            FreeRivtbl(rivtbl_struct *);
 void            FreeShptbl(shptbl_struct *);
