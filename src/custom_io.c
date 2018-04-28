@@ -7,14 +7,17 @@
 void _custom_exit(const char *fn, int lineno, const char *func, int debug,
     int error)
 {
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Exiting from %s", func);
-    if (debug)
+    if (error != EXIT_SUCCESS)
     {
-        fprintf(stderr, " (%s, Line %d)", fn, lineno);
+        fprintf(stderr, "\n");
+        fprintf(stderr, "Exiting from %s", func);
+        if (debug)
+        {
+            fprintf(stderr, " (%s, Line %d)", fn, lineno);
+        }
+        fprintf(stderr, "...\n\n");
+        fflush(stderr);
     }
-    fprintf(stderr, "...\n\n");
-    fflush(stderr);
 
     exit(error);
 }

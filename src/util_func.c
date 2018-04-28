@@ -58,7 +58,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
                 break;
             case 'V':
                 /* Print version number */
-                printf("\nMM-PIHM Version %s.\n", VERSION);
+                printf("MM-PIHM Version %s\n", VERSION);
                 PIHMexit(EXIT_SUCCESS);
                 break;
             case '?':
