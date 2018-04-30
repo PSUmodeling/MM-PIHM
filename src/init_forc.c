@@ -7,6 +7,9 @@ void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
     /* Apply climate scenarios */
     for (i = 0; i < forc->nmeteo; i++)
     {
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (j = 0; j < forc->meteo[i].length; j++)
         {
             forc->meteo[i].data[j][PRCP_TS] *= cal->prcp;
@@ -72,6 +75,9 @@ void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
     }
 #endif
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
         elem[i].ps.zlvl_wind =
