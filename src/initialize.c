@@ -352,16 +352,21 @@ void CorrElev(elem_struct *elem, river_struct *river)
 void InitSurfL(elem_struct *elem, const river_struct *river,
     const meshtbl_struct *meshtbl)
 {
-    int             i, j;
-    double          x[NUM_EDGE];
-    double          y[NUM_EDGE];
-    double          zmin[NUM_EDGE];
-    double          zmax[NUM_EDGE];
-    double          distx;
-    double          disty;
+    int             i;
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
+        int             j;
+        double          x[NUM_EDGE];
+        double          y[NUM_EDGE];
+        double          zmin[NUM_EDGE];
+        double          zmax[NUM_EDGE];
+        double          distx;
+        double          disty;
+
         for (j = 0; j < NUM_EDGE; j++)
         {
             x[j] = meshtbl->x[elem[i].node[j] - 1];
@@ -390,7 +395,7 @@ void InitSurfL(elem_struct *elem, const river_struct *river,
                     break;
             }
 
-            if (elem[i].nabr[j] == 0)
+            if (0 == elem[i].nabr[j])
             {
                 elem[i].topo.nabr_x[j] = elem[i].topo.x - 2.0 * distx;
                 elem[i].topo.nabr_y[j] = elem[i].topo.y - 2.0 * disty;
@@ -462,11 +467,10 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 #if defined(_FBR_)
     const double    INIT_FBR_GW = 5.0;
 #endif
-#if defined(_NOAH_)
-    int             j;
-    double          sfctmp;
-#endif
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
         elem[i].ic.cmc = 0.0;
@@ -482,6 +486,9 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 #endif
 
 #if defined(_NOAH_)
+        int             j;
+        double          sfctmp;
+
         sfctmp = elem[i].es.sfctmp;
 
         elem[i].ic.t1 = sfctmp;
@@ -522,6 +529,9 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 #endif
     }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < nriver; i++)
     {
         river[i].ic.stage = 0.0;
@@ -532,10 +542,10 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 {
     int             i;
-#if defined(_NOAH_)
-    int             j;
-#endif
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     /* State variables (initial conditions) */
     for (i = 0; i < nelem; i++)
     {
@@ -559,6 +569,8 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 #endif
 
 #if defined(_NOAH_)
+        int             j;
+
         elem[i].es.t1 = elem[i].ic.t1;
         elem[i].ps.snowh = elem[i].ic.snowh;
 
@@ -573,6 +585,9 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
         elem[i].ws0 = elem[i].ws;
     }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < nriver; i++)
     {
         river[i].ws.stage = river[i].ic.stage;
@@ -585,6 +600,9 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
     }
 
     /* Other variables */
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
         InitWFlux(&elem[i].wf);
