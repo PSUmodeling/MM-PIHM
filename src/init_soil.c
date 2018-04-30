@@ -9,14 +9,18 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
 #endif
 {
     int             i;
-    int             soil_ind;
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
 #if defined(_LUMPED_)
     for (i = 0; i < nelem + 1; i++)
 #else
     for (i = 0; i < nelem; i++)
 #endif
     {
+        int             soil_ind;
+
         soil_ind = elem[i].attrib.soil_type - 1;
 
         elem[i].soil.dinf = cal->dinf * soiltbl->dinf;

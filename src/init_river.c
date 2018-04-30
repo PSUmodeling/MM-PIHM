@@ -5,10 +5,12 @@ void InitRiver(river_struct *river, elem_struct *elem,
     const matltbl_struct *matltbl, const meshtbl_struct *meshtbl,
     const calib_struct *cal)
 {
-    int             i, j;
+    int             i;
 
     for (i = 0; i < nriver; i++)
     {
+        int             j;
+
         river[i].ind = i + 1;
         river[i].leftele = rivtbl->leftele[i];
         river[i].rightele = rivtbl->rightele[i];
