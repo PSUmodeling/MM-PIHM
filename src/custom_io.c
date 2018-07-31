@@ -195,6 +195,8 @@ void NextLine(FILE *fp, char *cmdstr, int *lno)
     /*
      * Read a non-blank line into cmdstr
      */
+    int             j = 0;
+
     strcpy(cmdstr, "\0");
 
     while (!Readable(cmdstr))
@@ -206,6 +208,15 @@ void NextLine(FILE *fp, char *cmdstr, int *lno)
         }
         else
         {
+            if (strncasecmp("\357\273\277", cmdstr, 3) == 0)
+            {
+                /* When UTF-8 BOM occurs, copy from the fourth character */
+                for (j = 0; j < (int)strlen(cmdstr) - 3 + 1; j++)
+                {
+                    cmdstr[j] = cmdstr[j + 3];
+                }
+            }
+
             (*lno)++;
         }
     }
@@ -219,7 +230,7 @@ int Readable(const char *cmdstr)
 
     for (i = 0; i < (int)(strlen(cmdstr)); i++)
     {
-        if (cmdstr[i] == 32 || cmdstr[i] == '\t' || cmdstr[i] == ' ')
+        if (cmdstr[i] == 32 || cmdstr[i] == '\t')
         {
             continue;
         }
