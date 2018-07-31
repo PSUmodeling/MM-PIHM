@@ -156,8 +156,8 @@ typedef struct soiltbl_struct
     double        **sand_lyr;
     double        **iom_lyr;
     double        **bd_lyr;
-    double        **NO3_lyr;
-    double        **NH4_lyr;
+    double        **no3_lyr;
+    double        **nh4_lyr;
 #endif
 } soiltbl_struct;
 

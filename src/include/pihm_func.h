@@ -445,6 +445,7 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 
 #if defined(_CYCLES_)
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
+void            ReadSoilInit(const char [], soiltbl_struct *);
 #endif
 
 #endif
