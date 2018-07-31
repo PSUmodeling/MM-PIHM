@@ -648,274 +648,274 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
 # endif
 #endif
 #if defined(_CYCLES_)
-                case BIOMASS_CTRL:
-                    for (k = 0; k < elem[0].comm.NumCrop; k++)
-                    {
-                        sprintf(ext, "%s.biomass",
-                            elem[0].comm.Crop[k].cropName);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &elem[j].comm.Crop[k].svBiomass;
-                        }
-                        n++;
-                    }
-
-                    InitPrtVarCtrl(outputdir, "comm.biomass",
-                        prtvrbl[i], CN_STEP, nelem,
-                        &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].comm.svBiomass;
-                    }
-                    n++;
-                    break;
-                case RADNINTCP_CTRL:
-                    for (k = 0; k < elem[0].comm.NumCrop; k++)
-                    {
-                        sprintf(ext, "%s.radintcp",
-                            elem[0].comm.Crop[k].cropName);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &elem[j].comm.Crop[k]. svRadiationInterception;
-                        }
-                        n++;
-                    }
-
-                    InitPrtVarCtrl(outputdir, "comm.radintcp",
-                        prtvrbl[i], CN_STEP, nelem,
-                        &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] =
-                            &elem[j].comm.svRadiationInterception;
-                    }
-                    n++;
-                    break;
-                case WATER_STS_CTRL:
-                    for (k = 0; k < elem[0].comm.NumCrop; k++)
-                    {
-                        sprintf(ext, "%s.waterstress",
-                            elem[0].comm.Crop[k].cropName);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &elem[j].comm.Crop[k].svWaterStressFactor;
-                        }
-                        n++;
-                    }
-
-                    InitPrtVarCtrl(outputdir, "comm.waterstress",
-                        prtvrbl[i], CN_STEP, nelem,
-                        &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] =
-                            &elem[j].comm.svWaterStressFactor;
-                    }
-                    n++;
-                    break;
-                case N_STS_CTRL:
-                    for (k = 0; k < elem[0].comm.NumCrop; k++)
-                    {
-                        sprintf(ext, "%s.nstress",
-                            elem[0].comm.Crop[k].cropName);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            CN_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &elem[j].comm.Crop[k].svN_StressFactor;
-                        }
-                        n++;
-                    }
-
-                    InitPrtVarCtrl(outputdir, "comm.nstress",
-                        prtvrbl[i], CN_STEP, nelem,
-                        &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] =
-                            &elem[j].comm.svN_StressFactor;
-                    }
-                    n++;
-                    break;
-                case CROP_TR_CTRL:
-                    for (k = 0; k < elem[0].comm.NumCrop; k++)
-                    {
-                        sprintf(ext, "%s.transp",
-                            elem[0].comm.Crop[k].cropName);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            LS_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &elem[j].comm.Crop[k].svTranspiration;
-                        }
-                        n++;
-                    }
-
-                    InitPrtVarCtrl(outputdir, "comm.transp",
-                        prtvrbl[i], LS_STEP, nelem,
-                        &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] =
-                            &elem[j].comm.svTranspiration;
-                    }
-                    n++;
-                    break;
-                case CROP_POTTR_CTRL:
-                    for (k = 0; k < elem[0].comm.NumCrop; k++)
-                    {
-                        sprintf("%s.pottransp",
-                            elem[0].comm.Crop[k].cropName);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            LS_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &elem[j].comm.Crop[k]. svTranspirationPotential;
-                        }
-                        n++;
-                    }
-
-                    InitPrtVarCtrl(outputdir, "comm.pottransp",
-                        prtvrbl[i], LS_STEP, nelem,
-                        &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] =
-                            &elem[j].comm.svTranspirationPotential;
-                    }
-                    n++;
-                    break;
-                case RES_EVAP_CTRL:
-                    InitPrtVarCtrl(outputdir, "eres", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].wf.eres;
-                    }
-                    n++;
-                    break;
-                case NO3_PROF_CTRL:
-                    InitPrtVarCtrl(outputdir, "NO3", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].soil.NO3Profile;
-                    }
-                    n++;
-                    break;
-                case NO3_RIVER_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivNO3", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
-                    for (j = 0; j < nriver; j++)
-                    {
-                        print->varctrl[n].var[j] = &river[j].NO3sol.soluteMass;
-                    }
-                    n++;
-                    break;
-                case NH4_PROF_CTRL:
-                    InitPrtVarCtrl(outputdir, "NH4", prtvrbl[i],
-                        HYDROL_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].soil.NH4Profile;
-                    }
-                    n++;
-                    break;
-                case NH4_RIVER_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivNH4", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
-                    for (j = 0; j < nriver; j++)
-                    {
-                        print->varctrl[n].var[j] = &river[j].NH4sol.soluteMass;
-                    }
-                    n++;
-                    break;
-                case NO3_DENIT_CTRL:
-                    InitPrtVarCtrl(outputdir, "NO3denitrif",
-                        prtvrbl[i], CN_STEP, nelem,
-                        &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] =
-                            &elem[j].soil.NO3_Denitrification;
-                    }
-                    n++;
-                    break;
-                case NO3_LEACH_CTRL:
-                    for (k = 0; k < NUM_EDGE; k++)
-                    {
-                        sprintf(ext, "NO3leach%d", k);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            HYDROL_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &elem[j].soil.NO3Leaching[k];
-                        }
-                        n++;
-                    }
-                    break;
-                case NH4_LEACH_CTRL:
-                    for (k = 0; k < NUM_EDGE; k++)
-                    {
-                        sprintf(ext, "NH4leach%d", k);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            HYDROL_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &elem[j].soil.NH4Leaching[k];
-                        }
-                        n++;
-                    }
-                    break;
-                case NO3_LEACH_RIVER_CTRL:
-                    for (k = 0; k < 4; k++)
-                    {
-                        sprintf(ext, "rivNO3leach%d", k);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            HYDROL_STEP, nriver, &print->varctrl[n]);
-                        for (j = 0; j < nriver; j++)
-                        {
-                            print->varctrl[n].var[j] = &river[j].NO3Leaching[k];
-                        }
-                        n++;
-                    }
-                    break;
-                case NH4_LEACH_RIVER_CTRL:
-                    for (k = 0; k < 4; k++)
-                    {
-                        sprintf(ext, "rivNH4leach%d", k);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            HYDROL_STEP, nriver, &print->varctrl[n]);
-                        for (j = 0; j < nriver; j++)
-                        {
-                            print->varctrl[n].var[j] = &river[j].NH4Leaching[k];
-                        }
-                        n++;
-                    }
-                    break;
-                case LAI_CTRL:
-                    InitPrtVarCtrl(outputdir, "lai", prtvrbl[i],
-                        CN_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].ps.proj_lai;
-                    }
-                    n++;
-                    break;
+//                case BIOMASS_CTRL:
+//                    for (k = 0; k < elem[0].comm.NumCrop; k++)
+//                    {
+//                        sprintf(ext, "%s.biomass",
+//                            elem[0].comm.Crop[k].cropName);
+//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+//                            CN_STEP, nelem, &print->varctrl[n]);
+//                        for (j = 0; j < nelem; j++)
+//                        {
+//                            print->varctrl[n].var[j] =
+//                                &elem[j].comm.Crop[k].svBiomass;
+//                        }
+//                        n++;
+//                    }
+//
+//                    InitPrtVarCtrl(outputdir, "comm.biomass",
+//                        prtvrbl[i], CN_STEP, nelem,
+//                        &print->varctrl[n]);
+//                    for (j = 0; j < nelem; j++)
+//                    {
+//                        print->varctrl[n].var[j] = &elem[j].comm.svBiomass;
+//                    }
+//                    n++;
+//                    break;
+//                case RADNINTCP_CTRL:
+//                    for (k = 0; k < elem[0].comm.NumCrop; k++)
+//                    {
+//                        sprintf(ext, "%s.radintcp",
+//                            elem[0].comm.Crop[k].cropName);
+//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+//                            CN_STEP, nelem, &print->varctrl[n]);
+//                        for (j = 0; j < nelem; j++)
+//                        {
+//                            print->varctrl[n].var[j] =
+//                                &elem[j].comm.Crop[k]. svRadiationInterception;
+//                        }
+//                        n++;
+//                    }
+//
+//                    InitPrtVarCtrl(outputdir, "comm.radintcp",
+//                        prtvrbl[i], CN_STEP, nelem,
+//                        &print->varctrl[n]);
+//                    for (j = 0; j < nelem; j++)
+//                    {
+//                        print->varctrl[n].var[j] =
+//                            &elem[j].comm.svRadiationInterception;
+//                    }
+//                    n++;
+//                    break;
+//                case WATER_STS_CTRL:
+//                    for (k = 0; k < elem[0].comm.NumCrop; k++)
+//                    {
+//                        sprintf(ext, "%s.waterstress",
+//                            elem[0].comm.Crop[k].cropName);
+//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+//                            CN_STEP, nelem, &print->varctrl[n]);
+//                        for (j = 0; j < nelem; j++)
+//                        {
+//                            print->varctrl[n].var[j] =
+//                                &elem[j].comm.Crop[k].svWaterStressFactor;
+//                        }
+//                        n++;
+//                    }
+//
+//                    InitPrtVarCtrl(outputdir, "comm.waterstress",
+//                        prtvrbl[i], CN_STEP, nelem,
+//                        &print->varctrl[n]);
+//                    for (j = 0; j < nelem; j++)
+//                    {
+//                        print->varctrl[n].var[j] =
+//                            &elem[j].comm.svWaterStressFactor;
+//                    }
+//                    n++;
+//                    break;
+//                case N_STS_CTRL:
+//                    for (k = 0; k < elem[0].comm.NumCrop; k++)
+//                    {
+//                        sprintf(ext, "%s.nstress",
+//                            elem[0].comm.Crop[k].cropName);
+//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+//                            CN_STEP, nelem, &print->varctrl[n]);
+//                        for (j = 0; j < nelem; j++)
+//                        {
+//                            print->varctrl[n].var[j] =
+//                                &elem[j].comm.Crop[k].svN_StressFactor;
+//                        }
+//                        n++;
+//                    }
+//
+//                    InitPrtVarCtrl(outputdir, "comm.nstress",
+//                        prtvrbl[i], CN_STEP, nelem,
+//                        &print->varctrl[n]);
+//                    for (j = 0; j < nelem; j++)
+//                    {
+//                        print->varctrl[n].var[j] =
+//                            &elem[j].comm.svN_StressFactor;
+//                    }
+//                    n++;
+//                    break;
+//                case CROP_TR_CTRL:
+//                    for (k = 0; k < elem[0].comm.NumCrop; k++)
+//                    {
+//                        sprintf(ext, "%s.transp",
+//                            elem[0].comm.Crop[k].cropName);
+//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+//                            LS_STEP, nelem, &print->varctrl[n]);
+//                        for (j = 0; j < nelem; j++)
+//                        {
+//                            print->varctrl[n].var[j] =
+//                                &elem[j].comm.Crop[k].svTranspiration;
+//                        }
+//                        n++;
+//                    }
+//
+//                    InitPrtVarCtrl(outputdir, "comm.transp",
+//                        prtvrbl[i], LS_STEP, nelem,
+//                        &print->varctrl[n]);
+//                    for (j = 0; j < nelem; j++)
+//                    {
+//                        print->varctrl[n].var[j] =
+//                            &elem[j].comm.svTranspiration;
+//                    }
+//                    n++;
+//                    break;
+//                case CROP_POTTR_CTRL:
+//                    for (k = 0; k < elem[0].comm.NumCrop; k++)
+//                    {
+//                        sprintf("%s.pottransp",
+//                            elem[0].comm.Crop[k].cropName);
+//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+//                            LS_STEP, nelem, &print->varctrl[n]);
+//                        for (j = 0; j < nelem; j++)
+//                        {
+//                            print->varctrl[n].var[j] =
+//                                &elem[j].comm.Crop[k]. svTranspirationPotential;
+//                        }
+//                        n++;
+//                    }
+//
+//                    InitPrtVarCtrl(outputdir, "comm.pottransp",
+//                        prtvrbl[i], LS_STEP, nelem,
+//                        &print->varctrl[n]);
+//                    for (j = 0; j < nelem; j++)
+//                    {
+//                        print->varctrl[n].var[j] =
+//                            &elem[j].comm.svTranspirationPotential;
+//                    }
+//                    n++;
+//                    break;
+//                case RES_EVAP_CTRL:
+//                    InitPrtVarCtrl(outputdir, "eres", prtvrbl[i],
+//                        LS_STEP, nelem, &print->varctrl[n]);
+//                    for (j = 0; j < nelem; j++)
+//                    {
+//                        print->varctrl[n].var[j] = &elem[j].wf.eres;
+//                    }
+//                    n++;
+//                    break;
+//                case NO3_PROF_CTRL:
+//                    InitPrtVarCtrl(outputdir, "NO3", prtvrbl[i],
+//                        HYDROL_STEP, nelem, &print->varctrl[n]);
+//                    for (j = 0; j < nelem; j++)
+//                    {
+//                        print->varctrl[n].var[j] = &elem[j].soil.NO3Profile;
+//                    }
+//                    n++;
+//                    break;
+//                case NO3_RIVER_CTRL:
+//                    InitPrtVarCtrl(outputdir, "rivNO3", prtvrbl[i],
+//                        HYDROL_STEP, nriver, &print->varctrl[n]);
+//                    for (j = 0; j < nriver; j++)
+//                    {
+//                        print->varctrl[n].var[j] = &river[j].NO3sol.soluteMass;
+//                    }
+//                    n++;
+//                    break;
+//                case NH4_PROF_CTRL:
+//                    InitPrtVarCtrl(outputdir, "NH4", prtvrbl[i],
+//                        HYDROL_STEP, nelem, &print->varctrl[n]);
+//                    for (j = 0; j < nelem; j++)
+//                    {
+//                        print->varctrl[n].var[j] = &elem[j].soil.NH4Profile;
+//                    }
+//                    n++;
+//                    break;
+//                case NH4_RIVER_CTRL:
+//                    InitPrtVarCtrl(outputdir, "rivNH4", prtvrbl[i],
+//                        HYDROL_STEP, nriver, &print->varctrl[n]);
+//                    for (j = 0; j < nriver; j++)
+//                    {
+//                        print->varctrl[n].var[j] = &river[j].NH4sol.soluteMass;
+//                    }
+//                    n++;
+//                    break;
+//                case NO3_DENIT_CTRL:
+//                    InitPrtVarCtrl(outputdir, "NO3denitrif",
+//                        prtvrbl[i], CN_STEP, nelem,
+//                        &print->varctrl[n]);
+//                    for (j = 0; j < nelem; j++)
+//                    {
+//                        print->varctrl[n].var[j] =
+//                            &elem[j].soil.NO3_Denitrification;
+//                    }
+//                    n++;
+//                    break;
+//                case NO3_LEACH_CTRL:
+//                    for (k = 0; k < NUM_EDGE; k++)
+//                    {
+//                        sprintf(ext, "NO3leach%d", k);
+//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+//                            HYDROL_STEP, nelem, &print->varctrl[n]);
+//                        for (j = 0; j < nelem; j++)
+//                        {
+//                            print->varctrl[n].var[j] =
+//                                &elem[j].soil.NO3Leaching[k];
+//                        }
+//                        n++;
+//                    }
+//                    break;
+//                case NH4_LEACH_CTRL:
+//                    for (k = 0; k < NUM_EDGE; k++)
+//                    {
+//                        sprintf(ext, "NH4leach%d", k);
+//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+//                            HYDROL_STEP, nelem, &print->varctrl[n]);
+//                        for (j = 0; j < nelem; j++)
+//                        {
+//                            print->varctrl[n].var[j] =
+//                                &elem[j].soil.NH4Leaching[k];
+//                        }
+//                        n++;
+//                    }
+//                    break;
+//                case NO3_LEACH_RIVER_CTRL:
+//                    for (k = 0; k < 4; k++)
+//                    {
+//                        sprintf(ext, "rivNO3leach%d", k);
+//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+//                            HYDROL_STEP, nriver, &print->varctrl[n]);
+//                        for (j = 0; j < nriver; j++)
+//                        {
+//                            print->varctrl[n].var[j] = &river[j].NO3Leaching[k];
+//                        }
+//                        n++;
+//                    }
+//                    break;
+//                case NH4_LEACH_RIVER_CTRL:
+//                    for (k = 0; k < 4; k++)
+//                    {
+//                        sprintf(ext, "rivNH4leach%d", k);
+//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+//                            HYDROL_STEP, nriver, &print->varctrl[n]);
+//                        for (j = 0; j < nriver; j++)
+//                        {
+//                            print->varctrl[n].var[j] = &river[j].NH4Leaching[k];
+//                        }
+//                        n++;
+//                    }
+//                    break;
+//                case LAI_CTRL:
+//                    InitPrtVarCtrl(outputdir, "lai", prtvrbl[i],
+//                        CN_STEP, nelem, &print->varctrl[n]);
+//                    for (j = 0; j < nelem; j++)
+//                    {
+//                        print->varctrl[n].var[j] = &elem[j].ps.proj_lai;
+//                    }
+//                    n++;
+//                    break;
 #endif
 #if defined(_FBR_)
                 case FBRUNSAT_CTRL:

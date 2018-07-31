@@ -134,14 +134,14 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
 #if defined(_CYCLES_)
-    /* Initialize Cycles module */
-    if (pihm->ctrl.read_cycles_restart)
-    {
-        ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
-    }
+    ///* Initialize Cycles module */
+    //if (pihm->ctrl.read_cycles_restart)
+    //{
+    //    ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
+    //}
 
-    InitCycles(pihm->elem, pihm->river, &pihm->ctrl, &pihm->mgmttbl,
-        &pihm->agtbl, &pihm->croptbl, &pihm->soiltbl);
+    //InitCycles(pihm->elem, pihm->river, &pihm->ctrl, &pihm->mgmttbl,
+    //    &pihm->agtbl, &pihm->croptbl, &pihm->soiltbl);
 #endif
 
 #if defined(_BGC_)
@@ -737,7 +737,7 @@ void InitWFlux(wflux_struct *wf)
     wf->etns = 0.0;
 #endif
 #if defined(_CYCLES_)
-    wf->eres = 0.0;
+    //wf->eres = 0.0;
 #endif
 }
 

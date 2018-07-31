@@ -243,9 +243,7 @@ CYCLES_PATH = ../Cycles_dev/src
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS += -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
-	cycles/cycles_func.c\
-	cycles/cycles_init.c\
-	cycles/cycles_read.c\
+  	cycles/cycles_read.c\
 	noah/daily.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\
@@ -253,23 +251,23 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	noah/noah.c\
 	noah/topo_radn.c\
 	spa/spa.c
-  CYCLES_SRCS_ = \
-	Crop.c\
-	CropHarvest.c\
-	CropProcess.c\
-	CropThermalTime.c\
-	CropTranspiration.c\
-	DailyOperation.c\
-	Fertilization.c\
-	FieldOperation.c\
-	Irrigation.c\
-	Residue.c\
-	Soil.c\
-	SoilCarbon.c\
-	SoilEvaporation.c\
-	SoilNitrogen.c\
-	SoilSolute.c\
-	Tillage.c
+  CYCLES_SRCS_ =
+	#Crop.c\
+	#CropHarvest.c\
+	#CropProcess.c\
+	#CropThermalTime.c\
+	#CropTranspiration.c\
+	#DailyOperation.c\
+	#Fertilization.c\
+	#FieldOperation.c\
+	#Irrigation.c\
+	#Residue.c\
+	#Soil.c\
+	#SoilCarbon.c\
+	#SoilEvaporation.c\
+	#SoilNitrogen.c\
+	#SoilSolute.c\
+	#Tillage.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."

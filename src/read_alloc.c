@@ -118,14 +118,14 @@ void ReadAlloc(pihm_struct pihm)
     /* Read Cycles simulation control file */
     ReadCyclesCtrl(pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl);
 
-    /* Read soil initialization file */
-    ReadSoilInit(pihm->filename.soilinit, &pihm->soiltbl);
-
-    /* Read crop description file */
-    ReadCrop(pihm->filename.crop, &pihm->croptbl);
-
-    /* Read operation file */
-    ReadOperation(&pihm->agtbl, &pihm->mgmttbl, &pihm->croptbl);
+//    /* Read soil initialization file */
+//    ReadSoilInit(pihm->filename.soilinit, &pihm->soiltbl);
+//
+//    /* Read crop description file */
+//    ReadCrop(pihm->filename.crop, &pihm->croptbl);
+//
+//    /* Read operation file */
+//    ReadOperation(&pihm->agtbl, &pihm->mgmttbl, &pihm->croptbl);
 #endif
 
 #if defined(_BGC_)

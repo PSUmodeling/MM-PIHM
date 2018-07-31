@@ -150,10 +150,12 @@ int main(int argc, char *argv[])
 #endif
 
 #if defined(_CYCLES_)
+# if TEMP_DISABLED
         if (pihm->ctrl.write_cycles_restart)
         {
             WriteCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
         }
+# endif
 #endif
     }
 

@@ -45,7 +45,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
 #endif
 
 #if defined(_CYCLES_)
-    SoluteTransport(pihm->elem, pihm->river, (double)pihm->ctrl.stepsize);
+//    SoluteTransport(pihm->elem, pihm->river, (double)pihm->ctrl.stepsize);
 #endif
 
     /* Update print variables for hydrology step variables */
@@ -66,7 +66,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
 # endif
 
 # if defined(_CYCLES_)
-        DailyCycles(t - DAYINSEC, pihm);
+//        DailyCycles(t - DAYINSEC, pihm);
 # endif
 
         /* Update print variables for CN (daily) step variables */
