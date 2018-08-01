@@ -1,16 +1,16 @@
 #include "pihm.h"
 
-void InitCycles(const soiltbl_struct *soiltbl, elem_struct elem[],
-    river_struct river[])
+void InitCycles(const soiltbl_struct *soiltbl, epconst_struct epctbl[],
+    elem_struct elem[], river_struct river[])
 {
     int             soil_ind;
-    int             i, k;
+    int             i, j, k;
 
-    /*
-     * Initialize initial soil variables
-     */
     for (i = 0; i < nelem; i++)
     {
+        /*
+         * Initialize initial soil variables
+         */
         soil_ind = elem[i].attrib.soil_type - 1;
 
         for (k = 0; k < MAXLYR; k++)
@@ -44,9 +44,18 @@ void InitCycles(const soiltbl_struct *soiltbl, elem_struct elem[],
                 elem[i].soil.bd[k] = BADVAL;
             }
         }
+
+        /*
+         * Initialize crop structures
+         */
+        for (j = 0; j < MAXCROP; j++)
+        {
+            elem[i].crop[j].epc = &epctbl[j];
+
+            InitCropSV(&elem[i].crop[j]);
+        }
     }
 }
-
 
 //void InitCycles(elem_struct *elem, river_struct *riv,
 //    const ctrl_struct *ctrl, const mgmttbl_struct *mgmttbl,

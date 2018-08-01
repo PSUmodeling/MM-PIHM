@@ -144,7 +144,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     //    ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
     //}
 
-    InitCycles(&pihm->soiltbl, pihm->elem, pihm->river);
+    InitCycles(&pihm->soiltbl, pihm->epctbl, pihm->elem, pihm->river);
 #endif
 
 #if defined(_BGC_)
