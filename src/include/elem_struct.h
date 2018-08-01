@@ -19,6 +19,9 @@ typedef struct attrib_struct
                                              * type */
     int             lai_type;               /* element leaf area index forcing
                                              * type */
+#if defined(_CYCLES_)
+    int             op_type;
+#endif
 } attrib_struct;
 
 /* Topography parameters */

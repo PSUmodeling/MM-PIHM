@@ -43,6 +43,10 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         pihm->elem[i].attrib.geol_type = pihm->atttbl.geol[i];
 #endif
         pihm->elem[i].attrib.lc_type = pihm->atttbl.lc[i];
+#if defined(_CYCLES_)
+        pihm->elem[i].attrib.op_type = pihm->agtbl.op[i];
+#endif
+
 #if defined(_LUMPED_)
         soil_counter[pihm->elem[i].attrib.soil_type]++;
         lc_counter[pihm->elem[i].attrib.lc_type]++;
