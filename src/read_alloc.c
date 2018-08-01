@@ -122,10 +122,10 @@ void ReadAlloc(pihm_struct pihm)
     ReadSoilInit(pihm->filename.soilinit, &pihm->soiltbl);
 
     /* Read crop description file */
-    ReadCrop(pihm->filename.crop, &pihm->epctbl);
-//
-//    /* Read operation file */
-//    ReadOperation(&pihm->agtbl, &pihm->mgmttbl, &pihm->croptbl);
+    ReadCrop(pihm->filename.crop, pihm->epctbl);
+
+    /* Read operation file */
+    ReadMultOper(&pihm->agtbl, pihm->epctbl, pihm->opertbl);
 #endif
 
 #if defined(_BGC_)

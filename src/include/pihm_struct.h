@@ -238,7 +238,7 @@ typedef struct pihm_struct
 #if defined(_CYCLES_)
     agtbl_struct    agtbl;
     epconst_struct  epctbl[MAXCROP];
-    mgmttbl_struct  mgmttbl;
+    opertbl_struct  opertbl[MAXOP];
 #endif
 #if defined(_BGC_)
     co2control_struct co2;

@@ -252,7 +252,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	noah/topo_radn.c\
 	spa/spa.c
   CYCLES_SRCS_ =\
-	read_crop.c
+	read_crop.c\
+	read_operation.c
 	#Crop.c\
 	#CropHarvest.c\
 	#CropProcess.c\

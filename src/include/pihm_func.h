@@ -454,7 +454,13 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 #endif
 
 #if defined(_CYCLES_)
+int             FindCrop(const char[], const epconst_struct []);
+void            ReadCrop(const char [], epconst_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
+void            ReadMultOper(const agtbl_struct *, const epconst_struct [],
+    opertbl_struct []);
+void            ReadOperation(const char [], int, const epconst_struct [],
+    opertbl_struct []);
 void            ReadSoilInit(const char [], soiltbl_struct *);
 #endif
 

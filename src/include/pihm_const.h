@@ -326,6 +326,8 @@
 #define FIXIRR_OP     2
 #define FIXFERT_OP    3
 
+#define KILL_ALL    -1
+
 #define REMOVE_CLIPPING     0
 #define RETURN_CLIPPING     1
 #define GRAZING_CLIPPING    2
