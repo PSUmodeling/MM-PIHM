@@ -244,6 +244,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS += -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
   	cycles/cycles_read.c\
+	cycles/cycles_init.c\
 	noah/daily.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\

@@ -138,14 +138,13 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
 #if defined(_CYCLES_)
-    ///* Initialize Cycles module */
+    /* Initialize Cycles module */
     //if (pihm->ctrl.read_cycles_restart)
     //{
     //    ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
     //}
 
-    //InitCycles(pihm->elem, pihm->river, &pihm->ctrl, &pihm->mgmttbl,
-    //    &pihm->agtbl, &pihm->croptbl, &pihm->soiltbl);
+    InitCycles(&pihm->soiltbl, pihm->elem, pihm->river);
 #endif
 
 #if defined(_BGC_)

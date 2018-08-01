@@ -90,61 +90,12 @@ typedef struct soil_struct
     double          smcdry;      /* dry soil moisture threshold where direct
                                   * evap from top layer ends (m3 m-3) */
 #endif
-//#if defined(_CYCLES_)
-//    int             totalLayers;
-//    double          Curve_Number;
-//    double          Percent_Slope;
-//    double          annualTemperaturePhase;
-//    double          dampingDepth;
-//    double          cumulativeDepth[MAXLYR];
-//    double          nodeDepth[MAXLYR + 1];
-//    double          layerThickness[MAXLYR];
-//    double          Clay[MAXLYR];
-//    double          Sand[MAXLYR];
-//    double          IOM[MAXLYR];
-//    double          NO3[MAXLYR];
-//    double          NH4[MAXLYR];
-//    double          BD[MAXLYR];
-//    double          FC[MAXLYR];
-//    double          PWP[MAXLYR];
-//    double          Porosity[MAXLYR];
-//    double          PAW[MAXLYR];
-//    double          n2o[MAXLYR];
-//    double          SOC_Conc[MAXLYR];
-//    double          SOC_Mass[MAXLYR];
-//    double          SON_Mass[MAXLYR];
-//    double          MBC_Mass[MAXLYR];
-//    double          MBN_Mass[MAXLYR];
-//    double          SOCProfile;
-//    double          SONProfile;
-//    double          C_Humified;
-//    double          C_ResidueRespired;
-//    double          C_SoilRespired;
-//    double          soilTemperature[MAXLYR];
-//    double          waterContent[MAXLYR];
-//    double          waterUptake[MAXLYR];
-//    double          pH[MAXLYR];
-//    double          latflux[MAXLYR];
-//    double          evaporationVol;
-//    double          residueEvaporationVol;
-//    double          infiltrationVol;
-//    double          runoffVol;
-//    double          irrigationVol;
-//    double          drainageVol;
-//    double          NO3Leaching[NUM_EDGE];
-//    double          NH4Leaching[NUM_EDGE];
-//    double          NO3Profile;
-//    double          NH4Profile;
-//    double          N_Immobilization;
-//    double          N_Mineralization;
-//    double          N_NetMineralization;
-//    double          NH4_Nitrification;
-//    double          N2O_Nitrification;
-//    double          NO3_Denitrification;
-//    double          N2O_Denitrification;
-//    double          NH4_Volatilization;
-//    double          Rock[MAXLYR];
-//#endif
+#if defined(_CYCLES_)
+    double          clay[MAXLYR];
+    double          sand[MAXLYR];
+    double          iom[MAXLYR];
+    double          bd[MAXLYR];
+#endif
 } soil_struct;
 
 /* Fractured bedrock layer parameters */
