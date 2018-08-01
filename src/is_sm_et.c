@@ -1,5 +1,6 @@
 #include "pihm.h"
 
+#if !defined(_NOAH_)
 void IntcpSnowEt(int t, double stepsize, elem_struct *elem,
     const calib_struct *cal)
 {
@@ -222,3 +223,4 @@ void IntcpSnowEt(int t, double stepsize, elem_struct *elem,
             elem[i].wf.drip + melt_rate;
     }
 }
+#endif

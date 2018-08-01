@@ -189,6 +189,7 @@ typedef struct lc_struct
     int             isurban;      /* flag that indicates urban */
 } lc_struct;
 
+#if !defined(_CYCLES_)
 /* Ecophysiological parameters */
 typedef struct epconst_struct
 {
@@ -202,7 +203,7 @@ typedef struct epconst_struct
     double          topt;                   /* optimum transpiration air
                                              * temperature (K) */
     double          rsmax;                  /* cuticular resistance (s m-1) */
-#if defined(_BGC_)
+# if defined(_BGC_)
     int             woody;                  /* flag: 1 = woody, 0 = non-woody */
     int             evergreen;              /* flag: 1 = evergreen,
                                              * 0 = deciduous */
@@ -278,8 +279,9 @@ typedef struct epconst_struct
     double          deadwood_fscel;         /* dead wood shielded cellulose
                                              * fraction (-) */
     double          deadwood_flig;          /* dead wood lignin fraction (-) */
-#endif
+# endif
 } epconst_struct;
+#endif
 
 /* Physical states */
 typedef struct pstate_struct
@@ -1654,7 +1656,10 @@ typedef struct elem_struct
 #if defined(_FBR_)
     geol_struct     geol;
 #endif
+#if defined(_CYCLES_)
+#else
     epconst_struct  epc;
+#endif
     ic_struct       ic;
     bc_struct       bc;
 #if defined(_FBR_)

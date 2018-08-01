@@ -239,7 +239,7 @@ endif
 #-------------------
 # Flux-PIHM-Cycles
 #-------------------
-CYCLES_PATH = ../Cycles_dev/src
+CYCLES_PATH = ../Cycles_esm/src
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS += -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
@@ -251,7 +251,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	noah/noah.c\
 	noah/topo_radn.c\
 	spa/spa.c
-  CYCLES_SRCS_ =
+  CYCLES_SRCS_ =\
+	read_crop.c
 	#Crop.c\
 	#CropHarvest.c\
 	#CropProcess.c\

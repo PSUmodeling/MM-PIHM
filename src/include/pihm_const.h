@@ -318,6 +318,7 @@
 #define FBRFLOW_CTRL            84
 
 #if defined(_CYCLES_)
+#define MAXCROP     100
 #define MAXOP       100
 
 #define PLANT_OP      0

@@ -19,11 +19,13 @@ void InitLc(elem_struct *elem, const lctbl_struct *lctbl,
         lc_ind = elem[i].attrib.lc_type - 1;
 
         elem[i].ps.rzd = cal->rzd * lctbl->rzd[lc_ind];
+#if !defined(_CYCLES_)
         elem[i].epc.rsmin = lctbl->rsmin[lc_ind];
         elem[i].epc.rgl = lctbl->rgl[lc_ind];
         elem[i].epc.hs = lctbl->hs[lc_ind];
         elem[i].epc.rsmax = lctbl->rsmax;
         elem[i].epc.topt = lctbl->topt;
+#endif
         elem[i].lc.shdfac = cal->vegfrac * lctbl->vegfrac[lc_ind];
         elem[i].lc.laimin = lctbl->laimin[lc_ind];
         elem[i].lc.laimax = lctbl->laimax[lc_ind];
@@ -46,9 +48,11 @@ void InitLc(elem_struct *elem, const lctbl_struct *lctbl,
 #endif
 
 #if defined(_NOAH_)
+# if !defined(_CYCLES_)
         elem[i].epc.rgl *= cal->rgl;
         elem[i].epc.hs *= cal->hs;
         elem[i].epc.rsmin *= cal->rsmin;
+# endif
         elem[i].lc.cmcfactr *= cal->cmcmax;
         elem[i].lc.cfactr *= cal->cfactr;
 #endif

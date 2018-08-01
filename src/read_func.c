@@ -44,53 +44,64 @@ int ReadKeyword(const char *buffer, const char *keyword, void *value, char type,
     char            optstr[MAXSTRING];
     int             success = 1;
 
-    switch (type)
+    if (NULL == value)
     {
-        case 'd':
-            match = sscanf(buffer, "%s %lf", optstr, (double *)value);
-            if (match != 2 || strcasecmp(keyword, optstr) != 0)
-            {
-                PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
-                    "detected keyword \"%s\".\n", keyword, optstr);
-                success = 0;
-            }
-            break;
-        case 'i':
-            match = sscanf(buffer, "%s %d", optstr, (int *)value);
-            if (match != 2 || strcasecmp(keyword, optstr) != 0)
-            {
-                PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
-                    "detected keyword \"%s\".\n", keyword, optstr);
-                success = 0;
-            }
-            break;
-        case 's':
-            match = sscanf(buffer, "%s %[^\n]", optstr, (char *)value);
-            if (match != 2 || strcasecmp(keyword, optstr) != 0)
-            {
-                PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
-                    "detected keyword \"%s\".\n", keyword, optstr);
-                success = 0;
-            }
-            break;
-        case 't':
-            match = sscanf(buffer, "%s %s %s", optstr, ts1, ts2);
-            if (match != 3 || strcasecmp(keyword, optstr) != 0)
-            {
-                PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
-                    "detected keyword \"%s\".\n", keyword, optstr);
-                success = 0;
-            }
-            else
-            {
-                sprintf(timestr, "%s %s", ts1, ts2);
-                *((int *)value) = StrTime(timestr);
-            }
-            break;
-        default:
-            PIHMprintf(VL_ERROR,
-                "Error: Keyword type \'%c\' is not defined.\n", type);
-            PIHMexit(EXIT_FAILURE);
+        match = sscanf(buffer, "%s", optstr);
+        if (match != 1 || strcasecmp(keyword, optstr) != 0)
+        {
+            success = 0;
+        }
+    }
+    else
+    {
+        switch (type)
+        {
+            case 'd':
+                match = sscanf(buffer, "%s %lf", optstr, (double *)value);
+                if (match != 2 || strcasecmp(keyword, optstr) != 0)
+                {
+                    PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
+                        "detected keyword \"%s\".\n", keyword, optstr);
+                    success = 0;
+                }
+                break;
+            case 'i':
+                match = sscanf(buffer, "%s %d", optstr, (int *)value);
+                if (match != 2 || strcasecmp(keyword, optstr) != 0)
+                {
+                    PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
+                        "detected keyword \"%s\".\n", keyword, optstr);
+                    success = 0;
+                }
+                break;
+            case 's':
+                match = sscanf(buffer, "%s %[^\n]", optstr, (char *)value);
+                if (match != 2 || strcasecmp(keyword, optstr) != 0)
+                {
+                    PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
+                        "detected keyword \"%s\".\n", keyword, optstr);
+                    success = 0;
+                }
+                break;
+            case 't':
+                match = sscanf(buffer, "%s %s %s", optstr, ts1, ts2);
+                if (match != 3 || strcasecmp(keyword, optstr) != 0)
+                {
+                    PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
+                        "detected keyword \"%s\".\n", keyword, optstr);
+                    success = 0;
+                }
+                else
+                {
+                    sprintf(timestr, "%s %s", ts1, ts2);
+                    *((int *)value) = StrTime(timestr);
+                }
+                break;
+            default:
+                PIHMprintf(VL_ERROR,
+                    "Error: Keyword type \'%c\' is not defined.\n", type);
+                PIHMexit(EXIT_FAILURE);
+        }
     }
 
     if (!success)

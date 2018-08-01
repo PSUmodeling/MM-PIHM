@@ -368,54 +368,46 @@ typedef struct agtbl_struct
     char            opfilen[MAXOP][MAXSTRING];
 } agtbl_struct;
 
-typedef struct croptbl_struct
+#if defined(_CYCLES_)
+typedef struct epconst_struct
 {
-    int             number;
-
-    char          **cropName;
-    double         *userFloweringTT;
-    double         *userMaturityTT;
-    double         *userMaximumSoilCoverage;
-    double         *userMaximumRootingDepth;
-    double         *userExpectedYieldAvg;
-    double         *userExpectedYieldMax;
-    double         *userExpectedYieldMin;
-    double         *userPercentMoistureInYield;
-    double         *userFractionResidueStanding;
-    double         *userFractionResidueRemoved;
-    double         *userClippingBiomassThresholdUpper;
-    double         *userClippingBiomassThresholdLower;
-    double         *userClippingTiming;
-    int            *userClippingDestiny;
-    double         *userTranspirationMinTemperature;
-    double         *userTranspirationThresholdTemperature;
-    double         *userColdDamageMinTemperature;
-    double         *userColdDamageThresholdTemperature;
-    double         *userTemperatureBase;
-    double         *userTemperatureOptimum;
-    double         *userTemperatureMaximum;
-    double         *userShootPartitionInitial;
-    double         *userShootPartitionFinal;
-    double         *userRadiationUseEfficiency;
-    double         *userTranspirationUseEfficiency;
-    double         *userHIx;
-    double         *userHIo;    /* intercept harvest index */
-    double         *userHIk;
-    double         *userEmergenceTT;
-    double         *userNMaxConcentration;
-    double         *userNDilutionSlope;
-    double         *userKc;
-    int            *userAnnual;
-    int            *userLegume;
-    int            *userC3orC4;
-    double         *userExtinctionCoefficient;
-    double         *userPlantingDensity;
-    int            *userClippingStart;
-    int            *userClippingEnd;
-    double         *LWP_StressOnset;
-    double         *LWP_WiltingPoint;
-    double         *transpirationMax;
-} croptbl_struct;
+    char            cropn[MAXSTRING];
+    double          flowering_tt;                        /* (degree C day) */
+    double          maturity_tt;                         /* (degree C day) */
+    double          max_soil_covr;                /* (100%) */
+    double          max_root_dpth;                /* (m) */
+    double          frac_res_standing;            /* (100%) */
+    double          frac_res_removed;             /* (100%) */
+    double          clip_biomass_ut;      /* (kg m-2) */
+    double          clip_biomass_lt;      /* (kg m-2) */
+    double          clip_timing;                     /* (100% thermal time) */
+    int             clip_destiny;                    /* (-) */
+    double          transp_temp_min;        /* (degree C) */
+    double          transp_temp_thr;  /* (degree C) */
+    double          cold_damage_temp_min;           /* (degree C) */
+    double          cold_damagetemp_thr;     /* (degree C) */
+    double          temp_base;                    /* (degree C) */
+    double          temp_opt;                 /* (degree C) */
+    double          temp_max;                 /* (degree C) */
+    double          shoot_par_init;              /* (100%) */
+    double          shoot_par_final;                /* (100%) */
+    double          rue;             /* kg J-1 */
+    double          tue;         /* kg kgH2O-1 at VPD = 1kPa */
+    double          hi_max;                                /* (-) */
+    double          hi_min;                                /* intercept harvest index (-) */
+    double          hi;                                /* (-) */
+    double          emergence_tt;                        /* (degree C day) */
+    double          n_conc_max;                  /* (g g-1) */
+    double          n_diln_slope;                     /* (-) */
+    double          kc;                                 /* (-) */
+    int             annual;                             /* (-) */
+    int             legume;                             /* (-) */
+    int             c3c4;                             /* (-) */
+    double          lwp_stress_onset;                    /* (J kg-1, or m2 s-2) */
+    double          lwp_wlt;                   /* (J kg-1, or m2 s-2) */
+    double          transp_max;                   /* (mm day-1) */
+} epconst_struct;
+#endif
 
 typedef struct plant_struct
 {

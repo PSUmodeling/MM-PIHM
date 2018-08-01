@@ -237,7 +237,7 @@ typedef struct pihm_struct
 #endif
 #if defined(_CYCLES_)
     agtbl_struct    agtbl;
-    croptbl_struct  croptbl;
+    epconst_struct  epctbl[MAXCROP];
     mgmttbl_struct  mgmttbl;
 #endif
 #if defined(_BGC_)

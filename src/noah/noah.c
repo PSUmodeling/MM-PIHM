@@ -45,14 +45,13 @@ void Noah(elem_struct *elem, double dt)
         /*
          * Run Noah LSM
          */
-//#if defined(_CYCLES_)
-//        SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef, &elem[i].ps,
-//            &elem[i].lc, &elem[i].epc, &elem[i].soil, &elem[i].comm,
-//            &elem[i].residue, dt);
-//#else
-        SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef, &elem[i].ps,
-            &elem[i].lc, &elem[i].epc, &elem[i].soil, dt);
-//#endif
+#if defined(_CYCLES_)
+      SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef, &elem[i].ps,
+          &elem[i].lc, &elem[i].soil, dt);
+#else
+      SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef, &elem[i].ps,
+          &elem[i].lc, &elem[i].epc, &elem[i].soil, dt);
+#endif
 
         /* ET: convert from W m-2 to m s-1 */
         elem[i].wf.ec = elem[i].ef.ec / LVH2O / 1000.0;
@@ -121,15 +120,15 @@ void NoahHydrol(elem_struct *elem, double dt)
 #endif
 }
 
-//#if defined(_CYCLES_)
-//void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-//    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
-//    soil_struct *soil, comm_struct *comm, residue_struct *residue, double dt)
-//#else
+#if defined(_CYCLES_)
+void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
+    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, soil_struct *soil,
+    double dt)
+#else
 void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
     soil_struct *soil, double dt)
-//#endif
+#endif
 {
     /*
      * Subroutine SFlx - unified noahlsm version 1.0 july 2007
@@ -169,7 +168,9 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     if (lc->isurban)
     {
         lc->shdfac = 0.05;
+#if !defined(_CYCLES_)
         epc->rsmin = 400.0;
+#endif
         soil->smcmax = 0.45;
         soil->smcmin = 0.0;
         soil->smcref = 0.42;
@@ -449,7 +450,11 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      */
     if (lc->shdfac > 0.0)
     {
+#if defined(_CYCLES_)
+        CanRes(ws, es, ef, ps, soil);
+#else
         CanRes(ws, es, ef, ps, soil, epc);
+#endif
     }
     else
     {
@@ -649,9 +654,14 @@ void CalHum(pstate_struct *ps, estate_struct *es)
     ps->dqsdt2 = ps->q2sat * a23m4 / ((es->sfctmp - A4) * (es->sfctmp - A4));
 }
 
+#if defined(_CYCLES_)
+void CanRes(const wstate_struct *ws, const estate_struct *es,
+    const eflux_struct *ef, pstate_struct *ps, const soil_struct *soil)
+#else
 void CanRes(const wstate_struct *ws, const estate_struct *es,
     const eflux_struct *ef, pstate_struct *ps, const soil_struct *soil,
     const epconst_struct *epc)
+#endif
 {
     /*
      * Function CanRes
@@ -670,9 +680,13 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
     double          delta, ff, gx, rr;
     double          part[MAXLYR];
     const double    SLV = 2.501000e6;
-//#if defined(_CYCLES_)
-//    const double    RC = 70.0;
-//#endif
+#if defined(_CYCLES_)
+    const double    RC = 70.0;
+#endif
+
+#if defined(_CYCLES_)
+    ps->rc = RC;
+#else
     /* Initialize canopy resistance multiplier terms. */
     ps->rcs = 0.0;
     ps->rct = 0.0;
@@ -732,12 +746,10 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
      * in determining actual evap. pc is determined by:
      *   pc * linearized Penman potential evap =
      *   Penman-Monteith actual evaporation (containing rc term). */
-//#if defined(_CYCLES_)
-//    ps->rc = RC;
-//#else
     ps->rc = epc->rsmin /
         (ps->proj_lai * ps->rcs * ps->rct * ps->rcq * ps->rcsoil);
-//#endif
+#endif
+
     rr = (4.0 * ps->emissi * SIGMA * RD / CP) *
         pow(es->sfctmp, 4.0) / (ps->sfcprs * ps->ch) + 1.0;
 
