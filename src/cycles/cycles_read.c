@@ -241,6 +241,8 @@ void ReadSoilInit(const char filename[], soiltbl_struct *soiltbl)
             soiltbl->sand_lyr[i][k] = soiltbl->sand_lyr[i][k - 1];
             soiltbl->iom_lyr[i][k] = soiltbl->iom_lyr[i][k - 1];
             soiltbl->bd_lyr[i][k] = soiltbl->bd_lyr[i][k - 1];
+            soiltbl->no3_lyr[i][k] = soiltbl->no3_lyr[i][k - 1];
+            soiltbl->nh4_lyr[i][k] = soiltbl->nh4_lyr[i][k - 1];
         }
     }
 

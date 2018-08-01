@@ -138,13 +138,8 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
 #if defined(_CYCLES_)
-    /* Initialize Cycles module */
-    //if (pihm->ctrl.read_cycles_restart)
-    //{
-    //    ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
-    //}
-
-    InitCycles(&pihm->soiltbl, pihm->epctbl, pihm->elem, pihm->river);
+    InitCycles(&pihm->agtbl, &pihm->soiltbl, pihm->epctbl, pihm->elem,
+        pihm->river);
 #endif
 
 #if defined(_BGC_)
@@ -174,6 +169,19 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
     /* Initialize state variables */
     InitVar(pihm->elem, pihm->river, CV_Y);
+
+#if defined(_CYCLES_)
+# if TEMP_DISABLED
+    /* Initialize Cycles module */
+    if (pihm->ctrl.read_cycles_restart)
+    {
+        ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
+    }
+# endif
+    FirstDay(&pihm->soiltbl, pihm->elem);
+
+    //InitCyclesVar(pihm->elem, pihm->river);
+#endif
 
 #if defined(_BGC_)
     /* Initialize CN variables */

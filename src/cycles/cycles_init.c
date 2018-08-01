@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void InitCycles(const soiltbl_struct *soiltbl, epconst_struct epctbl[],
-    elem_struct elem[], river_struct river[])
+void InitCycles(const agtbl_struct *agtbl, const soiltbl_struct *soiltbl,
+    epconst_struct epctbl[], elem_struct elem[], river_struct river[])
 {
     int             soil_ind;
     int             i, j, k;
@@ -42,9 +42,83 @@ void InitCycles(const soiltbl_struct *soiltbl, epconst_struct epctbl[],
 
             InitCropSV(&elem[i].crop[j]);
         }
+
+        /*
+         * Initialize management structure
+         */
+        elem[i].mgmt.rot_size = agtbl->rotsz[i];
+        elem[i].mgmt.auto_n = agtbl->auto_N[i];
+
+        elem[i].mgmt.rot_year = 0;
+        for (j = 0; j < 4; j++)
+        {
+            elem[i].mgmt.op_ptr[j] = 0;
+        }
     }
 }
 
+void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[])
+{
+    int             i, k;
+    int             soil_ind;
+
+    for (i = 0; i < nelem; i++)
+    {
+        soil_ind = elem[i].attrib.soil_type - 1;
+
+        elem[i].restart_input.resw_stan = 0.0;
+        elem[i].restart_input.resw_flat = 0.0;
+        elem[i].restart_input.resm_stan = 0.0;
+        elem[i].restart_input.resm_flat = 0.0;
+        elem[i].restart_input.manuc_surf = 0.0;
+        elem[i].restart_input.resn_stan = 0.0;
+        elem[i].restart_input.resn_flat = 0.0;
+        elem[i].restart_input.manun_surf = 0.0;
+
+        for (k = 0; k < MAXLYR; k++)
+        {
+            elem[i].restart_input.res_abgd[k] = BADVAL;
+            elem[i].restart_input.res_root[k] = BADVAL;
+            elem[i].restart_input.res_rhizo[k] = BADVAL;
+            elem[i].restart_input.manuc[k] = BADVAL;
+            elem[i].restart_input.resn_abgd[k] = BADVAL;
+            elem[i].restart_input.resn_root[k] = BADVAL;
+            elem[i].restart_input.resn_rhizo[k] = BADVAL;
+            elem[i].restart_input.manun[k] = BADVAL;
+            elem[i].restart_input.soc[k] = BADVAL;
+            elem[i].restart_input.son[k] = BADVAL;
+            elem[i].restart_input.mbc[k] = BADVAL;
+            elem[i].restart_input.mbn[k] = BADVAL;
+            elem[i].restart_input.no3[k] = BADVAL;
+            elem[i].restart_input.nh4[k] = BADVAL;
+        }
+
+        for (k = 0; k < elem[i].ps.nsoil; k++)
+        {
+            elem[i].restart_input.soc[k] = elem[i].soil.iom[k] / 100.0 * 0.58 *
+                elem[i].ps.sldpth[k] * elem[i].soil.bd[k] * 1000.0;
+            /* Initializes as 3% of SOC_Mass but "added" C */
+            elem[i].restart_input.mbc[k] = 0.03 * elem[i].restart_input.soc[k];
+            elem[i].restart_input.res_abgd[k] = 0.0;
+            elem[i].restart_input.res_root[k] = 0.0;
+            elem[i].restart_input.res_rhizo[k] = 0.0;
+            elem[i].restart_input.manuc[k] = 0.0;
+
+            elem[i].restart_input.no3[k] =
+                soiltbl->no3_lyr[soil_ind][k] * 1.0E-4;
+            elem[i].restart_input.nh4[k] =
+                soiltbl->nh4_lyr[soil_ind][k] * 1.0E-4;
+            /* Initializes with CN ratio = 10 */
+            elem[i].restart_input.son[k] = elem[i].restart_input.soc[k] * 0.1;
+            /* Initializes with CN ratio = 10 */
+            elem[i].restart_input.mbn[k] = elem[i].restart_input.mbc[k] * 0.1;
+            elem[i].restart_input.resn_abgd[k] = 0.0;
+            elem[i].restart_input.resn_root[k] = 0.0;
+            elem[i].restart_input.resn_rhizo[k] = 0.0;
+            elem[i].restart_input.manun[k] = 0.0;
+        }
+    }
+}
 //void InitCycles(elem_struct *elem, river_struct *riv,
 //    const ctrl_struct *ctrl, const mgmttbl_struct *mgmttbl,
 //    const agtbl_struct *agtbl, const croptbl_struct *croptbl,

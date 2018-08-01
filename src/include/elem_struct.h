@@ -628,6 +628,14 @@ typedef struct crop_struct
     crop_nstate_struct cns;
     crop_nflux_struct cnf;
 } crop_struct;
+
+typedef struct mgmt_struct
+{
+    int             rot_size;
+    int             auto_n;
+    int             rot_year;
+    int             op_ptr[4];
+} mgmt_struct;
 #endif
 
 /* Boundary conditions */
@@ -659,6 +667,34 @@ typedef struct ic_struct
     double          sh2o[MAXLYR];
 #endif
 } ic_struct;
+
+#if defined(_CYCLES_)
+typedef struct cyclesic_struct
+{
+    double          resw_stan;
+    double          resw_flat;
+    double          resm_stan;
+    double          resm_flat;
+    double          manuc_surf;
+    double          resn_stan;
+    double          resn_flat;
+    double          manun_surf;
+    double          res_abgd[MAXLYR];
+    double          res_root[MAXLYR];
+    double          res_rhizo[MAXLYR];
+    double          manuc[MAXLYR];
+    double          resn_abgd[MAXLYR];
+    double          resn_root[MAXLYR];
+    double          resn_rhizo[MAXLYR];
+    double          manun[MAXLYR];
+    double          soc[MAXLYR];
+    double          son[MAXLYR];
+    double          mbc[MAXLYR];
+    double          mbn[MAXLYR];
+    double          no3[MAXLYR];
+    double          nh4[MAXLYR];
+} cyclesic_struct;
+#endif
 
 #if defined(_BGC_)
 /* CN initial conditions */
@@ -1484,7 +1520,9 @@ typedef struct elem_struct
 #if defined(_DAILY_)
     daily_struct    daily;
 #endif
-//#if defined(_CYCLES_)
+#if defined(_CYCLES_)
+    mgmt_struct     mgmt;
+    cyclesic_struct restart_input;
 //    cropmgmt_struct cropmgmt;
 //    comm_struct     comm;
 //    residue_struct  residue;
@@ -1494,7 +1532,7 @@ typedef struct elem_struct
 //    solute_struct   NO3sol;
 //    solute_struct   NH4sol;
 //    cyclesic_struct cycles_restart;
-//#endif
+#endif
 #if defined(_BGC_)
     bgcic_struct    restart_input;
     bgcic_struct    restart_output;

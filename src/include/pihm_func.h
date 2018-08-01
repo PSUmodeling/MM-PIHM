@@ -455,9 +455,10 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 
 #if defined(_CYCLES_)
 int             FindCrop(const char[], const epconst_struct []);
+void            FirstDay(const soiltbl_struct *, elem_struct []);
 void            InitCropSV(crop_struct *);
-void            InitCycles(const soiltbl_struct *, epconst_struct [],
-    elem_struct [], river_struct []);
+void            InitCycles(const agtbl_struct *, const soiltbl_struct *,
+    epconst_struct [], elem_struct [], river_struct []);
 void            ReadCrop(const char [], epconst_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
 void            ReadMultOper(const agtbl_struct *, const epconst_struct [],
