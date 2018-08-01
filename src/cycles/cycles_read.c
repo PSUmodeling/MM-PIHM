@@ -157,7 +157,7 @@ void ReadSoilInit(const char filename[], soiltbl_struct *soiltbl)
     int             match;
     int             index;
     int             layer;
-    int             i, j;
+    int             i, k;
     int             lno = 0;
 
     /*
@@ -196,39 +196,51 @@ void ReadSoilInit(const char filename[], soiltbl_struct *soiltbl)
         ReadKeyword(cmdstr, "TOTAL_LAYERS", &soiltbl->totalLayers[i], 'i',
             filename, lno);
 
-        soiltbl->clay_lyr[i] =
-            (double *)malloc(soiltbl->totalLayers[i] * sizeof(double));
-        soiltbl->sand_lyr[i] =
-            (double *)malloc(soiltbl->totalLayers[i] * sizeof(double));
-        soiltbl->iom_lyr[i] =
-            (double *)malloc(soiltbl->totalLayers[i] * sizeof(double));
-        soiltbl->bd_lyr[i] =
-            (double *)malloc(soiltbl->totalLayers[i] * sizeof(double));
-        soiltbl->no3_lyr[i] =
-            (double *)malloc(soiltbl->totalLayers[i] * sizeof(double));
-        soiltbl->nh4_lyr[i] =
-            (double *)malloc(soiltbl->totalLayers[i] * sizeof(double));
+        soiltbl->clay_lyr[i] = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->sand_lyr[i] = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->iom_lyr[i] = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->bd_lyr[i] = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->no3_lyr[i] = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->nh4_lyr[i] = (double *)malloc(MAXLYR * sizeof(double));
 
         /* Skip header */
         NextLine(soil_fp, cmdstr, &lno);
 
-        for (j = 0; j < soiltbl->totalLayers[i]; j++)
+        for (k = 0; k < soiltbl->totalLayers[i]; k++)
         {
             NextLine(soil_fp, cmdstr, &lno);
             match = sscanf(cmdstr, "%d %lf %lf %lf %lf %lf %lf", &layer,
-                &soiltbl->clay_lyr[i][j], &soiltbl->sand_lyr[i][j],
-                &soiltbl->iom_lyr[i][j], &soiltbl->bd_lyr[i][j],
-                &soiltbl->no3_lyr[i][j], &soiltbl->nh4_lyr[i][j]);
+                &soiltbl->clay_lyr[i][k], &soiltbl->sand_lyr[i][k],
+                &soiltbl->iom_lyr[i][k], &soiltbl->bd_lyr[i][k],
+                &soiltbl->no3_lyr[i][k], &soiltbl->nh4_lyr[i][k]);
 
-            if (match != 7 || j != layer - 1)
+            if (match != 7 || k != layer - 1)
             {
                 PIHMprintf(VL_ERROR,
                     "Error reading description of the %dth layer of the %dth"
-                    "soil type.\n", j + 1, i + 1);
+                    "soil type.\n", k + 1, i + 1);
                 PIHMprintf(VL_ERROR,
                     "Error in %s near Line %d.\n", filename, lno);
                 PIHMexit(EXIT_FAILURE);
             }
+
+            soiltbl->clay_lyr[i][k] = (soiltbl->clay_lyr[i][k] < 0.0) ?
+                soiltbl->clay[i] : soiltbl->clay_lyr[i][k];
+            soiltbl->sand_lyr[i][k] = (soiltbl->sand_lyr[i][k] < 0.0) ?
+                100.0 - soiltbl->clay[i] - soiltbl->silt[i] :
+                soiltbl->sand_lyr[i][k];
+            soiltbl->iom_lyr[i][k] = (soiltbl->iom_lyr[i][k] < 0.0) ?
+                soiltbl->om[i] : soiltbl->iom_lyr[i][k];
+            soiltbl->bd_lyr[i][k] = (soiltbl->bd_lyr[i][k] < 0.0) ?
+                soiltbl->bd[i] : soiltbl->bd_lyr[i][k];
+        }
+
+        for (k = soiltbl->totalLayers[i] - 1; k < MAXLYR; k++)
+        {
+            soiltbl->clay_lyr[i][k] = soiltbl->clay_lyr[i][k - 1];
+            soiltbl->sand_lyr[i][k] = soiltbl->sand_lyr[i][k - 1];
+            soiltbl->iom_lyr[i][k] = soiltbl->iom_lyr[i][k - 1];
+            soiltbl->bd_lyr[i][k] = soiltbl->bd_lyr[i][k - 1];
         }
     }
 

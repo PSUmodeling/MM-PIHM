@@ -15,26 +15,14 @@ void InitCycles(const soiltbl_struct *soiltbl, epconst_struct epctbl[],
 
         for (k = 0; k < MAXLYR; k++)
         {
-            if (k < soiltbl->totalLayers[soil_ind])
+            if (k < elem[i].ps.nsoil)
             {
-                elem[i].soil.clay[k] = (soiltbl->clay_lyr[soil_ind][k] < 0.0) ?
-                    soiltbl->clay[soil_ind] : soiltbl->clay_lyr[soil_ind][k];
+                elem[i].soil.clay[k] = soiltbl->clay_lyr[soil_ind][k];
                 elem[i].soil.clay[k] *= 0.01;
-                elem[i].soil.sand[k] = (soiltbl->sand_lyr[soil_ind][k] < 0.0) ?
-                    100.0 - soiltbl->silt[soil_ind] - soiltbl->clay[soil_ind] :
-                    soiltbl->sand_lyr[soil_ind][k];
+                elem[i].soil.sand[k] = soiltbl->sand_lyr[soil_ind][k];
                 elem[i].soil.sand[k] *= 0.01;
-                elem[i].soil.iom[k] = (soiltbl->iom_lyr[soil_ind][k] < 0.0) ?
-                    soiltbl->om[soil_ind] : soiltbl->iom_lyr[soil_ind][k];
-                elem[i].soil.bd[k] = (soiltbl->bd_lyr[soil_ind][k] < 0.0) ?
-                    soiltbl->bd[soil_ind] : soiltbl->bd_lyr[soil_ind][k];
-            }
-            else if (k < elem[i].ps.nsoil)
-            {
-                elem[i].soil.clay[k] = elem[i].soil.clay[k - 1];
-                elem[i].soil.sand[k] = elem[i].soil.sand[k - 1];
-                elem[i].soil.iom[k] = elem[i].soil.iom[k - 1];
-                elem[i].soil.bd[k] = elem[i].soil.bd[k - 1];
+                elem[i].soil.iom[k] = soiltbl->iom_lyr[soil_ind][k];
+                elem[i].soil.bd[k] = soiltbl->bd_lyr[soil_ind][k];
             }
             else
             {
