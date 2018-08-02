@@ -478,7 +478,7 @@ void            FirstDay(const soiltbl_struct *, elem_struct [],
 void            InitCropSV(crop_struct *);
 void            InitCycles(const agtbl_struct *, const soiltbl_struct *,
     epconst_struct [], elem_struct [], river_struct []);
-void            InitCyclesVar(elem_struct [], river_struct []);
+void            InitCyclesVar(elem_struct [], river_struct [], N_Vector);
 void            ReadCrop(const char [], epconst_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
 void            ReadMultOper(const agtbl_struct *, const epconst_struct [],

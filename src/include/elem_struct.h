@@ -661,8 +661,8 @@ typedef struct cflux_struct
 
 typedef struct nstate_struct
 {
-    double          NO3[MAXLYR];              /* nitrate (kg m-2) */
-    double          NH4[MAXLYR];              /* ammonium (kg m-2) */
+    double          no3[MAXLYR];              /* nitrate (kg m-2) */
+    double          nh4[MAXLYR];              /* ammonium (kg m-2) */
     double          SON_Mass[MAXLYR];         /* Soil organic N (kg m-2) */
     double          MBN_Mass[MAXLYR];         /* Microbial biomass N (kg m-2) */
     double          stanResidueN;               /* kg m-2 */
@@ -676,16 +676,16 @@ typedef struct nstate_struct
 
 typedef struct nflux_struct
 {
-    double          NO3Leaching;              /* NO3 leaching (kg N m-2 day-1) */
-    double          NH4Leaching;              /* NH4 leaching (kg N m-2 day-1) */
+    double          no3leached;              /* NO3 leaching (kg N m-2 day-1) */
+    double          nh4leached;              /* NH4 leaching (kg N m-2 day-1) */
     double          N_Immobilization;           /* kg m-2 day-1 */
     double          N_Mineralization;           /* kg m-2 day-1 */
     double          N_NetMineralization;        /* kg m-2 day-1 */
-    double          NH4_Nitrification;          /* kg m-2 day-1 */
+    double          nh4nitrif;          /* kg m-2 day-1 */
     double          N2O_Nitrification;          /* kg m-2 day-1 */
-    double          NO3_Denitrification;        /* kg m-2 day-1 */
-    double          N2O_Denitrification;        /* kg m-2 day-1 */
-    double          NH4_Volatilization;         /* kg m-2 day-1 */
+    double          no3denitrif;        /* kg m-2 day-1 */
+    double          n2odenitrif;        /* kg m-2 day-1 */
+    double          nh4volat;         /* kg m-2 day-1 */
     double          uptake_no3[MAXLYR];         /* kg m-2 day-1 */
     double          uptake_nh4[MAXLYR];         /* kg m-2 day-1 */
     double          surplusn;                   /* kg m-2 day-1 */
@@ -698,9 +698,23 @@ typedef struct nflux_struct
     double          denitn[MAXLYR];             /* kg m-2 day-1 */
     double          till_no3[MAXLYR];           /* kg m-2 day-1 */
     double          urine;              /* kg m-2 day-1 */
-    double          nh4volat;                   /* kg m-2 day-1 */
 } nflux_struct;
 
+typedef struct nprof_struct
+{
+    double          no3;
+    double          nh4;
+} nprof_struct;
+
+/* Solute transport structure */
+typedef struct solute_struct
+{
+    double          conc_subsurf;         /* subsurface pool concentration
+                                           * (kg kgH2O-1) */
+    double          flux[NUM_EDGE];       /* subsurface solute flux (kg s-1) */
+    double          snksrc;               /* subsurface sink/source term
+                                           * (kg m-2 s-1) */
+} solute_struct;
 #endif
 
 /* Boundary conditions */
@@ -1592,15 +1606,10 @@ typedef struct elem_struct
     cflux_struct    cf;
     nstate_struct   ns;
     nflux_struct    nf;
-//    cropmgmt_struct cropmgmt;
-//    comm_struct     comm;
-//    residue_struct  residue;
-//    soilc_struct    soilc;
-//    weather_struct  weather;
-//    snow_struct     snow;
-//    solute_struct   NO3sol;
-//    solute_struct   NH4sol;
-//    cyclesic_struct cycles_restart;
+    nprof_struct    np;
+    nprof_struct    np0;
+    solute_struct   no3sol;
+    solute_struct   nh4sol;
 #endif
 #if defined(_BGC_)
     bgcic_struct    restart_input;

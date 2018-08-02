@@ -129,14 +129,30 @@ void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[],
     }
 }
 
-void InitCyclesVar(elem_struct elem[], river_struct river[])
+void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 {
-    int             i;
+    int             i, k;
 
     for (i = 0; i < nelem; i++)
     {
         RestartInput(&elem[i].restart_input, &elem[i].ps, &elem[i].ws,
             &elem[i].cs, &elem[i].ns);
+
+        elem[i].np.no3 = 0.0;
+        elem[i].np.nh4 = 0.0;
+        for (k = 0; k < elem[i].ps.nsoil; k++)
+        {
+            elem[i].np.no3 += elem[i].ns.no3[k];
+            elem[i].np.nh4 += elem[i].ns.nh4[k];
+        }
+
+        NV_Ith(CV_Y, NO3(i)) = elem[i].np.no3;
+        NV_Ith(CV_Y, NH4(i)) = elem[i].np.nh4;
+
+        elem[i].np0 = elem[i].np;
+
+        elem[i].no3sol.snksrc = 0.0;
+        elem[i].nh4sol.snksrc = 0.0;
     }
 
     for (i = 0; i < nriver; i++)
@@ -145,6 +161,11 @@ void InitCyclesVar(elem_struct elem[], river_struct river[])
         river[i].ns.streamnh4 = river[i].restart_input.streamnh4;
         river[i].ns.bedno3 = river[i].restart_input.bedno3;
         river[i].ns.bednh4 = river[i].restart_input.bednh4;
+
+        NV_Ith(CV_Y, STREAMNO3(i)) = river[i].ns.streamno3;
+        NV_Ith(CV_Y, STREAMNH4(i)) = river[i].ns.streamnh4;
+        NV_Ith(CV_Y, RIVBEDNO3(i)) = river[i].ns.bedno3;
+        NV_Ith(CV_Y, RIVBEDNH4(i)) = river[i].ns.bednh4;
     }
 }
 

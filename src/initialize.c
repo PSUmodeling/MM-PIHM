@@ -180,7 +180,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 # endif
     FirstDay(&pihm->soiltbl, pihm->elem, pihm->river);
 
-    InitCyclesVar(pihm->elem, pihm->river);
+    InitCyclesVar(pihm->elem, pihm->river, CV_Y);
 #endif
 
 #if defined(_BGC_)
