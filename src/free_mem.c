@@ -2,7 +2,7 @@
 
 void FreeMem(pihm_struct pihm)
 {
-    int             i, j;
+    int             i;
 
     FreeRivtbl(&pihm->rivtbl);
 

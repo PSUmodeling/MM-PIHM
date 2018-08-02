@@ -11,7 +11,8 @@ void Decomp(double tsoil, const epconst_struct *epc, epvar_struct *epv,
     double          kl1_base, kl2_base, kl4_base;
     double          ks1_base, ks2_base, ks3_base, ks4_base, kfrag_base;
     double          kl1, kl2, kl4, ks1, ks2, ks3, ks4, kfrag;
-    double          cn_l1, cn_l2, cn_l4, cn_s1, cn_s2, cn_s3, cn_s4;
+    double          cn_l1 = 0.0, cn_l2 = 0.0, cn_l4 = 0.0;
+    double          cn_s1, cn_s2, cn_s3, cn_s4;
     double          cwdc_loss;
     double          plitr1c_loss, plitr2c_loss, plitr4c_loss;
     double          psoil1c_loss, psoil2c_loss, psoil3c_loss, psoil4c_loss;

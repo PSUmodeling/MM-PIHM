@@ -202,7 +202,7 @@ void RootDist(const double *sldpth, int nsoil, int nroot, double *rtdis)
     }
 }
 
-void CalcLatFlx(const pstate_struct *ps, wflux_struct *wf, double area)
+void CalcLatFlx(const pstate_struct *ps, wflux_struct *wf)
 {
     double          sattot;
     int             ks;

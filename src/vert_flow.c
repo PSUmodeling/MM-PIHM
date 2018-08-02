@@ -82,7 +82,7 @@ double Infil(const wstate_struct *ws, const wstate_struct *ws0,
             dh_by_dz = (ws->surfh <= 0.0 && dh_by_dz > 0.0) ? 0.0 : dh_by_dz;
 
             satn = 1.0;
-            satkfunc = KrFunc(soil->alpha, soil->beta, satn);
+            satkfunc = KrFunc(soil->beta, satn);
 
             kinf = EffKinf(soil, dh_by_dz, satkfunc, satn, applrate, ws->surfh);
 
@@ -111,7 +111,7 @@ double Infil(const wstate_struct *ws, const wstate_struct *ws0,
                 (0.5 * (ws->surfh + soil->dinf));
             dh_by_dz = (ws->surfh <= 0.0 && dh_by_dz > 0.0) ?  0.0 : dh_by_dz;
 
-            satkfunc = KrFunc(soil->alpha, soil->beta, satn);
+            satkfunc = KrFunc(soil->beta, satn);
 
             kinf = EffKinf(soil, dh_by_dz, satkfunc, satn, applrate, ws->surfh);
 
@@ -151,7 +151,7 @@ double Recharge(const wstate_struct *ws, const wflux_struct *wf,
         satn = (satn > 1.0) ? 1.0 : satn;
         satn = (satn < SATMIN) ? SATMIN : satn;
 
-        satkfunc = KrFunc(soil->alpha, soil->beta, satn);
+        satkfunc = KrFunc(soil->beta, satn);
 
         psi_u = Psi(satn, soil->alpha, soil->beta);
 
@@ -221,7 +221,9 @@ double EffKinf(const soil_struct *soil, double dh_by_dz, double ksatfunc,
      */
     double          keff = 0.0;
     double          kmax;
+#if TEMP_DISABLED
     const double    ALPHA_CRACK = 10.0;
+#endif
     const double    BETA_CRACK = 2.0;
 
     if (soil->areafh == 0.0)
@@ -253,7 +255,7 @@ double EffKinf(const soil_struct *soil, double dh_by_dz, double ksatfunc,
                 /* Application control */
                 keff = soil->kinfv * (1.0 - soil->areafh) * ksatfunc +
                     soil->kmacv * soil->areafh *
-                    KrFunc(ALPHA_CRACK, BETA_CRACK, elemsatn);
+                    KrFunc(BETA_CRACK, elemsatn);
             }
             else
             {
@@ -312,7 +314,7 @@ double FbrInfil(const wstate_struct *ws, const soil_struct *soil,
 
             h_u = psi_u + topo->zmin - 0.5 * deficit;
 
-            satkfunc = KrFunc(geol->alpha, geol->beta, satn);
+            satkfunc = KrFunc(geol->beta, satn);
 
             dh_by_dz = (topo->zmin + ws->gw - h_u) / (0.5 * (ws->gw + deficit));
 
@@ -351,7 +353,7 @@ double FbrRecharge(const wstate_struct *ws, const wflux_struct *wf,
         psi_u = Psi(satn, geol->alpha, geol->beta);
         psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
 
-        satkfunc = KrFunc(geol->alpha, geol->beta, satn);
+        satkfunc = KrFunc(geol->beta, satn);
 
         dh_by_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->fbr_gw));
 

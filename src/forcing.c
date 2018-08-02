@@ -30,7 +30,11 @@ void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
 
     /* LAI forcing */
+#if defined(_BGC_) || defined(_CYCLES_)
+    ApplyLai(elem);
+#else
     ApplyLai(forc, elem, t);
+#endif
 }
 
 void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
@@ -166,7 +170,11 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
     }
 }
 
+#if defined(_BGC_) || defined(_CYCLES_)
+void ApplyLai(elem_struct *elem)
+#else
 void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
+#endif
 {
     int             i;
 

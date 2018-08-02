@@ -308,7 +308,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     {
         /* Determine snow fractional coverage.
          * Determine surface albedo modification due to snowdepth state. */
-        ps->sncovr = SnFrac(ws->sneqv, lc->snup, ps->salp, ps->snowh);
+        ps->sncovr = SnFrac(ws->sneqv, lc->snup, ps->salp);
 
         ps->sncovr = (ps->sncovr < 0.98) ? ps->sncovr : 0.98;
 
@@ -1664,7 +1664,7 @@ void SmFlx(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     }
 }
 
-double SnFrac(double sneqv, double snup, double salp, double snowh)
+double SnFrac(double sneqv, double snup, double salp)
 {
     /*
      * Function SnFrac
@@ -2797,7 +2797,7 @@ void WDfCnd(double *wdf, double *wcnd, double smc, double sicemax,
     factr1 = (factr1 < factr2) ? factr1 : factr2;
     expon = 1.0 - 1.0 / soil->beta;
 
-    satkfunc = KrFunc(soil->alpha, soil->beta, factr2);
+    satkfunc = KrFunc(soil->beta, factr2);
     dpsidsm =
         (1.0 - expon) / soil->alpha / expon / (soil->smcmax - soil->smcmin) *
         pow(pow(factr2, -1.0 / expon) - 1.0, -expon) *
@@ -2810,7 +2810,7 @@ void WDfCnd(double *wdf, double *wcnd, double smc, double sicemax,
     if (sicemax > 0.0)
     {
         vkwgt = 1.0 / (1.0 + pow(500.0 * sicemax, 3.0));
-        satkfunc = KrFunc(soil->alpha, soil->beta, factr1);
+        satkfunc = KrFunc(soil->beta, factr1);
         dpsidsm = (1.0 - expon) / soil->alpha / expon /
             (soil->smcmax - soil->smcmin) *
             pow(pow(factr1, -1.0 / expon) - 1.0, -expon) *

@@ -76,7 +76,11 @@ void            ApplyForc(forc_struct *, elem_struct *, int, int,
 #else
 void            ApplyForc(forc_struct *, elem_struct *, int);
 #endif
+#if defined(_BGC_) || defined(_CYCLES_)
+void            ApplyLai(elem_struct *);
+#else
 void            ApplyLai(forc_struct *, elem_struct *, int);
+#endif
 #if defined(_NOAH_)
 void            ApplyMeteoForc(forc_struct *, elem_struct *, int, int,
     const siteinfo_struct *);
@@ -103,7 +107,11 @@ double          ChanLeak(const river_wstate_struct *, const river_topo_struct *,
     const shp_struct *, const matl_struct *);
 int             CheckCVodeFlag(int);
 void            CheckDy(double, const char *, const char *, int, double);
+#if defined(_BGC_)
 int             CheckSteadyState(const elem_struct *, double, int, int, int);
+#else
+int             CheckSteadyState(const elem_struct *, double, int, int);
+#endif
 void            CorrElev(elem_struct *, river_struct *);
 void            CreateOutputDir(char *);
 double          DhByDl(const double *, const double *, const double *);
@@ -112,7 +120,7 @@ double          EffKinf(const soil_struct *, double, double, double, double,
     double);
 double          EffKv(const soil_struct *, double, int);
 void            EtExtract(elem_struct *);
-double          FieldCapacity(double, double, double, double, double);
+double          FieldCapacity(double, double, double, double);
 void            FreeAtttbl(atttbl_struct *);
 void            FreeCtrl(ctrl_struct *);
 void            FreeForc(forc_struct *);
@@ -161,7 +169,7 @@ void            InitWFlux(wflux_struct *);
 void            InitWState(wstate_struct *);
 void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
 void            IntrplForc(tsdata_struct *, int, int);
-double          KrFunc(double, double, double);
+double          KrFunc(double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
 void            MapOutput(const int *, const int *, const elem_struct *,
     const river_struct *, const meshtbl_struct *, const char *, print_struct *);
@@ -201,7 +209,7 @@ double          Psi(double, double, double);
 double          PtfAlpha(double, double, double, double, int);
 double          PtfBeta(double, double, double, double, int);
 double          PtfKv(double, double, double, double, int);
-double          PtfThetar(double, double, double, double, int);
+double          PtfThetar(double, double);
 double          PtfThetas(double, double, double, double, int);
 double          Qtz(int);
 void            ReadAlloc(pihm_struct);
@@ -281,7 +289,7 @@ void            ReadGeol(const char *, geoltbl_struct *);
 void            AdjSmProf(const soil_struct *, const pstate_struct *,
     const double *, double, wflux_struct *, wstate_struct *);
 void            AlCalc(pstate_struct *, double, int);
-void            CalcLatFlx(const pstate_struct *, wflux_struct *, double);
+void            CalcLatFlx(const pstate_struct *, wflux_struct *);
 void            CalcSlopeAspect(elem_struct *, const meshtbl_struct *);
 void            CalHum(pstate_struct *, estate_struct *);
 # if defined(_CYCLES_)
@@ -347,7 +355,7 @@ void            ShFlx(wstate_struct *, estate_struct *, eflux_struct *,
     double, double, double);
 void            SmFlx(wstate_struct *, wflux_struct *, pstate_struct *,
     const soil_struct *, double);
-double          SnFrac(double, double, double, double);
+double          SnFrac(double, double, double);
 void            SnkSrc(double *, double, double, double *,
     const soil_struct *, const double *, double, int, double);
 void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,

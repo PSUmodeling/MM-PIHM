@@ -93,8 +93,7 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
         }
         if (soiltbl->smcmin[i] < 0.0)
         {
-            soiltbl->smcmin[i] = PtfThetar(soiltbl->silt[i], soiltbl->clay[i],
-                soiltbl->om[i], soiltbl->bd[i], SUBSOIL);
+            soiltbl->smcmin[i] = PtfThetar(soiltbl->silt[i], soiltbl->clay[i]);
             ptf_used = 1;
         }
         if (soiltbl->alpha[i] < 0.0)
@@ -117,8 +116,8 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
         }
 
         /* Calculate field capacity and wilting point */
-        soiltbl->smcref[i] = FieldCapacity(soiltbl->alpha[i], soiltbl->beta[i],
-            soiltbl->ksatv[i], soiltbl->smcmax[i], soiltbl->smcmin[i]);
+        soiltbl->smcref[i] = FieldCapacity(soiltbl->beta[i], soiltbl->ksatv[i],
+            soiltbl->smcmax[i], soiltbl->smcmin[i]);
         soiltbl->smcwlt[i] = WiltingPoint(soiltbl->smcmax[i],
             soiltbl->smcmin[i], soiltbl->alpha[i], soiltbl->beta[i]);
     }

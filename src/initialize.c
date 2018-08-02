@@ -209,7 +209,9 @@ void CorrElev(elem_struct *elem, river_struct *river)
 {
     int             i, j;
     int             sink;
+#if OBSOLETE
     int             bedrock_flag = 1;
+#endif
     int             river_flag = 0;
     double          nabr_zmax;
     double          new_elevation;
@@ -275,7 +277,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
         }
     }
 
-#if defined(OBSOLETE)
+#if OBSOLETE
     /* Correction of BedRck Elev. Is this needed? */
     if (bedrock_flag == 1)
     {

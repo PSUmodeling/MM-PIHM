@@ -29,9 +29,14 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 
         spinyears += metyears;
 
+#if defined(_BGC_)
         steady = CheckSteadyState(pihm->elem, pihm->siteinfo.area,
             first_spin_cycle, pihm->ctrl.endtime - pihm->ctrl.starttime,
             spinyears);
+#else
+        steady = CheckSteadyState(pihm->elem, pihm->siteinfo.area,
+            first_spin_cycle, spinyears);
+#endif
 
         first_spin_cycle = 0;
     } while (spinyears < pihm->ctrl.maxspinyears && (!steady));
@@ -57,15 +62,20 @@ void ResetSpinupStat(elem_struct *elem)
 }
 #endif
 
+#if defined(_BGC_)
 int CheckSteadyState(const elem_struct *elem, double total_area,
     int first_cycle, int totalt, int spinyears)
+#else
+int CheckSteadyState(const elem_struct *elem, double total_area,
+    int first_cycle, int spinyears)
+#endif
 {
     int             i;
     double          totalw = 0.0;
     static double   totalw_prev = 0.0;
     int             steady;
 #if defined(_BGC_)
-    double          t1;
+    double          t1 = 0.0;
     double          soilc = 0.0;
     double          totalc = 0.0;
     static double   soilc_prev = 0.0;

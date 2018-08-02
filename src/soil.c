@@ -1,13 +1,13 @@
 #include "pihm.h"
 
-double KrFunc(double alpha, double beta, double satn)
+double KrFunc(double beta, double satn)
 {
     return sqrt(satn) *
         (1.0 - pow(1.0 - pow(satn, beta / (beta - 1.0)), (beta - 1.0) / beta)) *
         (1.0 - pow(1.0 - pow(satn, beta / (beta - 1.0)), (beta - 1.0) / beta));
 }
 
-double FieldCapacity(double alpha, double beta, double kv, double smcmax,
+double FieldCapacity(double beta, double kv, double smcmax,
     double smcmin)
 {
     /*
@@ -39,7 +39,7 @@ double FieldCapacity(double alpha, double beta, double kv, double smcmax,
     {
         n++;
 
-        df = KrFunc(alpha, beta, satn) - KFC / kv;
+        df = KrFunc(beta, satn) - KFC / kv;
 
         ftheta = 1.0 - pow(satn, 1.0 / mx);
 
@@ -256,7 +256,7 @@ double PtfThetas(double silt, double clay, double om, double bd, int topsoil)
     return thetas;
 }
 
-double PtfThetar(double silt, double clay, double om, double bd, int topsoil)
+double PtfThetar(double silt, double clay)
 {
     double          thetar;
 

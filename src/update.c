@@ -41,7 +41,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.sldpth, elem[i].ps.nsoil,
             elem[i].ws.gw, elem[i].ps.satdpth);
 
-        CalcLatFlx(&elem[i].ps, &elem[i].wf, elem[i].topo.area);
+        CalcLatFlx(&elem[i].ps, &elem[i].wf);
 #endif
 
         elem[i].ws0 = elem[i].ws;

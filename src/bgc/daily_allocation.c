@@ -31,7 +31,8 @@ void DailyAllocation(cflux_struct *cf, const cstate_struct *cs,
     double          plant_remaining_ndemand;
     double          excess_c;
     int             nlimit;
-    double          cn_l1, cn_l2, cn_l4, cn_s1, cn_s2, cn_s3, cn_s4;
+    double          cn_l1 = 0.0, cn_l2 = 0.0, cn_l4 = 0.0;
+    double          cn_s1, cn_s2, cn_s3, cn_s4;
     double          rfl1s1, rfl2s2, rfl4s3, rfs1s2, rfs2s3, rfs3s4;
     double          avail_retransn;
     double          cpool_recovery;
