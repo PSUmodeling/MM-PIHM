@@ -454,11 +454,14 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 #endif
 
 #if defined(_CYCLES_)
+double          CommTotRadIntcp(const crop_struct[]);
+void            ComputeResidueCover(const cstate_struct *, pstate_struct *);
 int             FindCrop(const char[], const epconst_struct []);
 void            FirstDay(const soiltbl_struct *, elem_struct []);
 void            InitCropSV(crop_struct *);
 void            InitCycles(const agtbl_struct *, const soiltbl_struct *,
     epconst_struct [], elem_struct [], river_struct []);
+void            InitCyclesVar(elem_struct []);
 void            ReadCrop(const char [], epconst_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
 void            ReadMultOper(const agtbl_struct *, const epconst_struct [],
@@ -466,6 +469,8 @@ void            ReadMultOper(const agtbl_struct *, const epconst_struct [],
 void            ReadOperation(const char [], int, const epconst_struct [],
     opertbl_struct []);
 void            ReadSoilInit(const char [], soiltbl_struct *);
+void            RestartInput(const cyclesic_struct *, pstate_struct *,
+    wstate_struct *, cstate_struct *, nstate_struct *);
 #endif
 
 #endif

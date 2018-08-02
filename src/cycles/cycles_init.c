@@ -119,6 +119,18 @@ void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[])
         }
     }
 }
+
+void InitCyclesVar(elem_struct elem[])
+{
+    int             i;
+
+    for (i = 0; i < nelem; i++)
+    {
+        RestartInput(&elem[i].restart_input, &elem[i].ps, &elem[i].ws,
+            &elem[i].cs, &elem[i].ns);
+    }
+}
+
 //void InitCycles(elem_struct *elem, river_struct *riv,
 //    const ctrl_struct *ctrl, const mgmttbl_struct *mgmttbl,
 //    const agtbl_struct *agtbl, const croptbl_struct *croptbl,
