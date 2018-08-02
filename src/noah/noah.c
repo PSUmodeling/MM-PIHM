@@ -497,9 +497,9 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     if (ef->etp > 0.0)
     {
         ef->eta = ef->edir + ef->ec + ef->ett + ef->esnow;
-//#if defined(_CYCLES_)
-//        ef->eta += wf->eres * 1000.0 * LVH2O;
-//#endif
+#if defined(_CYCLES_)
+        ef->eta += wf->eres * RHOH2O * LVH2O;
+#endif
     }
     else
     {
@@ -890,11 +890,11 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     }
 
     /* Total up evap and transp types to obtain actual evapotransp */
-//#if defined(_CYCLES_)
-//    wf->etns = wf->edir + wf->ett + wf->ec + wf->eres;
-//#else
+#if defined(_CYCLES_)
+    wf->etns = wf->edir + wf->ett + wf->ec + wf->eres;
+#else
     wf->etns = wf->edir + wf->ett + wf->ec;
-//#endif
+#endif
 }
 
 double FrozRain(double prcp, double sfctmp)
