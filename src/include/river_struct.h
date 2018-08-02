@@ -103,21 +103,32 @@ typedef struct river_bgcic_struct
 } river_bgcic_struct;
 #endif
 
-//#if defined(_CYCLES_)
-//typedef struct river_solute_struct
-//{
-//    double          soluteMass;
-//    double          soluteMassAdsorbed;
-//    double          soluteConc;
-//    double          soluteFluxLat[4];
-//} river_solute_struct;
-//
-//typedef struct river_cyclesic_struct
-//{
-//    double          NO3_Mass;
-//    double          NH4_Mass;
-//} river_cyclesic_struct;
-//#endif
+#if defined(_CYCLES_)
+typedef struct river_nstate_struct
+{
+    double          streamno3;
+    double          streamnh4;
+    double          bedno3;
+    double          bednh4;
+} river_nstate_struct;
+
+typedef struct river_cyclesic_struct
+{
+    double          streamno3;
+    double          streamnh4;
+    double          bedno3;
+    double          bednh4;
+} river_cyclesic_struct;
+
+typedef struct river_solute_struct
+{
+    double          conc_stream;         /* stream pool concentration
+                                          * (kg kgH2O-1) */
+    double          conc_bed;            /* bed pool concentration (kg kgH2O-1)
+                                          */
+    double          flux[NUM_RIVFLX];    /* solute fluxes (kg s-1) */
+} river_solute_struct;
+#endif
 
 /* River structure */
 typedef struct river_struct
@@ -137,13 +148,12 @@ typedef struct river_struct
     river_wflux_struct wf;
     river_ic_struct ic;
     river_bc_struct bc;
-//#if defined(_CYCLES_)
-//    river_solute_struct NO3sol;
-//    river_solute_struct NH4sol;
-//    river_cyclesic_struct cycles_restart;
-//    double          NO3Leaching[4];
-//    double          NH4Leaching[4];
-//#endif
+#if defined(_CYCLES_)
+    river_nstate_struct ns;
+    river_cyclesic_struct restart_input;
+    river_solute_struct no3sol;
+    river_solute_struct nh4sol;
+#endif
 #if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
     river_nstate_struct ns;
     river_nflux_struct nf;

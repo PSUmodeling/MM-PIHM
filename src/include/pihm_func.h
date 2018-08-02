@@ -21,6 +21,14 @@
 #else
 # define LUMPED_SMINN    3 * nelem + 2 * nriver
 #endif
+#if defined(_CYCLES_)
+# define NO3(i)          i + 3 * nelem + 2 * nriver
+# define NH4(i)          i + 4 * nelem + 2 * nriver
+# define STREAMNO3(i)    i + 5 * nelem + 2 * nriver
+# define RIVBEDNO3(i)    i + 5 * nelem + 3 * nriver
+# define STREAMNH4(i)    i + 5 * nelem + 4 * nriver
+# define RIVBEDNH4(i)    i + 5 * nelem + 5 * nriver
+#endif
 
 #define AvgElev(...)      _WsAreaElev(WS_ZMAX, __VA_ARGS__)
 #define AvgZmin(...)      _WsAreaElev(WS_ZMIN, __VA_ARGS__)
@@ -457,11 +465,12 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 double          CommTotRadIntcp(const crop_struct[]);
 void            ComputeResidueCover(const cstate_struct *, pstate_struct *);
 int             FindCrop(const char[], const epconst_struct []);
-void            FirstDay(const soiltbl_struct *, elem_struct []);
+void            FirstDay(const soiltbl_struct *, elem_struct [],
+    river_struct []);
 void            InitCropSV(crop_struct *);
 void            InitCycles(const agtbl_struct *, const soiltbl_struct *,
     epconst_struct [], elem_struct [], river_struct []);
-void            InitCyclesVar(elem_struct []);
+void            InitCyclesVar(elem_struct [], river_struct []);
 void            ReadCrop(const char [], epconst_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
 void            ReadMultOper(const agtbl_struct *, const epconst_struct [],

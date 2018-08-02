@@ -57,7 +57,8 @@ void InitCycles(const agtbl_struct *agtbl, const soiltbl_struct *soiltbl,
     }
 }
 
-void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[])
+void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[],
+    river_struct river[])
 {
     int             i, k;
     int             soil_ind;
@@ -118,9 +119,17 @@ void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[])
             elem[i].restart_input.manun[k] = 0.0;
         }
     }
+
+    for (i = 0; i < nriver; i++)
+    {
+        river[i].restart_input.streamno3 = 0.0;
+        river[i].restart_input.streamnh4 = 0.0;
+        river[i].restart_input.bedno3 = 0.0;
+        river[i].restart_input.bednh4 = 0.0;
+    }
 }
 
-void InitCyclesVar(elem_struct elem[])
+void InitCyclesVar(elem_struct elem[], river_struct river[])
 {
     int             i;
 
@@ -128,6 +137,14 @@ void InitCyclesVar(elem_struct elem[])
     {
         RestartInput(&elem[i].restart_input, &elem[i].ps, &elem[i].ws,
             &elem[i].cs, &elem[i].ns);
+    }
+
+    for (i = 0; i < nriver; i++)
+    {
+        river[i].ns.streamno3 = river[i].restart_input.streamno3;
+        river[i].ns.streamnh4 = river[i].restart_input.streamnh4;
+        river[i].ns.bedno3 = river[i].restart_input.bedno3;
+        river[i].ns.bednh4 = river[i].restart_input.bednh4;
     }
 }
 

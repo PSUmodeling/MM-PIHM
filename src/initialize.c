@@ -178,9 +178,9 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
     }
 # endif
-    FirstDay(&pihm->soiltbl, pihm->elem);
+    FirstDay(&pihm->soiltbl, pihm->elem, pihm->river);
 
-    //InitCyclesVar(pihm->elem, pihm->river);
+    InitCyclesVar(pihm->elem, pihm->river);
 #endif
 
 #if defined(_BGC_)

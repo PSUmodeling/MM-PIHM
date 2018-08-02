@@ -258,6 +258,10 @@ int NumStateVar(void)
 # endif
 #endif
 
+#if defined(_CYCLES_)
+    nsv += 2 * nelem + 4 * nriver;
+#endif
+
 #if defined(_FBR_)
     nsv += 2 * nelem;
 #endif
