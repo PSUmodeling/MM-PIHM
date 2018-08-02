@@ -85,12 +85,12 @@ void NoahHydrol(elem_struct *elem, double dt)
                 elem[i].ws.sh2o[j] : elem[i].ws.smc[j];
         }
 
-//#if defined(_CYCLES_)
-//        SmFlx(&elem[i].ws, &elem[i].wf, &elem[i].ps, &elem[i].soil,
-//            &elem[i].residue, dt);
-//#else
+#if defined(_CYCLES_)
+        SmFlx(&elem[i].soil, &elem[i].cs, dt, &elem[i].ps, &elem[i].ws,
+            &elem[i].wf);
+#else
         SmFlx(&elem[i].ws, &elem[i].wf, &elem[i].ps, &elem[i].soil, dt);
-//#endif
+#endif
     }
 
 #if TEMP_DISABLED
@@ -851,7 +851,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
 
 #if defined(_CYCLES_)
         /* Evaporation from residue (Cycles function) */
-        ResidueEvaporation(wf->etp * ps->pc, dt, ps->sncovr, crop, ps, cs, ws,
+        ResidueEvaporation(wf->etp, dt, ps->sncovr, crop, ps, cs, ws,
             wf);
 #endif
 
@@ -1588,13 +1588,13 @@ void ShFlx(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
 }
 
 
-//#if defined(_CYCLES_)
-//void SmFlx(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
-//    const soil_struct *soil, residue_struct *residue, double dt)
-//#else
+#if defined(_CYCLES_)
+void SmFlx(const soil_struct *soil, const cstate_struct *cs, double dt,
+    pstate_struct *ps, wstate_struct *ws, wflux_struct *wf)
+#else
 void SmFlx(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     const soil_struct *soil, double dt)
-//#endif
+#endif
 {
     /*
      * Function SmFlx
@@ -1639,11 +1639,11 @@ void SmFlx(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     }
     else
     {
-//#if defined(_CYCLES_)
-//        SRT(ws, wf, ps, soil, residue, dt, rhstt, sice, ai, bi, ci);
-//#else
+#if defined(_CYCLES_)
+        SRT(soil, cs, dt, ps, ws, wf, rhstt, sice, ai, bi, ci);
+#else
         SRT(ws, wf, ps, soil, rhstt, sice, ai, bi, ci);
-//#endif
+#endif
         SStep(ws, wf, ps, soil, rhstt, sice, ai, bi, ci, dt);
     }
 }
@@ -2204,15 +2204,15 @@ void SnowNew(const estate_struct *es, double newsn, pstate_struct *ps)
     ps->snowh = snowhc * 0.01;
 }
 
-//#if defined(_CYCLES_)
-//void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
-//    const soil_struct *soil, residue_struct *residue, double dt, double *rhstt,
-//    double *sice, double *ai, double *bi, double *ci)
-//#else
+#if defined(_CYCLES_)
+void SRT(const soil_struct *soil, const cstate_struct *cs, double dt,
+    pstate_struct *ps, wstate_struct *ws, wflux_struct *wf, double *rhstt,
+    double *sice, double *ai, double *bi, double *ci)
+#else
 void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     const soil_struct *soil, double *rhstt, double *sice, double *ai,
     double *bi, double *ci)
-//#endif
+#endif
 {
     /*
      * Function SRT
@@ -2240,9 +2240,6 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     double          acrt;
     double          sum;
     double          ialp1;
-//#if defined(_CYCLES_)
-//    double          infil_vol;
-//#endif
     /* Frozen ground version:
      * Reference frozen ground parameter, cvfrz, is a shape parameter of areal
      * distribution function of soil ice content which equals 1/cv.
@@ -2290,15 +2287,11 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     }
 
     /* Determine rainfall infiltration rate and runoff */
-//#if defined(_CYCLES_)
-//    infil_vol = wf->infil * dt * 1000.0;
-//
-//    ResidueWetting(residue, &infil_vol);
-//
-//    pddum = infil_vol / dt / 1000.0;
-//#else
+#if defined(_CYCLES_)
+    ResidueWetting(ps, cs, dt, ws, wf);
+#endif
+
     pddum = wf->infil;
-//#endif
 
     mxsmc = ws->sh2o[0];
 

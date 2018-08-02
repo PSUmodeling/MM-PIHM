@@ -367,8 +367,13 @@ void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
 void            ShFlx(wstate_struct *, estate_struct *, eflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *, double,
     double, double, double);
+# if defined(_CYCLES_)
+void SmFlx(const soil_struct *, const cstate_struct *, double, pstate_struct *,
+    wstate_struct *, wflux_struct *);
+# else
 void            SmFlx(wstate_struct *, wflux_struct *, pstate_struct *,
     const soil_struct *, double);
+# endif
 double          SnFrac(double, double, double);
 void            SnkSrc(double *, double, double, double *,
     const soil_struct *, const double *, double, int, double);
@@ -385,8 +390,14 @@ void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
 void            SnowNew(const estate_struct *, double, pstate_struct *);
 void            SnowPack(double, double, double *, double *, double, double);
 double          Snowz0(double, double, double);
+# if defined(_CYCLES_)
+void            SRT(const soil_struct *, const cstate_struct *, double,
+    pstate_struct *, wstate_struct *, wflux_struct *, double *, double *,
+    double *, double *, double *);
+# else
 void            SRT(wstate_struct *, wflux_struct *, pstate_struct *,
     const soil_struct *, double *, double *, double *, double *, double *);
+# endif
 void            SStep(wstate_struct *, wflux_struct *, pstate_struct *,
     const soil_struct *, double *, double *, double *, double *, double *,
     double);
@@ -510,6 +521,8 @@ void            ReadSoilInit(const char [], soiltbl_struct *);
 void            ResidueEvaporation(double, double, double, const crop_struct [],
     const pstate_struct *, const cstate_struct *, wstate_struct *,
     wflux_struct *);
+void            ResidueWetting(const pstate_struct *, const cstate_struct *,
+    double, wstate_struct *, wflux_struct *);
 void            RestartInput(const cyclesic_struct *, pstate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 #endif
