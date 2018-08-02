@@ -305,8 +305,14 @@ void            DefSldpth(double *, int *, double *, double, const double *,
     int);
 void            DEvap(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
+# if defined(_CYCLES_)
+void            Evapo(const soil_struct *, const lc_struct *,
+    const crop_struct [], const pstate_struct *, const cstate_struct *,
+    double, wstate_struct *, wflux_struct *);
+# else
 void            Evapo(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *, double);
+# endif
 int             FindLayer(const double *, int, double);
 int             FindWaterTable(const double *, int, double, double *);
 double          FrozRain(double, double);
@@ -319,9 +325,16 @@ void            InitLsm(elem_struct *, const ctrl_struct *,
 double          Mod(double, double);
 void            Noah(elem_struct *, double);
 void            NoahHydrol(elem_struct *, double);
+# if defined(_CYCLES_)
+void            NoPac(const soil_struct *, const lc_struct *,
+    const crop_struct [], const cstate_struct *, double, double,
+    pstate_struct *, wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *);
+# else
 void            NoPac(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
     double, double);
+# endif
 void            PcpDrp(wstate_struct *, wflux_struct *, const lc_struct *,
     double, double);
 void            Penman(wflux_struct *, const estate_struct *, eflux_struct *,
@@ -343,8 +356,9 @@ void            Rosr12(double *, const double *, const double *, double *,
 void            SfcDifOff(pstate_struct *, const lc_struct *, double, double,
     int);
 # if defined(_CYCLES_)
-void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *, double);
+void            SFlx(const cstate_struct *, double, soil_struct *, lc_struct *,
+    crop_struct [], pstate_struct *, wstate_struct *, wflux_struct *,
+    estate_struct *, eflux_struct *);
 # else
 void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
@@ -358,9 +372,16 @@ void            SmFlx(wstate_struct *, wflux_struct *, pstate_struct *,
 double          SnFrac(double, double, double);
 void            SnkSrc(double *, double, double, double *,
     const soil_struct *, const double *, double, int, double);
+# if defined(_CYCLES_)
+void            SnoPac(const soil_struct *, const lc_struct *,
+    const crop_struct [], const cstate_struct *, int, double, double, double,
+    double, pstate_struct *, wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *);
+# else
 void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
     int, double, double, double, double);
+# endif
 void            SnowNew(const estate_struct *, double, pstate_struct *);
 void            SnowPack(double, double, double *, double *, double, double);
 double          Snowz0(double, double, double);
@@ -486,6 +507,9 @@ void            ReadMultOper(const agtbl_struct *, const epconst_struct [],
 void            ReadOperation(const char [], int, const epconst_struct [],
     opertbl_struct []);
 void            ReadSoilInit(const char [], soiltbl_struct *);
+void            ResidueEvaporation(double, double, double, const crop_struct [],
+    const pstate_struct *, const cstate_struct *, wstate_struct *,
+    wflux_struct *);
 void            RestartInput(const cyclesic_struct *, pstate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 #endif

@@ -7,6 +7,7 @@
 #define GRAV        9.80665    /* gravity constant (m s-2) */
 #define CP          1004.0     /* specific heat capacity of air
                                 * (J kg-1 K-1) */
+#define RHOH2O      1000.0     /* water density (kg m-3) */
 #define LVH2O       2.501e6    /* latent heat of vaporization (J kg-1) */
 #define SIGMA       5.67e-8    /* Stefan-Boltzmann constant (W m-2 K-4) */
 #define RD          287.04     /* gas constant for dry air (J kg-1 K-1) */

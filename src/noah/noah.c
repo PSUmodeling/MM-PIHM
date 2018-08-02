@@ -37,19 +37,16 @@ void Noah(elem_struct *elem, double dt)
                 elem[i].ws.smc[j] : elem[i].soil.smcmax;
             elem[i].ws.sh2o[j] = (elem[i].ws.sh2o[j] < elem[i].ws.smc[j]) ?
                 elem[i].ws.sh2o[j] : elem[i].ws.smc[j];
-//#if defined(_CYCLES_)
-//            elem[i].soil.waterContent[j] = elem[i].ws.sh2o[j];
-//#endif
         }
 
         /*
          * Run Noah LSM
          */
 #if defined(_CYCLES_)
-      SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef, &elem[i].ps,
-          &elem[i].lc, &elem[i].soil, dt);
+        SFlx(&elem[i].cs, dt, &elem[i].soil, &elem[i].lc, elem[i].crop,
+            &elem[i].ps, &elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef);
 #else
-      SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef, &elem[i].ps,
+        SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef, &elem[i].ps,
           &elem[i].lc, &elem[i].epc, &elem[i].soil, dt);
 #endif
 
@@ -86,9 +83,6 @@ void NoahHydrol(elem_struct *elem, double dt)
             elem[i].ws.sh2o[j] =
                 (elem[i].ws.sh2o[j] < elem[i].ws.smc[j]) ?
                 elem[i].ws.sh2o[j] : elem[i].ws.smc[j];
-//#if defined(_CYCLES_)
-//            elem[i].soil.waterContent[j] = elem[i].ws.sh2o[j];
-//#endif
         }
 
 //#if defined(_CYCLES_)
@@ -121,9 +115,9 @@ void NoahHydrol(elem_struct *elem, double dt)
 }
 
 #if defined(_CYCLES_)
-void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, soil_struct *soil,
-    double dt)
+void SFlx(const cstate_struct *cs, double dt, soil_struct *soil, lc_struct *lc,
+    crop_struct crop[], pstate_struct *ps, wstate_struct *ws, wflux_struct *wf,
+    estate_struct *es, eflux_struct *ef)
 #else
 void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
@@ -219,10 +213,6 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
             ps->z0brd = 0.5 * lc->z0min + 0.5 * lc->z0max;
         }
     }
-
-//#if defined(_CYCLES_)
-//    lc->shdfac = comm->svRadiationInterception;
-//#endif
 
     /* Initialize precipitation logicals. */
     snowng = 0;
@@ -469,21 +459,21 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
     if (ws->sneqv == 0.0)
     {
-//#if defined(_CYCLES_)
-//        NoPac(ws, wf, es, ef, ps, lc, soil, comm, residue, dt, t24);
-//#else
+#if defined(_CYCLES_)
+        NoPac(soil, lc, crop, cs, dt, t24, ps, ws, wf, es, ef);
+#else
         NoPac(ws, wf, es, ef, ps, lc, soil, dt, t24);
-//#endif
+#endif
         ps->eta_kinematic = wf->eta * 1000.0;
     }
     else
     {
-//#if defined(_CYCLES_)
-//        SnoPac(ws, wf, es, ef, ps, lc, soil, comm, residue, snowng, dt, t24,
-//            prcpf, df1);
-//#else
+#if defined(_CYCLES_)
+        SnoPac(soil, lc, crop, cs, snowng, dt, t24, prcpf, df1, ps, ws, wf, es,
+            ef);
+#else
         SnoPac(ws, wf, es, ef, ps, lc, soil, snowng, dt, t24, prcpf, df1);
-//#endif
+#endif
         ps->eta_kinematic = (wf->esnow + wf->etns) * 1000.0;
     }
 
@@ -818,14 +808,14 @@ void DEvap(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     wf->edir = fx * (1.0 - lc->shdfac) * wf->etp;
 }
 
-//#if defined(_CYCLES_)
-//void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
-//    const lc_struct *lc, const soil_struct *soil, comm_struct *comm,
-//    residue_struct *residue, const estate_struct *es, double dt)
-//#else
+#if defined(_CYCLES_)
+void Evapo(const soil_struct *soil, const lc_struct *lc,
+    const crop_struct crop[], const pstate_struct *ps, const cstate_struct *cs,
+    double dt, wstate_struct *ws, wflux_struct *wf)
+#else
 void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil, double dt)
-//#endif
+#endif
 {
     /*
      * Function Evapo
@@ -856,20 +846,14 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
             /* Retrieve direct evaporation from soil surface. Call this function
              * only if veg cover not complete.
              * Frozen ground version:  sh2o states replace smc states. */
-//#if defined(_CYCLES_)
-//            Evaporation(soil, comm, residue, wf->etp * 1000.0 * dt, ps->sncovr);
-//            wf->edir = soil->evaporationVol / 1000.0 / dt;
-//#else
             DEvap(ws, wf, ps, lc, soil);
-//#endif
         }
 
-//#if defined(_CYCLES_)
-//        /* Evaporation from residue */
-//        ResidueEvaporation(residue, soil, comm, wf->etp * ps->pc * 1000.0 * dt,
-//            ps->sncovr);
-//        wf->eres = soil->residueEvaporationVol / 1000.0 / dt;
-//#endif
+#if defined(_CYCLES_)
+        /* Evaporation from residue (Cycles function) */
+        ResidueEvaporation(wf->etp * ps->pc, dt, ps->sncovr, crop, ps, cs, ws,
+            wf);
+#endif
 
         if (lc->shdfac > 0.0)
         {
@@ -1293,16 +1277,16 @@ void HStep(estate_struct *es, double *rhsts, double dt, int nsoil, double *ai,
     }
 }
 
-//#if defined(_CYCLES_)
-//void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-//    eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
-//    const soil_struct *soil, comm_struct *comm, residue_struct *residue,
-//    double dt, double t24)
-//#else
+#if defined(_CYCLES_)
+void NoPac(const soil_struct *soil, const lc_struct *lc,
+    const crop_struct crop[], const cstate_struct *cs, double dt, double t24,
+    pstate_struct *ps, wstate_struct *ws, wflux_struct *wf,
+    estate_struct *es, eflux_struct *ef)
+#else
 void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
     const soil_struct *soil, double dt, double t24)
-//#endif
+#endif
 {
     /*
      * Function NoPac
@@ -1334,11 +1318,11 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
     if (wf->etp > 0.0)
     {
-//#if defined(_CYCLES_)
-//        Evapo(ws, wf, ps, lc, soil, comm, residue, es, dt);
-//#else
+#if defined(_CYCLES_)
+        Evapo(soil, lc, crop, ps, cs, dt, ws, wf);
+#else
         Evapo(ws, wf, ps, lc, soil, dt);
-//#endif
+#endif
 
         wf->eta = wf->etns;
     }
@@ -1763,17 +1747,17 @@ void SnkSrc(double *tsnsr, double tavg, double smc, double *sh2o,
     *sh2o = xh2o;
 }
 
-//#if defined(_CYCLES_)
-//void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-//    eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
-//    const soil_struct *soil, comm_struct *comm, residue_struct *residue,
-//    int snowng, double dt, double t24, double prcpf, double df1)
-//#else
+#if defined(_CYCLES_)
+void SnoPac(const soil_struct *soil, const lc_struct *lc,
+    const crop_struct crop[], const cstate_struct *cs, int snowng, double dt,
+    double t24, double prcpf, double df1, pstate_struct *ps, wstate_struct *ws,
+    wflux_struct *wf, estate_struct *es, eflux_struct *ef)
+#else
 void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
     const soil_struct *soil, int snowng, double dt, double t24, double prcpf,
     double df1)
-//#endif
+#endif
 {
     /*
      * Function SnoPac
@@ -1847,11 +1831,11 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         /* Land case */
         if (ps->sncovr < 1.0)
         {
-//#if defined(_CYCLES_)
-//            Evapo(ws, wf, ps, lc, soil, comm, residue, es, dt);
-//#else
+#if defined(_CYCLES_)
+            Evapo(soil, lc, crop, ps, cs, dt, ws, wf);
+#else
             Evapo(ws, wf, ps, lc, soil, dt);
-//#endif
+#endif
 
             wf->edir *= (1.0 - ps->sncovr);
             wf->ec *= (1.0 - ps->sncovr);

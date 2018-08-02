@@ -750,7 +750,7 @@ void InitWFlux(wflux_struct *wf)
     wf->etns = 0.0;
 #endif
 #if defined(_CYCLES_)
-    //wf->eres = 0.0;
+    wf->eres = 0.0;
 #endif
 }
 
