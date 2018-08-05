@@ -307,8 +307,9 @@ void            DEvap(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
 # if defined(_CYCLES_)
 void            Evapo(const soil_struct *, const lc_struct *,
-    const crop_struct [], const pstate_struct *, const cstate_struct *,
-    double, wstate_struct *, wflux_struct *);
+    const pstate_struct *, const estate_struct *es,
+    const cstate_struct *, double, crop_struct [], wstate_struct *,
+    wflux_struct *);
 # else
 void            Evapo(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *, double);
@@ -327,9 +328,8 @@ void            Noah(elem_struct *, double);
 void            NoahHydrol(elem_struct *, double);
 # if defined(_CYCLES_)
 void            NoPac(const soil_struct *, const lc_struct *,
-    const crop_struct [], const cstate_struct *, double, double,
-    pstate_struct *, wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *);
+    const cstate_struct *, double, double, crop_struct [], pstate_struct *,
+    wstate_struct *, wflux_struct *, estate_struct *, eflux_struct *);
 # else
 void            NoPac(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
@@ -379,8 +379,8 @@ void            SnkSrc(double *, double, double, double *,
     const soil_struct *, const double *, double, int, double);
 # if defined(_CYCLES_)
 void            SnoPac(const soil_struct *, const lc_struct *,
-    const crop_struct [], const cstate_struct *, int, double, double, double,
-    double, pstate_struct *, wstate_struct *, wflux_struct *, estate_struct *,
+    const cstate_struct *, int, double, double, double, double, crop_struct [],
+    pstate_struct *, wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *);
 # else
 void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
@@ -502,6 +502,9 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 #endif
 
 #if defined(_CYCLES_)
+void            CalcRootFraction(const crop_struct *, const pstate_struct *,
+    double *);
+double          CommRadIntcp(const crop_struct[]);
 double          CommTotRadIntcp(const crop_struct[]);
 void            ComputeResidueCover(const cstate_struct *, pstate_struct *);
 int             FindCrop(const char[], const epconst_struct []);
@@ -525,6 +528,10 @@ void            ResidueWetting(const pstate_struct *, const cstate_struct *,
     double, wstate_struct *, wflux_struct *);
 void            RestartInput(const cyclesic_struct *, pstate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
+double          TemperatureLimitation(double, double, double);
+void            WaterUptake(const soil_struct *, const estate_struct *,
+    const pstate_struct *, double, crop_struct [], wstate_struct *,
+    wflux_struct *);
 #endif
 
 #endif

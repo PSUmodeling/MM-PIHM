@@ -254,6 +254,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	spa/spa.c
   CYCLES_SRCS_ =\
   	crop.c\
+	crop_transpiration.c\
 	read_crop.c\
 	read_operation.c\
 	residue.c\

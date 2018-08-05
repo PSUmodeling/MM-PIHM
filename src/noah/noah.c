@@ -172,6 +172,10 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         soil->smcdry = 0.40;
     }
 
+#if defined(_CYCLES_)
+    lc->shdfac = CommRadIntcp(crop);
+#endif
+
     /* Flux-PIHM uses LAI as a forcing variable.
      * Vegetation fraction is calculated from LAI following Noah-MP */
     if (ps->proj_lai >= lc->laimax)
@@ -460,7 +464,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     if (ws->sneqv == 0.0)
     {
 #if defined(_CYCLES_)
-        NoPac(soil, lc, crop, cs, dt, t24, ps, ws, wf, es, ef);
+        NoPac(soil, lc, cs, dt, t24, crop, ps, ws, wf, es, ef);
 #else
         NoPac(ws, wf, es, ef, ps, lc, soil, dt, t24);
 #endif
@@ -469,7 +473,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     else
     {
 #if defined(_CYCLES_)
-        SnoPac(soil, lc, crop, cs, snowng, dt, t24, prcpf, df1, ps, ws, wf, es,
+        SnoPac(soil, lc, cs, snowng, dt, t24, prcpf, df1, crop, ps, ws, wf, es,
             ef);
 #else
         SnoPac(ws, wf, es, ef, ps, lc, soil, snowng, dt, t24, prcpf, df1);
@@ -810,8 +814,9 @@ void DEvap(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
 
 #if defined(_CYCLES_)
 void Evapo(const soil_struct *soil, const lc_struct *lc,
-    const crop_struct crop[], const pstate_struct *ps, const cstate_struct *cs,
-    double dt, wstate_struct *ws, wflux_struct *wf)
+    const pstate_struct *ps, const estate_struct *es,
+    const cstate_struct *cs, double dt, crop_struct crop[], wstate_struct *ws,
+    wflux_struct *wf)
 #else
 void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil, double dt)
@@ -859,11 +864,11 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
         {
             /* Initialize plant total transpiration, retrieve plant
              * transpiration, and accumulate it for all soil layers. */
-//#if defined(_CYCLES_)
-//            WaterUptake(comm, soil, es->sfctmp, wf, ps->pc, dt);
-//#else
+#if defined(_CYCLES_)
+            WaterUptake(soil, es, ps, dt, crop, ws, wf);
+#else
             Transp(ws, wf, ps, lc, soil);
-//#endif
+#endif
             for (k = 0; k < ps->nsoil; k++)
             {
                 wf->ett += wf->et[k];
@@ -1279,7 +1284,7 @@ void HStep(estate_struct *es, double *rhsts, double dt, int nsoil, double *ai,
 
 #if defined(_CYCLES_)
 void NoPac(const soil_struct *soil, const lc_struct *lc,
-    const crop_struct crop[], const cstate_struct *cs, double dt, double t24,
+    const cstate_struct *cs, double dt, double t24, crop_struct crop[],
     pstate_struct *ps, wstate_struct *ws, wflux_struct *wf,
     estate_struct *es, eflux_struct *ef)
 #else
@@ -1319,7 +1324,7 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     if (wf->etp > 0.0)
     {
 #if defined(_CYCLES_)
-        Evapo(soil, lc, crop, ps, cs, dt, ws, wf);
+        Evapo(soil, lc, ps, es, cs, dt, crop, ws, wf);
 #else
         Evapo(ws, wf, ps, lc, soil, dt);
 #endif
@@ -1749,8 +1754,8 @@ void SnkSrc(double *tsnsr, double tavg, double smc, double *sh2o,
 
 #if defined(_CYCLES_)
 void SnoPac(const soil_struct *soil, const lc_struct *lc,
-    const crop_struct crop[], const cstate_struct *cs, int snowng, double dt,
-    double t24, double prcpf, double df1, pstate_struct *ps, wstate_struct *ws,
+    const cstate_struct *cs, int snowng, double dt, double t24, double prcpf,
+    double df1, crop_struct crop[], pstate_struct *ps, wstate_struct *ws,
     wflux_struct *wf, estate_struct *es, eflux_struct *ef)
 #else
 void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
@@ -1832,7 +1837,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         if (ps->sncovr < 1.0)
         {
 #if defined(_CYCLES_)
-            Evapo(soil, lc, crop, ps, cs, dt, ws, wf);
+            Evapo(soil, lc, ps, es, cs, dt, crop, ws, wf);
 #else
             Evapo(ws, wf, ps, lc, soil, dt);
 #endif
