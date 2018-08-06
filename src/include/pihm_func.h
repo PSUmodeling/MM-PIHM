@@ -507,6 +507,8 @@ void            CalcRootFraction(const crop_struct *, const pstate_struct *,
 double          CommRadIntcp(const crop_struct[]);
 double          CommTotRadIntcp(const crop_struct[]);
 void            ComputeResidueCover(const cstate_struct *, pstate_struct *);
+int             Doy(int, int, int);
+void            Doy2Date(int, int, int *, int *);
 int             FindCrop(const char[], const epconst_struct []);
 void            FirstDay(const soiltbl_struct *, elem_struct [],
     river_struct []);
@@ -514,6 +516,7 @@ void            InitCropSV(crop_struct *);
 void            InitCycles(const agtbl_struct *, const soiltbl_struct *,
     epconst_struct [], elem_struct [], river_struct []);
 void            InitCyclesVar(elem_struct [], river_struct [], N_Vector);
+int             IsLeapYear(int);
 void            ReadCrop(const char [], epconst_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
 void            ReadMultOper(const agtbl_struct *, const epconst_struct [],

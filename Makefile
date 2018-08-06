@@ -243,6 +243,7 @@ CYCLES_PATH = ../Cycles_esm/src
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS += -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
+	cycles/cycles.c\
   	cycles/cycles_read.c\
 	cycles/cycles_init.c\
 	noah/daily.c\
@@ -258,7 +259,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	read_crop.c\
 	read_operation.c\
 	residue.c\
-	restart.c
+	restart.c\
+	time_func.c
 	#Crop.c\
 	#CropHarvest.c\
 	#CropProcess.c\
