@@ -507,11 +507,16 @@ void            CalcRootFraction(const crop_struct *, const pstate_struct *,
 double          CommRadIntcp(const crop_struct[]);
 double          CommTotRadIntcp(const crop_struct[]);
 void            ComputeResidueCover(const cstate_struct *, pstate_struct *);
+void            DailyOperations(int, int, const opertbl_struct *,
+    const soil_struct *, const daily_struct *, mgmt_struct *, crop_struct [],
+    pstate_struct *, wstate_struct *, wflux_struct *, cstate_struct *,
+    cflux_struct *, nstate_struct *, nflux_struct *);
 int             Doy(int, int, int);
 void            Doy2Date(int, int, int *, int *);
 int             FindCrop(const char[], const epconst_struct []);
 void            FirstDay(const soiltbl_struct *, elem_struct [],
     river_struct []);
+void            FirstDOY(int, int *);
 void            InitCropSV(crop_struct *);
 void            InitCycles(const agtbl_struct *, const soiltbl_struct *,
     epconst_struct [], elem_struct [], river_struct []);
