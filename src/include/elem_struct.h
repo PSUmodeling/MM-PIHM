@@ -473,8 +473,9 @@ typedef struct wflux_struct
     double          etns;                   /* (m s-1) */
 #endif
 #if defined(_CYCLES_)
-    double          eres;                   /* evaporation from residue (kg m-2)
+    double          eres;                   /* evaporation from residue (m s-2)
                                              */
+    double          irrigationVol;          /* irrigation volume (m s-1) */
 #endif
 } wflux_struct;
 
