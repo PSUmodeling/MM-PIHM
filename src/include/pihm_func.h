@@ -580,8 +580,8 @@ void            InitCyclesVar(elem_struct [], river_struct [], N_Vector);
 int             IsLeapYear(int);
 int             IsOperationToday(int, int, const void *, int, int, int *);
 void            KillCrop(crop_struct *);
-void            MakeZeroFluxStruct(crop_struct [], wflux_struct *,
-    cflux_struct *, nflux_struct *);
+void            MakeZeroFluxStruct(wflux_struct *, cflux_struct *,
+    nflux_struct *);
 double          MaximumAbgdHumificationFactor(double);
 double          MaximumManuHumificationFactor(double);
 double          MaximumRhizHumificationFactor(double);
