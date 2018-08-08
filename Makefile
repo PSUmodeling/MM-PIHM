@@ -270,6 +270,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	residue.c\
 	restart.c\
 	soil_carbon.c\
+	soil_nitrogen.c\
 	tillage.c\
 	time_func.c
 	#Crop.c\

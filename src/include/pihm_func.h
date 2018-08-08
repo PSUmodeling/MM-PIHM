@@ -503,6 +503,7 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 #if defined(_CYCLES_)
 void            AddCrop(crop_struct *);
 double          Aeration(double);
+double          AirMolarDensity(double, double);
 void            ApplyFertilizer(const fixfert_struct *, cstate_struct *,
     nstate_struct *, nflux_struct *);
 double          CNdestiny(double, double );
@@ -538,6 +539,9 @@ void            DailyOperations(int, const opertbl_struct *,
     const daily_struct *, soil_struct *, mgmt_struct *, crop_struct [],
     pstate_struct *, wstate_struct *, wflux_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
+void            Denitrification(const soil_struct *, const daily_struct *,
+    const pstate_struct *, const cflux_struct *, nstate_struct *,
+    nflux_struct *);
 void            DistributeRootDetritus(double, double, double,
     double, const crop_struct *, const pstate_struct *, cstate_struct *,
     nstate_struct *);
@@ -583,7 +587,13 @@ double          MaximumManuHumificationFactor(double);
 double          MaximumRhizHumificationFactor(double);
 double          MaximumRootHumificationFactor(double);
 double          Moisture(double);
+double          N2OFractionNitrification(double);
+void            Nitrification(const soil_struct *, const daily_struct *,
+    const pstate_struct *, nstate_struct *, nflux_struct *);
 double          NitrogenMineralization(double, double, double, double);
+void            NitrogenTransformation(const soil_struct *,
+    const daily_struct *, const crop_struct [], const cstate_struct *,
+    const cflux_struct *, pstate_struct *, nstate_struct *, nflux_struct *);
 int             NumActiveCrop(const crop_struct []);
 void            Phenology(const daily_struct *, crop_struct []);
 void            PlantingCrop(const plant_struct *,  crop_struct *);
@@ -614,6 +624,10 @@ double          TemperatureFunctionGrowth(double, double, double, double);
 double          TemperatureLimitation(double, double, double);
 double          ThermalTime(double, double, double, double);
 void            TillageFactorSettling(int, const double [], double, double []);
+void            Volatilization(const soil_struct *, const daily_struct *,
+    const crop_struct [], const pstate_struct *, const cstate_struct *,
+    nstate_struct *, nflux_struct *);
+double          VolatilizationDepthFunction(double);
 void            WaterUptake(const soil_struct *, const estate_struct *,
     const pstate_struct *, double, crop_struct [], wstate_struct *,
     wflux_struct *);
