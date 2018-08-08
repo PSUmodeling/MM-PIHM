@@ -293,8 +293,7 @@ void            CalcLatFlx(const pstate_struct *, wflux_struct *);
 void            CalcSlopeAspect(elem_struct *, const meshtbl_struct *);
 void            CalHum(pstate_struct *, estate_struct *);
 # if defined(_CYCLES_)
-void            CanRes(const wstate_struct *, const estate_struct *,
-    const eflux_struct *, pstate_struct *, const soil_struct *);
+void            CanRes(const estate_struct *, pstate_struct *);
 # else
 void            CanRes(const wstate_struct *, const estate_struct *,
     const eflux_struct *, pstate_struct *, const soil_struct *,
@@ -528,7 +527,7 @@ void            CropNitrogenStress(double, double, double, crop_struct *);
 void            CropNitrogenUptake(int, double, double, const pstate_struct *,
     double *, double *, double *, double *, double [], double [], double *,
     double *, crop_struct [], nstate_struct *, nflux_struct *);
-void            DailyOperations(int, int, const opertbl_struct *,
+void            DailyOperations(int, const opertbl_struct *,
     const daily_struct *, soil_struct *, mgmt_struct *, crop_struct [],
     pstate_struct *, wstate_struct *, wflux_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
@@ -540,29 +539,28 @@ void            Doy2Date(int, int, int *, int *);
 void            ExecuteTillage(const tillage_struct *, const pstate_struct *,
     double *, soil_struct *, wstate_struct *, cstate_struct *,
     nstate_struct *, nflux_struct *);
-void            FieldOperation(int, int, const opertbl_struct *,
+void            FieldOperation(int, const opertbl_struct *,
     const daily_struct *, soil_struct *, mgmt_struct *,
     crop_struct [], pstate_struct *, wstate_struct *, wflux_struct *,
     cstate_struct *, nstate_struct *, nflux_struct *);
 int             FinalHarvestDate(int, double, double, double);
 int             FindCrop(const char[], const epconst_struct []);
 double          FindIrrigationVolume(int, double, const soil_struct *,
-    const daily_struct *daily, const pstate_struct *, const wstate_struct *,
-    const wflux_struct *);
+    const daily_struct *daily, const pstate_struct *, const wflux_struct *);
 void            FirstDay(const soiltbl_struct *, elem_struct [],
     river_struct []);
 void            FirstDOY(int, int *);
-void            ForageAndSeedHarvest(int, int, crop_struct *,
+void            ForageAndSeedHarvest(int, crop_struct *,
     pstate_struct *, wstate_struct *, cstate_struct *, nstate_struct *,
     nflux_struct *);
 int             ForcedClipping(int, const crop_struct []);
 double          Fraction(double, double, double, double, double);
-void            GrainHarvest(int, int, crop_struct *, pstate_struct *,
+void            GrainHarvest(int, crop_struct *, pstate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
-void            GrowingCrop(int, int, const soil_struct *, const daily_struct *,
+void            GrowingCrop(int, const soil_struct *, const daily_struct *,
     mgmt_struct *, crop_struct [], pstate_struct *, wstate_struct *,
     cstate_struct *, nstate_struct *, nflux_struct *);
-void            HarvestCrop(int, int, crop_struct *, pstate_struct *,
+void            HarvestCrop(int, crop_struct *, pstate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 void            InitCropSV(crop_struct *);
 void            InitCycles(const agtbl_struct *, const soiltbl_struct *,

@@ -445,7 +445,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     if (lc->shdfac > 0.0)
     {
 #if defined(_CYCLES_)
-        CanRes(ws, es, ef, ps, soil);
+        CanRes(es, ps);
 #else
         CanRes(ws, es, ef, ps, soil, epc);
 #endif
@@ -649,8 +649,7 @@ void CalHum(pstate_struct *ps, estate_struct *es)
 }
 
 #if defined(_CYCLES_)
-void CanRes(const wstate_struct *ws, const estate_struct *es,
-    const eflux_struct *ef, pstate_struct *ps, const soil_struct *soil)
+void CanRes(const estate_struct *es, pstate_struct *ps)
 #else
 void CanRes(const wstate_struct *ws, const estate_struct *es,
     const eflux_struct *ef, pstate_struct *ps, const soil_struct *soil,
@@ -670,9 +669,14 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
      * See also:  Chen et al. (1996, JGR, Vol 101(D3), 7251-7268), Eqns 12-14
      * and Table 2 of Sec. 3.1.2
      */
+    double          delta;
+    double          rr;
+#if !defined(_CYCLES_)
+    double          ff;
+    double          gx;
     int             k;
-    double          delta, ff, gx, rr;
     double          part[MAXLYR];
+#endif
     const double    SLV = 2.501000e6;
 #if defined(_CYCLES_)
     const double    RC = 70.0;
