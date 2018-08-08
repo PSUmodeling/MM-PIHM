@@ -502,8 +502,10 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 
 #if defined(_CYCLES_)
 void            AddCrop(crop_struct *);
+double          Aeration(double);
 void            ApplyFertilizer(const fixfert_struct *, cstate_struct *,
     nstate_struct *, nflux_struct *);
+double          CNdestiny(double, double );
 void            CalcRootFraction(const crop_struct *, const pstate_struct *,
     double *);
 double          ColdDamage(double, double, double);
@@ -511,8 +513,13 @@ double          CommRadIntcp(const crop_struct[]);
 double          CommTotRadIntcp(const crop_struct[]);
 void            ComputeColdDamage(const daily_struct *, crop_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
+void            ComputeFactorComposite(const soil_struct *,
+    const daily_struct *, pstate_struct *);
 double          ComputeHarvestIndex(double, double, double, double, double);
 void            ComputeResidueCover(const cstate_struct *, pstate_struct *);
+void            ComputeSoilCarbonBalanceMB(const double[], const soil_struct *,
+    pstate_struct *, wstate_struct *, cstate_struct *, cflux_struct *,
+    nstate_struct *, nflux_struct *);
 double          ComputeTextureFactor(double);
 void            ComputeTillageFactor(const tillage_struct *, const double [],
     double, const soil_struct *, const pstate_struct *, double []);
@@ -571,6 +578,12 @@ int             IsOperationToday(int, int, const void *, int, int, int *);
 void            KillCrop(crop_struct *);
 void            MakeZeroFluxStruct(crop_struct [], wflux_struct *,
     cflux_struct *, nflux_struct *);
+double          MaximumAbgdHumificationFactor(double);
+double          MaximumManuHumificationFactor(double);
+double          MaximumRhizHumificationFactor(double);
+double          MaximumRootHumificationFactor(double);
+double          Moisture(double);
+double          NitrogenMineralization(double, double, double, double);
 int             NumActiveCrop(const crop_struct []);
 void            Phenology(const daily_struct *, crop_struct []);
 void            PlantingCrop(const plant_struct *,  crop_struct *);
@@ -596,6 +609,7 @@ void            ResidueWetting(const pstate_struct *, const cstate_struct *,
 void            RestartInput(const cyclesic_struct *, pstate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 double          ShootBiomassPartitioning(double, double, double, int);
+double          TemperatureFunction(double);
 double          TemperatureFunctionGrowth(double, double, double, double);
 double          TemperatureLimitation(double, double, double);
 double          ThermalTime(double, double, double, double);
