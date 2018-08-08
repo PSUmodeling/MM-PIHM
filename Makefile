@@ -254,17 +254,22 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	noah/topo_radn.c\
 	spa/spa.c
   CYCLES_SRCS_ =\
-  	crop.c\
+	crop.c\
+	crop_harvest.c\
 	crop_process.c\
 	crop_thermal_time.c\
 	crop_transpiration.c\
 	daily_operation.c\
+	fertilization.c\
+	field_operation.c\
 	growing_crop.c\
+	irrigation.c\
 	make_zero_flux_struct.c\
 	read_crop.c\
 	read_operation.c\
 	residue.c\
 	restart.c\
+	tillage.c\
 	time_func.c
 	#Crop.c\
 	#CropHarvest.c\

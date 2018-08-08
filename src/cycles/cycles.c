@@ -24,8 +24,8 @@ void DailyCycles(int t, pihm_struct pihm)
         elem = &pihm->elem[i];
         ind = elem->attrib.op_type - 1;
 
-        DailyOperations(year, doy, &pihm->opertbl[ind], &elem->soil,
-            &elem->daily, &elem->mgmt, elem->crop, &elem->ps, &elem->ws,
+        DailyOperations(year, doy, &pihm->opertbl[ind], &elem->daily,
+            &elem->soil, &elem->mgmt, elem->crop, &elem->ps, &elem->ws,
             &elem->wf, &elem->cs, &elem->cf, &elem->ns, &elem->nf);
     }
 }

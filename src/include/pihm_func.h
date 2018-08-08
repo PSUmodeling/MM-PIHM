@@ -503,6 +503,8 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 
 #if defined(_CYCLES_)
 void            AddCrop(crop_struct *);
+void            ApplyFertilizer(const fixfert_struct *, cstate_struct *,
+    nstate_struct *, nflux_struct *);
 void            CalcRootFraction(const crop_struct *, const pstate_struct *,
     double *);
 double          ColdDamage(double, double, double);
@@ -510,7 +512,11 @@ double          CommRadIntcp(const crop_struct[]);
 double          CommTotRadIntcp(const crop_struct[]);
 void            ComputeColdDamage(const daily_struct *, crop_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
+double          ComputeHarvestIndex(double, double, double, double, double);
 void            ComputeResidueCover(const cstate_struct *, pstate_struct *);
+double          ComputeTextureFactor(double);
+void            ComputeTillageFactor(const tillage_struct *, const double [],
+    double, const soil_struct *, const pstate_struct *, double []);
 void            CropGrowth(double, const daily_struct *, double *,
     crop_struct *);
 void            CropNitrogenConcentration(double, const crop_struct *,
@@ -523,35 +529,59 @@ void            CropNitrogenUptake(int, double, double, const pstate_struct *,
     double *, double *, double *, double *, double [], double [], double *,
     double *, crop_struct [], nstate_struct *, nflux_struct *);
 void            DailyOperations(int, int, const opertbl_struct *,
-    const soil_struct *, const daily_struct *, mgmt_struct *, crop_struct [],
+    const daily_struct *, soil_struct *, mgmt_struct *, crop_struct [],
     pstate_struct *, wstate_struct *, wflux_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
+void            DistributeRootDetritus(double, double, double,
+    double, const crop_struct *, const pstate_struct *, cstate_struct *,
+    nstate_struct *);
 int             Doy(int, int, int);
 void            Doy2Date(int, int, int *, int *);
+void            ExecuteTillage(const tillage_struct *, const pstate_struct *,
+    double *, soil_struct *, wstate_struct *, cstate_struct *,
+    nstate_struct *, nflux_struct *);
+void            FieldOperation(int, int, const opertbl_struct *,
+    const daily_struct *, soil_struct *, mgmt_struct *,
+    crop_struct [], pstate_struct *, wstate_struct *, wflux_struct *,
+    cstate_struct *, nstate_struct *, nflux_struct *);
 int             FinalHarvestDate(int, double, double, double);
 int             FindCrop(const char[], const epconst_struct []);
+double          FindIrrigationVolume(int, double, const soil_struct *,
+    const daily_struct *daily, const pstate_struct *, const wstate_struct *,
+    const wflux_struct *);
 void            FirstDay(const soiltbl_struct *, elem_struct [],
     river_struct []);
 void            FirstDOY(int, int *);
+void            ForageAndSeedHarvest(int, int, crop_struct *,
+    pstate_struct *, wstate_struct *, cstate_struct *, nstate_struct *,
+    nflux_struct *);
 int             ForcedClipping(int, const crop_struct []);
+double          Fraction(double, double, double, double, double);
+void            GrainHarvest(int, int, crop_struct *, pstate_struct *,
+    wstate_struct *, cstate_struct *, nstate_struct *);
 void            GrowingCrop(int, int, const soil_struct *, const daily_struct *,
     mgmt_struct *, crop_struct [], pstate_struct *, wstate_struct *,
     cstate_struct *, nstate_struct *, nflux_struct *);
+void            HarvestCrop(int, int, crop_struct *, pstate_struct *,
+    wstate_struct *, cstate_struct *, nstate_struct *);
 void            InitCropSV(crop_struct *);
 void            InitCycles(const agtbl_struct *, const soiltbl_struct *,
     epconst_struct [], elem_struct [], river_struct []);
 void            InitCyclesVar(elem_struct [], river_struct [], N_Vector);
 int             IsLeapYear(int);
+int             IsOperationToday(int, int, const void *, int, int, int *);
+void            KillCrop(crop_struct *);
 void            MakeZeroFluxStruct(crop_struct [], wflux_struct *,
     cflux_struct *, nflux_struct *);
 int             NumActiveCrop(const crop_struct []);
-void            Processes(int, const soil_struct *, const daily_struct *,
-    const pstate_struct *, crop_struct [], cstate_struct *, nstate_struct *,
-    nflux_struct *);
 void            Phenology(const daily_struct *, crop_struct []);
+void            PlantingCrop(const plant_struct *,  crop_struct *);
 void            PotentialSoluteUptake(double, int, const double[],
     const double[], const double[], const double[], const double[], double *,
     double[]);
+void            Processes(int, const soil_struct *, const daily_struct *,
+    const pstate_struct *, crop_struct [], cstate_struct *, nstate_struct *,
+    nflux_struct *);
 void            RadiationInterception(crop_struct []);
 void            ReadCrop(const char [], epconst_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
@@ -571,6 +601,7 @@ double          ShootBiomassPartitioning(double, double, double, int);
 double          TemperatureFunctionGrowth(double, double, double, double);
 double          TemperatureLimitation(double, double, double);
 double          ThermalTime(double, double, double, double);
+void            TillageFactorSettling(int, const double [], double, double []);
 void            WaterUptake(const soil_struct *, const estate_struct *,
     const pstate_struct *, double, crop_struct [], wstate_struct *,
     wflux_struct *);
