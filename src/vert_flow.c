@@ -271,6 +271,8 @@ double EffKinf(const soil_struct *soil, double dh_by_dz, double ksatfunc,
 
 double Psi(double satn, double alpha, double beta)
 {
+    satn = (satn < SATMIN) ? SATMIN : satn;
+
     /* van Genuchten 1980 SSSAJ */
     return -pow(pow(1.0 / satn, beta / (beta - 1.0)) - 1.0, 1.0 / beta) / alpha;
 }
