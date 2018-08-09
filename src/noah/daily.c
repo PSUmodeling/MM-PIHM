@@ -87,7 +87,11 @@ void DailyVar(int t, int start_time, elem_struct *elem)
             elem[i].daily.avg_rc /= (double)elem[i].daily.daylight_counter;
             elem[i].daily.avg_sfcprs /= (double)elem[i].daily.daylight_counter;
             elem[i].daily.avg_albedo /= (double)elem[i].daily.daylight_counter;
+#if defined(_CYCLES_)
+            elem[i].daily.avg_soldn /= (double)elem[i].daily.counter;
+#else
             elem[i].daily.avg_soldn /= (double)elem[i].daily.daylight_counter;
+#endif
 
             elem[i].daily.tnight /= (double)(elem[i].daily.counter -
                 elem[i].daily.daylight_counter);
