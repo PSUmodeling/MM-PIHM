@@ -751,6 +751,7 @@ void InitWFlux(wflux_struct *wf)
 #endif
 #if defined(_CYCLES_)
     wf->eres = 0.0;
+    wf->irrigationVol = 0.0;
 #endif
 }
 

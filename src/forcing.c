@@ -179,32 +179,32 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
     int             i;
 
 #if defined(_CYCLES_)
-//    /*
-//     * Cycles coupling
-//     */
-//# if defined(_OPENMP)
-//#  pragma omp parallel for
-//# endif
-////    for (i = 0; i < nelem; i++)
-//    {
-//        double          ksolar;
-//        double          tau;
-//
-//        if (elem[i].comm.svRadiationInterception > 0.0)
-//        {
-//            ksolar = 0.5;
-//
-//            tau = 1.0 -
-//                ((elem[i].comm.svRadiationInterception > 0.98) ?
-//                0.98 : elem[i].comm.svRadiationInterception);
-//
-//            elem[i].ps.proj_lai = -log(tau) / ksolar;
-//        }
-//        else
-//        {
-//            elem[i].ps.proj_lai = 0.0;
-//        }
-//    }
+    /*
+     * Cycles coupling
+     */
+# if defined(_OPENMP)
+#  pragma omp parallel for
+# endif
+    for (i = 0; i < nelem; i++)
+    {
+        double          ksolar;
+        double          tau;
+
+        if (CommRadIntcp(elem[i].crop) > 0.0)
+        {
+            ksolar = 0.5;
+
+            tau = 1.0 -
+                ((CommRadIntcp(elem[i].crop) > 0.98) ?
+                0.98 : CommRadIntcp(elem[i].crop));
+
+            elem[i].ps.proj_lai = -log(tau) / ksolar;
+        }
+        else
+        {
+            elem[i].ps.proj_lai = 0.0;
+        }
+    }
 #elif  _BGC_
     /*
      * BGC coupling

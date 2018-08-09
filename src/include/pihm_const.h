@@ -384,7 +384,7 @@ extern int     nriver;
 #if defined(_OPENMP)
 extern int     nthreads;
 #endif
-#if defined(_BGC_) || defined (_CYCLES_)
+#if defined(_BGC_)
 extern int     first_balance;
 #endif
 

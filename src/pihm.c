@@ -53,7 +53,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, HYDROL_STEP);
 
 #if defined(_DAILY_)
-    DailyVar(t, pihm->ctrl.starttime, pihm->elem, pihm->ctrl.stepsize);
+    DailyVar(t, pihm->ctrl.starttime, pihm->elem);
 
     /*
      * Daily timestep modules
@@ -66,7 +66,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
 # endif
 
 # if defined(_CYCLES_)
-//        DailyCycles(t - DAYINSEC, pihm);
+        DailyCycles(t - DAYINSEC, pihm);
 # endif
 
         /* Update print variables for CN (daily) step variables */

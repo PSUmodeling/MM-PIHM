@@ -13,7 +13,7 @@ int             nriver;
 #if defined(_OPENMP)
 int             nthreads = 1;    /* Default value */
 #endif
-#if defined(_BGC_) || defined (_CYCLES_)
+#if defined(_BGC_)
 int             first_balance;
 #endif
 
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     /* Set solver parameters */
     SetCVodeParam(pihm, cvode_mem, CV_Y);
 
-#if defined(_BGC_) || defined (_CYCLES_)
+#if defined(_BGC_)
     first_balance = 1;
 #endif
 
@@ -149,8 +149,8 @@ int main(int argc, char *argv[])
         }
 #endif
 
-#if defined(_CYCLES_)
 # if TEMP_DISABLED
+#if defined(_CYCLES_)
         if (pihm->ctrl.write_cycles_restart)
         {
             WriteCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);

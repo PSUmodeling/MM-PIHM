@@ -411,7 +411,7 @@ void            WDfCnd(double *, double *, double, double, const soil_struct *);
 #endif
 
 #if defined(_DAILY_)
-void            DailyVar(int, int, elem_struct *, double);
+void            DailyVar(int, int, elem_struct *);
 void            InitDailyStruct(elem_struct *);
 #endif
 
@@ -535,6 +535,7 @@ void            CropNitrogenStress(double, double, double, crop_struct *);
 void            CropNitrogenUptake(int, double, double, const pstate_struct *,
     double *, double *, double *, double *, double [], double [], double *,
     double *, crop_struct [], nstate_struct *, nflux_struct *);
+void            DailyCycles(int, pihm_struct);
 void            DailyOperations(int, const opertbl_struct *,
     const daily_struct *, soil_struct *, mgmt_struct *, crop_struct [],
     pstate_struct *, wstate_struct *, wflux_struct *, cstate_struct *,

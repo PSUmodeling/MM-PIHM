@@ -473,7 +473,7 @@ typedef struct wflux_struct
     double          etns;                   /* (m s-1) */
 #endif
 #if defined(_CYCLES_)
-    double          eres;                   /* evaporation from residue (m s-2)
+    double          eres;                   /* evaporation from residue (m s-1)
                                              */
     double          irrigationVol;          /* irrigation volume (m s-1) */
 #endif
@@ -859,17 +859,6 @@ typedef struct bgcic_struct
 } bgcic_struct;
 #endif
 
-//#if defined(_CYCLES_)
-//typedef struct solute_struct
-//{
-//    double          soluteMass[MAXLYR];
-//    double          soluteMassAdsorbed[MAXLYR];
-//    double          soluteConc[MAXLYR];
-//    double          soluteFluxLat[NUM_EDGE][MAXLYR];
-//    double          soluteFluxVert[MAXLYR];
-//} solute_struct;
-//#endif
-
 #if defined(_DAILY_)
 
 /* Daily average variables */
@@ -882,8 +871,6 @@ typedef struct daily_struct
                                             * content (m3 m-3) */
     double          avg_smc[MAXLYR];       /* daily average unfrozen soil
                                             * moisture content (m3 m-3) */
-    double          avg_et[MAXLYR];        /* daily average evapotranspiration
-                                            * (m s-1) */
     double          avg_q2d;               /* daily average mixing ratio deficit
                                             * (kg kg-1) */
     double          avg_sfcprs;            /* daily average air pressure (Pa) */
@@ -895,8 +882,6 @@ typedef struct daily_struct
                                             * (-) */
     double          avg_sfcspd;            /* daily average wind speed (m s-1)
                                             */
-    double          avg_sncovr;            /* daily average snow cover fraction
-                                            * (-) */
     double          tmax;                  /* daily maximum air temperature (K)
                                             */
     double          tmin;                  /* daily minimum air temperature (K)
@@ -911,8 +896,12 @@ typedef struct daily_struct
                                             */
     double          avg_soldn;             /* daytime average downward solar
                                             * radiation (W m-2) */
-    double          solar_total;           /* daily total solar radiation
-                                            * (J m-2) */
+#if defined(_PIHM_)
+    double          avg_et[MAXLYR];        /* daily average evapotranspiration
+                                            * (m s-1) */
+    double          avg_sncovr;            /* daily average snow cover fraction
+                                            * (-) */
+#endif
 } daily_struct;
 #endif
 

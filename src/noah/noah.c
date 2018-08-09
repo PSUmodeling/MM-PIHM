@@ -860,8 +860,8 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
 
 #if defined(_CYCLES_)
         /* Evaporation from residue (Cycles function) */
-        ResidueEvaporation(wf->etp, dt, ps->sncovr, crop, ps, cs, ws,
-            wf);
+        ResidueEvaporation(wf->etp * RHOH2O * dt, dt, ps->sncovr, crop, ps, cs,
+            ws, wf);
 #endif
 
         if (lc->shdfac > 0.0)

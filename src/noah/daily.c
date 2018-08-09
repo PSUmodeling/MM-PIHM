@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void DailyVar(int t, int start_time, elem_struct *elem, double dt)
+void DailyVar(int t, int start_time, elem_struct *elem)
 {
     int             i;
 
@@ -31,12 +31,12 @@ void DailyVar(int t, int start_time, elem_struct *elem, double dt)
             elem[i].daily.avg_sh2o[k] += elem[i].ws.sh2o[k];
             elem[i].daily.avg_smc[k] += elem[i].ws.smc[k];
 #if defined(_CYCLES_)
-//            elem[i].daily.avg_et[k] += elem[i].wf.et[k];
+            elem[i].daily.avg_et[k] += elem[i].wf.et[k];
 #endif
         }
 
 #if defined(_CYCLES_)
-//        elem[i].daily.avg_sncovr += elem[i].ps.sncovr;
+        elem[i].daily.avg_sncovr += elem[i].ps.sncovr;
 #endif
 
         if (elem[i].ef.soldn > 0.0)
@@ -48,7 +48,6 @@ void DailyVar(int t, int start_time, elem_struct *elem, double dt)
             elem[i].daily.avg_sfcprs += elem[i].ps.sfcprs;
             elem[i].daily.avg_albedo += elem[i].ps.albedo;
             elem[i].daily.avg_soldn += elem[i].ef.soldn;
-            elem[i].daily.solar_total += elem[i].ef.soldn * dt;
             (elem[i].daily.daylight_counter)++;
         }
         else
@@ -79,12 +78,12 @@ void DailyVar(int t, int start_time, elem_struct *elem, double dt)
                 elem[i].daily.avg_sh2o[k] /= (double)elem[i].daily.counter;
                 elem[i].daily.avg_smc[k] /= (double)elem[i].daily.counter;
 #if defined(_CYCLES_)
-//                elem[i].daily.avg_et[k] /= (double)elem[i].daily.counter;
+                elem[i].daily.avg_et[k] /= (double)elem[i].daily.counter;
 #endif
             }
 
 #if defined(_CYCLES_)
-//            elem[i].daily.avg_sncovr /= (double)elem[i].daily.counter;
+            elem[i].daily.avg_sncovr /= (double)elem[i].daily.counter;
 #endif
 
             elem[i].daily.tday /= (double)elem[i].daily.daylight_counter;
@@ -208,6 +207,5 @@ void InitDailyStruct(elem_struct *elem)
         elem[i].daily.tnight = 0.0;
 
         elem[i].daily.avg_soldn = 0.0;
-        elem[i].daily.solar_total = 0.0;
     }
 }

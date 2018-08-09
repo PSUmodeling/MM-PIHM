@@ -7,7 +7,7 @@ void DailyCycles(int t, pihm_struct pihm)
     int             doy;
     pihm_t_struct   pihm_t;
 
-    pihm_t = PIHMTime(t - DAYINSEC);
+    pihm_t = PIHMTime(t);
     year = pihm_t.year;
     month = pihm_t.month;
     day = pihm_t.day;
