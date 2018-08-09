@@ -880,8 +880,6 @@ typedef struct daily_struct
                                             * (s m-1) */
     double          avg_albedo;            /* daily average surface albedo
                                             * (-) */
-    double          avg_sfcspd;            /* daily average wind speed (m s-1)
-                                            */
     double          tmax;                  /* daily maximum air temperature (K)
                                             */
     double          tmin;                  /* daily minimum air temperature (K)

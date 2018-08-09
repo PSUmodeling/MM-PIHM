@@ -21,9 +21,6 @@ void DailyVar(int t, int start_time, elem_struct *elem)
         elem[i].daily.tmin = (elem[i].daily.tmin < elem[i].es.sfctmp) ?
             elem[i].daily.tmin : elem[i].es.sfctmp;
 
-        /* Wind speed */
-        elem[i].daily.avg_sfcspd += elem[i].ps.sfcspd;
-
         /* Soil moisture, temperature, and ET */
         for (k = 0; k < elem[i].ps.nsoil; k++)
         {
@@ -70,8 +67,6 @@ void DailyVar(int t, int start_time, elem_struct *elem)
 
             elem[i].daily.avg_sfctmp /= (double)elem[i].daily.counter;
 
-            elem[i].daily.avg_sfcspd /= (double)elem[i].daily.counter;
-
             for (k = 0; k < elem[i].ps.nsoil; k++)
             {
                 elem[i].daily.avg_stc[k] /= (double)elem[i].daily.counter;
@@ -109,8 +104,6 @@ void DailyVar(int t, int start_time, elem_struct *elem)
             elem[LUMPED].daily.tmin += elem[i].daily.tmin * elem[i].topo.area;
             elem[LUMPED].daily.avg_sfctmp +=
                 elem[i].daily.avg_sfctmp * elem[i].topo.area;
-            elem[LUMPED].daily.avg_sfcspd +=
-                elem[i].daily.avg_sfcspd * elem[i].topo.area;
             /* When running lumped model, only average root zone to avoid uneven
              * layers */
             for (k = 0; k < elem[i].ps.nroot; k++)
@@ -144,7 +137,6 @@ void DailyVar(int t, int start_time, elem_struct *elem)
         elem[LUMPED].daily.tmax /= elem[LUMPED].topo.area;
         elem[LUMPED].daily.tmin /= elem[LUMPED].topo.area;
         elem[LUMPED].daily.avg_sfctmp /= elem[LUMPED].topo.area;
-        elem[LUMPED].daily.avg_sfcspd /= elem[LUMPED].topo.area;
         /* When running lumped model, only average root zone to avoid uneven
          * layers */
         for (k = 0; k < elem[LUMPED].ps.nroot; k++)
@@ -197,7 +189,6 @@ void InitDailyStruct(elem_struct *elem)
         elem[i].daily.avg_ch = 0.0;
         elem[i].daily.avg_rc = 0.0;
         elem[i].daily.avg_albedo = 0.0;
-        elem[i].daily.avg_sfcspd = 0.0;
         elem[i].daily.avg_sncovr = 0.0;
 
         elem[i].daily.tmax = -999.0;
