@@ -253,7 +253,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
         }
         else
         {
-            elem->ps.proj_lai = MonthlyLai(t, elem->attrib.lc_type);
+            elem[i].ps.proj_lai = MonthlyLai(t, elem[i].attrib.lc_type);
         }
     }
 #endif
