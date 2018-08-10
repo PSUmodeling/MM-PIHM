@@ -271,24 +271,9 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	restart.c\
 	soil_carbon.c\
 	soil_nitrogen.c\
+	soil_solute.c\
 	tillage.c\
 	time_func.c
-	#Crop.c\
-	#CropHarvest.c\
-	#CropProcess.c\
-	#CropThermalTime.c\
-	#CropTranspiration.c\
-	#DailyOperation.c\
-	#Fertilization.c\
-	#FieldOperation.c\
-	#Irrigation.c\
-	#Residue.c\
-	#Soil.c\
-	#SoilCarbon.c\
-	#SoilEvaporation.c\
-	#SoilNitrogen.c\
-	#SoilSolute.c\
-	#Tillage.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."

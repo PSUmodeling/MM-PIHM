@@ -67,6 +67,9 @@ void NoahHydrol(elem_struct *elem, double dt)
     for (i = 0; i < nelem; i++)
     {
         int             j;
+#if defined(_CYCLES_)
+        double          wflux[MAXLYR + 1];
+#endif
 
         /* Find water table position */
         elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.sldpth, elem[i].ps.nsoil,
@@ -90,6 +93,39 @@ void NoahHydrol(elem_struct *elem, double dt)
             &elem[i].wf);
 #else
         SmFlx(&elem[i].ws, &elem[i].wf, &elem[i].ps, &elem[i].soil, dt);
+#endif
+
+#if defined(_CYCLES_)
+        for (j = 0; j < MAXLYR + 1; j++)
+        {
+            wflux[j] = 0.0;
+        }
+
+        for (j = 0; j < elem[i].ps.nsoil; j++)
+        {
+            /* Note in Noah and Cycles flux k represents flux from different
+             * layers
+             *
+             *     Flux-PIHM               Cycles
+             *
+             *   smflxv[k - 1]            wflux[k]
+             * --------|--------     --------|--------
+             *         V                     V
+             *                 layer k
+             *     smflxv[k]            wflux[k + 1]
+             * --------|--------     --------|--------
+             *         V                     V
+             */
+            wflux[j + 1] = elem[i].wf.smflxv[j] * RHOH2O * dt;
+        }
+
+        SoluteTransportV(elem[i].ps.nsoil, 0.0, 0.0, wflux, elem[i].soil.bd,
+            elem[i].ps.sldpth, elem[i].soil.smcmax, elem[i].ws.sh2o,
+            elem[i].ns.no3);
+
+        SoluteTransportV(elem[i].ps.nsoil, 5.6, 0.0, wflux, elem[i].soil.bd,
+            elem[i].ps.sldpth, elem[i].soil.smcmax, elem[i].ws.sh2o,
+            elem[i].ns.nh4);
 #endif
     }
 
@@ -2419,6 +2455,7 @@ void SStep(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     /* Calculate soil moisture flux within soil layers */
     for (k = ps->nsoil - 1; k > 0; k--)
     {
+        /* Positive smflxv[k] is flux out of soil layer k */
         wf->smflxv[k - 1] =
             (ws->sh2o[k] - sh2o0[k]) * ps->sldpth[k] / dt +
             wf->runoff2_lyr[k] + wf->et[k] + wf->smflxv[k];

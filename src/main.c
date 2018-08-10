@@ -65,8 +65,13 @@ int main(int argc, char *argv[])
     CreateOutputDir(outputdir);
 
     /* Create output structures */
+#if defined(_CYCLES_)
+    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->epctbl,
+        pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
+#else
     MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->elem, pihm->river,
         &pihm->meshtbl, outputdir, &pihm->print);
+#endif
 
     /* Backup input files */
 #if !defined(_MSC_VER)

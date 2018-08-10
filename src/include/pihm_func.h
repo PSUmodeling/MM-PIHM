@@ -171,8 +171,14 @@ void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
 void            IntrplForc(tsdata_struct *, int, int);
 double          KrFunc(double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
+#if defined(_CYCLES_)
+void            MapOutput(const int *, const int *, const epconst_struct [],
+    const elem_struct *, const river_struct *, const meshtbl_struct *,
+    const char *, print_struct *);
+#else
 void            MapOutput(const int *, const int *, const elem_struct *,
     const river_struct *, const meshtbl_struct *, const char *, print_struct *);
+#endif
 #if defined(_FBR_)
 void            MassBalance(const wstate_struct *, const wstate_struct *,
     wflux_struct *, double *, const soil_struct *, const geol_struct *, double,
@@ -581,6 +587,8 @@ void            InitCyclesVar(elem_struct [], river_struct [], N_Vector);
 int             IsLeapYear(int);
 int             IsOperationToday(int, int, const void *, int, int, int *);
 void            KillCrop(crop_struct *);
+double          LinearEquilibriumConcentration(double, double, double, double,
+    double);
 void            MakeZeroFluxStruct(wflux_struct *, cflux_struct *,
     nflux_struct *);
 double          MaximumAbgdHumificationFactor(double);
@@ -620,6 +628,8 @@ void            ResidueWetting(const pstate_struct *, const cstate_struct *,
 void            RestartInput(const cyclesic_struct *, pstate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 double          ShootBiomassPartitioning(double, double, double, int);
+void            SoluteTransportV(int, double, double, const double *,
+    const double *, const double *, double, const double *, double *);
 double          TemperatureFunction(double);
 double          TemperatureFunctionGrowth(double, double, double, double);
 double          TemperatureLimitation(double, double, double);
