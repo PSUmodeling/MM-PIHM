@@ -212,6 +212,8 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     lc->shdfac = CommRadIntcp(crop);
 #endif
 
+    lc->shdfac = (ps->proj_lai <= 0.0) ? 0.0 : lc->shdfac;
+
     /* Flux-PIHM uses LAI as a forcing variable.
      * Vegetation fraction is calculated from LAI following Noah-MP */
     if (ps->proj_lai >= lc->laimax)
@@ -478,7 +480,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * Call CanRes to calculate the canopy resistance and convert it into pc if
      * nonzero greenness fraction
      */
-    if (lc->shdfac > 0.0)
+    if (lc->shdfac > 0.0 && ps->proj_lai > 0.0)
     {
 #if defined(_CYCLES_)
         CanRes(es, ps);
@@ -900,7 +902,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
             ws, wf);
 #endif
 
-        if (lc->shdfac > 0.0)
+        if (lc->shdfac > 0.0 && ps->proj_lai > 0.0)
         {
             /* Initialize plant total transpiration, retrieve plant
              * transpiration, and accumulate it for all soil layers. */
