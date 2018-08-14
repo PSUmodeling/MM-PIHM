@@ -3,11 +3,12 @@
 void InitCycles(const agtbl_struct *agtbl, const soiltbl_struct *soiltbl,
     epconst_struct epctbl[], elem_struct elem[], river_struct river[])
 {
-    int             soil_ind;
-    int             i, j, k;
+    int             i;
 
     for (i = 0; i < nelem; i++)
     {
+        int             soil_ind;
+        int             j, k;
         /*
          * Initialize initial soil variables
          */
@@ -48,12 +49,39 @@ void InitCycles(const agtbl_struct *agtbl, const soiltbl_struct *soiltbl,
          */
         elem[i].mgmt.rot_size = agtbl->rotsz[i];
         elem[i].mgmt.auto_n = agtbl->auto_N[i];
-
         elem[i].mgmt.rot_year = 0;
+
         for (j = 0; j < 4; j++)
         {
             elem[i].mgmt.op_ptr[j] = 0;
         }
+    }
+
+    /*
+     * Initialize river bed bulk densities
+     */
+    for (i = 0; i < nriver; i++)
+    {
+        int             k;
+        double          totdpth;
+
+        river[i].matl.bd = 0.0;
+        totdpth = 0.0;
+
+        for (k = 0; k < elem[river[i].leftele - 1].ps.nsoil; k++)
+        {
+            river[i].matl.bd += elem[river[i].leftele - 1].soil.bd[k] *
+                elem[river[i].leftele - 1].ps.sldpth[k];
+            totdpth += elem[river[i].leftele - 1].ps.sldpth[k];
+        }
+        for (k = 0; k < elem[river[i].rightele - 1].ps.nsoil; k++)
+        {
+            river[i].matl.bd += elem[river[i].rightele - 1].soil.bd[k] *
+                elem[river[i].rightele - 1].ps.sldpth[k];
+            totdpth += elem[river[i].rightele - 1].ps.sldpth[k];
+        }
+
+        river[i].matl.bd /= totdpth;
     }
 }
 

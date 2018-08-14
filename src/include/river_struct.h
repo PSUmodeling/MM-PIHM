@@ -54,6 +54,9 @@ typedef struct matl_struct
     double          porosity;    /* bed porosity (m3 m-3) */
     double          smcmin;      /* bed residual soil moisture content (m3 m-3)
                                   */
+#if defined(_CYCLES_)
+    double          bd;
+#endif
 } matl_struct;
 
 /* River boundary conditions */
