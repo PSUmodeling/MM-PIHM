@@ -91,6 +91,13 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 # endif
 #endif
 
+#if defined(_CYCLES_)
+    /*
+     * NO3 and NH4 transport fluxes
+     */
+    NTransport(pihm->elem, pihm->river);
+#endif
+
     /*
      * Build RHS of ODEs
      */

@@ -712,7 +712,7 @@ typedef struct nprof_struct
 /* Solute transport structure */
 typedef struct solute_struct
 {
-    double          conc_subsurf;         /* subsurface pool concentration
+    double          conc;                 /* subsurface pool concentration
                                            * (kg kgH2O-1) */
     double          flux[NUM_EDGE];       /* subsurface solute flux (kg s-1) */
     double          snksrc;               /* subsurface sink/source term

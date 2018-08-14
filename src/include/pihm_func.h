@@ -512,6 +512,8 @@ double          Aeration(double);
 double          AirMolarDensity(double, double);
 void            ApplyFertilizer(const fixfert_struct *, cstate_struct *,
     nstate_struct *, nflux_struct *);
+double          AvgSolConc(int, double, const double [],
+    const double [], const double [], double, const double []);
 double          CNdestiny(double, double );
 void            CalSnkSrc(const nflux_struct *, int, solute_struct *,
     solute_struct *);
@@ -606,6 +608,7 @@ double          NitrogenMineralization(double, double, double, double);
 void            NitrogenTransformation(const soil_struct *,
     const daily_struct *, const crop_struct [], const cstate_struct *,
     const cflux_struct *, pstate_struct *, nstate_struct *, nflux_struct *);
+void            NTransport(elem_struct *, river_struct *);
 int             NumActiveCrop(const crop_struct []);
 void            Phenology(const daily_struct *, crop_struct []);
 void            PlantingCrop(const plant_struct *,  crop_struct *);
