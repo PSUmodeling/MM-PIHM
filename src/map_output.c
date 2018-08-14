@@ -758,42 +758,42 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     }
                     n++;
                     break;
-//                case NO3_PROF_CTRL:
-//                    InitPrtVarCtrl(outputdir, "NO3", prtvrbl[i],
-//                        HYDROL_STEP, nelem, &print->varctrl[n]);
-//                    for (j = 0; j < nelem; j++)
-//                    {
-//                        print->varctrl[n].var[j] = &elem[j].soil.NO3Profile;
-//                    }
-//                    n++;
-//                    break;
-//                case NO3_RIVER_CTRL:
-//                    InitPrtVarCtrl(outputdir, "rivNO3", prtvrbl[i],
-//                        HYDROL_STEP, nriver, &print->varctrl[n]);
-//                    for (j = 0; j < nriver; j++)
-//                    {
-//                        print->varctrl[n].var[j] = &river[j].NO3sol.soluteMass;
-//                    }
-//                    n++;
-//                    break;
-//                case NH4_PROF_CTRL:
-//                    InitPrtVarCtrl(outputdir, "NH4", prtvrbl[i],
-//                        HYDROL_STEP, nelem, &print->varctrl[n]);
-//                    for (j = 0; j < nelem; j++)
-//                    {
-//                        print->varctrl[n].var[j] = &elem[j].soil.NH4Profile;
-//                    }
-//                    n++;
-//                    break;
-//                case NH4_RIVER_CTRL:
-//                    InitPrtVarCtrl(outputdir, "rivNH4", prtvrbl[i],
-//                        HYDROL_STEP, nriver, &print->varctrl[n]);
-//                    for (j = 0; j < nriver; j++)
-//                    {
-//                        print->varctrl[n].var[j] = &river[j].NH4sol.soluteMass;
-//                    }
-//                    n++;
-//                    break;
+                case NO3_PROF_CTRL:
+                    InitPrtVarCtrl(outputdir, "NO3", prtvrbl[i],
+                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].np.no3;
+                    }
+                    n++;
+                    break;
+                case NO3_RIVER_CTRL:
+                    InitPrtVarCtrl(outputdir, "rivNO3", prtvrbl[i],
+                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    for (j = 0; j < nriver; j++)
+                    {
+                        print->varctrl[n].var[j] = &river[j].ns.streamno3;
+                    }
+                    n++;
+                    break;
+                case NH4_PROF_CTRL:
+                    InitPrtVarCtrl(outputdir, "NH4", prtvrbl[i],
+                        HYDROL_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].np.nh4;
+                    }
+                    n++;
+                    break;
+                case NH4_RIVER_CTRL:
+                    InitPrtVarCtrl(outputdir, "rivNH4", prtvrbl[i],
+                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    for (j = 0; j < nriver; j++)
+                    {
+                        print->varctrl[n].var[j] = &river[j].ns.streamnh4;
+                    }
+                    n++;
+                    break;
                 case NO3_DENIT_CTRL:
                     InitPrtVarCtrl(outputdir, "NO3denitrif",
                         prtvrbl[i], CN_STEP, nelem,

@@ -34,7 +34,6 @@ void NTransport(elem_struct *elem, river_struct *river)
     for (i = 0; i < nriver; i++)
     {
         int             j;
-        double          strg;
 
         /* Initialize N fluxes */
         for (j = 0; j < NUM_RIVFLX; j++)
@@ -83,173 +82,215 @@ void NTransport(elem_struct *elem, river_struct *river)
     /*
      * Calculate solute fluxes
      */
-//#if defined(_OPENMP)
-//# pragma omp parallel for
-//#endif
-//    for (i = 0; i < nelem; i++)
-//    {
-//        elem_struct    *nabr;
-//        int             j;
-//
-//        /* Element to element */
-//        for (j = 0; j < NUM_EDGE; j++)
-//        {
-//            if (elem[i].nabr[j] > 0)
-//            {
-//                nabr = &elem[elem[i].nabr[j] - 1];
-//
-//                elem[i].nsol.subflux[j] = elem[i].wf.subsurf[j] * 1000.0 *
-//                    ((elem[i].wf.subsurf[j] > 0.0) ?
-//                    MOBILEN_PROPORTION * elem[i].nsol.conc_subsurf :
-//                    MOBILEN_PROPORTION * nabr->nsol.conc_subsurf);
-//            }
-//            else if (elem[i].nabr[j] < 0)
-//            {
-//                /* Do nothing. River-element interactions are calculated
-//                 * later */
-//            }
-//            else    /* Boundary condition flux */
-//            {
-//                elem[i].nsol.subflux[j] = 0.0;
-//            }
-//        }
-//    }
-//
-//#if defined(_OPENMP)
-//# pragma omp parallel for
-//#endif
-//    for (i = 0; i < nriver; i++)
-//    {
-//        river_struct   *down;
-//        elem_struct    *left;
-//        elem_struct    *right;
-//        int             j;
-//
-//        /* Downstream and upstream */
-//        if (river[i].down > 0)
-//        {
-//            down = &river[river[i].down - 1];
-//
-//            /* Stream */
-//            river[i].nsol.flux[DOWN_CHANL2CHANL] =
-//                river[i].wf.rivflow[DOWN_CHANL2CHANL] * 1000.0 *
-//                ((river[i].wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
-//                river[i].nsol.conc_stream : down->nsol.conc_stream);
-//
-//            /* Bed */
-//            river[i].nsol.flux[DOWN_AQUIF2AQUIF] =
-//                river[i].wf.rivflow[DOWN_AQUIF2AQUIF] * 1000.0 *
-//                ((river[i].wf.rivflow[DOWN_AQUIF2AQUIF] > 0.0) ?
-//                MOBILEN_PROPORTION * river[i].nsol.conc_bed :
-//                MOBILEN_PROPORTION * down->nsol.conc_bed);
-//        }
-//        else
-//        {
-//            river[i].nsol.flux[DOWN_CHANL2CHANL] =
-//                river[i].wf.rivflow[DOWN_CHANL2CHANL] * 1000.0 *
-//                river[i].nsol.conc_stream;
-//
-//            river[i].nsol.flux[DOWN_AQUIF2AQUIF] = 0.0;
-//        }
-//
-//        /* Left and right banks */
-//        left = &elem[river[i].leftele - 1];
-//        right = &elem[river[i].rightele - 1];
-//
-//        if (river[i].leftele > 0)
-//        {
-//            river[i].nsol.flux[LEFT_SURF2CHANL] =
-//                river[i].wf.rivflow[LEFT_SURF2CHANL] * 1000.0 *
-//                ((river[i].wf.rivflow[LEFT_SURF2CHANL] > 0.0) ?
-//                river[i].nsol.conc_stream :
-//                MOBILEN_PROPORTION * left->nsol.conc_surf);
-//
-//            river[i].nsol.flux[LEFT_AQUIF2CHANL] =
-//                river[i].wf.rivflow[LEFT_AQUIF2CHANL] * 1000.0 *
-//                ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
-//                river[i].nsol.conc_stream :
-//                MOBILEN_PROPORTION * left->nsol.conc_subsurf);
-//
-//            river[i].nsol.flux[LEFT_AQUIF2AQUIF] =
-//                river[i].wf.rivflow[LEFT_AQUIF2AQUIF] * 1000.0 *
-//                ((river[i].wf.rivflow[LEFT_AQUIF2AQUIF] > 0.0) ?
-//                MOBILEN_PROPORTION * river[i].nsol.conc_bed :
-//                MOBILEN_PROPORTION * left->nsol.conc_subsurf);
-//
-//            for (j = 0; j < NUM_EDGE; j++)
-//            {
-//                if (left->nabr[j] == -(i + 1))
-//                {
-//                    left->nsol.ovlflux[j] =
-//                        -river[i].nsol.flux[LEFT_SURF2CHANL];
-//                    left->nsol.subflux[j] =
-//                        -(river[i].nsol.flux[LEFT_AQUIF2CHANL] +
-//                        river[i].nsol.flux[LEFT_AQUIF2AQUIF]);
-//                    break;
-//                }
-//            }
-//
-//        }
-//
-//        if (river[i].rightele > 0)
-//        {
-//            river[i].nsol.flux[RIGHT_SURF2CHANL] =
-//                river[i].wf.rivflow[RIGHT_SURF2CHANL] * 1000.0 *
-//                ((river[i].wf.rivflow[RIGHT_SURF2CHANL] > 0.0) ?
-//                river[i].nsol.conc_stream :
-//                MOBILEN_PROPORTION * right->nsol.conc_surf);
-//
-//            river[i].nsol.flux[RIGHT_AQUIF2CHANL] =
-//                river[i].wf.rivflow[RIGHT_AQUIF2CHANL] * 1000.0 *
-//                ((river[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
-//                river[i].nsol.conc_stream :
-//                MOBILEN_PROPORTION * right->nsol.conc_subsurf);
-//
-//            river[i].nsol.flux[RIGHT_AQUIF2AQUIF] =
-//                river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] * 1000.0 *
-//                ((river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] > 0.0) ?
-//                MOBILEN_PROPORTION * river[i].nsol.conc_bed :
-//                MOBILEN_PROPORTION * right->nsol.conc_subsurf);
-//
-//            for (j = 0; j < NUM_EDGE; j++)
-//            {
-//                if (right->nabr[j] == -(i + 1))
-//                {
-//                    right->nsol.ovlflux[j] =
-//                        -river[i].nsol.flux[RIGHT_SURF2CHANL];
-//                    right->nsol.subflux[j] =
-//                        -(river[i].nsol.flux[RIGHT_AQUIF2CHANL] +
-//                        river[i].nsol.flux[RIGHT_AQUIF2AQUIF]);
-//                    break;
-//                }
-//            }
-//        }
-//
-//        river[i].nsol.flux[CHANL_LKG] =
-//            river[i].wf.rivflow[CHANL_LKG] * 1000.0 *
-//            ((river[i].wf.rivflow[CHANL_LKG] > 0.0) ?
-//            river[i].nsol.conc_stream :
-//            MOBILEN_PROPORTION * river[i].nsol.conc_bed);
-//    }
-//
-//    /*
-//     * Accumulate to get in-flow for down segments
-//     */
-//    for (i = 0; i < nriver; i++)
-//    {
-//        river_struct   *down;
-//
-//        if (river[i].down > 0)
-//        {
-//            down = &river[river[i].down - 1];
-//
-//            down->nsol.flux[UP_CHANL2CHANL] -=
-//                river[i].nsol.flux[DOWN_CHANL2CHANL];
-//
-//            down->nsol.flux[UP_AQUIF2AQUIF] -=
-//                river[i].nsol.flux[DOWN_AQUIF2AQUIF];
-//        }
-//    }
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+        elem_struct    *nabr;
+        int             j;
+
+        /* Element to element */
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            if (elem[i].nabr[j] > 0)
+            {
+                nabr = &elem[elem[i].nabr[j] - 1];
+
+                elem[i].no3sol.flux[j] = elem[i].wf.subsurf[j] * RHOH2O *
+                    ((elem[i].wf.subsurf[j] > 0.0) ?
+                    elem[i].no3sol.conc : nabr->no3sol.conc);
+
+                elem[i].nh4sol.flux[j] = elem[i].wf.subsurf[j] * RHOH2O *
+                    ((elem[i].wf.subsurf[j] > 0.0) ?
+                    elem[i].nh4sol.conc : nabr->nh4sol.conc);
+            }
+            else if (elem[i].nabr[j] < 0)
+            {
+                /* Do nothing. River-element interactions are calculated
+                 * later */
+            }
+            else    /* Boundary condition flux */
+            {
+                elem[i].no3sol.flux[j] = 0.0;
+                elem[i].nh4sol.flux[j] = 0.0;
+            }
+        }
+    }
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nriver; i++)
+    {
+        river_struct   *down;
+        elem_struct    *left;
+        elem_struct    *right;
+        int             j;
+
+        /* Downstream and upstream */
+        if (river[i].down > 0)
+        {
+            down = &river[river[i].down - 1];
+
+            /* Stream */
+            river[i].no3sol.flux[DOWN_CHANL2CHANL] =
+                river[i].wf.rivflow[DOWN_CHANL2CHANL] * RHOH2O *
+                ((river[i].wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
+                river[i].no3sol.conc_stream : down->no3sol.conc_stream);
+
+            river[i].nh4sol.flux[DOWN_CHANL2CHANL] =
+                river[i].wf.rivflow[DOWN_CHANL2CHANL] * RHOH2O *
+                ((river[i].wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
+                river[i].nh4sol.conc_stream : down->nh4sol.conc_stream);
+
+            /* Bed */
+            river[i].no3sol.flux[DOWN_AQUIF2AQUIF] =
+                river[i].wf.rivflow[DOWN_AQUIF2AQUIF] * RHOH2O *
+                ((river[i].wf.rivflow[DOWN_AQUIF2AQUIF] > 0.0) ?
+                river[i].no3sol.conc_bed : down->no3sol.conc_bed);
+
+            river[i].nh4sol.flux[DOWN_AQUIF2AQUIF] =
+                river[i].wf.rivflow[DOWN_AQUIF2AQUIF] * RHOH2O *
+                ((river[i].wf.rivflow[DOWN_AQUIF2AQUIF] > 0.0) ?
+                river[i].nh4sol.conc_bed : down->nh4sol.conc_bed);
+        }
+        else
+        {
+            river[i].no3sol.flux[DOWN_CHANL2CHANL] =
+                river[i].wf.rivflow[DOWN_CHANL2CHANL] * RHOH2O *
+                river[i].no3sol.conc_stream;
+
+            river[i].nh4sol.flux[DOWN_CHANL2CHANL] =
+                river[i].wf.rivflow[DOWN_CHANL2CHANL] * RHOH2O *
+                river[i].nh4sol.conc_stream;
+
+            river[i].no3sol.flux[DOWN_AQUIF2AQUIF] = 0.0;
+            river[i].nh4sol.flux[DOWN_AQUIF2AQUIF] = 0.0;
+        }
+
+        /* Left and right banks */
+        left = &elem[river[i].leftele - 1];
+        right = &elem[river[i].rightele - 1];
+
+        if (river[i].leftele > 0)
+        {
+            river[i].no3sol.flux[LEFT_SURF2CHANL] = 0.0;
+            river[i].nh4sol.flux[LEFT_SURF2CHANL] = 0.0;
+
+            river[i].no3sol.flux[LEFT_AQUIF2CHANL] =
+                river[i].wf.rivflow[LEFT_AQUIF2CHANL] * RHOH2O *
+                ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
+                river[i].no3sol.conc_stream : left->no3sol.conc);
+
+            river[i].nh4sol.flux[LEFT_AQUIF2CHANL] =
+                river[i].wf.rivflow[LEFT_AQUIF2CHANL] * RHOH2O *
+                ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
+                river[i].nh4sol.conc_stream : left->nh4sol.conc);
+
+            river[i].no3sol.flux[LEFT_AQUIF2AQUIF] =
+                river[i].wf.rivflow[LEFT_AQUIF2AQUIF] * RHOH2O *
+                ((river[i].wf.rivflow[LEFT_AQUIF2AQUIF] > 0.0) ?
+                river[i].no3sol.conc_bed : left->no3sol.conc);
+
+            river[i].nh4sol.flux[LEFT_AQUIF2AQUIF] =
+                river[i].wf.rivflow[LEFT_AQUIF2AQUIF] * RHOH2O *
+                ((river[i].wf.rivflow[LEFT_AQUIF2AQUIF] > 0.0) ?
+                river[i].nh4sol.conc_bed : left->nh4sol.conc);
+
+            for (j = 0; j < NUM_EDGE; j++)
+            {
+                if (left->nabr[j] == -(i + 1))
+                {
+                    left->no3sol.flux[j] =
+                        -(river[i].no3sol.flux[LEFT_AQUIF2CHANL] +
+                        river[i].no3sol.flux[LEFT_AQUIF2AQUIF]);
+
+                    left->nh4sol.flux[j] =
+                        -(river[i].nh4sol.flux[LEFT_AQUIF2CHANL] +
+                        river[i].nh4sol.flux[LEFT_AQUIF2AQUIF]);
+                    break;
+                }
+            }
+
+        }
+
+        if (river[i].rightele > 0)
+        {
+            river[i].no3sol.flux[RIGHT_SURF2CHANL] = 0.0;
+            river[i].nh4sol.flux[RIGHT_SURF2CHANL] = 0.0;
+
+            river[i].no3sol.flux[RIGHT_AQUIF2CHANL] =
+                river[i].wf.rivflow[RIGHT_AQUIF2CHANL] * RHOH2O *
+                ((river[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
+                river[i].no3sol.conc_stream : right->no3sol.conc);
+
+            river[i].nh4sol.flux[RIGHT_AQUIF2CHANL] =
+                river[i].wf.rivflow[RIGHT_AQUIF2CHANL] * RHOH2O *
+                ((river[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
+                river[i].nh4sol.conc_stream : right->nh4sol.conc);
+
+            river[i].no3sol.flux[RIGHT_AQUIF2AQUIF] =
+                river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] * RHOH2O *
+                ((river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] > 0.0) ?
+                river[i].no3sol.conc_bed : right->no3sol.conc);
+
+            river[i].nh4sol.flux[RIGHT_AQUIF2AQUIF] =
+                river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] * RHOH2O *
+                ((river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] > 0.0) ?
+                river[i].nh4sol.conc_bed : right->nh4sol.conc);
+
+            for (j = 0; j < NUM_EDGE; j++)
+            {
+                if (right->nabr[j] == -(i + 1))
+                {
+                    right->no3sol.flux[j] =
+                        -(river[i].no3sol.flux[RIGHT_AQUIF2CHANL] +
+                        river[i].no3sol.flux[RIGHT_AQUIF2AQUIF]);
+
+                    right->nh4sol.flux[j] =
+                        -(river[i].nh4sol.flux[RIGHT_AQUIF2CHANL] +
+                        river[i].nh4sol.flux[RIGHT_AQUIF2AQUIF]);
+                    break;
+                }
+            }
+        }
+
+        river[i].no3sol.flux[CHANL_LKG] =
+            river[i].wf.rivflow[CHANL_LKG] * RHOH2O *
+            ((river[i].wf.rivflow[CHANL_LKG] > 0.0) ?
+            river[i].no3sol.conc_stream : river[i].no3sol.conc_bed);
+
+        river[i].nh4sol.flux[CHANL_LKG] =
+            river[i].wf.rivflow[CHANL_LKG] * RHOH2O *
+            ((river[i].wf.rivflow[CHANL_LKG] > 0.0) ?
+            river[i].nh4sol.conc_stream : river[i].nh4sol.conc_bed);
+    }
+
+    /*
+     * Accumulate to get in-flow for down segments
+     */
+    for (i = 0; i < nriver; i++)
+    {
+        river_struct   *down;
+
+        if (river[i].down > 0)
+        {
+            down = &river[river[i].down - 1];
+
+            down->no3sol.flux[UP_CHANL2CHANL] -=
+                river[i].no3sol.flux[DOWN_CHANL2CHANL];
+
+            down->no3sol.flux[UP_AQUIF2AQUIF] -=
+                river[i].no3sol.flux[DOWN_AQUIF2AQUIF];
+
+            down->nh4sol.flux[UP_CHANL2CHANL] -=
+                river[i].nh4sol.flux[DOWN_CHANL2CHANL];
+
+            down->nh4sol.flux[UP_AQUIF2AQUIF] -=
+                river[i].nh4sol.flux[DOWN_AQUIF2AQUIF];
+        }
+    }
 }
 
 double AvgSolConc(int nsoil, double kd, const double bd[],

@@ -111,18 +111,27 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         elem = &pihm->elem[i];
 
+        /*
+         * Vertical water fluxes for surface and subsurface
+         */
         dy[SURF(i)] += elem->wf.pcpdrp - elem->wf.infil - elem->wf.edir_surf;
         dy[UNSAT(i)] += elem->wf.infil - elem->wf.rechg - elem->wf.edir_unsat -
             elem->wf.ett_unsat;
         dy[GW(i)] += elem->wf.rechg - elem->wf.edir_gw - elem->wf.ett_gw;
 
 #if defined(_FBR_)
+        /*
+         * Vertical water fluxes for fractured bedrock
+         */
         dy[GW(i)] -= elem->wf.fbr_infil;
 
         dy[FBRUNSAT(i)] += elem->wf.fbr_infil - elem->wf.fbr_rechg;
         dy[FBRGW(i)] += elem->wf.fbr_rechg;
 #endif
 
+        /*
+         * Horizontal water fluxes
+         */
         for (j = 0; j < NUM_EDGE; j++)
         {
             dy[SURF(i)] -= elem->wf.ovlflow[j] / elem->topo.area;
@@ -150,6 +159,9 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
 #if defined(_BGC_) && !defined(_LUMPED_)
 # if !defined(_LEACHING_)
+        /*
+         * BGC N transport fluxes
+         */
         dy[SURFN(i)] +=
             (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC -
             elem->nsol.infilflux;
@@ -174,11 +186,22 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
 
 #if defined(_CYCLES_)
+        /*
+         * Cycles NO3 and NH4 transport fluxes
+         */
         dy[NO3(i)] += elem->no3sol.snksrc / DAYINSEC;
-
         dy[NH4(i)] += elem->nh4sol.snksrc / DAYINSEC;
-#endif
 
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            dy[NO3(i)] -= elem->no3sol.flux[j] / elem->topo.area;
+            dy[NH4(i)] -= elem->nh4sol.flux[j] / elem->topo.area;
+        }
+
+        /* Check NAN errors for dy */
+        CheckDy(dy[NO3(i)], "element", "NO3", i + 1, (double)t);
+        CheckDy(dy[NH4(i)], "element", "NH4", i + 1, (double)t);
+#endif
     }
 
 #if defined(_BGC_) && defined(_LUMPED_)
@@ -243,6 +266,32 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         /* Check NAN errors for dy */
         CheckDy(dy[STREAMN(i)], "river", "stream N", i + 1, (double)t);
         CheckDy(dy[RIVBEDN(i)], "river", "bed mineral N", i + 1, (double)t);
+#endif
+
+#if defined(_CYCLES_)
+        for (j = 0; j <= 6; j++)
+        {
+            dy[STREAMNO3(i)] -= river->no3sol.flux[j] / river->topo.area;
+            dy[STREAMNH4(i)] -= river->nh4sol.flux[j] / river->topo.area;
+        }
+
+        dy[RIVBEDNO3(i)] += -river->no3sol.flux[LEFT_AQUIF2AQUIF] -
+            river->no3sol.flux[RIGHT_AQUIF2AQUIF] -
+            river->no3sol.flux[DOWN_AQUIF2AQUIF] -
+            river->no3sol.flux[UP_AQUIF2AQUIF] + river->no3sol.flux[CHANL_LKG];
+        dy[RIVBEDNH4(i)] += -river->nh4sol.flux[LEFT_AQUIF2AQUIF] -
+            river->nh4sol.flux[RIGHT_AQUIF2AQUIF] -
+            river->nh4sol.flux[DOWN_AQUIF2AQUIF] -
+            river->nh4sol.flux[UP_AQUIF2AQUIF] + river->nh4sol.flux[CHANL_LKG];
+
+        dy[RIVBEDNO3(i)] /= river->topo.area;
+        dy[RIVBEDNH4(i)] /= river->topo.area;
+
+        /* Check NAN errors for dy */
+        CheckDy(dy[STREAMNO3(i)], "river", "stream NO3", i + 1, (double)t);
+        CheckDy(dy[RIVBEDNO3(i)], "river", "bed NO3", i + 1, (double)t);
+        CheckDy(dy[STREAMNH4(i)], "river", "stream NH4", i + 1, (double)t);
+        CheckDy(dy[RIVBEDNH4(i)], "river", "bed NH4", i + 1, (double)t);
 #endif
     }
 
