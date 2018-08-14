@@ -66,7 +66,7 @@ void NoahHydrol(elem_struct *elem, double dt)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             j;
+        int             k;
 #if defined(_CYCLES_)
         double          wflux[MAXLYR + 1];
 #endif
@@ -75,17 +75,17 @@ void NoahHydrol(elem_struct *elem, double dt)
         elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.sldpth, elem[i].ps.nsoil,
             elem[i].ws.gw, elem[i].ps.satdpth);
 
-        for (j = 0; j < elem[i].ps.nsoil; j++)
+        for (k = 0; k < elem[i].ps.nsoil; k++)
         {
-            elem[i].ws.smc[j] =
-                (elem[i].ws.smc[j] > elem[i].soil.smcmin + SH2OMIN) ?
-                elem[i].ws.smc[j] : elem[i].soil.smcmin + SH2OMIN;
-            elem[i].ws.smc[j] =
-                (elem[i].ws.smc[j] < elem[i].soil.smcmax) ?
-                elem[i].ws.smc[j] : elem[i].soil.smcmax;
-            elem[i].ws.sh2o[j] =
-                (elem[i].ws.sh2o[j] < elem[i].ws.smc[j]) ?
-                elem[i].ws.sh2o[j] : elem[i].ws.smc[j];
+            elem[i].ws.smc[k] =
+                (elem[i].ws.smc[k] > elem[i].soil.smcmin + SH2OMIN) ?
+                elem[i].ws.smc[k] : elem[i].soil.smcmin + SH2OMIN;
+            elem[i].ws.smc[k] =
+                (elem[i].ws.smc[k] < elem[i].soil.smcmax) ?
+                elem[i].ws.smc[k] : elem[i].soil.smcmax;
+            elem[i].ws.sh2o[k] =
+                (elem[i].ws.sh2o[k] < elem[i].ws.smc[k]) ?
+                elem[i].ws.sh2o[k] : elem[i].ws.smc[k];
         }
 
 #if defined(_CYCLES_)
@@ -96,12 +96,15 @@ void NoahHydrol(elem_struct *elem, double dt)
 #endif
 
 #if defined(_CYCLES_)
-        for (j = 0; j < MAXLYR + 1; j++)
+        /*
+         * Calcluate vertical transport of solute
+         */
+        for (k = 0; k < MAXLYR + 1; k++)
         {
-            wflux[j] = 0.0;
+            wflux[k] = 0.0;
         }
 
-        for (j = 0; j < elem[i].ps.nsoil; j++)
+        for (k = 0; k < elem[i].ps.nsoil; k++)
         {
             /* Note in Noah and Cycles flux k represents flux from different
              * layers
@@ -116,7 +119,7 @@ void NoahHydrol(elem_struct *elem, double dt)
              * --------|--------     --------|--------
              *         V                     V
              */
-            wflux[j + 1] = elem[i].wf.smflxv[j] * RHOH2O * dt;
+            wflux[k + 1] = elem[i].wf.smflxv[k] * RHOH2O * dt;
         }
 
         SoluteTransportV(elem[i].ps.nsoil, 0.0, 0.0, wflux, elem[i].soil.bd,

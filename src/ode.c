@@ -41,6 +41,11 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem->ns.surfn = (y[SURFN(i)] >= 0.0) ? y[SURFN(i)] : 0.0;
         elem->ns.sminn = (y[SMINN(i)] >= 0.0) ? y[SMINN(i)] : 0.0;
 #endif
+
+#if defined(_CYCLES_)
+        elem->np.no3 = (y[NO3(i)] >= 0.0) ? y[NO3(i)] : 0.0;
+        elem->np.nh4 = (y[NH4(i)] >= 0.0) ? y[NH4(i)] : 0.0;
+#endif
     }
 
 #if defined(_BGC_) && defined(_LUMPED_)
@@ -160,6 +165,13 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         CheckDy(dy[SURFN(i)], "element", "surface N", i + 1, (double)t);
         CheckDy(dy[SMINN(i)], "element", "soil mineral N", i + 1, (double)t);
 #endif
+
+#if defined(_CYCLES_)
+        dy[NO3(i)] += elem->no3sol.snksrc / DAYINSEC;
+
+        dy[NH4(i)] += elem->nh4sol.snksrc / DAYINSEC;
+#endif
+
     }
 
 #if defined(_BGC_) && defined(_LUMPED_)

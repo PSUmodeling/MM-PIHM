@@ -687,7 +687,7 @@ typedef struct nflux_struct
     double          N2O_Nitrification;          /* kg m-2 day-1 */
     double          no3denitrif;        /* kg m-2 day-1 */
     double          n2odenitrif;        /* kg m-2 day-1 */
-    double          nh4volat;         /* kg m-2 day-1 */
+    double          nh4volat[MAXLYR];         /* kg m-2 day-1 */
     double          uptake_no3[MAXLYR];         /* kg m-2 day-1 */
     double          uptake_nh4[MAXLYR];         /* kg m-2 day-1 */
     double          surplusn;                   /* kg m-2 day-1 */
@@ -699,6 +699,7 @@ typedef struct nflux_struct
     double          nitrif_nh4_to_n2o[MAXLYR];  /* kg m-2 day-1 */
     double          denitn[MAXLYR];             /* kg m-2 day-1 */
     double          till_no3[MAXLYR];           /* kg m-2 day-1 */
+    double          till_nh4[MAXLYR];
     double          urine;              /* kg m-2 day-1 */
 } nflux_struct;
 

@@ -246,6 +246,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	cycles/cycles.c\
   	cycles/cycles_read.c\
 	cycles/cycles_init.c\
+	cycles/update_prof.c\
 	noah/daily.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\

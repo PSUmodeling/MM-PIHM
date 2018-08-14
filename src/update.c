@@ -59,6 +59,16 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         elem[i].nt.surfn0 = elem[i].ns.surfn;
         elem[i].nt.sminn0 = elem[i].ns.sminn;
 #endif
+
+#if defined(_CYCLES_)
+        elem[i].np.no3 = (y[NO3(i)] >= 0.0) ? y[NO3(i)] : 0.0;
+        elem[i].np.nh4 = (y[NH4(i)] >= 0.0) ? y[NH4(i)] : 0.0;
+
+        UpdateNProf(elem[i].ps.nsoil, stepsize, &elem[i].nf, &elem[i].ns);
+
+        elem[i].np0.no3 = elem[i].np.no3;
+        elem[i].np0.nh4 = elem[i].np.nh4;
+#endif
     }
 
 #if defined(_BGC_) && defined(_LUMPED_)

@@ -138,6 +138,10 @@ void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         RestartInput(&elem[i].restart_input, &elem[i].ps, &elem[i].ws,
             &elem[i].cs, &elem[i].ns);
 
+        MakeZeroFluxStruct(&elem[i].wf, &elem[i].cf, &elem[i].nf);
+        elem[i].no3sol.snksrc = 0.0;
+        elem[i].nh4sol.snksrc = 0.0;
+
         elem[i].np.no3 = 0.0;
         elem[i].np.nh4 = 0.0;
         for (k = 0; k < elem[i].ps.nsoil; k++)
@@ -150,9 +154,6 @@ void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         NV_Ith(CV_Y, NH4(i)) = elem[i].np.nh4;
 
         elem[i].np0 = elem[i].np;
-
-        elem[i].no3sol.snksrc = 0.0;
-        elem[i].nh4sol.snksrc = 0.0;
     }
 
     for (i = 0; i < nriver; i++)
