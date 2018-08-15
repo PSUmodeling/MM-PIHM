@@ -168,7 +168,7 @@ void            InitVar(elem_struct [], river_struct [], N_Vector);
 void            InitWbFile(char *, char *, FILE *);
 void            InitWFlux(wflux_struct *);
 void            InitWState(wstate_struct *);
-void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
+void            IntcpSnowEt(int, double, const calib_struct *, elem_struct []);
 void            IntrplForc(int, int, tsdata_struct *);
 double          KrFunc(double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);

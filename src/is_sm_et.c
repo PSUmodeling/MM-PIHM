@@ -1,8 +1,8 @@
 #include "pihm.h"
 
 #if !defined(_NOAH_)
-void IntcpSnowEt(int t, double stepsize, elem_struct *elem,
-    const calib_struct *cal)
+void IntcpSnowEt(int t, double stepsize, const calib_struct *cal,
+    elem_struct elem[])
 {
     int             i;
     const double    TSNOW = -3.0;
@@ -55,21 +55,14 @@ void IntcpSnowEt(int t, double stepsize, elem_struct *elem,
         qv = 0.622 * vp / pres;
         qvsat = 0.622 * (vp / rh) / pres;
 
-        if (elem[i].attrib.lai_type > 0)
-        {
-            lai = elem[i].ps.proj_lai;
-        }
-        else
-        {
-            lai = MonthlyLai(t, elem[i].attrib.lc_type);
-        }
+        lai = (elem[i].attrib.lai_type > 0) ?
+            elem[i].ps.proj_lai : MonthlyLai(t, elem[i].attrib.lc_type);
 
         meltf = MonthlyMf(t);
 
         /* Snow accumulation and snow melt calculation */
         frac_snow = (sfctmp < TSNOW) ?
-            1.0 :
-            ((sfctmp > TRAIN) ? 0.0 : (TRAIN - sfctmp) / (TRAIN - TSNOW));
+            1.0 : ((sfctmp > TRAIN) ? 0.0 : (TRAIN - sfctmp) / (TRAIN - TSNOW));
         snow_rate = frac_snow * elem[i].wf.prcp;
 
         elem[i].ws.sneqv += snow_rate * stepsize;
@@ -100,7 +93,7 @@ void IntcpSnowEt(int t, double stepsize, elem_struct *elem,
             LVH2O * LVH2O * 0.622 / RV / CP / pow(sfctmp + 273.15, 2) * qvsat;
 
         etp = (radnet * delta + gamma * (1.2 * LVH2O * (qvsat - qv) / ra)) /
-            (1000.0 * LVH2O * (delta + gamma));
+            (RHOH2O * LVH2O * (delta + gamma));
 
         if (elem[i].soil.depth - elem[i].ws.gw < elem[i].ps.rzd)
         {
@@ -115,7 +108,7 @@ void IntcpSnowEt(int t, double stepsize, elem_struct *elem,
                 ((elem[i].ws.unsat /
                 (elem[i].soil.depth - elem[i].ws.gw)) < 0.0) ?
                 0.0 :
-                0.5 * (1.0 - cos(3.14 *
+                0.5 * (1.0 - cos(PI *
                 (elem[i].ws.unsat / (elem[i].soil.depth - elem[i].ws.gw))));
         }
 
@@ -178,14 +171,9 @@ void IntcpSnowEt(int t, double stepsize, elem_struct *elem,
             elem[i].wf.drip = 0.0;
         }
 
-        if (elem[i].wf.drip < 0.0)
-        {
-            elem[i].wf.drip = 0.0;
-        }
-        if (elem[i].wf.drip * stepsize > elem[i].ws.cmc)
-        {
-            elem[i].wf.drip = elem[i].ws.cmc / stepsize;
-        }
+        elem[i].wf.drip = (elem[i].wf.drip < 0.0) ? 0.0 : elem[i].wf.drip;
+        elem[i].wf.drip = (elem[i].wf.drip * stepsize > elem[i].ws.cmc) ?
+            elem[i].ws.cmc / stepsize : elem[i].wf.drip;
 
         isval = elem[i].ws.cmc +
             (1.0 - frac_snow) * elem[i].wf.prcp * elem[i].lc.shdfac * stepsize -
