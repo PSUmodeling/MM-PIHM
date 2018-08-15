@@ -117,7 +117,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     InitLc(pihm->elem, &pihm->lctbl, &pihm->cal);
 
     /* Initialize element forcing */
-    InitForc(pihm->elem, &pihm->forc, &pihm->cal);
+    InitForc(&pihm->cal, &pihm->forc, pihm->elem);
 
     /* Initialize river segment properties */
     InitRiver(pihm->river, pihm->elem, &pihm->rivtbl, &pihm->shptbl,
