@@ -1,9 +1,8 @@
 #include "pihm.h"
 
-void InitRiver(river_struct *river, elem_struct *elem,
-    const rivtbl_struct *rivtbl, const shptbl_struct *shptbl,
+void InitRiver(const rivtbl_struct *rivtbl, const shptbl_struct *shptbl,
     const matltbl_struct *matltbl, const meshtbl_struct *meshtbl,
-    const calib_struct *cal)
+    const calib_struct *cal, elem_struct elem[], river_struct river[])
 {
     int             i;
 
