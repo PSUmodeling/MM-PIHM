@@ -119,7 +119,13 @@ double          EffKh(const soil_struct *, double);
 double          EffKinf(const soil_struct *, double, double, double, double,
     double);
 double          EffKv(const soil_struct *, double, int);
-void            EtExtract(elem_struct *);
+#if defined(_NOAH_)
+void            EtExtract(const soil_struct *, const wstate_struct *,
+    pstate_struct *, wflux_struct *);
+#else
+void            EtExtract(const soil_struct *, const wstate_struct *,
+    wflux_struct *);
+#endif
 double          FieldCapacity(double, double, double, double);
 void            FreeAtttbl(atttbl_struct *);
 void            FreeCtrl(ctrl_struct *);
@@ -133,7 +139,7 @@ void            FreeShptbl(shptbl_struct *);
 void            FreeSoiltbl(soiltbl_struct *);
 void            FrictSlope(const elem_struct *, const river_struct *, int,
     double *, double *);
-void            Hydrol(elem_struct *, river_struct *, const ctrl_struct *);
+void            Hydrol(const ctrl_struct, *elem_struct [], river_struct []);
 double          Infil(const wstate_struct *, const wstate_struct *,
     const wflux_struct *, const topo_struct *, const soil_struct *, double);
 void            InitEFlux(eflux_struct *);

@@ -76,7 +76,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * PIHM Hydrology fluxes
      */
-    Hydrol(pihm->elem, pihm->river, &pihm->ctrl);
+    Hydrol(&pihm->ctrl, pihm->elem, pihm->river);
 
 #if defined(_BGC_)
     /*
