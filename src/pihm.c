@@ -4,7 +4,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     int next_t, double cputime)
 {
     /* Apply boundary conditions */
-    ApplyBc(&pihm->forc, pihm->elem, pihm->river, t);
+    ApplyBc(t, &pihm->forc, pihm->elem, pihm->river);
 
     /*
      * Apply forcing and simulate land surface processes
@@ -13,10 +13,10 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, int t,
     {
         /* Apply forcing */
 #if defined(_NOAH_)
-        ApplyForc(&pihm->forc, pihm->elem, t , pihm->ctrl.rad_mode,
-            &pihm->siteinfo);
+        ApplyForc(t, pihm->ctrl.rad_mode, &pihm->siteinfo, &pihm->forc,
+            pihm->elem);
 #else
-        ApplyForc(&pihm->forc, pihm->elem, t);
+        ApplyForc(t, &pihm->forc, pihm->elem);
 #endif
 
 #if defined(_NOAH_)

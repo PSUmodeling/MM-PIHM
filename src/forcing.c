@@ -1,43 +1,51 @@
 #include "pihm.h"
 
-void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *river, int t)
+void ApplyBc(int t, forc_struct *forc, elem_struct elem[], river_struct river[])
 {
-    /* Element boundary conditions */
+    /*
+     * Element boundary conditions
+     */
     if (forc->nbc > 0)
     {
-        ApplyElemBc(forc, elem, t);
+        ApplyElemBc(t, forc, elem);
     }
 
-    /* River boundary condition */
+    /*
+     * River boundary conditions
+     */
     if (forc->nriverbc > 0)
     {
-        ApplyRiverBc(forc, river, t);
+        ApplyRiverBc(t, forc, river);
     }
 }
 
 #if defined(_NOAH_)
-void ApplyForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
-    const siteinfo_struct *siteinfo)
+void ApplyForc(int t, int rad_mode, const siteinfo_struct *siteinfo,
+    forc_struct *forc, elem_struct elem[])
 #else
-void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
+void ApplyForc(int t, forc_struct *forc, elem_struct elem[])
 #endif
 {
-    /* Meteorological forcing */
+    /*
+     * Meteorological forcing
+     */
 #if defined(_NOAH_)
-    ApplyMeteoForc(forc, elem, t, rad_mode, siteinfo);
+    ApplyMeteoForc(t, rad_mode, siteinfo, forc, elem);
 #else
-    ApplyMeteoForc(forc, elem, t);
+    ApplyMeteoForc(t, forc, elem);
 #endif
 
-    /* LAI forcing */
+    /*
+     * LAI forcing
+     */
 #if defined(_BGC_) || defined(_CYCLES_)
     ApplyLai(elem);
 #else
-    ApplyLai(forc, elem, t);
+    ApplyLai(t, forc, elem);
 #endif
 }
 
-void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
+void ApplyElemBc(int t, forc_struct *forc, elem_struct elem[])
 {
     int             i, k;
 
@@ -46,7 +54,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 #endif
     for (k = 0; k < forc->nbc; k++)
     {
-        IntrplForc(&forc->bc[k], t, 1);
+        IntrplForc(t, 1, &forc->bc[k]);
     }
 
 #if defined(_OPENMP)
@@ -87,10 +95,10 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 }
 
 #if defined(_NOAH_)
-void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
-    const siteinfo_struct *siteinfo)
+void ApplyMeteoForc(int t, int rad_mode, const siteinfo_struct *siteinfo,
+    forc_struct *forc, elem_struct elem[])
 #else
-void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
+void ApplyMeteoForc(int t, forc_struct *forc, elem_struct elem[])
 #endif
 {
     int             i, k;
@@ -106,7 +114,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
     for (k = 0; k < forc->nmeteo; k++)
     {
-        IntrplForc(&forc->meteo[k], t, NUM_METEO_VAR);
+        IntrplForc(t, NUM_METEO_VAR, &forc->meteo[k]);
     }
 
 #if defined(_NOAH_)
@@ -122,7 +130,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 # endif
             for (k = 0; k < forc->nrad; k++)
             {
-                IntrplForc(&forc->rad[k], t, 2);
+                IntrplForc(t, 2, &forc->rad[k]);
             }
         }
 
@@ -140,6 +148,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 
         ind = elem[i].attrib.meteo_type - 1;
 
+        /* Convert from mm s-1 to m s-1 */
         elem[i].wf.prcp = forc->meteo[ind].value[PRCP_TS] / 1000.0;
         elem[i].es.sfctmp = forc->meteo[ind].value[SFCTMP_TS];
         elem[i].ps.rh = forc->meteo[ind].value[RH_TS];
@@ -171,9 +180,9 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 }
 
 #if defined(_BGC_) || defined(_CYCLES_)
-void ApplyLai(elem_struct *elem)
+void ApplyLai(elem_struct elem[])
 #else
-void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
+void ApplyLai(int t, forc_struct *forc, elem_struct elem[])
 #endif
 {
     int             i;
@@ -187,23 +196,15 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 # endif
     for (i = 0; i < nelem; i++)
     {
-        double          ksolar;
+        const double    KSOLAR = 0.52;
         double          tau;
+        double          rad_intcp;
 
-        if (CommRadIntcp(elem[i].crop) > 0.0)
-        {
-            ksolar = 0.5;
+        rad_intcp = CommRadIntcp(elem[i].crop);
+        rad_intcp = (rad_intcp > 0.98) ? 0.98 : rad_intcp;
 
-            tau = 1.0 -
-                ((CommRadIntcp(elem[i].crop) > 0.98) ?
-                0.98 : CommRadIntcp(elem[i].crop));
-
-            elem[i].ps.proj_lai = -log(tau) / ksolar;
-        }
-        else
-        {
-            elem[i].ps.proj_lai = 0.0;
-        }
+        elem[i].ps.proj_lai = (rad_intcp > 0.0) ?
+            -log(1.0 - rad_intcp) / KSOLAR : 0.0;
     }
 #elif  _BGC_
     /*
@@ -234,7 +235,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 #endif
         for (k = 0; k < forc->nlai; k++)
         {
-            IntrplForc(&forc->lai[k], t, 1);
+            IntrplForc(t, 1, &forc->lai[k]);
         }
     }
 
@@ -259,7 +260,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 #endif
 }
 
-void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
+void ApplyRiverBc(int t, forc_struct *forc, river_struct river[])
 {
     int             i, k;
 
@@ -268,7 +269,7 @@ void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
 #endif
     for (k = 0; k < forc->nriverbc; k++)
     {
-        IntrplForc(&forc->riverbc[k], t, 1);
+        IntrplForc(t, 1, &forc->riverbc[k]);
     }
 
 #if defined(_OPENMP)
@@ -291,7 +292,7 @@ void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
     }
 }
 
-void IntrplForc(tsdata_struct *ts, int t, int nvrbl)
+void IntrplForc(int t, int nvrbl, tsdata_struct *ts)
 {
     int             j;
     int             first, middle, last;
@@ -600,8 +601,7 @@ double MonthlyMf(int t)
     double          mf_tbl[12] = {
         0.001308019, 0.001633298, 0.002131198, 0.002632776, 0.003031171,
         0.003197325, 0.003095839, 0.002745240, 0.002260213, 0.001759481,
-        0.001373646, 0.001202083
-    };
+        0.001373646, 0.001202083};
 
     pihm_time = PIHMTime(t);
 

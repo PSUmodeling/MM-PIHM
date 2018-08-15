@@ -68,26 +68,26 @@
  */
 double          _WsAreaElev(int, const elem_struct *);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
-void            ApplyBc(forc_struct *, elem_struct *, river_struct *, int);
-void            ApplyElemBc(forc_struct *, elem_struct *, int);
+void            ApplyBc(int, forc_struct *, elem_struct [], river_struct []);
+void            ApplyElemBc(int, forc_struct *, elem_struct *);
 #if defined(_NOAH_)
-void            ApplyForc(forc_struct *, elem_struct *, int, int,
-    const siteinfo_struct *);
+void            ApplyForc(int, int, const siteinfo_struct *, forc_struct *,
+    elem_struct []);
 #else
-void            ApplyForc(forc_struct *, elem_struct *, int);
+void            ApplyForc(int, forc_struct *, elem_struct []);
 #endif
 #if defined(_BGC_) || defined(_CYCLES_)
-void            ApplyLai(elem_struct *);
+void            ApplyLai(elem_struct []);
 #else
-void            ApplyLai(forc_struct *, elem_struct *, int);
+void            ApplyLai(int, forc_struct *, elem_struct []);
 #endif
 #if defined(_NOAH_)
-void            ApplyMeteoForc(forc_struct *, elem_struct *, int, int,
-    const siteinfo_struct *);
+void            ApplyMeteoForc(int, int, const siteinfo_struct *, forc_struct *,
+    elem_struct []);
 #else
-void            ApplyMeteoForc(forc_struct *, elem_struct *, int);
+void            ApplyMeteoForc(int, forc_struct *, elem_struct []);
 #endif
-void            ApplyRiverBc(forc_struct *, river_struct *, int);
+void            ApplyRiverBc(int, forc_struct *, river_struct []);
 double          AvgKv(const soil_struct *, double, double, double);
 double          AvgH(double, double, double);
 double          AvgHsurf(double, double, double);
@@ -168,7 +168,7 @@ void            InitWbFile(char *, char *, FILE *);
 void            InitWFlux(wflux_struct *);
 void            InitWState(wstate_struct *);
 void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
-void            IntrplForc(tsdata_struct *, int, int);
+void            IntrplForc(int, int, tsdata_struct *);
 double          KrFunc(double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
 #if defined(_CYCLES_)
