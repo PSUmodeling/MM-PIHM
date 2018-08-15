@@ -179,7 +179,11 @@
 #define PPFD50              75.0    /* PPFD for 1/2 stomatal closure
                                      * (umol m-2 s-1) */
 #define DENITRIF_PROPORTION 0.01    /* fraction of mineralization to volatile */
+#if defined(_CYCLES_)
+#define MOBILEN_PROPORTION  0.67    /* fraction mineral N avail for leaching */
+#else
 #define MOBILEN_PROPORTION  0.1     /* fraction mineral N avail for leaching */
+#endif
 
 /* Respiration fractions for fluxes between compartments (-) */
 #define RFL1S1    0.39    /* transfer from litter 1 to soil 1 */

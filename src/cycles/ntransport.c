@@ -99,11 +99,13 @@ void NTransport(elem_struct *elem, river_struct *river)
 
                 elem[i].no3sol.flux[j] = elem[i].wf.subsurf[j] * RHOH2O *
                     ((elem[i].wf.subsurf[j] > 0.0) ?
-                    elem[i].no3sol.conc : nabr->no3sol.conc);
+                    MOBILEN_PROPORTION * elem[i].no3sol.conc :
+                    MOBILEN_PROPORTION * nabr->no3sol.conc);
 
                 elem[i].nh4sol.flux[j] = elem[i].wf.subsurf[j] * RHOH2O *
                     ((elem[i].wf.subsurf[j] > 0.0) ?
-                    elem[i].nh4sol.conc : nabr->nh4sol.conc);
+                    MOBILEN_PROPORTION * elem[i].nh4sol.conc :
+                    MOBILEN_PROPORTION * nabr->nh4sol.conc);
             }
             else if (elem[i].nabr[j] < 0)
             {
@@ -148,12 +150,14 @@ void NTransport(elem_struct *elem, river_struct *river)
             river[i].no3sol.flux[DOWN_AQUIF2AQUIF] =
                 river[i].wf.rivflow[DOWN_AQUIF2AQUIF] * RHOH2O *
                 ((river[i].wf.rivflow[DOWN_AQUIF2AQUIF] > 0.0) ?
-                river[i].no3sol.conc_bed : down->no3sol.conc_bed);
+                MOBILEN_PROPORTION * river[i].no3sol.conc_bed :
+                MOBILEN_PROPORTION * down->no3sol.conc_bed);
 
             river[i].nh4sol.flux[DOWN_AQUIF2AQUIF] =
                 river[i].wf.rivflow[DOWN_AQUIF2AQUIF] * RHOH2O *
                 ((river[i].wf.rivflow[DOWN_AQUIF2AQUIF] > 0.0) ?
-                river[i].nh4sol.conc_bed : down->nh4sol.conc_bed);
+                MOBILEN_PROPORTION * river[i].nh4sol.conc_bed :
+                MOBILEN_PROPORTION * down->nh4sol.conc_bed);
         }
         else
         {
@@ -181,22 +185,26 @@ void NTransport(elem_struct *elem, river_struct *river)
             river[i].no3sol.flux[LEFT_AQUIF2CHANL] =
                 river[i].wf.rivflow[LEFT_AQUIF2CHANL] * RHOH2O *
                 ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
-                river[i].no3sol.conc_stream : left->no3sol.conc);
+                river[i].no3sol.conc_stream :
+                MOBILEN_PROPORTION * left->no3sol.conc);
 
             river[i].nh4sol.flux[LEFT_AQUIF2CHANL] =
                 river[i].wf.rivflow[LEFT_AQUIF2CHANL] * RHOH2O *
                 ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
-                river[i].nh4sol.conc_stream : left->nh4sol.conc);
+                river[i].nh4sol.conc_stream :
+                MOBILEN_PROPORTION * left->nh4sol.conc);
 
             river[i].no3sol.flux[LEFT_AQUIF2AQUIF] =
                 river[i].wf.rivflow[LEFT_AQUIF2AQUIF] * RHOH2O *
                 ((river[i].wf.rivflow[LEFT_AQUIF2AQUIF] > 0.0) ?
-                river[i].no3sol.conc_bed : left->no3sol.conc);
+                MOBILEN_PROPORTION * river[i].no3sol.conc_bed :
+                MOBILEN_PROPORTION * left->no3sol.conc);
 
             river[i].nh4sol.flux[LEFT_AQUIF2AQUIF] =
                 river[i].wf.rivflow[LEFT_AQUIF2AQUIF] * RHOH2O *
                 ((river[i].wf.rivflow[LEFT_AQUIF2AQUIF] > 0.0) ?
-                river[i].nh4sol.conc_bed : left->nh4sol.conc);
+                MOBILEN_PROPORTION * river[i].nh4sol.conc_bed :
+                MOBILEN_PROPORTION * left->nh4sol.conc);
 
             for (j = 0; j < NUM_EDGE; j++)
             {
@@ -223,22 +231,26 @@ void NTransport(elem_struct *elem, river_struct *river)
             river[i].no3sol.flux[RIGHT_AQUIF2CHANL] =
                 river[i].wf.rivflow[RIGHT_AQUIF2CHANL] * RHOH2O *
                 ((river[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
-                river[i].no3sol.conc_stream : right->no3sol.conc);
+                river[i].no3sol.conc_stream :
+                MOBILEN_PROPORTION * right->no3sol.conc);
 
             river[i].nh4sol.flux[RIGHT_AQUIF2CHANL] =
                 river[i].wf.rivflow[RIGHT_AQUIF2CHANL] * RHOH2O *
                 ((river[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
-                river[i].nh4sol.conc_stream : right->nh4sol.conc);
+                river[i].nh4sol.conc_stream :
+                MOBILEN_PROPORTION * right->nh4sol.conc);
 
             river[i].no3sol.flux[RIGHT_AQUIF2AQUIF] =
                 river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] * RHOH2O *
                 ((river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] > 0.0) ?
-                river[i].no3sol.conc_bed : right->no3sol.conc);
+                MOBILEN_PROPORTION * river[i].no3sol.conc_bed :
+                MOBILEN_PROPORTION * right->no3sol.conc);
 
             river[i].nh4sol.flux[RIGHT_AQUIF2AQUIF] =
                 river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] * RHOH2O *
                 ((river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] > 0.0) ?
-                river[i].nh4sol.conc_bed : right->nh4sol.conc);
+                MOBILEN_PROPORTION * river[i].nh4sol.conc_bed :
+                MOBILEN_PROPORTION * right->nh4sol.conc);
 
             for (j = 0; j < NUM_EDGE; j++)
             {
@@ -259,12 +271,14 @@ void NTransport(elem_struct *elem, river_struct *river)
         river[i].no3sol.flux[CHANL_LKG] =
             river[i].wf.rivflow[CHANL_LKG] * RHOH2O *
             ((river[i].wf.rivflow[CHANL_LKG] > 0.0) ?
-            river[i].no3sol.conc_stream : river[i].no3sol.conc_bed);
+            river[i].no3sol.conc_stream :
+            MOBILEN_PROPORTION * river[i].no3sol.conc_bed);
 
         river[i].nh4sol.flux[CHANL_LKG] =
             river[i].wf.rivflow[CHANL_LKG] * RHOH2O *
             ((river[i].wf.rivflow[CHANL_LKG] > 0.0) ?
-            river[i].nh4sol.conc_stream : river[i].nh4sol.conc_bed);
+            river[i].nh4sol.conc_stream :
+            MOBILEN_PROPORTION * river[i].nh4sol.conc_bed);
     }
 
     /*
