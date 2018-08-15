@@ -153,11 +153,11 @@ void            InitRiver(const rivtbl_struct *, const shptbl_struct *,
 void            InitRiverWFlux(river_wflux_struct *);
 void            InitRiverWState(river_wstate_struct *);
 #if defined(_NOAH_)
-void            InitSoil(elem_struct *, const soiltbl_struct *,
-    const noahtbl_struct *, const calib_struct *);
+void            InitSoil(const soiltbl_struct *, const noahtbl_struct *,
+    const calib_struct *, elem_struct []);
 #else
-void            InitSoil(elem_struct *, const soiltbl_struct *,
-    const calib_struct *);
+void            InitSoil(const soiltbl_struct *, const calib_struct *,
+    elem_struct []);
 #endif
 void            InitSurfL(elem_struct *, const river_struct *,
     const meshtbl_struct *);

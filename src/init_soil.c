@@ -1,11 +1,11 @@
 #include "pihm.h"
 
 #if defined(_NOAH_)
-void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
-    const noahtbl_struct *noahtbl, const calib_struct *cal)
+void InitSoil(const soiltbl_struct *soiltbl, const noahtbl_struct *noahtbl,
+    const calib_struct *cal, elem_struct elem[])
 #else
-void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
-    const calib_struct *cal)
+void InitSoil(const soiltbl_struct *soiltbl, const calib_struct *cal,
+    elem_struct elem[])
 #endif
 {
     int             i;
