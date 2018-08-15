@@ -17,11 +17,7 @@ void Hydrol(const ctrl_struct *ctrl, elem_struct elem[], river_struct river[])
         /*
          * Determine which layers does ET extract water from
          */
-#if defined(_NOAH_)
         EtExtract(&elem[i].soil, &elem[i].ws, &elem[i].ps, &elem[i].wf);
-#else
-        EtExtract(&elem[i].soil, &elem[i].ws, &elem[i].wf);
-#endif
     }
 
 
@@ -35,13 +31,8 @@ void Hydrol(const ctrl_struct *ctrl, elem_struct elem[], river_struct river[])
     RiverFlow(elem, river, ctrl->riv_mode);
 }
 
-#if defined(_NOAH_)
 void EtExtract(const soil_struct *soil, const wstate_struct *ws,
     pstate_struct *ps, wflux_struct *wf)
-#else
-void EtExtract(const soil_struct *soil, const wstate_struct *ws,
-    wflux_struct *wf)
-#endif
 {
     /*
      * Source of direct evaporation

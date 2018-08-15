@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void InitMesh(elem_struct *elem, const meshtbl_struct *meshtbl)
+void InitMesh(const meshtbl_struct *meshtbl, elem_struct elem[])
 {
     int             i;
 

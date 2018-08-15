@@ -86,7 +86,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     }
 
     /* Initialize element mesh structures */
-    InitMesh(pihm->elem, &pihm->meshtbl);
+    InitMesh(&pihm->meshtbl, pihm->elem);
 
     /* Initialize element topography */
     InitTopo(pihm->elem, &pihm->meshtbl);
