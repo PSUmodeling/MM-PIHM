@@ -89,7 +89,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     InitMesh(&pihm->meshtbl, pihm->elem);
 
     /* Initialize element topography */
-    InitTopo(pihm->elem, &pihm->meshtbl);
+    InitTopo(&pihm->meshtbl, pihm->elem);
 
     /* Calculate average elevation and total area of model domain */
     pihm->siteinfo.zmax = AvgElev(pihm->elem);

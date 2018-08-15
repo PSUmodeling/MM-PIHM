@@ -1,18 +1,20 @@
 #include "pihm.h"
 
-void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
+void InitTopo(const meshtbl_struct *meshtbl, elem_struct elem[])
 {
-    int             i, j;
-    double          x[NUM_EDGE];
-    double          y[NUM_EDGE];
-    double          zmin[NUM_EDGE];
-    double          zmax[NUM_EDGE];
-#if defined(_FBR_)
-    double          zbed[NUM_EDGE];
-#endif
+    int             i;
 
     for (i = 0; i < nelem; i++)
     {
+        int             j;
+        double          x[NUM_EDGE];
+        double          y[NUM_EDGE];
+        double          zmin[NUM_EDGE];
+        double          zmax[NUM_EDGE];
+#if defined(_FBR_)
+        double          zbed[NUM_EDGE];
+#endif
+
         for (j = 0; j < NUM_EDGE; j++)
         {
             x[j] = meshtbl->x[elem[i].node[j] - 1];
@@ -44,33 +46,35 @@ void InitTopo(elem_struct *elem, const meshtbl_struct *meshtbl)
     }
 
 #if defined(_NOAH_)
-    CalcSlopeAspect(elem, meshtbl);
+    CalcSlopeAspect(meshtbl, elem);
 #endif
 }
 
 #if defined(_NOAH_)
-void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
+void CalcSlopeAspect(const meshtbl_struct *meshtbl, elem_struct elem[])
 {
+    int             i;
     const int       XCOMP = 0;
     const int       YCOMP = 1;
     const int       ZCOMP = 2;
-    double          x[NUM_EDGE];
-    double          y[NUM_EDGE];
-    double          zmax[NUM_EDGE];
-    double          edge_vector[2][NUM_EDGE];
-    double          normal_vector[NUM_EDGE];
-    double          vector[NUM_EDGE];
-    double          h, c;
-    double          se, ce;
-    int             nodes[2];
-    double          x1, y1, z1, x2, y2, z2, xc, yc, zc;
-    double          c1, c2, ce1, ce2, se1, se2, phi1, phi2;
-    double          integrable;
-    int             ind, ind1, ind2;
-    int             i, j, k;
 
     for (i = 0; i < nelem; i++)
     {
+        double          x[NUM_EDGE];
+        double          y[NUM_EDGE];
+        double          zmax[NUM_EDGE];
+        double          edge_vector[2][NUM_EDGE];
+        double          normal_vector[NUM_EDGE];
+        double          vector[NUM_EDGE];
+        double          h, c;
+        double          se, ce;
+        int             nodes[2];
+        double          x1, y1, z1, x2, y2, z2, xc, yc, zc;
+        double          c1, c2, ce1, ce2, se1, se2, phi1, phi2;
+        double          integrable;
+        int             ind, ind1, ind2;
+        int             j, k;
+
         for (j = 0; j < NUM_EDGE; j++)
         {
             x[j] = meshtbl->x[elem[i].node[j] - 1];
