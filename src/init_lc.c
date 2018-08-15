@@ -1,7 +1,7 @@
 #include "pihm.h"
 
-void InitLc(elem_struct *elem, const lctbl_struct *lctbl,
-    const calib_struct *cal)
+void InitLc(const lctbl_struct *lctbl, const calib_struct *cal,
+    elem_struct elem[])
 {
     int             i;
 

@@ -146,8 +146,8 @@ void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
 void            InitForc(const calib_struct *, forc_struct *, elem_struct []);
 void            Initialize(pihm_struct, N_Vector, void **);
-void            InitLc(elem_struct *, const lctbl_struct *,
-    const calib_struct *);
+void            InitLc(const lctbl_struct *, const calib_struct *,
+    elem_struct []);
 void            InitMesh(elem_struct *, const meshtbl_struct *);
 void            InitOutputFile(print_struct *, const char *, int, int);
 void            InitPrtVarCtrl(const char *, const char *, int, int, int,

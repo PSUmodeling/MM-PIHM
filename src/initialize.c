@@ -114,7 +114,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
     /* Initialize element land cover properties */
-    InitLc(pihm->elem, &pihm->lctbl, &pihm->cal);
+    InitLc(&pihm->lctbl, &pihm->cal, pihm->elem);
 
     /* Initialize element forcing */
     InitForc(&pihm->cal, &pihm->forc, pihm->elem);
