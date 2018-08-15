@@ -51,6 +51,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         soil_counter[pihm->elem[i].attrib.soil_type]++;
         lc_counter[pihm->elem[i].attrib.lc_type]++;
 #endif
+
         for (j = 0; j < NUM_EDGE; j++)
         {
             pihm->elem[i].attrib.bc_type[j] = pihm->atttbl.bc[i][j];
@@ -130,7 +131,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     }
 
     /* Calculate distances between elements */
-    InitSurfL(pihm->elem, pihm->river, &pihm->meshtbl);
+    InitSurfL(&pihm->meshtbl, pihm->river, pihm->elem);
 
 #if defined(_NOAH_)
     /* Initialize land surface module (Noah) */
@@ -205,21 +206,23 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 }
 
-void CorrElev(elem_struct *elem, river_struct *river)
+void CorrElev(elem_struct elem[], river_struct river[])
 {
-    int             i, j;
-    int             sink;
+    int             i;
 #if OBSOLETE
     int             bedrock_flag = 1;
 #endif
     int             river_flag = 0;
-    double          nabr_zmax;
-    double          new_elevation;
 
     PIHMprintf(VL_VERBOSE, "Correct surface elevation.\n");
 
     for (i = 0; i < nelem; i++)
     {
+        int             sink;
+        double          nabr_zmax;
+        double          new_elevation;
+        int             j;
+
         /* Correction of surface elevation (artifacts due to coarse scale
          * discretization). Not needed if there is lake feature. */
         sink = 1;
@@ -362,8 +365,8 @@ void CorrElev(elem_struct *elem, river_struct *river)
     sleep(5);
 }
 
-void InitSurfL(elem_struct *elem, const river_struct *river,
-    const meshtbl_struct *meshtbl)
+void InitSurfL(const meshtbl_struct *meshtbl, const river_struct river[],
+    elem_struct elem[])
 {
     int             i;
 
@@ -437,7 +440,7 @@ void InitSurfL(elem_struct *elem, const river_struct *river,
     }
 }
 
-double _WsAreaElev(int type, const elem_struct *elem)
+double _WsAreaElev(int type, const elem_struct elem[])
 {
     double          ans = 0.0;
     int             i;
@@ -473,7 +476,7 @@ double _WsAreaElev(int type, const elem_struct *elem)
     }
 }
 
-void RelaxIc(elem_struct *elem, river_struct *river)
+void RelaxIc(elem_struct elem[], river_struct river[])
 {
     int             i;
     const double    INIT_UNSAT = 0.1;
@@ -552,7 +555,7 @@ void RelaxIc(elem_struct *elem, river_struct *river)
     }
 }
 
-void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
+void InitVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 {
     int             i;
 
