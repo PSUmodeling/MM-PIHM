@@ -123,11 +123,11 @@ void NoahHydrol(elem_struct *elem, double dt)
         }
 
         SoluteTransportV(elem[i].ps.nsoil, 0.0, 0.0, wflux, elem[i].soil.bd,
-            elem[i].ps.sldpth, elem[i].soil.smcmax, elem[i].ws.sh2o,
+            elem[i].ps.sldpth, elem[i].soil.smcmax, elem[i].ws.smc,
             elem[i].ns.no3);
 
         SoluteTransportV(elem[i].ps.nsoil, 5.6, 0.0, wflux, elem[i].soil.bd,
-            elem[i].ps.sldpth, elem[i].soil.smcmax, elem[i].ws.sh2o,
+            elem[i].ps.sldpth, elem[i].soil.smcmax, elem[i].ws.smc,
             elem[i].ns.nh4);
 #endif
     }

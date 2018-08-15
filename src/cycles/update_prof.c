@@ -64,4 +64,22 @@ void CalcLatNFlux(double kd, int nsoil, const double sldpth[],
 
         solute[k] += weight[k] * (np - np0);
     }
+
+    for (k = nsoil - 1; k > 0; k--)
+    {
+        if (solute[k] < 0.0)
+        {
+            solute[k - 1] += solute[k];
+            solute[k] = 0.0;
+        }
+    }
+
+    for (k = 0; k < nsoil - 1; k++)
+    {
+        if (solute[k] < 0.0)
+        {
+            solute[k + 1] += solute[k];
+            solute[k] = 0.0;
+        }
+    }
 }
