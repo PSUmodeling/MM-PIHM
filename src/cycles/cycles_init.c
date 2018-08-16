@@ -181,7 +181,7 @@ void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         NV_Ith(CV_Y, NO3(i)) = elem[i].np.no3;
         NV_Ith(CV_Y, NH4(i)) = elem[i].np.nh4;
 
-        elem[i].np0 = elem[i].np;
+        elem[i].ns0 = elem[i].ns;
     }
 
     for (i = 0; i < nriver; i++)

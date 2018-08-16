@@ -64,11 +64,10 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         elem[i].np.no3 = (y[NO3(i)] >= 0.0) ? y[NO3(i)] : 0.0;
         elem[i].np.nh4 = (y[NH4(i)] >= 0.0) ? y[NH4(i)] : 0.0;
 
-        UpdNProf(stepsize, &elem[i].soil, &elem[i].ps, &elem[i].ws, &elem[i].nf,
-            &elem[i].np, &elem[i].ns);
+        UpdNProf(stepsize, &elem[i].soil, &elem[i].ws, &elem[i].ns0,
+            &elem[i].nf, &elem[i].np, &elem[i].ps, &elem[i].ns);
 
-        elem[i].np0.no3 = elem[i].np.no3;
-        elem[i].np0.nh4 = elem[i].np.nh4;
+        elem[i].ns0 = elem[i].ns;
 #endif
     }
 
