@@ -126,8 +126,7 @@ int main(int argc, char *argv[])
             RunTime(start, &cputime, &cputime_dt);
 #endif
 
-            PIHM(pihm, cvode_mem, CV_Y, ctrl->tout[ctrl->cstep],
-                ctrl->tout[ctrl->cstep + 1], cputime);
+            PIHM(pihm, cvode_mem, CV_Y, cputime);
 
             /* Adjust CVODE max step to reduce oscillation */
             AdjCVodeMaxStep(cvode_mem, &pihm->ctrl);
