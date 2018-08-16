@@ -1595,9 +1595,9 @@ typedef struct elem_struct
     cstate_struct   cs;
     cflux_struct    cf;
     nstate_struct   ns;
+    nstate_struct   ns0;
     nflux_struct    nf;
     nprof_struct    np;
-    nprof_struct    np0;
     solute_struct   no3sol;
     solute_struct   nh4sol;
 #endif

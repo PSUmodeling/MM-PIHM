@@ -516,7 +516,7 @@ double          AvgSolConc(int, double, const double [],
     const double [], const double [], double, const double []);
 double          CNdestiny(double, double );
 void            CalcLatNFlux(double, int, const double[], const double [],
-    const double[], const double [], double, double []);
+    const double[], const double [], const double[], double, double []);
 void            CalSnkSrc(const nflux_struct *, int, solute_struct *,
     solute_struct *);
 void            CalcRootFraction(const crop_struct *, const pstate_struct *,
@@ -610,7 +610,7 @@ double          NitrogenMineralization(double, double, double, double);
 void            NitrogenTransformation(const soil_struct *,
     const daily_struct *, const crop_struct [], const cstate_struct *,
     const cflux_struct *, pstate_struct *, nstate_struct *, nflux_struct *);
-void            NTransport(elem_struct *, river_struct *);
+void            NTransport(double, elem_struct [], river_struct []);
 int             NumActiveCrop(const crop_struct []);
 void            Phenology(const daily_struct *, crop_struct []);
 void            PlantingCrop(const plant_struct *,  crop_struct *);
@@ -643,9 +643,9 @@ double          TemperatureFunctionGrowth(double, double, double, double);
 double          TemperatureLimitation(double, double, double);
 double          ThermalTime(double, double, double, double);
 void            TillageFactorSettling(int, const double [], double, double []);
-void            UpdNProf(double, const soil_struct *, const pstate_struct *,
-    const wstate_struct *, const nflux_struct *, const nprof_struct *,
-    nstate_struct *);
+void            UpdNProf(double, const soil_struct *, const wstate_struct *,
+    const nstate_struct *, const nflux_struct *, const nprof_struct *,
+    pstate_struct *, nstate_struct *);
 void            Volatilization(const soil_struct *, const daily_struct *,
     const crop_struct [], const pstate_struct *, const cstate_struct *,
     nstate_struct *, nflux_struct *);

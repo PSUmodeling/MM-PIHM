@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void NTransport(elem_struct *elem, river_struct *river)
+void NTransport(double dt, elem_struct elem[], river_struct river[])
 {
     int             i;
     /*
@@ -12,6 +12,9 @@ void NTransport(elem_struct *elem, river_struct *river)
     for (i = 0; i < nelem; i++)
     {
         int             j;
+
+        UpdNProf(dt, &elem[i].soil, &elem[i].ws, &elem[i].ns0,
+            &elem[i].nf, &elem[i].np, &elem[i].ps, &elem[i].ns);
 
         /* Initialize N fluxes */
         for (j = 0; j < NUM_EDGE; j++)

@@ -95,7 +95,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * NO3 and NH4 transport fluxes
      */
-    NTransport(pihm->elem, pihm->river);
+    NTransport(pihm->ctrl.stepsize, pihm->elem, pihm->river);
 #endif
 
     /*

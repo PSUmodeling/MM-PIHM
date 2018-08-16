@@ -129,6 +129,16 @@ void NoahHydrol(elem_struct *elem, double dt)
         SoluteTransportV(elem[i].ps.nsoil, 5.6, 0.0, wflux, elem[i].soil.bd,
             elem[i].ps.sldpth, elem[i].soil.smcmax, elem[i].ws.smc,
             elem[i].ns.nh4);
+
+# if defined(_DEBUG_)
+    for (k = 0; k < elem[i].ps.nsoil; k++)
+    {
+        if (isnan(elem[i].ns.no3[k]))
+        {
+            PIHMexit(EXIT_FAILURE);
+        }
+    }
+# endif
 #endif
     }
 
