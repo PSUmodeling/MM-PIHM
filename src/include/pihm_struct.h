@@ -129,6 +129,7 @@ typedef struct ctrl_struct
     int             nstep;                  /* number of external time steps
                                              * (when results can be printed) for
                                              * the whole simulation */
+    int             cstep;                  /* current model step (from 0) */
     int             prtvrbl[MAXPRINT];
 
 

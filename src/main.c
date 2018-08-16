@@ -21,9 +21,9 @@ int main(int argc, char *argv[])
 {
     char            outputdir[MAXSTRING];
     pihm_struct     pihm;
+    ctrl_struct    *ctrl;
     N_Vector        CV_Y;
     void           *cvode_mem;
-    int             i;
 #if defined(_OPENMP)
     double          start_omp;
 #else
@@ -102,21 +102,23 @@ int main(int argc, char *argv[])
     start = clock();
 #endif
 
+    ctrl = &pihm->ctrl;
+
     if (spinup_mode)
     {
         Spinup(pihm, CV_Y, cvode_mem);
 
         /* In spin-up mode, initial conditions are always printed */
         PrintInit(pihm->elem, pihm->river, outputdir,
-            pihm->ctrl.endtime, pihm->ctrl.starttime,
-            pihm->ctrl.endtime, pihm->ctrl.prtvrbl[IC_CTRL]);
+            ctrl->endtime, ctrl->starttime,
+            ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
 #if defined(_BGC_)
         WriteBgcIc(outputdir, pihm->elem, pihm->river);
 #endif
     }
     else
     {
-        for (i = 0; i < pihm->ctrl.nstep; i++)
+        for (ctrl->cstep = 0; ctrl->cstep < ctrl->nstep; ctrl->cstep++)
         {
 #if defined(_OPENMP)
             RunTime(start_omp, &cputime, &cputime_dt);
@@ -124,8 +126,8 @@ int main(int argc, char *argv[])
             RunTime(start, &cputime, &cputime_dt);
 #endif
 
-            PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
-                pihm->ctrl.tout[i + 1], cputime);
+            PIHM(pihm, cvode_mem, CV_Y, ctrl->tout[ctrl->cstep],
+                ctrl->tout[ctrl->cstep + 1], cputime);
 
             /* Adjust CVODE max step to reduce oscillation */
             AdjCVodeMaxStep(cvode_mem, &pihm->ctrl);
@@ -133,22 +135,22 @@ int main(int argc, char *argv[])
             /* Print CVODE performance and statistics */
             if (debug_mode)
             {
-                PrintPerf(cvode_mem, pihm->ctrl.tout[i + 1],
-                    pihm->ctrl.starttime, cputime_dt, cputime,
-                    pihm->ctrl.maxstep, pihm->print.cvodeperf_file);
+                PrintPerf(cvode_mem, ctrl->tout[ctrl->cstep + 1],
+                    ctrl->starttime, cputime_dt, cputime,
+                    ctrl->maxstep, pihm->print.cvodeperf_file);
             }
 
             /* Write init files */
-            if (pihm->ctrl.write_ic)
+            if (ctrl->write_ic)
             {
                 PrintInit(pihm->elem, pihm->river, outputdir,
-                    pihm->ctrl.tout[i + 1], pihm->ctrl.starttime,
-                    pihm->ctrl.endtime, pihm->ctrl.prtvrbl[IC_CTRL]);
+                    ctrl->tout[ctrl->cstep + 1], ctrl->starttime,
+                    ctrl->endtime, ctrl->prtvrbl[IC_CTRL]);
             }
         }
 
 #if defined(_BGC_)
-        if (pihm->ctrl.write_bgc_restart)
+        if (ctrl->write_bgc_restart)
         {
             WriteBgcIc(outputdir, pihm->elem, pihm->river);
         }
@@ -156,7 +158,7 @@ int main(int argc, char *argv[])
 
 # if TEMP_DISABLED
 #if defined(_CYCLES_)
-        if (pihm->ctrl.write_cycles_restart)
+        if (ctrl->write_cycles_restart)
         {
             WriteCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
         }
