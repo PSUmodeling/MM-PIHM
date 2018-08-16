@@ -636,8 +636,8 @@ void            ResidueWetting(const pstate_struct *, const cstate_struct *,
 void            RestartInput(const cyclesic_struct *, pstate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 double          ShootBiomassPartitioning(double, double, double, int);
-void            SoluteTransportV(int, double, double, const double *,
-    const double *, const double *, double, const double *, double *);
+void            SoluteTransport(int, double, double, const double [],
+    const double [], const double [], const double [], double []);
 double          TemperatureFunction(double);
 double          TemperatureFunctionGrowth(double, double, double, double);
 double          TemperatureLimitation(double, double, double);

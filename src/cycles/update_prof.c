@@ -34,13 +34,6 @@ void UpdNProf(double dt, const soil_struct *soil, const wstate_struct *ws,
         ns0->no3, np->no3, ns->no3);
     CalcLatNFlux(5.6, ps->nsoil, ps->sldpth, ps->satdpth, soil->bd, ws->smc,
         ns0->nh4, np->nh4, ns->nh4);
-
-#if defined(_DEBUG_)
-    for (k = 0; k < ps->nsoil; k++)
-    {
-        if (isnan(ns->no3[k])) PIHMexit(EXIT_FAILURE);
-    }
-#endif
 }
 
 void CalcLatNFlux(double kd, int nsoil, const double sldpth[],
@@ -80,19 +73,12 @@ void CalcLatNFlux(double kd, int nsoil, const double sldpth[],
         weight[k] /= totwght;
 
         solute[k] += weight[k] * (np - np0);
-
-#if defined(_DEBUG_)
-        if (isnan(solute[k])) PIHMexit(EXIT_FAILURE);
-#endif
     }
 
     for (k = nsoil - 1; k > 0; k--)
     {
         if (solute[k] < 0.0)
         {
-#if defined(_DEBUG_)
-            PIHMprintf(VL_BRIEF, "adjusted by %lg\n", solute[k]);
-#endif
             solute[k - 1] += solute[k];
             solute[k] = 0.0;
         }
@@ -102,9 +88,6 @@ void CalcLatNFlux(double kd, int nsoil, const double sldpth[],
     {
         if (solute[k] < 0.0)
         {
-#if defined(_DEBUG_)
-            PIHMprintf(VL_BRIEF, "adjusted by %lg\n", solute[k]);
-#endif
             solute[k + 1] += solute[k];
             solute[k] = 0.0;
         }
