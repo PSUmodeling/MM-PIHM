@@ -45,13 +45,13 @@ void RiverFlow(elem_struct *elem, river_struct *river, int riv_mode)
             left = &elem[river[i].leftele - 1];
             right = &elem[river[i].rightele - 1];
             effk = 0.5 *
-                (EffKh(&left->soil, left->ws.gw) +
-                EffKh(&right->soil, right->ws.gw));
+                (EffKh(left->ws.gw, &left->soil) +
+                EffKh(right->ws.gw, &right->soil));
             left = &elem[down->leftele - 1];
             right = &elem[down->rightele - 1];
             effk_nabr = 0.5 *
-                (EffKh(&left->soil, left->ws.gw) +
-                EffKh(&right->soil, right->ws.gw));
+                (EffKh(left->ws.gw, &left->soil) +
+                EffKh(right->ws.gw, &right->soil));
 
             river[i].wf.rivflow[DOWN_AQUIF2AQUIF] =
                 SubFlowRiverToRiver(&river[i], effk, down, effk_nabr);
@@ -123,8 +123,8 @@ void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right)
         river->wf.rivflow[RIGHT_SURF2CHANL] = OvlFlowElemToRiver(right, river);
     }
 
-    effk_left = EffKh(&left->soil, left->ws.gw);
-    effk_right = EffKh(&right->soil, right->ws.gw);
+    effk_left = EffKh(left->ws.gw, &left->soil);
+    effk_right = EffKh(right->ws.gw, &right->soil);
 
     /* Lateral subsurface flux calculation between river-triangular element */
     if (river->leftele > 0)
