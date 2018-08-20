@@ -7,8 +7,11 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
     int             first_spin_cycle = 1;
     int             steady;
     int             metyears;
+    ctrl_struct    *ctrl;
 
-    metyears = (pihm->ctrl.endtime - pihm->ctrl.starttime) / DAYINSEC / 365;
+    ctrl = &pihm->ctrl;
+
+    metyears = (ctrl->endtime - ctrl->starttime) / DAYINSEC / 365;
 
     do
     {
@@ -18,10 +21,9 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
         ResetSpinupStat(pihm->elem);
 #endif
 
-        for (i = 0; i < pihm->ctrl.nstep; i++)
+        for (ctrl->cstep = 0; ctrl->cstep < ctrl->nstep; ctrl->cstep++)
         {
-            PIHM(pihm, cvode_mem, CV_Y, pihm->ctrl.tout[i],
-                pihm->ctrl.tout[i + 1], 0.0);
+            PIHM(pihm, cvode_mem, CV_Y, 0.0);
         }
 
         /* Reset solver parameters */
@@ -31,7 +33,7 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 
 #if defined(_BGC_)
         steady = CheckSteadyState(pihm->elem, pihm->siteinfo.area,
-            first_spin_cycle, pihm->ctrl.endtime - pihm->ctrl.starttime,
+            first_spin_cycle, ctrl->endtime - ctrl->starttime,
             spinyears);
 #else
         steady = CheckSteadyState(pihm->elem, pihm->siteinfo.area,
@@ -39,7 +41,7 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 #endif
 
         first_spin_cycle = 0;
-    } while (spinyears < pihm->ctrl.maxspinyears && (!steady));
+    } while (spinyears < ctrl->maxspinyears && (!steady));
 }
 
 #if defined(_BGC_)

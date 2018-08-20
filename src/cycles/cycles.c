@@ -13,6 +13,10 @@ void DailyCycles(int t, pihm_struct pihm)
     day = pihm_t.day;
     doy = Doy(year, month, day);
 
+#if defined(_DEBUG_)
+    PIHMprintf(VL_BRIEF, "DOY %d\n", doy);
+#endif
+
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif

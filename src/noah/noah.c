@@ -122,13 +122,21 @@ void NoahHydrol(elem_struct *elem, double dt)
             wflux[k + 1] = elem[i].wf.smflxv[k] * RHOH2O * dt;
         }
 
-        SoluteTransportV(elem[i].ps.nsoil, 0.0, 0.0, wflux, elem[i].soil.bd,
-            elem[i].ps.sldpth, elem[i].soil.smcmax, elem[i].ws.sh2o,
-            elem[i].ns.no3);
+        SoluteTransport(elem[i].ps.nsoil, 0.0, 0.0, wflux, elem[i].soil.bd,
+            elem[i].ps.sldpth, elem[i].ws.smc, elem[i].ns.no3);
 
-        SoluteTransportV(elem[i].ps.nsoil, 5.6, 0.0, wflux, elem[i].soil.bd,
-            elem[i].ps.sldpth, elem[i].soil.smcmax, elem[i].ws.sh2o,
-            elem[i].ns.nh4);
+        SoluteTransport(elem[i].ps.nsoil, 5.6, 0.0, wflux, elem[i].soil.bd,
+            elem[i].ps.sldpth, elem[i].ws.smc, elem[i].ns.nh4);
+
+# if defined(_DEBUG_)
+    for (k = 0; k < elem[i].ps.nsoil; k++)
+    {
+        if (isnan(elem[i].ns.no3[k]))
+        {
+            PIHMexit(EXIT_FAILURE);
+        }
+    }
+# endif
 #endif
     }
 
