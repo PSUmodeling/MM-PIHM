@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void Hydrol(const ctrl_struct *ctrl, elem_struct elem[], river_struct river[])
+void Hydrol(elem_struct *elem, river_struct *river, const ctrl_struct *ctrl)
 {
     int             i;
 
@@ -9,87 +9,84 @@ void Hydrol(const ctrl_struct *ctrl, elem_struct elem[], river_struct river[])
 #endif
     for (i = 0; i < nelem; i++)
     {
-        /*
-         * Calculate actual surface water depth
-         */
+        /* Calculate actual surface water depth */
         elem[i].ws.surfh = SurfH(elem[i].ws.surf);
-
-        /*
-         * Determine which layers does ET extract water from
-         */
-        EtExtract(&elem[i].soil, &elem[i].ws, &elem[i].ps, &elem[i].wf);
     }
 
+    /* Determine which layers does ET extract water from */
+    EtExtract(elem);
 
-    /*
-     * Water flow
-     */
-    LateralFlow(ctrl->surf_mode, river, elem);
+    /* Water flow */
+    LateralFlow(elem, river, ctrl->surf_mode);
 
     VerticalFlow(elem, (double)ctrl->stepsize);
 
     RiverFlow(elem, river, ctrl->riv_mode);
 }
 
-void EtExtract(const soil_struct *soil, const wstate_struct *ws,
-    pstate_struct *ps, wflux_struct *wf)
+void EtExtract(elem_struct *elem)
 {
-    /*
-     * Source of direct evaporation
-     */
+    int             i;
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+        /* Source of direct evaporation */
 #if defined(_NOAH_)
-    if (ws->gw > soil->depth - soil->dinf)
-    {
-        wf->edir_surf = 0.0;
-        wf->edir_unsat = 0.0;
-        wf->edir_gw = wf->edir;
-    }
-    else
-    {
-        wf->edir_surf = 0.0;
-        wf->edir_unsat = wf->edir;
-        wf->edir_gw = 0.0;
-    }
+        if (elem[i].ws.gw > elem[i].soil.depth - elem[i].soil.dinf)
+        {
+            elem[i].wf.edir_surf = 0.0;
+            elem[i].wf.edir_unsat = 0.0;
+            elem[i].wf.edir_gw = elem[i].wf.edir;
+        }
+        else
+        {
+            elem[i].wf.edir_surf = 0.0;
+            elem[i].wf.edir_unsat = elem[i].wf.edir;
+            elem[i].wf.edir_gw = 0.0;
+        }
 #else
-    if (ws->surfh >= DEPRSTG)
-    {
-        wf->edir_surf = wf->edir;
-        wf->edir_unsat = 0.0;
-        wf->edir_gw = 0.0;
-    }
-    else if (ws->gw > soil->depth - soil->dinf)
-    {
-        wf->edir_surf = 0.0;
-        wf->edir_unsat = 0.0;
-        wf->edir_gw = wf->edir;
-    }
-    else
-    {
-        wf->edir_surf = 0.0;
-        wf->edir_unsat = wf->edir;
-        wf->edir_gw = 0.0;
-    }
+        if (elem[i].ws.surfh >= DEPRSTG)
+        {
+            elem[i].wf.edir_surf = elem[i].wf.edir;
+            elem[i].wf.edir_unsat = 0.0;
+            elem[i].wf.edir_gw = 0.0;
+        }
+        else if (elem[i].ws.gw > elem[i].soil.depth - elem[i].soil.dinf)
+        {
+            elem[i].wf.edir_surf = 0.0;
+            elem[i].wf.edir_unsat = 0.0;
+            elem[i].wf.edir_gw = elem[i].wf.edir;
+        }
+        else
+        {
+            elem[i].wf.edir_surf = 0.0;
+            elem[i].wf.edir_unsat = elem[i].wf.edir;
+            elem[i].wf.edir_gw = 0.0;
+        }
 #endif
 
-    /*
-     * Source of transpiration
-     */
+        /* Source of transpiration */
 #if defined(_NOAH_)
-    ps->gwet = GwTransp(wf->ett, wf->et, ps->nwtbl, ps->nroot);
-    wf->ett_unsat = (1.0 - ps->gwet) * wf->ett;
-    wf->ett_gw = ps->gwet * wf->ett;
+        elem[i].ps.gwet = GwTransp(elem[i].wf.ett, elem[i].wf.et,
+            elem[i].ps.nwtbl, elem[i].ps.nroot);
+        elem[i].wf.ett_unsat = (1.0 - elem[i].ps.gwet) * elem[i].wf.ett;
+        elem[i].wf.ett_gw = elem[i].ps.gwet * elem[i].wf.ett;
 #else
-    if (ws->gw > soil->depth - ps->rzd)
-    {
-        wf->ett_unsat = 0.0;
-        wf->ett_gw = wf->ett;
-    }
-    else
-    {
-        wf->ett_unsat = wf->ett;
-        wf->ett_gw = 0.0;
-    }
+        if (elem[i].ws.gw > elem[i].soil.depth - elem[i].ps.rzd)
+        {
+            elem[i].wf.ett_unsat = 0.0;
+            elem[i].wf.ett_gw = elem[i].wf.ett;
+        }
+        else
+        {
+            elem[i].wf.ett_unsat = elem[i].wf.ett;
+            elem[i].wf.ett_gw = 0.0;
+        }
 #endif
+    }
 }
 
 double SurfH(double surfeqv)
@@ -107,7 +104,7 @@ double SurfH(double surfeqv)
 
     if (DEPRSTG == 0.0)
     {
-        surfh = surfeqv;
+        return surfeqv;
     }
     else
     {
@@ -123,7 +120,7 @@ double SurfH(double surfeqv)
         {
             surfh = DEPRSTG + (surfeqv - 0.5 * DEPRSTG);
         }
-    }
 
-    return surfh;
+        return surfh;
+    }
 }

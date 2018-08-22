@@ -51,7 +51,6 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         soil_counter[pihm->elem[i].attrib.soil_type]++;
         lc_counter[pihm->elem[i].attrib.lc_type]++;
 #endif
-
         for (j = 0; j < NUM_EDGE; j++)
         {
             pihm->elem[i].attrib.bc_type[j] = pihm->atttbl.bc[i][j];
@@ -87,10 +86,10 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     }
 
     /* Initialize element mesh structures */
-    InitMesh(&pihm->meshtbl, pihm->elem);
+    InitMesh(pihm->elem, &pihm->meshtbl);
 
     /* Initialize element topography */
-    InitTopo(&pihm->meshtbl, pihm->elem);
+    InitTopo(pihm->elem, &pihm->meshtbl);
 
     /* Calculate average elevation and total area of model domain */
     pihm->siteinfo.zmax = AvgElev(pihm->elem);
@@ -104,9 +103,9 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
     /* Initialize element soil properties */
 #if defined(_NOAH_)
-    InitSoil(&pihm->soiltbl, &pihm->noahtbl, &pihm->cal, pihm->elem);
+    InitSoil(pihm->elem, &pihm->soiltbl, &pihm->noahtbl, &pihm->cal);
 #else
-    InitSoil(&pihm->soiltbl, &pihm->cal, pihm->elem);
+    InitSoil(pihm->elem, &pihm->soiltbl, &pihm->cal);
 #endif
 
 #if defined(_FBR_)
@@ -115,14 +114,14 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
     /* Initialize element land cover properties */
-    InitLc(&pihm->lctbl, &pihm->cal, pihm->elem);
+    InitLc(pihm->elem, &pihm->lctbl, &pihm->cal);
 
     /* Initialize element forcing */
-    InitForc(&pihm->cal, &pihm->forc, pihm->elem);
+    InitForc(pihm->elem, &pihm->forc, &pihm->cal);
 
     /* Initialize river segment properties */
-    InitRiver(&pihm->rivtbl, &pihm->shptbl, &pihm->matltbl, &pihm->meshtbl,
-        &pihm->cal, pihm->elem, pihm->river);
+    InitRiver(pihm->river, pihm->elem, &pihm->rivtbl, &pihm->shptbl,
+        &pihm->matltbl, &pihm->meshtbl, &pihm->cal);
 
     /* Correct element elevations to avoid sinks */
     if (corr_mode)
@@ -131,7 +130,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     }
 
     /* Calculate distances between elements */
-    InitSurfL(&pihm->meshtbl, pihm->river, pihm->elem);
+    InitSurfL(pihm->elem, pihm->river, &pihm->meshtbl);
 
 #if defined(_NOAH_)
     /* Initialize land surface module (Noah) */
@@ -156,8 +155,8 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         /* Relaxation mode */
 #if defined(_NOAH_)
         /* Noah initialization needs air temperature thus forcing is applied */
-        ApplyForc(pihm->ctrl.starttime, pihm->ctrl.rad_mode, &pihm->siteinfo,
-            &pihm->forc, pihm->elem);
+        ApplyForc(&pihm->forc, pihm->elem, pihm->ctrl.starttime,
+            pihm->ctrl.rad_mode, &pihm->siteinfo);
 #endif
 
         RelaxIc(pihm->elem, pihm->river);
@@ -206,23 +205,21 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 }
 
-void CorrElev(elem_struct elem[], river_struct river[])
+void CorrElev(elem_struct *elem, river_struct *river)
 {
-    int             i;
+    int             i, j;
+    int             sink;
 #if OBSOLETE
     int             bedrock_flag = 1;
 #endif
     int             river_flag = 0;
+    double          nabr_zmax;
+    double          new_elevation;
 
     PIHMprintf(VL_VERBOSE, "Correct surface elevation.\n");
 
     for (i = 0; i < nelem; i++)
     {
-        int             sink;
-        double          nabr_zmax;
-        double          new_elevation;
-        int             j;
-
         /* Correction of surface elevation (artifacts due to coarse scale
          * discretization). Not needed if there is lake feature. */
         sink = 1;
@@ -365,8 +362,8 @@ void CorrElev(elem_struct elem[], river_struct river[])
     sleep(5);
 }
 
-void InitSurfL(const meshtbl_struct *meshtbl, const river_struct river[],
-    elem_struct elem[])
+void InitSurfL(elem_struct *elem, const river_struct *river,
+    const meshtbl_struct *meshtbl)
 {
     int             i;
 
@@ -440,7 +437,7 @@ void InitSurfL(const meshtbl_struct *meshtbl, const river_struct river[],
     }
 }
 
-double _WsAreaElev(int type, const elem_struct elem[])
+double _WsAreaElev(int type, const elem_struct *elem)
 {
     double          ans = 0.0;
     int             i;
@@ -476,7 +473,7 @@ double _WsAreaElev(int type, const elem_struct elem[])
     }
 }
 
-void RelaxIc(elem_struct elem[], river_struct river[])
+void RelaxIc(elem_struct *elem, river_struct *river)
 {
     int             i;
     const double    INIT_UNSAT = 0.1;
@@ -555,7 +552,7 @@ void RelaxIc(elem_struct elem[], river_struct river[])
     }
 }
 
-void InitVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
+void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 {
     int             i;
 
