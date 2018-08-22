@@ -7,7 +7,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     t = pihm->ctrl.tout[pihm->ctrl.cstep];
 
     /* Apply boundary conditions */
-    ApplyBc(t, &pihm->forc, pihm->elem, pihm->river);
+    ApplyBc(&pihm->forc, pihm->elem, pihm->river, t);
 
     /*
      * Apply forcing and simulate land surface processes
@@ -16,10 +16,10 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     {
         /* Apply forcing */
 #if defined(_NOAH_)
-        ApplyForc(t, pihm->ctrl.rad_mode, &pihm->siteinfo, &pihm->forc,
-            pihm->elem);
+        ApplyForc(&pihm->forc, pihm->elem, t , pihm->ctrl.rad_mode,
+            &pihm->siteinfo);
 #else
-        ApplyForc(t, &pihm->forc, pihm->elem);
+        ApplyForc(&pihm->forc, pihm->elem, t);
 #endif
 
 #if defined(_NOAH_)
@@ -27,7 +27,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
         Noah(pihm->elem, (double)pihm->ctrl.etstep);
 #else
         /* Calculate Interception storage and ET */
-        IntcpSnowEt(t, (double)pihm->ctrl.etstep, &pihm->cal, pihm->elem);
+        IntcpSnowEt(t, (double)pihm->ctrl.etstep, pihm->elem, &pihm->cal);
 #endif
 
         /* Update print variables for land surface step variables */

@@ -1,12 +1,10 @@
 #include "pihm.h"
 
-void InitForc(const calib_struct *cal, forc_struct *forc, elem_struct elem[])
+void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
 {
     int             i, j;
 
-    /*
-     * Apply climate scenarios
-     */
+    /* Apply climate scenarios */
     for (i = 0; i < forc->nmeteo; i++)
     {
 #if defined(_OPENMP)
@@ -19,9 +17,6 @@ void InitForc(const calib_struct *cal, forc_struct *forc, elem_struct elem[])
         }
     }
 
-    /*
-     * Allocation
-     */
     if (forc->nbc > 0)
     {
         for (i = 0; i < forc->nbc; i++)
@@ -67,6 +62,7 @@ void InitForc(const calib_struct *cal, forc_struct *forc, elem_struct elem[])
         }
     }
 #endif
+
 #if defined(_BGC_)
     if (forc->nco2 > 0)
     {
@@ -79,9 +75,6 @@ void InitForc(const calib_struct *cal, forc_struct *forc, elem_struct elem[])
     }
 #endif
 
-    /*
-     * Initialize wind observation level
-     */
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
