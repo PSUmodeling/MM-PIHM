@@ -240,6 +240,7 @@ endif
 # Flux-PIHM-Cycles
 #-------------------
 CYCLES_PATH = ../Cycles_esm/src
+RQD_CYCLES_VERS = R0.8.0-alpha
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS += -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
@@ -365,11 +366,14 @@ flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
 flux-pihm-cycles:	## Compile PIHM-Cycles (Flux-PIHM with crop module, adapted from Cycles)
-flux-pihm-cycles: $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
+flux-pihm-cycles: check_cycles_vers $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS) $(LFLAGS) $(LIBS)
+
+check_cycles_vers:
+	@util/check_cycles_vers.sh $(CYCLES_PATH) $(RQD_CYCLES_VERS)
 
 %.o: %.c $(HEADERS) $(MODULE_HEADERS)
 	$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -c $<  -o $@
