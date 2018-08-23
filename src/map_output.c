@@ -805,60 +805,54 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     }
                     n++;
                     break;
-//                case NO3_LEACH_CTRL:
-//                    for (k = 0; k < NUM_EDGE; k++)
-//                    {
-//                        sprintf(ext, "NO3leach%d", k);
-//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-//                            HYDROL_STEP, nelem, &print->varctrl[n]);
-//                        for (j = 0; j < nelem; j++)
-//                        {
-//                            print->varctrl[n].var[j] =
-//                                &elem[j].soil.NO3Leaching[k];
-//                        }
-//                        n++;
-//                    }
-//                    break;
-//                case NH4_LEACH_CTRL:
-//                    for (k = 0; k < NUM_EDGE; k++)
-//                    {
-//                        sprintf(ext, "NH4leach%d", k);
-//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-//                            HYDROL_STEP, nelem, &print->varctrl[n]);
-//                        for (j = 0; j < nelem; j++)
-//                        {
-//                            print->varctrl[n].var[j] =
-//                                &elem[j].soil.NH4Leaching[k];
-//                        }
-//                        n++;
-//                    }
-//                    break;
-//                case NO3_LEACH_RIVER_CTRL:
-//                    for (k = 0; k < 4; k++)
-//                    {
-//                        sprintf(ext, "rivNO3leach%d", k);
-//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-//                            HYDROL_STEP, nriver, &print->varctrl[n]);
-//                        for (j = 0; j < nriver; j++)
-//                        {
-//                            print->varctrl[n].var[j] = &river[j].NO3Leaching[k];
-//                        }
-//                        n++;
-//                    }
-//                    break;
-//                case NH4_LEACH_RIVER_CTRL:
-//                    for (k = 0; k < 4; k++)
-//                    {
-//                        sprintf(ext, "rivNH4leach%d", k);
-//                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-//                            HYDROL_STEP, nriver, &print->varctrl[n]);
-//                        for (j = 0; j < nriver; j++)
-//                        {
-//                            print->varctrl[n].var[j] = &river[j].NH4Leaching[k];
-//                        }
-//                        n++;
-//                    }
-//                    break;
+                case NO3_LEACH_CTRL:
+                    for (k = 0; k < NUM_EDGE; k++)
+                    {
+                        sprintf(ext, "NO3leach%d", k);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            HYDROL_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &elem[j].no3sol.flux[k];
+                        }
+                        n++;
+                    }
+                    break;
+                case NH4_LEACH_CTRL:
+                    for (k = 0; k < NUM_EDGE; k++)
+                    {
+                        sprintf(ext, "NH4leach%d", k);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            HYDROL_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &elem[j].nh4sol.flux[k];
+                        }
+                        n++;
+                    }
+                    break;
+                case NO3_LEACH_RIVER_CTRL:
+                    InitPrtVarCtrl(outputdir, "rivNO3leach", prtvrbl[i],
+                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    for (j = 0; j < nriver; j++)
+                    {
+                        print->varctrl[n].var[j] =
+                            &river[j].no3sol.flux[DOWN_CHANL2CHANL];
+                    }
+                    n++;
+                    break;
+                case NH4_LEACH_RIVER_CTRL:
+                    InitPrtVarCtrl(outputdir, "rivNH4leach", prtvrbl[i],
+                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    for (j = 0; j < nriver; j++)
+                    {
+                        print->varctrl[n].var[j] =
+                            &river[j].nh4sol.flux[DOWN_CHANL2CHANL];
+                    }
+                    n++;
+                    break;
                 case LAI_CTRL:
                     InitPrtVarCtrl(outputdir, "lai", prtvrbl[i],
                         CN_STEP, nelem, &print->varctrl[n]);

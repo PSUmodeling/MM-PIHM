@@ -341,7 +341,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
 {
     int             cv_flag;
     static int      reset;
-#if defined(_BGC_)
+#if defined(_BGC_) || defined(_CYCLES_)
     N_Vector        abstol;
     const double    SMINN_TOL = 1.0E-5;
 #endif
@@ -368,7 +368,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
         reset = 1;
     }
 
-#if defined(_BGC_)
+#if defined(_BGC_) || defined(_CYCLES_)
     /* When BGC module is turned on, both water storage and nitrogen storage
      * variables are in the CVODE vector. A vector of absolute tolerances is
      * needed to specify different absolute tolerances for water storage
