@@ -66,8 +66,8 @@ void InitRiver(river_struct *river, elem_struct *elem,
             meshtbl->x[river[i].tonode - 1], 2) +
             pow(meshtbl->y[river[i].fromnode - 1] -
             meshtbl->y[river[i].tonode - 1], 2));
-        river[i].shp.width = RiverEqWid(river->shp.intrpl_ord, river->shp.depth,
-            river->shp.coeff);
+        river[i].shp.width = RiverEqWid(river[i].shp.intrpl_ord,
+            river[i].shp.depth, river[i].shp.coeff);
 
         river[i].topo.zbed = river[i].topo.zmax - river[i].shp.depth;
 
