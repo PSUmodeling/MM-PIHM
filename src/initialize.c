@@ -413,9 +413,9 @@ void InitSurfL(elem_struct *elem, const river_struct *river,
                 elem[i].topo.nabr_x[j] = elem[i].topo.x - 2.0 * distx;
                 elem[i].topo.nabr_y[j] = elem[i].topo.y - 2.0 * disty;
                 elem[i].topo.nabrdist[j] =
-                    sqrt(pow(elem->topo.edge[0] * elem->topo.edge[1] *
-                    elem->topo.edge[2] / (4.0 * elem->topo.area), 2) -
-                    pow(elem->topo.edge[j] / 2.0, 2));
+                    sqrt(pow(elem[i].topo.edge[0] * elem[i].topo.edge[1] *
+                    elem[i].topo.edge[2] / (4.0 * elem[i].topo.area), 2) -
+                    pow(elem[i].topo.edge[j] / 2.0, 2));
             }
             else
             {
