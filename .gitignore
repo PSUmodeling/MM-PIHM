@@ -42,13 +42,14 @@
 *.sh
 *.pbs
 *.pbs.o*
+!/util/*.sh
 
 # Indent temp files
 *~
 
 # Input, output and logs
-!/input/
 /input/*
+!/input/
 !/input/*.txt
 !/input/*.tbl
 !/input/example
