@@ -92,6 +92,10 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         river[i].ws.gw = y[RIVGW(i)];
 
         river[i].ws0 = river[i].ws;
+#if defined(_CYCLES_)
+        river[i].ns.streamno3 = y[STREAMNO3(i)];
+        river[i].ns.streamnh4 = y[STREAMNH4(i)];
+#endif
     }
 }
 

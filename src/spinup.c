@@ -2,7 +2,6 @@
 
 void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 {
-    int             i;
     int             spinyears = 0;
     int             first_spin_cycle = 1;
     int             steady;
