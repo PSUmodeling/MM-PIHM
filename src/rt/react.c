@@ -1,27 +1,35 @@
 
 /******************************************************************************
- * This subroutine is used to calculate the reactions
- * It uses a similar OS3D scheme as detailed inCrunchflow user's manual.
- *
- * If you have any questions, concerns, suggestions, please contact me at
- * the following address:
- *     Developer: Chen Bao <baochen.d.s@gmail.com>
- *     Version  : pre-alpha
- *     Date     : June, 2013
- *****************************************************************************/
+* This subroutine is used to calculate the reactions
+* It uses a similar OS3D scheme as detailed inCrunchflow user's manual.
+*
+* If you have any questions, concerns, suggestions, please contact me at
+* the following address:
+*     Developer: Chen Bao <baochen.d.s@gmail.com>
+*     Version  : pre-alpha
+*     Date     : June, 2013
+*****************************************************************************/
 
+#include "pihm.h"               // 09.23
 
-
+/* 09.23
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include <time.h>
 #include <assert.h>
+*/
 
-/* SUNDIAL Header Files */
-#include "../pihm.h"
-#include "rt.h"                 /* Data Model and Variable Declarations for chemical processes */
+// 09.23
+// /* SUNDIAL Header Files */
+// //#include "sundialstypes.h"   /* realtype, integertype, booleantype defination */
+//#include "sundials_types.h"   // 09.16
+//#include "pihm.h"
+//#include "rt.h"              /* Data Model and Variable Declarations for chemical processes */
+// //#include "smalldense.h"      /* sundial solver */
+//#include "sundials_dense.h"    // 09.16 including "sundials_direct.h"
+// 09.23
 
 #define UNIT_C     1440
 #define ZERO       1E-20
@@ -32,19 +40,15 @@
 #define TOL        1E-7
 #define TIGHT      10
 #define SKIP_JACOB 1
-#define ACT_ENERGY 10
 #define sqr(a)  (a)*(a)
 
-// default activation energy in case of 0 activation energy specified.
+
+
 
 int             keymatch(char *, char *, double *, char **);
-int             React(realtype, realtype, Chem_Data, int, int *);
-void            wrap(char *);
-void            ReportError(vol_conc, Chem_Data);
-int             SpeciationType(FILE *, char *);
-void            Lookup(FILE *, Chem_Data, int);
-int             Speciation(Chem_Data, int);
-int             React(realtype, realtype, Chem_Data, int, int *);
+//int  React(realtype, realtype, Chem_Data , int, int *);
+//int  React(realtype, realtype, Chem_Data, int, int *, const void * model_Data);  // 08.22 add model data
+int             React(realtype, realtype, Chem_Data, int, int *, const pihm_struct);    // 10.01
 
 void wrap(char *str)
 {
@@ -95,9 +99,9 @@ int SpeciationType(FILE *database, char *Name)
     if (strcmp(Name, "pH") == 0)
         return (1);
 
-    char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof (char *));
+    char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
     for (i = 0; i < WORDS_LINE; i++)
-        tmpstr[i] = (char *)malloc(WORD_WIDTH * sizeof (char));
+        tmpstr[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
 
     return_val = 0;
 
@@ -201,14 +205,15 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
 
     // Kinetic reactions is currently only applicable to minerals
     int             i, j, k, l, keq_position, total_temp_points;
+    int             mn, in;     // 08.19 Wei
     char            keyword[WORD_WIDTH], line[LINE_WIDTH], word[WORD_WIDTH],
         tmp[WORD_WIDTH];
-    char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof (char *));
+    char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
 
 
     for (i = 0; i < WORDS_LINE; i++)
     {
-        tmpstr[i] = (char *)malloc(WORD_WIDTH * sizeof (char));
+        tmpstr[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
         memset(tmpstr[i], 0, WORD_WIDTH);
     }
 
@@ -226,7 +231,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
         if (tmpval[i + 1] == CD->Temperature)
         {
             fprintf(stderr,
-                " Temperature point %6.4f C found in database!\n",
+                "\n Temperature point %6.4f C found in database!\n\n",
                 tmpval[i + 1]);
             keq_position = i + 1;
         }
@@ -248,7 +253,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
     CD->DH.bdt = tmpval[keq_position - 1];
 
     fprintf(stderr,
-        " Debye-Huckel Parameters set to A=%6.4f; B=%6.4f; b=%6.4f\n",
+        " Debye-Huckel Parameters set to A=%6.4f; B=%6.4f; b=%6.4f\n\n",
         CD->DH.adh, CD->DH.bdh, CD->DH.bdt);
 
     rewind(database);
@@ -261,7 +266,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                 if (strcmp(CD->chemtype[i].ChemName, tmpstr[0]) == 0)
                 {
                     fprintf(stderr,
-                        " Primary species %s found in database!\n MolarMass = %6.4f\n",
+                        " Primary species %s found in database!\n MolarMass = %6.4f\n\n",
                         CD->chemtype[i].ChemName, tmpval[2]);
                     CD->chemtype[i].MolarMass = tmpval[2];
                     CD->chemtype[i].Charge = tmpval[1];
@@ -284,7 +289,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                     CD->chemtype[i].itype = 1;
                     for (j = 0; j < WORDS_LINE; j++)
                     {
-                        //                                    fprintf(stderr, "%6.4f\t%s\n",tmpval[j],tmpstr[j]);
+                        //  fprintf(stderr, "%6.4f\t%s\n",tmpval[j],tmpstr[j]);
                         for (k = 0; k < CD->NumSdc; k++)
                             if (strcmp(CD->chemtype[k].ChemName,
                                     tmpstr[j]) == 0)
@@ -301,7 +306,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                     CD->chemtype[i].SizeF =
                         tmpval[(int)tmpval[0] + total_temp_points + 1];
                     fprintf(stderr,
-                        " MolarMass = %6.4f, Charge = %6.4f, SizeFactor = %6.4f\n",
+                        " MolarMass = %6.4f, Charge = %6.4f, SizeFactor = %6.4f\n\n",
                         CD->chemtype[i].MolarMass, CD->chemtype[i].Charge,
                         CD->chemtype[i].SizeF);
                 }
@@ -335,7 +340,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                                 }
                                 else
                                 {
-                                    for (l = 0; l < CD->NumSpc; l++)
+                                    for (l = 0; l < CD->NumSpc; l++)    /* Number of primary species in the rt simulator      */
                                         CD->Dep_kinetic_all[i - CD->NumStc +
                                             CD->NumMin][l] +=
                                             atof(tmpstr[j -
@@ -357,12 +362,13 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                     CD->chemtype[i].MolarVolume = tmpval[0];
                     CD->chemtype[i].Charge = 0;
                     fprintf(stderr,
-                        " MolarMass = %6.4f, MolarVolume = %6.4f\n",
+                        " MolarMass = %6.4f, MolarVolume = %6.4f\n\n",
                         CD->chemtype[i].MolarMass, CD->chemtype[i].MolarVolume);
                 }
         }
         fgets(line, LINE_WIDTH, database);
     }
+
     for (i = 0; i < CD->NumMkr + CD->NumAkr; i++)
     {
         for (j = CD->NumSpc + CD->NumAds + CD->NumCex; j < CD->NumStc; j++)
@@ -372,11 +378,11 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
             if (strcmp(tmp, CD->chemtype[j].ChemName) == 0)
             {
                 fprintf(stderr,
-                    " Selecting the kinetic species %s from all possible species\n",
+                    " Selecting the kinetic species %s from all possible species.\n\n",
                     tmp);
                 CD->KeqKinect[i] =
                     CD->KeqKinect_all[j - CD->NumStc + CD->NumMin];
-                //      fprintf(stderr, " %6.4f\n", CD->KeqKinect[j - CD->NumStc + CD->NumMin]);
+                //  fprintf(stderr, " %6.4f\n", CD->KeqKinect[j - CD->NumStc + CD->NumMin]);
                 for (k = 0; k < CD->NumStc; k++)
                 {
                     CD->Dep_kinetic[i][k] =
@@ -435,7 +441,13 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                                     atof(tmpstr[j - 1]);
                     }
                     CD->Keq[i - CD->NumStc] = tmpval[(int)tmpval[0] + 1];
-                    fprintf(stderr, " Keq = %6.4f\n", CD->Keq[i - CD->NumStc]);
+                    fprintf(stderr, " Keq = %6.4f \n", CD->Keq[i - CD->NumStc]);
+
+                    // 03.06 calibration       
+                    CD->Keq[i - CD->NumStc] =
+                        tmpval[(int)tmpval[0] + 1] + CD->CalXsorption;
+                    fprintf(stderr, " After calibration: Keq = %6.4f \n",
+                        CD->Keq[i - CD->NumStc]);
                 }
         }
         fgets(line, LINE_WIDTH, database);
@@ -449,7 +461,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
      * CD->chemtype[i].Charge   = tmpval[0];;
      * fprintf(stderr, " Charge = %6.4f\n", CD->chemtype[i].Charge);
      * }
-     *
+     * 
      * }
      * fgets(line, LINE_WIDTH, database);
      * }
@@ -474,14 +486,14 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
             {
                 if (strcmp(CD->kinetics[i].species, tmpstr[0]) == 0)
                 {
-                    //    fprintf(stderr, " %s found in kinetics\n", CD->kinetics[i].species);
+                    //  fprintf(stderr, " XXXX %s found in kinetics\n", CD->kinetics[i].species);
                     fgets(line, LINE_WIDTH, database);
                     keymatch(line, "NULL", tmpval, tmpstr);
-                    //    fprintf(stderr, " Labels %s ", tmpstr[2]); for (j = 0; j < strlen(tmpstr[2]); j++) fprintf(stderr, "%d\t",tmpstr[2][j]); fprintf(stderr, "\n");
+                    //  fprintf(stderr, " Labels %s ", tmpstr[2]); for (j = 0; j < strlen(tmpstr[2]); j++) fprintf(stderr, "%d\t",tmpstr[2][j]); fprintf(stderr, "\n");
                     if (strcmp(CD->kinetics[i].Label, tmpstr[2]) == 0)
                     {
                         fprintf(stderr,
-                            " Mineral kinetics %s %s found in database!\n",
+                            " \n Mineral kinetics %s %s found in database!\n",
                             CD->kinetics[i].species, CD->kinetics[i].Label);
                         fgets(line, LINE_WIDTH, database);
                         keymatch(line, "NULL", tmpval, tmpstr);
@@ -500,6 +512,12 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                             CD->kinetics[i].rate = tmpval[0];
                             fprintf(stderr, " Rate is %f\n",
                                 CD->kinetics[i].rate);
+
+                            // 02.12 calibration       
+                            CD->kinetics[i].rate = tmpval[0] + CD->CalRate;
+                            fprintf(stderr,
+                                " After calibration: Rate is %f, CD->CalRate = %f \n",
+                                CD->kinetics[i].rate, CD->CalRate);
                         }
                         fgets(line, LINE_WIDTH, database);
                         keymatch(line, "NULL", tmpval, tmpstr);
@@ -522,8 +540,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
 
                             for (k = 0; k < CD->NumStc; k++)
                             {
-                                if (strcmp
-                                    (CD->kinetics[i].dep_species[0],
+                                if (strcmp(CD->kinetics[i].dep_species[0],
                                         CD->chemtype[k].ChemName) == 0)
                                     CD->kinetics[i].dep_position[0] = k;
                             }
@@ -532,41 +549,133 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                                 CD->kinetics[i].dep_species[0],
                                 CD->kinetics[i].dep_power[0]);
                         }
+
+                        /* 08.19 Wei */
+                        // Biomass term
+                        fgets(line, LINE_WIDTH, database);
+                        keymatch(line, "NULL", tmpval, tmpstr);
+                        if (strcmp(tmpstr[0], "biomass") == 0)
+                        {
+                            strcpy(CD->kinetics[i].biomass_species, tmpstr[2]);
+                            wrap(CD->kinetics[i].biomass_species);
+                            fprintf(stderr, " Biomass species: %s \n",
+                                CD->kinetics[i].biomass_species);
+                            for (k = 0; k < CD->NumStc; k++)
+                            {
+                                if (strcmp(CD->kinetics[i].biomass_species,
+                                        CD->chemtype[k].ChemName) == 0)
+                                {
+                                    CD->kinetics[i].biomass_position = k;
+                                    fprintf(stderr,
+                                        " Biomass species position: %d \n",
+                                        CD->kinetics[i].biomass_position);
+                                }
+                            }
+                        }
+
+                        // Monod term
+                        fgets(line, LINE_WIDTH, database);
+                        keymatch(line, "NULL", tmpval, tmpstr);
+                        if (strcmp(tmpstr[0], "num_monod") == 0)
+                        {
+                            CD->kinetics[i].num_monod = tmpval[0];
+                            fprintf(stderr, " Number of monod term: %d\n",
+                                CD->kinetics[i].num_monod);
+                        }
+                        fgets(line, LINE_WIDTH, database);
+                        keymatch(line, "NULL", tmpval, tmpstr);
+                        if (strcmp(tmpstr[0], "monod_terms") == 0)
+                        {
+                            for (mn = 0; mn < CD->kinetics[i].num_monod; mn++)
+                            {
+                                strcpy(CD->kinetics[i].monod_species[mn], tmpstr[mn * 2 + 2]);  // 08.19 pay attention, tmpstr indexing not same with tmpval indexing
+                                wrap(CD->kinetics[i].monod_species[mn]);
+                                for (k = 0; k < CD->NumStc; k++)
+                                {
+                                    if (strcmp(CD->kinetics[i].
+                                            monod_species[mn],
+                                            CD->chemtype[k].ChemName) == 0)
+                                        CD->kinetics[i].monod_position[mn] = k;
+                                }
+                                CD->kinetics[i].monod_para[mn] = tmpval[mn + 0];
+                                fprintf(stderr, " Monod term: %s %f\n",
+                                    CD->kinetics[i].monod_species[mn],
+                                    CD->kinetics[i].monod_para[mn]);
+                            }
+                        }
+
+                        // Inhibition term
+                        fgets(line, LINE_WIDTH, database);
+                        keymatch(line, "NULL", tmpval, tmpstr);
+                        if (strcmp(tmpstr[0], "num_inhibition") == 0)
+                        {
+                            CD->kinetics[i].num_inhib = tmpval[0];
+                            fprintf(stderr, " Number of inhibition term: %d\n",
+                                CD->kinetics[i].num_inhib);
+                        }
+                        fgets(line, LINE_WIDTH, database);
+                        keymatch(line, "NULL", tmpval, tmpstr);
+                        if (strcmp(tmpstr[0], "inhibition") == 0)
+                        {
+                            for (in = 0; in < CD->kinetics[i].num_inhib; in++)
+                            {
+                                strcpy(CD->kinetics[i].inhib_species[in], tmpstr[in * 2 + 2]);  // 08.19 pay attention, tmpstr indexing not same with tmpval indexing
+                                wrap(CD->kinetics[i].inhib_species[in]);
+                                for (k = 0; k < CD->NumStc; k++)
+                                {
+                                    if (strcmp(CD->kinetics[i].
+                                            inhib_species[in],
+                                            CD->chemtype[k].ChemName) == 0)
+                                        CD->kinetics[i].inhib_position[in] = k;
+                                }
+                                CD->kinetics[i].inhib_para[in] = tmpval[in + 0];
+                                fprintf(stderr, " Inhibition term: %s %f\n",
+                                    CD->kinetics[i].inhib_species[in],
+                                    CD->kinetics[i].inhib_para[in]);
+                            }
+                        }
                         wrap(CD->kinetics[i].species);
                     }
                 }
-
             }
             fgets(line, LINE_WIDTH, database);
         }
     }
+
     for (i = 0; i < CD->NumMkr; i++)
         for (j = 0; j < CD->NumStc; j++)
         {
             if (strcmp(CD->kinetics[i].species, CD->chemtype[j].ChemName) == 0)
             {
                 CD->kinetics[i].position = j;
-                //      fprintf(stderr, " %s %s\n", CD->kinetics[i].species, CD->chemtype[j].ChemName);
+                // 08.21, NumMkr[i] vs NumSt[j]
+                fprintf(stderr,
+                    " \n Position_check (NumMkr[i] vs NumStc[j]) %s (%d), %s (%d)\n",
+                    CD->kinetics[i].species, i, CD->chemtype[j].ChemName, j);
             }
         }
+
     for (i = 0; i < CD->NumStc; i++)
         CD->Totalconc[i][i] = 1.0;
+
     for (i = CD->NumStc; i < CD->NumStc + CD->NumSsc; i++)
         for (j = 0; j < CD->NumSdc; j++)
             CD->Totalconc[j][i] += CD->Dependency[i - CD->NumStc][j];
-    fprintf(stderr, " Dependency Matrix!\n\t\t");
+    fprintf(stderr, " \n Dependency Matrix!\n\t\t");
+
     for (i = 0; i < CD->NumSdc; i++)
         fprintf(stderr, "%6s\t", CD->chemtype[i].ChemName);
     fprintf(stderr, "\n");
-    for (i = 0; i < CD->NumSsc; i++)
+
+    for (i = 0; i < CD->NumSsc; i++)    /* Number of secondary speices in the simulator */
     {
         fprintf(stderr, " %12s\t", CD->chemtype[i + CD->NumStc].ChemName);
-        for (j = 0; j < CD->NumSdc; j++)
+        for (j = 0; j < CD->NumSdc; j++)    /* Number of independent species (others depending on these species) */
             fprintf(stderr, " %6.2f\t", CD->Dependency[i][j]);
-        fprintf(stderr, " %6.2f\n", CD->Keq[i]);
+        fprintf(stderr, " %6.2f\n", CD->Keq[i]);    // 08.19
     }
 
-    fprintf(stderr, " Total Concentration Matrix!\n\t\t");
+    fprintf(stderr, " \n Total Concentration Matrix!\n\t\t");
     for (i = 0; i < CD->NumStc + CD->NumSsc; i++)
         fprintf(stderr, "%6s\t", CD->chemtype[i].ChemName);
     fprintf(stderr, "\n");
@@ -579,7 +688,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
         fprintf(stderr, "\n");
     }
 
-    fprintf(stderr, " Kinetic Mass Matrx!\n\t\t");
+    fprintf(stderr, " \n Kinetic Mass Matrx!\n\t\t");
     for (i = 0; i < CD->NumStc; i++)
         fprintf(stderr, " %6s\t", CD->chemtype[i].ChemName);
     fprintf(stderr, "\n");
@@ -615,12 +724,14 @@ int Speciation(Chem_Data CD, int cell)
     realtype      **jcb;
 
 
-    for (i = 0; i < CD->NumSsc; i++)
-        Keq[i] = CD->Keq[i];
-    adh = CD->DH.adh;
-    bdh = CD->DH.bdh;
-    bdt = CD->DH.bdt;
-
+    if (CD->TEMcpl == 0)
+    {
+        for (i = 0; i < CD->NumSsc; i++)
+            Keq[i] = CD->Keq[i];
+        adh = CD->DH.adh;
+        bdh = CD->DH.bdh;
+        bdt = CD->DH.bdt;
+    }
     /*
      * if  ( CD->TEMcpl == 1){
      * for ( i = 0 ; i < CD->NumSsc; i ++)
@@ -662,7 +773,8 @@ int Speciation(Chem_Data CD, int cell)
     {
         /* pH is defined, total concentration is calculated from the activity of H */
         /* Dependency is the same but the total concentration for H need not be solved */
-        jcb = denalloc(CD->NumStc - 1);
+        // jcb = denalloc(CD->NumStc -1);  // 09.17
+        jcb = newDenseMat(CD->NumStc - 1, CD->NumStc - 1);  // 09.17
         long int        p[CD->NumStc - 1];
         realtype        x_[CD->NumStc - 1];
         double          maxerror = 1;
@@ -687,8 +799,8 @@ int Speciation(Chem_Data CD, int cell)
 
                     else
                         gamma[i] =
-                            (-adh * sqr(CD->chemtype[i].Charge) * Iroot) /
-                            (1 + bdh * CD->chemtype[i].SizeF * Iroot) + bdt * I;
+                            (-adh * sqr(CD->chemtype[i].Charge) * Iroot) / (1 +
+                            bdh * CD->chemtype[i].SizeF * Iroot) + bdt * I;
                     // fprintf(stderr, " Log10gamma of %s %6.4f\n", CD->chemtype[i].ChemName, gamma[i]);
                     if (strcmp(CD->chemtype[i].ChemName, "'H+'") == 0)
                     {
@@ -710,7 +822,7 @@ int Speciation(Chem_Data CD, int cell)
                 }
                 tmpval -= Keq[i] + gamma[i + CD->NumStc];
                 tmpconc[i + CD->NumStc] = tmpval;
-                //      fprintf(stderr, " UPDATE %s %6.4f\n", CD->chemtype[i+CD->NumSpc].ChemName, tmpconc[i+CD->NumSpc]);
+                //  fprintf(stderr, " UPDATE %s %6.4f\n", CD->chemtype[i+CD->NumSpc].ChemName, tmpconc[i+CD->NumSpc]);
             }
             for (i = 0; i < CD->NumStc; i++)
             {
@@ -754,10 +866,10 @@ int Speciation(Chem_Data CD, int cell)
                             {
                                 tmpval +=
                                     CD->Totalconc[i][j] * pow(10, tmpconc[j]);
-                                //      fprintf(stderr, " CALC_TOT %s %6.4f\t %6.4f\n",CD->chemtype[j].ChemName, CD->Totalconc[i][j], pow(10,tmpconc[j]));
+                                //  fprintf(stderr, " CALC_TOT %s %6.4f\t %6.4f\n",CD->chemtype[j].ChemName, CD->Totalconc[i][j], pow(10,tmpconc[j]));
                             }
                             //totconc[i] = tmpval;
-                            //              fprintf(stderr, " CALC_TOT Sum%s %6.4f\t %12.10f\n", CD->chemtype[i].ChemName, log10(totconc[i]), totconc[i]);
+                            //        fprintf(stderr, " CALC_TOT Sum%s %6.4f\t %12.10f\n", CD->chemtype[i].ChemName, log10(totconc[i]), totconc[i]);
                             residue_t[i] = tmpval - CD->Vcele[cell].t_conc[i];
                             //fprintf(stderr, " %d %d\n",col,row);
                             jcb[col][row] =
@@ -778,14 +890,15 @@ int Speciation(Chem_Data CD, int cell)
             //fprintf(stderr, " Jacobian Matrix!\n");
             //denprint(jcb, CD->NumSpc-1);
             //      fprintf(stderr, " LU flag %ld\n",gefa(jcb,CD->NumStc-1,p));
-            if (gefa(jcb, CD->NumStc - 1, p) != 0)
-            {
-
+            //if(gefa(jcb, CD->NumStc-1, p)!=0){                     // 09.17 
+            if (denseGETRF(jcb, CD->NumStc - 1, CD->NumStc - 1, p) != 0)
+            {                   // 09.17
                 ReportError(CD->Vcele[cell], CD);
                 return (1);
                 //  assert(gefa(jcb, CD->NumStc-1, p) == 0 );
             }
-            gesl(jcb, CD->NumStc - 1, p, x_);
+            //gesl(jcb, CD->NumStc-1, p, x_);      // 09.17
+            denseGETRS(jcb, CD->NumStc - 1, p, x_); // 09.17
             //   gauss(jcb, x_, CD->NumStc-1);
             //      assert(gefa(jcb, CD->NumStc-1, p)==0);
 
@@ -807,7 +920,8 @@ int Speciation(Chem_Data CD, int cell)
     if (speciation_flg == 0)
     {
         // fprintf(stderr, " \n\nTotal H+\n\n");
-        jcb = denalloc(CD->NumStc);
+        // jcb = denalloc(CD->NumStc);  // 09.17
+        jcb = newDenseMat(CD->NumStc, CD->NumStc);  // 09.17
         long int        p[CD->NumStc];
         realtype        x_[CD->NumStc];
         control = 0;
@@ -822,7 +936,7 @@ int Speciation(Chem_Data CD, int cell)
                 {
                     I += 0.5 * pow(10,
                         tmpconc[i]) * sqr(CD->chemtype[i].Charge);
-                    //      fprintf(stderr, " I_CALC, %s: %6.4f\t %6.4f\n",CD->chemtype[i].ChemName, pow(10,tmpconc[i]), sqr(CD->chemtype[i].Charge));
+                    //    fprintf(stderr, " I_CALC, %s: %6.4f\t %6.4f\n",CD->chemtype[i].ChemName, pow(10,tmpconc[i]), sqr(CD->chemtype[i].Charge));
                 }
                 Iroot = sqrt(I);
                 for (i = 0; i < num_spe; i++)
@@ -831,13 +945,13 @@ int Speciation(Chem_Data CD, int cell)
                         gamma[i] = -tmpconc[i];
                     else
                         gamma[i] =
-                            (-adh * sqr(CD->chemtype[i].Charge) * Iroot) /
-                            (1 + bdh * CD->chemtype[i].SizeF * Iroot) + bdt * I;
+                            (-adh * sqr(CD->chemtype[i].Charge) * Iroot) / (1 +
+                            bdh * CD->chemtype[i].SizeF * Iroot) + bdt * I;
                     //          fprintf(stderr, " Log10gamma of %s %6.4f\n", CD->chemtype[i].ChemName, gamma[i]);
-                    // log a  = log c + log gamma; log c = log a - log gamma;
+                    // log a  = log c + log gamma; log c = log a - log gamma;                                                                                            
                 }
             }
-            // gamma stores log10gamma[i].
+            // gamma stores log10gamma[i].                                                                                                                           
             //   fprintf(stderr, "\n Ionic strength is %6.4f\n", I);
             // fprintf(stderr, "\n NEWTON ITERATION = %d\n",control);
             for (i = 0; i < CD->NumSsc; i++)
@@ -849,7 +963,7 @@ int Speciation(Chem_Data CD, int cell)
                 }
                 tmpval -= Keq[i] + gamma[i + CD->NumStc];
                 tmpconc[i + CD->NumStc] = tmpval;
-                //      fprintf(stderr, " UPDATE %s %6.4f\n", CD->chemtype[i+CD->NumStc].ChemName, tmpconc[i+CD->NumStc]);
+                //  fprintf(stderr, " UPDATE %s %6.4f\n", CD->chemtype[i+CD->NumStc].ChemName, tmpconc[i+CD->NumStc]);
             }
             for (i = 0; i < CD->NumStc; i++)
             {
@@ -861,7 +975,7 @@ int Speciation(Chem_Data CD, int cell)
                 }
                 totconc[i] = tmpval;
                 residue[i] = tmpval - CD->Vcele[cell].t_conc[i];
-                //      fprintf(stderr, " Residue: Sum%s %6.4f\n", CD->chemtype[i].ChemName, residue[i]);
+                //  fprintf(stderr, " Residue: Sum%s %6.4f\n", CD->chemtype[i].ChemName, residue[i]);
             }
 
             for (k = 0; k < CD->NumStc; k++)
@@ -885,13 +999,13 @@ int Speciation(Chem_Data CD, int cell)
                         tmpval += CD->Totalconc[i][j] * pow(10, tmpconc[j]);
                         // fprintf(stderr, " CALC_TOT %s %6.4f\t %6.4f\n",CD->chemtype[j].ChemName, CD->Totalconc[i][j], pow(10,tmpconc[j]));
                     }
-                    //    totconc[i] = tmpval;
+                    //  totconc[i] = tmpval;
                     //fprintf(stderr, " CALC_TOT Sum%s %6.4f\t %12.10f\n", CD->chemtype[i].ChemName, log10(totconc[i]), totconc[i]);
                     residue_t[i] = tmpval - CD->Vcele[cell].t_conc[i];
                     jcb[k][i] = (residue_t[i] - residue[i]) / (tmpprb);
 
-                    //    fprintf(stderr, "%g\n", jcb[k][i]);
-                    //    fprintf(stderr, " Sum%s %6.4f\t %6.4f\n", CD->chemtype[i].ChemName, tmpval, residue_t[i]);
+                    //  fprintf(stderr, "%g\n", jcb[k][i]);
+                    //  fprintf(stderr, " Sum%s %6.4f\t %6.4f\n", CD->chemtype[i].ChemName, tmpval, residue_t[i]);
                 }
                 tmpconc[k] -= tmpprb;
             }
@@ -899,22 +1013,24 @@ int Speciation(Chem_Data CD, int cell)
                 x_[i] = -residue[i];
             //      fprintf(stderr, " Jacobian Matrix!\n");
             //      denprint(jcb, CD->NumSpc);
-            if (gefa(jcb, CD->NumStc, p) != 0)
-            {
+            // if(gefa(jcb, CD->NumStc, p)!=0){                  // 09.17
+            if (denseGETRF(jcb, CD->NumStc, CD->NumStc, p) != 0)
+            {                   // 09.17
 
                 ReportError(CD->Vcele[cell], CD);
                 return (1);
-                //      assert(gefa(jcb, CD->NumStc, p) == 0 );
+                //  assert(gefa(jcb, CD->NumStc, p) == 0 );
             }
             //   fprintf(stderr, " LU %ld\n",gefa(jcb,CD->NumStc,p));
-            gesl(jcb, CD->NumStc, p, x_);
+            //gesl(jcb, CD->NumStc, p, x_);       // 09.17
+            denseGETRS(jcb, CD->NumStc, p, x_); // 09.17 
             //  gauss(jcb, x_, CD->NumStc);
             for (i = 0; i < CD->NumStc; i++)
             {
                 tmpconc[i] += x_[i];
-                //      fprintf(stderr, " %s  TMPCON %6.4f\t IMPROVE %g", CD->chemtype[i].ChemName, tmpconc[i], x_[i]);
+                //  fprintf(stderr, " %s  TMPCON %6.4f\t IMPROVE %g", CD->chemtype[i].ChemName, tmpconc[i], x_[i]);
                 error[i] = residue[i] / totconc[i];
-                //      fprintf(stderr, "  RESI %6.4g\t TOT_CONC %6.4g\t ERROR %6.4g\n", residue[i], totconc[i], error[i] );
+                //  fprintf(stderr, "  RESI %6.4g\t TOT_CONC %6.4g\t ERROR %6.4g\n", residue[i], totconc[i], error[i] );
             }
             maxerror = fabs(error[0]);
             for (i = 1; i < CD->NumStc; i++)
@@ -933,7 +1049,7 @@ int Speciation(Chem_Data CD, int cell)
         }
         tmpval -= Keq[i] + gamma[i + CD->NumStc];
         tmpconc[i + CD->NumStc] = tmpval;
-        //  fprintf(stderr, " UPDATE %s %6.4f\n", CD->chemtype[i+CD->NumStc].ChemName, (tmpconc[i+CD->NumStc]));
+        //  fprintf(stderr, " UPDATE %s %6.4f\n", CD->chemtype[i+CD->NumStc].ChemName, (tmpconc[i+CD->NumStc]));                                                     
     }
     for (i = 0; i < CD->NumStc; i++)
     {
@@ -941,7 +1057,7 @@ int Speciation(Chem_Data CD, int cell)
         for (j = 0; j < CD->NumStc + CD->NumSsc; j++)
         {
             tmpval += CD->Totalconc[i][j] * pow(10, tmpconc[j]);
-            //  fprintf(stderr, " %s %6.4f\t %6.4f\n", CD->chemtype[j].ChemName,CD->Totalconc[i][j], tmpconc[j]);
+            //  fprintf(stderr, " %s %6.4f\t %6.4f\n", CD->chemtype[j].ChemName,CD->Totalconc[i][j], tmpconc[j]);                                                        
         }
         totconc[i] = tmpval;
         residue[i] = tmpval - CD->Vcele[cell].t_conc[i];
@@ -974,83 +1090,107 @@ int Speciation(Chem_Data CD, int cell)
     //  for ( i = 0; i < CD->NumStc; i ++){
     //   fprintf(stderr, " Sum%s: log10(TOTCONC_NR) %4.3f\t log10(TOTCONC_B) %4.3f\t TOTCONC_NR %4.3g\t RESIDUE %2.1g\t RELATIVE ERROR %2.1g\n", CD->chemtype[i].ChemName,log10(totconc[i]),log10(CD->Vcele[cell].t_conc[i]), totconc[i], fabs(residue[i]), fabs(error[i]*100));
     //  }
-    denfree(jcb);
+    //denfree(jcb);   // 09.17
+    destroyMat(jcb);            // 09.17
     return (0);
 
 }
 
 
-int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
+//int React(realtype t, realtype stepsize, Chem_Data  CD, int cell, int * NR_times, const void * model_Data)  // 08.22 add model data (mdata)
+int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times, const pihm_struct pihm) // 10.01
 {
 
     if (CD->Vcele[cell].sat < 1.0E-2)
         return (0);             // very dry, no reaction can take place.
     int             i, j, k, control, speciation_flg = CD->SPCFlg, num_spe =
         CD->NumStc + CD->NumSsc, min_pos, pivot_flg;
-    int             stc = CD->NumStc, ssc = CD->NumSsc, spc =
-        CD->NumSpc, sdc = CD->NumSdc, nkr = CD->NumMkr + CD->NumAkr, smc =
-        CD->NumMin;
+    int             mn, in;     //08.21
+    double          monodterm = 1.0, inhibterm = 1.0;   // 08.21 must be initilizing 1.0, if use the operator '*='
+    double          CUE_SOC;    // 08.21 carbon use efficiency
+    double          soilmoisture;   // 08.22 soil mositure term
+    double          fieldcapacity;  // 08.22 soil mositure term
+    double          fd = 1.0;   // 11.28 SOC declining factor
+    double          z_SOC = 0.0;    // 11.28 water level depth to surface ground
+    double          vb;         // 08.26 bulk volume term [L-porous]
+    int             stc = CD->NumStc, ssc = CD->NumSsc, spc = CD->NumSpc, sdc =
+        CD->NumSdc, nkr = CD->NumMkr + CD->NumAkr, smc = CD->NumMin;
     double         *residue, *residue_t, *tmpconc, *totconc, *area, *error,
         *gamma, *Keq, *Rate_pre, *IAP, *dependency, *Rate_spe, *Rate_spe_t,
         *Rate_spet;
-    residue = (double *)malloc(stc * sizeof (double));
-    residue_t = (double *)malloc(stc * sizeof (double));
-    tmpconc = (double *)malloc(num_spe * sizeof (double));
-    totconc = (double *)malloc(stc * sizeof (double));
-    area = (double *)malloc(smc * sizeof (double));
-    error = (double *)malloc(stc * sizeof (double));
-    gamma = (double *)malloc(num_spe * sizeof (double));
-    Keq = (double *)malloc(ssc * sizeof (double));
-    Rate_pre = (double *)malloc(nkr * sizeof (double));
-    IAP = (double *)malloc(nkr * sizeof (double));
-    dependency = (double *)malloc(nkr * sizeof (double));
-    Rate_spe = (double *)malloc(stc * sizeof (double));
-    Rate_spe_t = (double *)malloc(stc * sizeof (double));
-    Rate_spet = (double *)malloc(stc * sizeof (double));
+    residue = (double *)malloc(stc * sizeof(double));
+    residue_t = (double *)malloc(stc * sizeof(double));
+    tmpconc = (double *)malloc(num_spe * sizeof(double));
+    totconc = (double *)malloc(stc * sizeof(double));
+    area = (double *)malloc(smc * sizeof(double));
+    error = (double *)malloc(stc * sizeof(double));
+    gamma = (double *)malloc(num_spe * sizeof(double));
+    Keq = (double *)malloc(ssc * sizeof(double));
+    Rate_pre = (double *)malloc(nkr * sizeof(double));
+    IAP = (double *)malloc(nkr * sizeof(double));
+    dependency = (double *)malloc(nkr * sizeof(double));
+    Rate_spe = (double *)malloc(stc * sizeof(double));
+    Rate_spe_t = (double *)malloc(stc * sizeof(double));
+    Rate_spet = (double *)malloc(stc * sizeof(double));
     long int       *p =
-        (long int *)malloc((CD->NumStc - CD->NumMin) * sizeof (long int));
+        (long int *)malloc((CD->NumStc - CD->NumMin) * sizeof(long int));
     realtype       *x_ =
-        (realtype *) malloc((CD->NumStc - CD->NumMin) * sizeof (realtype));
-    double          tmpval, tmpprb, inv_sat, I, Iroot, tmpKeq, ISupdateflg,
-        adh, bdh, bdt, maxerror =
-        1, surf_ratio, tot_cec, tmpprb_inv, kinetic_multiplier;
+        (realtype *)malloc((CD->NumStc - CD->NumMin) * sizeof(realtype));
+    double          tmpval, tmpprb, inv_sat, I, Iroot, tmpKeq, ISupdateflg, adh,
+        bdh, bdt, maxerror = 1, surf_ratio, tot_cec, tmpprb_inv;
     realtype      **jcb;
 
+    // 08.22 build model data structure from pointer address
+    //Model_Data mD;
+    //mD = (Model_Data)model_Data;
+    pihm_struct     pihmReact;
+    pihmReact = pihm;
+
+
+
+    // 10.01 test purpose
+    //fprintf(stderr, "    Doing React() ... \n");
+
+    /*
+     * for (i = 0; i < nelem; i++)
+     * {
+     * fprintf(stderr, "  [cell,%d] Field capacity = %.3f \n", (i+1), pihmReact->elem[i].soil.smcref);  // 10.01
+     * }
+     */
+
     control = 0;
-    kinetic_multiplier = 1.0;
     tmpprb = 1.0E-2;
     tmpprb_inv = 1.0 / tmpprb;
     inv_sat = 1.0 / CD->Vcele[cell].sat;
 
-    if (CD->TEMcpl)
-        kinetic_multiplier =
-            exp((-ACT_ENERGY / 1.987E-3) * ((1 /
-                    CD->Vcele[cell].temperature) - (1 / (CD->Temperature +
-                        273.15))));
-    // Arrhenius equation.
-    if (cell == 1)
-        fprintf(stderr, " KM: %6.4f ", kinetic_multiplier);
-
     for (i = 0; i < CD->NumMin; i++)
     {
+        // 02.12 calibration
+        //area[i] = CD->Vcele[cell].p_para[i + CD->NumStc - CD->NumMin] * CD->Vcele[cell].p_conc[i + CD->NumStc - CD->NumMin] * CD->chemtype[i + CD->NumStc - CD->NumMin].MolarMass; 
         area[i] =
-            CD->Vcele[cell].p_para[i + CD->NumStc -
-            CD->NumMin] * CD->Vcele[cell].p_conc[i +
-            CD->NumStc -
+            CD->CalSSA * CD->Vcele[cell].p_para[i + CD->NumStc -
+            CD->NumMin] * CD->Vcele[cell].p_conc[i + CD->NumStc -
             CD->NumMin] * CD->chemtype[i + CD->NumStc - CD->NumMin].MolarMass;
+
+        // 02.12 calibration
+        //printf(" area[mineral = %d] = %f, SSA = %f, CD->CalSSA = %f \n ", i+1, area[i], CD->Vcele[cell].p_para[i + CD->NumStc - CD->NumMin], CD->CalSSA);   
     }
 
     if (CD->SUFEFF)
     {
         if (CD->Vcele[cell].sat < 1.0)
         {
-            surf_ratio = pow(CD->Vcele[cell].sat, 0.6667);
+            //surf_ratio = pow(CD->Vcele[cell].sat, 0.6667);
+            //surf_ratio = 1.0;  // # 1 function
+            surf_ratio = exp(CD->Vcele[cell].sat) - 1.0;    // # 3 function
+            //surf_ratio = 1.0 - pow(exp(-1.0/CD->Vcele[cell].sat), 0.6); // # 4 function  
             for (i = 0; i < CD->NumMin; i++)
             {
                 area[i] *= surf_ratio;
             }
         }
     }                           // Lichtner's 2 third law if SUF_EFF is turned on.
+
     for (j = 0; j < CD->NumStc; j++)
     {
         Rate_spe[j] = 0.0;
@@ -1059,36 +1199,96 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
     for (i = 0; i < CD->NumMkr + CD->NumAkr; i++)
     {
         min_pos = CD->kinetics[i].position - CD->NumStc + CD->NumMin;
-        IAP[i] = 0.0;
-        for (j = 0; j < CD->NumStc; j++)
+
+
+        if (CD->kinetics[i].type == 1)  // 08.20, TST rate
         {
-            IAP[i] +=
-                log10(CD->Vcele[cell].p_actv[j]) * CD->Dep_kinetic[min_pos][j];
+            IAP[i] = 0.0;
+            for (j = 0; j < CD->NumStc; j++)
+            {
+                IAP[i] +=
+                    log10(CD->Vcele[cell].p_actv[j]) *
+                    CD->Dep_kinetic[min_pos][j];
+            }
+            IAP[i] = pow(10, IAP[i]);
+            tmpKeq = pow(10, CD->KeqKinect[min_pos]);
+            dependency[i] = 1.0;
+            for (k = 0; k < CD->kinetics[i].num_dep; k++)
+                dependency[i] *=
+                    pow(CD->Vcele[cell].p_actv[CD->kinetics[i].dep_position[k]],
+                    CD->kinetics[i].dep_power[k]);
+            /* Calculate the predicted rate depending on the type of rate law!  */
+            Rate_pre[i] =
+                area[min_pos] * (pow(10,
+                    CD->kinetics[i].rate)) * dependency[i] * (1 -
+                (IAP[i] / tmpKeq)) * 60;
+            /* Rate_pre: in mol/L water       / min   rate per reaction
+             * area: m2/L water
+             * rate: mol/m2/s
+             * dependency: dimensionless;
+             */
         }
-        IAP[i] = pow(10, IAP[i]);
-        tmpKeq = pow(10, CD->KeqKinect[min_pos]);
-        dependency[i] = 1.0;
-        for (k = 0; k < CD->kinetics[i].num_dep; k++)
-            dependency[i] *=
-                pow(CD->Vcele[cell].p_actv[CD->kinetics[i].dep_position[k]],
-                CD->kinetics[i].dep_power[k]);
-        /* Calculate the predicted rate depending on the type of rate law!  */
-        Rate_pre[i] =
-            area[min_pos] * (pow(10, CD->kinetics[i].rate)) * dependency[i] *
-            (1 - (IAP[i] / tmpKeq)) * 60;
-        /* Rate_pre: in mol/L water       / min   rate per reaction
-         * area: m2/L water
-         * rate: mol/m2/s
-         * dependency: dimensionless;
-         */
-        if (CD->TEMcpl)
-            Rate_pre[i] *= kinetic_multiplier;
+
+        else if (CD->kinetics[i].type == 4) // 08.20, Monod rate
+        {
+            monodterm = 1.0;    // re-set for new species
+            inhibterm = 1.0;    // re-set for new species
+
+            // 08.21 calculate rate
+            for (mn = 0; mn < CD->kinetics[i].num_monod; mn++)
+            {
+                monodterm *=
+                    CD->Vcele[cell].p_conc[CD->kinetics[i].monod_position[mn]] /
+                    (CD->Vcele[cell].p_conc[CD->kinetics[i].
+                        monod_position[mn]] + CD->kinetics[i].monod_para[mn]);
+                //fprintf(stderr, " Calculation [Cell,%d]: monodterm: %.3e \n", cell, monodterm);  // 08.21 check if there is changes
+            }
+
+            for (in = 0; in < CD->kinetics[i].num_inhib; in++)
+            {
+                inhibterm *=
+                    CD->kinetics[i].inhib_para[in] /
+                    (CD->kinetics[i].inhib_para[in] +
+                    CD->Vcele[cell].p_conc[CD->kinetics[i].inhib_position[in]]);
+                //fprintf(stderr, " Calculation [Cell,%d]: inhibterm: %.3e \n", cell, inhibterm);  // 08.21 check if there is changes
+            }
+
+            // 11.28 SOC declining factor 
+            if (cell <= CD->NumEle - 1) // saturated zone
+            {
+                z_SOC =
+                    CD->Vcele[cell].maxwater - (CD->Vcele[cell].height_t +
+                    CD->Vcele[cell + CD->NumEle].height_t);
+            }
+            else                // unsaturated zone
+            {
+                z_SOC =
+                    CD->Vcele[cell].maxwater - (CD->Vcele[cell].height_t +
+                    CD->Vcele[cell - CD->NumEle].height_t);
+            }
+
+            if (z_SOC > 0)
+                z_SOC = z_SOC;
+            else
+                z_SOC = 0.0;
+            fd = 1.0 * exp(-z_SOC / 0.1);
+            //printf(" Calculation [Cell,%d]: maxwater = %f, z_DOC = %f, fd = %f \n", cell, CD->Vcele[cell].maxwater, z_SOC, fd);  // 0207 bug, not "i" but "cell"
+
+            // 02.03 based on CrunchTope
+            Rate_pre[i] =
+                area[min_pos] * pow(10,
+                CD->kinetics[i].rate) * monodterm * fd * 60;
+        }
 
         for (j = 0; j < CD->NumStc; j++)
         {
             Rate_spe[j] += Rate_pre[i] * CD->Dep_kinetic[min_pos][j];
         }
     }
+
+
+
+
     for (i = 0; i < CD->NumMkr + CD->NumAkr; i++)
     {
         min_pos = CD->kinetics[i].position - CD->NumStc + CD->NumMin;
@@ -1100,22 +1300,26 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
     }
 
     for (i = 0; i < CD->NumSpc; i++)
-        if (CD->chemtype[i].itype == 1)
+        if (CD->chemtype[i].itype == 1) // 01.21 aqueous species, saturation term for aqueous volume 
             Rate_spe[i] = Rate_spe[i] * inv_sat;
 
 
-    jcb = denalloc(CD->NumStc - CD->NumMin);
+    // jcb = denalloc(CD->NumStc - CD->NumMin);  // 09.17
+    jcb = newDenseMat(CD->NumStc - CD->NumMin, CD->NumStc - CD->NumMin);    // 09.17
     /*
      * long int p[CD->NumStc];
      * realtype x_[CD->NumStc];
      * control =0;
      * double  maxerror= 1;
      */
-    for (i = 0; i < CD->NumSsc; i++)
-        Keq[i] = CD->Keq[i];
-    adh = CD->DH.adh;
-    bdh = CD->DH.bdh;
-    bdt = CD->DH.bdt;
+    if (CD->TEMcpl == 0)
+    {
+        for (i = 0; i < CD->NumSsc; i++)
+            Keq[i] = CD->Keq[i];
+        adh = CD->DH.adh;
+        bdh = CD->DH.bdh;
+        bdt = CD->DH.bdt;
+    }
 
     for (i = 0; i < CD->NumStc; i++)
     {
@@ -1151,7 +1355,7 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
                     bdh * CD->chemtype[i].SizeF * Iroot) + bdt * I;
                 break;
             case 2:
-                gamma[i] = 0;
+                gamma[i] = log10(CD->Vcele[cell].sat);
                 break;
             case 3:
                 gamma[i] = -log10(tot_cec);
@@ -1161,6 +1365,14 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
                 break;
         }
     }
+    /*
+     * for ( i = 0 ; i < num_spe; i ++){
+     * if ( CD->chemtype[i].itype == 2)
+     * {
+     * if ( cell == 700) fprintf(stderr, "%s with %f\n", CD->chemtype[i].ChemName, gamma[i]);
+     * }
+     * }
+     */
 
     while (maxerror > TOL)
     {
@@ -1175,6 +1387,7 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
             tmpconc[i + CD->NumStc] = tmpval;
             //   fprintf(stderr, " UPDATE %s %6.4f\n", CD->chemtype[i+CD->NumStc].ChemName, tmpconc[i+CD->NumStc]);
         }
+
         for (j = 0; j < CD->NumStc; j++)
         {
             Rate_spet[j] = 0.0;
@@ -1184,49 +1397,108 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
         {
             min_pos = CD->kinetics[i].position - CD->NumStc + CD->NumMin;
             //  fprintf(stderr, " Min_pos %d\n", min_pos);
-            IAP[i] = 0.0;
-            //  fprintf(stderr, " IAP_BC %s %6.4f\n", CD->kinetics[i].Label, IAP[i]);
-            for (j = 0; j < CD->NumStc; j++)
+
+            if (CD->kinetics[i].type == 1)  // 08.20, TST rate
             {
-                if (CD->chemtype[j].itype != 4)
+                IAP[i] = 0.0;
+                //  fprintf(stderr, " IAP_BC %s %6.4f\n", CD->kinetics[i].Label, IAP[i]);
+                for (j = 0; j < CD->NumStc; j++)
                 {
-                    IAP[i] +=
-                        (tmpconc[j] + gamma[j]) * CD->Dep_kinetic[min_pos][j];
-                    //  fprintf(stderr, " IAP_CALC, %s %6.4f\t %6.4f\n" ,CD->chemtype[j].ChemName, tmpconc[j]+gamma[j], CD->Dep_kinetic[min_pos][j]);
+                    if (CD->chemtype[j].itype != 4)
+                    {
+                        IAP[i] +=
+                            (tmpconc[j] +
+                            gamma[j]) * CD->Dep_kinetic[min_pos][j];
+                        //  fprintf(stderr, " IAP_CALC, %s %6.4f\t %6.4f\n" ,CD->chemtype[j].ChemName, tmpconc[j]+gamma[j], CD->Dep_kinetic[min_pos][j]);
+                    }
                 }
+                IAP[i] = pow(10, IAP[i]);
+                tmpKeq = pow(10, CD->KeqKinect[min_pos]);
+                /*
+                 * if ( IAP[i] < tmpKeq)
+                 * rct_drct[i] = 1.0;
+                 * if ( IAP[i] > tmpKeq)
+                 * rct_drct[i] = -1.0;
+                 * if ( IAP[i] == tmpKeq)
+                 * rct_drct[i] = 0.0;
+                 */
+                //    fprintf(stderr, " IAP_BC %s %6.4f\n", CD->kinetics[i].Label, IAP[i]);
+                dependency[i] = 0.0;
+                for (k = 0; k < CD->kinetics[i].num_dep; k++)
+                    dependency[i] +=
+                        (tmpconc[CD->kinetics[i].dep_position[k]] +
+                        gamma[CD->kinetics[i].dep_position[k]]) *
+                        CD->kinetics[i].dep_power[k];
+                dependency[i] = pow(10, dependency[i]);
+                //  fprintf(stderr, " Dep: %6.4f\n", dependency[i]);
+                /* Calculate the predicted rate depending on the type of rate law!  */
+                Rate_pre[i] =
+                    area[min_pos] * (pow(10,
+                        CD->kinetics[i].rate)) * dependency[i] * (1 -
+                    (IAP[i] / tmpKeq)) * 60;
+                /* Rate_pre: in mol/L water       / min
+                 * area: m2/L water
+                 * rate: mol/m2/s
+                 * dependency: dimensionless;
+                 */
+                //   fprintf(stderr, " Reaction %s, Label %s, IAP %6.4f\t, Rate %2.1g\n",CD->kinetics[i].species, CD->kinetics[i].Label, IAP[i], Rate_pre[i]);
             }
-            IAP[i] = pow(10, IAP[i]);
-            tmpKeq = pow(10, CD->KeqKinect[min_pos]);
-            /*
-             * if ( IAP[i] < tmpKeq)
-             * rct_drct[i] = 1.0;
-             * if ( IAP[i] > tmpKeq)
-             * rct_drct[i] = -1.0;
-             * if ( IAP[i] == tmpKeq)
-             * rct_drct[i] = 0.0;
-             */
-            //    fprintf(stderr, " IAP_BC %s %6.4f\n", CD->kinetics[i].Label, IAP[i]);
-            dependency[i] = 0.0;
-            for (k = 0; k < CD->kinetics[i].num_dep; k++)
-                dependency[i] +=
-                    (tmpconc[CD->kinetics[i].dep_position[k]] +
-                    gamma[CD->kinetics[i].dep_position[k]]) *
-                    CD->kinetics[i].dep_power[k];
-            dependency[i] = pow(10, dependency[i]);
-            //  fprintf(stderr, " Dep: %6.4f\n", dependency[i]);
-            /* Calculate the predicted rate depending on the type of rate law!  */
-            Rate_pre[i] =
-                area[min_pos] * (pow(10,
-                    CD->kinetics[i].rate)) * dependency[i] * (1 -
-                (IAP[i] / tmpKeq)) * 60;
-            /* Rate_pre: in mol/L water       / min
-             * area: m2/L water
-             * rate: mol/m2/s
-             * dependency: dimensionless;
-             */
-            if (CD->TEMcpl)
-                Rate_pre[i] *= kinetic_multiplier;
-            //   fprintf(stderr, " Reaction %s, Label %s, IAP %6.4f\t, Rate %2.1g\n",CD->kinetics[i].species, CD->kinetics[i].Label, IAP[i], Rate_pre[i]);
+
+            else if (CD->kinetics[i].type == 4)
+            {
+
+                monodterm = 1.0;
+                inhibterm = 1.0;
+
+                // 08.21 calculate rate
+                for (mn = 0; mn < CD->kinetics[i].num_monod; mn++)
+                {
+                    monodterm *=
+                        CD->Vcele[cell].p_conc[CD->kinetics[i].
+                        monod_position[mn]] /
+                        (CD->Vcele[cell].p_conc[CD->kinetics[i].
+                            monod_position[mn]] +
+                        CD->kinetics[i].monod_para[mn]);
+                    //fprintf(stderr, " Calculation [Cell,%d]: monodterm: %.3e \n", cell, monodterm);  // 08.21 check if there is changes
+                }
+
+                for (in = 0; in < CD->kinetics[i].num_inhib; in++)
+                {
+                    inhibterm *=
+                        CD->kinetics[i].inhib_para[in] /
+                        (CD->kinetics[i].inhib_para[in] +
+                        CD->Vcele[cell].p_conc[CD->kinetics[i].
+                            inhib_position[in]]);
+                    //fprintf(stderr, " Calculation [Cell,%d]: inhibterm: %.3e \n", cell, inhibterm);  // 08.21 check if there is changes
+                }
+
+                // 11.28 SOC declining factor 
+                if (cell <= CD->NumEle - 1) // saturated zone
+                {
+                    z_SOC =
+                        CD->Vcele[cell].maxwater - (CD->Vcele[cell].height_t +
+                        CD->Vcele[cell + CD->NumEle].height_t);
+                }
+                else            // unsaturated zone
+                {
+                    z_SOC =
+                        CD->Vcele[cell].maxwater - (CD->Vcele[cell].height_t +
+                        CD->Vcele[cell - CD->NumEle].height_t);
+                }
+
+                if (z_SOC > 0)
+                    z_SOC = z_SOC;
+                else
+                    z_SOC = 0.0;
+                fd = 1.0 * exp(-z_SOC / 0.1);
+                //printf(" Calculation [Cell,%d]: height_v = %f, z_DOC = %f, fd = %f \n", cell, CD->Vcele[i].height_v, z_SOC, fd);  // 11.28 check fd
+
+                // 02.03 based on CrunchTope
+                Rate_pre[i] =
+                    area[min_pos] * pow(10,
+                    CD->kinetics[i].rate) * monodterm * fd * 60;
+            }
+
             for (j = 0; j < CD->NumStc; j++)
             {
                 Rate_spet[j] += Rate_pre[i] * CD->Dep_kinetic[min_pos][j];
@@ -1241,6 +1513,7 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
          * Rate_spet[i] = Rate_spet[i]/(CD->Vcele[cell].porosity * CD->Vcele[cell].sat);
          * // fprintf(stderr, " Tot_rate for %s: %6.4g\n", CD->chemtype[i].ChemName, Rate_spet[i]);
          * } */
+
         for (i = 0; i < CD->NumSpc; i++)
             if (CD->chemtype[i].itype == 1)
                 Rate_spet[i] = Rate_spet[i] * inv_sat;
@@ -1256,8 +1529,8 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
             }
             totconc[i] = tmpval;
             residue[i] =
-                tmpval - (CD->Vcele[cell].t_conc[i] +
-                (Rate_spe[i] + Rate_spet[i]) * stepsize * 0.5);
+                tmpval - (CD->Vcele[cell].t_conc[i] + (Rate_spe[i] +
+                    Rate_spet[i]) * stepsize * 0.5);
             //residue[i] = tmpval -( CD->Vcele[cell].t_conc[i] + (Rate_spet[i])*stepsize);
             //      fprintf(stderr, " %s Residue: %6.4g\t Sum1:%6.4g\tSum2:%6.4g\tRate1%6.4g\tRate2%6.4g\n", CD->chemtype[i].ChemName, residue[i],totconc[i], CD->Vcele[cell].t_conc[i], Rate_spe[i], Rate_spet[i]);
         }
@@ -1287,8 +1560,8 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
                     //    totconc[i] = tmpval;
                     //fprintf(stderr, " CALC_TOT Sum%s %6.4f\t %12.10f\n", CD->chemtype[i].ChemName, log10(totconc[i]), totconc[i]);
                     residue_t[i] =
-                        tmpval - (CD->Vcele[cell].t_conc[i] +
-                        (Rate_spe[i] + Rate_spet[i]) * stepsize * 0.5);
+                        tmpval - (CD->Vcele[cell].t_conc[i] + (Rate_spe[i] +
+                            Rate_spet[i]) * stepsize * 0.5);
                     jcb[k][i] = (residue_t[i] - residue[i]) * tmpprb_inv;
 
                     //  fprintf(stderr, "%g\n", jcb[k][i]);
@@ -1302,7 +1575,8 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
         //      fprintf(stderr, " Jacobian Matrix!\n");
         //    if (control == 1) denprint(jcb, CD->NumStc);
         //  fprintf(stderr, " LU %ld\n",gefa(jcb,CD->NumStc,p));
-        pivot_flg = gefa(jcb, CD->NumStc - CD->NumMin, p);
+        // pivot_flg = gefa(jcb, CD->NumStc - CD->NumMin, p);                               // 09.17
+        pivot_flg = denseGETRF(jcb, CD->NumStc - CD->NumMin, CD->NumStc - CD->NumMin, p);   // 09.17
         if (pivot_flg != 0)
         {                       /*
                                  * for ( i = 0 ; i < CD->NumStc; i ++)
@@ -1313,7 +1587,8 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
         }
 
         //    assert(pivot_flg ==0);
-        gesl(jcb, CD->NumStc - CD->NumMin, p, x_);
+        //gesl(jcb, CD->NumStc - CD->NumMin, p, x_);      // 09.17
+        denseGETRS(jcb, CD->NumStc - CD->NumMin, p, x_);    // 09.17
 
         //    gauss(jcb, x_, CD->NumStc);
         for (i = 0; i < CD->NumStc - CD->NumMin; i++)
@@ -1336,12 +1611,14 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
             if (fabs(error[i]) > maxerror)
                 maxerror = fabs(error[i]);
         control++;
+        //if (control > 10) return(1);
         if (control > 10)
-            return (1);
+            return (1);         // 11.07
     }
 
     *(NR_times) = control;
-    denfree(jcb);
+    //denfree(jcb);   // 09.17
+    destroyMat(jcb);            // 09.17
 
     //  fprintf(stderr, " Solution Reached After %d Newton Ralphson Iterations!\n", control);
     for (i = 0; i < CD->NumSsc; i++)
@@ -1391,6 +1668,9 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
             else
             {
                 CD->Vcele[cell].p_conc[i] = pow(10, tmpconc[i]);
+                // 10.23
+                //printf(" CD->NumStc + CD->NumSsc = %d \n", CD->NumStc + CD->NumSsc);
+                //printf(" [Cell = %d] gamma (i = %d) = %6.4f, tmpconc[i] = %6.4f \n", cell, i, gamma[i], tmpconc[i]);
                 CD->Vcele[cell].p_actv[i] = pow(10, (tmpconc[i] + gamma[i]));
                 CD->Vcele[cell].t_conc[i] = totconc[i];
             }
@@ -1403,6 +1683,9 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
         }
         //    fprintf(stderr, " %s LogC: %6.4f\t C: %6.4f\t Loga: %6.4f\t a: %6.4f\n", CD->chemtype[i].ChemName, tmpconc[i], pow(10, tmpconc[i]), tmpconc[i]+gamma[i], pow(10,(tmpconc[i]+gamma[i])));
     }
+
+    //  if (cell == 700) fprintf(stderr, "Conc. %s %6.4g %6.4g\n",CD->chemtype[19].ChemName, CD->Vcele[cell].s_conc[3], CD->Vcele[cell].s_actv[3]);
+
     /*
      * for ( i = 0; i < CD->NumStc; i ++){
      * fprintf(stderr, " Sum%s: log10(TOTCONC_NR) %4.3f\t log10(TOTCONC_B) %4.3f\t TOTCONC_NR %4.3g\t RESIDUE %2.1g\t RELATIVE ERROR %2.1g%\n", CD->chemtype[i].ChemName,log10(totconc[i]),log10(CD->Vcele[cell].t_conc[i]), totconc[i], fabs(residue[i]), fabs(error[i]*100));
@@ -1430,5 +1713,4 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times)
     free(p);
     free(x_);
     return (0);
-
 }

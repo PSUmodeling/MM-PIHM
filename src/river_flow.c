@@ -424,8 +424,13 @@ double BoundFluxRiver(int riverbc_type, const river_wstate_struct *ws,
     return flux;
 }
 
+#if defined(_RT_)
+double ChanFlowElemToRiver(elem_struct *elem, double effk,
+    const river_struct *river, double distance)
+#else
 double ChanFlowElemToRiver(const elem_struct *elem, double effk,
     const river_struct *river, double distance)
+#endif
 {
     double          diff_h;
     double          avg_h;
@@ -453,6 +458,31 @@ double ChanFlowElemToRiver(const elem_struct *elem, double effk,
     grad_h = diff_h / distance;
 
     avg_ksat = 0.5 * (effk + river->matl.ksath);
+
+#if defined(_RT_)
+    // 12.30, new RT add
+    int             j;
+
+    for (j = 0; j < NUM_EDGE; j++)
+    {
+         //if (elem->nabr[j] < 0)  01.15 fix OMP
+         if (elem->nabr[j] == -river->ind)
+         {
+              elem->wf.subveloRT[j] = avg_ksat * grad_h;           // 12.30, new RT add
+              elem->wf.subdistRT[j] = elem->topo.nabrdist[j];      // 12.30, new RT add
+              elem->wf.subareaRT[j] = avg_h * river->shp.length;   // 12.30, new RT add & change, replacing "elem->topo.edge[j]" by "river->shp.length"
+         }
+
+         if (elem->nabr[j] == -river->ind)
+         {
+              elem->wf.subveloRT[j] = avg_ksat * grad_h;           // 01.15, fix OMP issue
+              elem->wf.subdistRT[j] = elem->topo.nabrdist[j];      // 01.15, fix OMP issue
+              elem->wf.subareaRT[j] = avg_h * river->shp.length;   // 01.15, fix OMP issue
+         }
+         // 01.15 fix OMP
+    }
+    // 12.30, new RT add
+#endif
 
     return  river->shp.length * avg_ksat * grad_h * avg_h;
 }

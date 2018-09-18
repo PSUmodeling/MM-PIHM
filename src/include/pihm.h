@@ -48,6 +48,14 @@
 # include "spa.h"
 #endif
 
+#if defined(_RT_)
+# include "sundials_types.h"   // 12.30 for RT use
+# include "sundials_dense.h"   // 12.30 for RT use
+# include "rt.h"              // 12.30 for RT use
+# include <assert.h>          // 12.30 for RT use
+# include "oldpihm.h"         // 12.30 for RT use
+#endif
+
 #include "custom_io.h"
 
 #include "pihm_const.h"
