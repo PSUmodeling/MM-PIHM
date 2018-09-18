@@ -181,8 +181,7 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	spa/spa.c\
 	rt/rt.c\
 	rt/os3d.c\
-	rt/react.c\
-	rt/oldfunc.c
+	rt/react.c
   MODULE_HEADERS_ =\
 	include/spa.h\
 	include/rt.h
