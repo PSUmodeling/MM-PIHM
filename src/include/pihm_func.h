@@ -668,4 +668,28 @@ void            WaterUptake(const soil_struct *, const estate_struct *,
     wflux_struct *);
 #endif
 
+#if defined(_RT_)
+realtype        rivArea(int, realtype, realtype);
+realtype        returnVal(realtype rArea, realtype rPerem, realtype eqWid,
+    realtype ap_Bool);
+realtype        CS_AreaOrPerem(int rivOrder, realtype rivDepth,
+    realtype rivCoeff, realtype a_pBool);
+void            chem_alloc(char *, const pihm_struct, N_Vector, Chem_Data, realtype);   // 09.26 new MMPIHM
+void            fluxtrans(int, int, const pihm_struct, Chem_Data, N_Vector, double *, double *);    // 10.05 add two timers
+void            chem_updater(Chem_Data, const pihm_struct); // 10.01
+void            OS3D(realtype, realtype, Chem_Data);
+int             React(realtype, realtype, Chem_Data, int, int *, const pihm_struct);    // 10.01
+void            Lookup(FILE *, Chem_Data, int);
+int             Speciation(Chem_Data, int);
+int             keymatch(const char *, const char *, double *, char **);
+int             SpeciationType(FILE *, char *);
+void            AdptTime(Chem_Data, realtype, double, double, double *, int, const pihm_struct, double *, double *);    // 10.05 add two timers
+void            Reset(Chem_Data, int);
+void            InitialChemFile(char *, char *, int, int *);
+void            PrintChem(char *, char *, Chem_Data, int);
+void            FreeChem(Chem_Data);
+void            ReportError(vol_conc, Chem_Data);
+
+#endif
+
 #endif

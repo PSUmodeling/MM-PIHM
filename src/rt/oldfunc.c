@@ -1,4 +1,3 @@
-
 /*******************************************************************************
  *-----------------------------------------------------------------------------*
  * File        : f.c   (PIHM v.2.0)                                            *
@@ -44,7 +43,7 @@
  *	--> Incorporation of landcover properties for calculation of each ET   *
  *	    component							       *
  * e) Computational:							       *
- *	--> Use of temporary state variables in calculation. Note: Never change* 
+ *	--> Use of temporary state variables in calculation. Note: Never change*
  *		core state variables					       *
  * f) Miscellaneous (other advantages realtive to PIHM1.0): No maximum         *
  *    constraint on gw level. Accordingly, no numerical constraints on subsur- *
@@ -82,9 +81,9 @@
 #include <string.h>
 
 #include "nvector_serial.h"
-//#include "sundialstypes.h"   
+//#include "sundialstypes.h"
 #include "sundials_types.h"   // 09.16
-#include "pihm.h"      
+#include "pihm.h"
 */
 
 #define multF	2
