@@ -173,7 +173,7 @@ void            InitWbFile(char *, char *, FILE *);
 void            InitWFlux(wflux_struct *);
 void            InitWState(wstate_struct *);
 void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
-void            IntrplForc(tsdata_struct *, int, int);
+void            IntrplForc(tsdata_struct *, int, int, int);
 double          KrFunc(double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
 #if defined(_CYCLES_)
