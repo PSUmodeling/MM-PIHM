@@ -1,4 +1,3 @@
-
 /******************************************************************************
 * This subroutine is used to calculate the advection diffusion dispersion
 * It uses a similar OS3D scheme as detailed in Crunchflow user's manual.
@@ -41,16 +40,10 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
 
     double        **dconc = (double **)malloc(CD->NumOsv * sizeof(double *));
 
-    int             i, j, k, jj, node_1, node_2, node_3, node_4, abnormalflg,
-        nr_tmp;
+    int             i, j, k, node_1, node_2, node_3, node_4, abnormalflg;
     int             node_5_trib;    // 01.14 by Wei
-    double
-         
-         
-         
-         
-         flux_t, diff_flux, disp_flux, distance, temp_dconc, velocity,
-        temp_conc, inv_dist, diff_conc, unit_c, area, r_, beta_, var_height,
+    double          flux_t, diff_flux, disp_flux, distance, temp_dconc, velocity,
+        temp_conc, inv_dist, diff_conc, unit_c, area, r_, beta_,
         total_prep_mass, timelps, invavg, adpstep;
     double          flux_t_trib, temp_conc_trib, temp_dconc_trib;   // 01.14 by Wei
 
@@ -237,7 +230,7 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
     //Local time step part
 //#ifdef _OPENMP
 //#pragma omp parallel for   // 11.08 exactly same result for 5 days, but different for 1 month
-//#endif 
+//#endif
     for (i = 0; i < CD->NumOsv; i++)
     {
         // 10.05 test purpose

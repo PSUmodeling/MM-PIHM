@@ -1,4 +1,3 @@
-
 /******************************************************************************
 * RT-Flux-PIHM is a finite volume based, reactive transport module that
 * operate on top of the hydrological land surface processes described by
@@ -55,44 +54,9 @@
 #define MIN(a,b) (((a)<(b))? (a):(b))
 #define MAX(a,b) (((a)>(b))? (a):(b))
 
-/* Functions declarations and usage */
-realtype        rivArea(int, realtype, realtype);
-realtype        returnVal(realtype rArea, realtype rPerem, realtype eqWid,
-    realtype ap_Bool);
-realtype        CS_AreaOrPerem(int rivOrder, realtype rivDepth,
-    realtype rivCoeff, realtype a_pBool);
-
-//void     chem_alloc(char *, const void *, const Control_Data *, Chem_Data, realtype);      // original RT
-//void     chem_alloc(char *, const Model_Data, const Control_Data *, Chem_Data, realtype);  // 09.25 try change the second type
-void            chem_alloc(char *, const pihm_struct, N_Vector, Chem_Data, realtype);   // 09.26 new MMPIHM
-
-//void     fluxtrans(realtype, realtype, const void *, Chem_Data, N_Vector);      // original RT
-//void     fluxtrans(realtype, realtype, const Model_Data, Chem_Data, N_Vector);  // 09.25 try change the second type
-//void     fluxtrans(int, int, const pihm_struct, Chem_Data, N_Vector); 10.05
-void            fluxtrans(int, int, const pihm_struct, Chem_Data, N_Vector, double *, double *);    // 10.05 add two timers
-
-//void     chem_updater(Chem_Data, void *);
-void            chem_updater(Chem_Data, const pihm_struct); // 10.01
-void            OS3D(realtype, realtype, Chem_Data);
-//int      React (realtype, realtype, Chem_Data, int, int *);
-//int      React(realtype, realtype, Chem_Data, int, int *, const void * model_Data);  // 08.22 add model data (mdata)
-int             React(realtype, realtype, Chem_Data, int, int *, const pihm_struct);    // 10.01
-
-void            Lookup(FILE *, Chem_Data, int);
-int             Speciation(Chem_Data, int);
-int             keymatch(const char *, const char *, double *, char **);
-int             SpeciationType(FILE *, char *);
-//void     AdptTime (Chem_Data, realtype, double, double, double *, int);
-//void     AdptTime(Chem_Data, realtype, double, double, double *, int, const void * Model_Data);  // 08.22 add model data (mdata)
-//void     AdptTime(Chem_Data, realtype, double, double, double *, int, const pihm_struct);  10.05
-void            AdptTime(Chem_Data, realtype, double, double, double *, int, const pihm_struct, double *, double *);    // 10.05 add two timers
-
-void            Reset(Chem_Data, int);
-
 /* Fucntion declarations finished   */
 
 // Timer
-
 static double timer()
 {
     struct timeval  tp;
@@ -101,20 +65,17 @@ static double timer()
 }
 
 
-void
-//Monitor(realtype t, realtype stepsize, void *DS, Chem_Data CD)
-Monitor(realtype t, realtype stepsize, const pihm_struct pihm, Chem_Data CD)    // 09.30
+void Monitor(realtype t, realtype stepsize, const pihm_struct pihm, Chem_Data CD)    // 09.30
 {
     /* unit of t and stepsize: min */
     /* DS: model data              */
     //    FILE*        logfile = fopen("logfile/pihmlog.out","w");
 
-    int             i, j, k = 0, num_face = 0;
+    int             i = 0;
     struct tm      *timestamp;
     time_t         *rawtime;
     //double timelps, sumflux1, sumflux2, correction, swi, inv_swi, partratio, sumlateral, depth, hu, hg, hn, ht, imrecharge, flux, A;
-    double          timelps, swi, inv_swi, partratio, sumlateral, depth, hu, hg,
-        hn, ht, imrecharge, flux;
+    double          timelps;
 
     //Model_Data MD;
     //MD = (Model_Data)DS;
@@ -263,7 +224,7 @@ upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
     double          x_, y_, x_a, x_b, x_c, y_a, y_b, y_c,
         dot00, dot01, dot02, dot11, dot12, u, v, invDenom;
 
-    int             i, j, upstreamfound = 0;
+    int             i, upstreamfound = 0;
     //x_ = 2 * up.x - lo.x;  // 09.26 update
     //y_ = 2 * up.y - lo.y;  // 09.26 update
     x_ = 2 * up.topo.x - lo.topo.x;
@@ -313,15 +274,12 @@ upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
                 upstreamfound = 1;
                 //      fprintf(stderr, "The upstream of %d and %d is %d!\n",up.index, lo.index, MD->Ele[i].index);
                 //return (MD->Ele[i].index);  // 09.26 update
-                return (pihmStreamcopy->elem[i].ind);
+                return pihmStreamcopy->elem[i].ind;
             }
         }
     }
-    if (upstreamfound == 0)
-    {
-        //    fprintf(stderr, "The upstream of %d and %d is beyond boundaries!\n",up.index, lo.index);
-        return (0);
-    }
+
+    return 0;
 }
 
 int realcheck(const char *words)
@@ -331,7 +289,7 @@ int realcheck(const char *words)
     if (((words[0] < 58) && (words[0] > 47)) || (words[0] == 46)
         || (words[0] == 45) || (words[0] == 43))
     {
-        for (i = 0; i < strlen(words); i++)
+        for (i = 0; i < (int)strlen(words); i++)
             if ((words[i] > 57 || words[i] < 43) && (words[i] != 69)
                 && (words[i] != 101) && (words[i] != 10) && (words[i] != 13))
                 flg = 0;
@@ -361,7 +319,7 @@ keymatch(const char *line, const char *keyword, double *value, char **strval)
         /* assign a special flag for comments */
     }
 
-    int             j, k, line_width, word_width = WORD_WIDTH, quoteflg = 0;
+    int             j, k;
     int             words_line = WORDS_LINE;
     int             keyfoundflag = 0;
 
@@ -376,7 +334,7 @@ keymatch(const char *line, const char *keyword, double *value, char **strval)
     i = j = k = 0;
 
     /* Partition the line into words */
-    while (i < strlen(line))
+    while (i < (int)strlen(line))
     {
         if (line[i] != 39)
         {
@@ -507,7 +465,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         WORDS_LINE, word_width = WORD_WIDTH;
     int             Global_diff = 0, Global_disp = 0;
     int             error_flag = 0, speciation_flg = 0, specflg;
-    double          total_flux = 0.0, total_area = 0.0, tmpval[WORDS_LINE];
+    double          total_area = 0.0, tmpval[WORDS_LINE];
     time_t          rawtime;
     struct tm      *timeinfo;
 
@@ -518,7 +476,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     assert(pihm != NULL);
     assert(pihmRTcopy != NULL);
 
-    char            keyword[WORD_WIDTH], line[256], word[WORD_WIDTH];
+    char            line[256];
     char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
 
     timeinfo = (struct tm *)malloc(sizeof(struct tm));
@@ -1342,12 +1300,18 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         for (i = 0; i < CD->NumSpc; i++)
         {
             if (!strcmp(con_chem_name[num_conditions][i], "pH"))
+            {
                 if (CD->Precipitation.t_conc[i] < 7)
+                {
                     CD->Precipitation.t_conc[i] =
                         pow(10, -CD->Precipitation.t_conc[i]);
+                }
                 else
+                {
                     CD->Precipitation.t_conc[i] =
                         -pow(10, CD->Precipitation.t_conc[i] - 14);
+                }
+            }
             // change the pH of precipitation into total concentraion of H
             // We skip the speciation for rain and assume it is OK to calculate this way.
             fprintf(stderr, "  %-20s %-10.3g [M] \n",
@@ -1877,7 +1841,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     k = 0;
 
     double          dist1, dist2, para_a, para_b, para_c, x_0, x_1, y_0, y_1;
-    int             index_0, index_1, rivi, control;
+    int             index_0, index_1, rivi;
 
     for (i = 0; i < nelem; i++)
     {
@@ -2569,12 +2533,10 @@ fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD, N_Vector VY
      * ht  transient zone height
      */
 
-    int             i, j, k = 0, num_face = 0;
+    int             i, j, k = 0;
     struct tm      *timestamp;
     time_t         *rawtime;
-    double          timelps, rt_step, temp_rt_step, peclet, tmptime, tmpval,
-        invavg, unit_c, tmpconc;
-    double          timer1, timer2;
+    double          timelps, rt_step, temp_rt_step, peclet, invavg, unit_c;
     realtype       *Y;
 
     // 10.05
@@ -2855,7 +2817,6 @@ fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD, N_Vector VY
         //printf(" NumFac = %d, AvgScl = %d ", CD->NumFac, CD->AvgScl);
 
         invavg = stepsize / (double)CD->AvgScl;
-        int             kk = 0;
 
         for (i = 0; i < 2 * CD->NumEle; i++)
         {
@@ -3172,8 +3133,7 @@ fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD, N_Vector VY
         }
         /* RT step control ends */
 
-        //chem_updater(CD, MD); /* update essential chem/physical information for pihm */
-        chem_updater(CD, pihm); // 10.01
+        //chem_updater(CD, pihm); // 10.01
         CD->TimLst = timelps;
 
         for (i = nelem; i < 2 * nelem; i++)
@@ -3191,7 +3151,7 @@ fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD, N_Vector VY
             CD->Flux[k].s_area = 0.0;
         }                       // for gw cells, contact area is needed for dispersion;
 
-        for (k; k < CD->NumFac; k++)
+        for (k = 0; k < CD->NumFac; k++)
         {
             CD->Flux[k].flux = 0.0;
             CD->Flux[k].flux_trib = 0.0;    // 01.14 do not forget
@@ -3201,13 +3161,7 @@ fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD, N_Vector VY
 
         free(rawtime);
     }
-
-
-
-
-
 }
-
 
 void InitialChemFile(char *outputdir, char *filename, int NumBTC, int *BTC_loc)
 {
@@ -3260,7 +3214,6 @@ void InitialChemFile(char *outputdir, char *filename, int NumBTC, int *BTC_loc)
     }
 }
 
-//void PrintChem(char *filename, Chem_Data CD, realtype t)
 void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
 {
     FILE           *Cfile[20];
@@ -3706,7 +3659,7 @@ AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step, doub
                         k = 2;
 
                         //while (j = React(timelps, substep, CD, i, &nr_tmp, Model_Data)) // 08.22 add model data
-                        while (j = React(timelps, substep, CD, i, &nr_tmp, pihm))   // 10.01
+                        while ((j = React(timelps, substep, CD, i, &nr_tmp, pihm)))   // 10.01
                         {
                             substep = 0.5 * substep;
                             k = 2 * k;
@@ -3771,12 +3724,6 @@ AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step, doub
     // 10.05
     t_end_react = time(NULL);
     *t_duration_react += (t_end_react - t_start_react);
-}
-
-void
-//chem_updater(Chem_Data CD, void *DS)
-chem_updater(Chem_Data CD, const pihm_struct pihm)  // 10.01
-{
 }
 
 void FreeChem(Chem_Data CD)     // 10.01
