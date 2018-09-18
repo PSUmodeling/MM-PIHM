@@ -46,7 +46,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 #endif
     for (k = 0; k < forc->nbc; k++)
     {
-        IntrplForc(&forc->bc[k], t, 1);
+        IntrplForc(&forc->bc[k], t, 1, INTRPL);
     }
 
 #if defined(_OPENMP)
@@ -106,7 +106,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
     for (k = 0; k < forc->nmeteo; k++)
     {
-        IntrplForc(&forc->meteo[k], t, NUM_METEO_VAR);
+        IntrplForc(&forc->meteo[k], t, NUM_METEO_VAR, INTRPL);
     }
 
 #if defined(_NOAH_)
@@ -122,7 +122,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 # endif
             for (k = 0; k < forc->nrad; k++)
             {
-                IntrplForc(&forc->rad[k], t, 2);
+                IntrplForc(&forc->rad[k], t, 2, INTRPL);
             }
         }
 
@@ -234,7 +234,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 #endif
         for (k = 0; k < forc->nlai; k++)
         {
-            IntrplForc(&forc->lai[k], t, 1);
+            IntrplForc(&forc->lai[k], t, 1, INTRPL);
         }
     }
 
@@ -268,7 +268,7 @@ void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
 #endif
     for (k = 0; k < forc->nriverbc; k++)
     {
-        IntrplForc(&forc->riverbc[k], t, 1);
+        IntrplForc(&forc->riverbc[k], t, 1, INTRPL);
     }
 
 #if defined(_OPENMP)
@@ -291,7 +291,7 @@ void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
     }
 }
 
-void IntrplForc(tsdata_struct *ts, int t, int nvrbl)
+void IntrplForc(tsdata_struct *ts, int t, int nvrbl, int intrpl)
 {
     int             j;
     int             first, middle, last;
@@ -320,12 +320,19 @@ void IntrplForc(tsdata_struct *ts, int t, int nvrbl)
             {
                 for (j = 0; j < nvrbl; j++)
                 {
-                    ts->value[j] =
-                        ((double)(ts->ftime[middle] - t) *
-                        ts->data[middle - 1][j] +
-                        (double)(t - ts->ftime[middle - 1]) *
-                        ts->data[middle][j]) /
-                        (double)(ts->ftime[middle] - ts->ftime[middle - 1]);
+                    if (intrpl)
+                    {
+                        ts->value[j] =
+                            ((double)(ts->ftime[middle] - t) *
+                            ts->data[middle - 1][j] +
+                            (double)(t - ts->ftime[middle - 1]) *
+                            ts->data[middle][j]) /
+                            (double)(ts->ftime[middle] - ts->ftime[middle - 1]);
+                    }
+                    else
+                    {
+                        ts->value[j] = ts->data[middle - 1][j];
+                    }
                 }
                 break;
             }

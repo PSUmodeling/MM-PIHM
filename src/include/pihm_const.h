@@ -165,6 +165,10 @@
 #define SUM    0
 #define AVG    1
 
+/* Interpolate forcing time series */
+#define NO_INTRPL    0
+#define INTRPL       1
+
 /* Maximum allowable difference between simulation cycles in subsurface water
  * storage at steady-state (m) */
 #define SPINUP_W_TOLERANCE    0.01
