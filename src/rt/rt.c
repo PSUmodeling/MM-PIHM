@@ -468,6 +468,8 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     double          total_area = 0.0, tmpval[WORDS_LINE];
     time_t          rawtime;
     struct tm      *timeinfo;
+    char            cmdstr[MAXSTRING];
+    int             lno = 0;
 
     pihm_struct     pihmRTcopy;
     pihmRTcopy = pihm;
@@ -1398,14 +1400,14 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     fprintf(stderr, "\n Reading 'shp.prep': \n");
     if (CD->PrpFlg == 2)
     {
-        CD->TSD_prepconc = (TSD *) malloc(sizeof(TSD));
-        fscanf(prepconc, "%s %d %d", &(CD->TSD_prepconc->name),
-            &(CD->TSD_prepconc->index), &(CD->TSD_prepconc->length));
+        CD->TSD_prepconc = (tsdata_struct *) malloc(sizeof(tsdata_struct));
+        fscanf(prepconc, "%*s %d %d",
+            &(CD->TSD_prepconc[0].nspec), &(CD->TSD_prepconc[0].length));
 
         CD->prepconcindex =
-            (int *)malloc(CD->TSD_prepconc->index * sizeof(int));
-        // here prepconc.index is used to save the number of primary species. Must be equal to the number of primary species specified before.
-        for (i = 0; i < CD->TSD_prepconc->index; i++)
+            (int *)malloc(CD->TSD_prepconc[0].nspec * sizeof(int));
+        // The number of primary species must be equal to the number of primary species specified before.
+        for (i = 0; i < CD->TSD_prepconc[0].nspec; i++)
         {
             fscanf(prepconc, "%d", &(CD->prepconcindex[i]));
             if (CD->prepconcindex[i] > 0)
@@ -1417,33 +1419,19 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             }
         }
 
-        CD->TSD_prepconc->TS =
-            (realtype **)malloc((CD->TSD_prepconc->length) *
-            sizeof(realtype *));
-        for (i = 0; i < CD->TSD_prepconc->length; i++)
+        CD->TSD_prepconc[0].ftime =
+            (int *)malloc((CD->TSD_prepconc[0].length) * sizeof(int));
+        CD->TSD_prepconc[0].data =
+            (double **)malloc((CD->TSD_prepconc[0].length) * sizeof(double *));
+        for (i = 0; i < CD->TSD_prepconc[0].length; i++)
         {
-            CD->TSD_prepconc->TS[i] =
-                (realtype *)malloc((1 +
-                    CD->TSD_prepconc->index) * sizeof(realtype));
-            fscanf(prepconc, "%d-%d-%d %d:%d:%d", &timeinfo->tm_year,
-                &timeinfo->tm_mon, &timeinfo->tm_mday, &timeinfo->tm_hour,
-                &timeinfo->tm_min, &timeinfo->tm_sec);
-            timeinfo->tm_year = timeinfo->tm_year - 1900;
-            timeinfo->tm_mon = timeinfo->tm_mon - 1;
-            rawtime = timegm(timeinfo);
-            CD->TSD_prepconc->TS[i][0] = (realtype)rawtime / 60 / 60 / 24;
-            for (j = 0; j < CD->TSD_prepconc->index; j++)
-            {
-                fscanf(prepconc, "%lf", &CD->TSD_prepconc->TS[i][j + 1]);   // [i][0] stores the time
-            }
-            /*
-             * fprintf(stderr, " %8.4f\t", CD->TSD_prepconc->TS[i][0] );
-             * for ( j = 0 ; j < CD->NumSpc; j ++)
-             * fprintf(stderr, " %d %d %6.4f\t", i, j , CD->TSD_prepconc->TS[i][j]);
-             * fprintf(stderr, "\n");
-             */
+            CD->TSD_prepconc[0].data[i] =
+                (double *)malloc(CD->TSD_prepconc[0].nspec * sizeof(double));
+
+            NextLine(prepconc, cmdstr, &lno);
+            ReadTS(cmdstr, &CD->TSD_prepconc[0].ftime[i],
+                &CD->TSD_prepconc[0].data[i][0], CD->TSD_prepconc[0].nspec);
         }
-        CD->TSD_prepconc->iCounter = 0;
     }
 
     // PUMP block
@@ -2788,22 +2776,19 @@ fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD, N_Vector VY
         // update the concentration in precipitation here.
         if (CD->PrpFlg == 2)
         {
-            while (CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][0] <
-                (realtype)*rawtime / (24 * 60 * 60))
-                CD->TSD_prepconc->iCounter++;
-            CD->TSD_prepconc->iCounter--;
-            // fprintf(stderr, " %d %6.4f time %6.4f\n", CD->TSD_prepconc->iCounter, CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][0], (realtype) * rawtime/(24*60*60));
-            for (i = 0; i < CD->TSD_prepconc->index; i++)
+            IntrplForc(&CD->TSD_prepconc[0], *rawtime,
+                CD->TSD_prepconc[0].nspec, NO_INTRPL);
+
+            for (i = 0; i < CD->TSD_prepconc[0].nspec; i++)
             {
                 if (CD->prepconcindex[i] > 0)
                 {
                     j = CD->prepconcindex[i] - 1;
                     if (CD->Precipitation.t_conc[j] !=
-                        CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][i + 1])
+                        CD->TSD_prepconc[0].value[i])
                     {
                         CD->Precipitation.t_conc[j] =
-                            CD->TSD_prepconc->TS[CD->TSD_prepconc->iCounter][i +
-                            1];
+                            CD->TSD_prepconc[0].value[i];
                         fprintf(stderr,
                             "  %s in precipitation is changed to %6.4g\n",
                             CD->chemtype[j].ChemName,
@@ -3809,11 +3794,11 @@ void FreeChem(Chem_Data CD)     // 10.01
     free(CD->pumps);
 
     // CD->TSD_prepconc
-    for (i = 0; i < CD->TSD_prepconc->length; i++)
+    for (i = 0; i < CD->TSD_prepconc[0].length; i++)
     {
-        free(CD->TSD_prepconc->TS[i]);
+        free(CD->TSD_prepconc[0].data[i]);
     }
-    free(CD->TSD_prepconc->TS);
+    free(CD->TSD_prepconc[0].ftime);
     free(CD->TSD_prepconc);
 
 

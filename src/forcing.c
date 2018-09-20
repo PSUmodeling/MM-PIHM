@@ -316,7 +316,7 @@ void IntrplForc(tsdata_struct *ts, int t, int nvrbl, int intrpl)
         while (first <= last)
         {
             middle = (first + last) / 2;
-            if (t >= ts->ftime[middle - 1] && t <= ts->ftime[middle])
+            if (t >= ts->ftime[middle - 1] && t < ts->ftime[middle])
             {
                 for (j = 0; j < nvrbl; j++)
                 {

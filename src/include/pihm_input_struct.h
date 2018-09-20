@@ -223,8 +223,12 @@ typedef struct tsdata_struct
     int            *ftime;        /* forcing time */
     double        **data;         /* forcing values at forcing time */
     double         *value;        /* forcing values at model time t */
-    double          zlvl_wind;    /* height above ground of wind observations
-                                   * (m) */
+    union
+    {
+        double          zlvl_wind;    /* height above ground of wind observations
+                                       * (m) */
+        int             nspec;
+    };
 } tsdata_struct;
 
 /* Forcing structure */
