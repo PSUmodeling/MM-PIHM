@@ -226,7 +226,7 @@ typedef struct Chem_Data_structure
   Kinetic_Reaction *kinetics;         // kinetics constants and dependencies.
   Debye_Huckel      DH;
   Pump             *pumps;            // injection/ groundwater contribution
-  struct TSD_type  *TSD_prepconc;     // Time series data of concentration in precipitation.
+  tsdata_struct   *TSD_prepconc;     // Time series data of concentration in precipitation.
 }   * Chem_Data;
 
 
