@@ -455,7 +455,8 @@ void            FreeEpctbl(epctbl_struct *);
 double          GetCO2(tsdata_struct *, int);
 double          GetNdep(tsdata_struct *, int);
 void            GrowthResp(const epconst_struct *, cflux_struct *);
-void            InitBgc(elem_struct *, const epctbl_struct *);
+void            InitBgc(elem_struct *, const epctbl_struct *,
+    const calib_struct *);
 void            InitBgcVar(elem_struct *, river_struct *, N_Vector);
 void            LeafLitFall(const epconst_struct *, double, cflux_struct *,
     nflux_struct *);

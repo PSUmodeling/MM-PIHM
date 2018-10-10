@@ -119,6 +119,16 @@ void ReadCalib(const char *filename, calib_struct *cal)
     ReadKeyword(cmdstr, "WLTSMC", &cal->smcwlt, 'd', filename, lno);
 #endif
 
+#if defined(_BGC_)
+    FindLine(global_calib, "BGC_CALIBRATION", &lno, filename);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MORTALITY", &cal->mortality, 'd', filename, lno);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "SLA", &cal->sla, 'd', filename, lno);
+#endif
+
 #if defined(_RT_)
     FindLine(global_calib, "RT_CALIBRATION", &lno, filename);
 
