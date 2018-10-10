@@ -17,9 +17,6 @@ void Noah(elem_struct *elem, double dt)
 
         elem[i].ps.alb = BADVAL;
 
-        elem[i].ws.cmcmax =
-            elem[i].lc.shdfac * elem[i].lc.cmcfactr * elem[i].ps.proj_lai;
-
         if (elem[i].ps.q1 == BADVAL)
         {
             elem[i].ps.q1 = elem[i].ps.q2;
@@ -222,6 +219,8 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 #if defined(_CYCLES_)
     lc->shdfac = CommRadIntcp(crop);
 #endif
+
+    ws->cmcmax = lc->shdfac * lc->cmcfactr * ps->proj_lai;
 
     /* Flux-PIHM uses LAI as a forcing variable.
      * Vegetation fraction is calculated from LAI following Noah-MP */
