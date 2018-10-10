@@ -109,6 +109,10 @@ typedef struct calib_struct
     double          rgl;
     double          hs;
 #endif
+#if defined(_BGC_)
+    double          mortality;
+    double          sla;
+#endif
 #if defined(_RT_)
     double          pco2;
     double          keq;
