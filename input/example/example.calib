@@ -36,6 +36,10 @@ HS              1.0     # parameter used in vapor pressure deficit function
 REFSMC          0.95    # soil moisture threshold where transpiration begins to stress
 WLTSMC          1.0     # wilting point
 
+BGC_CALIBRATION
+MORTALITY       9.0     # mortality turnover rate
+SLA             1.0     # canopy average projected SLA
+
 SCENARIO
 PRCP            1.0     # precipitation multiplier
 SFCTMP          0.0     # air temperature offset (K)
