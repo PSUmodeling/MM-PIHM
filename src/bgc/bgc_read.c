@@ -7,6 +7,7 @@ void ReadBgc(const char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     FILE           *bgc_file;
     char            cmdstr[MAXSTRING];
     int             lno = 0;
+    int             acc_flag = 0;
 
     /* Read bgc simulation control file */
     bgc_file = fopen(fn, "r");
@@ -18,6 +19,14 @@ void ReadBgc(const char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     sscanf(cmdstr, "%d", &ctrl->read_bgc_restart);
     NextLine(bgc_file, cmdstr, &lno);
     sscanf(cmdstr, "%d", &ctrl->write_bgc_restart);
+
+    FindLine(bgc_file, "TIME_DEFINE", &lno, fn);
+    NextLine(bgc_file, cmdstr, &lno);
+    if (spinup_mode)
+    {
+        sscanf(cmdstr, "%d", &acc_flag);
+        spinup_mode = (acc_flag == 1) ? ACC_SPINUP_MODE : SPINUP_MODE;
+    }
 
     FindLine(bgc_file, "CO2_CONTROL", &lno, fn);
     NextLine(bgc_file, cmdstr, &lno);
