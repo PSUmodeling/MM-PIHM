@@ -20,7 +20,7 @@
 # include <omp.h>
 #endif
 
-#define VERSION    "0.10.0-alpha"
+#define VERSION    "0.10.1-alpha"
 
 /*
  * SUNDIAL Header Files
