@@ -220,6 +220,12 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     lc->shdfac = CommRadIntcp(crop);
 #endif
 
+    /* Set minimum LAI for non-barren land cover to improve performance */
+    if (lc->shdfac > 0.0)
+    {
+        ps->proj_lai = (ps->proj_lai > 0.5) ? ps->proj_lai : 0.5;
+    }
+
     ws->cmcmax = lc->shdfac * lc->cmcfactr * ps->proj_lai;
 
     /* Flux-PIHM uses LAI as a forcing variable.
