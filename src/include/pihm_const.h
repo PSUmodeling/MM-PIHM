@@ -69,6 +69,9 @@
 /* Number of river fluxes of a river segment */
 #define NUM_RIVFLX    11
 
+/* Maximum number of river tributes */
+#define MAXTRIB       3
+
 /* Hydrology parameters */
 #define PSIMIN        -70.0    /* minimum psi allowed (m) */
 #define DEPRSTG       1E-4     /* depression storage (m) */
@@ -161,6 +164,10 @@
 /* Average flux */
 #define SUM    0
 #define AVG    1
+
+/* Interpolate forcing time series */
+#define NO_INTRPL    0
+#define INTRPL       1
 
 /* Maximum allowable difference between simulation cycles in subsurface water
  * storage at steady-state (m) */

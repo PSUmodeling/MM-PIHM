@@ -37,6 +37,7 @@
 /flux-pihm
 /flux-pihm-bgc
 /flux-pihm-cycles
+/rt-flux-pihm
 
 # PBS and shell scripts
 *.sh

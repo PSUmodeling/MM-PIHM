@@ -132,11 +132,30 @@ void ReadCalib(const char *filename, calib_struct *cal)
 #if defined(_RT_)
     FindLine(global_calib, "RT_CALIBRATION", &lno, filename);
 
-    CS->Cal.PCO2 = 1.0;
-    CS->Cal.Keq = 1.0;
-    CS->Cal.Site_den = 1.0;
-    CS->Cal.SSA = 1.0;
-    CS->Cal.Prep_conc = 1.0;
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "rate", &cal->rate, 'd', filename, lno);
+    printf( "\n cal->rate = %f \n", cal->rate);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "ssa", &cal->ssa, 'd', filename, lno);
+    printf( " cal->ssa = %f \n", cal->ssa);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "gwinflux", &cal->gwinflux, 'd', filename, lno);
+    printf( " cal->gwinflux = %f \n", cal->gwinflux);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "prcpconc", &cal->prcpconc, 'd', filename, lno);
+    printf( " cal->prcpconc = %f \n", cal->prcpconc);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "initconc", &cal->initconc, 'd', filename, lno);
+    printf( " cal->initconc = %f \n", cal->initconc);
+
+    // 03.03 by Wei Zhi
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "Xsorption", &cal->Xsorption, 'd', filename, lno);
+    printf( " cal->Xsorption = %f \n", cal->Xsorption);
 #endif
 
     /*

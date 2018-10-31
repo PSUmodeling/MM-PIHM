@@ -99,8 +99,13 @@ double          BoundFluxRiver(int, const river_wstate_struct *,
     const river_topo_struct *, const shp_struct *, const matl_struct *,
     const river_bc_struct *bc);
 void            CalcModelStep(ctrl_struct *);
+#if defined(_RT_)
+double          ChanFlowElemToRiver(elem_struct *, double, const river_struct *,
+    double);
+#else
 double          ChanFlowElemToRiver(const elem_struct *, double,
     const river_struct *, double);
+#endif
 double          ChanFlowRiverToRiver(const river_struct *, const river_struct *,
     int);
 double          ChanLeak(const river_wstate_struct *, const river_topo_struct *,
@@ -168,7 +173,7 @@ void            InitWbFile(char *, char *, FILE *);
 void            InitWFlux(wflux_struct *);
 void            InitWState(wstate_struct *);
 void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
-void            IntrplForc(tsdata_struct *, int, int);
+void            IntrplForc(tsdata_struct *, int, int, int);
 double          KrFunc(double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
 #if defined(_CYCLES_)
@@ -255,8 +260,12 @@ void            SolveCVode(int, int *, int, double, void *, N_Vector);
 void            Spinup(pihm_struct, N_Vector, void *);
 void            StartupScreen(void);
 int             StrTime(const char *);
+#if defined(_RT_)
+double          SubFlowElemToElem(elem_struct *, const elem_struct *, int);
+#else
 double          SubFlowElemToElem(const elem_struct *, const elem_struct *,
     int);
+#endif
 double          SubFlowElemToRiver(const elem_struct *, double,
     const river_struct *, double, double);
 double          SubFlowRiverToRiver(const river_struct *, double,
@@ -657,6 +666,30 @@ double          VolatilizationDepthFunction(double);
 void            WaterUptake(const soil_struct *, const estate_struct *,
     const pstate_struct *, double, crop_struct [], wstate_struct *,
     wflux_struct *);
+#endif
+
+#if defined(_RT_)
+realtype        rivArea(int, realtype, realtype);
+realtype        returnVal(realtype rArea, realtype rPerem, realtype eqWid,
+    realtype ap_Bool);
+realtype        CS_AreaOrPerem(int rivOrder, realtype rivDepth,
+    realtype rivCoeff, realtype a_pBool);
+void            chem_alloc(char *, const pihm_struct, N_Vector, Chem_Data, realtype);   // 09.26 new MMPIHM
+void            fluxtrans(int, int, const pihm_struct, Chem_Data, N_Vector, double *, double *);    // 10.05 add two timers
+void            chem_updater(Chem_Data, const pihm_struct); // 10.01
+void            OS3D(realtype, realtype, Chem_Data);
+int             React(realtype, realtype, Chem_Data, int, int *, const pihm_struct);    // 10.01
+void            Lookup(FILE *, Chem_Data, int);
+int             Speciation(Chem_Data, int);
+int             keymatch(const char *, const char *, double *, char **);
+int             SpeciationType(FILE *, char *);
+void            AdptTime(Chem_Data, realtype, double, double, double *, int, const pihm_struct, double *, double *);    // 10.05 add two timers
+void            Reset(Chem_Data, int);
+void            InitialChemFile(char *, char *, int, int *);
+void            PrintChem(char *, char *, Chem_Data, int);
+void            FreeChem(Chem_Data);
+void            ReportError(vol_conc, Chem_Data);
+
 #endif
 
 #endif
