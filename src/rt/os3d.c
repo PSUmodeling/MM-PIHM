@@ -8,26 +8,7 @@
 *     Version  : pre-alpha
 *     Date     : June, 2013
 *****************************************************************************/
-
 #include "pihm.h"               // 09.23
-
-/* 09.23
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <time.h>
-#include <assert.h>
-*/
-
-// 09.23
-// /* SUNDIAL Header Files */
-// //#include "sundialstypes.h"   /* realtype, integertype, booleantype defination */
-//#include "sundials_types.h"    // 09.16
-//#include "pihm.h"
-//#include "rt.h"              /* Data Model and Variable Declarations for chemical processes */
-// 09.23
-
 
 #define max(a,b) ((a)>(b) ? (a):(b))
 #define min(a,b) ((a)<(b) ? (a):(b))
@@ -35,24 +16,20 @@
 
 void OS3D(realtype t, realtype stepsize, Chem_Data CD)
 {
-
     // input t and stepsize in the unit of minute
-
     double        **dconc = (double **)malloc(CD->NumOsv * sizeof(double *));
 
     int             i, j, k, node_1, node_2, node_3, node_4, abnormalflg;
     int             node_5_trib;    // 01.14 by Wei
-    double          flux_t, diff_flux, disp_flux, distance, temp_dconc, velocity,
-        temp_conc, inv_dist, diff_conc, unit_c, area, r_, beta_,
+    double          flux_t, diff_flux, disp_flux, distance, temp_dconc,
+        velocity, temp_conc, inv_dist, diff_conc, unit_c, area, r_, beta_,
         total_prep_mass, timelps, invavg, adpstep;
     double          flux_t_trib, temp_conc_trib, temp_dconc_trib;   // 01.14 by Wei
-
     double         *tmpconc = (double *)malloc(CD->NumSpc * sizeof(double));    // 10.05 location change
 
     abnormalflg = 0;            // 10.05 location change
     unit_c = 1.0 / 1440;
     total_prep_mass = 0.0;
-
 
     // Initalize the allocated array
 #ifdef _OPENMP
@@ -65,7 +42,6 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
         for (j = 0; j < CD->NumSpc; j++)
             dconc[i][j] = 0.0;
     }
-
 
     for (i = 0; i < CD->NumFac; i++)    // 01.14 NumFac = 10,672
     {
@@ -433,8 +409,9 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                                             // 01.14 add tributary
                                             if (flux_t_trib > 0)
                                                 temp_conc_trib =
-                                                    CD->Vcele[node_5_trib].
-                                                    t_conc[j];
+                                                    CD->
+                                                    Vcele[node_5_trib].t_conc
+                                                    [j];
                                             else    // flux_t_trib = 0, no tributary contribution
                                                 temp_conc_trib = 0.0;
                                         }
@@ -445,70 +422,85 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                                             {
                                                 if (node_4 > 0)
                                                 {
-                                                    r_ = (CD->Vcele[node_2].
-                                                        t_conc[j] -
-                                                        CD->Vcele[node_4].
-                                                        t_conc[j] +
+                                                    r_ = (CD->
+                                                        Vcele[node_2].t_conc[j]
+                                                        -
+                                                        CD->
+                                                        Vcele[node_4].t_conc[j]
+                                                        +
                                                         EPSILON) /
-                                                        (CD->Vcele[node_1].
-                                                        t_conc[j] -
-                                                        CD->Vcele[node_2].
-                                                        t_conc[j] + EPSILON);
+                                                        (CD->
+                                                        Vcele[node_1].t_conc[j]
+                                                        -
+                                                        CD->
+                                                        Vcele[node_2].t_conc[j]
+                                                        + EPSILON);
                                                     beta_ =
                                                         max(0, min(min(2,
                                                                 2 * r_),
                                                             (2 + r_) / 3));
                                                     temp_conc =
-                                                        CD->Vcele[node_2].
-                                                        t_conc[j] +
+                                                        CD->
+                                                        Vcele[node_2].t_conc[j]
+                                                        +
                                                         beta_ *
-                                                        (CD->Vcele[node_1].
-                                                        t_conc[j] -
-                                                        CD->Vcele[node_2].
-                                                        t_conc[j]) * 0.5;
+                                                        (CD->
+                                                        Vcele[node_1].t_conc[j]
+                                                        -
+                                                        CD->
+                                                        Vcele[node_2].t_conc[j])
+                                                        * 0.5;
                                                 }
                                                 else
                                                     temp_conc =
-                                                        CD->Vcele[node_2].
-                                                        t_conc[j];
+                                                        CD->
+                                                        Vcele[node_2].t_conc[j];
                                             }
                                             else
                                             {
                                                 if (node_3 > 0)
                                                 {
-                                                    r_ = (CD->Vcele[node_1].
-                                                        t_conc[j] -
-                                                        CD->Vcele[node_3].
-                                                        t_conc[j] +
+                                                    r_ = (CD->
+                                                        Vcele[node_1].t_conc[j]
+                                                        -
+                                                        CD->
+                                                        Vcele[node_3].t_conc[j]
+                                                        +
                                                         EPSILON) /
-                                                        (CD->Vcele[node_2].
-                                                        t_conc[j] -
-                                                        CD->Vcele[node_1].
-                                                        t_conc[j] + EPSILON);
+                                                        (CD->
+                                                        Vcele[node_2].t_conc[j]
+                                                        -
+                                                        CD->
+                                                        Vcele[node_1].t_conc[j]
+                                                        + EPSILON);
                                                     beta_ =
                                                         max(0, min(min(2,
                                                                 2 * r_),
                                                             (2 + r_) / 3));
                                                     temp_conc =
-                                                        CD->Vcele[node_1].
-                                                        t_conc[j] +
+                                                        CD->
+                                                        Vcele[node_1].t_conc[j]
+                                                        +
                                                         beta_ *
-                                                        (CD->Vcele[node_2].
-                                                        t_conc[j] -
-                                                        CD->Vcele[node_1].
-                                                        t_conc[j]) * 0.5;
+                                                        (CD->
+                                                        Vcele[node_2].t_conc[j]
+                                                        -
+                                                        CD->
+                                                        Vcele[node_1].t_conc[j])
+                                                        * 0.5;
                                                 }
                                                 else
                                                     temp_conc =
-                                                        CD->Vcele[node_1].
-                                                        t_conc[j];
+                                                        CD->
+                                                        Vcele[node_1].t_conc[j];
                                             }
 
                                             // 01.14 add tributary
                                             if (flux_t_trib > 0)
                                                 temp_conc_trib =
-                                                    CD->Vcele[node_5_trib].
-                                                    t_conc[j];
+                                                    CD->
+                                                    Vcele[node_5_trib].t_conc
+                                                    [j];
                                             else    // flux_t_trib = 0, no tributary contribution
                                                 temp_conc_trib = 0.0;
                                         }
@@ -525,8 +517,9 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                                             // 01.14 add tributary
                                             if (flux_t_trib > 0)
                                                 temp_conc_trib =
-                                                    CD->Vcele[node_5_trib].
-                                                    t_conc[j];
+                                                    CD->
+                                                    Vcele[node_5_trib].t_conc
+                                                    [j];
                                             else    // flux_t_trib = 0, no tributary contribution
                                                 temp_conc_trib = 0.0;
                                         }
@@ -672,8 +665,6 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
 
         //free(tmpconc);   // 10.23 memory leak due to above "continue"
     }
-
-
 
     //for (i = 0; i < CD->NumOsv; i++)
     //free(dconc[i]);

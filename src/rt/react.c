@@ -582,8 +582,8 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                                 wrap(CD->kinetics[i].monod_species[mn]);
                                 for (k = 0; k < CD->NumStc; k++)
                                 {
-                                    if (strcmp(CD->kinetics[i].
-                                            monod_species[mn],
+                                    if (strcmp(CD->
+                                            kinetics[i].monod_species[mn],
                                             CD->chemtype[k].ChemName) == 0)
                                         CD->kinetics[i].monod_position[mn] = k;
                                 }
@@ -613,8 +613,8 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                                 wrap(CD->kinetics[i].inhib_species[in]);
                                 for (k = 0; k < CD->NumStc; k++)
                                 {
-                                    if (strcmp(CD->kinetics[i].
-                                            inhib_species[in],
+                                    if (strcmp(CD->
+                                            kinetics[i].inhib_species[in],
                                             CD->chemtype[k].ChemName) == 0)
                                         CD->kinetics[i].inhib_position[in] = k;
                                 }
@@ -1092,12 +1092,14 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times, 
 
     if (CD->Vcele[cell].sat < 1.0E-2)
         return (0);             // very dry, no reaction can take place.
-    int             i, j, k, control, num_spe = CD->NumStc + CD->NumSsc, min_pos, pivot_flg;
+    int             i, j, k, control, num_spe =
+        CD->NumStc + CD->NumSsc, min_pos, pivot_flg;
     int             mn, in;     //08.21
     double          monodterm = 1.0, inhibterm = 1.0;   // 08.21 must be initilizing 1.0, if use the operator '*='
     double          fd = 1.0;   // 11.28 SOC declining factor
     double          z_SOC = 0.0;    // 11.28 water level depth to surface ground
-    int             stc = CD->NumStc, ssc = CD->NumSsc, nkr = CD->NumMkr + CD->NumAkr, smc = CD->NumMin;
+    int             stc = CD->NumStc, ssc = CD->NumSsc, nkr =
+        CD->NumMkr + CD->NumAkr, smc = CD->NumMin;
     double         *residue, *residue_t, *tmpconc, *totconc, *area, *error,
         *gamma, *Keq, *Rate_pre, *IAP, *dependency, *Rate_spe, *Rate_spe_t,
         *Rate_spet;
@@ -1222,8 +1224,9 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times, 
             {
                 monodterm *=
                     CD->Vcele[cell].p_conc[CD->kinetics[i].monod_position[mn]] /
-                    (CD->Vcele[cell].p_conc[CD->kinetics[i].
-                        monod_position[mn]] + CD->kinetics[i].monod_para[mn]);
+                    (CD->Vcele[cell].p_conc[CD->
+                        kinetics[i].monod_position[mn]] +
+                    CD->kinetics[i].monod_para[mn]);
                 //fprintf(stderr, " Calculation [Cell,%d]: monodterm: %.3e \n", cell, monodterm);  // 08.21 check if there is changes
             }
 
@@ -1437,10 +1440,10 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times, 
                 for (mn = 0; mn < CD->kinetics[i].num_monod; mn++)
                 {
                     monodterm *=
-                        CD->Vcele[cell].p_conc[CD->kinetics[i].
-                        monod_position[mn]] /
-                        (CD->Vcele[cell].p_conc[CD->kinetics[i].
-                            monod_position[mn]] +
+                        CD->Vcele[cell].p_conc[CD->
+                        kinetics[i].monod_position[mn]] /
+                        (CD->Vcele[cell].p_conc[CD->
+                            kinetics[i].monod_position[mn]] +
                         CD->kinetics[i].monod_para[mn]);
                     //fprintf(stderr, " Calculation [Cell,%d]: monodterm: %.3e \n", cell, monodterm);  // 08.21 check if there is changes
                 }
@@ -1450,8 +1453,8 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times, 
                     inhibterm *=
                         CD->kinetics[i].inhib_para[in] /
                         (CD->kinetics[i].inhib_para[in] +
-                        CD->Vcele[cell].p_conc[CD->kinetics[i].
-                            inhib_position[in]]);
+                        CD->Vcele[cell].p_conc[CD->
+                            kinetics[i].inhib_position[in]]);
                     //fprintf(stderr, " Calculation [Cell,%d]: inhibterm: %.3e \n", cell, inhibterm);  // 08.21 check if there is changes
                 }
 
