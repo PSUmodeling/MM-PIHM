@@ -1,3 +1,4 @@
+
 /******************************************************************************
 * RT-Flux-PIHM is a finite volume based, reactive transport module that
 * operate on top of the hydrological land surface processes described by
@@ -65,7 +66,7 @@ static double timer()
 }
 
 
-void Monitor(realtype t, realtype stepsize, const pihm_struct pihm, Chem_Data CD)    // 09.30
+void Monitor(realtype t, realtype stepsize, const pihm_struct pihm, Chem_Data CD)   // 09.30
 {
     /* unit of t and stepsize: min */
     /* DS: model data              */
@@ -1400,7 +1401,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     fprintf(stderr, "\n Reading 'shp.prep': \n");
     if (CD->PrpFlg == 2)
     {
-        CD->TSD_prepconc = (tsdata_struct *) malloc(sizeof(tsdata_struct));
+        CD->TSD_prepconc = (tsdata_struct *)malloc(sizeof(tsdata_struct));
         fscanf(prepconc, "%*s %d %d",
             &(CD->TSD_prepconc[0].nspec), &(CD->TSD_prepconc[0].length));
 
@@ -1859,8 +1860,8 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
 
                 if (CD->Flux[k].nodell > 0) // 09.26 good so far
                     CD->Flux[k].distll =
-                        sqrt(pow(pihmRTcopy->elem[pihmRTcopy->
-                                meshtbl.nabr[i][j] - 1].topo.x -
+                        sqrt(pow(pihmRTcopy->elem[pihmRTcopy->meshtbl.
+                                nabr[i][j] - 1].topo.x -
                             pihmRTcopy->elem[CD->Flux[k].nodell - 1].topo.x,
                             2) +
                         pow(pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
@@ -2023,8 +2024,8 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
                 //if (CD->Flux[k].nodell > 0)  // 09.28 11:53 fix Chen's bug
                 if (CD->Flux[k].nodell - nelem > 0)
                     CD->Flux[k].distll =
-                        sqrt(pow(pihmRTcopy->elem[pihmRTcopy->
-                                meshtbl.nabr[i][j] - 1].topo.x -
+                        sqrt(pow(pihmRTcopy->elem[pihmRTcopy->meshtbl.
+                                nabr[i][j] - 1].topo.x -
                             pihmRTcopy->elem[CD->Flux[k].nodell - nelem -
                                 1].topo.x,
                             2) +
@@ -2262,7 +2263,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     {
         // 01.12 fix bug
         //if (i == 0)
-        if (pihmRTcopy->river[i].up[0] < 0)     /* No upstream */
+        if (pihmRTcopy->river[i].up[0] < 0) /* No upstream */
         {
             CD->Flux[k].nodelo = CD->NumVol;
             CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
@@ -2270,15 +2271,17 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         else
         {
             CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
-            CD->Flux[k].nodelo = 2 * nelem + nriver + pihmRTcopy->river[i].up[0];
+            CD->Flux[k].nodelo =
+                2 * nelem + nriver + pihmRTcopy->river[i].up[0];
         }
-        if (pihmRTcopy->river[i].up[1] < 0)     /* Only one upstream segment */
+        if (pihmRTcopy->river[i].up[1] < 0) /* Only one upstream segment */
         {
             CD->Flux[k].node_trib = pihmRTcopy->river[i].up[1];
         }
         else
         {
-            CD->Flux[k].node_trib = 2 * nelem + nriver + pihmRTcopy->river[i].up[1];
+            CD->Flux[k].node_trib =
+                2 * nelem + nriver + pihmRTcopy->river[i].up[1];
         }
         CD->Flux[k].nodeuu = 0;
         CD->Flux[k].nodell = 0;
@@ -2740,7 +2743,7 @@ fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD, N_Vector VY
     {
         // 01.14 change for tributary flux
         //CD->Flux[k].flux += pihmFlux->river[i].wf.rivflow[10] * 86400 + pihmFlux->river[i].wf.rivflow[0] * 86400;  // 01.14 change for tributary flux
-        if (pihmFlux->river[i].up[0] > 0) // not tributary starting point
+        if (pihmFlux->river[i].up[0] > 0)   // not tributary starting point
             CD->Flux[k].flux +=
                 -(pihmFlux->river[CD->Flux[k].nodelo - 1 - 2 * nelem -
                     nriver].wf.rivflow[9] * 86400 +
@@ -3644,7 +3647,7 @@ AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step, doub
                         k = 2;
 
                         //while (j = React(timelps, substep, CD, i, &nr_tmp, Model_Data)) // 08.22 add model data
-                        while ((j = React(timelps, substep, CD, i, &nr_tmp, pihm)))   // 10.01
+                        while ((j = React(timelps, substep, CD, i, &nr_tmp, pihm))) // 10.01
                         {
                             substep = 0.5 * substep;
                             k = 2 * k;
