@@ -19,12 +19,11 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
     /* Input t and stepsize in the unit of minute */
     double        **dconc = (double **)malloc(CD->NumOsv * sizeof(double *));
     int             i, j, k, abnormalflg;
-    double          temp_dconc, diff_conc, unit_c, timelps,
-        invavg, adpstep;
+    double          temp_dconc, diff_conc, unit_c, timelps, invavg, adpstep;
     double         *tmpconc = (double *)malloc(CD->NumSpc * sizeof(double));
 
     abnormalflg = 0;
-    unit_c = 1.0 / 1440;
+    unit_c = 1.0 / 1440.0;
 
     /* Initalize the allocated array */
 #ifdef _OPENMP
@@ -50,10 +49,9 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                 CD->Cementation, CD->TVDFlg, j);
 
             CD->Flux[i].q = temp_dconc;
-            dconc[CD->Flux[i].nodeup - 1][j] += temp_dconc; /* OMP fails here */
+            dconc[CD->Flux[i].nodeup - 1][j] += temp_dconc;
         }
     }
-
 
     /* Local time step part */
     for (i = 0; i < CD->NumOsv; i++)
@@ -74,10 +72,9 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
 
                     while (timelps < t + stepsize)
                     {
-                        if (adpstep > t + stepsize - timelps)
-                        {
-                            adpstep = t + stepsize - timelps;
-                        }
+                        adpstep = (adpstep > t + stepsize - timelps) ?
+                            t + stepsize - timelps : adpstep;
+
                         diff_conc = 0.0;
                         for (j = 0; j < CD->NumSpc; j++)
                         {
@@ -317,10 +314,8 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
     velocity = -Flux->velocity;
     area = Flux->s_area;
     inv_dist = 1.0 / distance;
-
-    diff_conc = Vcele[node_2].t_conc[spc_ind] -
-        Vcele[node_1].t_conc[spc_ind];  /* Difference in concentration,
-                                       * in M/kg w */
+    /* Difference in concentration, * in M/kg w */
+    diff_conc = Vcele[node_2].t_conc[spc_ind] - Vcele[node_1].t_conc[spc_ind];
     diff_flux = 0.0;
     disp_flux = 0.0;
 
@@ -352,27 +347,14 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
 
     if (TVDFlg == 0)
     {
-        if (flux_t > 0) /* flux in from neighbor, node_2 */
-        {
-            temp_conc = Vcele[node_2].t_conc[spc_ind];
-        }
-        else            /* Flux out from river cell, node_1 */
-        {
-            temp_conc = Vcele[node_1].t_conc[spc_ind];
-        }
+        temp_conc = (flux_t > 0) ?
+            Vcele[node_2].t_conc[spc_ind] : Vcele[node_1].t_conc[spc_ind];
 
         /* Add tributary */
-        if (flux_t_trib > 0)
-        {
-            temp_conc_trib = Vcele[node_5_trib].t_conc[spc_ind];
-        }
-        else /* flux_t_trib = 0, no tributary contribution */
-        {
-            temp_conc_trib = 0.0;
-        }
+        temp_conc_trib = (flux_t_trib > 0) ?
+            Vcele[node_5_trib].t_conc[spc_ind] : 0.0;
     }
-
-    if (TVDFlg == 1)
+    else if (TVDFlg == 1)
     {
         if (flux_t > 0)
         {
@@ -413,35 +395,17 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
         }
 
         /* Add tributary */
-        if (flux_t_trib > 0)
-        {
-            temp_conc_trib = Vcele[node_5_trib].t_conc[spc_ind];
-        }
-        else    /* flux_t_trib = 0, no tributary contribution */
-        {
-            temp_conc_trib = 0.0;
-        }
+        temp_conc_trib = (flux_t_trib > 0) ?
+            Vcele[node_5_trib].t_conc[spc_ind] : 0.0;
     }
     else
     {
-        if (flux_t > 0)
-        {
-            temp_conc = Vcele[node_2].t_conc[spc_ind];
-        }
-        else
-        {
-            temp_conc = Vcele[node_1].t_conc[spc_ind];
-        }
+        temp_conc = (flux_t > 0) ?
+            Vcele[node_2].t_conc[spc_ind] : Vcele[node_1].t_conc[spc_ind];
 
         /* Add tributary */
-        if (flux_t_trib > 0)
-        {
-            temp_conc_trib = Vcele[node_5_trib].t_conc[spc_ind];
-        }
-        else    /* flux_t_trib = 0, no tributary contribution */
-        {
-            temp_conc_trib = 0.0;
-        }
+        temp_conc_trib = (flux_t_trib > 0) ?
+            Vcele[node_5_trib].t_conc[spc_ind] : 0.0;
     }
 
     /* Flux[i].BC = 0 normal cell face
