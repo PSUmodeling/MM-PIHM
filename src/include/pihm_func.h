@@ -689,6 +689,8 @@ void            InitialChemFile(char *, char *, int, int *);
 void            PrintChem(char *, char *, Chem_Data, int);
 void            FreeChem(Chem_Data);
 void            ReportError(vol_conc, Chem_Data);
+double          Dconc(const face *, const vol_conc [], const species [],
+    double, int, int);
 
 #endif
 

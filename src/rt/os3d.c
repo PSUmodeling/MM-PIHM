@@ -18,12 +18,9 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
 {
     /* Input t and stepsize in the unit of minute */
     double        **dconc = (double **)malloc(CD->NumOsv * sizeof(double *));
-    int             i, j, k, node_1, node_2, node_3, node_4, abnormalflg;
-    int             node_5_trib;
-    double          flux_t, diff_flux, disp_flux, distance, temp_dconc,
-        velocity, temp_conc, inv_dist, diff_conc, unit_c, area, r_, beta_,
-        total_prep_mass, timelps, invavg, adpstep;
-    double          flux_t_trib, temp_conc_trib, temp_dconc_trib;
+    int             i, j, k, abnormalflg;
+    double          temp_dconc, diff_conc, unit_c, total_prep_mass, timelps,
+        invavg, adpstep;
     double         *tmpconc = (double *)malloc(CD->NumSpc * sizeof(double));
 
     abnormalflg = 0;
@@ -47,163 +44,14 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
     for (i = 0; i < CD->NumFac; i++)
     {
         CD->Flux[i].q = 0.0;
-        node_1 = CD->Flux[i].nodeup - 1;
-        node_2 = CD->Flux[i].nodelo - 1;
-        node_3 = CD->Flux[i].nodeuu - 1;
-        node_4 = CD->Flux[i].nodell - 1;
-        node_5_trib = CD->Flux[i].node_trib - 1;
-        flux_t = -CD->Flux[i].flux;
-        flux_t_trib = -CD->Flux[i].flux_trib;
-        distance = CD->Flux[i].distance;
-        velocity = -CD->Flux[i].velocity;
-        area = CD->Flux[i].s_area;
-        inv_dist = 1.0 / distance;
 
         for (j = 0; j < CD->NumSpc; j++)
         {
-            diff_conc = CD->Vcele[node_2].t_conc[j] -
-                CD->Vcele[node_1].t_conc[j];  /* Difference in concentration,
-                                               * in M/kg w */
-            diff_flux = 0.0;
-            disp_flux = 0.0;
+            temp_dconc = Dconc(&CD->Flux[i], CD->Vcele, CD->chemtype,
+                CD->Cementation, CD->TVDFlg, j);
 
-            if (CD->Flux[i].BC == 0)    /* Only for soil flow (not river flow)*/
-            {
-                diff_flux = CD->chemtype[j].DiffCoe *
-                    pow(CD->Vcele[node_1].porosity, CD->Cementation);
-                /* Diffusion flux, effective diffusion coefficient  */
-                if (velocity < 0.0)
-                {
-                    disp_flux = velocity * CD->chemtype[j].DispCoe;
-                }
-                else
-                {
-                    disp_flux = -velocity * CD->chemtype[j].DispCoe;
-                }
-                /* Longitudinal dispersion */
-                diff_flux = -diff_flux * inv_dist * diff_conc * area;
-                /* Diffusion is in the opposite direction of conc gradient */
-                disp_flux = disp_flux * inv_dist * diff_conc * area;
-            }
-
-            /* Use temp_conc to store the concentration at the surfaces
-             * Use temp_dconc to store the concentration changes at the cell */
-            temp_dconc = 0.0;
-            temp_dconc_trib = 0.0;
-            temp_conc = 0.0;
-            temp_conc_trib = 0.0;
-
-            if (CD->TVDFlg == 0)
-            {
-                if (flux_t > 0) /* flux in from neighbor, node_2 */
-                {
-                    temp_conc = CD->Vcele[node_2].t_conc[j];
-                }
-                else            /* Flux out from river cell, node_1 */
-                {
-                    temp_conc = CD->Vcele[node_1].t_conc[j];
-                }
-
-                /* Add tributary */
-                if (flux_t_trib > 0)
-                {
-                    temp_conc_trib = CD->Vcele[node_5_trib].t_conc[j];
-                }
-                else /* flux_t_trib = 0, no tributary contribution */
-                {
-                    temp_conc_trib = 0.0;
-                }
-            }
-
-            if (CD->TVDFlg == 1)
-            {
-                if (flux_t > 0)
-                {
-                    if (node_4 > 0)
-                    {
-                        r_ = (CD->Vcele[node_2].t_conc[j] -
-                            CD->Vcele[node_4].t_conc[j] + EPSILON) /
-                            (CD->Vcele[node_1].t_conc[j] -
-                            CD->Vcele[node_2].t_conc[j] + EPSILON);
-                        beta_ = max(0, min(min(2, 2 * r_), (2 + r_) / 3));
-                        temp_conc = CD->Vcele[node_2].t_conc[j] + beta_ *
-                            (CD->Vcele[node_1].t_conc[j] -
-                            CD->Vcele[node_2].t_conc[j]) * 0.5;
-                    }
-                    else
-                    {
-                        temp_conc = CD->Vcele[node_2].t_conc[j];
-                    }
-                }
-                else
-                {
-                    if (node_3 > 0)
-                    {
-                        r_ = (CD->Vcele[node_1].t_conc[j] -
-                            CD->Vcele[node_3].t_conc[j] +
-                            EPSILON) / (CD->Vcele[node_2].t_conc[j] -
-                            CD->Vcele[node_1].t_conc[j] + EPSILON);
-                        beta_ = max(0, min(min(2, 2 * r_), (2 + r_) / 3));
-                        temp_conc =
-                            CD->Vcele[node_1].t_conc[j] +
-                            beta_ * (CD->Vcele[node_2].t_conc[j] -
-                            CD->Vcele[node_1].t_conc[j]) * 0.5;
-                    }
-                    else
-                    {
-                        temp_conc = CD->Vcele[node_1].t_conc[j];
-                    }
-                }
-
-                /* Add tributary */
-                if (flux_t_trib > 0)
-                {
-                    temp_conc_trib = CD->Vcele[node_5_trib].t_conc[j];
-                }
-                else    /* flux_t_trib = 0, no tributary contribution */
-                {
-                    temp_conc_trib = 0.0;
-                }
-            }
-            else
-            {
-                if (flux_t > 0)
-                {
-                    temp_conc = CD->Vcele[node_2].t_conc[j];
-                }
-                else
-                {
-                    temp_conc = CD->Vcele[node_1].t_conc[j];
-                }
-
-                /* Add tributary */
-                if (flux_t_trib > 0)
-                {
-                    temp_conc_trib = CD->Vcele[node_5_trib].t_conc[j];
-                }
-                else    /* flux_t_trib = 0, no tributary contribution */
-                {
-                    temp_conc_trib = 0.0;
-                }
-            }
-
-            /* Flux[i].BC = 0 normal cell face
-             *            = 1 flux boundary
-             *            = 2 noflow boundary */
-            if (CD->Flux[i].BC != 2)
-            {
-                /* Add tributary flux */
-                temp_dconc += temp_conc * flux_t + temp_conc_trib * flux_t_trib;
-            }
-
-            if (CD->Flux[i].BC == 0)
-            {
-                temp_dconc -= diff_flux + disp_flux;
-            }
-
-            temp_dconc *= unit_c;
             CD->Flux[i].q = temp_dconc;
-            dconc[node_1][j] += temp_dconc; /* OMP fails here */
+            dconc[CD->Flux[i].nodeup - 1][j] += temp_dconc; /* OMP fails here */
         }
     }
 
@@ -318,194 +166,12 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                             {
                                 if (CD->Flux[k].nodeup == CD->Vcele[i].index)
                                 {
-                                    node_1 = CD->Flux[k].nodeup - 1;
-                                    node_2 = CD->Flux[k].nodelo - 1;
-                                    node_3 = CD->Flux[k].nodeuu - 1;
-                                    node_4 = CD->Flux[k].nodell - 1;
-                                    node_5_trib = CD->Flux[k].node_trib - 1;
-                                    flux_t = -CD->Flux[k].flux;
-                                    flux_t_trib = -CD->Flux[k].flux_trib;
-                                    distance = CD->Flux[k].distance;
-                                    velocity = -CD->Flux[k].velocity;
-                                    area = CD->Flux[k].s_area;
-                                    inv_dist = 1.0 / distance;
-
                                     for (j = 0; j < CD->NumSpc; j++)
                                     {
-                                        diff_conc =
-                                            CD->Vcele[node_2].t_conc[j] -
-                                            CD->Vcele[node_1].t_conc[j];
-                                        diff_flux = 0.0;
-                                        disp_flux = 0.0;
-                                        if (CD->Flux[k].BC == 0)
-                                        {
-                                            diff_flux =
-                                                CD->chemtype[j].DiffCoe *
-                                                pow(CD->Vcele[node_1].porosity,
-                                                CD->Cementation);
+                                        temp_dconc = Dconc(&CD->Flux[k],
+                                            CD->Vcele, CD->chemtype,
+                                            CD->Cementation, CD->TVDFlg, j);
 
-                                            if (velocity < 0.0)
-                                                disp_flux = velocity *
-                                                    CD->chemtype[j].DispCoe;
-                                            else
-                                                disp_flux = -velocity *
-                                                    CD->chemtype[j].DispCoe;
-
-                                            diff_flux = -diff_flux * inv_dist *
-                                                diff_conc * area;
-
-                                            disp_flux = disp_flux * inv_dist *
-                                                diff_conc * area;
-                                        }
-
-                                        temp_dconc = 0.0;
-                                        temp_dconc_trib = 0.0;
-                                        temp_conc = 0.0;
-                                        temp_conc_trib = 0.0;
-
-                                        if (CD->TVDFlg == 0)
-                                        {
-                                            if (flux_t > 0)
-                                            {
-                                                temp_conc =
-                                                    CD->Vcele[node_2].t_conc[j];
-                                            }
-                                            else
-                                            {
-                                                temp_conc =
-                                                    CD->Vcele[node_1].t_conc[j];
-                                            }
-
-                                            /* Add tributary */
-                                            if (flux_t_trib > 0)
-                                                temp_conc_trib =
-                                                    CD->
-                                                    Vcele[node_5_trib].t_conc
-                                                    [j];
-                                            else    // flux_t_trib = 0, no tributary contribution
-                                                temp_conc_trib = 0.0;
-                                        }
-
-                                        if (CD->TVDFlg == 1)
-                                        {
-                                            if (flux_t > 0)
-                                            {
-                                                if (node_4 > 0)
-                                                {
-                                                    r_ = (CD->
-                                                        Vcele[node_2].t_conc[j]
-                                                        -
-                                                        CD->
-                                                        Vcele[node_4].t_conc[j]
-                                                        +
-                                                        EPSILON) /
-                                                        (CD->
-                                                        Vcele[node_1].t_conc[j]
-                                                        -
-                                                        CD->
-                                                        Vcele[node_2].t_conc[j]
-                                                        + EPSILON);
-                                                    beta_ =
-                                                        max(0, min(min(2,
-                                                                2 * r_),
-                                                            (2 + r_) / 3));
-                                                    temp_conc =
-                                                        CD->
-                                                        Vcele[node_2].t_conc[j]
-                                                        +
-                                                        beta_ *
-                                                        (CD->
-                                                        Vcele[node_1].t_conc[j]
-                                                        -
-                                                        CD->
-                                                        Vcele[node_2].t_conc[j])
-                                                        * 0.5;
-                                                }
-                                                else
-                                                    temp_conc =
-                                                        CD->
-                                                        Vcele[node_2].t_conc[j];
-                                            }
-                                            else
-                                            {
-                                                if (node_3 > 0)
-                                                {
-                                                    r_ = (CD->
-                                                        Vcele[node_1].t_conc[j]
-                                                        -
-                                                        CD->
-                                                        Vcele[node_3].t_conc[j]
-                                                        +
-                                                        EPSILON) /
-                                                        (CD->
-                                                        Vcele[node_2].t_conc[j]
-                                                        -
-                                                        CD->
-                                                        Vcele[node_1].t_conc[j]
-                                                        + EPSILON);
-                                                    beta_ =
-                                                        max(0, min(min(2,
-                                                                2 * r_),
-                                                            (2 + r_) / 3));
-                                                    temp_conc =
-                                                        CD->
-                                                        Vcele[node_1].t_conc[j]
-                                                        +
-                                                        beta_ *
-                                                        (CD->
-                                                        Vcele[node_2].t_conc[j]
-                                                        -
-                                                        CD->
-                                                        Vcele[node_1].t_conc[j])
-                                                        * 0.5;
-                                                }
-                                                else
-                                                    temp_conc =
-                                                        CD->
-                                                        Vcele[node_1].t_conc[j];
-                                            }
-
-                                            // 01.14 add tributary
-                                            if (flux_t_trib > 0)
-                                                temp_conc_trib =
-                                                    CD->
-                                                    Vcele[node_5_trib].t_conc
-                                                    [j];
-                                            else    // flux_t_trib = 0, no tributary contribution
-                                                temp_conc_trib = 0.0;
-                                        }
-
-                                        else
-                                        {
-                                            if (flux_t > 0)
-                                                temp_conc =
-                                                    CD->Vcele[node_2].t_conc[j];
-                                            else
-                                                temp_conc =
-                                                    CD->Vcele[node_1].t_conc[j];
-
-                                            // 01.14 add tributary
-                                            if (flux_t_trib > 0)
-                                                temp_conc_trib =
-                                                    CD->
-                                                    Vcele[node_5_trib].t_conc
-                                                    [j];
-                                            else    // flux_t_trib = 0, no tributary contribution
-                                                temp_conc_trib = 0.0;
-                                        }
-
-                                        if (CD->Flux[k].BC != 2)
-                                        {
-                                            // 01.14 add tributary flux
-                                            //temp_dconc += temp_conc * flux_t;
-                                            temp_dconc += temp_conc * flux_t + temp_conc_trib * flux_t_trib;    // 01.14 add tributary flux
-                                        }
-                                        if (CD->Flux[k].BC == 0)
-                                        {
-                                            temp_dconc -= diff_flux + disp_flux;
-                                        }
-
-                                        temp_dconc *= unit_c;
                                         tmpconc[j] += temp_dconc;
                                     }
 
@@ -620,4 +286,180 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
     }
     free(dconc);
     free(tmpconc);
+}
+
+double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
+    double cementation, int TVDFlg, int spc_ind)
+{
+    int             node_1, node_2, node_3, node_4;
+    int             node_5_trib;
+    double          flux_t, flux_t_trib;
+    double          distance;
+    double          velocity;
+    double          area;
+    double          inv_dist;
+    double          diff_conc;
+    double          diff_flux, disp_flux;
+    double          temp_dconc;
+    double          temp_dconc_trib;
+    double          temp_conc;
+    double          temp_conc_trib;
+    double          r_, beta_;
+    double          unit_c = 1.0 / 1440;
+
+    node_1 = Flux->nodeup - 1;
+    node_2 = Flux->nodelo - 1;
+    node_3 = Flux->nodeuu - 1;
+    node_4 = Flux->nodell - 1;
+    node_5_trib = Flux->node_trib - 1;
+    flux_t = -Flux->flux;
+    flux_t_trib = -Flux->flux_trib;
+    distance = Flux->distance;
+    velocity = -Flux->velocity;
+    area = Flux->s_area;
+    inv_dist = 1.0 / distance;
+
+    diff_conc = Vcele[node_2].t_conc[spc_ind] -
+        Vcele[node_1].t_conc[spc_ind];  /* Difference in concentration,
+                                       * in M/kg w */
+    diff_flux = 0.0;
+    disp_flux = 0.0;
+
+    if (Flux->BC == 0)    /* Only for soil flow (not river flow)*/
+    {
+        diff_flux = chemtype[spc_ind].DiffCoe *
+            pow(Vcele[node_1].porosity, cementation);
+        /* Diffusion flux, effective diffusion coefficient  */
+        if (velocity < 0.0)
+        {
+            disp_flux = velocity * chemtype[spc_ind].DispCoe;
+        }
+        else
+        {
+            disp_flux = -velocity * chemtype[spc_ind].DispCoe;
+        }
+        /* Longitudinal dispersion */
+        diff_flux = -diff_flux * inv_dist * diff_conc * area;
+        /* Diffusion is in the opposite direction of conc gradient */
+        disp_flux = disp_flux * inv_dist * diff_conc * area;
+    }
+
+    /* Use temp_conc to store the concentration at the surfaces
+     * Use temp_dconc to store the concentration changes at the cell */
+    temp_dconc = 0.0;
+    temp_dconc_trib = 0.0;
+    temp_conc = 0.0;
+    temp_conc_trib = 0.0;
+
+    if (TVDFlg == 0)
+    {
+        if (flux_t > 0) /* flux in from neighbor, node_2 */
+        {
+            temp_conc = Vcele[node_2].t_conc[spc_ind];
+        }
+        else            /* Flux out from river cell, node_1 */
+        {
+            temp_conc = Vcele[node_1].t_conc[spc_ind];
+        }
+
+        /* Add tributary */
+        if (flux_t_trib > 0)
+        {
+            temp_conc_trib = Vcele[node_5_trib].t_conc[spc_ind];
+        }
+        else /* flux_t_trib = 0, no tributary contribution */
+        {
+            temp_conc_trib = 0.0;
+        }
+    }
+
+    if (TVDFlg == 1)
+    {
+        if (flux_t > 0)
+        {
+            if (node_4 > 0)
+            {
+                r_ = (Vcele[node_2].t_conc[spc_ind] -
+                    Vcele[node_4].t_conc[spc_ind] + EPSILON) /
+                    (Vcele[node_1].t_conc[spc_ind] -
+                    Vcele[node_2].t_conc[spc_ind] + EPSILON);
+                beta_ = max(0, min(min(2, 2 * r_), (2 + r_) / 3));
+                temp_conc = Vcele[node_2].t_conc[spc_ind] + beta_ *
+                    (Vcele[node_1].t_conc[spc_ind] -
+                    Vcele[node_2].t_conc[spc_ind]) * 0.5;
+            }
+            else
+            {
+                temp_conc = Vcele[node_2].t_conc[spc_ind];
+            }
+        }
+        else
+        {
+            if (node_3 > 0)
+            {
+                r_ = (Vcele[node_1].t_conc[spc_ind] -
+                    Vcele[node_3].t_conc[spc_ind] +
+                    EPSILON) / (Vcele[node_2].t_conc[spc_ind] -
+                    Vcele[node_1].t_conc[spc_ind] + EPSILON);
+                beta_ = max(0, min(min(2, 2 * r_), (2 + r_) / 3));
+                temp_conc =
+                    Vcele[node_1].t_conc[spc_ind] +
+                    beta_ * (Vcele[node_2].t_conc[spc_ind] -
+                    Vcele[node_1].t_conc[spc_ind]) * 0.5;
+            }
+            else
+            {
+                temp_conc = Vcele[node_1].t_conc[spc_ind];
+            }
+        }
+
+        /* Add tributary */
+        if (flux_t_trib > 0)
+        {
+            temp_conc_trib = Vcele[node_5_trib].t_conc[spc_ind];
+        }
+        else    /* flux_t_trib = 0, no tributary contribution */
+        {
+            temp_conc_trib = 0.0;
+        }
+    }
+    else
+    {
+        if (flux_t > 0)
+        {
+            temp_conc = Vcele[node_2].t_conc[spc_ind];
+        }
+        else
+        {
+            temp_conc = Vcele[node_1].t_conc[spc_ind];
+        }
+
+        /* Add tributary */
+        if (flux_t_trib > 0)
+        {
+            temp_conc_trib = Vcele[node_5_trib].t_conc[spc_ind];
+        }
+        else    /* flux_t_trib = 0, no tributary contribution */
+        {
+            temp_conc_trib = 0.0;
+        }
+    }
+
+    /* Flux[i].BC = 0 normal cell face
+     *            = 1 flux boundary
+     *            = 2 noflow boundary */
+    if (Flux->BC != 2)
+    {
+        /* Add tributary flux */
+        temp_dconc += temp_conc * flux_t + temp_conc_trib * flux_t_trib;
+    }
+
+    if (Flux->BC == 0)
+    {
+        temp_dconc -= diff_flux + disp_flux;
+    }
+
+    temp_dconc *= unit_c;
+
+    return temp_dconc;
 }
