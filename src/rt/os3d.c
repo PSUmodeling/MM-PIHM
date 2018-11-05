@@ -19,13 +19,12 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
     /* Input t and stepsize in the unit of minute */
     double        **dconc = (double **)malloc(CD->NumOsv * sizeof(double *));
     int             i, j, k, abnormalflg;
-    double          temp_dconc, diff_conc, unit_c, total_prep_mass, timelps,
+    double          temp_dconc, diff_conc, unit_c, timelps,
         invavg, adpstep;
     double         *tmpconc = (double *)malloc(CD->NumSpc * sizeof(double));
 
     abnormalflg = 0;
     unit_c = 1.0 / 1440;
-    total_prep_mass = 0.0;
 
     /* Initalize the allocated array */
 #ifdef _OPENMP
