@@ -1680,44 +1680,30 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[k].flux_trib = 0.0;
                 CD->Flux[k].BC = 0;
 
-                if (CD->Flux[k].nodeuu > 0)
-                {
-                    CD->Flux[k].distuu = sqrt(pow(pihm->elem[i].topo.x -
-                            pihm->elem[CD->Flux[k].nodeuu - 1].topo.x, 2) +
-                            pow(pihm->elem[i].topo.y -
-                            pihm->elem[CD->Flux[k].nodeuu - 1].topo.y, 2));
-                }
-                else
-                {
-                    CD->Flux[k].distuu = 0.0;
-                }
-
-                if (CD->Flux[k].nodell > 0)
-                {
-                    CD->Flux[k].distll = sqrt(
-                        pow(pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x -
-                        pihm->elem[CD->Flux[k].nodell - 1].topo.x, 2) +
-                        pow(pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y -
-                        pihm->elem[CD->Flux[k].nodell - 1].topo.y, 2));
-                }
-                else
-                {
-                    CD->Flux[k].distll = 0.0;
-                }
+                CD->Flux[k].distuu = (CD->Flux[k].nodeuu > 0) ?
+                    sqrt(pow(pihm->elem[i].topo.x -
+                    pihm->elem[CD->Flux[k].nodeuu - 1].topo.x, 2) +
+                    pow(pihm->elem[i].topo.y -
+                    pihm->elem[CD->Flux[k].nodeuu - 1].topo.y, 2)) : 0.0;
+                CD->Flux[k].distll = (CD->Flux[k].nodell > 0) ?
+                    sqrt(pow(pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x -
+                    pihm->elem[CD->Flux[k].nodell - 1].topo.x, 2) +
+                    pow(pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y -
+                    pihm->elem[CD->Flux[k].nodell - 1].topo.y, 2)) : 0.0;
 
                 CD->Flux[k].distance = sqrt(pow(pihm->elem[i].topo.x -
                         pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x, 2) +
                         pow(pihm->elem[i].topo.y -
                         pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y, 2));
 
+                /* x component of the normal vector flux direction */
                 CD->Flux[k].distuu =
                     (pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x -
                     pihm->elem[i].topo.x) / CD->Flux[k].distance;
-                /* x component of the normal vector flux direction */
+                /* y component of the normal vector flux direction */
                 CD->Flux[k].distll =
                     (pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y -
                     pihm->elem[i].topo.y) / CD->Flux[k].distance;
-                /* y component of the normal vector flux direction */
 
                 index_0 = pihm->elem[i].node[(j + 1) % 3] - 1;
                 index_1 = pihm->elem[i].node[(j + 2) % 3] - 1;
@@ -1782,7 +1768,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                         CD->Flux[k].nodeuu = 0;
                         CD->Flux[k].nodell = 0;
                         CD->Flux[k].distance = dist1;
-                        //fprintf(stderr, " Riv - Watershed connection corrected, now from cell %d to cell %d\n", CD->Flux[k].nodeup, CD->Flux[k].nodelo);
                     }
                     if ((CD->Flux[k].nodeup == pihm->river[rivi].rightele)
                         && (CD->Flux[k].nodelo == pihm->river[rivi].leftele))
@@ -1791,7 +1776,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                         CD->Flux[k].nodeuu = 0;
                         CD->Flux[k].nodell = 0;
                         CD->Flux[k].distance = dist1;
-                        //fprintf(stderr, " Riv - Watershed connection corrected, now from cell %d to cell %d\n", CD->Flux[k].nodeup, CD->Flux[k].nodelo);
                     }
                 }
                 k++;
@@ -2202,6 +2186,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     }
     CD->SPCFlg = 0;
 
+    /* Initialize unsaturated zone concentrations to be the same as in saturated
+     * zone */
     for (i = nelem; i < nelem * 2; i++)
     {
         for (k = 0; k < CD->NumStc; k++)
@@ -2212,6 +2198,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         }
     }
 
+    /* Initialize river concentrations */
     for (i = nelem * 2; i < CD->NumVol; i++)
     {
         for (k = 0; k < CD->NumStc; k++)
@@ -2225,6 +2212,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         }
     }
 
+    /* Correct river connectivity */
     for (i = 0; i < CD->PIHMFac * 2; i++)
         for (j = CD->PIHMFac * 2; j < CD->NumFac; j++)
         {
