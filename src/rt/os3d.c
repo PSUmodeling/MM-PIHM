@@ -322,9 +322,9 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                                     node_2 = CD->Flux[k].nodelo - 1;
                                     node_3 = CD->Flux[k].nodeuu - 1;
                                     node_4 = CD->Flux[k].nodell - 1;
-                                    node_5_trib = CD->Flux[i].node_trib - 1;
+                                    node_5_trib = CD->Flux[k].node_trib - 1;
                                     flux_t = -CD->Flux[k].flux;
-                                    flux_t_trib = -CD->Flux[i].flux_trib;
+                                    flux_t_trib = -CD->Flux[k].flux_trib;
                                     distance = CD->Flux[k].distance;
                                     velocity = -CD->Flux[k].velocity;
                                     area = CD->Flux[k].s_area;
