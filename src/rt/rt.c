@@ -1422,13 +1422,13 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[i].sat_o = 1.0;
         CD->Vcele[i].temperature = pihm->elem[i].attrib.meteo_type;
 
-        CD->Vcele[i].reset_ref = 0;
-        for (j = 0; j < 3; j++)
-        {
-            if (condition_index[pihm->meshtbl.nabr[i][j]] ==
-                condition_index[i + 1])
-                CD->Vcele[i].reset_ref = pihm->meshtbl.nabr[i][j];
-        }
+        //CD->Vcele[i].reset_ref = 0;
+        //for (j = 0; j < 3; j++)
+        //{
+        //    if (condition_index[pihm->meshtbl.nabr[i][j]] ==
+        //        condition_index[i + 1])
+        //        CD->Vcele[i].reset_ref = pihm->meshtbl.nabr[i][j];
+        //}
     }
 
     /* Initializing volumetrics for unsaturated cells */
@@ -1459,7 +1459,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         if (CD->Vcele[i].sat > 1.0)
             fprintf(stderr,
                 "Fatal Error, Unsaturated Zone Initialization For RT Failed!\n");
-        CD->Vcele[i].reset_ref = i - nelem + 1;
+        //CD->Vcele[i].reset_ref = i - nelem + 1;
         /* Default reset reference of unsaturated cells are the groundwater
          * cells underneath */
     }
@@ -1488,7 +1488,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
         CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
         /* Default reset reference of river segments are the EBR underneath */
-        CD->Vcele[i].reset_ref = i + nriver + 1;
+        //CD->Vcele[i].reset_ref = i + nriver + 1;
     }
 
     /* Initializing volumetrics for river EBR cells */
@@ -1506,13 +1506,13 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[i].sat_o = CD->Vcele[i].sat;
         CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
         CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-        CD->Vcele[i].reset_ref = 0;
-        if (condition_index[pihm->river[j].leftele] ==
-            condition_index[i + 1])
-            CD->Vcele[i].reset_ref = pihm->river[j].leftele;
-        if (condition_index[pihm->river[j].rightele] ==
-            condition_index[i + 1])
-            CD->Vcele[i].reset_ref = pihm->river[j].rightele;
+        //CD->Vcele[i].reset_ref = 0;
+        //if (condition_index[pihm->river[j].leftele] ==
+        //    condition_index[i + 1])
+        //    CD->Vcele[i].reset_ref = pihm->river[j].leftele;
+        //if (condition_index[pihm->river[j].rightele] ==
+        //    condition_index[i + 1])
+        //    CD->Vcele[i].reset_ref = pihm->river[j].rightele;
     }
 
     tmpval[0] = 0.0;
@@ -1543,7 +1543,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[i].sat_o = 1.0;
         CD->Vcele[i].vol_o = 1.0;
         CD->Vcele[i].vol = 1.0;
-        CD->Vcele[i].reset_ref = 2 * nelem + nriver + 1;
+        //CD->Vcele[i].reset_ref = 2 * nelem + nriver + 1;
     }
 
     /* Initializing concentration distributions */
