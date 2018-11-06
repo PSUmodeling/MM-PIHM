@@ -41,15 +41,18 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
 
     for (i = 0; i < CD->NumFac; i++)
     {
-        CD->Flux[i].q = 0.0;
-
-        for (j = 0; j < CD->NumSpc; j++)
+        if (CD->Flux[i].BC != NO_FLOW)
         {
-            temp_dconc = Dconc(&CD->Flux[i], CD->Vcele, CD->chemtype,
-                CD->Cementation, CD->TVDFlg, j);
+            CD->Flux[i].q = 0.0;
 
-            CD->Flux[i].q = temp_dconc;
-            dconc[CD->Flux[i].nodeup - 1][j] += temp_dconc;
+            for (j = 0; j < CD->NumSpc; j++)
+            {
+                temp_dconc = Dconc(&CD->Flux[i], CD->Vcele, CD->chemtype,
+                    CD->Cementation, CD->TVDFlg, j);
+
+                CD->Flux[i].q = temp_dconc;
+                dconc[CD->Flux[i].nodeup - 1][j] += temp_dconc;
+            }
         }
     }
 
@@ -160,17 +163,19 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
 
                             for (k = 0; k < CD->NumFac; k++)
                             {
-                                if (CD->Flux[k].nodeup == CD->Vcele[i].index)
+                                if (CD->Flux[k].BC != NO_FLOW)
                                 {
-                                    for (j = 0; j < CD->NumSpc; j++)
+                                    if (CD->Flux[k].nodeup == CD->Vcele[i].index)
                                     {
-                                        temp_dconc = Dconc(&CD->Flux[k],
-                                            CD->Vcele, CD->chemtype,
-                                            CD->Cementation, CD->TVDFlg, j);
+                                        for (j = 0; j < CD->NumSpc; j++)
+                                        {
+                                            temp_dconc = Dconc(&CD->Flux[k],
+                                                CD->Vcele, CD->chemtype,
+                                                CD->Cementation, CD->TVDFlg, j);
 
-                                        tmpconc[j] += temp_dconc;
+                                            tmpconc[j] += temp_dconc;
+                                        }
                                     }
-
                                 }
                             }
 
