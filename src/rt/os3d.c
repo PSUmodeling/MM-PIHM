@@ -316,7 +316,7 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
     diff_flux = 0.0;
     disp_flux = 0.0;
 
-    if (Flux->BC == 0)    /* Only for soil flow (not river flow)*/
+    if (Flux->BC == DISPERSION)    /* Only for soil flow (not river flow)*/
     {
         diff_flux = chemtype[spc_ind].DiffCoe *
             pow(Vcele[node_1].porosity, cementation);
@@ -405,16 +405,10 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
             Vcele[node_5_trib].t_conc[spc_ind] : 0.0;
     }
 
-    /* Flux[i].BC = 0 normal cell face
-     *            = 1 flux boundary
-     *            = 2 noflow boundary */
-    if (Flux->BC != 2)
-    {
-        /* Add tributary flux */
-        temp_dconc += temp_conc * flux_t + temp_conc_trib * flux_t_trib;
-    }
+    /* Advective flux */
+    temp_dconc += temp_conc * flux_t + temp_conc_trib * flux_t_trib;
 
-    if (Flux->BC == 0)
+    if (Flux->BC == DISPERSION)
     {
         temp_dconc -= diff_flux + disp_flux;
     }

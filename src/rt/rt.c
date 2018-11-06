@@ -1672,7 +1672,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                     pihm->elem[i], pihm);
                 CD->Flux[k].flux_type = 0;
                 CD->Flux[k].flux_trib = 0.0;
-                CD->Flux[k].BC = 0;
+                CD->Flux[k].BC = DISPERSION;
 
                 CD->Flux[k].distuu = (CD->Flux[k].nodeuu > 0) ?
                     sqrt(pow(pihm->elem[i].topo.x -
@@ -1796,7 +1796,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                     pihm->elem[i], pihm) + nelem;
                 CD->Flux[k].flux_type = 0;  /* Unsat lateral flux, flux = 0.0 */
                 CD->Flux[k].flux_trib = 0.0;
-                CD->Flux[k].BC = 0;
+                CD->Flux[k].BC = DISPERSION;
 
                 if (CD->Flux[k].nodeuu - nelem > 0)
                 {
@@ -1893,7 +1893,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                                      * infiltration correction in Monitor ( );
                                      * 0 for lateral, 1 for vertical */
         CD->Flux[k].flux_trib = 0.0;
-        CD->Flux[k].BC = 0;
+        CD->Flux[k].BC = DISPERSION;
         CD->Flux[k].distance = 0.1 * CD->Vcele[i].height_v;
         k++;
     }
@@ -1911,7 +1911,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                                      * correction in Monitor(); 0 for lateral,
                                      * 1 for vertical */
         CD->Flux[k].flux_trib = 0.0;
-        CD->Flux[k].BC = 0;
+        CD->Flux[k].BC = DISPERSION;
         CD->Flux[k].distance = 0.1 * CD->Vcele[i].height_v;
         k++;
     }
@@ -1931,7 +1931,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Flux[k].nodeuu = 0;
         CD->Flux[k].nodell = 0;
         CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = 1;
+        CD->Flux[k].BC = NO_DISP;
         CD->Flux[k].flux = 0.0;
         CD->Flux[k].flux_trib = 0.0;
         CD->Flux[k].distance = 1.0;
@@ -1949,7 +1949,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Flux[k].nodeuu = 0;
         CD->Flux[k].nodell = 0;
         CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = 1;
+        CD->Flux[k].BC = NO_DISP;
         CD->Flux[k].flux = 0.0;
         CD->Flux[k].flux_trib = 0.0;
         CD->Flux[k].distance = 1.0;
@@ -1967,7 +1967,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Flux[k].nodeuu = 0;
         CD->Flux[k].nodell = 0;
         CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = 0;
+        CD->Flux[k].BC = DISPERSION;
         CD->Flux[k].flux = 0.0;
         CD->Flux[k].flux_trib = 0.0;
         CD->Flux[k].distance = 1.0;
@@ -1986,7 +1986,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Flux[k].nodeuu = 0;
         CD->Flux[k].nodell = 0;
         CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = 0;
+        CD->Flux[k].BC = DISPERSION;
         CD->Flux[k].flux = 0.0;
         CD->Flux[k].flux_trib = 0.0;
         CD->Flux[k].distance = 1.0;
@@ -2014,7 +2014,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Flux[k].nodeuu = 0;
         CD->Flux[k].nodell = 0;
         CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = 1;
+        CD->Flux[k].BC = NO_DISP;
         CD->Flux[k].flux = 0.0;
         CD->Flux[k].flux_trib = 0.0;
         CD->Flux[k].distance = 1.0;
@@ -2046,7 +2046,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Flux[k].nodeuu = 0;
         CD->Flux[k].nodell = 0;
         CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = 1;
+        CD->Flux[k].BC = NO_DISP;
         CD->Flux[k].flux = 0.0;
         CD->Flux[k].flux_trib = 0.0;
         CD->Flux[k].distance = 1.0;
@@ -2213,7 +2213,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
             {
                 //fprintf (stderr, " Flux between %d and %d identified \n",
                 //CD->Flux[i].nodelo, CD->Flux[i].nodeup);
-                CD->Flux[j].BC = CD->Flux[i].BC = 0;
+                CD->Flux[j].BC = CD->Flux[i].BC = DISPERSION;
                 CD->Flux[j].distance = CD->Flux[i].distance;
                 //fprintf(stderr, " Flux from river to ele corrected as BC %d, distance %f.\n",CD->Flux[j].BC, CD->Flux[j].distance);
             }

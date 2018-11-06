@@ -233,6 +233,10 @@
 #define DAYSCRECOVER                365.0
 #define BULK_DENITRIF_PROPORTION    0.5
 
+/* RT flux type */
+#define DISPERSION      1
+#define NO_DISP         2
+
 /* Output variables */
 #define YEARLY_OUTPUT     -1
 #define MONTHLY_OUTPUT    -2
