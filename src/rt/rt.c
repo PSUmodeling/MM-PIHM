@@ -353,8 +353,8 @@ void ConditionAssign(int condition, char *str, int *index)
 void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     Chem_Data CD, realtype t)
 {
-    int             i, j, k, num_face =
-        0, num_species, num_mineral, num_ads, num_cex, num_other,
+    int             i, j, k;
+    int             num_species, num_mineral, num_ads, num_cex, num_other,
         num_conditions = 0;
     int             id;         // 01.21 for read-in '*.maxwater'
     int             line_width = LINE_WIDTH, words_line =
@@ -1621,20 +1621,12 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
      */
     for (i = 0; i < nelem; i++)
     {
-        for (j = 0; j < 3; j++)
-        {
-            if (pihm->meshtbl.nabr[i][j] > 0)   /* "0" is on boundary */
-            {
-                num_face++;     /* GW cell faces */
-            }
-        }
         total_area += pihm->elem[i].topo.area;
     }
-    CD->PIHMFac = num_face;
-    num_face *= 2;
-    num_face += 2 * nelem + 6 * nriver; /* Plus infilitration and rechage
-                                         * A river + EBR taks 6 faces */
-    CD->NumFac = num_face;
+
+    CD->PIHMFac = NUM_EDGE * nelem;
+    CD->NumFac = NUM_EDGE * nelem * 2 + 2 * nelem + 6 * nriver;
+
     fprintf(stderr, "\n Total area of the watershed is %f [m^2]. \n",
         total_area);
 
@@ -1772,8 +1764,22 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                         CD->Flux[k].distance = dist1;
                     }
                 }
-                k++;
             }
+            else
+            {
+                CD->Flux[k].nodeup = i + 1;
+                CD->Flux[k].node_trib = 0;
+                CD->Flux[k].nodelo = 0;
+                CD->Flux[k].nodeuu = 0;
+                CD->Flux[k].nodell = 0;
+                CD->Flux[k].flux_type = 1;
+                CD->Flux[k].flux_trib = 0.0;
+                CD->Flux[k].BC = NO_FLOW;
+                CD->Flux[k].distance = 0.0;
+                CD->Flux[k].distuu = 0.0;
+                CD->Flux[k].distll = 0.0;
+            }
+            k++;
         }
     }
 
@@ -1870,8 +1876,22 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                         CD->Flux[k].distance = dist1;
                     }
                 }
-                k++;
             }
+            else
+            {
+                CD->Flux[k].nodeup = i + 1 + nelem;
+                CD->Flux[k].node_trib = 0;
+                CD->Flux[k].nodelo = 0;
+                CD->Flux[k].nodeuu = 0;
+                CD->Flux[k].nodell = 0;
+                CD->Flux[k].flux_type = 1;
+                CD->Flux[k].flux_trib = 0.0;
+                CD->Flux[k].BC = NO_FLOW;
+                CD->Flux[k].distance = 0.0;
+                CD->Flux[k].distuu = 0.0;
+                CD->Flux[k].distll = 0.0;
+            }
+            k++;
         }
     }
 
@@ -2310,8 +2330,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                 CD->Flux[k].flux += 1.0 * pihm->elem[i].wf.subsurf[j] * 86400;  /* Test lateral dilution */
                 CD->Flux[k].s_area += pihm->elem[i].wf.subareaRT[j];
                 CD->Flux[k].velocity += pihm->elem[i].wf.subveloRT[j] * 86400;
-                k++;
             }
+            k++;
         }
     }
 
@@ -2325,8 +2345,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                 CD->Flux[k].flux = 0.0;
                 CD->Flux[k].s_area = 1.0;
                 CD->Flux[k].velocity = 0.0;
-                k++;
             }
+            k++;
         }
     }
 
