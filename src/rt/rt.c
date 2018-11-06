@@ -1624,7 +1624,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         total_area += pihm->elem[i].topo.area;
     }
 
-    CD->PIHMFac = NUM_EDGE * nelem;
     CD->NumFac = NUM_EDGE * nelem * 2 + 2 * nelem + 6 * nriver;
 
     fprintf(stderr, "\n Total area of the watershed is %f [m^2]. \n",
@@ -2225,8 +2224,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     }
 
     /* Correct river connectivity */
-    for (i = 0; i < CD->PIHMFac * 2; i++)
-        for (j = CD->PIHMFac * 2; j < CD->NumFac; j++)
+    for (i = 0; i < NUM_EDGE * nelem * 2; i++)
+        for (j = NUM_EDGE * nelem * 2; j < CD->NumFac; j++)
         {
             if ((CD->Flux[i].nodeup == CD->Flux[j].nodelo) &&
                 (CD->Flux[i].nodelo == CD->Flux[j].nodeup))
@@ -2518,10 +2517,10 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #ifdef _OPENMP
 # pragma omp parallel for
 #endif
-        for (i = 0; i < CD->PIHMFac * 2; i++)
+        for (i = 0; i < NUM_EDGE * nelem * 2; i++)
         {
             int             j;
-            for (j = CD->PIHMFac * 2; j < CD->NumFac; j++)
+            for (j = NUM_EDGE * nelem * 2; j < CD->NumFac; j++)
             {
                 if ((CD->Flux[i].nodeup == CD->Flux[j].nodelo) &&
                     (CD->Flux[i].nodelo == CD->Flux[j].nodeup))
