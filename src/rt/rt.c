@@ -1784,8 +1784,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     }
 
     /* The following is for UNSAT face/flux */
-    CD->NumLateral = k;
-
     for (i = 0; i < nelem; i++)
     {
         for (j = 0; j < 3; j++)

@@ -171,7 +171,6 @@ typedef struct Chem_Data_structure
     int             NumCex;     /* Number of cation exchange in the simulation */
     int             NumMkr;     /* Number of mineral kinetic reactions */
     int             NumAkr;     /* Number of aqueous kinetic reactions */
-    int             NumLateral; // Number of lateral flow faces */
     int             OutItv;     /* controlling the output intervals, in unit of hours */
     int             TVDFlg;     /* TVD swith, 0 for off and 1 for on */
     int             SPCFlg;     /* speciation flg, 0 for total conc and 1 for pH */
