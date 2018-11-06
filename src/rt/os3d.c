@@ -187,8 +187,9 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                 }
             }
         }
-
         /* CD->Vcele[i].rt_step >= stepsize */
+
+        /* For blocks with very small content, we just skip it */
         if ((CD->Vcele[i].height_t > 1.0E-3) &&
             (CD->Vcele[i].height_o > 1.0E-3))
         {
@@ -205,74 +206,70 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                 }
             }
 
-            /* For blocks with very small content, we just skip it */
-            if (CD->Vcele[i].BC != 2)
+            for (j = 0; j < CD->NumSpc; j++)
             {
+                tmpconc[j] =
+                    dconc[i][j] * stepsize +
+                    CD->Vcele[i].t_conc[j] * (CD->Vcele[i].porosity *
+                    CD->Vcele[i].vol_o);
+                /* Need consider the change of concentration at the unsat
+                 * zone from precipitation */
+                if (CD->PrpFlg)
+                {
+                    if (CD->Vcele[i].q > 0.0)
+                    {
+                        if (strcmp(CD->chemtype[j].ChemName, "'DOC'") == 0)
+                        {
+                            tmpconc[j] += CD->Precipitation.t_conc[j] *
+                                CD->Vcele[i].q * adpstep * unit_c *
+                                CD->Condensation * CD->CalPrcpconc;
+                        }
+                        else
+                        {
+                            tmpconc[j] += CD->Precipitation.t_conc[j] *
+                                CD->Vcele[i].q * adpstep * unit_c *
+                                CD->Condensation;
+                        }
+                    }
+                    if (CD->Vcele[i].q < 0.0)
+                    {
+                        tmpconc[j] += CD->Vcele[i].t_conc[j] *
+                            CD->Vcele[i].q * stepsize * unit_c;
+                    }
+                }
+                tmpconc[j] = tmpconc[j] /
+                    (CD->Vcele[i].porosity * CD->Vcele[i].vol);
+            }
+            if (CD->Vcele[i].illness < 20)
                 for (j = 0; j < CD->NumSpc; j++)
                 {
-                    tmpconc[j] =
-                        dconc[i][j] * stepsize +
-                        CD->Vcele[i].t_conc[j] * (CD->Vcele[i].porosity *
-                        CD->Vcele[i].vol_o);
-                    /* Need consider the change of concentration at the unsat
-                     * zone from precipitation */
-                    if (CD->PrpFlg)
-                    {
-                        if (CD->Vcele[i].q > 0.0)
-                        {
-                            if (strcmp(CD->chemtype[j].ChemName, "'DOC'") == 0)
-                            {
-                                tmpconc[j] += CD->Precipitation.t_conc[j] *
-                                    CD->Vcele[i].q * adpstep * unit_c *
-                                    CD->Condensation * CD->CalPrcpconc;
-                            }
-                            else
-                            {
-                                tmpconc[j] += CD->Precipitation.t_conc[j] *
-                                    CD->Vcele[i].q * adpstep * unit_c *
-                                    CD->Condensation;
-                            }
-                        }
-                        if (CD->Vcele[i].q < 0.0)
-                        {
-                            tmpconc[j] += CD->Vcele[i].t_conc[j] *
-                                CD->Vcele[i].q * stepsize * unit_c;
-                        }
-                    }
-                    tmpconc[j] = tmpconc[j] /
-                        (CD->Vcele[i].porosity * CD->Vcele[i].vol);
-                }
-                if (CD->Vcele[i].illness < 20)
-                    for (j = 0; j < CD->NumSpc; j++)
-                    {
 
-                        if ((tmpconc[j] < 0.0) &&
-                            (strcmp(CD->chemtype[j].ChemName, "'H+'")) &&
-                            (i < CD->NumEle * 2))
-                        {
-                            fprintf(stderr,
-                                "negative concentration change at species %s !\n",
-                                CD->chemtype[j].ChemName);
-                            fprintf(stderr, "Change from fluxes: %8.4g\t",
-                                dconc[i][j] * stepsize);
-                            fprintf(stderr, "Original mass: %8.4g\n",
-                                CD->Vcele[i].t_conc[j] *
-                                (CD->Vcele[i].porosity * CD->Vcele[i].vol_o));
-                            fprintf(stderr,
-                                "New mass: %8.4g\t New Volume: %8.4g\t Old Conc: %8.4g\t New Conc: %8.4g\t Timestep: %8.4g\n",
-                                dconc[i][j] * stepsize +
-                                CD->Vcele[i].t_conc[j] *
-                                (CD->Vcele[i].porosity * CD->Vcele[i].vol_o),
-                                CD->Vcele[i].porosity * CD->Vcele[i].height_t *
-                                CD->Vcele[i].area, CD->Vcele[i].t_conc[j],
-                                tmpconc[j], CD->Vcele[i].rt_step);
-                            ReportError(CD->Vcele[i], CD);
-                            CD->Vcele[i].illness++;
-                            abnormalflg = 1;
-                        }
-                        CD->Vcele[i].t_conc[j] = tmpconc[j];
+                    if ((tmpconc[j] < 0.0) &&
+                        (strcmp(CD->chemtype[j].ChemName, "'H+'")) &&
+                        (i < CD->NumEle * 2))
+                    {
+                        fprintf(stderr,
+                            "negative concentration change at species %s !\n",
+                            CD->chemtype[j].ChemName);
+                        fprintf(stderr, "Change from fluxes: %8.4g\t",
+                            dconc[i][j] * stepsize);
+                        fprintf(stderr, "Original mass: %8.4g\n",
+                            CD->Vcele[i].t_conc[j] *
+                            (CD->Vcele[i].porosity * CD->Vcele[i].vol_o));
+                        fprintf(stderr,
+                            "New mass: %8.4g\t New Volume: %8.4g\t Old Conc: %8.4g\t New Conc: %8.4g\t Timestep: %8.4g\n",
+                            dconc[i][j] * stepsize +
+                            CD->Vcele[i].t_conc[j] *
+                            (CD->Vcele[i].porosity * CD->Vcele[i].vol_o),
+                            CD->Vcele[i].porosity * CD->Vcele[i].height_t *
+                            CD->Vcele[i].area, CD->Vcele[i].t_conc[j],
+                            tmpconc[j], CD->Vcele[i].rt_step);
+                        ReportError(CD->Vcele[i], CD);
+                        CD->Vcele[i].illness++;
+                        abnormalflg = 1;
                     }
-            }
+                    CD->Vcele[i].t_conc[j] = tmpconc[j];
+                }
         }
     }
 
