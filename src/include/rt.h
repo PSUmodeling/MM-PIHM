@@ -23,7 +23,6 @@ typedef struct vol_conc_type
     int             illness;    /* black list */
     int             i_condition;    /* Store the index of initial/ boundary conditions that the cell belongs to */
     //int             reset_ref;  /* the reference cell this cell may reset to */
-    int             BC;         /* This cell is a boundary cell, do not update */
     int             NumStc;     /* Total Number of primary (total) species */
     int             NumSsc;     /* Total Number of secondary species */
     int             ErrDumper;  /* The index of the flux to be modified to keep mass conservation */

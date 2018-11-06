@@ -1397,12 +1397,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
      * That is, if PIHM is started from a hot start, rt is also
      * initialized with the hot data */
 
-    /* Initializing BC, fix uninitialised value(s) */
-    for (i = 0; i < CD->NumVol; i++)
-    {
-        CD->Vcele[i].BC = 0;
-    }
-
     /* Initializing volumetrics for groundwater (GW) cells */
     fprintf(stderr, "\n Initializing 'GW' cells, Vcele [i, 0 ~ nelem]... \n");
     for (i = 0; i < nelem; i++)
