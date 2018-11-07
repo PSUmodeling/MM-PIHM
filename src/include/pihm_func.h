@@ -30,8 +30,8 @@
 # define RIVBEDNH4(i)    i + 5 * nelem + 5 * nriver
 #endif
 
-/* RT flux index */
 #if defined(_RT_)
+/* RT flux index */
 # define RT_LAT_GW(i, j)            (i) * 3 + (j)
 # define RT_LAT_UNSAT(i, j)         (i) * 3 + (j) + 3 * nelem
 # define RT_RECHG_UNSAT(i)          (i) + 2 * 3 * nelem
@@ -42,6 +42,12 @@
 # define RT_RIGHT_AQIF2RIVER(i)     (i) + 2 * 3 * nelem + 2 * nelem + 3 * nriver
 # define RT_DOWN_RIVER2RIVER(i)     (i) + 2 * 3 * nelem + 2 * nelem + 4 * nriver
 # define RT_UP_RIVER2RIVER(i)       (i) + 2 * 3 * nelem + 2 * nelem + 5 * nriver
+
+/* RT volume index */
+# define RT_UNSAT(i)        ((i) + nelem)
+# define RT_GW(i)           (i)
+# define RT_RIVER(i)        ((i) + 2 * nelem)
+# define RT_RIVBED(i)       ((i) + 2 * nelem + nriver)
 #endif
 
 #define AvgElev(...)      _WsAreaElev(WS_ZMAX, __VA_ARGS__)

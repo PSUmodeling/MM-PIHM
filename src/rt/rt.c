@@ -1401,61 +1401,50 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     fprintf(stderr, "\n Initializing 'GW' cells, Vcele [i, 0 ~ nelem]... \n");
     for (i = 0; i < nelem; i++)
     {
-        CD->Vcele[i].height_v =
+        CD->Vcele[RT_GW(i)].height_v =
             pihm->elem[i].topo.zmax - pihm->elem[i].topo.zmin;
-        CD->Vcele[i].height_o = NV_Ith(CV_Y, GW(i));
-        CD->Vcele[i].height_t = NV_Ith(CV_Y, GW(i));
-        CD->Vcele[i].area = pihm->elem[i].topo.area;
-        CD->Vcele[i].porosity = pihm->elem[i].soil.smcmax;
+        CD->Vcele[RT_GW(i)].height_o = pihm->elem[i].ws.gw;
+        CD->Vcele[RT_GW(i)].height_t = pihm->elem[i].ws.gw;
+        CD->Vcele[RT_GW(i)].area = pihm->elem[i].topo.area;
+        CD->Vcele[RT_GW(i)].porosity = pihm->elem[i].soil.smcmax;
         /* Porosity in PIHM is Effective Porosity = Porosity - Residue Water Porosity */
         /* Porosity in RT is total Porosity, therefore, the water height in the
          * unsaturated zone needs be converted as well */
-        CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-        CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-        CD->Vcele[i].sat = 1.0;
-        CD->Vcele[i].sat_o = 1.0;
-        CD->Vcele[i].temperature = pihm->elem[i].attrib.meteo_type;
-
-        //CD->Vcele[i].reset_ref = 0;
-        //for (j = 0; j < 3; j++)
-        //{
-        //    if (condition_index[pihm->meshtbl.nabr[i][j]] ==
-        //        condition_index[i + 1])
-        //        CD->Vcele[i].reset_ref = pihm->meshtbl.nabr[i][j];
-        //}
+        CD->Vcele[RT_GW(i)].vol_o = pihm->elem[i].topo.area * CD->Vcele[RT_GW(i)].height_o;
+        CD->Vcele[RT_GW(i)].vol = pihm->elem[i].topo.area * CD->Vcele[RT_GW(i)].height_t;
+        CD->Vcele[RT_GW(i)].sat = 1.0;
+        CD->Vcele[RT_GW(i)].sat_o = 1.0;
+        CD->Vcele[RT_GW(i)].temperature = pihm->elem[i].attrib.meteo_type;
     }
 
     /* Initializing volumetrics for unsaturated cells */
     fprintf(stderr,
         "\n Initializing 'UNSAT' cells, Vcele [i, nelem ~ 2*nelem]... \n");
-    for (i = nelem; i < 2 * nelem; i++)
+    for (i = 0; i < nelem; i++)
     {
-        j = i - nelem;
-        CD->Vcele[i].height_v = CD->Vcele[i - nelem].height_v;
-        CD->Vcele[i].height_o = (NV_Ith(CV_Y, UNSAT(j)) *
-            (pihm->elem[j].soil.smcmax - pihm->elem[j].soil.smcmin) +
-            (CD->Vcele[i].height_v - CD->Vcele[i - nelem].height_o) *
-            pihm->elem[j].soil.smcmin) / (pihm->elem[j].soil.smcmax);
+        CD->Vcele[RT_UNSAT(i)].height_v =
+            pihm->elem[i].topo.zmax - pihm->elem[i].topo.zmin;
+        CD->Vcele[RT_UNSAT(i)].height_o = (pihm->elem[i].ws.unsat *
+            (pihm->elem[i].soil.smcmax - pihm->elem[i].soil.smcmin) +
+            (CD->Vcele[RT_UNSAT(i)].height_v - pihm->elem[i].ws.gw) *
+            pihm->elem[i].soil.smcmin) / (pihm->elem[i].soil.smcmax);
 
-        CD->Vcele[i].height_t = CD->Vcele[i].height_o;
-        CD->Vcele[i].area = CD->Vcele[i - nelem].area;
-        CD->Vcele[i].porosity = CD->Vcele[i - nelem].porosity;
+        CD->Vcele[RT_UNSAT(i)].height_t = CD->Vcele[RT_UNSAT(i)].height_o;
+        CD->Vcele[RT_UNSAT(i)].area = pihm->elem[i].topo.area;
+        CD->Vcele[RT_UNSAT(i)].porosity = pihm->elem[i].soil.smcmax;
         /* Unsaturated zone has the same porosity as saturated zone */
-        CD->Vcele[i].sat = CD->Vcele[i].height_o /
-            (CD->Vcele[i].height_v - CD->Vcele[i - nelem].height_o);
-        CD->Vcele[i].sat_o = CD->Vcele[i].sat;
-        CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-        CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-        CD->Vcele[i].temperature = CD->Vcele[i - nelem].temperature;
+        CD->Vcele[RT_UNSAT(i)].sat = CD->Vcele[RT_UNSAT(i)].height_o /
+            (CD->Vcele[RT_UNSAT(i)].height_v - pihm->elem[i].ws.gw);
+        CD->Vcele[RT_UNSAT(i)].sat_o = CD->Vcele[RT_UNSAT(i)].sat;
+        CD->Vcele[RT_UNSAT(i)].vol_o = pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].height_o;
+        CD->Vcele[RT_UNSAT(i)].vol = pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].height_t;
+        CD->Vcele[RT_UNSAT(i)].temperature = pihm->elem[i].attrib.meteo_type;
 
         /* The saturation of unsaturated zone is the Hu divided by height of
          * this cell */
-        if (CD->Vcele[i].sat > 1.0)
+        if (CD->Vcele[RT_UNSAT(i)].sat > 1.0)
             fprintf(stderr,
                 "Fatal Error, Unsaturated Zone Initialization For RT Failed!\n");
-        //CD->Vcele[i].reset_ref = i - nelem + 1;
-        /* Default reset reference of unsaturated cells are the groundwater
-         * cells underneath */
     }
 
     CD->CalPorosity = pihm->cal.porosity;
@@ -1469,44 +1458,33 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     /* Initializing volumetrics for river cells */
     fprintf(stderr,
         "\n Initializing 'RIV' cells, Vcele [i, 2*nelem ~ 2*nelem + nriver]... \n");
-    for (i = 2 * nelem; i < 2 * nelem + nriver; i++)
+    for (i = 0; i < nriver; i++)
     {
-        j = i - 2 * nelem;
-        CD->Vcele[i].height_v = NV_Ith(CV_Y, RIVSTG(j));
-        CD->Vcele[i].height_o = CD->Vcele[i].height_v;
-        CD->Vcele[i].height_t = CD->Vcele[i].height_o;
-        CD->Vcele[i].area = pihm->river[i - 2 * nelem].topo.area;
-        CD->Vcele[i].porosity = 1.0;
-        CD->Vcele[i].sat = 1.0;
-        CD->Vcele[i].sat_o = CD->Vcele[i].sat;
-        CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-        CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-        /* Default reset reference of river segments are the EBR underneath */
-        //CD->Vcele[i].reset_ref = i + nriver + 1;
+        CD->Vcele[RT_RIVER(i)].height_v = pihm->river[i].ws.stage;
+        CD->Vcele[RT_RIVER(i)].height_o = pihm->river[i].ws.stage;
+        CD->Vcele[RT_RIVER(i)].height_t = pihm->river[i].ws.stage;
+        CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
+        CD->Vcele[RT_RIVER(i)].porosity = 1.0;
+        CD->Vcele[RT_RIVER(i)].sat = 1.0;
+        CD->Vcele[RT_RIVER(i)].sat_o = 1.0;
+        CD->Vcele[RT_RIVER(i)].vol_o = pihm->river[i].topo.area * CD->Vcele[RT_RIVER(i)].height_o;
+        CD->Vcele[RT_RIVER(i)].vol = pihm->river[i].topo.area * CD->Vcele[RT_RIVER(i)].height_t;
     }
 
     /* Initializing volumetrics for river EBR cells */
     fprintf(stderr,
         "\n Initializing 'RIV EBR' cells, Vcele [i, 2*nelem + nriver ~ 2*nelem + 2*nriver]... \n");
-    for (i = 2 * nelem + nriver; i < 2 * nelem + 2 * nriver; i++)
+    for (i = 0; i < nriver; i++)
     {
-        j = i - 2 * nelem - nriver;
-        CD->Vcele[i].height_v = NV_Ith(CV_Y, RIVGW(j));;
-        CD->Vcele[i].height_o = CD->Vcele[i].height_v;
-        CD->Vcele[i].height_t = CD->Vcele[i].height_o;
-        CD->Vcele[i].area = pihm->river[i - 2 * nelem - nriver].topo.area;
-        CD->Vcele[i].porosity = 1.0;
-        CD->Vcele[i].sat = 1.0;
-        CD->Vcele[i].sat_o = CD->Vcele[i].sat;
-        CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-        CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-        //CD->Vcele[i].reset_ref = 0;
-        //if (condition_index[pihm->river[j].leftele] ==
-        //    condition_index[i + 1])
-        //    CD->Vcele[i].reset_ref = pihm->river[j].leftele;
-        //if (condition_index[pihm->river[j].rightele] ==
-        //    condition_index[i + 1])
-        //    CD->Vcele[i].reset_ref = pihm->river[j].rightele;
+        CD->Vcele[RT_RIVBED(i)].height_v = pihm->river[i].ws.gw;
+        CD->Vcele[RT_RIVBED(i)].height_o = pihm->river[i].ws.gw;
+        CD->Vcele[RT_RIVBED(i)].height_t = pihm->river[i].ws.gw;
+        CD->Vcele[RT_RIVBED(i)].area = pihm->river[i].topo.area;
+        CD->Vcele[RT_RIVBED(i)].porosity = 1.0;
+        CD->Vcele[RT_RIVBED(i)].sat = 1.0;
+        CD->Vcele[RT_RIVBED(i)].sat_o = 1.0;
+        CD->Vcele[RT_RIVBED(i)].vol_o = pihm->river[i].topo.area * CD->Vcele[RT_RIVBED(i)].height_o;
+        CD->Vcele[RT_RIVBED(i)].vol = pihm->river[i].topo.area * CD->Vcele[RT_RIVBED(i)].height_t;
     }
 
     tmpval[0] = 0.0;
@@ -1537,7 +1515,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[i].sat_o = 1.0;
         CD->Vcele[i].vol_o = 1.0;
         CD->Vcele[i].vol = 1.0;
-        //CD->Vcele[i].reset_ref = 2 * nelem + nriver + 1;
     }
 
     /* Initializing concentration distributions */
@@ -1898,10 +1875,10 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     /* Centered at unsat blocks */
     for (i = 0; i < nelem; i++)
     {
-        CD->Vcele[i + nelem].ErrDumper = RT_RECHG_UNSAT(i);
-        CD->Flux[RT_RECHG_UNSAT(i)].nodeup = i + nelem + 1;
+        CD->Vcele[RT_UNSAT(i)].ErrDumper = RT_RECHG_UNSAT(i);
+        CD->Flux[RT_RECHG_UNSAT(i)].nodeup = RT_UNSAT(i) + 1;
         CD->Flux[RT_RECHG_UNSAT(i)].node_trib = 0;
-        CD->Flux[RT_RECHG_UNSAT(i)].nodelo = i + 1;
+        CD->Flux[RT_RECHG_UNSAT(i)].nodelo = RT_GW(i) + 1;
 
         CD->Flux[RT_RECHG_UNSAT(i)].nodeuu = 0;
         CD->Flux[RT_RECHG_UNSAT(i)].nodell = 0;
@@ -1910,16 +1887,16 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                                      * 0 for lateral, 1 for vertical */
         CD->Flux[RT_RECHG_UNSAT(i)].flux_trib = 0.0;
         CD->Flux[RT_RECHG_UNSAT(i)].BC = DISPERSION;
-        CD->Flux[RT_RECHG_UNSAT(i)].distance = 0.1 * CD->Vcele[i + nelem].height_v;
+        CD->Flux[RT_RECHG_UNSAT(i)].distance = 0.1 * CD->Vcele[RT_UNSAT(i)].height_v;
     }
 
     /* Centered at gw blocks */
     for (i = 0; i < nelem; i++)
     {
-        CD->Vcele[i].ErrDumper = RT_RECHG_GW(i);
-        CD->Flux[RT_RECHG_GW(i)].nodeup = i + 1;
+        CD->Vcele[RT_GW(i)].ErrDumper = RT_RECHG_GW(i);
+        CD->Flux[RT_RECHG_GW(i)].nodeup = RT_GW(i) + 1;
         CD->Flux[RT_RECHG_GW(i)].node_trib = 0;
-        CD->Flux[RT_RECHG_GW(i)].nodelo = i + 1 + nelem;
+        CD->Flux[RT_RECHG_GW(i)].nodelo = RT_UNSAT(i) + 1;
         CD->Flux[RT_RECHG_GW(i)].nodeuu = 0;
         CD->Flux[RT_RECHG_GW(i)].nodell = 0;
         CD->Flux[RT_RECHG_GW(i)].flux_type = 1;  /* Vertical flow, but intended for recharge
@@ -1927,7 +1904,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                                      * 1 for vertical */
         CD->Flux[RT_RECHG_GW(i)].flux_trib = 0.0;
         CD->Flux[RT_RECHG_GW(i)].BC = DISPERSION;
-        CD->Flux[RT_RECHG_GW(i)].distance = 0.1 * CD->Vcele[i].height_v;
+        CD->Flux[RT_RECHG_GW(i)].distance = 0.1 * CD->Vcele[RT_GW(i)].height_v;
     }
     CD->NumDis = 2 * 3 * nelem + 2 * nelem;
 
