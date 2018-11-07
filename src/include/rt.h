@@ -58,7 +58,6 @@ typedef struct vol_conc_type
     double          sat_o;      /* Saturation of last time step */
     double          height_o;   /* height of volume, at previous time step */
     double          height_t;   /* height of volume, at current time step */
-    double          height_tl;  //
     double          height_int; /* temporary variable for intrapolation of gw height */
     double          height_sp;  /* slope of the height change during this period */
     double          height_v;   /* height of the total block, static */

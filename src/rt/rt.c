@@ -2284,9 +2284,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     /* Flux for GW lateral flow */
     for (i = 0; i < nelem; i++)
     {
-        CD->Vcele[i].height_tl = Y[i + 2 * nelem];
-        CD->Vcele[i + nelem].height_tl = Y[i + nelem];
-
         for (j = 0; j < 3; j++)
         {
             if (pihm->meshtbl.nabr[i][j] > 0)
@@ -2436,11 +2433,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         invavg = stepsize / (double)CD->AvgScl;
 
-        for (i = 0; i < 2 * CD->NumEle; i++)
-        {
-            CD->Vcele[i].height_tl = 0.0;
-        }
-
         for (k = 0; k < CD->NumFac; k++)
         {
             CD->Flux[k].velocity *= invavg;
@@ -2457,17 +2449,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             {
                 CD->Flux[k].velocity = 1.0E-10;
             }
-
-            CD->Vcele[CD->Flux[k].nodeup - 1].height_tl +=
-                CD->Flux[k].velocity * CD->Flux[k].distuu;
-        }
-
-#ifdef _OPENMP
-# pragma omp parallel for
-#endif
-        for (i = 0; i < 2 * CD->NumEle; i++)
-        {
-            CD->Vcele[i].height_tl = CD->Vcele[i].height_tl / 3.0;
         }
 
 #ifdef _OPENMP
@@ -2493,7 +2474,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         for (i = 0; i < nelem; i++)
         {
             CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_t = MAX(Y[i + 2 * nelem], 1.0E-5);
+            CD->Vcele[i].height_t = MAX(pihm->elem[i].ws.gw, 1.0E-5);
             CD->Vcele[i].height_int = CD->Vcele[i].height_t;
             CD->Vcele[i].height_sp =
                 (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
@@ -2511,11 +2492,17 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             j = i - nelem;
             CD->Vcele[i].height_o = CD->Vcele[i].height_t;
             CD->Vcele[i].height_t =
-                MAX(((Y[i] * (pihm->elem[j].soil.smcmax -
+                MAX(((pihm->elem[j].ws.unsat * (pihm->elem[j].soil.smcmax -
                 pihm->elem[j].soil.smcmin) +
                 (CD->Vcele[i].height_v - CD->Vcele[i - nelem].height_t) *
                 pihm->elem[j].soil.smcmin) / pihm->elem[j].soil.smcmax),
                 1.0E-5);
+            //CD->Vcele[i].height_t =
+            //    MAX(((Y[i] * (pihm->elem[j].soil.smcmax -
+            //    pihm->elem[j].soil.smcmin) +
+            //    (CD->Vcele[i].height_v - CD->Vcele[i - nelem].height_t) *
+            //    pihm->elem[j].soil.smcmin) / pihm->elem[j].soil.smcmax),
+            //    1.0E-5);
             CD->Vcele[i].height_int = CD->Vcele[i].height_t;
             CD->Vcele[i].height_sp =
                 (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
@@ -2835,11 +2822,6 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
             if (Cfile[i] == NULL)
                 fprintf(stderr, " Output BTC not found \n");
         }
-        cfn[3 + CD->NumBTC] =
-            (char *)malloc((strlen(outputdir) + strlen(filename) +
-                100) * sizeof(char));
-        sprintf(cfn[3 + CD->NumBTC], "%sRT_%s.vol", outputdir, filename);
-        Cfile[3 + CD->NumBTC] = fopen(cfn[3 + CD->NumBTC], "a+");
 
         fprintf(Cfile[0], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\n",
             timestamp->tm_year + 1900, timestamp->tm_mon + 1,
@@ -2938,16 +2920,6 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
         }
         fprintf(Cfile[2], "\n");
 
-
-        fprintf(Cfile[3 + CD->NumBTC], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",
-            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-        for (j = 0; j < 2 * CD->NumEle; j++)
-        {
-            fprintf(Cfile[3 + CD->NumBTC], "%6.4f\t", CD->Vcele[j].height_tl);
-        }
-        fprintf(Cfile[3 + CD->NumBTC], "\n");
-
         for (k = 3; k < 3 + CD->NumBTC; k++)
         {
             if (t == CD->StartTime + CD->OutItv * 60)
@@ -2996,7 +2968,7 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
             fprintf(Cfile[k], "\n");
         }
 
-        for (i = 0; i <= 3 + CD->NumBTC; i++)
+        for (i = 0; i < 3 + CD->NumBTC; i++)
         {
             free(cfn[i]);
             fclose(Cfile[i]);
