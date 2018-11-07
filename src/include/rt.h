@@ -82,9 +82,6 @@ typedef struct face_type
     int             node_trib;  // # node of tributary; > 0 indicates a tributary inflow, 01.14 by Wei Zhi
     int             BC;         /* This face is a boundary face, do not do dispersion and diffusion */
     int             flux_type;  /* Type of fluxes, 1 for vertical and 0 for horizontal, used for calibration */
-    //  int pair;              /* The index of flux that pairing this flux */
-    double          distuu;     /* distance to upstream from up */
-    double          distll;     /* distance to upstream from lo */
     double          distance;   /* distance from centroid of first node to second node, in meter */
     double          velocity;   /* linear velocity of flux at this face, in m/d */
     double          flux;       /* flux at surface, in cubic m per day  */

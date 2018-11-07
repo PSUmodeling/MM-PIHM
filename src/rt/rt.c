@@ -1641,30 +1641,10 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_GW(i, j)].BC = DISPERSION;
 
-                CD->Flux[RT_LAT_GW(i, j)].distuu = (CD->Flux[RT_LAT_GW(i, j)].nodeuu > 0) ?
-                    sqrt(pow(pihm->elem[i].topo.x -
-                    pihm->elem[CD->Flux[RT_LAT_GW(i, j)].nodeuu - 1].topo.x, 2) +
-                    pow(pihm->elem[i].topo.y -
-                    pihm->elem[CD->Flux[RT_LAT_GW(i, j)].nodeuu - 1].topo.y, 2)) : 0.0;
-                CD->Flux[RT_LAT_GW(i, j)].distll = (CD->Flux[RT_LAT_GW(i, j)].nodell > 0) ?
-                    sqrt(pow(pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x -
-                    pihm->elem[CD->Flux[RT_LAT_GW(i, j)].nodell - 1].topo.x, 2) +
-                    pow(pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y -
-                    pihm->elem[CD->Flux[RT_LAT_GW(i, j)].nodell - 1].topo.y, 2)) : 0.0;
-
                 CD->Flux[RT_LAT_GW(i, j)].distance = sqrt(pow(pihm->elem[i].topo.x -
                         pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x, 2) +
                         pow(pihm->elem[i].topo.y -
                         pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y, 2));
-
-                /* x component of the normal vector flux direction */
-                CD->Flux[RT_LAT_GW(i, j)].distuu =
-                    (pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x -
-                    pihm->elem[i].topo.x) / CD->Flux[RT_LAT_GW(i, j)].distance;
-                /* y component of the normal vector flux direction */
-                CD->Flux[RT_LAT_GW(i, j)].distll =
-                    (pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y -
-                    pihm->elem[i].topo.y) / CD->Flux[RT_LAT_GW(i, j)].distance;
 
                 index_0 = pihm->elem[i].node[(j + 1) % 3] - 1;
                 index_1 = pihm->elem[i].node[(j + 2) % 3] - 1;
@@ -1751,8 +1731,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_GW(i, j)].BC = NO_FLOW;
                 CD->Flux[RT_LAT_GW(i, j)].distance = 0.0;
-                CD->Flux[RT_LAT_GW(i, j)].distuu = 0.0;
-                CD->Flux[RT_LAT_GW(i, j)].distll = 0.0;
             }
         }
     }
@@ -1777,31 +1755,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_UNSAT(i, j)].flux_type = 0;  /* Unsat lateral flux, flux = 0.0 */
                 CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].BC = DISPERSION;
-
-                if (CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu - nelem > 0)
-                {
-                    CD->Flux[RT_LAT_UNSAT(i, j)].distuu = sqrt(pow(pihm->elem[i].topo.x -
-                        pihm->elem[CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu - nelem - 1].topo.x, 2) +
-                        pow(pihm->elem[i].topo.y -
-                        pihm->elem[CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu - nelem - 1].topo.y, 2));
-                }
-                else
-                {
-                    CD->Flux[RT_LAT_UNSAT(i, j)].distuu = 0.0;
-                }
-
-                if (CD->Flux[RT_LAT_UNSAT(i, j)].nodell - nelem > 0)
-                {
-                    CD->Flux[RT_LAT_UNSAT(i, j)].distll = sqrt(
-                        pow(pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x -
-                        pihm->elem[CD->Flux[RT_LAT_UNSAT(i, j)].nodell - nelem - 1].topo.x, 2) +
-                        pow(pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y -
-                        pihm->elem[CD->Flux[RT_LAT_UNSAT(i, j)].nodell - nelem - 1].topo.y, 2));
-                }
-                else
-                {
-                    CD->Flux[RT_LAT_UNSAT(i, j)].distll = 0.0;
-                }
 
                 CD->Flux[RT_LAT_UNSAT(i, j)].distance = sqrt(pow(pihm->elem[i].topo.x -
                         pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x, 2) +
@@ -1862,8 +1815,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].BC = NO_FLOW;
                 CD->Flux[RT_LAT_UNSAT(i, j)].distance = 0.0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].distuu = 0.0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].distll = 0.0;
             }
         }
     }
