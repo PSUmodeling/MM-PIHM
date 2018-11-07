@@ -1641,7 +1641,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         "\n Configuring the lateral connectivity of GW grid blocks... \n");
 
     CD->Flux = (face *) malloc(CD->NumFac * sizeof(face));
-    k = 0;
 
     double          dist1, dist2, para_a, para_b, para_c, x_0, x_1, y_0, y_1;
     int             index_0, index_1, rivi;
@@ -1653,42 +1652,42 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
             if (pihm->meshtbl.nabr[i][j] > 0)
             {
                 /* Node indicates the index of grid blocks, not nodes at corners */
-                CD->Flux[k].nodeup = i + 1;
-                CD->Flux[k].node_trib = 0;
-                CD->Flux[k].nodelo = pihm->meshtbl.nabr[i][j];
-                CD->Flux[k].nodeuu = upstream(pihm->elem[i],
+                CD->Flux[RT_LAT_GW(i, j)].nodeup = i + 1;
+                CD->Flux[RT_LAT_GW(i, j)].node_trib = 0;
+                CD->Flux[RT_LAT_GW(i, j)].nodelo = pihm->meshtbl.nabr[i][j];
+                CD->Flux[RT_LAT_GW(i, j)].nodeuu = upstream(pihm->elem[i],
                     pihm->elem[pihm->meshtbl.nabr[i][j] - 1], pihm);
-                CD->Flux[k].nodell =
+                CD->Flux[RT_LAT_GW(i, j)].nodell =
                     upstream(pihm->elem[pihm->meshtbl.nabr[i][j] - 1],
                     pihm->elem[i], pihm);
-                CD->Flux[k].flux_type = 0;
-                CD->Flux[k].flux_trib = 0.0;
-                CD->Flux[k].BC = DISPERSION;
+                CD->Flux[RT_LAT_GW(i, j)].flux_type = 0;
+                CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
+                CD->Flux[RT_LAT_GW(i, j)].BC = DISPERSION;
 
-                CD->Flux[k].distuu = (CD->Flux[k].nodeuu > 0) ?
+                CD->Flux[RT_LAT_GW(i, j)].distuu = (CD->Flux[RT_LAT_GW(i, j)].nodeuu > 0) ?
                     sqrt(pow(pihm->elem[i].topo.x -
-                    pihm->elem[CD->Flux[k].nodeuu - 1].topo.x, 2) +
+                    pihm->elem[CD->Flux[RT_LAT_GW(i, j)].nodeuu - 1].topo.x, 2) +
                     pow(pihm->elem[i].topo.y -
-                    pihm->elem[CD->Flux[k].nodeuu - 1].topo.y, 2)) : 0.0;
-                CD->Flux[k].distll = (CD->Flux[k].nodell > 0) ?
+                    pihm->elem[CD->Flux[RT_LAT_GW(i, j)].nodeuu - 1].topo.y, 2)) : 0.0;
+                CD->Flux[RT_LAT_GW(i, j)].distll = (CD->Flux[RT_LAT_GW(i, j)].nodell > 0) ?
                     sqrt(pow(pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x -
-                    pihm->elem[CD->Flux[k].nodell - 1].topo.x, 2) +
+                    pihm->elem[CD->Flux[RT_LAT_GW(i, j)].nodell - 1].topo.x, 2) +
                     pow(pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y -
-                    pihm->elem[CD->Flux[k].nodell - 1].topo.y, 2)) : 0.0;
+                    pihm->elem[CD->Flux[RT_LAT_GW(i, j)].nodell - 1].topo.y, 2)) : 0.0;
 
-                CD->Flux[k].distance = sqrt(pow(pihm->elem[i].topo.x -
+                CD->Flux[RT_LAT_GW(i, j)].distance = sqrt(pow(pihm->elem[i].topo.x -
                         pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x, 2) +
                         pow(pihm->elem[i].topo.y -
                         pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y, 2));
 
                 /* x component of the normal vector flux direction */
-                CD->Flux[k].distuu =
+                CD->Flux[RT_LAT_GW(i, j)].distuu =
                     (pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x -
-                    pihm->elem[i].topo.x) / CD->Flux[k].distance;
+                    pihm->elem[i].topo.x) / CD->Flux[RT_LAT_GW(i, j)].distance;
                 /* y component of the normal vector flux direction */
-                CD->Flux[k].distll =
+                CD->Flux[RT_LAT_GW(i, j)].distll =
                     (pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y -
-                    pihm->elem[i].topo.y) / CD->Flux[k].distance;
+                    pihm->elem[i].topo.y) / CD->Flux[RT_LAT_GW(i, j)].distance;
 
                 index_0 = pihm->elem[i].node[(j + 1) % 3] - 1;
                 index_1 = pihm->elem[i].node[(j + 2) % 3] - 1;
@@ -1716,12 +1715,12 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                     para_b * pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y +
                     para_c) / sqrt(para_a * para_a + para_b * para_b);
 
-                if ((CD->Flux[k].distance < dist1) ||
-                    (CD->Flux[k].distance < dist2))
+                if ((CD->Flux[RT_LAT_GW(i, j)].distance < dist1) ||
+                    (CD->Flux[RT_LAT_GW(i, j)].distance < dist2))
                 {
                     fprintf(stderr,
                         "\n Checking the distance calculation wrong, total is %f, from ele to edge is %f, from edge to neighbor is %f\n",
-                        CD->Flux[k].distance, dist1, dist2);
+                        CD->Flux[RT_LAT_GW(i, j)].distance, dist1, dist2);
                     fprintf(stderr,
                         " Ele coordinates, x: %f, y: %f\n Node_1 coordinates, x: %f, y: %f\n Node_2 coordinates, x: %f, y: %f\n Nabr x:%f, y:%f\n",
                         pihm->elem[i].topo.x, pihm->elem[i].topo.y,
@@ -1741,44 +1740,43 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 }
                 else
                 {
-                    CD->Flux[k].distance = dist1;
+                    CD->Flux[RT_LAT_GW(i, j)].distance = dist1;
                 }
 
                 for (rivi = 0; rivi < nriver; rivi++)
                 {
-                    if ((CD->Flux[k].nodeup == pihm->river[rivi].leftele)
-                        && (CD->Flux[k].nodelo == pihm->river[rivi].rightele))
+                    if ((CD->Flux[RT_LAT_GW(i, j)].nodeup == pihm->river[rivi].leftele)
+                        && (CD->Flux[RT_LAT_GW(i, j)].nodelo == pihm->river[rivi].rightele))
                     {
-                        CD->Flux[k].nodelo = 2 * nelem + nriver + rivi + 1;
-                        CD->Flux[k].nodeuu = 0;
-                        CD->Flux[k].nodell = 0;
-                        CD->Flux[k].distance = dist1;
+                        CD->Flux[RT_LAT_GW(i, j)].nodelo = 2 * nelem + nriver + rivi + 1;
+                        CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
+                        CD->Flux[RT_LAT_GW(i, j)].nodell = 0;
+                        CD->Flux[RT_LAT_GW(i, j)].distance = dist1;
                     }
-                    if ((CD->Flux[k].nodeup == pihm->river[rivi].rightele)
-                        && (CD->Flux[k].nodelo == pihm->river[rivi].leftele))
+                    if ((CD->Flux[RT_LAT_GW(i, j)].nodeup == pihm->river[rivi].rightele)
+                        && (CD->Flux[RT_LAT_GW(i, j)].nodelo == pihm->river[rivi].leftele))
                     {
-                        CD->Flux[k].nodelo = 2 * nelem + nriver + rivi + 1;
-                        CD->Flux[k].nodeuu = 0;
-                        CD->Flux[k].nodell = 0;
-                        CD->Flux[k].distance = dist1;
+                        CD->Flux[RT_LAT_GW(i, j)].nodelo = 2 * nelem + nriver + rivi + 1;
+                        CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
+                        CD->Flux[RT_LAT_GW(i, j)].nodell = 0;
+                        CD->Flux[RT_LAT_GW(i, j)].distance = dist1;
                     }
                 }
             }
             else
             {
-                CD->Flux[k].nodeup = i + 1;
-                CD->Flux[k].node_trib = 0;
-                CD->Flux[k].nodelo = 0;
-                CD->Flux[k].nodeuu = 0;
-                CD->Flux[k].nodell = 0;
-                CD->Flux[k].flux_type = 1;
-                CD->Flux[k].flux_trib = 0.0;
-                CD->Flux[k].BC = NO_FLOW;
-                CD->Flux[k].distance = 0.0;
-                CD->Flux[k].distuu = 0.0;
-                CD->Flux[k].distll = 0.0;
+                CD->Flux[RT_LAT_GW(i, j)].nodeup = i + 1;
+                CD->Flux[RT_LAT_GW(i, j)].node_trib = 0;
+                CD->Flux[RT_LAT_GW(i, j)].nodelo = 0;
+                CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
+                CD->Flux[RT_LAT_GW(i, j)].nodell = 0;
+                CD->Flux[RT_LAT_GW(i, j)].flux_type = 1;
+                CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
+                CD->Flux[RT_LAT_GW(i, j)].BC = NO_FLOW;
+                CD->Flux[RT_LAT_GW(i, j)].distance = 0.0;
+                CD->Flux[RT_LAT_GW(i, j)].distuu = 0.0;
+                CD->Flux[RT_LAT_GW(i, j)].distll = 0.0;
             }
-            k++;
         }
     }
 
@@ -1790,45 +1788,45 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
             if (pihm->meshtbl.nabr[i][j] > 0)
             {
                 /* Node indicates the index of grid blocks, not nodes at corners */
-                CD->Flux[k].nodeup = i + 1 + nelem;
-                CD->Flux[k].node_trib = 0;
-                CD->Flux[k].nodelo = pihm->meshtbl.nabr[i][j] + nelem;
-                CD->Flux[k].nodeuu = upstream(pihm->elem[i],
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodeup = i + 1 + nelem;
+                CD->Flux[RT_LAT_UNSAT(i, j)].node_trib = 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = pihm->meshtbl.nabr[i][j] + nelem;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = upstream(pihm->elem[i],
                     pihm->elem[pihm->meshtbl.nabr[i][j] - 1], pihm) +
                     nelem;  /* Note the "+nelem" */
-                CD->Flux[k].nodell =
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodell =
                     upstream(pihm->elem[pihm->meshtbl.nabr[i][j] - 1],
                     pihm->elem[i], pihm) + nelem;
-                CD->Flux[k].flux_type = 0;  /* Unsat lateral flux, flux = 0.0 */
-                CD->Flux[k].flux_trib = 0.0;
-                CD->Flux[k].BC = DISPERSION;
+                CD->Flux[RT_LAT_UNSAT(i, j)].flux_type = 0;  /* Unsat lateral flux, flux = 0.0 */
+                CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].BC = DISPERSION;
 
-                if (CD->Flux[k].nodeuu - nelem > 0)
+                if (CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu - nelem > 0)
                 {
-                    CD->Flux[k].distuu = sqrt(pow(pihm->elem[i].topo.x -
-                        pihm->elem[CD->Flux[k].nodeuu - nelem - 1].topo.x, 2) +
+                    CD->Flux[RT_LAT_UNSAT(i, j)].distuu = sqrt(pow(pihm->elem[i].topo.x -
+                        pihm->elem[CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu - nelem - 1].topo.x, 2) +
                         pow(pihm->elem[i].topo.y -
-                        pihm->elem[CD->Flux[k].nodeuu - nelem - 1].topo.y, 2));
+                        pihm->elem[CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu - nelem - 1].topo.y, 2));
                 }
                 else
                 {
-                    CD->Flux[k].distuu = 0.0;
+                    CD->Flux[RT_LAT_UNSAT(i, j)].distuu = 0.0;
                 }
 
-                if (CD->Flux[k].nodell - nelem > 0)
+                if (CD->Flux[RT_LAT_UNSAT(i, j)].nodell - nelem > 0)
                 {
-                    CD->Flux[k].distll = sqrt(
+                    CD->Flux[RT_LAT_UNSAT(i, j)].distll = sqrt(
                         pow(pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x -
-                        pihm->elem[CD->Flux[k].nodell - nelem - 1].topo.x, 2) +
+                        pihm->elem[CD->Flux[RT_LAT_UNSAT(i, j)].nodell - nelem - 1].topo.x, 2) +
                         pow(pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y -
-                        pihm->elem[CD->Flux[k].nodell - nelem - 1].topo.y, 2));
+                        pihm->elem[CD->Flux[RT_LAT_UNSAT(i, j)].nodell - nelem - 1].topo.y, 2));
                 }
                 else
                 {
-                    CD->Flux[k].distll = 0.0;
+                    CD->Flux[RT_LAT_UNSAT(i, j)].distll = 0.0;
                 }
 
-                CD->Flux[k].distance = sqrt(pow(pihm->elem[i].topo.x -
+                CD->Flux[RT_LAT_UNSAT(i, j)].distance = sqrt(pow(pihm->elem[i].topo.x -
                         pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x, 2) +
                         pow(pihm->elem[i].topo.y -
                         pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y, 2));
@@ -1851,46 +1849,45 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                     para_c) /
                     sqrt(para_a * para_a + para_b * para_b);
 
-                CD->Flux[k].distance = dist1;
+                CD->Flux[RT_LAT_UNSAT(i, j)].distance = dist1;
                 for (rivi = 0; rivi < nriver; rivi++)
                 {
-                    if ((CD->Flux[k].nodeup - nelem ==
+                    if ((CD->Flux[RT_LAT_UNSAT(i, j)].nodeup - nelem ==
                             pihm->river[rivi].leftele) &&
-                        (CD->Flux[k].nodelo - nelem ==
+                        (CD->Flux[RT_LAT_UNSAT(i, j)].nodelo - nelem ==
                             pihm->river[rivi].rightele))
                     {
-                        CD->Flux[k].nodelo = 2 * nelem + nriver + rivi + 1;
-                        CD->Flux[k].nodeuu = 0;
-                        CD->Flux[k].nodell = 0;
-                        CD->Flux[k].distance = dist1;
+                        CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = 2 * nelem + nriver + rivi + 1;
+                        CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = 0;
+                        CD->Flux[RT_LAT_UNSAT(i, j)].nodell = 0;
+                        CD->Flux[RT_LAT_UNSAT(i, j)].distance = dist1;
                     }
-                    if ((CD->Flux[k].nodeup - nelem ==
+                    if ((CD->Flux[RT_LAT_UNSAT(i, j)].nodeup - nelem ==
                             pihm->river[rivi].rightele) &&
-                        (CD->Flux[k].nodelo - nelem ==
+                        (CD->Flux[RT_LAT_UNSAT(i, j)].nodelo - nelem ==
                             pihm->river[rivi].leftele))
                     {
-                        CD->Flux[k].nodelo = 2 * nelem + nriver + rivi + 1;
-                        CD->Flux[k].nodeuu = 0;
-                        CD->Flux[k].nodell = 0;
-                        CD->Flux[k].distance = dist1;
+                        CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = 2 * nelem + nriver + rivi + 1;
+                        CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = 0;
+                        CD->Flux[RT_LAT_UNSAT(i, j)].nodell = 0;
+                        CD->Flux[RT_LAT_UNSAT(i, j)].distance = dist1;
                     }
                 }
             }
             else
             {
-                CD->Flux[k].nodeup = i + 1 + nelem;
-                CD->Flux[k].node_trib = 0;
-                CD->Flux[k].nodelo = 0;
-                CD->Flux[k].nodeuu = 0;
-                CD->Flux[k].nodell = 0;
-                CD->Flux[k].flux_type = 1;
-                CD->Flux[k].flux_trib = 0.0;
-                CD->Flux[k].BC = NO_FLOW;
-                CD->Flux[k].distance = 0.0;
-                CD->Flux[k].distuu = 0.0;
-                CD->Flux[k].distll = 0.0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodeup = i + 1 + nelem;
+                CD->Flux[RT_LAT_UNSAT(i, j)].node_trib = 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodell = 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].flux_type = 1;
+                CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].BC = NO_FLOW;
+                CD->Flux[RT_LAT_UNSAT(i, j)].distance = 0.0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].distuu = 0.0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].distll = 0.0;
             }
-            k++;
         }
     }
 
@@ -1899,42 +1896,40 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         "\n Configuring the vertical connectivity of UNSAT - GW grid blocks... \n");
 
     /* Centered at unsat blocks */
-    for (i = nelem; i < 2 * nelem; i++)
+    for (i = 0; i < nelem; i++)
     {
-        CD->Vcele[i].ErrDumper = k;
-        CD->Flux[k].nodeup = i + 1;
-        CD->Flux[k].node_trib = 0;
-        CD->Flux[k].nodelo = i + 1 - nelem;
+        CD->Vcele[i + nelem].ErrDumper = RT_RECHG_UNSAT(i);
+        CD->Flux[RT_RECHG_UNSAT(i)].nodeup = i + nelem + 1;
+        CD->Flux[RT_RECHG_UNSAT(i)].node_trib = 0;
+        CD->Flux[RT_RECHG_UNSAT(i)].nodelo = i + 1;
 
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;  /* Although vertical flow, but intended for
+        CD->Flux[RT_RECHG_UNSAT(i)].nodeuu = 0;
+        CD->Flux[RT_RECHG_UNSAT(i)].nodell = 0;
+        CD->Flux[RT_RECHG_UNSAT(i)].flux_type = 0;  /* Although vertical flow, but intended for
                                      * infiltration correction in Monitor ( );
                                      * 0 for lateral, 1 for vertical */
-        CD->Flux[k].flux_trib = 0.0;
-        CD->Flux[k].BC = DISPERSION;
-        CD->Flux[k].distance = 0.1 * CD->Vcele[i].height_v;
-        k++;
+        CD->Flux[RT_RECHG_UNSAT(i)].flux_trib = 0.0;
+        CD->Flux[RT_RECHG_UNSAT(i)].BC = DISPERSION;
+        CD->Flux[RT_RECHG_UNSAT(i)].distance = 0.1 * CD->Vcele[i + nelem].height_v;
     }
 
     /* Centered at gw blocks */
     for (i = 0; i < nelem; i++)
     {
-        CD->Vcele[i].ErrDumper = k;
-        CD->Flux[k].nodeup = i + 1;
-        CD->Flux[k].node_trib = 0;
-        CD->Flux[k].nodelo = i + 1 + nelem;
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 1;  /* Vertical flow, but intended for recharge
+        CD->Vcele[i].ErrDumper = RT_RECHG_GW(i);
+        CD->Flux[RT_RECHG_GW(i)].nodeup = i + 1;
+        CD->Flux[RT_RECHG_GW(i)].node_trib = 0;
+        CD->Flux[RT_RECHG_GW(i)].nodelo = i + 1 + nelem;
+        CD->Flux[RT_RECHG_GW(i)].nodeuu = 0;
+        CD->Flux[RT_RECHG_GW(i)].nodell = 0;
+        CD->Flux[RT_RECHG_GW(i)].flux_type = 1;  /* Vertical flow, but intended for recharge
                                      * correction in Monitor(); 0 for lateral,
                                      * 1 for vertical */
-        CD->Flux[k].flux_trib = 0.0;
-        CD->Flux[k].BC = DISPERSION;
-        CD->Flux[k].distance = 0.1 * CD->Vcele[i].height_v;
-        k++;
+        CD->Flux[RT_RECHG_GW(i)].flux_trib = 0.0;
+        CD->Flux[RT_RECHG_GW(i)].BC = DISPERSION;
+        CD->Flux[RT_RECHG_GW(i)].distance = 0.1 * CD->Vcele[i].height_v;
     }
-    CD->NumDis = k;
+    CD->NumDis = 2 * 3 * nelem + 2 * nelem;
 
     /* Configuring the connectivity of RIVER and EBR blocks */
     fprintf(stderr,
@@ -1944,75 +1939,71 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     /* River to left OFL 2 */
     for (i = 0; i < nriver; i++)
     {
-        CD->Flux[k].nodeup = i + 2 * nelem + 1 + nriver;
-        CD->Flux[k].node_trib = 0;
-        CD->Flux[k].nodelo = CD->NumVol;
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = NO_DISP;
-        CD->Flux[k].flux = 0.0;
-        CD->Flux[k].flux_trib = 0.0;
-        CD->Flux[k].distance = 1.0;
-        CD->Flux[k].s_area = 0.0;
-        k++;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodeup = i + 2 * nelem + 1 + nriver;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].node_trib = 0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodelo = CD->NumVol;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodeuu = 0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodell = 0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].flux_type = 0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].BC = NO_DISP;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].flux = 0.0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].flux_trib = 0.0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].distance = 1.0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].s_area = 0.0;
     }
 
     /* Between River and Right */
     /* River to right OFL 3 */
     for (i = 0; i < nriver; i++)
     {
-        CD->Flux[k].nodeup = i + 2 * nelem + 1 + nriver;
-        CD->Flux[k].node_trib = 0;
-        CD->Flux[k].nodelo = CD->NumVol;
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = NO_DISP;
-        CD->Flux[k].flux = 0.0;
-        CD->Flux[k].flux_trib = 0.0;
-        CD->Flux[k].distance = 1.0;
-        CD->Flux[k].s_area = 0.0;
-        k++;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodeup = i + 2 * nelem + 1 + nriver;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].node_trib = 0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodelo = CD->NumVol;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodeuu = 0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodell = 0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux_type = 0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].BC = NO_DISP;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux = 0.0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux_trib = 0.0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].distance = 1.0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].s_area = 0.0;
     }
 
     /* Between Left and EBR */
     /* EBR to left  7 + 4 */
     for (i = 0; i < nriver; i++)
     {
-        CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
-        CD->Flux[k].node_trib = 0;
-        CD->Flux[k].nodelo = pihm->river[i].leftele;
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = DISPERSION;
-        CD->Flux[k].flux = 0.0;
-        CD->Flux[k].flux_trib = 0.0;
-        CD->Flux[k].distance = 1.0;
-        CD->Flux[k].s_area = pihm->river[i].shp.length *
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodeup = i + 2 * nelem + nriver + 1;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].node_trib = 0;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodelo = pihm->river[i].leftele;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodeuu = 0;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodell = 0;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux_type = 0;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].BC = DISPERSION;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux = 0.0;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux_trib = 0.0;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].distance = 1.0;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].s_area = pihm->river[i].shp.length *
             CD->Vcele[pihm->river[i].leftele - 1].height_v;
-        k++;
     }
 
     /* Between Right and EBR */
     /* EBR to right 8 + 5 */
     for (i = 0; i < nriver; i++)
     {
-        CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
-        CD->Flux[k].node_trib = 0;
-        CD->Flux[k].nodelo = pihm->river[i].rightele;
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = DISPERSION;
-        CD->Flux[k].flux = 0.0;
-        CD->Flux[k].flux_trib = 0.0;
-        CD->Flux[k].distance = 1.0;
-        CD->Flux[k].s_area =
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodeup = i + 2 * nelem + nriver + 1;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].node_trib = 0;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodelo = pihm->river[i].rightele;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodeuu = 0;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodell = 0;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux_type = 0;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].BC = DISPERSION;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux = 0.0;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux_trib = 0.0;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].distance = 1.0;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].s_area =
             pihm->river[i].shp.length *
             CD->Vcele[pihm->river[i].rightele - 1].height_v;
-        k++;
     }
 
     /* Between EBR */
@@ -2021,24 +2012,23 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     {
         if (pihm->river[i].down < 0)
         {
-            CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
-            CD->Flux[k].nodelo = CD->NumVol;
+            CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodeup = i + 2 * nelem + nriver + 1;
+            CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodelo = CD->NumVol;
         }
         else
         {
-            CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
-            CD->Flux[k].nodelo = 2 * nelem + nriver + pihm->river[i].down;
+            CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodeup = i + 2 * nelem + nriver + 1;
+            CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodelo = 2 * nelem + nriver + pihm->river[i].down;
         }
-        CD->Flux[k].node_trib = 0;
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = NO_DISP;
-        CD->Flux[k].flux = 0.0;
-        CD->Flux[k].flux_trib = 0.0;
-        CD->Flux[k].distance = 1.0;
-        CD->Flux[k].s_area = 0.0;
-        k++;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].node_trib = 0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodeuu = 0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodell = 0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux_type = 0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].BC = NO_DISP;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux = 0.0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux_trib = 0.0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].distance = 1.0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].s_area = 0.0;
     }
 
     /* From upstream EBR 10 */
@@ -2046,31 +2036,30 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     {
         if (pihm->river[i].up[0] < 0)   /* No upstream */
         {
-            CD->Flux[k].nodelo = CD->NumVol;
-            CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
+            CD->Flux[RT_UP_RIVER2RIVER(i)].nodelo = CD->NumVol;
+            CD->Flux[RT_UP_RIVER2RIVER(i)].nodeup = i + 2 * nelem + nriver + 1;
         }
         else
         {
-            CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
-            CD->Flux[k].nodelo = 2 * nelem + nriver + pihm->river[i].up[0];
+            CD->Flux[RT_UP_RIVER2RIVER(i)].nodeup = i + 2 * nelem + nriver + 1;
+            CD->Flux[RT_UP_RIVER2RIVER(i)].nodelo = 2 * nelem + nriver + pihm->river[i].up[0];
         }
         if (pihm->river[i].up[1] < 0)   /* Only one upstream segment */
         {
-            CD->Flux[k].node_trib = pihm->river[i].up[1];
+            CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib = pihm->river[i].up[1];
         }
         else
         {
-            CD->Flux[k].node_trib = 2 * nelem + nriver + pihm->river[i].up[1];
+            CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib = 2 * nelem + nriver + pihm->river[i].up[1];
         }
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = NO_DISP;
-        CD->Flux[k].flux = 0.0;
-        CD->Flux[k].flux_trib = 0.0;
-        CD->Flux[k].distance = 1.0;
-        CD->Flux[k].s_area = 0.0;
-        k++;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].nodeuu = 0;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].nodell = 0;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].flux_type = 0;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].BC = NO_DISP;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].flux = 0.0;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].flux_trib = 0.0;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].distance = 1.0;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].s_area = 0.0;
     }
 
     for (k = 0; k < CD->NumFac; k++)
@@ -2326,11 +2315,10 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             if (pihm->meshtbl.nabr[i][j] > 0)
             {
                 /* Node indicates the index of grid blocks, not nodes at corners */
-                CD->Flux[k].flux += 1.0 * pihm->elem[i].wf.subsurf[j] * 86400;  /* Test lateral dilution */
-                CD->Flux[k].s_area += pihm->elem[i].wf.subareaRT[j];
-                CD->Flux[k].velocity += pihm->elem[i].wf.subveloRT[j] * 86400;
+                CD->Flux[RT_LAT_GW(i, j)].flux += 1.0 * pihm->elem[i].wf.subsurf[j] * 86400;  /* Test lateral dilution */
+                CD->Flux[RT_LAT_GW(i, j)].s_area += pihm->elem[i].wf.subareaRT[j];
+                CD->Flux[RT_LAT_GW(i, j)].velocity += pihm->elem[i].wf.subveloRT[j] * 86400;
             }
-            k++;
         }
     }
 
@@ -2341,31 +2329,28 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         {
             if (pihm->meshtbl.nabr[i][j] > 0)
             {
-                CD->Flux[k].flux = 0.0;
-                CD->Flux[k].s_area = 1.0;
-                CD->Flux[k].velocity = 0.0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].flux = 0.0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].s_area = 1.0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].velocity = 0.0;
             }
-            k++;
         }
     }
 
     /* Flux for UNSAT - GW vertical flow */
-    for (i = nelem; i < 2 * nelem; i++)
+    for (i = 0; i < nelem; i++)
     {
-        CD->Flux[k].velocity += pihm->elem[i - nelem].wf.rechg * 86400;
-        CD->Flux[k].flux += (pihm->elem[i - nelem].wf.rechg * 86400) *
-            CD->Vcele[i].area;
-        CD->Flux[k].s_area += CD->Vcele[i].area;
-        k++;
+        CD->Flux[RT_RECHG_UNSAT(i)].velocity += pihm->elem[i].wf.rechg * 86400;
+        CD->Flux[RT_RECHG_UNSAT(i)].flux += (pihm->elem[i].wf.rechg * 86400) *
+            CD->Vcele[i + nelem].area;
+        CD->Flux[RT_RECHG_UNSAT(i)].s_area += CD->Vcele[i + nelem].area;
     }
 
     for (i = 0; i < nelem; i++)
     {
-        CD->Flux[k].velocity += -pihm->elem[i].wf.rechg * 86400;
-        CD->Flux[k].flux += (-pihm->elem[i].wf.rechg * 86400) *
+        CD->Flux[RT_RECHG_GW(i)].velocity += -pihm->elem[i].wf.rechg * 86400;
+        CD->Flux[RT_RECHG_GW(i)].flux += (-pihm->elem[i].wf.rechg * 86400) *
             CD->Vcele[i].area;
-        CD->Flux[k].s_area += CD->Vcele[i].area;
-        k++;
+        CD->Flux[RT_RECHG_GW(i)].s_area += CD->Vcele[i].area;
     }
 
     /* Flux for RIVER flow */
@@ -2386,66 +2371,60 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
     for (i = 0; i < nriver; i++)
     {
-        CD->Flux[k].flux += pihm->river[i].wf.rivflow[2] * 86400;
-        k++;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].flux += pihm->river[i].wf.rivflow[2] * 86400;
     }
 
     for (i = 0; i < nriver; i++)
     {
-        CD->Flux[k].flux += pihm->river[i].wf.rivflow[3] * 86400;
-        k++;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux += pihm->river[i].wf.rivflow[3] * 86400;
     }
 
     for (i = 0; i < nriver; i++)
     {
-        CD->Flux[k].flux += pihm->river[i].wf.rivflow[7] * 86400 +
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux += pihm->river[i].wf.rivflow[7] * 86400 +
             pihm->river[i].wf.rivflow[4] * 86400;
-        k++;
     }
     for (i = 0; i < nriver; i++)
     {
-        CD->Flux[k].flux += pihm->river[i].wf.rivflow[8] * 86400 +
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux += pihm->river[i].wf.rivflow[8] * 86400 +
             pihm->river[i].wf.rivflow[5] * 86400;
-        k++;
     }
 
     for (i = 0; i < nriver; i++)
     {
-        CD->Flux[k].flux += pihm->river[i].wf.rivflow[9] * 86400 +
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux += pihm->river[i].wf.rivflow[9] * 86400 +
             pihm->river[i].wf.rivflow[1] * 86400;
-        k++;
     }
 
     for (i = 0; i < nriver; i++)
     {
         if (pihm->river[i].up[0] > 0)   /* Not tributary starting point */
         {
-            CD->Flux[k].flux +=
-                -(pihm->river[CD->Flux[k].nodelo - 1 - 2 * nelem -
+            CD->Flux[RT_UP_RIVER2RIVER(i)].flux +=
+                -(pihm->river[CD->Flux[RT_UP_RIVER2RIVER(i)].nodelo - 1 - 2 * nelem -
                     nriver].wf.rivflow[9] * 86400 +
-                pihm->river[CD->Flux[k].nodelo - 1 - 2 * nelem -
+                pihm->river[CD->Flux[RT_UP_RIVER2RIVER(i)].nodelo - 1 - 2 * nelem -
                     nriver].wf.rivflow[1] * 86400);
         }
         else                        /* Tributary starting point = 0.0 [m3/d] */
         {
-            CD->Flux[k].flux += pihm->river[i].wf.rivflow[10] * 86400 +
+            CD->Flux[RT_UP_RIVER2RIVER(i)].flux += pihm->river[i].wf.rivflow[10] * 86400 +
                 pihm->river[i].wf.rivflow[0] * 86400;
         }
 
-        if (CD->Flux[k].node_trib > 0)
+        if (CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib > 0)
         {
-            CD->Flux[k].flux_trib +=
-                -(pihm->river[CD->Flux[k].node_trib - 1 - 2 * nelem -
+            CD->Flux[RT_UP_RIVER2RIVER(i)].flux_trib +=
+                -(pihm->river[CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib - 1 - 2 * nelem -
                 nriver].wf.rivflow[9] * 86400 +
-                pihm->river[CD->Flux[k].node_trib - 1 - 2 * nelem -
+                pihm->river[CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib - 1 - 2 * nelem -
                 nriver].wf.rivflow[1] * 86400);
         }
         else
         {
-            CD->Flux[k].flux_trib += 0.0;
+            CD->Flux[RT_UP_RIVER2RIVER(i)].flux_trib += 0.0;
         }
 
-        k++;
     }
 
     /*
