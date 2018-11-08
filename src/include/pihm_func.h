@@ -711,6 +711,7 @@ void            FreeChem(Chem_Data);
 void            ReportError(vol_conc, Chem_Data);
 double          Dconc(const face *, const vol_conc [], const species [],
     double, int, int);
+double          Dist2Edge(const meshtbl_struct *, const elem_struct *, int);
 
 #endif
 
