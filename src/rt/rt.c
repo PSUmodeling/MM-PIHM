@@ -1426,17 +1426,14 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
             (pihm->elem[i].soil.smcmax - pihm->elem[i].soil.smcmin) +
             (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw) *
             pihm->elem[i].soil.smcmin) / (pihm->elem[i].soil.smcmax);
-        CD->Vcele[RT_UNSAT(i)].height_t = (pihm->elem[i].ws.unsat *
-            (pihm->elem[i].soil.smcmax - pihm->elem[i].soil.smcmin) +
-            (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw) *
-            pihm->elem[i].soil.smcmin) / (pihm->elem[i].soil.smcmax);
+        CD->Vcele[RT_UNSAT(i)].height_t = CD->Vcele[RT_UNSAT(i)].height_o;
         CD->Vcele[RT_UNSAT(i)].area = pihm->elem[i].topo.area;
         CD->Vcele[RT_UNSAT(i)].porosity = pihm->elem[i].soil.smcmax;
         /* Unsaturated zone has the same porosity as saturated zone */
         CD->Vcele[RT_UNSAT(i)].sat = CD->Vcele[RT_UNSAT(i)].height_o /
-            (CD->Vcele[RT_UNSAT(i)].height_v - pihm->elem[i].ws.gw);
+            (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw);
         CD->Vcele[RT_UNSAT(i)].vol_o = pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].height_o;
-        CD->Vcele[RT_UNSAT(i)].vol = pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].height_t;
+        CD->Vcele[RT_UNSAT(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].soil.depth;
         CD->Vcele[RT_UNSAT(i)].temperature = pihm->elem[i].attrib.meteo_type;
 
         /* The saturation of unsaturated zone is the Hu divided by height of
