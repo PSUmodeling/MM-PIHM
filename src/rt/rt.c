@@ -1617,62 +1617,38 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
 
     for (i = 0; i < nelem; i++)
     {
+        int             elemlo;
+        int             elemuu;
+        int             elemll;
+        double          distance;
+
         for (j = 0; j < 3; j++)
         {
             if (pihm->meshtbl.nabr[i][j] > 0)
             {
+                elemlo = pihm->elem[i].nabr[j];
+                elemuu = (pihm->elem[i].nabr[j] > 0) ?
+                    upstream(pihm->elem[i],
+                    pihm->elem[pihm->elem[i].nabr[j] - 1], pihm) : 0;
+                elemll = (pihm->elem[i].nabr[j] > 0) ?
+                    upstream(pihm->elem[pihm->elem[i].nabr[j] - 1],
+                    pihm->elem[i], pihm) : 0;
+
                 /* Node indicates the index of grid blocks, not nodes at corners */
                 CD->Flux[RT_LAT_GW(i, j)].nodeup = CD->Vcele[RT_GW(i)].index;
                 CD->Flux[RT_LAT_GW(i, j)].node_trib = 0;
-                CD->Flux[RT_LAT_GW(i, j)].nodelo = pihm->meshtbl.nabr[i][j];
-                CD->Flux[RT_LAT_GW(i, j)].nodeuu = upstream(pihm->elem[i],
-                    pihm->elem[pihm->meshtbl.nabr[i][j] - 1], pihm);
-                CD->Flux[RT_LAT_GW(i, j)].nodell =
-                    upstream(pihm->elem[pihm->meshtbl.nabr[i][j] - 1],
-                    pihm->elem[i], pihm);
+                CD->Flux[RT_LAT_GW(i, j)].nodelo = (elemlo > 0) ?
+                    CD->Vcele[RT_GW(elemlo - 1)].index :
+                    CD->Vcele[RT_RIVBED(-elemlo - 1)].index;
+                CD->Flux[RT_LAT_GW(i, j)].nodeuu = (elemuu > 0) ?
+                    CD->Vcele[RT_GW(elemuu - 1)].index : 0;
+                CD->Flux[RT_LAT_GW(i, j)].nodell = (elemll > 0) ?
+                    CD->Vcele[RT_GW(elemll - 1)].index : 0;
                 CD->Flux[RT_LAT_GW(i, j)].flux_type = 0;
                 CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_GW(i, j)].BC = DISPERSION;
-
-                index_0 = pihm->elem[i].node[(j + 1) % 3] - 1;
-                index_1 = pihm->elem[i].node[(j + 2) % 3] - 1;
-                x_0 = pihm->meshtbl.x[index_0];
-                y_0 = pihm->meshtbl.y[index_0];
-                x_1 = pihm->meshtbl.x[index_1];
-                y_1 = pihm->meshtbl.y[index_1];
-                para_a = y_1 - y_0;
-                para_b = x_0 - x_1;
-                para_c = (x_1 - x_0) * y_0 - (y_1 - y_0) * x_0;
-
-                if ((para_a * pihm->elem[i].topo.x +
-                    para_b * pihm->elem[i].topo.y + para_c) *
-                    (para_a * pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x +
-                    para_b * pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y +
-                    para_c) > 0.0)
-                {
-                    fprintf(stderr, " Two points at the same side of edge!\n");
-                }
-                CD->Flux[RT_LAT_GW(i, j)].distance = fabs(para_a * pihm->elem[i].topo.x +
-                    para_b * pihm->elem[i].topo.y + para_c) /
-                    sqrt(para_a * para_a + para_b * para_b);
-
-                for (rivi = 0; rivi < nriver; rivi++)
-                {
-                    if ((CD->Flux[RT_LAT_GW(i, j)].nodeup == pihm->river[rivi].leftele)
-                        && (CD->Flux[RT_LAT_GW(i, j)].nodelo == pihm->river[rivi].rightele))
-                    {
-                        CD->Flux[RT_LAT_GW(i, j)].nodelo = CD->Vcele[RT_RIVBED(rivi)].index;
-                        CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
-                        CD->Flux[RT_LAT_GW(i, j)].nodell = 0;
-                    }
-                    if ((CD->Flux[RT_LAT_GW(i, j)].nodeup == pihm->river[rivi].rightele)
-                        && (CD->Flux[RT_LAT_GW(i, j)].nodelo == pihm->river[rivi].leftele))
-                    {
-                        CD->Flux[RT_LAT_GW(i, j)].nodelo = CD->Vcele[RT_RIVBED(rivi)].index;
-                        CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
-                        CD->Flux[RT_LAT_GW(i, j)].nodell = 0;
-                    }
-                }
+                CD->Flux[RT_LAT_GW(i, j)].distance =
+                    Dist2Edge(&pihm->meshtbl, &pihm->elem[i], j);
             }
             else
             {
@@ -3153,6 +3129,24 @@ void FreeChem(Chem_Data CD)
     }
     free(CD->TSD_prepconc[0].ftime);
     free(CD->TSD_prepconc);
+}
 
+double Dist2Edge(const meshtbl_struct *meshtbl, const elem_struct *elem,
+    int edge_j)
+{
+    double          para_a, para_b, para_c, x_0, x_1, y_0, y_1;
+    int             index_0, index_1, rivi;
 
+    index_0 = elem->node[(edge_j + 1) % 3] - 1;
+    index_1 = elem->node[(edge_j + 2) % 3] - 1;
+    x_0 = meshtbl->x[index_0];
+    y_0 = meshtbl->y[index_0];
+    x_1 = meshtbl->x[index_1];
+    y_1 = meshtbl->y[index_1];
+    para_a = y_1 - y_0;
+    para_b = x_0 - x_1;
+    para_c = (x_1 - x_0) * y_0 - (y_1 - y_0) * x_0;
+
+    return fabs(para_a * elem->topo.x + para_b * elem->topo.y + para_c) /
+        sqrt(para_a * para_a + para_b * para_b);
 }
