@@ -1462,8 +1462,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
         CD->Vcele[RT_RIVER(i)].porosity = 1.0;
         CD->Vcele[RT_RIVER(i)].sat = 1.0;
-        CD->Vcele[RT_RIVER(i)].vol_o = pihm->river[i].topo.area * CD->Vcele[RT_RIVER(i)].height_o;
-        CD->Vcele[RT_RIVER(i)].vol = pihm->river[i].topo.area * CD->Vcele[RT_RIVER(i)].height_t;
+        CD->Vcele[RT_RIVER(i)].vol_o = pihm->river[i].topo.area * pihm->river[i].ws.stage;
+        CD->Vcele[RT_RIVER(i)].vol = pihm->river[i].topo.area * pihm->river[i].ws.stage;
     }
 
     /* Initializing volumetrics for river EBR cells */
@@ -1477,8 +1477,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[RT_RIVBED(i)].area = pihm->river[i].topo.area;
         CD->Vcele[RT_RIVBED(i)].porosity = 1.0;
         CD->Vcele[RT_RIVBED(i)].sat = 1.0;
-        CD->Vcele[RT_RIVBED(i)].vol_o = pihm->river[i].topo.area * CD->Vcele[RT_RIVBED(i)].height_o;
-        CD->Vcele[RT_RIVBED(i)].vol = pihm->river[i].topo.area * CD->Vcele[RT_RIVBED(i)].height_t;
+        CD->Vcele[RT_RIVBED(i)].vol_o = pihm->river[i].topo.area * pihm->river[i].ws.gw;
+        CD->Vcele[RT_RIVBED(i)].vol = pihm->river[i].topo.area * pihm->river[i].ws.gw;
     }
 
     tmpval[0] = 0.0;
@@ -1549,7 +1549,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_type[j] = 1;
             }
-            else if (CD->chemtype[j].itype == 4)
+            else if (CD->chemtype[j].itype == MINERAL)
             {
                 CD->Vcele[i].t_conc[j] =
                     Condition_vcele[condition_index[i + 1] - 1].t_conc[j];
@@ -1987,7 +1987,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         " \n Mass action species type determination (0: immobile, 1: mobile, 2: Mixed) \n");
     for (i = 0; i < CD->NumSpc; i++)
     {
-        if (CD->chemtype[i].itype == 1)
+        if (CD->chemtype[i].itype == AQUEOUS)
             CD->chemtype[i].mtype = 1;
         else
             CD->chemtype[i].mtype = 0;
@@ -2017,7 +2017,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     {
         for (j = 0; j < CD->NumStc; j++)
         {
-            if (CD->chemtype[j].itype == 4)
+            if (CD->chemtype[j].itype == MINERAL)
             {
                 if (CD->RelMin == 0)
                 {
@@ -2038,7 +2038,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                     CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
                 }
             }
-            if ((CD->chemtype[j].itype == 3) || (CD->chemtype[j].itype == 2))
+            if ((CD->chemtype[j].itype == CATION_ECHG) ||
+                (CD->chemtype[j].itype == ADSORPTION))
             {
                 /* Change the unit of CEC (eq/g) into C(ion site)
                  * (eq/L porous space), assuming density of solid is always
@@ -2077,7 +2078,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     {
         for (k = 0; k < CD->NumStc; k++)
         {
-            if (CD->chemtype[k].itype != 1)
+            if (CD->chemtype[k].itype != AQUEOUS)
             {
                 CD->Vcele[i].t_conc[k] = 1.0E-20;
                 CD->Vcele[i].p_conc[k] = 1.0E-20;
@@ -2522,7 +2523,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             {
                 for (j = 0; j < CD->NumStc; j++)
                 {
-                    if (CD->chemtype[j].itype == 4)
+                    if (CD->chemtype[j].itype == MINERAL)
                     {
                         /* Averaging mineral concentration to ensure mass
                          * conservation !! */
@@ -2665,7 +2666,7 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
             for (i = 0; i < CD->NumStc; i++)
             {
                 for (j = CD->NumEle * 2; j < CD->NumOsv; j++)
-                    if (CD->chemtype[i].itype == 4)
+                    if (CD->chemtype[i].itype == MINERAL)
                         CD->Vcele[j].p_conc[i] = CD->Vcele[j].t_conc[i];
                     else
                         CD->Vcele[j].p_conc[i] =
@@ -2937,7 +2938,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                     for (k = 0; k < CD->NumSsc; k++)
                     {
                         if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
-                            (CD->chemtype[k + CD->NumStc].itype != 1))
+                            (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
                         {
                             CD->Vcele[i].t_conc[j] = CD->Vcele[i].t_conc[j] -
                                 CD->Totalconc[j][k + CD->NumStc] *
@@ -2967,7 +2968,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                     for (k = 0; k < CD->NumSsc; k++)
                     {
                         if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
-                            (CD->chemtype[k + CD->NumStc].itype != 1))
+                            (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
                         {
                             CD->Vcele[i].t_conc[j] =
                                 CD->Vcele[i].t_conc[j] + CD->Totalconc[j][k +
