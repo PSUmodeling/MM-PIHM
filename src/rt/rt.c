@@ -1619,7 +1619,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
 
     CD->Flux = (face *) malloc(CD->NumFac * sizeof(face));
 
-    double          dist1, dist2, para_a, para_b, para_c, x_0, x_1, y_0, y_1;
+    double          para_a, para_b, para_c, x_0, x_1, y_0, y_1;
     int             index_0, index_1, rivi;
 
     for (i = 0; i < nelem; i++)
@@ -1641,11 +1641,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_GW(i, j)].BC = DISPERSION;
 
-                CD->Flux[RT_LAT_GW(i, j)].distance = sqrt(pow(pihm->elem[i].topo.x -
-                        pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x, 2) +
-                        pow(pihm->elem[i].topo.y -
-                        pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y, 2));
-
                 index_0 = pihm->elem[i].node[(j + 1) % 3] - 1;
                 index_1 = pihm->elem[i].node[(j + 2) % 3] - 1;
                 x_0 = pihm->meshtbl.x[index_0];
@@ -1664,41 +1659,9 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 {
                     fprintf(stderr, " Two points at the same side of edge!\n");
                 }
-                dist1 = fabs(para_a * pihm->elem[i].topo.x +
+                CD->Flux[RT_LAT_GW(i, j)].distance = fabs(para_a * pihm->elem[i].topo.x +
                     para_b * pihm->elem[i].topo.y + para_c) /
                     sqrt(para_a * para_a + para_b * para_b);
-                dist2 = fabs(para_a *
-                    pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x +
-                    para_b * pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y +
-                    para_c) / sqrt(para_a * para_a + para_b * para_b);
-
-                if ((CD->Flux[RT_LAT_GW(i, j)].distance < dist1) ||
-                    (CD->Flux[RT_LAT_GW(i, j)].distance < dist2))
-                {
-                    fprintf(stderr,
-                        "\n Checking the distance calculation wrong, total is %f, from ele to edge is %f, from edge to neighbor is %f\n",
-                        CD->Flux[RT_LAT_GW(i, j)].distance, dist1, dist2);
-                    fprintf(stderr,
-                        " Ele coordinates, x: %f, y: %f\n Node_1 coordinates, x: %f, y: %f\n Node_2 coordinates, x: %f, y: %f\n Nabr x:%f, y:%f\n",
-                        pihm->elem[i].topo.x, pihm->elem[i].topo.y,
-                        x_0, y_0, x_1, y_1,
-                        pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x,
-                        pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y);
-                    fprintf(stderr,
-                        " node_1 x:%.3f y:%.3f\t node_2 x:%.3f y:%.3f node_3 x:%.3f y:%.3f nabr x:%.3f y:%.3f, no:%d\n",
-                        pihm->meshtbl.x[pihm->elem[i].node[0] - 1],
-                        pihm->meshtbl.y[pihm->elem[i].node[0] - 1],
-                        pihm->meshtbl.x[pihm->elem[i].node[1] - 1],
-                        pihm->meshtbl.y[pihm->elem[i].node[1] - 1],
-                        pihm->meshtbl.x[pihm->elem[i].node[2] - 1],
-                        pihm->meshtbl.y[pihm->elem[i].node[2] - 1],
-                        pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x,
-                        pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y, j);
-                }
-                else
-                {
-                    CD->Flux[RT_LAT_GW(i, j)].distance = dist1;
-                }
 
                 for (rivi = 0; rivi < nriver; rivi++)
                 {
@@ -1708,7 +1671,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                         CD->Flux[RT_LAT_GW(i, j)].nodelo = 2 * nelem + nriver + rivi + 1;
                         CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
                         CD->Flux[RT_LAT_GW(i, j)].nodell = 0;
-                        CD->Flux[RT_LAT_GW(i, j)].distance = dist1;
                     }
                     if ((CD->Flux[RT_LAT_GW(i, j)].nodeup == pihm->river[rivi].rightele)
                         && (CD->Flux[RT_LAT_GW(i, j)].nodelo == pihm->river[rivi].leftele))
@@ -1716,7 +1678,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                         CD->Flux[RT_LAT_GW(i, j)].nodelo = 2 * nelem + nriver + rivi + 1;
                         CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
                         CD->Flux[RT_LAT_GW(i, j)].nodell = 0;
-                        CD->Flux[RT_LAT_GW(i, j)].distance = dist1;
                     }
                 }
             }
@@ -1770,16 +1731,10 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 para_a = y_1 - y_0;
                 para_b = x_0 - x_1;
                 para_c = (x_1 - x_0) * y_0 - (y_1 - y_0) * x_0;
-                dist1 = fabs(para_a * pihm->elem[i].topo.x +
+                CD->Flux[RT_LAT_UNSAT(i, j)].distance = fabs(para_a * pihm->elem[i].topo.x +
                     para_b * pihm->elem[i].topo.y + para_c) /
                     sqrt(para_a * para_a + para_b * para_b);
-                dist2 = fabs(para_a *
-                    pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x +
-                    para_b * pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y +
-                    para_c) /
-                    sqrt(para_a * para_a + para_b * para_b);
 
-                CD->Flux[RT_LAT_UNSAT(i, j)].distance = dist1;
                 for (rivi = 0; rivi < nriver; rivi++)
                 {
                     if ((CD->Flux[RT_LAT_UNSAT(i, j)].nodeup - nelem ==
@@ -1790,7 +1745,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                         CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = 2 * nelem + nriver + rivi + 1;
                         CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = 0;
                         CD->Flux[RT_LAT_UNSAT(i, j)].nodell = 0;
-                        CD->Flux[RT_LAT_UNSAT(i, j)].distance = dist1;
                     }
                     if ((CD->Flux[RT_LAT_UNSAT(i, j)].nodeup - nelem ==
                             pihm->river[rivi].rightele) &&
@@ -1800,7 +1754,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                         CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = 2 * nelem + nriver + rivi + 1;
                         CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = 0;
                         CD->Flux[RT_LAT_UNSAT(i, j)].nodell = 0;
-                        CD->Flux[RT_LAT_UNSAT(i, j)].distance = dist1;
                     }
                 }
             }
