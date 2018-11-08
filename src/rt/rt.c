@@ -1401,17 +1401,13 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     fprintf(stderr, "\n Initializing 'GW' cells, Vcele [i, 0 ~ nelem]... \n");
     for (i = 0; i < nelem; i++)
     {
-        CD->Vcele[RT_GW(i)].height_v =
-            pihm->elem[i].topo.zmax - pihm->elem[i].topo.zmin;
+        CD->Vcele[RT_GW(i)].height_v = pihm->elem[i].soil.depth;
         CD->Vcele[RT_GW(i)].height_o = pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].height_t = pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].area = pihm->elem[i].topo.area;
         CD->Vcele[RT_GW(i)].porosity = pihm->elem[i].soil.smcmax;
-        /* Porosity in PIHM is Effective Porosity = Porosity - Residue Water Porosity */
-        /* Porosity in RT is total Porosity, therefore, the water height in the
-         * unsaturated zone needs be converted as well */
-        CD->Vcele[RT_GW(i)].vol_o = pihm->elem[i].topo.area * CD->Vcele[RT_GW(i)].height_o;
-        CD->Vcele[RT_GW(i)].vol = pihm->elem[i].topo.area * CD->Vcele[RT_GW(i)].height_t;
+        CD->Vcele[RT_GW(i)].vol_o = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
+        CD->Vcele[RT_GW(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].sat = 1.0;
         CD->Vcele[RT_GW(i)].sat_o = 1.0;
         CD->Vcele[RT_GW(i)].temperature = pihm->elem[i].attrib.meteo_type;
@@ -1422,14 +1418,19 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         "\n Initializing 'UNSAT' cells, Vcele [i, nelem ~ 2*nelem]... \n");
     for (i = 0; i < nelem; i++)
     {
-        CD->Vcele[RT_UNSAT(i)].height_v =
-            pihm->elem[i].topo.zmax - pihm->elem[i].topo.zmin;
+        CD->Vcele[RT_UNSAT(i)].height_v = pihm->elem[i].soil.depth;
+        /* Porosity in PIHM is
+         * Effective Porosity = Porosity - Residue Water Porosity
+         * Porosity in RT is total Porosity, therefore, the water height in the
+         * unsaturated zone needs be converted as well */
         CD->Vcele[RT_UNSAT(i)].height_o = (pihm->elem[i].ws.unsat *
             (pihm->elem[i].soil.smcmax - pihm->elem[i].soil.smcmin) +
-            (CD->Vcele[RT_UNSAT(i)].height_v - pihm->elem[i].ws.gw) *
+            (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw) *
             pihm->elem[i].soil.smcmin) / (pihm->elem[i].soil.smcmax);
-
-        CD->Vcele[RT_UNSAT(i)].height_t = CD->Vcele[RT_UNSAT(i)].height_o;
+        CD->Vcele[RT_UNSAT(i)].height_t = (pihm->elem[i].ws.unsat *
+            (pihm->elem[i].soil.smcmax - pihm->elem[i].soil.smcmin) +
+            (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw) *
+            pihm->elem[i].soil.smcmin) / (pihm->elem[i].soil.smcmax);
         CD->Vcele[RT_UNSAT(i)].area = pihm->elem[i].topo.area;
         CD->Vcele[RT_UNSAT(i)].porosity = pihm->elem[i].soil.smcmax;
         /* Unsaturated zone has the same porosity as saturated zone */
