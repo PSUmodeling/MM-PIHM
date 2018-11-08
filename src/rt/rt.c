@@ -1622,7 +1622,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
             if (pihm->meshtbl.nabr[i][j] > 0)
             {
                 /* Node indicates the index of grid blocks, not nodes at corners */
-                CD->Flux[RT_LAT_GW(i, j)].nodeup = i + 1;
+                CD->Flux[RT_LAT_GW(i, j)].nodeup = CD->Vcele[RT_GW(i)].index;
                 CD->Flux[RT_LAT_GW(i, j)].node_trib = 0;
                 CD->Flux[RT_LAT_GW(i, j)].nodelo = pihm->meshtbl.nabr[i][j];
                 CD->Flux[RT_LAT_GW(i, j)].nodeuu = upstream(pihm->elem[i],
@@ -1661,14 +1661,14 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                     if ((CD->Flux[RT_LAT_GW(i, j)].nodeup == pihm->river[rivi].leftele)
                         && (CD->Flux[RT_LAT_GW(i, j)].nodelo == pihm->river[rivi].rightele))
                     {
-                        CD->Flux[RT_LAT_GW(i, j)].nodelo = 2 * nelem + nriver + rivi + 1;
+                        CD->Flux[RT_LAT_GW(i, j)].nodelo = CD->Vcele[RT_RIVBED(rivi)].index;
                         CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
                         CD->Flux[RT_LAT_GW(i, j)].nodell = 0;
                     }
                     if ((CD->Flux[RT_LAT_GW(i, j)].nodeup == pihm->river[rivi].rightele)
                         && (CD->Flux[RT_LAT_GW(i, j)].nodelo == pihm->river[rivi].leftele))
                     {
-                        CD->Flux[RT_LAT_GW(i, j)].nodelo = 2 * nelem + nriver + rivi + 1;
+                        CD->Flux[RT_LAT_GW(i, j)].nodelo = CD->Vcele[RT_RIVBED(rivi)].index;
                         CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
                         CD->Flux[RT_LAT_GW(i, j)].nodell = 0;
                     }
@@ -1676,7 +1676,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
             }
             else
             {
-                CD->Flux[RT_LAT_GW(i, j)].nodeup = i + 1;
+                CD->Flux[RT_LAT_GW(i, j)].nodeup = CD->Vcele[RT_GW(i)].index;
                 CD->Flux[RT_LAT_GW(i, j)].node_trib = 0;
                 CD->Flux[RT_LAT_GW(i, j)].nodelo = 0;
                 CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
