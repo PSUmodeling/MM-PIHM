@@ -253,7 +253,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                         " Secondary species %s found in database!\n",
                         CD->chemtype[i].ChemName);
                     fprintf(stderr, " %s", line);
-                    CD->chemtype[i].itype = 1;
+                    CD->chemtype[i].itype = AQUEOUS;
                     for (j = 0; j < WORDS_LINE; j++)
                     {
                         for (k = 0; k < CD->NumSdc; k++)
@@ -289,7 +289,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                     fprintf(stderr, " Mineral %s found in database!\n",
                         CD->chemtype[i].ChemName);
                     fprintf(stderr, " %s", line);
-                    CD->chemtype[i].itype = 4;
+                    CD->chemtype[i].itype = MINERAL;
                     CD->KeqKinect_all[i - CD->NumSpc - CD->NumAds -
                         CD->NumCex] = tmpval[(int)tmpval[1] + keq_position + 1];
                     for (j = 1; j < WORDS_LINE; j++)
@@ -366,7 +366,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                         " Secondary surface complexation %s found in database!\n",
                         CD->chemtype[i].ChemName);
                     fprintf(stderr, " %s", line);
-                    CD->chemtype[i].itype = 2;
+                    CD->chemtype[i].itype = ADSORPTION;
                     for (j = 0; j < WORDS_LINE; j++)
                     {
                         for (k = 0; k < CD->NumSdc; k++)
@@ -393,7 +393,7 @@ void Lookup(FILE *database, Chem_Data CD, int lookupflg)
                         " Secondary ion exchange %s found in database!\n",
                         CD->chemtype[i].ChemName);
                     fprintf(stderr, " %s", line);
-                    CD->chemtype[i].itype = 3;
+                    CD->chemtype[i].itype = CATION_ECHG;
                     for (j = 0; j < WORDS_LINE; j++)
                     {
                         for (k = 0; k < CD->NumSdc; k++)
@@ -720,7 +720,7 @@ int Speciation(Chem_Data CD, int cell)
                 Iroot = sqrt(I);
                 for (i = 0; i < num_spe; i++)
                 {
-                    if (CD->chemtype[i].itype == 4)
+                    if (CD->chemtype[i].itype == MINERAL)
                         gamma[i] = -tmpconc[i];
                     /* aqueous species in the unit of mol/L, however the solids
                      * are in the unit of mol/L porous media
@@ -848,7 +848,7 @@ int Speciation(Chem_Data CD, int cell)
                 Iroot = sqrt(I);
                 for (i = 0; i < num_spe; i++)
                 {
-                    if (CD->chemtype[i].itype == 4)
+                    if (CD->chemtype[i].itype == MINERAL)
                         gamma[i] = -tmpconc[i];
                     else
                         gamma[i] =
@@ -947,7 +947,7 @@ int Speciation(Chem_Data CD, int cell)
     {
         if (i < CD->NumStc)
         {
-            if (CD->chemtype[i].itype == 4)
+            if (CD->chemtype[i].itype == MINERAL)
             {
                 CD->Vcele[cell].p_conc[i] = pow(10, tmpconc[i]);
                 CD->Vcele[cell].p_actv[i] = 1.0;
@@ -1131,7 +1131,7 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times,
     }
 
     for (i = 0; i < CD->NumSpc; i++)
-        if (CD->chemtype[i].itype == 1) /* 01.21 aqueous species, saturation term for aqueous volume */
+        if (CD->chemtype[i].itype == AQUEOUS) /* 01.21 aqueous species, saturation term for aqueous volume */
             Rate_spe[i] = Rate_spe[i] * inv_sat;
 
     jcb = newDenseMat(CD->NumStc - CD->NumMin, CD->NumStc - CD->NumMin);
@@ -1156,7 +1156,7 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times,
     tot_cec = 0.0;
     for (i = 0; i < num_spe; i++)
     {
-        if (CD->chemtype[i].itype == 3)
+        if (CD->chemtype[i].itype == CATION_ECHG)
         {
             tot_cec += pow(10, tmpconc[i]);
         }
@@ -1172,18 +1172,18 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times,
     {
         switch (CD->chemtype[i].itype)
         {
-            case 1:
+            case AQUEOUS:
                 gamma[i] =
                     (-adh * sqr(CD->chemtype[i].Charge) * Iroot) / (1 +
                     bdh * CD->chemtype[i].SizeF * Iroot) + bdt * I;
                 break;
-            case 2:
+            case ADSORPTION:
                 gamma[i] = log10(CD->Vcele[cell].sat);
                 break;
-            case 3:
+            case CATION_ECHG:
                 gamma[i] = -log10(tot_cec);
                 break;
-            case 4:
+            case MINERAL:
                 gamma[i] = -tmpconc[i];
                 break;
         }
@@ -1216,7 +1216,7 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times,
                 IAP[i] = 0.0;
                 for (j = 0; j < CD->NumStc; j++)
                 {
-                    if (CD->chemtype[j].itype != 4)
+                    if (CD->chemtype[j].itype != MINERAL)
                     {
                         IAP[i] += (tmpconc[j] + gamma[j]) *
                             CD->Dep_kinetic[min_pos][j];
@@ -1309,7 +1309,7 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times,
         }
 
         for (i = 0; i < CD->NumSpc; i++)
-            if (CD->chemtype[i].itype == 1)
+            if (CD->chemtype[i].itype == AQUEOUS)
                 Rate_spet[i] = Rate_spet[i] * inv_sat;
 
         for (i = 0; i < CD->NumStc - CD->NumMin; i++)
@@ -1418,7 +1418,7 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times,
     {
         if (i < CD->NumStc)
         {
-            if (CD->chemtype[i].itype == 4)
+            if (CD->chemtype[i].itype == MINERAL)
             {
                 CD->Vcele[cell].t_conc[i] +=
                     (Rate_spe[i] + Rate_spet[i]) * stepsize * 0.5;

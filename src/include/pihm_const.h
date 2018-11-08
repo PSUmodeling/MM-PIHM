@@ -237,6 +237,12 @@
 #define DISPERSION      1
 #define NO_DISP         2
 
+/* RT primary species types */
+#define AQUEOUS         1
+#define ADSORPTION      2
+#define CATION_ECHG     3
+#define MINERAL         4
+
 /* Output variables */
 #define YEARLY_OUTPUT     -1
 #define MONTHLY_OUTPUT    -2
