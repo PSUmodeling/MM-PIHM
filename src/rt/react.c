@@ -38,9 +38,9 @@ void ReportError(vol_conc cell, Chem_Data CD)
     int             i;
     fprintf(stderr, "Error found at cell %d\n", cell.index);
     fprintf(stderr,
-        "Volumetric properties:\n\t sat: %8.6f\t, sat_o: %8.6f\t, height_o: %8.6f\t, height_t: %8.6f\t, height_v: %8.6f\t, area: %8.6f, Error: %d\n",
-        cell.sat, cell.sat_o, cell.height_o, cell.height_t, cell.height_v,
-        cell.area, cell.illness);
+        "Volumetric properties:\n\t sat: %8.6f\t, height_o: %8.6f\t, height_t: %8.6f\t, height_v: %8.6f\t, area: %8.6f, Error: %d\n",
+        cell.sat, cell.height_o, cell.height_t, cell.height_v, cell.area,
+        cell.illness);
     fprintf(stderr,
         "Chemical total concentrations: Chemical  Tot_conc  Log(Tot_conc)\n");
     for (i = 0; i < CD->NumStc; i++)

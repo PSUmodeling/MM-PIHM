@@ -55,7 +55,6 @@ typedef struct vol_conc_type
                                  */
     double          vol_real;   /* Effective volume of Volume, in cubic meter */
     double          sat;        /* Saturation of Volume, dimensionless, from 0 to 1 */
-    double          sat_o;      /* Saturation of last time step */
     double          height_o;   /* height of volume, at previous time step */
     double          height_t;   /* height of volume, at current time step */
     double          height_int; /* temporary variable for intrapolation of gw height */

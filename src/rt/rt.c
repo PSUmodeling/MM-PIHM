@@ -1409,7 +1409,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[RT_GW(i)].vol_o = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].sat = 1.0;
-        CD->Vcele[RT_GW(i)].sat_o = 1.0;
         CD->Vcele[RT_GW(i)].temperature = pihm->elem[i].attrib.meteo_type;
     }
 
@@ -1436,7 +1435,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         /* Unsaturated zone has the same porosity as saturated zone */
         CD->Vcele[RT_UNSAT(i)].sat = CD->Vcele[RT_UNSAT(i)].height_o /
             (CD->Vcele[RT_UNSAT(i)].height_v - pihm->elem[i].ws.gw);
-        CD->Vcele[RT_UNSAT(i)].sat_o = CD->Vcele[RT_UNSAT(i)].sat;
         CD->Vcele[RT_UNSAT(i)].vol_o = pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].height_o;
         CD->Vcele[RT_UNSAT(i)].vol = pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].height_t;
         CD->Vcele[RT_UNSAT(i)].temperature = pihm->elem[i].attrib.meteo_type;
@@ -1467,7 +1465,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
         CD->Vcele[RT_RIVER(i)].porosity = 1.0;
         CD->Vcele[RT_RIVER(i)].sat = 1.0;
-        CD->Vcele[RT_RIVER(i)].sat_o = 1.0;
         CD->Vcele[RT_RIVER(i)].vol_o = pihm->river[i].topo.area * CD->Vcele[RT_RIVER(i)].height_o;
         CD->Vcele[RT_RIVER(i)].vol = pihm->river[i].topo.area * CD->Vcele[RT_RIVER(i)].height_t;
     }
@@ -1483,7 +1480,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[RT_RIVBED(i)].area = pihm->river[i].topo.area;
         CD->Vcele[RT_RIVBED(i)].porosity = 1.0;
         CD->Vcele[RT_RIVBED(i)].sat = 1.0;
-        CD->Vcele[RT_RIVBED(i)].sat_o = 1.0;
         CD->Vcele[RT_RIVBED(i)].vol_o = pihm->river[i].topo.area * CD->Vcele[RT_RIVBED(i)].height_o;
         CD->Vcele[RT_RIVBED(i)].vol = pihm->river[i].topo.area * CD->Vcele[RT_RIVBED(i)].height_t;
     }
@@ -1513,7 +1509,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[i].area = 1.0;
         CD->Vcele[i].porosity = 1.0;
         CD->Vcele[i].sat = 1.0;
-        CD->Vcele[i].sat_o = 1.0;
         CD->Vcele[i].vol_o = 1.0;
         CD->Vcele[i].vol = 1.0;
     }
@@ -2411,7 +2406,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Vcele[i].height_int = CD->Vcele[i].height_t;
             CD->Vcele[i].height_sp =
                 (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
-            CD->Vcele[i].sat_o = CD->Vcele[i].sat;
             CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
             CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
             CD->Vcele[i].sat = CD->Vcele[i].height_t /
