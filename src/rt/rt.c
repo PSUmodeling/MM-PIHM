@@ -2190,19 +2190,35 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             }
         }
 
+        /* Correct river flux area and velocity */
 #ifdef _OPENMP
 # pragma omp parallel for
 #endif
-        for (i = 0; i < NUM_EDGE * nelem * 2; i++)
+        for (i = 0; i < nriver; i++)
         {
             int             j;
-            for (j = NUM_EDGE * nelem * 2; j < CD->NumFac; j++)
+
+            for (j = 0; j < NUM_EDGE; j++)
             {
-                if ((CD->Flux[i].nodeup == CD->Flux[j].nodelo) &&
-                    (CD->Flux[i].nodelo == CD->Flux[j].nodeup))
+                if (-pihm->elem[pihm->river[i].leftele - 1].nabr[j] == i + 1)
                 {
-                    CD->Flux[j].s_area = CD->Flux[i].s_area;
-                    CD->Flux[j].velocity = -CD->Flux[i].velocity;
+                    CD->Flux[RT_LEFT_AQIF2RIVER(i)].s_area =
+                    CD->Flux[RT_LAT_GW(pihm->river[i].leftele - 1, j)].s_area;
+                    CD->Flux[RT_LEFT_AQIF2RIVER(i)].velocity =
+                    -CD->Flux[RT_LAT_GW(pihm->river[i].leftele - 1, j)].velocity;
+                    break;
+                }
+            }
+
+            for (j = 0; j < NUM_EDGE; j++)
+            {
+                if (-pihm->elem[pihm->river[i].rightele - 1].nabr[j] == i + 1)
+                {
+                    CD->Flux[RT_RIGHT_AQIF2RIVER(i)].s_area =
+                    CD->Flux[RT_LAT_GW(pihm->river[i].rightele - 1, j)].s_area;
+                    CD->Flux[RT_RIGHT_AQIF2RIVER(i)].velocity =
+                    -CD->Flux[RT_LAT_GW(pihm->river[i].rightele - 1, j)].velocity;
+                    break;
                 }
             }
         }
