@@ -2066,58 +2066,41 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = nelem; i < 2 * nelem; i++)
+    for (i = 0; i < nelem; i++)
     {
-        int             j;
-        j = i - nelem;
-        CD->Vcele[i].q += MAX(pihm->elem[j].wf.prcp * 86400, 0.0) *
-            CD->Vcele[i].area;
+        CD->Vcele[RT_UNSAT(i)].q += MAX(pihm->elem[i].wf.prcp * 86400, 0.0) *
+            CD->Vcele[RT_UNSAT(i)].area;
     }
 
-    /* Flux for GW lateral flow */
     for (i = 0; i < nelem; i++)
     {
         for (j = 0; j < 3; j++)
         {
-            if (pihm->meshtbl.nabr[i][j] > 0)
+            if (pihm->elem[i].nabr[j] != NO_FLOW)
             {
-                /* Node indicates the index of grid blocks, not nodes at corners */
+                /* Flux for GW lateral flow */
                 CD->Flux[RT_LAT_GW(i, j)].flux += 1.0 * pihm->elem[i].wf.subsurf[j] * 86400;  /* Test lateral dilution */
                 CD->Flux[RT_LAT_GW(i, j)].s_area += pihm->elem[i].wf.subareaRT[j];
                 CD->Flux[RT_LAT_GW(i, j)].velocity += pihm->elem[i].wf.subveloRT[j] * 86400;
-            }
-        }
-    }
 
-    /* Flux for UNSAT lateral flow */
-    for (i = 0; i < nelem; i++)
-    {
-        for (j = 0; j < 3; j++)
-        {
-            if (pihm->meshtbl.nabr[i][j] > 0)
-            {
+                /* Flux for UNSAT lateral flow */
                 CD->Flux[RT_LAT_UNSAT(i, j)].flux = 0.0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].s_area = 1.0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].velocity = 0.0;
             }
         }
-    }
 
-    /* Flux for UNSAT - GW vertical flow */
-    for (i = 0; i < nelem; i++)
-    {
+
+        /* Flux for UNSAT - GW vertical flow */
         CD->Flux[RT_RECHG_UNSAT(i)].velocity += pihm->elem[i].wf.rechg * 86400;
         CD->Flux[RT_RECHG_UNSAT(i)].flux += (pihm->elem[i].wf.rechg * 86400) *
-            CD->Vcele[i + nelem].area;
-        CD->Flux[RT_RECHG_UNSAT(i)].s_area += CD->Vcele[i + nelem].area;
-    }
+            CD->Vcele[RT_UNSAT(i)].area;
+        CD->Flux[RT_RECHG_UNSAT(i)].s_area += CD->Vcele[RT_UNSAT(i)].area;
 
-    for (i = 0; i < nelem; i++)
-    {
         CD->Flux[RT_RECHG_GW(i)].velocity += -pihm->elem[i].wf.rechg * 86400;
         CD->Flux[RT_RECHG_GW(i)].flux += (-pihm->elem[i].wf.rechg * 86400) *
-            CD->Vcele[i].area;
-        CD->Flux[RT_RECHG_GW(i)].s_area += CD->Vcele[i].area;
+            CD->Vcele[RT_GW(i)].area;
+        CD->Flux[RT_RECHG_GW(i)].s_area += CD->Vcele[RT_GW(i)].area;
     }
 
     /* Flux for RIVER flow */
@@ -2139,32 +2122,13 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     for (i = 0; i < nriver; i++)
     {
         CD->Flux[RT_LEFT_SURF2RIVER(i)].flux += pihm->river[i].wf.rivflow[2] * 86400;
-    }
-
-    for (i = 0; i < nriver; i++)
-    {
         CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux += pihm->river[i].wf.rivflow[3] * 86400;
-    }
-
-    for (i = 0; i < nriver; i++)
-    {
         CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux += pihm->river[i].wf.rivflow[7] * 86400 +
             pihm->river[i].wf.rivflow[4] * 86400;
-    }
-    for (i = 0; i < nriver; i++)
-    {
         CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux += pihm->river[i].wf.rivflow[8] * 86400 +
             pihm->river[i].wf.rivflow[5] * 86400;
-    }
-
-    for (i = 0; i < nriver; i++)
-    {
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux += pihm->river[i].wf.rivflow[9] * 86400 +
             pihm->river[i].wf.rivflow[1] * 86400;
-    }
-
-    for (i = 0; i < nriver; i++)
-    {
         if (pihm->river[i].up[0] > 0)   /* Not tributary starting point */
         {
             CD->Flux[RT_UP_RIVER2RIVER(i)].flux +=
@@ -2191,7 +2155,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         {
             CD->Flux[RT_UP_RIVER2RIVER(i)].flux_trib += 0.0;
         }
-
     }
 
     /*
