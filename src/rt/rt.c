@@ -1595,6 +1595,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     }
 
     CD->NumFac = NUM_EDGE * nelem * 2 + 2 * nelem + 6 * nriver;
+    CD->NumDis = 2 * 3 * nelem + 2 * nelem;
 
     fprintf(stderr, "\n Total area of the watershed is %f [m^2]. \n",
         total_area);
@@ -1633,8 +1634,9 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 elemll = (pihm->elem[i].nabr[j] > 0) ?
                     upstream(pihm->elem[pihm->elem[i].nabr[j] - 1],
                     pihm->elem[i], pihm) : 0;
+                distance = Dist2Edge(&pihm->meshtbl, &pihm->elem[i], j);
 
-                /* Node indicates the index of grid blocks, not nodes at corners */
+                /* Initialize GW fluxes */
                 CD->Flux[RT_LAT_GW(i, j)].nodeup = CD->Vcele[RT_GW(i)].index;
                 CD->Flux[RT_LAT_GW(i, j)].node_trib = 0;
                 CD->Flux[RT_LAT_GW(i, j)].nodelo = (elemlo > 0) ?
@@ -1647,8 +1649,23 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_GW(i, j)].flux_type = 0;
                 CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_GW(i, j)].BC = DISPERSION;
-                CD->Flux[RT_LAT_GW(i, j)].distance =
-                    Dist2Edge(&pihm->meshtbl, &pihm->elem[i], j);
+                CD->Flux[RT_LAT_GW(i, j)].distance = distance;
+
+                /* Initialize unsat zone fluxes */
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodeup = CD->Vcele[RT_UNSAT(i)].index;
+                CD->Flux[RT_LAT_UNSAT(i, j)].node_trib = 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = (elemlo > 0) ?
+                    CD->Vcele[RT_UNSAT(elemlo - 1)].index :
+                    CD->Vcele[RT_RIVBED(-elemlo - 1)].index;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = (elemuu > 0) ?
+                    CD->Vcele[RT_UNSAT(elemuu - 1)].index :0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodell = (elemll > 0) ?
+                    CD->Vcele[RT_UNSAT(elemll - 1)].index : 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].flux_type = 0;  /* Unsat lateral flux, flux = 0.0 */
+                CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].BC = DISPERSION;
+                CD->Flux[RT_LAT_UNSAT(i, j)].distance = distance;
+
             }
             else
             {
@@ -1661,74 +1678,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_GW(i, j)].BC = NO_FLOW;
                 CD->Flux[RT_LAT_GW(i, j)].distance = 0.0;
-            }
-        }
-    }
 
-    /* The following is for UNSAT face/flux */
-    for (i = 0; i < nelem; i++)
-    {
-        for (j = 0; j < 3; j++)
-        {
-            if (pihm->meshtbl.nabr[i][j] > 0)
-            {
-                /* Node indicates the index of grid blocks, not nodes at corners */
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodeup = i + 1 + nelem;
-                CD->Flux[RT_LAT_UNSAT(i, j)].node_trib = 0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = pihm->meshtbl.nabr[i][j] + nelem;
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = upstream(pihm->elem[i],
-                    pihm->elem[pihm->meshtbl.nabr[i][j] - 1], pihm) +
-                    nelem;  /* Note the "+nelem" */
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodell =
-                    upstream(pihm->elem[pihm->meshtbl.nabr[i][j] - 1],
-                    pihm->elem[i], pihm) + nelem;
-                CD->Flux[RT_LAT_UNSAT(i, j)].flux_type = 0;  /* Unsat lateral flux, flux = 0.0 */
-                CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].BC = DISPERSION;
-
-                CD->Flux[RT_LAT_UNSAT(i, j)].distance = sqrt(pow(pihm->elem[i].topo.x -
-                        pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.x, 2) +
-                        pow(pihm->elem[i].topo.y -
-                        pihm->elem[pihm->meshtbl.nabr[i][j] - 1].topo.y, 2));
-
-                index_0 = pihm->elem[i].node[(j + 1) % 3] - 1;
-                index_1 = pihm->elem[i].node[(j + 2) % 3] - 1;
-                x_0 = pihm->meshtbl.x[index_0];
-                y_0 = pihm->meshtbl.y[index_0];
-                x_1 = pihm->meshtbl.x[index_1];
-                y_1 = pihm->meshtbl.y[index_1];
-                para_a = y_1 - y_0;
-                para_b = x_0 - x_1;
-                para_c = (x_1 - x_0) * y_0 - (y_1 - y_0) * x_0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].distance = fabs(para_a * pihm->elem[i].topo.x +
-                    para_b * pihm->elem[i].topo.y + para_c) /
-                    sqrt(para_a * para_a + para_b * para_b);
-
-                for (rivi = 0; rivi < nriver; rivi++)
-                {
-                    if ((CD->Flux[RT_LAT_UNSAT(i, j)].nodeup - nelem ==
-                            pihm->river[rivi].leftele) &&
-                        (CD->Flux[RT_LAT_UNSAT(i, j)].nodelo - nelem ==
-                            pihm->river[rivi].rightele))
-                    {
-                        CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = 2 * nelem + nriver + rivi + 1;
-                        CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = 0;
-                        CD->Flux[RT_LAT_UNSAT(i, j)].nodell = 0;
-                    }
-                    if ((CD->Flux[RT_LAT_UNSAT(i, j)].nodeup - nelem ==
-                            pihm->river[rivi].rightele) &&
-                        (CD->Flux[RT_LAT_UNSAT(i, j)].nodelo - nelem ==
-                            pihm->river[rivi].leftele))
-                    {
-                        CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = 2 * nelem + nriver + rivi + 1;
-                        CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = 0;
-                        CD->Flux[RT_LAT_UNSAT(i, j)].nodell = 0;
-                    }
-                }
-            }
-            else
-            {
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodeup = i + 1 + nelem;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodeup = CD->Vcele[RT_UNSAT(i)].index;;
                 CD->Flux[RT_LAT_UNSAT(i, j)].node_trib = 0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = 0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = 0;
@@ -1739,20 +1690,12 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_UNSAT(i, j)].distance = 0.0;
             }
         }
-    }
 
-    /* Configuring the vertical connectivity of UNSAT - GW blocks */
-    fprintf(stderr,
-        "\n Configuring the vertical connectivity of UNSAT - GW grid blocks... \n");
-
-    /* Centered at unsat blocks */
-    for (i = 0; i < nelem; i++)
-    {
+        /* Rechage centered at unsat blocks */
         CD->Vcele[RT_UNSAT(i)].ErrDumper = RT_RECHG_UNSAT(i);
-        CD->Flux[RT_RECHG_UNSAT(i)].nodeup = RT_UNSAT(i) + 1;
+        CD->Flux[RT_RECHG_UNSAT(i)].nodeup = CD->Vcele[RT_UNSAT(i)].index;
         CD->Flux[RT_RECHG_UNSAT(i)].node_trib = 0;
-        CD->Flux[RT_RECHG_UNSAT(i)].nodelo = RT_GW(i) + 1;
-
+        CD->Flux[RT_RECHG_UNSAT(i)].nodelo = CD->Vcele[RT_GW(i)].index;
         CD->Flux[RT_RECHG_UNSAT(i)].nodeuu = 0;
         CD->Flux[RT_RECHG_UNSAT(i)].nodell = 0;
         CD->Flux[RT_RECHG_UNSAT(i)].flux_type = 0;  /* Although vertical flow, but intended for
@@ -1760,16 +1703,13 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                                      * 0 for lateral, 1 for vertical */
         CD->Flux[RT_RECHG_UNSAT(i)].flux_trib = 0.0;
         CD->Flux[RT_RECHG_UNSAT(i)].BC = DISPERSION;
-        CD->Flux[RT_RECHG_UNSAT(i)].distance = 0.1 * CD->Vcele[RT_UNSAT(i)].height_v;
-    }
+        CD->Flux[RT_RECHG_UNSAT(i)].distance = 0.1 * pihm->elem[i].soil.depth;
 
-    /* Centered at gw blocks */
-    for (i = 0; i < nelem; i++)
-    {
+        /* Recharge centered at gw blocks */
         CD->Vcele[RT_GW(i)].ErrDumper = RT_RECHG_GW(i);
-        CD->Flux[RT_RECHG_GW(i)].nodeup = RT_GW(i) + 1;
+        CD->Flux[RT_RECHG_GW(i)].nodeup = CD->Vcele[RT_GW(i)].index;
         CD->Flux[RT_RECHG_GW(i)].node_trib = 0;
-        CD->Flux[RT_RECHG_GW(i)].nodelo = RT_UNSAT(i) + 1;
+        CD->Flux[RT_RECHG_GW(i)].nodelo = CD->Vcele[RT_UNSAT(i)].index;
         CD->Flux[RT_RECHG_GW(i)].nodeuu = 0;
         CD->Flux[RT_RECHG_GW(i)].nodell = 0;
         CD->Flux[RT_RECHG_GW(i)].flux_type = 1;  /* Vertical flow, but intended for recharge
@@ -1777,9 +1717,12 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                                      * 1 for vertical */
         CD->Flux[RT_RECHG_GW(i)].flux_trib = 0.0;
         CD->Flux[RT_RECHG_GW(i)].BC = DISPERSION;
-        CD->Flux[RT_RECHG_GW(i)].distance = 0.1 * CD->Vcele[RT_GW(i)].height_v;
+        CD->Flux[RT_RECHG_GW(i)].distance = 0.1 * pihm->elem[i].soil.depth;
     }
-    CD->NumDis = 2 * 3 * nelem + 2 * nelem;
+
+    /* Configuring the vertical connectivity of UNSAT - GW blocks */
+    fprintf(stderr,
+        "\n Configuring the vertical connectivity of UNSAT - GW grid blocks... \n");
 
     /* Configuring the connectivity of RIVER and EBR blocks */
     fprintf(stderr,
