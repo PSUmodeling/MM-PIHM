@@ -1953,13 +1953,13 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
 
     /* Initialize unsaturated zone concentrations to be the same as in saturated
      * zone */
-    for (i = nelem; i < nelem * 2; i++)
+    for (i = 0; i < nelem; i++)
     {
         for (k = 0; k < CD->NumStc; k++)
         {
-            CD->Vcele[i].t_conc[k] = CD->Vcele[i - CD->NumEle].t_conc[k];
-            CD->Vcele[i].p_conc[k] = CD->Vcele[i - CD->NumEle].p_conc[k];
-            CD->Vcele[i].p_actv[k] = CD->Vcele[i - CD->NumEle].p_actv[k];
+            CD->Vcele[RT_UNSAT(i)].t_conc[k] = CD->Vcele[RT_GW(i)].t_conc[k];
+            CD->Vcele[RT_UNSAT(i)].p_conc[k] = CD->Vcele[RT_GW(i)].p_conc[k];
+            CD->Vcele[RT_UNSAT(i)].p_actv[k] = CD->Vcele[RT_GW(i)].p_actv[k];
         }
     }
 
