@@ -1773,7 +1773,15 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Flux[RT_LEFT_AQIF2RIVER(i)].BC = DISPERSION;
         CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux = 0.0;
         CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux_trib = 0.0;
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].distance = 1.0;
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            if (-pihm->elem[pihm->river[i].leftele - 1].nabr[j] == i + 1)
+            {
+                CD->Flux[RT_LEFT_AQIF2RIVER(i)].distance =
+                CD->Flux[RT_LAT_GW(pihm->river[i].leftele - 1, j)].distance;
+                break;
+            }
+        }
         CD->Flux[RT_LEFT_AQIF2RIVER(i)].s_area = pihm->river[i].shp.length *
             pihm->elem[pihm->river[i].leftele - 1].soil.depth;
 
@@ -1789,7 +1797,15 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Flux[RT_RIGHT_AQIF2RIVER(i)].BC = DISPERSION;
         CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux = 0.0;
         CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux_trib = 0.0;
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].distance = 1.0;
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            if (-pihm->elem[pihm->river[i].rightele - 1].nabr[j] == i + 1)
+            {
+                CD->Flux[RT_RIGHT_AQIF2RIVER(i)].distance =
+                CD->Flux[RT_LAT_GW(pihm->river[i].rightele - 1, j)].distance;
+                break;
+            }
+        }
         CD->Flux[RT_RIGHT_AQIF2RIVER(i)].s_area =
             pihm->river[i].shp.length *
             pihm->elem[pihm->river[i].rightele - 1].soil.depth;
@@ -1976,21 +1992,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
             }
         }
     }
-
-    /* Correct river connectivity */
-    for (i = 0; i < NUM_EDGE * nelem * 2; i++)
-        for (j = NUM_EDGE * nelem * 2; j < CD->NumFac; j++)
-        {
-            if ((CD->Flux[i].nodeup == CD->Flux[j].nodelo) &&
-                (CD->Flux[i].nodelo == CD->Flux[j].nodeup))
-            {
-                //fprintf (stderr, " Flux between %d and %d identified \n",
-                //CD->Flux[i].nodelo, CD->Flux[i].nodeup);
-                CD->Flux[j].BC = CD->Flux[i].BC = DISPERSION;
-                CD->Flux[j].distance = CD->Flux[i].distance;
-                //fprintf(stderr, " Flux from river to ele corrected as BC %d, distance %f.\n",CD->Flux[j].BC, CD->Flux[j].distance);
-            }
-        }
 
     for (i = 0; i < num_conditions; i++)
     {
