@@ -1980,15 +1980,19 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     }
 
     /* Initialize river concentrations */
-    for (i = nelem * 2; i < CD->NumVol; i++)
+    for (i = 0; i < nriver; i++)
     {
         for (k = 0; k < CD->NumStc; k++)
         {
             if (CD->chemtype[k].itype != AQUEOUS)
             {
-                CD->Vcele[i].t_conc[k] = 1.0E-20;
-                CD->Vcele[i].p_conc[k] = 1.0E-20;
-                CD->Vcele[i].p_actv[k] = 1.0E-20;
+                CD->Vcele[RT_RIVER(i)].t_conc[k] = 1.0E-20;
+                CD->Vcele[RT_RIVER(i)].p_conc[k] = 1.0E-20;
+                CD->Vcele[RT_RIVER(i)].p_actv[k] = 1.0E-20;
+
+                CD->Vcele[RT_RIVBED(i)].t_conc[k] = 1.0E-20;
+                CD->Vcele[RT_RIVBED(i)].p_conc[k] = 1.0E-20;
+                CD->Vcele[RT_RIVBED(i)].p_actv[k] = 1.0E-20;
             }
         }
     }
