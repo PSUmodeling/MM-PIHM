@@ -2129,31 +2129,14 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             pihm->river[i].wf.rivflow[5] * 86400;
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux += pihm->river[i].wf.rivflow[9] * 86400 +
             pihm->river[i].wf.rivflow[1] * 86400;
-        if (pihm->river[i].up[0] > 0)   /* Not tributary starting point */
-        {
-            CD->Flux[RT_UP_RIVER2RIVER(i)].flux +=
-                -(pihm->river[CD->Flux[RT_UP_RIVER2RIVER(i)].nodelo - 1 - 2 * nelem -
-                    nriver].wf.rivflow[9] * 86400 +
-                pihm->river[CD->Flux[RT_UP_RIVER2RIVER(i)].nodelo - 1 - 2 * nelem -
-                    nriver].wf.rivflow[1] * 86400);
-        }
-        else                        /* Tributary starting point = 0.0 [m3/d] */
-        {
-            CD->Flux[RT_UP_RIVER2RIVER(i)].flux += pihm->river[i].wf.rivflow[10] * 86400 +
-                pihm->river[i].wf.rivflow[0] * 86400;
-        }
+        CD->Flux[RT_UP_RIVER2RIVER(i)].flux += pihm->river[i].wf.rivflow[10] * 86400 +
+            pihm->river[i].wf.rivflow[0] * 86400;
 
         if (CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib > 0)
         {
             CD->Flux[RT_UP_RIVER2RIVER(i)].flux_trib +=
-                -(pihm->river[CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib - 1 - 2 * nelem -
-                nriver].wf.rivflow[9] * 86400 +
-                pihm->river[CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib - 1 - 2 * nelem -
-                nriver].wf.rivflow[1] * 86400);
-        }
-        else
-        {
-            CD->Flux[RT_UP_RIVER2RIVER(i)].flux_trib += 0.0;
+                -(pihm->river[pihm->river[i].up[1] - 1].wf.rivflow[9] * 86400 +
+                pihm->river[pihm->river[i].up[1] - 1].wf.rivflow[1] * 86400);
         }
     }
 
