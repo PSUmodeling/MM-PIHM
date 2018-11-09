@@ -2228,44 +2228,32 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #endif
         for (i = 0; i < nelem; i++)
         {
-            CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_t = MAX(pihm->elem[i].ws.gw, 1.0E-5);
-            CD->Vcele[i].height_int = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_sp =
-                (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
-            CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-            CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-        }
+            CD->Vcele[RT_GW(i)].height_o = CD->Vcele[RT_GW(i)].height_t;
+            CD->Vcele[RT_GW(i)].height_t = MAX(pihm->elem[i].ws.gw, 1.0E-5);
+            CD->Vcele[RT_GW(i)].height_int = CD->Vcele[RT_GW(i)].height_t;
+            CD->Vcele[RT_GW(i)].height_sp =
+                (CD->Vcele[RT_GW(i)].height_t - CD->Vcele[RT_GW(i)].height_o) * invavg;
+            CD->Vcele[RT_GW(i)].vol_o =
+                CD->Vcele[RT_GW(i)].area * CD->Vcele[RT_GW(i)].height_o;
+            CD->Vcele[RT_GW(i)].vol =
+                CD->Vcele[RT_GW(i)].area * CD->Vcele[RT_GW(i)].height_t;
 
-#ifdef _OPENMP
-# pragma omp parallel for
-#endif
-        /* Update the unsaturated zone (vadoze) */
-        for (i = nelem; i < 2 * nelem; i++)
-        {
-            int             j;
-            j = i - nelem;
-            CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_t =
-                MAX(((pihm->elem[j].ws.unsat * (pihm->elem[j].soil.smcmax -
-                pihm->elem[j].soil.smcmin) +
-                (CD->Vcele[i].height_v - CD->Vcele[i - nelem].height_t) *
-                pihm->elem[j].soil.smcmin) / pihm->elem[j].soil.smcmax),
+            /* Update the unsaturated zone (vadoze) */
+            CD->Vcele[RT_UNSAT(i)].height_o = CD->Vcele[RT_UNSAT(i)].height_t;
+            CD->Vcele[RT_UNSAT(i)].height_t =
+                MAX(((pihm->elem[i].ws.unsat * (pihm->elem[i].soil.smcmax -
+                pihm->elem[i].soil.smcmin) +
+                (CD->Vcele[RT_UNSAT(i)].height_v - CD->Vcele[RT_GW(i)].height_t) *
+                pihm->elem[i].soil.smcmin) / pihm->elem[i].soil.smcmax),
                 1.0E-5);
-            //CD->Vcele[i].height_t =
-            //    MAX(((Y[i] * (pihm->elem[j].soil.smcmax -
-            //    pihm->elem[j].soil.smcmin) +
-            //    (CD->Vcele[i].height_v - CD->Vcele[i - nelem].height_t) *
-            //    pihm->elem[j].soil.smcmin) / pihm->elem[j].soil.smcmax),
-            //    1.0E-5);
-            CD->Vcele[i].height_int = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_sp =
-                (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
-            CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-            CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-            CD->Vcele[i].sat = CD->Vcele[i].height_t /
-                (CD->Vcele[i].height_v - CD->Vcele[i - nelem].height_t);
-            CD->Vcele[i].q *= invavg;
+            CD->Vcele[RT_UNSAT(i)].height_int = CD->Vcele[RT_UNSAT(i)].height_t;
+            CD->Vcele[RT_UNSAT(i)].height_sp =
+                (CD->Vcele[RT_UNSAT(i)].height_t - CD->Vcele[RT_UNSAT(i)].height_o) * invavg;
+            CD->Vcele[RT_UNSAT(i)].vol_o = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_o;
+            CD->Vcele[RT_UNSAT(i)].vol = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_t;
+            CD->Vcele[RT_UNSAT(i)].sat = CD->Vcele[RT_UNSAT(i)].height_t /
+                (CD->Vcele[RT_UNSAT(i)].height_v - CD->Vcele[RT_GW(i)].height_t);
+            CD->Vcele[RT_UNSAT(i)].q *= invavg;
         }
 
 #ifdef _OPENMP
