@@ -2260,18 +2260,16 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #pragma omp parallel for
 #endif
         /* Update river cells */
-        for (i = 2 * nelem; i < 2 * nelem + nriver; i++)
+        for (i = 0; i < nriver; i++);
         {
-            int             j;
-            j = i - 2 * nelem;
-            CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_t = MAX(Y[i + nelem], 1.0E-5);
-            CD->Vcele[i].height_int = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_sp =
-                (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
-            CD->Vcele[i].area = pihm->river[j].topo.area;
-            CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-            CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
+            CD->Vcele[RT_RIVER(i)].height_o = CD->Vcele[RT_RIVER(i)].height_t;
+            CD->Vcele[RT_RIVER(i)].height_t = MAX(Y[i + 2 * nelem], 1.0E-5);
+            CD->Vcele[RT_RIVER(i)].height_int = CD->Vcele[RT_RIVER(i)].height_t;
+            CD->Vcele[RT_RIVER(i)].height_sp =
+                (CD->Vcele[RT_RIVER(i)].height_t - CD->Vcele[RT_RIVER(i)].height_o) * invavg;
+            CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
+            CD->Vcele[RT_RIVER(i)].vol_o = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_o;
+            CD->Vcele[RT_RIVER(i)].vol = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_t;
         }
 
 #ifdef _OPENMP
