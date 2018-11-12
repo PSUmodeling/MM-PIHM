@@ -1407,7 +1407,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[RT_GW(i)].vol_o = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].sat = 1.0;
-        CD->Vcele[RT_GW(i)].temperature = pihm->elem[i].attrib.meteo_type;
 
         /* Initializing volumetrics for unsaturated cells */
         CD->Vcele[RT_UNSAT(i)].height_v = pihm->elem[i].soil.depth;
@@ -1427,7 +1426,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
             (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw);
         CD->Vcele[RT_UNSAT(i)].vol_o = pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].height_o;
         CD->Vcele[RT_UNSAT(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].soil.depth;
-        CD->Vcele[RT_UNSAT(i)].temperature = pihm->elem[i].attrib.meteo_type;
 
         /* The saturation of unsaturated zone is the Hu divided by height of
          * this cell */
