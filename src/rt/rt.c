@@ -2685,14 +2685,13 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
 {
     double          stepsize, org_time, step_rst, end_time;
     double          timer1, timer2;
-    int             i, j, k, m, nr_max, int_flg, tot_nr;
+    int             i, j, k, m, nr_max, int_flg;
     time_t          t_start_transp, t_end_transp, t_start_react, t_end_react;
     int             VIRTUAL_VOL = CD->NumVol;
 
     stepsize = *start_step;
     org_time = timelps;
     step_rst = *start_step;
-    tot_nr = 0;
 
     t_start_transp = time(NULL);
 
@@ -2850,7 +2849,6 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
 
                         if (j == 0)
                         {
-                            tot_nr += nr_tmp;
                             fprintf(stderr,
                                 " Reaction passed with step equals to %f (1/%d)\n",
                                 substep, k);
@@ -2858,12 +2856,10 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                             {
                                 React(timelps + j * substep, substep, CD, i,
                                     &nr_tmp, pihm);
-                                tot_nr += nr_tmp;
                             }
                         }
                     }
                 }
-                tot_nr += nr_tmp;
             }
         }
 
