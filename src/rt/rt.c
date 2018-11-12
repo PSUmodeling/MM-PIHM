@@ -1395,7 +1395,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     /* Initializing volumetric parameters, inherit from PIHM
      * That is, if PIHM is started from a hot start, rt is also
      * initialized with the hot data */
-
     for (i = 0; i < nelem; i++)
     {
         /* Initializing volumetrics for groundwater (GW) cells */
@@ -1598,7 +1597,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
 
         for (j = 0; j < 3; j++)
         {
-            if (pihm->meshtbl.nabr[i][j] > 0)
+            if (pihm->elem[i].nabr[j] != NO_FLOW)
             {
                 elemlo = pihm->elem[i].nabr[j];
                 elemuu = (pihm->elem[i].nabr[j] > 0) ?
