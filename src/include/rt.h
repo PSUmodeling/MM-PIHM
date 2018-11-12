@@ -66,7 +66,6 @@ typedef struct vol_conc_type
     double          vol;        /* volume of water of current time step */
     double          porosity;   /* porosity of the volume */
     double          q;          /* sink or source flow rate, in m3/day */
-    double          temperature;    /* temperature of the block */
     double          rt_step;    /* rt_step of cell */
     //  double * Keq;          /* local Keq driven by temperature */
     //  Debye_Huckel DH;       /* local Debye_Huckel array driven by local temperature */
