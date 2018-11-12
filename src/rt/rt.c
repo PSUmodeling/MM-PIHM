@@ -2815,51 +2815,16 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
 #ifdef _OPENMP
 # pragma omp parallel for
 #endif
-            for (i = 0; i < CD->NumVol; i++)
+            for (i = 0; i < nelem; i++)
             {
-                int             k, j;
-                double          substep;
+                double          z_SOC;
 
-                if ((i >= RT_RIVBED(0) && i <= RT_RIVBED(nriver)) ||
-                    (i >= RT_RIVER(0) && i <= RT_RIVER(nriver)) ||
-                    i == VIRTUAL_VOL - 1)
-                {
-                    continue;
-                }
+                z_SOC = CD->Vcele[RT_GW(i)].maxwater -
+                    (CD->Vcele[RT_GW(i)].height_t + CD->Vcele[RT_UNSAT(i)].height_t);
+                z_SOC = (z_SOC > 0.0) ? z_SOC : 0.0;
 
-                if (CD->Vcele[i].illness < 20)
-                {
-                    if (React(timelps - (CD->React_delay * stepsize),
-                        stepsize * CD->React_delay, CD, i, pihm))
-                    {
-                        fprintf(stderr, "  ---> React failed at cell %12d.\t",
-                            CD->Vcele[i].index);
-
-                        substep = 0.5 * stepsize;
-                        k = 2;
-
-                        while ((j =
-                            React(timelps, substep, CD, i, pihm)))
-                        {
-                            substep = 0.5 * substep;
-                            k = 2 * k;
-                            if (substep < 0.5)
-                                break;
-                        }
-
-                        if (j == 0)
-                        {
-                            fprintf(stderr,
-                                " Reaction passed with step equals to %f (1/%d)\n",
-                                substep, k);
-                            for (j = 1; j < k; j++)
-                            {
-                                React(timelps + j * substep, substep, CD, i,
-                                    pihm);
-                            }
-                        }
-                    }
-                }
+                React(stepsize, CD, RT_GW(i), pihm, z_SOC);
+                React(stepsize, CD, RT_UNSAT(i), pihm, z_SOC);
             }
         }
 

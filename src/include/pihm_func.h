@@ -698,7 +698,8 @@ void            chem_alloc(char *, const pihm_struct, N_Vector, Chem_Data, realt
 void            fluxtrans(int, int, const pihm_struct, Chem_Data, N_Vector, double *, double *);    // 10.05 add two timers
 void            chem_updater(Chem_Data, const pihm_struct); // 10.01
 void            OS3D(realtype, realtype, Chem_Data);
-int             React(realtype, realtype, Chem_Data, int, const pihm_struct);    // 10.01
+void            React(realtype, Chem_Data, int, const pihm_struct, double);    // 10.01
+int             _React(realtype, realtype, Chem_Data, int, const pihm_struct, double);    // 10.01
 void            Lookup(FILE *, Chem_Data, int);
 int             Speciation(Chem_Data, int);
 int             keymatch(const char *, const char *, double *, char **);

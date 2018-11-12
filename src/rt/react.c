@@ -966,8 +966,46 @@ int Speciation(Chem_Data CD, int cell)
 
 }
 
-int React(realtype t, realtype stepsize, Chem_Data CD, int cell,
-    const pihm_struct pihm)
+void React(realtype stepsize, Chem_Data CD, int i, const pihm_struct pihm,
+    double z_SOC)
+{
+    int             k, j;
+    double          substep;
+
+    if (CD->Vcele[i].illness < 20)
+    {
+        if (_React(0, stepsize * CD->React_delay, CD, i, pihm, z_SOC))
+        {
+            fprintf(stderr, "  ---> React failed at cell %12d.\t",
+                    CD->Vcele[i].index);
+
+            substep = 0.5 * stepsize;
+            k = 2;
+
+            while ((j = _React(0, substep, CD, i, pihm, z_SOC)))
+            {
+                substep = 0.5 * substep;
+                k = 2 * k;
+                if (substep < 0.5)
+                    break;
+            }
+
+            if (j == 0)
+            {
+                fprintf(stderr,
+                        " Reaction passed with step equals to %f (1/%d)\n",
+                        substep, k);
+                for (j = 1; j < k; j++)
+                {
+                    _React(0, substep, CD, i, pihm, z_SOC);
+                }
+            }
+        }
+    }
+}
+
+int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
+    const pihm_struct pihm, double z_SOC)
 {
     if (CD->Vcele[cell].sat < 1.0E-2)
     {
@@ -979,7 +1017,6 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell,
     int             mn, in;
     double          monodterm = 1.0, inhibterm = 1.0;
     double          fd = 1.0;       /* SOC declining factor */
-    double          z_SOC = 0.0;    /* water level depth to surface ground */
     int             stc = CD->NumStc, ssc = CD->NumSsc, nkr =
         CD->NumMkr + CD->NumAkr, smc = CD->NumMin;
     double         *residue, *residue_t, *tmpconc, *totconc, *area, *error,
@@ -1089,20 +1126,6 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell,
             }
 
             /* SOC declining factor */
-            if (cell <= CD->NumEle - 1) /* Saturated zone */
-            {
-                z_SOC =
-                    CD->Vcele[cell].maxwater - (CD->Vcele[cell].height_t +
-                    CD->Vcele[cell + CD->NumEle].height_t);
-            }
-            else                        /* unsaturated zone */
-            {
-                z_SOC =
-                    CD->Vcele[cell].maxwater - (CD->Vcele[cell].height_t +
-                    CD->Vcele[cell - CD->NumEle].height_t);
-            }
-
-            z_SOC = (z_SOC > 0) ? z_SOC : 0.0;
             fd = 1.0 * exp(-z_SOC / 0.1);
 
             /* Based on CrunchTope */
@@ -1272,20 +1295,6 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell,
                 }
 
                 /* SOC declining factor */
-                if (cell <= CD->NumEle - 1) /* saturated zone */
-                {
-                    z_SOC =
-                        CD->Vcele[cell].maxwater - (CD->Vcele[cell].height_t +
-                        CD->Vcele[cell + CD->NumEle].height_t);
-                }
-                else            /* unsaturated zone */
-                {
-                    z_SOC =
-                        CD->Vcele[cell].maxwater - (CD->Vcele[cell].height_t +
-                        CD->Vcele[cell - CD->NumEle].height_t);
-                }
-
-                z_SOC = (z_SOC > 0) ? z_SOC : 0.0;
                 fd = 1.0 * exp(-z_SOC / 0.1);
 
                 /* Based on CrunchTope */
