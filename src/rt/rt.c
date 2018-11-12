@@ -2055,6 +2055,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                                                  * Longer default averaging
                                                  * value will fail */
     unit_c = stepsize / UNIT_C;
+    int             VIRTUAL_VOL = CD->NumVol;
 
     Y = NV_DATA_S(VY);
 
@@ -2276,28 +2277,27 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #pragma omp parallel for
 #endif
         /* Update EBR cells */
-        for (i = 2 * nelem + nriver; i < 2 * (nelem + nriver); i++)
+        for (i = 0; i < nriver; i++)
         {
-            int             j;
-            j = i - 2 * nelem - nriver;
-            CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_t = MAX(Y[i + nelem], 1.0E-5) +
-                MAX(Y[i + nelem - nriver], 1.0E-5) / CD->Vcele[i].porosity;
-            CD->Vcele[i].height_int = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_sp =
-                (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
-            CD->Vcele[i].area = pihm->river[j].topo.area;
-            CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-            CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
+            CD->Vcele[RT_RIVBED(i)].height_o = CD->Vcele[RT_RIVBED(i)].height_t;
+            CD->Vcele[RT_RIVBED(i)].height_t = MAX(Y[i + 3 * nelem + nriver], 1.0E-5) +
+                MAX(Y[i + 3 * nelem], 1.0E-5) / CD->Vcele[RT_RIVBED(i)].porosity;
+            CD->Vcele[RT_RIVBED(i)].height_int = CD->Vcele[RT_RIVBED(i)].height_t;
+            CD->Vcele[RT_RIVBED(i)].height_sp =
+                (CD->Vcele[RT_RIVBED(i)].height_t - CD->Vcele[RT_RIVBED(i)].height_o) * invavg;
+            CD->Vcele[RT_RIVBED(i)].area = pihm->river[i].topo.area;
+            CD->Vcele[RT_RIVBED(i)].vol_o = CD->Vcele[RT_RIVBED(i)].area * CD->Vcele[RT_RIVBED(i)].height_o;
+            CD->Vcele[RT_RIVBED(i)].vol = CD->Vcele[RT_RIVBED(i)].area * CD->Vcele[RT_RIVBED(i)].height_t;
         }
 
         Monitor(t, stepsize * (double)CD->AvgScl, pihm, CD);
 
+        /* Update virtual volume */
         for (k = 0; k < CD->NumStc; k++)
         {
-            CD->Vcele[CD->NumVol - 1].t_conc[k] =
+            CD->Vcele[VIRTUAL_VOL - 1].t_conc[k] =
                 CD->Precipitation.t_conc[k] * CD->Condensation;
-            CD->Vcele[CD->NumVol - 1].p_conc[k] =
+            CD->Vcele[VIRTUAL_VOL - 1].p_conc[k] =
                 CD->Precipitation.t_conc[k] * CD->Condensation;
         }
 
