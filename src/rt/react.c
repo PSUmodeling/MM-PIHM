@@ -653,7 +653,7 @@ int Speciation(Chem_Data CD, int cell)
 {
     /* if speciation flg = 1, pH is defined
      * if speciation flg = 0, all defined value is total concentration */
-    int             i, j, k, control, speciation_flg = CD->SPCFlg, num_spe =
+    int             i, j, k, speciation_flg = CD->SPCFlg, num_spe =
         CD->NumStc + CD->NumSsc;
     double          residue[CD->NumStc], residue_t[CD->NumStc],
         tmpconc[CD->NumStc + CD->NumSsc], totconc[CD->NumStc];
@@ -707,7 +707,6 @@ int Speciation(Chem_Data CD, int cell)
         long int        p[CD->NumStc - 1];
         realtype        x_[CD->NumStc - 1];
         double          maxerror = 1;
-        control = 0;
         while (maxerror > TOL)
         {
             if (CD->ACTmod == 1)
@@ -824,7 +823,6 @@ int Speciation(Chem_Data CD, int cell)
             for (i = 1; i < CD->NumStc; i++)
                 if (fabs(error[i]) > maxerror)
                     maxerror = fabs(error[i]);
-            control++;
         }
     }
     if (speciation_flg == 0)
@@ -832,7 +830,6 @@ int Speciation(Chem_Data CD, int cell)
         jcb = newDenseMat(CD->NumStc, CD->NumStc);
         long int        p[CD->NumStc];
         realtype        x_[CD->NumStc];
-        control = 0;
         double          maxerror = 1;
         while (maxerror > TOL)
         {
@@ -919,7 +916,6 @@ int Speciation(Chem_Data CD, int cell)
             for (i = 1; i < CD->NumStc; i++)
                 if (fabs(error[i]) > maxerror)
                     maxerror = fabs(error[i]);
-            control++;
         }
     }
     for (i = 0; i < CD->NumSsc; i++)
@@ -970,7 +966,7 @@ int Speciation(Chem_Data CD, int cell)
 
 }
 
-int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times,
+int React(realtype t, realtype stepsize, Chem_Data CD, int cell,
     const pihm_struct pihm)
 {
     if (CD->Vcele[cell].sat < 1.0E-2)
@@ -1389,7 +1385,6 @@ int React(realtype t, realtype stepsize, Chem_Data CD, int cell, int *NR_times,
             return (1);
     }
 
-    *(NR_times) = control;
     destroyMat(jcb);
 
     for (i = 0; i < CD->NumSsc; i++)
