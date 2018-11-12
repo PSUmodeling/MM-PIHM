@@ -966,23 +966,22 @@ int Speciation(Chem_Data CD, int cell)
 
 }
 
-void React(realtype stepsize, Chem_Data CD, int i, const pihm_struct pihm,
-    double z_SOC)
+void React(realtype stepsize, Chem_Data CD, vol_conc *Vcele, double z_SOC)
 {
     int             k, j;
     double          substep;
 
-    if (CD->Vcele[i].illness < 20)
+    if (Vcele->illness < 20)
     {
-        if (_React(0, stepsize * CD->React_delay, CD, i, pihm, z_SOC))
+        if (_React(stepsize * CD->React_delay, CD, Vcele, z_SOC))
         {
             fprintf(stderr, "  ---> React failed at cell %12d.\t",
-                    CD->Vcele[i].index);
+                    Vcele->index);
 
             substep = 0.5 * stepsize;
             k = 2;
 
-            while ((j = _React(0, substep, CD, i, pihm, z_SOC)))
+            while ((j = _React(substep, CD, Vcele, z_SOC)))
             {
                 substep = 0.5 * substep;
                 k = 2 * k;
@@ -997,17 +996,16 @@ void React(realtype stepsize, Chem_Data CD, int i, const pihm_struct pihm,
                         substep, k);
                 for (j = 1; j < k; j++)
                 {
-                    _React(0, substep, CD, i, pihm, z_SOC);
+                    _React(substep, CD, Vcele, z_SOC);
                 }
             }
         }
     }
 }
 
-int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
-    const pihm_struct pihm, double z_SOC)
+int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele, double z_SOC)
 {
-    if (CD->Vcele[cell].sat < 1.0E-2)
+    if (Vcele->sat < 1.0E-2)
     {
         /* very dry, no reaction can take place */
         return (0);
@@ -1048,23 +1046,23 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
     control = 0;
     tmpprb = 1.0E-2;
     tmpprb_inv = 1.0 / tmpprb;
-    inv_sat = 1.0 / CD->Vcele[cell].sat;
+    inv_sat = 1.0 / Vcele->sat;
 
     for (i = 0; i < CD->NumMin; i++)
     {
         area[i] = CD->CalSSA *
-            CD->Vcele[cell].p_para[i + CD->NumStc - CD->NumMin] *
-            CD->Vcele[cell].p_conc[i + CD->NumStc - CD->NumMin] *
+            Vcele->p_para[i + CD->NumStc - CD->NumMin] *
+            Vcele->p_conc[i + CD->NumStc - CD->NumMin] *
             CD->chemtype[i + CD->NumStc - CD->NumMin].MolarMass;
     }
 
     if (CD->SUFEFF)
     {
-        if (CD->Vcele[cell].sat < 1.0)
+        if (Vcele->sat < 1.0)
         {
             //surf_ratio = 1.0;  /* # 1 function */
-            surf_ratio = exp(CD->Vcele[cell].sat) - 1.0;    /* # 3 function */
-            //surf_ratio = 1.0 - pow(exp(-1.0/CD->Vcele[cell].sat), 0.6); /* # 4 function */
+            surf_ratio = exp(Vcele->sat) - 1.0;    /* # 3 function */
+            //surf_ratio = 1.0 - pow(exp(-1.0/Vcele->sat), 0.6); /* # 4 function */
             for (i = 0; i < CD->NumMin; i++)
             {
                 area[i] *= surf_ratio;
@@ -1086,7 +1084,7 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
             IAP[i] = 0.0;
             for (j = 0; j < CD->NumStc; j++)
             {
-                IAP[i] += log10(CD->Vcele[cell].p_actv[j]) *
+                IAP[i] += log10(Vcele->p_actv[j]) *
                     CD->Dep_kinetic[min_pos][j];
             }
             IAP[i] = pow(10, IAP[i]);
@@ -1094,7 +1092,7 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
             dependency[i] = 1.0;
             for (k = 0; k < CD->kinetics[i].num_dep; k++)
                 dependency[i] *=
-                    pow(CD->Vcele[cell].p_actv[CD->kinetics[i].dep_position[k]],
+                    pow(Vcele->p_actv[CD->kinetics[i].dep_position[k]],
                     CD->kinetics[i].dep_power[k]);
             /* Calculate the predicted rate depending on the type of rate law!  */
             Rate_pre[i] = area[min_pos] * (pow(10, CD->kinetics[i].rate)) *
@@ -1113,8 +1111,8 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
             for (mn = 0; mn < CD->kinetics[i].num_monod; mn++)
             {
                 monodterm *=
-                    CD->Vcele[cell].p_conc[CD->kinetics[i].monod_position[mn]] /
-                    (CD->Vcele[cell].p_conc[CD->kinetics[i].monod_position[mn]] +
+                    Vcele->p_conc[CD->kinetics[i].monod_position[mn]] /
+                    (Vcele->p_conc[CD->kinetics[i].monod_position[mn]] +
                     CD->kinetics[i].monod_para[mn]);
             }
 
@@ -1122,7 +1120,7 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
             {
                 inhibterm *= CD->kinetics[i].inhib_para[in] /
                     (CD->kinetics[i].inhib_para[in] +
-                    CD->Vcele[cell].p_conc[CD->kinetics[i].inhib_position[in]]);
+                    Vcele->p_conc[CD->kinetics[i].inhib_position[in]]);
             }
 
             /* SOC declining factor */
@@ -1144,7 +1142,7 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
         min_pos = CD->kinetics[i].position - CD->NumStc + CD->NumMin;
         if (Rate_pre[i] < 0.0)
         {
-            if (CD->Vcele[cell].p_conc[min_pos + CD->NumStc - CD->NumMin] < 1.0E-8) /* mineral cutoff when mineral is disappearing */
+            if (Vcele->p_conc[min_pos + CD->NumStc - CD->NumMin] < 1.0E-8) /* mineral cutoff when mineral is disappearing */
                 area[min_pos] = 0.0;
         }
     }
@@ -1166,11 +1164,11 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
 
     for (i = 0; i < CD->NumStc; i++)
     {
-        tmpconc[i] = log10(CD->Vcele[cell].p_conc[i]);
+        tmpconc[i] = log10(Vcele->p_conc[i]);
     }
     for (i = 0; i < CD->NumSsc; i++)
     {
-        tmpconc[i + CD->NumStc] = log10(CD->Vcele[cell].s_conc[i]);
+        tmpconc[i + CD->NumStc] = log10(Vcele->s_conc[i]);
     }
     tot_cec = 0.0;
     for (i = 0; i < num_spe; i++)
@@ -1197,7 +1195,7 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
                     bdh * CD->chemtype[i].SizeF * Iroot) + bdt * I;
                 break;
             case ADSORPTION:
-                gamma[i] = log10(CD->Vcele[cell].sat);
+                gamma[i] = log10(Vcele->sat);
                 break;
             case CATION_ECHG:
                 gamma[i] = -log10(tot_cec);
@@ -1278,9 +1276,9 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
                 for (mn = 0; mn < CD->kinetics[i].num_monod; mn++)
                 {
                     monodterm *=
-                        CD->Vcele[cell].p_conc[CD->
+                        Vcele->p_conc[CD->
                         kinetics[i].monod_position[mn]] /
-                        (CD->Vcele[cell].p_conc[CD->
+                        (Vcele->p_conc[CD->
                             kinetics[i].monod_position[mn]] +
                         CD->kinetics[i].monod_para[mn]);
                 }
@@ -1290,7 +1288,7 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
                     inhibterm *=
                         CD->kinetics[i].inhib_para[in] /
                         (CD->kinetics[i].inhib_para[in] +
-                        CD->Vcele[cell].p_conc[CD->
+                        Vcele->p_conc[CD->
                             kinetics[i].inhib_position[in]]);
                 }
 
@@ -1326,9 +1324,9 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
             }
             totconc[i] = tmpval;
             residue[i] =
-                tmpval - (CD->Vcele[cell].t_conc[i] + (Rate_spe[i] +
+                tmpval - (Vcele->t_conc[i] + (Rate_spe[i] +
                     Rate_spet[i]) * stepsize * 0.5);
-            //residue[i] = tmpval -( CD->Vcele[cell].t_conc[i] + (Rate_spet[i])*stepsize);
+            //residue[i] = tmpval -( Vcele->t_conc[i] + (Rate_spet[i])*stepsize);
         }
         if (control % SKIP_JACOB == 0)  /* update jacobian every the other iteration */
         {
@@ -1353,7 +1351,7 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
                     }
                     //    totconc[i] = tmpval;
                     residue_t[i] =
-                        tmpval - (CD->Vcele[cell].t_conc[i] + (Rate_spe[i] +
+                        tmpval - (Vcele->t_conc[i] + (Rate_spe[i] +
                             Rate_spet[i]) * stepsize * 0.5);
                     jcb[k][i] = (residue_t[i] - residue[i]) * tmpprb_inv;
                 }
@@ -1366,7 +1364,7 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
         pivot_flg = denseGETRF(jcb, CD->NumStc - CD->NumMin, CD->NumStc - CD->NumMin, p);   // 09.17
         if (pivot_flg != 0)
         {
-            CD->Vcele[cell].illness++;
+            Vcele->illness++;
             return (1);
         }
 
@@ -1415,7 +1413,7 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
             tmpval += CD->Totalconc[i][j] * pow(10, tmpconc[j]);
         }
         totconc[i] = tmpval;
-        residue[i] = tmpval - CD->Vcele[cell].t_conc[i];
+        residue[i] = tmpval - Vcele->t_conc[i];
         error[i] = residue[i] / totconc[i];
     }
     for (i = 0; i < CD->NumStc + CD->NumSsc; i++)
@@ -1424,22 +1422,22 @@ int _React(realtype t, realtype stepsize, Chem_Data CD, int cell,
         {
             if (CD->chemtype[i].itype == MINERAL)
             {
-                CD->Vcele[cell].t_conc[i] +=
+                Vcele->t_conc[i] +=
                     (Rate_spe[i] + Rate_spet[i]) * stepsize * 0.5;
-                CD->Vcele[cell].p_actv[i] = 1.0;
-                CD->Vcele[cell].p_conc[i] = CD->Vcele[cell].t_conc[i];
+                Vcele->p_actv[i] = 1.0;
+                Vcele->p_conc[i] = Vcele->t_conc[i];
             }
             else
             {
-                CD->Vcele[cell].p_conc[i] = pow(10, tmpconc[i]);
-                CD->Vcele[cell].p_actv[i] = pow(10, (tmpconc[i] + gamma[i]));
-                CD->Vcele[cell].t_conc[i] = totconc[i];
+                Vcele->p_conc[i] = pow(10, tmpconc[i]);
+                Vcele->p_actv[i] = pow(10, (tmpconc[i] + gamma[i]));
+                Vcele->t_conc[i] = totconc[i];
             }
         }
         else
         {
-            CD->Vcele[cell].s_conc[i - CD->NumStc] = pow(10, tmpconc[i]);
-            CD->Vcele[cell].s_actv[i - CD->NumStc] =
+            Vcele->s_conc[i - CD->NumStc] = pow(10, tmpconc[i]);
+            Vcele->s_actv[i - CD->NumStc] =
                 pow(10, (tmpconc[i] + gamma[i]));
         }
     }
