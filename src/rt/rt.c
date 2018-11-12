@@ -2285,19 +2285,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                 peclet = MAX(peclet, 1.0E-8);
             }
 
-            if (i < CD->NumDis)
-            {
-                temp_rt_step = fabs(CD->Flux[i].flux /
-                    CD->Vcele[CD->Flux[i].nodeup - 1].vol) *
-                    (1 + peclet) / peclet;
-            }
-            else
-            {
-                temp_rt_step = fabs(CD->Flux[i].flux /
-                    CD->Vcele[CD->Flux[i].nodeup - 1].vol);
-            }
-
-            CD->Vcele[CD->Flux[i].nodeup - 1].rt_step += temp_rt_step;
+            CD->Vcele[CD->Flux[i].nodeup - 1].rt_step +=
+                fabs(CD->Flux[i].flux / CD->Vcele[CD->Flux[i].nodeup - 1].vol) *
+                (1 + peclet) / peclet;
         }
 
         k = 0;      /* Used to count the number of slow cells */
