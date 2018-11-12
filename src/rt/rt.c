@@ -2534,24 +2534,44 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
             fprintf(Cfile[0], "%6s\t", CD->chemtype[i + CD->NumStc].ChemName);
         fprintf(Cfile[0], "\n");
 
-        for (i = 0; i < CD->NumEle * 2; i++)
+        for (i = 0; i < CD->NumEle; i++)
         {
-            fprintf(Cfile[0], "%d\t", i + 1);
+            fprintf(Cfile[0], "%d\t", CD->Vcele[RT_GW(i)].index);
             for (j = 0; j < CD->NumStc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[i].p_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_GW(i)].p_conc[j]));
             for (j = 0; j < CD->NumSsc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[i].s_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_GW(i)].s_conc[j]));
+
+            fprintf(Cfile[0], "\n");
+        }
+        for (i = 0; i < CD->NumEle; i++)
+        {
+            fprintf(Cfile[0], "%d\t", CD->Vcele[RT_UNSAT(i)].index);
+            for (j = 0; j < CD->NumStc; j++)
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_UNSAT(i)].p_conc[j]));
+            for (j = 0; j < CD->NumSsc; j++)
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_UNSAT(i)].s_conc[j]));
 
             fprintf(Cfile[0], "\n");
         }
 
-        for (i = CD->NumEle * 2; i < CD->NumOsv; i++)
+        for (i = 0; i < CD->NumRiv; i++)
         {
-            fprintf(Cfile[0], "%d\t", i + 1);
+            fprintf(Cfile[0], "%d\t", CD->Vcele[RT_RIVER(i)].index);
             for (j = 0; j < CD->NumStc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[i].p_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVER(i)].p_conc[j]));
             for (j = 0; j < CD->NumSsc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[i].s_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVER(i)].s_conc[j]));
+
+            fprintf(Cfile[0], "\n");
+        }
+        for (i = 0; i < CD->NumRiv; i++)
+        {
+            fprintf(Cfile[0], "%d\t", CD->Vcele[RT_RIVBED(i)].index);
+            for (j = 0; j < CD->NumStc; j++)
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVBED(i)].p_conc[j]));
+            for (j = 0; j < CD->NumSsc; j++)
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVBED(i)].s_conc[j]));
 
             fprintf(Cfile[0], "\n");
         }
@@ -2577,8 +2597,10 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
         for (j = 0; j < CD->NumStc; j++)
         {
             tmpconc = 0.0;
-            for (i = 0; i < 2 * CD->NumEle; i++)
-                tmpconc += CD->Vcele[i].p_conc[j];
+            for (i = 0; i < nelem; i++)
+            {
+                tmpconc += CD->Vcele[RT_GW(i)].p_conc[j] + CD->Vcele[RT_UNSAT(i)].p_conc[j];
+            }
             tmpconc = tmpconc / (double)(CD->NumEle) * 0.5;
             fprintf(Cfile[1], "%12.8f\t", log10(tmpconc));
         }
@@ -2586,8 +2608,10 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
         for (j = 0; j < CD->NumSsc; j++)
         {
             tmpconc = 0.0;
-            for (i = 0; i < 2 * CD->NumEle; i++)
-                tmpconc += CD->Vcele[i].s_conc[j];
+            for (i = 0; i < nelem; i++)
+            {
+                tmpconc += CD->Vcele[RT_GW(i)].s_conc[j] + CD->Vcele[RT_UNSAT(i)].s_conc[j];
+            }
             tmpconc = tmpconc / (double)(CD->NumEle) * 0.5;
             fprintf(Cfile[1], "%12.8f\t", log10(tmpconc));
         }
