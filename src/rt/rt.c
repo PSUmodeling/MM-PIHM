@@ -2823,8 +2823,8 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                     (CD->Vcele[RT_GW(i)].height_t + CD->Vcele[RT_UNSAT(i)].height_t);
                 z_SOC = (z_SOC > 0.0) ? z_SOC : 0.0;
 
-                React(stepsize, CD, RT_GW(i), pihm, z_SOC);
-                React(stepsize, CD, RT_UNSAT(i), pihm, z_SOC);
+                React(stepsize, CD, &CD->Vcele[RT_GW(i)], z_SOC);
+                React(stepsize, CD, &CD->Vcele[RT_UNSAT(i)], z_SOC);
             }
         }
 
