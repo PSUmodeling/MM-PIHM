@@ -2329,16 +2329,19 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                     {
                         /* Averaging mineral concentration to ensure mass
                          * conservation !! */
-                        CD->Vcele[i].t_conc[j] =
-                            (CD->Vcele[i].t_conc[j] * CD->Vcele[i].height_t +
-                            CD->Vcele[i + CD->NumEle].t_conc[j] *
-                            (CD->Vcele[i].height_v - CD->Vcele[i].height_t)) /
-                            CD->Vcele[i].height_v;
-                        CD->Vcele[i + CD->NumEle].t_conc[j] =
-                            CD->Vcele[i].t_conc[j];
-                        CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
-                        CD->Vcele[i + CD->NumEle].p_conc[j] =
-                            CD->Vcele[i].t_conc[j];
+                        CD->Vcele[RT_GW(i)].t_conc[j] =
+                            (CD->Vcele[RT_GW(i)].t_conc[j] *
+                            CD->Vcele[RT_GW(i)].height_t +
+                            CD->Vcele[RT_UNSAT(i)].t_conc[j] *
+                            (CD->Vcele[RT_GW(i)].height_v -
+                            CD->Vcele[RT_GW(i)].height_t)) /
+                            CD->Vcele[RT_GW(i)].height_v;
+                        CD->Vcele[RT_UNSAT(i)].t_conc[j] =
+                            CD->Vcele[RT_GW(i)].t_conc[j];
+                        CD->Vcele[RT_GW(i)].p_conc[j] =
+                            CD->Vcele[RT_GW(i)].t_conc[j];
+                        CD->Vcele[RT_UNSAT(i)].p_conc[j] =
+                            CD->Vcele[RT_GW(i)].t_conc[j];
                     }
                 }
             }
@@ -2365,10 +2368,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         CD->TimLst = timelps;
 
-        for (i = nelem; i < 2 * nelem; i++)
+        for (i = 0; i < nelem; i++)
         {
-            j = i - nelem;
-            CD->Vcele[i].q = 0.0;
+            CD->Vcele[RT_UNSAT(i)].q = 0.0;
         }
 
         /* Reset fluxes for next averaging stage */
