@@ -2817,7 +2817,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
 #endif
             for (i = 0; i < CD->NumVol; i++)
             {
-                int             k, j, nr_tmp = 1;
+                int             k, j;
                 double          substep;
 
                 if ((i >= RT_RIVBED(0) && i <= RT_RIVBED(nriver)) ||
@@ -2830,7 +2830,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                 if (CD->Vcele[i].illness < 20)
                 {
                     if (React(timelps - (CD->React_delay * stepsize),
-                        stepsize * CD->React_delay, CD, i, &nr_tmp, pihm))
+                        stepsize * CD->React_delay, CD, i, pihm))
                     {
                         fprintf(stderr, "  ---> React failed at cell %12d.\t",
                             CD->Vcele[i].index);
@@ -2839,7 +2839,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                         k = 2;
 
                         while ((j =
-                            React(timelps, substep, CD, i, &nr_tmp, pihm)))
+                            React(timelps, substep, CD, i, pihm)))
                         {
                             substep = 0.5 * substep;
                             k = 2 * k;
@@ -2855,7 +2855,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                             for (j = 1; j < k; j++)
                             {
                                 React(timelps + j * substep, substep, CD, i,
-                                    &nr_tmp, pihm);
+                                    pihm);
                             }
                         }
                     }
