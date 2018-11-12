@@ -2319,7 +2319,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             rt_step = stepsize * (double)CD->AvgScl;
 
             AdptTime(CD, CD->TimLst, rt_step, stepsize * (double)CD->AvgScl,
-                &rt_step, nelem * 2, pihm, t_duration_transp, t_duration_react);
+                &rt_step, pihm, t_duration_transp, t_duration_react);
 
             for (i = 0; i < CD->NumEle; i++)
             {
@@ -2680,13 +2680,14 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
 }
 
 void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
-    double *start_step, int num_blocks, const pihm_struct pihm,
+    double *start_step, const pihm_struct pihm,
     double *t_duration_transp, double *t_duration_react)
 {
     double          stepsize, org_time, step_rst, end_time;
     double          timer1, timer2;
     int             i, j, k, m, nr_max, int_flg, tot_nr;
     time_t          t_start_transp, t_end_transp, t_start_react, t_end_react;
+    int             VIRTUAL_VOL = CD->NumVol;
 
     stepsize = *start_step;
     org_time = timelps;
@@ -2733,7 +2734,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
 
         timer1 = timer();
 
-        for (i = 0; i < num_blocks; i++)
+        for (i = 0; i < nelem; i++)
         {
             for (j = 0; j < CD->NumSpc; j++)
             {
@@ -2744,9 +2745,12 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                         if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
                             (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
                         {
-                            CD->Vcele[i].t_conc[j] = CD->Vcele[i].t_conc[j] -
+                            CD->Vcele[RT_GW(i)].t_conc[j] = CD->Vcele[RT_GW(i)].t_conc[j] -
                                 CD->Totalconc[j][k + CD->NumStc] *
-                                CD->Vcele[i].s_conc[k] * CD->TimRiv;
+                                CD->Vcele[RT_GW(i)].s_conc[k] * CD->TimRiv;
+                            CD->Vcele[RT_UNSAT(i)].t_conc[j] = CD->Vcele[RT_UNSAT(i)].t_conc[j] -
+                                CD->Totalconc[j][k + CD->NumStc] *
+                                CD->Vcele[RT_UNSAT(i)].s_conc[k] * CD->TimRiv;
                         }
                     }
                 }
@@ -2763,7 +2767,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
          * The porosity is not changed during the period, so the ratio between
          * pore space before and after OS3D is the same ratio between volume of
          * porous media before and after OS3D. */
-        for (i = 0; i < num_blocks; i++)
+        for (i = 0; i < nelem; i++)
         {
             for (j = 0; j < CD->NumSpc; j++)
             {
@@ -2774,9 +2778,13 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                         if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
                             (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
                         {
-                            CD->Vcele[i].t_conc[j] =
-                                CD->Vcele[i].t_conc[j] + CD->Totalconc[j][k +
-                                CD->NumStc] * CD->Vcele[i].s_conc[k] *
+                            CD->Vcele[RT_GW(i)].t_conc[j] =
+                                CD->Vcele[RT_GW(i)].t_conc[j] + CD->Totalconc[j][k +
+                                CD->NumStc] * CD->Vcele[RT_GW(i)].s_conc[k] *
+                                CD->TimRiv;
+                            CD->Vcele[RT_UNSAT(i)].t_conc[j] =
+                                CD->Vcele[RT_UNSAT(i)].t_conc[j] + CD->Totalconc[j][k +
+                                CD->NumStc] * CD->Vcele[RT_UNSAT(i)].s_conc[k] *
                                 CD->TimRiv;
                         }
                     }
@@ -2808,10 +2816,17 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
 #ifdef _OPENMP
 # pragma omp parallel for
 #endif
-            for (i = 0; i < num_blocks; i++)
+            for (i = 0; i < CD->NumVol; i++)
             {
                 int             k, j, nr_tmp = 1;
                 double          substep;
+
+                if ((i >= RT_RIVBED(0) && i <= RT_RIVBED(nriver)) ||
+                    (i >= RT_RIVER(0) && i <= RT_RIVER(nriver)) ||
+                    i == VIRTUAL_VOL - 1)
+                {
+                    continue;
+                }
 
                 if (CD->Vcele[i].illness < 20)
                 {
