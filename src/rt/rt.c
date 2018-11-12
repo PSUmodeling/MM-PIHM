@@ -429,8 +429,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     /*
      * Begin updating variables
      */
-    CD->NumVol = 2 * (nelem + nriver) + 2;
-    CD->NumOsv = CD->NumVol - 2;
+    CD->NumVol = 2 * (nelem + nriver) + 1;
+    CD->NumOsv = CD->NumVol - 1;
     CD->NumEle = nelem;
     CD->NumRiv = nriver;
 
@@ -1467,17 +1467,14 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     }
 
     /* Initialize virtual cell */
-    for (i = CD->NumOsv; i < CD->NumVol; i++)
-    {
-        CD->Vcele[i].height_v = 1.0;
-        CD->Vcele[i].height_o = 1.0;
-        CD->Vcele[i].height_t = 1.0;
-        CD->Vcele[i].area = 1.0;
-        CD->Vcele[i].porosity = 1.0;
-        CD->Vcele[i].sat = 1.0;
-        CD->Vcele[i].vol_o = 1.0;
-        CD->Vcele[i].vol = 1.0;
-    }
+    CD->Vcele[VIRTUAL_VOL].height_v = 1.0;
+    CD->Vcele[VIRTUAL_VOL].height_o = 1.0;
+    CD->Vcele[VIRTUAL_VOL].height_t = 1.0;
+    CD->Vcele[VIRTUAL_VOL].area = 1.0;
+    CD->Vcele[VIRTUAL_VOL].porosity = 1.0;
+    CD->Vcele[VIRTUAL_VOL].sat = 1.0;
+    CD->Vcele[VIRTUAL_VOL].vol_o = 1.0;
+    CD->Vcele[VIRTUAL_VOL].vol = 1.0;
 
     for (i = 0; i < CD->NumSpc; i++)
     {
