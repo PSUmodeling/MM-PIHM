@@ -1388,12 +1388,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
 
     for (i = 0; i < nelem; i++) /* GW cells */
     {
-        fscanf(maxwater, "%d %lf", &id, &(CD->Vcele[i].maxwater));
-    }
-
-    for (i = nelem; i < 2 * nelem; i++) /* Unsat cells */
-    {
-        CD->Vcele[i].maxwater = CD->Vcele[i - nelem].maxwater;
+        fscanf(maxwater, "%d %lf", &id, &(CD->Vcele[RT_GW(i)].maxwater));
+        CD->Vcele[RT_UNSAT(i)].maxwater = CD->Vcele[RT_GW(i)].maxwater;
     }
 
     /* Initializing volumetric parameters, inherit from PIHM
