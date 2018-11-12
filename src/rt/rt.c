@@ -1396,10 +1396,9 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
      * That is, if PIHM is started from a hot start, rt is also
      * initialized with the hot data */
 
-    /* Initializing volumetrics for groundwater (GW) cells */
-    fprintf(stderr, "\n Initializing 'GW' cells, Vcele [i, 0 ~ nelem]... \n");
     for (i = 0; i < nelem; i++)
     {
+        /* Initializing volumetrics for groundwater (GW) cells */
         CD->Vcele[RT_GW(i)].height_v = pihm->elem[i].soil.depth;
         CD->Vcele[RT_GW(i)].height_o = pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].height_t = pihm->elem[i].ws.gw;
@@ -1409,13 +1408,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[RT_GW(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].sat = 1.0;
         CD->Vcele[RT_GW(i)].temperature = pihm->elem[i].attrib.meteo_type;
-    }
 
-    /* Initializing volumetrics for unsaturated cells */
-    fprintf(stderr,
-        "\n Initializing 'UNSAT' cells, Vcele [i, nelem ~ 2*nelem]... \n");
-    for (i = 0; i < nelem; i++)
-    {
+        /* Initializing volumetrics for unsaturated cells */
         CD->Vcele[RT_UNSAT(i)].height_v = pihm->elem[i].soil.depth;
         /* Porosity in PIHM is
          * Effective Porosity = Porosity - Residue Water Porosity
@@ -1445,16 +1439,13 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     CD->CalPorosity = pihm->cal.porosity;
     CD->CalRate = pihm->cal.rate;
     CD->CalSSA = pihm->cal.ssa;
-    //CD->CalGwinflux = pihm->cal.gwinflux;
     CD->CalPrcpconc = pihm->cal.prcpconc;
     CD->CalInitconc = pihm->cal.initconc;
     CD->CalXsorption = pihm->cal.Xsorption;
 
-    /* Initializing volumetrics for river cells */
-    fprintf(stderr,
-        "\n Initializing 'RIV' cells, Vcele [i, 2*nelem ~ 2*nelem + nriver]... \n");
     for (i = 0; i < nriver; i++)
     {
+        /* Initializing volumetrics for river cells */
         CD->Vcele[RT_RIVER(i)].height_v = pihm->river[i].ws.stage;
         CD->Vcele[RT_RIVER(i)].height_o = pihm->river[i].ws.stage;
         CD->Vcele[RT_RIVER(i)].height_t = pihm->river[i].ws.stage;
@@ -1463,13 +1454,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[RT_RIVER(i)].sat = 1.0;
         CD->Vcele[RT_RIVER(i)].vol_o = pihm->river[i].topo.area * pihm->river[i].ws.stage;
         CD->Vcele[RT_RIVER(i)].vol = pihm->river[i].topo.area * pihm->river[i].ws.stage;
-    }
 
-    /* Initializing volumetrics for river EBR cells */
-    fprintf(stderr,
-        "\n Initializing 'RIV EBR' cells, Vcele [i, 2*nelem + nriver ~ 2*nelem + 2*nriver]... \n");
-    for (i = 0; i < nriver; i++)
-    {
+        /* Initializing volumetrics for river EBR cells */
         CD->Vcele[RT_RIVBED(i)].height_v = pihm->river[i].ws.gw;
         CD->Vcele[RT_RIVBED(i)].height_o = pihm->river[i].ws.gw;
         CD->Vcele[RT_RIVBED(i)].height_t = pihm->river[i].ws.gw;
@@ -1480,23 +1466,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[RT_RIVBED(i)].vol = pihm->river[i].topo.area * pihm->river[i].ws.gw;
     }
 
-    tmpval[0] = 0.0;
-    for (i = 0; i < nelem; i++)
-    {
-        tmpval[0] += CD->Vcele[i].height_v;
-    }
-    tmpval[0] = tmpval[0] / nelem;
-    fprintf(stderr, "  Average bedrock depth is %f [m]. \n", tmpval[0]);
-
-    for (i = 0; i < CD->NumSpc; i++)
-    {
-        if (strcmp(CD->chemtype[i].ChemName, "pH") == 0)
-        {
-            strcpy(CD->chemtype[i].ChemName, "H+");
-            speciation_flg = 1;
-        }
-    }
-
+    /* Initialize virtual cell */
     for (i = CD->NumOsv; i < CD->NumVol; i++)
     {
         CD->Vcele[i].height_v = 1.0;
@@ -1507,6 +1477,15 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[i].sat = 1.0;
         CD->Vcele[i].vol_o = 1.0;
         CD->Vcele[i].vol = 1.0;
+    }
+
+    for (i = 0; i < CD->NumSpc; i++)
+    {
+        if (strcmp(CD->chemtype[i].ChemName, "pH") == 0)
+        {
+            strcpy(CD->chemtype[i].ChemName, "H+");
+            speciation_flg = 1;
+        }
     }
 
     /* Initializing concentration distributions */
