@@ -2559,16 +2559,6 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
         {
             fprintf(Cfile[0], "%d\t", CD->Vcele[RT_RIVER(i)].index);
             for (j = 0; j < CD->NumStc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVER(i)].p_conc[j]));
-            for (j = 0; j < CD->NumSsc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVER(i)].s_conc[j]));
-
-            fprintf(Cfile[0], "\n");
-        }
-        for (i = 0; i < CD->NumRiv; i++)
-        {
-            fprintf(Cfile[0], "%d\t", CD->Vcele[RT_RIVBED(i)].index);
-            for (j = 0; j < CD->NumStc; j++)
                 fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVBED(i)].p_conc[j]));
             for (j = 0; j < CD->NumSsc; j++)
                 fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVBED(i)].s_conc[j]));
