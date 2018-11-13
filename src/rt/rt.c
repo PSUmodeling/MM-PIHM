@@ -2473,27 +2473,38 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
         {
             for (i = 0; i < CD->NumStc; i++)
             {
-                for (j = CD->NumEle * 2; j < CD->NumOsv; j++)
-                    if (CD->chemtype[i].itype == MINERAL)
-                        CD->Vcele[j].p_conc[i] = CD->Vcele[j].t_conc[i];
-                    else
-                        CD->Vcele[j].p_conc[i] =
-                            fabs(CD->Vcele[j].t_conc[i] * 0.1);
+                for (j = 0; j < nriver; j++)
+                {
+                    CD->Vcele[RT_RIVER(j)].p_conc[i] =
+                        (CD->chemtype[i].itype == MINERAL) ?
+                        CD->Vcele[RT_RIVER(j)].t_conc[i] :
+                        fabs(CD->Vcele[RT_RIVER(j)].t_conc[i] * 0.1);
+                    CD->Vcele[RT_RIVBED(j)].p_conc[i] =
+                        (CD->chemtype[i].itype == MINERAL) ?
+                        CD->Vcele[RT_RIVBED(j)].t_conc[i] :
+                        fabs(CD->Vcele[RT_RIVBED(j)].t_conc[i] * 0.1);
+                }
             }
         }
 
         if (!CD->RecFlg)
+        {
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-            for (i = CD->NumEle * 2 + CD->NumRiv; i < CD->NumOsv; i++)
-                Speciation(CD, i);
+            for (i = 0; i < nriver; i++)
+            {
+                Speciation(CD, RT_RIVBED(i));
+            }
+        }
         else
+        {
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
             for (i = 0; i < CD->NumOsv; i++)
                 Speciation(CD, i);
+        }
     }
 
     if ((int)timelps % (CD->OutItv * 60) == 0)
