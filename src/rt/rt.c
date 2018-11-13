@@ -2572,7 +2572,7 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
 
         for (i = 0; i < CD->NumRiv; i++)
         {
-            fprintf(Cfile[0], "%d\t", CD->Vcele[RT_RIVER(i)].index);
+            fprintf(Cfile[0], "%d\t", CD->Vcele[RT_RIVBED(i)].index);
             for (j = 0; j < CD->NumStc; j++)
                 fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVBED(i)].p_conc[j]));
             for (j = 0; j < CD->NumSsc; j++)
@@ -2673,21 +2673,10 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
                     (j == CD->pumps[0].Position_Species))
                 {
                     fprintf(Cfile[k], "%12.8f\t",
-                        log10((CD->Vcele[CD->BTC_loc[k -
-                                        3]].p_conc[j] * CD->rivd +
-                                CD->pumps[0].Injection_conc *
-                                CD->pumps[0].flow_rate) / (CD->rivd +
-                                CD->pumps[0].flow_rate)));
-                    // 10.02 comment out
-                    /*
-                     * fprintf(stderr, "i %d infd %6.4g, rivd %6.4g, tconc %6.4g, nconc %6.4g\n", CD->BTC_loc[k - 3] + 1, CD->pumps[0].flow_rate / 84170, \
-                     * CD->rivd / 84170, CD->Vcele[CD->BTC_loc[k - 3]].p_conc[j], ((CD->Vcele[CD->BTC_loc[k - 3]].p_conc[j] * CD->rivd + \
-                     * CD->pumps[0].Injection_conc * CD->pumps[0].flow_rate) / (CD->rivd + CD->pumps[0].flow_rate)));
-                     */
+                        log10((CD->Vcele[CD->BTC_loc[k - 3]].p_conc[j] * CD->rivd +
+                        CD->pumps[0].Injection_conc * CD->pumps[0].flow_rate) /
+                        (CD->rivd + CD->pumps[0].flow_rate)));
                 }
-                else if (CD->BTC_loc[k - 3] > 2 * CD->NumEle)
-                    fprintf(Cfile[k], "%12.8f\t",
-                        log10(CD->Vcele[CD->BTC_loc[k - 3]].p_conc[j]));
                 else
                     fprintf(Cfile[k], "%12.8f\t",
                         log10(CD->Vcele[CD->BTC_loc[k - 3]].p_conc[j]));
