@@ -1406,6 +1406,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[RT_GW(i)].vol_o = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].sat = 1.0;
+        CD->Vcele[RT_GW(i)].type = GW_VOL;
 
         /* Initializing volumetrics for unsaturated cells */
         CD->Vcele[RT_UNSAT(i)].height_v = pihm->elem[i].soil.depth;
@@ -1425,6 +1426,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
             (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw);
         CD->Vcele[RT_UNSAT(i)].vol_o = pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].height_o;
         CD->Vcele[RT_UNSAT(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].soil.depth;
+        CD->Vcele[RT_UNSAT(i)].type = UNSAT_VOL;
 
         /* The saturation of unsaturated zone is the Hu divided by height of
          * this cell */
@@ -1451,6 +1453,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[RT_RIVER(i)].sat = 1.0;
         CD->Vcele[RT_RIVER(i)].vol_o = pihm->river[i].topo.area * pihm->river[i].ws.stage;
         CD->Vcele[RT_RIVER(i)].vol = pihm->river[i].topo.area * pihm->river[i].ws.stage;
+        CD->Vcele[RT_RIVER(i)].type = RIVER_VOL;
 
         /* Initializing volumetrics for river EBR cells */
         CD->Vcele[RT_RIVBED(i)].height_v = pihm->river[i].ws.gw;
@@ -1461,6 +1464,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[RT_RIVBED(i)].sat = 1.0;
         CD->Vcele[RT_RIVBED(i)].vol_o = pihm->river[i].topo.area * pihm->river[i].ws.gw;
         CD->Vcele[RT_RIVBED(i)].vol = pihm->river[i].topo.area * pihm->river[i].ws.gw;
+        CD->Vcele[RT_RIVBED(i)].type = RIVBED_VOL;
     }
 
     /* Initialize virtual cell */
