@@ -24,10 +24,7 @@
 #define LINE_WIDTH 512
 #define WORDS_LINE 40
 #define WORD_WIDTH 80
-#define TIME_MIN  1E-5
-#define EPS       0.05
 #define INFTYSMALL  1E-6
-#define RTdepth 5.0
 #define MIN(a,b) (((a)<(b))? (a):(b))
 #define MAX(a,b) (((a)>(b))? (a):(b))
 
@@ -64,7 +61,6 @@ void Monitor(realtype t, realtype stepsize, const pihm_struct pihm, Chem_Data CD
 
     /*
      * Correct recharge in the saturated zone
-     * The Err Dumper here is the recharge for saturated zone
      */
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -1607,7 +1603,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].BC = DISPERSION;
                 CD->Flux[RT_LAT_UNSAT(i, j)].distance = distance;
-
             }
             else
             {
