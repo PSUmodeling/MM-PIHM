@@ -1457,15 +1457,15 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[i].index = i + 1;
         CD->Vcele[i].NumStc = CD->NumStc;
         CD->Vcele[i].NumSsc = CD->NumSsc;
-        CD->Vcele[i].t_conc = (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Vcele[i].t_rate = (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Vcele[i].t_tol = (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Vcele[i].p_conc = (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Vcele[i].s_conc = (double *)malloc(CD->NumSsc * sizeof(double));
-        CD->Vcele[i].p_actv = (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Vcele[i].s_actv = (double *)malloc(CD->NumSsc * sizeof(double));
-        CD->Vcele[i].p_para = (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Vcele[i].p_type = (int *)malloc(CD->NumStc * sizeof(int));
+        CD->Vcele[i].t_conc = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].t_rate = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].t_tol = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].p_conc = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].s_conc = (double *)calloc(CD->NumSsc, sizeof(double));
+        CD->Vcele[i].p_actv = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].s_actv = (double *)calloc(CD->NumSsc, sizeof(double));
+        CD->Vcele[i].p_para = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].p_type = (int *)calloc(CD->NumStc, sizeof(int));
 
         CD->Vcele[i].q = 0.0;
         CD->Vcele[i].illness = 0;
