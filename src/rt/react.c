@@ -655,12 +655,19 @@ int Speciation(Chem_Data CD, int cell)
      * if speciation flg = 0, all defined value is total concentration */
     int             i, j, k, speciation_flg = CD->SPCFlg, num_spe =
         CD->NumStc + CD->NumSsc;
-    double          residue[CD->NumStc], residue_t[CD->NumStc],
-        tmpconc[CD->NumStc + CD->NumSsc], totconc[CD->NumStc];
+    double         *residue, *residue_t, *tmpconc, *totconc;
     double          tmpval, tmpprb = 1E-2, I, Iroot;
-    double          error[CD->NumStc], gamma[num_spe], Keq[CD->NumSsc],
-        current_totconc[CD->NumStc], adh, bdh, bdt;
+    double         *error, *gamma, *Keq, *current_totconc, adh, bdh, bdt;
     realtype      **jcb;
+
+    residue = (double *)calloc(CD->NumStc, sizeof(double));
+    residue_t = (double *)calloc(CD->NumStc, sizeof(double));
+    tmpconc = (double *)calloc(CD->NumStc + CD->NumSsc, sizeof(double));
+    totconc = (double *)calloc(CD->NumStc, sizeof(double));
+    error = (double *)calloc(CD->NumStc, sizeof(double));
+    gamma = (double *)calloc(num_spe, sizeof(double));
+    Keq = (double *)calloc(CD->NumSsc, sizeof(double));
+    current_totconc = (double *)calloc(CD->NumStc, sizeof(double));
 
     if (CD->TEMcpl == 0)
     {
@@ -962,8 +969,17 @@ int Speciation(Chem_Data CD, int cell)
         }
     }
     destroyMat(jcb);
-    return (0);
 
+    free(residue);
+    free(residue_t);
+    free(tmpconc);
+    free(totconc);
+    free(error);
+    free(gamma);
+    free(Keq);
+    free(current_totconc);
+
+    return (0);
 }
 
 void React(realtype stepsize, Chem_Data CD, vol_conc *Vcele, double z_SOC)
