@@ -711,9 +711,13 @@ int Speciation(Chem_Data CD, int cell)
          * H. Dependency is the same but the total concentration for H need not
          * be solved */
         jcb = newDenseMat(CD->NumStc - 1, CD->NumStc - 1);
-        long int        p[CD->NumStc - 1];
-        realtype        x_[CD->NumStc - 1];
+        long int       *p;
+        realtype       *x_;
         double          maxerror = 1;
+
+        p = (long int *)malloc((CD->NumStc - 1) * sizeof(long int));
+        x_ = (realtype *)malloc((CD->NumStc - 1) * sizeof(realtype));
+
         while (maxerror > TOL)
         {
             if (CD->ACTmod == 1)
@@ -835,9 +839,13 @@ int Speciation(Chem_Data CD, int cell)
     if (speciation_flg == 0)
     {
         jcb = newDenseMat(CD->NumStc, CD->NumStc);
-        long int        p[CD->NumStc];
-        realtype        x_[CD->NumStc];
+        long int       *p;
+        realtype       *x_;
         double          maxerror = 1;
+
+        p = (long int *)malloc(CD->NumStc * sizeof(long int));
+        x_ = (realtype *)malloc(CD->NumStc * sizeof(realtype));
+
         while (maxerror > TOL)
         {
             if (CD->ACTmod == 1)
