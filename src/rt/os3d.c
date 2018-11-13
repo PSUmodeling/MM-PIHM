@@ -56,6 +56,8 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
     /* Local time step part */
     for (i = 0; i < CD->NumOsv; i++)
     {
+        adpstep = CD->Vcele[i].rt_step;
+
         if (CD->CptFlg == 1)
         {
             if ((CD->Vcele[i].rt_step < stepsize) &&
@@ -69,7 +71,6 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                 {
                     timelps = t;
                     invavg = 1.0 / stepsize;
-                    adpstep = CD->Vcele[i].rt_step;
 
                     while (timelps < t + stepsize)
                     {
