@@ -429,7 +429,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     /*
      * Begin updating variables
      */
-    CD->NumVol = 2 * (nelem + nriver) + 1;
+    CD->NumVol = 2 * nelem + nriver + 1;
     CD->NumOsv = CD->NumVol - 1;
     CD->NumEle = nelem;
     CD->NumRiv = nriver;
@@ -1445,26 +1445,15 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     for (i = 0; i < nriver; i++)
     {
         /* Initializing volumetrics for river cells */
-        CD->Vcele[RT_RIVER(i)].height_v = pihm->river[i].ws.stage;
-        CD->Vcele[RT_RIVER(i)].height_o = pihm->river[i].ws.stage;
-        CD->Vcele[RT_RIVER(i)].height_t = pihm->river[i].ws.stage;
+        CD->Vcele[RT_RIVER(i)].height_v = pihm->river[i].ws.gw;
+        CD->Vcele[RT_RIVER(i)].height_o = pihm->river[i].ws.gw;
+        CD->Vcele[RT_RIVER(i)].height_t = pihm->river[i].ws.gw;
         CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
         CD->Vcele[RT_RIVER(i)].porosity = 1.0;
         CD->Vcele[RT_RIVER(i)].sat = 1.0;
-        CD->Vcele[RT_RIVER(i)].vol_o = pihm->river[i].topo.area * pihm->river[i].ws.stage;
-        CD->Vcele[RT_RIVER(i)].vol = pihm->river[i].topo.area * pihm->river[i].ws.stage;
+        CD->Vcele[RT_RIVER(i)].vol_o = pihm->river[i].topo.area * pihm->river[i].ws.gw;
+        CD->Vcele[RT_RIVER(i)].vol = pihm->river[i].topo.area * pihm->river[i].ws.gw;
         CD->Vcele[RT_RIVER(i)].type = RIVER_VOL;
-
-        /* Initializing volumetrics for river EBR cells */
-        CD->Vcele[RT_RIVBED(i)].height_v = pihm->river[i].ws.gw;
-        CD->Vcele[RT_RIVBED(i)].height_o = pihm->river[i].ws.gw;
-        CD->Vcele[RT_RIVBED(i)].height_t = pihm->river[i].ws.gw;
-        CD->Vcele[RT_RIVBED(i)].area = pihm->river[i].topo.area;
-        CD->Vcele[RT_RIVBED(i)].porosity = 1.0;
-        CD->Vcele[RT_RIVBED(i)].sat = 1.0;
-        CD->Vcele[RT_RIVBED(i)].vol_o = pihm->river[i].topo.area * pihm->river[i].ws.gw;
-        CD->Vcele[RT_RIVBED(i)].vol = pihm->river[i].topo.area * pihm->river[i].ws.gw;
-        CD->Vcele[RT_RIVBED(i)].type = RIVBED_VOL;
     }
 
     /* Initialize virtual cell */
@@ -1617,7 +1606,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_GW(i, j)].node_trib = 0;
                 CD->Flux[RT_LAT_GW(i, j)].nodelo = (elemlo > 0) ?
                     CD->Vcele[RT_GW(elemlo - 1)].index :
-                    CD->Vcele[RT_RIVBED(-elemlo - 1)].index;
+                    CD->Vcele[RT_RIVER(-elemlo - 1)].index;
                 CD->Flux[RT_LAT_GW(i, j)].nodeuu = (elemuu > 0) ?
                     CD->Vcele[RT_GW(elemuu - 1)].index : 0;
                 CD->Flux[RT_LAT_GW(i, j)].nodell = (elemll > 0) ?
@@ -1632,7 +1621,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_UNSAT(i, j)].node_trib = 0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = (elemlo > 0) ?
                     CD->Vcele[RT_UNSAT(elemlo - 1)].index :
-                    CD->Vcele[RT_RIVBED(-elemlo - 1)].index;
+                    CD->Vcele[RT_RIVER(-elemlo - 1)].index;
                 CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = (elemuu > 0) ?
                     CD->Vcele[RT_UNSAT(elemuu - 1)].index :0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].nodell = (elemll > 0) ?
@@ -1708,7 +1697,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     {
         /* Between River and Left */
         /* River to left OFL 2 */
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodeup = CD->Vcele[RT_RIVBED(i)].index;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
         CD->Flux[RT_LEFT_SURF2RIVER(i)].node_trib = 0;
         CD->Flux[RT_LEFT_SURF2RIVER(i)].nodelo = VIRTUAL_VOL;
         CD->Flux[RT_LEFT_SURF2RIVER(i)].nodeuu = 0;
@@ -1722,7 +1711,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
 
         /* Between River and Right */
         /* River to right OFL 3 */
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodeup = CD->Vcele[RT_RIVBED(i)].index;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
         CD->Flux[RT_RIGHT_SURF2RIVER(i)].node_trib = 0;
         CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodelo = VIRTUAL_VOL;
         CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodeuu = 0;
@@ -1736,7 +1725,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
 
         /* Between Left and EBR */
         /* EBR to left  7 + 4 */
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodeup = CD->Vcele[RT_RIVBED(i)].index;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
         CD->Flux[RT_LEFT_AQIF2RIVER(i)].node_trib = 0;
         CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodelo =
             CD->Vcele[RT_GW(pihm->river[i].leftele - 1)].index;
@@ -1760,7 +1749,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
 
         /* Between Right and EBR */
         /* EBR to right 8 + 5 */
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodeup = CD->Vcele[RT_RIVBED(i)].index;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
         CD->Flux[RT_RIGHT_AQIF2RIVER(i)].node_trib = 0;
         CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodelo =
             CD->Vcele[RT_GW(pihm->river[i].rightele - 1)].index;
@@ -1785,9 +1774,9 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
 
         /* Between EBR */
         /* To downstream EBR 9 */
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodeup = CD->Vcele[RT_RIVBED(i)].index;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodelo = (pihm->river[i].down < 0) ?
-            VIRTUAL_VOL : CD->Vcele[RT_RIVBED(pihm->river[i].down - 1)].index;
+            VIRTUAL_VOL : CD->Vcele[RT_RIVER(pihm->river[i].down - 1)].index;
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].node_trib = 0;
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodeuu = 0;
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodell = 0;
@@ -1799,12 +1788,12 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].s_area = 0.0;
 
         /* From upstream EBR 10 */
-        CD->Flux[RT_UP_RIVER2RIVER(i)].nodeup = CD->Vcele[RT_RIVBED(i)].index;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
         CD->Flux[RT_UP_RIVER2RIVER(i)].nodelo = (pihm->river[i].up[0] < 0) ?
-            VIRTUAL_VOL : CD->Vcele[RT_RIVBED(pihm->river[i].up[0] - 1)].index;
+            VIRTUAL_VOL : CD->Vcele[RT_RIVER(pihm->river[i].up[0] - 1)].index;
         CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib = (pihm->river[i].up[1] < 0) ?
             pihm->river[i].up[1] :
-            CD->Vcele[RT_RIVBED(pihm->river[i].up[1] - 1)].index;
+            CD->Vcele[RT_RIVER(pihm->river[i].up[1] - 1)].index;
         CD->Flux[RT_UP_RIVER2RIVER(i)].nodeuu = 0;
         CD->Flux[RT_UP_RIVER2RIVER(i)].nodell = 0;
         CD->Flux[RT_UP_RIVER2RIVER(i)].flux_type = 0;
@@ -1962,10 +1951,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Vcele[RT_RIVER(i)].t_conc[k] = 1.0E-20;
                 CD->Vcele[RT_RIVER(i)].p_conc[k] = 1.0E-20;
                 CD->Vcele[RT_RIVER(i)].p_actv[k] = 1.0E-20;
-
-                CD->Vcele[RT_RIVBED(i)].t_conc[k] = 1.0E-20;
-                CD->Vcele[RT_RIVBED(i)].p_conc[k] = 1.0E-20;
-                CD->Vcele[RT_RIVBED(i)].p_actv[k] = 1.0E-20;
             }
         }
     }
@@ -2234,33 +2219,17 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #pragma omp parallel for
 #endif
         /* Update river cells */
-        for (i = 0; i < nriver; i++);
+        for (i = 0; i < nriver; i++)
         {
             CD->Vcele[RT_RIVER(i)].height_o = CD->Vcele[RT_RIVER(i)].height_t;
-            CD->Vcele[RT_RIVER(i)].height_t = MAX(Y[i + 2 * nelem], 1.0E-5);
+            CD->Vcele[RT_RIVER(i)].height_t = MAX(Y[i + 3 * nelem + nriver], 1.0E-5) +
+                MAX(Y[i + 3 * nelem], 1.0E-5) / CD->Vcele[RT_RIVER(i)].porosity;
             CD->Vcele[RT_RIVER(i)].height_int = CD->Vcele[RT_RIVER(i)].height_t;
             CD->Vcele[RT_RIVER(i)].height_sp =
                 (CD->Vcele[RT_RIVER(i)].height_t - CD->Vcele[RT_RIVER(i)].height_o) * invavg;
             CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
             CD->Vcele[RT_RIVER(i)].vol_o = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_o;
             CD->Vcele[RT_RIVER(i)].vol = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_t;
-        }
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-        /* Update EBR cells */
-        for (i = 0; i < nriver; i++)
-        {
-            CD->Vcele[RT_RIVBED(i)].height_o = CD->Vcele[RT_RIVBED(i)].height_t;
-            CD->Vcele[RT_RIVBED(i)].height_t = MAX(Y[i + 3 * nelem + nriver], 1.0E-5) +
-                MAX(Y[i + 3 * nelem], 1.0E-5) / CD->Vcele[RT_RIVBED(i)].porosity;
-            CD->Vcele[RT_RIVBED(i)].height_int = CD->Vcele[RT_RIVBED(i)].height_t;
-            CD->Vcele[RT_RIVBED(i)].height_sp =
-                (CD->Vcele[RT_RIVBED(i)].height_t - CD->Vcele[RT_RIVBED(i)].height_o) * invavg;
-            CD->Vcele[RT_RIVBED(i)].area = pihm->river[i].topo.area;
-            CD->Vcele[RT_RIVBED(i)].vol_o = CD->Vcele[RT_RIVBED(i)].area * CD->Vcele[RT_RIVBED(i)].height_o;
-            CD->Vcele[RT_RIVBED(i)].vol = CD->Vcele[RT_RIVBED(i)].area * CD->Vcele[RT_RIVBED(i)].height_t;
         }
 
         Monitor(t, stepsize * (double)CD->AvgScl, pihm, CD);
@@ -2479,10 +2448,6 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
                         (CD->chemtype[i].itype == MINERAL) ?
                         CD->Vcele[RT_RIVER(j)].t_conc[i] :
                         fabs(CD->Vcele[RT_RIVER(j)].t_conc[i] * 0.1);
-                    CD->Vcele[RT_RIVBED(j)].p_conc[i] =
-                        (CD->chemtype[i].itype == MINERAL) ?
-                        CD->Vcele[RT_RIVBED(j)].t_conc[i] :
-                        fabs(CD->Vcele[RT_RIVBED(j)].t_conc[i] * 0.1);
                 }
             }
         }
@@ -2494,7 +2459,7 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
 #endif
             for (i = 0; i < nriver; i++)
             {
-                Speciation(CD, RT_RIVBED(i));
+                Speciation(CD, RT_RIVER(i));
             }
         }
         else
@@ -2572,11 +2537,11 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
 
         for (i = 0; i < CD->NumRiv; i++)
         {
-            fprintf(Cfile[0], "%d\t", CD->Vcele[RT_RIVBED(i)].index);
+            fprintf(Cfile[0], "%d\t", CD->Vcele[RT_RIVER(i)].index);
             for (j = 0; j < CD->NumStc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVBED(i)].p_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVER(i)].p_conc[j]));
             for (j = 0; j < CD->NumSsc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVBED(i)].s_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVER(i)].s_conc[j]));
 
             fprintf(Cfile[0], "\n");
         }

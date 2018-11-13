@@ -46,8 +46,7 @@
 /* RT volume index */
 # define RT_UNSAT(i)        ((i) + nelem)
 # define RT_GW(i)           (i)
-# define RT_RIVBED(i)        ((i) + 2 * nelem)
-# define RT_RIVER(i)       ((i) + 2 * nelem + nriver)
+# define RT_RIVER(i)        ((i) + 2 * nelem)
 #endif
 
 #define AvgElev(...)      _WsAreaElev(WS_ZMAX, __VA_ARGS__)
