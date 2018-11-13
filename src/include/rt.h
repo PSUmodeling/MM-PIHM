@@ -86,7 +86,6 @@ typedef struct face_type
     double          flux;       /* flux at surface, in cubic m per day  */
     double          flux_trib;  // tributary fluc, 01.14 by Wei Zhi
     double          s_area;     /* contact surface area, in square m */
-    double          q;
 } face;
 
 typedef struct species_type

@@ -43,14 +43,11 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
     {
         if (CD->Flux[i].BC != NO_FLOW)
         {
-            CD->Flux[i].q = 0.0;
-
             for (j = 0; j < CD->NumSpc; j++)
             {
                 temp_dconc = Dconc(&CD->Flux[i], CD->Vcele, CD->chemtype,
                     CD->Cementation, CD->TVDFlg, j);
 
-                CD->Flux[i].q = temp_dconc;
                 dconc[CD->Flux[i].nodeup - 1][j] += temp_dconc;
             }
         }
