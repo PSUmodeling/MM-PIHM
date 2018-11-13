@@ -2581,9 +2581,12 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
             timestamp->tm_year + 1900, timestamp->tm_mon + 1,
             timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
 
-        for (j = 0; j < CD->NumEle * 2; j++)
+        for (j = 0; j < CD->NumOsv; j++)
         {
-            fprintf(Cfile[2], "%6.4f\t", CD->Vcele[j].height_t);
+            if (CD->Vcele[j].type == UNSAT_VOL || CD->Vcele[j].type == GW_VOL)
+            {
+                fprintf(Cfile[2], "%6.4f\t", CD->Vcele[j].height_t);
+            }
         }
         fprintf(Cfile[2], "\n");
 
