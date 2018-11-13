@@ -26,6 +26,7 @@ typedef struct vol_conc_type
     int             NumStc;     /* Total Number of primary (total) species */
     int             NumSsc;     /* Total Number of secondary species */
     int             ErrDumper;  /* The index of the flux to be modified to keep mass conservation */
+    int             type;       /* type of volume: unsaturated, groundwater, river, or river bed */
     double         *t_conc;     /* Concentration of species x, default unit in Mol/kg water. */
     double         *t_rate;     /* Rate for total concentration i */
     double         *t_tol;      /* Tolerance of rate difference for total concentration i */

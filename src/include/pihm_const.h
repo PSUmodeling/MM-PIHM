@@ -243,6 +243,12 @@
 #define CATION_ECHG     3
 #define MINERAL         4
 
+/* RT volume types */
+#define UNSAT_VOL       0
+#define GW_VOL          1
+#define RIVER_VOL       2
+#define RIVBED_VOL      3
+
 /* Output variables */
 #define YEARLY_OUTPUT     -1
 #define MONTHLY_OUTPUT    -2
