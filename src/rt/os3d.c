@@ -67,7 +67,9 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
             {
                 /* Use its intrinsic smaller step for small/fast flowing cells
                  *  ~= slow cells (in term of time marching). */
-                if (i < 2 * CD->NumEle + CD->NumRiv - CD->RivOff)
+                if (CD->Vcele[i].type == UNSAT_VOL ||
+                    CD->Vcele[i].type == GW_VOL ||
+                    CD->Vcele[i].type == RIVER_VOL)
                 {
                     timelps = t;
                     invavg = 1.0 / stepsize;
@@ -204,7 +206,7 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                 {
                     continue;
                 }
-                if ((i >= 2 * CD->NumEle) && (i < 2 * CD->NumEle + CD->NumRiv))
+                if (CD->Vcele[i].type == RIVER_VOL)
                 {
                     /* Treated in the above section */
                     continue;
