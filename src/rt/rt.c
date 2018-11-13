@@ -1935,7 +1935,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     {
         for (i = 0; i < nelem; i++)
         {
-            Speciation(CD, i);
+            Speciation(CD, RT_GW(i));
         }
     }
     CD->SPCFlg = 0;
