@@ -44,32 +44,21 @@ static double timer()
 
 void Monitor(realtype t, realtype stepsize, const pihm_struct pihm, Chem_Data CD)   // 09.30
 {
-    /* Unit of t and stepsize: min */
-    int             i = 0;
-    struct tm      *timestamp;
-    time_t         *rawtime;
-    double          timelps;
-
-    rawtime = (time_t *)malloc(sizeof(time_t));
-    *rawtime = (int)(t * 60);
-    timestamp = gmtime(rawtime);
-    timelps = t - CD->StartTime;
-
+    int             i;
     double          unit_c = stepsize / UNIT_C;
+    double         *resflux;
 
-    double         *resflux = (double *)malloc(CD->NumOsv * sizeof(double));
+    resflux = (double *)calloc(nelem, sizeof(double));
 
-    for (i = 0; i < CD->NumOsv; i++)
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
     {
-        resflux[i] = 0.0;
-    }
-
-    for (i = 0; i < CD->NumFac; i++)
-    {
-        /* Sum lateral fluxes */
-        if (!CD->Flux[i].flux_type)
+        int             j;
+        for (j = 0; j < NUM_EDGE; j++)
         {
-            resflux[CD->Flux[i].nodeup - 1] -= CD->Flux[i].flux * unit_c;
+            resflux[i] -= CD->Flux[RT_LAT_GW(i, j)].flux * unit_c;
         }
     }
 
@@ -82,37 +71,27 @@ void Monitor(realtype t, realtype stepsize, const pihm_struct pihm, Chem_Data CD
 #endif
     for (i = 0; i < CD->NumEle; i++)
     {
-        double          sumflux1, sumflux2, correction;
+        double          sumflux1, sumflux2;
 
-        sumflux1 = (CD->Vcele[i].height_t - CD->Vcele[i].height_o) *
-            pihm->elem[i].topo.area * CD->Vcele[i].porosity;
+        sumflux1 =
+            (CD->Vcele[RT_GW(i)].height_t - CD->Vcele[RT_GW(i)].height_o) *
+            pihm->elem[i].topo.area * CD->Vcele[RT_GW(i)].porosity;
         sumflux2 = sumflux1 - resflux[i];
-        correction = -sumflux2 * UNIT_C / stepsize /
-            CD->Flux[CD->Vcele[i].ErrDumper].flux;
-        CD->Flux[CD->Vcele[i].ErrDumper].flux = -sumflux2 * UNIT_C / stepsize;
-        CD->Flux[CD->Vcele[i].ErrDumper].velocity =
-            CD->Flux[CD->Vcele[i].ErrDumper].flux /
-            CD->Flux[CD->Vcele[i].ErrDumper].s_area;
-        CD->Flux[CD->Vcele[i].ErrDumper - CD->NumEle].flux =
-            -CD->Flux[CD->Vcele[i].ErrDumper].flux;
-        CD->Flux[CD->Vcele[i].ErrDumper - CD->NumEle].velocity =
-            -CD->Flux[CD->Vcele[i].ErrDumper].velocity;
+        CD->Flux[RT_RECHG_GW(i)].flux = -sumflux2 * UNIT_C / stepsize;
+        CD->Flux[RT_RECHG_GW(i)].velocity =
+            CD->Flux[RT_RECHG_GW(i)].flux /
+            CD->Flux[RT_RECHG_GW(i)].s_area;
+        CD->Flux[RT_RECHG_UNSAT(i)].flux =
+            -CD->Flux[RT_RECHG_GW(i)].flux;
+        CD->Flux[RT_RECHG_UNSAT(i)].velocity =
+            -CD->Flux[RT_RECHG_GW(i)].velocity;
     }
 
     /* Since fluxes are corrected for saturated zones, resflux needs
      * re-calculation */
-    for (i = 0; i < CD->NumOsv; i++)
+    for (i = 0; i < nelem; i++)
     {
-        resflux[i] = 0.0;
-    }
-
-    for (i = 0; i < CD->NumFac; i++)
-    {
-        /* Sum lateral fluxes */
-        if (!CD->Flux[i].flux_type)
-        {
-            resflux[CD->Flux[i].nodeup - 1] -= CD->Flux[i].flux * unit_c;
-        }
+        resflux[i] = -CD->Flux[RT_RECHG_UNSAT(i)].flux * unit_c;
     }
 
     /*
@@ -122,22 +101,21 @@ void Monitor(realtype t, realtype stepsize, const pihm_struct pihm, Chem_Data CD
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = CD->NumEle; i < CD->NumEle * 2; i++)
+    for (i = 0; i < nelem; i++)
     {
-        double          sumflux1, sumflux2, correction;
+        double          sumflux1, sumflux2;
 
-        sumflux1 = (CD->Vcele[i].height_t - CD->Vcele[i].height_o) *
-            pihm->elem[i - CD->NumEle].topo.area * CD->Vcele[i].porosity;
+        sumflux1 =
+            (CD->Vcele[RT_UNSAT(i)].height_t - CD->Vcele[RT_UNSAT(i)].height_o) *
+            pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].porosity;
         sumflux2 = sumflux1 - resflux[i];
-        correction = -sumflux2 * UNIT_C / stepsize / CD->Vcele[i].q;
-        CD->Vcele[i].q = sumflux2 * UNIT_C / stepsize;
-        CD->Vcele[i].q = MAX(CD->Vcele[i].q, 0.0);
+        CD->Vcele[RT_UNSAT(i)].q = sumflux2 * UNIT_C / stepsize;
+        CD->Vcele[RT_UNSAT(i)].q = MAX(CD->Vcele[RT_UNSAT(i)].q, 0.0);
 
         /* Input of rain water chemistry can not be negative */
-        CD->Vcele[i].q +=
-            fabs(pihm->elem[i - CD->NumEle].wf.edir_unsat +
-            pihm->elem[i - CD->NumEle].wf.edir_gw) * 86400 *
-            pihm->elem[i - CD->NumEle].topo.area;
+        CD->Vcele[RT_UNSAT(i)].q +=
+            fabs(pihm->elem[i].wf.edir_unsat +
+            pihm->elem[i].wf.edir_gw) * 86400 * pihm->elem[i].topo.area;
 
         /* In addition, the soil evaporation leaves chemicals inside
          * The above code ensures the q term, which is the net input of water
@@ -151,7 +129,6 @@ void Monitor(realtype t, realtype stepsize, const pihm_struct pihm, Chem_Data CD
     }
 
     free(resflux);
-    free(rawtime);
 }
 
 int upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
