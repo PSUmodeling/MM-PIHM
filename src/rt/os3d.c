@@ -244,7 +244,8 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
 
                     if ((tmpconc[j] < 0.0) &&
                         (strcmp(CD->chemtype[j].ChemName, "'H+'")) &&
-                        (i < CD->NumEle * 2))
+                        (CD->Vcele[i].type == GW_VOL ||
+                        CD->Vcele[i].type == UNSAT_VOL))
                     {
                         fprintf(stderr,
                             "negative concentration change at species %s !\n",
