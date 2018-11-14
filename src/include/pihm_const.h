@@ -415,5 +415,9 @@ extern int     nthreads;
 #if defined(_BGC_)
 extern int     first_balance;
 #endif
+#if defined(_RT_)
+double          t_duration, t_duration_hydro, t_duration_rt;
+double          t_duration_transp, t_duration_react;
+#endif
 
 #endif

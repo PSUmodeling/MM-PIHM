@@ -228,7 +228,11 @@ double          OvlFlowElemToElem(const elem_struct *, const elem_struct *, int,
     double, int);
 double          OvlFlowElemToRiver(const elem_struct *, const river_struct *);
 void            ParseCmdLineParam(int, char *[], char *);
+#if defined(_RT_)
+void            PIHM(pihm_struct, Chem_Data, void *, N_Vector, double);
+#else
 void            PIHM(pihm_struct, void *, N_Vector, double);
+#endif
 pihm_t_struct   PIHMTime(int);
 void            PrintCVodeFinalStats(void *);
 void            PrintData(varctrl_struct *, int, int, int, int);
@@ -280,7 +284,11 @@ void            RelaxIc(elem_struct *, river_struct *);
 void            SetCVodeParam(pihm_struct, void *, N_Vector);
 int             SoilTex(double, double);
 void            SolveCVode(int, int *, int, double, void *, N_Vector);
+#if defined(_RT_)
+void            Spinup(pihm_struct, Chem_Data, N_Vector, void *);
+#else
 void            Spinup(pihm_struct, N_Vector, void *);
+#endif
 void            StartupScreen(void);
 int             StrTime(const char *);
 #if defined(_RT_)
