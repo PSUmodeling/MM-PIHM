@@ -1948,15 +1948,12 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     struct tm      *timestamp;
     time_t         *rawtime;
     double          timelps, rt_step, peclet, invavg, unit_c;
-    realtype       *Y;
     rt_step = stepsize * (double)CD->AvgScl;    /* By default, the largest
                                                  * averaging period is 10 mins.
                                                  * Longer default averaging
                                                  * value will fail */
     unit_c = stepsize / UNIT_C;
     int             VIRTUAL_VOL = CD->NumVol;
-
-    Y = NV_DATA_S(VY);
 
     rawtime = (time_t *)malloc(sizeof(time_t));
     *rawtime = (int)(t * 60);
@@ -2163,8 +2160,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         for (i = 0; i < nriver; i++)
         {
             CD->Vcele[RT_RIVER(i)].height_o = CD->Vcele[RT_RIVER(i)].height_t;
-            CD->Vcele[RT_RIVER(i)].height_t = MAX(Y[i + 3 * nelem + nriver], 1.0E-5) +
-                MAX(Y[i + 3 * nelem], 1.0E-5) / CD->Vcele[RT_RIVER(i)].porosity;
+            CD->Vcele[RT_RIVER(i)].height_t = MAX(pihm->river[i].ws.gw, 1.0E-5) +
+                MAX(pihm->river[i].ws.stage, 1.0E-5) / CD->Vcele[RT_RIVER(i)].porosity;
             CD->Vcele[RT_RIVER(i)].height_int = CD->Vcele[RT_RIVER(i)].height_t;
             CD->Vcele[RT_RIVER(i)].height_sp =
                 (CD->Vcele[RT_RIVER(i)].height_t - CD->Vcele[RT_RIVER(i)].height_o) * invavg;
