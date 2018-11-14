@@ -5,6 +5,11 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     const epconst_struct epctbl[], const elem_struct *elem,
     const river_struct *river, const meshtbl_struct *meshtbl,
     const char *outputdir, print_struct *print)
+#elif defined(_RT_)
+void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
+    const Chem_Data rt, const elem_struct *elem,
+    const river_struct *river, const meshtbl_struct *meshtbl,
+    const char *outputdir, print_struct *print)
 #else
 void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     const elem_struct *elem, const river_struct *river,
@@ -919,6 +924,54 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             }
         }
     }
+
+#if defined(_RT_)
+    for (k = 0; k < rt->NumStc; k++)
+    {
+        sprintf(ext, "%s.unsat_conc", rt->chemtype[k].ChemName);
+        printf("%d %s\n", n, ext);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &rt->Vcele[RT_UNSAT(j)].log10_pconc[k];
+        }
+        n++;
+    }
+    for (k = 0; k < rt->NumSsc; k++)
+    {
+        sprintf(ext, "%s.unsat_conc", rt->chemtype[k].ChemName);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &rt->Vcele[RT_UNSAT(j)].log10_sconc[k];
+        }
+        n++;
+    }
+    for (k = 0; k < rt->NumStc; k++)
+    {
+        sprintf(ext, "%s.gw_conc", rt->chemtype[k].ChemName);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &rt->Vcele[RT_GW(j)].log10_pconc[k];
+        }
+        n++;
+    }
+    for (k = 0; k < rt->NumSsc; k++)
+    {
+        sprintf(ext, "%s.gw_conc", rt->chemtype[k].ChemName);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &rt->Vcele[RT_GW(j)].log10_sconc[k];
+        }
+        n++;
+    }
+#endif
 
     if (n > MAXPRINT)
     {

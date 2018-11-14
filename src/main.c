@@ -87,6 +87,9 @@ int main(int argc, char *argv[])
 #if defined(_CYCLES_)
     MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->epctbl,
         pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
+#elif defined(_RT_)
+    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, chData,
+        pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
 #else
     MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->elem, pihm->river,
         &pihm->meshtbl, outputdir, &pihm->print);
@@ -184,6 +187,8 @@ int main(int argc, char *argv[])
             // 12.30 RT control
             t_start_rt = time(NULL);
             fluxtrans(pihm->ctrl.tout[pihm->ctrl.cstep + 1]/60, pihm->ctrl.stepsize/60, pihm, chData, t_duration_transp, t_duration_react);  // 12.30 add two timers
+            UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
+            UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, RT_STEP);
             t_end_rt = time(NULL);
             t_duration_rt += t_end_rt - t_start_rt;
 

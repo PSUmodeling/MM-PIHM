@@ -39,6 +39,7 @@
 #define HYDROL_STEP    0
 #define LS_STEP        1
 #define CN_STEP        2
+#define RT_STEP        3
 
 /* Maximum number of output files */
 #define MAXPRINT    1024
