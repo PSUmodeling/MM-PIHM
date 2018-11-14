@@ -1457,6 +1457,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
         CD->Vcele[i].p_actv = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].p_para = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].p_type = (int *)calloc(CD->NumStc, sizeof(int));
+        CD->Vcele[i].log10_pconc = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].log10_sconc = (double *)calloc(CD->NumSsc, sizeof(double));
 
         CD->Vcele[i].q = 0.0;
         CD->Vcele[i].illness = 0;
@@ -2300,6 +2302,56 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Flux[k].velocity = 0.0;
         }
 
+        if ((int)timelps % (60) == 0)
+        {
+            CD->SPCFlg = 0;
+
+            if (!CD->RecFlg)
+            {
+                for (i = 0; i < CD->NumStc; i++)
+                {
+                    for (j = 0; j < nriver; j++)
+                    {
+                        CD->Vcele[RT_RIVER(j)].p_conc[i] =
+                            (CD->chemtype[i].itype == MINERAL) ?
+                            CD->Vcele[RT_RIVER(j)].t_conc[i] :
+                            fabs(CD->Vcele[RT_RIVER(j)].t_conc[i] * 0.1);
+                    }
+                }
+            }
+
+            if (!CD->RecFlg)
+            {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+                for (i = 0; i < nriver; i++)
+                {
+                    Speciation(CD, RT_RIVER(i));
+                }
+            }
+            else
+            {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+                for (i = 0; i < CD->NumOsv; i++)
+                    Speciation(CD, i);
+            }
+        }
+
+        for (i = 0; i < CD->NumVol; i++)
+        {
+            for (j = 0; j < CD->NumStc; j++)
+            {
+                CD->Vcele[i].log10_pconc[j] = log10(CD->Vcele[i].p_conc[j]);
+            }
+            for (j = 0; j < CD->NumSsc; j++)
+            {
+                CD->Vcele[i].log10_sconc[j] = log10(CD->Vcele[i].s_conc[j]);
+            }
+        }
+
         free(rawtime);
     }
 }
@@ -2370,45 +2422,6 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
     timelps = t - CD->StartTime;
     tmpconc = 0.0;
 
-    //if ((int)timelps % (720) == 0)
-    if ((int)timelps % (60) == 0)   // 11.07 update every 1 hour instead every 12 hour
-    {
-        CD->SPCFlg = 0;
-
-        if (!CD->RecFlg)
-        {
-            for (i = 0; i < CD->NumStc; i++)
-            {
-                for (j = 0; j < nriver; j++)
-                {
-                    CD->Vcele[RT_RIVER(j)].p_conc[i] =
-                        (CD->chemtype[i].itype == MINERAL) ?
-                        CD->Vcele[RT_RIVER(j)].t_conc[i] :
-                        fabs(CD->Vcele[RT_RIVER(j)].t_conc[i] * 0.1);
-                }
-            }
-        }
-
-        if (!CD->RecFlg)
-        {
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-            for (i = 0; i < nriver; i++)
-            {
-                Speciation(CD, RT_RIVER(i));
-            }
-        }
-        else
-        {
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-            for (i = 0; i < CD->NumOsv; i++)
-                Speciation(CD, i);
-        }
-    }
-
     if ((int)timelps % (CD->OutItv * 60) == 0)
     {
         cfn[0] =
@@ -2455,9 +2468,9 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
         {
             fprintf(Cfile[0], "%d\t", CD->Vcele[RT_GW(i)].index);
             for (j = 0; j < CD->NumStc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_GW(i)].p_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", CD->Vcele[RT_GW(i)].log10_pconc[j]);
             for (j = 0; j < CD->NumSsc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_GW(i)].s_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", CD->Vcele[RT_GW(i)].log10_sconc[j]);
 
             fprintf(Cfile[0], "\n");
         }
@@ -2465,9 +2478,9 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
         {
             fprintf(Cfile[0], "%d\t", CD->Vcele[RT_UNSAT(i)].index);
             for (j = 0; j < CD->NumStc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_UNSAT(i)].p_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", CD->Vcele[RT_UNSAT(i)].log10_pconc[j]);
             for (j = 0; j < CD->NumSsc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_UNSAT(i)].s_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", CD->Vcele[RT_UNSAT(i)].log10_sconc[j]);
 
             fprintf(Cfile[0], "\n");
         }
@@ -2476,16 +2489,15 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
         {
             fprintf(Cfile[0], "%d\t", CD->Vcele[RT_RIVER(i)].index);
             for (j = 0; j < CD->NumStc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVER(i)].p_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", CD->Vcele[RT_RIVER(i)].log10_pconc[j]);
             for (j = 0; j < CD->NumSsc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[RT_RIVER(i)].s_conc[j]));
+                fprintf(Cfile[0], "%12.8f\t", CD->Vcele[RT_RIVER(i)].log10_sconc[j]);
 
             fprintf(Cfile[0], "\n");
         }
 
         // Output the breakthrough curves "stream chemistry"
         // River is not updated in reaction stage, so a speciation is required before output
-
         if (t == CD->StartTime + CD->OutItv * 60)
         {
             fprintf(Cfile[1], "\t\t\t");
@@ -2810,6 +2822,8 @@ void FreeChem(Chem_Data CD)
     free(CD->Vcele->t_conc);
     free(CD->Vcele->p_conc);
     free(CD->Vcele->s_conc);
+    free(CD->Vcele->log10_pconc);
+    free(CD->Vcele->log10_sconc);
     free(CD->Vcele->p_actv);
     free(CD->Vcele->p_para);
     free(CD->Vcele->p_type);
