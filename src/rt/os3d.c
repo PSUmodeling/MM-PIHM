@@ -21,9 +21,12 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
     int             i, j, k, abnormalflg;
     double          temp_dconc, diff_conc, unit_c, timelps, invavg, adpstep;
     double         *tmpconc = (double *)malloc(CD->NumSpc * sizeof(double));
+    double        **tconc;
 
     abnormalflg = 0;
     unit_c = 1.0 / 1440.0;
+
+    tconc = (double **)malloc(CD->NumOsv * sizeof(double *));
 
     /* Initalize the allocated array */
 #ifdef _OPENMP
@@ -32,9 +35,12 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
     for (i = 0; i < CD->NumOsv; i++)
     {
         int             j;
+        tconc[i] = (double *)malloc(CD->NumSpc * sizeof(double));
         dconc[i] = (double *)malloc(CD->NumSpc * sizeof(double));
+
         for (j = 0; j < CD->NumSpc; j++)
         {
+            tconc[i][j] = CD->Vcele[i].t_conc[j];
             dconc[i][j] = 0.0;
         }
     }
@@ -268,15 +274,27 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                         CD->Vcele[i].illness++;
                         abnormalflg = 1;
                     }
-                    CD->Vcele[i].t_conc[j] = tmpconc[j];
+                    tconc[i][j] = tmpconc[j];
                 }
         }
     }
 
     for (i = 0; i < CD->NumOsv; i++)
     {
+        int             j;
+
+        for (j = 0; j < CD->NumSpc; j++)
+        {
+            CD->Vcele[i].t_conc[j] = tconc[i][j];
+        }
+    }
+
+    for (i = 0; i < CD->NumOsv; i++)
+    {
+        free(tconc[i]);
         free(dconc[i]);
     }
+    free(tconc);
     free(dconc);
     free(tmpconc);
 }
