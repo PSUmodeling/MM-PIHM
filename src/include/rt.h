@@ -60,6 +60,8 @@ typedef struct vol_conc_type
     double          porosity;   /* porosity of the volume */
     double          q;          /* sink or source flow rate, in m3/day */
     double          rt_step;    /* rt_step of cell */
+    double         *log10_pconc;     /* for output only */
+    double         *log10_sconc;     /* for output only */
 } vol_conc;
 
 typedef struct face_type
