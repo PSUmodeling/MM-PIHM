@@ -39,7 +39,7 @@ static double timer()
 }
 
 
-void Monitor(realtype t, realtype stepsize, const pihm_struct pihm, Chem_Data CD)   // 09.30
+void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)   // 09.30
 {
     int             i;
     double          unit_c = stepsize / UNIT_C;
@@ -323,8 +323,7 @@ void ConditionAssign(int condition, char *str, int *index)
 
 }
 
-void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
-    Chem_Data CD, realtype t)
+void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t)
 {
     int             i, j, k;
     int             num_species, num_mineral, num_ads, num_cex, num_other,
@@ -1757,7 +1756,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     }
 
     CD->SPCFlg = speciation_flg;
-    Lookup(database, CD, 0);
+    Lookup(database, CD);
     /* Update the concentration of mineral after get the molar volume of
      * mineral */
 
@@ -1937,7 +1936,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
 }
 
 void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
-    N_Vector VY, double *t_duration_transp, double *t_duration_react)
+    double *t_duration_transp, double *t_duration_react)
 {
     /* unit of t and stepsize: min
      * swi irreducible water saturation
@@ -2170,7 +2169,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Vcele[RT_RIVER(i)].vol = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_t;
         }
 
-        Monitor(t, stepsize * (double)CD->AvgScl, pihm, CD);
+        Monitor(stepsize * (double)CD->AvgScl, pihm, CD);
 
         /* Update virtual volume */
         for (k = 0; k < CD->NumStc; k++)
@@ -2230,7 +2229,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             rt_step = stepsize * (double)CD->AvgScl;
 
             AdptTime(CD, CD->TimLst, rt_step, stepsize * (double)CD->AvgScl,
-                &rt_step, pihm, t_duration_transp, t_duration_react);
+                &rt_step, t_duration_transp, t_duration_react);
 
             for (i = 0; i < CD->NumEle; i++)
             {
@@ -2604,8 +2603,7 @@ void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
 }
 
 void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
-    double *start_step, const pihm_struct pihm,
-    double *t_duration_transp, double *t_duration_react)
+    double *start_step, double *t_duration_transp, double *t_duration_react)
 {
     double          stepsize, org_time, step_rst, end_time;
     double          timer1, timer2;

@@ -161,17 +161,9 @@ int SpeciationType(FILE *database, char *Name)
     return (0);
 }
 
-void Lookup(FILE *database, Chem_Data CD, int lookupflg)
+void Lookup(FILE *database, Chem_Data CD)
 {
-    /*
-     * lookupflg: used to lookup for
-     * 0) uniform temperature field (thermo decoupled). Read temperature from
-     *    CD->Temperature and return value for the whole field.
-     * 1) values for each grid block at each time (thermo coupled). Read
-     *    temperature from each grid block and return value for each grid block.
-     */
     double          tmpval[WORDS_LINE];
-
     /* Kinetic reactions is currently only applicable to minerals */
     int             i, j, k, l, keq_position, total_temp_points;
     int             mn, in;     // 08.19 Wei
