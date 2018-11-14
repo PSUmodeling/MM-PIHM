@@ -165,7 +165,7 @@ void Lookup(FILE *database, Chem_Data CD)
 {
     double          tmpval[WORDS_LINE];
     /* Kinetic reactions is currently only applicable to minerals */
-    int             i, j, k, l, keq_position, total_temp_points;
+    int             i, j, k, l, keq_position = 0, total_temp_points;
     int             mn, in;     // 08.19 Wei
     char            line[LINE_WIDTH], tmp[WORD_WIDTH];
     char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
@@ -828,7 +828,7 @@ int Speciation(Chem_Data CD, int cell)
                     maxerror = fabs(error[i]);
         }
     }
-    if (speciation_flg == 0)
+    else
     {
         jcb = newDenseMat(CD->NumStc, CD->NumStc);
         long int       *p;

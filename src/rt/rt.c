@@ -1946,7 +1946,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     int             i, j, k = 0;
     struct tm      *timestamp;
     time_t         *rawtime;
-    double          timelps, rt_step, peclet, invavg, unit_c;
+    double          timelps, rt_step, peclet = 0.0, invavg, unit_c;
     rt_step = stepsize * (double)CD->AvgScl;    /* By default, the largest
                                                  * averaging period is 10 mins.
                                                  * Longer default averaging
@@ -2608,7 +2608,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     double          stepsize, org_time, step_rst, end_time;
     double          timer1, timer2;
     int             i, j, k, m, nr_max, int_flg;
-    time_t          t_start_transp, t_end_transp, t_start_react, t_end_react;
+    time_t          t_start_transp, t_end_transp;
 
     stepsize = *start_step;
     org_time = timelps;
@@ -2631,6 +2631,8 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
 
     while (timelps < end_time)
     {
+        time_t          t_start_react, t_end_react;
+
         nr_max = 5;
 
         if (stepsize > end_time - timelps)
@@ -2752,7 +2754,11 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
         timer2 = timer();
         timelps += stepsize;
         if (timelps >= org_time + hydro_step)
+        {
+            t_end_react = time(NULL);
+            *t_duration_react += (t_end_react - t_start_react);
             break;
+        }
     }
 
     if ((!CD->RecFlg) &&
@@ -2760,9 +2766,6 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     {
         /* Do nothing. Place holder for test purposes. */
     }
-
-    t_end_react = time(NULL);
-    *t_duration_react += (t_end_react - t_start_react);
 }
 
 void FreeChem(Chem_Data CD)
