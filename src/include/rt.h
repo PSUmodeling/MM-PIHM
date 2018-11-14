@@ -21,15 +21,10 @@ typedef struct vol_conc_type
 {
     int             index;      /* Volume No. Note this number may be different than the element No. in PIHM */
     int             illness;    /* black list */
-    int             i_condition;    /* Store the index of initial/ boundary conditions that the cell belongs to */
-    //int             reset_ref;  /* the reference cell this cell may reset to */
     int             NumStc;     /* Total Number of primary (total) species */
     int             NumSsc;     /* Total Number of secondary species */
-    int             ErrDumper;  /* The index of the flux to be modified to keep mass conservation */
     int             type;       /* type of volume: unsaturated, groundwater, river, or river bed */
     double         *t_conc;     /* Concentration of species x, default unit in Mol/kg water. */
-    double         *t_rate;     /* Rate for total concentration i */
-    double         *t_tol;      /* Tolerance of rate difference for total concentration i */
     double         *p_conc;     /* Primary concentrations, default unit in Mol/kg water */
     /* It should be noted that this array does not only store aqueous concentration
      * but also include other types of primary species that are not mobile
@@ -42,7 +37,6 @@ typedef struct vol_conc_type
      */
     double         *s_conc;     /* Secondary concentrations, default unit in Mol/kg water */
     double         *p_actv;     /* Activity of primary species */
-    double         *s_actv;     /* Activity of secondary species */
     double         *p_para;     /* parameters of primary species
                                  * for surface complexation
                                  * for cation exchage
@@ -54,7 +48,6 @@ typedef struct vol_conc_type
                                  * 3: primary cation exchange
                                  * 4: primary mineral
                                  */
-    double          vol_real;   /* Effective volume of Volume, in cubic meter */
     double          sat;        /* Saturation of Volume, dimensionless, from 0 to 1 */
     double          height_o;   /* height of volume, at previous time step */
     double          height_t;   /* height of volume, at current time step */
@@ -68,8 +61,6 @@ typedef struct vol_conc_type
     double          porosity;   /* porosity of the volume */
     double          q;          /* sink or source flow rate, in m3/day */
     double          rt_step;    /* rt_step of cell */
-    //  double * Keq;          /* local Keq driven by temperature */
-    //  Debye_Huckel DH;       /* local Debye_Huckel array driven by local temperature */
 } vol_conc;
 
 typedef struct face_type
@@ -80,7 +71,6 @@ typedef struct face_type
     int             nodell;     /* Volume No. of node after second node */
     int             node_trib;  // # node of tributary; > 0 indicates a tributary inflow, 01.14 by Wei Zhi
     int             BC;         /* This face is a boundary face, do not do dispersion and diffusion */
-    int             flux_type;  /* Type of fluxes, 1 for vertical and 0 for horizontal, used for calibration */
     double          distance;   /* distance from centroid of first node to second node, in meter */
     double          velocity;   /* linear velocity of flux at this face, in m/d */
     double          flux;       /* flux at surface, in cubic m per day  */

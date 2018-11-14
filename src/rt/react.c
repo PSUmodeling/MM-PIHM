@@ -972,8 +972,10 @@ int Speciation(Chem_Data CD, int cell)
         else
         {
             CD->Vcele[cell].s_conc[i - CD->NumStc] = pow(10, tmpconc[i]);
+#if TEMP_DISABLED
             CD->Vcele[cell].s_actv[i - CD->NumStc] =
                 pow(10, (tmpconc[i] + gamma[i]));
+#endif
         }
     }
     destroyMat(jcb);
@@ -1461,8 +1463,10 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele, double z_SOC)
         else
         {
             Vcele->s_conc[i - CD->NumStc] = pow(10, tmpconc[i]);
+#if TEMP_DISABLED
             Vcele->s_actv[i - CD->NumStc] =
                 pow(10, (tmpconc[i] + gamma[i]));
+#endif
         }
     }
 
