@@ -335,8 +335,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     int             Global_diff = 0, Global_disp = 0;
     int             error_flag = 0, speciation_flg = 0, specflg;
     double          total_area = 0.0, tmpval[WORDS_LINE];
-    time_t          rawtime;
-    struct tm      *timeinfo;
     char            cmdstr[MAXSTRING];
     int             lno = 0;
     int             VIRTUAL_VOL;
@@ -345,8 +343,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
 
     char            line[256];
     char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
-
-    timeinfo = (struct tm *)malloc(sizeof(struct tm));
 
     for (i = 0; i < words_line; i++)
         tmpstr[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
@@ -1458,12 +1454,9 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Vcele[i].NumStc = CD->NumStc;
         CD->Vcele[i].NumSsc = CD->NumSsc;
         CD->Vcele[i].t_conc = (double *)calloc(CD->NumStc, sizeof(double));
-        CD->Vcele[i].t_rate = (double *)calloc(CD->NumStc, sizeof(double));
-        CD->Vcele[i].t_tol = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].p_conc = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].s_conc = (double *)calloc(CD->NumSsc, sizeof(double));
         CD->Vcele[i].p_actv = (double *)calloc(CD->NumStc, sizeof(double));
-        CD->Vcele[i].s_actv = (double *)calloc(CD->NumSsc, sizeof(double));
         CD->Vcele[i].p_para = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].p_type = (int *)calloc(CD->NumStc, sizeof(int));
 
@@ -1551,9 +1544,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
 
     CD->Flux = (face *) malloc(CD->NumFac * sizeof(face));
 
-    double          para_a, para_b, para_c, x_0, x_1, y_0, y_1;
-    int             index_0, index_1, rivi;
-
     for (i = 0; i < nelem; i++)
     {
         int             elemlo;
@@ -1584,7 +1574,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                     CD->Vcele[RT_GW(elemuu - 1)].index : 0;
                 CD->Flux[RT_LAT_GW(i, j)].nodell = (elemll > 0) ?
                     CD->Vcele[RT_GW(elemll - 1)].index : 0;
-                CD->Flux[RT_LAT_GW(i, j)].flux_type = 0;
                 CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_GW(i, j)].BC = DISPERSION;
                 CD->Flux[RT_LAT_GW(i, j)].distance = distance;
@@ -1599,7 +1588,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                     CD->Vcele[RT_UNSAT(elemuu - 1)].index :0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].nodell = (elemll > 0) ?
                     CD->Vcele[RT_UNSAT(elemll - 1)].index : 0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].flux_type = 0;  /* Unsat lateral flux, flux = 0.0 */
                 CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].BC = DISPERSION;
                 CD->Flux[RT_LAT_UNSAT(i, j)].distance = distance;
@@ -1611,7 +1599,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_GW(i, j)].nodelo = 0;
                 CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
                 CD->Flux[RT_LAT_GW(i, j)].nodell = 0;
-                CD->Flux[RT_LAT_GW(i, j)].flux_type = 1;
                 CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_GW(i, j)].BC = NO_FLOW;
                 CD->Flux[RT_LAT_GW(i, j)].distance = 0.0;
@@ -1621,7 +1608,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
                 CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = 0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = 0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].nodell = 0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].flux_type = 1;
                 CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
                 CD->Flux[RT_LAT_UNSAT(i, j)].BC = NO_FLOW;
                 CD->Flux[RT_LAT_UNSAT(i, j)].distance = 0.0;
@@ -1629,29 +1615,21 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         }
 
         /* Rechage centered at unsat blocks */
-        CD->Vcele[RT_UNSAT(i)].ErrDumper = RT_RECHG_UNSAT(i);
         CD->Flux[RT_RECHG_UNSAT(i)].nodeup = CD->Vcele[RT_UNSAT(i)].index;
         CD->Flux[RT_RECHG_UNSAT(i)].node_trib = 0;
         CD->Flux[RT_RECHG_UNSAT(i)].nodelo = CD->Vcele[RT_GW(i)].index;
         CD->Flux[RT_RECHG_UNSAT(i)].nodeuu = 0;
         CD->Flux[RT_RECHG_UNSAT(i)].nodell = 0;
-        CD->Flux[RT_RECHG_UNSAT(i)].flux_type = 0;  /* Although vertical flow, but intended for
-                                     * infiltration correction in Monitor ( );
-                                     * 0 for lateral, 1 for vertical */
         CD->Flux[RT_RECHG_UNSAT(i)].flux_trib = 0.0;
         CD->Flux[RT_RECHG_UNSAT(i)].BC = DISPERSION;
         CD->Flux[RT_RECHG_UNSAT(i)].distance = 0.1 * pihm->elem[i].soil.depth;
 
         /* Recharge centered at gw blocks */
-        CD->Vcele[RT_GW(i)].ErrDumper = RT_RECHG_GW(i);
         CD->Flux[RT_RECHG_GW(i)].nodeup = CD->Vcele[RT_GW(i)].index;
         CD->Flux[RT_RECHG_GW(i)].node_trib = 0;
         CD->Flux[RT_RECHG_GW(i)].nodelo = CD->Vcele[RT_UNSAT(i)].index;
         CD->Flux[RT_RECHG_GW(i)].nodeuu = 0;
         CD->Flux[RT_RECHG_GW(i)].nodell = 0;
-        CD->Flux[RT_RECHG_GW(i)].flux_type = 1;  /* Vertical flow, but intended for recharge
-                                     * correction in Monitor(); 0 for lateral,
-                                     * 1 for vertical */
         CD->Flux[RT_RECHG_GW(i)].flux_trib = 0.0;
         CD->Flux[RT_RECHG_GW(i)].BC = DISPERSION;
         CD->Flux[RT_RECHG_GW(i)].distance = 0.1 * pihm->elem[i].soil.depth;
@@ -1674,7 +1652,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Flux[RT_LEFT_SURF2RIVER(i)].nodelo = VIRTUAL_VOL;
         CD->Flux[RT_LEFT_SURF2RIVER(i)].nodeuu = 0;
         CD->Flux[RT_LEFT_SURF2RIVER(i)].nodell = 0;
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].flux_type = 0;
         CD->Flux[RT_LEFT_SURF2RIVER(i)].BC = NO_DISP;
         CD->Flux[RT_LEFT_SURF2RIVER(i)].flux = 0.0;
         CD->Flux[RT_LEFT_SURF2RIVER(i)].flux_trib = 0.0;
@@ -1688,7 +1665,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodelo = VIRTUAL_VOL;
         CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodeuu = 0;
         CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodell = 0;
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux_type = 0;
         CD->Flux[RT_RIGHT_SURF2RIVER(i)].BC = NO_DISP;
         CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux = 0.0;
         CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux_trib = 0.0;
@@ -1703,7 +1679,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
             CD->Vcele[RT_GW(pihm->river[i].leftele - 1)].index;
         CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodeuu = 0;
         CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodell = 0;
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux_type = 0;
         CD->Flux[RT_LEFT_AQIF2RIVER(i)].BC = DISPERSION;
         CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux = 0.0;
         CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux_trib = 0.0;
@@ -1727,7 +1702,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
             CD->Vcele[RT_GW(pihm->river[i].rightele - 1)].index;
         CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodeuu = 0;
         CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodell = 0;
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux_type = 0;
         CD->Flux[RT_RIGHT_AQIF2RIVER(i)].BC = DISPERSION;
         CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux = 0.0;
         CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux_trib = 0.0;
@@ -1752,7 +1726,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].node_trib = 0;
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodeuu = 0;
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodell = 0;
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux_type = 0;
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].BC = NO_DISP;
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux = 0.0;
         CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux_trib = 0.0;
@@ -1768,7 +1741,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
             CD->Vcele[RT_RIVER(pihm->river[i].up[1] - 1)].index;
         CD->Flux[RT_UP_RIVER2RIVER(i)].nodeuu = 0;
         CD->Flux[RT_UP_RIVER2RIVER(i)].nodell = 0;
-        CD->Flux[RT_UP_RIVER2RIVER(i)].flux_type = 0;
         CD->Flux[RT_UP_RIVER2RIVER(i)].BC = NO_DISP;
         CD->Flux[RT_UP_RIVER2RIVER(i)].flux = 0.0;
         CD->Flux[RT_UP_RIVER2RIVER(i)].flux_trib = 0.0;
@@ -1953,14 +1925,12 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     free(forcfn);
     free(condition_index);
 
-    free(timeinfo);
     free(Global_type.ChemName);
     for (i = 0; i < words_line; i++)
     {
         free(tmpstr[i]);
     }
     free(tmpstr);
-
 
     fclose(chemfile);
     fclose(database);
@@ -1978,7 +1948,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     int             i, j, k = 0;
     struct tm      *timestamp;
     time_t         *rawtime;
-    double          timelps, rt_step, temp_rt_step, peclet, invavg, unit_c;
+    double          timelps, rt_step, peclet, invavg, unit_c;
     realtype       *Y;
     rt_step = stepsize * (double)CD->AvgScl;    /* By default, the largest
                                                  * averaging period is 10 mins.
@@ -2645,7 +2615,6 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     double          timer1, timer2;
     int             i, j, k, m, nr_max, int_flg;
     time_t          t_start_transp, t_end_transp, t_start_react, t_end_react;
-    int             VIRTUAL_VOL = CD->NumVol;
 
     stepsize = *start_step;
     org_time = timelps;
@@ -2842,12 +2811,9 @@ void FreeChem(Chem_Data CD)
 
     // CD->Vcele
     free(CD->Vcele->t_conc);
-    free(CD->Vcele->t_rate);
-    free(CD->Vcele->t_tol);
     free(CD->Vcele->p_conc);
     free(CD->Vcele->s_conc);
     free(CD->Vcele->p_actv);
-    free(CD->Vcele->s_actv);
     free(CD->Vcele->p_para);
     free(CD->Vcele->p_type);
     free(CD->Vcele);
@@ -2897,7 +2863,7 @@ double Dist2Edge(const meshtbl_struct *meshtbl, const elem_struct *elem,
     int edge_j)
 {
     double          para_a, para_b, para_c, x_0, x_1, y_0, y_1;
-    int             index_0, index_1, rivi;
+    int             index_0, index_1;
 
     index_0 = elem->node[(edge_j + 1) % 3] - 1;
     index_1 = elem->node[(edge_j + 2) % 3] - 1;
