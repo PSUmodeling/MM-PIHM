@@ -8,14 +8,13 @@
  * Date        : June 2013
  *****************************************************************************/
 
+/* parameters of Debye_Huckel Equation */
 typedef struct Debye_Huckel_structure
 {
-    // parameters of Debye_Huckel Equation;
     double          adh;
     double          bdh;
     double          bdt;
 } Debye_Huckel;
-
 
 typedef struct vol_conc_type
 {
@@ -167,15 +166,12 @@ typedef struct Chem_Data_structure
     int             AvgScl;     /* Flux will be averaged over a period of time, in the unit of min. E.g. AvgScl = 1 original flux from PIHM. AvgScl = 60, hourly flux updates from PIHM, it will be adaptively changed by the code itself.  */
     int             CptFlg;     /* Flag for coupling option. 1: coupling with pihm. 0: flow. others to be developped. */
     int             Delay;      /* RT start after PIHM running for a period of time, unit: days */
-    int             RivOff;     /* take the outmost RivOff river segment off simulation, to save time */
     int             React_delay;    /* Number of transport step per unit reaction step */
     int             NumPUMP;    /* Number of pumps  */
     int             SUFEFF;     /* surface effect */
     int             NumBTC;     /* Number of breakthrough points */
     int            *BTC_loc;    /* Array of locations of breakthrough points */
     int            *prepconcindex;  //
-    double          TimMax;     /* Maximum time step the simulator can use, important if no convergence type error encountered */
-    double          TimMin;     /* Minimum time step the simulator can use, can speed up the simulator if set to a larger value, recommended 1.0E-5 */
     double          TimLst;     /* Starting time step that is inherited from the last time step of hydro-reaction coupling */
     double          TimRiv;     /* transport time of river, calculated in fluxtrans and used in os3d. */
     double          Condensation;   /* a factor controls the concentration of infiltrating rain water as a ratio to the concentration in rain water */

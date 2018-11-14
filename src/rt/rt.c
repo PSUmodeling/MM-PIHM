@@ -417,7 +417,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y,
     CD->RelMin = 0;
     CD->AvgScl = 1;
     CD->CptFlg = 1;
-    CD->RivOff = 0;
     CD->TimRiv = 1.0;
     CD->React_delay = 10;
     CD->Condensation = 1.0;
