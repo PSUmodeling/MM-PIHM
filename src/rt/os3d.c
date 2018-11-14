@@ -18,12 +18,10 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
 {
     /* Input t and stepsize in the unit of minute */
     double        **dconc = (double **)malloc(CD->NumOsv * sizeof(double *));
-    int             i, j, k, abnormalflg;
-    double          temp_dconc, diff_conc, unit_c, timelps, invavg, adpstep;
-    double         *tmpconc = (double *)malloc(CD->NumSpc * sizeof(double));
+    int             i;
+    double          unit_c;
     double        **tconc;
 
-    abnormalflg = 0;
     unit_c = 1.0 / 1440.0;
 
     tconc = (double **)malloc(CD->NumOsv * sizeof(double *));
@@ -35,6 +33,7 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
     for (i = 0; i < CD->NumOsv; i++)
     {
         int             j;
+
         tconc[i] = (double *)malloc(CD->NumSpc * sizeof(double));
         dconc[i] = (double *)malloc(CD->NumSpc * sizeof(double));
 
@@ -47,21 +46,31 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
 
     for (i = 0; i < CD->NumFac; i++)
     {
+        int             j;
+
         if (CD->Flux[i].BC != NO_FLOW)
         {
             for (j = 0; j < CD->NumSpc; j++)
             {
-                temp_dconc = Dconc(&CD->Flux[i], CD->Vcele, CD->chemtype,
-                    CD->Cementation, CD->TVDFlg, j);
-
-                dconc[CD->Flux[i].nodeup - 1][j] += temp_dconc;
+                dconc[CD->Flux[i].nodeup - 1][j] +=
+                    Dconc(&CD->Flux[i], CD->Vcele, CD->chemtype,
+                        CD->Cementation, CD->TVDFlg, j);
             }
         }
     }
 
     /* Local time step part */
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < CD->NumOsv; i++)
     {
+        int             j, k;
+        double          diff_conc;
+        double          timelps;
+        double          adpstep;
+        double         *tmpconc = (double *)malloc(CD->NumSpc * sizeof(double));
+
         adpstep = CD->Vcele[i].rt_step;
 
         if (CD->CptFlg == 1)
@@ -76,7 +85,6 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                     CD->Vcele[i].type == GW_VOL)
                 {
                     timelps = t;
-                    invavg = 1.0 / stepsize;
 
                     while (timelps < t + stepsize)
                     {
@@ -142,7 +150,6 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                                     "Old Conc: %8.4g\t New Conc: %8.4g\n",
                                     CD->Vcele[i].t_conc[j], tmpconc[j]);
                                 ReportError(CD->Vcele[i], CD);
-                                abnormalflg = 1;
                                 CD->Vcele[i].illness++;
                             }
 
@@ -174,11 +181,9 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                                     {
                                         for (j = 0; j < CD->NumSpc; j++)
                                         {
-                                            temp_dconc = Dconc(&CD->Flux[k],
+                                            tmpconc[j] += Dconc(&CD->Flux[k],
                                                 CD->Vcele, CD->chemtype,
                                                 CD->Cementation, CD->TVDFlg, j);
-
-                                            tmpconc[j] += temp_dconc;
                                         }
                                     }
                                 }
@@ -272,13 +277,17 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                             tmpconc[j], CD->Vcele[i].rt_step);
                         ReportError(CD->Vcele[i], CD);
                         CD->Vcele[i].illness++;
-                        abnormalflg = 1;
                     }
                     tconc[i][j] = tmpconc[j];
                 }
         }
+
+        free(tmpconc);
     }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < CD->NumOsv; i++)
     {
         int             j;
@@ -296,7 +305,6 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
     }
     free(tconc);
     free(dconc);
-    free(tmpconc);
 }
 
 double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
