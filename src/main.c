@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     Initialize(pihm, CV_Y, &cvode_mem);
 #if defined(_RT_)
     // 12.30 RT use, must be placed after Initialize()
-    chem_alloc(project, pihm, CV_Y, chData, (double)(pihm->ctrl.starttime/60));  // 12.30 RT use
+    chem_alloc(project, pihm, chData, (double)(pihm->ctrl.starttime/60));  // 12.30 RT use
 #endif
 
     /* Create output directory */
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 #if defined(_RT_)
             // 12.30 RT control
             t_start_rt = time(NULL);
-            fluxtrans(pihm->ctrl.tout[pihm->ctrl.cstep + 1]/60, pihm->ctrl.stepsize/60, pihm, chData, CV_Y, t_duration_transp, t_duration_react);  // 12.30 add two timers
+            fluxtrans(pihm->ctrl.tout[pihm->ctrl.cstep + 1]/60, pihm->ctrl.stepsize/60, pihm, chData, t_duration_transp, t_duration_react);  // 12.30 add two timers
             t_end_rt = time(NULL);
             t_duration_rt += t_end_rt - t_start_rt;
 
