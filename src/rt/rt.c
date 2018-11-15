@@ -161,16 +161,23 @@ int upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
 int realcheck(const char *words)
 {
     int             flg = 1, i;
-    if (((words[0] < 58) && (words[0] > 47)) || (words[0] == 46)
-        || (words[0] == 45) || (words[0] == 43))
+    if (((words[0] >= '0') && (words[0] <= '9')) ||
+        (words[0] == '.') || (words[0] == '-') || (words[0] == '+'))
     {
         for (i = 0; i < (int)strlen(words); i++)
-            if ((words[i] > 57 || words[i] < 43) && (words[i] != 69)
-                && (words[i] != 101) && (words[i] != 10) && (words[i] != 13))
+        {
+            /* Ascii 10 is new line and 13 is carriage return */
+            if ((words[i] > '9' || words[i] < '+') && (words[i] != 'E')
+                && (words[i] != 'e') && (words[i] != 10) && (words[i] != 13))
+            {
                 flg = 0;
+            }
+        }
     }
     else
+    {
         flg = 0;
+    }
     return (flg);
 }
 
