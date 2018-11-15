@@ -269,7 +269,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
     int             i, j, k;
     int             num_species, num_mineral, num_ads, num_cex, num_other,
         num_conditions = 0;
-    int             id;         // 01.21 for read-in '*.maxwater'
     int             line_width = LINE_WIDTH, words_line =
         WORDS_LINE, word_width = WORD_WIDTH;
     int             Global_diff = 0, Global_disp = 0;
@@ -1279,7 +1278,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
 
     for (i = 0; i < nelem; i++) /* GW cells */
     {
-        fscanf(maxwater, "%d %lf", &id, &(CD->Vcele[RT_GW(i)].maxwater));
+        fscanf(maxwater, "%*d %lf", &(CD->Vcele[RT_GW(i)].maxwater));
         CD->Vcele[RT_UNSAT(i)].maxwater = CD->Vcele[RT_GW(i)].maxwater;
     }
 
