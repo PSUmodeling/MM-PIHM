@@ -27,7 +27,7 @@
 #define MIN(a,b) (((a)<(b))? (a):(b))
 #define MAX(a,b) (((a)>(b))? (a):(b))
 
-void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)   // 09.30
+void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
 {
     int             i;
     double          unit_c = stepsize / UNIT_C;
