@@ -882,8 +882,10 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
             {
                 specflg = SpeciationType(database, tmpstr[0]);
 
-                if (specflg == 1)
+                if (specflg == AQUEOUS)
                 {
+                    /* Arrange the concentration of the primary species in such a
+                     * way that all the mobile species are at the beginning. */
                     num_other = num_mineral + num_ads + num_cex;
                     Condition_vcele[i].t_conc[num_species - num_other] =
                         tmpval[0];
@@ -893,9 +895,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
                         con_chem_name[i][num_species - num_other], tmpval[0]);
                     Condition_vcele[i].p_type[num_species - num_other] = 1;
                 }
-                /* Arrange the concentration of the primary species in such a
-                 * way that all the mobile species are at the beginning. */
-                if (specflg == 4)
+                if (specflg == MINERAL)
                 {
                     Condition_vcele[i].t_conc[CD->NumSpc + CD->NumAds +
                         CD->NumCex + num_mineral] = tmpval[0];
@@ -912,7 +912,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
                         CD->NumCex + num_mineral] = 4;
                     num_mineral++;
                 }
-                if ((tmpstr[0][0] == '>') || (specflg == 2))
+                if ((tmpstr[0][0] == '>') || (specflg == ADSORPTION))
                 {
                     /* Adsorptive sites and species start with > */
                     /* Condition_vcele[i].t_conc[CD->NumSpc + num_ads] = tmpval[0] * CS->Cal.Site_den;  09.25 temporal comment-out */
@@ -927,7 +927,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
                     num_ads++;
                     /* under construction */
                 }
-                if (specflg == 3)
+                if (specflg == CATION_ECHG)
                 {
                     Condition_vcele[i].t_conc[CD->NumSpc + CD->NumAds +
                         num_cex] = tmpval[0];

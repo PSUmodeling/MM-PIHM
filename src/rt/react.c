@@ -101,7 +101,7 @@ int SpeciationType(FILE *database, char *Name)
                 for (i = 0; i < WORDS_LINE; i++)
                     free(tmpstr[i]);
                 free(tmpstr);
-                return (1);
+                return (AQUEOUS);
             }
         }
         fgets(line, LINE_WIDTH, database);
@@ -131,7 +131,7 @@ int SpeciationType(FILE *database, char *Name)
                 for (i = 0; i < WORDS_LINE; i++)
                     free(tmpstr[i]);
                 free(tmpstr);
-                return (4);
+                return (MINERAL);
             }
         }
         fgets(line, LINE_WIDTH, database);
@@ -149,7 +149,7 @@ int SpeciationType(FILE *database, char *Name)
                 for (i = 0; i < WORDS_LINE; i++)
                     free(tmpstr[i]);
                 free(tmpstr);
-                return (2);
+                return (ADSORPTION);
             }
         }
         fgets(line, LINE_WIDTH, database);
@@ -164,7 +164,7 @@ int SpeciationType(FILE *database, char *Name)
                 for (i = 0; i < WORDS_LINE; i++)
                     free(tmpstr[i]);
                 free(tmpstr);
-                return (3);
+                return (CATION_ECHG);
             }
         }
         fgets(line, LINE_WIDTH, database);
