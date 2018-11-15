@@ -940,7 +940,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     }
     for (k = 0; k < rt->NumSsc; k++)
     {
-        Unwrap(ext, rt->chemtype[k].ChemName);
+        Unwrap(ext, rt->chemtype[k + rt->NumStc].ChemName);
         strcat(ext, ".unsat_conc");
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
@@ -964,7 +964,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     }
     for (k = 0; k < rt->NumSsc; k++)
     {
-        Unwrap(ext, rt->chemtype[k].ChemName);
+        Unwrap(ext, rt->chemtype[k + rt->NumStc].ChemName);
         strcat(ext, ".gw_conc");
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
