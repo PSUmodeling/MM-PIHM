@@ -29,6 +29,22 @@ void wrap(char *str)
     strcpy(str, word);
 }
 
+void Unwrap(char *str, const char *str0)
+{
+    int             i, j = 0;
+
+    for (i = 0; i < strlen(str0); i++)
+    {
+        if (str0[i] != '\'')
+        {
+            str[j] = str0[i];
+            j++;
+        }
+    }
+
+    str[j] = '\0';
+}
+
 void ReportError(vol_conc cell, Chem_Data CD)
 {
     /*

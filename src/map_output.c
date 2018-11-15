@@ -928,8 +928,8 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
 #if defined(_RT_)
     for (k = 0; k < rt->NumStc; k++)
     {
-        sprintf(ext, "%s.unsat_conc", rt->chemtype[k].ChemName);
-        printf("%d %s\n", n, ext);
+        Unwrap(ext, rt->chemtype[k].ChemName);
+        strcat(ext, ".unsat_conc");
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
@@ -940,7 +940,8 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     }
     for (k = 0; k < rt->NumSsc; k++)
     {
-        sprintf(ext, "%s.unsat_conc", rt->chemtype[k].ChemName);
+        Unwrap(ext, rt->chemtype[k].ChemName);
+        strcat(ext, ".unsat_conc");
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
@@ -951,7 +952,8 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     }
     for (k = 0; k < rt->NumStc; k++)
     {
-        sprintf(ext, "%s.gw_conc", rt->chemtype[k].ChemName);
+        Unwrap(ext, rt->chemtype[k].ChemName);
+        strcat(ext, ".gw_conc");
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
@@ -962,7 +964,8 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     }
     for (k = 0; k < rt->NumSsc; k++)
     {
-        sprintf(ext, "%s.gw_conc", rt->chemtype[k].ChemName);
+        Unwrap(ext, rt->chemtype[k].ChemName);
+        strcat(ext, ".gw_conc");
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
