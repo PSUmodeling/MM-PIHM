@@ -893,7 +893,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
                         tmpstr[0]);
                     fprintf(stderr, "  %-28s %g \n",
                         con_chem_name[i][num_species - num_other], tmpval[0]);
-                    Condition_vcele[i].p_type[num_species - num_other] = 1;
+                    Condition_vcele[i].p_type[num_species - num_other] = AQUEOUS;
                 }
                 if (specflg == MINERAL)
                 {
@@ -909,7 +909,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
                         con_chem_name[i][CD->NumSpc + CD->NumAds + CD->NumCex +
                             num_mineral], tmpval[0], tmpval[1]);
                     Condition_vcele[i].p_type[CD->NumSpc + CD->NumAds +
-                        CD->NumCex + num_mineral] = 4;
+                        CD->NumCex + num_mineral] = MINERAL;
                     num_mineral++;
                 }
                 if ((tmpstr[0][0] == '>') || (specflg == ADSORPTION))
@@ -918,7 +918,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
                     /* Condition_vcele[i].t_conc[CD->NumSpc + num_ads] = tmpval[0] * CS->Cal.Site_den;  09.25 temporal comment-out */
                     Condition_vcele[i].t_conc[CD->NumSpc + num_ads] =
                         tmpval[0] * 1.0;
-                    Condition_vcele[i].p_type[CD->NumSpc + num_ads] = 2;
+                    Condition_vcele[i].p_type[CD->NumSpc + num_ads] = ADSORPTION;
                     Condition_vcele[i].p_para[CD->NumSpc + num_ads] = 0;
                     /* Update when fill in the parameters for adsorption */
                     strcpy(con_chem_name[i][CD->NumSpc + num_ads], tmpstr[0]);
@@ -932,7 +932,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
                     Condition_vcele[i].t_conc[CD->NumSpc + CD->NumAds +
                         num_cex] = tmpval[0];
                     Condition_vcele[i].p_type[CD->NumSpc + CD->NumAds +
-                        num_cex] = 3;
+                        num_cex] = CATION_ECHG;
                     Condition_vcele[i].p_para[CD->NumSpc + CD->NumAds +
                         num_cex] = 0;
                     /* update when fill in the parameters for cation exchange. */
