@@ -699,7 +699,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
             CD->Totalconck[i][j] = 0.0;
 #endif
         }
-    num_species = CD->NumSpc;
 
     /* INITIAL_CONDITIONS block */
     fprintf(stderr, " Reading '%s.chem' INITIAL_CONDITIONS: \n", filename);
