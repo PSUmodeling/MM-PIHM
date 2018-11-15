@@ -272,7 +272,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
     int             line_width = LINE_WIDTH, words_line =
         WORDS_LINE, word_width = WORD_WIDTH;
     int             Global_diff = 0, Global_disp = 0;
-    int             error_flag = 0, speciation_flg = 0, specflg;
+    int             speciation_flg = 0, specflg;
     double          total_area = 0.0, tmpval[WORDS_LINE];
     char            cmdstr[MAXSTRING];
     int             lno = 0;
@@ -1062,13 +1062,11 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
         {
             if (strcmp(con_chem_name[i][j], con_chem_name[i - 1][j]) != 0)
             {
-                error_flag = 1;
+                fprintf(stderr,
+                    " The order of the chemicals in condition <%s> is incorrect!\n",
+                    chemcon[i - 1]);
             }
         }
-        if (error_flag == 1)
-            fprintf(stderr,
-                " The order of the chemicals in condition <%s> is incorrect!\n",
-                chemcon[i - 1]);
     }
 
     /* Primary species table */
