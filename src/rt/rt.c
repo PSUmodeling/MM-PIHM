@@ -1,9 +1,8 @@
-/******************************************************************************
-* RT-Flux-PIHM is a finite volume based, reactive transport module that
-* operate on top of the hydrological land surface processes described by
-* Flux-PIHM. RT-Flux-PIHM track the transportation and reaction in a given
-* watershed. PIHM-RT uses operator splitting technique to couple transport
-* and reaction.
+/*******************************************************************************
+* RT-Flux-PIHM is a finite volume based, reactive transport module that operates
+* on top of the hydrological land surface processes described by Flux-PIHM.
+* RT-Flux-PIHM tracks the transportation and reaction in a given watershed.
+* It uses operator splitting technique to couple transport and reaction.
 *
 * RT-Flux-PIHM requires two additional input files:
 *     a. chemical condition file:     projectname.chem
@@ -27,17 +26,6 @@
 #define INFTYSMALL  1E-6
 #define MIN(a,b) (((a)<(b))? (a):(b))
 #define MAX(a,b) (((a)>(b))? (a):(b))
-
-/* Fucntion declarations finished   */
-
-// Timer
-static double timer()
-{
-    struct timeval  tp;
-    gettimeofday(&tp, NULL);
-    return ((double)(tp.tv_sec) + 1e-6 * tp.tv_usec);
-}
-
 
 void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)   // 09.30
 {
@@ -2618,7 +2606,6 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     double *start_step, double *t_duration_transp, double *t_duration_react)
 {
     double          stepsize, org_time, step_rst, end_time;
-    double          timer1, timer2;
     int             i, j, k, m, nr_max, int_flg;
     time_t          t_start_transp, t_end_transp;
 
@@ -2665,8 +2652,6 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                 CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
             }
         }
-
-        timer1 = timer();
 
         for (i = 0; i < nelem; i++)
         {
@@ -2730,7 +2715,6 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
         *t_duration_transp += (t_end_transp - t_start_transp);
 
         t_start_react = time(NULL);
-        timer2 = timer();
 
         if (int_flg)
         {
@@ -2741,7 +2725,6 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
             }
         }
 
-        timer1 = timer();
         m = 0;
 
         if ((!CD->RecFlg) && ((int)(timelps + stepsize) %
@@ -2763,7 +2746,6 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
             }
         }
 
-        timer2 = timer();
         timelps += stepsize;
         if (timelps >= org_time + hydro_step)
         {
