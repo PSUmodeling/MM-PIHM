@@ -681,10 +681,11 @@ int Speciation(Chem_Data CD, int cell)
     {
         for (i = 0; i < CD->NumSsc; i++)
             Keq[i] = CD->Keq[i];
-        adh = CD->DH.adh;
-        bdh = CD->DH.bdh;
-        bdt = CD->DH.bdt;
     }
+
+    adh = CD->DH.adh;
+    bdh = CD->DH.bdh;
+    bdt = CD->DH.bdt;
 
     for (i = 0; i < CD->NumStc; i++)
     {
@@ -1191,10 +1192,11 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele, double z_SOC)
     {
         for (i = 0; i < CD->NumSsc; i++)
             Keq[i] = CD->Keq[i];
-        adh = CD->DH.adh;
-        bdh = CD->DH.bdh;
-        bdt = CD->DH.bdt;
     }
+
+    adh = CD->DH.adh;
+    bdh = CD->DH.bdh;
+    bdt = CD->DH.bdt;
 
     for (i = 0; i < CD->NumStc; i++)
     {
