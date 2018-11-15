@@ -1135,24 +1135,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
         (Kinetic_Reaction *) malloc(CD->NumMkr * sizeof(Kinetic_Reaction));
     for (i = 0; i < CD->NumMkr; i++)
     {
-        CD->kinetics[i].species = (char *)malloc(WORD_WIDTH * sizeof(char));
-        CD->kinetics[i].Label = (char *)malloc(WORD_WIDTH * sizeof(char));
-        CD->kinetics[i].biomass_species = (char *)malloc(WORD_WIDTH * sizeof(char));    // 08.19
-        CD->kinetics[i].dep_species = (char **)malloc(MAXDEP * sizeof(char *));
-        CD->kinetics[i].dep_power = (double *)malloc(MAXDEP * sizeof(double));
-        CD->kinetics[i].monod_species = (char **)malloc(MAXDEP * sizeof(char *));  // 08.19
-        CD->kinetics[i].monod_para = (double *)malloc(MAXDEP * sizeof(double));
-        CD->kinetics[i].inhib_species = (char **)malloc(MAXDEP * sizeof(char *));  // 08.19
-        CD->kinetics[i].inhib_para = (double *)malloc(MAXDEP * sizeof(double));
-        CD->kinetics[i].dep_position = (int *)malloc(MAXDEP * sizeof(int));
-        CD->kinetics[i].monod_position = (int *)malloc(MAXDEP * sizeof(int));  // 08.19
-        CD->kinetics[i].inhib_position = (int *)malloc(MAXDEP * sizeof(int));  // 08.19
         for (j = 0; j < MAXDEP; j++)
         {
-            CD->kinetics[i].dep_species[j] =
-                (char *)malloc(WORD_WIDTH * sizeof(char));
-            CD->kinetics[i].monod_species[j] = (char *)malloc(WORD_WIDTH * sizeof(char));   // 08.19
-            CD->kinetics[i].inhib_species[j] = (char *)malloc(WORD_WIDTH * sizeof(char));   // 08.19
             CD->kinetics[i].dep_position[j] = 0;
             CD->kinetics[i].monod_position[j] = 0;  // 08.19
             CD->kinetics[i].inhib_position[j] = 0;  // 08.19
@@ -2765,30 +2749,6 @@ void FreeChem(Chem_Data CD)
 
     free(CD->chemtype->ChemName);
     free(CD->chemtype);
-
-    // CD->kinetics
-    if (CD->NumMkr > 0)
-    {
-        free(CD->kinetics->species);
-        free(CD->kinetics->Label);
-        for (i = 0; i < MAXDEP; i++)
-        {
-            free(CD->kinetics->dep_species[i]);
-            free(CD->kinetics->monod_species[i]);
-            free(CD->kinetics->inhib_species[i]);
-        }
-        free(CD->kinetics->dep_species);
-        free(CD->kinetics->monod_species);
-        free(CD->kinetics->inhib_species);
-        free(CD->kinetics->dep_position);
-        free(CD->kinetics->dep_power);
-        free(CD->kinetics->biomass_species);
-        free(CD->kinetics->monod_position);
-        free(CD->kinetics->monod_para);
-        free(CD->kinetics->inhib_position);
-        free(CD->kinetics->inhib_para);
-        free(CD->kinetics);
-    }
 
     free(CD->pumps->Name_Species);
     free(CD->pumps);

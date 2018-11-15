@@ -103,27 +103,43 @@ typedef struct species_type
 
 typedef struct Kinetic_Reaction_structure
 {
-    char           *species;    /* the target mineral */
-    int             position;   /* the position of this target mineral in the array of primary species */
-    char           *Label;      /* label of kinetic reaction, could be multiple for one mineral(aqueous species) */
-    int             type;       /* type of the kinetic reaction, 1: tst  2: precipitation-only  3: dissolution-only 4: monod */
-    double          rate;       /* rate of the kinetic reaction, often in 25 C */
-    double          actv;       /* activation energy, used to calculate the kinetic rate of reaction under different temperature */
-    double          Keq;        /* Equilibrium constant */
-    int             num_dep;    /* number of dependency */
-    char          **dep_species;    /* species that this kinetic rate depends on */
-    int            *dep_position;   /* store the position of the species that this kinetic reaction depends on */
-    double         *dep_power;  /* power of dependency */
-    char           *biomass_species;    // 08.19 Wei
-    int             biomass_position;   // 08.19 Wei
-    int             num_monod;  // 08.19 Wei
-    char          **monod_species;  /* species that this kinetic rate depends on for monod type */// 08.19 Wei
-    int            *monod_position; // 08.19 Wei
-    double         *monod_para; /* parameters for monod dependency */
-    int             num_inhib;  // 08.19 Wei
-    char          **inhib_species;  /* species that this kinetic rate is inhibited by, for monod type */// 08.19 Wei
-    int            *inhib_position; // 08.19 Wei
-    double         *inhib_para; /* parameters that controls this inhibition */
+    char            species[MAXSTRING];     // target mineral
+    int             position;               // position of target mineral in the
+                                            // array of primary species
+    char            Label[MAXSTRING];       // label of kinetic reaction, could
+                                            // be multiple for one mineral
+                                            // (aqueous species)
+    int             type;                   // type of the kinetic reaction
+                                            // 1: tst  2: precipitation-only
+                                            // 3: dissolution-only 4: monod
+    double          rate;                   // rate of kinetic reaction, often
+                                            // at 25 C
+    double          actv;                   // activation energy, used to
+                                            // calculate kinetic rate of
+                                            // reaction under different
+                                            // temperatures
+    double          Keq;                    // equilibrium constant
+    int             num_dep;                // number of dependency
+    char            dep_species[MAXDEP][MAXSTRING]; // species that this kinetic
+                                            // rate depends on
+    int             dep_position[MAXDEP];   // store position of species that
+                                            // this kinetic reaction depends on
+    double          dep_power[MAXDEP];      // power of dependency
+    char            biomass_species[MAXSTRING];
+    int             biomass_position;
+    int             num_monod;
+    char            monod_species[MAXDEP][MAXSTRING]; // species that this
+                                            // kinetic rate depends on for monod
+                                            // type
+    int             monod_position[MAXDEP];
+    double          monod_para[MAXDEP];     // parameters for monod dependency
+    int             num_inhib;
+    char            inhib_species[MAXDEP][MAXSTRING]; // species that this
+                                            // kinetic rate is inhibited by, for
+                                            // monod type
+    int             inhib_position[MAXDEP];
+    double          inhib_para[MAXDEP];     // parameters that controls this
+                                            // inhibition
 } Kinetic_Reaction;
 
 
