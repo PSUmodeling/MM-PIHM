@@ -120,15 +120,18 @@ int upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
     /* Locate the upstream grid of up -> lo flow */
     /* Require verification                      */
     /* only determines points in triangular elements */
-    double          x_, y_, x_a, x_b, x_c, y_a, y_b, y_c,
-                    dot00, dot01, dot02, dot11, dot12, u, v, invDenom;
-    int             i, upstreamfound = 0;
+    double          x_, y_;
+    int             i;
 
     x_ = 2 * up.topo.x - lo.topo.x;
     y_ = 2 * up.topo.y - lo.topo.y;
 
     for (i = 0; i < nelem; i++)
     {
+        double          x_a, x_b, x_c;
+        double          y_a, y_b, y_c;
+        double          dot00, dot01, dot02, dot11, dot12, u, v, invDenom;
+
         /* Find point lies in which triangular element, a very interesting
          * method */
         if ((i != (up.ind - 1)) && (i != (lo.ind - 1)))
@@ -144,12 +147,11 @@ int upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
             dot02 = (x_c - x_a) * (x_ - x_a) + (y_c - y_a) * (y_ - y_a);
             dot11 = (x_b - x_a) * (x_b - x_a) + (y_b - y_a) * (y_b - y_a);
             dot12 = (x_b - x_a) * (x_ - x_a) + (y_b - y_a) * (y_ - y_a);
-            invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+            invDenom = 1.0 / (dot00 * dot11 - dot01 * dot01);
             u = (dot11 * dot02 - dot01 * dot12) * invDenom;
             v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-            if ((u > 0.0) && (v > 0.0) && (u + v < 1))
+            if ((u > 0.0) && (v > 0.0) && (u + v < 1.0))
             {
-                upstreamfound = 1;
                 return pihm->elem[i].ind;
             }
         }
