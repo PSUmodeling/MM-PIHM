@@ -727,12 +727,13 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
             con_chem_name[i][j] = (char *)malloc(WORD_WIDTH * sizeof(char));
     }
 
-    int            *condition_index =
-        (int *)malloc((CD->NumVol + 1) * sizeof(int));
+    int            *condition_index = (int *)malloc(CD->NumVol * sizeof(int));
     /* When user assign conditions to blocks, they start from 1 */
 
     for (i = 0; i < CD->NumVol; i++)
+    {
         condition_index[i] = 0;
+    }
 
     vol_conc       *Condition_vcele =
         (vol_conc *) malloc(num_conditions * sizeof(vol_conc));
@@ -854,7 +855,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
     {
         for (i = 0; i < CD->NumVol; i++)
         {
-            fscanf(cheminitfile, "%d %d", &k, condition_index + i + 1);
+            fscanf(cheminitfile, "%d %d", &k, &condition_index[i]);
         }
     }
 
@@ -1397,7 +1398,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
                 (strcmp(CD->chemtype[j].ChemName, "H+") == 0))
             {
                 CD->Vcele[i].p_conc[j] = pow(10,
-                    -(Condition_vcele[condition_index[i + 1] - 1].t_conc[j]));
+                    -(Condition_vcele[condition_index[i] - 1].t_conc[j]));
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].p_conc[j];
@@ -1406,32 +1407,32 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
             else if (CD->chemtype[j].itype == MINERAL)
             {
                 CD->Vcele[i].t_conc[j] =
-                    Condition_vcele[condition_index[i + 1] - 1].t_conc[j];
+                    Condition_vcele[condition_index[i] - 1].t_conc[j];
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
                 CD->Vcele[i].p_actv[j] = 1.0;
                 CD->Vcele[i].p_para[j] =
-                    Condition_vcele[condition_index[i + 1] - 1].p_para[j];
+                    Condition_vcele[condition_index[i] - 1].p_para[j];
                 CD->Vcele[i].p_type[j] =
-                    Condition_vcele[condition_index[i + 1] - 1].p_type[j];
+                    Condition_vcele[condition_index[i] - 1].p_type[j];
             }
             else
             {
                 if (strcmp(CD->chemtype[j].ChemName, "DOC") == 0)
                 {
                     CD->Vcele[i].t_conc[j] = CD->CalInitconc *
-                        Condition_vcele[condition_index[i + 1] - 1].t_conc[j];
+                        Condition_vcele[condition_index[i] - 1].t_conc[j];
                 }
                 else
                 {
                     CD->Vcele[i].t_conc[j] =
-                        Condition_vcele[condition_index[i + 1] - 1].t_conc[j];
+                        Condition_vcele[condition_index[i] - 1].t_conc[j];
                 }
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j] * 0.5;
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_para[j] =
-                    Condition_vcele[condition_index[i + 1] - 1].p_para[j];
+                    Condition_vcele[condition_index[i] - 1].p_para[j];
                 CD->Vcele[i].p_type[j] =
-                    Condition_vcele[condition_index[i + 1] - 1].p_type[j];
+                    Condition_vcele[condition_index[i] - 1].p_type[j];
             }
         }
         for (j = 0; j < CD->NumSsc; j++)
