@@ -234,6 +234,10 @@
 #define DAYSCRECOVER                365.0
 #define BULK_DENITRIF_PROPORTION    0.5
 
+/* RT constants */
+/* Maximum number of dependece, monod, and inhibition terms */
+#define MAXDEP          4
+
 /* RT flux type */
 #define DISPERSION      1
 #define NO_DISP         2

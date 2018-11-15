@@ -1131,9 +1131,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
     /* MINERALS block */
     fprintf(stderr, "\n Reading 'shp.chem' MINERALS: \n");
 
-    /* maximum  # of dependence, monod, and inhibition term */
-    int             num_dep = 4;
-
     CD->kinetics =
         (Kinetic_Reaction *) malloc(CD->NumMkr * sizeof(Kinetic_Reaction));
     for (i = 0; i < CD->NumMkr; i++)
@@ -1141,16 +1138,16 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
         CD->kinetics[i].species = (char *)malloc(WORD_WIDTH * sizeof(char));
         CD->kinetics[i].Label = (char *)malloc(WORD_WIDTH * sizeof(char));
         CD->kinetics[i].biomass_species = (char *)malloc(WORD_WIDTH * sizeof(char));    // 08.19
-        CD->kinetics[i].dep_species = (char **)malloc(num_dep * sizeof(char *));
-        CD->kinetics[i].dep_power = (double *)malloc(num_dep * sizeof(double));
-        CD->kinetics[i].monod_species = (char **)malloc(num_dep * sizeof(char *));  // 08.19
-        CD->kinetics[i].monod_para = (double *)malloc(num_dep * sizeof(double));
-        CD->kinetics[i].inhib_species = (char **)malloc(num_dep * sizeof(char *));  // 08.19
-        CD->kinetics[i].inhib_para = (double *)malloc(num_dep * sizeof(double));
-        CD->kinetics[i].dep_position = (int *)malloc(num_dep * sizeof(int));
-        CD->kinetics[i].monod_position = (int *)malloc(num_dep * sizeof(int));  // 08.19
-        CD->kinetics[i].inhib_position = (int *)malloc(num_dep * sizeof(int));  // 08.19
-        for (j = 0; j < num_dep; j++)
+        CD->kinetics[i].dep_species = (char **)malloc(MAXDEP * sizeof(char *));
+        CD->kinetics[i].dep_power = (double *)malloc(MAXDEP * sizeof(double));
+        CD->kinetics[i].monod_species = (char **)malloc(MAXDEP * sizeof(char *));  // 08.19
+        CD->kinetics[i].monod_para = (double *)malloc(MAXDEP * sizeof(double));
+        CD->kinetics[i].inhib_species = (char **)malloc(MAXDEP * sizeof(char *));  // 08.19
+        CD->kinetics[i].inhib_para = (double *)malloc(MAXDEP * sizeof(double));
+        CD->kinetics[i].dep_position = (int *)malloc(MAXDEP * sizeof(int));
+        CD->kinetics[i].monod_position = (int *)malloc(MAXDEP * sizeof(int));  // 08.19
+        CD->kinetics[i].inhib_position = (int *)malloc(MAXDEP * sizeof(int));  // 08.19
+        for (j = 0; j < MAXDEP; j++)
         {
             CD->kinetics[i].dep_species[j] =
                 (char *)malloc(WORD_WIDTH * sizeof(char));
@@ -2719,7 +2716,6 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
 void FreeChem(Chem_Data CD)
 {
     int             i;
-    int             num_dep = 4;
 
     free(CD->BTC_loc);
     free(CD->prepconcindex);
@@ -2775,7 +2771,7 @@ void FreeChem(Chem_Data CD)
     {
         free(CD->kinetics->species);
         free(CD->kinetics->Label);
-        for (i = 0; i < num_dep; i++)
+        for (i = 0; i < MAXDEP; i++)
         {
             free(CD->kinetics->dep_species[i]);
             free(CD->kinetics->monod_species[i]);
