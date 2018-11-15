@@ -205,7 +205,9 @@ typedef struct Chem_Data_structure
     double        **Dep_kinetic;    /* a matrix that store the dependency of kinetic species on the primary species (sometimes conversion is required) */
     double        **Dep_kinetic_all;    // same as above, for all possible kinetic species
     double        **Totalconc;  /* a matrix that describe the contribution of each species to the total concentration */
+#if NOT_YET_IMPLEMENTED
     double        **Totalconck; /* a matrix that describe the contribution of each species to the total concentration with kinetic reaction included */
+#endif
     double         *Keq;        /* array of Keq s of the secondary species */
     double         *KeqKinect;  /* array of Keq s of the kinetic species */
     double         *KeqKinect_all;  /* same as above, all possible kinetic species */

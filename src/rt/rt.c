@@ -683,17 +683,21 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
         CD->Totalconc[i] =
             (double *)malloc((CD->NumStc + CD->NumSsc) * sizeof(double));
 
+#if NOT_YET_IMPLEMENTED
     /* Convert total concentration as an expression of all species */
     CD->Totalconck = (double **)malloc(CD->NumStc * sizeof(double *));
     for (i = 0; i < CD->NumStc; i++)
         CD->Totalconck[i] =
             (double *)malloc((CD->NumStc + CD->NumSsc) * sizeof(double));
+#endif
 
     for (i = 0; i < CD->NumStc; i++)
         for (j = 0; j < CD->NumStc + CD->NumSsc; j++)
         {
             CD->Totalconc[i][j] = 0.0;
+#if NOT_YET_IMPLEMENTED
             CD->Totalconck[i][j] = 0.0;
+#endif
         }
     num_species = CD->NumSpc;
 
@@ -2723,10 +2727,14 @@ void FreeChem(Chem_Data CD)
     for (i = 0; i < CD->NumStc; i++)
     {
         free(CD->Totalconc[i]);
+#if NOT_YET_IMPLEMENTED
         free(CD->Totalconck[i]);
+#endif
     }
     free(CD->Totalconc);
+#if NOT_YET_IMPLEMENTED
     free(CD->Totalconck);
+#endif
 
     free(CD->Keq);
     free(CD->KeqKinect);
