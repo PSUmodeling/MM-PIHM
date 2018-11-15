@@ -633,8 +633,7 @@ void Lookup(FILE *database, Chem_Data CD)
     {
         fprintf(stderr, " Sum%12s\t", CD->chemtype[i].ChemName);
         for (j = 0; j < CD->NumStc + CD->NumSsc; j++)
-            fprintf(stderr, " %6.2f\t", CD->Totalconck[i][j] =
-                CD->Totalconc[i][j]);
+            fprintf(stderr, " %6.2f\t", CD->Totalconc[i][j]);
         fprintf(stderr, "\n");
     }
 
