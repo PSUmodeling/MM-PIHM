@@ -181,7 +181,6 @@ int realcheck(const char *words)
     return (flg);
 }
 
-
 int keymatch(const char *line, const char *keyword, double *value, char **strval)
 {
     /* A very general and convinient way of reading datafile and input file */
@@ -260,61 +259,6 @@ int keymatch(const char *line, const char *keyword, double *value, char **strval
         free(words[i]);
     free(words);
     return (keyfoundflag);
-
-}
-
-void ConditionAssign(int condition, char *str, int *index)
-{
-    /* This subroutine takes in input strings and output an index array that
-     * record the conditions each blocks assigned to input strings could use
-     * separators like - and , */
-    int             i, j, k, l, length = strlen(str);
-    char          **words = (char **)malloc(length * sizeof(char *));
-    for (i = 0; i < length; i++)
-        words[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
-
-    char           *tmpstr = (char *)malloc(WORD_WIDTH * sizeof(char));
-
-    char           *separator = (char *)malloc(length * sizeof(char));
-    int            *value = (int *)malloc(length * sizeof(char));
-
-    i = j = k = l = 0;
-    while (i < length)
-    {
-        while (str[i] != 0 && str[i] != 45 && str[i] != 44)
-        {
-            words[k][j++] = str[i++];
-            if (str[i] == 45 || str[i] == 44)
-            {
-                k++;
-                j = 0;
-                separator[l++] = str[i];
-            }
-        }
-        i++;
-    }
-
-    for (i = 0; i < length; i++)
-    {
-        strcpy(tmpstr, words[i]);
-        value[i] = atoi(tmpstr);
-    }
-
-    for (i = 0; i < length; i++)
-    {
-        if (separator[i] == ',' || separator[i] == 0)
-            index[value[i]] = condition;
-        if (separator[i] == '-')
-            for (j = value[i]; j <= value[i + 1]; j++)
-                index[j] = condition;
-    }
-
-    for (i = 0; i < length; i++)
-        free(words[i]);
-    free(words);
-    free(separator);
-    free(value);
-    free(tmpstr);
 
 }
 
@@ -896,9 +840,10 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
             strcpy(chemcon[k++], tmpstr[0]);
             if (initfile == 0)
             {
-                fprintf(stderr, " Condition %s assigned to cells %s.\n",
-                    chemcon[k - 1], tmpstr[1]);
-                ConditionAssign(k, tmpstr[1], condition_index);
+                PIHMprintf(VL_ERROR,
+                    "Assigning initial conditions in .chem file is temporarily"
+                    " disabled. Please use a .cini file.\n");
+                PIHMexit(EXIT_FAILURE);
             }
         }
         fgets(line, line_width, chemfile);
