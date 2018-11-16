@@ -979,7 +979,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
             {
                 specflg = SpeciationType(database, tmpstr[0]);
 
-                if (specflg == 1)
+                if (specflg == AQUEOUS)
                 {
                     num_other = num_mineral + num_ads + num_cex;
                     CD->Precipitation.t_conc[num_species - num_other] =
@@ -989,11 +989,11 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
                     fprintf(stderr, "  %-28s %g \n",
                         con_chem_name[num_conditions][num_species - num_other],
                         tmpval[0]);
-                    CD->Precipitation.p_type[num_species - num_other] = 1;
+                    CD->Precipitation.p_type[num_species - num_other] = AQUEOUS;
                 }
                 /* arrange the concentration of the primary species in such a
                  * way that all the mobile species are at the beginning. */
-                if (specflg == 4)
+                if (specflg == MINERAL)
                 {
                     CD->Precipitation.t_conc[CD->NumSpc + CD->NumAds +
                         CD->NumCex + num_mineral] = tmpval[0];
@@ -1007,15 +1007,15 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
                         con_chem_name[num_conditions][CD->NumSpc + CD->NumAds +
                             CD->NumCex + num_mineral], tmpval[0], tmpval[1]);
                     CD->Precipitation.p_type[CD->NumSpc + CD->NumAds +
-                        CD->NumCex + num_mineral] = 4;
+                        CD->NumCex + num_mineral] = MINERAL;
                     num_mineral++;
                 }
-                if ((tmpstr[0][0] == '>') || (specflg == 2))
+                if ((tmpstr[0][0] == '>') || (specflg == ADSORPTION))
                 {
                     /* adsorptive sites and species start with > */
                     CD->Precipitation.t_conc[CD->NumSpc + num_ads] =
                         tmpval[0]; /* this is the site density of the adsorptive species. */
-                    CD->Precipitation.p_type[CD->NumSpc + num_ads] = 2;
+                    CD->Precipitation.p_type[CD->NumSpc + num_ads] = ADSORPTION;
                     CD->Precipitation.p_para[CD->NumSpc + num_ads] = 0;
                     /* Update when fill in the parameters for adsorption. */
                     strcpy(con_chem_name[num_conditions][CD->NumSpc + num_ads],
@@ -1026,12 +1026,12 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
                     num_ads++;
                     /* under construction */
                 }
-                if (specflg == 3)
+                if (specflg == CATION_ECHG)
                 {
                     CD->Precipitation.t_conc[CD->NumSpc + CD->NumAds +
                         num_cex] = tmpval[0];
                     CD->Precipitation.p_type[CD->NumSpc + CD->NumAds +
-                        num_cex] = 3;
+                        num_cex] = CATION_ECHG;
                     CD->Precipitation.p_para[CD->NumSpc + CD->NumAds +
                         num_cex] = 0;
                     /* Update when fill in the parameters for cation exchange. */
