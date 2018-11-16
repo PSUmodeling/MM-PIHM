@@ -1383,6 +1383,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
         CD->Vcele[i].p_type = (int *)calloc(CD->NumStc, sizeof(int));
         CD->Vcele[i].log10_pconc = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].log10_sconc = (double *)calloc(CD->NumSsc, sizeof(double));
+        CD->Vcele[i].btcv_pconc = (double *)calloc(CD->NumStc, sizeof(double));
 
         CD->Vcele[i].q = 0.0;
         CD->Vcele[i].illness = 0;
@@ -2273,6 +2274,26 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             for (j = 0; j < CD->NumSsc; j++)
             {
                 CD->Vcele[i].log10_sconc[j] = log10(CD->Vcele[i].s_conc[j]);
+            }
+        }
+
+        for (k = 0; k < CD->NumBTC; k++)
+        {
+            for (j = 0; j < CD->NumStc; j++)
+            {
+                if ((CD->BTC_loc[k] >= CD->pumps[0].Pump_Location - 1) &&
+                    (j == CD->pumps[0].Position_Species))
+                {
+                    CD->Vcele[CD->BTC_loc[k]].btcv_pconc[j] =
+                        log10((CD->Vcele[CD->BTC_loc[k]].p_conc[j] * CD->rivd +
+                        CD->pumps[0].Injection_conc * CD->pumps[0].flow_rate) /
+                        (CD->rivd + CD->pumps[0].flow_rate));
+                }
+                else
+                {
+                    CD->Vcele[CD->BTC_loc[k]].btcv_pconc[j] =
+                        CD->Vcele[CD->BTC_loc[k]].log10_pconc[j];
+                }
             }
         }
 
