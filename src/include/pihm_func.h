@@ -44,8 +44,8 @@
 # define RT_UP_RIVER2RIVER(i)       (i) + 2 * 3 * nelem + 2 * nelem + 5 * nriver
 
 /* RT volume index */
-# define RT_UNSAT(i)        ((i) + nelem)
-# define RT_GW(i)           (i)
+# define RT_UNSAT(i)        (i)
+# define RT_GW(i)           ((i) + nelem)
 # define RT_RIVER(i)        ((i) + 2 * nelem)
 #endif
 
