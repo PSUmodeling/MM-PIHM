@@ -974,6 +974,22 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         }
         n++;
     }
+    for (i = 0; i < rt->NumBTC; i++)
+    {
+        sprintf(ext, "%d.btcv", rt->BTC_loc[i] + 1);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
+            rt->NumStc + rt->NumSsc, &print->varctrl[n]);
+        for (j = 0; j < rt->NumStc; j++)
+        {
+            print->varctrl[n].var[j] = &rt->Vcele[rt->BTC_loc[i]].btcv_pconc[j];
+        }
+        for (j = rt->NumStc; j < rt->NumStc + rt->NumSsc; j++)
+        {
+            print->varctrl[n].var[j] =
+                &rt->Vcele[rt->BTC_loc[i]].log10_sconc[j - rt->NumStc];
+        }
+        n++;
+    }
 #endif
 
     if (n > MAXPRINT)

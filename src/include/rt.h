@@ -62,6 +62,7 @@ typedef struct vol_conc_type
     double          rt_step;    /* rt_step of cell */
     double         *log10_pconc;     /* for output only */
     double         *log10_sconc;     /* for output only */
+    double         *btcv_pconc; /* for btcv output only */
 } vol_conc;
 
 typedef struct face_type
