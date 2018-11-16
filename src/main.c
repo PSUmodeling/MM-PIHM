@@ -95,11 +95,6 @@ int main(int argc, char *argv[])
         &pihm->meshtbl, outputdir, &pihm->print);
 #endif
 
-#if defined(_RT_)
-    // 12.30 RT use, must be placed after MapOutput()
-    InitialChemFile(outputdir, project, chData->NumBTC, chData->BTC_loc);  // 12.30 RT use
-#endif
-
     /* Backup input files */
 #if !defined(_MSC_VER)
     if (!append_mode)
