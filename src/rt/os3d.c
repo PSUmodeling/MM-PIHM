@@ -231,13 +231,13 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                         if (strcmp(CD->chemtype[j].ChemName, "'DOC'") == 0)
                         {
                             tmpconc[j] += CD->Precipitation.t_conc[j] *
-                                CD->Vcele[i].q * adpstep * unit_c *
+                                CD->Vcele[i].q * stepsize * unit_c *
                                 CD->Condensation * CD->CalPrcpconc;
                         }
                         else
                         {
                             tmpconc[j] += CD->Precipitation.t_conc[j] *
-                                CD->Vcele[i].q * adpstep * unit_c *
+                                CD->Vcele[i].q * stepsize * unit_c *
                                 CD->Condensation;
                         }
                     }
