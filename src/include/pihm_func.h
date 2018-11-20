@@ -34,14 +34,15 @@
 /* RT flux index */
 # define RT_LAT_GW(i, j)            (i) * 3 + (j)
 # define RT_LAT_UNSAT(i, j)         (i) * 3 + (j) + 3 * nelem
-# define RT_RECHG_UNSAT(i)          (i) + 2 * 3 * nelem
-# define RT_RECHG_GW(i)             (i) + 2 * 3 * nelem + nelem
-# define RT_LEFT_SURF2RIVER(i)      (i) + 2 * 3 * nelem + 2 * nelem
-# define RT_RIGHT_SURF2RIVER(i)     (i) + 2 * 3 * nelem + 2 * nelem + nriver
-# define RT_LEFT_AQIF2RIVER(i)      (i) + 2 * 3 * nelem + 2 * nelem + 2 * nriver
-# define RT_RIGHT_AQIF2RIVER(i)     (i) + 2 * 3 * nelem + 2 * nelem + 3 * nriver
-# define RT_DOWN_RIVER2RIVER(i)     (i) + 2 * 3 * nelem + 2 * nelem + 4 * nriver
-# define RT_UP_RIVER2RIVER(i)       (i) + 2 * 3 * nelem + 2 * nelem + 5 * nriver
+# define RT_INFIL(i)                (i) + 6 * nelem
+# define RT_RECHG_UNSAT(i)          (i) + 7 * nelem
+# define RT_RECHG_GW(i)             (i) + 8 * nelem
+# define RT_LEFT_SURF2RIVER(i)      (i) + 9 * nelem
+# define RT_RIGHT_SURF2RIVER(i)     (i) + 9 * nelem + nriver
+# define RT_LEFT_AQIF2RIVER(i)      (i) + 9 * nelem + 2 * nriver
+# define RT_RIGHT_AQIF2RIVER(i)     (i) + 9 * nelem + 3 * nriver
+# define RT_DOWN_RIVER2RIVER(i)     (i) + 9 * nelem + 4 * nriver
+# define RT_UP_RIVER2RIVER(i)       (i) + 9 * nelem + 5 * nriver
 
 /* RT volume index */
 # define RT_UNSAT(i)        (i)

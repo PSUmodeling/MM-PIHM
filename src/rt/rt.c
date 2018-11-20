@@ -1450,8 +1450,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
         total_area += pihm->elem[i].topo.area;
     }
 
-    CD->NumFac = NUM_EDGE * nelem * 2 + 2 * nelem + 6 * nriver;
-    CD->NumDis = 2 * 3 * nelem + 2 * nelem;
+    CD->NumFac = NUM_EDGE * nelem * 2 + 3 * nelem + 6 * nriver;
+    CD->NumDis = 2 * 3 * nelem + 3 * nelem;
 
     fprintf(stderr, "\n Total area of the watershed is %f [m^2]. \n",
         total_area);
@@ -1538,6 +1538,16 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
                 CD->Flux[RT_LAT_UNSAT(i, j)].distance = 0.0;
             }
         }
+
+        /* Infiltration */
+        CD->Flux[RT_INFIL(i)].nodeup = CD->Vcele[RT_UNSAT(i)].index;
+        CD->Flux[RT_INFIL(i)].node_trib = 0;
+        CD->Flux[RT_INFIL(i)].nodelo = VIRTUAL_VOL;
+        CD->Flux[RT_INFIL(i)].nodeuu = 0;
+        CD->Flux[RT_INFIL(i)].nodell = 0;
+        CD->Flux[RT_INFIL(i)].flux_trib = 0.0;
+        CD->Flux[RT_INFIL(i)].BC = NO_DISP;
+        CD->Flux[RT_INFIL(i)].distance = 0.0;
 
         /* Rechage centered at unsat blocks */
         CD->Flux[RT_RECHG_UNSAT(i)].nodeup = CD->Vcele[RT_UNSAT(i)].index;
