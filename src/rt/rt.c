@@ -1553,7 +1553,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
         /* Infiltration */
         CD->Flux[RT_INFIL(i)].nodeup = CD->Vcele[RT_UNSAT(i)].index;
         CD->Flux[RT_INFIL(i)].node_trib = 0;
-        CD->Flux[RT_INFIL(i)].nodelo = VIRTUAL_VOL;
+        CD->Flux[RT_INFIL(i)].nodelo = PRCP_VOL;
         CD->Flux[RT_INFIL(i)].nodeuu = 0;
         CD->Flux[RT_INFIL(i)].nodell = 0;
         CD->Flux[RT_INFIL(i)].flux_trib = 0.0;
