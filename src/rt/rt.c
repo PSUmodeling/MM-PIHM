@@ -2105,13 +2105,23 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         /* Update virtual volume */
 
-        for (k = 0; k < CD->NumSpc; k++)
+        if (CD->PrpFlg)
         {
-            CD->Vcele[PRCP_VOL - 1].t_conc[k] =
-                (strcmp(CD->chemtype[k].ChemName, "'DOC'") == 0) ?
-                CD->Precipitation.t_conc[k] * CD->Condensation *
-                CD->CalPrcpconc :
-                CD->Precipitation.t_conc[k] * CD->Condensation;
+            for (k = 0; k < CD->NumSpc; k++)
+            {
+                CD->Vcele[PRCP_VOL - 1].t_conc[k] =
+                    (strcmp(CD->chemtype[k].ChemName, "'DOC'") == 0) ?
+                    CD->Precipitation.t_conc[k] * CD->Condensation *
+                    CD->CalPrcpconc :
+                    CD->Precipitation.t_conc[k] * CD->Condensation;
+            }
+        }
+        else
+        {
+            for (k = 0; k < CD->NumSpc; k++)
+            {
+                CD->Vcele[PRCP_VOL - 1].t_conc[k] = 0.0;
+            }
         }
 
         for (k = 0; k < CD->NumStc; k++)
