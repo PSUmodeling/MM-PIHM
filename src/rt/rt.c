@@ -276,6 +276,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
     double          total_area = 0.0, tmpval[WORDS_LINE];
     char            cmdstr[MAXSTRING];
     int             lno = 0;
+    int             PRCP_VOL;
     int             VIRTUAL_VOL;
 
     assert(pihm != NULL);
@@ -337,11 +338,12 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
     /*
      * Begin updating variables
      */
-    CD->NumVol = 2 * nelem + nriver + 1;
+    CD->NumVol = 2 * nelem + nriver + 2;
     CD->NumOsv = CD->NumVol - 1;
     CD->NumEle = nelem;
     CD->NumRiv = nriver;
 
+    PRCP_VOL = CD->NumVol - 1;
     VIRTUAL_VOL = CD->NumVol;
 
     /* Default control variable if not found in input file */
@@ -1348,6 +1350,15 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
     }
 
     /* Initialize virtual cell */
+    CD->Vcele[PRCP_VOL].height_v = 0.0;
+    CD->Vcele[PRCP_VOL].height_o = 0.0;
+    CD->Vcele[PRCP_VOL].height_t = 0.0;
+    CD->Vcele[PRCP_VOL].area = 0.0;
+    CD->Vcele[PRCP_VOL].porosity = 0.0;
+    CD->Vcele[PRCP_VOL].sat = 0.0;
+    CD->Vcele[PRCP_VOL].vol_o = 0.0;
+    CD->Vcele[PRCP_VOL].vol = 0.0;
+
     CD->Vcele[VIRTUAL_VOL].height_v = 1.0;
     CD->Vcele[VIRTUAL_VOL].height_o = 1.0;
     CD->Vcele[VIRTUAL_VOL].height_t = 1.0;
@@ -1890,6 +1901,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                                                  * value will fail */
     unit_c = stepsize / UNIT_C;
     int             VIRTUAL_VOL = CD->NumVol;
+    int             PRCP_VOL = CD->NumVol - 1;
 
     rawtime = (time_t *)malloc(sizeof(time_t));
     *rawtime = (int)(t * 60);
@@ -2109,6 +2121,16 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         Monitor(stepsize * (double)CD->AvgScl, pihm, CD);
 
         /* Update virtual volume */
+
+        for (k = 0; k < CD->NumSpc; k++)
+        {
+            CD->Vcele[PRCP_VOL - 1].t_conc[k] =
+                (strcmp(CD->chemtype[k].ChemName, "'DOC'") == 0) ?
+                CD->Precipitation.t_conc[k] * CD->Condensation *
+                CD->CalPrcpconc :
+                CD->Precipitation.t_conc[k] * CD->Condensation;
+        }
+
         for (k = 0; k < CD->NumStc; k++)
         {
             CD->Vcele[VIRTUAL_VOL - 1].t_conc[k] =
