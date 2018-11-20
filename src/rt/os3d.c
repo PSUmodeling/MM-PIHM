@@ -118,10 +118,6 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                                             CD->Condensation;
                                     }
                                 }
-                                tmpconc[j] +=
-                                    CD->Precipitation.t_conc[j] *
-                                    CD->Vcele[i].q * adpstep * unit_c *
-                                    CD->Condensation;
                                 if (CD->Vcele[i].q < 0.0)
                                 {
                                     tmpconc[j] += 0.0;  /* n_0 design */
