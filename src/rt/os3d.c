@@ -99,32 +99,6 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                                 (CD->Vcele[i].porosity * 0.5 *
                                 (CD->Vcele[i].vol_o + CD->Vcele[i].vol));
 
-                            if (CD->PrpFlg)
-                            {
-                                if (CD->Vcele[i].q > 0.0)
-                                {
-                                    if (strcmp(CD->chemtype[j].ChemName, "'DOC'") == 0)
-                                    {
-                                        tmpconc[j] +=
-                                            CD->Precipitation.t_conc[j] *
-                                            CD->Vcele[i].q * adpstep * unit_c *
-                                            CD->Condensation * CD->CalPrcpconc;
-                                    }
-                                    else
-                                    {
-                                        tmpconc[j] +=
-                                            CD->Precipitation.t_conc[j] *
-                                            CD->Vcele[i].q * adpstep * unit_c *
-                                            CD->Condensation;
-                                    }
-                                }
-#if OBSOLETE
-                                if (CD->Vcele[i].q < 0.0)
-                                {
-                                    tmpconc[j] += 0.0;  /* n_0 design */
-                                }
-#endif
-                            }
                             if ((tmpconc[j] < 0.0) &&
                                 (strcmp(CD->chemtype[j].ChemName, "'H+'")))
                             {
@@ -220,33 +194,7 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                     dconc[i][j] * stepsize +
                     CD->Vcele[i].t_conc[j] * (CD->Vcele[i].porosity *
                     CD->Vcele[i].vol_o);
-                /* Need consider the change of concentration at the unsat
-                 * zone from precipitation */
-                if (CD->PrpFlg)
-                {
-                    if (CD->Vcele[i].q > 0.0)
-                    {
-                        if (strcmp(CD->chemtype[j].ChemName, "'DOC'") == 0)
-                        {
-                            tmpconc[j] += CD->Precipitation.t_conc[j] *
-                                CD->Vcele[i].q * stepsize * unit_c *
-                                CD->Condensation * CD->CalPrcpconc;
-                        }
-                        else
-                        {
-                            tmpconc[j] += CD->Precipitation.t_conc[j] *
-                                CD->Vcele[i].q * stepsize * unit_c *
-                                CD->Condensation;
-                        }
-                    }
-#if OBSOLETE
-                    if (CD->Vcele[i].q < 0.0)
-                    {
-                        tmpconc[j] += CD->Vcele[i].t_conc[j] *
-                            CD->Vcele[i].q * stepsize * unit_c;
-                    }
-#endif
-                }
+
                 tmpconc[j] = tmpconc[j] /
                     (CD->Vcele[i].porosity * CD->Vcele[i].vol);
             }
