@@ -108,11 +108,6 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                                     CD->chemtype[j].ChemName);
                                 fprintf(stderr, "Change from fluxes: %8.4g\n",
                                     dconc[i][j] * adpstep);
-                                fprintf(stderr,
-                                    "Change from precipitation: %8.4g\n",
-                                    CD->Precipitation.t_conc[j] *
-                                    CD->Vcele[i].q * adpstep * unit_c *
-                                    CD->Condensation);
                                 fprintf(stderr, "Original mass: %8.4g\n",
                                     CD->Vcele[i].t_conc[j] *
                                     (CD->Vcele[i].porosity * 0.5 *

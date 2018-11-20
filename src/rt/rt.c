@@ -108,8 +108,7 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
          * in flux-PIHM. If flux-PIHM underestimates soil evaporation, RT need
          * overestimate the incoming concentration to compensate. */
 
-        /* q: in positier, out negative
-         * flux: in negative, out positive */
+        /* flux: in negative, out positive */
     }
 
     free(resflux);
@@ -1396,14 +1395,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
         CD->Vcele[i].log10_sconc = (double *)calloc(CD->NumSsc, sizeof(double));
         CD->Vcele[i].btcv_pconc = (double *)calloc(CD->NumStc, sizeof(double));
 
-        CD->Vcele[i].q = 0.0;
         CD->Vcele[i].illness = 0;
 
-        /* q could be used for precipitataion volume
-         * net precipitation into the unsaturated zone is equal to
-         * infiltration - discharge - evaportransporation.
-         * Net precipitation defined here are not the same concept in PIHM
-         * Under construction */
         for (j = 0; j < CD->NumStc; j++)
         {
             if ((speciation_flg == 1) &&
@@ -1908,15 +1901,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     timestamp = gmtime(rawtime);
     timelps = t - CD->StartTime;
 
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (i = 0; i < nelem; i++)
-    {
-        CD->Vcele[RT_UNSAT(i)].q += MAX(pihm->elem[i].wf.prcp * 86400, 0.0) *
-            CD->Vcele[RT_UNSAT(i)].area;
-    }
-
     for (i = 0; i < nelem; i++)
     {
         for (j = 0; j < 3; j++)
@@ -2098,7 +2082,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Vcele[RT_UNSAT(i)].vol = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_t;
             CD->Vcele[RT_UNSAT(i)].sat = CD->Vcele[RT_UNSAT(i)].height_t /
                 (CD->Vcele[RT_UNSAT(i)].height_v - CD->Vcele[RT_GW(i)].height_t);
-            CD->Vcele[RT_UNSAT(i)].q *= invavg;
         }
 
 #ifdef _OPENMP
@@ -2239,11 +2222,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         } /* RT step control ends */
 
         CD->TimLst = timelps;
-
-        for (i = 0; i < nelem; i++)
-        {
-            CD->Vcele[RT_UNSAT(i)].q = 0.0;
-        }
 
         /* Reset fluxes for next averaging stage */
         for (k = 0; k < CD->NumDis; k++)
