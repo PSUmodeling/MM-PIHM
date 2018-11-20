@@ -212,7 +212,7 @@ typedef struct Chem_Data_structure
     double         *KeqKinect;  /* array of Keq s of the kinetic species */
     double         *KeqKinect_all;  /* same as above, all possible kinetic species */
     double          Temperature;    /* Temperature of the moment */
-    double          StartTime;  /* start time of simulation, in unit of min   */
+    int             StartTime;  /* start time of simulation, in unit of min   */
     double          Cementation;    /* Cementation factor, used to represent the connectivity of pores */
     double          rivd;       /* Stream discharge in cubic meter per day at the moment */
     double          riv;
