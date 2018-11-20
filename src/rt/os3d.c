@@ -118,10 +118,12 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                                             CD->Condensation;
                                     }
                                 }
+#if OBSOLETE
                                 if (CD->Vcele[i].q < 0.0)
                                 {
                                     tmpconc[j] += 0.0;  /* n_0 design */
                                 }
+#endif
                             }
                             if ((tmpconc[j] < 0.0) &&
                                 (strcmp(CD->chemtype[j].ChemName, "'H+'")))
@@ -237,11 +239,13 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                                 CD->Condensation;
                         }
                     }
+#if OBSOLETE
                     if (CD->Vcele[i].q < 0.0)
                     {
                         tmpconc[j] += CD->Vcele[i].t_conc[j] *
                             CD->Vcele[i].q * stepsize * unit_c;
                     }
+#endif
                 }
                 tmpconc[j] = tmpconc[j] /
                     (CD->Vcele[i].porosity * CD->Vcele[i].vol);
