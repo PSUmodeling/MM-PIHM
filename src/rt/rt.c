@@ -93,13 +93,13 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
             (CD->Vcele[RT_UNSAT(i)].height_t - CD->Vcele[RT_UNSAT(i)].height_o) *
             pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].porosity;
         sumflux2 = sumflux1 - resflux[i];
-        CD->Vcele[RT_UNSAT(i)].q = sumflux2 * UNIT_C / stepsize;
-        CD->Vcele[RT_UNSAT(i)].q = MAX(CD->Vcele[RT_UNSAT(i)].q, 0.0);
-
-        /* Input of rain water chemistry can not be negative */
-        CD->Vcele[RT_UNSAT(i)].q +=
-            fabs(pihm->elem[i].wf.edir_unsat +
-            pihm->elem[i].wf.edir_gw) * 86400 * pihm->elem[i].topo.area;
+        CD->Flux[RT_INFIL(i)].flux = -sumflux2 * UNIT_C / stepsize;
+        /* Input of rain water chemistry can not be negative, i.e., infil.flux
+         * should be negative */
+        CD->Flux[RT_INFIL(i)].flux = MIN(CD->Flux[RT_INFIL(i)].flux, 0.0);
+        CD->Flux[RT_INFIL(i)].flux -=
+            fabs(pihm->elem[i].wf.edir_unsat + pihm->elem[i].wf.edir_gw) *
+            86400 * pihm->elem[i].topo.area;
 
         /* In addition, the soil evaporation leaves chemicals inside
          * The above code ensures the q term, which is the net input of water
