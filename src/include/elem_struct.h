@@ -49,9 +49,6 @@ typedef struct topo_struct
     double          h_phi[36];             /* unobstructed angle in each
                                             * direction (degree) */
 #endif
-#if defined(_RT_)
-    double          areasub[NUM_EDGE];
-#endif
 } topo_struct;
 
 /* Soil parameters */
@@ -411,11 +408,6 @@ typedef struct wflux_struct
 {
     double          ovlflow[NUM_EDGE];      /* overland flow (m3 s-1) */
     double          subsurf[NUM_EDGE];      /* subsurface flow (m3 s-1) */
-#if defined(_RT_)
-    double          subveloRT[NUM_EDGE];    // 12.30, new RT add
-    double          subdistRT[NUM_EDGE];    // 12.30, new RT add
-    double          subareaRT[NUM_EDGE];    // 12.30, new RT add
-#endif
     double          prcp;                   /* precipitation on each element
                                              * (m s-1) */
     double          pcpdrp;                 /* combined prcp and drip (from
