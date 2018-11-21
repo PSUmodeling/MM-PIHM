@@ -1999,6 +1999,55 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             }
         }
 
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
+        for (i = 0; i < nelem; i++)
+        {
+            CD->Vcele[RT_GW(i)].height_o = CD->Vcele[RT_GW(i)].height_t;
+            CD->Vcele[RT_GW(i)].height_t = MAX(pihm->elem[i].ws.gw, 1.0E-5);
+            CD->Vcele[RT_GW(i)].height_int = CD->Vcele[RT_GW(i)].height_t;
+            CD->Vcele[RT_GW(i)].height_sp =
+                (CD->Vcele[RT_GW(i)].height_t - CD->Vcele[RT_GW(i)].height_o) * invavg;
+            CD->Vcele[RT_GW(i)].vol_o =
+                CD->Vcele[RT_GW(i)].area * CD->Vcele[RT_GW(i)].height_o;
+            CD->Vcele[RT_GW(i)].vol =
+                CD->Vcele[RT_GW(i)].area * CD->Vcele[RT_GW(i)].height_t;
+
+            /* Update the unsaturated zone (vadoze) */
+            CD->Vcele[RT_UNSAT(i)].height_o = CD->Vcele[RT_UNSAT(i)].height_t;
+            CD->Vcele[RT_UNSAT(i)].height_t =
+                MAX(((pihm->elem[i].ws.unsat * (pihm->elem[i].soil.smcmax -
+                pihm->elem[i].soil.smcmin) +
+                (CD->Vcele[RT_UNSAT(i)].height_v - CD->Vcele[RT_GW(i)].height_t) *
+                pihm->elem[i].soil.smcmin) / pihm->elem[i].soil.smcmax),
+                1.0E-5);
+            CD->Vcele[RT_UNSAT(i)].height_int = CD->Vcele[RT_UNSAT(i)].height_t;
+            CD->Vcele[RT_UNSAT(i)].height_sp =
+                (CD->Vcele[RT_UNSAT(i)].height_t - CD->Vcele[RT_UNSAT(i)].height_o) * invavg;
+            CD->Vcele[RT_UNSAT(i)].vol_o = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_o;
+            CD->Vcele[RT_UNSAT(i)].vol = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_t;
+            CD->Vcele[RT_UNSAT(i)].sat = CD->Vcele[RT_UNSAT(i)].height_t /
+                (CD->Vcele[RT_UNSAT(i)].height_v - CD->Vcele[RT_GW(i)].height_t);
+        }
+
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        /* Update river cells */
+        for (i = 0; i < nriver; i++)
+        {
+            CD->Vcele[RT_RIVER(i)].height_o = CD->Vcele[RT_RIVER(i)].height_t;
+            CD->Vcele[RT_RIVER(i)].height_t = MAX(pihm->river[i].ws.gw, 1.0E-5) +
+                MAX(pihm->river[i].ws.stage, 1.0E-5) / CD->Vcele[RT_RIVER(i)].porosity;
+            CD->Vcele[RT_RIVER(i)].height_int = CD->Vcele[RT_RIVER(i)].height_t;
+            CD->Vcele[RT_RIVER(i)].height_sp =
+                (CD->Vcele[RT_RIVER(i)].height_t - CD->Vcele[RT_RIVER(i)].height_o) * invavg;
+            CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
+            CD->Vcele[RT_RIVER(i)].vol_o = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_o;
+            CD->Vcele[RT_RIVER(i)].vol = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_t;
+        }
+
         invavg = stepsize / (double)CD->AvgScl;
 
         for (k = 0; k < CD->NumFac; k++)
@@ -2050,55 +2099,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                     break;
                 }
             }
-        }
-
-#ifdef _OPENMP
-# pragma omp parallel for
-#endif
-        for (i = 0; i < nelem; i++)
-        {
-            CD->Vcele[RT_GW(i)].height_o = CD->Vcele[RT_GW(i)].height_t;
-            CD->Vcele[RT_GW(i)].height_t = MAX(pihm->elem[i].ws.gw, 1.0E-5);
-            CD->Vcele[RT_GW(i)].height_int = CD->Vcele[RT_GW(i)].height_t;
-            CD->Vcele[RT_GW(i)].height_sp =
-                (CD->Vcele[RT_GW(i)].height_t - CD->Vcele[RT_GW(i)].height_o) * invavg;
-            CD->Vcele[RT_GW(i)].vol_o =
-                CD->Vcele[RT_GW(i)].area * CD->Vcele[RT_GW(i)].height_o;
-            CD->Vcele[RT_GW(i)].vol =
-                CD->Vcele[RT_GW(i)].area * CD->Vcele[RT_GW(i)].height_t;
-
-            /* Update the unsaturated zone (vadoze) */
-            CD->Vcele[RT_UNSAT(i)].height_o = CD->Vcele[RT_UNSAT(i)].height_t;
-            CD->Vcele[RT_UNSAT(i)].height_t =
-                MAX(((pihm->elem[i].ws.unsat * (pihm->elem[i].soil.smcmax -
-                pihm->elem[i].soil.smcmin) +
-                (CD->Vcele[RT_UNSAT(i)].height_v - CD->Vcele[RT_GW(i)].height_t) *
-                pihm->elem[i].soil.smcmin) / pihm->elem[i].soil.smcmax),
-                1.0E-5);
-            CD->Vcele[RT_UNSAT(i)].height_int = CD->Vcele[RT_UNSAT(i)].height_t;
-            CD->Vcele[RT_UNSAT(i)].height_sp =
-                (CD->Vcele[RT_UNSAT(i)].height_t - CD->Vcele[RT_UNSAT(i)].height_o) * invavg;
-            CD->Vcele[RT_UNSAT(i)].vol_o = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_o;
-            CD->Vcele[RT_UNSAT(i)].vol = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_t;
-            CD->Vcele[RT_UNSAT(i)].sat = CD->Vcele[RT_UNSAT(i)].height_t /
-                (CD->Vcele[RT_UNSAT(i)].height_v - CD->Vcele[RT_GW(i)].height_t);
-        }
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-        /* Update river cells */
-        for (i = 0; i < nriver; i++)
-        {
-            CD->Vcele[RT_RIVER(i)].height_o = CD->Vcele[RT_RIVER(i)].height_t;
-            CD->Vcele[RT_RIVER(i)].height_t = MAX(pihm->river[i].ws.gw, 1.0E-5) +
-                MAX(pihm->river[i].ws.stage, 1.0E-5) / CD->Vcele[RT_RIVER(i)].porosity;
-            CD->Vcele[RT_RIVER(i)].height_int = CD->Vcele[RT_RIVER(i)].height_t;
-            CD->Vcele[RT_RIVER(i)].height_sp =
-                (CD->Vcele[RT_RIVER(i)].height_t - CD->Vcele[RT_RIVER(i)].height_o) * invavg;
-            CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
-            CD->Vcele[RT_RIVER(i)].vol_o = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_o;
-            CD->Vcele[RT_RIVER(i)].vol = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_t;
         }
 
         Monitor(stepsize * (double)CD->AvgScl, pihm, CD);
