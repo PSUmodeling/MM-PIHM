@@ -2052,20 +2052,61 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         for (k = 0; k < CD->NumFac; k++)
         {
-            CD->Flux[k].velocity *= invavg;
             CD->Flux[k].flux *= invavg;
-            /* For gw cells, contact area is needed for dispersion; */
             CD->Flux[k].s_area *= invavg;
+        }
 
-            /* velocity is calculated according to flux_avg and area_avg */
-            if (CD->Flux[k].s_area > 1.0E-4)
+
+        for (i = 0; i < nelem; i++)
+        {
+            /* For gw cells, contact area is needed for dispersion; */
+            for (j = 0; j < 3; j++)
             {
-                CD->Flux[k].velocity = CD->Flux[k].flux / CD->Flux[k].s_area;
+                double              h1, h2;
+                double              area;
+
+                if (CD->Flux[RT_LAT_GW(i, j)].BC == NO_FLOW)
+                {
+                    continue;
+                }
+
+                if (pihm->elem[i].nabr[j] > 0)
+                {
+                    h1 = 0.5 *
+                        (CD->Vcele[RT_GW(i)].height_o +
+                        CD->Vcele[RT_GW(i)].height_t);
+                    h2 = 0.5 *
+                        (CD->Vcele[RT_GW(pihm->elem[i].nabr[j] - 1)].height_o +
+                        CD->Vcele[RT_GW(pihm->elem[i].nabr[j] - 1)].height_t);
+
+                    CD->Flux[RT_LAT_GW(i, j)].s_area =
+                        (CD->Flux[RT_LAT_GW(i, j)].flux > 0.0) ?
+                        pihm->elem[i].topo.edge[j] * h1 :
+                        pihm->elem[i].topo.edge[j] * h2;
+                }
+                else if (pihm->elem[i].nabr[j] < 0)
+                {
+                    h1 = 0.5 *
+                        (CD->Vcele[RT_GW(i)].height_o +
+                        CD->Vcele[RT_GW(i)].height_t);
+                    h2 = 0.5 *
+                        (CD->Vcele[RT_RIVER(-pihm->elem[i].nabr[j] - 1)].height_o +
+                        CD->Vcele[RT_RIVER(-pihm->elem[i].nabr[j] - 1)].height_t);
+
+                    CD->Flux[RT_LAT_GW(i, j)].s_area =
+                        (CD->Flux[RT_LAT_GW(i, j)].flux > 0.0) ?
+                        pihm->elem[i].topo.edge[j] * h1 :
+                        pihm->elem[i].topo.edge[j] * h2;
+                }
+
+                /* Calculate velocity according to flux and area */
+                CD->Flux[RT_LAT_GW(i, j)].velocity =
+                    (CD->Flux[RT_LAT_GW(i, j)].s_area > 1.0E-4) ?
+                    CD->Flux[RT_LAT_GW(i, j)].flux /
+                    CD->Flux[RT_LAT_GW(i, j)].s_area :
+                    1.0E-10;
             }
-            else
-            {
-                CD->Flux[k].velocity = 1.0E-10;
-            }
+
         }
 
         /* Correct river flux area and velocity */
