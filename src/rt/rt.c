@@ -2105,6 +2105,13 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                     1.0E-10;
             }
 
+            CD->Flux[RT_RECHG_UNSAT(i)].s_area = pihm->elem[i].topo.area;
+            CD->Flux[RT_RECHG_UNSAT(i)].velocity =
+                CD->Flux[RT_RECHG_UNSAT(i)].flux / pihm->elem[i].topo.area;
+
+            CD->Flux[RT_RECHG_GW(i)].s_area = pihm->elem[i].topo.area;
+            CD->Flux[RT_RECHG_GW(i)].velocity =
+                CD->Flux[RT_RECHG_GW(i)].flux / pihm->elem[i].topo.area;
         }
 
         /* Correct river flux area and velocity */
