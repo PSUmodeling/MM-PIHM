@@ -75,7 +75,7 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
         sumflux1 =
             (CD->Vcele[RT_UNSAT(i)].height_t - CD->Vcele[RT_UNSAT(i)].height_o) *
             pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].porosity;
-        sumflux2 = sumflux1 - resflux[i];
+        sumflux2 = sumflux1 + CD->Flux[RT_RECHG_UNSAT(i)].flux * unit_c;
         CD->Flux[RT_INFIL(i)].flux = -sumflux2 * UNIT_C / stepsize;
         /* Input of rain water chemistry can not be negative, i.e., infil.flux
          * should be negative */
@@ -84,7 +84,6 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
         CD->Flux[RT_INFIL(i)].flux -=
             fabs(pihm->elem[i].wf.edir_unsat + pihm->elem[i].wf.edir_gw) *
             86400 * pihm->elem[i].topo.area;
-
     }
 
     free(resflux);
