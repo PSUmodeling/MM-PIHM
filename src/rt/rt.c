@@ -2391,7 +2391,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     double *start_step, double *t_duration_transp, double *t_duration_react)
 {
     double          stepsize, org_time, step_rst, end_time;
-    int             i, j, k, m, nr_max, int_flg;
+    int             i, k, m, nr_max, int_flg;
     time_t          t_start_transp, t_end_transp;
 
     stepsize = *start_step;
@@ -2430,6 +2430,9 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
         {
             /* Do interpolation. Note that height_int always store the end time
              * height. */
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
             for (i = 0; i < CD->NumOsv; i++)
             {
                 CD->Vcele[i].height_t =
@@ -2438,8 +2441,13 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
             }
         }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (i = 0; i < nelem; i++)
         {
+            int             j;
+
             for (j = 0; j < CD->NumSpc; j++)
             {
                 if (CD->chemtype[j].mtype == 2)
@@ -2471,8 +2479,13 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
          * The porosity is not changed during the period, so the ratio between
          * pore space before and after OS3D is the same ratio between volume of
          * porous media before and after OS3D. */
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (i = 0; i < nelem; i++)
         {
+            int             j;
+
             for (j = 0; j < CD->NumSpc; j++)
             {
                 if (CD->chemtype[j].mtype == 2)
@@ -2503,6 +2516,9 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
 
         if (int_flg)
         {
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
             for (i = 0; i < CD->NumVol; i++)
             {
                 CD->Vcele[i].height_o = CD->Vcele[i].height_t;
