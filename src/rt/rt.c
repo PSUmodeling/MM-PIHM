@@ -2174,10 +2174,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         for (i = 0; i < CD->NumOsv; i++)
         {
             CD->Vcele[i].rt_step = 0.6 * UNIT_C / CD->Vcele[i].rt_step;
-            if (CD->Vcele[i].rt_step >= (double)CD->AvgScl)
-            {
-                CD->Vcele[i].rt_step = (double)CD->AvgScl;
-            }
+            CD->Vcele[i].rt_step =
+                (CD->Vcele[i].rt_step >= (double)CD->AvgScl) ?
+                (double)CD->AvgScl : CD->Vcele[i].rt_step;
         }
 
         /*
