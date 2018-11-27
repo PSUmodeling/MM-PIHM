@@ -1859,7 +1859,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
      * hn  non mobile water height
      * ht  transient zone height
      */
-    int             i, j, k = 0;
+    int             i, k = 0;
     struct tm      *timestamp;
     time_t         *rawtime;
     double          timelps, rt_step, peclet = 0.0, invavg, unit_c;
@@ -1878,6 +1878,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
     for (i = 0; i < nelem; i++)
     {
+        int             j;
+
         for (j = 0; j < 3; j++)
         {
             if (pihm->elem[i].nabr[j] != NO_FLOW)
@@ -1951,16 +1953,18 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             {
                 if (CD->prepconcindex[i] > 0)
                 {
-                    j = CD->prepconcindex[i] - 1;
-                    if (CD->Precipitation.t_conc[j] !=
+                    int             ind;
+
+                    ind = CD->prepconcindex[i] - 1;
+                    if (CD->Precipitation.t_conc[ind] !=
                         CD->TSD_prepconc[0].value[i])
                     {
-                        CD->Precipitation.t_conc[j] =
+                        CD->Precipitation.t_conc[ind] =
                             CD->TSD_prepconc[0].value[i];
                         fprintf(stderr,
                             "  %s in precipitation is changed to %6.4g\n",
-                            CD->chemtype[j].ChemName,
-                            CD->Precipitation.t_conc[j]);
+                            CD->chemtype[ind].ChemName,
+                            CD->Precipitation.t_conc[ind]);
                     }
                 }
             }
@@ -2029,6 +2033,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         for (i = 0; i < nelem; i++)
         {
+            int             j;
+
             /* For gw cells, contact area is needed for dispersion; */
             for (j = 0; j < 3; j++)
             {
@@ -2155,6 +2161,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         for (i = 0; i < CD->NumDis; i++)
         {
+            int             j;
+
             if (CD->Flux[i].BC != NO_DISP)
             {
                 for (j = 0; j < CD->NumSpc; j++)
@@ -2191,6 +2199,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
             for (i = 0; i < CD->NumEle; i++)
             {
+                int             j;
+
                 for (j = 0; j < CD->NumStc; j++)
                 {
                     if (CD->chemtype[j].itype == MINERAL)
@@ -2216,6 +2226,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
             for (i = 0; i < CD->NumOsv; i++)
             {
+                int             j;
+
                 /* Make sure intrapolation worked well */
                 if (fabs(CD->Vcele[i].height_t - CD->Vcele[i].height_int) >
                     1.0E-6)
@@ -2261,6 +2273,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             {
                 for (i = 0; i < CD->NumStc; i++)
                 {
+                    int             j;
+
                     for (j = 0; j < nriver; j++)
                     {
                         CD->Vcele[RT_RIVER(j)].p_conc[i] =
@@ -2293,6 +2307,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         for (i = 0; i < CD->NumVol; i++)
         {
+            int             j;
+
             for (j = 0; j < CD->NumStc; j++)
             {
                 CD->Vcele[i].log10_pconc[j] = log10(CD->Vcele[i].p_conc[j]);
@@ -2305,6 +2321,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         for (k = 0; k < CD->NumBTC; k++)
         {
+            int             j;
+
             for (j = 0; j < CD->NumStc; j++)
             {
                 if ((CD->BTC_loc[k] >= CD->pumps[0].Pump_Location - 1) &&
