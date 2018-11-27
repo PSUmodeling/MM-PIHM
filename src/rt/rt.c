@@ -2045,6 +2045,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Flux[k].s_area *= invavg;
         }
 
+        Monitor(stepsize * (double)CD->AvgScl, pihm, CD);
+
         for (i = 0; i < nelem; i++)
         {
             /* For gw cells, contact area is needed for dispersion; */
@@ -2136,8 +2138,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                 }
             }
         }
-
-        Monitor(stepsize * (double)CD->AvgScl, pihm, CD);
 
         /* Update virtual volume */
 
