@@ -2042,7 +2042,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         for (k = 0; k < CD->NumFac; k++)
         {
             CD->Flux[k].flux *= invavg;
-            CD->Flux[k].s_area *= invavg;
         }
 
         Monitor(stepsize * (double)CD->AvgScl, pihm, CD);
