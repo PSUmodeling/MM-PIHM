@@ -2172,7 +2172,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         }
 
         k = 0;      /* Used to count the number of slow cells */
-        invavg = 0.0;
         for (i = 0; i < CD->NumOsv; i++)
         {
             CD->Vcele[i].rt_step = 0.6 * UNIT_C / CD->Vcele[i].rt_step;
@@ -2187,10 +2186,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             {
                 k++;
             }
-            invavg += CD->Vcele[i].rt_step;
         }
-
-        invavg = invavg / (double)CD->NumOsv;
 
         /*
          * RT step control begins
