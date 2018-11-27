@@ -1,19 +1,8 @@
 /*******************************************************************************
 * RT-Flux-PIHM is a finite volume based, reactive transport module that operates
 * on top of the hydrological land surface processes described by Flux-PIHM.
-* RT-Flux-PIHM tracks the transportation and reaction in a given watershed.
-* It uses operator splitting technique to couple transport and reaction.
-*
-* RT-Flux-PIHM requires two additional input files:
-*     a. chemical condition file:     projectname.chem
-*     b. index of initial conditions: projectname.cini
-*
-* If you have any questions, concerns, suggestions, please contact me at
-* the following address:
-*
-*     Developer: Chen Bao <baochen.d.s@gmail.com>
-*     Version  : 0.2
-*     Date     : Feb, 2014
+* RT-Flux-PIHM tracks the transportation and reaction in a given watershed. It
+* uses operator splitting technique to couple transport and reaction.
 *****************************************************************************/
 #include "pihm.h"
 
@@ -61,13 +50,13 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
             (CD->Vcele[RT_GW(i)].height_t - CD->Vcele[RT_GW(i)].height_o) *
             pihm->elem[i].topo.area * CD->Vcele[RT_GW(i)].porosity;
         sumflux2 = sumflux1 - resflux[i];
+        /* Flux: in negative, out positive */
         CD->Flux[RT_RECHG_GW(i)].flux = -sumflux2 * UNIT_C / stepsize;
-        CD->Flux[RT_RECHG_UNSAT(i)].flux =
-            -CD->Flux[RT_RECHG_GW(i)].flux;
+        CD->Flux[RT_RECHG_UNSAT(i)].flux = -CD->Flux[RT_RECHG_GW(i)].flux;
     }
 
-    /* Since fluxes are corrected for saturated zones, resflux needs
-     * re-calculation */
+    /* Since fluxes are corrected for saturated zones, resflux needs re-
+     * calculation */
     for (i = 0; i < nelem; i++)
     {
         resflux[i] = -CD->Flux[RT_RECHG_UNSAT(i)].flux * unit_c;
@@ -75,7 +64,6 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
 
     /*
      * Correct infiltration in the unsaturated zone
-     * The Err Dumper here is the infiltration for the saturated zone.
      */
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -92,18 +80,11 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
         /* Input of rain water chemistry can not be negative, i.e., infil.flux
          * should be negative */
         CD->Flux[RT_INFIL(i)].flux = MIN(CD->Flux[RT_INFIL(i)].flux, 0.0);
+        /* In addition, the soil evaporation leaves chemicals inside */
         CD->Flux[RT_INFIL(i)].flux -=
             fabs(pihm->elem[i].wf.edir_unsat + pihm->elem[i].wf.edir_gw) *
             86400 * pihm->elem[i].topo.area;
 
-        /* In addition, the soil evaporation leaves chemicals inside
-         * The above code ensures the q term, which is the net input of water
-         * resulted from precipitation, should be net precipitation plus soil
-         * evaporation. Note that soil evaporation itself might not be accurate
-         * in flux-PIHM. If flux-PIHM underestimates soil evaporation, RT need
-         * overestimate the incoming concentration to compensate. */
-
-        /* flux: in negative, out positive */
     }
 
     free(resflux);
