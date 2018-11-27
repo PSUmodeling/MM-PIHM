@@ -62,13 +62,8 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
             pihm->elem[i].topo.area * CD->Vcele[RT_GW(i)].porosity;
         sumflux2 = sumflux1 - resflux[i];
         CD->Flux[RT_RECHG_GW(i)].flux = -sumflux2 * UNIT_C / stepsize;
-        CD->Flux[RT_RECHG_GW(i)].velocity =
-            CD->Flux[RT_RECHG_GW(i)].flux /
-            CD->Flux[RT_RECHG_GW(i)].s_area;
         CD->Flux[RT_RECHG_UNSAT(i)].flux =
             -CD->Flux[RT_RECHG_GW(i)].flux;
-        CD->Flux[RT_RECHG_UNSAT(i)].velocity =
-            -CD->Flux[RT_RECHG_GW(i)].velocity;
     }
 
     /* Since fluxes are corrected for saturated zones, resflux needs
@@ -1919,15 +1914,11 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
 
         /* Flux for UNSAT - GW vertical flow */
-        CD->Flux[RT_RECHG_UNSAT(i)].velocity += pihm->elem[i].wf.rechg * 86400;
         CD->Flux[RT_RECHG_UNSAT(i)].flux += (pihm->elem[i].wf.rechg * 86400) *
             CD->Vcele[RT_UNSAT(i)].area;
-        CD->Flux[RT_RECHG_UNSAT(i)].s_area += CD->Vcele[RT_UNSAT(i)].area;
 
-        CD->Flux[RT_RECHG_GW(i)].velocity += -pihm->elem[i].wf.rechg * 86400;
         CD->Flux[RT_RECHG_GW(i)].flux += (-pihm->elem[i].wf.rechg * 86400) *
             CD->Vcele[RT_GW(i)].area;
-        CD->Flux[RT_RECHG_GW(i)].s_area += CD->Vcele[RT_GW(i)].area;
     }
 
     /* Flux for RIVER flow */
@@ -2053,7 +2044,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Flux[k].flux *= invavg;
             CD->Flux[k].s_area *= invavg;
         }
-
 
         for (i = 0; i < nelem; i++)
         {
