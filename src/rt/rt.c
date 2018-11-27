@@ -1876,6 +1876,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     timestamp = gmtime(rawtime);
     timelps = t - CD->StartTime;
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
         int             j;
@@ -1917,6 +1920,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         CD->riv = 0;
     }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < nriver; i++)
     {
         CD->Flux[RT_LEFT_SURF2RIVER(i)].flux += pihm->river[i].wf.rivflow[2] * 86400;
@@ -1949,6 +1955,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             IntrplForc(&CD->TSD_prepconc[0], *rawtime,
                 CD->TSD_prepconc[0].nspec, NO_INTRPL);
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
             for (i = 0; i < CD->TSD_prepconc[0].nspec; i++)
             {
                 if (CD->prepconcindex[i] > 0)
@@ -2021,6 +2030,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         invavg = stepsize / (double)CD->AvgScl;
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (k = 0; k < CD->NumFac; k++)
         {
             CD->Flux[k].flux *= invavg;
@@ -2031,6 +2043,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
          */
         Monitor(stepsize * (double)CD->AvgScl, pihm, CD);
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (i = 0; i < nelem; i++)
         {
             int             j;
@@ -2129,6 +2144,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         if (CD->PrpFlg)
         {
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
             for (k = 0; k < CD->NumSpc; k++)
             {
                 CD->Vcele[PRCP_VOL - 1].t_conc[k] =
@@ -2140,12 +2158,18 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         }
         else
         {
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
             for (k = 0; k < CD->NumSpc; k++)
             {
                 CD->Vcele[PRCP_VOL - 1].t_conc[k] = 0.0;
             }
         }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (k = 0; k < CD->NumStc; k++)
         {
             CD->Vcele[VIRTUAL_VOL - 1].t_conc[k] =
@@ -2154,6 +2178,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                 CD->Precipitation.t_conc[k] * CD->Condensation;
         }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (i = 0; i < CD->NumVol; i++)
         {
             CD->Vcele[i].rt_step = 0.0;
@@ -2179,6 +2206,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             }
         }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (i = 0; i < CD->NumOsv; i++)
         {
             CD->Vcele[i].rt_step = 0.6 * UNIT_C / CD->Vcele[i].rt_step;
@@ -2197,6 +2227,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             AdptTime(CD, CD->TimLst, rt_step, stepsize * (double)CD->AvgScl,
                 &rt_step, t_duration_transp, t_duration_react);
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
             for (i = 0; i < CD->NumEle; i++)
             {
                 int             j;
@@ -2224,6 +2257,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                 }
             }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
             for (i = 0; i < CD->NumOsv; i++)
             {
                 int             j;
@@ -2249,6 +2285,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         CD->TimLst = timelps;
 
         /* Reset fluxes for next averaging stage */
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (k = 0; k < CD->NumDis; k++)
         {
             CD->Flux[k].velocity = 0.0;
@@ -2258,6 +2297,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Flux[k].s_area = 0.0;
         }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (k = 0; k < CD->NumFac; k++)
         {
             CD->Flux[k].flux = 0.0;
@@ -2271,6 +2313,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
             if (!CD->RecFlg)
             {
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
                 for (i = 0; i < CD->NumStc; i++)
                 {
                     int             j;
@@ -2305,6 +2350,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             }
         }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (i = 0; i < CD->NumVol; i++)
         {
             int             j;
