@@ -30,6 +30,7 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
     for (i = 0; i < nelem; i++)
     {
         int             j;
+
         for (j = 0; j < NUM_EDGE; j++)
         {
             resflux[i] -= CD->Flux[RT_LAT_GW(i, j)].flux * unit_c;
@@ -53,13 +54,6 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
         /* Flux: in negative, out positive */
         CD->Flux[RT_RECHG_GW(i)].flux = -sumflux2 * UNIT_C / stepsize;
         CD->Flux[RT_RECHG_UNSAT(i)].flux = -CD->Flux[RT_RECHG_GW(i)].flux;
-    }
-
-    /* Since fluxes are corrected for saturated zones, resflux needs re-
-     * calculation */
-    for (i = 0; i < nelem; i++)
-    {
-        resflux[i] = -CD->Flux[RT_RECHG_UNSAT(i)].flux * unit_c;
     }
 
     /*
