@@ -2022,6 +2022,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Flux[k].flux *= invavg;
         }
 
+        /*
+         * Correct recharge and infiltration to converve mass balance
+         */
         Monitor(stepsize * (double)CD->AvgScl, pihm, CD);
 
         for (i = 0; i < nelem; i++)
