@@ -232,7 +232,7 @@ int keymatch(const char *line, const char *keyword, double *value, char **strval
 
 }
 
-void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t)
+void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 {
     int             i, j, k;
     int             num_species, num_mineral, num_ads, num_cex, num_other,
@@ -315,7 +315,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD, realtype t
     VIRTUAL_VOL = CD->NumVol;
 
     /* Default control variable if not found in input file */
-    CD->StartTime = t;
+    CD->StartTime = pihm->ctrl.starttime / 60;
     CD->TVDFlg = 1;
     CD->OutItv = 1;
     CD->Cementation = 1.0;
