@@ -2390,13 +2390,12 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     double *start_step, double *t_duration_transp, double *t_duration_react)
 {
-    double          stepsize, org_time, step_rst, end_time;
+    double          stepsize, org_time, end_time;
     int             i, k, m, nr_max, int_flg;
     time_t          t_start_transp, t_end_transp;
 
     stepsize = *start_step;
     org_time = timelps;
-    step_rst = *start_step;
 
     t_start_transp = time(NULL);
 
@@ -2422,7 +2421,6 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
         if (stepsize > end_time - timelps)
         {
             /* Before adjusting, write the current timestep to file */
-            step_rst = stepsize;
             stepsize = end_time - timelps;
         }
 
