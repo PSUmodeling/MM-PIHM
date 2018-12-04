@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     Initialize(pihm, CV_Y, &cvode_mem);
 #if defined(_RT_)
     // 12.30 RT use, must be placed after Initialize()
-    chem_alloc(project, pihm, chData, (double)(pihm->ctrl.starttime/60));  // 12.30 RT use
+    chem_alloc(project, pihm, chData);
 #endif
 
     /* Create output directory */

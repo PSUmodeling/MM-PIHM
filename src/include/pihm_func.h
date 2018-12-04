@@ -701,7 +701,7 @@ void            Monitor(realtype, const pihm_struct, Chem_Data);
 int             upstream(elem_struct, elem_struct, const pihm_struct);
 int             realcheck(const char *);
 int             keymatch(const char *, const char *, double *, char **);
-void            chem_alloc(char *, const pihm_struct, Chem_Data, realtype);   // 09.26 new MMPIHM
+void            chem_alloc(char *, const pihm_struct, Chem_Data);
 void            fluxtrans(int, int, const pihm_struct, Chem_Data, double *, double *);    // 10.05 add two timers
 void            chem_updater(Chem_Data, const pihm_struct); // 10.01
 void            OS3D(realtype, realtype, Chem_Data);
