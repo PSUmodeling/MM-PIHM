@@ -1854,7 +1854,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
      * ht  transient zone height
      */
     int             i, k = 0;
-    time_t         *rawtime;
     double          timelps, rt_step, peclet = 0.0, invavg, unit_c;
     rt_step = stepsize * (double)CD->AvgScl;    /* By default, the largest
                                                  * averaging period is 10 mins.
@@ -1864,8 +1863,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     int             VIRTUAL_VOL = CD->NumVol;
     int             PRCP_VOL = CD->NumVol - 1;
 
-    rawtime = (time_t *)malloc(sizeof(time_t));
-    *rawtime = (int)(t * 60);
     timelps = t - CD->StartTime;
 
 #if defined(_OPENMP)
@@ -1944,8 +1941,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         /* Update the concentration in precipitation here. */
         if (CD->PrpFlg == 2)
         {
-            IntrplForc(&CD->TSD_prepconc[0], *rawtime,
-                CD->TSD_prepconc[0].nspec, NO_INTRPL);
+            IntrplForc(&CD->TSD_prepconc[0], t * 60, CD->TSD_prepconc[0].nspec,
+                NO_INTRPL);
 
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -2380,8 +2377,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                 }
             }
         }
-
-        free(rawtime);
     }
 }
 
