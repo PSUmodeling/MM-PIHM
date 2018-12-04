@@ -1854,7 +1854,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
      * ht  transient zone height
      */
     int             i, k = 0;
-    struct tm      *timestamp;
     time_t         *rawtime;
     double          timelps, rt_step, peclet = 0.0, invavg, unit_c;
     rt_step = stepsize * (double)CD->AvgScl;    /* By default, the largest
@@ -1867,7 +1866,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
     rawtime = (time_t *)malloc(sizeof(time_t));
     *rawtime = (int)(t * 60);
-    timestamp = gmtime(rawtime);
     timelps = t - CD->StartTime;
 
 #if defined(_OPENMP)
