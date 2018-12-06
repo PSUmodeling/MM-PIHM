@@ -1855,10 +1855,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
      */
     int             i, k = 0;
     double          rt_step, peclet = 0.0, invavg, unit_c;
-    rt_step = stepsize * (double)CD->AvgScl;    /* By default, the largest
-                                                 * averaging period is 10 mins.
-                                                 * Longer default averaging
-                                                 * value will fail */
+
     unit_c = stepsize / UNIT_C;
     int             VIRTUAL_VOL = CD->NumVol;
     int             PRCP_VOL = CD->NumVol - 1;
