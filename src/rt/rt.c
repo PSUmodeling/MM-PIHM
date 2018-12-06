@@ -2212,7 +2212,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             rt_step = stepsize * (double)CD->AvgScl;
 
             AdptTime(CD, CD->TimLst, rt_step, stepsize * (double)CD->AvgScl,
-                &rt_step, t_duration_transp, t_duration_react);
+                t_duration_transp, t_duration_react);
 
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -2379,13 +2379,13 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 }
 
 void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
-    double *start_step, double *t_duration_transp, double *t_duration_react)
+    double *t_duration_transp, double *t_duration_react)
 {
     double          stepsize, org_time, end_time;
     int             i, k, m, nr_max, int_flg;
     time_t          t_start_transp, t_end_transp;
 
-    stepsize = *start_step;
+    stepsize = rt_step;
     org_time = timelps;
 
     t_start_transp = time(NULL);
