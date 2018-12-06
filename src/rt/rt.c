@@ -1854,7 +1854,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
      * ht  transient zone height
      */
     int             i, k = 0;
-    double          timelps, rt_step, peclet = 0.0, invavg, unit_c;
+    double          rt_step, peclet = 0.0, invavg, unit_c;
     rt_step = stepsize * (double)CD->AvgScl;    /* By default, the largest
                                                  * averaging period is 10 mins.
                                                  * Longer default averaging
@@ -1862,8 +1862,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     unit_c = stepsize / UNIT_C;
     int             VIRTUAL_VOL = CD->NumVol;
     int             PRCP_VOL = CD->NumVol - 1;
-
-    timelps = t - CD->StartTime;
 
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -1902,7 +1900,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         }
     }
 
-    if ((int)timelps % 1440 == 0)
+    if ((t - pihm->ctrl.starttime / 60) % 1440 == 0)
     {
         CD->rivd = CD->riv / 1440;  /* Averaging the sum of 1440 mins for a
                                      * daily discharge, rivFlx1 */
@@ -1936,7 +1934,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     /*
      * Update the cell volumetrics every averaging cycle
      */
-    if (((int)timelps - (int)CD->TimLst) == CD->AvgScl * stepsize)
+    if (t - pihm->ctrl.starttime / 60 - (int)CD->TimLst == CD->AvgScl * stepsize)
     {
         /* Update the concentration in precipitation here. */
         if (CD->PrpFlg == 2)
@@ -2271,7 +2269,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             }
         } /* RT step control ends */
 
-        CD->TimLst = timelps;
+        CD->TimLst = t - pihm->ctrl.starttime / 60;
 
         /* Reset fluxes for next averaging stage */
 #if defined(_OPENMP)
@@ -2296,7 +2294,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Flux[k].velocity = 0.0;
         }
 
-        if ((int)timelps % (60) == 0)
+        if ((t - pihm->ctrl.starttime / 60) % 60 == 0)
         {
             CD->SPCFlg = 0;
 
