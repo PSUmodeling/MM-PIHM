@@ -2379,7 +2379,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     double *t_duration_transp, double *t_duration_react)
 {
     double          stepsize, end_time;
-    int             i, k, nr_max, int_flg;
+    int             i, k, int_flg;
     time_t          t_start_transp, t_end_transp;
 
     stepsize = rt_step;
@@ -2401,8 +2401,6 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     while (timelps < end_time)
     {
         time_t          t_start_react, t_end_react;
-
-        nr_max = 5;
 
         stepsize = (stepsize > end_time - timelps) ?
             end_time - timelps : stepsize;
