@@ -20,52 +20,35 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
 {
     int             i;
     double          unit_c = stepsize / UNIT_C;
-    double         *resflux;
-
-    resflux = (double *)calloc(nelem, sizeof(double));
 
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
     for (i = 0; i < nelem; i++)
     {
+        double          resflux = 0.0;
+        double          sumflux1, sumflux2;
         int             j;
 
+        /*
+         * Correct recharge in the saturated zone
+         */
         for (j = 0; j < NUM_EDGE; j++)
         {
-            resflux[i] -= CD->Flux[RT_LAT_GW(i, j)].flux * unit_c;
+            resflux -= CD->Flux[RT_LAT_GW(i, j)].flux * unit_c;
         }
-    }
-
-    /*
-     * Correct recharge in the saturated zone
-     */
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (i = 0; i < CD->NumEle; i++)
-    {
-        double          sumflux1, sumflux2;
 
         sumflux1 =
             (CD->Vcele[RT_GW(i)].height_t - CD->Vcele[RT_GW(i)].height_o) *
             pihm->elem[i].topo.area * CD->Vcele[RT_GW(i)].porosity;
-        sumflux2 = sumflux1 - resflux[i];
+        sumflux2 = sumflux1 - resflux;
         /* Flux: in negative, out positive */
         CD->Flux[RT_RECHG_GW(i)].flux = -sumflux2 * UNIT_C / stepsize;
         CD->Flux[RT_RECHG_UNSAT(i)].flux = -CD->Flux[RT_RECHG_GW(i)].flux;
-    }
 
-    /*
-     * Correct infiltration in the unsaturated zone
-     */
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (i = 0; i < nelem; i++)
-    {
-        double          sumflux1, sumflux2;
-
+        /*
+         * Correct infiltration in the unsaturated zone
+         */
         sumflux1 =
             (CD->Vcele[RT_UNSAT(i)].height_t - CD->Vcele[RT_UNSAT(i)].height_o) *
             pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].porosity;
@@ -79,8 +62,6 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
             fabs(pihm->elem[i].wf.edir_unsat + pihm->elem[i].wf.edir_gw) *
             86400 * pihm->elem[i].topo.area;
     }
-
-    free(resflux);
 }
 
 int upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
