@@ -1835,7 +1835,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
      * ht  transient zone height
      */
     int             i, k = 0;
-    double          rt_step, peclet = 0.0, invavg, unit_c;
+    double          rt_step, invavg, unit_c;
 
     unit_c = stepsize / UNIT_C;
     int             VIRTUAL_VOL = CD->NumVol;
@@ -2151,10 +2151,13 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Vcele[i].rt_step = 0.0;
         }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (i = 0; i < CD->NumDis; i++)
         {
             int             j;
-
+            double          peclet;
             if (CD->Flux[i].BC != NO_DISP)
             {
                 for (j = 0; j < CD->NumSpc; j++)
