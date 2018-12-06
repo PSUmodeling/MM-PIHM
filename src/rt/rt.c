@@ -2381,12 +2381,12 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     double *t_duration_transp, double *t_duration_react)
 {
-    double          stepsize, org_time, end_time;
+    double          stepsize, end_time;
     int             i, k, m, nr_max, int_flg;
     time_t          t_start_transp, t_end_transp;
 
     stepsize = rt_step;
-    org_time = timelps;
+    end_time = timelps + hydro_step;
 
     t_start_transp = time(NULL);
 
@@ -2401,19 +2401,14 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
         fprintf(stderr, " Sub time step intrapolation performed. \n");
     }
 
-    end_time = org_time + hydro_step;
-
     while (timelps < end_time)
     {
         time_t          t_start_react, t_end_react;
 
         nr_max = 5;
 
-        if (stepsize > end_time - timelps)
-        {
-            /* Before adjusting, write the current timestep to file */
-            stepsize = end_time - timelps;
-        }
+        stepsize = (stepsize > end_time - timelps) ?
+            end_time - timelps : stepsize;
 
         if (int_flg)
         {
@@ -2537,7 +2532,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
         }
 
         timelps += stepsize;
-        if (timelps >= org_time + hydro_step)
+        if (timelps >= end_time)
         {
             t_end_react = time(NULL);
             *t_duration_react += (t_end_react - t_start_react);
