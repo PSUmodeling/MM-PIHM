@@ -241,6 +241,9 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
         }
     }
 
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (i = 0; i < CD->NumOsv; i++)
     {
         free(tconc[i]);
