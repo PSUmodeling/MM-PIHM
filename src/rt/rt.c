@@ -2379,7 +2379,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
     double *t_duration_transp, double *t_duration_react)
 {
     double          stepsize, end_time;
-    int             i, k, m, nr_max, int_flg;
+    int             i, k, nr_max, int_flg;
     time_t          t_start_transp, t_end_transp;
 
     stepsize = rt_step;
@@ -2506,8 +2506,6 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                 CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
             }
         }
-
-        m = 0;
 
         if ((!CD->RecFlg) && ((int)(timelps + stepsize) %
             (int)(CD->React_delay * stepsize) == 0))
