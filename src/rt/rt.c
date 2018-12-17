@@ -1240,7 +1240,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     for (i = 0; i < nelem; i++)
     {
         /* Initializing volumetrics for groundwater (GW) cells */
-        CD->Vcele[RT_GW(i)].height_v = pihm->elem[i].soil.depth;
         CD->Vcele[RT_GW(i)].height_o = pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].height_t = pihm->elem[i].ws.gw;
         CD->Vcele[RT_GW(i)].area = pihm->elem[i].topo.area;
@@ -1251,7 +1250,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         CD->Vcele[RT_GW(i)].type = GW_VOL;
 
         /* Initializing volumetrics for unsaturated cells */
-        CD->Vcele[RT_UNSAT(i)].height_v = pihm->elem[i].soil.depth;
         /* Porosity in PIHM is
          * Effective Porosity = Porosity - Residue Water Porosity
          * Porosity in RT is total Porosity, therefore, the water height in the
@@ -1287,7 +1285,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     for (i = 0; i < nriver; i++)
     {
         /* Initializing volumetrics for river cells */
-        CD->Vcele[RT_RIVER(i)].height_v = pihm->river[i].ws.gw;
         CD->Vcele[RT_RIVER(i)].height_o = pihm->river[i].ws.gw;
         CD->Vcele[RT_RIVER(i)].height_t = pihm->river[i].ws.gw;
         CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
@@ -1299,7 +1296,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     }
 
     /* Initialize virtual cell */
-    CD->Vcele[PRCP_VOL].height_v = 0.0;
     CD->Vcele[PRCP_VOL].height_o = 0.0;
     CD->Vcele[PRCP_VOL].height_t = 0.0;
     CD->Vcele[PRCP_VOL].area = 0.0;
@@ -1308,7 +1304,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     CD->Vcele[PRCP_VOL].vol_o = 0.0;
     CD->Vcele[PRCP_VOL].vol = 0.0;
 
-    CD->Vcele[VIRTUAL_VOL].height_v = 1.0;
     CD->Vcele[VIRTUAL_VOL].height_o = 1.0;
     CD->Vcele[VIRTUAL_VOL].height_t = 1.0;
     CD->Vcele[VIRTUAL_VOL].area = 1.0;
@@ -1964,7 +1959,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Vcele[RT_UNSAT(i)].height_t =
                 MAX(((pihm->elem[i].ws.unsat * (pihm->elem[i].soil.smcmax -
                 pihm->elem[i].soil.smcmin) +
-                (CD->Vcele[RT_UNSAT(i)].height_v - CD->Vcele[RT_GW(i)].height_t) *
+                (pihm->elem[i].soil.depth - CD->Vcele[RT_GW(i)].height_t) *
                 pihm->elem[i].soil.smcmin) / pihm->elem[i].soil.smcmax),
                 1.0E-5);
             CD->Vcele[RT_UNSAT(i)].height_int = CD->Vcele[RT_UNSAT(i)].height_t;
@@ -1973,7 +1968,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Vcele[RT_UNSAT(i)].vol_o = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_o;
             CD->Vcele[RT_UNSAT(i)].vol = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_t;
             CD->Vcele[RT_UNSAT(i)].sat = CD->Vcele[RT_UNSAT(i)].height_t /
-                (CD->Vcele[RT_UNSAT(i)].height_v - CD->Vcele[RT_GW(i)].height_t);
+                (pihm->elem[i].soil.depth - CD->Vcele[RT_GW(i)].height_t);
         }
 
 #ifdef _OPENMP
@@ -2212,9 +2207,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                             (CD->Vcele[RT_GW(i)].t_conc[j] *
                             CD->Vcele[RT_GW(i)].height_t +
                             CD->Vcele[RT_UNSAT(i)].t_conc[j] *
-                            (CD->Vcele[RT_GW(i)].height_v -
+                            (pihm->elem[i].soil.depth -
                             CD->Vcele[RT_GW(i)].height_t)) /
-                            CD->Vcele[RT_GW(i)].height_v;
+                            pihm->elem[i].soil.depth;
                         CD->Vcele[RT_UNSAT(i)].t_conc[j] =
                             CD->Vcele[RT_GW(i)].t_conc[j];
                         CD->Vcele[RT_GW(i)].p_conc[j] =
