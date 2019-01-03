@@ -10,6 +10,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
         {"brief",      'b', OPTPARSE_NONE},
         {"correction", 'c', OPTPARSE_NONE},
         {"debug",      'd', OPTPARSE_NONE},
+        {"fixed",      'f', OPTPARSE_NONE},
         {"output",     'o', OPTPARSE_REQUIRED},
         {"silent",     's', OPTPARSE_NONE},
         {"tecplot",    't', OPTPARSE_NONE},
@@ -35,6 +36,10 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
             case 'd':
                 /* Debug mode */
                 debug_mode = 1;
+                break;
+            case 'f':
+                /* Fixed length spin-up */
+                fixed_length = 1;
                 break;
             case 't':
                 /* Tecplot output */

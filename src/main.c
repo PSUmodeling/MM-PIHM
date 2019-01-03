@@ -6,6 +6,7 @@ int             debug_mode;
 int             append_mode;
 int             corr_mode;
 int             spinup_mode;
+int             fixed_length;
 int             tecplot;
 char            project[MAXSTRING];
 int             nelem;
