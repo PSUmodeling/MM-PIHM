@@ -40,7 +40,8 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 #endif
 
         first_spin_cycle = 0;
-    } while (spinyears < ctrl->maxspinyears && (!steady));
+    } while (spinyears < ctrl->maxspinyears &&
+        ((!fixed_length && !steady) || fixed_length));
 }
 
 #if defined(_BGC_)
