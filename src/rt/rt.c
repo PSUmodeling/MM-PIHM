@@ -287,7 +287,11 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     /*
      * Begin updating variables
      */
+#if defined(_FBR_)
+    CD->NumVol = 4 * nelem + nriver + 2;
+#else
     CD->NumVol = 2 * nelem + nriver + 2;
+#endif
     CD->NumOsv = CD->NumVol - 1;
     CD->NumEle = nelem;
     CD->NumRiv = nriver;
@@ -1273,6 +1277,39 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         if (CD->Vcele[RT_UNSAT(i)].sat > 1.0)
             fprintf(stderr,
                 "Fatal Error, Unsaturated Zone Initialization For RT Failed!\n");
+
+#if defined(_FBR_)
+        /* Initializing volumetrics for deep groundwater (FBR GW) cells */
+        CD->Vcele[RT_FBR_GW(i)].height_o = pihm->elem[i].ws.fbr_gw;
+        CD->Vcele[RT_FBR_GW(i)].height_t = pihm->elem[i].ws.fbr_gw;
+        CD->Vcele[RT_FBR_GW(i)].area = pihm->elem[i].topo.area;
+        CD->Vcele[RT_FBR_GW(i)].porosity = pihm->elem[i].geol.smcmax;
+        CD->Vcele[RT_FBR_GW(i)].vol_o = pihm->elem[i].topo.area * pihm->elem[i].ws.fbr_gw;
+        CD->Vcele[RT_FBR_GW(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].ws.fbr_gw;
+        CD->Vcele[RT_FBR_GW(i)].sat = 1.0;
+        CD->Vcele[RT_FBR_GW(i)].type = FBR_GW_VOL;
+
+        /* Initializing volumetrics for bedrock unsaturated cells */
+        CD->Vcele[RT_FBR_UNSAT(i)].height_o = (pihm->elem[i].ws.fbr_unsat *
+            (pihm->elem[i].geol.smcmax - pihm->elem[i].geol.smcmin) +
+            (pihm->elem[i].geol.depth - pihm->elem[i].ws.fbr_gw) *
+            pihm->elem[i].geol.smcmin) / (pihm->elem[i].geol.smcmax);
+        CD->Vcele[RT_FBR_UNSAT(i)].height_t = CD->Vcele[RT_FBR_UNSAT(i)].height_o;
+        CD->Vcele[RT_FBR_UNSAT(i)].area = pihm->elem[i].topo.area;
+        CD->Vcele[RT_FBR_UNSAT(i)].porosity = pihm->elem[i].geol.smcmax;
+        /* Unsaturated zone has the same porosity as saturated zone */
+        CD->Vcele[RT_FBR_UNSAT(i)].sat = CD->Vcele[RT_FBR_UNSAT(i)].height_o /
+            (pihm->elem[i].geol.depth - pihm->elem[i].ws.fbr_gw);
+        CD->Vcele[RT_FBR_UNSAT(i)].vol_o = pihm->elem[i].topo.area * CD->Vcele[RT_FBR_UNSAT(i)].height_o;
+        CD->Vcele[RT_FBR_UNSAT(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].geol.depth;
+        CD->Vcele[RT_FBR_UNSAT(i)].type = FBR_UNSAT_VOL;
+
+        /* The saturation of unsaturated zone is the Hu divided by height of
+         * this cell */
+        if (CD->Vcele[RT_FBR_UNSAT(i)].sat > 1.0)
+            fprintf(stderr,
+                "Fatal Error, FBR Unsaturated Zone Initialization For RT Failed!\n");
+#endif
     }
 
     CD->CalPorosity = pihm->cal.porosity;
