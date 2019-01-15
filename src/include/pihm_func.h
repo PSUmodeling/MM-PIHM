@@ -44,10 +44,24 @@
 # define RT_DOWN_RIVER2RIVER(i)     (i) + 9 * nelem + 4 * nriver
 # define RT_UP_RIVER2RIVER(i)       (i) + 9 * nelem + 5 * nriver
 
+# if defined(_FBR_)
+#  define RT_LAT_FBR_GW(i, j)       (i) * 3 + 9 * nelem + 6 * nriver + (j)
+#  define RT_LAT_FBR_UNSAT(i, j)    (i) * 3 + 12 * nelem + 6 * nriver + (j)
+#  define RT_FBR_LKG(i)             (i) + 15 * nelem + 6 * nriver
+#  define RT_FBR_INFIL(i)           (i) + 16 * nelem + 6 * nriver
+#  define RT_FBR_RECHG_UNSAT(i)     (i) + 17 * nelem + 6 * nriver
+#  define RT_FBR_LKG(i)             (i) + 18 * nelem + 6 * nriver
+# endif
+
 /* RT volume index */
 # define RT_UNSAT(i)        (i)
 # define RT_GW(i)           ((i) + nelem)
 # define RT_RIVER(i)        ((i) + 2 * nelem)
+
+# if defined(_FBR_)
+#  define RT_FBR_UNSAT(i)   ((i) + 3 * nelem)
+#  define RT_FBR_GW(i)      ((i) + 4 * nelem)
+# endif
 #endif
 
 #define AvgElev(...)      _WsAreaElev(WS_ZMAX, __VA_ARGS__)
