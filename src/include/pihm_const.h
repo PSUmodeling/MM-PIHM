@@ -252,6 +252,8 @@
 #define UNSAT_VOL       0
 #define GW_VOL          1
 #define RIVER_VOL       2
+#define FBR_UNSAT_VOL    3
+#define FBR_GW_VOL       4
 
 /* Output variables */
 #define YEARLY_OUTPUT     -1
