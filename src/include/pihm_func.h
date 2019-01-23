@@ -30,6 +30,40 @@
 # define RIVBEDNH4(i)    i + 5 * nelem + 5 * nriver
 #endif
 
+#if defined(_RT_)
+/* RT flux index */
+# define RT_LAT_GW(i, j)            (i) * 3 + (j)
+# define RT_LAT_UNSAT(i, j)         (i) * 3 + (j) + 3 * nelem
+# define RT_INFIL(i)                (i) + 6 * nelem
+# define RT_RECHG_UNSAT(i)          (i) + 7 * nelem
+# define RT_RECHG_GW(i)             (i) + 8 * nelem
+# define RT_LEFT_SURF2RIVER(i)      (i) + 9 * nelem
+# define RT_RIGHT_SURF2RIVER(i)     (i) + 9 * nelem + nriver
+# define RT_LEFT_AQIF2RIVER(i)      (i) + 9 * nelem + 2 * nriver
+# define RT_RIGHT_AQIF2RIVER(i)     (i) + 9 * nelem + 3 * nriver
+# define RT_DOWN_RIVER2RIVER(i)     (i) + 9 * nelem + 4 * nriver
+# define RT_UP_RIVER2RIVER(i)       (i) + 9 * nelem + 5 * nriver
+
+# if defined(_FBR_)
+#  define RT_LAT_FBR_GW(i, j)       (i) * 3 + 9 * nelem + 6 * nriver + (j)
+#  define RT_LAT_FBR_UNSAT(i, j)    (i) * 3 + 12 * nelem + 6 * nriver + (j)
+#  define RT_FBR_LKG(i)             (i) + 15 * nelem + 6 * nriver
+#  define RT_FBR_INFIL(i)           (i) + 16 * nelem + 6 * nriver
+#  define RT_FBR_RECHG_UNSAT(i)     (i) + 17 * nelem + 6 * nriver
+#  define RT_FBR_LKG(i)             (i) + 18 * nelem + 6 * nriver
+# endif
+
+/* RT volume index */
+# define RT_UNSAT(i)        (i)
+# define RT_GW(i)           ((i) + nelem)
+# define RT_RIVER(i)        ((i) + 2 * nelem)
+
+# if defined(_FBR_)
+#  define RT_FBR_UNSAT(i)   ((i) + 3 * nelem)
+#  define RT_FBR_GW(i)      ((i) + 4 * nelem)
+# endif
+#endif
+
 #define AvgElev(...)      _WsAreaElev(WS_ZMAX, __VA_ARGS__)
 #define AvgZmin(...)      _WsAreaElev(WS_ZMIN, __VA_ARGS__)
 #define TotalArea(...)    _WsAreaElev(WS_AREA, __VA_ARGS__)
@@ -99,13 +133,8 @@ double          BoundFluxRiver(int, const river_wstate_struct *,
     const river_topo_struct *, const shp_struct *, const matl_struct *,
     const river_bc_struct *bc);
 void            CalcModelStep(ctrl_struct *);
-#if defined(_RT_)
-double          ChanFlowElemToRiver(elem_struct *, double, const river_struct *,
-    double);
-#else
 double          ChanFlowElemToRiver(const elem_struct *, double,
     const river_struct *, double);
-#endif
 double          ChanFlowRiverToRiver(const river_struct *, const river_struct *,
     int);
 double          ChanLeak(const river_wstate_struct *, const river_topo_struct *,
@@ -180,6 +209,10 @@ void            LateralFlow(elem_struct *, const river_struct *, int);
 void            MapOutput(const int *, const int *, const epconst_struct [],
     const elem_struct *, const river_struct *, const meshtbl_struct *,
     const char *, print_struct *);
+#elif defined(_RT_)
+void            MapOutput(const int *, const int *, const Chem_Data,
+    const elem_struct *, const river_struct *, const meshtbl_struct *,
+    const char *, print_struct *);
 #else
 void            MapOutput(const int *, const int *, const elem_struct *,
     const river_struct *, const meshtbl_struct *, const char *, print_struct *);
@@ -205,7 +238,11 @@ double          OvlFlowElemToElem(const elem_struct *, const elem_struct *, int,
     double, int);
 double          OvlFlowElemToRiver(const elem_struct *, const river_struct *);
 void            ParseCmdLineParam(int, char *[], char *);
+#if defined(_RT_)
+void            PIHM(pihm_struct, Chem_Data, void *, N_Vector, double);
+#else
 void            PIHM(pihm_struct, void *, N_Vector, double);
+#endif
 pihm_t_struct   PIHMTime(int);
 void            PrintCVodeFinalStats(void *);
 void            PrintData(varctrl_struct *, int, int, int, int);
@@ -257,15 +294,15 @@ void            RelaxIc(elem_struct *, river_struct *);
 void            SetCVodeParam(pihm_struct, void *, N_Vector);
 int             SoilTex(double, double);
 void            SolveCVode(int, int *, int, double, void *, N_Vector);
+#if defined(_RT_)
+void            Spinup(pihm_struct, Chem_Data, N_Vector, void *);
+#else
 void            Spinup(pihm_struct, N_Vector, void *);
+#endif
 void            StartupScreen(void);
 int             StrTime(const char *);
-#if defined(_RT_)
-double          SubFlowElemToElem(elem_struct *, const elem_struct *, int);
-#else
 double          SubFlowElemToElem(const elem_struct *, const elem_struct *,
     int);
-#endif
 double          SubFlowElemToRiver(const elem_struct *, double,
     const river_struct *, double, double);
 double          SubFlowRiverToRiver(const river_struct *, double,
@@ -674,21 +711,30 @@ realtype        returnVal(realtype rArea, realtype rPerem, realtype eqWid,
     realtype ap_Bool);
 realtype        CS_AreaOrPerem(int rivOrder, realtype rivDepth,
     realtype rivCoeff, realtype a_pBool);
-void            chem_alloc(char *, const pihm_struct, N_Vector, Chem_Data, realtype);   // 09.26 new MMPIHM
-void            fluxtrans(int, int, const pihm_struct, Chem_Data, N_Vector, double *, double *);    // 10.05 add two timers
+void            Monitor(realtype, const pihm_struct, Chem_Data);
+int             upstream(elem_struct, elem_struct, const pihm_struct);
+int             realcheck(const char *);
+int             keymatch(const char *, const char *, double *, char **);
+void            chem_alloc(char *, const pihm_struct, Chem_Data);
+void            fluxtrans(int, int, const pihm_struct, Chem_Data, double *, double *);    // 10.05 add two timers
 void            chem_updater(Chem_Data, const pihm_struct); // 10.01
 void            OS3D(realtype, realtype, Chem_Data);
-int             React(realtype, realtype, Chem_Data, int, int *, const pihm_struct);    // 10.01
-void            Lookup(FILE *, Chem_Data, int);
+void            React(realtype, Chem_Data, vol_conc *, double);    // 10.01
+int             _React(realtype, Chem_Data, vol_conc *, double);    // 10.01
+void            Lookup(FILE *, Chem_Data);
 int             Speciation(Chem_Data, int);
 int             keymatch(const char *, const char *, double *, char **);
 int             SpeciationType(FILE *, char *);
-void            AdptTime(Chem_Data, realtype, double, double, double *, int, const pihm_struct, double *, double *);    // 10.05 add two timers
+void            AdptTime(Chem_Data, realtype, double, double, double *, double *);
 void            Reset(Chem_Data, int);
 void            InitialChemFile(char *, char *, int, int *);
 void            PrintChem(char *, char *, Chem_Data, int);
 void            FreeChem(Chem_Data);
 void            ReportError(vol_conc, Chem_Data);
+double          Dconc(const face *, const vol_conc [], const species [],
+    double, int, int);
+double          Dist2Edge(const meshtbl_struct *, const elem_struct *, int);
+void            Unwrap(char *, const char *);
 
 #endif
 

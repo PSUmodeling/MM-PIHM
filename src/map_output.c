@@ -5,6 +5,11 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     const epconst_struct epctbl[], const elem_struct *elem,
     const river_struct *river, const meshtbl_struct *meshtbl,
     const char *outputdir, print_struct *print)
+#elif defined(_RT_)
+void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
+    const Chem_Data rt, const elem_struct *elem,
+    const river_struct *river, const meshtbl_struct *meshtbl,
+    const char *outputdir, print_struct *print)
 #else
 void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     const elem_struct *elem, const river_struct *river,
@@ -919,6 +924,73 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             }
         }
     }
+
+#if defined(_RT_)
+    for (k = 0; k < rt->NumStc; k++)
+    {
+        Unwrap(ext, rt->chemtype[k].ChemName);
+        strcat(ext, ".unsat_conc");
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &rt->Vcele[RT_UNSAT(j)].log10_pconc[k];
+        }
+        n++;
+    }
+    for (k = 0; k < rt->NumSsc; k++)
+    {
+        Unwrap(ext, rt->chemtype[k + rt->NumStc].ChemName);
+        strcat(ext, ".unsat_conc");
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &rt->Vcele[RT_UNSAT(j)].log10_sconc[k];
+        }
+        n++;
+    }
+    for (k = 0; k < rt->NumStc; k++)
+    {
+        Unwrap(ext, rt->chemtype[k].ChemName);
+        strcat(ext, ".gw_conc");
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &rt->Vcele[RT_GW(j)].log10_pconc[k];
+        }
+        n++;
+    }
+    for (k = 0; k < rt->NumSsc; k++)
+    {
+        Unwrap(ext, rt->chemtype[k + rt->NumStc].ChemName);
+        strcat(ext, ".gw_conc");
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &rt->Vcele[RT_GW(j)].log10_sconc[k];
+        }
+        n++;
+    }
+    for (i = 0; i < rt->NumBTC; i++)
+    {
+        sprintf(ext, "%d.btcv", rt->BTC_loc[i] + 1);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
+            rt->NumStc + rt->NumSsc, &print->varctrl[n]);
+        for (j = 0; j < rt->NumStc; j++)
+        {
+            print->varctrl[n].var[j] = &rt->Vcele[rt->BTC_loc[i]].btcv_pconc[j];
+        }
+        for (j = rt->NumStc; j < rt->NumStc + rt->NumSsc; j++)
+        {
+            print->varctrl[n].var[j] =
+                &rt->Vcele[rt->BTC_loc[i]].log10_sconc[j - rt->NumStc];
+        }
+        n++;
+    }
+#endif
 
     if (n > MAXPRINT)
     {

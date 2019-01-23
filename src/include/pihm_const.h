@@ -39,6 +39,7 @@
 #define HYDROL_STEP    0
 #define LS_STEP        1
 #define CN_STEP        2
+#define RT_STEP        3
 
 /* Maximum number of output files */
 #define MAXPRINT    1024
@@ -233,6 +234,27 @@
 #define DAYSCRECOVER                365.0
 #define BULK_DENITRIF_PROPORTION    0.5
 
+/* RT constants */
+/* Maximum number of dependece, monod, and inhibition terms */
+#define MAXDEP          4
+
+/* RT flux type */
+#define DISPERSION      1
+#define NO_DISP         2
+
+/* RT primary species types */
+#define AQUEOUS         1
+#define ADSORPTION      2
+#define CATION_ECHG     3
+#define MINERAL         4
+
+/* RT volume types */
+#define UNSAT_VOL       0
+#define GW_VOL          1
+#define RIVER_VOL       2
+#define FBR_UNSAT_VOL    3
+#define FBR_GW_VOL       4
+
 /* Output variables */
 #define YEARLY_OUTPUT     -1
 #define MONTHLY_OUTPUT    -2
@@ -398,6 +420,10 @@ extern int     nthreads;
 #endif
 #if defined(_BGC_)
 extern int     first_balance;
+#endif
+#if defined(_RT_)
+double          t_duration, t_duration_hydro, t_duration_rt;
+double          t_duration_transp, t_duration_react;
 #endif
 
 #endif

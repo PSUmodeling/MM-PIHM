@@ -693,11 +693,6 @@ void InitWFlux(wflux_struct *wf)
     {
         wf->ovlflow[j] = 0.0;
         wf->subsurf[j] = 0.0;
-#if defined(_RT_)
-        wf->subveloRT[j] = 0.0;    // 12.30, new RT add
-        wf->subdistRT[j] = 0.0;    // 12.30, new RT add
-        wf->subareaRT[j] = 0.0;    // 12.30, new RT add
-#endif
     }
     wf->prcp = 0.0;
     wf->pcpdrp = 0.0;

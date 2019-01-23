@@ -1,45 +1,10 @@
-/******************************************************************************
-* RT-Flux-PIHM is a finite volume based, reactive transport module that
-* operate on top of the hydrological land surface processes described by
-* Flux-PIHM. RT-Flux-PIHM track the transportation and reaction in a given
-* watershed. PIHM-RT uses operator splitting technique to couple transport
-* and reaction.
-*
-* RT-Flux-PIHM requires two additional input files:
-*     a. chemical condition file:     projectname.chem
-*     b. index of initial conditions: projectname.cini
-*
-*
-*
-* If you have any questions, concerns, suggestions, please contact me at
-* the following address:
-*
-*     Developer: Chen Bao <baochen.d.s@gmail.com>
-*     Version  : 0.2
-*     Date     : Feb, 2014
+/*******************************************************************************
+* RT-Flux-PIHM is a finite volume based, reactive transport module that operates
+* on top of the hydrological land surface processes described by Flux-PIHM.
+* RT-Flux-PIHM tracks the transportation and reaction in a given watershed. It
+* uses operator splitting technique to couple transport and reaction.
 *****************************************************************************/
-
-#include "pihm.h"               // 09.23
-
-// 09.23
-// /* Begin system library calls */
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <math.h>
-//#include <string.h>
-//#include <time.h>
-//#include <assert.h>
-//#include <sys/time.h>
-// 09.23
-
-// 09.23
-// /* Begin other library calls */
-// //#include "sundialstypes.h" /* realtype, integertype, booleantype defination */
-//#include "sundials_types.h"   // 09.16
-//#include "pihm.h"     /* Data Model and Variable Declarations     */
-//#include "rt.h"           /* Data Model and Variable Declarations for chemical processes */
-// 09.23
-
+#include "pihm.h"
 
 /* Begin global variable definition (MACRO) */
 #define UNIT_C 1440
@@ -47,234 +12,96 @@
 #define LINE_WIDTH 512
 #define WORDS_LINE 40
 #define WORD_WIDTH 80
-#define TIME_MIN  1E-5
-#define EPS       0.05
 #define INFTYSMALL  1E-6
-#define RTdepth 5.0
 #define MIN(a,b) (((a)<(b))? (a):(b))
 #define MAX(a,b) (((a)>(b))? (a):(b))
 
-/* Fucntion declarations finished   */
-
-// Timer
-static double timer()
+void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
 {
-    struct timeval  tp;
-    gettimeofday(&tp, NULL);
-    return ((double)(tp.tv_sec) + 1e-6 * tp.tv_usec);
-}
-
-
-void Monitor(realtype t, realtype stepsize, const pihm_struct pihm, Chem_Data CD)    // 09.30
-{
-    /* unit of t and stepsize: min */
-    /* DS: model data              */
-    //    FILE*        logfile = fopen("logfile/pihmlog.out","w");
-
-    int             i = 0;
-    struct tm      *timestamp;
-    time_t         *rawtime;
-    //double timelps, sumflux1, sumflux2, correction, swi, inv_swi, partratio, sumlateral, depth, hu, hg, hn, ht, imrecharge, flux, A;
-    double          timelps;
-
-    //Model_Data MD;
-    //MD = (Model_Data)DS;
-
-    pihm_struct     pihmMonitor;
-    pihmMonitor = pihm;
-
-    rawtime = (time_t *)malloc(sizeof(time_t));
-    *rawtime = (int)(t * 60);
-    timestamp = gmtime(rawtime);
-    timelps = t - CD->StartTime;
-
+    int             i;
     double          unit_c = stepsize / UNIT_C;
 
-    //    fprintf(logfile,"\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\n",timestamp->tm_year+1900,timestamp->tm_mon+1,timestamp->tm_mday,timestamp->tm_hour,timestamp->tm_min);
-    //    fprintf(logfile," Time step is %6.4f\n", stepsize);
-
-    double         *resflux = (double *)malloc(CD->NumOsv * sizeof(double));
-
-
-    for (i = 0; i < CD->NumOsv; i++)
-    {
-        resflux[i] = 0.0;
-    }
-
-    for (i = 0; i < CD->NumFac; i++)
-    {
-        if (!CD->Flux[i].flux_type)
-        {
-            resflux[CD->Flux[i].nodeup - 1] -= CD->Flux[i].flux * unit_c;
-            // sum lateral fluxes
-        }
-    }
-
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < CD->NumEle; i++)
+    for (i = 0; i < nelem; i++)
     {
-        // 11.08
-        double          sumflux1, sumflux2, correction, A;
+        double          resflux = 0.0;
+        double          sumflux1, sumflux2;
+        int             j;
 
-        // correct recharge in the saturated zone
-        // The Err Dumper here is the recharge for saturated zone
-        sumflux1 =
-            (CD->Vcele[i].height_t -
-            CD->Vcele[i].height_o) * pihmMonitor->elem[i].topo.area *
-            CD->Vcele[i].porosity;
-        // 09.30
-        //fprintf(stderr, "  (Monitor) pihmMonitor->elem[i, %d].topo.area = %6.4f \n", i, pihmMonitor->elem[i].topo.area);
-        sumflux2 = sumflux1 - resflux[i];
-        correction =
-            -sumflux2 * UNIT_C / stepsize /
-            CD->Flux[CD->Vcele[i].ErrDumper].flux;
-        A = -CD->Flux[CD->Vcele[i].ErrDumper].flux;
-        CD->Flux[CD->Vcele[i].ErrDumper].flux = -sumflux2 * UNIT_C / stepsize;
-        CD->Flux[CD->Vcele[i].ErrDumper].velocity =
-            CD->Flux[CD->Vcele[i].ErrDumper].flux /
-            CD->Flux[CD->Vcele[i].ErrDumper].s_area;
-        CD->Flux[CD->Vcele[i].ErrDumper - CD->NumEle].flux =
-            -CD->Flux[CD->Vcele[i].ErrDumper].flux;
-        CD->Flux[CD->Vcele[i].ErrDumper - CD->NumEle].velocity =
-            -CD->Flux[CD->Vcele[i].ErrDumper].velocity;
-        // fprintf(logfile, "%d\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\n", i+1, CD->Vcele[i].height_t, CD->Vcele[i].height_o, sumflux1, tmpflux[i], resflux[i], sumflux2, A, sumflux2 * UNIT_C/ stepsize , (sumflux1-resflux[i] + CD->Flux[CD->Vcele[i].ErrDumper].flux * unit_c )/sumflux1 * 100, correction);
-    }
-
-    // Since flux are corrected for saturated zones, resflux need re-calculate
-
-    for (i = 0; i < CD->NumOsv; i++)
-    {
-        resflux[i] = 0.0;
-    }
-
-    for (i = 0; i < CD->NumFac; i++)
-    {
-        if (!CD->Flux[i].flux_type)
+        /*
+         * Correct recharge in the saturated zone
+         */
+        for (j = 0; j < NUM_EDGE; j++)
         {
-            resflux[CD->Flux[i].nodeup - 1] -= CD->Flux[i].flux * unit_c;
-            // sum lateral fluxes
+            resflux -= CD->Flux[RT_LAT_GW(i, j)].flux * unit_c;
         }
-    }
 
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (i = CD->NumEle; i < CD->NumEle * 2; i++)
-    {
-        // 11.08
-        double          sumflux1, sumflux2, correction, A;
-
-        // correct infiltration in the unsaturated zone
-        // The Err Dumper here is the infiltration for the saturated zone.
-
-        //sumflux1 = (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * MD->Ele[i - CD->NumEle].area * CD->Vcele[i].porosity;  // 09.30
         sumflux1 =
-            (CD->Vcele[i].height_t -
-            CD->Vcele[i].height_o) * pihmMonitor->elem[i -
-            CD->NumEle].topo.area * CD->Vcele[i].porosity;
-        // 09.30
-        //fprintf(stderr, "  (Monitor) pihmMonitor->elem[i, %d].topo.area = %6.4f \n", i, pihmMonitor->elem[i - CD->NumEle].topo.area);
-        sumflux2 = sumflux1 - resflux[i];
-        correction = -sumflux2 * UNIT_C / stepsize / CD->Vcele[i].q;
-        A = CD->Flux[CD->Vcele[i].ErrDumper].flux;
-        CD->Vcele[i].q = sumflux2 * UNIT_C / stepsize;
-        CD->Vcele[i].q = MAX(CD->Vcele[i].q, 0.0);
+            (CD->Vcele[RT_GW(i)].height_t - CD->Vcele[RT_GW(i)].height_o) *
+            pihm->elem[i].topo.area * CD->Vcele[RT_GW(i)].porosity;
+        sumflux2 = sumflux1 - resflux;
+        /* Flux: in negative, out positive */
+        CD->Flux[RT_RECHG_GW(i)].flux = -sumflux2 * UNIT_C / stepsize;
+        CD->Flux[RT_RECHG_UNSAT(i)].flux = -CD->Flux[RT_RECHG_GW(i)].flux;
 
-        // input of rain water chemistry can not be negative;
-        //CD->Vcele[i].q += fabs(MD->EleET[i - MD->NumEle][2]) * MD->Ele[i - MD->NumEle].area;  // 09.30
-        CD->Vcele[i].q +=
-            fabs(pihmMonitor->elem[i - CD->NumEle].wf.edir_unsat +
-            pihmMonitor->elem[i -
-                CD->NumEle].wf.edir_gw) * 86400 * pihmMonitor->elem[i -
-            CD->NumEle].topo.area;
-        // 09.30
-        //fprintf(stderr, "  (Monitor) elem[%d].wf.edir_unsat = %g \n", (i - CD->NumEle), (pihmMonitor->elem[i - CD->NumEle].wf.edir_unsat + pihmMonitor->elem[i - CD->NumEle].wf.edir_gw) * 86400);
-
-        // in addition, the soil evaporation leaves chemicals inside
-        // The above code is , ensure the q term, which is the net input of water resulted from precipitation, should be net precipitation plus soil evaporation. Note
-        // that soil evaporation itself might not be accurate in flux-PIHM. If flux-PIHM underestimates soil evaporation, RT need overestimate the incoming concentration
-        // to compensate.
-
-
-        //      fprintf(stderr, " %f = %f / %f, %f;\n",  MD->EleET[i-MD->NumEle][2]/ MD->EleNetPrep[i-MD->NumEle], MD->EleET[i-MD->NumEle][2],MD->EleNetPrep[i-MD->NumEle], MD->ElePrep[i-MD->NumEle]);
-        //      CD->Condensation += fabs(MD->EleET[i-MD->NumEle][2]/ MD->EleNetPrep[i-MD->NumEle]);
-
-        // q: in positier, out negative
-        // flux: in negative, out positive
-        //      if ( CD->Vcele[i].q < A) fprintf(logfile, " !!! A:%f, Q:%f, %f %f\n",A, CD->Vcele[i].q, sumflux2 * UNIT_C / stepsize, fabs(MD->EleET[i-MD->NumEle][2] * MD->Ele[i-MD->NumEle].area));
-        //  fprintf(logfile, "%d\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\t%8.6f\n", i+1, CD->Vcele[i].height_t, CD->Vcele[i].height_o, MD->Ele[i-MD->NumEle].area, MD->Ele[i-MD->NumEle].Porosity, resflux[i], sumflux2, A, CD->Vcele[i].q , (sumflux1 - resflux[i] - CD->Vcele[i].q * unit_c ) , MD->EleET[i- MD->NumEle][2] * MD->Ele[i-MD->NumEle].area);
+        /*
+         * Correct infiltration in the unsaturated zone
+         */
+        sumflux1 =
+            (CD->Vcele[RT_UNSAT(i)].height_t - CD->Vcele[RT_UNSAT(i)].height_o) *
+            pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].porosity;
+        sumflux2 = sumflux1 + CD->Flux[RT_RECHG_UNSAT(i)].flux * unit_c;
+        CD->Flux[RT_INFIL(i)].flux = -sumflux2 * UNIT_C / stepsize;
+        /* Input of rain water chemistry can not be negative, i.e., infil.flux
+         * should be negative */
+        CD->Flux[RT_INFIL(i)].flux = MIN(CD->Flux[RT_INFIL(i)].flux, 0.0);
+        /* In addition, the soil evaporation leaves chemicals inside */
+        CD->Flux[RT_INFIL(i)].flux -=
+            fabs(pihm->elem[i].wf.edir_unsat + pihm->elem[i].wf.edir_gw) *
+            86400 * pihm->elem[i].topo.area;
     }
-
-    //    fclose(logfile);
-
-    free(resflux);
-    free(rawtime);
 }
 
-int
-//upstream(element up, element lo, const void *DS)  // 09.26 update
-upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
+int upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
 {
     /* Locate the upstream grid of up -> lo flow */
     /* Require verification                      */
     /* only determines points in triangular elements */
+    double          x_, y_;
+    int             i;
 
-    double          x_, y_, x_a, x_b, x_c, y_a, y_b, y_c,
-        dot00, dot01, dot02, dot11, dot12, u, v, invDenom;
-
-    int             i, upstreamfound = 0;
-    //x_ = 2 * up.x - lo.x;  // 09.26 update
-    //y_ = 2 * up.y - lo.y;  // 09.26 update
     x_ = 2 * up.topo.x - lo.topo.x;
     y_ = 2 * up.topo.y - lo.topo.y;
 
-    //Model_Data MD;         // 09.26 update
-    //MD = (Model_Data)DS;   // 09.26 update
-    pihm_struct     pihmStreamcopy;
-    pihmStreamcopy = pihm;
-
-    //  fprintf(stderr,"%d\t%d\t%d\t%d\t",MD->NumEle,MD->Ele[up.nabr[0]].index,MD->Ele[up.nabr[1]].index,MD->Ele[up.nabr[2]].index);
-
     for (i = 0; i < nelem; i++)
     {
-        /* find point lies in which triangular element, a very interesting method */
-        //if ((i != (up.index - 1)) && (i != (lo.index - 1)))  // 09.26 update
+        double          x_a, x_b, x_c;
+        double          y_a, y_b, y_c;
+        double          dot00, dot01, dot02, dot11, dot12, u, v, invDenom;
+
+        /* Find point lies in which triangular element, a very interesting
+         * method */
         if ((i != (up.ind - 1)) && (i != (lo.ind - 1)))
         {
-            //x_a = MD->Node[MD->Ele[i].node[0] - 1].x;  // 09.26 update
-            //x_b = MD->Node[MD->Ele[i].node[1] - 1].x;
-            //x_c = MD->Node[MD->Ele[i].node[2] - 1].x;
-            //y_a = MD->Node[MD->Ele[i].node[0] - 1].y;
-            //y_b = MD->Node[MD->Ele[i].node[1] - 1].y;
-            //y_c = MD->Node[MD->Ele[i].node[2] - 1].y;
-            x_a =
-                pihmStreamcopy->meshtbl.x[pihmStreamcopy->elem[i].node[0] - 1];
-            x_b =
-                pihmStreamcopy->meshtbl.x[pihmStreamcopy->elem[i].node[1] - 1];
-            x_c =
-                pihmStreamcopy->meshtbl.x[pihmStreamcopy->elem[i].node[2] - 1];
-            y_a =
-                pihmStreamcopy->meshtbl.y[pihmStreamcopy->elem[i].node[0] - 1];
-            y_b =
-                pihmStreamcopy->meshtbl.y[pihmStreamcopy->elem[i].node[1] - 1];
-            y_c =
-                pihmStreamcopy->meshtbl.y[pihmStreamcopy->elem[i].node[2] - 1];
+            x_a = pihm->meshtbl.x[pihm->elem[i].node[0] - 1];
+            x_b = pihm->meshtbl.x[pihm->elem[i].node[1] - 1];
+            x_c = pihm->meshtbl.x[pihm->elem[i].node[2] - 1];
+            y_a = pihm->meshtbl.y[pihm->elem[i].node[0] - 1];
+            y_b = pihm->meshtbl.y[pihm->elem[i].node[1] - 1];
+            y_c = pihm->meshtbl.y[pihm->elem[i].node[2] - 1];
             dot00 = (x_c - x_a) * (x_c - x_a) + (y_c - y_a) * (y_c - y_a);
             dot01 = (x_c - x_a) * (x_b - x_a) + (y_c - y_a) * (y_b - y_a);
             dot02 = (x_c - x_a) * (x_ - x_a) + (y_c - y_a) * (y_ - y_a);
             dot11 = (x_b - x_a) * (x_b - x_a) + (y_b - y_a) * (y_b - y_a);
             dot12 = (x_b - x_a) * (x_ - x_a) + (y_b - y_a) * (y_ - y_a);
-            invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+            invDenom = 1.0 / (dot00 * dot11 - dot01 * dot01);
             u = (dot11 * dot02 - dot01 * dot12) * invDenom;
             v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-            if ((u > 0.0) && (v > 0.0) && (u + v < 1))
+            if ((u > 0.0) && (v > 0.0) && (u + v < 1.0))
             {
-                upstreamfound = 1;
-                //      fprintf(stderr, "The upstream of %d and %d is %d!\n",up.index, lo.index, MD->Ele[i].index);
-                //return (MD->Ele[i].index);  // 09.26 update
-                return pihmStreamcopy->elem[i].ind;
+                return pihm->elem[i].ind;
             }
         }
     }
@@ -284,24 +111,28 @@ upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
 
 int realcheck(const char *words)
 {
-
     int             flg = 1, i;
-    if (((words[0] < 58) && (words[0] > 47)) || (words[0] == 46)
-        || (words[0] == 45) || (words[0] == 43))
+    if (((words[0] >= '0') && (words[0] <= '9')) ||
+        (words[0] == '.') || (words[0] == '-') || (words[0] == '+'))
     {
         for (i = 0; i < (int)strlen(words); i++)
-            if ((words[i] > 57 || words[i] < 43) && (words[i] != 69)
-                && (words[i] != 101) && (words[i] != 10) && (words[i] != 13))
+        {
+            /* Ascii 10 is new line and 13 is carriage return */
+            if ((words[i] > '9' || words[i] < '+') && (words[i] != 'E')
+                && (words[i] != 'e') && (words[i] != 10) && (words[i] != 13))
+            {
                 flg = 0;
+            }
+        }
     }
     else
+    {
         flg = 0;
+    }
     return (flg);
 }
 
-
-int
-keymatch(const char *line, const char *keyword, double *value, char **strval)
+int keymatch(const char *line, const char *keyword, double *value, char **strval)
 {
     /* A very general and convinient way of reading datafile and input file */
     /* find keyword in line, assign the value after keyword to value array if there is any */
@@ -314,9 +145,8 @@ keymatch(const char *line, const char *keyword, double *value, char **strval)
 
     if ((line[0] == '!') || (line[0] == '#'))
     {
-
-        return (2);
         /* assign a special flag for comments */
+        return (2);
     }
 
     int             j, k;
@@ -371,9 +201,7 @@ keymatch(const char *line, const char *keyword, double *value, char **strval)
     j = k = 0;
     for (i = 0; i < words_line; i++)
     {
-        //    fprintf(stderr, "word#%d=%s, length=%d\n" , i, words[i], strlen(words[i]));
         strcpy(strval[k++], words[i]);
-        //    if ((( words[i][0] < 58)&&(words[i][0] > 47))||(words[i][0] == 46)||(words[i][0]==45)||(words[i][0]==43))
         if (realcheck(words[i]) == 1)
             value[j++] = atof(words[i]);
     }
@@ -385,103 +213,25 @@ keymatch(const char *line, const char *keyword, double *value, char **strval)
 
 }
 
-void ConditionAssign(int condition, char *str, int *index)
+void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 {
-    /* This subroutine takes in input strings and output an index array that record the conditions each blocks assigned to */
-    /* input strings could use separators like - and , */
-
-    int             i, j, k, l, length = strlen(str);
-    char          **words = (char **)malloc(length * sizeof(char *));
-    for (i = 0; i < length; i++)
-        words[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
-
-    char           *tmpstr = (char *)malloc(WORD_WIDTH * sizeof(char));
-
-    char           *separator = (char *)malloc(length * sizeof(char));
-    int            *value = (int *)malloc(length * sizeof(char));
-
-    i = j = k = l = 0;
-    while (i < length)
-    {
-        while (str[i] != 0 && str[i] != 45 && str[i] != 44)
-        {
-            words[k][j++] = str[i++];
-            if (str[i] == 45 || str[i] == 44)
-            {
-                k++;
-                j = 0;
-                separator[l++] = str[i];
-            }
-        }
-        i++;
-    }
-
-    for (i = 0; i < length; i++)
-    {
-        strcpy(tmpstr, words[i]);
-        value[i] = atoi(tmpstr);
-    }
-    /*
-     * for ( i = 0; i < length; i ++)
-     * fprintf(stderr, "%s\t%c\n",words[i],separator[i]);
-     *
-     * for ( i = 0; i < length; i ++)
-     * fprintf(stderr, "%d\n",value[i]);
-     *
-     * fprintf(stderr, "condition = %d\n", condition);
-     */
-    for (i = 0; i < length; i++)
-    {
-        if (separator[i] == ',' || separator[i] == 0)
-            index[value[i]] = condition;
-        if (separator[i] == '-')
-            for (j = value[i]; j <= value[i + 1]; j++)
-                index[j] = condition;
-    }
-
-    for (i = 0; i < length; i++)
-        free(words[i]);
-    free(words);
-    free(separator);
-    free(value);
-    free(tmpstr);
-
-}
-
-
-
-
-void
-//chem_alloc(char *filename, const void *DS, const Control_Data * CS, Chem_Data CD, realtype t)       // original RT
-//chem_alloc(char *filename, const Model_Data DS, const Control_Data * CS, Chem_Data CD, realtype t)  // 09.25 try change the second term
-chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, realtype t) // 09.26 new MMPIHM
-{
-
-    int             i, j, k, num_face =
-        0, num_species, num_mineral, num_ads, num_cex, num_other,
+    int             i, j, k;
+    int             num_species, num_mineral, num_ads, num_cex, num_other,
         num_conditions = 0;
-    int             id;         // 01.21 for read-in '*.maxwater'
     int             line_width = LINE_WIDTH, words_line =
         WORDS_LINE, word_width = WORD_WIDTH;
     int             Global_diff = 0, Global_disp = 0;
-    int             error_flag = 0, speciation_flg = 0, specflg;
+    int             speciation_flg = 0, specflg;
     double          total_area = 0.0, tmpval[WORDS_LINE];
-    time_t          rawtime;
-    struct tm      *timeinfo;
     char            cmdstr[MAXSTRING];
     int             lno = 0;
+    int             PRCP_VOL;
+    int             VIRTUAL_VOL;
 
-    pihm_struct     pihmRTcopy;
-    pihmRTcopy = pihm;
-
-    // 09.25 new trick
     assert(pihm != NULL);
-    assert(pihmRTcopy != NULL);
 
     char            line[256];
     char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
-
-    timeinfo = (struct tm *)malloc(sizeof(struct tm));
 
     for (i = 0; i < words_line; i++)
         tmpstr[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
@@ -501,16 +251,10 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     sprintf(forcfn, "input/%s/%s.prep", filename, filename);
     FILE           *prepconc = fopen(forcfn, "r");
 
-    // 01.21
     char           *maxwaterfn =
         (char *)malloc((strlen(filename) * 2 + 100) * sizeof(char));
     sprintf(maxwaterfn, "input/%s/%s.maxwater", filename, filename);
     FILE           *maxwater = fopen(maxwaterfn, "r");
-
-    // 10.01 check input files
-    //assert(chemfile != NULL);
-    //assert(database != NULL);
-    //assert(prepconc != NULL);
 
     if (chemfile == NULL)
     {
@@ -533,7 +277,6 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         exit(1);
     }
 
-    // 01.21
     if (maxwater == NULL)
     {
         fprintf(stderr, "\n  Fatal Error: %s.maxwater does not exist! \n",
@@ -541,23 +284,23 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         exit(1);
     }
 
-    // 09.25 test
-    printf("\n RTtest: nelem = %d \n", nelem);
-    printf(" RTtest: nriver = %d \n", nriver);
-    printf(" RTtest: pihm->ctrl.starttime = %d [s] \n", pihm->ctrl.starttime);
-
-    // *******************************************************************************************************
-    // 09.25 beginning updating variables
-    CD->NumVol = 2 * (nelem + nriver) + 2;
+    /*
+     * Begin updating variables
+     */
+#if defined(_FBR_)
+    CD->NumVol = 4 * nelem + nriver + 2;
+#else
+    CD->NumVol = 2 * nelem + nriver + 2;
+#endif
     CD->NumOsv = CD->NumVol - 2;
     CD->NumEle = nelem;
     CD->NumRiv = nriver;
-    printf(" RTtest: CD->NumEle = %d \n", nelem);
-    printf(" RTtest: CD->NumRiv = %d \n", nriver);
 
-    /* default control variable if not found in input file */
-    CD->StartTime = t;
-    printf(" RTtest: CD->StartTime = %d [min] \n\n", (int)t);
+    PRCP_VOL = CD->NumVol - 1;
+    VIRTUAL_VOL = CD->NumVol;
+
+    /* Default control variable if not found in input file */
+    CD->StartTime = pihm->ctrl.starttime / 60;
     CD->TVDFlg = 1;
     CD->OutItv = 1;
     CD->Cementation = 1.0;
@@ -568,7 +311,6 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     CD->RelMin = 0;
     CD->AvgScl = 1;
     CD->CptFlg = 1;
-    CD->RivOff = 0;
     CD->TimRiv = 1.0;
     CD->React_delay = 10;
     CD->Condensation = 1.0;
@@ -576,10 +318,10 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     CD->NumPUMP = 0;
     CD->SUFEFF = 1;
     CD->CnntVelo = 0.01;
-    CD->TimLst = 0.0;           // 10.24 fix uninitialised value(s)
+    CD->TimLst = 0.0;
 
-    // 09.25 reading "*.chem"
-    // RUNTIME block
+    /* Reading "*.chem" */
+    /* RUNTIME block */
     fprintf(stderr, "\n Reading '%s.chem' RUNTIME: \n", filename);
     rewind(chemfile);
     fgets(line, line_width, chemfile);
@@ -610,7 +352,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             CD->ACTmod = (int)tmpval[0];
             fprintf(stderr, "  Activity correction is set to %d. \n",
                 CD->ACTmod);
-            // 0 for unity activity coefficient and 1 for DH equation update
+            /* 0 for unity activity coefficient and 1 for DH equation update */
         }
         if (keymatch(line, "act_coe_delay", tmpval, tmpstr) == 1)
         {
@@ -618,14 +360,14 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             fprintf(stderr,
                 "  Activity coefficient update delay is set to %d. \n",
                 CD->DHEdel);
-            // 0 for delay and 1 for no delay (solving together )
+            /* 0 for delay and 1 for no delay (solving together) */
         }
         if (keymatch(line, "thermo", tmpval, tmpstr) == 1)
         {
             CD->TEMcpl = (int)tmpval[0];
             fprintf(stderr, "  Coupling of thermo modelling is set to %d. \n",
                 CD->DHEdel);
-            // 0 for delay and 1 for no delay (solving together )
+            /* 0 for delay and 1 for no delay (solving together) */
         }
         if (keymatch(line, "relmin", tmpval, tmpstr) == 1)
         {
@@ -654,7 +396,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
                     fprintf(stderr,
                         "  Using the coupled MIM and adsorption model. \n");
                     break;
-                    // under construction.
+                    /* under construction. */
             }
         }
         if (keymatch(line, "transport_only", tmpval, tmpstr) == 1)
@@ -668,7 +410,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
                 case 1:
                     fprintf(stderr, "  Transport only mode enabled. \n");
                     break;
-                    // under construction.
+                    /* under construction. */
             }
         }
         if (keymatch(line, "precipitation", tmpval, tmpstr) == 1)
@@ -687,7 +429,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
                     fprintf(stderr,
                         "  Precipitation condition is specified via file *.prep. \n");
                     break;
-                    // under construction.
+                    /* under construction. */
             }
         }
         if (keymatch(line, "RT_delay", tmpval, tmpstr) == 1)
@@ -697,7 +439,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
                 "  Flux-PIHM-RT will start after running PIHM for %d days. \n",
                 CD->Delay);
             CD->Delay *= UNIT_C;
-            // under construction.
+            /* under construction. */
         }
         if (keymatch(line, "Condensation", tmpval, tmpstr) == 1)
         {
@@ -705,7 +447,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             fprintf(stderr,
                 "  The concentrations of infiltrating rainfall is set to be %f times of concentrations in precipitation. \n",
                 CD->Condensation);
-            // under construction.
+            /* under construction. */
             //CD->Condensation *= CS->Cal.Prep_conc;  // 09.25 temporal comment-out
             fprintf(stderr,
                 "  The concentrations of infiltrating rainfall is set to be %f times of concentrations in precipitation. \n",
@@ -717,21 +459,21 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             fprintf(stderr,
                 "  Averaging window for asynchronous reaction %d. \n",
                 CD->React_delay);
-            // under construction.
+            /* under construction. */
         }
         if (keymatch(line, "SUFEFF", tmpval, tmpstr) == 1)
         {
             CD->SUFEFF = tmpval[0];
             fprintf(stderr, "  Effective surface area mode set to %d. \n\n",
                 CD->SUFEFF);
-            // under construction.
+            /* under construction. */
         }
         if (keymatch(line, "Mobile_exchange", tmpval, tmpstr) == 1)
         {
             CD->TimRiv = tmpval[0];
             fprintf(stderr, "  Ratio of immobile ion exchange site %f. \n",
                 CD->TimRiv);
-            // under construction.
+            /* under construction. */
         }
 
         if (keymatch(line, "Connectivity_threshold", tmpval, tmpstr) == 1)
@@ -740,11 +482,11 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             fprintf(stderr,
                 "  Minimum velocity to be deemed as connected is %f m/d. \n",
                 CD->CnntVelo);
-            // under construction.
+            /* under construction. */
         }
     }
 
-    // OUTPUT block
+    /* OUTPUT block */
     fprintf(stderr, "\n Reading '%s.chem' OUTPUT: \n", filename);
     rewind(chemfile);
     fgets(line, line_width, chemfile);
@@ -769,7 +511,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     }
     fprintf(stderr, "are breakthrough points.\n\n");
 
-    // GLOBAL block
+    /* GLOBAL block */
     fprintf(stderr, " Reading '%s.chem' GLOBAL: \n", filename);
     species         Global_type;
     Global_type.ChemName = (char *)malloc(WORD_WIDTH * sizeof(char));
@@ -850,16 +592,17 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         }
     }
 
+    /* The number of species that are mobile, later used in the OS3D subroutine */
     CD->NumSpc = CD->NumStc - (CD->NumMin + CD->NumAds + CD->NumCex);
-    /* the number of species that are mobile, later used in the OS3D subroutine */
-    CD->NumSdc = CD->NumStc - (CD->NumMin);
-    /* the number of species that others depend on */
+
+    /* The number of species that others depend on */
+    CD->NumSdc = CD->NumStc - CD->NumMin;
 
     CD->Dependency = (double **)malloc(CD->NumSsc * sizeof(double *));
     for (i = 0; i < CD->NumSsc; i++)
     {
         CD->Dependency[i] = (double *)malloc(CD->NumSdc * sizeof(double));
-        /* convert secondary species as an expression of primary species */
+        /* Convert secondary species as an expression of primary species */
         for (j = 0; j < CD->NumSdc; j++)
             CD->Dependency[i][j] = 0.0;
     }
@@ -869,7 +612,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     for (i = 0; i < CD->NumMkr + CD->NumAkr; i++)
     {
         CD->Dep_kinetic[i] = (double *)malloc(CD->NumStc * sizeof(double));
-        /* express kinetic species as function of primary species */
+        /* Express kinetic species as function of primary species */
         for (j = 0; j < CD->NumStc; j++)
             CD->Dep_kinetic[i][j] = 0.0;
     }
@@ -883,33 +626,36 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             CD->Dep_kinetic_all[i][j] = 0.0;
     }
 
+    /* Keqs of equilibrium/ kinetic and kinetic all */
     CD->Keq = (double *)malloc(CD->NumSsc * sizeof(double));
     CD->KeqKinect =
         (double *)malloc((CD->NumMkr + CD->NumAkr) * sizeof(double));
     CD->KeqKinect_all = (double *)malloc(CD->NumMin * sizeof(double));
-    /* Keqs of equilibrium/ kinetic and kinetic all */
 
+    /* Convert total concentration as an expression of all species */
     CD->Totalconc = (double **)malloc(CD->NumStc * sizeof(double *));
     for (i = 0; i < CD->NumStc; i++)
         CD->Totalconc[i] =
             (double *)malloc((CD->NumStc + CD->NumSsc) * sizeof(double));
-    /* convert total concentration as an expression of all species */
 
+#if NOT_YET_IMPLEMENTED
+    /* Convert total concentration as an expression of all species */
     CD->Totalconck = (double **)malloc(CD->NumStc * sizeof(double *));
     for (i = 0; i < CD->NumStc; i++)
         CD->Totalconck[i] =
             (double *)malloc((CD->NumStc + CD->NumSsc) * sizeof(double));
-    /* convert total concentration as an expression of all species */
+#endif
 
     for (i = 0; i < CD->NumStc; i++)
         for (j = 0; j < CD->NumStc + CD->NumSsc; j++)
         {
             CD->Totalconc[i][j] = 0.0;
+#if NOT_YET_IMPLEMENTED
             CD->Totalconck[i][j] = 0.0;
+#endif
         }
-    num_species = CD->NumSpc;
 
-    // INITIAL_CONDITIONS block
+    /* INITIAL_CONDITIONS block */
     fprintf(stderr, " Reading '%s.chem' INITIAL_CONDITIONS: \n", filename);
     rewind(chemfile);
     fgets(line, line_width, chemfile);
@@ -932,18 +678,19 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     char         ***con_chem_name =
         (char ***)malloc((num_conditions + 1) * sizeof(char **));
     for (i = 0; i < num_conditions + 1; i++)
-    {                           // all conditions + precipitation
+    {   /* all conditions + precipitation */
         con_chem_name[i] = (char **)malloc(CD->NumStc * sizeof(char *));
         for (j = 0; j < CD->NumStc; j++)
             con_chem_name[i][j] = (char *)malloc(WORD_WIDTH * sizeof(char));
     }
 
-    int            *condition_index =
-        (int *)malloc((CD->NumVol + 1) * sizeof(int));
-    /* when user assign conditions to blocks, they start from 1 */
+    int            *condition_index = (int *)malloc(CD->NumVol * sizeof(int));
+    /* When user assign conditions to blocks, they start from 1 */
 
     for (i = 0; i < CD->NumVol; i++)
+    {
         condition_index[i] = 0;
+    }
 
     vol_conc       *Condition_vcele =
         (vol_conc *) malloc(num_conditions * sizeof(vol_conc));
@@ -958,7 +705,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             (double *)malloc(CD->NumStc * sizeof(double));
         Condition_vcele[i].p_type = (int *)malloc(CD->NumStc * sizeof(int));
         Condition_vcele[i].s_conc = NULL;
-        /* we do not input cocentration for secondary speices in rt */
+        /* We do not input cocentration for secondary speices in rt */
         for (j = 0; j < CD->NumStc; j++)
         {
             Condition_vcele[i].t_conc[j] = ZERO;
@@ -981,7 +728,6 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             CD->Precipitation.t_conc[i] = ZERO;
             CD->Precipitation.p_conc[i] = ZERO;
         }
-
     }
 
     CD->chemtype =
@@ -1019,17 +765,14 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     while (keymatch(line, "INITIAL_CONDITIONS", tmpval, tmpstr) != 1)
         fgets(line, line_width, chemfile);
     if (strcmp(tmpstr[1], "FILE") == 0)
-    {                           // Initialize chemical distribution from file evoked. This will nullify all the condition assignment given in the next lines.
-        // But for now, please keep those lines to let the code work.
+    {
+        /* Initialize chemical distribution from file evoked. This will nullify
+         * all the condition assignment given in the next lines.
+         * But for now, please keep those lines to let the code work. */
 
         initfile = 1;
-        //fprintf(stderr, "  Initializing the initial chemical distribution from file '%s'. \n\n", tmpstr[2]);      // from '*.chem'
-        fprintf(stderr, "  Specifiying the initial chemical distribution from file '%s.cini'. \n", filename);   // 10.02 CORRECT
+        fprintf(stderr, "  Specifiying the initial chemical distribution from file '%s.cini'. \n", filename);
 
-        //char cheminit[20];
-        //strcpy(cheminit, "input/example/");
-        //strcat(cheminit, tmpstr[2]);
-        //cheminitfile = fopen(cheminit, "r");
         char           *cheminit =
             (char *)malloc((strlen(filename) * 2 + 100) * sizeof(char));
         sprintf(cheminit, "input/%s/%s.cini", filename, filename);
@@ -1057,9 +800,10 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             strcpy(chemcon[k++], tmpstr[0]);
             if (initfile == 0)
             {
-                fprintf(stderr, " Condition %s assigned to cells %s.\n",
-                    chemcon[k - 1], tmpstr[1]);
-                ConditionAssign(k, tmpstr[1], condition_index);
+                PIHMprintf(VL_ERROR,
+                    "Assigning initial conditions in .chem file is temporarily"
+                    " disabled. Please use a .cini file.\n");
+                PIHMexit(EXIT_FAILURE);
             }
         }
         fgets(line, line_width, chemfile);
@@ -1068,15 +812,14 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     {
         for (i = 0; i < CD->NumVol; i++)
         {
-            fscanf(cheminitfile, "%d %d", &k, condition_index + i + 1);
-            // fprintf(stderr, "%6d %6d %6s\n", i+1, condition_index[i+1], chemcon[condition_index[i+1]-1]);
+            fscanf(cheminitfile, "%d %d", &k, &condition_index[i]);
         }
     }
 
     if (cheminitfile != NULL)
         fclose(cheminitfile);
 
-    // CONDITIONS block
+    /* CONDITIONS block */
     fprintf(stderr, "\n Reading '%s.chem' CONDITIONS: ", filename);
     for (i = 0; i < num_conditions; i++)
     {
@@ -1099,25 +842,24 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             {
                 specflg = SpeciationType(database, tmpstr[0]);
 
-                if (specflg == 1)
+                if (specflg == AQUEOUS)
                 {
+                    /* Arrange the concentration of the primary species in such a
+                     * way that all the mobile species are at the beginning. */
                     num_other = num_mineral + num_ads + num_cex;
                     Condition_vcele[i].t_conc[num_species - num_other] =
                         tmpval[0];
                     strcpy(con_chem_name[i][num_species - num_other],
                         tmpstr[0]);
-                    //fprintf(stderr, "  %s\t\t %g \n", con_chem_name[i][num_species - num_other], tmpval[0]);
                     fprintf(stderr, "  %-28s %g \n",
                         con_chem_name[i][num_species - num_other], tmpval[0]);
-                    Condition_vcele[i].p_type[num_species - num_other] = 1;
+                    Condition_vcele[i].p_type[num_species - num_other] = AQUEOUS;
                 }
-                // arrange the concentration of the primary species in such a way that all the mobile species are at the beginning.
-                if (specflg == 4)
+                if (specflg == MINERAL)
                 {
                     Condition_vcele[i].t_conc[CD->NumSpc + CD->NumAds +
                         CD->NumCex + num_mineral] = tmpval[0];
                     if (strcmp(tmpstr[2], "-ssa") == 0)
-                        //Condition_vcele[i].p_para[CD->NumSpc + CD->NumAds + CD->NumCex + num_mineral] = tmpval[1] * CS->Cal.SSA;  // 09.25 temporal comment-out
                         Condition_vcele[i].p_para[CD->NumSpc + CD->NumAds +
                             CD->NumCex + num_mineral] = tmpval[1] * 1.0;
                     strcpy(con_chem_name[i][CD->NumSpc + CD->NumAds +
@@ -1127,39 +869,40 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
                         con_chem_name[i][CD->NumSpc + CD->NumAds + CD->NumCex +
                             num_mineral], tmpval[0], tmpval[1]);
                     Condition_vcele[i].p_type[CD->NumSpc + CD->NumAds +
-                        CD->NumCex + num_mineral] = 4;
+                        CD->NumCex + num_mineral] = MINERAL;
                     num_mineral++;
                 }
-                if ((tmpstr[0][0] == '>') || (specflg == 2))
-                {               // adsorptive sites and species start with >
-                    //Condition_vcele[i].t_conc[CD->NumSpc + num_ads] = tmpval[0] * CS->Cal.Site_den;    // 09.25 temporal comment-out
+                if ((tmpstr[0][0] == '>') || (specflg == ADSORPTION))
+                {
+                    /* Adsorptive sites and species start with > */
+                    /* Condition_vcele[i].t_conc[CD->NumSpc + num_ads] = tmpval[0] * CS->Cal.Site_den;  09.25 temporal comment-out */
                     Condition_vcele[i].t_conc[CD->NumSpc + num_ads] =
                         tmpval[0] * 1.0;
-                    Condition_vcele[i].p_type[CD->NumSpc + num_ads] = 2;
+                    Condition_vcele[i].p_type[CD->NumSpc + num_ads] = ADSORPTION;
                     Condition_vcele[i].p_para[CD->NumSpc + num_ads] = 0;
-                    // update when fill in the parameters for adsorption.
+                    /* Update when fill in the parameters for adsorption */
                     strcpy(con_chem_name[i][CD->NumSpc + num_ads], tmpstr[0]);
                     fprintf(stderr, "  surface complex %s\t\t%6.4f \n",
                         con_chem_name[i][CD->NumSpc + num_ads], tmpval[0]);
                     num_ads++;
-                    // under construction
+                    /* under construction */
                 }
-                if (specflg == 3)
+                if (specflg == CATION_ECHG)
                 {
                     Condition_vcele[i].t_conc[CD->NumSpc + CD->NumAds +
                         num_cex] = tmpval[0];
                     Condition_vcele[i].p_type[CD->NumSpc + CD->NumAds +
-                        num_cex] = 3;
+                        num_cex] = CATION_ECHG;
                     Condition_vcele[i].p_para[CD->NumSpc + CD->NumAds +
                         num_cex] = 0;
-                    // update when fill in the parameters for cation exchange.
+                    /* update when fill in the parameters for cation exchange. */
                     strcpy(con_chem_name[i][CD->NumSpc + CD->NumAds + num_cex],
                         tmpstr[0]);
                     fprintf(stderr, "  cation exchange %s\t\t%6.4f \n",
                         con_chem_name[i][CD->NumSpc + CD->NumAds + num_cex],
                         tmpval[0]);
                     num_cex++;
-                    // under construction
+                    /* under construction */
                 }
                 num_species++;
             }
@@ -1167,7 +910,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         }
     }
 
-    // PRECIPITATION block
+    /* PRECIPITATION block */
     fprintf(stderr, "\n Reading '%s.chem' PRECIPITATION: ", filename);
     if (CD->PrpFlg)
     {
@@ -1191,7 +934,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             {
                 specflg = SpeciationType(database, tmpstr[0]);
 
-                if (specflg == 1)
+                if (specflg == AQUEOUS)
                 {
                     num_other = num_mineral + num_ads + num_cex;
                     CD->Precipitation.t_conc[num_species - num_other] =
@@ -1201,10 +944,11 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
                     fprintf(stderr, "  %-28s %g \n",
                         con_chem_name[num_conditions][num_species - num_other],
                         tmpval[0]);
-                    CD->Precipitation.p_type[num_species - num_other] = 1;
+                    CD->Precipitation.p_type[num_species - num_other] = AQUEOUS;
                 }
-                // arrange the concentration of the primary species in such a way that all the mobile species are at the beginning.
-                if (specflg == 4)
+                /* arrange the concentration of the primary species in such a
+                 * way that all the mobile species are at the beginning. */
+                if (specflg == MINERAL)
                 {
                     CD->Precipitation.t_conc[CD->NumSpc + CD->NumAds +
                         CD->NumCex + num_mineral] = tmpval[0];
@@ -1218,45 +962,46 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
                         con_chem_name[num_conditions][CD->NumSpc + CD->NumAds +
                             CD->NumCex + num_mineral], tmpval[0], tmpval[1]);
                     CD->Precipitation.p_type[CD->NumSpc + CD->NumAds +
-                        CD->NumCex + num_mineral] = 4;
+                        CD->NumCex + num_mineral] = MINERAL;
                     num_mineral++;
                 }
-                if ((tmpstr[0][0] == '>') || (specflg == 2))
-                {               // adsorptive sites and species start with >
-                    CD->Precipitation.t_conc[CD->NumSpc + num_ads] = tmpval[0]; // this is the site density of the adsorptive species.
-                    CD->Precipitation.p_type[CD->NumSpc + num_ads] = 2;
+                if ((tmpstr[0][0] == '>') || (specflg == ADSORPTION))
+                {
+                    /* adsorptive sites and species start with > */
+                    CD->Precipitation.t_conc[CD->NumSpc + num_ads] =
+                        tmpval[0]; /* this is the site density of the adsorptive species. */
+                    CD->Precipitation.p_type[CD->NumSpc + num_ads] = ADSORPTION;
                     CD->Precipitation.p_para[CD->NumSpc + num_ads] = 0;
-                    // update when fill in the parameters for adsorption.
+                    /* Update when fill in the parameters for adsorption. */
                     strcpy(con_chem_name[num_conditions][CD->NumSpc + num_ads],
                         tmpstr[0]);
                     fprintf(stderr, " surface complex %s\t %6.4f\n",
                         con_chem_name[num_conditions][CD->NumSpc + num_ads],
                         tmpval[0]);
                     num_ads++;
-                    // under construction
+                    /* under construction */
                 }
-                if (specflg == 3)
+                if (specflg == CATION_ECHG)
                 {
                     CD->Precipitation.t_conc[CD->NumSpc + CD->NumAds +
                         num_cex] = tmpval[0];
                     CD->Precipitation.p_type[CD->NumSpc + CD->NumAds +
-                        num_cex] = 3;
+                        num_cex] = CATION_ECHG;
                     CD->Precipitation.p_para[CD->NumSpc + CD->NumAds +
                         num_cex] = 0;
-                    // update when fill in the parameters for cation exchange.
+                    /* Update when fill in the parameters for cation exchange. */
                     strcpy(con_chem_name[num_conditions][CD->NumSpc +
                             CD->NumAds + num_cex], tmpstr[0]);
                     fprintf(stderr, " cation exchange %s\t %6.4f\n",
                         con_chem_name[num_conditions][CD->NumSpc + CD->NumAds +
                             num_cex], tmpval[0]);
                     num_cex++;
-                    // under construction
+                    /* under construction */
                 }
                 num_species++;
             }
             fgets(line, line_width, chemfile);
         }
-
     }
 
     int             check_conditions_num;
@@ -1275,19 +1020,18 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         {
             if (strcmp(con_chem_name[i][j], con_chem_name[i - 1][j]) != 0)
             {
-                error_flag = 1;
+                fprintf(stderr,
+                    " The order of the chemicals in condition <%s> is incorrect!\n",
+                    chemcon[i - 1]);
             }
         }
-        if (error_flag == 1)
-            fprintf(stderr,
-                " The order of the chemicals in condition <%s> is incorrect!\n",
-                chemcon[i - 1]);
     }
 
-    // Primary species table
+    /* Primary species table */
     fprintf(stderr,
         "\n Primary species and their types: [1], aqueous; [2], adsorption; [3], cation exchange; [4], mineral. \n");
-    for (i = 0; i < CD->NumStc; i++)    // 08.19 Number of total species in the rt simulator
+    /* Number of total species in the rt simulator */
+    for (i = 0; i < CD->NumStc; i++)
     {
         strcpy(CD->chemtype[i].ChemName, con_chem_name[0][i]);
         CD->chemtype[i].itype = Condition_vcele[0].p_type[i];
@@ -1295,7 +1039,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             CD->chemtype[i].itype);
     }
 
-    // Precipitation conc table
+    /* Precipitation conc table */
     if (CD->PrpFlg)
     {
         fprintf(stderr, "\n Total concentraions in precipitataion: \n");
@@ -1314,14 +1058,15 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
                         -pow(10, CD->Precipitation.t_conc[i] - 14);
                 }
             }
-            // change the pH of precipitation into total concentraion of H
-            // We skip the speciation for rain and assume it is OK to calculate this way.
+            /* Change the pH of precipitation into total concentraion of H
+             * We skip the speciation for rain and assume it is OK to calculate
+             * this way. */
             fprintf(stderr, "  %-20s %-10.3g [M] \n",
                 con_chem_name[num_conditions][i], CD->Precipitation.t_conc[i]);
         }
     }
 
-    // SECONDARY_SPECIES block
+    /* SECONDARY_SPECIES block */
     fprintf(stderr, "\n Reading 'shp.chem' SECONDARY_SPECIES: \n");
     fprintf(stderr, "  Secondary species specified in the input file: \n");
     rewind(chemfile);
@@ -1339,34 +1084,15 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         fgets(line, line_width, chemfile);
     }
 
-    // MINERALS block
+    /* MINERALS block */
     fprintf(stderr, "\n Reading 'shp.chem' MINERALS: \n");
-
-    // int num_dep = 2;
-    int             num_dep = 4;    // 08.19 maximum  # of dependence, monod, and inhibition term
 
     CD->kinetics =
         (Kinetic_Reaction *) malloc(CD->NumMkr * sizeof(Kinetic_Reaction));
     for (i = 0; i < CD->NumMkr; i++)
     {
-        CD->kinetics[i].species = (char *)malloc(WORD_WIDTH * sizeof(char));
-        CD->kinetics[i].Label = (char *)malloc(WORD_WIDTH * sizeof(char));
-        CD->kinetics[i].biomass_species = (char *)malloc(WORD_WIDTH * sizeof(char));    // 08.19
-        CD->kinetics[i].dep_species = (char **)malloc(num_dep * sizeof(char *));
-        CD->kinetics[i].dep_power = (double *)malloc(num_dep * sizeof(double));
-        CD->kinetics[i].monod_species = (char **)malloc(num_dep * sizeof(char *));  // 08.19
-        CD->kinetics[i].monod_para = (double *)malloc(num_dep * sizeof(double));
-        CD->kinetics[i].inhib_species = (char **)malloc(num_dep * sizeof(char *));  // 08.19
-        CD->kinetics[i].inhib_para = (double *)malloc(num_dep * sizeof(double));
-        CD->kinetics[i].dep_position = (int *)malloc(num_dep * sizeof(int));
-        CD->kinetics[i].monod_position = (int *)malloc(num_dep * sizeof(int));  // 08.19
-        CD->kinetics[i].inhib_position = (int *)malloc(num_dep * sizeof(int));  // 08.19
-        for (j = 0; j < num_dep; j++)
+        for (j = 0; j < MAXDEP; j++)
         {
-            CD->kinetics[i].dep_species[j] =
-                (char *)malloc(WORD_WIDTH * sizeof(char));
-            CD->kinetics[i].monod_species[j] = (char *)malloc(WORD_WIDTH * sizeof(char));   // 08.19
-            CD->kinetics[i].inhib_species[j] = (char *)malloc(WORD_WIDTH * sizeof(char));   // 08.19
             CD->kinetics[i].dep_position[j] = 0;
             CD->kinetics[i].monod_position[j] = 0;  // 08.19
             CD->kinetics[i].inhib_position[j] = 0;  // 08.19
@@ -1396,17 +1122,18 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             "  Kinetic reaction on '%s' is specified, label '%s'. \n",
             CD->kinetics[i].species, CD->kinetics[i].Label);
 
-    // Precipitation conc read in
+    /* Precipitation conc read in */
     fprintf(stderr, "\n Reading 'shp.prep': \n");
     if (CD->PrpFlg == 2)
     {
-        CD->TSD_prepconc = (tsdata_struct *) malloc(sizeof(tsdata_struct));
+        CD->TSD_prepconc = (tsdata_struct *)malloc(sizeof(tsdata_struct));
         fscanf(prepconc, "%*s %d %d",
             &(CD->TSD_prepconc[0].nspec), &(CD->TSD_prepconc[0].length));
 
         CD->prepconcindex =
             (int *)malloc(CD->TSD_prepconc[0].nspec * sizeof(int));
-        // The number of primary species must be equal to the number of primary species specified before.
+        /* The number of primary species must be equal to the number of primary
+         * species specified before. */
         for (i = 0; i < CD->TSD_prepconc[0].nspec; i++)
         {
             fscanf(prepconc, "%d", &(CD->prepconcindex[i]));
@@ -1434,13 +1161,9 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         }
     }
 
-    // PUMP block
-    // 02.12
-    CD->CalGwinflux = pihmRTcopy->cal.gwinflux;
+    /* PUMP block */
+    CD->CalGwinflux = pihm->cal.gwinflux;
 
-
-
-    // PUMP block
     fprintf(stderr, "\n Reading 'shp.chem' PUMP: \n");
     rewind(chemfile);
     fgets(line, line_width, chemfile);
@@ -1482,9 +1205,9 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
                 CD->pumps[i].Injection_conc);
             fprintf(stderr, "  -- Flow rate is then %g [m3/d]. \n",
                 CD->pumps[i].flow_rate);
-            //      CD->pumps[i].Injection_rate *= 1E-3 / 365;
+            //  CD->pumps[i].Injection_rate *= 1E-3 / 365;
 
-            // 02.12 calibration
+            /* 02.12 calibration */
             CD->pumps[i].Injection_rate =
                 CD->pumps[i].Injection_rate * CD->CalGwinflux;
             CD->pumps[i].flow_rate = CD->pumps[i].flow_rate * CD->CalGwinflux;
@@ -1497,216 +1220,142 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         if (i >= CD->NumPUMP)
             break;
     }
-    // Ending of reading input files
+    /* End of reading input files */
 
-    // 01.21 reading '*.maxwater' input file
+    /* Reading '*.maxwater' input file */
     fprintf(stderr, "\n Reading 'coalcreek_952.maxwater': \n");
     CD->Vcele = (vol_conc *) malloc(CD->NumVol * sizeof(vol_conc));
     for (i = 0; i < CD->NumVol; i++)
     {
-        CD->Vcele[i].maxwater = 0;  // 01.21 initialize, including ghost cells
+        CD->Vcele[i].maxwater = 0;  /* Initialize, including ghost cells */
     }
 
-    fscanf(maxwater, "%*[^\n]%*c"); // jump over the first header line
+    fscanf(maxwater, "%*[^\n]%*c"); /* Jump over the first header line */
 
-    for (i = 0; i < nelem; i++) // 01.21, GW cells
+    for (i = 0; i < nelem; i++) /* GW cells */
     {
-        fscanf(maxwater, "%d %lf", &id, &(CD->Vcele[i].maxwater));  // read-in
-        //printf(" EleID = %d, maxwater = %3.2f \n", id, CD->Vcele[i].maxwater);
+        fscanf(maxwater, "%*d %lf", &(CD->Vcele[RT_GW(i)].maxwater));
+        CD->Vcele[RT_UNSAT(i)].maxwater = CD->Vcele[RT_GW(i)].maxwater;
     }
 
-    for (i = nelem; i < 2 * nelem; i++) // 01.21, unsat cells
-    {
-        CD->Vcele[i].maxwater = CD->Vcele[i - nelem].maxwater;
-        //printf(" EleID = %d, maxwater = %3.2f \n", i+1, CD->Vcele[i].maxwater);
-    }
-
-
-
-    /* Initializing volumetric parameters, inherit from pihm
-     * That is, if pihm is started from a hot start, rt is also
+    /* Initializing volumetric parameters, inherit from PIHM
+     * That is, if PIHM is started from a hot start, rt is also
      * initialized with the hot data */
-
-    //printf("\n CD->NumVol = %d \n", CD->NumVol);
-    //CD->Vcele = (vol_conc *)malloc(CD->NumVol * sizeof(vol_conc));  02.06 debug maxwater
-
-    // 10.24 initializing BC, fix uninitialised value(s)
-    for (i = 0; i < CD->NumVol; i++)
-    {
-        CD->Vcele[i].BC = 0;
-    }
-
-    /* Initializing volumetrics for groundwater (GW) cells */
-    fprintf(stderr, "\n Initializing 'GW' cells, Vcele [i, 0 ~ nelem]... \n");
     for (i = 0; i < nelem; i++)
     {
-        CD->Vcele[i].height_v =
-            pihmRTcopy->elem[i].topo.zmax - pihmRTcopy->elem[i].topo.zmin;
-        //fprintf(stderr, "  pihmRTcopy->elem[i, %d]: height_v = %f, topo.zmax & zmin = %6.4f, %6.4f \n", i+1, CD->Vcele[i].height_v, pihmRTcopy->elem[i].topo.zmax, pihmRTcopy->elem[i].topo.zmin);
-        CD->Vcele[i].height_o = NV_Ith(CV_Y, GW(i));
-        CD->Vcele[i].height_t = NV_Ith(CV_Y, GW(i));
-        //fprintf(stderr, "  CD->Vcele[i, %d].height_o = %6.4f \n", i, NV_Ith(CV_Y, GW(i)));
-        CD->Vcele[i].area = pihmRTcopy->elem[i].topo.area;
-        //fprintf(stderr, "  CD->Vcele[i, %d].area = %6.4f \n", i, pihmRTcopy->elem[i].topo.area);
-        CD->Vcele[i].porosity = pihmRTcopy->elem[i].soil.smcmax;
-        //fprintf(stderr, "  CD->Vcele[i, %d].porosity = %6.4f \n", i, pihmRTcopy->elem[i].soil.smcmax);
-        // fprintf(stderr, " PIHM Pe: %6.4f, RT P: %6.4f\n", MD->Ele[i].Porosity, CD->Vcele[i].porosity);
-        // Porosity in PIHM is Effective Porosity = Porosity - Residue Water Porosity
-        // Porosity in RT   is total Porosity, therefore, the water height in the unsaturated zone needs be converted as well
-        CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-        CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-        CD->Vcele[i].sat = 1.0;
-        CD->Vcele[i].sat_o = 1.0;
-        CD->Vcele[i].temperature = pihmRTcopy->elem[i].attrib.meteo_type;
-        //fprintf(stderr, "  CD->Vcele[i, %d].temperature = %d \n", i, pihmRTcopy->elem[i].attrib.meteo_type);
+        /* Initializing volumetrics for groundwater (GW) cells */
+        CD->Vcele[RT_GW(i)].height_o = pihm->elem[i].ws.gw;
+        CD->Vcele[RT_GW(i)].height_t = pihm->elem[i].ws.gw;
+        CD->Vcele[RT_GW(i)].area = pihm->elem[i].topo.area;
+        CD->Vcele[RT_GW(i)].porosity = pihm->elem[i].soil.smcmax;
+        CD->Vcele[RT_GW(i)].vol_o = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
+        CD->Vcele[RT_GW(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
+        CD->Vcele[RT_GW(i)].sat = 1.0;
+        CD->Vcele[RT_GW(i)].type = GW_VOL;
 
-        CD->Vcele[i].reset_ref = 0;
-        for (j = 0; j < 3; j++)
-        {
-            //fprintf(stderr, "  pihmRTcopy->meshtbl.nabr[i, %d][j, %d] = %d \n", i, j, pihmRTcopy->meshtbl.nabr[i][j]);
-            if (condition_index[pihmRTcopy->meshtbl.nabr[i][j]] ==
-                condition_index[i + 1])
-                CD->Vcele[i].reset_ref = pihmRTcopy->meshtbl.nabr[i][j];
-        }
-    }
+        /* Initializing volumetrics for unsaturated cells */
+        /* Porosity in PIHM is
+         * Effective Porosity = Porosity - Residue Water Porosity
+         * Porosity in RT is total Porosity, therefore, the water height in the
+         * unsaturated zone needs be converted as well */
+        CD->Vcele[RT_UNSAT(i)].height_o = (pihm->elem[i].ws.unsat *
+            (pihm->elem[i].soil.smcmax - pihm->elem[i].soil.smcmin) +
+            (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw) *
+            pihm->elem[i].soil.smcmin) / (pihm->elem[i].soil.smcmax);
+        CD->Vcele[RT_UNSAT(i)].height_t = CD->Vcele[RT_UNSAT(i)].height_o;
+        CD->Vcele[RT_UNSAT(i)].area = pihm->elem[i].topo.area;
+        CD->Vcele[RT_UNSAT(i)].porosity = pihm->elem[i].soil.smcmax;
+        /* Unsaturated zone has the same porosity as saturated zone */
+        CD->Vcele[RT_UNSAT(i)].sat = CD->Vcele[RT_UNSAT(i)].height_o /
+            (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw);
+        CD->Vcele[RT_UNSAT(i)].vol_o = pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].height_o;
+        CD->Vcele[RT_UNSAT(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].soil.depth;
+        CD->Vcele[RT_UNSAT(i)].type = UNSAT_VOL;
 
-    /* Initializing volumetrics for unsaturated cells */
-    fprintf(stderr,
-        "\n Initializing 'UNSAT' cells, Vcele [i, nelem ~ 2*nelem]... \n");
-    for (i = nelem; i < 2 * nelem; i++)
-    {
-        j = i - nelem;
-        CD->Vcele[i].height_v = CD->Vcele[i - nelem].height_v;
-        //fprintf(stderr, "  pihmRTcopy->elem[i, %d]: height_v = %f \n", i+1, CD->Vcele[i].height_v);
-        CD->Vcele[i].height_o =
-            (NV_Ith(CV_Y,
-                UNSAT(j)) * (pihmRTcopy->elem[j].soil.smcmax -
-                pihmRTcopy->elem[j].soil.smcmin) + (CD->Vcele[i].height_v -
-                CD->Vcele[i -
-                    nelem].height_o) * pihmRTcopy->elem[j].soil.smcmin) /
-            (pihmRTcopy->elem[j].soil.smcmax);
-        //fprintf(stderr, "  (unsat) CD->Vcele[i, %d].height_v = %6.4f \n", i, CD->Vcele[i - nelem].height_v);
-        //fprintf(stderr, "  (unsat) pihmRTcopy->elem[j, %d].soil.smcmax = %6.4f \n", j, pihmRTcopy->elem[j].soil.smcmax);
-        //fprintf(stderr, "  (unsat) pihmRTcopy->elem[j, %d].soil.smcmin = %6.4f \n", j, pihmRTcopy->elem[j].soil.smcmin);
-        //fprintf(stderr, "  (unsat) MD->DummyY[i, %d] = NV_Ith(CV_Y, UNSAT(j, %d)), %6.4f \n", i, j, NV_Ith(CV_Y, UNSAT(j)));
-        //fprintf(stderr, "  (unsat) CD->Vcele[i, %d].height_o =  %6.4f \n", i, CD->Vcele[i].height_o);
-
-        CD->Vcele[i].height_t = CD->Vcele[i].height_o;
-        CD->Vcele[i].area = CD->Vcele[i - nelem].area;
-        //fprintf(stderr, "  CD->Vcele[i, %d].area = %6.4f \n", i, CD->Vcele[i - nelem].area);
-        CD->Vcele[i].porosity = CD->Vcele[i - nelem].porosity;
-        // Unsaturated zone has the same porosity as saturated zone
-        CD->Vcele[i].sat =
-            CD->Vcele[i].height_o / (CD->Vcele[i].height_v - CD->Vcele[i -
-                nelem].height_o);
-        //fprintf(stderr, "  (unsat) CD->Vcele[i, %d].sat = %6.4f \n", i, CD->Vcele[i].sat);
-        CD->Vcele[i].sat_o = CD->Vcele[i].sat;
-        CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-        CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-        //fprintf(stderr, "  (unsat) CD->Vcele[i, %d].vol = %6.4f \n", i, CD->Vcele[i].vol);
-        CD->Vcele[i].temperature = CD->Vcele[i - nelem].temperature;
-        //fprintf(stderr, "  (unsat) CD->Vcele[i, %d].temperature = %6.4f \n", i, CD->Vcele[i].temperature);
-
-        /* The saturation of unsaturated zone is the Hu divided by height of this cell */
-        if (CD->Vcele[i].sat > 1.0)
+        /* The saturation of unsaturated zone is the Hu divided by height of
+         * this cell */
+        if (CD->Vcele[RT_UNSAT(i)].sat > 1.0)
             fprintf(stderr,
                 "Fatal Error, Unsaturated Zone Initialization For RT Failed!\n");
-        CD->Vcele[i].reset_ref = i - nelem + 1;
-        // default reset reference of unsaturated cells are the groundwater cells underneath
+
+#if defined(_FBR_)
+        /* Initializing volumetrics for deep groundwater (FBR GW) cells */
+        CD->Vcele[RT_FBR_GW(i)].height_o = pihm->elem[i].ws.fbr_gw;
+        CD->Vcele[RT_FBR_GW(i)].height_t = pihm->elem[i].ws.fbr_gw;
+        CD->Vcele[RT_FBR_GW(i)].area = pihm->elem[i].topo.area;
+        CD->Vcele[RT_FBR_GW(i)].porosity = pihm->elem[i].geol.smcmax;
+        CD->Vcele[RT_FBR_GW(i)].vol_o = pihm->elem[i].topo.area * pihm->elem[i].ws.fbr_gw;
+        CD->Vcele[RT_FBR_GW(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].ws.fbr_gw;
+        CD->Vcele[RT_FBR_GW(i)].sat = 1.0;
+        CD->Vcele[RT_FBR_GW(i)].type = FBR_GW_VOL;
+
+        /* Initializing volumetrics for bedrock unsaturated cells */
+        CD->Vcele[RT_FBR_UNSAT(i)].height_o = (pihm->elem[i].ws.fbr_unsat *
+            (pihm->elem[i].geol.smcmax - pihm->elem[i].geol.smcmin) +
+            (pihm->elem[i].geol.depth - pihm->elem[i].ws.fbr_gw) *
+            pihm->elem[i].geol.smcmin) / (pihm->elem[i].geol.smcmax);
+        CD->Vcele[RT_FBR_UNSAT(i)].height_t = CD->Vcele[RT_FBR_UNSAT(i)].height_o;
+        CD->Vcele[RT_FBR_UNSAT(i)].area = pihm->elem[i].topo.area;
+        CD->Vcele[RT_FBR_UNSAT(i)].porosity = pihm->elem[i].geol.smcmax;
+        /* Unsaturated zone has the same porosity as saturated zone */
+        CD->Vcele[RT_FBR_UNSAT(i)].sat = CD->Vcele[RT_FBR_UNSAT(i)].height_o /
+            (pihm->elem[i].geol.depth - pihm->elem[i].ws.fbr_gw);
+        CD->Vcele[RT_FBR_UNSAT(i)].vol_o = pihm->elem[i].topo.area * CD->Vcele[RT_FBR_UNSAT(i)].height_o;
+        CD->Vcele[RT_FBR_UNSAT(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].geol.depth;
+        CD->Vcele[RT_FBR_UNSAT(i)].type = FBR_UNSAT_VOL;
+
+        /* The saturation of unsaturated zone is the Hu divided by height of
+         * this cell */
+        if (CD->Vcele[RT_FBR_UNSAT(i)].sat > 1.0)
+            fprintf(stderr,
+                "Fatal Error, FBR Unsaturated Zone Initialization For RT Failed!\n");
+#endif
     }
 
-    CD->CalPorosity = pihmRTcopy->cal.porosity;
-    //fprintf(stderr, "  CD->CalPorosity = %6.4f \n", pihmRTcopy->cal.porosity);
+    CD->CalPorosity = pihm->cal.porosity;
+    CD->CalRate = pihm->cal.rate;
+    CD->CalSSA = pihm->cal.ssa;
+    CD->CalPrcpconc = pihm->cal.prcpconc;
+    CD->CalInitconc = pihm->cal.initconc;
+    CD->CalXsorption = pihm->cal.Xsorption;
 
-    // 02.12
-    CD->CalPorosity = pihmRTcopy->cal.porosity;
-    CD->CalRate = pihmRTcopy->cal.rate;
-    CD->CalSSA = pihmRTcopy->cal.ssa;
-    //CD->CalGwinflux = pihmRTcopy->cal.gwinflux;
-    CD->CalPrcpconc = pihmRTcopy->cal.prcpconc;
-    CD->CalInitconc = pihmRTcopy->cal.initconc;
-    CD->CalXsorption = pihmRTcopy->cal.Xsorption;   // 03.06
-
-    //fprintf(stderr, "  CD->CalXsorption = %6.4f \n", CD->CalXsorption);
-
-    /* Initializing volumetrics for river cells */
-    fprintf(stderr,
-        "\n Initializing 'RIV' cells, Vcele [i, 2*nelem ~ 2*nelem + nriver]... \n");
-    for (i = 2 * nelem; i < 2 * nelem + nriver; i++)
+    for (i = 0; i < nriver; i++)
     {
-        j = i - 2 * nelem;
-        CD->Vcele[i].height_v = NV_Ith(CV_Y, RIVSTG(j));
-        //fprintf(stderr, "  (riv) CD->Vcele[i, %d].height_v = %6.4f \n", i, CD->Vcele[i].height_v);
-        CD->Vcele[i].height_o = CD->Vcele[i].height_v;
-        CD->Vcele[i].height_t = CD->Vcele[i].height_o;
-        CD->Vcele[i].area = pihmRTcopy->river[i - 2 * nelem].topo.area;
-        //fprintf(stderr, "  (riv) CD->Vcele[i, %d].area = %6.4f \n", i, CD->Vcele[i].area);
-        CD->Vcele[i].porosity = 1.0;
-        CD->Vcele[i].sat = 1.0;
-        CD->Vcele[i].sat_o = CD->Vcele[i].sat;
-        CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-        CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-        //fprintf(stderr, "  (riv) CD->Vcele[i, %d].vol = %6.4f \n", i, CD->Vcele[i].vol);
-        CD->Vcele[i].reset_ref = i + nriver + 1;
-        // default reset reference of river segments are the EBR underneath
+        /* Initializing volumetrics for river cells */
+        CD->Vcele[RT_RIVER(i)].height_o = pihm->river[i].ws.gw;
+        CD->Vcele[RT_RIVER(i)].height_t = pihm->river[i].ws.gw;
+        CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
+        CD->Vcele[RT_RIVER(i)].porosity = 1.0;
+        CD->Vcele[RT_RIVER(i)].sat = 1.0;
+        CD->Vcele[RT_RIVER(i)].vol_o = pihm->river[i].topo.area * pihm->river[i].ws.gw;
+        CD->Vcele[RT_RIVER(i)].vol = pihm->river[i].topo.area * pihm->river[i].ws.gw;
+        CD->Vcele[RT_RIVER(i)].type = RIVER_VOL;
     }
 
-    /* Initializing volumetrics for river EBR cells */
-    fprintf(stderr,
-        "\n Initializing 'RIV EBR' cells, Vcele [i, 2*nelem + nriver ~ 2*nelem + 2*nriver]... \n");
-    for (i = 2 * nelem + nriver; i < 2 * nelem + 2 * nriver; i++)
-    {
-        j = i - 2 * nelem - nriver;
-        CD->Vcele[i].height_v = NV_Ith(CV_Y, RIVGW(j));;
-        //fprintf(stderr, "  (riv EBR) CD->Vcele[i, %d].height_v = %6.4f \n", i, CD->Vcele[i].height_v);
-        CD->Vcele[i].height_o = CD->Vcele[i].height_v;
-        CD->Vcele[i].height_t = CD->Vcele[i].height_o;
-        CD->Vcele[i].area = pihmRTcopy->river[i - 2 * nelem - nriver].topo.area;
-        //fprintf(stderr, "  (riv EBR) CD->Vcele[i, %d].area = %6.4f \n", i, pihmRTcopy->riv[i - 2 * nelem - nriver].topo.area);
-        CD->Vcele[i].porosity = 1.0;
-        CD->Vcele[i].sat = 1.0;
-        CD->Vcele[i].sat_o = CD->Vcele[i].sat;
-        CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-        CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-        //fprintf(stderr, "  (riv EBR) CD->Vcele[i, %d].vol = %6.4f \n", i, CD->Vcele[i].vol);
-        CD->Vcele[i].reset_ref = 0;
-        if (condition_index[pihmRTcopy->river[j].leftele] ==
-            condition_index[i + 1])
-            CD->Vcele[i].reset_ref = pihmRTcopy->river[j].leftele;
-        if (condition_index[pihmRTcopy->river[j].rightele] ==
-            condition_index[i + 1])
-            CD->Vcele[i].reset_ref = pihmRTcopy->river[j].rightele;
-        //fprintf(stderr, "  (riv EBR) pihmRTcopy->riv[j, %d].leftele & rightele = %d, %d \n", j, pihmRTcopy->riv[j].leftele, pihmRTcopy->riv[j].rightele);
-    }
+    /* Initialize virtual cell */
+    CD->Vcele[PRCP_VOL].height_o = 0.0;
+    CD->Vcele[PRCP_VOL].height_t = 0.0;
+    CD->Vcele[PRCP_VOL].area = 0.0;
+    CD->Vcele[PRCP_VOL].porosity = 0.0;
+    CD->Vcele[PRCP_VOL].sat = 0.0;
+    CD->Vcele[PRCP_VOL].vol_o = 0.0;
+    CD->Vcele[PRCP_VOL].vol = 0.0;
 
-    tmpval[0] = 0.0;
-    for (i = 0; i < nelem; i++)
-    {
-        tmpval[0] += CD->Vcele[i].height_v;
-    }
-    tmpval[0] = tmpval[0] / nelem;
-    fprintf(stderr, "  Average bedrock depth is %f [m]. \n", tmpval[0]);
+    CD->Vcele[VIRTUAL_VOL].height_o = 1.0;
+    CD->Vcele[VIRTUAL_VOL].height_t = 1.0;
+    CD->Vcele[VIRTUAL_VOL].area = 1.0;
+    CD->Vcele[VIRTUAL_VOL].porosity = 1.0;
+    CD->Vcele[VIRTUAL_VOL].sat = 1.0;
+    CD->Vcele[VIRTUAL_VOL].vol_o = 1.0;
+    CD->Vcele[VIRTUAL_VOL].vol = 1.0;
 
     for (i = 0; i < CD->NumSpc; i++)
+    {
         if (strcmp(CD->chemtype[i].ChemName, "pH") == 0)
         {
             strcpy(CD->chemtype[i].ChemName, "H+");
             speciation_flg = 1;
         }
-
-    for (i = CD->NumOsv; i < CD->NumVol; i++)
-    {
-        //j = i - 2 * nelem - nriver;
-        CD->Vcele[i].height_v = 1.0;
-        CD->Vcele[i].height_o = 1.0;
-        CD->Vcele[i].height_t = 1.0;
-        CD->Vcele[i].area = 1.0;
-        CD->Vcele[i].porosity = 1.0;
-        CD->Vcele[i].sat = 1.0;
-        CD->Vcele[i].sat_o = 1.0;
-        CD->Vcele[i].vol_o = 1.0;
-        CD->Vcele[i].vol = 1.0;
-        CD->Vcele[i].reset_ref = 2 * nelem + nriver + 1;
     }
 
     /* Initializing concentration distributions */
@@ -1718,74 +1367,59 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         CD->Vcele[i].index = i + 1;
         CD->Vcele[i].NumStc = CD->NumStc;
         CD->Vcele[i].NumSsc = CD->NumSsc;
-        CD->Vcele[i].t_conc = (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Vcele[i].t_rate = (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Vcele[i].t_tol = (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Vcele[i].p_conc = (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Vcele[i].s_conc = (double *)malloc(CD->NumSsc * sizeof(double));
-        CD->Vcele[i].p_actv = (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Vcele[i].s_actv = (double *)malloc(CD->NumSsc * sizeof(double));
-        CD->Vcele[i].p_para = (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Vcele[i].p_type = (int *)malloc(CD->NumStc * sizeof(int));
+        CD->Vcele[i].t_conc = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].p_conc = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].s_conc = (double *)calloc(CD->NumSsc, sizeof(double));
+        CD->Vcele[i].p_actv = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].p_para = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].p_type = (int *)calloc(CD->NumStc, sizeof(int));
+        CD->Vcele[i].log10_pconc = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].log10_sconc = (double *)calloc(CD->NumSsc, sizeof(double));
+        CD->Vcele[i].btcv_pconc = (double *)calloc(CD->NumStc, sizeof(double));
 
-        //NewCell(&(CD->Vcele[i]), CD->NumStc, CD->NumSsc);
-
-        CD->Vcele[i].q = 0.0;
         CD->Vcele[i].illness = 0;
-        //  fprintf(stderr, " Reference of this cell is %d \n", CD->Vcele[i].reset_ref);
-
-        // q could be used for precipitataion volume
-        // net precipitation into the unsaturated zone is equal to the infiltration - discharge - evaportransporation.
-        // net precipitation defined here are not the same concept in the pihm itselt
-        // under construction.
 
         for (j = 0; j < CD->NumStc; j++)
         {
             if ((speciation_flg == 1) &&
                 (strcmp(CD->chemtype[j].ChemName, "H+") == 0))
             {
-                CD->Vcele[i].p_conc[j] =
-                    pow(10,
-                    -(Condition_vcele[condition_index[i + 1] - 1].t_conc[j]));
+                CD->Vcele[i].p_conc[j] = pow(10,
+                    -(Condition_vcele[condition_index[i] - 1].t_conc[j]));
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_type[j] = 1;
             }
-            else if (CD->chemtype[j].itype == 4)
+            else if (CD->chemtype[j].itype == MINERAL)
             {
                 CD->Vcele[i].t_conc[j] =
-                    Condition_vcele[condition_index[i + 1] - 1].t_conc[j];
+                    Condition_vcele[condition_index[i] - 1].t_conc[j];
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
                 CD->Vcele[i].p_actv[j] = 1.0;
                 CD->Vcele[i].p_para[j] =
-                    Condition_vcele[condition_index[i + 1] - 1].p_para[j];
+                    Condition_vcele[condition_index[i] - 1].p_para[j];
                 CD->Vcele[i].p_type[j] =
-                    Condition_vcele[condition_index[i + 1] - 1].p_type[j];
+                    Condition_vcele[condition_index[i] - 1].p_type[j];
             }
             else
             {
-                // 02.12 calibration
                 if (strcmp(CD->chemtype[j].ChemName, "DOC") == 0)
                 {
-                    CD->Vcele[i].t_conc[j] =
-                        CD->CalInitconc * Condition_vcele[condition_index[i +
-                            1] - 1].t_conc[j];
-                    //printf(" cell = %d, spec = %s, t_conc = %g, CD->CalInitconc = %f \n", i+1, CD->chemtype[j].ChemName, CD->Vcele[i].t_conc[j], CD->CalInitconc);
+                    CD->Vcele[i].t_conc[j] = CD->CalInitconc *
+                        Condition_vcele[condition_index[i] - 1].t_conc[j];
                 }
                 else
                 {
                     CD->Vcele[i].t_conc[j] =
-                        Condition_vcele[condition_index[i + 1] - 1].t_conc[j];
-                    //printf(" cell = %d, spec = %s, t_conc = %g \n", i+1, CD->chemtype[j].ChemName, CD->Vcele[i].t_conc[j]);
+                        Condition_vcele[condition_index[i] - 1].t_conc[j];
                 }
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j] * 0.5;
-                // 01.24 fix IAP[i] = nan bug
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_para[j] =
-                    Condition_vcele[condition_index[i + 1] - 1].p_para[j];
+                    Condition_vcele[condition_index[i] - 1].p_para[j];
                 CD->Vcele[i].p_type[j] =
-                    Condition_vcele[condition_index[i + 1] - 1].p_type[j];
+                    Condition_vcele[condition_index[i] - 1].p_type[j];
             }
         }
         for (j = 0; j < CD->NumSsc; j++)
@@ -1794,22 +1428,17 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         }
     }
 
-    // 09.28 Beginning configuring the connectivity for flux
-    /*  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  */
+    /*
+     * Beginning configuring the connectivity for flux
+     */
     for (i = 0; i < nelem; i++)
     {
-        for (j = 0; j < 3; j++)
-            if (pihmRTcopy->meshtbl.nabr[i][j] > 0) // 09.26 "0" is on boundary
-            {
-                num_face++;     // 09.28 GW cell faces
-            }
-        total_area += pihmRTcopy->elem[i].topo.area;
+        total_area += pihm->elem[i].topo.area;
     }
-    CD->PIHMFac = num_face;
-    num_face *= 2;              // 09.28 plus infilitration and rechage
-    num_face += 2 * nelem + 6 * nriver; // A river + EBR taks 6 faces
-    CD->NumFac = num_face;
-    //fprintf(stderr, "\n Num_face = %d. \n", num_face);
+
+    CD->NumFac = NUM_EDGE * nelem * 2 + 3 * nelem + 6 * nriver;
+    CD->NumDis = 2 * 3 * nelem + 3 * nelem;
+
     fprintf(stderr, "\n Total area of the watershed is %f [m^2]. \n",
         total_area);
 
@@ -1820,497 +1449,246 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
             CD->pumps[i].flow_rate);
     }
 
-
     /* Configuring the lateral connectivity of GW grid blocks */
     fprintf(stderr,
         "\n Configuring the lateral connectivity of GW grid blocks... \n");
 
     CD->Flux = (face *) malloc(CD->NumFac * sizeof(face));
-    k = 0;
-
-    double          dist1, dist2, para_a, para_b, para_c, x_0, x_1, y_0, y_1;
-    int             index_0, index_1, rivi;
 
     for (i = 0; i < nelem; i++)
     {
+        int             elemlo;
+        int             elemuu;
+        int             elemll;
+        double          distance;
+
         for (j = 0; j < 3; j++)
-            if (pihmRTcopy->meshtbl.nabr[i][j] > 0)
+        {
+            if (pihm->elem[i].nabr[j] != NO_FLOW)
             {
-                /* node indicates the index of grid blocks, not nodes at corners */
-                CD->Flux[k].nodeup = i + 1;
-                CD->Flux[k].node_trib = 0;  // 01.14 by Wei Zhi
-                CD->Flux[k].nodelo = pihmRTcopy->meshtbl.nabr[i][j];    // 09.26 good so far
-                CD->Flux[k].nodeuu = upstream(pihmRTcopy->elem[i], pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] - 1], pihm); // 09.26 good so far
-                CD->Flux[k].nodell = upstream(pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] - 1], pihmRTcopy->elem[i], pihm); // 09.26 good so far
-                CD->Flux[k].flux_type = 0;
-                CD->Flux[k].flux_trib = 0.0;    // 01.14 by Wei Zhi
-                CD->Flux[k].BC = 0;
-                //fprintf(stderr, " [i=%d] CD->Flux[k, %d].nodeup, nodelo, nodeuu, nodell = %d, %d, %d, %d \n", i,k,CD->Flux[k].nodeup,CD->Flux[k].nodelo,CD->Flux[k].nodeuu,CD->Flux[k].nodell);
+                elemlo = pihm->elem[i].nabr[j];
+                elemuu = (pihm->elem[i].nabr[j] > 0) ?
+                    upstream(pihm->elem[i],
+                    pihm->elem[pihm->elem[i].nabr[j] - 1], pihm) : 0;
+                elemll = (pihm->elem[i].nabr[j] > 0) ?
+                    upstream(pihm->elem[pihm->elem[i].nabr[j] - 1],
+                    pihm->elem[i], pihm) : 0;
+                distance = Dist2Edge(&pihm->meshtbl, &pihm->elem[i], j);
 
-                if (CD->Flux[k].nodeuu > 0) // 09.26 good so far
-                    CD->Flux[k].distuu =
-                        sqrt(pow(pihmRTcopy->elem[i].topo.x -
-                            pihmRTcopy->elem[CD->Flux[k].nodeuu - 1].topo.x,
-                            2) + pow(pihmRTcopy->elem[i].topo.y -
-                            pihmRTcopy->elem[CD->Flux[k].nodeuu - 1].topo.y,
-                            2));
-                else
-                    CD->Flux[k].distuu = 0.0;
+                /* Initialize GW fluxes */
+                CD->Flux[RT_LAT_GW(i, j)].nodeup = CD->Vcele[RT_GW(i)].index;
+                CD->Flux[RT_LAT_GW(i, j)].node_trib = 0;
+                CD->Flux[RT_LAT_GW(i, j)].nodelo = (elemlo > 0) ?
+                    CD->Vcele[RT_GW(elemlo - 1)].index :
+                    CD->Vcele[RT_RIVER(-elemlo - 1)].index;
+                CD->Flux[RT_LAT_GW(i, j)].nodeuu = (elemuu > 0) ?
+                    CD->Vcele[RT_GW(elemuu - 1)].index : 0;
+                CD->Flux[RT_LAT_GW(i, j)].nodell = (elemll > 0) ?
+                    CD->Vcele[RT_GW(elemll - 1)].index : 0;
+                CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
+                CD->Flux[RT_LAT_GW(i, j)].BC = DISPERSION;
+                CD->Flux[RT_LAT_GW(i, j)].distance = distance;
 
-                if (CD->Flux[k].nodell > 0) // 09.26 good so far
-                    CD->Flux[k].distll =
-                        sqrt(pow(pihmRTcopy->elem[pihmRTcopy->
-                                meshtbl.nabr[i][j] - 1].topo.x -
-                            pihmRTcopy->elem[CD->Flux[k].nodell - 1].topo.x,
-                            2) +
-                        pow(pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                                1].topo.y -
-                            pihmRTcopy->elem[CD->Flux[k].nodell - 1].topo.y,
-                            2));
-                else
-                    CD->Flux[k].distll = 0.0;
-
-                CD->Flux[k].distance =
-                    sqrt(pow(pihmRTcopy->elem[i].topo.x -
-                        pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                            1].topo.x,
-                        2) + pow(pihmRTcopy->elem[i].topo.y -
-                        pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                            1].topo.y, 2));
-                //fprintf(stderr, "  [i=%d] CD->Flux[k, %d].distuu, distll, distance  = %f, %f, %f \n", i, k, CD->Flux[k].distuu, CD->Flux[k].distll, CD->Flux[k].distance);
-
-                CD->Flux[k].distuu =
-                    (pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                        1].topo.x -
-                    pihmRTcopy->elem[i].topo.x) / CD->Flux[k].distance;
-                // x component of the normal vector flux direction
-                CD->Flux[k].distll =
-                    (pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                        1].topo.y -
-                    pihmRTcopy->elem[i].topo.y) / CD->Flux[k].distance;
-                // y component of the normal vector flux direction
-                //fprintf(stderr, " CD->Flux[k, %d].distuu & distll = %f \n", k, CD->Flux[k].distuu, CD->Flux[k].distll);   // 09.26 good so far
-
-                index_0 = pihmRTcopy->elem[i].node[(j + 1) % 3] - 1;    // 09.27 good so far
-                index_1 = pihmRTcopy->elem[i].node[(j + 2) % 3] - 1;
-                x_0 = pihmRTcopy->meshtbl.x[index_0];   // 09.27 good so far
-                y_0 = pihmRTcopy->meshtbl.y[index_0];
-                x_1 = pihmRTcopy->meshtbl.x[index_1];
-                y_1 = pihmRTcopy->meshtbl.y[index_1];
-                para_a = y_1 - y_0;
-                para_b = x_0 - x_1;
-                para_c = (x_1 - x_0) * y_0 - (y_1 - y_0) * x_0;
-                //fprintf(stderr, " [i, %d; j, %d] para_a, para_b, para_c = %f, %f, %f \n", i, j, para_a, para_b, para_c);  // 09.27 good so far
-
-                if ((para_a * pihmRTcopy->elem[i].topo.x +
-                        para_b * pihmRTcopy->elem[i].topo.y +
-                        para_c) * (para_a *
-                        pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                            1].topo.x +
-                        para_b *
-                        pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                            1].topo.y + para_c) > 0.0)
-                    fprintf(stderr, " Two points at the same side of edge!\n");
-                dist1 =
-                    fabs(para_a * pihmRTcopy->elem[i].topo.x +
-                    para_b * pihmRTcopy->elem[i].topo.y +
-                    para_c) / sqrt(para_a * para_a + para_b * para_b);
-                dist2 =
-                    fabs(para_a *
-                    pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                        1].topo.x +
-                    para_b * pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                        1].topo.y + para_c) / sqrt(para_a * para_a +
-                    para_b * para_b);
-                //fprintf(stderr, " [i, %d; j, %d] dist1, dist2 = %f, %f \n", i, j, dist1, dist2);   // 09.27 good so far
-
-                if ((CD->Flux[k].distance < dist1) ||
-                    (CD->Flux[k].distance < dist2))
-                {
-                    fprintf(stderr,
-                        "\n Checking the distance calculation wrong, total is %f, from ele to edge is %f, from edge to neighbor is %f\n",
-                        CD->Flux[k].distance, dist1, dist2);
-                    fprintf(stderr,
-                        " Ele coordinates, x: %f, y: %f\n Node_1 coordinates, x: %f, y: %f\n Node_2 coordinates, x: %f, y: %f\n Nabr x:%f, y:%f\n",
-                        pihmRTcopy->elem[i].topo.x, pihmRTcopy->elem[i].topo.y,
-                        x_0, y_0, x_1, y_1,
-                        pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                            1].topo.x,
-                        pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                            1].topo.y);
-                    fprintf(stderr,
-                        " node_1 x:%.3f y:%.3f\t node_2 x:%.3f y:%.3f node_3 x:%.3f y:%.3f nabr x:%.3f y:%.3f, no:%d\n",
-                        pihmRTcopy->meshtbl.x[pihmRTcopy->elem[i].node[0] - 1],
-                        pihmRTcopy->meshtbl.y[pihmRTcopy->elem[i].node[0] - 1],
-                        pihmRTcopy->meshtbl.x[pihmRTcopy->elem[i].node[1] - 1],
-                        pihmRTcopy->meshtbl.y[pihmRTcopy->elem[i].node[1] - 1],
-                        pihmRTcopy->meshtbl.x[pihmRTcopy->elem[i].node[2] - 1],
-                        pihmRTcopy->meshtbl.y[pihmRTcopy->elem[i].node[2] - 1],
-                        pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                            1].topo.x,
-                        pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                            1].topo.y, j);
-                }
-                else
-                {
-                    CD->Flux[k].distance = dist1;
-                }
-
-                for (rivi = 0; rivi < nriver; rivi++)
-                {
-                    if ((CD->Flux[k].nodeup == pihmRTcopy->river[rivi].leftele)
-                        && (CD->Flux[k].nodelo ==
-                            pihmRTcopy->river[rivi].rightele))
-                    {
-                        CD->Flux[k].nodelo = 2 * nelem + nriver + rivi + 1;
-                        CD->Flux[k].nodeuu = 0;
-                        CD->Flux[k].nodell = 0;
-                        CD->Flux[k].distance = dist1;
-                        //fprintf(stderr, " Riv - Watershed connection corrected, now from cell %d to cell %d\n", CD->Flux[k].nodeup, CD->Flux[k].nodelo);
-                    }
-                    if ((CD->Flux[k].nodeup == pihmRTcopy->river[rivi].rightele)
-                        && (CD->Flux[k].nodelo ==
-                            pihmRTcopy->river[rivi].leftele))
-                    {
-                        CD->Flux[k].nodelo = 2 * nelem + nriver + rivi + 1;
-                        CD->Flux[k].nodeuu = 0;
-                        CD->Flux[k].nodell = 0;
-                        CD->Flux[k].distance = dist1;
-                        //fprintf(stderr, " Riv - Watershed connection corrected, now from cell %d to cell %d\n", CD->Flux[k].nodeup, CD->Flux[k].nodelo);
-                    }
-                }
-
-                //fprintf(stderr, " CD->Flux[k, %d].nodeup, nodelo, nodeuu, nodell = %d, %d, %d, %d \n", k, CD->Flux[k].nodeup, CD->Flux[k].nodelo, CD->Flux[k].nodeuu, CD->Flux[k].nodell);
-                //fprintf(stderr, " CD->Flux[k, %d].distance = %f \n", k, CD->Flux[k].distance);   // 09.27 good so far
-                k++;
+                /* Initialize unsat zone fluxes */
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodeup = CD->Vcele[RT_UNSAT(i)].index;
+                CD->Flux[RT_LAT_UNSAT(i, j)].node_trib = 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = (elemlo > 0) ?
+                    CD->Vcele[RT_UNSAT(elemlo - 1)].index :
+                    CD->Vcele[RT_RIVER(-elemlo - 1)].index;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = (elemuu > 0) ?
+                    CD->Vcele[RT_UNSAT(elemuu - 1)].index :0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodell = (elemll > 0) ?
+                    CD->Vcele[RT_UNSAT(elemll - 1)].index : 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].BC = DISPERSION;
+                CD->Flux[RT_LAT_UNSAT(i, j)].distance = distance;
             }
-    }
-
-    // 09.28 11:52 am, the following is for UNSAT face/flux
-    CD->NumLateral = k;
-
-    for (i = 0; i < nelem; i++)
-    {
-        for (j = 0; j < 3; j++)
-            if (pihmRTcopy->meshtbl.nabr[i][j] > 0)
+            else
             {
-                /* node indicates the index of grid blocks, not nodes at corners */
-                CD->Flux[k].nodeup = i + 1 + nelem;
-                CD->Flux[k].node_trib = 0;  // 01.14 by Wei Zhi
-                CD->Flux[k].nodelo = pihmRTcopy->meshtbl.nabr[i][j] + nelem;
-                CD->Flux[k].nodeuu = upstream(pihmRTcopy->elem[i], pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] - 1], pihm) + nelem; // 09.28 note the "+nelem"
-                CD->Flux[k].nodell =
-                    upstream(pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                        1], pihmRTcopy->elem[i], pihm) + nelem;
-                CD->Flux[k].flux_type = 0;  // 02.21 unsat lateral flux, flux = 0.0
-                CD->Flux[k].flux_trib = 0.0;    // 01.14 by Wei Zhi
-                CD->Flux[k].BC = 0;
+                CD->Flux[RT_LAT_GW(i, j)].nodeup = CD->Vcele[RT_GW(i)].index;
+                CD->Flux[RT_LAT_GW(i, j)].node_trib = 0;
+                CD->Flux[RT_LAT_GW(i, j)].nodelo = 0;
+                CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
+                CD->Flux[RT_LAT_GW(i, j)].nodell = 0;
+                CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
+                CD->Flux[RT_LAT_GW(i, j)].BC = NO_FLOW;
+                CD->Flux[RT_LAT_GW(i, j)].distance = 0.0;
 
-                //if (CD->Flux[k].nodeuu  > 0)  // 09.28 11:53 fix Chen's bug
-                if (CD->Flux[k].nodeuu - nelem > 0)
-                {
-                    CD->Flux[k].distuu =
-                        sqrt(pow(pihmRTcopy->elem[i].topo.x -
-                            pihmRTcopy->elem[CD->Flux[k].nodeuu - nelem -
-                                1].topo.x,
-                            2) + pow(pihmRTcopy->elem[i].topo.y -
-                            pihmRTcopy->elem[CD->Flux[k].nodeuu - nelem -
-                                1].topo.y, 2));
-                }
-                else
-                    CD->Flux[k].distuu = 0.0;
-
-                //if (CD->Flux[k].nodell > 0)  // 09.28 11:53 fix Chen's bug
-                if (CD->Flux[k].nodell - nelem > 0)
-                    CD->Flux[k].distll =
-                        sqrt(pow(pihmRTcopy->elem[pihmRTcopy->
-                                meshtbl.nabr[i][j] - 1].topo.x -
-                            pihmRTcopy->elem[CD->Flux[k].nodell - nelem -
-                                1].topo.x,
-                            2) +
-                        pow(pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                                1].topo.y -
-                            pihmRTcopy->elem[CD->Flux[k].nodell - nelem -
-                                1].topo.y, 2));
-                else
-                    CD->Flux[k].distll = 0.0;
-
-                CD->Flux[k].distance =
-                    sqrt(pow(pihmRTcopy->elem[i].topo.x -
-                        pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                            1].topo.x,
-                        2) + pow(pihmRTcopy->elem[i].topo.y -
-                        pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                            1].topo.y, 2));
-                //fprintf(stderr, "  [i=%d] CD->Flux[k, %d].distuu, distll, distance  = %f, %f, %f \n", i, k, CD->Flux[k].distuu, CD->Flux[k].distll, CD->Flux[k].distance); // 09.28 good
-
-                index_0 = pihmRTcopy->elem[i].node[(j + 1) % 3] - 1;
-                index_1 = pihmRTcopy->elem[i].node[(j + 2) % 3] - 1;
-                x_0 = pihmRTcopy->meshtbl.x[index_0];
-                y_0 = pihmRTcopy->meshtbl.y[index_0];
-                x_1 = pihmRTcopy->meshtbl.x[index_1];
-                y_1 = pihmRTcopy->meshtbl.y[index_1];
-                para_a = y_1 - y_0;
-                para_b = x_0 - x_1;
-                para_c = (x_1 - x_0) * y_0 - (y_1 - y_0) * x_0;
-                dist1 =
-                    fabs(para_a * pihmRTcopy->elem[i].topo.x +
-                    para_b * pihmRTcopy->elem[i].topo.y +
-                    para_c) / sqrt(para_a * para_a + para_b * para_b);
-                dist2 =
-                    fabs(para_a *
-                    pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                        1].topo.x +
-                    para_b * pihmRTcopy->elem[pihmRTcopy->meshtbl.nabr[i][j] -
-                        1].topo.y + para_c) / sqrt(para_a * para_a +
-                    para_b * para_b);
-
-                CD->Flux[k].distance = dist1;
-                for (rivi = 0; rivi < nriver; rivi++)
-                {
-                    if ((CD->Flux[k].nodeup - nelem ==
-                            pihmRTcopy->river[rivi].leftele) &&
-                        (CD->Flux[k].nodelo - nelem ==
-                            pihmRTcopy->river[rivi].rightele))
-                    {
-                        CD->Flux[k].nodelo = 2 * nelem + nriver + rivi + 1;
-                        CD->Flux[k].nodeuu = 0;
-                        CD->Flux[k].nodell = 0;
-                        CD->Flux[k].distance = dist1;
-                    }
-                    if ((CD->Flux[k].nodeup - nelem ==
-                            pihmRTcopy->river[rivi].rightele) &&
-                        (CD->Flux[k].nodelo - nelem ==
-                            pihmRTcopy->river[rivi].leftele))
-                    {
-                        CD->Flux[k].nodelo = 2 * nelem + nriver + rivi + 1;
-                        CD->Flux[k].nodeuu = 0;
-                        CD->Flux[k].nodell = 0;
-                        CD->Flux[k].distance = dist1;
-                    }
-                }
-                //fprintf(stderr, " CD->Flux[k, %d].nodeup, nodelo, nodeuu, nodell = %d, %d, %d, %d \n", k, CD->Flux[k].nodeup, CD->Flux[k].nodelo, CD->Flux[k].nodeuu, CD->Flux[k].nodell);
-                //fprintf(stderr, "  [i=%d] CD->Flux[k, %d].distance  = %f \n", i, k, CD->Flux[k].distance);  // 09.28 good so far
-                k++;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodeup = CD->Vcele[RT_UNSAT(i)].index;;
+                CD->Flux[RT_LAT_UNSAT(i, j)].node_trib = 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].nodell = 0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
+                CD->Flux[RT_LAT_UNSAT(i, j)].BC = NO_FLOW;
+                CD->Flux[RT_LAT_UNSAT(i, j)].distance = 0.0;
             }
+        }
+
+        /* Infiltration */
+        CD->Flux[RT_INFIL(i)].nodeup = CD->Vcele[RT_UNSAT(i)].index;
+        CD->Flux[RT_INFIL(i)].node_trib = 0;
+        CD->Flux[RT_INFIL(i)].nodelo = PRCP_VOL;
+        CD->Flux[RT_INFIL(i)].nodeuu = 0;
+        CD->Flux[RT_INFIL(i)].nodell = 0;
+        CD->Flux[RT_INFIL(i)].flux_trib = 0.0;
+        CD->Flux[RT_INFIL(i)].BC = NO_DISP;
+        CD->Flux[RT_INFIL(i)].distance = 0.0;
+
+        /* Rechage centered at unsat blocks */
+        CD->Flux[RT_RECHG_UNSAT(i)].nodeup = CD->Vcele[RT_UNSAT(i)].index;
+        CD->Flux[RT_RECHG_UNSAT(i)].node_trib = 0;
+        CD->Flux[RT_RECHG_UNSAT(i)].nodelo = CD->Vcele[RT_GW(i)].index;
+        CD->Flux[RT_RECHG_UNSAT(i)].nodeuu = 0;
+        CD->Flux[RT_RECHG_UNSAT(i)].nodell = 0;
+        CD->Flux[RT_RECHG_UNSAT(i)].flux_trib = 0.0;
+        CD->Flux[RT_RECHG_UNSAT(i)].BC = DISPERSION;
+        CD->Flux[RT_RECHG_UNSAT(i)].distance = 0.1 * pihm->elem[i].soil.depth;
+
+        /* Recharge centered at gw blocks */
+        CD->Flux[RT_RECHG_GW(i)].nodeup = CD->Vcele[RT_GW(i)].index;
+        CD->Flux[RT_RECHG_GW(i)].node_trib = 0;
+        CD->Flux[RT_RECHG_GW(i)].nodelo = CD->Vcele[RT_UNSAT(i)].index;
+        CD->Flux[RT_RECHG_GW(i)].nodeuu = 0;
+        CD->Flux[RT_RECHG_GW(i)].nodell = 0;
+        CD->Flux[RT_RECHG_GW(i)].flux_trib = 0.0;
+        CD->Flux[RT_RECHG_GW(i)].BC = DISPERSION;
+        CD->Flux[RT_RECHG_GW(i)].distance = 0.1 * pihm->elem[i].soil.depth;
     }
 
     /* Configuring the vertical connectivity of UNSAT - GW blocks */
     fprintf(stderr,
         "\n Configuring the vertical connectivity of UNSAT - GW grid blocks... \n");
 
-    /* centered at unsat blocks */
-    for (i = nelem; i < 2 * nelem; i++)
-    {
-        CD->Vcele[i].ErrDumper = k;
-        CD->Flux[k].nodeup = i + 1;
-        CD->Flux[k].node_trib = 0;  // 01.14 by Wei Zhi
-        CD->Flux[k].nodelo = i + 1 - nelem;
-
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;  // 02.21 although vertical flow, but intended for infiltration correction in Monitor ( ); 0 for lateral, 1 for vertical
-        CD->Flux[k].flux_trib = 0.0;    // 01.14 by Wei Zhi
-        CD->Flux[k].BC = 0;
-        CD->Flux[k].distance = 0.1 * CD->Vcele[i].height_v;
-        //fprintf(stderr, "  [i=%d] CD->Flux[k, %d].nodeup, nodelo, nodeuu, nodell, distance  = %d, %d, %d, %d, %f \n", i, k, CD->Flux[k].nodeup, CD->Flux[k].nodelo, CD->Flux[k].nodeuu, CD->Flux[k].nodell, CD->Flux[k].distance);  // 09.28 good so far
-        k++;
-    }
-
-    /* centered at gw blocks */
-    for (i = 0; i < nelem; i++)
-    {
-        CD->Vcele[i].ErrDumper = k;
-        CD->Flux[k].nodeup = i + 1;
-        CD->Flux[k].node_trib = 0;  // 01.14 by Wei Zhi
-        CD->Flux[k].nodelo = i + 1 + nelem;
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 1;  // 02.21 vertical flow, but intended for recharge correction in Monitor ( ); 0 for lateral, 1 for vertical
-        CD->Flux[k].flux_trib = 0.0;    // 01.14 by Wei Zhi
-        CD->Flux[k].BC = 0;
-        CD->Flux[k].distance = 0.1 * CD->Vcele[i].height_v;
-        //fprintf(stderr, "  [i=%d] CD->Flux[k, %d].nodeup, nodelo, nodeuu, nodell, distance  = %d, %d, %d, %d, %f \n", i, k, CD->Flux[k].nodeup, CD->Flux[k].nodelo, CD->Flux[k].nodeuu, CD->Flux[k].nodell, CD->Flux[k].distance);  // 09.28 good so far
-        k++;
-    }
-    CD->NumDis = k;
-
-    //printf(" CD->NumDis = %d \n", k);
-
     /* Configuring the connectivity of RIVER and EBR blocks */
     fprintf(stderr,
         "\n Configuring the connectivity of RIVER & EBR grid blocks... \n");
 
-    /* Between River and Left */
-    // River to left OFL 2
     for (i = 0; i < nriver; i++)
     {
-        CD->Flux[k].nodeup = i + 2 * nelem + 1 + nriver;
-        CD->Flux[k].node_trib = 0;  // 01.14 by Wei Zhi
-        CD->Flux[k].nodelo = CD->NumVol;
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = 1;
-        CD->Flux[k].flux = 0.0;
-        CD->Flux[k].flux_trib = 0.0;    // 01.14 by Wei Zhi
-        CD->Flux[k].distance = 1.0;
-        CD->Flux[k].s_area = 0.0;
-        k++;
-    }
-    //printf(" river2 flux = %d, CD->NumVol = %d \n", k-1, CD->NumVol);
+        /* Between River and Left */
+        /* River to left OFL 2 */
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].node_trib = 0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodelo = VIRTUAL_VOL;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodeuu = 0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodell = 0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].BC = NO_DISP;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].flux = 0.0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].flux_trib = 0.0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].distance = 1.0;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].s_area = 0.0;
 
-    /* Between River and Right */
-    // River to right OFL 3
-    for (i = 0; i < nriver; i++)
-    {
-        CD->Flux[k].nodeup = i + 2 * nelem + 1 + nriver;
-        CD->Flux[k].node_trib = 0;  // 01.14 by Wei Zhi
-        CD->Flux[k].nodelo = CD->NumVol;
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = 1;
-        CD->Flux[k].flux = 0.0;
-        CD->Flux[k].flux_trib = 0.0;    // 01.14 by Wei Zhi
-        CD->Flux[k].distance = 1.0;
-        CD->Flux[k].s_area = 0.0;
-        k++;
-    }
-    //printf(" river3 flux = %d \n", k-1);
+        /* Between River and Right */
+        /* River to right OFL 3 */
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].node_trib = 0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodelo = VIRTUAL_VOL;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodeuu = 0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodell = 0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].BC = NO_DISP;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux = 0.0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux_trib = 0.0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].distance = 1.0;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].s_area = 0.0;
 
-    /* Between Left and EBR */
-    // EBR to left  7 + 4
-    for (i = 0; i < nriver; i++)
-    {
-        CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
-        CD->Flux[k].node_trib = 0;  // 01.14 by Wei Zhi
-        CD->Flux[k].nodelo = pihmRTcopy->river[i].leftele;
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = 0;
-        CD->Flux[k].flux = 0.0;
-        CD->Flux[k].flux_trib = 0.0;    // 01.14 by Wei Zhi
-        CD->Flux[k].distance = 1.0;
-        CD->Flux[k].s_area =
-            pihmRTcopy->river[i].shp.length *
-            CD->Vcele[pihmRTcopy->river[i].leftele - 1].height_v;
-        //fprintf(stderr, "  [i=%d] CD->Flux[k, %d].nodeup, nodelo, riv_length, s_area = %d, %d, %f, %f \n", i, k, CD->Flux[k].nodeup, CD->Flux[k].nodelo, pihmRTcopy->river[i].shp.length, CD->Flux[k].s_area);  // 09.28 good so far
-        k++;
-    }
-    //printf(" river4+7 flux = %d \n", k-1);
+        /* Between Left and EBR */
+        /* EBR to left  7 + 4 */
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].node_trib = 0;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodelo =
+            CD->Vcele[RT_GW(pihm->river[i].leftele - 1)].index;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodeuu = 0;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodell = 0;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].BC = DISPERSION;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux = 0.0;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux_trib = 0.0;
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            if (-pihm->elem[pihm->river[i].leftele - 1].nabr[j] == i + 1)
+            {
+                CD->Flux[RT_LEFT_AQIF2RIVER(i)].distance =
+                CD->Flux[RT_LAT_GW(pihm->river[i].leftele - 1, j)].distance;
+                break;
+            }
+        }
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].s_area = pihm->river[i].shp.length *
+            pihm->elem[pihm->river[i].leftele - 1].soil.depth;
 
-    /* Between Right and EBR */
-    // EBR to right 8 + 5
-    for (i = 0; i < nriver; i++)
-    {
-        CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
-        CD->Flux[k].node_trib = 0;  // 01.14 by Wei Zhi
-        CD->Flux[k].nodelo = pihmRTcopy->river[i].rightele;
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = 0;
-        CD->Flux[k].flux = 0.0;
-        CD->Flux[k].flux_trib = 0.0;    // 01.14 by Wei Zhi
-        CD->Flux[k].distance = 1.0;
-        CD->Flux[k].s_area =
-            pihmRTcopy->river[i].shp.length *
-            CD->Vcele[pihmRTcopy->river[i].rightele - 1].height_v;
-        //fprintf(stderr, "  [i=%d] CD->Flux[k, %d].nodeup, nodelo, riv_length, s_area = %d, %d, %f, %f \n", i, k, CD->Flux[k].nodeup, CD->Flux[k].nodelo, pihmRTcopy->river[i].shp.length, CD->Flux[k].s_area);  // 09.28 good so far
-        k++;
-    }
-    //printf(" river5+8 flux = %d \n", k-1);
+        /* Between Right and EBR */
+        /* EBR to right 8 + 5 */
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].node_trib = 0;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodelo =
+            CD->Vcele[RT_GW(pihm->river[i].rightele - 1)].index;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodeuu = 0;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodell = 0;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].BC = DISPERSION;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux = 0.0;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux_trib = 0.0;
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            if (-pihm->elem[pihm->river[i].rightele - 1].nabr[j] == i + 1)
+            {
+                CD->Flux[RT_RIGHT_AQIF2RIVER(i)].distance =
+                CD->Flux[RT_LAT_GW(pihm->river[i].rightele - 1, j)].distance;
+                break;
+            }
+        }
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].s_area =
+            pihm->river[i].shp.length *
+            pihm->elem[pihm->river[i].rightele - 1].soil.depth;
 
-    /* Between EBR */
-    // To downstream EBR 9
-    for (i = 0; i < nriver; i++)
-    {
-        // 01.12 fix bug
-        //if (i == nriver - 1)
-        if (pihmRTcopy->river[i].down < 0)
-        {
-            CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
-            CD->Flux[k].nodelo = CD->NumVol;
-        }
-        else
-        {
-            CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
-            // 01.12 fix bug
-            //CD->Flux[k].nodelo = i + 2 * nelem + nriver + 2;
-            // 02.21 fix critical bug
-            //CD->Flux[k].nodelo = pihmRTcopy->river[i].down;
-            CD->Flux[k].nodelo = 2 * nelem + nriver + pihmRTcopy->river[i].down;    // 02.21 fix
-        }
-        CD->Flux[k].node_trib = 0;  // 01.14 by Wei Zhi
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = 1;
-        CD->Flux[k].flux = 0.0;
-        CD->Flux[k].flux_trib = 0.0;    // 01.14 by Wei Zhi
-        CD->Flux[k].distance = 1.0;
-        CD->Flux[k].s_area = 0.0;
-        //fprintf(stderr, "  [i=%d] CD->Flux[k, %d].nodeup, nodelo = %d, %d \n", i, k, CD->Flux[k].nodeup, CD->Flux[k].nodelo);  // 09.28 good so far  02.21 fix bug, now OK
-        k++;
-    }
-    //printf(" river9 flux = %d \n", k-1);
+        /* Between EBR */
+        /* To downstream EBR 9 */
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodelo = (pihm->river[i].down < 0) ?
+            VIRTUAL_VOL : CD->Vcele[RT_RIVER(pihm->river[i].down - 1)].index;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].node_trib = 0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodeuu = 0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodell = 0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].BC = NO_DISP;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux = 0.0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux_trib = 0.0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].distance = 1.0;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].s_area = 0.0;
 
-    // From upstream EBR 10
-    for (i = 0; i < nriver; i++)
-    {
-        // 01.12 fix bug
-        //if (i == 0)
-        if (pihmRTcopy->river[i].up[0] < 0)     /* No upstream */
-        {
-            CD->Flux[k].nodelo = CD->NumVol;
-            CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
-        }
-        else
-        {
-            CD->Flux[k].nodeup = i + 2 * nelem + nriver + 1;
-            CD->Flux[k].nodelo = 2 * nelem + nriver + pihmRTcopy->river[i].up[0];
-        }
-        if (pihmRTcopy->river[i].up[1] < 0)     /* Only one upstream segment */
-        {
-            CD->Flux[k].node_trib = pihmRTcopy->river[i].up[1];
-        }
-        else
-        {
-            CD->Flux[k].node_trib = 2 * nelem + nriver + pihmRTcopy->river[i].up[1];
-        }
-        CD->Flux[k].nodeuu = 0;
-        CD->Flux[k].nodell = 0;
-        CD->Flux[k].flux_type = 0;
-        CD->Flux[k].BC = 1;
-        CD->Flux[k].flux = 0.0;
-        CD->Flux[k].flux_trib = 0.0;    // 01.14 by Wei Zhi
-        CD->Flux[k].distance = 1.0;
-        CD->Flux[k].s_area = 0.0;
-        k++;
+        /* From upstream EBR 10 */
+        CD->Flux[RT_UP_RIVER2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].nodelo = (pihm->river[i].up[0] < 0) ?
+            VIRTUAL_VOL : CD->Vcele[RT_RIVER(pihm->river[i].up[0] - 1)].index;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib = (pihm->river[i].up[1] < 0) ?
+            pihm->river[i].up[1] :
+            CD->Vcele[RT_RIVER(pihm->river[i].up[1] - 1)].index;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].nodeuu = 0;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].nodell = 0;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].BC = NO_DISP;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].flux = 0.0;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].flux_trib = 0.0;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].distance = 1.0;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].s_area = 0.0;
     }
-    //printf(" river10 flux = %d \n", k-1);
 
     for (k = 0; k < CD->NumFac; k++)
     {
         CD->Flux[k].velocity = 0.0;
-        CD->Flux[k].flux = 0.0; // 01.14 initialize 0.0 for above sections of GW-GW, UNSAT-UNSAT, GW-UNSAT, UNSAT-GW
-        CD->Flux[k].flux_trib = 0.0;    // 01.14 by Wei Zhi
+        CD->Flux[k].flux = 0.0; /* Initialize 0.0 for above sections of GW-GW,
+                                 * UNSAT-UNSAT, GW-UNSAT, UNSAT-GW */
+        CD->Flux[k].flux_trib = 0.0;
         CD->Flux[k].s_area = 0.0;
     }
 
     CD->SPCFlg = speciation_flg;
-    Lookup(database, CD, 0);
-    // update the concentration of mineral after get the molar volume of minera
+    Lookup(database, CD);
+    /* Update the concentration of mineral after get the molar volume of
+     * mineral */
 
-    // 09.28 temporal comment-out
     double          Cal_PCO2 = 1.0;
     double          Cal_Keq = 1.0;
     for (i = 0; i < CD->NumAkr + CD->NumMkr; i++)
     {
         if (!strcmp(CD->chemtype[i + CD->NumSpc + CD->NumAds +
-                    CD->NumCex].ChemName, "'CO2(*g)'"))
+            CD->NumCex].ChemName, "'CO2(*g)'"))
         {
             CD->KeqKinect[i] += log10(Cal_PCO2);
         }
@@ -2320,14 +1698,7 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         }
     }
 
-    // 08.19 comment out by Wei, why print cell 200 concentration
-    // for (i = 0; i < CD->NumStc; i++)
-    //{
-    // fprintf (stderr, " \n Conc and SSA of each species: %6.4g %6.4g\n",
-    //CD->Vcele[200].t_conc[i], CD->Vcele[200].p_para[i]);
-    // }
-
-    fprintf(stderr, "\n Kinetic Mass Matrx (calibrated Keq)! \n\t\t");  // 08.19 Wei
+    fprintf(stderr, "\n Kinetic Mass Matrx (calibrated Keq)! \n\t\t");
     for (i = 0; i < CD->NumStc; i++)
         fprintf(stderr, " %6s\t", CD->chemtype[i].ChemName);
     fprintf(stderr, "\n");
@@ -2342,13 +1713,14 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
         fprintf(stderr, "\tKeq = %6.2f\n", CD->KeqKinect[j]);
     }
     fprintf(stderr, "\n");
-    // use calibration coefficient to produce new Keq values for 1) CO2, 2) other kinetic reaction
+    /* Use calibration coefficient to produce new Keq values for
+     * 1) CO2, 2) other kinetic reaction */
 
     fprintf(stderr,
         " \n Mass action species type determination (0: immobile, 1: mobile, 2: Mixed) \n");
     for (i = 0; i < CD->NumSpc; i++)
     {
-        if (CD->chemtype[i].itype == 1)
+        if (CD->chemtype[i].itype == AQUEOUS)
             CD->chemtype[i].mtype = 1;
         else
             CD->chemtype[i].mtype = 0;
@@ -2378,34 +1750,36 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     {
         for (j = 0; j < CD->NumStc; j++)
         {
-            if (CD->chemtype[j].itype == 4)
+            if (CD->chemtype[j].itype == MINERAL)
             {
                 if (CD->RelMin == 0)
                 {
+                    /* Absolute mineral volume fraction */
                     CD->Vcele[i].t_conc[j] =
                         CD->Vcele[i].t_conc[j] * 1000 /
                         CD->chemtype[j].MolarVolume / CD->Vcele[i].porosity;
                     CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
-                    // absolute mineral volume fraction
                 }
                 if (CD->RelMin == 1)
                 {
-                    CD->Vcele[i].t_conc[j] =
-                        CD->Vcele[i].t_conc[j] * (1 - CD->Vcele[i].porosity +
-                        INFTYSMALL) * 1000 / CD->chemtype[j].MolarVolume /
-                        CD->Vcele[i].porosity;
+                    /* Relative mineral volume fraction */
+                    /* Porosity can be 1.0 so the relative fraction option needs
+                     * a small modification */
+                    CD->Vcele[i].t_conc[j] = CD->Vcele[i].t_conc[j] *
+                        (1 - CD->Vcele[i].porosity + INFTYSMALL) * 1000 /
+                        CD->chemtype[j].MolarVolume / CD->Vcele[i].porosity;
                     CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
-                    // relative mineral volume fraction
-                    // porosity can be 1.0 so the relative fraction option need a small modification
                 }
             }
-            if ((CD->chemtype[j].itype == 3) || (CD->chemtype[j].itype == 2))
+            if ((CD->chemtype[j].itype == CATION_ECHG) ||
+                (CD->chemtype[j].itype == ADSORPTION))
             {
+                /* Change the unit of CEC (eq/g) into C(ion site)
+                 * (eq/L porous space), assuming density of solid is always
+                 * 2650 g/L solid */
                 CD->Vcele[i].t_conc[j] =
                     CD->Vcele[i].t_conc[j] * (1 - CD->Vcele[i].porosity) * 2650;
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
-                //     fprintf (stderr, "site concentration is %f mole per porous space L\n", CD->Vcele[i].t_conc[j]);
-                // change the unit of CEC (eq/g) into C(ion site) (eq/L porous space), assuming density of solid is always 2650 g/L solid
             }
         }
     }
@@ -2414,57 +1788,37 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     if (!CD->RecFlg)
     {
         for (i = 0; i < nelem; i++)
-            Speciation(CD, i);
+        {
+            Speciation(CD, RT_GW(i));
+        }
     }
     CD->SPCFlg = 0;
 
-    for (i = nelem; i < nelem * 2; i++)
-        for (k = 0; k < CD->NumStc; k++)
-        {
-            CD->Vcele[i].t_conc[k] = CD->Vcele[i - CD->NumEle].t_conc[k];
-            CD->Vcele[i].p_conc[k] = CD->Vcele[i - CD->NumEle].p_conc[k];
-            CD->Vcele[i].p_actv[k] = CD->Vcele[i - CD->NumEle].p_actv[k];
-            //      fprintf(stderr, " %d %s: %g\n", i, CD->chemtype[k].ChemName, CD->Vcele[i].t_conc[k]);
-        }
-
-    for (i = nelem * 2; i < CD->NumVol; i++)
+    /* Initialize unsaturated zone concentrations to be the same as in saturated
+     * zone */
+    for (i = 0; i < nelem; i++)
     {
         for (k = 0; k < CD->NumStc; k++)
         {
-            if (CD->chemtype[k].itype != 1)
-            {
-                CD->Vcele[i].t_conc[k] = 1.0E-20;
-                CD->Vcele[i].p_conc[k] = 1.0E-20;
-                CD->Vcele[i].p_actv[k] = 1.0E-20;
-            }
+            CD->Vcele[RT_UNSAT(i)].t_conc[k] = CD->Vcele[RT_GW(i)].t_conc[k];
+            CD->Vcele[RT_UNSAT(i)].p_conc[k] = CD->Vcele[RT_GW(i)].p_conc[k];
+            CD->Vcele[RT_UNSAT(i)].p_actv[k] = CD->Vcele[RT_GW(i)].p_actv[k];
         }
     }
 
-    /*
-     * #pragma omp parallel num_threads(2)
-     * {
-     * int tid, nthreads;
-     *
-     * tid = omp_get_thread_num();
-     * nthreads = omp_get_num_threads();
-     *
-     * printf("Hello world from thread %3d of %3d\n", tid, nthreads);
-     * }
-     */
-
-    for (i = 0; i < CD->PIHMFac * 2; i++)
-        for (j = CD->PIHMFac * 2; j < CD->NumFac; j++)
+    /* Initialize river concentrations */
+    for (i = 0; i < nriver; i++)
+    {
+        for (k = 0; k < CD->NumStc; k++)
         {
-            if ((CD->Flux[i].nodeup == CD->Flux[j].nodelo) &&
-                (CD->Flux[i].nodelo == CD->Flux[j].nodeup))
+            if (CD->chemtype[k].itype != AQUEOUS)
             {
-                //      fprintf (stderr, " Flux between %d and %d identified \n",
-                //CD->Flux[i].nodelo, CD->Flux[i].nodeup);
-                CD->Flux[j].BC = CD->Flux[i].BC = 0;
-                CD->Flux[j].distance = CD->Flux[i].distance;
-                //   fprintf(stderr, " Flux from river to ele corrected as BC %d, distance %f.\n",CD->Flux[j].BC, CD->Flux[j].distance);
+                CD->Vcele[RT_RIVER(i)].t_conc[k] = 1.0E-20;
+                CD->Vcele[RT_RIVER(i)].p_conc[k] = 1.0E-20;
+                CD->Vcele[RT_RIVER(i)].p_actv[k] = 1.0E-20;
             }
         }
+    }
 
     for (i = 0; i < num_conditions; i++)
     {
@@ -2492,8 +1846,6 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     free(forcfn);
     free(condition_index);
 
-    // 10.23 memory leak
-    free(timeinfo);
     free(Global_type.ChemName);
     for (i = 0; i < words_line; i++)
     {
@@ -2501,604 +1853,418 @@ chem_alloc(char *filename, const pihm_struct pihm, N_Vector CV_Y, Chem_Data CD, 
     }
     free(tmpstr);
 
-
     fclose(chemfile);
     fclose(database);
     fclose(prepconc);
 }
 
-
-void
-//fluxtrans(realtype t, realtype stepsize, const Model_Data DS, Chem_Data CD, N_Vector VY)  // 09.25 try change the third type
-//fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD, N_Vector VY)  10.05
-fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD, N_Vector VY, double *t_duration_transp, double *t_duration_react)  // 10.05 add two timers
+void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
+    double *t_duration_transp, double *t_duration_react)
 {
-    /* unit of t and stepsize: min */
-
-    /*
+    /* unit of t and stepsize: min
      * swi irreducible water saturation
      * hn  non mobile water height
      * ht  transient zone height
      */
-
-    int             i, j, k = 0;
-    struct tm      *timestamp;
-    time_t         *rawtime;
-    double          timelps, rt_step, temp_rt_step, peclet, invavg, unit_c;
-    realtype       *Y;
-
-    // 10.05
-
-    rt_step = stepsize * (double)CD->AvgScl;    // by default, the largest averaging period is per 10 mins. Longer default averaging value will fail
+    int             i, k = 0;
+    double          rt_step, invavg, unit_c;
 
     unit_c = stepsize / UNIT_C;
+    int             VIRTUAL_VOL = CD->NumVol;
+    int             PRCP_VOL = CD->NumVol - 1;
 
-    Y = NV_DATA_S(VY);
-
-    rawtime = (time_t *)malloc(sizeof(time_t));
-    *rawtime = (int)(t * 60);
-    timestamp = gmtime(rawtime);
-    timelps = t - CD->StartTime;
-    // 09.29 test time variables
-    //fprintf(stderr, " CD->StartTime = %f \n", CD->StartTime);
-    //fprintf(stderr, " int t [min] = %d \n", t);
-    //fprintf(stderr, " rawtime [s] = %d \n", *rawtime);
-    //fprintf(stderr, " timestamp [date] = %4.4d-%2.2d-%2.2d %2.2d:%2.2d \n", timestamp->tm_year+1900, timestamp->tm_mon+1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-    //fprintf(stderr, " timelps [min] = %f \n", timelps);
-
-    pihm_struct     pihmFlux;
-    pihmFlux = pihm;
-
-#ifdef _OPENMP
-#pragma omp parallel for
+#if defined(_OPENMP)
+# pragma omp parallel for
 #endif
-    for (i = nelem; i < 2 * nelem; i++)
+    for (i = 0; i < nelem; i++)
     {
-        // 11.08
         int             j;
-        j = i - nelem;
-        CD->Vcele[i].q +=
-            MAX(pihmFlux->elem[j].wf.prcp * 86400, 0.0) * CD->Vcele[i].area;
-        // 2018.01.08
-        //if ((int)timelps % (15) == 0 )
-        //{
-        //if (i == nelem)
-        //{
-        //fprintf(stderr, " timelps = %f, elem[i = %d].wf.prcp, infil [m/d] = %6.4g, %6.4g \n", timelps, i+1, pihmFlux->elem[j].wf.prcp * 86400, pihmFlux->elem[j].wf.infil * 86400);  // 09.29 good so far
-        //}
-        //}
-        // 2018.01.08
-    }
-
-    /* flux for GW lateral flow */
-    for (i = 0; i < nelem; i++)
-    {
-        CD->Vcele[i].height_tl = Y[i + 2 * nelem];
-        CD->Vcele[i + nelem].height_tl = Y[i + nelem];
-        //fprintf(stderr, " [timelps = %f, cell = %d ] GW.height_tl, UNSAT.height_tl = %f, %f \n", timelps, (i+1), CD->Vcele[i].height_tl, CD->Vcele[i + nelem].height_tl);  // 09.29 good
 
         for (j = 0; j < 3; j++)
-            if (pihmFlux->meshtbl.nabr[i][j] > 0)
+        {
+            if (pihm->elem[i].nabr[j] != NO_FLOW)
             {
-                /* node indicates the index of grid blocks, not nodes at corners */
-                //CD->Flux[k].flux += pihmFlux->elem[i].wf.subsurf[j] * 86400;          // 09.29 from [m3/s] to [m3/d]
-                CD->Flux[k].flux += 1.0 * pihmFlux->elem[i].wf.subsurf[j] * 86400;  // 02.14 test lateral dilution
-                CD->Flux[k].s_area += pihmFlux->elem[i].wf.subareaRT[j];    // 09.29 RT new add, in lat_flow.c
-                CD->Flux[k].velocity += pihmFlux->elem[i].wf.subveloRT[j] * 86400;  // 09.29 RT new add, [m/s] to [m/d]
-                // 10.27 test
-                //fprintf(stderr, " [timelps = %.2f, cell = %d, j = %d, k = %d ] MD->FluxSub, AreaSub, VeloSub = %f, %f, %f \n", timelps, (i+1), (j+1), (k+1), pihmFlux->elem[i].wf.subsurf[j] * 86400, pihmFlux->elem[i].wf.subareaRT[j], pihmFlux->elem[i].wf.subveloRT[j] * 86400);
-                //fprintf(stderr, "  -- CD->Flux[k, %d].flux, s_area, velocity = %g, %f, %g \n", (k+1), CD->Flux[k].flux, CD->Flux[k].s_area, CD->Flux[k].velocity);
+                /* Flux for GW lateral flow */
+                CD->Flux[RT_LAT_GW(i, j)].flux += 1.0 * pihm->elem[i].wf.subsurf[j] * 86400;  /* Test lateral dilution */
 
-                /*      if ( fabs(MD->VeloSub[i][j]) < 0.001)
-                 * fprintf(stderr, "%d\t %d\t %f\t %f\t %f\t %f\n", CD->Flux[k].nodeup, CD->Flux[k].nodelo, MD->VeloSub[i][j], CD->Vcele[CD->Flux[k].nodeup-1].height_tl,
-                 * CD->Vcele[CD->Flux[k].nodelo-1].height_tl, CD->Vcele[CD->Flux[k].nodeup-1].height_tl - CD->Vcele[CD->Flux[k].nodelo-1].height_tl);
-                 */
-                k++;
+                /* Flux for UNSAT lateral flow */
+                CD->Flux[RT_LAT_UNSAT(i, j)].s_area = 1.0;
             }
+        }
+
+
+        /* Flux for UNSAT - GW vertical flow */
+        CD->Flux[RT_RECHG_UNSAT(i)].flux += (pihm->elem[i].wf.rechg * 86400) *
+            CD->Vcele[RT_UNSAT(i)].area;
+
+        CD->Flux[RT_RECHG_GW(i)].flux += (-pihm->elem[i].wf.rechg * 86400) *
+            CD->Vcele[RT_GW(i)].area;
     }
 
-    //printf(" GW lateral flux: 0 to k = %d \n", k-1);
-
-    /* flux for UNSAT lateral flow */
-    for (i = 0; i < nelem; i++)
-    {
-        for (j = 0; j < 3; j++)
-            if (pihmFlux->meshtbl.nabr[i][j] > 0)
-            {
-                CD->Flux[k].flux = 0.0;
-                CD->Flux[k].s_area = 1.0;
-                CD->Flux[k].velocity = 0.0;
-                k++;
-            }
-    }
-
-    //printf(" Unsat lateral flux: k = %d \n", k-1);
-
-    /* flux for UNSAT - GW vertical flow */
-    for (i = nelem; i < 2 * nelem; i++)
-    {
-        CD->Flux[k].velocity += pihmFlux->elem[i - nelem].wf.rechg * 86400; // 09.29 [m/s] to [m/d]
-        CD->Flux[k].flux +=
-            (pihmFlux->elem[i - nelem].wf.rechg * 86400) * CD->Vcele[i].area;
-        CD->Flux[k].s_area += CD->Vcele[i].area;
-        //fprintf(stderr, " [timelps = %.2f, cell = %d, k = %d ] CD->Flux[k].velocity, flux, s_area = %f, %f, %f \n", timelps, (i+1), (k+1), CD->Flux[k].velocity, CD->Flux[k].flux, CD->Flux[k].s_area);
-        k++;
-    }
-
-    //printf(" Unsat-GW vertical flux: k = %d \n", k-1);
-
-    for (i = 0; i < nelem; i++)
-    {
-        CD->Flux[k].velocity += -pihmFlux->elem[i].wf.rechg * 86400;
-        CD->Flux[k].flux +=
-            (-pihmFlux->elem[i].wf.rechg * 86400) * CD->Vcele[i].area;
-        CD->Flux[k].s_area += CD->Vcele[i].area;
-        k++;
-    }
-
-    //printf(" GW-unsat vertical flux: k = %d \n", k-1);
-
-    /* flux for RIVER flow */
-    //CD->riv += MD->FluxRiv[MD->NumRiv - 1][1];  // works for Shale Hills, outlet at 20; but doesn't work for Coal Creek
-    //fprintf(stderr, " pihmFlux->riv_outlet = %d \n", pihmFlux->riv_outlet);
-
+    /* Flux for RIVER flow */
     for (i = 0; i < nriver; i++)
     {
-        if (pihmFlux->river[i].down < 0)
+        if (pihm->river[i].down < 0)
         {
-            CD->riv += pihmFlux->river[i].wf.rivflow[1] * 86400;
+            CD->riv += pihm->river[i].wf.rivflow[1] * 86400;
         }
     }
 
-    if ((int)timelps % 1440 == 0)
+    if ((t - pihm->ctrl.starttime / 60) % 1440 == 0)
     {
-        CD->rivd = CD->riv / 1440;  // 09.29 averaging the sum of 1440 mins for a daily discharge, rivFlx1
+        CD->rivd = CD->riv / 1440;  /* Averaging the sum of 1440 mins for a
+                                     * daily discharge, rivFlx1 */
         CD->riv = 0;
-        //fprintf(stderr, "   Rivd (Qd) is %.3f [m3/d] this day. \n", CD->rivd);
-        //printf("   Rivd (Qd) is %.3f [m3/d] this day. \n", CD->rivd);
     }
 
-
-    // 01.11
-    //printf(" k = %d", k);
-
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < nriver; i++)
     {
-        //    CD->Flux[k].flux   += MIN(MD->FluxRiv[i][2],0.0);
-        CD->Flux[k].flux += pihmFlux->river[i].wf.rivflow[2] * 86400;
-        //fprintf(stderr, "    - CD->Flux[k, %d].flux = %.3f [m3/d]. \n", k, CD->Flux[k].flux);
-        //if (i == 37 - 1)
-        //printf("timelps = %.2f,  riv = 37: rivflx2 (k = %d) = %.3f [m3/d]; ", timelps, k, CD->Flux[k].flux);
-        k++;
-    }
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].flux += pihm->river[i].wf.rivflow[2] * 86400;
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux += pihm->river[i].wf.rivflow[3] * 86400;
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux += pihm->river[i].wf.rivflow[7] * 86400 +
+            pihm->river[i].wf.rivflow[4] * 86400;
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux += pihm->river[i].wf.rivflow[8] * 86400 +
+            pihm->river[i].wf.rivflow[5] * 86400;
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux += pihm->river[i].wf.rivflow[9] * 86400 +
+            pihm->river[i].wf.rivflow[1] * 86400;
+        CD->Flux[RT_UP_RIVER2RIVER(i)].flux += pihm->river[i].wf.rivflow[10] * 86400 +
+            pihm->river[i].wf.rivflow[0] * 86400;
 
-    //printf(" k = %d", k);
-
-    for (i = 0; i < nriver; i++)
-    {
-        //    CD->Flux[k].flux   += MIN(MD->FluxRiv[i][3],0.0);
-        CD->Flux[k].flux += pihmFlux->river[i].wf.rivflow[3] * 86400;
-        //fprintf(stderr, "  [timelps = %.2f] riv[i, %d].wf.rivflow[3] = %.3f [m3/d]. \n", timelps, i, (pihmFlux->riv[i].wf.rivflow[3] * 86400));
-        //if (i == 37 - 1)
-        //printf(" rivflx3 (k = %d) = %.3f [m3/d]; ", k, CD->Flux[k].flux);
-        k++;
+        if (CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib > 0)
+        {
+            CD->Flux[RT_UP_RIVER2RIVER(i)].flux_trib +=
+                -(pihm->river[pihm->river[i].up[1] - 1].wf.rivflow[9] * 86400 +
+                pihm->river[pihm->river[i].up[1] - 1].wf.rivflow[1] * 86400);
+        }
     }
 
     /*
-     * for ( i = 0; i <MD->NumRiv; i++){
-     * //    CD->Flux[k].flux   += MD->FluxRiv[i][6];
-     * k++;
-     * }
-     * for ( i = 0; i <MD->NumRiv; i++){
-     * //  CD->Flux[k].flux   += -MD->FluxRiv[i][6];
-     * k++;
-     * }
+     * Update the cell volumetrics every averaging cycle
      */
-
-    for (i = 0; i < nriver; i++)
+    if (t - pihm->ctrl.starttime / 60 - (int)CD->TimLst == CD->AvgScl * stepsize)
     {
-        //    CD->Flux[k].flux   += MD->FluxRiv[i][7];
-        //fprintf(stderr, "  [timelps = %.2f], riv = %d, CD->Flux[k = %d].flux = %6.4g [m3/d]. \n", timelps, i+1, k, CD->Flux[k].flux);
-        CD->Flux[k].flux +=
-            pihmFlux->river[i].wf.rivflow[7] * 86400 +
-            pihmFlux->river[i].wf.rivflow[4] * 86400;
-        //fprintf(stderr, "      riv[i, %d].wf.rivflow[7],[4] = %6.4g, %6.4g [m3/d] \n", i+1, pihmFlux->river[i].wf.rivflow[7] * 86400, pihmFlux->river[i].wf.rivflow[4] * 86400);
-        //if (i == 37 - 1)
-        //printf(" rivflx4+7 (k = %d) = %.3f [m3/d]; ", k, CD->Flux[k].flux);
-        k++;
-    }
-    for (i = 0; i < nriver; i++)
-    {
-        //    CD->Flux[k].flux   += MD->FluxRiv[i][8];
-        CD->Flux[k].flux +=
-            pihmFlux->river[i].wf.rivflow[8] * 86400 +
-            pihmFlux->river[i].wf.rivflow[5] * 86400;
-        //fprintf(stderr, "  [timelps = %.2f] riv[i, %d].wf.rivflow[8] = %.3f [m3/d] \n", timelps, i, (pihmFlux->riv[i].wf.rivflow[8] * 86400));
-        //if (i == 37 - 1)
-        //printf(" rivflx5+8 (k = %d) = %.3f [m3/d]; ", k, CD->Flux[k].flux);
-        k++;
-    }
-
-    //fprintf(stderr, "\n");
-    for (i = 0; i < nriver; i++)
-    {
-        CD->Flux[k].flux +=
-            pihmFlux->river[i].wf.rivflow[9] * 86400 +
-            pihmFlux->river[i].wf.rivflow[1] * 86400;
-        //fprintf(stderr, "  [timelps = %.2f] riv[i, %d].wf.rivflow[1] = %.3f [m3/d] \n", timelps, i, (pihmFlux->riv[i].wf.rivflow[1] * 86400));
-        // 02.21 check
-        //fprintf(stderr, "  [timelps = %.2f] riv[i, %d].down[%d] = %.3f [m3/d] \n", timelps, i+1, CD->Flux[k].nodelo - 2 * nelem - nriver, CD->Flux[k].flux);
-        //if (i == 37 - 1)
-        //printf(" rivflx9+1 (k = %d) = %.3f [m3/d]; ", k, CD->Flux[k].flux);
-        k++;
-    }
-
-
-
-    //printf(" k = %d \n", k);
-    for (i = 0; i < nriver; i++)
-    {
-        // 01.14 change for tributary flux
-        //CD->Flux[k].flux += pihmFlux->river[i].wf.rivflow[10] * 86400 + pihmFlux->river[i].wf.rivflow[0] * 86400;  // 01.14 change for tributary flux
-        if (pihmFlux->river[i].up[0] > 0) // not tributary starting point
-            CD->Flux[k].flux +=
-                -(pihmFlux->river[CD->Flux[k].nodelo - 1 - 2 * nelem -
-                    nriver].wf.rivflow[9] * 86400 +
-                pihmFlux->river[CD->Flux[k].nodelo - 1 - 2 * nelem -
-                    nriver].wf.rivflow[1] * 86400);
-        else                    // tributary starting point = 0.0 [m3/d]
-            CD->Flux[k].flux +=
-                pihmFlux->river[i].wf.rivflow[10] * 86400 +
-                pihmFlux->river[i].wf.rivflow[0] * 86400;
-
-        if (CD->Flux[k].node_trib > 0)
-            CD->Flux[k].flux_trib +=
-                -(pihmFlux->river[CD->Flux[k].node_trib - 1 - 2 * nelem -
-                    nriver].wf.rivflow[9] * 86400 +
-                pihmFlux->river[CD->Flux[k].node_trib - 1 - 2 * nelem -
-                    nriver].wf.rivflow[1] * 86400);
-        else
-            CD->Flux[k].flux_trib += 0.0;
-
-        k++;
-    }
-
-    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    /* update the cell volumetrics every averaging cycle */
-    // 09.30 5:08PM
-
-    if (((int)timelps - (int)CD->TimLst) == CD->AvgScl * stepsize)  // 10.24 fix uninitialised value(s) on "CD->TimLst"
-    {
-        // 09.30
-        /*fprintf(stderr,"\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\", rawtime = %d [s] \n", \
-         * timestamp->tm_year+1900, timestamp->tm_mon+1, timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min, (int) * rawtime); */
-
-        // update the concentration in precipitation here.
+        /* Update the concentration in precipitation here. */
         if (CD->PrpFlg == 2)
         {
-            IntrplForc(&CD->TSD_prepconc[0], *rawtime,
-                CD->TSD_prepconc[0].nspec, NO_INTRPL);
+            IntrplForc(&CD->TSD_prepconc[0], t * 60, CD->TSD_prepconc[0].nspec,
+                NO_INTRPL);
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
             for (i = 0; i < CD->TSD_prepconc[0].nspec; i++)
             {
                 if (CD->prepconcindex[i] > 0)
                 {
-                    j = CD->prepconcindex[i] - 1;
-                    if (CD->Precipitation.t_conc[j] !=
+                    int             ind;
+
+                    ind = CD->prepconcindex[i] - 1;
+                    if (CD->Precipitation.t_conc[ind] !=
                         CD->TSD_prepconc[0].value[i])
                     {
-                        CD->Precipitation.t_conc[j] =
+                        CD->Precipitation.t_conc[ind] =
                             CD->TSD_prepconc[0].value[i];
                         fprintf(stderr,
                             "  %s in precipitation is changed to %6.4g\n",
-                            CD->chemtype[j].ChemName,
-                            CD->Precipitation.t_conc[j]);
+                            CD->chemtype[ind].ChemName,
+                            CD->Precipitation.t_conc[ind]);
                     }
                 }
             }
         }
 
-        // 1.11
-        //printf(" NumFac = %d, AvgScl = %d ", CD->NumFac, CD->AvgScl);
-
-        invavg = stepsize / (double)CD->AvgScl;
-
-        for (i = 0; i < 2 * CD->NumEle; i++)
-        {
-            CD->Vcele[i].height_tl = 0.0;
-        }
-
-        for (k = 0; k < CD->NumFac; k++)
-        {
-            CD->Flux[k].velocity *= invavg;
-            CD->Flux[k].flux *= invavg;
-            CD->Flux[k].s_area *= invavg;
-
-            if (CD->Flux[k].s_area > 1.0E-4)
-            {
-                CD->Flux[k].velocity = CD->Flux[k].flux / CD->Flux[k].s_area;
-            }
-            else
-            {
-                CD->Flux[k].velocity = 1.0E-10;
-            }
-
-            // 1.11
-            /*
-             * printf (" k = 10012, CD->Flux[k].nodeup, nodelo = %d, %d \n", CD->Flux[10012-1].nodeup, CD->Flux[10012-1].nodelo, CD->Flux[10012-1].nodeuu, CD->Flux[10012-1].nodell);
-             * printf (" k = 10013, CD->Flux[k].nodeup, nodelo = %d, %d \n", CD->Flux[10013-1].nodeup, CD->Flux[10013-1].nodelo, CD->Flux[10013-1].nodeuu, CD->Flux[10013-1].nodell);
-             * printf ("   = 10122, CD->Flux[k].nodeup, nodelo = %d, %d \n", CD->Flux[10122-1].nodeup, CD->Flux[10122-1].nodelo, CD->Flux[10122-1].nodeuu, CD->Flux[10122-1].nodell);
-             * printf ("   = 10232, CD->Flux[k].nodeup, nodelo = %d, %d \n", CD->Flux[10232-1].nodeup, CD->Flux[10232-1].nodelo, CD->Flux[10232-1].nodeuu, CD->Flux[10232-1].nodell);
-             * printf ("   = 10233, CD->Flux[k].nodeup, nodelo = %d, %d \n", CD->Flux[10233-1].nodeup, CD->Flux[10233-1].nodelo, CD->Flux[10233-1].nodeuu, CD->Flux[10233-1].nodell);
-             */
-
-            CD->Vcele[CD->Flux[k].nodeup - 1].height_tl +=
-                CD->Flux[k].velocity * CD->Flux[k].distuu;
-            //CD->Vcele[CD->Flux[k].nodeup - 1 + CD->NumEle].height_tl += CD->Flux[k].velocity * CD->Flux[k].distll;   // 10.23 comment-out, fix invalid read/write
-            //    CD->Vcele[CD->Flux[k].nodelo-1].height_tl += fabs(CD->Flux[k].velocity);
-
-            /*
-             * if (( fabs(CD->Flux[k].velocity) < CD->CnntVelo) && (k < CD->NumLateral))
-             * {
-             * CD->Vcele[CD->Flux[k].nodeup-1].height_tl = 0.0;
-             * CD->Vcele[CD->Flux[k].nodelo-1].height_tl = 0.0;
-             */
-            /*fprintf(stderr, "%d\t %d\t %f\t %f\t %f\t %f\n", CD->Flux[k].nodeup, CD->Flux[k].nodelo, CD->Flux[k].velocity, CD->Vcele[CD->Flux[k].nodeup-1].height_tl,
-             * CD->Vcele[CD->Flux[k].nodelo-1].height_tl, CD->Vcele[CD->Flux[k].nodeup-1].height_tl - CD->Vcele[CD->Flux[k].nodelo-1].height_tl); */
-            /*
-             * kk ++ ;
-             * }
-             */
-            // velocity is calculated according to the flux_avg and the area_avg.
-        }                       // for gw cells, contact area is needed for dispersion;
-        //      fprintf(stderr, " Number of faces disconnected %d, ratio %f\n", kk, (double)kk/(double)CD->NumLateral);
-
 #ifdef _OPENMP
-#pragma omp parallel for
-#endif
-        for (i = 0; i < 2 * CD->NumEle; i++)
-        {
-            CD->Vcele[i].height_tl = CD->Vcele[i].height_tl / 3.0;
-        }
-
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-        for (i = 0; i < CD->PIHMFac * 2; i++)
-        {
-            int             j;  // 11.09 fix bug
-            for (j = CD->PIHMFac * 2; j < CD->NumFac; j++)
-            {
-                if ((CD->Flux[i].nodeup == CD->Flux[j].nodelo) &&
-                    (CD->Flux[i].nodelo == CD->Flux[j].nodeup))
-                {
-                    CD->Flux[j].s_area = CD->Flux[i].s_area;
-                    CD->Flux[j].velocity = -CD->Flux[i].velocity;
-                    //   fprintf(stderr, " Flux from river to ele corrected as BC %d, distance %f.\n",CD->Flux[j].BC, CD->Flux[j].distance);
-                }
-            }
-        }
-
-
-#ifdef _OPENMP
-#pragma omp parallel for
+# pragma omp parallel for
 #endif
         for (i = 0; i < nelem; i++)
         {
-            CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_t = MAX(Y[i + 2 * nelem], 1.0E-5);
-            CD->Vcele[i].height_int = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_sp =
-                (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
-            CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-            CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-        }
+            CD->Vcele[RT_GW(i)].height_o = CD->Vcele[RT_GW(i)].height_t;
+            CD->Vcele[RT_GW(i)].height_t = MAX(pihm->elem[i].ws.gw, 1.0E-5);
+            CD->Vcele[RT_GW(i)].height_int = CD->Vcele[RT_GW(i)].height_t;
+            CD->Vcele[RT_GW(i)].height_sp =
+                (CD->Vcele[RT_GW(i)].height_t - CD->Vcele[RT_GW(i)].height_o) * invavg;
+            CD->Vcele[RT_GW(i)].vol_o =
+                CD->Vcele[RT_GW(i)].area * CD->Vcele[RT_GW(i)].height_o;
+            CD->Vcele[RT_GW(i)].vol =
+                CD->Vcele[RT_GW(i)].area * CD->Vcele[RT_GW(i)].height_t;
 
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-        /* update the unsaturated zone (vadoze) */
-        for (i = nelem; i < 2 * nelem; i++)
-        {
-            // 11.08
-            int             j;
-            j = i - nelem;
-            CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_t =
-                MAX(((Y[i] * (pihmFlux->elem[j].soil.smcmax -
-                            pihmFlux->elem[j].soil.smcmin) +
-                        (CD->Vcele[i].height_v - CD->Vcele[i -
-                                nelem].height_t) *
-                        pihmFlux->elem[j].soil.smcmin) /
-                    pihmFlux->elem[j].soil.smcmax), 1.0E-5);
-            //    fprintf(stderr, " PIHM Hu: %6.4f, RT Hu*: %6.4f\n", MD->DummyY[i], CD->Vcele[i].height_o);
-            // 09.30
-            //fprintf(stderr, "  (unsat) CD->Vcele[i, %d].height_o & height_t = %6.4f, %6.4f \n", i, CD->Vcele[i].height_o, CD->Vcele[i].height_t);
-            CD->Vcele[i].height_int = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_sp =
-                (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
-            CD->Vcele[i].sat_o = CD->Vcele[i].sat;
-            CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-            CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-            //      CD->Vcele[i].sat      = CD->Vcele[i].height_t/ (CD->Vcele[i].height_v - CD->Vcele[i-MD->NumEle].height_t);
-            CD->Vcele[i].sat =
-                CD->Vcele[i].height_t / (CD->Vcele[i].height_v - CD->Vcele[i -
-                    nelem].height_t);
-            CD->Vcele[i].q *= invavg;
+            /* Update the unsaturated zone (vadoze) */
+            CD->Vcele[RT_UNSAT(i)].height_o = CD->Vcele[RT_UNSAT(i)].height_t;
+            CD->Vcele[RT_UNSAT(i)].height_t =
+                MAX(((pihm->elem[i].ws.unsat * (pihm->elem[i].soil.smcmax -
+                pihm->elem[i].soil.smcmin) +
+                (pihm->elem[i].soil.depth - CD->Vcele[RT_GW(i)].height_t) *
+                pihm->elem[i].soil.smcmin) / pihm->elem[i].soil.smcmax),
+                1.0E-5);
+            CD->Vcele[RT_UNSAT(i)].height_int = CD->Vcele[RT_UNSAT(i)].height_t;
+            CD->Vcele[RT_UNSAT(i)].height_sp =
+                (CD->Vcele[RT_UNSAT(i)].height_t - CD->Vcele[RT_UNSAT(i)].height_o) * invavg;
+            CD->Vcele[RT_UNSAT(i)].vol_o = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_o;
+            CD->Vcele[RT_UNSAT(i)].vol = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_t;
+            CD->Vcele[RT_UNSAT(i)].sat = CD->Vcele[RT_UNSAT(i)].height_t /
+                (pihm->elem[i].soil.depth - CD->Vcele[RT_GW(i)].height_t);
         }
 
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-        /* update river cells */
-        for (i = 2 * nelem; i < 2 * nelem + nriver; i++)
+        /* Update river cells */
+        for (i = 0; i < nriver; i++)
         {
-            // 11.08
-            int             j;
-            j = i - 2 * nelem;
-            CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_t = MAX(Y[i + nelem], 1.0E-5);
-            CD->Vcele[i].height_int = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_sp =
-                (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
-            CD->Vcele[i].area = pihmFlux->river[j].topo.area;
-            // 09.30
-            //fprintf(stderr, "  (RIV) CD->Vcele[i, %d].area = %6.4f \n", i, CD->Vcele[i].area);
-            CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-            CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
+            CD->Vcele[RT_RIVER(i)].height_o = CD->Vcele[RT_RIVER(i)].height_t;
+            CD->Vcele[RT_RIVER(i)].height_t = MAX(pihm->river[i].ws.gw, 1.0E-5) +
+                MAX(pihm->river[i].ws.stage, 1.0E-5) / CD->Vcele[RT_RIVER(i)].porosity;
+            CD->Vcele[RT_RIVER(i)].height_int = CD->Vcele[RT_RIVER(i)].height_t;
+            CD->Vcele[RT_RIVER(i)].height_sp =
+                (CD->Vcele[RT_RIVER(i)].height_t - CD->Vcele[RT_RIVER(i)].height_o) * invavg;
+            CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
+            CD->Vcele[RT_RIVER(i)].vol_o = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_o;
+            CD->Vcele[RT_RIVER(i)].vol = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_t;
         }
 
+        invavg = stepsize / (double)CD->AvgScl;
 
-#ifdef _OPENMP
-#pragma omp parallel for
+#if defined(_OPENMP)
+# pragma omp parallel for
 #endif
-        /* update EBR cells */
-        for (i = 2 * nelem + nriver; i < 2 * (nelem + nriver); i++)
+        for (k = 0; k < CD->NumFac; k++)
         {
-            // 11.08
-            int             j;
-            j = i - 2 * nelem - nriver;
-            CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_t =
-                MAX(Y[i + nelem], 1.0E-5) + MAX(Y[i + nelem - nriver],
-                1.0E-5) / CD->Vcele[i].porosity;
-            // 09.30
-            //fprintf(stderr, "  (EBR) CD->Vcele[i, %d].height_o & height_t = %6.4f, %6.4f \n", i, CD->Vcele[i].height_o, CD->Vcele[i].height_t);
-            CD->Vcele[i].height_int = CD->Vcele[i].height_t;
-            CD->Vcele[i].height_sp =
-                (CD->Vcele[i].height_t - CD->Vcele[i].height_o) * invavg;
-            CD->Vcele[i].area = pihmFlux->river[j].topo.area;
-            // 09.30
-            //fprintf(stderr, "  (EBR) CD->Vcele[i, %d].area = %6.4f \n", i, CD->Vcele[i].area);
-            CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-            CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
+            CD->Flux[k].flux *= invavg;
         }
 
-        // 09.30 8:25PM
-        Monitor(t, stepsize * (double)CD->AvgScl, pihm, CD);
+        /*
+         * Correct recharge and infiltration to converve mass balance
+         */
+        Monitor(stepsize * (double)CD->AvgScl, pihm, CD);
 
-        // 09.30 11:19PM
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+        for (i = 0; i < nelem; i++)
+        {
+            int             j;
+
+            /* For gw cells, contact area is needed for dispersion; */
+            for (j = 0; j < 3; j++)
+            {
+                double              h1, h2;
+                double              area;
+
+                if (CD->Flux[RT_LAT_GW(i, j)].BC == NO_FLOW)
+                {
+                    continue;
+                }
+
+                if (pihm->elem[i].nabr[j] > 0)
+                {
+                    h1 = 0.5 *
+                        (CD->Vcele[RT_GW(i)].height_o +
+                        CD->Vcele[RT_GW(i)].height_t);
+                    h2 = 0.5 *
+                        (CD->Vcele[RT_GW(pihm->elem[i].nabr[j] - 1)].height_o +
+                        CD->Vcele[RT_GW(pihm->elem[i].nabr[j] - 1)].height_t);
+
+                    CD->Flux[RT_LAT_GW(i, j)].s_area =
+                        (CD->Flux[RT_LAT_GW(i, j)].flux > 0.0) ?
+                        pihm->elem[i].topo.edge[j] * h1 :
+                        pihm->elem[i].topo.edge[j] * h2;
+                }
+                else if (pihm->elem[i].nabr[j] < 0)
+                {
+                    h1 = 0.5 *
+                        (CD->Vcele[RT_GW(i)].height_o +
+                        CD->Vcele[RT_GW(i)].height_t);
+                    h2 = 0.5 *
+                        (CD->Vcele[RT_RIVER(-pihm->elem[i].nabr[j] - 1)].height_o +
+                        CD->Vcele[RT_RIVER(-pihm->elem[i].nabr[j] - 1)].height_t);
+
+                    CD->Flux[RT_LAT_GW(i, j)].s_area =
+                        (CD->Flux[RT_LAT_GW(i, j)].flux > 0.0) ?
+                        pihm->elem[i].topo.edge[j] * h1 :
+                        pihm->elem[i].topo.edge[j] * h2;
+                }
+
+                /* Calculate velocity according to flux and area */
+                CD->Flux[RT_LAT_GW(i, j)].velocity =
+                    (CD->Flux[RT_LAT_GW(i, j)].s_area > 1.0E-4) ?
+                    CD->Flux[RT_LAT_GW(i, j)].flux /
+                    CD->Flux[RT_LAT_GW(i, j)].s_area :
+                    1.0E-10;
+            }
+
+            CD->Flux[RT_RECHG_UNSAT(i)].s_area = pihm->elem[i].topo.area;
+            CD->Flux[RT_RECHG_UNSAT(i)].velocity =
+                CD->Flux[RT_RECHG_UNSAT(i)].flux / pihm->elem[i].topo.area;
+
+            CD->Flux[RT_RECHG_GW(i)].s_area = pihm->elem[i].topo.area;
+            CD->Flux[RT_RECHG_GW(i)].velocity =
+                CD->Flux[RT_RECHG_GW(i)].flux / pihm->elem[i].topo.area;
+        }
+
+        /* Correct river flux area and velocity */
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
+        for (i = 0; i < nriver; i++)
+        {
+            int             j;
+
+            for (j = 0; j < NUM_EDGE; j++)
+            {
+                if (-pihm->elem[pihm->river[i].leftele - 1].nabr[j] == i + 1)
+                {
+                    CD->Flux[RT_LEFT_AQIF2RIVER(i)].s_area =
+                    CD->Flux[RT_LAT_GW(pihm->river[i].leftele - 1, j)].s_area;
+                    CD->Flux[RT_LEFT_AQIF2RIVER(i)].velocity =
+                    -CD->Flux[RT_LAT_GW(pihm->river[i].leftele - 1, j)].velocity;
+                    break;
+                }
+            }
+
+            for (j = 0; j < NUM_EDGE; j++)
+            {
+                if (-pihm->elem[pihm->river[i].rightele - 1].nabr[j] == i + 1)
+                {
+                    CD->Flux[RT_RIGHT_AQIF2RIVER(i)].s_area =
+                    CD->Flux[RT_LAT_GW(pihm->river[i].rightele - 1, j)].s_area;
+                    CD->Flux[RT_RIGHT_AQIF2RIVER(i)].velocity =
+                    -CD->Flux[RT_LAT_GW(pihm->river[i].rightele - 1, j)].velocity;
+                    break;
+                }
+            }
+        }
+
+        /* Update virtual volume */
+
+        if (CD->PrpFlg)
+        {
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+            for (k = 0; k < CD->NumSpc; k++)
+            {
+                CD->Vcele[PRCP_VOL - 1].t_conc[k] =
+                    (strcmp(CD->chemtype[k].ChemName, "'DOC'") == 0) ?
+                    CD->Precipitation.t_conc[k] * CD->Condensation *
+                    CD->CalPrcpconc :
+                    CD->Precipitation.t_conc[k] * CD->Condensation;
+            }
+        }
+        else
+        {
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+            for (k = 0; k < CD->NumSpc; k++)
+            {
+                CD->Vcele[PRCP_VOL - 1].t_conc[k] = 0.0;
+            }
+        }
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (k = 0; k < CD->NumStc; k++)
         {
-            CD->Vcele[CD->NumVol - 1].t_conc[k] =
+            CD->Vcele[VIRTUAL_VOL - 1].t_conc[k] =
                 CD->Precipitation.t_conc[k] * CD->Condensation;
-            CD->Vcele[CD->NumVol - 1].p_conc[k] =
+            CD->Vcele[VIRTUAL_VOL - 1].p_conc[k] =
                 CD->Precipitation.t_conc[k] * CD->Condensation;
         }
 
-        /*
-         * for (i = CD->PIHMFac; i < CD->PIHMFac * 2; i++)
-         * for (j = CD->PIHMFac; j < CD->PIHMFac * 2; j++)
-         * {
-         * if ((CD->Flux[i].nodeup == CD->Flux[j].nodelo) && (CD->Flux[i].nodelo == CD->Flux[j].nodeup))
-         * {
-         * if (fabs(CD->Flux[i].flux + CD->Flux[j].flux) > 1.0E-5)
-         * {
-         * fprintf(stderr, " Dismatch %d %d %f %f\n", CD->Flux[i].nodeup, CD->Flux[i].nodelo, CD->Flux[i].flux, CD->Flux[j].flux);
-         * fprintf(stderr, " Corresponding %d %d %f %f\n", CD->Flux[i - CD->PIHMFac].nodeup, CD->Flux[i - CD->PIHMFac].nodelo, CD->Flux[i - CD->PIHMFac].flux, CD->Flux[j - CD->PIHMFac].flux);
-         * }
-         * }
-         * }
-         */
-
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (i = 0; i < CD->NumVol; i++)
+        {
             CD->Vcele[i].rt_step = 0.0;
-
-        for (i = 0; i < CD->NumDis; i++)
-        {                       // 02.03 fix left '{'
-            for (j = 0; j < CD->NumSpc; j++)
-            {
-                peclet =
-                    fabs(CD->Flux[i].velocity * CD->Flux[i].distance /
-                    (CD->chemtype[j].DiffCoe +
-                        CD->chemtype[j].DispCoe * CD->Flux[i].velocity));
-                peclet = MAX(peclet, 1.0E-8);
-            }                   // 02.03 fix right '}'
-
-            if (i < CD->NumDis)
-            {
-                temp_rt_step =
-                    fabs(CD->Flux[i].flux / CD->Vcele[CD->Flux[i].nodeup -
-                        1].vol) * (1 + peclet) / peclet;
-            }
-            else
-                temp_rt_step =
-                    fabs(CD->Flux[i].flux / CD->Vcele[CD->Flux[i].nodeup -
-                        1].vol);
-
-            CD->Vcele[CD->Flux[i].nodeup - 1].rt_step += temp_rt_step;
         }
 
-        /*
-         * for ( i = 0 ; i < CD->NumEle; i ++)
-         * if ( MD->ElePrep[i] > 1.0E-8)
-         * fprintf(stderr, " Ratio %f from %f/%f or %f %f %f\n", MD->EleET[i][2]/MD->EleNetPrep[i], MD->EleET[i][2], MD->EleNetPrep[i], MD->ElePrep[i], MD->EleET[i][1], MD->EleViR[i]);
-         */
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+        for (i = 0; i < CD->NumDis; i++)
+        {
+            int             j;
+            double          peclet;
+            if (CD->Flux[i].BC != NO_DISP)
+            {
+                for (j = 0; j < CD->NumSpc; j++)
+                {
+                    peclet = fabs(CD->Flux[i].velocity * CD->Flux[i].distance /
+                        (CD->chemtype[j].DiffCoe +
+                        CD->chemtype[j].DispCoe * CD->Flux[i].velocity));
+                    peclet = MAX(peclet, 1.0E-8);
+                }
 
-        //    FILE * rt_dist = fopen("logfile/rtdist.out", "w");
+                CD->Vcele[CD->Flux[i].nodeup - 1].rt_step +=
+                    fabs(CD->Flux[i].flux / CD->Vcele[CD->Flux[i].nodeup - 1].vol) *
+                    (1 + peclet) / peclet;
+            }
+        }
 
-        k = 0;                  // used to count the number of slow cells.
-        invavg = 0.0;
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (i = 0; i < CD->NumOsv; i++)
         {
             CD->Vcele[i].rt_step = 0.6 * UNIT_C / CD->Vcele[i].rt_step;
-            //      fprintf(rt_dist, " %d\t %f\n", i+1, CD->Vcele[i].rt_step);
-            if (rt_step > CD->Vcele[i].rt_step)
-                rt_step = CD->Vcele[i].rt_step;
-
-            if (CD->Vcele[i].rt_step >= (double)CD->AvgScl)
-                CD->Vcele[i].rt_step = (double)CD->AvgScl;
-            else
-            {
-                k++;
-            }
-            invavg += CD->Vcele[i].rt_step;
+            CD->Vcele[i].rt_step =
+                (CD->Vcele[i].rt_step >= (double)CD->AvgScl) ?
+                (double)CD->AvgScl : CD->Vcele[i].rt_step;
         }
 
-        invavg = invavg / (double)CD->NumOsv;
-        //    fprintf(rt_dist, " Number of slow cell is %d\n ",k);
-        //    fclose(rt_dist);
-
-        /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-        // RT step control begins
-
-        //for (i = 0; i < CD->NumEle; i++)
-        //printf(" t = %f, [Cell,%d]: height_v = %f \n", timelps, i+1, CD->Vcele[i].height_v);  // 11.28 check fd
-
+        /*
+         * RT step control begins
+         */
         if (CD->TimLst >= CD->Delay)
         {
-            //fprintf(stderr, "\n Calling RT from %.2f to %.2f, mean timestep = %.3f [min]. \n", CD->TimLst, stepsize * (double)CD->AvgScl + CD->TimLst, invavg);
             rt_step = stepsize * (double)CD->AvgScl;
 
-            // AdptTime(CD, CD->TimLst, stepsize * (double)CD->AvgScl , stepsize * (double)CD->AvgScl, &rt_step, MD->NumEle * 2);
-            // AdptTime (CD, CD->TimLst, rt_step, stepsize * (double) CD->AvgScl, &rt_step, MD->NumEle * 2);  // 08.22 comment out
-            // AdptTime(CD, CD->TimLst, rt_step, stepsize * (double)CD->AvgScl, &rt_step, MD->NumEle * 2, DS); //08.22 mdata (DC is converted to MD)
-            // AdptTime(CD, CD->TimLst, rt_step, stepsize * (double)CD->AvgScl, &rt_step, nelem * 2, pihm);  10.05
-            AdptTime(CD, CD->TimLst, rt_step, stepsize * (double)CD->AvgScl, &rt_step, nelem * 2, pihm, t_duration_transp, t_duration_react);   // 10.05 add two timers
+            AdptTime(CD, CD->TimLst, rt_step, stepsize * (double)CD->AvgScl,
+                t_duration_transp, t_duration_react);
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
             for (i = 0; i < CD->NumEle; i++)
+            {
+                int             j;
+
                 for (j = 0; j < CD->NumStc; j++)
                 {
-                    if (CD->chemtype[j].itype == 4)
+                    if (CD->chemtype[j].itype == MINERAL)
                     {
-                        CD->Vcele[i].t_conc[j] =
-                            (CD->Vcele[i].t_conc[j] * CD->Vcele[i].height_t +
-                            CD->Vcele[i +
-                                CD->NumEle].t_conc[j] * (CD->Vcele[i].height_v -
-                                CD->Vcele[i].height_t)) / CD->Vcele[i].height_v;
-                        CD->Vcele[i + CD->NumEle].t_conc[j] =
-                            CD->Vcele[i].t_conc[j];
-                        CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
-                        CD->Vcele[i + CD->NumEle].p_conc[j] =
-                            CD->Vcele[i].t_conc[j];
-                        // Averaging mineral concentration to ensure mass conservation !!
+                        /* Averaging mineral concentration to ensure mass
+                         * conservation !! */
+                        CD->Vcele[RT_GW(i)].t_conc[j] =
+                            (CD->Vcele[RT_GW(i)].t_conc[j] *
+                            CD->Vcele[RT_GW(i)].height_t +
+                            CD->Vcele[RT_UNSAT(i)].t_conc[j] *
+                            (pihm->elem[i].soil.depth -
+                            CD->Vcele[RT_GW(i)].height_t)) /
+                            pihm->elem[i].soil.depth;
+                        CD->Vcele[RT_UNSAT(i)].t_conc[j] =
+                            CD->Vcele[RT_GW(i)].t_conc[j];
+                        CD->Vcele[RT_GW(i)].p_conc[j] =
+                            CD->Vcele[RT_GW(i)].t_conc[j];
+                        CD->Vcele[RT_UNSAT(i)].p_conc[j] =
+                            CD->Vcele[RT_GW(i)].t_conc[j];
                     }
                 }
+            }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
             for (i = 0; i < CD->NumOsv; i++)
             {
+                int             j;
+
+                /* Make sure intrapolation worked well */
                 if (fabs(CD->Vcele[i].height_t - CD->Vcele[i].height_int) >
                     1.0E-6)
                     fprintf(stderr, "%d %6.4f\t%6.4f\n", i,
@@ -3114,397 +2280,154 @@ fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD, N_Vector VY
                         CD->Vcele[i].index);
                 }
             }
-            // to make sure intrapolation worked well.
-        }
-        /* RT step control ends */
+        } /* RT step control ends */
 
-        //chem_updater(CD, pihm); // 10.01
-        CD->TimLst = timelps;
+        CD->TimLst = t - pihm->ctrl.starttime / 60;
 
-        for (i = nelem; i < 2 * nelem; i++)
-        {
-            j = i - nelem;
-            CD->Vcele[i].q = 0.0;
-        }
-
-        // Reset fluxes for next averaging stage
+        /* Reset fluxes for next averaging stage */
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (k = 0; k < CD->NumDis; k++)
         {
             CD->Flux[k].velocity = 0.0;
             CD->Flux[k].flux = 0.0;
-            CD->Flux[k].flux_trib = 0.0;    // 01.14 do not forget
+            CD->Flux[k].flux_trib = 0.0;
+            /* For riv cells, contact area is not needed */
             CD->Flux[k].s_area = 0.0;
-        }                       // for gw cells, contact area is needed for dispersion;
+        }
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
         for (k = 0; k < CD->NumFac; k++)
         {
             CD->Flux[k].flux = 0.0;
-            CD->Flux[k].flux_trib = 0.0;    // 01.14 do not forget
+            CD->Flux[k].flux_trib = 0.0;
             CD->Flux[k].velocity = 0.0;
-        }                       // for riv cells, contact area is not needed;
+        }
 
-
-        free(rawtime);
-    }
-}
-
-void InitialChemFile(char *outputdir, char *filename, int NumBTC, int *BTC_loc)
-{
-    FILE           *Cfile[20];
-    char           *cfn[20];
-    int             i;
-
-    // 09.28
-    //cfn[0] = (char *)malloc((strlen(filename) + 20) * sizeof(char));
-    cfn[0] =
-        (char *)malloc((strlen(outputdir) + strlen(filename) +
-            100) * sizeof(char));
-    //sprintf(cfn[0], "output/%s.conc", filename);
-    sprintf(cfn[0], "%sRT_%s.conc", outputdir, filename);
-
-    //cfn[1] = (char *)malloc((strlen(filename) + 20) * sizeof(char));
-    cfn[1] =
-        (char *)malloc((strlen(outputdir) + strlen(filename) +
-            100) * sizeof(char));
-    //sprintf(cfn[1], "output/%s.gwt", filename);
-    sprintf(cfn[1], "%sRT_%s.gwt", outputdir, filename);
-
-    //cfn[2] = (char *)malloc((strlen(filename) + 20) * sizeof(char));
-    cfn[2] =
-        (char *)malloc((strlen(outputdir) + strlen(filename) +
-            100) * sizeof(char));
-    //sprintf(cfn[2], "output/%s.btcv", filename);
-    sprintf(cfn[2], "%sRT_%s.btcv", outputdir, filename);
-
-    for (i = 3; i < 3 + NumBTC; i++)
-    {
-        cfn[i] =
-            (char *)malloc((strlen(outputdir) + strlen(filename) +
-                20) * sizeof(char));
-        //sprintf(cfn[i], "output/%s%d.btcv", filename, BTC_loc[i - 3] + 1);
-        sprintf(cfn[i], "%sRT_%s%d.btcv", outputdir, filename,
-            BTC_loc[i - 3] + 1);
-    }
-
-    cfn[3 + NumBTC] =
-        (char *)malloc((strlen(outputdir) + strlen(filename) +
-            20) * sizeof(char));
-    sprintf(cfn[3 + NumBTC], "%sRT_%s.vol", outputdir, filename);
-
-    for (i = 0; i <= 3 + NumBTC; i++)
-    {
-        Cfile[i] = fopen(cfn[i], "w");
-        free(cfn[i]);
-        fclose(Cfile[i]);
-    }
-}
-
-void PrintChem(char *outputdir, char *filename, Chem_Data CD, int t)    // 10.01
-{
-    FILE           *Cfile[20];
-    char           *cfn[20];
-    int             i, j, k;
-    struct tm      *timestamp;
-    time_t         *rawtime;
-    double          timelps, tmpconc;
-
-    rawtime = (time_t *)malloc(sizeof(time_t));
-    *rawtime = (int)(t * 60);
-    timestamp = gmtime(rawtime);
-    timelps = t - CD->StartTime;
-    tmpconc = 0.0;
-
-    //if ((int)timelps % (720) == 0)
-    if ((int)timelps % (60) == 0)   // 11.07 update every 1 hour instead every 12 hour
-    {
-        CD->SPCFlg = 0;
-
-        if (!CD->RecFlg)
+        if ((t - pihm->ctrl.starttime / 60) % 60 == 0)
         {
-            for (i = 0; i < CD->NumStc; i++)
+            CD->SPCFlg = 0;
+
+            if (!CD->RecFlg)
             {
-                for (j = CD->NumEle * 2; j < CD->NumOsv; j++)
-                    if (CD->chemtype[i].itype == 4)
-                        CD->Vcele[j].p_conc[i] = CD->Vcele[j].t_conc[i];
-                    else
-                        CD->Vcele[j].p_conc[i] =
-                            fabs(CD->Vcele[j].t_conc[i] * 0.1);
-            }
-        }
-
-        if (!CD->RecFlg)
-#ifdef _OPENMP
-#pragma omp parallel for
+#if defined(_OPENMP)
+# pragma omp parallel for
 #endif
-            for (i = CD->NumEle * 2 + CD->NumRiv; i < CD->NumOsv; i++)
-                Speciation(CD, i);
-        else
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-            for (i = 0; i < CD->NumOsv; i++)
-                Speciation(CD, i);
-    }
-
-    if ((int)timelps % (CD->OutItv * 60) == 0)
-    {
-        cfn[0] =
-            (char *)malloc((strlen(outputdir) + strlen(filename) +
-                100) * sizeof(char));
-        sprintf(cfn[0], "%sRT_%s.conc", outputdir, filename);
-        Cfile[0] = fopen(cfn[0], "a+");
-
-        cfn[1] =
-            (char *)malloc((strlen(outputdir) + strlen(filename) +
-                100) * sizeof(char));
-        sprintf(cfn[1], "%sRT_%s.btcv", outputdir, filename);
-        Cfile[1] = fopen(cfn[1], "a+");
-
-        cfn[2] =
-            (char *)malloc((strlen(outputdir) + strlen(filename) +
-                100) * sizeof(char));
-        sprintf(cfn[2], "%sRT_%s.gwt", outputdir, filename);
-        Cfile[2] = fopen(cfn[2], "a+");
-
-        for (i = 3; i < 3 + CD->NumBTC; i++)
-        {
-            cfn[i] =
-                (char *)malloc((strlen(outputdir) + strlen(filename) +
-                    100) * sizeof(char));
-            sprintf(cfn[i], "%sRT_%s%d.btcv", outputdir, filename,
-                CD->BTC_loc[i - 3] + 1);
-            Cfile[i] = fopen(cfn[i], "a+");
-            if (Cfile[i] == NULL)
-                fprintf(stderr, " Output BTC not found \n");
-        }
-        cfn[3 + CD->NumBTC] =
-            (char *)malloc((strlen(outputdir) + strlen(filename) +
-                100) * sizeof(char));
-        sprintf(cfn[3 + CD->NumBTC], "%sRT_%s.vol", outputdir, filename);
-        Cfile[3 + CD->NumBTC] = fopen(cfn[3 + CD->NumBTC], "a+");
-
-        fprintf(Cfile[0], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\n",
-            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-        fprintf(Cfile[0], "Cell\t");
-        for (i = 0; i < CD->NumStc; i++)
-            fprintf(Cfile[0], "%6s\t", CD->chemtype[i].ChemName);
-        for (i = 0; i < CD->NumSsc; i++)
-            fprintf(Cfile[0], "%6s\t", CD->chemtype[i + CD->NumStc].ChemName);
-        fprintf(Cfile[0], "\n");
-
-        for (i = 0; i < CD->NumEle * 2; i++)
-        {
-            fprintf(Cfile[0], "%d\t", i + 1);
-            for (j = 0; j < CD->NumStc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[i].p_conc[j]));
-            for (j = 0; j < CD->NumSsc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[i].s_conc[j]));
-
-            fprintf(Cfile[0], "\n");
-        }
-
-        for (i = CD->NumEle * 2; i < CD->NumOsv; i++)
-        {
-            fprintf(Cfile[0], "%d\t", i + 1);
-            for (j = 0; j < CD->NumStc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[i].p_conc[j]));
-            for (j = 0; j < CD->NumSsc; j++)
-                fprintf(Cfile[0], "%12.8f\t", log10(CD->Vcele[i].s_conc[j]));
-
-            fprintf(Cfile[0], "\n");
-        }
-
-        // Output the breakthrough curves "stream chemistry"
-        // River is not updated in reaction stage, so a speciation is required before output
-
-        if (t == CD->StartTime + CD->OutItv * 60)
-        {
-            fprintf(Cfile[1], "\t\t\t");
-            for (i = 0; i < CD->NumStc; i++)
-                fprintf(Cfile[1], "%6s\t", CD->chemtype[i].ChemName);
-            for (i = 0; i < CD->NumSsc; i++)
-                fprintf(Cfile[1], "%6s\t",
-                    CD->chemtype[i + CD->NumStc].ChemName);
-            fprintf(Cfile[1], "\n");
-        }
-        /* print the header of file if first time entered */
-        fprintf(Cfile[1], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",
-            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-
-        for (j = 0; j < CD->NumStc; j++)
-        {
-            tmpconc = 0.0;
-            for (i = 0; i < 2 * CD->NumEle; i++)
-                tmpconc += CD->Vcele[i].p_conc[j];
-            tmpconc = tmpconc / (double)(CD->NumEle) * 0.5;
-            fprintf(Cfile[1], "%12.8f\t", log10(tmpconc));
-        }
-
-        for (j = 0; j < CD->NumSsc; j++)
-        {
-            tmpconc = 0.0;
-            for (i = 0; i < 2 * CD->NumEle; i++)
-                tmpconc += CD->Vcele[i].s_conc[j];
-            tmpconc = tmpconc / (double)(CD->NumEle) * 0.5;
-            fprintf(Cfile[1], "%12.8f\t", log10(tmpconc));
-        }
-        fprintf(Cfile[1], "\n");
-
-        /*
-         * if ( t == CD->StartTime + CD->OutItv * 60){
-         * fprintf(Cfile[2], "\t\t\t");
-         * for ( i = 0 ; i < CD->NumStc; i++)
-         * fprintf(Cfile[2], "%6s\t", CD->chemtype[i].ChemName);
-         * for ( i = 0 ; i < CD->NumSsc; i++)
-         * fprintf(Cfile[2], "%6s\t", CD->chemtype[i+CD->NumStc].ChemName);
-         * fprintf(Cfile[2],"\n");
-         * }
-         * // print the header of file if first time entered
-         * fprintf(Cfile[2],"\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",timestamp->tm_year+1900,timestamp->tm_mon+1,timestamp->tm_mday,timestamp->tm_hour,timestamp->tm_min);
-         * for (j = 0; j < CD->NumStc; j++)
-         * fprintf(Cfile[2], "%12.8f\t",log10(CD->Vcele[15].p_conc[j]));
-         * for (j = 0; j < CD->NumSsc; j++)
-         * fprintf(Cfile[2], "%12.8f\t",log10(CD->Vcele[15].s_conc[j]));
-         * fprintf(Cfile[2], "\n");
-         */
-
-        fprintf(Cfile[2], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",
-            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-
-        for (j = 0; j < CD->NumEle * 2; j++)
-        {
-            fprintf(Cfile[2], "%6.4f\t", CD->Vcele[j].height_t);
-        }
-        fprintf(Cfile[2], "\n");
-
-
-        fprintf(Cfile[3 + CD->NumBTC], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",
-            timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-            timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
-        for (j = 0; j < 2 * CD->NumEle; j++)
-        {
-            fprintf(Cfile[3 + CD->NumBTC], "%6.4f\t", CD->Vcele[j].height_tl);
-        }
-        fprintf(Cfile[3 + CD->NumBTC], "\n");
-
-        for (k = 3; k < 3 + CD->NumBTC; k++)
-        {
-            if (t == CD->StartTime + CD->OutItv * 60)
-            {
-                fprintf(Cfile[k], "\t\t\t");
                 for (i = 0; i < CD->NumStc; i++)
-                    fprintf(Cfile[k], "%6s\t", CD->chemtype[i].ChemName);
-                for (i = 0; i < CD->NumSsc; i++)
-                    fprintf(Cfile[k], "%6s\t",
-                        CD->chemtype[i + CD->NumStc].ChemName);
-                fprintf(Cfile[k], "\n");
+                {
+                    int             j;
+
+                    for (j = 0; j < nriver; j++)
+                    {
+                        CD->Vcele[RT_RIVER(j)].p_conc[i] =
+                            (CD->chemtype[i].itype == MINERAL) ?
+                            CD->Vcele[RT_RIVER(j)].t_conc[i] :
+                            fabs(CD->Vcele[RT_RIVER(j)].t_conc[i] * 0.1);
+                    }
+                }
             }
-            /* print the header of file if first time entered */
-            fprintf(Cfile[k], "\"%4.4d-%2.2d-%2.2d %2.2d:%2.2d\"\t",
-                timestamp->tm_year + 1900, timestamp->tm_mon + 1,
-                timestamp->tm_mday, timestamp->tm_hour, timestamp->tm_min);
+
+            if (!CD->RecFlg)
+            {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+                for (i = 0; i < nriver; i++)
+                {
+                    Speciation(CD, RT_RIVER(i));
+                }
+            }
+            else
+            {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+                for (i = 0; i < CD->NumOsv; i++)
+                    Speciation(CD, i);
+            }
+        }
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+        for (i = 0; i < CD->NumVol; i++)
+        {
+            int             j;
+
             for (j = 0; j < CD->NumStc; j++)
             {
+                CD->Vcele[i].log10_pconc[j] = log10(CD->Vcele[i].p_conc[j]);
+            }
+            for (j = 0; j < CD->NumSsc; j++)
+            {
+                CD->Vcele[i].log10_sconc[j] = log10(CD->Vcele[i].s_conc[j]);
+            }
+        }
 
-                if ((CD->BTC_loc[k - 3] >= CD->pumps[0].Pump_Location - 1) &&
+        for (k = 0; k < CD->NumBTC; k++)
+        {
+            int             j;
+
+            for (j = 0; j < CD->NumStc; j++)
+            {
+                if ((CD->BTC_loc[k] >= CD->pumps[0].Pump_Location - 1) &&
                     (j == CD->pumps[0].Position_Species))
                 {
-                    fprintf(Cfile[k], "%12.8f\t",
-                        log10((CD->Vcele[CD->BTC_loc[k -
-                                        3]].p_conc[j] * CD->rivd +
-                                CD->pumps[0].Injection_conc *
-                                CD->pumps[0].flow_rate) / (CD->rivd +
-                                CD->pumps[0].flow_rate)));
-                    // 10.02 comment out
-                    /*
-                     * fprintf(stderr, "i %d infd %6.4g, rivd %6.4g, tconc %6.4g, nconc %6.4g\n", CD->BTC_loc[k - 3] + 1, CD->pumps[0].flow_rate / 84170, \
-                     * CD->rivd / 84170, CD->Vcele[CD->BTC_loc[k - 3]].p_conc[j], ((CD->Vcele[CD->BTC_loc[k - 3]].p_conc[j] * CD->rivd + \
-                     * CD->pumps[0].Injection_conc * CD->pumps[0].flow_rate) / (CD->rivd + CD->pumps[0].flow_rate)));
-                     */
+                    CD->Vcele[CD->BTC_loc[k]].btcv_pconc[j] =
+                        log10((CD->Vcele[CD->BTC_loc[k]].p_conc[j] * CD->rivd +
+                        CD->pumps[0].Injection_conc * CD->pumps[0].flow_rate) /
+                        (CD->rivd + CD->pumps[0].flow_rate));
                 }
-                else if (CD->BTC_loc[k - 3] > 2 * CD->NumEle)
-                    fprintf(Cfile[k], "%12.8f\t",
-                        log10(CD->Vcele[CD->BTC_loc[k - 3]].p_conc[j]));
                 else
-                    fprintf(Cfile[k], "%12.8f\t",
-                        log10(CD->Vcele[CD->BTC_loc[k - 3]].p_conc[j]));
+                {
+                    CD->Vcele[CD->BTC_loc[k]].btcv_pconc[j] =
+                        CD->Vcele[CD->BTC_loc[k]].log10_pconc[j];
+                }
             }
-            for (j = 0; j < CD->NumSsc; j++)
-                fprintf(Cfile[k], "%12.8f\t",
-                    log10(CD->Vcele[CD->BTC_loc[k - 3]].s_conc[j]));
-            fprintf(Cfile[k], "\n");
         }
-
-        for (i = 0; i <= 3 + CD->NumBTC; i++)
-        {
-            free(cfn[i]);
-            fclose(Cfile[i]);
-        }
-
     }
-    free(rawtime);
 }
 
-
-
-
-
-void
-//AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step, double *start_step, int num_blocks, const void * Model_Data) // 08.22 add model data (from fluxtrans, MD)
-//AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step, double *start_step, int num_blocks, const pihm_struct pihm)  10.05
-AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step, double *start_step, int num_blocks, const pihm_struct pihm, double *t_duration_transp, double *t_duration_react)    // 10.05 add two timer
+void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
+    double *t_duration_transp, double *t_duration_react)
 {
-    //double stepsize, org_time, step_rst, end_time, substep;
-    double          stepsize, org_time, step_rst, end_time; // 10.05 'substep' location changed
-    double          timer1, timer2;
-    //int i, j, k, m, nr_tmp, nr_max, int_flg, tot_nr;
-    int             i, j, k, m, nr_max, int_flg, tot_nr;    // 10.05 'nr_temp' location changed
-    time_t          t_start_transp, t_end_transp, t_start_react, t_end_react;
+    double          stepsize, end_time;
+    int             i, k, int_flg;
+    time_t          t_start_transp, t_end_transp;
 
-    stepsize = *start_step;
-    org_time = timelps;
-    step_rst = *start_step;
-    tot_nr = 0;
+    stepsize = rt_step;
+    end_time = timelps + hydro_step;
 
-    // 10.01 test purpose
-    //printf("  Doing AdptTime() ... \n");
-
-    // 10.05 timing
     t_start_transp = time(NULL);
 
+    /* Simple check to determine whether or not to intrapolate the gw height */
     if (rt_step >= hydro_step)
+    {
         int_flg = 0;
+    }
     else
     {
         int_flg = 1;
         fprintf(stderr, " Sub time step intrapolation performed. \n");
     }
 
-    end_time = org_time + hydro_step;
-
-    // simple check to determine whether or not to intrapolate the gw height;
-
     while (timelps < end_time)
     {
-        nr_max = 5;
-        //nr_tmp = 1;  // 10.05 location change
+        time_t          t_start_react, t_end_react;
 
-        if (stepsize > end_time - timelps)
-        {
-            // before adjusting, write the current timestep to file
-            step_rst = stepsize;
-            stepsize = end_time - timelps;
-        }
-
-        //    fprintf(stderr, "  Transport From %10.2f to %10.2f", timelps,  timelps +stepsize);
+        stepsize = (stepsize > end_time - timelps) ?
+            end_time - timelps : stepsize;
 
         if (int_flg)
         {
-            // do intrapolation. note that height_int always store the end time height.
-
+            /* Do interpolation. Note that height_int always store the end time
+             * height. */
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
             for (i = 0; i < CD->NumOsv; i++)
             {
                 CD->Vcele[i].height_t =
@@ -3513,94 +2436,84 @@ AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step, doub
             }
         }
 
-        timer1 = timer();
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+        for (i = 0; i < nelem; i++)
+        {
+            int             j;
 
-        for (i = 0; i < num_blocks; i++)
             for (j = 0; j < CD->NumSpc; j++)
             {
                 if (CD->chemtype[j].mtype == 2)
                 {
                     for (k = 0; k < CD->NumSsc; k++)
+                    {
                         if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
-                            (CD->chemtype[k + CD->NumStc].itype != 1))
+                            (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
                         {
-                            //   if ( i == 58) fprintf(stderr, " ##%s Tconc %f\t %s Sconc %f\t Mconc %f\n", CD->chemtype[j].ChemName,  CD->Vcele[i].t_conc[j], CD->chemtype[k+ CD->NumStc].ChemName, CD->Vcele[i].s_conc[k],CD->Vcele[i].t_conc[j] - CD->Totalconc[j][k + CD->NumStc] * CD->Vcele[i].s_conc[k]);
-                            CD->Vcele[i].t_conc[j] =
-                                CD->Vcele[i].t_conc[j] - CD->Totalconc[j][k +
-                                CD->NumStc] * CD->Vcele[i].s_conc[k] *
-                                CD->TimRiv;
-                            //   if ( CD->Vcele[i].t_conc[j] < 0.0) fprintf( stderr, " Mixed mobility error! %s %f\n", CD->chemtype[j].ChemName, CD->Vcele[i].t_conc[j]);
+                            CD->Vcele[RT_GW(i)].t_conc[j] = CD->Vcele[RT_GW(i)].t_conc[j] -
+                                CD->Totalconc[j][k + CD->NumStc] *
+                                CD->Vcele[RT_GW(i)].s_conc[k] * CD->TimRiv;
+                            CD->Vcele[RT_UNSAT(i)].t_conc[j] = CD->Vcele[RT_UNSAT(i)].t_conc[j] -
+                                CD->Totalconc[j][k + CD->NumStc] *
+                                CD->Vcele[RT_UNSAT(i)].s_conc[k] * CD->TimRiv;
                         }
+                    }
                 }
             }
-
-        /*
-         * for (i = CD->NumEle * 2; i < CD->NumEle * 2 + CD->NumRiv; i++)
-         * {
-         * for (j = 0; j < CD->NumStc; j++)
-         * {
-         * //       CD->Vcele[i].t_conc[j] = CD->Precipitation.t_conc[j] * CD->Condensation ;
-         * CD->Vcele[i].t_conc[j] = 1.0E-20;
-         * }
-         * }
-         */
+        }
 
         OS3D(timelps, stepsize, CD);
 
-        // 10.05 test
-        //printf(" !! Pssing OS3D? \n\n");
+        /* Total concentration except for adsorptions have been transported and
+         * adjusted by the volume. For example, if no transport but volume
+         * increased by rain, the concentration need be decreased. However, the
+         * adsorption part has not been treated yet, so they need be adjusted by
+         * the volume change.
+         * The porosity is not changed during the period, so the ratio between
+         * pore space before and after OS3D is the same ratio between volume of
+         * porous media before and after OS3D. */
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+        for (i = 0; i < nelem; i++)
+        {
+            int             j;
 
-        for (i = 0; i < num_blocks; i++)
             for (j = 0; j < CD->NumSpc; j++)
             {
                 if (CD->chemtype[j].mtype == 2)
                 {
                     for (k = 0; k < CD->NumSsc; k++)
+                    {
                         if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
-                            (CD->chemtype[k + CD->NumStc].itype != 1))
+                            (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
                         {
-                            //    if ( i == 1) fprintf(stderr, " ##%s Tconc %f\t %s Sconc %f\t Mconc %f\n", CD->chemtype[j].ChemName,  CD->Vcele[i].t_conc[j], CD->chemtype[k+ CD->NumStc].ChemName, CD->Vcele[i].s_conc[k],CD->Vcele[i].t_conc[j] + CD->Totalconc[j][k + CD->NumStc] * CD->Vcele[i].s_conc[k]);
-                            CD->Vcele[i].t_conc[j] =
-                                CD->Vcele[i].t_conc[j] + CD->Totalconc[j][k +
-                                CD->NumStc] * CD->Vcele[i].s_conc[k] *
+                            CD->Vcele[RT_GW(i)].t_conc[j] =
+                                CD->Vcele[RT_GW(i)].t_conc[j] + CD->Totalconc[j][k +
+                                CD->NumStc] * CD->Vcele[RT_GW(i)].s_conc[k] *
                                 CD->TimRiv;
-                            //    if ( CD->Vcele[i].t_conc[j] < 0.0) fprintf( stderr, " Mixed mobility error! %s %f\n", CD->chemtype[j].ChemName, CD->Vcele[i].t_conc[j]);
-                            // total concentration except for adsorptions have been transported and adjusted by the volume. For example, if no transport but volume increased by rain, the concentration need be decreased. However, the adsorption part has not been treated yet, so they need be adjusted by the volume change.
-                            // the porosity is not changed during the period, so the ratio between pore space before and after OS3D is the same ratio between volume of porous media before and after OS3D.
+                            CD->Vcele[RT_UNSAT(i)].t_conc[j] =
+                                CD->Vcele[RT_UNSAT(i)].t_conc[j] + CD->Totalconc[j][k +
+                                CD->NumStc] * CD->Vcele[RT_UNSAT(i)].s_conc[k] *
+                                CD->TimRiv;
                         }
+                    }
                 }
             }
+        }
 
-        // 10.05
         t_end_transp = time(NULL);
         *t_duration_transp += (t_end_transp - t_start_transp);
 
-        /*
-         * for (i = 0; i < CD->NumPUMP; i++)
-         * {
-         * //j = CD->pumps[i].Pump_Location;
-         * for ( j = 0 ; j < CD->NumEle; j ++)
-         * //      fprintf(stderr, " T_conc binj %6.4g", CD->Vcele[j].t_conc[CD->pumps[i].Position_Species]);
-         * {
-         * CD->Vcele[j].t_conc[CD->pumps[i].Position_Species] +=
-         * CD->pumps[i].flow_rate * CD->pumps[i].Injection_conc * stepsize * CD->Vcele[i].area / (CD->Vcele[j].porosity *
-         * CD->Vcele[j].vol);
-         * fprintf (stderr, " m_inverse %6.4f, ainj %6.4g, add %6.4g, time %6.4f\n",
-         * CD->Vcele[i].area/(CD->Vcele[j].porosity * CD->Vcele[j].vol),
-         * CD->Vcele[j].t_conc[CD->pumps[i].Position_Species],
-         * CD->pumps[i].flow_rate * CD->pumps[i].Injection_conc * stepsize * CD->Vcele[i].area
-         * / (CD->Vcele[j].porosity * CD->Vcele[j].vol), stepsize);
-         *
-         * }
-         * }
-         */
-
         t_start_react = time(NULL);
-        timer2 = timer();
-        //    fprintf(stderr, " takes %6.4f seconds\n", timer2- timer1);
 
         if (int_flg)
         {
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
             for (i = 0; i < CD->NumVol; i++)
             {
                 CD->Vcele[i].height_o = CD->Vcele[i].height_t;
@@ -3608,113 +2521,44 @@ AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step, doub
             }
         }
 
-        timer1 = timer();
-        m = 0;
-
-        if ((!CD->RecFlg) &&
-            ((int)(timelps + stepsize) % (int)(CD->React_delay * stepsize) ==
-                0))
+        if ((!CD->RecFlg) && ((int)(timelps + stepsize) %
+            (int)(CD->React_delay * stepsize) == 0))
         {
-
-// 10.05
 #ifdef _OPENMP
-#pragma omp parallel for        // 11.08 exactly the same
+# pragma omp parallel for
 #endif
-            for (i = 0; i < num_blocks; i++)
+            for (i = 0; i < nelem; i++)
             {
-                // 10.01 test purpose
-                //fprintf(stderr, "  CD->Vcele[i, %d].illness = %f \n", (i+1), CD->Vcele[i].illness);
+                double          z_SOC;
 
-                // 10.05 test purpose
-                //int ID = omp_get_thread_num();
-                //printf(" (timelps = %f) i = %d, by # of thread =  %d \n", timelps, i, ID);
+                z_SOC = CD->Vcele[RT_GW(i)].maxwater -
+                    (CD->Vcele[RT_GW(i)].height_t + CD->Vcele[RT_UNSAT(i)].height_t);
+                z_SOC = (z_SOC > 0.0) ? z_SOC : 0.0;
 
-                // 10.05 need privating!!
-                int             k, j, nr_tmp = 1;
-                double          substep;
-
-                if (CD->Vcele[i].illness < 20)
-                    //if (React(timelps - (CD->React_delay * stepsize), stepsize * CD->React_delay, CD, i, &nr_tmp, Model_Data)) // 08.22 add model data
-                    if (React(timelps - (CD->React_delay * stepsize), stepsize * CD->React_delay, CD, i, &nr_tmp, pihm))    // 10.01
-                    {
-                        fprintf(stderr, "  ---> React failed at cell %12d.\t",
-                            CD->Vcele[i].index);
-
-                        substep = 0.5 * stepsize;
-                        k = 2;
-
-                        //while (j = React(timelps, substep, CD, i, &nr_tmp, Model_Data)) // 08.22 add model data
-                        while ((j = React(timelps, substep, CD, i, &nr_tmp, pihm)))   // 10.01
-                        {
-                            substep = 0.5 * substep;
-                            k = 2 * k;
-                            if (substep < 0.5)
-                                break;
-                        }
-
-                        if (j == 0)
-                        {
-                            tot_nr += nr_tmp;
-                            fprintf(stderr,
-                                " Reaction passed with step equals to %f (1/%d)\n",
-                                substep, k);
-                            for (j = 1; j < k; j++)
-                            {
-                                //React(timelps + j * substep, substep, CD, i, &nr_tmp, Model_Data);  // 08.22 add model data
-                                React(timelps + j * substep, substep, CD, i, &nr_tmp, pihm);    // 10.01
-                                tot_nr += nr_tmp;
-                            }
-                        }
-
-                        //              else
-                        //        {
-                        //          fprintf(stderr, " Taking smaller step does not work, altering initial guess!\n");
-                        /*
-                         * for ( j = 0; j < CD->NumStc; j ++){
-                         * if (CD->chemtype[j].itype == 4)
-                         * CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
-                         * else
-                         * CD->Vcele[i].p_conc[j] = fabs(CD->Vcele[i].t_conc[j]*0.1);
-                         * }
-                         * //           CD->Vcele[i].illness ++ ;
-                         * for (j = 0; j < k; j ++){
-                         * m = MAX(React(timelps + j * substep, substep, CD, i , &nr_tmp),m);
-                         * }
-                         */
-                        //              if ( m == 1) ReportError(CD->Vcele[i],CD);
-                        //        }
-                    }
-                tot_nr += nr_tmp;
+                React(stepsize, CD, &CD->Vcele[RT_GW(i)], z_SOC);
+                React(stepsize, CD, &CD->Vcele[RT_UNSAT(i)], z_SOC);
             }
-// 10.05
-// ending of OpenMP looping
         }
 
-        timer2 = timer();
         timelps += stepsize;
-        if (timelps >= org_time + hydro_step)
+        if (timelps >= end_time)
+        {
+            t_end_react = time(NULL);
+            *t_duration_react += (t_end_react - t_start_react);
             break;
+        }
     }
 
     if ((!CD->RecFlg) &&
         ((int)(timelps) % (int)(CD->React_delay * stepsize) == 0))
     {
-        // 10.04
-        /*
-         * fprintf(stderr, "    React from %.1f to %.1f [min]. Average newton iteration = %.3f. Elapsed time = %6.4f seconds. \n", timelps - (CD->React_delay * stepsize), \
-         * timelps, (double)tot_nr / (double)CD->NumEle / 2.0, timer2 - timer1);
-         */
+        /* Do nothing. Place holder for test purposes. */
     }
-
-    // 10.05
-    t_end_react = time(NULL);
-    *t_duration_react += (t_end_react - t_start_react);
 }
 
-void FreeChem(Chem_Data CD)     // 10.01
+void FreeChem(Chem_Data CD)
 {
     int             i;
-    int             num_dep = 4;
 
     free(CD->BTC_loc);
     free(CD->prepconcindex);
@@ -3740,10 +2584,14 @@ void FreeChem(Chem_Data CD)     // 10.01
     for (i = 0; i < CD->NumStc; i++)
     {
         free(CD->Totalconc[i]);
+#if NOT_YET_IMPLEMENTED
         free(CD->Totalconck[i]);
+#endif
     }
     free(CD->Totalconc);
+#if NOT_YET_IMPLEMENTED
     free(CD->Totalconck);
+#endif
 
     free(CD->Keq);
     free(CD->KeqKinect);
@@ -3751,12 +2599,11 @@ void FreeChem(Chem_Data CD)     // 10.01
 
     // CD->Vcele
     free(CD->Vcele->t_conc);
-    free(CD->Vcele->t_rate);
-    free(CD->Vcele->t_tol);
     free(CD->Vcele->p_conc);
     free(CD->Vcele->s_conc);
+    free(CD->Vcele->log10_pconc);
+    free(CD->Vcele->log10_sconc);
     free(CD->Vcele->p_actv);
-    free(CD->Vcele->s_actv);
     free(CD->Vcele->p_para);
     free(CD->Vcele->p_type);
     free(CD->Vcele);
@@ -3765,30 +2612,6 @@ void FreeChem(Chem_Data CD)     // 10.01
 
     free(CD->chemtype->ChemName);
     free(CD->chemtype);
-
-    // CD->kinetics
-    if (CD->NumMkr > 0)
-    {
-        free(CD->kinetics->species);
-        free(CD->kinetics->Label);
-        for (i = 0; i < num_dep; i++)
-        {
-            free(CD->kinetics->dep_species[i]);
-            free(CD->kinetics->monod_species[i]);
-            free(CD->kinetics->inhib_species[i]);
-        }
-        free(CD->kinetics->dep_species);
-        free(CD->kinetics->monod_species);
-        free(CD->kinetics->inhib_species);
-        free(CD->kinetics->dep_position);
-        free(CD->kinetics->dep_power);
-        free(CD->kinetics->biomass_species);
-        free(CD->kinetics->monod_position);
-        free(CD->kinetics->monod_para);
-        free(CD->kinetics->inhib_position);
-        free(CD->kinetics->inhib_para);
-        free(CD->kinetics);
-    }
 
     free(CD->pumps->Name_Species);
     free(CD->pumps);
@@ -3800,6 +2623,24 @@ void FreeChem(Chem_Data CD)     // 10.01
     }
     free(CD->TSD_prepconc[0].ftime);
     free(CD->TSD_prepconc);
+}
 
+double Dist2Edge(const meshtbl_struct *meshtbl, const elem_struct *elem,
+    int edge_j)
+{
+    double          para_a, para_b, para_c, x_0, x_1, y_0, y_1;
+    int             index_0, index_1;
 
+    index_0 = elem->node[(edge_j + 1) % 3] - 1;
+    index_1 = elem->node[(edge_j + 2) % 3] - 1;
+    x_0 = meshtbl->x[index_0];
+    y_0 = meshtbl->y[index_0];
+    x_1 = meshtbl->x[index_1];
+    y_1 = meshtbl->y[index_1];
+    para_a = y_1 - y_0;
+    para_b = x_0 - x_1;
+    para_c = (x_1 - x_0) * y_0 - (y_1 - y_0) * x_0;
+
+    return fabs(para_a * elem->topo.x + para_b * elem->topo.y + para_c) /
+        sqrt(para_a * para_a + para_b * para_b);
 }
