@@ -292,7 +292,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 #else
     CD->NumVol = 2 * nelem + nriver + 2;
 #endif
-    CD->NumOsv = CD->NumVol - 1;
+    CD->NumOsv = CD->NumVol - 2;
     CD->NumEle = nelem;
     CD->NumRiv = nriver;
 
