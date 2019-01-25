@@ -3451,7 +3451,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     /* Calc virtual temps and virtual potential temps needed by Penman. */
     t2v = es->sfctmp * (1.0 + 0.61 * ps->q2);
 
-    Penman(wf, es, ef, ps, &t24, t2v, snowng, frzgra);
+    PenmanGlacial(wf, es, ef, ps, &t24, t2v, snowng, frzgra);
 
     /*
      * Call CanRes to calculate the canopy resistance and convert it into pc if
@@ -3568,4 +3568,62 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     {
         ps->soilw = soilww / soilwm;
     }
+}
+
+void PenmanGlacial(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
+    pstate_struct *ps, double *t24, double t2v, int snowng, int frzgra)
+{
+    /*
+     * Function Penman
+     *
+     * Calculate potential evaporation for the current point. Various partial
+     * sums/products are also calculated and passed back to the calling routine
+     * for later use.
+     */
+    double          a;
+    double          delta;
+    double          fnet;
+    double          rad;
+    double          rho;
+    double          elcp1;
+    double          lvs;
+    const double    ELCP = 2.4888e+3;
+    const double    LSUBC = 2.501000e+6;
+
+    /* Prepare partial quantities for Penman equation. */
+    elcp1 = (es->t1 > TFREEZ) ? ELCP : ELCP * LSUBS / LSUBC;
+    lvs = (es->t1 > TFREEZ) ? LSUBC : LSUBS;
+
+    delta = elcp1 * ps->dqsdt2;
+    a = elcp1 * (ps->q2sat - ps->q2);
+    *t24 = es->sfctmp * es->sfctmp * es->sfctmp * es->sfctmp;
+    ps->rr = ps->emissi * *t24 * 6.48e-8 / (ps->sfcprs * ps->ch) + 1.0;
+
+    rho = ps->sfcprs / (RD * t2v);
+    ps->rch = rho * CP * ps->ch;
+
+    /* Adjust the partial sums/products with the latent heat effects caused by
+     * falling precipitation. */
+    if (!snowng)
+    {
+        if (wf->prcp > 0.0)
+        {
+            ps->rr += CPH2O * wf->prcp * 1000.0 / ps->rch;
+        }
+    }
+    else
+    {
+        ps->rr += CPICE * wf->prcp * 1000.0 / ps->rch;
+    }
+
+    /* Include the latent heat effects of frzng rain converting to ice on impact
+     * in the calculation of flx2 and fnet. */
+    ef->flx2 = (frzgra) ? -LSUBF * wf->prcp * 1000.0 : 0.0;
+
+    fnet = ef->fdown - ps->emissi * SIGMA * *t24 - ef->ssoil - ef->flx2;
+
+    /* Finish Penman equation calculations */
+    rad = fnet / ps->rch + es->th2 - es->sfctmp;
+    ps->epsca = (a * ps->rr + rad * delta) / (delta + ps->rr);
+    wf->etp = ps->epsca * ps->rch / lvs / 1000.0;
 }
