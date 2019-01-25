@@ -5,6 +5,7 @@ void InitLsm(elem_struct *elem, const ctrl_struct *ctrl,
 {
     int             i;
     double          frzfact;
+    const double    ICEH = 0.5;
 
 #if defined(_LUMPED_)
     for (i = 0; i < nelem + 1; i++)
@@ -16,6 +17,9 @@ void InitLsm(elem_struct *elem, const ctrl_struct *ctrl,
         /* Set-up soil layer depths */
         DefSldpth(elem[i].ps.sldpth, &elem[i].ps.nsoil, elem[i].ps.zsoil,
             elem[i].soil.depth, ctrl->sldpth, ctrl->nsoil);
+
+        /* Set-up glacier ice parameters */
+        elem[i].ps.iceh = (elem[i].lc.glacier == 1) ? ICEH : 0.0;
 
         /* Set-up soil parameters */
         elem[i].ps.nmacd =

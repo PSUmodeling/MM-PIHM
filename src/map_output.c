@@ -320,6 +320,14 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                         print->varctrl[n].var[j] = &elem[j].ps.snowh;
                     }
                     n++;
+
+                    InitPrtVarCtrl(outputdir, "iceh", prtvrbl[i],
+                        LS_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ps.iceh;
+                    }
+                    n++;
                     break;
                 case ALBEDO_CTRL:
                     InitPrtVarCtrl(outputdir, "albedo", prtvrbl[i],

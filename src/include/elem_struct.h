@@ -138,6 +138,7 @@ typedef struct lc_struct
     double          cmcfactr;     /* canopy water capacity per LAI (m) */
     int             bare;         /* flag that indicates bare ground */
     int             isurban;      /* flag that indicates urban */
+    int             glacier;      /* flag that indicates glacier */
 } lc_struct;
 
 #if !defined(_CYCLES_)
@@ -331,6 +332,7 @@ typedef struct pstate_struct
     double          sndens;                 /* snow density (dimensionless
                                              * fraction of H2O density) (-) */
     double          snowh;                  /* actual snow depth (m) */
+    double          iceh;                   /* actual glacier ice depth (m) */
     double          sncond;                 /* snow thermal conductivity
                                              * (W m-1 K-1) */
     double          rr;                     /* parameter in Penman potential
