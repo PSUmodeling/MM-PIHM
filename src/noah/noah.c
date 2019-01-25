@@ -3220,3 +3220,444 @@ double Psphs(double yy)
 {
     return 5.0 * yy;
 }
+
+void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
+    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
+    soil_struct *soil, double dt)
+{
+    /*
+     * Sub-driver for "Noah LSM" family of physics subroutines for a
+     * soil/veg/snowpack land-surface model to update ice temperature, skin
+     * temperature, snowpack water content, snowdepth, and all terms of the
+     * surface energy balance (excluding input atmospheric forcings of downward
+     * radiation and precip
+     */
+    int             frzgra, snowng;
+    const int       IZ0TLND = 0;
+    double          df1;
+    double          df1a;
+    double          dsoil;
+    double          dtot;
+    double          frcsno, frcsoi;
+    double          t1v;
+    double          th2v;
+    double          t2v;
+    double          t24;
+    double          interp_fraction;
+    double          sn_new;
+    double          prcpf;
+    double          soilwm;
+    double          soilww;
+    double          smav[MAXLYR];
+    int             k;
+
+    /*
+     * Initialization
+     */
+    wf->snomlt = 0.0;
+    wf->pcpdrp = 0.0;
+
+    /* Urban */
+    if (lc->isurban)
+    {
+        lc->shdfac = 0.05;
+#if !defined(_CYCLES_)
+        epc->rsmin = 400.0;
+#endif
+        soil->smcmax = 0.45;
+        soil->smcmin = 0.0;
+        soil->smcref = 0.42;
+        soil->smcwlt = 0.40;
+        soil->smcdry = 0.40;
+    }
+
+#if defined(_CYCLES_)
+    lc->shdfac = CommRadIntcp(crop);
+#endif
+
+    /* Set minimum LAI for non-barren land cover to improve performance */
+    if (lc->shdfac > 0.0)
+    {
+        ps->proj_lai = (ps->proj_lai > 0.5) ? ps->proj_lai : 0.5;
+    }
+
+    ws->cmcmax = lc->shdfac * lc->cmcfactr * ps->proj_lai;
+
+    /* Flux-PIHM uses LAI as a forcing variable.
+     * Vegetation fraction is calculated from LAI following Noah-MP */
+    if (ps->proj_lai >= lc->laimax)
+    {
+        ps->embrd = lc->emissmax;
+        ps->alb = lc->albedomin;
+        ps->z0brd = lc->z0max;
+    }
+    else if (ps->proj_lai <= lc->laimin)
+    {
+        ps->embrd = lc->emissmin;
+        ps->alb = lc->albedomax;
+        ps->z0brd = lc->z0min;
+    }
+    else
+    {
+        if (lc->laimax > lc->laimin)
+        {
+            interp_fraction =
+                (ps->proj_lai - lc->laimin) / (lc->laimax - lc->laimin);
+
+            /* Bound interp_fraction between 0 and 1 */
+            interp_fraction = (interp_fraction < 1.0) ? interp_fraction : 1.0;
+            interp_fraction = (interp_fraction > 0.0) ? interp_fraction : 0.0;
+
+            /* Scale emissivity and LAI between emissmin and emissmax by
+             * interp_fraction */
+            ps->embrd = ((1.0 - interp_fraction) * lc->emissmin) +
+                (interp_fraction * lc->emissmax);
+            ps->alb = ((1.0 - interp_fraction) * lc->albedomax) +
+                (interp_fraction * lc->albedomin);
+            ps->z0brd = ((1.0 - interp_fraction) * lc->z0min) +
+                (interp_fraction * lc->z0max);
+        }
+        else
+        {
+            ps->embrd = 0.5 * lc->emissmin + 0.5 * lc->emissmax;
+            ps->alb = 0.5 * lc->albedomin + 0.5 * lc->albedomax;
+            ps->z0brd = 0.5 * lc->z0min + 0.5 * lc->z0max;
+        }
+    }
+
+    /* Initialize precipitation logicals. */
+    snowng = 0;
+    frzgra = 0;
+
+    /* If input snowpack is nonzero, then compute snow density "sndens" and
+     * snow thermal conductivity "sncond" subroutine */
+    if (ws->sneqv <= 1.0e-7)    /* Safer if KMH (2008/03/25) */
+    {
+        ws->sneqv = 0.0;
+        ps->sndens = 0.0;
+        ps->snowh = 0.0;
+        ps->sncond = 1.0;
+    }
+    else
+    {
+        ps->sndens = ws->sneqv / ps->snowh;
+        if (ps->sndens > 1.0)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error: Physical snow depth is less than snow water equiv.\n");
+            PIHMexit(EXIT_FAILURE);
+        }
+
+        ps->sncond = CSnow(ps->sndens);
+    }
+
+    /* Determine if it's precipitating and what kind of precip it is.
+     * If it's prcping and the air temp is colder than 0 C, it's snowing!
+     * If it's prcping and the air temp is warmer than 0 C, but the grnd temp is
+     * colder than 0 C, freezing rain is presumed to be falling. */
+    if (wf->prcp > 0.0)
+    {
+        /* Snow defined when fraction of frozen precip (ffrozp) > 0.5, passed in
+         * from model microphysics.  */
+        if (ps->ffrozp > 0.5)
+        {
+            snowng = 1;
+        }
+        else
+        {
+            if (es->t1 <= TFREEZ)
+            {
+                frzgra = 1;
+            }
+        }
+    }
+
+    /* If either prcp flag is set, determine new snowfall and add it to the
+     * existing snowpack.
+     * Note that since all precip is added to snowpack, no precip infiltrates
+     * into the soil so that prcpf is set to zero. */
+    if (snowng || frzgra)
+    {
+        sn_new = wf->prcp * dt;
+        ws->sneqv += sn_new;
+        prcpf = 0.0;
+
+        /* Update snow density based on new snowfall, using old and new snow.
+         * Update snow thermal conductivity */
+        SnowNew(es, sn_new, ps);
+        ps->sncond = CSnow(ps->sndens);
+    }
+    else
+    {
+        /* Precip is liquid (rain), hence save in the precip variable (along
+         * with any canopy "drip" added to this later) */
+        prcpf = wf->prcp;
+    }
+
+    /*
+     * Determine snowcover and albedo over land.
+     */
+    if (ws->sneqv == 0.0)
+    {
+        /* If snow depth = 0, set snow fraction = 0, albedo = snow free albedo.
+         */
+        ps->sncovr = 0.0;
+        ps->albedo = ps->alb;
+        ps->emissi = ps->embrd;
+    }
+    else
+    {
+        /* Determine snow fractional coverage.
+         * Determine surface albedo modification due to snowdepth state. */
+        ps->sncovr = SnFrac(ws->sneqv, lc->snup, ps->salp);
+
+        ps->sncovr = (ps->sncovr < 0.98) ? ps->sncovr : 0.98;
+
+        AlCalc(ps, dt, snowng);
+    }
+
+    /*
+     * Next calculate the subsurface heat flux, which first requires
+     * calculation of the thermal diffusivity. Treatment of the latter
+     * follows that on Pages 148-149 from "Heat transfer in cold climates", by
+     * V. J. Lunardini (published in 1981 by van Nostrand Reinhold Co.) i.e.
+     * treatment of two contiguous "plane parallel" mediums (namely here the
+     * first soil layer and the snowpack layer, if any). This diffusivity
+     * treatment behaves well for both zero and nonzero snowpack, including the
+     * limit of very thin snowpack.  this treatment also eliminates the need to
+     * impose an arbitrary upper bound on subsurface heat flux when the snowpack
+     * becomes extremely thin.
+     *
+     * First calculate thermal diffusivity of top soil layer, using both the
+     * frozen and liquid soil moisture, following the soil thermal diffusivity
+     * function of Peters-Lidard et al. (1998, JAS, Vol 55, 1209-1224), which
+     * requires the specifying the quartz content of the given soil class (see
+     * routine RedPrm)
+     *
+     * Next add subsurface heat flux reduction effect from the overlying green
+     * canopy, adapted from Section 2.1.2 of Peters-Lidard et al. (1997, JGR,
+     * Vol 102(D4))
+     */
+    df1 = TDfCnd(ws->smc[0], soil->quartz, soil->smcmax, soil->smcmin,
+        ws->sh2o[0]);
+
+    /* Urban */
+    if (lc->isurban)
+    {
+        df1 = 3.24;
+    }
+
+    df1 *= exp(ps->sbeta * lc->shdfac);
+
+    /* KMH 09/03/2006
+     * KMH 03/25/2008  Change sncovr threshold to 0.97 */
+    if (ps->sncovr > 0.97)
+    {
+        df1 = ps->sncond;
+    }
+
+    /* Finally "plane parallel" snowpack effect following V. J. Linardini
+     * reference cited above. Note that dtot is combined depth of snowdepth and
+     * thickness of first soil layer */
+    dsoil = -(0.5 * ps->zsoil[0]);
+    if (ws->sneqv == 0.0)
+    {
+        ef->ssoil = df1 * (es->t1 - es->stc[0]) / dsoil;
+    }
+    else
+    {
+        dtot = ps->snowh + dsoil;
+        frcsno = ps->snowh / dtot;
+        frcsoi = dsoil / dtot;
+
+        /* 1. harmonic mean (series flow) */
+        //df1h = (ps->sncond * df1) / (frcsoi * ps->sncond + frcsno * df1);
+
+        /* 2. arithmetic mean (parallel flow) */
+        df1a = frcsno * ps->sncond + frcsoi * df1;
+
+        /* 3. geometric mean (intermediate between harmonic and arithmetic
+         * mean) */
+        //df1 = pow (sncond, frcsno) * pow(df1, frcsoi);
+        /* weigh df by snow fraction */
+        //df1 = df1h * sncovr + df1a * (1.0-sncovr);
+        //df1 = df1h * sncovr + df1 * (1.0-sncovr);
+
+        /* Calculate subsurface heat flux, ssoil, from final thermal
+         * diffusivity of surface mediums, df1 above, and skin temperature and
+         * top mid-layer soil temperature */
+        df1 = df1a * ps->sncovr + df1 * (1.0 - ps->sncovr);
+
+        ef->ssoil = df1 * (es->t1 - es->stc[0]) / dtot;
+    }
+
+    /*
+     * Determine surface roughness over snowpack using snow condition from the
+     * previous timestep.
+     */
+    if (ps->sncovr > 0.0)
+    {
+        ps->z0 = Snowz0(ps->sncovr, ps->z0brd, ps->snowh);
+    }
+    else
+    {
+        ps->z0 = ps->z0brd;
+    }
+
+    /*
+     * Next call function SfcDif to calculate the sfc exchange coef (ch) for
+     * heat and moisture.
+     *
+     * Note !!!
+     * Do not call SfcDif until after above call to RedPrm, in case alternative
+     * values of roughness length (z0) and Zilintinkevich coef (czil) are set
+     * there via namelist i/o.
+     *
+     * Note !!!
+     * Function SfcDif returns a ch that represents the wind spd times the
+     * "original" nondimensional "ch" typical in literature. Hence the ch
+     * returned from SfcDif has units of m/s. The important companion
+     * coefficient of ch, carried here as "rch", is the ch from sfcdif times air
+     * density and parameter "CP". "rch" is computed in "Penman".
+     * rch rather than ch is the coeff usually invoked later in eqns.
+     *
+     * Note !!!
+     * SfcDif also returns the surface exchange coefficient for momentum, cm,
+     * also known as the surface drag coefficient. Needed as a state variable
+     * for iterative/implicit solution of ch in SfcDif
+     */
+    t1v = es->t1 * (1.0 + 0.61 * ps->q2);
+    th2v = es->th2 * (1.0 + 0.61 * ps->q2);
+
+    SfcDifOff(ps, lc, t1v, th2v, IZ0TLND);
+
+    /*
+     * Call Penman function to calculate potential evaporation (ETP), and other
+     * partial products and sums save in common/rite for later calculations.
+     */
+
+    /* Calculate total downward radiation (solar plus longwave) needed in
+     * Penman ep subroutine that follows */
+    ef->fdown = ef->solnet + ef->lwdn;
+
+    /* Calc virtual temps and virtual potential temps needed by Penman. */
+    t2v = es->sfctmp * (1.0 + 0.61 * ps->q2);
+
+    Penman(wf, es, ef, ps, &t24, t2v, snowng, frzgra);
+
+    /*
+     * Call CanRes to calculate the canopy resistance and convert it into pc if
+     * nonzero greenness fraction
+     */
+    if (lc->shdfac > 0.0)
+    {
+#if defined(_CYCLES_)
+        CanRes(es, ps);
+#else
+        CanRes(ws, es, ef, ps, soil, epc);
+#endif
+    }
+    else
+    {
+        ps->rc = 0.0;
+    }
+
+    /*
+     * Now decide major pathway branch to take depending on whether snowpack
+     * exists or not
+     */
+    wf->esnow = 0.0;
+
+    if (ws->sneqv == 0.0)
+    {
+#if defined(_CYCLES_)
+        NoPac(soil, lc, cs, dt, t24, crop, ps, ws, wf, es, ef);
+#else
+        NoPac(ws, wf, es, ef, ps, lc, soil, dt, t24);
+#endif
+        ps->eta_kinematic = wf->eta * 1000.0;
+    }
+    else
+    {
+#if defined(_CYCLES_)
+        SnoPac(soil, lc, cs, snowng, dt, t24, prcpf, df1, crop, ps, ws, wf, es,
+            ef);
+#else
+        SnoPac(ws, wf, es, ef, ps, lc, soil, snowng, dt, t24, prcpf, df1);
+#endif
+        ps->eta_kinematic = (wf->esnow + wf->etns) * 1000.0;
+    }
+
+    /* Calculate effective mixing ratio at grnd level (skin) */
+    ps->q1 = ps->q2 + ps->eta_kinematic * CP / ps->rch;
+
+    /* Determine sensible heat (H) in energy units (W m-2) */
+    ef->sheat = -(ps->ch * CP * ps->sfcprs) / (RD * t2v) * (es->th2 - es->t1);
+
+    /* Convert evap terms from rate (m s-1) to energy units (w m-2) */
+    ef->edir = wf->edir * 1000.0 * LVH2O;
+    ef->ec = wf->ec * 1000.0 * LVH2O;
+    for (k = 0; k < ps->nsoil; k++)
+    {
+        ef->et[k] = wf->et[k] * 1000.0 * LVH2O;
+    }
+    ef->ett = wf->ett * 1000.0 * LVH2O;
+    ef->esnow = wf->esnow * 1000.0 * LSUBS;
+    ef->etp =
+        wf->etp * 1000.0 * ((1.0 - ps->sncovr) * LVH2O + ps->sncovr * LSUBS);
+    if (ef->etp > 0.0)
+    {
+        ef->eta = ef->edir + ef->ec + ef->ett + ef->esnow;
+#if defined(_CYCLES_)
+        ef->eta += wf->eres * RHOH2O * LVH2O;
+#endif
+    }
+    else
+    {
+        ef->eta = ef->etp;
+    }
+
+    /* Determine beta (ratio of actual to potential evap) */
+    ps->beta = (ef->etp == 0.0) ? 0.0 : (ef->eta / ef->etp);
+
+    /* Convert the sign of soil heat flux so that:
+     *   ssoil>0: warm the surface  (night time)
+     *   ssoil<0: cool the surface  (day time) */
+    ef->ssoil *= -1.0;
+
+    ws->soilm = -1.0 * ws->smc[0] * ps->zsoil[0];
+    for (k = 1; k < ps->nsoil; k++)
+    {
+        ws->soilm += ws->smc[k] * (ps->zsoil[k - 1] - ps->zsoil[k]);
+    }
+
+    soilwm = -1.0 * (soil->smcmax - soil->smcwlt) * ps->zsoil[0];
+    soilww = -1.0 * (ws->smc[0] - soil->smcwlt) * ps->zsoil[0];
+
+    for (k = 0; k < ps->nsoil; k++)
+    {
+        smav[k] = (ws->smc[k] - soil->smcwlt) / (soil->smcmax - soil->smcwlt);
+    }
+
+    if (ps->nroot > 1)
+    {
+        for (k = 1; k < ps->nroot; k++)
+        {
+            soilwm += (soil->smcmax - soil->smcwlt) *
+                (ps->zsoil[k - 1] - ps->zsoil[k]);
+            soilww += (ws->smc[k] - soil->smcwlt) *
+                (ps->zsoil[k - 1] - ps->zsoil[k]);
+        }
+    }
+
+    if (soilwm < 1.0e-6)
+    {
+        soilwm = 0.0;
+        ps->soilw = 0.0;
+        ws->soilm = 0.0;
+    }
+    else
+    {
+        ps->soilw = soilww / soilwm;
+    }
+}
