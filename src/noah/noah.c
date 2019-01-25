@@ -3257,32 +3257,6 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     wf->snomlt = 0.0;
     wf->pcpdrp = 0.0;
 
-    /* Urban */
-    if (lc->isurban)
-    {
-        lc->shdfac = 0.05;
-#if !defined(_CYCLES_)
-        epc->rsmin = 400.0;
-#endif
-        soil->smcmax = 0.45;
-        soil->smcmin = 0.0;
-        soil->smcref = 0.42;
-        soil->smcwlt = 0.40;
-        soil->smcdry = 0.40;
-    }
-
-#if defined(_CYCLES_)
-    lc->shdfac = CommRadIntcp(crop);
-#endif
-
-    /* Set minimum LAI for non-barren land cover to improve performance */
-    if (lc->shdfac > 0.0)
-    {
-        ps->proj_lai = (ps->proj_lai > 0.5) ? ps->proj_lai : 0.5;
-    }
-
-    ws->cmcmax = lc->shdfac * lc->cmcfactr * ps->proj_lai;
-
     /* Flux-PIHM uses LAI as a forcing variable.
      * Vegetation fraction is calculated from LAI following Noah-MP */
     if (ps->proj_lai >= lc->laimax)
@@ -3410,99 +3384,33 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         /* Determine snow fractional coverage.
          * Determine surface albedo modification due to snowdepth state. */
         ps->sncovr = SnFrac(ws->sneqv, lc->snup, ps->salp);
-
         ps->sncovr = (ps->sncovr < 0.98) ? ps->sncovr : 0.98;
 
         AlCalc(ps, dt, snowng);
     }
 
-    /*
-     * Next calculate the subsurface heat flux, which first requires
-     * calculation of the thermal diffusivity. Treatment of the latter
-     * follows that on Pages 148-149 from "Heat transfer in cold climates", by
-     * V. J. Lunardini (published in 1981 by van Nostrand Reinhold Co.) i.e.
-     * treatment of two contiguous "plane parallel" mediums (namely here the
-     * first soil layer and the snowpack layer, if any). This diffusivity
-     * treatment behaves well for both zero and nonzero snowpack, including the
-     * limit of very thin snowpack.  this treatment also eliminates the need to
-     * impose an arbitrary upper bound on subsurface heat flux when the snowpack
-     * becomes extremely thin.
-     *
-     * First calculate thermal diffusivity of top soil layer, using both the
-     * frozen and liquid soil moisture, following the soil thermal diffusivity
-     * function of Peters-Lidard et al. (1998, JAS, Vol 55, 1209-1224), which
-     * requires the specifying the quartz content of the given soil class (see
-     * routine RedPrm)
-     *
-     * Next add subsurface heat flux reduction effect from the overlying green
-     * canopy, adapted from Section 2.1.2 of Peters-Lidard et al. (1997, JGR,
-     * Vol 102(D4))
-     */
-    df1 = TDfCnd(ws->smc[0], soil->quartz, soil->smcmax, soil->smcmin,
-        ws->sh2o[0]);
-
-    /* Urban */
-    if (lc->isurban)
-    {
-        df1 = 3.24;
-    }
-
-    df1 *= exp(ps->sbeta * lc->shdfac);
-
-    /* KMH 09/03/2006
-     * KMH 03/25/2008  Change sncovr threshold to 0.97 */
-    if (ps->sncovr > 0.97)
-    {
-        df1 = ps->sncond;
-    }
+    /* Thermal conductivity */
+    df1 = (ps->snowh * ps->sncond + ps->iceh * ps->icecond) /
+        (ps->snowh + ps->iceh);
 
     /* Finally "plane parallel" snowpack effect following V. J. Linardini
      * reference cited above. Note that dtot is combined depth of snowdepth and
      * thickness of first soil layer */
     dsoil = -(0.5 * ps->zsoil[0]);
-    if (ws->sneqv == 0.0)
-    {
-        ef->ssoil = df1 * (es->t1 - es->stc[0]) / dsoil;
-    }
-    else
-    {
-        dtot = ps->snowh + dsoil;
-        frcsno = ps->snowh / dtot;
-        frcsoi = dsoil / dtot;
 
-        /* 1. harmonic mean (series flow) */
-        //df1h = (ps->sncond * df1) / (frcsoi * ps->sncond + frcsno * df1);
+    dtot = ps->snowh + ps->iceh + dsoil;
+    dtot = (dtot > 2.0 * dsoil) ? 2.0 * dsoil : dtot;
 
-        /* 2. arithmetic mean (parallel flow) */
-        df1a = frcsno * ps->sncond + frcsoi * df1;
-
-        /* 3. geometric mean (intermediate between harmonic and arithmetic
-         * mean) */
-        //df1 = pow (sncond, frcsno) * pow(df1, frcsoi);
-        /* weigh df by snow fraction */
-        //df1 = df1h * sncovr + df1a * (1.0-sncovr);
-        //df1 = df1h * sncovr + df1 * (1.0-sncovr);
-
-        /* Calculate subsurface heat flux, ssoil, from final thermal
-         * diffusivity of surface mediums, df1 above, and skin temperature and
-         * top mid-layer soil temperature */
-        df1 = df1a * ps->sncovr + df1 * (1.0 - ps->sncovr);
-
-        ef->ssoil = df1 * (es->t1 - es->stc[0]) / dtot;
-    }
+    /* Calculate subsurface heat flux, ssoil, from final thermal
+     * diffusivity of surface mediums, df1 above, and skin temperature and
+     * top mid-layer soil temperature */
+    ef->ssoil = df1 * (es->t1 - es->stc[0]) / dtot;
 
     /*
      * Determine surface roughness over snowpack using snow condition from the
      * previous timestep.
      */
-    if (ps->sncovr > 0.0)
-    {
-        ps->z0 = Snowz0(ps->sncovr, ps->z0brd, ps->snowh);
-    }
-    else
-    {
-        ps->z0 = ps->z0brd;
-    }
+    ps->z0 = Snowz0(ps->sncovr, ps->z0brd, ps->snowh + ps->iceh);
 
     /*
      * Next call function SfcDif to calculate the sfc exchange coef (ch) for
