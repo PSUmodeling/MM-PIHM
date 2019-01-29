@@ -1335,21 +1335,21 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     }
 
     /* Initialize virtual cell */
-    CD->Vcele[PRCP_VOL].height_o = 0.0;
-    CD->Vcele[PRCP_VOL].height_t = 0.0;
-    CD->Vcele[PRCP_VOL].area = 0.0;
-    CD->Vcele[PRCP_VOL].porosity = 0.0;
-    CD->Vcele[PRCP_VOL].sat = 0.0;
-    CD->Vcele[PRCP_VOL].vol_o = 0.0;
-    CD->Vcele[PRCP_VOL].vol = 0.0;
+    CD->Vcele[PRCP_VOL - 1].height_o = 0.0;
+    CD->Vcele[PRCP_VOL - 1].height_t = 0.0;
+    CD->Vcele[PRCP_VOL - 1].area = 0.0;
+    CD->Vcele[PRCP_VOL - 1].porosity = 0.0;
+    CD->Vcele[PRCP_VOL - 1].sat = 0.0;
+    CD->Vcele[PRCP_VOL - 1].vol_o = 0.0;
+    CD->Vcele[PRCP_VOL - 1].vol = 0.0;
 
-    CD->Vcele[VIRTUAL_VOL].height_o = 1.0;
-    CD->Vcele[VIRTUAL_VOL].height_t = 1.0;
-    CD->Vcele[VIRTUAL_VOL].area = 1.0;
-    CD->Vcele[VIRTUAL_VOL].porosity = 1.0;
-    CD->Vcele[VIRTUAL_VOL].sat = 1.0;
-    CD->Vcele[VIRTUAL_VOL].vol_o = 1.0;
-    CD->Vcele[VIRTUAL_VOL].vol = 1.0;
+    CD->Vcele[VIRTUAL_VOL - 1].height_o = 1.0;
+    CD->Vcele[VIRTUAL_VOL - 1].height_t = 1.0;
+    CD->Vcele[VIRTUAL_VOL - 1].area = 1.0;
+    CD->Vcele[VIRTUAL_VOL - 1].porosity = 1.0;
+    CD->Vcele[VIRTUAL_VOL - 1].sat = 1.0;
+    CD->Vcele[VIRTUAL_VOL - 1].vol_o = 1.0;
+    CD->Vcele[VIRTUAL_VOL - 1].vol = 1.0;
 
     for (i = 0; i < CD->NumSpc; i++)
     {
