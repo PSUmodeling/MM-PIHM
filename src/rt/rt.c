@@ -1150,6 +1150,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             (int *)malloc((CD->TSD_prepconc[0].length) * sizeof(int));
         CD->TSD_prepconc[0].data =
             (double **)malloc((CD->TSD_prepconc[0].length) * sizeof(double *));
+        CD->TSD_prepconc[0].value =
+            (double *)malloc(CD->TSD_prepconc[0].nspec * sizeof(double));
         for (i = 0; i < CD->TSD_prepconc[0].length; i++)
         {
             CD->TSD_prepconc[0].data[i] =
