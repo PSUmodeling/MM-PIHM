@@ -216,7 +216,6 @@ int main(int argc, char *argv[])
     // 12.30, RT use
     t_end = time(NULL);
     t_duration = t_end - t_start;
-    fprintf(stderr, "\n# of threads = %d. \n", nthreads);
     fprintf(stderr, "Wall time of simulation = %.3f [min] or %.3f [hr]. \n", t_duration/60, t_duration/3600);
     fprintf(stderr, "Wall time of hydro step = %.3f [min] or %.3f [hr]. \n", t_duration_hydro/60, t_duration_hydro/3600);
     fprintf(stderr, "Wall time of rt step = %.3f [min] or %.3f [hr]. \n", t_duration_rt/60, t_duration_rt/3600);
