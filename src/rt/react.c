@@ -843,6 +843,9 @@ int Speciation(Chem_Data CD, int cell)
                 if (fabs(error[i]) > maxerror)
                     maxerror = fabs(error[i]);
         }
+
+        free(p);
+        free(x_);
     }
     else
     {
@@ -940,6 +943,9 @@ int Speciation(Chem_Data CD, int cell)
                 if (fabs(error[i]) > maxerror)
                     maxerror = fabs(error[i]);
         }
+
+        free(p);
+        free(x_);
     }
     for (i = 0; i < CD->NumSsc; i++)
     {
