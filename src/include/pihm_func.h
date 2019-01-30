@@ -372,6 +372,9 @@ double          GwTransp(double, const double *, int, int);
 void            HRT(wstate_struct *, const estate_struct *, eflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *, double *,
     double, double, double, double, double *, double *, double *);
+void            IcePac(wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
+    int, double, double, double, double);
 void            InitLsm(elem_struct *, const ctrl_struct *,
     const noahtbl_struct *, const calib_struct *);
 double          Mod(double, double);
@@ -390,6 +393,8 @@ void            PcpDrp(wstate_struct *, wflux_struct *, const lc_struct *,
     double, double);
 void            Penman(wflux_struct *, const estate_struct *, eflux_struct *,
     pstate_struct *, double *, double, int, int);
+void            PenmanGlacial(wflux_struct *, const estate_struct *,
+    eflux_struct *, pstate_struct *, double *, double, int, int);
 double          Pslhs(double);
 double          Pslhu(double);
 double          Pslms(double);
@@ -415,6 +420,9 @@ void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
     soil_struct *, double);
 # endif
+void            SFlxGlacial(wstate_struct *, wflux_struct *, estate_struct *,
+    eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
+    soil_struct *, double);
 void            ShFlx(wstate_struct *, estate_struct *, eflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *, double,
     double, double, double);

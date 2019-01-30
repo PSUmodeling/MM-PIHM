@@ -335,6 +335,8 @@ typedef struct pstate_struct
     double          iceh;                   /* actual glacier ice depth (m) */
     double          sncond;                 /* snow thermal conductivity
                                              * (W m-1 K-1) */
+    double          icecond;                /* ice thermal conductivity
+                                             * (W m-1 K-1) */
     double          rr;                     /* parameter in Penman potential
                                              * evaporation (-) */
     double          epsca;                  /* parameter in Penman potential

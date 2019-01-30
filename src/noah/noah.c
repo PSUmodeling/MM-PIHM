@@ -3389,6 +3389,8 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         AlCalc(ps, dt, snowng);
     }
 
+    ps->icecond = 2.4;
+
     /* Thermal conductivity */
     df1 = (ps->snowh * ps->sncond + ps->iceh * ps->icecond) /
         (ps->snowh + ps->iceh);
@@ -3456,7 +3458,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     ps->rc = 0.0;
 
     IcePac(ws, wf, es, ef, ps, lc, soil, snowng, dt, t24, prcpf, df1);
-    ps->eta_kinematic = (wf->esnow + wf->etns) * 1000.0;
+    ps->eta_kinematic = wf->esnow * 1000.0;
 
     /* Calculate effective mixing ratio at grnd level (skin) */
     ps->q1 = ps->q2 + ps->eta_kinematic * CP / ps->rch;
@@ -3474,13 +3476,10 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     ef->ett = wf->ett * 1000.0 * LVH2O;
     ef->esnow = wf->esnow * 1000.0 * LSUBS;
     ef->etp =
-        wf->etp * 1000.0 * ((1.0 - ps->sncovr) * LVH2O + ps->sncovr * LSUBS);
+        wf->etp * 1000.0 * LSUBS;
     if (ef->etp > 0.0)
     {
-        ef->eta = ef->edir + ef->ec + ef->ett + ef->esnow;
-#if defined(_CYCLES_)
-        ef->eta += wf->eres * RHOH2O * LVH2O;
-#endif
+        ef->eta = ef->esnow;
     }
     else
     {
@@ -3501,35 +3500,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         ws->soilm += ws->smc[k] * (ps->zsoil[k - 1] - ps->zsoil[k]);
     }
 
-    soilwm = -1.0 * (soil->smcmax - soil->smcwlt) * ps->zsoil[0];
-    soilww = -1.0 * (ws->smc[0] - soil->smcwlt) * ps->zsoil[0];
-
-    for (k = 0; k < ps->nsoil; k++)
-    {
-        smav[k] = (ws->smc[k] - soil->smcwlt) / (soil->smcmax - soil->smcwlt);
-    }
-
-    if (ps->nroot > 1)
-    {
-        for (k = 1; k < ps->nroot; k++)
-        {
-            soilwm += (soil->smcmax - soil->smcwlt) *
-                (ps->zsoil[k - 1] - ps->zsoil[k]);
-            soilww += (ws->smc[k] - soil->smcwlt) *
-                (ps->zsoil[k - 1] - ps->zsoil[k]);
-        }
-    }
-
-    if (soilwm < 1.0e-6)
-    {
-        soilwm = 0.0;
-        ps->soilw = 0.0;
-        ws->soilm = 0.0;
-    }
-    else
-    {
-        ps->soilw = soilww / soilwm;
-    }
+    ps->soilw = 0.0;
 }
 
 void PenmanGlacial(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,

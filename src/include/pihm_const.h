@@ -20,6 +20,8 @@
 #define EMISSI_S    0.95       /* emissivity of snow (-) */
 #define TFREEZ      273.15     /* freezing point (K) */
 #define LSUBS       2.83e6     /* latent heat of sublimation (J kg-1) */
+#define ICEDENS     0.9        /* glacier ice density (g cm-3, or dimensionless
+                                * fraction of h2o density */
 
 #define F_OK    0
 
