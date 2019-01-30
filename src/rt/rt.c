@@ -255,6 +255,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         (char *)malloc((strlen(filename) * 2 + 100) * sizeof(char));
     sprintf(maxwaterfn, "input/%s/%s.maxwater", filename, filename);
     FILE           *maxwater = fopen(maxwaterfn, "r");
+    free(maxwaterfn);
 
     if (chemfile == NULL)
     {
@@ -1239,6 +1240,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         fscanf(maxwater, "%*d %lf", &(CD->Vcele[RT_GW(i)].maxwater));
         CD->Vcele[RT_UNSAT(i)].maxwater = CD->Vcele[RT_GW(i)].maxwater;
     }
+
+    fclose(maxwater);
 
     /* Initializing volumetric parameters, inherit from PIHM
      * That is, if PIHM is started from a hot start, rt is also
@@ -2595,24 +2598,32 @@ void FreeChem(Chem_Data CD)
     free(CD->Totalconck);
 #endif
 
+    free(CD->kinetics);
     free(CD->Keq);
     free(CD->KeqKinect);
     free(CD->KeqKinect_all);
 
     // CD->Vcele
-    free(CD->Vcele->t_conc);
-    free(CD->Vcele->p_conc);
-    free(CD->Vcele->s_conc);
-    free(CD->Vcele->log10_pconc);
-    free(CD->Vcele->log10_sconc);
-    free(CD->Vcele->p_actv);
-    free(CD->Vcele->p_para);
-    free(CD->Vcele->p_type);
+    for (i = 0; i < CD->NumVol; i++)
+    {
+        free(CD->Vcele[i].t_conc);
+        free(CD->Vcele[i].p_conc);
+        free(CD->Vcele[i].s_conc);
+        free(CD->Vcele[i].log10_pconc);
+        free(CD->Vcele[i].log10_sconc);
+        free(CD->Vcele[i].p_actv);
+        free(CD->Vcele[i].p_para);
+        free(CD->Vcele[i].p_type);
+        free(CD->Vcele[i].btcv_pconc);
+    }
     free(CD->Vcele);
 
     free(CD->Flux);
 
-    free(CD->chemtype->ChemName);
+    for (i = 0; i < CD->NumStc + CD->NumSsc; i++)
+    {
+        free(CD->chemtype[i].ChemName);
+    }
     free(CD->chemtype);
 
     free(CD->pumps->Name_Species);
@@ -2623,8 +2634,16 @@ void FreeChem(Chem_Data CD)
     {
         free(CD->TSD_prepconc[0].data[i]);
     }
+    free(CD->TSD_prepconc[0].data);
     free(CD->TSD_prepconc[0].ftime);
+    free(CD->TSD_prepconc[0].value);
     free(CD->TSD_prepconc);
+
+    free(CD->Precipitation.p_type);
+    free(CD->Precipitation.t_conc);
+    free(CD->Precipitation.p_conc);
+    free(CD->Precipitation.p_para);
+
 }
 
 double Dist2Edge(const meshtbl_struct *meshtbl, const elem_struct *elem,
