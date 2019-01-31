@@ -36,7 +36,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
 
 #if defined(_NOAH_)
         /* Calculate surface energy balance */
-        Noah(pihm->elem, (double)pihm->ctrl.etstep);
+        Noah(pihm->elem, &pihm->lctbl, &pihm->cal, (double)pihm->ctrl.etstep);
 #else
         /* Calculate Interception storage and ET */
         IntcpSnowEt(t, (double)pihm->ctrl.etstep, pihm->elem, &pihm->cal);

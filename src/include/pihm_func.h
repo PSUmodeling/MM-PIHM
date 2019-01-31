@@ -380,7 +380,8 @@ void            IcePac(wstate_struct *, wflux_struct *, estate_struct *,
 void            InitLsm(elem_struct *, const ctrl_struct *,
     const noahtbl_struct *, const calib_struct *);
 double          Mod(double, double);
-void            Noah(elem_struct *, double);
+void            Noah(elem_struct *, const lctbl_struct *, const calib_struct *,
+    double);
 void            NoahHydrol(elem_struct *, double);
 # if defined(_CYCLES_)
 void            NoPac(const soil_struct *, const lc_struct *,
