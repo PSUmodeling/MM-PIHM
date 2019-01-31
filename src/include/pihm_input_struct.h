@@ -25,6 +25,7 @@ typedef struct filename_struct
     char            lsm[MAXSTRING];         /* land surface module control file
                                              * name */
     char            rad[MAXSTRING];         /* radiation forcing file name */
+    char            ice[MAXSTRING];         /* glacier ice file name */
 #endif
 #if defined(_CYCLES_)
     char            cycles[MAXSTRING];

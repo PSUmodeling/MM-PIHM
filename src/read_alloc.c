@@ -38,6 +38,7 @@ void ReadAlloc(pihm_struct pihm)
 #if defined(_NOAH_)
     sprintf(pihm->filename.lsm,      "input/%s/%s.lsm",      proj, proj);
     sprintf(pihm->filename.rad,      "input/%s/%s.rad",      proj, proj);
+    sprintf(pihm->filename.ice,      "input/%s/%s.ice",      proj, proj);
 #endif
 #if defined(_CYCLES_)
     sprintf(pihm->filename.cycles,   "input/%s/%s.cycles",   proj, proj);
