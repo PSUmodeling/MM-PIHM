@@ -39,13 +39,22 @@ void Noah(elem_struct *elem, double dt)
         /*
          * Run Noah LSM
          */
+        if (elem[i].lc.glacier == 1)
+        {
+            SFlxGlacial(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef,
+                &elem[i].ps, &elem[i].lc, &elem[i].epc, &elem[i].soil, dt);
+        }
+        else
+        {
 #if defined(_CYCLES_)
-        SFlx(&elem[i].cs, dt, &elem[i].soil, &elem[i].lc, elem[i].crop,
-            &elem[i].ps, &elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef);
+            SFlx(&elem[i].cs, dt, &elem[i].soil, &elem[i].lc, elem[i].crop,
+                &elem[i].ps, &elem[i].ws, &elem[i].wf, &elem[i].es,
+                &elem[i].ef);
 #else
-        SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef, &elem[i].ps,
-          &elem[i].lc, &elem[i].epc, &elem[i].soil, dt);
+            SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef,
+                &elem[i].ps, &elem[i].lc, &elem[i].epc, &elem[i].soil, dt);
 #endif
+        }
 
         /* ET: convert from W m-2 to m s-1 */
         elem[i].wf.ec = elem[i].ef.ec / LVH2O / 1000.0;
@@ -3593,6 +3602,7 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     double          t11;
     double          yy;
     double          zz1;
+    double          sniceeqv;
     const double    ESDMIN = 1.0e-6;
     const double    SNOEXP = 2.0;
 
@@ -3678,6 +3688,8 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * Update soil heat flux (ssoil) using new skin temperature (t1) since no
      * snowmelt, set accumulated snowmelt to zero, set 'effective' precip from
      * snowmelt to zero, set phase-change heat flux from snowmelt to zero. */
+    sniceeqv = (ws->sneqv > 0.0) ? ws->sneqv : ps->iceh * ICEDENS;
+
     if (t12 <= TFREEZ)
     {
         /* Sub-freezing block */
@@ -3685,31 +3697,15 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         ef->ssoil = df1 * (es->t1 - es->stc[0]) / dtot;
 
         /* Snow melts before ice */
-        if (ws->sneqv > 0.0)
+        if (sniceeqv - esnow2 > 0.0)
         {
-            if (ws->sneqv - esnow2 > 0.0)
-            {
-                ws->sneqv -= esnow2;
-            }
-            else
-            {
-                ws->sneqv = 0.0;
-                esnow2 = ws->sneqv;
-                wf->esnow = esnow2 / dt;
-            }
+            sniceeqv -= esnow2;
         }
         else
         {
-            if (ps->iceh * ICEDENS - esnow2 > 0.0)
-            {
-                ps->iceh -= esnow2 / ICEDENS;
-            }
-            else
-            {
-                ps->iceh = 0.0;
-                esnow2 = ps->iceh * ICEDENS;
-                wf->esnow = esnow2 / dt;
-            }
+            sniceeqv = 0.0;
+            esnow2 = sniceeqv;
+            wf->esnow = esnow2 / dt;
         }
 
         ef->flx3 = 0.0;
@@ -3738,12 +3734,12 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         dtot = (dtot > 2.0 * dsoil) ? 2.0 * dsoil : dtot;
         ef->ssoil = df1 * (es->t1 - es->stc[0]) / dtot;
 
-        if (ws->sneqv - esnow2 <= ESDMIN)
+        if (sniceeqv - esnow2 <= ESDMIN)
         {
             /* If potential evap (sublimation) greater than depth of snowpack.
              * beta < 1
              * snowpack has sublimated away, set depth to zero. */
-            ws->sneqv = 0.0;
+            sniceeqv = 0.0;
             ex = 0.0;
             wf->snomlt = 0.0;
             ef->flx3 = 0.0;
@@ -3752,7 +3748,7 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         {
             /* Sublimation less than depth of snowpack
              * Snowpack (esd) reduced by esnow2 (depth of sublimated snow) */
-            ws->sneqv -= esnow2;
+            sniceeqv -= esnow2;
             etp3 = wf->etp * 1000.0 * LVH2O;
             seh = ps->rch * (es->t1 - es->th2);
             t14 = es->t1 * es->t1 * es->t1 * es->t1;
@@ -3769,22 +3765,31 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
             /* ESDMIN represents a snowpack depth threshold value below which
              * we choose not to retain any snowpack, and instead include it in
              * snowmelt. */
-            if (ws->sneqv - wf->snomlt * dt >= ESDMIN)
+            if (sniceeqv - wf->snomlt * dt >= ESDMIN)
             {
-                ws->sneqv -= wf->snomlt * dt;
+                sniceeqv -= wf->snomlt * dt;
             }
             else
             {
                 /* Snowmelt exceeds snow depth */
-                ex = ws->sneqv / dt;
+                ex = sniceeqv / dt;
                 ef->flx3 = ex * 1000.0 * LSUBF;
-                wf->snomlt = ws->sneqv / dt;
+                wf->snomlt = sniceeqv / dt;
 
-                ws->sneqv = 0.0;
+                sniceeqv = 0.0;
             }
         }
 
         prcpf += ex;
+    }
+
+    if (ws->sneqv > 0.0)
+    {
+        ws->sneqv = sniceeqv;
+    }
+    else
+    {
+        ps->iceh = sniceeqv / ICEDENS;
     }
 
     wf->pcpdrp =  prcpf;
