@@ -14,48 +14,54 @@ void InitLc(elem_struct *elem, const lctbl_struct *lctbl,
     for (i = 0; i < nelem; i++)
 #endif
     {
-        int             lc_ind;
+        _InitLc(&elem[i], lctbl, cal);
+    }
+}
 
-        lc_ind = elem[i].attrib.lc_type - 1;
+void _InitLc(elem_struct *elem_ptr, const lctbl_struct *lctbl,
+    const calib_struct *cal)
+{
+    int             lc_ind;
 
-        elem[i].ps.rzd = cal->rzd * lctbl->rzd[lc_ind];
+    lc_ind = elem_ptr->attrib.lc_type - 1;
+
+    elem_ptr->ps.rzd = cal->rzd * lctbl->rzd[lc_ind];
 #if !defined(_CYCLES_)
-        elem[i].epc.rsmin = lctbl->rsmin[lc_ind];
-        elem[i].epc.rgl = lctbl->rgl[lc_ind];
-        elem[i].epc.hs = lctbl->hs[lc_ind];
-        elem[i].epc.rsmax = lctbl->rsmax;
-        elem[i].epc.topt = lctbl->topt;
+    elem_ptr->epc.rsmin = lctbl->rsmin[lc_ind];
+    elem_ptr->epc.rgl = lctbl->rgl[lc_ind];
+    elem_ptr->epc.hs = lctbl->hs[lc_ind];
+    elem_ptr->epc.rsmax = lctbl->rsmax;
+    elem_ptr->epc.topt = lctbl->topt;
 #endif
-        elem[i].lc.shdfac = cal->vegfrac * lctbl->vegfrac[lc_ind];
-        elem[i].lc.laimin = lctbl->laimin[lc_ind];
-        elem[i].lc.laimax = lctbl->laimax[lc_ind];
-        elem[i].lc.emissmin = lctbl->emissmin[lc_ind];
-        elem[i].lc.emissmax = lctbl->emissmax[lc_ind];
-        elem[i].lc.albedomin = cal->albedo * lctbl->albedomin[lc_ind];
-        elem[i].lc.albedomax = cal->albedo * lctbl->albedomax[lc_ind];
-        elem[i].lc.z0min = lctbl->z0min[lc_ind];
-        elem[i].lc.z0max = lctbl->z0max[lc_ind];
-        elem[i].lc.rough = cal->rough * lctbl->rough[lc_ind];
-        elem[i].lc.cmcfactr = CMCFACTR;
-        elem[i].lc.cfactr = lctbl->cfactr;
-        elem[i].lc.bare = (lctbl->bare == elem[i].attrib.lc_type) ? 1 : 0;
-        elem[i].lc.shdfac = (1 == elem[i].lc.bare) ? 0.0 : elem[i].lc.shdfac;
+    elem_ptr->lc.shdfac = cal->vegfrac * lctbl->vegfrac[lc_ind];
+    elem_ptr->lc.laimin = lctbl->laimin[lc_ind];
+    elem_ptr->lc.laimax = lctbl->laimax[lc_ind];
+    elem_ptr->lc.emissmin = lctbl->emissmin[lc_ind];
+    elem_ptr->lc.emissmax = lctbl->emissmax[lc_ind];
+    elem_ptr->lc.albedomin = cal->albedo * lctbl->albedomin[lc_ind];
+    elem_ptr->lc.albedomax = cal->albedo * lctbl->albedomax[lc_ind];
+    elem_ptr->lc.z0min = lctbl->z0min[lc_ind];
+    elem_ptr->lc.z0max = lctbl->z0max[lc_ind];
+    elem_ptr->lc.rough = cal->rough * lctbl->rough[lc_ind];
+    elem_ptr->lc.cmcfactr = CMCFACTR;
+    elem_ptr->lc.cfactr = lctbl->cfactr;
+    elem_ptr->lc.bare = (lctbl->bare == elem_ptr->attrib.lc_type) ? 1 : 0;
+    elem_ptr->lc.shdfac = (1 == elem_ptr->lc.bare) ? 0.0 : elem_ptr->lc.shdfac;
 #if defined(_NOAH_)
-        elem[i].lc.snup = lctbl->snup[lc_ind];
-        elem[i].lc.isurban = (ISURBAN == elem[i].attrib.lc_type) ? 1 : 0;
-        elem[i].lc.glacier = (SNOW_ICE == elem[i].attrib.lc_type) ? 1 : 0;
-        elem[i].lc.shdmin = 0.01;
-        elem[i].lc.shdmax = 0.96;
+    elem_ptr->lc.snup = lctbl->snup[lc_ind];
+    elem_ptr->lc.isurban = (ISURBAN == elem_ptr->attrib.lc_type) ? 1 : 0;
+    elem_ptr->lc.glacier = (SNOW_ICE == elem_ptr->attrib.lc_type) ? 1 : 0;
+    elem_ptr->lc.shdmin = 0.01;
+    elem_ptr->lc.shdmax = 0.96;
 #endif
 
 #if defined(_NOAH_)
 # if !defined(_CYCLES_)
-        elem[i].epc.rgl *= cal->rgl;
-        elem[i].epc.hs *= cal->hs;
-        elem[i].epc.rsmin *= cal->rsmin;
+    elem_ptr->epc.rgl *= cal->rgl;
+    elem_ptr->epc.hs *= cal->hs;
+    elem_ptr->epc.rsmin *= cal->rsmin;
 # endif
-        elem[i].lc.cmcfactr *= cal->cmcmax;
-        elem[i].lc.cfactr *= cal->cfactr;
+    elem_ptr->lc.cmcfactr *= cal->cmcmax;
+    elem_ptr->lc.cfactr *= cal->cfactr;
 #endif
-    }
 }

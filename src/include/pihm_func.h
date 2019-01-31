@@ -100,6 +100,8 @@
 /*
  * Function Declarations
  */
+void            _InitLc(elem_struct *, const lctbl_struct *,
+    const calib_struct *);
 double          _WsAreaElev(int, const elem_struct *);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
 void            ApplyBc(forc_struct *, elem_struct *, river_struct *, int);
