@@ -140,6 +140,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm)
 	noah/lsm_func.c\
 	noah/lsm_read.c\
 	noah/noah.c\
+	noah/noah_glacial_only.c\
 	noah/topo_radn.c\
 	spa/spa.c
   MODULE_HEADERS_ = include/spa.h
@@ -158,6 +159,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-fbr)
 	fbr/read_geol.c\
 	noah/lsm_init.c\
 	noah/noah.c\
+	noah/noah_glacial_only.c\
 	noah/lsm_func.c\
 	noah/lsm_read.c\
 	noah/topo_radn.c\
@@ -177,6 +179,7 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	noah/lsm_func.c\
 	noah/lsm_read.c\
 	noah/noah.c\
+	noah/noah_glacial_only.c\
 	noah/topo_radn.c\
 	spa/spa.c\
 	rt/rt.c\
@@ -231,6 +234,7 @@ endif
 	noah/lsm_init.c\
 	noah/lsm_read.c\
 	noah/noah.c\
+	noah/noah_glacial_only.c\
 	noah/topo_radn.c\
 	spa/spa.c
   MODULE_HEADERS_ = include/spa.h
@@ -256,6 +260,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	noah/lsm_init.c\
 	noah/lsm_read.c\
 	noah/noah.c\
+	noah/noah_glacial_only.c\
 	noah/topo_radn.c\
 	spa/spa.c
   CYCLES_SRCS_ =\
