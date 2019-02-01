@@ -191,31 +191,31 @@ void ReadEpc(epctbl_struct *epctbl)
     {
         switch (i + 1)
         {
-            case ENF:
+            case IGBP_ENF:
                 strcpy(fn, "input/epc/enf.epc");
                 epc_file = fopen(fn, "r");
                 break;
-            case EBF:
+            case IGBP_EBF:
                 strcpy(fn, "input/epc/ebf.epc");
                 epc_file = fopen(fn, "r");
                 break;
-            case DNF:
+            case IGBP_DNF:
                 strcpy(fn, "input/epc/dnf.epc");
                 epc_file = fopen(fn, "r");
                 break;
-            case DBF:
+            case IGBP_DBF:
                 strcpy(fn, "input/epc/dbf.epc");
                 epc_file = fopen(fn, "r");
                 break;
-            case GRASS:
+            case IGBP_GRASS:
                 strcpy(fn, "input/epc/c3grass.epc");
                 epc_file = fopen(fn, "r");
                 break;
-            case CLOSE_SHRUB:
+            case IGBP_CLOSE_SHRUB:
                 strcpy(fn, "input/epc/shrub.epc");
                 epc_file = fopen(fn, "r");
                 break;
-            case OPEN_SHRUB:
+            case IGBP_OPEN_SHRUB:
                 strcpy(fn, "input/epc/shrub.epc");
                 epc_file = fopen(fn, "r");
                 break;

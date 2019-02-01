@@ -16,12 +16,12 @@ void InitBgc(elem_struct *elem, const epctbl_struct *epctbl,
     {
         epc_ind = elem[i].attrib.lc_type - 1;
 
-        if (epc_ind != ENF - 1 &&
-            epc_ind != EBF - 1 &&
-            epc_ind != DNF - 1 &&
-            epc_ind != DBF - 1 &&
-            epc_ind != GRASS - 1 &&
-            epc_ind != CLOSE_SHRUB - 1 && epc_ind != OPEN_SHRUB - 1)
+        if (epc_ind != IGBP_ENF - 1 &&
+            epc_ind != IGBP_EBF - 1 &&
+            epc_ind != IGBP_DNF - 1 &&
+            epc_ind != IGBP_DBF - 1 &&
+            epc_ind != IGBP_GRASS - 1 &&
+            epc_ind != IGBP_CLOSE_SHRUB - 1 && epc_ind != IGBP_OPEN_SHRUB - 1)
         {
             PIHMprintf(VL_ERROR,
                 "Error: Land cover type %d not defined in Flux-PIHM-BGC.\n",

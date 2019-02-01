@@ -50,7 +50,7 @@ void _InitLc(elem_struct *elem_ptr, const lctbl_struct *lctbl,
 #if defined(_NOAH_)
     elem_ptr->lc.snup = lctbl->snup[lc_ind];
     elem_ptr->lc.isurban = (ISURBAN == elem_ptr->attrib.lc_type) ? 1 : 0;
-    elem_ptr->lc.glacier = (SNOW_ICE == elem_ptr->attrib.lc_type) ? 1 : 0;
+    elem_ptr->lc.glacier = (IGBP_SNOW_ICE == elem_ptr->attrib.lc_type) ? 1 : 0;
     elem_ptr->lc.shdmin = 0.01;
     elem_ptr->lc.shdmax = 0.96;
 #endif

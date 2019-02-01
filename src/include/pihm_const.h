@@ -93,26 +93,47 @@
 #define ISURBAN    13    /* land cover type representing urban */
 
 /* Land cover types */
-#define ENF              1
-#define EBF              2
-#define DNF              3
-#define DBF              4
-#define MIXF             5
-#define CLOSE_SHRUB      6
-#define OPEN_SHRUB       7
-#define WOODY_SAVANNA    8
-#define SAVANNA          9
-#define GRASS            10
-#define PWL              11
-#define CROP             12
-#define URBAN_BUILDUP    13
-#define CROP_NATURAL     14
-#define SNOW_ICE         15
-#define BARREN           16
-#define WATER            17
-#define WOOD_TUNDRA      18
-#define MIX_TUNDRA       19
-#define BARREN_TUNDRA    20
+#define IGBP_ENF                1
+#define IGBP_EBF                2
+#define IGBP_DNF                3
+#define IGBP_DBF                4
+#define IGBP_MIXF               5
+#define IGBP_CLOSE_SHRUB        6
+#define IGBP_OPEN_SHRUB         7
+#define IGBP_WOODY_SAVANNA      8
+#define IGBP_SAVANNA            9
+#define IGBP_GRASS              10
+#define IGBP_WETLAND            11
+#define IGBP_CROP               12
+#define IGBP_URBAN_BUILDUP      13
+#define IGBP_CROP_NATURAL       14
+#define IGBP_SNOW_ICE           15
+#define IGBP_BARREN             16
+#define IGBP_WATER              17
+#define IGBP_UNCLASSIFIED1      18
+#define IGBP_UNCLASSIFIED2      19
+#define IGBP_UNCLASSIFIED3      20
+#define NLCD40_WATER            21
+#define NLCD40_SNOW_ICE         22
+#define NLCD40_DEVELOPED_OPEN   23
+#define NLCD40_DEVELOPED_LOW    24
+#define NLCD40_DEVELOPED_MID    25
+#define NLCD40_DEVELOPED_HIGH   26
+#define NLCD40_BARREN           27
+#define NLCD40_DECIDUOUS        28
+#define NLCD40_EVERGREEN        29
+#define NLCD40_MIXF             30
+#define NLCD40_DWARF_SCRUB      31
+#define NLCD40_SHRUB            32
+#define NLCD40_GRASS            33
+#define NLCD40_SEDGE            34
+#define NLCD40_LICHENS          35
+#define NLCD40_MOSS             36
+#define NLCD40_PASTURE          37
+#define NLCD40_CROP             38
+#define NLCD40_WOODY_WETLAND    39
+#define NLCD40_HERB_WETLAND     40
+
 
 /* Soil textures */
 #define SAND               0
