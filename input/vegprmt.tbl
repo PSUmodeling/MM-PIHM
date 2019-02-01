@@ -44,8 +44,6 @@ INDEX   SHDFAC  DROOT   RS      RGL     HS      SNUP    LAIMIN  LAIMAX  EMISMIN 
 TOPT_DATA       298.0
 CFACTR_DATA     0.5
 RSMAX_DATA      5000.0
-BARE            16
-NATURAL         14
 
 # NLCD land cover class mapping to PIHM land cover type:
 # 11 Open water                     -> 21

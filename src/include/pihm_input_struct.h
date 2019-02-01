@@ -207,10 +207,6 @@ typedef struct lctbl_struct
                                    */
     double         *rzd;          /* rooting depth (m) */
     double          rsmax;        /* cuticular resistance (s m-1) */
-    int             bare;         /* the land-use category representing bare
-                                   * ground */
-    int             natural;      /* the land-use category representing non-
-                                   * urban portion of urban land-use points */
     double          cfactr;       /* parameter used in the canopy interception
                                    * calculation (-) */
     double          topt;         /* optimum transpiration air temperature (K)

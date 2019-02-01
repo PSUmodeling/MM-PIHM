@@ -90,7 +90,6 @@
 
 /* Land cover parameters */
 #define NLCTYPE    40    /* number of land cover types */
-#define ISURBAN    13    /* land cover type representing urban */
 
 /* Land cover types */
 #define IGBP_ENF                1

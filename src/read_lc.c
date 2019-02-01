@@ -68,11 +68,5 @@ void ReadLc(const char *filename, lctbl_struct *lctbl)
     NextLine(lc_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "RSMAX_DATA", &lctbl->rsmax, 'd', filename, lno);
 
-    NextLine(lc_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "BARE", &lctbl->bare, 'i', filename, lno);
-
-    NextLine(lc_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NATURAL", &lctbl->natural, 'i', filename, lno);
-
     fclose(lc_file);
 }
