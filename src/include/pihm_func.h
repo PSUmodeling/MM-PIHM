@@ -377,7 +377,7 @@ void            HRT(wstate_struct *, const estate_struct *, eflux_struct *,
 void            IcePac(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
     int, double, double, double, double);
-void            InitLsm(elem_struct *, const ctrl_struct *,
+void            InitLsm(elem_struct *, const char [], const ctrl_struct *,
     const noahtbl_struct *, const calib_struct *);
 double          Mod(double, double);
 void            Noah(elem_struct *, const lctbl_struct *, const calib_struct *,
@@ -406,6 +406,7 @@ double          Psphs(double);
 double          Psphu(double);
 double          Pspms(double);
 double          Pspmu(double);
+void            ReadGlacierIce(const char [], double[]);
 void            ReadLsm(const char *, siteinfo_struct *, ctrl_struct *,
     noahtbl_struct *);
 void            ReadRad(const char *, forc_struct *);

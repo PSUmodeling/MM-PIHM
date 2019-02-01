@@ -134,7 +134,8 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
 #if defined(_NOAH_)
     /* Initialize land surface module (Noah) */
-    InitLsm(pihm->elem, &pihm->ctrl, &pihm->noahtbl, &pihm->cal);
+    InitLsm(pihm->elem, pihm->filename.ice, &pihm->ctrl, &pihm->noahtbl,
+        &pihm->cal);
 #endif
 
 #if defined(_CYCLES_)

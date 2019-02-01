@@ -208,3 +208,34 @@ void ReadRad(const char *filename, forc_struct *forc)
 
     fclose(rad_file);
 }
+
+void ReadGlacierIce(const char filename[], double iceh[])
+{
+    int             i;
+    FILE           *ice_file;
+    char            cmdstr[MAXSTRING];
+    int             match;
+    int             index;
+    int             lno = 0;
+
+    ice_file = fopen(filename, "r");
+    CheckFile(ice_file, filename);
+    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+
+    NextLine(ice_file, cmdstr, &lno);
+    for (i = 0; i < nelem; i++)
+    {
+        NextLine(ice_file, cmdstr, &lno);
+        match = sscanf(cmdstr, "%d %lf", &index, &iceh[i]);
+        if (match != 2)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error reading glacier ice depth of the %dth element.\n",
+                i + 1);
+            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            PIHMexit(EXIT_FAILURE);
+        }
+    }
+
+    fclose(ice_file);
+}
