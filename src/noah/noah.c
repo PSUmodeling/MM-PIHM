@@ -187,20 +187,27 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 #endif
 {
     /*
-     * Subroutine SFlx - unified noahlsm version 1.0 july 2007
-     *
-     * Sub-driver for "Noah LSM" family of physics subroutines for a
-     * soil/veg/snowpack land-surface model to update soil moisture, soil ice,
-     * soil temperature, skin temperature, snowpack water content, snowdepth,
-     * and all terms of the surface energy balance and surface water balance
-     * (excluding input atmospheric forcings of downward radiation and precip)
+     * Sub-driver for "Noah LSM" family of physics subroutines for a soil/veg/
+     * snowpack land-surface model to update soil moisture, soil ice, soil
+     * temperature, skin temperature, snowpack water content, snowdepth, and all
+     * terms of the surface energy balance, modified for Flux-PIHM
      */
-    int             frzgra, snowng;
-    const int       IZ0TLND = 0;
-    double          df1;
-    double          df1a;
-    double          dsoil;
-    double          dtot;
+    int             frzgra;             /* Flag that indicates freezing rain (-)
+                                         */
+    int             snowng;             /* Flag that indicates snow (-) */
+    const int       IZ0TLND = 0;        /* Option to turn on (IZ0TLND=1) or off
+                                         * (IZ0TLND=0) the vegetation-category-
+                                         * dependent calculation of the
+                                         * Zilitinkivich coefficient CZIL in the
+                                         * SfcDif subroutines */
+    double          df1;                /* Thermal conductivity of surface
+                                         * mediums (W m-1 K-1) */
+    double          df1a;               /* Thermal conductivity of surface snow
+                                         * mediums (W m-1 K-1) */
+    double          dsoil;              /* Soil thickness for soil heat flux
+                                         * calculation (m) */
+    double          dtot;               /* Soil thickness plus snow depth for
+                                         * soil heat flux calculation (m) */
     double          frcsno, frcsoi;
     double          t1v;
     double          th2v;
@@ -244,10 +251,11 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         ps->proj_lai = (ps->proj_lai > 0.5) ? ps->proj_lai : 0.5;
     }
 
+    /* Calculate maximum canopy moisture capacity */
     ws->cmcmax = lc->shdfac * lc->cmcfactr * ps->proj_lai;
 
-    /* Flux-PIHM uses LAI as a forcing variable.
-     * Vegetation fraction is calculated from LAI following Noah-MP */
+    /* Flux-PIHM uses LAI as a forcing variable. Vegetation fraction is constant
+     * unless coupled to Cycles */
     if (ps->proj_lai >= lc->laimax)
     {
         ps->embrd = lc->emissmax;
@@ -288,13 +296,13 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         }
     }
 
-    /* Initialize precipitation logicals. */
+    /* Initialize precipitation logicals */
     snowng = 0;
     frzgra = 0;
 
     /* If input snowpack is nonzero, then compute snow density "sndens" and
      * snow thermal conductivity "sncond" subroutine */
-    if (ws->sneqv <= 1.0e-7)    /* Safer if KMH (2008/03/25) */
+    if (ws->sneqv <= 1.0E-7)
     {
         ws->sneqv = 0.0;
         ps->sndens = 0.0;
@@ -362,8 +370,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      */
     if (ws->sneqv == 0.0)
     {
-        /* If snow depth = 0, set snow fraction = 0, albedo = snow free albedo.
-         */
+        /* If snow depth=0, set snow fraction=0, albedo=snow free albedo */
         ps->sncovr = 0.0;
         ps->albedo = ps->alb;
         ps->emissi = ps->embrd;
@@ -380,22 +387,21 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     }
 
     /*
-     * Next calculate the subsurface heat flux, which first requires
-     * calculation of the thermal diffusivity. Treatment of the latter
-     * follows that on Pages 148-149 from "Heat transfer in cold climates", by
-     * V. J. Lunardini (published in 1981 by van Nostrand Reinhold Co.) i.e.
-     * treatment of two contiguous "plane parallel" mediums (namely here the
-     * first soil layer and the snowpack layer, if any). This diffusivity
-     * treatment behaves well for both zero and nonzero snowpack, including the
-     * limit of very thin snowpack.  this treatment also eliminates the need to
-     * impose an arbitrary upper bound on subsurface heat flux when the snowpack
-     * becomes extremely thin.
+     * Next calculate the subsurface heat flux, which first requires calculation
+     * of the thermal diffusivity. Treatment of the latter follows that on Pages
+     * 148-149 from "Heat transfer in cold climates", by V. J. Lunardini
+     * (published in 1981 by van Nostrand Reinhold Co.) i.e. treatment of two
+     * contiguous "plane parallel" mediums (namely here the first soil layer and
+     * the snowpack layer, if any). This diffusivity treatment behaves well for
+     * both zero and nonzero snowpack, including the limit of very thin
+     * snowpack. This treatment also eliminates the need to impose an arbitrary
+     * upper bound on subsurface heat flux when the snowpack becomes extremely
+     * thin.
      *
      * First calculate thermal diffusivity of top soil layer, using both the
      * frozen and liquid soil moisture, following the soil thermal diffusivity
      * function of Peters-Lidard et al. (1998, JAS, Vol 55, 1209-1224), which
-     * requires the specifying the quartz content of the given soil class (see
-     * routine RedPrm)
+     * requires the specifying the quartz content of the given soil class
      *
      * Next add subsurface heat flux reduction effect from the overlying green
      * canopy, adapted from Section 2.1.2 of Peters-Lidard et al. (1997, JGR,
@@ -405,19 +411,11 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         ws->sh2o[0]);
 
     /* Urban */
-    if (lc->isurban)
-    {
-        df1 = 3.24;
-    }
+    df1 = (lc->isurban) ? 3.24 : df1;
 
     df1 *= exp(ps->sbeta * lc->shdfac);
 
-    /* KMH 09/03/2006
-     * KMH 03/25/2008  Change sncovr threshold to 0.97 */
-    if (ps->sncovr > 0.97)
-    {
-        df1 = ps->sncond;
-    }
+    df1 = (ps->sncovr > 0.97) ? ps->sncond : df1;
 
     /* Finally "plane parallel" snowpack effect following V. J. Linardini
      * reference cited above. Note that dtot is combined depth of snowdepth and
@@ -433,24 +431,13 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         frcsno = ps->snowh / dtot;
         frcsoi = dsoil / dtot;
 
-        /* 1. harmonic mean (series flow) */
-        //df1h = (ps->sncond * df1) / (frcsoi * ps->sncond + frcsno * df1);
-
-        /* 2. arithmetic mean (parallel flow) */
         df1a = frcsno * ps->sncond + frcsoi * df1;
 
-        /* 3. geometric mean (intermediate between harmonic and arithmetic
-         * mean) */
-        //df1 = pow (sncond, frcsno) * pow(df1, frcsoi);
-        /* weigh df by snow fraction */
-        //df1 = df1h * sncovr + df1a * (1.0-sncovr);
-        //df1 = df1h * sncovr + df1 * (1.0-sncovr);
-
-        /* Calculate subsurface heat flux, ssoil, from final thermal
-         * diffusivity of surface mediums, df1 above, and skin temperature and
-         * top mid-layer soil temperature */
         df1 = df1a * ps->sncovr + df1 * (1.0 - ps->sncovr);
 
+        /* Calculate subsurface heat flux, ssoil, from final thermal diffusivity
+         * of surface mediums, df1 above, and skin temperature and top mid-layer
+         * soil temperature */
         ef->ssoil = df1 * (es->t1 - es->stc[0]) / dtot;
     }
 
@@ -458,31 +445,20 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * Determine surface roughness over snowpack using snow condition from the
      * previous timestep.
      */
-    if (ps->sncovr > 0.0)
-    {
-        ps->z0 = Snowz0(ps->sncovr, ps->z0brd, ps->snowh);
-    }
-    else
-    {
-        ps->z0 = ps->z0brd;
-    }
+    ps->z0 = (ps->sncovr > 0.0) ?
+        Snowz0(ps->sncovr, ps->z0brd, ps->snowh) : ps->z0brd;
 
     /*
      * Next call function SfcDif to calculate the sfc exchange coef (ch) for
      * heat and moisture.
      *
      * Note !!!
-     * Do not call SfcDif until after above call to RedPrm, in case alternative
-     * values of roughness length (z0) and Zilintinkevich coef (czil) are set
-     * there via namelist i/o.
-     *
-     * Note !!!
      * Function SfcDif returns a ch that represents the wind spd times the
      * "original" nondimensional "ch" typical in literature. Hence the ch
      * returned from SfcDif has units of m/s. The important companion
      * coefficient of ch, carried here as "rch", is the ch from sfcdif times air
-     * density and parameter "CP". "rch" is computed in "Penman".
-     * rch rather than ch is the coeff usually invoked later in eqns.
+     * density and parameter "CP". "rch" is computed in "Penman". rch rather
+     * than ch is the coeff usually invoked later in eqns.
      *
      * Note !!!
      * SfcDif also returns the surface exchange coefficient for momentum, cm,
@@ -495,15 +471,15 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     SfcDifOff(ps, lc, t1v, th2v, IZ0TLND);
 
     /*
-     * Call Penman function to calculate potential evaporation (ETP), and other
+     * Call Penman function to calculate potential evaporation (etp), and other
      * partial products and sums save in common/rite for later calculations.
      */
 
-    /* Calculate total downward radiation (solar plus longwave) needed in
-     * Penman ep subroutine that follows */
+    /* Calculate total downward radiation (solar plus longwave) needed in Penman
+     * eq subroutine that follows */
     ef->fdown = ef->solnet + ef->lwdn;
 
-    /* Calc virtual temps and virtual potential temps needed by Penman. */
+    /* Calc virtual temps and virtual potential temps needed by Penman */
     t2v = es->sfctmp * (1.0 + 0.61 * ps->q2);
 
     Penman(wf, es, ef, ps, &t24, t2v, snowng, frzgra);
@@ -613,7 +589,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         }
     }
 
-    if (soilwm < 1.0e-6)
+    if (soilwm < 1.0E-6)
     {
         soilwm = 0.0;
         ps->soilw = 0.0;
