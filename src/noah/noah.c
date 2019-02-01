@@ -15,7 +15,7 @@ void Noah(elem_struct *elem, const lctbl_struct *lctbl, const calib_struct *cal,
         if (elem[i].lc.glacier == 1 && elem[i].ps.iceh <= 0.0)
         {
             elem[i].lc.glacier = 0;
-            elem[i].attrib.lc_type = lctbl->bare;
+            elem[i].attrib.lc_type = IGBP_BARREN;
 
             _InitLc(&elem[i], lctbl, cal);
         }
