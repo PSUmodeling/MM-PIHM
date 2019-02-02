@@ -605,21 +605,14 @@ void AlCalc(pstate_struct *ps, double dt, int snowng)
 {
     /*
      * Calculate albedo including snow effect (0 -> 1)
-     */
-    /* snoalb is argument representing maximum albedo over deep snow, as passed
+     * snoalb is argument representing maximum albedo over deep snow, as passed
      * into SFlx, and adapted from the satellite-based maximum snow albedo
-     * fields provided by D. Robinson and G. Kukla (1985, JCAM, Vol 24,
-     * 402-411) */
+     * fields provided by D. Robinson and G. Kukla (1985, JCAM, Vol 24, 402-411)
+     */
     double          snoalb2;
     double          snoalb1;
     const double    SNACCA = 0.94;
     const double    SNACCB = 0.58;
-
-    /* Turn of vegetation effect */
-    //ps->albedo = ps->alb + (1.0 - (lc->shdfac - lc->shdmin)) * ps->sncovr *
-    //  (ps->snoalb - ps->alb);
-    //ps->albedo = (1.0 - ps->sncovr) * ps->alb +
-    //  ps->sncovr * ps->snoalb;    /* this is equivalent to below */
 
     ps->albedo = ps->alb + ps->sncovr * (ps->snoalb - ps->alb);
     ps->emissi = ps->embrd + ps->sncovr * (EMISSI_S - ps->embrd);
@@ -642,7 +635,7 @@ void AlCalc(pstate_struct *ps, double dt, int snowng)
     else
     {
         ps->snotime1 += dt;
-        snoalb2 = snoalb1 * pow(SNACCA, pow(ps->snotime1 / 86400.0, SNACCB));
+        snoalb2 *= pow(SNACCA, pow(ps->snotime1 / 86400.0, SNACCB));
     }
 
     snoalb2 = (snoalb2 > ps->alb) ? snoalb2 : ps->alb;
