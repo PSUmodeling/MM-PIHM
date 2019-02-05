@@ -1083,7 +1083,10 @@ void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
     double          tbk1;
     double          tsnsr;
     double          tsurf;
-    const double    CH2O = 4.2E6;
+    const double    CH2O = 4.2E6;       /* Volumetric heat capacity of water
+                                         * (J m-3 K-1) */
+    const double    CICE = 1.26E6;      /* Volumetric heat capacity of ice
+                                         * (J m-3 K-1) */
 
     /* Urban */
     csoil_loc = (lc->isurban) ? 3.0E6 : soil->csoil;
@@ -1094,7 +1097,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
     /* Begin section for top soil layer
      * Calc the heat capacity of the top soil layer */
     hcpct = ws->sh2o[0] * CH2O + (1.0 - soil->smcmax) * csoil_loc +
-        (soil->smcmax - ws->smc[0]) * CP + (ws->smc[0] - ws->sh2o[0]) * CPICE;
+        (soil->smcmax - ws->smc[0]) * CP + (ws->smc[0] - ws->sh2o[0]) * CICE;
 
     /* Calc the matrix coefficients ai, bi, and ci for the top layer */
     ddz = 1.0 / (-0.5 * ps->zsoil[1]);
@@ -1168,7 +1171,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
     {
         hcpct = ws->sh2o[k] * CH2O + (1.0 - soil->smcmax) * csoil_loc +
             (soil->smcmax - ws->smc[k]) * CP +
-            (ws->smc[k] - ws->sh2o[k]) * CPICE;
+            (ws->smc[k] - ws->sh2o[k]) * CICE;
 
         /* This section for Layer 2 or greater, but not last layer.
          * Calculate thermal diffusivity for this layer. */
