@@ -1107,7 +1107,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
     /* Calculate the vertical soil temp gradient btwn the 1st and 2nd soil
      * layers. Then calculate the subsurface heat flux. use the temp gradient
      * and subsfc heat flux to calc "right-hand side tendency terms", or
-     * "rhsts", for top soil layer. */
+     * "rhsts," or top soil layer. */
     bi[0] = -ci[0] + df1 / (0.5 * ps->zsoil[0] * ps->zsoil[0] * hcpct * zz1);
     dtsdz = (es->stc[0] - es->stc[1]) / (-0.5 * ps->zsoil[1]);
     ef->ssoil = df1 * (es->stc[0] - yy) / (0.5 * ps->zsoil[0] * zz1);
@@ -1141,8 +1141,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
          * soil water phase change */
         tbk = TBnd(es->stc[0], es->stc[1], ps->zsoil, ps->zbot, 0, ps->nsoil);
 
-        if ((sice > 0.0) || (es->stc[0] < TFREEZ) || (tsurf < TFREEZ) ||
-            (tbk < TFREEZ))
+        if (sice > 0.0 || es->stc[0] < TFREEZ || tsurf < TFREEZ || tbk < TFREEZ)
         {
             tavg = TmpAvg(tsurf, es->stc[0], tbk, ps->zsoil, 0);
             SnkSrc(&tsnsr, tavg, ws->smc[0], &ws->sh2o[0], soil, ps->zsoil, dt,
@@ -1152,7 +1151,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
     }
     else
     {
-        if ((sice > 0.0) || (es->stc[0] < TFREEZ))
+        if (sice > 0.0 || es->stc[0] < TFREEZ)
         {
             SnkSrc(&tsnsr, es->stc[0], ws->smc[0], &ws->sh2o[0], soil,
                 ps->zsoil, dt, 0, qtot);
@@ -1235,8 +1234,8 @@ void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
         if (itavg)
         {
             tavg = TmpAvg(tbk, es->stc[k], tbk1, ps->zsoil, k);
-            if ((sice > 0.0) || (es->stc[k] < TFREEZ) || (tbk < TFREEZ) ||
-                (tbk1 < TFREEZ))
+            if (sice > 0.0 || es->stc[k] < TFREEZ || tbk < TFREEZ ||
+                tbk1 < TFREEZ)
             {
                 SnkSrc(&tsnsr, tavg, ws->smc[k], &ws->sh2o[k], soil, ps->zsoil,
                     dt, k, qtot);
@@ -1245,7 +1244,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
         }
         else
         {
-            if ((sice > 0.0) || (es->stc[k] < TFREEZ))
+            if (sice > 0.0 || es->stc[k] < TFREEZ)
             {
                 SnkSrc(&tsnsr, es->stc[k], ws->smc[k], &ws->sh2o[k], soil,
                     ps->zsoil, dt, k, qtot);
@@ -1270,8 +1269,6 @@ void HStep(estate_struct *es, double *rhsts, double dt, int nsoil, double *ai,
     double *bi, double *ci)
 {
     /*
-     * Subroutine HStep
-     *
      * Calculate/update the soil temperature field.
      */
     int             k;
@@ -1291,9 +1288,6 @@ void HStep(estate_struct *es, double *rhsts, double dt, int nsoil, double *ai,
     for (k = 0; k < nsoil; k++)
     {
         rhstsin[k] = rhsts[k];
-    }
-    for (k = 0; k < nsoil; k++)
-    {
         ciin[k] = ci[k];
     }
 
@@ -1319,8 +1313,6 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 #endif
 {
     /*
-     * Function NoPac
-     *
      * Calculate soil moisture and heat flux values and update soil moisture
      * content and soil heat content values for the case when no snow pack is
      * present.
@@ -1371,12 +1363,8 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     /* Based on etp and e values, determine beta */
     if (wf->etp <= 0.0)
     {
-        ps->beta = 0.0;
+        ps->beta = (wf->etp < 0.0) ? 1.0 : 0.0;
         wf->eta = wf->etp;
-        if (wf->etp < 0.0)
-        {
-            ps->beta = 1.0;
-        }
     }
     else
     {
@@ -1420,15 +1408,13 @@ void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
     double prcp, double dt)
 {
     /*
-     * Function PcpDrp
-     *
      * Separated from Noah SmFlx function
      * The canopy moisture content (cmc) is updated.
      */
     double          excess;
     double          rhsct;
     double          trhsct;
-    const double    KD = 6.54e-7;
+    const double    KD = 6.54E-7;
     const double    BFACTR = 3.89;
 
     /* Compute the right hand side of the canopy eqn term (rhsct)
@@ -1445,15 +1431,9 @@ void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
     if (excess > 0.0)
     {
         /* PIHM drip calculation following Rutter and Mortan (1977 JAE) */
-        if (excess >= ws->cmcmax)
-        {
-            wf->drip =
-                (KD * ws->cmcmax * exp(BFACTR)) + (excess - ws->cmcmax) / dt;
-        }
-        else
-        {
-            wf->drip = (KD * ws->cmcmax * exp(BFACTR * excess / ws->cmcmax));
-        }
+        wf->drip = (excess >= ws->cmcmax) ?
+            (KD * ws->cmcmax * exp(BFACTR)) + (excess - ws->cmcmax) / dt :
+            (KD * ws->cmcmax * exp(BFACTR * excess / ws->cmcmax));
 
         wf->drip = (wf->drip > excess / dt) ? excess / dt : wf->drip;
     }
@@ -1465,11 +1445,8 @@ void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
     /* Update canopy water content/interception (cmc). Convert rhsct to an
      * "amount" value and add to previous cmc value to get new cmc. */
     ws->cmc += dt * rhsct;
-    if (ws->cmc < 1.0e-20)
-    {
-        ws->cmc = 0.0;
-    }
 
+    ws->cmc = (ws->cmc < 1.0E-20) ? 0.0 : ws->cmc;
     ws->cmc = (ws->cmc < ws->cmcmax) ? ws->cmc : ws->cmcmax;
 }
 
@@ -1477,8 +1454,6 @@ void Penman(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
     pstate_struct *ps, double *t24, double t2v, int snowng, int frzgra)
 {
     /*
-     * Function Penman
-     *
      * Calculate potential evaporation for the current point. Various partial
      * sums/products are also calculated and passed back to the calling routine
      * for later use.
@@ -1491,18 +1466,17 @@ void Penman(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
     double          emissi;
     double          elcp1;
     double          lvs;
-    const double    ELCP = 2.4888e+3;
-    const double    LSUBC = 2.501000e+6;
+    const double    ELCP = 2.4888E3;
 
     /* Prepare partial quantities for Penman equation. */
     emissi = ps->emissi;
-    elcp1 = (1.0 - ps->sncovr) * ELCP + ps->sncovr * ELCP * LSUBS / LSUBC;
-    lvs = (1.0 - ps->sncovr) * LSUBC + ps->sncovr * LSUBS;
+    elcp1 = (1.0 - ps->sncovr) * ELCP + ps->sncovr * ELCP * LSUBS / LVH2O;
+    lvs = (1.0 - ps->sncovr) * LVH2O + ps->sncovr * LSUBS;
 
     ef->flx2 = 0.0;
     delta = elcp1 * ps->dqsdt2;
     *t24 = es->sfctmp * es->sfctmp * es->sfctmp * es->sfctmp;
-    ps->rr = emissi * *t24 * 6.48e-8 / (ps->sfcprs * ps->ch) + 1.0;
+    ps->rr = emissi * *t24 * 6.48E-8 / (ps->sfcprs * ps->ch) + 1.0;
     rho = ps->sfcprs / (RD * t2v);
 
     ps->rch = rho * CP * ps->ch;
@@ -1541,15 +1515,13 @@ void Rosr12(double *p, const double *a, const double *b, double *c,
     const double *d, double *delta, int nsoil)
 {
     /*
-     * Function Rosr12
-     *
      * Invert (solve) the tri-diagonal matrix problem shown below:
      * ###                                            ### ###  ###   ###  ###
-     * #b[0], c[0],  0  ,  0  ,  0  ,   . . .  ,    0   # #      #   #      #
-     * #a[1], b[1], c[1],  0  ,  0  ,   . . .  ,    0   # #      #   #      #
-     * # 0  , a[2], b[2], c[2],  0  ,   . . .  ,    0   # #      #   # d[2] #
-     * # 0  ,  0  , a[3], b[3], c[3],   . . .  ,    0   # # p[3] #   # d[3] #
-     * # 0  ,  0  ,  0  , a[4], b[4],   . . .  ,    0   # # p[4] #   # d[4] #
+     * #b[0], c[0],  0  ,   0   ,   0   , . . . ,   0   # #      #   #      #
+     * #a[1], b[1], c[1],   0   ,   0   , . . . ,   0   # #      #   #      #
+     * # 0  , a[2], b[2],  c[2] ,   0   , . . . ,   0   # #      #   # d[2] #
+     * # 0  ,  0  , a[3],  b[3] ,  c[3] , . . . ,   0   # # p[3] #   # d[3] #
+     * # 0  ,  0  ,  0  ,  a[4] ,  b[4] , . . . ,   0   # # p[4] #   # d[4] #
      * # .                                          .   # #  .   # = #   .  #
      * # .                                          .   # #  .   #   #   .  #
      * # .                                          .   # #  .   #   #   .  #
@@ -1562,9 +1534,9 @@ void Rosr12(double *p, const double *a, const double *b, double *c,
 
     /* Initialize eqn coef c for the lowest soil layer */
     c[nsoil - 1] = 0.0;
-    p[0] = -c[0] / b[0];
 
     /* Solve the coefs for the 1st soil layer */
+    p[0] = -c[0] / b[0];
     delta[0] = d[0] / b[0];
 
     /* Solve the coefs for soil layers 2 thru nsoil */
@@ -1591,8 +1563,6 @@ void ShFlx(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
     double dt, double yy, double zz1, double df1)
 {
     /*
-     * Function ShFlx
-     *
      * Update the temperature state of the soil column based on the thermal
      * diffusion equation and update the frozen soil moisture content based on
      * the temperature.
