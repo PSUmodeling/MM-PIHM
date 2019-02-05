@@ -673,8 +673,6 @@ void CalHum(pstate_struct *ps, estate_struct *es)
     ps->q2 = (0.622 * e) / (ps->sfcprs - (1.0 - 0.622) * e);
 
     es->th2 = es->sfctmp + (0.0098 * ps->zlvl);
-    //es->t1v = es->t1 * (1.0 + 0.61 * ps->q2);
-    //es->th2v = es->th2 * (1.0 + 0.61 * ps->q2);
     t2v = es->sfctmp * (1.0 + 0.61 * ps->q2);
     rho = ps->sfcprs / (RD * t2v);
 
@@ -696,16 +694,13 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
 #endif
 {
     /*
-     * Function CanRes
-     *
      * Calculate canopy resistance which depends on incoming solar radiation,
      * air temperature, atmospheric water vapor pressure deficit at the lowest
      * model level, and soil moisture (preferably unfrozen soil moisture rather
      * than total)
-     *
      * Source:  Jarvis (1976), Noilhan and Planton (1989, MWR), Jacquemin and
      * Noilhan (1990, BLM)
-     * See also:  Chen et al. (1996, JGR, Vol 101(D3), 7251-7268), Eqns 12-14
+     * See also: Chen et al. (1996, JGR, Vol 101(D3), 7251-7268), Eqns 12-14
      * and Table 2 of Sec. 3.1.2
      */
     double          delta;
@@ -753,8 +748,10 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
     gx = (gx > 1.0) ? 1.0 : gx;
     gx = (gx < 0.0) ? 0.0 : gx;
 
+#if NOT_YET_IMPLEMENTED
     /* Use root distribution as weighting factor */
-    //part[0] = rtdis[0] * gx;
+    part[0] = rtdis[0] * gx;
+#endif
     /* Use soil depth as weighting factor */
     part[0] = (ps->zsoil[0] / ps->zsoil[ps->nroot - 1]) * gx;
     for (k = 1; k < ps->nroot; k++)
@@ -765,8 +762,10 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
         gx = (gx > 1.0) ? 1.0 : gx;
         gx = (gx < 0.0) ? 0.0 : gx;
 
+#if NOT_YET_IMPLEMENTED
         /* Use root distribution as weighting factor */
-        //part[k] = rtdis[k] * gx;
+        part[k] = rtdis[k] * gx;
+#endif
         /* Use soil depth as weighting factor */
         part[k] = ((ps->zsoil[k] - ps->zsoil[k - 1]) /
             ps->zsoil[ps->nroot - 1]) * gx;
@@ -778,17 +777,17 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
     }
     ps->rcsoil = (ps->rcsoil > 0.0001) ? ps->rcsoil : 0.0001;
 
-    /* Determine canopy resistance due to all factors.  convert canopy
-     * resistance (rc) to plant coefficient (pc) to be used with potential evap
-     * in determining actual evap. pc is determined by:
+    /* Determine canopy resistance due to all factors. Convert canopy resistance
+     * (rc) to plant coefficient (pc) to be used with potential evap in
+     * determining actual evap. pc is determined by:
      *   pc * linearized Penman potential evap =
      *   Penman-Monteith actual evaporation (containing rc term). */
     ps->rc = epc->rsmin /
         (ps->proj_lai * ps->rcs * ps->rct * ps->rcq * ps->rcsoil);
 #endif
 
-    rr = (4.0 * ps->emissi * SIGMA * RD / CP) *
-        pow(es->sfctmp, 4.0) / (ps->sfcprs * ps->ch) + 1.0;
+    rr = (4.0 * ps->emissi * SIGMA * RD / CP) * pow(es->sfctmp, 4.0) /
+        (ps->sfcprs * ps->ch) + 1.0;
 
     delta = (SLV / CP) * ps->dqsdt2;
 
@@ -809,15 +808,17 @@ double CSnow(double dsnow)
      * Basic version is Dyachkova equation (1960), for range 0.1-0.4 */
     c = 0.328 * pow(10, 2.25 * dsnow);
 
+#if NOT_YET_IMPLEMENTED
     /* De Vaux equation (1933), in range 0.1-0.6 */
-    //sncond = 0.0293 * (1.0 + 100.0 * dsnow * dsnow);
-    //csnow = 0.0293 * (1.0 + 100.0 * dsnow * dsnow);
+    sncond = 0.0293 * (1.0 + 100.0 * dsnow * dsnow);
+    csnow = 0.0293 * (1.0 + 100.0 * dsnow * dsnow);
 
     /* E. Andersen from Flerchinger */
-    //sncond = 0.021 + 2.51 * dsnow * dsnow;
-    //csnow = 0.021 + 2.51 * dsnow * dsnow;
+    sncond = 0.021 + 2.51 * dsnow * dsnow;
+    csnow = 0.021 + 2.51 * dsnow * dsnow;
 
-    //sncond = UNIT * c;
+    sncond = UNIT * c;
+#endif
 
     /* Double snow thermal conductivity */
     sncond = 2.0 * UNIT * c;
@@ -829,8 +830,6 @@ void DEvap(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil)
 {
     /*
-     * Function DEvap
-     *
      * Calculate direct soil evaporation
      */
     double          fx, sratio;
@@ -866,8 +865,6 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
 #endif
 {
     /*
-     * Function Evapo
-     *
      * Calculate soil moisture flux. The soil moisture content (smc - a per unit
      * volume measurement) is a dependent variable that is updated with
      * prognostic eqns. The canopy moisture content (cmc) is also updated.
@@ -906,7 +903,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
         if (lc->shdfac > 0.0)
         {
             /* Initialize plant total transpiration, retrieve plant
-             * transpiration, and accumulate it for all soil layers. */
+             * transpiration, and accumulate it for all soil layers */
 #if defined(_CYCLES_)
             WaterUptake(soil, es, ps, dt, crop, ws, wf);
 #else
@@ -919,19 +916,12 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
 
             /* Calculate canopy evaporation.
              * If statements to avoid tangent linear problems near cmc = 0.0. */
-            if (ws->cmc > 0.0)
-            {
-                wf->ec =
-                    lc->shdfac * pow((ws->cmc / ws->cmcmax > 1.0) ?
-                    1.0 : ws->cmc / ws->cmcmax, lc->cfactr) * wf->etp;
-            }
-            else
-            {
-                wf->ec = 0.0;
-            }
+            wf->ec = (ws->cmc > 0.0) ?
+                (lc->shdfac * pow((ws->cmc / ws->cmcmax > 1.0) ?
+                1.0 : ws->cmc / ws->cmcmax, lc->cfactr) * wf->etp) : 0.0;
 
             /* Ec should be limited by the total amount of available water on
-             * the canopy. F.Chen, 18-oct-1994 */
+             * the canopy */
             cmc2ms = ws->cmc / dt;
             wf->ec = (cmc2ms < wf->ec) ? cmc2ms : wf->ec;
         }
@@ -949,14 +939,7 @@ double FrozRain(double prcp, double sfctmp)
 {
     double          ffrozp;
 
-    if (prcp > 0.0 && sfctmp < TFREEZ)
-    {
-        ffrozp = 1.0;
-    }
-    else
-    {
-        ffrozp = 0.0;
-    }
+    ffrozp = (prcp > 0.0 && sfctmp < TFREEZ) ? 1.0 : 0.0;
 
     return ffrozp;
 }
@@ -964,8 +947,6 @@ double FrozRain(double prcp, double sfctmp)
 double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
 {
     /*
-     * Function FrH2O
-     *
      * Calculate amount of supercooled liquid soil water content if temperature
      * is below 273.15K (t0). Requires Newton-type iteration to solve the
      * nonlinear implicit equation given in Eqn 17 of Koren et al
