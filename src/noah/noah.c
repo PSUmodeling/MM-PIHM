@@ -1062,8 +1062,6 @@ void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
     double *bi, double *ci)
 {
     /*
-     * Function HRT
-     *
      * Calculate the right hand side of the time tendency term of the soil
      * thermal diffusion equation. Also to compute (prepare) the matrix
      * coefficients for the tri-diagonal matrix of the implicit time scheme.
@@ -1085,10 +1083,10 @@ void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
     double          tbk1;
     double          tsnsr;
     double          tsurf;
-    const double    CH2O = 4.2e6;
+    const double    CH2O = 4.2E6;
 
     /* Urban */
-    csoil_loc = (lc->isurban) ? 3.0e6 : soil->csoil;
+    csoil_loc = (lc->isurban) ? 3.0E6 : soil->csoil;
 
     /* Initialize logical for soil layer temperature averaging. */
     itavg = 1;
