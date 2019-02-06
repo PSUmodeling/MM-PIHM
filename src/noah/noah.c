@@ -2315,8 +2315,6 @@ void SStep(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     double *bi, double *ci, double dt)
 {
     /*
-     * Function SStep
-     *
      * Calculate/update soil moisture content values and canopy moisture content
      * values.
      */
@@ -2369,33 +2367,17 @@ double TBnd(double tu, double tb, const double *zsoil, double zbot, int k,
     int nsoil)
 {
     /*
-     * Subroutine TBnd
-     *
      * Calculate temperature on the boundary of the layer by interpolation of
      * the middle layer temperatures */
     double          zb, zup;
     double          tbnd1;
 
     /* Use surface temperature on the top of the first layer */
-    if (k == 0)
-    {
-        zup = 0.0;
-    }
-    else
-    {
-        zup = zsoil[k - 1];
-    }
+    zup = (k == 0) ? 0.0 : zsoil[k - 1];
 
     /* Use depth of the constant bottom temperature when interpolate temperature
      * into the last layer boundary */
-    if (k == nsoil - 1)
-    {
-        zb = 2.0 * zbot - zsoil[k];
-    }
-    else
-    {
-        zb = zsoil[k + 1];
-    }
+    zb = (k == nsoil - 1) ? 2.0 * zbot - zsoil[k] : zsoil[k + 1];
 
     /* Linear interpolation between the average layer temperatures */
     tbnd1 = tu + (tb - tu) * (zup - zsoil[k]) / (zup - zb);
@@ -2406,8 +2388,6 @@ double TBnd(double tu, double tb, const double *zsoil, double zbot, int k,
 double TDfCnd(double smc, double qz, double smcmax, double smcmin, double sh2o)
 {
     /*
-     * Function TDfCnd
-     *
      * Calculate thermal diffusivity and conductivity of the soil for a given
      * point and time.
      * Peters-Lidard approach (Peters-Lidard et al., 1998)
@@ -2444,13 +2424,13 @@ double TDfCnd(double smc, double qz, double smcmax, double smcmin, double sh2o)
      * Pablo Grunmann, 08/17/98
      * Refs.:
      *  Farouki, O. T.,1986: Thermal properties of soils. Series on rock and
-     *      soil mechanics, Vol. 11, trans tech, 136 pp.
+     *    soil mechanics, Vol. 11, trans tech, 136 pp.
      *  Johansen, O., 1975: Thermal conductivity of soils. Ph.D. thesis,
-     *      University of Trondheim
+     *    University of Trondheim
      *  Peters-Lidard, C. D., et al., 1998: The effect of soil thermal
-     *      conductivity parameterization on surface energy fluxes and
-     *      temperatures. Journal of the Atmospheric Sciences, Vol. 55,
-     *      pp. 1209-1224.
+     *    conductivity parameterization on surface energy fluxes and
+     *    temperatures. Journal of the Atmospheric Sciences, Vol. 55,
+     *    pp. 1209-1224.
      */
     satratio = (smc - smcmin) / (smcmax - smcmin);
 
@@ -2475,7 +2455,7 @@ double TDfCnd(double smc, double qz, double smcmax, double smcmin, double sh2o)
     /* Dry thermal conductivity in W m-1 K-1 */
     thkdry = (0.135 * gammd + 64.7) / (2700.0 - 0.947 * gammd);
 
-    if ((sh2o + 0.0005) < smc)
+    if (sh2o + 0.0005 < smc)
     {
         /* Frozen */
         ake = satratio;
@@ -2487,15 +2467,7 @@ double TDfCnd(double smc, double qz, double smcmax, double smcmin, double sh2o)
          * "fine" formula, valid for soils containing at least 5% of particles
          * with diameter less than 2.e-6 meters.)
          * (for "coarse" formula, see Peters-Lidard et al., 1998). */
-        if (satratio > 0.1)
-        {
-            ake = log10(satratio) + 1.0;
-        }
-        else
-        {
-            /* Use k = kdry */
-            ake = 0.0;
-        }
+        ake = (satratio > 0.1) ? log10(satratio) + 1.0 : 0.0;
     }
 
     /* Thermal conductivity */
@@ -2507,8 +2479,6 @@ double TDfCnd(double smc, double qz, double smcmax, double smcmin, double sh2o)
 double TmpAvg(double tup, double tm, double tdn, const double *zsoil, int k)
 {
     /*
-     * Function TmpAvg
-     *
      * Calculate soil layer average temperature (tavg) in freezing/thawing layer
      * using up, down, and middle layer temperatures (tup, tdn, tm), where tup
      * is at top boundary of layer, tdn is at bottom boundary of layer.
@@ -2521,14 +2491,7 @@ double TmpAvg(double tup, double tm, double tdn, const double *zsoil, int k)
     double          xup;
     double          tavg;
 
-    if (k == 0)
-    {
-        dz = -zsoil[0];
-    }
-    else
-    {
-        dz = zsoil[k - 1] - zsoil[k];
-    }
+    dz = (k == 0) ? -zsoil[0] : zsoil[k - 1] - zsoil[k];
 
     dzh = dz * 0.5;
 
@@ -2612,9 +2575,7 @@ void Transp(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil)
 {
     /*
-     * Function Transp
-     *
-     * Calculate transpiration for the veg class.
+     * Calculate transpiration for the veg class
      */
     int             i, k;
     double          denom;
@@ -2633,15 +2594,10 @@ void Transp(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
      * Note: gx and other terms below redistribute transpiration by layer,
      * et(k), as a function of soil moisture availability, while preserving
      * total etpa. */
-    if (ws->cmc != 0.0)
-    {
-        etpa = lc->shdfac * ps->pc * wf->etp *
-            (1.0 - pow(ws->cmc / ws->cmcmax, lc->cfactr));
-    }
-    else
-    {
-        etpa = lc->shdfac * ps->pc * wf->etp;
-    }
+    etpa = (ws->cmc != 0.0) ?
+        lc->shdfac * ps->pc * wf->etp *
+        (1.0 - pow(ws->cmc / ws->cmcmax, lc->cfactr)) :
+        lc->shdfac * ps->pc * wf->etp;
 
     sgx = 0.0;
     for (i = 0; i < ps->nroot; i++)
@@ -2700,8 +2656,6 @@ void WDfCnd(double *wdf, double *wcnd, double smc, double sicemax,
     const soil_struct *soil)
 {
     /*
-     * Function WDfCnd
-     *
      * Calculate soil water diffusivity and soil hydraulic conductivity.
      * Flux-PIHM: using van Genuchten parameters
      */
@@ -2717,8 +2671,8 @@ void WDfCnd(double *wdf, double *wcnd, double smc, double sicemax,
     factr2 = (smc - soil->smcmin) / (soil->smcmax - soil->smcmin);
 
     /* Factr2 should avoid to be 0 or 1 */
-    factr2 = (factr2 > 1.0 - 5.0e-4) ? 1.0 - 5.0e-4 : factr2;
-    factr2 = (factr2 < 0.0 + 5.0e-4) ? 5.0e-4 : factr2;
+    factr2 = (factr2 > 1.0 - 5.0E-4) ? 1.0 - 5.0E-4 : factr2;
+    factr2 = (factr2 < 0.0 + 5.0E-4) ? 5.0E-4 : factr2;
 
     factr1 = (factr1 < factr2) ? factr1 : factr2;
     expon = 1.0 - 1.0 / soil->beta;
@@ -2778,7 +2732,6 @@ void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
     double          xlt4;
     double          xu4;
     double          xt4;
-
     double          xlu;
     double          xlt;
     double          xu;
@@ -2790,10 +2743,8 @@ void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
     double          ustark;
     double          rlmn;
     double          rlma;
-
     int             ilech;
     int             itr;
-
     const double    WWST = 1.2;
     double          wwst2;
     const double    VKRM = 0.40;
@@ -2804,7 +2755,6 @@ void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
     double          WOLD = 0.15;
     double          wnew;
     const int       ITRMX = 5;
-
     const double    EPSU2 = 1.0e-4;
     const double    EPSUST = 0.07;
     const double    ZTMIN = -5.0;
@@ -2817,13 +2767,11 @@ void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
     elfc = VKRM * btg;
     wnew = 1.0 - WOLD;
 
-    /* czil: constant C in Zilitinkevich, S. S.1995 */
-
     ilech = 0;
 
     if (iz0tlnd == 0 || lc->isurban)
     {
-        /* Just use the original Czil value. */
+        /* czil: constant C in Zilitinkevich, S. S.1995 */
         zilfc = -ps->czil * VKRM * SQVISC;
     }
     else
@@ -2845,14 +2793,8 @@ void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
 
     btgh = btg * HPBL;
     /* If statements to avoid tangent linear problems near zero */
-    if (btgh * ps->ch * dthv != 0.0)
-    {
-        wstar2 = wwst2 * pow(fabs(btgh * ps->ch * dthv), 2.0 / 3.0);
-    }
-    else
-    {
-        wstar2 = 0.0;
-    }
+    wstar2 = (btgh * ps->ch * dthv != 0.0) ?
+        wwst2 * pow(fabs(btgh * ps->ch * dthv), 2.0 / 3.0) : 0.0;
 
     ustar = sqrt(ps->cm * sqrt(du2 + wstar2));
     ustar = (ustar > EPSUST) ? ustar : EPSUST;
@@ -2872,11 +2814,10 @@ void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
     for (itr = 0; itr < ITRMX; itr++)
     {
         zetalt = zslt * rlmo;
-        zetalt = zetalt > ZTMIN ? zetalt : ZTMIN;
+        zetalt = (zetalt > ZTMIN) ? zetalt : ZTMIN;
         rlmo = zetalt / zslt;
         zetalu = zslu * rlmo;
         zetau = zu * rlmo;
-
         zetat = zt * rlmo;
 
         /* 1. Monin-Obukkhov length-scale */
@@ -2947,14 +2888,8 @@ void SfcDifOff(pstate_struct *ps, const lc_struct *lc, double t1v,
         ps->ch = (ustark / simh > cxch) ? ustark / simh : cxch;
 
         /* If statements to avoid tangent linear problems near zero */
-        if (btgh * ps->ch * dthv != 0.0)
-        {
-            wstar2 = wwst2 * pow(fabs(btgh * ps->ch * dthv), 2.0 / 3.0);
-        }
-        else
-        {
-            wstar2 = 0.0;
-        }
+        wstar2 = (btgh * ps->ch * dthv != 0.0) ?
+            wwst2 * pow(fabs(btgh * ps->ch * dthv), 2.0 / 3.0) : 0.0;
 
         rlmn = elfc * ps->ch * dthv / pow(ustar, 3.0);
 
