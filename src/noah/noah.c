@@ -1594,8 +1594,6 @@ void SmFlx(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
 #endif
 {
     /*
-     * Function SmFlx
-     *
      * Calculate soil moisture flux. The soil moisture content (smc - a per unit
      * volume measurement) is a dependent variable that is updated with
      * prognostic eqns.
@@ -1648,15 +1646,12 @@ void SmFlx(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
 double SnFrac(double sneqv, double snup, double salp)
 {
     /*
-     * Function SnFrac
-     *
      * Calculate snow fraction (0 -> 1)
      */
     double          rsnow;
     double          sncovr;
 
-    /* Snup is veg-class dependent snowdepth threshold above which snocvr = 1.
-     */
+    /* Snup is veg-class dependent snowdepth threshold above which snocvr = 1 */
     if (sneqv < snup)
     {
         rsnow = sneqv / snup;
@@ -1667,13 +1662,14 @@ double SnFrac(double sneqv, double snup, double salp)
         sncovr = 1.0;
     }
 
+#if NOT_YET_IMPLEMENTED
     /* Formulation of Dickinson et al. 1986 */
-    //z0n = 0.035;
-
-    //sncovr = snowh / (snowh + 5.0 * z0n);
+    z0n = 0.035;
+    sncovr = snowh / (snowh + 5.0 * z0n);
 
     /* Formulation of Marshall et al. 1994 */
-    //sncovr = sneqv / (sneqv + 2.0 * z0n);
+    sncovr = sneqv / (sneqv + 2.0 * z0n);
+#endif
 
     return sncovr;
 }
@@ -1682,8 +1678,6 @@ void SnkSrc(double *tsnsr, double tavg, double smc, double *sh2o,
     const soil_struct *soil, const double *zsoil, double dt, int k, double qtot)
 {
     /*
-     * Subroutine SnkSrc
-     *
      * Calculate sink/source term of the thermal diffusion equation. (sh2o) is
      * available liquid water.
      */
@@ -1691,16 +1685,9 @@ void SnkSrc(double *tsnsr, double tavg, double smc, double *sh2o,
     double          freew;
     double          xh2o;
 
-    double          DH2O = 1.0000e3;
+    double          DH2O = 1.0000E3;
 
-    if (0 == k)
-    {
-        dz = -zsoil[0];
-    }
-    else
-    {
-        dz = zsoil[k - 1] - zsoil[k];
-    }
+    dz = (0 == k) ? -zsoil[0] : zsoil[k - 1] - zsoil[k];
 
     /* Via function FrH2O, compute potential or 'equilibrium' unfrozen
      * supercooled free water for given soil type and soil layer temperature.
@@ -1757,14 +1744,11 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 #endif
 {
     /*
-     * Function SnoPac
-     *
      * Calculate soil moisture and heat flux values & update soil moisture
      * content and soil heat content values for the case when a snow pack is
      * present.
      */
     int             k;
-
     double          denom;
     double          dsoil;
     double          dtot;
@@ -1781,7 +1765,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     double          t14;
     double          yy;
     double          zz1;
-    const double    ESDMIN = 1.0e-6;
+    const double    ESDMIN = 1.0E-6;
     const double    SNOEXP = 2.0;
 
     /* Initialize evap terms. */
@@ -1803,7 +1787,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     /* If etp < 0 (downward) then dewfall (= frostfall in this case). */
     if (wf->etp <= 0.0)
     {
-        if ((ps->ribb >= 0.1) && (ef->fdown > 150.0))
+        if (ps->ribb >= 0.1 && ef->fdown > 150.0)
         {
             wf->etp =
                 (((wf->etp * (1.0 - ps->ribb) < 0.0) ?
@@ -1811,10 +1795,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
                 * ps->sncovr / 0.980 + wf->etp * (0.980 - ps->sncovr)) / 0.980;
         }
 
-        if (wf->etp == 0.0)
-        {
-            ps->beta = 0.0;
-        }
+        ps->beta = (wf->etp == 0.0) ? 0.0 : ps->beta;
 
         wf->dew = -wf->etp;
         esnow2 = wf->etp * dt;
@@ -2024,8 +2005,6 @@ void SnowPack(double esd, double dtsec, double *snowh, double *sndens,
     double tsnow, double tsoil)
 {
     /*
-     * Function SnowPack
-     *
      * Calculate compaction of snowpack under conditions of increasing snow
      * density, as obtained from an approximate solution of E. Anderson's
      * differential equation (3.29), NOAA technical report NWS 19, by Victor
@@ -2059,17 +2038,17 @@ void SnowPack(double esd, double dtsec, double *snowh, double *sndens,
     snowhc = *snowh * 100.0;
     esdc = esd * 100.0;
     dthr = dtsec / 3600.0;
-    tsnowc = tsnow - 273.15;
-    tsoilc = tsoil - 273.15;
+    tsnowc = tsnow - TFREEZ;
+    tsoilc = tsoil - TFREEZ;
 
     /* Calculating of average temperature of snow pack */
     tavgc = 0.5 * (tsnowc + tsoilc);
 
-    esdcx = (esdc > 1.0e-2) ? esdc : 1.0e-2;
+    esdcx = (esdc > 1.0E-2) ? esdc : 1.0E-2;
 
     /* Calculating of snow depth and density as a result of compaction
-     *  sndens = ds0 * (exp (bfac * esd) - 1.) / (bfac * esd)
-     *  bfac = dthr * c1 * exp (0.08 * tavgc - c2 * ds0)
+     *   sndens = ds0 * (exp (bfac * esd) - 1.) / (bfac * esd)
+     *   bfac = dthr * c1 * exp (0.08 * tavgc - c2 * ds0)
      * Note: bfac * esd in sndens eqn above has to be carefully treated
      * numerically below:
      *   c1 is the fractional increase in density (1/(cm*hr))
@@ -2084,11 +2063,11 @@ void SnowPack(double esd, double dtsec, double *snowh, double *sndens,
      * an equivalent, numerically well-behaved polynomial expansion.
      * Number of terms of polynomial expansion, and hence its accuracy, is
      * governed by iteration limit "ipol".
-     *      ipol greater than 9 only makes a difference on double precision
-     *      (relative errors given in percent %).
-     *       ipol=9, for rel.error <~ 1.6 e-6 % (8 significant digits)
-     *       ipol=8, for rel.error <~ 1.8 e-5 % (7 significant digits)
-     *       ipol=7, for rel.error <~ 1.8 e-4 % ... */
+     *   ipol greater than 9 only makes a difference on double precision
+     *   (relative errors given in percent %).
+     *     ipol=9, for rel.error <~ 1.6 e-6 % (8 significant digits)
+     *     ipol=8, for rel.error <~ 1.8 e-5 % (7 significant digits)
+     *     ipol=7, for rel.error <~ 1.8 e-4 % ... */
     ipol = 4;
     pexp = 0.0;
     for (j = ipol; j > 0; j--)
@@ -2111,10 +2090,7 @@ void SnowPack(double esd, double dtsec, double *snowh, double *sndens,
     {
         dw = 0.13 * dthr / 24.0;
         *sndens = *sndens * (1.0 - dw) + dw;
-        if (*sndens >= 0.40)
-        {
-            *sndens = 0.40;
-        }
+        *sndens = (*sndens >= 0.40) ? 0.40 : *sndens;
     }
     /* Calculate snow depth (cm) from snow water equivalent and snow density.
      * Change snow depth units to meters */
@@ -2125,8 +2101,6 @@ void SnowPack(double esd, double dtsec, double *snowh, double *sndens,
 double Snowz0(double sncovr, double z0brd, double snowh)
 {
     /*
-     * Function Snowz0
-     *
      * Calculate total roughness length over snow
      */
     const double    Z0S = 0.001;    /* Snow roughness length (m) */
@@ -2145,8 +2119,6 @@ double Snowz0(double sncovr, double z0brd, double snowh)
 void SnowNew(const estate_struct *es, double newsn, pstate_struct *ps)
 {
     /*
-     * Function SnowNew
-     *
      * Calculate snow depth and density to account for the new snowfall.
      * New values of snow depth & density returned.
      */
@@ -2166,14 +2138,7 @@ void SnowNew(const estate_struct *es, double newsn, pstate_struct *ps)
      * 172-177pp. */
     tempc = es->sfctmp - 273.15;
 
-    if (tempc <= -15.0)
-    {
-        dsnew = 0.05;
-    }
-    else
-    {
-        dsnew = 0.05 + 0.0017 * pow(tempc + 15.0, 1.5);
-    }
+    dsnew = (tempc <= -15.0) ? 0.05 : 0.05 + 0.0017 * pow(tempc + 15.0, 1.5);
 
     /* Adjustment of snow density depending on new snowfall */
     hnewc = newsnc / dsnew;
@@ -2185,7 +2150,7 @@ void SnowNew(const estate_struct *es, double newsn, pstate_struct *ps)
     {
         ps->sndens = (snowhc * ps->sndens + hnewc * dsnew) / (snowhc + hnewc);
     }
-    snowhc = snowhc + hnewc;
+    snowhc += hnewc;
     ps->snowh = snowhc * 0.01;
 }
 
@@ -2200,7 +2165,6 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
 #endif
 {
     /*
-     * Function SRT
      * Calculate the right hand side of the time tendency term of the soil water
      * diffusion equation. Also to compute (prepare) the matrix coefficients for
      * the tri-diagonal matrix of the implicit time scheme.
@@ -2233,7 +2197,6 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
      * constant = 0.6 if areal mean frozen depth is above 20 cm. That is why
      * parameter cvfrz = 3 (int{1/0.6*0.6}). Current logic doesn't allow cvfrz
      * be bigger than 3 */
-
     /* Let sicemax be the greatest, if any, frozen water content within soil
      * layers. */
     iohinf = 1;
