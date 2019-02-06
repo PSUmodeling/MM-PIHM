@@ -371,7 +371,7 @@ int             FindLayer(const double *, int, double);
 int             FindWaterTable(const double *, int, double, double *);
 double          FrozRain(double, double);
 double          GwTransp(double, const double *, int, int);
-void            HRT(wstate_struct *, const estate_struct *, eflux_struct *,
+void            HRT(wstate_struct *, const estate_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *, double *,
     double, double, double, double, double *, double *, double *);
 void            IcePac(wstate_struct *, wflux_struct *, estate_struct *,
@@ -427,9 +427,8 @@ void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
 void            SFlxGlacial(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
     soil_struct *, double);
-void            ShFlx(wstate_struct *, estate_struct *, eflux_struct *,
-    const pstate_struct *, const lc_struct *, const soil_struct *, double,
-    double, double, double);
+void            ShFlx(wstate_struct *, estate_struct *, const pstate_struct *,
+    const lc_struct *, const soil_struct *, double, double, double, double);
 # if defined(_CYCLES_)
 void SmFlx(const soil_struct *, const cstate_struct *, double, pstate_struct *,
     wstate_struct *, wflux_struct *);

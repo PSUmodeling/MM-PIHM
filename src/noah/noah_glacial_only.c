@@ -581,7 +581,7 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      * in any subsequent calculations. Rather, they are dummy variables here in
      * the SnoPac case, since the skin temp and sub-sfc heat flux are updated
      * instead near the beginning of the call to SnoPac. */
-    ShFlx(ws, es, ef, ps, lc, soil, dt, yy, zz1, df1);
+    ShFlx(ws, es, ps, lc, soil, dt, yy, zz1, df1);
 
     es->t1 = t11;
     ef->ssoil = ssoil1;

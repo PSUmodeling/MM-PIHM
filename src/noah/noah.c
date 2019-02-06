@@ -1056,10 +1056,9 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
     return freew;
 }
 
-void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
-    const pstate_struct *ps, const lc_struct *lc, const soil_struct *soil,
-    double *rhsts, double yy, double zz1, double dt, double df1, double *ai,
-    double *bi, double *ci)
+void HRT(wstate_struct *ws, const estate_struct *es, const pstate_struct *ps,
+    const lc_struct *lc, const soil_struct *soil, double *rhsts, double yy,
+    double zz1, double dt, double df1, double *ai, double *bi, double *ci)
 {
     /*
      * Calculate the right hand side of the time tendency term of the soil
@@ -1083,6 +1082,7 @@ void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
     double          tbk1;
     double          tsnsr;
     double          tsurf;
+    double          ssoil;
     const double    CH2O = 4.2E6;       /* Volumetric heat capacity of water
                                          * (J m-3 K-1) */
     const double    CICE = 1.26E6;      /* Volumetric heat capacity of ice
@@ -1110,10 +1110,10 @@ void HRT(wstate_struct *ws, const estate_struct *es, eflux_struct *ef,
      * "rhsts," or top soil layer. */
     bi[0] = -ci[0] + df1 / (0.5 * ps->zsoil[0] * ps->zsoil[0] * hcpct * zz1);
     dtsdz = (es->stc[0] - es->stc[1]) / (-0.5 * ps->zsoil[1]);
-    ef->ssoil = df1 * (es->stc[0] - yy) / (0.5 * ps->zsoil[0] * zz1);
+    ssoil = df1 * (es->stc[0] - yy) / (0.5 * ps->zsoil[0] * zz1);
     denom = ps->zsoil[0] * hcpct;
 
-    rhsts[0] = (df1 * dtsdz - ef->ssoil) / denom;
+    rhsts[0] = (df1 * dtsdz - ssoil) / denom;
 
     /* Next capture the vertical difference of the heat flux at top and bottom
      * of first soil layer for use in heat flux constraint applied to potential
@@ -1395,7 +1395,7 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
     zz1 = df1 / (-0.5 * ps->zsoil[0] * ps->rch * ps->rr) + 1.0;
 
-    ShFlx(ws, es, ef, ps, lc, soil, dt, yy, zz1, df1);
+    ShFlx(ws, es, ps, lc, soil, dt, yy, zz1, df1);
 
     /* In the no snowpack case update the grnd (skin) temperature in response to
      * the updated soil temperature profile */
@@ -1565,9 +1565,9 @@ void Rosr12(double *p, const double *a, const double *b, double *c,
     }
 }
 
-void ShFlx(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
-    const pstate_struct *ps, const lc_struct *lc, const soil_struct *soil,
-    double dt, double yy, double zz1, double df1)
+void ShFlx(wstate_struct *ws, estate_struct *es, const pstate_struct *ps,
+    const lc_struct *lc, const soil_struct *soil, double dt, double yy,
+    double zz1, double df1)
 {
     /*
      * Update the temperature state of the soil column based on the thermal
@@ -1579,7 +1579,7 @@ void ShFlx(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
 
     /* HRT routine calcs the right hand side of the soil temp dif eqn */
     /* Land case */
-    HRT(ws, es, ef, ps, lc, soil, rhsts, yy, zz1, dt, df1, ai, bi, ci);
+    HRT(ws, es, ps, lc, soil, rhsts, yy, zz1, dt, df1, ai, bi, ci);
 
     HStep(es, rhsts, dt, ps->nsoil, ai, bi, ci);
 }
@@ -1779,8 +1779,6 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     double          t12a;
     double          t12b;
     double          t14;
-    double          ssoil1;
-    double          t11;
     double          yy;
     double          zz1;
     const double    ESDMIN = 1.0e-6;
@@ -2003,18 +2001,8 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     zz1 = 1.0;
     yy = es->stc[0] - 0.5 * ef->ssoil * ps->zsoil[0] * zz1 / df1;
 
-    t11 = es->t1;
-    ssoil1 = ef->ssoil;
-
-    /* ShFlx will calc/update the soil temps. Note: the sub-sfc heat flux
-     * (ssoil1) and the skin temp (t11) output from this ShFlx call are not used
-     * in any subsequent calculations. Rather, they are dummy variables here in
-     * the SnoPac case, since the skin temp and sub-sfc heat flux are updated
-     * instead near the beginning of the call to SnoPac. */
-    ShFlx(ws, es, ef, ps, lc, soil, dt, yy, zz1, df1);
-
-    es->t1 = t11;
-    ef->ssoil = ssoil1;
+    /* ShFlx will calc/update the soil temps */
+    ShFlx(ws, es, ps, lc, soil, dt, yy, zz1, df1);
 
     /* Snow depth and density adjustment based on snow compaction. yy is assumed
      * to be the soil temperature at the top of the soil column. */
