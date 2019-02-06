@@ -4,63 +4,63 @@
 #define _ARITH_
 
 /* State variables */
-#define SURF(i)          i
-#define UNSAT(i)         i + nelem
-#define GW(i)            i + 2 * nelem
-#define RIVSTG(i)        i + 3 * nelem
-#define RIVGW(i)         i + 3 * nelem + nriver
+#define SURF(i)          (i)
+#define UNSAT(i)         (i + nelem)
+#define GW(i)            (i + 2 * nelem)
+#define RIVSTG(i)        (i + 3 * nelem)
+#define RIVGW(i)         (i + 3 * nelem + nriver)
 #if defined(_FBR_)
-# define FBRUNSAT(i)     i + 3 * nelem + 2 * nriver
-# define FBRGW(i)        i + 4 * nelem + 2 * nriver
+# define FBRUNSAT(i)     (i + 3 * nelem + 2 * nriver)
+# define FBRGW(i)        (i + 4 * nelem + 2 * nriver)
 #endif
 #if defined(_BGC_) && !defined(_LUMPED_)
-# define SURFN(i)        i + 3 * nelem + 2 * nriver
-# define SMINN(i)        i + 4 * nelem + 2 * nriver
-# define STREAMN(i)      i + 5 * nelem + 2 * nriver
-# define RIVBEDN(i)      i + 5 * nelem + 3 * nriver
+# define SURFN(i)        (i + 3 * nelem + 2 * nriver)
+# define SMINN(i)        (i + 4 * nelem + 2 * nriver)
+# define STREAMN(i)      (i + 5 * nelem + 2 * nriver)
+# define RIVBEDN(i)      (i + 5 * nelem + 3 * nriver)
 #else
-# define LUMPED_SMINN    3 * nelem + 2 * nriver
+# define LUMPED_SMINN    (3 * nelem + 2 * nriver)
 #endif
 #if defined(_CYCLES_)
-# define NO3(i)          i + 3 * nelem + 2 * nriver
-# define NH4(i)          i + 4 * nelem + 2 * nriver
-# define STREAMNO3(i)    i + 5 * nelem + 2 * nriver
-# define RIVBEDNO3(i)    i + 5 * nelem + 3 * nriver
-# define STREAMNH4(i)    i + 5 * nelem + 4 * nriver
-# define RIVBEDNH4(i)    i + 5 * nelem + 5 * nriver
+# define NO3(i)          (i + 3 * nelem + 2 * nriver)
+# define NH4(i)          (i + 4 * nelem + 2 * nriver)
+# define STREAMNO3(i)    (i + 5 * nelem + 2 * nriver)
+# define RIVBEDNO3(i)    (i + 5 * nelem + 3 * nriver)
+# define STREAMNH4(i)    (i + 5 * nelem + 4 * nriver)
+# define RIVBEDNH4(i)    (i + 5 * nelem + 5 * nriver)
 #endif
 
 #if defined(_RT_)
 /* RT flux index */
-# define RT_LAT_GW(i, j)            (i) * 3 + (j)
-# define RT_LAT_UNSAT(i, j)         (i) * 3 + (j) + 3 * nelem
-# define RT_INFIL(i)                (i) + 6 * nelem
-# define RT_RECHG_UNSAT(i)          (i) + 7 * nelem
-# define RT_RECHG_GW(i)             (i) + 8 * nelem
-# define RT_LEFT_SURF2RIVER(i)      (i) + 9 * nelem
-# define RT_RIGHT_SURF2RIVER(i)     (i) + 9 * nelem + nriver
-# define RT_LEFT_AQIF2RIVER(i)      (i) + 9 * nelem + 2 * nriver
-# define RT_RIGHT_AQIF2RIVER(i)     (i) + 9 * nelem + 3 * nriver
-# define RT_DOWN_RIVER2RIVER(i)     (i) + 9 * nelem + 4 * nriver
-# define RT_UP_RIVER2RIVER(i)       (i) + 9 * nelem + 5 * nriver
+# define RT_LAT_GW(i, j)            ((i) * 3 + j)
+# define RT_LAT_UNSAT(i, j)         ((i) * 3 + j + 3 * nelem)
+# define RT_INFIL(i)                (i + 6 * nelem)
+# define RT_RECHG_UNSAT(i)          (i + 7 * nelem)
+# define RT_RECHG_GW(i)             (i + 8 * nelem)
+# define RT_LEFT_SURF2RIVER(i)      (i + 9 * nelem)
+# define RT_RIGHT_SURF2RIVER(i)     (i + 9 * nelem + nriver)
+# define RT_LEFT_AQIF2RIVER(i)      (i + 9 * nelem + 2 * nriver)
+# define RT_RIGHT_AQIF2RIVER(i)     (i + 9 * nelem + 3 * nriver)
+# define RT_DOWN_RIVER2RIVER(i)     (i + 9 * nelem + 4 * nriver)
+# define RT_UP_RIVER2RIVER(i)       (i + 9 * nelem + 5 * nriver)
 
 # if defined(_FBR_)
-#  define RT_LAT_FBR_GW(i, j)       (i) * 3 + 9 * nelem + 6 * nriver + (j)
-#  define RT_LAT_FBR_UNSAT(i, j)    (i) * 3 + 12 * nelem + 6 * nriver + (j)
-#  define RT_FBR_LKG(i)             (i) + 15 * nelem + 6 * nriver
-#  define RT_FBR_INFIL(i)           (i) + 16 * nelem + 6 * nriver
-#  define RT_FBR_RECHG_UNSAT(i)     (i) + 17 * nelem + 6 * nriver
-#  define RT_FBR_LKG(i)             (i) + 18 * nelem + 6 * nriver
+#  define RT_LAT_FBR_GW(i, j)       ((i) * 3 + 9 * nelem + 6 * nriver + j)
+#  define RT_LAT_FBR_UNSAT(i, j)    ((i) * 3 + 12 * nelem + 6 * nriver + j)
+#  define RT_FBR_LKG(i)             (i + 15 * nelem + 6 * nriver)
+#  define RT_FBR_INFIL(i)           (i + 16 * nelem + 6 * nriver)
+#  define RT_FBR_RECHG_UNSAT(i)     (i + 17 * nelem + 6 * nriver)
+#  define RT_FBR_LKG(i)             (i + 18 * nelem + 6 * nriver)
 # endif
 
 /* RT volume index */
 # define RT_UNSAT(i)        (i)
-# define RT_GW(i)           ((i) + nelem)
-# define RT_RIVER(i)        ((i) + 2 * nelem)
+# define RT_GW(i)           (i + nelem)
+# define RT_RIVER(i)        (i + 2 * nelem)
 
 # if defined(_FBR_)
-#  define RT_FBR_UNSAT(i)   ((i) + 3 * nelem)
-#  define RT_FBR_GW(i)      ((i) + 4 * nelem)
+#  define RT_FBR_UNSAT(i)   (i + 3 * nelem)
+#  define RT_FBR_GW(i)      (i + 4 * nelem)
 # endif
 #endif
 
