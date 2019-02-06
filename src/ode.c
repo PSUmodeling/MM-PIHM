@@ -475,7 +475,7 @@ void SolveCVode(int starttime, int *t, int nextptr, double cputime,
         PIHMexit(EXIT_FAILURE);
     }
 
-    *t = (int)round(solvert) + starttime;
+    *t = roundi(solvert) + starttime;
 
     pihm_time = PIHMTime(*t);
 

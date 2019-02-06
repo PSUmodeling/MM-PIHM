@@ -2220,7 +2220,7 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     {
         acrt = CVFRZ * ps->frzx / dice;
         sum = 1.0;
-        ialp1 = (int)round(CVFRZ) - 1;
+        ialp1 = roundi(CVFRZ) - 1;
         for (j = 1; j < ialp1 + 1; j++)
         {
             k = 1;
