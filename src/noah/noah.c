@@ -2921,14 +2921,7 @@ void AdjSmProf(const soil_struct *soil, const pstate_struct *ps,
 
     for (k = ps->nsoil - 1; k >= 0; k--)
     {
-        if (k != 0)
-        {
-            ddz = ps->zsoil[k - 1] - ps->zsoil[k];
-        }
-        else
-        {
-            ddz = -ps->zsoil[0];
-        }
+        ddz = (k != 0) ? ps->zsoil[k - 1] - ps->zsoil[k] : -ps->zsoil[0];
 
         sh2omid[k] = ws->sh2o[k] + wplus / ddz;
         stot = sh2omid[k] + sice[k];
@@ -2962,23 +2955,14 @@ void AdjSmProf(const soil_struct *soil, const pstate_struct *ps,
         sh2omid[k] = ws->smc[k] - sice[k];
     }
 
-    ddz = -ps->zsoil[0];
     for (k = 0; k < ps->nsoil; k++)
     {
-        if (k != 0)
-        {
-            ddz = ps->zsoil[k - 1] - ps->zsoil[k];
-        }
+        ddz = (k == 0) ? -ps->zsoil[0] : ps->zsoil[k - 1] - ps->zsoil[k];
+
         ws->sh2o[k] = sh2omid[k] + wplus / ddz;
+
         stot = ws->sh2o[k] + sice[k];
-        if (stot > soil->smcmax)
-        {
-            wplus = (stot - soil->smcmax) * ddz;
-        }
-        else
-        {
-            wplus = 0.0;
-        }
+        wplus = (stot > soil->smcmax) ? (stot - soil->smcmax) * ddz : 0.0;
 
         ws->smc[k] = (stot < soil->smcmax) ? stot : soil->smcmax;
         ws->smc[k] = (ws->smc[k] > soil->smcmin + SH2OMIN) ?
