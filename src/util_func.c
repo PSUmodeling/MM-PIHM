@@ -200,3 +200,12 @@ int CheckCVodeFlag(int cv_flag)
         return 1;
     }
 }
+
+int roundi(double x)
+{
+    int             y;
+
+    y = (int)((x < 0.0) ? x - 0.5 : x + 0.5);
+
+    return y;
+}

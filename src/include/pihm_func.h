@@ -287,6 +287,7 @@ double          RiverEqWid(int, double, double);
 void            RiverFlow(elem_struct *, river_struct *, int);
 double          RiverPerim(int, double, double);
 void            RiverToElem(river_struct *, elem_struct *, elem_struct *);
+int             roundi(double);
 #if defined(_OPENMP)
 void            RunTime(double, double *, double *);
 #else
