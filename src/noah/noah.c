@@ -1397,6 +1397,13 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
     ShFlx(ws, es, ef, ps, lc, soil, dt, yy, zz1, df1);
 
+    /* In the no snowpack case update the grnd (skin) temperature in response to
+     * the updated soil temperature profile */
+    es->t1 = (yy + (zz1 - 1.0) * es->stc[0]) / zz1;
+
+    /* Calculate surface soil heat flux */
+    ef->ssoil = df1 * (es->stc[0] - es->t1) / (0.5 * ps->zsoil[0]);
+
     /* Set flx1 and flx3 (snopack phase change heat fluxes) to zero since they
      * are not used here in SnoPac. flx2 (freezing rain heat flux) was similarly
      * initialized in the Penman routine. */
@@ -1575,16 +1582,6 @@ void ShFlx(wstate_struct *ws, estate_struct *es, eflux_struct *ef,
     HRT(ws, es, ef, ps, lc, soil, rhsts, yy, zz1, dt, df1, ai, bi, ci);
 
     HStep(es, rhsts, dt, ps->nsoil, ai, bi, ci);
-
-    /* In the no snowpack case (via routine NoPac branch,) update the grnd
-     * (skin) temperature here in response to the updated soil temperature
-     * profile above. (Note: inspection of routine SnoPac shows that t1 below is
-     * a dummy variable only, as skin temperature is updated differently in
-     * routine SnoPac) */
-    es->t1 = (yy + (zz1 - 1.0) * es->stc[0]) / zz1;
-
-    /* Calculate surface soil heat flux */
-    ef->ssoil = df1 * (es->stc[0] - es->t1) / (0.5 * ps->zsoil[0]);
 }
 
 
