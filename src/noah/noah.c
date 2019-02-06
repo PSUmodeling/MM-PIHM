@@ -2188,7 +2188,7 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     const double    CVFRZ = 3.0;
     double          acrt;
     double          sum;
-    double          ialp1;
+    int             ialp1;
     /* Frozen ground version:
      * Reference frozen ground parameter, cvfrz, is a shape parameter of areal
      * distribution function of soil ice content which equals 1/cv.
@@ -2216,7 +2216,7 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
 
     ps->fcr = 1.0;
 
-    if (dice > 1.0e-2)
+    if (dice > 1.0E-2)
     {
         acrt = CVFRZ * ps->frzx / dice;
         sum = 1.0;
