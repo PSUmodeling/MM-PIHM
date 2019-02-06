@@ -254,16 +254,8 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     }
     ef->ett = wf->ett * 1000.0 * LVH2O;
     ef->esnow = wf->esnow * 1000.0 * LSUBS;
-    ef->etp =
-        wf->etp * 1000.0 * LSUBS;
-    if (ef->etp > 0.0)
-    {
-        ef->eta = ef->esnow;
-    }
-    else
-    {
-        ef->eta = ef->etp;
-    }
+    ef->etp = wf->etp * 1000.0 * LSUBS;
+    ef->eta = (ef->etp > 0.0) ? ef->esnow : ef->etp;
 
     /* Determine beta (ratio of actual to potential evap) */
     ps->beta = (ef->etp == 0.0) ? 0.0 : (ef->eta / ef->etp);
