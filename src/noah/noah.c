@@ -2224,7 +2224,7 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
         for (j = 1; j < ialp1 + 1; j++)
         {
             k = 1;
-            for (jj = j + 1; jj < ialp1; jj++)
+            for (jj = j + 1; jj < ialp1 + 1; jj++)
             {
                 k *= jj;
             }
