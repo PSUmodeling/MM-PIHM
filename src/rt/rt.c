@@ -1162,6 +1162,23 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             ReadTS(cmdstr, &CD->TSD_prepconc[0].ftime[i],
                 &CD->TSD_prepconc[0].data[i][0], CD->TSD_prepconc[0].nspec);
         }
+
+        /* Convert pH to H+ concentration */
+        for (i = 0; i < CD->TSD_prepconc[0].nspec; i++)
+        {
+            if (!strcmp(con_chem_name[num_conditions][CD->prepconcindex[i] - 1],
+                "pH"))
+            {
+                for (k = 0; k < CD->TSD_prepconc[0].length; k++)
+                {
+                    CD->TSD_prepconc[0].data[k][i] =
+                        (CD->TSD_prepconc[0].data[k][i] < 7.0) ?
+                        pow(10, -CD->TSD_prepconc[0].data[k][i]) :
+                        -pow(10, -CD->TSD_prepconc[0].data[k][i] - 14);
+                }
+                break;
+            }
+        }
     }
 
     /* PUMP block */
