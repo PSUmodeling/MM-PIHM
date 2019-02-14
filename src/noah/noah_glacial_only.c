@@ -180,7 +180,6 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     dsoil = -(0.5 * ps->zsoil[0]);
 
     dtot = ps->snowh + ps->iceh + dsoil;
-    dtot = (dtot > 2.0 * dsoil) ? 2.0 * dsoil : dtot;
 
     /* Calculate subsurface heat flux, ssoil, from final thermal
      * diffusivity of surface mediums, df1 above, and skin temperature and
