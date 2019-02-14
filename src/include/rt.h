@@ -20,8 +20,6 @@ typedef struct vol_conc_type
 {
     int             index;      /* Volume No. Note this number may be different than the element No. in PIHM */
     int             illness;    /* black list */
-    int             NumStc;     /* Total Number of primary (total) species */
-    int             NumSsc;     /* Total Number of secondary species */
     int             type;       /* type of volume: unsaturated, groundwater, river, or river bed */
     double         *t_conc;     /* Concentration of species x, default unit in Mol/kg water. */
     double         *p_conc;     /* Primary concentrations, default unit in Mol/kg water */
