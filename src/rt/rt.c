@@ -1387,8 +1387,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     for (i = 0; i < CD->NumVol; i++)
     {
         CD->Vcele[i].index = i + 1;
-        CD->Vcele[i].NumStc = CD->NumStc;
-        CD->Vcele[i].NumSsc = CD->NumSsc;
         CD->Vcele[i].t_conc = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].p_conc = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].s_conc = (double *)calloc(CD->NumSsc, sizeof(double));
