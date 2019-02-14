@@ -2643,8 +2643,14 @@ void FreeChem(Chem_Data CD)
     }
     free(CD->chemtype);
 
-    free(CD->pumps->Name_Species);
-    free(CD->pumps);
+    if (CD->NumPUMP > 0)
+    {
+        for (i = 0; i < CD->NumPUMP; i++)
+        {
+            free(CD->pumps[i].Name_Species);
+        }
+        free(CD->pumps);
+    }
 
     // CD->TSD_prepconc
     for (i = 0; i < CD->TSD_prepconc[0].length; i++)
