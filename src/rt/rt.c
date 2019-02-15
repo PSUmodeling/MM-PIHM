@@ -1719,19 +1719,20 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         }
     }
 
-    fprintf(stderr, "\n Kinetic Mass Matrx (calibrated Keq)! \n\t\t");
+    fprintf(stderr, "\n Kinetic Mass Matrx (calibrated Keq)! \n");
+    fprintf(stderr, "%-15s", " ");
     for (i = 0; i < CD->NumStc; i++)
-        fprintf(stderr, " %6s\t", CD->chemtype[i].ChemName);
+        fprintf(stderr, "%-14s", CD->chemtype[i].ChemName);
     fprintf(stderr, "\n");
     for (j = 0; j < CD->NumMkr + CD->NumAkr; j++)
     {
-        fprintf(stderr, " %6s\t",
+        fprintf(stderr, " %-14s",
             CD->chemtype[j + CD->NumSpc + CD->NumAds + CD->NumCex].ChemName);
         for (i = 0; i < CD->NumStc; i++)
         {
-            fprintf(stderr, " %6.2f\t", CD->Dep_kinetic[j][i]);
+            fprintf(stderr, "%-14.2f", CD->Dep_kinetic[j][i]);
         }
-        fprintf(stderr, "\tKeq = %6.2f\n", CD->KeqKinect[j]);
+        fprintf(stderr, " Keq = %-6.2f\n", CD->KeqKinect[j]);
     }
     fprintf(stderr, "\n");
     /* Use calibration coefficient to produce new Keq values for
