@@ -1166,7 +1166,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         /* Convert pH to H+ concentration */
         for (i = 0; i < CD->TSD_prepconc[0].nspec; i++)
         {
-            if (!strcmp(con_chem_name[num_conditions][CD->prepconcindex[i] - 1],
+            if (CD->prepconcindex[i] > 0 &&
+                !strcmp(con_chem_name[num_conditions][CD->prepconcindex[i] - 1],
                 "pH"))
             {
                 for (k = 0; k < CD->TSD_prepconc[0].length; k++)
