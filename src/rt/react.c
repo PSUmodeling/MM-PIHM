@@ -611,45 +611,51 @@ void Lookup(FILE *database, Chem_Data CD)
     for (i = CD->NumStc; i < CD->NumStc + CD->NumSsc; i++)
         for (j = 0; j < CD->NumSdc; j++)
             CD->Totalconc[j][i] += CD->Dependency[i - CD->NumStc][j];
-    fprintf(stderr, " \n Dependency Matrix!\n\t\t");
-
-    for (i = 0; i < CD->NumSdc; i++)
-        fprintf(stderr, "%6s\t", CD->chemtype[i].ChemName);
-    fprintf(stderr, "\n");
-
-    for (i = 0; i < CD->NumSsc; i++)    /* Number of secondary speices in the simulator */
+    if (CD->NumSsc > 0)
     {
-        fprintf(stderr, " %12s\t", CD->chemtype[i + CD->NumStc].ChemName);
-        for (j = 0; j < CD->NumSdc; j++)    /* Number of independent species (others depending on these species) */
-            fprintf(stderr, " %6.2f\t", CD->Dependency[i][j]);
-        fprintf(stderr, " %6.2f\n", CD->Keq[i]);
+        fprintf(stderr, " \n Dependency Matrix!\n");
+
+        fprintf(stderr, "%-15s", " ");
+        for (i = 0; i < CD->NumSdc; i++)
+            fprintf(stderr, "%-14s", CD->chemtype[i].ChemName);
+        fprintf(stderr, "\n");
+
+        for (i = 0; i < CD->NumSsc; i++)    /* Number of secondary speices in the simulator */
+        {
+            fprintf(stderr, " %-14s", CD->chemtype[i + CD->NumStc].ChemName);
+            for (j = 0; j < CD->NumSdc; j++)    /* Number of independent species (others depending on these species) */
+                fprintf(stderr, "%-14.2f", CD->Dependency[i][j]);
+            fprintf(stderr, " %6.2f\n", CD->Keq[i]);
+        }
     }
 
-    fprintf(stderr, " \n Total Concentration Matrix!\n\t\t");
+    fprintf(stderr, " \n Total Concentration Matrix!\n");
+    fprintf(stderr, "%-18s", " ");
     for (i = 0; i < CD->NumStc + CD->NumSsc; i++)
-        fprintf(stderr, "%6s\t", CD->chemtype[i].ChemName);
+        fprintf(stderr, "%-14s", CD->chemtype[i].ChemName);
     fprintf(stderr, "\n");
     for (i = 0; i < CD->NumStc; i++)
     {
-        fprintf(stderr, " Sum%12s\t", CD->chemtype[i].ChemName);
+        fprintf(stderr, " Sum%-14s", CD->chemtype[i].ChemName);
         for (j = 0; j < CD->NumStc + CD->NumSsc; j++)
-            fprintf(stderr, " %6.2f\t", CD->Totalconc[i][j]);
+            fprintf(stderr, "%-14.2f", CD->Totalconc[i][j]);
         fprintf(stderr, "\n");
     }
 
-    fprintf(stderr, " \n Kinetic Mass Matrx!\n\t\t");
+    fprintf(stderr, " \n Kinetic Mass Matrx!\n");
+    fprintf(stderr, "%-15s", " ");
     for (i = 0; i < CD->NumStc; i++)
-        fprintf(stderr, " %6s\t", CD->chemtype[i].ChemName);
+        fprintf(stderr, "%-14s", CD->chemtype[i].ChemName);
     fprintf(stderr, "\n");
     for (j = 0; j < CD->NumMkr + CD->NumAkr; j++)
     {
-        fprintf(stderr, " %6s\t",
+        fprintf(stderr, " %-14s",
             CD->chemtype[j + CD->NumSpc + CD->NumAds + CD->NumCex].ChemName);
         for (i = 0; i < CD->NumStc; i++)
         {
-            fprintf(stderr, " %6.2f\t", CD->Dep_kinetic[j][i]);
+            fprintf(stderr, "%-14f", CD->Dep_kinetic[j][i]);
         }
-        fprintf(stderr, "\tKeq = %6.2f\n", CD->KeqKinect[j]);
+        fprintf(stderr, " Keq = %-6.2f\n", CD->KeqKinect[j]);
     }
     for (i = 0; i < WORDS_LINE; i++)
         free(tmpstr[i]);
