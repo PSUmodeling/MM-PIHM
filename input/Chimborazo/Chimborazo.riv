@@ -1,0 +1,22 @@
+NUMRIV  12
+INDEX   FROM    TO      DOWN    LEFT    RIGHT   SHAPE   MATRL   BC  RES
+1       1       2       2       43      93      1       1       0   0
+2       2       3       3       23      48      1       1       0   0
+3       3       4       4       45      46      1       1       0   0
+4       4       5       5       44      64      1       1       0   0
+5       5       6       6       47      177     1       1       0   0
+6       6       95      7       17      176     1       1       0   0
+7       95      7       8       80      139     1       1       0   0
+8       7       8       9       106     146     1       1       0   0
+9       8       9       10      81      112     1       1       0   0
+10      9       101     11      77      157     1       1       0   0
+11      101     10      12      74      128     1       1       0   0
+12      10      11      -3      57      82      1       1       0   0
+SHAPE   1
+INDEX   DPTH    OINT    CWID
+1       0.6     1       2.0
+MATERIAL    1
+INDEX   ROUGH   CWR     KH          KV          BEDTHICK
+1       0.04    0.60    1.157E-05   1.157E-04   10.00
+BC  0
+RES 0
