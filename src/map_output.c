@@ -976,6 +976,30 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         }
         n++;
     }
+    for (k = 0; k < rt->NumStc; k++)
+    {
+        Unwrap(chemn, rt->chemtype[k].ChemName);
+        sprintf(ext, "river_conc.%s", chemn);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nriver,
+            &print->varctrl[n]);
+        for (j = 0; j < nriver; j++)
+        {
+            print->varctrl[n].var[j] = &rt->Vcele[RT_RIVER(j)].log10_pconc[k];
+        }
+        n++;
+    }
+    for (k = 0; k < rt->NumSsc; k++)
+    {
+        Unwrap(chemn, rt->chemtype[k + rt->NumStc].ChemName);
+        sprintf(ext, "river_conc.%s", chemn);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nriver,
+            &print->varctrl[n]);
+        for (j = 0; j < nriver; j++)
+        {
+            print->varctrl[n].var[j] = &rt->Vcele[RT_RIVER(j)].log10_sconc[k];
+        }
+        n++;
+    }
     for (i = 0; i < rt->NumBTC; i++)
     {
         sprintf(ext, "%d.btcv", rt->BTC_loc[i] + 1);
