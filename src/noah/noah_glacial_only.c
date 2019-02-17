@@ -1,8 +1,8 @@
 #include "pihm.h"
 
 void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
-    soil_struct *soil, double dt)
+    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, soil_struct *soil,
+    double dt)
 {
     /*
      * Sub-driver for "Noah LSM" family of physics subroutines for a
@@ -14,10 +14,8 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     int             frzgra, snowng;
     const int       IZ0TLND = 0;
     double          df1;
-    double          df1a;
     double          dsoil;
     double          dtot;
-    double          frcsno, frcsoi;
     double          t1v;
     double          th2v;
     double          t2v;
@@ -25,9 +23,6 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     double          interp_fraction;
     double          sn_new;
     double          prcpf;
-    double          soilwm;
-    double          soilww;
-    double          smav[MAXLYR];
     int             k;
 
     /*
@@ -365,7 +360,6 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     double          zz1;
     double          sniceeqv;
     const double    ESDMIN = 1.0e-6;
-    const double    SNOEXP = 2.0;
 
     /* Initialize evap terms. */
     wf->dew = 0.0;

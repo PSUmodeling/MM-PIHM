@@ -426,8 +426,7 @@ void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
     soil_struct *, double);
 # endif
 void            SFlxGlacial(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
-    soil_struct *, double);
+    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *, double);
 void            ShFlx(wstate_struct *, estate_struct *, const pstate_struct *,
     const lc_struct *, const soil_struct *, double, double, double, double);
 # if defined(_CYCLES_)
