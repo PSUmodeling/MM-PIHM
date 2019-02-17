@@ -54,6 +54,7 @@
 !/input/*.txt
 !/input/*.tbl
 !/input/example
+!/input/Chimborazo
 /input/example/example.ic
 /output/
 /*.log
