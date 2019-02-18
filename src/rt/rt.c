@@ -251,11 +251,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     sprintf(forcfn, "input/%s/%s.prep", filename, filename);
     FILE           *prepconc = fopen(forcfn, "r");
 
-    char           *maxwaterfn =
-        (char *)malloc((strlen(filename) * 2 + 100) * sizeof(char));
-    sprintf(maxwaterfn, "input/%s/%s.maxwater", filename, filename);
-    FILE           *maxwater = fopen(maxwaterfn, "r");
-    free(maxwaterfn);
 
     if (chemfile == NULL)
     {
@@ -274,13 +269,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     if (prepconc == NULL)
     {
         fprintf(stderr, "\n  Fatal Error: %s.prep does not exist! \n",
-            filename);
-        exit(1);
-    }
-
-    if (maxwater == NULL)
-    {
-        fprintf(stderr, "\n  Fatal Error: %s.maxwater does not exist! \n",
             filename);
         exit(1);
     }
@@ -1243,23 +1231,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     }
     /* End of reading input files */
 
-    /* Reading '*.maxwater' input file */
-    fprintf(stderr, "\n Reading 'coalcreek_952.maxwater': \n");
     CD->Vcele = (vol_conc *) malloc(CD->NumVol * sizeof(vol_conc));
-    for (i = 0; i < CD->NumVol; i++)
-    {
-        CD->Vcele[i].maxwater = 0;  /* Initialize, including ghost cells */
-    }
-
-    fscanf(maxwater, "%*[^\n]%*c"); /* Jump over the first header line */
-
-    for (i = 0; i < nelem; i++) /* GW cells */
-    {
-        fscanf(maxwater, "%*d %lf", &(CD->Vcele[RT_GW(i)].maxwater));
-        CD->Vcele[RT_UNSAT(i)].maxwater = CD->Vcele[RT_GW(i)].maxwater;
-    }
-
-    fclose(maxwater);
 
     /* Initializing volumetric parameters, inherit from PIHM
      * That is, if PIHM is started from a hot start, rt is also
@@ -2551,14 +2523,8 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
 #endif
             for (i = 0; i < nelem; i++)
             {
-                double          z_SOC;
-
-                z_SOC = CD->Vcele[RT_GW(i)].maxwater -
-                    (CD->Vcele[RT_GW(i)].height_t + CD->Vcele[RT_UNSAT(i)].height_t);
-                z_SOC = (z_SOC > 0.0) ? z_SOC : 0.0;
-
-                React(stepsize, CD, &CD->Vcele[RT_GW(i)], z_SOC);
-                React(stepsize, CD, &CD->Vcele[RT_UNSAT(i)], z_SOC);
+                React(stepsize, CD, &CD->Vcele[RT_GW(i)]);
+                React(stepsize, CD, &CD->Vcele[RT_UNSAT(i)]);
             }
         }
 

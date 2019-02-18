@@ -1012,14 +1012,15 @@ int Speciation(Chem_Data CD, int cell)
     return (0);
 }
 
-void React(realtype stepsize, Chem_Data CD, vol_conc *Vcele, double z_SOC)
+
+void React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
 {
     int             k, j;
     double          substep;
 
     if (Vcele->illness < 20)
     {
-        if (_React(stepsize * CD->React_delay, CD, Vcele, z_SOC))
+        if (_React(stepsize * CD->React_delay, CD, Vcele))
         {
             fprintf(stderr, "  ---> React failed at cell %12d.\t",
                     Vcele->index);
@@ -1027,7 +1028,7 @@ void React(realtype stepsize, Chem_Data CD, vol_conc *Vcele, double z_SOC)
             substep = 0.5 * stepsize;
             k = 2;
 
-            while ((j = _React(substep, CD, Vcele, z_SOC)))
+            while ((j = _React(substep, CD, Vcele)))
             {
                 substep = 0.5 * substep;
                 k = 2 * k;
@@ -1042,14 +1043,14 @@ void React(realtype stepsize, Chem_Data CD, vol_conc *Vcele, double z_SOC)
                         substep, k);
                 for (j = 1; j < k; j++)
                 {
-                    _React(substep, CD, Vcele, z_SOC);
+                    _React(substep, CD, Vcele);
                 }
             }
         }
     }
 }
 
-int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele, double z_SOC)
+int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
 {
     if (Vcele->sat < 1.0E-2)
     {
@@ -1060,7 +1061,6 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele, double z_SOC)
         CD->NumStc + CD->NumSsc, min_pos, pivot_flg;
     int             mn, in;
     double          monodterm = 1.0, inhibterm = 1.0;
-    double          fd = 1.0;       /* SOC declining factor */
     int             stc = CD->NumStc, ssc = CD->NumSsc, nkr =
         CD->NumMkr + CD->NumAkr, smc = CD->NumMin;
     double         *residue, *residue_t, *tmpconc, *totconc, *area, *error,
@@ -1169,12 +1169,8 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele, double z_SOC)
                     Vcele->p_conc[CD->kinetics[i].inhib_position[in]]);
             }
 
-            /* SOC declining factor */
-            fd = 1.0 * exp(-z_SOC / 0.1);
-
             /* Based on CrunchTope */
-            Rate_pre[i] = area[min_pos] * pow(10, CD->kinetics[i].rate) *
-                monodterm * fd * 60;
+            Rate_pre[i] = area[min_pos] * pow(10, CD->kinetics[i].rate) * monodterm * 60;
         }
 
         for (j = 0; j < CD->NumStc; j++)
@@ -1339,13 +1335,8 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele, double z_SOC)
                             kinetics[i].inhib_position[in]]);
                 }
 
-                /* SOC declining factor */
-                fd = 1.0 * exp(-z_SOC / 0.1);
-
                 /* Based on CrunchTope */
-                Rate_pre[i] =
-                    area[min_pos] * pow(10,
-                    CD->kinetics[i].rate) * monodterm * fd * 60;
+                Rate_pre[i] = area[min_pos] * pow(10, CD->kinetics[i].rate) * monodterm * 60;
             }
 
             for (j = 0; j < CD->NumStc; j++)
