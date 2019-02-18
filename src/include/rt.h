@@ -51,7 +51,6 @@ typedef struct vol_conc_type
     double          height_int; /* temporary variable for intrapolation of gw height */
     double          height_sp;  /* slope of the height change during this period */
     double          height_v;   /* height of the total block, static */
-    double          maxwater;   /* maximum water height during 2016, by Wei 01.21 */
     double          area;       /* area of the triangular element */
     double          vol_o;      /* volume of water of last time step */
     double          vol;        /* volume of water of current time step */
