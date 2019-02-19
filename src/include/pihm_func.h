@@ -99,8 +99,13 @@ double          BoundFluxRiver(int, const river_wstate_struct *,
     const river_topo_struct *, const shp_struct *, const matl_struct *,
     const river_bc_struct *bc);
 void            CalcModelStep(ctrl_struct *);
+#if defined(_RT_)
+double          ChanFlowElemToRiver(elem_struct *, double, const river_struct *,
+    double);
+#else
 double          ChanFlowElemToRiver(const elem_struct *, double,
     const river_struct *, double);
+#endif
 double          ChanFlowRiverToRiver(const river_struct *, const river_struct *,
     int);
 double          ChanLeak(const river_wstate_struct *, const river_topo_struct *,
@@ -255,8 +260,12 @@ void            SolveCVode(int, int *, int, double, void *, N_Vector);
 void            Spinup(pihm_struct, N_Vector, void *);
 void            StartupScreen(void);
 int             StrTime(const char *);
+#if defined(_RT_)
+double          SubFlowElemToElem(elem_struct *, const elem_struct *, int);
+#else
 double          SubFlowElemToElem(const elem_struct *, const elem_struct *,
     int);
+#endif
 double          SubFlowElemToRiver(const elem_struct *, double,
     const river_struct *, double, double);
 double          SubFlowRiverToRiver(const river_struct *, double,

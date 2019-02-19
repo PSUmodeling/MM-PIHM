@@ -69,6 +69,9 @@
 /* Number of river fluxes of a river segment */
 #define NUM_RIVFLX    11
 
+/* Maximum number of river tributes */
+#define MAXTRIB       3
+
 /* Hydrology parameters */
 #define PSIMIN        -70.0    /* minimum psi allowed (m) */
 #define DEPRSTG       1E-4     /* depression storage (m) */

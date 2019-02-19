@@ -270,8 +270,13 @@ double OverLandFlow(double avg_h, double grad_h, double avg_sf, double crossa,
     return crossa * pow(avg_h, 0.6666667) * grad_h / (sqrt(avg_sf) * avg_rough);
 }
 
+#if defined(_RT_)
+double SubFlowElemToElem(elem_struct *elem, const elem_struct *nabr, int j)
+#else
 double SubFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
     int j)
+#endif
+
 {
     double          diff_h;
     double          avg_h;
@@ -291,6 +296,13 @@ double SubFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
     effk = EffKh(&elem->soil, elem->ws.gw);
     effk_nabr = EffKh(&nabr->soil, nabr->ws.gw);
     avg_ksat = 0.5 * (effk + effk_nabr);
+
+#if defined(_RT_)
+    // 12.30, new RT add
+    elem->wf.subveloRT[j] = avg_ksat * grad_h;           // 12.30, new RT add
+    elem->wf.subdistRT[j] = elem->topo.nabrdist[j];      // 12.30, new RT add
+    elem->wf.subareaRT[j] = avg_h * elem->topo.edge[j];  // 12.30, new RT add
+#endif
 
     /* Groundwater flow modeled by Darcy's Law */
     return avg_ksat * grad_h * avg_h * elem->topo.edge[j];
@@ -357,6 +369,13 @@ void BoundFluxElem(int bc_type, int j, const bc_struct *bc,
         avg_ksat = effk;
         grad_h = diff_h / topo->nabrdist[j];
         wf->subsurf[j] = avg_ksat * grad_h * avg_h * topo->edge[j];
+
+#if defined(_RT_)
+        // 12.30, new RT add
+        wf->subveloRT[j] = avg_ksat * grad_h;         // 12.30, new RT add
+        wf->subdistRT[j] = topo->nabrdist[j];         // 12.30, new RT add
+        wf->subareaRT[j] = avg_h * topo->edge[j];     // 12.30, new RT add
+#endif
     }
     else
     {

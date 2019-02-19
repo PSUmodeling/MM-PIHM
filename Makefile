@@ -170,22 +170,25 @@ endif
 #-------------------
 # RT-Flux-PIHM
 #-------------------
-#ifeq ($(MAKECMDGOALS),rt-flux-pihm)
-#  SFLAGS += -D_RT_ -D_NOAH_
-#  MODULE_SRCS_=\
-#  	noah/coupling.c\
-#	noah/module_sf_noahlsm.c\
-#	spa/spa.c\
-#	noah/lsm_func.c\
-#	rt/rt.c\
-#	rt/react.c\
-#	rt/os3d.c
-#  MODULE_HEADERS_ =\
-#	spa/spa.h\
-#	rt/rt.h
-#  EXECUTABLE = rt-flux-pihm
-#  MSG = "... Compiling RT-Flux-PIHM ..."
-#endif
+ifeq ($(MAKECMDGOALS),rt-flux-pihm)
+  SFLAGS += -D_RT_ -D_NOAH_
+  MODULE_SRCS_=\
+	noah/lsm_init.c\
+	noah/lsm_func.c\
+	noah/lsm_read.c\
+	noah/noah.c\
+	noah/topo_radn.c\
+	spa/spa.c\
+	rt/rt.c\
+	rt/os3d.c\
+	rt/react.c\
+	rt/oldfunc.c
+  MODULE_HEADERS_ =\
+	include/spa.h\
+	include/rt.h
+  EXECUTABLE = rt-flux-pihm
+  MSG = "... Compiling RT-Flux-PIHM ..."
+endif
 
 #-------------------
 # Flux-PIHM-BGC
@@ -358,6 +361,13 @@ flux-pihm-fbr: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
+rt-flux-pihm:		## Compile RT-Flux-PIHM (PIHM with land surface and reactive transport modules)
+rt-flux-pihm: $(OBJS) $(MODULE_OBJS)
+	@echo
+	@echo $(MSG)
+	@echo
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
+
 flux-pihm-bgc:		## Compile Flux-PIHM-BGC (Flux-PIHM with Biogeochemical module, adapted from Biome-BGC)
 flux-pihm-bgc: $(OBJS) $(MODULE_OBJS)
 	@echo
@@ -383,4 +393,4 @@ clean:			## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm pihm-fbr flux-pihm flux-pihm-fbr flux-pihm-bgc flux-pihm-cycles rt-flux-pihm
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm pihm-fbr flux-pihm flux-pihm-fbr rt-flux-pihm flux-pihm-bgc flux-pihm-cycles rt-flux-pihm
