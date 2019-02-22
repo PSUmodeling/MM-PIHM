@@ -384,8 +384,14 @@ typedef struct wstate_struct
     double          gw;              /* groundwater level (m) */
     double          sneqv;           /* liquid water-equivalent snow depth (m)
                                       */
+#if defined(_CYCLES_)
+    /* wstate variables in Cycles have the units of kg m-2 */
+    double          stanResidueWater;   /* (kg m-2) */
+    double          flatResidueWater;   /* (kg m-2) */
+#else
     double          cmcmax;          /* maximum canopy water capacity (m) */
     double          cmc;             /* interception storage (m) */
+#endif
     double          surfh;           /* actual surface water level (m) */
 #if defined(_FBR_)
     double          fbr_unsat;       /* unsaturated storage in fractured bedrock
@@ -399,11 +405,6 @@ typedef struct wstate_struct
                                       */
     double          soilm;           /* total soil column moisture content (m)
                                       */
-#endif
-#if defined(_CYCLES_)
-    /* wstate variables in Cycles have the units of kg m-2 */
-    double          stanResidueWater;   /* (kg m-2) */
-    double          flatResidueWater;   /* (kg m-2) */
 #endif
 } wstate_struct;
 
@@ -474,8 +475,6 @@ typedef struct wflux_struct
     double          etns;                   /* (m s-1) */
 #endif
 #if defined(_CYCLES_)
-    double          eres;                   /* evaporation from residue (m s-1)
-                                             */
     double          irrigationVol;          /* irrigation volume (m s-1) */
 #endif
 } wflux_struct;

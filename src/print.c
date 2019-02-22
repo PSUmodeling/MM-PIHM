@@ -271,7 +271,11 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
 
         for (i = 0; i < nelem; i++)
         {
+#if defined(_CYCLES_)
+            fwrite(&elem[i].ws.flatResidueWater, sizeof(double), 1, init_file);
+#else
             fwrite(&elem[i].ws.cmc, sizeof(double), 1, init_file);
+#endif
             fwrite(&elem[i].ws.sneqv, sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.surf, sizeof(double), 1, init_file);
             fwrite(&elem[i].ws.unsat, sizeof(double), 1, init_file);
@@ -496,9 +500,16 @@ void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
         tot_snk += elem[i].wf.esnow * elem[i].topo.area * dt;
 #endif
 
+#if defined(_CYCLES_)
+        tot_strg += (elem[i].ws.flatResidueWater + elem[i].ws.stanResidueWater +
+            elem[i].ws.sneqv + elem[i].ws.surf +
+            (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity) *
+            elem[i].topo.area;
+#else
         tot_strg += (elem[i].ws.cmc + elem[i].ws.sneqv + elem[i].ws.surf +
             (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity) *
             elem[i].topo.area;
+#endif
     }
 
     for (i = 0; i < nriver; i++)
