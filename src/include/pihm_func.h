@@ -697,6 +697,7 @@ void            ResidueWetting(const pstate_struct *, const cstate_struct *,
 void            RestartInput(const cyclesic_struct *, pstate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 double          ShootBiomassPartitioning(double, double, double, int);
+double          SoilBufferPower(double, double, double);
 void            SoluteTransport(int, double, double, const double [],
     const double [], const double [], const double [], double []);
 double          TemperatureFunction(double);
@@ -730,8 +731,8 @@ void            chem_alloc(char *, const pihm_struct, Chem_Data);
 void            fluxtrans(int, int, const pihm_struct, Chem_Data, double *, double *);    // 10.05 add two timers
 void            chem_updater(Chem_Data, const pihm_struct); // 10.01
 void            OS3D(realtype, realtype, Chem_Data);
-void            React(realtype, Chem_Data, vol_conc *);  
-int             _React(realtype, Chem_Data, vol_conc *); 
+void            React(realtype, Chem_Data, vol_conc *);
+int             _React(realtype, Chem_Data, vol_conc *);
 void            Lookup(FILE *, Chem_Data);
 int             Speciation(Chem_Data, int);
 int             keymatch(const char *, const char *, double *, char **);
