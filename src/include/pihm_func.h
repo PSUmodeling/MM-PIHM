@@ -693,7 +693,7 @@ void            ResidueEvaporation(double, double, double, const crop_struct [],
     const pstate_struct *, const cstate_struct *, wstate_struct *,
     wflux_struct *);
 void            ResidueWetting(const pstate_struct *, const cstate_struct *,
-    double, wstate_struct *, wflux_struct *);
+    double, double, wstate_struct *, wflux_struct *);
 void            RestartInput(const cyclesic_struct *, pstate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 double          ShootBiomassPartitioning(double, double, double, int);
