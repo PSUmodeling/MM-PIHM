@@ -563,7 +563,11 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
     /* State variables (initial conditions) */
     for (i = 0; i < nelem; i++)
     {
+#if defined(_CYCLES_)
+        elem[i].ws.flatResidueWater = elem[i].ic.cmc;
+#else
         elem[i].ws.cmc = elem[i].ic.cmc;
+#endif
         elem[i].ws.sneqv = elem[i].ic.sneqv;
 
         elem[i].ws.surf = elem[i].ic.surf;
@@ -751,7 +755,6 @@ void InitWFlux(wflux_struct *wf)
     wf->etns = 0.0;
 #endif
 #if defined(_CYCLES_)
-    wf->eres = 0.0;
     wf->irrigationVol = 0.0;
 #endif
 }

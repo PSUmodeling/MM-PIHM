@@ -251,8 +251,10 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         ps->proj_lai = (ps->proj_lai > 0.5) ? ps->proj_lai : 0.5;
     }
 
+#if !defined(_CYCLES_)
     /* Calculate maximum canopy moisture capacity */
     ws->cmcmax = lc->shdfac * lc->cmcfactr * ps->proj_lai;
+#endif
 
     /* Flux-PIHM uses LAI as a forcing variable. Vegetation fraction is constant
      * unless coupled to Cycles */
@@ -547,9 +549,6 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     if (ef->etp > 0.0)
     {
         ef->eta = ef->edir + ef->ec + ef->ett + ef->esnow;
-#if defined(_CYCLES_)
-        ef->eta += wf->eres * RHOH2O * LVH2O;
-#endif
     }
     else
     {
@@ -928,11 +927,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     }
 
     /* Total up evap and transp types to obtain actual evapotransp */
-#if defined(_CYCLES_)
-    wf->etns = wf->edir + wf->ett + wf->ec + wf->eres;
-#else
     wf->etns = wf->edir + wf->ett + wf->ec;
-#endif
 }
 
 double FrozRain(double prcp, double sfctmp)
@@ -2571,6 +2566,7 @@ double TmpAvg(double tup, double tm, double tdn, const double *zsoil, int k)
     return tavg;
 }
 
+#if !defined(_CYCLES_)
 void Transp(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil)
 {
@@ -2623,7 +2619,7 @@ void Transp(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     {
         wf->et[i] = etpa * gx[i] / denom;
     }
-#if NOT_YET_IMPLEMENTED
+# if NOT_YET_IMPLEMENTED
     /* Above code assumes a vertically uniform root distribution
      * Code below tests a variable root distribution */
     wf->et[0] = (zsoil[0] / zsoil[ps->nroot - 1]) * gx * etpa;
@@ -2649,8 +2645,9 @@ void Transp(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
         wf->et[k] = lc->rtdis[k] * etpa;
         wf->et[k] = etpa * part[k];
     }
-#endif
+# endif
 }
+#endif
 
 void WDfCnd(double *wdf, double *wcnd, double smc, double sicemax,
     const soil_struct *soil)

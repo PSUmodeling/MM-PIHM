@@ -85,6 +85,23 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     n++;
                     break;
                 case CMC_CTRL:
+#if defined(_CYCLES_)
+                    InitPrtVarCtrl(outputdir, "stanresw", prtvrbl[i],
+                        LS_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ws.stanResidueWater;
+                    }
+                    n++;
+
+                    InitPrtVarCtrl(outputdir, "flatresw", prtvrbl[i],
+                        LS_STEP, nelem, &print->varctrl[n]);
+                    for (j = 0; j < nelem; j++)
+                    {
+                        print->varctrl[n].var[j] = &elem[j].ws.flatResidueWater;
+                    }
+                    n++;
+#else
                     InitPrtVarCtrl(outputdir, "is", prtvrbl[i],
                         LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
@@ -92,6 +109,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                         print->varctrl[n].var[j] = &elem[j].ws.cmc;
                     }
                     n++;
+#endif
                     break;
                 case INFIL_CTRL:
                     InitPrtVarCtrl(outputdir, "infil", prtvrbl[i],
@@ -763,13 +781,6 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     }
                     break;
                 case RES_EVAP_CTRL:
-                    InitPrtVarCtrl(outputdir, "eres", prtvrbl[i],
-                        LS_STEP, nelem, &print->varctrl[n]);
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->varctrl[n].var[j] = &elem[j].wf.eres;
-                    }
-                    n++;
                     break;
                 case NO3_PROF_CTRL:
                     InitPrtVarCtrl(outputdir, "NO3", prtvrbl[i],
