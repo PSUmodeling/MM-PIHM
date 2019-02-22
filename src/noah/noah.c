@@ -913,6 +913,9 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
                 wf->ett += wf->et[k];
             }
 
+#if !defined(_CYCLES_)
+            /* When coupled to Cycles, canopy evaporation is replaced by residue
+             * evaporation */
             /* Calculate canopy evaporation.
              * If statements to avoid tangent linear problems near cmc = 0.0. */
             wf->ec = (ws->cmc > 0.0) ?
@@ -923,6 +926,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
              * the canopy */
             cmc2ms = ws->cmc / dt;
             wf->ec = (cmc2ms < wf->ec) ? cmc2ms : wf->ec;
+#endif
         }
     }
 
@@ -1353,7 +1357,11 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         prcpf += wf->dew;
     }
 
+#if defined(_CYCLES_)
+    ResidueWetting(ps, cs, prcpf, dt, ws, wf);
+#else
     PcpDrp(ws, wf, lc, prcpf, dt);
+#endif
 
     /* Based on etp and e values, determine beta */
     if (wf->etp <= 0.0)
@@ -1406,6 +1414,7 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     ef->flx3 = 0.0;
 }
 
+#if !defined(_CYCLES_)
 void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
     double prcp, double dt)
 {
@@ -1451,6 +1460,7 @@ void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
     ws->cmc = (ws->cmc < 1.0E-20) ? 0.0 : ws->cmc;
     ws->cmc = (ws->cmc < ws->cmcmax) ? ws->cmc : ws->cmcmax;
 }
+#endif
 
 void Penman(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
     pstate_struct *ps, double *t24, double t2v, int snowng, int frzgra)
@@ -1966,7 +1976,11 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
          * SmFlx returns updated soil moisture values for non-glacial land. */
     }
 
+#if defined(_CYCLES_)
+    ResidueWetting(ps, cs, prcpf, dt, ws, wf);
+#else
     PcpDrp(ws, wf, lc, prcpf, dt);
+#endif
 
     /* Before call ShFlx in this snowpack case, set zz1 and yy arguments to
      * special values that ensure that ground heat flux calculated in ShFlx
@@ -2230,10 +2244,6 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     }
 
     /* Determine rainfall infiltration rate and runoff */
-#if defined(_CYCLES_)
-    ResidueWetting(ps, cs, dt, ws, wf);
-#endif
-
     pddum = wf->infil;
 
     mxsmc = ws->sh2o[0];
