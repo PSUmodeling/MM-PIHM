@@ -202,5 +202,13 @@ void InitDailyStruct(elem_struct *elem)
         elem[i].daily.tnight = 0.0;
 
         elem[i].daily.avg_soldn = 0.0;
+
+#if defined(_CYCLES_)
+        for (k = 0; k < MAXCROP && '\0' != elem[i].crop[k].epc->cropn[0]; k++)
+        {
+            elem[i].crop[k].cwf.transp = 0.0;
+            elem[i].crop[k].cwf.transp_pot = 0.0;
+        }
+#endif
     }
 }
