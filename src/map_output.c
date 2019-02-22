@@ -739,7 +739,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     {
                         sprintf(ext, "%s.transp", epctbl[k].cropn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            LS_STEP, nelem, &print->varctrl[n]);
+                            CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] =
@@ -753,7 +753,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     {
                         sprintf(ext, "%s.pottransp", epctbl[k].cropn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            LS_STEP, nelem, &print->varctrl[n]);
+                            CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] =
