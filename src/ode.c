@@ -71,6 +71,14 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         river->wf.rivflow[UP_CHANL2CHANL] = 0.0;
         river->wf.rivflow[UP_AQUIF2AQUIF] = 0.0;
+
+#if defined(_CYCLES_)
+        river->ns.streamno3 = (y[STREAMNO3(i)] > 0.0) ? y[STREAMNO3(i)] : 0.0;
+        river->ns.bedno3 = (y[RIVBEDNO3(i)] > 0.0) ? y[RIVBEDNO3(i)] : 0.0;
+
+        river->ns.streamnh4 = (y[STREAMNH4(i)] > 0.0) ? y[STREAMNH4(i)] : 0.0;
+        river->ns.bednh4 = (y[RIVBEDNH4(i)] > 0.0) ? y[RIVBEDNH4(i)] : 0.0;
+#endif
     }
 
     /*
