@@ -1371,16 +1371,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     /*
      * Beginning configuring the connectivity for flux
      */
-    for (i = 0; i < nelem; i++)
-    {
-        total_area += pihm->elem[i].topo.area;
-    }
-
     CD->NumFac = NUM_EDGE * nelem * 2 + 3 * nelem + 6 * nriver;
     CD->NumDis = 2 * 3 * nelem + 3 * nelem;
-
-    fprintf(stderr, "\n Total area of the watershed is %f [m^2]. \n",
-        total_area);
 
     for (i = 0; i < CD->NumPUMP; i++)
     {
