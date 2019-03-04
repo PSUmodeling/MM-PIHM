@@ -1374,13 +1374,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     CD->NumFac = NUM_EDGE * nelem * 2 + 3 * nelem + 6 * nriver;
     CD->NumDis = 2 * 3 * nelem + 3 * nelem;
 
-    for (i = 0; i < CD->NumPUMP; i++)
-    {
-        CD->pumps[i].flow_rate = CD->pumps[i].flow_rate;
-        fprintf(stderr, "\n PUMP rate is specified %g [m^3/d]. \n",
-            CD->pumps[i].flow_rate);
-    }
-
     /* Configuring the lateral connectivity of GW grid blocks */
     fprintf(stderr,
         "\n Configuring the lateral connectivity of GW grid blocks... \n");
