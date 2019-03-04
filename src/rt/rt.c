@@ -1238,72 +1238,44 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
      * initialized with the hot data */
     for (i = 0; i < nelem; i++)
     {
+        double          heqv;
+        double          sat;
+
         /* Initializing volumetrics for groundwater (GW) cells */
-        CD->Vcele[RT_GW(i)].height_o = pihm->elem[i].ws.gw;
-        CD->Vcele[RT_GW(i)].height_t = pihm->elem[i].ws.gw;
-        CD->Vcele[RT_GW(i)].area = pihm->elem[i].topo.area;
-        CD->Vcele[RT_GW(i)].porosity = pihm->elem[i].soil.smcmax;
-        CD->Vcele[RT_GW(i)].vol_o = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
-        CD->Vcele[RT_GW(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].ws.gw;
-        CD->Vcele[RT_GW(i)].sat = 1.0;
-        CD->Vcele[RT_GW(i)].type = GW_VOL;
+        InitVcele(pihm->elem[i].ws.gw, pihm->elem[i].topo.area,
+            pihm->elem[i].soil.smcmax, 1.0, GW_VOL, &CD->Vcele[RT_GW(i)]);
 
         /* Initializing volumetrics for unsaturated cells */
         /* Porosity in PIHM is
          * Effective Porosity = Porosity - Residue Water Porosity
          * Porosity in RT is total Porosity, therefore, the water height in the
          * unsaturated zone needs be converted as well */
-        CD->Vcele[RT_UNSAT(i)].height_o = (pihm->elem[i].ws.unsat *
+        heqv = (pihm->elem[i].ws.unsat *
             (pihm->elem[i].soil.smcmax - pihm->elem[i].soil.smcmin) +
             (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw) *
             pihm->elem[i].soil.smcmin) / (pihm->elem[i].soil.smcmax);
-        CD->Vcele[RT_UNSAT(i)].height_t = CD->Vcele[RT_UNSAT(i)].height_o;
-        CD->Vcele[RT_UNSAT(i)].area = pihm->elem[i].topo.area;
-        CD->Vcele[RT_UNSAT(i)].porosity = pihm->elem[i].soil.smcmax;
-        /* Unsaturated zone has the same porosity as saturated zone */
-        CD->Vcele[RT_UNSAT(i)].sat = CD->Vcele[RT_UNSAT(i)].height_o /
-            (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw);
-        CD->Vcele[RT_UNSAT(i)].vol_o = pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].height_o;
-        CD->Vcele[RT_UNSAT(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].soil.depth;
-        CD->Vcele[RT_UNSAT(i)].type = UNSAT_VOL;
-
-        /* The saturation of unsaturated zone is the Hu divided by height of
-         * this cell */
-        if (CD->Vcele[RT_UNSAT(i)].sat > 1.0)
-            fprintf(stderr,
-                "Fatal Error, Unsaturated Zone Initialization For RT Failed!\n");
+        sat = heqv / (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw);
+        sat = (sat > 0.0) ? sat : 0.0;
+        sat = (sat < 1.0) ? sat : 1.0;
+        InitVcele(heqv, pihm->elem[i].topo.area, pihm->elem[i].soil.smcmax,
+            sat, UNSAT_VOL, &CD->Vcele[RT_UNSAT(i)]);
 
 #if defined(_FBR_)
         /* Initializing volumetrics for deep groundwater (FBR GW) cells */
-        CD->Vcele[RT_FBR_GW(i)].height_o = pihm->elem[i].ws.fbr_gw;
-        CD->Vcele[RT_FBR_GW(i)].height_t = pihm->elem[i].ws.fbr_gw;
-        CD->Vcele[RT_FBR_GW(i)].area = pihm->elem[i].topo.area;
-        CD->Vcele[RT_FBR_GW(i)].porosity = pihm->elem[i].geol.smcmax;
-        CD->Vcele[RT_FBR_GW(i)].vol_o = pihm->elem[i].topo.area * pihm->elem[i].ws.fbr_gw;
-        CD->Vcele[RT_FBR_GW(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].ws.fbr_gw;
-        CD->Vcele[RT_FBR_GW(i)].sat = 1.0;
-        CD->Vcele[RT_FBR_GW(i)].type = FBR_GW_VOL;
+        InitVcele(pihm->elem[i].ws.fbr_gw, pihm->elem[i].topo.area,
+            pihm->elem[i].geol.smcmax, 1.0, FBR_GW_VOL,
+            &CD->Vcele[RT_FBR_GW(i)]);
 
         /* Initializing volumetrics for bedrock unsaturated cells */
-        CD->Vcele[RT_FBR_UNSAT(i)].height_o = (pihm->elem[i].ws.fbr_unsat *
+        heqv = (pihm->elem[i].ws.fbr_unsat *
             (pihm->elem[i].geol.smcmax - pihm->elem[i].geol.smcmin) +
             (pihm->elem[i].geol.depth - pihm->elem[i].ws.fbr_gw) *
             pihm->elem[i].geol.smcmin) / (pihm->elem[i].geol.smcmax);
-        CD->Vcele[RT_FBR_UNSAT(i)].height_t = CD->Vcele[RT_FBR_UNSAT(i)].height_o;
-        CD->Vcele[RT_FBR_UNSAT(i)].area = pihm->elem[i].topo.area;
-        CD->Vcele[RT_FBR_UNSAT(i)].porosity = pihm->elem[i].geol.smcmax;
-        /* Unsaturated zone has the same porosity as saturated zone */
-        CD->Vcele[RT_FBR_UNSAT(i)].sat = CD->Vcele[RT_FBR_UNSAT(i)].height_o /
-            (pihm->elem[i].geol.depth - pihm->elem[i].ws.fbr_gw);
-        CD->Vcele[RT_FBR_UNSAT(i)].vol_o = pihm->elem[i].topo.area * CD->Vcele[RT_FBR_UNSAT(i)].height_o;
-        CD->Vcele[RT_FBR_UNSAT(i)].vol = pihm->elem[i].topo.area * pihm->elem[i].geol.depth;
-        CD->Vcele[RT_FBR_UNSAT(i)].type = FBR_UNSAT_VOL;
-
-        /* The saturation of unsaturated zone is the Hu divided by height of
-         * this cell */
-        if (CD->Vcele[RT_FBR_UNSAT(i)].sat > 1.0)
-            fprintf(stderr,
-                "Fatal Error, FBR Unsaturated Zone Initialization For RT Failed!\n");
+        sat = heqv / (pihm->elem[i].geol.depth - pihm->elem[i].ws.fbr_gw);
+        sat = (sat > 0.0) ? sat : 0.0;
+        sat = (sat < 1.0) ? sat : 1.0;
+        InitVcele(heqv, pihm->elem[i].topo.area, pihm->elem[i].geol.smcmax,
+            sat, FBR_UNSAT_VOL, &CD->Vcele[RT_FBR_UNSAT(i)]);
 #endif
     }
 
@@ -2653,4 +2625,23 @@ double Dist2Edge(const meshtbl_struct *meshtbl, const elem_struct *elem,
 
     return fabs(para_a * elem->topo.x + para_b * elem->topo.y + para_c) /
         sqrt(para_a * para_a + para_b * para_b);
+}
+
+void InitVcele(double height, double area, double porosity, double sat,
+    int type, vol_conc *Vcele)
+{
+    Vcele->height_o = height;
+    Vcele->height_t = height;
+    Vcele->area = area;
+    Vcele->porosity = porosity;
+    Vcele->vol_o = height * area;
+    Vcele->vol = height * area;
+    Vcele->sat = sat;
+    Vcele->type = type;
+
+    if (sat > 1.0)
+    {
+        PIHMprintf(VL_ERROR,
+            "Fatal Error, Unsaturated Zone Initialization For RT Failed!\n");
+    }
 }

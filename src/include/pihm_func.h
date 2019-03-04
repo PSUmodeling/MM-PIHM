@@ -747,6 +747,7 @@ double          Dconc(const face *, const vol_conc [], const species [],
     double, int, int);
 double          Dist2Edge(const meshtbl_struct *, const elem_struct *, int);
 void            Unwrap(char *, const char *);
+void            InitVcele(double, double, double, double, int, vol_conc *);
 
 #endif
 
