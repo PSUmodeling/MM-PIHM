@@ -1286,9 +1286,9 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     CD->CalInitconc = pihm->cal.initconc;
     CD->CalXsorption = pihm->cal.Xsorption;
 
+    /* Initializing volumetrics for river cells */
     for (i = 0; i < nriver; i++)
     {
-        /* Initializing volumetrics for river cells */
         InitVcele(pihm->river[i].ws.gw, pihm->river[i].topo.area, 1.0, 1.0,
             RIVER_VOL, &CD->Vcele[RT_RIVER(i)]);
     }
@@ -1327,15 +1327,14 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 
         for (j = 0; j < CD->NumStc; j++)
         {
-            if ((speciation_flg == 1) &&
-                (strcmp(CD->chemtype[j].ChemName, "H+") == 0))
+            if (speciation_flg == 1 &&
+                strcmp(CD->chemtype[j].ChemName, "H+") == 0)
             {
                 CD->Vcele[i].p_conc[j] = pow(10,
                     -(Condition_vcele[condition_index[i] - 1].t_conc[j]));
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
-                CD->Vcele[i].t_conc[j] = CD->Vcele[i].p_conc[j];
-                CD->Vcele[i].p_type[j] = 1;
+                CD->Vcele[i].p_type[j] = AQUEOUS;
             }
             else if (CD->chemtype[j].itype == MINERAL)
             {
@@ -1350,16 +1349,11 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             }
             else
             {
-                if (strcmp(CD->chemtype[j].ChemName, "DOC") == 0)
-                {
-                    CD->Vcele[i].t_conc[j] = CD->CalInitconc *
-                        Condition_vcele[condition_index[i] - 1].t_conc[j];
-                }
-                else
-                {
-                    CD->Vcele[i].t_conc[j] =
-                        Condition_vcele[condition_index[i] - 1].t_conc[j];
-                }
+                CD->Vcele[i].t_conc[j] =
+                    Condition_vcele[condition_index[i] - 1].t_conc[j];
+                CD->Vcele[i].t_conc[j] *=
+                    (strcmp(CD->chemtype[j].ChemName, "DOC") == 0) ?
+                    CD->CalInitconc : 1.0;
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j] * 0.5;
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_para[j] =
