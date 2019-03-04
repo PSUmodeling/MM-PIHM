@@ -210,7 +210,7 @@
                                      * (umol m-2 s-1) */
 #define DENITRIF_PROPORTION 0.01    /* fraction of mineralization to volatile */
 #if defined(_CYCLES_)
-#define MOBILEN_PROPORTION  0.67    /* fraction mineral N avail for leaching */
+#define MOBILEN_PROPORTION  1.0     /* fraction mineral N avail for leaching */
 #else
 #define MOBILEN_PROPORTION  0.1     /* fraction mineral N avail for leaching */
 #endif
