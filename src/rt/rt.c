@@ -1289,32 +1289,13 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     for (i = 0; i < nriver; i++)
     {
         /* Initializing volumetrics for river cells */
-        CD->Vcele[RT_RIVER(i)].height_o = pihm->river[i].ws.gw;
-        CD->Vcele[RT_RIVER(i)].height_t = pihm->river[i].ws.gw;
-        CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
-        CD->Vcele[RT_RIVER(i)].porosity = 1.0;
-        CD->Vcele[RT_RIVER(i)].sat = 1.0;
-        CD->Vcele[RT_RIVER(i)].vol_o = pihm->river[i].topo.area * pihm->river[i].ws.gw;
-        CD->Vcele[RT_RIVER(i)].vol = pihm->river[i].topo.area * pihm->river[i].ws.gw;
-        CD->Vcele[RT_RIVER(i)].type = RIVER_VOL;
+        InitVcele(pihm->river[i].ws.gw, pihm->river[i].topo.area, 1.0, 1.0,
+            RIVER_VOL, &CD->Vcele[RT_RIVER(i)]);
     }
 
     /* Initialize virtual cell */
-    CD->Vcele[PRCP_VOL - 1].height_o = 0.0;
-    CD->Vcele[PRCP_VOL - 1].height_t = 0.0;
-    CD->Vcele[PRCP_VOL - 1].area = 0.0;
-    CD->Vcele[PRCP_VOL - 1].porosity = 0.0;
-    CD->Vcele[PRCP_VOL - 1].sat = 0.0;
-    CD->Vcele[PRCP_VOL - 1].vol_o = 0.0;
-    CD->Vcele[PRCP_VOL - 1].vol = 0.0;
-
-    CD->Vcele[VIRTUAL_VOL - 1].height_o = 1.0;
-    CD->Vcele[VIRTUAL_VOL - 1].height_t = 1.0;
-    CD->Vcele[VIRTUAL_VOL - 1].area = 1.0;
-    CD->Vcele[VIRTUAL_VOL - 1].porosity = 1.0;
-    CD->Vcele[VIRTUAL_VOL - 1].sat = 1.0;
-    CD->Vcele[VIRTUAL_VOL - 1].vol_o = 1.0;
-    CD->Vcele[VIRTUAL_VOL - 1].vol = 1.0;
+    InitVcele(0.0, 0.0, 0.0, 0.0, -1, &CD->Vcele[PRCP_VOL - 1]);
+    InitVcele(1.0, 1.0, 1.0, 1.0, -1, &CD->Vcele[VIRTUAL_VOL - 1]);
 
     for (i = 0; i < CD->NumSpc; i++)
     {
