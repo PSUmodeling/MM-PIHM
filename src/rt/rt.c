@@ -2357,6 +2357,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
         stepsize = (stepsize > end_time - timelps) ?
             end_time - timelps : stepsize;
 
+#if TEMP_DISABLED
         if (int_flg)
         {
             /* Do interpolation. Note that height_int always store the end time
@@ -2371,6 +2372,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                 CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
             }
         }
+#endif
 
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -2633,7 +2635,6 @@ void UpdateVcele(double height, double sat, double invavg, vol_conc *Vcele)
     Vcele->height_o = Vcele->height_t;
     Vcele->height_t = height;
     Vcele->height_int = height;
-    Vcele->height_sp = (height - Vcele->height_o) * invavg;
     Vcele->vol_o = Vcele->area * Vcele->height_o;
     Vcele->vol = Vcele->area * height;
     Vcele->sat = sat;
