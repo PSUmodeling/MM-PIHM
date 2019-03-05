@@ -1941,31 +1941,22 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #endif
         for (i = 0; i < nelem; i++)
         {
-            CD->Vcele[RT_GW(i)].height_o = CD->Vcele[RT_GW(i)].height_t;
-            CD->Vcele[RT_GW(i)].height_t = MAX(pihm->elem[i].ws.gw, 1.0E-5);
-            CD->Vcele[RT_GW(i)].height_int = CD->Vcele[RT_GW(i)].height_t;
-            CD->Vcele[RT_GW(i)].height_sp =
-                (CD->Vcele[RT_GW(i)].height_t - CD->Vcele[RT_GW(i)].height_o) * invavg;
-            CD->Vcele[RT_GW(i)].vol_o =
-                CD->Vcele[RT_GW(i)].area * CD->Vcele[RT_GW(i)].height_o;
-            CD->Vcele[RT_GW(i)].vol =
-                CD->Vcele[RT_GW(i)].area * CD->Vcele[RT_GW(i)].height_t;
+            UpdateVcele(MAX(pihm->elem[i].ws.gw, 1.0E-5), 1.0, invavg,
+                &CD->Vcele[RT_GW(i)]);
 
             /* Update the unsaturated zone (vadoze) */
-            CD->Vcele[RT_UNSAT(i)].height_o = CD->Vcele[RT_UNSAT(i)].height_t;
-            CD->Vcele[RT_UNSAT(i)].height_t =
-                MAX(((pihm->elem[i].ws.unsat * (pihm->elem[i].soil.smcmax -
-                pihm->elem[i].soil.smcmin) +
+            UpdateVcele(MAX(((pihm->elem[i].ws.unsat *
+                (pihm->elem[i].soil.smcmax - pihm->elem[i].soil.smcmin) +
                 (pihm->elem[i].soil.depth - CD->Vcele[RT_GW(i)].height_t) *
                 pihm->elem[i].soil.smcmin) / pihm->elem[i].soil.smcmax),
-                1.0E-5);
-            CD->Vcele[RT_UNSAT(i)].height_int = CD->Vcele[RT_UNSAT(i)].height_t;
-            CD->Vcele[RT_UNSAT(i)].height_sp =
-                (CD->Vcele[RT_UNSAT(i)].height_t - CD->Vcele[RT_UNSAT(i)].height_o) * invavg;
-            CD->Vcele[RT_UNSAT(i)].vol_o = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_o;
-            CD->Vcele[RT_UNSAT(i)].vol = CD->Vcele[RT_UNSAT(i)].area * CD->Vcele[RT_UNSAT(i)].height_t;
-            CD->Vcele[RT_UNSAT(i)].sat = CD->Vcele[RT_UNSAT(i)].height_t /
-                (pihm->elem[i].soil.depth - CD->Vcele[RT_GW(i)].height_t);
+                1.0E-5),
+                MAX(((pihm->elem[i].ws.unsat *
+                (pihm->elem[i].soil.smcmax - pihm->elem[i].soil.smcmin) +
+                (pihm->elem[i].soil.depth - CD->Vcele[RT_GW(i)].height_t) *
+                pihm->elem[i].soil.smcmin) / pihm->elem[i].soil.smcmax),
+                1.0E-5) /
+                (pihm->elem[i].soil.depth - CD->Vcele[RT_GW(i)].height_t),
+                invavg, &CD->Vcele[RT_UNSAT(i)]);
         }
 
 #ifdef _OPENMP
@@ -1974,15 +1965,10 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         /* Update river cells */
         for (i = 0; i < nriver; i++)
         {
-            CD->Vcele[RT_RIVER(i)].height_o = CD->Vcele[RT_RIVER(i)].height_t;
-            CD->Vcele[RT_RIVER(i)].height_t = MAX(pihm->river[i].ws.gw, 1.0E-5) +
-                MAX(pihm->river[i].ws.stage, 1.0E-5) / CD->Vcele[RT_RIVER(i)].porosity;
-            CD->Vcele[RT_RIVER(i)].height_int = CD->Vcele[RT_RIVER(i)].height_t;
-            CD->Vcele[RT_RIVER(i)].height_sp =
-                (CD->Vcele[RT_RIVER(i)].height_t - CD->Vcele[RT_RIVER(i)].height_o) * invavg;
-            CD->Vcele[RT_RIVER(i)].area = pihm->river[i].topo.area;
-            CD->Vcele[RT_RIVER(i)].vol_o = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_o;
-            CD->Vcele[RT_RIVER(i)].vol = CD->Vcele[RT_RIVER(i)].area * CD->Vcele[RT_RIVER(i)].height_t;
+            UpdateVcele(MAX(pihm->river[i].ws.gw, 1.0E-5) +
+                MAX(pihm->river[i].ws.stage, 1.0E-5) /
+                CD->Vcele[RT_RIVER(i)].porosity, 1.0, invavg,
+                &CD->Vcele[RT_RIVER(i)]);
         }
 
         invavg = stepsize / (double)CD->AvgScl;
@@ -2640,4 +2626,15 @@ void InitFlux(int nodeup, int nodelo, int node_trib, int nodeuu, int nodell,
     flux->nodell = nodell;
     flux->BC = bc;
     flux->distance = distance;
+}
+
+void UpdateVcele(double height, double sat, double invavg, vol_conc *Vcele)
+{
+    Vcele->height_o = Vcele->height_t;
+    Vcele->height_t = height;
+    Vcele->height_int = height;
+    Vcele->height_sp = (height - Vcele->height_o) * invavg;
+    Vcele->vol_o = Vcele->area * Vcele->height_o;
+    Vcele->vol = Vcele->area * height;
+    Vcele->sat = sat;
 }
