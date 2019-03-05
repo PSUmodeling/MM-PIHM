@@ -156,7 +156,6 @@ typedef struct Chem_Data_structure
     int             NumVol;     /* Number of total volume in the rt simulator */
     int             NumOsv;     /* Number of grid blocks for the os3d (less ghost blocks) */
     int             NumFac;     /* Number of faces in the rt simulator        */
-    int             NumDis;     /* Number of dispersive faces, used to calculate peclet number */
     int             NumEle;     /* Number of groundwater elements */
     int             NumRiv;     /* Number of river elements       */
     int             NumStc;     /* Number of total species in the rt simulator */

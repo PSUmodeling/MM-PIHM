@@ -1372,7 +1372,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
      * Beginning configuring the connectivity for flux
      */
     CD->NumFac = NUM_EDGE * nelem * 2 + 3 * nelem + 6 * nriver;
-    CD->NumDis = 2 * 3 * nelem + 3 * nelem;
 
     /* Configuring the lateral connectivity of GW grid blocks */
     fprintf(stderr,
@@ -2112,11 +2111,12 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-        for (i = 0; i < CD->NumDis; i++)
+        for (i = 0; i < CD->NumFac; i++)
         {
             int             j;
             double          peclet;
-            if (CD->Flux[i].BC != NO_DISP)
+
+            if (CD->Flux[i].BC == DISPERSION)
             {
                 for (j = 0; j < CD->NumSpc; j++)
                 {
@@ -2214,23 +2214,12 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-        for (k = 0; k < CD->NumDis; k++)
-        {
-            CD->Flux[k].velocity = 0.0;
-            CD->Flux[k].flux = 0.0;
-            CD->Flux[k].flux_trib = 0.0;
-            /* For riv cells, contact area is not needed */
-            CD->Flux[k].s_area = 0.0;
-        }
-
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
         for (k = 0; k < CD->NumFac; k++)
         {
+            CD->Flux[k].velocity = 0.0;
             CD->Flux[k].flux = 0.0;
             CD->Flux[k].flux_trib = 0.0;
-            CD->Flux[k].velocity = 0.0;
+            CD->Flux[k].s_area = 0.0;
         }
 
         if ((t - pihm->ctrl.starttime / 60) % 60 == 0)
