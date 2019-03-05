@@ -1388,46 +1388,122 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            if (pihm->elem[i].nabr[j] != NO_FLOW)
+            if (pihm->elem[i].nabr[j] > 0)
             {
                 elemlo = pihm->elem[i].nabr[j];
-                elemuu = (pihm->elem[i].nabr[j] > 0) ?
-                    upstream(pihm->elem[i],
-                    pihm->elem[pihm->elem[i].nabr[j] - 1], pihm) : 0;
-                elemll = (pihm->elem[i].nabr[j] > 0) ?
-                    upstream(pihm->elem[pihm->elem[i].nabr[j] - 1],
-                    pihm->elem[i], pihm) : 0;
+                elemuu = upstream(pihm->elem[i],
+                    pihm->elem[pihm->elem[i].nabr[j] - 1], pihm);
+                elemll = upstream(pihm->elem[pihm->elem[i].nabr[j] - 1],
+                    pihm->elem[i], pihm);
                 distance = Dist2Edge(&pihm->meshtbl, &pihm->elem[i], j);
 
                 /* Initialize GW fluxes */
                 InitFlux(CD->Vcele[RT_GW(i)].index,
-                    (elemlo > 0) ?
-                    CD->Vcele[RT_GW(elemlo - 1)].index :
-                    CD->Vcele[RT_RIVER(-elemlo - 1)].index,
-                    0,
+                    CD->Vcele[RT_GW(elemlo - 1)].index, 0,
                     (elemuu > 0) ?  CD->Vcele[RT_GW(elemuu - 1)].index : 0,
                     (elemll > 0) ?  CD->Vcele[RT_GW(elemll - 1)].index : 0,
                     DISPERSION, distance, &CD->Flux[RT_LAT_GW(i, j)]);
 
                 /* Initialize unsat zone fluxes */
                 InitFlux(CD->Vcele[RT_UNSAT(i)].index,
-                    (elemlo > 0) ?
-                    CD->Vcele[RT_UNSAT(elemlo - 1)].index :
-                    CD->Vcele[RT_RIVER(-elemlo - 1)].index,
-                    0,
+                    CD->Vcele[RT_UNSAT(elemlo - 1)].index, 0,
                     (elemuu > 0) ?  CD->Vcele[RT_UNSAT(elemuu - 1)].index :0,
                     (elemll > 0) ?  CD->Vcele[RT_UNSAT(elemll - 1)].index : 0,
                     DISPERSION, distance, &CD->Flux[RT_LAT_UNSAT(i, j)]);
             }
+            else if (pihm->elem[i].nabr[j] < 0)
+            {
+                elemlo = -pihm->elem[i].nabr[j];
+                elemuu = 0;
+                elemll = 0;
+                distance = Dist2Edge(&pihm->meshtbl, &pihm->elem[i], j);
+
+                /* Initialize GW fluxes */
+                InitFlux(CD->Vcele[RT_GW(i)].index,
+                    CD->Vcele[RT_RIVER(elemlo - 1)].index,
+                    0, 0, 0,
+                    DISPERSION, distance, &CD->Flux[RT_LAT_GW(i, j)]);
+
+                /* Initialize unsat zone fluxes */
+                InitFlux(CD->Vcele[RT_UNSAT(i)].index,
+                    CD->Vcele[RT_RIVER(elemlo - 1)].index,
+                    0, 0, 0,
+                    DISPERSION, distance, &CD->Flux[RT_LAT_UNSAT(i, j)]);
+            }
             else
             {
-                InitFlux(CD->Vcele[RT_GW(i)].index, 0, 0, 0, 0, NO_FLOW, 0.0,
-                    &CD->Flux[RT_LAT_GW(i, j)]);
+                if (pihm->elem[i].attrib.bc_type[j] == NO_FLOW)
+                {
+                    InitFlux(CD->Vcele[RT_GW(i)].index, 0, 0, 0, 0, NO_FLOW,
+                        0.0, &CD->Flux[RT_LAT_GW(i, j)]);
+                }
+                else
+                {
+                    InitFlux(CD->Vcele[RT_GW(i)].index, PRCP_VOL, 0, 0, 0,
+                        NO_DISP, 0.0, &CD->Flux[RT_LAT_GW(i, j)]);
+                }
 
                 InitFlux(CD->Vcele[RT_UNSAT(i)].index, 0, 0, 0, 0, NO_FLOW, 0.0,
                     &CD->Flux[RT_LAT_UNSAT(i, j)]);
             }
         }
+
+#if defined(_FBR_)
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            if (pihm->elem[i].nabr[j] == 0)
+            {
+                if (pihm->elem[i].attrib.fbrbc_type[j] == NO_FLOW)
+                {
+                    InitFlux(CD->Vcele[RT_FBR_GW(i)].index, 0, 0, 0, 0, NO_FLOW,
+                        0.0, &CD->Flux[RT_LAT_FBR_GW(i, j)]);
+                }
+                else
+                {
+                    InitFlux(CD->Vcele[RT_FBR_GW(i)].index, PRCP_VOL, 0, 0, 0,
+                        NO_DISP, 0.0, &CD->Flux[RT_LAT_FBR_GW(i, j)]);
+                }
+
+                InitFlux(CD->Vcele[RT_FBR_UNSAT(i)].index, 0, 0, 0, 0, NO_FLOW,
+                    0.0, &CD->Flux[RT_LAT_FBR_UNSAT(i, j)]);
+            }
+            else
+            {
+                if (pihm->elem[i].nabr[j] > 0)
+                {
+                    elemlo = pihm->elem[i].nabr[j];
+                }
+                else
+                {
+                    elemlo =
+                        (pihm->river[-pihm->elem[i].nabr[j] - 1].leftele ==
+                            pihm->elem[i].ind) ?
+                        &pihm->river[-elem[i].nabr[j] - 1].rightele :
+                        &pihm->river[-elem[i].nabr[j] - 1].leftele;
+                }
+
+                elemuu = upstream(pihm->elem[i],
+                    pihm->elem[elemlo - 1], pihm);
+                elemll = upstream(pihm->elem[elemlo - 1],
+                    pihm->elem[i], pihm);
+                distance = Dist2Edge(&pihm->meshtbl, &pihm->elem[i], j);
+
+                /* Initialize GW fluxes */
+                InitFlux(CD->Vcele[RT_FBR_GW(i)].index,
+                    CD->Vcele[RT_FBR_GW(elemlo - 1)].index, 0,
+                    (elemuu > 0) ?  CD->Vcele[RT_FBR_GW(elemuu - 1)].index : 0,
+                    (elemll > 0) ?  CD->Vcele[RT_FBR_GW(elemll - 1)].index : 0,
+                    DISPERSION, distance, &CD->Flux[RT_LAT_FBR_GW(i, j)]);
+
+                /* Initialize unsat zone fluxes */
+                InitFlux(CD->Vcele[RT_FBR_UNSAT(i)].index,
+                    CD->Vcele[RT_FBR_UNSAT(elemlo - 1)].index, 0,
+                    (elemuu > 0) ?  CD->Vcele[RT_FBR_UNSAT(elemuu - 1)].index :0,
+                    (elemll > 0) ?  CD->Vcele[RT_FBR_UNSAT(elemll - 1)].index : 0,
+                    DISPERSION, distance, &CD->Flux[RT_LAT_FBR_UNSAT(i, j)]);
+            }
+        }
+#endif
 
         /* Infiltration */
         InitFlux(CD->Vcele[RT_UNSAT(i)].index, PRCP_VOL, 0, 0, 0, NO_DISP, 0.0,
