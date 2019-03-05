@@ -1631,15 +1631,10 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     double          Cal_Keq = 1.0;
     for (i = 0; i < CD->NumAkr + CD->NumMkr; i++)
     {
-        if (!strcmp(CD->chemtype[i + CD->NumSpc + CD->NumAds +
-            CD->NumCex].ChemName, "'CO2(*g)'"))
-        {
-            CD->KeqKinect[i] += log10(Cal_PCO2);
-        }
-        else
-        {
-            CD->KeqKinect[i] += log10(Cal_Keq);
-        }
+        CD->KeqKinect[i] += (!strcmp(
+            CD->chemtype[i + CD->NumSpc + CD->NumAds + CD->NumCex].ChemName,
+            "'CO2(*g)'")) ?
+            log10(Cal_PCO2) : log10(Cal_Keq);
     }
 
     fprintf(stderr, "\n Kinetic Mass Matrx (calibrated Keq)! \n");
@@ -1665,15 +1660,16 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         " \n Mass action species type determination (0: immobile, 1: mobile, 2: Mixed) \n");
     for (i = 0; i < CD->NumSpc; i++)
     {
-        if (CD->chemtype[i].itype == AQUEOUS)
-            CD->chemtype[i].mtype = 1;
-        else
-            CD->chemtype[i].mtype = 0;
+        CD->chemtype[i].mtype = (CD->chemtype[i].itype == AQUEOUS) ?
+             1 : 0;
+
         for (j = 0; j < CD->NumStc + CD->NumSsc; j++)
         {
-            if ((CD->Totalconc[i][j] != 0) &&
-                (CD->chemtype[j].itype != CD->chemtype[i].mtype))
+            if (CD->Totalconc[i][j] != 0 &&
+                CD->chemtype[j].itype != CD->chemtype[i].mtype)
+            {
                 CD->chemtype[i].mtype = 2;
+            }
         }
         /*
          * if (strcmp( CD->chemtype[i].ChemName, "'H+'") == 0)
