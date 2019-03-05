@@ -50,7 +50,7 @@
 #  define RT_FBR_LKG(i)             (i + 15 * nelem + 6 * nriver)
 #  define RT_FBR_INFIL(i)           (i + 16 * nelem + 6 * nriver)
 #  define RT_FBR_RECHG_UNSAT(i)     (i + 17 * nelem + 6 * nriver)
-#  define RT_FBR_LKG(i)             (i + 18 * nelem + 6 * nriver)
+#  define RT_FBR_RECHG_GW(i)        (i + 18 * nelem + 6 * nriver)
 # endif
 
 /* RT volume index */
@@ -748,6 +748,7 @@ double          Dconc(const face *, const vol_conc [], const species [],
 double          Dist2Edge(const meshtbl_struct *, const elem_struct *, int);
 void            Unwrap(char *, const char *);
 void            InitVcele(double, double, double, double, int, vol_conc *);
+void            InitFlux(int, int, int, int, int, int, double, face *);
 
 #endif
 

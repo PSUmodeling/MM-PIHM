@@ -1386,7 +1386,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         int             elemll;
         double          distance;
 
-        for (j = 0; j < 3; j++)
+        for (j = 0; j < NUM_EDGE; j++)
         {
             if (pihm->elem[i].nabr[j] != NO_FLOW)
             {
@@ -1400,84 +1400,48 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                 distance = Dist2Edge(&pihm->meshtbl, &pihm->elem[i], j);
 
                 /* Initialize GW fluxes */
-                CD->Flux[RT_LAT_GW(i, j)].nodeup = CD->Vcele[RT_GW(i)].index;
-                CD->Flux[RT_LAT_GW(i, j)].node_trib = 0;
-                CD->Flux[RT_LAT_GW(i, j)].nodelo = (elemlo > 0) ?
+                InitFlux(CD->Vcele[RT_GW(i)].index,
+                    (elemlo > 0) ?
                     CD->Vcele[RT_GW(elemlo - 1)].index :
-                    CD->Vcele[RT_RIVER(-elemlo - 1)].index;
-                CD->Flux[RT_LAT_GW(i, j)].nodeuu = (elemuu > 0) ?
-                    CD->Vcele[RT_GW(elemuu - 1)].index : 0;
-                CD->Flux[RT_LAT_GW(i, j)].nodell = (elemll > 0) ?
-                    CD->Vcele[RT_GW(elemll - 1)].index : 0;
-                CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
-                CD->Flux[RT_LAT_GW(i, j)].BC = DISPERSION;
-                CD->Flux[RT_LAT_GW(i, j)].distance = distance;
+                    CD->Vcele[RT_RIVER(-elemlo - 1)].index,
+                    0,
+                    (elemuu > 0) ?  CD->Vcele[RT_GW(elemuu - 1)].index : 0,
+                    (elemll > 0) ?  CD->Vcele[RT_GW(elemll - 1)].index : 0,
+                    DISPERSION, distance, &CD->Flux[RT_LAT_GW(i, j)]);
 
                 /* Initialize unsat zone fluxes */
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodeup = CD->Vcele[RT_UNSAT(i)].index;
-                CD->Flux[RT_LAT_UNSAT(i, j)].node_trib = 0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = (elemlo > 0) ?
+                InitFlux(CD->Vcele[RT_UNSAT(i)].index,
+                    (elemlo > 0) ?
                     CD->Vcele[RT_UNSAT(elemlo - 1)].index :
-                    CD->Vcele[RT_RIVER(-elemlo - 1)].index;
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = (elemuu > 0) ?
-                    CD->Vcele[RT_UNSAT(elemuu - 1)].index :0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodell = (elemll > 0) ?
-                    CD->Vcele[RT_UNSAT(elemll - 1)].index : 0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].BC = DISPERSION;
-                CD->Flux[RT_LAT_UNSAT(i, j)].distance = distance;
+                    CD->Vcele[RT_RIVER(-elemlo - 1)].index,
+                    0,
+                    (elemuu > 0) ?  CD->Vcele[RT_UNSAT(elemuu - 1)].index :0,
+                    (elemll > 0) ?  CD->Vcele[RT_UNSAT(elemll - 1)].index : 0,
+                    DISPERSION, distance, &CD->Flux[RT_LAT_UNSAT(i, j)]);
             }
             else
             {
-                CD->Flux[RT_LAT_GW(i, j)].nodeup = CD->Vcele[RT_GW(i)].index;
-                CD->Flux[RT_LAT_GW(i, j)].node_trib = 0;
-                CD->Flux[RT_LAT_GW(i, j)].nodelo = 0;
-                CD->Flux[RT_LAT_GW(i, j)].nodeuu = 0;
-                CD->Flux[RT_LAT_GW(i, j)].nodell = 0;
-                CD->Flux[RT_LAT_GW(i, j)].flux_trib = 0.0;
-                CD->Flux[RT_LAT_GW(i, j)].BC = NO_FLOW;
-                CD->Flux[RT_LAT_GW(i, j)].distance = 0.0;
+                InitFlux(CD->Vcele[RT_GW(i)].index, 0, 0, 0, 0, NO_FLOW, 0.0,
+                    &CD->Flux[RT_LAT_GW(i, j)]);
 
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodeup = CD->Vcele[RT_UNSAT(i)].index;;
-                CD->Flux[RT_LAT_UNSAT(i, j)].node_trib = 0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodelo = 0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodeuu = 0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].nodell = 0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].flux_trib = 0.0;
-                CD->Flux[RT_LAT_UNSAT(i, j)].BC = NO_FLOW;
-                CD->Flux[RT_LAT_UNSAT(i, j)].distance = 0.0;
+                InitFlux(CD->Vcele[RT_UNSAT(i)].index, 0, 0, 0, 0, NO_FLOW, 0.0,
+                    &CD->Flux[RT_LAT_UNSAT(i, j)]);
             }
         }
 
         /* Infiltration */
-        CD->Flux[RT_INFIL(i)].nodeup = CD->Vcele[RT_UNSAT(i)].index;
-        CD->Flux[RT_INFIL(i)].node_trib = 0;
-        CD->Flux[RT_INFIL(i)].nodelo = PRCP_VOL;
-        CD->Flux[RT_INFIL(i)].nodeuu = 0;
-        CD->Flux[RT_INFIL(i)].nodell = 0;
-        CD->Flux[RT_INFIL(i)].flux_trib = 0.0;
-        CD->Flux[RT_INFIL(i)].BC = NO_DISP;
-        CD->Flux[RT_INFIL(i)].distance = 0.0;
+        InitFlux(CD->Vcele[RT_UNSAT(i)].index, PRCP_VOL, 0, 0, 0, NO_DISP, 0.0,
+            &CD->Flux[RT_INFIL(i)]);
 
         /* Rechage centered at unsat blocks */
-        CD->Flux[RT_RECHG_UNSAT(i)].nodeup = CD->Vcele[RT_UNSAT(i)].index;
-        CD->Flux[RT_RECHG_UNSAT(i)].node_trib = 0;
-        CD->Flux[RT_RECHG_UNSAT(i)].nodelo = CD->Vcele[RT_GW(i)].index;
-        CD->Flux[RT_RECHG_UNSAT(i)].nodeuu = 0;
-        CD->Flux[RT_RECHG_UNSAT(i)].nodell = 0;
-        CD->Flux[RT_RECHG_UNSAT(i)].flux_trib = 0.0;
-        CD->Flux[RT_RECHG_UNSAT(i)].BC = DISPERSION;
-        CD->Flux[RT_RECHG_UNSAT(i)].distance = 0.1 * pihm->elem[i].soil.depth;
+        InitFlux(CD->Vcele[RT_UNSAT(i)].index, CD->Vcele[RT_GW(i)].index,
+            0, 0, 0, DISPERSION, 0.1 * pihm->elem[i].soil.depth,
+            &CD->Flux[RT_RECHG_UNSAT(i)]);
 
         /* Recharge centered at gw blocks */
-        CD->Flux[RT_RECHG_GW(i)].nodeup = CD->Vcele[RT_GW(i)].index;
-        CD->Flux[RT_RECHG_GW(i)].node_trib = 0;
-        CD->Flux[RT_RECHG_GW(i)].nodelo = CD->Vcele[RT_UNSAT(i)].index;
-        CD->Flux[RT_RECHG_GW(i)].nodeuu = 0;
-        CD->Flux[RT_RECHG_GW(i)].nodell = 0;
-        CD->Flux[RT_RECHG_GW(i)].flux_trib = 0.0;
-        CD->Flux[RT_RECHG_GW(i)].BC = DISPERSION;
-        CD->Flux[RT_RECHG_GW(i)].distance = 0.1 * pihm->elem[i].soil.depth;
+        InitFlux(CD->Vcele[RT_GW(i)].index, CD->Vcele[RT_UNSAT(i)].index,
+            0, 0, 0, DISPERSION, 0.1 * pihm->elem[i].soil.depth,
+            &CD->Flux[RT_RECHG_GW(i)]);
     }
 
     /* Configuring the vertical connectivity of UNSAT - GW blocks */
@@ -1490,107 +1454,63 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 
     for (i = 0; i < nriver; i++)
     {
+        double          distance;
+
         /* Between River and Left */
         /* River to left OFL 2 */
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].node_trib = 0;
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodelo = VIRTUAL_VOL;
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodeuu = 0;
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].nodell = 0;
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].BC = NO_DISP;
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].flux = 0.0;
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].flux_trib = 0.0;
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].distance = 1.0;
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].s_area = 0.0;
+        InitFlux(CD->Vcele[RT_RIVER(i)].index, VIRTUAL_VOL, 0, 0, 0, NO_DISP,
+            0.0, &CD->Flux[RT_LEFT_SURF2RIVER(i)]);
 
         /* Between River and Right */
         /* River to right OFL 3 */
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].node_trib = 0;
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodelo = VIRTUAL_VOL;
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodeuu = 0;
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].nodell = 0;
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].BC = NO_DISP;
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux = 0.0;
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux_trib = 0.0;
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].distance = 1.0;
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].s_area = 0.0;
+        InitFlux(CD->Vcele[RT_RIVER(i)].index, VIRTUAL_VOL, 0, 0, 0, NO_DISP,
+            0.0, &CD->Flux[RT_RIGHT_SURF2RIVER(i)]);
 
         /* Between Left and EBR */
         /* EBR to left  7 + 4 */
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].node_trib = 0;
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodelo =
-            CD->Vcele[RT_GW(pihm->river[i].leftele - 1)].index;
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodeuu = 0;
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].nodell = 0;
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].BC = DISPERSION;
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux = 0.0;
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux_trib = 0.0;
         for (j = 0; j < NUM_EDGE; j++)
         {
             if (-pihm->elem[pihm->river[i].leftele - 1].nabr[j] == i + 1)
             {
-                CD->Flux[RT_LEFT_AQIF2RIVER(i)].distance =
-                CD->Flux[RT_LAT_GW(pihm->river[i].leftele - 1, j)].distance;
+                distance =
+                    CD->Flux[RT_LAT_GW(pihm->river[i].leftele - 1, j)].distance;
                 break;
             }
         }
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].s_area = pihm->river[i].shp.length *
-            pihm->elem[pihm->river[i].leftele - 1].soil.depth;
+        InitFlux(CD->Vcele[RT_RIVER(i)].index,
+            CD->Vcele[RT_GW(pihm->river[i].leftele - 1)].index,
+            0, 0, 0, DISPERSION, distance, &CD->Flux[RT_LEFT_AQIF2RIVER(i)]);
 
         /* Between Right and EBR */
         /* EBR to right 8 + 5 */
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].node_trib = 0;
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodelo =
-            CD->Vcele[RT_GW(pihm->river[i].rightele - 1)].index;
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodeuu = 0;
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].nodell = 0;
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].BC = DISPERSION;
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux = 0.0;
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux_trib = 0.0;
         for (j = 0; j < NUM_EDGE; j++)
         {
             if (-pihm->elem[pihm->river[i].rightele - 1].nabr[j] == i + 1)
             {
-                CD->Flux[RT_RIGHT_AQIF2RIVER(i)].distance =
-                CD->Flux[RT_LAT_GW(pihm->river[i].rightele - 1, j)].distance;
+                distance =
+                    CD->Flux[RT_LAT_GW(pihm->river[i].rightele - 1, j)].distance;
                 break;
             }
         }
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].s_area =
-            pihm->river[i].shp.length *
-            pihm->elem[pihm->river[i].rightele - 1].soil.depth;
+        InitFlux(CD->Vcele[RT_RIVER(i)].index,
+            CD->Vcele[RT_GW(pihm->river[i].rightele - 1)].index,
+            0, 0, 0, DISPERSION, distance, &CD->Flux[RT_RIGHT_AQIF2RIVER(i)]);
 
         /* Between EBR */
         /* To downstream EBR 9 */
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodelo = (pihm->river[i].down < 0) ?
-            VIRTUAL_VOL : CD->Vcele[RT_RIVER(pihm->river[i].down - 1)].index;
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].node_trib = 0;
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodeuu = 0;
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].nodell = 0;
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].BC = NO_DISP;
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux = 0.0;
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux_trib = 0.0;
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].distance = 1.0;
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].s_area = 0.0;
+        InitFlux(CD->Vcele[RT_RIVER(i)].index,
+            (pihm->river[i].down < 0) ?
+            VIRTUAL_VOL : CD->Vcele[RT_RIVER(pihm->river[i].down - 1)].index,
+            0, 0, 0, NO_DISP, 0.0, &CD->Flux[RT_DOWN_RIVER2RIVER(i)]);
 
         /* From upstream EBR 10 */
-        CD->Flux[RT_UP_RIVER2RIVER(i)].nodeup = CD->Vcele[RT_RIVER(i)].index;
-        CD->Flux[RT_UP_RIVER2RIVER(i)].nodelo = (pihm->river[i].up[0] < 0) ?
-            VIRTUAL_VOL : CD->Vcele[RT_RIVER(pihm->river[i].up[0] - 1)].index;
-        CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib = (pihm->river[i].up[1] < 0) ?
+        InitFlux(CD->Vcele[RT_RIVER(i)].index,
+            (pihm->river[i].up[0] < 0) ?
+            VIRTUAL_VOL : CD->Vcele[RT_RIVER(pihm->river[i].up[0] - 1)].index,
+            (pihm->river[i].up[1] < 0) ?
             pihm->river[i].up[1] :
-            CD->Vcele[RT_RIVER(pihm->river[i].up[1] - 1)].index;
-        CD->Flux[RT_UP_RIVER2RIVER(i)].nodeuu = 0;
-        CD->Flux[RT_UP_RIVER2RIVER(i)].nodell = 0;
-        CD->Flux[RT_UP_RIVER2RIVER(i)].BC = NO_DISP;
-        CD->Flux[RT_UP_RIVER2RIVER(i)].flux = 0.0;
-        CD->Flux[RT_UP_RIVER2RIVER(i)].flux_trib = 0.0;
-        CD->Flux[RT_UP_RIVER2RIVER(i)].distance = 1.0;
-        CD->Flux[RT_UP_RIVER2RIVER(i)].s_area = 0.0;
+            CD->Vcele[RT_RIVER(pihm->river[i].up[1] - 1)].index,
+            0, 0, NO_DISP, 0.0, &CD->Flux[RT_UP_RIVER2RIVER(i)]);
     }
 
     for (k = 0; k < CD->NumFac; k++)
@@ -2593,4 +2513,16 @@ void InitVcele(double height, double area, double porosity, double sat,
         PIHMprintf(VL_ERROR,
             "Fatal Error, Unsaturated Zone Initialization For RT Failed!\n");
     }
+}
+
+void InitFlux(int nodeup, int nodelo, int node_trib, int nodeuu, int nodell,
+    int bc, double distance, face *flux)
+{
+    flux->nodeup = nodeup;
+    flux->nodelo = nodelo;
+    flux->node_trib = node_trib;
+    flux->nodeuu = nodeuu;
+    flux->nodell = nodell;
+    flux->BC = bc;
+    flux->distance = distance;
 }
