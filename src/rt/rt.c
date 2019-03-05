@@ -1518,6 +1518,30 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         InitFlux(CD->Vcele[RT_GW(i)].index, CD->Vcele[RT_UNSAT(i)].index,
             0, 0, 0, DISPERSION, 0.1 * pihm->elem[i].soil.depth,
             &CD->Flux[RT_RECHG_GW(i)]);
+
+#if defined(_FBR_)
+        /* Bedrock leakage */
+        InitFlux(CD->Vcele[RT_GW(i)].index, CD->Vcele[RT_FBR_UNSAT(i)].index,
+            0, 0, 0, DISPERSION,
+            0.1 * (pihm->elem[i].soil.depth + pihm->elem[i].geol.depth),
+            &CD->Flux[RT_FBR_LKG(i)]);
+
+        /* Bedrock infiltration */
+        InitFlux(CD->Vcele[RT_FBR_UNSAT(i)].index, CD->Vcele[RT_GW(i)].index,
+            0, 0, 0, DISPERSION,
+            0.1 * (pihm->elem[i].soil.depth + pihm->elem[i].geol.depth),
+            &CD->Flux[RT_FBR_INFIL(i)]);
+
+        /* Bedrock recharge centered at unsat blocks */
+        InitFlux(CD->Vcele[RT_FBR_UNSAT(i)].index,
+            CD->Vcele[RT_FBR_GW(i)].index, 0, 0, 0, DISPERSION,
+            0.1 * pihm->elem[i].geol.depth, &CD->Flux[RT_FBR_RECHG_UNSAT(i)]);
+
+        /* Bedrock recharge centered at groundwater blocks */
+        InitFlux(CD->Vcele[RT_FBR_GW(i)].index,
+            CD->Vcele[RT_FBR_UNSAT(i)].index, 0, 0, 0, DISPERSION,
+            0.1 * pihm->elem[i].geol.depth, &CD->Flux[RT_FBR_RECHG_GW(i)]);
+#endif
     }
 
     /* Configuring the vertical connectivity of UNSAT - GW blocks */
