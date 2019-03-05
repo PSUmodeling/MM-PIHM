@@ -1731,6 +1731,9 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         for (i = 0; i < nelem; i++)
         {
             Speciation(CD, RT_GW(i));
+#if defined(_FBR_)
+            Speciation(CD, RT_FBR_GW(i));
+#endif
         }
     }
     CD->SPCFlg = 0;
@@ -1744,6 +1747,14 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             CD->Vcele[RT_UNSAT(i)].t_conc[k] = CD->Vcele[RT_GW(i)].t_conc[k];
             CD->Vcele[RT_UNSAT(i)].p_conc[k] = CD->Vcele[RT_GW(i)].p_conc[k];
             CD->Vcele[RT_UNSAT(i)].p_actv[k] = CD->Vcele[RT_GW(i)].p_actv[k];
+#if defined(_FBR_)
+            CD->Vcele[RT_FBR_UNSAT(i)].t_conc[k] = CD->Vcele[RT_GW(i)].t_conc[k];
+            CD->Vcele[RT_FBR_UNSAT(i)].p_conc[k] = CD->Vcele[RT_GW(i)].p_conc[k];
+            CD->Vcele[RT_FBR_UNSAT(i)].p_actv[k] = CD->Vcele[RT_GW(i)].p_actv[k];
+            CD->Vcele[RT_FBR_GW(i)].t_conc[k] = CD->Vcele[RT_GW(i)].t_conc[k];
+            CD->Vcele[RT_FBR_GW(i)].p_conc[k] = CD->Vcele[RT_GW(i)].p_conc[k];
+            CD->Vcele[RT_FBR_GW(i)].p_actv[k] = CD->Vcele[RT_GW(i)].p_actv[k];
+#endif
         }
     }
 
