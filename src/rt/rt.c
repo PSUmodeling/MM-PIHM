@@ -1835,12 +1835,18 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         for (j = 0; j < 3; j++)
         {
             /* Flux for GW lateral flow */
-            CD->Flux[RT_LAT_GW(i, j)].flux += 1.0 * pihm->elem[i].wf.subsurf[j] * 86400;  /* Test lateral dilution */
+            CD->Flux[RT_LAT_GW(i, j)].flux += 1.0 * pihm->elem[i].wf.subsurf[j] * 86400;
 
             /* Flux for UNSAT lateral flow */
             CD->Flux[RT_LAT_UNSAT(i, j)].s_area = 1.0;
-        }
+#if defined(_FBR_)
+            /* Flux for deep lateral flow */
+            CD->Flux[RT_LAT_FBR_GW(i, j)].flux += pihm->elem[i].wf.fbrflow[j] * 86400;
 
+            /* Flux for bedrock unsat lateral flow */
+            CD->Flux[RT_LAT_FBR_UNSAT(i, j)].s_area = 1.0;
+#endif
+        }
 
         /* Flux for UNSAT - GW vertical flow */
         CD->Flux[RT_RECHG_UNSAT(i)].flux += (pihm->elem[i].wf.rechg * 86400) *
@@ -1848,6 +1854,11 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         CD->Flux[RT_RECHG_GW(i)].flux += (-pihm->elem[i].wf.rechg * 86400) *
             CD->Vcele[RT_GW(i)].area;
+
+#if defined(_FBR_)
+        CD->Flux[RT_FBR_RECHG_UNSAT(i)].flux += (pihm->elem[i].wf.fbr_rechg * 86400.0 * CD->Vcele[RT_FBR_RECHG_UNSAT(i)].area;
+        CD->Flux[RT_FBR_RECHG_GW(i)].flux += -pihm->elem[i].wf.fbr_rechg * 86400.0 * CD->Vcele[RT_FBR_RECHG_GW(i)].area;
+#endif
     }
 
     /* Flux for RIVER flow */
