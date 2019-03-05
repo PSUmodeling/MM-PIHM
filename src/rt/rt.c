@@ -1834,14 +1834,11 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         for (j = 0; j < 3; j++)
         {
-            if (pihm->elem[i].nabr[j] != NO_FLOW)
-            {
-                /* Flux for GW lateral flow */
-                CD->Flux[RT_LAT_GW(i, j)].flux += 1.0 * pihm->elem[i].wf.subsurf[j] * 86400;  /* Test lateral dilution */
+            /* Flux for GW lateral flow */
+            CD->Flux[RT_LAT_GW(i, j)].flux += 1.0 * pihm->elem[i].wf.subsurf[j] * 86400;  /* Test lateral dilution */
 
-                /* Flux for UNSAT lateral flow */
-                CD->Flux[RT_LAT_UNSAT(i, j)].s_area = 1.0;
-            }
+            /* Flux for UNSAT lateral flow */
+            CD->Flux[RT_LAT_UNSAT(i, j)].s_area = 1.0;
         }
 
 
