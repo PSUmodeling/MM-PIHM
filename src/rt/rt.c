@@ -1955,6 +1955,22 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             /* Update the unsaturated zone (vadoze) */
             UpdateVcele(MAX(heqv, 1.0E-5), satn, invavg,
                 &CD->Vcele[RT_UNSAT(i)]);
+
+#if defined(_FBR_)
+            UpdateVcele(MAX(pihm->elem[i].ws.fbr_gw, 1.0E-5), 1.0, invavg,
+                &CD->Vcele[RT_FBR_GW(i)]);
+
+            heqv = EqvUnsatH(pihm->elem[i].geol.smcmax,
+                pihm->elem[i].geol.smcmin, pihm->elem[i].geol.depth,
+                pihm->elem[i].ws.fbr_unsat, pihm->elem[i].ws.fbr_gw);
+
+            satn = UnsatSatRatio(pihm->elem[i].geol.depth,
+                pihm->elem[i].ws.fbr_unsat, pihm->elem[i].ws.fbr_gw);
+
+            /* Update the unsaturated zone (vadoze) */
+            UpdateVcele(MAX(heqv, 1.0E-5), satn, invavg,
+                &CD->Vcele[RT_FBR_UNSAT(i)]);
+#endif
         }
 
 #ifdef _OPENMP
