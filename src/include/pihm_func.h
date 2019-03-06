@@ -750,6 +750,8 @@ void            Unwrap(char *, const char *);
 void            InitVcele(double, double, double, double, int, vol_conc *);
 void            InitFlux(int, int, int, int, int, int, double, face *);
 void            UpdateVcele(double, double, double, vol_conc *);
+double          EqvUnsatH(double, double, double, double, double);
+double          UnsatSatRatio(double, double, double);
 
 #endif
 

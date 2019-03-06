@@ -1239,7 +1239,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     for (i = 0; i < nelem; i++)
     {
         double          heqv;
-        double          sat;
+        double          satn;
 
         /* Initializing volumetrics for groundwater (GW) cells */
         InitVcele(pihm->elem[i].ws.gw, pihm->elem[i].topo.area,
@@ -1250,15 +1250,14 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
          * Effective Porosity = Porosity - Residue Water Porosity
          * Porosity in RT is total Porosity, therefore, the water height in the
          * unsaturated zone needs be converted as well */
-        heqv = (pihm->elem[i].ws.unsat *
-            (pihm->elem[i].soil.smcmax - pihm->elem[i].soil.smcmin) +
-            (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw) *
-            pihm->elem[i].soil.smcmin) / (pihm->elem[i].soil.smcmax);
-        sat = heqv / (pihm->elem[i].soil.depth - pihm->elem[i].ws.gw);
-        sat = (sat > 0.0) ? sat : 0.0;
-        sat = (sat < 1.0) ? sat : 1.0;
+        heqv = EqvUnsatH(pihm->elem[i].soil.smcmax,
+            pihm->elem[i].soil.smcmin, pihm->elem[i].soil.depth,
+            pihm->elem[i].ws.unsat, pihm->elem[i].ws.gw);
+        satn = UnsatSatRatio(pihm->elem[i].soil.depth,
+            pihm->elem[i].ws.unsat, pihm->elem[i].ws.gw);
+
         InitVcele(heqv, pihm->elem[i].topo.area, pihm->elem[i].soil.smcmax,
-            sat, UNSAT_VOL, &CD->Vcele[RT_UNSAT(i)]);
+            satn, UNSAT_VOL, &CD->Vcele[RT_UNSAT(i)]);
 
 #if defined(_FBR_)
         /* Initializing volumetrics for deep groundwater (FBR GW) cells */
@@ -1267,15 +1266,14 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             &CD->Vcele[RT_FBR_GW(i)]);
 
         /* Initializing volumetrics for bedrock unsaturated cells */
-        heqv = (pihm->elem[i].ws.fbr_unsat *
-            (pihm->elem[i].geol.smcmax - pihm->elem[i].geol.smcmin) +
-            (pihm->elem[i].geol.depth - pihm->elem[i].ws.fbr_gw) *
-            pihm->elem[i].geol.smcmin) / (pihm->elem[i].geol.smcmax);
-        sat = heqv / (pihm->elem[i].geol.depth - pihm->elem[i].ws.fbr_gw);
-        sat = (sat > 0.0) ? sat : 0.0;
-        sat = (sat < 1.0) ? sat : 1.0;
+        heqv = EqvUnsatH(pihm->elem[i].geol.smcmax,
+            pihm->elem[i].geol.smcmin, pihm->elem[i].geol.depth,
+            pihm->elem[i].ws.fbr_unsat, pihm->elem[i].ws.fbr_gw);
+        satn = UnsatSatRatio(pihm->elem[i].geol.depth,
+            pihm->elem[i].ws.fbr_unsat, pihm->elem[i].ws.fbr_gw);
+
         InitVcele(heqv, pihm->elem[i].topo.area, pihm->elem[i].geol.smcmax,
-            sat, FBR_UNSAT_VOL, &CD->Vcele[RT_FBR_UNSAT(i)]);
+            satn, FBR_UNSAT_VOL, &CD->Vcele[RT_FBR_UNSAT(i)]);
 #endif
     }
 
@@ -1941,22 +1939,22 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #endif
         for (i = 0; i < nelem; i++)
         {
+            double          heqv;
+            double          satn;
+
             UpdateVcele(MAX(pihm->elem[i].ws.gw, 1.0E-5), 1.0, invavg,
                 &CD->Vcele[RT_GW(i)]);
 
+            heqv = EqvUnsatH(pihm->elem[i].soil.smcmax,
+                pihm->elem[i].soil.smcmin, pihm->elem[i].soil.depth,
+                pihm->elem[i].ws.unsat, pihm->elem[i].ws.gw);
+
+            satn = UnsatSatRatio(pihm->elem[i].soil.depth,
+                pihm->elem[i].ws.unsat, pihm->elem[i].ws.gw);
+
             /* Update the unsaturated zone (vadoze) */
-            UpdateVcele(MAX(((pihm->elem[i].ws.unsat *
-                (pihm->elem[i].soil.smcmax - pihm->elem[i].soil.smcmin) +
-                (pihm->elem[i].soil.depth - CD->Vcele[RT_GW(i)].height_t) *
-                pihm->elem[i].soil.smcmin) / pihm->elem[i].soil.smcmax),
-                1.0E-5),
-                MAX(((pihm->elem[i].ws.unsat *
-                (pihm->elem[i].soil.smcmax - pihm->elem[i].soil.smcmin) +
-                (pihm->elem[i].soil.depth - CD->Vcele[RT_GW(i)].height_t) *
-                pihm->elem[i].soil.smcmin) / pihm->elem[i].soil.smcmax),
-                1.0E-5) /
-                (pihm->elem[i].soil.depth - CD->Vcele[RT_GW(i)].height_t),
-                invavg, &CD->Vcele[RT_UNSAT(i)]);
+            UpdateVcele(MAX(heqv, 1.0E-5), satn, invavg,
+                &CD->Vcele[RT_UNSAT(i)]);
         }
 
 #ifdef _OPENMP
@@ -2638,4 +2636,21 @@ void UpdateVcele(double height, double sat, double invavg, vol_conc *Vcele)
     Vcele->vol_o = Vcele->area * Vcele->height_o;
     Vcele->vol = Vcele->area * height;
     Vcele->sat = sat;
+}
+
+double EqvUnsatH(double smcmax, double smcmin, double depth, double unsat,
+    double gw)
+{
+    double          deficit;
+
+    deficit = depth - gw;
+    deficit = (deficit < depth) ? deficit : depth;
+    deficit = (deficit > 0.0) ? deficit : 0.0;
+
+    return (unsat * (smcmax - smcmin) + deficit * smcmin) / smcmax;
+}
+
+double UnsatSatRatio(double depth, double unsat, double gw)
+{
+    return ((unsat < 0.0) ? 0.0 : ((gw > depth) ? 1.0 : unsat / (depth - gw)));
 }
