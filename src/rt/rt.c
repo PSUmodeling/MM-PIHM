@@ -2167,8 +2167,26 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
      */
     if (t - pihm->ctrl.starttime >= CD->Delay)
     {
-        AdptTime(CD, (t - pihm->ctrl.starttime - stepsize) / 60, stepsize / 60,
-            t_duration_transp, t_duration_react);
+        /*
+         * Transport
+         */
+        AdptTime(CD, stepsize / 60, t_duration_transp, t_duration_react);
+
+        /*
+         * Reaction
+         */
+        if ((!CD->RecFlg) && (t - pihm->ctrl.starttime) %
+            (int)(CD->React_delay * stepsize) == 0)
+        {
+#ifdef _OPENMP
+# pragma omp parallel for
+#endif
+            for (i = 0; i < nelem; i++)
+            {
+                React(stepsize / 60, CD, &CD->Vcele[RT_GW(i)]);
+                React(stepsize / 60, CD, &CD->Vcele[RT_UNSAT(i)]);
+            }
+        }
 
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -2321,155 +2339,123 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     }
 }
 
-void AdptTime(Chem_Data CD, realtype timelps, double stepsize,
+void AdptTime(Chem_Data CD, double stepsize,
     double *t_duration_transp, double *t_duration_react)
 {
     double          end_time;
     int             i, k;
     time_t          t_start_transp, t_end_transp;
 
-    end_time = timelps + stepsize;
-
     t_start_transp = time(NULL);
 
-    while (timelps < end_time)
-    {
-        time_t          t_start_react, t_end_react;
-
-        stepsize = (stepsize > end_time - timelps) ?
-            end_time - timelps : stepsize;
+    time_t          t_start_react, t_end_react;
 
 #if TEMP_DISABLED
-        if (int_flg)
-        {
-            /* Do interpolation. Note that height_int always store the end time
-             * height. */
+    if (int_flg)
+    {
+        /* Do interpolation. Note that height_int always store the end time
+         * height. */
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-            for (i = 0; i < CD->NumOsv; i++)
-            {
-                CD->Vcele[i].height_t =
-                    CD->Vcele[i].height_o + CD->Vcele[i].height_sp * stepsize;
-                CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-            }
+        for (i = 0; i < CD->NumOsv; i++)
+        {
+            CD->Vcele[i].height_t =
+                CD->Vcele[i].height_o + CD->Vcele[i].height_sp * stepsize;
+            CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
         }
+    }
 #endif
 
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-        for (i = 0; i < nelem; i++)
-        {
-            int             j;
+    for (i = 0; i < nelem; i++)
+    {
+        int             j;
 
-            for (j = 0; j < CD->NumSpc; j++)
+        for (j = 0; j < CD->NumSpc; j++)
+        {
+            if (CD->chemtype[j].mtype == 2)
             {
-                if (CD->chemtype[j].mtype == 2)
+                for (k = 0; k < CD->NumSsc; k++)
                 {
-                    for (k = 0; k < CD->NumSsc; k++)
+                    if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
+                        (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
                     {
-                        if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
-                            (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
-                        {
-                            CD->Vcele[RT_GW(i)].t_conc[j] = CD->Vcele[RT_GW(i)].t_conc[j] -
-                                CD->Totalconc[j][k + CD->NumStc] *
-                                CD->Vcele[RT_GW(i)].s_conc[k] * CD->TimRiv;
-                            CD->Vcele[RT_UNSAT(i)].t_conc[j] = CD->Vcele[RT_UNSAT(i)].t_conc[j] -
-                                CD->Totalconc[j][k + CD->NumStc] *
-                                CD->Vcele[RT_UNSAT(i)].s_conc[k] * CD->TimRiv;
-                        }
+                        CD->Vcele[RT_GW(i)].t_conc[j] = CD->Vcele[RT_GW(i)].t_conc[j] -
+                            CD->Totalconc[j][k + CD->NumStc] *
+                            CD->Vcele[RT_GW(i)].s_conc[k] * CD->TimRiv;
+                        CD->Vcele[RT_UNSAT(i)].t_conc[j] = CD->Vcele[RT_UNSAT(i)].t_conc[j] -
+                            CD->Totalconc[j][k + CD->NumStc] *
+                            CD->Vcele[RT_UNSAT(i)].s_conc[k] * CD->TimRiv;
                     }
                 }
             }
         }
+    }
 
-        OS3D(timelps, stepsize, CD);
+    OS3D(stepsize, CD);
 
-        /* Total concentration except for adsorptions have been transported and
-         * adjusted by the volume. For example, if no transport but volume
-         * increased by rain, the concentration need be decreased. However, the
-         * adsorption part has not been treated yet, so they need be adjusted by
-         * the volume change.
-         * The porosity is not changed during the period, so the ratio between
-         * pore space before and after OS3D is the same ratio between volume of
-         * porous media before and after OS3D. */
+    /* Total concentration except for adsorptions have been transported and
+     * adjusted by the volume. For example, if no transport but volume
+     * increased by rain, the concentration need be decreased. However, the
+     * adsorption part has not been treated yet, so they need be adjusted by
+     * the volume change.
+     * The porosity is not changed during the period, so the ratio between
+     * pore space before and after OS3D is the same ratio between volume of
+     * porous media before and after OS3D. */
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-        for (i = 0; i < nelem; i++)
-        {
-            int             j;
+    for (i = 0; i < nelem; i++)
+    {
+        int             j;
 
-            for (j = 0; j < CD->NumSpc; j++)
+        for (j = 0; j < CD->NumSpc; j++)
+        {
+            if (CD->chemtype[j].mtype == 2)
             {
-                if (CD->chemtype[j].mtype == 2)
+                for (k = 0; k < CD->NumSsc; k++)
                 {
-                    for (k = 0; k < CD->NumSsc; k++)
+                    if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
+                        (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
                     {
-                        if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
-                            (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
-                        {
-                            CD->Vcele[RT_GW(i)].t_conc[j] =
-                                CD->Vcele[RT_GW(i)].t_conc[j] + CD->Totalconc[j][k +
-                                CD->NumStc] * CD->Vcele[RT_GW(i)].s_conc[k] *
-                                CD->TimRiv;
-                            CD->Vcele[RT_UNSAT(i)].t_conc[j] =
-                                CD->Vcele[RT_UNSAT(i)].t_conc[j] + CD->Totalconc[j][k +
-                                CD->NumStc] * CD->Vcele[RT_UNSAT(i)].s_conc[k] *
-                                CD->TimRiv;
-                        }
+                        CD->Vcele[RT_GW(i)].t_conc[j] =
+                            CD->Vcele[RT_GW(i)].t_conc[j] + CD->Totalconc[j][k +
+                            CD->NumStc] * CD->Vcele[RT_GW(i)].s_conc[k] *
+                            CD->TimRiv;
+                        CD->Vcele[RT_UNSAT(i)].t_conc[j] =
+                            CD->Vcele[RT_UNSAT(i)].t_conc[j] + CD->Totalconc[j][k +
+                            CD->NumStc] * CD->Vcele[RT_UNSAT(i)].s_conc[k] *
+                            CD->TimRiv;
                     }
                 }
             }
         }
+    }
 
-        t_end_transp = time(NULL);
-        *t_duration_transp += (t_end_transp - t_start_transp);
+    t_end_transp = time(NULL);
+    *t_duration_transp += (t_end_transp - t_start_transp);
 
-        t_start_react = time(NULL);
+    t_start_react = time(NULL);
 
 #if TEMP_DISABLED
-        if (int_flg)
-        {
+    if (int_flg)
+    {
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-            for (i = 0; i < CD->NumVol; i++)
-            {
-                CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-                CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-            }
-        }
-#endif
-
-        if ((!CD->RecFlg) && ((int)(timelps + stepsize) %
-            (int)(CD->React_delay * stepsize) == 0))
+        for (i = 0; i < CD->NumVol; i++)
         {
-#ifdef _OPENMP
-# pragma omp parallel for
-#endif
-            for (i = 0; i < nelem; i++)
-            {
-                React(stepsize, CD, &CD->Vcele[RT_GW(i)]);
-                React(stepsize, CD, &CD->Vcele[RT_UNSAT(i)]);
-            }
-        }
-
-        timelps += stepsize;
-        if (timelps >= end_time)
-        {
-            t_end_react = time(NULL);
-            *t_duration_react += (t_end_react - t_start_react);
-            break;
+            CD->Vcele[i].height_o = CD->Vcele[i].height_t;
+            CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
         }
     }
+#endif
 
-    if ((!CD->RecFlg) &&
-        ((int)(timelps) % (int)(CD->React_delay * stepsize) == 0))
-    {
-        /* Do nothing. Place holder for test purposes. */
-    }
+    t_end_react = time(NULL);
+    *t_duration_react += (t_end_react - t_start_react);
 }
 
 void FreeChem(Chem_Data CD)

@@ -14,9 +14,9 @@
 #define min(a,b) ((a)<(b) ? (a):(b))
 #define EPSILON 1.0E-20
 
-void OS3D(realtype t, realtype stepsize, Chem_Data CD)
+void OS3D(realtype stepsize, Chem_Data CD)
 {
-    /* Input t and stepsize in the unit of minute */
+    /* Input stepsize in the unit of minute */
     double        **dconc = (double **)malloc(CD->NumOsv * sizeof(double *));
     int             i;
     double          unit_c;
@@ -84,12 +84,12 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                 if (CD->Vcele[i].type == UNSAT_VOL ||
                     CD->Vcele[i].type == GW_VOL)
                 {
-                    timelps = t;
+                    timelps = 0.0;
 
-                    while (timelps < t + stepsize)
+                    while (timelps < stepsize)
                     {
-                        adpstep = (adpstep > t + stepsize - timelps) ?
-                            t + stepsize - timelps : adpstep;
+                        adpstep = (adpstep > stepsize - timelps) ?
+                            stepsize - timelps : adpstep;
 
                         diff_conc = 0.0;
                         for (j = 0; j < CD->NumSpc; j++)
@@ -163,7 +163,7 @@ void OS3D(realtype t, realtype stepsize, Chem_Data CD)
                         }
 
                         timelps += adpstep;
-                        if (timelps >= t + stepsize)
+                        if (timelps >= stepsize)
                             break;
                     }
                 }
