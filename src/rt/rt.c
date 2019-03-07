@@ -260,7 +260,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     VIRTUAL_VOL = CD->NumVol;
 
     /* Default control variable if not found in input file */
-    CD->StartTime = pihm->ctrl.starttime / 60;
     CD->TVDFlg = 1;
     CD->OutItv = 1;
     CD->Cementation = 1.0;
