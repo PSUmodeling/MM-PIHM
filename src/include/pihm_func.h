@@ -745,7 +745,6 @@ void            FreeChem(Chem_Data);
 void            ReportError(vol_conc, Chem_Data);
 double          Dconc(const face *, const vol_conc [], const species [],
     double, int, int);
-double          Dist2Edge(const meshtbl_struct *, const elem_struct *, int);
 void            Unwrap(char *, const char *);
 void            InitVcele(double, double, double, double, int, vol_conc *);
 void            InitFlux(int, int, int, int, int, int, double, face *);

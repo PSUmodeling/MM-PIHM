@@ -1386,6 +1386,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 
         for (j = 0; j < NUM_EDGE; j++)
         {
+            distance = pihm->elem[i].topo.nabrdist[j];
+
             if (pihm->elem[i].nabr[j] > 0)
             {
                 elemlo = pihm->elem[i].nabr[j];
@@ -1393,7 +1395,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                     pihm->elem[pihm->elem[i].nabr[j] - 1], pihm);
                 elemll = upstream(pihm->elem[pihm->elem[i].nabr[j] - 1],
                     pihm->elem[i], pihm);
-                distance = Dist2Edge(&pihm->meshtbl, &pihm->elem[i], j);
 
                 /* Initialize GW fluxes */
                 InitFlux(CD->Vcele[RT_GW(i)].index,
@@ -1414,7 +1415,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                 elemlo = -pihm->elem[i].nabr[j];
                 elemuu = 0;
                 elemll = 0;
-                distance = Dist2Edge(&pihm->meshtbl, &pihm->elem[i], j);
 
                 /* Initialize GW fluxes */
                 InitFlux(CD->Vcele[RT_GW(i)].index,
@@ -1433,16 +1433,16 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                 if (pihm->elem[i].attrib.bc_type[j] == NO_FLOW)
                 {
                     InitFlux(CD->Vcele[RT_GW(i)].index, 0, 0, 0, 0, NO_FLOW,
-                        0.0, &CD->Flux[RT_LAT_GW(i, j)]);
+                        distance, &CD->Flux[RT_LAT_GW(i, j)]);
                 }
                 else
                 {
                     InitFlux(CD->Vcele[RT_GW(i)].index, PRCP_VOL, 0, 0, 0,
-                        NO_DISP, 0.0, &CD->Flux[RT_LAT_GW(i, j)]);
+                        NO_DISP, distance, &CD->Flux[RT_LAT_GW(i, j)]);
                 }
 
-                InitFlux(CD->Vcele[RT_UNSAT(i)].index, 0, 0, 0, 0, NO_FLOW, 0.0,
-                    &CD->Flux[RT_LAT_UNSAT(i, j)]);
+                InitFlux(CD->Vcele[RT_UNSAT(i)].index, 0, 0, 0, 0, NO_FLOW,
+                    distance, &CD->Flux[RT_LAT_UNSAT(i, j)]);
             }
         }
 
@@ -1451,25 +1451,28 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         {
             if (pihm->elem[i].nabr[j] == 0)
             {
+                distance = elem[i].topo.nabrdist[j];
+
                 if (pihm->elem[i].attrib.fbrbc_type[j] == NO_FLOW)
                 {
                     InitFlux(CD->Vcele[RT_FBR_GW(i)].index, 0, 0, 0, 0, NO_FLOW,
-                        0.0, &CD->Flux[RT_LAT_FBR_GW(i, j)]);
+                        distance, &CD->Flux[RT_LAT_FBR_GW(i, j)]);
                 }
                 else
                 {
                     InitFlux(CD->Vcele[RT_FBR_GW(i)].index, PRCP_VOL, 0, 0, 0,
-                        NO_DISP, 0.0, &CD->Flux[RT_LAT_FBR_GW(i, j)]);
+                        NO_DISP, distance, &CD->Flux[RT_LAT_FBR_GW(i, j)]);
                 }
 
                 InitFlux(CD->Vcele[RT_FBR_UNSAT(i)].index, 0, 0, 0, 0, NO_FLOW,
-                    0.0, &CD->Flux[RT_LAT_FBR_UNSAT(i, j)]);
+                    distance, &CD->Flux[RT_LAT_FBR_UNSAT(i, j)]);
             }
             else
             {
                 if (pihm->elem[i].nabr[j] > 0)
                 {
                     elemlo = pihm->elem[i].nabr[j];
+                    distance = elem[i].topo.nabrdist[j];
                 }
                 else
                 {
@@ -1478,13 +1481,23 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                             pihm->elem[i].ind) ?
                         &pihm->river[-elem[i].nabr[j] - 1].rightele :
                         &pihm->river[-elem[i].nabr[j] - 1].leftele;
+                    int             jj;
+
+                    for (jj = 0; jj < NUM_EDGE; jj++)
+                    {
+                        if (pihm->elem[elemlo - 1].nabr[jj] == pihm->elem[i].nabr[j])
+                        {
+                            distance = pihm->elem[i].topo.nabrdist[j] +
+                                pihm->elem[elemlo - 1].topo.nabrdist[jj];
+                            break;
+                        }
+                    }
                 }
 
                 elemuu = upstream(pihm->elem[i],
                     pihm->elem[elemlo - 1], pihm);
                 elemll = upstream(pihm->elem[elemlo - 1],
                     pihm->elem[i], pihm);
-                distance = Dist2Edge(&pihm->meshtbl, &pihm->elem[i], j);
 
                 /* Initialize GW fluxes */
                 InitFlux(CD->Vcele[RT_FBR_GW(i)].index,
@@ -2591,26 +2604,6 @@ void FreeChem(Chem_Data CD)
     free(CD->Precipitation.p_conc);
     free(CD->Precipitation.p_para);
 
-}
-
-double Dist2Edge(const meshtbl_struct *meshtbl, const elem_struct *elem,
-    int edge_j)
-{
-    double          para_a, para_b, para_c, x_0, x_1, y_0, y_1;
-    int             index_0, index_1;
-
-    index_0 = elem->node[(edge_j + 1) % 3] - 1;
-    index_1 = elem->node[(edge_j + 2) % 3] - 1;
-    x_0 = meshtbl->x[index_0];
-    y_0 = meshtbl->y[index_0];
-    x_1 = meshtbl->x[index_1];
-    y_1 = meshtbl->y[index_1];
-    para_a = y_1 - y_0;
-    para_b = x_0 - x_1;
-    para_c = (x_1 - x_0) * y_0 - (y_1 - y_0) * x_0;
-
-    return fabs(para_a * elem->topo.x + para_b * elem->topo.y + para_c) /
-        sqrt(para_a * para_a + para_b * para_b);
 }
 
 void InitVcele(double height, double area, double porosity, double sat,
