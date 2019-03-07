@@ -2170,7 +2170,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         /*
          * Transport
          */
-        AdptTime(CD, stepsize / 60, t_duration_transp, t_duration_react);
+        AdptTime(CD, stepsize, t_duration_transp, t_duration_react);
 
         /*
          * Reaction
@@ -2346,6 +2346,7 @@ void AdptTime(Chem_Data CD, double stepsize,
     int             i, k;
     time_t          t_start_transp, t_end_transp;
 
+    /* stepsize is in the unit of second */
     t_start_transp = time(NULL);
 
     time_t          t_start_react, t_end_react;

@@ -14,9 +14,9 @@
 #define min(a,b) ((a)<(b) ? (a):(b))
 #define EPSILON 1.0E-20
 
-void OS3D(realtype stepsize, Chem_Data CD)
+void OS3D(double stepsize, Chem_Data CD)
 {
-    /* Input stepsize in the unit of minute */
+    /* Input stepsize in the unit of second */
     double        **dconc = (double **)malloc(CD->NumOsv * sizeof(double *));
     int             i;
     double          unit_c;
@@ -75,7 +75,7 @@ void OS3D(realtype stepsize, Chem_Data CD)
 
         if (CD->CptFlg == 1)
         {
-            if ((CD->Vcele[i].rt_step < stepsize) &&
+            if ((CD->Vcele[i].rt_step < stepsize / 60) &&
                 (CD->Vcele[i].height_t > 1.0E-3) &&
                 (CD->Vcele[i].height_o > 1.0E-3))
             {
@@ -86,10 +86,10 @@ void OS3D(realtype stepsize, Chem_Data CD)
                 {
                     timelps = 0.0;
 
-                    while (timelps < stepsize)
+                    while (timelps < stepsize / 60)
                     {
-                        adpstep = (adpstep > stepsize - timelps) ?
-                            stepsize - timelps : adpstep;
+                        adpstep = (adpstep > stepsize / 60 - timelps) ?
+                            stepsize / 60 - timelps : adpstep;
 
                         diff_conc = 0.0;
                         for (j = 0; j < CD->NumSpc; j++)
@@ -163,7 +163,7 @@ void OS3D(realtype stepsize, Chem_Data CD)
                         }
 
                         timelps += adpstep;
-                        if (timelps >= stepsize)
+                        if (timelps >= stepsize / 60)
                             break;
                     }
                 }
@@ -177,7 +177,7 @@ void OS3D(realtype stepsize, Chem_Data CD)
         {
             if (CD->CptFlg)
             {
-                if (CD->Vcele[i].rt_step < stepsize)
+                if (CD->Vcele[i].rt_step < stepsize / 60)
                 {
                     continue;
                 }
@@ -186,7 +186,7 @@ void OS3D(realtype stepsize, Chem_Data CD)
             for (j = 0; j < CD->NumSpc; j++)
             {
                 tmpconc[j] =
-                    dconc[i][j] * stepsize +
+                    dconc[i][j] * stepsize / 60 +
                     CD->Vcele[i].t_conc[j] * (CD->Vcele[i].porosity *
                     CD->Vcele[i].vol_o);
 
@@ -206,13 +206,13 @@ void OS3D(realtype stepsize, Chem_Data CD)
                             "negative concentration change at species %s !\n",
                             CD->chemtype[j].ChemName);
                         fprintf(stderr, "Change from fluxes: %8.4g\t",
-                            dconc[i][j] * stepsize);
+                            dconc[i][j] * stepsize / 60);
                         fprintf(stderr, "Original mass: %8.4g\n",
                             CD->Vcele[i].t_conc[j] *
                             (CD->Vcele[i].porosity * CD->Vcele[i].vol_o));
                         fprintf(stderr,
                             "New mass: %8.4g\t New Volume: %8.4g\t Old Conc: %8.4g\t New Conc: %8.4g\t Timestep: %8.4g\n",
-                            dconc[i][j] * stepsize +
+                            dconc[i][j] * stepsize / 60 +
                             CD->Vcele[i].t_conc[j] *
                             (CD->Vcele[i].porosity * CD->Vcele[i].vol_o),
                             CD->Vcele[i].porosity * CD->Vcele[i].height_t *

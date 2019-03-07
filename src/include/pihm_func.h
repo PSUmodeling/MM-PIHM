@@ -730,7 +730,7 @@ int             keymatch(const char *, const char *, double *, char **);
 void            chem_alloc(char *, const pihm_struct, Chem_Data);
 void            fluxtrans(int, int, const pihm_struct, Chem_Data, double *, double *);    // 10.05 add two timers
 void            chem_updater(Chem_Data, const pihm_struct); // 10.01
-void            OS3D(realtype, Chem_Data);
+void            OS3D(double, Chem_Data);
 void            React(realtype, Chem_Data, vol_conc *);
 int             _React(realtype, Chem_Data, vol_conc *);
 void            Lookup(FILE *, Chem_Data);
