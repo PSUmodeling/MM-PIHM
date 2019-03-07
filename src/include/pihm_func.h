@@ -737,7 +737,7 @@ void            Lookup(FILE *, Chem_Data);
 int             Speciation(Chem_Data, int);
 int             keymatch(const char *, const char *, double *, char **);
 int             SpeciationType(FILE *, char *);
-void            AdptTime(Chem_Data, realtype, double, double, double *, double *);
+void            AdptTime(Chem_Data, realtype, double, double *, double *);
 void            Reset(Chem_Data, int);
 void            InitialChemFile(char *, char *, int, int *);
 void            PrintChem(char *, char *, Chem_Data, int);

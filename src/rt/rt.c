@@ -1800,7 +1800,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
      * ht  transient zone height
      */
     int             i, k = 0;
-    double          rt_step, invavg, unit_c;
+    double          invavg, unit_c;
 
     unit_c = stepsize / DAYINSEC;
     int             VIRTUAL_VOL = CD->NumVol;
@@ -2168,9 +2168,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
      */
     if (CD->TimLst >= CD->Delay)
     {
-        rt_step = stepsize / 60;
-
-        AdptTime(CD, CD->TimLst, rt_step, stepsize / 60,
+        AdptTime(CD, CD->TimLst, stepsize / 60,
             t_duration_transp, t_duration_react);
 
 #if defined(_OPENMP)
@@ -2326,28 +2324,16 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     }
 }
 
-void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
+void AdptTime(Chem_Data CD, realtype timelps, double stepsize,
     double *t_duration_transp, double *t_duration_react)
 {
-    double          stepsize, end_time;
-    int             i, k, int_flg;
+    double          end_time;
+    int             i, k;
     time_t          t_start_transp, t_end_transp;
 
-    stepsize = rt_step;
-    end_time = timelps + hydro_step;
+    end_time = timelps + stepsize;
 
     t_start_transp = time(NULL);
-
-    /* Simple check to determine whether or not to intrapolate the gw height */
-    if (rt_step >= hydro_step)
-    {
-        int_flg = 0;
-    }
-    else
-    {
-        int_flg = 1;
-        fprintf(stderr, " Sub time step intrapolation performed. \n");
-    }
 
     while (timelps < end_time)
     {
@@ -2446,6 +2432,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
 
         t_start_react = time(NULL);
 
+#if TEMP_DISABLED
         if (int_flg)
         {
 #if defined(_OPENMP)
@@ -2457,6 +2444,7 @@ void AdptTime(Chem_Data CD, realtype timelps, double rt_step, double hydro_step,
                 CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
             }
         }
+#endif
 
         if ((!CD->RecFlg) && ((int)(timelps + stepsize) %
             (int)(CD->React_delay * stepsize) == 0))
