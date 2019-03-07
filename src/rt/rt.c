@@ -26,41 +26,12 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        double          resflux = 0.0;
-        double          sumflux1, sumflux2;
-        int             j;
-
-        /*
-         * Correct recharge in the saturated zone
-         */
-        for (j = 0; j < NUM_EDGE; j++)
-        {
-            resflux -= CD->Flux[RT_LAT_GW(i, j)].flux * unit_c;
-        }
-
-        sumflux1 =
-            (CD->Vcele[RT_GW(i)].height_t - CD->Vcele[RT_GW(i)].height_o) *
-            pihm->elem[i].topo.area * CD->Vcele[RT_GW(i)].porosity;
-        sumflux2 = sumflux1 - resflux;
-        /* Flux: in negative, out positive */
-        CD->Flux[RT_RECHG_GW(i)].flux = -sumflux2 * UNIT_C / stepsize;
-        CD->Flux[RT_RECHG_UNSAT(i)].flux = -CD->Flux[RT_RECHG_GW(i)].flux;
-
-        /*
-         * Correct infiltration in the unsaturated zone
-         */
-        sumflux1 =
-            (CD->Vcele[RT_UNSAT(i)].height_t - CD->Vcele[RT_UNSAT(i)].height_o) *
-            pihm->elem[i].topo.area * CD->Vcele[RT_UNSAT(i)].porosity;
-        sumflux2 = sumflux1 + CD->Flux[RT_RECHG_UNSAT(i)].flux * unit_c;
-        CD->Flux[RT_INFIL(i)].flux = -sumflux2 * UNIT_C / stepsize;
-        /* Input of rain water chemistry can not be negative, i.e., infil.flux
-         * should be negative */
-        CD->Flux[RT_INFIL(i)].flux = MIN(CD->Flux[RT_INFIL(i)].flux, 0.0);
-        /* In addition, the soil evaporation leaves chemicals inside */
-        CD->Flux[RT_INFIL(i)].flux -=
-            fabs(pihm->elem[i].wf.edir_unsat + pihm->elem[i].wf.edir_gw) *
-            86400 * pihm->elem[i].topo.area;
+        CD->Flux[RT_RECHG_UNSAT(i)].flux =
+            pihm->elem[i].wf.rechg * pihm->elem[i].topo.area * 86400;
+        CD->Flux[RT_RECHG_GW(i)].flux = -CD->Flux[RT_RECHG_UNSAT(i)].flux;
+        CD->Flux[RT_INFIL(i)].flux =
+            -((pihm->elem[i].wf.infil > 0.0) ? pihm->elem[i].wf.infil : 0.0) *
+            pihm->elem[i].topo.area * 86400;
     }
 }
 
