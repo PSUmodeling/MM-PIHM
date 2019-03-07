@@ -420,6 +420,9 @@ typedef struct wflux_struct
                                              * (m s-1) */
     double          infil;                  /* variable infiltration rate
                                              * (m s-1) */
+    double          eqv_infil;              /* adjusted equivalent infiltration
+                                             * rate for layered soil moisture
+                                             * calculation (m s-1) */
     double          rechg;                  /* recharge rate to groundwater
                                              * (m s-1) */
     double          drip;                   /* through-fall of precipitation

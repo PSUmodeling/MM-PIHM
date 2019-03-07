@@ -117,7 +117,62 @@ void MassBalance(const wstate_struct *ws, const wstate_struct *ws0,
 #endif
 
     /*
-     * Calculate infiltration based on mass conservation
+     * The MassBalance subroutine adjusts model infiltration rate and recharge
+     * rate based on mass balance in the soil column. This subroutine also
+     * calculates an equivalent infiltration rate, which is used as the boundary
+     * condition in the Noah soil moisture calculation. Unlike the infiltration
+     * rate, the equivalent infiltration rate is calculated without considering
+     * oversturation, and is based on the mass balance of the whole soil column,
+     * instead of just the unsaturated zone.
+     */
+
+    /* Adjust recharge */
+    soilw0 = ws0->gw;
+    soilw1 = ws->gw;
+
+    *subrunoff = 0.0;
+    for (j = 0; j < NUM_EDGE; j++)
+    {
+        *subrunoff += wf->subsurf[j] / area;
+    }
+
+    wf->rechg = (soilw1 - soilw0) * soil->porosity / stepsize + *subrunoff +
+        wf->edir_gw + wf->ett_gw;
+
+    /* Adjust infiltration */
+    soilw0 = ws0->unsat;
+    soilw1 = ws->unsat;
+
+    wf->infil = (soilw1 - soilw0) * soil->porosity / stepsize + wf->rechg +
+        wf->edir_unsat + wf->ett_unsat;
+
+#if defined(_FBR_)
+    /* Adjust bedrock recharge */
+    fbrw0 = ws0->fbr_gw;
+    fbrw1 = ws->fbr_gw;
+
+    fbrrunoff = 0.0;
+    for (j = 0; j < NUM_EDGE; j++)
+    {
+        fbrrunoff += wf->fbrflow[j] / area;
+    }
+
+    wf->fbr_rechg = (fbrw1 - fbrw0) * geol->porosity / stepsize + fbrrunoff;
+
+    /* Adjust bedrock infiltration */
+    fbrw0 = ws0->fbr_unsat;
+    fbrw1 = ws->fbr_unsat;
+
+    wf->fbr_infil = (fbrw1 - fbrw0) * geol->porosity / stepsize + wf->fbr_rechg;
+
+    /* Further adjust soil infiltration and recharge rate to take into account
+     * bedrock leakage */
+    wf->rechg += wf->fbr_infil;
+    wf->infil += wf->fbr_infil;
+#endif
+
+    /*
+     * Calculate equivalent infiltration based on mass conservation
      */
     soilw0 = ws0->gw + ws0->unsat;
     soilw0 = (soilw0 > soil->depth) ? soil->depth : soilw0;
@@ -134,7 +189,7 @@ void MassBalance(const wstate_struct *ws, const wstate_struct *ws0,
         *subrunoff += wf->subsurf[j] / area;
     }
 
-    wf->infil = (soilw1 - soilw0) * soil->porosity / stepsize + *subrunoff +
+    wf->eqv_infil = (soilw1 - soilw0) * soil->porosity / stepsize + *subrunoff +
         wf->edir_unsat + wf->edir_gw + wf->ett_unsat + wf->ett_gw;
 
 #if defined(_FBR_)
@@ -149,12 +204,12 @@ void MassBalance(const wstate_struct *ws, const wstate_struct *ws0,
 
     wf->fbr_infil = (fbrw1 - fbrw0) * geol->porosity / stepsize + fbrrunoff;
 
-    wf->infil += wf->fbr_infil;
+    wf->eqv_infil += wf->fbr_infil;
 #endif
 
-    if (wf->infil < 0.0)
+    if (wf->eqv_infil < 0.0)
     {
-        *subrunoff -= wf->infil;
-        wf->infil = 0.0;
+        *subrunoff -= wf->eqv_infil;
+        wf->eqv_infil = 0.0;
     }
 }

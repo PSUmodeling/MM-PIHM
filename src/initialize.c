@@ -702,6 +702,7 @@ void InitWFlux(wflux_struct *wf)
     wf->prcp = 0.0;
     wf->pcpdrp = 0.0;
     wf->infil = 0.0;
+    wf->eqv_infil = 0.0;
     wf->rechg = 0.0;
     wf->drip = 0.0;
     wf->edir = 0.0;

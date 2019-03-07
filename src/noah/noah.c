@@ -2244,7 +2244,7 @@ void SRT(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     }
 
     /* Determine rainfall infiltration rate and runoff */
-    pddum = wf->infil;
+    pddum = wf->eqv_infil;
 
     mxsmc = ws->sh2o[0];
 
