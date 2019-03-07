@@ -396,7 +396,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             fprintf(stderr,
                 "  Flux-PIHM-RT will start after running PIHM for %d days. \n",
                 CD->Delay);
-            CD->Delay *= UNIT_C;
+            CD->Delay *= DAYINSEC;
             /* under construction. */
         }
         if (keymatch(line, "Condensation", tmpval, tmpstr) == 1)
@@ -2166,7 +2166,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     /*
      * RT step control begins
      */
-    if (CD->TimLst >= CD->Delay)
+    if (CD->TimLst >= CD->Delay / 60)
     {
         AdptTime(CD, CD->TimLst, stepsize / 60,
             t_duration_transp, t_duration_react);
