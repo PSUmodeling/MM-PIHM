@@ -49,7 +49,6 @@ typedef struct vol_conc_type
     double          height_o;   /* height of volume, at previous time step */
     double          height_t;   /* height of volume, at current time step */
     double          height_int; /* temporary variable for intrapolation of gw height */
-    double          height_v;   /* height of the total block, static */
     double          area;       /* area of the triangular element */
     double          vol_o;      /* volume of water of last time step */
     double          vol;        /* volume of water of current time step */
