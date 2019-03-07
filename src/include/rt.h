@@ -183,7 +183,6 @@ typedef struct Chem_Data_structure
     int             NumBTC;     /* Number of breakthrough points */
     int            *BTC_loc;    /* Array of locations of breakthrough points */
     int            *prepconcindex;  //
-    double          TimLst;     /* Starting time step that is inherited from the last time step of hydro-reaction coupling */
     double          TimRiv;     /* transport time of river, calculated in fluxtrans and used in os3d. */
     double          Condensation;   /* a factor controls the concentration of infiltrating rain water as a ratio to the concentration in rain water */
     double          CnntVelo;   // velocity of minimum connected cells */

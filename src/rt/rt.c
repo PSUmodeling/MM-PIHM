@@ -276,7 +276,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     CD->NumPUMP = 0;
     CD->SUFEFF = 1;
     CD->CnntVelo = 0.01;
-    CD->TimLst = 0.0;
 
     /* Reading "*.chem" */
     /* RUNTIME block */
@@ -2166,9 +2165,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     /*
      * RT step control begins
      */
-    if (CD->TimLst >= CD->Delay / 60)
+    if (t - pihm->ctrl.starttime >= CD->Delay)
     {
-        AdptTime(CD, CD->TimLst, stepsize / 60,
+        AdptTime(CD, (t - pihm->ctrl.starttime - stepsize) / 60, stepsize / 60,
             t_duration_transp, t_duration_react);
 
 #if defined(_OPENMP)
@@ -2225,8 +2224,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             }
         }
     } /* RT step control ends */
-
-    CD->TimLst = t / 60 - pihm->ctrl.starttime / 60;
 
     /* Reset fluxes for next averaging stage */
 #if defined(_OPENMP)
