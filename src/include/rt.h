@@ -76,8 +76,8 @@ typedef struct face_type
 
 typedef struct species_type
 {
-    double          DiffCoe;    /* diffusion coefficient, measured in cm2/s */
-    double          DispCoe;    /* dispersion coefficient, measured in cm2/s */
+    double          DiffCoe;    /* diffusion coefficient, measured in m s -1 */
+    double          DispCoe;    /* dispersion coefficient, measured in m */
     double          MolarMass;  /* measured in g/mol */
     double          MolarVolume;    /* measured in cm3/mol */
     double          Charge;     /* Array of species charge */

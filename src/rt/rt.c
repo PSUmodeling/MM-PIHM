@@ -525,7 +525,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         {
             fprintf(stderr, "  Diffusion coefficient = %g [cm2/s] \n",
                 tmpval[0]);
-            Global_type.DiffCoe = tmpval[0] * 60.0 * 60.0 * 24.0 / 10000.0;
+            Global_type.DiffCoe = tmpval[0] / 10000.0;
             Global_diff = 1;
             /* Require unit conversion ! */
         }
@@ -2141,7 +2141,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             for (j = 0; j < CD->NumSpc; j++)
             {
                 peclet = fabs(CD->Flux[i].velocity * CD->Flux[i].distance /
-                    (CD->chemtype[j].DiffCoe +
+                    (CD->chemtype[j].DiffCoe * 86400 +
                     CD->chemtype[j].DispCoe * CD->Flux[i].velocity));
                 peclet = MAX(peclet, 1.0E-8);
             }

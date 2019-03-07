@@ -302,7 +302,7 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
             disp_flux = -velocity * chemtype[spc_ind].DispCoe;
         }
         /* Longitudinal dispersion */
-        diff_flux = -diff_flux * inv_dist * diff_conc * area;
+        diff_flux = -diff_flux * 86400 * inv_dist * diff_conc * area;
         /* Diffusion is in the opposite direction of conc gradient */
         disp_flux = disp_flux * inv_dist * diff_conc * area;
     }
