@@ -1794,7 +1794,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     double *t_duration_transp, double *t_duration_react)
 {
     /* unit of t: second
-     * unit of stepsize: min
+     * unit of stepsize: second
      * swi irreducible water saturation
      * hn  non mobile water height
      * ht  transient zone height
@@ -1802,7 +1802,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     int             i, k = 0;
     double          rt_step, invavg, unit_c;
 
-    unit_c = stepsize / UNIT_C;
+    unit_c = stepsize / DAYINSEC;
     int             VIRTUAL_VOL = CD->NumVol;
     int             PRCP_VOL = CD->NumVol - 1;
 
@@ -1971,7 +1971,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             &CD->Vcele[RT_RIVER(i)]);
     }
 
-    invavg = stepsize;
+    invavg = stepsize / 60;
 
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -1984,7 +1984,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     /*
      * Correct recharge and infiltration to converve mass balance
      */
-    Monitor(stepsize, pihm, CD);
+    Monitor(stepsize / 60, pihm, CD);
 
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -2168,9 +2168,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
      */
     if (CD->TimLst >= CD->Delay)
     {
-        rt_step = stepsize;
+        rt_step = stepsize / 60;
 
-        AdptTime(CD, CD->TimLst, rt_step, stepsize,
+        AdptTime(CD, CD->TimLst, rt_step, stepsize / 60,
             t_duration_transp, t_duration_react);
 
 #if defined(_OPENMP)
