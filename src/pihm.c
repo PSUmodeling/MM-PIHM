@@ -75,7 +75,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
 
 #if defined(_RT_)
     t_start_rt = time(NULL);
-    fluxtrans(pihm->ctrl.tout[pihm->ctrl.cstep + 1]/60, pihm->ctrl.stepsize/60,
+    fluxtrans(pihm->ctrl.tout[pihm->ctrl.cstep + 1], pihm->ctrl.stepsize/60,
         pihm, rt, &t_duration_transp, &t_duration_react);
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, RT_STEP);

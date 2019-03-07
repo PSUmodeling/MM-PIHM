@@ -1793,7 +1793,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     double *t_duration_transp, double *t_duration_react)
 {
-    /* unit of t and stepsize: min
+    /* unit of t: second
+     * unit of stepsize: min
      * swi irreducible water saturation
      * hn  non mobile water height
      * ht  transient zone height
@@ -1858,7 +1859,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         }
     }
 
-    if ((t - pihm->ctrl.starttime / 60) % 1440 == 0)
+    if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
         CD->rivd = CD->riv / 1440;  /* Averaging the sum of 1440 mins for a
                                      * daily discharge, rivFlx1 */
@@ -1892,7 +1893,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     /* Update the concentration in precipitation here. */
     if (CD->PrpFlg == 2)
     {
-        IntrplForc(&CD->TSD_prepconc[0], t * 60, CD->TSD_prepconc[0].nspec,
+        IntrplForc(&CD->TSD_prepconc[0], t, CD->TSD_prepconc[0].nspec,
             NO_INTRPL);
 
 #if defined(_OPENMP)
@@ -2227,7 +2228,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         }
     } /* RT step control ends */
 
-    CD->TimLst = t - pihm->ctrl.starttime / 60;
+    CD->TimLst = t / 60 - pihm->ctrl.starttime / 60;
 
     /* Reset fluxes for next averaging stage */
 #if defined(_OPENMP)
@@ -2241,7 +2242,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         CD->Flux[k].s_area = 0.0;
     }
 
-    if ((t - pihm->ctrl.starttime / 60) % 60 == 0)
+    /* Every hour */
+    if ((t - pihm->ctrl.starttime) % 3600 == 0)
     {
         CD->SPCFlg = 0;
 
