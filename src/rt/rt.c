@@ -1432,8 +1432,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             {
                 if (pihm->elem[i].attrib.bc_type[j] == NO_FLOW)
                 {
-                    InitFlux(CD->Vcele[RT_GW(i)].index, 0, 0, 0, 0, NO_FLOW,
-                        distance, &CD->Flux[RT_LAT_GW(i, j)]);
+                    InitFlux(CD->Vcele[RT_GW(i)].index, VIRTUAL_VOL, 0, 0, 0,
+                        NO_FLOW, distance, &CD->Flux[RT_LAT_GW(i, j)]);
                 }
                 else
                 {
@@ -1441,8 +1441,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                         NO_DISP, distance, &CD->Flux[RT_LAT_GW(i, j)]);
                 }
 
-                InitFlux(CD->Vcele[RT_UNSAT(i)].index, 0, 0, 0, 0, NO_FLOW,
-                    distance, &CD->Flux[RT_LAT_UNSAT(i, j)]);
+                InitFlux(CD->Vcele[RT_UNSAT(i)].index, VIRTUAL_VOL, 0, 0, 0,
+                    NO_FLOW, distance, &CD->Flux[RT_LAT_UNSAT(i, j)]);
             }
         }
 
@@ -1455,8 +1455,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 
                 if (pihm->elem[i].attrib.fbrbc_type[j] == NO_FLOW)
                 {
-                    InitFlux(CD->Vcele[RT_FBR_GW(i)].index, 0, 0, 0, 0, NO_FLOW,
-                        distance, &CD->Flux[RT_LAT_FBR_GW(i, j)]);
+                    InitFlux(CD->Vcele[RT_FBR_GW(i)].index, VIRTUAL_VOL, 0, 0,
+                        0, NO_FLOW, distance, &CD->Flux[RT_LAT_FBR_GW(i, j)]);
                 }
                 else
                 {
@@ -1464,8 +1464,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                         NO_DISP, distance, &CD->Flux[RT_LAT_FBR_GW(i, j)]);
                 }
 
-                InitFlux(CD->Vcele[RT_FBR_UNSAT(i)].index, 0, 0, 0, 0, NO_FLOW,
-                    distance, &CD->Flux[RT_LAT_FBR_UNSAT(i, j)]);
+                InitFlux(CD->Vcele[RT_FBR_UNSAT(i)].index, VIRTUAL_VOL, 0, 0, 0,
+                    NO_FLOW, distance, &CD->Flux[RT_LAT_FBR_UNSAT(i, j)]);
             }
             else
             {
@@ -1849,13 +1849,21 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Flux[RT_LAT_GW(i, j)].flux += 1.0 * pihm->elem[i].wf.subsurf[j] * 86400;
 
             /* Flux for UNSAT lateral flow */
-            CD->Flux[RT_LAT_UNSAT(i, j)].s_area = 1.0;
+            CD->Flux[RT_LAT_UNSAT(i, j)].s_area = 0.5 *
+                pihm->elem[i].topo.edge[j] *
+                (CD->Vcele[CD->Flux[RT_LAT_UNSAT(i, j)].nodeup - 1].height_t +
+                CD->Vcele[CD->Flux[RT_LAT_UNSAT(i, j)].nodelo - 1].height_t);
+
 #if defined(_FBR_)
             /* Flux for deep lateral flow */
             CD->Flux[RT_LAT_FBR_GW(i, j)].flux += pihm->elem[i].wf.fbrflow[j] * 86400;
 
             /* Flux for bedrock unsat lateral flow */
-            CD->Flux[RT_LAT_FBR_UNSAT(i, j)].s_area = 1.0;
+            CD->Flux[RT_LAT_FBR_UNSAT(i, j)].s_area = 0.5 *
+                pihm->elem[i].topo.edge[j] *
+                (CD->Vcele[CD->Flux[RT_LAT_FBR_UNSAT(i, j)].nodeup - 1].height_t +
+                CD->Vcele[CD->Flux[RT_LAT_FBR_UNSAT(i, j)].nodelo - 1].height_t);
+
 #endif
         }
 
