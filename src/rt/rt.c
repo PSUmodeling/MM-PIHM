@@ -7,7 +7,6 @@
 #include "pihm.h"
 
 /* Begin global variable definition (MACRO) */
-#define UNIT_C 1440
 #define ZERO   1E-20
 #define LINE_WIDTH 512
 #define WORDS_LINE 40

@@ -19,10 +19,7 @@ void OS3D(double stepsize, Chem_Data CD)
     /* Input stepsize in the unit of second */
     double        **dconc = (double **)malloc(CD->NumOsv * sizeof(double *));
     int             i;
-    double          unit_c;
     double        **tconc;
-
-    unit_c = 1.0 / 1440.0;
 
     tconc = (double **)malloc(CD->NumOsv * sizeof(double *));
 
