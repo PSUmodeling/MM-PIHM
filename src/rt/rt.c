@@ -27,11 +27,11 @@ void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
     for (i = 0; i < nelem; i++)
     {
         CD->Flux[RT_RECHG_UNSAT(i)].flux =
-            pihm->elem[i].wf.rechg * pihm->elem[i].topo.area * 86400;
+            pihm->elem[i].wf.rechg * pihm->elem[i].topo.area;
         CD->Flux[RT_RECHG_GW(i)].flux = -CD->Flux[RT_RECHG_UNSAT(i)].flux;
         CD->Flux[RT_INFIL(i)].flux =
             -((pihm->elem[i].wf.infil > 0.0) ? pihm->elem[i].wf.infil : 0.0) *
-            pihm->elem[i].topo.area * 86400;
+            pihm->elem[i].topo.area;
     }
 }
 
@@ -1815,7 +1815,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         for (j = 0; j < 3; j++)
         {
             /* Flux for GW lateral flow */
-            CD->Flux[RT_LAT_GW(i, j)].flux = 1.0 * pihm->elem[i].wf.subsurf[j] * 86400;
+            CD->Flux[RT_LAT_GW(i, j)].flux = pihm->elem[i].wf.subsurf[j];
 
             /* Flux for UNSAT lateral flow */
             CD->Flux[RT_LAT_UNSAT(i, j)].s_area = 0.5 *
@@ -1825,7 +1825,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
 #if defined(_FBR_)
             /* Flux for deep lateral flow */
-            CD->Flux[RT_LAT_FBR_GW(i, j)].flux = pihm->elem[i].wf.fbrflow[j] * 86400;
+            CD->Flux[RT_LAT_FBR_GW(i, j)].flux = pihm->elem[i].wf.fbrflow[j];
 
             /* Flux for bedrock unsat lateral flow */
             CD->Flux[RT_LAT_FBR_UNSAT(i, j)].s_area = 0.5 *
@@ -1837,15 +1837,15 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         }
 
         /* Flux for UNSAT - GW vertical flow */
-        CD->Flux[RT_RECHG_UNSAT(i)].flux = (pihm->elem[i].wf.rechg * 86400) *
+        CD->Flux[RT_RECHG_UNSAT(i)].flux = pihm->elem[i].wf.rechg *
             CD->Vcele[RT_UNSAT(i)].area;
 
-        CD->Flux[RT_RECHG_GW(i)].flux = (-pihm->elem[i].wf.rechg * 86400) *
+        CD->Flux[RT_RECHG_GW(i)].flux = -pihm->elem[i].wf.rechg *
             CD->Vcele[RT_GW(i)].area;
 
 #if defined(_FBR_)
-        CD->Flux[RT_FBR_RECHG_UNSAT(i)].flux = (pihm->elem[i].wf.fbr_rechg * 86400.0 * CD->Vcele[RT_FBR_RECHG_UNSAT(i)].area;
-        CD->Flux[RT_FBR_RECHG_GW(i)].flux = -pihm->elem[i].wf.fbr_rechg * 86400.0 * CD->Vcele[RT_FBR_RECHG_GW(i)].area;
+        CD->Flux[RT_FBR_RECHG_UNSAT(i)].flux = pihm->elem[i].wf.fbr_rechg * CD->Vcele[RT_FBR_RECHG_UNSAT(i)].area;
+        CD->Flux[RT_FBR_RECHG_GW(i)].flux = -pihm->elem[i].wf.fbr_rechg * CD->Vcele[RT_FBR_RECHG_GW(i)].area;
 #endif
     }
 
@@ -1870,22 +1870,22 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #endif
     for (i = 0; i < nriver; i++)
     {
-        CD->Flux[RT_LEFT_SURF2RIVER(i)].flux = pihm->river[i].wf.rivflow[2] * 86400;
-        CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux = pihm->river[i].wf.rivflow[3] * 86400;
-        CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux = pihm->river[i].wf.rivflow[7] * 86400 +
-            pihm->river[i].wf.rivflow[4] * 86400;
-        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux = pihm->river[i].wf.rivflow[8] * 86400 +
-            pihm->river[i].wf.rivflow[5] * 86400;
-        CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux = pihm->river[i].wf.rivflow[9] * 86400 +
-            pihm->river[i].wf.rivflow[1] * 86400;
-        CD->Flux[RT_UP_RIVER2RIVER(i)].flux = pihm->river[i].wf.rivflow[10] * 86400 +
-            pihm->river[i].wf.rivflow[0] * 86400;
+        CD->Flux[RT_LEFT_SURF2RIVER(i)].flux = pihm->river[i].wf.rivflow[2];
+        CD->Flux[RT_RIGHT_SURF2RIVER(i)].flux = pihm->river[i].wf.rivflow[3];
+        CD->Flux[RT_LEFT_AQIF2RIVER(i)].flux = pihm->river[i].wf.rivflow[7] +
+            pihm->river[i].wf.rivflow[4];
+        CD->Flux[RT_RIGHT_AQIF2RIVER(i)].flux = pihm->river[i].wf.rivflow[8] +
+            pihm->river[i].wf.rivflow[5];
+        CD->Flux[RT_DOWN_RIVER2RIVER(i)].flux = pihm->river[i].wf.rivflow[9] +
+            pihm->river[i].wf.rivflow[1];
+        CD->Flux[RT_UP_RIVER2RIVER(i)].flux = pihm->river[i].wf.rivflow[10] +
+            pihm->river[i].wf.rivflow[0];
 
         if (CD->Flux[RT_UP_RIVER2RIVER(i)].node_trib > 0)
         {
             CD->Flux[RT_UP_RIVER2RIVER(i)].flux_trib =
-                -(pihm->river[pihm->river[i].up[1] - 1].wf.rivflow[9] * 86400 +
-                pihm->river[pihm->river[i].up[1] - 1].wf.rivflow[1] * 86400);
+                -(pihm->river[pihm->river[i].up[1] - 1].wf.rivflow[9] +
+                pihm->river[pihm->river[i].up[1] - 1].wf.rivflow[1]);
         }
     }
 
@@ -2026,17 +2026,16 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Flux[RT_LAT_GW(i, j)].velocity =
                 (CD->Flux[RT_LAT_GW(i, j)].s_area > 1.0E-4) ?
                 CD->Flux[RT_LAT_GW(i, j)].flux /
-                CD->Flux[RT_LAT_GW(i, j)].s_area / 86400 :
-                1.0E-10 / 86400;
+                CD->Flux[RT_LAT_GW(i, j)].s_area : 1.0E-10 / 86400;
         }
 
         CD->Flux[RT_RECHG_UNSAT(i)].s_area = pihm->elem[i].topo.area;
         CD->Flux[RT_RECHG_UNSAT(i)].velocity =
-            CD->Flux[RT_RECHG_UNSAT(i)].flux / pihm->elem[i].topo.area / 86400;
+            CD->Flux[RT_RECHG_UNSAT(i)].flux / pihm->elem[i].topo.area;
 
         CD->Flux[RT_RECHG_GW(i)].s_area = pihm->elem[i].topo.area;
         CD->Flux[RT_RECHG_GW(i)].velocity =
-            CD->Flux[RT_RECHG_GW(i)].flux / pihm->elem[i].topo.area / 86400;
+            CD->Flux[RT_RECHG_GW(i)].flux / pihm->elem[i].topo.area;
     }
 
     /* Correct river flux area and velocity */
@@ -2137,7 +2136,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             }
 
             CD->Vcele[CD->Flux[i].nodeup - 1].rt_step +=
-                fabs(CD->Flux[i].flux / CD->Vcele[CD->Flux[i].nodeup - 1].vol) *
+                fabs(CD->Flux[i].flux * 86400 / CD->Vcele[CD->Flux[i].nodeup - 1].vol) *
                 (1 + peclet) / peclet;
         }
     }

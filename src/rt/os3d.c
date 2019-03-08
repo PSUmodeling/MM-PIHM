@@ -377,7 +377,7 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
     }
 
     /* Advective flux */
-    temp_dconc += temp_conc * flux_t / 86400 + temp_conc_trib * flux_t_trib / 86400;
+    temp_dconc += temp_conc * flux_t + temp_conc_trib * flux_t_trib;
 
     if (Flux->BC == DISPERSION)
     {

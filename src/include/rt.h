@@ -69,8 +69,8 @@ typedef struct face_type
     int             BC;         /* This face is a boundary face, do not do dispersion and diffusion */
     double          distance;   /* distance from centroid of first node to second node, in meter */
     double          velocity;   /* linear velocity of flux at this face (m s-1) */
-    double          flux;       /* flux at surface, in cubic m per day  */
-    double          flux_trib;  // tributary fluc, 01.14 by Wei Zhi
+    double          flux;       /* flux at surface (m3 s-1) */
+    double          flux_trib;  // tributary flux (m3 s-1)
     double          s_area;     /* contact surface area, in square m */
 } face;
 
