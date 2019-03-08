@@ -1970,16 +1970,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             &CD->Vcele[RT_RIVER(i)]);
     }
 
-    invavg = stepsize / 60;
-
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-    for (k = 0; k < CD->NumFac; k++)
-    {
-        CD->Flux[k].flux *= invavg;
-    }
-
     /*
      * Correct recharge and infiltration to converve mass balance
      */
