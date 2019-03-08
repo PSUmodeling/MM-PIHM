@@ -10,14 +10,10 @@
 *****************************************************************************/
 #include "pihm.h"
 
-#define UNIT_C     1440
-#define ZERO       1E-20
 #define LINE_WIDTH 512
 #define WORDS_LINE 40
 #define WORD_WIDTH 80
-#define EPSILON    1E-3
 #define TOL        1E-7
-#define TIGHT      10
 #define SKIP_JACOB 1
 #define sqr(a)  (a)*(a)
 
@@ -1012,7 +1008,7 @@ int Speciation(Chem_Data CD, int cell)
 }
 
 
-void React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
+void React(double stepsize, Chem_Data CD, vol_conc *Vcele)
 {
     int             k, j;
     double          substep;
@@ -1049,7 +1045,7 @@ void React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
     }
 }
 
-int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
+int _React(double stepsize, Chem_Data CD, vol_conc *Vcele)
 {
     if (Vcele->sat < 1.0E-2)
     {
@@ -1141,8 +1137,8 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
                     CD->kinetics[i].dep_power[k]);
             /* Calculate the predicted rate depending on the type of rate law!  */
             Rate_pre[i] = area[min_pos] * (pow(10, CD->kinetics[i].rate)) *
-                dependency[i] * (1 - (IAP[i] / tmpKeq)) * 60;
-            /* Rate_pre: in mol/L water       / min   rate per reaction
+                dependency[i] * (1 - (IAP[i] / tmpKeq));
+            /* Rate_pre: rate per reaction (mol (L water)-1 s-1)
              * area: m2/L water
              * rate: mol/m2/s
              * dependency: dimensionless */
@@ -1169,7 +1165,7 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
             }
 
             /* Based on CrunchTope */
-            Rate_pre[i] = area[min_pos] * pow(10, CD->kinetics[i].rate) * monodterm * 60;
+            Rate_pre[i] = area[min_pos] * pow(10, CD->kinetics[i].rate) * monodterm;
         }
 
         for (j = 0; j < CD->NumStc; j++)
@@ -1190,7 +1186,7 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
 
     for (i = 0; i < CD->NumSpc; i++)
         if (CD->chemtype[i].itype == AQUEOUS) /* 01.21 aqueous species, saturation term for aqueous volume */
-            Rate_spe[i] = Rate_spe[i] * inv_sat;
+            Rate_spe[i] *= inv_sat;
 
     jcb = newDenseMat(CD->NumStc - CD->NumMin, CD->NumStc - CD->NumMin);
 
@@ -1299,11 +1295,9 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
                         CD->kinetics[i].dep_power[k];
                 dependency[i] = pow(10, dependency[i]);
                 /* Calculate the predicted rate depending on the type of rate law!  */
-                Rate_pre[i] =
-                    area[min_pos] * (pow(10,
-                        CD->kinetics[i].rate)) * dependency[i] * (1 -
-                    (IAP[i] / tmpKeq)) * 60;
-                /* Rate_pre: in mol/L water/ min
+                Rate_pre[i] = area[min_pos] * (pow(10, CD->kinetics[i].rate)) *
+                    dependency[i] * (1 - (IAP[i] / tmpKeq));
+                /* Rate_pre: in mol / L water / s
                  * area: m2/L water
                  * rate: mol/m2/s
                  * dependency: dimensionless;
@@ -1335,7 +1329,8 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
                 }
 
                 /* Based on CrunchTope */
-                Rate_pre[i] = area[min_pos] * pow(10, CD->kinetics[i].rate) * monodterm * 60;
+                Rate_pre[i] =
+                    area[min_pos] * pow(10, CD->kinetics[i].rate) * monodterm;
             }
 
             for (j = 0; j < CD->NumStc; j++)
@@ -1350,7 +1345,7 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
 
         for (i = 0; i < CD->NumSpc; i++)
             if (CD->chemtype[i].itype == AQUEOUS)
-                Rate_spet[i] = Rate_spet[i] * inv_sat;
+                Rate_spet[i] *= inv_sat;
 
         for (i = 0; i < CD->NumStc - CD->NumMin; i++)
         {
@@ -1360,10 +1355,8 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
                 tmpval += CD->Totalconc[i][j] * pow(10, tmpconc[j]);
             }
             totconc[i] = tmpval;
-            residue[i] =
-                tmpval - (Vcele->t_conc[i] + (Rate_spe[i] +
-                    Rate_spet[i]) * stepsize * 0.5);
-            //residue[i] = tmpval -( Vcele->t_conc[i] + (Rate_spet[i])*stepsize);
+            residue[i] = tmpval - (Vcele->t_conc[i] +
+                (Rate_spe[i] + Rate_spet[i]) * stepsize * 0.5);
         }
         if (control % SKIP_JACOB == 0)  /* update jacobian every the other iteration */
         {
@@ -1386,10 +1379,8 @@ int _React(realtype stepsize, Chem_Data CD, vol_conc *Vcele)
                     {
                         tmpval += CD->Totalconc[i][j] * pow(10, tmpconc[j]);
                     }
-                    //    totconc[i] = tmpval;
-                    residue_t[i] =
-                        tmpval - (Vcele->t_conc[i] + (Rate_spe[i] +
-                            Rate_spet[i]) * stepsize * 0.5);
+                    residue_t[i] = tmpval - (Vcele->t_conc[i] +
+                        (Rate_spe[i] + Rate_spet[i]) * stepsize * 0.5);
                     jcb[k][i] = (residue_t[i] - residue[i]) * tmpprb_inv;
                 }
                 tmpconc[k] -= tmpprb;

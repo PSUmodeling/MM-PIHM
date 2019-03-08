@@ -2144,8 +2144,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #endif
             for (i = 0; i < nelem; i++)
             {
-                React(stepsize / 60, CD, &CD->Vcele[RT_GW(i)]);
-                React(stepsize / 60, CD, &CD->Vcele[RT_UNSAT(i)]);
+                React((double)stepsize, CD, &CD->Vcele[RT_GW(i)]);
+                React((double)stepsize, CD, &CD->Vcele[RT_UNSAT(i)]);
             }
         }
 
