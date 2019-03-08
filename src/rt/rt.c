@@ -2109,7 +2109,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             }
 
             CD->Vcele[CD->Flux[i].nodeup - 1].rt_step +=
-                fabs(CD->Flux[i].flux * 86400 / CD->Vcele[CD->Flux[i].nodeup - 1].vol) *
+                fabs(CD->Flux[i].flux / CD->Vcele[CD->Flux[i].nodeup - 1].vol) *
                 (1 + peclet) / peclet;
         }
     }
@@ -2119,9 +2119,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #endif
     for (i = 0; i < CD->NumOsv; i++)
     {
-        CD->Vcele[i].rt_step = 0.6 * UNIT_C / CD->Vcele[i].rt_step;
+        CD->Vcele[i].rt_step = 0.6 / CD->Vcele[i].rt_step;
         CD->Vcele[i].rt_step =
-            (CD->Vcele[i].rt_step >= 1) ?  1 : CD->Vcele[i].rt_step;
+            (CD->Vcele[i].rt_step >= 60) ?  60 : CD->Vcele[i].rt_step;
     }
 
     /*

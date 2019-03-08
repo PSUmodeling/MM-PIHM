@@ -71,11 +71,11 @@ void OS3D(double stepsize, Chem_Data CD)
         double          adpstep;
         double         *tmpconc = (double *)malloc(CD->NumSpc * sizeof(double));
 
-        adpstep = CD->Vcele[i].rt_step;
+        adpstep = CD->Vcele[i].rt_step / 60;
 
         if (CD->CptFlg == 1)
         {
-            if ((CD->Vcele[i].rt_step < stepsize / 60) &&
+            if ((CD->Vcele[i].rt_step < stepsize) &&
                 (CD->Vcele[i].height_t > 1.0E-3) &&
                 (CD->Vcele[i].height_o > 1.0E-3))
             {
@@ -177,7 +177,7 @@ void OS3D(double stepsize, Chem_Data CD)
         {
             if (CD->CptFlg)
             {
-                if (CD->Vcele[i].rt_step < stepsize / 60)
+                if (CD->Vcele[i].rt_step < stepsize)
                 {
                     continue;
                 }

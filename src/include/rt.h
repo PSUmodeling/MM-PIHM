@@ -53,7 +53,7 @@ typedef struct vol_conc_type
     double          vol_o;      /* volume of water of last time step */
     double          vol;        /* volume of water of current time step */
     double          porosity;   /* porosity of the volume */
-    double          rt_step;    /* rt_step of cell */
+    double          rt_step;    /* rt_step of cell (s) */
     double         *log10_pconc;     /* for output only */
     double         *log10_sconc;     /* for output only */
     double         *btcv_pconc; /* for btcv output only */
