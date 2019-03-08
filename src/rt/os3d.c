@@ -64,11 +64,11 @@ void OS3D(double stepsize, Chem_Data CD)
     {
         int             j, k;
         double          diff_conc;
-        double          timelps;
-        double          adpstep;
+        double          timelps;            /* (s) */
+        double          adpstep;            /* (s) */
         double         *tmpconc = (double *)malloc(CD->NumSpc * sizeof(double));
 
-        adpstep = CD->Vcele[i].rt_step / 60;
+        adpstep = CD->Vcele[i].rt_step;
 
         if (CD->CptFlg == 1)
         {
@@ -83,15 +83,15 @@ void OS3D(double stepsize, Chem_Data CD)
                 {
                     timelps = 0.0;
 
-                    while (timelps < stepsize / 60)
+                    while (timelps < stepsize)
                     {
-                        adpstep = (adpstep > stepsize / 60 - timelps) ?
-                            stepsize / 60 - timelps : adpstep;
+                        adpstep = (adpstep > stepsize - timelps) ?
+                            stepsize - timelps : adpstep;
 
                         diff_conc = 0.0;
                         for (j = 0; j < CD->NumSpc; j++)
                         {
-                            tmpconc[j] = dconc[i][j] * 60 * adpstep +
+                            tmpconc[j] = dconc[i][j] * adpstep +
                                 CD->Vcele[i].t_conc[j] *
                                 (CD->Vcele[i].porosity * 0.5 *
                                 (CD->Vcele[i].vol_o + CD->Vcele[i].vol));
@@ -104,7 +104,7 @@ void OS3D(double stepsize, Chem_Data CD)
                                     "negative concentration change at species %s !\n",
                                     CD->chemtype[j].ChemName);
                                 fprintf(stderr, "Change from fluxes: %8.4g\n",
-                                    dconc[i][j] * 60 * adpstep);
+                                    dconc[i][j] * adpstep);
                                 fprintf(stderr, "Original mass: %8.4g\n",
                                     CD->Vcele[i].t_conc[j] *
                                     (CD->Vcele[i].porosity * 0.5 *
@@ -160,7 +160,7 @@ void OS3D(double stepsize, Chem_Data CD)
                         }
 
                         timelps += adpstep;
-                        if (timelps >= stepsize / 60)
+                        if (timelps >= stepsize)
                             break;
                     }
                 }
