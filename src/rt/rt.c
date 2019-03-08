@@ -2131,13 +2131,13 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         /*
          * Transport
          */
-        AdptTime(CD, stepsize, t_duration_transp, t_duration_react);
+        AdptTime(CD, (double)stepsize, t_duration_transp, t_duration_react);
 
         /*
          * Reaction
          */
-        if ((!CD->RecFlg) && (t - pihm->ctrl.starttime) %
-            (int)(CD->React_delay * stepsize) == 0)
+        if ((!CD->RecFlg) &&
+            (t - pihm->ctrl.starttime) % (CD->React_delay * stepsize) == 0)
         {
 #ifdef _OPENMP
 # pragma omp parallel for

@@ -381,7 +381,5 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
         temp_dconc -= diff_flux + disp_flux;
     }
 
-    temp_dconc;
-
     return temp_dconc;
 }
