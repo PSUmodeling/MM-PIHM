@@ -248,7 +248,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     CD->TEMcpl = 0;
     CD->EffAds = 0;
     CD->RelMin = 0;
-    CD->CptFlg = 1;
     CD->TimRiv = 1.0;
     CD->React_delay = 10;
     CD->Condensation = 1.0;

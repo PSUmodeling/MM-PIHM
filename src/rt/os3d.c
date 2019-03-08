@@ -70,99 +70,95 @@ void OS3D(double stepsize, Chem_Data CD)
 
         adpstep = CD->Vcele[i].rt_step;
 
-        if (CD->CptFlg == 1)
+        if ((CD->Vcele[i].rt_step < stepsize) &&
+            (CD->Vcele[i].height_t > 1.0E-3) &&
+            (CD->Vcele[i].height_o > 1.0E-3))
         {
-            if ((CD->Vcele[i].rt_step < stepsize) &&
-                (CD->Vcele[i].height_t > 1.0E-3) &&
-                (CD->Vcele[i].height_o > 1.0E-3))
+            /* Use its intrinsic smaller step for small/fast flowing cells
+             *  ~= slow cells (in term of time marching). */
+            if (CD->Vcele[i].type == UNSAT_VOL || CD->Vcele[i].type == GW_VOL)
             {
-                /* Use its intrinsic smaller step for small/fast flowing cells
-                 *  ~= slow cells (in term of time marching). */
-                if (CD->Vcele[i].type == UNSAT_VOL ||
-                    CD->Vcele[i].type == GW_VOL)
+                timelps = 0.0;
+
+                while (timelps < stepsize)
                 {
-                    timelps = 0.0;
+                    adpstep = (adpstep > stepsize - timelps) ?
+                        stepsize - timelps : adpstep;
 
-                    while (timelps < stepsize)
+                    diff_conc = 0.0;
+                    for (j = 0; j < CD->NumSpc; j++)
                     {
-                        adpstep = (adpstep > stepsize - timelps) ?
-                            stepsize - timelps : adpstep;
+                        tmpconc[j] = dconc[i][j] * adpstep +
+                            CD->Vcele[i].t_conc[j] *
+                            (CD->Vcele[i].porosity * 0.5 *
+                            (CD->Vcele[i].vol_o + CD->Vcele[i].vol));
 
-                        diff_conc = 0.0;
-                        for (j = 0; j < CD->NumSpc; j++)
+                        if ((tmpconc[j] < 0.0) &&
+                            (strcmp(CD->chemtype[j].ChemName, "'H+'")))
                         {
-                            tmpconc[j] = dconc[i][j] * adpstep +
+                            fprintf(stderr, "Local time stepping check\n");
+                            fprintf(stderr,
+                                "negative concentration change at species %s !\n",
+                                CD->chemtype[j].ChemName);
+                            fprintf(stderr, "Change from fluxes: %8.4g\n",
+                                dconc[i][j] * adpstep);
+                            fprintf(stderr, "Original mass: %8.4g\n",
                                 CD->Vcele[i].t_conc[j] *
                                 (CD->Vcele[i].porosity * 0.5 *
-                                (CD->Vcele[i].vol_o + CD->Vcele[i].vol));
-
-                            if ((tmpconc[j] < 0.0) &&
-                                (strcmp(CD->chemtype[j].ChemName, "'H+'")))
-                            {
-                                fprintf(stderr, "Local time stepping check\n");
-                                fprintf(stderr,
-                                    "negative concentration change at species %s !\n",
-                                    CD->chemtype[j].ChemName);
-                                fprintf(stderr, "Change from fluxes: %8.4g\n",
-                                    dconc[i][j] * adpstep);
-                                fprintf(stderr, "Original mass: %8.4g\n",
-                                    CD->Vcele[i].t_conc[j] *
-                                    (CD->Vcele[i].porosity * 0.5 *
-                                        (CD->Vcele[i].vol_o +
-                                            CD->Vcele[i].vol)));
-                                fprintf(stderr,
-                                    "Old Conc: %8.4g\t New Conc: %8.4g\n",
-                                    CD->Vcele[i].t_conc[j], tmpconc[j]);
-                                ReportError(CD->Vcele[i], CD);
-                                CD->Vcele[i].illness++;
-                            }
-
-                            tmpconc[j] =
-                                tmpconc[j] / (CD->Vcele[i].porosity * 0.5 *
-                                (CD->Vcele[i].vol + CD->Vcele[i].vol_o));
-
-                            if (CD->Vcele[i].illness < 20)
-                            {
-                                diff_conc =
-                                    max(fabs(CD->Vcele[i].t_conc[j] -
-                                    tmpconc[j]), diff_conc);
-                                CD->Vcele[i].t_conc[j] = tmpconc[j];
-                            }
+                                    (CD->Vcele[i].vol_o +
+                                        CD->Vcele[i].vol)));
+                            fprintf(stderr,
+                                "Old Conc: %8.4g\t New Conc: %8.4g\n",
+                                CD->Vcele[i].t_conc[j], tmpconc[j]);
+                            ReportError(CD->Vcele[i], CD);
+                            CD->Vcele[i].illness++;
                         }
 
-                        if (diff_conc > 1.0E-6) /* Which lead to the change in
-                                                 * the flux of mass between
-                                                 * cells */
-                        {
-                            for (j = 0; j < CD->NumSpc; j++)
-                                tmpconc[j] = 0.0;
+                        tmpconc[j] =
+                            tmpconc[j] / (CD->Vcele[i].porosity * 0.5 *
+                            (CD->Vcele[i].vol + CD->Vcele[i].vol_o));
 
-                            for (k = 0; k < CD->NumFac; k++)
+                        if (CD->Vcele[i].illness < 20)
+                        {
+                            diff_conc =
+                                max(fabs(CD->Vcele[i].t_conc[j] -
+                                tmpconc[j]), diff_conc);
+                            CD->Vcele[i].t_conc[j] = tmpconc[j];
+                        }
+                    }
+
+                    if (diff_conc > 1.0E-6) /* Which lead to the change in
+                                             * the flux of mass between
+                                             * cells */
+                    {
+                        for (j = 0; j < CD->NumSpc; j++)
+                            tmpconc[j] = 0.0;
+
+                        for (k = 0; k < CD->NumFac; k++)
+                        {
+                            if (CD->Flux[k].BC != NO_FLOW)
                             {
-                                if (CD->Flux[k].BC != NO_FLOW)
+                                if (CD->Flux[k].nodeup == CD->Vcele[i].index)
                                 {
-                                    if (CD->Flux[k].nodeup == CD->Vcele[i].index)
+                                    for (j = 0; j < CD->NumSpc; j++)
                                     {
-                                        for (j = 0; j < CD->NumSpc; j++)
-                                        {
-                                            tmpconc[j] += Dconc(&CD->Flux[k],
-                                                CD->Vcele, CD->chemtype,
-                                                CD->Cementation, CD->TVDFlg, j);
-                                        }
+                                        tmpconc[j] += Dconc(&CD->Flux[k],
+                                            CD->Vcele, CD->chemtype,
+                                            CD->Cementation, CD->TVDFlg, j);
                                     }
                                 }
                             }
-
-                            for (j = 0; j < CD->NumSpc; j++)
-                            {
-                                dconc[i][j] = tmpconc[j];
-                            }
                         }
 
-                        timelps += adpstep;
-                        if (timelps >= stepsize)
-                            break;
+                        for (j = 0; j < CD->NumSpc; j++)
+                        {
+                            dconc[i][j] = tmpconc[j];
+                        }
                     }
+
+                    timelps += adpstep;
+                    if (timelps >= stepsize)
+                        break;
                 }
             }
         }
@@ -172,12 +168,9 @@ void OS3D(double stepsize, Chem_Data CD)
         if ((CD->Vcele[i].height_t > 1.0E-3) &&
             (CD->Vcele[i].height_o > 1.0E-3))
         {
-            if (CD->CptFlg)
+            if (CD->Vcele[i].rt_step < stepsize)
             {
-                if (CD->Vcele[i].rt_step < stepsize)
-                {
-                    continue;
-                }
+                continue;
             }
 
             for (j = 0; j < CD->NumSpc; j++)

@@ -175,7 +175,6 @@ typedef struct Chem_Data_structure
     int             EffAds;     /* Keywords to control the usage of effective adsorption model */
     int             RecFlg;     /* A special flag to tell the code not do kinetic reaction, it will be much faster. Do not use it when you have kinetic reaction specified. Only suitable for doing stable isotope transport, etc. */
     int             PrpFlg;     /* Flag indicate whether or not the precipitation has been specified */
-    int             CptFlg;     /* Flag for coupling option. 1: coupling with pihm. 0: flow. others to be developped. */
     int             Delay;      /* RT start after PIHM running for a period of time, unit: second */
     int             React_delay;    /* Number of transport step per unit reaction step */
     int             NumPUMP;    /* Number of pumps  */
