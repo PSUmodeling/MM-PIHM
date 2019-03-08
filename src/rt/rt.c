@@ -16,25 +16,6 @@
 #define MIN(a,b) (((a)<(b))? (a):(b))
 #define MAX(a,b) (((a)>(b))? (a):(b))
 
-void Monitor(realtype stepsize, const pihm_struct pihm, Chem_Data CD)
-{
-    int             i;
-    double          unit_c = stepsize / UNIT_C;
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (i = 0; i < nelem; i++)
-    {
-        CD->Flux[RT_RECHG_UNSAT(i)].flux =
-            pihm->elem[i].wf.rechg * pihm->elem[i].topo.area;
-        CD->Flux[RT_RECHG_GW(i)].flux = -CD->Flux[RT_RECHG_UNSAT(i)].flux;
-        CD->Flux[RT_INFIL(i)].flux =
-            -((pihm->elem[i].wf.infil > 0.0) ? pihm->elem[i].wf.infil : 0.0) *
-            pihm->elem[i].topo.area;
-    }
-}
-
 int upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
 {
     /* Locate the upstream grid of up -> lo flow */
@@ -193,7 +174,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         WORDS_LINE, word_width = WORD_WIDTH;
     int             Global_diff = 0, Global_disp = 0;
     int             speciation_flg = 0, specflg;
-    double          total_area = 0.0, tmpval[WORDS_LINE];
+    double          tmpval[WORDS_LINE];
     char            cmdstr[MAXSTRING];
     int             lno = 0;
     int             PRCP_VOL;
@@ -1799,9 +1780,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
      * ht  transient zone height
      */
     int             i, k = 0;
-    double          invavg, unit_c;
-
-    unit_c = stepsize / DAYINSEC;
     int             VIRTUAL_VOL = CD->NumVol;
     int             PRCP_VOL = CD->NumVol - 1;
 
@@ -1842,6 +1820,10 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 
         CD->Flux[RT_RECHG_GW(i)].flux = -pihm->elem[i].wf.rechg *
             CD->Vcele[RT_GW(i)].area;
+
+        CD->Flux[RT_INFIL(i)].flux =
+            -((pihm->elem[i].wf.infil > 0.0) ? pihm->elem[i].wf.infil : 0.0) *
+            pihm->elem[i].topo.area;
 
 #if defined(_FBR_)
         CD->Flux[RT_FBR_RECHG_UNSAT(i)].flux = pihm->elem[i].wf.fbr_rechg * CD->Vcele[RT_FBR_RECHG_UNSAT(i)].area;
@@ -1927,7 +1909,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         double          heqv;
         double          satn;
 
-        UpdateVcele(MAX(pihm->elem[i].ws.gw, 1.0E-5), 1.0, invavg,
+        UpdateVcele(MAX(pihm->elem[i].ws.gw, 1.0E-5), 1.0,
             &CD->Vcele[RT_GW(i)]);
 
         heqv = EqvUnsatH(pihm->elem[i].soil.smcmax,
@@ -1938,11 +1920,10 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             pihm->elem[i].ws.unsat, pihm->elem[i].ws.gw);
 
         /* Update the unsaturated zone (vadoze) */
-        UpdateVcele(MAX(heqv, 1.0E-5), satn, invavg,
-            &CD->Vcele[RT_UNSAT(i)]);
+        UpdateVcele(MAX(heqv, 1.0E-5), satn, &CD->Vcele[RT_UNSAT(i)]);
 
 #if defined(_FBR_)
-        UpdateVcele(MAX(pihm->elem[i].ws.fbr_gw, 1.0E-5), 1.0, invavg,
+        UpdateVcele(MAX(pihm->elem[i].ws.fbr_gw, 1.0E-5), 1.0,
             &CD->Vcele[RT_FBR_GW(i)]);
 
         heqv = EqvUnsatH(pihm->elem[i].geol.smcmax,
@@ -1953,8 +1934,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             pihm->elem[i].ws.fbr_unsat, pihm->elem[i].ws.fbr_gw);
 
         /* Update the unsaturated zone (vadoze) */
-        UpdateVcele(MAX(heqv, 1.0E-5), satn, invavg,
-            &CD->Vcele[RT_FBR_UNSAT(i)]);
+        UpdateVcele(MAX(heqv, 1.0E-5), satn, &CD->Vcele[RT_FBR_UNSAT(i)]);
 #endif
     }
 
@@ -1966,14 +1946,8 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     {
         UpdateVcele(MAX(pihm->river[i].ws.gw, 1.0E-5) +
             MAX(pihm->river[i].ws.stage, 1.0E-5) /
-            CD->Vcele[RT_RIVER(i)].porosity, 1.0, invavg,
-            &CD->Vcele[RT_RIVER(i)]);
+            CD->Vcele[RT_RIVER(i)].porosity, 1.0, &CD->Vcele[RT_RIVER(i)]);
     }
-
-    /*
-     * Correct recharge and infiltration to converve mass balance
-     */
-    Monitor(stepsize / 60, pihm, CD);
 
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -1986,7 +1960,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         for (j = 0; j < 3; j++)
         {
             double              h1, h2;
-            double              area;
 
             if (CD->Flux[RT_LAT_GW(i, j)].BC == NO_FLOW)
             {
@@ -2331,7 +2304,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 void AdptTime(Chem_Data CD, double stepsize,
     double *t_duration_transp, double *t_duration_react)
 {
-    double          end_time;
     int             i, k;
     time_t          t_start_transp, t_end_transp;
 
@@ -2570,7 +2542,7 @@ void InitFlux(int nodeup, int nodelo, int node_trib, int nodeuu, int nodell,
     flux->distance = distance;
 }
 
-void UpdateVcele(double height, double sat, double invavg, vol_conc *Vcele)
+void UpdateVcele(double height, double sat, vol_conc *Vcele)
 {
     Vcele->height_o = Vcele->height_t;
     Vcele->height_t = height;

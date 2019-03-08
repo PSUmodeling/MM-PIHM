@@ -723,7 +723,6 @@ realtype        returnVal(realtype rArea, realtype rPerem, realtype eqWid,
     realtype ap_Bool);
 realtype        CS_AreaOrPerem(int rivOrder, realtype rivDepth,
     realtype rivCoeff, realtype a_pBool);
-void            Monitor(realtype, const pihm_struct, Chem_Data);
 int             upstream(elem_struct, elem_struct, const pihm_struct);
 int             realcheck(const char *);
 int             keymatch(const char *, const char *, double *, char **);
@@ -748,7 +747,7 @@ double          Dconc(const face *, const vol_conc [], const species [],
 void            Unwrap(char *, const char *);
 void            InitVcele(double, double, double, double, int, vol_conc *);
 void            InitFlux(int, int, int, int, int, int, double, face *);
-void            UpdateVcele(double, double, double, vol_conc *);
+void            UpdateVcele(double, double, vol_conc *);
 double          EqvUnsatH(double, double, double, double, double);
 double          UnsatSatRatio(double, double, double);
 
