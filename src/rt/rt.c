@@ -2120,7 +2120,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     {
         CD->Vcele[i].rt_step = 0.6 / CD->Vcele[i].rt_step;
         CD->Vcele[i].rt_step =
-            (CD->Vcele[i].rt_step >= 60) ?  60 : CD->Vcele[i].rt_step;
+            (CD->Vcele[i].rt_step >= stepsize) ?  stepsize : CD->Vcele[i].rt_step;
     }
 
     /*
