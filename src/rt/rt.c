@@ -2036,17 +2036,17 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             CD->Flux[RT_LAT_GW(i, j)].velocity =
                 (CD->Flux[RT_LAT_GW(i, j)].s_area > 1.0E-4) ?
                 CD->Flux[RT_LAT_GW(i, j)].flux /
-                CD->Flux[RT_LAT_GW(i, j)].s_area :
-                1.0E-10;
+                CD->Flux[RT_LAT_GW(i, j)].s_area / 86400 :
+                1.0E-10 / 86400;
         }
 
         CD->Flux[RT_RECHG_UNSAT(i)].s_area = pihm->elem[i].topo.area;
         CD->Flux[RT_RECHG_UNSAT(i)].velocity =
-            CD->Flux[RT_RECHG_UNSAT(i)].flux / pihm->elem[i].topo.area;
+            CD->Flux[RT_RECHG_UNSAT(i)].flux / pihm->elem[i].topo.area / 86400;
 
         CD->Flux[RT_RECHG_GW(i)].s_area = pihm->elem[i].topo.area;
         CD->Flux[RT_RECHG_GW(i)].velocity =
-            CD->Flux[RT_RECHG_GW(i)].flux / pihm->elem[i].topo.area;
+            CD->Flux[RT_RECHG_GW(i)].flux / pihm->elem[i].topo.area / 86400;
     }
 
     /* Correct river flux area and velocity */
@@ -2141,7 +2141,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             for (j = 0; j < CD->NumSpc; j++)
             {
                 peclet = fabs(CD->Flux[i].velocity * CD->Flux[i].distance /
-                    (CD->chemtype[j].DiffCoe * 86400 +
+                    (CD->chemtype[j].DiffCoe +
                     CD->chemtype[j].DispCoe * CD->Flux[i].velocity));
                 peclet = MAX(peclet, 1.0E-8);
             }

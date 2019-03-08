@@ -304,7 +304,7 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
         /* Longitudinal dispersion */
         diff_flux = -diff_flux * 86400 * inv_dist * diff_conc * area;
         /* Diffusion is in the opposite direction of conc gradient */
-        disp_flux = disp_flux * inv_dist * diff_conc * area;
+        disp_flux = disp_flux * 86400 * inv_dist * diff_conc * area;
     }
 
     /* Use temp_conc to store the concentration at the surfaces

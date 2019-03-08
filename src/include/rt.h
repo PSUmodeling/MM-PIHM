@@ -68,7 +68,7 @@ typedef struct face_type
     int             node_trib;  // # node of tributary; > 0 indicates a tributary inflow, 01.14 by Wei Zhi
     int             BC;         /* This face is a boundary face, do not do dispersion and diffusion */
     double          distance;   /* distance from centroid of first node to second node, in meter */
-    double          velocity;   /* linear velocity of flux at this face, in m/d */
+    double          velocity;   /* linear velocity of flux at this face (m s-1) */
     double          flux;       /* flux at surface, in cubic m per day  */
     double          flux_trib;  // tributary fluc, 01.14 by Wei Zhi
     double          s_area;     /* contact surface area, in square m */
