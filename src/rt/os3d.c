@@ -94,7 +94,7 @@ void OS3D(double stepsize, Chem_Data CD)
                         diff_conc = 0.0;
                         for (j = 0; j < CD->NumSpc; j++)
                         {
-                            tmpconc[j] = dconc[i][j] * adpstep +
+                            tmpconc[j] = dconc[i][j] * 60 * adpstep +
                                 CD->Vcele[i].t_conc[j] *
                                 (CD->Vcele[i].porosity * 0.5 *
                                 (CD->Vcele[i].vol_o + CD->Vcele[i].vol));
@@ -107,7 +107,7 @@ void OS3D(double stepsize, Chem_Data CD)
                                     "negative concentration change at species %s !\n",
                                     CD->chemtype[j].ChemName);
                                 fprintf(stderr, "Change from fluxes: %8.4g\n",
-                                    dconc[i][j] * adpstep);
+                                    dconc[i][j] * 60 * adpstep);
                                 fprintf(stderr, "Original mass: %8.4g\n",
                                     CD->Vcele[i].t_conc[j] *
                                     (CD->Vcele[i].porosity * 0.5 *
@@ -186,7 +186,7 @@ void OS3D(double stepsize, Chem_Data CD)
             for (j = 0; j < CD->NumSpc; j++)
             {
                 tmpconc[j] =
-                    dconc[i][j] * stepsize / 60 +
+                    dconc[i][j] * stepsize +
                     CD->Vcele[i].t_conc[j] * (CD->Vcele[i].porosity *
                     CD->Vcele[i].vol_o);
 
@@ -206,13 +206,13 @@ void OS3D(double stepsize, Chem_Data CD)
                             "negative concentration change at species %s !\n",
                             CD->chemtype[j].ChemName);
                         fprintf(stderr, "Change from fluxes: %8.4g\t",
-                            dconc[i][j] * stepsize / 60);
+                            dconc[i][j] * stepsize);
                         fprintf(stderr, "Original mass: %8.4g\n",
                             CD->Vcele[i].t_conc[j] *
                             (CD->Vcele[i].porosity * CD->Vcele[i].vol_o));
                         fprintf(stderr,
                             "New mass: %8.4g\t New Volume: %8.4g\t Old Conc: %8.4g\t New Conc: %8.4g\t Timestep: %8.4g\n",
-                            dconc[i][j] * stepsize / 60 +
+                            dconc[i][j] * stepsize +
                             CD->Vcele[i].t_conc[j] *
                             (CD->Vcele[i].porosity * CD->Vcele[i].vol_o),
                             CD->Vcele[i].porosity * CD->Vcele[i].height_t *
@@ -270,7 +270,6 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
     double          temp_conc;
     double          temp_conc_trib;
     double          r_, beta_;
-    double          unit_c = 1.0 / 1440;
 
     node_1 = Flux->nodeup - 1;
     node_2 = Flux->nodelo - 1;
@@ -302,9 +301,9 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
             disp_flux = -velocity * chemtype[spc_ind].DispCoe;
         }
         /* Longitudinal dispersion */
-        diff_flux = -diff_flux * 86400 * inv_dist * diff_conc * area;
+        diff_flux = -diff_flux * inv_dist * diff_conc * area;
         /* Diffusion is in the opposite direction of conc gradient */
-        disp_flux = disp_flux * 86400 * inv_dist * diff_conc * area;
+        disp_flux = disp_flux * inv_dist * diff_conc * area;
     }
 
     /* Use temp_conc to store the concentration at the surfaces
@@ -378,14 +377,14 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
     }
 
     /* Advective flux */
-    temp_dconc += temp_conc * flux_t + temp_conc_trib * flux_t_trib;
+    temp_dconc += temp_conc * flux_t / 86400 + temp_conc_trib * flux_t_trib / 86400;
 
     if (Flux->BC == DISPERSION)
     {
         temp_dconc -= diff_flux + disp_flux;
     }
 
-    temp_dconc *= unit_c;
+    temp_dconc;
 
     return temp_dconc;
 }
