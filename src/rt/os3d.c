@@ -68,8 +68,11 @@ void OS3D(double stepsize, Chem_Data CD)
         double          adpstep;            /* (s) */
         double         *tmpconc;
 
-        if (CD->Vcele[i].type == VIRTUAL_VOL)
+        if (CD->Vcele[i].type == VIRTUAL_VOL ||
+            CD->Vcele[i].height_t < 1.0E-3 ||
+            CD->Vcele[i].height_o < 1.0E-3)
         {
+            /* For blocks with very small content, we just skip it */
             continue;
         }
 
@@ -77,9 +80,7 @@ void OS3D(double stepsize, Chem_Data CD)
 
         adpstep = CD->Vcele[i].rt_step;
 
-        if ((CD->Vcele[i].rt_step < stepsize) &&
-            (CD->Vcele[i].height_t > 1.0E-3) &&
-            (CD->Vcele[i].height_o > 1.0E-3))
+        if (CD->Vcele[i].rt_step < stepsize)
         {
             /* Use its intrinsic smaller step for small/fast flowing cells
              *  ~= slow cells (in term of time marching). */
@@ -169,17 +170,8 @@ void OS3D(double stepsize, Chem_Data CD)
                 }
             }
         }
-        /* CD->Vcele[i].rt_step >= stepsize */
-
-        /* For blocks with very small content, we just skip it */
-        if ((CD->Vcele[i].height_t > 1.0E-3) &&
-            (CD->Vcele[i].height_o > 1.0E-3))
-        {
-            if (CD->Vcele[i].rt_step < stepsize)
-            {
-                continue;
-            }
-
+        else
+        {   /* rt_step >= stepsize */
             for (j = 0; j < CD->NumSpc; j++)
             {
                 tmpconc[j] =
