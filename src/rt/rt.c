@@ -232,7 +232,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 #else
     CD->NumVol = 2 * nelem + nriver + 2;
 #endif
-    CD->NumOsv = CD->NumVol - 2;
     CD->NumEle = nelem;
     CD->NumRiv = nriver;
 
@@ -2115,11 +2114,14 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-    for (i = 0; i < CD->NumOsv; i++)
+    for (i = 0; i < CD->NumVol; i++)
     {
-        CD->Vcele[i].rt_step = 0.6 / CD->Vcele[i].rt_step;
-        CD->Vcele[i].rt_step =
-            (CD->Vcele[i].rt_step >= stepsize) ?  stepsize : CD->Vcele[i].rt_step;
+        if (CD->Vcele[i].type != VIRTUAL_VOL)
+        {
+            CD->Vcele[i].rt_step = 0.6 / CD->Vcele[i].rt_step;
+            CD->Vcele[i].rt_step = (CD->Vcele[i].rt_step >= stepsize) ?
+                stepsize : CD->Vcele[i].rt_step;
+        }
     }
 
     /*
@@ -2181,9 +2183,14 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-        for (i = 0; i < CD->NumOsv; i++)
+        for (i = 0; i < CD->NumVol; i++)
         {
             int             j;
+
+            if (CD->Vcele[i].type == VIRTUAL_VOL)
+            {
+                continue;
+            }
 
             /* Make sure intrapolation worked well */
             if (fabs(CD->Vcele[i].height_t - CD->Vcele[i].height_int) >
@@ -2254,8 +2261,13 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-            for (i = 0; i < CD->NumOsv; i++)
-                Speciation(CD, i);
+            for (i = 0; i < CD->NumVol; i++)
+            {
+                if (CD->Vcele[i].type != VIRTUAL_VOL)
+                {
+                    Speciation(CD, i);
+                }
+            }
         }
     }
 
@@ -2318,11 +2330,14 @@ void AdptTime(Chem_Data CD, double stepsize,
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-        for (i = 0; i < CD->NumOsv; i++)
+        for (i = 0; i < CD->NumVol; i++)
         {
-            CD->Vcele[i].height_t =
-                CD->Vcele[i].height_o + CD->Vcele[i].height_sp * stepsize;
-            CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
+            if (CD->Vcele[i].type != VIRTUAL_VOL)
+            {
+                CD->Vcele[i].height_t =
+                    CD->Vcele[i].height_o + CD->Vcele[i].height_sp * stepsize;
+                CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
+            }
         }
     }
 #endif

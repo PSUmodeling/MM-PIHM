@@ -152,7 +152,6 @@ typedef struct Pump_Data_structure
 typedef struct Chem_Data_structure
 {
     int             NumVol;     /* Number of total volume in the rt simulator */
-    int             NumOsv;     /* Number of grid blocks for the os3d (less ghost blocks) */
     int             NumFac;     /* Number of faces in the rt simulator        */
     int             NumEle;     /* Number of groundwater elements */
     int             NumRiv;     /* Number of river elements       */

@@ -17,17 +17,17 @@
 void OS3D(double stepsize, Chem_Data CD)
 {
     /* Input stepsize in the unit of second */
-    double        **dconc = (double **)malloc(CD->NumOsv * sizeof(double *));
+    double        **dconc = (double **)malloc(CD->NumVol * sizeof(double *));
     int             i;
     double        **tconc;
 
-    tconc = (double **)malloc(CD->NumOsv * sizeof(double *));
+    tconc = (double **)malloc(CD->NumVol * sizeof(double *));
 
     /* Initalize the allocated array */
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < CD->NumOsv; i++)
+    for (i = 0; i < CD->NumVol; i++)
     {
         int             j;
 
@@ -60,13 +60,20 @@ void OS3D(double stepsize, Chem_Data CD)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < CD->NumOsv; i++)
+    for (i = 0; i < CD->NumVol; i++)
     {
         int             j, k;
         double          diff_conc;
         double          timelps;            /* (s) */
         double          adpstep;            /* (s) */
-        double         *tmpconc = (double *)malloc(CD->NumSpc * sizeof(double));
+        double         *tmpconc;
+
+        if (CD->Vcele[i].type == VIRTUAL_VOL)
+        {
+            continue;
+        }
+
+        tmpconc = (double *)malloc(CD->NumSpc * sizeof(double));
 
         adpstep = CD->Vcele[i].rt_step;
 
@@ -220,9 +227,14 @@ void OS3D(double stepsize, Chem_Data CD)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < CD->NumOsv; i++)
+    for (i = 0; i < CD->NumVol; i++)
     {
         int             j;
+
+        if (CD->Vcele[i].type == VIRTUAL_VOL)
+        {
+            continue;
+        }
 
         for (j = 0; j < CD->NumSpc; j++)
         {
@@ -233,7 +245,7 @@ void OS3D(double stepsize, Chem_Data CD)
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-    for (i = 0; i < CD->NumOsv; i++)
+    for (i = 0; i < CD->NumVol; i++)
     {
         free(tconc[i]);
         free(dconc[i]);
