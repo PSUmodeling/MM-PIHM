@@ -76,7 +76,7 @@ void OS3D(double stepsize, Chem_Data CD)
         {
             /* Use its intrinsic smaller step for small/fast flowing cells
              *  ~= slow cells (in term of time marching). */
-            if (CD->Vcele[i].type == UNSAT_VOL || CD->Vcele[i].type == GW_VOL)
+            if (CD->Vcele[i].type == LAND_VOL)
             {
                 timelps = 0.0;
 
@@ -189,8 +189,7 @@ void OS3D(double stepsize, Chem_Data CD)
 
                     if ((tmpconc[j] < 0.0) &&
                         (strcmp(CD->chemtype[j].ChemName, "'H+'")) &&
-                        (CD->Vcele[i].type == GW_VOL ||
-                        CD->Vcele[i].type == UNSAT_VOL))
+                        CD->Vcele[i].type == LAND_VOL)
                     {
                         fprintf(stderr,
                             "negative concentration change at species %s !\n",

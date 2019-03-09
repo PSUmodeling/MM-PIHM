@@ -1190,7 +1190,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 
         /* Initializing volumetrics for groundwater (GW) cells */
         InitVcele(pihm->elem[i].ws.gw, pihm->elem[i].topo.area,
-            pihm->elem[i].soil.smcmax, 1.0, GW_VOL, &CD->Vcele[RT_GW(i)]);
+            pihm->elem[i].soil.smcmax, 1.0, LAND_VOL, &CD->Vcele[RT_GW(i)]);
 
         /* Initializing volumetrics for unsaturated cells */
         /* Porosity in PIHM is
@@ -1204,12 +1204,12 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             pihm->elem[i].ws.unsat, pihm->elem[i].ws.gw);
 
         InitVcele(heqv, pihm->elem[i].topo.area, pihm->elem[i].soil.smcmax,
-            satn, UNSAT_VOL, &CD->Vcele[RT_UNSAT(i)]);
+            satn, LAND_VOL, &CD->Vcele[RT_UNSAT(i)]);
 
 #if defined(_FBR_)
         /* Initializing volumetrics for deep groundwater (FBR GW) cells */
         InitVcele(pihm->elem[i].ws.fbr_gw, pihm->elem[i].topo.area,
-            pihm->elem[i].geol.smcmax, 1.0, FBR_GW_VOL,
+            pihm->elem[i].geol.smcmax, 1.0, LAND_VOL,
             &CD->Vcele[RT_FBR_GW(i)]);
 
         /* Initializing volumetrics for bedrock unsaturated cells */
@@ -1220,7 +1220,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             pihm->elem[i].ws.fbr_unsat, pihm->elem[i].ws.fbr_gw);
 
         InitVcele(heqv, pihm->elem[i].topo.area, pihm->elem[i].geol.smcmax,
-            satn, FBR_UNSAT_VOL, &CD->Vcele[RT_FBR_UNSAT(i)]);
+            satn, LAND_VOL, &CD->Vcele[RT_FBR_UNSAT(i)]);
 #endif
     }
 
@@ -1239,8 +1239,8 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     }
 
     /* Initialize virtual cell */
-    InitVcele(0.0, 0.0, 0.0, 0.0, -1, &CD->Vcele[PRCP_VOL - 1]);
-    InitVcele(1.0, 1.0, 1.0, 1.0, -1, &CD->Vcele[BOUND_VOL - 1]);
+    InitVcele(0.0, 0.0, 0.0, 0.0, VIRTUAL_VOL, &CD->Vcele[PRCP_VOL - 1]);
+    InitVcele(1.0, 1.0, 1.0, 1.0, VIRTUAL_VOL, &CD->Vcele[BOUND_VOL - 1]);
 
     for (i = 0; i < CD->NumSpc; i++)
     {
