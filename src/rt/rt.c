@@ -177,7 +177,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     char            cmdstr[MAXSTRING];
     int             lno = 0;
     int             PRCP_VOL;
-    int             VIRTUAL_VOL;
+    int             BOUND_VOL;
 
     assert(pihm != NULL);
 
@@ -237,7 +237,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     CD->NumRiv = nriver;
 
     PRCP_VOL = CD->NumVol - 1;
-    VIRTUAL_VOL = CD->NumVol;
+    BOUND_VOL = CD->NumVol;
 
     /* Default control variable if not found in input file */
     CD->TVDFlg = 1;
@@ -1240,7 +1240,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 
     /* Initialize virtual cell */
     InitVcele(0.0, 0.0, 0.0, 0.0, -1, &CD->Vcele[PRCP_VOL - 1]);
-    InitVcele(1.0, 1.0, 1.0, 1.0, -1, &CD->Vcele[VIRTUAL_VOL - 1]);
+    InitVcele(1.0, 1.0, 1.0, 1.0, -1, &CD->Vcele[BOUND_VOL - 1]);
 
     for (i = 0; i < CD->NumSpc; i++)
     {
@@ -1379,7 +1379,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             {
                 if (pihm->elem[i].attrib.bc_type[j] == NO_FLOW)
                 {
-                    InitFlux(CD->Vcele[RT_GW(i)].index, VIRTUAL_VOL, 0, 0, 0,
+                    InitFlux(CD->Vcele[RT_GW(i)].index, BOUND_VOL, 0, 0, 0,
                         NO_FLOW, distance, &CD->Flux[RT_LAT_GW(i, j)]);
                 }
                 else
@@ -1388,7 +1388,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                         NO_DISP, distance, &CD->Flux[RT_LAT_GW(i, j)]);
                 }
 
-                InitFlux(CD->Vcele[RT_UNSAT(i)].index, VIRTUAL_VOL, 0, 0, 0,
+                InitFlux(CD->Vcele[RT_UNSAT(i)].index, BOUND_VOL, 0, 0, 0,
                     NO_FLOW, distance, &CD->Flux[RT_LAT_UNSAT(i, j)]);
             }
         }
@@ -1402,7 +1402,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 
                 if (pihm->elem[i].attrib.fbrbc_type[j] == NO_FLOW)
                 {
-                    InitFlux(CD->Vcele[RT_FBR_GW(i)].index, VIRTUAL_VOL, 0, 0,
+                    InitFlux(CD->Vcele[RT_FBR_GW(i)].index, BOUND_VOL, 0, 0,
                         0, NO_FLOW, distance, &CD->Flux[RT_LAT_FBR_GW(i, j)]);
                 }
                 else
@@ -1411,7 +1411,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                         NO_DISP, distance, &CD->Flux[RT_LAT_FBR_GW(i, j)]);
                 }
 
-                InitFlux(CD->Vcele[RT_FBR_UNSAT(i)].index, VIRTUAL_VOL, 0, 0, 0,
+                InitFlux(CD->Vcele[RT_FBR_UNSAT(i)].index, BOUND_VOL, 0, 0, 0,
                     NO_FLOW, distance, &CD->Flux[RT_LAT_FBR_UNSAT(i, j)]);
             }
             else
@@ -1516,12 +1516,12 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 
         /* Between River and Left */
         /* River to left OFL 2 */
-        InitFlux(CD->Vcele[RT_RIVER(i)].index, VIRTUAL_VOL, 0, 0, 0, NO_DISP,
+        InitFlux(CD->Vcele[RT_RIVER(i)].index, BOUND_VOL, 0, 0, 0, NO_DISP,
             0.0, &CD->Flux[RT_LEFT_SURF2RIVER(i)]);
 
         /* Between River and Right */
         /* River to right OFL 3 */
-        InitFlux(CD->Vcele[RT_RIVER(i)].index, VIRTUAL_VOL, 0, 0, 0, NO_DISP,
+        InitFlux(CD->Vcele[RT_RIVER(i)].index, BOUND_VOL, 0, 0, 0, NO_DISP,
             0.0, &CD->Flux[RT_RIGHT_SURF2RIVER(i)]);
 
         /* Between Left and EBR */
@@ -1558,13 +1558,13 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         /* To downstream EBR 9 */
         InitFlux(CD->Vcele[RT_RIVER(i)].index,
             (pihm->river[i].down < 0) ?
-            VIRTUAL_VOL : CD->Vcele[RT_RIVER(pihm->river[i].down - 1)].index,
+            BOUND_VOL : CD->Vcele[RT_RIVER(pihm->river[i].down - 1)].index,
             0, 0, 0, NO_DISP, 0.0, &CD->Flux[RT_DOWN_RIVER2RIVER(i)]);
 
         /* From upstream EBR 10 */
         InitFlux(CD->Vcele[RT_RIVER(i)].index,
             (pihm->river[i].up[0] < 0) ?
-            VIRTUAL_VOL : CD->Vcele[RT_RIVER(pihm->river[i].up[0] - 1)].index,
+            BOUND_VOL : CD->Vcele[RT_RIVER(pihm->river[i].up[0] - 1)].index,
             (pihm->river[i].up[1] < 0) ?
             pihm->river[i].up[1] :
             CD->Vcele[RT_RIVER(pihm->river[i].up[1] - 1)].index,
@@ -1778,7 +1778,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
      * ht  transient zone height
      */
     int             i, k = 0;
-    int             VIRTUAL_VOL = CD->NumVol;
+    int             BOUND_VOL = CD->NumVol;
     int             PRCP_VOL = CD->NumVol - 1;
 
 #if defined(_OPENMP)
@@ -2074,9 +2074,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #endif
     for (k = 0; k < CD->NumStc; k++)
     {
-        CD->Vcele[VIRTUAL_VOL - 1].t_conc[k] =
+        CD->Vcele[BOUND_VOL - 1].t_conc[k] =
             CD->Precipitation.t_conc[k] * CD->Condensation;
-        CD->Vcele[VIRTUAL_VOL - 1].p_conc[k] =
+        CD->Vcele[BOUND_VOL - 1].p_conc[k] =
             CD->Precipitation.t_conc[k] * CD->Condensation;
     }
 
