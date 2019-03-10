@@ -1015,7 +1015,7 @@ void React(double stepsize, Chem_Data CD, vol_conc *Vcele)
 
     if (Vcele->illness < 20)
     {
-        if (_React(stepsize * CD->React_delay, CD, Vcele))
+        if (_React(stepsize * CD->AvgScl, CD, Vcele))
         {
             fprintf(stderr, "  ---> React failed at cell %12d.\t",
                     Vcele->index);

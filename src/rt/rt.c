@@ -248,7 +248,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     CD->EffAds = 0;
     CD->RelMin = 0;
     CD->TimRiv = 1.0;
-    CD->React_delay = 10;
+    CD->AvgScl = 10;
     CD->Condensation = 1.0;
     CD->NumBTC = 0;
     CD->NumPUMP = 0;
@@ -369,11 +369,11 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         }
         if (keymatch(line, "RT_delay", tmpval, tmpstr) == 1)
         {
-            CD->Delay = (int)tmpval[0];
+            CD->RT_delay = (int)tmpval[0];
             fprintf(stderr,
                 "  Flux-PIHM-RT will start after running PIHM for %d days. \n",
-                CD->Delay);
-            CD->Delay *= DAYINSEC;
+                CD->RT_delay);
+            CD->RT_delay *= DAYINSEC;
             /* under construction. */
         }
         if (keymatch(line, "Condensation", tmpval, tmpstr) == 1)
@@ -390,10 +390,10 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         }
         if (keymatch(line, "AvgScl", tmpval, tmpstr) == 1)
         {
-            CD->React_delay = tmpval[0];
+            CD->AvgScl = tmpval[0];
             fprintf(stderr,
                 "  Averaging window for asynchronous reaction %d. \n",
-                CD->React_delay);
+                CD->AvgScl);
             /* under construction. */
         }
         if (keymatch(line, "SUFEFF", tmpval, tmpstr) == 1)
@@ -2131,7 +2131,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     /*
      * RT step control begins
      */
-    if (t - pihm->ctrl.starttime >= CD->Delay)
+    if (t - pihm->ctrl.starttime >= CD->RT_delay)
     {
         /*
          * Transport
@@ -2142,7 +2142,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
          * Reaction
          */
         if ((!CD->RecFlg) &&
-            (t - pihm->ctrl.starttime) % (CD->React_delay * stepsize) == 0)
+            (t - pihm->ctrl.starttime) % (CD->AvgScl * stepsize) == 0)
         {
 #ifdef _OPENMP
 # pragma omp parallel for
