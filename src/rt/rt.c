@@ -1315,7 +1315,11 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     /*
      * Beginning configuring the connectivity for flux
      */
+#if defined(_FBR_)
+    CD->NumFac = NUM_EDGE * nelem * 4 + 7 * nelem + 6 * nriver;
+#else
     CD->NumFac = NUM_EDGE * nelem * 2 + 3 * nelem + 6 * nriver;
+#endif
 
     /* Configuring the lateral connectivity of GW grid blocks */
     fprintf(stderr,
