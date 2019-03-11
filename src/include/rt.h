@@ -164,7 +164,6 @@ typedef struct Chem_Data_structure
     int             NumCex;     /* Number of cation exchange in the simulation */
     int             NumMkr;     /* Number of mineral kinetic reactions */
     int             NumAkr;     /* Number of aqueous kinetic reactions */
-    int             OutItv;     /* controlling the output intervals, in unit of hours */
     int             TVDFlg;     /* TVD swith, 0 for off and 1 for on */
     int             SPCFlg;     /* speciation flg, 0 for total conc and 1 for pH */
     int             ACTmod;     /* activity coefficient mode, 0 for unity coefficient and 1 for DH equation */
@@ -184,6 +183,8 @@ typedef struct Chem_Data_structure
     double          TimRiv;     /* transport time of river, calculated in fluxtrans and used in os3d. */
     double          Condensation;   /* a factor controls the concentration of infiltrating rain water as a ratio to the concentration in rain water */
     double          CnntVelo;   // velocity of minimum connected cells */
+    double          DiffCoe;    /* diffusion coefficient, measured in m s -1 */
+    double          DispCoe;    /* dispersion coefficient, measured in m */
     double          CalPorosity;    // Porosity Calibration Coefficient, from Flux-PIHM */
     double          CalRate;    // 02.12 by Wei Zhi
     double          CalSSA;     // 02.12 by Wei Zhi

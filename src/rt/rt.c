@@ -172,7 +172,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
         num_conditions = 0;
     int             line_width = LINE_WIDTH, words_line =
         WORDS_LINE, word_width = WORD_WIDTH;
-    int             Global_diff = 0, Global_disp = 0;
     int             speciation_flg = 0, specflg;
     double          tmpval[WORDS_LINE];
     char            cmdstr[MAXSTRING];
@@ -235,7 +234,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
 
     /* Default control variable if not found in input file */
     CD->TVDFlg = 1;
-    CD->OutItv = 1;
     CD->Cementation = 1.0;
     CD->ACTmod = 0;
     CD->DHEdel = 0;
@@ -250,8 +248,9 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
     CD->SUFEFF = 1;
     CD->CnntVelo = 0.01;
 
-    /* Reading "*.chem" */
-    /* RUNTIME block */
+    /*
+     * Runtime block
+     */
     FindLine(chem_fp, "RUNTIME", &lno, chem_filen);
 
     NextLine(chem_fp, cmdstr, &lno);
@@ -273,14 +272,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
     {
         PIHMprintf(VL_NORMAL, "  Total variation diminishing set to %d %s.\n",
                 CD->TVDFlg, temp_str);
-    }
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "OUTPUT", &CD->OutItv, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  Output interval set to %d hours. \n",
-            CD->OutItv);
     }
 
     NextLine(chem_fp, cmdstr, &lno);
@@ -421,6 +412,96 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
         /* under construction. */
     }
 
+    /*
+     * Global block
+     */
+    FindLine(chem_fp, "GLOBAL", &lno, chem_filen);
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "T_SPECIES", &CD->NumStc, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  %d chemical species specified. \n", CD->NumStc);
+        /* H2O is always a primary species */
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "S_SPECIES", &CD->NumSsc, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  %d secondary species specified. \n",
+            CD->NumSsc);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MINERALS", &CD->NumMin, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  %d minerals specified. \n", CD->NumMin);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "ADSORPTION", &CD->NumAds, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  %d surface complexation specified. \n",
+            CD->NumAds);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "CATION_EXCHANGE", &CD->NumCex, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  %d cation exchange specified. \n", CD->NumCex);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MINERAL_KINETIC", &CD->NumMkr, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  %d mineral kinetic reaction(s) specified. \n",
+            CD->NumMkr);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "AQUEOUS_KINETIC", &CD->NumAkr, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  %d aqueous kinetic reaction(s) specified. \n",
+            CD->NumAkr);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "DIFFUSION", &CD->DiffCoe, 'd', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  Diffusion coefficient = %g [cm2/s] \n",
+            CD->DiffCoe);
+    }
+    CD->DiffCoe /= 1.0E4;       /* Convert from cm2 s-1 to m2 s-1 */
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "DISPERSION", &CD->DispCoe, 'd', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  Dispersion coefficient = %2.2f [m] \n",
+            CD->DispCoe);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "CEMENTATION", &CD->Cementation, 'd', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  Cementation factor = %2.1f \n", CD->Cementation);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "TEMPERATURE", &CD->Temperature, 'd', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  Temperature = %3.1f \n\n", CD->Temperature);
+    }
+
     /* OUTPUT block */
     PIHMprintf(VL_NORMAL, "\n Reading '%s.chem' OUTPUT: \n", filename);
     rewind(chem_fp);
@@ -445,87 +526,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
             break;
     }
     PIHMprintf(VL_NORMAL, "are breakthrough points.\n\n");
-
-    /* GLOBAL block */
-    PIHMprintf(VL_NORMAL, " Reading '%s.chem' GLOBAL: \n", filename);
-    species         Global_type;
-    Global_type.ChemName = (char *)malloc(WORD_WIDTH * sizeof(char));
-    strcpy(Global_type.ChemName, "GLOBAL");
-
-    rewind(chem_fp);
-    fgets(line, line_width, chem_fp);
-    while (keymatch(line, "GLOBAL", tmpval, tmpstr) != 1)
-        fgets(line, line_width, chem_fp);
-    while (keymatch(line, "END", tmpval, tmpstr) != 1)
-    {
-        fgets(line, line_width, chem_fp);
-        if (keymatch(line, "t_species", tmpval, tmpstr) == 1)
-        {
-            CD->NumStc = (int)tmpval[0];
-            PIHMprintf(VL_NORMAL, "  %d chemical species specified. \n", CD->NumStc);
-            /* H2O is always a primary species */
-        }
-        if (keymatch(line, "s_species", tmpval, tmpstr) == 1)
-        {
-            CD->NumSsc = (int)tmpval[0];
-            PIHMprintf(VL_NORMAL, "  %d secondary species specified. \n",
-                (int)tmpval[0]);
-        }
-        if (keymatch(line, "minerals", tmpval, tmpstr) == 1)
-        {
-            CD->NumMin = (int)tmpval[0];
-            PIHMprintf(VL_NORMAL, "  %d minerals specified. \n", CD->NumMin);
-        }
-        if (keymatch(line, "adsorption", tmpval, tmpstr) == 1)
-        {
-            CD->NumAds = (int)tmpval[0];
-            PIHMprintf(VL_NORMAL, "  %d surface complexation specified. \n",
-                CD->NumAds);
-        }
-        if (keymatch(line, "cation_exchange", tmpval, tmpstr) == 1)
-        {
-            CD->NumCex = (int)tmpval[0];
-            PIHMprintf(VL_NORMAL, "  %d cation exchange specified. \n", CD->NumCex);
-        }
-        if (keymatch(line, "mineral_kinetic", tmpval, tmpstr) == 1)
-        {
-            CD->NumMkr = (int)tmpval[0];
-            PIHMprintf(VL_NORMAL, "  %d mineral kinetic reaction(s) specified. \n",
-                CD->NumMkr);
-        }
-        if (keymatch(line, "aqueous_kinetic", tmpval, tmpstr) == 1)
-        {
-            CD->NumAkr = (int)tmpval[0];
-            PIHMprintf(VL_NORMAL, "  %d aqueous kinetic reaction(s) specified. \n",
-                CD->NumAkr);
-        }
-        if (keymatch(line, "diffusion", tmpval, tmpstr) == 1)
-        {
-            PIHMprintf(VL_NORMAL, "  Diffusion coefficient = %g [cm2/s] \n",
-                tmpval[0]);
-            Global_type.DiffCoe = tmpval[0] / 10000.0;
-            Global_diff = 1;
-            /* Require unit conversion ! */
-        }
-        if (keymatch(line, "dispersion", tmpval, tmpstr) == 1)
-        {
-            PIHMprintf(VL_NORMAL, "  Dispersion coefficient = %2.2f [m] \n",
-                tmpval[0]);
-            Global_type.DispCoe = tmpval[0];
-            Global_disp = 1;
-            /* Set global flags to indicate the global values are present */
-        }
-        if (keymatch(line, "cementation", tmpval, tmpstr) == 1)
-        {
-            PIHMprintf(VL_NORMAL, "  Cementation factor = %2.1f \n", tmpval[0]);
-            CD->Cementation = tmpval[0];
-        }
-        if (keymatch(line, "temperature", tmpval, tmpstr) == 1)
-        {
-            CD->Temperature = tmpval[0];
-            PIHMprintf(VL_NORMAL, "  Temperature = %3.1f \n\n", CD->Temperature);
-        }
-    }
 
     /* The number of species that are mobile, later used in the OS3D subroutine */
     CD->NumSpc = CD->NumStc - (CD->NumMin + CD->NumAds + CD->NumCex);
@@ -672,17 +672,9 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
 
     for (i = 0; i < CD->NumStc + CD->NumSsc; i++)
     {
-        if (Global_diff == 1)
-            CD->chemtype[i].DiffCoe = Global_type.DiffCoe;
-        /*
-         * else
-         * CD->chemtype[i].DiffCoe = ZERO;
-         */
-        /* in squre m per day */
-        if (Global_disp == 1)
-            CD->chemtype[i].DispCoe = Global_type.DispCoe;
-        else
-            CD->chemtype[i].DispCoe = ZERO;
+        CD->chemtype[i].DiffCoe = CD->DiffCoe;
+
+        CD->chemtype[i].DispCoe = CD->DispCoe;
 
         CD->chemtype[i].ChemName = (char *)malloc(WORD_WIDTH * sizeof(char));
         assert(CD->chemtype[i].ChemName != NULL);
@@ -851,7 +843,7 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
     {
         rewind(chem_fp);
         fgets(line, line_width, chem_fp);
-        while (keymatch(line, "PRECIPITATION", tmpval, tmpstr) != 1)
+        while (keymatch(line, "PRECIPITATION_CONC", tmpval, tmpstr) != 1)
             fgets(line, line_width, chem_fp);
         fgets(line, line_width, chem_fp);
         PIHMprintf(VL_NORMAL, " \n");
@@ -1758,7 +1750,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
     free(forcfn);
     free(condition_index);
 
-    free(Global_type.ChemName);
     for (i = 0; i < words_line; i++)
     {
         free(tmpstr[i]);
