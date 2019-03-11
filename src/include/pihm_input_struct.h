@@ -42,6 +42,10 @@ typedef struct filename_struct
     char            bgcic[MAXSTRING];       /* bgc module initial condition file
                                              * name */
 #endif
+#if defined(_RT_)
+    char            chem[MAXSTRING];        /* RT module chemistry control file
+                                             * name */
+#endif
 } filename_struct;
 
 /* River input structure */

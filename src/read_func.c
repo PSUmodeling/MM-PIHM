@@ -83,6 +83,15 @@ int ReadKeyword(const char *buffer, const char *keyword, void *value, char type,
                     success = 0;
                 }
                 break;
+            case 'w':
+                match = sscanf(buffer, "%s %s", optstr, (char *)value);
+                if (match != 2 || strcasecmp(keyword, optstr) != 0)
+                {
+                    PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
+                        "detected keyword \"%s\".\n", keyword, optstr);
+                    success = 0;
+                }
+                break;
             case 't':
                 match = sscanf(buffer, "%s %s %s", optstr, ts1, ts2);
                 if (match != 3 || strcasecmp(keyword, optstr) != 0)

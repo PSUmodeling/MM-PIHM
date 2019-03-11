@@ -164,7 +164,8 @@ int keymatch(const char *line, const char *keyword, double *value, char **strval
 
 }
 
-void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
+void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
+    Chem_Data CD)
 {
     int             i, j, k;
     int             num_species, num_mineral, num_ads, num_cex, num_other,
@@ -175,6 +176,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     int             speciation_flg = 0, specflg;
     double          tmpval[WORDS_LINE];
     char            cmdstr[MAXSTRING];
+    char            temp_str[MAXSTRING];
     int             lno = 0;
     int             PRCP_VOL;
     int             BOUND_VOL;
@@ -187,10 +189,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     for (i = 0; i < words_line; i++)
         tmpstr[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
 
-    char           *chemfn =
-        (char *)malloc((strlen(filename) * 2 + 100) * sizeof(char));
-    sprintf(chemfn, "input/%s/%s.chem", filename, filename);
-    FILE           *chemfile = fopen(chemfn, "r");
+    FILE           *chem_fp;
 
     char           *datafn =
         (char *)malloc((strlen(filename) * 2 + 100) * sizeof(char));
@@ -202,13 +201,9 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     sprintf(forcfn, "input/%s/%s.prep", filename, filename);
     FILE           *prepconc = fopen(forcfn, "r");
 
-
-    if (chemfile == NULL)
-    {
-        fprintf(stderr, "\n  Fatal Error: %s.chem does not exist! \n",
-            filename);
-        exit(1);
-    }
+    chem_fp = fopen(chem_filen, "r");
+    CheckFile(chem_fp, chem_filen);
+    PIHMprintf(VL_VERBOSE, " Reading %s\n", chem_filen);
 
     if (database == NULL)
     {
@@ -257,251 +252,256 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 
     /* Reading "*.chem" */
     /* RUNTIME block */
-    fprintf(stderr, "\n Reading '%s.chem' RUNTIME: \n", filename);
-    rewind(chemfile);
-    fgets(line, line_width, chemfile);
-    while (keymatch(line, "RUNTIME", tmpval, tmpstr) != 1)
-        fgets(line, line_width, chemfile);
-    while (keymatch(line, "END", tmpval, tmpstr) != 1)
-    {
-        fgets(line, line_width, chemfile);
-        if (keymatch(line, "tvd", tmpval, tmpstr) == 1)
-        {
-            if (strcmp(tmpstr[1], "false") == 0)
-                CD->TVDFlg = 0;
-            if (strcmp(tmpstr[1], "true") == 0)
-                CD->TVDFlg = 1;
-            if (strcmp(tmpstr[1], "false") && strcmp(tmpstr[1], "true"))
-                fprintf(stderr, "  TVD FLAG INPUT ERROR! \n");
-            fprintf(stderr, "  Total variation diminishing set to %d %s. \n",
-                CD->TVDFlg, tmpstr[1]);
-        }
-        if (keymatch(line, "output", tmpval, tmpstr) == 1)
-        {
-            CD->OutItv = (int)tmpval[0];
-            fprintf(stderr, "  Output interval set to %d hours. \n",
-                CD->OutItv);
-        }
-        if (keymatch(line, "activity", tmpval, tmpstr) == 1)
-        {
-            CD->ACTmod = (int)tmpval[0];
-            fprintf(stderr, "  Activity correction is set to %d. \n",
-                CD->ACTmod);
-            /* 0 for unity activity coefficient and 1 for DH equation update */
-        }
-        if (keymatch(line, "act_coe_delay", tmpval, tmpstr) == 1)
-        {
-            CD->DHEdel = (int)tmpval[0];
-            fprintf(stderr,
-                "  Activity coefficient update delay is set to %d. \n",
-                CD->DHEdel);
-            /* 0 for delay and 1 for no delay (solving together) */
-        }
-        if (keymatch(line, "thermo", tmpval, tmpstr) == 1)
-        {
-            CD->TEMcpl = (int)tmpval[0];
-            fprintf(stderr, "  Coupling of thermo modelling is set to %d. \n",
-                CD->DHEdel);
-            /* 0 for delay and 1 for no delay (solving together) */
-        }
-        if (keymatch(line, "relmin", tmpval, tmpstr) == 1)
-        {
-            CD->RelMin = (int)tmpval[0];
-            switch (CD->RelMin)
-            {
-                case 0:
-                    fprintf(stderr,
-                        "  Using absolute mineral volume fraction. \n");
-                    break;
-                case 1:
-                    fprintf(stderr,
-                        "  Using relative mineral volume fraction. \n");
-                    break;
-            }
-        }
-        if (keymatch(line, "effads", tmpval, tmpstr) == 1)
-        {
-            CD->EffAds = (int)tmpval[0];
-            switch (CD->EffAds)
-            {
-                case 0:
-                    fprintf(stderr, "  Using the normal adsorption model. \n");
-                    break;
-                case 1:
-                    fprintf(stderr,
-                        "  Using the coupled MIM and adsorption model. \n");
-                    break;
-                    /* under construction. */
-            }
-        }
-        if (keymatch(line, "transport_only", tmpval, tmpstr) == 1)
-        {
-            CD->RecFlg = (int)tmpval[0];
-            switch (CD->RecFlg)
-            {
-                case 0:
-                    fprintf(stderr, "  Transport only mode disabled.\n");
-                    break;
-                case 1:
-                    fprintf(stderr, "  Transport only mode enabled. \n");
-                    break;
-                    /* under construction. */
-            }
-        }
-        if (keymatch(line, "precipitation", tmpval, tmpstr) == 1)
-        {
-            CD->PrpFlg = (int)tmpval[0];
-            switch (CD->PrpFlg)
-            {
-                case 0:
-                    fprintf(stderr, "  No precipitation condition. \n");
-                    break;
-                case 1:
-                    fprintf(stderr,
-                        "  Precipitation condition is to be specified. \n");
-                    break;
-                case 2:
-                    fprintf(stderr,
-                        "  Precipitation condition is specified via file *.prep. \n");
-                    break;
-                    /* under construction. */
-            }
-        }
-        if (keymatch(line, "RT_delay", tmpval, tmpstr) == 1)
-        {
-            CD->RT_delay = (int)tmpval[0];
-            fprintf(stderr,
-                "  Flux-PIHM-RT will start after running PIHM for %d days. \n",
-                CD->RT_delay);
-            CD->RT_delay *= DAYINSEC;
-            /* under construction. */
-        }
-        if (keymatch(line, "Condensation", tmpval, tmpstr) == 1)
-        {
-            CD->Condensation = tmpval[0];
-            fprintf(stderr,
-                "  The concentrations of infiltrating rainfall is set to be %f times of concentrations in precipitation. \n",
-                CD->Condensation);
-            /* under construction. */
-            //CD->Condensation *= CS->Cal.Prep_conc;  // 09.25 temporal comment-out
-            fprintf(stderr,
-                "  The concentrations of infiltrating rainfall is set to be %f times of concentrations in precipitation. \n",
-                CD->Condensation);
-        }
-        if (keymatch(line, "AvgScl", tmpval, tmpstr) == 1)
-        {
-            CD->AvgScl = tmpval[0];
-            fprintf(stderr,
-                "  Averaging window for asynchronous reaction %d. \n",
-                CD->AvgScl);
-            /* under construction. */
-        }
-        if (keymatch(line, "SUFEFF", tmpval, tmpstr) == 1)
-        {
-            CD->SUFEFF = tmpval[0];
-            fprintf(stderr, "  Effective surface area mode set to %d. \n\n",
-                CD->SUFEFF);
-            /* under construction. */
-        }
-        if (keymatch(line, "Mobile_exchange", tmpval, tmpstr) == 1)
-        {
-            CD->TimRiv = tmpval[0];
-            fprintf(stderr, "  Ratio of immobile ion exchange site %f. \n",
-                CD->TimRiv);
-            /* under construction. */
-        }
+    FindLine(chem_fp, "RUNTIME", &lno, chem_filen);
 
-        if (keymatch(line, "Connectivity_threshold", tmpval, tmpstr) == 1)
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "TVD", temp_str, 'w', chem_filen, lno);
+    if (strcasecmp(temp_str, "false") == 0)
+    {
+        CD->TVDFlg = 0;
+    }
+    else if (strcasecmp(temp_str, "true") == 0)
+    {
+        CD->TVDFlg = 1;
+    }
+    else
+    {
+        PIHMprintf(VL_ERROR, "  TVD flag input error.\n");
+        PIHMexit(EXIT_FAILURE);
+    }
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  Total variation diminishing set to %d %s.\n",
+                CD->TVDFlg, temp_str);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "OUTPUT", &CD->OutItv, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  Output interval set to %d hours. \n",
+            CD->OutItv);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "ACTIVITY", &CD->ACTmod, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        /* 0 for unity activity coefficient and 1 for DH equation update */
+        PIHMprintf(VL_NORMAL, "  Activity correction is set to %d. \n",
+            CD->ACTmod);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "ACT_COE_DELAY", &CD->DHEdel, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        /* 0 for delay and 1 for no delay (solving together) */
+        PIHMprintf(VL_NORMAL,
+            "  Activity coefficient update delay is set to %d. \n", CD->DHEdel);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "THERMO", &CD->TEMcpl, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        /* 0 for delay and 1 for no delay (solving together) */
+        PIHMprintf(VL_NORMAL, "  Coupling of thermo modelling is set to %d. \n",
+            CD->DHEdel);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "RELMIN", &CD->RelMin, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        switch (CD->RelMin)
         {
-            CD->CnntVelo = tmpval[0];
-            fprintf(stderr,
-                "  Minimum velocity to be deemed as connected is %f m/d. \n",
-                CD->CnntVelo);
-            /* under construction. */
+            case 0:
+                PIHMprintf(VL_NORMAL,
+                    "  Using absolute mineral volume fraction. \n");
+                break;
+            case 1:
+                PIHMprintf(VL_NORMAL,
+                    "  Using relative mineral volume fraction. \n");
+                break;
+            default:
+                break;
         }
     }
 
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "EFFADS", &CD->EffAds, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        switch (CD->EffAds)
+        {
+            case 0:
+                PIHMprintf(VL_NORMAL,
+                    "  Using the normal adsorption model. \n");
+                break;
+            case 1:
+                PIHMprintf(VL_NORMAL,
+                    "  Using the coupled MIM and adsorption model. \n");
+                break;
+                /* under construction. */
+            default:
+                break;
+        }
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "TRANSPORT_ONLY", &CD->RecFlg, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        switch (CD->RecFlg)
+        {
+            case 0:
+                PIHMprintf(VL_NORMAL, "  Transport only mode disabled.\n");
+                break;
+            case 1:
+                PIHMprintf(VL_NORMAL, "  Transport only mode enabled. \n");
+                break;
+                /* under construction. */
+            default:
+                break;
+        }
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "PRECIPITATION", &CD->PrpFlg, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        switch (CD->PrpFlg)
+        {
+            case 0:
+                PIHMprintf(VL_NORMAL, "  No precipitation condition. \n");
+                break;
+            case 1:
+                PIHMprintf(VL_NORMAL,
+                    "  Precipitation condition is to be specified. \n");
+                break;
+            case 2:
+                PIHMprintf(VL_NORMAL,
+                    "  Precipitation condition is specified via file *.prep. \n");
+                break;
+                /* under construction. */
+            default:
+                break;
+        }
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "RT_DELAY", &CD->RT_delay, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL,
+            "  Flux-PIHM-RT will start after running PIHM for %d days. \n",
+            CD->RT_delay);
+        /* under construction. */
+    }
+    CD->RT_delay *= DAYINSEC;
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "CONDENSATION", &CD->Condensation, 'd', chem_filen,
+        lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL, "  The concentrations of infiltrating rainfall "
+            "is set to be %f times of concentrations in precipitation. \n",
+            CD->Condensation);
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "AVGSCL", &CD->AvgScl, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL,
+            "  Averaging window for asynchronous reaction %d. \n",
+            CD->AvgScl);
+        /* under construction. */
+    }
+
     /* OUTPUT block */
-    fprintf(stderr, "\n Reading '%s.chem' OUTPUT: \n", filename);
-    rewind(chemfile);
-    fgets(line, line_width, chemfile);
-    while ((keymatch(line, "OUTPUT", tmpval, tmpstr) != 1) && (!feof(chemfile)))
-        fgets(line, line_width, chemfile);
+    PIHMprintf(VL_NORMAL, "\n Reading '%s.chem' OUTPUT: \n", filename);
+    rewind(chem_fp);
+    fgets(line, line_width, chem_fp);
+    while ((keymatch(line, "OUTPUT", tmpval, tmpstr) != 1) && (!feof(chem_fp)))
+        fgets(line, line_width, chem_fp);
     CD->NumBTC = tmpval[0];
-    fprintf(stderr, "  %d breakthrough points specified. \n", CD->NumBTC);
+    PIHMprintf(VL_NORMAL, "  %d breakthrough points specified. \n", CD->NumBTC);
     CD->BTC_loc = (int *)malloc(CD->NumBTC * sizeof(int));
     i = 0;
-    fprintf(stderr, "  --");
+    PIHMprintf(VL_NORMAL, "  --");
     while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
-        fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
         if (keymatch(line, " ", tmpval, tmpstr) != 2)
         {
             CD->BTC_loc[i] = (int)tmpval[0] - 1;
-            fprintf(stderr, " Grid %d ", CD->BTC_loc[i] + 1);
+            PIHMprintf(VL_NORMAL, " Grid %d ", CD->BTC_loc[i] + 1);
             i++;
         }
         if (i >= CD->NumBTC)
             break;
     }
-    fprintf(stderr, "are breakthrough points.\n\n");
+    PIHMprintf(VL_NORMAL, "are breakthrough points.\n\n");
 
     /* GLOBAL block */
-    fprintf(stderr, " Reading '%s.chem' GLOBAL: \n", filename);
+    PIHMprintf(VL_NORMAL, " Reading '%s.chem' GLOBAL: \n", filename);
     species         Global_type;
     Global_type.ChemName = (char *)malloc(WORD_WIDTH * sizeof(char));
     strcpy(Global_type.ChemName, "GLOBAL");
 
-    rewind(chemfile);
-    fgets(line, line_width, chemfile);
+    rewind(chem_fp);
+    fgets(line, line_width, chem_fp);
     while (keymatch(line, "GLOBAL", tmpval, tmpstr) != 1)
-        fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
     while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
-        fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
         if (keymatch(line, "t_species", tmpval, tmpstr) == 1)
         {
             CD->NumStc = (int)tmpval[0];
-            fprintf(stderr, "  %d chemical species specified. \n", CD->NumStc);
+            PIHMprintf(VL_NORMAL, "  %d chemical species specified. \n", CD->NumStc);
             /* H2O is always a primary species */
         }
         if (keymatch(line, "s_species", tmpval, tmpstr) == 1)
         {
             CD->NumSsc = (int)tmpval[0];
-            fprintf(stderr, "  %d secondary species specified. \n",
+            PIHMprintf(VL_NORMAL, "  %d secondary species specified. \n",
                 (int)tmpval[0]);
         }
         if (keymatch(line, "minerals", tmpval, tmpstr) == 1)
         {
             CD->NumMin = (int)tmpval[0];
-            fprintf(stderr, "  %d minerals specified. \n", CD->NumMin);
+            PIHMprintf(VL_NORMAL, "  %d minerals specified. \n", CD->NumMin);
         }
         if (keymatch(line, "adsorption", tmpval, tmpstr) == 1)
         {
             CD->NumAds = (int)tmpval[0];
-            fprintf(stderr, "  %d surface complexation specified. \n",
+            PIHMprintf(VL_NORMAL, "  %d surface complexation specified. \n",
                 CD->NumAds);
         }
         if (keymatch(line, "cation_exchange", tmpval, tmpstr) == 1)
         {
             CD->NumCex = (int)tmpval[0];
-            fprintf(stderr, "  %d cation exchange specified. \n", CD->NumCex);
+            PIHMprintf(VL_NORMAL, "  %d cation exchange specified. \n", CD->NumCex);
         }
         if (keymatch(line, "mineral_kinetic", tmpval, tmpstr) == 1)
         {
             CD->NumMkr = (int)tmpval[0];
-            fprintf(stderr, "  %d mineral kinetic reaction(s) specified. \n",
+            PIHMprintf(VL_NORMAL, "  %d mineral kinetic reaction(s) specified. \n",
                 CD->NumMkr);
         }
         if (keymatch(line, "aqueous_kinetic", tmpval, tmpstr) == 1)
         {
             CD->NumAkr = (int)tmpval[0];
-            fprintf(stderr, "  %d aqueous kinetic reaction(s) specified. \n",
+            PIHMprintf(VL_NORMAL, "  %d aqueous kinetic reaction(s) specified. \n",
                 CD->NumAkr);
         }
         if (keymatch(line, "diffusion", tmpval, tmpstr) == 1)
         {
-            fprintf(stderr, "  Diffusion coefficient = %g [cm2/s] \n",
+            PIHMprintf(VL_NORMAL, "  Diffusion coefficient = %g [cm2/s] \n",
                 tmpval[0]);
             Global_type.DiffCoe = tmpval[0] / 10000.0;
             Global_diff = 1;
@@ -509,7 +509,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         }
         if (keymatch(line, "dispersion", tmpval, tmpstr) == 1)
         {
-            fprintf(stderr, "  Dispersion coefficient = %2.2f [m] \n",
+            PIHMprintf(VL_NORMAL, "  Dispersion coefficient = %2.2f [m] \n",
                 tmpval[0]);
             Global_type.DispCoe = tmpval[0];
             Global_disp = 1;
@@ -517,13 +517,13 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         }
         if (keymatch(line, "cementation", tmpval, tmpstr) == 1)
         {
-            fprintf(stderr, "  Cementation factor = %2.1f \n", tmpval[0]);
+            PIHMprintf(VL_NORMAL, "  Cementation factor = %2.1f \n", tmpval[0]);
             CD->Cementation = tmpval[0];
         }
         if (keymatch(line, "temperature", tmpval, tmpstr) == 1)
         {
             CD->Temperature = tmpval[0];
-            fprintf(stderr, "  Temperature = %3.1f \n\n", CD->Temperature);
+            PIHMprintf(VL_NORMAL, "  Temperature = %3.1f \n\n", CD->Temperature);
         }
     }
 
@@ -591,21 +591,21 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         }
 
     /* INITIAL_CONDITIONS block */
-    fprintf(stderr, " Reading '%s.chem' INITIAL_CONDITIONS: \n", filename);
-    rewind(chemfile);
-    fgets(line, line_width, chemfile);
+    PIHMprintf(VL_NORMAL, " Reading '%s.chem' INITIAL_CONDITIONS: \n", filename);
+    rewind(chem_fp);
+    fgets(line, line_width, chem_fp);
     while (keymatch(line, "INITIAL_CONDITIONS", tmpval, tmpstr) != 1)
-        fgets(line, line_width, chemfile);
-    fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
+    fgets(line, line_width, chem_fp);
     while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
         if (keymatch(line, " ", tmpval, tmpstr) != 2)
         {
             num_conditions++;
         }
-        fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
     }
-    fprintf(stderr, "  %d conditions assigned. \n", num_conditions);
+    PIHMprintf(VL_NORMAL, "  %d conditions assigned. \n", num_conditions);
 
     char          **chemcon = (char **)malloc(num_conditions * sizeof(char *));
     for (i = 0; i < num_conditions; i++)
@@ -668,7 +668,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     CD->chemtype =
         (species *) malloc((CD->NumStc + CD->NumSsc) * sizeof(species));
     if (CD->chemtype == NULL)
-        fprintf(stderr, " Memory allocation error\n");
+        PIHMprintf(VL_NORMAL, " Memory allocation error\n");
 
     for (i = 0; i < CD->NumStc + CD->NumSsc; i++)
     {
@@ -695,10 +695,10 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     k = 0;
     int             initfile = 0;
     FILE           *cheminitfile = NULL;
-    rewind(chemfile);
-    fgets(line, line_width, chemfile);
+    rewind(chem_fp);
+    fgets(line, line_width, chem_fp);
     while (keymatch(line, "INITIAL_CONDITIONS", tmpval, tmpstr) != 1)
-        fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
     if (strcmp(tmpstr[1], "FILE") == 0)
     {
         /* Initialize chemical distribution from file evoked. This will nullify
@@ -706,7 +706,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
          * But for now, please keep those lines to let the code work. */
 
         initfile = 1;
-        fprintf(stderr, "  Specifiying the initial chemical distribution from file '%s.cini'. \n", filename);
+        PIHMprintf(VL_NORMAL, "  Specifiying the initial chemical distribution from file '%s.cini'. \n", filename);
 
         char           *cheminit =
             (char *)malloc((strlen(filename) * 2 + 100) * sizeof(char));
@@ -715,19 +715,19 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 
         if (cheminitfile == NULL)
         {
-            fprintf(stderr, "  Fatal Error: %s.cini does not exist! \n",
+            PIHMprintf(VL_NORMAL, "  Fatal Error: %s.cini does not exist! \n",
                 filename);
             exit(1);
         }
         else
         {
-            fprintf(stderr, "  Reading the '%s.cini'!! \n", filename);
+            PIHMprintf(VL_NORMAL, "  Reading the '%s.cini'!! \n", filename);
         }
 
         free(cheminit);         // 10.02
     }
 
-    fgets(line, line_width, chemfile);
+    fgets(line, line_width, chem_fp);
     while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
         if (keymatch(line, " ", tmpval, tmpstr) != 2)
@@ -741,7 +741,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                 PIHMexit(EXIT_FAILURE);
             }
         }
-        fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
     }
     if (initfile == 1)
     {
@@ -755,22 +755,22 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         fclose(cheminitfile);
 
     /* CONDITIONS block */
-    fprintf(stderr, "\n Reading '%s.chem' CONDITIONS: ", filename);
+    PIHMprintf(VL_NORMAL, "\n Reading '%s.chem' CONDITIONS: ", filename);
     for (i = 0; i < num_conditions; i++)
     {
-        rewind(chemfile);
+        rewind(chem_fp);
         num_species = 0;
         num_mineral = 0;
         num_ads = 0;
         num_cex = 0;
         num_other = 0;
-        fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
         while ((keymatch(line, "Condition", tmpval, tmpstr) != 1) ||
             (keymatch(line, chemcon[i], tmpval, tmpstr) != 1))
-            fgets(line, line_width, chemfile);
+            fgets(line, line_width, chem_fp);
         if (strcmp(tmpstr[1], chemcon[i]) == 0)
-            fprintf(stderr, "\n  %s", line);
-        fgets(line, line_width, chemfile);
+            PIHMprintf(VL_NORMAL, "\n  %s", line);
+        fgets(line, line_width, chem_fp);
         while (keymatch(line, "END", tmpval, tmpstr) != 1)
         {
             if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
@@ -786,7 +786,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                         tmpval[0];
                     strcpy(con_chem_name[i][num_species - num_other],
                         tmpstr[0]);
-                    fprintf(stderr, "  %-28s %g \n",
+                    PIHMprintf(VL_NORMAL, "  %-28s %g \n",
                         con_chem_name[i][num_species - num_other], tmpval[0]);
                     Condition_vcele[i].p_type[num_species - num_other] = AQUEOUS;
                 }
@@ -799,7 +799,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                             CD->NumCex + num_mineral] = tmpval[1] * 1.0;
                     strcpy(con_chem_name[i][CD->NumSpc + CD->NumAds +
                             CD->NumCex + num_mineral], tmpstr[0]);
-                    fprintf(stderr,
+                    PIHMprintf(VL_NORMAL,
                         "  mineral %-20s %6.4f \t specific surface area \t%6.4f \n",
                         con_chem_name[i][CD->NumSpc + CD->NumAds + CD->NumCex +
                             num_mineral], tmpval[0], tmpval[1]);
@@ -817,7 +817,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                     Condition_vcele[i].p_para[CD->NumSpc + num_ads] = 0;
                     /* Update when fill in the parameters for adsorption */
                     strcpy(con_chem_name[i][CD->NumSpc + num_ads], tmpstr[0]);
-                    fprintf(stderr, "  surface complex %s\t\t%6.4f \n",
+                    PIHMprintf(VL_NORMAL, "  surface complex %s\t\t%6.4f \n",
                         con_chem_name[i][CD->NumSpc + num_ads], tmpval[0]);
                     num_ads++;
                     /* under construction */
@@ -833,7 +833,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                     /* update when fill in the parameters for cation exchange. */
                     strcpy(con_chem_name[i][CD->NumSpc + CD->NumAds + num_cex],
                         tmpstr[0]);
-                    fprintf(stderr, "  cation exchange %s\t\t%6.4f \n",
+                    PIHMprintf(VL_NORMAL, "  cation exchange %s\t\t%6.4f \n",
                         con_chem_name[i][CD->NumSpc + CD->NumAds + num_cex],
                         tmpval[0]);
                     num_cex++;
@@ -841,23 +841,23 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                 }
                 num_species++;
             }
-            fgets(line, line_width, chemfile);
+            fgets(line, line_width, chem_fp);
         }
     }
 
     /* PRECIPITATION block */
-    fprintf(stderr, "\n Reading '%s.chem' PRECIPITATION: ", filename);
+    PIHMprintf(VL_NORMAL, "\n Reading '%s.chem' PRECIPITATION: ", filename);
     if (CD->PrpFlg)
     {
-        rewind(chemfile);
-        fgets(line, line_width, chemfile);
+        rewind(chem_fp);
+        fgets(line, line_width, chem_fp);
         while (keymatch(line, "PRECIPITATION", tmpval, tmpstr) != 1)
-            fgets(line, line_width, chemfile);
-        fgets(line, line_width, chemfile);
-        fprintf(stderr, " \n");
-        fprintf(stderr, "  ---------------------------------\n");
-        fprintf(stderr, "  The condition of precipitation is \n");
-        fprintf(stderr, "  ---------------------------------\n");
+            fgets(line, line_width, chem_fp);
+        fgets(line, line_width, chem_fp);
+        PIHMprintf(VL_NORMAL, " \n");
+        PIHMprintf(VL_NORMAL, "  ---------------------------------\n");
+        PIHMprintf(VL_NORMAL, "  The condition of precipitation is \n");
+        PIHMprintf(VL_NORMAL, "  ---------------------------------\n");
         num_species = 0;
         num_mineral = 0;
         num_ads = 0;
@@ -876,7 +876,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                         tmpval[0];
                     strcpy(con_chem_name[num_conditions][num_species -
                             num_other], tmpstr[0]);
-                    fprintf(stderr, "  %-28s %g \n",
+                    PIHMprintf(VL_NORMAL, "  %-28s %g \n",
                         con_chem_name[num_conditions][num_species - num_other],
                         tmpval[0]);
                     CD->Precipitation.p_type[num_species - num_other] = AQUEOUS;
@@ -892,7 +892,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                             CD->NumCex + num_mineral] = tmpval[1];
                     strcpy(con_chem_name[num_conditions][CD->NumSpc +
                             CD->NumAds + CD->NumCex + num_mineral], tmpstr[0]);
-                    fprintf(stderr,
+                    PIHMprintf(VL_NORMAL,
                         "  mineral %-20s %6.4f \t specific surface area %6.4f\n",
                         con_chem_name[num_conditions][CD->NumSpc + CD->NumAds +
                             CD->NumCex + num_mineral], tmpval[0], tmpval[1]);
@@ -910,7 +910,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                     /* Update when fill in the parameters for adsorption. */
                     strcpy(con_chem_name[num_conditions][CD->NumSpc + num_ads],
                         tmpstr[0]);
-                    fprintf(stderr, " surface complex %s\t %6.4f\n",
+                    PIHMprintf(VL_NORMAL, " surface complex %s\t %6.4f\n",
                         con_chem_name[num_conditions][CD->NumSpc + num_ads],
                         tmpval[0]);
                     num_ads++;
@@ -927,7 +927,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                     /* Update when fill in the parameters for cation exchange. */
                     strcpy(con_chem_name[num_conditions][CD->NumSpc +
                             CD->NumAds + num_cex], tmpstr[0]);
-                    fprintf(stderr, " cation exchange %s\t %6.4f\n",
+                    PIHMprintf(VL_NORMAL, " cation exchange %s\t %6.4f\n",
                         con_chem_name[num_conditions][CD->NumSpc + CD->NumAds +
                             num_cex], tmpval[0]);
                     num_cex++;
@@ -935,7 +935,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                 }
                 num_species++;
             }
-            fgets(line, line_width, chemfile);
+            fgets(line, line_width, chem_fp);
         }
     }
 
@@ -947,7 +947,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         check_conditions_num = num_conditions;
 
     if (num_species != CD->NumStc)
-        fprintf(stderr, " Number of species does not match indicated value!\n");
+        PIHMprintf(VL_NORMAL, " Number of species does not match indicated value!\n");
 
     for (i = 1; i < check_conditions_num; i++)
     {
@@ -955,7 +955,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
         {
             if (strcmp(con_chem_name[i][j], con_chem_name[i - 1][j]) != 0)
             {
-                fprintf(stderr,
+                PIHMprintf(VL_NORMAL,
                     " The order of the chemicals in condition <%s> is incorrect!\n",
                     chemcon[i - 1]);
             }
@@ -963,21 +963,21 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     }
 
     /* Primary species table */
-    fprintf(stderr,
+    PIHMprintf(VL_NORMAL,
         "\n Primary species and their types: [1], aqueous; [2], adsorption; [3], cation exchange; [4], mineral. \n");
     /* Number of total species in the rt simulator */
     for (i = 0; i < CD->NumStc; i++)
     {
         strcpy(CD->chemtype[i].ChemName, con_chem_name[0][i]);
         CD->chemtype[i].itype = Condition_vcele[0].p_type[i];
-        fprintf(stderr, "  %-20s %10d\n", CD->chemtype[i].ChemName,
+        PIHMprintf(VL_NORMAL, "  %-20s %10d\n", CD->chemtype[i].ChemName,
             CD->chemtype[i].itype);
     }
 
     /* Precipitation conc table */
     if (CD->PrpFlg)
     {
-        fprintf(stderr, "\n Total concentraions in precipitataion: \n");
+        PIHMprintf(VL_NORMAL, "\n Total concentraions in precipitataion: \n");
         for (i = 0; i < CD->NumSpc; i++)
         {
             if (!strcmp(con_chem_name[num_conditions][i], "pH"))
@@ -996,31 +996,31 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             /* Change the pH of precipitation into total concentraion of H
              * We skip the speciation for rain and assume it is OK to calculate
              * this way. */
-            fprintf(stderr, "  %-20s %-10.3g [M] \n",
+            PIHMprintf(VL_NORMAL, "  %-20s %-10.3g [M] \n",
                 con_chem_name[num_conditions][i], CD->Precipitation.t_conc[i]);
         }
     }
 
     /* SECONDARY_SPECIES block */
-    fprintf(stderr, "\n Reading 'shp.chem' SECONDARY_SPECIES: \n");
-    fprintf(stderr, "  Secondary species specified in the input file: \n");
-    rewind(chemfile);
-    fgets(line, line_width, chemfile);
+    PIHMprintf(VL_NORMAL, "\n Reading 'shp.chem' SECONDARY_SPECIES: \n");
+    PIHMprintf(VL_NORMAL, "  Secondary species specified in the input file: \n");
+    rewind(chem_fp);
+    fgets(line, line_width, chem_fp);
     while (keymatch(line, "SECONDARY_SPECIES", tmpval, tmpstr) != 1)
-        fgets(line, line_width, chemfile);
-    fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
+    fgets(line, line_width, chem_fp);
     while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
         if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
         {
             strcpy(CD->chemtype[num_species++].ChemName, tmpstr[0]);
-            fprintf(stderr, "  %s \n", CD->chemtype[num_species - 1].ChemName);
+            PIHMprintf(VL_NORMAL, "  %s \n", CD->chemtype[num_species - 1].ChemName);
         }
-        fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
     }
 
     /* MINERALS block */
-    fprintf(stderr, "\n Reading 'shp.chem' MINERALS: \n");
+    PIHMprintf(VL_NORMAL, "\n Reading 'shp.chem' MINERALS: \n");
 
     CD->kinetics =
         (Kinetic_Reaction *) malloc(CD->NumMkr * sizeof(Kinetic_Reaction));
@@ -1035,11 +1035,11 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     }
 
     k = 0;
-    rewind(chemfile);
-    fgets(line, line_width, chemfile);
+    rewind(chem_fp);
+    fgets(line, line_width, chem_fp);
     while (keymatch(line, "MINERALS", tmpval, tmpstr) != 1)
-        fgets(line, line_width, chemfile);
-    fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
+    fgets(line, line_width, chem_fp);
     while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
         if (keymatch(line, " ", tmpval, tmpstr) != 2)
@@ -1049,16 +1049,16 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                 strcpy(CD->kinetics[k].Label, tmpstr[2]);
             k++;
         }
-        fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
     }
 
     for (i = 0; i < k; i++)
-        fprintf(stderr,
+        PIHMprintf(VL_NORMAL,
             "  Kinetic reaction on '%s' is specified, label '%s'. \n",
             CD->kinetics[i].species, CD->kinetics[i].Label);
 
     /* Precipitation conc read in */
-    fprintf(stderr, "\n Reading 'shp.prep': \n");
+    PIHMprintf(VL_NORMAL, "\n Reading 'shp.prep': \n");
     if (CD->PrpFlg == 2)
     {
         CD->TSD_prepconc = (tsdata_struct *)malloc(sizeof(tsdata_struct));
@@ -1075,7 +1075,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             if (CD->prepconcindex[i] > 0)
             {
                 assert(CD->prepconcindex[i] <= CD->NumSpc);
-                fprintf(stderr,
+                PIHMprintf(VL_NORMAL,
                     "  Precipitation conc of '%s' is a time series. \n",
                     CD->chemtype[CD->prepconcindex[i] - 1].ChemName);
             }
@@ -1119,19 +1119,19 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     /* PUMP block */
     CD->CalGwinflux = pihm->cal.gwinflux;
 
-    fprintf(stderr, "\n Reading 'shp.chem' PUMP: \n");
-    rewind(chemfile);
-    fgets(line, line_width, chemfile);
-    while ((keymatch(line, "PUMP", tmpval, tmpstr) != 1) && (!feof(chemfile)))
-        fgets(line, line_width, chemfile);
+    PIHMprintf(VL_NORMAL, "\n Reading 'shp.chem' PUMP: \n");
+    rewind(chem_fp);
+    fgets(line, line_width, chem_fp);
+    while ((keymatch(line, "PUMP", tmpval, tmpstr) != 1) && (!feof(chem_fp)))
+        fgets(line, line_width, chem_fp);
     CD->NumPUMP = tmpval[0];
-    fprintf(stderr, "  %d pumps specified. \n", CD->NumPUMP);
+    PIHMprintf(VL_NORMAL, "  %d pumps specified. \n", CD->NumPUMP);
     CD->pumps = (Pump *) malloc(CD->NumPUMP * sizeof(Pump));
     i = 0;
 
     while (keymatch(line, "END", tmpval, tmpstr) != 1)
     {
-        fgets(line, line_width, chemfile);
+        fgets(line, line_width, chem_fp);
         if (keymatch(line, " ", tmpval, tmpstr) != 2)
         {
             CD->pumps[i].Pump_Location = (int)tmpval[0];
@@ -1153,12 +1153,12 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
                 }
             }
 
-            fprintf(stderr,
+            PIHMprintf(VL_NORMAL,
                 "  -- Rate %g [moles/year] of '%s' (pos: %d) at Grid '%d' with a concentration of %g [M/L]. \n",
                 CD->pumps[i].Injection_rate, CD->pumps[i].Name_Species,
                 (CD->pumps[i].Position_Species + 1), CD->pumps[i].Pump_Location,
                 CD->pumps[i].Injection_conc);
-            fprintf(stderr, "  -- Flow rate is then %g [m3/d]. \n",
+            PIHMprintf(VL_NORMAL, "  -- Flow rate is then %g [m3/d]. \n",
                 CD->pumps[i].flow_rate);
             //  CD->pumps[i].Injection_rate *= 1E-3 / 365;
 
@@ -1166,7 +1166,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             CD->pumps[i].Injection_rate =
                 CD->pumps[i].Injection_rate * CD->CalGwinflux;
             CD->pumps[i].flow_rate = CD->pumps[i].flow_rate * CD->CalGwinflux;
-            fprintf(stderr,
+            PIHMprintf(VL_NORMAL,
                 "  -- after calibration: injection_rate %g [moles/year], flow _rate %g [m3/d], CD->CalGwinflux = %f. \n",
                 CD->pumps[i].Injection_rate, CD->pumps[i].flow_rate,
                 CD->CalGwinflux);
@@ -1251,7 +1251,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     }
 
     /* Initializing concentration distributions */
-    fprintf(stderr,
+    PIHMprintf(VL_NORMAL,
         "\n Initializing concentration, Vcele [i, 0 ~ NumVol]... \n");
 
     for (i = 0; i < CD->NumVol; i++)
@@ -1322,7 +1322,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
 #endif
 
     /* Configuring the lateral connectivity of GW grid blocks */
-    fprintf(stderr,
+    PIHMprintf(VL_NORMAL,
         "\n Configuring the lateral connectivity of GW grid blocks... \n");
 
     CD->Flux = (face *) malloc(CD->NumFac * sizeof(face));
@@ -1506,11 +1506,11 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     }
 
     /* Configuring the vertical connectivity of UNSAT - GW blocks */
-    fprintf(stderr,
+    PIHMprintf(VL_NORMAL,
         "\n Configuring the vertical connectivity of UNSAT - GW grid blocks... \n");
 
     /* Configuring the connectivity of RIVER and EBR blocks */
-    fprintf(stderr,
+    PIHMprintf(VL_NORMAL,
         "\n Configuring the connectivity of RIVER & EBR grid blocks... \n");
 
     for (i = 0; i < nriver; i++)
@@ -1598,26 +1598,26 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
             log10(Cal_PCO2) : log10(Cal_Keq);
     }
 
-    fprintf(stderr, "\n Kinetic Mass Matrx (calibrated Keq)! \n");
-    fprintf(stderr, "%-15s", " ");
+    PIHMprintf(VL_NORMAL, "\n Kinetic Mass Matrx (calibrated Keq)! \n");
+    PIHMprintf(VL_NORMAL, "%-15s", " ");
     for (i = 0; i < CD->NumStc; i++)
-        fprintf(stderr, "%-14s", CD->chemtype[i].ChemName);
-    fprintf(stderr, "\n");
+        PIHMprintf(VL_NORMAL, "%-14s", CD->chemtype[i].ChemName);
+    PIHMprintf(VL_NORMAL, "\n");
     for (j = 0; j < CD->NumMkr + CD->NumAkr; j++)
     {
-        fprintf(stderr, " %-14s",
+        PIHMprintf(VL_NORMAL, " %-14s",
             CD->chemtype[j + CD->NumSpc + CD->NumAds + CD->NumCex].ChemName);
         for (i = 0; i < CD->NumStc; i++)
         {
-            fprintf(stderr, "%-14.2f", CD->Dep_kinetic[j][i]);
+            PIHMprintf(VL_NORMAL, "%-14.2f", CD->Dep_kinetic[j][i]);
         }
-        fprintf(stderr, " Keq = %-6.2f\n", CD->KeqKinect[j]);
+        PIHMprintf(VL_NORMAL, " Keq = %-6.2f\n", CD->KeqKinect[j]);
     }
-    fprintf(stderr, "\n");
+    PIHMprintf(VL_NORMAL, "\n");
     /* Use calibration coefficient to produce new Keq values for
      * 1) CO2, 2) other kinetic reaction */
 
-    fprintf(stderr,
+    PIHMprintf(VL_NORMAL,
         " \n Mass action species type determination (0: immobile, 1: mobile, 2: Mixed) \n");
     for (i = 0; i < CD->NumSpc; i++)
     {
@@ -1636,15 +1636,15 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
          * if (strcmp( CD->chemtype[i].ChemName, "'H+'") == 0)
          * CD->chemtype[i].mtype = 1;
          */
-        fprintf(stderr, " %12s\t%10d\n", CD->chemtype[i].ChemName,
+        PIHMprintf(VL_NORMAL, " %12s\t%10d\n", CD->chemtype[i].ChemName,
             CD->chemtype[i].mtype);
     }
 
-    fprintf(stderr,
+    PIHMprintf(VL_NORMAL,
         " \n Individual species type determination (1: aqueous, 2: adsorption, 3: ion exchange, 4: solid) \n");
     for (i = 0; i < CD->NumStc + CD->NumSsc; i++)
     {
-        fprintf(stderr, " %12s\t%10d\n", CD->chemtype[i].ChemName,
+        PIHMprintf(VL_NORMAL, " %12s\t%10d\n", CD->chemtype[i].ChemName,
             CD->chemtype[i].itype);
     }
 
@@ -1754,7 +1754,6 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     }
     free(con_chem_name);
 
-    free(chemfn);
     free(datafn);
     free(forcfn);
     free(condition_index);
@@ -1766,7 +1765,7 @@ void chem_alloc(char *filename, const pihm_struct pihm, Chem_Data CD)
     }
     free(tmpstr);
 
-    fclose(chemfile);
+    fclose(chem_fp);
     fclose(database);
     fclose(prepconc);
 }
@@ -1893,7 +1892,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
                 {
                     CD->Precipitation.t_conc[ind] =
                         CD->TSD_prepconc[0].value[i];
-                    fprintf(stderr,
+                    PIHMprintf(VL_NORMAL,
                         "  %s in precipitation is changed to %6.4g\n",
                         CD->chemtype[ind].ChemName,
                         CD->Precipitation.t_conc[ind]);
@@ -2199,7 +2198,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             /* Make sure intrapolation worked well */
             if (fabs(CD->Vcele[i].height_t - CD->Vcele[i].height_int) >
                 1.0E-6)
-                fprintf(stderr, "%d %6.4f\t%6.4f\n", i,
+                PIHMprintf(VL_NORMAL, "%d %6.4f\t%6.4f\n", i,
                     CD->Vcele[i].height_t, CD->Vcele[i].height_int);
             assert(fabs(CD->Vcele[i].height_t - CD->Vcele[i].height_int) <
                 1.0E-6);
@@ -2207,7 +2206,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
             {
                 for (j = 0; j < CD->NumStc; j++)
                     CD->Vcele[i].t_conc[j] = 1.0E-10;
-                fprintf(stderr,
+                PIHMprintf(VL_NORMAL,
                     " Cell %d isolated due to proneness to err!\n",
                     CD->Vcele[i].index);
             }
