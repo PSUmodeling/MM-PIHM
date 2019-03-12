@@ -750,6 +750,8 @@ void            InitFlux(int, int, int, int, int, int, double, face *);
 void            UpdateVcele(double, double, vol_conc *);
 double          EqvUnsatH(double, double, double, double, double);
 double          UnsatSatRatio(double, double, double);
+void            SortChem(char[][MAXSTRING], const int [], int, species []);
+int             FindChem(const char [], const species [], int);
 
 #endif
 
