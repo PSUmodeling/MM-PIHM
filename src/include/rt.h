@@ -19,7 +19,7 @@ typedef struct Debye_Huckel_structure
 typedef struct rtic_struct
 {
     double          t_conc[MAXSPS];
-    double          p_conc[MAXSPS];
+    double          p_para[MAXSPS];
 } rtic_struct;
 
 typedef struct vol_conc_type

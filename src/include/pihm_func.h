@@ -759,6 +759,7 @@ int             FindChem(const char [], const species [], int);
 void            ReadChem(const char[], const char[], const pihm_struct,
     Chem_Data);
 void            ReadPrep(const char[], Chem_Data);
+void            ReadCini(const char[], const species *, int, vol_conc *);
 
 #endif
 

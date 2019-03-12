@@ -15,43 +15,17 @@
 #define MIN(a,b) (((a)<(b))? (a):(b))
 #define MAX(a,b) (((a)>(b))? (a):(b))
 
-void InitChem(char *filename, const char chem_filen[], const pihm_struct pihm,
+void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     Chem_Data CD)
 {
     int             i, j, k;
-    int             species_counter, min_counter, ads_counter, cex_counter, num_other,
-        num_conditions = 0;
-    int             line_width = LINE_WIDTH, words_line =
-        WORDS_LINE, word_width = WORD_WIDTH;
-    int             speciation_flg = 0, specflg;
-    double          tmpval[WORDS_LINE];
-    char            cmdstr[MAXSTRING];
-    int             lno = 0;
+    int             speciation_flg = 0;
     int             PRCP_VOL;
     int             BOUND_VOL;
 
     assert(pihm != NULL);
 
-    char            line[256];
-    char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
-
-    for (i = 0; i < words_line; i++)
-        tmpstr[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
-
-    FILE           *chem_fp;
-
-    char           *datafn =
-        (char *)malloc((strlen(filename) * 2 + 100) * sizeof(char));
-    sprintf(datafn, "input/%s/%s.cdbs", filename, filename);
-    FILE           *database = fopen(datafn, "r");
-
-    char           *forcfn =
-        (char *)malloc((strlen(filename) * 2 + 100) * sizeof(char));
-    sprintf(forcfn, "input/%s/%s.prep", filename, filename);
-
-    chem_fp = fopen(chem_filen, "r");
-    CheckFile(chem_fp, chem_filen);
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", chem_filen);
+    FILE           *database = fopen(pihm->filename.cdbs, "r");
 
     if (database == NULL)
     {
@@ -68,8 +42,31 @@ void InitChem(char *filename, const char chem_filen[], const pihm_struct pihm,
 #else
     CD->NumVol = 2 * nelem + nriver + 2;
 #endif
+    CD->Vcele = (vol_conc *) malloc(CD->NumVol * sizeof(vol_conc));
+
     CD->NumEle = nelem;
     CD->NumRiv = nriver;
+
+    ReadCini(pihm->filename.cini, CD->chemtype, CD->NumStc, CD->Vcele);
+
+    //for (i = 0; i < num_conditions; i++)
+    //{
+    //    for (j = 0; j < CD->NumStc; j++)
+    //    {
+    //        Condition_vcele[i].t_conc[j] = ZERO;
+    //        Condition_vcele[i].p_conc[j] = ZERO;
+    //    }
+    //}
+
+    for (i = 0; i < CD->NumStc + CD->NumSsc; i++)
+    {
+        CD->chemtype[i].DiffCoe = CD->DiffCoe;
+
+        CD->chemtype[i].DispCoe = CD->DispCoe;
+
+        CD->chemtype[i].Charge = 0.0;
+        CD->chemtype[i].SizeF = 1.0;
+    }
 
     PRCP_VOL = CD->NumVol - 1;
     BOUND_VOL = CD->NumVol;
@@ -131,203 +128,6 @@ void InitChem(char *filename, const char chem_filen[], const pihm_struct pihm,
 #endif
         }
 
-    /* INITIAL_CONDITIONS block */
-    PIHMprintf(VL_NORMAL, " Reading '%s.chem' INITIAL_CONDITIONS: \n", filename);
-    rewind(chem_fp);
-    fgets(line, line_width, chem_fp);
-    while (keymatch(line, "INITIAL_CONDITIONS", tmpval, tmpstr) != 1)
-        fgets(line, line_width, chem_fp);
-    fgets(line, line_width, chem_fp);
-    while (keymatch(line, "END", tmpval, tmpstr) != 1)
-    {
-        if (keymatch(line, " ", tmpval, tmpstr) != 2)
-        {
-            num_conditions++;
-        }
-        fgets(line, line_width, chem_fp);
-    }
-    PIHMprintf(VL_NORMAL, "  %d conditions assigned. \n", num_conditions);
-
-    char          **chemcon = (char **)malloc(num_conditions * sizeof(char *));
-    for (i = 0; i < num_conditions; i++)
-        chemcon[i] = (char *)malloc(word_width * sizeof(char));
-
-    int            *condition_index = (int *)malloc(CD->NumVol * sizeof(int));
-    /* When user assign conditions to blocks, they start from 1 */
-
-    for (i = 0; i < CD->NumVol; i++)
-    {
-        condition_index[i] = 0;
-    }
-
-    vol_conc       *Condition_vcele =
-        (vol_conc *) malloc(num_conditions * sizeof(vol_conc));
-    for (i = 0; i < num_conditions; i++)
-    {
-        Condition_vcele[i].index = i + 1;
-        Condition_vcele[i].t_conc =
-            (double *)malloc(CD->NumStc * sizeof(double));
-        Condition_vcele[i].p_conc =
-            (double *)malloc(CD->NumStc * sizeof(double));
-        Condition_vcele[i].p_para =
-            (double *)malloc(CD->NumStc * sizeof(double));
-        Condition_vcele[i].s_conc = NULL;
-        /* We do not input cocentration for secondary speices in rt */
-        for (j = 0; j < CD->NumStc; j++)
-        {
-            Condition_vcele[i].t_conc[j] = ZERO;
-            Condition_vcele[i].p_conc[j] = ZERO;
-        }
-    }
-
-    for (i = 0; i < CD->NumStc + CD->NumSsc; i++)
-    {
-        CD->chemtype[i].DiffCoe = CD->DiffCoe;
-
-        CD->chemtype[i].DispCoe = CD->DispCoe;
-
-        CD->chemtype[i].Charge = 0.0;
-        CD->chemtype[i].SizeF = 1.0;
-    }
-
-    k = 0;
-    int             initfile = 0;
-    FILE           *cheminitfile = NULL;
-    rewind(chem_fp);
-    fgets(line, line_width, chem_fp);
-    while (keymatch(line, "INITIAL_CONDITIONS", tmpval, tmpstr) != 1)
-        fgets(line, line_width, chem_fp);
-    if (strcmp(tmpstr[1], "FILE") == 0)
-    {
-        /* Initialize chemical distribution from file evoked. This will nullify
-         * all the condition assignment given in the next lines.
-         * But for now, please keep those lines to let the code work. */
-
-        initfile = 1;
-        PIHMprintf(VL_NORMAL, "  Specifiying the initial chemical distribution from file '%s.cini'. \n", filename);
-
-        char           *cheminit =
-            (char *)malloc((strlen(filename) * 2 + 100) * sizeof(char));
-        sprintf(cheminit, "input/%s/%s.cini", filename, filename);
-        cheminitfile = fopen(cheminit, "r");
-
-        if (cheminitfile == NULL)
-        {
-            PIHMprintf(VL_NORMAL, "  Fatal Error: %s.cini does not exist! \n",
-                filename);
-            exit(1);
-        }
-        else
-        {
-            PIHMprintf(VL_NORMAL, "  Reading the '%s.cini'!! \n", filename);
-        }
-
-        free(cheminit);         // 10.02
-    }
-
-    fgets(line, line_width, chem_fp);
-    while (keymatch(line, "END", tmpval, tmpstr) != 1)
-    {
-        if (keymatch(line, " ", tmpval, tmpstr) != 2)
-        {
-            strcpy(chemcon[k++], tmpstr[0]);
-            if (initfile == 0)
-            {
-                PIHMprintf(VL_ERROR,
-                    "Assigning initial conditions in .chem file is temporarily"
-                    " disabled. Please use a .cini file.\n");
-                PIHMexit(EXIT_FAILURE);
-            }
-        }
-        fgets(line, line_width, chem_fp);
-    }
-    if (initfile == 1)
-    {
-        for (i = 0; i < CD->NumVol; i++)
-        {
-            fscanf(cheminitfile, "%d %d", &k, &condition_index[i]);
-        }
-    }
-
-    if (cheminitfile != NULL)
-        fclose(cheminitfile);
-
-    /* CONDITIONS block */
-    PIHMprintf(VL_NORMAL, "\n Reading '%s.chem' CONDITIONS: ", filename);
-    for (i = 0; i < num_conditions; i++)
-    {
-        rewind(chem_fp);
-        species_counter = 0;
-        min_counter = 0;
-        ads_counter = 0;
-        cex_counter = 0;
-        num_other = 0;
-        fgets(line, line_width, chem_fp);
-        while ((keymatch(line, "Condition", tmpval, tmpstr) != 1) ||
-            (keymatch(line, chemcon[i], tmpval, tmpstr) != 1))
-            fgets(line, line_width, chem_fp);
-        if (strcmp(tmpstr[1], chemcon[i]) == 0)
-            PIHMprintf(VL_NORMAL, "\n  %s", line);
-        fgets(line, line_width, chem_fp);
-        while (keymatch(line, "END", tmpval, tmpstr) != 1)
-        {
-            if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
-            {
-                specflg = SpeciationType(database, tmpstr[0]);
-
-                if (specflg == AQUEOUS)
-                {
-                    /* Arrange the concentration of the primary species in such a
-                     * way that all the mobile species are at the beginning. */
-                    num_other = min_counter + ads_counter + cex_counter;
-                    Condition_vcele[i].t_conc[species_counter - num_other] =
-                        tmpval[0];
-                    PIHMprintf(VL_NORMAL, "  %-28s %g \n",
-                        tmpstr[0], tmpval[0]);
-                }
-                if (specflg == MINERAL)
-                {
-                    Condition_vcele[i].t_conc[CD->NumSpc + CD->NumAds +
-                        CD->NumCex + min_counter] = tmpval[0];
-                    if (strcmp(tmpstr[2], "-ssa") == 0)
-                        Condition_vcele[i].p_para[CD->NumSpc + CD->NumAds +
-                            CD->NumCex + min_counter] = tmpval[1] * 1.0;
-                    PIHMprintf(VL_NORMAL,
-                        "  mineral %-20s %6.4f \t specific surface area \t%6.4f \n",
-                        tmpstr[0], tmpval[0], tmpval[1]);
-                    min_counter++;
-                }
-                if ((tmpstr[0][0] == '>') || (specflg == ADSORPTION))
-                {
-                    /* Adsorptive sites and species start with > */
-                    /* Condition_vcele[i].t_conc[CD->NumSpc + ads_counter] = tmpval[0] * CS->Cal.Site_den;  09.25 temporal comment-out */
-                    Condition_vcele[i].t_conc[CD->NumSpc + ads_counter] =
-                        tmpval[0] * 1.0;
-                    Condition_vcele[i].p_para[CD->NumSpc + ads_counter] = 0;
-                    /* Update when fill in the parameters for adsorption */
-                    PIHMprintf(VL_NORMAL, "  surface complex %s\t\t%6.4f \n",
-                        tmpstr[0], tmpval[0]);
-                    ads_counter++;
-                    /* under construction */
-                }
-                if (specflg == CATION_ECHG)
-                {
-                    Condition_vcele[i].t_conc[CD->NumSpc + CD->NumAds +
-                        cex_counter] = tmpval[0];
-                    Condition_vcele[i].p_para[CD->NumSpc + CD->NumAds +
-                        cex_counter] = 0;
-                    /* update when fill in the parameters for cation exchange. */
-                    PIHMprintf(VL_NORMAL, "  cation exchange %s\t\t%6.4f \n",
-                        tmpstr[0], tmpval[0]);
-                    cex_counter++;
-                    /* under construction */
-                }
-                species_counter++;
-            }
-            fgets(line, line_width, chem_fp);
-        }
-    }
-
     /* Primary species table */
     PIHMprintf(VL_NORMAL,
         "\n Primary species and their types: [1], aqueous; [2], adsorption; [3], cation exchange; [4], mineral. \n");
@@ -354,7 +154,6 @@ void InitChem(char *filename, const char chem_filen[], const pihm_struct pihm,
 
     /* End of reading input files */
 
-    CD->Vcele = (vol_conc *) malloc(CD->NumVol * sizeof(vol_conc));
 
     /* Initializing volumetric parameters, inherit from PIHM
      * That is, if PIHM is started from a hot start, rt is also
@@ -451,30 +250,30 @@ void InitChem(char *filename, const char chem_filen[], const pihm_struct pihm,
                 strcmp(CD->chemtype[j].ChemName, "H+") == 0)
             {
                 CD->Vcele[i].p_conc[j] = pow(10,
-                    -(Condition_vcele[condition_index[i] - 1].t_conc[j]));
+                    -(CD->Vcele[i].ic.t_conc[j]));
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
             }
             else if (CD->chemtype[j].itype == MINERAL)
             {
                 CD->Vcele[i].t_conc[j] =
-                    Condition_vcele[condition_index[i] - 1].t_conc[j];
+                    CD->Vcele[i].ic.t_conc[j];
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
                 CD->Vcele[i].p_actv[j] = 1.0;
                 CD->Vcele[i].p_para[j] =
-                    Condition_vcele[condition_index[i] - 1].p_para[j];
+                    CD->Vcele[i].ic.p_para[j];
             }
             else
             {
                 CD->Vcele[i].t_conc[j] =
-                    Condition_vcele[condition_index[i] - 1].t_conc[j];
+                    CD->Vcele[i].ic.t_conc[j];
                 CD->Vcele[i].t_conc[j] *=
                     (strcmp(CD->chemtype[j].ChemName, "DOC") == 0) ?
                     CD->CalInitconc : 1.0;
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j] * 0.5;
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_para[j] =
-                    Condition_vcele[condition_index[i] - 1].p_para[j];
+                    CD->Vcele[i].ic.p_para[j];
             }
         }
         for (j = 0; j < CD->NumSsc; j++)
@@ -904,29 +703,6 @@ void InitChem(char *filename, const char chem_filen[], const pihm_struct pihm,
         }
     }
 
-    for (i = 0; i < num_conditions; i++)
-    {
-        free(Condition_vcele[i].t_conc);
-        free(Condition_vcele[i].p_conc);
-        free(Condition_vcele[i].p_para);
-    }
-    free(Condition_vcele);
-
-    for (i = 0; i < num_conditions; i++)
-        free(chemcon[i]);
-    free(chemcon);
-
-    free(datafn);
-    free(forcfn);
-    free(condition_index);
-
-    for (i = 0; i < words_line; i++)
-    {
-        free(tmpstr[i]);
-    }
-    free(tmpstr);
-
-    fclose(chem_fp);
     fclose(database);
 }
 
