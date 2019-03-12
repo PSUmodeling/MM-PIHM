@@ -265,6 +265,12 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         PIHMprintf(VL_NORMAL, "  %d cation exchange specified. \n", CD->NumCex);
     }
 
+    /* The number of species that are mobile, later used in the OS3D subroutine */
+    CD->NumSpc = CD->NumStc - (CD->NumMin + CD->NumAds + CD->NumCex);
+
+    /* The number of species that others depend on */
+    CD->NumSdc = CD->NumStc - CD->NumMin;
+
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "MINERAL_KINETIC", &CD->NumMkr, 'i', chem_filen, lno);
     if (debug_mode)

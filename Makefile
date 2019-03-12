@@ -183,6 +183,7 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	noah/topo_radn.c\
 	spa/spa.c\
 	rt/read_chem.c\
+	rt/read_prep.c\
 	rt/rt.c\
 	rt/os3d.c\
 	rt/react.c

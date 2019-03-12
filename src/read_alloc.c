@@ -54,6 +54,7 @@ void ReadAlloc(pihm_struct pihm, Chem_Data rt)
     sprintf(pihm->filename.chem,     "input/%s/%s.chem",     proj, proj);
     sprintf(pihm->filename.cini,     "input/%s/%s.cini",     proj, proj);
     sprintf(pihm->filename.cdbs,     "input/%s/%s.cdbs",     proj, proj);
+    sprintf(pihm->filename.prep,     "input/%s/%s.prep",     proj, proj);
 #endif
 
     /* Read river input file */
@@ -123,6 +124,11 @@ void ReadAlloc(pihm_struct pihm, Chem_Data rt)
 #if defined(_RT_)
     /* Read RT input file */
     ReadChem(pihm->filename.chem, pihm->filename.cdbs, pihm, rt);
+
+    if (rt->PrpFlg == 2)
+    {
+        ReadPrep(pihm->filename.prep, rt);
+    }
 #endif
 
 #if defined(_CYCLES_)

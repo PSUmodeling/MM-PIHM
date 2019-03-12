@@ -754,6 +754,7 @@ void            SortChem(char[][MAXSTRING], const int [], int, species []);
 int             FindChem(const char [], const species [], int);
 void            ReadChem(const char[], const char[], const pihm_struct,
     Chem_Data);
+void            ReadPrep(const char[], Chem_Data);
 
 #endif
 

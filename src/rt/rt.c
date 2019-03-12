@@ -197,7 +197,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
     char           *forcfn =
         (char *)malloc((strlen(filename) * 2 + 100) * sizeof(char));
     sprintf(forcfn, "input/%s/%s.prep", filename, filename);
-    FILE           *prepconc = fopen(forcfn, "r");
 
     chem_fp = fopen(chem_filen, "r");
     CheckFile(chem_fp, chem_filen);
@@ -206,13 +205,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
     if (database == NULL)
     {
         fprintf(stderr, "\n  Fatal Error: %s.cdbs does not exist! \n",
-            filename);
-        exit(1);
-    }
-
-    if (prepconc == NULL)
-    {
-        fprintf(stderr, "\n  Fatal Error: %s.prep does not exist! \n",
             filename);
         exit(1);
     }
@@ -230,12 +222,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
 
     PRCP_VOL = CD->NumVol - 1;
     BOUND_VOL = CD->NumVol;
-
-    /* The number of species that are mobile, later used in the OS3D subroutine */
-    CD->NumSpc = CD->NumStc - (CD->NumMin + CD->NumAds + CD->NumCex);
-
-    /* The number of species that others depend on */
-    CD->NumSdc = CD->NumStc - CD->NumMin;
 
     CD->Dependency = (double **)malloc(CD->NumSsc * sizeof(double *));
     for (i = 0; i < CD->NumSsc; i++)
@@ -501,64 +487,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
             CD->chemtype[i].itype);
     }
 
-    /* Precipitation conc read in */
-    PIHMprintf(VL_NORMAL, "\n Reading 'shp.prep': \n");
-    if (CD->PrpFlg == 2)
-    {
-        CD->TSD_prepconc = (tsdata_struct *)malloc(sizeof(tsdata_struct));
-        fscanf(prepconc, "%*s %d %d",
-            &(CD->TSD_prepconc[0].nspec), &(CD->TSD_prepconc[0].length));
-
-        CD->prepconcindex =
-            (int *)malloc(CD->TSD_prepconc[0].nspec * sizeof(int));
-        /* The number of primary species must be equal to the number of primary
-         * species specified before. */
-        for (i = 0; i < CD->TSD_prepconc[0].nspec; i++)
-        {
-            fscanf(prepconc, "%d", &(CD->prepconcindex[i]));
-            if (CD->prepconcindex[i] > 0)
-            {
-                assert(CD->prepconcindex[i] <= CD->NumSpc);
-                PIHMprintf(VL_NORMAL,
-                    "  Precipitation conc of '%s' is a time series. \n",
-                    CD->chemtype[CD->prepconcindex[i] - 1].ChemName);
-            }
-        }
-
-        CD->TSD_prepconc[0].ftime =
-            (int *)malloc((CD->TSD_prepconc[0].length) * sizeof(int));
-        CD->TSD_prepconc[0].data =
-            (double **)malloc((CD->TSD_prepconc[0].length) * sizeof(double *));
-        CD->TSD_prepconc[0].value =
-            (double *)malloc(CD->TSD_prepconc[0].nspec * sizeof(double));
-        for (i = 0; i < CD->TSD_prepconc[0].length; i++)
-        {
-            CD->TSD_prepconc[0].data[i] =
-                (double *)malloc(CD->TSD_prepconc[0].nspec * sizeof(double));
-
-            NextLine(prepconc, cmdstr, &lno);
-            ReadTS(cmdstr, &CD->TSD_prepconc[0].ftime[i],
-                &CD->TSD_prepconc[0].data[i][0], CD->TSD_prepconc[0].nspec);
-        }
-
-        /* Convert pH to H+ concentration */
-        for (i = 0; i < CD->TSD_prepconc[0].nspec; i++)
-        {
-            if (CD->prepconcindex[i] > 0 &&
-                !strcmp(CD->chemtype[CD->prepconcindex[i] - 1].ChemName,
-                "pH"))
-            {
-                for (k = 0; k < CD->TSD_prepconc[0].length; k++)
-                {
-                    CD->TSD_prepconc[0].data[k][i] =
-                        (CD->TSD_prepconc[0].data[k][i] < 7.0) ?
-                        pow(10, -CD->TSD_prepconc[0].data[k][i]) :
-                        -pow(10, -CD->TSD_prepconc[0].data[k][i] - 14);
-                }
-                break;
-            }
-        }
-    }
 
     for (i = 0; i < CD->NumPUMP; i++)
     {
@@ -1149,7 +1077,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
 
     fclose(chem_fp);
     fclose(database);
-    fclose(prepconc);
 }
 
 void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
