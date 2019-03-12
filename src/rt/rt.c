@@ -665,14 +665,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
     char          **chemcon = (char **)malloc(num_conditions * sizeof(char *));
     for (i = 0; i < num_conditions; i++)
         chemcon[i] = (char *)malloc(word_width * sizeof(char));
-    char         ***con_chem_name =
-        (char ***)malloc((num_conditions + 1) * sizeof(char **));
-    for (i = 0; i < num_conditions + 1; i++)
-    {   /* all conditions + precipitation */
-        con_chem_name[i] = (char **)malloc(CD->NumStc * sizeof(char *));
-        for (j = 0; j < CD->NumStc; j++)
-            con_chem_name[i][j] = (char *)malloc(WORD_WIDTH * sizeof(char));
-    }
 
     int            *condition_index = (int *)malloc(CD->NumVol * sizeof(int));
     /* When user assign conditions to blocks, they start from 1 */
@@ -693,7 +685,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
             (double *)malloc(CD->NumStc * sizeof(double));
         Condition_vcele[i].p_para =
             (double *)malloc(CD->NumStc * sizeof(double));
-        Condition_vcele[i].p_type = (int *)malloc(CD->NumStc * sizeof(int));
         Condition_vcele[i].s_conc = NULL;
         /* We do not input cocentration for secondary speices in rt */
         for (j = 0; j < CD->NumStc; j++)
@@ -711,7 +702,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
             (double *)malloc(CD->NumStc * sizeof(double));
         CD->Precipitation.p_para =
             (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Precipitation.p_type = (int *)malloc(CD->NumStc * sizeof(int));
         CD->Precipitation.s_conc = NULL;
         for (i = 0; i < CD->NumStc; i++)
         {
@@ -831,11 +821,8 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
                     num_other = num_mineral + num_ads + num_cex;
                     Condition_vcele[i].t_conc[num_species - num_other] =
                         tmpval[0];
-                    strcpy(con_chem_name[i][num_species - num_other],
-                        tmpstr[0]);
                     PIHMprintf(VL_NORMAL, "  %-28s %g \n",
-                        con_chem_name[i][num_species - num_other], tmpval[0]);
-                    Condition_vcele[i].p_type[num_species - num_other] = AQUEOUS;
+                        tmpstr[0], tmpval[0]);
                 }
                 if (specflg == MINERAL)
                 {
@@ -844,14 +831,9 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
                     if (strcmp(tmpstr[2], "-ssa") == 0)
                         Condition_vcele[i].p_para[CD->NumSpc + CD->NumAds +
                             CD->NumCex + num_mineral] = tmpval[1] * 1.0;
-                    strcpy(con_chem_name[i][CD->NumSpc + CD->NumAds +
-                            CD->NumCex + num_mineral], tmpstr[0]);
                     PIHMprintf(VL_NORMAL,
                         "  mineral %-20s %6.4f \t specific surface area \t%6.4f \n",
-                        con_chem_name[i][CD->NumSpc + CD->NumAds + CD->NumCex +
-                            num_mineral], tmpval[0], tmpval[1]);
-                    Condition_vcele[i].p_type[CD->NumSpc + CD->NumAds +
-                        CD->NumCex + num_mineral] = MINERAL;
+                        tmpstr[0], tmpval[0], tmpval[1]);
                     num_mineral++;
                 }
                 if ((tmpstr[0][0] == '>') || (specflg == ADSORPTION))
@@ -860,12 +842,10 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
                     /* Condition_vcele[i].t_conc[CD->NumSpc + num_ads] = tmpval[0] * CS->Cal.Site_den;  09.25 temporal comment-out */
                     Condition_vcele[i].t_conc[CD->NumSpc + num_ads] =
                         tmpval[0] * 1.0;
-                    Condition_vcele[i].p_type[CD->NumSpc + num_ads] = ADSORPTION;
                     Condition_vcele[i].p_para[CD->NumSpc + num_ads] = 0;
                     /* Update when fill in the parameters for adsorption */
-                    strcpy(con_chem_name[i][CD->NumSpc + num_ads], tmpstr[0]);
                     PIHMprintf(VL_NORMAL, "  surface complex %s\t\t%6.4f \n",
-                        con_chem_name[i][CD->NumSpc + num_ads], tmpval[0]);
+                        tmpstr[0], tmpval[0]);
                     num_ads++;
                     /* under construction */
                 }
@@ -873,16 +853,11 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
                 {
                     Condition_vcele[i].t_conc[CD->NumSpc + CD->NumAds +
                         num_cex] = tmpval[0];
-                    Condition_vcele[i].p_type[CD->NumSpc + CD->NumAds +
-                        num_cex] = CATION_ECHG;
                     Condition_vcele[i].p_para[CD->NumSpc + CD->NumAds +
                         num_cex] = 0;
                     /* update when fill in the parameters for cation exchange. */
-                    strcpy(con_chem_name[i][CD->NumSpc + CD->NumAds + num_cex],
-                        tmpstr[0]);
                     PIHMprintf(VL_NORMAL, "  cation exchange %s\t\t%6.4f \n",
-                        con_chem_name[i][CD->NumSpc + CD->NumAds + num_cex],
-                        tmpval[0]);
+                        tmpstr[0], tmpval[0]);
                     num_cex++;
                     /* under construction */
                 }
@@ -921,12 +896,10 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
                     num_other = num_mineral + num_ads + num_cex;
                     CD->Precipitation.t_conc[num_species - num_other] =
                         tmpval[0];
-                    strcpy(con_chem_name[num_conditions][num_species -
-                            num_other], tmpstr[0]);
+                    strcpy(CD->chemtype[num_species - num_other].ChemName, tmpstr[0]);
                     PIHMprintf(VL_NORMAL, "  %-28s %g \n",
-                        con_chem_name[num_conditions][num_species - num_other],
-                        tmpval[0]);
-                    CD->Precipitation.p_type[num_species - num_other] = AQUEOUS;
+                        CD->chemtype[num_species - num_other].ChemName, tmpval[0]);
+                    CD->chemtype[num_species - num_other].itype = AQUEOUS;
                 }
                 /* arrange the concentration of the primary species in such a
                  * way that all the mobile species are at the beginning. */
@@ -937,14 +910,13 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
                     if (strcmp(tmpstr[2], "-ssa") == 0)
                         CD->Precipitation.p_para[CD->NumSpc + CD->NumAds +
                             CD->NumCex + num_mineral] = tmpval[1];
-                    strcpy(con_chem_name[num_conditions][CD->NumSpc +
-                            CD->NumAds + CD->NumCex + num_mineral], tmpstr[0]);
+                    strcpy(CD->chemtype[CD->NumSpc + CD->NumAds + CD->NumCex + num_mineral].ChemName, tmpstr[0]);
                     PIHMprintf(VL_NORMAL,
                         "  mineral %-20s %6.4f \t specific surface area %6.4f\n",
-                        con_chem_name[num_conditions][CD->NumSpc + CD->NumAds +
-                            CD->NumCex + num_mineral], tmpval[0], tmpval[1]);
-                    CD->Precipitation.p_type[CD->NumSpc + CD->NumAds +
-                        CD->NumCex + num_mineral] = MINERAL;
+                        CD->chemtype[CD->NumSpc + CD->NumAds +
+                            CD->NumCex + num_mineral].ChemName, tmpval[0], tmpval[1]);
+                    CD->chemtype[CD->NumSpc + CD->NumAds +
+                        CD->NumCex + num_mineral].itype = MINERAL;
                     num_mineral++;
                 }
                 if ((tmpstr[0][0] == '>') || (specflg == ADSORPTION))
@@ -952,13 +924,13 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
                     /* adsorptive sites and species start with > */
                     CD->Precipitation.t_conc[CD->NumSpc + num_ads] =
                         tmpval[0]; /* this is the site density of the adsorptive species. */
-                    CD->Precipitation.p_type[CD->NumSpc + num_ads] = ADSORPTION;
+                    CD->chemtype[CD->NumSpc + num_ads].itype = ADSORPTION;
                     CD->Precipitation.p_para[CD->NumSpc + num_ads] = 0;
                     /* Update when fill in the parameters for adsorption. */
-                    strcpy(con_chem_name[num_conditions][CD->NumSpc + num_ads],
+                    strcpy(CD->chemtype[CD->NumSpc + num_ads].ChemName,
                         tmpstr[0]);
                     PIHMprintf(VL_NORMAL, " surface complex %s\t %6.4f\n",
-                        con_chem_name[num_conditions][CD->NumSpc + num_ads],
+                        CD->chemtype[CD->NumSpc + num_ads].ChemName,
                         tmpval[0]);
                     num_ads++;
                     /* under construction */
@@ -967,16 +939,15 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
                 {
                     CD->Precipitation.t_conc[CD->NumSpc + CD->NumAds +
                         num_cex] = tmpval[0];
-                    CD->Precipitation.p_type[CD->NumSpc + CD->NumAds +
-                        num_cex] = CATION_ECHG;
+                    CD->chemtype[CD->NumSpc + CD->NumAds +
+                        num_cex].itype = CATION_ECHG;
                     CD->Precipitation.p_para[CD->NumSpc + CD->NumAds +
                         num_cex] = 0;
                     /* Update when fill in the parameters for cation exchange. */
-                    strcpy(con_chem_name[num_conditions][CD->NumSpc +
-                            CD->NumAds + num_cex], tmpstr[0]);
+                    strcpy(CD->chemtype[CD->NumSpc + CD->NumAds + num_cex].ChemName, tmpstr[0]);
                     PIHMprintf(VL_NORMAL, " cation exchange %s\t %6.4f\n",
-                        con_chem_name[num_conditions][CD->NumSpc + CD->NumAds +
-                            num_cex], tmpval[0]);
+                        CD->chemtype[CD->NumSpc + CD->NumAds +
+                            num_cex].ChemName, tmpval[0]);
                     num_cex++;
                     /* under construction */
                 }
@@ -998,15 +969,15 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
 
     for (i = 1; i < check_conditions_num; i++)
     {
-        for (j = 0; j < num_species; j++)
-        {
-            if (strcmp(con_chem_name[i][j], con_chem_name[i - 1][j]) != 0)
-            {
-                PIHMprintf(VL_NORMAL,
-                    " The order of the chemicals in condition <%s> is incorrect!\n",
-                    chemcon[i - 1]);
-            }
-        }
+        //for (j = 0; j < num_species; j++)
+        //{
+        //    if (strcmp(con_chem_name[i][j], con_chem_name[i - 1][j]) != 0)
+        //    {
+        //        PIHMprintf(VL_NORMAL,
+        //            " The order of the chemicals in condition <%s> is incorrect!\n",
+        //            chemcon[i - 1]);
+        //    }
+        //}
     }
 
     /* Primary species table */
@@ -1015,8 +986,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
     /* Number of total species in the rt simulator */
     for (i = 0; i < CD->NumStc; i++)
     {
-        strcpy(CD->chemtype[i].ChemName, con_chem_name[0][i]);
-        CD->chemtype[i].itype = Condition_vcele[0].p_type[i];
         PIHMprintf(VL_NORMAL, "  %-20s %10d\n", CD->chemtype[i].ChemName,
             CD->chemtype[i].itype);
     }
@@ -1027,7 +996,7 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
         PIHMprintf(VL_NORMAL, "\n Total concentraions in precipitataion: \n");
         for (i = 0; i < CD->NumSpc; i++)
         {
-            if (!strcmp(con_chem_name[num_conditions][i], "pH"))
+            if (!strcmp(CD->chemtype[i].ChemName, "pH"))
             {
                 if (CD->Precipitation.t_conc[i] < 7)
                 {
@@ -1044,7 +1013,7 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
              * We skip the speciation for rain and assume it is OK to calculate
              * this way. */
             PIHMprintf(VL_NORMAL, "  %-20s %-10.3g [M] \n",
-                con_chem_name[num_conditions][i], CD->Precipitation.t_conc[i]);
+                CD->chemtype[i].ChemName, CD->Precipitation.t_conc[i]);
         }
     }
 
@@ -1148,7 +1117,7 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
         for (i = 0; i < CD->TSD_prepconc[0].nspec; i++)
         {
             if (CD->prepconcindex[i] > 0 &&
-                !strcmp(con_chem_name[num_conditions][CD->prepconcindex[i] - 1],
+                !strcmp(CD->chemtype[CD->prepconcindex[i] - 1].ChemName,
                 "pH"))
             {
                 for (k = 0; k < CD->TSD_prepconc[0].length; k++)
@@ -1263,7 +1232,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
         CD->Vcele[i].s_conc = (double *)calloc(CD->NumSsc, sizeof(double));
         CD->Vcele[i].p_actv = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].p_para = (double *)calloc(CD->NumStc, sizeof(double));
-        CD->Vcele[i].p_type = (int *)calloc(CD->NumStc, sizeof(int));
         CD->Vcele[i].log10_pconc = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].log10_sconc = (double *)calloc(CD->NumSsc, sizeof(double));
         CD->Vcele[i].btcv_pconc = (double *)calloc(CD->NumStc, sizeof(double));
@@ -1279,7 +1247,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
                     -(Condition_vcele[condition_index[i] - 1].t_conc[j]));
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
-                CD->Vcele[i].p_type[j] = AQUEOUS;
             }
             else if (CD->chemtype[j].itype == MINERAL)
             {
@@ -1289,8 +1256,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
                 CD->Vcele[i].p_actv[j] = 1.0;
                 CD->Vcele[i].p_para[j] =
                     Condition_vcele[condition_index[i] - 1].p_para[j];
-                CD->Vcele[i].p_type[j] =
-                    Condition_vcele[condition_index[i] - 1].p_type[j];
             }
             else
             {
@@ -1303,8 +1268,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_para[j] =
                     Condition_vcele[condition_index[i] - 1].p_para[j];
-                CD->Vcele[i].p_type[j] =
-                    Condition_vcele[condition_index[i] - 1].p_type[j];
             }
         }
         for (j = 0; j < CD->NumSsc; j++)
@@ -1739,21 +1702,12 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
         free(Condition_vcele[i].t_conc);
         free(Condition_vcele[i].p_conc);
         free(Condition_vcele[i].p_para);
-        free(Condition_vcele[i].p_type);
     }
     free(Condition_vcele);
 
     for (i = 0; i < num_conditions; i++)
         free(chemcon[i]);
     free(chemcon);
-
-    for (i = 0; i < num_conditions + 1; i++)
-    {
-        for (j = 0; j < CD->NumStc; j++)
-            free(con_chem_name[i][j]);
-        free(con_chem_name[i]);
-    }
-    free(con_chem_name);
 
     free(datafn);
     free(forcfn);
@@ -2488,7 +2442,6 @@ void FreeChem(Chem_Data CD)
         free(CD->Vcele[i].log10_sconc);
         free(CD->Vcele[i].p_actv);
         free(CD->Vcele[i].p_para);
-        free(CD->Vcele[i].p_type);
         free(CD->Vcele[i].btcv_pconc);
     }
     free(CD->Vcele);
@@ -2516,7 +2469,6 @@ void FreeChem(Chem_Data CD)
     free(CD->TSD_prepconc[0].value);
     free(CD->TSD_prepconc);
 
-    free(CD->Precipitation.p_type);
     free(CD->Precipitation.t_conc);
     free(CD->Precipitation.p_conc);
     free(CD->Precipitation.p_para);

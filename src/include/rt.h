@@ -45,12 +45,6 @@ typedef struct vol_conc_type
                                  * for cation exchage
                                  * for minerals
                                  */
-    int            *p_type;     /* type of primary species,
-                                 * 1: primary aqueous
-                                 * 2: primary adsorption
-                                 * 3: primary cation exchange
-                                 * 4: primary mineral
-                                 */
     double          sat;        /* Saturation of Volume, dimensionless, from 0 to 1 */
     double          height_o;   /* height of volume, at previous time step */
     double          height_t;   /* height of volume, at current time step */
