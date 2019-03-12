@@ -254,6 +254,25 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
     FindLine(chem_fp, "RUNTIME", &lno, chem_filen);
 
     NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "INIT_TYPE", &CD->conc_init, 'i', chem_filen, lno);
+    if (debug_mode)
+    {
+        switch (CD->conc_init)
+        {
+            case 0:
+                PIHMprintf(VL_NORMAL,
+                    "  Concentration will be initialized using .cini\n");
+                break;
+            case 1:
+                PIHMprintf(VL_NORMAL,
+                    "  Concentration will be initialized using .rtic\n");
+                break;
+            default:
+                break;
+        }
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "TVD", temp_str, 'w', chem_filen, lno);
     if (strcasecmp(temp_str, "false") == 0)
     {
@@ -434,7 +453,7 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MINERALS", &CD->NumMin, 'i', chem_filen, lno);
+    ReadKeyword(cmdstr, "MIN_SPECIES", &CD->NumMin, 'i', chem_filen, lno);
     if (debug_mode)
     {
         PIHMprintf(VL_NORMAL, "  %d minerals specified. \n", CD->NumMin);
@@ -502,30 +521,66 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
         PIHMprintf(VL_NORMAL, "  Temperature = %3.1f \n\n", CD->Temperature);
     }
 
-    /* OUTPUT block */
-    PIHMprintf(VL_NORMAL, "\n Reading '%s.chem' OUTPUT: \n", filename);
-    rewind(chem_fp);
-    fgets(line, line_width, chem_fp);
-    while ((keymatch(line, "OUTPUT", tmpval, tmpstr) != 1) && (!feof(chem_fp)))
-        fgets(line, line_width, chem_fp);
-    CD->NumBTC = tmpval[0];
-    PIHMprintf(VL_NORMAL, "  %d breakthrough points specified. \n", CD->NumBTC);
+    /*
+     * Output block
+     */
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "OUTPUT", &CD->NumBTC, 'i', chem_filen, lno);
     CD->BTC_loc = (int *)malloc(CD->NumBTC * sizeof(int));
-    i = 0;
-    PIHMprintf(VL_NORMAL, "  --");
-    while (keymatch(line, "END", tmpval, tmpstr) != 1)
+    for (i = 0; i < CD->NumBTC; i++)
     {
-        fgets(line, line_width, chem_fp);
-        if (keymatch(line, " ", tmpval, tmpstr) != 2)
-        {
-            CD->BTC_loc[i] = (int)tmpval[0] - 1;
-            PIHMprintf(VL_NORMAL, " Grid %d ", CD->BTC_loc[i] + 1);
-            i++;
-        }
-        if (i >= CD->NumBTC)
-            break;
+        NextLine(chem_fp, cmdstr, &lno);
+        sscanf(cmdstr, "%d", &CD->BTC_loc[i]);
     }
-    PIHMprintf(VL_NORMAL, "are breakthrough points.\n\n");
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL,
+            "  %d breakthrough points specified. \n", CD->NumBTC);
+        PIHMprintf(VL_NORMAL, "  --");
+        for (i = 0; i < CD->NumBTC; i++)
+        {
+            PIHMprintf(VL_NORMAL, " Grid %d ", CD->BTC_loc[i] + 1);
+        }
+        PIHMprintf(VL_NORMAL, "are breakthrough points.\n\n");
+    }
+
+    /* PUMP block */
+    CD->CalGwinflux = pihm->cal.gwinflux;
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "PUMP", &CD->NumPUMP, 'i', chem_filen, lno);
+    CD->pumps = (Pump *) malloc(CD->NumPUMP * sizeof(Pump));
+    for (i = 0; i < CD->NumPUMP; i++)
+    {
+        NextLine(chem_fp, cmdstr, &lno);
+        if (sscanf(cmdstr, "%d %s %lf %lf",
+            &CD->pumps[i].Pump_Location,
+            CD->pumps[i].Name_Species,
+            &CD->pumps[i].Injection_rate,
+            &CD->pumps[i].Injection_conc) != 4)
+        {
+            PIHMprintf(VL_NORMAL, "Error reading pump information.\n");
+            PIHMexit(EXIT_FAILURE);
+        }
+        CD->pumps[i].flow_rate =
+            CD->pumps[i].Injection_rate / CD->pumps[i].Injection_conc /
+            365 * 1E-3;
+        CD->pumps[i].Injection_rate *=
+            CD->pumps[i].Injection_rate * CD->CalGwinflux;
+        CD->pumps[i].flow_rate = CD->pumps[i].flow_rate * CD->CalGwinflux;
+
+        if (debug_mode)
+        {
+            PIHMprintf(VL_NORMAL,
+                "  -- Rate %g [moles/year] of '%s' (pos: %d) at Grid '%d' with a concentration of %g [M/L]. \n",
+                CD->pumps[i].Injection_rate, CD->pumps[i].Name_Species,
+                (CD->pumps[i].Position_Species + 1), CD->pumps[i].Pump_Location,
+                CD->pumps[i].Injection_conc);
+            PIHMprintf(VL_NORMAL, "  -- Flow rate is then %g [m3/d]. \n",
+                CD->pumps[i].flow_rate);
+
+        }
+    }
 
     /* The number of species that are mobile, later used in the OS3D subroutine */
     CD->NumSpc = CD->NumStc - (CD->NumMin + CD->NumAds + CD->NumCex);
@@ -1108,65 +1163,19 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
         }
     }
 
-    /* PUMP block */
-    CD->CalGwinflux = pihm->cal.gwinflux;
-
-    PIHMprintf(VL_NORMAL, "\n Reading 'shp.chem' PUMP: \n");
-    rewind(chem_fp);
-    fgets(line, line_width, chem_fp);
-    while ((keymatch(line, "PUMP", tmpval, tmpstr) != 1) && (!feof(chem_fp)))
-        fgets(line, line_width, chem_fp);
-    CD->NumPUMP = tmpval[0];
-    PIHMprintf(VL_NORMAL, "  %d pumps specified. \n", CD->NumPUMP);
-    CD->pumps = (Pump *) malloc(CD->NumPUMP * sizeof(Pump));
-    i = 0;
-
-    while (keymatch(line, "END", tmpval, tmpstr) != 1)
+    for (i = 0; i < CD->NumPUMP; i++)
     {
-        fgets(line, line_width, chem_fp);
-        if (keymatch(line, " ", tmpval, tmpstr) != 2)
+        CD->pumps[i].Position_Species = -1;
+        for (j = 0; j < CD->NumStc; j++)
         {
-            CD->pumps[i].Pump_Location = (int)tmpval[0];
-            CD->pumps[i].Injection_rate = (double)tmpval[1];
-            CD->pumps[i].Injection_conc = (double)tmpval[2];
-            CD->pumps[i].flow_rate =
-                CD->pumps[i].Injection_rate / CD->pumps[i].Injection_conc /
-                365 * 1E-3;
-            CD->pumps[i].Name_Species = (char *)malloc(20 * sizeof(char));
-            strcpy(CD->pumps[i].Name_Species, tmpstr[1]);
-            //      wrap(CD->pumps[i].Name_Species);
-            CD->pumps[i].Position_Species = -1;
-            for (j = 0; j < CD->NumStc; j++)
+            if (!strcmp(CD->pumps[i].Name_Species,
+                    CD->chemtype[j].ChemName))
             {
-                if (!strcmp(CD->pumps[i].Name_Species,
-                        CD->chemtype[j].ChemName))
-                {
-                    CD->pumps[i].Position_Species = j;
-                }
+                CD->pumps[i].Position_Species = j;
             }
-
-            PIHMprintf(VL_NORMAL,
-                "  -- Rate %g [moles/year] of '%s' (pos: %d) at Grid '%d' with a concentration of %g [M/L]. \n",
-                CD->pumps[i].Injection_rate, CD->pumps[i].Name_Species,
-                (CD->pumps[i].Position_Species + 1), CD->pumps[i].Pump_Location,
-                CD->pumps[i].Injection_conc);
-            PIHMprintf(VL_NORMAL, "  -- Flow rate is then %g [m3/d]. \n",
-                CD->pumps[i].flow_rate);
-            //  CD->pumps[i].Injection_rate *= 1E-3 / 365;
-
-            /* 02.12 calibration */
-            CD->pumps[i].Injection_rate =
-                CD->pumps[i].Injection_rate * CD->CalGwinflux;
-            CD->pumps[i].flow_rate = CD->pumps[i].flow_rate * CD->CalGwinflux;
-            PIHMprintf(VL_NORMAL,
-                "  -- after calibration: injection_rate %g [moles/year], flow _rate %g [m3/d], CD->CalGwinflux = %f. \n",
-                CD->pumps[i].Injection_rate, CD->pumps[i].flow_rate,
-                CD->CalGwinflux);
-            i++;
         }
-        if (i >= CD->NumPUMP)
-            break;
     }
+
     /* End of reading input files */
 
     CD->Vcele = (vol_conc *) malloc(CD->NumVol * sizeof(vol_conc));
@@ -2494,10 +2503,6 @@ void FreeChem(Chem_Data CD)
 
     if (CD->NumPUMP > 0)
     {
-        for (i = 0; i < CD->NumPUMP; i++)
-        {
-            free(CD->pumps[i].Name_Species);
-        }
         free(CD->pumps);
     }
 

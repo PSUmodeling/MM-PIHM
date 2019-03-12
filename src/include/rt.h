@@ -16,6 +16,12 @@ typedef struct Debye_Huckel_structure
     double          bdt;
 } Debye_Huckel;
 
+typedef struct rtic_struct
+{
+    double          t_conc[MAXSPS];
+    double          p_conc[MAXSPS];
+} rtic_struct;
+
 typedef struct vol_conc_type
 {
     int             index;      /* Volume No. Note this number may be different than the element No. in PIHM */
@@ -57,6 +63,7 @@ typedef struct vol_conc_type
     double         *log10_pconc;     /* for output only */
     double         *log10_sconc;     /* for output only */
     double         *btcv_pconc; /* for btcv output only */
+    rtic_struct     ic;
 } vol_conc;
 
 typedef struct face_type
@@ -137,17 +144,15 @@ typedef struct Kinetic_Reaction_structure
                                             // inhibition
 } Kinetic_Reaction;
 
-
 typedef struct Pump_Data_structure
 {
     int             Pump_Location;  /* Index of pump grid block */
     int             Position_Species;   /* Index of chemical species */
-    char           *Name_Species;   /* The name of chemical species */
+    char            Name_Species[MAXSTRING];   /* The name of chemical species */
     double          Injection_rate; /* Rate of injection, or extraction, in moles/year */
     double          Injection_conc; /* Concentration of injection in moles/L */
     double          flow_rate;  /* Calculated flow rate from the above two parameters */
 } Pump;
-
 
 typedef struct Chem_Data_structure
 {
@@ -164,6 +169,7 @@ typedef struct Chem_Data_structure
     int             NumCex;     /* Number of cation exchange in the simulation */
     int             NumMkr;     /* Number of mineral kinetic reactions */
     int             NumAkr;     /* Number of aqueous kinetic reactions */
+    int             conc_init;  /* concentration initialization type */
     int             TVDFlg;     /* TVD swith, 0 for off and 1 for on */
     int             SPCFlg;     /* speciation flg, 0 for total conc and 1 for pH */
     int             ACTmod;     /* activity coefficient mode, 0 for unity coefficient and 1 for DH equation */

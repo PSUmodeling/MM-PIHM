@@ -257,6 +257,9 @@
 #define BULK_DENITRIF_PROPORTION    0.5
 
 /* RT constants */
+/* Maximum number of species */
+#define MAXSPS          20
+
 /* Maximum number of dependece, monod, and inhibition terms */
 #define MAXDEP          4
 

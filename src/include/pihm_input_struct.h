@@ -45,6 +45,7 @@ typedef struct filename_struct
 #if defined(_RT_)
     char            chem[MAXSTRING];        /* RT module chemistry control file
                                              * name */
+    char            cini[MAXSTRING];        /* RT module cini file */
 #endif
 } filename_struct;
 
