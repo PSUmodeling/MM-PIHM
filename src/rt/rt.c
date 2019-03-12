@@ -44,19 +44,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
 #endif
     CD->Vcele = (vol_conc *) malloc(CD->NumVol * sizeof(vol_conc));
 
-    CD->NumEle = nelem;
-    CD->NumRiv = nriver;
-
     ReadCini(pihm->filename.cini, CD->chemtype, CD->NumStc, CD->Vcele);
-
-    //for (i = 0; i < num_conditions; i++)
-    //{
-    //    for (j = 0; j < CD->NumStc; j++)
-    //    {
-    //        Condition_vcele[i].t_conc[j] = ZERO;
-    //        Condition_vcele[i].p_conc[j] = ZERO;
-    //    }
-    //}
 
     for (i = 0; i < CD->NumStc + CD->NumSsc; i++)
     {
@@ -1242,7 +1230,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-        for (i = 0; i < CD->NumEle; i++)
+        for (i = 0; i < nelem; i++)
         {
             int             j;
 
