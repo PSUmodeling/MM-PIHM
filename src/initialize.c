@@ -2,7 +2,11 @@
 
 #define MAX_TYPE    100
 
+#if defined(_RT_)
+void Initialize(pihm_struct pihm, Chem_Data rt, N_Vector CV_Y, void **cvode_mem)
+#else
 void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
+#endif
 {
     int             i, j;
 #if defined(_LUMPED_)
@@ -204,6 +208,11 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #if defined(_DAILY_)
     InitDailyStruct(pihm->elem);
 #endif
+
+#if defined(_RT_)
+    InitChem(project, pihm->filename.chem, pihm, rt);
+#endif
+
 }
 
 void CorrElev(elem_struct *elem, river_struct *river)

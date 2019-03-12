@@ -74,10 +74,10 @@ int main(int argc, char *argv[])
     }
 
     /* Initialize PIHM structure */
-    Initialize(pihm, CV_Y, &cvode_mem);
 #if defined(_RT_)
-    // 12.30 RT use, must be placed after Initialize()
-    chem_alloc(project, pihm->filename.chem, pihm, chData);
+    Initialize(pihm, chData, CV_Y, &cvode_mem);
+#else
+    Initialize(pihm, CV_Y, &cvode_mem);
 #endif
 
     /* Create output directory */

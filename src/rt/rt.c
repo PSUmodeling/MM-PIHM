@@ -15,156 +15,7 @@
 #define MIN(a,b) (((a)<(b))? (a):(b))
 #define MAX(a,b) (((a)>(b))? (a):(b))
 
-int upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
-{
-    /* Locate the upstream grid of up -> lo flow */
-    /* Require verification                      */
-    /* only determines points in triangular elements */
-    double          x_, y_;
-    int             i;
-
-    x_ = 2 * up.topo.x - lo.topo.x;
-    y_ = 2 * up.topo.y - lo.topo.y;
-
-    for (i = 0; i < nelem; i++)
-    {
-        double          x_a, x_b, x_c;
-        double          y_a, y_b, y_c;
-        double          dot00, dot01, dot02, dot11, dot12, u, v, invDenom;
-
-        /* Find point lies in which triangular element, a very interesting
-         * method */
-        if ((i != (up.ind - 1)) && (i != (lo.ind - 1)))
-        {
-            x_a = pihm->meshtbl.x[pihm->elem[i].node[0] - 1];
-            x_b = pihm->meshtbl.x[pihm->elem[i].node[1] - 1];
-            x_c = pihm->meshtbl.x[pihm->elem[i].node[2] - 1];
-            y_a = pihm->meshtbl.y[pihm->elem[i].node[0] - 1];
-            y_b = pihm->meshtbl.y[pihm->elem[i].node[1] - 1];
-            y_c = pihm->meshtbl.y[pihm->elem[i].node[2] - 1];
-            dot00 = (x_c - x_a) * (x_c - x_a) + (y_c - y_a) * (y_c - y_a);
-            dot01 = (x_c - x_a) * (x_b - x_a) + (y_c - y_a) * (y_b - y_a);
-            dot02 = (x_c - x_a) * (x_ - x_a) + (y_c - y_a) * (y_ - y_a);
-            dot11 = (x_b - x_a) * (x_b - x_a) + (y_b - y_a) * (y_b - y_a);
-            dot12 = (x_b - x_a) * (x_ - x_a) + (y_b - y_a) * (y_ - y_a);
-            invDenom = 1.0 / (dot00 * dot11 - dot01 * dot01);
-            u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-            v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-            if ((u > 0.0) && (v > 0.0) && (u + v < 1.0))
-            {
-                return pihm->elem[i].ind;
-            }
-        }
-    }
-
-    return 0;
-}
-
-int realcheck(const char *words)
-{
-    int             flg = 1, i;
-    if (((words[0] >= '0') && (words[0] <= '9')) ||
-        (words[0] == '.') || (words[0] == '-') || (words[0] == '+'))
-    {
-        for (i = 0; i < (int)strlen(words); i++)
-        {
-            /* Ascii 10 is new line and 13 is carriage return */
-            if ((words[i] > '9' || words[i] < '+') && (words[i] != 'E')
-                && (words[i] != 'e') && (words[i] != 10) && (words[i] != 13))
-            {
-                flg = 0;
-            }
-        }
-    }
-    else
-    {
-        flg = 0;
-    }
-    return (flg);
-}
-
-int keymatch(const char *line, const char *keyword, double *value, char **strval)
-{
-    /* A very general and convinient way of reading datafile and input file */
-    /* find keyword in line, assign the value after keyword to value array if there is any */
-    /* store both numbers and strings in order for later use, buffer required */
-    /* if is keyword not found return 0. If comments, return 2. Otherwise return 1 */
-    int             i;
-
-    for (i = 0; i < WORDS_LINE; i++)
-        value[i] = 0.0;
-
-    if ((line[0] == '!') || (line[0] == '#'))
-    {
-        /* assign a special flag for comments */
-        return (2);
-    }
-
-    int             j, k;
-    int             words_line = WORDS_LINE;
-    int             keyfoundflag = 0;
-
-    char          **words;
-    words = (char **)malloc(WORDS_LINE * sizeof(char *));
-
-    for (i = 0; i < WORDS_LINE; i++)
-    {
-        words[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
-        memset(words[i], 0, WORD_WIDTH);
-    }
-    i = j = k = 0;
-
-    /* Partition the line into words */
-    while (i < (int)strlen(line))
-    {
-        if (line[i] != 39)
-        {
-            while (line[i] != 9 && line[i] != 0 && line[i] != 10
-                && line[i] != 32 && line[i] != 13)
-            {
-                words[k][j++] = line[i++];
-                if (line[i] == 9 || line[i] == 32 || line[i] == 13)
-                {
-                    k++;
-                    j = 0;
-                }
-            }
-        }
-        else
-        {
-            words[k][j++] = line[i++];
-            while (line[i] != 39)
-            {
-                words[k][j++] = line[i++];
-            }
-            words[k++][j] = line[i++];
-            j = 0;
-        }
-        i++;
-    }
-
-    words_line = k + 1;
-
-    for (i = 0; i < words_line; i++)
-        if (strcmp(words[i], keyword) == 0)
-            keyfoundflag = 1;
-
-    j = k = 0;
-    for (i = 0; i < words_line; i++)
-    {
-        strcpy(strval[k++], words[i]);
-        if (realcheck(words[i]) == 1)
-            value[j++] = atof(words[i]);
-    }
-
-    for (i = 0; i < WORDS_LINE; i++)
-        free(words[i]);
-    free(words);
-    return (keyfoundflag);
-
-}
-
-void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
+void InitChem(char *filename, const char chem_filen[], const pihm_struct pihm,
     Chem_Data CD)
 {
     int             i, j, k;
@@ -1078,6 +929,156 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
     fclose(chem_fp);
     fclose(database);
 }
+
+int upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
+{
+    /* Locate the upstream grid of up -> lo flow */
+    /* Require verification                      */
+    /* only determines points in triangular elements */
+    double          x_, y_;
+    int             i;
+
+    x_ = 2 * up.topo.x - lo.topo.x;
+    y_ = 2 * up.topo.y - lo.topo.y;
+
+    for (i = 0; i < nelem; i++)
+    {
+        double          x_a, x_b, x_c;
+        double          y_a, y_b, y_c;
+        double          dot00, dot01, dot02, dot11, dot12, u, v, invDenom;
+
+        /* Find point lies in which triangular element, a very interesting
+         * method */
+        if ((i != (up.ind - 1)) && (i != (lo.ind - 1)))
+        {
+            x_a = pihm->meshtbl.x[pihm->elem[i].node[0] - 1];
+            x_b = pihm->meshtbl.x[pihm->elem[i].node[1] - 1];
+            x_c = pihm->meshtbl.x[pihm->elem[i].node[2] - 1];
+            y_a = pihm->meshtbl.y[pihm->elem[i].node[0] - 1];
+            y_b = pihm->meshtbl.y[pihm->elem[i].node[1] - 1];
+            y_c = pihm->meshtbl.y[pihm->elem[i].node[2] - 1];
+            dot00 = (x_c - x_a) * (x_c - x_a) + (y_c - y_a) * (y_c - y_a);
+            dot01 = (x_c - x_a) * (x_b - x_a) + (y_c - y_a) * (y_b - y_a);
+            dot02 = (x_c - x_a) * (x_ - x_a) + (y_c - y_a) * (y_ - y_a);
+            dot11 = (x_b - x_a) * (x_b - x_a) + (y_b - y_a) * (y_b - y_a);
+            dot12 = (x_b - x_a) * (x_ - x_a) + (y_b - y_a) * (y_ - y_a);
+            invDenom = 1.0 / (dot00 * dot11 - dot01 * dot01);
+            u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+            v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+            if ((u > 0.0) && (v > 0.0) && (u + v < 1.0))
+            {
+                return pihm->elem[i].ind;
+            }
+        }
+    }
+
+    return 0;
+}
+
+int realcheck(const char *words)
+{
+    int             flg = 1, i;
+    if (((words[0] >= '0') && (words[0] <= '9')) ||
+        (words[0] == '.') || (words[0] == '-') || (words[0] == '+'))
+    {
+        for (i = 0; i < (int)strlen(words); i++)
+        {
+            /* Ascii 10 is new line and 13 is carriage return */
+            if ((words[i] > '9' || words[i] < '+') && (words[i] != 'E')
+                && (words[i] != 'e') && (words[i] != 10) && (words[i] != 13))
+            {
+                flg = 0;
+            }
+        }
+    }
+    else
+    {
+        flg = 0;
+    }
+    return (flg);
+}
+
+int keymatch(const char *line, const char *keyword, double *value, char **strval)
+{
+    /* A very general and convinient way of reading datafile and input file */
+    /* find keyword in line, assign the value after keyword to value array if there is any */
+    /* store both numbers and strings in order for later use, buffer required */
+    /* if is keyword not found return 0. If comments, return 2. Otherwise return 1 */
+    int             i;
+
+    for (i = 0; i < WORDS_LINE; i++)
+        value[i] = 0.0;
+
+    if ((line[0] == '!') || (line[0] == '#'))
+    {
+        /* assign a special flag for comments */
+        return (2);
+    }
+
+    int             j, k;
+    int             words_line = WORDS_LINE;
+    int             keyfoundflag = 0;
+
+    char          **words;
+    words = (char **)malloc(WORDS_LINE * sizeof(char *));
+
+    for (i = 0; i < WORDS_LINE; i++)
+    {
+        words[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
+        memset(words[i], 0, WORD_WIDTH);
+    }
+    i = j = k = 0;
+
+    /* Partition the line into words */
+    while (i < (int)strlen(line))
+    {
+        if (line[i] != 39)
+        {
+            while (line[i] != 9 && line[i] != 0 && line[i] != 10
+                && line[i] != 32 && line[i] != 13)
+            {
+                words[k][j++] = line[i++];
+                if (line[i] == 9 || line[i] == 32 || line[i] == 13)
+                {
+                    k++;
+                    j = 0;
+                }
+            }
+        }
+        else
+        {
+            words[k][j++] = line[i++];
+            while (line[i] != 39)
+            {
+                words[k][j++] = line[i++];
+            }
+            words[k++][j] = line[i++];
+            j = 0;
+        }
+        i++;
+    }
+
+    words_line = k + 1;
+
+    for (i = 0; i < words_line; i++)
+        if (strcmp(words[i], keyword) == 0)
+            keyfoundflag = 1;
+
+    j = k = 0;
+    for (i = 0; i < words_line; i++)
+    {
+        strcpy(strval[k++], words[i]);
+        if (realcheck(words[i]) == 1)
+            value[j++] = atof(words[i]);
+    }
+
+    for (i = 0; i < WORDS_LINE; i++)
+        free(words[i]);
+    free(words);
+    return (keyfoundflag);
+
+}
+
 
 void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     double *t_duration_transp, double *t_duration_react)

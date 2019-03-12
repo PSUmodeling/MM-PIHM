@@ -175,7 +175,11 @@ double          Infil(const wstate_struct *, const wstate_struct *,
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
 void            InitForc(elem_struct *, forc_struct *, const calib_struct *);
+#if defined(_RT_)
+void            Initialize(pihm_struct, Chem_Data, N_Vector, void **);
+#else
 void            Initialize(pihm_struct, N_Vector, void **);
+#endif
 void            InitLc(elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMesh(elem_struct *, const meshtbl_struct *);
@@ -726,7 +730,7 @@ realtype        CS_AreaOrPerem(int rivOrder, realtype rivDepth,
 int             upstream(elem_struct, elem_struct, const pihm_struct);
 int             realcheck(const char *);
 int             keymatch(const char *, const char *, double *, char **);
-void            chem_alloc(char *, const char[], const pihm_struct, Chem_Data);
+void            InitChem(char *, const char[], const pihm_struct, Chem_Data);
 void            fluxtrans(int, int, const pihm_struct, Chem_Data, double *, double *);    // 10.05 add two timers
 void            chem_updater(Chem_Data, const pihm_struct); // 10.01
 void            OS3D(double, Chem_Data);
