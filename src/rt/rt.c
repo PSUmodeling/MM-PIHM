@@ -170,6 +170,7 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
     int             i, j, k;
     int             species_counter, min_counter, ads_counter, cex_counter, num_other,
         num_conditions = 0;
+    int             match;
     int             line_width = LINE_WIDTH, words_line =
         WORDS_LINE, word_width = WORD_WIDTH;
     int             speciation_flg = 0, specflg;
@@ -680,6 +681,39 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
         }
     }
 
+    /* Minerals block */
+    FindLine(chem_fp, "MINERALS", &lno, chem_filen);
+
+    for (i = 0; i < MAXSPS; i++)
+    {
+        for (j = 0; j < MAXDEP; j++)
+        {
+            CD->kinetics[i].dep_position[j] = 0;
+            CD->kinetics[i].monod_position[j] = 0;
+            CD->kinetics[i].inhib_position[j] = 0;
+        }
+    }
+
+    for (i = 0; i < CD->NumMkr; i++)
+    {
+        NextLine(chem_fp, cmdstr, &lno);
+        sscanf(cmdstr, "%s %s %s",
+            CD->kinetics[i].species, temp_str, CD->kinetics[i].Label);
+        if (match != 3 || strcasecmp(temp_str, "-label") != 0)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error reading mineral information in %s near Line %d.\n",
+                chem_filen, lno);
+        }
+
+        if (debug_mode)
+        {
+            PIHMprintf(VL_NORMAL,
+                "  Kinetic reaction on '%s' is specified, label '%s'. \n",
+                CD->kinetics[i].species, CD->kinetics[i].Label);
+        }
+    }
+
     /* The number of species that are mobile, later used in the OS3D subroutine */
     CD->NumSpc = CD->NumStc - (CD->NumMin + CD->NumAds + CD->NumCex);
 
@@ -977,43 +1011,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
         }
     }
 
-    /* MINERALS block */
-    PIHMprintf(VL_NORMAL, "\n Reading 'shp.chem' MINERALS: \n");
-
-    CD->kinetics =
-        (Kinetic_Reaction *) malloc(CD->NumMkr * sizeof(Kinetic_Reaction));
-    for (i = 0; i < CD->NumMkr; i++)
-    {
-        for (j = 0; j < MAXDEP; j++)
-        {
-            CD->kinetics[i].dep_position[j] = 0;
-            CD->kinetics[i].monod_position[j] = 0;  // 08.19
-            CD->kinetics[i].inhib_position[j] = 0;  // 08.19
-        }
-    }
-
-    k = 0;
-    rewind(chem_fp);
-    fgets(line, line_width, chem_fp);
-    while (keymatch(line, "MINERALS", tmpval, tmpstr) != 1)
-        fgets(line, line_width, chem_fp);
-    fgets(line, line_width, chem_fp);
-    while (keymatch(line, "END", tmpval, tmpstr) != 1)
-    {
-        if (keymatch(line, " ", tmpval, tmpstr) != 2)
-        {
-            strcpy(CD->kinetics[k].species, tmpstr[0]);
-            if (strcmp(tmpstr[1], "-label") == 0)
-                strcpy(CD->kinetics[k].Label, tmpstr[2]);
-            k++;
-        }
-        fgets(line, line_width, chem_fp);
-    }
-
-    for (i = 0; i < k; i++)
-        PIHMprintf(VL_NORMAL,
-            "  Kinetic reaction on '%s' is specified, label '%s'. \n",
-            CD->kinetics[i].species, CD->kinetics[i].Label);
 
     /* Precipitation conc read in */
     PIHMprintf(VL_NORMAL, "\n Reading 'shp.prep': \n");
@@ -2369,7 +2366,6 @@ void FreeChem(Chem_Data CD)
     free(CD->Totalconck);
 #endif
 
-    free(CD->kinetics);
     free(CD->Keq);
     free(CD->KeqKinect);
     free(CD->KeqKinect_all);

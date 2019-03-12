@@ -210,7 +210,7 @@ typedef struct Chem_Data_structure
     vol_conc        Precipitation;  // The cell that stores the concentrations of chemicals in the rain.
     face           *Flux;       // connections between grid blocks
     species         chemtype[MAXSPS];   // information of chemical species
-    Kinetic_Reaction *kinetics; // kinetics constants and dependencies.
+    Kinetic_Reaction kinetics[MAXSPS]; // kinetics constants and dependencies.
     Debye_Huckel    DH;
     Pump           *pumps;      // injection/ groundwater contribution
     tsdata_struct  *TSD_prepconc;   // Time series data of concentration in precipitation.
