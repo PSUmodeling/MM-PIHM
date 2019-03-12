@@ -43,6 +43,7 @@ typedef struct filename_struct
                                              * name */
 #endif
 #if defined(_RT_)
+    char            cdbs[MAXSTRING];        /* RT database file name */
     char            chem[MAXSTRING];        /* RT module chemistry control file
                                              * name */
     char            cini[MAXSTRING];        /* RT module cini file */

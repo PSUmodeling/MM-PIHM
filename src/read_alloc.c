@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadAlloc(pihm_struct pihm)
+void ReadAlloc(pihm_struct pihm, Chem_Data rt)
 {
     char            proj[MAXSTRING];
     char           *token;
@@ -53,6 +53,7 @@ void ReadAlloc(pihm_struct pihm)
 #if defined(_RT_)
     sprintf(pihm->filename.chem,     "input/%s/%s.chem",     proj, proj);
     sprintf(pihm->filename.cini,     "input/%s/%s.cini",     proj, proj);
+    sprintf(pihm->filename.cdbs,     "input/%s/%s.cdbs",     proj, proj);
 #endif
 
     /* Read river input file */
@@ -117,6 +118,11 @@ void ReadAlloc(pihm_struct pihm)
         /* Read radiation input file */
         ReadRad(pihm->filename.rad, &pihm->forc);
     }
+#endif
+
+#if defined(_RT_)
+    /* Read RT input file */
+    ReadChem(pihm->filename.chem, pihm->filename.cdbs, pihm, rt);
 #endif
 
 #if defined(_CYCLES_)

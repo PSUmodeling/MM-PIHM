@@ -262,7 +262,7 @@ double          PtfKv(double, double, double, double, int);
 double          PtfThetar(double, double);
 double          PtfThetas(double, double, double, double, int);
 double          Qtz(int);
-void            ReadAlloc(pihm_struct);
+void            ReadAlloc(pihm_struct, Chem_Data);
 void            ReadAtt(const char *, atttbl_struct *);
 void            ReadBc(const char *, forc_struct *, const atttbl_struct *);
 void            ReadCalib(const char *, calib_struct *);
@@ -752,6 +752,8 @@ double          EqvUnsatH(double, double, double, double, double);
 double          UnsatSatRatio(double, double, double);
 void            SortChem(char[][MAXSTRING], const int [], int, species []);
 int             FindChem(const char [], const species [], int);
+void            ReadChem(const char[], const char[], const pihm_struct,
+    Chem_Data);
 
 #endif
 
