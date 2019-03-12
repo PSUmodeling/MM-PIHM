@@ -5,10 +5,9 @@
 void ReadChem(const char chem_filen[], const char cdbs_filen[],
     const pihm_struct pihm, Chem_Data CD)
 {
-    int             i, j, k;
+    int             i, j;
     int             match;
     int             chem_ind;
-    int             spec_flag;
     char            cmdstr[MAXSTRING];
     char            temp_str[MAXSTRING];
     char            chemn[MAXSPS][MAXSTRING];
@@ -400,18 +399,18 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         PIHMprintf(VL_NORMAL, "  ---------------------------------\n");
     }
 
-        CD->Precipitation.t_conc =
-            (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Precipitation.p_conc =
-            (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Precipitation.p_para =
-            (double *)malloc(CD->NumStc * sizeof(double));
-        CD->Precipitation.s_conc = NULL;
-        for (i = 0; i < CD->NumStc; i++)
-        {
-            CD->Precipitation.t_conc[i] = ZERO;
-            CD->Precipitation.p_conc[i] = ZERO;
-        }
+    CD->Precipitation.t_conc =
+        (double *)malloc(CD->NumStc * sizeof(double));
+    CD->Precipitation.p_conc =
+        (double *)malloc(CD->NumStc * sizeof(double));
+    CD->Precipitation.p_para =
+        (double *)malloc(CD->NumStc * sizeof(double));
+    CD->Precipitation.s_conc = NULL;
+    for (i = 0; i < CD->NumStc; i++)
+    {
+        CD->Precipitation.t_conc[i] = ZERO;
+        CD->Precipitation.p_conc[i] = ZERO;
+    }
 
     FindLine(chem_fp, "BOF", &lno, chem_filen);
     FindLine(chem_fp, "PRECIPITATION_CONC", &lno, chem_filen);
@@ -425,6 +424,16 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
             sscanf(cmdstr, "%*s %lf", &CD->Precipitation.t_conc[chem_ind]);
             PIHMprintf(VL_NORMAL, "  %-28s %g \n",
                 CD->chemtype[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
+
+            if (strcasecmp(CD->chemtype[chem_ind].ChemName, "pH") == 0)
+            {
+                /* Change the pH of precipitation into total concentraion of H
+                 * Skip the speciation for rain */
+                CD->Precipitation.t_conc[chem_ind] =
+                    (CD->Precipitation.t_conc[chem_ind] < 7.0) ?
+                    pow(10, -CD->Precipitation.t_conc[chem_ind]) :
+                    -pow(10, CD->Precipitation.t_conc[chem_ind] - 14);
+            }
         }
         if (CD->chemtype[chem_ind].itype == MINERAL)
         {
@@ -444,7 +453,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
             PIHMprintf(VL_NORMAL, " surface complex %s\t %6.4f\n",
                 CD->chemtype[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
         }
-        if (spec_flag == CATION_ECHG)
+        if (CD->chemtype[chem_ind].itype == CATION_ECHG)
         {
             sscanf(cmdstr, "%*s %lf", &CD->Precipitation.t_conc[chem_ind]);
             CD->Precipitation.p_para[chem_ind] = 0;
@@ -484,13 +493,14 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     for (i = 0; i < CD->NumMkr; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
-        sscanf(cmdstr, "%s %s %s",
+        match = sscanf(cmdstr, "%s %s %s",
             CD->kinetics[i].species, temp_str, CD->kinetics[i].Label);
         if (match != 3 || strcasecmp(temp_str, "-label") != 0)
         {
             PIHMprintf(VL_ERROR,
                 "Error reading mineral information in %s near Line %d.\n",
                 chem_filen, lno);
+            PIHMexit(EXIT_FAILURE);
         }
 
         if (debug_mode)

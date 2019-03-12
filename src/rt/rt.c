@@ -501,34 +501,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
             CD->chemtype[i].itype);
     }
 
-    /* Precipitation conc table */
-    if (CD->PrpFlg)
-    {
-        PIHMprintf(VL_NORMAL, "\n Total concentraions in precipitataion: \n");
-        for (i = 0; i < CD->NumSpc; i++)
-        {
-            if (!strcmp(CD->chemtype[i].ChemName, "pH"))
-            {
-                if (CD->Precipitation.t_conc[i] < 7)
-                {
-                    CD->Precipitation.t_conc[i] =
-                        pow(10, -CD->Precipitation.t_conc[i]);
-                }
-                else
-                {
-                    CD->Precipitation.t_conc[i] =
-                        -pow(10, CD->Precipitation.t_conc[i] - 14);
-                }
-            }
-            /* Change the pH of precipitation into total concentraion of H
-             * We skip the speciation for rain and assume it is OK to calculate
-             * this way. */
-            PIHMprintf(VL_NORMAL, "  %-20s %-10.3g [M] \n",
-                CD->chemtype[i].ChemName, CD->Precipitation.t_conc[i]);
-        }
-    }
-
-
     /* Precipitation conc read in */
     PIHMprintf(VL_NORMAL, "\n Reading 'shp.prep': \n");
     if (CD->PrpFlg == 2)
