@@ -665,6 +665,21 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
         }
     }
 
+    /*
+     * Secondary_species block
+     */
+    FindLine(chem_fp, "SECONDARY_SPECIES", &lno, chem_filen);
+    for (i = 0; i < CD->NumSsc; i++)
+    {
+        NextLine(chem_fp, cmdstr, &lno);
+        if (sscanf(cmdstr, "%s", CD->chemtype[CD->NumStc + i].ChemName) != 1)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error reading secondary_species in %s near Line %d.\n",
+                chem_filen, lno);
+        }
+    }
+
     /* The number of species that are mobile, later used in the OS3D subroutine */
     CD->NumSpc = CD->NumStc - (CD->NumMin + CD->NumAds + CD->NumCex);
 
@@ -960,24 +975,6 @@ void chem_alloc(char *filename, const char chem_filen[], const pihm_struct pihm,
             PIHMprintf(VL_NORMAL, "  %-20s %-10.3g [M] \n",
                 CD->chemtype[i].ChemName, CD->Precipitation.t_conc[i]);
         }
-    }
-
-    /* SECONDARY_SPECIES block */
-    PIHMprintf(VL_NORMAL, "\n Reading 'shp.chem' SECONDARY_SPECIES: \n");
-    PIHMprintf(VL_NORMAL, "  Secondary species specified in the input file: \n");
-    rewind(chem_fp);
-    fgets(line, line_width, chem_fp);
-    while (keymatch(line, "SECONDARY_SPECIES", tmpval, tmpstr) != 1)
-        fgets(line, line_width, chem_fp);
-    fgets(line, line_width, chem_fp);
-    while (keymatch(line, "END", tmpval, tmpstr) != 1)
-    {
-        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
-        {
-            strcpy(CD->chemtype[species_counter++].ChemName, tmpstr[0]);
-            PIHMprintf(VL_NORMAL, "  %s \n", CD->chemtype[species_counter - 1].ChemName);
-        }
-        fgets(line, line_width, chem_fp);
     }
 
     /* MINERALS block */
