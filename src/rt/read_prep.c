@@ -39,7 +39,7 @@ void ReadPrep(const char filen[], Chem_Data rt)
 
         if (rt->prepconcindex[i] > 0)
         {
-            assert(rt->prepconcindex[i] <= rt->NumSpc);
+            assert(rt->prepconcindex[i] <= NumSpc);
             PIHMprintf(VL_NORMAL,
                 "  Precipitation conc of '%s' is a time series. \n",
                 rt->chemtype[rt->prepconcindex[i] - 1].ChemName);

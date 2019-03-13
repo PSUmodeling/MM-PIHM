@@ -266,7 +266,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     /* The number of species that are mobile, later used in the OS3D subroutine */
-    CD->NumSpc = CD->NumStc - (CD->NumMin + CD->NumAds + CD->NumCex);
+    NumSpc = CD->NumStc - (CD->NumMin + CD->NumAds + CD->NumCex);
 
     /* The number of species that others depend on */
     CD->NumSdc = CD->NumStc - CD->NumMin;

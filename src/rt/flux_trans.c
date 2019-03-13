@@ -267,7 +267,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-        for (k = 0; k < CD->NumSpc; k++)
+        for (k = 0; k < NumSpc; k++)
         {
             CD->Vcele[PRCP_VOL - 1].t_conc[k] =
                 (strcmp(CD->chemtype[k].ChemName, "'DOC'") == 0) ?
@@ -281,7 +281,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-        for (k = 0; k < CD->NumSpc; k++)
+        for (k = 0; k < NumSpc; k++)
         {
             CD->Vcele[PRCP_VOL - 1].t_conc[k] = 0.0;
         }
@@ -316,7 +316,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
 
         if (CD->Flux[i].BC == DISPERSION)
         {
-            for (j = 0; j < CD->NumSpc; j++)
+            for (j = 0; j < NumSpc; j++)
             {
                 peclet = fabs(CD->Flux[i].velocity * CD->Flux[i].distance /
                     (CD->chemtype[j].DiffCoe +
@@ -361,7 +361,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
     {
         int             j;
 
-        for (j = 0; j < CD->NumSpc; j++)
+        for (j = 0; j < NumSpc; j++)
         {
             if (CD->chemtype[j].mtype == 2)
             {
@@ -590,7 +590,7 @@ void AdptTime(Chem_Data CD, double stepsize)
     {
         int             j;
 
-        for (j = 0; j < CD->NumSpc; j++)
+        for (j = 0; j < NumSpc; j++)
         {
             if (CD->chemtype[j].mtype == 2)
             {

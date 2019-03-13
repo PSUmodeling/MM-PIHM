@@ -31,10 +31,10 @@ void OS3D(double stepsize, Chem_Data CD)
     {
         int             j;
 
-        tconc[i] = (double *)malloc(CD->NumSpc * sizeof(double));
-        dconc[i] = (double *)malloc(CD->NumSpc * sizeof(double));
+        tconc[i] = (double *)malloc(NumSpc * sizeof(double));
+        dconc[i] = (double *)malloc(NumSpc * sizeof(double));
 
-        for (j = 0; j < CD->NumSpc; j++)
+        for (j = 0; j < NumSpc; j++)
         {
             tconc[i][j] = CD->Vcele[i].t_conc[j];
             dconc[i][j] = 0.0;
@@ -47,7 +47,7 @@ void OS3D(double stepsize, Chem_Data CD)
 
         if (CD->Flux[i].BC != NO_FLOW)
         {
-            for (j = 0; j < CD->NumSpc; j++)
+            for (j = 0; j < NumSpc; j++)
             {
                 dconc[CD->Flux[i].nodeup - 1][j] +=
                     Dconc(&CD->Flux[i], CD->Vcele, CD->chemtype,
@@ -76,7 +76,7 @@ void OS3D(double stepsize, Chem_Data CD)
             continue;
         }
 
-        tmpconc = (double *)malloc(CD->NumSpc * sizeof(double));
+        tmpconc = (double *)malloc(NumSpc * sizeof(double));
 
         adpstep = CD->Vcele[i].rt_step;
 
@@ -94,7 +94,7 @@ void OS3D(double stepsize, Chem_Data CD)
                         stepsize - timelps : adpstep;
 
                     diff_conc = 0.0;
-                    for (j = 0; j < CD->NumSpc; j++)
+                    for (j = 0; j < NumSpc; j++)
                     {
                         tmpconc[j] = dconc[i][j] * adpstep +
                             CD->Vcele[i].t_conc[j] *
@@ -139,7 +139,7 @@ void OS3D(double stepsize, Chem_Data CD)
                                              * the flux of mass between
                                              * cells */
                     {
-                        for (j = 0; j < CD->NumSpc; j++)
+                        for (j = 0; j < NumSpc; j++)
                             tmpconc[j] = 0.0;
 
                         for (k = 0; k < CD->NumFac; k++)
@@ -148,7 +148,7 @@ void OS3D(double stepsize, Chem_Data CD)
                             {
                                 if (CD->Flux[k].nodeup == CD->Vcele[i].index)
                                 {
-                                    for (j = 0; j < CD->NumSpc; j++)
+                                    for (j = 0; j < NumSpc; j++)
                                     {
                                         tmpconc[j] += Dconc(&CD->Flux[k],
                                             CD->Vcele, CD->chemtype,
@@ -158,7 +158,7 @@ void OS3D(double stepsize, Chem_Data CD)
                             }
                         }
 
-                        for (j = 0; j < CD->NumSpc; j++)
+                        for (j = 0; j < NumSpc; j++)
                         {
                             dconc[i][j] = tmpconc[j];
                         }
@@ -172,7 +172,7 @@ void OS3D(double stepsize, Chem_Data CD)
         }
         else
         {   /* rt_step >= stepsize */
-            for (j = 0; j < CD->NumSpc; j++)
+            for (j = 0; j < NumSpc; j++)
             {
                 tmpconc[j] =
                     dconc[i][j] * stepsize +
@@ -183,7 +183,7 @@ void OS3D(double stepsize, Chem_Data CD)
                     (CD->Vcele[i].porosity * CD->Vcele[i].vol);
             }
             if (CD->Vcele[i].illness < 20)
-                for (j = 0; j < CD->NumSpc; j++)
+                for (j = 0; j < NumSpc; j++)
                 {
 
                     if ((tmpconc[j] < 0.0) &&
@@ -228,7 +228,7 @@ void OS3D(double stepsize, Chem_Data CD)
             continue;
         }
 
-        for (j = 0; j < CD->NumSpc; j++)
+        for (j = 0; j < NumSpc; j++)
         {
             CD->Vcele[i].t_conc[j] = tconc[i][j];
         }

@@ -286,14 +286,14 @@ void Lookup(FILE *database, Chem_Data CD)
     {
         if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
         {
-            for (i = CD->NumSpc + CD->NumAds + CD->NumCex; i < CD->NumStc; i++)
+            for (i = NumSpc + CD->NumAds + CD->NumCex; i < CD->NumStc; i++)
                 if (strcmp(CD->chemtype[i].ChemName, tmpstr[0]) == 0)
                 {
                     fprintf(stderr, " Mineral %s found in database!\n",
                         CD->chemtype[i].ChemName);
                     fprintf(stderr, " %s", line);
                     CD->chemtype[i].itype = MINERAL;
-                    CD->KeqKinect_all[i - CD->NumSpc - CD->NumAds -
+                    CD->KeqKinect_all[i - NumSpc - CD->NumAds -
                         CD->NumCex] = tmpval[(int)tmpval[1] + keq_position + 1];
                     for (j = 1; j < WORDS_LINE; j++)
                     {
@@ -308,13 +308,13 @@ void Lookup(FILE *database, Chem_Data CD)
                                 }
                                 else
                                 {
-                                    for (l = 0; l < CD->NumSpc; l++)    /* Number of primary species in the rt simulator      */
+                                    for (l = 0; l < NumSpc; l++)    /* Number of primary species in the rt simulator      */
                                         CD->Dep_kinetic_all[i - CD->NumStc +
                                             CD->NumMin][l] +=
                                             atof(tmpstr[j -
                                                 1]) * CD->Dependency[k -
                                             CD->NumStc][l];
-                                    CD->KeqKinect_all[i - CD->NumSpc -
+                                    CD->KeqKinect_all[i - NumSpc -
                                         CD->NumAds - CD->NumCex] +=
                                         atof(tmpstr[j - 1]) * CD->Keq[k -
                                         CD->NumStc];
@@ -323,7 +323,7 @@ void Lookup(FILE *database, Chem_Data CD)
                     }
                     CD->Dep_kinetic_all[i - CD->NumStc + CD->NumMin][i] = -1.0;
                     fprintf(stderr, " Keq = %6.4f\n",
-                        CD->KeqKinect_all[i - CD->NumSpc - CD->NumAds -
+                        CD->KeqKinect_all[i - NumSpc - CD->NumAds -
                             CD->NumCex]);
                     CD->chemtype[i].MolarMass =
                         tmpval[(int)tmpval[1] + total_temp_points + 2];
@@ -339,7 +339,7 @@ void Lookup(FILE *database, Chem_Data CD)
 
     for (i = 0; i < CD->NumMkr + CD->NumAkr; i++)
     {
-        for (j = CD->NumSpc + CD->NumAds + CD->NumCex; j < CD->NumStc; j++)
+        for (j = NumSpc + CD->NumAds + CD->NumCex; j < CD->NumStc; j++)
         {
             strcpy(tmp, CD->kinetics[i].species);
             wrap(tmp);
@@ -645,7 +645,7 @@ void Lookup(FILE *database, Chem_Data CD)
     for (j = 0; j < CD->NumMkr + CD->NumAkr; j++)
     {
         fprintf(stderr, " %-14s",
-            CD->chemtype[j + CD->NumSpc + CD->NumAds + CD->NumCex].ChemName);
+            CD->chemtype[j + NumSpc + CD->NumAds + CD->NumCex].ChemName);
         for (i = 0; i < CD->NumStc; i++)
         {
             fprintf(stderr, "%-14f", CD->Dep_kinetic[j][i]);
@@ -1184,7 +1184,7 @@ int _React(double stepsize, Chem_Data CD, vol_conc *Vcele)
         }
     }
 
-    for (i = 0; i < CD->NumSpc; i++)
+    for (i = 0; i < NumSpc; i++)
         if (CD->chemtype[i].itype == AQUEOUS) /* 01.21 aqueous species, saturation term for aqueous volume */
             Rate_spe[i] *= inv_sat;
 
@@ -1343,7 +1343,7 @@ int _React(double stepsize, Chem_Data CD, vol_conc *Vcele)
              * concentration are mol/L pm and mol/L water respectively. */
         }
 
-        for (i = 0; i < CD->NumSpc; i++)
+        for (i = 0; i < NumSpc; i++)
             if (CD->chemtype[i].itype == AQUEOUS)
                 Rate_spet[i] *= inv_sat;
 

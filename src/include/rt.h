@@ -153,7 +153,6 @@ typedef struct Chem_Data_structure
     int             NumVol;     /* Number of total volume in the rt simulator */
     int             NumFac;     /* Number of faces in the rt simulator        */
     int             NumStc;     /* Number of total species in the rt simulator */
-    int             NumSpc;     /* Number of primary species in the rt simulator      */
     int             NumSsc;     /* Number of secondary speices in the simulator */
     int             NumSdc;     /* Number of independent species (others depending on these species) */
     int             NumMin;     /* Number of minerals in the simulator */

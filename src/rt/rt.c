@@ -203,7 +203,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     InitVcele(0.0, 0.0, 0.0, 0.0, VIRTUAL_VOL, &CD->Vcele[PRCP_VOL - 1]);
     InitVcele(1.0, 1.0, 1.0, 1.0, VIRTUAL_VOL, &CD->Vcele[BOUND_VOL - 1]);
 
-    for (i = 0; i < CD->NumSpc; i++)
+    for (i = 0; i < NumSpc; i++)
     {
         if (strcmp(CD->chemtype[i].ChemName, "pH") == 0)
         {
@@ -549,7 +549,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     for (i = 0; i < CD->NumAkr + CD->NumMkr; i++)
     {
         CD->KeqKinect[i] += (!strcmp(
-            CD->chemtype[i + CD->NumSpc + CD->NumAds + CD->NumCex].ChemName,
+            CD->chemtype[i + NumSpc + CD->NumAds + CD->NumCex].ChemName,
             "'CO2(*g)'")) ?
             log10(Cal_PCO2) : log10(Cal_Keq);
     }
@@ -562,7 +562,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     for (j = 0; j < CD->NumMkr + CD->NumAkr; j++)
     {
         PIHMprintf(VL_NORMAL, " %-14s",
-            CD->chemtype[j + CD->NumSpc + CD->NumAds + CD->NumCex].ChemName);
+            CD->chemtype[j + NumSpc + CD->NumAds + CD->NumCex].ChemName);
         for (i = 0; i < CD->NumStc; i++)
         {
             PIHMprintf(VL_NORMAL, "%-14.2f", CD->Dep_kinetic[j][i]);
@@ -575,7 +575,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
 
     PIHMprintf(VL_NORMAL,
         " \n Mass action species type determination (0: immobile, 1: mobile, 2: Mixed) \n");
-    for (i = 0; i < CD->NumSpc; i++)
+    for (i = 0; i < NumSpc; i++)
     {
         CD->chemtype[i].mtype = (CD->chemtype[i].itype == AQUEOUS) ?
              1 : 0;

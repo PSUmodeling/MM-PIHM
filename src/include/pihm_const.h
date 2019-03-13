@@ -445,8 +445,7 @@ extern int     nthreads;
 extern int     first_balance;
 #endif
 #if defined(_RT_)
-double          t_duration, t_duration_hydro, t_duration_rt;
-double          t_duration_transp, t_duration_react;
+int             NumSpc;     /* Number of primary species in the rt simulator */
 #endif
 
 #endif

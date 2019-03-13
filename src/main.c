@@ -18,8 +18,7 @@ int             nthreads = 1;    /* Default value */
 int             first_balance;
 #endif
 #if defined(_RT_)
-double          t_duration, t_duration_hydro, t_duration_rt;
-double          t_duration_transp, t_duration_react;
+int             NumSpc;
 #endif
 
 int main(int argc, char *argv[])
