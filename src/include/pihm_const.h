@@ -273,6 +273,11 @@
 #define CATION_ECHG     3
 #define MINERAL         4
 
+/* RT mass action types */
+#define IMMOBILE_MA     0
+#define MOBILE_MA       1
+#define MIXED_MA        2
+
 /* RT volume types */
 #define VIRTUAL_VOL     -1
 #define LAND_VOL        0

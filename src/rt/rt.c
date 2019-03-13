@@ -578,20 +578,16 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     for (i = 0; i < NumSpc; i++)
     {
         CD->chemtype[i].mtype = (CD->chemtype[i].itype == AQUEOUS) ?
-             1 : 0;
+             MOBILE_MA : IMMOBILE_MA;
 
         for (j = 0; j < CD->NumStc + CD->NumSsc; j++)
         {
             if (CD->Totalconc[i][j] != 0 &&
                 CD->chemtype[j].itype != CD->chemtype[i].mtype)
             {
-                CD->chemtype[i].mtype = 2;
+                CD->chemtype[i].mtype = MIXED_MA;
             }
         }
-        /*
-         * if (strcmp( CD->chemtype[i].ChemName, "'H+'") == 0)
-         * CD->chemtype[i].mtype = 1;
-         */
         PIHMprintf(VL_NORMAL, " %12s\t%10d\n", CD->chemtype[i].ChemName,
             CD->chemtype[i].mtype);
     }

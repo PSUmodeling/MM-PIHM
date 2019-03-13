@@ -363,7 +363,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
 
         for (j = 0; j < NumSpc; j++)
         {
-            if (CD->chemtype[j].mtype == 2)
+            if (CD->chemtype[j].mtype == MIXED_MA)
             {
                 for (k = 0; k < CD->NumSsc; k++)
                 {
@@ -592,7 +592,7 @@ void AdptTime(Chem_Data CD, double stepsize)
 
         for (j = 0; j < NumSpc; j++)
         {
-            if (CD->chemtype[j].mtype == 2)
+            if (CD->chemtype[j].mtype == MIXED_MA)
             {
                 for (k = 0; k < CD->NumSsc; k++)
                 {
