@@ -9,10 +9,18 @@
 #define GW(i)            (i + 2 * nelem)
 #define RIVSTG(i)        (i + 3 * nelem)
 #define RIVGW(i)         (i + 3 * nelem + nriver)
+
 #if defined(_FBR_)
 # define FBRUNSAT(i)     (i + 3 * nelem + 2 * nriver)
 # define FBRGW(i)        (i + 4 * nelem + 2 * nriver)
 #endif
+
+#if defined(_RT_)
+# define UNSAT_MOLE(i, j)   ((i) * NumSpc + j + 3 * nelem + 2 * nriver)
+# define GW_MOLE(i, j)      ((i) * NumSpc + j + (3 + NumSpc) * nelem + 2 * nriver)
+# define RIVER_MOLE(i, j)   ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + 2 * nriver)
+#endif
+
 #if defined(_BGC_) && !defined(_LUMPED_)
 # define SURFN(i)        (i + 3 * nelem + 2 * nriver)
 # define SMINN(i)        (i + 4 * nelem + 2 * nriver)
@@ -21,6 +29,7 @@
 #else
 # define LUMPED_SMINN    (3 * nelem + 2 * nriver)
 #endif
+
 #if defined(_CYCLES_)
 # define NO3(i)          (i + 3 * nelem + 2 * nriver)
 # define NH4(i)          (i + 4 * nelem + 2 * nriver)
@@ -730,7 +739,7 @@ realtype        CS_AreaOrPerem(int rivOrder, realtype rivDepth,
 int             upstream(elem_struct, elem_struct, const pihm_struct);
 int             realcheck(const char *);
 int             keymatch(const char *, const char *, double *, char **);
-void            InitChem(char *, const char[], const pihm_struct, Chem_Data);
+void            InitChem(char *, const char[], const pihm_struct, Chem_Data, N_Vector);
 void            fluxtrans(int, int, const pihm_struct, Chem_Data);    // 10.05 add two timers
 void            chem_updater(Chem_Data, const pihm_struct); // 10.01
 void            OS3D(double, Chem_Data);

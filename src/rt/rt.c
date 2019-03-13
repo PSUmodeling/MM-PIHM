@@ -14,7 +14,7 @@
 #define INFTYSMALL  1E-6
 
 void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
-    Chem_Data CD)
+    Chem_Data CD, N_Vector CV_Y)
 {
     int             i, j, k;
     int             speciation_flg = 0;
@@ -686,17 +686,39 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
         }
     }
 
-    for (i = 0; i < CD->NumVol; i++)
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
     {
-        if (CD->Vcele[i].type != VIRTUAL_VOL)
+        for (k = 0; k < NumSpc; k++)
         {
-            for (k = 0; k < NumSpc; k++)
-            {
-                CD->Vcele[i].t_mole[k] =
-                    CD->Vcele[i].t_conc[k] * CD->Vcele[i].vol;
-            }
+            CD->Vcele[RT_UNSAT(i)].t_mole[k] =
+                CD->Vcele[RT_UNSAT(i)].t_conc[k] * CD->Vcele[RT_UNSAT(i)].vol;
+
+            NV_Ith(CV_Y, UNSAT_MOLE(i, k)) = CD->Vcele[RT_UNSAT(i)].t_mole[k];
+
+            CD->Vcele[RT_GW(i)].t_mole[k] =
+                CD->Vcele[RT_GW(i)].t_conc[k] * CD->Vcele[RT_GW(i)].vol;
+
+            NV_Ith(CV_Y, GW_MOLE(i, k)) = CD->Vcele[RT_GW(i)].t_mole[k];
         }
     }
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nriver; i++)
+    {
+        for (k = 0; k < NumSpc; k++)
+        {
+            CD->Vcele[RT_RIVER(i)].t_mole[k] =
+                CD->Vcele[RT_RIVER(i)].t_conc[k] * CD->Vcele[RT_RIVER(i)].vol;
+
+            NV_Ith(CV_Y, RIVER_MOLE(i, k)) = CD->Vcele[RT_RIVER(i)].t_mole[k];
+        }
+    }
+
     fclose(database);
 }
 
