@@ -103,7 +103,7 @@ void ReadCini(const char filen[], const species *chemtype, int NumStc,
             }
             else
             {
-                sscanf(cmdstr, "%*s %lf", &conc[i][ind]);
+                match = sscanf(cmdstr, "%*s %lf", &conc[i][ind]);
                 if (match != 1)
                 {
                     PIHMprintf(VL_ERROR,
