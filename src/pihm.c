@@ -8,16 +8,9 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
 #endif
 {
     int             t;
-#if defined(_RT_)
-    time_t          t_start_rt, t_end_rt;
-    time_t          t_end_hydro, t_start_hydro;
-#endif
 
     t = pihm->ctrl.tout[pihm->ctrl.cstep];
 
-#if defined(_RT_)
-    t_start_hydro = time(NULL);                        // 12.30 timing hydro
-#endif
     /* Apply boundary conditions */
     ApplyBc(&pihm->forc, pihm->elem, pihm->river, t);
 
@@ -69,20 +62,12 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, HYDROL_STEP);
 
 #if defined(_RT_)
-    t_end_hydro = time(NULL);                          // 12.30 timing hydro
-    t_duration_hydro += t_end_hydro - t_start_hydro;   // 12.30 timing hydro
-#endif
-
-#if defined(_RT_)
-    t_start_rt = time(NULL);
     fluxtrans(pihm->ctrl.tout[pihm->ctrl.cstep + 1], pihm->ctrl.stepsize,
-        pihm, rt, &t_duration_transp, &t_duration_react);
+        pihm, rt);
+    SpeciationReaction(pihm->ctrl.tout[pihm->ctrl.cstep + 1], pihm->ctrl.stepsize,
+        pihm, rt);
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, RT_STEP);
-    t_end_rt = time(NULL);
-    t_duration_rt += t_end_rt - t_start_rt;
-
-    //PrintChem(outputdir, project, rt, pihm->ctrl.tout[pihm->ctrl.cstep + 1]/60);
 #endif
 
 #if defined(_DAILY_)

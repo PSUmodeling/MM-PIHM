@@ -38,9 +38,6 @@ int main(int argc, char *argv[])
 
 #if defined(_RT_)
     Chem_Data       chData;     // 12.30 RT use
-    time_t          t_start, t_end, t_start_hydro, t_end_hydro;
-
-    t_start = time(NULL);  // 12.30 timing
 #endif
 
 #if defined(_OPENMP)
@@ -209,18 +206,8 @@ int main(int argc, char *argv[])
     FreeMem(pihm);
     free(pihm);
 #if defined(_RT_)
-    // 12.30, RT use
-    FreeChem(chData);  // 12.30, RT use
+    FreeChem(chData);
     free(chData);
-    //
-    // 12.30, RT use
-    t_end = time(NULL);
-    t_duration = t_end - t_start;
-    fprintf(stderr, "Wall time of simulation = %.3f [min] or %.3f [hr]. \n", t_duration/60, t_duration/3600);
-    fprintf(stderr, "Wall time of hydro step = %.3f [min] or %.3f [hr]. \n", t_duration_hydro/60, t_duration_hydro/3600);
-    fprintf(stderr, "Wall time of rt step = %.3f [min] or %.3f [hr]. \n", t_duration_rt/60, t_duration_rt/3600);
-    fprintf(stderr, "Wall time of rt_transp = %.3f [min] or %.3f [hr]. \n", t_duration_transp/60, t_duration_transp/3600);
-    fprintf(stderr, "Wall time of rt_react = %.3f [min] or %.3f [hr]. \n", t_duration_react/60, t_duration_react/3600);
 #endif
 
     PIHMprintf(VL_BRIEF, "\nSimulation completed.\n");

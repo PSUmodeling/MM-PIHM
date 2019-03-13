@@ -3,8 +3,7 @@
 #define MIN(a,b) (((a)<(b))? (a):(b))
 #define MAX(a,b) (((a)>(b))? (a):(b))
 
-void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
-    double *t_duration_transp, double *t_duration_react)
+void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
 {
     /* unit of t: second
      * unit of stepsize: second
@@ -62,22 +61,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         CD->Flux[RT_FBR_RECHG_UNSAT(i)].flux = pihm->elem[i].wf.fbr_rechg * CD->Vcele[RT_FBR_RECHG_UNSAT(i)].area;
         CD->Flux[RT_FBR_RECHG_GW(i)].flux = -pihm->elem[i].wf.fbr_rechg * CD->Vcele[RT_FBR_RECHG_GW(i)].area;
 #endif
-    }
-
-    /* Flux for RIVER flow */
-    for (i = 0; i < nriver; i++)
-    {
-        if (pihm->river[i].down < 0)
-        {
-            CD->riv = pihm->river[i].wf.rivflow[1] * 86400;
-        }
-    }
-
-    if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
-    {
-        CD->rivd = CD->riv / 1440;  /* Averaging the sum of 1440 mins for a
-                                     * daily discharge, rivFlx1 */
-        CD->riv = 0;
     }
 
 #if defined(_OPENMP)
@@ -361,15 +344,48 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     }
 
     /*
-     * RT step control begins
+     * Transport
      */
+    AdptTime(CD, (double)stepsize);
+}
+
+void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
+    Chem_Data CD)
+{
+    int             i, k;
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+        int             j;
+
+        for (j = 0; j < CD->NumSpc; j++)
+        {
+            if (CD->chemtype[j].mtype == 2)
+            {
+                for (k = 0; k < CD->NumSsc; k++)
+                {
+                    if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
+                        (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
+                    {
+                        CD->Vcele[RT_GW(i)].t_conc[j] =
+                            CD->Vcele[RT_GW(i)].t_conc[j] + CD->Totalconc[j][k +
+                            CD->NumStc] * CD->Vcele[RT_GW(i)].s_conc[k] *
+                            CD->TimRiv;
+                        CD->Vcele[RT_UNSAT(i)].t_conc[j] =
+                            CD->Vcele[RT_UNSAT(i)].t_conc[j] + CD->Totalconc[j][k +
+                            CD->NumStc] * CD->Vcele[RT_UNSAT(i)].s_conc[k] *
+                            CD->TimRiv;
+                    }
+                }
+            }
+        }
+    }
+
     if (t - pihm->ctrl.starttime >= CD->RT_delay)
     {
-        /*
-         * Transport
-         */
-        AdptTime(CD, (double)stepsize, t_duration_transp, t_duration_react);
-
         /*
          * Reaction
          */
@@ -524,6 +540,22 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
         }
     }
 
+    /* Flux for RIVER flow */
+    for (i = 0; i < nriver; i++)
+    {
+        if (pihm->river[i].down < 0)
+        {
+            CD->riv = pihm->river[i].wf.rivflow[1] * 86400;
+        }
+    }
+
+    if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
+    {
+        CD->rivd = CD->riv / 1440;  /* Averaging the sum of 1440 mins for a
+                                     * daily discharge, rivFlx1 */
+        CD->riv = 0;
+    }
+
     for (k = 0; k < CD->NumBTC; k++)
     {
         int             j;
@@ -547,36 +579,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD,
     }
 }
 
-void AdptTime(Chem_Data CD, double stepsize,
-    double *t_duration_transp, double *t_duration_react)
+void AdptTime(Chem_Data CD, double stepsize)
 {
     int             i, k;
-    time_t          t_start_transp, t_end_transp;
-
-    /* stepsize is in the unit of second */
-    t_start_transp = time(NULL);
-
-    time_t          t_start_react, t_end_react;
-
-#if TEMP_DISABLED
-    if (int_flg)
-    {
-        /* Do interpolation. Note that height_int always store the end time
-         * height. */
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-        for (i = 0; i < CD->NumVol; i++)
-        {
-            if (CD->Vcele[i].type != VIRTUAL_VOL)
-            {
-                CD->Vcele[i].height_t =
-                    CD->Vcele[i].height_o + CD->Vcele[i].height_sp * stepsize;
-                CD->Vcele[i].vol = CD->Vcele[i].area * CD->Vcele[i].height_t;
-            }
-        }
-    }
-#endif
 
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -616,56 +621,5 @@ void AdptTime(Chem_Data CD, double stepsize,
      * The porosity is not changed during the period, so the ratio between
      * pore space before and after OS3D is the same ratio between volume of
      * porous media before and after OS3D. */
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-    for (i = 0; i < nelem; i++)
-    {
-        int             j;
-
-        for (j = 0; j < CD->NumSpc; j++)
-        {
-            if (CD->chemtype[j].mtype == 2)
-            {
-                for (k = 0; k < CD->NumSsc; k++)
-                {
-                    if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
-                        (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
-                    {
-                        CD->Vcele[RT_GW(i)].t_conc[j] =
-                            CD->Vcele[RT_GW(i)].t_conc[j] + CD->Totalconc[j][k +
-                            CD->NumStc] * CD->Vcele[RT_GW(i)].s_conc[k] *
-                            CD->TimRiv;
-                        CD->Vcele[RT_UNSAT(i)].t_conc[j] =
-                            CD->Vcele[RT_UNSAT(i)].t_conc[j] + CD->Totalconc[j][k +
-                            CD->NumStc] * CD->Vcele[RT_UNSAT(i)].s_conc[k] *
-                            CD->TimRiv;
-                    }
-                }
-            }
-        }
-    }
-
-    t_end_transp = time(NULL);
-    *t_duration_transp += (t_end_transp - t_start_transp);
-
-    t_start_react = time(NULL);
-
-#if TEMP_DISABLED
-    if (int_flg)
-    {
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-        for (i = 0; i < CD->NumVol; i++)
-        {
-            CD->Vcele[i].height_o = CD->Vcele[i].height_t;
-            CD->Vcele[i].vol_o = CD->Vcele[i].area * CD->Vcele[i].height_o;
-        }
-    }
-#endif
-
-    t_end_react = time(NULL);
-    *t_duration_react += (t_end_react - t_start_react);
 }
 
