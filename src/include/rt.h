@@ -28,6 +28,7 @@ typedef struct vol_conc_type
     int             illness;    /* black list */
     int             type;       /* type of volume: unsaturated, groundwater, river, or river bed */
     double         *t_conc;     /* Concentration of species x, default unit in Mol/kg water. */
+    double         *t_mole;
     double         *p_conc;     /* Primary concentrations, default unit in Mol/kg water */
     /* It should be noted that this array does not only store aqueous concentration
      * but also include other types of primary species that are not mobile

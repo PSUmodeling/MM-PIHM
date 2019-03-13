@@ -220,6 +220,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     {
         CD->Vcele[i].index = i + 1;
         CD->Vcele[i].t_conc = (double *)calloc(CD->NumStc, sizeof(double));
+        CD->Vcele[i].t_mole = (double *)calloc(NumSpc, sizeof(double));
         CD->Vcele[i].p_conc = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].s_conc = (double *)calloc(CD->NumSsc, sizeof(double));
         CD->Vcele[i].p_actv = (double *)calloc(CD->NumStc, sizeof(double));
@@ -685,6 +686,17 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
         }
     }
 
+    for (i = 0; i < CD->NumVol; i++)
+    {
+        if (CD->Vcele[i].type != VIRTUAL_VOL)
+        {
+            for (k = 0; k < NumSpc; k++)
+            {
+                CD->Vcele[i].t_mole[k] =
+                    CD->Vcele[i].t_conc[k] * CD->Vcele[i].vol;
+            }
+        }
+    }
     fclose(database);
 }
 
