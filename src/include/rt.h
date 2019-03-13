@@ -177,7 +177,6 @@ typedef struct Chem_Data_structure
     int             NumBTC;     /* Number of breakthrough points */
     int            *BTC_loc;    /* Array of locations of breakthrough points */
     int            *prepconcindex;  //
-    double          TimRiv;     /* transport time of river, calculated in fluxtrans and used in os3d. */
     double          Condensation;   /* a factor controls the concentration of infiltrating rain water as a ratio to the concentration in rain water */
     double          CnntVelo;   // velocity of minimum connected cells */
     double          DiffCoe;    /* diffusion coefficient, measured in m s -1 */

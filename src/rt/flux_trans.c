@@ -372,12 +372,10 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                     {
                         CD->Vcele[RT_GW(i)].t_conc[j] =
                             CD->Vcele[RT_GW(i)].t_conc[j] + CD->Totalconc[j][k +
-                            CD->NumStc] * CD->Vcele[RT_GW(i)].s_conc[k] *
-                            CD->TimRiv;
+                            CD->NumStc] * CD->Vcele[RT_GW(i)].s_conc[k];
                         CD->Vcele[RT_UNSAT(i)].t_conc[j] =
                             CD->Vcele[RT_UNSAT(i)].t_conc[j] + CD->Totalconc[j][k +
-                            CD->NumStc] * CD->Vcele[RT_UNSAT(i)].s_conc[k] *
-                            CD->TimRiv;
+                            CD->NumStc] * CD->Vcele[RT_UNSAT(i)].s_conc[k];
                     }
                 }
             }
@@ -601,10 +599,10 @@ void AdptTime(Chem_Data CD, double stepsize)
                     {
                         CD->Vcele[RT_GW(i)].t_conc[j] = CD->Vcele[RT_GW(i)].t_conc[j] -
                             CD->Totalconc[j][k + CD->NumStc] *
-                            CD->Vcele[RT_GW(i)].s_conc[k] * CD->TimRiv;
+                            CD->Vcele[RT_GW(i)].s_conc[k];
                         CD->Vcele[RT_UNSAT(i)].t_conc[j] = CD->Vcele[RT_UNSAT(i)].t_conc[j] -
                             CD->Totalconc[j][k + CD->NumStc] *
-                            CD->Vcele[RT_UNSAT(i)].s_conc[k] * CD->TimRiv;
+                            CD->Vcele[RT_UNSAT(i)].s_conc[k];
                     }
                 }
             }

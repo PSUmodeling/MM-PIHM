@@ -31,7 +31,6 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     CD->TEMcpl = 0;
     CD->EffAds = 0;
     CD->RelMin = 0;
-    CD->TimRiv = 1.0;
     CD->AvgScl = 10;
     CD->Condensation = 1.0;
     CD->NumBTC = 0;
