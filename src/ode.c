@@ -25,12 +25,23 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     for (i = 0; i < nelem; i++)
     {
         elem_struct    *elem;
+        int             k;
 
         elem = &pihm->elem[i];
 
         elem->ws.surf = (y[SURF(i)] >= 0.0) ? y[SURF(i)] : 0.0;
         elem->ws.unsat = (y[UNSAT(i)] >= 0.0) ? y[UNSAT(i)] : 0.0;
         elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
+
+#if defined(_RT_)
+        for (k = 0; k < NumSpc; k++)
+        {
+            pihm->rt->Vcele[RT_UNSAT(i)].t_mole[k] =
+                (y[UNSAT_MOLE(i, k)] >= 1.0E-20) ? y[UNSAT_MOLE(i, k)] : 0.0;
+            pihm->rt->Vcele[RT_GW(i)].t_mole[k] =
+                (y[GW_MOLE(i, k)] >= 1.0E-20) ? y[GW_MOLE(i, k)] : 0.0;
+        }
+#endif
 
 #if defined(_FBR_)
         elem->ws.fbr_unsat = (y[FBRUNSAT(i)] >= 0.0) ? y[FBRUNSAT(i)] : 0.0;
@@ -59,10 +70,20 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     for (i = 0; i < nriver; i++)
     {
         river_struct   *river;
+        int             k;
+
         river = &pihm->river[i];
 
         river->ws.stage = (y[RIVSTG(i)] >= 0.0) ? y[RIVSTG(i)] : 0.0;
         river->ws.gw = (y[RIVGW(i)] >= 0.0) ? y[RIVGW(i)] : 0.0;
+
+#if defined(_RT_)
+        for (k = 0; k < NumSpc; k++)
+        {
+            pihm->rt->Vcele[RT_RIVER(i)].t_mole[k] =
+                (y[RIVER_MOLE(i, k)] >= 1.0E-20) ? y[RIVER_MOLE(i, k)] : 0.0;
+        }
+#endif
 
 #if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
         river->ns.streamn = (y[STREAMN(i)] >= 0.0) ? y[STREAMN(i)] : 0.0;
@@ -85,6 +106,11 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
      * PIHM Hydrology fluxes
      */
     Hydrol(pihm->elem, pihm->river, &pihm->ctrl);
+
+#if defined(_RT_)
+    fluxtrans(pihm->ctrl.tout[pihm->ctrl.cstep + 1], pihm->ctrl.stepsize,
+        pihm, pihm->rt);
+#endif
 
 #if defined(_BGC_)
     /*
@@ -127,6 +153,14 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[UNSAT(i)] += elem->wf.infil - elem->wf.rechg - elem->wf.edir_unsat -
             elem->wf.ett_unsat;
         dy[GW(i)] += elem->wf.rechg - elem->wf.edir_gw - elem->wf.ett_gw;
+
+#if defined(_RT_)
+        for (j = 0; j < NumSpc; j++)
+        {
+            dy[GW_MOLE(i, j)] = pihm->rt->Vcele[RT_GW(i)].mole_flux[j];
+            dy[UNSAT_MOLE(i, j)] = pihm->rt->Vcele[RT_UNSAT(i)].mole_flux[j];
+        }
+#endif
 
 #if defined(_FBR_)
         /*
@@ -258,6 +292,13 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         /* Check NAN errors for dy */
         CheckDy(dy[RIVSTG(i)], "river", "stage", i + 1, (double)t);
         CheckDy(dy[RIVGW(i)], "river", "groundwater", i + 1, (double)t);
+
+#if defined(_RT_)
+        for (j = 0; j < NumSpc; j++)
+        {
+            dy[RIVER_MOLE(i, j)] = pihm->rt->Vcele[RT_RIVER(i)].mole_flux[j];
+        }
+#endif
 
 #if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
         for (j = 0; j <= 6; j++)

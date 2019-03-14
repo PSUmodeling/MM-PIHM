@@ -35,10 +35,6 @@ int main(int argc, char *argv[])
 #endif
     double          cputime, cputime_dt;    /* Time cpu duration */
 
-#if defined(_RT_)
-    Chem_Data       chData;     // 12.30 RT use
-#endif
-
 #if defined(_OPENMP)
     /* Set the number of threads to use */
     nthreads = omp_get_max_threads();
@@ -55,11 +51,11 @@ int main(int argc, char *argv[])
     /* Allocate memory for model data structure */
     pihm = (pihm_struct)malloc(sizeof(*pihm));
 #if defined(_RT_)
-    chData = (Chem_Data)malloc(sizeof (*chData));     // 12.30 RT use
+    pihm->rt = (Chem_Data)malloc(sizeof (*pihm->rt));     // 12.30 RT use
 #endif
 
     /* Read PIHM input files */
-    ReadAlloc(pihm, chData);
+    ReadAlloc(pihm, pihm->rt);
 
     /* Initialize CVode state variables */
     CV_Y = N_VNew(NumStateVar());
@@ -71,7 +67,7 @@ int main(int argc, char *argv[])
 
     /* Initialize PIHM structure */
 #if defined(_RT_)
-    Initialize(pihm, chData, CV_Y, &cvode_mem);
+    Initialize(pihm, pihm->rt, CV_Y, &cvode_mem);
 #else
     Initialize(pihm, CV_Y, &cvode_mem);
 #endif
@@ -84,7 +80,7 @@ int main(int argc, char *argv[])
     MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->epctbl,
         pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
 #elif defined(_RT_)
-    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, chData,
+    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->rt,
         pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
 #else
     MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->elem, pihm->river,
@@ -125,7 +121,7 @@ int main(int argc, char *argv[])
     if (spinup_mode)
     {
 #if defined(_RT_)
-        Spinup(pihm, chData, CV_Y, cvode_mem);
+        Spinup(pihm, pihm->rt, CV_Y, cvode_mem);
 #else
         Spinup(pihm, CV_Y, cvode_mem);
 #endif
@@ -149,7 +145,7 @@ int main(int argc, char *argv[])
 #endif
 
 #if defined(_RT_)
-            PIHM(pihm, chData, cvode_mem, CV_Y, cputime);
+            PIHM(pihm, pihm->rt, cvode_mem, CV_Y, cputime);
 #else
             PIHM(pihm, cvode_mem, CV_Y, cputime);
 #endif
@@ -203,11 +199,11 @@ int main(int argc, char *argv[])
     /* Free integrator memory */
     CVodeFree(&cvode_mem);
     FreeMem(pihm);
-    free(pihm);
 #if defined(_RT_)
-    FreeChem(chData);
-    free(chData);
+    FreeChem(pihm->rt);
+    free(pihm->rt);
 #endif
+    free(pihm);
 
     PIHMprintf(VL_BRIEF, "\nSimulation completed.\n");
 

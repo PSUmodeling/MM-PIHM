@@ -62,8 +62,6 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, HYDROL_STEP);
 
 #if defined(_RT_)
-    fluxtrans(pihm->ctrl.tout[pihm->ctrl.cstep + 1], pihm->ctrl.stepsize,
-        pihm, rt);
     SpeciationReaction(pihm->ctrl.tout[pihm->ctrl.cstep + 1], pihm->ctrl.stepsize,
         pihm, rt);
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);

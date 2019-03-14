@@ -258,6 +258,9 @@ typedef struct pihm_struct
     calib_struct    cal;
     ctrl_struct     ctrl;
     print_struct    print;
+#if defined(_RT_)
+    Chem_Data       rt;
+#endif
 } *pihm_struct;
 
 #endif

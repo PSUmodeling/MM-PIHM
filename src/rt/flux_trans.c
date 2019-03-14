@@ -124,6 +124,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
     {
         double          heqv;
         double          satn;
+        int             k;
 
         UpdateVcele(MAX(pihm->elem[i].ws.gw, 1.0E-5), 1.0,
             &CD->Vcele[RT_GW(i)]);
@@ -152,6 +153,15 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
         /* Update the unsaturated zone (vadoze) */
         UpdateVcele(MAX(heqv, 1.0E-5), satn, &CD->Vcele[RT_FBR_UNSAT(i)]);
 #endif
+
+        for (k = 0; k < NumSpc; k++)
+        {
+            CD->Vcele[RT_GW(i)].t_conc[k] = CD->Vcele[RT_GW(i)].t_mole[k] /
+                CD->Vcele[RT_GW(i)].vol;
+
+            CD->Vcele[RT_UNSAT(i)].t_conc[k] = CD->Vcele[RT_UNSAT(i)].t_mole[k] /
+                CD->Vcele[RT_UNSAT(i)].vol;
+        }
     }
 
 #ifdef _OPENMP
@@ -163,6 +173,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
         UpdateVcele(MAX(pihm->river[i].ws.gw, 1.0E-5) +
             MAX(pihm->river[i].ws.stage, 1.0E-5) /
             CD->Vcele[RT_RIVER(i)].porosity, 1.0, &CD->Vcele[RT_RIVER(i)]);
+
+        CD->Vcele[RT_RIVER(i)].t_conc[k] = CD->Vcele[RT_RIVER(i)].t_mole[k] /
+            CD->Vcele[RT_RIVER(i)].vol;
     }
 
 #if defined(_OPENMP)
@@ -298,50 +311,50 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
             CD->Precipitation.t_conc[k] * CD->Condensation;
     }
 
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-    for (i = 0; i < CD->NumVol; i++)
-    {
-        CD->Vcele[i].rt_step = 0.0;
-    }
-
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-    for (i = 0; i < CD->NumFac; i++)
-    {
-        int             j;
-        double          peclet;
-
-        if (CD->Flux[i].BC == DISPERSION)
-        {
-            for (j = 0; j < NumSpc; j++)
-            {
-                peclet = fabs(CD->Flux[i].velocity * CD->Flux[i].distance /
-                    (CD->chemtype[j].DiffCoe +
-                    CD->chemtype[j].DispCoe * CD->Flux[i].velocity));
-                peclet = MAX(peclet, 1.0E-8);
-            }
-
-            CD->Vcele[CD->Flux[i].nodeup - 1].rt_step +=
-                fabs(CD->Flux[i].flux / CD->Vcele[CD->Flux[i].nodeup - 1].vol) *
-                (1 + peclet) / peclet;
-        }
-    }
-
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-    for (i = 0; i < CD->NumVol; i++)
-    {
-        if (CD->Vcele[i].type != VIRTUAL_VOL)
-        {
-            CD->Vcele[i].rt_step = 0.6 / CD->Vcele[i].rt_step;
-            CD->Vcele[i].rt_step = (CD->Vcele[i].rt_step >= stepsize) ?
-                stepsize : CD->Vcele[i].rt_step;
-        }
-    }
+//#if defined(_OPENMP)
+//# pragma omp parallel for
+//#endif
+//    for (i = 0; i < CD->NumVol; i++)
+//    {
+//        CD->Vcele[i].rt_step = 0.0;
+//    }
+//
+//#if defined(_OPENMP)
+//# pragma omp parallel for
+//#endif
+//    for (i = 0; i < CD->NumFac; i++)
+//    {
+//        int             j;
+//        double          peclet;
+//
+//        if (CD->Flux[i].BC == DISPERSION)
+//        {
+//            for (j = 0; j < NumSpc; j++)
+//            {
+//                peclet = fabs(CD->Flux[i].velocity * CD->Flux[i].distance /
+//                    (CD->chemtype[j].DiffCoe +
+//                    CD->chemtype[j].DispCoe * CD->Flux[i].velocity));
+//                peclet = MAX(peclet, 1.0E-8);
+//            }
+//
+//            CD->Vcele[CD->Flux[i].nodeup - 1].rt_step +=
+//                fabs(CD->Flux[i].flux / CD->Vcele[CD->Flux[i].nodeup - 1].vol) *
+//                (1 + peclet) / peclet;
+//        }
+//    }
+//
+//#if defined(_OPENMP)
+//# pragma omp parallel for
+//#endif
+//    for (i = 0; i < CD->NumVol; i++)
+//    {
+//        if (CD->Vcele[i].type != VIRTUAL_VOL)
+//        {
+//            CD->Vcele[i].rt_step = 0.6 / CD->Vcele[i].rt_step;
+//            CD->Vcele[i].rt_step = (CD->Vcele[i].rt_step >= stepsize) ?
+//                stepsize : CD->Vcele[i].rt_step;
+//        }
+//    }
 
     /*
      * Transport
@@ -360,6 +373,46 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
     for (i = 0; i < nelem; i++)
     {
         int             j;
+        double          heqv;
+        double          satn;
+        int             k;
+
+        UpdateVcele(MAX(pihm->elem[i].ws.gw, 1.0E-5), 1.0,
+            &CD->Vcele[RT_GW(i)]);
+
+        heqv = EqvUnsatH(pihm->elem[i].soil.smcmax,
+            pihm->elem[i].soil.smcmin, pihm->elem[i].soil.depth,
+            pihm->elem[i].ws.unsat, pihm->elem[i].ws.gw);
+
+        satn = UnsatSatRatio(pihm->elem[i].soil.depth,
+            pihm->elem[i].ws.unsat, pihm->elem[i].ws.gw);
+
+        /* Update the unsaturated zone (vadoze) */
+        UpdateVcele(MAX(heqv, 1.0E-5), satn, &CD->Vcele[RT_UNSAT(i)]);
+
+#if defined(_FBR_)
+        UpdateVcele(MAX(pihm->elem[i].ws.fbr_gw, 1.0E-5), 1.0,
+            &CD->Vcele[RT_FBR_GW(i)]);
+
+        heqv = EqvUnsatH(pihm->elem[i].geol.smcmax,
+            pihm->elem[i].geol.smcmin, pihm->elem[i].geol.depth,
+            pihm->elem[i].ws.fbr_unsat, pihm->elem[i].ws.fbr_gw);
+
+        satn = UnsatSatRatio(pihm->elem[i].geol.depth,
+            pihm->elem[i].ws.fbr_unsat, pihm->elem[i].ws.fbr_gw);
+
+        /* Update the unsaturated zone (vadoze) */
+        UpdateVcele(MAX(heqv, 1.0E-5), satn, &CD->Vcele[RT_FBR_UNSAT(i)]);
+#endif
+
+        for (k = 0; k < NumSpc; k++)
+        {
+            CD->Vcele[RT_GW(i)].t_conc[k] = CD->Vcele[RT_GW(i)].t_mole[k] /
+                CD->Vcele[RT_GW(i)].vol;
+
+            CD->Vcele[RT_UNSAT(i)].t_conc[k] = CD->Vcele[RT_UNSAT(i)].t_mole[k] /
+                CD->Vcele[RT_UNSAT(i)].vol;
+        }
 
         for (j = 0; j < NumSpc; j++)
         {
@@ -380,6 +433,20 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                 }
             }
         }
+    }
+
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    /* Update river cells */
+    for (i = 0; i < nriver; i++)
+    {
+        UpdateVcele(MAX(pihm->river[i].ws.gw, 1.0E-5) +
+            MAX(pihm->river[i].ws.stage, 1.0E-5) /
+            CD->Vcele[RT_RIVER(i)].porosity, 1.0, &CD->Vcele[RT_RIVER(i)]);
+
+        CD->Vcele[RT_RIVER(i)].t_conc[k] = CD->Vcele[RT_RIVER(i)].t_mole[k] /
+            CD->Vcele[RT_RIVER(i)].vol;
     }
 
     if (t - pihm->ctrl.starttime >= CD->RT_delay)
@@ -597,10 +664,10 @@ void AdptTime(Chem_Data CD, double stepsize)
                     if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
                         (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
                     {
-                        CD->Vcele[RT_GW(i)].t_conc[j] = CD->Vcele[RT_GW(i)].t_conc[j] -
+                        CD->Vcele[RT_GW(i)].t_conc[j] -=
                             CD->Totalconc[j][k + CD->NumStc] *
                             CD->Vcele[RT_GW(i)].s_conc[k];
-                        CD->Vcele[RT_UNSAT(i)].t_conc[j] = CD->Vcele[RT_UNSAT(i)].t_conc[j] -
+                        CD->Vcele[RT_UNSAT(i)].t_conc[j] -=
                             CD->Totalconc[j][k + CD->NumStc] *
                             CD->Vcele[RT_UNSAT(i)].s_conc[k];
                     }

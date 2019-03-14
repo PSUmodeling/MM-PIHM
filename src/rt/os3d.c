@@ -17,11 +17,11 @@
 void OS3D(double stepsize, Chem_Data CD)
 {
     /* Input stepsize in the unit of second */
-    double        **dconc = (double **)malloc(CD->NumVol * sizeof(double *));
+    //double        **dconc = (double **)malloc(CD->NumVol * sizeof(double *));
     int             i;
-    double        **tconc;
+    //double        **tconc;
 
-    tconc = (double **)malloc(CD->NumVol * sizeof(double *));
+    //tconc = (double **)malloc(CD->NumVol * sizeof(double *));
 
     /* Initalize the allocated array */
 #ifdef _OPENMP
@@ -31,13 +31,17 @@ void OS3D(double stepsize, Chem_Data CD)
     {
         int             j;
 
-        tconc[i] = (double *)malloc(NumSpc * sizeof(double));
-        dconc[i] = (double *)malloc(NumSpc * sizeof(double));
+        //tconc[i] = (double *)malloc(NumSpc * sizeof(double));
+        //dconc[i] = (double *)malloc(NumSpc * sizeof(double));
 
-        for (j = 0; j < NumSpc; j++)
+        if (CD->Vcele[i].type != VIRTUAL_VOL)
         {
-            tconc[i][j] = CD->Vcele[i].t_conc[j];
-            dconc[i][j] = 0.0;
+            for (j = 0; j < NumSpc; j++)
+            {
+                CD->Vcele[i].mole_flux[j] = 0.0;
+                //tconc[i][j] = CD->Vcele[i].t_conc[j];
+                //dconc[i][j] = 0.0;
+            }
         }
     }
 
@@ -49,7 +53,7 @@ void OS3D(double stepsize, Chem_Data CD)
         {
             for (j = 0; j < NumSpc; j++)
             {
-                dconc[CD->Flux[i].nodeup - 1][j] +=
+                CD->Vcele[CD->Flux[i].nodeup - 1].mole_flux[j] +=
                     Dconc(&CD->Flux[i], CD->Vcele, CD->chemtype,
                         CD->Cementation, CD->TVDFlg, j);
             }
@@ -57,193 +61,193 @@ void OS3D(double stepsize, Chem_Data CD)
     }
 
     /* Local time step part */
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (i = 0; i < CD->NumVol; i++)
-    {
-        int             j, k;
-        double          diff_conc;
-        double          timelps;            /* (s) */
-        double          adpstep;            /* (s) */
-        double         *tmpconc;
-
-        if (CD->Vcele[i].type == VIRTUAL_VOL ||
-            CD->Vcele[i].height_t < 1.0E-3 ||
-            CD->Vcele[i].height_o < 1.0E-3)
-        {
-            /* For blocks with very small content, we just skip it */
-            continue;
-        }
-
-        tmpconc = (double *)malloc(NumSpc * sizeof(double));
-
-        adpstep = CD->Vcele[i].rt_step;
-
-        if (CD->Vcele[i].rt_step < stepsize)
-        {
-            /* Use its intrinsic smaller step for small/fast flowing cells
-             *  ~= slow cells (in term of time marching). */
-            if (CD->Vcele[i].type == LAND_VOL)
-            {
-                timelps = 0.0;
-
-                while (timelps < stepsize)
-                {
-                    adpstep = (adpstep > stepsize - timelps) ?
-                        stepsize - timelps : adpstep;
-
-                    diff_conc = 0.0;
-                    for (j = 0; j < NumSpc; j++)
-                    {
-                        tmpconc[j] = dconc[i][j] * adpstep +
-                            CD->Vcele[i].t_conc[j] *
-                            (CD->Vcele[i].porosity * 0.5 *
-                            (CD->Vcele[i].vol_o + CD->Vcele[i].vol));
-
-                        if ((tmpconc[j] < 0.0) &&
-                            (strcmp(CD->chemtype[j].ChemName, "'H+'")))
-                        {
-                            fprintf(stderr, "Local time stepping check\n");
-                            fprintf(stderr,
-                                "negative concentration change at species %s !\n",
-                                CD->chemtype[j].ChemName);
-                            fprintf(stderr, "Change from fluxes: %8.4g\n",
-                                dconc[i][j] * adpstep);
-                            fprintf(stderr, "Original mass: %8.4g\n",
-                                CD->Vcele[i].t_conc[j] *
-                                (CD->Vcele[i].porosity * 0.5 *
-                                    (CD->Vcele[i].vol_o +
-                                        CD->Vcele[i].vol)));
-                            fprintf(stderr,
-                                "Old Conc: %8.4g\t New Conc: %8.4g\n",
-                                CD->Vcele[i].t_conc[j], tmpconc[j]);
-                            ReportError(CD->Vcele[i], CD);
-                            CD->Vcele[i].illness++;
-                        }
-
-                        tmpconc[j] =
-                            tmpconc[j] / (CD->Vcele[i].porosity * 0.5 *
-                            (CD->Vcele[i].vol + CD->Vcele[i].vol_o));
-
-                        if (CD->Vcele[i].illness < 20)
-                        {
-                            diff_conc =
-                                max(fabs(CD->Vcele[i].t_conc[j] -
-                                tmpconc[j]), diff_conc);
-                            CD->Vcele[i].t_conc[j] = tmpconc[j];
-                        }
-                    }
-
-                    if (diff_conc > 1.0E-6) /* Which lead to the change in
-                                             * the flux of mass between
-                                             * cells */
-                    {
-                        for (j = 0; j < NumSpc; j++)
-                            tmpconc[j] = 0.0;
-
-                        for (k = 0; k < CD->NumFac; k++)
-                        {
-                            if (CD->Flux[k].BC != NO_FLOW)
-                            {
-                                if (CD->Flux[k].nodeup == CD->Vcele[i].index)
-                                {
-                                    for (j = 0; j < NumSpc; j++)
-                                    {
-                                        tmpconc[j] += Dconc(&CD->Flux[k],
-                                            CD->Vcele, CD->chemtype,
-                                            CD->Cementation, CD->TVDFlg, j);
-                                    }
-                                }
-                            }
-                        }
-
-                        for (j = 0; j < NumSpc; j++)
-                        {
-                            dconc[i][j] = tmpconc[j];
-                        }
-                    }
-
-                    timelps += adpstep;
-                    if (timelps >= stepsize)
-                        break;
-                }
-            }
-        }
-        else
-        {   /* rt_step >= stepsize */
-            for (j = 0; j < NumSpc; j++)
-            {
-                tmpconc[j] =
-                    dconc[i][j] * stepsize +
-                    CD->Vcele[i].t_conc[j] * (CD->Vcele[i].porosity *
-                    CD->Vcele[i].vol_o);
-
-                tmpconc[j] = tmpconc[j] /
-                    (CD->Vcele[i].porosity * CD->Vcele[i].vol);
-            }
-            if (CD->Vcele[i].illness < 20)
-                for (j = 0; j < NumSpc; j++)
-                {
-
-                    if ((tmpconc[j] < 0.0) &&
-                        (strcmp(CD->chemtype[j].ChemName, "'H+'")) &&
-                        CD->Vcele[i].type == LAND_VOL)
-                    {
-                        fprintf(stderr,
-                            "negative concentration change at species %s !\n",
-                            CD->chemtype[j].ChemName);
-                        fprintf(stderr, "Change from fluxes: %8.4g\t",
-                            dconc[i][j] * stepsize);
-                        fprintf(stderr, "Original mass: %8.4g\n",
-                            CD->Vcele[i].t_conc[j] *
-                            (CD->Vcele[i].porosity * CD->Vcele[i].vol_o));
-                        fprintf(stderr,
-                            "New mass: %8.4g\t New Volume: %8.4g\t Old Conc: %8.4g\t New Conc: %8.4g\t Timestep: %8.4g\n",
-                            dconc[i][j] * stepsize +
-                            CD->Vcele[i].t_conc[j] *
-                            (CD->Vcele[i].porosity * CD->Vcele[i].vol_o),
-                            CD->Vcele[i].porosity * CD->Vcele[i].height_t *
-                            CD->Vcele[i].area, CD->Vcele[i].t_conc[j],
-                            tmpconc[j], CD->Vcele[i].rt_step);
-                        ReportError(CD->Vcele[i], CD);
-                        CD->Vcele[i].illness++;
-                    }
-                    tconc[i][j] = tmpconc[j];
-                }
-        }
-
-        free(tmpconc);
-    }
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (i = 0; i < CD->NumVol; i++)
-    {
-        int             j;
-
-        if (CD->Vcele[i].type == VIRTUAL_VOL)
-        {
-            continue;
-        }
-
-        for (j = 0; j < NumSpc; j++)
-        {
-            CD->Vcele[i].t_conc[j] = tconc[i][j];
-        }
-    }
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (i = 0; i < CD->NumVol; i++)
-    {
-        free(tconc[i]);
-        free(dconc[i]);
-    }
-    free(tconc);
-    free(dconc);
+//#ifdef _OPENMP
+//#pragma omp parallel for
+//#endif
+//    for (i = 0; i < CD->NumVol; i++)
+//    {
+//        int             j, k;
+//        double          diff_conc;
+//        double          timelps;            /* (s) */
+//        double          adpstep;            /* (s) */
+//        double         *tmpconc;
+//
+//        if (CD->Vcele[i].type == VIRTUAL_VOL ||
+//            CD->Vcele[i].height_t < 1.0E-3 ||
+//            CD->Vcele[i].height_o < 1.0E-3)
+//        {
+//            /* For blocks with very small content, we just skip it */
+//            continue;
+//        }
+//
+//        tmpconc = (double *)malloc(NumSpc * sizeof(double));
+//
+//        adpstep = CD->Vcele[i].rt_step;
+//
+//        if (CD->Vcele[i].rt_step < stepsize)
+//        {
+//            /* Use its intrinsic smaller step for small/fast flowing cells
+//             *  ~= slow cells (in term of time marching). */
+//            if (CD->Vcele[i].type == LAND_VOL)
+//            {
+//                timelps = 0.0;
+//
+//                while (timelps < stepsize)
+//                {
+//                    adpstep = (adpstep > stepsize - timelps) ?
+//                        stepsize - timelps : adpstep;
+//
+//                    diff_conc = 0.0;
+//                    for (j = 0; j < NumSpc; j++)
+//                    {
+//                        tmpconc[j] = dconc[i][j] * adpstep +
+//                            CD->Vcele[i].t_conc[j] *
+//                            (CD->Vcele[i].porosity * 0.5 *
+//                            (CD->Vcele[i].vol_o + CD->Vcele[i].vol));
+//
+//                        if ((tmpconc[j] < 0.0) &&
+//                            (strcmp(CD->chemtype[j].ChemName, "'H+'")))
+//                        {
+//                            fprintf(stderr, "Local time stepping check\n");
+//                            fprintf(stderr,
+//                                "negative concentration change at species %s !\n",
+//                                CD->chemtype[j].ChemName);
+//                            fprintf(stderr, "Change from fluxes: %8.4g\n",
+//                                dconc[i][j] * adpstep);
+//                            fprintf(stderr, "Original mass: %8.4g\n",
+//                                CD->Vcele[i].t_conc[j] *
+//                                (CD->Vcele[i].porosity * 0.5 *
+//                                    (CD->Vcele[i].vol_o +
+//                                        CD->Vcele[i].vol)));
+//                            fprintf(stderr,
+//                                "Old Conc: %8.4g\t New Conc: %8.4g\n",
+//                                CD->Vcele[i].t_conc[j], tmpconc[j]);
+//                            ReportError(CD->Vcele[i], CD);
+//                            CD->Vcele[i].illness++;
+//                        }
+//
+//                        tmpconc[j] =
+//                            tmpconc[j] / (CD->Vcele[i].porosity * 0.5 *
+//                            (CD->Vcele[i].vol + CD->Vcele[i].vol_o));
+//
+//                        if (CD->Vcele[i].illness < 20)
+//                        {
+//                            diff_conc =
+//                                max(fabs(CD->Vcele[i].t_conc[j] -
+//                                tmpconc[j]), diff_conc);
+//                            CD->Vcele[i].t_conc[j] = tmpconc[j];
+//                        }
+//                    }
+//
+//                    if (diff_conc > 1.0E-6) /* Which lead to the change in
+//                                             * the flux of mass between
+//                                             * cells */
+//                    {
+//                        for (j = 0; j < NumSpc; j++)
+//                            tmpconc[j] = 0.0;
+//
+//                        for (k = 0; k < CD->NumFac; k++)
+//                        {
+//                            if (CD->Flux[k].BC != NO_FLOW)
+//                            {
+//                                if (CD->Flux[k].nodeup == CD->Vcele[i].index)
+//                                {
+//                                    for (j = 0; j < NumSpc; j++)
+//                                    {
+//                                        tmpconc[j] += Dconc(&CD->Flux[k],
+//                                            CD->Vcele, CD->chemtype,
+//                                            CD->Cementation, CD->TVDFlg, j);
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                        for (j = 0; j < NumSpc; j++)
+//                        {
+//                            dconc[i][j] = tmpconc[j];
+//                        }
+//                    }
+//
+//                    timelps += adpstep;
+//                    if (timelps >= stepsize)
+//                        break;
+//                }
+//            }
+//        }
+//        else
+//        {   /* rt_step >= stepsize */
+//            for (j = 0; j < NumSpc; j++)
+//            {
+//                tmpconc[j] =
+//                    dconc[i][j] * stepsize +
+//                    CD->Vcele[i].t_conc[j] * (CD->Vcele[i].porosity *
+//                    CD->Vcele[i].vol_o);
+//
+//                tmpconc[j] = tmpconc[j] /
+//                    (CD->Vcele[i].porosity * CD->Vcele[i].vol);
+//            }
+//            if (CD->Vcele[i].illness < 20)
+//                for (j = 0; j < NumSpc; j++)
+//                {
+//
+//                    if ((tmpconc[j] < 0.0) &&
+//                        (strcmp(CD->chemtype[j].ChemName, "'H+'")) &&
+//                        CD->Vcele[i].type == LAND_VOL)
+//                    {
+//                        fprintf(stderr,
+//                            "negative concentration change at species %s !\n",
+//                            CD->chemtype[j].ChemName);
+//                        fprintf(stderr, "Change from fluxes: %8.4g\t",
+//                            dconc[i][j] * stepsize);
+//                        fprintf(stderr, "Original mass: %8.4g\n",
+//                            CD->Vcele[i].t_conc[j] *
+//                            (CD->Vcele[i].porosity * CD->Vcele[i].vol_o));
+//                        fprintf(stderr,
+//                            "New mass: %8.4g\t New Volume: %8.4g\t Old Conc: %8.4g\t New Conc: %8.4g\t Timestep: %8.4g\n",
+//                            dconc[i][j] * stepsize +
+//                            CD->Vcele[i].t_conc[j] *
+//                            (CD->Vcele[i].porosity * CD->Vcele[i].vol_o),
+//                            CD->Vcele[i].porosity * CD->Vcele[i].height_t *
+//                            CD->Vcele[i].area, CD->Vcele[i].t_conc[j],
+//                            tmpconc[j], CD->Vcele[i].rt_step);
+//                        ReportError(CD->Vcele[i], CD);
+//                        CD->Vcele[i].illness++;
+//                    }
+//                    tconc[i][j] = tmpconc[j];
+//                }
+//        }
+//
+//        free(tmpconc);
+//    }
+//
+//#ifdef _OPENMP
+//#pragma omp parallel for
+//#endif
+//    for (i = 0; i < CD->NumVol; i++)
+//    {
+//        int             j;
+//
+//        if (CD->Vcele[i].type == VIRTUAL_VOL)
+//        {
+//            continue;
+//        }
+//
+//        for (j = 0; j < NumSpc; j++)
+//        {
+//            CD->Vcele[i].t_conc[j] = tconc[i][j];
+//        }
+//    }
+//
+//#ifdef _OPENMP
+//#pragma omp parallel for
+//#endif
+//    for (i = 0; i < CD->NumVol; i++)
+//    {
+//        free(tconc[i]);
+//        free(dconc[i]);
+//    }
+//    free(tconc);
+//    free(dconc);
 }
 
 double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
