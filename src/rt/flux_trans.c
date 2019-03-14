@@ -311,51 +311,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
             CD->Precipitation.t_conc[k] * CD->Condensation;
     }
 
-//#if defined(_OPENMP)
-//# pragma omp parallel for
-//#endif
-//    for (i = 0; i < CD->NumVol; i++)
-//    {
-//        CD->Vcele[i].rt_step = 0.0;
-//    }
-//
-//#if defined(_OPENMP)
-//# pragma omp parallel for
-//#endif
-//    for (i = 0; i < CD->NumFac; i++)
-//    {
-//        int             j;
-//        double          peclet;
-//
-//        if (CD->Flux[i].BC == DISPERSION)
-//        {
-//            for (j = 0; j < NumSpc; j++)
-//            {
-//                peclet = fabs(CD->Flux[i].velocity * CD->Flux[i].distance /
-//                    (CD->chemtype[j].DiffCoe +
-//                    CD->chemtype[j].DispCoe * CD->Flux[i].velocity));
-//                peclet = MAX(peclet, 1.0E-8);
-//            }
-//
-//            CD->Vcele[CD->Flux[i].nodeup - 1].rt_step +=
-//                fabs(CD->Flux[i].flux / CD->Vcele[CD->Flux[i].nodeup - 1].vol) *
-//                (1 + peclet) / peclet;
-//        }
-//    }
-//
-//#if defined(_OPENMP)
-//# pragma omp parallel for
-//#endif
-//    for (i = 0; i < CD->NumVol; i++)
-//    {
-//        if (CD->Vcele[i].type != VIRTUAL_VOL)
-//        {
-//            CD->Vcele[i].rt_step = 0.6 / CD->Vcele[i].rt_step;
-//            CD->Vcele[i].rt_step = (CD->Vcele[i].rt_step >= stepsize) ?
-//                stepsize : CD->Vcele[i].rt_step;
-//        }
-//    }
-
     /*
      * Transport
      */
@@ -494,35 +449,6 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                     CD->Vcele[RT_UNSAT(i)].p_conc[j] =
                         CD->Vcele[RT_GW(i)].t_conc[j];
                 }
-            }
-        }
-
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-        for (i = 0; i < CD->NumVol; i++)
-        {
-            int             j;
-
-            if (CD->Vcele[i].type == VIRTUAL_VOL)
-            {
-                continue;
-            }
-
-            /* Make sure intrapolation worked well */
-            if (fabs(CD->Vcele[i].height_t - CD->Vcele[i].height_int) >
-                1.0E-6)
-                PIHMprintf(VL_NORMAL, "%d %6.4f\t%6.4f\n", i,
-                    CD->Vcele[i].height_t, CD->Vcele[i].height_int);
-            assert(fabs(CD->Vcele[i].height_t - CD->Vcele[i].height_int) <
-                1.0E-6);
-            if (CD->Vcele[i].illness >= 20)
-            {
-                for (j = 0; j < CD->NumStc; j++)
-                    CD->Vcele[i].t_conc[j] = 1.0E-10;
-                PIHMprintf(VL_NORMAL,
-                    " Cell %d isolated due to proneness to err!\n",
-                    CD->Vcele[i].index);
             }
         }
     } /* RT step control ends */

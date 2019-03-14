@@ -430,12 +430,12 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
 
         /* Rechage centered at unsat blocks */
         InitFlux(CD->Vcele[RT_UNSAT(i)].index, CD->Vcele[RT_GW(i)].index,
-            0, 0, 0, DISPERSION, 0.1 * pihm->elem[i].soil.depth,
+            0, 0, 0, DISPERSION, 0.5 * pihm->elem[i].soil.depth,
             &CD->Flux[RT_RECHG_UNSAT(i)]);
 
         /* Recharge centered at gw blocks */
         InitFlux(CD->Vcele[RT_GW(i)].index, CD->Vcele[RT_UNSAT(i)].index,
-            0, 0, 0, DISPERSION, 0.1 * pihm->elem[i].soil.depth,
+            0, 0, 0, DISPERSION, 0.5 * pihm->elem[i].soil.depth,
             &CD->Flux[RT_RECHG_GW(i)]);
 
 #if defined(_FBR_)
@@ -454,12 +454,12 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
         /* Bedrock recharge centered at unsat blocks */
         InitFlux(CD->Vcele[RT_FBR_UNSAT(i)].index,
             CD->Vcele[RT_FBR_GW(i)].index, 0, 0, 0, DISPERSION,
-            0.1 * pihm->elem[i].geol.depth, &CD->Flux[RT_FBR_RECHG_UNSAT(i)]);
+            0.5 * pihm->elem[i].geol.depth, &CD->Flux[RT_FBR_RECHG_UNSAT(i)]);
 
         /* Bedrock recharge centered at groundwater blocks */
         InitFlux(CD->Vcele[RT_FBR_GW(i)].index,
             CD->Vcele[RT_FBR_UNSAT(i)].index, 0, 0, 0, DISPERSION,
-            0.1 * pihm->elem[i].geol.depth, &CD->Flux[RT_FBR_RECHG_GW(i)]);
+            0.5 * pihm->elem[i].geol.depth, &CD->Flux[RT_FBR_RECHG_GW(i)]);
 #endif
     }
 

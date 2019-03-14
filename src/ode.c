@@ -37,9 +37,9 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         for (k = 0; k < NumSpc; k++)
         {
             pihm->rt->Vcele[RT_UNSAT(i)].t_mole[k] =
-                (y[UNSAT_MOLE(i, k)] >= 1.0E-20) ? y[UNSAT_MOLE(i, k)] : 0.0;
+                (y[UNSAT_MOLE(i, k)] >= 1.0E-20) ? y[UNSAT_MOLE(i, k)] : 1.0E-20;
             pihm->rt->Vcele[RT_GW(i)].t_mole[k] =
-                (y[GW_MOLE(i, k)] >= 1.0E-20) ? y[GW_MOLE(i, k)] : 0.0;
+                (y[GW_MOLE(i, k)] >= 1.0E-20) ? y[GW_MOLE(i, k)] : 1.0E-20;
         }
 #endif
 
@@ -81,7 +81,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         for (k = 0; k < NumSpc; k++)
         {
             pihm->rt->Vcele[RT_RIVER(i)].t_mole[k] =
-                (y[RIVER_MOLE(i, k)] >= 1.0E-20) ? y[RIVER_MOLE(i, k)] : 0.0;
+                (y[RIVER_MOLE(i, k)] >= 1.0E-20) ? y[RIVER_MOLE(i, k)] : 1.0E-20;
         }
 #endif
 
