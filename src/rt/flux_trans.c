@@ -369,25 +369,25 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                 CD->Vcele[RT_UNSAT(i)].vol;
         }
 
-        for (j = 0; j < NumSpc; j++)
-        {
-            if (CD->chemtype[j].mtype == MIXED_MA)
-            {
-                for (k = 0; k < CD->NumSsc; k++)
-                {
-                    if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
-                        (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
-                    {
-                        CD->Vcele[RT_GW(i)].t_conc[j] =
-                            CD->Vcele[RT_GW(i)].t_conc[j] + CD->Totalconc[j][k +
-                            CD->NumStc] * CD->Vcele[RT_GW(i)].s_conc[k];
-                        CD->Vcele[RT_UNSAT(i)].t_conc[j] =
-                            CD->Vcele[RT_UNSAT(i)].t_conc[j] + CD->Totalconc[j][k +
-                            CD->NumStc] * CD->Vcele[RT_UNSAT(i)].s_conc[k];
-                    }
-                }
-            }
-        }
+        //for (j = 0; j < NumSpc; j++)
+        //{
+        //    if (CD->chemtype[j].mtype == MIXED_MA)
+        //    {
+        //        for (k = 0; k < CD->NumSsc; k++)
+        //        {
+        //            if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
+        //                (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
+        //            {
+        //                CD->Vcele[RT_GW(i)].t_conc[j] =
+        //                    CD->Vcele[RT_GW(i)].t_conc[j] + CD->Totalconc[j][k +
+        //                    CD->NumStc] * CD->Vcele[RT_GW(i)].s_conc[k];
+        //                CD->Vcele[RT_UNSAT(i)].t_conc[j] =
+        //                    CD->Vcele[RT_UNSAT(i)].t_conc[j] + CD->Totalconc[j][k +
+        //                    CD->NumStc] * CD->Vcele[RT_UNSAT(i)].s_conc[k];
+        //            }
+        //        }
+        //    }
+        //}
     }
 
 #ifdef _OPENMP
@@ -396,12 +396,17 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
     /* Update river cells */
     for (i = 0; i < nriver; i++)
     {
+        int             k;
+
         UpdateVcele(MAX(pihm->river[i].ws.gw, 1.0E-5) +
             MAX(pihm->river[i].ws.stage, 1.0E-5) /
             CD->Vcele[RT_RIVER(i)].porosity, 1.0, &CD->Vcele[RT_RIVER(i)]);
 
-        CD->Vcele[RT_RIVER(i)].t_conc[k] = CD->Vcele[RT_RIVER(i)].t_mole[k] /
-            CD->Vcele[RT_RIVER(i)].vol;
+        for (k = 0; k < NumSpc; k++)
+        {
+            CD->Vcele[RT_RIVER(i)].t_conc[k] = CD->Vcele[RT_RIVER(i)].t_mole[k] /
+                CD->Vcele[RT_RIVER(i)].vol;
+        }
     }
 
     if (t - pihm->ctrl.starttime >= CD->RT_delay)
