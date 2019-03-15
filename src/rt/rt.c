@@ -221,7 +221,8 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
         CD->Vcele[i].index = i + 1;
         CD->Vcele[i].t_conc = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].t_mole = (double *)calloc(NumSpc, sizeof(double));
-        CD->Vcele[i].mole_flux = (double *)calloc(NumSpc, sizeof(double));
+        CD->Vcele[i].transp_flux = (double *)calloc(NumSpc, sizeof(double));
+        CD->Vcele[i].react_flux = (double *)calloc(NumSpc, sizeof(double));
         CD->Vcele[i].p_conc = (double *)calloc(CD->NumStc, sizeof(double));
         CD->Vcele[i].s_conc = (double *)calloc(CD->NumSsc, sizeof(double));
         CD->Vcele[i].p_actv = (double *)calloc(CD->NumStc, sizeof(double));

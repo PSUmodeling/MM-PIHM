@@ -47,14 +47,15 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
         cputime, cvode_mem, CV_Y);
 
     /* Use mass balance to calculate model fluxes or variables */
+#if defined(_RT_)
+    Summary(pihm->elem, pihm->river, CV_Y, (double)pihm->ctrl.stepsize,
+        pihm->rt->Vcele);
+#else
     Summary(pihm->elem, pihm->river, CV_Y, (double)pihm->ctrl.stepsize);
+#endif
 
 #if defined(_NOAH_)
     NoahHydrol(pihm->elem, (double)pihm->ctrl.stepsize);
-#endif
-
-#if defined(_CYCLES_)
-//    SoluteTransport(pihm->elem, pihm->river, (double)pihm->ctrl.stepsize);
 #endif
 
     /* Update print variables for hydrology step variables */
@@ -62,8 +63,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, HYDROL_STEP);
 
 #if defined(_RT_)
-    SpeciationReaction(pihm->ctrl.tout[pihm->ctrl.cstep + 1], pihm->ctrl.stepsize,
-        pihm, rt);
+    SpeciationReaction(t, pihm->ctrl.stepsize, pihm, rt);
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, RT_STEP);
 #endif

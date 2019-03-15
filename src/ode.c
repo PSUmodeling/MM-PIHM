@@ -157,8 +157,10 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #if defined(_RT_)
         for (j = 0; j < NumSpc; j++)
         {
-            dy[GW_MOLE(i, j)] = pihm->rt->Vcele[RT_GW(i)].mole_flux[j];
-            dy[UNSAT_MOLE(i, j)] = pihm->rt->Vcele[RT_UNSAT(i)].mole_flux[j];
+            dy[GW_MOLE(i, j)] = pihm->rt->Vcele[RT_GW(i)].transp_flux[j] +
+                pihm->rt->Vcele[RT_GW(i)].react_flux[j];
+            dy[UNSAT_MOLE(i, j)] = pihm->rt->Vcele[RT_UNSAT(i)].transp_flux[j] +
+                pihm->rt->Vcele[RT_UNSAT(i)].react_flux[j];
         }
 #endif
 
@@ -296,7 +298,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #if defined(_RT_)
         for (j = 0; j < NumSpc; j++)
         {
-            dy[RIVER_MOLE(i, j)] = pihm->rt->Vcele[RT_RIVER(i)].mole_flux[j];
+            dy[RIVER_MOLE(i, j)] = pihm->rt->Vcele[RT_RIVER(i)].transp_flux[j];
         }
 #endif
 

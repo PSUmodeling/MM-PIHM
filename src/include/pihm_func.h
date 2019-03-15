@@ -323,7 +323,11 @@ double          SubFlowElemToRiver(const elem_struct *, double,
     const river_struct *, double, double);
 double          SubFlowRiverToRiver(const river_struct *, double,
     const river_struct *, double);
+#if defined(_RT_)
+void            Summary(elem_struct *, river_struct *, N_Vector, double, vol_conc[]);
+#else
 void            Summary(elem_struct *, river_struct *, N_Vector, double);
+#endif
 double          SurfH(double);
 void            UpdPrintVar(varctrl_struct *, int, int);
 void            UpdPrintVarT(varctrl_struct *, int);

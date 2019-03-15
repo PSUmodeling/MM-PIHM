@@ -1,7 +1,12 @@
 #include "pihm.h"
 
+#if defined(_RT_)
+void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
+    double stepsize, vol_conc Vcele[])
+#else
 void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
     double stepsize)
+#endif
 {
     double         *y;
     int             i;
@@ -14,6 +19,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
     for (i = 0; i < nelem; i++)
     {
         double          subrunoff;
+        int             k;
 
         elem[i].ws.surf = y[SURF(i)];
         elem[i].ws.unsat = y[UNSAT(i)];
@@ -45,6 +51,16 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 #endif
 
         elem[i].ws0 = elem[i].ws;
+
+#if defined(_RT_)
+        for (k = 0; k < NumSpc; k++)
+        {
+            Vcele[RT_UNSAT(i)].t_mole[k] = (y[UNSAT_MOLE(i, k)] > 1.0E-20) ?
+                y[UNSAT_MOLE(i, k)] : 1.0E-20;
+            Vcele[RT_GW(i)].t_mole[k] = (y[GW_MOLE(i, k)] > 1.0E-20) ?
+                y[GW_MOLE(i, k)] : 1.0E-20;
+        }
+#endif
 
 #if defined(_BGC_) && !defined(_LUMPED_)
         elem[i].ns.surfn = (y[SURFN(i)] > 0.0) ? y[SURFN(i)] : 0.0;
@@ -92,6 +108,15 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         river[i].ws.gw = y[RIVGW(i)];
 
         river[i].ws0 = river[i].ws;
+#if defined(_RT_)
+        int         k;
+        for (k = 0; k < NumSpc; k++)
+        {
+            Vcele[RT_RIVER(i)].t_mole[k] = (y[RIVER_MOLE(i, k)] > 1.0E-20) ?
+                y[RIVER_MOLE(i, k)] : 1.0E-20;
+        }
+#endif
+
 #if defined(_CYCLES_)
         river[i].ns.streamno3 = y[STREAMNO3(i)];
         river[i].ns.streamnh4 = y[STREAMNH4(i)];

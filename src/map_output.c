@@ -956,6 +956,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         for (j = 0; j < nelem; j++)
         {
             print->varctrl[n].var[j] = &rt->Vcele[RT_UNSAT(j)].log10_pconc[k];
+            //print->varctrl[n].var[j] = &rt->Vcele[RT_UNSAT(j)].t_mole[k];
         }
         n++;
     }
@@ -980,6 +981,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         for (j = 0; j < nelem; j++)
         {
             print->varctrl[n].var[j] = &rt->Vcele[RT_GW(j)].log10_pconc[k];
+            //print->varctrl[n].var[j] = &rt->Vcele[RT_GW(j)].t_mole[k];
         }
         n++;
     }
@@ -1004,6 +1006,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         for (j = 0; j < nriver; j++)
         {
             print->varctrl[n].var[j] = &rt->Vcele[RT_RIVER(j)].log10_pconc[k];
+            //print->varctrl[n].var[j] = &rt->Vcele[RT_RIVER(j)].t_mole[k];
         }
         n++;
     }
