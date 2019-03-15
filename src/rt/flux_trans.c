@@ -68,12 +68,17 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
     /* Update river cells */
     for (i = 0; i < nriver; i++)
     {
+        int             k;
+
         UpdateVcele(MAX(pihm->river[i].ws.gw, 1.0E-5) +
             MAX(pihm->river[i].ws.stage, 1.0E-5) /
             CD->Vcele[RT_RIVER(i)].porosity, 1.0, &CD->Vcele[RT_RIVER(i)]);
 
-        CD->Vcele[RT_RIVER(i)].t_conc[k] = CD->Vcele[RT_RIVER(i)].t_mole[k] /
-            CD->Vcele[RT_RIVER(i)].vol;
+        for (k = 0; k < NumSpc; k++)
+        {
+            CD->Vcele[RT_RIVER(i)].t_conc[k] = CD->Vcele[RT_RIVER(i)].t_mole[k] /
+                CD->Vcele[RT_RIVER(i)].vol;
+        }
     }
 
 #if defined(_OPENMP)
