@@ -55,10 +55,10 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
         for (k = 0; k < NumSpc; k++)
         {
             CD->Vcele[RT_GW(i)].t_conc[k] = CD->Vcele[RT_GW(i)].t_mole[k] /
-                CD->Vcele[RT_GW(i)].vol;
+                CD->Vcele[RT_GW(i)].vol / CD->Vcele[RT_GW(i)].porosity;
 
             CD->Vcele[RT_UNSAT(i)].t_conc[k] = CD->Vcele[RT_UNSAT(i)].t_mole[k] /
-                CD->Vcele[RT_UNSAT(i)].vol;
+                CD->Vcele[RT_UNSAT(i)].vol / CD->Vcele[RT_UNSAT(i)].porosity;
         }
     }
 
@@ -77,7 +77,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
         for (k = 0; k < NumSpc; k++)
         {
             CD->Vcele[RT_RIVER(i)].t_conc[k] = CD->Vcele[RT_RIVER(i)].t_mole[k] /
-                CD->Vcele[RT_RIVER(i)].vol;
+                CD->Vcele[RT_RIVER(i)].vol / CD->Vcele[RT_RIVER(i)].porosity;
         }
     }
 
@@ -368,13 +368,13 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
         for (k = 0; k < NumSpc; k++)
         {
             CD->Vcele[RT_GW(i)].t_conc[k] = CD->Vcele[RT_GW(i)].t_mole[k] /
-                CD->Vcele[RT_GW(i)].vol;
+                CD->Vcele[RT_GW(i)].vol / CD->Vcele[RT_GW(i)].porosity;
             CD->Vcele[RT_GW(i)].t_conc[k] =
                 (CD->Vcele[RT_GW(i)].t_conc[k] > 1.0E-20) ?
                 CD->Vcele[RT_GW(i)].t_conc[k] : 1.0E-20;
 
             CD->Vcele[RT_UNSAT(i)].t_conc[k] = CD->Vcele[RT_UNSAT(i)].t_mole[k] /
-                CD->Vcele[RT_UNSAT(i)].vol;
+                CD->Vcele[RT_UNSAT(i)].vol / CD->Vcele[RT_UNSAT(i)].porosity;
             CD->Vcele[RT_UNSAT(i)].t_conc[k] =
                 (CD->Vcele[RT_UNSAT(i)].t_conc[k] > 1.0E-20) ?
                 CD->Vcele[RT_UNSAT(i)].t_conc[k] : 1.0E-20;
@@ -416,7 +416,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
         for (k = 0; k < NumSpc; k++)
         {
             CD->Vcele[RT_RIVER(i)].t_conc[k] = CD->Vcele[RT_RIVER(i)].t_mole[k] /
-                CD->Vcele[RT_RIVER(i)].vol;
+                CD->Vcele[RT_RIVER(i)].vol / CD->Vcele[RT_RIVER(i)].porosity;
             CD->Vcele[RT_RIVER(i)].t_conc[k] =
                 (CD->Vcele[RT_RIVER(i)].t_conc[k] > 1.0E-20) ?
                 CD->Vcele[RT_RIVER(i)].t_conc[k] : 1.0E-20;

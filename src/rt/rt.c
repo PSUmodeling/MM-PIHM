@@ -696,12 +696,12 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
         for (k = 0; k < NumSpc; k++)
         {
             CD->Vcele[RT_UNSAT(i)].t_mole[k] =
-                CD->Vcele[RT_UNSAT(i)].t_conc[k] * CD->Vcele[RT_UNSAT(i)].vol;
+                CD->Vcele[RT_UNSAT(i)].t_conc[k] * CD->Vcele[RT_UNSAT(i)].vol * CD->Vcele[RT_UNSAT(i)].porosity;
 
             NV_Ith(CV_Y, UNSAT_MOLE(i, k)) = CD->Vcele[RT_UNSAT(i)].t_mole[k];
 
             CD->Vcele[RT_GW(i)].t_mole[k] =
-                CD->Vcele[RT_GW(i)].t_conc[k] * CD->Vcele[RT_GW(i)].vol;
+                CD->Vcele[RT_GW(i)].t_conc[k] * CD->Vcele[RT_GW(i)].vol * CD->Vcele[RT_GW(i)].porosity;
 
             NV_Ith(CV_Y, GW_MOLE(i, k)) = CD->Vcele[RT_GW(i)].t_mole[k];
         }
@@ -715,7 +715,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
         for (k = 0; k < NumSpc; k++)
         {
             CD->Vcele[RT_RIVER(i)].t_mole[k] =
-                CD->Vcele[RT_RIVER(i)].t_conc[k] * CD->Vcele[RT_RIVER(i)].vol;
+                CD->Vcele[RT_RIVER(i)].t_conc[k] * CD->Vcele[RT_RIVER(i)].vol * CD->Vcele[RT_RIVER(i)].porosity;
 
             NV_Ith(CV_Y, RIVER_MOLE(i, k)) = CD->Vcele[RT_RIVER(i)].t_mole[k];
         }
