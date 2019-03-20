@@ -3,8 +3,8 @@
 #define ZERO   1E-20
 
 void ReadChem(const char chem_filen[], const char cdbs_filen[],
-    const pihm_struct pihm, rttbl_struct *rttbl, ctrl_struct *ctrl,
-    Chem_Data CD)
+    const pihm_struct pihm, chemtbl_struct chemtbl[], rttbl_struct *rttbl,
+    ctrl_struct *ctrl, Chem_Data CD)
 {
     int             i, j;
     int             match;
@@ -226,6 +226,19 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     PIHMprintf(VL_VERBOSE, "  Temperature = %3.1f \n\n", rttbl->Temperature);
 
     /*
+     * Primary species block
+     */
+    FindLine(chem_fp, "PRIMARY_SPECIES", &lno, chem_filen);
+    for (i = 0; i < rttbl->NumStc; i++)
+    {
+        NextLine(chem_fp, cmdstr, &lno);
+        sscanf(cmdstr, "%s", chemn[i]);
+        p_type[i] = SpeciationType(db_fp, chemn[i]);
+    }
+
+    SortChem(chemn, p_type, rttbl->NumStc, chemtbl);
+
+    /*
      * Output block
      */
     NextLine(chem_fp, cmdstr, &lno);
@@ -288,21 +301,8 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
 
     /*
      * Precipitation block
-     *
-     * The precipitation block is read twice. The first time chemical names are
-     * read and then sort to order. The second time the concentrations and SSA's
-     * are read.
      */
-    /* Read the first time */
     FindLine(chem_fp, "PRECIPITATION_CONC", &lno, chem_filen);
-    for (i = 0; i < rttbl->NumStc; i++)
-    {
-        NextLine(chem_fp, cmdstr, &lno);
-        sscanf(cmdstr, "%s", chemn[i]);
-        p_type[i] = SpeciationType(db_fp, chemn[i]);
-    }
-
-    SortChem(chemn, p_type, rttbl->NumStc, CD->chemtype);
 
     if (debug_mode)
     {
@@ -325,20 +325,18 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         CD->Precipitation.p_conc[i] = ZERO;
     }
 
-    FindLine(chem_fp, "BOF", &lno, chem_filen);
-    FindLine(chem_fp, "PRECIPITATION_CONC", &lno, chem_filen);
     for (i = 0; i < rttbl->NumStc; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
-        chem_ind = FindChem(chemn[i], CD->chemtype, rttbl->NumStc);
+        chem_ind = FindChem(chemn[i], chemtbl, rttbl->NumStc);
 
-        if (CD->chemtype[chem_ind].itype == AQUEOUS)
+        if (chemtbl[chem_ind].itype == AQUEOUS)
         {
             sscanf(cmdstr, "%*s %lf", &CD->Precipitation.t_conc[chem_ind]);
             PIHMprintf(VL_NORMAL, "  %-28s %g \n",
-                CD->chemtype[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
+                chemtbl[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
 
-            if (strcasecmp(CD->chemtype[chem_ind].ChemName, "pH") == 0)
+            if (strcasecmp(chemtbl[chem_ind].ChemName, "pH") == 0)
             {
                 /* Change the pH of precipitation into total concentraion of H
                  * Skip the speciation for rain */
@@ -348,30 +346,30 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
                     -pow(10, CD->Precipitation.t_conc[chem_ind] - 14);
             }
         }
-        if (CD->chemtype[chem_ind].itype == MINERAL)
+        if (chemtbl[chem_ind].itype == MINERAL)
         {
             sscanf(cmdstr, "%*s %lf %s %lf", &CD->Precipitation.t_conc[chem_ind],
                 temp_str, &CD->Precipitation.p_para[chem_ind]);
             PIHMprintf(VL_NORMAL,
                 "  mineral %-20s %6.4f \t specific surface area %6.4f\n",
-                CD->chemtype[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind],
+                chemtbl[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind],
                 CD->Precipitation.p_para[chem_ind]);
         }
-        if (CD->chemtype[chem_ind].ChemName[0] == '>' ||
-            CD->chemtype[chem_ind].itype == ADSORPTION)
+        if (chemtbl[chem_ind].ChemName[0] == '>' ||
+            chemtbl[chem_ind].itype == ADSORPTION)
         {
             /* adsorptive sites and species start with > */
             sscanf(cmdstr, "%*s %lf", &CD->Precipitation.t_conc[chem_ind]);
             CD->Precipitation.p_para[chem_ind] = 0;
             PIHMprintf(VL_NORMAL, " surface complex %s\t %6.4f\n",
-                CD->chemtype[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
+                chemtbl[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
         }
-        if (CD->chemtype[chem_ind].itype == CATION_ECHG)
+        if (chemtbl[chem_ind].itype == CATION_ECHG)
         {
             sscanf(cmdstr, "%*s %lf", &CD->Precipitation.t_conc[chem_ind]);
             CD->Precipitation.p_para[chem_ind] = 0;
             PIHMprintf(VL_NORMAL, " cation exchange %s\t %6.4f\n",
-                CD->chemtype[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
+                chemtbl[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
         }
     }
 
@@ -382,7 +380,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     for (i = 0; i < rttbl->NumSsc; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
-        if (sscanf(cmdstr, "%s", CD->chemtype[rttbl->NumStc + i].ChemName) != 1)
+        if (sscanf(cmdstr, "%s", chemtbl[rttbl->NumStc + i].ChemName) != 1)
         {
             PIHMprintf(VL_ERROR,
                 "Error reading secondary_species in %s near Line %d.\n",

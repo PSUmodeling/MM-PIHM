@@ -508,6 +508,26 @@ typedef struct opertbl_struct
 #endif
 
 #if defined(_RT_)
+typedef struct chemtbl_struct
+{
+    double          DiffCoe;                /* diffusion coefficient (m2 s-1) */
+    double          DispCoe;                /* dispersion coefficient (m) */
+    double          MolarMass;              /* (g M-1) */
+    double          MolarVolume;            /* (cm3 M-1) */
+    double          Charge;                 /* charge */
+    double          SizeF;                  /* size factor for DH equation */
+    char            ChemName[MAXSTRING];    /* molecular formula or name */
+    int             itype;                  /* type of primary species
+                                             * 1 = primary aqueous
+                                             * 2 = primary adsorption
+                                             * 3 = primary cation exchange
+                                             * 4 = primary mineral */
+    int             mtype;                  /* type of the mass action species
+                                             * 0 = immobile mass action
+                                             * 1 = mobile mass action
+                                             * 2 = mixed mobility mass action */
+} chemtbl_struct;
+
 typedef struct rttbl_struct
 {
     int             ACTmod;                 /* activity coefficient mode:

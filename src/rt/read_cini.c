@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadCini(const char filen[], const species *chemtype, int NumStc,
+void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
     vol_conc *Vcele)
 {
     FILE           *fp;
@@ -89,9 +89,9 @@ void ReadCini(const char filen[], const species *chemtype, int NumStc,
             NextLine(fp, cmdstr, &lno);
             sscanf(cmdstr, "%s", temp_str);
 
-            ind = FindChem(temp_str, chemtype, NumStc);
+            ind = FindChem(temp_str, chemtbl, NumStc);
 
-            if (chemtype[ind].itype == MINERAL)
+            if (chemtbl[ind].itype == MINERAL)
             {
                 match = sscanf(cmdstr, "%*s %lf %*s %lf", &conc[i][ind], &ssa[i][ind]);
                 if (match != 2)

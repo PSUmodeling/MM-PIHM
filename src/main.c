@@ -80,7 +80,8 @@ int main(int argc, char *argv[])
     MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->epctbl,
         pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
 #elif defined(_RT_)
-    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, &pihm->rttbl, pihm->rt,
+    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->chemtbl,
+        &pihm->rttbl, pihm->rt,
         pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
 #else
     MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->elem, pihm->river,

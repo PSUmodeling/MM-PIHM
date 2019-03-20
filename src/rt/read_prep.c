@@ -1,6 +1,7 @@
 #include "pihm.h"
 
-void ReadPrep(const char filen[], Chem_Data rt)
+void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
+    Chem_Data rt)
 {
     FILE           *fp;
     int             lno = 0;
@@ -42,7 +43,7 @@ void ReadPrep(const char filen[], Chem_Data rt)
             assert(rt->prepconcindex[i] <= NumSpc);
             PIHMprintf(VL_NORMAL,
                 "  Precipitation conc of '%s' is a time series. \n",
-                rt->chemtype[rt->prepconcindex[i] - 1].ChemName);
+                chemtbl[rt->prepconcindex[i] - 1].ChemName);
         }
     }
 
@@ -73,7 +74,7 @@ void ReadPrep(const char filen[], Chem_Data rt)
     for (i = 0; i < rt->TSD_prepconc[0].nspec; i++)
     {
         if (rt->prepconcindex[i] > 0 &&
-            !strcmp(rt->chemtype[rt->prepconcindex[i] - 1].ChemName,
+            !strcmp(chemtbl[rt->prepconcindex[i] - 1].ChemName,
             "pH"))
         {
             for (k = 0; k < rt->TSD_prepconc[0].length; k++)

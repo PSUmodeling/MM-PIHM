@@ -267,6 +267,7 @@ typedef struct pihm_struct
     ctrl_struct     ctrl;
     print_struct    print;
 #if defined(_RT_)
+    chemtbl_struct  chemtbl[MAXSPS];
     rttbl_struct    rttbl;
     Chem_Data       rt;
 #endif

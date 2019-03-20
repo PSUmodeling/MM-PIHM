@@ -14,7 +14,8 @@
 #define min(a,b) ((a)<(b) ? (a):(b))
 #define EPSILON 1.0E-20
 
-void OS3D(double stepsize, const rttbl_struct *rttbl, Chem_Data CD)
+void OS3D(double stepsize, const chemtbl_struct chemtbl[],
+    const rttbl_struct *rttbl, Chem_Data CD)
 {
     int             i;
 
@@ -44,14 +45,14 @@ void OS3D(double stepsize, const rttbl_struct *rttbl, Chem_Data CD)
             for (j = 0; j < NumSpc; j++)
             {
                 CD->Vcele[CD->Flux[i].nodeup - 1].transp_flux[j] +=
-                    Dconc(&CD->Flux[i], CD->Vcele, CD->chemtype,
+                    Dconc(&CD->Flux[i], CD->Vcele, chemtbl,
                         rttbl->Cementation, 0, j);
             }
         }
     }
 }
 
-double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
+double Dconc(const face *Flux, const vol_conc Vcele[], const chemtbl_struct chemtbl[],
     double cementation, int TVDFlg, int spc_ind)
 {
     int             node_1, node_2, node_3, node_4;
@@ -87,16 +88,16 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
 
     if (Flux->BC == DISPERSION)    /* Only for soil flow (not river flow)*/
     {
-        diff_flux = chemtype[spc_ind].DiffCoe *
+        diff_flux = chemtbl[spc_ind].DiffCoe *
             pow(Vcele[node_1].porosity, cementation);
         /* Diffusion flux, effective diffusion coefficient  */
         if (velocity < 0.0)
         {
-            disp_flux = velocity * chemtype[spc_ind].DispCoe;
+            disp_flux = velocity * chemtbl[spc_ind].DispCoe;
         }
         else
         {
-            disp_flux = -velocity * chemtype[spc_ind].DispCoe;
+            disp_flux = -velocity * chemtbl[spc_ind].DispCoe;
         }
         /* Longitudinal dispersion */
         diff_flux = -diff_flux * inv_dist * diff_conc * area;

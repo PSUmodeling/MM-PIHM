@@ -225,7 +225,8 @@ void            MapOutput(const int *, const int *, const epconst_struct [],
     const elem_struct *, const river_struct *, const meshtbl_struct *,
     const char *, print_struct *);
 #elif defined(_RT_)
-void            MapOutput(const int *, const int *, const rttbl_struct *, const Chem_Data,
+void            MapOutput(const int *, const int *, const chemtbl_struct [],
+    const rttbl_struct *, const Chem_Data,
     const elem_struct *, const river_struct *, const meshtbl_struct *,
     const char *, print_struct *);
 #else
@@ -746,20 +747,20 @@ int             keymatch(const char *, const char *, double *, char **);
 void            InitChem(char *, const char[], const pihm_struct, Chem_Data, N_Vector);
 void            fluxtrans(int, int, const pihm_struct, Chem_Data);    // 10.05 add two timers
 void            chem_updater(Chem_Data, const pihm_struct); // 10.01
-void            OS3D(double, const rttbl_struct *, Chem_Data);
-void            React(double, const rttbl_struct *, ctrl_struct *ctrl, Chem_Data, vol_conc *);
-int             _React(double, const rttbl_struct *, Chem_Data, vol_conc *);
-void            Lookup(FILE *, rttbl_struct *, Chem_Data);
-int             Speciation(rttbl_struct *, Chem_Data, int);
+void            OS3D(double, const chemtbl_struct [], const rttbl_struct *, Chem_Data);
+void            React(double, const chemtbl_struct [], const rttbl_struct *, ctrl_struct *ctrl, Chem_Data, vol_conc *);
+int             _React(double, const chemtbl_struct [], const rttbl_struct *, Chem_Data, vol_conc *);
+void            Lookup(FILE *, chemtbl_struct [], rttbl_struct *, Chem_Data);
+int             Speciation(chemtbl_struct [], rttbl_struct *, Chem_Data, int);
 int             keymatch(const char *, const char *, double *, char **);
 int             SpeciationType(FILE *, char *);
-void            AdptTime(const rttbl_struct *, Chem_Data, double);
+void            AdptTime(const chemtbl_struct [], const rttbl_struct *, Chem_Data, double);
 void            Reset(Chem_Data, int);
 void            InitialChemFile(char *, char *, int, int *);
 void            PrintChem(char *, char *, Chem_Data, int);
 void            FreeChem(Chem_Data);
-void            ReportError(const rttbl_struct *, vol_conc, Chem_Data);
-double          Dconc(const face *, const vol_conc [], const species [],
+void            ReportError(const chemtbl_struct [], const rttbl_struct *, vol_conc, Chem_Data);
+double          Dconc(const face *, const vol_conc [], const chemtbl_struct [],
     double, int, int);
 void            Unwrap(char *, const char *);
 void            InitVcele(double, double, double, double, int, vol_conc *);
@@ -767,12 +768,12 @@ void            InitFlux(int, int, int, int, int, int, double, face *);
 void            UpdateVcele(double, double, vol_conc *);
 double          EqvUnsatH(double, double, double, double, double);
 double          UnsatSatRatio(double, double, double);
-void            SortChem(char[][MAXSTRING], const int [], int, species []);
-int             FindChem(const char [], const species [], int);
+void            SortChem(char[][MAXSTRING], const int [], int, chemtbl_struct []);
+int             FindChem(const char [], const chemtbl_struct [], int);
 void            ReadChem(const char[], const char[], const pihm_struct,
-    rttbl_struct *, ctrl_struct *, Chem_Data);
-void            ReadPrep(const char[], Chem_Data);
-void            ReadCini(const char[], const species *, int, vol_conc *);
+    chemtbl_struct [], rttbl_struct *, ctrl_struct *, Chem_Data);
+void            ReadPrep(const char[], const chemtbl_struct [], Chem_Data);
+void            ReadCini(const char[], const chemtbl_struct *, int, vol_conc *);
 void            SpeciationReaction(int, int, const pihm_struct,
     Chem_Data);
 

@@ -7,7 +7,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     const char *outputdir, print_struct *print)
 #elif defined(_RT_)
 void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
-    const rttbl_struct *rttbl,
+    const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     const Chem_Data rt, const elem_struct *elem,
     const river_struct *river, const meshtbl_struct *meshtbl,
     const char *outputdir, print_struct *print)
@@ -950,7 +950,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
 
     for (k = 0; k < rttbl->NumStc; k++)
     {
-        Unwrap(chemn, rt->chemtype[k].ChemName);
+        Unwrap(chemn, chemtbl[k].ChemName);
         sprintf(ext, "unsat_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
@@ -963,7 +963,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     }
     for (k = 0; k < rttbl->NumSsc; k++)
     {
-        Unwrap(chemn, rt->chemtype[k + rttbl->NumStc].ChemName);
+        Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
         sprintf(ext, "unsat_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
@@ -975,7 +975,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     }
     for (k = 0; k < rttbl->NumStc; k++)
     {
-        Unwrap(chemn, rt->chemtype[k].ChemName);
+        Unwrap(chemn, chemtbl[k].ChemName);
         sprintf(ext, "gw_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
@@ -988,7 +988,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     }
     for (k = 0; k < rttbl->NumSsc; k++)
     {
-        Unwrap(chemn, rt->chemtype[k + rttbl->NumStc].ChemName);
+        Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
         sprintf(ext, "gw_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
@@ -1000,7 +1000,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     }
     for (k = 0; k < rttbl->NumStc; k++)
     {
-        Unwrap(chemn, rt->chemtype[k].ChemName);
+        Unwrap(chemn, chemtbl[k].ChemName);
         sprintf(ext, "river_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nriver,
             &print->varctrl[n]);
@@ -1013,7 +1013,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     }
     for (k = 0; k < rttbl->NumSsc; k++)
     {
-        Unwrap(chemn, rt->chemtype[k + rttbl->NumStc].ChemName);
+        Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
         sprintf(ext, "river_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nriver,
             &print->varctrl[n]);

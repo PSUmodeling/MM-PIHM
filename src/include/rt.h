@@ -78,28 +78,6 @@ typedef struct face_type
     double          s_area;     /* contact surface area, in square m */
 } face;
 
-typedef struct species_type
-{
-    double          DiffCoe;    /* diffusion coefficient, measured in m s -1 */
-    double          DispCoe;    /* dispersion coefficient, measured in m */
-    double          MolarMass;  /* measured in g/mol */
-    double          MolarVolume;    /* measured in cm3/mol */
-    double          Charge;     /* Array of species charge */
-    double          SizeF;      /* Array of species size factor for DH equation */
-    char            ChemName[MAXSTRING];   /* usually the molecular formula of the very chemical, or any convenient name as long as the database has it */
-    int             itype;      /* type of primary species,
-                                 * 1: primary aqueous
-                                 * 2: primary adsorption
-                                 * 3: primary cation exchange
-                                 * 4: primary mineral
-                                 */
-    int             mtype;      /* type of the mass action species
-                                 * 1: mobile mass action species
-                                 * 0: immobile mass action species
-                                 * 2: mixed mobility mass action species
-                                 */
-} species;
-
 typedef struct Kinetic_Reaction_structure
 {
     char            species[MAXSTRING];     // target mineral
@@ -186,7 +164,6 @@ typedef struct Chem_Data_structure
     vol_conc       *Vcele;      // An array that stores the volumetric (vol) and chemical (conc) information of grid blocks
     vol_conc        Precipitation;  // The cell that stores the concentrations of chemicals in the rain.
     face           *Flux;       // connections between grid blocks
-    species         chemtype[MAXSPS];   // information of chemical species
     Kinetic_Reaction kinetics[MAXSPS]; // kinetics constants and dependencies.
     Debye_Huckel    DH;
     Pump           *pumps;      // injection/ groundwater contribution

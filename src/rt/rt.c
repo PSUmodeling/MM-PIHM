@@ -42,16 +42,16 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
 #endif
     CD->Vcele = (vol_conc *) malloc(CD->NumVol * sizeof(vol_conc));
 
-    ReadCini(pihm->filename.cini, CD->chemtype, pihm->rttbl.NumStc, CD->Vcele);
+    ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.NumStc, CD->Vcele);
 
     for (i = 0; i < pihm->rttbl.NumStc + pihm->rttbl.NumSsc; i++)
     {
-        CD->chemtype[i].DiffCoe = pihm->rttbl.DiffCoe;
+        pihm->chemtbl[i].DiffCoe = pihm->rttbl.DiffCoe;
 
-        CD->chemtype[i].DispCoe = pihm->rttbl.DispCoe;
+        pihm->chemtbl[i].DispCoe = pihm->rttbl.DispCoe;
 
-        CD->chemtype[i].Charge = 0.0;
-        CD->chemtype[i].SizeF = 1.0;
+        pihm->chemtbl[i].Charge = 0.0;
+        pihm->chemtbl[i].SizeF = 1.0;
     }
 
     PRCP_VOL = CD->NumVol - 1;
@@ -120,8 +120,8 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     /* Number of total species in the rt simulator */
     for (i = 0; i < pihm->rttbl.NumStc; i++)
     {
-        PIHMprintf(VL_NORMAL, "  %-20s %10d\n", CD->chemtype[i].ChemName,
-            CD->chemtype[i].itype);
+        PIHMprintf(VL_NORMAL, "  %-20s %10d\n", pihm->chemtbl[i].ChemName,
+            pihm->chemtbl[i].itype);
     }
 
 
@@ -131,7 +131,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
         for (j = 0; j < pihm->rttbl.NumStc; j++)
         {
             if (!strcmp(CD->pumps[i].Name_Species,
-                    CD->chemtype[j].ChemName))
+                    pihm->chemtbl[j].ChemName))
             {
                 CD->pumps[i].Position_Species = j;
             }
@@ -205,9 +205,9 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
 
     for (i = 0; i < NumSpc; i++)
     {
-        if (strcmp(CD->chemtype[i].ChemName, "pH") == 0)
+        if (strcmp(pihm->chemtbl[i].ChemName, "pH") == 0)
         {
-            strcpy(CD->chemtype[i].ChemName, "H+");
+            strcpy(pihm->chemtbl[i].ChemName, "H+");
             speciation_flg = 1;
         }
     }
@@ -236,14 +236,14 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
         for (j = 0; j < pihm->rttbl.NumStc; j++)
         {
             if (speciation_flg == 1 &&
-                strcmp(CD->chemtype[j].ChemName, "H+") == 0)
+                strcmp(pihm->chemtbl[j].ChemName, "H+") == 0)
             {
                 CD->Vcele[i].p_conc[j] = pow(10,
                     -(CD->Vcele[i].ic.t_conc[j]));
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
             }
-            else if (CD->chemtype[j].itype == MINERAL)
+            else if (pihm->chemtbl[j].itype == MINERAL)
             {
                 CD->Vcele[i].t_conc[j] =
                     CD->Vcele[i].ic.t_conc[j];
@@ -257,7 +257,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
                 CD->Vcele[i].t_conc[j] =
                     CD->Vcele[i].ic.t_conc[j];
                 CD->Vcele[i].t_conc[j] *=
-                    (strcmp(CD->chemtype[j].ChemName, "DOC") == 0) ?
+                    (strcmp(pihm->chemtbl[j].ChemName, "DOC") == 0) ?
                     CD->CalInitconc : 1.0;
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j] * 0.5;
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
@@ -543,7 +543,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     }
 
     CD->SPCFlg = speciation_flg;
-    Lookup(database, &pihm->rttbl, CD);
+    Lookup(database, pihm->chemtbl, &pihm->rttbl, CD);
     /* Update the concentration of mineral after get the molar volume of
      * mineral */
 
@@ -552,7 +552,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     for (i = 0; i < pihm->rttbl.NumAkr + pihm->rttbl.NumMkr; i++)
     {
         CD->KeqKinect[i] += (!strcmp(
-            CD->chemtype[i + NumSpc + pihm->rttbl.NumAds + pihm->rttbl.NumCex].ChemName,
+            pihm->chemtbl[i + NumSpc + pihm->rttbl.NumAds + pihm->rttbl.NumCex].ChemName,
             "'CO2(*g)'")) ?
             log10(Cal_PCO2) : log10(Cal_Keq);
     }
@@ -560,12 +560,12 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     PIHMprintf(VL_NORMAL, "\n Kinetic Mass Matrx (calibrated Keq)! \n");
     PIHMprintf(VL_NORMAL, "%-15s", " ");
     for (i = 0; i < pihm->rttbl.NumStc; i++)
-        PIHMprintf(VL_NORMAL, "%-14s", CD->chemtype[i].ChemName);
+        PIHMprintf(VL_NORMAL, "%-14s", pihm->chemtbl[i].ChemName);
     PIHMprintf(VL_NORMAL, "\n");
     for (j = 0; j < pihm->rttbl.NumMkr + pihm->rttbl.NumAkr; j++)
     {
         PIHMprintf(VL_NORMAL, " %-14s",
-            CD->chemtype[j + NumSpc + pihm->rttbl.NumAds + pihm->rttbl.NumCex].ChemName);
+            pihm->chemtbl[j + NumSpc + pihm->rttbl.NumAds + pihm->rttbl.NumCex].ChemName);
         for (i = 0; i < pihm->rttbl.NumStc; i++)
         {
             PIHMprintf(VL_NORMAL, "%-14.2f", CD->Dep_kinetic[j][i]);
@@ -580,41 +580,41 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
         " \n Mass action species type determination (0: immobile, 1: mobile, 2: Mixed) \n");
     for (i = 0; i < NumSpc; i++)
     {
-        CD->chemtype[i].mtype = (CD->chemtype[i].itype == AQUEOUS) ?
+        pihm->chemtbl[i].mtype = (pihm->chemtbl[i].itype == AQUEOUS) ?
              MOBILE_MA : IMMOBILE_MA;
 
         for (j = 0; j < pihm->rttbl.NumStc + pihm->rttbl.NumSsc; j++)
         {
             if (CD->Totalconc[i][j] != 0 &&
-                CD->chemtype[j].itype != CD->chemtype[i].mtype)
+                pihm->chemtbl[j].itype != pihm->chemtbl[i].mtype)
             {
-                CD->chemtype[i].mtype = MIXED_MA;
+                pihm->chemtbl[i].mtype = MIXED_MA;
             }
         }
-        PIHMprintf(VL_NORMAL, " %12s\t%10d\n", CD->chemtype[i].ChemName,
-            CD->chemtype[i].mtype);
+        PIHMprintf(VL_NORMAL, " %12s\t%10d\n", pihm->chemtbl[i].ChemName,
+            pihm->chemtbl[i].mtype);
     }
 
     PIHMprintf(VL_NORMAL,
         " \n Individual species type determination (1: aqueous, 2: adsorption, 3: ion exchange, 4: solid) \n");
     for (i = 0; i < pihm->rttbl.NumStc + pihm->rttbl.NumSsc; i++)
     {
-        PIHMprintf(VL_NORMAL, " %12s\t%10d\n", CD->chemtype[i].ChemName,
-            CD->chemtype[i].itype);
+        PIHMprintf(VL_NORMAL, " %12s\t%10d\n", pihm->chemtbl[i].ChemName,
+            pihm->chemtbl[i].itype);
     }
 
     for (i = 0; i < CD->NumVol; i++)
     {
         for (j = 0; j < pihm->rttbl.NumStc; j++)
         {
-            if (CD->chemtype[j].itype == MINERAL)
+            if (pihm->chemtbl[j].itype == MINERAL)
             {
                 if (pihm->rttbl.RelMin == 0)
                 {
                     /* Absolute mineral volume fraction */
                     CD->Vcele[i].t_conc[j] =
                         CD->Vcele[i].t_conc[j] * 1000 /
-                        CD->chemtype[j].MolarVolume / CD->Vcele[i].porosity;
+                        pihm->chemtbl[j].MolarVolume / CD->Vcele[i].porosity;
                     CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
                 }
                 if (pihm->rttbl.RelMin == 1)
@@ -624,12 +624,12 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
                      * a small modification */
                     CD->Vcele[i].t_conc[j] = CD->Vcele[i].t_conc[j] *
                         (1 - CD->Vcele[i].porosity + INFTYSMALL) * 1000 /
-                        CD->chemtype[j].MolarVolume / CD->Vcele[i].porosity;
+                        pihm->chemtbl[j].MolarVolume / CD->Vcele[i].porosity;
                     CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
                 }
             }
-            if ((CD->chemtype[j].itype == CATION_ECHG) ||
-                (CD->chemtype[j].itype == ADSORPTION))
+            if ((pihm->chemtbl[j].itype == CATION_ECHG) ||
+                (pihm->chemtbl[j].itype == ADSORPTION))
             {
                 /* Change the unit of CEC (eq/g) into C(ion site)
                  * (eq/L porous space), assuming density of solid is always
@@ -646,7 +646,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     {
         for (i = 0; i < nelem; i++)
         {
-            Speciation(&pihm->rttbl, CD, RT_GW(i));
+            Speciation(pihm->chemtbl, &pihm->rttbl, CD, RT_GW(i));
 #if defined(_FBR_)
             Speciation(CD, RT_FBR_GW(i));
 #endif
@@ -679,7 +679,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     {
         for (k = 0; k < pihm->rttbl.NumStc; k++)
         {
-            if (CD->chemtype[k].itype != AQUEOUS)
+            if (pihm->chemtbl[k].itype != AQUEOUS)
             {
                 CD->Vcele[RT_RIVER(i)].t_conc[k] = 1.0E-20;
                 CD->Vcele[RT_RIVER(i)].p_conc[k] = 1.0E-20;
@@ -906,7 +906,7 @@ double UnsatSatRatio(double depth, double unsat, double gw)
 }
 
 void SortChem(char chemn[MAXSPS][MAXSTRING], const int p_type[MAXSPS], int nsps,
-    species chem[])
+    chemtbl_struct chemtbl[])
 {
     int             i, j;
     int             temp;
@@ -938,21 +938,19 @@ void SortChem(char chemn[MAXSPS][MAXSTRING], const int p_type[MAXSPS], int nsps,
 
     for (i = 0; i < nsps; i++)
     {
-        //strcpy(chem[rank[i]].ChemName, chemn[i]);
-        //chem[rank[i]].itype = p_type[i];
-        strcpy(chem[i].ChemName, chemn[rank[i]]);
-        chem[i].itype = p_type[rank[i]];
+        strcpy(chemtbl[i].ChemName, chemn[rank[i]]);
+        chemtbl[i].itype = p_type[rank[i]];
     }
 }
 
-int FindChem(const char chemn[MAXSTRING], const species chemtype[], int nsps)
+int FindChem(const char chemn[MAXSTRING], const chemtbl_struct  chemtbl[], int nsps)
 {
     int             i;
     int             ind = -1;
 
     for (i = 0; i < nsps; i++)
     {
-        if (strcasecmp(chemn, chemtype[i].ChemName) == 0)
+        if (strcmp(chemn, chemtbl[i].ChemName) == 0)
         {
             ind = i;
             break;
