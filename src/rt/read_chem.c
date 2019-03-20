@@ -25,7 +25,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     CheckFile(db_fp, cdbs_filen);
 
     /* Default control variable if not found in input file */
-    CD->Cementation = 1.0;
+    rttbl->Cementation = 1.0;
     rttbl->ACTmod = 0;
     rttbl->TEMcpl = 0;
     CD->EffAds = 0;
@@ -40,6 +40,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     /*
      * Runtime block
      */
+    PIHMprintf(VL_VERBOSE, "\n Runtime block\n");
     FindLine(chem_fp, "RUNTIME", &lno, chem_filen);
 
     NextLine(chem_fp, cmdstr, &lno);
@@ -154,98 +155,75 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     /*
      * Global block
      */
+    PIHMprintf(VL_VERBOSE, "\n Global block\n");
     FindLine(chem_fp, "GLOBAL", &lno, chem_filen);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "T_SPECIES", &CD->NumStc, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  %d chemical species specified. \n", CD->NumStc);
-        /* H2O is always a primary species */
-    }
+    ReadKeyword(cmdstr, "T_SPECIES", &rttbl->NumStc, 'i', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  %d chemical species specified. \n", rttbl->NumStc);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "S_SPECIES", &CD->NumSsc, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  %d secondary species specified. \n",
-            CD->NumSsc);
-    }
+    ReadKeyword(cmdstr, "S_SPECIES", &rttbl->NumSsc, 'i', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  %d secondary species specified. \n", rttbl->NumSsc);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MIN_SPECIES", &CD->NumMin, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  %d minerals specified. \n", CD->NumMin);
-    }
+    ReadKeyword(cmdstr, "MIN_SPECIES", &rttbl->NumMin, 'i', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  %d minerals specified. \n", rttbl->NumMin);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ADSORPTION", &CD->NumAds, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  %d surface complexation specified. \n",
-            CD->NumAds);
-    }
+    ReadKeyword(cmdstr, "ADSORPTION", &rttbl->NumAds, 'i', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  %d surface complexation specified. \n", rttbl->NumAds);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CATION_EXCHANGE", &CD->NumCex, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  %d cation exchange specified. \n", CD->NumCex);
-    }
+    ReadKeyword(cmdstr, "CATION_EXCHANGE", &rttbl->NumCex, 'i', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  %d cation exchange specified. \n", rttbl->NumCex);
 
-    /* The number of species that are mobile, later used in the OS3D subroutine */
-    NumSpc = CD->NumStc - (CD->NumMin + CD->NumAds + CD->NumCex);
+    /* The number of species that are mobile */
+    NumSpc = rttbl->NumStc - (rttbl->NumMin + rttbl->NumAds + rttbl->NumCex);
+    if (NumSpc <= 0)
+    {
+        PIHMprintf(VL_ERROR,
+            "Error: number of total species should be larger than the sum of "
+            " mineral, surface complexation, and cation exchange species.\n");
+        PIHMexit(EXIT_FAILURE);
+    }
 
     /* The number of species that others depend on */
-    CD->NumSdc = CD->NumStc - CD->NumMin;
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "MINERAL_KINETIC", &CD->NumMkr, 'i', chem_filen, lno);
-    if (debug_mode)
+    rttbl->NumSdc = rttbl->NumStc - rttbl->NumMin;
+    if (rttbl->NumSdc < 0)
     {
-        PIHMprintf(VL_NORMAL, "  %d mineral kinetic reaction(s) specified. \n",
-            CD->NumMkr);
+        PIHMprintf(VL_ERROR,
+            "Error: number of total species should not be smaller than number "
+            "of minerals.\n");
+        PIHMexit(EXIT_FAILURE);
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "AQUEOUS_KINETIC", &CD->NumAkr, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  %d aqueous kinetic reaction(s) specified. \n",
-            CD->NumAkr);
-    }
+    ReadKeyword(cmdstr, "MINERAL_KINETIC", &rttbl->NumMkr, 'i', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  %d mineral kinetic reaction(s) specified. \n",
+        rttbl->NumMkr);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DIFFUSION", &CD->DiffCoe, 'd', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  Diffusion coefficient = %g [cm2/s] \n",
-            CD->DiffCoe);
-    }
-    CD->DiffCoe /= 1.0E4;       /* Convert from cm2 s-1 to m2 s-1 */
+    ReadKeyword(cmdstr, "AQUEOUS_KINETIC", &rttbl->NumAkr, 'i', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  %d aqueous kinetic reaction(s) specified. \n",
+        rttbl->NumAkr);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "DISPERSION", &CD->DispCoe, 'd', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  Dispersion coefficient = %2.2f [m] \n",
-            CD->DispCoe);
-    }
+    ReadKeyword(cmdstr, "DIFFUSION", &rttbl->DiffCoe, 'd', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  Diffusion coefficient = %g cm2 s-1 \n", rttbl->DiffCoe);
+    rttbl->DiffCoe /= 1.0E4;       /* Convert from cm2 s-1 to m2 s-1 */
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CEMENTATION", &CD->Cementation, 'd', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  Cementation factor = %2.1f \n", CD->Cementation);
-    }
+    ReadKeyword(cmdstr, "DISPERSION", &rttbl->DispCoe, 'd', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  Dispersion coefficient = %2.2f m \n", rttbl->DispCoe);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "TEMPERATURE", &CD->Temperature, 'd', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  Temperature = %3.1f \n\n", CD->Temperature);
-    }
+    ReadKeyword(cmdstr, "CEMENTATION", &rttbl->Cementation, 'd', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  Cementation factor = %2.1f \n", rttbl->Cementation);
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "TEMPERATURE", &rttbl->Temperature, 'd', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  Temperature = %3.1f \n\n", rttbl->Temperature);
 
     /*
      * Output block
@@ -317,14 +295,14 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
      */
     /* Read the first time */
     FindLine(chem_fp, "PRECIPITATION_CONC", &lno, chem_filen);
-    for (i = 0; i < CD->NumStc; i++)
+    for (i = 0; i < rttbl->NumStc; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
         sscanf(cmdstr, "%s", chemn[i]);
         p_type[i] = SpeciationType(db_fp, chemn[i]);
     }
 
-    SortChem(chemn, p_type, CD->NumStc, CD->chemtype);
+    SortChem(chemn, p_type, rttbl->NumStc, CD->chemtype);
 
     if (debug_mode)
     {
@@ -335,13 +313,13 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     CD->Precipitation.t_conc =
-        (double *)malloc(CD->NumStc * sizeof(double));
+        (double *)malloc(rttbl->NumStc * sizeof(double));
     CD->Precipitation.p_conc =
-        (double *)malloc(CD->NumStc * sizeof(double));
+        (double *)malloc(rttbl->NumStc * sizeof(double));
     CD->Precipitation.p_para =
-        (double *)malloc(CD->NumStc * sizeof(double));
+        (double *)malloc(rttbl->NumStc * sizeof(double));
     CD->Precipitation.s_conc = NULL;
-    for (i = 0; i < CD->NumStc; i++)
+    for (i = 0; i < rttbl->NumStc; i++)
     {
         CD->Precipitation.t_conc[i] = ZERO;
         CD->Precipitation.p_conc[i] = ZERO;
@@ -349,10 +327,10 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
 
     FindLine(chem_fp, "BOF", &lno, chem_filen);
     FindLine(chem_fp, "PRECIPITATION_CONC", &lno, chem_filen);
-    for (i = 0; i < CD->NumStc; i++)
+    for (i = 0; i < rttbl->NumStc; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
-        chem_ind = FindChem(chemn[i], CD->chemtype, CD->NumStc);
+        chem_ind = FindChem(chemn[i], CD->chemtype, rttbl->NumStc);
 
         if (CD->chemtype[chem_ind].itype == AQUEOUS)
         {
@@ -401,10 +379,10 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
      * Secondary_species block
      */
     FindLine(chem_fp, "SECONDARY_SPECIES", &lno, chem_filen);
-    for (i = 0; i < CD->NumSsc; i++)
+    for (i = 0; i < rttbl->NumSsc; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
-        if (sscanf(cmdstr, "%s", CD->chemtype[CD->NumStc + i].ChemName) != 1)
+        if (sscanf(cmdstr, "%s", CD->chemtype[rttbl->NumStc + i].ChemName) != 1)
         {
             PIHMprintf(VL_ERROR,
                 "Error reading secondary_species in %s near Line %d.\n",
@@ -425,7 +403,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         }
     }
 
-    for (i = 0; i < CD->NumMkr; i++)
+    for (i = 0; i < rttbl->NumMkr; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
         match = sscanf(cmdstr, "%s %s %s",

@@ -7,6 +7,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     const char *outputdir, print_struct *print)
 #elif defined(_RT_)
 void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
+    const rttbl_struct *rttbl,
     const Chem_Data rt, const elem_struct *elem,
     const river_struct *river, const meshtbl_struct *meshtbl,
     const char *outputdir, print_struct *print)
@@ -947,7 +948,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
 #if defined(_RT_)
     char            chemn[MAXSTRING];
 
-    for (k = 0; k < rt->NumStc; k++)
+    for (k = 0; k < rttbl->NumStc; k++)
     {
         Unwrap(chemn, rt->chemtype[k].ChemName);
         sprintf(ext, "unsat_conc.%s", chemn);
@@ -960,9 +961,9 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         }
         n++;
     }
-    for (k = 0; k < rt->NumSsc; k++)
+    for (k = 0; k < rttbl->NumSsc; k++)
     {
-        Unwrap(chemn, rt->chemtype[k + rt->NumStc].ChemName);
+        Unwrap(chemn, rt->chemtype[k + rttbl->NumStc].ChemName);
         sprintf(ext, "unsat_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
@@ -972,7 +973,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         }
         n++;
     }
-    for (k = 0; k < rt->NumStc; k++)
+    for (k = 0; k < rttbl->NumStc; k++)
     {
         Unwrap(chemn, rt->chemtype[k].ChemName);
         sprintf(ext, "gw_conc.%s", chemn);
@@ -985,9 +986,9 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         }
         n++;
     }
-    for (k = 0; k < rt->NumSsc; k++)
+    for (k = 0; k < rttbl->NumSsc; k++)
     {
-        Unwrap(chemn, rt->chemtype[k + rt->NumStc].ChemName);
+        Unwrap(chemn, rt->chemtype[k + rttbl->NumStc].ChemName);
         sprintf(ext, "gw_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
@@ -997,7 +998,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         }
         n++;
     }
-    for (k = 0; k < rt->NumStc; k++)
+    for (k = 0; k < rttbl->NumStc; k++)
     {
         Unwrap(chemn, rt->chemtype[k].ChemName);
         sprintf(ext, "river_conc.%s", chemn);
@@ -1010,9 +1011,9 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         }
         n++;
     }
-    for (k = 0; k < rt->NumSsc; k++)
+    for (k = 0; k < rttbl->NumSsc; k++)
     {
-        Unwrap(chemn, rt->chemtype[k + rt->NumStc].ChemName);
+        Unwrap(chemn, rt->chemtype[k + rttbl->NumStc].ChemName);
         sprintf(ext, "river_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nriver,
             &print->varctrl[n]);
@@ -1026,15 +1027,15 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     {
         sprintf(ext, "%d.btcv", rt->BTC_loc[i] + 1);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
-            rt->NumStc + rt->NumSsc, &print->varctrl[n]);
-        for (j = 0; j < rt->NumStc; j++)
+            rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
+        for (j = 0; j < rttbl->NumStc; j++)
         {
             print->varctrl[n].var[j] = &rt->Vcele[rt->BTC_loc[i]].btcv_pconc[j];
         }
-        for (j = rt->NumStc; j < rt->NumStc + rt->NumSsc; j++)
+        for (j = rttbl->NumStc; j < rttbl->NumStc + rttbl->NumSsc; j++)
         {
             print->varctrl[n].var[j] =
-                &rt->Vcele[rt->BTC_loc[i]].log10_sconc[j - rt->NumStc];
+                &rt->Vcele[rt->BTC_loc[i]].log10_sconc[j - rttbl->NumStc];
         }
         n++;
     }

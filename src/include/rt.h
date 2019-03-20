@@ -155,14 +155,6 @@ typedef struct Chem_Data_structure
 {
     int             NumVol;     /* Number of total volume in the rt simulator */
     int             NumFac;     /* Number of faces in the rt simulator        */
-    int             NumStc;     /* Number of total species in the rt simulator */
-    int             NumSsc;     /* Number of secondary speices in the simulator */
-    int             NumSdc;     /* Number of independent species (others depending on these species) */
-    int             NumMin;     /* Number of minerals in the simulator */
-    int             NumAds;     /* Number of adsorption species in the simulation */
-    int             NumCex;     /* Number of cation exchange in the simulation */
-    int             NumMkr;     /* Number of mineral kinetic reactions */
-    int             NumAkr;     /* Number of aqueous kinetic reactions */
     int             conc_init;  /* concentration initialization type */
     int             SPCFlg;     /* speciation flg, 0 for total conc and 1 for pH */
     int             EffAds;     /* Keywords to control the usage of effective adsorption model */
@@ -172,8 +164,6 @@ typedef struct Chem_Data_structure
     int            *BTC_loc;    /* Array of locations of breakthrough points */
     int            *prepconcindex;  //
     double          CnntVelo;   // velocity of minimum connected cells */
-    double          DiffCoe;    /* diffusion coefficient, measured in m s -1 */
-    double          DispCoe;    /* dispersion coefficient, measured in m */
     double          CalPorosity;    // Porosity Calibration Coefficient, from Flux-PIHM */
     double          CalRate;    // 02.12 by Wei Zhi
     double          CalSSA;     // 02.12 by Wei Zhi
@@ -191,8 +181,6 @@ typedef struct Chem_Data_structure
     double         *Keq;        /* array of Keq s of the secondary species */
     double         *KeqKinect;  /* array of Keq s of the kinetic species */
     double         *KeqKinect_all;  /* same as above, all possible kinetic species */
-    double          Temperature;    /* Temperature of the moment */
-    double          Cementation;    /* Cementation factor, used to represent the connectivity of pores */
     double          rivd;       /* Stream discharge in cubic meter per day at the moment */
     double          riv;
     vol_conc       *Vcele;      // An array that stores the volumetric (vol) and chemical (conc) information of grid blocks

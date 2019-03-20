@@ -14,7 +14,7 @@
 #define min(a,b) ((a)<(b) ? (a):(b))
 #define EPSILON 1.0E-20
 
-void OS3D(double stepsize, Chem_Data CD)
+void OS3D(double stepsize, const rttbl_struct *rttbl, Chem_Data CD)
 {
     int             i;
 
@@ -45,7 +45,7 @@ void OS3D(double stepsize, Chem_Data CD)
             {
                 CD->Vcele[CD->Flux[i].nodeup - 1].transp_flux[j] +=
                     Dconc(&CD->Flux[i], CD->Vcele, CD->chemtype,
-                        CD->Cementation, 0, j);
+                        rttbl->Cementation, 0, j);
             }
         }
     }

@@ -522,7 +522,22 @@ typedef struct rttbl_struct
                                              * 1 = transport only */
     double          Condensation;           /* ratio between infiltration
                                              * concentration and rain water */
-
+    int             NumStc;                 /* number of total species */
+    int             NumSsc;                 /* number of secondary speices */
+    int             NumSdc;                 /* number of independent species */
+    int             NumMin;                 /* number of minerals */
+    int             NumAds;                 /* number of adsorption species */
+    int             NumCex;                 /* number of cation exchange */
+    int             NumMkr;                 /* number of mineral kinetic
+                                             * reactions */
+    int             NumAkr;                 /* number of aqueous kinetic
+                                             * reactions */
+    double          DiffCoe;                /* diffusion coefficient (m2 s-1) */
+    double          DispCoe;                /* dispersion coefficient (m) */
+    double          Cementation;            /* cementation factor that
+                                             * represents connectivity of pores
+                                             */
+    double          Temperature;            /* temperature of the moment */
 } rttbl_struct;
 #endif
 

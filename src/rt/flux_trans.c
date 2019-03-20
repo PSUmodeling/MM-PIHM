@@ -308,7 +308,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-    for (k = 0; k < CD->NumStc; k++)
+    for (k = 0; k < pihm->rttbl.NumStc; k++)
     {
         CD->Vcele[BOUND_VOL - 1].t_conc[k] =
             CD->Precipitation.t_conc[k] * pihm->rttbl.Condensation;
@@ -319,7 +319,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
     /*
      * Transport
      */
-    AdptTime(CD, (double)stepsize);
+    AdptTime(&pihm->rttbl, CD, (double)stepsize);
 }
 
 void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
@@ -384,17 +384,17 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
         //{
         //    if (CD->chemtype[j].mtype == MIXED_MA)
         //    {
-        //        for (k = 0; k < CD->NumSsc; k++)
+        //        for (k = 0; k < pihm->rttbl.NumSsc; k++)
         //        {
-        //            if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
-        //                (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
+        //            if ((CD->Totalconc[j][k + pihm->rttbl.NumStc] != 0) &&
+        //                (CD->chemtype[k + pihm->rttbl.NumStc].itype != AQUEOUS))
         //            {
         //                CD->Vcele[RT_GW(i)].t_conc[j] =
         //                    CD->Vcele[RT_GW(i)].t_conc[j] + CD->Totalconc[j][k +
-        //                    CD->NumStc] * CD->Vcele[RT_GW(i)].s_conc[k];
+        //                    pihm->rttbl.NumStc] * CD->Vcele[RT_GW(i)].s_conc[k];
         //                CD->Vcele[RT_UNSAT(i)].t_conc[j] =
         //                    CD->Vcele[RT_UNSAT(i)].t_conc[j] + CD->Totalconc[j][k +
-        //                    CD->NumStc] * CD->Vcele[RT_UNSAT(i)].s_conc[k];
+        //                    pihm->rttbl.NumStc] * CD->Vcele[RT_UNSAT(i)].s_conc[k];
         //            }
         //        }
         //    }
@@ -475,7 +475,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
         {
             int             j;
 
-            for (j = 0; j < CD->NumStc; j++)
+            for (j = 0; j < pihm->rttbl.NumStc; j++)
             {
                 if (CD->chemtype[j].itype == MINERAL)
                 {
@@ -521,7 +521,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-            for (i = 0; i < CD->NumStc; i++)
+            for (i = 0; i < pihm->rttbl.NumStc; i++)
             {
                 int             j;
 
@@ -582,11 +582,11 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
     {
         int             j;
 
-        for (j = 0; j < CD->NumStc; j++)
+        for (j = 0; j < pihm->rttbl.NumStc; j++)
         {
             CD->Vcele[i].log10_pconc[j] = log10(CD->Vcele[i].p_conc[j]);
         }
-        for (j = 0; j < CD->NumSsc; j++)
+        for (j = 0; j < pihm->rttbl.NumSsc; j++)
         {
             CD->Vcele[i].log10_sconc[j] = log10(CD->Vcele[i].s_conc[j]);
         }
@@ -612,7 +612,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
     {
         int             j;
 
-        for (j = 0; j < CD->NumStc; j++)
+        for (j = 0; j < pihm->rttbl.NumStc; j++)
         {
             if ((CD->BTC_loc[k] >= CD->pumps[0].Pump_Location - 1) &&
                 (j == CD->pumps[0].Position_Species))
@@ -631,7 +631,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
     }
 }
 
-void AdptTime(Chem_Data CD, double stepsize)
+void AdptTime(const rttbl_struct *rttbl, Chem_Data CD, double stepsize)
 {
     int             i, k;
 
@@ -646,16 +646,16 @@ void AdptTime(Chem_Data CD, double stepsize)
         {
             if (CD->chemtype[j].mtype == MIXED_MA)
             {
-                for (k = 0; k < CD->NumSsc; k++)
+                for (k = 0; k < rttbl->NumSsc; k++)
                 {
-                    if ((CD->Totalconc[j][k + CD->NumStc] != 0) &&
-                        (CD->chemtype[k + CD->NumStc].itype != AQUEOUS))
+                    if ((CD->Totalconc[j][k + rttbl->NumStc] != 0) &&
+                        (CD->chemtype[k + rttbl->NumStc].itype != AQUEOUS))
                     {
                         CD->Vcele[RT_GW(i)].t_conc[j] -=
-                            CD->Totalconc[j][k + CD->NumStc] *
+                            CD->Totalconc[j][k + rttbl->NumStc] *
                             CD->Vcele[RT_GW(i)].s_conc[k];
                         CD->Vcele[RT_UNSAT(i)].t_conc[j] -=
-                            CD->Totalconc[j][k + CD->NumStc] *
+                            CD->Totalconc[j][k + rttbl->NumStc] *
                             CD->Vcele[RT_UNSAT(i)].s_conc[k];
                     }
                 }
@@ -663,7 +663,7 @@ void AdptTime(Chem_Data CD, double stepsize)
         }
     }
 
-    OS3D(stepsize, CD);
+    OS3D(stepsize, rttbl, CD);
 
     /* Total concentration except for adsorptions have been transported and
      * adjusted by the volume. For example, if no transport but volume
