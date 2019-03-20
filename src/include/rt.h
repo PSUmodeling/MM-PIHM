@@ -78,47 +78,6 @@ typedef struct face_type
     double          s_area;     /* contact surface area, in square m */
 } face;
 
-typedef struct Kinetic_Reaction_structure
-{
-    char            species[MAXSTRING];     // target mineral
-    int             position;               // position of target mineral in the
-                                            // array of primary species
-    char            Label[MAXSTRING];       // label of kinetic reaction, could
-                                            // be multiple for one mineral
-                                            // (aqueous species)
-    int             type;                   // type of the kinetic reaction
-                                            // 1: tst  2: precipitation-only
-                                            // 3: dissolution-only 4: monod
-    double          rate;                   // rate of kinetic reaction, often
-                                            // at 25 C
-    double          actv;                   // activation energy, used to
-                                            // calculate kinetic rate of
-                                            // reaction under different
-                                            // temperatures
-    double          Keq;                    // equilibrium constant
-    int             num_dep;                // number of dependency
-    char            dep_species[MAXDEP][MAXSTRING]; // species that this kinetic
-                                            // rate depends on
-    int             dep_position[MAXDEP];   // store position of species that
-                                            // this kinetic reaction depends on
-    double          dep_power[MAXDEP];      // power of dependency
-    char            biomass_species[MAXSTRING];
-    int             biomass_position;
-    int             num_monod;
-    char            monod_species[MAXDEP][MAXSTRING]; // species that this
-                                            // kinetic rate depends on for monod
-                                            // type
-    int             monod_position[MAXDEP];
-    double          monod_para[MAXDEP];     // parameters for monod dependency
-    int             num_inhib;
-    char            inhib_species[MAXDEP][MAXSTRING]; // species that this
-                                            // kinetic rate is inhibited by, for
-                                            // monod type
-    int             inhib_position[MAXDEP];
-    double          inhib_para[MAXDEP];     // parameters that controls this
-                                            // inhibition
-} Kinetic_Reaction;
-
 typedef struct Pump_Data_structure
 {
     int             Pump_Location;  /* Index of pump grid block */
@@ -164,7 +123,6 @@ typedef struct Chem_Data_structure
     vol_conc       *Vcele;      // An array that stores the volumetric (vol) and chemical (conc) information of grid blocks
     vol_conc        Precipitation;  // The cell that stores the concentrations of chemicals in the rain.
     face           *Flux;       // connections between grid blocks
-    Kinetic_Reaction kinetics[MAXSPS]; // kinetics constants and dependencies.
     Debye_Huckel    DH;
     Pump           *pumps;      // injection/ groundwater contribution
     tsdata_struct  *TSD_prepconc;   // Time series data of concentration in precipitation.

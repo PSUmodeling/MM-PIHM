@@ -443,7 +443,8 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                 {
                     t_conc0[k] = CD->Vcele[RT_GW(i)].t_conc[k];
                 }
-                React((double)pihm->ctrl.AvgScl, pihm->chemtbl, &pihm->rttbl, &pihm->ctrl, CD, &CD->Vcele[RT_GW(i)]);
+                React((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl,
+                    &pihm->rttbl, &pihm->ctrl, CD, &CD->Vcele[RT_GW(i)]);
 
                 for (k = 0; k < NumSpc; k++)
                 {
@@ -457,7 +458,8 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                 {
                     t_conc0[k] = CD->Vcele[RT_UNSAT(i)].t_conc[k];
                 }
-                React((double)pihm->ctrl.AvgScl, pihm->chemtbl, &pihm->rttbl, &pihm->ctrl, CD, &CD->Vcele[RT_UNSAT(i)]);
+                React((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl,
+                    &pihm->rttbl, &pihm->ctrl, CD, &CD->Vcele[RT_UNSAT(i)]);
 
                 for (k = 0; k < NumSpc; k++)
                 {

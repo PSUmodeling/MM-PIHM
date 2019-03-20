@@ -172,7 +172,8 @@ int SpeciationType(FILE *database, char *Name)
     return (0);
 }
 
-void Lookup(FILE *database, chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD)
+void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
+    rttbl_struct *rttbl, Chem_Data CD)
 {
     double          tmpval[WORDS_LINE];
     /* Kinetic reactions is currently only applicable to minerals */
@@ -341,7 +342,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_
     {
         for (j = NumSpc + rttbl->NumAds + rttbl->NumCex; j < rttbl->NumStc; j++)
         {
-            strcpy(tmp, CD->kinetics[i].species);
+            strcpy(tmp, kintbl[i].species);
             wrap(tmp);
             if (strcmp(tmp, chemtbl[j].ChemName) == 0)
             {
@@ -430,67 +431,67 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_
         {
             if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
             {
-                if (strcmp(CD->kinetics[i].species, tmpstr[0]) == 0)
+                if (strcmp(kintbl[i].species, tmpstr[0]) == 0)
                 {
                     fgets(line, LINE_WIDTH, database);
                     keymatch(line, "NULL", tmpval, tmpstr);
-                    if (strcmp(CD->kinetics[i].Label, tmpstr[2]) == 0)
+                    if (strcmp(kintbl[i].Label, tmpstr[2]) == 0)
                     {
                         fprintf(stderr,
                             " \n Mineral kinetics %s %s found in database!\n",
-                            CD->kinetics[i].species, CD->kinetics[i].Label);
+                            kintbl[i].species, kintbl[i].Label);
                         fgets(line, LINE_WIDTH, database);
                         keymatch(line, "NULL", tmpval, tmpstr);
                         if (strcmp(tmpstr[2], "tst") == 0)
-                            CD->kinetics[i].type = 1;
+                            kintbl[i].type = 1;
                         if (strcmp(tmpstr[2], "PrecipitationOnly") == 0)
-                            CD->kinetics[i].type = 2;
+                            kintbl[i].type = 2;
                         if (strcmp(tmpstr[2], "DissolutionOnly") == 0)
-                            CD->kinetics[i].type = 3;
+                            kintbl[i].type = 3;
                         if (strcmp(tmpstr[2], "monod") == 0)
-                            CD->kinetics[i].type = 4;
+                            kintbl[i].type = 4;
                         fgets(line, LINE_WIDTH, database);
                         keymatch(line, "NULL", tmpval, tmpstr);
                         if (strcmp(tmpstr[0], "rate(25C)") == 0)
                         {
-                            CD->kinetics[i].rate = tmpval[0];
+                            kintbl[i].rate = tmpval[0];
                             fprintf(stderr, " Rate is %f\n",
-                                CD->kinetics[i].rate);
+                                kintbl[i].rate);
 
-                            CD->kinetics[i].rate = tmpval[0] + CD->CalRate;
+                            kintbl[i].rate = tmpval[0] + CD->CalRate;
                             fprintf(stderr,
                                 " After calibration: Rate is %f, CD->CalRate = %f \n",
-                                CD->kinetics[i].rate, CD->CalRate);
+                                kintbl[i].rate, CD->CalRate);
                         }
                         fgets(line, LINE_WIDTH, database);
                         keymatch(line, "NULL", tmpval, tmpstr);
                         if (strcmp(tmpstr[0], "activation") == 0)
                         {
-                            CD->kinetics[i].actv = tmpval[0];
+                            kintbl[i].actv = tmpval[0];
                             fprintf(stderr, " Activation is %f\n",
-                                CD->kinetics[i].actv);
+                                kintbl[i].actv);
                         }
                         fgets(line, LINE_WIDTH, database);
                         keymatch(line, "NULL", tmpval, tmpstr);
                         if (strcmp(tmpstr[0], "dependence") == 0)
                         {
-                            strcpy(CD->kinetics[i].dep_species[0], tmpstr[2]);
-                            wrap(CD->kinetics[i].dep_species[0]);
-                            CD->kinetics[i].num_dep = 1;
+                            strcpy(kintbl[i].dep_species[0], tmpstr[2]);
+                            wrap(kintbl[i].dep_species[0]);
+                            kintbl[i].num_dep = 1;
                             /* Assume that all mineral kinetic only depend on
                              * one species !! */
 
                             /* Require further elaboration after this !! */
                             for (k = 0; k < rttbl->NumStc; k++)
                             {
-                                if (strcmp(CD->kinetics[i].dep_species[0],
+                                if (strcmp(kintbl[i].dep_species[0],
                                         chemtbl[k].ChemName) == 0)
-                                    CD->kinetics[i].dep_position[0] = k;
+                                    kintbl[i].dep_position[0] = k;
                             }
-                            CD->kinetics[i].dep_power[0] = tmpval[0];
+                            kintbl[i].dep_power[0] = tmpval[0];
                             fprintf(stderr, " Dependency: %s %f\n",
-                                CD->kinetics[i].dep_species[0],
-                                CD->kinetics[i].dep_power[0]);
+                                kintbl[i].dep_species[0],
+                                kintbl[i].dep_power[0]);
                         }
 
                         /* Biomass term */
@@ -498,19 +499,19 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_
                         keymatch(line, "NULL", tmpval, tmpstr);
                         if (strcmp(tmpstr[0], "biomass") == 0)
                         {
-                            strcpy(CD->kinetics[i].biomass_species, tmpstr[2]);
-                            wrap(CD->kinetics[i].biomass_species);
+                            strcpy(kintbl[i].biomass_species, tmpstr[2]);
+                            wrap(kintbl[i].biomass_species);
                             fprintf(stderr, " Biomass species: %s \n",
-                                CD->kinetics[i].biomass_species);
+                                kintbl[i].biomass_species);
                             for (k = 0; k < rttbl->NumStc; k++)
                             {
-                                if (strcmp(CD->kinetics[i].biomass_species,
+                                if (strcmp(kintbl[i].biomass_species,
                                         chemtbl[k].ChemName) == 0)
                                 {
-                                    CD->kinetics[i].biomass_position = k;
+                                    kintbl[i].biomass_position = k;
                                     fprintf(stderr,
                                         " Biomass species position: %d \n",
-                                        CD->kinetics[i].biomass_position);
+                                        kintbl[i].biomass_position);
                                 }
                             }
                         }
@@ -520,31 +521,31 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_
                         keymatch(line, "NULL", tmpval, tmpstr);
                         if (strcmp(tmpstr[0], "num_monod") == 0)
                         {
-                            CD->kinetics[i].num_monod = tmpval[0];
+                            kintbl[i].num_monod = tmpval[0];
                             fprintf(stderr, " Number of monod term: %d\n",
-                                CD->kinetics[i].num_monod);
+                                kintbl[i].num_monod);
                         }
                         fgets(line, LINE_WIDTH, database);
                         keymatch(line, "NULL", tmpval, tmpstr);
                         if (strcmp(tmpstr[0], "monod_terms") == 0)
                         {
-                            for (mn = 0; mn < CD->kinetics[i].num_monod; mn++)
+                            for (mn = 0; mn < kintbl[i].num_monod; mn++)
                             {
                                 /* Note tmpstr indexing not same with tmpval
                                  * indexing */
-                                strcpy(CD->kinetics[i].monod_species[mn], tmpstr[mn * 2 + 2]);
-                                wrap(CD->kinetics[i].monod_species[mn]);
+                                strcpy(kintbl[i].monod_species[mn], tmpstr[mn * 2 + 2]);
+                                wrap(kintbl[i].monod_species[mn]);
                                 for (k = 0; k < rttbl->NumStc; k++)
                                 {
                                     if (strcmp(
-                                        CD->kinetics[i].monod_species[mn],
+                                        kintbl[i].monod_species[mn],
                                         chemtbl[k].ChemName) == 0)
-                                        CD->kinetics[i].monod_position[mn] = k;
+                                        kintbl[i].monod_position[mn] = k;
                                 }
-                                CD->kinetics[i].monod_para[mn] = tmpval[mn + 0];
+                                kintbl[i].monod_para[mn] = tmpval[mn + 0];
                                 fprintf(stderr, " Monod term: %s %f\n",
-                                    CD->kinetics[i].monod_species[mn],
-                                    CD->kinetics[i].monod_para[mn]);
+                                    kintbl[i].monod_species[mn],
+                                    kintbl[i].monod_para[mn]);
                             }
                         }
 
@@ -553,34 +554,33 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_
                         keymatch(line, "NULL", tmpval, tmpstr);
                         if (strcmp(tmpstr[0], "num_inhibition") == 0)
                         {
-                            CD->kinetics[i].num_inhib = tmpval[0];
+                            kintbl[i].num_inhib = tmpval[0];
                             fprintf(stderr, " Number of inhibition term: %d\n",
-                                CD->kinetics[i].num_inhib);
+                                kintbl[i].num_inhib);
                         }
                         fgets(line, LINE_WIDTH, database);
                         keymatch(line, "NULL", tmpval, tmpstr);
                         if (strcmp(tmpstr[0], "inhibition") == 0)
                         {
-                            for (in = 0; in < CD->kinetics[i].num_inhib; in++)
+                            for (in = 0; in < kintbl[i].num_inhib; in++)
                             {
                                 /* Note tmpstr indexing not same with tmpval */
-                                strcpy(CD->kinetics[i].inhib_species[in],
+                                strcpy(kintbl[i].inhib_species[in],
                                     tmpstr[in * 2 + 2]);
-                                wrap(CD->kinetics[i].inhib_species[in]);
+                                wrap(kintbl[i].inhib_species[in]);
                                 for (k = 0; k < rttbl->NumStc; k++)
                                 {
-                                    if (strcmp(CD->
-                                            kinetics[i].inhib_species[in],
+                                    if (strcmp(kintbl[i].inhib_species[in],
                                             chemtbl[k].ChemName) == 0)
-                                        CD->kinetics[i].inhib_position[in] = k;
+                                        kintbl[i].inhib_position[in] = k;
                                 }
-                                CD->kinetics[i].inhib_para[in] = tmpval[in + 0];
+                                kintbl[i].inhib_para[in] = tmpval[in + 0];
                                 fprintf(stderr, " Inhibition term: %s %f\n",
-                                    CD->kinetics[i].inhib_species[in],
-                                    CD->kinetics[i].inhib_para[in]);
+                                    kintbl[i].inhib_species[in],
+                                    kintbl[i].inhib_para[in]);
                             }
                         }
-                        wrap(CD->kinetics[i].species);
+                        wrap(kintbl[i].species);
                     }
                 }
             }
@@ -591,12 +591,12 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_
     for (i = 0; i < rttbl->NumMkr; i++)
         for (j = 0; j < rttbl->NumStc; j++)
         {
-            if (strcmp(CD->kinetics[i].species, chemtbl[j].ChemName) == 0)
+            if (strcmp(kintbl[i].species, chemtbl[j].ChemName) == 0)
             {
-                CD->kinetics[i].position = j;
+                kintbl[i].position = j;
                 fprintf(stderr,
                     " \n Position_check (NumMkr[i] vs NumStc[j]) %s (%d), %s (%d)\n",
-                    CD->kinetics[i].species, i, chemtbl[j].ChemName, j);
+                    kintbl[i].species, i, chemtbl[j].ChemName, j);
             }
         }
 
@@ -1008,14 +1008,16 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
 }
 
 
-void React(double stepsize, const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, ctrl_struct *ctrl, Chem_Data CD, vol_conc *Vcele)
+void React(double stepsize, const chemtbl_struct chemtbl[],
+    const kintbl_struct kintbl[], const rttbl_struct *rttbl, ctrl_struct *ctrl,
+    Chem_Data CD, vol_conc *Vcele)
 {
     int             k, j;
     double          substep;
 
     if (Vcele->illness < 20)
     {
-        if (_React(stepsize, chemtbl, rttbl, CD, Vcele))
+        if (_React(stepsize, chemtbl, kintbl, rttbl, CD, Vcele))
         {
             fprintf(stderr, "  ---> React failed at cell %12d.\t",
                     Vcele->index);
@@ -1023,7 +1025,7 @@ void React(double stepsize, const chemtbl_struct chemtbl[], const rttbl_struct *
             substep = 0.5 * stepsize;
             k = 2;
 
-            while ((j = _React(substep, chemtbl, rttbl, CD, Vcele)))
+            while ((j = _React(substep, chemtbl, kintbl, rttbl, CD, Vcele)))
             {
                 substep = 0.5 * substep;
                 k = 2 * k;
@@ -1038,14 +1040,15 @@ void React(double stepsize, const chemtbl_struct chemtbl[], const rttbl_struct *
                         substep, k);
                 for (j = 1; j < k; j++)
                 {
-                    _React(substep, chemtbl, rttbl, CD, Vcele);
+                    _React(substep, chemtbl, kintbl, rttbl, CD, Vcele);
                 }
             }
         }
     }
 }
 
-int _React(double stepsize, const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, Chem_Data CD, vol_conc *Vcele)
+int _React(double stepsize, const chemtbl_struct chemtbl[],
+    const kintbl_struct kintbl[], const rttbl_struct *rttbl, Chem_Data CD, vol_conc *Vcele)
 {
     if (Vcele->sat < 1.0E-2)
     {
@@ -1118,9 +1121,9 @@ int _React(double stepsize, const chemtbl_struct chemtbl[], const rttbl_struct *
 
     for (i = 0; i < rttbl->NumMkr + rttbl->NumAkr; i++)
     {
-        min_pos = CD->kinetics[i].position - rttbl->NumStc + rttbl->NumMin;
+        min_pos = kintbl[i].position - rttbl->NumStc + rttbl->NumMin;
 
-        if (CD->kinetics[i].type == 1)  /* TST rate */
+        if (kintbl[i].type == 1)  /* TST rate */
         {
             IAP[i] = 0.0;
             for (j = 0; j < rttbl->NumStc; j++)
@@ -1131,41 +1134,41 @@ int _React(double stepsize, const chemtbl_struct chemtbl[], const rttbl_struct *
             IAP[i] = pow(10, IAP[i]);
             tmpKeq = pow(10, CD->KeqKinect[min_pos]);
             dependency[i] = 1.0;
-            for (k = 0; k < CD->kinetics[i].num_dep; k++)
+            for (k = 0; k < kintbl[i].num_dep; k++)
                 dependency[i] *=
-                    pow(Vcele->p_actv[CD->kinetics[i].dep_position[k]],
-                    CD->kinetics[i].dep_power[k]);
+                    pow(Vcele->p_actv[kintbl[i].dep_position[k]],
+                    kintbl[i].dep_power[k]);
             /* Calculate the predicted rate depending on the type of rate law!  */
-            Rate_pre[i] = area[min_pos] * (pow(10, CD->kinetics[i].rate)) *
+            Rate_pre[i] = area[min_pos] * (pow(10, kintbl[i].rate)) *
                 dependency[i] * (1 - (IAP[i] / tmpKeq));
             /* Rate_pre: rate per reaction (mol (L water)-1 s-1)
              * area: m2/L water
              * rate: mol/m2/s
              * dependency: dimensionless */
         }
-        else if (CD->kinetics[i].type == 4) /* Monod rate */
+        else if (kintbl[i].type == 4) /* Monod rate */
         {
             monodterm = 1.0;    /* re-set for new species */
             inhibterm = 1.0;    /*re-set for new species */
 
             /* Calculate rate */
-            for (mn = 0; mn < CD->kinetics[i].num_monod; mn++)
+            for (mn = 0; mn < kintbl[i].num_monod; mn++)
             {
                 monodterm *=
-                    Vcele->p_conc[CD->kinetics[i].monod_position[mn]] /
-                    (Vcele->p_conc[CD->kinetics[i].monod_position[mn]] +
-                    CD->kinetics[i].monod_para[mn]);
+                    Vcele->p_conc[kintbl[i].monod_position[mn]] /
+                    (Vcele->p_conc[kintbl[i].monod_position[mn]] +
+                    kintbl[i].monod_para[mn]);
             }
 
-            for (in = 0; in < CD->kinetics[i].num_inhib; in++)
+            for (in = 0; in < kintbl[i].num_inhib; in++)
             {
-                inhibterm *= CD->kinetics[i].inhib_para[in] /
-                    (CD->kinetics[i].inhib_para[in] +
-                    Vcele->p_conc[CD->kinetics[i].inhib_position[in]]);
+                inhibterm *= kintbl[i].inhib_para[in] /
+                    (kintbl[i].inhib_para[in] +
+                    Vcele->p_conc[kintbl[i].inhib_position[in]]);
             }
 
             /* Based on CrunchTope */
-            Rate_pre[i] = area[min_pos] * pow(10, CD->kinetics[i].rate) * monodterm;
+            Rate_pre[i] = area[min_pos] * pow(10, kintbl[i].rate) * monodterm;
         }
 
         for (j = 0; j < rttbl->NumStc; j++)
@@ -1176,7 +1179,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[], const rttbl_struct *
 
     for (i = 0; i < rttbl->NumMkr + rttbl->NumAkr; i++)
     {
-        min_pos = CD->kinetics[i].position - rttbl->NumStc + rttbl->NumMin;
+        min_pos = kintbl[i].position - rttbl->NumStc + rttbl->NumMin;
         if (Rate_pre[i] < 0.0)
         {
             if (Vcele->p_conc[min_pos + rttbl->NumStc - rttbl->NumMin] < 1.0E-8) /* mineral cutoff when mineral is disappearing */
@@ -1264,9 +1267,9 @@ int _React(double stepsize, const chemtbl_struct chemtbl[], const rttbl_struct *
 
         for (i = 0; i < rttbl->NumMkr + rttbl->NumAkr; i++)
         {
-            min_pos = CD->kinetics[i].position - rttbl->NumStc + rttbl->NumMin;
+            min_pos = kintbl[i].position - rttbl->NumStc + rttbl->NumMin;
 
-            if (CD->kinetics[i].type == 1)  /* TST rate */
+            if (kintbl[i].type == 1)  /* TST rate */
             {
                 IAP[i] = 0.0;
                 for (j = 0; j < rttbl->NumStc; j++)
@@ -1288,14 +1291,14 @@ int _React(double stepsize, const chemtbl_struct chemtbl[], const rttbl_struct *
                  * rct_drct[i] = 0.0;
                  */
                 dependency[i] = 0.0;
-                for (k = 0; k < CD->kinetics[i].num_dep; k++)
+                for (k = 0; k < kintbl[i].num_dep; k++)
                     dependency[i] +=
-                        (tmpconc[CD->kinetics[i].dep_position[k]] +
-                        gamma[CD->kinetics[i].dep_position[k]]) *
-                        CD->kinetics[i].dep_power[k];
+                        (tmpconc[kintbl[i].dep_position[k]] +
+                        gamma[kintbl[i].dep_position[k]]) *
+                        kintbl[i].dep_power[k];
                 dependency[i] = pow(10, dependency[i]);
                 /* Calculate the predicted rate depending on the type of rate law!  */
-                Rate_pre[i] = area[min_pos] * (pow(10, CD->kinetics[i].rate)) *
+                Rate_pre[i] = area[min_pos] * (pow(10, kintbl[i].rate)) *
                     dependency[i] * (1 - (IAP[i] / tmpKeq));
                 /* Rate_pre: in mol / L water / s
                  * area: m2/L water
@@ -1303,34 +1306,31 @@ int _React(double stepsize, const chemtbl_struct chemtbl[], const rttbl_struct *
                  * dependency: dimensionless;
                  */
             }
-            else if (CD->kinetics[i].type == 4)
+            else if (kintbl[i].type == 4)
             {
                 monodterm = 1.0;
                 inhibterm = 1.0;
 
                 /* Calculate rate */
-                for (mn = 0; mn < CD->kinetics[i].num_monod; mn++)
+                for (mn = 0; mn < kintbl[i].num_monod; mn++)
                 {
                     monodterm *=
-                        Vcele->p_conc[CD->
-                        kinetics[i].monod_position[mn]] /
-                        (Vcele->p_conc[CD->
-                            kinetics[i].monod_position[mn]] +
-                        CD->kinetics[i].monod_para[mn]);
+                        Vcele->p_conc[kintbl[i].monod_position[mn]] /
+                        (Vcele->p_conc[kintbl[i].monod_position[mn]] +
+                        kintbl[i].monod_para[mn]);
                 }
 
-                for (in = 0; in < CD->kinetics[i].num_inhib; in++)
+                for (in = 0; in < kintbl[i].num_inhib; in++)
                 {
                     inhibterm *=
-                        CD->kinetics[i].inhib_para[in] /
-                        (CD->kinetics[i].inhib_para[in] +
-                        Vcele->p_conc[CD->
-                            kinetics[i].inhib_position[in]]);
+                        kintbl[i].inhib_para[in] /
+                        (kintbl[i].inhib_para[in] +
+                        Vcele->p_conc[kintbl[i].inhib_position[in]]);
                 }
 
                 /* Based on CrunchTope */
                 Rate_pre[i] =
-                    area[min_pos] * pow(10, CD->kinetics[i].rate) * monodterm;
+                    area[min_pos] * pow(10, kintbl[i].rate) * monodterm;
             }
 
             for (j = 0; j < rttbl->NumStc; j++)

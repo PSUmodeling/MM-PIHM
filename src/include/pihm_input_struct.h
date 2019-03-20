@@ -528,6 +528,44 @@ typedef struct chemtbl_struct
                                              * 2 = mixed mobility mass action */
 } chemtbl_struct;
 
+typedef struct kintbl_struct
+{
+    char            species[MAXSTRING];     /* target mineral */
+    int             position;               /* position of target mineral in the
+                                             * array of primary species */
+    char            Label[MAXSTRING];       /* label of kinetic reaction */
+    int             type;                   /* type of the kinetic reaction
+                                             * 1: tst  2: precipitation-only
+                                             * 3: dissolution-only 4: monod */
+    double          rate;                   /* rate of kinetic reaction */
+    double          actv;                   /* activation energy, used to
+                                             * calculate kinetic rate of
+                                             * reaction under different
+                                             * temperatures */
+    double          Keq;                    /* equilibrium constant */
+    int             num_dep;                /* number of dependency */
+    char            dep_species[MAXDEP][MAXSTRING]; /* species that this kinetic
+                                             * rate depends on */
+    int             dep_position[MAXDEP];   /* position of species that kinetic
+                                             * reaction depends on */
+    double          dep_power[MAXDEP];      /* power of dependency */
+    char            biomass_species[MAXSTRING];
+    int             biomass_position;
+    int             num_monod;
+    char            monod_species[MAXDEP][MAXSTRING];   /* species that this
+                                             * kinetic rate depends on for monod
+                                             * type */
+    int             monod_position[MAXDEP];
+    double          monod_para[MAXDEP];     /* parameter for monod dependency */
+    int             num_inhib;
+    char            inhib_species[MAXDEP][MAXSTRING]; /* species that kinetic
+                                             * rate is inhibited by, for monod
+                                             * type */
+    int             inhib_position[MAXDEP];
+    double          inhib_para[MAXDEP];     /* parameters that controls this
+                                             * inhibition */
+} kintbl_struct;
+
 typedef struct rttbl_struct
 {
     int             ACTmod;                 /* activity coefficient mode:

@@ -3,8 +3,8 @@
 #define ZERO   1E-20
 
 void ReadChem(const char chem_filen[], const char cdbs_filen[],
-    const pihm_struct pihm, chemtbl_struct chemtbl[], rttbl_struct *rttbl,
-    ctrl_struct *ctrl, Chem_Data CD)
+    const pihm_struct pihm, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
+    rttbl_struct *rttbl, ctrl_struct *ctrl, Chem_Data CD)
 {
     int             i, j;
     int             match;
@@ -259,6 +259,39 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     /*
+     * Minerals block
+     */
+    FindLine(chem_fp, "MINERALS", &lno, chem_filen);
+
+    for (i = 0; i < MAXSPS; i++)
+    {
+        for (j = 0; j < MAXDEP; j++)
+        {
+            kintbl[i].dep_position[j] = 0;
+            kintbl[i].monod_position[j] = 0;
+            kintbl[i].inhib_position[j] = 0;
+        }
+    }
+
+    for (i = 0; i < rttbl->NumMkr; i++)
+    {
+        NextLine(chem_fp, cmdstr, &lno);
+        match = sscanf(cmdstr, "%s %s %s",
+            kintbl[i].species, temp_str, kintbl[i].Label);
+        if (match != 3 || strcasecmp(temp_str, "-label") != 0)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error reading mineral information in %s near Line %d.\n",
+                chem_filen, lno);
+            PIHMexit(EXIT_FAILURE);
+        }
+
+        PIHMprintf(VL_VERBOSE,
+            "  Kinetic reaction on '%s' is specified, label '%s'. \n",
+            kintbl[i].species, kintbl[i].Label);
+    }
+
+    /*
      * Output block
      */
     NextLine(chem_fp, cmdstr, &lno);
@@ -390,40 +423,6 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
             CD->Precipitation.p_para[chem_ind] = 0;
             PIHMprintf(VL_NORMAL, " cation exchange %s\t %6.4f\n",
                 chemtbl[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
-        }
-    }
-
-    /* Minerals block */
-    FindLine(chem_fp, "MINERALS", &lno, chem_filen);
-
-    for (i = 0; i < MAXSPS; i++)
-    {
-        for (j = 0; j < MAXDEP; j++)
-        {
-            CD->kinetics[i].dep_position[j] = 0;
-            CD->kinetics[i].monod_position[j] = 0;
-            CD->kinetics[i].inhib_position[j] = 0;
-        }
-    }
-
-    for (i = 0; i < rttbl->NumMkr; i++)
-    {
-        NextLine(chem_fp, cmdstr, &lno);
-        match = sscanf(cmdstr, "%s %s %s",
-            CD->kinetics[i].species, temp_str, CD->kinetics[i].Label);
-        if (match != 3 || strcasecmp(temp_str, "-label") != 0)
-        {
-            PIHMprintf(VL_ERROR,
-                "Error reading mineral information in %s near Line %d.\n",
-                chem_filen, lno);
-            PIHMexit(EXIT_FAILURE);
-        }
-
-        if (debug_mode)
-        {
-            PIHMprintf(VL_NORMAL,
-                "  Kinetic reaction on '%s' is specified, label '%s'. \n",
-                CD->kinetics[i].species, CD->kinetics[i].Label);
         }
     }
 

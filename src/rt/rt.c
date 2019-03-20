@@ -543,7 +543,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     }
 
     CD->SPCFlg = speciation_flg;
-    Lookup(database, pihm->chemtbl, &pihm->rttbl, CD);
+    Lookup(database, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, CD);
     /* Update the concentration of mineral after get the molar volume of
      * mineral */
 
