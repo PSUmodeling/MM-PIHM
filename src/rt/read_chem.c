@@ -232,11 +232,31 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     for (i = 0; i < rttbl->NumStc; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
-        sscanf(cmdstr, "%s", chemn[i]);
+        if (sscanf(cmdstr, "%s", chemn[i]) != 1)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error reading primary_species in %s near Line %d.\n",
+                chem_filen, lno);
+        }
         p_type[i] = SpeciationType(db_fp, chemn[i]);
     }
 
     SortChem(chemn, p_type, rttbl->NumStc, chemtbl);
+
+    /*
+     * Secondary_species block
+     */
+    FindLine(chem_fp, "SECONDARY_SPECIES", &lno, chem_filen);
+    for (i = 0; i < rttbl->NumSsc; i++)
+    {
+        NextLine(chem_fp, cmdstr, &lno);
+        if (sscanf(cmdstr, "%s", chemtbl[rttbl->NumStc + i].ChemName) != 1)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error reading secondary_species in %s near Line %d.\n",
+                chem_filen, lno);
+        }
+    }
 
     /*
      * Output block
@@ -370,21 +390,6 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
             CD->Precipitation.p_para[chem_ind] = 0;
             PIHMprintf(VL_NORMAL, " cation exchange %s\t %6.4f\n",
                 chemtbl[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
-        }
-    }
-
-    /*
-     * Secondary_species block
-     */
-    FindLine(chem_fp, "SECONDARY_SPECIES", &lno, chem_filen);
-    for (i = 0; i < rttbl->NumSsc; i++)
-    {
-        NextLine(chem_fp, cmdstr, &lno);
-        if (sscanf(cmdstr, "%s", chemtbl[rttbl->NumStc + i].ChemName) != 1)
-        {
-            PIHMprintf(VL_ERROR,
-                "Error reading secondary_species in %s near Line %d.\n",
-                chem_filen, lno);
         }
     }
 
