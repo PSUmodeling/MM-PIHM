@@ -429,7 +429,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
          * Reaction
          */
         if ((!pihm->rttbl.RecFlg) && (t > pihm->ctrl.starttime) &&
-            (t - pihm->ctrl.starttime) % (pihm->ctrl.AvgScl * stepsize) == 0)
+            (t - pihm->ctrl.starttime) % pihm->ctrl.AvgScl == 0)
         {
 #ifdef _OPENMP
 # pragma omp parallel for
@@ -443,28 +443,27 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                 {
                     t_conc0[k] = CD->Vcele[RT_GW(i)].t_conc[k];
                 }
-                React((double)stepsize, &pihm->rttbl, &pihm->ctrl, CD, &CD->Vcele[RT_GW(i)]);
+                React((double)pihm->ctrl.AvgScl, &pihm->rttbl, &pihm->ctrl, CD, &CD->Vcele[RT_GW(i)]);
 
                 for (k = 0; k < NumSpc; k++)
                 {
                     CD->Vcele[RT_GW(i)].react_flux[k] =
                         (CD->Vcele[RT_GW(i)].t_conc[k] - t_conc0[k]) *
                         CD->Vcele[RT_GW(i)].vol /
-                        (double)(pihm->ctrl.AvgScl * stepsize);
+                        (double)pihm->ctrl.AvgScl;
                 }
 
                 for (k = 0; k < NumSpc; k++)
                 {
                     t_conc0[k] = CD->Vcele[RT_UNSAT(i)].t_conc[k];
                 }
-                React((double)stepsize, &pihm->rttbl, &pihm->ctrl, CD, &CD->Vcele[RT_UNSAT(i)]);
+                React((double)pihm->ctrl.AvgScl, &pihm->rttbl, &pihm->ctrl, CD, &CD->Vcele[RT_UNSAT(i)]);
 
                 for (k = 0; k < NumSpc; k++)
                 {
                     CD->Vcele[RT_UNSAT(i)].react_flux[k] =
                         (CD->Vcele[RT_UNSAT(i)].t_conc[k] - t_conc0[k]) *
-                        CD->Vcele[RT_UNSAT(i)].vol /
-                        (double)(pihm->ctrl.AvgScl * stepsize);
+                        CD->Vcele[RT_UNSAT(i)].vol / (double)pihm->ctrl.AvgScl;
                 }
             }
         }
@@ -557,8 +556,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                 {
                     CD->Vcele[RT_RIVER(i)].react_flux[k] =
                         (CD->Vcele[RT_RIVER(i)].t_conc[k] - t_conc0[k]) *
-                        CD->Vcele[RT_RIVER(i)].vol /
-                        (double)(60 * stepsize);
+                        CD->Vcele[RT_RIVER(i)].vol / 3600.0;
                 }
             }
         }

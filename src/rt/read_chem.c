@@ -136,8 +136,20 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
 
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "AVGSCL", &ctrl->AvgScl, 'i', chem_filen, lno);
-    PIHMprintf(VL_VERBOSE,
-        "  Averaging window for asynchronous reaction %d. \n", ctrl->AvgScl);
+    if (ctrl->AvgScl < ctrl->stepsize || ctrl->AvgScl % ctrl->stepsize > 0)
+    {
+        PIHMprintf(VL_ERROR,
+            "Error: Reaction step size "
+            "should be an integral multiple of model step size.\n");
+        PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", chem_filen, lno);
+        PIHMexit(EXIT_FAILURE);
+    }
+    else
+    {
+        PIHMprintf(VL_VERBOSE,
+            "  Averaging window for asynchronous reaction %d seconds.\n",
+            ctrl->AvgScl);
+    }
 
     /*
      * Global block

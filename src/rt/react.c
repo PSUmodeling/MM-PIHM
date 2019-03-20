@@ -1015,7 +1015,7 @@ void React(double stepsize, const rttbl_struct *rttbl, ctrl_struct *ctrl, Chem_D
 
     if (Vcele->illness < 20)
     {
-        if (_React(stepsize * ctrl->AvgScl, rttbl, CD, Vcele))
+        if (_React(stepsize, rttbl, CD, Vcele))
         {
             fprintf(stderr, "  ---> React failed at cell %12d.\t",
                     Vcele->index);
