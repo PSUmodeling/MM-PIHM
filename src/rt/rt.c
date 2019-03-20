@@ -609,7 +609,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
         {
             if (CD->chemtype[j].itype == MINERAL)
             {
-                if (CD->RelMin == 0)
+                if (pihm->rttbl.RelMin == 0)
                 {
                     /* Absolute mineral volume fraction */
                     CD->Vcele[i].t_conc[j] =
@@ -617,7 +617,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
                         CD->chemtype[j].MolarVolume / CD->Vcele[i].porosity;
                     CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
                 }
-                if (CD->RelMin == 1)
+                if (pihm->rttbl.RelMin == 1)
                 {
                     /* Relative mineral volume fraction */
                     /* Porosity can be 1.0 so the relative fraction option needs
@@ -642,11 +642,11 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     }
 
     CD->SPCFlg = 1;
-    if (!CD->RecFlg)
+    if (!pihm->rttbl.RecFlg)
     {
         for (i = 0; i < nelem; i++)
         {
-            Speciation(CD, RT_GW(i));
+            Speciation(&pihm->rttbl, CD, RT_GW(i));
 #if defined(_FBR_)
             Speciation(CD, RT_FBR_GW(i));
 #endif

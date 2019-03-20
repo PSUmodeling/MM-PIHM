@@ -154,7 +154,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
     }
 
     /* Update the concentration in precipitation here. */
-    if (CD->PrpFlg == 2)
+    if (pihm->ctrl.PrpFlg == 2)
     {
         IntrplForc(&CD->TSD_prepconc[0], t, CD->TSD_prepconc[0].nspec,
             NO_INTRPL);
@@ -280,7 +280,7 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
 
     /* Update virtual volume */
 
-    if (CD->PrpFlg)
+    if (pihm->ctrl.PrpFlg)
     {
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -289,9 +289,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
         {
             CD->Vcele[PRCP_VOL - 1].t_conc[k] =
                 (strcmp(CD->chemtype[k].ChemName, "'DOC'") == 0) ?
-                CD->Precipitation.t_conc[k] * CD->Condensation *
+                CD->Precipitation.t_conc[k] * pihm->rttbl.Condensation *
                 CD->CalPrcpconc :
-                CD->Precipitation.t_conc[k] * CD->Condensation;
+                CD->Precipitation.t_conc[k] * pihm->rttbl.Condensation;
         }
     }
     else
@@ -311,9 +311,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
     for (k = 0; k < CD->NumStc; k++)
     {
         CD->Vcele[BOUND_VOL - 1].t_conc[k] =
-            CD->Precipitation.t_conc[k] * CD->Condensation;
+            CD->Precipitation.t_conc[k] * pihm->rttbl.Condensation;
         CD->Vcele[BOUND_VOL - 1].p_conc[k] =
-            CD->Precipitation.t_conc[k] * CD->Condensation;
+            CD->Precipitation.t_conc[k] * pihm->rttbl.Condensation;
     }
 
     /*
@@ -423,13 +423,13 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
         }
     }
 
-    if (t - pihm->ctrl.starttime >= CD->RT_delay)
+    if (t - pihm->ctrl.starttime >= pihm->ctrl.RT_delay)
     {
         /*
          * Reaction
          */
-        if ((!CD->RecFlg) && (t > pihm->ctrl.starttime) &&
-            (t - pihm->ctrl.starttime) % (CD->AvgScl * stepsize) == 0)
+        if ((!pihm->rttbl.RecFlg) && (t > pihm->ctrl.starttime) &&
+            (t - pihm->ctrl.starttime) % (pihm->ctrl.AvgScl * stepsize) == 0)
         {
 #ifdef _OPENMP
 # pragma omp parallel for
@@ -443,28 +443,28 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                 {
                     t_conc0[k] = CD->Vcele[RT_GW(i)].t_conc[k];
                 }
-                React((double)stepsize, CD, &CD->Vcele[RT_GW(i)]);
+                React((double)stepsize, &pihm->rttbl, &pihm->ctrl, CD, &CD->Vcele[RT_GW(i)]);
 
                 for (k = 0; k < NumSpc; k++)
                 {
                     CD->Vcele[RT_GW(i)].react_flux[k] =
                         (CD->Vcele[RT_GW(i)].t_conc[k] - t_conc0[k]) *
                         CD->Vcele[RT_GW(i)].vol /
-                        (double)(CD->AvgScl * stepsize);
+                        (double)(pihm->ctrl.AvgScl * stepsize);
                 }
 
                 for (k = 0; k < NumSpc; k++)
                 {
                     t_conc0[k] = CD->Vcele[RT_UNSAT(i)].t_conc[k];
                 }
-                React((double)stepsize, CD, &CD->Vcele[RT_UNSAT(i)]);
+                React((double)stepsize, &pihm->rttbl, &pihm->ctrl, CD, &CD->Vcele[RT_UNSAT(i)]);
 
                 for (k = 0; k < NumSpc; k++)
                 {
                     CD->Vcele[RT_UNSAT(i)].react_flux[k] =
                         (CD->Vcele[RT_UNSAT(i)].t_conc[k] - t_conc0[k]) *
                         CD->Vcele[RT_UNSAT(i)].vol /
-                        (double)(CD->AvgScl * stepsize);
+                        (double)(pihm->ctrl.AvgScl * stepsize);
                 }
             }
         }
@@ -517,7 +517,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
     {
         CD->SPCFlg = 0;
 
-        if (!CD->RecFlg)
+        if (!pihm->rttbl.RecFlg)
         {
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -536,7 +536,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
             }
         }
 
-        if (!CD->RecFlg)
+        if (!pihm->rttbl.RecFlg)
         {
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -551,7 +551,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                     t_conc0[k] = CD->Vcele[RT_RIVER(i)].t_conc[k];
                 }
 
-                Speciation(CD, RT_RIVER(i));
+                Speciation(&pihm->rttbl, CD, RT_RIVER(i));
 
                 for (k = 0; k < NumSpc; k++)
                 {
@@ -571,7 +571,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
             {
                 if (CD->Vcele[i].type != VIRTUAL_VOL)
                 {
-                    Speciation(CD, i);
+                    Speciation(&pihm->rttbl, CD, i);
                 }
             }
         }

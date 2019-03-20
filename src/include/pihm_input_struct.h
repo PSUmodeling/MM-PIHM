@@ -507,4 +507,23 @@ typedef struct opertbl_struct
 } opertbl_struct;
 #endif
 
+#if defined(_RT_)
+typedef struct rttbl_struct
+{
+    int             ACTmod;                 /* activity coefficient mode:
+                                             * 0 = unity coefficient,
+                                             * 1 = DH equation */
+    int             TEMcpl;                 /* flag to couple soil temperature*/
+    int             RelMin;                 /* relative mineral flag:
+                                             * 1 = total solid volume,
+                                             * 0 = total pore volume */
+    int             RecFlg;                 /* transport only flag:
+                                             * 0 = simulate kinetic reaction,
+                                             * 1 = transport only */
+    double          Condensation;           /* ratio between infiltration
+                                             * concentration and rain water */
+
+} rttbl_struct;
+#endif
+
 #endif

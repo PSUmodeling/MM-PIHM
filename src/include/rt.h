@@ -164,23 +164,13 @@ typedef struct Chem_Data_structure
     int             NumMkr;     /* Number of mineral kinetic reactions */
     int             NumAkr;     /* Number of aqueous kinetic reactions */
     int             conc_init;  /* concentration initialization type */
-    int             TVDFlg;     /* TVD swith, 0 for off and 1 for on */
     int             SPCFlg;     /* speciation flg, 0 for total conc and 1 for pH */
-    int             ACTmod;     /* activity coefficient mode, 0 for unity coefficient and 1 for DH equation */
-    int             DHEdel;     /* update activity coefficient delay, 0 for delay ( update from previous time step) and 1 for solving the equation all together with speciation */
-    int             TEMcpl;     /* whether or not to couple the temperature model */
-    int             RelMin;     /* relative mineral flag. Determine whether the mineral volume fraction in input file is relative or absolution. For example, 0.1 calcite with RelMin =1 means the calcite occupy 10% of total solid volume. 0.1 calcite with RelMin = 0  means the calcite occupy 10% of the total pore volume. Be careful before using this key word */
     int             EffAds;     /* Keywords to control the usage of effective adsorption model */
-    int             RecFlg;     /* A special flag to tell the code not do kinetic reaction, it will be much faster. Do not use it when you have kinetic reaction specified. Only suitable for doing stable isotope transport, etc. */
-    int             PrpFlg;     /* Flag indicate whether or not the precipitation has been specified */
-    int             RT_delay;      /* RT start after PIHM running for a period of time, unit: second */
-    int             AvgScl;     /* Averaging window for asynchronous reaction */
     int             NumPUMP;    /* Number of pumps  */
     int             SUFEFF;     /* surface effect */
     int             NumBTC;     /* Number of breakthrough points */
     int            *BTC_loc;    /* Array of locations of breakthrough points */
     int            *prepconcindex;  //
-    double          Condensation;   /* a factor controls the concentration of infiltrating rain water as a ratio to the concentration in rain water */
     double          CnntVelo;   // velocity of minimum connected cells */
     double          DiffCoe;    /* diffusion coefficient, measured in m s -1 */
     double          DispCoe;    /* dispersion coefficient, measured in m */

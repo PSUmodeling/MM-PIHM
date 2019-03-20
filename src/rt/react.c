@@ -657,7 +657,7 @@ void Lookup(FILE *database, Chem_Data CD)
     free(tmpstr);
 }
 
-int Speciation(Chem_Data CD, int cell)
+int Speciation(rttbl_struct *rttbl, Chem_Data CD, int cell)
 {
     /* if speciation flg = 1, pH is defined
      * if speciation flg = 0, all defined value is total concentration */
@@ -677,7 +677,7 @@ int Speciation(Chem_Data CD, int cell)
     Keq = (double *)calloc(CD->NumSsc, sizeof(double));
     current_totconc = (double *)calloc(CD->NumStc, sizeof(double));
 
-    if (CD->TEMcpl == 0)
+    if (rttbl->TEMcpl == 0)
     {
         for (i = 0; i < CD->NumSsc; i++)
             Keq[i] = CD->Keq[i];
@@ -729,7 +729,7 @@ int Speciation(Chem_Data CD, int cell)
 
         while (maxerror > TOL)
         {
-            if (CD->ACTmod == 1)
+            if (rttbl->ACTmod == 1)
             {
                 I = 0;
                 /* Calculate the ionic strength in this block */
@@ -860,7 +860,7 @@ int Speciation(Chem_Data CD, int cell)
 
         while (maxerror > TOL)
         {
-            if (CD->ACTmod == 1)
+            if (rttbl->ACTmod == 1)
             {
                 I = 0.0;
                 /* Calculate the ionic strength in this block */
@@ -1008,14 +1008,14 @@ int Speciation(Chem_Data CD, int cell)
 }
 
 
-void React(double stepsize, Chem_Data CD, vol_conc *Vcele)
+void React(double stepsize, const rttbl_struct *rttbl, ctrl_struct *ctrl, Chem_Data CD, vol_conc *Vcele)
 {
     int             k, j;
     double          substep;
 
     if (Vcele->illness < 20)
     {
-        if (_React(stepsize * CD->AvgScl, CD, Vcele))
+        if (_React(stepsize * ctrl->AvgScl, rttbl, CD, Vcele))
         {
             fprintf(stderr, "  ---> React failed at cell %12d.\t",
                     Vcele->index);
@@ -1023,7 +1023,7 @@ void React(double stepsize, Chem_Data CD, vol_conc *Vcele)
             substep = 0.5 * stepsize;
             k = 2;
 
-            while ((j = _React(substep, CD, Vcele)))
+            while ((j = _React(substep, rttbl, CD, Vcele)))
             {
                 substep = 0.5 * substep;
                 k = 2 * k;
@@ -1038,14 +1038,14 @@ void React(double stepsize, Chem_Data CD, vol_conc *Vcele)
                         substep, k);
                 for (j = 1; j < k; j++)
                 {
-                    _React(substep, CD, Vcele);
+                    _React(substep, rttbl, CD, Vcele);
                 }
             }
         }
     }
 }
 
-int _React(double stepsize, Chem_Data CD, vol_conc *Vcele)
+int _React(double stepsize, const rttbl_struct *rttbl, Chem_Data CD, vol_conc *Vcele)
 {
     if (Vcele->sat < 1.0E-2)
     {
@@ -1190,7 +1190,7 @@ int _React(double stepsize, Chem_Data CD, vol_conc *Vcele)
 
     jcb = newDenseMat(CD->NumStc - CD->NumMin, CD->NumStc - CD->NumMin);
 
-    if (CD->TEMcpl == 0)
+    if (rttbl->TEMcpl == 0)
     {
         for (i = 0; i < CD->NumSsc; i++)
             Keq[i] = CD->Keq[i];

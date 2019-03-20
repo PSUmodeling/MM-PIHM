@@ -187,6 +187,14 @@ typedef struct ctrl_struct
     int             read_cycles_restart;
     int             write_cycles_restart;
 #endif
+#if defined(_RT_)
+    int             read_rt_restart;
+    int             PrpFlg;                 /* flag that indicates how
+                                             * precipitation is specified */
+    int             RT_delay;               /* RT start after PIHM running for a
+                                             * period of time (s) */
+    int             AvgScl;                 /* reaction time step (s) */
+#endif
 } ctrl_struct;
 
 /* Print variable control structure */
@@ -259,6 +267,7 @@ typedef struct pihm_struct
     ctrl_struct     ctrl;
     print_struct    print;
 #if defined(_RT_)
+    rttbl_struct    rttbl;
     Chem_Data       rt;
 #endif
 } *pihm_struct;

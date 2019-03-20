@@ -3,7 +3,8 @@
 #define ZERO   1E-20
 
 void ReadChem(const char chem_filen[], const char cdbs_filen[],
-    const pihm_struct pihm, Chem_Data CD)
+    const pihm_struct pihm, rttbl_struct *rttbl, ctrl_struct *ctrl,
+    Chem_Data CD)
 {
     int             i, j;
     int             match;
@@ -14,25 +15,23 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     int             p_type[MAXSPS];
     int             lno = 0;
     FILE           *chem_fp;
-    FILE           *database;
+    FILE           *db_fp;
 
     chem_fp = fopen(chem_filen, "r");
     CheckFile(chem_fp, chem_filen);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", chem_filen);
 
-    database = fopen(cdbs_filen, "r");
-    CheckFile(database, cdbs_filen);
+    db_fp = fopen(cdbs_filen, "r");
+    CheckFile(db_fp, cdbs_filen);
 
     /* Default control variable if not found in input file */
-    CD->TVDFlg = 1;
     CD->Cementation = 1.0;
-    CD->ACTmod = 0;
-    CD->DHEdel = 0;
-    CD->TEMcpl = 0;
+    rttbl->ACTmod = 0;
+    rttbl->TEMcpl = 0;
     CD->EffAds = 0;
-    CD->RelMin = 0;
-    CD->AvgScl = 10;
-    CD->Condensation = 1.0;
+    rttbl->RelMin = 0;
+    ctrl->AvgScl = 10;
+    rttbl->Condensation = 1.0;
     CD->NumBTC = 0;
     CD->NumPUMP = 0;
     CD->SUFEFF = 1;
@@ -44,182 +43,101 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     FindLine(chem_fp, "RUNTIME", &lno, chem_filen);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "INIT_TYPE", &CD->conc_init, 'i', chem_filen, lno);
-    if (debug_mode)
+    ReadKeyword(cmdstr, "INIT_TYPE", &ctrl->read_rt_restart, 'i',
+        chem_filen, lno);
+    switch (ctrl->read_rt_restart)
     {
-        switch (CD->conc_init)
-        {
-            case 0:
-                PIHMprintf(VL_NORMAL,
+        case 0:
+            PIHMprintf(VL_VERBOSE,
                     "  Concentration will be initialized using .cini\n");
-                break;
-            case 1:
-                PIHMprintf(VL_NORMAL,
+            break;
+        case 1:
+            PIHMprintf(VL_VERBOSE,
                     "  Concentration will be initialized using .rtic\n");
-                break;
-            default:
-                break;
-        }
+            break;
+        default:
+            break;
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "TVD", temp_str, 'w', chem_filen, lno);
-    if (strcasecmp(temp_str, "false") == 0)
+    ReadKeyword(cmdstr, "ACTIVITY", &rttbl->ACTmod, 'i', chem_filen, lno);
+    /* 0 for unity activity coefficient and 1 for DH equation update */
+    PIHMprintf(VL_VERBOSE, "  Activity correction is set to %d. \n",
+        rttbl->ACTmod);
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "THERMO", &rttbl->TEMcpl, 'i', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  Coupling of thermo modelling is set to %d. \n",
+        rttbl->TEMcpl);
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "RELMIN", &rttbl->RelMin, 'i', chem_filen, lno);
+    switch (rttbl->RelMin)
     {
-        CD->TVDFlg = 0;
-    }
-    else if (strcasecmp(temp_str, "true") == 0)
-    {
-        CD->TVDFlg = 1;
-    }
-    else
-    {
-        PIHMprintf(VL_ERROR, "  TVD flag input error.\n");
-        PIHMexit(EXIT_FAILURE);
-    }
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  Total variation diminishing set to %d %s.\n",
-                CD->TVDFlg, temp_str);
+        case 0:
+            PIHMprintf(VL_VERBOSE,
+                "  Using absolute mineral volume fraction. \n");
+            break;
+        case 1:
+            PIHMprintf(VL_VERBOSE,
+                "  Using relative mineral volume fraction. \n");
+            break;
+        default:
+            break;
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ACTIVITY", &CD->ACTmod, 'i', chem_filen, lno);
-    if (debug_mode)
+    ReadKeyword(cmdstr, "TRANSPORT_ONLY", &rttbl->RecFlg, 'i', chem_filen, lno);
+    switch (rttbl->RecFlg)
     {
-        /* 0 for unity activity coefficient and 1 for DH equation update */
-        PIHMprintf(VL_NORMAL, "  Activity correction is set to %d. \n",
-            CD->ACTmod);
+        case 0:
+            PIHMprintf(VL_VERBOSE, "  Transport only mode disabled.\n");
+            break;
+        case 1:
+            PIHMprintf(VL_VERBOSE, "  Transport only mode enabled. \n");
+            break;
+            /* under construction. */
+        default:
+            break;
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "ACT_COE_DELAY", &CD->DHEdel, 'i', chem_filen, lno);
-    if (debug_mode)
+    ReadKeyword(cmdstr, "PRECIPITATION", &ctrl->PrpFlg, 'i', chem_filen, lno);
+    switch (ctrl->PrpFlg)
     {
-        /* 0 for delay and 1 for no delay (solving together) */
-        PIHMprintf(VL_NORMAL,
-            "  Activity coefficient update delay is set to %d. \n", CD->DHEdel);
+        case 0:
+            PIHMprintf(VL_VERBOSE, "  No precipitation condition. \n");
+            break;
+        case 1:
+            PIHMprintf(VL_VERBOSE,
+                "  Precipitation condition is to be specified. \n");
+            break;
+        case 2:
+            PIHMprintf(VL_VERBOSE,
+                "  Precipitation condition is specified via file *.prep. \n");
+            break;
+            /* under construction. */
+        default:
+            break;
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "THERMO", &CD->TEMcpl, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        /* 0 for delay and 1 for no delay (solving together) */
-        PIHMprintf(VL_NORMAL, "  Coupling of thermo modelling is set to %d. \n",
-            CD->DHEdel);
-    }
+    ReadKeyword(cmdstr, "RT_DELAY", &ctrl->RT_delay, 'i', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE,
+        "  Flux-PIHM-RT will start after running PIHM for %d seconds. \n",
+        ctrl->RT_delay);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RELMIN", &CD->RelMin, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        switch (CD->RelMin)
-        {
-            case 0:
-                PIHMprintf(VL_NORMAL,
-                    "  Using absolute mineral volume fraction. \n");
-                break;
-            case 1:
-                PIHMprintf(VL_NORMAL,
-                    "  Using relative mineral volume fraction. \n");
-                break;
-            default:
-                break;
-        }
-    }
+    ReadKeyword(cmdstr, "CONDENSATION", &rttbl->Condensation, 'd',
+        chem_filen, lno);
+    PIHMprintf(VL_VERBOSE, "  The concentrations of infiltrating rainfall "
+        "is set to be %f times of concentrations in precipitation. \n",
+        rttbl->Condensation);
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "EFFADS", &CD->EffAds, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        switch (CD->EffAds)
-        {
-            case 0:
-                PIHMprintf(VL_NORMAL,
-                    "  Using the normal adsorption model. \n");
-                break;
-            case 1:
-                PIHMprintf(VL_NORMAL,
-                    "  Using the coupled MIM and adsorption model. \n");
-                break;
-                /* under construction. */
-            default:
-                break;
-        }
-    }
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "TRANSPORT_ONLY", &CD->RecFlg, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        switch (CD->RecFlg)
-        {
-            case 0:
-                PIHMprintf(VL_NORMAL, "  Transport only mode disabled.\n");
-                break;
-            case 1:
-                PIHMprintf(VL_NORMAL, "  Transport only mode enabled. \n");
-                break;
-                /* under construction. */
-            default:
-                break;
-        }
-    }
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "PRECIPITATION", &CD->PrpFlg, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        switch (CD->PrpFlg)
-        {
-            case 0:
-                PIHMprintf(VL_NORMAL, "  No precipitation condition. \n");
-                break;
-            case 1:
-                PIHMprintf(VL_NORMAL,
-                    "  Precipitation condition is to be specified. \n");
-                break;
-            case 2:
-                PIHMprintf(VL_NORMAL,
-                    "  Precipitation condition is specified via file *.prep. \n");
-                break;
-                /* under construction. */
-            default:
-                break;
-        }
-    }
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "RT_DELAY", &CD->RT_delay, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL,
-            "  Flux-PIHM-RT will start after running PIHM for %d days. \n",
-            CD->RT_delay);
-        /* under construction. */
-    }
-    CD->RT_delay *= DAYINSEC;
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "CONDENSATION", &CD->Condensation, 'd', chem_filen,
-        lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, "  The concentrations of infiltrating rainfall "
-            "is set to be %f times of concentrations in precipitation. \n",
-            CD->Condensation);
-    }
-
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "AVGSCL", &CD->AvgScl, 'i', chem_filen, lno);
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL,
-            "  Averaging window for asynchronous reaction %d. \n",
-            CD->AvgScl);
-        /* under construction. */
-    }
+    ReadKeyword(cmdstr, "AVGSCL", &ctrl->AvgScl, 'i', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE,
+        "  Averaging window for asynchronous reaction %d. \n", ctrl->AvgScl);
 
     /*
      * Global block
@@ -391,7 +309,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     {
         NextLine(chem_fp, cmdstr, &lno);
         sscanf(cmdstr, "%s", chemn[i]);
-        p_type[i] = SpeciationType(database, chemn[i]);
+        p_type[i] = SpeciationType(db_fp, chemn[i]);
     }
 
     SortChem(chemn, p_type, CD->NumStc, CD->chemtype);
@@ -517,5 +435,5 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     fclose(chem_fp);
-    fclose(database);
+    fclose(db_fp);
 }

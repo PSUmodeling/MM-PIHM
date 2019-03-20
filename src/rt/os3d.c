@@ -45,7 +45,7 @@ void OS3D(double stepsize, Chem_Data CD)
             {
                 CD->Vcele[CD->Flux[i].nodeup - 1].transp_flux[j] +=
                     Dconc(&CD->Flux[i], CD->Vcele, CD->chemtype,
-                        CD->Cementation, CD->TVDFlg, j);
+                        CD->Cementation, 0, j);
             }
         }
     }
@@ -120,59 +120,50 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const species chemtype[],
         temp_conc_trib = (flux_t_trib > 0) ?
             Vcele[node_5_trib].t_conc[spc_ind] : 0.0;
     }
-    else if (TVDFlg == 1)
-    {
-        if (flux_t > 0)
-        {
-            if (node_4 > 0)
-            {
-                r_ = (Vcele[node_2].t_conc[spc_ind] -
-                    Vcele[node_4].t_conc[spc_ind] + EPSILON) /
-                    (Vcele[node_1].t_conc[spc_ind] -
-                    Vcele[node_2].t_conc[spc_ind] + EPSILON);
-                beta_ = max(0, min(min(2, 2 * r_), (2 + r_) / 3));
-                temp_conc = Vcele[node_2].t_conc[spc_ind] + beta_ *
-                    (Vcele[node_1].t_conc[spc_ind] -
-                    Vcele[node_2].t_conc[spc_ind]) * 0.5;
-            }
-            else
-            {
-                temp_conc = Vcele[node_2].t_conc[spc_ind];
-            }
-        }
-        else
-        {
-            if (node_3 > 0)
-            {
-                r_ = (Vcele[node_1].t_conc[spc_ind] -
-                    Vcele[node_3].t_conc[spc_ind] +
-                    EPSILON) / (Vcele[node_2].t_conc[spc_ind] -
-                    Vcele[node_1].t_conc[spc_ind] + EPSILON);
-                beta_ = max(0, min(min(2, 2 * r_), (2 + r_) / 3));
-                temp_conc =
-                    Vcele[node_1].t_conc[spc_ind] +
-                    beta_ * (Vcele[node_2].t_conc[spc_ind] -
-                    Vcele[node_1].t_conc[spc_ind]) * 0.5;
-            }
-            else
-            {
-                temp_conc = Vcele[node_1].t_conc[spc_ind];
-            }
-        }
+    //else if (TVDFlg == 1)
+    //{
+    //    if (flux_t > 0)
+    //    {
+    //        if (node_4 > 0)
+    //        {
+    //            r_ = (Vcele[node_2].t_conc[spc_ind] -
+    //                Vcele[node_4].t_conc[spc_ind] + EPSILON) /
+    //                (Vcele[node_1].t_conc[spc_ind] -
+    //                Vcele[node_2].t_conc[spc_ind] + EPSILON);
+    //            beta_ = max(0, min(min(2, 2 * r_), (2 + r_) / 3));
+    //            temp_conc = Vcele[node_2].t_conc[spc_ind] + beta_ *
+    //                (Vcele[node_1].t_conc[spc_ind] -
+    //                Vcele[node_2].t_conc[spc_ind]) * 0.5;
+    //        }
+    //        else
+    //        {
+    //            temp_conc = Vcele[node_2].t_conc[spc_ind];
+    //        }
+    //    }
+    //    else
+    //    {
+    //        if (node_3 > 0)
+    //        {
+    //            r_ = (Vcele[node_1].t_conc[spc_ind] -
+    //                Vcele[node_3].t_conc[spc_ind] +
+    //                EPSILON) / (Vcele[node_2].t_conc[spc_ind] -
+    //                Vcele[node_1].t_conc[spc_ind] + EPSILON);
+    //            beta_ = max(0, min(min(2, 2 * r_), (2 + r_) / 3));
+    //            temp_conc =
+    //                Vcele[node_1].t_conc[spc_ind] +
+    //                beta_ * (Vcele[node_2].t_conc[spc_ind] -
+    //                Vcele[node_1].t_conc[spc_ind]) * 0.5;
+    //        }
+    //        else
+    //        {
+    //            temp_conc = Vcele[node_1].t_conc[spc_ind];
+    //        }
+    //    }
 
-        /* Add tributary */
-        temp_conc_trib = (flux_t_trib > 0) ?
-            Vcele[node_5_trib].t_conc[spc_ind] : 0.0;
-    }
-    else
-    {
-        temp_conc = (flux_t > 0) ?
-            Vcele[node_2].t_conc[spc_ind] : Vcele[node_1].t_conc[spc_ind];
-
-        /* Add tributary */
-        temp_conc_trib = (flux_t_trib > 0) ?
-            Vcele[node_5_trib].t_conc[spc_ind] : 0.0;
-    }
+    //    /* Add tributary */
+    //    temp_conc_trib = (flux_t_trib > 0) ?
+    //        Vcele[node_5_trib].t_conc[spc_ind] : 0.0;
+    //}
 
     /* Advective flux */
     temp_dconc += temp_conc * flux_t + temp_conc_trib * flux_t_trib;

@@ -747,10 +747,10 @@ void            InitChem(char *, const char[], const pihm_struct, Chem_Data, N_V
 void            fluxtrans(int, int, const pihm_struct, Chem_Data);    // 10.05 add two timers
 void            chem_updater(Chem_Data, const pihm_struct); // 10.01
 void            OS3D(double, Chem_Data);
-void            React(double, Chem_Data, vol_conc *);
-int             _React(double, Chem_Data, vol_conc *);
+void            React(double, const rttbl_struct *, ctrl_struct *ctrl, Chem_Data, vol_conc *);
+int             _React(double, const rttbl_struct *, Chem_Data, vol_conc *);
 void            Lookup(FILE *, Chem_Data);
-int             Speciation(Chem_Data, int);
+int             Speciation(rttbl_struct *, Chem_Data, int);
 int             keymatch(const char *, const char *, double *, char **);
 int             SpeciationType(FILE *, char *);
 void            AdptTime(Chem_Data, double);
@@ -770,7 +770,7 @@ double          UnsatSatRatio(double, double, double);
 void            SortChem(char[][MAXSTRING], const int [], int, species []);
 int             FindChem(const char [], const species [], int);
 void            ReadChem(const char[], const char[], const pihm_struct,
-    Chem_Data);
+    rttbl_struct *, ctrl_struct *, Chem_Data);
 void            ReadPrep(const char[], Chem_Data);
 void            ReadCini(const char[], const species *, int, vol_conc *);
 void            SpeciationReaction(int, int, const pihm_struct,
