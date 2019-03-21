@@ -616,13 +616,13 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
 
         for (j = 0; j < pihm->rttbl.NumStc; j++)
         {
-            if ((CD->BTC_loc[k] >= CD->pumps[0].Pump_Location - 1) &&
-                (j == CD->pumps[0].Position_Species))
+            if ((CD->BTC_loc[k] >= -pihm->rttbl.pumps[0].Pump_Location - 1) &&
+                (j == pihm->rttbl.pumps[0].Position_Species))
             {
                 CD->Vcele[CD->BTC_loc[k]].btcv_pconc[j] =
                     log10((CD->Vcele[CD->BTC_loc[k]].p_conc[j] * CD->rivd +
-                    CD->pumps[0].Injection_conc * CD->pumps[0].flow_rate) /
-                    (CD->rivd + CD->pumps[0].flow_rate));
+                    pihm->rttbl.pumps[0].Injection_conc * pihm->rttbl.pumps[0].flow_rate) /
+                    (CD->rivd + pihm->rttbl.pumps[0].flow_rate));
             }
             else
             {

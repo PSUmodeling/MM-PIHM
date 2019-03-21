@@ -779,6 +779,7 @@ void            ReadPrep(const char[], const chemtbl_struct [], Chem_Data);
 void            ReadCini(const char[], const chemtbl_struct *, int, vol_conc *);
 void            SpeciationReaction(int, int, const pihm_struct,
     Chem_Data);
+int             ParseLocation(const char [], const char [], int);
 
 #endif
 

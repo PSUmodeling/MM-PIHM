@@ -556,6 +556,17 @@ typedef struct kintbl_struct
                                              * inhibition */
 } kintbl_struct;
 
+typedef struct pump_struct
+{
+    int             Pump_Location;          /* pump grid block */
+    int             Position_Species;       /* index of chemical species */
+    double          Injection_rate;         /* rate of injection, or extraction
+                                             * (M s-1) */
+    double          Injection_conc;         /* Concentration of injection
+                                             * (M m-3) */
+    double          flow_rate;              /* flow rate (m3 s-1) */
+} pump_struct;
+
 typedef struct rttbl_struct
 {
     int             ACTmod;                 /* activity coefficient mode:
@@ -587,6 +598,8 @@ typedef struct rttbl_struct
                                              */
     double          Temperature;            /* temperature of the moment */
     double          prcp_conc[MAXSPS];
+    int             NumPUMP;                /* number of pumps  */
+    pump_struct    *pumps;
 } rttbl_struct;
 #endif
 

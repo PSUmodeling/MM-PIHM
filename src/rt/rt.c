@@ -125,19 +125,6 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     }
 
 
-    for (i = 0; i < CD->NumPUMP; i++)
-    {
-        CD->pumps[i].Position_Species = -1;
-        for (j = 0; j < pihm->rttbl.NumStc; j++)
-        {
-            if (!strcmp(CD->pumps[i].Name_Species,
-                    pihm->chemtbl[j].ChemName))
-            {
-                CD->pumps[i].Position_Species = j;
-            }
-        }
-    }
-
     /* End of reading input files */
 
 

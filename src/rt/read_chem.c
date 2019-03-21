@@ -11,6 +11,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     int             chem_ind;
     char            cmdstr[MAXSTRING];
     char            temp_str[MAXSTRING];
+    char            loc_str[MAXSTRING];
     char            chemn[MAXSPS][MAXSTRING];
     int             p_type[MAXSPS];
     int             lno = 0;
@@ -34,7 +35,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     ctrl->AvgScl = 10;
     rttbl->Condensation = 1.0;
     CD->NumBTC = 0;
-    CD->NumPUMP = 0;
+    rttbl->NumPUMP = 0;
     CD->SUFEFF = 1;
     CD->CnntVelo = 0.01;
 
@@ -341,42 +342,58 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         }
     }
 
-    /* Pump block */
+    /*
+     * Pump block
+     */
     CD->CalGwinflux = pihm->cal.gwinflux;
+    PIHMprintf(VL_VERBOSE, "\n Pump block\n");
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "PUMP", &CD->NumPUMP, 'i', chem_filen, lno);
-    CD->pumps = (Pump *) malloc(CD->NumPUMP * sizeof(Pump));
-    for (i = 0; i < CD->NumPUMP; i++)
+    ReadKeyword(cmdstr, "PUMP", &rttbl->NumPUMP, 'i', chem_filen, lno);
+    rttbl->pumps = (pump_struct *) malloc(rttbl->NumPUMP * sizeof(pump_struct));
+    for (i = 0; i < rttbl->NumPUMP; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
-        if (sscanf(cmdstr, "%d %s %lf %lf",
-            &CD->pumps[i].Pump_Location,
-            CD->pumps[i].Name_Species,
-            &CD->pumps[i].Injection_rate,
-            &CD->pumps[i].Injection_conc) != 4)
+        if (sscanf(cmdstr, "%s %s %lf %lf",
+            loc_str, temp_str, &rttbl->pumps[i].Injection_rate,
+            &rttbl->pumps[i].Injection_conc) != 4)
         {
             PIHMprintf(VL_NORMAL, "Error reading pump information.\n");
             PIHMexit(EXIT_FAILURE);
         }
-        CD->pumps[i].flow_rate =
-            CD->pumps[i].Injection_rate / CD->pumps[i].Injection_conc /
-            365 * 1E-3;
-        CD->pumps[i].Injection_rate *=
-            CD->pumps[i].Injection_rate * CD->CalGwinflux;
-        CD->pumps[i].flow_rate = CD->pumps[i].flow_rate * CD->CalGwinflux;
 
-        if (debug_mode)
+        rttbl->pumps[i].Pump_Location = ParseLocation(loc_str, chem_filen, lno);
+        if (rttbl->pumps[i].Pump_Location > 0)
         {
-            PIHMprintf(VL_NORMAL,
-                "  -- Rate %g [moles/year] of '%s' (pos: %d) at Grid '%d' with a concentration of %g [M/L]. \n",
-                CD->pumps[i].Injection_rate, CD->pumps[i].Name_Species,
-                (CD->pumps[i].Position_Species + 1), CD->pumps[i].Pump_Location,
-                CD->pumps[i].Injection_conc);
-            PIHMprintf(VL_NORMAL, "  -- Flow rate is then %g [m3/d]. \n",
-                CD->pumps[i].flow_rate);
-
+            PIHMprintf(VL_ERROR,
+                "Error: Currently pump can only be located in rivers.\n");
+            PIHMexit(EXIT_FAILURE);
         }
+
+        rttbl->pumps[i].Position_Species = FindChem(temp_str, chemtbl, rttbl->NumStc);
+        if (rttbl->pumps[i].Position_Species < 0)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error finding pump species %s in species table.\n", temp_str);
+            PIHMexit(EXIT_FAILURE);
+        }
+        /* Convert from M year-1 to M s-1 */
+        rttbl->pumps[i].Injection_rate /= 365.0 * DAYINSEC;
+        /* Convert injection concentration from M L-1 to M m-3 */
+        rttbl->pumps[i].Injection_conc *= 1.0E3;
+        rttbl->pumps[i].flow_rate =
+            rttbl->pumps[i].Injection_rate / rttbl->pumps[i].Injection_conc;
+
+        rttbl->pumps[i].Injection_rate *= CD->CalGwinflux;
+        rttbl->pumps[i].flow_rate *= CD->CalGwinflux;
+
+        PIHMprintf(VL_VERBOSE,
+            "  -- Rate %g M s-1 of '%s' (pos: %d) at Grid '%d' with a concentration of %g M m-3.\n",
+            rttbl->pumps[i].Injection_rate, chemtbl[rttbl->pumps[i].Position_Species].ChemName,
+            rttbl->pumps[i].Position_Species, rttbl->pumps[i].Pump_Location,
+            rttbl->pumps[i].Injection_conc);
+        PIHMprintf(VL_VERBOSE, "  -- Flow rate is then %g m3 s-1.\n",
+            rttbl->pumps[i].flow_rate);
     }
 
     /*
@@ -405,4 +422,42 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
 
     fclose(chem_fp);
     fclose(db_fp);
+}
+
+int ParseLocation(const char str[], const char filen[], int lno)
+{
+    char            type_str[MAXSTRING];
+    int             loc;
+
+    if (strstr(str, ":") == 0)
+    {
+        PIHMprintf(VL_ERROR,
+            "Error: location format error in %s near Line %d.\n"
+            "Please use \"UNSAT:XX\", \"GW:XX\", or \"RIVER:XX\", "
+            "where XX is the index of grid.\n", filen, lno);
+        PIHMexit(EXIT_FAILURE);
+    }
+    sscanf(str, "%[^:]:%d", type_str, &loc);
+    if (strcasecmp(type_str, "UNSAT") == 0)
+    {
+        /* Do nothing */
+    }
+    else if (strcasecmp(type_str, "GW") == 0)
+    {
+        loc += nelem;
+    }
+    else if (strcasecmp(type_str, "RIVER") == 0)
+    {
+        loc *= -1;
+    }
+    else
+    {
+        PIHMprintf(VL_ERROR,
+            "Error: location format error in %s near Line %d.\n"
+            "Please use \"UNSAT:XX\", \"GW:XX\", or \"RIVER:XX\", "
+            "where XX is the index of grid.\n", filen, lno);
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    return loc;
 }

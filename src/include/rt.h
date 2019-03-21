@@ -78,16 +78,6 @@ typedef struct face_type
     double          s_area;     /* contact surface area, in square m */
 } face;
 
-typedef struct Pump_Data_structure
-{
-    int             Pump_Location;  /* Index of pump grid block */
-    int             Position_Species;   /* Index of chemical species */
-    char            Name_Species[MAXSTRING];   /* The name of chemical species */
-    double          Injection_rate; /* Rate of injection, or extraction, in moles/year */
-    double          Injection_conc; /* Concentration of injection in moles/L */
-    double          flow_rate;  /* Calculated flow rate from the above two parameters */
-} Pump;
-
 typedef struct Chem_Data_structure
 {
     int             NumVol;     /* Number of total volume in the rt simulator */
@@ -95,7 +85,6 @@ typedef struct Chem_Data_structure
     int             conc_init;  /* concentration initialization type */
     int             SPCFlg;     /* speciation flg, 0 for total conc and 1 for pH */
     int             EffAds;     /* Keywords to control the usage of effective adsorption model */
-    int             NumPUMP;    /* Number of pumps  */
     int             SUFEFF;     /* surface effect */
     int             NumBTC;     /* Number of breakthrough points */
     int            *BTC_loc;    /* Array of locations of breakthrough points */
@@ -123,6 +112,5 @@ typedef struct Chem_Data_structure
     vol_conc       *Vcele;      // An array that stores the volumetric (vol) and chemical (conc) information of grid blocks
     face           *Flux;       // connections between grid blocks
     Debye_Huckel    DH;
-    Pump           *pumps;      // injection/ groundwater contribution
     tsdata_struct  *TSD_prepconc;   // Time series data of concentration in precipitation.
 } *Chem_Data;
