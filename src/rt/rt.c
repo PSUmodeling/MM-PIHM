@@ -37,7 +37,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
 
     ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.NumStc, CD->Vcele);
 
-    CD->CalSSA = pihm->cal.ssa;
     CD->CalPrcpconc = pihm->cal.prcpconc;
     CD->CalInitconc = pihm->cal.initconc;
 
@@ -53,6 +52,13 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     pihm->rttbl.pumps[0].Injection_rate *= pihm->cal.gwinflux;
     pihm->rttbl.pumps[0].flow_rate *= pihm->cal.gwinflux;
 
+    for (i = 0; i < CD->NumVol; i++)
+    {
+        for (k = 0; k < pihm->rttbl.NumStc; k++)
+        {
+            CD->Vcele[i].ic.p_para[k] *= pihm->cal.ssa;
+        }
+    }
     /* Initializing volumetric parameters, inherit from PIHM
      * That is, if PIHM is started from a hot start, rt is also
      * initialized with the hot data */
