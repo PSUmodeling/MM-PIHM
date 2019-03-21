@@ -198,9 +198,9 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
             Keq[i] = rttbl->Keq[i];
     }
 
-    adh = CD->DH.adh;
-    bdh = CD->DH.bdh;
-    bdt = CD->DH.bdt;
+    adh = rttbl->adh;
+    bdh = rttbl->bdh;
+    bdt = rttbl->bdt;
 
     for (i = 0; i < rttbl->NumStc; i++)
     {
@@ -715,9 +715,9 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             Keq[i] = rttbl->Keq[i];
     }
 
-    adh = CD->DH.adh;
-    bdh = CD->DH.bdh;
-    bdt = CD->DH.bdt;
+    adh = rttbl->adh;
+    bdh = rttbl->bdh;
+    bdt = rttbl->bdt;
 
     for (i = 0; i < rttbl->NumStc; i++)
     {

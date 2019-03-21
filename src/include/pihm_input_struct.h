@@ -619,6 +619,9 @@ typedef struct rttbl_struct
     double          KeqKinect[MAXSPS];      /* Keq's of kinetic species */
     double          KeqKinect_all[MAXSPS];  /* Keq's of all possible kinetic
                                              * species */
+    double          adh;                    /* Debye Huckel parameters */
+    double          bdh;                    /* Debye Huckel parameters */
+    double          bdt;                    /* Debye Huckel parameters */
 } rttbl_struct;
 #endif
 

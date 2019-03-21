@@ -43,21 +43,21 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
     {
         fgets(line, LINE_WIDTH, database);
     }
-    CD->DH.adh = tmpval[keq_position - 1];
+    rttbl->adh = tmpval[keq_position - 1];
     while (keymatch(line, "'Debye-Huckel bdh'", tmpval, tmpstr) != 1)
     {
         fgets(line, LINE_WIDTH, database);
     }
-    CD->DH.bdh = tmpval[keq_position - 1];
+    rttbl->bdh = tmpval[keq_position - 1];
     while (keymatch(line, "'Debye-Huckel bdt'", tmpval, tmpstr) != 1)
     {
         fgets(line, LINE_WIDTH, database);
     }
-    CD->DH.bdt = tmpval[keq_position - 1];
+    rttbl->bdt = tmpval[keq_position - 1];
 
     fprintf(stderr,
         " Debye-Huckel Parameters set to A=%6.4f; B=%6.4f; b=%6.4f\n\n",
-        CD->DH.adh, CD->DH.bdh, CD->DH.bdt);
+        rttbl->adh, rttbl->bdh, rttbl->bdt);
 
     rewind(database);
     fgets(line, LINE_WIDTH, database);

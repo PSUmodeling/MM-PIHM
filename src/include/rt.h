@@ -9,13 +9,6 @@
  *****************************************************************************/
 
 /* parameters of Debye_Huckel Equation */
-typedef struct Debye_Huckel_structure
-{
-    double          adh;
-    double          bdh;
-    double          bdt;
-} Debye_Huckel;
-
 typedef struct rtic_struct
 {
     double          t_conc[MAXSPS];
@@ -93,5 +86,4 @@ typedef struct Chem_Data_structure
     double          riv;
     vol_conc       *Vcele;      // An array that stores the volumetric (vol) and chemical (conc) information of grid blocks
     face           *Flux;       // connections between grid blocks
-    Debye_Huckel    DH;
 } *Chem_Data;
