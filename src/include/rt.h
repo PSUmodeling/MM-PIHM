@@ -77,7 +77,6 @@ typedef struct Chem_Data_structure
     int             NumFac;     /* Number of faces in the rt simulator        */
     int             conc_init;  /* concentration initialization type */
     double          CalPrcpconc;    // 02.12 by Wei Zhi
-    double          CalInitconc;    // 02.12 by Wei Zhi
     double          rivd;       /* Stream discharge in cubic meter per day at the moment */
     double          riv;
     vol_conc       *Vcele;      // An array that stores the volumetric (vol) and chemical (conc) information of grid blocks

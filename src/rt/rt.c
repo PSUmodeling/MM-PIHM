@@ -38,7 +38,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.NumStc, CD->Vcele);
 
     CD->CalPrcpconc = pihm->cal.prcpconc;
-    CD->CalInitconc = pihm->cal.initconc;
 
     /*
      * Look up database to find required parameters and dependencies for
@@ -57,6 +56,9 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         for (k = 0; k < pihm->rttbl.NumStc; k++)
         {
             CD->Vcele[i].ic.p_para[k] *= pihm->cal.ssa;
+            CD->Vcele[i].ic.t_conc[k] *=
+                (strcmp(pihm->chemtbl[k].ChemName, "'DOC'") == 0) ?
+                pihm->cal.initconc : 1.0;
         }
     }
     /* Initializing volumetric parameters, inherit from PIHM
@@ -156,9 +158,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
             else
             {
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].ic.t_conc[j];
-                CD->Vcele[i].t_conc[j] *=
-                    (strcmp(pihm->chemtbl[j].ChemName, "'DOC'") == 0) ?
-                    CD->CalInitconc : 1.0;
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j] * 0.5;
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_para[j] = CD->Vcele[i].ic.p_para[j];
