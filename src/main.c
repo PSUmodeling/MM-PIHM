@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 #endif
 
     /* Read PIHM input files */
-    ReadAlloc(pihm, pihm->rt);
+    ReadAlloc(pihm);
 
     /* Initialize CVode state variables */
     CV_Y = N_VNew(NumStateVar());

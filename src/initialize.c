@@ -158,7 +158,10 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     if (pihm->ctrl.init_type == RELAX)
     {
         /* Relaxation mode */
-#if defined(_NOAH_)
+#if defined(_RT_)
+        ApplyForc(&pihm->forc, &pihm->rttbl, pihm->elem, pihm->ctrl.starttime,
+            pihm->ctrl.rad_mode, pihm->ctrl.PrpFlg, &pihm->siteinfo);
+#elif defined(_NOAH_)
         /* Noah initialization needs air temperature thus forcing is applied */
         ApplyForc(&pihm->forc, pihm->elem, pihm->ctrl.starttime,
             pihm->ctrl.rad_mode, &pihm->siteinfo);

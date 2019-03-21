@@ -20,7 +20,10 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     if ((t - pihm->ctrl.starttime) % pihm->ctrl.etstep == 0)
     {
         /* Apply forcing */
-#if defined(_NOAH_)
+#if defined(_RT_)
+        ApplyForc(&pihm->forc, &pihm->rttbl, pihm->elem, t, pihm->ctrl.rad_mode,
+            pihm->ctrl.PrpFlg, &pihm->siteinfo);
+#elif defined(_NOAH_)
         ApplyForc(&pihm->forc, pihm->elem, t , pihm->ctrl.rad_mode,
             &pihm->siteinfo);
 #else

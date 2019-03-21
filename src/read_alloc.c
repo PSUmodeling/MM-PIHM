@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadAlloc(pihm_struct pihm, Chem_Data rt)
+void ReadAlloc(pihm_struct pihm)
 {
     char            proj[MAXSTRING];
     char           *token;

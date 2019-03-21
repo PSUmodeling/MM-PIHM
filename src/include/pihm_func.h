@@ -115,7 +115,10 @@ double          _WsAreaElev(int, const elem_struct *);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
 void            ApplyBc(forc_struct *, elem_struct *, river_struct *, int);
 void            ApplyElemBc(forc_struct *, elem_struct *, int);
-#if defined(_NOAH_)
+#if defined(_RT_)
+void ApplyForc(forc_struct *, rttbl_struct *, elem_struct *, int, int, int,
+    const siteinfo_struct *);
+#elif defined(_NOAH_)
 void            ApplyForc(forc_struct *, elem_struct *, int, int,
     const siteinfo_struct *);
 #else
@@ -276,7 +279,7 @@ double          PtfKv(double, double, double, double, int);
 double          PtfThetar(double, double);
 double          PtfThetas(double, double, double, double, int);
 double          Qtz(int);
-void            ReadAlloc(pihm_struct, Chem_Data);
+void            ReadAlloc(pihm_struct);
 void            ReadAtt(const char *, atttbl_struct *);
 void            ReadBc(const char *, forc_struct *, const atttbl_struct *);
 void            ReadCalib(const char *, calib_struct *);
@@ -745,7 +748,7 @@ int             upstream(elem_struct, elem_struct, const pihm_struct);
 int             realcheck(const char *);
 int             keymatch(const char *, const char *, double *, char **);
 void            InitChem(char *, const char[], const pihm_struct, Chem_Data, N_Vector);
-void            fluxtrans(int, int, const pihm_struct, Chem_Data);    // 10.05 add two timers
+void            fluxtrans(int, const pihm_struct, Chem_Data);
 void            chem_updater(Chem_Data, const pihm_struct); // 10.01
 void            OS3D(double, const chemtbl_struct [], const rttbl_struct *, Chem_Data);
 void            React(double, const chemtbl_struct [], const kintbl_struct [],
@@ -781,6 +784,7 @@ void            ReadCini(const char[], const chemtbl_struct *, int, vol_conc *);
 void            SpeciationReaction(int, int, const pihm_struct,
     Chem_Data);
 int             ParseLocation(const char [], const char [], int);
+void            ApplyPrcpConc(forc_struct *, rttbl_struct *, int, int);
 
 #endif
 

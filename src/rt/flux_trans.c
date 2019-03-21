@@ -3,7 +3,7 @@
 #define MIN(a,b) (((a)<(b))? (a):(b))
 #define MAX(a,b) (((a)>(b))? (a):(b))
 
-void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
+void fluxtrans(int stepsize, const pihm_struct pihm, Chem_Data CD)
 {
     /* unit of t: second
      * unit of stepsize: second
@@ -150,26 +150,6 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
             CD->Flux[RT_UP_RIVER2RIVER(i)].flux_trib =
                 -(pihm->river[pihm->river[i].up[1] - 1].wf.rivflow[9] +
                 pihm->river[pihm->river[i].up[1] - 1].wf.rivflow[1]);
-        }
-    }
-
-    /* Update the concentration in precipitation here. */
-    if (pihm->ctrl.PrpFlg == 2)
-    {
-        IntrplForc(&pihm->forc.TSD_prepconc, t, NumSpc, NO_INTRPL);
-
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-        for (i = 0; i < NumSpc; i++)
-        {
-            if (pihm->rttbl.prcp_conc[i] != pihm->forc.TSD_prepconc.value[i])
-            {
-                pihm->rttbl.prcp_conc[i] = pihm->forc.TSD_prepconc.value[i];
-                PIHMprintf(VL_NORMAL,
-                    "  %s in precipitation is changed to %6.4g\n",
-                    pihm->chemtbl[i].ChemName, pihm->rttbl.prcp_conc[i]);
-            }
         }
     }
 

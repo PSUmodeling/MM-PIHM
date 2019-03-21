@@ -15,7 +15,10 @@ void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *river, int t)
     }
 }
 
-#if defined(_NOAH_)
+#if defined(_RT_)
+void ApplyForc(forc_struct *forc, rttbl_struct *rttbl, elem_struct *elem, int t,
+    int rad_mode, int PrpFlg, const siteinfo_struct *siteinfo)
+#elif defined(_NOAH_)
 void ApplyForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
     const siteinfo_struct *siteinfo)
 #else
@@ -34,6 +37,10 @@ void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
     ApplyLai(elem);
 #else
     ApplyLai(forc, elem, t);
+#endif
+
+#if defined(_RT_)
+    ApplyPrcpConc(forc, rttbl, t, PrpFlg);
 #endif
 }
 
@@ -258,6 +265,39 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
     }
 #endif
 }
+
+#if defined(_RT_)
+void ApplyPrcpConc(forc_struct *forc, rttbl_struct *rttbl, int t, int PrpFlg)
+{
+    int             i;
+
+    if (PrpFlg == 2)
+    {
+        IntrplForc(&forc->TSD_prepconc, t, NumSpc, NO_INTRPL);
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+        for (i = 0; i < NumSpc; i++)
+        {
+            if (rttbl->prcp_conc[i] != forc->TSD_prepconc.value[i])
+            {
+                rttbl->prcp_conc[i] = forc->TSD_prepconc.value[i];
+                PIHMprintf(VL_NORMAL,
+                    "  Species %d in precipitation is changed to %6.4g\n",
+                    i + 1, rttbl->prcp_conc[i]);
+            }
+        }
+    }
+    else if (PrpFlg == 0)
+    {
+        for (i = 0; i < NumSpc; i++)
+        {
+            rttbl->prcp_conc[i] = 0.0;
+        }
+    }
+}
+#endif
 
 void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
 {
