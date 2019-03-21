@@ -276,9 +276,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     for (i = 0; i < rttbl->NumMkr; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
-        match = sscanf(cmdstr, "%s %s %s",
-            kintbl[i].species, temp_str, kintbl[i].Label);
-        if (match != 3 || strcasecmp(temp_str, "-label") != 0)
+        if (sscanf(cmdstr, "%s %*s %s", temp_str, kintbl[i].Label) != 2)
         {
             PIHMprintf(VL_ERROR,
                 "Error reading mineral information in %s near Line %d.\n",
@@ -287,8 +285,23 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         }
 
         PIHMprintf(VL_VERBOSE,
-            "  Kinetic reaction on '%s' is specified, label '%s'. \n",
-            kintbl[i].species, kintbl[i].Label);
+            "  Kinetic reaction on '%s' is specified, label '%s'.\n",
+            temp_str, kintbl[i].Label);
+
+        kintbl[i].position = FindChem(temp_str, chemtbl, rttbl->NumStc);
+
+        if (kintbl[i].position < 0)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error finding mineral %s in species table.\n", temp_str);
+            PIHMexit(EXIT_FAILURE);
+        }
+        else
+        {
+            PIHMprintf(VL_VERBOSE,
+                "  Position_check (NumMkr[i] vs NumStc[j]) (%d, %d)\n",
+                i, kintbl[i].position);
+        }
     }
 
     /*
