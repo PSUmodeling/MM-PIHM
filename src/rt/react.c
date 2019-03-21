@@ -263,12 +263,12 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                         for (k = 0; k < rttbl->NumSdc; k++)
                             if (strcmp(chemtbl[k].ChemName,
                                     tmpstr[j]) == 0)
-                                CD->Dependency[i - rttbl->NumStc][k] =
+                                rttbl->Dependency[i - rttbl->NumStc][k] =
                                     atof(tmpstr[j - 1]);
                     }
-                    CD->Keq[i - rttbl->NumStc] =
+                    rttbl->Keq[i - rttbl->NumStc] =
                         tmpval[(int)tmpval[0] + keq_position];
-                    fprintf(stderr, " Keq = %6.4f\n", CD->Keq[i - rttbl->NumStc]);
+                    fprintf(stderr, " Keq = %6.4f\n", rttbl->Keq[i - rttbl->NumStc]);
                     chemtbl[i].MolarMass =
                         tmpval[(int)tmpval[0] + total_temp_points + 3];
                     chemtbl[i].Charge =
@@ -294,7 +294,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                         chemtbl[i].ChemName);
                     fprintf(stderr, " %s", line);
                     chemtbl[i].itype = MINERAL;
-                    CD->KeqKinect_all[i - NumSpc - rttbl->NumAds -
+                    rttbl->KeqKinect_all[i - NumSpc - rttbl->NumAds -
                         rttbl->NumCex] = tmpval[(int)tmpval[1] + keq_position + 1];
                     for (j = 1; j < WORDS_LINE; j++)
                     {
@@ -304,27 +304,27 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                             {
                                 if (k < rttbl->NumStc)
                                 {
-                                    CD->Dep_kinetic_all[i - rttbl->NumStc +
+                                    rttbl->Dep_kinetic_all[i - rttbl->NumStc +
                                         rttbl->NumMin][k] = atof(tmpstr[j - 1]);
                                 }
                                 else
                                 {
                                     for (l = 0; l < NumSpc; l++)    /* Number of primary species in the rt simulator      */
-                                        CD->Dep_kinetic_all[i - rttbl->NumStc +
+                                        rttbl->Dep_kinetic_all[i - rttbl->NumStc +
                                             rttbl->NumMin][l] +=
                                             atof(tmpstr[j -
-                                                1]) * CD->Dependency[k -
+                                                1]) * rttbl->Dependency[k -
                                             rttbl->NumStc][l];
-                                    CD->KeqKinect_all[i - NumSpc -
+                                    rttbl->KeqKinect_all[i - NumSpc -
                                         rttbl->NumAds - rttbl->NumCex] +=
-                                        atof(tmpstr[j - 1]) * CD->Keq[k -
+                                        atof(tmpstr[j - 1]) * rttbl->Keq[k -
                                         rttbl->NumStc];
                                 }
                             }
                     }
-                    CD->Dep_kinetic_all[i - rttbl->NumStc + rttbl->NumMin][i] = -1.0;
+                    rttbl->Dep_kinetic_all[i - rttbl->NumStc + rttbl->NumMin][i] = -1.0;
                     fprintf(stderr, " Keq = %6.4f\n",
-                        CD->KeqKinect_all[i - NumSpc - rttbl->NumAds -
+                        rttbl->KeqKinect_all[i - NumSpc - rttbl->NumAds -
                             rttbl->NumCex]);
                     chemtbl[i].MolarMass =
                         tmpval[(int)tmpval[1] + total_temp_points + 2];
@@ -343,12 +343,12 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
         fprintf(stderr,
             " Selecting the kinetic species %s from all possible species.\n\n",
             chemtbl[kintbl[i].position].ChemName);
-        CD->KeqKinect[i] =
-            CD->KeqKinect_all[kintbl[i].position - rttbl->NumStc + rttbl->NumMin];
+        rttbl->KeqKinect[i] =
+            rttbl->KeqKinect_all[kintbl[i].position - rttbl->NumStc + rttbl->NumMin];
         for (k = 0; k < rttbl->NumStc; k++)
         {
-            CD->Dep_kinetic[i][k] =
-                CD->Dep_kinetic_all[kintbl[i].position - rttbl->NumStc + rttbl->NumMin][k];
+            rttbl->Dep_kinetic[i][k] =
+                rttbl->Dep_kinetic_all[kintbl[i].position - rttbl->NumStc + rttbl->NumMin][k];
         }
     }
     while (strcmp(line, "End of surface complexation\r\n") != 1)
@@ -368,12 +368,12 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                         for (k = 0; k < rttbl->NumSdc; k++)
                             if (strcmp(chemtbl[k].ChemName,
                                     tmpstr[j]) == 0)
-                                CD->Dependency[i - rttbl->NumStc][k] =
+                                rttbl->Dependency[i - rttbl->NumStc][k] =
                                     atof(tmpstr[j - 1]);
                     }
-                    CD->Keq[i - rttbl->NumStc] =
+                    rttbl->Keq[i - rttbl->NumStc] =
                         tmpval[(int)tmpval[0] + keq_position];
-                    fprintf(stderr, " Keq = %6.4f\n", CD->Keq[i - rttbl->NumStc]);
+                    fprintf(stderr, " Keq = %6.4f\n", rttbl->Keq[i - rttbl->NumStc]);
                 }
         }
         fgets(line, LINE_WIDTH, database);
@@ -395,16 +395,16 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                         for (k = 0; k < rttbl->NumSdc; k++)
                             if (strcmp(chemtbl[k].ChemName,
                                     tmpstr[j]) == 0)
-                                CD->Dependency[i - rttbl->NumStc][k] =
+                                rttbl->Dependency[i - rttbl->NumStc][k] =
                                     atof(tmpstr[j - 1]);
                     }
-                    CD->Keq[i - rttbl->NumStc] = tmpval[(int)tmpval[0] + 1];
-                    fprintf(stderr, " Keq = %6.4f \n", CD->Keq[i - rttbl->NumStc]);
+                    rttbl->Keq[i - rttbl->NumStc] = tmpval[(int)tmpval[0] + 1];
+                    fprintf(stderr, " Keq = %6.4f \n", rttbl->Keq[i - rttbl->NumStc]);
 
-                    CD->Keq[i - rttbl->NumStc] =
+                    rttbl->Keq[i - rttbl->NumStc] =
                         tmpval[(int)tmpval[0] + 1] + CD->CalXsorption;
                     fprintf(stderr, " After calibration: Keq = %6.4f \n",
-                        CD->Keq[i - rttbl->NumStc]);
+                        rttbl->Keq[i - rttbl->NumStc]);
                 }
         }
         fgets(line, LINE_WIDTH, database);
@@ -588,11 +588,11 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
     }
 
     for (i = 0; i < rttbl->NumStc; i++)
-        CD->Totalconc[i][i] = 1.0;
+        rttbl->Totalconc[i][i] = 1.0;
 
     for (i = rttbl->NumStc; i < rttbl->NumStc + rttbl->NumSsc; i++)
         for (j = 0; j < rttbl->NumSdc; j++)
-            CD->Totalconc[j][i] += CD->Dependency[i - rttbl->NumStc][j];
+            rttbl->Totalconc[j][i] += rttbl->Dependency[i - rttbl->NumStc][j];
     if (rttbl->NumSsc > 0)
     {
         fprintf(stderr, " \n Dependency Matrix!\n");
@@ -606,8 +606,8 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
         {
             fprintf(stderr, " %-14s", chemtbl[i + rttbl->NumStc].ChemName);
             for (j = 0; j < rttbl->NumSdc; j++)    /* Number of independent species (others depending on these species) */
-                fprintf(stderr, "%-14.2f", CD->Dependency[i][j]);
-            fprintf(stderr, " %6.2f\n", CD->Keq[i]);
+                fprintf(stderr, "%-14.2f", rttbl->Dependency[i][j]);
+            fprintf(stderr, " %6.2f\n", rttbl->Keq[i]);
         }
     }
 
@@ -620,7 +620,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
     {
         fprintf(stderr, " Sum%-14s", chemtbl[i].ChemName);
         for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
-            fprintf(stderr, "%-14.2f", CD->Totalconc[i][j]);
+            fprintf(stderr, "%-14.2f", rttbl->Totalconc[i][j]);
         fprintf(stderr, "\n");
     }
 
@@ -635,9 +635,9 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
             chemtbl[j + NumSpc + rttbl->NumAds + rttbl->NumCex].ChemName);
         for (i = 0; i < rttbl->NumStc; i++)
         {
-            fprintf(stderr, "%-14f", CD->Dep_kinetic[j][i]);
+            fprintf(stderr, "%-14f", rttbl->Dep_kinetic[j][i]);
         }
-        fprintf(stderr, " Keq = %-6.2f\n", CD->KeqKinect[j]);
+        fprintf(stderr, " Keq = %-6.2f\n", rttbl->KeqKinect[j]);
     }
     for (i = 0; i < WORDS_LINE; i++)
         free(tmpstr[i]);
@@ -667,7 +667,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
     if (rttbl->TEMcpl == 0)
     {
         for (i = 0; i < rttbl->NumSsc; i++)
-            Keq[i] = CD->Keq[i];
+            Keq[i] = rttbl->Keq[i];
     }
 
     adh = CD->DH.adh;
@@ -686,7 +686,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
         tmpval = 0.0;
         for (j = 0; j < rttbl->NumSdc; j++)
         {
-            tmpval += tmpconc[j] * CD->Dependency[i][j];
+            tmpval += tmpconc[j] * rttbl->Dependency[i][j];
         }
         tmpval -= Keq[i];
         tmpconc[i + rttbl->NumStc] = tmpval;
@@ -752,7 +752,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                 tmpval = 0.0;
                 for (j = 0; j < rttbl->NumSdc; j++)
                 {
-                    tmpval += (tmpconc[j] + gamma[j]) * CD->Dependency[i][j];
+                    tmpval += (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
                 }
                 tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
                 tmpconc[i + rttbl->NumStc] = tmpval;
@@ -762,7 +762,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                 tmpval = 0.0;
                 for (j = 0; j < num_spe; j++)
                 {
-                    tmpval += CD->Totalconc[i][j] * pow(10, tmpconc[j]);
+                    tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                 }
                 totconc[i] = tmpval;
                 if (strcmp(chemtbl[i].ChemName, "'H+'") == 0)
@@ -783,7 +783,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                         tmpval = 0.0;
                         for (j = 0; j < rttbl->NumSdc; j++)
                             tmpval +=
-                                (tmpconc[j] + gamma[j]) * CD->Dependency[i][j];
+                                (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
                         tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
                         tmpconc[i + rttbl->NumStc] = tmpval;
                     }
@@ -796,7 +796,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                             for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
                             {
                                 tmpval +=
-                                    CD->Totalconc[i][j] * pow(10, tmpconc[j]);
+                                    rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                             }
                             residue_t[i] = tmpval - CD->Vcele[cell].t_conc[i];
                             jcb[col][row] =
@@ -873,7 +873,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                 tmpval = 0.0;
                 for (j = 0; j < rttbl->NumSdc; j++)
                 {
-                    tmpval += (tmpconc[j] + gamma[j]) * CD->Dependency[i][j];
+                    tmpval += (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
                 }
                 tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
                 tmpconc[i + rttbl->NumStc] = tmpval;
@@ -883,7 +883,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                 tmpval = 0.0;
                 for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
                 {
-                    tmpval += CD->Totalconc[i][j] * pow(10, tmpconc[j]);
+                    tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                 }
                 totconc[i] = tmpval;
                 residue[i] = tmpval - CD->Vcele[cell].t_conc[i];
@@ -897,7 +897,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                     tmpval = 0.0;
                     for (j = 0; j < rttbl->NumSdc; j++)
                         tmpval +=
-                            (tmpconc[j] + gamma[j]) * CD->Dependency[i][j];
+                            (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
                     tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
                     tmpconc[i + rttbl->NumStc] = tmpval;
                 }
@@ -906,7 +906,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                     tmpval = 0.0;
                     for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
                     {
-                        tmpval += CD->Totalconc[i][j] * pow(10, tmpconc[j]);
+                        tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                     }
                     residue_t[i] = tmpval - CD->Vcele[cell].t_conc[i];
                     jcb[k][i] = (residue_t[i] - residue[i]) / (tmpprb);
@@ -940,7 +940,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
         tmpval = 0.0;
         for (j = 0; j < rttbl->NumSdc; j++)
         {
-            tmpval += (tmpconc[j] + gamma[j]) * CD->Dependency[i][j];
+            tmpval += (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
         }
         tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
         tmpconc[i + rttbl->NumStc] = tmpval;
@@ -950,7 +950,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
         tmpval = 0.0;
         for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
         {
-            tmpval += CD->Totalconc[i][j] * pow(10, tmpconc[j]);
+            tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
         }
         totconc[i] = tmpval;
         residue[i] = tmpval - CD->Vcele[cell].t_conc[i];
@@ -1117,10 +1117,10 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             for (j = 0; j < rttbl->NumStc; j++)
             {
                 IAP[i] += log10(Vcele->p_actv[j]) *
-                    CD->Dep_kinetic[min_pos][j];
+                    rttbl->Dep_kinetic[min_pos][j];
             }
             IAP[i] = pow(10, IAP[i]);
-            tmpKeq = pow(10, CD->KeqKinect[min_pos]);
+            tmpKeq = pow(10, rttbl->KeqKinect[min_pos]);
             dependency[i] = 1.0;
             for (k = 0; k < kintbl[i].num_dep; k++)
                 dependency[i] *=
@@ -1161,7 +1161,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
 
         for (j = 0; j < rttbl->NumStc; j++)
         {
-            Rate_spe[j] += Rate_pre[i] * CD->Dep_kinetic[min_pos][j];
+            Rate_spe[j] += Rate_pre[i] * rttbl->Dep_kinetic[min_pos][j];
         }
     }
 
@@ -1184,7 +1184,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     if (rttbl->TEMcpl == 0)
     {
         for (i = 0; i < rttbl->NumSsc; i++)
-            Keq[i] = CD->Keq[i];
+            Keq[i] = rttbl->Keq[i];
     }
 
     adh = CD->DH.adh;
@@ -1242,7 +1242,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             tmpval = 0.0;
             for (j = 0; j < rttbl->NumSdc; j++)
             {
-                tmpval += (tmpconc[j] + gamma[j]) * CD->Dependency[i][j];
+                tmpval += (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
             }
             tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
             tmpconc[i + rttbl->NumStc] = tmpval;
@@ -1265,11 +1265,11 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                     if (chemtbl[j].itype != MINERAL)
                     {
                         IAP[i] += (tmpconc[j] + gamma[j]) *
-                            CD->Dep_kinetic[min_pos][j];
+                            rttbl->Dep_kinetic[min_pos][j];
                     }
                 }
                 IAP[i] = pow(10, IAP[i]);
-                tmpKeq = pow(10, CD->KeqKinect[min_pos]);
+                tmpKeq = pow(10, rttbl->KeqKinect[min_pos]);
                 /*
                  * if ( IAP[i] < tmpKeq)
                  * rct_drct[i] = 1.0;
@@ -1323,7 +1323,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
 
             for (j = 0; j < rttbl->NumStc; j++)
             {
-                Rate_spet[j] += Rate_pre[i] * CD->Dep_kinetic[min_pos][j];
+                Rate_spet[j] += Rate_pre[i] * rttbl->Dep_kinetic[min_pos][j];
             }
             /* Adjust the unit of the calcuated rate. Note that for mineral, the
              * unit of rate and the unit of concentration are mol/L porous media
@@ -1340,7 +1340,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             tmpval = 0.0;
             for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
             {
-                tmpval += CD->Totalconc[i][j] * pow(10, tmpconc[j]);
+                tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
             }
             totconc[i] = tmpval;
             residue[i] = tmpval - (Vcele->t_conc[i] +
@@ -1356,7 +1356,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                     tmpval = 0.0;
                     for (j = 0; j < rttbl->NumSdc; j++)
                         tmpval +=
-                            (tmpconc[j] + gamma[j]) * CD->Dependency[i][j];
+                            (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
                     tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
                     tmpconc[i + rttbl->NumStc] = tmpval;
                 }
@@ -1365,7 +1365,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                     tmpval = 0.0;
                     for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
                     {
-                        tmpval += CD->Totalconc[i][j] * pow(10, tmpconc[j]);
+                        tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                     }
                     residue_t[i] = tmpval - (Vcele->t_conc[i] +
                         (Rate_spe[i] + Rate_spet[i]) * stepsize * 0.5);
@@ -1415,7 +1415,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         tmpval = 0.0;
         for (j = 0; j < rttbl->NumSdc; j++)
         {
-            tmpval += (tmpconc[j] + gamma[j]) * CD->Dependency[i][j];
+            tmpval += (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
         }
         tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
         tmpconc[i + rttbl->NumStc] = tmpval;
@@ -1426,7 +1426,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         tmpval = 0.0;
         for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
         {
-            tmpval += CD->Totalconc[i][j] * pow(10, tmpconc[j]);
+            tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
         }
         totconc[i] = tmpval;
         residue[i] = tmpval - Vcele->t_conc[i];

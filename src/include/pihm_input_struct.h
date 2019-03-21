@@ -601,6 +601,24 @@ typedef struct rttbl_struct
     pump_struct    *pumps;
     int             NumBTC;                 /* number of breakthrough points */
     int            *BTC_loc;                /* location of breakthrough points*/
+    double          Dependency[MAXSPS][MAXSPS]; /* dependency of secondary
+                                             * species on primary species */
+    double          Dep_kinetic[MAXSPS][MAXSPS];/* dependency of kinetic species
+                                             * on primary species  */
+    double          Dep_kinetic_all[MAXSPS][MAXSPS];/* dependency of all
+                                             * possible kinetic species on
+                                             * primary species */
+    double          Totalconc[MAXSPS][MAXSPS];  /* contribution of each species
+                                             * to total concentration */
+#if NOT_YET_IMPLEMENTED
+    double          Totalconck[MAXSPS][MAXSPS]; /* contribution of each species
+                                             * to total concentration with
+                                             * kinetic reaction included */
+#endif
+    double          Keq[MAXSPS];            /* Keq's of secondary species */
+    double          KeqKinect[MAXSPS];      /* Keq's of kinetic species */
+    double          KeqKinect_all[MAXSPS];  /* Keq's of all possible kinetic
+                                             * species */
 } rttbl_struct;
 #endif
 

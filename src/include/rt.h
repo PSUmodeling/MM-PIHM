@@ -90,16 +90,6 @@ typedef struct Chem_Data_structure
     double          CalPrcpconc;    // 02.12 by Wei Zhi
     double          CalInitconc;    // 02.12 by Wei Zhi
     double          CalXsorption;   // 03.06 by Wei Zhi
-    double        **Dependency; /* a matrix that describe the dependency of secondary species on the primary species */
-    double        **Dep_kinetic;    /* a matrix that store the dependency of kinetic species on the primary species (sometimes conversion is required) */
-    double        **Dep_kinetic_all;    // same as above, for all possible kinetic species
-    double        **Totalconc;  /* a matrix that describe the contribution of each species to the total concentration */
-#if NOT_YET_IMPLEMENTED
-    double        **Totalconck; /* a matrix that describe the contribution of each species to the total concentration with kinetic reaction included */
-#endif
-    double         *Keq;        /* array of Keq s of the secondary species */
-    double         *KeqKinect;  /* array of Keq s of the kinetic species */
-    double         *KeqKinect_all;  /* same as above, all possible kinetic species */
     double          rivd;       /* Stream discharge in cubic meter per day at the moment */
     double          riv;
     vol_conc       *Vcele;      // An array that stores the volumetric (vol) and chemical (conc) information of grid blocks

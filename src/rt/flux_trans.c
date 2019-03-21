@@ -628,14 +628,14 @@ void AdptTime(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             {
                 for (k = 0; k < rttbl->NumSsc; k++)
                 {
-                    if ((CD->Totalconc[j][k + rttbl->NumStc] != 0) &&
+                    if ((rttbl->Totalconc[j][k + rttbl->NumStc] != 0) &&
                         (chemtbl[k + rttbl->NumStc].itype != AQUEOUS))
                     {
                         CD->Vcele[RT_GW(i)].t_conc[j] -=
-                            CD->Totalconc[j][k + rttbl->NumStc] *
+                            rttbl->Totalconc[j][k + rttbl->NumStc] *
                             CD->Vcele[RT_GW(i)].s_conc[k];
                         CD->Vcele[RT_UNSAT(i)].t_conc[j] -=
-                            CD->Totalconc[j][k + rttbl->NumStc] *
+                            rttbl->Totalconc[j][k + rttbl->NumStc] *
                             CD->Vcele[RT_UNSAT(i)].s_conc[k];
                     }
                 }

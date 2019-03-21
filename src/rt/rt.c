@@ -37,12 +37,13 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
 
     ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.NumStc, CD->Vcele);
 
+    /*
+     * Initialize chemical parameters
+     */
     for (i = 0; i < pihm->rttbl.NumStc + pihm->rttbl.NumSsc; i++)
     {
         pihm->chemtbl[i].DiffCoe = pihm->rttbl.DiffCoe;
-
         pihm->chemtbl[i].DispCoe = pihm->rttbl.DispCoe;
-
         pihm->chemtbl[i].Charge = 0.0;
         pihm->chemtbl[i].SizeF = 1.0;
     }
@@ -50,62 +51,24 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     PRCP_VOL = CD->NumVol - 1;
     BOUND_VOL = CD->NumVol;
 
-    CD->Dependency = (double **)malloc(pihm->rttbl.NumSsc * sizeof(double *));
-    for (i = 0; i < pihm->rttbl.NumSsc; i++)
+    for (i = 0; i < MAXSPS; i++)
     {
-        CD->Dependency[i] = (double *)malloc(pihm->rttbl.NumSdc * sizeof(double));
-        /* Convert secondary species as an expression of primary species */
-        for (j = 0; j < pihm->rttbl.NumSdc; j++)
-            CD->Dependency[i][j] = 0.0;
-    }
-
-    CD->Dep_kinetic =
-        (double **)malloc((pihm->rttbl.NumMkr + pihm->rttbl.NumAkr) * sizeof(double *));
-    for (i = 0; i < pihm->rttbl.NumMkr + pihm->rttbl.NumAkr; i++)
-    {
-        CD->Dep_kinetic[i] = (double *)malloc(pihm->rttbl.NumStc * sizeof(double));
-        /* Express kinetic species as function of primary species */
-        for (j = 0; j < pihm->rttbl.NumStc; j++)
-            CD->Dep_kinetic[i][j] = 0.0;
-    }
-
-    CD->Dep_kinetic_all = (double **)malloc((pihm->rttbl.NumMin) * sizeof(double *));
-    for (i = 0; i < pihm->rttbl.NumMin; i++)
-    {
-        CD->Dep_kinetic_all[i] = (double *)malloc(pihm->rttbl.NumStc * sizeof(double));
-        /* Dependencies of minearls, all */
-        for (j = 0; j < pihm->rttbl.NumStc; j++)
-            CD->Dep_kinetic_all[i][j] = 0.0;
-    }
-
-    /* Keqs of equilibrium/ kinetic and kinetic all */
-    CD->Keq = (double *)malloc(pihm->rttbl.NumSsc * sizeof(double));
-    CD->KeqKinect =
-        (double *)malloc((pihm->rttbl.NumMkr + pihm->rttbl.NumAkr) * sizeof(double));
-    CD->KeqKinect_all = (double *)malloc(pihm->rttbl.NumMin * sizeof(double));
-
-    /* Convert total concentration as an expression of all species */
-    CD->Totalconc = (double **)malloc(pihm->rttbl.NumStc * sizeof(double *));
-    for (i = 0; i < pihm->rttbl.NumStc; i++)
-        CD->Totalconc[i] =
-            (double *)malloc((pihm->rttbl.NumStc + pihm->rttbl.NumSsc) * sizeof(double));
-
-#if NOT_YET_IMPLEMENTED
-    /* Convert total concentration as an expression of all species */
-    CD->Totalconck = (double **)malloc(pihm->rttbl.NumStc * sizeof(double *));
-    for (i = 0; i < pihm->rttbl.NumStc; i++)
-        CD->Totalconck[i] =
-            (double *)malloc((pihm->rttbl.NumStc + pihm->rttbl.NumSsc) * sizeof(double));
-#endif
-
-    for (i = 0; i < pihm->rttbl.NumStc; i++)
-        for (j = 0; j < pihm->rttbl.NumStc + pihm->rttbl.NumSsc; j++)
+        for (j = 0; j < MAXSPS; j++)
         {
-            CD->Totalconc[i][j] = 0.0;
+            pihm->rttbl.Dependency[i][j] = 0.0;      /* NumSsc x NumSdc */
+            pihm->rttbl.Dep_kinetic[i][j] = 0.0;     /* (NumMkr + NumAkr) x NumStc */
+            pihm->rttbl.Dep_kinetic_all[i][j] = 0.0; /* NumMin x NumStc */
+            pihm->rttbl.Totalconc[i][j] = 0.0;       /* NumStc x (NumStc + NumSsc) */
 #if NOT_YET_IMPLEMENTED
-            CD->Totalconck[i][j] = 0.0;
+            pihm->rttbl.Totalconck[i][j] = 0.0;      /* NumStc x (NumStc + NumSsc) */
 #endif
         }
+
+        /* Keqs of equilibrium/ kinetic and kinetic all */
+        pihm->rttbl.Keq[i] = 0.0;                    /* NumSsc */
+        pihm->rttbl.KeqKinect[i] = 0.0;              /* NumMkr + NumAkr */
+        pihm->rttbl.KeqKinect_all[i] = 0.0;          /* NumMin */
+    }
 
     /* Primary species table */
     PIHMprintf(VL_NORMAL,
@@ -117,7 +80,12 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
             pihm->chemtbl[i].itype);
     }
 
-
+    CD->CalPorosity = pihm->cal.porosity;
+    CD->CalRate = pihm->cal.rate;
+    CD->CalSSA = pihm->cal.ssa;
+    CD->CalPrcpconc = pihm->cal.prcpconc;
+    CD->CalInitconc = pihm->cal.initconc;
+    CD->CalXsorption = pihm->cal.Xsorption;
 
     /*
      * Apply calibration
@@ -169,13 +137,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
             satn, LAND_VOL, &CD->Vcele[RT_FBR_UNSAT(i)]);
 #endif
     }
-
-    CD->CalPorosity = pihm->cal.porosity;
-    CD->CalRate = pihm->cal.rate;
-    CD->CalSSA = pihm->cal.ssa;
-    CD->CalPrcpconc = pihm->cal.prcpconc;
-    CD->CalInitconc = pihm->cal.initconc;
-    CD->CalXsorption = pihm->cal.Xsorption;
 
     /* Initializing volumetrics for river cells */
     for (i = 0; i < nriver; i++)
@@ -536,7 +497,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     double          Cal_Keq = 1.0;
     for (i = 0; i < pihm->rttbl.NumAkr + pihm->rttbl.NumMkr; i++)
     {
-        CD->KeqKinect[i] += (!strcmp(
+        pihm->rttbl.KeqKinect[i] += (!strcmp(
             pihm->chemtbl[i + NumSpc + pihm->rttbl.NumAds + pihm->rttbl.NumCex].ChemName,
             "'CO2(*g)'")) ?
             log10(Cal_PCO2) : log10(Cal_Keq);
@@ -553,9 +514,9 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
             pihm->chemtbl[j + NumSpc + pihm->rttbl.NumAds + pihm->rttbl.NumCex].ChemName);
         for (i = 0; i < pihm->rttbl.NumStc; i++)
         {
-            PIHMprintf(VL_NORMAL, "%-14.2f", CD->Dep_kinetic[j][i]);
+            PIHMprintf(VL_NORMAL, "%-14.2f", pihm->rttbl.Dep_kinetic[j][i]);
         }
-        PIHMprintf(VL_NORMAL, " Keq = %-6.2f\n", CD->KeqKinect[j]);
+        PIHMprintf(VL_NORMAL, " Keq = %-6.2f\n", pihm->rttbl.KeqKinect[j]);
     }
     PIHMprintf(VL_NORMAL, "\n");
     /* Use calibration coefficient to produce new Keq values for
@@ -570,7 +531,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
 
         for (j = 0; j < pihm->rttbl.NumStc + pihm->rttbl.NumSsc; j++)
         {
-            if (CD->Totalconc[i][j] != 0 &&
+            if (pihm->rttbl.Totalconc[i][j] != 0 &&
                 pihm->chemtbl[j].itype != pihm->chemtbl[i].mtype)
             {
                 pihm->chemtbl[i].mtype = MIXED_MA;
@@ -760,40 +721,6 @@ void FreeChem(Chem_Data CD)
 //
 //    free(CD->BTC_loc);
 //    free(CD->prepconcindex);
-//
-//    for (i = 0; i < CD->NumSsc; i++)
-//    {
-//        free(CD->Dependency[i]);
-//    }
-//    free(CD->Dependency);
-//
-//    for (i = 0; i < CD->NumMkr + CD->NumAkr; i++)
-//    {
-//        free(CD->Dep_kinetic[i]);
-//    }
-//    free(CD->Dep_kinetic);
-//
-//    for (i = 0; i < CD->NumMin; i++)
-//    {
-//        free(CD->Dep_kinetic_all[i]);
-//    }
-//    free(CD->Dep_kinetic_all);
-//
-//    for (i = 0; i < CD->NumStc; i++)
-//    {
-//        free(CD->Totalconc[i]);
-//#if NOT_YET_IMPLEMENTED
-//        free(CD->Totalconck[i]);
-//#endif
-//    }
-//    free(CD->Totalconc);
-//#if NOT_YET_IMPLEMENTED
-//    free(CD->Totalconck);
-//#endif
-//
-//    free(CD->Keq);
-//    free(CD->KeqKinect);
-//    free(CD->KeqKinect_all);
 //
 //    // CD->Vcele
 //    for (i = 0; i < CD->NumVol; i++)
