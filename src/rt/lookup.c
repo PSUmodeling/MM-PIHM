@@ -33,7 +33,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
     {
         if (tmpval[i + 1] == rttbl->Temperature)
         {
-            fprintf(stderr,
+            PIHMprintf(VL_VERBOSE,
                 "\n Temperature point %6.4f C found in database!\n\n",
                 tmpval[i + 1]);
             keq_position = i + 1;
@@ -55,7 +55,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
     }
     rttbl->bdt = tmpval[keq_position - 1];
 
-    fprintf(stderr,
+    PIHMprintf(VL_VERBOSE,
         " Debye-Huckel Parameters set to A=%6.4f; B=%6.4f; b=%6.4f\n\n",
         rttbl->adh, rttbl->bdh, rttbl->bdt);
 
@@ -68,7 +68,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
             for (i = 0; i < rttbl->NumStc; i++)
                 if (strcmp(chemtbl[i].ChemName, tmpstr[0]) == 0)
                 {
-                    fprintf(stderr,
+                    PIHMprintf(VL_VERBOSE,
                         " Primary species %s found in database!\n MolarMass = %6.4f\n\n",
                         chemtbl[i].ChemName, tmpval[2]);
                     chemtbl[i].MolarMass = tmpval[2];
@@ -85,10 +85,10 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
             for (i = rttbl->NumStc; i < rttbl->NumSsc + rttbl->NumStc; i++)
                 if (strcmp(chemtbl[i].ChemName, tmpstr[0]) == 0)
                 {
-                    fprintf(stderr,
+                    PIHMprintf(VL_VERBOSE,
                         " Secondary species %s found in database!\n",
                         chemtbl[i].ChemName);
-                    fprintf(stderr, " %s", line);
+                    PIHMprintf(VL_VERBOSE, " %s", line);
                     chemtbl[i].itype = AQUEOUS;
                     for (j = 0; j < WORDS_LINE; j++)
                     {
@@ -100,14 +100,14 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                     }
                     rttbl->Keq[i - rttbl->NumStc] =
                         tmpval[(int)tmpval[0] + keq_position];
-                    fprintf(stderr, " Keq = %6.4f\n", rttbl->Keq[i - rttbl->NumStc]);
+                    PIHMprintf(VL_VERBOSE, " Keq = %6.4f\n", rttbl->Keq[i - rttbl->NumStc]);
                     chemtbl[i].MolarMass =
                         tmpval[(int)tmpval[0] + total_temp_points + 3];
                     chemtbl[i].Charge =
                         tmpval[(int)tmpval[0] + total_temp_points + 2];
                     chemtbl[i].SizeF =
                         tmpval[(int)tmpval[0] + total_temp_points + 1];
-                    fprintf(stderr,
+                    PIHMprintf(VL_VERBOSE,
                         " MolarMass = %6.4f, Charge = %6.4f, SizeFactor = %6.4f\n\n",
                         chemtbl[i].MolarMass, chemtbl[i].Charge,
                         chemtbl[i].SizeF);
@@ -122,9 +122,9 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
             for (i = NumSpc + rttbl->NumAds + rttbl->NumCex; i < rttbl->NumStc; i++)
                 if (strcmp(chemtbl[i].ChemName, tmpstr[0]) == 0)
                 {
-                    fprintf(stderr, " Mineral %s found in database!\n",
+                    PIHMprintf(VL_VERBOSE, " Mineral %s found in database!\n",
                         chemtbl[i].ChemName);
-                    fprintf(stderr, " %s", line);
+                    PIHMprintf(VL_VERBOSE, " %s", line);
                     chemtbl[i].itype = MINERAL;
                     rttbl->KeqKinect_all[i - NumSpc - rttbl->NumAds -
                         rttbl->NumCex] = tmpval[(int)tmpval[1] + keq_position + 1];
@@ -155,14 +155,14 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                             }
                     }
                     rttbl->Dep_kinetic_all[i - rttbl->NumStc + rttbl->NumMin][i] = -1.0;
-                    fprintf(stderr, " Keq = %6.4f\n",
+                    PIHMprintf(VL_VERBOSE, " Keq = %6.4f\n",
                         rttbl->KeqKinect_all[i - NumSpc - rttbl->NumAds -
                             rttbl->NumCex]);
                     chemtbl[i].MolarMass =
                         tmpval[(int)tmpval[1] + total_temp_points + 2];
                     chemtbl[i].MolarVolume = tmpval[0];
                     chemtbl[i].Charge = 0;
-                    fprintf(stderr,
+                    PIHMprintf(VL_VERBOSE,
                         " MolarMass = %6.4f, MolarVolume = %6.4f\n\n",
                         chemtbl[i].MolarMass, chemtbl[i].MolarVolume);
                 }
@@ -172,7 +172,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
 
     for (i = 0; i < rttbl->NumMkr + rttbl->NumAkr; i++)
     {
-        fprintf(stderr,
+        PIHMprintf(VL_VERBOSE,
             " Selecting the kinetic species %s from all possible species.\n\n",
             chemtbl[kintbl[i].position].ChemName);
         rttbl->KeqKinect[i] =
@@ -190,10 +190,10 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
             for (i = rttbl->NumStc; i < rttbl->NumSsc + rttbl->NumStc; i++)
                 if (strcmp(chemtbl[i].ChemName, tmpstr[0]) == 0)
                 {
-                    fprintf(stderr,
+                    PIHMprintf(VL_VERBOSE,
                         " Secondary surface complexation %s found in database!\n",
                         chemtbl[i].ChemName);
-                    fprintf(stderr, " %s", line);
+                    PIHMprintf(VL_VERBOSE, " %s", line);
                     chemtbl[i].itype = ADSORPTION;
                     for (j = 0; j < WORDS_LINE; j++)
                     {
@@ -205,7 +205,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                     }
                     rttbl->Keq[i - rttbl->NumStc] =
                         tmpval[(int)tmpval[0] + keq_position];
-                    fprintf(stderr, " Keq = %6.4f\n", rttbl->Keq[i - rttbl->NumStc]);
+                    PIHMprintf(VL_VERBOSE, " Keq = %6.4f\n", rttbl->Keq[i - rttbl->NumStc]);
                 }
         }
         fgets(line, LINE_WIDTH, database);
@@ -217,10 +217,10 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
             for (i = rttbl->NumStc; i < rttbl->NumSsc + rttbl->NumStc; i++)
                 if (strcmp(chemtbl[i].ChemName, tmpstr[0]) == 0)
                 {
-                    fprintf(stderr,
+                    PIHMprintf(VL_VERBOSE,
                         " Secondary ion exchange %s found in database!\n",
                         chemtbl[i].ChemName);
-                    fprintf(stderr, " %s", line);
+                    PIHMprintf(VL_VERBOSE, " %s", line);
                     chemtbl[i].itype = CATION_ECHG;
                     for (j = 0; j < WORDS_LINE; j++)
                     {
@@ -231,11 +231,11 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                                     atof(tmpstr[j - 1]);
                     }
                     rttbl->Keq[i - rttbl->NumStc] = tmpval[(int)tmpval[0] + 1];
-                    fprintf(stderr, " Keq = %6.4f \n", rttbl->Keq[i - rttbl->NumStc]);
+                    PIHMprintf(VL_VERBOSE, " Keq = %6.4f \n", rttbl->Keq[i - rttbl->NumStc]);
 
                     rttbl->Keq[i - rttbl->NumStc] =
                         tmpval[(int)tmpval[0] + 1] + CD->CalXsorption;
-                    fprintf(stderr, " After calibration: Keq = %6.4f \n",
+                    PIHMprintf(VL_VERBOSE, " After calibration: Keq = %6.4f \n",
                         rttbl->Keq[i - rttbl->NumStc]);
                 }
         }
@@ -272,7 +272,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                     keymatch(line, "NULL", tmpval, tmpstr);
                     if (strcmp(kintbl[i].Label, tmpstr[2]) == 0)
                     {
-                        fprintf(stderr,
+                        PIHMprintf(VL_VERBOSE,
                             " \n Mineral kinetics %s %s found in database!\n",
                             chemtbl[kintbl[i].position].ChemName, kintbl[i].Label);
                         fgets(line, LINE_WIDTH, database);
@@ -290,11 +290,11 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                         if (strcmp(tmpstr[0], "rate(25C)") == 0)
                         {
                             kintbl[i].rate = tmpval[0];
-                            fprintf(stderr, " Rate is %f\n",
+                            PIHMprintf(VL_VERBOSE, " Rate is %f\n",
                                 kintbl[i].rate);
 
                             kintbl[i].rate = tmpval[0] + CD->CalRate;
-                            fprintf(stderr,
+                            PIHMprintf(VL_VERBOSE,
                                 " After calibration: Rate is %f, CD->CalRate = %f \n",
                                 kintbl[i].rate, CD->CalRate);
                         }
@@ -303,7 +303,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                         if (strcmp(tmpstr[0], "activation") == 0)
                         {
                             kintbl[i].actv = tmpval[0];
-                            fprintf(stderr, " Activation is %f\n",
+                            PIHMprintf(VL_VERBOSE, " Activation is %f\n",
                                 kintbl[i].actv);
                         }
                         fgets(line, LINE_WIDTH, database);
@@ -319,7 +319,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                             kintbl[i].num_dep =
                                 (kintbl[i].dep_position[0] < 0) ? 0 : 1;
                             kintbl[i].dep_power[0] = tmpval[0];
-                            fprintf(stderr, " Dependency: %s %f\n",
+                            PIHMprintf(VL_VERBOSE, " Dependency: %s %f\n",
                                 tmpstr[2], kintbl[i].dep_power[0]);
                         }
 
@@ -329,11 +329,11 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                         if (strcmp(tmpstr[0], "biomass") == 0)
                         {
                             wrap(tmpstr[2]);
-                            fprintf(stderr, " Biomass species: %s \n",
+                            PIHMprintf(VL_VERBOSE, " Biomass species: %s \n",
                                 tmpstr[2]);
                             kintbl[i].biomass_position = FindChem(tmpstr[2],
                                 chemtbl, rttbl->NumStc);
-                            fprintf(stderr,
+                            PIHMprintf(VL_VERBOSE,
                                 " Biomass species position: %d \n",
                                 kintbl[i].biomass_position);
                         }
@@ -344,7 +344,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                         if (strcmp(tmpstr[0], "num_monod") == 0)
                         {
                             kintbl[i].num_monod = tmpval[0];
-                            fprintf(stderr, " Number of monod term: %d\n",
+                            PIHMprintf(VL_VERBOSE, " Number of monod term: %d\n",
                                 kintbl[i].num_monod);
                         }
                         fgets(line, LINE_WIDTH, database);
@@ -369,7 +369,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                                 }
                                 else
                                 {
-                                    fprintf(stderr, " Monod term: %s %f\n",
+                                    PIHMprintf(VL_VERBOSE, " Monod term: %s %f\n",
                                     chemtbl[kintbl[i].monod_position[mn]].ChemName,
                                     kintbl[i].monod_para[mn]);
                                 }
@@ -382,7 +382,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                         if (strcmp(tmpstr[0], "num_inhibition") == 0)
                         {
                             kintbl[i].num_inhib = tmpval[0];
-                            fprintf(stderr, " Number of inhibition term: %d\n",
+                            PIHMprintf(VL_VERBOSE, " Number of inhibition term: %d\n",
                                 kintbl[i].num_inhib);
                         }
                         fgets(line, LINE_WIDTH, database);
@@ -406,7 +406,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                                 }
                                 else
                                 {
-                                    fprintf(stderr, " Inhibition term: %s %f\n",
+                                    PIHMprintf(VL_VERBOSE, " Inhibition term: %s %f\n",
                                         chemtbl[kintbl[i].inhib_position[in]].ChemName,
                                         kintbl[i].inhib_para[in]);
                                 }
@@ -427,49 +427,49 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
             rttbl->Totalconc[j][i] += rttbl->Dependency[i - rttbl->NumStc][j];
     if (rttbl->NumSsc > 0)
     {
-        fprintf(stderr, " \n Dependency Matrix!\n");
+        PIHMprintf(VL_VERBOSE, " \n Dependency Matrix!\n");
 
-        fprintf(stderr, "%-15s", " ");
+        PIHMprintf(VL_VERBOSE, "%-15s", " ");
         for (i = 0; i < rttbl->NumSdc; i++)
-            fprintf(stderr, "%-14s", chemtbl[i].ChemName);
-        fprintf(stderr, "\n");
+            PIHMprintf(VL_VERBOSE, "%-14s", chemtbl[i].ChemName);
+        PIHMprintf(VL_VERBOSE, "\n");
 
         for (i = 0; i < rttbl->NumSsc; i++)    /* Number of secondary speices in the simulator */
         {
-            fprintf(stderr, " %-14s", chemtbl[i + rttbl->NumStc].ChemName);
+            PIHMprintf(VL_VERBOSE, " %-14s", chemtbl[i + rttbl->NumStc].ChemName);
             for (j = 0; j < rttbl->NumSdc; j++)    /* Number of independent species (others depending on these species) */
-                fprintf(stderr, "%-14.2f", rttbl->Dependency[i][j]);
-            fprintf(stderr, " %6.2f\n", rttbl->Keq[i]);
+                PIHMprintf(VL_VERBOSE, "%-14.2f", rttbl->Dependency[i][j]);
+            PIHMprintf(VL_VERBOSE, " %6.2f\n", rttbl->Keq[i]);
         }
     }
 
-    fprintf(stderr, " \n Total Concentration Matrix!\n");
-    fprintf(stderr, "%-18s", " ");
+    PIHMprintf(VL_VERBOSE, " \n Total Concentration Matrix!\n");
+    PIHMprintf(VL_VERBOSE, "%-18s", " ");
     for (i = 0; i < rttbl->NumStc + rttbl->NumSsc; i++)
-        fprintf(stderr, "%-14s", chemtbl[i].ChemName);
-    fprintf(stderr, "\n");
+        PIHMprintf(VL_VERBOSE, "%-14s", chemtbl[i].ChemName);
+    PIHMprintf(VL_VERBOSE, "\n");
     for (i = 0; i < rttbl->NumStc; i++)
     {
-        fprintf(stderr, " Sum%-14s", chemtbl[i].ChemName);
+        PIHMprintf(VL_VERBOSE, " Sum%-14s", chemtbl[i].ChemName);
         for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
-            fprintf(stderr, "%-14.2f", rttbl->Totalconc[i][j]);
-        fprintf(stderr, "\n");
+            PIHMprintf(VL_VERBOSE, "%-14.2f", rttbl->Totalconc[i][j]);
+        PIHMprintf(VL_VERBOSE, "\n");
     }
 
-    fprintf(stderr, " \n Kinetic Mass Matrx!\n");
-    fprintf(stderr, "%-15s", " ");
+    PIHMprintf(VL_VERBOSE, " \n Kinetic Mass Matrx!\n");
+    PIHMprintf(VL_VERBOSE, "%-15s", " ");
     for (i = 0; i < rttbl->NumStc; i++)
-        fprintf(stderr, "%-14s", chemtbl[i].ChemName);
-    fprintf(stderr, "\n");
+        PIHMprintf(VL_VERBOSE, "%-14s", chemtbl[i].ChemName);
+    PIHMprintf(VL_VERBOSE, "\n");
     for (j = 0; j < rttbl->NumMkr + rttbl->NumAkr; j++)
     {
-        fprintf(stderr, " %-14s",
+        PIHMprintf(VL_VERBOSE, " %-14s",
             chemtbl[j + NumSpc + rttbl->NumAds + rttbl->NumCex].ChemName);
         for (i = 0; i < rttbl->NumStc; i++)
         {
-            fprintf(stderr, "%-14f", rttbl->Dep_kinetic[j][i]);
+            PIHMprintf(VL_VERBOSE, "%-14f", rttbl->Dep_kinetic[j][i]);
         }
-        fprintf(stderr, " Keq = %-6.2f\n", rttbl->KeqKinect[j]);
+        PIHMprintf(VL_VERBOSE, " Keq = %-6.2f\n", rttbl->KeqKinect[j]);
     }
     for (i = 0; i < WORDS_LINE; i++)
         free(tmpstr[i]);
