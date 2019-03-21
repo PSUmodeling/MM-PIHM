@@ -48,9 +48,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         pihm->chemtbl[i].SizeF = 1.0;
     }
 
-    PRCP_VOL = CD->NumVol - 1;
-    BOUND_VOL = CD->NumVol;
-
     for (i = 0; i < MAXSPS; i++)
     {
         for (j = 0; j < MAXSPS; j++)
@@ -87,16 +84,30 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     CD->CalInitconc = pihm->cal.initconc;
     CD->CalXsorption = pihm->cal.Xsorption;
 
+    for (i = 0; i < NumSpc; i++)
+    {
+        if (strcmp(pihm->chemtbl[i].ChemName, "pH") == 0)
+        {
+            strcpy(pihm->chemtbl[i].ChemName, "H+");
+            speciation_flg = 1;
+        }
+    }
+
+    CD->SPCFlg = speciation_flg;
+    Lookup(fp, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, CD);
+
     /*
      * Apply calibration
      */
     pihm->rttbl.pumps[0].Injection_rate *= pihm->cal.gwinflux;
     pihm->rttbl.pumps[0].flow_rate *= pihm->cal.gwinflux;
 
-
     /* Initializing volumetric parameters, inherit from PIHM
      * That is, if PIHM is started from a hot start, rt is also
      * initialized with the hot data */
+    PRCP_VOL = CD->NumVol - 1;
+    BOUND_VOL = CD->NumVol;
+
     for (i = 0; i < nelem; i++)
     {
         double          heqv;
@@ -149,15 +160,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     InitVcele(0.0, 0.0, 0.0, 0.0, VIRTUAL_VOL, &CD->Vcele[PRCP_VOL - 1]);
     InitVcele(1.0, 1.0, 1.0, 1.0, VIRTUAL_VOL, &CD->Vcele[BOUND_VOL - 1]);
 
-    for (i = 0; i < NumSpc; i++)
-    {
-        if (strcmp(pihm->chemtbl[i].ChemName, "pH") == 0)
-        {
-            strcpy(pihm->chemtbl[i].ChemName, "H+");
-            speciation_flg = 1;
-        }
-    }
-
     /* Initializing concentration distributions */
     PIHMprintf(VL_NORMAL,
         "\n Initializing concentration, Vcele [i, 0 ~ NumVol]... \n");
@@ -182,7 +184,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         for (j = 0; j < pihm->rttbl.NumStc; j++)
         {
             if (speciation_flg == 1 &&
-                strcmp(pihm->chemtbl[j].ChemName, "H+") == 0)
+                strcmp(pihm->chemtbl[j].ChemName, "'H+'") == 0)
             {
                 CD->Vcele[i].p_conc[j] = pow(10,
                     -(CD->Vcele[i].ic.t_conc[j]));
@@ -203,7 +205,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
                 CD->Vcele[i].t_conc[j] =
                     CD->Vcele[i].ic.t_conc[j];
                 CD->Vcele[i].t_conc[j] *=
-                    (strcmp(pihm->chemtbl[j].ChemName, "DOC") == 0) ?
+                    (strcmp(pihm->chemtbl[j].ChemName, "'DOC'") == 0) ?
                     CD->CalInitconc : 1.0;
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j] * 0.5;
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
@@ -488,8 +490,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         CD->Flux[k].s_area = 0.0;
     }
 
-    CD->SPCFlg = speciation_flg;
-    Lookup(fp, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, CD);
     /* Update the concentration of mineral after get the molar volume of
      * mineral */
 
