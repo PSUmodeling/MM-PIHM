@@ -775,7 +775,8 @@ void            SortChem(char[][MAXSTRING], const int [], int, chemtbl_struct []
 int             FindChem(const char [], const chemtbl_struct [], int);
 void            ReadChem(const char[], const char[], chemtbl_struct [],
     kintbl_struct [], rttbl_struct *, ctrl_struct *);
-void            ReadPrep(const char[], const chemtbl_struct [], Chem_Data);
+void            ReadPrep(const char[], const chemtbl_struct [], const double [],
+    forc_struct *forc);
 void            ReadCini(const char[], const chemtbl_struct *, int, vol_conc *);
 void            SpeciationReaction(int, int, const pihm_struct,
     Chem_Data);

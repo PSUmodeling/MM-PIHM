@@ -223,16 +223,12 @@ typedef struct lctbl_struct
 /* Time series data structure */
 typedef struct tsdata_struct
 {
-    int             length;       /* length of time series */
-    int            *ftime;        /* forcing time */
-    double        **data;         /* forcing values at forcing time */
-    double         *value;        /* forcing values at model time t */
-    union
-    {
-        double          zlvl_wind;    /* height above ground of wind observations
-                                       * (m) */
-        int             nspec;
-    };
+    int             length;             /* length of time series */
+    int            *ftime;              /* forcing time */
+    double        **data;               /* forcing values at forcing time */
+    double         *value;              /* forcing values at model time t */
+    double          zlvl_wind;          /* height above ground of wind
+                                         * observations (m) */
 } tsdata_struct;
 
 /* Forcing structure */
@@ -257,6 +253,9 @@ typedef struct forc_struct
     tsdata_struct  *co2;         /* CO2 forcing series */
     int             nndep;
     tsdata_struct  *ndep;        /* nitrogen deposition forcing series */
+#endif
+#if defined(_RT_)
+    tsdata_struct   TSD_prepconc; /* concentration in precipitation */
 #endif
 } forc_struct;
 

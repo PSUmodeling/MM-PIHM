@@ -156,29 +156,19 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
     /* Update the concentration in precipitation here. */
     if (pihm->ctrl.PrpFlg == 2)
     {
-        IntrplForc(&CD->TSD_prepconc[0], t, CD->TSD_prepconc[0].nspec,
-            NO_INTRPL);
+        IntrplForc(&pihm->forc.TSD_prepconc, t, NumSpc, NO_INTRPL);
 
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-        for (i = 0; i < CD->TSD_prepconc[0].nspec; i++)
+        for (i = 0; i < NumSpc; i++)
         {
-            if (CD->prepconcindex[i] > 0)
+            if (pihm->rttbl.prcp_conc[i] != pihm->forc.TSD_prepconc.value[i])
             {
-                int             ind;
-
-                ind = CD->prepconcindex[i] - 1;
-                if (pihm->rttbl.prcp_conc[ind] !=
-                    CD->TSD_prepconc[0].value[i])
-                {
-                    pihm->rttbl.prcp_conc[ind] =
-                        CD->TSD_prepconc[0].value[i];
-                    PIHMprintf(VL_NORMAL,
-                        "  %s in precipitation is changed to %6.4g\n",
-                        pihm->chemtbl[ind].ChemName,
-                        pihm->rttbl.prcp_conc[ind]);
-                }
+                pihm->rttbl.prcp_conc[i] = pihm->forc.TSD_prepconc.value[i];
+                PIHMprintf(VL_NORMAL,
+                    "  %s in precipitation is changed to %6.4g\n",
+                    pihm->chemtbl[i].ChemName, pihm->rttbl.prcp_conc[i]);
             }
         }
     }

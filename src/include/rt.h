@@ -84,7 +84,6 @@ typedef struct Chem_Data_structure
     int             NumFac;     /* Number of faces in the rt simulator        */
     int             conc_init;  /* concentration initialization type */
     int             SPCFlg;     /* speciation flg, 0 for total conc and 1 for pH */
-    int            *prepconcindex;  //
     double          CalPorosity;    // Porosity Calibration Coefficient, from Flux-PIHM */
     double          CalRate;    // 02.12 by Wei Zhi
     double          CalSSA;     // 02.12 by Wei Zhi
@@ -106,5 +105,4 @@ typedef struct Chem_Data_structure
     vol_conc       *Vcele;      // An array that stores the volumetric (vol) and chemical (conc) information of grid blocks
     face           *Flux;       // connections between grid blocks
     Debye_Huckel    DH;
-    tsdata_struct  *TSD_prepconc;   // Time series data of concentration in precipitation.
 } *Chem_Data;
