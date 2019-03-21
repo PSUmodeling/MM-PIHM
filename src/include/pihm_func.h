@@ -755,8 +755,8 @@ void            React(double, const chemtbl_struct [], const kintbl_struct [],
     const rttbl_struct *, ctrl_struct *ctrl, Chem_Data, vol_conc *);
 int             _React(double, const chemtbl_struct [], const kintbl_struct [],
     const rttbl_struct *, Chem_Data, vol_conc *);
-void            Lookup(FILE *, chemtbl_struct [], kintbl_struct [],
-    rttbl_struct *, Chem_Data);
+void            Lookup(FILE *, const calib_struct *, chemtbl_struct [],
+    kintbl_struct [], rttbl_struct *);
 int             Speciation(chemtbl_struct [], rttbl_struct *, Chem_Data, int, int);
 int             keymatch(const char *, const char *, double *, char **);
 int             SpeciationType(FILE *, char *);

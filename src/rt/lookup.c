@@ -4,8 +4,8 @@
 #define WORDS_LINE 40
 #define WORD_WIDTH 80
 
-void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
-    rttbl_struct *rttbl, Chem_Data CD)
+void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
+    kintbl_struct kintbl[], rttbl_struct *rttbl)
 {
     double          tmpval[WORDS_LINE];
     /* Kinetic reactions is currently only applicable to minerals */
@@ -234,7 +234,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                     PIHMprintf(VL_VERBOSE, " Keq = %6.4f \n", rttbl->Keq[i - rttbl->NumStc]);
 
                     rttbl->Keq[i - rttbl->NumStc] =
-                        tmpval[(int)tmpval[0] + 1] + CD->CalXsorption;
+                        tmpval[(int)tmpval[0] + 1] + cal->Xsorption;
                     PIHMprintf(VL_VERBOSE, " After calibration: Keq = %6.4f \n",
                         rttbl->Keq[i - rttbl->NumStc]);
                 }
@@ -293,10 +293,10 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                             PIHMprintf(VL_VERBOSE, " Rate is %f\n",
                                 kintbl[i].rate);
 
-                            kintbl[i].rate = tmpval[0] + CD->CalRate;
+                            kintbl[i].rate = tmpval[0] + cal->rate;
                             PIHMprintf(VL_VERBOSE,
-                                " After calibration: Rate is %f, CD->CalRate = %f \n",
-                                kintbl[i].rate, CD->CalRate);
+                                " After calibration: Rate is %f, cal->Rate = %f \n",
+                                kintbl[i].rate, cal->rate);
                         }
                         fgets(line, LINE_WIDTH, database);
                         keymatch(line, "NULL", tmpval, tmpstr);

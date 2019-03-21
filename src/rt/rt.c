@@ -77,12 +77,9 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
             pihm->chemtbl[i].itype);
     }
 
-    CD->CalPorosity = pihm->cal.porosity;
-    CD->CalRate = pihm->cal.rate;
     CD->CalSSA = pihm->cal.ssa;
     CD->CalPrcpconc = pihm->cal.prcpconc;
     CD->CalInitconc = pihm->cal.initconc;
-    CD->CalXsorption = pihm->cal.Xsorption;
 
     for (i = 0; i < NumSpc; i++)
     {
@@ -93,7 +90,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         }
     }
 
-    Lookup(fp, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, CD);
+    Lookup(fp, &pihm->cal, pihm->chemtbl, pihm->kintbl, &pihm->rttbl);
 
     /*
      * Apply calibration
