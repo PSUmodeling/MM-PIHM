@@ -482,11 +482,16 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                              * one species !! */
 
                             /* Require further elaboration after this !! */
+                            kintbl[i].dep_position[0] = -999;
                             for (k = 0; k < rttbl->NumStc; k++)
                             {
                                 if (strcmp(kintbl[i].dep_species[0],
                                         chemtbl[k].ChemName) == 0)
                                     kintbl[i].dep_position[0] = k;
+                            }
+                            if (kintbl[i].dep_position[0] == -999)
+                            {
+                                kintbl[i].num_dep = 0;
                             }
                             kintbl[i].dep_power[0] = tmpval[0];
                             fprintf(stderr, " Dependency: %s %f\n",
@@ -503,6 +508,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                             wrap(kintbl[i].biomass_species);
                             fprintf(stderr, " Biomass species: %s \n",
                                 kintbl[i].biomass_species);
+                            kintbl[i].biomass_position = -999;
                             for (k = 0; k < rttbl->NumStc; k++)
                             {
                                 if (strcmp(kintbl[i].biomass_species,
@@ -535,6 +541,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                                  * indexing */
                                 strcpy(kintbl[i].monod_species[mn], tmpstr[mn * 2 + 2]);
                                 wrap(kintbl[i].monod_species[mn]);
+                                kintbl[i].monod_position[mn] = -999;
                                 for (k = 0; k < rttbl->NumStc; k++)
                                 {
                                     if (strcmp(
@@ -568,6 +575,7 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
                                 strcpy(kintbl[i].inhib_species[in],
                                     tmpstr[in * 2 + 2]);
                                 wrap(kintbl[i].inhib_species[in]);
+                                kintbl[i].inhib_position[in] = -999;
                                 for (k = 0; k < rttbl->NumStc; k++)
                                 {
                                     if (strcmp(kintbl[i].inhib_species[in],
