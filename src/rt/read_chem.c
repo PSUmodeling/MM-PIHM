@@ -314,7 +314,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         }
         else
         {
-            PIHMprintf(VL_NORMAL, "  %-28s %g \n",
+            PIHMprintf(VL_VERBOSE, "  %-28s %g \n",
                 chemtbl[chem_ind].ChemName, conc);
 
             if (strcasecmp(chemtbl[chem_ind].ChemName, "pH") == 0)
@@ -342,7 +342,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
             loc_str, temp_str, &rttbl->pumps[i].Injection_rate,
             &rttbl->pumps[i].Injection_conc) != 4)
         {
-            PIHMprintf(VL_NORMAL, "Error reading pump information.\n");
+            PIHMprintf(VL_ERROR, "Error reading pump information.\n");
             PIHMexit(EXIT_FAILURE);
         }
 

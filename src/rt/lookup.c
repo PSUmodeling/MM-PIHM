@@ -20,8 +20,9 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         memset(tmpstr[i], 0, WORD_WIDTH);
     }
 
-    for (i = 0; i < rttbl->NumStc + rttbl->NumSsc; i++)
-        wrap(chemtbl[i].ChemName);
+    /*
+     * Find temperature point in databse
+     */
     rewind(database);
     fgets(line, LINE_WIDTH, database);
     while (keymatch(line, "'temperature points'", tmpval, tmpstr) != 1)
@@ -39,6 +40,10 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
             keq_position = i + 1;
         }
     }
+
+    /*
+     * Read Debye Huckel parameters from database
+     */
     while (keymatch(line, "'Debye-Huckel adh'", tmpval, tmpstr) != 1)
     {
         fgets(line, LINE_WIDTH, database);
@@ -59,6 +64,46 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         " Debye-Huckel Parameters set to A=%6.4f; B=%6.4f; b=%6.4f\n\n",
         rttbl->adh, rttbl->bdh, rttbl->bdt);
 
+
+    for (i = 0; i < MAXSPS; i++)
+    {
+        for (j = 0; j < MAXSPS; j++)
+        {
+            rttbl->Dependency[i][j] = 0.0;      /* NumSsc x NumSdc */
+            rttbl->Dep_kinetic[i][j] = 0.0;     /* (NumMkr + NumAkr) x NumStc */
+            rttbl->Dep_kinetic_all[i][j] = 0.0; /* NumMin x NumStc */
+            rttbl->Totalconc[i][j] = 0.0;       /* NumStc x (NumStc + NumSsc) */
+#if NOT_YET_IMPLEMENTED
+            rttbl->Totalconck[i][j] = 0.0;      /* NumStc x (NumStc + NumSsc) */
+#endif
+        }
+        /* Keqs of equilibrium/ kinetic and kinetic all */
+        rttbl->Keq[i] = 0.0;                    /* NumSsc */
+        rttbl->KeqKinect[i] = 0.0;              /* NumMkr + NumAkr */
+        rttbl->KeqKinect_all[i] = 0.0;          /* NumMin */
+    }
+
+    /*
+     * Update species parameters
+     */
+    for (i = 0; i < rttbl->NumStc + rttbl->NumSsc; i++)
+    {
+        if (strcmp(chemtbl[i].ChemName, "pH") == 0)
+        {
+            strcpy(chemtbl[i].ChemName, "H+");
+
+        }
+        wrap(chemtbl[i].ChemName);
+
+        chemtbl[i].DiffCoe = rttbl->DiffCoe;
+        chemtbl[i].DispCoe = rttbl->DispCoe;
+        chemtbl[i].Charge = 0.0;
+        chemtbl[i].SizeF = 1.0;
+    }
+
+    /*
+     * Read parameters for primary species
+     */
     rewind(database);
     fgets(line, LINE_WIDTH, database);
     while (keymatch(line, "'End of primary'", tmpval, tmpstr) != 1)
@@ -78,6 +123,10 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         }
         fgets(line, LINE_WIDTH, database);
     }
+
+    /*
+     * Read parameters for secondary species
+     */
     while (keymatch(line, "'End of secondary'", tmpval, tmpstr) != 1)
     {
         if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
@@ -115,6 +164,10 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         }
         fgets(line, LINE_WIDTH, database);
     }
+
+    /*
+     * Read parameters for minerals
+     */
     while (keymatch(line, "'End of minerals'", tmpval, tmpstr) != 1)
     {
         if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
@@ -170,6 +223,9 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         fgets(line, LINE_WIDTH, database);
     }
 
+    /*
+     * Build dependencies
+     */
     for (i = 0; i < rttbl->NumMkr + rttbl->NumAkr; i++)
     {
         PIHMprintf(VL_VERBOSE,
@@ -183,6 +239,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
                 rttbl->Dep_kinetic_all[kintbl[i].position - rttbl->NumStc + rttbl->NumMin][k];
         }
     }
+
     while (strcmp(line, "End of surface complexation\r\n") != 1)
     {
         if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
@@ -471,8 +528,67 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         }
         PIHMprintf(VL_VERBOSE, " Keq = %-6.2f\n", rttbl->KeqKinect[j]);
     }
+
+#if NOT_YET_IMPLEMENTED
+    /* Use calibration coefficient to produce new Keq values for
+     * 1) CO2, 2) other kinetic reaction */
+    double          Cal_PCO2 = 1.0;
+    double          Cal_Keq = 1.0;
+    for (i = 0; i < rttbl->NumAkr + rttbl->NumMkr; i++)
+    {
+        rttbl->KeqKinect[i] +=
+            (!strcmp( chemtbl[i + NumSpc + rttbl->NumAds + rttbl->NumCex].ChemName,
+            "'CO2(*g)'")) ? log10(Cal_PCO2) : log10(Cal_Keq);
+    }
+
+    PIHMprintf(VL_VERBOSE, "\n Kinetic Mass Matrx (calibrated Keq)! \n");
+    PIHMprintf(VL_VERBOSE, "%-15s", " ");
+    for (i = 0; i < rttbl->NumStc; i++)
+        PIHMprintf(VL_VERBOSE, "%-14s", chemtbl[i].ChemName);
+    PIHMprintf(VL_VERBOSE, "\n");
+    for (j = 0; j < rttbl->NumMkr + rttbl->NumAkr; j++)
+    {
+        PIHMprintf(VL_VERBOSE, " %-14s",
+            chemtbl[j + NumSpc + rttbl->NumAds + rttbl->NumCex].ChemName);
+        for (i = 0; i < rttbl->NumStc; i++)
+        {
+            PIHMprintf(VL_VERBOSE, "%-14.2f", rttbl->Dep_kinetic[j][i]);
+        }
+        PIHMprintf(VL_VERBOSE, " Keq = %-6.2f\n", rttbl->KeqKinect[j]);
+    }
+    PIHMprintf(VL_VERBOSE, "\n");
+#endif
+
+    PIHMprintf(VL_VERBOSE,
+        " \n Mass action species type determination (0: immobile, 1: mobile, 2: Mixed) \n");
+    for (i = 0; i < NumSpc; i++)
+    {
+        chemtbl[i].mtype = (chemtbl[i].itype == AQUEOUS) ?
+            MOBILE_MA : IMMOBILE_MA;
+
+        for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
+        {
+            chemtbl[i].mtype = (rttbl->Totalconc[i][j] != 0 &&
+                chemtbl[j].itype != chemtbl[i].mtype) ?
+                MIXED_MA : chemtbl[i].mtype;
+        }
+        PIHMprintf(VL_VERBOSE, " %12s\t%10d\n",
+            chemtbl[i].ChemName, chemtbl[i].mtype);
+    }
+
+    PIHMprintf(VL_VERBOSE,
+        " \n Individual species type determination "
+        "(1: aqueous, 2: adsorption, 3: ion exchange, 4: solid)\n");
+    for (i = 0; i < rttbl->NumStc + rttbl->NumSsc; i++)
+    {
+        PIHMprintf(VL_VERBOSE, " %12s\t%10d\n",
+            chemtbl[i].ChemName, chemtbl[i].itype);
+    }
+
     for (i = 0; i < WORDS_LINE; i++)
+    {
         free(tmpstr[i]);
+    }
     free(tmpstr);
 }
 

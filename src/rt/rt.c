@@ -37,59 +37,14 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
 
     ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.NumStc, CD->Vcele);
 
-    /*
-     * Initialize chemical parameters
-     */
-    for (i = 0; i < pihm->rttbl.NumStc + pihm->rttbl.NumSsc; i++)
-    {
-        pihm->chemtbl[i].DiffCoe = pihm->rttbl.DiffCoe;
-        pihm->chemtbl[i].DispCoe = pihm->rttbl.DispCoe;
-        pihm->chemtbl[i].Charge = 0.0;
-        pihm->chemtbl[i].SizeF = 1.0;
-    }
-
-    for (i = 0; i < MAXSPS; i++)
-    {
-        for (j = 0; j < MAXSPS; j++)
-        {
-            pihm->rttbl.Dependency[i][j] = 0.0;      /* NumSsc x NumSdc */
-            pihm->rttbl.Dep_kinetic[i][j] = 0.0;     /* (NumMkr + NumAkr) x NumStc */
-            pihm->rttbl.Dep_kinetic_all[i][j] = 0.0; /* NumMin x NumStc */
-            pihm->rttbl.Totalconc[i][j] = 0.0;       /* NumStc x (NumStc + NumSsc) */
-#if NOT_YET_IMPLEMENTED
-            pihm->rttbl.Totalconck[i][j] = 0.0;      /* NumStc x (NumStc + NumSsc) */
-#endif
-        }
-
-        /* Keqs of equilibrium/ kinetic and kinetic all */
-        pihm->rttbl.Keq[i] = 0.0;                    /* NumSsc */
-        pihm->rttbl.KeqKinect[i] = 0.0;              /* NumMkr + NumAkr */
-        pihm->rttbl.KeqKinect_all[i] = 0.0;          /* NumMin */
-    }
-
-    /* Primary species table */
-    PIHMprintf(VL_NORMAL,
-        "\n Primary species and their types: [1], aqueous; [2], adsorption; [3], cation exchange; [4], mineral. \n");
-    /* Number of total species in the rt simulator */
-    for (i = 0; i < pihm->rttbl.NumStc; i++)
-    {
-        PIHMprintf(VL_NORMAL, "  %-20s %10d\n", pihm->chemtbl[i].ChemName,
-            pihm->chemtbl[i].itype);
-    }
-
     CD->CalSSA = pihm->cal.ssa;
     CD->CalPrcpconc = pihm->cal.prcpconc;
     CD->CalInitconc = pihm->cal.initconc;
 
-    for (i = 0; i < NumSpc; i++)
-    {
-        if (strcmp(pihm->chemtbl[i].ChemName, "pH") == 0)
-        {
-            strcpy(pihm->chemtbl[i].ChemName, "H+");
-            speciation_flg = 1;
-        }
-    }
-
+    /*
+     * Look up database to find required parameters and dependencies for
+     * chemical species
+     */
     Lookup(fp, &pihm->cal, pihm->chemtbl, pihm->kintbl, &pihm->rttbl);
 
     /*
@@ -482,63 +437,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
 
     /* Update the concentration of mineral after get the molar volume of
      * mineral */
-
-    double          Cal_PCO2 = 1.0;
-    double          Cal_Keq = 1.0;
-    for (i = 0; i < pihm->rttbl.NumAkr + pihm->rttbl.NumMkr; i++)
-    {
-        pihm->rttbl.KeqKinect[i] += (!strcmp(
-            pihm->chemtbl[i + NumSpc + pihm->rttbl.NumAds + pihm->rttbl.NumCex].ChemName,
-            "'CO2(*g)'")) ?
-            log10(Cal_PCO2) : log10(Cal_Keq);
-    }
-
-    PIHMprintf(VL_NORMAL, "\n Kinetic Mass Matrx (calibrated Keq)! \n");
-    PIHMprintf(VL_NORMAL, "%-15s", " ");
-    for (i = 0; i < pihm->rttbl.NumStc; i++)
-        PIHMprintf(VL_NORMAL, "%-14s", pihm->chemtbl[i].ChemName);
-    PIHMprintf(VL_NORMAL, "\n");
-    for (j = 0; j < pihm->rttbl.NumMkr + pihm->rttbl.NumAkr; j++)
-    {
-        PIHMprintf(VL_NORMAL, " %-14s",
-            pihm->chemtbl[j + NumSpc + pihm->rttbl.NumAds + pihm->rttbl.NumCex].ChemName);
-        for (i = 0; i < pihm->rttbl.NumStc; i++)
-        {
-            PIHMprintf(VL_NORMAL, "%-14.2f", pihm->rttbl.Dep_kinetic[j][i]);
-        }
-        PIHMprintf(VL_NORMAL, " Keq = %-6.2f\n", pihm->rttbl.KeqKinect[j]);
-    }
-    PIHMprintf(VL_NORMAL, "\n");
-    /* Use calibration coefficient to produce new Keq values for
-     * 1) CO2, 2) other kinetic reaction */
-
-    PIHMprintf(VL_NORMAL,
-        " \n Mass action species type determination (0: immobile, 1: mobile, 2: Mixed) \n");
-    for (i = 0; i < NumSpc; i++)
-    {
-        pihm->chemtbl[i].mtype = (pihm->chemtbl[i].itype == AQUEOUS) ?
-             MOBILE_MA : IMMOBILE_MA;
-
-        for (j = 0; j < pihm->rttbl.NumStc + pihm->rttbl.NumSsc; j++)
-        {
-            if (pihm->rttbl.Totalconc[i][j] != 0 &&
-                pihm->chemtbl[j].itype != pihm->chemtbl[i].mtype)
-            {
-                pihm->chemtbl[i].mtype = MIXED_MA;
-            }
-        }
-        PIHMprintf(VL_NORMAL, " %12s\t%10d\n", pihm->chemtbl[i].ChemName,
-            pihm->chemtbl[i].mtype);
-    }
-
-    PIHMprintf(VL_NORMAL,
-        " \n Individual species type determination (1: aqueous, 2: adsorption, 3: ion exchange, 4: solid) \n");
-    for (i = 0; i < pihm->rttbl.NumStc + pihm->rttbl.NumSsc; i++)
-    {
-        PIHMprintf(VL_NORMAL, " %12s\t%10d\n", pihm->chemtbl[i].ChemName,
-            pihm->chemtbl[i].itype);
-    }
-
     for (i = 0; i < CD->NumVol; i++)
     {
         for (j = 0; j < pihm->rttbl.NumStc; j++)
@@ -581,9 +479,9 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     {
         for (i = 0; i < nelem; i++)
         {
-            Speciation(pihm->chemtbl, &pihm->rttbl, CD, RT_GW(i), speciation_flg);
+            Speciation(pihm->chemtbl, &pihm->rttbl, CD, RT_GW(i), 1);
 #if defined(_FBR_)
-            Speciation(CD, RT_FBR_GW(i), speciation_flg);
+            Speciation(CD, RT_FBR_GW(i), 1);
 #endif
         }
     }
