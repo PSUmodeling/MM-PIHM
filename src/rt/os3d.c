@@ -85,18 +85,14 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const chemtbl_struct chem
 
     if (Flux->BC == DISPERSION)    /* Only for soil flow (not river flow)*/
     {
+        /* Diffusion flux, effective diffusion coefficient  */
         diff_flux = chemtbl[spc_ind].DiffCoe *
             pow(Vcele[node_1].porosity, cementation);
-        /* Diffusion flux, effective diffusion coefficient  */
-        if (velocity < 0.0)
-        {
-            disp_flux = velocity * chemtbl[spc_ind].DispCoe;
-        }
-        else
-        {
-            disp_flux = -velocity * chemtbl[spc_ind].DispCoe;
-        }
+
+
         /* Longitudinal dispersion */
+        disp_flux = -fabs(velocity) * chemtbl[spc_ind].DispCoe;
+
         diff_flux = -diff_flux * inv_dist * diff_conc * area;
         /* Diffusion is in the opposite direction of conc gradient */
         disp_flux = disp_flux * inv_dist * diff_conc * area;
