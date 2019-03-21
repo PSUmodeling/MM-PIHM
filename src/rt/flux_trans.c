@@ -169,15 +169,15 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
                 int             ind;
 
                 ind = CD->prepconcindex[i] - 1;
-                if (CD->Precipitation.t_conc[ind] !=
+                if (pihm->rttbl.prcp_conc[ind] !=
                     CD->TSD_prepconc[0].value[i])
                 {
-                    CD->Precipitation.t_conc[ind] =
+                    pihm->rttbl.prcp_conc[ind] =
                         CD->TSD_prepconc[0].value[i];
                     PIHMprintf(VL_NORMAL,
                         "  %s in precipitation is changed to %6.4g\n",
                         pihm->chemtbl[ind].ChemName,
-                        CD->Precipitation.t_conc[ind]);
+                        pihm->rttbl.prcp_conc[ind]);
                 }
             }
         }
@@ -289,9 +289,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
         {
             CD->Vcele[PRCP_VOL - 1].t_conc[k] =
                 (strcmp(pihm->chemtbl[k].ChemName, "'DOC'") == 0) ?
-                CD->Precipitation.t_conc[k] * pihm->rttbl.Condensation *
+                pihm->rttbl.prcp_conc[k] * pihm->rttbl.Condensation *
                 CD->CalPrcpconc :
-                CD->Precipitation.t_conc[k] * pihm->rttbl.Condensation;
+                pihm->rttbl.prcp_conc[k] * pihm->rttbl.Condensation;
         }
     }
     else
@@ -311,9 +311,9 @@ void fluxtrans(int t, int stepsize, const pihm_struct pihm, Chem_Data CD)
     for (k = 0; k < pihm->rttbl.NumStc; k++)
     {
         CD->Vcele[BOUND_VOL - 1].t_conc[k] =
-            CD->Precipitation.t_conc[k] * pihm->rttbl.Condensation;
+            pihm->rttbl.prcp_conc[k] * pihm->rttbl.Condensation;
         CD->Vcele[BOUND_VOL - 1].p_conc[k] =
-            CD->Precipitation.t_conc[k] * pihm->rttbl.Condensation;
+            pihm->rttbl.prcp_conc[k] * pihm->rttbl.Condensation;
     }
 
     /*

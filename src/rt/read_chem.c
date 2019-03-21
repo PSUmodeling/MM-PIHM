@@ -14,6 +14,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     char            chemn[MAXSPS][MAXSTRING];
     int             p_type[MAXSPS];
     int             lno = 0;
+    double          conc;
     FILE           *chem_fp;
     FILE           *db_fp;
 
@@ -228,6 +229,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     /*
      * Primary species block
      */
+    PIHMprintf(VL_VERBOSE, "\n Primary species block\n");
     FindLine(chem_fp, "PRIMARY_SPECIES", &lno, chem_filen);
     for (i = 0; i < rttbl->NumStc; i++)
     {
@@ -246,6 +248,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     /*
      * Secondary_species block
      */
+    PIHMprintf(VL_VERBOSE, "\n Secondary species block\n");
     FindLine(chem_fp, "SECONDARY_SPECIES", &lno, chem_filen);
     for (i = 0; i < rttbl->NumSsc; i++)
     {
@@ -261,6 +264,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     /*
      * Minerals block
      */
+    PIHMprintf(VL_VERBOSE, "\n Minerals block\n");
     FindLine(chem_fp, "MINERALS", &lno, chem_filen);
     for (i = 0; i < rttbl->NumMkr; i++)
     {
@@ -294,26 +298,47 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     /*
-     * Output block
+     * Precipitation block
      */
-    NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "OUTPUT", &CD->NumBTC, 'i', chem_filen, lno);
-    CD->BTC_loc = (int *)malloc(CD->NumBTC * sizeof(int));
-    for (i = 0; i < CD->NumBTC; i++)
+    PIHMprintf(VL_VERBOSE, "\n Precipitation concentration block\n");
+    FindLine(chem_fp, "PRECIPITATION_CONC", &lno, chem_filen);
+    PIHMprintf(VL_VERBOSE, "  ---------------------------------\n");
+    PIHMprintf(VL_VERBOSE, "  The condition of precipitation is \n");
+    PIHMprintf(VL_VERBOSE, "  ---------------------------------\n");
+
+    for (i = 0; i < rttbl->NumStc; i++)
+    {
+        rttbl->prcp_conc[i] = ZERO;
+    }
+
+    for (i = 0; i < rttbl->NumStc; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
-        sscanf(cmdstr, "%d", &CD->BTC_loc[i]);
-    }
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL,
-            "  %d breakthrough points specified. \n", CD->NumBTC);
-        PIHMprintf(VL_NORMAL, "  --");
-        for (i = 0; i < CD->NumBTC; i++)
+        if (sscanf(cmdstr, "%s %lf", temp_str, &conc) != 2)
         {
-            PIHMprintf(VL_NORMAL, " Grid %d ", CD->BTC_loc[i] + 1);
+            PIHMprintf(VL_ERROR, "Error reading precipitation concentration "
+                "in %s near Line %d.\n", chem_filen, lno);
         }
-        PIHMprintf(VL_NORMAL, "are breakthrough points.\n\n");
+        chem_ind = FindChem(temp_str, chemtbl, rttbl->NumStc);
+        if (chem_ind < 0)
+        {
+            PIHMprintf(VL_ERROR, "Error finding chemical %s.\n", chemn[i]);
+            PIHMexit(EXIT_FAILURE);
+        }
+        else
+        {
+            PIHMprintf(VL_NORMAL, "  %-28s %g \n",
+                chemtbl[chem_ind].ChemName, conc);
+
+            if (strcasecmp(chemtbl[chem_ind].ChemName, "pH") == 0)
+            {
+                /* Change the pH of precipitation into total concentraion of H
+                 * Skip the speciation for rain */
+                conc = (conc < 7.0) ?  pow(10, -conc) : -pow(10, conc - 14);
+            }
+
+            rttbl->prcp_conc[chem_ind] = conc;
+        }
     }
 
     /* Pump block */
@@ -355,83 +380,28 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     /*
-     * Precipitation block
+     * Output block
      */
-    FindLine(chem_fp, "PRECIPITATION_CONC", &lno, chem_filen);
-
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL, " \n");
-        PIHMprintf(VL_NORMAL, "  ---------------------------------\n");
-        PIHMprintf(VL_NORMAL, "  The condition of precipitation is \n");
-        PIHMprintf(VL_NORMAL, "  ---------------------------------\n");
-    }
-
-    CD->Precipitation.t_conc =
-        (double *)malloc(rttbl->NumStc * sizeof(double));
-    CD->Precipitation.p_conc =
-        (double *)malloc(rttbl->NumStc * sizeof(double));
-    CD->Precipitation.p_para =
-        (double *)malloc(rttbl->NumStc * sizeof(double));
-    CD->Precipitation.s_conc = NULL;
-    for (i = 0; i < rttbl->NumStc; i++)
-    {
-        CD->Precipitation.t_conc[i] = ZERO;
-        CD->Precipitation.p_conc[i] = ZERO;
-    }
-
-    for (i = 0; i < rttbl->NumStc; i++)
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "OUTPUT", &CD->NumBTC, 'i', chem_filen, lno);
+    CD->BTC_loc = (int *)malloc(CD->NumBTC * sizeof(int));
+    for (i = 0; i < CD->NumBTC; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
-        chem_ind = FindChem(chemn[i], chemtbl, rttbl->NumStc);
-        if (chem_ind < 0)
-        {
-            PIHMprintf(VL_ERROR, "Error finding chemical %s.\n", chemn[i]);
-            PIHMexit(EXIT_FAILURE);
-        }
-
-        if (chemtbl[chem_ind].itype == AQUEOUS)
-        {
-            sscanf(cmdstr, "%*s %lf", &CD->Precipitation.t_conc[chem_ind]);
-            PIHMprintf(VL_NORMAL, "  %-28s %g \n",
-                chemtbl[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
-
-            if (strcasecmp(chemtbl[chem_ind].ChemName, "pH") == 0)
-            {
-                /* Change the pH of precipitation into total concentraion of H
-                 * Skip the speciation for rain */
-                CD->Precipitation.t_conc[chem_ind] =
-                    (CD->Precipitation.t_conc[chem_ind] < 7.0) ?
-                    pow(10, -CD->Precipitation.t_conc[chem_ind]) :
-                    -pow(10, CD->Precipitation.t_conc[chem_ind] - 14);
-            }
-        }
-        if (chemtbl[chem_ind].itype == MINERAL)
-        {
-            sscanf(cmdstr, "%*s %lf %s %lf", &CD->Precipitation.t_conc[chem_ind],
-                temp_str, &CD->Precipitation.p_para[chem_ind]);
-            PIHMprintf(VL_NORMAL,
-                "  mineral %-20s %6.4f \t specific surface area %6.4f\n",
-                chemtbl[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind],
-                CD->Precipitation.p_para[chem_ind]);
-        }
-        if (chemtbl[chem_ind].ChemName[0] == '>' ||
-            chemtbl[chem_ind].itype == ADSORPTION)
-        {
-            /* adsorptive sites and species start with > */
-            sscanf(cmdstr, "%*s %lf", &CD->Precipitation.t_conc[chem_ind]);
-            CD->Precipitation.p_para[chem_ind] = 0;
-            PIHMprintf(VL_NORMAL, " surface complex %s\t %6.4f\n",
-                chemtbl[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
-        }
-        if (chemtbl[chem_ind].itype == CATION_ECHG)
-        {
-            sscanf(cmdstr, "%*s %lf", &CD->Precipitation.t_conc[chem_ind]);
-            CD->Precipitation.p_para[chem_ind] = 0;
-            PIHMprintf(VL_NORMAL, " cation exchange %s\t %6.4f\n",
-                chemtbl[chem_ind].ChemName, CD->Precipitation.t_conc[chem_ind]);
-        }
+        sscanf(cmdstr, "%d", &CD->BTC_loc[i]);
     }
+    if (debug_mode)
+    {
+        PIHMprintf(VL_NORMAL,
+            "  %d breakthrough points specified. \n", CD->NumBTC);
+        PIHMprintf(VL_NORMAL, "  --");
+        for (i = 0; i < CD->NumBTC; i++)
+        {
+            PIHMprintf(VL_NORMAL, " Grid %d ", CD->BTC_loc[i] + 1);
+        }
+        PIHMprintf(VL_NORMAL, "are breakthrough points.\n\n");
+    }
+
 
     fclose(chem_fp);
     fclose(db_fp);

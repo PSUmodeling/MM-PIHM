@@ -121,7 +121,6 @@ typedef struct Chem_Data_structure
     double          rivd;       /* Stream discharge in cubic meter per day at the moment */
     double          riv;
     vol_conc       *Vcele;      // An array that stores the volumetric (vol) and chemical (conc) information of grid blocks
-    vol_conc        Precipitation;  // The cell that stores the concentrations of chemicals in the rain.
     face           *Flux;       // connections between grid blocks
     Debye_Huckel    DH;
     Pump           *pumps;      // injection/ groundwater contribution

@@ -586,6 +586,7 @@ typedef struct rttbl_struct
                                              * represents connectivity of pores
                                              */
     double          Temperature;            /* temperature of the moment */
+    double          prcp_conc[MAXSPS];
 } rttbl_struct;
 #endif
 
