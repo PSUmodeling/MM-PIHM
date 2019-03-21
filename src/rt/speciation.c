@@ -36,7 +36,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
     {
         /* Using log10 conc as the primary unknowns. Works better because
          * negative numbers are not a problem. */
-        tmpconc[i] = log10(CD->Vcele[cell].p_conc[i]);
+        tmpconc[i] = log10(CD->Vcele[cell].chms.p_conc[i]);
     }
 
     for (i = 0; i < rttbl->NumSsc; i++)
@@ -56,7 +56,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
 
     for (i = 0; i < rttbl->NumStc; i++)
     {
-        current_totconc[i] = CD->Vcele[cell].t_conc[i];
+        current_totconc[i] = CD->Vcele[cell].chms.t_conc[i];
     }
 
     if (speciation_flg == 1)
@@ -99,7 +99,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                     if (strcmp(chemtbl[i].ChemName, "'H+'") == 0)
                     {
                         tmpconc[i] =
-                            log10(CD->Vcele[cell].p_actv[i]) - gamma[i];
+                            log10(CD->Vcele[cell].chms.p_actv[i]) - gamma[i];
                     }
                 }
                 /* gamma stores log10gamma[i] */
@@ -124,8 +124,8 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                 }
                 totconc[i] = tmpval;
                 if (strcmp(chemtbl[i].ChemName, "'H+'") == 0)
-                    CD->Vcele[cell].t_conc[i] = totconc[i];
-                residue[i] = tmpval - CD->Vcele[cell].t_conc[i];
+                    CD->Vcele[cell].chms.t_conc[i] = totconc[i];
+                residue[i] = tmpval - CD->Vcele[cell].chms.t_conc[i];
                 /* update the total concentration of H+ for later stage RT at
                  * initialization */
             }
@@ -156,7 +156,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                                 tmpval +=
                                     rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                             }
-                            residue_t[i] = tmpval - CD->Vcele[cell].t_conc[i];
+                            residue_t[i] = tmpval - CD->Vcele[cell].chms.t_conc[i];
                             jcb[col][row] =
                                 (residue_t[i] - residue[i]) / (tmpprb);
                             row++;
@@ -244,7 +244,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                     tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                 }
                 totconc[i] = tmpval;
-                residue[i] = tmpval - CD->Vcele[cell].t_conc[i];
+                residue[i] = tmpval - CD->Vcele[cell].chms.t_conc[i];
             }
 
             for (k = 0; k < rttbl->NumStc; k++)
@@ -266,7 +266,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
                     {
                         tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                     }
-                    residue_t[i] = tmpval - CD->Vcele[cell].t_conc[i];
+                    residue_t[i] = tmpval - CD->Vcele[cell].chms.t_conc[i];
                     jcb[k][i] = (residue_t[i] - residue[i]) / (tmpprb);
                 }
                 tmpconc[k] -= tmpprb;
@@ -311,7 +311,7 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
             tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
         }
         totconc[i] = tmpval;
-        residue[i] = tmpval - CD->Vcele[cell].t_conc[i];
+        residue[i] = tmpval - CD->Vcele[cell].chms.t_conc[i];
         error[i] = residue[i] / totconc[i];
     }
     for (i = 0; i < rttbl->NumStc + rttbl->NumSsc; i++)
@@ -320,18 +320,18 @@ int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int 
         {
             if (chemtbl[i].itype == MINERAL)
             {
-                CD->Vcele[cell].p_conc[i] = pow(10, tmpconc[i]);
-                CD->Vcele[cell].p_actv[i] = 1.0;
+                CD->Vcele[cell].chms.p_conc[i] = pow(10, tmpconc[i]);
+                CD->Vcele[cell].chms.p_actv[i] = 1.0;
             }
             else
             {
-                CD->Vcele[cell].p_conc[i] = pow(10, tmpconc[i]);
-                CD->Vcele[cell].p_actv[i] = pow(10, (tmpconc[i] + gamma[i]));
+                CD->Vcele[cell].chms.p_conc[i] = pow(10, tmpconc[i]);
+                CD->Vcele[cell].chms.p_actv[i] = pow(10, (tmpconc[i] + gamma[i]));
             }
         }
         else
         {
-            CD->Vcele[cell].s_conc[i - rttbl->NumStc] = pow(10, tmpconc[i]);
+            CD->Vcele[cell].chms.s_conc[i - rttbl->NumStc] = pow(10, tmpconc[i]);
 #if TEMP_DISABLED
             CD->Vcele[cell].s_actv[i - rttbl->NumStc] =
                 pow(10, (tmpconc[i] + gamma[i]));

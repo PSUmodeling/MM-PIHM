@@ -57,7 +57,7 @@ void ReportError(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, vol_
     for (i = 0; i < rttbl->NumStc; i++)
     {
         fprintf(stderr, "\t%20s\t%8.4f\t%8.4f\t\n", chemtbl[i].ChemName,
-            cell.t_conc[i], log10(cell.t_conc[i]));
+            cell.chms.t_conc[i], log10(cell.chms.t_conc[i]));
     }
     fprintf(stderr, "\n");
 }
@@ -260,7 +260,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     for (i = 0; i < rttbl->NumMin; i++)
     {
         area[i] = Vcele->p_para[i + rttbl->NumStc - rttbl->NumMin] *
-            Vcele->p_conc[i + rttbl->NumStc - rttbl->NumMin] *
+            Vcele->chms.p_conc[i + rttbl->NumStc - rttbl->NumMin] *
             chemtbl[i + rttbl->NumStc - rttbl->NumMin].MolarMass;
     }
 
@@ -292,7 +292,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             IAP[i] = 0.0;
             for (j = 0; j < rttbl->NumStc; j++)
             {
-                IAP[i] += log10(Vcele->p_actv[j]) *
+                IAP[i] += log10(Vcele->chms.p_actv[j]) *
                     rttbl->Dep_kinetic[min_pos][j];
             }
             IAP[i] = pow(10, IAP[i]);
@@ -300,7 +300,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             dependency[i] = 1.0;
             for (k = 0; k < kintbl[i].num_dep; k++)
                 dependency[i] *=
-                    pow(Vcele->p_actv[kintbl[i].dep_position[k]],
+                    pow(Vcele->chms.p_actv[kintbl[i].dep_position[k]],
                     kintbl[i].dep_power[k]);
             /* Calculate the predicted rate depending on the type of rate law!  */
             Rate_pre[i] = area[min_pos] * (pow(10, kintbl[i].rate)) *
@@ -319,8 +319,8 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             for (mn = 0; mn < kintbl[i].num_monod; mn++)
             {
                 monodterm *=
-                    Vcele->p_conc[kintbl[i].monod_position[mn]] /
-                    (Vcele->p_conc[kintbl[i].monod_position[mn]] +
+                    Vcele->chms.p_conc[kintbl[i].monod_position[mn]] /
+                    (Vcele->chms.p_conc[kintbl[i].monod_position[mn]] +
                     kintbl[i].monod_para[mn]);
             }
 
@@ -328,7 +328,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             {
                 inhibterm *= kintbl[i].inhib_para[in] /
                     (kintbl[i].inhib_para[in] +
-                    Vcele->p_conc[kintbl[i].inhib_position[in]]);
+                    Vcele->chms.p_conc[kintbl[i].inhib_position[in]]);
             }
 
             /* Based on CrunchTope */
@@ -346,7 +346,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         min_pos = kintbl[i].position - rttbl->NumStc + rttbl->NumMin;
         if (Rate_pre[i] < 0.0)
         {
-            if (Vcele->p_conc[min_pos + rttbl->NumStc - rttbl->NumMin] < 1.0E-8) /* mineral cutoff when mineral is disappearing */
+            if (Vcele->chms.p_conc[min_pos + rttbl->NumStc - rttbl->NumMin] < 1.0E-8) /* mineral cutoff when mineral is disappearing */
                 area[min_pos] = 0.0;
         }
     }
@@ -369,11 +369,11 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
 
     for (i = 0; i < rttbl->NumStc; i++)
     {
-        tmpconc[i] = log10(Vcele->p_conc[i]);
+        tmpconc[i] = log10(Vcele->chms.p_conc[i]);
     }
     for (i = 0; i < rttbl->NumSsc; i++)
     {
-        tmpconc[i + rttbl->NumStc] = log10(Vcele->s_conc[i]);
+        tmpconc[i + rttbl->NumStc] = log10(Vcele->chms.s_conc[i]);
     }
     tot_cec = 0.0;
     for (i = 0; i < num_spe; i++)
@@ -479,8 +479,8 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                 for (mn = 0; mn < kintbl[i].num_monod; mn++)
                 {
                     monodterm *=
-                        Vcele->p_conc[kintbl[i].monod_position[mn]] /
-                        (Vcele->p_conc[kintbl[i].monod_position[mn]] +
+                        Vcele->chms.p_conc[kintbl[i].monod_position[mn]] /
+                        (Vcele->chms.p_conc[kintbl[i].monod_position[mn]] +
                         kintbl[i].monod_para[mn]);
                 }
 
@@ -489,7 +489,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                     inhibterm *=
                         kintbl[i].inhib_para[in] /
                         (kintbl[i].inhib_para[in] +
-                        Vcele->p_conc[kintbl[i].inhib_position[in]]);
+                        Vcele->chms.p_conc[kintbl[i].inhib_position[in]]);
                 }
 
                 /* Based on CrunchTope */
@@ -519,7 +519,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                 tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
             }
             totconc[i] = tmpval;
-            residue[i] = tmpval - (Vcele->t_conc[i] +
+            residue[i] = tmpval - (Vcele->chms.t_conc[i] +
                 (Rate_spe[i] + Rate_spet[i]) * stepsize * 0.5);
         }
         if (control % SKIP_JACOB == 0)  /* update jacobian every the other iteration */
@@ -543,7 +543,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                     {
                         tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                     }
-                    residue_t[i] = tmpval - (Vcele->t_conc[i] +
+                    residue_t[i] = tmpval - (Vcele->chms.t_conc[i] +
                         (Rate_spe[i] + Rate_spet[i]) * stepsize * 0.5);
                     jcb[k][i] = (residue_t[i] - residue[i]) * tmpprb_inv;
                 }
@@ -605,7 +605,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
         }
         totconc[i] = tmpval;
-        residue[i] = tmpval - Vcele->t_conc[i];
+        residue[i] = tmpval - Vcele->chms.t_conc[i];
         error[i] = residue[i] / totconc[i];
     }
     for (i = 0; i < rttbl->NumStc + rttbl->NumSsc; i++)
@@ -614,21 +614,21 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         {
             if (chemtbl[i].itype == MINERAL)
             {
-                Vcele->t_conc[i] +=
+                Vcele->chms.t_conc[i] +=
                     (Rate_spe[i] + Rate_spet[i]) * stepsize * 0.5;
-                Vcele->p_actv[i] = 1.0;
-                Vcele->p_conc[i] = Vcele->t_conc[i];
+                Vcele->chms.p_actv[i] = 1.0;
+                Vcele->chms.p_conc[i] = Vcele->chms.t_conc[i];
             }
             else
             {
-                Vcele->p_conc[i] = pow(10, tmpconc[i]);
-                Vcele->p_actv[i] = pow(10, (tmpconc[i] + gamma[i]));
-                Vcele->t_conc[i] = totconc[i];
+                Vcele->chms.p_conc[i] = pow(10, tmpconc[i]);
+                Vcele->chms.p_actv[i] = pow(10, (tmpconc[i] + gamma[i]));
+                Vcele->chms.t_conc[i] = totconc[i];
             }
         }
         else
         {
-            Vcele->s_conc[i - rttbl->NumStc] = pow(10, tmpconc[i]);
+            Vcele->chms.s_conc[i - rttbl->NumStc] = pow(10, tmpconc[i]);
 #if TEMP_DISABLED
             Vcele->s_actv[i - rttbl->NumStc] =
                 pow(10, (tmpconc[i] + gamma[i]));

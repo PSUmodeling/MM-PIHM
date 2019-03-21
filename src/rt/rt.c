@@ -141,13 +141,9 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     for (i = 0; i < CD->NumVol; i++)
     {
         CD->Vcele[i].index = i + 1;
-        CD->Vcele[i].t_conc = (double *)calloc(pihm->rttbl.NumStc, sizeof(double));
         CD->Vcele[i].t_mole = (double *)calloc(NumSpc, sizeof(double));
         CD->Vcele[i].transp_flux = (double *)calloc(NumSpc, sizeof(double));
         CD->Vcele[i].react_flux = (double *)calloc(NumSpc, sizeof(double));
-        CD->Vcele[i].p_conc = (double *)calloc(pihm->rttbl.NumStc, sizeof(double));
-        CD->Vcele[i].s_conc = (double *)calloc(pihm->rttbl.NumSsc, sizeof(double));
-        CD->Vcele[i].p_actv = (double *)calloc(pihm->rttbl.NumStc, sizeof(double));
         CD->Vcele[i].p_para = (double *)calloc(pihm->rttbl.NumStc, sizeof(double));
         CD->Vcele[i].log10_pconc = (double *)calloc(pihm->rttbl.NumStc, sizeof(double));
         CD->Vcele[i].log10_sconc = (double *)calloc(pihm->rttbl.NumSsc, sizeof(double));
@@ -159,48 +155,48 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         {
             if (strcmp(pihm->chemtbl[j].ChemName, "'H+'") == 0)
             {
-                CD->Vcele[i].t_conc[j] = CD->Vcele[i].ic.t_conc[j];
-                CD->Vcele[i].p_actv[j] = CD->Vcele[i].t_conc[j];
-                CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
+                CD->Vcele[i].chms.t_conc[j] = CD->Vcele[i].ic.t_conc[j];
+                CD->Vcele[i].chms.p_actv[j] = CD->Vcele[i].chms.t_conc[j];
+                CD->Vcele[i].chms.p_conc[j] = CD->Vcele[i].chms.t_conc[j];
             }
             else if (pihm->chemtbl[j].itype == MINERAL)
             {
-                CD->Vcele[i].t_conc[j] = CD->Vcele[i].ic.t_conc[j];
+                CD->Vcele[i].chms.t_conc[j] = CD->Vcele[i].ic.t_conc[j];
                 /* Update the concentration of mineral after get the molar volume of
                  * mineral */
-                CD->Vcele[i].t_conc[j] *= (pihm->rttbl.RelMin == 0) ?
+                CD->Vcele[i].chms.t_conc[j] *= (pihm->rttbl.RelMin == 0) ?
                     /* Absolute mineral volume fraction */
                     1000.0 / pihm->chemtbl[j].MolarVolume / CD->Vcele[i].porosity :
                     /* Relative mineral volume fraction */
                     (1.0 - CD->Vcele[i].porosity + INFTYSMALL) * 1000.0 /
                     pihm->chemtbl[j].MolarVolume / CD->Vcele[i].porosity;
-                CD->Vcele[i].p_actv[j] = 1.0;
-                CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
+                CD->Vcele[i].chms.p_actv[j] = 1.0;
+                CD->Vcele[i].chms.p_conc[j] = CD->Vcele[i].chms.t_conc[j];
                 CD->Vcele[i].p_para[j] = CD->Vcele[i].ic.p_para[j];
             }
             else if ((pihm->chemtbl[j].itype == CATION_ECHG) ||
                 (pihm->chemtbl[j].itype == ADSORPTION))
             {
-                CD->Vcele[i].t_conc[j] = CD->Vcele[i].ic.t_conc[j];
-                CD->Vcele[i].p_actv[j] = CD->Vcele[i].t_conc[j] * 0.5;
+                CD->Vcele[i].chms.t_conc[j] = CD->Vcele[i].ic.t_conc[j];
+                CD->Vcele[i].chms.p_actv[j] = CD->Vcele[i].chms.t_conc[j] * 0.5;
                 /* Change the unit of CEC (eq/g) into C(ion site)
                  * (eq/L porous space), assuming density of solid is always
                  * 2650 g/L solid */
-                CD->Vcele[i].t_conc[j] *= (1.0 - CD->Vcele[i].porosity) * 2650.0;
-                CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
+                CD->Vcele[i].chms.t_conc[j] *= (1.0 - CD->Vcele[i].porosity) * 2650.0;
+                CD->Vcele[i].chms.p_conc[j] = CD->Vcele[i].chms.t_conc[j];
             }
             else
             {
-                CD->Vcele[i].t_conc[j] = CD->Vcele[i].ic.t_conc[j];
-                CD->Vcele[i].p_actv[j] = CD->Vcele[i].t_conc[j] * 0.5;
-                CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j] * 0.5;
+                CD->Vcele[i].chms.t_conc[j] = CD->Vcele[i].ic.t_conc[j];
+                CD->Vcele[i].chms.p_actv[j] = CD->Vcele[i].chms.t_conc[j] * 0.5;
+                CD->Vcele[i].chms.p_conc[j] = CD->Vcele[i].chms.t_conc[j] * 0.5;
                 CD->Vcele[i].p_para[j] = CD->Vcele[i].ic.p_para[j];
             }
         }
 
         for (j = 0; j < pihm->rttbl.NumSsc; j++)
         {
-            CD->Vcele[i].s_conc[j] = ZERO;
+            CD->Vcele[i].chms.s_conc[j] = ZERO;
         }
     }
 
@@ -494,9 +490,9 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         {
             if (pihm->chemtbl[k].itype != AQUEOUS)
             {
-                CD->Vcele[RT_RIVER(i)].t_conc[k] = 1.0E-20;
-                CD->Vcele[RT_RIVER(i)].p_conc[k] = 1.0E-20;
-                CD->Vcele[RT_RIVER(i)].p_actv[k] = 1.0E-20;
+                CD->Vcele[RT_RIVER(i)].chms.t_conc[k] = 1.0E-20;
+                CD->Vcele[RT_RIVER(i)].chms.p_conc[k] = 1.0E-20;
+                CD->Vcele[RT_RIVER(i)].chms.p_actv[k] = 1.0E-20;
             }
         }
     }
@@ -509,12 +505,12 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         for (k = 0; k < NumSpc; k++)
         {
             CD->Vcele[RT_UNSAT(i)].t_mole[k] =
-                CD->Vcele[RT_UNSAT(i)].t_conc[k] * CD->Vcele[RT_UNSAT(i)].vol * CD->Vcele[RT_UNSAT(i)].porosity;
+                CD->Vcele[RT_UNSAT(i)].chms.t_conc[k] * CD->Vcele[RT_UNSAT(i)].vol * CD->Vcele[RT_UNSAT(i)].porosity;
 
             NV_Ith(CV_Y, UNSAT_MOLE(i, k)) = CD->Vcele[RT_UNSAT(i)].t_mole[k];
 
             CD->Vcele[RT_GW(i)].t_mole[k] =
-                CD->Vcele[RT_GW(i)].t_conc[k] * CD->Vcele[RT_GW(i)].vol * CD->Vcele[RT_GW(i)].porosity;
+                CD->Vcele[RT_GW(i)].chms.t_conc[k] * CD->Vcele[RT_GW(i)].vol * CD->Vcele[RT_GW(i)].porosity;
 
             NV_Ith(CV_Y, GW_MOLE(i, k)) = CD->Vcele[RT_GW(i)].t_mole[k];
         }
@@ -528,7 +524,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         for (k = 0; k < NumSpc; k++)
         {
             CD->Vcele[RT_RIVER(i)].t_mole[k] =
-                CD->Vcele[RT_RIVER(i)].t_conc[k] * CD->Vcele[RT_RIVER(i)].vol * CD->Vcele[RT_RIVER(i)].porosity;
+                CD->Vcele[RT_RIVER(i)].chms.t_conc[k] * CD->Vcele[RT_RIVER(i)].vol * CD->Vcele[RT_RIVER(i)].porosity;
 
             NV_Ith(CV_Y, RIVER_MOLE(i, k)) = CD->Vcele[RT_RIVER(i)].t_mole[k];
         }
@@ -592,12 +588,8 @@ void FreeChem(Chem_Data CD)
 //    // CD->Vcele
 //    for (i = 0; i < CD->NumVol; i++)
 //    {
-//        free(CD->Vcele[i].t_conc);
-//        free(CD->Vcele[i].p_conc);
-//        free(CD->Vcele[i].s_conc);
 //        free(CD->Vcele[i].log10_pconc);
 //        free(CD->Vcele[i].log10_sconc);
-//        free(CD->Vcele[i].p_actv);
 //        free(CD->Vcele[i].p_para);
 //        free(CD->Vcele[i].btcv_pconc);
 //    }
@@ -620,8 +612,8 @@ void FreeChem(Chem_Data CD)
 //    free(CD->TSD_prepconc[0].value);
 //    free(CD->TSD_prepconc);
 //
-//    free(CD->Precipitation.t_conc);
-//    free(CD->Precipitation.p_conc);
+//    free(CD->Precipitation.chms.t_conc);
+//    free(CD->Precipitation.chms.p_conc);
 //    free(CD->Precipitation.p_para);
 //
 }

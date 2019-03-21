@@ -82,7 +82,7 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const chemtbl_struct chem
     area = Flux->s_area;
     inv_dist = 1.0 / distance;
     /* Difference in concentration, * in M/kg w */
-    diff_conc = Vcele[node_2].t_conc[spc_ind] - Vcele[node_1].t_conc[spc_ind];
+    diff_conc = Vcele[node_2].chms.t_conc[spc_ind] - Vcele[node_1].chms.t_conc[spc_ind];
     diff_flux = 0.0;
     disp_flux = 0.0;
 
@@ -112,59 +112,12 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const chemtbl_struct chem
     temp_conc = 0.0;
     temp_conc_trib = 0.0;
 
-    if (TVDFlg == 0)
-    {
-        temp_conc = (flux_t > 0) ?
-            Vcele[node_2].t_conc[spc_ind] : Vcele[node_1].t_conc[spc_ind];
+    temp_conc = (flux_t > 0) ?
+        Vcele[node_2].chms.t_conc[spc_ind] : Vcele[node_1].chms.t_conc[spc_ind];
 
-        /* Add tributary */
-        temp_conc_trib = (flux_t_trib > 0) ?
-            Vcele[node_5_trib].t_conc[spc_ind] : 0.0;
-    }
-    //else if (TVDFlg == 1)
-    //{
-    //    if (flux_t > 0)
-    //    {
-    //        if (node_4 > 0)
-    //        {
-    //            r_ = (Vcele[node_2].t_conc[spc_ind] -
-    //                Vcele[node_4].t_conc[spc_ind] + EPSILON) /
-    //                (Vcele[node_1].t_conc[spc_ind] -
-    //                Vcele[node_2].t_conc[spc_ind] + EPSILON);
-    //            beta_ = max(0, min(min(2, 2 * r_), (2 + r_) / 3));
-    //            temp_conc = Vcele[node_2].t_conc[spc_ind] + beta_ *
-    //                (Vcele[node_1].t_conc[spc_ind] -
-    //                Vcele[node_2].t_conc[spc_ind]) * 0.5;
-    //        }
-    //        else
-    //        {
-    //            temp_conc = Vcele[node_2].t_conc[spc_ind];
-    //        }
-    //    }
-    //    else
-    //    {
-    //        if (node_3 > 0)
-    //        {
-    //            r_ = (Vcele[node_1].t_conc[spc_ind] -
-    //                Vcele[node_3].t_conc[spc_ind] +
-    //                EPSILON) / (Vcele[node_2].t_conc[spc_ind] -
-    //                Vcele[node_1].t_conc[spc_ind] + EPSILON);
-    //            beta_ = max(0, min(min(2, 2 * r_), (2 + r_) / 3));
-    //            temp_conc =
-    //                Vcele[node_1].t_conc[spc_ind] +
-    //                beta_ * (Vcele[node_2].t_conc[spc_ind] -
-    //                Vcele[node_1].t_conc[spc_ind]) * 0.5;
-    //        }
-    //        else
-    //        {
-    //            temp_conc = Vcele[node_1].t_conc[spc_ind];
-    //        }
-    //    }
-
-    //    /* Add tributary */
-    //    temp_conc_trib = (flux_t_trib > 0) ?
-    //        Vcele[node_5_trib].t_conc[spc_ind] : 0.0;
-    //}
+    /* Add tributary */
+    temp_conc_trib = (flux_t_trib > 0) ?
+        Vcele[node_5_trib].chms.t_conc[spc_ind] : 0.0;
 
     /* Advective flux */
     temp_dconc += temp_conc * flux_t + temp_conc_trib * flux_t_trib;
