@@ -65,7 +65,6 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const chemtbl_struct chem
     double          diff_conc;
     double          diff_flux, disp_flux;
     double          temp_dconc;
-    double          temp_dconc_trib;
     double          temp_conc;
     double          temp_conc_trib;
 
@@ -87,21 +86,17 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const chemtbl_struct chem
     {
         /* Diffusion flux, effective diffusion coefficient  */
         diff_flux = chemtbl[spc_ind].DiffCoe *
-            pow(Vcele[node_1].porosity, cementation);
-
+            pow(Vcele[node_1].porosity, cementation) * inv_dist * diff_conc *
+            area;
 
         /* Longitudinal dispersion */
-        disp_flux = -fabs(velocity) * chemtbl[spc_ind].DispCoe;
-
-        diff_flux = -diff_flux * inv_dist * diff_conc * area;
-        /* Diffusion is in the opposite direction of conc gradient */
-        disp_flux = disp_flux * inv_dist * diff_conc * area;
+        disp_flux = fabs(flux_t) * chemtbl[spc_ind].DispCoe * inv_dist *
+            diff_conc;
     }
 
     /* Use temp_conc to store the concentration at the surfaces
      * Use temp_dconc to store the concentration changes at the cell */
     temp_dconc = 0.0;
-    temp_dconc_trib = 0.0;
     temp_conc = 0.0;
     temp_conc_trib = 0.0;
 
@@ -117,7 +112,7 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const chemtbl_struct chem
 
     if (Flux->BC == DISPERSION)
     {
-        temp_dconc -= diff_flux + disp_flux;
+        temp_dconc += diff_flux + disp_flux;
     }
 
     return temp_dconc;
