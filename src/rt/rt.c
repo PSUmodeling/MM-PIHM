@@ -229,10 +229,8 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
             if (pihm->elem[i].nabr[j] > 0)
             {
                 elemlo = pihm->elem[i].nabr[j];
-                elemuu = upstream(pihm->elem[i],
-                    pihm->elem[pihm->elem[i].nabr[j] - 1], pihm);
-                elemll = upstream(pihm->elem[pihm->elem[i].nabr[j] - 1],
-                    pihm->elem[i], pihm);
+                elemuu = 0;
+                elemll = 0;
 
                 /* Initialize GW fluxes */
                 InitFlux(CD->Vcele[RT_GW(i)].index,
@@ -332,10 +330,8 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
                     }
                 }
 
-                elemuu = upstream(pihm->elem[i],
-                    pihm->elem[elemlo - 1], pihm);
-                elemll = upstream(pihm->elem[elemlo - 1],
-                    pihm->elem[i], pihm);
+                elemuu = 0;
+                elemll = 0;
 
                 /* Initialize GW fluxes */
                 InitFlux(CD->Vcele[RT_FBR_GW(i)].index,
@@ -533,51 +529,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     }
 
     fclose(fp);
-}
-
-int upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
-{
-    /* Locate the upstream grid of up -> lo flow */
-    /* Require verification                      */
-    /* only determines points in triangular elements */
-    double          x_, y_;
-    int             i;
-
-    x_ = 2 * up.topo.x - lo.topo.x;
-    y_ = 2 * up.topo.y - lo.topo.y;
-
-    for (i = 0; i < nelem; i++)
-    {
-        double          x_a, x_b, x_c;
-        double          y_a, y_b, y_c;
-        double          dot00, dot01, dot02, dot11, dot12, u, v, invDenom;
-
-        /* Find point lies in which triangular element, a very interesting
-         * method */
-        if ((i != (up.ind - 1)) && (i != (lo.ind - 1)))
-        {
-            x_a = pihm->meshtbl.x[pihm->elem[i].node[0] - 1];
-            x_b = pihm->meshtbl.x[pihm->elem[i].node[1] - 1];
-            x_c = pihm->meshtbl.x[pihm->elem[i].node[2] - 1];
-            y_a = pihm->meshtbl.y[pihm->elem[i].node[0] - 1];
-            y_b = pihm->meshtbl.y[pihm->elem[i].node[1] - 1];
-            y_c = pihm->meshtbl.y[pihm->elem[i].node[2] - 1];
-            dot00 = (x_c - x_a) * (x_c - x_a) + (y_c - y_a) * (y_c - y_a);
-            dot01 = (x_c - x_a) * (x_b - x_a) + (y_c - y_a) * (y_b - y_a);
-            dot02 = (x_c - x_a) * (x_ - x_a) + (y_c - y_a) * (y_ - y_a);
-            dot11 = (x_b - x_a) * (x_b - x_a) + (y_b - y_a) * (y_b - y_a);
-            dot12 = (x_b - x_a) * (x_ - x_a) + (y_b - y_a) * (y_ - y_a);
-            invDenom = 1.0 / (dot00 * dot11 - dot01 * dot01);
-            u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-            v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-            if ((u > 0.0) && (v > 0.0) && (u + v < 1.0))
-            {
-                return pihm->elem[i].ind;
-            }
-        }
-    }
-
-    return 0;
 }
 
 void FreeChem(Chem_Data CD)

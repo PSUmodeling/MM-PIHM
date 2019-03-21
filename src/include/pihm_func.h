@@ -761,7 +761,6 @@ int             Speciation(const chemtbl_struct [], const rttbl_struct *, int,
     chmstate_struct *);
 int             keymatch(const char *, const char *, double *, char **);
 int             SpeciationType(FILE *, char *);
-void            AdptTime(const chemtbl_struct [], const rttbl_struct *, Chem_Data, double);
 void            Reset(Chem_Data, int);
 void            InitialChemFile(char *, char *, int, int *);
 void            PrintChem(char *, char *, Chem_Data, int);

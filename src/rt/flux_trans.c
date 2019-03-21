@@ -286,7 +286,35 @@ void fluxtrans(int stepsize, const pihm_struct pihm, Chem_Data CD)
     /*
      * Transport
      */
-    AdptTime(pihm->chemtbl, &pihm->rttbl, CD, (double)stepsize);
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+        int             j;
+
+        for (j = 0; j < NumSpc; j++)
+        {
+            if (pihm->chemtbl[j].mtype == MIXED_MA)
+            {
+                for (k = 0; k < pihm->rttbl.NumSsc; k++)
+                {
+                    if ((pihm->rttbl.Totalconc[j][k + pihm->rttbl.NumStc] != 0) &&
+                        (pihm->chemtbl[k + pihm->rttbl.NumStc].itype != AQUEOUS))
+                    {
+                        CD->Vcele[RT_GW(i)].chms.t_conc[j] -=
+                            pihm->rttbl.Totalconc[j][k + pihm->rttbl.NumStc] *
+                            CD->Vcele[RT_GW(i)].chms.s_conc[k];
+                        CD->Vcele[RT_UNSAT(i)].chms.t_conc[j] -=
+                            pihm->rttbl.Totalconc[j][k + pihm->rttbl.NumStc] *
+                            CD->Vcele[RT_UNSAT(i)].chms.s_conc[k];
+                    }
+                }
+            }
+        }
+    }
+
+    OS3D(stepsize, pihm->chemtbl, &pihm->rttbl, CD);
 }
 
 void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
@@ -606,49 +634,3 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
         }
     }
 }
-
-void AdptTime(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    Chem_Data CD, double stepsize)
-{
-    int             i, k;
-
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-    for (i = 0; i < nelem; i++)
-    {
-        int             j;
-
-        for (j = 0; j < NumSpc; j++)
-        {
-            if (chemtbl[j].mtype == MIXED_MA)
-            {
-                for (k = 0; k < rttbl->NumSsc; k++)
-                {
-                    if ((rttbl->Totalconc[j][k + rttbl->NumStc] != 0) &&
-                        (chemtbl[k + rttbl->NumStc].itype != AQUEOUS))
-                    {
-                        CD->Vcele[RT_GW(i)].chms.t_conc[j] -=
-                            rttbl->Totalconc[j][k + rttbl->NumStc] *
-                            CD->Vcele[RT_GW(i)].chms.s_conc[k];
-                        CD->Vcele[RT_UNSAT(i)].chms.t_conc[j] -=
-                            rttbl->Totalconc[j][k + rttbl->NumStc] *
-                            CD->Vcele[RT_UNSAT(i)].chms.s_conc[k];
-                    }
-                }
-            }
-        }
-    }
-
-    OS3D(stepsize, chemtbl, rttbl, CD);
-
-    /* Total concentration except for adsorptions have been transported and
-     * adjusted by the volume. For example, if no transport but volume
-     * increased by rain, the concentration need be decreased. However, the
-     * adsorption part has not been treated yet, so they need be adjusted by
-     * the volume change.
-     * The porosity is not changed during the period, so the ratio between
-     * pore space before and after OS3D is the same ratio between volume of
-     * porous media before and after OS3D. */
-}
-
