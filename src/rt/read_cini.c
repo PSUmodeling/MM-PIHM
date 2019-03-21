@@ -90,6 +90,11 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
             sscanf(cmdstr, "%s", temp_str);
 
             ind = FindChem(temp_str, chemtbl, NumStc);
+            if (ind < 0)
+            {
+                PIHMprintf(VL_ERROR, "Error finding chemical %s.\n", temp_str);
+                PIHMexit(EXIT_FAILURE);
+            }
 
             if (chemtbl[ind].itype == MINERAL)
             {

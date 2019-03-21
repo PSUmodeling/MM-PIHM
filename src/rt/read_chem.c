@@ -382,6 +382,11 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     {
         NextLine(chem_fp, cmdstr, &lno);
         chem_ind = FindChem(chemn[i], chemtbl, rttbl->NumStc);
+        if (chem_ind < 0)
+        {
+            PIHMprintf(VL_ERROR, "Error finding chemical %s.\n", chemn[i]);
+            PIHMexit(EXIT_FAILURE);
+        }
 
         if (chemtbl[chem_ind].itype == AQUEOUS)
         {

@@ -957,11 +957,5 @@ int FindChem(const char chemn[MAXSTRING], const chemtbl_struct  chemtbl[], int n
         }
     }
 
-    if (ind < 0)
-    {
-        PIHMprintf(VL_ERROR, "Error finding chemical %s.\n");
-        PIHMexit(EXIT_FAILURE);
-    }
-
     return ind;
 }
