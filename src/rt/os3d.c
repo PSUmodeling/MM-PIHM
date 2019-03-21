@@ -55,7 +55,7 @@ void OS3D(double stepsize, const chemtbl_struct chemtbl[],
 double Dconc(const face *Flux, const vol_conc Vcele[], const chemtbl_struct chemtbl[],
     double cementation, int TVDFlg, int spc_ind)
 {
-    int             node_1, node_2, node_3, node_4;
+    int             node_1, node_2;
     int             node_5_trib;
     double          flux_t, flux_t_trib;
     double          distance;
@@ -68,12 +68,9 @@ double Dconc(const face *Flux, const vol_conc Vcele[], const chemtbl_struct chem
     double          temp_dconc_trib;
     double          temp_conc;
     double          temp_conc_trib;
-    double          r_, beta_;
 
     node_1 = Flux->nodeup - 1;
     node_2 = Flux->nodelo - 1;
-    node_3 = Flux->nodeuu - 1;
-    node_4 = Flux->nodell - 1;
     node_5_trib = Flux->node_trib - 1;
     flux_t = -Flux->flux;
     flux_t_trib = -Flux->flux_trib;
