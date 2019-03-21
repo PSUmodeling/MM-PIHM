@@ -500,28 +500,9 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         for (i = 0; i < nelem; i++)
         {
             Speciation(pihm->chemtbl, &pihm->rttbl, CD, RT_GW(i), 1);
+            Speciation(pihm->chemtbl, &pihm->rttbl, CD, RT_UNSAT(i), 1);
 #if defined(_FBR_)
             Speciation(CD, RT_FBR_GW(i), 1);
-#endif
-        }
-    }
-
-    /* Initialize unsaturated zone concentrations to be the same as in saturated
-     * zone */
-    for (i = 0; i < nelem; i++)
-    {
-        for (k = 0; k < pihm->rttbl.NumStc; k++)
-        {
-            CD->Vcele[RT_UNSAT(i)].t_conc[k] = CD->Vcele[RT_GW(i)].t_conc[k];
-            CD->Vcele[RT_UNSAT(i)].p_conc[k] = CD->Vcele[RT_GW(i)].p_conc[k];
-            CD->Vcele[RT_UNSAT(i)].p_actv[k] = CD->Vcele[RT_GW(i)].p_actv[k];
-#if defined(_FBR_)
-            CD->Vcele[RT_FBR_UNSAT(i)].t_conc[k] = CD->Vcele[RT_GW(i)].t_conc[k];
-            CD->Vcele[RT_FBR_UNSAT(i)].p_conc[k] = CD->Vcele[RT_GW(i)].p_conc[k];
-            CD->Vcele[RT_FBR_UNSAT(i)].p_actv[k] = CD->Vcele[RT_GW(i)].p_actv[k];
-            CD->Vcele[RT_FBR_GW(i)].t_conc[k] = CD->Vcele[RT_GW(i)].t_conc[k];
-            CD->Vcele[RT_FBR_GW(i)].p_conc[k] = CD->Vcele[RT_GW(i)].p_conc[k];
-            CD->Vcele[RT_FBR_GW(i)].p_actv[k] = CD->Vcele[RT_GW(i)].p_actv[k];
 #endif
         }
     }
