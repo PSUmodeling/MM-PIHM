@@ -160,24 +160,44 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
             if (strcmp(pihm->chemtbl[j].ChemName, "'H+'") == 0)
             {
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].ic.t_conc[j];
+                CD->Vcele[i].p_actv[j] = CD->Vcele[i].t_conc[j];
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
-                CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
             }
             else if (pihm->chemtbl[j].itype == MINERAL)
             {
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].ic.t_conc[j];
-                CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
+                /* Update the concentration of mineral after get the molar volume of
+                 * mineral */
+                CD->Vcele[i].t_conc[j] *= (pihm->rttbl.RelMin == 0) ?
+                    /* Absolute mineral volume fraction */
+                    1000.0 / pihm->chemtbl[j].MolarVolume / CD->Vcele[i].porosity :
+                    /* Relative mineral volume fraction */
+                    (1.0 - CD->Vcele[i].porosity + INFTYSMALL) * 1000.0 /
+                    pihm->chemtbl[j].MolarVolume / CD->Vcele[i].porosity;
                 CD->Vcele[i].p_actv[j] = 1.0;
+                CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
                 CD->Vcele[i].p_para[j] = CD->Vcele[i].ic.p_para[j];
+            }
+            else if ((pihm->chemtbl[j].itype == CATION_ECHG) ||
+                (pihm->chemtbl[j].itype == ADSORPTION))
+            {
+                CD->Vcele[i].t_conc[j] = CD->Vcele[i].ic.t_conc[j];
+                CD->Vcele[i].p_actv[j] = CD->Vcele[i].t_conc[j] * 0.5;
+                /* Change the unit of CEC (eq/g) into C(ion site)
+                 * (eq/L porous space), assuming density of solid is always
+                 * 2650 g/L solid */
+                CD->Vcele[i].t_conc[j] *= (1.0 - CD->Vcele[i].porosity) * 2650.0;
+                CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
             }
             else
             {
                 CD->Vcele[i].t_conc[j] = CD->Vcele[i].ic.t_conc[j];
+                CD->Vcele[i].p_actv[j] = CD->Vcele[i].t_conc[j] * 0.5;
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j] * 0.5;
-                CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
                 CD->Vcele[i].p_para[j] = CD->Vcele[i].ic.p_para[j];
             }
         }
+
         for (j = 0; j < pihm->rttbl.NumSsc; j++)
         {
             CD->Vcele[i].s_conc[j] = ZERO;
@@ -453,46 +473,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
                                  * UNSAT-UNSAT, GW-UNSAT, UNSAT-GW */
         CD->Flux[k].flux_trib = 0.0;
         CD->Flux[k].s_area = 0.0;
-    }
-
-    /* Update the concentration of mineral after get the molar volume of
-     * mineral */
-    for (i = 0; i < CD->NumVol; i++)
-    {
-        for (j = 0; j < pihm->rttbl.NumStc; j++)
-        {
-            if (pihm->chemtbl[j].itype == MINERAL)
-            {
-                if (pihm->rttbl.RelMin == 0)
-                {
-                    /* Absolute mineral volume fraction */
-                    CD->Vcele[i].t_conc[j] =
-                        CD->Vcele[i].t_conc[j] * 1000 /
-                        pihm->chemtbl[j].MolarVolume / CD->Vcele[i].porosity;
-                    CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
-                }
-                if (pihm->rttbl.RelMin == 1)
-                {
-                    /* Relative mineral volume fraction */
-                    /* Porosity can be 1.0 so the relative fraction option needs
-                     * a small modification */
-                    CD->Vcele[i].t_conc[j] = CD->Vcele[i].t_conc[j] *
-                        (1 - CD->Vcele[i].porosity + INFTYSMALL) * 1000 /
-                        pihm->chemtbl[j].MolarVolume / CD->Vcele[i].porosity;
-                    CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
-                }
-            }
-            if ((pihm->chemtbl[j].itype == CATION_ECHG) ||
-                (pihm->chemtbl[j].itype == ADSORPTION))
-            {
-                /* Change the unit of CEC (eq/g) into C(ion site)
-                 * (eq/L porous space), assuming density of solid is always
-                 * 2650 g/L solid */
-                CD->Vcele[i].t_conc[j] =
-                    CD->Vcele[i].t_conc[j] * (1 - CD->Vcele[i].porosity) * 2650;
-                CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
-            }
-        }
     }
 
     if (!pihm->rttbl.RecFlg)
