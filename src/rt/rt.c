@@ -93,7 +93,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         }
     }
 
-    CD->SPCFlg = speciation_flg;
     Lookup(fp, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, CD);
 
     /*
@@ -183,8 +182,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
 
         for (j = 0; j < pihm->rttbl.NumStc; j++)
         {
-            if (speciation_flg == 1 &&
-                strcmp(pihm->chemtbl[j].ChemName, "'H+'") == 0)
+            if (strcmp(pihm->chemtbl[j].ChemName, "'H+'") == 0)
             {
                 CD->Vcele[i].p_conc[j] = pow(10,
                     -(CD->Vcele[i].ic.t_conc[j]));
@@ -587,18 +585,16 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         }
     }
 
-    CD->SPCFlg = 1;
     if (!pihm->rttbl.RecFlg)
     {
         for (i = 0; i < nelem; i++)
         {
-            Speciation(pihm->chemtbl, &pihm->rttbl, CD, RT_GW(i));
+            Speciation(pihm->chemtbl, &pihm->rttbl, CD, RT_GW(i), speciation_flg);
 #if defined(_FBR_)
-            Speciation(CD, RT_FBR_GW(i));
+            Speciation(CD, RT_FBR_GW(i), speciation_flg);
 #endif
         }
     }
-    CD->SPCFlg = 0;
 
     /* Initialize unsaturated zone concentrations to be the same as in saturated
      * zone */

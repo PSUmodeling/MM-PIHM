@@ -486,8 +486,6 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
     /* Every hour */
     if ((t - pihm->ctrl.starttime) % 3600 == 0)
     {
-        CD->SPCFlg = 0;
-
         if (!pihm->rttbl.RecFlg)
         {
 #if defined(_OPENMP)
@@ -522,7 +520,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                     t_conc0[k] = CD->Vcele[RT_RIVER(i)].t_conc[k];
                 }
 
-                Speciation(pihm->chemtbl, &pihm->rttbl, CD, RT_RIVER(i));
+                Speciation(pihm->chemtbl, &pihm->rttbl, CD, RT_RIVER(i), 0);
 
                 for (k = 0; k < NumSpc; k++)
                 {
@@ -541,7 +539,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
             {
                 if (CD->Vcele[i].type != VIRTUAL_VOL)
                 {
-                    Speciation(pihm->chemtbl, &pihm->rttbl, CD, i);
+                    Speciation(pihm->chemtbl, &pihm->rttbl, CD, i, 0);
                 }
             }
         }

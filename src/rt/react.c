@@ -644,12 +644,12 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
     free(tmpstr);
 }
 
-int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int cell)
+int Speciation(chemtbl_struct chemtbl[], rttbl_struct *rttbl, Chem_Data CD, int cell,
+    int speciation_flg)
 {
     /* if speciation flg = 1, pH is defined
      * if speciation flg = 0, all defined value is total concentration */
-    int             i, j, k, speciation_flg = CD->SPCFlg, num_spe =
-        rttbl->NumStc + rttbl->NumSsc;
+    int             i, j, k, num_spe = rttbl->NumStc + rttbl->NumSsc;
     double         *residue, *residue_t, *tmpconc, *totconc;
     double          tmpval, tmpprb = 1E-2, I, Iroot;
     double         *error, *gamma, *Keq, *current_totconc, adh, bdh, bdt;
