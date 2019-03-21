@@ -599,15 +599,14 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
     {
         if (pihm->river[i].down < 0)
         {
-            CD->riv = pihm->river[i].wf.rivflow[1] * 86400;
+            CD->riv = pihm->river[i].wf.rivflow[1];
         }
     }
 
     if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
     {
-        CD->rivd = CD->riv / 1440;  /* Averaging the sum of 1440 mins for a
-                                     * daily discharge, rivFlx1 */
-        CD->riv = 0;
+        CD->rivd = CD->riv / (DAYINSEC / pihm->ctrl.stepsize);
+        //CD->riv = 0;
     }
 
     for (k = 0; k < pihm->rttbl.NumBTC; k++)
@@ -622,9 +621,9 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                     j == pihm->rttbl.pumps[0].Position_Species)
                 {
                     CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].btcv_pconc[j] =
-                        log10((CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].p_conc[j] * CD->rivd +
-                        pihm->rttbl.pumps[0].Injection_conc * pihm->rttbl.pumps[0].flow_rate) /
-                        (CD->rivd + pihm->rttbl.pumps[0].flow_rate));
+                        log10((CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].p_conc[j] * CD->riv +
+                        pihm->rttbl.pumps[0].Injection_conc * 1.0E-3 * pihm->rttbl.pumps[0].flow_rate) /
+                        (CD->riv + pihm->rttbl.pumps[0].flow_rate));
                 }
                 else
                 {
