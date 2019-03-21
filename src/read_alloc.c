@@ -123,8 +123,8 @@ void ReadAlloc(pihm_struct pihm, Chem_Data rt)
 
 #if defined(_RT_)
     /* Read RT input file */
-    ReadChem(pihm->filename.chem, pihm->filename.cdbs, pihm, pihm->chemtbl,
-        pihm->kintbl, &pihm->rttbl, &pihm->ctrl, rt);
+    ReadChem(pihm->filename.chem, pihm->filename.cdbs, pihm->chemtbl,
+        pihm->kintbl, &pihm->rttbl, &pihm->ctrl);
 
     if (pihm->ctrl.PrpFlg == 2)
     {

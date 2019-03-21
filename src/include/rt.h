@@ -84,10 +84,7 @@ typedef struct Chem_Data_structure
     int             NumFac;     /* Number of faces in the rt simulator        */
     int             conc_init;  /* concentration initialization type */
     int             SPCFlg;     /* speciation flg, 0 for total conc and 1 for pH */
-    int             EffAds;     /* Keywords to control the usage of effective adsorption model */
-    int             SUFEFF;     /* surface effect */
     int            *prepconcindex;  //
-    double          CnntVelo;   // velocity of minimum connected cells */
     double          CalPorosity;    // Porosity Calibration Coefficient, from Flux-PIHM */
     double          CalRate;    // 02.12 by Wei Zhi
     double          CalSSA;     // 02.12 by Wei Zhi

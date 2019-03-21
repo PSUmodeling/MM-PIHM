@@ -1051,6 +1051,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     double         *residue, *residue_t, *tmpconc, *totconc, *area, *error,
         *gamma, *Keq, *Rate_pre, *IAP, *dependency, *Rate_spe, *Rate_spe_t,
         *Rate_spet;
+    const int       SUFEFF = 1;
     residue = (double *)malloc(stc * sizeof(double));
     residue_t = (double *)malloc(stc * sizeof(double));
     tmpconc = (double *)malloc(num_spe * sizeof(double));
@@ -1087,7 +1088,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             chemtbl[i + rttbl->NumStc - rttbl->NumMin].MolarMass;
     }
 
-    if (CD->SUFEFF)
+    if (SUFEFF)
     {
         if (Vcele->sat < 1.0)
         {

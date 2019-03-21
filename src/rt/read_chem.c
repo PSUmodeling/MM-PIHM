@@ -3,11 +3,10 @@
 #define ZERO   1E-20
 
 void ReadChem(const char chem_filen[], const char cdbs_filen[],
-    const pihm_struct pihm, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
-    rttbl_struct *rttbl, ctrl_struct *ctrl, Chem_Data CD)
+    chemtbl_struct chemtbl[], kintbl_struct kintbl[], rttbl_struct *rttbl,
+    ctrl_struct *ctrl)
 {
-    int             i, j;
-    int             match;
+    int             i;
     int             chem_ind;
     char            cmdstr[MAXSTRING];
     char            temp_str[MAXSTRING];
@@ -25,19 +24,6 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
 
     db_fp = fopen(cdbs_filen, "r");
     CheckFile(db_fp, cdbs_filen);
-
-    /* Default control variable if not found in input file */
-    rttbl->Cementation = 1.0;
-    rttbl->ACTmod = 0;
-    rttbl->TEMcpl = 0;
-    CD->EffAds = 0;
-    rttbl->RelMin = 0;
-    ctrl->AvgScl = 10;
-    rttbl->Condensation = 1.0;
-    rttbl->NumBTC = 0;
-    rttbl->NumPUMP = 0;
-    CD->SUFEFF = 1;
-    CD->CnntVelo = 0.01;
 
     /*
      * Runtime block
@@ -394,6 +380,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     /*
      * Output block
      */
+    PIHMprintf(VL_VERBOSE, "\n Output block\n");
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "OUTPUT", &rttbl->NumBTC, 'i', chem_filen, lno);
     PIHMprintf(VL_VERBOSE,
