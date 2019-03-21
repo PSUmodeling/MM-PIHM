@@ -410,6 +410,16 @@ void Lookup(FILE *database, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
         fgets(line, LINE_WIDTH, database);
     }
 
+    for (i = 0; i < MAXSPS; i++)
+    {
+        for (j = 0; j < MAXDEP; j++)
+        {
+            kintbl[i].dep_position[j] = 0;
+            kintbl[i].monod_position[j] = 0;
+            kintbl[i].inhib_position[j] = 0;
+        }
+    }
+
     for (i = 0; i < rttbl->NumMkr; i++)
     {
         rewind(database);

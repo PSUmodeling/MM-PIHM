@@ -262,17 +262,6 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
      * Minerals block
      */
     FindLine(chem_fp, "MINERALS", &lno, chem_filen);
-
-    for (i = 0; i < MAXSPS; i++)
-    {
-        for (j = 0; j < MAXDEP; j++)
-        {
-            kintbl[i].dep_position[j] = 0;
-            kintbl[i].monod_position[j] = 0;
-            kintbl[i].inhib_position[j] = 0;
-        }
-    }
-
     for (i = 0; i < rttbl->NumMkr; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
