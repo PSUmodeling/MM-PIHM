@@ -345,9 +345,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     /*
      * Pump block
      */
-    CD->CalGwinflux = pihm->cal.gwinflux;
     PIHMprintf(VL_VERBOSE, "\n Pump block\n");
-
     NextLine(chem_fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "PUMP", &rttbl->NumPUMP, 'i', chem_filen, lno);
     rttbl->pumps = (pump_struct *) malloc(rttbl->NumPUMP * sizeof(pump_struct));
@@ -383,9 +381,6 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         rttbl->pumps[i].Injection_conc *= 1.0E3;
         rttbl->pumps[i].flow_rate =
             rttbl->pumps[i].Injection_rate / rttbl->pumps[i].Injection_conc;
-
-        rttbl->pumps[i].Injection_rate *= CD->CalGwinflux;
-        rttbl->pumps[i].flow_rate *= CD->CalGwinflux;
 
         PIHMprintf(VL_VERBOSE,
             "  -- Rate %g M s-1 of '%s' (pos: %d) at Grid '%d' with a concentration of %g M m-3.\n",

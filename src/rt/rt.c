@@ -125,7 +125,12 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     }
 
 
-    /* End of reading input files */
+
+    /*
+     * Apply calibration
+     */
+    pihm->rttbl.pumps[0].Injection_rate *= pihm->cal.gwinflux;
+    pihm->rttbl.pumps[0].flow_rate *= pihm->cal.gwinflux;
 
 
     /* Initializing volumetric parameters, inherit from PIHM

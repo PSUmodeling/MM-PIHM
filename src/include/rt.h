@@ -91,7 +91,6 @@ typedef struct Chem_Data_structure
     double          CalPorosity;    // Porosity Calibration Coefficient, from Flux-PIHM */
     double          CalRate;    // 02.12 by Wei Zhi
     double          CalSSA;     // 02.12 by Wei Zhi
-    double          CalGwinflux;    // 02.12 by Wei Zhi
     double          CalPrcpconc;    // 02.12 by Wei Zhi
     double          CalInitconc;    // 02.12 by Wei Zhi
     double          CalXsorption;   // 03.06 by Wei Zhi
