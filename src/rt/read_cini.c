@@ -98,8 +98,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
 
             if (chemtbl[ind].itype == MINERAL)
             {
-                match = sscanf(cmdstr, "%*s %lf %*s %lf", &conc[i][ind], &ssa[i][ind]);
-                if (match != 2)
+                if (sscanf(cmdstr, "%*s %lf %*s %lf", &conc[i][ind], &ssa[i][ind]) !=2 )
                 {
                     PIHMprintf(VL_ERROR,
                         "Error reading initial condition in %s at Line %d.\n",
@@ -108,13 +107,15 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
             }
             else
             {
-                match = sscanf(cmdstr, "%*s %lf", &conc[i][ind]);
-                if (match != 1)
+                if (sscanf(cmdstr, "%*s %lf", &conc[i][ind]) != 1)
                 {
                     PIHMprintf(VL_ERROR,
                         "Error reading initial condition in %s at Line %d.\n",
                         filen, lno);
                 }
+
+                conc[i][ind] = (strcmp(chemtbl[ind].ChemName, "pH") == 0) ?
+                    pow(10, -conc[i][ind]) : conc[i][ind];
             }
         }
     }

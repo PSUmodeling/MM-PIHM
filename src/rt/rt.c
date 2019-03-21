@@ -184,31 +184,26 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         {
             if (strcmp(pihm->chemtbl[j].ChemName, "'H+'") == 0)
             {
-                CD->Vcele[i].p_conc[j] = pow(10,
-                    -(CD->Vcele[i].ic.t_conc[j]));
-                CD->Vcele[i].t_conc[j] = CD->Vcele[i].p_conc[j];
+                CD->Vcele[i].t_conc[j] = CD->Vcele[i].ic.t_conc[j];
+                CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
             }
             else if (pihm->chemtbl[j].itype == MINERAL)
             {
-                CD->Vcele[i].t_conc[j] =
-                    CD->Vcele[i].ic.t_conc[j];
+                CD->Vcele[i].t_conc[j] = CD->Vcele[i].ic.t_conc[j];
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j];
                 CD->Vcele[i].p_actv[j] = 1.0;
-                CD->Vcele[i].p_para[j] =
-                    CD->Vcele[i].ic.p_para[j];
+                CD->Vcele[i].p_para[j] = CD->Vcele[i].ic.p_para[j];
             }
             else
             {
-                CD->Vcele[i].t_conc[j] =
-                    CD->Vcele[i].ic.t_conc[j];
+                CD->Vcele[i].t_conc[j] = CD->Vcele[i].ic.t_conc[j];
                 CD->Vcele[i].t_conc[j] *=
                     (strcmp(pihm->chemtbl[j].ChemName, "'DOC'") == 0) ?
                     CD->CalInitconc : 1.0;
                 CD->Vcele[i].p_conc[j] = CD->Vcele[i].t_conc[j] * 0.5;
                 CD->Vcele[i].p_actv[j] = CD->Vcele[i].p_conc[j];
-                CD->Vcele[i].p_para[j] =
-                    CD->Vcele[i].ic.p_para[j];
+                CD->Vcele[i].p_para[j] = CD->Vcele[i].ic.p_para[j];
             }
         }
         for (j = 0; j < pihm->rttbl.NumSsc; j++)
