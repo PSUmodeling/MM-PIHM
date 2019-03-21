@@ -13,24 +13,17 @@
 #define WORD_WIDTH 80
 #define INFTYSMALL  1E-6
 
-void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
-    Chem_Data CD, N_Vector CV_Y)
+void InitChem(const char cdbs_filen[], const char cini_filen[],
+    pihm_struct pihm, Chem_Data CD, N_Vector CV_Y)
 {
     int             i, j, k;
     int             speciation_flg = 0;
     int             PRCP_VOL;
     int             BOUND_VOL;
+    FILE           *fp;
 
-    assert(pihm != NULL);
-
-    FILE           *database = fopen(pihm->filename.cdbs, "r");
-
-    if (database == NULL)
-    {
-        fprintf(stderr, "\n  Fatal Error: %s.cdbs does not exist! \n",
-            filename);
-        exit(1);
-    }
+    fp = fopen(cdbs_filen, "r");
+    CheckFile(fp, cdbs_filen);
 
     /*
      * Begin updating variables
@@ -535,7 +528,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
     }
 
     CD->SPCFlg = speciation_flg;
-    Lookup(database, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, CD);
+    Lookup(fp, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, CD);
     /* Update the concentration of mineral after get the molar volume of
      * mineral */
 
@@ -713,7 +706,7 @@ void InitChem(char *filename, const char cini_filen[], const pihm_struct pihm,
         }
     }
 
-    fclose(database);
+    fclose(fp);
 }
 
 int upstream(elem_struct up, elem_struct lo, const pihm_struct pihm)
