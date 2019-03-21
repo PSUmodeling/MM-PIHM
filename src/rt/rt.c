@@ -20,6 +20,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     int             speciation_flg = 0;
     int             PRCP_VOL;
     int             BOUND_VOL;
+    int             chem_ind;
     FILE           *fp;
 
     fp = fopen(cdbs_filen, "r");
@@ -36,8 +37,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     CD->Vcele = (vol_conc *) malloc(CD->NumVol * sizeof(vol_conc));
 
     ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.NumStc, CD->Vcele);
-
-    CD->CalPrcpconc = pihm->cal.prcpconc;
 
     /*
      * Look up database to find required parameters and dependencies for
@@ -56,11 +55,27 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         for (k = 0; k < pihm->rttbl.NumStc; k++)
         {
             CD->Vcele[i].ic.p_para[k] *= pihm->cal.ssa;
-            CD->Vcele[i].ic.t_conc[k] *=
-                (strcmp(pihm->chemtbl[k].ChemName, "'DOC'") == 0) ?
-                pihm->cal.initconc : 1.0;
         }
     }
+
+    chem_ind = FindChem("'DOC'", pihm->chemtbl, pihm->rttbl.NumStc);
+    if (chem_ind >= 0)
+    {
+        for (i = 0; i < CD->NumVol; i++)
+        {
+            CD->Vcele[i].ic.t_conc[chem_ind] *= pihm->cal.initconc;
+        }
+
+        pihm->rttbl.prcp_conc[chem_ind] *= pihm->cal.prcpconc;
+        if (pihm->ctrl.PrpFlg == 2)
+        {
+            for (i = 0; i < pihm->forc.TSD_prepconc.length; i++)
+            {
+                pihm->forc.TSD_prepconc.data[i][chem_ind] *= pihm->cal.prcpconc;
+            }
+        }
+    }
+
     /* Initializing volumetric parameters, inherit from PIHM
      * That is, if PIHM is started from a hot start, rt is also
      * initialized with the hot data */

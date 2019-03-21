@@ -258,9 +258,6 @@ void fluxtrans(int stepsize, const pihm_struct pihm, Chem_Data CD)
         for (k = 0; k < NumSpc; k++)
         {
             CD->Vcele[PRCP_VOL - 1].t_conc[k] =
-                (strcmp(pihm->chemtbl[k].ChemName, "'DOC'") == 0) ?
-                pihm->rttbl.prcp_conc[k] * pihm->rttbl.Condensation *
-                CD->CalPrcpconc :
                 pihm->rttbl.prcp_conc[k] * pihm->rttbl.Condensation;
         }
     }
