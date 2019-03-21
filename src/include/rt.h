@@ -86,8 +86,6 @@ typedef struct Chem_Data_structure
     int             SPCFlg;     /* speciation flg, 0 for total conc and 1 for pH */
     int             EffAds;     /* Keywords to control the usage of effective adsorption model */
     int             SUFEFF;     /* surface effect */
-    int             NumBTC;     /* Number of breakthrough points */
-    int            *BTC_loc;    /* Array of locations of breakthrough points */
     int            *prepconcindex;  //
     double          CnntVelo;   // velocity of minimum connected cells */
     double          CalPorosity;    // Porosity Calibration Coefficient, from Flux-PIHM */

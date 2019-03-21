@@ -610,24 +610,32 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
         CD->riv = 0;
     }
 
-    for (k = 0; k < CD->NumBTC; k++)
+    for (k = 0; k < pihm->rttbl.NumBTC; k++)
     {
         int             j;
 
         for (j = 0; j < pihm->rttbl.NumStc; j++)
         {
-            if ((CD->BTC_loc[k] >= -pihm->rttbl.pumps[0].Pump_Location - 1) &&
-                (j == pihm->rttbl.pumps[0].Position_Species))
+            if (pihm->rttbl.BTC_loc[k] < 0)
             {
-                CD->Vcele[CD->BTC_loc[k]].btcv_pconc[j] =
-                    log10((CD->Vcele[CD->BTC_loc[k]].p_conc[j] * CD->rivd +
-                    pihm->rttbl.pumps[0].Injection_conc * pihm->rttbl.pumps[0].flow_rate) /
-                    (CD->rivd + pihm->rttbl.pumps[0].flow_rate));
+                if (-pihm->rttbl.BTC_loc[k] >= -pihm->rttbl.pumps[0].Pump_Location &&
+                    j == pihm->rttbl.pumps[0].Position_Species)
+                {
+                    CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].btcv_pconc[j] =
+                        log10((CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].p_conc[j] * CD->rivd +
+                        pihm->rttbl.pumps[0].Injection_conc * pihm->rttbl.pumps[0].flow_rate) /
+                        (CD->rivd + pihm->rttbl.pumps[0].flow_rate));
+                }
+                else
+                {
+                    CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].btcv_pconc[j] =
+                        CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].log10_pconc[j];
+                }
             }
             else
             {
-                CD->Vcele[CD->BTC_loc[k]].btcv_pconc[j] =
-                    CD->Vcele[CD->BTC_loc[k]].log10_pconc[j];
+                CD->Vcele[pihm->rttbl.BTC_loc[k] - 1].btcv_pconc[j] =
+                    CD->Vcele[pihm->rttbl.BTC_loc[k] - 1].log10_pconc[j];
             }
         }
     }

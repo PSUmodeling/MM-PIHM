@@ -1023,19 +1023,23 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         }
         n++;
     }
-    for (i = 0; i < rt->NumBTC; i++)
+    for (i = 0; i < rttbl->NumBTC; i++)
     {
-        sprintf(ext, "%d.btcv", rt->BTC_loc[i] + 1);
+        sprintf(ext, "%d.btcv", (rttbl->BTC_loc[i] < 0) ?
+            -rttbl->BTC_loc[i] + 2 * nelem : rttbl->BTC_loc[i]);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
             rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
         for (j = 0; j < rttbl->NumStc; j++)
         {
-            print->varctrl[n].var[j] = &rt->Vcele[rt->BTC_loc[i]].btcv_pconc[j];
+            print->varctrl[n].var[j] =
+                &rt->Vcele[(rttbl->BTC_loc[i] < 0) ?
+                -rttbl->BTC_loc[i] + 2 * nelem - 1 : rttbl->BTC_loc[i] - 1].btcv_pconc[j];
         }
         for (j = rttbl->NumStc; j < rttbl->NumStc + rttbl->NumSsc; j++)
         {
             print->varctrl[n].var[j] =
-                &rt->Vcele[rt->BTC_loc[i]].log10_sconc[j - rttbl->NumStc];
+                &rt->Vcele[(rttbl->BTC_loc[i] < 0) ?
+                -rttbl->BTC_loc[i] + 2 * nelem - 1 : rttbl->BTC_loc[i] - 1].log10_sconc[j - rttbl->NumStc];
         }
         n++;
     }

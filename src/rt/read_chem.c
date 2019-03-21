@@ -34,7 +34,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     rttbl->RelMin = 0;
     ctrl->AvgScl = 10;
     rttbl->Condensation = 1.0;
-    CD->NumBTC = 0;
+    rttbl->NumBTC = 0;
     rttbl->NumPUMP = 0;
     CD->SUFEFF = 1;
     CD->CnntVelo = 0.01;
@@ -400,24 +400,26 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
      * Output block
      */
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "OUTPUT", &CD->NumBTC, 'i', chem_filen, lno);
-    CD->BTC_loc = (int *)malloc(CD->NumBTC * sizeof(int));
-    for (i = 0; i < CD->NumBTC; i++)
+    ReadKeyword(cmdstr, "OUTPUT", &rttbl->NumBTC, 'i', chem_filen, lno);
+    PIHMprintf(VL_VERBOSE,
+        "  %d breakthrough points specified. \n", rttbl->NumBTC);
+    PIHMprintf(VL_VERBOSE, "  --");
+
+    rttbl->BTC_loc = (int *)malloc(rttbl->NumBTC * sizeof(int));
+    for (i = 0; i < rttbl->NumBTC; i++)
     {
         NextLine(chem_fp, cmdstr, &lno);
-        sscanf(cmdstr, "%d", &CD->BTC_loc[i]);
-    }
-    if (debug_mode)
-    {
-        PIHMprintf(VL_NORMAL,
-            "  %d breakthrough points specified. \n", CD->NumBTC);
-        PIHMprintf(VL_NORMAL, "  --");
-        for (i = 0; i < CD->NumBTC; i++)
+        if (sscanf(cmdstr, "%s", loc_str) != 1)
         {
-            PIHMprintf(VL_NORMAL, " Grid %d ", CD->BTC_loc[i] + 1);
+            PIHMprintf(VL_ERROR,
+                "Error reading breakthrough points in %s near Line %d.\n",
+                chem_filen, lno);
         }
-        PIHMprintf(VL_NORMAL, "are breakthrough points.\n\n");
+        rttbl->BTC_loc[i] = ParseLocation(loc_str, chem_filen, lno);
+
+        PIHMprintf(VL_VERBOSE, " Grid %d ", rttbl->BTC_loc[i]);
     }
+    PIHMprintf(VL_VERBOSE, "are breakthrough points.\n\n");
 
 
     fclose(chem_fp);

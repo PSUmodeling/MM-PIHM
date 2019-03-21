@@ -600,6 +600,8 @@ typedef struct rttbl_struct
     double          prcp_conc[MAXSPS];
     int             NumPUMP;                /* number of pumps  */
     pump_struct    *pumps;
+    int             NumBTC;                 /* number of breakthrough points */
+    int            *BTC_loc;                /* location of breakthrough points*/
 } rttbl_struct;
 #endif
 
