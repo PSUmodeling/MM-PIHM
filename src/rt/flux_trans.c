@@ -517,7 +517,8 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                     t_conc0[k] = CD->Vcele[RT_RIVER(i)].chms.t_conc[k];
                 }
 
-                Speciation(pihm->chemtbl, &pihm->rttbl, CD, RT_RIVER(i), 0);
+                Speciation(pihm->chemtbl, &pihm->rttbl, 0,
+                    &CD->Vcele[RT_RIVER(i)].chms);
 
                 for (k = 0; k < NumSpc; k++)
                 {
@@ -536,7 +537,8 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
             {
                 if (CD->Vcele[i].type != VIRTUAL_VOL)
                 {
-                    Speciation(pihm->chemtbl, &pihm->rttbl, CD, i, 0);
+                    Speciation(pihm->chemtbl, &pihm->rttbl, 0,
+                        &CD->Vcele[i].chms);
                 }
             }
         }

@@ -475,8 +475,10 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     {
         for (i = 0; i < nelem; i++)
         {
-            Speciation(pihm->chemtbl, &pihm->rttbl, CD, RT_GW(i), 1);
-            Speciation(pihm->chemtbl, &pihm->rttbl, CD, RT_UNSAT(i), 1);
+            Speciation(pihm->chemtbl, &pihm->rttbl, 1,
+                &CD->Vcele[RT_GW(i)].chms);
+            Speciation(pihm->chemtbl, &pihm->rttbl, 1,
+                &CD->Vcele[RT_UNSAT(i)].chms);
 #if defined(_FBR_)
             Speciation(CD, RT_FBR_GW(i), 1);
 #endif

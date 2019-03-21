@@ -1,14 +1,3 @@
-/******************************************************************************
- * File        : rt.h
- * Function    : Declaration and Definition of reaction variables & data struc\
- *               ture. Data could be mainly be classified into three classes: \
- *               chemical knowledge, concentration distribution and grid struc\
- *               ture.
- * Developer of PIHM RT 1.0: Chen Bao (baochen.d.s@gmail.com)
- * Date        : June 2013
- *****************************************************************************/
-
-/* parameters of Debye_Huckel Equation */
 typedef struct rtic_struct
 {
     double          t_conc[MAXSPS];
