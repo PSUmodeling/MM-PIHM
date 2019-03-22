@@ -955,7 +955,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &elem[i].chms_unsat.log10_pconc[k];
+            print->varctrl[n].var[j] = &elem[j].chms_unsat.log10_pconc[k];
         }
         n++;
     }
@@ -967,7 +967,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &elem[i].chms_unsat.log10_sconc[k];
+            print->varctrl[n].var[j] = &elem[j].chms_unsat.log10_sconc[k];
         }
         n++;
     }
@@ -979,7 +979,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &elem[i].chms_gw.log10_pconc[k];
+            print->varctrl[n].var[j] = &elem[j].chms_gw.log10_pconc[k];
         }
         n++;
     }
@@ -991,7 +991,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &elem[i].chms_gw.log10_sconc[k];
+            print->varctrl[n].var[j] = &elem[j].chms_gw.log10_sconc[k];
         }
         n++;
     }
@@ -1003,7 +1003,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nriver; j++)
         {
-            print->varctrl[n].var[j] = &river[i].chms_stream.log10_pconc[k];
+            print->varctrl[n].var[j] = &river[j].chms_stream.log10_pconc[k];
         }
         n++;
     }
@@ -1016,45 +1016,45 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nriver; j++)
         {
-            print->varctrl[n].var[j] = &river[i].chms_stream.log10_sconc[k];
+            print->varctrl[n].var[j] = &river[j].chms_stream.log10_sconc[k];
         }
         n++;
     }
 # endif
-    for (i = 0; i < rttbl->NumBTC; i++)
+    for (j = 0; j < rttbl->NumBTC; j++)
     {
-        sprintf(ext, "%d.btcv", (rttbl->BTC_loc[i] < 0) ?
-            -rttbl->BTC_loc[i] + 2 * nelem : rttbl->BTC_loc[i]);
+        sprintf(ext, "%d.btcv", (rttbl->BTC_loc[j] < 0) ?
+            -rttbl->BTC_loc[j] + 2 * nelem : rttbl->BTC_loc[j]);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
             rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
-        for (j = 0; j < rttbl->NumStc; j++)
+        for (k = 0; k < rttbl->NumStc; k++)
         {
-            if (rttbl->BTC_loc[i] < 0)
+            if (rttbl->BTC_loc[j] < 0)
             {
-                print->varctrl[n].var[j] = &river[-rttbl->BTC_loc[i] - 1].chms_stream.btcv_pconc[j];
+                print->varctrl[n].var[k] = &river[-rttbl->BTC_loc[j] - 1].chms_stream.btcv_pconc[k];
             }
-            else if (rttbl->BTC_loc[i] < nelem)
+            else if (rttbl->BTC_loc[j] < nelem)
             {
-                print->varctrl[n].var[j] = &elem[rttbl->BTC_loc[i] - 1].chms_unsat.btcv_pconc[j];
+                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - 1].chms_unsat.btcv_pconc[k];
             }
             else
             {
-                print->varctrl[n].var[j] = &elem[rttbl->BTC_loc[i] - nelem- 1].chms_gw.btcv_pconc[j];
+                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - nelem- 1].chms_gw.btcv_pconc[k];
             }
         }
-        for (j = rttbl->NumStc; j < rttbl->NumStc + rttbl->NumSsc; j++)
+        for (k = rttbl->NumStc; k < rttbl->NumStc + rttbl->NumSsc; k++)
         {
-            if (rttbl->BTC_loc[i] < 0)
+            if (rttbl->BTC_loc[j] < 0)
             {
-                print->varctrl[n].var[j] = &river[-rttbl->BTC_loc[i] - 1].chms_stream.log10_sconc[j - rttbl->NumStc];
+                print->varctrl[n].var[k] = &river[-rttbl->BTC_loc[j] - 1].chms_stream.log10_sconc[k - rttbl->NumStc];
             }
-            else if (rttbl->BTC_loc[i] < nelem)
+            else if (rttbl->BTC_loc[j] < nelem)
             {
-                print->varctrl[n].var[j] = &elem[rttbl->BTC_loc[i] - 1].chms_unsat.log10_sconc[j - rttbl->NumStc];
+                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - 1].chms_unsat.log10_sconc[k - rttbl->NumStc];
             }
             else
             {
-                print->varctrl[n].var[j] = &elem[rttbl->BTC_loc[i] - nelem - 1].chms_gw.log10_sconc[j - rttbl->NumStc];
+                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - nelem - 1].chms_gw.log10_sconc[k - rttbl->NumStc];
             }
         }
         n++;

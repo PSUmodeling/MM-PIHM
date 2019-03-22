@@ -55,11 +55,26 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, HYDROL_STEP);
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, HYDROL_STEP);
 
-//#if defined(_RT_)
-//    SpeciationReaction(t, pihm->ctrl.stepsize, pihm, rt);
-//    UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
-//    UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, RT_STEP);
-//#endif
+#if defined(_RT_)
+    if (t - pihm->ctrl.starttime >= pihm->ctrl.RT_delay &&
+        (!pihm->rttbl.RecFlg) &&
+        (t - pihm->ctrl.starttime) % pihm->ctrl.AvgScl == 0)
+    {
+        /* Reaction */
+        Reaction((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl,
+            &pihm->rttbl, pihm->elem);
+    }
+
+    //if ((t - pihm->ctrl.starttime) % 3600 == 0)
+    //{
+    //    /* Speciation every hour */
+    //    Speciation();
+    //}
+
+    //SpeciationReaction(t, pihm->ctrl.stepsize, pihm, rt);
+    UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
+    UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, RT_STEP);
+#endif
 
 #if defined(_DAILY_)
     DailyVar(t, pihm->ctrl.starttime, pihm->elem);

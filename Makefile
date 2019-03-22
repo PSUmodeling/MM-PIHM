@@ -184,6 +184,7 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	spa/spa.c\
 	rt/flux_trans.c\
 	rt/lookup.c\
+	rt/react.c\
 	rt/read_chem.c\
 	rt/read_cini.c\
 	rt/read_prep.c\
@@ -191,7 +192,6 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	rt/rt_util.c\
 	rt/speciation.c
 	#rt/os3d.c\
-	#rt/react.c\
   MODULE_HEADERS_ =\
 	include/spa.h
   EXECUTABLE = rt-flux-pihm

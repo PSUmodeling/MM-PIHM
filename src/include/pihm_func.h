@@ -695,10 +695,8 @@ void            InitChem(const char [], const char [], const ctrl_struct *,
     const calib_struct *, forc_struct *forc, chemtbl_struct [],
     kintbl_struct [], rttbl_struct *, elem_struct [], river_struct [],
     N_Vector);
-//void            fluxtrans(const pihm_struct, Chem_Data);
-//void            OS3D(const chemtbl_struct [], const rttbl_struct *, Chem_Data);
-void            React(double, const chemtbl_struct [], const kintbl_struct [],
-    const rttbl_struct *, double, chmstate_struct *);
+void            Reaction(double, const chemtbl_struct [], const kintbl_struct [],
+    const rttbl_struct *, elem_struct []);
 int             _React(double, const chemtbl_struct [], const kintbl_struct [],
     const rttbl_struct *, double, int *, chmstate_struct *);
 void            Lookup(FILE *, const calib_struct *, chemtbl_struct [],
@@ -708,12 +706,7 @@ int             Speciation(const chemtbl_struct [], const rttbl_struct *, int,
 int             keymatch(const char *, const char *, double *, char **);
 int             SpeciationType(FILE *, char *);
 //void            FreeChem(Chem_Data);
-//double          Dconc(const face *, const vol_conc [], const chemtbl_struct [],
-//    double, int);
 void            Unwrap(char *, const char *);
-//void            InitVcele(double, double, double, double, int, vol_conc *);
-//void            InitFlux(int, int, int, int, int, int, double, face *);
-//void            UpdateVcele(double, double, vol_conc *);
 double          EqvUnsatH(double, double, double, double, double);
 double          UnsatSatRatio(double, double, double);
 void            SortChem(char[][MAXSTRING], const int [], int, chemtbl_struct []);
@@ -724,8 +717,6 @@ void            ReadPrep(const char[], const chemtbl_struct [], const double [],
     forc_struct *forc);
 void            ReadCini(const char[], const chemtbl_struct *, int,
     elem_struct []);
-//void            SpeciationReaction(int, int, const pihm_struct,
-//    Chem_Data);
 int             ParseLocation(const char [], const char [], int);
 void            ApplyPrcpConc(forc_struct *, rttbl_struct *, int, int);
 void            wrap(char *);
