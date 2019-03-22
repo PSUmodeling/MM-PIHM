@@ -12,33 +12,31 @@ typedef struct chmstate_struct
     double          s_conc[MAXSPS];         /* secondary concentration
                                              * (M kg-1 water) */
     double          p_actv[MAXSPS];         /* activity of primary species */
+    double          ssa[MAXSPS];            /* specific surface area */
+    double          t_mole[MAXSPS];
+    double          log10_pconc[MAXSPS];    /* for output only */
+    double          log10_sconc[MAXSPS];    /* for output only */
+    double          btcv_pconc[MAXSPS];     /* for btcv output only */
 } chmstate_struct;
+
+typedef struct chmflux_struct
+{
+    double          transp_flux[MAXSPS];
+    double          react_flux[MAXSPS];
+} chmflux_struct;
 
 typedef struct vol_conc_type
 {
-    int             index;      /* Volume No. Note this number may be different than the element No. in PIHM */
-    int             type;       /* type of volume: unsaturated, groundwater, river, or river bed */
-    double         *t_mole;
-    double         *transp_flux;
-    double         *react_flux;
-    double         *p_para;     /* parameters of primary species
-                                 * for surface complexation
-                                 * for cation exchage
-                                 * for minerals
-                                 */
+    int             index;                  /* Volume No. Note this number may be different than the element No. in PIHM */
+    int             type;                   /* type of volume: unsaturated, groundwater, river, or river bed */
     double          sat;        /* Saturation of Volume, dimensionless, from 0 to 1 */
-    double          height_o;   /* height of volume, at previous time step */
     double          height_t;   /* height of volume, at current time step */
-    double          height_int; /* temporary variable for intrapolation of gw height */
+    double          height_o;   /* height of volume, at current time step */
     double          area;       /* area of the triangular element */
-    double          vol_o;      /* volume of water of last time step */
     double          vol;        /* volume of water of current time step */
     double          porosity;   /* porosity of the volume */
-    double          rt_step;    /* rt_step of cell (s) */
-    double         *log10_pconc;     /* for output only */
-    double         *log10_sconc;     /* for output only */
-    double         *btcv_pconc; /* for btcv output only */
     rtic_struct     ic;
+    chmflux_struct  chmf;
     chmstate_struct chms;
 } vol_conc;
 

@@ -141,13 +141,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     for (i = 0; i < CD->NumVol; i++)
     {
         CD->Vcele[i].index = i + 1;
-        CD->Vcele[i].t_mole = (double *)calloc(NumSpc, sizeof(double));
-        CD->Vcele[i].transp_flux = (double *)calloc(NumSpc, sizeof(double));
-        CD->Vcele[i].react_flux = (double *)calloc(NumSpc, sizeof(double));
-        CD->Vcele[i].p_para = (double *)calloc(pihm->rttbl.NumStc, sizeof(double));
-        CD->Vcele[i].log10_pconc = (double *)calloc(pihm->rttbl.NumStc, sizeof(double));
-        CD->Vcele[i].log10_sconc = (double *)calloc(pihm->rttbl.NumSsc, sizeof(double));
-        CD->Vcele[i].btcv_pconc = (double *)calloc(pihm->rttbl.NumStc, sizeof(double));
 
         for (j = 0; j < pihm->rttbl.NumStc; j++)
         {
@@ -170,7 +163,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
                     pihm->chemtbl[j].MolarVolume / CD->Vcele[i].porosity;
                 CD->Vcele[i].chms.p_actv[j] = 1.0;
                 CD->Vcele[i].chms.p_conc[j] = CD->Vcele[i].chms.t_conc[j];
-                CD->Vcele[i].p_para[j] = CD->Vcele[i].ic.p_para[j];
+                CD->Vcele[i].chms.ssa[j] = CD->Vcele[i].ic.p_para[j];
             }
             else if ((pihm->chemtbl[j].itype == CATION_ECHG) ||
                 (pihm->chemtbl[j].itype == ADSORPTION))
@@ -188,7 +181,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
                 CD->Vcele[i].chms.t_conc[j] = CD->Vcele[i].ic.t_conc[j];
                 CD->Vcele[i].chms.p_actv[j] = CD->Vcele[i].chms.t_conc[j] * 0.5;
                 CD->Vcele[i].chms.p_conc[j] = CD->Vcele[i].chms.t_conc[j] * 0.5;
-                CD->Vcele[i].p_para[j] = CD->Vcele[i].ic.p_para[j];
+                CD->Vcele[i].chms.ssa[j] = CD->Vcele[i].ic.p_para[j];
             }
         }
 
@@ -500,15 +493,15 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     {
         for (k = 0; k < NumSpc; k++)
         {
-            CD->Vcele[RT_UNSAT(i)].t_mole[k] =
+            CD->Vcele[RT_UNSAT(i)].chms.t_mole[k] =
                 CD->Vcele[RT_UNSAT(i)].chms.t_conc[k] * CD->Vcele[RT_UNSAT(i)].vol * CD->Vcele[RT_UNSAT(i)].porosity;
 
-            NV_Ith(CV_Y, UNSAT_MOLE(i, k)) = CD->Vcele[RT_UNSAT(i)].t_mole[k];
+            NV_Ith(CV_Y, UNSAT_MOLE(i, k)) = CD->Vcele[RT_UNSAT(i)].chms.t_mole[k];
 
-            CD->Vcele[RT_GW(i)].t_mole[k] =
+            CD->Vcele[RT_GW(i)].chms.t_mole[k] =
                 CD->Vcele[RT_GW(i)].chms.t_conc[k] * CD->Vcele[RT_GW(i)].vol * CD->Vcele[RT_GW(i)].porosity;
 
-            NV_Ith(CV_Y, GW_MOLE(i, k)) = CD->Vcele[RT_GW(i)].t_mole[k];
+            NV_Ith(CV_Y, GW_MOLE(i, k)) = CD->Vcele[RT_GW(i)].chms.t_mole[k];
         }
     }
 
@@ -519,10 +512,10 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     {
         for (k = 0; k < NumSpc; k++)
         {
-            CD->Vcele[RT_RIVER(i)].t_mole[k] =
+            CD->Vcele[RT_RIVER(i)].chms.t_mole[k] =
                 CD->Vcele[RT_RIVER(i)].chms.t_conc[k] * CD->Vcele[RT_RIVER(i)].vol * CD->Vcele[RT_RIVER(i)].porosity;
 
-            NV_Ith(CV_Y, RIVER_MOLE(i, k)) = CD->Vcele[RT_RIVER(i)].t_mole[k];
+            NV_Ith(CV_Y, RIVER_MOLE(i, k)) = CD->Vcele[RT_RIVER(i)].chms.t_mole[k];
         }
     }
 
@@ -576,7 +569,6 @@ void InitVcele(double height, double area, double porosity, double sat,
     Vcele->height_t = height;
     Vcele->area = area;
     Vcele->porosity = porosity;
-    Vcele->vol_o = height * area;
     Vcele->vol = height * area;
     Vcele->sat = sat;
     Vcele->type = type;
@@ -604,8 +596,6 @@ void UpdateVcele(double height, double sat, vol_conc *Vcele)
 {
     Vcele->height_o = Vcele->height_t;
     Vcele->height_t = height;
-    Vcele->height_int = height;
-    Vcele->vol_o = Vcele->area * Vcele->height_o;
     Vcele->vol = Vcele->area * height;
     Vcele->sat = sat;
 }

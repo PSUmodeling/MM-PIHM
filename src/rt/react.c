@@ -239,7 +239,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
 
     for (i = 0; i < rttbl->NumMin; i++)
     {
-        area[i] = Vcele->p_para[i + rttbl->NumStc - rttbl->NumMin] *
+        area[i] = Vcele->chms.ssa[i + rttbl->NumStc - rttbl->NumMin] *
             Vcele->chms.p_conc[i + rttbl->NumStc - rttbl->NumMin] *
             chemtbl[i + rttbl->NumStc - rttbl->NumMin].MolarMass;
     }

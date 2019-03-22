@@ -79,8 +79,10 @@ int Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 I = 0;
                 /* Calculate the ionic strength in this block */
                 for (i = 0; i < num_spe; i++)
+                {
                     I += 0.5 * pow(10, tmpconc[i]) *
                         chemtbl[i].Charge * chemtbl[i].Charge;
+                }
                 Iroot = sqrt(I);
                 for (i = 0; i < num_spe; i++)
                 {
@@ -211,8 +213,8 @@ int Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 /* Calculate the ionic strength in this block */
                 for (i = 0; i < num_spe; i++)
                 {
-                    I += 0.5 * pow(10,
-                        tmpconc[i]) * chemtbl[i].Charge * chemtbl[i].Charge;
+                    I += 0.5 * pow(10, tmpconc[i]) *
+                        chemtbl[i].Charge * chemtbl[i].Charge;
                 }
                 Iroot = sqrt(I);
                 for (i = 0; i < num_spe; i++)

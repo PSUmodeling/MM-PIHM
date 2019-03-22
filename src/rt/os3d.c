@@ -27,7 +27,7 @@ void OS3D(double stepsize, const chemtbl_struct chemtbl[],
         {
             for (j = 0; j < NumSpc; j++)
             {
-                CD->Vcele[i].transp_flux[j] = 0.0;
+                CD->Vcele[i].chmf.transp_flux[j] = 0.0;
             }
         }
     }
@@ -40,7 +40,7 @@ void OS3D(double stepsize, const chemtbl_struct chemtbl[],
         {
             for (j = 0; j < NumSpc; j++)
             {
-                CD->Vcele[CD->Flux[i].nodeup - 1].transp_flux[j] +=
+                CD->Vcele[CD->Flux[i].nodeup - 1].chmf.transp_flux[j] +=
                     Dconc(&CD->Flux[i], CD->Vcele, chemtbl,
                         rttbl->Cementation, 0, j);
             }

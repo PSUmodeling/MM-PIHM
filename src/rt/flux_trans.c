@@ -54,10 +54,10 @@ void fluxtrans(int stepsize, const pihm_struct pihm, Chem_Data CD)
 
         for (k = 0; k < NumSpc; k++)
         {
-            CD->Vcele[RT_GW(i)].chms.t_conc[k] = CD->Vcele[RT_GW(i)].t_mole[k] /
+            CD->Vcele[RT_GW(i)].chms.t_conc[k] = CD->Vcele[RT_GW(i)].chms.t_mole[k] /
                 CD->Vcele[RT_GW(i)].vol / CD->Vcele[RT_GW(i)].porosity;
 
-            CD->Vcele[RT_UNSAT(i)].chms.t_conc[k] = CD->Vcele[RT_UNSAT(i)].t_mole[k] /
+            CD->Vcele[RT_UNSAT(i)].chms.t_conc[k] = CD->Vcele[RT_UNSAT(i)].chms.t_mole[k] /
                 CD->Vcele[RT_UNSAT(i)].vol / CD->Vcele[RT_UNSAT(i)].porosity;
         }
     }
@@ -76,7 +76,7 @@ void fluxtrans(int stepsize, const pihm_struct pihm, Chem_Data CD)
 
         for (k = 0; k < NumSpc; k++)
         {
-            CD->Vcele[RT_RIVER(i)].chms.t_conc[k] = CD->Vcele[RT_RIVER(i)].t_mole[k] /
+            CD->Vcele[RT_RIVER(i)].chms.t_conc[k] = CD->Vcele[RT_RIVER(i)].chms.t_mole[k] /
                 CD->Vcele[RT_RIVER(i)].vol / CD->Vcele[RT_RIVER(i)].porosity;
         }
     }
@@ -362,13 +362,13 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
 
         for (k = 0; k < NumSpc; k++)
         {
-            CD->Vcele[RT_GW(i)].chms.t_conc[k] = CD->Vcele[RT_GW(i)].t_mole[k] /
+            CD->Vcele[RT_GW(i)].chms.t_conc[k] = CD->Vcele[RT_GW(i)].chms.t_mole[k] /
                 CD->Vcele[RT_GW(i)].vol / CD->Vcele[RT_GW(i)].porosity;
             CD->Vcele[RT_GW(i)].chms.t_conc[k] =
                 (CD->Vcele[RT_GW(i)].chms.t_conc[k] > 1.0E-20) ?
                 CD->Vcele[RT_GW(i)].chms.t_conc[k] : 1.0E-20;
 
-            CD->Vcele[RT_UNSAT(i)].chms.t_conc[k] = CD->Vcele[RT_UNSAT(i)].t_mole[k] /
+            CD->Vcele[RT_UNSAT(i)].chms.t_conc[k] = CD->Vcele[RT_UNSAT(i)].chms.t_mole[k] /
                 CD->Vcele[RT_UNSAT(i)].vol / CD->Vcele[RT_UNSAT(i)].porosity;
             CD->Vcele[RT_UNSAT(i)].chms.t_conc[k] =
                 (CD->Vcele[RT_UNSAT(i)].chms.t_conc[k] > 1.0E-20) ?
@@ -410,7 +410,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
 
         for (k = 0; k < NumSpc; k++)
         {
-            CD->Vcele[RT_RIVER(i)].chms.t_conc[k] = CD->Vcele[RT_RIVER(i)].t_mole[k] /
+            CD->Vcele[RT_RIVER(i)].chms.t_conc[k] = CD->Vcele[RT_RIVER(i)].chms.t_mole[k] /
                 CD->Vcele[RT_RIVER(i)].vol / CD->Vcele[RT_RIVER(i)].porosity;
             CD->Vcele[RT_RIVER(i)].chms.t_conc[k] =
                 (CD->Vcele[RT_RIVER(i)].chms.t_conc[k] > 1.0E-20) ?
@@ -443,7 +443,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
 
                 for (k = 0; k < NumSpc; k++)
                 {
-                    CD->Vcele[RT_GW(i)].react_flux[k] =
+                    CD->Vcele[RT_GW(i)].chmf.react_flux[k] =
                         (CD->Vcele[RT_GW(i)].chms.t_conc[k] - t_conc0[k]) *
                         CD->Vcele[RT_GW(i)].vol /
                         (double)pihm->ctrl.AvgScl;
@@ -458,7 +458,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
 
                 for (k = 0; k < NumSpc; k++)
                 {
-                    CD->Vcele[RT_UNSAT(i)].react_flux[k] =
+                    CD->Vcele[RT_UNSAT(i)].chmf.react_flux[k] =
                         (CD->Vcele[RT_UNSAT(i)].chms.t_conc[k] - t_conc0[k]) *
                         CD->Vcele[RT_UNSAT(i)].vol / (double)pihm->ctrl.AvgScl;
                 }
@@ -550,7 +550,7 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
 
                 for (k = 0; k < NumSpc; k++)
                 {
-                    CD->Vcele[RT_RIVER(i)].react_flux[k] =
+                    CD->Vcele[RT_RIVER(i)].chmf.react_flux[k] =
                         (CD->Vcele[RT_RIVER(i)].chms.t_conc[k] - t_conc0[k]) *
                         CD->Vcele[RT_RIVER(i)].vol / 3600.0;
                 }
@@ -581,11 +581,11 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
 
         for (j = 0; j < pihm->rttbl.NumStc; j++)
         {
-            CD->Vcele[i].log10_pconc[j] = log10(CD->Vcele[i].chms.p_conc[j]);
+            CD->Vcele[i].chms.log10_pconc[j] = log10(CD->Vcele[i].chms.p_conc[j]);
         }
         for (j = 0; j < pihm->rttbl.NumSsc; j++)
         {
-            CD->Vcele[i].log10_sconc[j] = log10(CD->Vcele[i].chms.s_conc[j]);
+            CD->Vcele[i].chms.log10_sconc[j] = log10(CD->Vcele[i].chms.s_conc[j]);
         }
     }
 
@@ -615,21 +615,21 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                 if (-pihm->rttbl.BTC_loc[k] >= -pihm->rttbl.pumps[0].Pump_Location &&
                     j == pihm->rttbl.pumps[0].Position_Species)
                 {
-                    CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].btcv_pconc[j] =
+                    CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].chms.btcv_pconc[j] =
                         log10((CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].chms.p_conc[j] * CD->riv +
                         pihm->rttbl.pumps[0].Injection_conc * 1.0E-3 * pihm->rttbl.pumps[0].flow_rate) /
                         (CD->riv + pihm->rttbl.pumps[0].flow_rate));
                 }
                 else
                 {
-                    CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].btcv_pconc[j] =
-                        CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].log10_pconc[j];
+                    CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].chms.btcv_pconc[j] =
+                        CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].chms.log10_pconc[j];
                 }
             }
             else
             {
-                CD->Vcele[pihm->rttbl.BTC_loc[k] - 1].btcv_pconc[j] =
-                    CD->Vcele[pihm->rttbl.BTC_loc[k] - 1].log10_pconc[j];
+                CD->Vcele[pihm->rttbl.BTC_loc[k] - 1].chms.btcv_pconc[j] =
+                    CD->Vcele[pihm->rttbl.BTC_loc[k] - 1].chms.log10_pconc[j];
             }
         }
     }
