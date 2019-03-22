@@ -182,6 +182,7 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	noah/noah_glacial_only.c\
 	noah/topo_radn.c\
 	spa/spa.c\
+	rt/flux_trans.c\
 	rt/lookup.c\
 	rt/read_chem.c\
 	rt/read_cini.c\
@@ -189,7 +190,6 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	rt/rt.c\
 	rt/rt_util.c\
 	rt/speciation.c
-	#rt/flux_trans.c\
 	#rt/os3d.c\
 	#rt/react.c\
   MODULE_HEADERS_ =\

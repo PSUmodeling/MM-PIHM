@@ -4,6 +4,7 @@
 void NTransport(elem_struct *elem, river_struct *river)
 {
     int             i;
+
     /*
      * Calculate solute N concentrations
      */

@@ -735,6 +735,10 @@ double          UnsatWaterVol(const topo_struct *, const soil_struct *,
     const wstate_struct *);
 double          RivBedVol(const river_topo_struct *, const matl_struct *,
     const river_wstate_struct *);
+void            Transport(const chemtbl_struct [], const rttbl_struct *,
+    elem_struct [], river_struct []);
+double          AdvDiffDisp(double, double, double, double, double, double,
+    double, double, double);
 
 #endif
 

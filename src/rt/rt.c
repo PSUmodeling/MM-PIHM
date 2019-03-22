@@ -74,12 +74,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
 
     for (i = 0; i < nelem; i++)
     {
-        double          vol_gw;
-        double          vol_unsat;
-
-        vol_gw = GWVol(&elem[i].topo, &elem[i].soil, &elem[i].ws);
-        vol_unsat = UnsatWaterVol(&elem[i].topo, &elem[i].soil, &elem[i].ws);
-
         for (j = 0; j < rttbl->NumStc; j++)
         {
             if (strcmp(chemtbl[j].ChemName, "'H+'") == 0)
@@ -151,20 +145,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
                 elem[i].chms_gw.p_conc[j] = elem[i].chms_gw.t_conc[j] * 0.5;
                 elem[i].chms_gw.ssa[j] = elem[i].restart_input.ssa_gw[j];
             }
-
-            if (chemtbl[j].itype == AQUEOUS)
-            {
-                elem[i].chms_unsat.t_mole[j] =
-                    elem[i].chms_unsat.t_conc[j] * vol_unsat;
-
-                elem[i].chms_gw.t_mole[j] =
-                    elem[i].chms_gw.t_conc[j] * vol_gw;
-            }
-            else
-            {
-                elem[i].chms_unsat.t_mole[j] = 0.0;
-                elem[i].chms_gw.t_mole[j] = 0.0;
-            }
         }
 
         for (j = 0; j < rttbl->NumSsc; j++)
@@ -183,6 +163,33 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
             Speciation(chemtbl, rttbl, 1, &elem[i].chms_unsat);
 
             Speciation(chemtbl, rttbl, 1, &elem[i].chms_gw);
+        }
+    }
+
+    /* Total moles should be calculated after speciation */
+    for (i = 0; i < nelem; i++)
+    {
+        double          vol_gw;
+        double          vol_unsat;
+
+        vol_gw = GWVol(&elem[i].topo, &elem[i].soil, &elem[i].ws);
+        vol_unsat = UnsatWaterVol(&elem[i].topo, &elem[i].soil, &elem[i].ws);
+
+        for (j = 0; j < rttbl->NumStc; j++)
+        {
+            if (chemtbl[j].itype == AQUEOUS)
+            {
+                elem[i].chms_unsat.t_mole[j] =
+                    elem[i].chms_unsat.t_conc[j] * vol_unsat;
+
+                elem[i].chms_gw.t_mole[j] =
+                    elem[i].chms_gw.t_conc[j] * vol_gw;
+            }
+            else
+            {
+                elem[i].chms_unsat.t_mole[j] = 0.0;
+                elem[i].chms_gw.t_mole[j] = 0.0;
+            }
         }
     }
 
