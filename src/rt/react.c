@@ -157,10 +157,11 @@ void React(double stepsize, const chemtbl_struct chemtbl[],
 {
     int             k, j;
     double          substep;
+    int             illness = 0;
 
-    if (Vcele->illness < 20)
+    if (illness < 20)
     {
-        if (_React(stepsize, chemtbl, kintbl, rttbl, CD, Vcele))
+        if (_React(stepsize, chemtbl, kintbl, rttbl, CD, &illness, Vcele))
         {
             fprintf(stderr, "  ---> React failed at cell %12d.\t",
                     Vcele->index);
@@ -168,7 +169,7 @@ void React(double stepsize, const chemtbl_struct chemtbl[],
             substep = 0.5 * stepsize;
             k = 2;
 
-            while ((j = _React(substep, chemtbl, kintbl, rttbl, CD, Vcele)))
+            while ((j = _React(substep, chemtbl, kintbl, rttbl, CD, &illness, Vcele)))
             {
                 substep = 0.5 * substep;
                 k = 2 * k;
@@ -183,7 +184,7 @@ void React(double stepsize, const chemtbl_struct chemtbl[],
                         substep, k);
                 for (j = 1; j < k; j++)
                 {
-                    _React(substep, chemtbl, kintbl, rttbl, CD, Vcele);
+                    _React(substep, chemtbl, kintbl, rttbl, CD, &illness, Vcele);
                 }
             }
         }
@@ -191,7 +192,7 @@ void React(double stepsize, const chemtbl_struct chemtbl[],
 }
 
 int _React(double stepsize, const chemtbl_struct chemtbl[],
-    const kintbl_struct kintbl[], const rttbl_struct *rttbl, Chem_Data CD, vol_conc *Vcele)
+    const kintbl_struct kintbl[], const rttbl_struct *rttbl, Chem_Data CD, int *illness, vol_conc *Vcele)
 {
     if (Vcele->sat < 1.0E-2)
     {
@@ -535,7 +536,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         pivot_flg = denseGETRF(jcb, rttbl->NumStc - rttbl->NumMin, rttbl->NumStc - rttbl->NumMin, p);   // 09.17
         if (pivot_flg != 0)
         {
-            Vcele->illness++;
+            (*illness)++;
             return (1);
         }
 

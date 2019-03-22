@@ -17,7 +17,6 @@ typedef struct chmstate_struct
 typedef struct vol_conc_type
 {
     int             index;      /* Volume No. Note this number may be different than the element No. in PIHM */
-    int             illness;    /* black list */
     int             type;       /* type of volume: unsaturated, groundwater, river, or river bed */
     double         *t_mole;
     double         *transp_flux;

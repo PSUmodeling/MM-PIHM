@@ -149,8 +149,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         CD->Vcele[i].log10_sconc = (double *)calloc(pihm->rttbl.NumSsc, sizeof(double));
         CD->Vcele[i].btcv_pconc = (double *)calloc(pihm->rttbl.NumStc, sizeof(double));
 
-        CD->Vcele[i].illness = 0;
-
         for (j = 0; j < pihm->rttbl.NumStc; j++)
         {
             if (strcmp(pihm->chemtbl[j].ChemName, "'H+'") == 0)
