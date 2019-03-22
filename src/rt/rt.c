@@ -14,8 +14,9 @@
 #define INFTYSMALL  1E-6
 
 void InitChem(const char cdbs_filen[], const char cini_filen[],
-    const calib_struct *cal, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
-    rttbl_struct *rttbl, elem_struct elem[], N_Vector CV_Y)
+    const ctrl_struct *ctrl, const calib_struct *cal, forc_struct *forc,
+    chemtbl_struct chemtbl[], kintbl_struct kintbl[], rttbl_struct *rttbl,
+    elem_struct elem[], N_Vector CV_Y)
 {
     int             i, j, k;
     int             PRCP_VOL;
@@ -34,39 +35,41 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
      */
     Lookup(fp, cal, chemtbl, kintbl, rttbl);
 
-#if TEMP_DISABLED
     /*
      * Apply calibration
      */
-    pihm->rttbl.pumps[0].Injection_rate *= pihm->cal.gwinflux;
-    pihm->rttbl.pumps[0].flow_rate *= pihm->cal.gwinflux;
+    rttbl->pumps[0].Injection_rate *= cal->gwinflux;
+    rttbl->pumps[0].flow_rate *= cal->gwinflux;
 
-    for (i = 0; i < CD->NumVol; i++)
+    for (i = 0; i < nelem; i++)
     {
-        for (k = 0; k < pihm->rttbl.NumStc; k++)
+        for (k = 0; k < rttbl->NumStc; k++)
         {
-            CD->Vcele[i].ic.p_para[k] *= pihm->cal.ssa;
+            elem[i].restart_input.ssa_unsat[k] *= cal->ssa;
+            elem[i].restart_input.ssa_gw[k] *= cal->ssa;
         }
     }
 
-    chem_ind = FindChem("'DOC'", pihm->chemtbl, pihm->rttbl.NumStc);
+    chem_ind = FindChem("'DOC'", chemtbl, rttbl->NumStc);
     if (chem_ind >= 0)
     {
-        for (i = 0; i < CD->NumVol; i++)
+        for (i = 0; i < nelem; i++)
         {
-            CD->Vcele[i].ic.t_conc[chem_ind] *= pihm->cal.initconc;
+            elem[i].restart_input.tconc_unsat[chem_ind] *= cal->initconc;
+            elem[i].restart_input.tconc_gw[chem_ind] *= cal->initconc;
         }
 
-        pihm->rttbl.prcp_conc[chem_ind] *= pihm->cal.prcpconc;
-        if (pihm->ctrl.PrpFlg == 2)
+        rttbl->prcp_conc[chem_ind] *= cal->prcpconc;
+        if (ctrl->PrpFlg == 2)
         {
-            for (i = 0; i < pihm->forc.TSD_prepconc.length; i++)
+            for (i = 0; i < forc->TSD_prepconc.length; i++)
             {
-                pihm->forc.TSD_prepconc.data[i][chem_ind] *= pihm->cal.prcpconc;
+                forc->TSD_prepconc.data[i][chem_ind] *= cal->prcpconc;
             }
         }
     }
 
+#if TEMP_DISABLED
     /* Initializing volumetric parameters, inherit from PIHM
      * That is, if PIHM is started from a hot start, rt is also
      * initialized with the hot data */
