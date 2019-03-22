@@ -3,14 +3,8 @@
 #define MIN(a,b) (((a)<(b))? (a):(b))
 #define MAX(a,b) (((a)>(b))? (a):(b))
 
-void fluxtrans(int stepsize, const pihm_struct pihm, Chem_Data CD)
+void fluxtrans(const pihm_struct pihm, Chem_Data CD)
 {
-    /* unit of t: second
-     * unit of stepsize: second
-     * swi irreducible water saturation
-     * hn  non mobile water height
-     * ht  transient zone height
-     */
     int             i, k = 0;
     int             BOUND_VOL = CD->NumVol;
     int             PRCP_VOL = CD->NumVol - 1;
@@ -314,7 +308,7 @@ void fluxtrans(int stepsize, const pihm_struct pihm, Chem_Data CD)
         }
     }
 
-    OS3D(stepsize, pihm->chemtbl, &pihm->rttbl, CD);
+    OS3D(pihm->chemtbl, &pihm->rttbl, CD);
 }
 
 void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
@@ -327,7 +321,6 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             j;
         double          heqv;
         double          satn;
         int             k;
@@ -439,7 +432,8 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                     t_conc0[k] = CD->Vcele[RT_GW(i)].chms.t_conc[k];
                 }
                 React((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl,
-                    &pihm->rttbl, &pihm->ctrl, CD, &CD->Vcele[RT_GW(i)]);
+                    &pihm->rttbl, CD->Vcele[RT_GW(i)].sat,
+                    &CD->Vcele[RT_GW(i)].chms);
 
                 for (k = 0; k < NumSpc; k++)
                 {
@@ -454,7 +448,8 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                     t_conc0[k] = CD->Vcele[RT_UNSAT(i)].chms.t_conc[k];
                 }
                 React((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl,
-                    &pihm->rttbl, &pihm->ctrl, CD, &CD->Vcele[RT_UNSAT(i)]);
+                    &pihm->rttbl, CD->Vcele[RT_UNSAT(i)].sat,
+                    &CD->Vcele[RT_UNSAT(i)].chms);
 
                 for (k = 0; k < NumSpc; k++)
                 {

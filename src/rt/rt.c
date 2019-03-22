@@ -17,7 +17,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     pihm_struct pihm, Chem_Data CD, N_Vector CV_Y)
 {
     int             i, j, k;
-    int             speciation_flg = 0;
     int             PRCP_VOL;
     int             BOUND_VOL;
     int             chem_ind;

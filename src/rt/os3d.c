@@ -10,8 +10,7 @@
 *****************************************************************************/
 #include "pihm.h"
 
-void OS3D(double stepsize, const chemtbl_struct chemtbl[],
-    const rttbl_struct *rttbl, Chem_Data CD)
+void OS3D(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, Chem_Data CD)
 {
     int             i;
 
@@ -42,14 +41,14 @@ void OS3D(double stepsize, const chemtbl_struct chemtbl[],
             {
                 CD->Vcele[CD->Flux[i].nodeup - 1].chmf.transp_flux[j] +=
                     Dconc(&CD->Flux[i], CD->Vcele, chemtbl,
-                        rttbl->Cementation, 0, j);
+                        rttbl->Cementation, j);
             }
         }
     }
 }
 
 double Dconc(const face *Flux, const vol_conc Vcele[], const chemtbl_struct chemtbl[],
-    double cementation, int TVDFlg, int spc_ind)
+    double cementation, int spc_ind)
 {
     int             node_1, node_2;
     int             node_5_trib;

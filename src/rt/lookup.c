@@ -11,7 +11,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     /* Kinetic reactions is currently only applicable to minerals */
     int             i, j, k, l, keq_position = 0, total_temp_points;
     int             mn, in;     // 08.19 Wei
-    char            line[LINE_WIDTH], tmp[WORD_WIDTH];
+    char            line[LINE_WIDTH];
     char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
 
     for (i = 0; i < WORDS_LINE; i++)

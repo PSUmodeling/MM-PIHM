@@ -108,7 +108,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     Hydrol(pihm->elem, pihm->river, &pihm->ctrl);
 
 #if defined(_RT_)
-    fluxtrans(pihm->ctrl.stepsize, pihm, pihm->rt);
+    fluxtrans(pihm, pihm->rt);
 #endif
 
 #if defined(_BGC_)
