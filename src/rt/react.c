@@ -41,27 +41,6 @@ void Unwrap(char *str, const char *str0)
     str[j] = '\0';
 }
 
-void ReportError(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl, vol_conc cell, Chem_Data CD)
-{
-    /*
-     * This subroutine checks all the important parameters within a cell and output it to the error log
-     */
-    /* Diagnotic purposes */
-    int             i;
-    fprintf(stderr, "Error found at cell %d\n", cell.index);
-    fprintf(stderr,
-        "Volumetric properties:\n\t sat: %8.6f\t, height_o: %8.6f\t, height_t: %8.6f\t, area: %8.6f, Error: %d\n",
-        cell.sat, cell.height_o, cell.height_t, cell.area, cell.illness);
-    fprintf(stderr,
-        "Chemical total concentrations: Chemical  Tot_conc  Log(Tot_conc)\n");
-    for (i = 0; i < rttbl->NumStc; i++)
-    {
-        fprintf(stderr, "\t%20s\t%8.4f\t%8.4f\t\n", chemtbl[i].ChemName,
-            cell.chms.t_conc[i], log10(cell.chms.t_conc[i]));
-    }
-    fprintf(stderr, "\n");
-}
-
 int SpeciationType(FILE *database, char *Name)
 {
     /* This subroutine is used to find out what the input species is.
@@ -76,7 +55,7 @@ int SpeciationType(FILE *database, char *Name)
     char            line[LINE_WIDTH], word[WORD_WIDTH];
 
     if (strcmp(Name, "pH") == 0)
-        return (1);
+        return AQUEOUS;
 
     char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
     for (i = 0; i < WORDS_LINE; i++)
@@ -96,7 +75,7 @@ int SpeciationType(FILE *database, char *Name)
                 for (i = 0; i < WORDS_LINE; i++)
                     free(tmpstr[i]);
                 free(tmpstr);
-                return (AQUEOUS);
+                return AQUEOUS;
             }
         }
         fgets(line, LINE_WIDTH, database);
@@ -111,7 +90,7 @@ int SpeciationType(FILE *database, char *Name)
                 for (i = 0; i < WORDS_LINE; i++)
                     free(tmpstr[i]);
                 free(tmpstr);
-                return (5);
+                return 5;
             }
         }
         fgets(line, LINE_WIDTH, database);
@@ -126,7 +105,7 @@ int SpeciationType(FILE *database, char *Name)
                 for (i = 0; i < WORDS_LINE; i++)
                     free(tmpstr[i]);
                 free(tmpstr);
-                return (MINERAL);
+                return MINERAL;
             }
         }
         fgets(line, LINE_WIDTH, database);
@@ -144,7 +123,7 @@ int SpeciationType(FILE *database, char *Name)
                 for (i = 0; i < WORDS_LINE; i++)
                     free(tmpstr[i]);
                 free(tmpstr);
-                return (ADSORPTION);
+                return ADSORPTION;
             }
         }
         fgets(line, LINE_WIDTH, database);
@@ -159,7 +138,7 @@ int SpeciationType(FILE *database, char *Name)
                 for (i = 0; i < WORDS_LINE; i++)
                     free(tmpstr[i]);
                 free(tmpstr);
-                return (CATION_ECHG);
+                return CATION_ECHG;
             }
         }
         fgets(line, LINE_WIDTH, database);

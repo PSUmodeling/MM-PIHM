@@ -785,6 +785,7 @@ void            SpeciationReaction(int, int, const pihm_struct,
     Chem_Data);
 int             ParseLocation(const char [], const char [], int);
 void            ApplyPrcpConc(forc_struct *, rttbl_struct *, int, int);
+void            wrap(char *);
 
 #endif
 

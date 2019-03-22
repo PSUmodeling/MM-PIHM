@@ -10,10 +10,6 @@
 *****************************************************************************/
 #include "pihm.h"
 
-#define max(a,b) ((a)>(b) ? (a):(b))
-#define min(a,b) ((a)<(b) ? (a):(b))
-#define EPSILON 1.0E-20
-
 void OS3D(double stepsize, const chemtbl_struct chemtbl[],
     const rttbl_struct *rttbl, Chem_Data CD)
 {
