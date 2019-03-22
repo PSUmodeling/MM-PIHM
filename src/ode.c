@@ -369,9 +369,9 @@ int NumStateVar(void)
 
     nsv = 3 * nelem + 2 * nriver;
 
-//#if defined(_RT_)
-//    nsv += NumSpc * (2 * nelem + nriver);
-//#endif
+#if defined(_RT_)
+    nsv += NumSpc * (2 * nelem + 2 * nriver);
+#endif
 
 #if defined(_BGC_)
 # if defined(_LUMPED_)

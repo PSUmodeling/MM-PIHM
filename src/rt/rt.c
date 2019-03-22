@@ -240,8 +240,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         }
     }
 
-#if TEMP_DISABLED
-
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
@@ -249,9 +247,8 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     {
         for (k = 0; k < NumSpc; k++)
         {
-            NV_Ith(CV_Y, UNSAT_MOLE(i, k)) = CD->Vcele[RT_UNSAT(i)].chms.t_mole[k];
-
-            NV_Ith(CV_Y, GW_MOLE(i, k)) = CD->Vcele[RT_GW(i)].chms.t_mole[k];
+            NV_Ith(CV_Y, UNSAT_MOLE(i, k)) = elem[i].chms_unsat.t_mole[k];
+            NV_Ith(CV_Y, GW_MOLE(i, k)) = elem[i].chms_gw.t_mole[k];
         }
     }
 
@@ -262,10 +259,10 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     {
         for (k = 0; k < NumSpc; k++)
         {
-            NV_Ith(CV_Y, RIVER_MOLE(i, k)) = CD->Vcele[RT_RIVER(i)].chms.t_mole[k];
+            NV_Ith(CV_Y, STREAM_MOLE(i, k)) = river[i].chms_stream.t_mole[k];
+            NV_Ith(CV_Y, RIVBED_MOLE(i, k)) = river[i].chms_rivbed.t_mole[k];
         }
     }
-#endif
 
     fclose(fp);
 }
