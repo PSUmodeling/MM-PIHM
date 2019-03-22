@@ -2,7 +2,86 @@
 
 #define TOL        1E-7
 
-int Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+    int speciation_flg, elem_struct elem[], river_struct river[])
+{
+    const int       KIN_REACTION = 0;
+    const int       TRANSPORT_ONLY = 1;
+    int             i;
+
+    if (rttbl->RecFlg == KIN_REACTION)
+    {
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+        for (i = 0; i < nriver; i++)
+        {
+            int             k;
+            double          t_conc0[MAXSPS];
+            double          vol_rivbed;
+            double          vol_stream;
+
+            vol_rivbed = RivBedVol(&river[i].topo, &river[i].matl, &river[i].ws);
+            vol_stream = river[i].topo.area *
+                ((river[i].ws.stage > 1.0E-5) ? river[i].ws.stage : 1.0E-5);
+
+            for (k = 0; k < rttbl->NumStc; k++)
+            {
+                river[i].chms_stream.p_conc[k] = (chemtbl[k].itype == MINERAL) ?
+                    river[i].chms_stream.t_conc[k] :
+                    river[i].chms_stream.t_conc[k] * 0.1;
+
+                river[i].chms_rivbed.p_conc[k] = (chemtbl[k].itype == MINERAL) ?
+                    river[i].chms_rivbed.t_conc[k] :
+                    river[i].chms_rivbed.t_conc[k] * 0.1;
+            }
+
+            for (k = 0; k < NumSpc; k++)
+            {
+                t_conc0[k] = river[i].chms_stream.t_conc[k];
+            }
+
+            _Speciation(chemtbl, rttbl, 0, &river[i].chms_stream);
+
+            for (k = 0; k < NumSpc; k++)
+            {
+                river[i].chmf.spec_stream[k] =
+                    (river[i].chms_stream.t_conc[k] - t_conc0[k]) *
+                    vol_stream / 3600.0;
+
+            }
+
+
+            for (k = 0; k < NumSpc; k++)
+            {
+                t_conc0[k] = river[i].chms_rivbed.t_conc[k];
+            }
+
+            _Speciation(chemtbl, rttbl, 0, &river[i].chms_rivbed);
+
+            for (k = 0; k < NumSpc; k++)
+            {
+                river[i].chmf.spec_stream[k] =
+                    (river[i].chms_rivbed.t_conc[k] - t_conc0[k]) *
+                    vol_rivbed / 3600.0;
+            }
+        }
+    }
+    else
+    {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+        for (i = 0; i < nelem; i++)
+        {
+            _Speciation(chemtbl, rttbl, 0, &elem[i].chms_unsat);
+
+            _Speciation(chemtbl, rttbl, 0, &elem[i].chms_gw);
+        }
+    }
+}
+
+int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     int speciation_flg, chmstate_struct *chms)
 {
     /* if speciation flg = 1, pH is defined

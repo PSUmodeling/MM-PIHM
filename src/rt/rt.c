@@ -160,9 +160,9 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     {
         for (i = 0; i < nelem; i++)
         {
-            Speciation(chemtbl, rttbl, 1, &elem[i].chms_unsat);
+            _Speciation(chemtbl, rttbl, 1, &elem[i].chms_unsat);
 
-            Speciation(chemtbl, rttbl, 1, &elem[i].chms_gw);
+            _Speciation(chemtbl, rttbl, 1, &elem[i].chms_gw);
         }
     }
 
@@ -203,7 +203,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
 
         vol_rivbed = RivBedVol(&river[i].topo, &river[i].matl, &river[i].ws);
         vol_stream = river[i].topo.area *
-            ((river[i].ws.stage > 0.0) ? river[i].ws.stage : 0.0);
+            ((river[i].ws.stage > 1.0E-5) ? river[i].ws.stage : 1.0E-5);
 
         for (k = 0; k < rttbl->NumStc; k++)
         {
@@ -332,7 +332,7 @@ double GWVol(const topo_struct *topo, const soil_struct *soil,
         vol = ws->gw * soil->smcmax;
     }
 
-    return vol * topo->area;
+    return ((vol > 1.0E-5) ? vol : 1.0E-5) * topo->area;
 }
 
 double UnsatWaterVol(const topo_struct *topo, const soil_struct *soil,
@@ -348,7 +348,7 @@ double UnsatWaterVol(const topo_struct *topo, const soil_struct *soil,
     vol = deficit * soil->smcmin +
         ((ws->unsat < 0.0) ? 0.0 : ws->unsat * soil->porosity);
 
-    return vol * topo->area;
+    return ((vol > 1.0E-5) ? vol : 1.0E-5) * topo->area;
 }
 
 double UnsatSatRatio(double depth, double unsat, double gw)
@@ -375,5 +375,5 @@ double RivBedVol(const river_topo_struct *topo, const matl_struct *matl,
         vol = ws->gw * (matl->porosity + matl->smcmin);
     }
 
-    return vol * topo->area;
+    return ((vol > 1.0E-5) ? vol : 1.0E-5) * topo->area;
 }

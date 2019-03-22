@@ -96,7 +96,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 
             elem[i].chms_gw.t_conc[k] = (vol_gw > 0.0) ?
                 elem[i].chms_gw.t_mole[k] / vol_gw : 0.0;
-            elem[i].chms_unsat.t_conc[k] =
+            elem[i].chms_gw.t_conc[k] =
                 (elem[i].chms_gw.t_conc[k] > ZERO) ?
                 elem[i].chms_gw.t_conc[k] : ZERO;
         }
@@ -138,7 +138,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 
         vol_rivbed = RivBedVol(&river[i].topo, &river[i].matl, &river[i].ws);
         vol_stream = river[i].topo.area *
-            ((river[i].ws.stage > 0.0) ? river[i].ws.stage : 0.0);
+            ((river[i].ws.stage > 1.0E-5) ? river[i].ws.stage : 1.0E-5);
 
         for (k = 0; k < NumSpc; k++)
         {

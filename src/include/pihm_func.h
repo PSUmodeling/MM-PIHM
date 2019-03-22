@@ -701,7 +701,9 @@ int             _React(double, const chemtbl_struct [], const kintbl_struct [],
     const rttbl_struct *, double, int *, chmstate_struct *);
 void            Lookup(FILE *, const calib_struct *, chemtbl_struct [],
     kintbl_struct [], rttbl_struct *);
-int             Speciation(const chemtbl_struct [], const rttbl_struct *, int,
+void            Speciation(const chemtbl_struct [], const rttbl_struct *, int,
+    elem_struct [], river_struct []);
+int             _Speciation(const chemtbl_struct [], const rttbl_struct *, int,
     chmstate_struct *);
 int             keymatch(const char *, const char *, double *, char **);
 int             SpeciationType(FILE *, char *);
@@ -730,6 +732,7 @@ void            Transport(const chemtbl_struct [], const rttbl_struct *,
     elem_struct [], river_struct []);
 double          AdvDiffDisp(double, double, double, double, double, double,
     double, double, double);
+void            RTUpdate(const rttbl_struct *, elem_struct [], river_struct []);
 
 #endif
 

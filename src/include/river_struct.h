@@ -133,20 +133,6 @@ typedef struct river_solute_struct
 } river_solute_struct;
 #endif
 #if defined(_RT_)
-typedef struct river_chmstate_struct
-{
-    double          t_conc[MAXSPS];         /* concentration (M kg-1 water) */
-    double          p_conc[MAXSPS];         /* primary concentration
-                                             * (M kg-1 water) */
-    double          s_conc[MAXSPS];         /* secondary concentration
-                                             * (M kg-1 water) */
-    double          p_actv[MAXSPS];         /* activity of primary species */
-    double          t_mole[MAXSPS];
-    double          log10_pconc[MAXSPS];    /* for output only */
-    double          log10_sconc[MAXSPS];    /* for output only */
-    double          btcv_pconc[MAXSPS];     /* for btcv output only */
-} river_chmstate_struct;
-
 typedef struct river_chmflux_struct
 {
     double          flux[NUM_RIVFLX][MAXSPS];
@@ -188,8 +174,8 @@ typedef struct river_struct
     river_bgcic_struct restart_output;
 #endif
 #if defined(_RT_)
-    river_chmstate_struct   chms_stream;
-    river_chmstate_struct   chms_rivbed;
+    chmstate_struct     chms_stream;
+    chmstate_struct     chms_rivbed;
     river_chmflux_struct    chmf;
 #endif
 } river_struct;

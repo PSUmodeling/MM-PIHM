@@ -65,13 +65,14 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
             &pihm->rttbl, pihm->elem);
     }
 
-    //if ((t - pihm->ctrl.starttime) % 3600 == 0)
-    //{
-    //    /* Speciation every hour */
-    //    Speciation();
-    //}
+    if ((t - pihm->ctrl.starttime) % 3600 == 0)
+    {
+        /* Speciation every hour */
+        Speciation(pihm->chemtbl, &pihm->rttbl, 0, pihm->elem, pihm->river);
+    }
 
-    //SpeciationReaction(t, pihm->ctrl.stepsize, pihm, rt);
+    RTUpdate(&pihm->rttbl, pihm->elem, pihm->river);
+
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, RT_STEP);
 #endif

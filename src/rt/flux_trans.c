@@ -39,15 +39,9 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             /* Calculate concentrations */
             elem[i].chms_unsat.t_conc[k] = (vol_unsat > 0.0) ?
                 elem[i].chms_unsat.t_mole[k] / vol_unsat : 0.0;
-            elem[i].chms_unsat.t_conc[k] =
-                (elem[i].chms_unsat.t_conc[k] > 0.0) ?
-                elem[i].chms_unsat.t_conc[k] : 0.0;
 
             elem[i].chms_gw.t_conc[k] = (vol_gw > 0.0) ?
                 elem[i].chms_gw.t_mole[k] / vol_gw : 0.0;
-            elem[i].chms_unsat.t_conc[k] =
-                (elem[i].chms_gw.t_conc[k] > 0.0) ?
-                elem[i].chms_gw.t_conc[k] : 0.0;
 
             if (chemtbl[k].mtype == MIXED_MA)
             {
@@ -65,6 +59,13 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     }
                 }
             }
+
+            elem[i].chms_unsat.t_conc[k] =
+                (elem[i].chms_unsat.t_conc[k] > 0.0) ?
+                elem[i].chms_unsat.t_conc[k] : 0.0;
+            elem[i].chms_gw.t_conc[k] =
+                (elem[i].chms_gw.t_conc[k] > 0.0) ?
+                elem[i].chms_gw.t_conc[k] : 0.0;
         }
     }
 
@@ -79,7 +80,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
         vol_rivbed = RivBedVol(&river[i].topo, &river[i].matl, &river[i].ws);
         vol_stream = river[i].topo.area *
-            ((river[i].ws.stage > 0.0) ? river[i].ws.stage : 0.0);
+            ((river[i].ws.stage > 1.0E-5) ? river[i].ws.stage : 1.0E-5);
 
         for (k = 0; k < NumSpc; k++)
         {
@@ -228,7 +229,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     river[i].wf.rivflow[LEFT_AQUIF2CHANL] *
                     ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
                     river[i].chms_stream.t_conc[k] :
-                    rttbl->prcp_conc[k] * rttbl->Condensation);
+                    left->chms_gw.t_conc[k]);
 
                 river[i].chmf.flux[LEFT_AQUIF2AQUIF][k] =
                     river[i].wf.rivflow[LEFT_AQUIF2AQUIF] *
@@ -341,145 +342,5 @@ double AdvDiffDisp(double DiffCoe, double DispCoe, double cementation,
 }
 
 #if TEMP_DISABLED
-void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
-    Chem_Data CD)
-{
-    int             i, k;
-
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-        for (i = 0; i < nelem; i++)
-        {
-            int             j;
-
-        }
-    } /* RT step control ends */
-
-    /* Every hour */
-    if ((t - pihm->ctrl.starttime) % 3600 == 0)
-    {
-        if (!pihm->rttbl.RecFlg)
-        {
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-            for (i = 0; i < pihm->rttbl.NumStc; i++)
-            {
-                int             j;
-
-                for (j = 0; j < nriver; j++)
-                {
-                    CD->Vcele[RT_RIVER(j)].chms.p_conc[i] =
-                        (pihm->chemtbl[i].itype == MINERAL) ?
-                        CD->Vcele[RT_RIVER(j)].chms.t_conc[i] :
-                        fabs(CD->Vcele[RT_RIVER(j)].chms.t_conc[i] * 0.1);
-                }
-            }
-        }
-
-        if (!pihm->rttbl.RecFlg)
-        {
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-            for (i = 0; i < nriver; i++)
-            {
-                double          t_conc0[MAXSPS];
-                int             k;
-
-                for (k = 0; k < NumSpc; k++)
-                {
-                    t_conc0[k] = CD->Vcele[RT_RIVER(i)].chms.t_conc[k];
-                }
-
-                Speciation(pihm->chemtbl, &pihm->rttbl, 0,
-                    &CD->Vcele[RT_RIVER(i)].chms);
-
-                for (k = 0; k < NumSpc; k++)
-                {
-                    CD->Vcele[RT_RIVER(i)].chmf.react_flux[k] =
-                        (CD->Vcele[RT_RIVER(i)].chms.t_conc[k] - t_conc0[k]) *
-                        CD->Vcele[RT_RIVER(i)].vol / 3600.0;
-                }
-            }
-        }
-        else
-        {
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-            for (i = 0; i < CD->NumVol; i++)
-            {
-                if (CD->Vcele[i].type != VIRTUAL_VOL)
-                {
-                    Speciation(pihm->chemtbl, &pihm->rttbl, 0,
-                        &CD->Vcele[i].chms);
-                }
-            }
-        }
-    }
-
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-    for (i = 0; i < CD->NumVol; i++)
-    {
-        int             j;
-
-        for (j = 0; j < pihm->rttbl.NumStc; j++)
-        {
-            CD->Vcele[i].chms.log10_pconc[j] = log10(CD->Vcele[i].chms.p_conc[j]);
-        }
-        for (j = 0; j < pihm->rttbl.NumSsc; j++)
-        {
-            CD->Vcele[i].chms.log10_sconc[j] = log10(CD->Vcele[i].chms.s_conc[j]);
-        }
-    }
-
-    /* Flux for RIVER flow */
-    for (i = 0; i < nriver; i++)
-    {
-        if (pihm->river[i].down < 0)
-        {
-            CD->riv = pihm->river[i].wf.rivflow[1];
-        }
-    }
-
-    if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
-    {
-        CD->rivd = CD->riv / (DAYINSEC / pihm->ctrl.stepsize);
-        //CD->riv = 0;
-    }
-
-    for (k = 0; k < pihm->rttbl.NumBTC; k++)
-    {
-        int             j;
-
-        for (j = 0; j < pihm->rttbl.NumStc; j++)
-        {
-            if (pihm->rttbl.BTC_loc[k] < 0)
-            {
-                if (-pihm->rttbl.BTC_loc[k] >= -pihm->rttbl.pumps[0].Pump_Location &&
-                    j == pihm->rttbl.pumps[0].Position_Species)
-                {
-                    CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].chms.btcv_pconc[j] =
-                        log10((CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].chms.p_conc[j] * CD->riv +
-                        pihm->rttbl.pumps[0].Injection_conc * 1.0E-3 * pihm->rttbl.pumps[0].flow_rate) /
-                        (CD->riv + pihm->rttbl.pumps[0].flow_rate));
-                }
-                else
-                {
-                    CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].chms.btcv_pconc[j] =
-                        CD->Vcele[2 * nelem -pihm->rttbl.BTC_loc[k] - 1].chms.log10_pconc[j];
-                }
-            }
-            else
-            {
-                CD->Vcele[pihm->rttbl.BTC_loc[k] - 1].chms.btcv_pconc[j] =
-                    CD->Vcele[pihm->rttbl.BTC_loc[k] - 1].chms.log10_pconc[j];
-            }
-        }
-    }
 }
 #endif
