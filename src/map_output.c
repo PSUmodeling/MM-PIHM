@@ -5,12 +5,12 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     const epconst_struct epctbl[], const elem_struct *elem,
     const river_struct *river, const meshtbl_struct *meshtbl,
     const char *outputdir, print_struct *print)
-#elif defined(_RT_)
-void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
-    const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    const Chem_Data rt, const elem_struct *elem,
-    const river_struct *river, const meshtbl_struct *meshtbl,
-    const char *outputdir, print_struct *print)
+//#elif defined(_RT_)
+//void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
+//    const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+//    const Chem_Data rt, const elem_struct *elem,
+//    const river_struct *river, const meshtbl_struct *meshtbl,
+//    const char *outputdir, print_struct *print)
 #else
 void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     const elem_struct *elem, const river_struct *river,
@@ -945,6 +945,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         }
     }
 
+#if TEMP_DISABLED
 #if defined(_RT_)
     char            chemn[MAXSTRING];
 
@@ -1043,6 +1044,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         }
         n++;
     }
+#endif
 #endif
 
     if (n > MAXPRINT)

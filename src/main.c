@@ -50,9 +50,6 @@ int main(int argc, char *argv[])
 
     /* Allocate memory for model data structure */
     pihm = (pihm_struct)malloc(sizeof(*pihm));
-#if defined(_RT_)
-    pihm->rt = (Chem_Data)malloc(sizeof (*pihm->rt));     // 12.30 RT use
-#endif
 
     /* Read PIHM input files */
     ReadAlloc(pihm);
@@ -66,11 +63,7 @@ int main(int argc, char *argv[])
     }
 
     /* Initialize PIHM structure */
-#if defined(_RT_)
-    Initialize(pihm, pihm->rt, CV_Y, &cvode_mem);
-#else
     Initialize(pihm, CV_Y, &cvode_mem);
-#endif
 
     /* Create output directory */
     CreateOutputDir(outputdir);
@@ -79,10 +72,10 @@ int main(int argc, char *argv[])
 #if defined(_CYCLES_)
     MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->epctbl,
         pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
-#elif defined(_RT_)
-    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->chemtbl,
-        &pihm->rttbl, pihm->rt,
-        pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
+//#elif defined(_RT_)
+//    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->chemtbl,
+//        &pihm->rttbl, pihm->rt,
+//        pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
 #else
     MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->elem, pihm->river,
         &pihm->meshtbl, outputdir, &pihm->print);
@@ -121,11 +114,7 @@ int main(int argc, char *argv[])
 
     if (spinup_mode)
     {
-#if defined(_RT_)
-        Spinup(pihm, pihm->rt, CV_Y, cvode_mem);
-#else
         Spinup(pihm, CV_Y, cvode_mem);
-#endif
 
         /* In spin-up mode, initial conditions are always printed */
         PrintInit(pihm->elem, pihm->river, outputdir,
@@ -145,11 +134,7 @@ int main(int argc, char *argv[])
             RunTime(start, &cputime, &cputime_dt);
 #endif
 
-#if defined(_RT_)
-            PIHM(pihm, pihm->rt, cvode_mem, CV_Y, cputime);
-#else
             PIHM(pihm, cvode_mem, CV_Y, cputime);
-#endif
 
             /* Adjust CVODE max step to reduce oscillation */
             AdjCVodeMaxStep(cvode_mem, &pihm->ctrl);
@@ -200,10 +185,6 @@ int main(int argc, char *argv[])
     /* Free integrator memory */
     CVodeFree(&cvode_mem);
     FreeMem(pihm);
-#if defined(_RT_)
-    FreeChem(pihm->rt);
-    free(pihm->rt);
-#endif
     free(pihm);
 
     PIHMprintf(VL_BRIEF, "\nSimulation completed.\n");

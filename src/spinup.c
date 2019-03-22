@@ -1,10 +1,6 @@
 #include "pihm.h"
 
-#if defined(_RT_)
-void Spinup(pihm_struct pihm, Chem_Data rt, N_Vector CV_Y, void *cvode_mem)
-#else
 void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
-#endif
 {
     int             spinyears = 0;
     int             first_spin_cycle = 1;
@@ -26,11 +22,7 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 
         for (ctrl->cstep = 0; ctrl->cstep < ctrl->nstep; ctrl->cstep++)
         {
-#if defined(_RT_)
-            PIHM(pihm, rt, cvode_mem, CV_Y, 0.0);
-#else
             PIHM(pihm, cvode_mem, CV_Y, 0.0);
-#endif
         }
 
         /* Reset solver parameters */

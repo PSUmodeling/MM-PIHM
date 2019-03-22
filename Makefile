@@ -182,18 +182,18 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	noah/noah_glacial_only.c\
 	noah/topo_radn.c\
 	spa/spa.c\
-	rt/flux_trans.c\
-	rt/lookup.c\
-	rt/os3d.c\
-	rt/react.c\
 	rt/read_chem.c\
-	rt/read_cini.c\
 	rt/read_prep.c\
-	rt/rt.c\
-	rt/speciation.c
+	rt/rt_util.c
+	#rt/flux_trans.c\
+	#rt/lookup.c\
+	#rt/os3d.c\
+	#rt/react.c\
+	#rt/read_cini.c\
+	#rt/rt.c\
+	#rt/speciation.c
   MODULE_HEADERS_ =\
-	include/spa.h\
-	include/rt.h
+	include/spa.h
   EXECUTABLE = rt-flux-pihm
   MSG = "... Compiling RT-Flux-PIHM ..."
 endif

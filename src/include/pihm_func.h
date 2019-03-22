@@ -187,11 +187,7 @@ double          Infil(const wstate_struct *, const wstate_struct *,
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
 void            InitForc(elem_struct *, forc_struct *, const calib_struct *);
-#if defined(_RT_)
-void            Initialize(pihm_struct, Chem_Data, N_Vector, void **);
-#else
 void            Initialize(pihm_struct, N_Vector, void **);
-#endif
 void            InitLc(elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMesh(elem_struct *, const meshtbl_struct *);
@@ -227,11 +223,11 @@ void            LateralFlow(elem_struct *, const river_struct *, int);
 void            MapOutput(const int *, const int *, const epconst_struct [],
     const elem_struct *, const river_struct *, const meshtbl_struct *,
     const char *, print_struct *);
-#elif defined(_RT_)
-void            MapOutput(const int *, const int *, const chemtbl_struct [],
-    const rttbl_struct *, const Chem_Data,
-    const elem_struct *, const river_struct *, const meshtbl_struct *,
-    const char *, print_struct *);
+//#elif defined(_RT_)
+//void            MapOutput(const int *, const int *, const chemtbl_struct [],
+//    const rttbl_struct *, const Chem_Data,
+//    const elem_struct *, const river_struct *, const meshtbl_struct *,
+//    const char *, print_struct *);
 #else
 void            MapOutput(const int *, const int *, const elem_struct *,
     const river_struct *, const meshtbl_struct *, const char *, print_struct *);
@@ -257,11 +253,7 @@ double          OvlFlowElemToElem(const elem_struct *, const elem_struct *, int,
     double, int);
 double          OvlFlowElemToRiver(const elem_struct *, const river_struct *);
 void            ParseCmdLineParam(int, char *[], char *);
-#if defined(_RT_)
-void            PIHM(pihm_struct, Chem_Data, void *, N_Vector, double);
-#else
 void            PIHM(pihm_struct, void *, N_Vector, double);
-#endif
 pihm_t_struct   PIHMTime(int);
 void            PrintCVodeFinalStats(void *);
 void            PrintData(varctrl_struct *, int, int, int, int);
@@ -314,11 +306,7 @@ void            RelaxIc(elem_struct *, river_struct *);
 void            SetCVodeParam(pihm_struct, void *, N_Vector);
 int             SoilTex(double, double);
 void            SolveCVode(int, int *, int, double, void *, N_Vector);
-#if defined(_RT_)
-void            Spinup(pihm_struct, Chem_Data, N_Vector, void *);
-#else
 void            Spinup(pihm_struct, N_Vector, void *);
-#endif
 void            StartupScreen(void);
 int             StrTime(const char *);
 double          SubFlowElemToElem(const elem_struct *, const elem_struct *,
@@ -327,11 +315,7 @@ double          SubFlowElemToRiver(const elem_struct *, double,
     const river_struct *, double, double);
 double          SubFlowRiverToRiver(const river_struct *, double,
     const river_struct *, double);
-#if defined(_RT_)
-void            Summary(elem_struct *, river_struct *, N_Vector, double, vol_conc[]);
-#else
 void            Summary(elem_struct *, river_struct *, N_Vector, double);
-#endif
 double          SurfH(double);
 void            UpdPrintVar(varctrl_struct *, int, int);
 void            UpdPrintVarT(varctrl_struct *, int);
@@ -739,18 +723,11 @@ void            WaterUptake(const soil_struct *, const estate_struct *,
 #endif
 
 #if defined(_RT_)
-realtype        rivArea(int, realtype, realtype);
-realtype        returnVal(realtype rArea, realtype rPerem, realtype eqWid,
-    realtype ap_Bool);
-realtype        CS_AreaOrPerem(int rivOrder, realtype rivDepth,
-    realtype rivCoeff, realtype a_pBool);
-int             upstream(elem_struct, elem_struct, const pihm_struct);
 int             realcheck(const char *);
 int             keymatch(const char *, const char *, double *, char **);
-void            InitChem(const char [], const char[], pihm_struct, Chem_Data, N_Vector);
-void            fluxtrans(const pihm_struct, Chem_Data);
-void            chem_updater(Chem_Data, const pihm_struct); // 10.01
-void            OS3D(const chemtbl_struct [], const rttbl_struct *, Chem_Data);
+//void            InitChem(const char [], const char[], pihm_struct, Chem_Data, N_Vector);
+//void            fluxtrans(const pihm_struct, Chem_Data);
+//void            OS3D(const chemtbl_struct [], const rttbl_struct *, Chem_Data);
 void            React(double, const chemtbl_struct [], const kintbl_struct [],
     const rttbl_struct *, double, chmstate_struct *);
 int             _React(double, const chemtbl_struct [], const kintbl_struct [],
@@ -761,17 +738,13 @@ int             Speciation(const chemtbl_struct [], const rttbl_struct *, int,
     chmstate_struct *);
 int             keymatch(const char *, const char *, double *, char **);
 int             SpeciationType(FILE *, char *);
-void            Reset(Chem_Data, int);
-void            InitialChemFile(char *, char *, int, int *);
-void            PrintChem(char *, char *, Chem_Data, int);
-void            FreeChem(Chem_Data);
-void            ReportError(const chemtbl_struct [], const rttbl_struct *, vol_conc, Chem_Data);
-double          Dconc(const face *, const vol_conc [], const chemtbl_struct [],
-    double, int);
+//void            FreeChem(Chem_Data);
+//double          Dconc(const face *, const vol_conc [], const chemtbl_struct [],
+//    double, int);
 void            Unwrap(char *, const char *);
-void            InitVcele(double, double, double, double, int, vol_conc *);
-void            InitFlux(int, int, int, int, int, int, double, face *);
-void            UpdateVcele(double, double, vol_conc *);
+//void            InitVcele(double, double, double, double, int, vol_conc *);
+//void            InitFlux(int, int, int, int, int, int, double, face *);
+//void            UpdateVcele(double, double, vol_conc *);
 double          EqvUnsatH(double, double, double, double, double);
 double          UnsatSatRatio(double, double, double);
 void            SortChem(char[][MAXSTRING], const int [], int, chemtbl_struct []);
@@ -780,9 +753,9 @@ void            ReadChem(const char[], const char[], chemtbl_struct [],
     kintbl_struct [], rttbl_struct *, ctrl_struct *);
 void            ReadPrep(const char[], const chemtbl_struct [], const double [],
     forc_struct *forc);
-void            ReadCini(const char[], const chemtbl_struct *, int, vol_conc *);
-void            SpeciationReaction(int, int, const pihm_struct,
-    Chem_Data);
+//void            ReadCini(const char[], const chemtbl_struct *, int, vol_conc *);
+//void            SpeciationReaction(int, int, const pihm_struct,
+//    Chem_Data);
 int             ParseLocation(const char [], const char [], int);
 void            ApplyPrcpConc(forc_struct *, rttbl_struct *, int, int);
 void            wrap(char *);

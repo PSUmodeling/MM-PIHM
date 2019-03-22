@@ -1,11 +1,6 @@
 #include "pihm.h"
 
-#if defined(_RT_)
-void PIHM(pihm_struct pihm, Chem_Data rt, void *cvode_mem, N_Vector CV_Y,
-    double cputime)
-#else
 void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
-#endif
 {
     int             t;
 
@@ -50,12 +45,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
         cputime, cvode_mem, CV_Y);
 
     /* Use mass balance to calculate model fluxes or variables */
-#if defined(_RT_)
-    Summary(pihm->elem, pihm->river, CV_Y, (double)pihm->ctrl.stepsize,
-        pihm->rt->Vcele);
-#else
     Summary(pihm->elem, pihm->river, CV_Y, (double)pihm->ctrl.stepsize);
-#endif
 
 #if defined(_NOAH_)
     NoahHydrol(pihm->elem, (double)pihm->ctrl.stepsize);
@@ -65,11 +55,11 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, HYDROL_STEP);
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, HYDROL_STEP);
 
-#if defined(_RT_)
-    SpeciationReaction(t, pihm->ctrl.stepsize, pihm, rt);
-    UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
-    UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, RT_STEP);
-#endif
+//#if defined(_RT_)
+//    SpeciationReaction(t, pihm->ctrl.stepsize, pihm, rt);
+//    UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
+//    UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, RT_STEP);
+//#endif
 
 #if defined(_DAILY_)
     DailyVar(t, pihm->ctrl.starttime, pihm->elem);

@@ -1,6 +1,9 @@
 #include "pihm.h"
 
 #define ZERO   1E-20
+#define LINE_WIDTH 512
+#define WORDS_LINE 40
+#define WORD_WIDTH 80
 
 void ReadChem(const char chem_filen[], const char cdbs_filen[],
     chemtbl_struct chemtbl[], kintbl_struct kintbl[], rttbl_struct *rttbl,
@@ -445,3 +448,152 @@ int ParseLocation(const char str[], const char filen[], int lno)
 
     return loc;
 }
+
+int SpeciationType(FILE *database, char *Name)
+{
+    /* This subroutine is used to find out what the input species is.
+     * 0) not found within database
+     * 1) aqueous
+     * 2) adsorption
+     * 3) cation exchange
+     * 4) mineral
+     */
+    double          tmpval[WORDS_LINE];
+    int             i, return_val;
+    char            line[LINE_WIDTH], word[WORD_WIDTH];
+
+    if (strcmp(Name, "pH") == 0)
+        return AQUEOUS;
+
+    char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
+    for (i = 0; i < WORDS_LINE; i++)
+        tmpstr[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
+
+    return_val = 0;
+
+    sprintf(word, "'%s'", Name);
+    rewind(database);
+    fgets(line, LINE_WIDTH, database);
+    while (keymatch(line, "'End of primary'", tmpval, tmpstr) != 1)
+    {
+        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
+        {
+            if (strcmp(word, tmpstr[0]) == 0)
+            {
+                for (i = 0; i < WORDS_LINE; i++)
+                    free(tmpstr[i]);
+                free(tmpstr);
+                return AQUEOUS;
+            }
+        }
+        fgets(line, LINE_WIDTH, database);
+    }
+    fgets(line, LINE_WIDTH, database);
+    while (keymatch(line, "'End of secondary'", tmpval, tmpstr) != 1)
+    {
+        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
+        {
+            if (strcmp(word, tmpstr[0]) == 0)
+            {
+                for (i = 0; i < WORDS_LINE; i++)
+                    free(tmpstr[i]);
+                free(tmpstr);
+                return 5;
+            }
+        }
+        fgets(line, LINE_WIDTH, database);
+    }
+    fgets(line, LINE_WIDTH, database);
+    while (keymatch(line, "'End of minerals'", tmpval, tmpstr) != 1)
+    {
+        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
+        {
+            if (strcmp(word, tmpstr[0]) == 0)
+            {
+                for (i = 0; i < WORDS_LINE; i++)
+                    free(tmpstr[i]);
+                free(tmpstr);
+                return MINERAL;
+            }
+        }
+        fgets(line, LINE_WIDTH, database);
+    }
+    fgets(line, LINE_WIDTH, database);
+    while (strcmp(line, "End of surface complexation\r\n") != 1)
+    {
+        /* Notice that in crunchflow database, starting from surface
+         * complexation, there is not apostrophe marks around blocking keywords
+         */
+        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
+        {
+            if (strcmp(word, tmpstr[0]) == 0)
+            {
+                for (i = 0; i < WORDS_LINE; i++)
+                    free(tmpstr[i]);
+                free(tmpstr);
+                return ADSORPTION;
+            }
+        }
+        fgets(line, LINE_WIDTH, database);
+    }
+    fgets(line, LINE_WIDTH, database);
+    while (!feof(database))
+    {
+        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
+        {
+            if (strcmp(word, tmpstr[0]) == 0)
+            {
+                for (i = 0; i < WORDS_LINE; i++)
+                    free(tmpstr[i]);
+                free(tmpstr);
+                return CATION_ECHG;
+            }
+        }
+        fgets(line, LINE_WIDTH, database);
+    }
+
+    for (i = 0; i < WORDS_LINE; i++)
+        free(tmpstr[i]);
+    free(tmpstr);
+
+    return (0);
+}
+
+void SortChem(char chemn[MAXSPS][MAXSTRING], const int p_type[MAXSPS], int nsps,
+    chemtbl_struct chemtbl[])
+{
+    int             i, j;
+    int             temp;
+    int             rank[MAXSPS];
+    int             ranked_type[MAXSPS];
+
+    for (i = 0; i < nsps; i++)
+    {
+        rank[i] = i;
+        ranked_type[i] = p_type[i];
+    }
+
+    for (i = 0; i < nsps - 1; i++)
+    {
+        for (j = 0; j < nsps - i - 1; j++)
+        {
+            if (ranked_type[j] > ranked_type[j + 1])
+            {
+                temp = rank[j];
+                rank[j] = rank[j + 1];
+                rank[j + 1] = temp;
+
+                temp = ranked_type[j];
+                ranked_type[j] = ranked_type[j + 1];
+                ranked_type[j + 1] = temp;
+            }
+        }
+    }
+
+    for (i = 0; i < nsps; i++)
+    {
+        strcpy(chemtbl[i].ChemName, chemn[rank[i]]);
+        chemtbl[i].itype = p_type[rank[i]];
+    }
+}
+

@@ -2,11 +2,7 @@
 
 #define MAX_TYPE    100
 
-#if defined(_RT_)
-void Initialize(pihm_struct pihm, Chem_Data rt, N_Vector CV_Y, void **cvode_mem)
-#else
 void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
-#endif
 {
     int             i, j;
 #if defined(_LUMPED_)
@@ -212,8 +208,10 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     InitDailyStruct(pihm->elem);
 #endif
 
+#if TEMP_DISABLED
 #if defined(_RT_)
     InitChem(pihm->filename.cdbs, pihm->filename.cini, pihm, rt, CV_Y);
+#endif
 #endif
 
 }
