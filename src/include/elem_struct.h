@@ -1545,6 +1545,39 @@ typedef struct solute_struct
 } solute_struct;
 #endif
 
+#if defined(_RT_)
+typedef struct rtic_struct
+{
+    double          t_conc[MAXSPS];
+    double          ssa[MAXSPS];
+} rtic_struct;
+
+typedef struct chmstate_struct
+{
+    double          t_conc[MAXSPS];         /* concentration (M kg-1 water) */
+    double          p_conc[MAXSPS];         /* primary concentration
+                                             * (M kg-1 water) */
+    double          s_conc[MAXSPS];         /* secondary concentration
+                                             * (M kg-1 water) */
+    double          p_actv[MAXSPS];         /* activity of primary species */
+    double          ssa[MAXSPS];            /* specific surface area */
+    double          t_mole[MAXSPS];
+    double          log10_pconc[MAXSPS];    /* for output only */
+    double          log10_sconc[MAXSPS];    /* for output only */
+    double          btcv_pconc[MAXSPS];     /* for btcv output only */
+} chmstate_struct;
+
+typedef struct chmflux_struct
+{
+    double          infil[MAXSPS];
+    double          rechg[MAXSPS];
+    double          subflux[NUM_EDGE][MAXSPS];
+    double          unsatflux[NUM_EDGE][MAXSPS];
+    double          react_unsat[MAXSPS];
+    double          react_gw[MAXSPS];
+} chmflux_struct;
+#endif
+
 /* Spinup variables */
 typedef struct spinup_struct
 {
@@ -1618,6 +1651,12 @@ typedef struct elem_struct
     epvar_struct    epv;
     solute_struct   nsol;
     spinup_struct   spinup;
+#endif
+#if defined(_RT_)
+    rtic_struct     restart_input;
+    chmstate_struct chms_unsat;
+    chmstate_struct chms_gw;
+    chmflux_struct  chmf;
 #endif
 } elem_struct;
 #endif
