@@ -172,7 +172,7 @@ void React(double stepsize, const chemtbl_struct chemtbl[],
             {
                 substep *= 0.5;
                 k *= 2;
-                if (substep < 0.5)
+                if (substep < 30.0)
                     break;
             }
 
