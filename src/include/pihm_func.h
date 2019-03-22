@@ -727,7 +727,7 @@ int             realcheck(const char *);
 int             keymatch(const char *, const char *, double *, char **);
 void            InitChem(const char [], const char [], const ctrl_struct *,
     const calib_struct *, forc_struct *forc, chemtbl_struct [],
-    kintbl_struct [], rttbl_struct *, elem_struct [],
+    kintbl_struct [], rttbl_struct *, elem_struct [], river_struct [],
     N_Vector);
 //void            fluxtrans(const pihm_struct, Chem_Data);
 //void            OS3D(const chemtbl_struct [], const rttbl_struct *, Chem_Data);
@@ -763,6 +763,12 @@ void            ReadCini(const char[], const chemtbl_struct *, int,
 int             ParseLocation(const char [], const char [], int);
 void            ApplyPrcpConc(forc_struct *, rttbl_struct *, int, int);
 void            wrap(char *);
+double          GWVol(const topo_struct *, const soil_struct *,
+    const wstate_struct *);
+double          UnsatWaterVol(const topo_struct *, const soil_struct *,
+    const wstate_struct *);
+double          RivBedVol(const river_topo_struct *, const matl_struct *,
+    const river_wstate_struct *);
 
 #endif
 

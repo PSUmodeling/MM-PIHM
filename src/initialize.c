@@ -211,7 +211,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #if defined(_RT_)
     InitChem(pihm->filename.cdbs, pihm->filename.cini, &pihm->ctrl, &pihm->cal,
         &pihm->forc, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, pihm->elem,
-        CV_Y);
+        pihm->river, CV_Y);
 #endif
 
 }

@@ -141,7 +141,6 @@ typedef struct river_chmstate_struct
     double          s_conc[MAXSPS];         /* secondary concentration
                                              * (M kg-1 water) */
     double          p_actv[MAXSPS];         /* activity of primary species */
-    double          ssa[MAXSPS];            /* specific surface area */
     double          t_mole[MAXSPS];
     double          log10_pconc[MAXSPS];    /* for output only */
     double          log10_sconc[MAXSPS];    /* for output only */
