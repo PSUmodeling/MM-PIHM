@@ -40,31 +40,31 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             elem[i].chms_unsat.t_conc[k] = (vol_unsat > 0.0) ?
                 elem[i].chms_unsat.t_mole[k] / vol_unsat : 0.0;
             elem[i].chms_unsat.t_conc[k] =
-                (elem[i].chms_unsat.t_conc[k] > ZERO) ?
-                elem[i].chms_unsat.t_conc[k] : ZERO;
+                (elem[i].chms_unsat.t_conc[k] > 0.0) ?
+                elem[i].chms_unsat.t_conc[k] : 0.0;
 
             elem[i].chms_gw.t_conc[k] = (vol_gw > 0.0) ?
                 elem[i].chms_gw.t_mole[k] / vol_gw : 0.0;
             elem[i].chms_unsat.t_conc[k] =
-                (elem[i].chms_gw.t_conc[k] > ZERO) ?
-                elem[i].chms_gw.t_conc[k] : ZERO;
+                (elem[i].chms_gw.t_conc[k] > 0.0) ?
+                elem[i].chms_gw.t_conc[k] : 0.0;
 
-            //if (chemtbl[k].mtype == MIXED_MA)
-            //{
-            //    for (kk = 0; kk < rttbl->NumSsc; kk++)
-            //    {
-            //        if ((rttbl->Totalconc[k][kk + rttbl->NumStc] != 0) &&
-            //            (chemtbl[kk + rttbl->NumStc].itype != AQUEOUS))
-            //        {
-            //            elem[i].chms_gw.t_conc[k] -=
-            //                rttbl->Totalconc[k][kk + rttbl->NumStc] *
-            //                elem[i].chms_gw.s_conc[kk];
-            //            elem[i].chms_unsat.t_conc[k] -=
-            //                rttbl->Totalconc[k][kk + rttbl->NumStc] *
-            //                elem[i].chms_unsat.s_conc[kk];
-            //        }
-            //    }
-            //}
+            if (chemtbl[k].mtype == MIXED_MA)
+            {
+                for (kk = 0; kk < rttbl->NumSsc; kk++)
+                {
+                    if ((rttbl->Totalconc[k][kk + rttbl->NumStc] != 0) &&
+                        (chemtbl[kk + rttbl->NumStc].itype != AQUEOUS))
+                    {
+                        elem[i].chms_gw.t_conc[k] -=
+                            rttbl->Totalconc[k][kk + rttbl->NumStc] *
+                            elem[i].chms_gw.s_conc[kk];
+                        elem[i].chms_unsat.t_conc[k] -=
+                            rttbl->Totalconc[k][kk + rttbl->NumStc] *
+                            elem[i].chms_unsat.s_conc[kk];
+                    }
+                }
+            }
         }
     }
 
@@ -93,14 +93,14 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             river[i].chms_stream.t_conc[k] = (vol_stream > 0.0) ?
                 river[i].chms_stream.t_mole[k] / vol_stream : 0.0;
             river[i].chms_stream.t_conc[k] =
-                (river[i].chms_stream.t_conc[k] > ZERO) ?
-                river[i].chms_stream.t_conc[k] : ZERO;
+                (river[i].chms_stream.t_conc[k] > 0.0) ?
+                river[i].chms_stream.t_conc[k] : 0.0;
 
             river[i].chms_rivbed.t_conc[k] = (vol_rivbed > 0.0) ?
                 river[i].chms_rivbed.t_mole[k] / vol_rivbed : 0.0;
             river[i].chms_rivbed.t_conc[k] =
-                (river[i].chms_rivbed.t_conc[k] > ZERO) ?
-                river[i].chms_rivbed.t_conc[k] : ZERO;
+                (river[i].chms_rivbed.t_conc[k] > 0.0) ?
+                river[i].chms_rivbed.t_conc[k] : 0.0;
         }
     }
 
@@ -397,26 +397,6 @@ void SpeciationReaction(int t, int stepsize, const pihm_struct pihm,
                 (CD->Vcele[RT_UNSAT(i)].chms.t_conc[k] > 1.0E-20) ?
                 CD->Vcele[RT_UNSAT(i)].chms.t_conc[k] : 1.0E-20;
         }
-
-        //for (j = 0; j < NumSpc; j++)
-        //{
-        //    if (pihm->chemtbl[j].mtype == MIXED_MA)
-        //    {
-        //        for (k = 0; k < pihm->rttbl.NumSsc; k++)
-        //        {
-        //            if ((CD->Totalconc[j][k + pihm->rttbl.NumStc] != 0) &&
-        //                (pihm->chemtbl[k + pihm->rttbl.NumStc].itype != AQUEOUS))
-        //            {
-        //                CD->Vcele[RT_GW(i)].chms.t_conc[j] =
-        //                    CD->Vcele[RT_GW(i)].chms.t_conc[j] + CD->Totalconc[j][k +
-        //                    pihm->rttbl.NumStc] * CD->Vcele[RT_GW(i)].chms.s_conc[k];
-        //                CD->Vcele[RT_UNSAT(i)].chms.t_conc[j] =
-        //                    CD->Vcele[RT_UNSAT(i)].chms.t_conc[j] + CD->Totalconc[j][k +
-        //                    pihm->rttbl.NumStc] * CD->Vcele[RT_UNSAT(i)].chms.s_conc[k];
-        //            }
-        //        }
-        //    }
-        //}
     }
 
 #ifdef _OPENMP

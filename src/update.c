@@ -1,5 +1,7 @@
 #include "pihm.h"
 
+#define ZERO   1E-20
+
 void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
     double stepsize)
 {
@@ -14,7 +16,6 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
     for (i = 0; i < nelem; i++)
     {
         double          subrunoff;
-        int             k;
 
         elem[i].ws.surf = y[SURF(i)];
         elem[i].ws.unsat = y[UNSAT(i)];
@@ -47,16 +48,6 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 
         elem[i].ws0 = elem[i].ws;
 
-//#if defined(_RT_)
-//        for (k = 0; k < NumSpc; k++)
-//        {
-//            Vcele[RT_UNSAT(i)].chms.t_mole[k] = (y[UNSAT_MOLE(i, k)] > 1.0E-20) ?
-//                y[UNSAT_MOLE(i, k)] : 1.0E-20;
-//            Vcele[RT_GW(i)].chms.t_mole[k] = (y[GW_MOLE(i, k)] > 1.0E-20) ?
-//                y[GW_MOLE(i, k)] : 1.0E-20;
-//        }
-//#endif
-
 #if defined(_BGC_) && !defined(_LUMPED_)
         elem[i].ns.surfn = (y[SURFN(i)] > 0.0) ? y[SURFN(i)] : 0.0;
         elem[i].ns.sminn = (y[SMINN(i)] > 0.0) ? y[SMINN(i)] : 0.0;
@@ -80,6 +71,37 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 
         elem[i].ns0 = elem[i].ns;
 #endif
+
+#if defined(_RT_)
+        int             k;
+        double          vol_gw;
+        double          vol_unsat;
+
+        vol_gw = GWVol(&elem[i].topo, &elem[i].soil, &elem[i].ws);
+        vol_unsat = UnsatWaterVol(&elem[i].topo, &elem[i].soil, &elem[i].ws);
+
+        for (k = 0; k < NumSpc; k++)
+        {
+            elem[i].chms_unsat.t_mole[k] = (y[UNSAT_MOLE(i, k)] > 0.0) ?
+                y[UNSAT_MOLE(i, k)] : 0.0;
+            elem[i].chms_gw.t_mole[k] = (y[GW_MOLE(i, k)] > 0.0) ?
+                y[GW_MOLE(i, k)] : 0.0;
+
+            /* Calculate concentrations */
+            elem[i].chms_unsat.t_conc[k] = (vol_unsat > 0.0) ?
+                elem[i].chms_unsat.t_mole[k] / vol_unsat : 0.0;
+            elem[i].chms_unsat.t_conc[k] =
+                (elem[i].chms_unsat.t_conc[k] > ZERO) ?
+                elem[i].chms_unsat.t_conc[k] : ZERO;
+
+            elem[i].chms_gw.t_conc[k] = (vol_gw > 0.0) ?
+                elem[i].chms_gw.t_mole[k] / vol_gw : 0.0;
+            elem[i].chms_unsat.t_conc[k] =
+                (elem[i].chms_gw.t_conc[k] > ZERO) ?
+                elem[i].chms_gw.t_conc[k] : ZERO;
+        }
+#endif
+
     }
 
 #if defined(_BGC_) && defined(_LUMPED_)
@@ -103,18 +125,41 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         river[i].ws.gw = y[RIVGW(i)];
 
         river[i].ws0 = river[i].ws;
-//#if defined(_RT_)
-//        int         k;
-//        for (k = 0; k < NumSpc; k++)
-//        {
-//            Vcele[RT_RIVER(i)].chms.t_mole[k] = (y[RIVER_MOLE(i, k)] > 1.0E-20) ?
-//                y[RIVER_MOLE(i, k)] : 1.0E-20;
-//        }
-//#endif
 
 #if defined(_CYCLES_)
         river[i].ns.streamno3 = y[STREAMNO3(i)];
         river[i].ns.streamnh4 = y[STREAMNH4(i)];
+#endif
+
+#if defined(_RT_)
+        int         k;
+        double          vol_rivbed;
+        double          vol_stream;
+
+        vol_rivbed = RivBedVol(&river[i].topo, &river[i].matl, &river[i].ws);
+        vol_stream = river[i].topo.area *
+            ((river[i].ws.stage > 0.0) ? river[i].ws.stage : 0.0);
+
+        for (k = 0; k < NumSpc; k++)
+        {
+            river[i].chms_stream.t_mole[k] = (y[STREAM_MOLE(i, k)] > 0.0) ?
+                y[STREAM_MOLE(i, k)] : 0.0;
+            river[i].chms_rivbed.t_mole[k] = (y[RIVBED_MOLE(i, k)] > 0.0) ?
+                y[RIVBED_MOLE(i, k)] : 0.0;
+
+            /* Calculate concentrations */
+            river[i].chms_stream.t_conc[k] = (vol_stream > 0.0) ?
+                river[i].chms_stream.t_mole[k] / vol_stream : 0.0;
+            river[i].chms_stream.t_conc[k] =
+                (river[i].chms_stream.t_conc[k] > ZERO) ?
+                river[i].chms_stream.t_conc[k] : ZERO;
+
+            river[i].chms_rivbed.t_conc[k] = (vol_rivbed > 0.0) ?
+                river[i].chms_rivbed.t_mole[k] / vol_rivbed : 0.0;
+            river[i].chms_rivbed.t_conc[k] =
+                (river[i].chms_rivbed.t_conc[k] > ZERO) ?
+                river[i].chms_rivbed.t_conc[k] : ZERO;
+        }
 #endif
     }
 }
