@@ -19,8 +19,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     elem_struct elem[], N_Vector CV_Y)
 {
     int             i, j, k;
-    int             PRCP_VOL;
-    int             BOUND_VOL;
     int             chem_ind;
     FILE           *fp;
 
@@ -69,122 +67,95 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         }
     }
 
-#if TEMP_DISABLED
-    /* Initializing volumetric parameters, inherit from PIHM
-     * That is, if PIHM is started from a hot start, rt is also
-     * initialized with the hot data */
-    PRCP_VOL = CD->NumVol - 1;
-    BOUND_VOL = CD->NumVol;
+    /*
+     * Initializing concentration distributions
+     */
+    PIHMprintf(VL_VERBOSE, "\n Initializing concentrations... \n");
 
     for (i = 0; i < nelem; i++)
     {
-        double          heqv;
-        double          satn;
-
-        /* Initializing volumetrics for groundwater (GW) cells */
-        InitVcele(pihm->elem[i].ws.gw, pihm->elem[i].topo.area,
-            pihm->elem[i].soil.smcmax, 1.0, LAND_VOL, &CD->Vcele[RT_GW(i)]);
-
-        /* Initializing volumetrics for unsaturated cells */
-        /* Porosity in PIHM is
-         * Effective Porosity = Porosity - Residue Water Porosity
-         * Porosity in RT is total Porosity, therefore, the water height in the
-         * unsaturated zone needs be converted as well */
-        heqv = EqvUnsatH(pihm->elem[i].soil.smcmax,
-            pihm->elem[i].soil.smcmin, pihm->elem[i].soil.depth,
-            pihm->elem[i].ws.unsat, pihm->elem[i].ws.gw);
-        satn = UnsatSatRatio(pihm->elem[i].soil.depth,
-            pihm->elem[i].ws.unsat, pihm->elem[i].ws.gw);
-
-        InitVcele(heqv, pihm->elem[i].topo.area, pihm->elem[i].soil.smcmax,
-            satn, LAND_VOL, &CD->Vcele[RT_UNSAT(i)]);
-
-#if defined(_FBR_)
-        /* Initializing volumetrics for deep groundwater (FBR GW) cells */
-        InitVcele(pihm->elem[i].ws.fbr_gw, pihm->elem[i].topo.area,
-            pihm->elem[i].geol.smcmax, 1.0, LAND_VOL,
-            &CD->Vcele[RT_FBR_GW(i)]);
-
-        /* Initializing volumetrics for bedrock unsaturated cells */
-        heqv = EqvUnsatH(pihm->elem[i].geol.smcmax,
-            pihm->elem[i].geol.smcmin, pihm->elem[i].geol.depth,
-            pihm->elem[i].ws.fbr_unsat, pihm->elem[i].ws.fbr_gw);
-        satn = UnsatSatRatio(pihm->elem[i].geol.depth,
-            pihm->elem[i].ws.fbr_unsat, pihm->elem[i].ws.fbr_gw);
-
-        InitVcele(heqv, pihm->elem[i].topo.area, pihm->elem[i].geol.smcmax,
-            satn, LAND_VOL, &CD->Vcele[RT_FBR_UNSAT(i)]);
-#endif
-    }
-
-    /* Initializing volumetrics for river cells */
-    for (i = 0; i < nriver; i++)
-    {
-        InitVcele(pihm->river[i].ws.gw, pihm->river[i].topo.area, 1.0, 1.0,
-            RIVER_VOL, &CD->Vcele[RT_RIVER(i)]);
-    }
-
-    /* Initialize virtual cell */
-    InitVcele(0.0, 0.0, 0.0, 0.0, VIRTUAL_VOL, &CD->Vcele[PRCP_VOL - 1]);
-    InitVcele(1.0, 1.0, 1.0, 1.0, VIRTUAL_VOL, &CD->Vcele[BOUND_VOL - 1]);
-
-    /* Initializing concentration distributions */
-    PIHMprintf(VL_NORMAL,
-        "\n Initializing concentration, Vcele [i, 0 ~ NumVol]... \n");
-
-    for (i = 0; i < CD->NumVol; i++)
-    {
-        CD->Vcele[i].index = i + 1;
-
-        for (j = 0; j < pihm->rttbl.NumStc; j++)
+        for (j = 0; j < rttbl->NumStc; j++)
         {
-            if (strcmp(pihm->chemtbl[j].ChemName, "'H+'") == 0)
+            if (strcmp(chemtbl[j].ChemName, "'H+'") == 0)
             {
-                CD->Vcele[i].chms.t_conc[j] = CD->Vcele[i].ic.t_conc[j];
-                CD->Vcele[i].chms.p_actv[j] = CD->Vcele[i].chms.t_conc[j];
-                CD->Vcele[i].chms.p_conc[j] = CD->Vcele[i].chms.t_conc[j];
+                elem[i].chms_unsat.t_conc[j] = elem[i].restart_input.tconc_unsat[j];
+                elem[i].chms_unsat.p_actv[j] = elem[i].chms_unsat.t_conc[j];
+                elem[i].chms_unsat.p_conc[j] = elem[i].chms_unsat.t_conc[j];
+                elem[i].chms_unsat.ssa[j] = elem[i].restart_input.ssa_unsat[j];
+
+                elem[i].chms_gw.t_conc[j] = elem[i].restart_input.tconc_gw[j];
+                elem[i].chms_gw.p_actv[j] = elem[i].chms_gw.t_conc[j];
+                elem[i].chms_gw.p_conc[j] = elem[i].chms_gw.t_conc[j];
+                elem[i].chms_gw.ssa[j] = elem[i].restart_input.ssa_gw[j];
             }
-            else if (pihm->chemtbl[j].itype == MINERAL)
+            else if (chemtbl[j].itype == MINERAL)
             {
-                CD->Vcele[i].chms.t_conc[j] = CD->Vcele[i].ic.t_conc[j];
-                /* Update the concentration of mineral after get the molar volume of
-                 * mineral */
-                CD->Vcele[i].chms.t_conc[j] *= (pihm->rttbl.RelMin == 0) ?
+                elem[i].chms_unsat.t_conc[j] = elem[i].restart_input.tconc_unsat[j];
+                /* Update the concentration of mineral using molar volume */
+                elem[i].chms_unsat.t_conc[j] *= (rttbl->RelMin == 0) ?
                     /* Absolute mineral volume fraction */
-                    1000.0 / pihm->chemtbl[j].MolarVolume / CD->Vcele[i].porosity :
+                    1000.0 / chemtbl[j].MolarVolume / elem[i].soil.smcmax :
                     /* Relative mineral volume fraction */
-                    (1.0 - CD->Vcele[i].porosity + INFTYSMALL) * 1000.0 /
-                    pihm->chemtbl[j].MolarVolume / CD->Vcele[i].porosity;
-                CD->Vcele[i].chms.p_actv[j] = 1.0;
-                CD->Vcele[i].chms.p_conc[j] = CD->Vcele[i].chms.t_conc[j];
-                CD->Vcele[i].chms.ssa[j] = CD->Vcele[i].ic.p_para[j];
+                    (1.0 - elem[i].soil.smcmax + INFTYSMALL) * 1000.0 /
+                    chemtbl[j].MolarVolume / elem[i].soil.smcmax;
+                elem[i].chms_unsat.p_actv[j] = 1.0;
+                elem[i].chms_unsat.p_conc[j] = elem[i].chms_unsat.t_conc[j];
+                elem[i].chms_unsat.ssa[j] = elem[i].restart_input.ssa_unsat[j];
+
+                elem[i].chms_gw.t_conc[j] = elem[i].restart_input.tconc_gw[j];
+                /* Update the concentration of mineral using molar volume */
+                elem[i].chms_gw.t_conc[j] *= (rttbl->RelMin == 0) ?
+                    /* Absolute mineral volume fraction */
+                    1000.0 / chemtbl[j].MolarVolume / elem[i].soil.smcmax :
+                    /* Relative mineral volume fraction */
+                    (1.0 - elem[i].soil.smcmax + INFTYSMALL) * 1000.0 /
+                    chemtbl[j].MolarVolume / elem[i].soil.smcmax;
+                elem[i].chms_gw.p_actv[j] = 1.0;
+                elem[i].chms_gw.p_conc[j] = elem[i].chms_gw.t_conc[j];
+                elem[i].chms_gw.ssa[j] = elem[i].restart_input.ssa_gw[j];
             }
-            else if ((pihm->chemtbl[j].itype == CATION_ECHG) ||
-                (pihm->chemtbl[j].itype == ADSORPTION))
+            else if ((chemtbl[j].itype == CATION_ECHG) ||
+                (chemtbl[j].itype == ADSORPTION))
             {
-                CD->Vcele[i].chms.t_conc[j] = CD->Vcele[i].ic.t_conc[j];
-                CD->Vcele[i].chms.p_actv[j] = CD->Vcele[i].chms.t_conc[j] * 0.5;
-                /* Change the unit of CEC (eq/g) into C(ion site)
-                 * (eq/L porous space), assuming density of solid is always
-                 * 2650 g/L solid */
-                CD->Vcele[i].chms.t_conc[j] *= (1.0 - CD->Vcele[i].porosity) * 2650.0;
-                CD->Vcele[i].chms.p_conc[j] = CD->Vcele[i].chms.t_conc[j];
+                elem[i].chms_unsat.t_conc[j] = elem[i].restart_input.tconc_unsat[j];
+                elem[i].chms_unsat.p_actv[j] = elem[i].chms_unsat.t_conc[j] * 0.5;
+                /* Change unit of CEC (eq g-1) into C(ion site)
+                 * (eq L-1 porous space), assuming density of solid is always
+                 * 2650 g L-1 */
+                elem[i].chms_unsat.t_conc[j] *= (1.0 - elem[i].soil.smcmax) * 2650.0;
+                elem[i].chms_unsat.p_conc[j] = elem[i].chms_unsat.t_conc[j];
+
+                elem[i].chms_gw.t_conc[j] = elem[i].restart_input.tconc_gw[j];
+                elem[i].chms_gw.p_actv[j] = elem[i].chms_gw.t_conc[j] * 0.5;
+                /* Change unit of CEC (eq g-1) into C(ion site)
+                 * (eq L-1 porous space), assuming density of solid is always
+                 * 2650 g L-1 */
+                elem[i].chms_gw.t_conc[j] *= (1.0 - elem[i].soil.smcmax) * 2650.0;
+                elem[i].chms_gw.p_conc[j] = elem[i].chms_gw.t_conc[j];
             }
             else
             {
-                CD->Vcele[i].chms.t_conc[j] = CD->Vcele[i].ic.t_conc[j];
-                CD->Vcele[i].chms.p_actv[j] = CD->Vcele[i].chms.t_conc[j] * 0.5;
-                CD->Vcele[i].chms.p_conc[j] = CD->Vcele[i].chms.t_conc[j] * 0.5;
-                CD->Vcele[i].chms.ssa[j] = CD->Vcele[i].ic.p_para[j];
+                elem[i].chms_unsat.t_conc[j] = elem[i].restart_input.tconc_unsat[j];
+                elem[i].chms_unsat.p_actv[j] = elem[i].chms_unsat.t_conc[j] * 0.5;
+                elem[i].chms_unsat.p_conc[j] = elem[i].chms_unsat.t_conc[j] * 0.5;
+                elem[i].chms_unsat.ssa[j] = elem[i].restart_input.ssa_unsat[j];
+
+                elem[i].chms_gw.t_conc[j] = elem[i].restart_input.tconc_gw[j];
+                elem[i].chms_gw.p_actv[j] = elem[i].chms_gw.t_conc[j] * 0.5;
+                elem[i].chms_gw.p_conc[j] = elem[i].chms_gw.t_conc[j] * 0.5;
+                elem[i].chms_gw.ssa[j] = elem[i].restart_input.ssa_gw[j];
             }
         }
 
-        for (j = 0; j < pihm->rttbl.NumSsc; j++)
+        for (j = 0; j < rttbl->NumSsc; j++)
         {
-            CD->Vcele[i].chms.s_conc[j] = ZERO;
+            elem[i].chms_unsat.s_conc[j] = ZERO;
+
+            elem[i].chms_gw.s_conc[j] = ZERO;
         }
     }
 
+#if TEMP_DISABLED
     /*
      * Beginning configuring the connectivity for flux
      */
@@ -195,7 +166,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
 #endif
 
     /* Configuring the lateral connectivity of GW grid blocks */
-    PIHMprintf(VL_NORMAL,
+    PIHMprintf(VL_VERBOSE,
         "\n Configuring the lateral connectivity of GW grid blocks... \n");
 
     CD->Flux = (face *) malloc(CD->NumFac * sizeof(face));
@@ -375,11 +346,11 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     }
 
     /* Configuring the vertical connectivity of UNSAT - GW blocks */
-    PIHMprintf(VL_NORMAL,
+    PIHMprintf(VL_VERBOSE,
         "\n Configuring the vertical connectivity of UNSAT - GW grid blocks... \n");
 
     /* Configuring the connectivity of RIVER and EBR blocks */
-    PIHMprintf(VL_NORMAL,
+    PIHMprintf(VL_VERBOSE,
         "\n Configuring the connectivity of RIVER & EBR grid blocks... \n");
 
     for (i = 0; i < nriver; i++)
