@@ -14,7 +14,8 @@
 #define INFTYSMALL  1E-6
 
 void InitChem(const char cdbs_filen[], const char cini_filen[],
-    pihm_struct pihm, Chem_Data CD, N_Vector CV_Y)
+    const calib_struct *cal, chemtbl_struct chemtbl[], rttbl_struct *rttbl,
+    elem_struct elem[], N_Vector CV_Y)
 {
     int             i, j, k;
     int             PRCP_VOL;
@@ -25,18 +26,9 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     fp = fopen(cdbs_filen, "r");
     CheckFile(fp, cdbs_filen);
 
-    /*
-     * Begin updating variables
-     */
-#if defined(_FBR_)
-    CD->NumVol = 4 * nelem + nriver + 2;
-#else
-    CD->NumVol = 2 * nelem + nriver + 2;
-#endif
-    CD->Vcele = (vol_conc *) malloc(CD->NumVol * sizeof(vol_conc));
+    ReadCini(cini_filen, chemtbl, rttbl->NumStc, elem);
 
-    ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.NumStc, CD->Vcele);
-
+#if TEMP_DISABLED
     /*
      * Look up database to find required parameters and dependencies for
      * chemical species
@@ -519,6 +511,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
     }
 
     fclose(fp);
+#endif
 }
 
 void FreeChem(Chem_Data CD)

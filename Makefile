@@ -183,14 +183,14 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	noah/topo_radn.c\
 	spa/spa.c\
 	rt/read_chem.c\
+	rt/read_cini.c\
 	rt/read_prep.c\
+	rt/rt.c\
 	rt/rt_util.c
 	#rt/flux_trans.c\
 	#rt/lookup.c\
 	#rt/os3d.c\
 	#rt/react.c\
-	#rt/read_cini.c\
-	#rt/rt.c\
 	#rt/speciation.c
   MODULE_HEADERS_ =\
 	include/spa.h

@@ -1548,8 +1548,10 @@ typedef struct solute_struct
 #if defined(_RT_)
 typedef struct rtic_struct
 {
-    double          t_conc[MAXSPS];
-    double          ssa[MAXSPS];
+    double          tconc_unsat[MAXSPS];
+    double          ssa_unsat[MAXSPS];
+    double          tconc_gw[MAXSPS];
+    double          ssa_gw[MAXSPS];
 } rtic_struct;
 
 typedef struct chmstate_struct

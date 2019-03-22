@@ -208,10 +208,9 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     InitDailyStruct(pihm->elem);
 #endif
 
-#if TEMP_DISABLED
 #if defined(_RT_)
-    InitChem(pihm->filename.cdbs, pihm->filename.cini, pihm, rt, CV_Y);
-#endif
+    InitChem(pihm->filename.cdbs, pihm->filename.cini, &pihm->cal,
+        pihm->chemtbl, &pihm->rttbl, pihm->elem, CV_Y);
 #endif
 
 }

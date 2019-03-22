@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
-    vol_conc *Vcele)
+    elem_struct elem[])
 {
     FILE           *fp;
     int             i, k;
@@ -10,11 +10,12 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
     int             nvol;
     int             match;
     int             elem_ind;
-    int             river_ind;
     int             nic;
     int             ind;
     int             lno = 0;
-    int            *ic_ind;
+    int            **ic_ind;
+    const int       UNSAT_IND = 0;
+    const int       GW_IND = 1;
     double        **conc;
     double        **ssa;
 
@@ -24,44 +25,16 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
 
     FindLine(fp, "ELEM", &lno, filen);
 
-#if defined(_FBR_)
-    nvol = 4 * nelem + nriver;
-#else
-    nvol = 2 * nelem + nriver;
-#endif
-
-    ic_ind = (int *)malloc(nvol * sizeof(int));
+    ic_ind = (int **)malloc(nelem * sizeof(int *));
 
     for (i = 0; i < nelem; i++)
     {
-        NextLine(fp, cmdstr, &lno);
-#if defined(_FBR_)
-        match = sscanf(cmdstr, "%d %d %d %d %d",
-            &elem_ind, &ic_ind[RT_UNSAT(i)], &ic_ind[RT_GW(i)],
-            &ic_ind[RT_FBR_UNSAT(i)], &ic_ind[RT_FBR_GW(i)]);
-        if (match != 5 || elem_ind != i + 1)
-        {
-            PIHMprintf(VL_ERROR, "Error reading %s at Line %d.\n", filen, lno);
-            PIHMexit(EXIT_FAILURE);
-        }
-#else
-        match = sscanf(cmdstr, "%d %d %d",
-            &elem_ind, &ic_ind[RT_UNSAT(i)], &ic_ind[RT_GW(i)]);
-        if (match != 3 || elem_ind != i + 1)
-        {
-            PIHMprintf(VL_ERROR, "Error reading %s at Line %d.\n", filen, lno);
-            PIHMexit(EXIT_FAILURE);
-        }
-#endif
-    }
+        ic_ind[i] = (int *)malloc(2 * sizeof(int));
 
-    FindLine(fp, "RIVER", &lno, filen);
-    for (i = 0; i < nriver; i++)
-    {
         NextLine(fp, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %d",
-            &river_ind, &ic_ind[RT_RIVER(i)]);
-        if (match != 2 || river_ind != i + 1)
+        match = sscanf(cmdstr, "%d %d %d",
+            &elem_ind, &ic_ind[i][UNSAT_IND], &ic_ind[i][GW_IND]);
+        if (match != 3 || elem_ind != i + 1)
         {
             PIHMprintf(VL_ERROR, "Error reading %s at Line %d.\n", filen, lno);
             PIHMexit(EXIT_FAILURE);
@@ -123,14 +96,31 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
     /*
      * Assign initial conditions to different volumes
      */
-    for (i = 0; i < nvol; i++)
+    for (i = 0; i < nelem; i++)
     {
         for (k = 0; k < NumStc; k++)
         {
-            Vcele[i].ic.t_conc[k] = conc[ic_ind[i] - 1][k];
-            Vcele[i].ic.p_para[k] = ssa[ic_ind[i] - 1][k];
+            elem[i].restart_input.tconc_unsat[k] =
+                conc[ic_ind[i][UNSAT_IND] - 1][k];
+            elem[i].restart_input.tconc_gw[k] = conc[ic_ind[i][GW_IND] - 1][k];
+
+            elem[i].restart_input.ssa_unsat[k] = ssa[ic_ind[i][UNSAT_IND] - 1][k];
+            elem[i].restart_input.ssa_gw[k] = ssa[ic_ind[i][GW_IND] - 1][k];
         }
     }
 
+    for (i = 0; i < nic; i++)
+    {
+        free(conc[i]);
+        free(ssa[i]);
+    }
+
+    for (i = 0; i < nelem; i++)
+    {
+        free(ic_ind[i]);
+    }
+
+    free(conc);
+    free(ssa);
     free(ic_ind);
 }
