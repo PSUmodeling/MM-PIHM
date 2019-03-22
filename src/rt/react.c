@@ -17,14 +17,6 @@
 #define SKIP_JACOB 1
 #define sqr(a)  (a)*(a)
 
-void wrap(char *str)
-{
-
-    char            word[WORD_WIDTH];
-    sprintf(word, "'%s'", str);
-    strcpy(str, word);
-}
-
 void Unwrap(char *str, const char *str0)
 {
     int             i, j = 0;

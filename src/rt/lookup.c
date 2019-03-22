@@ -592,4 +592,11 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     free(tmpstr);
 }
 
+void wrap(char *str)
+{
+
+    char            word[WORD_WIDTH];
+    sprintf(word, "'%s'", str);
+    strcpy(str, word);
+}
 

@@ -14,8 +14,8 @@
 #define INFTYSMALL  1E-6
 
 void InitChem(const char cdbs_filen[], const char cini_filen[],
-    const calib_struct *cal, chemtbl_struct chemtbl[], rttbl_struct *rttbl,
-    elem_struct elem[], N_Vector CV_Y)
+    const calib_struct *cal, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
+    rttbl_struct *rttbl, elem_struct elem[], N_Vector CV_Y)
 {
     int             i, j, k;
     int             PRCP_VOL;
@@ -28,13 +28,13 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
 
     ReadCini(cini_filen, chemtbl, rttbl->NumStc, elem);
 
-#if TEMP_DISABLED
     /*
      * Look up database to find required parameters and dependencies for
      * chemical species
      */
-    Lookup(fp, &pihm->cal, pihm->chemtbl, pihm->kintbl, &pihm->rttbl);
+    Lookup(fp, cal, chemtbl, kintbl, rttbl);
 
+#if TEMP_DISABLED
     /*
      * Apply calibration
      */

@@ -725,7 +725,9 @@ void            WaterUptake(const soil_struct *, const estate_struct *,
 #if defined(_RT_)
 int             realcheck(const char *);
 int             keymatch(const char *, const char *, double *, char **);
-//void            InitChem(const char [], const char[], pihm_struct, Chem_Data, N_Vector);
+void            InitChem(const char [], const char [], const calib_struct *,
+    chemtbl_struct [], kintbl_struct [], rttbl_struct *, elem_struct [],
+    N_Vector);
 //void            fluxtrans(const pihm_struct, Chem_Data);
 //void            OS3D(const chemtbl_struct [], const rttbl_struct *, Chem_Data);
 void            React(double, const chemtbl_struct [], const kintbl_struct [],
@@ -753,7 +755,8 @@ void            ReadChem(const char[], const char[], chemtbl_struct [],
     kintbl_struct [], rttbl_struct *, ctrl_struct *);
 void            ReadPrep(const char[], const chemtbl_struct [], const double [],
     forc_struct *forc);
-//void            ReadCini(const char[], const chemtbl_struct *, int, vol_conc *);
+void            ReadCini(const char[], const chemtbl_struct *, int,
+    elem_struct []);
 //void            SpeciationReaction(int, int, const pihm_struct,
 //    Chem_Data);
 int             ParseLocation(const char [], const char [], int);
