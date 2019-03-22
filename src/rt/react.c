@@ -17,22 +17,6 @@
 #define SKIP_JACOB 1
 #define sqr(a)  (a)*(a)
 
-void Unwrap(char *str, const char *str0)
-{
-    int             i, j = 0;
-
-    for (i = 0; i < (int)strlen(str0); i++)
-    {
-        if (str0[i] != '\'')
-        {
-            str[j] = str0[i];
-            j++;
-        }
-    }
-
-    str[j] = '\0';
-}
-
 void React(double stepsize, const chemtbl_struct chemtbl[],
     const kintbl_struct kintbl[], const rttbl_struct *rttbl, double satn,
     chmstate_struct *chms)

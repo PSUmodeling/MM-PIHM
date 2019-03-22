@@ -5,12 +5,11 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     const epconst_struct epctbl[], const elem_struct *elem,
     const river_struct *river, const meshtbl_struct *meshtbl,
     const char *outputdir, print_struct *print)
-//#elif defined(_RT_)
-//void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
-//    const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-//    const Chem_Data rt, const elem_struct *elem,
-//    const river_struct *river, const meshtbl_struct *meshtbl,
-//    const char *outputdir, print_struct *print)
+#elif defined(_RT_)
+void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
+    const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+    const elem_struct *elem, const river_struct *river,
+    const meshtbl_struct *meshtbl, const char *outputdir, print_struct *print)
 #else
 void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     const elem_struct *elem, const river_struct *river,
@@ -945,7 +944,6 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         }
     }
 
-#if TEMP_DISABLED
 #if defined(_RT_)
     char            chemn[MAXSTRING];
 
@@ -957,8 +955,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &rt->Vcele[RT_UNSAT(j)].chms.log10_pconc[k];
-            //print->varctrl[n].var[j] = &rt->Vcele[RT_UNSAT(j)].t_mole[k];
+            print->varctrl[n].var[j] = &elem[i].chms_unsat.log10_pconc[k];
         }
         n++;
     }
@@ -970,7 +967,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &rt->Vcele[RT_UNSAT(j)].chms.log10_sconc[k];
+            print->varctrl[n].var[j] = &elem[i].chms_unsat.log10_sconc[k];
         }
         n++;
     }
@@ -982,8 +979,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &rt->Vcele[RT_GW(j)].chms.log10_pconc[k];
-            //print->varctrl[n].var[j] = &rt->Vcele[RT_GW(j)].t_mole[k];
+            print->varctrl[n].var[j] = &elem[i].chms_gw.log10_pconc[k];
         }
         n++;
     }
@@ -995,7 +991,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &rt->Vcele[RT_GW(j)].chms.log10_sconc[k];
+            print->varctrl[n].var[j] = &elem[i].chms_gw.log10_sconc[k];
         }
         n++;
     }
@@ -1007,11 +1003,11 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nriver; j++)
         {
-            print->varctrl[n].var[j] = &rt->Vcele[RT_RIVER(j)].chms.log10_pconc[k];
-            //print->varctrl[n].var[j] = &rt->Vcele[RT_RIVER(j)].t_mole[k];
+            print->varctrl[n].var[j] = &river[i].chms_stream.log10_pconc[k];
         }
         n++;
     }
+# if TEMP_DISABLED
     for (k = 0; k < rttbl->NumSsc; k++)
     {
         Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
@@ -1020,10 +1016,11 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nriver; j++)
         {
-            print->varctrl[n].var[j] = &rt->Vcele[RT_RIVER(j)].chms.log10_sconc[k];
+            print->varctrl[n].var[j] = &river[i].chms_stream.log10_sconc[k];
         }
         n++;
     }
+# endif
     for (i = 0; i < rttbl->NumBTC; i++)
     {
         sprintf(ext, "%d.btcv", (rttbl->BTC_loc[i] < 0) ?
@@ -1032,19 +1029,36 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
         for (j = 0; j < rttbl->NumStc; j++)
         {
-            print->varctrl[n].var[j] =
-                &rt->Vcele[(rttbl->BTC_loc[i] < 0) ?
-                -rttbl->BTC_loc[i] + 2 * nelem - 1 : rttbl->BTC_loc[i] - 1].chms.btcv_pconc[j];
+            if (rttbl->BTC_loc[i] < 0)
+            {
+                print->varctrl[n].var[j] = &river[-rttbl->BTC_loc[i] - 1].chms_stream.btcv_pconc[j];
+            }
+            else if (rttbl->BTC_loc[i] < nelem)
+            {
+                print->varctrl[n].var[j] = &elem[rttbl->BTC_loc[i] - 1].chms_unsat.btcv_pconc[j];
+            }
+            else
+            {
+                print->varctrl[n].var[j] = &elem[rttbl->BTC_loc[i] - nelem- 1].chms_gw.btcv_pconc[j];
+            }
         }
         for (j = rttbl->NumStc; j < rttbl->NumStc + rttbl->NumSsc; j++)
         {
-            print->varctrl[n].var[j] =
-                &rt->Vcele[(rttbl->BTC_loc[i] < 0) ?
-                -rttbl->BTC_loc[i] + 2 * nelem - 1 : rttbl->BTC_loc[i] - 1].chms.log10_sconc[j - rttbl->NumStc];
+            if (rttbl->BTC_loc[i] < 0)
+            {
+                print->varctrl[n].var[j] = &river[-rttbl->BTC_loc[i] - 1].chms_stream.log10_sconc[j - rttbl->NumStc];
+            }
+            else if (rttbl->BTC_loc[i] < nelem)
+            {
+                print->varctrl[n].var[j] = &elem[rttbl->BTC_loc[i] - 1].chms_unsat.log10_sconc[j - rttbl->NumStc];
+            }
+            else
+            {
+                print->varctrl[n].var[j] = &elem[rttbl->BTC_loc[i] - nelem - 1].chms_gw.log10_sconc[j - rttbl->NumStc];
+            }
         }
         n++;
     }
-#endif
 #endif
 
     if (n > MAXPRINT)
@@ -1222,3 +1236,21 @@ void InitTecPrtVarCtrl(const char *outputdir, const char *ext, int intvl,
     varctrl->buffer = (double *)calloc(nvar, sizeof(double));
     varctrl->counter = 0;
 }
+
+#if defined(_RT_)
+void Unwrap(char *str, const char *str0)
+{
+    int             i, j = 0;
+
+    for (i = 0; i < (int)strlen(str0); i++)
+    {
+        if (str0[i] != '\'')
+        {
+            str[j] = str0[i];
+            j++;
+        }
+    }
+
+    str[j] = '\0';
+}
+#endif

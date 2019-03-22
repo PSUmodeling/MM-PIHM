@@ -190,11 +190,10 @@ void            LateralFlow(elem_struct *, const river_struct *, int);
 void            MapOutput(const int *, const int *, const epconst_struct [],
     const elem_struct *, const river_struct *, const meshtbl_struct *,
     const char *, print_struct *);
-//#elif defined(_RT_)
-//void            MapOutput(const int *, const int *, const chemtbl_struct [],
-//    const rttbl_struct *, const Chem_Data,
-//    const elem_struct *, const river_struct *, const meshtbl_struct *,
-//    const char *, print_struct *);
+#elif defined(_RT_)
+void            MapOutput(const int *, const int *, const chemtbl_struct [],
+    const rttbl_struct *, const elem_struct *, const river_struct *,
+    const meshtbl_struct *, const char *, print_struct *);
 #else
 void            MapOutput(const int *, const int *, const elem_struct *,
     const river_struct *, const meshtbl_struct *, const char *, print_struct *);

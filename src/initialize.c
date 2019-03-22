@@ -213,7 +213,6 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         &pihm->forc, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, pihm->elem,
         pihm->river, CV_Y);
 #endif
-
 }
 
 void CorrElev(elem_struct *elem, river_struct *river)
