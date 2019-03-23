@@ -1023,8 +1023,18 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
 # endif
     for (j = 0; j < rttbl->NumBTC; j++)
     {
-        sprintf(ext, "%d.btcv", (rttbl->BTC_loc[j] < 0) ?
-            -rttbl->BTC_loc[j] + 2 * nelem : rttbl->BTC_loc[j]);
+        if (rttbl->BTC_loc[j] < 0)
+        {
+            sprintf(ext, "riv%d.btcv", -rttbl->BTC_loc[j]);
+        }
+        else if (rttbl->BTC_loc[j] < nelem)
+        {
+            sprintf(ext, "unsat%d.btcv", rttbl->BTC_loc[j]);
+        }
+        else
+        {
+            sprintf(ext, "gw%d.btcv", rttbl->BTC_loc[j] - nelem);
+        }
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
             rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
         for (k = 0; k < rttbl->NumStc; k++)

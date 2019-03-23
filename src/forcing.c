@@ -40,6 +40,7 @@ void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
 
 #if defined(_RT_)
+    /* Precipitation concentration */
     ApplyPrcpConc(forc, rttbl, t, PrpFlg);
 #endif
 }
@@ -283,7 +284,7 @@ void ApplyPrcpConc(forc_struct *forc, rttbl_struct *rttbl, int t, int PrpFlg)
             if (rttbl->prcp_conc[i] != forc->TSD_prepconc.value[i])
             {
                 rttbl->prcp_conc[i] = forc->TSD_prepconc.value[i];
-                PIHMprintf(VL_NORMAL,
+                PIHMprintf(VL_VERBOSE,
                     "  Species %d in precipitation is changed to %6.4g\n",
                     i + 1, rttbl->prcp_conc[i]);
             }

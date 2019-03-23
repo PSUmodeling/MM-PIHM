@@ -153,12 +153,12 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
      */
     if (pihm->ctrl.init_type == RELAX)
     {
-        /* Relaxation mode */
+        /* Relaxation mode
+         * Noah initialization needs air temperature thus forcing is applied */
 #if defined(_RT_)
         ApplyForc(&pihm->forc, &pihm->rttbl, pihm->elem, pihm->ctrl.starttime,
             pihm->ctrl.rad_mode, pihm->ctrl.PrpFlg, &pihm->siteinfo);
 #elif defined(_NOAH_)
-        /* Noah initialization needs air temperature thus forcing is applied */
         ApplyForc(&pihm->forc, pihm->elem, pihm->ctrl.starttime,
             pihm->ctrl.rad_mode, &pihm->siteinfo);
 #endif
@@ -201,17 +201,17 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     InitBgcVar(pihm->elem, pihm->river, CV_Y);
 #endif
 
+#if defined(_RT_)
+    InitChem(pihm->filename.cdbs, pihm->filename.cini, &pihm->ctrl, &pihm->cal,
+        &pihm->forc, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, pihm->elem,
+        pihm->river, CV_Y);
+#endif
+
     /* Calculate model time steps */
     CalcModelStep(&pihm->ctrl);
 
 #if defined(_DAILY_)
     InitDailyStruct(pihm->elem);
-#endif
-
-#if defined(_RT_)
-    InitChem(pihm->filename.cdbs, pihm->filename.cini, &pihm->ctrl, &pihm->cal,
-        &pihm->forc, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, pihm->elem,
-        pihm->river, CV_Y);
 #endif
 }
 
