@@ -100,7 +100,6 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         {
             river->chms_stream.t_mole[k] =
                 (y[STREAM_MOLE(i, k)] >= 0.0) ? y[STREAM_MOLE(i, k)] : 0.0;
-
             river->chms_rivbed.t_mole[k] =
                 (y[RIVBED_MOLE(i, k)] >= 0.0) ? y[RIVBED_MOLE(i, k)] : 0.0;
         }
