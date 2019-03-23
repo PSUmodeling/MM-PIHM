@@ -22,6 +22,9 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
 {
     int             i;
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
         double          t_conc0[MAXSPS];

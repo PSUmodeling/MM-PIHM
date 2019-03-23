@@ -340,7 +340,3 @@ double AdvDiffDisp(double DiffCoe, double DispCoe, double cementation,
     return wflux * ((wflux > 0.0) ? conc_up : conc_down) +
         diff_flux + disp_flux;
 }
-
-#if TEMP_DISABLED
-}
-#endif

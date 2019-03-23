@@ -153,12 +153,9 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
 
             elem[i].chms_gw.s_conc[j] = ZERO;
         }
-    }
 
-    /* Speciation */
-    if (!rttbl->RecFlg)
-    {
-        for (i = 0; i < nelem; i++)
+        /* Speciation */
+        if (!rttbl->RecFlg)
         {
             _Speciation(chemtbl, rttbl, 1, &elem[i].chms_unsat);
 
@@ -242,7 +239,6 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         for (j = 0; j < rttbl->NumSsc; j++)
         {
             river[i].chms_stream.s_conc[j] = ZERO;
-
             river[i].chms_rivbed.s_conc[j] = ZERO;
         }
     }
