@@ -7,11 +7,9 @@
 #include "pihm.h"
 
 /* Begin global variable definition (MACRO) */
-#define ZERO   1E-20
 #define LINE_WIDTH 512
 #define WORDS_LINE 40
 #define WORD_WIDTH 80
-#define INFTYSMALL  1E-6
 
 void InitChem(const char cdbs_filen[], const char cini_filen[],
     const ctrl_struct *ctrl, const calib_struct *cal, forc_struct *forc,
@@ -96,7 +94,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
                     /* Absolute mineral volume fraction */
                     1000.0 / chemtbl[j].MolarVolume / elem[i].soil.smcmax :
                     /* Relative mineral volume fraction */
-                    (1.0 - elem[i].soil.smcmax + INFTYSMALL) * 1000.0 /
+                    (1.0 - elem[i].soil.smcmax) * 1000.0 /
                     chemtbl[j].MolarVolume / elem[i].soil.smcmax;
                 elem[i].chms_unsat.p_actv[j] = 1.0;
                 elem[i].chms_unsat.p_conc[j] = elem[i].chms_unsat.t_conc[j];
@@ -108,7 +106,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
                     /* Absolute mineral volume fraction */
                     1000.0 / chemtbl[j].MolarVolume / elem[i].soil.smcmax :
                     /* Relative mineral volume fraction */
-                    (1.0 - elem[i].soil.smcmax + INFTYSMALL) * 1000.0 /
+                    (1.0 - elem[i].soil.smcmax) * 1000.0 /
                     chemtbl[j].MolarVolume / elem[i].soil.smcmax;
                 elem[i].chms_gw.p_actv[j] = 1.0;
                 elem[i].chms_gw.p_conc[j] = elem[i].chms_gw.t_conc[j];
@@ -149,13 +147,12 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
 
         for (j = 0; j < rttbl->NumSsc; j++)
         {
-            elem[i].chms_unsat.s_conc[j] = ZERO;
-
-            elem[i].chms_gw.s_conc[j] = ZERO;
+            elem[i].chms_unsat.s_conc[j] = ZERO_CONC;
+            elem[i].chms_gw.s_conc[j] = ZERO_CONC;
         }
 
         /* Speciation */
-        if (!rttbl->RecFlg)
+        if (rttbl->RecFlg == KIN_REACTION)
         {
             _Speciation(chemtbl, rttbl, 1, &elem[i].chms_unsat);
 
@@ -199,8 +196,7 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         double          vol_stream;
 
         vol_rivbed = RivBedVol(&river[i].topo, &river[i].matl, &river[i].ws);
-        vol_stream = river[i].topo.area *
-            ((river[i].ws.stage > 1.0E-5) ? river[i].ws.stage : 1.0E-5);
+        vol_stream = river[i].topo.area * MAX(river[i].ws.stage, 1.0E-5);
 
         for (k = 0; k < rttbl->NumStc; k++)
         {
@@ -224,22 +220,22 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
             }
             else
             {
-                river[i].chms_stream.t_conc[k] = 1.0E-20;
-                river[i].chms_stream.p_conc[k] = 1.0E-20;
-                river[i].chms_stream.p_actv[k] = 1.0E-20;
+                river[i].chms_stream.t_conc[k] = ZERO_CONC;
+                river[i].chms_stream.p_conc[k] = ZERO_CONC;
+                river[i].chms_stream.p_actv[k] = ZERO_CONC;
                 river[i].chms_stream.t_mole[k] = 0.0;
 
-                river[i].chms_rivbed.t_conc[k] = 1.0E-20;
-                river[i].chms_rivbed.p_conc[k] = 1.0E-20;
-                river[i].chms_rivbed.p_actv[k] = 1.0E-20;
+                river[i].chms_rivbed.t_conc[k] = ZERO_CONC;
+                river[i].chms_rivbed.p_conc[k] = ZERO_CONC;
+                river[i].chms_rivbed.p_actv[k] = ZERO_CONC;
                 river[i].chms_rivbed.t_mole[k] = 0.0;
             }
         }
 
         for (j = 0; j < rttbl->NumSsc; j++)
         {
-            river[i].chms_stream.s_conc[j] = ZERO;
-            river[i].chms_rivbed.s_conc[j] = ZERO;
+            river[i].chms_stream.s_conc[j] = ZERO_CONC;
+            river[i].chms_rivbed.s_conc[j] = ZERO_CONC;
         }
     }
 
@@ -252,6 +248,9 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         {
             NV_Ith(CV_Y, UNSAT_MOLE(i, k)) = elem[i].chms_unsat.t_mole[k];
             NV_Ith(CV_Y, GW_MOLE(i, k)) = elem[i].chms_gw.t_mole[k];
+
+            elem[i].chmf.react_unsat[k] = 0.0;
+            elem[i].chmf.react_gw[k] = 0.0;
         }
     }
 
@@ -264,13 +263,16 @@ void InitChem(const char cdbs_filen[], const char cini_filen[],
         {
             NV_Ith(CV_Y, STREAM_MOLE(i, k)) = river[i].chms_stream.t_mole[k];
             NV_Ith(CV_Y, RIVBED_MOLE(i, k)) = river[i].chms_rivbed.t_mole[k];
+
+            river[i].chmf.spec_stream[k] = 0.0;
+            river[i].chmf.spec_rivbed[k] = 0.0;
         }
     }
 
     fclose(fp);
 }
 
-void FreeChem(Chem_Data CD)
+void FreeChem()
 {
 //    int             i;
 //
@@ -328,7 +330,7 @@ double GWVol(const topo_struct *topo, const soil_struct *soil,
         vol = ws->gw * soil->smcmax;
     }
 
-    return ((vol > 1.0E-5) ? vol : 1.0E-5) * topo->area;
+    return MAX(vol, 1.0E-5) * topo->area;
 }
 
 double UnsatWaterVol(const topo_struct *topo, const soil_struct *soil,
@@ -338,13 +340,12 @@ double UnsatWaterVol(const topo_struct *topo, const soil_struct *soil,
     double          vol;
 
     deficit = soil->depth - ws->gw;
-    deficit = (deficit < soil->depth) ? deficit : soil->depth;
-    deficit = (deficit > 0.0) ? deficit : 0.0;
+    deficit = MIN(deficit, soil->depth);
+    deficit = MAX(deficit, 0.0);
 
-    vol = deficit * soil->smcmin +
-        ((ws->unsat < 0.0) ? 0.0 : ws->unsat * soil->porosity);
+    vol = deficit * soil->smcmin + MAX(ws->unsat, 0.0) * soil->porosity;
 
-    return ((vol > 1.0E-5) ? vol : 1.0E-5) * topo->area;
+    return MAX(vol, 1.0E-5) * topo->area;
 }
 
 double UnsatSatRatio(double depth, double unsat, double gw)
@@ -371,5 +372,5 @@ double RivBedVol(const river_topo_struct *topo, const matl_struct *matl,
         vol = ws->gw * (matl->porosity + matl->smcmin);
     }
 
-    return ((vol > 1.0E-5) ? vol : 1.0E-5) * topo->area;
+    return MAX(vol, 1.0E-5) * topo->area;
 }

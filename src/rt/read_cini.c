@@ -7,7 +7,6 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
     int             i, k;
     char            cmdstr[MAXSTRING];
     char            temp_str[MAXSTRING];
-    int             nvol;
     int             match;
     int             elem_ind;
     int             nic;

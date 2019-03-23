@@ -68,7 +68,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     if ((t - pihm->ctrl.starttime) % 3600 == 0)
     {
         /* Speciation every hour */
-        Speciation(pihm->chemtbl, &pihm->rttbl, 0, pihm->elem, pihm->river);
+        Speciation(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river);
     }
 
     RTUpdate(&pihm->rttbl, pihm->elem, pihm->river);

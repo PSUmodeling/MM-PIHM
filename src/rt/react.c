@@ -15,7 +15,6 @@
 #define WORD_WIDTH 80
 #define TOL        1E-7
 #define SKIP_JACOB 1
-#define sqr(a)  (a)*(a)
 
 void Reaction(double stepsize, const chemtbl_struct chemtbl[],
     const kintbl_struct kintbl[], const rttbl_struct *rttbl, elem_struct elem[])
@@ -51,7 +50,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
             if (_React(stepsize, chemtbl, kintbl, rttbl, satn, &illness,
                 &elem[i].chms_unsat))
             {
-                fprintf(stderr, "  ---> React failed.\t");
+                PIHMprintf(VL_ERROR, "  ---> React failed.\t");
 
                 substep = 0.5 * stepsize;
                 k = 2;
@@ -67,9 +66,9 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
 
                 if (j == 0)
                 {
-                    fprintf(stderr,
-                            " Reaction passed with step equals to %f (1/%d)\n",
-                            substep, k);
+                    PIHMprintf(VL_NORMAL,
+                        " Reaction passed with step equals to %f (1/%d)\n",
+                        substep, k);
                     for (j = 1; j < k; j++)
                     {
                         _React(substep, chemtbl, kintbl, rttbl, satn, &illness,
@@ -99,7 +98,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
             if (_React(stepsize, chemtbl, kintbl, rttbl, 1.0, &illness,
                 &elem[i].chms_gw))
             {
-                fprintf(stderr, "  ---> React failed.\t");
+                PIHMprintf(VL_ERROR, "  ---> React failed.\t");
 
                 substep = 0.5 * stepsize;
                 k = 2;
@@ -115,9 +114,9 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
 
                 if (j == 0)
                 {
-                    fprintf(stderr,
-                            " Reaction passed with step equals to %f (1/%d)\n",
-                            substep, k);
+                    PIHMprintf(VL_NORMAL,
+                        " Reaction passed with step equals to %f (1/%d)\n",
+                        substep, k);
                     for (j = 1; j < k; j++)
                     {
                         _React(substep, chemtbl, kintbl, rttbl, satn, &illness,
@@ -160,40 +159,50 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
 {
     if (satn < 1.0E-2)
     {
-        /* very dry, no reaction can take place */
-        return (0);
+        /* Very dry, no reaction can take place */
+        return 0;
     }
-    int             i, j, k, control, num_spe =
-        rttbl->NumStc + rttbl->NumSsc, min_pos, pivot_flg;
+
+    int             i, j, k;
+    int             control;
+    int             num_spe = rttbl->NumStc + rttbl->NumSsc;
+    int             min_pos;
+    int             pivot_flg;
     int             mn, in;
     double          monodterm = 1.0, inhibterm = 1.0;
-    int             stc = rttbl->NumStc, ssc = rttbl->NumSsc, nkr =
-        rttbl->NumMkr + rttbl->NumAkr, smc = rttbl->NumMin;
-    double         *residue, *residue_t, *tmpconc, *totconc, *area, *error,
-        *gamma, *Keq, *Rate_pre, *IAP, *dependency, *Rate_spe, *Rate_spe_t,
-        *Rate_spet;
+    double          residue[MAXSPS];
+    double          residue_t[MAXSPS];
+    double          tmpconc[MAXSPS];
+    double          totconc[MAXSPS];
+    double          area[MAXSPS];
+    double          error[MAXSPS];
+    double          gamma[MAXSPS];
+    double          Keq[MAXSPS];
+    double          Rate_pre[MAXSPS];
+    double          IAP[MAXSPS];
+    double          dependency[MAXSPS];
+    double          Rate_spe[MAXSPS];
+    double          Rate_spet[MAXSPS];
     const int       SUFEFF = 1;
-    residue = (double *)malloc(stc * sizeof(double));
-    residue_t = (double *)malloc(stc * sizeof(double));
-    tmpconc = (double *)malloc(num_spe * sizeof(double));
-    totconc = (double *)malloc(stc * sizeof(double));
-    area = (double *)malloc(smc * sizeof(double));
-    error = (double *)malloc(stc * sizeof(double));
-    gamma = (double *)malloc(num_spe * sizeof(double));
-    Keq = (double *)malloc(ssc * sizeof(double));
-    Rate_pre = (double *)malloc(nkr * sizeof(double));
-    IAP = (double *)malloc(nkr * sizeof(double));
-    dependency = (double *)malloc(nkr * sizeof(double));
-    Rate_spe = (double *)malloc(stc * sizeof(double));
-    Rate_spe_t = (double *)malloc(stc * sizeof(double));
-    Rate_spet = (double *)malloc(stc * sizeof(double));
-    long int       *p =
-        (long int *)malloc((rttbl->NumStc - rttbl->NumMin) * sizeof(long int));
-    realtype       *x_ =
-        (realtype *)malloc((rttbl->NumStc - rttbl->NumMin) * sizeof(realtype));
-    double          tmpval, tmpprb, inv_sat, I, Iroot, tmpKeq, adh,
-        bdh, bdt, maxerror = 1, surf_ratio, tot_cec, tmpprb_inv;
+    long int       *p;
+    realtype       *x_;
+    double          tmpval;
+    double          tmpprb;
+    double          inv_sat;
+    double          I;
+    double          Iroot;
+    double          tmpKeq;
+    double          adh;
+    double          bdh;
+    double          bdt;
+    double          maxerror = 1.0;
+    double          surf_ratio;
+    double          tot_cec;
+    double          tmpprb_inv;
     realtype      **jcb;
+
+    p = (long int *)malloc((rttbl->NumStc - rttbl->NumMin) * sizeof(long int));
+    x_ = (realtype *)malloc((rttbl->NumStc - rttbl->NumMin) * sizeof(realtype));
 
     /* Build model data structure from pointer address */
     control = 0;
@@ -231,7 +240,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     {
         min_pos = kintbl[i].position - rttbl->NumStc + rttbl->NumMin;
 
-        if (kintbl[i].type == 1)  /* TST rate */
+        if (kintbl[i].type == TST)
         {
             IAP[i] = 0.0;
             for (j = 0; j < rttbl->NumStc; j++)
@@ -254,7 +263,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
              * rate: mol/m2/s
              * dependency: dimensionless */
         }
-        else if (kintbl[i].type == 4) /* Monod rate */
+        else if (kintbl[i].type == MONOD)
         {
             monodterm = 1.0;    /* re-set for new species */
             inhibterm = 1.0;    /*re-set for new species */
@@ -262,8 +271,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             /* Calculate rate */
             for (mn = 0; mn < kintbl[i].num_monod; mn++)
             {
-                monodterm *=
-                    chms->p_conc[kintbl[i].monod_position[mn]] /
+                monodterm *= chms->p_conc[kintbl[i].monod_position[mn]] /
                     (chms->p_conc[kintbl[i].monod_position[mn]] +
                     kintbl[i].monod_para[mn]);
             }
@@ -290,21 +298,29 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         min_pos = kintbl[i].position - rttbl->NumStc + rttbl->NumMin;
         if (Rate_pre[i] < 0.0)
         {
-            if (chms->p_conc[min_pos + rttbl->NumStc - rttbl->NumMin] < 1.0E-8) /* mineral cutoff when mineral is disappearing */
+            /* Mineral cutoff when mineral is disappearing */
+            if (chms->p_conc[min_pos + rttbl->NumStc - rttbl->NumMin] < 1.0E-8)
                 area[min_pos] = 0.0;
         }
     }
 
     for (i = 0; i < NumSpc; i++)
-        if (chemtbl[i].itype == AQUEOUS) /* 01.21 aqueous species, saturation term for aqueous volume */
+    {
+        if (chemtbl[i].itype == AQUEOUS)
+        {
+            /* aqueous species, saturation term for aqueous volume */
             Rate_spe[i] *= inv_sat;
+        }
+    }
 
     jcb = newDenseMat(rttbl->NumStc - rttbl->NumMin, rttbl->NumStc - rttbl->NumMin);
 
     if (rttbl->TEMcpl == 0)
     {
         for (i = 0; i < rttbl->NumSsc; i++)
+        {
             Keq[i] = rttbl->Keq[i];
+        }
     }
 
     adh = rttbl->adh;
@@ -322,16 +338,14 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     tot_cec = 0.0;
     for (i = 0; i < num_spe; i++)
     {
-        if (chemtbl[i].itype == CATION_ECHG)
-        {
-            tot_cec += pow(10, tmpconc[i]);
-        }
+        tot_cec += (chemtbl[i].itype == CATION_ECHG) ?
+            pow(10, tmpconc[i]) : 0.0;
     }
 
     I = 0;
     for (i = 0; i < num_spe; i++)
     {
-        I += 0.5 * pow(10, tmpconc[i]) * sqr(chemtbl[i].Charge);
+        I += 0.5 * pow(10, tmpconc[i]) * chemtbl[i].Charge * chemtbl[i].Charge;
     }
     Iroot = sqrt(I);
     for (i = 0; i < num_spe; i++)
@@ -340,8 +354,8 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         {
             case AQUEOUS:
                 gamma[i] =
-                    (-adh * sqr(chemtbl[i].Charge) * Iroot) / (1 +
-                    bdh * chemtbl[i].SizeF * Iroot) + bdt * I;
+                    (-adh * chemtbl[i].Charge * chemtbl[i].Charge * Iroot) /
+                    (1.0 + bdh * chemtbl[i].SizeF * Iroot) + bdt * I;
                 break;
             case ADSORPTION:
                 gamma[i] = log10(satn);
@@ -377,7 +391,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         {
             min_pos = kintbl[i].position - rttbl->NumStc + rttbl->NumMin;
 
-            if (kintbl[i].type == 1)  /* TST rate */
+            if (kintbl[i].type == TST)
             {
                 IAP[i] = 0.0;
                 for (j = 0; j < rttbl->NumStc; j++)
@@ -400,21 +414,19 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                  */
                 dependency[i] = 0.0;
                 for (k = 0; k < kintbl[i].num_dep; k++)
-                    dependency[i] +=
-                        (tmpconc[kintbl[i].dep_position[k]] +
+                    dependency[i] += (tmpconc[kintbl[i].dep_position[k]] +
                         gamma[kintbl[i].dep_position[k]]) *
                         kintbl[i].dep_power[k];
                 dependency[i] = pow(10, dependency[i]);
-                /* Calculate the predicted rate depending on the type of rate law!  */
+                /* Calculate predicted rate depending on type of rate law */
                 Rate_pre[i] = area[min_pos] * (pow(10, kintbl[i].rate)) *
-                    dependency[i] * (1 - (IAP[i] / tmpKeq));
+                    dependency[i] * (1.0 - (IAP[i] / tmpKeq));
                 /* Rate_pre: in mol / L water / s
                  * area: m2/L water
                  * rate: mol/m2/s
-                 * dependency: dimensionless;
-                 */
+                 * dependency: dimensionless; */
             }
-            else if (kintbl[i].type == 4)
+            else if (kintbl[i].type == MONOD)
             {
                 monodterm = 1.0;
                 inhibterm = 1.0;
@@ -422,16 +434,14 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                 /* Calculate rate */
                 for (mn = 0; mn < kintbl[i].num_monod; mn++)
                 {
-                    monodterm *=
-                        chms->p_conc[kintbl[i].monod_position[mn]] /
+                    monodterm *= chms->p_conc[kintbl[i].monod_position[mn]] /
                         (chms->p_conc[kintbl[i].monod_position[mn]] +
                         kintbl[i].monod_para[mn]);
                 }
 
                 for (in = 0; in < kintbl[i].num_inhib; in++)
                 {
-                    inhibterm *=
-                        kintbl[i].inhib_para[in] /
+                    inhibterm *= kintbl[i].inhib_para[in] /
                         (kintbl[i].inhib_para[in] +
                         chms->p_conc[kintbl[i].inhib_position[in]]);
                 }
@@ -452,8 +462,9 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         }
 
         for (i = 0; i < NumSpc; i++)
-            if (chemtbl[i].itype == AQUEOUS)
-                Rate_spet[i] *= inv_sat;
+        {
+            Rate_spet[i] *= (chemtbl[i].itype == AQUEOUS) ? inv_sat : 1.0;
+        }
 
         for (i = 0; i < rttbl->NumStc - rttbl->NumMin; i++)
         {
@@ -466,7 +477,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             residue[i] = tmpval - (chms->t_conc[i] +
                 (Rate_spe[i] + Rate_spet[i]) * stepsize * 0.5);
         }
-        if (control % SKIP_JACOB == 0)  /* update jacobian every the other iteration */
+        if (control % SKIP_JACOB == 0)
         {
             for (k = 0; k < rttbl->NumStc - rttbl->NumMin; k++)
             {
@@ -475,8 +486,10 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                 {
                     tmpval = 0.0;
                     for (j = 0; j < rttbl->NumSdc; j++)
+                    {
                         tmpval +=
                             (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
+                    }
                     tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
                     tmpconc[i + rttbl->NumStc] = tmpval;
                 }
@@ -495,9 +508,12 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             }
         }
         for (i = 0; i < rttbl->NumStc - rttbl->NumMin; i++)
+        {
             x_[i] = -residue[i];
+        }
 
-        pivot_flg = denseGETRF(jcb, rttbl->NumStc - rttbl->NumMin, rttbl->NumStc - rttbl->NumMin, p);   // 09.17
+        pivot_flg = denseGETRF(jcb, rttbl->NumStc - rttbl->NumMin,
+            rttbl->NumStc - rttbl->NumMin, p);
         if (pivot_flg != 0)
         {
             (*illness)++;
@@ -509,23 +525,25 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         for (i = 0; i < rttbl->NumStc - rttbl->NumMin; i++)
         {
             if (fabs(x_[i]) < 0.3)
+            {
                 tmpconc[i] += x_[i];
+            }
             else
             {
-                if (x_[i] < 0)
-                    tmpconc[i] += -0.3;
-                else
-                    tmpconc[i] += 0.3;
+                tmpconc[i] += (x_[i] < 0) ? -0.3 : 0.3;
             }
             error[i] = residue[i] / totconc[i];
         }
         maxerror = fabs(error[0]);
         for (i = 1; i < rttbl->NumStc - rttbl->NumMin; i++)
-            if (fabs(error[i]) > maxerror)
-                maxerror = fabs(error[i]);
+        {
+            maxerror = MAX(fabs(error[i]), maxerror);
+        }
         control++;
         if (control > 10)
-            return (1);
+        {
+            return 1;
+        }
     }
 
     destroyMat(jcb);
@@ -579,23 +597,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         }
     }
 
-    free(residue);
-    free(residue_t);
-    free(tmpconc);
-    free(totconc);
-    free(area);
-    free(error);
-    free(gamma);
-    free(Keq);
-    free(Rate_pre);
-    free(IAP);
-    free(dependency);
-    free(Rate_spe);
-    free(Rate_spe_t);
-    free(Rate_spet);
-    free(p);
-    free(x_);
-    return (0);
+    return 0;
 }
 
 

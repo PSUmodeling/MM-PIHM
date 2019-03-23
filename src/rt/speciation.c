@@ -3,10 +3,8 @@
 #define TOL        1E-7
 
 void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    int speciation_flg, elem_struct elem[], river_struct river[])
+    elem_struct elem[], river_struct river[])
 {
-    const int       KIN_REACTION = 0;
-    const int       TRANSPORT_ONLY = 1;
     int             i;
 
     if (rttbl->RecFlg == KIN_REACTION)
@@ -22,8 +20,7 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             double          vol_stream;
 
             vol_rivbed = RivBedVol(&river[i].topo, &river[i].matl, &river[i].ws);
-            vol_stream = river[i].topo.area *
-                ((river[i].ws.stage > 1.0E-5) ? river[i].ws.stage : 1.0E-5);
+            vol_stream = river[i].topo.area * MAX(river[i].ws.stage, 1.0E-5);
 
             for (k = 0; k < rttbl->NumStc; k++)
             {
@@ -48,9 +45,7 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 river[i].chmf.spec_stream[k] =
                     (river[i].chms_stream.t_conc[k] - t_conc0[k]) *
                     vol_stream / 3600.0;
-
             }
-
 
             for (k = 0; k < NumSpc; k++)
             {
@@ -86,25 +81,43 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 {
     /* if speciation flg = 1, pH is defined
      * if speciation flg = 0, all defined value is total concentration */
-    int             i, j, k, num_spe = rttbl->NumStc + rttbl->NumSsc;
-    double         *residue, *residue_t, *tmpconc, *totconc;
-    double          tmpval, tmpprb = 1E-2, I, Iroot;
-    double         *error, *gamma, *Keq, *current_totconc, adh, bdh, bdt;
+    int             i, j, k;
+    int             num_spe = rttbl->NumStc + rttbl->NumSsc;
+    double          tmpval;
+    double          tmpprb = 1E-2;
+    double          I;
+    double          Iroot;
+    double          residue[MAXSPS];
+    double          residue_t[MAXSPS];
+    double          tmpconc[MAXSPS];
+    double          totconc[MAXSPS];
+    double          error[MAXSPS];
+    double          gamma[MAXSPS];
+    double          Keq[MAXSPS];
+    double          current_totconc[MAXSPS];
+    double          adh;
+    double          bdh;
+    double          bdt;
     realtype      **jcb;
 
-    residue = (double *)calloc(rttbl->NumStc, sizeof(double));
-    residue_t = (double *)calloc(rttbl->NumStc, sizeof(double));
-    tmpconc = (double *)calloc(rttbl->NumStc + rttbl->NumSsc, sizeof(double));
-    totconc = (double *)calloc(rttbl->NumStc, sizeof(double));
-    error = (double *)calloc(rttbl->NumStc, sizeof(double));
-    gamma = (double *)calloc(num_spe, sizeof(double));
-    Keq = (double *)calloc(rttbl->NumSsc, sizeof(double));
-    current_totconc = (double *)calloc(rttbl->NumStc, sizeof(double));
+    for (k = 0; k < MAXSPS; k++)
+    {
+        residue[k] = 0.0;
+        residue_t[k] = 0.0;
+        tmpconc[k] = 0.0;
+        totconc[k] = 0.0;
+        error[k] = 0.0;
+        gamma[k] = 0.0;
+        Keq[k] = 0.0;
+        current_totconc[k] = 0.0;
+    }
 
     if (rttbl->TEMcpl == 0)
     {
         for (i = 0; i < rttbl->NumSsc; i++)
+        {
             Keq[i] = rttbl->Keq[i];
+        }
     }
 
     adh = rttbl->adh;
@@ -131,7 +144,9 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
     /* Initial speciation to get secondary species, no activity corrections */
     for (i = 0; i < num_spe; i++)
+    {
         gamma[i] = 0;
+    }
 
     for (i = 0; i < rttbl->NumStc; i++)
     {
@@ -166,7 +181,9 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 for (i = 0; i < num_spe; i++)
                 {
                     if (chemtbl[i].itype == MINERAL)
+                    {
                         gamma[i] = -tmpconc[i];
+                    }
                     /* aqueous species in the unit of mol/L, however the solids
                      * are in the unit of mol/L porous media
                      * the activity of solid is 1, the log10 of activity is 0.
@@ -174,13 +191,14 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                      * tmpconc[minerals], we ensured the log 10 of activity of
                      * solids are 0*/
                     else
+                    {
                         gamma[i] =
                             (-adh * chemtbl[i].Charge * chemtbl[i].Charge * Iroot) / (1 +
                             bdh * chemtbl[i].SizeF * Iroot) + bdt * I;
+                        }
                     if (strcmp(chemtbl[i].ChemName, "'H+'") == 0)
                     {
-                        tmpconc[i] =
-                            log10(chms->p_actv[i]) - gamma[i];
+                        tmpconc[i] = log10(chms->p_actv[i]) - gamma[i];
                     }
                 }
                 /* gamma stores log10gamma[i] */
@@ -205,7 +223,9 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 }
                 totconc[i] = tmpval;
                 if (strcmp(chemtbl[i].ChemName, "'H+'") == 0)
+                {
                     chms->t_conc[i] = totconc[i];
+                }
                 residue[i] = tmpval - chms->t_conc[i];
                 /* update the total concentration of H+ for later stage RT at
                  * initialization */
@@ -221,8 +241,10 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     {
                         tmpval = 0.0;
                         for (j = 0; j < rttbl->NumSdc; j++)
-                            tmpval +=
-                                (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
+                        {
+                            tmpval += (tmpconc[j] + gamma[j]) *
+                                rttbl->Dependency[i][j];
+                        }
                         tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
                         tmpconc[i + rttbl->NumStc] = tmpval;
                     }
@@ -234,12 +256,11 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                             tmpval = 0.0;
                             for (j = 0; j < rttbl->NumStc + rttbl->NumSsc; j++)
                             {
-                                tmpval +=
-                                    rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
+                                tmpval += rttbl->Totalconc[i][j] *
+                                    pow(10, tmpconc[j]);
                             }
                             residue_t[i] = tmpval - chms->t_conc[i];
-                            jcb[col][row] =
-                                (residue_t[i] - residue[i]) / (tmpprb);
+                            jcb[col][row] = (residue_t[i] - residue[i]) / (tmpprb);
                             row++;
                         }
                     }
@@ -348,12 +369,14 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                         tmpval += rttbl->Totalconc[i][j] * pow(10, tmpconc[j]);
                     }
                     residue_t[i] = tmpval - chms->t_conc[i];
-                    jcb[k][i] = (residue_t[i] - residue[i]) / (tmpprb);
+                    jcb[k][i] = (residue_t[i] - residue[i]) / tmpprb;
                 }
                 tmpconc[k] -= tmpprb;
             }
             for (i = 0; i < rttbl->NumStc; i++)
+            {
                 x_[i] = -residue[i];
+            }
             if (denseGETRF(jcb, rttbl->NumStc, rttbl->NumStc, p) != 0)
             {
                 PIHMprintf(VL_ERROR, "Speciation error.\n");
@@ -367,8 +390,9 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             }
             maxerror = fabs(error[0]);
             for (i = 1; i < rttbl->NumStc; i++)
-                if (fabs(error[i]) > maxerror)
-                    maxerror = fabs(error[i]);
+            {
+                maxerror = MAX(fabs(error[i]), maxerror);
+            }
         }
 
         free(p);
@@ -419,15 +443,6 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         }
     }
     destroyMat(jcb);
-
-    free(residue);
-    free(residue_t);
-    free(tmpconc);
-    free(totconc);
-    free(error);
-    free(gamma);
-    free(Keq);
-    free(current_totconc);
 
     return (0);
 }

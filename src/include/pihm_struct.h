@@ -270,7 +270,6 @@ typedef struct pihm_struct
     chemtbl_struct  chemtbl[MAXSPS];
     kintbl_struct   kintbl[MAXSPS];
     rttbl_struct    rttbl;
-    Chem_Data       rt;
 #endif
 } *pihm_struct;
 

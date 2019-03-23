@@ -153,7 +153,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
         elem[i].ps.rh = forc->meteo[ind].value[RH_TS];
         elem[i].ps.sfcspd = forc->meteo[ind].value[SFCSPD_TS];
         elem[i].ef.soldn = forc->meteo[ind].value[SOLAR_TS];
-        elem[i].ef.soldn = (elem[i].ef.soldn > 0.0) ? elem[i].ef.soldn : 0.0;
+        elem[i].ef.soldn = MAX(elem[i].ef.soldn, 0.0);
 #if defined(_NOAH_)
         elem[i].ef.longwave = forc->meteo[ind].value[LONGWAVE_TS];
 #endif
@@ -171,8 +171,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 
             elem[i].ef.soldn = TopoRadn(&elem[i].topo, elem[i].ef.soldir,
                 elem[i].ef.soldif, spa.zenith, spa.azimuth180);
-            elem[i].ef.soldn =
-                (elem[i].ef.soldn > 0.0) ? elem[i].ef.soldn : 0.0;
+            elem[i].ef.soldn = MAX(elem[i].ef.soldn, 0.0);
         }
 #endif
     }
@@ -202,9 +201,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
         {
             ksolar = 0.5;
 
-            tau = 1.0 -
-                ((CommRadIntcp(elem[i].crop) > 0.98) ?
-                0.98 : CommRadIntcp(elem[i].crop));
+            tau = 1.0 - MIN(CommRadIntcp(elem[i].crop), 0.98);
 
             elem[i].ps.proj_lai = -log(tau) / ksolar;
         }

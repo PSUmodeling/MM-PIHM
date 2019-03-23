@@ -73,6 +73,9 @@
 #define Cycles_exit      PIHMexit
 #define Cycles_printf    PIHMprintf
 
+#define MIN(x, y)       (((x) < (y)) ? (x) : (y))
+#define MAX(x, y)       (((x) > (y)) ? (x) : (y))
+
 /*
  * Function Declarations
  */
@@ -701,13 +704,12 @@ int             _React(double, const chemtbl_struct [], const kintbl_struct [],
     const rttbl_struct *, double, int *, chmstate_struct *);
 void            Lookup(FILE *, const calib_struct *, chemtbl_struct [],
     kintbl_struct [], rttbl_struct *);
-void            Speciation(const chemtbl_struct [], const rttbl_struct *, int,
+void            Speciation(const chemtbl_struct [], const rttbl_struct *,
     elem_struct [], river_struct []);
 int             _Speciation(const chemtbl_struct [], const rttbl_struct *, int,
     chmstate_struct *);
 int             keymatch(const char *, const char *, double *, char **);
 int             SpeciationType(FILE *, char *);
-//void            FreeChem(Chem_Data);
 void            Unwrap(char *, const char *);
 double          EqvUnsatH(double, double, double, double, double);
 double          UnsatSatRatio(double, double, double);

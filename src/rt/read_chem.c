@@ -1,6 +1,5 @@
 #include "pihm.h"
 
-#define ZERO   1E-20
 #define LINE_WIDTH 512
 #define WORDS_LINE 40
 #define WORD_WIDTH 80
@@ -82,10 +81,10 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     ReadKeyword(cmdstr, "TRANSPORT_ONLY", &rttbl->RecFlg, 'i', chem_filen, lno);
     switch (rttbl->RecFlg)
     {
-        case 0:
+        case KIN_REACTION:
             PIHMprintf(VL_VERBOSE, "  Transport only mode disabled.\n");
             break;
-        case 1:
+        case TRANSPORT_ONLY:
             PIHMprintf(VL_VERBOSE, "  Transport only mode enabled. \n");
             break;
             /* under construction. */
@@ -108,7 +107,6 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
             PIHMprintf(VL_VERBOSE,
                 "  Precipitation condition is specified via file *.prep. \n");
             break;
-            /* under construction. */
         default:
             break;
     }
@@ -298,7 +296,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
 
     for (i = 0; i < rttbl->NumStc; i++)
     {
-        rttbl->prcp_conc[i] = ZERO;
+        rttbl->prcp_conc[i] = 0.0;
     }
 
     for (i = 0; i < rttbl->NumStc; i++)

@@ -256,16 +256,20 @@
 #define DAYSCRECOVER                365.0
 #define BULK_DENITRIF_PROPORTION    0.5
 
-/* RT constants */
+/*
+ * RT constants
+ */
 /* Maximum number of species */
 #define MAXSPS          20
 
 /* Maximum number of dependece, monod, and inhibition terms */
 #define MAXDEP          4
 
-/* RT flux type */
-#define DISPERSION      1
-#define NO_DISP         2
+#define ZERO_CONC       1.0E-20
+
+/* RT simulation mode */
+#define KIN_REACTION    0
+#define TRANSPORT_ONLY  1
 
 /* RT primary species types */
 #define AQUEOUS         1
@@ -278,10 +282,11 @@
 #define MOBILE_MA       1
 #define MIXED_MA        2
 
-/* RT volume types */
-#define VIRTUAL_VOL     -1
-#define LAND_VOL        0
-#define RIVER_VOL       1
+/* RT kinetic reaction types */
+#define TST             1
+#define PRCP_ONLY       2
+#define DISS_ONLY       3
+#define MONOD           4
 
 /* Output variables */
 #define YEARLY_OUTPUT     -1

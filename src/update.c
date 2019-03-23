@@ -1,7 +1,5 @@
 #include "pihm.h"
 
-#define ZERO   1E-20
-
 void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
     double stepsize)
 {
@@ -91,14 +89,14 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
             elem[i].chms_unsat.t_conc[k] = (vol_unsat > 0.0) ?
                 elem[i].chms_unsat.t_mole[k] / vol_unsat : 0.0;
             elem[i].chms_unsat.t_conc[k] =
-                (elem[i].chms_unsat.t_conc[k] > ZERO) ?
-                elem[i].chms_unsat.t_conc[k] : ZERO;
+                (elem[i].chms_unsat.t_conc[k] > ZERO_CONC) ?
+                elem[i].chms_unsat.t_conc[k] : ZERO_CONC;
 
             elem[i].chms_gw.t_conc[k] = (vol_gw > 0.0) ?
                 elem[i].chms_gw.t_mole[k] / vol_gw : 0.0;
             elem[i].chms_gw.t_conc[k] =
-                (elem[i].chms_gw.t_conc[k] > ZERO) ?
-                elem[i].chms_gw.t_conc[k] : ZERO;
+                (elem[i].chms_gw.t_conc[k] > ZERO_CONC) ?
+                elem[i].chms_gw.t_conc[k] : ZERO_CONC;
         }
 #endif
 
@@ -151,14 +149,14 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
             river[i].chms_stream.t_conc[k] = (vol_stream > 0.0) ?
                 river[i].chms_stream.t_mole[k] / vol_stream : 0.0;
             river[i].chms_stream.t_conc[k] =
-                (river[i].chms_stream.t_conc[k] > ZERO) ?
-                river[i].chms_stream.t_conc[k] : ZERO;
+                (river[i].chms_stream.t_conc[k] > ZERO_CONC) ?
+                river[i].chms_stream.t_conc[k] : ZERO_CONC;
 
             river[i].chms_rivbed.t_conc[k] = (vol_rivbed > 0.0) ?
                 river[i].chms_rivbed.t_mole[k] / vol_rivbed : 0.0;
             river[i].chms_rivbed.t_conc[k] =
-                (river[i].chms_rivbed.t_conc[k] > ZERO) ?
-                river[i].chms_rivbed.t_conc[k] : ZERO;
+                (river[i].chms_rivbed.t_conc[k] > ZERO_CONC) ?
+                river[i].chms_rivbed.t_conc[k] : ZERO_CONC;
         }
 #endif
     }

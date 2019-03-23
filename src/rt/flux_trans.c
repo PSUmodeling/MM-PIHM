@@ -1,9 +1,5 @@
 #include "pihm.h"
 
-#define MIN(a,b) (((a)<(b))? (a):(b))
-#define MAX(a,b) (((a)>(b))? (a):(b))
-#define ZERO    1.0E-20
-
 void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     elem_struct elem[], river_struct river[])
 {
@@ -61,11 +57,9 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             }
 
             elem[i].chms_unsat.t_conc[k] =
-                (elem[i].chms_unsat.t_conc[k] > 0.0) ?
-                elem[i].chms_unsat.t_conc[k] : 0.0;
+                MAX(elem[i].chms_unsat.t_conc[k], 0.0);
             elem[i].chms_gw.t_conc[k] =
-                (elem[i].chms_gw.t_conc[k] > 0.0) ?
-                elem[i].chms_gw.t_conc[k] : 0.0;
+                MAX(elem[i].chms_gw.t_conc[k], 0.0);
         }
     }
 
@@ -79,8 +73,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         double          vol_stream;
 
         vol_rivbed = RivBedVol(&river[i].topo, &river[i].matl, &river[i].ws);
-        vol_stream = river[i].topo.area *
-            ((river[i].ws.stage > 1.0E-5) ? river[i].ws.stage : 1.0E-5);
+        vol_stream = river[i].topo.area * MAX(river[i].ws.stage, 1.0E-5);
 
         for (k = 0; k < NumSpc; k++)
         {
@@ -94,14 +87,12 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             river[i].chms_stream.t_conc[k] = (vol_stream > 0.0) ?
                 river[i].chms_stream.t_mole[k] / vol_stream : 0.0;
             river[i].chms_stream.t_conc[k] =
-                (river[i].chms_stream.t_conc[k] > 0.0) ?
-                river[i].chms_stream.t_conc[k] : 0.0;
+                MAX(river[i].chms_stream.t_conc[k], 0.0);
 
             river[i].chms_rivbed.t_conc[k] = (vol_rivbed > 0.0) ?
                 river[i].chms_rivbed.t_mole[k] / vol_rivbed : 0.0;
             river[i].chms_rivbed.t_conc[k] =
-                (river[i].chms_rivbed.t_conc[k] > 0.0) ?
-                river[i].chms_rivbed.t_conc[k] : 0.0;
+                MAX(river[i].chms_rivbed.t_conc[k], 0.0);
         }
     }
 
@@ -325,10 +316,9 @@ double AdvDiffDisp(double DiffCoe, double DispCoe, double cementation,
     double          diff_flux, disp_flux;
 
     inv_dist = 1.0 / distance;
+
     /* Difference in concentration (M kg-1 water) */
     diff_conc = conc_up - conc_down;
-    diff_flux = 0.0;
-    disp_flux = 0.0;
 
     /* Diffusion flux, effective diffusion coefficient  */
     diff_flux = DiffCoe * area * pow(porosity, cementation) *
