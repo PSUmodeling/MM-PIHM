@@ -694,10 +694,9 @@ void            WaterUptake(const soil_struct *, const estate_struct *,
 #if defined(_RT_)
 int             realcheck(const char *);
 int             keymatch(const char *, const char *, double *, char **);
-void            InitChem(const char [], const char [], const ctrl_struct *,
+void            InitChem(const char [], const ctrl_struct *,
     const calib_struct *, forc_struct *forc, chemtbl_struct [],
-    kintbl_struct [], rttbl_struct *, elem_struct [], river_struct [],
-    N_Vector);
+    kintbl_struct [], rttbl_struct *);
 void            Reaction(double, const chemtbl_struct [], const kintbl_struct [],
     const rttbl_struct *, elem_struct []);
 int             _React(double, const chemtbl_struct [], const kintbl_struct [],
@@ -720,7 +719,7 @@ void            ReadChem(const char[], const char[], chemtbl_struct [],
 void            ReadPrep(const char[], const chemtbl_struct [], const double [],
     forc_struct *forc);
 void            ReadCini(const char[], const chemtbl_struct *, int,
-    elem_struct []);
+    const calib_struct *, elem_struct []);
 int             ParseLocation(const char [], const char [], int);
 void            ApplyPrcpConc(forc_struct *, rttbl_struct *, int, int);
 void            wrap(char *);
@@ -735,6 +734,9 @@ void            Transport(const chemtbl_struct [], const rttbl_struct *,
 double          AdvDiffDisp(double, double, double, double, double, double,
     double, double, double);
 void            RTUpdate(const rttbl_struct *, elem_struct [], river_struct []);
+
+void            InitRTVar(chemtbl_struct [], rttbl_struct *, elem_struct [],
+    river_struct [], N_Vector);
 
 #endif
 

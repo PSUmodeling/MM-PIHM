@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
-    elem_struct elem[])
+    const calib_struct *cal, elem_struct elem[])
 {
     FILE           *fp;
     int             i, k;
@@ -12,7 +12,8 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
     int             nic;
     int             ind;
     int             lno = 0;
-    int            **ic_ind;
+    int           **ic_ind;
+    int             convert = 0;
     const int       UNSAT_IND = 0;
     const int       GW_IND = 1;
     double        **conc;
@@ -60,6 +61,12 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
         {
             NextLine(fp, cmdstr, &lno);
             sscanf(cmdstr, "%s", temp_str);
+            if (strcmp("pH", temp_str) == 0)
+            {
+                strcpy(temp_str, "H+");
+                convert = 1;
+            }
+            wrap(temp_str);
 
             ind = FindChem(temp_str, chemtbl, NumStc);
             if (ind < 0)
@@ -76,6 +83,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
                         "Error reading initial condition in %s at Line %d.\n",
                         filen, lno);
                 }
+                ssa[i][ind] *= cal->ssa;
             }
             else
             {
@@ -85,10 +93,14 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
                         "Error reading initial condition in %s at Line %d.\n",
                         filen, lno);
                 }
-
-                conc[i][ind] = (strcmp(chemtbl[ind].ChemName, "pH") == 0) ?
-                    pow(10, -conc[i][ind]) : conc[i][ind];
             }
+
+            conc[i][ind] *= (strcmp(chemtbl[ind].ChemName, "'DOC'") == 0) ?
+                cal->initconc : 1.0;
+
+            conc[i][ind] =
+                (strcmp(chemtbl[ind].ChemName, "'H+'") == 0 && convert == 1) ?
+                pow(10, -conc[i][ind]) : conc[i][ind];
         }
     }
 
@@ -103,8 +115,10 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
                 conc[ic_ind[i][UNSAT_IND] - 1][k];
             elem[i].restart_input.tconc_gw[k] = conc[ic_ind[i][GW_IND] - 1][k];
 
-            elem[i].restart_input.ssa_unsat[k] = ssa[ic_ind[i][UNSAT_IND] - 1][k];
-            elem[i].restart_input.ssa_gw[k] = ssa[ic_ind[i][GW_IND] - 1][k];
+            elem[i].restart_input.ssa_unsat[k] =
+                ssa[ic_ind[i][UNSAT_IND] - 1][k];
+            elem[i].restart_input.ssa_gw[k] =
+                ssa[ic_ind[i][GW_IND] - 1][k];
         }
     }
 

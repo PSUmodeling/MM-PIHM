@@ -148,6 +148,11 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     InitBgc(pihm->elem, &pihm->epctbl, &pihm->cal);
 #endif
 
+#if defined(_RT_)
+    InitChem(pihm->filename.cdbs, &pihm->ctrl, &pihm->cal, &pihm->forc,
+        pihm->chemtbl, pihm->kintbl, &pihm->rttbl);
+#endif
+
     /*
      * Create hydrological and land surface initial conditions
      */
@@ -202,9 +207,18 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
 #if defined(_RT_)
-    InitChem(pihm->filename.cdbs, pihm->filename.cini, &pihm->ctrl, &pihm->cal,
-        &pihm->forc, pihm->chemtbl, pihm->kintbl, &pihm->rttbl, pihm->elem,
-        pihm->river, CV_Y);
+    if (pihm->ctrl.read_rt_restart)
+    {
+        PIHMprintf(VL_ERROR, "Error: RT hot start is not supported yet.\n");
+        PIHMexit(EXIT_FAILURE);
+    }
+    else
+    {
+        ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.NumStc,
+            &pihm->cal, pihm->elem);
+    }
+
+    InitRTVar(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river, CV_Y);
 #endif
 
     /* Calculate model time steps */
