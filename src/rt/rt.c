@@ -51,46 +51,6 @@ void InitChem(const char cdbs_filen[], const ctrl_struct *ctrl,
     fclose(fp);
 }
 
-void FreeChem()
-{
-//    int             i;
-//
-//    free(CD->BTC_loc);
-//    free(CD->prepconcindex);
-//
-//    // CD->Vcele
-//    for (i = 0; i < CD->NumVol; i++)
-//    {
-//        free(CD->Vcele[i].log10_pconc);
-//        free(CD->Vcele[i].log10_sconc);
-//        free(CD->Vcele[i].p_para);
-//        free(CD->Vcele[i].btcv_pconc);
-//    }
-//    free(CD->Vcele);
-//
-//    free(CD->Flux);
-//
-//    if (CD->NumPUMP > 0)
-//    {
-//        free(CD->pumps);
-//    }
-//
-//    // CD->TSD_prepconc
-//    for (i = 0; i < CD->TSD_prepconc[0].length; i++)
-//    {
-//        free(CD->TSD_prepconc[0].data[i]);
-//    }
-//    free(CD->TSD_prepconc[0].data);
-//    free(CD->TSD_prepconc[0].ftime);
-//    free(CD->TSD_prepconc[0].value);
-//    free(CD->TSD_prepconc);
-//
-//    free(CD->Precipitation.chms.t_conc);
-//    free(CD->Precipitation.chms.p_conc);
-//    free(CD->Precipitation.p_para);
-//
-}
-
 void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
     elem_struct elem[], river_struct river[], N_Vector CV_Y)
 {
