@@ -581,7 +581,7 @@ void SolveCVode(int starttime, int *t, int nextptr, double cputime,
     else if (pihm_time.t % 3600 == 0)
     {
         PIHMprintf(VL_NORMAL,
-            " Step = %s (cputime %f)\n", pihm_time.str, cputime);
+            " Step = %s (cputime %.2f)\n", pihm_time.str, cputime);
     }
 }
 
