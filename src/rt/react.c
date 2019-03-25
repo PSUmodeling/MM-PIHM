@@ -184,8 +184,6 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     double          Rate_spe[MAXSPS];
     double          Rate_spet[MAXSPS];
     const int       SUFEFF = 1;
-    long int       *p;
-    realtype       *x_;
     double          tmpval;
     double          tmpprb;
     double          inv_sat;
@@ -200,9 +198,8 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     double          tot_cec;
     double          tmpprb_inv;
     realtype      **jcb;
-
-    p = (long int *)malloc((rttbl->NumStc - rttbl->NumMin) * sizeof(long int));
-    x_ = (realtype *)malloc((rttbl->NumStc - rttbl->NumMin) * sizeof(realtype));
+    long int        p[MAXSPS];
+    realtype        x_[MAXSPS];
 
     /* Build model data structure from pointer address */
     control = 0;
@@ -599,5 +596,3 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
 
     return 0;
 }
-
-

@@ -28,6 +28,10 @@ void FreeMem(pihm_struct pihm)
     FreeEpctbl(&pihm->epctbl);
 #endif
 
+#if defined(_RT_)
+    FreeRttbl(&pihm->rttbl);
+#endif
+
     FreeCtrl(&pihm->ctrl);
 
     /*
@@ -293,6 +297,19 @@ void FreeForc(forc_struct *forc)
     }
     free(forc->ndep);
 #endif
+
+#if defined(_RT_)
+    if (forc->PrpFlg == 2)
+    {
+        for (j = 0; j < forc->TSD_prepconc.length; j++)
+        {
+            free(forc->TSD_prepconc.data[j]);
+        }
+        free(forc->TSD_prepconc.ftime);
+        free(forc->TSD_prepconc.data);
+        free(forc->TSD_prepconc.value);
+    }
+#endif
 }
 
 #if defined(_BGC_)
@@ -341,6 +358,21 @@ void FreeEpctbl(epctbl_struct *epctbl)
     free(epctbl->deadwood_fucel);
     free(epctbl->deadwood_fscel);
     free(epctbl->deadwood_flig);
+}
+#endif
+
+#if defined(_RT_)
+void FreeRttbl(rttbl_struct *rttbl)
+{
+    if (rttbl->NumBTC > 0)
+    {
+        free(rttbl->BTC_loc);
+    }
+
+    if (rttbl->NumPUMP > 0)
+    {
+        free(rttbl->pumps);
+    }
 }
 #endif
 

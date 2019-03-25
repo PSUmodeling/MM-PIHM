@@ -133,6 +133,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
         free(ic_ind[i]);
     }
 
+    fclose(fp);
     free(conc);
     free(ssa);
     free(ic_ind);
