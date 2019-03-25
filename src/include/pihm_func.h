@@ -86,8 +86,8 @@ void            AdjCVodeMaxStep(void *, ctrl_struct *);
 void            ApplyBc(forc_struct *, elem_struct *, river_struct *, int);
 void            ApplyElemBc(forc_struct *, elem_struct *, int);
 #if defined(_RT_)
-void ApplyForc(forc_struct *, rttbl_struct *, elem_struct *, int, int, int,
-    const siteinfo_struct *);
+void            ApplyForc(forc_struct *, rttbl_struct *, elem_struct *, int,
+    int, const siteinfo_struct *);
 #elif defined(_NOAH_)
 void            ApplyForc(forc_struct *, elem_struct *, int, int,
     const siteinfo_struct *);
@@ -715,13 +715,13 @@ double          UnsatSatRatio(double, double, double);
 void            SortChem(char[][MAXSTRING], const int [], int, chemtbl_struct []);
 int             FindChem(const char [], const chemtbl_struct [], int);
 void            ReadChem(const char[], const char[], chemtbl_struct [],
-    kintbl_struct [], rttbl_struct *, ctrl_struct *);
+    kintbl_struct [], rttbl_struct *, forc_struct *, ctrl_struct *);
 void            ReadPrep(const char[], const chemtbl_struct [], const double [],
     forc_struct *forc);
 void            ReadCini(const char[], const chemtbl_struct *, int,
     const calib_struct *, elem_struct []);
 int             ParseLocation(const char [], const char [], int);
-void            ApplyPrcpConc(forc_struct *, rttbl_struct *, int, int);
+void            ApplyPrcpConc(forc_struct *, rttbl_struct *, int);
 void            wrap(char *);
 double          GWVol(const topo_struct *, const soil_struct *,
     const wstate_struct *);

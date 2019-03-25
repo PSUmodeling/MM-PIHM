@@ -39,7 +39,7 @@ void InitChem(const char cdbs_filen[], const ctrl_struct *ctrl,
     {
         rttbl->prcp_conc[chem_ind] *= cal->prcpconc;
 
-        if (ctrl->PrpFlg == 2)
+        if (forc->PrpFlg == 2)
         {
             for (i = 0; i < forc->TSD_prepconc.length; i++)
             {

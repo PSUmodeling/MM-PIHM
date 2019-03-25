@@ -189,8 +189,6 @@ typedef struct ctrl_struct
 #endif
 #if defined(_RT_)
     int             read_rt_restart;
-    int             PrpFlg;                 /* flag that indicates how
-                                             * precipitation is specified */
     int             RT_delay;               /* RT start after PIHM running for a
                                              * period of time (s) */
     int             AvgScl;                 /* reaction time step (s) */

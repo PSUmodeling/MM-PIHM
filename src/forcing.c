@@ -16,8 +16,8 @@ void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *river, int t)
 }
 
 #if defined(_RT_)
-void ApplyForc(forc_struct *forc, rttbl_struct *rttbl, elem_struct *elem, int t,
-    int rad_mode, int PrpFlg, const siteinfo_struct *siteinfo)
+void ApplyForc(forc_struct *forc, rttbl_struct *rttbl, elem_struct *elem,
+    int t, int rad_mode, const siteinfo_struct *siteinfo)
 #elif defined(_NOAH_)
 void ApplyForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
     const siteinfo_struct *siteinfo)
@@ -41,7 +41,7 @@ void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
 
 #if defined(_RT_)
     /* Precipitation concentration */
-    ApplyPrcpConc(forc, rttbl, t, PrpFlg);
+    ApplyPrcpConc(forc, rttbl, t);
 #endif
 }
 
@@ -265,11 +265,11 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 }
 
 #if defined(_RT_)
-void ApplyPrcpConc(forc_struct *forc, rttbl_struct *rttbl, int t, int PrpFlg)
+void ApplyPrcpConc(forc_struct *forc, rttbl_struct *rttbl, int t)
 {
     int             i;
 
-    if (PrpFlg == 2)
+    if (forc->PrpFlg == 2)
     {
         IntrplForc(&forc->TSD_prepconc, t, NumSpc, NO_INTRPL);
 
@@ -287,7 +287,7 @@ void ApplyPrcpConc(forc_struct *forc, rttbl_struct *rttbl, int t, int PrpFlg)
             }
         }
     }
-    else if (PrpFlg == 0)
+    else if (forc->PrpFlg == 0)
     {
         for (i = 0; i < NumSpc; i++)
         {

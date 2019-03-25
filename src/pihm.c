@@ -16,8 +16,8 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     {
         /* Apply forcing */
 #if defined(_RT_)
-        ApplyForc(&pihm->forc, &pihm->rttbl, pihm->elem, t, pihm->ctrl.rad_mode,
-            pihm->ctrl.PrpFlg, &pihm->siteinfo);
+        ApplyForc(&pihm->forc, &pihm->rttbl, pihm->elem, t,
+            pihm->ctrl.rad_mode, &pihm->siteinfo);
 #elif defined(_NOAH_)
         ApplyForc(&pihm->forc, pihm->elem, t , pihm->ctrl.rad_mode,
             &pihm->siteinfo);

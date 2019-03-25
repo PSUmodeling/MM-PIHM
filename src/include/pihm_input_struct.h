@@ -255,6 +255,8 @@ typedef struct forc_struct
     tsdata_struct  *ndep;        /* nitrogen deposition forcing series */
 #endif
 #if defined(_RT_)
+    int             PrpFlg;                 /* flag that indicates how
+                                             * precipitation is specified */
     tsdata_struct   TSD_prepconc; /* concentration in precipitation */
 #endif
 } forc_struct;

@@ -6,7 +6,7 @@
 
 void ReadChem(const char chem_filen[], const char cdbs_filen[],
     chemtbl_struct chemtbl[], kintbl_struct kintbl[], rttbl_struct *rttbl,
-    ctrl_struct *ctrl)
+    forc_struct *forc, ctrl_struct *ctrl)
 {
     int             i;
     int             chem_ind;
@@ -93,8 +93,8 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     }
 
     NextLine(chem_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "PRECIPITATION", &ctrl->PrpFlg, 'i', chem_filen, lno);
-    switch (ctrl->PrpFlg)
+    ReadKeyword(cmdstr, "PRECIPITATION", &forc->PrpFlg, 'i', chem_filen, lno);
+    switch (forc->PrpFlg)
     {
         case 0:
             PIHMprintf(VL_VERBOSE, "  No precipitation condition. \n");
