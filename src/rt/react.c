@@ -40,97 +40,118 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         satn =
             UnsatSatRatio(elem[i].soil.depth, elem[i].ws.unsat, elem[i].ws.gw);
 
-        for (k = 0; k < NumSpc; k++)
+        if (elem[i].ws.unsat > 5.0E-3)
         {
-            t_conc0[k] = elem[i].chms_unsat.t_conc[k];
-        }
-
-        illness = 0;
-        if (illness < 20 && elem[i].ws.unsat > 5.0E-3)
-        {
-            if (_React(stepsize, chemtbl, kintbl, rttbl, satn, &illness,
-                &elem[i].chms_unsat))
+            for (k = 0; k < NumSpc; k++)
             {
-                PIHMprintf(VL_ERROR, "  ---> React failed.\t");
+                elem[i].chmf.react_unsat[k] = 0.0;
+            }
+        }
+        else
+        {
+            for (k = 0; k < NumSpc; k++)
+            {
+                t_conc0[k] = elem[i].chms_unsat.t_conc[k];
+            }
 
-                substep = 0.5 * stepsize;
-                k = 2;
-
-                while ((j = _React(substep, chemtbl, kintbl, rttbl, satn, &illness,
-                    &elem[i].chms_unsat)))
+            illness = 0;
+            if (illness < 20)
+            {
+                if (_React(stepsize, chemtbl, kintbl, rttbl, satn, &illness,
+                    &elem[i].chms_unsat))
                 {
-                    substep *= 0.5;
-                    k *= 2;
-                    if (substep < 30.0)
-                        break;
-                }
+                    PIHMprintf(VL_ERROR, "  ---> React failed.\t");
 
-                if (j == 0)
-                {
-                    PIHMprintf(VL_NORMAL,
-                        " Reaction passed with step equals to %f (1/%d)\n",
-                        substep, k);
-                    for (j = 1; j < k; j++)
+                    substep = 0.5 * stepsize;
+                    k = 2;
+
+                    while ((j = _React(substep, chemtbl, kintbl, rttbl, satn, &illness,
+                        &elem[i].chms_unsat)))
                     {
-                        _React(substep, chemtbl, kintbl, rttbl, satn, &illness,
-                            &elem[i].chms_unsat);
+                        substep *= 0.5;
+                        k *= 2;
+                        if (substep < 30.0)
+                            break;
+                    }
+
+                    if (j == 0)
+                    {
+                        PIHMprintf(VL_NORMAL,
+                            " Reaction passed with step equals to %f (1/%d)\n",
+                            substep, k);
+                        for (j = 1; j < k; j++)
+                        {
+                            _React(substep, chemtbl, kintbl, rttbl, satn, &illness,
+                                &elem[i].chms_unsat);
+                        }
                     }
                 }
-            }
-        }   /* Finish reaction */
+            }   /* Finish reaction */
 
-        for (k = 0; k < NumSpc; k++)
-        {
-            elem[i].chmf.react_unsat[k] =
-                (elem[i].chms_unsat.t_conc[k] - t_conc0[k]) * vol_unsat / stepsize;
+            for (k = 0; k < NumSpc; k++)
+            {
+                elem[i].chmf.react_unsat[k] =
+                    (elem[i].chms_unsat.t_conc[k] - t_conc0[k]) * vol_unsat /
+                    stepsize;
+            }
         }
 
         /*
          * Groundwater
          */
-        for (k = 0; k < NumSpc; k++)
+        if (elem[i].ws.gw > 5.0E-3)
         {
-            t_conc0[k] = elem[i].chms_gw.t_conc[k];
-        }
-
-        illness = 0;
-        if (illness < 20 && elem[i].ws.gw > 5.0E-3)
-        {
-            if (_React(stepsize, chemtbl, kintbl, rttbl, 1.0, &illness,
-                &elem[i].chms_gw))
+            for (k = 0; k < NumSpc; k++)
             {
-                PIHMprintf(VL_ERROR, "  ---> React failed.\t");
+                elem[i].chmf.react_gw[k] = 0.0;
+            }
+        }
+        else
+        {
+            for (k = 0; k < NumSpc; k++)
+            {
+                t_conc0[k] = elem[i].chms_gw.t_conc[k];
+            }
 
-                substep = 0.5 * stepsize;
-                k = 2;
-
-                while ((j = _React(substep, chemtbl, kintbl, rttbl, 1.0, &illness,
-                    &elem[i].chms_gw)))
+            illness = 0;
+            if (illness < 20)
+            {
+                if (_React(stepsize, chemtbl, kintbl, rttbl, 1.0, &illness,
+                    &elem[i].chms_gw))
                 {
-                    substep *= 0.5;
-                    k *= 2;
-                    if (substep < 30.0)
-                        break;
-                }
+                    PIHMprintf(VL_ERROR, "  ---> React failed.\t");
 
-                if (j == 0)
-                {
-                    PIHMprintf(VL_NORMAL,
-                        " Reaction passed with step equals to %f (1/%d)\n",
-                        substep, k);
-                    for (j = 1; j < k; j++)
+                    substep = 0.5 * stepsize;
+                    k = 2;
+
+                    while ((j = _React(substep, chemtbl, kintbl, rttbl, 1.0, &illness,
+                        &elem[i].chms_gw)))
                     {
-                        _React(substep, chemtbl, kintbl, rttbl, satn, &illness,
-                            &elem[i].chms_gw);
+                        substep *= 0.5;
+                        k *= 2;
+                        if (substep < 30.0)
+                            break;
+                    }
+
+                    if (j == 0)
+                    {
+                        PIHMprintf(VL_NORMAL,
+                            " Reaction passed with step equals to %f (1/%d)\n",
+                            substep, k);
+                        for (j = 1; j < k; j++)
+                        {
+                            _React(substep, chemtbl, kintbl, rttbl, satn, &illness,
+                                &elem[i].chms_gw);
+                        }
                     }
                 }
-            }
-        }   /* Finish reaction */
+            }   /* Finish reaction */
 
-        for (k = 0; k < NumSpc; k++)
-        {
-            elem[i].chmf.react_gw[k] =
-                (elem[i].chms_gw.t_conc[k] - t_conc0[k]) * vol_gw / stepsize;
+            for (k = 0; k < NumSpc; k++)
+            {
+                elem[i].chmf.react_gw[k] =
+                    (elem[i].chms_gw.t_conc[k] - t_conc0[k]) * vol_gw / stepsize;
+            }
         }
 
         /* Averaging mineral concentration to ensure mass
