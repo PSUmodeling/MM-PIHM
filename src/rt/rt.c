@@ -160,8 +160,8 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
         double          vol_unsat;
         int             k;
 
-        vol_gw = GWVol(&elem[i].topo, &elem[i].soil, &elem[i].ws);
-        vol_unsat = UnsatWaterVol(&elem[i].topo, &elem[i].soil, &elem[i].ws);
+        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), 1.0E-5) * elem[i].topo.area;
+        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), 1.0E-5) * elem[i].topo.area;
 
         for (k = 0; k < rttbl->NumStc; k++)
         {
@@ -190,7 +190,7 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
         double          vol_stream;
         int             k;
 
-        vol_rivbed = RivBedVol(&river[i].topo, &river[i].matl, &river[i].ws);
+        vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), 1.0E-5) * river[i].topo.area;
         vol_stream = river[i].topo.area * MAX(river[i].ws.stage, 1.0E-5);
 
         for (k = 0; k < rttbl->NumStc; k++)
@@ -269,40 +269,36 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
     }
 }
 
-double GWVol(const topo_struct *topo, const soil_struct *soil,
-    const wstate_struct *ws)
+double GWStrg(const soil_struct *soil, const wstate_struct *ws)
 {
-    double          vol;
+    double          strg;
 
     if (ws->gw < 0.0)
     {
-        vol = 0.0;
+        strg = 0.0;
     }
     else if (ws->gw > soil->depth)
     {
-        vol = soil->depth * soil->smcmax + (ws->gw - soil->depth) * soil->porosity;
+        strg = soil->depth * soil->smcmax +
+            (ws->gw - soil->depth) * soil->porosity;
     }
     else
     {
-        vol = ws->gw * soil->smcmax;
+        strg = ws->gw * soil->smcmax;
     }
 
-    return MAX(vol, 1.0E-5) * topo->area;
+    return strg;
 }
 
-double UnsatWaterVol(const topo_struct *topo, const soil_struct *soil,
-    const wstate_struct *ws)
+double UnsatWaterStrg(const soil_struct *soil, const wstate_struct *ws)
 {
     double          deficit;
-    double          vol;
 
     deficit = soil->depth - ws->gw;
     deficit = MIN(deficit, soil->depth);
     deficit = MAX(deficit, 0.0);
 
-    vol = deficit * soil->smcmin + MAX(ws->unsat, 0.0) * soil->porosity;
-
-    return MAX(vol, 1.0E-5) * topo->area;
+    return deficit * soil->smcmin + MAX(ws->unsat, 0.0) * soil->porosity;
 }
 
 double UnsatSatRatio(double depth, double unsat, double gw)
@@ -310,24 +306,23 @@ double UnsatSatRatio(double depth, double unsat, double gw)
     return ((unsat < 0.0) ? 0.0 : ((gw > depth) ? 1.0 : unsat / (depth - gw)));
 }
 
-double RivBedVol(const river_topo_struct *topo, const matl_struct *matl,
-    const river_wstate_struct *ws)
+double RivBedStrg(const matl_struct *matl, const river_wstate_struct *ws)
 {
-    double          vol;
+    double          strg;
 
     if (ws->gw < 0.0)
     {
-        vol = 0.0;
+        strg = 0.0;
     }
     else if (ws->gw > matl->bedthick)
     {
-        vol = matl->bedthick * (matl->porosity + matl->smcmin) +
+        strg = matl->bedthick * (matl->porosity + matl->smcmin) +
             (ws->gw - matl->bedthick) * matl->porosity;
     }
     else
     {
-        vol = ws->gw * (matl->porosity + matl->smcmin);
+        strg = ws->gw * (matl->porosity + matl->smcmin);
     }
 
-    return MAX(vol, 1.0E-5) * topo->area;
+    return strg;
 }

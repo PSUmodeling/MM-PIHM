@@ -17,8 +17,8 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         double          vol_gw;
         double          vol_unsat;
 
-        vol_gw = GWVol(&elem[i].topo, &elem[i].soil, &elem[i].ws);
-        vol_unsat = UnsatWaterVol(&elem[i].topo, &elem[i].soil, &elem[i].ws);
+        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), 1.0E-5) * elem[i].topo.area;
+        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), 1.0E-5) * elem[i].topo.area;
 
         for (k = 0; k < NumSpc; k++)
         {
@@ -72,7 +72,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         double          vol_rivbed;
         double          vol_stream;
 
-        vol_rivbed = RivBedVol(&river[i].topo, &river[i].matl, &river[i].ws);
+        vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), 1.0E-5) * river[i].topo.area;
         vol_stream = river[i].topo.area * MAX(river[i].ws.stage, 1.0E-5);
 
         for (k = 0; k < NumSpc; k++)
