@@ -45,7 +45,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         }
 
         illness = 0;
-        if (illness < 20 && elem[i].ws.unsat > 1.0E-3)
+        if (illness < 20 && elem[i].ws.unsat > 5.0E-3)
         {
             if (_React(stepsize, chemtbl, kintbl, rttbl, satn, &illness,
                 &elem[i].chms_unsat))
@@ -93,7 +93,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         }
 
         illness = 0;
-        if (illness < 20 && elem[i].ws.gw > 1.0E-3)
+        if (illness < 20 && elem[i].ws.gw > 5.0E-3)
         {
             if (_React(stepsize, chemtbl, kintbl, rttbl, 1.0, &illness,
                 &elem[i].chms_gw))
