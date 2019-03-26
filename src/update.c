@@ -75,8 +75,8 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         double          vol_gw;
         double          vol_unsat;
 
-        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), 1.0E-5) * elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), 1.0E-5) * elem[i].topo.area;
+        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), DEPTHR) * elem[i].topo.area;
+        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), DEPTHR) * elem[i].topo.area;
 
         for (k = 0; k < NumSpc; k++)
         {
@@ -134,8 +134,8 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         double          vol_rivbed;
         double          vol_stream;
 
-        vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), 1.0E-5) * elem[i].topo.area;
-        vol_stream = river[i].topo.area * MAX(river[i].ws.stage, 1.0E-5);
+        vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), DEPTHR) * elem[i].topo.area;
+        vol_stream = river[i].topo.area * MAX(river[i].ws.stage, DEPTHR);
 
         for (k = 0; k < NumSpc; k++)
         {

@@ -15,12 +15,6 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         for (i = 0; i < nriver; i++)
         {
             int             k;
-            double          t_conc0[MAXSPS];
-            double          vol_rivbed;
-            double          vol_stream;
-
-            vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), 1.0E-5) * river[i].topo.area;
-            vol_stream = river[i].topo.area * MAX(river[i].ws.stage, 1.0E-5);
 
             for (k = 0; k < rttbl->NumStc; k++)
             {
@@ -33,33 +27,9 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     river[i].chms_rivbed.t_conc[k] * 0.1;
             }
 
-            for (k = 0; k < NumSpc; k++)
-            {
-                t_conc0[k] = river[i].chms_stream.t_conc[k];
-            }
-
             _Speciation(chemtbl, rttbl, 0, &river[i].chms_stream);
 
-            for (k = 0; k < NumSpc; k++)
-            {
-                river[i].chmf.spec_stream[k] =
-                    (river[i].chms_stream.t_conc[k] - t_conc0[k]) *
-                    vol_stream / 3600.0;
-            }
-
-            for (k = 0; k < NumSpc; k++)
-            {
-                t_conc0[k] = river[i].chms_rivbed.t_conc[k];
-            }
-
             _Speciation(chemtbl, rttbl, 0, &river[i].chms_rivbed);
-
-            for (k = 0; k < NumSpc; k++)
-            {
-                river[i].chmf.spec_stream[k] =
-                    (river[i].chms_rivbed.t_conc[k] - t_conc0[k]) *
-                    vol_rivbed / 3600.0;
-            }
         }
     }
     else

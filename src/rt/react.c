@@ -34,8 +34,8 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         int             j, k;
         int             illness;
 
-        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), 1.0E-5) * elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), 1.0E-5) * elem[i].topo.area;
+        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), DEPTHR) * elem[i].topo.area;
+        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), DEPTHR) * elem[i].topo.area;
 
         satn =
             UnsatSatRatio(elem[i].soil.depth, elem[i].ws.unsat, elem[i].ws.gw);

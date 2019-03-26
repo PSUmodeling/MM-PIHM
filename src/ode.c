@@ -365,14 +365,12 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             {
                 dy[STREAM_MOLE(i, k)] -= river->chmf.flux[j][k];
             }
-            dy[STREAM_MOLE(i, k)] += river->chmf.spec_stream[k];
 
             dy[RIVBED_MOLE(i, k)] += -river->chmf.flux[LEFT_AQUIF2AQUIF][k] -
                 river->chmf.flux[RIGHT_AQUIF2AQUIF][k] -
                 river->chmf.flux[DOWN_AQUIF2AQUIF][k] -
                 river->chmf.flux[UP_AQUIF2AQUIF][k] +
                 river->chmf.flux[CHANL_LKG][k];
-            dy[RIVBED_MOLE(i, k)] += river->chmf.spec_rivbed[k];
 
             CheckDy(dy[STREAM_MOLE(i, k)], "river", "stream chem", i + 1, (double)t);
             CheckDy(dy[RIVBED_MOLE(i, k)], "river", "bed chem", i + 1, (double)t);

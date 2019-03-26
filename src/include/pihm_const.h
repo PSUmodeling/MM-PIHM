@@ -267,6 +267,9 @@
 
 #define ZERO_CONC       1.0E-20
 
+/* Threshold of water storage when deposition occurs */
+#define DEPTHR          1.0E-5
+
 /* RT simulation mode */
 #define KIN_REACTION    0
 #define TRANSPORT_ONLY  1

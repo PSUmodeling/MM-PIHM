@@ -14,11 +14,11 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     for (i = 0; i < nelem; i++)
     {
         int             j, k, kk;
-        double          vol_gw;
-        double          vol_unsat;
+        double          strg_gw;
+        double          strg_unsat;
 
-        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), 1.0E-5) * elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), 1.0E-5) * elem[i].topo.area;
+        strg_gw = GWStrg(&elem[i].soil, &elem[i].ws);
+        strg_unsat = UnsatWaterStrg(&elem[i].soil, &elem[i].ws);
 
         for (k = 0; k < NumSpc; k++)
         {
@@ -33,11 +33,12 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             }
 
             /* Calculate concentrations */
-            elem[i].chms_unsat.t_conc[k] = (vol_unsat > 0.0) ?
-                elem[i].chms_unsat.t_mole[k] / vol_unsat : 0.0;
+            elem[i].chms_unsat.t_conc[k] = (strg_unsat > DEPTHR) ?
+                elem[i].chms_unsat.t_mole[k] / strg_unsat / elem[i].topo.area :
+                0.0;
 
-            elem[i].chms_gw.t_conc[k] = (vol_gw > 0.0) ?
-                elem[i].chms_gw.t_mole[k] / vol_gw : 0.0;
+            elem[i].chms_gw.t_conc[k] = (strg_gw > DEPTHR) ?
+                elem[i].chms_gw.t_mole[k] / strg_gw / elem[i].topo.area : 0.0;
 
             if (chemtbl[k].mtype == MIXED_MA)
             {
@@ -69,11 +70,11 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     for (i = 0; i < nriver; i++)
     {
         int             j, k;
-        double          vol_rivbed;
-        double          vol_stream;
+        double          strg_rivbed;
+        double          strg_stream;
 
-        vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), 1.0E-5) * river[i].topo.area;
-        vol_stream = river[i].topo.area * MAX(river[i].ws.stage, 1.0E-5);
+        strg_rivbed = RivBedStrg(&river[i].matl, &river[i].ws);
+        strg_stream = river[i].ws.stage;
 
         for (k = 0; k < NumSpc; k++)
         {
@@ -84,13 +85,13 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             }
 
             /* Calculate concentrations */
-            river[i].chms_stream.t_conc[k] = (vol_stream > 0.0) ?
-                river[i].chms_stream.t_mole[k] / vol_stream : 0.0;
+            river[i].chms_stream.t_conc[k] = (strg_stream > DEPTHR) ?
+                river[i].chms_stream.t_mole[k] / strg_stream / river[i].topo.area : 0.0;
             river[i].chms_stream.t_conc[k] =
                 MAX(river[i].chms_stream.t_conc[k], 0.0);
 
-            river[i].chms_rivbed.t_conc[k] = (vol_rivbed > 0.0) ?
-                river[i].chms_rivbed.t_mole[k] / vol_rivbed : 0.0;
+            river[i].chms_rivbed.t_conc[k] = (strg_rivbed > DEPTHR) ?
+                river[i].chms_rivbed.t_mole[k] / strg_rivbed /river[i].topo.area : 0.0;
             river[i].chms_rivbed.t_conc[k] =
                 MAX(river[i].chms_rivbed.t_conc[k], 0.0);
         }

@@ -160,8 +160,8 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
         double          vol_unsat;
         int             k;
 
-        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), 1.0E-5) * elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), 1.0E-5) * elem[i].topo.area;
+        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), DEPTHR) * elem[i].topo.area;
+        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), DEPTHR) * elem[i].topo.area;
 
         for (k = 0; k < rttbl->NumStc; k++)
         {
@@ -190,8 +190,8 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
         double          vol_stream;
         int             k;
 
-        vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), 1.0E-5) * river[i].topo.area;
-        vol_stream = river[i].topo.area * MAX(river[i].ws.stage, 1.0E-5);
+        vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), DEPTHR) * river[i].topo.area;
+        vol_stream = river[i].topo.area * MAX(river[i].ws.stage, DEPTHR);
 
         for (k = 0; k < rttbl->NumStc; k++)
         {
@@ -262,9 +262,6 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
         {
             NV_Ith(CV_Y, STREAM_MOLE(i, k)) = river[i].chms_stream.t_mole[k];
             NV_Ith(CV_Y, RIVBED_MOLE(i, k)) = river[i].chms_rivbed.t_mole[k];
-
-            river[i].chmf.spec_stream[k] = 0.0;
-            river[i].chmf.spec_rivbed[k] = 0.0;
         }
     }
 }

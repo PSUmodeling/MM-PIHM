@@ -136,8 +136,6 @@ typedef struct river_solute_struct
 typedef struct river_chmflux_struct
 {
     double          flux[NUM_RIVFLX][MAXSPS];
-    double          spec_stream[MAXSPS];
-    double          spec_rivbed[MAXSPS];
 } river_chmflux_struct;
 #endif
 
