@@ -40,7 +40,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         satn =
             UnsatSatRatio(elem[i].soil.depth, elem[i].ws.unsat, elem[i].ws.gw);
 
-        if (elem[i].ws.unsat > 5.0E-3)
+        if (elem[i].ws.unsat < 1.0E-3)
         {
             for (k = 0; k < NumSpc; k++)
             {
@@ -99,7 +99,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         /*
          * Groundwater
          */
-        if (elem[i].ws.gw > 5.0E-3)
+        if (elem[i].ws.gw < 1.0E-3)
         {
             for (k = 0; k < NumSpc; k++)
             {
