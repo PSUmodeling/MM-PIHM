@@ -519,38 +519,43 @@ void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
 {
     double          t_conc0[MAXSPS];
     double          substep;
-    int             j, k;
+    double          step_counter = 0.0;
+    int             flag;
+    int             k;
 
     for (k = 0; k < NumSpc; k++)
     {
         t_conc0[k] = chms->t_conc[k];
     }
 
-    if (_React(stepsize, chemtbl, kintbl, rttbl, satn, chms))
+    substep = stepsize;
+
+    while (1.0 - step_counter / stepsize > 1.0E-10 && substep > 30.0)
     {
-        PIHMprintf(VL_ERROR, "  ---> React failed.\t");
+        flag = _React(substep, chemtbl, kintbl, rttbl, satn, chms);
 
-        substep = 0.5 * stepsize;
-        k = 2;
-
-        while ((j = _React(substep, chemtbl, kintbl, rttbl, satn, chms)))
+        if (flag == 0)
+        {
+            /* Reaction passed with current step */
+            step_counter += substep;
+        }
+        else
         {
             substep *= 0.5;
-            k *= 2;
-            if (substep < 30.0)
-                break;
         }
+    }
 
-        if (j == 0)
+    if (roundi(step_counter) == roundi(stepsize))
+    {
+        if (roundi(substep) != roundi(stepsize))
         {
             PIHMprintf(VL_NORMAL,
-                " Reaction passed with step equals to %f (1/%d)\n",
-                substep, k);
-            for (j = 1; j < k; j++)
-            {
-                _React(substep, chemtbl, kintbl, rttbl, satn, chms);
-            }
+                " Reaction passed with minimum step of %f s.\n", substep);
         }
+    }
+    else
+    {
+        PIHMprintf(VL_NORMAL, " Reaction failed.\n");
     }
 
     for (k = 0; k < NumSpc; k++)
