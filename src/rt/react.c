@@ -1,18 +1,5 @@
-/******************************************************************************
-* This subroutine is used to calculate the reactions
-* It uses a similar OS3D scheme as detailed inCrunchflow user's manual.
-*
-* If you have any questions, concerns, suggestions, please contact me at
-* the following address:
-*     Developer: Chen Bao <baochen.d.s@gmail.com>
-*     Version  : pre-alpha
-*     Date     : June, 2013
-*****************************************************************************/
 #include "pihm.h"
 
-#define LINE_WIDTH 512
-#define WORDS_LINE 40
-#define WORD_WIDTH 80
 #define TOL        1E-7
 #define SKIP_JACOB 1
 
@@ -26,21 +13,20 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
 #endif
     for (i = 0; i < nelem; i++)
     {
-        double          t_conc0[MAXSPS];
-        double          substep;
         double          vol_gw;
         double          vol_unsat;
         double          satn;
-        int             j, k;
-        int             illness;
+        int             k;
 
-        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), DEPTHR) * elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), DEPTHR) * elem[i].topo.area;
+        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), DEPTHR) *
+            elem[i].topo.area;
+        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), DEPTHR) *
+            elem[i].topo.area;
 
         satn =
             UnsatSatRatio(elem[i].soil.depth, elem[i].ws.unsat, elem[i].ws.gw);
 
-        if (elem[i].ws.unsat < 1.0E-3)
+        if (elem[i].ws.unsat < 1.0E-3 || satn < 1.0E-2)
         {
             for (k = 0; k < NumSpc; k++)
             {
@@ -49,51 +35,8 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         }
         else
         {
-            for (k = 0; k < NumSpc; k++)
-            {
-                t_conc0[k] = elem[i].chms_unsat.t_conc[k];
-            }
-
-            illness = 0;
-            if (illness < 20)
-            {
-                if (_React(stepsize, chemtbl, kintbl, rttbl, satn, &illness,
-                    &elem[i].chms_unsat))
-                {
-                    PIHMprintf(VL_ERROR, "  ---> React failed.\t");
-
-                    substep = 0.5 * stepsize;
-                    k = 2;
-
-                    while ((j = _React(substep, chemtbl, kintbl, rttbl, satn, &illness,
-                        &elem[i].chms_unsat)))
-                    {
-                        substep *= 0.5;
-                        k *= 2;
-                        if (substep < 30.0)
-                            break;
-                    }
-
-                    if (j == 0)
-                    {
-                        PIHMprintf(VL_NORMAL,
-                            " Reaction passed with step equals to %f (1/%d)\n",
-                            substep, k);
-                        for (j = 1; j < k; j++)
-                        {
-                            _React(substep, chemtbl, kintbl, rttbl, satn, &illness,
-                                &elem[i].chms_unsat);
-                        }
-                    }
-                }
-            }   /* Finish reaction */
-
-            for (k = 0; k < NumSpc; k++)
-            {
-                elem[i].chmf.react_unsat[k] =
-                    (elem[i].chms_unsat.t_conc[k] - t_conc0[k]) * vol_unsat /
-                    stepsize;
-            }
+            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_unsat, satn,
+                &elem[i].chms_unsat, elem[i].chmf.react_unsat);
         }
 
         /*
@@ -108,50 +51,8 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         }
         else
         {
-            for (k = 0; k < NumSpc; k++)
-            {
-                t_conc0[k] = elem[i].chms_gw.t_conc[k];
-            }
-
-            illness = 0;
-            if (illness < 20)
-            {
-                if (_React(stepsize, chemtbl, kintbl, rttbl, 1.0, &illness,
-                    &elem[i].chms_gw))
-                {
-                    PIHMprintf(VL_ERROR, "  ---> React failed.\t");
-
-                    substep = 0.5 * stepsize;
-                    k = 2;
-
-                    while ((j = _React(substep, chemtbl, kintbl, rttbl, 1.0, &illness,
-                        &elem[i].chms_gw)))
-                    {
-                        substep *= 0.5;
-                        k *= 2;
-                        if (substep < 30.0)
-                            break;
-                    }
-
-                    if (j == 0)
-                    {
-                        PIHMprintf(VL_NORMAL,
-                            " Reaction passed with step equals to %f (1/%d)\n",
-                            substep, k);
-                        for (j = 1; j < k; j++)
-                        {
-                            _React(substep, chemtbl, kintbl, rttbl, satn, &illness,
-                                &elem[i].chms_gw);
-                        }
-                    }
-                }
-            }   /* Finish reaction */
-
-            for (k = 0; k < NumSpc; k++)
-            {
-                elem[i].chmf.react_gw[k] =
-                    (elem[i].chms_gw.t_conc[k] - t_conc0[k]) * vol_gw / stepsize;
-            }
+            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0,
+                &elem[i].chms_gw, elem[i].chmf.react_gw);
         }
 
         /* Averaging mineral concentration to ensure mass
@@ -177,14 +78,8 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
 
 int _React(double stepsize, const chemtbl_struct chemtbl[],
     const kintbl_struct kintbl[], const rttbl_struct *rttbl, double satn,
-    int *illness, chmstate_struct *chms)
+    chmstate_struct *chms)
 {
-    if (satn < 1.0E-2)
-    {
-        /* Very dry, no reaction can take place */
-        return 0;
-    }
-
     int             i, j, k;
     int             control;
     int             num_spe = rttbl->NumStc + rttbl->NumSsc;
@@ -535,7 +430,6 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             rttbl->NumStc - rttbl->NumMin, p);
         if (pivot_flg != 0)
         {
-            (*illness)++;
             return (1);
         }
 
@@ -617,4 +511,51 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     }
 
     return 0;
+}
+
+void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
+    const rttbl_struct *rttbl, double stepsize, double vol, double satn,
+    chmstate_struct *chms, double react_flux[])
+{
+    double          t_conc0[MAXSPS];
+    double          substep;
+    int             j, k;
+
+    for (k = 0; k < NumSpc; k++)
+    {
+        t_conc0[k] = chms->t_conc[k];
+    }
+
+    if (_React(stepsize, chemtbl, kintbl, rttbl, satn, chms))
+    {
+        PIHMprintf(VL_ERROR, "  ---> React failed.\t");
+
+        substep = 0.5 * stepsize;
+        k = 2;
+
+        while ((j = _React(substep, chemtbl, kintbl, rttbl, satn, chms)))
+        {
+            substep *= 0.5;
+            k *= 2;
+            if (substep < 30.0)
+                break;
+        }
+
+        if (j == 0)
+        {
+            PIHMprintf(VL_NORMAL,
+                " Reaction passed with step equals to %f (1/%d)\n",
+                substep, k);
+            for (j = 1; j < k; j++)
+            {
+                _React(substep, chemtbl, kintbl, rttbl, satn, chms);
+            }
+        }
+    }
+
+    for (k = 0; k < NumSpc; k++)
+    {
+        react_flux[k] =
+            (chms->t_conc[k] - t_conc0[k]) * vol / stepsize;
+    }
 }
