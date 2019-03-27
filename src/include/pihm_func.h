@@ -694,9 +694,8 @@ void            WaterUptake(const soil_struct *, const estate_struct *,
 #if defined(_RT_)
 int             realcheck(const char *);
 int             keymatch(const char *, const char *, double *, char **);
-void            InitChem(const char [], const ctrl_struct *,
-    const calib_struct *, forc_struct *forc, chemtbl_struct [],
-    kintbl_struct [], rttbl_struct *);
+void            InitChem(const char [], const calib_struct *, forc_struct *forc,
+    chemtbl_struct [], kintbl_struct [], rttbl_struct *);
 void            Reaction(double, const chemtbl_struct [], const kintbl_struct [],
     const rttbl_struct *, elem_struct []);
 int             _React(double, const chemtbl_struct [], const kintbl_struct [],

@@ -6,14 +6,9 @@
 *****************************************************************************/
 #include "pihm.h"
 
-/* Begin global variable definition (MACRO) */
-#define LINE_WIDTH 512
-#define WORDS_LINE 40
-#define WORD_WIDTH 80
-
-void InitChem(const char cdbs_filen[], const ctrl_struct *ctrl,
-    const calib_struct *cal, forc_struct *forc, chemtbl_struct chemtbl[],
-    kintbl_struct kintbl[], rttbl_struct *rttbl)
+void InitChem(const char cdbs_filen[], const calib_struct *cal,
+    forc_struct *forc, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
+    rttbl_struct *rttbl)
 {
     int             i;
     int             chem_ind;
