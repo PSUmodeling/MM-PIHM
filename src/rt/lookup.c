@@ -44,21 +44,45 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     /*
      * Read Debye Huckel parameters from database
      */
-    while (keymatch(line, "'Debye-Huckel adh'", tmpval, tmpstr) != 1)
+    rttbl->adh = BADVAL;
+    rttbl->bdh = BADVAL;
+    rttbl->bdt = BADVAL;
+
+    while (MatchWrappedKey(cmdstr, "'Debye-Huckel adh'") != 1)
     {
-        fgets(line, LINE_WIDTH, database);
+        NextLine(database, cmdstr, &lno);
     }
-    rttbl->adh = tmpval[keq_position - 1];
-    while (keymatch(line, "'Debye-Huckel bdh'", tmpval, tmpstr) != 1)
+    ReadDHParam(cmdstr, keq_position, &rttbl->adh);
+    if (roundi(rttbl->adh) == BADVAL)
     {
-        fgets(line, LINE_WIDTH, database);
+        PIHMprintf(VL_ERROR, "Error reading Debye Huckel parameters "
+            "in %s near Line %d", ".cdbs", lno);
+        PIHMexit(EXIT_FAILURE);
     }
-    rttbl->bdh = tmpval[keq_position - 1];
-    while (keymatch(line, "'Debye-Huckel bdt'", tmpval, tmpstr) != 1)
+
+    while (MatchWrappedKey(cmdstr, "'Debye-Huckel bdh'") != 1)
     {
-        fgets(line, LINE_WIDTH, database);
+        NextLine(database, cmdstr, &lno);
     }
-    rttbl->bdt = tmpval[keq_position - 1];
+    ReadDHParam(cmdstr, keq_position, &rttbl->bdh);
+    if (roundi(rttbl->bdh) == BADVAL)
+    {
+        PIHMprintf(VL_ERROR, "Error reading Debye Huckel parameters "
+            "in %s near Line %d", ".cdbs", lno);
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    while (MatchWrappedKey(cmdstr, "'Debye-Huckel bdt'") != 1)
+    {
+        NextLine(database, cmdstr, &lno);
+    }
+    ReadDHParam(cmdstr, keq_position, &rttbl->bdt);
+    if (roundi(rttbl->bdt) == BADVAL)
+    {
+        PIHMprintf(VL_ERROR, "Error reading Debye Huckel parameters "
+            "in %s near Line %d", ".cdbs", lno);
+        PIHMexit(EXIT_FAILURE);
+    }
 
     PIHMprintf(VL_VERBOSE,
         " Debye-Huckel Parameters set to A=%6.4f; B=%6.4f; b=%6.4f\n\n",
@@ -704,5 +728,27 @@ void ReadTempPoints(const char cmdstr[], double tmp, int *total_points,
                     val, *keq_position);
             return;
         }
+    }
+}
+
+void ReadDHParam(const char cmdstr[], int tmp_position, double *param)
+{
+    int             bytes_now;
+    int             bytes_consumed = 0;
+    int             i;
+
+    if (sscanf(cmdstr + bytes_consumed, "'%*[^']'%n", &bytes_now) != 0)
+    {
+        return;
+    }
+    bytes_consumed += bytes_now;
+
+    for (i = 0; i < tmp_position; i++)
+    {
+        if (sscanf(cmdstr + bytes_consumed, "%lf%n", param, &bytes_now) != 1)
+        {
+            return;
+        }
+        bytes_consumed += bytes_now;
     }
 }
