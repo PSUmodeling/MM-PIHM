@@ -28,7 +28,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
      * Find temperature point in database
      */
     NextLine(database, cmdstr, &lno);
-    while(MatchWrappedKey(cmdstr, "'temperature points'") != 1)
+    while(MatchWrappedKey(cmdstr, "'temperature points'") != 0)
     {
         NextLine(database, cmdstr, &lno);
     }
@@ -48,7 +48,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     rttbl->bdh = BADVAL;
     rttbl->bdt = BADVAL;
 
-    while (MatchWrappedKey(cmdstr, "'Debye-Huckel adh'") != 1)
+    while (MatchWrappedKey(cmdstr, "'Debye-Huckel adh'") != 0)
     {
         NextLine(database, cmdstr, &lno);
     }
@@ -60,7 +60,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         PIHMexit(EXIT_FAILURE);
     }
 
-    while (MatchWrappedKey(cmdstr, "'Debye-Huckel bdh'") != 1)
+    while (MatchWrappedKey(cmdstr, "'Debye-Huckel bdh'") != 0)
     {
         NextLine(database, cmdstr, &lno);
     }
@@ -72,7 +72,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         PIHMexit(EXIT_FAILURE);
     }
 
-    while (MatchWrappedKey(cmdstr, "'Debye-Huckel bdt'") != 1)
+    while (MatchWrappedKey(cmdstr, "'Debye-Huckel bdt'") != 0)
     {
         NextLine(database, cmdstr, &lno);
     }
@@ -122,33 +122,16 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         chemtbl[i].DispCoe = rttbl->DispCoe;
         chemtbl[i].Charge = 0.0;
         chemtbl[i].SizeF = 1.0;
+        chemtbl[i].MolarMass = BADVAL;
     }
 
     /*
      * Read parameters for primary species
      */
-    rewind(database);
-    fgets(line, LINE_WIDTH, database);
-    while (keymatch(line, "'End of primary'", tmpval, tmpstr) != 1)
+    while (MatchWrappedKey(cmdstr, "'End of primary'") != 0)
     {
-        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
-        {
-            for (i = 0; i < rttbl->NumStc; i++)
-            {
-                if (strcmp(chemtbl[i].ChemName, tmpstr[0]) == 0)
-                {
-                    PIHMprintf(VL_VERBOSE,
-                        " Primary species %s found in database.\n"
-                        " MolarMass = %6.4f\n\n",
-                        chemtbl[i].ChemName, tmpval[2]);
-                    chemtbl[i].MolarMass = tmpval[2];
-                    chemtbl[i].Charge = tmpval[1];
-                    chemtbl[i].SizeF = tmpval[0];
-                    break;
-                }
-            }
-        }
-        fgets(line, LINE_WIDTH, database);
+        NextLine(database, cmdstr, &lno);
+        ReadPrimary(cmdstr, rttbl->NumStc, chemtbl);
     }
 
     /*
@@ -283,15 +266,15 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     {
         if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
         {
-            for (i = 0; i < rttbl->NumStc; i++)
+            for (i = 0; i < rttbl->NumSsc; i++)
             {
                 ind = i + rttbl->NumStc;
 
                 if (strcmp(chemtbl[ind].ChemName, tmpstr[0]) == 0)
                 {
                     PIHMprintf(VL_VERBOSE,
-                        " Secondary surface complexation %s found in database!\n",
-                        chemtbl[ind].ChemName);
+                        " Secondary surface complexation %s dfa%d found in database!\n",
+                        chemtbl[ind].ChemName, i);
                     PIHMprintf(VL_VERBOSE, " %s", line);
                     chemtbl[ind].itype = ADSORPTION;
                     for (j = 0; j < WORDS_LINE; j++)
@@ -689,7 +672,7 @@ int MatchWrappedKey(const char cmdstr[], const char key[])
     sscanf(cmdstr, "'%[^']'", optstr);
     wrap(optstr);
 
-    return (strcmp(optstr, key) == 0) ? 1 : 0;
+    return (strcmp(optstr, key) == 0) ? 0 : 1;
 }
 
 void ReadTempPoints(const char cmdstr[], double tmp, int *total_points,
@@ -750,5 +733,30 @@ void ReadDHParam(const char cmdstr[], int tmp_position, double *param)
             return;
         }
         bytes_consumed += bytes_now;
+    }
+}
+
+void ReadPrimary(const char cmdstr[], int NumStc, chemtbl_struct chemtbl[])
+{
+    int             i;
+
+    for (i = 0; i < NumStc; i++)
+    {
+        if (MatchWrappedKey(cmdstr, chemtbl[i].ChemName) == 0)
+        {
+            if (sscanf(cmdstr, "'%*[^']' %lf %lf %lf", &chemtbl[i].SizeF,
+                &chemtbl[i].Charge, &chemtbl[i].MolarMass) != 3)
+            {
+                PIHMprintf(VL_ERROR,
+                    "Error reading primary species parameters "
+                    "in %s near Line %d.\n", ".cdbs", lno);
+                PIHMexit(EXIT_FAILURE);
+            }
+            PIHMprintf(VL_VERBOSE,
+                " Primary species %s found in database.\n"
+                " MolarMass = %6.4f\n\n",
+                chemtbl[i].ChemName, chemtbl[i].MolarMass);
+            break;
+        }
     }
 }
