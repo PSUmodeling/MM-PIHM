@@ -735,6 +735,8 @@ void            RTUpdate(const rttbl_struct *, elem_struct [], river_struct []);
 void            InitRTVar(chemtbl_struct [], rttbl_struct *, elem_struct [],
     river_struct [], N_Vector);
 void            FreeRttbl(rttbl_struct *);
+int             MatchWrappedKey(const char [], const char []);
+void            ReadTempPoints(const char [], double, int *, int *);
 
 #endif
 

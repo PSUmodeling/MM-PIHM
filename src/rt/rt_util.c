@@ -4,12 +4,17 @@
 #define WORDS_LINE 40
 #define WORD_WIDTH 80
 
-int keymatch(const char *line, const char *keyword, double *value, char **strval)
+int keymatch(const char *line, const char *keyword, double *value,
+    char **strval)
 {
-    /* A very general and convinient way of reading datafile and input file */
-    /* find keyword in line, assign the value after keyword to value array if there is any */
-    /* store both numbers and strings in order for later use, buffer required */
-    /* if is keyword not found return 0. If comments, return 2. Otherwise return 1 */
+    /*
+     * A very general and convenient way of reading datafile and input file
+     * Find keyword in line, assign the value after keyword to value array if
+     * there is any store both numbers and strings in order for later use,
+     * buffer required.
+     * If is keyword not found return 0. If comments, return 2. Otherwise return
+     * 1
+     */
     int             i;
 
     for (i = 0; i < WORDS_LINE; i++)
@@ -108,7 +113,8 @@ int realcheck(const char *words)
     return (flg);
 }
 
-int FindChem(const char chemn[MAXSTRING], const chemtbl_struct  chemtbl[], int nsps)
+int FindChem(const char chemn[MAXSTRING], const chemtbl_struct  chemtbl[],
+    int nsps)
 {
     int             i;
     int             ind = -1;

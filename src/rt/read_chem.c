@@ -449,7 +449,8 @@ int ParseLocation(const char str[], const char filen[], int lno)
 
 int SpeciationType(FILE *database, char *Name)
 {
-    /* This subroutine is used to find out what the input species is.
+    /*
+     * This subroutine is used to find out what the input species is.
      * 0) not found within database
      * 1) aqueous
      * 2) adsorption
@@ -461,7 +462,9 @@ int SpeciationType(FILE *database, char *Name)
     char            line[LINE_WIDTH], word[WORD_WIDTH];
 
     if (strcmp(Name, "pH") == 0)
+    {
         return AQUEOUS;
+    }
 
     char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
     for (i = 0; i < WORDS_LINE; i++)
@@ -479,7 +482,9 @@ int SpeciationType(FILE *database, char *Name)
             if (strcmp(word, tmpstr[0]) == 0)
             {
                 for (i = 0; i < WORDS_LINE; i++)
+                {
                     free(tmpstr[i]);
+                }
                 free(tmpstr);
                 return AQUEOUS;
             }
@@ -494,7 +499,9 @@ int SpeciationType(FILE *database, char *Name)
             if (strcmp(word, tmpstr[0]) == 0)
             {
                 for (i = 0; i < WORDS_LINE; i++)
+                {
                     free(tmpstr[i]);
+                }
                 free(tmpstr);
                 return 5;
             }
@@ -509,7 +516,9 @@ int SpeciationType(FILE *database, char *Name)
             if (strcmp(word, tmpstr[0]) == 0)
             {
                 for (i = 0; i < WORDS_LINE; i++)
+                {
                     free(tmpstr[i]);
+                }
                 free(tmpstr);
                 return MINERAL;
             }
@@ -527,7 +536,9 @@ int SpeciationType(FILE *database, char *Name)
             if (strcmp(word, tmpstr[0]) == 0)
             {
                 for (i = 0; i < WORDS_LINE; i++)
+                {
                     free(tmpstr[i]);
+                }
                 free(tmpstr);
                 return ADSORPTION;
             }
@@ -542,7 +553,9 @@ int SpeciationType(FILE *database, char *Name)
             if (strcmp(word, tmpstr[0]) == 0)
             {
                 for (i = 0; i < WORDS_LINE; i++)
+                {
                     free(tmpstr[i]);
+                }
                 free(tmpstr);
                 return CATION_ECHG;
             }
@@ -551,7 +564,9 @@ int SpeciationType(FILE *database, char *Name)
     }
 
     for (i = 0; i < WORDS_LINE; i++)
+    {
         free(tmpstr[i]);
+    }
     free(tmpstr);
 
     return (0);
@@ -594,4 +609,3 @@ void SortChem(char chemn[MAXSPS][MAXSTRING], const int p_type[MAXSPS], int nsps,
         chemtbl[i].itype = p_type[rank[i]];
     }
 }
-

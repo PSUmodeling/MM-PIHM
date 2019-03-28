@@ -64,7 +64,8 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
         {
             if (strcmp(chemtbl[j].ChemName, "'H+'") == 0)
             {
-                elem[i].chms_unsat.t_conc[j] = elem[i].restart_input.tconc_unsat[j];
+                elem[i].chms_unsat.t_conc[j] =
+                    elem[i].restart_input.tconc_unsat[j];
                 elem[i].chms_unsat.p_actv[j] = elem[i].chms_unsat.t_conc[j];
                 elem[i].chms_unsat.p_conc[j] = elem[i].chms_unsat.t_conc[j];
                 elem[i].chms_unsat.ssa[j] = elem[i].restart_input.ssa_unsat[j];
@@ -76,7 +77,8 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
             }
             else if (chemtbl[j].itype == MINERAL)
             {
-                elem[i].chms_unsat.t_conc[j] = elem[i].restart_input.tconc_unsat[j];
+                elem[i].chms_unsat.t_conc[j] =
+                    elem[i].restart_input.tconc_unsat[j];
                 /* Update the concentration of mineral using molar volume */
                 elem[i].chms_unsat.t_conc[j] *= (rttbl->RelMin == 0) ?
                     /* Absolute mineral volume fraction */
@@ -103,12 +105,15 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
             else if ((chemtbl[j].itype == CATION_ECHG) ||
                 (chemtbl[j].itype == ADSORPTION))
             {
-                elem[i].chms_unsat.t_conc[j] = elem[i].restart_input.tconc_unsat[j];
-                elem[i].chms_unsat.p_actv[j] = elem[i].chms_unsat.t_conc[j] * 0.5;
+                elem[i].chms_unsat.t_conc[j] =
+                    elem[i].restart_input.tconc_unsat[j];
+                elem[i].chms_unsat.p_actv[j] =
+                    elem[i].chms_unsat.t_conc[j] * 0.5;
                 /* Change unit of CEC (eq g-1) into C(ion site)
                  * (eq L-1 porous space), assuming density of solid is always
                  * 2650 g L-1 */
-                elem[i].chms_unsat.t_conc[j] *= (1.0 - elem[i].soil.smcmax) * 2650.0;
+                elem[i].chms_unsat.t_conc[j] *=
+                    (1.0 - elem[i].soil.smcmax) * 2650.0;
                 elem[i].chms_unsat.p_conc[j] = elem[i].chms_unsat.t_conc[j];
 
                 elem[i].chms_gw.t_conc[j] = elem[i].restart_input.tconc_gw[j];
@@ -116,14 +121,18 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
                 /* Change unit of CEC (eq g-1) into C(ion site)
                  * (eq L-1 porous space), assuming density of solid is always
                  * 2650 g L-1 */
-                elem[i].chms_gw.t_conc[j] *= (1.0 - elem[i].soil.smcmax) * 2650.0;
+                elem[i].chms_gw.t_conc[j] *=
+                    (1.0 - elem[i].soil.smcmax) * 2650.0;
                 elem[i].chms_gw.p_conc[j] = elem[i].chms_gw.t_conc[j];
             }
             else
             {
-                elem[i].chms_unsat.t_conc[j] = elem[i].restart_input.tconc_unsat[j];
-                elem[i].chms_unsat.p_actv[j] = elem[i].chms_unsat.t_conc[j] * 0.5;
-                elem[i].chms_unsat.p_conc[j] = elem[i].chms_unsat.t_conc[j] * 0.5;
+                elem[i].chms_unsat.t_conc[j] =
+                    elem[i].restart_input.tconc_unsat[j];
+                elem[i].chms_unsat.p_actv[j] =
+                    elem[i].chms_unsat.t_conc[j] * 0.5;
+                elem[i].chms_unsat.p_conc[j] =
+                    elem[i].chms_unsat.t_conc[j] * 0.5;
                 elem[i].chms_unsat.ssa[j] = elem[i].restart_input.ssa_unsat[j];
 
                 elem[i].chms_gw.t_conc[j] = elem[i].restart_input.tconc_gw[j];
@@ -155,8 +164,10 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
         double          vol_unsat;
         int             k;
 
-        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), DEPTHR) * elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), DEPTHR) * elem[i].topo.area;
+        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), DEPTHR) *
+            elem[i].topo.area;
+        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), DEPTHR) *
+            elem[i].topo.area;
 
         for (k = 0; k < rttbl->NumStc; k++)
         {
@@ -185,7 +196,8 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
         double          vol_stream;
         int             k;
 
-        vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), DEPTHR) * river[i].topo.area;
+        vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), DEPTHR) *
+            river[i].topo.area;
         vol_stream = river[i].topo.area * MAX(river[i].ws.stage, DEPTHR);
 
         for (k = 0; k < rttbl->NumStc; k++)

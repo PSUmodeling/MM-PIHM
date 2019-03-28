@@ -86,12 +86,14 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
             /* Calculate concentrations */
             river[i].chms_stream.t_conc[k] = (strg_stream > DEPTHR) ?
-                river[i].chms_stream.t_mole[k] / strg_stream / river[i].topo.area : 0.0;
+                river[i].chms_stream.t_mole[k] / strg_stream /
+                river[i].topo.area : 0.0;
             river[i].chms_stream.t_conc[k] =
                 MAX(river[i].chms_stream.t_conc[k], 0.0);
 
             river[i].chms_rivbed.t_conc[k] = (strg_rivbed > DEPTHR) ?
-                river[i].chms_rivbed.t_mole[k] / strg_rivbed /river[i].topo.area : 0.0;
+                river[i].chms_rivbed.t_mole[k] / strg_rivbed /
+                river[i].topo.area : 0.0;
             river[i].chms_rivbed.t_conc[k] =
                 MAX(river[i].chms_rivbed.t_conc[k], 0.0);
         }
@@ -310,7 +312,7 @@ double AdvDiffDisp(double DiffCoe, double DispCoe, double cementation,
     double area, double wflux)
 {
     /*
-     * Calculate the total of advection, diffusion and dispertion
+     * Calculate the total of advection, diffusion and dispersion
      */
     double          inv_dist;
     double          diff_conc;

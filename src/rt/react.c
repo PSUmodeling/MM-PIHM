@@ -26,14 +26,16 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         satn =
             UnsatSatRatio(elem[i].soil.depth, elem[i].ws.unsat, elem[i].ws.gw);
 
-        if (elem[i].ws.unsat < 1.0E-3 || satn < 1.0E-2)
+        for (k = 0; k < NumSpc; k++)
         {
-            for (k = 0; k < NumSpc; k++)
-            {
-                elem[i].chmf.react_unsat[k] = 0.0;
-            }
+            elem[i].chmf.react_unsat[k] = 0.0;
+            elem[i].chmf.react_gw[k] = 0.0;
         }
-        else
+
+        /*
+         * Unsaturated zone
+         */
+        if (elem[i].ws.unsat > 1.0E-3 && satn > 1.0E-2)
         {
             ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_unsat, satn,
                 &elem[i].chms_unsat, elem[i].chmf.react_unsat);
@@ -42,21 +44,13 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         /*
          * Groundwater
          */
-        if (elem[i].ws.gw < 1.0E-3)
-        {
-            for (k = 0; k < NumSpc; k++)
-            {
-                elem[i].chmf.react_gw[k] = 0.0;
-            }
-        }
-        else
+        if (elem[i].ws.gw > 1.0E-3)
         {
             ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0,
                 &elem[i].chms_gw, elem[i].chmf.react_gw);
         }
 
-        /* Averaging mineral concentration to ensure mass
-         * conservation !! */
+        /* Averaging mineral concentration to ensure mass conservation */
         for (k = 0; k < rttbl->NumStc; k++)
         {
             if (chemtbl[k].itype == MINERAL)
@@ -65,12 +59,9 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
                     (elem[i].chms_gw.t_conc[k] * vol_gw +
                     elem[i].chms_unsat.t_conc[k] * vol_unsat) /
                     (vol_gw + vol_unsat);
-                elem[i].chms_unsat.t_conc[k] =
-                    elem[i].chms_gw.t_conc[k];
-                elem[i].chms_gw.p_conc[k] =
-                    elem[i].chms_gw.t_conc[k];
-                elem[i].chms_unsat.p_conc[k] =
-                    elem[i].chms_gw.t_conc[k];
+                elem[i].chms_unsat.t_conc[k] = elem[i].chms_gw.t_conc[k];
+                elem[i].chms_gw.p_conc[k] = elem[i].chms_gw.t_conc[k];
+                elem[i].chms_unsat.p_conc[k] = elem[i].chms_gw.t_conc[k];
             }
         }
     }
@@ -118,7 +109,6 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     long int        p[MAXSPS];
     realtype        x_[MAXSPS];
 
-    /* Build model data structure from pointer address */
     control = 0;
     tmpprb = 1.0E-2;
     tmpprb_inv = 1.0 / tmpprb;
@@ -169,12 +159,12 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                 dependency[i] *=
                     pow(chms->p_actv[kintbl[i].dep_position[k]],
                     kintbl[i].dep_power[k]);
-            /* Calculate the predicted rate depending on the type of rate law!  */
+            /* Calculate the predicted rate depending on the type of rate law */
             Rate_pre[i] = area[min_pos] * (pow(10, kintbl[i].rate)) *
                 dependency[i] * (1 - (IAP[i] / tmpKeq));
-            /* Rate_pre: rate per reaction (mol (L water)-1 s-1)
-             * area: m2/L water
-             * rate: mol/m2/s
+            /* Rate_pre: rate per reaction (mol L-1 water s-1)
+             * area: m2 L-1 water
+             * rate: mol m-2 s-1
              * dependency: dimensionless */
         }
         else if (kintbl[i].type == MONOD)
@@ -214,7 +204,9 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         {
             /* Mineral cutoff when mineral is disappearing */
             if (chms->p_conc[min_pos + rttbl->NumStc - rttbl->NumMin] < 1.0E-8)
+            {
                 area[min_pos] = 0.0;
+            }
         }
     }
 
@@ -222,12 +214,13 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     {
         if (chemtbl[i].itype == AQUEOUS)
         {
-            /* aqueous species, saturation term for aqueous volume */
+            /* Aqueous species, saturation term for aqueous volume */
             Rate_spe[i] *= inv_sat;
         }
     }
 
-    jcb = newDenseMat(rttbl->NumStc - rttbl->NumMin, rttbl->NumStc - rttbl->NumMin);
+    jcb = newDenseMat(rttbl->NumStc - rttbl->NumMin,
+        rttbl->NumStc - rttbl->NumMin);
 
     if (rttbl->TEMcpl == 0)
     {
@@ -328,9 +321,11 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
                  */
                 dependency[i] = 0.0;
                 for (k = 0; k < kintbl[i].num_dep; k++)
+                {
                     dependency[i] += (tmpconc[kintbl[i].dep_position[k]] +
                         gamma[kintbl[i].dep_position[k]]) *
                         kintbl[i].dep_power[k];
+                }
                 dependency[i] = pow(10, dependency[i]);
                 /* Calculate predicted rate depending on type of rate law */
                 Rate_pre[i] = area[min_pos] * (pow(10, kintbl[i].rate)) *
@@ -430,7 +425,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             rttbl->NumStc - rttbl->NumMin, p);
         if (pivot_flg != 0)
         {
-            return (1);
+            return 1;
         }
 
         denseGETRS(jcb, rttbl->NumStc - rttbl->NumMin, p, x_);

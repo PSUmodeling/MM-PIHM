@@ -34,8 +34,8 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     }
     else
     {
-#ifdef _OPENMP
-#pragma omp parallel for
+#if defined(_OPENMP)
+# pragma omp parallel for
 #endif
         for (i = 0; i < nelem; i++)
         {
@@ -112,12 +112,6 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         tmpconc[i + rttbl->NumStc] = tmpval;
     }
 
-    /* Initial speciation to get secondary species, no activity corrections */
-    for (i = 0; i < num_spe; i++)
-    {
-        gamma[i] = 0;
-    }
-
     for (i = 0; i < rttbl->NumStc; i++)
     {
         current_totconc[i] = chms->t_conc[i];
@@ -162,9 +156,9 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                      * solids are 0*/
                     else
                     {
-                        gamma[i] =
-                            (-adh * chemtbl[i].Charge * chemtbl[i].Charge * Iroot) / (1 +
-                            bdh * chemtbl[i].SizeF * Iroot) + bdt * I;
+                        gamma[i] = (-adh * chemtbl[i].Charge *
+                            chemtbl[i].Charge * Iroot) /
+                            (1 + bdh * chemtbl[i].SizeF * Iroot) + bdt * I;
                         }
                     if (strcmp(chemtbl[i].ChemName, "'H+'") == 0)
                     {
@@ -230,7 +224,8 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                                     pow(10, tmpconc[j]);
                             }
                             residue_t[i] = tmpval - chms->t_conc[i];
-                            jcb[col][row] = (residue_t[i] - residue[i]) / (tmpprb);
+                            jcb[col][row] =
+                                (residue_t[i] - residue[i]) / (tmpprb);
                             row++;
                         }
                     }
@@ -293,8 +288,9 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                         gamma[i] = -tmpconc[i];
                     else
                         gamma[i] =
-                            (-adh * chemtbl[i].Charge * chemtbl[i].Charge * Iroot) / (1 +
-                            bdh * chemtbl[i].SizeF * Iroot) + bdt * I;
+                            (-adh * chemtbl[i].Charge *
+                            chemtbl[i].Charge * Iroot) /
+                            (1.0 + bdh * chemtbl[i].SizeF * Iroot) + bdt * I;
                 }
             }
             /* gamma stores log10gamma[i]. */
@@ -326,8 +322,10 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 {
                     tmpval = 0.0;
                     for (j = 0; j < rttbl->NumSdc; j++)
+                    {
                         tmpval +=
                             (tmpconc[j] + gamma[j]) * rttbl->Dependency[i][j];
+                    }
                     tmpval -= Keq[i] + gamma[i + rttbl->NumStc];
                     tmpconc[i + rttbl->NumStc] = tmpval;
                 }
@@ -416,4 +414,3 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
     return (0);
 }
-
