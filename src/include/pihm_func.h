@@ -747,6 +747,8 @@ void            ReadAdsorption(const char [], int, int, chemtbl_struct [],
     rttbl_struct *);
 void            ReadCationEchg(const char [], double, chemtbl_struct [],
     rttbl_struct *);
+void            ReadMinKin(FILE *, int, double, int *, char [], chemtbl_struct [],
+    kintbl_struct *);
 
 #endif
 
