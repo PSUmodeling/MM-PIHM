@@ -745,6 +745,8 @@ void            ReadMinerals(const char [], int, int, chemtbl_struct [],
     rttbl_struct *);
 void            ReadAdsorption(const char [], int, int, chemtbl_struct [],
     rttbl_struct *);
+void            ReadCationEchg(const char [], double, chemtbl_struct [],
+    rttbl_struct *);
 
 #endif
 
