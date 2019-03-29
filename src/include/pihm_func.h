@@ -739,6 +739,8 @@ int             MatchWrappedKey(const char [], const char []);
 void            ReadTempPoints(const char [], double, int *, int *);
 void            ReadDHParam(const char [], int, double *);
 void            ReadPrimary(const char [], int, chemtbl_struct []);
+void            ReadSecondary(const char [], int, int, chemtbl_struct [],
+    rttbl_struct *);
 
 #endif
 

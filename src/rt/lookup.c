@@ -137,51 +137,10 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     /*
      * Read parameters for secondary species
      */
-    while (keymatch(line, "'End of secondary'", tmpval, tmpstr) != 1)
+    while (MatchWrappedKey(cmdstr, "'End of secondary'") != 0)
     {
-        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
-        {
-            for (i = 0; i < rttbl->NumSsc; i++)
-            {
-                ind = i + rttbl->NumStc;
-
-                if (strcmp(chemtbl[ind].ChemName, tmpstr[0]) == 0)
-                {
-                    PIHMprintf(VL_VERBOSE,
-                        " Secondary species %s found in database!\n",
-                        chemtbl[ind].ChemName);
-                    PIHMprintf(VL_VERBOSE, " %s", line);
-                    chemtbl[ind].itype = AQUEOUS;
-                    for (j = 0; j < WORDS_LINE; j++)
-                    {
-                        for (k = 0; k < rttbl->NumSdc; k++)
-                        {
-                            if (strcmp(chemtbl[k].ChemName, tmpstr[j]) == 0)
-                            {
-                                rttbl->Dependency[i][k] = atof(tmpstr[j - 1]);
-                            }
-                        }
-                    }
-                    rttbl->Keq[i] = tmpval[(int)tmpval[0] + keq_position];
-                    PIHMprintf(VL_VERBOSE,
-                            " Keq = %6.4f\n", rttbl->Keq[i]);
-                    chemtbl[ind].MolarMass =
-                        tmpval[(int)tmpval[0] + total_temp_points + 3];
-                    chemtbl[ind].Charge =
-                        tmpval[(int)tmpval[0] + total_temp_points + 2];
-                    chemtbl[ind].SizeF =
-                        tmpval[(int)tmpval[0] + total_temp_points + 1];
-                    PIHMprintf(VL_VERBOSE,
-                        " MolarMass = %6.4f, Charge = %6.4f,"
-                        " SizeFactor = %6.4f\n\n",
-                        chemtbl[ind].MolarMass, chemtbl[ind].Charge,
-                        chemtbl[ind].SizeF);
-
-                    break;
-                }
-            }
-        }
-        fgets(line, LINE_WIDTH, database);
+        NextLine(database, cmdstr, &lno);
+        ReadSecondary(cmdstr, total_temp_points, keq_position, chemtbl, rttbl);
     }
 
     /*
@@ -748,14 +707,87 @@ void ReadPrimary(const char cmdstr[], int NumStc, chemtbl_struct chemtbl[])
                 &chemtbl[i].Charge, &chemtbl[i].MolarMass) != 3)
             {
                 PIHMprintf(VL_ERROR,
-                    "Error reading primary species parameters "
-                    "in %s near Line %d.\n", ".cdbs", lno);
+                    "Error reading primary species parameters for %s\n",
+                    chemtbl[i].ChemName);
                 PIHMexit(EXIT_FAILURE);
             }
             PIHMprintf(VL_VERBOSE,
                 " Primary species %s found in database.\n"
                 " MolarMass = %6.4f\n\n",
                 chemtbl[i].ChemName, chemtbl[i].MolarMass);
+            break;
+        }
+    }
+}
+
+void ReadSecondary(const char cmdstr[], int npoints, int keq_position,
+    chemtbl_struct chemtbl[], rttbl_struct *rttbl)
+{
+    int             bytes_now;
+    int             bytes_consumed = 0;
+    int             i, j, k;
+    int             ind;
+    int             ndep;
+    double          dep;
+    char            chemn[MAXSTRING];
+
+    sscanf(cmdstr + bytes_consumed, "'%[^']' %d%n", chemn, &ndep, &bytes_now);
+    bytes_consumed += bytes_now;
+    wrap(chemn);
+
+    for (i = 0; i < rttbl->NumSsc; i++)
+    {
+        ind = i + rttbl->NumStc;
+
+        if (MatchWrappedKey(chemn, chemtbl[ind].ChemName) == 0)
+        {
+            PIHMprintf(VL_VERBOSE,
+                " Secondary species %s found in database!\n",
+                chemtbl[ind].ChemName);
+            PIHMprintf(VL_VERBOSE, " %s", cmdstr);
+            chemtbl[ind].itype = AQUEOUS;
+
+            for (j = 0; j < ndep; j++)
+            {
+                sscanf(cmdstr + bytes_consumed, "%lf '%[^']'%n", &dep, chemn,
+                    &bytes_now);
+                bytes_consumed += bytes_now;
+                wrap(chemn);
+
+                for (k = 0; k < rttbl->NumSdc; k++)
+                {
+                    if (MatchWrappedKey(chemtbl[k].ChemName, chemn) == 0)
+                    {
+                        rttbl->Dependency[i][k] = dep;
+                    }
+                }
+            }
+
+            for (j = 0; j < npoints; j++)
+            {
+                if (j + 1 == keq_position)
+                {
+                    sscanf(cmdstr + bytes_consumed, "%lf%n", &rttbl->Keq[i],
+                        &bytes_now);
+                    bytes_consumed += bytes_now;
+                    PIHMprintf(VL_VERBOSE,
+                        " Keq = %6.4f\n", rttbl->Keq[i]);
+                }
+                else
+                {
+                    sscanf(cmdstr + bytes_consumed, "%*lf%n", &bytes_now);
+                    bytes_consumed += bytes_now;
+                }
+            }
+
+            sscanf(cmdstr + bytes_consumed, "%lf %lf %lf", &chemtbl[ind].SizeF,
+                &chemtbl[ind].Charge, &chemtbl[ind].MolarMass);
+            PIHMprintf(VL_VERBOSE,
+                " MolarMass = %6.4f, Charge = %6.4f,"
+                " SizeFactor = %6.4f\n\n",
+                chemtbl[ind].MolarMass, chemtbl[ind].Charge,
+                chemtbl[ind].SizeF);
+
             break;
         }
     }
