@@ -146,63 +146,10 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     /*
      * Read parameters for minerals
      */
-    while (keymatch(line, "'End of minerals'", tmpval, tmpstr) != 1)
+    while (MatchWrappedKey(cmdstr, "'End of minerals'") != 0)
     {
-        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
-        {
-            for (i = 0; i < rttbl->NumMin; i++)
-            {
-                ind = i + NumSpc + rttbl->NumAds + rttbl->NumCex;
-
-                if (strcmp(chemtbl[ind].ChemName, tmpstr[0]) == 0)
-                {
-                    PIHMprintf(VL_VERBOSE, " Mineral %s found in database!\n",
-                        chemtbl[ind].ChemName);
-                    PIHMprintf(VL_VERBOSE, " %s", line);
-                    chemtbl[ind].itype = MINERAL;
-                    rttbl->KeqKinect_all[i] =
-                        tmpval[(int)tmpval[1] + keq_position + 1];
-                    for (j = 1; j < WORDS_LINE; j++)
-                    {
-                        for (k = 0; k < rttbl->NumStc + rttbl->NumSsc; k++)
-                        {
-                            if (strcmp(chemtbl[k].ChemName, tmpstr[j]) == 0)
-                            {
-                                if (k < rttbl->NumStc)
-                                {
-                                    rttbl->Dep_kinetic_all[i][k] =
-                                        atof(tmpstr[j - 1]);
-                                }
-                                else
-                                {
-                                    for (l = 0; l < NumSpc; l++)
-                                    {
-                                        rttbl->Dep_kinetic_all[i][l] +=
-                                            atof(tmpstr[j - 1]) *
-                                            rttbl->
-                                            Dependency[k - rttbl->NumStc][l];
-                                    }
-                                    rttbl->KeqKinect_all[i] +=
-                                        atof(tmpstr[j - 1]) *
-                                        rttbl->Keq[k - rttbl->NumStc];
-                                }
-                            }
-                        }
-                    }
-                    rttbl->Dep_kinetic_all[i][ind] = -1.0;
-                    PIHMprintf(VL_VERBOSE, " Keq = %6.4f\n",
-                        rttbl->KeqKinect_all[i]);
-                    chemtbl[ind].MolarMass =
-                        tmpval[(int)tmpval[1] + total_temp_points + 2];
-                    chemtbl[ind].MolarVolume = tmpval[0];
-                    chemtbl[ind].Charge = 0;
-                    PIHMprintf(VL_VERBOSE,
-                        " MolarMass = %6.4f, MolarVolume = %6.4f\n\n",
-                        chemtbl[ind].MolarMass, chemtbl[ind].MolarVolume);
-                }
-            }
-        }
-        fgets(line, LINE_WIDTH, database);
+        NextLine(database, cmdstr, &lno);
+        ReadMinerals(cmdstr, total_temp_points, keq_position, chemtbl, rttbl);
     }
 
     /*
@@ -775,7 +722,7 @@ void ReadSecondary(const char cmdstr[], int npoints, int keq_position,
                 }
                 else
                 {
-                    sscanf(cmdstr + bytes_consumed, "%*lf%n", &bytes_now);
+                    sscanf(cmdstr + bytes_consumed, "%*f%n", &bytes_now);
                     bytes_consumed += bytes_now;
                 }
             }
@@ -787,6 +734,98 @@ void ReadSecondary(const char cmdstr[], int npoints, int keq_position,
                 " SizeFactor = %6.4f\n\n",
                 chemtbl[ind].MolarMass, chemtbl[ind].Charge,
                 chemtbl[ind].SizeF);
+
+            break;
+        }
+    }
+}
+
+void ReadMinerals(const char cmdstr[], int npoints, int keq_position,
+    chemtbl_struct chemtbl[], rttbl_struct *rttbl)
+{
+    int             bytes_now;
+    int             bytes_consumed = 0;
+    int             i, j, k, l;
+    int             ind;
+    int             ndep;
+    double          dep;
+    double          mvol;
+    char            chemn[MAXSTRING];
+
+    sscanf(cmdstr + bytes_consumed, "'%[^']' %lf %d%n", chemn, &mvol, &ndep,
+        &bytes_now);
+    bytes_consumed += bytes_now;
+    wrap(chemn);
+
+    for (i = 0; i < rttbl->NumMin; i++)
+    {
+        ind = i + NumSpc + rttbl->NumAds + rttbl->NumCex;
+
+        if (MatchWrappedKey(chemn, chemtbl[ind].ChemName) == 0)
+        {
+            PIHMprintf(VL_VERBOSE, " Mineral %s found in database!\n",
+                chemtbl[ind].ChemName);
+            PIHMprintf(VL_VERBOSE, " %s", cmdstr);
+
+            chemtbl[ind].MolarVolume = mvol;
+            chemtbl[ind].itype = MINERAL;
+
+            for (j = 0; j < ndep; j++)
+            {
+                sscanf(cmdstr + bytes_consumed, "%lf '%[^']'%n", &dep, chemn,
+                    &bytes_now);
+                bytes_consumed += bytes_now;
+                wrap(chemn);
+
+                for (k = 0; k < rttbl->NumStc + rttbl->NumSsc; k++)
+                {
+                    if (MatchWrappedKey(chemtbl[k].ChemName, chemn) == 0)
+                    {
+                        if (k < rttbl->NumStc)
+                        {
+                            rttbl->Dep_kinetic_all[i][k] = dep;
+                        }
+                        else
+                        {
+                            for (l = 0; l < NumSpc; l++)
+                            {
+                                rttbl->Dep_kinetic_all[i][l] += dep *
+                                    rttbl-> Dependency[k - rttbl->NumStc][l];
+                            }
+                            rttbl->KeqKinect_all[i] += dep *
+                                rttbl->Keq[k - rttbl->NumStc];
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            for (j = 0; j < npoints; j++)
+            {
+                if (j + 1 == keq_position)
+                {
+                    sscanf(cmdstr + bytes_consumed, "%lf%n",
+                        &rttbl->KeqKinect_all[i], &bytes_now);
+                    bytes_consumed += bytes_now;
+                }
+                else
+                {
+                    sscanf(cmdstr + bytes_consumed, "%*f%n", &bytes_now);
+                    bytes_consumed += bytes_now;
+                }
+            }
+
+            sscanf(cmdstr + bytes_consumed, "%lf", &chemtbl[ind].MolarMass);
+
+            rttbl->Dep_kinetic_all[i][ind] = -1.0;
+
+            PIHMprintf(VL_VERBOSE, " Keq = %6.4f\n",
+                rttbl->KeqKinect_all[i]);
+            chemtbl[ind].Charge = 0;
+            PIHMprintf(VL_VERBOSE,
+                " MolarMass = %6.4f, MolarVolume = %6.4f\n\n",
+                chemtbl[ind].MolarMass, chemtbl[ind].MolarVolume);
 
             break;
         }

@@ -741,6 +741,8 @@ void            ReadDHParam(const char [], int, double *);
 void            ReadPrimary(const char [], int, chemtbl_struct []);
 void            ReadSecondary(const char [], int, int, chemtbl_struct [],
     rttbl_struct *);
+void            ReadMinerals(const char [], int, int, chemtbl_struct [],
+    rttbl_struct *);
 
 #endif
 
