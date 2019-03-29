@@ -168,37 +168,11 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         }
     }
 
-    while (strcmp(line, "End of surface complexation\r\n") != 1)
+    while (strcmp(cmdstr, "End of surface complexation\r\n") != 0 &&
+        strcmp(cmdstr, "End of surface complexation\n") != 0)
     {
-        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
-        {
-            for (i = 0; i < rttbl->NumSsc; i++)
-            {
-                ind = i + rttbl->NumStc;
-
-                if (strcmp(chemtbl[ind].ChemName, tmpstr[0]) == 0)
-                {
-                    PIHMprintf(VL_VERBOSE,
-                        " Secondary surface complexation %s dfa%d found in database!\n",
-                        chemtbl[ind].ChemName, i);
-                    PIHMprintf(VL_VERBOSE, " %s", line);
-                    chemtbl[ind].itype = ADSORPTION;
-                    for (j = 0; j < WORDS_LINE; j++)
-                    {
-                        for (k = 0; k < rttbl->NumSdc; k++)
-                        {
-                            if (strcmp(chemtbl[k].ChemName, tmpstr[j]) == 0)
-                            {
-                                rttbl->Dependency[i][k] = atof(tmpstr[j - 1]);
-                            }
-                        }
-                    }
-                    rttbl->Keq[i] = tmpval[(int)tmpval[0] + keq_position];
-                    PIHMprintf(VL_VERBOSE, " Keq = %6.4f\n", rttbl->Keq[i]);
-                }
-            }
-        }
-        fgets(line, LINE_WIDTH, database);
+        NextLine(database, cmdstr, &lno);
+        ReadAdsorption(cmdstr, total_temp_points, keq_position, chemtbl, rttbl);
     }
     while (!feof(database))
     {
@@ -828,6 +802,70 @@ void ReadMinerals(const char cmdstr[], int npoints, int keq_position,
                 chemtbl[ind].MolarMass, chemtbl[ind].MolarVolume);
 
             break;
+        }
+    }
+}
+
+void ReadAdsorption(const char cmdstr[], int npoints, int keq_position,
+    chemtbl_struct chemtbl[], rttbl_struct *rttbl)
+{
+    int             bytes_now;
+    int             bytes_consumed = 0;
+    int             i, j, k;
+    int             ind;
+    int             ndep;
+    double          dep;
+    char            chemn[MAXSTRING];
+
+    sscanf(cmdstr + bytes_consumed, "'%[^']' %d%n", chemn, &ndep, &bytes_now);
+    bytes_consumed += bytes_now;
+    wrap(chemn);
+
+    for (i = 0; i < rttbl->NumSsc; i++)
+    {
+        ind = i + rttbl->NumStc;
+
+        if (strcmp(chemtbl[ind].ChemName, chemn) == 0)
+        {
+            PIHMprintf(VL_VERBOSE,
+                " Secondary surface complexation %s found in database!\n",
+                chemtbl[ind].ChemName);
+            PIHMprintf(VL_VERBOSE, " %s", cmdstr);
+            chemtbl[ind].itype = ADSORPTION;
+            for (j = 0; j < ndep; j++)
+            {
+                sscanf(cmdstr + bytes_consumed, "%lf '%[^']'%n", &dep, chemn,
+                    &bytes_now);
+                bytes_consumed += bytes_now;
+                wrap(chemn);
+
+                for (k = 0; k < rttbl->NumSdc; k++)
+                {
+                    if (strcmp(chemtbl[k].ChemName, chemn) == 0)
+                    {
+                        rttbl->Dependency[i][k] = dep;
+                    }
+
+                    break;
+                }
+            }
+
+            for (j = 0; j < npoints; j++)
+            {
+                if (j + 1 == keq_position)
+                {
+                    sscanf(cmdstr + bytes_consumed, "%lf%n", &rttbl->Keq[i],
+                        &bytes_now);
+                    bytes_consumed += bytes_now;
+                    PIHMprintf(VL_VERBOSE,
+                        " Keq = %6.4f\n", rttbl->Keq[i]);
+                }
+                else
+                {
+                    sscanf(cmdstr + bytes_consumed, "%*f%n", &bytes_now);
+                    bytes_consumed += bytes_now;
+                }
+            }
         }
     }
 }
