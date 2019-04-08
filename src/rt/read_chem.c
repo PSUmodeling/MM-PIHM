@@ -228,7 +228,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
                 "Error reading primary_species in %s near Line %d.\n",
                 chem_filen, lno);
         }
-        p_type[i] = SpeciationType(db_fp, chemn[i]);
+        p_type[i] = SpeciesType(db_fp, chemn[i]);
     }
 
     SortChem(chemn, p_type, rttbl->NumStc, chemtbl);
@@ -447,7 +447,7 @@ int ParseLocation(const char str[], const char filen[], int lno)
     return loc;
 }
 
-int SpeciationType(FILE *database, char *Name)
+int SpeciesType(FILE *database, const char *chemn)
 {
     /*
      * This subroutine is used to find out what the input species is.
@@ -457,119 +457,73 @@ int SpeciationType(FILE *database, char *Name)
      * 3) cation exchange
      * 4) mineral
      */
-    double          tmpval[WORDS_LINE];
     int             i, return_val;
-    char            line[LINE_WIDTH], word[WORD_WIDTH];
+    char            tempn[MAXSTRING];
+    char            cmdstr[MAXSTRING];
+    int             lno = 0;
 
-    if (strcmp(Name, "pH") == 0)
+    if (strcmp(chemn, "pH") == 0)
     {
         return AQUEOUS;
     }
 
-    char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
-    for (i = 0; i < WORDS_LINE; i++)
-        tmpstr[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
-
     return_val = 0;
 
-    sprintf(word, "'%s'", Name);
-    rewind(database);
-    fgets(line, LINE_WIDTH, database);
-    while (keymatch(line, "'End of primary'", tmpval, tmpstr) != 1)
+    sprintf(tempn, "'%s'", chemn);
+
+    FindLine(database, "BOF", &lno, ".cdbs");
+
+    NextLine(database, cmdstr, &lno);
+    while (MatchWrappedKey(cmdstr, "'End of primary'") != 0)
     {
-        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
+        if (MatchWrappedKey(cmdstr, tempn) == 0)
         {
-            if (strcmp(word, tmpstr[0]) == 0)
-            {
-                for (i = 0; i < WORDS_LINE; i++)
-                {
-                    free(tmpstr[i]);
-                }
-                free(tmpstr);
-                return AQUEOUS;
-            }
+            return AQUEOUS;
         }
-        fgets(line, LINE_WIDTH, database);
+        NextLine(database, cmdstr, &lno);
     }
-    fgets(line, LINE_WIDTH, database);
-    while (keymatch(line, "'End of secondary'", tmpval, tmpstr) != 1)
+
+    while (MatchWrappedKey(cmdstr, "'End of secondary'") != 0)
     {
-        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
+        if (MatchWrappedKey(cmdstr, tempn) == 0)
         {
-            if (strcmp(word, tmpstr[0]) == 0)
-            {
-                for (i = 0; i < WORDS_LINE; i++)
-                {
-                    free(tmpstr[i]);
-                }
-                free(tmpstr);
-                return 5;
-            }
+            return 5;
         }
-        fgets(line, LINE_WIDTH, database);
+        NextLine(database, cmdstr, &lno);
     }
-    fgets(line, LINE_WIDTH, database);
-    while (keymatch(line, "'End of minerals'", tmpval, tmpstr) != 1)
+
+    while (MatchWrappedKey(cmdstr, "'End of minerals'") != 0)
     {
-        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
+        if (MatchWrappedKey(cmdstr, tempn) == 0)
         {
-            if (strcmp(word, tmpstr[0]) == 0)
-            {
-                for (i = 0; i < WORDS_LINE; i++)
-                {
-                    free(tmpstr[i]);
-                }
-                free(tmpstr);
-                return MINERAL;
-            }
+            return MINERAL;
         }
-        fgets(line, LINE_WIDTH, database);
+        NextLine(database, cmdstr, &lno);
     }
-    fgets(line, LINE_WIDTH, database);
-    while (strcmp(line, "End of surface complexation\r\n") != 1)
+
+    while (strcmp(cmdstr, "End of surface complexation\r\n") != 0 &&
+        strcmp(cmdstr, "End of surface complexation\n") != 0)
     {
-        /* Notice that in crunchflow database, starting from surface
+        /* Notice that in CrunchFlow database, starting from surface
          * complexation, there is not apostrophe marks around blocking keywords
          */
-        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
+        if (MatchWrappedKey(cmdstr, tempn) == 0)
         {
-            if (strcmp(word, tmpstr[0]) == 0)
-            {
-                for (i = 0; i < WORDS_LINE; i++)
-                {
-                    free(tmpstr[i]);
-                }
-                free(tmpstr);
-                return ADSORPTION;
-            }
+            return ADSORPTION;
         }
-        fgets(line, LINE_WIDTH, database);
+        NextLine(database, cmdstr, &lno);
     }
-    fgets(line, LINE_WIDTH, database);
+
     while (!feof(database))
     {
-        if (keymatch(line, "NULL", tmpval, tmpstr) != 2)
+        if (MatchWrappedKey(cmdstr, tempn) == 0)
         {
-            if (strcmp(word, tmpstr[0]) == 0)
-            {
-                for (i = 0; i < WORDS_LINE; i++)
-                {
-                    free(tmpstr[i]);
-                }
-                free(tmpstr);
-                return CATION_ECHG;
-            }
+            return CATION_ECHG;
         }
-        fgets(line, LINE_WIDTH, database);
+        NextLine(database, cmdstr, &lno);
     }
 
-    for (i = 0; i < WORDS_LINE; i++)
-    {
-        free(tmpstr[i]);
-    }
-    free(tmpstr);
-
-    return (0);
+    return 0;
 }
 
 void SortChem(char chemn[MAXSPS][MAXSTRING], const int p_type[MAXSPS], int nsps,
