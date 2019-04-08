@@ -761,7 +761,7 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
             /* Read type */
             NextLine(database, cmdstr, lno);
             sscanf(cmdstr, "%s = %s", optstr, label);
-            if (strcmp(optstr, "label") == 0)
+            if (strcmp(optstr, "type") == 0)
             {
                 if (strcmp(label, "tst") == 0)
                 {
