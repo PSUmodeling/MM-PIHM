@@ -1,28 +1,14 @@
 #include "pihm.h"
 
-#define LINE_WIDTH 512
-#define WORDS_LINE 40
-#define WORD_WIDTH 80
-
 void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     kintbl_struct kintbl[], rttbl_struct *rttbl)
 {
-    double          tmpval[WORDS_LINE];
-    char            line[LINE_WIDTH];
-    int             i, j, k, l;
+    int             i, j, k;
     int             ind;
     int             keq_position = BADVAL;
     int             total_temp_points;
-    int             mn, in;
-    char          **tmpstr = (char **)malloc(WORDS_LINE * sizeof(char *));
     char            cmdstr[MAXSTRING];
     int             lno = 0;
-
-    for (i = 0; i < WORDS_LINE; i++)
-    {
-        tmpstr[i] = (char *)malloc(WORD_WIDTH * sizeof(char));
-        memset(tmpstr[i], 0, WORD_WIDTH);
-    }
 
     /*
      * Find temperature point in database
@@ -336,17 +322,12 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         PIHMprintf(VL_VERBOSE, " %12s\t%10d\n",
             chemtbl[i].ChemName, chemtbl[i].itype);
     }
-
-    for (i = 0; i < WORDS_LINE; i++)
-    {
-        free(tmpstr[i]);
-    }
-    free(tmpstr);
 }
 
 void wrap(char *str)
 {
-    char            word[WORD_WIDTH];
+    char            word[MAXSTRING];
+    
     sprintf(word, "'%s'", str);
     strcpy(str, word);
 }
@@ -734,9 +715,6 @@ void ReadCationEchg(const char cmdstr[], double calval,
 void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
     char cmdstr[], chemtbl_struct chemtbl[], kintbl_struct *kintbl)
 {
-    int             i, j, k;
-    int             ind;
-    int             ndep;
     int             bytes_now;
     int             bytes_consumed = 0;
     double          dep;
