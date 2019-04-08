@@ -709,7 +709,7 @@ void            Speciation(const chemtbl_struct [], const rttbl_struct *,
 int             _Speciation(const chemtbl_struct [], const rttbl_struct *, int,
     chmstate_struct *);
 int             keymatch(const char *, const char *, double *, char **);
-int             SpeciationType(FILE *, char *);
+int             SpeciesType(FILE *, const char []);
 void            Unwrap(char *, const char *);
 double          EqvUnsatH(double, double, double, double, double);
 double          UnsatSatRatio(double, double, double);
