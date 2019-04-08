@@ -692,8 +692,6 @@ void            WaterUptake(const soil_struct *, const estate_struct *,
 #endif
 
 #if defined(_RT_)
-int             realcheck(const char *);
-int             keymatch(const char *, const char *, double *, char **);
 void            InitChem(const char [], const calib_struct *, forc_struct *forc,
     chemtbl_struct [], kintbl_struct [], rttbl_struct *);
 void            Reaction(double, const chemtbl_struct [], const kintbl_struct [],
@@ -708,7 +706,6 @@ void            Speciation(const chemtbl_struct [], const rttbl_struct *,
     elem_struct [], river_struct []);
 int             _Speciation(const chemtbl_struct [], const rttbl_struct *, int,
     chmstate_struct *);
-int             keymatch(const char *, const char *, double *, char **);
 int             SpeciesType(FILE *, const char []);
 void            Unwrap(char *, const char *);
 double          EqvUnsatH(double, double, double, double, double);

@@ -1,9 +1,5 @@
 #include "pihm.h"
 
-#define LINE_WIDTH 512
-#define WORDS_LINE 40
-#define WORD_WIDTH 80
-
 void ReadChem(const char chem_filen[], const char cdbs_filen[],
     chemtbl_struct chemtbl[], kintbl_struct kintbl[], rttbl_struct *rttbl,
     forc_struct *forc, ctrl_struct *ctrl)
