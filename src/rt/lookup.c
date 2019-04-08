@@ -735,7 +735,6 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
     char cmdstr[], chemtbl_struct chemtbl[], kintbl_struct *kintbl)
 {
     int             i, j, k;
-    int             mn;
     int             ind;
     int             ndep;
     int             bytes_now;
@@ -856,6 +855,8 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
                         " Number of monod term: %d\n", kintbl->num_monod);
                     if (kintbl->num_monod > 0)
                     {
+                        int             mn;
+
                         NextLine(database, cmdstr, lno);
                         sscanf(cmdstr, "%*s : %n", &bytes_now);
                         bytes_consumed += bytes_now;
@@ -867,6 +868,13 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
                             wrap(chemn);
                             kintbl->monod_position[mn] =
                                 FindChem(chemn, chemtbl, NumStc);
+                            if (kintbl->monod_position[mn] < 0)
+                            {
+                                PIHMprintf(VL_ERROR,
+                                    "Error finding monod_terms in species "
+                                    "table.\n");
+                                PIHMexit(EXIT_FAILURE);
+                            }
                             PIHMprintf(VL_VERBOSE,
                                 " Monod term: %s %f\n",
                                 chemtbl[kintbl->monod_position[mn]].ChemName,
@@ -874,66 +882,43 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
                         }
                     }
                 }
-                //fgets(line, LINE_WIDTH, database);
-                //keymatch(line, "NULL", tmpval, tmpstr);
-                //if (strcmp(tmpstr[0], "monod_terms") == 0)
-                //{
-                //    for (mn = 0; mn < kintbl->num_monod; mn++)
-                //    {
-                //        /* Note tmpstr index not the same as tmpval
-                //         * index */
-                //        kintbl->monod_para[mn] = tmpval[mn + 0];
-                //        if (kintbl->monod_position[mn] < 0)
-                //        {
-                //            PIHMprintf(VL_ERROR,
-                //                "Error finding monod_terms in species "
-                //                "table.\n");
-                //            PIHMexit(EXIT_FAILURE);
-                //        }
-                //        else
-                //        {
-                //        }
-                //    }
-                //}
+                else if (strcmp(optstr, "num_inhibition"))
+                {
+                    /* Inhibition term */
+                    sscanf(cmdstr, "%*s = %d", &kintbl->num_inhib);
+                    PIHMprintf(VL_VERBOSE,
+                        " Number of inhibition term: %d\n", kintbl->num_inhib);
 
-                ///* Inhibition term */
-                //fgets(line, LINE_WIDTH, database);
-                //keymatch(line, "NULL", tmpval, tmpstr);
-                //if (strcmp(tmpstr[0], "num_inhibition") == 0)
-                //{
-                //    kintbl->num_inhib = tmpval[0];
-                //    PIHMprintf(VL_VERBOSE,
-                //        " Number of inhibition term: %d\n",
-                //        kintbl->num_inhib);
-                //}
-                //fgets(line, LINE_WIDTH, database);
-                //keymatch(line, "NULL", tmpval, tmpstr);
-                //if (strcmp(tmpstr[0], "inhibition") == 0)
-                //{
-                //    for (in = 0; in < kintbl->num_inhib; in++)
-                //    {
-                //        /* Note tmpstr indexing not same with tmpval */
-                //        wrap(tmpstr[in * 2 + 2]);
-                //        kintbl->inhib_position[in] =
-                //            FindChem(tmpstr[in * 2 + 2], chemtbl,
-                //            rttbl->NumStc);
-                //        kintbl->inhib_para[in] = tmpval[in + 0];
-                //        if (kintbl->inhib_position[in] < 0)
-                //        {
-                //            PIHMprintf(VL_ERROR,
-                //                "Error finding inhibition term in "
-                //                "species table.\n");
-                //            PIHMexit(EXIT_FAILURE);
-                //        }
-                //        else
-                //        {
-                //            PIHMprintf(VL_VERBOSE,
-                //                " Inhibition term: %s %f\n",
-                //                chemtbl[kintbl->inhib_position[in]].ChemName,
-                //                kintbl->inhib_para[in]);
-                //        }
-                //    }
-                //}
+                    if (kintbl->num_inhib > 0)
+                    {
+                        int             in;
+
+                        NextLine(database, cmdstr, lno);
+                        sscanf(cmdstr, "%*s : %n", &bytes_now);
+                        bytes_consumed += bytes_now;
+
+                        for (in = 0; in < kintbl->num_inhib; in++)
+                        {
+                            sscanf(cmdstr + bytes_consumed, "%s %lf",
+                                chemn, &kintbl->inhib_para[in]);
+                            wrap(chemn);
+                            kintbl->inhib_position[in] =
+                                FindChem(chemn, chemtbl, NumStc);
+                            if (kintbl->inhib_position[in] < 0)
+                            {
+                                PIHMprintf(VL_ERROR,
+                                    "Error finding inhibition term in "
+                                    "species table.\n");
+                                PIHMexit(EXIT_FAILURE);
+                            }
+                            PIHMprintf(VL_VERBOSE,
+                                " Inhibition term: %s %f\n",
+                                chemtbl[kintbl->inhib_position[in]].ChemName,
+                                kintbl->inhib_para[in]);
+                        }
+                    }
+                }
+
                 NextLine(database, cmdstr, lno);
             }
         }
