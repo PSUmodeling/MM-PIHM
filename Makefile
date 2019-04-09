@@ -3,14 +3,14 @@
 # -----------------------------------------------------------------
 
 CC = gcc
-CFLAGS = -g -O2
+CFLAGS = -g -O0
 
 ifeq ($(WARNING), on)
   CFLAGS += -Wall -Wextra
 endif
 
-ifeq ($(DEBUG), on)
-  CFLAGS += -O0
+ifeq ($(DEBUG), off)
+  CFLAGS += -O2
 endif
 
 ifneq ($(OMP), off)
