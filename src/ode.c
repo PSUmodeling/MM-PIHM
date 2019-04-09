@@ -421,6 +421,10 @@ int NumStateVar(void)
     nsv += 2 * nelem;
 #endif
 
+#if defined(_FBR_) && defined(_RT_)
+    nsv += NumSpc * 2 * nelem;
+#endif
+
     return nsv;
 }
 void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
