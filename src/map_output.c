@@ -947,9 +947,12 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
 #if defined(_RT_)
     char            chemn[MAXSTRING];
 
+    /* Primary species */
     for (k = 0; k < rttbl->NumStc; k++)
     {
         Unwrap(chemn, chemtbl[k].ChemName);
+
+        /* Unsaturated zone concentration */
         sprintf(ext, "unsat_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
@@ -958,22 +961,8 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             print->varctrl[n].var[j] = &elem[j].chms_unsat.log10_pconc[k];
         }
         n++;
-    }
-    for (k = 0; k < rttbl->NumSsc; k++)
-    {
-        Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
-        sprintf(ext, "unsat_conc.%s", chemn);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
-            &print->varctrl[n]);
-        for (j = 0; j < nelem; j++)
-        {
-            print->varctrl[n].var[j] = &elem[j].chms_unsat.log10_sconc[k];
-        }
-        n++;
-    }
-    for (k = 0; k < rttbl->NumStc; k++)
-    {
-        Unwrap(chemn, chemtbl[k].ChemName);
+
+        /* Groundwater concentration */
         sprintf(ext, "gw_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
             &print->varctrl[n]);
@@ -982,28 +971,40 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             print->varctrl[n].var[j] = &elem[j].chms_gw.log10_pconc[k];
         }
         n++;
-    }
-    for (k = 0; k < rttbl->NumSsc; k++)
-    {
-        Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
-        sprintf(ext, "gw_conc.%s", chemn);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
-            &print->varctrl[n]);
-        for (j = 0; j < nelem; j++)
-        {
-            print->varctrl[n].var[j] = &elem[j].chms_gw.log10_sconc[k];
-        }
-        n++;
-    }
-    for (k = 0; k < rttbl->NumStc; k++)
-    {
-        Unwrap(chemn, chemtbl[k].ChemName);
+
+        /* River concentration */
         sprintf(ext, "river_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nriver,
             &print->varctrl[n]);
         for (j = 0; j < nriver; j++)
         {
             print->varctrl[n].var[j] = &river[j].chms_stream.log10_pconc[k];
+        }
+        n++;
+    }
+
+    /* Secondary species */
+    for (k = 0; k < rttbl->NumSsc; k++)
+    {
+        Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
+
+        /* Unsaturated zone concentration */
+        sprintf(ext, "unsat_conc.%s", chemn);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &elem[j].chms_unsat.log10_sconc[k];
+        }
+        n++;
+
+        /* Groundwater concentration */
+        sprintf(ext, "gw_conc.%s", chemn);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &elem[j].chms_gw.log10_sconc[k];
         }
         n++;
     }
