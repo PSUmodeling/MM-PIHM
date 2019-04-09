@@ -54,6 +54,10 @@ endif
 
 SFLAGS = -D_PIHM_
 
+ifeq ($(FBR), on)
+  SFLAGS += -D_FBR_
+endif
+
 ifeq ($(CVODE_OMP), on)
   SFLAGS += -D_CVODE_OMP
 endif
