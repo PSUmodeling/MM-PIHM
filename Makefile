@@ -116,23 +116,10 @@ HEADERS_ = \
 	include/pihm.h\
 	include/river_struct.h
 
+MODULE_SRCS_ =
 MODULE_HEADERS_ =
 EXECUTABLE = pihm
 MSG = "...  Compiling PIHM  ..."
-
-#-------------------
-# PIHM-FBR
-#-------------------
-ifeq ($(MAKECMDGOALS),pihm-fbr)
-  SFLAGS += -D_FBR_
-  MODULE_SRCS_ = \
-	fbr/init_geol.c\
-	fbr/read_bedrock.c\
-  	fbr/read_geol.c
-  MODULE_HEADERS_ =
-  EXECUTABLE = pihm-fbr
-  MSG = "... Compiling PIHM-FBR ..."
-endif
 
 #-------------------
 # Flux-PIHM
@@ -150,27 +137,6 @@ ifeq ($(MAKECMDGOALS),flux-pihm)
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm
   MSG = "... Compiling Flux-PIHM ..."
-endif
-
-#-------------------
-# Flux-PIHM-FBR
-#-------------------
-ifeq ($(MAKECMDGOALS),flux-pihm-fbr)
-  SFLAGS += -D_NOAH_ -D_FBR_
-  MODULE_SRCS_ = \
-  	fbr/init_geol.c\
-	fbr/read_bedrock.c\
-	fbr/read_geol.c\
-	noah/lsm_init.c\
-	noah/noah.c\
-	noah/noah_glacial_only.c\
-	noah/lsm_func.c\
-	noah/lsm_read.c\
-	noah/topo_radn.c\
-	spa/spa.c
-  MODULE_HEADERS_ = include/spa.h
-  EXECUTABLE = flux-pihm-fbr
-  MSG = "... Compiling Flux-PIHM-FBR ..."
 endif
 
 #-------------------
@@ -300,6 +266,13 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   MSG = "... Compiling Flux-PIHM-Cycles ..."
 endif
 
+ifeq ($(FBR), on)
+  MODULE_SRCS_ +=\
+	fbr/init_geol.c\
+	fbr/read_bedrock.c\
+	fbr/read_geol.c
+endif
+
 SRCS = $(patsubst %,$(SRCDIR)/%,$(SRCS_))
 HEADERS = $(patsubst %,$(SRCDIR)/%,$(HEADERS_))
 OBJS = $(SRCS:.c=.o)
@@ -349,11 +322,11 @@ ifneq ($(CMAKE_EXIST),1)
 endif
 
 pihm:			## Compile PIHM
-pihm:	$(OBJS)
+pihm:	$(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
+	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
 pihm-fbr:		## Compile PIHM-FBR (PIHM with fractured bedrock module)
 pihm-fbr: $(OBJS) $(MODULE_OBJS)

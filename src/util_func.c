@@ -64,6 +64,12 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
             case 'V':
                 /* Print version number */
                 printf("MM-PIHM Version %s\n", VERSION);
+#if defined(_FBR_)
+                printf("Compiled with fractured bedrock module\n");
+#endif
+#if defined(_OPENMP)
+                printf("Paralleled with OpenMP\n");
+#endif
                 PIHMexit(EXIT_SUCCESS);
                 break;
             case '?':
