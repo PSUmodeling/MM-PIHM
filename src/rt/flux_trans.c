@@ -17,8 +17,10 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         double          strg_gw;
         double          strg_unsat;
 
-        strg_gw = GWStrg(&elem[i].soil, &elem[i].ws);
-        strg_unsat = UnsatWaterStrg(&elem[i].soil, &elem[i].ws);
+        strg_gw = GWStrg(elem[i].soil.depth, elem[i].soil.smcmax,
+            elem[i].soil.smcmin, elem[i].ws.gw);
+        strg_unsat = UnsatWaterStrg(elem[i].soil.depth, elem[i].soil.smcmax,
+            elem[i].soil.smcmin, elem[i].ws.gw, elem[i].ws.unsat);
 
         for (k = 0; k < NumSpc; k++)
         {

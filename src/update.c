@@ -75,8 +75,11 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         double          vol_gw;
         double          vol_unsat;
 
-        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), DEPTHR) * elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), DEPTHR) * elem[i].topo.area;
+        vol_gw = MAX(GWStrg(elem[i].soil.depth, elem[i].soil.smcmax,
+            elem[i].soil.smcmin, elem[i].ws.gw), DEPTHR) * elem[i].topo.area;
+        vol_unsat = MAX(UnsatWaterStrg(elem[i].soil.depth, elem[i].soil.smcmax,
+            elem[i].soil.smcmin, elem[i].ws.gw, elem[i].ws.unsat), DEPTHR) *
+            elem[i].topo.area;
 
         for (k = 0; k < NumSpc; k++)
         {

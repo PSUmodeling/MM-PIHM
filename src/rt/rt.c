@@ -58,43 +58,41 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
 
     for (i = 0; i < nelem; i++)
     {
-        InitChemS(chemtbl, rttbl, elem[i].restart_input.tconc_unsat,
-            elem[i].restart_input.ssa_unsat, elem[i].soil.smcmax,
-            &elem[i].chms_unsat);
-
-        InitChemS(chemtbl, rttbl, elem[i].restart_input.tconc_gw,
-            elem[i].restart_input.ssa_gw, elem[i].soil.smcmax,
-            &elem[i].chms_gw);
-    }
-
-    /* Total moles should be calculated after speciation */
-    for (i = 0; i < nelem; i++)
-    {
         double          vol_gw;
         double          vol_unsat;
         int             k;
 
-        vol_gw = MAX(GWStrg(&elem[i].soil, &elem[i].ws), DEPTHR) *
+        vol_gw = MAX(GWStrg(elem[i].soil.depth, elem[i].soil.smcmax,
+            elem[i].soil.smcmin, elem[i].ws.gw), DEPTHR) *
             elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(&elem[i].soil, &elem[i].ws), DEPTHR) *
+        vol_unsat = MAX(UnsatWaterStrg(elem[i].soil.depth, elem[i].soil.smcmax,
+            elem[i].soil.smcmin, elem[i].ws.gw, elem[i].ws.unsat), DEPTHR) *
             elem[i].topo.area;
 
-        for (k = 0; k < rttbl->NumStc; k++)
-        {
-            if (chemtbl[k].itype == AQUEOUS)
-            {
-                elem[i].chms_unsat.t_mole[k] =
-                    elem[i].chms_unsat.t_conc[k] * vol_unsat;
+        InitChemS(chemtbl, rttbl, elem[i].restart_input.tconc_unsat,
+            elem[i].restart_input.ssa_unsat, elem[i].soil.smcmax, vol_unsat,
+            &elem[i].chms_unsat);
 
-                elem[i].chms_gw.t_mole[k] =
-                    elem[i].chms_gw.t_conc[k] * vol_gw;
-            }
-            else
-            {
-                elem[i].chms_unsat.t_mole[k] = 0.0;
-                elem[i].chms_gw.t_mole[k] = 0.0;
-            }
-        }
+        InitChemS(chemtbl, rttbl, elem[i].restart_input.tconc_gw,
+            elem[i].restart_input.ssa_gw, elem[i].soil.smcmax, vol_gw,
+            &elem[i].chms_gw);
+
+#if defined(_FBR_)
+        vol_gw = MAX(GWStrg(elem[i].geol.depth, elem[i].geol.smcmax,
+            elem[i].geol.smcmin, elem[i].ws.fbr_gw), DEPTHR) *
+            elem[i].topo.area;
+        vol_unsat = MAX(UnsatWaterStrg(elem[i].geol.depth, elem[i].geol.smcmax,
+            elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat),
+            DEPTHR) * elem[i].topo.area;
+
+        InitChemS(chemtbl, rttbl, elem[i].restart_input.tconc_fbrunsat,
+            elem[i].restart_input.ssa_fbrunsat, elem[i].geol.smcmax, vol_unsat,
+            &elem[i].chms_fbrunsat);
+
+        InitChemS(chemtbl, rttbl, elem[i].restart_input.tconc_fbrgw,
+            elem[i].restart_input.ssa_fbrgw, elem[i].geol.smcmax, vol_gw,
+            &elem[i].chms_fbrgw);
+#endif
     }
 
     /*
@@ -165,6 +163,14 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
 
             elem[i].chmf.react_unsat[k] = 0.0;
             elem[i].chmf.react_gw[k] = 0.0;
+
+#if defined(_FBR_)
+            NV_Ith(CV_Y, FBRUNSAT_MOLE(i, k)) = elem[i].chms_fbrunsat.t_mole[k];
+            NV_Ith(CV_Y, FBRGW_MOLE(i, k)) = elem[i].chms_fbrgw.t_mole[k];
+
+            elem[i].chmf.react_fbrunsat[k] = 0.0;
+            elem[i].chmf.react_fbrgw[k] = 0.0;
+#endif
         }
     }
 
@@ -184,7 +190,8 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
 }
 
 void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    double t_conc[], double ssa[], double smcmax, chmstate_struct *chms)
+    double t_conc[], double ssa[], double smcmax, double vol,
+    chmstate_struct *chms)
 {
     int             k;
 
@@ -240,38 +247,51 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     {
         _Speciation(chemtbl, rttbl, 1, chms);
     }
+
+    /* Total moles should be calculated after speciation */
+    for (k = 0; k < rttbl->NumStc; k++)
+    {
+        if (chemtbl[k].itype == AQUEOUS)
+        {
+            chms->t_mole[k] = chms->t_conc[k] * vol;
+        }
+        else
+        {
+            chms->t_mole[k] = 0.0;
+        }
+    }
 }
 
-double GWStrg(const soil_struct *soil, const wstate_struct *ws)
+double GWStrg(double depth, double smcmax, double smcmin, double gw)
 {
     double          strg;
 
-    if (ws->gw < 0.0)
+    if (gw < 0.0)
     {
         strg = 0.0;
     }
-    else if (ws->gw > soil->depth)
+    else if (gw > depth)
     {
-        strg = soil->depth * soil->smcmax +
-            (ws->gw - soil->depth) * soil->porosity;
+        strg = depth * smcmax + (gw - depth) * (smcmax - smcmin);
     }
     else
     {
-        strg = ws->gw * soil->smcmax;
+        strg = gw * smcmax;
     }
 
     return strg;
 }
 
-double UnsatWaterStrg(const soil_struct *soil, const wstate_struct *ws)
+double UnsatWaterStrg(double depth, double smcmax, double smcmin, double gw,
+    double unsat)
 {
     double          deficit;
 
-    deficit = soil->depth - ws->gw;
-    deficit = MIN(deficit, soil->depth);
+    deficit = depth - gw;
+    deficit = MIN(deficit, depth);
     deficit = MAX(deficit, 0.0);
 
-    return deficit * soil->smcmin + MAX(ws->unsat, 0.0) * soil->porosity;
+    return deficit * smcmin + MAX(unsat, 0.0) * (smcmax - smcmin);
 }
 
 double UnsatSatRatio(double depth, double unsat, double gw)

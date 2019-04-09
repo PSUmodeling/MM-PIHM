@@ -1583,6 +1583,14 @@ typedef struct chmflux_struct
     double          unsatflux[NUM_EDGE][MAXSPS];
     double          react_unsat[MAXSPS];
     double          react_gw[MAXSPS];
+# if defined(_FBR_)
+    double          fbr_infil[MAXSPS];
+    double          fbr_rechg[MAXSPS];
+    double          fbr_unsatflux[NUM_EDGE][MAXSPS];
+    double          fbrflow[NUM_EDGE][MAXSPS];
+    double          react_fbrunsat[MAXSPS];
+    double          react_fbrgw[MAXSPS];
+# endif
 } chmflux_struct;
 #endif
 
@@ -1664,6 +1672,10 @@ typedef struct elem_struct
     rtic_struct     restart_input;
     chmstate_struct chms_unsat;
     chmstate_struct chms_gw;
+# if defined(_FBR_)
+    chmstate_struct chms_fbrunsat;
+    chmstate_struct chms_fbrgw;
+# endif
     chmflux_struct  chmf;
 #endif
 } elem_struct;

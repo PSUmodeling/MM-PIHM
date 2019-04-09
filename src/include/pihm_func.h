@@ -16,10 +16,19 @@
 #endif
 
 #if defined(_RT_)
-# define UNSAT_MOLE(i, j)   ((i) * NumSpc + j + 3 * nelem + 2 * nriver)
-# define GW_MOLE(i, j)      ((i) * NumSpc + j + (3 + NumSpc) * nelem + 2 * nriver)
-# define STREAM_MOLE(i, j)  ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + 2 * nriver)
-# define RIVBED_MOLE(i, j)  ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + (2 + NumSpc) * nriver)
+# if defined(_FBR_)
+#  define UNSAT_MOLE(i, j)   ((i) * NumSpc + j + 5 * nelem + 2 * nriver)
+#  define GW_MOLE(i, j)      ((i) * NumSpc + j + (5 + NumSpc) * nelem + 2 * nriver)
+#  define STREAM_MOLE(i, j)  ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + 2 * nriver)
+#  define RIVBED_MOLE(i, j)  ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + (2 + NumSpc) * nriver)
+#  define FBRUNSAT_MOLE(i, j) ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + (2 + 2 * NumSpc) * nriver)
+#  define FBRGW_MOLE(i, j)   ((i) * NumSpc + j + (5 + 3 * NumSpc) * nelem + (2 + 2 * NumSpc) * nriver)
+# else
+#  define UNSAT_MOLE(i, j)   ((i) * NumSpc + j + 3 * nelem + 2 * nriver)
+#  define GW_MOLE(i, j)      ((i) * NumSpc + j + (3 + NumSpc) * nelem + 2 * nriver)
+#  define STREAM_MOLE(i, j)  ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + 2 * nriver)
+#  define RIVBED_MOLE(i, j)  ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + (2 + NumSpc) * nriver)
+# endif
 #endif
 
 #if defined(_BGC_) && !defined(_LUMPED_)
@@ -721,8 +730,8 @@ void            ReadCini(const char[], const chemtbl_struct *, int,
 int             ParseLocation(const char [], const char [], int);
 void            ApplyPrcpConc(forc_struct *, rttbl_struct *, int);
 void            wrap(char *);
-double          GWStrg(const soil_struct *, const wstate_struct *);
-double          UnsatWaterStrg(const soil_struct *, const wstate_struct *);
+double          GWStrg(double, double, double, double);
+double          UnsatWaterStrg(double, double, double, double, double);
 double          RivBedStrg(const matl_struct *, const river_wstate_struct *);
 void            Transport(const chemtbl_struct [], const rttbl_struct *,
     elem_struct [], river_struct []);
@@ -747,7 +756,7 @@ void            ReadCationEchg(const char [], double, chemtbl_struct [],
 void            ReadMinKin(FILE *, int, double, int *, char [], chemtbl_struct [],
     kintbl_struct *);
 void            InitChemS(const chemtbl_struct [], const rttbl_struct *,
-    double [], double [], double, chmstate_struct *);
+    double [], double [], double, double, chmstate_struct *);
 
 #endif
 
