@@ -58,103 +58,13 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
 
     for (i = 0; i < nelem; i++)
     {
-        int             j;
+        InitChemS(chemtbl, rttbl, elem[i].restart_input.tconc_unsat,
+            elem[i].restart_input.ssa_unsat, elem[i].soil.smcmax,
+            &elem[i].chms_unsat);
 
-        for (j = 0; j < rttbl->NumStc; j++)
-        {
-            if (strcmp(chemtbl[j].ChemName, "'H+'") == 0)
-            {
-                elem[i].chms_unsat.t_conc[j] =
-                    elem[i].restart_input.tconc_unsat[j];
-                elem[i].chms_unsat.p_actv[j] = elem[i].chms_unsat.t_conc[j];
-                elem[i].chms_unsat.p_conc[j] = elem[i].chms_unsat.t_conc[j];
-                elem[i].chms_unsat.ssa[j] = elem[i].restart_input.ssa_unsat[j];
-
-                elem[i].chms_gw.t_conc[j] = elem[i].restart_input.tconc_gw[j];
-                elem[i].chms_gw.p_actv[j] = elem[i].chms_gw.t_conc[j];
-                elem[i].chms_gw.p_conc[j] = elem[i].chms_gw.t_conc[j];
-                elem[i].chms_gw.ssa[j] = elem[i].restart_input.ssa_gw[j];
-            }
-            else if (chemtbl[j].itype == MINERAL)
-            {
-                elem[i].chms_unsat.t_conc[j] =
-                    elem[i].restart_input.tconc_unsat[j];
-                /* Update the concentration of mineral using molar volume */
-                elem[i].chms_unsat.t_conc[j] *= (rttbl->RelMin == 0) ?
-                    /* Absolute mineral volume fraction */
-                    1000.0 / chemtbl[j].MolarVolume / elem[i].soil.smcmax :
-                    /* Relative mineral volume fraction */
-                    (1.0 - elem[i].soil.smcmax) * 1000.0 /
-                    chemtbl[j].MolarVolume / elem[i].soil.smcmax;
-                elem[i].chms_unsat.p_actv[j] = 1.0;
-                elem[i].chms_unsat.p_conc[j] = elem[i].chms_unsat.t_conc[j];
-                elem[i].chms_unsat.ssa[j] = elem[i].restart_input.ssa_unsat[j];
-
-                elem[i].chms_gw.t_conc[j] = elem[i].restart_input.tconc_gw[j];
-                /* Update the concentration of mineral using molar volume */
-                elem[i].chms_gw.t_conc[j] *= (rttbl->RelMin == 0) ?
-                    /* Absolute mineral volume fraction */
-                    1000.0 / chemtbl[j].MolarVolume / elem[i].soil.smcmax :
-                    /* Relative mineral volume fraction */
-                    (1.0 - elem[i].soil.smcmax) * 1000.0 /
-                    chemtbl[j].MolarVolume / elem[i].soil.smcmax;
-                elem[i].chms_gw.p_actv[j] = 1.0;
-                elem[i].chms_gw.p_conc[j] = elem[i].chms_gw.t_conc[j];
-                elem[i].chms_gw.ssa[j] = elem[i].restart_input.ssa_gw[j];
-            }
-            else if ((chemtbl[j].itype == CATION_ECHG) ||
-                (chemtbl[j].itype == ADSORPTION))
-            {
-                elem[i].chms_unsat.t_conc[j] =
-                    elem[i].restart_input.tconc_unsat[j];
-                elem[i].chms_unsat.p_actv[j] =
-                    elem[i].chms_unsat.t_conc[j] * 0.5;
-                /* Change unit of CEC (eq g-1) into C(ion site)
-                 * (eq L-1 porous space), assuming density of solid is always
-                 * 2650 g L-1 */
-                elem[i].chms_unsat.t_conc[j] *=
-                    (1.0 - elem[i].soil.smcmax) * 2650.0;
-                elem[i].chms_unsat.p_conc[j] = elem[i].chms_unsat.t_conc[j];
-
-                elem[i].chms_gw.t_conc[j] = elem[i].restart_input.tconc_gw[j];
-                elem[i].chms_gw.p_actv[j] = elem[i].chms_gw.t_conc[j] * 0.5;
-                /* Change unit of CEC (eq g-1) into C(ion site)
-                 * (eq L-1 porous space), assuming density of solid is always
-                 * 2650 g L-1 */
-                elem[i].chms_gw.t_conc[j] *=
-                    (1.0 - elem[i].soil.smcmax) * 2650.0;
-                elem[i].chms_gw.p_conc[j] = elem[i].chms_gw.t_conc[j];
-            }
-            else
-            {
-                elem[i].chms_unsat.t_conc[j] =
-                    elem[i].restart_input.tconc_unsat[j];
-                elem[i].chms_unsat.p_actv[j] =
-                    elem[i].chms_unsat.t_conc[j] * 0.5;
-                elem[i].chms_unsat.p_conc[j] =
-                    elem[i].chms_unsat.t_conc[j] * 0.5;
-                elem[i].chms_unsat.ssa[j] = elem[i].restart_input.ssa_unsat[j];
-
-                elem[i].chms_gw.t_conc[j] = elem[i].restart_input.tconc_gw[j];
-                elem[i].chms_gw.p_actv[j] = elem[i].chms_gw.t_conc[j] * 0.5;
-                elem[i].chms_gw.p_conc[j] = elem[i].chms_gw.t_conc[j] * 0.5;
-                elem[i].chms_gw.ssa[j] = elem[i].restart_input.ssa_gw[j];
-            }
-        }
-
-        for (j = 0; j < rttbl->NumSsc; j++)
-        {
-            elem[i].chms_unsat.s_conc[j] = ZERO_CONC;
-            elem[i].chms_gw.s_conc[j] = ZERO_CONC;
-        }
-
-        /* Speciation */
-        if (rttbl->RecFlg == KIN_REACTION)
-        {
-            _Speciation(chemtbl, rttbl, 1, &elem[i].chms_unsat);
-
-            _Speciation(chemtbl, rttbl, 1, &elem[i].chms_gw);
-        }
+        InitChemS(chemtbl, rttbl, elem[i].restart_input.tconc_gw,
+            elem[i].restart_input.ssa_gw, elem[i].soil.smcmax,
+            &elem[i].chms_gw);
     }
 
     /* Total moles should be calculated after speciation */
@@ -270,6 +180,65 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
             NV_Ith(CV_Y, STREAM_MOLE(i, k)) = river[i].chms_stream.t_mole[k];
             NV_Ith(CV_Y, RIVBED_MOLE(i, k)) = river[i].chms_rivbed.t_mole[k];
         }
+    }
+}
+
+void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+    double t_conc[], double ssa[], double smcmax, chmstate_struct *chms)
+{
+    int             k;
+
+    for (k = 0; k < rttbl->NumStc; k++)
+    {
+        if (strcmp(chemtbl[k].ChemName, "'H+'") == 0)
+        {
+            chms->t_conc[k] = t_conc[k];
+            chms->p_actv[k] = chms->t_conc[k];
+            chms->p_conc[k] = chms->t_conc[k];
+            chms->ssa[k] = ssa[k];
+        }
+        else if (chemtbl[k].itype == MINERAL)
+        {
+            chms->t_conc[k] = t_conc[k];
+            /* Update the concentration of mineral using molar volume */
+            chms->t_conc[k] *= (rttbl->RelMin == 0) ?
+                /* Absolute mineral volume fraction */
+                1000.0 / chemtbl[k].MolarVolume / smcmax :
+                /* Relative mineral volume fraction */
+                (1.0 - smcmax) * 1000.0 / chemtbl[k].MolarVolume / smcmax;
+            chms->p_actv[k] = 1.0;
+            chms->p_conc[k] = chms->t_conc[k];
+            chms->ssa[k] = ssa[k];
+        }
+        else if ((chemtbl[k].itype == CATION_ECHG) ||
+            (chemtbl[k].itype == ADSORPTION))
+        {
+            chms->t_conc[k] = t_conc[k];
+            chms->p_actv[k] = chms->t_conc[k] * 0.5;
+            /* Change unit of CEC (eq g-1) into C(ion site)
+             * (eq L-1 porous space), assuming density of solid is always
+             * 2650 g L-1 */
+            chms->t_conc[k] *= (1.0 - smcmax) * 2650.0;
+            chms->p_conc[k] = chms->t_conc[k];
+        }
+        else
+        {
+            chms->t_conc[k] = t_conc[k];
+            chms->p_actv[k] = chms->t_conc[k] * 0.5;
+            chms->p_conc[k] = chms->t_conc[k] * 0.5;
+            chms->ssa[k] = ssa[k];
+        }
+    }
+
+    for (k = 0; k < rttbl->NumSsc; k++)
+    {
+        chms->s_conc[k] = ZERO_CONC;
+    }
+
+    /* Speciation */
+    if (rttbl->RecFlg == KIN_REACTION)
+    {
+        _Speciation(chemtbl, rttbl, 1, chms);
     }
 }
 
