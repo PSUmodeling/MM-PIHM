@@ -1552,6 +1552,12 @@ typedef struct rtic_struct
     double          ssa_unsat[MAXSPS];
     double          tconc_gw[MAXSPS];
     double          ssa_gw[MAXSPS];
+#if defined(_FBR_)
+    double          tconc_fbrunsat[MAXSPS];
+    double          ssa_fbrunsat[MAXSPS];
+    double          tconc_fbrgw[MAXSPS];
+    double          ssa_fbrgw[MAXSPS];
+#endif
 } rtic_struct;
 
 typedef struct chmstate_struct
