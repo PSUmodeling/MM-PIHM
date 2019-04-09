@@ -972,6 +972,28 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         }
         n++;
 
+# if defined(_FBR_)
+        /* Fractured unsaturated bedrock layer concentration */
+        sprintf(ext, "fbrunsat_conc.%s", chemn);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &elem[j].chms_fbrunsat.log10_pconc[k];
+        }
+        n++;
+
+        /* Deep groundwater concentration */
+        sprintf(ext, "fbrgw_conc.%s", chemn);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &elem[j].chms_fbrgw.log10_pconc[k];
+        }
+        n++;
+# endif
+
         /* River concentration */
         sprintf(ext, "river_conc.%s", chemn);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nriver,
@@ -1007,6 +1029,28 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             print->varctrl[n].var[j] = &elem[j].chms_gw.log10_sconc[k];
         }
         n++;
+
+# if defined(_FBR_)
+        /* Fractured unsaturated bedrock layer concentration */
+        sprintf(ext, "fbrunsat_conc.%s", chemn);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &elem[j].chms_fbrunsat.log10_sconc[k];
+        }
+        n++;
+
+        /* Deep groundwater concentration */
+        sprintf(ext, "fbrgw_conc.%s", chemn);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
+            &print->varctrl[n]);
+        for (j = 0; j < nelem; j++)
+        {
+            print->varctrl[n].var[j] = &elem[j].chms_fbrgw.log10_sconc[k];
+        }
+        n++;
+# endif
     }
 # if TEMP_DISABLED
     for (k = 0; k < rttbl->NumSsc; k++)
