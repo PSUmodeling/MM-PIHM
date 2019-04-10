@@ -146,7 +146,8 @@ All model output variables will be stored in the `output/dir_name` directory whe
 If `-o` parameter is not used, model output will be stored in a directory named after the project and the system time when the simulation is executed.
 
 Example input files are provided with each release.
-For a description of input files, please refer to the *User's Guide* that can be downloaded from the release page.
+For a description of input files, please refer to the [*User's Guide*](https://github.com/PSUmodeling/MM-PIHM/releases/download/v0.11.0-alpha/guide.pdf "Guide")
+ that can be downloaded from the release page.
 
 ### Penn State Users
 
