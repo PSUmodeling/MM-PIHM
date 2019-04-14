@@ -349,9 +349,9 @@ double OutletFlux(int down, const river_wstate_struct *ws,
             total_h_down = bc->head;
             distance = 0.5 * shp->length;
             grad_h = (total_h - total_h_down) / distance;
-            avg_h = AvgH(grad_h, ws->stage,
+            /* avg_h = AvgH(grad_h, ws->stage,
                 ((bc->head - (topo->node_zmax - shp->depth) > 0.0) ?
-                bc->head - (topo->node_zmax - shp->depth) : 0.0));
+                bc->head - (topo->node_zmax - shp->depth) : 0.0)); */
             avg_perim = RiverPerim(shp->intrpl_ord, ws->stage, shp->coeff);
             crossa = RiverCroSectArea(shp->intrpl_ord, ws->stage, shp->coeff);
             avg_h = (avg_perim == 0.0) ? 0.0 : (crossa / avg_perim);
