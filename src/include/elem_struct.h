@@ -724,12 +724,16 @@ typedef struct solute_struct
 #endif
 
 /* Boundary conditions */
-typedef union bc_struct
+typedef struct bc_struct
 {
     double          head[NUM_EDGE];    /* value of Dirichlet-type boundary
                                         * condition (m) */
     double          flux[NUM_EDGE];    /* value of Neumann-type boundary
                                         * condition (m3 s-1) */
+#if defined(_RT_)
+    double          conc[MAXSPS];           /* value of chemical concentration
+                                             * boundary condition () */
+#endif
 } bc_struct;
 
 /* Land surface and hydrologic initial conditions */

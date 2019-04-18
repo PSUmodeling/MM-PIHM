@@ -757,7 +757,6 @@ void            ReadMinKin(FILE *, int, double, int *, char [], chemtbl_struct [
     kintbl_struct *);
 void            InitChemS(const chemtbl_struct [], const rttbl_struct *,
     double [], double [], double, double, chmstate_struct *);
-
 #endif
 
 #endif

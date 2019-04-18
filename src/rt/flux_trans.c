@@ -217,6 +217,92 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     elem[i].chmf.subflux[j][k] = 0.0;
                 }
             }   /* End of element to element */
+
+#if defined(_FBR_)
+            double          dist = 0.0;
+            int             jj;
+
+            /* Bedrock infiltration */
+            elem[i].chmf.fbr_infil[k] = elem[i].wf.fbr_infil *
+                elem[i].topo.area * ((elem[i].wf.fbr_infil > 0.0) ?
+                elem[i].chms_gw.t_conc[k] : elem[i].chms_fbrgw.t_conc[k]);
+
+            /* Interface between unsaturated bedrock and deep groundwater */
+            elem[i].chmf.fbr_rechg[k] = AdvDiffDisp(chemtbl[k].DiffCoe,
+                chemtbl[k].DispCoe, rttbl->Cementation,
+                elem[i].chms_fbrunsat.t_conc[k], elem[i].chms_fbrgw.t_conc[k],
+                elem[i].geol.smcmax, 0.5 * elem[i].geol.depth,
+                elem[i].topo.area, elem[i].wf.fbr_rechg * elem[i].topo.area);
+
+            /* Element to element */
+            for (j = 0; j < NUM_EDGE; j++)
+            {
+                if (elem[i].nabr[j] == 0)
+                {
+                    elem[i].chmf.fbr_unsatflux[j][k] = 0.0;
+                    /* Diffusion and dispersion are ignored for boundary fluxes
+                     */
+                    elem[i].chmf.fbrflow[j][k] =
+                        (elem[i].attrib.fbrbc_type[j] == 0) ?
+                        0.0 : elem[i].wf.fbrflow[j] *
+                        ((elem[i].wf.fbrflow[j] > 0.0) ?
+                        elem[i].chms_fbrgw.t_conc[k] : elem[i].fbr_bc.conc[k]);
+                }
+                else
+                {
+                    if (elem[i].nabr[j] > 0)
+                    {
+                        nabr = &elem[elem[i].nabr[j] - 1];
+                        dist = elem[i].topo.nabrdist[j];
+                    }
+                    else
+                    {
+                        nabr = (river[-elem[i].nabr[j] - 1].leftele ==
+                            elem[i].ind) ?
+                            &elem[river[-elem[i].nabr[j] - 1].rightele - 1] :
+                            &elem[river[-elem[i].nabr[j] - 1].leftele - 1];
+                        for (jj = 0; jj < NUM_EDGE; jj++)
+                        {
+                            if (nabr->nabr[jj] == elem[i].nabr[j])
+                            {
+                                dist = elem[i].topo.nabrdist[j] +
+                                    nabr->topo.nabrdist[jj];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (dist == 0.0)
+                    {
+                        PIHMprintf(VL_ERROR,
+                            "Error finding distance between elements.\n");
+                        PIHMexit(EXIT_FAILURE);
+                    }
+
+                    /* Unsaturated zone diffusion */
+                    elem[i].chmf.fbr_unsatflux[j][k] =
+                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DiffCoe,
+                        rttbl->Cementation, elem[i].chms_fbrunsat.t_conc[k],
+                        nabr->chms_fbrunsat.t_conc[k],
+                        0.5 * elem[i].geol.smcmax + 0.5 * nabr->geol.smcmax,
+                        dist,
+                        0.5 * MAX(elem[i].geol.depth - elem[i].ws.fbr_gw, 0.0) +
+                        0.5 * MAX(nabr->geol.depth - nabr->ws.fbr_gw, 0.0),
+                        0.0);
+
+                    /* Groundwater advection, diffusion, and dispersion */
+                    elem[i].chmf.fbrflow[j][k] =
+                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DiffCoe,
+                        rttbl->Cementation, elem[i].chms_fbrgw.t_conc[k],
+                        nabr->chms_fbrgw.t_conc[k],
+                        0.5 * elem[i].geol.smcmax + 0.5 * nabr->geol.smcmax,
+                        dist,
+                        0.5 * MAX(elem[i].ws.fbr_gw, 0.0) +
+                        0.5 * MAX(nabr->ws.fbr_gw, 0.0),
+                        elem[i].wf.fbrflow[j]);
+                }
+            }   /* End of element to element */
+#endif
         }   /* End of species loop */
     }
 
