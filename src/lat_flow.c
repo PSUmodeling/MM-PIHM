@@ -72,8 +72,7 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
             {
                 elem[i].wf.fbrflow[j] =
                     FbrBoundFluxElem(elem[i].attrib.fbrbc_type[j], j,
-                        &elem[i].fbr_bc, &elem[i].ws, &elem[i].topo,
-                        &elem[i].geol);
+                    &elem[i].fbr_bc, &elem[i].ws, &elem[i].topo, &elem[i].geol);
             }
             else
             {
