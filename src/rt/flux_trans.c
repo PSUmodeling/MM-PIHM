@@ -64,6 +64,57 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             elem[i].chms_gw.t_conc[k] =
                 MAX(elem[i].chms_gw.t_conc[k], 0.0);
         }
+
+#if defined(_FBR_)
+        strg_gw = GWStrg(elem[i].geol.depth, elem[i].geol.smcmax,
+            elem[i].geol.smcmin, elem[i].ws.fbr_gw);
+        strg_unsat = UnsatWaterStrg(elem[i].geol.depth, elem[i].geol.smcmax,
+            elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat);
+
+        for (k = 0; k < NumSpc; k++)
+        {
+            /* Initialize chemical fluxes */
+            elem[i].chmf.fbr_infil[k] = 0.0;
+            elem[i].chmf.fbr_rechg[k] = 0.0;
+
+            for (j = 0; j < NUM_EDGE; j++)
+            {
+                elem[i].chmf.fbr_unsatflux[j][k] = 0.0;
+                elem[i].chmf.fbrflow[j][k] = 0.0;
+            }
+
+            /* Calculate concentrations */
+            elem[i].chms_fbrunsat.t_conc[k] = (strg_unsat > DEPTHR) ?
+                elem[i].chms_fbrunsat.t_mole[k] / strg_unsat /
+                elem[i].topo.area : 0.0;
+
+            elem[i].chms_fbrgw.t_conc[k] = (strg_gw > DEPTHR) ?
+                elem[i].chms_fbrgw.t_mole[k] / strg_gw / elem[i].topo.area :
+                0.0;
+
+            if (chemtbl[k].mtype == MIXED_MA)
+            {
+                for (kk = 0; kk < rttbl->NumSsc; kk++)
+                {
+                    if ((rttbl->Totalconc[k][kk + rttbl->NumStc] != 0) &&
+                        (chemtbl[kk + rttbl->NumStc].itype != AQUEOUS))
+                    {
+                        elem[i].chms_fbrgw.t_conc[k] -=
+                            rttbl->Totalconc[k][kk + rttbl->NumStc] *
+                            elem[i].chms_fbrgw.s_conc[kk];
+                        elem[i].chms_fbrunsat.t_conc[k] -=
+                            rttbl->Totalconc[k][kk + rttbl->NumStc] *
+                            elem[i].chms_fbrunsat.s_conc[kk];
+                    }
+                }
+            }
+
+            elem[i].chms_fbrunsat.t_conc[k] =
+                MAX(elem[i].chms_fbrunsat.t_conc[k], 0.0);
+            elem[i].chms_fbrgw.t_conc[k] =
+                MAX(elem[i].chms_fbrgw.t_conc[k], 0.0);
+        }
+#endif
     }
 
 #if defined(_OPENMP)

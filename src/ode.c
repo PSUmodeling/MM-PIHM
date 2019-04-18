@@ -56,6 +56,10 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
                 (y[UNSAT_MOLE(i, k)] >= 0.0) ? y[UNSAT_MOLE(i, k)] : 0.0;
             elem->chms_gw.t_mole[k] =
                 (y[GW_MOLE(i, k)] >= 0.0) ? y[GW_MOLE(i, k)] : 0.0;
+# if defined(_FBR_)
+            elem->chms_fbrunsat.t_mole[k] = MAX(y[FBRUNSAT_MOLE(i, k)], 0.0);
+            elem->chms_fbrgw.t_mole[k] = MAX(y[FBRGW_MOLE(i, k)], 0.0);
+# endif
         }
 #endif
     }
