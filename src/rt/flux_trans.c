@@ -186,7 +186,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                     /* Unsaturated zone diffusion */
                     elem[i].chmf.unsatflux[j][k] =
-                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DiffCoe,
+                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
                         rttbl->Cementation, elem[i].chms_unsat.t_conc[k],
                         nabr->chms_unsat.t_conc[k],
                         0.5 * elem[i].soil.smcmax + 0.5 * nabr->soil.smcmax,
@@ -196,7 +196,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                     /* Groundwater advection, diffusion, and dispersion */
                     elem[i].chmf.subflux[j][k] =
-                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DiffCoe,
+                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
                         rttbl->Cementation, elem[i].chms_gw.t_conc[k],
                         nabr->chms_gw.t_conc[k],
                         0.5 * elem[i].soil.smcmax + 0.5 * nabr->soil.smcmax,
@@ -281,7 +281,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                     /* Unsaturated zone diffusion */
                     elem[i].chmf.fbr_unsatflux[j][k] =
-                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DiffCoe,
+                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
                         rttbl->Cementation, elem[i].chms_fbrunsat.t_conc[k],
                         nabr->chms_fbrunsat.t_conc[k],
                         0.5 * elem[i].geol.smcmax + 0.5 * nabr->geol.smcmax,
@@ -292,7 +292,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                     /* Groundwater advection, diffusion, and dispersion */
                     elem[i].chmf.fbrflow[j][k] =
-                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DiffCoe,
+                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
                         rttbl->Cementation, elem[i].chms_fbrgw.t_conc[k],
                         nabr->chms_fbrgw.t_conc[k],
                         0.5 * elem[i].geol.smcmax + 0.5 * nabr->geol.smcmax,
