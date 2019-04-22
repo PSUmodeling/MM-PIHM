@@ -101,6 +101,32 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
                 (elem[i].chms_gw.t_conc[k] > ZERO_CONC) ?
                 elem[i].chms_gw.t_conc[k] : ZERO_CONC;
         }
+
+# if defined(_FBR_)
+        vol_gw = MAX(GWStrg(elem[i].geol.depth, elem[i].geol.smcmax,
+            elem[i].geol.smcmin, elem[i].ws.fbr_gw), DEPTHR) *
+            elem[i].topo.area;
+        vol_unsat = MAX(UnsatWaterStrg(elem[i].geol.depth, elem[i].geol.smcmax,
+            elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat),
+            DEPTHR) * elem[i].topo.area;
+
+        for (k = 0; k < NumSpc; k++)
+        {
+            elem[i].chms_fbrunsat.t_mole[k] = MAX(y[FBRUNSAT_MOLE(i, k)], 0.0);
+            elem[i].chms_fbrgw.t_mole[k] = MAX(y[FBRGW_MOLE(i, k)], 0.0);
+
+            /* Calculate concentrations */
+            elem[i].chms_fbrunsat.t_conc[k] = (vol_unsat > 0.0) ?
+                elem[i].chms_fbrunsat.t_mole[k] / vol_unsat : 0.0;
+            elem[i].chms_fbrunsat.t_conc[k] =
+                MAX(elem[i].chms_fbrunsat.t_conc[k], ZERO_CONC);
+
+            elem[i].chms_fbrgw.t_conc[k] = (vol_gw > 0.0) ?
+                elem[i].chms_fbrgw.t_mole[k] / vol_gw : 0.0;
+            elem[i].chms_fbrgw.t_conc[k] =
+                MAX(elem[i].chms_fbrgw.t_conc[k], ZERO_CONC);
+        }
+# endif
 #endif
 
     }
