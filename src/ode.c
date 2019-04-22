@@ -257,15 +257,34 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[UNSAT_MOLE(i, k)] += elem->chmf.infil[k] - elem->chmf.rechg[k] +
                 elem->chmf.react_unsat[k];
             dy[GW_MOLE(i, k)] += elem->chmf.rechg[k] + elem->chmf.react_gw[k];
+# if defined(_FBR_)
+            dy[GW_MOLE(i, k)] -= elem->chmf.fbr_infil[k];
+
+            dy[FBRUNSAT_MOLE(i, k)] += elem->chmf.fbr_infil[k] -
+                elem->chmf.fbr_rechg[k] + elem->chmf.react_fbrunsat[k];
+            dy[FBRGW_MOLE(i, k)] +=
+                elem->chmf.fbr_rechg[k] + elem->chmf.react_fbrgw[k];
+# endif
 
             for (j = 0; j < NUM_EDGE; j++)
             {
                 dy[UNSAT_MOLE(i, k)] -= elem->chmf.unsatflux[j][k];
                 dy[GW_MOLE(i, k)] -= elem->chmf.subflux[j][k];
+# if defined(_FBR_)
+                dy[FBRUNSAT_MOLE(i, k)] -= elem->chmf.fbr_unsatflux[j][k];
+                dy[FBRGW_MOLE(i, k)] -= elem->chmf.fbrflow[j][k];
+# endif
             }
 
-            CheckDy(dy[UNSAT_MOLE(i, k)], "element", "unsat chem", i + 1, (double)t);
+            CheckDy(dy[UNSAT_MOLE(i, k)], "element", "unsat chem", i + 1,
+                (double)t);
             CheckDy(dy[GW_MOLE(i, k)], "element", "gw chem", i + 1, (double)t);
+# if defined(_FBR_)
+            CheckDy(dy[FBRUNSAT_MOLE(i, k)], "element", "fbr unsat chem", i + 1,
+                (double)t);
+            CheckDy(dy[FBRGW_MOLE(i, k)], "element", "fbr gw chem", i + 1,
+                (double)t);
+# endif
         }
 #endif
     }
