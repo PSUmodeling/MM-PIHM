@@ -20,6 +20,14 @@ void RTUpdate(const rttbl_struct *rttbl, elem_struct elem[],
 
             elem[i].chms_gw.log10_pconc[k] =
                 log10(elem[i].chms_gw.p_conc[k]);
+
+#if defined(_FBR_)
+            elem[i].chms_fbrunsat.log10_pconc[k] =
+                log10(elem[i].chms_fbrunsat.p_conc[k]);
+
+            elem[i].chms_fbrgw.log10_pconc[k] =
+                log10(elem[i].chms_fbrgw.p_conc[k]);
+#endif
         }
         for (k = 0; k < rttbl->NumSsc; k++)
         {
@@ -28,6 +36,14 @@ void RTUpdate(const rttbl_struct *rttbl, elem_struct elem[],
 
             elem[i].chms_gw.log10_sconc[k] =
                 log10(elem[i].chms_gw.s_conc[k]);
+
+#if defined(_FBR_)
+            elem[i].chms_fbrunsat.log10_sconc[k] =
+                log10(elem[i].chms_fbrunsat.s_conc[k]);
+
+            elem[i].chms_fbrgw.log10_sconc[k] =
+                log10(elem[i].chms_fbrgw.s_conc[k]);
+#endif
         }
     }
 
