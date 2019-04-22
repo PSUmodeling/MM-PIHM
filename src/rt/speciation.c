@@ -42,6 +42,12 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             _Speciation(chemtbl, rttbl, 0, &elem[i].chms_unsat);
 
             _Speciation(chemtbl, rttbl, 0, &elem[i].chms_gw);
+
+#if defined(_FBR_)
+            _Speciation(chemtbl, rttbl, 0, &elem[i].chms_fbrunsat);
+
+            _Speciation(chemtbl, rttbl, 0, &elem[i].chms_fbrgw);
+#endif
         }
     }
 }
