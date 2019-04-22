@@ -65,6 +65,57 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
                 elem[i].chms_unsat.p_conc[k] = elem[i].chms_gw.t_conc[k];
             }
         }
+
+#if defined(_FBR_)
+        vol_gw = MAX(GWStrg(elem[i].geol.depth, elem[i].geol.smcmax,
+            elem[i].geol.smcmin, elem[i].ws.fbr_gw), DEPTHR) *
+            elem[i].topo.area;
+        vol_unsat = MAX(UnsatWaterStrg(elem[i].geol.depth, elem[i].geol.smcmax,
+            elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat),
+            DEPTHR) * elem[i].topo.area;
+
+        satn = UnsatSatRatio(elem[i].geol.depth, elem[i].ws.fbr_unsat,
+            elem[i].ws.fbr_gw);
+
+        for (k = 0; k < NumSpc; k++)
+        {
+            elem[i].chmf.react_fbrunsat[k] = 0.0;
+            elem[i].chmf.react_fbrgw[k] = 0.0;
+        }
+
+        /*
+         * Fractured bedrock unsaturated zone
+         */
+        if (elem[i].ws.fbr_unsat > 1.0E-3 && satn > 1.0E-2)
+        {
+            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_unsat, satn,
+                &elem[i].chms_fbrunsat, elem[i].chmf.react_fbrunsat);
+        }
+
+        /*
+         * Bedrock groundwater
+         */
+        if (elem[i].ws.fbr_gw > 1.0E-3)
+        {
+            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0,
+                &elem[i].chms_fbrgw, elem[i].chmf.react_fbrgw);
+        }
+
+        /* Averaging mineral concentration to ensure mass conservation */
+        for (k = 0; k < rttbl->NumStc; k++)
+        {
+            if (chemtbl[k].itype == MINERAL)
+            {
+                elem[i].chms_fbrgw.t_conc[k] =
+                    (elem[i].chms_fbrgw.t_conc[k] * vol_gw +
+                    elem[i].chms_fbrunsat.t_conc[k] * vol_unsat) /
+                    (vol_gw + vol_unsat);
+                elem[i].chms_fbrunsat.t_conc[k] = elem[i].chms_fbrgw.t_conc[k];
+                elem[i].chms_fbrgw.p_conc[k] = elem[i].chms_fbrgw.t_conc[k];
+                elem[i].chms_fbrunsat.p_conc[k] = elem[i].chms_fbrgw.t_conc[k];
+            }
+        }
+#endif
     }
 }
 
