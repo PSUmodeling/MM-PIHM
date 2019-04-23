@@ -1,11 +1,20 @@
 #include "pihm.h"
 
+#if defined(_RT_)
+void ApplyBc(const rttbl_struct *rttbl, forc_struct *forc, elem_struct *elem,
+    river_struct *river, int t)
+#else
 void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *river, int t)
+#endif
 {
     /* Element boundary conditions */
     if (forc->nbc > 0)
     {
+#if defined(_RT_)
+        ApplyElemBc(rttbl, forc, elem, t);
+#else
         ApplyElemBc(forc, elem, t);
+#endif
     }
 
     /* River boundary condition */
@@ -45,7 +54,12 @@ void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
 }
 
+#if defined(_RT_)
+void ApplyElemBc(const rttbl_struct *rttbl, forc_struct *forc,
+    elem_struct *elem, int t)
+#else
 void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
+#endif
 {
     int             i, k;
 
@@ -54,7 +68,11 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 #endif
     for (k = 0; k < forc->nbc; k++)
     {
+#if defined(_RT_)
+        IntrplForc(&forc->bc[k], t, 1 + rttbl->NumStc, INTRPL);
+#else
         IntrplForc(&forc->bc[k], t, 1, INTRPL);
+#endif
     }
 
 #if defined(_OPENMP)
@@ -64,6 +82,9 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
     {
         int             ind;
         int             j;
+#if defined(_RT_)
+        int             k;
+#endif
 
         for (j = 0; j < NUM_EDGE; j++)
         {
@@ -71,23 +92,48 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
             {
                 ind = elem[i].attrib.bc_type[j] - 1;
                 elem[i].bc.head[j] = forc->bc[ind].value[0];
+#if defined(_RT_)
+                for (k = 0; k < rttbl->NumStc; k++)
+                {
+                    elem[i].bc.conc[j][k] = forc->bc[ind].value[k + 1];
+                }
+#endif
             }
             else if (elem[i].attrib.bc_type[j] < 0)
             {
                 ind = -elem[i].attrib.bc_type[j] - 1;
                 elem[i].bc.flux[j] = forc->bc[ind].value[0];
+#if defined(_RT_)
+                for (k = 0; k < rttbl->NumStc; k++)
+                {
+                    elem[i].bc.conc[j][k] = forc->bc[ind].value[k + 1];
+                }
+#endif
             }
+
 
 #if defined(_FBR_)
             if (elem[i].attrib.fbrbc_type[j] > 0)
             {
                 ind = elem[i].attrib.fbrbc_type[j] - 1;
                 elem[i].fbr_bc.head[j] = forc->bc[ind].value[0];
+# if defined(_RT_)
+                for (k = 0; k < rttbl->NumStc; k++)
+                {
+                    elem[i].fbr_bc.conc[j][k] = forc->bc[ind].value[k + 1];
+                }
+# endif
             }
             else if (elem[i].attrib.fbrbc_type[j] < 0)
             {
                 ind = -elem[i].attrib.fbrbc_type[j] - 1;
                 elem[i].fbr_bc.flux[j] = forc->bc[ind].value[0];
+# if defined(_RT_)
+                for (k = 0; k < rttbl->NumStc; k++)
+                {
+                    elem[i].fbr_bc.conc[j][k] = forc->bc[ind].value[k + 1];
+                }
+# endif
             }
 #endif
         }

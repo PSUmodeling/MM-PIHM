@@ -7,7 +7,11 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     t = pihm->ctrl.tout[pihm->ctrl.cstep];
 
     /* Apply boundary conditions */
+#if defined(_RT_)
+    ApplyBc(&pihm->rttbl, &pihm->forc, pihm->elem, pihm->river, t);
+#else
     ApplyBc(&pihm->forc, pihm->elem, pihm->river, t);
+#endif
 
     /*
      * Apply forcing and simulate land surface processes

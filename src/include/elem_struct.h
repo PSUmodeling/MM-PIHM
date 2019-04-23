@@ -731,7 +731,7 @@ typedef struct bc_struct
     double          flux[NUM_EDGE];    /* value of Neumann-type boundary
                                         * condition (m3 s-1) */
 #if defined(_RT_)
-    double          conc[MAXSPS];           /* value of chemical concentration
+    double          conc[NUM_EDGE][MAXSPS]; /* value of chemical concentration
                                              * boundary condition () */
 #endif
 } bc_struct;

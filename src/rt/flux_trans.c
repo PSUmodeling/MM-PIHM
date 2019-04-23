@@ -246,7 +246,8 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                         (elem[i].attrib.fbrbc_type[j] == 0) ?
                         0.0 : elem[i].wf.fbrflow[j] *
                         ((elem[i].wf.fbrflow[j] > 0.0) ?
-                        elem[i].chms_fbrgw.t_conc[k] : elem[i].fbr_bc.conc[k]);
+                        elem[i].chms_fbrgw.t_conc[k] :
+                        elem[i].fbr_bc.conc[j][k]);
                 }
                 else
                 {
