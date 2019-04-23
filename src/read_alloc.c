@@ -105,11 +105,6 @@ void ReadAlloc(pihm_struct pihm)
         &pihm->ctrl);
 #endif
 
-    /* Read boundary condition input file
-     * Boundary conditions might be needed by fbr thus should be read in after
-     * reading bedrock input */
-    ReadBc(pihm->filename.bc, &pihm->forc, &pihm->atttbl);
-
 #if defined(_NOAH_)
     /* Read LSM input file */
     ReadLsm(pihm->filename.lsm, &pihm->siteinfo, &pihm->ctrl, &pihm->noahtbl);
@@ -131,6 +126,16 @@ void ReadAlloc(pihm_struct pihm)
         ReadPrep(pihm->filename.prep, pihm->chemtbl, pihm->rttbl.prcp_conc,
             &pihm->forc);
     }
+#endif
+
+    /* Read boundary condition input file
+     * Boundary conditions might be needed by FBR and RT thus should be read in
+     * after reading bedrock and chemistry input */
+#if defined(_RT_)
+    ReadBc(pihm->filename.bc, &pihm->forc, &pihm->atttbl, &pihm->rttbl,
+        pihm->chemtbl);
+#else
+    ReadBc(pihm->filename.bc, &pihm->forc, &pihm->atttbl);
 #endif
 
 #if defined(_CYCLES_)

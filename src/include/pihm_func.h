@@ -92,8 +92,18 @@ void            _InitLc(elem_struct *, const lctbl_struct *,
     const calib_struct *);
 double          _WsAreaElev(int, const elem_struct *);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
+#if defined(_RT_)
+void            ApplyBc(const rttbl_struct *, forc_struct *, elem_struct *,
+    river_struct *, int);
+#else
 void            ApplyBc(forc_struct *, elem_struct *, river_struct *, int);
+#endif
+#if defined(_RT_)
+void            ApplyElemBc(const rttbl_struct *, forc_struct *, elem_struct *,
+    int);
+#else
 void            ApplyElemBc(forc_struct *, elem_struct *, int);
+#endif
 #if defined(_RT_)
 void            ApplyForc(forc_struct *, rttbl_struct *, elem_struct *, int,
     int, const siteinfo_struct *);
@@ -165,7 +175,12 @@ double          Infil(const wstate_struct *, const wstate_struct *,
     const wflux_struct *, const topo_struct *, const soil_struct *, double);
 void            InitEFlux(eflux_struct *);
 void            InitEState(estate_struct *);
+#if defined(_RT_)
+void            InitForc(elem_struct *, forc_struct *, const calib_struct *,
+    const rttbl_struct *);
+#else
 void            InitForc(elem_struct *, forc_struct *, const calib_struct *);
+#endif
 void            Initialize(pihm_struct, N_Vector, void **);
 void            InitLc(elem_struct *, const lctbl_struct *,
     const calib_struct *);
@@ -251,7 +266,12 @@ double          PtfThetas(double, double, double, double, int);
 double          Qtz(int);
 void            ReadAlloc(pihm_struct);
 void            ReadAtt(const char *, atttbl_struct *);
+#if defined(_RT_)
+void            ReadBc(const char *, forc_struct *, const atttbl_struct *,
+    const rttbl_struct *, const chemtbl_struct []);
+#else
 void            ReadBc(const char *, forc_struct *, const atttbl_struct *);
+#endif
 void            ReadCalib(const char *, calib_struct *);
 void            ReadForc(const char *, forc_struct *);
 void            ReadIc(const char *, elem_struct *, river_struct *);
