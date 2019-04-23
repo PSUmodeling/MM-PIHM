@@ -327,7 +327,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
 void wrap(char *str)
 {
     char            word[MAXSTRING];
-    
+
     sprintf(word, "'%s'", str);
     strcpy(str, word);
 }
@@ -860,7 +860,7 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
                         }
                     }
                 }
-                else if (strcmp(optstr, "num_inhibition"))
+                else if (strcmp(optstr, "num_inhibition") == 0)
                 {
                     /* Inhibition term */
                     sscanf(cmdstr, "%*s = %d", &kintbl->num_inhib);
