@@ -191,7 +191,8 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         while (strcmp(cmdstr, "End of mineral kinetics\r\n") != 0 &&
             strcmp(cmdstr, "End of mineral kinetics\n") != 0)
         {
-            ReadMinKin(database, rttbl->NumStc, cal->rate, &lno, cmdstr, chemtbl, &kintbl[i]);
+            ReadMinKin(database, rttbl->NumStc, cal->rate, &lno, cmdstr,
+                chemtbl, &kintbl[i]);
             NextLine(database, cmdstr, &lno);
         }
     }
@@ -717,7 +718,7 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
 {
     int             bytes_now;
     int             bytes_consumed = 0;
-    double          dep;
+    double          temp;
     char            chemn[MAXSTRING];
     char            optstr[MAXSTRING];
     char            label[MAXSTRING];
@@ -736,6 +737,10 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
                 " \n Mineral kinetics %s %s found in database!\n",
                 chemtbl[kintbl->position].ChemName, kintbl->Label);
 
+            /* For mineral kinetics, all species have the following lines:
+             *   label, type, rate(25C), and activation.
+             * Optional lines are:
+             *   dependence, monod_terms, inhibition, and biomass */
             /* Read type */
             NextLine(database, cmdstr, lno);
             sscanf(cmdstr, "%s = %s", optstr, label);
@@ -758,6 +763,13 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
                     kintbl->type = MONOD;
                 }
             }
+            else
+            {
+                PIHMprintf(VL_VERBOSE,
+                    "Error: Cannot find  mineral kinetics type in .cdbs "
+                    "near Line %d.\n");
+                PIHMexit(EXIT_FAILURE);
+            }
 
             /* Read rate */
             NextLine(database, cmdstr, lno);
@@ -771,6 +783,13 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
                     " After calibration: Rate is %f, cal->Rate = %f \n",
                     kintbl->rate, calval);
             }
+            else
+            {
+                PIHMprintf(VL_VERBOSE,
+                    "Error: Cannot find  mineral kinetics rate in .cdbs "
+                    "near Line %d.\n");
+                PIHMexit(EXIT_FAILURE);
+            }
 
             /* Read activation */
             NextLine(database, cmdstr, lno);
@@ -779,40 +798,54 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
             {
                 PIHMprintf(VL_VERBOSE, " Activation is %f\n", kintbl->actv);
             }
-
-            /* Read dependence
-             * Assume that all mineral kinetics only depend on one species*/
-            NextLine(database, cmdstr, lno);
-            if (sscanf(cmdstr, "%s : %s %lf", optstr, chemn, &dep) == 3)
-            {
-                if (strcmp(optstr, "dependence") == 0)
-                {
-                    wrap(chemn);
-                    kintbl->dep_position[0] =
-                        FindChem(chemn, chemtbl, NumStc);
-                    kintbl->num_dep = 1;
-                    kintbl->dep_power[0] = dep;
-                    PIHMprintf(VL_VERBOSE, " Dependency: %s %f\n",
-                        chemn, kintbl->dep_power[0]);
-                }
-            }
             else
             {
-                if (strcmp(optstr, "dependence") == 0)
-                {
-                    kintbl->dep_position[0] = -1;
-                    kintbl->num_dep = 0;
-                    kintbl->dep_power[0] = 0.0;
-                    PIHMprintf(VL_VERBOSE, " No dependency.\n");
-                }
+                PIHMprintf(VL_VERBOSE,
+                    "Error: Cannot find  mineral kinetics activation in .cdbs "
+                    "near Line %d.\n");
+                PIHMexit(EXIT_FAILURE);
             }
+
+            kintbl->num_dep = 0;
+            kintbl->num_monod = 0;
+            kintbl->num_inhib = 0;
 
             NextLine(database, cmdstr, lno);
             while (cmdstr[0] != '+')
             {
-                sscanf(cmdstr, "%s", optstr);
+                bytes_consumed = 0;
 
-                if (strcmp(optstr, "biomass") == 0)
+                sscanf(cmdstr, "%s :%n", optstr, &bytes_now);
+                bytes_consumed += bytes_now;
+
+                if (strcmp(optstr, "dependence") == 0)
+                {
+                    /* Read dependence
+                     * Assume that all mineral kinetics only depend on one
+                     * species*/
+                    if (sscanf(cmdstr + bytes_consumed, "%s %lf",
+                        chemn, &temp) == 2)
+                    {
+                        wrap(chemn);
+                        kintbl->dep_position[0] =
+                            FindChem(chemn, chemtbl, NumStc);
+                        if (kintbl->dep_position[0] < 0)
+                        {
+                            PIHMprintf(VL_ERROR,
+                                "Error finding dependence in species table.\n");
+                            PIHMexit(EXIT_FAILURE);
+                        }
+                        kintbl->num_dep = 1;
+                        kintbl->dep_power[0] = temp;
+                        PIHMprintf(VL_VERBOSE, " Dependency: %s %f\n",
+                            chemn, kintbl->dep_power[0]);
+                    }
+                    else
+                    {
+                        PIHMprintf(VL_VERBOSE, " No dependency.\n");
+                    }
+                }
+                else if (strcmp(optstr, "biomass") == 0)
                 {
                     /* Biomass term */
                     sscanf(cmdstr, "%*s : %s", chemn);
@@ -825,75 +858,54 @@ void ReadMinKin(FILE *database, int NumStc, double calval, int *lno,
                         " Biomass species position: %d \n",
                         kintbl->biomass_position);
                 }
-                else if (strcmp(optstr, "num_monod") == 0)
+                else if (strcmp(optstr, "monod_terms") == 0)
                 {
                     /* Monod term */
-                    sscanf(cmdstr, "%*s = %d", &kintbl->num_monod);
-                    PIHMprintf(VL_VERBOSE,
-                        " Number of monod term: %d\n", kintbl->num_monod);
-                    if (kintbl->num_monod > 0)
+                    while (sscanf(cmdstr + bytes_consumed, "%s %lf%n",
+                        chemn, &temp, &bytes_now) == 2)
                     {
-                        int             mn;
-
-                        NextLine(database, cmdstr, lno);
-                        sscanf(cmdstr, "%*s : %n", &bytes_now);
                         bytes_consumed += bytes_now;
 
-                        for (mn = 0; mn < kintbl->num_monod; mn++)
+                        wrap(chemn);
+                        kintbl->monod_position[kintbl->num_monod] =
+                            FindChem(chemn, chemtbl, NumStc);
+                        if (kintbl->monod_position[kintbl->num_monod] < 0)
                         {
-                            sscanf(cmdstr + bytes_consumed, "%s %lf",
-                                chemn, &kintbl->monod_para[mn]);
-                            wrap(chemn);
-                            kintbl->monod_position[mn] =
-                                FindChem(chemn, chemtbl, NumStc);
-                            if (kintbl->monod_position[mn] < 0)
-                            {
-                                PIHMprintf(VL_ERROR,
-                                    "Error finding monod_terms in species "
-                                    "table.\n");
-                                PIHMexit(EXIT_FAILURE);
-                            }
-                            PIHMprintf(VL_VERBOSE,
-                                " Monod term: %s %f\n",
-                                chemtbl[kintbl->monod_position[mn]].ChemName,
-                                kintbl->monod_para[mn]);
+                            PIHMprintf(VL_ERROR,
+                                "Error finding monod_terms in species "
+                                "table.\n");
+                            PIHMexit(EXIT_FAILURE);
                         }
+                        kintbl->monod_para[kintbl->num_monod] = temp;
+                        PIHMprintf(VL_VERBOSE,
+                            " Monod term: %s %f\n",
+                            chemn, kintbl->monod_para[kintbl->num_monod]);
+                        kintbl->num_monod++;
                     }
                 }
-                else if (strcmp(optstr, "num_inhibition") == 0)
+                else if (strcmp(optstr, "inhibition") == 0)
                 {
                     /* Inhibition term */
-                    sscanf(cmdstr, "%*s = %d", &kintbl->num_inhib);
-                    PIHMprintf(VL_VERBOSE,
-                        " Number of inhibition term: %d\n", kintbl->num_inhib);
-
-                    if (kintbl->num_inhib > 0)
+                    while (sscanf(cmdstr + bytes_consumed, "%s %lf%n",
+                        chemn, &temp, &bytes_now) == 2)
                     {
-                        int             in;
-
-                        NextLine(database, cmdstr, lno);
-                        sscanf(cmdstr, "%*s : %n", &bytes_now);
                         bytes_consumed += bytes_now;
 
-                        for (in = 0; in < kintbl->num_inhib; in++)
+                        wrap(chemn);
+                        kintbl->inhib_position[kintbl->num_inhib] =
+                            FindChem(chemn, chemtbl, NumStc);
+                        if (kintbl->inhib_position[kintbl->num_inhib] < 0)
                         {
-                            sscanf(cmdstr + bytes_consumed, "%s %lf",
-                                chemn, &kintbl->inhib_para[in]);
-                            wrap(chemn);
-                            kintbl->inhib_position[in] =
-                                FindChem(chemn, chemtbl, NumStc);
-                            if (kintbl->inhib_position[in] < 0)
-                            {
-                                PIHMprintf(VL_ERROR,
-                                    "Error finding inhibition term in "
-                                    "species table.\n");
-                                PIHMexit(EXIT_FAILURE);
-                            }
-                            PIHMprintf(VL_VERBOSE,
-                                " Inhibition term: %s %f\n",
-                                chemtbl[kintbl->inhib_position[in]].ChemName,
-                                kintbl->inhib_para[in]);
+                            PIHMprintf(VL_ERROR,
+                                "Error finding inhibition term in "
+                                "species table.\n");
+                            PIHMexit(EXIT_FAILURE);
                         }
+                        kintbl->inhib_para[kintbl->num_inhib] = temp;
+                        PIHMprintf(VL_VERBOSE,
+                            " Inhibition term: %s %f\n",
+                            chemn, kintbl->inhib_para[kintbl->num_inhib]);
+                        kintbl->num_inhib++;
                     }
                 }
 
