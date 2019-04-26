@@ -60,7 +60,6 @@ void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
     {
         double          vol_gw;
         double          vol_unsat;
-        int             k;
 
         vol_gw = MAX(GWStrg(elem[i].soil.depth, elem[i].soil.smcmax,
             elem[i].soil.smcmin, elem[i].ws.gw), DEPTHR) *

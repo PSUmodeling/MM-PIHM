@@ -60,6 +60,14 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         }
         pihm->elem[i].attrib.meteo_type = pihm->atttbl.meteo[i];
         pihm->elem[i].attrib.lai_type = pihm->atttbl.lai[i];
+
+#if defined(_RT_)
+        pihm->elem[i].attrib.prcpc_type = pihm->atttbl.prcpc[i];
+        for (j = 0; j < 4; j++)
+        {
+            pihm->elem[i].attrib.chem_ic_type[j] = pihm->atttbl.chem_ic[i][j];
+        }
+#endif
     }
 
 #if defined(_LUMPED_)

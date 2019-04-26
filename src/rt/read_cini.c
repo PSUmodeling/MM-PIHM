@@ -7,21 +7,15 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
     int             i, k;
     char            cmdstr[MAXSTRING];
     char            temp_str[MAXSTRING];
-    int             match;
-    int             elem_ind;
     int             nic;
     int             ind;
     int             lno = 0;
-    int           **ic_ind;
     int             convert = 0;
     const int       UNSAT_IND = 0;
     const int       GW_IND = 1;
 #if defined(_FBR_)
-    const int       NVOL = 4;
     const int       FBRUNSAT_IND = 2;
     const int       FBRGW_IND = 3;
-#else
-    const int       NVOL = 2;
 #endif
     double        **conc;
     double        **ssa;
@@ -29,30 +23,6 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
     fp = fopen(filen, "r");
     CheckFile(fp, filen);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
-
-    FindLine(fp, "ELEM", &lno, filen);
-
-    ic_ind = (int **)malloc(nelem * sizeof(int *));
-
-    for (i = 0; i < nelem; i++)
-    {
-        ic_ind[i] = (int *)malloc(NVOL * sizeof(int));
-
-        NextLine(fp, cmdstr, &lno);
-#if defined(_FBR_)
-        match = sscanf(cmdstr, "%d %d %d %d %d",
-            &elem_ind, &ic_ind[i][UNSAT_IND], &ic_ind[i][GW_IND],
-                &ic_ind[i][FBRUNSAT_IND], &ic_ind[i][FBRGW_IND]);
-#else
-        match = sscanf(cmdstr, "%d %d %d",
-            &elem_ind, &ic_ind[i][UNSAT_IND], &ic_ind[i][GW_IND]);
-#endif
-        if (match != NVOL + 1 || elem_ind != i + 1)
-        {
-            PIHMprintf(VL_ERROR, "Error reading %s at Line %d.\n", filen, lno);
-            PIHMexit(EXIT_FAILURE);
-        }
-    }
 
     nic = CountOccurr(fp, "CONDITION");
     FindLine(fp, "BOF", &lno, filen);
@@ -126,24 +96,25 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
         for (k = 0; k < NumStc; k++)
         {
             elem[i].restart_input.tconc_unsat[k] =
-                conc[ic_ind[i][UNSAT_IND] - 1][k];
-            elem[i].restart_input.tconc_gw[k] = conc[ic_ind[i][GW_IND] - 1][k];
+                conc[elem[i].attrib.chem_ic_type[UNSAT_IND] - 1][k];
+            elem[i].restart_input.tconc_gw[k] =
+                conc[elem[i].attrib.chem_ic_type[GW_IND] - 1][k];
 
             elem[i].restart_input.ssa_unsat[k] =
-                ssa[ic_ind[i][UNSAT_IND] - 1][k];
+                ssa[elem[i].attrib.chem_ic_type[UNSAT_IND] - 1][k];
             elem[i].restart_input.ssa_gw[k] =
-                ssa[ic_ind[i][GW_IND] - 1][k];
+                ssa[elem[i].attrib.chem_ic_type[GW_IND] - 1][k];
 
 #if defined(_FBR_)
             elem[i].restart_input.tconc_fbrunsat[k] =
-                conc[ic_ind[i][FBRUNSAT_IND] - 1][k];
+                conc[elem[i].attrib.chem_ic_type[FBRUNSAT_IND] - 1][k];
             elem[i].restart_input.tconc_fbrgw[k] =
-                conc[ic_ind[i][FBRGW_IND] - 1][k];
+                conc[elem[i].attrib.chem_ic_type[FBRGW_IND] - 1][k];
 
             elem[i].restart_input.ssa_fbrunsat[k] =
-                ssa[ic_ind[i][FBRUNSAT_IND] - 1][k];
+                ssa[elem[i].attrib.chem_ic_type[FBRUNSAT_IND] - 1][k];
             elem[i].restart_input.ssa_fbrgw[k] =
-                ssa[ic_ind[i][FBRGW_IND] - 1][k];
+                ssa[elem[i].attrib.chem_ic_type[FBRGW_IND] - 1][k];
 #endif
         }
     }
@@ -154,13 +125,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
         free(ssa[i]);
     }
 
-    for (i = 0; i < nelem; i++)
-    {
-        free(ic_ind[i]);
-    }
-
     fclose(fp);
     free(conc);
     free(ssa);
-    free(ic_ind);
 }

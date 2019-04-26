@@ -22,6 +22,12 @@ typedef struct attrib_struct
 #if defined(_CYCLES_)
     int             op_type;
 #endif
+#if defined(_RT_)
+    int             prcpc_type;             /* element precipitation
+                                             * concentration type */
+    int             chem_ic_type[4];        /* element chemical concentration
+                                             * type */
+#endif
 } attrib_struct;
 
 /* Topography parameters */
