@@ -453,7 +453,7 @@ int SpeciesType(FILE *database, const char *chemn)
      * 3) cation exchange
      * 4) mineral
      */
-    int             i, return_val;
+    int             return_val;
     char            tempn[MAXSTRING];
     char            cmdstr[MAXSTRING];
     int             lno = 0;

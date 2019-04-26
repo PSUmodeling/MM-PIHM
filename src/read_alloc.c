@@ -52,6 +52,7 @@ void ReadAlloc(pihm_struct pihm)
 #endif
 #if defined(_RT_)
     sprintf(pihm->filename.chem,     "input/%s/%s.chem",     proj, proj);
+    sprintf(pihm->filename.chmatt,   "input/%s/%s.chmatt",   proj, proj);
     sprintf(pihm->filename.cini,     "input/%s/%s.cini",     proj, proj);
     sprintf(pihm->filename.cdbs,     "input/%s/%s.cdbs",     proj, proj);
     sprintf(pihm->filename.prep,     "input/%s/%s.prep",     proj, proj);
@@ -120,6 +121,8 @@ void ReadAlloc(pihm_struct pihm)
     /* Read RT input file */
     ReadChem(pihm->filename.chem, pihm->filename.cdbs, pihm->chemtbl,
         pihm->kintbl, &pihm->rttbl, &pihm->forc, &pihm->ctrl);
+
+    ReadChemAtt(pihm->filename.chmatt, &pihm->atttbl);
 
     if (pihm->forc.PrpFlg == 2)
     {

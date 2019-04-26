@@ -43,11 +43,12 @@ typedef struct filename_struct
                                              * name */
 #endif
 #if defined(_RT_)
-    char            cdbs[MAXSTRING];        /* RT database file name */
-    char            chem[MAXSTRING];        /* RT module chemistry control file
-                                             * name */
-    char            cini[MAXSTRING];        /* RT module cini file */
-    char            prep[MAXSTRING];
+    char            cdbs[MAXSTRING];        /* chemistry database file name */
+    char            chem[MAXSTRING];        /* chemistry control file name */
+    char            chmatt[MAXSTRING];      /* chemistry attribute file name */
+    char            cini[MAXSTRING];        /* cini file */
+    char            prep[MAXSTRING];        /* precipitation concentration time
+                                             * series file name */
 #endif
 } filename_struct;
 
@@ -120,6 +121,12 @@ typedef struct atttbl_struct
                                 * 0: use climatological values;
                                 * else: use forcing file */
     int            *source;    /* element source forcing type */
+#if defined(_RT_)
+    int            *prcpc;                  /* element precipitation
+                                             * concentration type */
+    int           **chem_ic;                /* element chemical concentration
+                                             * type */
+#endif
 } atttbl_struct;
 
 /* Soil parameter */
