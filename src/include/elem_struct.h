@@ -1570,6 +1570,11 @@ typedef struct rtic_struct
 #endif
 } rtic_struct;
 
+typedef struct prcpstate_struct
+{
+    double          t_conc[MAXSPS];         /* concentration (M kg-1 water) */
+} prcpstate_struct;
+
 typedef struct chmstate_struct
 {
     double          t_conc[MAXSPS];         /* concentration (M kg-1 water) */
@@ -1680,6 +1685,7 @@ typedef struct elem_struct
 #endif
 #if defined(_RT_)
     rtic_struct     restart_input;
+    prcpstate_struct prcps;
     chmstate_struct chms_unsat;
     chmstate_struct chms_gw;
 # if defined(_FBR_)

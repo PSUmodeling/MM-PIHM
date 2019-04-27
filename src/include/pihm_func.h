@@ -748,7 +748,8 @@ void            ReadPrep(const char[], const chemtbl_struct [], const double [],
 void            ReadCini(const char[], const chemtbl_struct *, int,
     const calib_struct *, elem_struct []);
 int             ParseLocation(const char [], const char [], int);
-void            ApplyPrcpConc(forc_struct *, rttbl_struct *, int);
+void            ApplyPrcpConc(const  rttbl_struct *, forc_struct *,
+    elem_struct [], int);
 void            wrap(char *);
 double          GWStrg(double, double, double, double);
 double          UnsatWaterStrg(double, double, double, double, double);

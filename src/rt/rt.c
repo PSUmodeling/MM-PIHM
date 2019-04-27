@@ -10,7 +10,7 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
     forc_struct *forc, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
     rttbl_struct *rttbl)
 {
-    int             i;
+    int             i, j;
     int             chem_ind;
     FILE           *fp;
 
@@ -22,6 +22,7 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
      * chemical species
      */
     Lookup(fp, cal, chemtbl, kintbl, rttbl);
+    fclose(fp);
 
     /*
      * Apply calibration
@@ -36,14 +37,15 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
 
         if (forc->PrpFlg == 2)
         {
-            for (i = 0; i < forc->TSD_prepconc.length; i++)
+            for (i = 0; i < forc->nprcpc; i++)
             {
-                forc->TSD_prepconc.data[i][chem_ind] *= cal->prcpconc;
+                for (j = 0; j < forc->prcpc[i].length; j++)
+                {
+                    forc->prcpc[i].data[j][chem_ind] *= cal->prcpconc;
+                }
             }
         }
     }
-
-    fclose(fp);
 }
 
 void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
