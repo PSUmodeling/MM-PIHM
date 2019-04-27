@@ -264,7 +264,9 @@ typedef struct forc_struct
 #if defined(_RT_)
     int             PrpFlg;                 /* flag that indicates how
                                              * precipitation is specified */
-    tsdata_struct   TSD_prepconc; /* concentration in precipitation */
+    int             nprcpc;                 /* number of precipitation
+                                             * concentration time series */
+    tsdata_struct  *prcpc;                  /* concentration in precipitation */
 #endif
 } forc_struct;
 

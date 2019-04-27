@@ -50,7 +50,7 @@ void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
 
 #if defined(_RT_)
     /* Precipitation concentration */
-    ApplyPrcpConc(forc, rttbl, t);
+    ApplyPrcpConc(rttbl, forc, elem, t);
 #endif
 }
 
@@ -311,33 +311,65 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 }
 
 #if defined(_RT_)
-void ApplyPrcpConc(forc_struct *forc, rttbl_struct *rttbl, int t)
+void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
+    elem_struct elem[], int t)
 {
-    int             i;
+    int             i, j;
 
     if (forc->PrpFlg == 2)
     {
-        IntrplForc(&forc->TSD_prepconc, t, NumSpc, NO_INTRPL);
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+        for (j = 0; j < forc->nprcpc; j++)
+        {
+            IntrplForc(&forc->prcpc[j], t, NumSpc, NO_INTRPL);
+        }
 
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-        for (i = 0; i < NumSpc; i++)
+        for (i = 0; i < nelem; i++)
         {
-            if (rttbl->prcp_conc[i] != forc->TSD_prepconc.value[i])
+            int             k;
+            int             ind;
+
+            ind = elem[i].attrib.prcpc_type - 1;
+
+            for (k = 0; k < NumSpc; k++)
             {
-                rttbl->prcp_conc[i] = forc->TSD_prepconc.value[i];
-                PIHMprintf(VL_VERBOSE,
-                    "  Species %d in precipitation is changed to %6.4g\n",
-                    i + 1, rttbl->prcp_conc[i]);
+                elem[i].prcps.t_conc[k] = forc->prcpc[ind].value[k];
+            }
+        }
+    }
+    else if (forc->PrpFlg == 1)
+    {
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+        for (i = 0; i < nelem; i++)
+        {
+            int             k;
+
+            for (k = 0; k < NumSpc; k++)
+            {
+                elem[i].prcps.t_conc[k] = rttbl->prcp_conc[k];
             }
         }
     }
     else if (forc->PrpFlg == 0)
     {
-        for (i = 0; i < NumSpc; i++)
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+        for (i = 0; i < nelem; i++)
         {
-            rttbl->prcp_conc[i] = 0.0;
+            int             k;
+
+            for (k = 0; k < NumSpc; k++)
+            {
+                elem[i].prcps.t_conc[k] = 0.0;
+            }
         }
     }
 }

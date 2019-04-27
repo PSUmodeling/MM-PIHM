@@ -301,13 +301,16 @@ void FreeForc(forc_struct *forc)
 #if defined(_RT_)
     if (forc->PrpFlg == 2)
     {
-        for (j = 0; j < forc->TSD_prepconc.length; j++)
+        for (i = 0; i < forc->nprcpc; i++)
         {
-            free(forc->TSD_prepconc.data[j]);
+            for (j = 0; j < forc->prcpc[i].length; j++)
+            {
+                free(forc->prcpc[i].data[j]);
+            }
+            free(forc->prcpc[i].ftime);
+            free(forc->prcpc[i].data);
+            free(forc->prcpc[i].value);
         }
-        free(forc->TSD_prepconc.ftime);
-        free(forc->TSD_prepconc.data);
-        free(forc->TSD_prepconc.value);
     }
 #endif
 }

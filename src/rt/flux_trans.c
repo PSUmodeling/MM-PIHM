@@ -168,7 +168,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             /* Infiltration */
             elem[i].chmf.infil[k] = elem[i].wf.infil * elem[i].topo.area *
                 ((elem[i].wf.infil > 0.0) ?
-                rttbl->prcp_conc[k] * rttbl->Condensation : 0.0);
+                elem[i].prcps.t_conc[k] * rttbl->Condensation : 0.0);
 
             /* Interface between unsaturated zone and groundwater */
             elem[i].chmf.rechg[k] = AdvDiffDisp(chemtbl[k].DiffCoe,
@@ -357,7 +357,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     river[i].wf.rivflow[LEFT_SURF2CHANL] *
                     ((river[i].wf.rivflow[LEFT_SURF2CHANL] > 0.0) ?
                     river[i].chms_stream.t_conc[k] :
-                    rttbl->prcp_conc[k] * rttbl->Condensation);
+                    elem[i].prcps.t_conc[k] * rttbl->Condensation);
 
                 river[i].chmf.flux[LEFT_AQUIF2CHANL][k] =
                     river[i].wf.rivflow[LEFT_AQUIF2CHANL] *
@@ -390,7 +390,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     river[i].wf.rivflow[RIGHT_SURF2CHANL] *
                     ((river[i].wf.rivflow[RIGHT_SURF2CHANL] > 0.0) ?
                     river[i].chms_stream.t_conc[k] :
-                    rttbl->prcp_conc[k] * rttbl->Condensation);
+                    elem[i].prcps.t_conc[k] * rttbl->Condensation);
 
                 river[i].chmf.flux[RIGHT_AQUIF2CHANL][k] =
                     river[i].wf.rivflow[RIGHT_AQUIF2CHANL] *

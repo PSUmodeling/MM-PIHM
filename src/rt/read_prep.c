@@ -5,11 +5,13 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
 {
     FILE           *fp;
     int             lno = 0;
-    int             i;
+    int             i, j;
+    int             match;
     int             bytes_now;
     int             bytes_consumed = 0;
     int             index[MAXSPS];
-    int             nsps;
+    int             tsind;
+    int            *nsps;
     double          temp_conc[MAXSPS];
     char            cmdstr[MAXSTRING];
 
@@ -17,86 +19,117 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
     CheckFile(fp, filen);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
 
-    /* Currently, only one precipitation concentration time series is
-     * supported */
-    NextLine(fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "PCONC", &nsps, 'i', filen, lno);
-
-    NextLine(fp, cmdstr, &lno);
-    for (i = 0; i < nsps; i++)
-    {
-        if (sscanf(cmdstr + bytes_consumed, "%d%n", &index[i], &bytes_now) != 1)
-        {
-            PIHMprintf(VL_ERROR,
-                "Error reading precipitation conc. in %s near Line %d.\n",
-                filen, lno);
-            PIHMexit(EXIT_FAILURE);
-        }
-        bytes_consumed += bytes_now;
-
-        if (index[i] > 0)
-        {
-            if (index[i] <= NumSpc)
-            {
-                PIHMprintf(VL_VERBOSE,
-                    "  Precipitation concentration of '%s' is a time series.\n",
-                    chemtbl[index[i] - 1].ChemName);
-            }
-            else
-            {
-                PIHMprintf(VL_VERBOSE,
-                    "Error: Precipitation species index is larger than "
-                    "number of primary species.\n");
-                PIHMexit(EXIT_FAILURE);
-            }
-        }
-    }
-
-    forc->TSD_prepconc.length = CountLine(fp, cmdstr, 1, "PCONC");
-
-    forc->TSD_prepconc.ftime =
-        (int *)malloc((forc->TSD_prepconc.length) * sizeof(int));
-    forc->TSD_prepconc.data =
-        (double **)malloc((forc->TSD_prepconc.length) * sizeof(double *));
-    forc->TSD_prepconc.value =
-        (double *)malloc(NumSpc * sizeof(double));
+    forc->nprcpc = CountOccurr(fp, "PRCP_CONC_TS");
 
     FindLine(fp, "BOF", &lno, filen);
-    NextLine(fp, cmdstr, &lno);
-    NextLine(fp, cmdstr, &lno);
 
-    for (i = 0; i < forc->TSD_prepconc.length; i++)
+    if (forc->nprcpc > 0)
     {
-        int             k, kk;
-
-        forc->TSD_prepconc.data[i] =
-            (double *)malloc(NumSpc * sizeof(double));
+        forc->prcpc =
+            (tsdata_struct *)malloc(forc->nprcpc * sizeof(tsdata_struct));
+        nsps = (int *)malloc(forc->nprcpc * sizeof(int));
 
         NextLine(fp, cmdstr, &lno);
-        ReadTS(cmdstr, &forc->TSD_prepconc.ftime[i], temp_conc, nsps);
-
-        for (k = 0; k < NumSpc; k++)
+        for (i = 0; i < forc->nprcpc; i++)
         {
-            /* Species not described in the forcing file will be filled with
-             * the concentrations in .chem file */
-            forc->TSD_prepconc.data[i][k] = prcp_conc[k];
-
-            for (kk = 0; kk < nsps; kk++)
+            match = sscanf(cmdstr, "%*s %d %*s %d", &tsind, &nsps[i]);
+            if (match != 2 || i != tsind - 1)
             {
-                if (index[kk] - 1 == k)
+                PIHMprintf(VL_ERROR,
+                    "Error reading the %dth precipitation concentration"
+                    " time series.\n", i + 1);
+                PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                    filen, lno);
+                PIHMexit(EXIT_FAILURE);
+            }
+            /* Skip header lines */
+            NextLine(fp, cmdstr, &lno);
+            forc->prcpc[i].length =
+                CountLine(fp, cmdstr, 1, "PRCP_CONC_TS");
+        }
+
+        /* Rewind and read */
+        FindLine(fp, "BOF", &lno, filen);
+        for (i = 0; i < forc->nprcpc; i++)
+        {
+            /* Skip header lines */
+            NextLine(fp, cmdstr, &lno);
+
+            NextLine(fp, cmdstr, &lno);
+            bytes_consumed = 0;
+            for (j = 0; j < nsps[i]; j++)
+            {
+                if (sscanf(cmdstr + bytes_consumed, "%d%n", &index[j],
+                    &bytes_now) != 1)
                 {
-                    if (strcmp(chemtbl[k].ChemName, "pH") == 0)
+                    PIHMprintf(VL_ERROR,
+                        "Error reading precipitation conc. "
+                        "in %s near Line %d.\n", filen, lno);
+                    PIHMexit(EXIT_FAILURE);
+                }
+                bytes_consumed += bytes_now;
+
+                if (index[j] > 0)
+                {
+                    if (index[j] <= NumSpc)
                     {
-                        /* Convert pH to H+ concentration */
-                        forc->TSD_prepconc.data[i][k] = (temp_conc[kk] < 7.0) ?
-                            pow(10, -temp_conc[kk]) :
-                            -pow(10, -temp_conc[kk] - 14);
+                        PIHMprintf(VL_VERBOSE,
+                            "  Precipitation concentration of '%s' "
+                            "is a time series.\n",
+                            chemtbl[index[j] - 1].ChemName);
                     }
                     else
                     {
-                        forc->TSD_prepconc.data[i][k] = temp_conc[kk];
+                        PIHMprintf(VL_VERBOSE,
+                            "Error: Precipitation species index is larger "
+                            "than number of primary species.\n");
+                        PIHMexit(EXIT_FAILURE);
                     }
-                    break;
+                }
+            }
+
+            forc->prcpc[i].ftime =
+                (int *)malloc((forc->prcpc[i].length) * sizeof(int));
+            forc->prcpc[i].data =
+                (double **)malloc((forc->prcpc[i].length) * sizeof(double *));
+            forc->prcpc[i].value =
+                (double *)malloc(NumSpc * sizeof(double));
+
+            for (j = 0; j < forc->prcpc[i].length; j++)
+            {
+                int             k, kk;
+
+                forc->prcpc[i].data[j] =
+                    (double *)malloc(NumSpc * sizeof(double));
+
+                NextLine(fp, cmdstr, &lno);
+                ReadTS(cmdstr, &forc->prcpc[i].ftime[j], temp_conc, nsps[i]);
+
+                for (k = 0; k < NumSpc; k++)
+                {
+                    /* Species not described in the forcing file will be filled
+                     * with the concentrations in .chem file */
+                    forc->prcpc[i].data[j][k] = prcp_conc[k];
+
+                    for (kk = 0; kk < nsps[i]; kk++)
+                    {
+                        if (index[kk] - 1 == k)
+                        {
+                            if (strcmp(chemtbl[k].ChemName, "pH") == 0)
+                            {
+                                /* Convert pH to H+ concentration */
+                                forc->prcpc[i].data[j][k] =
+                                    (temp_conc[kk] < 7.0) ?
+                                    pow(10, -temp_conc[kk]) :
+                                    -pow(10, -temp_conc[kk] - 14);
+                            }
+                            else
+                            {
+                                forc->prcpc[i].data[j][k] = temp_conc[kk];
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }
