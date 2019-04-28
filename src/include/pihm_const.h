@@ -386,6 +386,7 @@
 #define FBRINFIL_CTRL           82
 #define FBRRECHG_CTRL           83
 #define FBRFLOW_CTRL            84
+#define CHEM_CTRL               85
 
 #if defined(_CYCLES_)
 #define MAXCROP     100
