@@ -958,7 +958,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &elem[j].chms_unsat.log10_pconc[k];
+            print->varctrl[n].var[j] = &elem[j].chms_unsat.p_conc[k];
         }
         n++;
 
@@ -968,7 +968,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &elem[j].chms_gw.log10_pconc[k];
+            print->varctrl[n].var[j] = &elem[j].chms_gw.p_conc[k];
         }
         n++;
 
@@ -979,7 +979,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &elem[j].chms_fbrunsat.log10_pconc[k];
+            print->varctrl[n].var[j] = &elem[j].chms_fbrunsat.p_conc[k];
         }
         n++;
 
@@ -989,7 +989,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &elem[j].chms_fbrgw.log10_pconc[k];
+            print->varctrl[n].var[j] = &elem[j].chms_fbrgw.p_conc[k];
         }
         n++;
 # endif
@@ -1000,7 +1000,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nriver; j++)
         {
-            print->varctrl[n].var[j] = &river[j].chms_stream.log10_pconc[k];
+            print->varctrl[n].var[j] = &river[j].chms_stream.p_conc[k];
         }
         n++;
     }
@@ -1016,7 +1016,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &elem[j].chms_unsat.log10_sconc[k];
+            print->varctrl[n].var[j] = &elem[j].chms_unsat.s_conc[k];
         }
         n++;
 
@@ -1026,7 +1026,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &elem[j].chms_gw.log10_sconc[k];
+            print->varctrl[n].var[j] = &elem[j].chms_gw.s_conc[k];
         }
         n++;
 
@@ -1037,7 +1037,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &elem[j].chms_fbrunsat.log10_sconc[k];
+            print->varctrl[n].var[j] = &elem[j].chms_fbrunsat.s_conc[k];
         }
         n++;
 
@@ -1047,7 +1047,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nelem; j++)
         {
-            print->varctrl[n].var[j] = &elem[j].chms_fbrgw.log10_sconc[k];
+            print->varctrl[n].var[j] = &elem[j].chms_fbrgw.s_conc[k];
         }
         n++;
 # endif
@@ -1061,7 +1061,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
             &print->varctrl[n]);
         for (j = 0; j < nriver; j++)
         {
-            print->varctrl[n].var[j] = &river[j].chms_stream.log10_sconc[k];
+            print->varctrl[n].var[j] = &river[j].chms_stream.s_conc[k];
         }
         n++;
     }
@@ -1101,15 +1101,15 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
         {
             if (rttbl->BTC_loc[j] < 0)
             {
-                print->varctrl[n].var[k] = &river[-rttbl->BTC_loc[j] - 1].chms_stream.log10_sconc[k - rttbl->NumStc];
+                print->varctrl[n].var[k] = &river[-rttbl->BTC_loc[j] - 1].chms_stream.s_conc[k - rttbl->NumStc];
             }
             else if (rttbl->BTC_loc[j] < nelem)
             {
-                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - 1].chms_unsat.log10_sconc[k - rttbl->NumStc];
+                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - 1].chms_unsat.s_conc[k - rttbl->NumStc];
             }
             else
             {
-                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - nelem - 1].chms_gw.log10_sconc[k - rttbl->NumStc];
+                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - nelem - 1].chms_gw.s_conc[k - rttbl->NumStc];
             }
         }
         n++;

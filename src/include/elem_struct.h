@@ -1585,8 +1585,6 @@ typedef struct chmstate_struct
     double          p_actv[MAXSPS];         /* activity of primary species */
     double          ssa[MAXSPS];            /* specific surface area */
     double          t_mole[MAXSPS];
-    double          log10_pconc[MAXSPS];    /* for output only */
-    double          log10_sconc[MAXSPS];    /* for output only */
     double          btcv_pconc[MAXSPS];     /* for btcv output only */
 } chmstate_struct;
 
