@@ -8,19 +8,20 @@ PRECIPITATION   2       # whether (1) or not (0) precipitation will be specified
 RT_DELAY        0       #
 CONDENSATION    1.67    #
 AVGSCL          600     # (second)
+OUTINTVL        DAILY   # output interval. Can be "YEARLY", "MONTHLY", "DAILY", "HOURLY", or any positive integer to indicate intervals in seconds. Setting interval to 0 will turn off output
 
 GLOBAL
 T_SPECIES       9       # total species including 1) primary speices, 2) primary minerals, 3) primary adsorptions. The number of species that are put into the condition blocks
-s_species       2       # the number of species that are put into the secondary_species block.
-min_species     3       # the number of species that are minerals in the condition blocks.
-adsorption      0       # the number of species that are primary surface complexation, note that secondary surface complexation goes to secondary species
-cation_exchange 1       # the nubmer of species that are primary cation exchange
-mineral_kinetic 3       # the number of mineral kinetic reactions
-aqueous_kinetic 0       # the number of aqueous kinetic reactions
-diffusion       1E-5    # fixed diffusion coefficient, in cm2/s
-dispersion      0.10    # fixed dispersion coefficient, in m
-cementation     1       # cementation factor
-temperature     25      # assumed temperature for thermo decouple mode
+S_SPECIES       2       # the number of species that are put into the secondary_species block.
+MIN_SPECIES     3       # the number of species that are minerals in the condition blocks.
+ADSORPTION      0       # the number of species that are primary surface complexation, note that secondary surface complexation goes to secondary species
+CATION_EXCHANGE 1       # the nubmer of species that are primary cation exchange
+MINERAL_KINETIC 3       # the number of mineral kinetic reactions
+AQUEOUS_KINETIC 0       # the number of aqueous kinetic reactions
+DIFFUSION       1E-5    # fixed diffusion coefficient, in cm2/s
+DISPERSION      0.10    # fixed dispersion coefficient, in m
+CEMENTATION     1       # cementation factor
+TEMPERATURE     25      # assumed temperature for thermo decouple mode
 
 PRIMARY_SPECIES         # List of all primary species
 pH
