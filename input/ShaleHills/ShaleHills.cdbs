@@ -3387,10 +3387,8 @@ SOC
   activation = 0.0  (kcal/mole)
   dependence :
   biomass : C5H7O2N(s)
-  num_monod = 1
   monod_terms : SOC 6.0e-4
-  num_inhibition = 0
-  inhibition : 0
+  inhibition :
 +---------------------------------------------------
 CH2O
   label = aerobic_respiration
@@ -3866,5 +3864,3 @@ Begin surface complexation parameters
 >SOH2-CrO4-     -1.0
 >SOH2-HCrO4      0.0
 End surface complexation parameters
-
-'Debye-Huckel bdt'   0.0374  0.0410 0.0440 0.0460 0.0470 0.0470 0.0340 0.0000
