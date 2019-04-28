@@ -213,16 +213,13 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
                 fprintf(varctrl[i].txtfile, "\"%s\"", pihm_time.str);
                 for (j = 0; j < varctrl[i].nvar; j++)
                 {
-                    if (varctrl[i].counter > 0)
-                    {
-                        fprintf(varctrl[i].txtfile, "\t%lf",
-                            varctrl[i].buffer[j] / (double)varctrl[i].counter);
-                    }
-                    else
-                    {
-                        fprintf(varctrl[i].txtfile, "\t%lf",
-                            varctrl[i].buffer[j]);
-                    }
+                    outval = (varctrl[i].counter > 0) ?
+                        varctrl[i].buffer[j] / (double)varctrl[i].counter :
+                        varctrl[i].buffer[j];
+
+                    fprintf(varctrl[i].txtfile,
+                        (outval == 0.0 || fabs(outval) > 1.0E-3) ?
+                        "\t%lf" : "\t%lE", outval);
                 }
                 fprintf(varctrl[i].txtfile, "\n");
                 fflush(varctrl[i].txtfile);
@@ -232,14 +229,10 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
             fwrite(&outtime, sizeof(double), 1, varctrl[i].datfile);
             for (j = 0; j < varctrl[i].nvar; j++)
             {
-                if (varctrl[i].counter > 0)
-                {
-                    outval = varctrl[i].buffer[j] / (double)varctrl[i].counter;
-                }
-                else
-                {
-                    outval = varctrl[i].buffer[j];
-                }
+                outval = (varctrl[i].counter > 0) ?
+                    varctrl[i].buffer[j] / (double)varctrl[i].counter :
+                    varctrl[i].buffer[j];
+
                 fwrite(&outval, sizeof(double), 1, varctrl[i].datfile);
 
                 varctrl[i].buffer[j] = 0.0;
