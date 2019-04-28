@@ -137,6 +137,41 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
             ctrl->AvgScl);
     }
 
+    NextLine(chem_fp, cmdstr, &lno);
+    ctrl->prtvrbl[CHEM_CTRL] = ReadPrtCtrl(cmdstr, "OUTINTVL", chem_filen, lno);
+    if (ctrl->prtvrbl[CHEM_CTRL] > 0)
+    {
+        PIHMprintf(VL_VERBOSE, "  Chemical concentration output interval "
+            "is set to %d seconds.\n", ctrl->prtvrbl[CHEM_CTRL]);
+    }
+    else if (ctrl->prtvrbl[CHEM_CTRL] < 0)
+    {
+        switch (ctrl->prtvrbl[CHEM_CTRL])
+        {
+            case -1:
+                PIHMprintf(VL_VERBOSE,
+                    "  Chemical concentration output is yearly.\n");
+                break;
+            case -2:
+                PIHMprintf(VL_VERBOSE,
+                    "  Chemical concentration output is monthly.\n");
+                break;
+            case -3:
+                PIHMprintf(VL_VERBOSE,
+                    "  Chemical concentration output is daily.\n");
+                break;
+            case -4:
+                PIHMprintf(VL_VERBOSE,
+                    "  Chemical concentration output is hourly.\n");
+                break;
+        }
+    }
+    else
+    {
+        PIHMprintf(VL_VERBOSE,
+            "  Chemical concentration output is truned off.\n");
+    }
+
     /*
      * Global block
      */

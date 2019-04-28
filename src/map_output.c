@@ -938,183 +938,197 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                     }
                     break;
 #endif
+#if defined(_RT_)
+                case CHEM_CTRL:
+                    /* Primary species */
+                    for (k = 0; k < rttbl->NumStc; k++)
+                    {
+                        char            chemn[MAXSTRING];
+                        Unwrap(chemn, chemtbl[k].ChemName);
+
+                        /* Unsaturated zone concentration */
+                        sprintf(ext, "unsat_conc.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &elem[j].chms_unsat.p_conc[k];
+                        }
+                        n++;
+
+                        /* Groundwater concentration */
+                        sprintf(ext, "gw_conc.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &elem[j].chms_gw.p_conc[k];
+                        }
+                        n++;
+
+# if defined(_FBR_)
+                        /* Fractured unsaturated bedrock layer concentration */
+                        sprintf(ext, "fbrunsat_conc.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &elem[j].chms_fbrunsat.p_conc[k];
+                        }
+                        n++;
+
+                        /* Deep groundwater concentration */
+                        sprintf(ext, "fbrgw_conc.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &elem[j].chms_fbrgw.p_conc[k];
+                        }
+                        n++;
+# endif
+
+                        /* River concentration */
+                        sprintf(ext, "river_conc.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nriver, &print->varctrl[n]);
+                        for (j = 0; j < nriver; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &river[j].chms_stream.p_conc[k];
+                        }
+                        n++;
+                    }
+
+                    /* Secondary species */
+                    for (k = 0; k < rttbl->NumSsc; k++)
+                    {
+                        char            chemn[MAXSTRING];
+                        Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
+
+                        /* Unsaturated zone concentration */
+                        sprintf(ext, "unsat_conc.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &elem[j].chms_unsat.s_conc[k];
+                        }
+                        n++;
+
+                        /* Groundwater concentration */
+                        sprintf(ext, "gw_conc.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &elem[j].chms_gw.s_conc[k];
+                        }
+                        n++;
+
+# if defined(_FBR_)
+                        /* Fractured unsaturated bedrock layer concentration */
+                        sprintf(ext, "fbrunsat_conc.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &elem[j].chms_fbrunsat.s_conc[k];
+                        }
+                        n++;
+
+                        /* Deep groundwater concentration */
+                        sprintf(ext, "fbrgw_conc.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &elem[j].chms_fbrgw.s_conc[k];
+                        }
+                        n++;
+# endif
+                    }
+# if TEMP_DISABLED
+                    for (k = 0; k < rttbl->NumSsc; k++)
+                    {
+                        char            chemn[MAXSTRING];
+
+                        Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
+                        sprintf(ext, "river_conc.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nriver, &print->varctrl[n]);
+                        for (j = 0; j < nriver; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &river[j].chms_stream.s_conc[k];
+                        }
+                        n++;
+                    }
+# endif
+                    for (j = 0; j < rttbl->NumBTC; j++)
+                    {
+                        if (rttbl->BTC_loc[j] < 0)
+                        {
+                            sprintf(ext, "riv%d.btcv", -rttbl->BTC_loc[j]);
+                        }
+                        else if (rttbl->BTC_loc[j] < nelem)
+                        {
+                            sprintf(ext, "unsat%d.btcv", rttbl->BTC_loc[j]);
+                        }
+                        else
+                        {
+                            sprintf(ext, "gw%d.btcv", rttbl->BTC_loc[j] - nelem);
+                        }
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, rttbl->NumStc + rttbl->NumSsc,
+                            &print->varctrl[n]);
+                        for (k = 0; k < rttbl->NumStc; k++)
+                        {
+                            if (rttbl->BTC_loc[j] < 0)
+                            {
+                                print->varctrl[n].var[k] = &river[-rttbl->BTC_loc[j] - 1].chms_stream.btcv_pconc[k];
+                            }
+                            else if (rttbl->BTC_loc[j] < nelem)
+                            {
+                                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - 1].chms_unsat.btcv_pconc[k];
+                            }
+                            else
+                            {
+                                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - nelem- 1].chms_gw.btcv_pconc[k];
+                            }
+                        }
+                        for (k = rttbl->NumStc; k < rttbl->NumStc + rttbl->NumSsc; k++)
+                        {
+                            if (rttbl->BTC_loc[j] < 0)
+                            {
+                                print->varctrl[n].var[k] = &river[-rttbl->BTC_loc[j] - 1].chms_stream.s_conc[k - rttbl->NumStc];
+                            }
+                            else if (rttbl->BTC_loc[j] < nelem)
+                            {
+                                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - 1].chms_unsat.s_conc[k - rttbl->NumStc];
+                            }
+                            else
+                            {
+                                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - nelem - 1].chms_gw.s_conc[k - rttbl->NumStc];
+                            }
+                        }
+                        n++;
+                    }
+#endif
                 default:
                     break;
             }
         }
     }
 
-#if defined(_RT_)
-    char            chemn[MAXSTRING];
-
-    /* Primary species */
-    for (k = 0; k < rttbl->NumStc; k++)
-    {
-        Unwrap(chemn, chemtbl[k].ChemName);
-
-        /* Unsaturated zone concentration */
-        sprintf(ext, "unsat_conc.%s", chemn);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
-            &print->varctrl[n]);
-        for (j = 0; j < nelem; j++)
-        {
-            print->varctrl[n].var[j] = &elem[j].chms_unsat.p_conc[k];
-        }
-        n++;
-
-        /* Groundwater concentration */
-        sprintf(ext, "gw_conc.%s", chemn);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
-            &print->varctrl[n]);
-        for (j = 0; j < nelem; j++)
-        {
-            print->varctrl[n].var[j] = &elem[j].chms_gw.p_conc[k];
-        }
-        n++;
-
-# if defined(_FBR_)
-        /* Fractured unsaturated bedrock layer concentration */
-        sprintf(ext, "fbrunsat_conc.%s", chemn);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
-            &print->varctrl[n]);
-        for (j = 0; j < nelem; j++)
-        {
-            print->varctrl[n].var[j] = &elem[j].chms_fbrunsat.p_conc[k];
-        }
-        n++;
-
-        /* Deep groundwater concentration */
-        sprintf(ext, "fbrgw_conc.%s", chemn);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
-            &print->varctrl[n]);
-        for (j = 0; j < nelem; j++)
-        {
-            print->varctrl[n].var[j] = &elem[j].chms_fbrgw.p_conc[k];
-        }
-        n++;
-# endif
-
-        /* River concentration */
-        sprintf(ext, "river_conc.%s", chemn);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nriver,
-            &print->varctrl[n]);
-        for (j = 0; j < nriver; j++)
-        {
-            print->varctrl[n].var[j] = &river[j].chms_stream.p_conc[k];
-        }
-        n++;
-    }
-
-    /* Secondary species */
-    for (k = 0; k < rttbl->NumSsc; k++)
-    {
-        Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
-
-        /* Unsaturated zone concentration */
-        sprintf(ext, "unsat_conc.%s", chemn);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
-            &print->varctrl[n]);
-        for (j = 0; j < nelem; j++)
-        {
-            print->varctrl[n].var[j] = &elem[j].chms_unsat.s_conc[k];
-        }
-        n++;
-
-        /* Groundwater concentration */
-        sprintf(ext, "gw_conc.%s", chemn);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
-            &print->varctrl[n]);
-        for (j = 0; j < nelem; j++)
-        {
-            print->varctrl[n].var[j] = &elem[j].chms_gw.s_conc[k];
-        }
-        n++;
-
-# if defined(_FBR_)
-        /* Fractured unsaturated bedrock layer concentration */
-        sprintf(ext, "fbrunsat_conc.%s", chemn);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
-            &print->varctrl[n]);
-        for (j = 0; j < nelem; j++)
-        {
-            print->varctrl[n].var[j] = &elem[j].chms_fbrunsat.s_conc[k];
-        }
-        n++;
-
-        /* Deep groundwater concentration */
-        sprintf(ext, "fbrgw_conc.%s", chemn);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nelem,
-            &print->varctrl[n]);
-        for (j = 0; j < nelem; j++)
-        {
-            print->varctrl[n].var[j] = &elem[j].chms_fbrgw.s_conc[k];
-        }
-        n++;
-# endif
-    }
-# if TEMP_DISABLED
-    for (k = 0; k < rttbl->NumSsc; k++)
-    {
-        Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
-        sprintf(ext, "river_conc.%s", chemn);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP, nriver,
-            &print->varctrl[n]);
-        for (j = 0; j < nriver; j++)
-        {
-            print->varctrl[n].var[j] = &river[j].chms_stream.s_conc[k];
-        }
-        n++;
-    }
-# endif
-    for (j = 0; j < rttbl->NumBTC; j++)
-    {
-        if (rttbl->BTC_loc[j] < 0)
-        {
-            sprintf(ext, "riv%d.btcv", -rttbl->BTC_loc[j]);
-        }
-        else if (rttbl->BTC_loc[j] < nelem)
-        {
-            sprintf(ext, "unsat%d.btcv", rttbl->BTC_loc[j]);
-        }
-        else
-        {
-            sprintf(ext, "gw%d.btcv", rttbl->BTC_loc[j] - nelem);
-        }
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
-            rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
-        for (k = 0; k < rttbl->NumStc; k++)
-        {
-            if (rttbl->BTC_loc[j] < 0)
-            {
-                print->varctrl[n].var[k] = &river[-rttbl->BTC_loc[j] - 1].chms_stream.btcv_pconc[k];
-            }
-            else if (rttbl->BTC_loc[j] < nelem)
-            {
-                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - 1].chms_unsat.btcv_pconc[k];
-            }
-            else
-            {
-                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - nelem- 1].chms_gw.btcv_pconc[k];
-            }
-        }
-        for (k = rttbl->NumStc; k < rttbl->NumStc + rttbl->NumSsc; k++)
-        {
-            if (rttbl->BTC_loc[j] < 0)
-            {
-                print->varctrl[n].var[k] = &river[-rttbl->BTC_loc[j] - 1].chms_stream.s_conc[k - rttbl->NumStc];
-            }
-            else if (rttbl->BTC_loc[j] < nelem)
-            {
-                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - 1].chms_unsat.s_conc[k - rttbl->NumStc];
-            }
-            else
-            {
-                print->varctrl[n].var[k] = &elem[rttbl->BTC_loc[j] - nelem - 1].chms_gw.s_conc[k - rttbl->NumStc];
-            }
-        }
-        n++;
-    }
-#endif
 
     if (n > MAXPRINT)
     {

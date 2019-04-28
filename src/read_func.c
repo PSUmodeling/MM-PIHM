@@ -130,7 +130,7 @@ int ReadPrtCtrl(const char *buffer, const char *keyword, const char *filename,
     char            ctrlstr[MAXSTRING];
     char            optstr[MAXSTRING];
 
-    match = sscanf(buffer, "%s %[^\n]", optstr, ctrlstr);
+    match = sscanf(buffer, "%s %s", optstr, ctrlstr);
     if (match != 2 || strcasecmp(keyword, optstr) != 0)
     {
         PIHMprintf(VL_ERROR, "Expected keyword \"%s\", "
