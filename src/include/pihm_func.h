@@ -781,6 +781,7 @@ void            InitChemS(const chemtbl_struct [], const rttbl_struct *,
     double [], double [], double, double, chmstate_struct *);
 void            ReadChemAtt(const char *, atttbl_struct *);
 void            ReadRtIc(const char *, elem_struct [], river_struct []);
+void            WriteRtIc(const char *, elem_struct [], river_struct []);
 #endif
 
 #endif
