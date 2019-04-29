@@ -10,7 +10,6 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
     char            temp_str[MAXSTRING];
     int             match;
     int             index;
-    int             nic;
     int             ind;
     int             lno = 0;
     int             convert = 0;
@@ -55,16 +54,16 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
         }
     }
 
-    nic = CountOccurr(fp, "CONDITION");
+    chmictbl->nic = CountOccurr(fp, "CONDITION");
     FindLine(fp, "BOF", &lno, filen);
 
-    chmictbl->conc = (double **)malloc(nic * sizeof(double *));
-    chmictbl->ssa = (double **)malloc(nic * sizeof(double *));
+    chmictbl->conc = (double **)malloc(chmictbl->nic * sizeof(double *));
+    chmictbl->ssa = (double **)malloc(chmictbl->nic * sizeof(double *));
 
     /*
      * Read intial conditions
      */
-    for (i = 0; i < nic; i++)
+    for (i = 0; i < chmictbl->nic; i++)
     {
         chmictbl->conc[i] = (double *)calloc(NumStc, sizeof(double));
         chmictbl->ssa[i] = (double *)calloc(NumStc, sizeof(double));
@@ -96,7 +95,6 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
                         "Error reading initial condition in %s at Line %d.\n",
                         filen, lno);
                 }
-                chmictbl->ssa[i][ind] *= cal->ssa;
             }
             else
             {
@@ -107,10 +105,6 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
                         filen, lno);
                 }
             }
-
-            chmictbl->conc[i][ind] *=
-                (strcmp(chemtbl[ind].ChemName, "DOC") == 0) ?
-                cal->initconc : 1.0;
 
             chmictbl->conc[i][ind] =
                 (strcmp(chemtbl[ind].ChemName, "pH") == 0 && convert == 1) ?

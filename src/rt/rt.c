@@ -53,6 +53,21 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
         }
     }
 
+    for (i = 0; i < chmictbl->nic; i++)
+    {
+        int             k;
+
+        for (k = 0; k < rttbl->NumStc; k++)
+        {
+            chmictbl->ssa[i][k] *= (chemtbl[k].itype == MINERAL) ?
+                cal->ssa : 1.0;
+
+            chmictbl->conc[i][k] *=
+                (strcmp(chemtbl[k].ChemName, "'DOC'") == 0) ?
+                cal->initconc : 1.0;
+        }
+    }
+
     /*
      * Assign initial conditions to different volumes
      */
