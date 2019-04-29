@@ -1,42 +1,73 @@
 #include "pihm.h"
 
 void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
-    const calib_struct *cal, elem_struct elem[])
+    const calib_struct *cal, atttbl_struct *atttbl, chmictbl_struct *chmictbl,
+    elem_struct elem[])
 {
     FILE           *fp;
     int             i, k;
     char            cmdstr[MAXSTRING];
     char            temp_str[MAXSTRING];
+    int             match;
+    int             index;
     int             nic;
     int             ind;
     int             lno = 0;
     int             convert = 0;
-    const int       UNSAT_IND = 0;
-    const int       GW_IND = 1;
 #if defined(_FBR_)
-    const int       FBRUNSAT_IND = 2;
-    const int       FBRGW_IND = 3;
+    const int       NVOL = 4;
+#else
+    const int       NVOL = 2;
 #endif
-    double        **conc;
-    double        **ssa;
 
     fp = fopen(filen, "r");
     CheckFile(fp, filen);
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
 
+    atttbl->prcpc = (int *)malloc(nelem * sizeof(int));
+    atttbl->chem_ic = (int **)malloc(nelem * sizeof(int *));
+
+    /* Skip header line */
+    NextLine(fp, cmdstr, &lno);
+    for (i = 0; i < nelem; i++)
+    {
+        atttbl->chem_ic[i] = (int *)malloc(4 * sizeof(int));
+
+        NextLine(fp, cmdstr, &lno);
+#if defined(_FBR_)
+        match = sscanf(cmdstr, "%d %d %d %d %d %d %d %d %d %d",
+            &index, &atttbl->prcpc[i],
+            &atttbl->chem_ic[i][0], &atttbl->chem_ic[i][1],
+            &atttbl->chem_ic[i][2], &atttbl->chem_ic[i][3]);
+#else
+        match = sscanf(cmdstr, "%d %d %d %d",
+            &index, &atttbl->prcpc[i],
+            &atttbl->chem_ic[i][0], &atttbl->chem_ic[i][1]);
+#endif
+
+        if (match != NVOL + 2)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error reading chemistry attribute of the %dth element.\n",
+                i + 1);
+            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
+            PIHMexit(EXIT_FAILURE);
+        }
+    }
+
     nic = CountOccurr(fp, "CONDITION");
     FindLine(fp, "BOF", &lno, filen);
 
-    conc = (double **)malloc(nic * sizeof(double *));
-    ssa = (double **)malloc(nic * sizeof(double *));
+    chmictbl->conc = (double **)malloc(nic * sizeof(double *));
+    chmictbl->ssa = (double **)malloc(nic * sizeof(double *));
 
     /*
      * Read intial conditions
      */
     for (i = 0; i < nic; i++)
     {
-        conc[i] = (double *)calloc(NumStc, sizeof(double));
-        ssa[i] = (double *)calloc(NumStc, sizeof(double));
+        chmictbl->conc[i] = (double *)calloc(NumStc, sizeof(double));
+        chmictbl->ssa[i] = (double *)calloc(NumStc, sizeof(double));
 
         FindLine(fp, "CONDITION", &lno, filen);
 
@@ -46,10 +77,8 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
             sscanf(cmdstr, "%s", temp_str);
             if (strcmp("pH", temp_str) == 0)
             {
-                strcpy(temp_str, "H+");
                 convert = 1;
             }
-            wrap(temp_str);
 
             ind = FindChem(temp_str, chemtbl, NumStc);
             if (ind < 0)
@@ -61,17 +90,17 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
             if (chemtbl[ind].itype == MINERAL)
             {
                 if (sscanf(cmdstr, "%*s %lf %*s %lf",
-                    &conc[i][ind], &ssa[i][ind]) !=2)
+                    &chmictbl->conc[i][ind], &chmictbl->ssa[i][ind]) !=2)
                 {
                     PIHMprintf(VL_ERROR,
                         "Error reading initial condition in %s at Line %d.\n",
                         filen, lno);
                 }
-                ssa[i][ind] *= cal->ssa;
+                chmictbl->ssa[i][ind] *= cal->ssa;
             }
             else
             {
-                if (sscanf(cmdstr, "%*s %lf", &conc[i][ind]) != 1)
+                if (sscanf(cmdstr, "%*s %lf", &chmictbl->conc[i][ind]) != 1)
                 {
                     PIHMprintf(VL_ERROR,
                         "Error reading initial condition in %s at Line %d.\n",
@@ -79,53 +108,15 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
                 }
             }
 
-            conc[i][ind] *= (strcmp(chemtbl[ind].ChemName, "'DOC'") == 0) ?
+            chmictbl->conc[i][ind] *=
+                (strcmp(chemtbl[ind].ChemName, "DOC") == 0) ?
                 cal->initconc : 1.0;
 
-            conc[i][ind] =
-                (strcmp(chemtbl[ind].ChemName, "'H+'") == 0 && convert == 1) ?
-                pow(10, -conc[i][ind]) : conc[i][ind];
+            chmictbl->conc[i][ind] =
+                (strcmp(chemtbl[ind].ChemName, "pH") == 0 && convert == 1) ?
+                pow(10, -chmictbl->conc[i][ind]) : chmictbl->conc[i][ind];
         }
-    }
-
-    /*
-     * Assign initial conditions to different volumes
-     */
-    for (i = 0; i < nelem; i++)
-    {
-        for (k = 0; k < NumStc; k++)
-        {
-            elem[i].restart_input.tconc_unsat[k] =
-                conc[elem[i].attrib.chem_ic_type[UNSAT_IND] - 1][k];
-            elem[i].restart_input.tconc_gw[k] =
-                conc[elem[i].attrib.chem_ic_type[GW_IND] - 1][k];
-
-            elem[i].restart_input.ssa_unsat[k] =
-                ssa[elem[i].attrib.chem_ic_type[UNSAT_IND] - 1][k];
-            elem[i].restart_input.ssa_gw[k] =
-                ssa[elem[i].attrib.chem_ic_type[GW_IND] - 1][k];
-
-#if defined(_FBR_)
-            elem[i].restart_input.tconc_fbrunsat[k] =
-                conc[elem[i].attrib.chem_ic_type[FBRUNSAT_IND] - 1][k];
-            elem[i].restart_input.tconc_fbrgw[k] =
-                conc[elem[i].attrib.chem_ic_type[FBRGW_IND] - 1][k];
-
-            elem[i].restart_input.ssa_fbrunsat[k] =
-                ssa[elem[i].attrib.chem_ic_type[FBRUNSAT_IND] - 1][k];
-            elem[i].restart_input.ssa_fbrgw[k] =
-                ssa[elem[i].attrib.chem_ic_type[FBRGW_IND] - 1][k];
-#endif
-        }
-    }
-
-    for (i = 0; i < nic; i++)
-    {
-        free(conc[i]);
-        free(ssa[i]);
     }
 
     fclose(fp);
-    free(conc);
-    free(ssa);
 }
