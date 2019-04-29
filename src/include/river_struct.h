@@ -142,8 +142,6 @@ typedef struct river_rtic_struct
 {
     double          tconc_stream[MAXSPS];
     double          tconc_rivbed[MAXSPS];
-    double          sconc_stream[MAXSPS];
-    double          sconc_rivbed[MAXSPS];
 } river_rtic_struct;
 #endif
 

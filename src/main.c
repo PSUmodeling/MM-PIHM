@@ -123,6 +123,10 @@ int main(int argc, char *argv[])
 #if defined(_BGC_)
         WriteBgcIc(outputdir, pihm->elem, pihm->river);
 #endif
+
+#if defined(_RT_)
+        WriteRtIc(outputdir, pihm->elem, pihm->river);
+#endif
     }
     else
     {
@@ -162,6 +166,10 @@ int main(int argc, char *argv[])
         {
             WriteBgcIc(outputdir, pihm->elem, pihm->river);
         }
+#endif
+
+#if defined(_RT_)
+        WriteRtIc(outputdir, pihm->elem, pihm->river);
 #endif
 
 # if TEMP_DISABLED
