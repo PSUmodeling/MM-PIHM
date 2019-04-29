@@ -1,45 +1,45 @@
 Condition RT
 # concentrations and names of species of condition X.
 # recommanded order: aqueous primary, adsorption, cation exchange, mineral
-pH	        4.56
-Cl-	        3.69E-5
-DOC	        20.0E-6
+pH          4.56
+Cl-         3.69E-5
+DOC         20.0E-6
 C5H7O2N     1.00E-10
-H4SiO4	    1.00E-4
+H4SiO4      1.00E-4
 Quartz      0.6199  -ssa    1.48
 SOC         0.02    -ssa    5.0
 C5H7O2N(s)  0.0004  -ssa    5.0
-X-	        5.2E-5
+X-          5.2E-5
 
 Condition MS
-pH	        4.56
-Cl-	        3.69E-5
-DOC	        20.0E-6
+pH          4.56
+Cl-         3.69E-5
+DOC         20.0E-6
 C5H7O2N     1.00E-10
-H4SiO4	    1.00E-4
-Quartz	    0.6199	-ssa	1.48
+H4SiO4      1.00E-4
+Quartz      0.6199  -ssa    1.48
 SOC         0.02    -ssa    5.0
 C5H7O2N(s)  0.0004  -ssa    5.0
-X-	        5.2E-5
+X-          5.2E-5
 
 Condition VF
-pH	        4.56
-Cl-	        3.69E-5
-DOC	        20.0E-6
+pH          4.56
+Cl-         3.69E-5
+DOC         20.0E-6
 C5H7O2N     1.00E-10
-H4SiO4	    1.00E-4
-Quartz	    0.6199	-ssa	1.48
+H4SiO4      1.00E-4
+Quartz      0.6199  -ssa    1.48
 SOC         0.02    -ssa    5.0
 C5H7O2N(s)  0.0004  -ssa    5.0
-X-	        5.2E-5
+X-          5.2E-5
 
 Condition BR
-pH	        4.56
-Cl-	        3.69E-5
-DOC	        20.0E-6
+pH          4.56
+Cl-         3.69E-5
+DOC         20.0E-6
 C5H7O2N     1.00E-10
-H4SiO4	    1.00E-4
-Quartz	    0.06199	-ssa	1.48
+H4SiO4      1.00E-4
+Quartz      0.06199 -ssa    1.48
 SOC         0.002   -ssa    5.0
 C5H7O2N(s)  0.00004 -ssa    5.0
-X-	        5.2E-5
+X-          5.2E-5

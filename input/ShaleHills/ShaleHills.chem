@@ -1,29 +1,29 @@
 RUNTIME
-INIT_TYPE       0
-ACTIVITY        1       # enable the correction of activity using Debye-Huckel Equaion (1) or using no correction (0)
-THERMO          0       # whether (1) or not (0) to couple the thermo modeling of pihm
-RELMIN          1       # whether mineral volume fraction is relative (1) or absolute (0)
-TRANSPORT_ONLY  0       # whether (0) or not (1) to include reactive calculation. 0 for turn on reactions and 1 for turn off. Suitable for stable tracer transport problem.
-PRECIPITATION   2       # whether (1) or not (0) precipitation will be specified, 2 to specify Pconc by file *.prep.
-RT_DELAY        0       #
-CONDENSATION    1.67    #
-AVGSCL          600     # (second)
+INIT_TYPE       0       # initialization type: 0 = use .cini, 1 = use .chmic file
+ACTIVITY        1       # correction of activity: 0 = no correction, 1 = Debye-Huckel Equation
+THERMO          0       # coupling of thermal modeling of PIHM: 0 = no, 1 = yes
+RELMIN          1       # mineral volume fraction: 0 = absolute, 1 = relative
+TRANSPORT_ONLY  0       # transport only mode: 0 = turn on reactions, 1 = transport only, suitable for stable tracer transport problems
+PRECIPITATION   2       # precipitation concentration flag: 0 = zero concentration, 1 = specified in .chem, 2 = specified in .prep
+RT_DELAY        0       # reaction delay time (s)
+CONDENSATION    1.67    # condensation factor
+AVGSCL          600     # reaction time step (s)
 OUTINTVL        DAILY   # output interval. Can be "YEARLY", "MONTHLY", "DAILY", "HOURLY", or any positive integer to indicate intervals in seconds. Setting interval to 0 will turn off output
 
 GLOBAL
-T_SPECIES       9       # total species including 1) primary speices, 2) primary minerals, 3) primary adsorptions. The number of species that are put into the condition blocks
-S_SPECIES       2       # the number of species that are put into the secondary_species block.
-MIN_SPECIES     3       # the number of species that are minerals in the condition blocks.
-ADSORPTION      0       # the number of species that are primary surface complexation, note that secondary surface complexation goes to secondary species
-CATION_EXCHANGE 1       # the nubmer of species that are primary cation exchange
-MINERAL_KINETIC 3       # the number of mineral kinetic reactions
-AQUEOUS_KINETIC 0       # the number of aqueous kinetic reactions
-DIFFUSION       1E-5    # fixed diffusion coefficient, in cm2/s
-DISPERSION      0.10    # fixed dispersion coefficient, in m
+T_SPECIES       9       # number of total species including 1) primary species, 2) primary minerals, 3) primary adsorptions
+S_SPECIES       2       # number of secondary species
+MIN_SPECIES     3       # number of mineral species
+ADSORPTION      0       # number of primary surface complexation species. Note that secondary surface complexation goes to secondary species
+CATION_EXCHANGE 1       # number of primary cation exchange species
+MINERAL_KINETIC 3       # number of mineral kinetic reactions
+AQUEOUS_KINETIC 0       # number of aqueous kinetic reactions
+DIFFUSION       1E-5    # diffusion coefficient (cm2 s-1)
+DISPERSION      0.10    # dispersion coefficient (m)
 CEMENTATION     1       # cementation factor
-TEMPERATURE     25      # assumed temperature for thermo decouple mode
+TEMPERATURE     25      # assumed temperature for thermal decoupled mode
 
-PRIMARY_SPECIES         # List of all primary species
+PRIMARY_SPECIES         # list of all primary species
 pH
 Cl-
 DOC
@@ -34,16 +34,16 @@ SOC
 C5H7O2N(s)
 X-
 
-SECONDARY_SPECIES       # List of secondary species
+SECONDARY_SPECIES       # list of secondary species
 OH-
 XDOC
 
-MINERALS                # List of minerals
+MINERALS                # list of minerals
 Quartz         -label     default
 SOC            -label     test
 C5H7O2N(s)     -label     default
 
-PRECIPITATION_CONC
+PRECIPITATION_CONC      # precipitation concentration
 pH            4.30
 Cl-           1.93E-5
 DOC	          3.00E-7
