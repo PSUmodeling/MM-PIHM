@@ -159,6 +159,7 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	rt/read_chem_att.c\
 	rt/read_cini.c\
 	rt/read_prep.c\
+	rt/restart_io.c\
 	rt/rt.c\
 	rt/rt_util.c\
 	rt/speciation.c\
