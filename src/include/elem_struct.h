@@ -1683,6 +1683,7 @@ typedef struct elem_struct
 #endif
 #if defined(_RT_)
     rtic_struct     restart_input;
+    rtic_struct     restart_output;
     prcpstate_struct prcps;
     chmstate_struct chms_unsat;
     chmstate_struct chms_gw;
