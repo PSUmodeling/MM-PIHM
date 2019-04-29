@@ -637,6 +637,7 @@ typedef struct rttbl_struct
 
 typedef struct chmictbl_struct
 {
+    int             nic;
     double        **conc;                   /* chemical concentration */
     double        **ssa;                    /* specific surface area */
 } chmictbl_struct;
