@@ -722,7 +722,8 @@ void            WaterUptake(const soil_struct *, const estate_struct *,
 
 #if defined(_RT_)
 void            InitChem(const char [], const calib_struct *, forc_struct *forc,
-    chemtbl_struct [], kintbl_struct [], rttbl_struct *);
+    chemtbl_struct [], kintbl_struct [], rttbl_struct *, chmictbl_struct *,
+    elem_struct []);
 void            Reaction(double, const chemtbl_struct [], const kintbl_struct [],
     const rttbl_struct *, elem_struct []);
 int             _React(double, const chemtbl_struct [], const kintbl_struct [],
@@ -746,7 +747,7 @@ void            ReadChem(const char[], const char[], chemtbl_struct [],
 void            ReadPrep(const char[], const chemtbl_struct [], const double [],
     forc_struct *forc);
 void            ReadCini(const char[], const chemtbl_struct *, int,
-    const calib_struct *, elem_struct []);
+    const calib_struct *, atttbl_struct *, chmictbl_struct *, elem_struct []);
 int             ParseLocation(const char [], const char [], int);
 void            ApplyPrcpConc(const  rttbl_struct *, forc_struct *,
     elem_struct [], int);

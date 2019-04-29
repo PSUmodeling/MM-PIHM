@@ -8,11 +8,17 @@
 
 void InitChem(const char cdbs_filen[], const calib_struct *cal,
     forc_struct *forc, chemtbl_struct chemtbl[], kintbl_struct kintbl[],
-    rttbl_struct *rttbl)
+    rttbl_struct *rttbl, chmictbl_struct *chmictbl, elem_struct elem[])
 {
     int             i, j;
     int             chem_ind;
     FILE           *fp;
+    const int       UNSAT_IND = 0;
+    const int       GW_IND = 1;
+#if defined(_FBR_)
+    const int       FBRUNSAT_IND = 2;
+    const int       FBRGW_IND = 3;
+#endif
 
     fp = fopen(cdbs_filen, "r");
     CheckFile(fp, cdbs_filen);
@@ -44,6 +50,42 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
                     forc->prcpc[i].data[j][chem_ind] *= cal->prcpconc;
                 }
             }
+        }
+    }
+
+    /*
+     * Assign initial conditions to different volumes
+     */
+    for (i = 0; i < nelem; i++)
+    {
+        int             k;
+        int            *ic_type;
+
+        ic_type = elem[i].attrib.chem_ic_type;
+
+        for (k = 0; k < rttbl->NumStc; k++)
+        {
+            elem[i].restart_input.tconc_unsat[k] =
+                chmictbl->conc[ic_type[UNSAT_IND] - 1][k];
+            elem[i].restart_input.tconc_gw[k] =
+                chmictbl->conc[ic_type[GW_IND] - 1][k];
+
+            elem[i].restart_input.ssa_unsat[k] =
+                chmictbl->ssa[ic_type[UNSAT_IND] - 1][k];
+            elem[i].restart_input.ssa_gw[k] =
+                chmictbl->ssa[ic_type[GW_IND] - 1][k];
+
+#if defined(_FBR_)
+            elem[i].restart_input.tconc_fbrunsat[k] =
+                chmictbl->conc[ic_type[FBRUNSAT_IND] - 1][k];
+            elem[i].restart_input.tconc_fbrgw[k] =
+                chmictbl->conc[ic_type[FBRGW_IND] - 1][k];
+
+            elem[i].restart_input.ssa_fbrunsat[k] =
+                chmictbl->ssa[ic_type[FBRUNSAT_IND] - 1][k];
+            elem[i].restart_input.ssa_fbrgw[k] =
+                chmictbl->ssa[ic_type[FBRGW_IND] - 1][k];
+#endif
         }
     }
 }

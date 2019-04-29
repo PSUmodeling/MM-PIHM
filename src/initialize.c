@@ -162,7 +162,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
 #if defined(_RT_)
     InitChem(pihm->filename.cdbs, &pihm->cal, &pihm->forc, pihm->chemtbl,
-        pihm->kintbl, &pihm->rttbl);
+        pihm->kintbl, &pihm->rttbl, &pihm->chmictbl, pihm->elem);
 #endif
 
     /*
@@ -223,11 +223,6 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     {
         PIHMprintf(VL_ERROR, "Error: RT hot start is not supported yet.\n");
         PIHMexit(EXIT_FAILURE);
-    }
-    else
-    {
-        ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.NumStc,
-            &pihm->cal, pihm->elem);
     }
 
     InitRTVar(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river, CV_Y);
