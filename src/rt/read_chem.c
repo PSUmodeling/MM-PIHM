@@ -36,14 +36,23 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     {
         case 0:
             PIHMprintf(VL_VERBOSE,
-                    "  Concentration will be initialized using .cini\n");
+                "  Concentrations will be initialized using .cini\n");
             break;
         case 1:
             PIHMprintf(VL_VERBOSE,
-                    "  Concentration will be initialized using .rtic\n");
+                "  Concentrations will be initialized using .rtic\n");
             break;
         default:
             break;
+    }
+
+    NextLine(chem_fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "WRITE_IC", &ctrl->write_rt_restart, 'i',
+        chem_filen, lno);
+    if (ctrl->write_rt_restart)
+    {
+        PIHMprintf(VL_VERBOSE,
+            "  Concentrations will be written into .rtic\n");
     }
 
     NextLine(chem_fp, cmdstr, &lno);
