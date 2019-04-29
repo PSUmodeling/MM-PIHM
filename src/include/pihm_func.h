@@ -760,8 +760,8 @@ void            Transport(const chemtbl_struct [], const rttbl_struct *,
 double          AdvDiffDisp(double, double, double, double, double, double,
     double, double, double);
 void            RTUpdate(const rttbl_struct *, elem_struct [], river_struct []);
-void            InitRTVar(chemtbl_struct [], rttbl_struct *, elem_struct [],
-    river_struct [], N_Vector);
+void            InitRTVar(const chemtbl_struct [], const rttbl_struct *,
+    elem_struct [], river_struct [], N_Vector);
 void            FreeRttbl(rttbl_struct *);
 int             MatchWrappedKey(const char [], const char []);
 void            ReadTempPoints(const char [], double, int *, int *);

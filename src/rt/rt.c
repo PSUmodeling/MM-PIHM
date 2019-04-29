@@ -105,7 +105,7 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
     }
 }
 
-void InitRTVar(chemtbl_struct chemtbl[], rttbl_struct *rttbl,
+void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     elem_struct elem[], river_struct river[], N_Vector CV_Y)
 {
     int             i;
