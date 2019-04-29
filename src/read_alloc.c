@@ -52,10 +52,10 @@ void ReadAlloc(pihm_struct pihm)
 #endif
 #if defined(_RT_)
     sprintf(pihm->filename.chem,     "input/%s/%s.chem",     proj, proj);
-    sprintf(pihm->filename.chmatt,   "input/%s/%s.chmatt",   proj, proj);
     sprintf(pihm->filename.cini,     "input/%s/%s.cini",     proj, proj);
     sprintf(pihm->filename.cdbs,     "input/%s/%s.cdbs",     proj, proj);
     sprintf(pihm->filename.prep,     "input/%s/%s.prep",     proj, proj);
+    sprintf(pihm->filename.rtic,     "input/%s/%s.rtic",     proj, proj);
 #endif
 
     /* Read river input file */

@@ -45,10 +45,10 @@ typedef struct filename_struct
 #if defined(_RT_)
     char            cdbs[MAXSTRING];        /* chemistry database file name */
     char            chem[MAXSTRING];        /* chemistry control file name */
-    char            chmatt[MAXSTRING];      /* chemistry attribute file name */
     char            cini[MAXSTRING];        /* cini file */
     char            prep[MAXSTRING];        /* precipitation concentration time
                                              * series file name */
+    char            rtic[MAXSTRING];        /* chemistry restart file name */
 #endif
 } filename_struct;
 

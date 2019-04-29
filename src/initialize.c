@@ -221,8 +221,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #if defined(_RT_)
     if (pihm->ctrl.read_rt_restart)
     {
-        PIHMprintf(VL_ERROR, "Error: RT hot start is not supported yet.\n");
-        PIHMexit(EXIT_FAILURE);
+        ReadRtIc(pihm->filename.rtic, pihm->elem, pihm->river);
     }
 
     InitRTVar(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river, CV_Y);
