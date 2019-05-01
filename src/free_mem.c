@@ -367,6 +367,7 @@ void FreeEpctbl(epctbl_struct *epctbl)
 #if defined(_RT_)
 void FreeRttbl(rttbl_struct *rttbl)
 {
+# if OBSOLETE
     if (rttbl->NumBTC > 0)
     {
         free(rttbl->BTC_loc);
@@ -376,6 +377,7 @@ void FreeRttbl(rttbl_struct *rttbl)
     {
         free(rttbl->pumps);
     }
+# endif
 }
 #endif
 

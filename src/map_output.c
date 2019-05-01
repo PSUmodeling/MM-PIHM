@@ -1056,7 +1056,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                         n++;
 # endif
                     }
-# if TEMP_DISABLED
+# if OBSOLETE
                     for (k = 0; k < rttbl->NumSsc; k++)
                     {
                         char            chemn[MAXSTRING];
@@ -1072,7 +1072,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                         }
                         n++;
                     }
-# endif
+
                     for (j = 0; j < rttbl->NumBTC; j++)
                     {
                         if (rttbl->BTC_loc[j] < 0)
@@ -1122,6 +1122,7 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                         }
                         n++;
                     }
+# endif
 #endif
                 default:
                     break;

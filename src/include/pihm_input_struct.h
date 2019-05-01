@@ -610,8 +610,6 @@ typedef struct rttbl_struct
     double          prcp_conc[MAXSPS];
     int             NumPUMP;                /* number of pumps  */
     pump_struct    *pumps;
-    int             NumBTC;                 /* number of breakthrough points */
-    int            *BTC_loc;                /* location of breakthrough points*/
     double          Dependency[MAXSPS][MAXSPS]; /* dependency of secondary
                                              * species on primary species */
     double          Dep_kinetic[MAXSPS][MAXSPS];/* dependency of kinetic species
