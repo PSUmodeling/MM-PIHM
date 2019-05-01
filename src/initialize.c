@@ -221,7 +221,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #if defined(_RT_)
     if (pihm->ctrl.read_rt_restart)
     {
-        ReadRtIc(pihm->filename.rtic, pihm->elem, pihm->river);
+        ReadRtIc(pihm->filename.rtic, pihm->elem);
     }
 
     InitRTVar(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river, CV_Y);
