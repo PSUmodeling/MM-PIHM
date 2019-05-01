@@ -369,6 +369,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         }
     }
 
+#if OBSOLETE
     /*
      * Pump block
      */
@@ -418,7 +419,6 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
             rttbl->pumps[i].flow_rate);
     }
 
-#if OBSOLETE
     /*
      * Output block
      */
