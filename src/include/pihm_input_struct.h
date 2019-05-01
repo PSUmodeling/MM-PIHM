@@ -566,6 +566,7 @@ typedef struct kintbl_struct
                                              * inhibition */
 } kintbl_struct;
 
+#if OBSOLETE
 typedef struct pump_struct
 {
     int             Pump_Location;          /* pump grid block */
@@ -576,6 +577,7 @@ typedef struct pump_struct
                                              * (M m-3) */
     double          flow_rate;              /* flow rate (m3 s-1) */
 } pump_struct;
+#endif
 
 typedef struct rttbl_struct
 {
@@ -608,8 +610,6 @@ typedef struct rttbl_struct
                                              */
     double          Temperature;            /* temperature of the moment */
     double          prcp_conc[MAXSPS];
-    int             NumPUMP;                /* number of pumps  */
-    pump_struct    *pumps;
     double          Dependency[MAXSPS][MAXSPS]; /* dependency of secondary
                                              * species on primary species */
     double          Dep_kinetic[MAXSPS][MAXSPS];/* dependency of kinetic species
