@@ -291,6 +291,17 @@
 #define DISS_ONLY       3
 #define MONOD           4
 
+/* RT volumes in each model grid */
+#if defined(_FBR_)
+# define NCHMVOL        4
+#else
+# define NCHMVOL        2
+#endif
+#define UNSAT_CHMVOL    0
+#define GW_CHMVOL       1
+#define FBRUNSAT_CHMVOL 2
+#define FBRGW_CHMVOL    3
+
 /* Output variables */
 #define YEARLY_OUTPUT     -1
 #define MONTHLY_OUTPUT    -2

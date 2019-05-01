@@ -1558,16 +1558,8 @@ typedef struct solute_struct
 #if defined(_RT_)
 typedef struct rtic_struct
 {
-    double          tconc_unsat[MAXSPS];
-    double          ssa_unsat[MAXSPS];
-    double          tconc_gw[MAXSPS];
-    double          ssa_gw[MAXSPS];
-#if defined(_FBR_)
-    double          tconc_fbrunsat[MAXSPS];
-    double          ssa_fbrunsat[MAXSPS];
-    double          tconc_fbrgw[MAXSPS];
-    double          ssa_fbrgw[MAXSPS];
-#endif
+    double          t_conc[MAXSPS];
+    double          ssa[MAXSPS];
 } rtic_struct;
 
 typedef struct prcpstate_struct
@@ -1682,8 +1674,8 @@ typedef struct elem_struct
     spinup_struct   spinup;
 #endif
 #if defined(_RT_)
-    rtic_struct     restart_input;
-    rtic_struct     restart_output;
+    rtic_struct     restart_input[NCHMVOL];
+    rtic_struct     restart_output[NCHMVOL];
     prcpstate_struct prcps;
     chmstate_struct chms_unsat;
     chmstate_struct chms_gw;

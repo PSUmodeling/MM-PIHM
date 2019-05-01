@@ -13,12 +13,6 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
     int             i, j;
     int             chem_ind;
     FILE           *fp;
-    const int       UNSAT_IND = 0;
-    const int       GW_IND = 1;
-#if defined(_FBR_)
-    const int       FBRUNSAT_IND = 2;
-    const int       FBRGW_IND = 3;
-#endif
 
     fp = fopen(cdbs_filen, "r");
     CheckFile(fp, cdbs_filen);
@@ -80,26 +74,26 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
 
         for (k = 0; k < rttbl->NumStc; k++)
         {
-            elem[i].restart_input.tconc_unsat[k] =
-                chmictbl->conc[ic_type[UNSAT_IND] - 1][k];
-            elem[i].restart_input.tconc_gw[k] =
-                chmictbl->conc[ic_type[GW_IND] - 1][k];
+            elem[i].restart_input[UNSAT_CHMVOL].t_conc[k] =
+                chmictbl->conc[ic_type[UNSAT_CHMVOL] - 1][k];
+            elem[i].restart_input[GW_CHMVOL].t_conc[k] =
+                chmictbl->conc[ic_type[GW_CHMVOL] - 1][k];
 
-            elem[i].restart_input.ssa_unsat[k] =
-                chmictbl->ssa[ic_type[UNSAT_IND] - 1][k];
-            elem[i].restart_input.ssa_gw[k] =
-                chmictbl->ssa[ic_type[GW_IND] - 1][k];
+            elem[i].restart_input[UNSAT_CHMVOL].ssa[k] =
+                chmictbl->ssa[ic_type[UNSAT_CHMVOL] - 1][k];
+            elem[i].restart_input[GW_CHMVOL].ssa[k] =
+                chmictbl->ssa[ic_type[GW_CHMVOL] - 1][k];
 
 #if defined(_FBR_)
-            elem[i].restart_input.tconc_fbrunsat[k] =
-                chmictbl->conc[ic_type[FBRUNSAT_IND] - 1][k];
-            elem[i].restart_input.tconc_fbrgw[k] =
-                chmictbl->conc[ic_type[FBRGW_IND] - 1][k];
+            elem[i].restart_input[FBRUNSAT_CHMVOL].t_conc[k] =
+                chmictbl->conc[ic_type[FBRUNSAT_CHMVOL] - 1][k];
+            elem[i].restart_input[FBRGW_CHMVOL].t_conc[k] =
+                chmictbl->conc[ic_type[FBRGW_CHMVOL] - 1][k];
 
-            elem[i].restart_input.ssa_fbrunsat[k] =
-                chmictbl->ssa[ic_type[FBRUNSAT_IND] - 1][k];
-            elem[i].restart_input.ssa_fbrgw[k] =
-                chmictbl->ssa[ic_type[FBRGW_IND] - 1][k];
+            elem[i].restart_input[FBRUNSAT_CHMVOL].ssa[k] =
+                chmictbl->ssa[ic_type[FBRUNSAT_CHMVOL] - 1][k];
+            elem[i].restart_input[FBRGW_CHMVOL].ssa[k] =
+                chmictbl->ssa[ic_type[FBRGW_CHMVOL] - 1][k];
 #endif
         }
     }
@@ -127,13 +121,11 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             elem[i].soil.smcmin, elem[i].ws.gw, elem[i].ws.unsat), DEPTHR) *
             elem[i].topo.area;
 
-        InitChemS(chemtbl, rttbl, elem[i].restart_input.tconc_unsat,
-            elem[i].restart_input.ssa_unsat, elem[i].soil.smcmax, vol_unsat,
-            &elem[i].chms_unsat);
+        InitChemS(chemtbl, rttbl, &elem[i].restart_input[UNSAT_CHMVOL],
+            elem[i].soil.smcmax, vol_unsat, &elem[i].chms_unsat);
 
-        InitChemS(chemtbl, rttbl, elem[i].restart_input.tconc_gw,
-            elem[i].restart_input.ssa_gw, elem[i].soil.smcmax, vol_gw,
-            &elem[i].chms_gw);
+        InitChemS(chemtbl, rttbl, &elem[i].restart_input[GW_CHMVOL],
+            elem[i].soil.smcmax, vol_gw, &elem[i].chms_gw);
 
 #if defined(_FBR_)
         vol_gw = MAX(GWStrg(elem[i].geol.depth, elem[i].geol.smcmax,
@@ -143,13 +135,11 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat),
             DEPTHR) * elem[i].topo.area;
 
-        InitChemS(chemtbl, rttbl, elem[i].restart_input.tconc_fbrunsat,
-            elem[i].restart_input.ssa_fbrunsat, elem[i].geol.smcmax, vol_unsat,
-            &elem[i].chms_fbrunsat);
+        InitChemS(chemtbl, rttbl, &elem[i].restart_input[FBRUNSAT_CHMVOL],
+            elem[i].geol.smcmax, vol_unsat, &elem[i].chms_fbrunsat);
 
-        InitChemS(chemtbl, rttbl, elem[i].restart_input.tconc_fbrgw,
-            elem[i].restart_input.ssa_fbrgw, elem[i].geol.smcmax, vol_gw,
-            &elem[i].chms_fbrgw);
+        InitChemS(chemtbl, rttbl, &elem[i].restart_input[FBRGW_CHMVOL],
+            elem[i].geol.smcmax, vol_gw, &elem[i].chms_fbrgw);
 #endif
     }
 
@@ -248,7 +238,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 }
 
 void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    double t_conc[], double ssa[], double smcmax, double vol,
+    const rtic_struct *restart_input, double smcmax, double vol,
     chmstate_struct *chms)
 {
     int             k;
@@ -257,14 +247,14 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     {
         if (strcmp(chemtbl[k].ChemName, "'H+'") == 0)
         {
-            chms->t_conc[k] = t_conc[k];
+            chms->t_conc[k] = restart_input->t_conc[k];
             chms->p_actv[k] = chms->t_conc[k];
             chms->p_conc[k] = chms->t_conc[k];
-            chms->ssa[k] = ssa[k];
+            chms->ssa[k] = restart_input->ssa[k];
         }
         else if (chemtbl[k].itype == MINERAL)
         {
-            chms->t_conc[k] = t_conc[k];
+            chms->t_conc[k] = restart_input->t_conc[k];
             /* Update the concentration of mineral using molar volume */
             chms->t_conc[k] *= (rttbl->RelMin == 0) ?
                 /* Absolute mineral volume fraction */
@@ -273,12 +263,12 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 (1.0 - smcmax) * 1000.0 / chemtbl[k].MolarVolume / smcmax;
             chms->p_actv[k] = 1.0;
             chms->p_conc[k] = chms->t_conc[k];
-            chms->ssa[k] = ssa[k];
+            chms->ssa[k] = restart_input->ssa[k];
         }
         else if ((chemtbl[k].itype == CATION_ECHG) ||
             (chemtbl[k].itype == ADSORPTION))
         {
-            chms->t_conc[k] = t_conc[k];
+            chms->t_conc[k] = restart_input->t_conc[k];
             chms->p_actv[k] = chms->t_conc[k] * 0.5;
             /* Change unit of CEC (eq g-1) into C(ion site)
              * (eq L-1 porous space), assuming density of solid is always
@@ -288,10 +278,10 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         }
         else
         {
-            chms->t_conc[k] = t_conc[k];
+            chms->t_conc[k] = restart_input->t_conc[k];
             chms->p_actv[k] = chms->t_conc[k] * 0.5;
             chms->p_conc[k] = chms->t_conc[k] * 0.5;
-            chms->ssa[k] = ssa[k];
+            chms->ssa[k] = restart_input->ssa[k];
         }
     }
 
