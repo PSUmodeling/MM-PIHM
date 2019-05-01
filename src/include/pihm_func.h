@@ -77,6 +77,7 @@
 #if defined(_MSC_VER)
 # define timegm                     _mkgmtime
 # define strcasecmp                 _stricmp
+# define strncasecmp                _strnicmp
 #endif
 
 #define Cycles_exit      PIHMexit
