@@ -418,6 +418,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
             rttbl->pumps[i].flow_rate);
     }
 
+#if OBSOLETE
     /*
      * Output block
      */
@@ -443,7 +444,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
         PIHMprintf(VL_VERBOSE, " Grid %d ", rttbl->BTC_loc[i]);
     }
     PIHMprintf(VL_VERBOSE, "are breakthrough points.\n\n");
-
+#endif
 
     fclose(chem_fp);
     fclose(db_fp);
