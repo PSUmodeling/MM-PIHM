@@ -137,12 +137,6 @@ typedef struct river_chmflux_struct
 {
     double          flux[NUM_RIVFLX][MAXSPS];
 } river_chmflux_struct;
-
-typedef struct river_rtic_struct
-{
-    double          tconc_stream[MAXSPS];
-    double          tconc_rivbed[MAXSPS];
-} river_rtic_struct;
 #endif
 
 /* River structure */
@@ -181,8 +175,6 @@ typedef struct river_struct
     chmstate_struct     chms_stream;
     chmstate_struct     chms_rivbed;
     river_chmflux_struct    chmf;
-    river_rtic_struct   restart_input;
-    river_rtic_struct   restart_output;
 #endif
 } river_struct;
 #endif

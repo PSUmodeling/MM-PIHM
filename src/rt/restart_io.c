@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
-    const rttbl_struct *rttbl, elem_struct elem[], river_struct river[])
+    const rttbl_struct *rttbl, elem_struct elem[])
 {
     int             i;
     FILE           *fp;
@@ -83,25 +83,10 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
         }
     }
 
-    for (i = 0; i < nriver; i++)
-    {
-        int             k;
-
-        for (k = 0; k < MAXSPS; k++)
-        {
-            river[i].restart_output.tconc_stream[k] =
-                river[i].chms_stream.t_conc[k];
-            river[i].restart_output.tconc_rivbed[k] =
-                river[i].chms_rivbed.t_conc[k];
-        }
-
-        fwrite(&(river[i].restart_output), sizeof(river_rtic_struct), 1, fp);
-    }
-
     fclose(fp);
 }
 
-void ReadRtIc(const char *fn, elem_struct elem[], river_struct river[])
+void ReadRtIc(const char *fn, elem_struct elem[])
 {
     FILE           *fp;
     int             i;
@@ -118,11 +103,6 @@ void ReadRtIc(const char *fn, elem_struct elem[], river_struct river[])
         {
             fread(&elem[i].restart_input[j], sizeof(rtic_struct), 1, fp);
         }
-    }
-
-    for (i = 0; i < nriver; i++)
-    {
-        fread(&river[i].restart_input, sizeof(river_rtic_struct), 1, fp);
     }
 
     fclose(fp);
