@@ -18,24 +18,24 @@ void WriteRtIc(const char *outputdir, elem_struct elem[], river_struct river[])
 
         for (k = 0; k < MAXSPS; k++)
         {
-            elem[i].restart_output.tconc_unsat[k] =
+            elem[i].restart_output[UNSAT_CHMVOL].t_conc[k] =
                 elem[i].chms_unsat.t_conc[k];
-            elem[i].restart_output.ssa_unsat[k] =
+            elem[i].restart_output[UNSAT_CHMVOL].ssa[k] =
                 elem[i].chms_unsat.ssa[k];
 
-            elem[i].restart_output.tconc_gw[k] =
+            elem[i].restart_output[GW_CHMVOL].t_conc[k] =
                 elem[i].chms_gw.t_conc[k];
-            elem[i].restart_output.ssa_gw[k] =
+            elem[i].restart_output[GW_CHMVOL].ssa[k] =
                 elem[i].chms_gw.ssa[k];
 #if defined(_FBR_)
-            elem[i].restart_output.tconc_fbrunsat[k] =
-                elem[i].chms_fbrunsat.t_fbrconc[k];
-            elem[i].restart_output.ssa_fbrunsat[k] =
+            elem[i].restart_output[FBRUNSAT_CHMVOL].t_conc[k] =
+                elem[i].chms_fbrunsat.t_conc[k];
+            elem[i].restart_output[FBRUNSAT_CHMVOL].ssa[k] =
                 elem[i].chms_fbrunsat.ssa[k];
 
-            elem[i].restart_output.tconc_fbrgw[k] =
+            elem[i].restart_output[FBRGW_CHMVOL].t_conc[k] =
                 elem[i].chms_fbrgw.t_fbrconc[k];
-            elem[i].restart_output.ssa_fbrgw[k] =
+            elem[i].restart_output[FBRGW_CHMVOL].ssa[k] =
                 elem[i].chms_fbrgw.ssa[k];
 #endif
         }

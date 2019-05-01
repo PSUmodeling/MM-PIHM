@@ -778,7 +778,7 @@ void            ReadCationEchg(const char [], double, chemtbl_struct [],
 void            ReadMinKin(FILE *, int, double, int *, char [], chemtbl_struct [],
     kintbl_struct *);
 void            InitChemS(const chemtbl_struct [], const rttbl_struct *,
-    double [], double [], double, double, chmstate_struct *);
+    const rtic_struct *, double, double, chmstate_struct *);
 void            ReadChemAtt(const char *, atttbl_struct *);
 void            ReadRtIc(const char *, elem_struct [], river_struct []);
 void            WriteRtIc(const char *, elem_struct [], river_struct []);
