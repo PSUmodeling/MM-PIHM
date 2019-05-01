@@ -1,6 +1,7 @@
 #include "pihm.h"
 
-void WriteRtIc(const char *outputdir, elem_struct elem[], river_struct river[])
+void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
+    const rttbl_struct *rttbl, elem_struct elem[], river_struct river[])
 {
     int             i;
     FILE           *fp;
@@ -14,10 +15,46 @@ void WriteRtIc(const char *outputdir, elem_struct elem[], river_struct river[])
 
     for (i = 0; i < nelem; i++)
     {
-        int             k;
+        int             j, k;
 
         for (k = 0; k < MAXSPS; k++)
         {
+            if (k < rttbl->NumStc && chemtbl[k].itype == MINERAL)
+            {
+                elem[i].chms_unsat.t_conc[k] /= (rttbl->RelMin == 0) ?
+                    1000.0 / chemtbl[k].MolarVolume / elem[i].soil.smcmax :
+                    (1.0 - elem[i].soil.smcmax) * 1000.0 /
+                    chemtbl[k].MolarVolume / elem[i].soil.smcmax;
+                elem[i].chms_gw.t_conc[k] /= (rttbl->RelMin == 0) ?
+                    1000.0 / chemtbl[k].MolarVolume / elem[i].soil.smcmax :
+                    (1.0 - elem[i].soil.smcmax) * 1000.0 /
+                    chemtbl[k].MolarVolume / elem[i].soil.smcmax;
+#if defined(_FBR_)
+                elem[i].chms_fbrunsat.t_conc[k] /= (rttbl->RelMin == 0) ?
+                    1000.0 / chemtbl[k].MolarVolume / elem[i].geol.smcmax :
+                    (1.0 - elem[i].geol.smcmax) * 1000.0 /
+                    chemtbl[k].MolarVolume / elem[i].geol.smcmax;
+                elem[i].chms_fbrgw.t_conc[k] /= (rttbl->RelMin == 0) ?
+                    1000.0 / chemtbl[k].MolarVolume / elem[i].geol.smcmax :
+                    (1.0 - elem[i].geol.smcmax) * 1000.0 /
+                    chemtbl[k].MolarVolume / elem[i].geol.smcmax;
+#endif
+            }
+            else if (k < rttbl->NumStc && (chemtbl[k].itype == CATION_ECHG ||
+                chemtbl[k].itype == ADSORPTION))
+            {
+                elem[i].chms_unsat.t_conc[k] /=
+                    (1.0 - elem[i].soil.smcmax) * 2650.0;
+                elem[i].chms_gw.t_conc[k] /=
+                    (1.0 - elem[i].soil.smcmax) * 2650.0;
+#if defined(_FBR_)
+                elem[i].chms_fbrunsat.t_conc[k] /=
+                    (1.0 - elem[i].geol.smcmax) * 2650.0;
+                elem[i].chms_fbrgw.t_conc[k] /=
+                    (1.0 - elem[i].geol.smcmax) * 2650.0;
+#endif
+            }
+
             elem[i].restart_output[UNSAT_CHMVOL].t_conc[k] =
                 elem[i].chms_unsat.t_conc[k];
             elem[i].restart_output[UNSAT_CHMVOL].ssa[k] =
@@ -34,13 +71,16 @@ void WriteRtIc(const char *outputdir, elem_struct elem[], river_struct river[])
                 elem[i].chms_fbrunsat.ssa[k];
 
             elem[i].restart_output[FBRGW_CHMVOL].t_conc[k] =
-                elem[i].chms_fbrgw.t_fbrconc[k];
+                elem[i].chms_fbrgw.t_conc[k];
             elem[i].restart_output[FBRGW_CHMVOL].ssa[k] =
                 elem[i].chms_fbrgw.ssa[k];
 #endif
         }
 
-        fwrite(&(elem[i].restart_output), sizeof(rtic_struct), 1, fp);
+        for (j = 0; j < NCHMVOL; j++)
+        {
+            fwrite(&(elem[i].restart_output[j]), sizeof(rtic_struct), 1, fp);
+        }
     }
 
     for (i = 0; i < nriver; i++)
@@ -72,7 +112,12 @@ void ReadRtIc(const char *fn, elem_struct elem[], river_struct river[])
 
     for (i = 0; i < nelem; i++)
     {
-        fread(&elem[i].restart_input, sizeof(rtic_struct), 1, fp);
+        int             j;
+
+        for (j = 0; j < NCHMVOL; j++)
+        {
+            fread(&elem[i].restart_input[j], sizeof(rtic_struct), 1, fp);
+        }
     }
 
     for (i = 0; i < nriver; i++)

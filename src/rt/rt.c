@@ -76,22 +76,22 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
         {
             elem[i].restart_input[UNSAT_CHMVOL].t_conc[k] =
                 chmictbl->conc[ic_type[UNSAT_CHMVOL] - 1][k];
-            elem[i].restart_input[GW_CHMVOL].t_conc[k] =
-                chmictbl->conc[ic_type[GW_CHMVOL] - 1][k];
-
             elem[i].restart_input[UNSAT_CHMVOL].ssa[k] =
                 chmictbl->ssa[ic_type[UNSAT_CHMVOL] - 1][k];
+
+            elem[i].restart_input[GW_CHMVOL].t_conc[k] =
+                chmictbl->conc[ic_type[GW_CHMVOL] - 1][k];
             elem[i].restart_input[GW_CHMVOL].ssa[k] =
                 chmictbl->ssa[ic_type[GW_CHMVOL] - 1][k];
 
 #if defined(_FBR_)
             elem[i].restart_input[FBRUNSAT_CHMVOL].t_conc[k] =
                 chmictbl->conc[ic_type[FBRUNSAT_CHMVOL] - 1][k];
-            elem[i].restart_input[FBRGW_CHMVOL].t_conc[k] =
-                chmictbl->conc[ic_type[FBRGW_CHMVOL] - 1][k];
-
             elem[i].restart_input[FBRUNSAT_CHMVOL].ssa[k] =
                 chmictbl->ssa[ic_type[FBRUNSAT_CHMVOL] - 1][k];
+
+            elem[i].restart_input[FBRGW_CHMVOL].t_conc[k] =
+                chmictbl->conc[ic_type[FBRGW_CHMVOL] - 1][k];
             elem[i].restart_input[FBRGW_CHMVOL].ssa[k] =
                 chmictbl->ssa[ic_type[FBRGW_CHMVOL] - 1][k];
 #endif

@@ -125,7 +125,8 @@ int main(int argc, char *argv[])
 #endif
 
 #if defined(_RT_)
-        WriteRtIc(outputdir, pihm->elem, pihm->river);
+        WriteRtIc(outputdir, pihm->chemtbl, &pihm->rttbl, pihm->elem,
+            pihm->river);
 #endif
     }
     else
@@ -171,7 +172,8 @@ int main(int argc, char *argv[])
 #if defined(_RT_)
         if (ctrl->write_rt_restart)
         {
-            WriteRtIc(outputdir, pihm->elem, pihm->river);
+            WriteRtIc(outputdir, pihm->chemtbl, &pihm->rttbl, pihm->elem,
+                pihm->river);
         }
 #endif
 
