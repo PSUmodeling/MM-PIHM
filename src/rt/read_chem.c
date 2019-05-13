@@ -8,7 +8,6 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     int             chem_ind;
     char            cmdstr[MAXSTRING];
     char            temp_str[MAXSTRING];
-    char            loc_str[MAXSTRING];
     char            chemn[MAXSPS][MAXSTRING];
     int             p_type[MAXSPS];
     int             lno = 0;
