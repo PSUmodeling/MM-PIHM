@@ -8,12 +8,14 @@ script:
   - make clean && make FBR=on flux-pihm
   - make clean && make flux-pihm-bgc
   - make clean && make rt-flux-pihm
+  - make clean && make FBR=on rt-flux-pihm
   - make clean && make OMP=off pihm
   - make clean && make OMP=off FBR=on pihm
   - make clean && make OMP=off flux-pihm
   - make clean && make OMP=off FBR=on flux-pihm
   - make clean && make OMP=off flux-pihm-bgc
   - make clean && make OMP=off rt-flux-pihm
+  - make clean && make OMP=off FBR=on rt-flux-pihm
 branches:
   only:
   - master
