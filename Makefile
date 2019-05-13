@@ -381,4 +381,4 @@ clean:			## Clean executables and objects
 	@echo
 	@echo "... Cleaning ..."
 	@echo
-	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm pihm-fbr flux-pihm flux-pihm-fbr rt-flux-pihm flux-pihm-bgc flux-pihm-cycles rt-flux-pihm
+	@$(RM) $(SRCDIR)/*.o $(SRCDIR)/*/*.o $(CYCLES_PATH)/*.o *~ pihm flux-pihm rt-flux-pihm flux-pihm-bgc flux-pihm-cycles
