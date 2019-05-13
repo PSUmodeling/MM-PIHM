@@ -4,14 +4,14 @@ MM-PIHM [![Build Status](https://travis-ci.org/PSUmodeling/MM-PIHM.svg?branch=ma
 The Multi-Modular Penn State Integrated Hydrologic Model (MM-PIHM) is a physically based watershed model with multiple optional modules.
 MM-PIHM is the **sweetest** PIHM, ever!
 
-The current release contains the source code for PIHM, PIHM-FBR, Flux-PIHM, and Flux-PIHM-BGC.
+The current release contains the source code for PIHM, Flux-PIHM, Flux-PIHM-BGC, and RT-Flux-PIHM.
 
 PIHM is a spatially-distributed, physically based hydrologic model.
-PIHM-FBR adds fractured bedrock hydrology to PIHM to simulate deep groundwater processes.
 Flux-PIHM adds a land surface model (adapted from the Noah land surface model) to PIHM for
 the simulation of land surface processes.
 Flux-PIHM-BGC couples Flux-PIHM with a terrestrial ecosystem model (adapted from Biome-BGC) that enables the simulation of carbon and nitrogen cycles.
-The source code for the reactive transport (RT) module will be provided in future releases.
+RT-Flux-PIHM couples Flux-PIHM with a multicomponent subsurface reactive transport module.
+A deep groundwater module can be turned on for PIHM, Flux-PIHM, and RT-Flux-PIHM.
 
 MM-PIHM is open source software licensed under the MIT License.
 All bug reports and feature requests should be submitted using the [Issues](https://github.com/PSUmodeling/MM-PIHM/issues) page.
@@ -45,7 +45,7 @@ Once CVODE is installed, you can compile MM-PIHM models from the MM-PIHM directo
 $ make [model]
 ```
 
-The `[model]` should be replaced by the name of model that you want to compile, which could be `pihm`, `pihm-fbr`, `flux-pihm`, or `flux-pihm-bgc`.
+The `[model]` should be replaced by the name of model that you want to compile, which could be `pihm`, `flux-pihm`, `flux-pihm-bgc`, or `rt-flux-pihm`.
 
 The command
 
@@ -61,7 +61,14 @@ A help message will appear if you run `make`.
 
 #### Installation options
 
-By default, MM-PIHM is paralleled using OpenMP, which significantly improves the computational efficiency of MM-PIHM models, especially Flux-PIHM and Flux-PIHM-BGC.
+The deep groundwater module (DGM) can be turned on during compilation.
+To turn on the DGM module, compile MM-PIHM models using
+
+```shell
+$ make DGM=on [model]
+```
+
+By default, MM-PIHM is paralleled using OpenMP, which significantly improves the computational efficiency of MM-PIHM models.
 CVODE, however, is not implemented using OpenMP by default.
 According to CVODE document, CVODE state variables (i.e., unknowns) "should be of length at least 100, 000 before the overhead associated with creating and using the threads is made up by the parallelism in the vector calculations".
 In other words, you should using OpenMP for CVODE if your model domain has about 30, 000 or more model grids.
@@ -73,20 +80,20 @@ $ make CVODE_OMP=on [model]
 
 Note that in order to use OpenMP for CVODE, you also need to turn on the OPENMP_ENABLE option when using CMake to install CVODE.
 
-You can also turn off OpenMP for MM-PIHM (NOT RECOMMENDED):
+You can also turn off OpenMP for MM-PIHM (**NOT RECOMMENDED**):
 
 ```shell
 $ make OMP=off [model]
 ```
 
-By default, PIHM compilation is optimized using the `-O2` gcc option.
-If you wish to debug using gdb, you may want to use
+By default, PIHM compilation is optimized using the `-O0` gcc option.
+If you wish to further accelerate the model (**NOT RECOMMENDED**), you may want to use
 
 ```shell
-$ make DEBUG=on [model]
+$ make DEBUG=off [model]
 ```
 
-which will compile using `-O0` gcc option.
+which will compile using `-O2` gcc option.
 
 ### Running MM-PIHM
 
@@ -96,24 +103,24 @@ To optimize PIHM efficiency, you need to set the number of threads in OpenMP.
 For example, in command line
 
 ```shell
-$ export OMP_NUM_THREADS=20
+$ export OMP_NUM_THREADS=12
 ```
 
-The command above will enable MM-PIHM model simulations using twenty (20) OpenMP threads.
+The command above will enable MM-PIHM model simulations using twelve (12) OpenMP threads.
 
 If you use a PBS script, you must require the right number of ppn (processor cores per node) before setting the number of threads.
 The ppn should be the same as the number of threads you want to use.
 For example, your PBS script may look like
 
 ```shell
-#PBS -l nodes=1:ppn=8
+#PBS -l nodes=1:ppn=12
 #PBS -l walltime=1:00:00
 #PBS -j oe
 #PBS -l pmem=1gb
 
 cd $PBS_O_WORKDIR
 
-export OMP_NUM_THREADS=8
+export OMP_NUM_THREADS=12
 ./pihm example
 ```
 
@@ -122,16 +129,22 @@ export OMP_NUM_THREADS=8
 Now you can run MM-PIHM models using:
 
 ```shell
-$ ./[model] [-c] [-d] [-t] [-V] [-v] [-o dir_name] [project]
+$ ./[model] [-b] [-c] [-d] [-f] [-s] [-t] [-V] [-v] [-o dir_name] [project]
 ```
+ 
+where `[model]` is the installed executable, `[project]` is the name of the project, and `[-bcdfostVv]` are optional parameters.
 
-where `[model]` is the installed executable, `[project]` is the name of the project, and `[-cdotVv]` are optional parameters.
+The optional `-b` parameter will turn on the brief mode with minimum screen output.
 
 The optional `-c` parameter will turn on the elevation correction mode.
 Surface elevation of all model grids will be checked, and changed if needed before simulation, to avoid surface sinks.
 
 The optional `-d` parameter will turn on the debug mode.
 In debug mode, helpful information is displayed on screen and a CVODE log file will be produced.
+
+The optional `-f` parameter will turn on fixed length spin-up mode, in which spin-up simulations will only stop at the specified maximum spin-up years, but not at equilibrium.
+
+The optional `-s` parameter will turn on silence mode without screen output during simulations.
 
 The optional `-t` parameter will turn on Tecplot output.
 
@@ -146,11 +159,11 @@ All model output variables will be stored in the `output/dir_name` directory whe
 If `-o` parameter is not used, model output will be stored in a directory named after the project and the system time when the simulation is executed.
 
 Example input files are provided with each release.
-For a description of input files, please refer to the [*User's Guide*](https://github.com/PSUmodeling/MM-PIHM/releases/download/v0.11.0-alpha/guide.pdf "Guide")
- that can be downloaded from the release page.
+For a description of input files, please refer to the *User's Guide*
+ that can be downloaded from the [release page](https://github.com/PSUmodeling/MM-PIHM/releases).
 
 ### Penn State Users
 
-The Penn State Lion-X clusters support both batch job submissions and interactive jobs.
-The clusters for batch job submissions, Lion-XX clusters, usually support eight processors per node for OMP jobs.
-The cluster for interactive jobs, hammer, supports twenty processors per node for OMP jobs, but is limited to short jobs only.
+The Penn State ICS ACI system support both batch job submissions and interactive jobs.
+The clusters for batch job submissions, ACI-B, usually support twelve processors per node for OMP jobs.
+The cluster for interactive jobs, ACI-I, supports twenty processors per node for OMP jobs, but is limited to short jobs only.
