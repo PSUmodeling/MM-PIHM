@@ -1,8 +1,7 @@
 #include "pihm.h"
 
 void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
-    const calib_struct *cal, atttbl_struct *atttbl, chmictbl_struct *chmictbl,
-    elem_struct elem[])
+    atttbl_struct *atttbl, chmictbl_struct *chmictbl)
 {
     FILE           *fp;
     int             i, k;

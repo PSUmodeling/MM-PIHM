@@ -28,10 +28,6 @@ void FreeMem(pihm_struct pihm)
     FreeEpctbl(&pihm->epctbl);
 #endif
 
-#if defined(_RT_)
-    FreeRttbl(&pihm->rttbl);
-#endif
-
     FreeCtrl(&pihm->ctrl);
 
     /*
@@ -361,23 +357,6 @@ void FreeEpctbl(epctbl_struct *epctbl)
     free(epctbl->deadwood_fucel);
     free(epctbl->deadwood_fscel);
     free(epctbl->deadwood_flig);
-}
-#endif
-
-#if defined(_RT_)
-void FreeRttbl(rttbl_struct *rttbl)
-{
-# if OBSOLETE
-    if (rttbl->NumBTC > 0)
-    {
-        free(rttbl->BTC_loc);
-    }
-
-    if (rttbl->NumPUMP > 0)
-    {
-        free(rttbl->pumps);
-    }
-# endif
 }
 #endif
 

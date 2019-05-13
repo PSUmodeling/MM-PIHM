@@ -748,7 +748,7 @@ void            ReadChem(const char[], const char[], chemtbl_struct [],
 void            ReadPrep(const char[], const chemtbl_struct [],
     const rttbl_struct *, forc_struct *forc);
 void            ReadCini(const char[], const chemtbl_struct *, int,
-    const calib_struct *, atttbl_struct *, chmictbl_struct *, elem_struct []);
+    atttbl_struct *, chmictbl_struct *);
 int             ParseLocation(const char [], const char [], int);
 void            ApplyPrcpConc(const  rttbl_struct *, forc_struct *,
     elem_struct [], int);
@@ -763,7 +763,6 @@ double          AdvDiffDisp(double, double, double, double, double, double,
 void            RTUpdate(const rttbl_struct *, elem_struct [], river_struct []);
 void            InitRTVar(const chemtbl_struct [], const rttbl_struct *,
     elem_struct [], river_struct [], N_Vector);
-void            FreeRttbl(rttbl_struct *);
 int             MatchWrappedKey(const char [], const char []);
 void            ReadTempPoints(const char [], double, int *, int *);
 void            ReadDHParam(const char [], int, double *);

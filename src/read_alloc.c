@@ -123,7 +123,7 @@ void ReadAlloc(pihm_struct pihm)
         pihm->kintbl, &pihm->rttbl, &pihm->forc, &pihm->ctrl);
 
     ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.NumStc,
-        &pihm->cal, &pihm->atttbl, &pihm->chmictbl, pihm->elem);
+        &pihm->atttbl, &pihm->chmictbl);
 
     if (pihm->forc.PrpFlg == 2)
     {
