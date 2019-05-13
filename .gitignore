@@ -68,3 +68,6 @@ advisor
 
 # IDE
 /ide
+
+# VS Code
+/.vscode
