@@ -127,8 +127,7 @@ void ReadAlloc(pihm_struct pihm)
 
     if (pihm->forc.PrpFlg == 2)
     {
-        ReadPrep(pihm->filename.prep, pihm->chemtbl, pihm->rttbl.prcp_conc,
-            &pihm->forc);
+        ReadPrep(pihm->filename.prep, pihm->chemtbl, &pihm->rttbl, &pihm->forc);
     }
 #endif
 
