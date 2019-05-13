@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
-    const double prcp_conc[], forc_struct *forc)
+    const rttbl_struct *rttbl, forc_struct *forc)
 {
     FILE           *fp;
     int             lno = 0;
@@ -13,6 +13,7 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
     int             tsind;
     int            *nsps;
     double          temp_conc[MAXSPS];
+    char            chemn[MAXSTRING];
     char            cmdstr[MAXSTRING];
 
     fp = fopen(filen, "r");
@@ -59,7 +60,7 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
             bytes_consumed = 0;
             for (j = 0; j < nsps[i]; j++)
             {
-                if (sscanf(cmdstr + bytes_consumed, "%d%n", &index[j],
+                if (sscanf(cmdstr + bytes_consumed, "%s%n", chemn,
                     &bytes_now) != 1)
                 {
                     PIHMprintf(VL_ERROR,
@@ -69,22 +70,19 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
                 }
                 bytes_consumed += bytes_now;
 
-                if (index[j] > 0)
+                index[j] = FindChem(chemn, chemtbl, rttbl->NumStc);
+                if (index[j] < NumSpc)
                 {
-                    if (index[j] <= NumSpc)
-                    {
-                        PIHMprintf(VL_VERBOSE,
-                            "  Precipitation concentration of '%s' "
-                            "is a time series.\n",
-                            chemtbl[index[j] - 1].ChemName);
-                    }
-                    else
-                    {
-                        PIHMprintf(VL_VERBOSE,
-                            "Error: Precipitation species index is larger "
-                            "than number of primary species.\n");
-                        PIHMexit(EXIT_FAILURE);
-                    }
+                    PIHMprintf(VL_VERBOSE,
+                        "  Precipitation concentration of '%s' "
+                        "is a time series.\n", chemn);
+                }
+                else
+                {
+                    PIHMprintf(VL_VERBOSE,
+                        "Error: Precipitation species index is larger than "
+                        "number of primary species.\n");
+                    PIHMexit(EXIT_FAILURE);
                 }
             }
 
@@ -109,11 +107,11 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
                 {
                     /* Species not described in the forcing file will be filled
                      * with the concentrations in .chem file */
-                    forc->prcpc[i].data[j][k] = prcp_conc[k];
+                    forc->prcpc[i].data[j][k] = rttbl->prcp_conc[k];
 
                     for (kk = 0; kk < nsps[i]; kk++)
                     {
-                        if (index[kk] - 1 == k)
+                        if (index[kk] == k)
                         {
                             if (strcmp(chemtbl[k].ChemName, "pH") == 0)
                             {
