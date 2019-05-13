@@ -54,7 +54,7 @@ endif
 
 SFLAGS = -D_PIHM_
 
-ifeq ($(FBR), on)
+ifeq ($(DGW), on)
   SFLAGS += -D_FBR_
 endif
 
@@ -266,11 +266,11 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   MSG = "... Compiling Flux-PIHM-Cycles ..."
 endif
 
-ifeq ($(FBR), on)
+ifeq ($(DGW), on)
   MODULE_SRCS_ +=\
-	fbr/init_geol.c\
-	fbr/read_bedrock.c\
-	fbr/read_geol.c
+	dgw/init_geol.c\
+	dgw/read_bedrock.c\
+	dgw/read_geol.c
 endif
 
 SRCS = $(patsubst %,$(SRCDIR)/%,$(SRCS_))
@@ -328,22 +328,8 @@ pihm:	$(OBJS) $(MODULE_OBJS)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
 
-pihm-fbr:		## Compile PIHM-FBR (PIHM with fractured bedrock module)
-pihm-fbr: $(OBJS) $(MODULE_OBJS)
-	@echo
-	@echo $(MSG)
-	@echo
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
-
 flux-pihm:		## Compile Flux-PIHM (PIHM with land surface module, adapted from Noah LSM)
 flux-pihm: $(OBJS) $(MODULE_OBJS)
-	@echo
-	@echo $(MSG)
-	@echo
-	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(LFLAGS) $(LIBS)
-
-flux-pihm-fbr:		## Compile Flux-PIHM-FBR (PIHM with land surface and fractured bedrock modules)
-flux-pihm-fbr: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
