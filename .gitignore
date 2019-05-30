@@ -30,6 +30,7 @@
 
 # Cvode files
 /cvode/instdir/
+/cvode/builddir/
 
 # PIHM executables
 /pihm
