@@ -6,11 +6,10 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
-#include <sys/time.h>
-#include <sys/stat.h>
 #include <errno.h>
 #include <ctype.h>
 #if defined(_WIN32) || defined(_WIN64)
+# include <windows.h>
 # include <direct.h>
 # include <io.h>
 #else
