@@ -1,6 +1,11 @@
 #ifndef CUCTOMIO_HEADER
 #define CUCTOMIO_HEADER
 
+#if defined(_MSC_VER)
+# define strcasecmp                 _stricmp
+# define strncasecmp                _strnicmp
+#endif
+
 void            _custom_exit(const char *, int, const char *, int, int);
 void            _custom_printf(const char *, int, const char *, int, int, int,
     const char *, ...);
