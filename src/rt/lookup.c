@@ -337,10 +337,15 @@ int MatchWrappedKey(const char cmdstr[], const char key[])
 {
     char            optstr[MAXSTRING];
 
-    sscanf(cmdstr, "'%[^']'", optstr);
-    wrap(optstr);
-
-    return (strcmp(optstr, key) == 0) ? 0 : 1;
+    if (sscanf(cmdstr, "'%[^']'", optstr) != 1)
+    {
+        return 1;
+    }
+    else
+    {
+        wrap(optstr);
+        return (strcmp(optstr, key) == 0) ? 0 : 1;
+    }
 }
 
 void ReadTempPoints(const char cmdstr[], double tmp, int *total_points,
@@ -605,7 +610,12 @@ void ReadAdsorption(const char cmdstr[], int npoints, int keq_position,
     double          dep;
     char            chemn[MAXSTRING];
 
-    sscanf(cmdstr + bytes_consumed, "'%[^']' %d%n", chemn, &ndep, &bytes_now);
+    if (sscanf(cmdstr + bytes_consumed, "'%[^']' %d%n",
+        chemn, &ndep, &bytes_now) != 2)
+    {
+        return;
+    }
+    
     bytes_consumed += bytes_now;
     wrap(chemn);
 
