@@ -971,7 +971,7 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
     double          satn;
     int             nlog, kcount;
     const double    CK = 8.0;
-    const double    ERROR = 0.005;
+    const double    TOL = 0.005;
     double          mx;
     double          freew;
 
@@ -1026,7 +1026,7 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
                  * approx.) when dswl less or eq. error, no more iterations
                  * required. */
                 swl = swlk;
-                if (dswl <= ERROR)
+                if (dswl <= TOL)
                 {
                     kcount++;
                 }
