@@ -7,7 +7,7 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
-#include <ctype.h>
+#include <sys/stat.h>
 #if defined(_WIN32) || defined(_WIN64)
 # include <windows.h>
 # include <direct.h>
