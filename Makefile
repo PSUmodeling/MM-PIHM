@@ -156,7 +156,6 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	rt/lookup.c\
 	rt/react.c\
 	rt/read_chem.c\
-	rt/read_chem_att.c\
 	rt/read_cini.c\
 	rt/read_prep.c\
 	rt/restart_io.c\
