@@ -4,87 +4,87 @@
 #define _ARITH_
 
 /* State variables */
-#define SURF(i)          (i)
-#define UNSAT(i)         (i + nelem)
-#define GW(i)            (i + 2 * nelem)
-#define RIVSTG(i)        (i + 3 * nelem)
-#define RIVGW(i)         (i + 3 * nelem + nriver)
+#define SURF(i)                 (i)
+#define UNSAT(i)                (i + nelem)
+#define GW(i)                   (i + 2 * nelem)
+#define RIVSTG(i)               (i + 3 * nelem)
+#define RIVGW(i)                (i + 3 * nelem + nriver)
 
 #if defined(_FBR_)
-# define FBRUNSAT(i)     (i + 3 * nelem + 2 * nriver)
-# define FBRGW(i)        (i + 4 * nelem + 2 * nriver)
+# define FBRUNSAT(i)            (i + 3 * nelem + 2 * nriver)
+# define FBRGW(i)               (i + 4 * nelem + 2 * nriver)
 #endif
 
 #if defined(_RT_)
 # if defined(_FBR_)
-#  define UNSAT_MOLE(i, j)   ((i) * NumSpc + j + 5 * nelem + 2 * nriver)
-#  define GW_MOLE(i, j)      ((i) * NumSpc + j + (5 + NumSpc) * nelem + 2 * nriver)
-#  define STREAM_MOLE(i, j)  ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + 2 * nriver)
-#  define RIVBED_MOLE(i, j)  ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + (2 + NumSpc) * nriver)
-#  define FBRUNSAT_MOLE(i, j) ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + (2 + 2 * NumSpc) * nriver)
-#  define FBRGW_MOLE(i, j)   ((i) * NumSpc + j + (5 + 3 * NumSpc) * nelem + (2 + 2 * NumSpc) * nriver)
+#  define UNSAT_MOLE(i, j)      ((i) * NumSpc + j + 5 * nelem + 2 * nriver)
+#  define GW_MOLE(i, j)         ((i) * NumSpc + j + (5 + NumSpc) * nelem + 2 * nriver)
+#  define STREAM_MOLE(i, j)     ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + 2 * nriver)
+#  define RIVBED_MOLE(i, j)     ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + (2 + NumSpc) * nriver)
+#  define FBRUNSAT_MOLE(i, j)   ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + (2 + 2 * NumSpc) * nriver)
+#  define FBRGW_MOLE(i, j)      ((i) * NumSpc + j + (5 + 3 * NumSpc) * nelem + (2 + 2 * NumSpc) * nriver)
 # else
-#  define UNSAT_MOLE(i, j)   ((i) * NumSpc + j + 3 * nelem + 2 * nriver)
-#  define GW_MOLE(i, j)      ((i) * NumSpc + j + (3 + NumSpc) * nelem + 2 * nriver)
-#  define STREAM_MOLE(i, j)  ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + 2 * nriver)
-#  define RIVBED_MOLE(i, j)  ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + (2 + NumSpc) * nriver)
+#  define UNSAT_MOLE(i, j)      ((i) * NumSpc + j + 3 * nelem + 2 * nriver)
+#  define GW_MOLE(i, j)         ((i) * NumSpc + j + (3 + NumSpc) * nelem + 2 * nriver)
+#  define STREAM_MOLE(i, j)     ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + 2 * nriver)
+#  define RIVBED_MOLE(i, j)     ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + (2 + NumSpc) * nriver)
 # endif
 #endif
 
 #if defined(_BGC_) && !defined(_LUMPED_)
-# define SURFN(i)        (i + 3 * nelem + 2 * nriver)
-# define SMINN(i)        (i + 4 * nelem + 2 * nriver)
-# define STREAMN(i)      (i + 5 * nelem + 2 * nriver)
-# define RIVBEDN(i)      (i + 5 * nelem + 3 * nriver)
+# define SURFN(i)               (i + 3 * nelem + 2 * nriver)
+# define SMINN(i)               (i + 4 * nelem + 2 * nriver)
+# define STREAMN(i)             (i + 5 * nelem + 2 * nriver)
+# define RIVBEDN(i)             (i + 5 * nelem + 3 * nriver)
 #else
-# define LUMPED_SMINN    (3 * nelem + 2 * nriver)
+# define LUMPED_SMINN           (3 * nelem + 2 * nriver)
 #endif
 
 #if defined(_CYCLES_)
-# define NO3(i)          (i + 3 * nelem + 2 * nriver)
-# define NH4(i)          (i + 4 * nelem + 2 * nriver)
-# define STREAMNO3(i)    (i + 5 * nelem + 2 * nriver)
-# define RIVBEDNO3(i)    (i + 5 * nelem + 3 * nriver)
-# define STREAMNH4(i)    (i + 5 * nelem + 4 * nriver)
-# define RIVBEDNH4(i)    (i + 5 * nelem + 5 * nriver)
+# define NO3(i)                 (i + 3 * nelem + 2 * nriver)
+# define NH4(i)                 (i + 4 * nelem + 2 * nriver)
+# define STREAMNO3(i)           (i + 5 * nelem + 2 * nriver)
+# define RIVBEDNO3(i)           (i + 5 * nelem + 3 * nriver)
+# define STREAMNH4(i)           (i + 5 * nelem + 4 * nriver)
+# define RIVBEDNH4(i)           (i + 5 * nelem + 5 * nriver)
 #endif
 
-#define AvgElev(...)      _WsAreaElev(WS_ZMAX, __VA_ARGS__)
-#define AvgZmin(...)      _WsAreaElev(WS_ZMIN, __VA_ARGS__)
-#define TotalArea(...)    _WsAreaElev(WS_AREA, __VA_ARGS__)
+#define AvgElev(...)            _WsAreaElev(WS_ZMAX, __VA_ARGS__)
+#define AvgZmin(...)            _WsAreaElev(WS_ZMIN, __VA_ARGS__)
+#define TotalArea(...)          _WsAreaElev(WS_AREA, __VA_ARGS__)
 
 /* CVode functions */
 #if defined(_CVODE_OMP)
-# define N_VNew(N)    N_VNew_OpenMP(N, nthreads)
-# define NV_DATA      NV_DATA_OMP
-# define NV_Ith       NV_Ith_OMP
+# define N_VNew(N)              N_VNew_OpenMP(N, nthreads)
+# define NV_DATA                NV_DATA_OMP
+# define NV_Ith                 NV_Ith_OMP
 #else
-# define N_VNew(N)    N_VNew_Serial(N)
-# define NV_DATA      NV_DATA_S
-# define NV_Ith       NV_Ith_S
+# define N_VNew(N)              N_VNew_Serial(N)
+# define NV_DATA                NV_DATA_S
+# define NV_Ith                 NV_Ith_S
 #endif
 
 /* PIHM system function */
-#define PIHMexit(...)               _custom_exit(__FILE__, __LINE__, __FUNCTION__, debug_mode,  __VA_ARGS__)
-#define PIHMprintf(...)             _custom_printf(__FILE__, __LINE__, __FUNCTION__, debug_mode, verbose_mode, __VA_ARGS__)
+#define PIHMexit(...)           _custom_exit(__FILE__, __LINE__, __FUNCTION__, debug_mode,  __VA_ARGS__)
+#define PIHMprintf(...)         _custom_printf(__FILE__, __LINE__, __FUNCTION__, debug_mode, verbose_mode, __VA_ARGS__)
 #if defined(_WIN32) || defined(_WIN64)
-# define PIHMmkdir(path)            _mkdir((path))
-# define PIHMaccess(path, amode)    _access((path), (amode))
+# define PIHMmkdir(path)        _mkdir((path))
+# define PIHMaccess(path, amode) _access((path), (amode))
 #else
-# define PIHMmkdir(path)            mkdir(path, 0755)
-# define PIHMaccess(path, amode)    access((path), (amode))
+# define PIHMmkdir(path)        mkdir(path, 0755)
+# define PIHMaccess(path, amode) access((path), (amode))
 #endif
 #if defined(_MSC_VER)
-# define timegm                     _mkgmtime
-# define strcasecmp                 _stricmp
-# define strncasecmp                _strnicmp
+# define timegm                 _mkgmtime
+# define strcasecmp             _stricmp
+# define strncasecmp            _strnicmp
 #endif
 
-#define Cycles_exit      PIHMexit
-#define Cycles_printf    PIHMprintf
+#define Cycles_exit             PIHMexit
+#define Cycles_printf           PIHMprintf
 
-#define MIN(x, y)       (((x) < (y)) ? (x) : (y))
-#define MAX(x, y)       (((x) > (y)) ? (x) : (y))
+#define MIN(x, y)               (((x) < (y)) ? (x) : (y))
+#define MAX(x, y)               (((x) > (y)) ? (x) : (y))
 
 /*
  * Function Declarations

@@ -7,6 +7,7 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <stdarg.h>
 #include <sys/stat.h>
 #if defined(_WIN32) || defined(_WIN64)
 # include <windows.h>
@@ -15,7 +16,6 @@
 #else
 # include <unistd.h>
 #endif
-#include <stdarg.h>
 #if defined(_OPENMP)
 # include <omp.h>
 #endif
@@ -56,4 +56,5 @@
 #include "river_struct.h"
 #include "pihm_struct.h"
 #include "pihm_func.h"
+
 #endif
