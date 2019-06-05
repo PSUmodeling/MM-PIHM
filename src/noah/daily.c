@@ -184,8 +184,10 @@ void InitDailyStruct(elem_struct *elem)
         {
             elem[i].daily.avg_sh2o[k] = 0.0;
             elem[i].daily.avg_smc[k] = 0.0;
-            elem[i].daily.avg_et[k] = 0.0;
             elem[i].daily.avg_stc[k] = 0.0;
+#if defined(_CYCLES_)
+            elem[i].daily.avg_et[k] = 0.0;
+#endif
         }
 
         elem[i].daily.avg_q2d = 0.0;
@@ -193,7 +195,9 @@ void InitDailyStruct(elem_struct *elem)
         elem[i].daily.avg_ch = 0.0;
         elem[i].daily.avg_rc = 0.0;
         elem[i].daily.avg_albedo = 0.0;
+#if defined(_CYCLES_)
         elem[i].daily.avg_sncovr = 0.0;
+#endif
 
         elem[i].daily.tmax = -999.0;
         elem[i].daily.tmin = 999.0;
