@@ -734,7 +734,7 @@ void            ReactControl(const chemtbl_struct [], const kintbl_struct [],
 void            Lookup(FILE *, const calib_struct *, chemtbl_struct [],
     kintbl_struct [], rttbl_struct *);
 void            Speciation(const chemtbl_struct [], const rttbl_struct *,
-    elem_struct [], river_struct []);
+    river_struct []);
 int             _Speciation(const chemtbl_struct [], const rttbl_struct *, int,
     chmstate_struct *);
 int             SpeciesType(FILE *, const char []);

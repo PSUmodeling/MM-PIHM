@@ -3,39 +3,18 @@
 #define TOL        1E-7
 
 void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    elem_struct elem[], river_struct river[])
+    river_struct river[])
 {
     int             i;
 
-    if (rttbl->RecFlg == KIN_REACTION)
-    {
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-        for (i = 0; i < nriver; i++)
-        {
-            _Speciation(chemtbl, rttbl, 0, &river[i].chms_stream);
-
-            _Speciation(chemtbl, rttbl, 0, &river[i].chms_rivbed);
-        }
-    }
-    else
+    for (i = 0; i < nriver; i++)
     {
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
-        for (i = 0; i < nelem; i++)
-        {
-            _Speciation(chemtbl, rttbl, 0, &elem[i].chms_unsat);
+        _Speciation(chemtbl, rttbl, 0, &river[i].chms_stream);
 
-            _Speciation(chemtbl, rttbl, 0, &elem[i].chms_gw);
-
-#if defined(_FBR_)
-            _Speciation(chemtbl, rttbl, 0, &elem[i].chms_fbrunsat);
-
-            _Speciation(chemtbl, rttbl, 0, &elem[i].chms_fbrgw);
-#endif
-        }
+        _Speciation(chemtbl, rttbl, 0, &river[i].chms_rivbed);
     }
 }
 
