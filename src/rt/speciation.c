@@ -14,19 +14,6 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 #endif
         for (i = 0; i < nriver; i++)
         {
-            int             k;
-
-            for (k = 0; k < rttbl->NumStc; k++)
-            {
-                river[i].chms_stream.p_conc[k] = (chemtbl[k].itype == MINERAL) ?
-                    river[i].chms_stream.t_conc[k] :
-                    river[i].chms_stream.t_conc[k] * 0.1;
-
-                river[i].chms_rivbed.p_conc[k] = (chemtbl[k].itype == MINERAL) ?
-                    river[i].chms_rivbed.t_conc[k] :
-                    river[i].chms_rivbed.t_conc[k] * 0.1;
-            }
-
             _Speciation(chemtbl, rttbl, 0, &river[i].chms_stream);
 
             _Speciation(chemtbl, rttbl, 0, &river[i].chms_rivbed);
