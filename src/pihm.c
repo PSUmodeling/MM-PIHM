@@ -3,6 +3,9 @@
 void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
 {
     int             t;
+#if defined(_RT_)
+    const int       SPECIATION_STEP = 3600;
+#endif
 
     t = pihm->ctrl.tout[pihm->ctrl.cstep];
 
@@ -60,20 +63,21 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, HYDROL_STEP);
 
 #if defined(_RT_)
-    if (t - pihm->ctrl.starttime >= pihm->ctrl.RT_delay &&
-        (!pihm->rttbl.RecFlg) &&
-        (t - pihm->ctrl.starttime) % pihm->ctrl.AvgScl == 0)
+    if (pihm->rttbl.RecFlg == KIN_REACTION)
     {
-        /* Reaction */
-        Reaction((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl,
-            &pihm->rttbl, pihm->elem);
-    }
+        if (t - pihm->ctrl.starttime >= pihm->ctrl.RT_delay &&
+            (t - pihm->ctrl.starttime) % pihm->ctrl.AvgScl == 0)
+        {
+            /* Reaction */
+            Reaction((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl,
+                &pihm->rttbl, pihm->elem);
+        }
 
-    if (pihm->rttbl.RecFlg == KIN_REACTION &&
-        (t - pihm->ctrl.starttime) % 3600 == 0)
-    {
-        /* Speciation every hour */
-        Speciation(pihm->chemtbl, &pihm->rttbl, pihm->river);
+        if ((t - pihm->ctrl.starttime) % SPECIATION_STEP == 0)
+        {
+            /* Speciation */
+            Speciation(pihm->chemtbl, &pihm->rttbl, pihm->river);
+        }
     }
 
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
