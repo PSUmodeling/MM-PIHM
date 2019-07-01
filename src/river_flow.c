@@ -343,7 +343,7 @@ double OutletFlux(int down, const river_wstate_struct *ws,
 
     switch (down)
     {
-        case DIRICHLET:
+        case OUTLET_DIRICHLET:
             /* Dirichlet boundary condition */
             total_h = ws->stage + topo->zbed;
             total_h_down = bc->head;
@@ -358,7 +358,7 @@ double OutletFlux(int down, const river_wstate_struct *ws,
             discharge =
                 OverLandFlow(avg_h, grad_h, grad_h, crossa, matl->rough);
             break;
-        case NEUMANN:
+        case OUTLET_NEUMANN:
             /* Neumann boundary condition */
             discharge = -bc->flux;
             break;
