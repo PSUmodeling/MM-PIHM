@@ -34,7 +34,7 @@ typedef struct topo_struct
     double          zmin;                  /* soil bottom elevation (m) */
     double          zmax;                  /* surface elevation (m) */
     double          edge[NUM_EDGE];        /* length of edge (Edge i is from
-                                            * node i to node i + 1) (m) */
+                                            * node i - 1 to node i + 1) (m) */
     double          nabrdist[NUM_EDGE];    /* distance to neighbor (m) */
     double          nabr_x[NUM_EDGE];      /* x of neighbor centroid (m) */
     double          nabr_y[NUM_EDGE];      /* y of neighbor centroid (m) */
