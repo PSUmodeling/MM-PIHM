@@ -67,10 +67,13 @@ typedef struct matl_struct
 /* River boundary conditions */
 typedef union river_bc_struct
 {
-    double          head;                   /* value of Dirichlet-type boundary
+    union
+    {
+        double          head;               /* value of Dirichlet-type boundary
                                              * condition (m) */
-    double          flux;                   /* value of Neumann-type boundary
+        double          flux;               /* value of Neumann-type boundary
                                              * condition (m3 s-1) */
+    };
 } river_bc_struct;
 
 /* River initial conditions */
