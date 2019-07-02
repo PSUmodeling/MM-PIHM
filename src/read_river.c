@@ -129,12 +129,26 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
         NextLine(riv_file, cmdstr, &lno);
         for (i = 0; i < forc->nriverbc; i++)
         {
-            match = sscanf(cmdstr, "%*s %d", &index);
-            if (match != 1 || i != index - 1)
+            match = sscanf(cmdstr, "%*s %d %*s %d",
+                &index, &forc->riverbc[i].bc_type);
+            if (match != 2 || i != index - 1)
             {
                 PIHMprintf(VL_ERROR,
                     "Error reading description "
                     "of the %dth river boundary condition.\n", i);
+                PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
+                    filename, lno);
+                PIHMexit(EXIT_FAILURE);
+            }
+            if (forc->riverbc[i].bc_type != DIRICHLET &&
+                forc->riverbc[i].bc_type != NEUMANN)
+            {
+                PIHMprintf(VL_ERROR,
+                    "Error reading the %dth river boundary condition "
+                    "time series.\n", i + 1);
+                PIHMprintf(VL_ERROR,
+                    "Boundary condition type should be "
+                    "either Dirichlet (1) or Neumann (2).\n");
                 PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n",
                     filename, lno);
                 PIHMexit(EXIT_FAILURE);

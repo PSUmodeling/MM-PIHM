@@ -185,6 +185,8 @@
 
 /* Element boundary condition types */
 #define NO_FLOW                 0
+#define DIRICHLET               1
+#define NEUMANN                 2
 
 /* River segment interpolation order */
 #define RECTANGLE               1
