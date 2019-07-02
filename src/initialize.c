@@ -5,6 +5,7 @@
 void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 {
     int             i, j;
+    int             bc;
 #if defined(_LUMPED_)
     int             soil_counter[MAX_TYPE];
     int             lc_counter[MAX_TYPE];
@@ -53,9 +54,35 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
         for (j = 0; j < NUM_EDGE; j++)
         {
-            pihm->elem[i].attrib.bc_type[j] = pihm->atttbl.bc[i][j];
+            bc = pihm->atttbl.bc[i][j];
+
+            if (bc == NO_FLOW)
+            {
+                pihm->elem[i].attrib.bc_type[j] = NO_FLOW;
+            }
+            else
+            {
+                /* Adjust bc_type flag so that positive values indicate
+                 * Dirichlet type, and negative values indicate Neumann type */
+                pihm->elem[i].attrib.bc_type[j] =
+                    (pihm->forc.bc[bc - 1].bc_type == DIRICHLET) ?
+                    bc : -bc;
+            }
 #if defined(_FBR_)
-            pihm->elem[i].attrib.fbrbc_type[j] = pihm->atttbl.fbr_bc[i][j];
+            bc = pihm->atttbl.fbr_bc[i][j];
+
+            if (bc == NO_FLOW)
+            {
+                pihm->elem[i].attrib.fbrbc_type[j] = NO_FLOW;
+            }
+            else
+            {
+                /* Adjust bc_type flag so that positive values indicate
+                 * Dirichlet type, and negative values indicate Neumann type */
+                pihm->elem[i].attrib.fbrbc_type[j] =
+                    (pihm->forc.bc[bc - 1].bc_type == DIRICHLET) ?
+                    bc : -bc;
+            }
 #endif
         }
         pihm->elem[i].attrib.meteo_type = pihm->atttbl.meteo[i];
@@ -90,7 +117,20 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
     for (i = 0; i < nriver; i++)
     {
-        pihm->river[i].attrib.riverbc_type = pihm->rivtbl.bc[i];
+        bc = pihm->rivtbl.bc[i];
+
+        if (bc == NO_FLOW)
+        {
+            pihm->river[i].attrib.riverbc_type = NO_FLOW;
+        }
+        else
+        {
+            /* Adjust bc_type flag so that positive values indicate
+             * Dirichlet type, and negative values indicate Neumann type */
+            pihm->river[i].attrib.riverbc_type =
+                (pihm->forc.riverbc[bc - 1].bc_type == DIRICHLET) ?
+                bc : -bc;
+        }
     }
 
     /* Initialize element mesh structures */
@@ -394,7 +434,6 @@ void CorrElev(elem_struct *elem, river_struct *river)
 #else
     sleep(5);
 #endif
-    
 }
 
 void InitSurfL(elem_struct *elem, const river_struct *river,

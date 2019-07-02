@@ -254,8 +254,13 @@ typedef struct tsdata_struct
     int            *ftime;                  /* forcing time */
     double        **data;                   /* forcing values at forcing time */
     double         *value;                  /* forcing values at model time t */
-    double          zlvl_wind;              /* height above ground of wind
+    union
+    {
+        int             bc_type;            /* boundary condition type:
+                                             * 1 = Dirichlet, 2 = Neunann */
+        double          zlvl_wind;          /* height above ground of wind
                                              * observations (m) */
+    };
 } tsdata_struct;
 
 /* Forcing structure */

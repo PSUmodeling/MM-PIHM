@@ -1,4 +1,4 @@
-BC_TS       1       # Dirichlet
+BC_TS       1       TYPE        1       # 1 = Dirichlet, 2 = Neumann
 TIME                HEAD
 TS                  m
 2008-01-01 00:00    270.00
