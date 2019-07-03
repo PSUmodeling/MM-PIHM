@@ -152,14 +152,7 @@ void FrictSlope(const elem_struct *elem, const river_struct *river,
                 }
                 else
                 {
-                    if (elem[i].attrib.bc_type[j] == NO_FLOW)
-                    {
-                        surfh[j] = elem[i].topo.zmax + elem[i].ws.surfh;
-                    }
-                    else
-                    {
-                        surfh[j] = elem[i].bc.head[j];
-                    }
+                    surfh[j] = elem[i].topo.zmax + elem[i].ws.surfh;
                 }
             }
 
