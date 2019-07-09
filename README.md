@@ -61,11 +61,11 @@ A help message will appear if you run `make`.
 
 #### Installation options
 
-The deep groundwater module (DGM) can be turned on during compilation.
-To turn on the DGM module, compile MM-PIHM models using
+The deep groundwater module (DGW) can be turned on during compilation.
+To turn on the DGW module, compile MM-PIHM models using
 
 ```shell
-$ make DGM=on [model]
+$ make DGW=on [model]
 ```
 
 By default, MM-PIHM is paralleled using OpenMP, which significantly improves the computational efficiency of MM-PIHM models.
@@ -131,7 +131,7 @@ Now you can run MM-PIHM models using:
 ```shell
 $ ./[model] [-b] [-c] [-d] [-f] [-s] [-t] [-V] [-v] [-o dir_name] [project]
 ```
- 
+
 where `[model]` is the installed executable, `[project]` is the name of the project, and `[-bcdfostVv]` are optional parameters.
 
 The optional `-b` parameter will turn on the brief mode with minimum screen output.
