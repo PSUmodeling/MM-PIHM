@@ -9,8 +9,8 @@ typedef struct filename_struct
     char            att[MAXSTRING];         /* element attribute file */
     char            soil[MAXSTRING];        /* soil property file */
     char            lc[MAXSTRING];          /* land cover property file */
-    char            meteo[MAXSTRING];       /* meteorological forcing file name */
-    char            lai[MAXSTRING];         /* lai forcing file name */
+    char            meteo[MAXSTRING];       /* meteorological forcing file */
+    char            lai[MAXSTRING];         /* lai forcing file */
     char            bc[MAXSTRING];          /* boundary condition file */
     char            para[MAXSTRING];        /* control parameter file */
     char            calib[MAXSTRING];       /* calibration file */

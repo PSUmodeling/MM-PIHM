@@ -499,7 +499,7 @@ extern int     first_balance;
 extern int     nthreads;
 #endif
 #if defined(_RT_)
-int            NumSpc;     /* Number of primary species in the rt simulator */
+int            NumSpc;                      /* number of primary species */
 #endif
 
 #endif
