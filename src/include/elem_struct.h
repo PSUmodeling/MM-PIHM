@@ -28,27 +28,27 @@ typedef struct attrib_struct
 /* Topography parameters */
 typedef struct topo_struct
 {
-    double          area;                  /* area of element (m2) */
-    double          x;                     /* x of centroid (m) */
-    double          y;                     /* y of centroid (m) */
-    double          zmin;                  /* soil bottom elevation (m) */
-    double          zmax;                  /* surface elevation (m) */
-    double          edge[NUM_EDGE];        /* length of edge (Edge i is from
-                                            * node i - 1 to node i + 1) (m) */
-    double          nabrdist[NUM_EDGE];    /* distance to neighbor (m) */
-    double          nabr_x[NUM_EDGE];      /* x of neighbor centroid (m) */
-    double          nabr_y[NUM_EDGE];      /* y of neighbor centroid (m) */
+    double          area;                   /* area of element (m2) */
+    double          x;                      /* x of centroid (m) */
+    double          y;                      /* y of centroid (m) */
+    double          zmin;                   /* soil bottom elevation (m) */
+    double          zmax;                   /* surface elevation (m) */
+    double          edge[NUM_EDGE];         /* length of edge (Edge i is from
+                                             * node i - 1 to node i + 1) (m) */
+    double          nabrdist[NUM_EDGE];     /* distance to neighbor (m) */
+    double          nabr_x[NUM_EDGE];       /* x of neighbor centroid (m) */
+    double          nabr_y[NUM_EDGE];       /* y of neighbor centroid (m) */
 #if defined(_FBR_)
-    double          zbed;                  /* impermeable bedrock elevation (m)
-                                            */
+    double          zbed;                   /* impermeable bedrock elevation (m)
+                                             */
 #endif
 #if defined(_NOAH_)
-    double          slope;                 /* slope of element (degree) */
-    double          aspect;                /* surface aspect of element (degree)
-                                            */
-    double          svf;                   /* sky view factor (-) */
-    double          h_phi[36];             /* unobstructed angle in each
-                                            * direction (degree) */
+    double          slope;                  /* slope of element (degree) */
+    double          aspect;                 /* surface aspect of element (degree)
+                                             */
+    double          svf;                    /* sky view factor (-) */
+    double          h_phi[36];              /* unobstructed angle in each
+                                             * direction (degree) */
 #endif
 } topo_struct;
 
@@ -922,10 +922,10 @@ typedef struct daily_struct
     double          avg_soldn;              /* daytime average downward solar
                                              * radiation (W m-2) */
 # if defined(_CYCLES_)
-    double          avg_et[MAXLYR];        /* daily average evapotranspiration
-                                            * (m s-1) */
-    double          avg_sncovr;            /* daily average snow cover fraction
-                                            * (-) */
+    double          avg_et[MAXLYR];         /* daily average evapotranspiration
+                                             * (m s-1) */
+    double          avg_sncovr;             /* daily average snow cover fraction
+                                             * (-) */
 # endif
 } daily_struct;
 #endif

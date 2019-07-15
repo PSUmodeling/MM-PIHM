@@ -4,14 +4,14 @@
 /* Time structure */
 typedef struct pihm_t_struct
 {
-    int             t;
-    int             year;
-    int             month;
-    int             day;
-    int             hour;
-    int             minute;
-    char            str[17];
-    char            strshort[13];
+    int             t;                      /* time since the epoch (s) */
+    int             year;                   /* current year */
+    int             month;                  /* current month */
+    int             day;                    /* current day of month */
+    int             hour;                   /* current hour */
+    int             minute;                 /* current minute */
+    char            str[17];                /* time string (yyyy-mm-dd HH:MM) */
+    char            strshort[13];           /* time string (yyyymmddHHMM) */
 } pihm_t_struct;
 
 /* Site information structure */
