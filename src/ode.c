@@ -566,13 +566,19 @@ void SetAbsTol(double hydrol_tol, double sminn_tol, N_Vector abstol)
     }
 }
 
-void SolveCVode(int starttime, int *t, int nextptr, double cputime,
+void SolveCVode(const ctrl_struct *ctrl, double cputime, int *t,
     void *cvode_mem, N_Vector CV_Y)
 {
     realtype        solvert;
     realtype        tout;
     pihm_t_struct   pihm_time;
+    int             starttime;
+    int             nextptr;
     int             cv_flag;
+    int             progress;
+
+    starttime = ctrl->starttime;
+    nextptr = ctrl->tout[ctrl->cstep + 1];
 
     tout = (realtype)(nextptr - starttime);
 
@@ -592,21 +598,26 @@ void SolveCVode(int starttime, int *t, int nextptr, double cputime,
 
     pihm_time = PIHMTime(*t);
 
+    progress = (int)(((double)ctrl->cstep + 1) / (double)ctrl->nstep * 100.0);
+
     if (debug_mode)
     {
-        PIHMprintf(VL_NORMAL, " Step = %s (%d)\n", pihm_time.str, *t);
+        PIHMprintf(VL_NORMAL, "\r Step = %s (%d)", pihm_time.str, *t);
+        ProgressBar(progress);
     }
     else if (spinup_mode)
     {
         if (pihm_time.t % DAYINSEC == 0)
         {
-            PIHMprintf(VL_NORMAL, " Step = %s\n", pihm_time.str);
+            PIHMprintf(VL_NORMAL, "\r Step = %s", pihm_time.str);
+            ProgressBar(progress);
         }
     }
     else if (pihm_time.t % 3600 == 0)
     {
         PIHMprintf(VL_NORMAL,
-            " Step = %s (cputime %.2f)\n", pihm_time.str, cputime);
+            "\r Step = %s (cputime %.2f)", pihm_time.str, cputime);
+        ProgressBar(progress);
     }
 }
 
