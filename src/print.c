@@ -623,3 +623,23 @@ int PrintNow(int intvl, int lapse, const pihm_t_struct *pihm_time)
 
     return print;
 }
+
+void ProgressBar(int progress)
+{
+    int             i;
+
+    printf("\e[?25l");
+
+    PIHMprintf(VL_NORMAL, "  [");
+
+    for (i = 0; i < progress; i++)
+    {
+        PIHMprintf(VL_NORMAL, "=");
+    }
+    for (i = progress; i < 100; i++)
+    {
+        PIHMprintf(VL_NORMAL, " ");
+    }
+
+    PIHMprintf(VL_NORMAL, "] %d%%", progress);
+}

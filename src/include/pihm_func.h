@@ -258,6 +258,7 @@ int             PrintNow(int, int, const pihm_t_struct *);
 void            PrintPerf(void *, int, int, double, double, double, FILE *);
 void            PrintWaterBal(FILE *, int, int, int, const elem_struct *,
     const river_struct *);
+void            ProgressBar(int);
 double          Psi(double, double, double);
 double          PtfAlpha(double, double, double, double, int);
 double          PtfBeta(double, double, double, double, int);
@@ -304,7 +305,8 @@ void            RunTime (clock_t, double *, double *);
 void            RelaxIc(elem_struct *, river_struct *);
 void            SetCVodeParam(pihm_struct, void *, N_Vector);
 int             SoilTex(double, double);
-void            SolveCVode(int, int *, int, double, void *, N_Vector);
+void            SolveCVode(const ctrl_struct *, double, int *, void *,
+    N_Vector);
 void            Spinup(pihm_struct, N_Vector, void *);
 void            StartupScreen(void);
 int             StrTime(const char *);
