@@ -22,7 +22,12 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            if (elem[i].nabr[j] > 0)
+            if (elem[i].nabr[j] == 0)       /* Boundary condition flux */
+            {
+                BoundFluxElem(elem[i].attrib.bc_type[j], j, &elem[i].bc,
+                    &elem[i].ws, &elem[i].topo, &elem[i].soil, &elem[i].wf);
+            }
+            else if (elem[i].nabr_river[j] == 0)
             {
                 nabr = &elem[elem[i].nabr[j] - 1];
 
@@ -37,15 +42,10 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
                 elem[i].wf.ovlflow[j] =
                     OvlFlowElemToElem(&elem[i], nabr, j, avg_sf, surf_mode);
             }
-            else if (elem[i].nabr[j] < 0)
+            else
             {
                 /* Do nothing. River-element interactions are calculated
                  * in river_flow.c */
-            }
-            else    /* Boundary condition flux */
-            {
-                BoundFluxElem(elem[i].attrib.bc_type[j], j, &elem[i].bc,
-                    &elem[i].ws, &elem[i].topo, &elem[i].soil, &elem[i].wf);
             }
         }    /* End of neighbor loop */
     }    /* End of element loop */
@@ -64,7 +64,6 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
     {
         int             j, k;
         elem_struct    *nabr;
-        double          dist = 0.0;
 
         for (j = 0; j < NUM_EDGE; j++)
         {
@@ -76,38 +75,11 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
             }
             else
             {
-                if (elem[i].nabr[j] > 0)
-                {
-                    nabr = &elem[elem[i].nabr[j] - 1];
-                    dist = elem[i].topo.nabrdist[j];
-                }
-                else
-                {
-                    nabr =
-                        (river[-elem[i].nabr[j] - 1].leftele == elem[i].ind) ?
-                        &elem[river[-elem[i].nabr[j] - 1].rightele - 1] :
-                        &elem[river[-elem[i].nabr[j] - 1].leftele - 1];
-                    for (k = 0; k < NUM_EDGE; k++)
-                    {
-                        if (nabr->nabr[k] == elem[i].nabr[j])
-                        {
-                            dist = elem[i].topo.nabrdist[j] +
-                                nabr->topo.nabrdist[k];
-                            break;
-                        }
-                    }
-                }
-
-                if (dist == 0.0)
-                {
-                    PIHMprintf(VL_ERROR,
-                        "Error finding distance between elements.\n");
-                    PIHMexit(EXIT_FAILURE);
-                }
+                nabr = &elem[elem[i].nabr[j] - 1];
 
                 /* Groundwater flow modeled by Darcy's Law */
                 elem[i].wf.fbrflow[j] = FbrFlowElemToElem(&elem[i], nabr,
-                    dist, elem[i].topo.edge[j]);
+                    elem[i].topo.nabrdist[j], elem[i].topo.edge[j]);
             }
         }
     }
@@ -125,6 +97,8 @@ void FrictSlope(const elem_struct *elem, const river_struct *river,
     {
         int             j;
         double          surfh[NUM_EDGE];
+        double          x[NUM_EDGE];
+        double          y[NUM_EDGE];
         const elem_struct *nabr;
         const river_struct *rivnabr;
 
@@ -132,34 +106,33 @@ void FrictSlope(const elem_struct *elem, const river_struct *river,
         {
             for (j = 0; j < NUM_EDGE; j++)
             {
-                if (elem[i].nabr[j] > 0)
+                if (elem[i].nabr[j] == 0)
+                {
+                    surfh[j] = elem[i].topo.zmax + elem[i].ws.surfh;
+                    x[j] = elem[i].topo.nabr_x[j];
+                    y[j] = elem[i].topo.nabr_y[j];
+                }
+                else if (elem[i].nabr_river[j] == 0)
                 {
                     nabr = &elem[elem[i].nabr[j] - 1];
                     surfh[j] = nabr->topo.zmax + nabr->ws.surfh;
-                }
-                else if (elem[i].nabr[j] < 0)
-                {
-                    rivnabr = &river[-elem[i].nabr[j] - 1];
-
-                    if (rivnabr->ws.stage > rivnabr->shp.depth)
-                    {
-                        surfh[j] = rivnabr->topo.zbed + rivnabr->ws.stage;
-                    }
-                    else
-                    {
-                        surfh[j] = rivnabr->topo.zmax;
-                    }
+                    x[j] = elem[i].topo.nabr_x[j];
+                    y[j] = elem[i].topo.nabr_y[j];
                 }
                 else
                 {
-                    surfh[j] = elem[i].topo.zmax + elem[i].ws.surfh;
+                    rivnabr = &river[elem[i].nabr_river[j] - 1];
+
+                    surfh[j] = (rivnabr->ws.stage > rivnabr->shp.depth) ?
+                        rivnabr->topo.zbed + rivnabr->ws.stage :
+                        rivnabr->topo.zmax;
+                    x[j] = river[elem[i].nabr_river[j] - 1].topo.x;
+                    y[j] = river[elem[i].nabr_river[j] - 1].topo.y;
                 }
             }
 
-            dhbydx[i] =
-                DhByDl(elem[i].topo.nabr_y, elem[i].topo.nabr_x, surfh);
-            dhbydy[i] =
-                DhByDl(elem[i].topo.nabr_x, elem[i].topo.nabr_y, surfh);
+            dhbydx[i] = DhByDl(y, x, surfh);
+            dhbydy[i] = DhByDl(x, y, surfh);
         }
     }
 }

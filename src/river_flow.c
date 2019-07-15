@@ -158,7 +158,7 @@ void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right)
     /* Left */
     for (j = 0; j < NUM_EDGE; j++)
     {
-        if (left->nabr[j] == -river->ind)
+        if (left->nabr_river[j] == river->ind)
         {
             left->wf.ovlflow[j] = -river->wf.rivflow[LEFT_SURF2CHANL];
             left->wf.subsurf[j] = -(river->wf.rivflow[LEFT_AQUIF2CHANL] +
@@ -170,7 +170,7 @@ void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right)
     /* Right */
     for (j = 0; j < NUM_EDGE; j++)
     {
-        if (right->nabr[j] == -river->ind)
+        if (right->nabr_river[j] == river->ind)
         {
             right->wf.ovlflow[j] = -river->wf.rivflow[RIGHT_SURF2CHANL];
             right->wf.subsurf[j] = -(river->wf.rivflow[RIGHT_AQUIF2CHANL] +

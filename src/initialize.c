@@ -298,9 +298,9 @@ void CorrElev(elem_struct *elem, river_struct *river)
         {
             if (elem[i].nabr[j] != 0)
             {
-                nabr_zmax = (elem[i].nabr[j] > 0) ?
+                nabr_zmax = (elem[i].nabr_river[j] == 0) ?
                     elem[elem[i].nabr[j] - 1].topo.zmax :
-                    river[-elem[i].nabr[j] - 1].topo.zmax;
+                    river[elem[i].nabr_river[j] - 1].topo.zmax;
                 if (elem[i].topo.zmax >= nabr_zmax)
                 {
                     sink = 0;
@@ -324,15 +324,15 @@ void CorrElev(elem_struct *elem, river_struct *river)
             {
                 if (elem[i].nabr[j] != 0)
                 {
-                    nabr_zmax = (elem[i].nabr[j] > 0) ?
+                    nabr_zmax = (elem[i].nabr_river[j] == 0) ?
                         elem[elem[i].nabr[j] - 1].topo.zmax :
-                        river[-elem[i].nabr[j] - 1].topo.zmax;
+                        river[elem[i].nabr_river[j] - 1].topo.zmax;
                     new_elevation = (nabr_zmax < new_elevation) ?
                         nabr_zmax : new_elevation;
                     PIHMprintf(VL_NORMAL, " (%d)%lf", j + 1,
-                        (elem[i].nabr[j] > 0) ?
+                        (elem[i].nabr_river[j] == 0) ?
                         elem[elem[i].nabr[j] - 1].topo.zmax :
-                        river[-elem[i].nabr[j] - 1].topo.zmax);
+                        river[elem[i].nabr_river[j] - 1].topo.zmax);
                 }
             }
 
@@ -346,57 +346,6 @@ void CorrElev(elem_struct *elem, river_struct *river)
                 elem[i].topo.zmax, elem[i].topo.zmin);
         }
     }
-
-#if OBSOLETE
-    /* Correction of BedRck Elev. Is this needed? */
-    if (bedrock_flag == 1)
-    {
-        for (i = 0; i < numele; i++)
-        {
-            sink = 1;
-            for (j = 0; j < NUM_EDGE; j++)
-            {
-                if (elem[i].nabr[j] != 0)
-                {
-                    new_elevation = (elem[i].nabr[j] > 0) ?
-                        elem[elem[i].nabr[j] - 1].topo.zmin :
-                        river[-elem[i].nabr[j] - 1].topo.zmin;
-                    if (elem[i].topo.zmin - new_elevation >= 0.0)
-                    {
-                        sink = 0;
-                        break;
-                    }
-                }
-            }
-            if (sink == 1)
-            {
-                PIHMprintf (VL_NORMAL, "Ele %d (bedrock) is sink", i + 1);
-                /* Note: Following correction is being applied for debug==1
-                 * case only */
-                PIHMprintf (VL_NORMAL, "\tBefore: %lf Corrected using:",
-                    elem[i].topo.zmin);
-                new_elevation = 1.0e7;
-                for (j = 0; j < NUM_EDGE; j++)
-                {
-                    if (elem[i].nabr[j] != 0)
-                    {
-                        elem[i].topo.zmin = (elem[i].nabr[j] > 0) ?
-                            elem[elem[i].nabr[j] - 1].topo.zmin :
-                            river[0 - elem[i].nabr[j] - 1].topo.zmin;
-                        new_elevation = (new_elevation > elem[i].topo.zmin) ?
-                            elem[i].topo.zmin : new_elevation;
-                        PIHMprintf (VL_NORMAL, "(%d)%lf  ", j + 1,
-                            (elem[i].nabr[j] > 0) ?
-                            elem[elem[i].nabr[j] - 1].topo.zmin :
-                            river[0 - elem[i].nabr[j] - 1].topo.zmin);
-                    }
-                }
-                elem[i].topo.zmin = new_elevation;
-                PIHMprintf (VL_NORMAL, "=(New)%lf\n", elem[i].topo.zmin);
-            }
-        }
-    }
-#endif
 
     for (i = 0; i < nriver; i++)
     {
@@ -482,7 +431,7 @@ void InitSurfL(elem_struct *elem, const river_struct *river,
                     break;
             }
 
-            if (0 == elem[i].nabr[j])
+            if (elem[i].nabr[j] == 0)
             {
                 elem[i].topo.nabr_x[j] = elem[i].topo.x - 2.0 * distx;
                 elem[i].topo.nabr_y[j] = elem[i].topo.y - 2.0 * disty;
@@ -493,12 +442,8 @@ void InitSurfL(elem_struct *elem, const river_struct *river,
             }
             else
             {
-                elem[i].topo.nabr_x[j] = (elem[i].nabr[j] > 0) ?
-                    elem[elem[i].nabr[j] - 1].topo.x :
-                    river[0 - elem[i].nabr[j] - 1].topo.x;
-                elem[i].topo.nabr_y[j] = (elem[i].nabr[j] > 0) ?
-                    elem[elem[i].nabr[j] - 1].topo.y :
-                    river[0 - elem[i].nabr[j] - 1].topo.y;
+                elem[i].topo.nabr_x[j] = elem[elem[i].nabr[j] - 1].topo.x;
+                elem[i].topo.nabr_y[j] = elem[elem[i].nabr[j] - 1].topo.y;
                 elem[i].topo.nabrdist[j] =
                     (elem[i].topo.x - elem[i].topo.nabr_x[j]) *
                     (elem[i].topo.x - elem[i].topo.nabr_x[j]);

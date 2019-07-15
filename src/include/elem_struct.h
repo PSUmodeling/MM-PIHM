@@ -1656,6 +1656,8 @@ typedef struct elem_struct
                                              * (counterclockwise) */
     int             nabr[NUM_EDGE];         /* neighbor elements (neighbor i
                                              * shares edge i (0: on boundary) */
+    int             nabr_river[NUM_EDGE];   /* adjacent river channel (0: no
+                                             * river on edge i) */
     int             ind;                    /* index */
     attrib_struct   attrib;
     topo_struct     topo;

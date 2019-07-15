@@ -25,14 +25,13 @@ void InitRiver(river_struct *river, elem_struct *elem,
 
         for (j = 0; j < NUM_EDGE; j++)
         {
-            /* Note: use element nabr < 0 for river identification */
             if (elem[river[i].leftele - 1].nabr[j] == river[i].rightele)
             {
-                elem[river[i].leftele - 1].nabr[j] = -(i + 1);
+                elem[river[i].leftele - 1].nabr_river[j] = i + 1;
             }
             if (elem[river[i].rightele - 1].nabr[j] == river[i].leftele)
             {
-                elem[river[i].rightele - 1].nabr[j] = -(i + 1);
+                elem[river[i].rightele - 1].nabr_river[j] = i + 1;
             }
         }
 
