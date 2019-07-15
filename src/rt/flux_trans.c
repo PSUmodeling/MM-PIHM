@@ -180,7 +180,12 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             /* Element to element */
             for (j = 0; j < NUM_EDGE; j++)
             {
-                if (elem[i].nabr[j] > 0)
+                if (elem[i].nabr[j] == 0)
+                {
+                    elem[i].chmf.unsatflux[j][k] = 0.0;
+                    elem[i].chmf.subflux[j][k] = 0.0;
+                }
+                else if (elem[i].nabr_river[j] == 0)
                 {
                     nabr = &elem[elem[i].nabr[j] - 1];
 
@@ -205,21 +210,15 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                         0.5 * MAX(nabr->ws.gw, 0.0),
                         elem[i].wf.subsurf[j]);
                 }
-                else if (elem[i].nabr[j] < 0)
+                else
                 {
                     /* No flux between unsaturated zone and river.
                      * River-groundwater interactions are calculated later */
                     elem[i].chmf.unsatflux[j][k] = 0.0;
                 }
-                else
-                {
-                    elem[i].chmf.unsatflux[j][k] = 0.0;
-                    elem[i].chmf.subflux[j][k] = 0.0;
-                }
             }   /* End of element to element */
 
 #if defined(_FBR_)
-            double          dist = 0.0;
             int             jj;
 
             /* Bedrock infiltration */
@@ -251,34 +250,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 }
                 else
                 {
-                    if (elem[i].nabr[j] > 0)
-                    {
-                        nabr = &elem[elem[i].nabr[j] - 1];
-                        dist = elem[i].topo.nabrdist[j];
-                    }
-                    else
-                    {
-                        nabr = (river[-elem[i].nabr[j] - 1].leftele ==
-                            elem[i].ind) ?
-                            &elem[river[-elem[i].nabr[j] - 1].rightele - 1] :
-                            &elem[river[-elem[i].nabr[j] - 1].leftele - 1];
-                        for (jj = 0; jj < NUM_EDGE; jj++)
-                        {
-                            if (nabr->nabr[jj] == elem[i].nabr[j])
-                            {
-                                dist = elem[i].topo.nabrdist[j] +
-                                    nabr->topo.nabrdist[jj];
-                                break;
-                            }
-                        }
-                    }
-
-                    if (dist == 0.0)
-                    {
-                        PIHMprintf(VL_ERROR,
-                            "Error finding distance between elements.\n");
-                        PIHMexit(EXIT_FAILURE);
-                    }
+                    nabr = &elem[elem[i].nabr[j] - 1];
 
                     /* Unsaturated zone diffusion */
                     elem[i].chmf.fbr_unsatflux[j][k] =
@@ -286,7 +258,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                         rttbl->Cementation, elem[i].chms_fbrunsat.t_conc[k],
                         nabr->chms_fbrunsat.t_conc[k],
                         0.5 * elem[i].geol.smcmax + 0.5 * nabr->geol.smcmax,
-                        dist,
+                        elem[i].topo.nabrdist[j],
                         0.5 * MAX(elem[i].geol.depth - elem[i].ws.fbr_gw, 0.0) +
                         0.5 * MAX(nabr->geol.depth - nabr->ws.fbr_gw, 0.0),
                         0.0);
@@ -297,7 +269,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                         rttbl->Cementation, elem[i].chms_fbrgw.t_conc[k],
                         nabr->chms_fbrgw.t_conc[k],
                         0.5 * elem[i].geol.smcmax + 0.5 * nabr->geol.smcmax,
-                        dist,
+                        elem[i].topo.nabrdist[j],
                         0.5 * MAX(elem[i].ws.fbr_gw, 0.0) +
                         0.5 * MAX(nabr->ws.fbr_gw, 0.0),
                         elem[i].wf.fbrflow[j]);
@@ -373,7 +345,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                 for (j = 0; j < NUM_EDGE; j++)
                 {
-                    if (left->nabr[j] == -(i + 1))
+                    if (left->nabr_river[j] == i + 1)
                     {
                         left->chmf.subflux[j][k] =
                             -(river[i].chmf.flux[LEFT_AQUIF2CHANL][k] +
@@ -406,7 +378,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                 for (j = 0; j < NUM_EDGE; j++)
                 {
-                    if (right->nabr[j] == -(i + 1))
+                    if (right->nabr_river[j] == i + 1)
                     {
                         right->chmf.subflux[j][k] =
                             -(river[i].chmf.flux[RIGHT_AQUIF2CHANL][k] +

@@ -96,7 +96,12 @@ void NTransport(double dt, elem_struct elem[], river_struct river[])
         /* Element to element */
         for (j = 0; j < NUM_EDGE; j++)
         {
-            if (elem[i].nabr[j] > 0)
+            if (elem[i].nabr[j] == 0)       /* Boundary condition flux */
+            {
+                elem[i].no3sol.flux[j] = 0.0;
+                elem[i].nh4sol.flux[j] = 0.0;
+            }
+            else if (elem[i].nabr_river[j] == 0)
             {
                 nabr = &elem[elem[i].nabr[j] - 1];
 
@@ -110,15 +115,10 @@ void NTransport(double dt, elem_struct elem[], river_struct river[])
                     MOBILEN_PROPORTION * elem[i].nh4sol.conc :
                     MOBILEN_PROPORTION * nabr->nh4sol.conc);
             }
-            else if (elem[i].nabr[j] < 0)
+            else
             {
                 /* Do nothing. River-element interactions are calculated
                  * later */
-            }
-            else    /* Boundary condition flux */
-            {
-                elem[i].no3sol.flux[j] = 0.0;
-                elem[i].nh4sol.flux[j] = 0.0;
             }
         }
     }
@@ -211,7 +211,7 @@ void NTransport(double dt, elem_struct elem[], river_struct river[])
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                if (left->nabr[j] == -(i + 1))
+                if (left->nabr_river[j] == i + 1)
                 {
                     left->no3sol.flux[j] =
                         -(river[i].no3sol.flux[LEFT_AQUIF2CHANL] +
@@ -257,7 +257,7 @@ void NTransport(double dt, elem_struct elem[], river_struct river[])
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                if (right->nabr[j] == -(i + 1))
+                if (right->nabr_river[j] == i + 1)
                 {
                     right->no3sol.flux[j] =
                         -(river[i].no3sol.flux[RIGHT_AQUIF2CHANL] +
