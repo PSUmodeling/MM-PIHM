@@ -173,6 +173,22 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                         print->varctrl[n].var[j] = &river[j].wf.rivflow[1];
                     }
                     n++;
+#if defined(_FBR_) && defined(_TGM_)
+                    InitPrtVarCtrl(outputdir, "rivflx11", prtvrbl[i],
+                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    for (j = 0; j < nriver; j++)
+                    {
+                        print->varctrl[n].var[j] = &river[j].wf.rivflow[11];
+                    }
+                    n++;
+                    InitPrtVarCtrl(outputdir, "rivflx12", prtvrbl[i],
+                        HYDROL_STEP, nriver, &print->varctrl[n]);
+                    for (j = 0; j < nriver; j++)
+                    {
+                        print->varctrl[n].var[j] = &river[j].wf.rivflow[12];
+                    }
+                    n++;
+#endif
                     break;
                 case RIVFLX2_CTRL:
                     InitPrtVarCtrl(outputdir, "rivflx2", prtvrbl[i],
