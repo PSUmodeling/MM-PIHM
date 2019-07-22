@@ -58,6 +58,10 @@ ifeq ($(DGW), on)
   SFLAGS += -D_FBR_
 endif
 
+ifeq ($(TGM), on)
+  SFLAGS += -D_TGM_
+endif
+
 ifeq ($(CVODE_OMP), on)
   SFLAGS += -D_CVODE_OMP
 endif

@@ -173,6 +173,9 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         dy[FBRUNSAT(i)] += elem->wf.fbr_infil - elem->wf.fbr_rechg;
         dy[FBRGW(i)] += elem->wf.fbr_rechg;
+# if defined(_TGM_)
+        dy[FBRGW(i)] -= elem->wf.fbr_discharge;
+# endif
 #endif
 
         /*
@@ -323,6 +326,11 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
              * for cs other than rectangle */
             dy[RIVSTG(i)] -= river->wf.rivflow[j] / river->topo.area;
         }
+
+#if defined(_FBR_) && defined(_TGM_)
+        dy[RIVSTG(i)] -= (river->wf.rivflow[LEFT_FBR2CHANL] +
+            river->wf.rivflow[RIGHT_FBR2CHANL]) / river->topo.area;
+#endif
 
         dy[RIVGW(i)] += -river->wf.rivflow[LEFT_AQUIF2AQUIF] -
             river->wf.rivflow[RIGHT_AQUIF2AQUIF] -

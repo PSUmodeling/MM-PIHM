@@ -82,9 +82,6 @@
 #define WS_ZMIN                 1
 #define WS_AREA                 2
 
-/* Number of river fluxes of a river segment */
-#define NUM_RIVFLX              11
-
 /* Maximum number of river tributes */
 #define MAXTRIB                 3
 
@@ -164,6 +161,13 @@
 #define SILTY_CLAY              10
 #define CLAY                    11
 
+/* Number of river fluxes of a river segment */
+#if defined(_FBR_) && defined(_TGM_)
+# define NUM_RIVFLX              11
+#else
+# define NUM_RIVFLX              13
+#endif
+
 /* River fluxes */
 #define UP_CHANL2CHANL          0
 #define DOWN_CHANL2CHANL        1
@@ -176,6 +180,10 @@
 #define RIGHT_AQUIF2AQUIF       8
 #define DOWN_AQUIF2AQUIF        9
 #define UP_AQUIF2AQUIF          10
+#if defined(_FBR_) && defined(_TGM_)
+# define LEFT_FBR2CHANL         11
+# define RIGHT_FBR2CHANL        12
+#endif
 
 /* River boundary condition types */
 #define OUTLET_DIRICHLET        -1
