@@ -147,6 +147,7 @@ void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right)
             SubFlowElemToRiver(left, effk_left, river,
             0.5 * (effk_left + effk_right), river->topo.dist_left);
     }
+
     if (river->rightele > 0)
     {
         river->wf.rivflow[RIGHT_AQUIF2AQUIF] =
@@ -178,6 +179,40 @@ void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right)
             break;
         }
     }
+
+#if defined(_FBR_) && defined(_TGM_)
+    if (left->ws.fbr_gw > 0.6 * left->geol.depth)
+    {
+        left->wf.fbr_discharge = 1.005 *
+            (left->wf.fbr_rechg * left->topo.area -
+            left->wf.fbrflow[0] - left->wf.fbrflow[1] -
+            left->wf.fbrflow[2]) / left->topo.area;
+        left->wf.fbr_discharge = MAX(left->wf.fbr_discharge, 0.0);
+        river->wf.rivflow[LEFT_FBR2CHANL] =
+            -left->wf.fbr_discharge * left->topo.area;
+    }
+    else
+    {
+        left->wf.fbr_discharge = 0.0;
+        river->wf.rivflow[LEFT_FBR2CHANL] = 0.0;
+    }
+
+    if (right->ws.fbr_gw > 0.6 * right->geol.depth)
+    {
+        right->wf.fbr_discharge = 1.005 *
+            (right->wf.fbr_rechg * right->topo.area -
+            right->wf.fbrflow[0] - right->wf.fbrflow[1] -
+            right->wf.fbrflow[2]) / right->topo.area;
+        right->wf.fbr_discharge = MAX(right->wf.fbr_discharge, 0.0);
+        river->wf.rivflow[RIGHT_FBR2CHANL] =
+            -right->wf.fbr_discharge * right->topo.area;
+    }
+    else
+    {
+        right->wf.fbr_discharge = 0.0;
+        river->wf.rivflow[RIGHT_FBR2CHANL] = 0.0;
+    }
+#endif
 }
 
 double OvlFlowElemToRiver(const elem_struct *elem, const river_struct *river)

@@ -19,6 +19,15 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
     NextLine(mesh_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "NUMELE", &nelem, 'i', filename, lno);
 
+#if defined(_TGM_)
+    if (nelem != 2)
+    {
+        PIHMprintf(VL_ERROR,
+            "Error: Number of elements should be 2 in two-grid model.\n");
+        PIHMexit(EXIT_FAILURE);
+    }
+#endif
+
     meshtbl->node = (int **)malloc(nelem * sizeof(int *));
     meshtbl->nabr = (int **)malloc(nelem * sizeof(int *));
 

@@ -473,6 +473,11 @@ typedef struct wflux_struct
                                              * (m s-1) */
     double          fbrflow[NUM_EDGE];      /* lateral fractured bedrock flow
                                              * (m3 s-1) */
+# if defined(_TGM_)
+    double          fbr_discharge;          /* discharge from fractured bedrock
+                                             * to river (only applies to 2-grid
+                                             * model) (m3 s-1) */
+# endif
 #endif
 #if defined(_NOAH_)
     double          et[MAXLYR];             /* plant transpiration from each
