@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
     FreeMem(pihm);
     free(pihm);
 
-    PIHMprintf(VL_BRIEF, "\nSimulation completed.\n");
+    PIHMprintf(VL_BRIEF, "Simulation completed.\n");
 
     /* Re-enable cursor */
     printf("\e[?25h");

@@ -14,7 +14,7 @@ void Spinup(pihm_struct pihm, N_Vector CV_Y, void *cvode_mem)
 
     do
     {
-        PIHMprintf(VL_NORMAL, "Spinup year: %6d\n", spinyears + 1);
+        PIHMprintf(VL_BRIEF, "Spinup year: %6d\n", spinyears + 1);
 
 #if defined(_BGC_)
         ResetSpinupStat(pihm->elem);
@@ -124,15 +124,15 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
         steady = (steady && (fabs(t1) < SPINUP_C_TOLERANCE));
 #endif
 
-        PIHMprintf(VL_NORMAL, "spinyears = %d ", spinyears);
-        PIHMprintf(VL_NORMAL, "totalw_prev = %lg totalw = %lg wdif = %lg\n",
+        PIHMprintf(VL_BRIEF, "spinyears = %d ", spinyears);
+        PIHMprintf(VL_BRIEF, "totalw_prev = %lg totalw = %lg wdif = %lg\n",
             totalw_prev, totalw, totalw - totalw_prev);
 #if defined(_FBR_)
-        PIHMprintf(VL_NORMAL, "fbrgw_prev = %lg fbrgw = %lg wdif = %lg\n",
+        PIHMprintf(VL_BRIEF, "fbrgw_prev = %lg fbrgw = %lg wdif = %lg\n",
             fbrgw_prev, fbrgw, fbrgw - fbrgw_prev);
 #endif
 #if defined(_BGC_)
-        PIHMprintf(VL_NORMAL, "soilc_prev = %lg soilc = %lg pdif = %lg\n",
+        PIHMprintf(VL_BRIEF, "soilc_prev = %lg soilc = %lg pdif = %lg\n",
             soilc_prev, soilc, t1);
 #endif
     }
@@ -151,7 +151,7 @@ int CheckSteadyState(const elem_struct *elem, double total_area,
 
     if (steady)
     {
-        PIHMprintf(VL_NORMAL, "Reaches steady state after %d year.\n",
+        PIHMprintf(VL_BRIEF, "Reaches steady state after %d year.\n",
             spinyears);
     }
 

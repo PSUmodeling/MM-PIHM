@@ -128,7 +128,7 @@ void CreateOutputDir(char *outputdir)
 
     if (0 == (PIHMmkdir("output")))
     {
-        PIHMprintf(VL_NORMAL, " Output directory was created.\n\n");
+        PIHMprintf(VL_NORMAL, "Output directory was created.\n\n");
     }
 
     if (outputdir[0] == '\0')
