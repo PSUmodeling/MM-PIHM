@@ -377,12 +377,6 @@ void CorrElev(elem_struct *elem, river_struct *river)
         PIHMprintf(VL_NORMAL, "\nRiver elevation correction needed "
             "but PIHM will continue without fixing river elevation.\n\n");
     }
-
-#if defined(_WIN32) || defined(_WIN64)
-    Sleep(5);
-#else
-    sleep(5);
-#endif
 }
 
 void InitSurfL(elem_struct *elem, const river_struct *river,

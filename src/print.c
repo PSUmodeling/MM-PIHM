@@ -41,32 +41,32 @@ void StartupScreen(void)
     if (1 == corr_mode)
     {
         PIHMprintf(VL_NORMAL,
-            "\tSurface elevation correction mode turned on.\n");
+            "    Surface elevation correction mode turned on.\n");
     }
     if (1 == debug_mode)
     {
         PIHMprintf(VL_NORMAL,
-            "\tDebug mode turned on.\n");
+            "    Debug mode turned on.\n");
     }
     if (1 == tecplot)
     {
         PIHMprintf(VL_NORMAL,
-            "\tTecplot output turned on.\n");
+            "    Tecplot output turned on.\n");
     }
     if (VL_BRIEF == verbose_mode)
     {
         PIHMprintf(VL_NORMAL,
-            "\tBrief mode turned on.\n");
+            "    Brief mode turned on.\n");
     }
     if (VL_VERBOSE == verbose_mode)
     {
         PIHMprintf(VL_NORMAL,
-            "\tVerbose mode turned on.\n");
+            "    Verbose mode turned on.\n");
     }
     if (1 == append_mode)
     {
         PIHMprintf(VL_NORMAL,
-            "\tAppend mode turned on.\n");
+            "    Append mode turned on.\n");
     }
 }
 

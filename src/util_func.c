@@ -90,13 +90,13 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
         PIHMprintf(VL_ERROR,
             "Usage: ./pihm [-o output_dir] [-c] [-d] [-t] [-v] [-V]"
             " <project name>\n");
-        PIHMprintf(VL_ERROR, "\t-o Specify output directory\n");
-        PIHMprintf(VL_ERROR, "\t-b Brief mode\n");
-        PIHMprintf(VL_ERROR, "\t-c Correct surface elevation\n");
-        PIHMprintf(VL_ERROR, "\t-d Debug mode\n");
-        PIHMprintf(VL_ERROR, "\t-t Tecplot output\n");
-        PIHMprintf(VL_ERROR, "\t-V Version number\n");
-        PIHMprintf(VL_ERROR, "\t-v Verbose mode\n");
+        PIHMprintf(VL_ERROR, "    -o Specify output directory\n");
+        PIHMprintf(VL_ERROR, "    -b Brief mode\n");
+        PIHMprintf(VL_ERROR, "    -c Correct surface elevation\n");
+        PIHMprintf(VL_ERROR, "    -d Debug mode\n");
+        PIHMprintf(VL_ERROR, "    -t Tecplot output\n");
+        PIHMprintf(VL_ERROR, "    -V Version number\n");
+        PIHMprintf(VL_ERROR, "    -v Verbose mode\n");
         PIHMexit(EXIT_FAILURE);
     }
     else
