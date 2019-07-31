@@ -311,7 +311,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
                 chemtbl[j].itype != chemtbl[i].mtype) ?
                 MIXED_MA : chemtbl[i].mtype;
         }
-        PIHMprintf(VL_VERBOSE, " %12s\t%10d\n",
+        PIHMprintf(VL_VERBOSE, " %12s    %10d\n",
             chemtbl[i].ChemName, chemtbl[i].mtype);
     }
 
@@ -320,7 +320,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         "(1: aqueous, 2: adsorption, 3: ion exchange, 4: solid)\n");
     for (i = 0; i < rttbl->NumStc + rttbl->NumSsc; i++)
     {
-        PIHMprintf(VL_VERBOSE, " %12s\t%10d\n",
+        PIHMprintf(VL_VERBOSE, " %12s    %10d\n",
             chemtbl[i].ChemName, chemtbl[i].itype);
     }
 }
@@ -615,7 +615,7 @@ void ReadAdsorption(const char cmdstr[], int npoints, int keq_position,
     {
         return;
     }
-    
+
     bytes_consumed += bytes_now;
     wrap(chemn);
 
