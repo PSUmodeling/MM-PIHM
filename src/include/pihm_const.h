@@ -163,9 +163,9 @@
 
 /* Number of river fluxes of a river segment */
 #if defined(_FBR_) && defined(_TGM_)
-# define NUM_RIVFLX              11
-#else
 # define NUM_RIVFLX              13
+#else
+# define NUM_RIVFLX              11
 #endif
 
 /* River fluxes */
