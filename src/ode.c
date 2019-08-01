@@ -458,7 +458,8 @@ int NumStateVar(void)
 
     return nsv;
 }
-void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
+void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
+    N_Vector CV_Y)
 {
     int             cv_flag;
     static int      reset;
@@ -488,6 +489,11 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
         }
         reset = 1;
     }
+
+    *sun_ls = SUNLinSol_SPGMR(CV_Y, PREC_NONE, 0);
+
+    /* Attach the linear solver */
+    CVodeSetLinearSolver(cvode_mem, *sun_ls, NULL);
 
 #if defined(_BGC_) || defined(_CYCLES_)
     /* When BGC module is turned on, both water storage and nitrogen storage
@@ -526,7 +532,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
         PIHMexit(EXIT_FAILURE);
     }
 
-    cv_flag = CVodeSetStabLimDet(cvode_mem, TRUE);
+    cv_flag = CVodeSetStabLimDet(cvode_mem, SUNTRUE);
     if (!CheckCVodeFlag(cv_flag))
     {
         PIHMexit(EXIT_FAILURE);
@@ -539,12 +545,6 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y)
     }
 
     cv_flag = CVodeSetMaxNumSteps(cvode_mem, pihm->ctrl.stepsize * 10);
-    if (!CheckCVodeFlag(cv_flag))
-    {
-        PIHMexit(EXIT_FAILURE);
-    }
-
-    cv_flag = CVSpgmr(cvode_mem, PREC_NONE, 0);
     if (!CheckCVodeFlag(cv_flag))
     {
         PIHMexit(EXIT_FAILURE);

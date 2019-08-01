@@ -303,11 +303,11 @@ void            RunTime(double, double *, double *);
 void            RunTime (clock_t, double *, double *);
 #endif
 void            RelaxIc(elem_struct *, river_struct *);
-void            SetCVodeParam(pihm_struct, void *, N_Vector);
+void            SetCVodeParam(pihm_struct, void *, SUNLinearSolver *, N_Vector);
 int             SoilTex(double, double);
 void            SolveCVode(const ctrl_struct *, double, int *, void *,
     N_Vector);
-void            Spinup(pihm_struct, N_Vector, void *);
+void            Spinup(pihm_struct, N_Vector, void *, SUNLinearSolver *);
 void            StartupScreen(void);
 int             StrTime(const char *);
 double          SubFlowElemToElem(const elem_struct *, const elem_struct *,

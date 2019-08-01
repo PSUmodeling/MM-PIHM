@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
     ctrl_struct    *ctrl;
     N_Vector        CV_Y;
     void           *cvode_mem;
+    SUNLinearSolver sun_ls;
 #if defined(_OPENMP)
     double          start_omp;
 #else
@@ -98,7 +99,7 @@ int main(int argc, char *argv[])
     PIHMprintf(VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 
     /* Set solver parameters */
-    SetCVodeParam(pihm, cvode_mem, CV_Y);
+    SetCVodeParam(pihm, cvode_mem, &sun_ls, CV_Y);
 
 #if defined(_BGC_)
     first_balance = 1;
@@ -117,7 +118,7 @@ int main(int argc, char *argv[])
 
     if (spinup_mode)
     {
-        Spinup(pihm, CV_Y, cvode_mem);
+        Spinup(pihm, CV_Y, cvode_mem, &sun_ls);
 
         /* In spin-up mode, initial conditions are always printed */
         PrintInit(pihm->elem, pihm->river, outputdir,
@@ -198,6 +199,7 @@ int main(int argc, char *argv[])
 
     /* Free integrator memory */
     CVodeFree(&cvode_mem);
+    SUNLinSolFree(sun_ls);
     FreeMem(pihm);
     free(pihm);
 

@@ -6,6 +6,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 {
     int             i, j;
     int             bc;
+    int             cv_flag;
 #if defined(_LUMPED_)
     int             soil_counter[MAX_TYPE];
     int             lc_counter[MAX_TYPE];
@@ -20,7 +21,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     PIHMprintf(VL_VERBOSE, "\n\nInitialize data structure\n");
 
     /* Allocate memory for solver */
-    *cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+    *cvode_mem = CVodeCreate(CV_BDF);
     if (*cvode_mem == NULL)
     {
         PIHMprintf(VL_ERROR, "Error in allocating memory for solver.\n");
