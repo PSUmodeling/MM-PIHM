@@ -17,21 +17,25 @@ ifneq ($(OMP), off)
   CFLAGS += -fopenmp
 endif
 
-CMAKETEST=$(shell cmake --version 2> /dev/null)
+CMAKE_VER_NUM := $(shell cmake --version |awk '{print $$3}')
+CMAKE_VER_X := $(shell echo $(CMAKE_VER_NUM) | cut -f1 -d.)
+CMAKE_VER_Y := $(shell echo $(CMAKE_VER_NUM) | cut -f2 -d.)
+CMAKE_VER_Z := $(shell echo $(CMAKE_VER_NUM) | cut -f3 -d.)
+CMAKETEST := $(shell [ $(CMAKE_VER_X) -gt 3 -o \( $(CMAKE_VER_X) -eq 3 -a $(CMAKE_VER_Y) -ge 1 \) -o \( $(CMAKE_VER_X) -eq 3 -a $(CMAKE_VER_Y) -eq 1 -a $(CMAKE_VER_Z) -ge 1 \) ] && echo true)
 
-ifeq ($(CMAKETEST),)
-  CMAKE_EXIST = 0
-  OS := $(shell uname)
-ifeq ($(OS),Darwin)
-    CMAKE_VERS = cmake-3.7.2-Darwin-x86_64
-    CMAKE = $(PWD)/$(CMAKE_VERS)/CMake.app/Contents/bin/cmake
-else
-    CMAKE_VERS = cmake-3.7.2-Linux-x86_64
-    CMAKE = $(PWD)/$(CMAKE_VERS)/bin/cmake
-endif
-else
+ifeq ($(CMAKETEST),true)
   CMAKE_EXIST = 1
   CMAKE=cmake
+else
+  CMAKE_EXIST = 0
+  OS := $(shell uname)
+  ifeq ($(OS),Darwin)
+    CMAKE_VERS = cmake-3.7.2-Darwin-x86_64
+    CMAKE = $(PWD)/$(CMAKE_VERS)/CMake.app/Contents/bin/cmake
+  else
+    CMAKE_VERS = cmake-3.7.2-Linux-x86_64
+    CMAKE = $(PWD)/$(CMAKE_VERS)/bin/cmake
+  endif
 endif
 
 CVODE_PATH = ./cvode/instdir
