@@ -25,24 +25,21 @@
 /*
  * SUNDIAL Header Files
  */
-/* CVODE header file */
-#include "cvode.h"
+/* Prototypes for CVODE fcts., consts. */
+#include "cvode/cvode.h"
 
-/* CVSPGMR linear header file */
-#include "cvode_spgmr.h"
+/* Access to SPGMR SUNLinearSolver */
+#include "sunlinsol/sunlinsol_spgmr.h"
 
-/* Definition of type N_Vector */
+/* Access to N_Vector */
 #if defined(_CVODE_OMP)
-# include "nvector_openmp.h"
+# include "nvector/nvector_openmp.h"
 #else
-# include "nvector_serial.h"
+# include "nvector/nvector_serial.h"
 #endif
 
-/* UnitRoundoff, RSqrt, SQR functions */
-#include "sundials_math.h"
-
-/* CVDENSE header file */
-#include "cvode_dense.h"
+/* Definition of macros SUNSQR and EXP */
+#include "sundials/sundials_math.h"
 
 #if defined(_NOAH_)
 # include "spa.h"
