@@ -1,23 +1,21 @@
 # ---------------------------------------------------------------
-# $Revision: 4957 $
-# $Date: 2016-09-23 12:21:47 -0700 (Fri, 23 Sep 2016) $
-# ---------------------------------------------------------------
 # Programmer:  Steven Smith @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # Find KLU library.
 # 
+
 # Set library prefixes for Windows
-IF(WIN32)
+if(WIN32)
   set(CMAKE_FIND_LIBRARY_PREFIXES lib ${CMAKE_FIND_LIBRARY_PREFIXES})
 endif()
 
@@ -63,7 +61,7 @@ endif ()
 if (NOT SUITESPARSECONFIG_LIBRARY)
     set(SUITESPARSECONFIG_LIBRARY_NAME suitesparseconfig)
     # NOTE: no prefix for this library on windows
-    if (WIN32)
+    if(WIN32 AND NOT MSYS)
         set(CMAKE_FIND_LIBRARY_PREFIXES "")
     endif()
     FIND_LIBRARY( SUITESPARSECONFIG_LIBRARY ${SUITESPARSECONFIG_LIBRARY_NAME} ${KLU_LIBRARY_DIR} NO_DEFAULT_PATH)
