@@ -41,7 +41,7 @@ endif
 CVODE_PATH = ./cvode/instdir
 
 SRCDIR = ./src
-LIBS = -lm -Wl,-rpath,$(CVODE_PATH)/lib
+LIBS = -lm -Wl,-rpath,$(CVODE_PATH)/lib64
 INCLUDES = \
 	-I$(SRCDIR)/include\
 	-I$(CVODE_PATH)/include\
@@ -49,7 +49,7 @@ INCLUDES = \
 	-I$(CVODE_PATH)/include/sundials\
 	-I$(CVODE_PATH)/include/nvector
 
-LFLAGS = -lsundials_cvode -L$(CVODE_PATH)/lib
+LFLAGS = -lsundials_cvode -L$(CVODE_PATH)/lib64
 ifeq ($(CVODE_OMP), on)
   LFLAGS += -lsundials_nvecopenmp
 else
