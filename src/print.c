@@ -420,34 +420,19 @@ void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
     int             cv_flag;
 
     cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
-    if (!CheckCVodeFlag(cv_flag))
-    {
-        PIHMexit(EXIT_FAILURE);
-    }
+    CheckCVodeFlag(cv_flag);
 
     cv_flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-    if (!CheckCVodeFlag(cv_flag))
-    {
-        PIHMexit(EXIT_FAILURE);
-    }
+    CheckCVodeFlag(cv_flag);
 
     cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-    if (!CheckCVodeFlag(cv_flag))
-    {
-        PIHMexit(EXIT_FAILURE);
-    }
+    CheckCVodeFlag(cv_flag);
 
     cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-    if (!CheckCVodeFlag(cv_flag))
-    {
-        PIHMexit(EXIT_FAILURE);
-    }
+    CheckCVodeFlag(cv_flag);
 
     cv_flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-    if (!CheckCVodeFlag(cv_flag))
-    {
-        PIHMexit(EXIT_FAILURE);
-    }
+    CheckCVodeFlag(cv_flag);
 
     fprintf(perf_file, "%-8d%-8.3f%-16.3f%-8.2f",
         t - starttime, cputime_dt, cputime, maxstep);
@@ -540,34 +525,19 @@ void PrintCVodeFinalStats(void *cvode_mem)
     long int        ncfn;
 
     cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
-    if (!CheckCVodeFlag(cv_flag))
-    {
-        PIHMexit(EXIT_FAILURE);
-    }
+    CheckCVodeFlag(cv_flag);
 
     cv_flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-    if (!CheckCVodeFlag(cv_flag))
-    {
-        PIHMexit(EXIT_FAILURE);
-    }
+    CheckCVodeFlag(cv_flag);
 
     cv_flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-    if (!CheckCVodeFlag(cv_flag))
-    {
-        PIHMexit(EXIT_FAILURE);
-    }
+    CheckCVodeFlag(cv_flag);
 
     cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-    if (!CheckCVodeFlag(cv_flag))
-    {
-        PIHMexit(EXIT_FAILURE);
-    }
+    CheckCVodeFlag(cv_flag);
 
     cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-    if (!CheckCVodeFlag(cv_flag))
-    {
-        PIHMexit(EXIT_FAILURE);
-    }
+    CheckCVodeFlag(cv_flag);
 
     PIHMprintf(VL_NORMAL, "\n");
     PIHMprintf(VL_NORMAL,
