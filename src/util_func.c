@@ -197,16 +197,13 @@ void BackupInput(const char *outputdir, const filename_struct *filename)
     }
 }
 
-int CheckCVodeFlag(int cv_flag)
+void CheckCVodeFlag(int cv_flag)
 {
     if (cv_flag < 0)
     {
-        PIHMprintf(VL_ERROR, "CVODE error %d\n", cv_flag);
-        return 0;
-    }
-    else
-    {
-        return 1;
+        PIHMprintf(VL_ERROR, "CVODE error %s\n",
+            CVodeGetReturnFlagName(cv_flag));
+        PIHMexit(EXIT_FAILURE);
     }
 }
 
