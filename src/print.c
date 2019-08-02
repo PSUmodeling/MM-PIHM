@@ -107,7 +107,7 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
         fprintf(print->cvodeperf_file,
             "%-8s%-8s%-16s%-8s%-8s%-8s%-8s%-8s%-8s\n",
             "step", "cpu_dt", "cputime", "maxstep",
-            "nsteps", "nevals", "niters", "ncfails", "nefails");
+            "nsteps", "niters", "nevals", "nefails", "ncfails");
     }
 
     /*
