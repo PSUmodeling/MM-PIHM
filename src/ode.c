@@ -530,30 +530,37 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
         PIHMexit(EXIT_FAILURE);
     }
 
+    /* Specifies PIHM data block and attaches it to the main cvode memory block
+     */
     cv_flag = CVodeSetUserData(cvode_mem, pihm);
     if (!CheckCVodeFlag(cv_flag))
     {
         PIHMexit(EXIT_FAILURE);
     }
 
+    /* Specifies the initial step size */
     cv_flag = CVodeSetInitStep(cvode_mem, (realtype)pihm->ctrl.initstep);
     if (!CheckCVodeFlag(cv_flag))
     {
         PIHMexit(EXIT_FAILURE);
     }
 
+    /* Indicates if the BDF stability limit detection algorithm should be used*/
     cv_flag = CVodeSetStabLimDet(cvode_mem, SUNTRUE);
     if (!CheckCVodeFlag(cv_flag))
     {
         PIHMexit(EXIT_FAILURE);
     }
 
+    /* Specifies an upper bound on the magnitude of the step size */
     cv_flag = CVodeSetMaxStep(cvode_mem, (realtype)pihm->ctrl.maxstep);
     if (!CheckCVodeFlag(cv_flag))
     {
         PIHMexit(EXIT_FAILURE);
     }
 
+    /* Specifies the maximum number of steps to be taken by the solver in its
+     * attempt to reach the next output time */
     cv_flag = CVodeSetMaxNumSteps(cvode_mem, pihm->ctrl.stepsize * 10);
     if (!CheckCVodeFlag(cv_flag))
     {
@@ -600,6 +607,8 @@ void SolveCVode(const ctrl_struct *ctrl, double cputime, int *t,
 
     tout = (realtype)(nextptr - starttime);
 
+    /* Specifies the value of the independent variable t past which the solution
+     * is not to proceed */
     cv_flag = CVodeSetStopTime(cvode_mem, tout);
     if (!CheckCVodeFlag(cv_flag))
     {
