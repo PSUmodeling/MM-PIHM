@@ -463,6 +463,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
 {
     int             cv_flag;
     static int      reset;
+    N_Vector        constraints;
 #if defined(_BGC_) || defined(_CYCLES_)
     N_Vector        abstol;
     const double    SMINN_TOL = 1.0E-5;
@@ -519,6 +520,15 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
         PIHMexit(EXIT_FAILURE);
     }
 #endif
+
+    /* Set constraints to all 1's for nonnegative solution values */
+    constraints = N_VNew(NumStateVar());
+    N_VConst(RCONST(1.0), constraints);
+    cv_flag = CVodeSetConstraints(cvode_mem, constraints);
+    if (!CheckCVodeFlag(cv_flag))
+    {
+        PIHMexit(EXIT_FAILURE);
+    }
 
     cv_flag = CVodeSetUserData(cvode_mem, pihm);
     if (!CheckCVodeFlag(cv_flag))
