@@ -419,18 +419,24 @@ void PrintPerf(void *cvode_mem, int t, int starttime, double cputime_dt,
     long int        nst, nfe, nni, ncfn, netf;
     int             cv_flag;
 
+    /* Gets the cumulative number of internal steps taken by the solver (total
+     * so far) */
     cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
     CheckCVodeFlag(cv_flag);
 
+    /* Gets the number of calls to the user's right-hand side function */
     cv_flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
     CheckCVodeFlag(cv_flag);
 
+    /* Gets the number of nonlinear iterations performed */
     cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
     CheckCVodeFlag(cv_flag);
 
+    /* Gets the number of nonlinear convergence failures that have occurred */
     cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
     CheckCVodeFlag(cv_flag);
 
+    /* Gets the number of local error test failures that have occurred */
     cv_flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
     CheckCVodeFlag(cv_flag);
 

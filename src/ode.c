@@ -626,12 +626,16 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
     double          nfails;
     double          niters;
 
+    /* Gets the cumulative number of internal steps taken by the solver (total
+     * so far) */
     cv_flag = CVodeGetNumSteps(cvode_mem, &nst);
     CheckCVodeFlag(cv_flag);
 
+    /* Gets the number of nonlinear convergence failures that have occurred */
     cv_flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
     CheckCVodeFlag(cv_flag);
 
+    /* Gets the number of nonlinear iterations performed */
     cv_flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
     CheckCVodeFlag(cv_flag);
 
@@ -654,6 +658,7 @@ void AdjCVodeMaxStep(void *cvode_mem, ctrl_struct *ctrl)
     ctrl->maxstep = (ctrl->maxstep > ctrl->stmin) ?
         ctrl->maxstep : ctrl->stmin;
 
+    /* Updates the upper bound on the magnitude of the step size */
     cv_flag = CVodeSetMaxStep(cvode_mem, (realtype)ctrl->maxstep);
     CheckCVodeFlag(cv_flag);
 
