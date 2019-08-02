@@ -316,7 +316,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
 
             /* Note: Following correction is being applied for correction
              * mode only */
-            PIHMprintf(VL_NORMAL, "\tBefore: surface %lf, "
+            PIHMprintf(VL_NORMAL, "    Before: surface %lf, "
                 "bedrock %lf. Neighbors surface:",
                 elem[i].topo.zmax, elem[i].topo.zmin);
 
