@@ -174,8 +174,8 @@ void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
         elem[i].np.nh4 = 0.0;
         for (k = 0; k < elem[i].ps.nsoil; k++)
         {
-            elem[i].np.no3 += elem[i].ns.no3[k];
-            elem[i].np.nh4 += elem[i].ns.nh4[k];
+            elem[i].np.no3 += MAX(elem[i].ns.no3[k], 0.0);
+            elem[i].np.nh4 += MAX(elem[i].ns.nh4[k], 0.0);
         }
 
         NV_Ith(CV_Y, NO3(i)) = elem[i].np.no3;
@@ -186,10 +186,10 @@ void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 
     for (i = 0; i < nriver; i++)
     {
-        river[i].ns.streamno3 = river[i].restart_input.streamno3;
-        river[i].ns.streamnh4 = river[i].restart_input.streamnh4;
-        river[i].ns.bedno3 = river[i].restart_input.bedno3;
-        river[i].ns.bednh4 = river[i].restart_input.bednh4;
+        river[i].ns.streamno3 = MAX(river[i].restart_input.streamno3, 0.0);
+        river[i].ns.streamnh4 = MAX(river[i].restart_input.streamnh4, 0.0);
+        river[i].ns.bedno3 = MAX(river[i].restart_input.bedno3, 0.0);
+        river[i].ns.bednh4 = MAX(river[i].restart_input.bednh4, 0.0);
 
         NV_Ith(CV_Y, STREAMNO3(i)) = river[i].ns.streamno3;
         NV_Ith(CV_Y, STREAMNH4(i)) = river[i].ns.streamnh4;
