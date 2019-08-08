@@ -61,6 +61,9 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     ReadKeyword(cmdstr, "RAD_MODE_DATA", &ctrl->rad_mode, 'i', filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
+    ReadKeyword(cmdstr, "URB_MODE_DATA", &ctrl->urban_mode, 'i', filename, lno);
+
+    NextLine(lsm_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "SBETA_DATA", &noahtbl->sbeta, 'd', filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);

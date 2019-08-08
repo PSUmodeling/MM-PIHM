@@ -190,6 +190,8 @@ typedef struct ctrl_struct
     double          sldpth[MAXLYR];         /* thickness of soil layer (m) */
     int             rad_mode;               /* radiation forcing mode:
                                              * 0 = uniform, 1 = topographic */
+    int             urban_mode;             /* urban simulation mode:
+                                             * 0 = simple model, 1 = UCM */
 #endif
 #if defined(_RT_)
     int             read_rt_restart;        /* flag to read chemistry restart

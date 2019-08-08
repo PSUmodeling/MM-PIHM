@@ -146,6 +146,9 @@
 #define NLCD40_WOODY_WETLAND    39
 #define NLCD40_HERB_WETLAND     40
 
+/* Urban simulation mode */
+#define SIMPLE_URBAN            0
+#define UCM                     1
 
 /* Soil textures */
 #define SAND                    0
