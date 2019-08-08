@@ -153,6 +153,10 @@ typedef struct lc_struct
     int             bare;                   /* flag that indicates bare ground*/
     int             isurban;                /* flag that indicates urban */
     int             glacier;                /* flag that indicates glacier */
+    int             urban_type;             /* urban type:
+                                             * 1 = Commercial/Industrial
+                                             * 2 = High-intensity residential
+                                             * 3 = low-intensity residential */
     double          urban_fraction;         /* urban fraction (-) */
 } lc_struct;
 

@@ -90,7 +90,7 @@
  * Function Declarations
  */
 void            _InitLc(elem_struct *, const lctbl_struct *,
-    const calib_struct *);
+    const calib_struct *, int);
 double          _WsAreaElev(int, const elem_struct *);
 void            AdjCVodeMaxStep(void *, ctrl_struct *);
 #if defined(_RT_)
@@ -184,7 +184,7 @@ void            InitForc(elem_struct *, forc_struct *, const calib_struct *);
 #endif
 void            Initialize(pihm_struct, N_Vector, void **);
 void            InitLc(elem_struct *, const lctbl_struct *,
-    const calib_struct *);
+    const calib_struct *, int);
 void            InitMesh(elem_struct *, const meshtbl_struct *);
 void            InitOutputFile(print_struct *, const char *, int, int);
 void            InitPrtVarCtrl(const char *, const char *, int, int, int,

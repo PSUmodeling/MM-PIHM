@@ -163,7 +163,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
     /* Initialize element land cover properties */
-    InitLc(pihm->elem, &pihm->lctbl, &pihm->cal);
+    InitLc(pihm->elem, &pihm->lctbl, &pihm->cal, pihm->ctrl.urban_mode);
 
     /* Initialize element forcing */
 #if defined(_RT_)
