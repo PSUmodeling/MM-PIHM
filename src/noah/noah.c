@@ -1458,7 +1458,8 @@ void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
 
     rhsct -= wf->drip;
 
-    wf->pcpdrp = (1.0 - lc->shdfac) * prcp + wf->drip;
+    wf->pcpdrp = prcp * lc->urban_fraction +
+        ((1.0 - lc->shdfac) * prcp + wf->drip) * (1.0 - lc->urban_fraction);
 
     /* Update canopy water content/interception (cmc). Convert rhsct to an
      * "amount" value and add to previous cmc value to get new cmc. */
