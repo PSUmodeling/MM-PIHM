@@ -23,6 +23,8 @@ void _InitLc(elem_struct *elem_ptr, const lctbl_struct *lctbl,
 {
     int             lc_ind;
 
+    elem_ptr->lc.urban_fraction = 0.0;
+
     lc_ind = elem_ptr->attrib.lc_type - 1;
 
     elem_ptr->ps.rzd = cal->rzd * lctbl->rzd[lc_ind];

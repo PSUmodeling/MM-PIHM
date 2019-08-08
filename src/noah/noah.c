@@ -90,6 +90,10 @@ void NoahHydrol(elem_struct *elem, double dt)
         elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.sldpth, elem[i].ps.nsoil,
             elem[i].ws.gw, elem[i].ps.satdpth);
 
+        /* Adjust infiltration so that the soil moisture simulated only
+         * represents natural landuse fraction */
+        elem[i].wf.eqv_infil /= 1.0 - elem[i].lc.urban_fraction;
+
         for (k = 0; k < elem[i].ps.nsoil; k++)
         {
             elem[i].ws.smc[k] =

@@ -86,6 +86,14 @@ void EtExtract(elem_struct *elem)
             elem[i].wf.ett_gw = 0.0;
         }
 #endif
+
+#if defined(_NOAH_)
+        /* Adjust evapotranspiration based on urban fraction */
+        elem[i].wf.ett_unsat *= 1.0 - elem[i].lc.urban_fraction;
+        elem[i].wf.ett_gw *= 1.0 - elem[i].lc.urban_fraction;
+        elem[i].wf.edir_unsat *= 1.0 - elem[i].lc.urban_fraction;
+        elem[i].wf.edir_gw *= 1.0 - elem[i].lc.urban_fraction;
+#endif
     }
 }
 

@@ -14,6 +14,9 @@ void VerticalFlow(elem_struct *elem, double dt)
             &elem[i].topo, &elem[i].soil, dt);
 
 #if defined(_NOAH_)
+        /* Urban surface is assumed to be impermeable */
+        elem[i].wf.infil *= 1.0 - elem[i].lc.urban_fraction;
+
         /* Constrain infiltration by frozen top soil */
         elem[i].wf.infil *= elem[i].ps.fcr;
 #endif

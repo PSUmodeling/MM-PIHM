@@ -153,6 +153,7 @@ typedef struct lc_struct
     int             bare;                   /* flag that indicates bare ground*/
     int             isurban;                /* flag that indicates urban */
     int             glacier;                /* flag that indicates glacier */
+    double          urban_fraction;         /* urban fraction (-) */
 } lc_struct;
 
 #if !defined(_CYCLES_)
