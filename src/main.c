@@ -41,9 +41,6 @@ int main(int argc, char *argv[])
     nthreads = omp_get_max_threads();
 #endif
 
-    /* Hide cursor */
-    printf("\e[?25l");
-
     memset(outputdir, 0, MAXSTRING);
 
     /* Read command line arguments */
@@ -115,6 +112,9 @@ int main(int argc, char *argv[])
 #endif
 
     ctrl = &pihm->ctrl;
+
+    /* Hide cursor */
+    PIHMprintf(VL_NORMAL, "\e[?25l");
 
     if (spinup_mode)
     {
