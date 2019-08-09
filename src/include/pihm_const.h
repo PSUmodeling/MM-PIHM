@@ -155,6 +155,12 @@
 #define HIGH_DENS_RES           1
 #define LOW_DENS_RES            2
 
+/* Urban parameters */
+#define NUM_URBAN_CATE          3
+#define NUM_ROOF_LAYERS         4
+#define NUM_WALL_LAYERS         4
+#define NUM_ROAD_LAYERS         4
+
 /* Soil textures */
 #define SAND                    0
 #define LOAMY_SAND              1

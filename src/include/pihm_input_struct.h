@@ -40,6 +40,7 @@ typedef struct filename_struct
                                              */
     char            rad[MAXSTRING];         /* radiation forcing file */
     char            ice[MAXSTRING];         /* glacier ice file */
+    char            urb[MAXSTRING];         /* urban parameter file */
 #endif
 #if defined(_RT_)
     char            cdbs[MAXSTRING];        /* chemistry database file */
@@ -246,6 +247,118 @@ typedef struct lctbl_struct
     double          topt;                   /* optimum transpiration air
                                              * temperature (K) */
 } lctbl_struct;
+
+/* Urban parameters */
+typedef struct urbtbl_struct
+{
+    int             num_roof_layers;        /* number of layers within roof */
+    int             num_wall_layers;        /* number of layers within building
+                                             * walls */
+    int             num_road_layers;        /* number of layers within below
+                                             * road surface */
+    double          zr[NUM_URBAN_CATE];     /* roof level (building height, m)*/
+    double          sigma_zed[NUM_URBAN_CATE];/* standard deviation of roof
+                                             * height (m) */
+    double          ah[NUM_URBAN_CATE];     /* anthropogenic heat (W m-2) */
+    double          frc_urb[NUM_URBAN_CATE];/* fraction of urban landscape which
+                                             * does not have natural vegetation
+                                             * (-) */
+    double          capr[NUM_URBAN_CATE];   /* heat capacity of roof (J m-3 K-1)
+                                             */
+    double          capb[NUM_URBAN_CATE];   /* heat capacity of building wall
+                                             * (J m-3 K-1) */
+    double          capg[NUM_URBAN_CATE];   /* heat capacity of road (J m-3 K-1)
+                                             */
+    double          aksr[NUM_URBAN_CATE];   /* thermal conductivity of roof
+                                             * (J m-1 K-1) */
+    double          aksb[NUM_URBAN_CATE];   /* thermal conductivity of building
+                                             * wall (J m-1 K-1) */
+    double          aksg[NUM_URBAN_CATE];   /* thermal conductivity of road
+                                             * (J m-1 K-1) */
+    double          albr[NUM_URBAN_CATE];   /* surface albedo of roof (-) */
+    double          albb[NUM_URBAN_CATE];   /* surface albedo of building wall
+                                             * (-) */
+    double          albg[NUM_URBAN_CATE];   /* surface albedo of road (-) */
+    double          epsr[NUM_URBAN_CATE];   /* surface emissivity of roof (-) */
+    double          epsb[NUM_URBAN_CATE];   /* surface emissivity of building
+                                             * wall (-) */
+    double          epsg[NUM_URBAN_CATE];   /* surface emissivity of road (-) */
+    double          z0b[NUM_URBAN_CATE];    /* roughness length for momentum of
+                                             * building wall (m) */
+    double          z0g[NUM_URBAN_CATE];    /* roughness length for momentum of
+                                             * road (m) */
+    double          z0r[NUM_URBAN_CATE];    /* roughness length for momentum of
+                                             * roof (m) */
+    double          z0hb[NUM_URBAN_CATE];   /* roughness length for heat of
+                                             * building wall (m) */
+    double          z0hg[NUM_URBAN_CATE];   /* roughness length for heat of road
+                                             * (m) */
+    double          akanda_urban[NUM_URBAN_CATE];/* coefficient modifying the
+                                             * Kanda approach to computing
+                                             * surface layer exchange
+                                             * coefficients (-) */
+    double          dzr[NUM_ROOF_LAYERS];   /* thickness of each roof layer (cm)
+                                             */
+    double          dzb[NUM_WALL_LAYERS];   /* thickness of each building wall
+                                             * layer (cm) */
+    double          dzg[NUM_ROAD_LAYERS];   /* thickness of each ground layer
+                                             * (cm) */
+    int             boundr;                 /* boundary condition for roof layer
+                                             * temp:
+                                             * 1: zero-flux, 2: t = constant */
+    int             boundb;                 /* boundary condition for building
+                                             * wall layer temp:
+                                             * 1: zero-flux, 2: t = constant */
+    int             boundg;                 /* boundary condition for road layer
+                                             * temp:
+                                             * 1: zero-flux, 2: t = constant */
+    double          trlend[NUM_URBAN_CATE]; /* lower boundary condition of roof
+                                             * temperature (K) */
+    double          tblend[NUM_URBAN_CATE]; /* lower boundary condition of
+                                             * building temperature (K) */
+    double          tglend[NUM_URBAN_CATE]; /* lower boundary condition of
+                                             * ground temperature (K) */
+    int             ch_scheme;              /* surface exchange scheme used for
+                                             * building wall and road:
+                                             * 1: M-O similarity theory,
+                                             * 2: empirical form (recommended)*/
+    int             ts_scheme;              /* scheme for computing surface
+                                             * temperature (for roof, wall, and
+                                             * road):
+                                             * 1: 4-layer model,
+                                             * 2: force-restore method */
+    int             ahoption;               /* anthropogenic heating flag:
+                                             * 0: no anthroponenic heating
+                                             * 1: anthropogenic heating will be
+                                             * added to sensible heat flux */
+    double          ahdiuprf[24];           /* anthropogenic heating diurnal
+                                             * profile (-) */
+    double          zlvl_urban;             /* level of the first atmospheric
+                                             * level (m) */
+    double          init_roof_temp[NUM_ROOF_LAYERS];/* initial roof layer
+                                             * temperature (K) */
+    double          init_wall_temp[NUM_WALL_LAYERS];/* initial wall layer
+                                             * temperature (K) */
+    double          init_road_temp[NUM_ROAD_LAYERS];/* initial road layer
+                                             * temperature (K) */
+    double          hgt[NUM_URBAN_CATE];    /* normalized building height (m) */
+    double          r[NUM_URBAN_CATE];      /* normalized roof width (a.k.a.
+                                             * "building coverage ration") (-)*/
+    double          rw[NUM_URBAN_CATE];     /* 1 - r (-) */
+    double          betr[NUM_URBAN_CATE];   /* minimum moisture availability of
+                                             * roof (-) */
+    double          betb[NUM_URBAN_CATE];   /* minimum moisture availability of
+                                             * building wall (-) */
+    double          betg[NUM_URBAN_CATE];   /* minimum moisture availability of
+                                             * road (-) */
+    double          zdc[NUM_URBAN_CATE];    /* zero plane displacement height
+                                             * (1/5 of zr) (m) */
+    double          z0c[NUM_URBAN_CATE];    /* roughness length above canyon for
+                                             * momentum (1/10 of zr) (m) */
+    double          z0hc[NUM_URBAN_CATE];   /* roughness length above canyon for
+                                             * heat (1/10 of z0c) */
+    double          svf[NUM_URBAN_CATE];    /* sky view factor (-) */
+} urbtbl_struct;
 
 /* Time series data structure */
 typedef struct tsdata_struct

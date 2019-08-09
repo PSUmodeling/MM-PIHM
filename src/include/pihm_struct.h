@@ -257,6 +257,7 @@ typedef struct pihm_struct
     matltbl_struct  matltbl;
 #if defined(_NOAH_)
     noahtbl_struct  noahtbl;
+    urbtbl_struct   urbtbl;
 #endif
 #if defined(_CYCLES_)
     agtbl_struct    agtbl;

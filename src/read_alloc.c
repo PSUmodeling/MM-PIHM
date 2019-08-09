@@ -39,6 +39,7 @@ void ReadAlloc(pihm_struct pihm)
     sprintf(pihm->filename.lsm,      "input/%s/%s.lsm",      proj, proj);
     sprintf(pihm->filename.rad,      "input/%s/%s.rad",      proj, proj);
     sprintf(pihm->filename.ice,      "input/%s/%s.ice",      proj, proj);
+    sprintf(pihm->filename.urb,      "input/%s/%s.urb",      proj, proj);
 #endif
 #if defined(_CYCLES_)
     sprintf(pihm->filename.cycles,   "input/%s/%s.cycles",   proj, proj);
@@ -114,6 +115,12 @@ void ReadAlloc(pihm_struct pihm)
     {
         /* Read radiation input file */
         ReadRad(pihm->filename.rad, &pihm->forc);
+    }
+
+    if (pihm->ctrl.urban_mode == UCM)
+    {
+        /* Read urban parameter file */
+        ReadUrban(pihm->filename.urb, &pihm->urbtbl);
     }
 #endif
 
