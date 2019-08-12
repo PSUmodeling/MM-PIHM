@@ -234,11 +234,14 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 #if !defined(_CYCLES_)
         epc->rsmin = 400.0;
 #endif
-        soil->smcmax = 0.45;
-        soil->smcmin = 0.0;
-        soil->smcref = 0.42;
-        soil->smcwlt = 0.40;
-        soil->smcdry = 0.40;
+        /* In original Noah LSM, urban model changes urban soil porosity. In
+         * Flux-PIHM, porosity should not be changed because it is also used in
+         * PIHM hydrology calculation. Therefore, field capacity and wilting
+         * point are adjusted to the same saturation level as in Noah simple
+         * urban model.*/
+        soil->smcref = (0.42 / 0.45) * soil->porosity + soil->smcmin;
+        soil->smcwlt = (0.40 / 0.45) * soil->porosity + soil->smcmin;
+        soil->smcdry = (0.40 / 0.45) * soil->porosity + soil->smcmin;
     }
 
 #if defined(_CYCLES_)
