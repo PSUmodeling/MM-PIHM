@@ -236,11 +236,11 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 #endif
         /* In original Noah LSM, urban model changes urban soil porosity. In
          * Flux-PIHM, porosity should not be changed because it is also used in
-         * PIHM hydrology calculation. Therefore, field capacity and wilting
-         * point are adjusted to the same saturation level as in Noah simple
-         * urban model.*/
-        soil->smcref = (0.42 / 0.45) * soil->porosity + soil->smcmin;
-        soil->smcwlt = (0.40 / 0.45) * soil->porosity + soil->smcmin;
+         * PIHM hydrology calculation. In addition, field capacity and wilting
+         * point are not changed to allow transpiration from the non-urban
+         * fraction. Parameter smcdry is adjusted according to Noah urban smcdry
+         * saturation level to limit direct evaporation from non-vegetated area,
+         * which includes urban area */
         soil->smcdry = (0.40 / 0.45) * soil->porosity + soil->smcmin;
     }
 
