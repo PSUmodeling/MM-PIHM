@@ -233,6 +233,13 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 elem[i].geol.smcmax, 0.5 * elem[i].geol.depth,
                 elem[i].topo.area, elem[i].wf.fbr_rechg * elem[i].topo.area);
 
+# if defined(_TGM_)
+            /* Fractured bedrock discharge to river.
+             * Note that FBR discharge is always non-negative */
+            elem[i].chmf.fbr_discharge[k] = elem[i].wf.fbr_discharge *
+                elem[i].topo.area * elem[i].chms_fbrgw.t_conc[k];
+# endif
+
             /* Element to element */
             for (j = 0; j < NUM_EDGE; j++)
             {
@@ -343,6 +350,12 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     river[i].chms_rivbed.t_conc[k] :
                     left->chms_gw.t_conc[k]);
 
+#if defined(_FBR_) && defined(_TGM_)
+                river[i].chmf.flux[LEFT_FBR2CHANL][k] =
+                    river[i].wf.rivflow[LEFT_FBR2CHANL] *
+                    left->chms_fbrgw.t_conc[k];
+#endif
+
                 for (j = 0; j < NUM_EDGE; j++)
                 {
                     if (left->nabr_river[j] == i + 1)
@@ -375,6 +388,12 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     ((river[i].wf.rivflow[RIGHT_AQUIF2AQUIF] > 0.0) ?
                     river[i].chms_rivbed.t_conc[k] :
                     right->chms_gw.t_conc[k]);
+
+#if defined(_FBR_) && defined(_TGM_)
+                river[i].chmf.flux[RIGHT_FBR2CHANL][k] =
+                    river[i].wf.rivflow[RIGHT_FBR2CHANL] *
+                    right->chms_fbrgw.t_conc[k];
+#endif
 
                 for (j = 0; j < NUM_EDGE; j++)
                 {

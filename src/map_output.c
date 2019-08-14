@@ -1018,6 +1018,39 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
                                 &river[j].chms_stream.p_conc[k];
                         }
                         n++;
+
+                        /* River fluxes */
+                        sprintf(ext, "river_discharge.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nriver, &print->varctrl[n]);
+                        for (j = 0; j < nriver; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &river[j].chmf.flux[DOWN_CHANL2CHANL][k];
+                        }
+                        n++;
+
+# if defined(_FBR_) && defined(_TGM_)
+                        sprintf(ext, "left_fbr_discharge.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nriver, &print->varctrl[n]);
+                        for (j = 0; j < nriver; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &river[j].chmf.flux[LEFT_FBR2CHANL][k];
+                        }
+                        n++;
+
+                        sprintf(ext, "right_fbr_discharge.%s", chemn);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            RT_STEP, nriver, &print->varctrl[n]);
+                        for (j = 0; j < nriver; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &river[j].chmf.flux[RIGHT_FBR2CHANL][k];
+                        }
+                        n++;
+#endif
                     }
 
                     /* Secondary species */

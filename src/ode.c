@@ -267,6 +267,9 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
                 elem->chmf.fbr_rechg[k] + elem->chmf.react_fbrunsat[k];
             dy[FBRGW_MOLE(i, k)] +=
                 elem->chmf.fbr_rechg[k] + elem->chmf.react_fbrgw[k];
+#  if defined(_TGM_)
+            dy[FBRGW_MOLE(i, k)] -= elem->chmf.fbr_discharge[k];
+#  endif
 # endif
 
             for (j = 0; j < NUM_EDGE; j++)
@@ -396,6 +399,11 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             {
                 dy[STREAM_MOLE(i, k)] -= river->chmf.flux[j][k];
             }
+
+# if defined(_TGM_)
+            dy[STREAM_MOLE(i, k)] -= river->chmf.flux[LEFT_FBR2CHANL][k] +
+                river->chmf.flux[RIGHT_FBR2CHANL][k];
+# endif
 
             dy[RIVBED_MOLE(i, k)] += -river->chmf.flux[LEFT_AQUIF2AQUIF][k] -
                 river->chmf.flux[RIGHT_AQUIF2AQUIF][k] -

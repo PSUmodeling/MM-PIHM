@@ -1633,6 +1633,9 @@ typedef struct chmflux_struct
                                              */
     double          fbrflow[NUM_EDGE][MAXSPS];/* lateral chemical flux in deep
                                              * groundwater (M s-1) */
+    double          fbr_discharge[MAXSPS];  /* chemical flux from fractured
+                                             * bedrock to river (only applies to
+                                             * 2-grid model) (M s-1) */
     double          react_fbrunsat[MAXSPS]; /* reaction flux in bedrock
                                              * unsaturated zone (M s-1) */
     double          react_fbrgw[MAXSPS];    /* reaction flux in deep groundwater
