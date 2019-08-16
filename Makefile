@@ -17,7 +17,7 @@ ifneq ($(OMP), off)
   CFLAGS += -fopenmp
 endif
 
-CMAKE_VER_NUM := $(shell cmake --version |awk '{print $$3}')
+CMAKE_VER_NUM := $(shell cmake --version 2> /dev/null |awk '{print $$3}')
 CMAKE_VER_X := $(shell echo $(CMAKE_VER_NUM) | cut -f1 -d.)
 CMAKE_VER_Y := $(shell echo $(CMAKE_VER_NUM) | cut -f2 -d.)
 CMAKE_VER_Z := $(shell echo $(CMAKE_VER_NUM) | cut -f3 -d.)
