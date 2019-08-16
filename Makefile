@@ -39,9 +39,10 @@ else
 endif
 
 CVODE_PATH = ./cvode/instdir
+CVODE_LIB = $(CVODE_PATH)/lib
 
 SRCDIR = ./src
-LIBS = -lm -Wl,-rpath,$(CVODE_PATH)/lib64
+LIBS = -lm -Wl,-rpath,$(CVODE_LIB)
 INCLUDES = \
 	-I$(SRCDIR)/include\
 	-I$(CVODE_PATH)/include\
@@ -49,7 +50,7 @@ INCLUDES = \
 	-I$(CVODE_PATH)/include/sundials\
 	-I$(CVODE_PATH)/include/nvector
 
-LFLAGS = -lsundials_cvode -L$(CVODE_PATH)/lib64
+LFLAGS = -lsundials_cvode -L$(CVODE_LIB)
 ifeq ($(CVODE_OMP), on)
   LFLAGS += -lsundials_nvecopenmp
 else
@@ -320,7 +321,7 @@ cvode:			## Install cvode library
 cvode:	cmake
 	@echo "Install CVODE library"
 	@cd cvode && mkdir -p instdir && mkdir -p builddir
-	@cd $(CVODE_PATH) && $(CMAKE) -DCMAKE_INSTALL_PREFIX=../instdir -DEXAMPLES_ENABLE=OFF -DEXAMPLES_INSTALL=OFF ../
+	@cd $(CVODE_PATH) && $(CMAKE) -DCMAKE_INSTALL_PREFIX=../instdir -DCMAKE_INSTALL_LIBDIR=lib -DEXAMPLES_ENABLE=OFF -DEXAMPLES_INSTALL=OFF ../
 	@cd $(CVODE_PATH) && make && make install
 	@echo "CVODE library installed."
 ifneq ($(CMAKE_EXIST),1)
