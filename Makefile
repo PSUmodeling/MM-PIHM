@@ -319,7 +319,7 @@ cvode:			## Install cvode library
 cvode:	cmake
 	@echo "Install CVODE library"
 	@cd cvode && mkdir -p instdir && mkdir -p builddir
-	@cd $(CVODE_PATH) && $(CMAKE) -DCMAKE_INSTALL_PREFIX=../instdir -DCMAKE_INSTALL_LIBDIR=lib -DEXAMPLES_ENABLE=OFF -DEXAMPLES_INSTALL=OFF ../
+	@cd $(CVODE_PATH) && $(CMAKE) -DCMAKE_INSTALL_PREFIX=../instdir -DCMAKE_INSTALL_LIBDIR=lib -DEXAMPLES_ENABLE_C=OFF -DEXAMPLES_INSTALL=OFF ../
 	@cd $(CVODE_PATH) && make && make install
 	@echo "CVODE library installed."
 ifneq ($(CMAKE_EXIST),1)
