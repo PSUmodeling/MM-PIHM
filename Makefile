@@ -18,6 +18,9 @@ ifneq ($(OMP), off)
 endif
 
 CMAKE_VER_NUM := $(shell cmake --version 2> /dev/null |awk '{print $$3}')
+ifeq ($(CMAKE_VER_NUM),)
+  CMAKE_VER_NUM := 0.0.0
+endif
 CMAKE_REQ_VER = 3.1.3
 CMAKETEST := $(shell printf '%s\n' $(CMAKE_VER_NUM) $(CMAKE_REQ_VER) | sort -V | head -n 1)
 
