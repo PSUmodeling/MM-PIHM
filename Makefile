@@ -18,12 +18,10 @@ ifneq ($(OMP), off)
 endif
 
 CMAKE_VER_NUM := $(shell cmake --version 2> /dev/null |awk '{print $$3}')
-CMAKE_VER_X := $(shell echo $(CMAKE_VER_NUM) | cut -f1 -d.)
-CMAKE_VER_Y := $(shell echo $(CMAKE_VER_NUM) | cut -f2 -d.)
-CMAKE_VER_Z := $(shell echo $(CMAKE_VER_NUM) | cut -f3 -d.)
-CMAKETEST := $(shell [ $(CMAKE_VER_X) -gt 3 -o \( $(CMAKE_VER_X) -eq 3 -a $(CMAKE_VER_Y) -ge 1 \) -o \( $(CMAKE_VER_X) -eq 3 -a $(CMAKE_VER_Y) -eq 1 -a $(CMAKE_VER_Z) -ge 1 \) ] && echo true)
+CMAKE_REQ_VER = 3.1.3
+CMAKETEST := $(shell printf '%s\n' $(CMAKE_VER_NUM) $(CMAKE_REQ_VER) | sort -V | head -n 1)
 
-ifeq ($(CMAKETEST),true)
+ifeq ($(CMAKETEST),$(CMAKE_REQ_VER))
   CMAKE_EXIST = 1
   CMAKE=cmake
 else
