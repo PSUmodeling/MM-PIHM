@@ -311,7 +311,8 @@ all:	cvode pihm
 
 cmake:
 ifneq ($(CMAKE_EXIST),1)
-	@echo "Download CMake from cmake.org"
+	@echo "CVODE installation requires CMake v$(CMAKE_REQ_VER)."
+	@echo "Download CMake $(CMAKE_VERS) from cmake.org"
 	@curl https://cmake.org/files/v3.7/$(CMAKE_VERS).tar.gz -o $(CMAKE_VERS).tar.gz &> /dev/null
 	@echo
 	@echo "Extract $(CMAKE_VERS).tar.gz"
