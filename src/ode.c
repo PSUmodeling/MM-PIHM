@@ -528,6 +528,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
         N_VConst(RCONST(1.0), constraints);
         cv_flag = CVodeSetConstraints(cvode_mem, constraints);
         CheckCVodeFlag(cv_flag);
+        N_VDestroy(constraints);
 
         /* Specifies PIHM data block and attaches it to the main cvode memory
          * block */
