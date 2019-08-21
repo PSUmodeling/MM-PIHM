@@ -498,59 +498,60 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
         cv_flag = CVodeInit(cvode_mem, ODE, 0.0, CV_Y);
         CheckCVodeFlag(cv_flag);
         reset = 1;
-    }
 
-    *sun_ls = SUNLinSol_SPGMR(CV_Y, PREC_NONE, 0);
+        *sun_ls = SUNLinSol_SPGMR(CV_Y, PREC_NONE, 0);
 
-    /* Attach the linear solver */
-    CVodeSetLinearSolver(cvode_mem, *sun_ls, NULL);
+        /* Attach the linear solver */
+        CVodeSetLinearSolver(cvode_mem, *sun_ls, NULL);
 
 #if defined(_BGC_) || defined(_CYCLES_)
-    /* When BGC module is turned on, both water storage and nitrogen storage
-     * variables are in the CVODE vector. A vector of absolute tolerances is
-     * needed to specify different absolute tolerances for water storage
-     * variables and nitrogen storage variables */
-    abstol = N_VNew(NumStateVar());
-    SetAbsTol(pihm->ctrl.abstol, SMINN_TOL, abstol);
+        /* When BGC module is turned on, both water storage and nitrogen storage
+         * variables are in the CVODE vector. A vector of absolute tolerances is
+         * needed to specify different absolute tolerances for water storage
+         * variables and nitrogen storage variables */
+        abstol = N_VNew(NumStateVar());
+        SetAbsTol(pihm->ctrl.abstol, SMINN_TOL, abstol);
 
-    cv_flag = CVodeSVtolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
-        abstol);
-    CheckCVodeFlag(cv_flag);
+        cv_flag = CVodeSVtolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
+                abstol);
+        CheckCVodeFlag(cv_flag);
 
-    N_VDestroy(abstol);
+        N_VDestroy(abstol);
 #else
-    cv_flag = CVodeSStolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
-        (realtype)pihm->ctrl.abstol);
-    CheckCVodeFlag(cv_flag);
+        cv_flag = CVodeSStolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
+                (realtype)pihm->ctrl.abstol);
+        CheckCVodeFlag(cv_flag);
 #endif
 
-    /* Set constraints to all 1's for nonnegative solution values */
-    constraints = N_VNew(NumStateVar());
-    N_VConst(RCONST(1.0), constraints);
-    cv_flag = CVodeSetConstraints(cvode_mem, constraints);
-    CheckCVodeFlag(cv_flag);
+        /* Set constraints to all 1's for nonnegative solution values */
+        constraints = N_VNew(NumStateVar());
+        N_VConst(RCONST(1.0), constraints);
+        cv_flag = CVodeSetConstraints(cvode_mem, constraints);
+        CheckCVodeFlag(cv_flag);
 
-    /* Specifies PIHM data block and attaches it to the main cvode memory block
-     */
-    cv_flag = CVodeSetUserData(cvode_mem, pihm);
-    CheckCVodeFlag(cv_flag);
+        /* Specifies PIHM data block and attaches it to the main cvode memory
+         * block */
+        cv_flag = CVodeSetUserData(cvode_mem, pihm);
+        CheckCVodeFlag(cv_flag);
 
-    /* Specifies the initial step size */
-    cv_flag = CVodeSetInitStep(cvode_mem, (realtype)pihm->ctrl.initstep);
-    CheckCVodeFlag(cv_flag);
+        /* Specifies the initial step size */
+        cv_flag = CVodeSetInitStep(cvode_mem, (realtype)pihm->ctrl.initstep);
+        CheckCVodeFlag(cv_flag);
 
-    /* Indicates if the BDF stability limit detection algorithm should be used*/
-    cv_flag = CVodeSetStabLimDet(cvode_mem, SUNTRUE);
-    CheckCVodeFlag(cv_flag);
+        /* Indicates if the BDF stability limit detection algorithm should be
+         * used */
+        cv_flag = CVodeSetStabLimDet(cvode_mem, SUNTRUE);
+        CheckCVodeFlag(cv_flag);
 
-    /* Specifies an upper bound on the magnitude of the step size */
-    cv_flag = CVodeSetMaxStep(cvode_mem, (realtype)pihm->ctrl.maxstep);
-    CheckCVodeFlag(cv_flag);
+        /* Specifies an upper bound on the magnitude of the step size */
+        cv_flag = CVodeSetMaxStep(cvode_mem, (realtype)pihm->ctrl.maxstep);
+        CheckCVodeFlag(cv_flag);
 
-    /* Specifies the maximum number of steps to be taken by the solver in its
-     * attempt to reach the next output time */
-    cv_flag = CVodeSetMaxNumSteps(cvode_mem, pihm->ctrl.stepsize * 10);
-    CheckCVodeFlag(cv_flag);
+        /* Specifies the maximum number of steps to be taken by the solver in
+         * its attempt to reach the next output time */
+        cv_flag = CVodeSetMaxNumSteps(cvode_mem, pihm->ctrl.stepsize * 10);
+        CheckCVodeFlag(cv_flag);
+    }
 }
 
 void SetAbsTol(double hydrol_tol, double sminn_tol, N_Vector abstol)
