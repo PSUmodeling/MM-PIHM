@@ -604,8 +604,6 @@ void ProgressBar(int progress)
 {
     int             i;
 
-    printf("\e[?25l");
-
     PIHMprintf(VL_NORMAL, "  [");
 
     for (i = 0; i < progress; i++)
