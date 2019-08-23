@@ -46,10 +46,7 @@ SRCDIR = ./src
 LIBS = -lm -Wl,-rpath,$(CVODE_LIB)
 INCLUDES = \
 	-I$(SRCDIR)/include\
-	-I$(CVODE_PATH)/include\
-	-I$(CVODE_PATH)/include/cvode\
-	-I$(CVODE_PATH)/include/sundials\
-	-I$(CVODE_PATH)/include/nvector
+	-I$(CVODE_PATH)/include
 
 LFLAGS = -lsundials_cvode -L$(CVODE_LIB)
 ifeq ($(CVODE_OMP), on)
