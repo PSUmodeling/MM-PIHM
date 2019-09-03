@@ -158,7 +158,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
     double          tot_cec;
     double          tmpprb_inv;
     realtype      **jcb;
-    long int        p[MAXSPS];
+    sunindextype    p[MAXSPS];
     realtype        x_[MAXSPS];
 
     control = 0;
