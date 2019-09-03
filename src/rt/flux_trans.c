@@ -219,8 +219,6 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             }   /* End of element to element */
 
 #if defined(_FBR_)
-            int             jj;
-
             /* Bedrock infiltration */
             elem[i].chmf.fbr_infil[k] = elem[i].wf.fbr_infil *
                 elem[i].topo.area * ((elem[i].wf.fbr_infil > 0.0) ?
