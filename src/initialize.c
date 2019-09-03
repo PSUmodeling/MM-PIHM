@@ -6,7 +6,6 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 {
     int             i, j;
     int             bc;
-    int             cv_flag;
 #if defined(_LUMPED_)
     int             soil_counter[MAX_TYPE];
     int             lc_counter[MAX_TYPE];
@@ -183,7 +182,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     }
 
     /* Calculate distances between elements */
-    InitSurfL(pihm->elem, pihm->river, &pihm->meshtbl);
+    InitSurfL(pihm->elem, &pihm->meshtbl);
 
 #if defined(_NOAH_)
     /* Initialize land surface module (Noah) */
@@ -380,8 +379,7 @@ void CorrElev(elem_struct *elem, river_struct *river)
     }
 }
 
-void InitSurfL(elem_struct *elem, const river_struct *river,
-    const meshtbl_struct *meshtbl)
+void InitSurfL(elem_struct *elem, const meshtbl_struct *meshtbl)
 {
     int             i;
 
