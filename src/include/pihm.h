@@ -41,6 +41,9 @@
 /* Definition of macros SUNSQR and EXP */
 #include "sundials/sundials_math.h"
 
+/* Prototypes for small dense fcts. */
+#include "sundials/sundials_dense.h"
+
 #if defined(_NOAH_)
 # include "spa.h"
 #endif
