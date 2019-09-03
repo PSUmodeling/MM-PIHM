@@ -62,7 +62,7 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             j, k;
+        int             j;
         elem_struct    *nabr;
 
         for (j = 0; j < NUM_EDGE; j++)
