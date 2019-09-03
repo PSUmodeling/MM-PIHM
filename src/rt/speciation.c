@@ -95,12 +95,9 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
          * H. Dependency is the same but the total concentration for H need not
          * be solved */
         jcb = newDenseMat(rttbl->NumStc - 1, rttbl->NumStc - 1);
-        sunindextype   *p;
-        realtype       *x_;
+        sunindextype    p[MAXSPS];
+        realtype        x_[MAXSPS];
         double          maxerror = 1;
-
-        p = (sunindextype *)malloc((rttbl->NumStc - 1) * sizeof(sunindextype));
-        x_ = (realtype *)malloc((rttbl->NumStc - 1) * sizeof(realtype));
 
         while (maxerror > TOL)
         {
@@ -228,19 +225,13 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 if (fabs(error[i]) > maxerror)
                     maxerror = fabs(error[i]);
         }
-
-        free(p);
-        free(x_);
     }
     else
     {
         jcb = newDenseMat(rttbl->NumStc, rttbl->NumStc);
-        sunindextype   *p;
-        realtype       *x_;
+        sunindextype    p[MAXSPS];
+        realtype        x_[MAXSPS];
         double          maxerror = 1;
-
-        p = (sunindextype *)malloc(rttbl->NumStc * sizeof(sunindextype));
-        x_ = (realtype *)malloc(rttbl->NumStc * sizeof(realtype));
 
         while (maxerror > TOL)
         {
@@ -334,9 +325,6 @@ int _Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 maxerror = MAX(fabs(error[i]), maxerror);
             }
         }
-
-        free(p);
-        free(x_);
     }
     for (i = 0; i < rttbl->NumSsc; i++)
     {
