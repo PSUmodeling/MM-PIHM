@@ -472,17 +472,10 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
     int             cv_flag;
     static int      reset;
     N_Vector        constraints;
-    int             i;
 #if defined(_BGC_) || defined(_CYCLES_)
     N_Vector        abstol;
     const double    SMINN_TOL = 1.0E-5;
 #endif
-
-    /* Make sure initial state variables are nonnegative */
-    for (i = 0; i < NumStateVar(); i++)
-    {
-        NV_Ith(CV_Y, i) = MAX(NV_Ith(CV_Y, i), 0.0);
-    }
 
     pihm->ctrl.maxstep = pihm->ctrl.stepsize;
 
