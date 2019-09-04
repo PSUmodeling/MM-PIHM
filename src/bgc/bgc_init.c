@@ -96,8 +96,6 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
         elem[i].epv.annavg_t2m = elem[i].ps.tbot;
 
 #if !defined(_LUMPED_)
-        elem[i].ns.surfn = MAX(elem[i].ns.surfn, 0.0);
-        elem[i].ns.sminn = MAX(elem[i].ns.sminn, 0.0);
         NV_Ith(CV_Y, SURFN(i)) = elem[i].ns.surfn;
         NV_Ith(CV_Y, SMINN(i)) = elem[i].ns.sminn;
 
@@ -107,15 +105,15 @@ void InitBgcVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
     }
 
 #if defined(_LUMPED_)
-    NV_Ith(CV_Y, LUMPED_SMINN) = MAX(elem[LUMPED].ns.sminn, 0.0);
+    NV_Ith(CV_Y, LUMPED_SMINN) = elem[LUMPED].ns.sminn;
     elem[LUMPED].nt.sminn0 = elem[i].ns.sminn;
 #endif
 
 #if !defined(_LUMPED_) && !defined(_LEACHING_)
     for (i = 0; i < nriver; i++)
     {
-        river[i].ns.streamn = MAX(river[i].restart_input.streamn, 0.0);
-        river[i].ns.sminn = MAX(river[i].restart_input.sminn, 0.0);
+        river[i].ns.streamn = river[i].restart_input.streamn;
+        river[i].ns.sminn = river[i].restart_input.sminn;
         river[i].nf.sminn_leached = 0.0;
 
         NV_Ith(CV_Y, STREAMN(i)) = river[i].ns.streamn;
