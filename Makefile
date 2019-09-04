@@ -43,7 +43,7 @@ CVODE_PATH = ./cvode/instdir
 CVODE_LIB = $(CVODE_PATH)/lib
 
 SRCDIR = ./src
-LIBS = -lm -Wl,-rpath,$(CVODE_LIB)
+LIBS = -lm
 INCLUDES = \
 	-I$(SRCDIR)/include\
 	-I$(CVODE_PATH)/include
@@ -320,7 +320,7 @@ cvode:			## Install cvode library
 cvode:	cmake
 	@echo "Install CVODE library"
 	@cd cvode && mkdir -p instdir && mkdir -p builddir
-	@cd $(CVODE_PATH) && $(CMAKE) -DCMAKE_INSTALL_PREFIX=../instdir -DCMAKE_INSTALL_LIBDIR=lib -DEXAMPLES_ENABLE_C=OFF -DEXAMPLES_INSTALL=OFF ../
+	@cd $(CVODE_PATH) && $(CMAKE) -DCMAKE_INSTALL_PREFIX=../instdir -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_SHARED_LIBS=OFF -DEXAMPLES_ENABLE_C=OFF -DEXAMPLES_INSTALL=OFF ../
 	@cd $(CVODE_PATH) && make && make install
 	@echo "CVODE library installed."
 ifneq ($(CMAKE_EXIST),1)
