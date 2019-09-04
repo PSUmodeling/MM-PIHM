@@ -168,7 +168,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 river[i].chms_stream.p_actv[k] = river[i].chms_stream.t_conc[k];
                 river[i].chms_stream.p_conc[k] = river[i].chms_stream.t_conc[k];
                 river[i].chms_stream.t_mole[k] =
-                    MAX(river[i].chms_stream.t_conc[k] * vol_stream, 0.0);
+                    river[i].chms_stream.t_conc[k] * vol_stream;
 
                 river[i].chms_rivbed.t_conc[k] =
                     0.5 * elem[river[i].leftele - 1].chms_gw.t_conc[k] +
@@ -176,7 +176,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 river[i].chms_rivbed.p_actv[k] = river[i].chms_rivbed.t_conc[k];
                 river[i].chms_rivbed.p_conc[k] = river[i].chms_rivbed.t_conc[k];
                 river[i].chms_rivbed.t_mole[k] =
-                    MAX(river[i].chms_rivbed.t_conc[k] * vol_rivbed, 0.0);
+                    river[i].chms_rivbed.t_conc[k] * vol_rivbed;
             }
             else
             {
@@ -303,7 +303,7 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     {
         if (chemtbl[k].itype == AQUEOUS)
         {
-            chms->t_mole[k] = MAX(chms->t_conc[k] * vol, 0.0);
+            chms->t_mole[k] = chms->t_conc[k] * vol;
         }
         else
         {

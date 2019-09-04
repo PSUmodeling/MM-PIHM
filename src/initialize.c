@@ -575,26 +575,26 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
     for (i = 0; i < nelem; i++)
     {
 #if defined(_CYCLES_)
-        elem[i].ws.flatResidueWater = MAX(elem[i].ic.cmc, 0.0);
+        elem[i].ws.flatResidueWater = elem[i].ic.cmc;
 #else
-        elem[i].ws.cmc = MAX(elem[i].ic.cmc, 0.0);
+        elem[i].ws.cmc = elem[i].ic.cmc;
 #endif
-        elem[i].ws.sneqv = MAX(elem[i].ic.sneqv, 0.0);
+        elem[i].ws.sneqv = elem[i].ic.sneqv;
 
-        elem[i].ws.surf = MAX(elem[i].ic.surf, 0.0);
-        elem[i].ws.unsat = MAX(elem[i].ic.unsat, 0.0);
-        elem[i].ws.gw = MAX(elem[i].ic.gw, 0.0);
+        elem[i].ws.surf = elem[i].ic.surf;
+        elem[i].ws.unsat = elem[i].ic.unsat;
+        elem[i].ws.gw = elem[i].ic.gw;
 
-        NV_Ith(CV_Y, SURF(i)) = elem[i].ws.surf;
-        NV_Ith(CV_Y, UNSAT(i)) = elem[i].ws.unsat;
-        NV_Ith(CV_Y, GW(i)) = elem[i].ws.gw;
+        NV_Ith(CV_Y, SURF(i)) = elem[i].ic.surf;
+        NV_Ith(CV_Y, UNSAT(i)) = elem[i].ic.unsat;
+        NV_Ith(CV_Y, GW(i)) = elem[i].ic.gw;
 
 #if defined(_FBR_)
-        elem[i].ws.fbr_unsat = MAX(elem[i].ic.fbr_unsat, 0.0);
-        elem[i].ws.fbr_gw = MAX(elem[i].ic.fbr_gw, 0.0);
+        elem[i].ws.fbr_unsat = elem[i].ic.fbr_unsat;
+        elem[i].ws.fbr_gw = elem[i].ic.fbr_gw;
 
-        NV_Ith(CV_Y, FBRUNSAT(i)) = elem[i].ws.fbr_unsat;
-        NV_Ith(CV_Y, FBRGW(i)) = elem[i].ws.fbr_gw;
+        NV_Ith(CV_Y, FBRUNSAT(i)) = elem[i].ic.fbr_unsat;
+        NV_Ith(CV_Y, FBRGW(i)) = elem[i].ic.fbr_gw;
 #endif
 
 #if defined(_NOAH_)
@@ -619,11 +619,11 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
 #endif
     for (i = 0; i < nriver; i++)
     {
-        river[i].ws.stage = MAX(river[i].ic.stage, 0.0);
-        river[i].ws.gw = MAX(river[i].ic.gw, 0.0);
+        river[i].ws.stage = river[i].ic.stage;
+        river[i].ws.gw = river[i].ic.gw;
 
-        NV_Ith(CV_Y, RIVSTG(i)) = river[i].ws.stage;
-        NV_Ith(CV_Y, RIVGW(i)) = river[i].ws.gw;
+        NV_Ith(CV_Y, RIVSTG(i)) = river[i].ic.stage;
+        NV_Ith(CV_Y, RIVGW(i)) = river[i].ic.gw;
 
         river[i].ws0 = river[i].ws;
     }
