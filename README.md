@@ -18,6 +18,9 @@ All bug reports and feature requests should be submitted using the [Issues](http
 
 ## Usage
 
+The following guide applies to UNIX (include Mac OS) systems.
+For instructions on how to install MM-PIHM on Windows, please refer to this [guide](https://gist.github.com/shiyuning/867d5af0a3a6345b50ec1b193a71e4be).
+
 ### Installing CVODE
 
 MM-PIHM uses the SUNDIALS CVODE v2.9.0 implicit solvers.
