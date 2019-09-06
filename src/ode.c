@@ -400,7 +400,7 @@ int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
                 dy[STREAM_MOLE(i, k)] -= river->chmf.flux[j][k];
             }
 
-# if defined(_TGM_)
+# if defined(_FBR_) && defined(_TGM_)
             dy[STREAM_MOLE(i, k)] -= river->chmf.flux[LEFT_FBR2CHANL][k] +
                 river->chmf.flux[RIGHT_FBR2CHANL][k];
 # endif
