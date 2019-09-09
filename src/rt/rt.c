@@ -369,3 +369,36 @@ double RivBedStrg(const matl_struct *matl, const river_wstate_struct *ws)
 
     return strg;
 }
+
+void UpdatePConc(elem_struct elem[], river_struct river[])
+{
+    int             i;
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nelem; i++)
+    {
+        int             k;
+
+        for (k = 0; k < NumSpc; k++)
+        {
+            elem[i].chms_unsat.p_conc[k] = elem[i].chms_unsat.t_conc[k];
+            elem[i].chms_gw.p_conc[k] = elem[i].chms_gw.t_conc[k];
+        }
+    }
+
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
+    for (i = 0; i < nriver; i++)
+    {
+        int             k;
+
+        for (k = 0; k < NumSpc; k++)
+        {
+            river[i].chms_stream.p_conc[k] = river[i].chms_stream.t_conc[k];
+            river[i].chms_rivbed.p_conc[k] = river[i].chms_rivbed.t_conc[k];
+        }
+    }
+}

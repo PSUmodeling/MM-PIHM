@@ -179,14 +179,12 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
             river[i].chms_stream.t_conc[k] =
                 (river[i].chms_stream.t_conc[k] > ZERO_CONC) ?
                 river[i].chms_stream.t_conc[k] : ZERO_CONC;
-            river[i].chms_stream.p_conc[k] = river[i].chms_stream.t_conc[k];
 
             river[i].chms_rivbed.t_conc[k] = (vol_rivbed > 0.0) ?
                 river[i].chms_rivbed.t_mole[k] / vol_rivbed : 0.0;
             river[i].chms_rivbed.t_conc[k] =
                 (river[i].chms_rivbed.t_conc[k] > ZERO_CONC) ?
                 river[i].chms_rivbed.t_conc[k] : ZERO_CONC;
-            river[i].chms_rivbed.p_conc[k] = river[i].chms_rivbed.t_conc[k];
         }
 #endif
     }
