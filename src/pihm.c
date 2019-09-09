@@ -78,6 +78,10 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
             Speciation(pihm->chemtbl, &pihm->rttbl, pihm->river);
         }
     }
+    else
+    {
+        UpdatePConc(pihm->elem, pihm->river);
+    }
 
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
     UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, RT_STEP);
