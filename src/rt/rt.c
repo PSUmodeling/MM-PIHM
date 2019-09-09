@@ -385,6 +385,11 @@ void UpdatePConc(elem_struct elem[], river_struct river[])
         {
             elem[i].chms_unsat.p_conc[k] = elem[i].chms_unsat.t_conc[k];
             elem[i].chms_gw.p_conc[k] = elem[i].chms_gw.t_conc[k];
+
+#if defined(_FBR_)
+            elem[i].chms_fbrunsat.p_conc[k] = elem[i].chms_fbrunsat.t_conc[k];
+            elem[i].chms_fbrgw.p_conc[k] = elem[i].chms_fbrgw.t_conc[k];
+#endif
         }
     }
 
