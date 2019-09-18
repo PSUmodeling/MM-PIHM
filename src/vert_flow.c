@@ -47,7 +47,11 @@ double Infil(const wstate_struct *ws, const wstate_struct *ws0,
     double          h_u;
     int             j;
 
-    if (ws->unsat + ws->gw > soil->depth)
+    if (ws->gw > soil->depth + ws->surfh)
+    {
+        infil = -soil->kinfv;
+    }
+    else if (ws->unsat + ws->gw > soil->depth)
     {
         infil = 0.0;
     }
