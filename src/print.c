@@ -79,14 +79,17 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
     char            perf_fn[MAXSTRING];
     int             i;
     char            mode[2];
+    char            bin_mode[3];
 
     if (append_mode)
     {
         strcpy(mode, "a");
+        strcpy(bin_mode, "ab");
     }
     else
     {
         strcpy(mode, "w");
+        strcpy(bin_mode, "wb");
     }
 
     /* Initialize water balance file*/
@@ -116,7 +119,7 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
     for (i = 0; i < print->nprint; i++)
     {
         sprintf(dat_fn, "%s.dat", print->varctrl[i].name);
-        print->varctrl[i].datfile = fopen(dat_fn, mode);
+        print->varctrl[i].datfile = fopen(dat_fn, bin_mode);
         CheckFile(print->varctrl[i].datfile, dat_fn);
 
         if (ascii)
