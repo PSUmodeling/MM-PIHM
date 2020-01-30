@@ -119,6 +119,25 @@ void ReadCalib(const char *filename, calib_struct *cal)
     ReadKeyword(cmdstr, "WLTSMC", &cal->smcwlt, 'd', filename, lno);
 #endif
 
+#if defined(_FBR_)
+    FindLine(global_calib, "DGW_CALIBRATION", &lno, filename);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "KSATH", &cal->geol_ksath, 'd', filename, lno);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "KSATV", &cal->geol_ksatv, 'd', filename, lno);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "POROSITY", &cal->geol_porosity, 'd', filename, lno);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "ALPHA", &cal->geol_alpha, 'd', filename, lno);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "BETA", &cal->geol_beta, 'd', filename, lno);
+#endif
+
 #if defined(_BGC_)
     FindLine(global_calib, "BGC_CALIBRATION", &lno, filename);
 
