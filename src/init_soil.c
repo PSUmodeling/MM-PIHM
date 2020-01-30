@@ -21,6 +21,14 @@ void InitSoil(elem_struct *elem, const soiltbl_struct *soiltbl,
     {
         int             soil_ind;
 
+        if (elem[i].attrib.soil_type > soiltbl->number)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error: Soil type %d for Element %d is not in the soil file.",
+                elem[i].attrib.soil_type, i + 1);
+            PIHMexit(EXIT_FAILURE);
+        }
+
         soil_ind = elem[i].attrib.soil_type - 1;
 
         elem[i].soil.dinf = cal->dinf * soiltbl->dinf;

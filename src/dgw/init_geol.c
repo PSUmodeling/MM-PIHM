@@ -8,6 +8,14 @@ void InitGeol (elem_struct *elem, const geoltbl_struct *geoltbl,
 
     for (i = 0; i < nelem; i++)
     {
+        if (elem[i].attrib.geol_type > geoltbl->number)
+        {
+            PIHMprintf(VL_ERROR,
+                "Error: Geol type %d for Element %d is not in the geol file.",
+                elem[i].attrib.geol_type, i + 1);
+            PIHMexit(EXIT_FAILURE);
+        }
+
         geol_ind = elem[i].attrib.geol_type - 1;
 
         elem[i].geol.depth = elem[i].topo.zmin - elem[i].topo.zbed;
