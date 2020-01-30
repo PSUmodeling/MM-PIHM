@@ -50,13 +50,13 @@
 *~
 
 # Input, output and logs
+*.ic
 /input/*
 !/input/
 !/input/*.txt
 !/input/*.tbl
-!/input/example
 !/input/Chimborazo
-/input/example/example.ic
+!/input/ShaleHills
 /output/
 /*.log
 
@@ -72,3 +72,6 @@ advisor
 
 # VS Code
 /.vscode
+
+# Mac OS
+.DS_Store
