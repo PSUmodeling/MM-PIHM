@@ -7,7 +7,6 @@ int             append_mode;
 int             corr_mode;
 int             spinup_mode;
 int             fixed_length;
-int             tecplot;
 char            project[MAXSTRING];
 int             nelem;
 int             nriver;
@@ -71,15 +70,14 @@ int main(int argc, char *argv[])
 
     /* Create output structures */
 #if defined(_CYCLES_)
-    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->epctbl,
-        pihm->elem, pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
-#elif defined(_RT_)
-    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->chemtbl,
-        &pihm->rttbl, pihm->elem, pihm->river, &pihm->meshtbl, outputdir,
-        &pihm->print);
-#else
-    MapOutput(pihm->ctrl.prtvrbl, pihm->ctrl.tpprtvrbl, pihm->elem, pihm->river,
+    MapOutput(pihm->ctrl.prtvrbl, pihm->epctbl, pihm->elem, pihm->river,
         &pihm->meshtbl, outputdir, &pihm->print);
+#elif defined(_RT_)
+    MapOutput(pihm->ctrl.prtvrbl, pihm->chemtbl, &pihm->rttbl, pihm->elem,
+        pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
+#else
+    MapOutput(pihm->ctrl.prtvrbl, pihm->elem, pihm->river, &pihm->meshtbl,
+        outputdir, &pihm->print);
 #endif
 
     /* Backup input files */

@@ -105,7 +105,6 @@ SRCS_ = main.c\
 	read_para.c\
 	read_river.c\
 	read_soil.c\
-	read_tecplot.c\
 	river_flow.c\
 	soil.c\
 	spinup.c\

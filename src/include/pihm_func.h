@@ -202,8 +202,6 @@ void            InitSoil(elem_struct *, const soiltbl_struct *,
     const calib_struct *);
 #endif
 void            InitSurfL(elem_struct *, const meshtbl_struct *);
-void            InitTecPrtVarCtrl(const char *, const char *, int, int, int,
-    int, int, varctrl_struct *);
 void            InitTopo(elem_struct *, const meshtbl_struct *);
 void            InitVar(elem_struct *, river_struct *, N_Vector);
 void            InitWbFile(char *, char *, FILE *);
@@ -214,15 +212,15 @@ void            IntrplForc(tsdata_struct *, int, int, int);
 double          KrFunc(double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
 #if defined(_CYCLES_)
-void            MapOutput(const int *, const int *, const epconst_struct [],
+void            MapOutput(const int *, const epconst_struct [],
     const elem_struct *, const river_struct *, const meshtbl_struct *,
     const char *, print_struct *);
 #elif defined(_RT_)
-void            MapOutput(const int *, const int *, const chemtbl_struct [],
+void            MapOutput(const int *, const chemtbl_struct [],
     const rttbl_struct *, const elem_struct *, const river_struct *,
     const meshtbl_struct *, const char *, print_struct *);
 #else
-void            MapOutput(const int *, const int *, const elem_struct *,
+void            MapOutput(const int *, const elem_struct *,
     const river_struct *, const meshtbl_struct *, const char *, print_struct *);
 #endif
 #if defined(_FBR_)
@@ -250,7 +248,6 @@ void            PIHM(pihm_struct, void *, N_Vector, double);
 pihm_t_struct   PIHMTime(int);
 void            PrintCVodeFinalStats(void *);
 void            PrintData(varctrl_struct *, int, int, int, int);
-void            PrintDataTecplot(varctrl_struct *, int, int, int);
 void            PrintInit(const elem_struct *, const river_struct *,
     const char *, int, int, int, int);
 int             PrintNow(int, int, const pihm_t_struct *);
@@ -286,7 +283,6 @@ int             ReadPrtCtrl(const char *, const char *, const char *, int);
 void            ReadRiver(const char *, rivtbl_struct *, shptbl_struct *,
     matltbl_struct *, forc_struct *);
 void            ReadSoil(const char *, soiltbl_struct *);
-void            ReadTecplot(const char *, ctrl_struct *);
 int             ReadTS(const char *, int *, double *, int);
 double          Recharge(const wstate_struct *, const wflux_struct *,
     const soil_struct *);

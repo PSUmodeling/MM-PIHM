@@ -13,7 +13,6 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
         {"fixed",      'f', OPTPARSE_NONE},
         {"output",     'o', OPTPARSE_REQUIRED},
         {"silent",     's', OPTPARSE_NONE},
-        {"tecplot",    't', OPTPARSE_NONE},
         {"version",    'V', OPTPARSE_NONE},
         {"verbose",    'v', OPTPARSE_NONE},
         {0, 0, 0}
@@ -40,10 +39,6 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
             case 'f':
                 /* Fixed length spin-up */
                 fixed_length = 1;
-                break;
-            case 't':
-                /* Tecplot output */
-                tecplot = 1;
                 break;
             case 'v':
                 /* Verbose mode */
@@ -97,7 +92,6 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
         PIHMprintf(VL_ERROR, "    -b Brief mode\n");
         PIHMprintf(VL_ERROR, "    -c Correct surface elevation\n");
         PIHMprintf(VL_ERROR, "    -d Debug mode\n");
-        PIHMprintf(VL_ERROR, "    -t Tecplot output\n");
         PIHMprintf(VL_ERROR, "    -V Version number\n");
         PIHMprintf(VL_ERROR, "    -v Verbose mode\n");
         PIHMexit(EXIT_FAILURE);

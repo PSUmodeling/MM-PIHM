@@ -150,9 +150,6 @@ typedef struct ctrl_struct
                                              * the whole simulation */
     int             cstep;                  /* current model step (from 0) */
     int             prtvrbl[MAXPRINT];      /* number of output */
-    int             tpprtvrbl[MAXPRINT];    /* time interval to tecplot output
-                                             * average values of variables;
-                                             * 0 = turn off output */
     int             init_type;              /* initialization mode:
                                              * 0 = relaxed mode,
                                              * 1 = use .ic file */
@@ -224,25 +221,13 @@ typedef struct varctrl_struct
     int             counter;                /* counter for averaging variables*/
     FILE           *txtfile;                /* pointer to txt file */
     FILE           *datfile;                /* pointer to binary file */
-    /* tecplot coordinate variables */
-    double         *x;
-    double         *y;
-    double         *zmax;
-    double         *zmin;
-    int             nnodes;
-    int           *node0;
-    int           *node1;
-    int           *node2;
 } varctrl_struct;
 
 /* Print structure */
 typedef struct print_struct
 {
     varctrl_struct  varctrl[MAXPRINT];
-    varctrl_struct  tp_varctrl[MAXPRINT];
     int             nprint;                 /* number of output variables */
-    int             ntpprint;               /* number of tecplot output
-                                             * variables */
     FILE           *watbal_file;            /* pointer to water balance file */
     FILE           *cvodeperf_file;         /* pointer to CVode performance file
                                              */

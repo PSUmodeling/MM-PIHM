@@ -51,13 +51,6 @@ void FreeMem(pihm_struct pihm)
             fclose(pihm->print.varctrl[i].txtfile);
         }
     }
-    if (tecplot)
-    {
-        for (i = 0; i < pihm->print.ntpprint; i++)
-        {
-            fclose(pihm->print.tp_varctrl[i].datfile);
-        }
-    }
     free(pihm->elem);
     free(pihm->river);
 }

@@ -42,7 +42,6 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
 
         /* Update print variables for land surface step variables */
         UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, LS_STEP);
-        UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, LS_STEP);
     }
 
     /*
@@ -59,7 +58,6 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
 
     /* Update print variables for hydrology step variables */
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, HYDROL_STEP);
-    UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, HYDROL_STEP);
 
 #if defined(_RT_)
     if (pihm->rttbl.RecFlg == KIN_REACTION)
@@ -84,7 +82,6 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     }
 
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, RT_STEP);
-    UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, RT_STEP);
 #endif
 
 #if defined(_DAILY_)
@@ -106,7 +103,6 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
 
         /* Update print variables for CN (daily) step variables */
         UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, CN_STEP);
-        UpdPrintVar(pihm->print.tp_varctrl, pihm->print.ntpprint, CN_STEP);
 
         /* Initialize daily structures */
         InitDailyStruct(pihm->elem);
@@ -126,11 +122,4 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     /* Print binary and txt output files */
     PrintData(pihm->print.varctrl, pihm->print.nprint, t,
         t - pihm->ctrl.starttime, pihm->ctrl.ascii);
-
-    /* Print tecplot output files */
-    if (tecplot)
-    {
-        PrintDataTecplot(pihm->print.tp_varctrl, pihm->print.ntpprint, t,
-            t - pihm->ctrl.starttime);
-    }
 }

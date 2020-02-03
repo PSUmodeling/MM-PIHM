@@ -1,19 +1,18 @@
 #include "pihm.h"
 
 #if defined(_CYCLES_)
-void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
-    const epconst_struct epctbl[], const elem_struct *elem,
+void MapOutput(const int *prtvrbl, const epconst_struct epctbl[],
+    const elem_struct *elem, const river_struct *river,
+    const meshtbl_struct *meshtbl, const char *outputdir, print_struct *print)
+#elif defined(_RT_)
+void MapOutput(const int *prtvrbl, const chemtbl_struct chemtbl[],
+    const rttbl_struct *rttbl, const elem_struct *elem,
     const river_struct *river, const meshtbl_struct *meshtbl,
     const char *outputdir, print_struct *print)
-#elif defined(_RT_)
-void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
-    const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
-    const elem_struct *elem, const river_struct *river,
-    const meshtbl_struct *meshtbl, const char *outputdir, print_struct *print)
 #else
-void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
-    const elem_struct *elem, const river_struct *river,
-    const meshtbl_struct *meshtbl, const char *outputdir, print_struct *print)
+void MapOutput(const int *prtvrbl, const elem_struct *elem,
+    const river_struct *river, const meshtbl_struct *meshtbl,
+    const char *outputdir, print_struct *print)
 #endif
 {
     int             i, j, k;
@@ -1189,126 +1188,6 @@ void MapOutput(const int *prtvrbl, const int *tpprtvrbl,
     }
 
     print->nprint = n;
-
-    /*
-     * Tecplot output
-     */
-    n = 0;
-
-    for (i = 0; i < MAXPRINT; i++)
-    {
-        if (tpprtvrbl[i] != 0)
-        {
-            switch (i)
-            {
-                case SURF_CTRL:
-                    InitTecPrtVarCtrl(outputdir, "surf", tpprtvrbl[i], ELEMVAR,
-                        HYDROL_STEP, nelem, meshtbl->numnode,
-                        &print->tp_varctrl[n]);
-
-                    for (j = 0; j < print->tp_varctrl[n].nnodes; j++)
-                    {
-                        print->tp_varctrl[n].x[j] = meshtbl->x[j];
-                        print->tp_varctrl[n].y[j] = meshtbl->y[j];
-                        print->tp_varctrl[n].zmax[j] = meshtbl->zmax[j];
-                        print->tp_varctrl[n].zmin[j] = meshtbl->zmin[j];
-
-                    }
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->tp_varctrl[n].var[j] = &elem[j].ws.surf;
-                        print->tp_varctrl[n].node0[j] = elem[j].node[0];
-                        print->tp_varctrl[n].node1[j] = elem[j].node[1];
-                        print->tp_varctrl[n].node2[j] = elem[j].node[2];
-                    }
-                    n++;
-                    break;
-                case UNSAT_CTRL:
-                    InitTecPrtVarCtrl(outputdir, "unsat", tpprtvrbl[i], ELEMVAR,
-                        HYDROL_STEP, nelem, meshtbl->numnode,
-                        &print->tp_varctrl[n]);
-                    for (j = 0; j < print->tp_varctrl[n].nnodes; j++)
-                    {
-                        print->tp_varctrl[n].x[j] = meshtbl->x[j];
-                        print->tp_varctrl[n].y[j] = meshtbl->y[j];
-                        print->tp_varctrl[n].zmax[j] = meshtbl->zmax[j];
-                        print->tp_varctrl[n].zmin[j] = meshtbl->zmin[j];
-                    }
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->tp_varctrl[n].var[j] = &elem[j].ws.unsat;
-                        print->tp_varctrl[n].node0[j] = elem[j].node[0];
-                        print->tp_varctrl[n].node1[j] = elem[j].node[1];
-                        print->tp_varctrl[n].node2[j] = elem[j].node[2];
-                    }
-                    n++;
-                    break;
-                case GW_CTRL:
-                    InitTecPrtVarCtrl(outputdir, "gw", tpprtvrbl[i], ELEMVAR,
-                        HYDROL_STEP, nelem, meshtbl->numnode,
-                        &print->tp_varctrl[n]);
-                    for (j = 0; j < print->tp_varctrl[n].nnodes; j++)
-                    {
-                        print->tp_varctrl[n].x[j] = meshtbl->x[j];
-                        print->tp_varctrl[n].y[j] = meshtbl->y[j];
-                        print->tp_varctrl[n].zmax[j] = meshtbl->zmax[j];
-                        print->tp_varctrl[n].zmin[j] = meshtbl->zmin[j];
-                    }
-                    for (j = 0; j < nelem; j++)
-                    {
-                        print->tp_varctrl[n].var[j] = &elem[j].ws.gw;
-                        print->tp_varctrl[n].node0[j] = elem[j].node[0];
-                        print->tp_varctrl[n].node1[j] = elem[j].node[1];
-                        print->tp_varctrl[n].node2[j] = elem[j].node[2];
-                    }
-                    n++;
-                    break;
-                case RIVSTG_CTRL:
-                    InitTecPrtVarCtrl(outputdir, "stage", tpprtvrbl[i],
-                        RIVERVAR, HYDROL_STEP, nriver, nriver,
-                        &print->tp_varctrl[n]);
-                    for (j = 0; j < nriver; j++)
-                    {
-                        print->tp_varctrl[n].var[j] =
-                            &river[j].ws.stage;
-                        print->tp_varctrl[n].x[j] = river[j].topo.x;
-                        print->tp_varctrl[n].y[j] = river[j].topo.y;
-                        print->tp_varctrl[n].zmax[j] =
-                            river[j].topo.zmax;
-                        print->tp_varctrl[n].zmin[j] =
-                            river[j].topo.zmin;
-                    }
-                    n++;
-                    break;
-                case RIVGW_CTRL:
-                    InitTecPrtVarCtrl(outputdir, "rivgw", tpprtvrbl[i],
-                        RIVERVAR, HYDROL_STEP, nriver, nriver,
-                        &print->tp_varctrl[n]);
-                    for (j = 0; j < nriver; j++)
-                    {
-                        print->tp_varctrl[n].var[j] = &river[j].ws.gw;
-                        print->tp_varctrl[n].x[j] = river[j].topo.x;
-                        print->tp_varctrl[n].y[j] = river[j].topo.y;
-                        print->tp_varctrl[n].zmax[j] = river[j].topo.zmax;
-                        print->tp_varctrl[n].zmin[j] = river[j].topo.zmin;
-                    }
-                    n++;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    if (n > MAXPRINT)
-    {
-        PIHMprintf(VL_ERROR, "Error: Too many Tecplot output files. ");
-        PIHMprintf(VL_ERROR,
-            "The maximum number of Tecplot output files is %d.\n", MAXPRINT);
-        PIHMexit(EXIT_FAILURE);
-    }
-
-    print->ntpprint = n;
 }
 
 void InitPrtVarCtrl(const char *outputdir, const char *ext, int intvl,
@@ -1326,31 +1205,6 @@ void InitPrtVarCtrl(const char *outputdir, const char *ext, int intvl,
     }
     varctrl->upd_intvl = upd_intvl;
     varctrl->nvar = nvar;
-    varctrl->var = (const double **)malloc(nvar * sizeof(double *));
-    varctrl->buffer = (double *)calloc(nvar, sizeof(double));
-    varctrl->counter = 0;
-}
-
-void InitTecPrtVarCtrl(const char *outputdir, const char *ext, int intvl,
-    int intr, int upd_intvl, int nvar, int nnode, varctrl_struct *varctrl)
-{
-    sprintf(varctrl->name, "%s%s.%s", outputdir, project, ext);
-    varctrl->intvl = intvl;
-    varctrl->intr = intr;
-    varctrl->upd_intvl = upd_intvl;
-    varctrl->nvar = nvar;
-    varctrl->nnodes = nnode;
-
-    varctrl->x = (double *)malloc(nnode * sizeof(double));
-    varctrl->y = (double *)malloc(nnode * sizeof(double));
-    varctrl->zmin = (double *)malloc(nnode * sizeof(double));
-    varctrl->zmax = (double *)malloc(nnode * sizeof(double));
-    if (intr == ELEMVAR)
-    {
-        varctrl->node0 = (int *)malloc(nvar * sizeof(int));
-        varctrl->node1 = (int *)malloc(nvar * sizeof(int));
-        varctrl->node2 = (int *)malloc(nvar * sizeof(int));
-    }
     varctrl->var = (const double **)malloc(nvar * sizeof(double *));
     varctrl->buffer = (double *)calloc(nvar, sizeof(double));
     varctrl->counter = 0;

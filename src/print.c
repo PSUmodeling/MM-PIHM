@@ -1,10 +1,6 @@
 #include "pihm.h"
 
-#define TEC_HEADER          "VARIABLES = \"X\" \"Y\" \"Zmin\" \"Zmax\" \"h\""
 #define WB_HEADER           "VARIABLES = \"TIME (s)\" \"SRC (m)\" \"SNK (m)\" \"STRG (m)\""
-#define RIVER_TEC_HEADER2   "ZONE T = \"Water Depth River\""
-#define RIVER_TEC_HEADER3   "StrandID=1, SolutionTime="
-#define ELEM_TEC_HEADER3    "VARSHARELIST = ([1, 2, 3, 4]=1), CONNECTIVITYSHAREZONE = 1"
 
 void StartupScreen(void)
 {
@@ -47,11 +43,6 @@ void StartupScreen(void)
     {
         PIHMprintf(VL_NORMAL,
             "    Debug mode turned on.\n");
-    }
-    if (1 == tecplot)
-    {
-        PIHMprintf(VL_NORMAL,
-            "    Tecplot output turned on.\n");
     }
     if (VL_BRIEF == verbose_mode)
     {
@@ -127,46 +118,6 @@ void InitOutputFile(print_struct *print, const char *outputdir, int watbal,
             sprintf(ascii_fn, "%s.txt", print->varctrl[i].name);
             print->varctrl[i].txtfile = fopen(ascii_fn, mode);
             CheckFile(print->varctrl[i].txtfile, ascii_fn);
-        }
-    }
-
-    /* Tecplot files */
-    if (tecplot)
-    {
-        for (i = 0; i < print->ntpprint; i++)
-        {
-            int             j;
-
-            sprintf(dat_fn, "%s.plt", print->tp_varctrl[i].name);
-            print->tp_varctrl[i].datfile = fopen(dat_fn, mode);
-            CheckFile(print->tp_varctrl[i].datfile, dat_fn);
-
-            if (print->tp_varctrl[i].intr == 0)
-            {
-                fprintf(print->tp_varctrl[i].datfile, "%s \n", TEC_HEADER);
-                fprintf(print->tp_varctrl[i].datfile,
-                    "ZONE T=\"%s\", N=%d, E=%d, DATAPACKING=%s, "
-                    "SOLUTIONTIME=%lf, ZONETYPE=%s\n",
-                    print->tp_varctrl[i].name, print->tp_varctrl[i].nnodes,
-                    print->tp_varctrl[i].nvar, "POINT", 0.0000, "FETRIANGLE");
-
-                for (j = 0; j < print->tp_varctrl[i].nnodes; j++)
-                {
-                    fprintf(print->tp_varctrl[i].datfile,
-                        "%lf %lf %lf %lf %lf\n",
-                        print->tp_varctrl[i].x[j], print->tp_varctrl[i].y[j],
-                        print->tp_varctrl[i].zmin[j],
-                        print->tp_varctrl[i].zmax[j],
-                        0.000001);
-                }
-                for (j = 0; j < print->tp_varctrl[i].nvar; j++)
-                {
-                    fprintf(print->tp_varctrl[i].datfile, "%d %d %d\n",
-                        print->tp_varctrl[i].node0[j],
-                        print->tp_varctrl[i].node1[j],
-                        print->tp_varctrl[i].node2[j]);
-                }
-            }
         }
     }
 }
@@ -313,108 +264,6 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
 
         fflush(init_file);
         fclose(init_file);
-    }
-}
-
-void PrintDataTecplot(varctrl_struct *varctrl, int nprint, int t, int lapse)
-{
-    int             i;
-    pihm_t_struct   pihm_time;
-    double         *hnodes;    /* h at nodes */
-    int            *inodes;
-
-    pihm_time = PIHMTime(t);
-
-    for (i = 0; i < nprint; i++)
-    {
-        int             j;
-        double          outval;
-        double          outtime;
-
-        if(PrintNow(varctrl[i].intvl, lapse, &pihm_time))
-        {
-            outtime = (double)t;
-
-            if (varctrl[i].intr == RIVERVAR)
-            {
-                /*Print river files */
-                fprintf(varctrl[i].datfile, "%s\n", TEC_HEADER);
-                fprintf(varctrl[i].datfile, "%s\n", RIVER_TEC_HEADER2);
-                fprintf(varctrl[i].datfile, "%s %d\n", RIVER_TEC_HEADER3, t);
-                for (j = 0; j < varctrl[i].nvar; j++)
-                {
-                    if (varctrl[i].counter > 0)
-                    {
-                        outval = varctrl[i].buffer[j] /
-                            (double)varctrl[i].counter;
-                    }
-                    else
-                    {
-                        outval = varctrl[i].buffer[j];
-                    }
-
-                    fprintf(varctrl[i].datfile, "%lf %lf %lf %lf %lf\n",
-                        varctrl[i].x[j], varctrl[i].y[j],
-                        varctrl[i].zmin[j], varctrl[i].zmax[j], outval);
-                    varctrl[i].buffer[j] = 0.0;
-                }
-            }
-            else
-            {
-                /*Print element files */
-                hnodes = (double *)calloc(varctrl[i].nnodes, sizeof(double));
-                inodes = (int *)calloc(varctrl[i].nnodes, sizeof(int));
-                for (j = 0; j < varctrl[i].nnodes; j++)
-                {
-                    hnodes[j] = 0.0;
-                    inodes[j] = 0;
-                }
-                fprintf(varctrl[i].datfile,
-                    "ZONE T=\"%s\", N=%d, E=%d, DATAPACKING=%s, "
-                    "SOLUTIONTIME=%lf, ZONETYPE=%s\n",
-                    varctrl[i].name, varctrl[i].nnodes, varctrl[i].nvar,
-                    "POINT", outtime, "FETRIANGLE");
-                fprintf(varctrl[i].datfile, "%s\n", ELEM_TEC_HEADER3);
-                for (j = 0; j < varctrl[i].nvar; j++)
-                {
-                    if (varctrl[i].counter > 0)
-                    {
-                        outval = varctrl[i].buffer[j] /
-                            (double)varctrl[i].counter;
-                    }
-                    else
-                    {
-                        outval = varctrl[i].buffer[j];
-                    }
-
-                    hnodes[varctrl[i].node0[j] - 1] += outval;
-                    hnodes[varctrl[i].node1[j] - 1] += outval;
-                    hnodes[varctrl[i].node2[j] - 1] += outval;
-                    inodes[varctrl[i].node0[j] - 1] += 1;
-                    inodes[varctrl[i].node1[j] - 1] += 1;
-                    inodes[varctrl[i].node2[j] - 1] += 1;
-                    varctrl[i].buffer[j] = 0.0;
-                }
-                for (j = 0; j < varctrl[i].nnodes; j++)
-                {
-                    if (inodes[j] == 0)
-                    {
-                        fprintf(varctrl[i].datfile, "%8.6f\n", 0.0);
-                    }
-                    else
-                    {
-                        fprintf(varctrl[i].datfile, "%8.6f\n",
-                            hnodes[j] / inodes[j]);
-                    }
-                }
-
-                free(hnodes);
-                free(inodes);
-            }
-
-            varctrl[i].counter = 0;
-            fflush(varctrl[i].datfile);
-        }
     }
 }
 

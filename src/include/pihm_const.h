@@ -496,7 +496,6 @@ extern int     append_mode;
 extern int     corr_mode;
 extern int     spinup_mode;
 extern int     fixed_length;
-extern int     tecplot;
 extern char    project[MAXSTRING];
 extern int     nelem;
 extern int     nriver;

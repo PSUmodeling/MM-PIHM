@@ -15,7 +15,6 @@ typedef struct filename_struct
     char            para[MAXSTRING];        /* control parameter file */
     char            calib[MAXSTRING];       /* calibration file */
     char            ic[MAXSTRING];          /* initial condition file */
-    char            tecplot[MAXSTRING];     /* tecplot control file */
 #if defined(_BGC_)
     char            bgc[MAXSTRING];         /* bgc module control file */
     char            co2[MAXSTRING];         /* CO2 forcing file */
