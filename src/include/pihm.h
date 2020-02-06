@@ -16,6 +16,9 @@
 #else
 # include <unistd.h>
 #endif
+#if defined(unix) || defined(__unix__) || defined(__unix)
+# include <fenv.h>
+#endif
 #if defined(_OPENMP)
 # include <omp.h>
 #endif

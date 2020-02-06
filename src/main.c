@@ -35,6 +35,10 @@ int main(int argc, char *argv[])
 #endif
     double          cputime, cputime_dt;    /* Time cpu duration */
 
+#if defined(unix) || defined(__unix__) || defined(__unix)
+    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+#endif
+
 #if defined(_OPENMP)
     /* Set the number of threads to use */
     nthreads = omp_get_max_threads();
