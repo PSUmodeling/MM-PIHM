@@ -16,6 +16,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         double          vol_gw;
         double          vol_unsat;
         double          satn;
+        double          ftemp;
         int             k;
 
         vol_gw = MAX(GWStrg(elem[i].soil.depth, elem[i].soil.smcmax,
@@ -38,8 +39,9 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
          */
         if (elem[i].ws.unsat > 1.0E-3 && satn > 1.0E-2)
         {
+            ftemp = SoilTempFactor(elem[i].es.stc[0]);
             ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_unsat, satn,
-                &elem[i].chms_unsat, elem[i].chmf.react_unsat);
+                ftemp, &elem[i].chms_unsat, elem[i].chmf.react_unsat);
         }
 
         /*
@@ -47,7 +49,9 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
          */
         if (elem[i].ws.gw > 1.0E-3)
         {
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0,
+            ftemp = SoilTempFactor((elem[i].ps.nwtbl <= 0) ?
+                elem[i].es.stc[0] : elem[i].es.stc[elem[i].ps.nwtbl - 1]);
+            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0, ftemp,
                 &elem[i].chms_gw, elem[i].chmf.react_gw);
         }
 
@@ -88,8 +92,9 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
          */
         if (elem[i].ws.fbr_unsat > 1.0E-3 && satn > 1.0E-2)
         {
+            ftemp = SoilTempFactor(elem[i].ps.tbot);
             ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_unsat, satn,
-                &elem[i].chms_fbrunsat, elem[i].chmf.react_fbrunsat);
+                ftemp, &elem[i].chms_fbrunsat, elem[i].chmf.react_fbrunsat);
         }
 
         /*
@@ -97,7 +102,8 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
          */
         if (elem[i].ws.fbr_gw > 1.0E-3)
         {
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0,
+            ftemp = SoilTempFactor(elem[i].ps.tbot);
+            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0, ftemp,
                 &elem[i].chms_fbrgw, elem[i].chmf.react_fbrgw);
         }
 
@@ -121,7 +127,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
 
 int _React(double stepsize, const chemtbl_struct chemtbl[],
     const kintbl_struct kintbl[], const rttbl_struct *rttbl, double satn,
-    chmstate_struct *chms)
+    double ftemp, chmstate_struct *chms)
 {
     int             i, j, k;
     int             control;
@@ -240,7 +246,8 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             }
 
             /* Based on CrunchTope */
-            Rate_pre[i] = area[min_pos] * pow(10, kintbl[i].rate) * monodterm;
+            Rate_pre[i] =
+                area[min_pos] * pow(10, kintbl[i].rate) * monodterm * ftemp;
         }
 
         for (j = 0; j < rttbl->NumStc; j++)
@@ -409,7 +416,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
 
                 /* Based on CrunchTope */
                 Rate_pre[i] =
-                    area[min_pos] * pow(10, kintbl[i].rate) * monodterm;
+                    area[min_pos] * pow(10, kintbl[i].rate) * monodterm * ftemp;
             }
 
             for (j = 0; j < rttbl->NumStc; j++)
@@ -562,7 +569,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
 
 void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
     const rttbl_struct *rttbl, double stepsize, double vol, double satn,
-    chmstate_struct *chms, double react_flux[])
+    double ftemp, chmstate_struct *chms, double react_flux[])
 {
     double          t_conc0[MAXSPS];
     double          substep;
@@ -579,7 +586,7 @@ void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
 
     while (1.0 - step_counter / stepsize > 1.0E-10 && substep > 30.0)
     {
-        flag = _React(substep, chemtbl, kintbl, rttbl, satn, chms);
+        flag = _React(substep, chemtbl, kintbl, rttbl, satn, ftemp, chms);
 
         if (flag == 0)
         {
@@ -610,4 +617,9 @@ void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
         react_flux[k] =
             (chms->t_conc[k] - t_conc0[k]) * vol / stepsize;
     }
+}
+
+double SoilTempFactor(double stc)
+{
+    return pow(2.0, (stc - TFREEZ - 20.0) / 10.0);
 }
