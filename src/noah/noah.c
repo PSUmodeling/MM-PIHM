@@ -997,15 +997,18 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
 
             /* Keep within bounds. */
             swl = (swl > smc - SH2OMIN) ? (smc - SH2OMIN) : swl;
-            swl = (swl < 0.0) ? 0.0 : swl;
+            swl = MAX(swl, 1.0E-4);
 
             /* Start of iterations */
             while (nlog < 10 && kcount == 0)
             {
                 nlog++;
 
-                satn =
-                    (smc - swl - soil->smcmin) / (soil->smcmax - soil->smcmin);
+                satn = (smc - swl - soil->smcmin) /
+                    (soil->smcmax - soil->smcmin);
+                satn = MAX(satn, SATMIN);
+                satn = MIN(satn, 1.0);
+
                 mx = soil->beta / (1.0 - soil->beta);
 
                 df = log(GRAV / soil->alpha / LSUBF) +
