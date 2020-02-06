@@ -186,7 +186,12 @@ void            Initialize(pihm_struct, N_Vector, void **);
 void            InitLc(elem_struct *, const lctbl_struct *,
     const calib_struct *);
 void            InitMesh(elem_struct *, const meshtbl_struct *);
-void            InitOutputFile(print_struct *, const char *, int, int);
+#if defined(_TGM_) && defined(_RT_)
+void            InitOutputFile(const char *, int, int, const chemtbl_struct [],
+    const rttbl_struct *, print_struct *);
+#else
+void            InitOutputFile(const char *, int, int, print_struct *);
+#endif
 void            InitPrtVarCtrl(const char *, const char *, int, int, int,
     varctrl_struct *);
 void            InitRiver(river_struct *, elem_struct *, const rivtbl_struct *,

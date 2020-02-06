@@ -88,8 +88,13 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    InitOutputFile(&pihm->print, outputdir, pihm->ctrl.waterbal,
-        pihm->ctrl.ascii);
+#if defined(_TGM_) && defined(_RT_)
+    InitOutputFile(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii,
+        pihm->chemtbl, &pihm->rttbl, &pihm->print);
+#else
+    InitOutputFile(outputdir, pihm->ctrl.waterbal, pihm->ctrl.ascii,
+        &pihm->print);
+#endif
 
     PIHMprintf(VL_VERBOSE, "\n\nSolving ODE system ... \n\n");
 
