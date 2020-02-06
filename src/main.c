@@ -71,13 +71,13 @@ int main(int argc, char *argv[])
     /* Create output structures */
 #if defined(_CYCLES_)
     MapOutput(pihm->ctrl.prtvrbl, pihm->epctbl, pihm->elem, pihm->river,
-        &pihm->meshtbl, outputdir, &pihm->print);
+        outputdir, &pihm->print);
 #elif defined(_RT_)
     MapOutput(pihm->ctrl.prtvrbl, pihm->chemtbl, &pihm->rttbl, pihm->elem,
-        pihm->river, &pihm->meshtbl, outputdir, &pihm->print);
+        pihm->river, outputdir, &pihm->print);
 #else
-    MapOutput(pihm->ctrl.prtvrbl, pihm->elem, pihm->river, &pihm->meshtbl,
-        outputdir, &pihm->print);
+    MapOutput(pihm->ctrl.prtvrbl, pihm->elem, pihm->river, outputdir,
+        &pihm->print);
 #endif
 
     /* Backup input files */

@@ -213,15 +213,14 @@ double          KrFunc(double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
 #if defined(_CYCLES_)
 void            MapOutput(const int *, const epconst_struct [],
-    const elem_struct *, const river_struct *, const meshtbl_struct *,
-    const char *, print_struct *);
+    const elem_struct *, const river_struct *, const char *, print_struct *);
 #elif defined(_RT_)
 void            MapOutput(const int *, const chemtbl_struct [],
     const rttbl_struct *, const elem_struct *, const river_struct *,
-    const meshtbl_struct *, const char *, print_struct *);
+    const char *, print_struct *);
 #else
 void            MapOutput(const int *, const elem_struct *,
-    const river_struct *, const meshtbl_struct *, const char *, print_struct *);
+    const river_struct *, const char *, print_struct *);
 #endif
 #if defined(_FBR_)
 void            MassBalance(const wstate_struct *, const wstate_struct *,

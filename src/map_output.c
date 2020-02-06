@@ -2,18 +2,17 @@
 
 #if defined(_CYCLES_)
 void MapOutput(const int *prtvrbl, const epconst_struct epctbl[],
-    const elem_struct *elem, const river_struct *river,
-    const meshtbl_struct *meshtbl, const char *outputdir, print_struct *print)
+    const elem_struct *elem, const river_struct *river, const char *outputdir,
+    print_struct *print)
 #elif defined(_RT_)
 void MapOutput(const int *prtvrbl, const chemtbl_struct chemtbl[],
     const rttbl_struct *rttbl, const elem_struct *elem,
-    const river_struct *river, const meshtbl_struct *meshtbl,
-    const char *outputdir, print_struct *print)
+    const river_struct *river, const char *outputdir, print_struct *print)
 #else
 void MapOutput(const int *prtvrbl, const elem_struct *elem,
-    const river_struct *river, const meshtbl_struct *meshtbl,
-    const char *outputdir, print_struct *print)
+    const river_struct *river, const char *outputdir, print_struct *print)
 #endif
+#if !defined(_TGM_)
 {
     int             i, j, k;
     int             n;
@@ -1189,6 +1188,233 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 
     print->nprint = n;
 }
+#else
+{
+    int             i, k;
+    int             n;
+    char            ext[MAXSTRING];
+
+    PIHMprintf(VL_VERBOSE, "\nInitializing PIHM output files\n");
+
+    n = 0;
+
+    for (i = 0; i < 2; i++)
+    {
+        sprintf(ext, "elem%d.wflux", i + 1);
+# if defined(_FBR_)
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 16,
+            &print->varctrl[n]);
+# else
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 11,
+            &print->varctrl[n]);
+# endif
+        print->varctrl[n].var[0] = &elem[i].wf.infil;
+        print->varctrl[n].var[1] = &elem[i].wf.rechg;
+        print->varctrl[n].var[2] = &elem[i].wf.ec;
+        print->varctrl[n].var[3] = &elem[i].wf.ett;
+        print->varctrl[n].var[4] = &elem[i].wf.edir;
+        for (k = 0; k < NUM_EDGE; k++)
+        {
+            print->varctrl[n].var[5 + k] = &elem[i].wf.subsurf[k];
+            print->varctrl[n].var[8 + k] = &elem[i].wf.ovlflow[k];
+        }
+# if defined(_FBR_)
+        print->varctrl[n].var[11] = &elem[i].wf.fbr_infil;
+        print->varctrl[n].var[12] = &elem[i].wf.fbr_rechg;
+        for (k = 0; k < NUM_EDGE; k++)
+        {
+            print->varctrl[n].var[13 + k] = &elem[i].wf.fbrflow[k];
+        }
+# endif
+        n++;
+
+        sprintf(ext, "elem%d.wstate", i + 1);
+# if defined(_FBR_)
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 7,
+            &print->varctrl[n]);
+# else
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, 5,
+            &print->varctrl[n]);
+# endif
+        print->varctrl[n].var[0] = &elem[i].ws.cmc;
+        print->varctrl[n].var[1] = &elem[i].ws.sneqv;
+        print->varctrl[n].var[2] = &elem[i].ws.surf;
+        print->varctrl[n].var[3] = &elem[i].ws.unsat;
+        print->varctrl[n].var[4] = &elem[i].ws.gw;
+# if defined(_FBR_)
+        print->varctrl[n].var[5] = &elem[i].ws.fbr_unsat;
+        print->varctrl[n].var[6] = &elem[i].ws.fbr_gw;
+# endif
+        n++;
+
+# if defined(_NOAH_)
+        sprintf(ext, "elem%d.smc", i + 1);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, MAXLYR,
+            &print->varctrl[n]);
+        for (k = 0; k < MAXLYR; k++)
+        {
+            print->varctrl[n].var[k] = &elem[i].ws.smc[k];
+        }
+        n++;
+
+        sprintf(ext, "elem%d.swc", i + 1);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, MAXLYR,
+            &print->varctrl[n]);
+        for (k = 0; k < MAXLYR; k++)
+        {
+            print->varctrl[n].var[k] = &elem[i].ws.sh2o[k];
+        }
+        n++;
+
+        sprintf(ext, "elem%d.stc", i + 1);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, HYDROL_STEP, MAXLYR,
+            &print->varctrl[n]);
+        for (k = 0; k < MAXLYR; k++)
+        {
+            print->varctrl[n].var[k] = &elem[i].es.stc[k];
+        }
+        n++;
+
+        sprintf(ext, "elem%d.ls", i + 1);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, LS_STEP, 12,
+            &print->varctrl[n]);
+        print->varctrl[n].var[0] = &elem[i].es.t1;
+        print->varctrl[n].var[1] = &elem[i].ps.snowh;
+        print->varctrl[n].var[2] = &elem[i].ps.albedo;
+        print->varctrl[n].var[3] = &elem[i].ef.eta;
+        print->varctrl[n].var[4] = &elem[i].ef.sheat;
+        print->varctrl[n].var[5] = &elem[i].ef.ssoil;
+        print->varctrl[n].var[6] = &elem[i].ef.etp;
+        print->varctrl[n].var[7] = &elem[i].ef.esnow;
+        print->varctrl[n].var[8] = &elem[i].ps.soilw;
+        print->varctrl[n].var[9] = &elem[i].ws.soilm;
+        print->varctrl[n].var[10] = &elem[i].ef.soldn;
+        print->varctrl[n].var[11] = &elem[i].ps.ch;
+        n++;
+# endif
+
+# if defined(_RT_)
+        sprintf(ext, "elem%d.unsat_conc", i + 1);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
+            rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
+        for (k = 0; k < rttbl->NumStc; k++)
+        {
+            print->varctrl[n].var[k] = &elem[i].chms_unsat.p_conc[k];
+        }
+        for (k = 0; k < rttbl->NumSsc; k++)
+        {
+            print->varctrl[n].var[rttbl->NumStc + k] =
+                &elem[i].chms_unsat.s_conc[k];
+        }
+        n++;
+
+        sprintf(ext, "elem%d.gw_conc", i + 1);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
+            rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
+        for (k = 0; k < rttbl->NumStc; k++)
+        {
+            print->varctrl[n].var[k] = &elem[i].chms_gw.p_conc[k];
+        }
+        for (k = 0; k < rttbl->NumSsc; k++)
+        {
+            print->varctrl[n].var[rttbl->NumStc + k] =
+                &elem[i].chms_gw.s_conc[k];
+        }
+        n++;
+
+#  if defined(_FBR_)
+        sprintf(ext, "elem%d.deep_unsat_conc", i + 1);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
+            rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
+        for (k = 0; k < rttbl->NumStc; k++)
+        {
+            print->varctrl[n].var[k] = &elem[i].chms_fbrunsat.p_conc[k];
+        }
+        for (k = 0; k < rttbl->NumSsc; k++)
+        {
+            print->varctrl[n].var[rttbl->NumStc + k] =
+                &elem[i].chms_fbrunsat.s_conc[k];
+        }
+        n++;
+
+        sprintf(ext, "elem%d.deep_gw_conc", i + 1);
+        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
+            rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
+        for (k = 0; k < rttbl->NumStc; k++)
+        {
+            print->varctrl[n].var[k] = &elem[i].chms_fbrgw.p_conc[k];
+        }
+        for (k = 0; k < rttbl->NumSsc; k++)
+        {
+            print->varctrl[n].var[rttbl->NumStc + k] =
+                &elem[i].chms_fbrgw.s_conc[k];
+        }
+        n++;
+#  endif
+# endif
+    }
+
+    InitPrtVarCtrl(outputdir, "river.wflux", DAILY_OUTPUT, HYDROL_STEP,
+        NUM_RIVFLX, &print->varctrl[n]);
+    for (k = 0; k < NUM_RIVFLX; k++)
+    {
+        print->varctrl[n].var[k] = &river[0].wf.rivflow[k];
+    }
+    n++;
+
+    InitPrtVarCtrl(outputdir, "river.wstate", DAILY_OUTPUT, HYDROL_STEP, 2,
+        &print->varctrl[n]);
+    print->varctrl[n].var[0] = &river[0].ws.stage;
+    print->varctrl[n].var[1] = &river[0].ws.gw;
+    n++;
+
+# if defined(_RT_)
+    InitPrtVarCtrl(outputdir, "river.conc", DAILY_OUTPUT, RT_STEP,
+        rttbl->NumStc, &print->varctrl[n]);
+    for (k = 0; k < rttbl->NumStc; k++)
+    {
+        print->varctrl[n].var[k] = &river[0].chms_stream.p_conc[k];
+    }
+    n++;
+
+    InitPrtVarCtrl(outputdir, "leach", DAILY_OUTPUT, RT_STEP, rttbl->NumStc,
+        &print->varctrl[n]);
+    for (k = 0; k < rttbl->NumStc; k++)
+    {
+        print->varctrl[n].var[k] = &river[0].chmf.flux[DOWN_CHANL2CHANL][k];
+    }
+    n++;
+
+#  if defined(_FBR_)
+    InitPrtVarCtrl(outputdir, "left_leach", DAILY_OUTPUT, RT_STEP,
+        rttbl->NumStc, &print->varctrl[n]);
+    for (k = 0; k < rttbl->NumStc; k++)
+    {
+        print->varctrl[n].var[k] = &river[0].chmf.flux[LEFT_FBR2CHANL][k];
+    }
+    n++;
+
+    InitPrtVarCtrl(outputdir, "right_leach", DAILY_OUTPUT, RT_STEP,
+        rttbl->NumStc, &print->varctrl[n]);
+    for (k = 0; k < rttbl->NumStc; k++)
+    {
+        print->varctrl[n].var[k] = &river[0].chmf.flux[RIGHT_FBR2CHANL][k];
+    }
+    n++;
+#  endif
+# endif
+
+    if (n > MAXPRINT)
+    {
+        PIHMprintf(VL_ERROR, "Error: Too many output files. ");
+        PIHMprintf(VL_ERROR, "The maximum number of output files is %d.\n",
+            MAXPRINT);
+        PIHMexit(EXIT_FAILURE);
+    }
+
+    print->nprint = n;
+}
+#endif
 
 void InitPrtVarCtrl(const char *outputdir, const char *ext, int intvl,
     int upd_intvl, int nvar, varctrl_struct *varctrl)
