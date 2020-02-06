@@ -543,8 +543,9 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
 #endif
 
                     fprintf(varctrl[i].txtfile,
-                        (outval == 0.0 || fabs(outval) > 1.0E-3) ?
-                        "\t%lf" : "\t%.2le", outval);
+                        (roundi(outval) == BADVAL) ? "\t%-8.0lf" :
+                        ((outval == 0.0 || fabs(outval) > 1.0E-3) ?
+                        "\t%lf" : "\t%.2le"), outval);
                 }
                 fprintf(varctrl[i].txtfile, "\n");
                 fflush(varctrl[i].txtfile);
