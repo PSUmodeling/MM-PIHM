@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-int ODE(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
+int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 {
     int             i;
     double         *y;
@@ -487,7 +487,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
     }
     else
     {
-        cv_flag = CVodeInit(cvode_mem, ODE, 0.0, CV_Y);
+        cv_flag = CVodeInit(cvode_mem, Ode, 0.0, CV_Y);
         CheckCVodeFlag(cv_flag);
         reset = 1;
 
