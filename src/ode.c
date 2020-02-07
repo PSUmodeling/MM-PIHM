@@ -197,15 +197,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[FBRGW(i)] /= elem->geol.porosity;
 #endif
 
-        /* Check NAN errors for dy */
-        CheckDy(dy[SURF(i)], "element", "surface water", i + 1, (double)t);
-        CheckDy(dy[UNSAT(i)], "element", "unsat water", i + 1, (double)t);
-        CheckDy(dy[GW(i)], "element", "groundwater", i + 1, (double)t);
-#if defined(_FBR_)
-        CheckDy(dy[FBRUNSAT(i)], "element", "fbr unsat", i + 1, (double)t);
-        CheckDy(dy[FBRGW(i)], "element", "fbr groundwater", i + 1, (double)t);
-#endif
-
 #if defined(_BGC_) && !defined(_LUMPED_)
 # if !defined(_LEACHING_)
         /*
@@ -228,10 +219,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 # endif
             dy[SMINN(i)] -= elem->nsol.subflux[j] / elem->topo.area;
         }
-
-        /* Check NAN errors for dy */
-        CheckDy(dy[SURFN(i)], "element", "surface N", i + 1, (double)t);
-        CheckDy(dy[SMINN(i)], "element", "soil mineral N", i + 1, (double)t);
 #endif
 
 #if defined(_CYCLES_)
@@ -246,10 +233,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[NO3(i)] -= elem->no3sol.flux[j] / elem->topo.area;
             dy[NH4(i)] -= elem->nh4sol.flux[j] / elem->topo.area;
         }
-
-        /* Check NAN errors for dy */
-        CheckDy(dy[NO3(i)], "element", "NO3", i + 1, (double)t);
-        CheckDy(dy[NH4(i)], "element", "NH4", i + 1, (double)t);
 #endif
 
 #if defined(_RT_)
@@ -281,16 +264,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
                 dy[FBRGW_MOLE(i, k)] -= elem->chmf.fbrflow[j][k];
 # endif
             }
-
-            CheckDy(dy[UNSAT_MOLE(i, k)], "element", "unsat chem", i + 1,
-                (double)t);
-            CheckDy(dy[GW_MOLE(i, k)], "element", "gw chem", i + 1, (double)t);
-# if defined(_FBR_)
-            CheckDy(dy[FBRUNSAT_MOLE(i, k)], "element", "fbr unsat chem", i + 1,
-                (double)t);
-            CheckDy(dy[FBRGW_MOLE(i, k)], "element", "fbr gw chem", i + 1,
-                (double)t);
-# endif
         }
 #endif
     }
@@ -303,10 +276,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     dy[LUMPED_SMINN] +=
         (elem->nf.ndep_to_sminn + elem->nf.nfix_to_sminn) / DAYINSEC +
         elem->nsol.snksrc;
-
-    /* Check NAN errors for dy */
-    CheckDy(dy[LUMPED_SMINN], "lumped", "soil mineral N", LUMPED + 1,
-        (double)t);
 #endif
 
     /*
@@ -342,10 +311,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         dy[RIVGW(i)] /= river->matl.porosity * river->topo.area;
 
-        /* Check NAN errors for dy */
-        CheckDy(dy[RIVSTG(i)], "river", "stage", i + 1, (double)t);
-        CheckDy(dy[RIVGW(i)], "river", "groundwater", i + 1, (double)t);
-
 #if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
         for (j = 0; j <= 6; j++)
         {
@@ -358,10 +323,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             river->nsol.flux[UP_AQUIF2AQUIF] + river->nsol.flux[CHANL_LKG];
 
         dy[RIVBEDN(i)] /= river->topo.area;
-
-        /* Check NAN errors for dy */
-        CheckDy(dy[STREAMN(i)], "river", "stream N", i + 1, (double)t);
-        CheckDy(dy[RIVBEDN(i)], "river", "bed mineral N", i + 1, (double)t);
 #endif
 
 #if defined(_CYCLES_)
@@ -382,12 +343,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         dy[RIVBEDNO3(i)] /= river->topo.area;
         dy[RIVBEDNH4(i)] /= river->topo.area;
-
-        /* Check NAN errors for dy */
-        CheckDy(dy[STREAMNO3(i)], "river", "stream NO3", i + 1, (double)t);
-        CheckDy(dy[RIVBEDNO3(i)], "river", "bed NO3", i + 1, (double)t);
-        CheckDy(dy[STREAMNH4(i)], "river", "stream NH4", i + 1, (double)t);
-        CheckDy(dy[RIVBEDNH4(i)], "river", "bed NH4", i + 1, (double)t);
 #endif
 
 #if defined(_RT_)
@@ -410,25 +365,11 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
                 river->chmf.flux[DOWN_AQUIF2AQUIF][k] -
                 river->chmf.flux[UP_AQUIF2AQUIF][k] +
                 river->chmf.flux[CHANL_LKG][k];
-
-            CheckDy(dy[STREAM_MOLE(i, k)], "river", "stream chem", i + 1, (double)t);
-            CheckDy(dy[RIVBED_MOLE(i, k)], "river", "bed chem", i + 1, (double)t);
         }
 #endif
     }
 
     return 0;
-}
-
-void CheckDy(double dy, const char *type, const char *varname, int ind,
-    double t)
-{
-    if (isnan(dy))
-    {
-        PIHMprintf(VL_ERROR,
-            "Error: NAN error for %s %d (%s) at %lf\n", type, ind, varname, t);
-        PIHMexit(EXIT_FAILURE);
-    }
 }
 
 int NumStateVar(void)
