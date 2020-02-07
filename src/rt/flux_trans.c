@@ -334,7 +334,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     river[i].wf.rivflow[LEFT_SURF2CHANL] *
                     ((river[i].wf.rivflow[LEFT_SURF2CHANL] > 0.0) ?
                     river[i].chms_stream.t_conc[k] :
-                    elem[i].prcps.t_conc[k] * rttbl->Condensation);
+                    left->prcps.t_conc[k] * rttbl->Condensation);
 
                 river[i].chmf.flux[LEFT_AQUIF2CHANL][k] =
                     river[i].wf.rivflow[LEFT_AQUIF2CHANL] *
@@ -373,7 +373,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     river[i].wf.rivflow[RIGHT_SURF2CHANL] *
                     ((river[i].wf.rivflow[RIGHT_SURF2CHANL] > 0.0) ?
                     river[i].chms_stream.t_conc[k] :
-                    elem[i].prcps.t_conc[k] * rttbl->Condensation);
+                    right->prcps.t_conc[k] * rttbl->Condensation);
 
                 river[i].chmf.flux[RIGHT_AQUIF2CHANL][k] =
                     river[i].wf.rivflow[RIGHT_AQUIF2CHANL] *
