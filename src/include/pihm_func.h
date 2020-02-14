@@ -259,7 +259,7 @@ int             PrintNow(int, int, const pihm_t_struct *);
 void            PrintPerf(void *, int, int, double, double, double, FILE *);
 void            PrintWaterBal(FILE *, int, int, int, const elem_struct *,
     const river_struct *);
-void            ProgressBar(int);
+void            ProgressBar(double);
 double          Psi(double, double, double);
 double          PtfAlpha(double, double, double, double, int);
 double          PtfBeta(double, double, double, double, int);

@@ -513,7 +513,7 @@ void SolveCVode(const ctrl_struct *ctrl, double cputime, int *t,
     int             starttime;
     int             nextptr;
     int             cv_flag;
-    int             progress;
+    double          progress;
 
     starttime = ctrl->starttime;
     nextptr = ctrl->tout[ctrl->cstep + 1];
@@ -532,7 +532,7 @@ void SolveCVode(const ctrl_struct *ctrl, double cputime, int *t,
 
     pihm_time = PIHMTime(*t);
 
-    progress = (int)(((double)ctrl->cstep + 1) / (double)ctrl->nstep * 100.0);
+    progress = ((double)ctrl->cstep + 1.0) / (double)ctrl->nstep;
 
     if (debug_mode)
     {

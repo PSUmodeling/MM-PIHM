@@ -824,24 +824,28 @@ int PrintNow(int intvl, int lapse, const pihm_t_struct *pihm_time)
     return print;
 }
 
-void ProgressBar(int progress)
+void ProgressBar(double progress)
 {
     int             i;
+    const int       BAR_LENGTH = 50;
+    int             length;
+
+    length = (int)(progress * (double)BAR_LENGTH);
 
     PIHMprintf(VL_NORMAL, "  [");
 
-    for (i = 0; i < progress; i++)
+    for (i = 0; i < length; i++)
     {
         PIHMprintf(VL_NORMAL, "=");
     }
-    for (i = progress; i < 100; i++)
+    for (i = length; i < BAR_LENGTH; i++)
     {
         PIHMprintf(VL_NORMAL, " ");
     }
 
-    PIHMprintf(VL_NORMAL, "] %d%%", progress);
+    PIHMprintf(VL_NORMAL, "] %d%%", (int)(progress * 100.0));
 
-    if (progress == 100)
+    if (length == BAR_LENGTH)
     {
         PIHMprintf(VL_NORMAL, "\n");
     }
