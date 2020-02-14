@@ -903,7 +903,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 #endif
 #if defined(_FBR_)
                 case FBRUNSAT_CTRL:
-                    InitPrtVarCtrl(outputdir, "fbrunsat", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "deepunsat", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
@@ -912,7 +912,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case FBRGW_CTRL:
-                    InitPrtVarCtrl(outputdir, "fbrgw", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "deepgw", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
@@ -921,7 +921,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case FBRINFIL_CTRL:
-                    InitPrtVarCtrl(outputdir, "fbrinfil", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "deepinfil", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
@@ -930,7 +930,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case FBRRECHG_CTRL:
-                    InitPrtVarCtrl(outputdir, "fbrrechg", prtvrbl[i],
+                    InitPrtVarCtrl(outputdir, "deeprechg", prtvrbl[i],
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
@@ -941,7 +941,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                 case FBRFLOW_CTRL:
                     for (k = 0; k < NUM_EDGE; k++)
                     {
-                        sprintf(ext, "fbrflow%d", k);
+                        sprintf(ext, "deepflow%d", k);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             HYDROL_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -984,7 +984,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 
 # if defined(_FBR_)
                         /* Fractured unsaturated bedrock layer concentration */
-                        sprintf(ext, "fbrunsat_conc.%s", chemn);
+                        sprintf(ext, "deepunsat_conc.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -995,7 +995,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         n++;
 
                         /* Deep groundwater concentration */
-                        sprintf(ext, "fbrgw_conc.%s", chemn);
+                        sprintf(ext, "deepgw_conc.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -1029,7 +1029,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         n++;
 
 # if defined(_FBR_) && defined(_TGM_)
-                        sprintf(ext, "left_fbr_discharge.%s", chemn);
+                        sprintf(ext, "left_dgw_discharge.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nriver, &print->varctrl[n]);
                         for (j = 0; j < nriver; j++)
@@ -1039,7 +1039,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         }
                         n++;
 
-                        sprintf(ext, "right_fbr_discharge.%s", chemn);
+                        sprintf(ext, "right_dgw_discharge.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nriver, &print->varctrl[n]);
                         for (j = 0; j < nriver; j++)
@@ -1081,7 +1081,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 
 # if defined(_FBR_)
                         /* Fractured unsaturated bedrock layer concentration */
-                        sprintf(ext, "fbrunsat_conc.%s", chemn);
+                        sprintf(ext, "deepunsat_conc.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -1092,7 +1092,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         n++;
 
                         /* Deep groundwater concentration */
-                        sprintf(ext, "fbrgw_conc.%s", chemn);
+                        sprintf(ext, "deepgw_conc.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)

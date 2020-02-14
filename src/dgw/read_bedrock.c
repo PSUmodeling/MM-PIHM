@@ -61,22 +61,22 @@ void ReadBedrock(const char *filename, atttbl_struct *atttbl,
 
     NextLine (br_file, cmdstr, &lno);
     ctrl->prtvrbl[FBRUNSAT_CTRL] =
-        ReadPrtCtrl (cmdstr, "FBRUNSAT", filename, lno);
+        ReadPrtCtrl (cmdstr, "DEEPUNSAT", filename, lno);
 
     NextLine (br_file, cmdstr, &lno);
-    ctrl->prtvrbl[FBRGW_CTRL] = ReadPrtCtrl (cmdstr, "FBRGW", filename, lno);
+    ctrl->prtvrbl[FBRGW_CTRL] = ReadPrtCtrl (cmdstr, "DEEPGW", filename, lno);
 
     NextLine (br_file, cmdstr, &lno);
     ctrl->prtvrbl[FBRINFIL_CTRL] =
-        ReadPrtCtrl(cmdstr, "FBRINFIL", filename, lno);
+        ReadPrtCtrl(cmdstr, "DEEPINFIL", filename, lno);
 
     NextLine (br_file, cmdstr, &lno);
     ctrl->prtvrbl[FBRRECHG_CTRL] =
-        ReadPrtCtrl (cmdstr, "FBRRECHG", filename, lno);
+        ReadPrtCtrl (cmdstr, "DEEPRECHG", filename, lno);
 
     NextLine (br_file, cmdstr, &lno);
     ctrl->prtvrbl[FBRFLOW_CTRL] =
-        ReadPrtCtrl (cmdstr, "FBRFLOW", filename, lno);
+        ReadPrtCtrl (cmdstr, "DEEPFLOW", filename, lno);
 
     fclose (br_file);
 }
