@@ -550,7 +550,7 @@ void SolveCVode(const ctrl_struct *ctrl, double cputime, int *t,
     else if (pihm_time.t % 3600 == 0)
     {
         PIHMprintf(VL_NORMAL,
-            "\r Step = %s (cputime %.2f)", pihm_time.str, cputime);
+            "\r Step = %s (cputime %8.2f s)", pihm_time.str, cputime);
         ProgressBar(progress);
     }
 }
