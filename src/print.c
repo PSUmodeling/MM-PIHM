@@ -538,10 +538,6 @@ void PrintData(varctrl_struct *varctrl, int nprint, int t, int lapse, int ascii)
                         varctrl[i].buffer[j] / (double)varctrl[i].counter :
                         varctrl[i].buffer[j];
 
-#if defined(_WIN32) || defined(_WIN64)
-                    _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
-
                     fprintf(varctrl[i].txtfile,
                         (roundi(outval) == BADVAL) ? "\t%-8.0lf" :
                         ((outval == 0.0 || fabs(outval) > 1.0E-3) ?
