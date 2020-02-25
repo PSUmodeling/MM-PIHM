@@ -72,6 +72,10 @@ void ReadForc(const char *filename, forc_struct *forc)
                     PIHMexit(EXIT_FAILURE);
                 }
             }
+
+            forc->meteo[i].interval =
+                (forc->meteo[i].ftime[forc->meteo[i].length - 1] -
+                forc->meteo[i].ftime[0]) / (forc->meteo[i].length - 1);
         }
     }
 
