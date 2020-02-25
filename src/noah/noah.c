@@ -1007,7 +1007,7 @@ double FrH2O(double tkelv, double smc, double sh2o, const soil_struct *soil)
                 satn = (smc - swl - soil->smcmin) /
                     (soil->smcmax - soil->smcmin);
                 satn = MAX(satn, SATMIN);
-                satn = MIN(satn, 1.0);
+                satn = MIN(satn, 1.0 - 1.0E-4);
 
                 mx = soil->beta / (1.0 - soil->beta);
 
