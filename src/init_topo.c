@@ -166,8 +166,8 @@ void CalcSlopeAspect(elem_struct *elem, const meshtbl_struct *meshtbl)
                 c = sqrt(vector[XCOMP] * vector[XCOMP] +
                     vector[YCOMP] * vector[YCOMP]);
                 /* Unobstructed angle of the kth edge of the jth grid */
-                h = atan(c / vector[ZCOMP]) * 180.0 / PI;
-                h = (h < 0.0) ? 90.0 : h;
+                h = (vector[ZCOMP] <= 0.0) ?
+                    90.0 : atan(c / vector[ZCOMP]) * 180.0 / PI;
 
                 /* Find out which directions are blocked */
                 edge_vector[0][XCOMP] = x1 - elem[i].topo.x;
