@@ -26,19 +26,19 @@ void ApplyBc(forc_struct *forc, elem_struct *elem, river_struct *river, int t)
 
 #if defined(_RT_)
 void ApplyForc(forc_struct *forc, rttbl_struct *rttbl, elem_struct *elem,
-    int t, int rad_mode, const siteinfo_struct *siteinfo)
+    int t, int stepsize, int rad_mode, const siteinfo_struct *siteinfo)
 #elif defined(_NOAH_)
-void ApplyForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
-    const siteinfo_struct *siteinfo)
+void ApplyForc(forc_struct *forc, elem_struct *elem, int t, int stepsize,
+    int rad_mode, const siteinfo_struct *siteinfo)
 #else
-void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
+void ApplyForc(forc_struct *forc, elem_struct *elem, int t, int stepsize)
 #endif
 {
     /* Meteorological forcing */
 #if defined(_NOAH_)
-    ApplyMeteoForc(forc, elem, t, rad_mode, siteinfo);
+    ApplyMeteoForc(forc, elem, t, stepsize, rad_mode, siteinfo);
 #else
-    ApplyMeteoForc(forc, elem, t);
+    ApplyMeteoForc(forc, elem, t, stepsize);
 #endif
 
     /* LAI forcing */
@@ -69,9 +69,9 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
     for (k = 0; k < forc->nbc; k++)
     {
 #if defined(_RT_)
-        IntrplForc(&forc->bc[k], t, 1 + rttbl->NumStc, INTRPL);
+        IntrplForc(&forc->bc[k], t, 0, 1 + rttbl->NumStc, INTRPL);
 #else
-        IntrplForc(&forc->bc[k], t, 1, INTRPL);
+        IntrplForc(&forc->bc[k], t, 0, 1, INTRPL);
 #endif
     }
 
@@ -141,10 +141,10 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 }
 
 #if defined(_NOAH_)
-void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t, int rad_mode,
-    const siteinfo_struct *siteinfo)
+void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t, int stepsize,
+    int rad_mode, const siteinfo_struct *siteinfo)
 #else
-void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
+void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t, int stepsize)
 #endif
 {
     int             i, k;
@@ -160,7 +160,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
     for (k = 0; k < forc->nmeteo; k++)
     {
-        IntrplForc(&forc->meteo[k], t, NUM_METEO_VAR, INTRPL);
+        IntrplForc(&forc->meteo[k], t, stepsize, NUM_METEO_VAR, INTRPL);
     }
 
 #if defined(_NOAH_)
@@ -176,7 +176,7 @@ void ApplyMeteoForc(forc_struct *forc, elem_struct *elem, int t)
 # endif
             for (k = 0; k < forc->nrad; k++)
             {
-                IntrplForc(&forc->rad[k], t, 2, INTRPL);
+                IntrplForc(&forc->rad[k], t, stepsize, 2, INTRPL);
             }
         }
 
@@ -285,7 +285,7 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 #endif
         for (k = 0; k < forc->nlai; k++)
         {
-            IntrplForc(&forc->lai[k], t, 1, INTRPL);
+            IntrplForc(&forc->lai[k], t, 0, 1, INTRPL);
         }
     }
 
@@ -323,7 +323,7 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
 #endif
         for (j = 0; j < forc->nprcpc; j++)
         {
-            IntrplForc(&forc->prcpc[j], t, NumSpc, NO_INTRPL);
+            IntrplForc(&forc->prcpc[j], t, 0, NumSpc, NO_INTRPL);
         }
 
 #if defined(_OPENMP)
@@ -384,7 +384,7 @@ void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
 #endif
     for (k = 0; k < forc->nriverbc; k++)
     {
-        IntrplForc(&forc->riverbc[k], t, 1, INTRPL);
+        IntrplForc(&forc->riverbc[k], t, 0, 1, INTRPL);
     }
 
 #if defined(_OPENMP)
@@ -407,7 +407,7 @@ void ApplyRiverBc(forc_struct *forc, river_struct *river, int t)
     }
 }
 
-void IntrplForc(tsdata_struct *ts, int t, int nvrbl, int intrpl)
+void IntrplForc(tsdata_struct *ts, int t, int interval, int nvrbl, int intrpl)
 {
     int             j;
     int             first, middle, last;
@@ -424,19 +424,49 @@ void IntrplForc(tsdata_struct *ts, int t, int nvrbl, int intrpl)
         PIHMprintf(VL_ERROR, "Please check your forcing file.\n");
         PIHMexit(EXIT_FAILURE);
     }
-    else
-    {
-        first = 1;
-        last = ts->length - 1;
 
-        while (first <= last)
+    first = 1;
+    last = ts->length - 1;
+
+    while (first <= last)
+    {
+        middle = (first + last) / 2;
+        if (t >= ts->ftime[middle - 1] && t < ts->ftime[middle])
         {
-            middle = (first + last) / 2;
-            if (t >= ts->ftime[middle - 1] && t < ts->ftime[middle])
+            if (intrpl)
             {
-                for (j = 0; j < nvrbl; j++)
+                if (middle + 1 <= ts->length - 1 &&
+                    ts->ftime[middle + 1] <= t + interval)
                 {
-                    if (intrpl)
+                    int             k;
+                    int             n = 0;
+
+                    for (j = 0; j < nvrbl; j++)
+                    {
+                        ts->value[j] = 0.0;
+                    }
+
+                    k = (t == ts->ftime[middle - 1]) ? middle - 1 : middle;
+
+                    while (ts->ftime[k] < t + interval && k <= ts->length - 1)
+                    {
+                        for (j = 0; j < nvrbl; j++)
+                        {
+                            ts->value[j] += ts->data[k][j];
+                        }
+                        n++;
+                        k++;
+                    }
+
+                    for (j = 0; j < nvrbl; j++)
+                    {
+                        ts->value[j] /= (double)n;
+                    }
+
+                }
+                else                        /* Interpolation w/o aggregation */
+                {
+                    for (j = 0; j < nvrbl; j++)
                     {
                         ts->value[j] =
                             ((double)(ts->ftime[middle] - t) *
@@ -445,21 +475,25 @@ void IntrplForc(tsdata_struct *ts, int t, int nvrbl, int intrpl)
                             ts->data[middle][j]) /
                             (double)(ts->ftime[middle] - ts->ftime[middle - 1]);
                     }
-                    else
-                    {
-                        ts->value[j] = ts->data[middle - 1][j];
-                    }
                 }
-                break;
             }
-            else if (ts->ftime[middle] > t)
+            else                            /* No interpolation */
             {
-                last = middle - 1;
+                for (j = 0; j < nvrbl; j++)
+                {
+                    ts->value[j] = ts->data[middle - 1][j];
+                }
             }
-            else
-            {
-                first = middle + 1;
-            }
+
+            break;
+        }
+        else if (ts->ftime[middle] > t)
+        {
+            last = middle - 1;
+        }
+        else
+        {
+            first = middle + 1;
         }
     }
 }

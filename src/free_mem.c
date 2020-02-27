@@ -210,6 +210,8 @@ void FreeForc(forc_struct *forc)
             free(forc->meteo[i].ftime);
             free(forc->meteo[i].data);
             free(forc->meteo[i].value);
+            free(forc->meteo[i].max);
+            free(forc->meteo[i].min);
         }
         free(forc->meteo);
     }
