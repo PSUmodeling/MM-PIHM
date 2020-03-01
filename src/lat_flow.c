@@ -281,15 +281,7 @@ double OvlFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
         (elem->ws.surfh + elem->topo.zmax) - (nabr->ws.surfh + nabr->topo.zmax);
     avg_h = AvgHsurf(diff_h, elem->ws.surfh, nabr->ws.surfh);
     grad_h = MAX(diff_h / elem->topo.nabrdist[j], GRADMIN);
-    if (surf_mode == KINEMATIC)
-    {
-        avg_sf = (grad_h > GRADMIN) ? grad_h : GRADMIN;
-    }
-    else
-    {
-        avg_sf = (avg_sf > GRADMIN) ? avg_sf : GRADMIN;
-    }
-    /* Weighting needed */
+    avg_sf = (surf_mode == KINEMATIC) ? grad_h : MAX(avg_sf, GRADMIN);
     avg_rough = 0.5 * (elem->lc.rough + nabr->lc.rough);
     crossa = avg_h * elem->topo.edge[j];
 
