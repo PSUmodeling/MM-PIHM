@@ -21,7 +21,7 @@ void Hydrol(elem_struct *elem, river_struct *river, const ctrl_struct *ctrl)
 
     VerticalFlow(elem, (double)ctrl->stepsize);
 
-    RiverFlow(elem, river, ctrl->riv_mode);
+    RiverFlow(ctrl->surf_mode, ctrl->riv_mode, elem, river);
 }
 
 void EtExtract(elem_struct *elem)

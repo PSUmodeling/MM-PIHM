@@ -1,6 +1,7 @@
 #include "pihm.h"
 
-void RiverFlow(elem_struct *elem, river_struct *river, int riv_mode)
+void RiverFlow(int surf_mode, int riv_mode, elem_struct *elem,
+    river_struct *river)
 {
     int             i;
 
@@ -75,7 +76,7 @@ void RiverFlow(elem_struct *elem, river_struct *river, int riv_mode)
         left = &elem[river[i].leftele - 1];
         right = &elem[river[i].rightele - 1];
 
-        RiverToElem(&river[i], left, right);
+        RiverToElem(surf_mode, &river[i], left, right);
 
         /*
          * Flux between river channel and subsurface
@@ -108,7 +109,8 @@ void RiverFlow(elem_struct *elem, river_struct *river, int riv_mode)
     }
 }
 
-void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right)
+void RiverToElem(int surf_mode, river_struct *river, elem_struct *left,
+    elem_struct *right)
 {
     double          effk_left, effk_right;
     int             j;
@@ -116,11 +118,13 @@ void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right)
     /* Lateral surface flux calculation between river-triangular element */
     if (river->leftele > 0)
     {
-        river->wf.rivflow[LEFT_SURF2CHANL] = OvlFlowElemToRiver(left, river);
+        river->wf.rivflow[LEFT_SURF2CHANL] =
+            OvlFlowElemToRiver(surf_mode, left, river);
     }
     if (river->rightele > 0)
     {
-        river->wf.rivflow[RIGHT_SURF2CHANL] = OvlFlowElemToRiver(right, river);
+        river->wf.rivflow[RIGHT_SURF2CHANL] =
+            OvlFlowElemToRiver(surf_mode, right, river);
     }
 
     effk_left = EffKh(&left->soil, left->ws.gw);
@@ -215,7 +219,8 @@ void RiverToElem(river_struct *river, elem_struct *left, elem_struct *right)
 #endif
 }
 
-double OvlFlowElemToRiver(const elem_struct *elem, const river_struct *river)
+double OvlFlowElemToRiver(int surf_mode, const elem_struct *elem,
+    const river_struct *river)
 {
     double          zbank;
     double          flux;
@@ -225,7 +230,8 @@ double OvlFlowElemToRiver(const elem_struct *elem, const river_struct *river)
     zbank = (river->topo.zmax > elem->topo.zmax) ?
         river->topo.zmax : elem->topo.zmax;
 
-    elem_h = elem->topo.zmax + elem->ws.surfh;
+    elem_h = (surf_mode == DIFF_WAVE) ?
+        elem->topo.zmax + elem->ws.surfh : elem->topo.zmax;
     rivseg_h = river->topo.zbed + river->ws.stage;
 
     /*

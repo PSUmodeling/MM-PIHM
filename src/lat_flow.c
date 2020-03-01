@@ -6,10 +6,13 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
     double         *dhbydx;
     double         *dhbydy;
 
-    dhbydx = (double *)malloc(nelem * sizeof(double));
-    dhbydy = (double *)malloc(nelem * sizeof(double));
+    if (surf_mode == DIFF_WAVE)
+    {
+        dhbydx = (double *)malloc(nelem * sizeof(double));
+        dhbydy = (double *)malloc(nelem * sizeof(double));
 
-    FrictSlope(elem, river, surf_mode, dhbydx, dhbydy);
+        FrictSlope(elem, river, dhbydx, dhbydy);
+    }
 
 #if defined(_OPENMP)
 # pragma omp parallel for
@@ -35,10 +38,12 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
                 elem[i].wf.subsurf[j] = SubFlowElemToElem(&elem[i], nabr, j);
 
                 /* Surface flux between triangular elements */
-                avg_sf = 0.5 *
-                    (sqrt(dhbydx[i] * dhbydx[i] + dhbydy[i] * dhbydy[i]) +
+                /* avg_sf not needed in kinematic mode */
+                avg_sf = (surf_mode == DIFF_WAVE) ?
+                    0.5 * (sqrt(dhbydx[i] * dhbydx[i] + dhbydy[i] * dhbydy[i]) +
                      sqrt(dhbydx[nabr->ind - 1] * dhbydx[nabr->ind - 1] +
-                     dhbydy[nabr->ind - 1] * dhbydy[nabr->ind - 1]));
+                     dhbydy[nabr->ind - 1] * dhbydy[nabr->ind - 1])) : 0.0;
+
                 elem[i].wf.ovlflow[j] =
                     OvlFlowElemToElem(&elem[i], nabr, j, avg_sf, surf_mode);
             }
@@ -50,8 +55,11 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
         }    /* End of neighbor loop */
     }    /* End of element loop */
 
-    free(dhbydx);
-    free(dhbydy);
+    if (surf_mode == DIFF_WAVE)
+    {
+        free(dhbydx);
+        free(dhbydy);
+    }
 
 #if defined(_FBR_)
     /*
@@ -87,7 +95,7 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
 }
 
 void FrictSlope(const elem_struct *elem, const river_struct *river,
-    int surf_mode, double *dhbydx, double *dhbydy)
+    double *dhbydx, double *dhbydy)
 {
     int             i;
 #if defined(_OPENMP)
@@ -102,38 +110,35 @@ void FrictSlope(const elem_struct *elem, const river_struct *river,
         const elem_struct *nabr;
         const river_struct *rivnabr;
 
-        if (surf_mode == DIFF_WAVE)
+        for (j = 0; j < NUM_EDGE; j++)
         {
-            for (j = 0; j < NUM_EDGE; j++)
+            if (elem[i].nabr[j] == 0)
             {
-                if (elem[i].nabr[j] == 0)
-                {
-                    surfh[j] = elem[i].topo.zmax + elem[i].ws.surfh;
-                    x[j] = elem[i].topo.nabr_x[j];
-                    y[j] = elem[i].topo.nabr_y[j];
-                }
-                else if (elem[i].nabr_river[j] == 0)
-                {
-                    nabr = &elem[elem[i].nabr[j] - 1];
-                    surfh[j] = nabr->topo.zmax + nabr->ws.surfh;
-                    x[j] = elem[i].topo.nabr_x[j];
-                    y[j] = elem[i].topo.nabr_y[j];
-                }
-                else
-                {
-                    rivnabr = &river[elem[i].nabr_river[j] - 1];
-
-                    surfh[j] = (rivnabr->ws.stage > rivnabr->shp.depth) ?
-                        rivnabr->topo.zbed + rivnabr->ws.stage :
-                        rivnabr->topo.zmax;
-                    x[j] = river[elem[i].nabr_river[j] - 1].topo.x;
-                    y[j] = river[elem[i].nabr_river[j] - 1].topo.y;
-                }
+                surfh[j] = elem[i].topo.zmax + elem[i].ws.surfh;
+                x[j] = elem[i].topo.nabr_x[j];
+                y[j] = elem[i].topo.nabr_y[j];
             }
+            else if (elem[i].nabr_river[j] == 0)
+            {
+                nabr = &elem[elem[i].nabr[j] - 1];
+                surfh[j] = nabr->topo.zmax + nabr->ws.surfh;
+                x[j] = elem[i].topo.nabr_x[j];
+                y[j] = elem[i].topo.nabr_y[j];
+            }
+            else
+            {
+                rivnabr = &river[elem[i].nabr_river[j] - 1];
 
-            dhbydx[i] = DhByDl(y, x, surfh);
-            dhbydy[i] = DhByDl(x, y, surfh);
+                surfh[j] = (rivnabr->ws.stage > rivnabr->shp.depth) ?
+                    rivnabr->topo.zbed + rivnabr->ws.stage :
+                    rivnabr->topo.zmax;
+                x[j] = river[elem[i].nabr_river[j] - 1].topo.x;
+                y[j] = river[elem[i].nabr_river[j] - 1].topo.y;
+            }
         }
+
+        dhbydx[i] = DhByDl(y, x, surfh);
+        dhbydy[i] = DhByDl(x, y, surfh);
     }
 }
 
@@ -278,7 +283,7 @@ double OvlFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
     grad_h = diff_h / elem->topo.nabrdist[j];
     if (surf_mode == KINEMATIC)
     {
-        avg_sf = (grad_h > 0.0) ? grad_h : GRADMIN;
+        avg_sf = (grad_h > GRADMIN) ? grad_h : GRADMIN;
     }
     else
     {

@@ -170,8 +170,8 @@ void            FreeMem(pihm_struct);
 void            FreeRivtbl(rivtbl_struct *);
 void            FreeShptbl(shptbl_struct *);
 void            FreeSoiltbl(soiltbl_struct *);
-void            FrictSlope(const elem_struct *, const river_struct *, int,
-    double *, double *);
+void            FrictSlope(const elem_struct *, const river_struct *, double *,
+    double *);
 void            Hydrol(elem_struct *, river_struct *, const ctrl_struct *);
 double          Infil(const wstate_struct *, const wstate_struct *,
     const wflux_struct *, const topo_struct *, const soil_struct *, double);
@@ -247,7 +247,8 @@ double          OutletFlux(int, const river_wstate_struct *,
 double          OverLandFlow(double, double, double, double, double);
 double          OvlFlowElemToElem(const elem_struct *, const elem_struct *, int,
     double, int);
-double          OvlFlowElemToRiver(const elem_struct *, const river_struct *);
+double          OvlFlowElemToRiver(int, const elem_struct *,
+    const river_struct *);
 void            ParseCmdLineParam(int, char *[], char *);
 void            PIHM(pihm_struct, void *, N_Vector, double);
 pihm_t_struct   PIHMTime(int);
@@ -293,9 +294,9 @@ double          Recharge(const wstate_struct *, const wflux_struct *,
     const soil_struct *);
 double          RiverCroSectArea(int, double, double);
 double          RiverEqWid(int, double, double);
-void            RiverFlow(elem_struct *, river_struct *, int);
+void            RiverFlow(int, int, elem_struct *, river_struct *);
 double          RiverPerim(int, double, double);
-void            RiverToElem(river_struct *, elem_struct *, elem_struct *);
+void            RiverToElem(int, river_struct *, elem_struct *, elem_struct *);
 int             roundi(double);
 #if defined(_OPENMP)
 void            RunTime(double, double *, double *);
