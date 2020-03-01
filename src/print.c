@@ -266,7 +266,7 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "GHEAT");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "ETP");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "ESNOW");
-        fprintf(print->varctrl[n].txtfile, "\t%-9s", "SOILW");
+        fprintf(print->varctrl[n].txtfile, "\t%-9s", "ROOTW");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "SOILM");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "SOLDN");
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "CH");
