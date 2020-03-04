@@ -120,9 +120,6 @@ int main(int argc, char *argv[])
 
     ctrl = &pihm->ctrl;
 
-    /* Hide cursor */
-    PIHMprintf(VL_NORMAL, "\e[?25l");
-
     if (spinup_mode)
     {
         Spinup(pihm, CV_Y, cvode_mem, &sun_ls);
