@@ -214,7 +214,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
          * Noah initialization needs air temperature thus forcing is applied */
 #if defined(_RT_)
         ApplyForc(&pihm->forc, &pihm->rttbl, pihm->elem, pihm->ctrl.starttime,
-            pihm->ctrl.rad_mode, &pihm->siteinfo);
+            pihm->ctrl.etstep, pihm->ctrl.rad_mode, &pihm->siteinfo);
 #elif defined(_NOAH_)
         ApplyForc(&pihm->forc, pihm->elem, pihm->ctrl.starttime,
             pihm->ctrl.etstep, pihm->ctrl.rad_mode, &pihm->siteinfo);
