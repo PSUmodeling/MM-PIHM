@@ -217,27 +217,12 @@ void CalcLatFlx(const pstate_struct *ps, wflux_struct *wf)
     if (sattot <= 0.0)
     {
         wf->runoff2_lyr[ps->nsoil - 1] = wf->runoff2;
-
-#if defined(_CYCLES_)
-//        for (k = 0; k < NUM_EDGE; k++)
-//        {
-//            wf->smflxh[k][ps->nsoil - 1] = wf->subsurf[k] / area;
-//        }
-#endif
     }
     else
     {
         for (ks = 0; ks < ps->nsoil; ks++)
         {
             wf->runoff2_lyr[ks] = ps->satdpth[ks] / sattot * wf->runoff2;
-
-#if defined(_CYCLES_)
-//            for (k = 0; k < NUM_EDGE; k++)
-//            {
-//                wf->smflxh[k][ks] =
-//                    ps->satdpth[ks] / sattot * wf->subsurf[k] / area;
-//            }
-#endif
         }
     }
 }
