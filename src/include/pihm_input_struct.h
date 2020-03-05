@@ -261,7 +261,7 @@ typedef struct tsdata_struct
     union
     {
         int             bc_type;            /* boundary condition type:
-                                             * 1 = Dirichlet, 2 = Neunann */
+                                             * 1 = Dirichlet, 2 = Neumann */
         double          zlvl_wind;          /* height above ground of wind
                                              * observations (m) */
     };
