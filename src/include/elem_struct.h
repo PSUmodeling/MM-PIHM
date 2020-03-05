@@ -18,17 +18,16 @@ typedef struct attrib_struct
                                              * boundary condition type */
 #endif
 #if defined(_RT_)
-    int             prcpc_type;             /* element precipitation
-                                             * concentration type */
-    int             chem_ic_type[4];        /* element chemical concentration
-                                             * type */
+    int             prcpc_type;             /* precipitation concentration type
+                                             */
+    int             chem_ic_type[4];        /* chemical concentration type */
 #endif
 } attrib_struct;
 
 /* Topography parameters */
 typedef struct topo_struct
 {
-    double          area;                   /* area of element (m2) */
+    double          area;                   /* area of grid (m2) */
     double          x;                      /* x of centroid (m) */
     double          y;                      /* y of centroid (m) */
     double          zmin;                   /* soil bottom elevation (m) */
@@ -43,9 +42,8 @@ typedef struct topo_struct
                                              */
 #endif
 #if defined(_NOAH_)
-    double          slope;                  /* slope of element (degree) */
-    double          aspect;                 /* surface aspect of element (degree)
-                                             */
+    double          slope;                  /* slope (degree) */
+    double          aspect;                 /* surface aspect (degree) */
     double          svf;                    /* sky view factor (-) */
     double          h_phi[36];              /* unobstructed angle in each
                                              * direction (degree) */
@@ -429,8 +427,7 @@ typedef struct wflux_struct
 {
     double          ovlflow[NUM_EDGE];      /* overland flow (m3 s-1) */
     double          subsurf[NUM_EDGE];      /* subsurface flow (m3 s-1) */
-    double          prcp;                   /* precipitation on each element
-                                             * (m s-1) */
+    double          prcp;                   /* precipitation (m s-1) */
     double          pcpdrp;                 /* combined prcp and drip (from
                                              * canopy) that goes into the soil
                                              * (m s-1) */
@@ -1660,9 +1657,9 @@ typedef struct spinup_struct
 /* Element structure */
 typedef struct elem_struct
 {
-    int             node[NUM_EDGE];         /* nodes of triangular element
+    int             node[NUM_EDGE];         /* nodes of triangular grid
                                              * (counterclockwise) */
-    int             nabr[NUM_EDGE];         /* neighbor elements (neighbor i
+    int             nabr[NUM_EDGE];         /* neighbors (neighbor i
                                              * shares edge i (0: on boundary) */
     int             nabr_river[NUM_EDGE];   /* adjacent river channel (0: no
                                              * river on edge i) */
