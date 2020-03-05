@@ -6,7 +6,7 @@ typedef struct filename_struct
 {
     char            riv[MAXSTRING];         /* river input file */
     char            mesh[MAXSTRING];        /* mesh structure file */
-    char            att[MAXSTRING];         /* element attribute file */
+    char            att[MAXSTRING];         /* attribute file */
     char            soil[MAXSTRING];        /* soil property file */
     char            lc[MAXSTRING];          /* land cover property file */
     char            meteo[MAXSTRING];       /* meteorological forcing file */
@@ -97,8 +97,8 @@ typedef struct matltbl_struct
 typedef struct meshtbl_struct
 {
     int             numnode;                /* number of nodes */
-    int           **node;                   /* nodes of element */
-    int           **nabr;                   /* neighbors of element */
+    int           **node;                   /* nodes of grids */
+    int           **nabr;                   /* neighbors */
     double         *x;                      /* x of node (m) */
     double         *y;                      /* y of node (m) */
     double         *zmin;                   /* soil bottom elevation of node (m)
