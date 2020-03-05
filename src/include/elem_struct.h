@@ -488,9 +488,6 @@ typedef struct wflux_struct
                                              * step (m s-1) */
     double          smflxv[MAXLYR];         /* vertical soil moisture flux
                                              * between soil layers (m s-1) */
-    double          smflxh[NUM_EDGE][MAXLYR];/* horizontal soil moisture flux at
-                                             * each soil layer from each edge
-                                             * (m s-1) */
     double          dew;                    /* dewfall (or frostfall for
                                              * T < 273.15) (m s-1) */
     double          snomlt;                 /* water equivalent snow melt

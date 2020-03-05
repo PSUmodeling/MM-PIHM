@@ -757,13 +757,6 @@ void InitWFlux(wflux_struct *wf)
     {
         wf->smflxv[k] = 0.0;
     }
-    for (j = 0; j < NUM_EDGE; j++)
-    {
-        for (k = 0; k < MAXLYR; k++)
-        {
-            wf->smflxh[j][k] = 0.0;
-        }
-    }
     wf->dew = 0.0;
     wf->snomlt = 0.0;
     wf->esnow = 0.0;

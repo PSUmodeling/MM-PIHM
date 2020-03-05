@@ -207,18 +207,6 @@ void CalcLatFlx(const pstate_struct *ps, wflux_struct *wf)
     double          sattot;
     int             ks;
 
-#if defined(_CYCLES_)
-//    int             k;
-//
-//    for (k = 0; k < NUM_EDGE; k++)
-//    {
-//        for (ks = 0; ks < MAXLYR; ks++)
-//        {
-//            wf->smflxh[k][ks] = 0.0;
-//        }
-//    }
-#endif
-
     /* Determine runoff from each layer */
     sattot = 0.0;
     for (ks = 0; ks < ps->nsoil; ks++)
