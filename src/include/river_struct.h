@@ -153,8 +153,8 @@ typedef struct river_chmflux_struct
 typedef struct river_struct
 {
     int             ind;                    /* river index */
-    int             leftele;                /* left neighboring element */
-    int             rightele;               /* right neighboring element */
+    int             leftele;                /* left neighbor*/
+    int             rightele;               /* right neighbor */
     int             fromnode;               /* upstream node */
     int             tonode;                 /* downstream node */
     int             down;                   /* down stream channel segment */
@@ -184,7 +184,7 @@ typedef struct river_struct
 #if defined(_RT_)
     chmstate_struct     chms_stream;
     chmstate_struct     chms_rivbed;
-    river_chmflux_struct    chmf;
+    river_chmflux_struct chmf;
 #endif
 } river_struct;
 
