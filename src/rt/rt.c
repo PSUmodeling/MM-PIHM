@@ -27,11 +27,6 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
     /*
      * Apply calibration
      */
-#if OBSOLETE
-    rttbl->pumps[0].Injection_rate *= cal->gwinflux;
-    rttbl->pumps[0].flow_rate *= cal->gwinflux;
-#endif
-
     chem_ind = FindChem("'DOC'", chemtbl, rttbl->NumStc);
     if (chem_ind >= 0)
     {
