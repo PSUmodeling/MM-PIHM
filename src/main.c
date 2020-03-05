@@ -209,8 +209,5 @@ int main(int argc, char *argv[])
 
     PIHMprintf(VL_BRIEF, "Simulation completed.\n");
 
-    /* Re-enable cursor */
-    printf("\e[?25h");
-
     return EXIT_SUCCESS;
 }
