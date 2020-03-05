@@ -654,8 +654,8 @@ typedef struct mgmt_struct
 
 typedef struct cstate_struct
 {
-    double          SOC_Mass[MAXLYR];       /* Soil organic carbon (kg m-2) */
-    double          MBC_Mass[MAXLYR];       /* Microbial biomass C (kg m-2) */
+    double          SOC_Mass[MAXLYR];       /* soil organic carbon (kg m-2) */
+    double          MBC_Mass[MAXLYR];       /* microbial biomass C (kg m-2) */
     double          stanResidueMass;        /* (kg m-2) */
     double          flatResidueMass;        /* (kg m-2) */
     double          manureSurfaceC;         /* (kg m-2) */
@@ -667,13 +667,13 @@ typedef struct cstate_struct
 
 typedef struct cflux_struct
 {
-    double          C_Humified;             /* Carbon humified from residues,
+    double          C_Humified;             /* carbon humified from residues,
                                              * roots, rizho, and manure
                                              * (kg m-2 day-1)*/
-    double          C_ResidueRespired;      /* Carbon respired from residues,
+    double          C_ResidueRespired;      /* carbon respired from residues,
                                              * roots, rizho, and manure
                                              * (kg m-2 day-1)*/
-    double          C_SoilRespired;         /* Carbon respired from soil
+    double          C_SoilRespired;         /* carbon respired from soil
                                              * organic carbon only
                                              * (kg m-2 day-1)*/
     double          carbonRespired[MAXLYR]; /* kg m-2 day-1 */
@@ -683,8 +683,8 @@ typedef struct nstate_struct
 {
     double          no3[MAXLYR];            /* nitrate (kg m-2) */
     double          nh4[MAXLYR];            /* ammonium (kg m-2) */
-    double          SON_Mass[MAXLYR];       /* Soil organic N (kg m-2) */
-    double          MBN_Mass[MAXLYR];       /* Microbial biomass N (kg m-2) */
+    double          SON_Mass[MAXLYR];       /* soil organic N (kg m-2) */
+    double          MBN_Mass[MAXLYR];       /* microbial biomass N (kg m-2) */
     double          stanResidueN;           /* (kg m-2) */
     double          flatResidueN;           /* (kg m-2) */
     double          manureSurfaceN;         /* (kg m-2) */
