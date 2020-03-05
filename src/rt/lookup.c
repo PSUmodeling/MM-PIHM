@@ -279,7 +279,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
             "'CO2(*g)'")) ? log10(Cal_PCO2) : log10(Cal_Keq);
     }
 
-    PIHMprintf(VL_VERBOSE, "\n Kinetic Mass Matrx (calibrated Keq)! \n");
+    PIHMprintf(VL_VERBOSE, "\n Kinetic Mass Matrix (calibrated Keq)! \n");
     PIHMprintf(VL_VERBOSE, "%-15s", " ");
     for (i = 0; i < rttbl->NumStc; i++)
         PIHMprintf(VL_VERBOSE, "%-14s", chemtbl[i].ChemName);

@@ -57,8 +57,8 @@ double Infil(const wstate_struct *ws, const wstate_struct *ws0,
     }
     else
     {
-        /* Water appliation rate is the sum of net gain of overland flow and net
-         * precipitation */
+        /* Water application rate is the sum of net gain of overland flow and
+         * net precipitation */
         applrate = 0.0;
         for (j = 0; j < NUM_EDGE; j++)
         {

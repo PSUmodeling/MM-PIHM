@@ -198,7 +198,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     const int       IZ0TLND = 0;        /* Option to turn on (IZ0TLND=1) or off
                                          * (IZ0TLND=0) the vegetation-category-
                                          * dependent calculation of the
-                                         * Zilitinkivich coefficient CZIL in the
+                                         * Zilitinkevich coefficient CZIL in the
                                          * SfcDif subroutines */
     double          df1;                /* Thermal conductivity of surface
                                          * mediums (W m-1 K-1) */

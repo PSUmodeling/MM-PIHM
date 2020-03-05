@@ -251,8 +251,7 @@ double SubFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
     double          avg_ksat;
 
     /*
-     * Subsurface lateral flux calculation between triangular
-     * elements
+     * Subsurface lateral flux calculation between triangular elements
      */
     diff_h = (elem->ws.gw + elem->topo.zmin) - (nabr->ws.gw + nabr->topo.zmin);
     avg_h = AvgH(diff_h, elem->ws.gw, nabr->ws.gw);

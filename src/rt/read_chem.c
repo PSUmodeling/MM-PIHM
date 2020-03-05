@@ -177,7 +177,7 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     else
     {
         PIHMprintf(VL_VERBOSE,
-            "  Chemical concentration output is truned off.\n");
+            "  Chemical concentration output is turned off.\n");
     }
 
     /*

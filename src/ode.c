@@ -138,7 +138,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
 #if defined(_RT_)
     /*
-     * Aquous species transport fluxes
+     * Aqueous species transport fluxes
      */
     Transport(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river);
 #endif

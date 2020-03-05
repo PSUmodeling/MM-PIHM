@@ -193,7 +193,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      *
      * Note !!!
      * Do not call SfcDif until after above call to RedPrm, in case alternative
-     * values of roughness length (z0) and Zilintinkevich coef (czil) are set
+     * values of roughness length (z0) and Zilitinkevich coef (czil) are set
      * there via namelist i/o.
      *
      * Note !!!

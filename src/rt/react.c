@@ -423,10 +423,10 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
             {
                 Rate_spet[j] += Rate_pre[i] * rttbl->Dep_kinetic[min_pos][j];
             }
-            /* Adjust the unit of the calcuated rate. Note that for mineral, the
-             * unit of rate and the unit of concentration are mol/L porous media
-             * For the aqueous species, the unit of the rate and the unit of the
-             * concentration are mol/L pm and mol/L water respectively. */
+            /* Adjust the unit of the calculated rate. Note that for mineral,
+             * the unit of rate and the unit of concentration are mol/L porous
+             * media. For the aqueous species, the unit of the rate and the unit
+             * of the concentration are mol/L pm and mol/L water respectively.*/
         }
 
         for (i = 0; i < NumSpc; i++)
