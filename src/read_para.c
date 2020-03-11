@@ -6,7 +6,7 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
     char            cmdstr[MAXSTRING];
     int             i;
     int             lno = 0;
-    pihm_t_struct   pihm_time1, pihm_time2;
+    pihm_t_struct   start_time, end_time;
 
     for (i = 0; i < MAXPRINT; i++)
     {
@@ -51,15 +51,22 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
     ReadKeyword(cmdstr, "END", &ctrl->endtime, 't', filename, lno);
 
     /* In spinup mode, simulation time should be full years */
-    if (spinup_mode)
-    {
-        pihm_time1 = PIHMTime(ctrl->starttime);
-        pihm_time2 = PIHMTime(ctrl->endtime);
+    start_time = PIHMTime(ctrl->starttime);
+    end_time = PIHMTime(ctrl->endtime);
 
-        if (pihm_time1.month != pihm_time2.month ||
-            pihm_time1.day != pihm_time2.day ||
-            pihm_time1.hour != pihm_time2.hour ||
-            pihm_time1.minute != pihm_time2.minute)
+    if (end_time.t <= start_time.t)
+    {
+        PIHMprintf(VL_ERROR,
+            "Error: simulation end time should be after start time.\n");
+        PIHMprintf(VL_ERROR, "Please check your .para input file.\n");
+        PIHMexit(EXIT_FAILURE);
+    }
+    else if (spinup_mode)
+    {
+        if (start_time.month != end_time.month ||
+            start_time.day != end_time.day ||
+            start_time.hour != end_time.hour ||
+            start_time.minute != end_time.minute)
         {
             PIHMprintf(VL_ERROR,
                 "Error: In BGC spinup mode, "
