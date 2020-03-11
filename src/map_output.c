@@ -114,7 +114,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
-                        print->varctrl[n].var[j] = &elem[j].wf.infil;
+                        print->varctrl[n].var[j] = &elem[j].wf.eqv_infil;
                     }
                     n++;
                     break;
