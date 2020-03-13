@@ -485,8 +485,10 @@ void            DailyVar(int, int, elem_struct *);
 void            InitDailyStruct(elem_struct *);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_)
-void            SetAbsTol(double, double, N_Vector);
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+void            SetAbsTolArray(double, double, N_Vector);
+#else
+void            SetAbsTolArray(double, N_Vector);
 #endif
 
 #if defined(_BGC_)

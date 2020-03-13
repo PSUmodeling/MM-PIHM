@@ -412,9 +412,11 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
 {
     int             cv_flag;
     static int      reset;
-#if defined(_BGC_) || defined(_CYCLES_)
     N_Vector        abstol;
-    const double    SMINN_TOL = 1.0E-5;
+#if defined(_BGC_) || defined(_CYCLES_)
+    const double    TRANSP_TOL = 1.0E-5;
+#elif defined(_RT_)
+    const double    TRANSP_TOL = 1.0E-8;
 #endif
 
     pihm->ctrl.maxstep = pihm->ctrl.stepsize;
@@ -437,24 +439,22 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
         /* Attach the linear solver */
         CVodeSetLinearSolver(cvode_mem, *sun_ls, NULL);
 
-#if defined(_BGC_) || defined(_CYCLES_)
-        /* When BGC module is turned on, both water storage and nitrogen storage
-         * variables are in the CVODE vector. A vector of absolute tolerances is
-         * needed to specify different absolute tolerances for water storage
-         * variables and nitrogen storage variables */
+        /* When BGC, Cycles, or RT module is turned on, both water storage and
+         * transport variables are in the CVODE vector. A vector of absolute
+         * tolerances is needed to specify different absolute tolerances for
+         * water storage variables and transport variables */
         abstol = N_VNew(NumStateVar());
-        SetAbsTol(pihm->ctrl.abstol, SMINN_TOL, abstol);
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+        SetAbsTolArray(pihm->ctrl.abstol, TRANSP_TOL, abstol);
+#else
+        SetAbsTolArray(pihm->ctrl.abstol, abstol);
+#endif
 
         cv_flag = CVodeSVtolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
-                abstol);
+            abstol);
         CheckCVodeFlag(cv_flag);
 
         N_VDestroy(abstol);
-#else
-        cv_flag = CVodeSStolerances(cvode_mem, (realtype)pihm->ctrl.reltol,
-                (realtype)pihm->ctrl.abstol);
-        CheckCVodeFlag(cv_flag);
-#endif
 
         /* Specifies PIHM data block and attaches it to the main cvode memory
          * block */
@@ -481,7 +481,11 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
     }
 }
 
-void SetAbsTol(double hydrol_tol, double sminn_tol, N_Vector abstol)
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+void SetAbsTolArray(double hydrol_tol, double transp_tol, N_Vector abstol)
+#else
+void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
+#endif
 {
     int             i;
 
@@ -494,14 +498,16 @@ void SetAbsTol(double hydrol_tol, double sminn_tol, N_Vector abstol)
         NV_Ith(abstol, i) = (realtype)hydrol_tol;
     }
 
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
     /* Set absolute errors for nitrogen state variables */
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
+# if defined(_OPENMP)
+#  pragma omp parallel for
+# endif
     for (i = 3 * nelem + 2 * nriver; i < NumStateVar(); i++)
     {
-        NV_Ith(abstol, i) = (realtype)sminn_tol;
+        NV_Ith(abstol, i) = (realtype)transp_tol;
     }
+#endif
 }
 
 void SolveCVode(const ctrl_struct *ctrl, double cputime, int *t,
