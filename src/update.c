@@ -163,7 +163,8 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         double          vol_rivbed;
         double          vol_stream;
 
-        vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), DEPTHR) * elem[i].topo.area;
+        vol_rivbed = river[i].topo.area *
+            MAX(RivBedStrg(&river[i].matl, &river[i].ws), DEPTHR);
         vol_stream = river[i].topo.area * MAX(river[i].ws.stage, DEPTHR);
 
         for (k = 0; k < NumSpc; k++)
