@@ -1,4 +1,4 @@
-SIMULATION_MODE     1                   # simulation type: 1 = spinup simulation, 0 = normal simulation
+SIMULATION_MODE     0                   # simulation type: 1 = spinup simulation, 0 = normal simulation
 INIT_MODE           0                   # initialization type: 0 = relaxation, 1 = use .ic file
 ASCII_OUTPUT        1                   # write ASCII output? 0 = no, 1 = yes
 WATBAL_OUTPUT       1                   # write water balance? 0 = no, 1 = yes
