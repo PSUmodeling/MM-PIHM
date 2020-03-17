@@ -233,7 +233,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS += -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
 	cycles/cycles.c\
-  	cycles/cycles_read.c\
+	cycles/cycles_read.c\
 	cycles/cycles_init.c\
 	cycles/ntransport.c\
 	cycles/update_prof.c\
@@ -289,7 +289,7 @@ MODULE_OBJS = $(MODULE_SRCS:.c=.o)
 CYCLES_SRCS = $(patsubst %,$(CYCLES_PATH)/%,$(CYCLES_SRCS_))
 CYCLES_OBJS = $(CYCLES_SRCS:.c=.o)
 
-.PHONY: all clean help cvode cmake
+.PHONY: all clean help cvode cmake test
 
 help:			## Show this help
 	@echo
@@ -328,7 +328,7 @@ ifneq ($(CMAKE_EXIST),1)
 endif
 
 pihm:			## Compile PIHM
-pihm:	$(OBJS) $(MODULE_OBJS)
+pihm: $(OBJS) $(MODULE_OBJS)
 	@echo
 	@echo $(MSG)
 	@echo
@@ -361,6 +361,16 @@ flux-pihm-cycles: check_cycles_vers $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS)
 	@echo $(MSG)
 	@echo
 	@$(CC) $(CFLAGS) $(SFLAGS) $(INCLUDES) -o $(EXECUTABLE) $(OBJS) $(MODULE_OBJS) $(CYCLES_OBJS) $(LFLAGS) $(LIBS)
+
+test:			## Run a test simulation
+test: clean
+	@echo "# Compile Flux-PIHM:"
+	@echo
+	@make flux-pihm
+	@echo "# Run a test Flux-PIHM simulation:"
+	@./flux-pihm -o ShaleHillsTestRun ShaleHills
+	@echo
+	@echo "# Results can be visualized by running \"./util/plot.py\"."
 
 check_cycles_vers:
 	@util/check_cycles_vers.sh $(CYCLES_PATH) $(RQD_CYCLES_VERS)
