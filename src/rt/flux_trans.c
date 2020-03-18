@@ -36,11 +36,10 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
             /* Calculate concentrations */
             elem[i].chms_unsat.t_conc[k] = (strg_unsat > DEPTHR) ?
-                elem[i].chms_unsat.t_mole[k] / strg_unsat / elem[i].topo.area :
-                0.0;
+                elem[i].chms_unsat.t_mole[k] / strg_unsat : 0.0;
 
             elem[i].chms_gw.t_conc[k] = (strg_gw > DEPTHR) ?
-                elem[i].chms_gw.t_mole[k] / strg_gw / elem[i].topo.area : 0.0;
+                elem[i].chms_gw.t_mole[k] / strg_gw : 0.0;
 
             if (chemtbl[k].mtype == MIXED_MA)
             {
@@ -85,12 +84,10 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
             /* Calculate concentrations */
             elem[i].chms_fbrunsat.t_conc[k] = (strg_unsat > DEPTHR) ?
-                elem[i].chms_fbrunsat.t_mole[k] / strg_unsat /
-                elem[i].topo.area : 0.0;
+                elem[i].chms_fbrunsat.t_mole[k] / strg_unsat : 0.0;
 
             elem[i].chms_fbrgw.t_conc[k] = (strg_gw > DEPTHR) ?
-                elem[i].chms_fbrgw.t_mole[k] / strg_gw / elem[i].topo.area :
-                0.0;
+                elem[i].chms_fbrgw.t_mole[k] / strg_gw : 0.0;
 
             if (chemtbl[k].mtype == MIXED_MA)
             {
@@ -139,14 +136,12 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
             /* Calculate concentrations */
             river[i].chms_stream.t_conc[k] = (strg_stream > DEPTHR) ?
-                river[i].chms_stream.t_mole[k] / strg_stream /
-                river[i].topo.area : 0.0;
+                river[i].chms_stream.t_mole[k] / strg_stream : 0.0;
             river[i].chms_stream.t_conc[k] =
                 MAX(river[i].chms_stream.t_conc[k], 0.0);
 
             river[i].chms_rivbed.t_conc[k] = (strg_rivbed > DEPTHR) ?
-                river[i].chms_rivbed.t_mole[k] / strg_rivbed /
-                river[i].topo.area : 0.0;
+                river[i].chms_rivbed.t_mole[k] / strg_rivbed : 0.0;
             river[i].chms_rivbed.t_conc[k] =
                 MAX(river[i].chms_rivbed.t_conc[k], 0.0);
         }

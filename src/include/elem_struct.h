@@ -1600,7 +1600,7 @@ typedef struct chmstate_struct
                                              * (mol kgH2O-1) */
     double          p_actv[MAXSPS];         /* activity of primary species */
     double          ssa[MAXSPS];            /* specific surface area (m2 g-1) */
-    double          t_mole[MAXSPS];         /* total moles (mol) */
+    double          t_mole[MAXSPS];         /* total moles (kmol m-2) */
 } chmstate_struct;
 
 typedef struct chmflux_struct

@@ -240,28 +240,35 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (k = 0; k < NumSpc; k++)
         {
-            dy[UNSAT_MOLE(i, k)] += elem->chmf.infil[k] - elem->chmf.rechg[k] +
-                elem->chmf.react_unsat[k];
-            dy[GW_MOLE(i, k)] += elem->chmf.rechg[k] + elem->chmf.react_gw[k];
+            dy[UNSAT_MOLE(i, k)] += (elem->chmf.infil[k] - elem->chmf.rechg[k] +
+                elem->chmf.react_unsat[k]) / elem->topo.area;
+            dy[GW_MOLE(i, k)] += (elem->chmf.rechg[k] + elem->chmf.react_gw[k]) /
+                elem->topo.area;
 # if defined(_FBR_)
-            dy[GW_MOLE(i, k)] -= elem->chmf.fbr_infil[k];
+            dy[GW_MOLE(i, k)] -= elem->chmf.fbr_infil[k] / elem->topo.area;
 
-            dy[FBRUNSAT_MOLE(i, k)] += elem->chmf.fbr_infil[k] -
-                elem->chmf.fbr_rechg[k] + elem->chmf.react_fbrunsat[k];
+            dy[FBRUNSAT_MOLE(i, k)] += (elem->chmf.fbr_infil[k] -
+                elem->chmf.fbr_rechg[k] + elem->chmf.react_fbrunsat[k]) / =
+                elem->topo.area;
             dy[FBRGW_MOLE(i, k)] +=
-                elem->chmf.fbr_rechg[k] + elem->chmf.react_fbrgw[k];
+                (elem->chmf.fbr_rechg[k] + elem->chmf.react_fbrgw[k]) /
+                elem->topo.area;
 #  if defined(_TGM_)
-            dy[FBRGW_MOLE(i, k)] -= elem->chmf.fbr_discharge[k];
+            dy[FBRGW_MOLE(i, k)] -= elem->chmf.fbr_discharge[k] /
+                elem->topo.area;
 #  endif
 # endif
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                dy[UNSAT_MOLE(i, k)] -= elem->chmf.unsatflux[j][k];
-                dy[GW_MOLE(i, k)] -= elem->chmf.subflux[j][k];
+                dy[UNSAT_MOLE(i, k)] -= elem->chmf.unsatflux[j][k] /
+                    elem->topo.area;
+                dy[GW_MOLE(i, k)] -= elem->chmf.subflux[j][k] / elem->topo.area;
 # if defined(_FBR_)
-                dy[FBRUNSAT_MOLE(i, k)] -= elem->chmf.fbr_unsatflux[j][k];
-                dy[FBRGW_MOLE(i, k)] -= elem->chmf.fbrflow[j][k];
+                dy[FBRUNSAT_MOLE(i, k)] -= elem->chmf.fbr_unsatflux[j][k] /
+                    elem->topo.area;
+                dy[FBRGW_MOLE(i, k)] -= elem->chmf.fbrflow[j][k] /
+                    elem->topo.area;
 # endif
             }
         }
@@ -352,19 +359,20 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         {
             for (j = 0; j <= 6; j++)
             {
-                dy[STREAM_MOLE(i, k)] -= river->chmf.flux[j][k];
+                dy[STREAM_MOLE(i, k)] -= river->chmf.flux[j][k] /
+                    river->topo.area;
             }
 
 # if defined(_FBR_) && defined(_TGM_)
-            dy[STREAM_MOLE(i, k)] -= river->chmf.flux[LEFT_FBR2CHANL][k] +
-                river->chmf.flux[RIGHT_FBR2CHANL][k];
+            dy[STREAM_MOLE(i, k)] -= (river->chmf.flux[LEFT_FBR2CHANL][k] +
+                river->chmf.flux[RIGHT_FBR2CHANL][k]) / river->topo.area;
 # endif
 
-            dy[RIVBED_MOLE(i, k)] += -river->chmf.flux[LEFT_AQUIF2AQUIF][k] -
+            dy[RIVBED_MOLE(i, k)] += (-river->chmf.flux[LEFT_AQUIF2AQUIF][k] -
                 river->chmf.flux[RIGHT_AQUIF2AQUIF][k] -
                 river->chmf.flux[DOWN_AQUIF2AQUIF][k] -
                 river->chmf.flux[UP_AQUIF2AQUIF][k] +
-                river->chmf.flux[CHANL_LKG][k];
+                river->chmf.flux[CHANL_LKG][k]) / river->topo.area;
         }
 #endif
     }
