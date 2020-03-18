@@ -449,7 +449,7 @@ double AdvDiffDisp(double DiffCoe, double DispCoe, double cementation,
 
     inv_dist = 1.0 / distance;
 
-    /* Difference in concentration (M kg-1 water) */
+    /* Difference in concentration (mol kg-1 water) */
     diff_conc = conc_up - conc_down;
 
     /* Diffusion flux, effective diffusion coefficient  */

@@ -130,7 +130,7 @@ typedef struct calib_struct
 #if defined(_RT_)
     double          rate;                   /* rate constant */
     double          ssa;                    /* specific surface area */
-    double          gwinflux;               /* GW influx (M yr-1) */
+    double          gwinflux;               /* GW influx (mol yr-1) */
     double          prcpconc;               /* precip conc */
     double          initconc;               /* initial conc */
     double          Xsorption;              /* DOC sorption */

@@ -288,23 +288,23 @@ def read_output(simulation, outputdir, ext):
     elif ext[0:10] == 'unsat_conc':
         dim = num_elem
         varname = 'Unsaturated zone ' + ext[11:] + ' concentration'
-        unit = 'M L$^{-1}$'
+        unit = 'mol L$^{-1}$'
     elif ext[0:7]== 'gw_conc':
         dim = num_elem
         varname = 'Groundwater ' + ext[8:] + ' concentration'
-        unit = 'M L$^{-1}$'
+        unit = 'mol L$^{-1}$'
     elif ext[0:14] == 'deepunsat_conc':
         dim = num_elem
         varname = 'Deep unsatureted zone ' + ext[15:] + ' concentration'
-        unit = 'M L$^{-1}$'
+        unit = 'mol L$^{-1}$'
     elif ext[0:12] == 'deepgw_conc':
         dim = num_elem
         varname = 'Deep groundwater ' + ext[13:] + ' concentration'
-        unit = 'M L$^{-1}$'
+        unit = 'mol L$^{-1}$'
     elif ext[0:10] == 'river_conc':
         dim = num_rivers
         varname = 'Stream ' + ext[11:] + ' concentration'
-        unit = 'M L$^{-1}$'
+        unit = 'mol L$^{-1}$'
     elif ext[0:15] == 'river_discharge':
         dim = num_rivers
         varname = 'River ' + ext[16:] + ' flux'

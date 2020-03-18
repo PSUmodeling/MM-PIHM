@@ -145,7 +145,7 @@ typedef struct river_solute_struct
 #if defined(_RT_)
 typedef struct river_chmflux_struct
 {
-    double          flux[NUM_RIVFLX][MAXSPS];/* chemical flux (M s-1) */
+    double          flux[NUM_RIVFLX][MAXSPS];/* chemical flux (mol s-1) */
 } river_chmflux_struct;
 #endif
 

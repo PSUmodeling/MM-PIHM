@@ -750,7 +750,7 @@ typedef struct bc_struct
     };
 #if defined(_RT_)
     double          conc[NUM_EDGE][MAXSPS]; /* value of chemical concentration
-                                             * boundary condition (M LH2O-1) */
+                                             * boundary condition (mol LH2O-1)*/
 #endif
 } bc_struct;
 
@@ -1588,52 +1588,52 @@ typedef struct rtic_struct
 
 typedef struct prcpstate_struct
 {
-    double          t_conc[MAXSPS];         /* concentration (M kgH2O-1) */
+    double          t_conc[MAXSPS];         /* concentration (mol kgH2O-1) */
 } prcpstate_struct;
 
 typedef struct chmstate_struct
 {
-    double          t_conc[MAXSPS];         /* concentration (M kgH2O-1) */
-    double          p_conc[MAXSPS];         /* primary concentration (M kgH2O-1)
-                                             */
+    double          t_conc[MAXSPS];         /* concentration (mol kgH2O-1) */
+    double          p_conc[MAXSPS];         /* primary concentration
+                                             * (mol kgH2O-1) */
     double          s_conc[MAXSPS];         /* secondary concentration
-                                             * (M kgH2O-1) */
+                                             * (mol kgH2O-1) */
     double          p_actv[MAXSPS];         /* activity of primary species */
     double          ssa[MAXSPS];            /* specific surface area (m2 g-1) */
-    double          t_mole[MAXSPS];         /* total moles (M) */
+    double          t_mole[MAXSPS];         /* total moles (mol) */
 } chmstate_struct;
 
 typedef struct chmflux_struct
 {
     double          infil[MAXSPS];          /* chemical flux from infiltration
-                                             * (M s-1) */
+                                             * (mol s-1) */
     double          rechg[MAXSPS];          /* chemical flux from recharge
-                                             * (M s-1) */
+                                             * (mol s-1) */
     double          subflux[NUM_EDGE][MAXSPS];/* chemical flux from subsurface
-                                             * lateral flux (M s-1) */
+                                             * lateral flux (mol s-1) */
     double          unsatflux[NUM_EDGE][MAXSPS];/* lateral chemical flux in
-                                             * unsaturated zone (M s-1) */
+                                             * unsaturated zone (mol s-1) */
     double          react_unsat[MAXSPS];    /* reaction flux in unsaturated zone
-                                             * (M s-1) */
+                                             * (mol s-1) */
     double          react_gw[MAXSPS];       /* reaction flux in groundwater
-                                             * (M s-1) */
+                                             * (mol s-1) */
 # if defined(_FBR_)
     double          fbr_infil[MAXSPS];      /* chemical flux from bedrock
-                                             * infiltration (M s-1) */
+                                             * infiltration (mol s-1) */
     double          fbr_rechg[MAXSPS];      /* chemical flux from recharge to
-                                             * deep groundwater (M s-1) */
+                                             * deep groundwater (mol s-1) */
     double          fbr_unsatflux[NUM_EDGE][MAXSPS];/* lateral chemical flux in
-                                             * bedrock unsaturated zone (M s-1)
-                                             */
+                                             * bedrock unsaturated zone
+                                             * (mol s-1) */
     double          fbrflow[NUM_EDGE][MAXSPS];/* lateral chemical flux in deep
-                                             * groundwater (M s-1) */
+                                             * groundwater (mol s-1) */
     double          fbr_discharge[MAXSPS];  /* chemical flux from fractured
                                              * bedrock to river (only applies to
-                                             * 2-grid model) (M s-1) */
+                                             * 2-grid model) (mol s-1) */
     double          react_fbrunsat[MAXSPS]; /* reaction flux in bedrock
-                                             * unsaturated zone (M s-1) */
+                                             * unsaturated zone (mol s-1) */
     double          react_fbrgw[MAXSPS];    /* reaction flux in deep groundwater
-                                             * (M s-1) */
+                                             * (mol s-1) */
 # endif
 } chmflux_struct;
 #endif
