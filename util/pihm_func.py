@@ -308,7 +308,7 @@ def read_output(simulation, outputdir, ext):
     elif ext[0:15] == 'river_discharge':
         dim = num_rivers
         varname = 'River ' + ext[16:] + ' flux'
-        unit = 'kM L$^{-1}$ s$^{-1}$'
+        unit = 'kmol s$^{-1}$'
 
     # Full file name (binary file)
     fname = 'output/' + outputdir + '/' + simulation + '.' + ext + '.dat'
