@@ -133,10 +133,16 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
 
     if (ptf_used)
     {
+        PIHMprintf(VL_NORMAL, "\nA priori soil parameter values (uncalibrated) "
+                              "estimated from pedotransfer functions:\n");
         PIHMprintf(VL_NORMAL,
             "%-7s\t%-15s\t%-15s\t%-15s\t%-7s\t%-7s\t%-7s\t%-7s\t%-7s\n",
             "TYPE", "KINFV", "KSATV", "KSATH", "SMCMAX", "SMCMIN", "ALPHA",
             "BETA", "QTZ");
+        PIHMprintf(VL_NORMAL,
+            "%-7s\t%-15s\t%-15s\t%-15s\t%-7s\t%-7s\t%-7s\t%-7s\t%-7s\n",
+            "-", "m s-1", "m s-1", "m s-1", "m3 m-3", "m3 m-3", "m-1",
+            "-", "-");
         for (i = 0; i < soiltbl->number; i++)
         {
             PIHMprintf(VL_NORMAL,
