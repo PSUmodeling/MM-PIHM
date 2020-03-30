@@ -41,11 +41,16 @@
 /flux-pihm-cycles
 /rt-flux-pihm
 
-# PBS and shell scripts
+# Python, PBS and shell scripts
 *.sh
+*.py
 *.pbs
 *.pbs.o*
-!/util/*.sh
+__pycache__
+!/util/check_cycles_vers.sh
+!/util/pihm_func.py
+!/util/plot.py
+
 
 # Indent temp files
 *~
