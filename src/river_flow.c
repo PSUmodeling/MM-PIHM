@@ -53,9 +53,6 @@ void RiverFlow(int surf_mode, int riv_mode, elem_struct *elem,
             effk_nabr = 0.5 *
                 (EffKh(&left->soil, left->ws.gw) +
                 EffKh(&right->soil, right->ws.gw));
-
-            river[i].wf.rivflow[DOWN_AQUIF2AQUIF] =
-                SubFlowRiverToRiver(&river[i], effk, down, effk_nabr);
         }
         else
         {
@@ -65,9 +62,6 @@ void RiverFlow(int surf_mode, int riv_mode, elem_struct *elem,
             river[i].wf.rivflow[DOWN_CHANL2CHANL] =
                 OutletFlux(river[i].down, &river[i].ws, &river[i].topo,
                 &river[i].shp, &river[i].matl, &river[i].bc);
-            /* Note: boundary condition for subsurface element can be changed.
-             * Assumption: no flow condition */
-            river[i].wf.rivflow[DOWN_AQUIF2AQUIF] = 0.0;
         }
 
         /*
@@ -77,13 +71,6 @@ void RiverFlow(int surf_mode, int riv_mode, elem_struct *elem,
         right = &elem[river[i].rightele - 1];
 
         RiverToElem(surf_mode, &river[i], left, right);
-
-        /*
-         * Flux between river channel and subsurface
-         */
-        river[i].wf.rivflow[CHANL_LKG] =
-            ChanLeak(&river[i].ws, &river[i].topo, &river[i].shp,
-            &river[i].matl);
     }
 
     /*
@@ -102,9 +89,6 @@ void RiverFlow(int surf_mode, int riv_mode, elem_struct *elem,
 
             down->wf.rivflow[UP_CHANL2CHANL] -=
                 river[i].wf.rivflow[DOWN_CHANL2CHANL];
-
-            down->wf.rivflow[UP_AQUIF2AQUIF] -=
-                river[i].wf.rivflow[DOWN_AQUIF2AQUIF];
         }
     }
 }
@@ -143,31 +127,14 @@ void RiverToElem(int surf_mode, river_struct *river, elem_struct *left,
             river->topo.dist_right);
     }
 
-    /* Lateral flux between rectangular element (beneath river) and triangular
-     * element */
-    if (river->leftele > 0)
-    {
-        river->wf.rivflow[LEFT_AQUIF2AQUIF] =
-            SubFlowElemToRiver(left, effk_left, river,
-            0.5 * (effk_left + effk_right), river->topo.dist_left);
-    }
-
-    if (river->rightele > 0)
-    {
-        river->wf.rivflow[RIGHT_AQUIF2AQUIF] =
-            SubFlowElemToRiver(right, effk_right, river,
-            0.5 * (effk_left + effk_right), river->topo.dist_right);
-    }
-
-    /* Replace flux term */
+    /* Add flux term */
     /* Left */
     for (j = 0; j < NUM_EDGE; j++)
     {
         if (left->nabr_river[j] == river->ind)
         {
             left->wf.ovlflow[j] = -river->wf.rivflow[LEFT_SURF2CHANL];
-            left->wf.subsurf[j] = -(river->wf.rivflow[LEFT_AQUIF2CHANL] +
-                river->wf.rivflow[LEFT_AQUIF2AQUIF]);
+            left->wf.subsurf[j] -= river->wf.rivflow[LEFT_AQUIF2CHANL];
             break;
         }
     }
@@ -178,8 +145,7 @@ void RiverToElem(int surf_mode, river_struct *river, elem_struct *left,
         if (right->nabr_river[j] == river->ind)
         {
             right->wf.ovlflow[j] = -river->wf.rivflow[RIGHT_SURF2CHANL];
-            right->wf.subsurf[j] = -(river->wf.rivflow[RIGHT_AQUIF2CHANL] +
-                river->wf.rivflow[RIGHT_AQUIF2AQUIF]);
+            right->wf.subsurf[j] -= river->wf.rivflow[RIGHT_AQUIF2CHANL];
             break;
         }
     }
@@ -338,37 +304,6 @@ double ChanFlowRiverToRiver(const river_struct *river, const river_struct *down,
     return OverLandFlow(avg_h, grad_h, avg_sf, crossa, avg_rough);
 }
 
-double SubFlowRiverToRiver(const river_struct *river, double effk,
-    const river_struct *down, double effk_nabr)
-{
-    double          total_h;
-    double          total_h_down;
-    double          avg_wid;
-    double          diff_h;
-    double          avg_h;
-    double          distance;
-    double          grad_h;
-    double          aquifer_depth;
-    double          avg_ksat;
-
-    /* Lateral flux calculation between element beneath river (ebr) * and ebr */
-    total_h = river->ws.gw + river->topo.zmin;
-    total_h_down = down->ws.gw + down->topo.zmin;
-    avg_wid = (river->shp.width + down->shp.width) / 2.0;
-    diff_h = total_h - total_h_down;
-    avg_h = AvgH(diff_h, river->ws.gw, down->ws.gw);
-    distance = 0.5 * (river->shp.length + down->shp.length);
-    grad_h = diff_h / distance;
-    aquifer_depth = river->topo.zbed - river->topo.zmin;
-#if defined(_ARITH_)
-    avg_ksat = 0.5 * (effk + effk_nabr);
-#else
-    avg_ksat = 2.0 / (1.0 / effk + 1.0 / effk_nabr);
-#endif
-    /* Groundwater flow modeled by Darcy's law */
-    return avg_ksat * grad_h * avg_h * avg_wid;
-}
-
 double OutletFlux(int down, const river_wstate_struct *ws,
     const river_topo_struct *topo, const shp_struct *shp,
     const matl_struct *matl, const river_bc_struct *bc)
@@ -496,64 +431,6 @@ double ChanFlowElemToRiver(const elem_struct *elem, double effk,
     avg_ksat = 0.5 * (effk + river->matl.ksath);
 
     return  river->shp.length * avg_ksat * grad_h * avg_h;
-}
-
-double SubFlowElemToRiver(const elem_struct *elem, double effk,
-    const river_struct *river, double effk_riv, double distance)
-{
-    double          diff_h;
-    double          avg_h;
-    double          aquifer_depth;
-    double          avg_ksat;
-    double          grad_h;
-
-    diff_h = (river->ws.gw + river->topo.zmin) -
-        (elem->ws.gw + elem->topo.zmin);
-
-    /* This is head in neighboring cell represention */
-    if (elem->topo.zmin > river->topo.zbed)
-    {
-        avg_h = 0.0;
-    }
-    else if (elem->topo.zmin + elem->ws.gw > river->topo.zbed)
-    {
-        avg_h = river->topo.zbed - elem->topo.zmin;
-    }
-    else
-    {
-        avg_h = elem->ws.gw;
-    }
-    avg_h = AvgH(diff_h, river->ws.gw, avg_h);
-    aquifer_depth = river->topo.zbed - river->topo.zmin;
-
-#if defined(_ARITH_)
-    avg_ksat = 0.5 * (effk + effk_riv);
-#else
-    avg_ksat = 2.0 / (1.0 / effk + 1.0 / effk_riv);
-#endif
-    grad_h = diff_h / distance;
-
-    return river->shp.length * avg_ksat * grad_h * avg_h;
-}
-
-double ChanLeak(const river_wstate_struct *ws, const river_topo_struct *topo,
-    const shp_struct *shp, const matl_struct *matl)
-{
-    double          diff_h;
-    double          grad_h;
-
-    if (topo->zbed - (ws->gw + topo->zmin) > 0.0)
-    {
-        diff_h = ws->stage;
-    }
-    else
-    {
-        diff_h = ws->stage + topo->zbed - (ws->gw + topo->zmin);
-    }
-
-    grad_h = diff_h / matl->bedthick;
-
-    return matl->ksatv * shp->width * shp->length * grad_h;
 }
 
 double RiverCroSectArea(int order, double depth, double coeff)

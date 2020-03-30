@@ -560,7 +560,6 @@ void RelaxIc(elem_struct *elem, river_struct *river)
     for (i = 0; i < nriver; i++)
     {
         river[i].ic.stage = 0.0;
-        river[i].ic.gw = river[i].topo.zbed - river[i].topo.zmin - 0.1;
     }
 }
 
@@ -620,10 +619,8 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
     for (i = 0; i < nriver; i++)
     {
         river[i].ws.stage = river[i].ic.stage;
-        river[i].ws.gw = river[i].ic.gw;
 
-        NV_Ith(CV_Y, RIVSTG(i)) = river[i].ic.stage;
-        NV_Ith(CV_Y, RIVGW(i)) = river[i].ic.gw;
+        NV_Ith(CV_Y, RIVER(i)) = river[i].ic.stage;
 
         river[i].ws0 = river[i].ws;
     }

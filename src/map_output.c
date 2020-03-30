@@ -64,15 +64,6 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     }
                     n++;
                     break;
-                case RIVGW_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivgw", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
-                    for (j = 0; j < nriver; j++)
-                    {
-                        print->varctrl[n].var[j] = &river[j].ws.gw;
-                    }
-                    n++;
-                    break;
                 case SNOW_CTRL:
                     InitPrtVarCtrl(outputdir, "snow", prtvrbl[i],
                         LS_STEP, nelem, &print->varctrl[n]);
@@ -221,51 +212,6 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     for (j = 0; j < nriver; j++)
                     {
                         print->varctrl[n].var[j] = &river[j].wf.rivflow[5];
-                    }
-                    n++;
-                    break;
-                case RIVFLX6_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivflx6", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
-                    for (j = 0; j < nriver; j++)
-                    {
-                        print->varctrl[n].var[j] = &river[j].wf.rivflow[6];
-                    }
-                    n++;
-                    break;
-                case RIVFLX7_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivflx7", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
-                    for (j = 0; j < nriver; j++)
-                    {
-                        print->varctrl[n].var[j] = &river[j].wf.rivflow[7];
-                    }
-                    n++;
-                    break;
-                case RIVFLX8_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivflx8", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
-                    for (j = 0; j < nriver; j++)
-                    {
-                        print->varctrl[n].var[j] = &river[j].wf.rivflow[8];
-                    }
-                    n++;
-                    break;
-                case RIVFLX9_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivflx9", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
-                    for (j = 0; j < nriver; j++)
-                    {
-                        print->varctrl[n].var[j] = &river[j].wf.rivflow[9];
-                    }
-                    n++;
-                    break;
-                case RIVFLX10_CTRL:
-                    InitPrtVarCtrl(outputdir, "rivflx10", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
-                    for (j = 0; j < nriver; j++)
-                    {
-                        print->varctrl[n].var[j] = &river[j].wf.rivflow[10];
                     }
                     n++;
                     break;

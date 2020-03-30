@@ -623,7 +623,6 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
         for (i = 0; i < nriver; i++)
         {
             fwrite(&river[i].ws.stage, sizeof(double), 1, init_file);
-            fwrite(&river[i].ws.gw, sizeof(double), 1, init_file);
         }
 
         fflush(init_file);
@@ -718,9 +717,7 @@ void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
 
     for (i = 0; i < nriver; i++)
     {
-        tot_strg +=
-            (river[i].ws.stage + river[i].ws.gw * river[i].matl.porosity) *
-            river[i].topo.area;
+        tot_strg += river[i].ws.stage * river[i].topo.area;
 
         if (river[i].down < 0)
         {

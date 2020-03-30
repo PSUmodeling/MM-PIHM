@@ -78,8 +78,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         river = &pihm->river[i];
 
-        river->ws.stage = (y[RIVSTG(i)] >= 0.0) ? y[RIVSTG(i)] : 0.0;
-        river->ws.gw = (y[RIVGW(i)] >= 0.0) ? y[RIVGW(i)] : 0.0;
+        river->ws.stage = MAX(y[RIVER(i)], 0.0);
 
 #if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
         river->ns.streamn = (y[STREAMN(i)] >= 0.0) ? y[STREAMN(i)] : 0.0;
@@ -87,7 +86,6 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
 
         river->wf.rivflow[UP_CHANL2CHANL] = 0.0;
-        river->wf.rivflow[UP_AQUIF2AQUIF] = 0.0;
 
 #if defined(_CYCLES_)
         river->ns.streamno3 = (y[STREAMNO3(i)] > 0.0) ? y[STREAMNO3(i)] : 0.0;
@@ -298,25 +296,13 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         river = &(pihm->river[i]);
 
-        for (j = 0; j <= 6; j++)
+        for (j = 0; j < NUM_RIVFLX; j++)
         {
             /* Note the limitation due to
              * d(v) / dt = a * dy / dt + y * da / dt
              * for cs other than rectangle */
-            dy[RIVSTG(i)] -= river->wf.rivflow[j] / river->topo.area;
+            dy[RIVER(i)] -= river->wf.rivflow[j] / river->topo.area;
         }
-
-#if defined(_FBR_) && defined(_TGM_)
-        dy[RIVSTG(i)] -= (river->wf.rivflow[LEFT_FBR2CHANL] +
-            river->wf.rivflow[RIGHT_FBR2CHANL]) / river->topo.area;
-#endif
-
-        dy[RIVGW(i)] += -river->wf.rivflow[LEFT_AQUIF2AQUIF] -
-            river->wf.rivflow[RIGHT_AQUIF2AQUIF] -
-            river->wf.rivflow[DOWN_AQUIF2AQUIF] -
-            river->wf.rivflow[UP_AQUIF2AQUIF] + river->wf.rivflow[CHANL_LKG];
-
-        dy[RIVGW(i)] /= river->matl.porosity * river->topo.area;
 
 #if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
         for (j = 0; j <= 6; j++)
@@ -387,7 +373,7 @@ int NumStateVar(void)
      */
     int             nsv;
 
-    nsv = 3 * nelem + 2 * nriver;
+    nsv = 3 * nelem + nriver;
 
 #if defined(_RT_)
     nsv += NumSpc * (2 * nelem + 2 * nriver);
@@ -501,7 +487,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-    for (i = 0; i < 3 * nelem + 2 * nriver; i++)
+    for (i = 0; i < 3 * nelem + nriver; i++)
     {
         NV_Ith(abstol, i) = (realtype)hydrol_tol;
     }
@@ -511,7 +497,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
 # if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
-    for (i = 3 * nelem + 2 * nriver; i < NumStateVar(); i++)
+    for (i = 3 * nelem + nriver; i < NumStateVar(); i++)
     {
         NV_Ith(abstol, i) = (realtype)transp_tol;
     }

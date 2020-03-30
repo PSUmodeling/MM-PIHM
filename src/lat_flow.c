@@ -30,27 +30,28 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
                 BoundFluxElem(elem[i].attrib.bc_type[j], j, &elem[i].bc,
                     &elem[i].ws, &elem[i].topo, &elem[i].soil, &elem[i].wf);
             }
-            else if (elem[i].nabr_river[j] == 0)
+            else
             {
                 nabr = &elem[elem[i].nabr[j] - 1];
 
                 /* Subsurface flow between triangular elements */
                 elem[i].wf.subsurf[j] = SubFlowElemToElem(&elem[i], nabr, j);
 
-                /* Surface flux between triangular elements */
-                /* avg_sf not needed in kinematic mode */
-                avg_sf = (surf_mode == DIFF_WAVE) ?
-                    0.5 * (sqrt(dhbydx[i] * dhbydx[i] + dhbydy[i] * dhbydy[i]) +
-                     sqrt(dhbydx[nabr->ind - 1] * dhbydx[nabr->ind - 1] +
-                     dhbydy[nabr->ind - 1] * dhbydy[nabr->ind - 1])) : 0.0;
+                /* Surface flow between triangular elements */
+                if (elem[i].nabr_river[j] == 0)
+                {
 
-                elem[i].wf.ovlflow[j] =
-                    OvlFlowElemToElem(&elem[i], nabr, j, avg_sf, surf_mode);
-            }
-            else
-            {
-                /* Do nothing. River-element interactions are calculated
-                 * in river_flow.c */
+                    /* Surface flux between triangular elements */
+                    /* avg_sf not needed in kinematic mode */
+                    avg_sf = (surf_mode == DIFF_WAVE) ?
+                        0.5 *
+                        (sqrt(dhbydx[i] * dhbydx[i] + dhbydy[i] * dhbydy[i]) +
+                        sqrt(dhbydx[nabr->ind - 1] * dhbydx[nabr->ind - 1] +
+                        dhbydy[nabr->ind - 1] * dhbydy[nabr->ind - 1])) : 0.0;
+
+                    elem[i].wf.ovlflow[j] =
+                        OvlFlowElemToElem(&elem[i], nabr, j, avg_sf, surf_mode);
+                }
             }
         }    /* End of neighbor loop */
     }    /* End of element loop */

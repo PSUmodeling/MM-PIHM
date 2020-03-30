@@ -146,8 +146,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 #endif
     for (i = 0; i < nriver; i++)
     {
-        river[i].ws.stage = y[RIVSTG(i)];
-        river[i].ws.gw = y[RIVGW(i)];
+        river[i].ws.stage = y[RIVER(i)];
 
         river[i].ws0 = river[i].ws;
 

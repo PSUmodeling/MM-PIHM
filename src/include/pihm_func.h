@@ -7,8 +7,7 @@
 #define SURF(i)                 (i)
 #define UNSAT(i)                (i + nelem)
 #define GW(i)                   (i + 2 * nelem)
-#define RIVSTG(i)               (i + 3 * nelem)
-#define RIVGW(i)                (i + 3 * nelem + nriver)
+#define RIVER(i)                (i + 3 * nelem)
 
 #if defined(_FBR_)
 # define FBRUNSAT(i)            (i + 3 * nelem + 2 * nriver)
@@ -143,8 +142,6 @@ double          ChanFlowElemToRiver(const elem_struct *, double,
     const river_struct *, double);
 double          ChanFlowRiverToRiver(const river_struct *, const river_struct *,
     int);
-double          ChanLeak(const river_wstate_struct *, const river_topo_struct *,
-    const shp_struct *, const matl_struct *);
 void            CheckCVodeFlag(int);
 #if defined(_BGC_)
 int             CheckSteadyState(const elem_struct *, double, int, int, int);
@@ -313,10 +310,6 @@ void            StartupScreen(void);
 int             StrTime(const char *);
 double          SubFlowElemToElem(const elem_struct *, const elem_struct *,
     int);
-double          SubFlowElemToRiver(const elem_struct *, double,
-    const river_struct *, double, double);
-double          SubFlowRiverToRiver(const river_struct *, double,
-    const river_struct *, double);
 void            Summary(elem_struct *, river_struct *, N_Vector, double);
 double          SurfH(double);
 void            UpdPrintVar(varctrl_struct *, int, int);

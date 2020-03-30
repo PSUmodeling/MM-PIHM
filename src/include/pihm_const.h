@@ -163,9 +163,9 @@
 
 /* Number of river fluxes of a river segment */
 #if defined(_FBR_) && defined(_TGM_)
-# define NUM_RIVFLX              13
+# define NUM_RIVFLX             8
 #else
-# define NUM_RIVFLX              11
+# define NUM_RIVFLX             6
 #endif
 
 /* River fluxes */
@@ -175,14 +175,9 @@
 #define RIGHT_SURF2CHANL        3
 #define LEFT_AQUIF2CHANL        4
 #define RIGHT_AQUIF2CHANL       5
-#define CHANL_LKG               6
-#define LEFT_AQUIF2AQUIF        7
-#define RIGHT_AQUIF2AQUIF       8
-#define DOWN_AQUIF2AQUIF        9
-#define UP_AQUIF2AQUIF          10
 #if defined(_FBR_) && defined(_TGM_)
-# define LEFT_FBR2CHANL         11
-# define RIGHT_FBR2CHANL        12
+# define LEFT_FBR2CHANL         6
+# define RIGHT_FBR2CHANL        7
 #endif
 
 /* River boundary condition types */

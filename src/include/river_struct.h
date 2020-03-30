@@ -26,7 +26,6 @@ typedef struct river_topo_struct
 typedef struct river_wstate_struct
 {
     double          stage;                  /* river stage (m) */
-    double          gw;                     /* groundwater level (m) */
 } river_wstate_struct;
 
 /* River water fluxes */
@@ -80,7 +79,6 @@ typedef union river_bc_struct
 typedef struct river_ic_struct
 {
     double          stage;
-    double          gw;
 } river_ic_struct;
 
 #if defined(_BGC_) && !defined(_LUMPED_) && !defined(_LEACHING_)
