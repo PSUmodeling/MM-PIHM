@@ -20,7 +20,8 @@ def main():
 
     # Plot spatial distribution of groundwater
     _, _, tri, x, y, _, _ = read_mesh('ShaleHills')
-    _, gw, vname, unit = read_output('ShaleHills', 'ShaleHillsTestRun', 'gw')
+    sim_time, gw, vname, unit = read_output('ShaleHills', 'ShaleHillsTestRun',
+                                            'gw')
 
     domain_xy_ratio = (np.max(x) - np.min(x)) / (np.max(y) - np.min(y))
 
@@ -50,8 +51,6 @@ def main():
     ax.axis('off')
 
     # Plot average groundwater storage in time
-    sim_time, gw, vname, unit = read_output('ShaleHills', 'ShaleHillsTestRun',
-                                            'gw')
     fig, ax = plt.subplots(figsize=(8, 6))
     ax.plot(sim_time, np.average(gw, axis=1), '-o')
 
