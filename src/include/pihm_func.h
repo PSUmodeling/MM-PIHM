@@ -10,8 +10,8 @@
 #define RIVER(i)                (i + 3 * nelem)
 
 #if defined(_FBR_)
-# define FBRUNSAT(i)            (i + 3 * nelem + 2 * nriver)
-# define FBRGW(i)               (i + 4 * nelem + 2 * nriver)
+# define FBRUNSAT(i)            (i + 3 * nelem + nriver)
+# define FBRGW(i)               (i + 4 * nelem + nriver)
 #endif
 
 #if defined(_RT_)

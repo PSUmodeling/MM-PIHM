@@ -487,7 +487,11 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
+#if defined(_FBR_)
+    for (i = 0; i < 5 * nelem + nriver; i++)
+#else
     for (i = 0; i < 3 * nelem + nriver; i++)
+#endif
     {
         NV_Ith(abstol, i) = (realtype)hydrol_tol;
     }
