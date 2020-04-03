@@ -82,9 +82,6 @@
 #define WS_ZMIN                 1
 #define WS_AREA                 2
 
-/* Maximum number of river tributes */
-#define MAXTRIB                 3
-
 /* Hydrology parameters */
 #define PSIMIN                  -70.0       /* minimum psi allowed (m) */
 #define DEPRSTG                 1E-4        /* depression storage (m) */

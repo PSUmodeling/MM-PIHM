@@ -18,11 +18,6 @@ void InitRiver(river_struct *river, elem_struct *elem,
         river[i].tonode = rivtbl->tonode[i];
         river[i].down = rivtbl->down[i];
 
-        for (j = 0; j < MAXTRIB; j++)
-        {
-            river[i].up[j] = BADVAL;
-        }
-
         for (j = 0; j < NUM_EDGE; j++)
         {
             if (elem[river[i].leftele - 1].nabr[j] == river[i].rightele)
@@ -94,23 +89,6 @@ void InitRiver(river_struct *river, elem_struct *elem,
         river[i].topo.area = river[i].shp.length *
             RiverEqWid(river[i].shp.intrpl_ord, river[i].shp.depth,
             river[i].shp.coeff);
-    }
-
-    for (i = 0; i < nriver; i++)
-    {
-        int             j;
-
-        if (river[i].down > 0)
-        {
-            for (j = 0; j < MAXTRIB; j++)
-            {
-                if (river[river[i].down - 1].up[j] == BADVAL)
-                {
-                    river[river[i].down - 1].up[j] = river[i].ind;
-                    break;
-                }
-            }
-        }
     }
 }
 

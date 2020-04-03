@@ -156,7 +156,6 @@ typedef struct river_struct
     int             fromnode;               /* upstream node */
     int             tonode;                 /* downstream node */
     int             down;                   /* down stream channel segment */
-    int             up[MAXTRIB];            /* up stream channel segments */
     river_attrib_struct attrib;
     river_topo_struct topo;
     shp_struct      shp;
