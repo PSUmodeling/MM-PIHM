@@ -270,13 +270,6 @@ void MassBalance(const wstate_struct *ws, const wstate_struct *ws0,
     soilw1 = (soilw1 > soil->depth) ? soil->depth : soilw1;
     soilw1 = (soilw1 < 0.0) ? 0.0 : soilw1;
 
-    /* Subsurface runoff rate */
-    *subrunoff = 0.0;
-    for (j = 0; j < NUM_EDGE; j++)
-    {
-        *subrunoff += wf->subsurf[j] / area;
-    }
-
     wf->eqv_infil = (soilw1 - soilw0) * soil->porosity / stepsize + *subrunoff +
         wf->edir_unsat + wf->edir_gw + wf->ett_unsat + wf->ett_gw;
 
