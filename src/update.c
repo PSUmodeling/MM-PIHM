@@ -156,32 +156,19 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 #endif
 
 #if defined(_RT_)
-        int         k;
-        double          vol_rivbed;
-        double          vol_stream;
+        int             k;
+        double          storage;
 
-        vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), DEPTHR);
-        vol_stream = MAX(river[i].ws.stage, DEPTHR);
+        storage = MAX(river[i].ws.stage, 0.0);
 
         for (k = 0; k < NumSpc; k++)
         {
-            river[i].chms_stream.t_mole[k] = (y[STREAM_MOLE(i, k)] > 0.0) ?
-                y[STREAM_MOLE(i, k)] : 0.0;
-            river[i].chms_rivbed.t_mole[k] = (y[RIVBED_MOLE(i, k)] > 0.0) ?
-                y[RIVBED_MOLE(i, k)] : 0.0;
+            river[i].chms.t_mole[k] = MAX(y[RIVER_MOLE(i, k)], 0.0);
 
             /* Calculate concentrations */
-            river[i].chms_stream.t_conc[k] = (vol_stream > 0.0) ?
-                river[i].chms_stream.t_mole[k] / vol_stream : 0.0;
-            river[i].chms_stream.t_conc[k] =
-                (river[i].chms_stream.t_conc[k] > ZERO_CONC) ?
-                river[i].chms_stream.t_conc[k] : ZERO_CONC;
-
-            river[i].chms_rivbed.t_conc[k] = (vol_rivbed > 0.0) ?
-                river[i].chms_rivbed.t_mole[k] / vol_rivbed : 0.0;
-            river[i].chms_rivbed.t_conc[k] =
-                (river[i].chms_rivbed.t_conc[k] > ZERO_CONC) ?
-                river[i].chms_rivbed.t_conc[k] : ZERO_CONC;
+            river[i].chms.t_conc[k] = (storage > 0.0) ?
+                river[i].chms.t_mole[k] / storage : 0.0;
+            river[i].chms.t_conc[k] = MAX(river[i].chms.t_conc[k], ZERO_CONC);
         }
 #endif
     }

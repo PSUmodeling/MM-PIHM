@@ -16,13 +16,10 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
         for (k = 0; k < NumSpc; k++)
         {
-            river[i].chms_stream.p_conc[k] = river[i].chms_stream.t_conc[k];
-            river[i].chms_rivbed.p_conc[k] = river[i].chms_rivbed.t_conc[k];
+            river[i].chms.p_conc[k] = river[i].chms.t_conc[k];
         }
 
-        _Speciation(chemtbl, rttbl, 0, &river[i].chms_stream);
-
-        _Speciation(chemtbl, rttbl, 0, &river[i].chms_rivbed);
+        _Speciation(chemtbl, rttbl, 0, &river[i].chms);
     }
 }
 

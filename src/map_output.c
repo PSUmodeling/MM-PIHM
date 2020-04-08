@@ -959,7 +959,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         for (j = 0; j < nriver; j++)
                         {
                             print->varctrl[n].var[j] =
-                                &river[j].chms_stream.p_conc[k];
+                                &river[j].chms.p_conc[k];
                         }
                         n++;
 

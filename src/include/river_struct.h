@@ -179,8 +179,7 @@ typedef struct river_struct
     river_bgcic_struct restart_output;
 #endif
 #if defined(_RT_)
-    chmstate_struct     chms_stream;
-    chmstate_struct     chms_rivbed;
+    chmstate_struct     chms;
     river_chmflux_struct chmf;
 #endif
 } river_struct;

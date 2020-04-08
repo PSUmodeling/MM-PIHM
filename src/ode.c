@@ -100,10 +100,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (k = 0; k < NumSpc; k++)
         {
-            river->chms_stream.t_mole[k] =
-                (y[STREAM_MOLE(i, k)] >= 0.0) ? y[STREAM_MOLE(i, k)] : 0.0;
-            river->chms_rivbed.t_mole[k] =
-                (y[RIVBED_MOLE(i, k)] >= 0.0) ? y[RIVBED_MOLE(i, k)] : 0.0;
+            river->chms.t_mole[k] = MAX(y[RIVER_MOLE(i, k)], 0.0);
         }
 #endif
     }
@@ -343,22 +340,11 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (k = 0; k < NumSpc; k++)
         {
-            for (j = 0; j <= 6; j++)
+            for (j = 0; j < NUM_RIVFLX; j++)
             {
-                dy[STREAM_MOLE(i, k)] -= river->chmf.flux[j][k] /
+                dy[RIVER_MOLE(i, k)] -= river->chmf.flux[j][k] /
                     river->topo.area;
             }
-
-# if defined(_FBR_) && defined(_TGM_)
-            dy[STREAM_MOLE(i, k)] -= (river->chmf.flux[LEFT_FBR2CHANL][k] +
-                river->chmf.flux[RIGHT_FBR2CHANL][k]) / river->topo.area;
-# endif
-
-            dy[RIVBED_MOLE(i, k)] += (-river->chmf.flux[LEFT_AQUIF2AQUIF][k] -
-                river->chmf.flux[RIGHT_AQUIF2AQUIF][k] -
-                river->chmf.flux[DOWN_AQUIF2AQUIF][k] -
-                river->chmf.flux[UP_AQUIF2AQUIF][k] +
-                river->chmf.flux[CHANL_LKG][k]) / river->topo.area;
         }
 #endif
     }
@@ -376,7 +362,7 @@ int NumStateVar(void)
     nsv = 3 * nelem + nriver;
 
 #if defined(_RT_)
-    nsv += NumSpc * (2 * nelem + 2 * nriver);
+    nsv += NumSpc * (2 * nelem + nriver);
 #endif
 
 #if defined(_BGC_)
@@ -482,16 +468,19 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
 #endif
 {
     int             i;
+    int             num_hydrol_var;
+
+    num_hydrol_var = 3 * nelem + nriver;
+
+#if defined(_FBR_)
+    num_hydrol_var += 2 * nelem;
+#endif
 
     /* Set absolute errors for hydrologic state variables */
 #if defined(_OPENMP)
 # pragma omp parallel for
 #endif
-#if defined(_FBR_)
-    for (i = 0; i < 5 * nelem + nriver; i++)
-#else
-    for (i = 0; i < 3 * nelem + nriver; i++)
-#endif
+    for (i = 0; i < num_hydrol_var; i++)
     {
         NV_Ith(abstol, i) = (realtype)hydrol_tol;
     }
@@ -501,7 +490,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
 # if defined(_OPENMP)
 #  pragma omp parallel for
 # endif
-    for (i = 3 * nelem + nriver; i < NumStateVar(); i++)
+    for (i = num_hydrol_var; i < NumStateVar(); i++)
     {
         NV_Ith(abstol, i) = (realtype)transp_tol;
     }

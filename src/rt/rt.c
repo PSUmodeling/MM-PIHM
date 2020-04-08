@@ -142,51 +142,34 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
      */
     for (i = 0; i < nriver; i++)
     {
-        double          vol_rivbed;
-        double          vol_stream;
+        double          storage;
         int             k;
 
-        vol_rivbed = MAX(RivBedStrg(&river[i].matl, &river[i].ws), DEPTHR);
-        vol_stream = MAX(river[i].ws.stage, DEPTHR);
+        storage = MAX(river[i].ws.stage, DEPTHR);
 
         for (k = 0; k < rttbl->NumStc; k++)
         {
             if (chemtbl[k].itype == AQUEOUS)
             {
-                river[i].chms_stream.t_conc[k] =
+                river[i].chms.t_conc[k] =
                     0.5 * elem[river[i].leftele - 1].chms_gw.t_conc[k] +
                     0.5 * elem[river[i].rightele - 1].chms_gw.t_conc[k];
-                river[i].chms_stream.p_actv[k] = river[i].chms_stream.t_conc[k];
-                river[i].chms_stream.p_conc[k] = river[i].chms_stream.t_conc[k];
-                river[i].chms_stream.t_mole[k] =
-                    river[i].chms_stream.t_conc[k] * vol_stream;
-
-                river[i].chms_rivbed.t_conc[k] =
-                    0.5 * elem[river[i].leftele - 1].chms_gw.t_conc[k] +
-                    0.5 * elem[river[i].rightele - 1].chms_gw.t_conc[k];
-                river[i].chms_rivbed.p_actv[k] = river[i].chms_rivbed.t_conc[k];
-                river[i].chms_rivbed.p_conc[k] = river[i].chms_rivbed.t_conc[k];
-                river[i].chms_rivbed.t_mole[k] =
-                    river[i].chms_rivbed.t_conc[k] * vol_rivbed;
+                river[i].chms.p_actv[k] = river[i].chms.t_conc[k];
+                river[i].chms.p_conc[k] = river[i].chms.t_conc[k];
+                river[i].chms.t_mole[k] = river[i].chms.t_conc[k] * storage;
             }
             else
             {
-                river[i].chms_stream.t_conc[k] = ZERO_CONC;
-                river[i].chms_stream.p_conc[k] = ZERO_CONC;
-                river[i].chms_stream.p_actv[k] = ZERO_CONC;
-                river[i].chms_stream.t_mole[k] = 0.0;
-
-                river[i].chms_rivbed.t_conc[k] = ZERO_CONC;
-                river[i].chms_rivbed.p_conc[k] = ZERO_CONC;
-                river[i].chms_rivbed.p_actv[k] = ZERO_CONC;
-                river[i].chms_rivbed.t_mole[k] = 0.0;
+                river[i].chms.t_conc[k] = ZERO_CONC;
+                river[i].chms.p_conc[k] = ZERO_CONC;
+                river[i].chms.p_actv[k] = ZERO_CONC;
+                river[i].chms.t_mole[k] = 0.0;
             }
         }
 
         for (k = 0; k < rttbl->NumSsc; k++)
         {
-            river[i].chms_stream.s_conc[k] = ZERO_CONC;
-            river[i].chms_rivbed.s_conc[k] = ZERO_CONC;
+            river[i].chms.s_conc[k] = ZERO_CONC;
         }
     }
 
@@ -224,8 +207,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
         for (k = 0; k < NumSpc; k++)
         {
-            NV_Ith(CV_Y, STREAM_MOLE(i, k)) = river[i].chms_stream.t_mole[k];
-            NV_Ith(CV_Y, RIVBED_MOLE(i, k)) = river[i].chms_rivbed.t_mole[k];
+            NV_Ith(CV_Y, RIVER_MOLE(i, k)) = river[i].chms.t_mole[k];
         }
     }
 }
@@ -340,27 +322,6 @@ double UnsatSatRatio(double depth, double unsat, double gw)
     return ((unsat < 0.0) ? 0.0 : ((gw > depth) ? 1.0 : unsat / (depth - gw)));
 }
 
-double RivBedStrg(const matl_struct *matl, const river_wstate_struct *ws)
-{
-    double          strg;
-
-    if (ws->gw < 0.0)
-    {
-        strg = 0.0;
-    }
-    else if (ws->gw > matl->bedthick)
-    {
-        strg = matl->bedthick * (matl->porosity + matl->smcmin) +
-            (ws->gw - matl->bedthick) * matl->porosity;
-    }
-    else
-    {
-        strg = ws->gw * (matl->porosity + matl->smcmin);
-    }
-
-    return strg;
-}
-
 void UpdatePConc(elem_struct elem[], river_struct river[])
 {
     int             i;
@@ -393,8 +354,7 @@ void UpdatePConc(elem_struct elem[], river_struct river[])
 
         for (k = 0; k < NumSpc; k++)
         {
-            river[i].chms_stream.p_conc[k] = river[i].chms_stream.t_conc[k];
-            river[i].chms_rivbed.p_conc[k] = river[i].chms_rivbed.t_conc[k];
+            river[i].chms.p_conc[k] = river[i].chms.t_conc[k];
         }
     }
 }

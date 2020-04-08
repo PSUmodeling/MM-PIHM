@@ -23,10 +23,9 @@
 #  define FBRUNSAT_MOLE(i, j)   ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + (2 + 2 * NumSpc) * nriver)
 #  define FBRGW_MOLE(i, j)      ((i) * NumSpc + j + (5 + 3 * NumSpc) * nelem + (2 + 2 * NumSpc) * nriver)
 # else
-#  define UNSAT_MOLE(i, j)      ((i) * NumSpc + j + 3 * nelem + 2 * nriver)
-#  define GW_MOLE(i, j)         ((i) * NumSpc + j + (3 + NumSpc) * nelem + 2 * nriver)
-#  define STREAM_MOLE(i, j)     ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + 2 * nriver)
-#  define RIVBED_MOLE(i, j)     ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + (2 + NumSpc) * nriver)
+#  define UNSAT_MOLE(i, j)      ((i) * NumSpc + j + 3 * nelem + nriver)
+#  define GW_MOLE(i, j)         ((i) * NumSpc + j + (3 + NumSpc) * nelem + nriver)
+#  define RIVER_MOLE(i, j)      ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + nriver)
 # endif
 #endif
 
@@ -754,7 +753,6 @@ void            ApplyPrcpConc(const  rttbl_struct *, forc_struct *,
 void            wrap(char *);
 double          GWStrg(double, double, double, double);
 double          UnsatWaterStrg(double, double, double, double, double);
-double          RivBedStrg(const matl_struct *, const river_wstate_struct *);
 void            Transport(const chemtbl_struct [], const rttbl_struct *,
     elem_struct [], river_struct []);
 double          AdvDiffDisp(double, double, double, double, double, double,
