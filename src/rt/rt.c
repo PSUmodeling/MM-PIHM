@@ -77,15 +77,10 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
                 chmictbl->ssa[ic_type[SOIL_CHMVOL] - 1][k];
 
 #if defined(_FBR_)
-            elem[i].restart_input[FBRUNSAT_CHMVOL].t_conc[k] =
-                chmictbl->conc[ic_type[FBRUNSAT_CHMVOL] - 1][k];
-            elem[i].restart_input[FBRUNSAT_CHMVOL].ssa[k] =
-                chmictbl->ssa[ic_type[FBRUNSAT_CHMVOL] - 1][k];
-
-            elem[i].restart_input[FBRGW_CHMVOL].t_conc[k] =
-                chmictbl->conc[ic_type[FBRGW_CHMVOL] - 1][k];
-            elem[i].restart_input[FBRGW_CHMVOL].ssa[k] =
-                chmictbl->ssa[ic_type[FBRGW_CHMVOL] - 1][k];
+            elem[i].restart_input[GEOL_CHMVOL].t_conc[k] =
+                chmictbl->conc[ic_type[GEOL_CHMVOL] - 1][k];
+            elem[i].restart_input[GEOL_CHMVOL].ssa[k] =
+                chmictbl->ssa[ic_type[GEOL_CHMVOL] - 1][k];
 #endif
         }
     }
@@ -112,17 +107,11 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             elem[i].soil.smcmax, storage, &elem[i].chms);
 
 #if defined(_FBR_)
-        vol_gw = MAX(GWStrg(elem[i].geol.depth, elem[i].geol.smcmax,
-            elem[i].geol.smcmin, elem[i].ws.fbr_gw), DEPTHR);
-        vol_unsat = MAX(UnsatWaterStrg(elem[i].geol.depth, elem[i].geol.smcmax,
-            elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat),
-            DEPTHR);
+        storage = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
+            elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
 
-        InitChemS(chemtbl, rttbl, &elem[i].restart_input[FBRUNSAT_CHMVOL],
-            elem[i].geol.smcmax, vol_unsat, &elem[i].chms_fbrunsat);
-
-        InitChemS(chemtbl, rttbl, &elem[i].restart_input[FBRGW_CHMVOL],
-            elem[i].geol.smcmax, vol_gw, &elem[i].chms_fbrgw);
+        InitChemS(chemtbl, rttbl, &elem[i].restart_input[GEOL_CHMVOL],
+            elem[i].geol.smcmax, storage, &elem[i].chms_geol);
 #endif
     }
 
@@ -176,11 +165,9 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             elem[i].chmf.react[k] = 0.0;
 
 #if defined(_FBR_)
-            NV_Ith(CV_Y, FBRUNSAT_MOLE(i, k)) = elem[i].chms_fbrunsat.t_mole[k];
-            NV_Ith(CV_Y, FBRGW_MOLE(i, k)) = elem[i].chms_fbrgw.t_mole[k];
+            NV_Ith(CV_Y, GEOL_MOLE(i, k)) = elem[i].chms_geol.t_mole[k];
 
-            elem[i].chmf.react_fbrunsat[k] = 0.0;
-            elem[i].chmf.react_fbrgw[k] = 0.0;
+            elem[i].chmf.react_geol[k] = 0.0;
 #endif
         }
     }
@@ -288,8 +275,7 @@ void UpdatePConc(elem_struct elem[], river_struct river[])
             elem[i].chms.p_conc[k] = elem[i].chms.t_conc[k];
 
 #if defined(_FBR_)
-            elem[i].chms_fbrunsat.p_conc[k] = elem[i].chms_fbrunsat.t_conc[k];
-            elem[i].chms_fbrgw.p_conc[k] = elem[i].chms_fbrgw.t_conc[k];
+            elem[i].chms_geol.p_conc[k] = elem[i].chms_geol.t_conc[k];
 #endif
         }
     }

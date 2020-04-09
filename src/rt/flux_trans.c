@@ -51,29 +51,22 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         }
 
 #if defined(_FBR_)
-        strg_gw = GWStrg(elem[i].geol.depth, elem[i].geol.smcmax,
-            elem[i].geol.smcmin, elem[i].ws.fbr_gw);
-        strg_unsat = UnsatWaterStrg(elem[i].geol.depth, elem[i].geol.smcmax,
-            elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat);
+        storage = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
+            elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
 
         for (k = 0; k < NumSpc; k++)
         {
             /* Initialize chemical fluxes */
             elem[i].chmf.fbr_infil[k] = 0.0;
-            elem[i].chmf.fbr_rechg[k] = 0.0;
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                elem[i].chmf.fbr_unsatflux[j][k] = 0.0;
                 elem[i].chmf.fbrflow[j][k] = 0.0;
             }
 
             /* Calculate concentrations */
-            elem[i].chms_fbrunsat.t_conc[k] = (strg_unsat > DEPTHR) ?
-                elem[i].chms_fbrunsat.t_mole[k] / strg_unsat : 0.0;
-
-            elem[i].chms_fbrgw.t_conc[k] = (strg_gw > DEPTHR) ?
-                elem[i].chms_fbrgw.t_mole[k] / strg_gw : 0.0;
+            elem[i].chms_geol.t_conc[k] = (storage > DEPTHR) ?
+                elem[i].chms_geol.t_mole[k] / storage : 0.0;
 
             if (chemtbl[k].mtype == MIXED_MA)
             {
@@ -82,20 +75,14 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     if ((rttbl->Totalconc[k][kk + rttbl->NumStc] != 0) &&
                         (chemtbl[kk + rttbl->NumStc].itype != AQUEOUS))
                     {
-                        elem[i].chms_fbrgw.t_conc[k] -=
+                        elem[i].chms_geol.t_conc[k] -=
                             rttbl->Totalconc[k][kk + rttbl->NumStc] *
-                            elem[i].chms_fbrgw.s_conc[kk];
-                        elem[i].chms_fbrunsat.t_conc[k] -=
-                            rttbl->Totalconc[k][kk + rttbl->NumStc] *
-                            elem[i].chms_fbrunsat.s_conc[kk];
+                            elem[i].chms_geol.s_conc[kk];
                     }
                 }
             }
 
-            elem[i].chms_fbrunsat.t_conc[k] =
-                MAX(elem[i].chms_fbrunsat.t_conc[k], 0.0);
-            elem[i].chms_fbrgw.t_conc[k] =
-                MAX(elem[i].chms_fbrgw.t_conc[k], 0.0);
+            elem[i].chms_geol.t_conc[k] = MAX(elem[i].chms_geol.t_conc[k], 0.0);
         }
 #endif
     }
@@ -187,14 +174,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             /* Bedrock infiltration */
             elem[i].chmf.fbr_infil[k] = elem[i].wf.fbr_infil *
                 elem[i].topo.area * ((elem[i].wf.fbr_infil > 0.0) ?
-                elem[i].chms_gw.t_conc[k] : elem[i].chms_fbrgw.t_conc[k]);
-
-            /* Interface between unsaturated bedrock and deep groundwater */
-            elem[i].chmf.fbr_rechg[k] = AdvDiffDisp(chemtbl[k].DiffCoe,
-                chemtbl[k].DispCoe, rttbl->Cementation,
-                elem[i].chms_fbrunsat.t_conc[k], elem[i].chms_fbrgw.t_conc[k],
-                elem[i].geol.smcmax, 0.5 * elem[i].geol.depth,
-                elem[i].topo.area, elem[i].wf.fbr_rechg * elem[i].topo.area);
+                elem[i].chms.t_conc[k] : elem[i].chms_geol.t_conc[k]);
 
 # if defined(_TGM_)
             /* Fractured bedrock discharge to river.
@@ -208,40 +188,27 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             {
                 if (elem[i].nabr[j] == 0)
                 {
-                    elem[i].chmf.fbr_unsatflux[j][k] = 0.0;
                     /* Diffusion and dispersion are ignored for boundary fluxes
                      */
                     elem[i].chmf.fbrflow[j][k] =
                         (elem[i].attrib.fbrbc_type[j] == 0) ?
                         0.0 : elem[i].wf.fbrflow[j] *
                         ((elem[i].wf.fbrflow[j] > 0.0) ?
-                        elem[i].chms_fbrgw.t_conc[k] :
+                        elem[i].chms_geol.t_conc[k] :
                         elem[i].fbr_bc.conc[j][k]);
                 }
                 else
                 {
                     nabr = &elem[elem[i].nabr[j] - 1];
 
-                    /* Unsaturated zone diffusion */
-                    elem[i].chmf.fbr_unsatflux[j][k] =
-                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
-                        rttbl->Cementation, elem[i].chms_fbrunsat.t_conc[k],
-                        nabr->chms_fbrunsat.t_conc[k],
-                        0.5 * elem[i].geol.smcmax + 0.5 * nabr->geol.smcmax,
-                        elem[i].topo.nabrdist[j],
-                        0.5 * MAX(elem[i].geol.depth - elem[i].ws.fbr_gw, 0.0) +
-                        0.5 * MAX(nabr->geol.depth - nabr->ws.fbr_gw, 0.0),
-                        0.0);
-
                     /* Groundwater advection, diffusion, and dispersion */
                     elem[i].chmf.fbrflow[j][k] =
                         AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
-                        rttbl->Cementation, elem[i].chms_fbrgw.t_conc[k],
-                        nabr->chms_fbrgw.t_conc[k],
-                        0.5 * elem[i].geol.smcmax + 0.5 * nabr->geol.smcmax,
+                        rttbl->Cementation, elem[i].chms_geol.t_conc[k],
+                        nabr->chms_geol.t_conc[k],
+                        0.5 * (elem[i].geol.smcmax + nabr->geol.smcmax),
                         elem[i].topo.nabrdist[j],
-                        0.5 * MAX(elem[i].ws.fbr_gw, 0.0) +
-                        0.5 * MAX(nabr->ws.fbr_gw, 0.0),
+                        0.5 * (elem[i].geol.depth + nabr->geol.depth),
                         elem[i].wf.fbrflow[j]);
                 }
             }   /* End of element to element */

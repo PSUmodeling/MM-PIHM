@@ -54,8 +54,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         {
             elem->chms.t_mole[k] = MAX(y[SOIL_MOLE(i, k)], 0.0);
 # if defined(_FBR_)
-            elem->chms_fbrunsat.t_mole[k] = MAX(y[FBRUNSAT_MOLE(i, k)], 0.0);
-            elem->chms_fbrgw.t_mole[k] = MAX(y[FBRGW_MOLE(i, k)], 0.0);
+            elem->chms.t_mole[k] = MAX(y[GEOL_MOLE(i, k)], 0.0);
 # endif
         }
 #endif
@@ -235,14 +234,10 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[SOIL_MOLE(i, k)] += (elem->chmf.infil[k] +
                 elem->chmf.react[k]) / elem->topo.area;
 # if defined(_FBR_)
-            dy[GW_MOLE(i, k)] -= elem->chmf.fbr_infil[k] / elem->topo.area;
+            dy[SOIL_MOLE(i, k)] -= elem->chmf.fbr_infil[k] / elem->topo.area;
 
-            dy[FBRUNSAT_MOLE(i, k)] += (elem->chmf.fbr_infil[k] -
-                elem->chmf.fbr_rechg[k] + elem->chmf.react_fbrunsat[k]) / =
-                elem->topo.area;
-            dy[FBRGW_MOLE(i, k)] +=
-                (elem->chmf.fbr_rechg[k] + elem->chmf.react_fbrgw[k]) /
-                elem->topo.area;
+            dy[GEOL_MOLE(i, k)] += (elem->chmf.fbr_infil[k] +
+                elem->chmf.react_geol[k]) / elem->topo.area;
 #  if defined(_TGM_)
             dy[FBRGW_MOLE(i, k)] -= elem->chmf.fbr_discharge[k] /
                 elem->topo.area;
@@ -254,9 +249,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
                 dy[SOIL_MOLE(i, k)] -= elem->chmf.subflux[j][k] /
                     elem->topo.area;
 # if defined(_FBR_)
-                dy[FBRUNSAT_MOLE(i, k)] -= elem->chmf.fbr_unsatflux[j][k] /
-                    elem->topo.area;
-                dy[FBRGW_MOLE(i, k)] -= elem->chmf.fbrflow[j][k] /
+                dy[GEOL_MOLE(i, k)] -= elem->chmf.fbrflow[j][k] /
                     elem->topo.area;
 # endif
             }
@@ -376,7 +369,7 @@ int NumStateVar(void)
 #endif
 
 #if defined(_FBR_) && defined(_RT_)
-    nsv += NumSpc * 2 * nelem;
+    nsv += NumSpc * nelem;
 #endif
 
     return nsv;

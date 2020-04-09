@@ -1614,19 +1614,12 @@ typedef struct chmflux_struct
 # if defined(_FBR_)
     double          fbr_infil[MAXSPS];      /* chemical flux from bedrock
                                              * infiltration (mol s-1) */
-    double          fbr_rechg[MAXSPS];      /* chemical flux from recharge to
-                                             * deep groundwater (mol s-1) */
-    double          fbr_unsatflux[NUM_EDGE][MAXSPS];/* lateral chemical flux in
-                                             * bedrock unsaturated zone
-                                             * (mol s-1) */
     double          fbrflow[NUM_EDGE][MAXSPS];/* lateral chemical flux in deep
-                                             * groundwater (mol s-1) */
+                                             * layer (mol s-1) */
     double          fbr_discharge[MAXSPS];  /* chemical flux from fractured
                                              * bedrock to river (only applies to
                                              * 2-grid model) (mol s-1) */
-    double          react_fbrunsat[MAXSPS]; /* reaction flux in bedrock
-                                             * unsaturated zone (mol s-1) */
-    double          react_fbrgw[MAXSPS];    /* reaction flux in deep groundwater
+    double          react_geol[MAXSPS];     /* reaction flux in deep groundwater
                                              * (mol s-1) */
 # endif
 } chmflux_struct;
@@ -1710,8 +1703,7 @@ typedef struct elem_struct
     prcpstate_struct prcps;
     chmstate_struct chms;
 # if defined(_FBR_)
-    chmstate_struct chms_fbrunsat;
-    chmstate_struct chms_fbrgw;
+    chmstate_struct chms_geol;
 # endif
     chmflux_struct  chmf;
 #endif

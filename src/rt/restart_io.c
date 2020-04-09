@@ -26,11 +26,7 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
                     (1.0 - elem[i].soil.smcmax) * 1000.0 /
                     chemtbl[k].MolarVolume / elem[i].soil.smcmax;
 #if defined(_FBR_)
-                elem[i].chms_fbrunsat.t_conc[k] /= (rttbl->RelMin == 0) ?
-                    1000.0 / chemtbl[k].MolarVolume / elem[i].geol.smcmax :
-                    (1.0 - elem[i].geol.smcmax) * 1000.0 /
-                    chemtbl[k].MolarVolume / elem[i].geol.smcmax;
-                elem[i].chms_fbrgw.t_conc[k] /= (rttbl->RelMin == 0) ?
+                elem[i].chms_geol.t_conc[k] /= (rttbl->RelMin == 0) ?
                     1000.0 / chemtbl[k].MolarVolume / elem[i].geol.smcmax :
                     (1.0 - elem[i].geol.smcmax) * 1000.0 /
                     chemtbl[k].MolarVolume / elem[i].geol.smcmax;
@@ -42,9 +38,7 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
                 elem[i].chms.t_conc[k] /=
                     (1.0 - elem[i].soil.smcmax) * 2650.0;
 #if defined(_FBR_)
-                elem[i].chms_fbrunsat.t_conc[k] /=
-                    (1.0 - elem[i].geol.smcmax) * 2650.0;
-                elem[i].chms_fbrgw.t_conc[k] /=
+                elem[i].chms_geol.t_conc[k] /=
                     (1.0 - elem[i].geol.smcmax) * 2650.0;
 #endif
             }
@@ -55,15 +49,10 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
                 elem[i].chms.ssa[k];
 
 #if defined(_FBR_)
-            elem[i].restart_output[FBRUNSAT_CHMVOL].t_conc[k] =
-                elem[i].chms_fbrunsat.t_conc[k];
-            elem[i].restart_output[FBRUNSAT_CHMVOL].ssa[k] =
-                elem[i].chms_fbrunsat.ssa[k];
-
-            elem[i].restart_output[FBRGW_CHMVOL].t_conc[k] =
-                elem[i].chms_fbrgw.t_conc[k];
-            elem[i].restart_output[FBRGW_CHMVOL].ssa[k] =
-                elem[i].chms_fbrgw.ssa[k];
+            elem[i].restart_output[GEOL_CHMVOL].t_conc[k] =
+                elem[i].chms_geol.t_conc[k];
+            elem[i].restart_output[GEOL_CHMVOL].ssa[k] =
+                elem[i].chms_geol.ssa[k];
 #endif
         }
 

@@ -28,10 +28,9 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
 
         NextLine(fp, cmdstr, &lno);
 #if defined(_FBR_)
-        match = sscanf(cmdstr, "%d %d %d %d %d %d",
+        match = sscanf(cmdstr, "%d %d %d %d",
             &index, &atttbl->prcpc[i],
-            &atttbl->chem_ic[i][0], &atttbl->chem_ic[i][1],
-            &atttbl->chem_ic[i][2], &atttbl->chem_ic[i][3]);
+            &atttbl->chem_ic[i][SOIL_CHMVOL], &atttbl->chem_ic[i][GEOL_CHMVOL]);
 #else
         match = sscanf(cmdstr, "%d %d %d",
             &index, &atttbl->prcpc[i],

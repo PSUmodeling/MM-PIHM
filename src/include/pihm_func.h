@@ -16,12 +16,9 @@
 
 #if defined(_RT_)
 # if defined(_FBR_)
-#  define UNSAT_MOLE(i, j)      ((i) * NumSpc + j + 5 * nelem + 2 * nriver)
-#  define GW_MOLE(i, j)         ((i) * NumSpc + j + (5 + NumSpc) * nelem + 2 * nriver)
-#  define STREAM_MOLE(i, j)     ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + 2 * nriver)
-#  define RIVBED_MOLE(i, j)     ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + (2 + NumSpc) * nriver)
-#  define FBRUNSAT_MOLE(i, j)   ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + (2 + 2 * NumSpc) * nriver)
-#  define FBRGW_MOLE(i, j)      ((i) * NumSpc + j + (5 + 3 * NumSpc) * nelem + (2 + 2 * NumSpc) * nriver)
+#  define SOIL_MOLE(i, j)       ((i) * NumSpc + j + 5 * nelem + nriver)
+#  define RIVER_MOLE(i, j)      ((i) * NumSpc + j + (5 + NumSpc) * nelem + nriver)
+#  define GEOL_MOLE(i, j)       ((i) * NumSpc + j + (5 + NumSpc) * nelem + (1 + NumSpc) * nriver)
 # else
 #  define SOIL_MOLE(i, j)       ((i) * NumSpc + j + 3 * nelem + nriver)
 #  define RIVER_MOLE(i, j)      ((i) * NumSpc + j + (3 + NumSpc) * nelem + nriver)

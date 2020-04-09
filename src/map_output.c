@@ -917,24 +917,13 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         n++;
 # if defined(_FBR_)
                         /* Fractured unsaturated bedrock layer concentration */
-                        sprintf(ext, "deepunsat_conc.%s", chemn);
+                        sprintf(ext, "deep_conc.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] =
-                                &elem[j].chms_fbrunsat.p_conc[k];
-                        }
-                        n++;
-
-                        /* Deep groundwater concentration */
-                        sprintf(ext, "deepgw_conc.%s", chemn);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &elem[j].chms_fbrgw.p_conc[k];
+                                &elem[j].chms_geol.p_conc[k];
                         }
                         n++;
 # endif
@@ -1000,25 +989,13 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         n++;
 
 # if defined(_FBR_)
-                        /* Fractured unsaturated bedrock layer concentration */
-                        sprintf(ext, "deepunsat_conc.%s", chemn);
+                        sprintf(ext, "deep_conc.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] =
-                                &elem[j].chms_fbrunsat.s_conc[k];
-                        }
-                        n++;
-
-                        /* Deep groundwater concentration */
-                        sprintf(ext, "deepgw_conc.%s", chemn);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &elem[j].chms_fbrgw.s_conc[k];
+                                &elem[j].chms_geol.s_conc[k];
                         }
                         n++;
 # endif

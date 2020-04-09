@@ -48,55 +48,27 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         }
 
 #if defined(_FBR_)
-        vol_gw = MAX(GWStrg(elem[i].geol.depth, elem[i].geol.smcmax,
-            elem[i].geol.smcmin, elem[i].ws.fbr_gw), DEPTHR) *
+        volume = ((elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
+            elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin) *
             elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(elem[i].geol.depth, elem[i].geol.smcmax,
-            elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat),
-            DEPTHR) * elem[i].topo.area;
 
-        satn = UnsatSatRatio(elem[i].geol.depth, elem[i].ws.fbr_unsat,
-            elem[i].ws.fbr_gw);
+        satn = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) / elem[i].geol.depth;
+        satn = MAX(satn, SATMIN);
+        satn = MIN(satn, 1.0);
 
         for (k = 0; k < NumSpc; k++)
         {
-            elem[i].chmf.react_fbrunsat[k] = 0.0;
-            elem[i].chmf.react_fbrgw[k] = 0.0;
+            elem[i].chmf.react_geol[k] = 0.0;
         }
 
         /*
          * Fractured bedrock unsaturated zone
          */
-        if (elem[i].ws.fbr_unsat > 1.0E-3 && satn > 1.0E-2)
+        if (satn > 1.0E-2)
         {
             ftemp = SoilTempFactor(elem[i].ps.tbot);
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_unsat, satn,
-                ftemp, &elem[i].chms_fbrunsat, elem[i].chmf.react_fbrunsat);
-        }
-
-        /*
-         * Bedrock groundwater
-         */
-        if (elem[i].ws.fbr_gw > 1.0E-3)
-        {
-            ftemp = SoilTempFactor(elem[i].ps.tbot);
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0, ftemp,
-                &elem[i].chms_fbrgw, elem[i].chmf.react_fbrgw);
-        }
-
-        /* Averaging mineral concentration to ensure mass conservation */
-        for (k = 0; k < rttbl->NumStc; k++)
-        {
-            if (chemtbl[k].itype == MINERAL)
-            {
-                elem[i].chms_fbrgw.t_conc[k] =
-                    (elem[i].chms_fbrgw.t_conc[k] * vol_gw +
-                    elem[i].chms_fbrunsat.t_conc[k] * vol_unsat) /
-                    (vol_gw + vol_unsat);
-                elem[i].chms_fbrunsat.t_conc[k] = elem[i].chms_fbrgw.t_conc[k];
-                elem[i].chms_fbrgw.p_conc[k] = elem[i].chms_fbrgw.t_conc[k];
-                elem[i].chms_fbrunsat.p_conc[k] = elem[i].chms_fbrgw.t_conc[k];
-            }
+            ReactControl(chemtbl, kintbl, rttbl, stepsize, volume, satn,
+                ftemp, &elem[i].chms_geol, elem[i].chmf.react_geol);
         }
 #endif
     }

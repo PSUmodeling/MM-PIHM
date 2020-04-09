@@ -87,27 +87,19 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         }
 
 # if defined(_FBR_)
-        vol_gw = MAX(GWStrg(elem[i].geol.depth, elem[i].geol.smcmax,
-            elem[i].geol.smcmin, elem[i].ws.fbr_gw), DEPTHR);
-        vol_unsat = MAX(UnsatWaterStrg(elem[i].geol.depth, elem[i].geol.smcmax,
-            elem[i].geol.smcmin, elem[i].ws.fbr_gw, elem[i].ws.fbr_unsat),
-            DEPTHR);
+        storage = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
+            elem[i].geol.porosity + elem[i].geol.smcmin * elem[i].geol.depth;
+        storage = MAX(storage, 0.0);
 
         for (k = 0; k < NumSpc; k++)
         {
-            elem[i].chms_fbrunsat.t_mole[k] = MAX(y[FBRUNSAT_MOLE(i, k)], 0.0);
-            elem[i].chms_fbrgw.t_mole[k] = MAX(y[FBRGW_MOLE(i, k)], 0.0);
+            elem[i].chms_geol.t_mole[k] = MAX(y[GEOL_MOLE(i, k)], 0.0);
 
             /* Calculate concentrations */
-            elem[i].chms_fbrunsat.t_conc[k] = (vol_unsat > 0.0) ?
-                elem[i].chms_fbrunsat.t_mole[k] / vol_unsat : 0.0;
-            elem[i].chms_fbrunsat.t_conc[k] =
-                MAX(elem[i].chms_fbrunsat.t_conc[k], ZERO_CONC);
-
-            elem[i].chms_fbrgw.t_conc[k] = (vol_gw > 0.0) ?
-                elem[i].chms_fbrgw.t_mole[k] / vol_gw : 0.0;
-            elem[i].chms_fbrgw.t_conc[k] =
-                MAX(elem[i].chms_fbrgw.t_conc[k], ZERO_CONC);
+            elem[i].chms_geol.t_conc[k] = (storage > 0.0) ?
+                elem[i].chms_geol.t_mole[k] / storage : 0.0;
+            elem[i].chms_geol.t_conc[k] =
+                MAX(elem[i].chms_geol.t_conc[k], ZERO_CONC);
         }
 # endif
 #endif
