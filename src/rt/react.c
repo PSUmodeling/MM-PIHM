@@ -13,61 +13,38 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
 #endif
     for (i = 0; i < nelem; i++)
     {
-        double          vol_gw;
-        double          vol_unsat;
+        double          volume;
         double          satn;
         double          ftemp;
         int             k;
 
-        vol_gw = MAX(GWStrg(elem[i].soil.depth, elem[i].soil.smcmax,
-            elem[i].soil.smcmin, elem[i].ws.gw), DEPTHR) * elem[i].topo.area;
-        vol_unsat = MAX(UnsatWaterStrg(elem[i].soil.depth, elem[i].soil.smcmax,
-            elem[i].soil.smcmin, elem[i].ws.gw, elem[i].ws.unsat), DEPTHR) *
-            elem[i].topo.area;
+        volume = ((elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
+            elem[i].soil.depth * elem[i].soil.smcmin) * elem[i].topo.area;
 
-        satn =
-            UnsatSatRatio(elem[i].soil.depth, elem[i].ws.unsat, elem[i].ws.gw);
+        satn = (elem[i].ws.unsat + elem[i].ws.gw) / elem[i].soil.depth;
+        satn = MAX(satn, SATMIN);
+        satn = MIN(satn, 1.0);
 
         for (k = 0; k < NumSpc; k++)
         {
-            elem[i].chmf.react_unsat[k] = 0.0;
-            elem[i].chmf.react_gw[k] = 0.0;
+            elem[i].chmf.react[k] = 0.0;
         }
 
-        /*
-         * Unsaturated zone
-         */
-        if (elem[i].ws.unsat > 1.0E-3 && satn > 1.0E-2)
+        if (satn > 1.0E-2)
         {
-            ftemp = SoilTempFactor(elem[i].es.stc[0]);
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_unsat, satn,
-                ftemp, &elem[i].chms_unsat, elem[i].chmf.react_unsat);
-        }
+            int             klayer;
+            double          avg_stc = 0.0;
 
-        /*
-         * Groundwater
-         */
-        if (elem[i].ws.gw > 1.0E-3)
-        {
-            ftemp = SoilTempFactor((elem[i].ps.nwtbl <= 0) ?
-                elem[i].es.stc[0] : elem[i].es.stc[elem[i].ps.nwtbl - 1]);
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, vol_gw, 1.0, ftemp,
-                &elem[i].chms_gw, elem[i].chmf.react_gw);
-        }
-
-        /* Averaging mineral concentration to ensure mass conservation */
-        for (k = 0; k < rttbl->NumStc; k++)
-        {
-            if (chemtbl[k].itype == MINERAL)
+            for (klayer = 0; klayer < elem[i].ps.nsoil; k++)
             {
-                elem[i].chms_gw.t_conc[k] =
-                    (elem[i].chms_gw.t_conc[k] * vol_gw +
-                    elem[i].chms_unsat.t_conc[k] * vol_unsat) /
-                    (vol_gw + vol_unsat);
-                elem[i].chms_unsat.t_conc[k] = elem[i].chms_gw.t_conc[k];
-                elem[i].chms_gw.p_conc[k] = elem[i].chms_gw.t_conc[k];
-                elem[i].chms_unsat.p_conc[k] = elem[i].chms_gw.t_conc[k];
+                avg_stc += elem[i].es.stc[klayer] * elem[i].ps.sldpth[klayer];
             }
+            avg_stc /= elem[i].soil.depth;
+
+            ftemp = SoilTempFactor(avg_stc);
+
+            ReactControl(chemtbl, kintbl, rttbl, stepsize, volume, satn,
+                ftemp, &elem[i].chms, elem[i].chmf.react);
         }
 
 #if defined(_FBR_)

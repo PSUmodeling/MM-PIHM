@@ -72,33 +72,18 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 
 #if defined(_RT_)
         int             k;
-        double          vol_gw;
-        double          vol_unsat;
+        double          storage;
 
-        vol_gw = MAX(GWStrg(elem[i].soil.depth, elem[i].soil.smcmax,
-            elem[i].soil.smcmin, elem[i].ws.gw), DEPTHR);
-        vol_unsat = MAX(UnsatWaterStrg(elem[i].soil.depth, elem[i].soil.smcmax,
-            elem[i].soil.smcmin, elem[i].ws.gw, elem[i].ws.unsat), DEPTHR);
+        storage = (elem[i].ws.gw + elem[i].ws.unsat) * elem[i].soil.porosity +
+            elem[i].soil.smcmin * elem[i].soil.depth;
 
         for (k = 0; k < NumSpc; k++)
         {
-            elem[i].chms_unsat.t_mole[k] = (y[UNSAT_MOLE(i, k)] > 0.0) ?
-                y[UNSAT_MOLE(i, k)] : 0.0;
-            elem[i].chms_gw.t_mole[k] = (y[GW_MOLE(i, k)] > 0.0) ?
-                y[GW_MOLE(i, k)] : 0.0;
+            elem[i].chms.t_mole[k] = MAX(y[SOIL_MOLE(i, k)], 0.0);
 
             /* Calculate concentrations */
-            elem[i].chms_unsat.t_conc[k] = (vol_unsat > 0.0) ?
-                elem[i].chms_unsat.t_mole[k] / vol_unsat : 0.0;
-            elem[i].chms_unsat.t_conc[k] =
-                (elem[i].chms_unsat.t_conc[k] > ZERO_CONC) ?
-                elem[i].chms_unsat.t_conc[k] : ZERO_CONC;
-
-            elem[i].chms_gw.t_conc[k] = (vol_gw > 0.0) ?
-                elem[i].chms_gw.t_mole[k] / vol_gw : 0.0;
-            elem[i].chms_gw.t_conc[k] =
-                (elem[i].chms_gw.t_conc[k] > ZERO_CONC) ?
-                elem[i].chms_gw.t_conc[k] : ZERO_CONC;
+            elem[i].chms.t_conc[k] = elem[i].chms.t_mole[k] / storage;
+            elem[i].chms.t_conc[k] = MAX(elem[i].chms.t_conc[k], ZERO_CONC);
         }
 
 # if defined(_FBR_)

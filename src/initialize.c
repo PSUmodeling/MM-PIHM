@@ -90,7 +90,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 
 #if defined(_RT_)
         pihm->elem[i].attrib.prcpc_type = pihm->atttbl.prcpc[i];
-        for (j = 0; j < 4; j++)
+        for (j = 0; j < NCHMVOL; j++)
         {
             pihm->elem[i].attrib.chem_ic_type[j] = pihm->atttbl.chem_ic[i][j];
         }

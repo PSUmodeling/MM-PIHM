@@ -52,10 +52,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (k = 0; k < NumSpc; k++)
         {
-            elem->chms_unsat.t_mole[k] =
-                (y[UNSAT_MOLE(i, k)] >= 0.0) ? y[UNSAT_MOLE(i, k)] : 0.0;
-            elem->chms_gw.t_mole[k] =
-                (y[GW_MOLE(i, k)] >= 0.0) ? y[GW_MOLE(i, k)] : 0.0;
+            elem->chms.t_mole[k] = MAX(y[SOIL_MOLE(i, k)], 0.0);
 # if defined(_FBR_)
             elem->chms_fbrunsat.t_mole[k] = MAX(y[FBRUNSAT_MOLE(i, k)], 0.0);
             elem->chms_fbrgw.t_mole[k] = MAX(y[FBRGW_MOLE(i, k)], 0.0);
@@ -235,10 +232,8 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (k = 0; k < NumSpc; k++)
         {
-            dy[UNSAT_MOLE(i, k)] += (elem->chmf.infil[k] - elem->chmf.rechg[k] +
-                elem->chmf.react_unsat[k]) / elem->topo.area;
-            dy[GW_MOLE(i, k)] += (elem->chmf.rechg[k] + elem->chmf.react_gw[k]) /
-                elem->topo.area;
+            dy[SOIL_MOLE(i, k)] += (elem->chmf.infil[k] +
+                elem->chmf.react[k]) / elem->topo.area;
 # if defined(_FBR_)
             dy[GW_MOLE(i, k)] -= elem->chmf.fbr_infil[k] / elem->topo.area;
 
@@ -256,9 +251,8 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                dy[UNSAT_MOLE(i, k)] -= elem->chmf.unsatflux[j][k] /
+                dy[SOIL_MOLE(i, k)] -= elem->chmf.subflux[j][k] /
                     elem->topo.area;
-                dy[GW_MOLE(i, k)] -= elem->chmf.subflux[j][k] / elem->topo.area;
 # if defined(_FBR_)
                 dy[FBRUNSAT_MOLE(i, k)] -= elem->chmf.fbr_unsatflux[j][k] /
                     elem->topo.area;
@@ -362,7 +356,7 @@ int NumStateVar(void)
     nsv = 3 * nelem + nriver;
 
 #if defined(_RT_)
-    nsv += NumSpc * (2 * nelem + nriver);
+    nsv += NumSpc * (nelem + nriver);
 #endif
 
 #if defined(_BGC_)

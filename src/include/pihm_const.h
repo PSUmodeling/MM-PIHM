@@ -323,14 +323,12 @@
 
 /* RT volumes in each model grid */
 #if defined(_FBR_)
-# define NCHMVOL                4
-#else
 # define NCHMVOL                2
+#else
+# define NCHMVOL                1
 #endif
-#define UNSAT_CHMVOL            0
-#define GW_CHMVOL               1
-#define FBRUNSAT_CHMVOL         2
-#define FBRGW_CHMVOL            3
+#define SOIL_CHMVOL             0
+#define GEOL_CHMVOL             1
 
 /* Output variables */
 #define YEARLY_OUTPUT           -1

@@ -907,27 +907,14 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         Unwrap(chemn, chemtbl[k].ChemName);
 
                         /* Unsaturated zone concentration */
-                        sprintf(ext, "unsat_conc.%s", chemn);
+                        sprintf(ext, "conc.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].chms_unsat.p_conc[k];
+                            print->varctrl[n].var[j] = &elem[j].chms.p_conc[k];
                         }
                         n++;
-
-                        /* Groundwater concentration */
-                        sprintf(ext, "gw_conc.%s", chemn);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &elem[j].chms_gw.p_conc[k];
-                        }
-                        n++;
-
 # if defined(_FBR_)
                         /* Fractured unsaturated bedrock layer concentration */
                         sprintf(ext, "deepunsat_conc.%s", chemn);
@@ -1003,25 +990,12 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         char            chemn[MAXSTRING];
                         Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
 
-                        /* Unsaturated zone concentration */
-                        sprintf(ext, "unsat_conc.%s", chemn);
+                        sprintf(ext, "conc.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] =
-                                &elem[j].chms_unsat.s_conc[k];
-                        }
-                        n++;
-
-                        /* Groundwater concentration */
-                        sprintf(ext, "gw_conc.%s", chemn);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nelem, &print->varctrl[n]);
-                        for (j = 0; j < nelem; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &elem[j].chms_gw.s_conc[k];
+                            print->varctrl[n].var[j] = &elem[j].chms.s_conc[k];
                         }
                         n++;
 

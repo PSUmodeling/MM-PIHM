@@ -20,7 +20,7 @@ typedef struct attrib_struct
 #if defined(_RT_)
     int             prcpc_type;             /* precipitation concentration type
                                              */
-    int             chem_ic_type[4];        /* chemical concentration type */
+    int             chem_ic_type[2];        /* chemical concentration type */
 #endif
 } attrib_struct;
 
@@ -1607,15 +1607,9 @@ typedef struct chmflux_struct
 {
     double          infil[MAXSPS];          /* chemical flux from infiltration
                                              * (mol s-1) */
-    double          rechg[MAXSPS];          /* chemical flux from recharge
-                                             * (mol s-1) */
     double          subflux[NUM_EDGE][MAXSPS];/* chemical flux from subsurface
                                              * lateral flux (mol s-1) */
-    double          unsatflux[NUM_EDGE][MAXSPS];/* lateral chemical flux in
-                                             * unsaturated zone (mol s-1) */
-    double          react_unsat[MAXSPS];    /* reaction flux in unsaturated zone
-                                             * (mol s-1) */
-    double          react_gw[MAXSPS];       /* reaction flux in groundwater
+    double          react[MAXSPS];          /* reaction flux in unsaturated zone
                                              * (mol s-1) */
 # if defined(_FBR_)
     double          fbr_infil[MAXSPS];      /* chemical flux from bedrock
@@ -1714,8 +1708,7 @@ typedef struct elem_struct
     rtic_struct     restart_input[NCHMVOL];
     rtic_struct     restart_output[NCHMVOL];
     prcpstate_struct prcps;
-    chmstate_struct chms_unsat;
-    chmstate_struct chms_gw;
+    chmstate_struct chms;
 # if defined(_FBR_)
     chmstate_struct chms_fbrunsat;
     chmstate_struct chms_fbrgw;

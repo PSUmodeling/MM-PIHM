@@ -12,11 +12,6 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
     int             ind;
     int             lno = 0;
     int             convert = 0;
-#if defined(_FBR_)
-    const int       NVOL = 4;
-#else
-    const int       NVOL = 2;
-#endif
 
     fp = fopen(filen, "r");
     CheckFile(fp, filen);
@@ -29,7 +24,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
     NextLine(fp, cmdstr, &lno);
     for (i = 0; i < nelem; i++)
     {
-        atttbl->chem_ic[i] = (int *)malloc(4 * sizeof(int));
+        atttbl->chem_ic[i] = (int *)malloc(NCHMVOL * sizeof(int));
 
         NextLine(fp, cmdstr, &lno);
 #if defined(_FBR_)
@@ -38,12 +33,12 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
             &atttbl->chem_ic[i][0], &atttbl->chem_ic[i][1],
             &atttbl->chem_ic[i][2], &atttbl->chem_ic[i][3]);
 #else
-        match = sscanf(cmdstr, "%d %d %d %d",
+        match = sscanf(cmdstr, "%d %d %d",
             &index, &atttbl->prcpc[i],
-            &atttbl->chem_ic[i][0], &atttbl->chem_ic[i][1]);
+            &atttbl->chem_ic[i][SOIL_CHMVOL]);
 #endif
 
-        if (match != NVOL + 2)
+        if (match != NCHMVOL + 2)
         {
             PIHMprintf(VL_ERROR,
                 "Error reading chemistry attribute of the %dth element.\n",
@@ -60,7 +55,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
     chmictbl->ssa = (double **)malloc(chmictbl->nic * sizeof(double *));
 
     /*
-     * Read intial conditions
+     * Read initial conditions
      */
     for (i = 0; i < chmictbl->nic; i++)
     {

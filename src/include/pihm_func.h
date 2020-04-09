@@ -23,9 +23,8 @@
 #  define FBRUNSAT_MOLE(i, j)   ((i) * NumSpc + j + (5 + 2 * NumSpc) * nelem + (2 + 2 * NumSpc) * nriver)
 #  define FBRGW_MOLE(i, j)      ((i) * NumSpc + j + (5 + 3 * NumSpc) * nelem + (2 + 2 * NumSpc) * nriver)
 # else
-#  define UNSAT_MOLE(i, j)      ((i) * NumSpc + j + 3 * nelem + nriver)
-#  define GW_MOLE(i, j)         ((i) * NumSpc + j + (3 + NumSpc) * nelem + nriver)
-#  define RIVER_MOLE(i, j)      ((i) * NumSpc + j + (3 + 2 * NumSpc) * nelem + nriver)
+#  define SOIL_MOLE(i, j)       ((i) * NumSpc + j + 3 * nelem + nriver)
+#  define RIVER_MOLE(i, j)      ((i) * NumSpc + j + (3 + NumSpc) * nelem + nriver)
 # endif
 #endif
 
@@ -751,8 +750,6 @@ int             ParseLocation(const char [], const char [], int);
 void            ApplyPrcpConc(const  rttbl_struct *, forc_struct *,
     elem_struct [], int);
 void            wrap(char *);
-double          GWStrg(double, double, double, double);
-double          UnsatWaterStrg(double, double, double, double, double);
 void            Transport(const chemtbl_struct [], const rttbl_struct *,
     elem_struct [], river_struct []);
 double          AdvDiffDisp(double, double, double, double, double, double,

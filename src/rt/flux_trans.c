@@ -14,32 +14,24 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     for (i = 0; i < nelem; i++)
     {
         int             j, k, kk;
-        double          strg_gw;
-        double          strg_unsat;
+        double          storage;
 
-        strg_gw = GWStrg(elem[i].soil.depth, elem[i].soil.smcmax,
-            elem[i].soil.smcmin, elem[i].ws.gw);
-        strg_unsat = UnsatWaterStrg(elem[i].soil.depth, elem[i].soil.smcmax,
-            elem[i].soil.smcmin, elem[i].ws.gw, elem[i].ws.unsat);
+        storage = (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
+            elem[i].soil.depth * elem[i].soil.smcmin;
 
         for (k = 0; k < NumSpc; k++)
         {
             /* Initialize chemical fluxes */
             elem[i].chmf.infil[k] = 0.0;
-            elem[i].chmf.rechg[k] = 0.0;
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                elem[i].chmf.unsatflux[j][k] = 0.0;
                 elem[i].chmf.subflux[j][k] = 0.0;
             }
 
             /* Calculate concentrations */
-            elem[i].chms_unsat.t_conc[k] = (strg_unsat > DEPTHR) ?
-                elem[i].chms_unsat.t_mole[k] / strg_unsat : 0.0;
-
-            elem[i].chms_gw.t_conc[k] = (strg_gw > DEPTHR) ?
-                elem[i].chms_gw.t_mole[k] / strg_gw : 0.0;
+            elem[i].chms.t_conc[k] = (storage > DEPTHR) ?
+                elem[i].chms.t_mole[k] / storage : 0.0;
 
             if (chemtbl[k].mtype == MIXED_MA)
             {
@@ -48,20 +40,14 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     if ((rttbl->Totalconc[k][kk + rttbl->NumStc] != 0) &&
                         (chemtbl[kk + rttbl->NumStc].itype != AQUEOUS))
                     {
-                        elem[i].chms_gw.t_conc[k] -=
+                        elem[i].chms.t_conc[k] -=
                             rttbl->Totalconc[k][kk + rttbl->NumStc] *
-                            elem[i].chms_gw.s_conc[kk];
-                        elem[i].chms_unsat.t_conc[k] -=
-                            rttbl->Totalconc[k][kk + rttbl->NumStc] *
-                            elem[i].chms_unsat.s_conc[kk];
+                            elem[i].chms.s_conc[kk];
                     }
                 }
             }
 
-            elem[i].chms_unsat.t_conc[k] =
-                MAX(elem[i].chms_unsat.t_conc[k], 0.0);
-            elem[i].chms_gw.t_conc[k] =
-                MAX(elem[i].chms_gw.t_conc[k], 0.0);
+            elem[i].chms.t_conc[k] = MAX(elem[i].chms.t_conc[k], 0.0);
         }
 
 #if defined(_FBR_)
@@ -157,19 +143,11 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 ((elem[i].wf.infil > 0.0) ?
                 elem[i].prcps.t_conc[k] * rttbl->Condensation : 0.0);
 
-            /* Interface between unsaturated zone and groundwater */
-            elem[i].chmf.rechg[k] = AdvDiffDisp(chemtbl[k].DiffCoe,
-                chemtbl[k].DispCoe, rttbl->Cementation,
-                elem[i].chms_unsat.t_conc[k], elem[i].chms_gw.t_conc[k],
-                elem[i].soil.smcmax, 0.5 * elem[i].soil.depth,
-                elem[i].topo.area, elem[i].wf.rechg * elem[i].topo.area);
-
             /* Element to element */
             for (j = 0; j < NUM_EDGE; j++)
             {
                 if (elem[i].nabr[j] == 0)
                 {
-                    elem[i].chmf.unsatflux[j][k] = 0.0;
                     elem[i].chmf.subflux[j][k] = 0.0;
                 }
                 else
@@ -180,24 +158,11 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                     if (elem[i].nabr_river[j] == 0)
                     {
-                        /* Unsaturated zone diffusion */
-                        elem[i].chmf.unsatflux[j][k] =
-                            AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
-                            rttbl->Cementation, elem[i].chms_unsat.t_conc[k],
-                            nabr->chms_unsat.t_conc[k],
-                            0.5 * elem[i].soil.smcmax + 0.5 * nabr->soil.smcmax,
-                            elem[i].topo.nabrdist[j],
-                            0.5 * MAX(elem[i].soil.depth - elem[i].ws.gw, 0.0) +
-                            0.5 * MAX(nabr->soil.depth - nabr->ws.gw, 0.0), 0.0);
-
                         wflux = elem[i].wf.subsurf[j];
                     }
                     else
                     {
                         river_struct           *river_ptr;
-
-                        /* No flux between unsaturated zone and river. */
-                        elem[i].chmf.unsatflux[j][k] = 0.0;
 
                         river_ptr = &river[elem[i].nabr_river[j] - 1];
 
@@ -207,15 +172,14 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                             river_ptr->wf.rivflow[RIGHT_AQUIF2CHANL]);
                     }
 
-                    /* Groundwater advection, diffusion, and dispersion */
-                    elem[i].chmf.subflux[j][k] =
-                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
-                        rttbl->Cementation, elem[i].chms_gw.t_conc[k],
-                        nabr->chms_gw.t_conc[k],
-                        0.5 * elem[i].soil.smcmax + 0.5 * nabr->soil.smcmax,
+                    /* Advection, diffusion, and dispersion between triangular
+                     * elements */
+                    elem[i].chmf.subflux[j][k] = AdvDiffDisp(chemtbl[k].DiffCoe,
+                        chemtbl[k].DispCoe, rttbl->Cementation,
+                        elem[i].chms.t_conc[k], nabr->chms.t_conc[k],
+                        0.5 * (elem[i].soil.smcmax + nabr->soil.smcmax),
                         elem[i].topo.nabrdist[j],
-                        0.5 * MAX(elem[i].ws.gw, 0.0) +
-                        0.5 * MAX(nabr->ws.gw, 0.0), wflux);
+                        0.5 * (elem[i].soil.depth + nabr->soil.depth), wflux);
                 }
             }   /* End of element to element */
 
@@ -330,7 +294,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 river[i].chmf.flux[LEFT_AQUIF2CHANL][k] =
                     river[i].wf.rivflow[LEFT_AQUIF2CHANL] *
                     ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
-                    river[i].chms.t_conc[k] : left->chms_gw.t_conc[k]);
+                    river[i].chms.t_conc[k] : left->chms.t_conc[k]);
 
 #if defined(_FBR_) && defined(_TGM_)
                 river[i].chmf.flux[LEFT_FBR2CHANL][k] =
@@ -362,7 +326,7 @@ void Transport(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     river[i].wf.rivflow[RIGHT_AQUIF2CHANL] *
                     ((river[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
                     river[i].chms.t_conc[k] :
-                    right->chms_gw.t_conc[k]);
+                    right->chms.t_conc[k]);
 
 #if defined(_FBR_) && defined(_TGM_)
                 river[i].chmf.flux[RIGHT_FBR2CHANL][k] =

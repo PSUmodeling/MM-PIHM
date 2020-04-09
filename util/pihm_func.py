@@ -285,21 +285,13 @@ def read_output(simulation, outputdir, ext):
         dim = num_elem
         varname = 'Deep layer lateral flow ' + ext[8:]
         unit = 'm$^3$ s$^{-1}$'
-    elif ext[0:10] == 'unsat_conc':
+    elif ext[0:4]== 'conc':
         dim = num_elem
-        varname = 'Unsaturated zone ' + ext[11:] + ' concentration'
+        varname = ext[8:] + ' concentration'
         unit = 'mol L$^{-1}$'
-    elif ext[0:7]== 'gw_conc':
+    elif ext[0:9] == 'deep_conc':
         dim = num_elem
-        varname = 'Groundwater ' + ext[8:] + ' concentration'
-        unit = 'mol L$^{-1}$'
-    elif ext[0:14] == 'deepunsat_conc':
-        dim = num_elem
-        varname = 'Deep unsatureted zone ' + ext[15:] + ' concentration'
-        unit = 'mol L$^{-1}$'
-    elif ext[0:12] == 'deepgw_conc':
-        dim = num_elem
-        varname = 'Deep groundwater ' + ext[13:] + ' concentration'
+        varname = 'Deep zone ' + ext[15:] + ' concentration'
         unit = 'mol L$^{-1}$'
     elif ext[0:10] == 'river_conc':
         dim = num_rivers

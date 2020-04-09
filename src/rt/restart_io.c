@@ -21,11 +21,7 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
         {
             if (k < rttbl->NumStc && chemtbl[k].itype == MINERAL)
             {
-                elem[i].chms_unsat.t_conc[k] /= (rttbl->RelMin == 0) ?
-                    1000.0 / chemtbl[k].MolarVolume / elem[i].soil.smcmax :
-                    (1.0 - elem[i].soil.smcmax) * 1000.0 /
-                    chemtbl[k].MolarVolume / elem[i].soil.smcmax;
-                elem[i].chms_gw.t_conc[k] /= (rttbl->RelMin == 0) ?
+                elem[i].chms.t_conc[k] /= (rttbl->RelMin == 0) ?
                     1000.0 / chemtbl[k].MolarVolume / elem[i].soil.smcmax :
                     (1.0 - elem[i].soil.smcmax) * 1000.0 /
                     chemtbl[k].MolarVolume / elem[i].soil.smcmax;
@@ -43,9 +39,7 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
             else if (k < rttbl->NumStc && (chemtbl[k].itype == CATION_ECHG ||
                 chemtbl[k].itype == ADSORPTION))
             {
-                elem[i].chms_unsat.t_conc[k] /=
-                    (1.0 - elem[i].soil.smcmax) * 2650.0;
-                elem[i].chms_gw.t_conc[k] /=
+                elem[i].chms.t_conc[k] /=
                     (1.0 - elem[i].soil.smcmax) * 2650.0;
 #if defined(_FBR_)
                 elem[i].chms_fbrunsat.t_conc[k] /=
@@ -55,15 +49,11 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
 #endif
             }
 
-            elem[i].restart_output[UNSAT_CHMVOL].t_conc[k] =
-                elem[i].chms_unsat.t_conc[k];
-            elem[i].restart_output[UNSAT_CHMVOL].ssa[k] =
-                elem[i].chms_unsat.ssa[k];
+            elem[i].restart_output[SOIL_CHMVOL].t_conc[k] =
+                elem[i].chms.t_conc[k];
+            elem[i].restart_output[SOIL_CHMVOL].ssa[k] =
+                elem[i].chms.ssa[k];
 
-            elem[i].restart_output[GW_CHMVOL].t_conc[k] =
-                elem[i].chms_gw.t_conc[k];
-            elem[i].restart_output[GW_CHMVOL].ssa[k] =
-                elem[i].chms_gw.ssa[k];
 #if defined(_FBR_)
             elem[i].restart_output[FBRUNSAT_CHMVOL].t_conc[k] =
                 elem[i].chms_fbrunsat.t_conc[k];

@@ -71,15 +71,10 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
 
         for (k = 0; k < rttbl->NumStc; k++)
         {
-            elem[i].restart_input[UNSAT_CHMVOL].t_conc[k] =
-                chmictbl->conc[ic_type[UNSAT_CHMVOL] - 1][k];
-            elem[i].restart_input[UNSAT_CHMVOL].ssa[k] =
-                chmictbl->ssa[ic_type[UNSAT_CHMVOL] - 1][k];
-
-            elem[i].restart_input[GW_CHMVOL].t_conc[k] =
-                chmictbl->conc[ic_type[GW_CHMVOL] - 1][k];
-            elem[i].restart_input[GW_CHMVOL].ssa[k] =
-                chmictbl->ssa[ic_type[GW_CHMVOL] - 1][k];
+            elem[i].restart_input[SOIL_CHMVOL].t_conc[k] =
+                chmictbl->conc[ic_type[SOIL_CHMVOL] - 1][k];
+            elem[i].restart_input[SOIL_CHMVOL].ssa[k] =
+                chmictbl->ssa[ic_type[SOIL_CHMVOL] - 1][k];
 
 #if defined(_FBR_)
             elem[i].restart_input[FBRUNSAT_CHMVOL].t_conc[k] =
@@ -108,19 +103,13 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
     for (i = 0; i < nelem; i++)
     {
-        double          vol_gw;
-        double          vol_unsat;
+        double          storage;
 
-        vol_gw = MAX(GWStrg(elem[i].soil.depth, elem[i].soil.smcmax,
-            elem[i].soil.smcmin, elem[i].ws.gw), DEPTHR);
-        vol_unsat = MAX(UnsatWaterStrg(elem[i].soil.depth, elem[i].soil.smcmax,
-            elem[i].soil.smcmin, elem[i].ws.gw, elem[i].ws.unsat), DEPTHR);
+        storage = (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
+            elem[i].soil.depth * elem[i].soil.smcmin;
 
-        InitChemS(chemtbl, rttbl, &elem[i].restart_input[UNSAT_CHMVOL],
-            elem[i].soil.smcmax, vol_unsat, &elem[i].chms_unsat);
-
-        InitChemS(chemtbl, rttbl, &elem[i].restart_input[GW_CHMVOL],
-            elem[i].soil.smcmax, vol_gw, &elem[i].chms_gw);
+        InitChemS(chemtbl, rttbl, &elem[i].restart_input[SOIL_CHMVOL],
+            elem[i].soil.smcmax, storage, &elem[i].chms);
 
 #if defined(_FBR_)
         vol_gw = MAX(GWStrg(elem[i].geol.depth, elem[i].geol.smcmax,
@@ -152,8 +141,8 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             if (chemtbl[k].itype == AQUEOUS)
             {
                 river[i].chms.t_conc[k] =
-                    0.5 * elem[river[i].leftele - 1].chms_gw.t_conc[k] +
-                    0.5 * elem[river[i].rightele - 1].chms_gw.t_conc[k];
+                    0.5 * elem[river[i].leftele - 1].chms.t_conc[k] +
+                    0.5 * elem[river[i].rightele - 1].chms.t_conc[k];
                 river[i].chms.p_actv[k] = river[i].chms.t_conc[k];
                 river[i].chms.p_conc[k] = river[i].chms.t_conc[k];
                 river[i].chms.t_mole[k] = river[i].chms.t_conc[k] * storage;
@@ -182,11 +171,9 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
         for (k = 0; k < NumSpc; k++)
         {
-            NV_Ith(CV_Y, UNSAT_MOLE(i, k)) = elem[i].chms_unsat.t_mole[k];
-            NV_Ith(CV_Y, GW_MOLE(i, k)) = elem[i].chms_gw.t_mole[k];
+            NV_Ith(CV_Y, SOIL_MOLE(i, k)) = elem[i].chms.t_mole[k];
 
-            elem[i].chmf.react_unsat[k] = 0.0;
-            elem[i].chmf.react_gw[k] = 0.0;
+            elem[i].chmf.react[k] = 0.0;
 
 #if defined(_FBR_)
             NV_Ith(CV_Y, FBRUNSAT_MOLE(i, k)) = elem[i].chms_fbrunsat.t_mole[k];
@@ -285,43 +272,6 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     }
 }
 
-double GWStrg(double depth, double smcmax, double smcmin, double gw)
-{
-    double          strg;
-
-    if (gw < 0.0)
-    {
-        strg = 0.0;
-    }
-    else if (gw > depth)
-    {
-        strg = depth * smcmax + (gw - depth) * (smcmax - smcmin);
-    }
-    else
-    {
-        strg = gw * smcmax;
-    }
-
-    return strg;
-}
-
-double UnsatWaterStrg(double depth, double smcmax, double smcmin, double gw,
-    double unsat)
-{
-    double          deficit;
-
-    deficit = depth - gw;
-    deficit = MIN(deficit, depth);
-    deficit = MAX(deficit, 0.0);
-
-    return deficit * smcmin + MAX(unsat, 0.0) * (smcmax - smcmin);
-}
-
-double UnsatSatRatio(double depth, double unsat, double gw)
-{
-    return ((unsat < 0.0) ? 0.0 : ((gw > depth) ? 1.0 : unsat / (depth - gw)));
-}
-
 void UpdatePConc(elem_struct elem[], river_struct river[])
 {
     int             i;
@@ -335,8 +285,7 @@ void UpdatePConc(elem_struct elem[], river_struct river[])
 
         for (k = 0; k < NumSpc; k++)
         {
-            elem[i].chms_unsat.p_conc[k] = elem[i].chms_unsat.t_conc[k];
-            elem[i].chms_gw.p_conc[k] = elem[i].chms_gw.t_conc[k];
+            elem[i].chms.p_conc[k] = elem[i].chms.t_conc[k];
 
 #if defined(_FBR_)
             elem[i].chms_fbrunsat.p_conc[k] = elem[i].chms_fbrunsat.t_conc[k];
