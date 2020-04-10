@@ -133,8 +133,8 @@ double          BoundFluxRiver(int, const river_wstate_struct *,
     const river_topo_struct *, const shp_struct *, const matl_struct *,
     const river_bc_struct *bc);
 void            CalcModelStep(ctrl_struct *);
-double          ChanFlowElemToRiver(const elem_struct *, double,
-    const river_struct *, double);
+double          ChanFlowElemToRiver(double, double, const river_struct *,
+    elem_struct *);
 double          ChanFlowRiverToRiver(const river_struct *, const river_struct *,
     int);
 void            CheckCVodeFlag(int);
@@ -239,8 +239,7 @@ double          OutletFlux(int, const river_wstate_struct *,
 double          OverLandFlow(double, double, double, double, double);
 double          OvlFlowElemToElem(const elem_struct *, const elem_struct *, int,
     double, int);
-double          OvlFlowElemToRiver(int, const elem_struct *,
-    const river_struct *);
+double          OvlFlowElemToRiver(int, const river_struct *, elem_struct *);
 void            ParseCmdLineParam(int, char *[], char *);
 void            PIHM(pihm_struct, void *, N_Vector, double);
 pihm_t_struct   PIHMTime(int);

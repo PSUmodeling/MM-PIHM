@@ -96,58 +96,31 @@ void RiverFlow(int surf_mode, int riv_mode, elem_struct *elem,
 void RiverToElem(int surf_mode, river_struct *river, elem_struct *left,
     elem_struct *right)
 {
-    double          effk_left, effk_right;
     int             j;
 
-    /* Lateral surface flux calculation between river-triangular element */
     if (river->leftele > 0)
     {
+        double          effk_left;
+
         river->wf.rivflow[LEFT_SURF2CHANL] =
-            OvlFlowElemToRiver(surf_mode, left, river);
-    }
-    if (river->rightele > 0)
-    {
-        river->wf.rivflow[RIGHT_SURF2CHANL] =
-            OvlFlowElemToRiver(surf_mode, right, river);
-    }
+            OvlFlowElemToRiver(surf_mode, river, left);
 
-    effk_left = EffKh(&left->soil, left->ws.gw);
-    effk_right = EffKh(&right->soil, right->ws.gw);
-
-    /* Lateral subsurface flux calculation between river-triangular element */
-    if (river->leftele > 0)
-    {
+        effk_left = EffKh(&left->soil, left->ws.gw);
         river->wf.rivflow[LEFT_AQUIF2CHANL] =
-            ChanFlowElemToRiver(left, effk_left, river, river->topo.dist_left);
+            ChanFlowElemToRiver(effk_left, river->topo.dist_left, river, left);
     }
+
     if (river->rightele > 0)
     {
+        double          effk_right;
+
+        river->wf.rivflow[RIGHT_SURF2CHANL] =
+            OvlFlowElemToRiver(surf_mode, river, right);
+
+        effk_right = EffKh(&right->soil, right->ws.gw);
         river->wf.rivflow[RIGHT_AQUIF2CHANL] =
-            ChanFlowElemToRiver(right, effk_right, river,
-            river->topo.dist_right);
-    }
-
-    /* Add flux term */
-    /* Left */
-    for (j = 0; j < NUM_EDGE; j++)
-    {
-        if (left->nabr_river[j] == river->ind)
-        {
-            left->wf.ovlflow[j] = -river->wf.rivflow[LEFT_SURF2CHANL];
-            left->wf.subsurf[j] -= river->wf.rivflow[LEFT_AQUIF2CHANL];
-            break;
-        }
-    }
-
-    /* Right */
-    for (j = 0; j < NUM_EDGE; j++)
-    {
-        if (right->nabr_river[j] == river->ind)
-        {
-            right->wf.ovlflow[j] = -river->wf.rivflow[RIGHT_SURF2CHANL];
-            right->wf.subsurf[j] -= river->wf.rivflow[RIGHT_AQUIF2CHANL];
-            break;
-        }
+            ChanFlowElemToRiver(effk_right, river->topo.dist_right, river,
+                right);
     }
 
 #if defined(_FBR_) && defined(_TGM_)
@@ -185,9 +158,10 @@ void RiverToElem(int surf_mode, river_struct *river, elem_struct *left,
 #endif
 }
 
-double OvlFlowElemToRiver(int surf_mode, const elem_struct *elem,
-    const river_struct *river)
+double OvlFlowElemToRiver(int surf_mode, const river_struct *river,
+    elem_struct *elem)
 {
+    int             j;
     double          zbank;
     double          flux;
     double          elem_h;
@@ -254,6 +228,15 @@ double OvlFlowElemToRiver(int surf_mode, const elem_struct *elem,
     else
     {
         flux = 0.0;
+    }
+
+    for (j = 0; j < NUM_EDGE; j++)
+    {
+        if (elem->nabr_river[j] == river->ind)
+        {
+            elem->wf.ovlflow[j] = -flux;
+            break;
+        }
     }
 
     return flux;
@@ -400,13 +383,15 @@ double BoundFluxRiver(int riverbc_type, const river_wstate_struct *ws,
     return flux;
 }
 
-double ChanFlowElemToRiver(const elem_struct *elem, double effk,
-    const river_struct *river, double distance)
+double ChanFlowElemToRiver(double effk, double distance,
+    const river_struct *river, elem_struct *elem)
 {
+    int             j;
     double          diff_h;
     double          avg_h;
     double          grad_h;
     double          avg_ksat;
+    double          flux;
 
     diff_h = (river->ws.stage + river->topo.zbed) -
         (elem->ws.gw + elem->topo.zmin);
@@ -430,7 +415,18 @@ double ChanFlowElemToRiver(const elem_struct *elem, double effk,
 
     avg_ksat = 0.5 * (effk + river->matl.ksath);
 
-    return  river->shp.length * avg_ksat * grad_h * avg_h;
+    flux = river->shp.length * avg_ksat * grad_h * avg_h;
+
+    for (j = 0; j < NUM_EDGE; j++)
+    {
+        if (elem->nabr_river[j] == river->ind)
+        {
+            elem->wf.subsurf[j] -= flux;
+            break;
+        }
+    }
+
+    return flux;
 }
 
 double RiverCroSectArea(int order, double depth, double coeff)
