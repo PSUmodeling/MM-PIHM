@@ -478,6 +478,11 @@ void            SetAbsTolArray(double, double, N_Vector);
 void            SetAbsTolArray(double, N_Vector);
 #endif
 
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+void            SoluteTransp(const chemtbl_struct [], const rttbl_struct *,
+    elem_struct [], river_struct []);
+#endif
+
 #if defined(_BGC_)
 void            BackgroundLitterfall(const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *);
@@ -746,7 +751,7 @@ int             ParseLocation(const char [], const char [], int);
 void            ApplyPrcpConc(const  rttbl_struct *, forc_struct *,
     elem_struct [], int);
 void            wrap(char *);
-void            Transport(const chemtbl_struct [], const rttbl_struct *,
+void            SoluteConc(const chemtbl_struct [], const rttbl_struct *,
     elem_struct [], river_struct []);
 double          AdvDiffDisp(double, double, double, double, double, double,
     double, double, double);

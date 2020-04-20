@@ -131,9 +131,12 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     /*
      * Aqueous species transport fluxes
      */
-    Transport(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river);
+    SoluteConc(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river);
 #endif
 
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+    SoluteTransp(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river);
+#endif
 
     /*
      * Build RHS of ODEs
