@@ -234,25 +234,25 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (k = 0; k < NumSpc; k++)
         {
-            dy[SOIL_MOLE(i, k)] += (elem->chmf.infil[k] +
+            dy[SOIL_MOLE(i, k)] += (elem->solute[k].infil +
                 elem->chmf.react[k]) / elem->topo.area;
 # if defined(_FBR_)
-            dy[SOIL_MOLE(i, k)] -= elem->chmf.fbr_infil[k] / elem->topo.area;
+            dy[SOIL_MOLE(i, k)] -= elem->solute[k].fbr_infil / elem->topo.area;
 
-            dy[GEOL_MOLE(i, k)] += (elem->chmf.fbr_infil[k] +
+            dy[GEOL_MOLE(i, k)] += (elem->solute[k].fbr_infil +
                 elem->chmf.react_geol[k]) / elem->topo.area;
 #  if defined(_TGM_)
-            dy[FBRGW_MOLE(i, k)] -= elem->chmf.fbr_discharge[k] /
+            dy[FBRGW_MOLE(i, k)] -= elem->solute[k].fbr_discharge /
                 elem->topo.area;
 #  endif
 # endif
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                dy[SOIL_MOLE(i, k)] -= elem->chmf.subflux[j][k] /
+                dy[SOIL_MOLE(i, k)] -= elem->solute[k].subflux[j] /
                     elem->topo.area;
 # if defined(_FBR_)
-                dy[GEOL_MOLE(i, k)] -= elem->chmf.fbrflow[j][k] /
+                dy[GEOL_MOLE(i, k)] -= elem->solute[k].fbrflow[j] /
                     elem->topo.area;
 # endif
             }
@@ -332,7 +332,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         {
             for (j = 0; j < NUM_RIVFLX; j++)
             {
-                dy[RIVER_MOLE(i, k)] -= river->chmf.flux[j][k] /
+                dy[RIVER_MOLE(i, k)] -= river->solute[k].flux[j] /
                     river->topo.area;
             }
         }

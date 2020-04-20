@@ -946,7 +946,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         for (j = 0; j < nriver; j++)
                         {
                             print->varctrl[n].var[j] =
-                                &river[j].chmf.flux[DOWN_CHANL2CHANL][k];
+                                &river[j].solute[k].flux[DOWN_CHANL2CHANL];
                         }
                         n++;
 

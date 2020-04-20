@@ -143,8 +143,14 @@ typedef struct river_solute_struct
 #if defined(_RT_)
 typedef struct river_chmflux_struct
 {
-    double          flux[NUM_RIVFLX][MAXSPS];/* chemical flux (mol s-1) */
 } river_chmflux_struct;
+#endif
+
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+typedef struct river_solute_struct
+{
+    double          flux[NUM_RIVFLX];       /* solute flux (mass or mol s-1) */
+} river_solute_struct;
 #endif
 
 /* River structure */
@@ -165,6 +171,9 @@ typedef struct river_struct
     river_wflux_struct wf;
     river_ic_struct ic;
     river_bc_struct bc;
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+    river_solute_struct solute[MAXSPS];
+#endif
 #if defined(_CYCLES_)
     river_nstate_struct ns;
     river_cyclesic_struct restart_input;

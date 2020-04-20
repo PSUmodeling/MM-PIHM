@@ -556,6 +556,25 @@ typedef struct eflux_struct
 #endif
 } eflux_struct;
 
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+typedef struct solute_struct
+{
+    double          infil;                  /* solute flux from infiltration
+                                             * (mass or mol s-1) */
+    double          subflux[NUM_EDGE];      /* solute flux from subsurface
+                                             * lateral flux (maass of mol s-1)*/
+# if defined(_FBR_)
+    double          fbr_infil;              /* solute flux from bedrock
+                                             * infiltration (mass or mol s-1) */
+    double          fbrflow[NUM_EDGE];      /* lateral solute flux in deep
+                                             * layer (mass or mol s-1) */
+    double          fbr_discharge;          /* solute flux from fractured
+                                             * bedrock to river (only applies to
+                                             * 2-grid model) (mass or mol s-1)*/
+# endif
+} solute_struct;
+#endif
+
 #if defined(_CYCLES_)
 typedef struct epvar_struct
 {
@@ -1605,20 +1624,9 @@ typedef struct chmstate_struct
 
 typedef struct chmflux_struct
 {
-    double          infil[MAXSPS];          /* chemical flux from infiltration
-                                             * (mol s-1) */
-    double          subflux[NUM_EDGE][MAXSPS];/* chemical flux from subsurface
-                                             * lateral flux (mol s-1) */
     double          react[MAXSPS];          /* reaction flux in unsaturated zone
                                              * (mol s-1) */
 # if defined(_FBR_)
-    double          fbr_infil[MAXSPS];      /* chemical flux from bedrock
-                                             * infiltration (mol s-1) */
-    double          fbrflow[NUM_EDGE][MAXSPS];/* lateral chemical flux in deep
-                                             * layer (mol s-1) */
-    double          fbr_discharge[MAXSPS];  /* chemical flux from fractured
-                                             * bedrock to river (only applies to
-                                             * 2-grid model) (mol s-1) */
     double          react_geol[MAXSPS];     /* reaction flux in deep groundwater
                                              * (mol s-1) */
 # endif
@@ -1660,6 +1668,9 @@ typedef struct elem_struct
     estate_struct   es;
     eflux_struct    ef;
     pstate_struct   ps;
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+    solute_struct   solute[MAXSPS];
+#endif
 #if defined(_BGC_)
     bgcic_struct    restart_input;
     bgcic_struct    restart_output;

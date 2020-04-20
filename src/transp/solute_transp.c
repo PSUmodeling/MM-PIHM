@@ -16,11 +16,11 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         for (k = 0; k < NumSpc; k++)
         {
             /* Initialize chemical fluxes */
-            elem[i].chmf.infil[k] = 0.0;
+            elem[i].solute[k].infil = 0.0;
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                elem[i].chmf.subflux[j][k] = 0.0;
+                elem[i].solute[k].subflux[j] = 0.0;
             }
         }
 
@@ -28,11 +28,11 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         for (k = 0; k < NumSpc; k++)
         {
             /* Initialize chemical fluxes */
-            elem[i].chmf.fbr_infil[k] = 0.0;
+            elem[i].solute[k].fbr_infil = 0.0;
 
             for (j = 0; j < NUM_EDGE; j++)
             {
-                elem[i].chmf.fbrflow[j][k] = 0.0;
+                elem[i].solute[k].fbrflow[j] = 0.0;
             }
         }
 #endif
@@ -50,7 +50,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             /* Initialize chemical fluxes */
             for (j = 0; j < NUM_RIVFLX; j++)
             {
-                river[i].chmf.flux[j][k] = 0.0;
+                river[i].solute[k].flux[j] = 0.0;
             }
         }
     }
@@ -69,7 +69,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         for (k = 0; k < NumSpc; k++)
         {
             /* Infiltration */
-            elem[i].chmf.infil[k] = elem[i].wf.infil * elem[i].topo.area *
+            elem[i].solute[k].infil = elem[i].wf.infil * elem[i].topo.area *
                 ((elem[i].wf.infil > 0.0) ?
                 elem[i].prcps.t_conc[k] * rttbl->Condensation : 0.0);
 
@@ -78,7 +78,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             {
                 if (elem[i].nabr[j] == 0)
                 {
-                    elem[i].chmf.subflux[j][k] = 0.0;
+                    elem[i].solute[k].subflux[j] = 0.0;
                 }
                 else
                 {
@@ -104,7 +104,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                     /* Advection, diffusion, and dispersion between triangular
                      * elements */
-                    elem[i].chmf.subflux[j][k] = AdvDiffDisp(chemtbl[k].DiffCoe,
+                    elem[i].solute[k].subflux[j] = AdvDiffDisp(chemtbl[k].DiffCoe,
                         chemtbl[k].DispCoe, rttbl->Cementation,
                         elem[i].chms.t_conc[k], nabr->chms.t_conc[k],
                         0.5 * (elem[i].soil.smcmax + nabr->soil.smcmax),
@@ -115,14 +115,14 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
 #if defined(_FBR_)
             /* Bedrock infiltration */
-            elem[i].chmf.fbr_infil[k] = elem[i].wf.fbr_infil *
+            elem[i].solute[k].fbr_infil = elem[i].wf.fbr_infil *
                 elem[i].topo.area * ((elem[i].wf.fbr_infil > 0.0) ?
                 elem[i].chms.t_conc[k] : elem[i].chms_geol.t_conc[k]);
 
 # if defined(_TGM_)
             /* Fractured bedrock discharge to river.
              * Note that FBR discharge is always non-negative */
-            elem[i].chmf.fbr_discharge[k] = elem[i].wf.fbr_discharge *
+            elem[i].solute[k].fbr_discharge = elem[i].wf.fbr_discharge *
                 elem[i].topo.area * elem[i].chms_fbrgw.t_conc[k];
 # endif
 
@@ -133,7 +133,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 {
                     /* Diffusion and dispersion are ignored for boundary fluxes
                      */
-                    elem[i].chmf.fbrflow[j][k] =
+                    elem[i].solute[k].fbrflow[j] =
                         (elem[i].attrib.fbrbc_type[j] == 0) ?
                         0.0 : elem[i].wf.fbrflow[j] *
                         ((elem[i].wf.fbrflow[j] > 0.0) ?
@@ -145,7 +145,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     nabr = &elem[elem[i].nabr[j] - 1];
 
                     /* Groundwater advection, diffusion, and dispersion */
-                    elem[i].chmf.fbrflow[j][k] =
+                    elem[i].solute[k].fbrflow[j] =
                         AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
                         rttbl->Cementation, elem[i].chms_geol.t_conc[k],
                         nabr->chms_geol.t_conc[k],
@@ -177,14 +177,14 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 down = &river[river[i].down - 1];
 
                 /* Stream */
-                river[i].chmf.flux[DOWN_CHANL2CHANL][k] =
+                river[i].solute[k].flux[DOWN_CHANL2CHANL] =
                     river[i].wf.rivflow[DOWN_CHANL2CHANL] *
                     ((river[i].wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
                     river[i].chms.t_conc[k] : down->chms.t_conc[k]);
             }
             else
             {
-                river[i].chmf.flux[DOWN_CHANL2CHANL][k] =
+                river[i].solute[k].flux[DOWN_CHANL2CHANL] =
                     river[i].wf.rivflow[DOWN_CHANL2CHANL] *
                     river[i].chms.t_conc[k];
             }
@@ -195,19 +195,19 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
             if (river[i].leftele > 0)
             {
-                river[i].chmf.flux[LEFT_SURF2CHANL][k] =
+                river[i].solute[k].flux[LEFT_SURF2CHANL] =
                     river[i].wf.rivflow[LEFT_SURF2CHANL] *
                     ((river[i].wf.rivflow[LEFT_SURF2CHANL] > 0.0) ?
                     river[i].chms.t_conc[k] :
                     left->prcps.t_conc[k] * rttbl->Condensation);
 
-                river[i].chmf.flux[LEFT_AQUIF2CHANL][k] =
+                river[i].solute[k].flux[LEFT_AQUIF2CHANL] =
                     river[i].wf.rivflow[LEFT_AQUIF2CHANL] *
                     ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
                     river[i].chms.t_conc[k] : left->chms.t_conc[k]);
 
 #if defined(_FBR_) && defined(_TGM_)
-                river[i].chmf.flux[LEFT_FBR2CHANL][k] =
+                river[i].solute[k].flux[LEFT_FBR2CHANL] =
                     river[i].wf.rivflow[LEFT_FBR2CHANL] *
                     left->chms_fbrgw.t_conc[k];
 #endif
@@ -216,8 +216,8 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 {
                     if (left->nabr_river[j] == i + 1)
                     {
-                        left->chmf.subflux[j][k] -=
-                            river[i].chmf.flux[LEFT_AQUIF2CHANL][k];
+                        left->solute[k].subflux[j] -=
+                            river[i].solute[k].flux[LEFT_AQUIF2CHANL];
                         break;
                     }
                 }
@@ -226,20 +226,20 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
             if (river[i].rightele > 0)
             {
-                river[i].chmf.flux[RIGHT_SURF2CHANL][k] =
+                river[i].solute[k].flux[RIGHT_SURF2CHANL] =
                     river[i].wf.rivflow[RIGHT_SURF2CHANL] *
                     ((river[i].wf.rivflow[RIGHT_SURF2CHANL] > 0.0) ?
                     river[i].chms.t_conc[k] :
                     right->prcps.t_conc[k] * rttbl->Condensation);
 
-                river[i].chmf.flux[RIGHT_AQUIF2CHANL][k] =
+                river[i].solute[k].flux[RIGHT_AQUIF2CHANL] =
                     river[i].wf.rivflow[RIGHT_AQUIF2CHANL] *
                     ((river[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
                     river[i].chms.t_conc[k] :
                     right->chms.t_conc[k]);
 
 #if defined(_FBR_) && defined(_TGM_)
-                river[i].chmf.flux[RIGHT_FBR2CHANL][k] =
+                river[i].solute[k].flux[RIGHT_FBR2CHANL] =
                     river[i].wf.rivflow[RIGHT_FBR2CHANL] *
                     right->chms_fbrgw.t_conc[k];
 #endif
@@ -248,8 +248,8 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 {
                     if (right->nabr_river[j] == i + 1)
                     {
-                        right->chmf.subflux[j][k] -=
-                            river[i].chmf.flux[RIGHT_AQUIF2CHANL][k];
+                        right->solute[k].subflux[j] -=
+                            river[i].solute[k].flux[RIGHT_AQUIF2CHANL];
                         break;
                     }
                 }
@@ -271,8 +271,8 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             {
                 down = &river[river[i].down - 1];
 
-                down->chmf.flux[UP_CHANL2CHANL][k] -=
-                    river[i].chmf.flux[DOWN_CHANL2CHANL][k];
+                down->solute[k].flux[UP_CHANL2CHANL] -=
+                    river[i].solute[k].flux[DOWN_CHANL2CHANL];
             }
         }
     }
