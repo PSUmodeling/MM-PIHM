@@ -16,12 +16,12 @@
 
 #if defined(_RT_)
 # if defined(_FBR_)
-#  define SOIL_MOLE(i, j)       ((i) * NumSpc + j + 5 * nelem + nriver)
-#  define RIVER_MOLE(i, j)      ((i) * NumSpc + j + (5 + NumSpc) * nelem + nriver)
-#  define GEOL_MOLE(i, j)       ((i) * NumSpc + j + (5 + NumSpc) * nelem + (1 + NumSpc) * nriver)
+#  define SOIL_MOLE(i, j)       ((i) * nsolute + j + 5 * nelem + nriver)
+#  define RIVER_MOLE(i, j)      ((i) * nsolute + j + (5 + nsolute) * nelem + nriver)
+#  define GEOL_MOLE(i, j)       ((i) * nsolute + j + (5 + nsolute) * nelem + (1 + nsolute) * nriver)
 # else
-#  define SOIL_MOLE(i, j)       ((i) * NumSpc + j + 3 * nelem + nriver)
-#  define RIVER_MOLE(i, j)      ((i) * NumSpc + j + (3 + NumSpc) * nelem + nriver)
+#  define SOIL_MOLE(i, j)       ((i) * nsolute + j + 3 * nelem + nriver)
+#  define RIVER_MOLE(i, j)      ((i) * nsolute + j + (3 + nsolute) * nelem + nriver)
 # endif
 #endif
 
@@ -776,7 +776,8 @@ void            InitChemS(const chemtbl_struct [], const rttbl_struct *,
     const rtic_struct *, double, double, chmstate_struct *);
 void            ReadChemAtt(const char *, atttbl_struct *);
 void            ReadRtIc(const char *, elem_struct []);
-void            UpdatePConc(elem_struct [], river_struct []);
+void            UpdatePConc(const rttbl_struct *, elem_struct [],
+    river_struct []);
 void            WriteRtIc(const char *, const chemtbl_struct [],
     const rttbl_struct *, elem_struct []);
 double          SoilTempFactor(double);

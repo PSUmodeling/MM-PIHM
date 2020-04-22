@@ -50,7 +50,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #if defined(_RT_)
         int             k;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             elem->chms.t_mole[k] = MAX(y[SOIL_MOLE(i, k)], 0.0);
 # if defined(_FBR_)
@@ -94,7 +94,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #if defined(_RT_)
         int             k;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             river->chms.t_mole[k] = MAX(y[RIVER_MOLE(i, k)], 0.0);
         }
@@ -232,7 +232,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #if defined(_RT_)
         int             k;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             dy[SOIL_MOLE(i, k)] += (elem->solute[k].infil +
                 elem->chmf.react[k]) / elem->topo.area;
@@ -328,7 +328,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #if defined(_RT_)
         int             k;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             for (j = 0; j < NUM_RIVFLX; j++)
             {
@@ -352,7 +352,7 @@ int NumStateVar(void)
     nsv = 3 * nelem + nriver;
 
 #if defined(_RT_)
-    nsv += NumSpc * (nelem + nriver);
+    nsv += nsolute * (nelem + nriver);
 #endif
 
 #if defined(_BGC_)
@@ -372,7 +372,7 @@ int NumStateVar(void)
 #endif
 
 #if defined(_FBR_) && defined(_RT_)
-    nsv += NumSpc * nelem;
+    nsv += nsolute * nelem;
 #endif
 
     return nsv;

@@ -207,14 +207,15 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     PIHMprintf(VL_VERBOSE, "  %d cation exchange specified. \n", rttbl->NumCex);
 
     /* The number of species that are mobile */
-    NumSpc = rttbl->NumStc - (rttbl->NumMin + rttbl->NumAds + rttbl->NumCex);
-    if (NumSpc <= 0)
+    rttbl->NumSpc = rttbl->NumStc - (rttbl->NumMin + rttbl->NumAds + rttbl->NumCex);
+    if (rttbl->NumSpc <= 0)
     {
         PIHMprintf(VL_ERROR,
             "Error: number of total species should be larger than the sum of "
             " mineral, surface complexation, and cation exchange species.\n");
         PIHMexit(EXIT_FAILURE);
     }
+    nsolute = rttbl->NumSpc;
 
     /* The number of species that others depend on */
     rttbl->NumSdc = rttbl->NumStc - rttbl->NumMin;

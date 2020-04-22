@@ -158,7 +158,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     {
         int             k;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < rttbl->NumSpc; k++)
         {
             NV_Ith(CV_Y, SOIL_MOLE(i, k)) = elem[i].chms.t_mole[k];
 
@@ -179,7 +179,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     {
         int             k;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < rttbl->NumSpc; k++)
         {
             NV_Ith(CV_Y, RIVER_MOLE(i, k)) = river[i].chms.t_mole[k];
         }
@@ -259,7 +259,8 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     }
 }
 
-void UpdatePConc(elem_struct elem[], river_struct river[])
+void UpdatePConc(const rttbl_struct *rttbl, elem_struct elem[],
+    river_struct river[])
 {
     int             i;
 
@@ -270,7 +271,7 @@ void UpdatePConc(elem_struct elem[], river_struct river[])
     {
         int             k;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < rttbl->NumSpc; k++)
         {
             elem[i].chms.p_conc[k] = elem[i].chms.t_conc[k];
 
@@ -287,7 +288,7 @@ void UpdatePConc(elem_struct elem[], river_struct river[])
     {
         int             k;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < rttbl->NumSpc; k++)
         {
             river[i].chms.p_conc[k] = river[i].chms.t_conc[k];
         }

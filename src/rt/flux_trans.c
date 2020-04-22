@@ -19,7 +19,7 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         storage = (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
             elem[i].soil.depth * elem[i].soil.smcmin;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             elem[i].solute[k].conc_surf = elem[i].prcps.t_conc[k] *
                 rttbl->Condensation;
@@ -49,7 +49,7 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         storage = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
             elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             /* Calculate concentrations */
             elem[i].solute[k].conc_geol = (storage > DEPTHR) ?
@@ -84,7 +84,7 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
         storage = river[i].ws.stage;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             /* Calculate concentrations */
             river[i].solute[k].conc = (storage > DEPTHR) ?

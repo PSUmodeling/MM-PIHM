@@ -168,7 +168,7 @@ typedef struct river_struct
     river_ic_struct ic;
     river_bc_struct bc;
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
-    river_solute_struct solute[MAXSPS];
+    river_solute_struct solute[NSOLUTE];
 #endif
 #if defined(_CYCLES_)
     river_nstate_struct ns;

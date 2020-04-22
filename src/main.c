@@ -14,10 +14,14 @@ int             nriver;
 int             nthreads = 1;    /* Default value */
 #endif
 #if defined(_BGC_)
-int             first_balance;
+int             nsolute = 1;
+#elif defined(_CYCLES)
+int             nsoulte = 2;
+#elif defined(_RT_)
+int             nsoulte;
 #endif
-#if defined(_RT_)
-int             NumSpc;
+#if defined(_BGC_)
+int             first_balance;
 #endif
 
 int main(int argc, char *argv[])

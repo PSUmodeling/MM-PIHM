@@ -323,7 +323,7 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
 #endif
         for (j = 0; j < forc->nprcpc; j++)
         {
-            IntrplForc(&forc->prcpc[j], t, 0, NumSpc, NO_INTRPL);
+            IntrplForc(&forc->prcpc[j], t, 0, rttbl->NumSpc, NO_INTRPL);
         }
 
 #if defined(_OPENMP)
@@ -336,7 +336,7 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
 
             ind = elem[i].attrib.prcpc_type - 1;
 
-            for (k = 0; k < NumSpc; k++)
+            for (k = 0; k < rttbl->NumSpc; k++)
             {
                 elem[i].prcps.t_conc[k] = forc->prcpc[ind].value[k];
             }
@@ -351,7 +351,7 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
         {
             int             k;
 
-            for (k = 0; k < NumSpc; k++)
+            for (k = 0; k < rttbl->NumSpc; k++)
             {
                 elem[i].prcps.t_conc[k] = rttbl->prcp_conc[k];
             }
@@ -366,7 +366,7 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
         {
             int             k;
 
-            for (k = 0; k < NumSpc; k++)
+            for (k = 0; k < rttbl->NumSpc; k++)
             {
                 elem[i].prcps.t_conc[k] = 0.0;
             }

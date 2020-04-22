@@ -71,7 +71,7 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
                 bytes_consumed += bytes_now;
 
                 index[j] = FindChem(chemn, chemtbl, rttbl->NumStc);
-                if (index[j] < NumSpc)
+                if (index[j] < rttbl->NumSpc)
                 {
                     PIHMprintf(VL_VERBOSE,
                         "  Precipitation concentration of '%s' "
@@ -91,19 +91,19 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
             forc->prcpc[i].data =
                 (double **)malloc((forc->prcpc[i].length) * sizeof(double *));
             forc->prcpc[i].value =
-                (double *)malloc(NumSpc * sizeof(double));
+                (double *)malloc(rttbl->NumSpc * sizeof(double));
 
             for (j = 0; j < forc->prcpc[i].length; j++)
             {
                 int             k, kk;
 
                 forc->prcpc[i].data[j] =
-                    (double *)malloc(NumSpc * sizeof(double));
+                    (double *)malloc(rttbl->NumSpc * sizeof(double));
 
                 NextLine(fp, cmdstr, &lno);
                 ReadTS(cmdstr, &forc->prcpc[i].ftime[j], temp_conc, nsps[i]);
 
-                for (k = 0; k < NumSpc; k++)
+                for (k = 0; k < rttbl->NumSpc; k++)
                 {
                     /* Species not described in the forcing file will be filled
                      * with the concentrations in .chem file */

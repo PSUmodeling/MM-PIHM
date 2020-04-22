@@ -13,7 +13,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         int             j, k, kk;
         double          storage;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             /* Initialize chemical fluxes */
             elem[i].solute[k].infil = 0.0;
@@ -25,7 +25,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         }
 
 #if defined(_FBR_)
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             /* Initialize chemical fluxes */
             elem[i].solute[k].fbr_infil = 0.0;
@@ -45,7 +45,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     {
         int             j, k;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             /* Initialize chemical fluxes */
             for (j = 0; j < NUM_RIVFLX; j++)
@@ -66,7 +66,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         int             j, k;
         elem_struct    *nabr;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             /* Infiltration */
             elem[i].solute[k].infil = elem[i].wf.infil * elem[i].topo.area *
@@ -168,7 +168,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         elem_struct    *right;
         int             j, k;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             /* Downstream and upstream */
             if (river[i].down > 0)
@@ -261,7 +261,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         int             k;
         river_struct   *down;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             if (river[i].down > 0)
             {

@@ -77,7 +77,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         storage = (elem[i].ws.gw + elem[i].ws.unsat) * elem[i].soil.porosity +
             elem[i].soil.smcmin * elem[i].soil.depth;
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             elem[i].chms.t_mole[k] = MAX(y[SOIL_MOLE(i, k)], 0.0);
 
@@ -91,7 +91,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
             elem[i].geol.porosity + elem[i].geol.smcmin * elem[i].geol.depth;
         storage = MAX(storage, 0.0);
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             elem[i].chms_geol.t_mole[k] = MAX(y[GEOL_MOLE(i, k)], 0.0);
 
@@ -138,7 +138,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 
         storage = MAX(river[i].ws.stage, 0.0);
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < nsolute; k++)
         {
             river[i].chms.t_mole[k] = MAX(y[RIVER_MOLE(i, k)], 0.0);
 

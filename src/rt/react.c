@@ -25,7 +25,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         satn = MAX(satn, SATMIN);
         satn = MIN(satn, 1.0);
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < rttbl->NumSpc; k++)
         {
             elem[i].chmf.react[k] = 0.0;
         }
@@ -56,7 +56,7 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         satn = MAX(satn, SATMIN);
         satn = MIN(satn, 1.0);
 
-        for (k = 0; k < NumSpc; k++)
+        for (k = 0; k < rttbl->NumSpc; k++)
         {
             elem[i].chmf.react_geol[k] = 0.0;
         }
@@ -218,7 +218,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
         }
     }
 
-    for (i = 0; i < NumSpc; i++)
+    for (i = 0; i < rttbl->NumSpc; i++)
     {
         if (chemtbl[i].itype == AQUEOUS)
         {
@@ -378,7 +378,7 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
              * of the concentration are mol/L pm and mol/L water respectively.*/
         }
 
-        for (i = 0; i < NumSpc; i++)
+        for (i = 0; i < rttbl->NumSpc; i++)
         {
             Rate_spet[i] *= (chemtbl[i].itype == AQUEOUS) ? inv_sat : 1.0;
         }
@@ -526,7 +526,7 @@ void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
     int             flag;
     int             k;
 
-    for (k = 0; k < NumSpc; k++)
+    for (k = 0; k < rttbl->NumSpc; k++)
     {
         t_conc0[k] = chms->t_conc[k];
     }
@@ -561,7 +561,7 @@ void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
         PIHMprintf(VL_NORMAL, " Reaction failed.\n");
     }
 
-    for (k = 0; k < NumSpc; k++)
+    for (k = 0; k < rttbl->NumSpc; k++)
     {
         react_flux[k] =
             (chms->t_conc[k] - t_conc0[k]) * vol / stepsize;

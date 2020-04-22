@@ -479,6 +479,16 @@ enum stage
 };
 #endif
 
+/* Both macro NSOLUTE and global variable nsolute are needed. NSOLUTE is used
+ * for declare a large enough array size and nsolute is for loops in the code */
+#if defined(_BGC_)
+# define NSOLUTE                        1
+#elif defined(_CYCLES)
+# define NSOLUTE                        2
+#elif defined(_RT_)
+# define NSOLUTE                        MAXSPS
+#endif
+
 /* External variable */
 extern int     verbose_mode;
 extern int     debug_mode;
@@ -495,8 +505,8 @@ extern int     first_balance;
 #if defined(_OPENMP)
 extern int     nthreads;
 #endif
-#if defined(_RT_)
-int            NumSpc;                      /* number of primary species */
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+int             nsolute;
 #endif
 
 #endif

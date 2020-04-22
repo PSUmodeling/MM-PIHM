@@ -259,7 +259,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     for (j = 0; j < rttbl->NumMkr + rttbl->NumAkr; j++)
     {
         PIHMprintf(VL_VERBOSE, " %-14s",
-            chemtbl[j + NumSpc + rttbl->NumAds + rttbl->NumCex].ChemName);
+            chemtbl[j + rttbl->NumSpc + rttbl->NumAds + rttbl->NumCex].ChemName);
         for (i = 0; i < rttbl->NumStc; i++)
         {
             PIHMprintf(VL_VERBOSE, "%-14f", rttbl->Dep_kinetic[j][i]);
@@ -275,7 +275,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     for (i = 0; i < rttbl->NumAkr + rttbl->NumMkr; i++)
     {
         rttbl->KeqKinect[i] +=
-            (!strcmp(chemtbl[i + NumSpc + rttbl->NumAds + rttbl->NumCex].ChemName,
+            (!strcmp(chemtbl[i + rttbl->NumSpc + rttbl->NumAds + rttbl->NumCex].ChemName,
             "'CO2(*g)'")) ? log10(Cal_PCO2) : log10(Cal_Keq);
     }
 
@@ -287,7 +287,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     for (j = 0; j < rttbl->NumMkr + rttbl->NumAkr; j++)
     {
         PIHMprintf(VL_VERBOSE, " %-14s",
-            chemtbl[j + NumSpc + rttbl->NumAds + rttbl->NumCex].ChemName);
+            chemtbl[j + rttbl->NumSpc + rttbl->NumAds + rttbl->NumCex].ChemName);
         for (i = 0; i < rttbl->NumStc; i++)
         {
             PIHMprintf(VL_VERBOSE, "%-14.2f", rttbl->Dep_kinetic[j][i]);
@@ -300,7 +300,7 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
     PIHMprintf(VL_VERBOSE,
         " \n Mass action species type determination "
         "(0: immobile, 1: mobile, 2: Mixed) \n");
-    for (i = 0; i < NumSpc; i++)
+    for (i = 0; i < rttbl->NumSpc; i++)
     {
         chemtbl[i].mtype = (chemtbl[i].itype == AQUEOUS) ?
             MOBILE_MA : IMMOBILE_MA;
@@ -526,7 +526,7 @@ void ReadMinerals(const char cmdstr[], int npoints, int keq_position,
 
     for (i = 0; i < rttbl->NumMin; i++)
     {
-        ind = i + NumSpc + rttbl->NumAds + rttbl->NumCex;
+        ind = i + rttbl->NumSpc + rttbl->NumAds + rttbl->NumCex;
 
         if (MatchWrappedKey(chemn, chemtbl[ind].ChemName) == 0)
         {
@@ -554,7 +554,7 @@ void ReadMinerals(const char cmdstr[], int npoints, int keq_position,
                         }
                         else
                         {
-                            for (l = 0; l < NumSpc; l++)
+                            for (l = 0; l < rttbl->NumSpc; l++)
                             {
                                 rttbl->Dep_kinetic_all[i][l] += dep *
                                     rttbl-> Dependency[k - rttbl->NumStc][l];

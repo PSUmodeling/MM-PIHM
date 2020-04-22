@@ -618,6 +618,7 @@ typedef struct rttbl_struct
     double          Condensation;           /* ratio between infiltration
                                              * concentration and rain water */
     int             NumStc;                 /* number of total species */
+    int             NumSpc;                 /* number of primary species */
     int             NumSsc;                 /* number of secondary speices */
     int             NumSdc;                 /* number of independent species */
     int             NumMin;                 /* number of minerals */

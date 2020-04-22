@@ -1674,7 +1674,7 @@ typedef struct elem_struct
     eflux_struct    ef;
     pstate_struct   ps;
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
-    solute_struct   solute[MAXSPS];
+    solute_struct   solute[NSOLUTE];
 #endif
 #if defined(_BGC_)
     bgcic_struct    restart_input;
