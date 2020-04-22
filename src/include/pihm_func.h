@@ -16,12 +16,12 @@
 
 #if defined(_RT_)
 # if defined(_FBR_)
-#  define SOIL_MOLE(i, j)       ((i) * nsolute + j + 5 * nelem + nriver)
-#  define RIVER_MOLE(i, j)      ((i) * nsolute + j + (5 + nsolute) * nelem + nriver)
-#  define GEOL_MOLE(i, j)       ((i) * nsolute + j + (5 + nsolute) * nelem + (1 + nsolute) * nriver)
+#  define SOLUTE_SOIL(i, j)     ((i) * nsolute + j + 5 * nelem + nriver)
+#  define SOLUTE_RIVER(i, j)    ((i) * nsolute + j + (5 + nsolute) * nelem + nriver)
+#  define SOLUTE_GEOL(i, j)     ((i) * nsolute + j + (5 + nsolute) * nelem + (1 + nsolute) * nriver)
 # else
-#  define SOIL_MOLE(i, j)       ((i) * nsolute + j + 3 * nelem + nriver)
-#  define RIVER_MOLE(i, j)      ((i) * nsolute + j + (3 + nsolute) * nelem + nriver)
+#  define SOLUTE_SOIL(i, j)     ((i) * nsolute + j + 3 * nelem + nriver)
+#  define SOLUTE_RIVER(i, j)    ((i) * nsolute + j + (3 + nsolute) * nelem + nriver)
 # endif
 #endif
 

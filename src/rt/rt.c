@@ -160,12 +160,12 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
         for (k = 0; k < rttbl->NumSpc; k++)
         {
-            NV_Ith(CV_Y, SOIL_MOLE(i, k)) = elem[i].chms.t_mole[k];
+            NV_Ith(CV_Y, SOLUTE_SOIL(i, k)) = elem[i].chms.t_mole[k];
 
             elem[i].chmf.react[k] = 0.0;
 
 #if defined(_FBR_)
-            NV_Ith(CV_Y, GEOL_MOLE(i, k)) = elem[i].chms_geol.t_mole[k];
+            NV_Ith(CV_Y, SOLUTE_GEOL(i, k)) = elem[i].chms_geol.t_mole[k];
 
             elem[i].chmf.react_geol[k] = 0.0;
 #endif
@@ -181,7 +181,7 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
         for (k = 0; k < rttbl->NumSpc; k++)
         {
-            NV_Ith(CV_Y, RIVER_MOLE(i, k)) = river[i].chms.t_mole[k];
+            NV_Ith(CV_Y, SOLUTE_RIVER(i, k)) = river[i].chms.t_mole[k];
         }
     }
 }
