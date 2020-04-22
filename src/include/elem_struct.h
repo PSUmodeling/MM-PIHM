@@ -559,6 +559,11 @@ typedef struct eflux_struct
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
 typedef struct solute_struct
 {
+    double          conc_surf;              /* solute concentration at surface
+                                             */
+    double          conc;                   /* solute concentration in soil */
+    double          conc_geol;              /* solute concentration in deep
+                                             * layer */
     double          infil;                  /* solute flux from infiltration
                                              * (mass or mol s-1) */
     double          subflux[NUM_EDGE];      /* solute flux from subsurface

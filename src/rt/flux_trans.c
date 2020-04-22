@@ -21,8 +21,11 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
         for (k = 0; k < NumSpc; k++)
         {
+            elem[i].solute[k].conc_surf = elem[i].prcps.t_conc[k] *
+                rttbl->Condensation;
+
             /* Calculate concentrations */
-            elem[i].chms.t_conc[k] = (storage > DEPTHR) ?
+            elem[i].solute[k].conc = (storage > DEPTHR) ?
                 elem[i].chms.t_mole[k] / storage : 0.0;
 
             if (chemtbl[k].mtype == MIXED_MA)
@@ -32,14 +35,14 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     if ((rttbl->Totalconc[k][kk + rttbl->NumStc] != 0) &&
                         (chemtbl[kk + rttbl->NumStc].itype != AQUEOUS))
                     {
-                        elem[i].chms.t_conc[k] -=
+                        elem[i].solute[k].conc -=
                             rttbl->Totalconc[k][kk + rttbl->NumStc] *
                             elem[i].chms.s_conc[kk];
                     }
                 }
             }
 
-            elem[i].chms.t_conc[k] = MAX(elem[i].chms.t_conc[k], 0.0);
+            elem[i].solute[k].conc = MAX(elem[i].solute[k].conc, 0.0);
         }
 
 #if defined(_FBR_)
@@ -49,7 +52,7 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         for (k = 0; k < NumSpc; k++)
         {
             /* Calculate concentrations */
-            elem[i].chms_geol.t_conc[k] = (storage > DEPTHR) ?
+            elem[i].solute[k].conc_geol = (storage > DEPTHR) ?
                 elem[i].chms_geol.t_mole[k] / storage : 0.0;
 
             if (chemtbl[k].mtype == MIXED_MA)
@@ -59,14 +62,14 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     if ((rttbl->Totalconc[k][kk + rttbl->NumStc] != 0) &&
                         (chemtbl[kk + rttbl->NumStc].itype != AQUEOUS))
                     {
-                        elem[i].chms_geol.t_conc[k] -=
+                        elem[i].solute[k].conc_geol -=
                             rttbl->Totalconc[k][kk + rttbl->NumStc] *
                             elem[i].chms_geol.s_conc[kk];
                     }
                 }
             }
 
-            elem[i].chms_geol.t_conc[k] = MAX(elem[i].chms_geol.t_conc[k], 0.0);
+            elem[i].solute[k].conc_geol = MAX(elem[i].solute[k].conc_geol, 0.0);
         }
 #endif
     }
@@ -84,9 +87,9 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         for (k = 0; k < NumSpc; k++)
         {
             /* Calculate concentrations */
-            river[i].chms.t_conc[k] = (storage > DEPTHR) ?
+            river[i].solute[k].conc = (storage > DEPTHR) ?
                 river[i].chms.t_mole[k] / storage : 0.0;
-            river[i].chms.t_conc[k] = MAX(river[i].chms.t_conc[k], 0.0);
+            river[i].solute[k].conc = MAX(river[i].solute[k].conc, 0.0);
         }
     }
 }

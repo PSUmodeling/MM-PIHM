@@ -70,8 +70,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
         {
             /* Infiltration */
             elem[i].solute[k].infil = elem[i].wf.infil * elem[i].topo.area *
-                ((elem[i].wf.infil > 0.0) ?
-                elem[i].prcps.t_conc[k] * rttbl->Condensation : 0.0);
+                ((elem[i].wf.infil > 0.0) ? elem[i].solute[k].conc_surf : 0.0);
 
             /* Element to element */
             for (j = 0; j < NUM_EDGE; j++)
@@ -106,7 +105,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                      * elements */
                     elem[i].solute[k].subflux[j] = AdvDiffDisp(chemtbl[k].DiffCoe,
                         chemtbl[k].DispCoe, rttbl->Cementation,
-                        elem[i].chms.t_conc[k], nabr->chms.t_conc[k],
+                        elem[i].solute[k].conc, nabr->solute[k].conc,
                         0.5 * (elem[i].soil.smcmax + nabr->soil.smcmax),
                         elem[i].topo.nabrdist[j],
                         0.5 * (elem[i].soil.depth + nabr->soil.depth), wflux);
@@ -117,13 +116,13 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             /* Bedrock infiltration */
             elem[i].solute[k].fbr_infil = elem[i].wf.fbr_infil *
                 elem[i].topo.area * ((elem[i].wf.fbr_infil > 0.0) ?
-                elem[i].chms.t_conc[k] : elem[i].chms_geol.t_conc[k]);
+                elem[i].solute[k].conc : elem[i].solute[k].conc_geol);
 
 # if defined(_TGM_)
             /* Fractured bedrock discharge to river.
              * Note that FBR discharge is always non-negative */
             elem[i].solute[k].fbr_discharge = elem[i].wf.fbr_discharge *
-                elem[i].topo.area * elem[i].chms_fbrgw.t_conc[k];
+                elem[i].topo.area * elem[i].solute[k].conc_geol;
 # endif
 
             /* Element to element */
@@ -137,7 +136,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                         (elem[i].attrib.fbrbc_type[j] == 0) ?
                         0.0 : elem[i].wf.fbrflow[j] *
                         ((elem[i].wf.fbrflow[j] > 0.0) ?
-                        elem[i].chms_geol.t_conc[k] :
+                        elem[i].solute[k].conc_geol :
                         elem[i].fbr_bc.conc[j][k]);
                 }
                 else
@@ -147,8 +146,8 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                     /* Groundwater advection, diffusion, and dispersion */
                     elem[i].solute[k].fbrflow[j] =
                         AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
-                        rttbl->Cementation, elem[i].chms_geol.t_conc[k],
-                        nabr->chms_geol.t_conc[k],
+                        rttbl->Cementation, elem[i].solute[k].conc_geol,
+                        nabr->solute[k].conc_geol,
                         0.5 * (elem[i].geol.smcmax + nabr->geol.smcmax),
                         elem[i].topo.nabrdist[j],
                         0.5 * (elem[i].geol.depth + nabr->geol.depth),
@@ -180,13 +179,13 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 river[i].solute[k].flux[DOWN_CHANL2CHANL] =
                     river[i].wf.rivflow[DOWN_CHANL2CHANL] *
                     ((river[i].wf.rivflow[DOWN_CHANL2CHANL] > 0.0) ?
-                    river[i].chms.t_conc[k] : down->chms.t_conc[k]);
+                    river[i].solute[k].conc : down->solute[k].conc);
             }
             else
             {
                 river[i].solute[k].flux[DOWN_CHANL2CHANL] =
                     river[i].wf.rivflow[DOWN_CHANL2CHANL] *
-                    river[i].chms.t_conc[k];
+                    river[i].solute[k].conc;
             }
 
             /* Left and right banks */
@@ -198,18 +197,17 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 river[i].solute[k].flux[LEFT_SURF2CHANL] =
                     river[i].wf.rivflow[LEFT_SURF2CHANL] *
                     ((river[i].wf.rivflow[LEFT_SURF2CHANL] > 0.0) ?
-                    river[i].chms.t_conc[k] :
-                    left->prcps.t_conc[k] * rttbl->Condensation);
+                    river[i].solute[k].conc : left->solute[k].conc_surf);
 
                 river[i].solute[k].flux[LEFT_AQUIF2CHANL] =
                     river[i].wf.rivflow[LEFT_AQUIF2CHANL] *
                     ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
-                    river[i].chms.t_conc[k] : left->chms.t_conc[k]);
+                    river[i].solute[k].conc : left->solute[k].conc);
 
 #if defined(_FBR_) && defined(_TGM_)
                 river[i].solute[k].flux[LEFT_FBR2CHANL] =
                     river[i].wf.rivflow[LEFT_FBR2CHANL] *
-                    left->chms_fbrgw.t_conc[k];
+                    left->solute[k].conc_geol;
 #endif
 
                 for (j = 0; j < NUM_EDGE; j++)
@@ -229,19 +227,17 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
                 river[i].solute[k].flux[RIGHT_SURF2CHANL] =
                     river[i].wf.rivflow[RIGHT_SURF2CHANL] *
                     ((river[i].wf.rivflow[RIGHT_SURF2CHANL] > 0.0) ?
-                    river[i].chms.t_conc[k] :
-                    right->prcps.t_conc[k] * rttbl->Condensation);
+                    river[i].solute[k].conc : right->solute[k].conc_surf);
 
                 river[i].solute[k].flux[RIGHT_AQUIF2CHANL] =
                     river[i].wf.rivflow[RIGHT_AQUIF2CHANL] *
                     ((river[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
-                    river[i].chms.t_conc[k] :
-                    right->chms.t_conc[k]);
+                    river[i].solute[k].conc : right->solute[k].conc);
 
 #if defined(_FBR_) && defined(_TGM_)
                 river[i].solute[k].flux[RIGHT_FBR2CHANL] =
                     river[i].wf.rivflow[RIGHT_FBR2CHANL] *
-                    right->chms_fbrgw.t_conc[k];
+                    right->solute[k].conc_geol;
 #endif
 
                 for (j = 0; j < NUM_EDGE; j++)

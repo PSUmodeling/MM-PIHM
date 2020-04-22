@@ -140,15 +140,11 @@ typedef struct river_solute_struct
     double          flux[NUM_RIVFLX];       /* solute fluxes (kg s-1) */
 } river_solute_struct;
 #endif
-#if defined(_RT_)
-typedef struct river_chmflux_struct
-{
-} river_chmflux_struct;
-#endif
 
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
 typedef struct river_solute_struct
 {
+    double          conc;                   /* solute concentration */
     double          flux[NUM_RIVFLX];       /* solute flux (mass or mol s-1) */
 } river_solute_struct;
 #endif
@@ -189,7 +185,6 @@ typedef struct river_struct
 #endif
 #if defined(_RT_)
     chmstate_struct     chms;
-    river_chmflux_struct chmf;
 #endif
 } river_struct;
 
