@@ -162,9 +162,7 @@ void SoluteTransp(double diff_coef, double disp_coef, double cementation,
     for (i = 0; i < nriver; i++)
     {
         river_struct   *down;
-        elem_struct    *left;
-        elem_struct    *right;
-        int             j, k;
+        int             k;
 
         for (k = 0; k < nsolute; k++)
         {
@@ -185,69 +183,29 @@ void SoluteTransp(double diff_coef, double disp_coef, double cementation,
                     river[i].wf.rivflow[DOWN_CHANL2CHANL] *
                     river[i].solute[k].conc;
             }
+        }
 
             /* Left and right banks */
-            left = &elem[river[i].leftele - 1];
-            right = &elem[river[i].rightele - 1];
-
-            if (river[i].leftele > 0)
-            {
-                river[i].solute[k].flux[LEFT_SURF2CHANL] =
-                    river[i].wf.rivflow[LEFT_SURF2CHANL] *
-                    ((river[i].wf.rivflow[LEFT_SURF2CHANL] > 0.0) ?
-                    river[i].solute[k].conc : left->solute[k].conc_surf);
-
-                river[i].solute[k].flux[LEFT_AQUIF2CHANL] =
-                    river[i].wf.rivflow[LEFT_AQUIF2CHANL] *
-                    ((river[i].wf.rivflow[LEFT_AQUIF2CHANL] > 0.0) ?
-                    river[i].solute[k].conc : left->solute[k].conc);
-
+        if (river[i].leftele > 0)
+        {
 #if defined(_FBR_) && defined(_TGM_)
-                river[i].solute[k].flux[LEFT_FBR2CHANL] =
-                    river[i].wf.rivflow[LEFT_FBR2CHANL] *
-                    left->solute[k].conc_geol;
+            RiverElemSoluteFlow(LEFT_SURF2CHANL, LEFT_AQUIF2CHANL,
+                LEFT_FBR2CHANL, &elem[river[i].leftele - 1], &river[i]);
+#else
+            RiverElemSoluteFlow(LEFT_SURF2CHANL, LEFT_AQUIF2CHANL,
+                &elem[river[i].leftele - 1], &river[i]);
 #endif
+        }
 
-                for (j = 0; j < NUM_EDGE; j++)
-                {
-                    if (left->nabr_river[j] == i + 1)
-                    {
-                        left->solute[k].subflux[j] -=
-                            river[i].solute[k].flux[LEFT_AQUIF2CHANL];
-                        break;
-                    }
-                }
-
-            }
-
-            if (river[i].rightele > 0)
-            {
-                river[i].solute[k].flux[RIGHT_SURF2CHANL] =
-                    river[i].wf.rivflow[RIGHT_SURF2CHANL] *
-                    ((river[i].wf.rivflow[RIGHT_SURF2CHANL] > 0.0) ?
-                    river[i].solute[k].conc : right->solute[k].conc_surf);
-
-                river[i].solute[k].flux[RIGHT_AQUIF2CHANL] =
-                    river[i].wf.rivflow[RIGHT_AQUIF2CHANL] *
-                    ((river[i].wf.rivflow[RIGHT_AQUIF2CHANL] > 0.0) ?
-                    river[i].solute[k].conc : right->solute[k].conc);
-
+        if (river[i].rightele > 0)
+        {
 #if defined(_FBR_) && defined(_TGM_)
-                river[i].solute[k].flux[RIGHT_FBR2CHANL] =
-                    river[i].wf.rivflow[RIGHT_FBR2CHANL] *
-                    right->solute[k].conc_geol;
+            RiverElemSoluteFlow(RIGHT_SURF2CHANL, RIGHT_AQUIF2CHANL,
+                RIGHT_FBR2CHANL, &elem[river[i].rightele - 1], &river[i]);
+#else
+            RiverElemSoluteFlow(RIGHT_SURF2CHANL, RIGHT_AQUIF2CHANL,
+                &elem[river[i].rightele - 1], &river[i]);
 #endif
-
-                for (j = 0; j < NUM_EDGE; j++)
-                {
-                    if (right->nabr_river[j] == i + 1)
-                    {
-                        right->solute[k].subflux[j] -=
-                            river[i].solute[k].flux[RIGHT_AQUIF2CHANL];
-                        break;
-                    }
-                }
-            }
         }
     }
 
@@ -257,16 +215,52 @@ void SoluteTransp(double diff_coef, double disp_coef, double cementation,
     for (i = 0; i < nriver; i++)
     {
         int             k;
-        river_struct   *down;
 
         for (k = 0; k < nsolute; k++)
         {
             if (river[i].down > 0)
             {
-                down = &river[river[i].down - 1];
-
-                down->solute[k].flux[UP_CHANL2CHANL] -=
+                river[river[i].down - 1].solute[k].flux[UP_CHANL2CHANL] -=
                     river[i].solute[k].flux[DOWN_CHANL2CHANL];
+            }
+        }
+    }
+}
+
+#if defined(_FBR_) && defined(_TGM_)
+void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl,
+    int fbr_to_chanl, elem_struct *bank, river_struct *river)
+#else
+void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl,
+    elem_struct *bank, river_struct *river)
+#endif
+{
+    int             j, k;
+
+    for (k = 0; k < nsolute; k++)
+    {
+        river->solute[k].flux[surf_to_chanl] =
+            river->wf.rivflow[surf_to_chanl] *
+            ((river->wf.rivflow[surf_to_chanl] > 0.0) ?
+            river->solute[k].conc : bank->solute[k].conc_surf);
+
+        river->solute[k].flux[aquif_to_chanl] =
+            river->wf.rivflow[aquif_to_chanl] *
+            ((river->wf.rivflow[aquif_to_chanl] > 0.0) ?
+            river->solute[k].conc : bank->solute[k].conc);
+
+#if defined(_FBR_) && defined(_TGM_)
+        river->solute[k].flux[fbr_to_chanl] =
+            river->wf.rivflow[fbr_to_chanl] * bank->solute[k].conc_geol;
+#endif
+
+        for (j = 0; j < NUM_EDGE; j++)
+        {
+            if (bank->nabr_river[j] == river->ind)
+            {
+                bank->solute[k].subflux[j] -=
+                    river->solute[k].flux[aquif_to_chanl];
+                break;
             }
         }
     }

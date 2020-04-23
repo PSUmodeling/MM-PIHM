@@ -781,6 +781,12 @@ void            UpdatePConc(const rttbl_struct *, elem_struct [],
 void            WriteRtIc(const char *, const chemtbl_struct [],
     const rttbl_struct *, elem_struct []);
 double          SoilTempFactor(double);
+#if defined(_FBR_) && defined(_TGM_)
+void            RiverElemSoluteFlow(int, int, int, elem_struct *,
+    river_struct *);
+#else
+void            RiverElemSoluteFlow(int, int, elem_struct *, river_struct *);
+#endif
 #endif
 
 #endif
