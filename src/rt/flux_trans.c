@@ -13,7 +13,7 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             j, k, kk;
+        int             k, kk;
         double          storage;
 
         storage = (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
@@ -79,7 +79,7 @@ void SoluteConc(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 #endif
     for (i = 0; i < nriver; i++)
     {
-        int             j, k;
+        int             k;
         double          storage;
 
         storage = river[i].ws.stage;

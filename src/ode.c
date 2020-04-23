@@ -134,8 +134,11 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     SoluteConc(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
-    SoluteTransp(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river);
+#if defined(_BGC_) || defined(_CYCLES_)
+    SoluteTransp(0.0, 0.0, 0.0, pihm->elem, pihm->river);
+#elif defined(_RT_)
+    SoluteTransp(pihm->rttbl.DiffCoe, pihm->rttbl.DispCoe,
+        pihm->rttbl.Cementation, pihm->elem, pihm->river);
 #endif
 
     /*

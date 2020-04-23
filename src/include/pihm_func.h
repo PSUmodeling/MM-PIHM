@@ -479,8 +479,8 @@ void            SetAbsTolArray(double, N_Vector);
 #endif
 
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
-void            SoluteTransp(const chemtbl_struct [], const rttbl_struct *,
-    elem_struct [], river_struct []);
+void            SoluteTransp(double, double, double, elem_struct [],
+    river_struct []);
 #endif
 
 #if defined(_BGC_)

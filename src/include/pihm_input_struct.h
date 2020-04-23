@@ -557,8 +557,6 @@ typedef struct opertbl_struct
 #if defined(_RT_)
 typedef struct chemtbl_struct
 {
-    double          DiffCoe;                /* diffusion coefficient (m2 s-1) */
-    double          DispCoe;                /* dispersion coefficient (m) */
     double          MolarMass;              /* (g mol-1) */
     double          MolarVolume;            /* (cm3 mol-1) */
     double          Charge;                 /* charge */

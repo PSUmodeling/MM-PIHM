@@ -96,8 +96,6 @@ void RiverFlow(int surf_mode, int riv_mode, elem_struct *elem,
 void RiverToElem(int surf_mode, river_struct *river, elem_struct *left,
     elem_struct *right)
 {
-    int             j;
-
     if (river->leftele > 0)
     {
         double          effk_left;

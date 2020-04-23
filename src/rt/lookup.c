@@ -104,8 +104,6 @@ void Lookup(FILE *database, const calib_struct *cal, chemtbl_struct chemtbl[],
         }
         wrap(chemtbl[i].ChemName);
 
-        chemtbl[i].DiffCoe = rttbl->DiffCoe;
-        chemtbl[i].DispCoe = rttbl->DispCoe;
         chemtbl[i].Charge = 0.0;
         chemtbl[i].SizeF = 1.0;
         chemtbl[i].MolarMass = BADVAL;

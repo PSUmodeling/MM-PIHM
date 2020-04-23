@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
+void SoluteTransp(double diff_coef, double disp_coef, double cementation,
     elem_struct elem[], river_struct river[])
 {
     int             i;
@@ -10,8 +10,7 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             j, k, kk;
-        double          storage;
+        int             j, k;
 
         for (k = 0; k < nsolute; k++)
         {
@@ -103,8 +102,8 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                     /* Advection, diffusion, and dispersion between triangular
                      * elements */
-                    elem[i].solute[k].subflux[j] = AdvDiffDisp(chemtbl[k].DiffCoe,
-                        chemtbl[k].DispCoe, rttbl->Cementation,
+                    elem[i].solute[k].subflux[j] =
+                        AdvDiffDisp(diff_coef, disp_coef, cementation,
                         elem[i].solute[k].conc, nabr->solute[k].conc,
                         0.5 * (elem[i].soil.smcmax + nabr->soil.smcmax),
                         elem[i].topo.nabrdist[j],
@@ -145,9 +144,8 @@ void SoluteTransp(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
                     /* Groundwater advection, diffusion, and dispersion */
                     elem[i].solute[k].fbrflow[j] =
-                        AdvDiffDisp(chemtbl[k].DiffCoe, chemtbl[k].DispCoe,
-                        rttbl->Cementation, elem[i].solute[k].conc_geol,
-                        nabr->solute[k].conc_geol,
+                        AdvDiffDisp(diff_coef, disp_coef, cementation,
+                        elem[i].solute[k].conc_geol, nabr->solute[k].conc_geol,
                         0.5 * (elem[i].geol.smcmax + nabr->geol.smcmax),
                         elem[i].topo.nabrdist[j],
                         0.5 * (elem[i].geol.depth + nabr->geol.depth),
