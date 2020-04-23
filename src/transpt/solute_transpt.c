@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void SoluteTransp(double diff_coef, double disp_coef, double cementation,
+void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
     elem_struct elem[], river_struct river[])
 {
     int             i;

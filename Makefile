@@ -168,7 +168,7 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	rt/rt.c\
 	rt/rt_util.c\
 	rt/speciation.c\
-	transp/solute_transp.c
+	transpt/solute_transpt.c
   MODULE_HEADERS_ =\
 	include/spa.h
   EXECUTABLE = rt-flux-pihm
