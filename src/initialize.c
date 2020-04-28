@@ -217,7 +217,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
             pihm->ctrl.etstep, pihm->ctrl.rad_mode, &pihm->siteinfo);
 #elif defined(_NOAH_)
         ApplyForc(&pihm->forc, pihm->elem, pihm->ctrl.starttime,
-            pihm->ctrl.etstep, pihm->ctrl.rad_mode, &pihm->siteinfo);
+            pihm->ctrl.rad_mode, &pihm->siteinfo);
 #endif
 
         RelaxIc(pihm->elem, pihm->river);

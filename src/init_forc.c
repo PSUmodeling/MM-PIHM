@@ -40,10 +40,6 @@ void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
         {
             forc->meteo[i].value =
                 (double *)malloc(NUM_METEO_VAR * sizeof(double));
-            forc->meteo[i].max =
-                (double *)malloc(NUM_METEO_VAR * sizeof(double));
-            forc->meteo[i].min =
-                (double *)malloc(NUM_METEO_VAR * sizeof(double));
         }
     }
     if (forc->nlai > 0)

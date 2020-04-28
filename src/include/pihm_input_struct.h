@@ -254,10 +254,6 @@ typedef struct tsdata_struct
     int            *ftime;                  /* forcing time */
     double        **data;                   /* forcing values at forcing time */
     double         *value;                  /* forcing values at model time t */
-    double         *max;                    /* max forcing values when
-                                             * aggregating */
-    double         *min;                    /* min forcing values when
-                                             * aggregating */
     union
     {
         int             bc_type;            /* boundary condition type:

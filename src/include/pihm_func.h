@@ -103,12 +103,12 @@ void            ApplyElemBc(forc_struct *, elem_struct *, int);
 #endif
 #if defined(_RT_)
 void            ApplyForc(forc_struct *, rttbl_struct *, elem_struct *, int,
-    int, int, const siteinfo_struct *);
+    int, const siteinfo_struct *);
 #elif defined(_NOAH_)
-void            ApplyForc(forc_struct *, elem_struct *, int, int, int,
+void            ApplyForc(forc_struct *, elem_struct *, int, int,
     const siteinfo_struct *);
 #else
-void            ApplyForc(forc_struct *, elem_struct *, int, int);
+void            ApplyForc(forc_struct *, elem_struct *, int);
 #endif
 #if defined(_BGC_) || defined(_CYCLES_)
 void            ApplyLai(elem_struct *);
@@ -116,10 +116,10 @@ void            ApplyLai(elem_struct *);
 void            ApplyLai(forc_struct *, elem_struct *, int);
 #endif
 #if defined(_NOAH_)
-void            ApplyMeteoForc(forc_struct *, elem_struct *, int, int, int,
+void            ApplyMeteoForc(forc_struct *, elem_struct *, int, int,
     const siteinfo_struct *);
 #else
-void            ApplyMeteoForc(forc_struct *, elem_struct *, int, int);
+void            ApplyMeteoForc(forc_struct *, elem_struct *, int);
 #endif
 void            ApplyRiverBc(forc_struct *, river_struct *, int);
 double          AvgKv(const soil_struct *, double, double, double);
@@ -206,7 +206,7 @@ void            InitWbFile(char *, char *, FILE *);
 void            InitWFlux(wflux_struct *);
 void            InitWState(wstate_struct *);
 void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
-void            IntrplForc(tsdata_struct *, int, int, int, int);
+void            IntrplForc(tsdata_struct *, int, int, int);
 double          KrFunc(double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
 #if defined(_CYCLES_)
