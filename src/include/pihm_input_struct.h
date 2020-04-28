@@ -250,7 +250,6 @@ typedef struct lctbl_struct
 typedef struct tsdata_struct
 {
     int             length;                 /* length of time series */
-    int             interval;               /* average forcing interval (s) */
     int            *ftime;                  /* forcing time */
     double        **data;                   /* forcing values at forcing time */
     double         *value;                  /* forcing values at model time t */
