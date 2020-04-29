@@ -248,8 +248,10 @@ typedef struct pihm_struct
 #if defined(_NOAH_)
     noahtbl_struct  noahtbl;
 #endif
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
     agtbl_struct    agtbl;
+#endif
+#if defined(_CYCLES_OBSOLETE_)
     epconst_struct  epctbl[MAXCROP];
     opertbl_struct  opertbl[MAXOP];
 #endif

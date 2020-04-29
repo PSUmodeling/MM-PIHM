@@ -240,9 +240,9 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	noah/noah.c\
 	noah/noah_glacial_only.c\
 	noah/topo_radn.c\
-	spa/spa.c
+	spa/spa.c\
+	cycles/read_cycles.c
 	#cycles/cycles.c\
-	#cycles/cycles_read.c\
 	#cycles/cycles_init.c\
 	#cycles/ntransport.c\
 	#cycles/update_prof.c

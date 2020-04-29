@@ -1,53 +1,46 @@
 #include "pihm.h"
 
-void ReadCyclesCtrl(const char filename[], agtbl_struct *agtbl,
-    ctrl_struct *ctrl)
+void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
 {
-    FILE           *cycles_fp;
+    FILE           *fp;
     char            cmdstr[MAXSTRING];
     char            optstr[MAXSTRING];
-    int             i;
+    int             i, n;
     int             match;
     int             index;
     int             lno = 0;
 
     /* Open simulation control file */
-    cycles_fp = fopen(filename, "r");
-    CheckFile(cycles_fp, filename);
-    PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
+    fp = fopen(filen, "r");
+    CheckFile(fp, filen);
+    PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
 
-    agtbl->op = (int *)malloc(nelem * sizeof(int));
-    agtbl->rotsz = (int *)malloc(nelem * sizeof(int));
-    agtbl->auto_N = (int *)malloc(nelem * sizeof(int));
-    agtbl->auto_P = (int *)malloc(nelem * sizeof(int));
-    agtbl->auto_S = (int *)malloc(nelem * sizeof(int));
+    agtbl->oper = (int *)malloc(nelem * sizeof(int));
 
     /* Read simulation control file */
-    FindLine(cycles_fp, "BOF", &lno, filename);
+    FindLine(fp, "BOF", &lno, filen);
+    /* Skip header line */
+    NextLine(fp, cmdstr, &lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
     for (i = 0; i < nelem; i++)
     {
-        NextLine(cycles_fp, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %d %d %d %d %d", &index, &agtbl->op[i],
-            &agtbl->rotsz[i], &agtbl->auto_N[i], &agtbl->auto_P[i],
-            &agtbl->auto_S[i]);
-        if (match != 6)
+        NextLine(fp, cmdstr, &lno);
+        if (sscanf(cmdstr, "%d %d", &index, &agtbl->oper[i]) != 2)
         {
             PIHMprintf(VL_ERROR,
                 "Error reading information of the %dth element for Cycles.\n",
                 i + 1);
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
             PIHMexit(EXIT_FAILURE);
         }
     }
 
-    FindLine(cycles_fp, "OPERATION_FILE", &lno, filename);
+    FindLine(fp, "OPERATION_FILE", &lno, filen);
 
-    i = 0;
+    n = 0;
     while (1)
     {
-        NextLine(cycles_fp, cmdstr, &lno);
+        NextLine(fp, cmdstr, &lno);
         sscanf(cmdstr, "%s", optstr);
 
         if (strcasecmp(cmdstr, "EOF") == 0 ||
@@ -56,100 +49,83 @@ void ReadCyclesCtrl(const char filename[], agtbl_struct *agtbl,
             break;
         }
 
-        match = sscanf(cmdstr, "%d %s", &index, agtbl->opfilen[i]);
-        if (match != 2 || i != index - 1)
+        match = sscanf(cmdstr, "%d %s", &index, agtbl->oper_filen[n]);
+        if (match != 2 || n != index - 1)
         {
             PIHMprintf(VL_ERROR, "Error reading operation description.\n");
-            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filename, lno);
+            PIHMprintf(VL_ERROR, "Error in %s near Line %d.\n", filen, lno);
             PIHMexit(EXIT_FAILURE);
         }
-        i++;
+        n++;
     }
 
-    agtbl->nopfile = i;
+    agtbl->noper = n;
 
     /* Output control */
-    FindLine(cycles_fp, "BOF", &lno, filename);
+    FindLine(fp, "BOF", &lno, filen);
 
-    FindLine(cycles_fp, "RESTART_CTRL", &lno, filename);
+#if TEMP_DISABLED
+    FindLine(fp, "RESTART_CTRL", &lno, filen);
 
-    NextLine(cycles_fp, cmdstr, &lno);
-    ReadKeyword(cmdstr, "READ_IC", &ctrl->read_cycles_restart, 'i', filename,
+    NextLine(fp, cmdstr, &lno);
+    ReadKeyword(cmdstr, "READ_IC", &ctrl->read_cycles_restart, 'i', filen,
         lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ReadKeyword(cmdstr, "WRITE_IC", &ctrl->write_cycles_restart, 'i',
-        filename, lno);
+        filen, lno);
+#endif
 
-    FindLine(cycles_fp, "PRINT_CTRL", &lno, filename);
+    FindLine(fp, "PRINT_CTRL", &lno, filen);
 
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[BIOMASS_CTRL] = ReadPrtCtrl(cmdstr, "BIOMASS", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[BIOMASS_CTRL] = ReadPrtCtrl(cmdstr, "BIOMASS", filen, lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[LAI_CTRL] = ReadPrtCtrl(cmdstr, "LAI", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[LAI_CTRL] = ReadPrtCtrl(cmdstr, "LAI", filen, lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[RADNINTCP_CTRL] = ReadPrtCtrl(cmdstr, "RADN_INTCP",
-        filename, lno);
+        filen, lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[WATER_STS_CTRL] = ReadPrtCtrl(cmdstr, "WATER_STRESS",
-        filename, lno);
+        filen, lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[N_STS_CTRL] = ReadPrtCtrl(cmdstr, "N_STRESS", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[N_STS_CTRL] = ReadPrtCtrl(cmdstr, "N_STRESS", filen, lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[CROP_TR_CTRL] = ReadPrtCtrl(cmdstr, "CROP_TR", filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[CROP_TR_CTRL] = ReadPrtCtrl(cmdstr, "CROP_TRANSP", filen, lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[CROP_POTTR_CTRL] = ReadPrtCtrl(cmdstr, "CROP_POT_TR",
-        filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[CROP_POTTR_CTRL] = ReadPrtCtrl(cmdstr, "CROP_POT_TRANSP",
+        filen, lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[RES_EVAP_CTRL] = ReadPrtCtrl(cmdstr, "RES_EVAP", filename,
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[RES_EVAP_CTRL] = ReadPrtCtrl(cmdstr, "RES_EVAP", filen,
         lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[NO3_PROF_CTRL] = ReadPrtCtrl(cmdstr, "NO3_PROF", filename,
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[N_PROFILE_CTRL] = ReadPrtCtrl(cmdstr, "N_PROFILE", filen,
         lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[NO3_RIVER_CTRL] = ReadPrtCtrl(cmdstr, "NO3_RIVER",
-        filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[N_RIVER_CTRL] = ReadPrtCtrl(cmdstr, "N_RIVER",
+        filen, lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[NH4_PROF_CTRL] = ReadPrtCtrl(cmdstr, "NH4_PROF", filename,
-        lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[DENITRIF_CTRL] = ReadPrtCtrl(cmdstr, "DENITRIF",
+        filen, lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[NH4_RIVER_CTRL] = ReadPrtCtrl(cmdstr, "NH4_RIVER",
-        filename, lno);
+    NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[LEACHING_CTRL] = ReadPrtCtrl(cmdstr, "LEACHING",
+        filen, lno);
 
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[NO3_DENIT_CTRL] = ReadPrtCtrl(cmdstr, "NO3_DENITRIF",
-        filename, lno);
-
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[NO3_LEACH_CTRL] = ReadPrtCtrl(cmdstr, "NO3_LEACH",
-        filename, lno);
-
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[NH4_LEACH_CTRL] = ReadPrtCtrl(cmdstr, "NH4_LEACH",
-        filename, lno);
-
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[NO3_LEACH_RIVER_CTRL] = ReadPrtCtrl(cmdstr,
-        "NO3_LEACH_RIVER", filename, lno);
-
-    NextLine(cycles_fp, cmdstr, &lno);
-    ctrl->prtvrbl[NH4_LEACH_RIVER_CTRL] = ReadPrtCtrl(cmdstr,
-        "NH4_LEACH_RIVER", filename, lno);
-
-    fclose(cycles_fp);
+    fclose(fp);
 }
 
+#if _CYCLES_OBSOLETE_
 void ReadSoilInit(const char filename[], soiltbl_struct *soiltbl)
 {
     FILE           *soil_fp;
@@ -262,6 +238,7 @@ void ReadMultOper(const agtbl_struct *agtbl, const epconst_struct epctbl[],
         ReadOperation(filename, 999, epctbl, &opertbl[i]);
     }
 }
+#endif
 
 //int CropExist(char *cropName, const croptbl_struct *croptbl)
 //{

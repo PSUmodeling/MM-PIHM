@@ -23,8 +23,10 @@ typedef struct filename_struct
     char            bgcic[MAXSTRING];       /* bgc module initial condition file
                                              */
 #endif
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
     char            cycles[MAXSTRING];
+#endif
+#if defined(_CYCLES_OBSOLETE_)
     char            soilinit[MAXSTRING];
     char            crop[MAXSTRING];
     char            op[MAXOP][MAXSTRING];
@@ -404,18 +406,16 @@ typedef struct epctbl_struct
 } epctbl_struct;
 #endif
 
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
 typedef struct agtbl_struct
 {
-    int            *op;
-    int            *rotsz;
-    int            *auto_N;
-    int            *auto_P;
-    int            *auto_S;
-    int             nopfile;
-    char            opfilen[MAXOP][MAXSTRING];
+    int            *oper;
+    int             noper;
+    char            oper_filen[MAXOP][MAXSTRING];
 } agtbl_struct;
+#endif
 
+#if defined(_CYCLES_OBSOLETE_)
 typedef struct epconst_struct
 {
     char            cropn[MAXSTRING];

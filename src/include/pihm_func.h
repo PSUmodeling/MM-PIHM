@@ -571,6 +571,7 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 #if defined(_CYCLES_)
 void            ApplyDailyMeteoForc(int, int, const siteinfo_struct *,
     forc_struct *, elem_struct []);
+void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
 #endif
 #if defined(_CYCLES_OBSOLETE_)
 void            AddCrop(crop_struct *);

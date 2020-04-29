@@ -39,8 +39,10 @@ void ReadAlloc(pihm_struct pihm)
     sprintf(pihm->filename.rad,      "input/%s/%s.rad",      proj, proj);
     sprintf(pihm->filename.ice,      "input/%s/%s.ice",      proj, proj);
 #endif
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
     sprintf(pihm->filename.cycles,   "input/%s/%s.cycles",   proj, proj);
+#endif
+#if defined(_CYCLES_OBSOLETE_)
     sprintf(pihm->filename.soilinit, "input/%s/%s.soilinit", proj, proj);
     sprintf(pihm->filename.crop,     "input/%s/%s.crop",     proj, proj);
     sprintf(pihm->filename.cyclesic, "input/%s/%s.cyclesic", proj, proj);
@@ -135,10 +137,12 @@ void ReadAlloc(pihm_struct pihm)
     ReadBc(pihm->filename.bc, &pihm->forc, &pihm->atttbl);
 #endif
 
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
     /* Read Cycles simulation control file */
     ReadCyclesCtrl(pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl);
+#endif
 
+#if defined(_CYCLES_OBSOLETE_)
     /* Read soil initialization file */
     ReadSoilInit(pihm->filename.soilinit, &pihm->soiltbl);
 
