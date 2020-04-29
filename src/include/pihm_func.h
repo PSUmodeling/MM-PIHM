@@ -568,6 +568,10 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
     solute_struct *);
 #endif
 
+#if defined(_CYCLES_)
+void            ApplyDailyMeteoForc(int, int, const siteinfo_struct *,
+    forc_struct *, elem_struct []);
+#endif
 #if defined(_CYCLES_OBSOLETE_)
 void            AddCrop(crop_struct *);
 double          Aeration(double);

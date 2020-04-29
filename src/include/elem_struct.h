@@ -268,6 +268,12 @@ typedef struct pstate_struct
     double          sfcspd;                 /* wind speed at height zlvl above
                                              * ground (m s-1) */
     double          rh;                     /* relative humidity (100%) */
+#if defined(_CYCLES_)
+    double          rh_max;                 /* daily maximum relative humidity
+                                             * (100%) */
+    double          rh_min;                 /* daily minimum relative humidity
+                                             * (100%) */
+#endif
     double          sfcprs;                 /* surface pressure at height zlvl
                                              * above ground (Pa) */
 #if defined(_BGC_)
@@ -501,6 +507,12 @@ typedef struct estate_struct
 {
     double          sfctmp;                 /* air temperature at height zlvl
                                              * above ground (K) */
+#if defined(_CYCLES_)
+    double          sfctmp_max;             /* daily maximum air temperature at
+                                             * height zlvl above ground (K) */
+    double          sfctmp_min;             /* daily minimum air temperature at
+                                             * height zlvl above ground (K) */
+#endif
 #if defined(_NOAH_)
     double          t1;                     /* ground/canopy/snowpack effective
                                              * skin temperature (K) */

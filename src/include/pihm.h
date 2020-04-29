@@ -8,6 +8,7 @@
 #include <time.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <float.h>
 #include <sys/stat.h>
 #if defined(_WIN32) || defined(_WIN64)
 # include <windows.h>
