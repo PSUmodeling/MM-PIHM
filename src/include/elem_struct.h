@@ -9,7 +9,7 @@ typedef struct attrib_struct
     int             bc_type[NUM_EDGE];      /* boundary condition type*/
     int             meteo_type;             /* meteorological forcing type */
     int             lai_type;               /* leaf area index forcing type */
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     int             op_type;
 #endif
 #if defined(_FBR_)
@@ -86,7 +86,7 @@ typedef struct soil_struct
     double          areafh;                 /* macropore area fraction on a
                                              * horizontal cross-section (m2 m-2)
                                              */
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     double          clay[MAXLYR];
     double          sand[MAXLYR];
     double          iom[MAXLYR];
@@ -153,7 +153,7 @@ typedef struct lc_struct
     int             glacier;                /* flag that indicates glacier */
 } lc_struct;
 
-#if !defined(_CYCLES_)
+#if !defined(_CYCLES_OBSOLETE_)
 /* Ecophysiological parameters */
 typedef struct epconst_struct
 {
@@ -284,7 +284,7 @@ typedef struct pstate_struct
     double          plaishade;              /* shaded projected leaf area index
                                              * (m2 m-2) */
 #endif
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     double          res_intcp;
     double          tau_res_stan;
     double          tau_res_flat;
@@ -397,7 +397,7 @@ typedef struct wstate_struct
     double          sneqv;                  /* liquid water-equivalent snow
                                              * depth (m) */
     double          surfh;                  /* actual surface water level (m) */
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     /* wstate variables in Cycles have the units of kg m-2 */
     double          stanResidueWater;       /* (kg m-2) */
     double          flatResidueWater;       /* (kg m-2) */
@@ -460,7 +460,7 @@ typedef struct wflux_struct
                                              * (m s-1) */
     double          esnow;                  /* sublimation from (or deposition
                                              * to) snowpack (m s-1); */
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     double          irrigationVol;          /* irrigation volume (m s-1) */
 #endif
 #if defined(_FBR_)
@@ -556,7 +556,7 @@ typedef struct eflux_struct
 #endif
 } eflux_struct;
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
 typedef struct solute_struct
 {
     double          conc_surf;              /* solute concentration at surface
@@ -580,7 +580,7 @@ typedef struct solute_struct
 } solute_struct;
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 typedef struct epvar_struct
 {
     /* User Defined Auto Irrigation */
@@ -799,7 +799,7 @@ typedef struct ic_struct
 #endif
 } ic_struct;
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 typedef struct cyclesic_struct
 {
     double          resw_stan;
@@ -944,7 +944,7 @@ typedef struct daily_struct
                                              * (K) */
     double          avg_soldn;              /* daytime average downward solar
                                              * radiation (W m-2) */
-# if defined(_CYCLES_)
+# if defined(_CYCLES_OBSOLETE_)
     double          avg_et[MAXLYR];         /* daily average evapotranspiration
                                              * (m s-1) */
     double          avg_sncovr;             /* daily average snow cover fraction
@@ -1673,7 +1673,7 @@ typedef struct elem_struct
     estate_struct   es;
     eflux_struct    ef;
     pstate_struct   ps;
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
     solute_struct   solute[NSOLUTE];
 #endif
 #if defined(_BGC_)
@@ -1691,7 +1691,7 @@ typedef struct elem_struct
     solute_struct   nsol;
     spinup_struct   spinup;
 #endif
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     crop_struct     crop[MAXCROP];
     mgmt_struct     mgmt;
     cyclesic_struct restart_input;

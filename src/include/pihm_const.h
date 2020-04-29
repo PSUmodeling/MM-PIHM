@@ -234,7 +234,7 @@
                                              * (umol m-2 s-1) */
 #define DENITRIF_PROPORTION     0.01        /* fraction of mineralization to
                                              * volatile */
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 # define MOBILEN_PROPORTION     1.0         /* fraction mineral N avail for
                                              * leaching */
 #else
@@ -427,7 +427,7 @@
 #define FBRFLOW_CTRL            84
 #define CHEM_CTRL               85
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 #define MAXCROP                 100
 #define MAXOP                   100
 
@@ -505,7 +505,7 @@ extern int     first_balance;
 #if defined(_OPENMP)
 extern int     nthreads;
 #endif
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
 int             nsolute;
 #endif
 

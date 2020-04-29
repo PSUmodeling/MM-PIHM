@@ -233,11 +233,6 @@ RQD_CYCLES_VERS = R0.8.0-alpha
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS += -D_NOAH_ -D_CYCLES_ -D_DAILY_
   MODULE_SRCS_= \
-	cycles/cycles.c\
-	cycles/cycles_read.c\
-	cycles/cycles_init.c\
-	cycles/ntransport.c\
-	cycles/update_prof.c\
 	noah/daily.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\
@@ -246,27 +241,32 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	noah/noah_glacial_only.c\
 	noah/topo_radn.c\
 	spa/spa.c
+	#cycles/cycles.c\
+	#cycles/cycles_read.c\
+	#cycles/cycles_init.c\
+	#cycles/ntransport.c\
+	#cycles/update_prof.c
   CYCLES_SRCS_ =\
-	crop.c\
-	crop_harvest.c\
-	crop_process.c\
-	crop_thermal_time.c\
-	crop_transpiration.c\
-	daily_operation.c\
-	fertilization.c\
-	field_operation.c\
-	growing_crop.c\
-	irrigation.c\
-	make_zero_flux_struct.c\
-	read_crop.c\
-	read_operation.c\
-	residue.c\
-	restart.c\
-	soil_carbon.c\
-	soil_nitrogen.c\
-	soil_solute.c\
-	tillage.c\
-	time_func.c
+	#crop.c\
+	#crop_harvest.c\
+	#crop_process.c\
+	#crop_thermal_time.c\
+	#crop_transpiration.c\
+	#daily_operation.c\
+	#fertilization.c\
+	#field_operation.c\
+	#growing_crop.c\
+	#irrigation.c\
+	#make_zero_flux_struct.c\
+	#read_crop.c\
+	#read_operation.c\
+	#residue.c\
+	#restart.c\
+	#soil_carbon.c\
+	#soil_nitrogen.c\
+	#soil_solute.c\
+	#tillage.c\
+	#time_func.c
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."

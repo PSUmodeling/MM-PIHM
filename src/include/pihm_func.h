@@ -34,7 +34,7 @@
 # define LUMPED_SMINN           (3 * nelem + 2 * nriver)
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 # define NO3(i)                 (i + 3 * nelem + 2 * nriver)
 # define NH4(i)                 (i + 4 * nelem + 2 * nriver)
 # define STREAMNO3(i)           (i + 5 * nelem + 2 * nriver)
@@ -110,7 +110,7 @@ void            ApplyForc(forc_struct *, elem_struct *, int, int,
 #else
 void            ApplyForc(forc_struct *, elem_struct *, int);
 #endif
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_)
 void            ApplyLai(elem_struct *);
 #else
 void            ApplyLai(forc_struct *, elem_struct *, int);
@@ -209,7 +209,7 @@ void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
 void            IntrplForc(tsdata_struct *, int, int, int);
 double          KrFunc(double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 void            MapOutput(const int *, const epconst_struct [],
     const elem_struct *, const river_struct *, const char *, print_struct *);
 #elif defined(_RT_)
@@ -341,7 +341,7 @@ void            AlCalc(pstate_struct *, double, int);
 void            CalcLatFlx(const pstate_struct *, wflux_struct *);
 void            CalcSlopeAspect(elem_struct *, const meshtbl_struct *);
 void            CalHum(pstate_struct *, estate_struct *);
-# if defined(_CYCLES_)
+# if defined(_CYCLES_OBSOLETE_)
 void            CanRes(const estate_struct *, pstate_struct *);
 # else
 void            CanRes(const wstate_struct *, const estate_struct *,
@@ -353,7 +353,7 @@ void            DefSldpth(double *, int *, double *, double, const double *,
     int);
 void            DEvap(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
-# if defined(_CYCLES_)
+# if defined(_CYCLES_OBSOLETE_)
 void            Evapo(const soil_struct *, const lc_struct *,
     const pstate_struct *, const estate_struct *es,
     const cstate_struct *, double, crop_struct [], wstate_struct *,
@@ -378,7 +378,7 @@ double          Mod(double, double);
 void            Noah(elem_struct *, const lctbl_struct *, const calib_struct *,
     double);
 void            NoahHydrol(elem_struct *, double);
-# if defined(_CYCLES_)
+# if defined(_CYCLES_OBSOLETE_)
 void            NoPac(const soil_struct *, const lc_struct *,
     const cstate_struct *, double, double, crop_struct [], pstate_struct *,
     wstate_struct *, wflux_struct *, estate_struct *, eflux_struct *);
@@ -410,7 +410,7 @@ void            Rosr12(double *, const double *, const double *, double *,
     const double *, double *, int);
 void            SfcDifOff(pstate_struct *, const lc_struct *, double, double,
     int);
-# if defined(_CYCLES_)
+# if defined(_CYCLES_OBSOLETE_)
 void            SFlx(const cstate_struct *, double, soil_struct *, lc_struct *,
     crop_struct [], pstate_struct *, wstate_struct *, wflux_struct *,
     estate_struct *, eflux_struct *);
@@ -423,7 +423,7 @@ void            SFlxGlacial(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, lc_struct *, soil_struct *, double);
 void            ShFlx(wstate_struct *, estate_struct *, const pstate_struct *,
     const lc_struct *, const soil_struct *, double, double, double, double);
-# if defined(_CYCLES_)
+# if defined(_CYCLES_OBSOLETE_)
 void SmFlx(const soil_struct *, const cstate_struct *, double, pstate_struct *,
     wstate_struct *, wflux_struct *);
 # else
@@ -433,7 +433,7 @@ void            SmFlx(wstate_struct *, wflux_struct *, pstate_struct *,
 double          SnFrac(double, double, double);
 void            SnkSrc(double *, double, double, double *,
     const soil_struct *, const double *, double, int, double);
-# if defined(_CYCLES_)
+# if defined(_CYCLES_OBSOLETE_)
 void            SnoPac(const soil_struct *, const lc_struct *,
     const cstate_struct *, int, double, double, double, double, crop_struct [],
     pstate_struct *, wstate_struct *, wflux_struct *, estate_struct *,
@@ -446,7 +446,7 @@ void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
 void            SnowNew(const estate_struct *, double, pstate_struct *);
 void            SnowPack(double, double, double *, double *, double, double);
 double          Snowz0(double, double, double);
-# if defined(_CYCLES_)
+# if defined(_CYCLES_OBSOLETE_)
 void            SRT(const soil_struct *, const cstate_struct *, double,
     pstate_struct *, wstate_struct *, wflux_struct *, double *, double *,
     double *, double *, double *);
@@ -472,13 +472,13 @@ void            DailyVar(int, int, elem_struct *);
 void            InitDailyStruct(elem_struct *);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
 void            SetAbsTolArray(double, double, N_Vector);
 #else
 void            SetAbsTolArray(double, N_Vector);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
 void            SoluteTranspt(double, double, double, elem_struct [],
     river_struct []);
 #endif
@@ -568,7 +568,7 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
     solute_struct *);
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 void            AddCrop(crop_struct *);
 double          Aeration(double);
 double          AirMolarDensity(double, double);

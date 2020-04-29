@@ -27,12 +27,12 @@ void DailyVar(int t, int start_time, elem_struct *elem)
             elem[i].daily.avg_stc[k] += elem[i].es.stc[k];
             elem[i].daily.avg_sh2o[k] += elem[i].ws.sh2o[k];
             elem[i].daily.avg_smc[k] += elem[i].ws.smc[k];
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
             elem[i].daily.avg_et[k] += elem[i].wf.et[k];
 #endif
         }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         elem[i].daily.avg_sncovr += elem[i].ps.sncovr;
 #endif
 
@@ -72,12 +72,12 @@ void DailyVar(int t, int start_time, elem_struct *elem)
                 elem[i].daily.avg_stc[k] /= (double)elem[i].daily.counter;
                 elem[i].daily.avg_sh2o[k] /= (double)elem[i].daily.counter;
                 elem[i].daily.avg_smc[k] /= (double)elem[i].daily.counter;
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
                 elem[i].daily.avg_et[k] /= (double)elem[i].daily.counter;
 #endif
             }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
             elem[i].daily.avg_sncovr /= (double)elem[i].daily.counter;
 #endif
 
@@ -87,7 +87,7 @@ void DailyVar(int t, int start_time, elem_struct *elem)
             elem[i].daily.avg_rc /= (double)elem[i].daily.daylight_counter;
             elem[i].daily.avg_sfcprs /= (double)elem[i].daily.daylight_counter;
             elem[i].daily.avg_albedo /= (double)elem[i].daily.daylight_counter;
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
             elem[i].daily.avg_soldn /= (double)elem[i].daily.counter;
 #else
             elem[i].daily.avg_soldn /= (double)elem[i].daily.daylight_counter;
@@ -185,7 +185,7 @@ void InitDailyStruct(elem_struct *elem)
             elem[i].daily.avg_sh2o[k] = 0.0;
             elem[i].daily.avg_smc[k] = 0.0;
             elem[i].daily.avg_stc[k] = 0.0;
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
             elem[i].daily.avg_et[k] = 0.0;
 #endif
         }
@@ -195,7 +195,7 @@ void InitDailyStruct(elem_struct *elem)
         elem[i].daily.avg_ch = 0.0;
         elem[i].daily.avg_rc = 0.0;
         elem[i].daily.avg_albedo = 0.0;
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         elem[i].daily.avg_sncovr = 0.0;
 #endif
 
@@ -207,7 +207,7 @@ void InitDailyStruct(elem_struct *elem)
 
         elem[i].daily.avg_soldn = 0.0;
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         for (k = 0; k < MAXCROP && '\0' != elem[i].crop[k].epc->cropn[0]; k++)
         {
             elem[i].crop[k].cwf.transp = 0.0;

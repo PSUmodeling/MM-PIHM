@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     CreateOutputDir(outputdir);
 
     /* Create output structures */
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     MapOutput(pihm->ctrl.prtvrbl, pihm->epctbl, pihm->elem, pihm->river,
         outputdir, &pihm->print);
 #elif defined(_RT_)
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 #endif
 
 # if TEMP_DISABLED
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         if (ctrl->write_cycles_restart)
         {
             WriteCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);

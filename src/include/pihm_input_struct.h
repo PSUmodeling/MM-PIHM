@@ -23,7 +23,7 @@ typedef struct filename_struct
     char            bgcic[MAXSTRING];       /* bgc module initial condition file
                                              */
 #endif
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     char            cycles[MAXSTRING];
     char            soilinit[MAXSTRING];
     char            crop[MAXSTRING];
@@ -177,7 +177,7 @@ typedef struct soiltbl_struct
                                              * macropore hydraulic conductivity
                                              * and horizontal saturated
                                              * hydraulic conductivity (-) */
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     int            *totalLayers;
     double        **clay_lyr;
     double        **sand_lyr;
@@ -404,7 +404,7 @@ typedef struct epctbl_struct
 } epctbl_struct;
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 typedef struct agtbl_struct
 {
     int            *op;

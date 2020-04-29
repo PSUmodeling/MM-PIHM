@@ -42,7 +42,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem->ns.sminn = (y[SMINN(i)] >= 0.0) ? y[SMINN(i)] : 0.0;
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         elem->np.no3 = (y[NO3(i)] >= 0.0) ? y[NO3(i)] : 0.0;
         elem->np.nh4 = (y[NH4(i)] >= 0.0) ? y[NH4(i)] : 0.0;
 #endif
@@ -83,7 +83,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         river->wf.rivflow[UP_CHANL2CHANL] = 0.0;
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         river->ns.streamno3 = (y[STREAMNO3(i)] > 0.0) ? y[STREAMNO3(i)] : 0.0;
         river->ns.bedno3 = (y[RIVBEDNO3(i)] > 0.0) ? y[RIVBEDNO3(i)] : 0.0;
 
@@ -119,7 +119,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 # endif
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     /*
      * NO3 and NH4 transport fluxes
      */
@@ -134,7 +134,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
     SoluteConc(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_)
     SoluteTransp(0.0, 0.0, 0.0, pihm->elem, pihm->river);
 #elif defined(_RT_)
     SoluteTranspt(pihm->rttbl.DiffCoe, pihm->rttbl.DispCoe,
@@ -218,7 +218,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         }
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         /*
          * Cycles NO3 and NH4 transport fluxes
          */
@@ -308,7 +308,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[RIVBEDN(i)] /= river->topo.area;
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         for (j = 0; j <= 6; j++)
         {
             dy[STREAMNO3(i)] -= river->no3sol.flux[j] / river->topo.area;
@@ -366,7 +366,7 @@ int NumStateVar(void)
 # endif
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     nsv += 2 * nelem + 4 * nriver;
 #endif
 
@@ -386,7 +386,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
     int             cv_flag;
     static int      reset;
     N_Vector        abstol;
-#if defined(_BGC_) || defined(_CYCLES_)
+#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_)
     const double    TRANSP_TOL = 1.0E-5;
 #elif defined(_RT_)
     const double    TRANSP_TOL = 1.0E-8;
@@ -417,7 +417,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
          * tolerances is needed to specify different absolute tolerances for
          * water storage variables and transport variables */
         abstol = N_VNew(NumStateVar());
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
         SetAbsTolArray(pihm->ctrl.abstol, TRANSP_TOL, abstol);
 #else
         SetAbsTolArray(pihm->ctrl.abstol, abstol);
@@ -454,7 +454,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
     }
 }
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
 void SetAbsTolArray(double hydrol_tol, double transp_tol, N_Vector abstol)
 #else
 void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
@@ -478,7 +478,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
         NV_Ith(abstol, i) = (realtype)hydrol_tol;
     }
 
-#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
     /* Set absolute errors for nitrogen state variables */
 # if defined(_OPENMP)
 #  pragma omp parallel for

@@ -97,7 +97,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
         DailyBgc(pihm, t - DAYINSEC);
 # endif
 
-# if defined(_CYCLES_)
+# if defined(_CYCLES_OBSOLETE_)
         DailyCycles(t - DAYINSEC, pihm);
 # endif
 

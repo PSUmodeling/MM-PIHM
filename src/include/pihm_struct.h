@@ -185,7 +185,7 @@ typedef struct ctrl_struct
     int             read_bgc_restart;       /* flag to read BGC restart file */
     int             write_bgc_restart;      /* flag to write BGC restart file */
 #endif
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     int             read_cycles_restart;
     int             write_cycles_restart;
 #endif
@@ -248,7 +248,7 @@ typedef struct pihm_struct
 #if defined(_NOAH_)
     noahtbl_struct  noahtbl;
 #endif
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     agtbl_struct    agtbl;
     epconst_struct  epctbl[MAXCROP];
     opertbl_struct  opertbl[MAXOP];

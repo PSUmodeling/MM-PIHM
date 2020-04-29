@@ -55,7 +55,7 @@ void Noah(elem_struct *elem, const lctbl_struct *lctbl, const calib_struct *cal,
         }
         else
         {
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
             SFlx(&elem[i].cs, dt, &elem[i].soil, &elem[i].lc, elem[i].crop,
                 &elem[i].ps, &elem[i].ws, &elem[i].wf, &elem[i].es,
                 &elem[i].ef);
@@ -82,7 +82,7 @@ void NoahHydrol(elem_struct *elem, double dt)
     for (i = 0; i < nelem; i++)
     {
         int             k;
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         double          wflux[MAXLYR + 1];
 #endif
 
@@ -103,14 +103,14 @@ void NoahHydrol(elem_struct *elem, double dt)
                 elem[i].ws.sh2o[k] : elem[i].ws.smc[k];
         }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         SmFlx(&elem[i].soil, &elem[i].cs, dt, &elem[i].ps, &elem[i].ws,
             &elem[i].wf);
 #else
         SmFlx(&elem[i].ws, &elem[i].wf, &elem[i].ps, &elem[i].soil, dt);
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         /*
          * Calcluate vertical transport of solute
          */
@@ -176,7 +176,7 @@ void NoahHydrol(elem_struct *elem, double dt)
 #endif
 }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 void SFlx(const cstate_struct *cs, double dt, soil_struct *soil, lc_struct *lc,
     crop_struct crop[], pstate_struct *ps, wstate_struct *ws, wflux_struct *wf,
     estate_struct *es, eflux_struct *ef)
@@ -231,7 +231,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     if (lc->isurban)
     {
         lc->shdfac = 0.05;
-#if !defined(_CYCLES_)
+#if !defined(_CYCLES_OBSOLETE_)
         epc->rsmin = 400.0;
 #endif
         /* In original Noah LSM, urban model changes urban soil porosity. In
@@ -244,7 +244,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         soil->smcdry = (0.40 / 0.45) * soil->porosity + soil->smcmin;
     }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     lc->shdfac = CommRadIntcp(crop);
 #endif
 
@@ -254,7 +254,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         ps->proj_lai = (ps->proj_lai > 0.5) ? ps->proj_lai : 0.5;
     }
 
-#if !defined(_CYCLES_)
+#if !defined(_CYCLES_OBSOLETE_)
     /* Calculate maximum canopy moisture capacity */
     ws->cmcmax = lc->shdfac * lc->cmcfactr * ps->proj_lai;
 #endif
@@ -495,7 +495,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      */
     if (lc->shdfac > 0.0)
     {
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         CanRes(es, ps);
 #else
         CanRes(ws, es, ef, ps, soil, epc);
@@ -514,7 +514,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
     if (ws->sneqv == 0.0)
     {
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         NoPac(soil, lc, cs, dt, t24, crop, ps, ws, wf, es, ef);
 #else
         NoPac(ws, wf, es, ef, ps, lc, soil, dt, t24);
@@ -523,7 +523,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     }
     else
     {
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         SnoPac(soil, lc, cs, snowng, dt, t24, prcpf, df1, crop, ps, ws, wf, es,
             ef);
 #else
@@ -687,7 +687,7 @@ void CalHum(pstate_struct *ps, estate_struct *es)
     ps->dqsdt2 = ps->q2sat * a23m4 / ((es->sfctmp - A4) * (es->sfctmp - A4));
 }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 void CanRes(const estate_struct *es, pstate_struct *ps)
 #else
 void CanRes(const wstate_struct *ws, const estate_struct *es,
@@ -707,18 +707,18 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
      */
     double          delta;
     double          rr;
-#if !defined(_CYCLES_)
+#if !defined(_CYCLES_OBSOLETE_)
     double          ff;
     double          gx;
     int             k;
     double          part[MAXLYR];
 #endif
     const double    SLV = 2.501000e6;
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     const double    RC = 70.0;
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     ps->rc = RC;
 #else
     /* Initialize canopy resistance multiplier terms. */
@@ -856,7 +856,7 @@ void DEvap(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     wf->edir = fx * (1.0 - lc->shdfac) * wf->etp;
 }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 void Evapo(const soil_struct *soil, const lc_struct *lc,
     const pstate_struct *ps, const estate_struct *es,
     const cstate_struct *cs, double dt, crop_struct crop[], wstate_struct *ws,
@@ -896,7 +896,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
             DEvap(ws, wf, ps, lc, soil);
         }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         /* Evaporation from residue (Cycles function) */
         ResidueEvaporation(wf->etp * RHOH2O * dt, dt, ps->sncovr, crop, ps, cs,
             ws, wf);
@@ -906,7 +906,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
         {
             /* Initialize plant total transpiration, retrieve plant
              * transpiration, and accumulate it for all soil layers */
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
             WaterUptake(soil, es, ps, dt, crop, ws, wf);
 #else
             Transp(ws, wf, ps, lc, soil);
@@ -916,7 +916,7 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
                 wf->ett += wf->et[k];
             }
 
-#if !defined(_CYCLES_)
+#if !defined(_CYCLES_OBSOLETE_)
             /* When coupled to Cycles, canopy evaporation is replaced by residue
              * evaporation */
             /* Calculate canopy evaporation.
@@ -1306,7 +1306,7 @@ void HStep(estate_struct *es, double *rhsts, double dt, int nsoil, double *ai,
     }
 }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 void NoPac(const soil_struct *soil, const lc_struct *lc,
     const cstate_struct *cs, double dt, double t24, crop_struct crop[],
     pstate_struct *ps, wstate_struct *ws, wflux_struct *wf,
@@ -1345,7 +1345,7 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
     if (wf->etp > 0.0)
     {
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         Evapo(soil, lc, ps, es, cs, dt, crop, ws, wf);
 #else
         Evapo(ws, wf, ps, lc, soil, dt);
@@ -1363,7 +1363,7 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         prcpf += wf->dew;
     }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     ResidueWetting(ps, cs, prcpf, dt, ws, wf);
 #else
     PcpDrp(ws, wf, lc, prcpf, dt);
@@ -1420,7 +1420,7 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     ef->flx3 = 0.0;
 }
 
-#if !defined(_CYCLES_)
+#if !defined(_CYCLES_OBSOLETE_)
 void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
     double prcp, double dt)
 {
@@ -1596,7 +1596,7 @@ void ShFlx(wstate_struct *ws, estate_struct *es, const pstate_struct *ps,
 }
 
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 void SmFlx(const soil_struct *soil, const cstate_struct *cs, double dt,
     pstate_struct *ps, wstate_struct *ws, wflux_struct *wf)
 #else
@@ -1645,7 +1645,7 @@ void SmFlx(wstate_struct *ws, wflux_struct *wf, pstate_struct *ps,
     }
     else
     {
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         SRT(soil, cs, dt, ps, ws, wf, rhstt, sice, ai, bi, ci);
 #else
         SRT(ws, wf, ps, soil, rhstt, sice, ai, bi, ci);
@@ -1742,7 +1742,7 @@ void SnkSrc(double *tsnsr, double tavg, double smc, double *sh2o,
     *sh2o = xh2o;
 }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 void SnoPac(const soil_struct *soil, const lc_struct *lc,
     const cstate_struct *cs, int snowng, double dt, double t24, double prcpf,
     double df1, crop_struct crop[], pstate_struct *ps, wstate_struct *ws,
@@ -1818,7 +1818,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         /* Land case */
         if (ps->sncovr < 1.0)
         {
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
             Evapo(soil, lc, ps, es, cs, dt, crop, ws, wf);
 #else
             Evapo(ws, wf, ps, lc, soil, dt);
@@ -1982,7 +1982,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
          * SmFlx returns updated soil moisture values for non-glacial land. */
     }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     ResidueWetting(ps, cs, prcpf, dt, ws, wf);
 #else
     PcpDrp(ws, wf, lc, prcpf, dt);
@@ -2169,7 +2169,7 @@ void SnowNew(const estate_struct *es, double newsn, pstate_struct *ps)
     ps->snowh = snowhc * 0.01;
 }
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 void SRT(const soil_struct *soil, const cstate_struct *cs, double dt,
     pstate_struct *ps, wstate_struct *ws, wflux_struct *wf, double *rhstt,
     double *sice, double *ai, double *bi, double *ci)
@@ -2582,7 +2582,7 @@ double TmpAvg(double tup, double tm, double tdn, const double *zsoil, int k)
     return tavg;
 }
 
-#if !defined(_CYCLES_)
+#if !defined(_CYCLES_OBSOLETE_)
 void Transp(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     const lc_struct *lc, const soil_struct *soil)
 {

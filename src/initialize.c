@@ -44,7 +44,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         pihm->elem[i].attrib.geol_type = pihm->atttbl.geol[i];
 #endif
         pihm->elem[i].attrib.lc_type = pihm->atttbl.lc[i];
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         pihm->elem[i].attrib.op_type = pihm->agtbl.op[i];
 #endif
 
@@ -190,7 +190,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         &pihm->cal);
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     InitCycles(&pihm->agtbl, &pihm->soiltbl, pihm->epctbl, pihm->elem,
         pihm->river);
 #endif
@@ -231,7 +231,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     /* Initialize state variables */
     InitVar(pihm->elem, pihm->river, CV_Y);
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 # if TEMP_DISABLED
     /* Initialize Cycles module */
     if (pihm->ctrl.read_cycles_restart)
@@ -573,7 +573,7 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
     /* State variables (initial conditions) */
     for (i = 0; i < nelem; i++)
     {
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         elem[i].ws.flatResidueWater = elem[i].ic.cmc;
 #else
         elem[i].ws.cmc = elem[i].ic.cmc;
@@ -759,7 +759,7 @@ void InitWFlux(wflux_struct *wf)
     wf->esnow = 0.0;
     wf->etns = 0.0;
 #endif
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     wf->irrigationVol = 0.0;
 #endif
 }

@@ -23,7 +23,7 @@ void StartupScreen(void)
 #if defined(_BGC_)
     PIHMprintf(VL_BRIEF, "    * Biogeochemistry module turned on.\n");
 #endif
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
     PIHMprintf(VL_BRIEF, "    * Crop module turned on.\n");
 #endif
 #if defined(_FBR_)
@@ -586,7 +586,7 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
 
         for (i = 0; i < nelem; i++)
         {
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
             fwrite(&elem[i].ws.flatResidueWater, sizeof(double), 1, init_file);
 #else
             fwrite(&elem[i].ws.cmc, sizeof(double), 1, init_file);
@@ -703,7 +703,7 @@ void PrintWaterBal(FILE *watbal_file, int t, int tstart, int dt,
         tot_snk += elem[i].wf.esnow * elem[i].topo.area * dt;
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         tot_strg += (elem[i].ws.flatResidueWater + elem[i].ws.stanResidueWater +
             elem[i].ws.sneqv + elem[i].ws.surf +
             (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity) *

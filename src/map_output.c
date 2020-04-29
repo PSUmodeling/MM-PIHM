@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
 void MapOutput(const int *prtvrbl, const epconst_struct epctbl[],
     const elem_struct *elem, const river_struct *river, const char *outputdir,
     print_struct *print)
@@ -74,7 +74,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     n++;
                     break;
                 case CMC_CTRL:
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
                     InitPrtVarCtrl(outputdir, "stanresw", prtvrbl[i],
                         LS_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
@@ -645,7 +645,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     break;
 # endif
 #endif
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
                 case BIOMASS_CTRL:
                     for (k = 0; k < MAXCROP && '\0' != epctbl[k].cropn[0]; k++)
                     {

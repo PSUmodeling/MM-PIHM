@@ -35,7 +35,7 @@ void _InitLc(elem_struct *elem_ptr, const lctbl_struct *lctbl,
     lc_ind = elem_ptr->attrib.lc_type - 1;
 
     elem_ptr->ps.rzd = cal->rzd * lctbl->rzd[lc_ind];
-#if !defined(_CYCLES_)
+#if !defined(_CYCLES_OBSOLETE_)
     elem_ptr->epc.rsmin = lctbl->rsmin[lc_ind];
     elem_ptr->epc.rgl = lctbl->rgl[lc_ind];
     elem_ptr->epc.hs = lctbl->hs[lc_ind];
@@ -74,7 +74,7 @@ void _InitLc(elem_struct *elem_ptr, const lctbl_struct *lctbl,
 #endif
 
 #if defined(_NOAH_)
-# if !defined(_CYCLES_)
+# if !defined(_CYCLES_OBSOLETE_)
     elem_ptr->epc.rgl *= cal->rgl;
     elem_ptr->epc.hs *= cal->hs;
     elem_ptr->epc.rsmin *= cal->rsmin;

@@ -60,7 +60,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         elem[i].nt.sminn0 = elem[i].ns.sminn;
 #endif
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         elem[i].np.no3 = (y[NO3(i)] >= 0.0) ? y[NO3(i)] : 0.0;
         elem[i].np.nh4 = (y[NH4(i)] >= 0.0) ? y[NH4(i)] : 0.0;
 
@@ -127,7 +127,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 
         river[i].ws0 = river[i].ws;
 
-#if defined(_CYCLES_)
+#if defined(_CYCLES_OBSOLETE_)
         river[i].ns.streamno3 = y[STREAMNO3(i)];
         river[i].ns.streamnh4 = y[STREAMNH4(i)];
 #endif
