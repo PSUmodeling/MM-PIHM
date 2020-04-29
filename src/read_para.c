@@ -196,6 +196,16 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
 
     fclose(para_file);
 
+#if defined(_CYCLES_)
+    if (ctrl->etstep != DAYINSEC)
+    {
+        PIHMprintf(VL_ERROR, "Warning: When coupled to Cycles, daily land "
+            "surface step is required. Thus land\nsurface model step is "
+            "changed to daily (86400 seconds).\n\n");
+        ctrl->etstep = DAYINSEC;
+    }
+#endif
+
     if (ctrl->etstep < ctrl->stepsize || ctrl->etstep % ctrl->stepsize > 0)
     {
         PIHMprintf(VL_ERROR,
