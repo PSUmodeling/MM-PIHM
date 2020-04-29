@@ -424,42 +424,32 @@ void IntrplForc(tsdata_struct *ts, int t, int nvrbl, int intrpl)
         PIHMprintf(VL_ERROR, "Please check your forcing file.\n");
         PIHMexit(EXIT_FAILURE);
     }
-    else
-    {
-        first = 1;
-        last = ts->length - 1;
 
-        while (first <= last)
+    first = 1;
+    last = ts->length - 1;
+
+    while (first <= last)
+    {
+        middle = (first + last) / 2;
+        if (t >= ts->ftime[middle - 1] && t < ts->ftime[middle])
         {
-            middle = (first + last) / 2;
-            if (t >= ts->ftime[middle - 1] && t < ts->ftime[middle])
+            for (j = 0; j < nvrbl; j++)
             {
-                for (j = 0; j < nvrbl; j++)
-                {
-                    if (intrpl)
-                    {
-                        ts->value[j] =
-                            ((double)(ts->ftime[middle] - t) *
-                            ts->data[middle - 1][j] +
-                            (double)(t - ts->ftime[middle - 1]) *
-                            ts->data[middle][j]) /
-                            (double)(ts->ftime[middle] - ts->ftime[middle - 1]);
-                    }
-                    else
-                    {
-                        ts->value[j] = ts->data[middle - 1][j];
-                    }
-                }
-                break;
+                ts->value[j] = (intrpl) ?
+                    ((double)(ts->ftime[middle] - t) * ts->data[middle - 1][j] +
+                    (double)(t - ts->ftime[middle - 1]) * ts->data[middle][j]) /
+                    (double)(ts->ftime[middle] - ts->ftime[middle - 1]) :
+                    ts->data[middle - 1][j];
             }
-            else if (ts->ftime[middle] > t)
-            {
-                last = middle - 1;
-            }
-            else
-            {
-                first = middle + 1;
-            }
+            break;
+        }
+        else if (ts->ftime[middle] > t)
+        {
+            last = middle - 1;
+        }
+        else
+        {
+            first = middle + 1;
         }
     }
 }
