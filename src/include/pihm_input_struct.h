@@ -25,9 +25,9 @@ typedef struct filename_struct
 #endif
 #if defined(_CYCLES_)
     char            cycles[MAXSTRING];
+    char            soilinit[MAXSTRING];
 #endif
 #if defined(_CYCLES_OBSOLETE_)
-    char            soilinit[MAXSTRING];
     char            crop[MAXSTRING];
     char            op[MAXOP][MAXSTRING];
     char            cyclesic[MAXSTRING];
@@ -179,14 +179,14 @@ typedef struct soiltbl_struct
                                              * macropore hydraulic conductivity
                                              * and horizontal saturated
                                              * hydraulic conductivity (-) */
-#if defined(_CYCLES_OBSOLETE_)
-    int            *totalLayers;
-    double        **clay_lyr;
-    double        **sand_lyr;
-    double        **iom_lyr;
-    double        **bd_lyr;
-    double        **no3_lyr;
-    double        **nh4_lyr;
+#if defined(_CYCLES_)
+    int            *nlayers;
+    double        **clay_layer;
+    double        **sand_layer;
+    double        **iom_layer;
+    double        **bd_layer;
+    double        **no3;
+    double        **nh4;
 #endif
 } soiltbl_struct;
 

@@ -41,9 +41,9 @@ void ReadAlloc(pihm_struct pihm)
 #endif
 #if defined(_CYCLES_)
     sprintf(pihm->filename.cycles,   "input/%s/%s.cycles",   proj, proj);
+    sprintf(pihm->filename.soilinit, "input/%s/%s.soilinit", proj, proj);
 #endif
 #if defined(_CYCLES_OBSOLETE_)
-    sprintf(pihm->filename.soilinit, "input/%s/%s.soilinit", proj, proj);
     sprintf(pihm->filename.crop,     "input/%s/%s.crop",     proj, proj);
     sprintf(pihm->filename.cyclesic, "input/%s/%s.cyclesic", proj, proj);
 #endif
@@ -140,12 +140,12 @@ void ReadAlloc(pihm_struct pihm)
 #if defined(_CYCLES_)
     /* Read Cycles simulation control file */
     ReadCyclesCtrl(pihm->filename.cycles, &pihm->agtbl, &pihm->ctrl);
+
+    /* Read soil initialization file */
+    ReadSoilInit(pihm->filename.soilinit, &pihm->soiltbl);
 #endif
 
 #if defined(_CYCLES_OBSOLETE_)
-    /* Read soil initialization file */
-    ReadSoilInit(pihm->filename.soilinit, &pihm->soiltbl);
-
     /* Read crop description file */
     ReadCrop(pihm->filename.crop, pihm->epctbl);
 

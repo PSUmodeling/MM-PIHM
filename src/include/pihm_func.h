@@ -572,6 +572,7 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 void            ApplyDailyMeteoForc(int, int, const siteinfo_struct *,
     forc_struct *, elem_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
+void            ReadSoilInit(const char [], soiltbl_struct *);
 #endif
 #if defined(_CYCLES_OBSOLETE_)
 void            AddCrop(crop_struct *);
@@ -694,7 +695,6 @@ void            ReadMultOper(const agtbl_struct *, const epconst_struct [],
     opertbl_struct []);
 void            ReadOperation(const char [], int, const epconst_struct [],
     opertbl_struct []);
-void            ReadSoilInit(const char [], soiltbl_struct *);
 void            ResidueEvaporation(double, double, double, const crop_struct [],
     const pstate_struct *, const cstate_struct *, wstate_struct *,
     wflux_struct *);
