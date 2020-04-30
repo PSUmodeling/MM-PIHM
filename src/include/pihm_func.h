@@ -571,8 +571,12 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 #if defined(_CYCLES_)
 void            ApplyDailyMeteoForc(int, int, const siteinfo_struct *,
     forc_struct *, elem_struct []);
+double          BulkDensity(double, double, double);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
 void            ReadSoilInit(const char [], soiltbl_struct *);
+double          SoilWaterContent(double, double, double, double);
+double          VolWCAt33Jkg(double, double, double);
+double          VolWCAt1500Jkg(double, double, double);
 #endif
 #if defined(_CYCLES_OBSOLETE_)
 void            AddCrop(crop_struct *);

@@ -228,7 +228,7 @@ endif
 #-------------------
 # Flux-PIHM-Cycles
 #-------------------
-CYCLES_PATH = ../Cycles_esm/src
+CYCLES_PATH = ../Cycles_dev/src
 RQD_CYCLES_VERS = R0.8.0-alpha
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
   SFLAGS += -D_NOAH_ -D_CYCLES_ -D_DAILY_
@@ -247,6 +247,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	#cycles/ntransport.c\
 	#cycles/update_prof.c
   CYCLES_SRCS_ =\
+	soil.c
 	#crop.c\
 	#crop_harvest.c\
 	#crop_process.c\

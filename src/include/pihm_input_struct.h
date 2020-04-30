@@ -187,6 +187,10 @@ typedef struct soiltbl_struct
     double        **bd_layer;
     double        **no3;
     double        **nh4;
+    double        **b;
+    double        **air_entry_pot;
+    double        **fc;
+    double        **pwp;
 #endif
 } soiltbl_struct;
 

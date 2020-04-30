@@ -148,6 +148,11 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
     soiltbl->bd_layer   = (double **)malloc(soiltbl->number * sizeof(double *));
     soiltbl->no3        = (double **)malloc(soiltbl->number * sizeof(double *));
     soiltbl->nh4        = (double **)malloc(soiltbl->number * sizeof(double *));
+    soiltbl->fc         = (double **)malloc(soiltbl->number * sizeof(double *));
+    soiltbl->pwp        = (double **)malloc(soiltbl->number * sizeof(double *));
+    soiltbl->air_entry_pot
+                        = (double **)malloc(soiltbl->number * sizeof(double *));
+    soiltbl->b          = (double **)malloc(soiltbl->number * sizeof(double *));
 
     FindLine(fp, "BOF", &lno, filen);
 
@@ -170,12 +175,16 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
         ReadKeyword(cmdstr, "TOTAL_LAYERS", &soiltbl->nlayers[i], 'i',
             filen, lno);
 
-        soiltbl->clay_layer[i] = (double *)malloc(MAXLYR * sizeof(double));
-        soiltbl->sand_layer[i] = (double *)malloc(MAXLYR * sizeof(double));
-        soiltbl->iom_layer[i]  = (double *)malloc(MAXLYR * sizeof(double));
-        soiltbl->bd_layer[i]   = (double *)malloc(MAXLYR * sizeof(double));
-        soiltbl->no3[i]        = (double *)malloc(MAXLYR * sizeof(double));
-        soiltbl->nh4[i]        = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->clay_layer[i]    = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->sand_layer[i]    = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->iom_layer[i]     = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->bd_layer[i]      = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->no3[i]           = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->nh4[i]           = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->fc[i]            = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->pwp[i]           = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->air_entry_pot[i] = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->b[i]             = (double *)malloc(MAXLYR * sizeof(double));
 
         /* Skip header line */
         NextLine(fp, cmdstr, &lno);
@@ -183,6 +192,13 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
         for (k = 0; k < soiltbl->nlayers[i]; k++)
         {
             int             layer;
+            double          aep;            /* Saxton's air entry potential */
+            double          bd;             /* Saxton's bulk density */
+            double          wc33;           /* Saxton's volumetric WC at 33 J/kg
+                                             */
+            double          wc1500;         /* Saxton's volumetric WC at
+                                             * 1500 J/kg */
+            double          fc_water_pot;
 
             NextLine(fp, cmdstr, &lno);
             match = sscanf(cmdstr, "%d %lf %lf %lf %lf %lf %lf", &layer,
@@ -202,26 +218,63 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
 
             soiltbl->clay_layer[i][k] = (soiltbl->clay_layer[i][k] < 0.0) ?
                 soiltbl->clay[i] : soiltbl->clay_layer[i][k];
+            soiltbl->clay_layer[i][k] /= 100.0;
             soiltbl->sand_layer[i][k] = (soiltbl->sand_layer[i][k] < 0.0) ?
                 100.0 - soiltbl->clay[i] - soiltbl->silt[i] :
                 soiltbl->sand_layer[i][k];
+            soiltbl->sand_layer[i][k] /= 100.0;
             soiltbl->iom_layer[i][k] = (soiltbl->iom_layer[i][k] < 0.0) ?
                 soiltbl->om[i] : soiltbl->iom_layer[i][k];
-            soiltbl->bd_layer[i][k] = (soiltbl->bd_layer[i][k] < 0.0) ?
-                soiltbl->bd[i] : soiltbl->bd_layer[i][k];
+
+            bd = BulkDensity(soiltbl->clay_layer[i][k],
+                soiltbl->sand_layer[i][k], soiltbl->iom_layer[i][k]);
+            wc33 = VolWCAt33Jkg(soiltbl->clay_layer[i][k],
+                soiltbl->sand_layer[i][k], soiltbl->iom_layer[i][k]);
+            wc1500 = VolWCAt1500Jkg(soiltbl->clay_layer[i][k],
+                soiltbl->sand_layer[i][k], soiltbl->iom_layer[i][k]);
+
+            /* Saxton's b */
+            soiltbl->b[i][k] = (log(1500.0) - log(33.0)) /
+                (log(wc33) - log(wc1500));
+
+            /* Air entry potential */
+            soiltbl->air_entry_pot[i][k] = -33.0 *
+                pow(wc33 / (1.0 - bd / 2.65), soiltbl->b[i][k]) *
+                ((roundi(soiltbl->bd_layer[i][k]) == BADVAL) ?
+                1.0 :
+                pow(soiltbl->bd_layer[i][k] / bd, 0.67 * soiltbl->b[i][k]));
+
+            /* Bulk density */
+            soiltbl->bd_layer[i][k] =
+                (roundi(soiltbl->bd_layer[i][k]) == BADVAL) ?
+                bd : soiltbl->bd_layer[i][k];
+
+            /* Field capacity */
+            fc_water_pot = -0.35088 * soiltbl->clay_layer[i][k] * 100.0 -
+                28.947;
+            soiltbl->fc[i][k] = SoilWaterContent(soiltbl->smcmax[i],
+                soiltbl->air_entry_pot[i][k], soiltbl->b[i][k], fc_water_pot);
+
+            /* Permanent wilting point */
+            soiltbl->pwp[i][k] = SoilWaterContent(soiltbl->smcmax[i],
+                soiltbl->air_entry_pot[i][k], soiltbl->b[i][k], -1500.0);
         }
 
         /* When the number of soil layers in Flux-PIHM is larger than in
          * soilinit file, use the last described layer to fill the rest of
          * layers */
-        for (k = soiltbl->nlayers[i] - 1; k < MAXLYR; k++)
+        for (k = soiltbl->nlayers[i]; k < MAXLYR; k++)
         {
-            soiltbl->clay_layer[i][k] = soiltbl->clay_layer[i][k - 1];
-            soiltbl->sand_layer[i][k] = soiltbl->sand_layer[i][k - 1];
-            soiltbl->iom_layer[i][k]  = soiltbl->iom_layer[i][k - 1];
-            soiltbl->bd_layer[i][k]   = soiltbl->bd_layer[i][k - 1];
-            soiltbl->no3[i][k]        = soiltbl->no3[i][k - 1];
-            soiltbl->nh4[i][k]        = soiltbl->nh4[i][k - 1];
+            soiltbl->clay_layer[i][k]    = soiltbl->clay_layer[i][k - 1];
+            soiltbl->sand_layer[i][k]    = soiltbl->sand_layer[i][k - 1];
+            soiltbl->iom_layer[i][k]     = soiltbl->iom_layer[i][k - 1];
+            soiltbl->bd_layer[i][k]      = soiltbl->bd_layer[i][k - 1];
+            soiltbl->no3[i][k]           = soiltbl->no3[i][k - 1];
+            soiltbl->nh4[i][k]           = soiltbl->nh4[i][k - 1];
+            soiltbl->b[i][k]             = soiltbl->b[i][k - 1];
+            soiltbl->air_entry_pot[i][k] = soiltbl->air_entry_pot[i][k - 1];
+            soiltbl->fc[i][k]            = soiltbl->fc[i][k - 1];
+            soiltbl->pwp[i][k]           = soiltbl->pwp[i][k - 1];
         }
     }
 
