@@ -10,8 +10,7 @@ void ReadBedrock(const char *filename, atttbl_struct *atttbl,
     int             index;
     int             lno = 0;
 
-    br_file = fopen (filename, "r");
-    CheckFile (br_file, filename);
+    br_file = PIHMfopen (filename, "r");
     PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading bedrock file */

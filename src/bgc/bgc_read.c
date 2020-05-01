@@ -10,8 +10,7 @@ void ReadBgc(const char *fn, ctrl_struct *ctrl, co2control_struct *co2,
     int             acc_flag = 0;
 
     /* Read bgc simulation control file */
-    bgc_file = fopen(fn, "r");
-    CheckFile(bgc_file, fn);
+    bgc_file = PIHMfopen(fn, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 
     FindLine(bgc_file, "RESTART", &lno, fn);
@@ -193,31 +192,31 @@ void ReadEpc(epctbl_struct *epctbl)
         {
             case IGBP_ENF:
                 strcpy(fn, "input/epc/enf.epc");
-                epc_file = fopen(fn, "r");
+                epc_file = PIHMfopen(fn, "r");
                 break;
             case IGBP_EBF:
                 strcpy(fn, "input/epc/ebf.epc");
-                epc_file = fopen(fn, "r");
+                epc_file = PIHMfopen(fn, "r");
                 break;
             case IGBP_DNF:
                 strcpy(fn, "input/epc/dnf.epc");
-                epc_file = fopen(fn, "r");
+                epc_file = PIHMfopen(fn, "r");
                 break;
             case IGBP_DBF:
                 strcpy(fn, "input/epc/dbf.epc");
-                epc_file = fopen(fn, "r");
+                epc_file = PIHMfopen(fn, "r");
                 break;
             case IGBP_GRASS:
                 strcpy(fn, "input/epc/c3grass.epc");
-                epc_file = fopen(fn, "r");
+                epc_file = PIHMfopen(fn, "r");
                 break;
             case IGBP_CLOSE_SHRUB:
                 strcpy(fn, "input/epc/shrub.epc");
-                epc_file = fopen(fn, "r");
+                epc_file = PIHMfopen(fn, "r");
                 break;
             case IGBP_OPEN_SHRUB:
                 strcpy(fn, "input/epc/shrub.epc");
-                epc_file = fopen(fn, "r");
+                epc_file = PIHMfopen(fn, "r");
                 break;
             default:
                 strcpy(fn, "N/A");
@@ -226,7 +225,6 @@ void ReadEpc(epctbl_struct *epctbl)
 
         if (strcasecmp(fn, "N/A") != 0)
         {
-            CheckFile(epc_file, fn);
             PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 
             /* Skip header file */
@@ -521,8 +519,7 @@ void ReadAnnFile(tsdata_struct *ts, const char *fn)
     int             match;
     int             lno = 0;
 
-    fid = fopen(fn, "r");
-    CheckFile(fid, fn);
+    fid = PIHMfopen(fn, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 
     ts->length = CountLine(fid, cmdstr, 1, "EOF");

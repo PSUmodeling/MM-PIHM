@@ -9,8 +9,7 @@ void ReadAtt(const char *filename, atttbl_struct *atttbl)
     int             index;
     int             lno = 0;
 
-    att_file = fopen(filename, "r");
-    CheckFile(att_file, filename);
+    att_file = PIHMfopen(filename, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     atttbl->soil = (int *)malloc(nelem * sizeof(int));

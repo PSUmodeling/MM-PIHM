@@ -9,8 +9,7 @@ void ReadForc(const char *filename, forc_struct *forc)
     int             index;
     int             lno = 0;
 
-    meteo_file = fopen(filename, "r");
-    CheckFile(meteo_file, filename);
+    meteo_file = PIHMfopen(filename, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     FindLine(meteo_file, "BOF", &lno, filename);

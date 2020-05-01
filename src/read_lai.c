@@ -23,8 +23,7 @@ void ReadLai(const char *filename, forc_struct *forc,
 
     if (read_lai)
     {
-        lai_file = fopen(filename, "r");
-        CheckFile(lai_file, filename);
+        lai_file = PIHMfopen(filename, "r");
         PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
         /* Start reading lai_file */

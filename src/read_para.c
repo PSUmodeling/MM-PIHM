@@ -13,8 +13,7 @@ void ReadPara(const char *filename, ctrl_struct *ctrl)
         ctrl->prtvrbl[i] = 0;
     }
 
-    para_file = fopen(filename, "r");
-    CheckFile(para_file, filename);
+    para_file = PIHMfopen(filename, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading para_file */

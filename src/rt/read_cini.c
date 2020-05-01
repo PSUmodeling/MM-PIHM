@@ -13,8 +13,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
     int             lno = 0;
     int             convert = 0;
 
-    fp = fopen(filen, "r");
-    CheckFile(fp, filen);
+    fp = PIHMfopen(filen, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
 
     atttbl->prcpc = (int *)malloc(nelem * sizeof(int));

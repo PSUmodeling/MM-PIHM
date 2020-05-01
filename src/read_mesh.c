@@ -9,8 +9,7 @@ void ReadMesh(const char *filename, meshtbl_struct *meshtbl)
     int             index;
     int             lno = 0;
 
-    mesh_file = fopen(filename, "r");
-    CheckFile(mesh_file, filename);
+    mesh_file = PIHMfopen(filename, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     /*

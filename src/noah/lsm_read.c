@@ -15,8 +15,7 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     /*
      * Open *.lsm file
      */
-    lsm_file = fopen(filename, "r");
-    CheckFile(lsm_file, filename);
+    lsm_file = PIHMfopen(filename, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     /*
@@ -145,8 +144,7 @@ void ReadRad(const char *filename, forc_struct *forc)
     char            cmdstr[MAXSTRING];
     int             lno = 0;
 
-    rad_file = fopen(filename, "r");
-    CheckFile(rad_file, filename);
+    rad_file = PIHMfopen(filename, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     FindLine(rad_file, "BOF", &lno, filename);
@@ -218,8 +216,7 @@ void ReadGlacierIce(const char filename[], double iceh[])
     int             index;
     int             lno = 0;
 
-    ice_file = fopen(filename, "r");
-    CheckFile(ice_file, filename);
+    ice_file = PIHMfopen(filename, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     NextLine(ice_file, cmdstr, &lno);

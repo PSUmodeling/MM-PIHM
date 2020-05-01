@@ -61,6 +61,7 @@
 /* PIHM system function */
 #define PIHMexit(...)           _custom_exit(__FILE__, __LINE__, __FUNCTION__, debug_mode,  __VA_ARGS__)
 #define PIHMprintf(...)         _custom_printf(__FILE__, __LINE__, __FUNCTION__, debug_mode, verbose_mode, __VA_ARGS__)
+#define PIHMfopen               _custom_fopen
 #if defined(_WIN32) || defined(_WIN64)
 # define PIHMmkdir(path)        _mkdir((path))
 # define PIHMaccess(path, amode) _access((path), (amode))

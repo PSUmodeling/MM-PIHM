@@ -11,8 +11,7 @@ void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
     int             lno = 0;
 
     /* Open simulation control file */
-    fp = fopen(filen, "r");
-    CheckFile(fp, filen);
+    fp = PIHMfopen(filen, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
 
     agtbl->oper = (int *)malloc(nelem * sizeof(int));
@@ -137,8 +136,7 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
     /*
      * Open soil initialization file
      */
-    fp = fopen(filen, "r");
-    CheckFile(fp, filen);
+    fp = PIHMfopen(filen, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
 
     soiltbl->nlayers    = (int *)malloc(soiltbl->number * sizeof(int));
@@ -319,8 +317,7 @@ void ReadMultOper(const agtbl_struct *agtbl, const epconst_struct epctbl[],
 //    FILE           *init_file;
 //    int             i;
 //
-//    init_file = fopen(fn, "rb");
-//    CheckFile(init_file, fn);
+//    init_file = PIHMfopen(fn, "rb");
 //    PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 //
 //    for (i = 0; i < nelem; i++)

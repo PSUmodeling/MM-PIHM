@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
 #include "custom_io.h"
 
 void _custom_exit(const char *fn, int lineno, const char *func, int debug,
@@ -53,14 +49,20 @@ void _custom_printf(const char *fn, int lineno, const char *func, int debug,
     va_end(va);
 }
 
-void CheckFile(const FILE *fp, const char *fn)
+FILE* _custom_fopen(const char filen[], const char mode[])
 {
-    if (NULL == fp)
+    FILE           *fp;
+
+    fp = fopen(filen, mode);
+
+    if (fp == NULL)
     {
-        fprintf(stderr, "Error opening %s.\n", fn);
+        fprintf(stderr, "Error opening %s.\n", filen);
         fflush(stderr);
         exit(EXIT_FAILURE);
     }
+
+    return fp;
 }
 
 int CountLine(FILE *fp, char *cmdstr, int num_arg, ...)

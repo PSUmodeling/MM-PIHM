@@ -6,8 +6,7 @@ void ReadIc(const char *filename, elem_struct *elem, river_struct *river)
     int             i;
     int             size;
 
-    ic_file = fopen(filename, "rb");
-    CheckFile(ic_file, filename);
+    ic_file = PIHMfopen(filename, "rb");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     fseek(ic_file, 0L, SEEK_END);

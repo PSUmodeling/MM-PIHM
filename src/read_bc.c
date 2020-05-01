@@ -54,8 +54,7 @@ void ReadBc(const char *filename, forc_struct *forc,
 
     if (read_bc)
     {
-        bc_file = fopen(filename, "r");
-        CheckFile(bc_file, filename);
+        bc_file = PIHMfopen(filename, "r");
         PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
         FindLine(bc_file, "BOF", &lno, filename);

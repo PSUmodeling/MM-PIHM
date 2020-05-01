@@ -9,8 +9,7 @@ void ReadGeol(const char *filename, geoltbl_struct *geoltbl)
     int             index;
     int             lno = 0;
 
-    geol_file = fopen (filename, "r");
-    CheckFile (geol_file, filename);
+    geol_file = PIHMfopen (filename, "r");
     PIHMprintf (VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading soil file */

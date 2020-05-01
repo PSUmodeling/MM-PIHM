@@ -13,8 +13,7 @@ void ReadSoil(const char *filename, soiltbl_struct *soiltbl)
     int             ptf_used = 0;
     int             lno = 0;
 
-    soil_file = fopen(filename, "r");
-    CheckFile(soil_file, filename);
+    soil_file = PIHMfopen(filename, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading soil file */

@@ -6,8 +6,7 @@ void ReadCalib(const char *filename, calib_struct *cal)
     FILE           *global_calib;   /* Pointer to .calib file */
     int             lno = 0;
 
-    global_calib = fopen(filename, "r");
-    CheckFile(global_calib, filename);
+    global_calib = PIHMfopen(filename, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     NextLine(global_calib, cmdstr, &lno);

@@ -203,8 +203,7 @@ void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 //    int             i, j;
 //    FILE           *restart_file;
 //
-//    restart_file = fopen(restart_fn, "wb");
-//    CheckFile(restart_file, restart_fn);
+//    restart_file = PIHMfopen(restart_fn, "wb");
 //    PIHMprintf(VL_VERBOSE, "Writing Cycles initial conditions.\n");
 //
 //    for (i = 0; i < nelem; i++)

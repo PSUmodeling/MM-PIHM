@@ -1,6 +1,11 @@
 #ifndef CUCTOMIO_HEADER
 #define CUCTOMIO_HEADER
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+
 #if defined(_MSC_VER)
 # define strcasecmp             _stricmp
 # define strncasecmp            _strnicmp
@@ -9,7 +14,7 @@
 void            _custom_exit(const char *, int, const char *, int, int);
 void            _custom_printf(const char *, int, const char *, int, int, int,
     const char *, ...);
-void            CheckFile(const FILE *, const char *);
+FILE*           _custom_fopen(const char [], const char []);
 int             CountLine(FILE *, char *, int, ...);
 int             CountOccurr(FILE *, const char *);
 void            FindLine(FILE *, const char *, int *, const char *);

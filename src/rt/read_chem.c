@@ -15,12 +15,10 @@ void ReadChem(const char chem_filen[], const char cdbs_filen[],
     FILE           *chem_fp;
     FILE           *db_fp;
 
-    chem_fp = fopen(chem_filen, "r");
-    CheckFile(chem_fp, chem_filen);
+    chem_fp = PIHMfopen(chem_filen, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", chem_filen);
 
-    db_fp = fopen(cdbs_filen, "r");
-    CheckFile(db_fp, cdbs_filen);
+    db_fp = PIHMfopen(cdbs_filen, "r");
 
     /*
      * Runtime block

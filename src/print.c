@@ -93,16 +93,14 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
     if (watbal)
     {
         sprintf(watbal_fn, "%s%s.watbal.plt", outputdir, project);
-        print->watbal_file = fopen(watbal_fn, mode);
-        CheckFile(print->watbal_file, watbal_fn);
+        print->watbal_file = PIHMfopen(watbal_fn, mode);
     }
 
     /* Initialize cvode output files */
     if (debug_mode)
     {
         sprintf(perf_fn, "%s%s.cvode.log", outputdir, project);
-        print->cvodeperf_file = fopen(perf_fn, mode);
-        CheckFile(print->cvodeperf_file, perf_fn);
+        print->cvodeperf_file = PIHMfopen(perf_fn, mode);
         /* Print header lines */
         fprintf(print->cvodeperf_file,
             "%-8s%-8s%-16s%-8s%-8s%-8s%-8s%-8s%-8s\n",
@@ -116,14 +114,12 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
     for (i = 0; i < print->nprint; i++)
     {
         sprintf(dat_fn, "%s.dat", print->varctrl[i].name);
-        print->varctrl[i].datfile = fopen(dat_fn, bin_mode);
-        CheckFile(print->varctrl[i].datfile, dat_fn);
+        print->varctrl[i].datfile = PIHMfopen(dat_fn, bin_mode);
 
         if (ascii)
         {
             sprintf(ascii_fn, "%s.txt", print->varctrl[i].name);
-            print->varctrl[i].txtfile = fopen(ascii_fn, mode);
-            CheckFile(print->varctrl[i].txtfile, ascii_fn);
+            print->varctrl[i].txtfile = PIHMfopen(ascii_fn, mode);
         }
     }
 
@@ -581,8 +577,7 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
         sprintf(fn, "%s/restart/%s.%s.ic", outputdir, project,
             pihm_time.strshort);
 
-        init_file = fopen(fn, "wb");
-        CheckFile(init_file, fn);
+        init_file = PIHMfopen(fn, "wb");
 
         for (i = 0; i < nelem; i++)
         {

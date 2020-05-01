@@ -9,8 +9,7 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
 
     sprintf(restart_fn, "%s/restart/%s.rtic", outputdir, project);
 
-    fp = fopen(restart_fn, "wb");
-    CheckFile(fp, restart_fn);
+    fp = PIHMfopen(restart_fn, "wb");
     PIHMprintf(VL_VERBOSE, "Writing RT initial conditions.\n");
 
     for (i = 0; i < nelem; i++)
@@ -70,8 +69,7 @@ void ReadRtIc(const char *fn, elem_struct elem[])
     FILE           *fp;
     int             i;
 
-    fp = fopen(fn, "rb");
-    CheckFile(fp, fn);
+    fp = PIHMfopen(fn, "rb");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", fn);
 
     for (i = 0; i < nelem; i++)

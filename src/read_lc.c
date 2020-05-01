@@ -9,8 +9,7 @@ void ReadLc(const char *filename, lctbl_struct *lctbl)
     int             index;
     int             lno = 0;
 
-    lc_file = fopen(filename, "r");
-    CheckFile(lc_file, filename);
+    lc_file = PIHMfopen(filename, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     /* Start reading land cover file */

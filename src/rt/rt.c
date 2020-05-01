@@ -14,8 +14,7 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
     int             chem_ind;
     FILE           *fp;
 
-    fp = fopen(cdbs_filen, "r");
-    CheckFile(fp, cdbs_filen);
+    fp = PIHMfopen(cdbs_filen, "r");
 
     /*
      * Look up database to find required parameters and dependencies for

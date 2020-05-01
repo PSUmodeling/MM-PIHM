@@ -10,8 +10,7 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
     int             index;
     int             lno = 0;
 
-    riv_file = fopen(filename, "r");
-    CheckFile(riv_file, filename);
+    riv_file = PIHMfopen(filename, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filename);
 
     /*
