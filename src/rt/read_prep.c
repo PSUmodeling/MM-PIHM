@@ -16,7 +16,7 @@ void ReadPrep(const char filen[], const chemtbl_struct chemtbl[],
     char            chemn[MAXSTRING];
     char            cmdstr[MAXSTRING];
 
-    fp = fopenPIHM(filen, "r");
+    fp = PIHMfopen(filen, "r");
     PIHMprintf(VL_VERBOSE, " Reading %s\n", filen);
 
     forc->nprcpc = CountOccurr(fp, "PRCP_CONC_TS");
