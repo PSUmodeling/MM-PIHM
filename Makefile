@@ -13,6 +13,12 @@ ifeq ($(DEBUG), off)
   CFLAGS += -O2
 endif
 
+omptest := $(shell echo |cpp -fopenmp -dM 2>/dev/null |grep -i open |awk '{print $$2}')
+
+ifneq ($(omptest), _OPENMP)
+  OMP=off
+endif
+
 ifneq ($(OMP), off)
   CFLAGS += -fopenmp
 endif
