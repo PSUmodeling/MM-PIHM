@@ -75,8 +75,11 @@
 # define strncasecmp            _strnicmp
 #endif
 
+#if defined(_CYCLES_)
 #define Cycles_exit             PIHMexit
+#define Cycles_fopen            PIHMfopen
 #define Cycles_printf           PIHMprintf
+#endif
 
 #define MIN(x, y)               (((x) < (y)) ? (x) : (y))
 #define MAX(x, y)               (((x) > (y)) ? (x) : (y))
@@ -573,6 +576,7 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 void            ApplyDailyMeteoForc(int, int, const siteinfo_struct *,
     forc_struct *, elem_struct []);
 double          BulkDensity(double, double, double);
+void            ReadCrop(const char [], crop_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
 void            ReadSoilInit(const char [], soiltbl_struct *);
 double          SoilWaterContent(double, double, double, double);
@@ -694,7 +698,6 @@ void            Processes(int, const soil_struct *, const daily_struct *,
     const pstate_struct *, crop_struct [], cstate_struct *, nstate_struct *,
     nflux_struct *);
 void            RadiationInterception(crop_struct []);
-void            ReadCrop(const char [], epconst_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
 void            ReadMultOper(const agtbl_struct *, const epconst_struct [],
     opertbl_struct []);

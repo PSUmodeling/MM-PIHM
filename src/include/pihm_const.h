@@ -430,9 +430,24 @@
 
 #if defined(_CYCLES_)
 #define MAXOP                   100
+#define MAXCROP                 100
+
+#define REMOVE_CLIPPING         0
+#define RETURN_CLIPPING         1
+#define GRAZING_CLIPPING        2
+
+#define NOT_USED                -999
+#define KILLED                  -1
+#define NO_CROP                 0
+#define PRE_EMERGENCE           1
+#define VEGETATIVE_GROWTH       2
+#define PERENNIAL               3
+#define REPRODUCTIVE_GROWTH     4
+#define MATURITY                5
+#define CLIPPING                6
+#define PLANTING                7
 #endif
 #if defined(_CYCLES_OBSOLETE_)
-#define MAXCROP                 100
 
 #define PLANT_OP                0
 #define TILLAGE_OP              1
@@ -440,10 +455,6 @@
 #define FIXFERT_OP              3
 
 #define KILL_ALL                -1
-
-#define REMOVE_CLIPPING         0
-#define RETURN_CLIPPING         1
-#define GRAZING_CLIPPING        2
 
 #define STAN_RESIDUE_SA         4.0         /* standing residue area to mass
                                              * ratio (m2 kg-1) */

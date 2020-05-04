@@ -247,6 +247,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	#cycles/ntransport.c\
 	#cycles/update_prof.c
   CYCLES_SRCS_ =\
+	read_crop.c\
 	soil.c
 	#crop.c\
 	#crop_harvest.c\
@@ -259,7 +260,6 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	#growing_crop.c\
 	#irrigation.c\
 	#make_zero_flux_struct.c\
-	#read_crop.c\
 	#read_operation.c\
 	#residue.c\
 	#restart.c\

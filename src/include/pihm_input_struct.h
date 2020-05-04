@@ -26,9 +26,9 @@ typedef struct filename_struct
 #if defined(_CYCLES_)
     char            cycles[MAXSTRING];
     char            soilinit[MAXSTRING];
+    char            crop[MAXSTRING];
 #endif
 #if defined(_CYCLES_OBSOLETE_)
-    char            crop[MAXSTRING];
     char            op[MAXOP][MAXSTRING];
     char            cyclesic[MAXSTRING];
 #endif
@@ -417,6 +417,185 @@ typedef struct agtbl_struct
     int             noper;
     char            oper_filen[MAXOP][MAXSTRING];
 } agtbl_struct;
+
+typedef struct crop_epc_struct
+{
+    char            name[MAXSTRING];        /* name of crop (-) */
+    double          flower_thermal_time;    /* thermal time to flowering
+                                             * (degree C day) */
+    double          mat_thermal_time;       /* thermal time to maturity
+                                             * (degree C day) */
+    double          max_soil_cover;         /* maximum crop cover (-) */
+    double          max_rooting_depth;      /* maximum rooting depth (m) */
+    double          frac_residue_stand;     /* fraction of aboveground residues
+                                             * in standing position (-) */
+    double          frac_residue_removed;   /* fraction of non-grain crop
+                                             * biomass removed with harvested
+                                             * grain; or fraction of harvestable
+                                             * aboveground biomass removed with
+                                             * harvested forages or grazed (-)*/
+    double          clip_biomass_thld_upper;/* aboveground plant biomass
+                                             * threshold that triggers clipping
+                                             * event or forage harvest (Mg ha-1)
+                                             */
+    double          clip_biomass_thld_lower;/* aboveground plant biomass
+                                             * threshold that remains
+                                             * un-harvestable during clipping
+                                             * events (Mg ha-1) */
+    double          clip_timing;            /* fraction of thermal time to crop
+                                             * maturity that triggers clipping
+                                             * event or grain harvest (-) */
+    int             kill_after_harvest;     /* kill after harvest flag */
+    int             clip_density;           /* destiny of biomass cut by
+                                             * clipping events (-) */
+    double          tranp_tmp_min;          /* air temperature below which
+                                             * transpiration ceases (degree C)*/
+    double          tranp_tmp_thld;         /* threshold air temperature for
+                                             * transpiration calculation
+                                             * (degree C) */
+    double          cold_damage_tmp_min;    /* minimum temperature in cold
+                                             * damage factor (degree C) */
+    double          cold_damage_tmp_thld;   /* threshold temperature in cold
+                                             * damage factor (degree C) */
+    double          tmp_base;               /* base temperature for phenological
+                                             * development (degree C) */
+    double          tmp_opt;                /* optimum temperature for
+                                             * phenological development
+                                             * (degree C) */
+    double          tmp_max;                /* maximum temperature for
+                                             * phenological development
+                                             * (degree C) */
+    double          shoot_partn_init;       /* fraction of growth partitioned to
+                                             * shoot biomass at emergence (-) */
+    double          shoot_partn_final;      /* fraction of growth partitioned to
+                                             * shoot biomass at maturity (-) */
+    double          rad_use_eff;            /* radiation use efficiency (g MJ-1)
+                                             */
+    double          transp_use_eff;         /* transpiration use efficiency at
+                                             * 1 kPa VPD (g kg-1) */
+    double          hi_max;                 /* maximum harvest index (-) */
+    double          hi_opt;                 /* optimum harvest index (-) */
+    double          hi_min;                 /* minimum harvest index (-) */
+    double          emergen_thermal_time;   /* thermal time to emergence
+                                             * (degree C) */
+    double          n_conc_max;             /* maximum N concentration (g g-1)*/
+    double          n_dil_slope;            /* N dilution curve slope parameter
+                                             * (-) */
+    double          kc;                     /* transpiration coefficient (-) */
+    int             annual;                 /* annual/perennial flag (-) */
+    int             legume;                 /* legume flag (-) */
+    int             c3;                     /* C3/C4 flag (-) */
+    double          lwp_stress_onset;       /* leaf water potential for onset of
+                                             * stress (J kg-1) */
+    double          lwp_wilting_point;      /* leaf water potential at wilting
+                                             * point (J kg-1) */
+    double          tranp_max;              /* maximum transpiration rate
+                                             * (mm day-1) */
+} crop_epc_struct;
+
+typedef struct realized_crop_struct
+{
+    char            name[MAXSTRING];        /* name of crop */
+    int             plant_ymd;              /* year and date of planting */
+    double          biomass;                /* total biomass at harvest
+                                             * (Mg ha-1) */
+    double          root;                   /* root biomass at harvest (Mg ha-1)
+                                             */
+    double          grain_yield;            /* grain yield at harvest (Mg ha-1)
+                                             */
+    double          forage_yield;           /* forage yield at harvest (Mg ha-1)
+                                             */
+    double          residue;                /* aboveground residue biomass left
+                                             * in field at harvest (Mg ha-1) */
+    double          harvest_index;          /* fraction of aboveground biomass
+                                             * harvested as grain (-) */
+    double          n_total;                /* total biomass nitrogen at harvest
+                                             * (Mg ha-1) */
+    double          n_root;                 /* root biomass nitrogen at harvest
+                                             * (Mg ha-1) */
+    double          n_yield_grain;          /* grain nitrogen content at harvest
+                                             * (Mg ha-1) */
+    double          n_yield_forage;         /* forage or removed residue N
+                                             * content at harvest (Mg ha-1) */
+    double          n_stress_cum;           /* cumulative N stress over duration
+                                             * of crop growth (-) */
+    double          n_in_harvest;           /* N content in removed biomass
+                                             * (kg ha-1) */
+    double          n_in_residue;           /* N content in residue left in
+                                             * field (kg ha-1) */
+    double          n_conc_forage;          /* N concentration in forage or
+                                             * removed residues (%) */
+    double          n_auto_added;           /* cumulative N added in auto
+                                             * fertilization (Mg ha-1) */
+    double          n_fix;                  /* cumulative N fixation by legume
+                                             * (Mg ha-1) */
+    double          transp;                 /* crop transpiration (mm) */
+    double          transp_pot;             /* potential crop transpiration (mm)
+                                             */
+    double          soil_evap;              /* soil evaporation (mm) */
+} realized_crop_struct;
+
+typedef struct crop_struct
+{
+    crop_epc_struct epc;
+    int             stage_growth;           /* phenological stage */
+    int             auto_irrig;             /* auto irrigation index */
+    int             auto_fert;              /* auto fertilization flag */
+    int             plant_ymd;              /* year and date of planting */
+    double          plant_density;          /* see planting struct */
+    int             clip_start;             /* see planting struct */
+    int             clip_end;               /* see planting struct */
+    /* State Variables */
+    double          thermal_time_daily;     /* daily thermal time (degree C) */
+    double          thermal_time_cum;       /* cumulative thermal time
+                                             * (degree C) */
+    double          rad_intcp;              /* solar radiation intercepted by
+                                             * green leaves (-) */
+    double          rad_intcp_brown;        /* solar radiation intercepted
+                                             * by brown leaves (-) */
+    double          rad_intcp_nc;           /* solar radiation intercepted by
+                                             * green leaves without considering
+                                             * competition (-) */
+    double          biomass;                /* total biomass (Mg ha-1) */
+    double          shoot;                  /* shoot biomass (Mg ha-1) */
+    double          root;                   /* root biomass (Mg ha-1) */
+    double          rhizo;                  /* rhizo biomass (Mg ha-1) */
+    double          shoot_growth;           /* daily shoot growth (Mg ha-1) */
+    double          root_growth;            /* daily root growth (Mg ha-1) */
+    double          rhizo_deposit;          /* daily rhizo deposition (Mg ha-1)
+                                             */
+    double          shoot_growth_unstr;     /* unstressed daily shoot
+                                             * growth (Mg ha-1) */
+    double          root_growth_unstr;      /* unstressed daily root growth
+                                             * (Mg ha-1) */
+    double          shoot_post_flower;      /* shoot biomas cumulated after
+                                             * flowering (Mg ha-1) */
+    double          rooting_depth;          /* rooting depth (m) */
+    double          transp;                 /* daily transpiration (mm day-1)*/
+    double          transp_pot;             /* daily potential transpiration
+                                             * (mm day-1) */
+    double          n_shoot;                /* shoot biomass N content (Mg ha-1)
+                                             */
+    double          n_root;                 /* root biomass N content (Mg ha-1)
+                                             */
+    double          n_rhizo;                /* rhizo N content (Mg ha-1) */
+    double          n_rhizo_deposit;        /* rhizo daily N deposition
+                                             * (Mg ha-1) */
+    double          n_auto_added;           /* cumulative N added in auto
+                                             * fertilization (Mg ha-1) */
+    double          n_fix;                  /* cumulative N fixation by legume
+                                             * (Mg ha-1) */
+    double          water_stress;           /* daily water stress factor (-) */
+    double          n_stress;               /* daily nitrogen stress factor (-)
+                                             */
+    double          shoot_unstr;            /* cumulative unstressed shoot
+                                             * growth (Mg ha-1) */
+    double          n_stress_cum;           /* cumulative N stress factor (-) */
+    int             harvest_date_final;     /* final harvest day of year (-) */
+    int             harvest_count;          /* total count of harvests (-) */
+    realized_crop_struct rc;
+} crop_struct;
+
 #endif
 
 #if defined(_CYCLES_OBSOLETE_)
