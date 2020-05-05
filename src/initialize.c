@@ -80,8 +80,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
                 /* Adjust bc_type flag so that positive values indicate
                  * Dirichlet type, and negative values indicate Neumann type */
                 pihm->elem[i].attrib.fbrbc_type[j] =
-                    (pihm->forc.bc[bc - 1].bc_type == DIRICHLET) ?
-                    bc : -bc;
+                    (pihm->forc.bc[bc - 1].bc_type == DIRICHLET) ? bc : -bc;
             }
 #endif
         }

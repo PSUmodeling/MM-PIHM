@@ -27,7 +27,7 @@ void StartupScreen(void)
     PIHMprintf(VL_BRIEF, "    * Crop module turned on.\n");
 #endif
 #if defined(_FBR_)
-    PIHMprintf(VL_BRIEF, "    * Fractured bedrock module turned on.\n");
+    PIHMprintf(VL_BRIEF, "    * Deep groundwater module turned on.\n");
 #endif
 #if defined(_OPENMP)
     PIHMprintf(VL_BRIEF, "    * OpenMP (# of threads = %d).\n", nthreads);
@@ -584,19 +584,19 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
 #if defined(_CYCLES_OBSOLETE_)
             fwrite(&elem[i].ws.flatResidueWater, sizeof(double), 1, init_file);
 #else
-            fwrite(&elem[i].ws.cmc, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.cmc,       sizeof(double), 1, init_file);
 #endif
-            fwrite(&elem[i].ws.sneqv, sizeof(double), 1, init_file);
-            fwrite(&elem[i].ws.surf, sizeof(double), 1, init_file);
-            fwrite(&elem[i].ws.unsat, sizeof(double), 1, init_file);
-            fwrite(&elem[i].ws.gw, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.sneqv,     sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.surf,      sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.unsat,     sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.gw,        sizeof(double), 1, init_file);
 #if defined(_FBR_)
             fwrite(&elem[i].ws.fbr_unsat, sizeof(double), 1, init_file);
-            fwrite(&elem[i].ws.fbr_gw, sizeof(double), 1, init_file);
+            fwrite(&elem[i].ws.fbr_gw,    sizeof(double), 1, init_file);
 #endif
 #if defined(_NOAH_)
-            fwrite(&elem[i].es.t1, sizeof(double), 1, init_file);
-            fwrite(&elem[i].ps.snowh, sizeof(double), 1, init_file);
+            fwrite(&elem[i].es.t1,        sizeof(double), 1, init_file);
+            fwrite(&elem[i].ps.snowh,     sizeof(double), 1, init_file);
 
             int             j;
 

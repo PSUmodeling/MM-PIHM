@@ -66,9 +66,9 @@ void LateralFlow(elem_struct *elem, const river_struct *river, int surf_mode)
     /*
      * Lateral fractured bedrock flow
      */
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
+# if defined(_OPENMP)
+#  pragma omp parallel for
+# endif
     for (i = 0; i < nelem; i++)
     {
         int             j;

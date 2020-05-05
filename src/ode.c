@@ -33,8 +33,8 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem->ws.gw = (y[GW(i)] >= 0.0) ? y[GW(i)] : 0.0;
 
 #if defined(_FBR_)
-        elem->ws.fbr_unsat = (y[FBRUNSAT(i)] >= 0.0) ? y[FBRUNSAT(i)] : 0.0;
-        elem->ws.fbr_gw = (y[FBRGW(i)] >= 0.0) ? y[FBRGW(i)] : 0.0;
+        elem->ws.fbr_unsat = MAX(y[FBRUNSAT(i)], 0.0);
+        elem->ws.fbr_gw = MAX(y[FBRGW(i)], 0.0);
 #endif
 
 #if defined(_BGC_) && !defined(_LUMPED_)
@@ -240,7 +240,8 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[SOLUTE_SOIL(i, k)] += (elem->solute[k].infil +
                 elem->chmf.react[k]) / elem->topo.area;
 # if defined(_FBR_)
-            dy[SOLUTE_SOIL(i, k)] -= elem->solute[k].fbr_infil / elem->topo.area;
+            dy[SOLUTE_SOIL(i, k)] -= elem->solute[k].fbr_infil /
+                elem->topo.area;
 
             dy[SOLUTE_GEOL(i, k)] += (elem->solute[k].fbr_infil +
                 elem->chmf.react_geol[k]) / elem->topo.area;

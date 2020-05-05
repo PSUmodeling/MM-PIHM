@@ -41,8 +41,8 @@ void ReadBc(const char *filename, forc_struct *forc,
                 break;
             }
 #if defined(_FBR_)
-             if (atttbl->fbr_bc[i][j] != 0)
-             {
+            if (atttbl->fbr_bc[i][j] != 0)
+            {
                 read_bc = 1;
                 break;
             }

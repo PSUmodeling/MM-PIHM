@@ -117,6 +117,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
 #if defined(_FBR_)
             if (elem[i].attrib.fbrbc_type[j] > 0)
             {
+                /* Dirichlet type boundary conditions */
                 ind = elem[i].attrib.fbrbc_type[j] - 1;
                 elem[i].fbr_bc.head[j] = forc->bc[ind].value[0];
 # if defined(_RT_)
@@ -128,6 +129,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
             }
             else if (elem[i].attrib.fbrbc_type[j] < 0)
             {
+                /*  Neumann type boundary conditions */
                 ind = -elem[i].attrib.fbrbc_type[j] - 1;
                 elem[i].fbr_bc.flux[j] = forc->bc[ind].value[0];
 # if defined(_RT_)

@@ -63,7 +63,7 @@ void ParseCmdLineParam(int argc, char *argv[], char *outputdir)
                 printf("Compiled for two-grid model\n");
 #endif
 #if defined(_FBR_)
-                printf("Compiled with fractured bedrock module\n");
+                printf("Compiled with deep groundwater module\n");
 #endif
 #if defined(_OPENMP)
                 printf("Paralleled with OpenMP\n");
