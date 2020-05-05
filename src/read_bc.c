@@ -18,7 +18,7 @@ void ReadBc(const char *filename, forc_struct *forc,
     int             lno = 0;
 #if defined(_RT_)
     int             bytes_now;
-    int             bytes_consumed = 0;
+    int             bytes_consumed;
     int             ind[MAXSPS];
     char            chemn[MAXSTRING];
     double          bcval[MAXSPS + 1];
@@ -96,6 +96,8 @@ void ReadBc(const char *filename, forc_struct *forc,
                 }
 #if defined(_RT_)
                 int             k;
+
+                bytes_consumed = 0;
 
                 /* When reactive transport is turned on, the header line
                  * contains the names of species that need to be read */

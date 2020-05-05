@@ -95,7 +95,7 @@ void ReadAlloc(pihm_struct pihm)
 
 #if defined(_FBR_)
     /* Read geology input file */
-    ReadGeol (pihm->filename.geol, &pihm->geoltbl);
+    ReadGeol(pihm->filename.geol, &pihm->geoltbl);
 
     /* Read bedrock control file */
     ReadBedrock(pihm->filename.bedrock, &pihm->atttbl, &pihm->meshtbl,
