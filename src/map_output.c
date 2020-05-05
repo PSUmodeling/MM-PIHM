@@ -162,22 +162,6 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         print->varctrl[n].var[j] = &river[j].wf.rivflow[1];
                     }
                     n++;
-#if defined(_FBR_) && defined(_TGM_)
-                    InitPrtVarCtrl(outputdir, "rivflx11", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
-                    for (j = 0; j < nriver; j++)
-                    {
-                        print->varctrl[n].var[j] = &river[j].wf.rivflow[11];
-                    }
-                    n++;
-                    InitPrtVarCtrl(outputdir, "rivflx12", prtvrbl[i],
-                        HYDROL_STEP, nriver, &print->varctrl[n]);
-                    for (j = 0; j < nriver; j++)
-                    {
-                        print->varctrl[n].var[j] = &river[j].wf.rivflow[12];
-                    }
-                    n++;
-#endif
                     break;
                 case RIVFLX2_CTRL:
                     InitPrtVarCtrl(outputdir, "rivflx2", prtvrbl[i],
@@ -949,28 +933,6 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                                 &river[j].solute[k].flux[DOWN_CHANL2CHANL];
                         }
                         n++;
-
-# if defined(_FBR_) && defined(_TGM_)
-                        sprintf(ext, "left_dgw_discharge.%s", chemn);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nriver, &print->varctrl[n]);
-                        for (j = 0; j < nriver; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &river[j].chmf.flux[LEFT_FBR2CHANL][k];
-                        }
-                        n++;
-
-                        sprintf(ext, "right_dgw_discharge.%s", chemn);
-                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
-                            RT_STEP, nriver, &print->varctrl[n]);
-                        for (j = 0; j < nriver; j++)
-                        {
-                            print->varctrl[n].var[j] =
-                                &river[j].chmf.flux[RIGHT_FBR2CHANL][k];
-                        }
-                        n++;
-#endif
                     }
 
                     /* Secondary species */
@@ -1124,60 +1086,32 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 # endif
 
 # if defined(_RT_)
-        sprintf(ext, "elem%d.unsat_conc", i + 1);
+        sprintf(ext, "elem%d.conc", i + 1);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
             rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
         for (k = 0; k < rttbl->NumStc; k++)
         {
-            print->varctrl[n].var[k] = &elem[i].chms_unsat.p_conc[k];
+            print->varctrl[n].var[k] = &elem[i].chms.p_conc[k];
         }
         for (k = 0; k < rttbl->NumSsc; k++)
         {
             print->varctrl[n].var[rttbl->NumStc + k] =
-                &elem[i].chms_unsat.s_conc[k];
-        }
-        n++;
-
-        sprintf(ext, "elem%d.gw_conc", i + 1);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
-            rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
-        for (k = 0; k < rttbl->NumStc; k++)
-        {
-            print->varctrl[n].var[k] = &elem[i].chms_gw.p_conc[k];
-        }
-        for (k = 0; k < rttbl->NumSsc; k++)
-        {
-            print->varctrl[n].var[rttbl->NumStc + k] =
-                &elem[i].chms_gw.s_conc[k];
+                &elem[i].chms.s_conc[k];
         }
         n++;
 
 #  if defined(_FBR_)
-        sprintf(ext, "elem%d.deep_unsat_conc", i + 1);
+        sprintf(ext, "elem%d.deep_conc", i + 1);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
             rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
         for (k = 0; k < rttbl->NumStc; k++)
         {
-            print->varctrl[n].var[k] = &elem[i].chms_fbrunsat.p_conc[k];
+            print->varctrl[n].var[k] = &elem[i].chms_geol.p_conc[k];
         }
         for (k = 0; k < rttbl->NumSsc; k++)
         {
             print->varctrl[n].var[rttbl->NumStc + k] =
-                &elem[i].chms_fbrunsat.s_conc[k];
-        }
-        n++;
-
-        sprintf(ext, "elem%d.deep_gw_conc", i + 1);
-        InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
-            rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
-        for (k = 0; k < rttbl->NumStc; k++)
-        {
-            print->varctrl[n].var[k] = &elem[i].chms_fbrgw.p_conc[k];
-        }
-        for (k = 0; k < rttbl->NumSsc; k++)
-        {
-            print->varctrl[n].var[rttbl->NumStc + k] =
-                &elem[i].chms_fbrgw.s_conc[k];
+                &elem[i].chms_geol.s_conc[k];
         }
         n++;
 #  endif
@@ -1192,10 +1126,9 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
     }
     n++;
 
-    InitPrtVarCtrl(outputdir, "river.wstate", DAILY_OUTPUT, HYDROL_STEP, 2,
+    InitPrtVarCtrl(outputdir, "river.wstate", DAILY_OUTPUT, HYDROL_STEP, 1,
         &print->varctrl[n]);
     print->varctrl[n].var[0] = &river[0].ws.stage;
-    print->varctrl[n].var[1] = &river[0].ws.gw;
     n++;
 
 # if defined(_RT_)
@@ -1203,7 +1136,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
         rttbl->NumStc, &print->varctrl[n]);
     for (k = 0; k < rttbl->NumStc; k++)
     {
-        print->varctrl[n].var[k] = &river[0].chms_stream.p_conc[k];
+        print->varctrl[n].var[k] = &river[0].chms.p_conc[k];
     }
     n++;
 
@@ -1211,7 +1144,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
         &print->varctrl[n]);
     for (k = 0; k < rttbl->NumStc; k++)
     {
-        print->varctrl[n].var[k] = &river[0].chmf.flux[DOWN_CHANL2CHANL][k];
+        print->varctrl[n].var[k] = &river[0].solute[k].flux[DOWN_CHANL2CHANL];
     }
     n++;
 
@@ -1220,7 +1153,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
         rttbl->NumStc, &print->varctrl[n]);
     for (k = 0; k < rttbl->NumStc; k++)
     {
-        print->varctrl[n].var[k] = &river[0].chmf.flux[LEFT_FBR2CHANL][k];
+        print->varctrl[n].var[k] = &river[0].solute[k].flux[LEFT_FBR2CHANL];
     }
     n++;
 
@@ -1228,7 +1161,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
         rttbl->NumStc, &print->varctrl[n]);
     for (k = 0; k < rttbl->NumStc; k++)
     {
-        print->varctrl[n].var[k] = &river[0].chmf.flux[RIGHT_FBR2CHANL][k];
+        print->varctrl[n].var[k] = &river[0].solute[k].flux[RIGHT_FBR2CHANL];
     }
     n++;
 #  endif

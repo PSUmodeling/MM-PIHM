@@ -28,6 +28,9 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
         {
             /* Initialize chemical fluxes */
             elem[i].solute[k].fbr_infil = 0.0;
+#if defined(_TGM_)
+            elem[i].solute[k].fbr_discharge = 0.0;
+#endif
 
             for (j = 0; j < NUM_EDGE; j++)
             {

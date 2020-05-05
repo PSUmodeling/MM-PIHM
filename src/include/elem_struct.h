@@ -585,9 +585,11 @@ typedef struct solute_struct
                                              * infiltration (mass or mol s-1) */
     double          fbrflow[NUM_EDGE];      /* lateral solute flux in deep
                                              * layer (mass or mol s-1) */
+#  if defined(_TGM_)
     double          fbr_discharge;          /* solute flux from fractured
                                              * bedrock to river (only applies to
                                              * 2-grid model) (mass or mol s-1)*/
+#  endif
 # endif
 } solute_struct;
 #endif

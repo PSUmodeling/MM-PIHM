@@ -286,7 +286,7 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
         n++;
 
 # if defined(_RT_)
-        /* Unsat concentration file header */
+        /* Soil concentration file header */
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
         for (k = 0; k < rttbl->NumStc + rttbl->NumSsc; k++)
         {
@@ -306,47 +306,8 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
         fflush(print->varctrl[n].txtfile);
         n++;
 
-        /* GW concentration file header */
-        fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
-        for (k = 0; k < rttbl->NumStc + rttbl->NumSsc; k++)
-        {
-            char                chemn[MAXSTRING];
-            Unwrap(chemn, chemtbl[k].ChemName);
-
-            fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
-        }
-        fprintf(print->varctrl[n].txtfile, "\n");
-
-        fprintf(print->varctrl[n].txtfile, "%-18s",  "\"YYYY-MM-DD hh:mm\"");
-        for (k = 0; k < rttbl->NumStc + rttbl->NumSsc; k++)
-        {
-            fprintf(print->varctrl[n].txtfile, "\t%-9s", "mole/L");
-        }
-        fprintf(print->varctrl[n].txtfile, "\n");
-        fflush(print->varctrl[n].txtfile);
-        n++;
 #  if defined(_FBR_)
-        /* Deep unsat concentration file header */
-        fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
-        for (k = 0; k < rttbl->NumStc + rttbl->NumSsc; k++)
-        {
-            char                chemn[MAXSTRING];
-            Unwrap(chemn, chemtbl[k].ChemName);
-
-            fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
-        }
-        fprintf(print->varctrl[n].txtfile, "\n");
-
-        fprintf(print->varctrl[n].txtfile, "%-18s",  "\"YYYY-MM-DD hh:mm\"");
-        for (k = 0; k < rttbl->NumStc + rttbl->NumSsc; k++)
-        {
-            fprintf(print->varctrl[n].txtfile, "\t%-9s", "mole/L");
-        }
-        fprintf(print->varctrl[n].txtfile, "\n");
-        fflush(print->varctrl[n].txtfile);
-        n++;
-
-        /* Deep GW concentration file header */
+        /* Deep aquifer concentration file header */
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
         for (k = 0; k < rttbl->NumStc + rttbl->NumSsc; k++)
         {
@@ -389,11 +350,9 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
     /* River state header */
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
     fprintf(print->varctrl[n].txtfile, "\t%-9s", "STAGE");
-    fprintf(print->varctrl[n].txtfile, "\t%-9s", "GW");
     fprintf(print->varctrl[n].txtfile, "\n");
 
     fprintf(print->varctrl[n].txtfile, "%-18s",  "\"YYYY-MM-DD hh:mm\"");
-    fprintf(print->varctrl[n].txtfile, "\t%-9s", "m");
     fprintf(print->varctrl[n].txtfile, "\t%-9s", "m");
     fprintf(print->varctrl[n].txtfile, "\n");
     fflush(print->varctrl[n].txtfile);
