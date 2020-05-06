@@ -157,9 +157,6 @@ void ReadCalib(const char *filename, calib_struct *cal)
     ReadKeyword(cmdstr, "ssa", &cal->ssa, 'd', filename, lno);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "gwinflux", &cal->gwinflux, 'd', filename, lno);
-
-    NextLine(global_calib, cmdstr, &lno);
     ReadKeyword(cmdstr, "prcpconc", &cal->prcpconc, 'd', filename, lno);
 
     NextLine(global_calib, cmdstr, &lno);

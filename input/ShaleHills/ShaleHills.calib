@@ -50,7 +50,6 @@ SLA             1.0     # canopy average projected SLA
 RT_CALIBRATION
 RATE            0.0183
 SSA             0.3355
-GWINFLUX        0.9047
 PRCPCONC        1.2833
 INITCONC        1.4527
 XSORPTION       0.0

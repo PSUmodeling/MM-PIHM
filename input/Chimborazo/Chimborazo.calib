@@ -39,7 +39,6 @@ WLTSMC      1.0
 RT_CALIBRATION
 rate        0.0183
 ssa         0.3355
-gwinflux    0.9047
 prcpconc    1.2833
 initconc    1.4527
 Xsorption   0.0
