@@ -35,15 +35,21 @@ void InitGeol (elem_struct *elem, const geoltbl_struct *geoltbl,
         elem[i].geol.alpha = cal->geol_alpha * geoltbl->alpha[geol_ind];
         elem[i].geol.beta = cal->geol_beta * geoltbl->beta[geol_ind];
 
+        elem[i].geol.dmac = cal->geol_dmac * geoltbl->dmac[geol_ind];
+        elem[i].geol.dmac = MIN(elem[i].geol.dmac, elem[i].geol.depth);
+
+        elem[i].geol.areafh = cal->geol_areafh * geoltbl->areafh[geol_ind];
+        elem[i].geol.areafv = cal->geol_areafv * geoltbl->areafv[geol_ind];
+
+        elem[i].geol.kmacv =
+            cal->geol_kmacv * geoltbl->kmacv_ro * geoltbl->ksatv[geol_ind];
+        elem[i].geol.kmach =
+            cal->geol_kmach * geoltbl->kmach_ro * geoltbl->ksath[geol_ind];
+
         elem[i].geol.kinfv  = BADVAL;
         elem[i].geol.dinf   = BADVAL;
         elem[i].geol.smcwlt = BADVAL;
         elem[i].geol.smcref = BADVAL;
-        elem[i].geol.dmac   = BADVAL;
-        elem[i].geol.kmach  = BADVAL;
-        elem[i].geol.kmacv  = BADVAL;
-        elem[i].geol.areafv = BADVAL;
-        elem[i].geol.areafh = BADVAL;
 #if defined(_NOAH_)
         elem[i].geol.csoil  = BADVAL;
         elem[i].geol.quartz = BADVAL;
