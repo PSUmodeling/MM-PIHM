@@ -286,7 +286,7 @@ double Psi(double satn, double alpha, double beta)
  * Hydrology for fractured bedrock
  */
 double FbrInfil(const wstate_struct *ws, const soil_struct *soil,
-    const geol_struct *geol, const topo_struct *topo)
+    const soil_struct *geol, const topo_struct *topo)
 {
     double          deficit;
     double          satn;
@@ -340,7 +340,7 @@ double FbrInfil(const wstate_struct *ws, const soil_struct *soil,
 }
 
 double FbrRecharge(const wstate_struct *ws, const wflux_struct *wf,
-    const geol_struct *geol)
+    const soil_struct *geol)
 {
     double          deficit;
     double          satn;

@@ -154,7 +154,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 #if defined(_FBR_)
 void MassBalance(const wstate_struct *ws, const wstate_struct *ws0,
     wflux_struct *wf, double *subrunoff, const soil_struct *soil,
-    const geol_struct *geol, double area, double stepsize)
+    const soil_struct *geol, double area, double stepsize)
 #else
 void MassBalance(const wstate_struct *ws, const wstate_struct *ws0,
     wflux_struct *wf, double *subrunoff, const soil_struct *soil,

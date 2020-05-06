@@ -226,7 +226,7 @@ void            MapOutput(const int *, const elem_struct *,
 #endif
 #if defined(_FBR_)
 void            MassBalance(const wstate_struct *, const wstate_struct *,
-    wflux_struct *, double *, const soil_struct *, const geol_struct *, double,
+    wflux_struct *, double *, const soil_struct *, const soil_struct *, double,
     double);
 #else
 void            MassBalance(const wstate_struct *, const wstate_struct *,
@@ -320,13 +320,13 @@ double          WiltingPoint(double, double, double, double);
  */
 #if defined(_FBR_)
 double          FbrBoundFluxElem(int, int, const bc_struct *,
-    const wstate_struct *, const topo_struct *, const geol_struct *);
+    const wstate_struct *, const topo_struct *, const soil_struct *);
 double          FbrFlowElemToElem(const elem_struct *, const elem_struct *,
     double, double);
 double          FbrInfil(const wstate_struct *, const soil_struct *,
-    const geol_struct *, const topo_struct *);
+    const soil_struct *, const topo_struct *);
 double          FbrRecharge(const wstate_struct *, const wflux_struct *,
-    const geol_struct *);
+    const soil_struct *);
 void            FreeGeoltbl(geoltbl_struct *);
 void            InitGeol (elem_struct *, const geoltbl_struct *,
         const calib_struct *);

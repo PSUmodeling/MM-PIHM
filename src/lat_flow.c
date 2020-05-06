@@ -352,7 +352,7 @@ double FbrFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
 }
 
 double FbrBoundFluxElem(int bc_type, int j, const bc_struct *bc,
-    const wstate_struct *ws, const topo_struct *topo, const geol_struct *geol)
+    const wstate_struct *ws, const topo_struct *topo, const soil_struct *geol)
 {
     double          diff_h;
     double          avg_h;

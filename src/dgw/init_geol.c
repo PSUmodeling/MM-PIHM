@@ -34,5 +34,20 @@ void InitGeol (elem_struct *elem, const geoltbl_struct *geoltbl,
         }
         elem[i].geol.alpha = cal->geol_alpha * geoltbl->alpha[geol_ind];
         elem[i].geol.beta = cal->geol_beta * geoltbl->beta[geol_ind];
+
+        elem[i].geol.kinfv  = BADVAL;
+        elem[i].geol.dinf   = BADVAL;
+        elem[i].geol.smcwlt = BADVAL;
+        elem[i].geol.smcref = BADVAL;
+        elem[i].geol.dmac   = BADVAL;
+        elem[i].geol.kmach  = BADVAL;
+        elem[i].geol.kmacv  = BADVAL;
+        elem[i].geol.areafv = BADVAL;
+        elem[i].geol.areafh = BADVAL;
+#if defined(_NOAH_)
+        elem[i].geol.csoil  = BADVAL;
+        elem[i].geol.quartz = BADVAL;
+        elem[i].geol.smcdry = BADVAL;
+#endif
     }
 }
