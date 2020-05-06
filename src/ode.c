@@ -528,7 +528,8 @@ void SolveCVode(const ctrl_struct *ctrl, double cputime, int *t,
 
     if (debug_mode)
     {
-        PIHMprintf(VL_NORMAL, "\033[1A\rStep = %s (%d)\n", pihm_time.str, *t);
+        PIHMprintf(VL_NORMAL, "\033[1A\rStep = %s (t = %d)\n",
+            pihm_time.str, *t);
         ProgressBar(progress);
     }
     else if (spinup_mode)
