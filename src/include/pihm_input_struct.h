@@ -198,10 +198,6 @@ typedef struct soiltbl_struct
 typedef struct geoltbl_struct
 {
     int             number;                 /* number of types */
-    double         *silt;                   /* silt percentage (%) */
-    double         *clay;                   /* clay percentage (%) */
-    double         *om;                     /* organic matter percentage (%) */
-    double         *bd;                     /* bulk density (g cm-3) */
     double         *ksath;                  /* horizontal saturated hydraulic
                                              * conductivity (m s-1) */
     double         *ksatv;                  /* vertical saturated hydraulic
