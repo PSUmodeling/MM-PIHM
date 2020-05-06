@@ -779,7 +779,7 @@ void ProgressBar(double progress)
 
     length = (int)(progress * (double)BAR_LENGTH);
 
-    PIHMprintf(VL_NORMAL, "  [");
+    PIHMprintf(VL_NORMAL, "[");
 
     for (i = 0; i < length; i++)
     {
