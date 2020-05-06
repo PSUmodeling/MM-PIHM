@@ -28,21 +28,11 @@ void _custom_printf(const char *fn, int lineno, const char *func, int debug,
     if (VL_ERROR == verbosity)
     {
         vfprintf(stderr, fmt, va);
-        if (debug)
-        {
-            fprintf(stderr, "Printed from %s", func);
-            fprintf(stderr, " (%s, Line %d).\n", fn, lineno);
-        }
         fflush(stderr);
     }
     else if (verbosity <= model_verbosity)
     {
         vfprintf(stdout, fmt, va);
-        if (debug)
-        {
-            printf("Printed from %s", func);
-            printf(" (%s, Line %d).\n", fn, lineno);
-        }
         fflush(stderr);
     }
 
