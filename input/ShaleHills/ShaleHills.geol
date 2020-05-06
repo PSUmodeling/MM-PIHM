@@ -1,3 +1,6 @@
 NUMGEOL     1
-INDEX   KSATV       KSATH       MAXSMC  MINSMC  ALPHA   BETA
-1       1.625E-7    1.202E-7    0.0370  0.00    10.0    2.0
+INDEX   KSATV       KSATH       MAXSMC  MINSMC  ALPHA   BETA    MACHF   MACVF   DMAC
+1       1.625E-7    1.202E-7    0.0370  0.00    10.0    2.0     0.01    0.01    1.0
+
+KMACV_RO    100.0
+KMACH_RO    1000.0

@@ -210,6 +210,20 @@ typedef struct geoltbl_struct
                                              * (m-1) */
     double         *beta;                   /* beta (n) from van Genuchten eqn
                                              * (-) */
+    double         *areafh;                 /* macropore area fraction on a
+                                             * horizontal cross-section (m2 m-2)
+                                             */
+    double         *areafv;                 /* macropore area fraction on a
+                                             * vertical cross-section (m2 m-2)*/
+    double         *dmac;                   /* macropore depth (m) */
+    double          kmacv_ro;               /* ratio between vertical macropore
+                                             * hydraulic conductivity and
+                                             * vertical saturated infiltration
+                                             * hydraulic conductivity (-) */
+    double          kmach_ro;               /* ratio between horizontal
+                                             * macropore hydraulic conductivity
+                                             * and horizontal saturated
+                                             * hydraulic conductivity (-) */
 } geoltbl_struct;
 
 /* Land cover parameters */

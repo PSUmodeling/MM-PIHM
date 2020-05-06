@@ -158,6 +158,9 @@ void FreeGeoltbl(geoltbl_struct *geoltbl)
     free(geoltbl->smcmin);
     free(geoltbl->alpha);
     free(geoltbl->beta);
+    free(geoltbl->areafh);
+    free(geoltbl->areafv);
+    free(geoltbl->dmac);
 }
 #endif
 
