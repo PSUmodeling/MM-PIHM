@@ -135,6 +135,21 @@ void ReadCalib(const char *filename, calib_struct *cal)
 
     NextLine(global_calib, cmdstr, &lno);
     ReadKeyword(cmdstr, "BETA", &cal->geol_beta, 'd', filename, lno);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "KMACSATH", &cal->geol_kmach, 'd', filename, lno);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "KMACSATV", &cal->geol_kmacv, 'd', filename, lno);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "DMAC", &cal->geol_dmac, 'd', filename, lno);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MACVF", &cal->geol_areafv, 'd', filename, lno);
+
+    NextLine(global_calib, cmdstr, &lno);
+    ReadKeyword(cmdstr, "MACHF", &cal->geol_areafh, 'd', filename, lno);
 #endif
 
 #if defined(_BGC_)

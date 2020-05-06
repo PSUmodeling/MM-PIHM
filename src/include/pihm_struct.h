@@ -114,6 +114,11 @@ typedef struct calib_struct
     double          geol_porosity;
     double          geol_alpha;
     double          geol_beta;
+    double          geol_dmac;
+    double          geol_kmach;
+    double          geol_kmacv;
+    double          geol_areafv;
+    double          geol_areafh;
 #endif
 #if defined(_NOAH_)
     double          smcref;
