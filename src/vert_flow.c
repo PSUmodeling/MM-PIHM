@@ -294,7 +294,6 @@ double FbrInfil(const wstate_struct *ws, const soil_struct *soil,
     double          satn;
     double          psi_u;
     double          h_u;
-    double          satkfunc;
     double          dh_by_dz;
     double          kavg;
     double          infil;
@@ -317,6 +316,8 @@ double FbrInfil(const wstate_struct *ws, const soil_struct *soil,
         }
         else
         {
+            double          ksoil, kgeol;
+
             deficit = geol->depth - ws->fbr_gw;
 
             satn = ws->fbr_unsat / deficit;
@@ -328,12 +329,19 @@ double FbrInfil(const wstate_struct *ws, const soil_struct *soil,
 
             h_u = psi_u + topo->zmin - 0.5 * deficit;
 
-            satkfunc = KrFunc(geol->beta, satn);
-
             dh_by_dz = (topo->zmin + ws->gw - h_u) / (0.5 * (ws->gw + deficit));
 
+            ksoil = (soil->dmac >= soil->depth) ?
+                soil->kmacv * soil->areafh +
+                soil->ksatv * (1.0 - soil->areafh) :
+                soil->ksatv;
+            kgeol = (geol->dmac > 0.0) ?
+                geol->ksatv * (1.0 - geol->areafh) * KrFunc(geol->beta, satn) +
+                geol->kmacv * geol->areafh * KrFunc(geol->beta, satn) :
+                geol->ksatv * KrFunc(geol->beta, satn);
+
             kavg = (ws->gw + deficit) /
-                (ws->gw / soil->ksatv + deficit / (geol->ksatv * satkfunc));
+                (ws->gw / ksoil + deficit / kgeol);
             infil = kavg * dh_by_dz;
         }
     }
@@ -347,7 +355,6 @@ double FbrRecharge(const wstate_struct *ws, const wflux_struct *wf,
     double          deficit;
     double          satn;
     double          psi_u;
-    double          satkfunc;
     double          dh_by_dz;
     double          kavg;
     double          rechg;
@@ -371,13 +378,9 @@ double FbrRecharge(const wstate_struct *ws, const wflux_struct *wf,
         psi_u = Psi(satn, geol->alpha, geol->beta);
         psi_u = (psi_u > PSIMIN) ? psi_u : PSIMIN;
 
-        satkfunc = KrFunc(geol->beta, satn);
-
         dh_by_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->fbr_gw));
 
-        kavg = (ws->fbr_unsat * geol->ksatv * satkfunc +
-             ws->fbr_gw * geol->ksatv) /
-            (ws->fbr_unsat + ws->fbr_gw);
+        kavg = AvgKv(geol, ws->fbr_gw, KrFunc(geol->beta, satn));
 
         rechg = kavg * dh_by_dz;
 

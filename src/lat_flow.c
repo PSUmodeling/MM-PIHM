@@ -339,6 +339,7 @@ double FbrFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
     double          diff_h;
     double          avg_h;
     double          grad_h;
+    double          effk, effk_nabr;
     double          avg_ksat;
 
     diff_h = (elem->ws.fbr_gw + elem->topo.zbed) -
@@ -346,7 +347,9 @@ double FbrFlowElemToElem(const elem_struct *elem, const elem_struct *nabr,
     avg_h = AvgH(diff_h, elem->ws.fbr_gw, nabr->ws.fbr_gw);
     grad_h = diff_h / dist;
 
-    avg_ksat = 0.5 * (elem->geol.ksath + nabr->geol.ksath);
+    effk = EffKh(&elem->geol, elem->ws.fbr_gw);
+    effk_nabr = EffKh(&nabr->geol, nabr->ws.fbr_gw);
+    avg_ksat = 0.5 * (effk + effk_nabr);
 
     return avg_ksat * grad_h * avg_h * edge;
 }
