@@ -159,10 +159,9 @@ double Recharge(const wstate_struct *ws, const wflux_struct *wf,
 
         psi_u = Psi(satn, soil->alpha, soil->beta);
 
-        dh_by_dz =
-            (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->gw));
+        dh_by_dz = (0.5 * deficit + psi_u) / (0.5 * (deficit + ws->gw));
 
-        kavg = AvgKv(soil, deficit, ws->gw, satkfunc);
+        kavg = AvgKv(soil, ws->gw, satkfunc);
 
         rechg = kavg * dh_by_dz;
 
@@ -173,11 +172,14 @@ double Recharge(const wstate_struct *ws, const wflux_struct *wf,
     return rechg;
 }
 
-double AvgKv(const soil_struct *soil, double deficit, double gw,
-    double satkfunc)
+double AvgKv(const soil_struct *soil, double gw, double satkfunc)
 {
     double          k1, k2, k3;
     double          d1, d2, d3;
+    double          deficit;
+
+    gw = MAX(gw, 0.0);
+    deficit = MAX(soil->depth - gw, 0.0);
 
     if (deficit > soil->dmac)
     {
