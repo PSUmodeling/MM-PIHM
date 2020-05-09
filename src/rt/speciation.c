@@ -19,7 +19,10 @@ void Speciation(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
             river[i].chms.p_conc[k] = river[i].chms.t_conc[k];
         }
 
-        _Speciation(chemtbl, rttbl, 0, &river[i].chms);
+        if (river[i].ws.stage > DEPTHR)
+        {
+            _Speciation(chemtbl, rttbl, 0, &river[i].chms);
+        }
     }
 }
 

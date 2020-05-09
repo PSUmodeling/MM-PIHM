@@ -143,8 +143,8 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
             river[i].chms.t_mole[k] = MAX(y[SOLUTE_RIVER(i, k)], 0.0);
 
             /* Calculate concentrations */
-            river[i].chms.t_conc[k] = (storage > 0.0) ?
-                river[i].chms.t_mole[k] / storage : 0.0;
+            river[i].chms.t_conc[k] = (storage > DEPTHR) ?
+                river[i].chms.t_mole[k] / storage : ZERO_CONC;
             river[i].chms.t_conc[k] = MAX(river[i].chms.t_conc[k], ZERO_CONC);
         }
 #endif
