@@ -24,7 +24,7 @@
 # include <omp.h>
 #endif
 
-#define VERSION    "0.15.0-alpha"
+#define VERSION    "0.15.0-alpha.post"
 
 /*
  * SUNDIAL Header Files

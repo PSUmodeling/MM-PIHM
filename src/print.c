@@ -13,7 +13,9 @@ void StartupScreen(void)
     PIHMprintf(VL_NORMAL, "    ##           ##    ##     ##   ##     ##\n");
     PIHMprintf(VL_NORMAL, "    ##          ####   ##     ##   ##     ##\n");
 
-    PIHMprintf(VL_BRIEF, "\n    The Penn State Integrated Hydrologic Model\n\n");
+    PIHMprintf(VL_BRIEF, "\n");
+    PIHMprintf(VL_BRIEF, "    The Penn State Integrated Hydrologic Model\n");
+    PIHMprintf(VL_BRIEF, "          Version %s\n\n", VERSION);
 #if defined(_NOAH_)
     PIHMprintf(VL_BRIEF, "    * Land surface module turned on.\n");
 #endif
