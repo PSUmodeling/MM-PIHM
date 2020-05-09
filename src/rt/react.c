@@ -47,6 +47,11 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
                 ftemp, &elem[i].chms, elem[i].chmf.react);
         }
 
+        for (k = 0; k < nsolute; k++)
+        {
+            elem[i].solute[k].snksrc = elem[i].chmf.react[k];
+        }
+
 #if defined(_FBR_)
         volume = ((elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
             elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin) *
@@ -69,6 +74,11 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
             ftemp = SoilTempFactor(elem[i].ps.tbot);
             ReactControl(chemtbl, kintbl, rttbl, stepsize, volume, satn,
                 ftemp, &elem[i].chms_geol, elem[i].chmf.react_geol);
+        }
+
+        for (k = 0; k < nsolute; k++)
+        {
+            elem[i].solute[k].snksrc_geol = elem[i].chmf.react_geol[k];
         }
 #endif
     }

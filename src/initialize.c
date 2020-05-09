@@ -204,6 +204,10 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         pihm->kintbl, &pihm->rttbl, &pihm->chmictbl, pihm->elem);
 #endif
 
+#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
+    InitSolute(pihm->elem);
+#endif
+
     /*
      * Create hydrological and land surface initial conditions
      */

@@ -174,6 +174,7 @@ ifeq ($(MAKECMDGOALS),rt-flux-pihm)
 	rt/rt.c\
 	rt/rt_util.c\
 	rt/speciation.c\
+	transpt/init_solute.c\
 	transpt/solute_transpt.c
   MODULE_HEADERS_ =\
 	include/spa.h

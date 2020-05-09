@@ -555,17 +555,21 @@ typedef struct solute_struct
     double          conc_surf;              /* solute concentration at surface
                                              */
     double          conc;                   /* solute concentration in soil */
-    double          conc_geol;              /* solute concentration in deep
-                                             * layer */
     double          infil;                  /* solute flux from infiltration
                                              * (mass or mol s-1) */
     double          subflux[NUM_EDGE];      /* solute flux from subsurface
-                                             * lateral flux (maass of mol s-1)*/
+                                             * lateral flux (mass of mol s-1)*/
+    double          snksrc;                 /* sink/source term
+                                             * (mass or mol m-2 s-1) */
 # if defined(_FBR_)
+    double          conc_geol;              /* solute concentration in deep
+                                             * layer */
     double          fbr_infil;              /* solute flux from bedrock
                                              * infiltration (mass or mol s-1) */
     double          fbrflow[NUM_EDGE];      /* lateral solute flux in deep
                                              * layer (mass or mol s-1) */
+    double          snksrc_geol;            /* deep layer sink/source term
+                                             * (mass or mol m-2 s-1) */
 #  if defined(_TGM_)
     double          fbr_discharge;          /* solute flux from fractured
                                              * bedrock to river (only applies to

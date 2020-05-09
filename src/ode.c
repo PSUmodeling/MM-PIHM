@@ -238,13 +238,13 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         for (k = 0; k < nsolute; k++)
         {
             dy[SOLUTE_SOIL(i, k)] += (elem->solute[k].infil +
-                elem->chmf.react[k]) / elem->topo.area;
+                elem->solute[k].snksrc) / elem->topo.area;
 # if defined(_FBR_)
             dy[SOLUTE_SOIL(i, k)] -= elem->solute[k].fbr_infil /
                 elem->topo.area;
 
             dy[SOLUTE_GEOL(i, k)] += (elem->solute[k].fbr_infil +
-                elem->chmf.react_geol[k]) / elem->topo.area;
+                elem->solute[k].snksrc) / elem->topo.area;
 #  if defined(_TGM_)
             dy[SOLUTE_GEOL(i, k)] -= elem->solute[k].fbr_discharge /
                 elem->topo.area;
