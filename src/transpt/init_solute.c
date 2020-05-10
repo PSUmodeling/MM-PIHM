@@ -32,7 +32,7 @@ void InitSolute(elem_struct elem[])
             }
             elem[i].solute[k].snksrc_geol    = 0.0;
 # if defined(_TGM_)
-            elem[i].fbr_discharge            = 0.0;
+            elem[i].solute[k].fbr_discharge  = 0.0;
 # endif
 #endif
         }
