@@ -19,8 +19,6 @@ ETT             1.0     # total plant transpiration
 EDIR            1.0     # direct soil evaporation
 ROUGH_RIV       5.0     # river channel roughness
 KRIVH           1.0     # bank hydraulic conductivity
-KRIVV           1.0     # bed hydraulic conductivity
-BEDTHCK         1.0     # bed thickness
 RIV_DPTH        1.0     # river channel depth
 RIV_WDTH        1.0     # river channel width
 

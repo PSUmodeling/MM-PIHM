@@ -16,7 +16,7 @@ SHAPE   1
 INDEX   DPTH    OINT    CWID
 1       0.6     1       2.0
 MATERIAL    1
-INDEX   ROUGH   CWR     KH          KV          BEDTHICK
-1       0.04    0.60    1.157E-05   1.157E-04   10.00
+INDEX   ROUGH   CWR     KH
+1       0.04    0.60    1.157E-05
 BC  0
 RES 0
