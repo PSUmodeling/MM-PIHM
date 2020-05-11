@@ -107,14 +107,14 @@ void ReadBc(const char *filename, forc_struct *forc,
                 sscanf(cmdstr + bytes_consumed, "%*s %*s%n", &bytes_now);
                 bytes_consumed += bytes_now;
 
-                for (k = 0; k < rttbl->NumStc; k++)
+                for (k = 0; k < rttbl->num_stc; k++)
                 {
                     if (sscanf(cmdstr + bytes_consumed, "%s%n", chemn,
                         &bytes_now) == 1)
                     {
                         bytes_consumed += bytes_now;
 
-                        ind[k] = FindChem(chemn, chemtbl, rttbl->NumStc);
+                        ind[k] = FindChem(chemn, chemtbl, rttbl->num_stc);
 
                         if (ind[k] < 0)
                         {
@@ -158,14 +158,14 @@ void ReadBc(const char *filename, forc_struct *forc,
                 {
 #if defined(_RT_)
                     forc->bc[i].data[j] =
-                        (double *)malloc((rttbl->NumStc + 1) * sizeof(double));
+                        (double *)malloc((rttbl->num_stc + 1) * sizeof(double));
 #else
                     forc->bc[i].data[j] = (double *)malloc(sizeof(double));
 #endif
                     NextLine(bc_file, cmdstr, &lno);
 #if defined(_RT_)
                     if (!ReadTS(cmdstr, &forc->bc[i].ftime[j],
-                        bcval, rttbl->NumStc + 1))
+                        bcval, rttbl->num_stc + 1))
 #else
                     if (!ReadTS(cmdstr, &forc->bc[i].ftime[j],
                         &forc->bc[i].data[j][0], 1))
@@ -184,9 +184,9 @@ void ReadBc(const char *filename, forc_struct *forc,
 
                         forc->bc[i].data[j][0] = bcval[0];
 
-                        for (k = 0; k < rttbl->NumStc; k++)
+                        for (k = 0; k < rttbl->num_stc; k++)
                         {
-                            if (strcmp(chemtbl[k].ChemName, "pH") == 0)
+                            if (strcmp(chemtbl[k].name, "pH") == 0)
                             {
                                 /* Convert pH to H+ concentration */
                                 forc->bc[i].data[j][k + 1] =

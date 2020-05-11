@@ -118,7 +118,7 @@ void ReadAlloc(pihm_struct pihm)
     ReadChem(pihm->filename.chem, pihm->filename.cdbs, pihm->chemtbl,
         pihm->kintbl, &pihm->rttbl, &pihm->forc, &pihm->ctrl);
 
-    ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.NumStc,
+    ReadCini(pihm->filename.cini, pihm->chemtbl, pihm->rttbl.num_stc,
         &pihm->atttbl, &pihm->chmictbl);
 
     if (pihm->forc.PrpFlg == 2)

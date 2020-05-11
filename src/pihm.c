@@ -48,7 +48,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     /*
      * Reaction
      */
-    if (pihm->rttbl.RecFlg == KIN_REACTION)
+    if (pihm->rttbl.transpt_flag == KIN_REACTION)
     {
         if (t - pihm->ctrl.starttime >= pihm->ctrl.RT_delay &&
             (t - pihm->ctrl.starttime) % pihm->ctrl.AvgScl == 0)
@@ -78,7 +78,7 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     /*
      * Update chemical concentrations
      */
-    if (pihm->rttbl.RecFlg == KIN_REACTION)
+    if (pihm->rttbl.transpt_flag == KIN_REACTION)
     {
         if ((t - pihm->ctrl.starttime) % SPECIATION_STEP == 0)
         {

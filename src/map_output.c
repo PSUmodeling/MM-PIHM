@@ -885,10 +885,10 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 #if defined(_RT_)
                 case CHEM_CTRL:
                     /* Primary species */
-                    for (k = 0; k < rttbl->NumStc; k++)
+                    for (k = 0; k < rttbl->num_stc; k++)
                     {
                         char            chemn[MAXSTRING];
-                        Unwrap(chemn, chemtbl[k].ChemName);
+                        Unwrap(chemn, chemtbl[k].name);
 
                         /* Unsaturated zone concentration */
                         sprintf(ext, "conc.%s", chemn);
@@ -896,7 +896,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] = &elem[j].chms.p_conc[k];
+                            print->varctrl[n].var[j] = &elem[j].chms.prim_conc[k];
                         }
                         n++;
 # if defined(_FBR_)
@@ -907,7 +907,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] =
-                                &elem[j].chms_geol.p_conc[k];
+                                &elem[j].chms_geol.prim_conc[k];
                         }
                         n++;
 # endif
@@ -919,7 +919,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         for (j = 0; j < nriver; j++)
                         {
                             print->varctrl[n].var[j] =
-                                &river[j].chms.p_conc[k];
+                                &river[j].chms.prim_conc[k];
                         }
                         n++;
 
@@ -936,17 +936,17 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                     }
 
                     /* Secondary species */
-                    for (k = 0; k < rttbl->NumSsc; k++)
+                    for (k = 0; k < rttbl->num_ssc; k++)
                     {
                         char            chemn[MAXSTRING];
-                        Unwrap(chemn, chemtbl[k + rttbl->NumStc].ChemName);
+                        Unwrap(chemn, chemtbl[k + rttbl->num_stc].name);
 
                         sprintf(ext, "conc.%s", chemn);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             RT_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] = &elem[j].chms.s_conc[k];
+                            print->varctrl[n].var[j] = &elem[j].chms.sec_conc[k];
                         }
                         n++;
 
@@ -957,7 +957,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         for (j = 0; j < nelem; j++)
                         {
                             print->varctrl[n].var[j] =
-                                &elem[j].chms_geol.s_conc[k];
+                                &elem[j].chms_geol.sec_conc[k];
                         }
                         n++;
 # endif
@@ -1088,30 +1088,30 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 # if defined(_RT_)
         sprintf(ext, "elem%d.conc", i + 1);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
-            rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
-        for (k = 0; k < rttbl->NumStc; k++)
+            rttbl->num_stc + rttbl->num_ssc, &print->varctrl[n]);
+        for (k = 0; k < rttbl->num_stc; k++)
         {
-            print->varctrl[n].var[k] = &elem[i].chms.p_conc[k];
+            print->varctrl[n].var[k] = &elem[i].chms.prim_conc[k];
         }
-        for (k = 0; k < rttbl->NumSsc; k++)
+        for (k = 0; k < rttbl->num_ssc; k++)
         {
-            print->varctrl[n].var[rttbl->NumStc + k] =
-                &elem[i].chms.s_conc[k];
+            print->varctrl[n].var[rttbl->num_stc + k] =
+                &elem[i].chms.sec_conc[k];
         }
         n++;
 
 #  if defined(_FBR_)
         sprintf(ext, "elem%d.deep_conc", i + 1);
         InitPrtVarCtrl(outputdir, ext, DAILY_OUTPUT, RT_STEP,
-            rttbl->NumStc + rttbl->NumSsc, &print->varctrl[n]);
-        for (k = 0; k < rttbl->NumStc; k++)
+            rttbl->num_stc + rttbl->num_ssc, &print->varctrl[n]);
+        for (k = 0; k < rttbl->num_stc; k++)
         {
-            print->varctrl[n].var[k] = &elem[i].chms_geol.p_conc[k];
+            print->varctrl[n].var[k] = &elem[i].chms_geol.prim_conc[k];
         }
-        for (k = 0; k < rttbl->NumSsc; k++)
+        for (k = 0; k < rttbl->num_ssc; k++)
         {
-            print->varctrl[n].var[rttbl->NumStc + k] =
-                &elem[i].chms_geol.s_conc[k];
+            print->varctrl[n].var[rttbl->num_stc + k] =
+                &elem[i].chms_geol.sec_conc[k];
         }
         n++;
 #  endif
@@ -1133,16 +1133,16 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 
 # if defined(_RT_)
     InitPrtVarCtrl(outputdir, "river.conc", DAILY_OUTPUT, RT_STEP,
-        rttbl->NumStc, &print->varctrl[n]);
-    for (k = 0; k < rttbl->NumStc; k++)
+        rttbl->num_stc, &print->varctrl[n]);
+    for (k = 0; k < rttbl->num_stc; k++)
     {
-        print->varctrl[n].var[k] = &river[0].chms.p_conc[k];
+        print->varctrl[n].var[k] = &river[0].chms.prim_conc[k];
     }
     n++;
 
-    InitPrtVarCtrl(outputdir, "leach", DAILY_OUTPUT, RT_STEP, rttbl->NumStc,
+    InitPrtVarCtrl(outputdir, "leach", DAILY_OUTPUT, RT_STEP, rttbl->num_stc,
         &print->varctrl[n]);
-    for (k = 0; k < rttbl->NumStc; k++)
+    for (k = 0; k < rttbl->num_stc; k++)
     {
         print->varctrl[n].var[k] = &river[0].solute[k].flux[DOWN_CHANL2CHANL];
     }
@@ -1150,16 +1150,16 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 
 #  if defined(_FBR_)
     InitPrtVarCtrl(outputdir, "left_leach", DAILY_OUTPUT, RT_STEP,
-        rttbl->NumStc, &print->varctrl[n]);
-    for (k = 0; k < rttbl->NumStc; k++)
+        rttbl->num_stc, &print->varctrl[n]);
+    for (k = 0; k < rttbl->num_stc; k++)
     {
         print->varctrl[n].var[k] = &river[0].solute[k].flux[LEFT_FBR2CHANL];
     }
     n++;
 
     InitPrtVarCtrl(outputdir, "right_leach", DAILY_OUTPUT, RT_STEP,
-        rttbl->NumStc, &print->varctrl[n]);
-    for (k = 0; k < rttbl->NumStc; k++)
+        rttbl->num_stc, &print->varctrl[n]);
+    for (k = 0; k < rttbl->num_stc; k++)
     {
         print->varctrl[n].var[k] = &river[0].solute[k].flux[RIGHT_FBR2CHANL];
     }

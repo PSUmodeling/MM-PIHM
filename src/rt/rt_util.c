@@ -8,7 +8,7 @@ int FindChem(const char chemn[MAXSTRING], const chemtbl_struct  chemtbl[],
 
     for (i = 0; i < nsps; i++)
     {
-        if (strcmp(chemn, chemtbl[i].ChemName) == 0)
+        if (strcmp(chemn, chemtbl[i].name) == 0)
         {
             ind = i;
             break;

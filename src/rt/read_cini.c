@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
+void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int num_stc,
     atttbl_struct *atttbl, chmictbl_struct *chmictbl)
 {
     FILE           *fp;
@@ -57,12 +57,12 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
      */
     for (i = 0; i < chmictbl->nic; i++)
     {
-        chmictbl->conc[i] = (double *)calloc(NumStc, sizeof(double));
-        chmictbl->ssa[i] = (double *)calloc(NumStc, sizeof(double));
+        chmictbl->conc[i] = (double *)calloc(num_stc, sizeof(double));
+        chmictbl->ssa[i] = (double *)calloc(num_stc, sizeof(double));
 
         FindLine(fp, "CONDITION", &lno, filen);
 
-        for (k = 0; k < NumStc; k++)
+        for (k = 0; k < num_stc; k++)
         {
             NextLine(fp, cmdstr, &lno);
             sscanf(cmdstr, "%s", temp_str);
@@ -71,7 +71,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
                 convert = 1;
             }
 
-            ind = FindChem(temp_str, chemtbl, NumStc);
+            ind = FindChem(temp_str, chemtbl, num_stc);
             if (ind < 0)
             {
                 PIHMprintf(VL_ERROR, "Error finding chemical %s.\n", temp_str);
@@ -99,7 +99,7 @@ void ReadCini(const char filen[], const chemtbl_struct *chemtbl, int NumStc,
             }
 
             chmictbl->conc[i][ind] =
-                (strcmp(chemtbl[ind].ChemName, "pH") == 0 && convert == 1) ?
+                (strcmp(chemtbl[ind].name, "pH") == 0 && convert == 1) ?
                 pow(10, -chmictbl->conc[i][ind]) : chmictbl->conc[i][ind];
         }
     }

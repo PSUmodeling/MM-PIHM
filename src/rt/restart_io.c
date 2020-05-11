@@ -18,38 +18,38 @@ void WriteRtIc(const char *outputdir, const chemtbl_struct chemtbl[],
 
         for (k = 0; k < MAXSPS; k++)
         {
-            if (k < rttbl->NumStc && chemtbl[k].itype == MINERAL)
+            if (k < rttbl->num_stc && chemtbl[k].itype == MINERAL)
             {
-                elem[i].chms.t_conc[k] /= (rttbl->RelMin == 0) ?
-                    1000.0 / chemtbl[k].MolarVolume / elem[i].soil.smcmax :
+                elem[i].chms.tot_conc[k] /= (rttbl->rel_min == 0) ?
+                    1000.0 / chemtbl[k].molar_vol / elem[i].soil.smcmax :
                     (1.0 - elem[i].soil.smcmax) * 1000.0 /
-                    chemtbl[k].MolarVolume / elem[i].soil.smcmax;
+                    chemtbl[k].molar_vol / elem[i].soil.smcmax;
 #if defined(_FBR_)
-                elem[i].chms_geol.t_conc[k] /= (rttbl->RelMin == 0) ?
-                    1000.0 / chemtbl[k].MolarVolume / elem[i].geol.smcmax :
+                elem[i].chms_geol.tot_conc[k] /= (rttbl->rel_min == 0) ?
+                    1000.0 / chemtbl[k].molar_vol / elem[i].geol.smcmax :
                     (1.0 - elem[i].geol.smcmax) * 1000.0 /
-                    chemtbl[k].MolarVolume / elem[i].geol.smcmax;
+                    chemtbl[k].molar_vol / elem[i].geol.smcmax;
 #endif
             }
-            else if (k < rttbl->NumStc && (chemtbl[k].itype == CATION_ECHG ||
+            else if (k < rttbl->num_stc && (chemtbl[k].itype == CATION_ECHG ||
                 chemtbl[k].itype == ADSORPTION))
             {
-                elem[i].chms.t_conc[k] /=
+                elem[i].chms.tot_conc[k] /=
                     (1.0 - elem[i].soil.smcmax) * 2650.0;
 #if defined(_FBR_)
-                elem[i].chms_geol.t_conc[k] /=
+                elem[i].chms_geol.tot_conc[k] /=
                     (1.0 - elem[i].geol.smcmax) * 2650.0;
 #endif
             }
 
-            elem[i].restart_output[SOIL_CHMVOL].t_conc[k] =
-                elem[i].chms.t_conc[k];
+            elem[i].restart_output[SOIL_CHMVOL].tot_conc[k] =
+                elem[i].chms.tot_conc[k];
             elem[i].restart_output[SOIL_CHMVOL].ssa[k] =
                 elem[i].chms.ssa[k];
 
 #if defined(_FBR_)
-            elem[i].restart_output[GEOL_CHMVOL].t_conc[k] =
-                elem[i].chms_geol.t_conc[k];
+            elem[i].restart_output[GEOL_CHMVOL].tot_conc[k] =
+                elem[i].chms_geol.tot_conc[k];
             elem[i].restart_output[GEOL_CHMVOL].ssa[k] =
                 elem[i].chms_geol.ssa[k];
 #endif

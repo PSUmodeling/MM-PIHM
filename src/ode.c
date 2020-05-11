@@ -52,9 +52,9 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (k = 0; k < nsolute; k++)
         {
-            elem->chms.t_mole[k] = MAX(y[SOLUTE_SOIL(i, k)], 0.0);
+            elem->chms.tot_mol[k] = MAX(y[SOLUTE_SOIL(i, k)], 0.0);
 # if defined(_FBR_)
-            elem->chms.t_mole[k] = MAX(y[SOLUTE_GEOL(i, k)], 0.0);
+            elem->chms.tot_mol[k] = MAX(y[SOLUTE_GEOL(i, k)], 0.0);
 # endif
         }
 #endif
@@ -96,7 +96,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         for (k = 0; k < nsolute; k++)
         {
-            river->chms.t_mole[k] = MAX(y[SOLUTE_RIVER(i, k)], 0.0);
+            river->chms.tot_mol[k] = MAX(y[SOLUTE_RIVER(i, k)], 0.0);
         }
 #endif
     }
@@ -137,8 +137,8 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #if defined(_BGC_) || defined(_CYCLES_OBSOLETE_)
     SoluteTransp(0.0, 0.0, 0.0, pihm->elem, pihm->river);
 #elif defined(_RT_)
-    SoluteTranspt(pihm->rttbl.DiffCoe, pihm->rttbl.DispCoe,
-        pihm->rttbl.Cementation, pihm->elem, pihm->river);
+    SoluteTranspt(pihm->rttbl.diff_coef, pihm->rttbl.disp_coef,
+        pihm->rttbl.cementation, pihm->elem, pihm->river);
 #endif
 
     /*

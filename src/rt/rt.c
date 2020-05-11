@@ -26,7 +26,7 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
     /*
      * Apply calibration
      */
-    chem_ind = FindChem("'DOC'", chemtbl, rttbl->NumStc);
+    chem_ind = FindChem("'DOC'", chemtbl, rttbl->num_stc);
     if (chem_ind >= 0)
     {
         rttbl->prcp_conc[chem_ind] *= cal->prcpconc;
@@ -47,13 +47,13 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
     {
         int             k;
 
-        for (k = 0; k < rttbl->NumStc; k++)
+        for (k = 0; k < rttbl->num_stc; k++)
         {
             chmictbl->ssa[i][k] *= (chemtbl[k].itype == MINERAL) ?
                 cal->ssa : 1.0;
 
             chmictbl->conc[i][k] *=
-                (strcmp(chemtbl[k].ChemName, "'DOC'") == 0) ?
+                (strcmp(chemtbl[k].name, "'DOC'") == 0) ?
                 cal->initconc : 1.0;
         }
     }
@@ -68,15 +68,15 @@ void InitChem(const char cdbs_filen[], const calib_struct *cal,
 
         ic_type = elem[i].attrib.chem_ic_type;
 
-        for (k = 0; k < rttbl->NumStc; k++)
+        for (k = 0; k < rttbl->num_stc; k++)
         {
-            elem[i].restart_input[SOIL_CHMVOL].t_conc[k] =
+            elem[i].restart_input[SOIL_CHMVOL].tot_conc[k] =
                 chmictbl->conc[ic_type[SOIL_CHMVOL] - 1][k];
             elem[i].restart_input[SOIL_CHMVOL].ssa[k] =
                 chmictbl->ssa[ic_type[SOIL_CHMVOL] - 1][k];
 
 #if defined(_FBR_)
-            elem[i].restart_input[GEOL_CHMVOL].t_conc[k] =
+            elem[i].restart_input[GEOL_CHMVOL].tot_conc[k] =
                 chmictbl->conc[ic_type[GEOL_CHMVOL] - 1][k];
             elem[i].restart_input[GEOL_CHMVOL].ssa[k] =
                 chmictbl->ssa[ic_type[GEOL_CHMVOL] - 1][k];
@@ -124,29 +124,29 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 
         storage = MAX(river[i].ws.stage, DEPTHR);
 
-        for (k = 0; k < rttbl->NumStc; k++)
+        for (k = 0; k < rttbl->num_stc; k++)
         {
             if (chemtbl[k].itype == AQUEOUS)
             {
-                river[i].chms.t_conc[k] =
-                    0.5 * elem[river[i].leftele - 1].chms.t_conc[k] +
-                    0.5 * elem[river[i].rightele - 1].chms.t_conc[k];
-                river[i].chms.p_actv[k] = river[i].chms.t_conc[k];
-                river[i].chms.p_conc[k] = river[i].chms.t_conc[k];
-                river[i].chms.t_mole[k] = river[i].chms.t_conc[k] * storage;
+                river[i].chms.tot_conc[k] =
+                    0.5 * elem[river[i].leftele - 1].chms.tot_conc[k] +
+                    0.5 * elem[river[i].rightele - 1].chms.tot_conc[k];
+                river[i].chms.prim_actv[k] = river[i].chms.tot_conc[k];
+                river[i].chms.prim_conc[k] = river[i].chms.tot_conc[k];
+                river[i].chms.tot_mol[k] = river[i].chms.tot_conc[k] * storage;
             }
             else
             {
-                river[i].chms.t_conc[k] = ZERO_CONC;
-                river[i].chms.p_conc[k] = ZERO_CONC;
-                river[i].chms.p_actv[k] = ZERO_CONC;
-                river[i].chms.t_mole[k] = 0.0;
+                river[i].chms.tot_conc[k] = ZERO_CONC;
+                river[i].chms.prim_conc[k] = ZERO_CONC;
+                river[i].chms.prim_actv[k] = ZERO_CONC;
+                river[i].chms.tot_mol[k] = 0.0;
             }
         }
 
-        for (k = 0; k < rttbl->NumSsc; k++)
+        for (k = 0; k < rttbl->num_ssc; k++)
         {
-            river[i].chms.s_conc[k] = ZERO_CONC;
+            river[i].chms.sec_conc[k] = ZERO_CONC;
         }
     }
 
@@ -157,14 +157,14 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     {
         int             k;
 
-        for (k = 0; k < rttbl->NumSpc; k++)
+        for (k = 0; k < rttbl->num_spc; k++)
         {
-            NV_Ith(CV_Y, SOLUTE_SOIL(i, k)) = elem[i].chms.t_mole[k];
+            NV_Ith(CV_Y, SOLUTE_SOIL(i, k)) = elem[i].chms.tot_mol[k];
 
             elem[i].chmf.react[k] = 0.0;
 
 #if defined(_FBR_)
-            NV_Ith(CV_Y, SOLUTE_GEOL(i, k)) = elem[i].chms_geol.t_mole[k];
+            NV_Ith(CV_Y, SOLUTE_GEOL(i, k)) = elem[i].chms_geol.tot_mol[k];
 
             elem[i].chmf.react_geol[k] = 0.0;
 #endif
@@ -178,9 +178,9 @@ void InitRTVar(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
     {
         int             k;
 
-        for (k = 0; k < rttbl->NumSpc; k++)
+        for (k = 0; k < rttbl->num_spc; k++)
         {
-            NV_Ith(CV_Y, SOLUTE_RIVER(i, k)) = river[i].chms.t_mole[k];
+            NV_Ith(CV_Y, SOLUTE_RIVER(i, k)) = river[i].chms.tot_mol[k];
         }
     }
 }
@@ -191,69 +191,69 @@ void InitChemS(const chemtbl_struct chemtbl[], const rttbl_struct *rttbl,
 {
     int             k;
 
-    for (k = 0; k < rttbl->NumStc; k++)
+    for (k = 0; k < rttbl->num_stc; k++)
     {
-        if (strcmp(chemtbl[k].ChemName, "'H+'") == 0)
+        if (strcmp(chemtbl[k].name, "'H+'") == 0)
         {
-            chms->t_conc[k] = restart_input->t_conc[k];
-            chms->p_actv[k] = chms->t_conc[k];
-            chms->p_conc[k] = chms->t_conc[k];
+            chms->tot_conc[k] = restart_input->tot_conc[k];
+            chms->prim_actv[k] = chms->tot_conc[k];
+            chms->prim_conc[k] = chms->tot_conc[k];
             chms->ssa[k] = restart_input->ssa[k];
         }
         else if (chemtbl[k].itype == MINERAL)
         {
-            chms->t_conc[k] = restart_input->t_conc[k];
+            chms->tot_conc[k] = restart_input->tot_conc[k];
             /* Update the concentration of mineral using molar volume */
-            chms->t_conc[k] *= (rttbl->RelMin == 0) ?
+            chms->tot_conc[k] *= (rttbl->rel_min == 0) ?
                 /* Absolute mineral volume fraction */
-                1000.0 / chemtbl[k].MolarVolume / smcmax :
+                1000.0 / chemtbl[k].molar_vol / smcmax :
                 /* Relative mineral volume fraction */
-                (1.0 - smcmax) * 1000.0 / chemtbl[k].MolarVolume / smcmax;
-            chms->p_actv[k] = 1.0;
-            chms->p_conc[k] = chms->t_conc[k];
+                (1.0 - smcmax) * 1000.0 / chemtbl[k].molar_vol / smcmax;
+            chms->prim_actv[k] = 1.0;
+            chms->prim_conc[k] = chms->tot_conc[k];
             chms->ssa[k] = restart_input->ssa[k];
         }
         else if ((chemtbl[k].itype == CATION_ECHG) ||
             (chemtbl[k].itype == ADSORPTION))
         {
-            chms->t_conc[k] = restart_input->t_conc[k];
-            chms->p_actv[k] = chms->t_conc[k] * 0.5;
+            chms->tot_conc[k] = restart_input->tot_conc[k];
+            chms->prim_actv[k] = chms->tot_conc[k] * 0.5;
             /* Change unit of CEC (eq g-1) into C(ion site)
              * (eq L-1 porous space), assuming density of solid is always
              * 2650 g L-1 */
-            chms->t_conc[k] *= (1.0 - smcmax) * 2650.0;
-            chms->p_conc[k] = chms->t_conc[k];
+            chms->tot_conc[k] *= (1.0 - smcmax) * 2650.0;
+            chms->prim_conc[k] = chms->tot_conc[k];
         }
         else
         {
-            chms->t_conc[k] = restart_input->t_conc[k];
-            chms->p_actv[k] = chms->t_conc[k] * 0.5;
-            chms->p_conc[k] = chms->t_conc[k] * 0.5;
+            chms->tot_conc[k] = restart_input->tot_conc[k];
+            chms->prim_actv[k] = chms->tot_conc[k] * 0.5;
+            chms->prim_conc[k] = chms->tot_conc[k] * 0.5;
             chms->ssa[k] = restart_input->ssa[k];
         }
     }
 
-    for (k = 0; k < rttbl->NumSsc; k++)
+    for (k = 0; k < rttbl->num_ssc; k++)
     {
-        chms->s_conc[k] = ZERO_CONC;
+        chms->sec_conc[k] = ZERO_CONC;
     }
 
     /* Speciation */
-    if (rttbl->RecFlg == KIN_REACTION)
+    if (rttbl->transpt_flag == KIN_REACTION)
     {
         _Speciation(chemtbl, rttbl, 1, chms);
     }
 
     /* Total moles should be calculated after speciation */
-    for (k = 0; k < rttbl->NumStc; k++)
+    for (k = 0; k < rttbl->num_stc; k++)
     {
         if (chemtbl[k].itype == AQUEOUS)
         {
-            chms->t_mole[k] = chms->t_conc[k] * vol;
+            chms->tot_mol[k] = chms->tot_conc[k] * vol;
         }
         else
         {
-            chms->t_mole[k] = 0.0;
+            chms->tot_mol[k] = 0.0;
         }
     }
 }
@@ -270,12 +270,12 @@ void UpdatePConc(const rttbl_struct *rttbl, elem_struct elem[],
     {
         int             k;
 
-        for (k = 0; k < rttbl->NumSpc; k++)
+        for (k = 0; k < rttbl->num_spc; k++)
         {
-            elem[i].chms.p_conc[k] = elem[i].chms.t_conc[k];
+            elem[i].chms.prim_conc[k] = elem[i].chms.tot_conc[k];
 
 #if defined(_FBR_)
-            elem[i].chms_geol.p_conc[k] = elem[i].chms_geol.t_conc[k];
+            elem[i].chms_geol.prim_conc[k] = elem[i].chms_geol.tot_conc[k];
 #endif
         }
     }
@@ -287,9 +287,9 @@ void UpdatePConc(const rttbl_struct *rttbl, elem_struct elem[],
     {
         int             k;
 
-        for (k = 0; k < rttbl->NumSpc; k++)
+        for (k = 0; k < rttbl->num_spc; k++)
         {
-            river[i].chms.p_conc[k] = river[i].chms.t_conc[k];
+            river[i].chms.prim_conc[k] = river[i].chms.tot_conc[k];
         }
     }
 }

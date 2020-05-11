@@ -290,17 +290,17 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
 # if defined(_RT_)
         /* Soil concentration file header */
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
-        for (k = 0; k < rttbl->NumStc + rttbl->NumSsc; k++)
+        for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
         {
             char                chemn[MAXSTRING];
-            Unwrap(chemn, chemtbl[k].ChemName);
+            Unwrap(chemn, chemtbl[k].name);
 
             fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
         }
         fprintf(print->varctrl[n].txtfile, "\n");
 
         fprintf(print->varctrl[n].txtfile, "%-18s",  "\"YYYY-MM-DD hh:mm\"");
-        for (k = 0; k < rttbl->NumStc + rttbl->NumSsc; k++)
+        for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
         {
             fprintf(print->varctrl[n].txtfile, "\t%-9s", "mole/L");
         }
@@ -311,17 +311,17 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
 #  if defined(_FBR_)
         /* Deep aquifer concentration file header */
         fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
-        for (k = 0; k < rttbl->NumStc + rttbl->NumSsc; k++)
+        for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
         {
             char                chemn[MAXSTRING];
-            Unwrap(chemn, chemtbl[k].ChemName);
+            Unwrap(chemn, chemtbl[k].name);
 
             fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
         }
         fprintf(print->varctrl[n].txtfile, "\n");
 
         fprintf(print->varctrl[n].txtfile, "%-18s",  "\"YYYY-MM-DD hh:mm\"");
-        for (k = 0; k < rttbl->NumStc + rttbl->NumSsc; k++)
+        for (k = 0; k < rttbl->num_stc + rttbl->num_ssc; k++)
         {
             fprintf(print->varctrl[n].txtfile, "\t%-9s", "mole/L");
         }
@@ -363,17 +363,17 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
 # if defined(_RT_)
     /* River concentration file header */
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
-    for (k = 0; k < rttbl->NumStc; k++)
+    for (k = 0; k < rttbl->num_stc; k++)
     {
         char                chemn[MAXSTRING];
-        Unwrap(chemn, chemtbl[k].ChemName);
+        Unwrap(chemn, chemtbl[k].name);
 
         fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
     }
     fprintf(print->varctrl[n].txtfile, "\n");
 
     fprintf(print->varctrl[n].txtfile, "%-18s",  "\"YYYY-MM-DD hh:mm\"");
-    for (k = 0; k < rttbl->NumStc; k++)
+    for (k = 0; k < rttbl->num_stc; k++)
     {
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "mole/L");
     }
@@ -383,17 +383,17 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
 
     /* River leaching file header */
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
-    for (k = 0; k < rttbl->NumStc; k++)
+    for (k = 0; k < rttbl->num_stc; k++)
     {
         char                chemn[MAXSTRING];
-        Unwrap(chemn, chemtbl[k].ChemName);
+        Unwrap(chemn, chemtbl[k].name);
 
         fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
     }
     fprintf(print->varctrl[n].txtfile, "\n");
 
     fprintf(print->varctrl[n].txtfile, "%-18s",  "\"YYYY-MM-DD hh:mm\"");
-    for (k = 0; k < rttbl->NumStc; k++)
+    for (k = 0; k < rttbl->num_stc; k++)
     {
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "kmole/s");
     }
@@ -404,17 +404,17 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
 #  if defined(_FBR_)
     /* River deep leaching file header */
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
-    for (k = 0; k < rttbl->NumStc; k++)
+    for (k = 0; k < rttbl->num_stc; k++)
     {
         char                chemn[MAXSTRING];
-        Unwrap(chemn, chemtbl[k].ChemName);
+        Unwrap(chemn, chemtbl[k].name);
 
         fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
     }
     fprintf(print->varctrl[n].txtfile, "\n");
 
     fprintf(print->varctrl[n].txtfile, "%-18s",  "\"YYYY-MM-DD hh:mm\"");
-    for (k = 0; k < rttbl->NumStc; k++)
+    for (k = 0; k < rttbl->num_stc; k++)
     {
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "kmole/s");
     }
@@ -424,17 +424,17 @@ void InitOutputFile(const char *outputdir, int watbal, int ascii,
 
     /* River deep leaching file header */
     fprintf(print->varctrl[n].txtfile, "%-18s",  "TIME");
-    for (k = 0; k < rttbl->NumStc; k++)
+    for (k = 0; k < rttbl->num_stc; k++)
     {
         char                chemn[MAXSTRING];
-        Unwrap(chemn, chemtbl[k].ChemName);
+        Unwrap(chemn, chemtbl[k].name);
 
         fprintf(print->varctrl[n].txtfile, "\t%-9s", chemn);
     }
     fprintf(print->varctrl[n].txtfile, "\n");
 
     fprintf(print->varctrl[n].txtfile, "%-18s",  "\"YYYY-MM-DD hh:mm\"");
-    for (k = 0; k < rttbl->NumStc; k++)
+    for (k = 0; k < rttbl->num_stc; k++)
     {
         fprintf(print->varctrl[n].txtfile, "\t%-9s", "kmole/s");
     }

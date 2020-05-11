@@ -28,7 +28,7 @@ void InitForc(elem_struct *elem, forc_struct *forc, const calib_struct *cal)
         {
 #if defined(_RT_)
             forc->bc[i].value =
-                (double *)malloc((rttbl->NumStc + 1) * sizeof(double));
+                (double *)malloc((rttbl->num_stc + 1) * sizeof(double));
 #else
             forc->bc[i].value = (double *)malloc(sizeof(double));
 #endif

@@ -71,7 +71,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
     for (k = 0; k < forc->nbc; k++)
     {
 #if defined(_RT_)
-        IntrplForc(&forc->bc[k], t, 1 + rttbl->NumStc, INTRPL);
+        IntrplForc(&forc->bc[k], t, 1 + rttbl->num_stc, INTRPL);
 #else
         IntrplForc(&forc->bc[k], t, 1, INTRPL);
 #endif
@@ -95,7 +95,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
                 ind = elem[i].attrib.bc_type[j] - 1;
                 elem[i].bc.head[j] = forc->bc[ind].value[0];
 #if defined(_RT_)
-                for (k = 0; k < rttbl->NumStc; k++)
+                for (k = 0; k < rttbl->num_stc; k++)
                 {
                     elem[i].bc.conc[j][k] = forc->bc[ind].value[k + 1];
                 }
@@ -106,7 +106,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
                 ind = -elem[i].attrib.bc_type[j] - 1;
                 elem[i].bc.flux[j] = forc->bc[ind].value[0];
 #if defined(_RT_)
-                for (k = 0; k < rttbl->NumStc; k++)
+                for (k = 0; k < rttbl->num_stc; k++)
                 {
                     elem[i].bc.conc[j][k] = forc->bc[ind].value[k + 1];
                 }
@@ -121,7 +121,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
                 ind = elem[i].attrib.fbrbc_type[j] - 1;
                 elem[i].fbr_bc.head[j] = forc->bc[ind].value[0];
 # if defined(_RT_)
-                for (k = 0; k < rttbl->NumStc; k++)
+                for (k = 0; k < rttbl->num_stc; k++)
                 {
                     elem[i].fbr_bc.conc[j][k] = forc->bc[ind].value[k + 1];
                 }
@@ -133,7 +133,7 @@ void ApplyElemBc(forc_struct *forc, elem_struct *elem, int t)
                 ind = -elem[i].attrib.fbrbc_type[j] - 1;
                 elem[i].fbr_bc.flux[j] = forc->bc[ind].value[0];
 # if defined(_RT_)
-                for (k = 0; k < rttbl->NumStc; k++)
+                for (k = 0; k < rttbl->num_stc; k++)
                 {
                     elem[i].fbr_bc.conc[j][k] = forc->bc[ind].value[k + 1];
                 }
@@ -425,7 +425,7 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
 #endif
         for (j = 0; j < forc->nprcpc; j++)
         {
-            IntrplForc(&forc->prcpc[j], t, rttbl->NumSpc, NO_INTRPL);
+            IntrplForc(&forc->prcpc[j], t, rttbl->num_spc, NO_INTRPL);
         }
 
 #if defined(_OPENMP)
@@ -438,9 +438,9 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
 
             ind = elem[i].attrib.prcpc_type - 1;
 
-            for (k = 0; k < rttbl->NumSpc; k++)
+            for (k = 0; k < rttbl->num_spc; k++)
             {
-                elem[i].prcps.t_conc[k] = forc->prcpc[ind].value[k];
+                elem[i].prcpchm.tot_conc[k] = forc->prcpc[ind].value[k];
             }
         }
     }
@@ -453,9 +453,9 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
         {
             int             k;
 
-            for (k = 0; k < rttbl->NumSpc; k++)
+            for (k = 0; k < rttbl->num_spc; k++)
             {
-                elem[i].prcps.t_conc[k] = rttbl->prcp_conc[k];
+                elem[i].prcpchm.tot_conc[k] = rttbl->prcp_conc[k];
             }
         }
     }
@@ -468,9 +468,9 @@ void ApplyPrcpConc(const rttbl_struct *rttbl, forc_struct *forc,
         {
             int             k;
 
-            for (k = 0; k < rttbl->NumSpc; k++)
+            for (k = 0; k < rttbl->num_spc; k++)
             {
-                elem[i].prcps.t_conc[k] = 0.0;
+                elem[i].prcpchm.tot_conc[k] = 0.0;
             }
         }
     }

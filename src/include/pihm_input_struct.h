@@ -745,11 +745,11 @@ typedef struct opertbl_struct
 #if defined(_RT_)
 typedef struct chemtbl_struct
 {
-    double          MolarMass;              /* (g mol-1) */
-    double          MolarVolume;            /* (cm3 mol-1) */
-    double          Charge;                 /* charge */
-    double          SizeF;                  /* size factor for DH equation */
-    char            ChemName[MAXSTRING];    /* molecular formula or name */
+    char            name[MAXSTRING];        /* molecular formula or name */
+    double          molar_mass;             /* (g mol-1) */
+    double          molar_vol;              /* (cm3 mol-1) */
+    double          charge;                 /* charge */
+    double          size_fac;               /* size factor for DH equation */
     int             itype;                  /* type of primary species
                                              * 1 = primary aqueous
                                              * 2 = primary adsorption
@@ -765,7 +765,7 @@ typedef struct kintbl_struct
 {
     int             position;               /* position of target mineral in the
                                              * array of primary species */
-    char            Label[MAXSTRING];       /* label of kinetic reaction */
+    char            label[MAXSTRING];       /* label of kinetic reaction */
     int             type;                   /* type of the kinetic reaction
                                              * 1: tst  2: precipitation-only
                                              * 3: dissolution-only 4: monod */
@@ -775,70 +775,65 @@ typedef struct kintbl_struct
                                              * reaction under different
                                              * temperatures */
     double          Keq;                    /* equilibrium constant */
-    int             num_dep;                /* number of dependency */
-    int             dep_position[MAXDEP];   /* position of species that kinetic
+    int             ndep;                   /* number of dependency */
+    int             dep_index[MAXDEP];      /* position of species that kinetic
                                              * reaction depends on */
     double          dep_power[MAXDEP];      /* power of dependency */
-    int             biomass_position;
-    int             num_monod;
-    int             monod_position[MAXDEP];
+    int             biomass_index;
+    int             nmonod;
+    int             monod_index[MAXDEP];
     double          monod_para[MAXDEP];     /* parameter for monod dependency */
-    int             num_inhib;
-    int             inhib_position[MAXDEP];
+    int             ninhib;
+    int             inhib_index[MAXDEP];
     double          inhib_para[MAXDEP];     /* parameters that controls this
                                              * inhibition */
 } kintbl_struct;
 
 typedef struct rttbl_struct
 {
-    int             ACTmod;                 /* activity coefficient mode:
+    int             actv_mode;              /* activity coefficient mode:
                                              * 0 = unity coefficient,
                                              * 1 = DH equation */
-    int             TEMcpl;                 /* flag to couple soil temperature*/
-    int             RelMin;                 /* relative mineral flag:
+    int             tmp_coup;               /* flag to couple soil temperature*/
+    int             rel_min;                /* relative mineral flag:
                                              * 1 = total solid volume,
                                              * 0 = total pore volume */
-    int             RecFlg;                 /* transport only flag:
+    int             transpt_flag;           /* transport only flag:
                                              * 0 = simulate kinetic reaction,
                                              * 1 = transport only */
-    double          Condensation;           /* ratio between infiltration
+    double          cond;                   /* ratio between infiltration
                                              * concentration and rain water */
-    int             NumStc;                 /* number of total species */
-    int             NumSpc;                 /* number of primary species */
-    int             NumSsc;                 /* number of secondary speices */
-    int             NumSdc;                 /* number of independent species */
-    int             NumMin;                 /* number of minerals */
-    int             NumAds;                 /* number of adsorption species */
-    int             NumCex;                 /* number of cation exchange */
-    int             NumMkr;                 /* number of mineral kinetic
+    int             num_stc;                /* number of total species */
+    int             num_spc;                /* number of primary species */
+    int             num_ssc;                /* number of secondary speices */
+    int             num_sdc;                /* number of independent species */
+    int             num_min;                /* number of minerals */
+    int             num_ads;                /* number of adsorption species */
+    int             num_cex;                /* number of cation exchange */
+    int             num_mkr;                /* number of mineral kinetic
                                              * reactions */
-    int             NumAkr;                 /* number of aqueous kinetic
+    int             num_akr;                /* number of aqueous kinetic
                                              * reactions */
-    double          DiffCoe;                /* diffusion coefficient (m2 s-1) */
-    double          DispCoe;                /* dispersion coefficient (m) */
-    double          Cementation;            /* cementation factor that
+    double          diff_coef;              /* diffusion coefficient (m2 s-1) */
+    double          disp_coef;              /* dispersion coefficient (m) */
+    double          cementation;            /* cementation factor that
                                              * represents connectivity of pores
                                              */
-    double          Temperature;            /* temperature of the moment */
+    double          tmp;                    /* temperature of the moment */
     double          prcp_conc[MAXSPS];
-    double          Dependency[MAXSPS][MAXSPS];/* dependency of secondary
+    double          dep_mtx[MAXSPS][MAXSPS];/* dependency of secondary
                                              * species on primary species */
-    double          Dep_kinetic[MAXSPS][MAXSPS];/* dependency of kinetic species
+    double          dep_kin[MAXSPS][MAXSPS];/* dependency of kinetic species
                                              * on primary species  */
-    double          Dep_kinetic_all[MAXSPS][MAXSPS];/* dependency of all
-                                             * possible kinetic species on
-                                             * primary species */
-    double          Totalconc[MAXSPS][MAXSPS];/* contribution of each species
+    double          conc_contrib[MAXSPS][MAXSPS];/* contribution of each species
                                              * to total concentration */
 #if NOT_YET_IMPLEMENTED
     double          Totalconck[MAXSPS][MAXSPS];/* contribution of each species
                                              * to total concentration with
                                              * kinetic reaction included */
 #endif
-    double          Keq[MAXSPS];            /* Keq's of secondary species */
-    double          KeqKinect[MAXSPS];      /* Keq's of kinetic species */
-    double          KeqKinect_all[MAXSPS];  /* Keq's of all possible kinetic
-                                             * species */
+    double          keq[MAXSPS];            /* Keq's of secondary species */
+    double          keq_kin[MAXSPS];      /* Keq's of kinetic species */
     double          adh;                    /* Debye Huckel parameter */
     double          bdh;                    /* Debye Huckel parameter */
     double          bdt;                    /* Debye Huckel parameter */

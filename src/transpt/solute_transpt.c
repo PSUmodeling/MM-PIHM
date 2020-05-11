@@ -269,7 +269,7 @@ void RiverElemSoluteFlow(int surf_to_chanl, int aquif_to_chanl,
     }
 }
 
-double AdvDiffDisp(double DiffCoe, double DispCoe, double cementation,
+double AdvDiffDisp(double diff_coef, double disp_coef, double cementation,
     double conc_up, double conc_down, double porosity, double distance,
     double area, double wflux)
 {
@@ -286,11 +286,11 @@ double AdvDiffDisp(double DiffCoe, double DispCoe, double cementation,
     diff_conc = conc_up - conc_down;
 
     /* Diffusion flux, effective diffusion coefficient  */
-    diff_flux = DiffCoe * area * pow(porosity, cementation) *
+    diff_flux = diff_coef * area * pow(porosity, cementation) *
         inv_dist * diff_conc;
 
     /* Longitudinal dispersion */
-    disp_flux = fabs(wflux) * DispCoe * inv_dist * diff_conc;
+    disp_flux = fabs(wflux) * disp_coef * inv_dist * diff_conc;
 
     return wflux * ((wflux > 0.0) ? conc_up : conc_down) +
         diff_flux + disp_flux;

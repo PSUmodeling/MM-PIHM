@@ -1609,25 +1609,25 @@ typedef struct solute_struct
 #if defined(_RT_)
 typedef struct rtic_struct
 {
-    double          t_conc[MAXSPS];
+    double          tot_conc[MAXSPS];
     double          ssa[MAXSPS];
 } rtic_struct;
 
-typedef struct prcpstate_struct
+typedef struct prcpchem_struct
 {
-    double          t_conc[MAXSPS];         /* concentration (mol kgH2O-1) */
-} prcpstate_struct;
+    double          tot_conc[MAXSPS];       /* concentration (mol kgH2O-1) */
+} prcpchem_struct;
 
 typedef struct chmstate_struct
 {
-    double          t_conc[MAXSPS];         /* concentration (mol kgH2O-1) */
-    double          p_conc[MAXSPS];         /* primary concentration
+    double          tot_conc[MAXSPS];       /* concentration (mol kgH2O-1) */
+    double          prim_conc[MAXSPS];      /* primary concentration
                                              * (mol kgH2O-1) */
-    double          s_conc[MAXSPS];         /* secondary concentration
+    double          sec_conc[MAXSPS];       /* secondary concentration
                                              * (mol kgH2O-1) */
-    double          p_actv[MAXSPS];         /* activity of primary species */
+    double          prim_actv[MAXSPS];      /* activity of primary species */
     double          ssa[MAXSPS];            /* specific surface area (m2 g-1) */
-    double          t_mole[MAXSPS];         /* total moles (kmol m-2) */
+    double          tot_mol[MAXSPS];        /* total moles (kmol m-2) */
 } chmstate_struct;
 
 typedef struct chmflux_struct
@@ -1719,7 +1719,7 @@ typedef struct elem_struct
 #if defined(_RT_)
     rtic_struct     restart_input[NCHMVOL];
     rtic_struct     restart_output[NCHMVOL];
-    prcpstate_struct prcps;
+    prcpchem_struct prcpchm;
     chmstate_struct chms;
 # if defined(_FBR_)
     chmstate_struct chms_geol;
