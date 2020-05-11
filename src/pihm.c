@@ -44,6 +44,21 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
         UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, LS_STEP);
     }
 
+#if defined(_RT_)
+    /*
+     * Reaction
+     */
+    if (pihm->rttbl.RecFlg == KIN_REACTION)
+    {
+        if (t - pihm->ctrl.starttime >= pihm->ctrl.RT_delay &&
+            (t - pihm->ctrl.starttime) % pihm->ctrl.AvgScl == 0)
+        {
+            Reaction((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl,
+                &pihm->rttbl, pihm->elem);
+        }
+    }
+#endif
+
     /*
      * Solve PIHM hydrology ODE using CVode
      */
@@ -60,16 +75,11 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, HYDROL_STEP);
 
 #if defined(_RT_)
+    /*
+     * Update chemical concentrations
+     */
     if (pihm->rttbl.RecFlg == KIN_REACTION)
     {
-        if (t - pihm->ctrl.starttime >= pihm->ctrl.RT_delay &&
-            (t - pihm->ctrl.starttime) % pihm->ctrl.AvgScl == 0)
-        {
-            /* Reaction */
-            Reaction((double)pihm->ctrl.AvgScl, pihm->chemtbl, pihm->kintbl,
-                &pihm->rttbl, pihm->elem);
-        }
-
         if ((t - pihm->ctrl.starttime) % SPECIATION_STEP == 0)
         {
             /* Speciation */
