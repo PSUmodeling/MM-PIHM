@@ -71,7 +71,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
         for (k = 0; k < nsolute; k++)
         {
             /* Infiltration */
-            elem[i].solute[k].infil = elem[i].wf.infil * elem[i].topo.area *
+            elem[i].solute[k].infil = elem[i].wf.infil *
                 ((elem[i].wf.infil > 0.0) ? elem[i].solute[k].conc_surf : 0.0);
 
             /* Element to element */
@@ -117,7 +117,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
 #if defined(_FBR_)
             /* Bedrock infiltration */
             elem[i].solute[k].fbr_infil = elem[i].wf.fbr_infil *
-                elem[i].topo.area * ((elem[i].wf.fbr_infil > 0.0) ?
+                ((elem[i].wf.fbr_infil > 0.0) ?
                 elem[i].solute[k].conc : elem[i].solute[k].conc_geol);
 
 # if defined(_TGM_)
