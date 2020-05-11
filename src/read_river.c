@@ -93,8 +93,6 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
     matltbl->rough = (double *)malloc(matltbl->number * sizeof(double));
     matltbl->cwr = (double *)malloc(matltbl->number * sizeof(double));
     matltbl->ksath = (double *)malloc(matltbl->number * sizeof(double));
-    matltbl->ksatv = (double *)malloc(matltbl->number * sizeof(double));
-    matltbl->bedthick = (double *)malloc(matltbl->number * sizeof(double));
 
     /* Skip header line */
     NextLine(riv_file, cmdstr, &lno);
@@ -102,10 +100,10 @@ void ReadRiver(const char *filename, rivtbl_struct *rivtbl,
     for (i = 0; i < matltbl->number; i++)
     {
         NextLine(riv_file, cmdstr, &lno);
-        match = sscanf(cmdstr, "%d %lf %lf %lf %lf %lf",
+        match = sscanf(cmdstr, "%d %lf %lf %lf",
             &index, &matltbl->rough[i], &matltbl->cwr[i],
-            &matltbl->ksath[i], &matltbl->ksatv[i], &matltbl->bedthick[i]);
-        if (match != 6 || i != index - 1)
+            &matltbl->ksath[i]);
+        if (match != 4 || i != index - 1)
         {
             PIHMprintf(VL_ERROR,
                 "Error reading description of the %dth material.\n", i + 1);

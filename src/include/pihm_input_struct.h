@@ -90,9 +90,6 @@ typedef struct matltbl_struct
     double         *cwr;                    /* discharge coefficient (-) */
     double         *ksath;                  /* bank hydraulic conductivity
                                              * (m s-1) */
-    double         *ksatv;                  /* bed hydraulic conductivity
-                                             * (m s-1) */
-    double         *bedthick;               /* bed thickness (m) */
 } matltbl_struct;
 
 /* Mesh structure */

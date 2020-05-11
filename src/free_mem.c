@@ -80,8 +80,6 @@ void FreeMatltbl(matltbl_struct *matltbl)
     free(matltbl->rough);
     free(matltbl->cwr);
     free(matltbl->ksath);
-    free(matltbl->ksatv);
-    free(matltbl->bedthick);
 }
 
 void FreeMeshtbl(meshtbl_struct *meshtbl)
