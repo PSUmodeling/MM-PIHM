@@ -553,23 +553,24 @@ typedef struct eflux_struct
 typedef struct solute_struct
 {
     double          conc_surf;              /* solute concentration at surface
-                                             */
-    double          conc;                   /* solute concentration in soil */
+                                             * (mass/amount of subs m-3) */
+    double          conc;                   /* solute concentration in soil
+                                             * (mass/amount of subs m-3) */
     double          infil;                  /* solute flux from infiltration
                                              * (mass or mol s-1) */
     double          subflux[NUM_EDGE];      /* solute flux from subsurface
                                              * lateral flux (mass of mol s-1)*/
     double          snksrc;                 /* sink/source term
-                                             * (mass or mol m-2 s-1) */
+                                             * (mass/amount of subs m-2 s-1) */
 # if defined(_FBR_)
     double          conc_geol;              /* solute concentration in deep
-                                             * layer */
+                                             * layer (mass/amount of subs m-3)*/
     double          fbr_infil;              /* solute flux from bedrock
                                              * infiltration (mass or mol s-1) */
     double          fbrflow[NUM_EDGE];      /* lateral solute flux in deep
                                              * layer (mass or mol s-1) */
     double          snksrc_geol;            /* deep layer sink/source term
-                                             * (mass or mol m-2 s-1) */
+                                             * (mass/amount of subs m-2 s-1) */
 #  if defined(_TGM_)
     double          fbr_discharge;          /* solute flux from fractured
                                              * bedrock to river (only applies to
@@ -1629,10 +1630,10 @@ typedef struct chmstate_struct
 typedef struct chmflux_struct
 {
     double          react[MAXSPS];          /* reaction flux in unsaturated zone
-                                             * (mol s-1) */
+                                             * (mol L-1 s-1) */
 # if defined(_FBR_)
     double          react_geol[MAXSPS];     /* reaction flux in deep groundwater
-                                             * (mol s-1) */
+                                             * (mol L-1 s-1) */
 # endif
 } chmflux_struct;
 #endif

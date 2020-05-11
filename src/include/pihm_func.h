@@ -741,8 +741,7 @@ void            Reaction(double, const chemtbl_struct [], const kintbl_struct []
 int             _React(double, const chemtbl_struct [], const kintbl_struct [],
     const rttbl_struct *, double, double, chmstate_struct *);
 void            ReactControl(const chemtbl_struct [], const kintbl_struct [],
-    const rttbl_struct *, double, double, double, double, chmstate_struct *,
-    double []);
+    const rttbl_struct *, double, double, double, chmstate_struct *, double []);
 void            Lookup(FILE *, const calib_struct *, chemtbl_struct [],
     kintbl_struct [], rttbl_struct *);
 void            Speciation(const chemtbl_struct [], const rttbl_struct *,

@@ -13,13 +13,13 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
 #endif
     for (i = 0; i < nelem; i++)
     {
-        double          volume;
+        double          storage;
         double          satn;
         double          ftemp;
         int             k;
 
-        volume = ((elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
-            elem[i].soil.depth * elem[i].soil.smcmin) * elem[i].topo.area;
+        storage = (elem[i].ws.unsat + elem[i].ws.gw) * elem[i].soil.porosity +
+            elem[i].soil.depth * elem[i].soil.smcmin;
 
         satn = (elem[i].ws.unsat + elem[i].ws.gw) / elem[i].soil.depth;
         satn = MAX(satn, SATMIN);
@@ -43,19 +43,18 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
 
             ftemp = SoilTempFactor(avg_stc);
 
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, volume, satn,
-                ftemp, &elem[i].chms, elem[i].chmf.react);
+            ReactControl(chemtbl, kintbl, rttbl, stepsize, satn, ftemp,
+                &elem[i].chms, elem[i].chmf.react);
         }
 
         for (k = 0; k < nsolute; k++)
         {
-            elem[i].solute[k].snksrc = elem[i].chmf.react[k];
+            elem[i].solute[k].snksrc = elem[i].chmf.react[k] * storage;
         }
 
 #if defined(_FBR_)
-        volume = ((elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
-            elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin) *
-            elem[i].topo.area;
+        storage = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) *
+            elem[i].geol.porosity + elem[i].geol.depth * elem[i].geol.smcmin;
 
         satn = (elem[i].ws.fbr_unsat + elem[i].ws.fbr_gw) / elem[i].geol.depth;
         satn = MAX(satn, SATMIN);
@@ -72,13 +71,14 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
         if (satn > 1.0E-2)
         {
             ftemp = SoilTempFactor(elem[i].ps.tbot);
-            ReactControl(chemtbl, kintbl, rttbl, stepsize, volume, satn,
-                ftemp, &elem[i].chms_geol, elem[i].chmf.react_geol);
+            ReactControl(chemtbl, kintbl, rttbl, stepsize, satn, ftemp,
+                &elem[i].chms_geol, elem[i].chmf.react_geol);
         }
 
         for (k = 0; k < nsolute; k++)
         {
-            elem[i].solute[k].snksrc_geol = elem[i].chmf.react_geol[k];
+            elem[i].solute[k].snksrc_geol = elem[i].chmf.react_geol[k] *
+                storage;
         }
 #endif
     }
@@ -527,8 +527,8 @@ int _React(double stepsize, const chemtbl_struct chemtbl[],
 }
 
 void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
-    const rttbl_struct *rttbl, double stepsize, double vol, double satn,
-    double ftemp, chmstate_struct *chms, double react_flux[])
+    const rttbl_struct *rttbl, double stepsize, double satn, double ftemp,
+    chmstate_struct *chms, double react_flux[])
 {
     double          t_conc0[MAXSPS];
     double          substep;
@@ -574,7 +574,7 @@ void ReactControl(const chemtbl_struct chemtbl[], const kintbl_struct kintbl[],
     for (k = 0; k < rttbl->NumSpc; k++)
     {
         react_flux[k] =
-            (chms->t_conc[k] - t_conc0[k]) * vol / stepsize;
+            (chms->t_conc[k] - t_conc0[k]) / stepsize;
     }
 }
 
