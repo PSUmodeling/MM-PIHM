@@ -97,8 +97,6 @@ typedef struct calib_struct
     double          edir;
     double          rivrough;
     double          rivksath;
-    double          rivksatv;
-    double          rivbedthick;
     double          rivdepth;
     double          rivshpcoeff;
     double          prcp;                   /* multiplier of precipitation (-)*/

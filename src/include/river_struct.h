@@ -13,7 +13,6 @@ typedef struct river_topo_struct
     double          area;                   /* area (m2) */
     double          x;                      /* x of centroid (m) */
     double          y;                      /* y of centroid (m) */
-    double          zmin;                   /* bedrock elevation (m) */
     double          zmax;                   /* river bank elevation (m) */
     double          zbed;                   /* river bed elevation (m) */
     double          node_zmax;              /* elevation of the downstream node
@@ -52,12 +51,6 @@ typedef struct matl_struct
     double          cwr;                    /* discharge coefficient (-) */
     double          ksath;                  /* bank hydraulic conductivity
                                              * (m s-1) */
-    double          ksatv;                  /* bed hydraulic conductivity
-                                             * (m s-1) */
-    double          bedthick;               /* bed thickness (m) */
-    double          porosity;               /* bed porosity (m3 m-3) */
-    double          smcmin;                 /* bed residual soil moisture
-                                             * content (m3 m-3) */
 #if defined(_CYCLES_OBSOLETE_)
     double          bd;
 #endif

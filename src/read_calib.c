@@ -73,12 +73,6 @@ void ReadCalib(const char *filename, calib_struct *cal)
     ReadKeyword(cmdstr, "KRIVH", &cal->rivksath, 'd', filename, lno);
 
     NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "KRIVV", &cal->rivksatv, 'd', filename, lno);
-
-    NextLine(global_calib, cmdstr, &lno);
-    ReadKeyword(cmdstr, "BEDTHCK", &cal->rivbedthick, 'd', filename, lno);
-
-    NextLine(global_calib, cmdstr, &lno);
     ReadKeyword(cmdstr, "RIV_DPTH", &cal->rivdepth, 'd', filename, lno);
 
     NextLine(global_calib, cmdstr, &lno);

@@ -39,11 +39,6 @@ void InitRiver(river_struct *river, elem_struct *elem,
         river[i].topo.zmax = 0.5 *
             (meshtbl->zmax[river[i].fromnode - 1] +
             meshtbl->zmax[river[i].tonode - 1]);
-        river[i].topo.zmin = river[i].topo.zmax -
-            (0.5 * (elem[river[i].leftele - 1].topo.zmax +
-            elem[river[i].rightele - 1].topo.zmax) -
-            0.5 * (elem[river[i].leftele - 1].topo.zmin +
-            elem[river[i].rightele - 1].topo.zmin));
         river[i].topo.node_zmax = meshtbl->zmax[river[i].tonode - 1];
         river[i].topo.dist_left = sqrt(
             (river[i].topo.x - elem[river[i].leftele - 1].topo.x) *
@@ -75,16 +70,6 @@ void InitRiver(river_struct *river, elem_struct *elem,
         river[i].matl.cwr = matltbl->cwr[rivtbl->matl[i] - 1];
         river[i].matl.ksath =
             cal->rivksath * matltbl->ksath[rivtbl->matl[i] - 1];
-        river[i].matl.ksatv =
-            cal->rivksatv * matltbl->ksatv[rivtbl->matl[i] - 1];
-        river[i].matl.bedthick =
-            cal->rivbedthick * matltbl->bedthick[rivtbl->matl[i] - 1];
-        river[i].matl.porosity = 0.5 *
-            (elem[river[i].leftele - 1].soil.porosity +
-            elem[river[i].rightele - 1].soil.porosity);
-        river[i].matl.smcmin = 0.5 *
-            (elem[river[i].leftele - 1].soil.smcmin +
-            elem[river[i].rightele - 1].soil.smcmin);
 
         river[i].topo.area = river[i].shp.length *
             RiverEqWid(river[i].shp.intrpl_ord, river[i].shp.depth,
