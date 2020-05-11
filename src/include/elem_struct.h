@@ -559,7 +559,8 @@ typedef struct solute_struct
     double          infil;                  /* solute flux from infiltration
                                              * (mass/amount of subs m-2 s-1) */
     double          subflux[NUM_EDGE];      /* solute flux from subsurface
-                                             * lateral flux (mass of mol s-1)*/
+                                             * lateral flux
+                                             * (mass/amount of subs s-1) */
     double          snksrc;                 /* sink/source term
                                              * (mass/amount of subs m-2 s-1) */
 # if defined(_FBR_)
@@ -568,14 +569,15 @@ typedef struct solute_struct
     double          fbr_infil;              /* solute flux from bedrock
                                              * infiltration
                                              * (mass/amount of subs m-2 s-1) */
-    double          fbrflow[NUM_EDGE];      /* lateral solute flux in deep
-                                             * layer (mass or mol s-1) */
+    double          fbrflow[NUM_EDGE];      /* lateral solute flux in deep layer
+                                             * (mass/amount of subs s-1) */
     double          snksrc_geol;            /* deep layer sink/source term
                                              * (mass/amount of subs m-2 s-1) */
 #  if defined(_TGM_)
     double          fbr_discharge;          /* solute flux from fractured
                                              * bedrock to river (only applies to
-                                             * 2-grid model) (mass or mol s-1)*/
+                                             * 2-grid model)
+                                             * (mass/amount of subs m-2 s-1) */
 #  endif
 # endif
 } solute_struct;

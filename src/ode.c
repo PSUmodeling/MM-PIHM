@@ -245,8 +245,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
             dy[SOLUTE_GEOL(i, k)] += elem->solute[k].fbr_infil +
                 elem->solute[k].snksrc_geol;
 #  if defined(_TGM_)
-            dy[SOLUTE_GEOL(i, k)] -= elem->solute[k].fbr_discharge /
-                elem->topo.area;
+            dy[SOLUTE_GEOL(i, k)] -= elem->solute[k].fbr_discharge;
 #  endif
 # endif
 

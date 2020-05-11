@@ -124,7 +124,7 @@ void SoluteTranspt(double diff_coef, double disp_coef, double cementation,
             /* Fractured bedrock discharge to river.
              * Note that FBR discharge is always non-negative */
             elem[i].solute[k].fbr_discharge = elem[i].wf.fbr_discharge *
-                elem[i].topo.area * elem[i].solute[k].conc_geol;
+                elem[i].solute[k].conc_geol;
 # endif
 
             /* Element to element */
