@@ -279,21 +279,19 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
     fclose(fp);
 }
 
-#if _CYCLES_OBSOLETE_
-void ReadMultOper(const agtbl_struct *agtbl, const epconst_struct epctbl[],
-    opertbl_struct opertbl[])
+void ReadMultOper(const agtbl_struct *agtbl, mgmt_struct mgmttbl[],
+    crop_struct croptbl[])
 {
     int             i;
-    char            filename[MAXSTRING];
+    char            filen[MAXSTRING];
 
-    for (i = 0; i < agtbl->nopfile; i++)
+    for (i = 0; i < agtbl->noper; i++)
     {
-        sprintf(filename, "input/%s/%s", project, agtbl->opfilen[i]);
+        sprintf(filen, "input/%s/%s", project, agtbl->oper_filen[i]);
 
-        ReadOperation(filename, 999, epctbl, &opertbl[i]);
+        ReadOper(filen, BADVAL, BADVAL, &mgmttbl[i], croptbl);
     }
 }
-#endif
 
 //int CropExist(char *cropName, const croptbl_struct *croptbl)
 //{

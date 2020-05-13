@@ -603,140 +603,108 @@ typedef struct crop_struct
     realized_crop_struct rc;
 } crop_struct;
 
-#endif
-
-#if defined(_CYCLES_OBSOLETE_)
-typedef struct epconst_struct
-{
-    char            cropn[MAXSTRING];
-    double          flowering_tt;           /* (degree C day) */
-    double          maturity_tt;            /* (degree C day) */
-    double          max_soil_covr;          /* (100%) */
-    double          max_root_dpth;          /* (m) */
-    double          frac_res_standing;      /* (100%) */
-    double          frac_res_removed;       /* (100%) */
-    double          clip_biomass_ut;        /* (kg m-2) */
-    double          clip_biomass_lt;        /* (kg m-2) */
-    double          clip_timing;            /* (100% thermal time) */
-    int             clip_destiny;           /* (-) */
-    double          transp_temp_min;        /* (degree C) */
-    double          transp_temp_thr;        /* (degree C) */
-    double          cold_damage_temp_min;   /* (degree C) */
-    double          cold_damagetemp_thr;    /* (degree C) */
-    double          temp_base;              /* (degree C) */
-    double          temp_opt;               /* (degree C) */
-    double          temp_max;               /* (degree C) */
-    double          shoot_par_init;         /* (100%) */
-    double          shoot_par_final;        /* (100%) */
-    double          rue;                    /* kg J-1 */
-    double          tue;                    /* kg kgH2O-1 at VPD = 1kPa */
-    double          hi_max;                 /* (-) */
-    double          hi_min;                 /* intercept harvest index (-) */
-    double          hi;                     /* (-) */
-    double          emergence_tt;           /* (degree C day) */
-    double          n_conc_max;             /* (g g-1) */
-    double          n_diln_slope;           /* (-) */
-    double          kc;                     /* (-) */
-    int             annual;                 /* (-) */
-    int             legume;                 /* (-) */
-    int             c3c4;                   /* (-) */
-    double          lwp_stress_onset;       /* (J kg-1, or m2 s-2) */
-    double          lwp_wlt;                /* (J kg-1, or m2 s-2) */
-    double          transp_max;             /* (mm day-1) */
-} epconst_struct;
-
 typedef struct plant_struct
 {
-    /* Planting */
-    int             year;
-    int             doy;
-    int             crop_id;
-    int             auto_irr;
-    int             auto_fert;
-    double          plant_density;          /* (100%) */
-    int             clip_start;             /* (day of year) */
-    int             clip_end;               /* (day of year) */
-    int             ai_start;
-    int             ai_stop;
-    double          ai_h2o_depl;            /* (100% plant avialable water
-                                             * content) */
-    int             ai_last_lyr;
+    int             year;                   /* year in rotation */
+    int             doy;                    /* day of year */
+    int             doy_end;                /* day of year when planting window
+                                             * closes */
+    double          smc_max;                /* maximum soil water content
+                                             * allowed for planting (m3 m-3) */
+    double          smc_min;                /* minimum soil water content
+                                             * required for planting (m3 m-3) */
+    double          soil_tmp_min;           /* minimum soil temperature required
+                                             * for planting (degree C) */
+    int             auto_irrig;             /* automatic irrigation index */
+    int             auto_fert;              /* automatic fertilization flag */
+    int             crop_id;                /* index of crop */
+    double          plant_density;          /* planting density between 0-1 (-)
+                                             */
+    int             clip_start;             /* day of year that clipping window
+                                             * begins */
+    int             clip_end;               /* day of year that clipping window
+                                             * ends */
 } plant_struct;
 
 typedef struct tillage_struct
 {
-    /* Tillage */
-    int             year;
-    int             doy;
-    char            tooln[MAXSTRING];
-    double          depth;                  /* (m) */
-    double          sdr;                    /* (-) */
-    double          mix_eff;                /* (100%) */
-    double          drop_id;
-#if NOT_YET_IMPLEMENTED
-    double          fractionThermalTime;
-    double          killEfficiency;
+    int             year;                   /* year in rotation */
+    int             doy;                    /* day of year */
+    char            tool[MAXSTRING];        /* name of tillage tool */
+    double          depth;                  /* tillage mixing depth (m) */
+    double          sdr;                    /* soil disturb ratio (-) */
+    double          mixing_eff;             /* mixing efficiency (-) */
+    int             crop_id;
+    int             grain_harvest;          /* grain harvest flag */
+    double          forage_harvest;         /* forage harvest fraction */
+#if defined(_DYNAMIC_)
+    int             days_after_plant;       /* days after planting (-) */
 #endif
-    int             grain_harv;
-    double          forage_harv;
 } tillage_struct;
 
-typedef struct fixirr_struct
+typedef struct firrig_struct
 {
-    /* Fixed Irrigation */
-    int             year;
-    int             doy;
-    double          volume;                 /* (mm) */
-} fixirr_struct;
+    int             year;                   /* year in rotation */
+    int             doy;                    /* day of year */
+    double          volume;                 /* irrigation volume (mm) */
+} firrig_struct;
 
-typedef struct fixfert_struct
+typedef struct fert_struct
 {
-    /* Fixed Fertilization */
-    int             year;
-    int             doy;
-    char            source[MAXSTRING];
-    double          mass;                   /* (kg m-2) */
-#if NOT_YET_IMPLEMENTED
-    char            opForm[MAXSTRING];
-    char            opMethod[MAXSTRING];
+    int             year;                   /* year in rotation */
+    int             doy;                    /* day of year */
+    char            source[MAXSTRING];      /* name of fertilization input */
+    double          mass;                   /* total mass of input (Mg ha-1) */
+    char            method[MAXSTRING];      /* N/A */
+    int             layer;                  /* soil layer to which fertilizer is
+                                             * added (-) */
+    double          c_organic;              /* organic C fraction (-) */
+    double          c_charcoal;             /* N/A */
+    double          n_organic;              /* organic N fraction (-) */
+    double          n_charcoal;             /* N/A */
+    double          n_nh4;                  /* ammonium N fraction (-) */
+    double          n_no3;                  /* nitrate N fraction (-) */
+    double          p_organic;              /* N/A */
+    double          p_charcoal;             /* N/A */
+    double          p_inorg;                /* N/A */
+    double          k;                      /* N/A */
+    double          s;                      /* N/A */
+#if defined(_DYNAMIC_)
+    int             crop_id;                /* crop ID */
+    int             days_after_plant;       /* days after planting (-) */
 #endif
-    int             layer;                  /* Starting from 1 */
-    double          c_org;                  /* (100%) */
-    double          c_cac;                  /* (100%) */
-    double          n_org;                  /* (100%) */
-    double          n_cac;                  /* (100%) */
-    double          nh4;                    /* (100%) */
-    double          no3;                    /* (100%) */
-    double          p_org;                  /* (100%) */
-    double          p_cac;                  /* (100%) */
-    double          p_inorg;                /* (100%) */
-    double          k;                      /* (100%) */
-    double          s;                      /* (100%) */
-} fixfert_struct;
+} fert_struct;
 
-typedef struct autoirr_struct
+typedef struct airrig_struct
 {
     int             crop_id;
-    int             start;
-    int             stop;
-    double          h2o_depl;               /* (100% plant avialable water
-                                             * content) */
-    int             last_lyr;
-} autoirr_struct;
+    int             start_doy;              /* day of year automatic irrigation
+                                             * begins (-) */
+    int             stop_doy;               /* day of year automatic irrigation
+                                             * ends (-) */
+    double          water_depl;             /* fraction of plant available water
+                                             * capacity that triggers automatic
+                                             * irrigation (-) */
+    int             last_soil_layer;        /* bottom soil layer used in
+                                             * determination of auto irrigation
+                                             * requirements and volumes (-) */
+} airrig_struct;
 
-typedef struct opertbl_struct
+typedef struct mgmt_struct
 {
-    fixfert_struct *fix_fert;
-    int             nfert;
-    fixirr_struct  *fix_irr;
-    int             nirr;
-    tillage_struct *tillage;
-    int             ntill;
-    plant_struct   *plant;
-    int             nplant;
-    autoirr_struct *auto_irr;
-    int             nauto_irr;
-} opertbl_struct;
+    int             years_in_rot;           /* total years in rotation */
+    int             auto_n;                 /* automatic nitrogen flag */
+    int             rot_year;               /* current year in rotation */
+    plant_struct   *planting;               /* planting operation array */
+    fert_struct    *fert;                   /* fertilization operation array */
+    firrig_struct  *fixed_irrig;            /* irrigation operation array */
+    tillage_struct *tillage;                /* tillage operation array */
+    int             n_oper[OPER_TYPES];     /* number of operations */
+    int             oper_ptr[OPER_TYPES];   /* operation status flag */
+    airrig_struct  *auto_irrig;             /* automatic irrigation array */
+    int             n_auto_irrig;           /* number of automatic irrigation
+                                             * operations */
+} mgmt_struct;
 #endif
 
 #if defined(_RT_)

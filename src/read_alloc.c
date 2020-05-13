@@ -145,7 +145,10 @@ void ReadAlloc(pihm_struct pihm)
     ReadSoilInit(pihm->filename.soilinit, &pihm->soiltbl);
 
     /* Read crop description file */
-    ReadCrop(pihm->filename.crop, pihm->crops);
+    ReadCrop(pihm->filename.crop, pihm->croptbl);
+
+    /* Read operation files */
+    ReadMultOper(&pihm->agtbl, pihm->mgmttbl, pihm->croptbl);
 #endif
 
 #if defined(_CYCLES_OBSOLETE_)

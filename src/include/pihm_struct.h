@@ -252,10 +252,8 @@ typedef struct pihm_struct
 #endif
 #if defined(_CYCLES_)
     agtbl_struct    agtbl;
-    crop_struct     crops[MAXCROP];
-#endif
-#if defined(_CYCLES_OBSOLETE_)
-    opertbl_struct  opertbl[MAXOP];
+    crop_struct     croptbl[MAXCROP];
+    mgmt_struct     mgmttbl[MAXOP];
 #endif
 #if defined(_BGC_)
     co2control_struct co2;

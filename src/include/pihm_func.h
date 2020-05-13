@@ -577,12 +577,25 @@ void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
 void            ApplyDailyMeteoForc(int, int, const siteinfo_struct *,
     forc_struct *, elem_struct []);
 double          BulkDensity(double, double, double);
+double          CommRadIntcp(const crop_struct []);
+double          CommTotRadIntcp(const crop_struct []);
+double          CommTransp(const crop_struct []);
+int             FindCrop(const char [], const crop_struct []);
+void            InitCropStateVar(crop_struct *);
+int             NumActiveCrop(const crop_struct []);
+void            PlantCrop(int, const plant_struct *, crop_struct *);
 void            ReadCrop(const char [], crop_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
+void            ReadMultOper(const agtbl_struct *, mgmt_struct [],
+    crop_struct []);
+void            ReadOper(const char [], int, int, mgmt_struct *,
+    crop_struct []);
 void            ReadSoilInit(const char [], soiltbl_struct *);
+void            ResetCrop(crop_struct *);
 double          SoilWaterContent(double, double, double, double);
 double          VolWCAt33Jkg(double, double, double);
 double          VolWCAt1500Jkg(double, double, double);
+void            ZeroHarvest(crop_struct *);
 #endif
 #if defined(_CYCLES_OBSOLETE_)
 void            AddCrop(crop_struct *);
@@ -600,8 +613,6 @@ void            CalSnkSrc(const nflux_struct *, int, solute_struct *,
 void            CalcRootFraction(const crop_struct *, const pstate_struct *,
     double *);
 double          ColdDamage(double, double, double);
-double          CommRadIntcp(const crop_struct[]);
-double          CommTotRadIntcp(const crop_struct[]);
 void            ComputeColdDamage(const daily_struct *, crop_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 void            ComputeFactorComposite(const soil_struct *,
@@ -647,7 +658,6 @@ void            FieldOperation(int, const opertbl_struct *,
     crop_struct [], pstate_struct *, wstate_struct *, wflux_struct *,
     cstate_struct *, nstate_struct *, nflux_struct *);
 int             FinalHarvestDate(int, double, double, double);
-int             FindCrop(const char[], const epconst_struct []);
 double          FindIrrigationVolume(int, double, const soil_struct *,
     const daily_struct *daily, const pstate_struct *, const wflux_struct *);
 void            FirstDay(const soiltbl_struct *, elem_struct [],
@@ -665,7 +675,6 @@ void            GrowingCrop(int, const soil_struct *, const daily_struct *,
     cstate_struct *, nstate_struct *, nflux_struct *);
 void            HarvestCrop(int, crop_struct *, pstate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
-void            InitCropSV(crop_struct *);
 void            InitCycles(const agtbl_struct *, const soiltbl_struct *,
     epconst_struct [], elem_struct [], river_struct []);
 void            InitCyclesVar(elem_struct [], river_struct [], N_Vector);
@@ -689,9 +698,7 @@ void            NitrogenTransformation(const soil_struct *,
     const daily_struct *, const crop_struct [], const cstate_struct *,
     const cflux_struct *, pstate_struct *, nstate_struct *, nflux_struct *);
 void            NTransport(double, elem_struct [], river_struct []);
-int             NumActiveCrop(const crop_struct []);
 void            Phenology(const daily_struct *, crop_struct []);
-void            PlantingCrop(const plant_struct *,  crop_struct *);
 void            PotentialSoluteUptake(double, int, const double[],
     const double[], const double[], const double[], const double[], double *,
     double[]);
@@ -700,10 +707,6 @@ void            Processes(int, const soil_struct *, const daily_struct *,
     nflux_struct *);
 void            RadiationInterception(crop_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
-void            ReadMultOper(const agtbl_struct *, const epconst_struct [],
-    opertbl_struct []);
-void            ReadOperation(const char [], int, const epconst_struct [],
-    opertbl_struct []);
 void            ResidueEvaporation(double, double, double, const crop_struct [],
     const pstate_struct *, const cstate_struct *, wstate_struct *,
     wflux_struct *);

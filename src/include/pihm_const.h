@@ -446,16 +446,20 @@
 #define MATURITY                5
 #define CLIPPING                6
 #define PLANTING                7
-#endif
-#if defined(_CYCLES_OBSOLETE_)
 
+#define OPER_TYPES              4
 #define PLANT_OP                0
 #define TILLAGE_OP              1
 #define FIXIRR_OP               2
 #define FIXFERT_OP              3
 
-#define KILL_ALL                -1
+#define ALL_CROPS                -1
 
+#define FC_BOUND                -1
+#define PWP_BOUND               -2
+
+#endif
+#if defined(_CYCLES_OBSOLETE_)
 #define STAN_RESIDUE_SA         4.0         /* standing residue area to mass
                                              * ratio (m2 kg-1) */
 #define FLAT_RESIDUE_SA         4.0         /* flat residue area to mass ratio

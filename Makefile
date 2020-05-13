@@ -254,7 +254,9 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	#cycles/ntransport.c\
 	#cycles/update_prof.c
   CYCLES_SRCS_ =\
+	crop.c\
 	read_crop.c\
+	read_operation.c\
 	soil.c
 	#crop.c\
 	#crop_harvest.c\
