@@ -405,7 +405,7 @@ typedef struct wstate_struct
 #if defined(_NOAH_)
     double          smc[MAXLYR];            /* total soil moisture content
                                              * (m3 m-3) */
-    double          sh2o[MAXLYR];           /* unfrozen soil moisture content
+    double          swc[MAXLYR];           /* unfrozen soil moisture content
                                              * (m3 m-3) */
     double          soilm;                  /* total soil column moisture
                                              * content (m) */
@@ -801,7 +801,7 @@ typedef struct ic_struct
     double          snowh;
     double          stc[MAXLYR];
     double          smc[MAXLYR];
-    double          sh2o[MAXLYR];
+    double          swc[MAXLYR];
 #endif
 } ic_struct;
 

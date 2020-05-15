@@ -549,12 +549,12 @@ void RelaxIc(elem_struct *elem, river_struct *river)
             if (elem[i].ps.sldpth[j] > 0.0)
             {
                 elem[i].ic.smc[j] = elem[i].soil.smcmax;
-                elem[i].ic.sh2o[j] = elem[i].soil.smcmax;
+                elem[i].ic.swc[j] = elem[i].soil.smcmax;
             }
             else
             {
                 elem[i].ic.smc[j] = BADVAL;
-                elem[i].ic.sh2o[j] = BADVAL;
+                elem[i].ic.swc[j] = BADVAL;
             }
         }
         elem[i].ic.snowh = 0.0;
@@ -613,7 +613,7 @@ void InitVar(elem_struct *elem, river_struct *river, N_Vector CV_Y)
         {
             elem[i].es.stc[j] = elem[i].ic.stc[j];
             elem[i].ws.smc[j] = elem[i].ic.smc[j];
-            elem[i].ws.sh2o[j] = elem[i].ic.sh2o[j];
+            elem[i].ws.swc[j] = elem[i].ic.swc[j];
         }
 #endif
 

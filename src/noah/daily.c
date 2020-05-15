@@ -25,7 +25,7 @@ void DailyVar(int t, int start_time, elem_struct *elem)
         for (k = 0; k < elem[i].ps.nsoil; k++)
         {
             elem[i].daily.avg_stc[k] += elem[i].es.stc[k];
-            elem[i].daily.avg_sh2o[k] += elem[i].ws.sh2o[k];
+            elem[i].daily.avg_sh2o[k] += elem[i].ws.swc[k];
             elem[i].daily.avg_smc[k] += elem[i].ws.smc[k];
 #if defined(_CYCLES_OBSOLETE_)
             elem[i].daily.avg_et[k] += elem[i].wf.et[k];

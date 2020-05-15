@@ -96,7 +96,7 @@ double Infil(const wstate_struct *ws, const wstate_struct *ws0,
         {
             deficit = soil->depth - ws->gw;
 #if defined(_NOAH_)
-            satn = (ws->sh2o[0] - soil->smcmin) / (soil->smcmax - soil->smcmin);
+            satn = (ws->swc[0] - soil->smcmin) / (soil->smcmax - soil->smcmin);
 #else
             satn = ws->unsat / deficit;
 #endif

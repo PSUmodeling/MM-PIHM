@@ -571,7 +571,7 @@ void PrintInit(const elem_struct *elem, const river_struct *river,
             }
             for (j = 0; j < MAXLYR; j++)
             {
-                fwrite(&elem[i].ws.sh2o[j], sizeof(double), 1, init_file);
+                fwrite(&elem[i].ws.swc[j], sizeof(double), 1, init_file);
             }
 #endif
         }

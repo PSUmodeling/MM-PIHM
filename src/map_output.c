@@ -269,7 +269,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                             HYDROL_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
                         {
-                            print->varctrl[n].var[j] = &elem[j].ws.sh2o[k];
+                            print->varctrl[n].var[j] = &elem[j].ws.swc[k];
                         }
                         n++;
                     }
@@ -1054,7 +1054,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
             &print->varctrl[n]);
         for (k = 0; k < MAXLYR; k++)
         {
-            print->varctrl[n].var[k] = &elem[i].ws.sh2o[k];
+            print->varctrl[n].var[k] = &elem[i].ws.swc[k];
         }
         n++;
 
