@@ -24,7 +24,6 @@ void InitCycles(const agtbl_struct *agtbl, const mgmt_struct mgmttbl[],
             {
                 elem[i].soil.clay[k]  = soiltbl->clay_layer[soil_ind][k];
                 elem[i].soil.sand[k]  = soiltbl->sand_layer[soil_ind][k];
-                elem[i].soil.om[k]    = soiltbl->om_layer[soil_ind][k];
                 elem[i].soil.bd[k]    = soiltbl->bd_layer[soil_ind][k];
                 elem[i].soil.fc[k]    = soiltbl->fc[soil_ind][k];
                 elem[i].soil.pwp[k]   = soiltbl->pwp[soil_ind][k];
@@ -36,7 +35,6 @@ void InitCycles(const agtbl_struct *agtbl, const mgmt_struct mgmttbl[],
             {
                 elem[i].soil.clay[k]          = BADVAL;
                 elem[i].soil.sand[k]          = BADVAL;
-                elem[i].soil.om[k]            = BADVAL;
                 elem[i].soil.bd[k]            = BADVAL;
                 elem[i].soil.fc[k]            = BADVAL;
                 elem[i].soil.pwp[k]           = BADVAL;
@@ -65,79 +63,84 @@ void InitCycles(const agtbl_struct *agtbl, const mgmt_struct mgmttbl[],
     }
 }
 
-#if defined(_CYCLES_OBSOLETE_)
 void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[],
     river_struct river[])
 {
-    int             i, k;
-    int             soil_ind;
+    int             i;
 
     for (i = 0; i < nelem; i++)
     {
+        int             k;
+        int             soil_ind;
+
         soil_ind = elem[i].attrib.soil_type - 1;
 
-        elem[i].restart_input.resw_stan = 0.0;
-        elem[i].restart_input.resw_flat = 0.0;
-        elem[i].restart_input.resm_stan = 0.0;
-        elem[i].restart_input.resm_flat = 0.0;
-        elem[i].restart_input.manuc_surf = 0.0;
-        elem[i].restart_input.resn_stan = 0.0;
-        elem[i].restart_input.resn_flat = 0.0;
-        elem[i].restart_input.manun_surf = 0.0;
+        elem[i].restart_input.water_residue_stan = 0.0;
+        elem[i].restart_input.water_residue_flat = 0.0;
+        elem[i].restart_input.c_residue_stan     = 0.0;
+        elem[i].restart_input.c_residue_flat     = 0.0;
+        elem[i].restart_input.c_manure_surface   = 0.0;
+        elem[i].restart_input.n_residue_stan     = 0.0;
+        elem[i].restart_input.n_residue_flat     = 0.0;
+        elem[i].restart_input.n_manure_surface   = 0.0;
 
         for (k = 0; k < MAXLYR; k++)
         {
-            elem[i].restart_input.res_abgd[k] = BADVAL;
-            elem[i].restart_input.res_root[k] = BADVAL;
-            elem[i].restart_input.res_rhizo[k] = BADVAL;
-            elem[i].restart_input.manuc[k] = BADVAL;
-            elem[i].restart_input.resn_abgd[k] = BADVAL;
-            elem[i].restart_input.resn_root[k] = BADVAL;
-            elem[i].restart_input.resn_rhizo[k] = BADVAL;
-            elem[i].restart_input.manun[k] = BADVAL;
-            elem[i].restart_input.soc[k] = BADVAL;
-            elem[i].restart_input.son[k] = BADVAL;
-            elem[i].restart_input.mbc[k] = BADVAL;
-            elem[i].restart_input.mbn[k] = BADVAL;
-            elem[i].restart_input.no3[k] = BADVAL;
-            elem[i].restart_input.nh4[k] = BADVAL;
+            elem[i].restart_input.c_residue_abgd[k]  = BADVAL;
+            elem[i].restart_input.c_residue_root[k]  = BADVAL;
+            elem[i].restart_input.c_residue_rhizo[k] = BADVAL;
+            elem[i].restart_input.c_manure[k]        = BADVAL;
+            elem[i].restart_input.n_residue_abgd[k]  = BADVAL;
+            elem[i].restart_input.n_residue_root[k]  = BADVAL;
+            elem[i].restart_input.n_residue_rhizo[k] = BADVAL;
+            elem[i].restart_input.n_manure[k]        = BADVAL;
+            elem[i].restart_input.soc[k]             = BADVAL;
+            elem[i].restart_input.mbc[k]             = BADVAL;
+            elem[i].restart_input.son[k]             = BADVAL;
+            elem[i].restart_input.mbn[k]             = BADVAL;
+            elem[i].restart_input.no3[k]             = BADVAL;
+            elem[i].restart_input.nh4[k]             = BADVAL;
         }
 
         for (k = 0; k < elem[i].ps.nsoil; k++)
         {
-            elem[i].restart_input.soc[k] = elem[i].soil.iom[k] / 100.0 * 0.58 *
-                elem[i].ps.sldpth[k] * elem[i].soil.bd[k] * 1000.0;
+            elem[i].restart_input.c_residue_abgd[k]  = 0.0;
+            elem[i].restart_input.c_residue_root[k]  = 0.0;
+            elem[i].restart_input.c_residue_rhizo[k] = 0.0;
+            elem[i].restart_input.c_manure[k]        = 0.0;
+            elem[i].restart_input.n_residue_abgd[k]  = 0.0;
+            elem[i].restart_input.n_residue_root[k]  = 0.0;
+            elem[i].restart_input.n_residue_rhizo[k] = 0.0;
+            elem[i].restart_input.n_manure[k]        = 0.0;
+            elem[i].restart_input.soc[k]             = BADVAL;
+            elem[i].restart_input.mbc[k]             = BADVAL;
+            elem[i].restart_input.son[k]             = BADVAL;
+            elem[i].restart_input.mbn[k]             = BADVAL;
+            elem[i].restart_input.no3[k]             = BADVAL;
+            elem[i].restart_input.nh4[k]             = BADVAL;
+
+            elem[i].restart_input.soc[k] = soiltbl->om_layer[soil_ind][k] /
+                100.0 * 0.58 * elem[i].ps.sldpth[k] * elem[i].soil.bd[k] *
+                1.0E4;
             /* Initializes as 3% of SOC_Mass but "added" C */
             elem[i].restart_input.mbc[k] = 0.03 * elem[i].restart_input.soc[k];
-            elem[i].restart_input.res_abgd[k] = 0.0;
-            elem[i].restart_input.res_root[k] = 0.0;
-            elem[i].restart_input.res_rhizo[k] = 0.0;
-            elem[i].restart_input.manuc[k] = 0.0;
-
-            elem[i].restart_input.no3[k] =
-                soiltbl->no3_lyr[soil_ind][k] * 1.0E-4;
-            elem[i].restart_input.nh4[k] =
-                soiltbl->nh4_lyr[soil_ind][k] * 1.0E-4;
             /* Initializes with CN ratio = 10 */
             elem[i].restart_input.son[k] = elem[i].restart_input.soc[k] * 0.1;
             /* Initializes with CN ratio = 10 */
             elem[i].restart_input.mbn[k] = elem[i].restart_input.mbc[k] * 0.1;
-            elem[i].restart_input.resn_abgd[k] = 0.0;
-            elem[i].restart_input.resn_root[k] = 0.0;
-            elem[i].restart_input.resn_rhizo[k] = 0.0;
-            elem[i].restart_input.manun[k] = 0.0;
+            elem[i].restart_input.no3[k] = soiltbl->no3[soil_ind][k] * 1.0E-3;
+            elem[i].restart_input.nh4[k] = soiltbl->nh4[soil_ind][k] * 1.0E-3;
         }
     }
 
     for (i = 0; i < nriver; i++)
     {
-        river[i].restart_input.streamno3 = 0.0;
-        river[i].restart_input.streamnh4 = 0.0;
-        river[i].restart_input.bedno3 = 0.0;
-        river[i].restart_input.bednh4 = 0.0;
+        river[i].restart_input.no3 = 0.0;
+        river[i].restart_input.nh4 = 0.0;
     }
 }
 
+#if defined(_CYCLES_OBSOLETE_)
 void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 {
     int             i, k;

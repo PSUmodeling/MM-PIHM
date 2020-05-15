@@ -89,7 +89,6 @@ typedef struct soil_struct
 #if defined(_CYCLES_)
     double          clay[MAXLYR];
     double          sand[MAXLYR];
-    double          om[MAXLYR];
     double          bd[MAXLYR];
     double          fc[MAXLYR];
     double          pwp[MAXLYR];
@@ -806,32 +805,32 @@ typedef struct ic_struct
 #endif
 } ic_struct;
 
-#if defined(_CYCLES_OBSOLETE_)
-typedef struct cyclesic_struct
+#if defined(_CYCLES_)
+typedef struct agic_struct
 {
-    double          resw_stan;
-    double          resw_flat;
-    double          resm_stan;
-    double          resm_flat;
-    double          manuc_surf;
-    double          resn_stan;
-    double          resn_flat;
-    double          manun_surf;
-    double          res_abgd[MAXLYR];
-    double          res_root[MAXLYR];
-    double          res_rhizo[MAXLYR];
-    double          manuc[MAXLYR];
-    double          resn_abgd[MAXLYR];
-    double          resn_root[MAXLYR];
-    double          resn_rhizo[MAXLYR];
-    double          manun[MAXLYR];
+    double          water_residue_stan;
+    double          water_residue_flat;
+    double          c_residue_stan;
+    double          c_residue_flat;
+    double          c_manure_surface;
+    double          n_residue_stan;
+    double          n_residue_flat;
+    double          n_manure_surface;
+    double          c_residue_abgd[MAXLYR];
+    double          c_residue_root[MAXLYR];
+    double          c_residue_rhizo[MAXLYR];
+    double          c_manure[MAXLYR];
+    double          n_residue_abgd[MAXLYR];
+    double          n_residue_root[MAXLYR];
+    double          n_residue_rhizo[MAXLYR];
+    double          n_manure[MAXLYR];
     double          soc[MAXLYR];
-    double          son[MAXLYR];
     double          mbc[MAXLYR];
+    double          son[MAXLYR];
     double          mbn[MAXLYR];
     double          no3[MAXLYR];
     double          nh4[MAXLYR];
-} cyclesic_struct;
+} agic_struct;
 #endif
 
 #if defined(_BGC_)
@@ -1701,9 +1700,9 @@ typedef struct elem_struct
 #if defined(_CYCLES_)
     crop_struct     crop[MAXCROP];
     mgmt_struct     mgmt;
+    agic_struct     restart_input;
 #endif
 #if defined(_CYCLES_OBSOLETE_)
-    cyclesic_struct restart_input;
     cstate_struct   cs;
     cflux_struct    cf;
     nstate_struct   ns;

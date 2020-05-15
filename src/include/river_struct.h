@@ -107,6 +107,14 @@ typedef struct river_bgcic_struct
 } river_bgcic_struct;
 #endif
 
+#if defined(_CYCLES_)
+typedef struct river_agic_struct
+{
+    double          no3;
+    double          nh4;
+} river_agic_struct;
+#endif
+
 #if defined(_CYCLES_OBSOLETE_)
 typedef struct river_nstate_struct
 {
@@ -115,14 +123,6 @@ typedef struct river_nstate_struct
     double          bedno3;
     double          bednh4;
 } river_nstate_struct;
-
-typedef struct river_cyclesic_struct
-{
-    double          streamno3;
-    double          streamnh4;
-    double          bedno3;
-    double          bednh4;
-} river_cyclesic_struct;
 
 typedef struct river_solute_struct
 {
@@ -163,9 +163,11 @@ typedef struct river_struct
 #if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
     river_solute_struct solute[NSOLUTE];
 #endif
+#if defined(_CYCLES_)
+    river_agic_struct restart_input;
+#endif
 #if defined(_CYCLES_OBSOLETE_)
     river_nstate_struct ns;
-    river_cyclesic_struct restart_input;
     river_solute_struct no3sol;
     river_solute_struct nh4sol;
 #endif

@@ -242,8 +242,12 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
         ReadCyclesIC(pihm->filename.cyclesic, pihm->elem, pihm->river);
     }
 # endif
+#endif
+#if defined(_CYCLES_)
     FirstDay(&pihm->soiltbl, pihm->elem, pihm->river);
+#endif
 
+#if defined(_CYCLES_OBSOLETE_)
     InitCyclesVar(pihm->elem, pihm->river, CV_Y);
 #endif
 

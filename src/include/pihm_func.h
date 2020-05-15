@@ -581,6 +581,8 @@ double          CommRadIntcp(const crop_struct []);
 double          CommTotRadIntcp(const crop_struct []);
 double          CommTransp(const crop_struct []);
 int             FindCrop(const char [], const crop_struct []);
+void            FirstDay(const soiltbl_struct *, elem_struct [],
+    river_struct []);
 void            InitCropStateVar(crop_struct *);
 void            InitCycles(const agtbl_struct *, const mgmt_struct [],
     const crop_struct [], const soiltbl_struct *, elem_struct []);
@@ -662,8 +664,6 @@ void            FieldOperation(int, const opertbl_struct *,
 int             FinalHarvestDate(int, double, double, double);
 double          FindIrrigationVolume(int, double, const soil_struct *,
     const daily_struct *daily, const pstate_struct *, const wflux_struct *);
-void            FirstDay(const soiltbl_struct *, elem_struct [],
-    river_struct []);
 void            FirstDOY(int, int *);
 void            ForageAndSeedHarvest(int, crop_struct *,
     pstate_struct *, wstate_struct *, cstate_struct *, nstate_struct *,
