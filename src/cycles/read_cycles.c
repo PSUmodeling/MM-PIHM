@@ -142,7 +142,7 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
     soiltbl->nlayers    = (int *)malloc(soiltbl->number * sizeof(int));
     soiltbl->clay_layer = (double **)malloc(soiltbl->number * sizeof(double *));
     soiltbl->sand_layer = (double **)malloc(soiltbl->number * sizeof(double *));
-    soiltbl->iom_layer  = (double **)malloc(soiltbl->number * sizeof(double *));
+    soiltbl->om_layer  = (double **)malloc(soiltbl->number * sizeof(double *));
     soiltbl->bd_layer   = (double **)malloc(soiltbl->number * sizeof(double *));
     soiltbl->no3        = (double **)malloc(soiltbl->number * sizeof(double *));
     soiltbl->nh4        = (double **)malloc(soiltbl->number * sizeof(double *));
@@ -175,7 +175,7 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
 
         soiltbl->clay_layer[i]    = (double *)malloc(MAXLYR * sizeof(double));
         soiltbl->sand_layer[i]    = (double *)malloc(MAXLYR * sizeof(double));
-        soiltbl->iom_layer[i]     = (double *)malloc(MAXLYR * sizeof(double));
+        soiltbl->om_layer[i]     = (double *)malloc(MAXLYR * sizeof(double));
         soiltbl->bd_layer[i]      = (double *)malloc(MAXLYR * sizeof(double));
         soiltbl->no3[i]           = (double *)malloc(MAXLYR * sizeof(double));
         soiltbl->nh4[i]           = (double *)malloc(MAXLYR * sizeof(double));
@@ -201,7 +201,7 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
             NextLine(fp, cmdstr, &lno);
             match = sscanf(cmdstr, "%d %lf %lf %lf %lf %lf %lf", &layer,
                 &soiltbl->clay_layer[i][k], &soiltbl->sand_layer[i][k],
-                &soiltbl->iom_layer[i][k], &soiltbl->bd_layer[i][k],
+                &soiltbl->om_layer[i][k], &soiltbl->bd_layer[i][k],
                 &soiltbl->no3[i][k], &soiltbl->nh4[i][k]);
 
             if (match != 7 || k != layer - 1)
@@ -221,15 +221,15 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
                 100.0 - soiltbl->clay[i] - soiltbl->silt[i] :
                 soiltbl->sand_layer[i][k];
             soiltbl->sand_layer[i][k] /= 100.0;
-            soiltbl->iom_layer[i][k] = (soiltbl->iom_layer[i][k] < 0.0) ?
-                soiltbl->om[i] : soiltbl->iom_layer[i][k];
+            soiltbl->om_layer[i][k] = (soiltbl->om_layer[i][k] < 0.0) ?
+                soiltbl->om[i] : soiltbl->om_layer[i][k];
 
             bd = BulkDensity(soiltbl->clay_layer[i][k],
-                soiltbl->sand_layer[i][k], soiltbl->iom_layer[i][k]);
+                soiltbl->sand_layer[i][k], soiltbl->om_layer[i][k]);
             wc33 = VolWCAt33Jkg(soiltbl->clay_layer[i][k],
-                soiltbl->sand_layer[i][k], soiltbl->iom_layer[i][k]);
+                soiltbl->sand_layer[i][k], soiltbl->om_layer[i][k]);
             wc1500 = VolWCAt1500Jkg(soiltbl->clay_layer[i][k],
-                soiltbl->sand_layer[i][k], soiltbl->iom_layer[i][k]);
+                soiltbl->sand_layer[i][k], soiltbl->om_layer[i][k]);
 
             /* Saxton's b */
             soiltbl->b[i][k] = (log(1500.0) - log(33.0)) /
@@ -267,7 +267,7 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
             {
                 soiltbl->clay_layer[i][k]    = soiltbl->clay_layer[i][k - 1];
                 soiltbl->sand_layer[i][k]    = soiltbl->sand_layer[i][k - 1];
-                soiltbl->iom_layer[i][k]     = soiltbl->iom_layer[i][k - 1];
+                soiltbl->om_layer[i][k]     = soiltbl->om_layer[i][k - 1];
                 soiltbl->bd_layer[i][k]      = soiltbl->bd_layer[i][k - 1];
                 soiltbl->no3[i][k]           = soiltbl->no3[i][k - 1];
                 soiltbl->nh4[i][k]           = soiltbl->nh4[i][k - 1];

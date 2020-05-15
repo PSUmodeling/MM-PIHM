@@ -180,7 +180,7 @@ typedef struct soiltbl_struct
     int            *nlayers;
     double        **clay_layer;
     double        **sand_layer;
-    double        **iom_layer;
+    double        **om_layer;
     double        **bd_layer;
     double        **no3;
     double        **nh4;

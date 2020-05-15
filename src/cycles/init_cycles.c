@@ -24,6 +24,7 @@ void InitCycles(const agtbl_struct *agtbl, const mgmt_struct mgmttbl[],
             {
                 elem[i].soil.clay[k]  = soiltbl->clay_layer[soil_ind][k];
                 elem[i].soil.sand[k]  = soiltbl->sand_layer[soil_ind][k];
+                elem[i].soil.om[k]    = soiltbl->om_layer[soil_ind][k];
                 elem[i].soil.bd[k]    = soiltbl->bd_layer[soil_ind][k];
                 elem[i].soil.fc[k]    = soiltbl->fc[soil_ind][k];
                 elem[i].soil.pwp[k]   = soiltbl->pwp[soil_ind][k];
@@ -33,14 +34,14 @@ void InitCycles(const agtbl_struct *agtbl, const mgmt_struct mgmttbl[],
             }
             else
             {
-                elem[i].soil.clay[k]  = BADVAL;
-                elem[i].soil.sand[k]  = BADVAL;
-                elem[i].soil.bd[k]    = BADVAL;
-                elem[i].soil.fc[k]    = BADVAL;
-                elem[i].soil.pwp[k]   = BADVAL;
-                elem[i].soil.b[k]     = BADVAL;
-                elem[i].soil.air_entry_pot[k] =
-                                        BADVAL;
+                elem[i].soil.clay[k]          = BADVAL;
+                elem[i].soil.sand[k]          = BADVAL;
+                elem[i].soil.om[k]            = BADVAL;
+                elem[i].soil.bd[k]            = BADVAL;
+                elem[i].soil.fc[k]            = BADVAL;
+                elem[i].soil.pwp[k]           = BADVAL;
+                elem[i].soil.b[k]             = BADVAL;
+                elem[i].soil.air_entry_pot[k] = BADVAL;
             }
         }
 

@@ -89,6 +89,7 @@ typedef struct soil_struct
 #if defined(_CYCLES_)
     double          clay[MAXLYR];
     double          sand[MAXLYR];
+    double          om[MAXLYR];
     double          bd[MAXLYR];
     double          fc[MAXLYR];
     double          pwp[MAXLYR];
