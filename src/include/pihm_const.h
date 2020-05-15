@@ -501,7 +501,7 @@ enum stage
  * for declare a large enough array size and nsolute is for loops in the code */
 #if defined(_BGC_)
 # define NSOLUTE                        1
-#elif defined(_CYCLES)
+#elif defined(_CYCLES_)
 # define NSOLUTE                        2
 #elif defined(_RT_)
 # define NSOLUTE                        MAXSPS
@@ -523,7 +523,7 @@ extern int     first_balance;
 #if defined(_OPENMP)
 extern int     nthreads;
 #endif
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
 int             nsolute;
 #endif
 

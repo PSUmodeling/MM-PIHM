@@ -552,7 +552,7 @@ typedef struct eflux_struct
 #endif
 } eflux_struct;
 
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
 typedef struct solute_struct
 {
     double          conc_surf;              /* solute concentration at surface
@@ -1679,7 +1679,7 @@ typedef struct elem_struct
     estate_struct   es;
     eflux_struct    ef;
     pstate_struct   ps;
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
     solute_struct   solute[NSOLUTE];
 #endif
 #if defined(_BGC_)

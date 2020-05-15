@@ -482,7 +482,7 @@ void            SetAbsTolArray(double, double, N_Vector);
 void            SetAbsTolArray(double, N_Vector);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
 void            InitSolute(elem_struct []);
 void            SoluteTranspt(double, double, double, elem_struct [],
     river_struct []);

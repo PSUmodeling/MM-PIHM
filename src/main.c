@@ -15,7 +15,7 @@ int             nthreads = 1;    /* Default value */
 #endif
 #if defined(_BGC_)
 int             nsolute = 1;
-#elif defined(_CYCLES)
+#elif defined(_CYCLES_)
 int             nsoulte = 2;
 #elif defined(_RT_)
 int             nsoulte;

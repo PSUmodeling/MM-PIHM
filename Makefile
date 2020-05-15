@@ -249,7 +249,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	noah/topo_radn.c\
 	spa/spa.c\
 	cycles/init_cycles.c\
-	cycles/read_cycles.c
+	cycles/read_cycles.c\
+	transpt/init_solute.c
 	#cycles/cycles.c\
 	#cycles/ntransport.c\
 	#cycles/update_prof.c
