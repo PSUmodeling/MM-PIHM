@@ -63,35 +63,6 @@ void InitCycles(const agtbl_struct *agtbl, const mgmt_struct mgmttbl[],
          */
         elem[i].mgmt = mgmttbl[agtbl->oper[i] - 1];
     }
-
-#if defined(_CYCLES_OBSOLETE_)
-    /*
-     * Initialize river bed bulk densities
-     */
-    for (i = 0; i < nriver; i++)
-    {
-        int             k;
-        double          totdpth;
-
-        river[i].matl.bd = 0.0;
-        totdpth = 0.0;
-
-        for (k = 0; k < elem[river[i].leftele - 1].ps.nsoil; k++)
-        {
-            river[i].matl.bd += elem[river[i].leftele - 1].soil.bd[k] *
-                elem[river[i].leftele - 1].ps.sldpth[k];
-            totdpth += elem[river[i].leftele - 1].ps.sldpth[k];
-        }
-        for (k = 0; k < elem[river[i].rightele - 1].ps.nsoil; k++)
-        {
-            river[i].matl.bd += elem[river[i].rightele - 1].soil.bd[k] *
-                elem[river[i].rightele - 1].ps.sldpth[k];
-            totdpth += elem[river[i].rightele - 1].ps.sldpth[k];
-        }
-
-        river[i].matl.bd /= totdpth;
-    }
-#endif
 }
 
 #if defined(_CYCLES_OBSOLETE_)
