@@ -190,7 +190,8 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 #endif
 
 #if defined(_CYCLES_)
-    InitCycles(pihm->croptbl, &pihm->soiltbl, pihm->elem);
+    InitCycles(&pihm->agtbl, pihm->mgmttbl, pihm->croptbl, &pihm->soiltbl,
+        pihm->elem);
 #endif
 
 #if defined(_BGC_)

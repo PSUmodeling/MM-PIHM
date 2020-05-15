@@ -582,8 +582,8 @@ double          CommTotRadIntcp(const crop_struct []);
 double          CommTransp(const crop_struct []);
 int             FindCrop(const char [], const crop_struct []);
 void            InitCropStateVar(crop_struct *);
-void            InitCycles(const crop_struct [], const soiltbl_struct *,
-    elem_struct []);
+void            InitCycles(const agtbl_struct *, const mgmt_struct [],
+    const crop_struct [], const soiltbl_struct *, elem_struct []);
 int             NumActiveCrop(const crop_struct []);
 void            PlantCrop(int, const plant_struct *, crop_struct *);
 void            ReadCrop(const char [], crop_struct []);

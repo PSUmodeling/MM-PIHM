@@ -1,6 +1,7 @@
 #include "pihm.h"
 
-void InitCycles(const crop_struct croptbl[], const soiltbl_struct *soiltbl,
+void InitCycles(const agtbl_struct *agtbl, const mgmt_struct mgmttbl[],
+    const crop_struct croptbl[], const soiltbl_struct *soiltbl,
     elem_struct elem[])
 {
     int             i;
@@ -55,21 +56,14 @@ void InitCycles(const crop_struct croptbl[], const soiltbl_struct *soiltbl,
                 InitCropStateVar(&elem[i].crop[kcrop]);
             }
         }
-    }
-#if defined(_CYCLES_OBSOLETE_)
+
         /*
          * Initialize management structure
          */
-        elem[i].mgmt.rot_size = agtbl->rotsz[i];
-        elem[i].mgmt.auto_n = agtbl->auto_N[i];
-        elem[i].mgmt.rot_year = 0;
-
-        for (j = 0; j < 4; j++)
-        {
-            elem[i].mgmt.op_ptr[j] = 0;
-        }
+        elem[i].mgmt = mgmttbl[agtbl->oper[i] - 1];
     }
 
+#if defined(_CYCLES_OBSOLETE_)
     /*
      * Initialize river bed bulk densities
      */

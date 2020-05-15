@@ -1699,9 +1699,9 @@ typedef struct elem_struct
 #endif
 #if defined(_CYCLES_)
     crop_struct     crop[MAXCROP];
+    mgmt_struct     mgmt;
 #endif
 #if defined(_CYCLES_OBSOLETE_)
-    mgmt_struct     mgmt;
     cyclesic_struct restart_input;
     cstate_struct   cs;
     cflux_struct    cf;
