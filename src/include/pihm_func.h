@@ -582,6 +582,8 @@ double          CommTotRadIntcp(const crop_struct []);
 double          CommTransp(const crop_struct []);
 int             FindCrop(const char [], const crop_struct []);
 void            InitCropStateVar(crop_struct *);
+void            InitCycles(const crop_struct [], const soiltbl_struct *,
+    elem_struct []);
 int             NumActiveCrop(const crop_struct []);
 void            PlantCrop(int, const plant_struct *, crop_struct *);
 void            ReadCrop(const char [], crop_struct []);
@@ -675,8 +677,6 @@ void            GrowingCrop(int, const soil_struct *, const daily_struct *,
     cstate_struct *, nstate_struct *, nflux_struct *);
 void            HarvestCrop(int, crop_struct *, pstate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
-void            InitCycles(const agtbl_struct *, const soiltbl_struct *,
-    epconst_struct [], elem_struct [], river_struct []);
 void            InitCyclesVar(elem_struct [], river_struct [], N_Vector);
 int             IsLeapYear(int);
 int             IsOperationToday(int, int, const void *, int, int, int *);

@@ -86,11 +86,14 @@ typedef struct soil_struct
     double          areafh;                 /* macropore area fraction on a
                                              * horizontal cross-section (m2 m-2)
                                              */
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
     double          clay[MAXLYR];
     double          sand[MAXLYR];
-    double          iom[MAXLYR];
     double          bd[MAXLYR];
+    double          fc[MAXLYR];
+    double          pwp[MAXLYR];
+    double          b[MAXLYR];
+    double          air_entry_pot[MAXLYR];
 #endif
 #if defined(_NOAH_)
     double          csoil;                  /* soil heat capacity (J m-3 K-1) */
@@ -1694,8 +1697,10 @@ typedef struct elem_struct
     solute_struct   nsol;
     spinup_struct   spinup;
 #endif
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
     crop_struct     crop[MAXCROP];
+#endif
+#if defined(_CYCLES_OBSOLETE_)
     mgmt_struct     mgmt;
     cyclesic_struct restart_input;
     cstate_struct   cs;

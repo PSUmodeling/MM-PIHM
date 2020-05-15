@@ -261,18 +261,21 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
         /* When the number of soil layers in Flux-PIHM is larger than in
          * soilinit file, use the last described layer to fill the rest of
          * layers */
-        for (k = soiltbl->nlayers[i]; k < MAXLYR; k++)
+        if (soiltbl->nlayers[i] < MAXLYR)
         {
-            soiltbl->clay_layer[i][k]    = soiltbl->clay_layer[i][k - 1];
-            soiltbl->sand_layer[i][k]    = soiltbl->sand_layer[i][k - 1];
-            soiltbl->iom_layer[i][k]     = soiltbl->iom_layer[i][k - 1];
-            soiltbl->bd_layer[i][k]      = soiltbl->bd_layer[i][k - 1];
-            soiltbl->no3[i][k]           = soiltbl->no3[i][k - 1];
-            soiltbl->nh4[i][k]           = soiltbl->nh4[i][k - 1];
-            soiltbl->b[i][k]             = soiltbl->b[i][k - 1];
-            soiltbl->air_entry_pot[i][k] = soiltbl->air_entry_pot[i][k - 1];
-            soiltbl->fc[i][k]            = soiltbl->fc[i][k - 1];
-            soiltbl->pwp[i][k]           = soiltbl->pwp[i][k - 1];
+            for (k = soiltbl->nlayers[i]; k < MAXLYR; k++)
+            {
+                soiltbl->clay_layer[i][k]    = soiltbl->clay_layer[i][k - 1];
+                soiltbl->sand_layer[i][k]    = soiltbl->sand_layer[i][k - 1];
+                soiltbl->iom_layer[i][k]     = soiltbl->iom_layer[i][k - 1];
+                soiltbl->bd_layer[i][k]      = soiltbl->bd_layer[i][k - 1];
+                soiltbl->no3[i][k]           = soiltbl->no3[i][k - 1];
+                soiltbl->nh4[i][k]           = soiltbl->nh4[i][k - 1];
+                soiltbl->b[i][k]             = soiltbl->b[i][k - 1];
+                soiltbl->air_entry_pot[i][k] = soiltbl->air_entry_pot[i][k - 1];
+                soiltbl->fc[i][k]            = soiltbl->fc[i][k - 1];
+                soiltbl->pwp[i][k]           = soiltbl->pwp[i][k - 1];
+            }
         }
     }
 

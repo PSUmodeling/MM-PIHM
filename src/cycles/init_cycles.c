@@ -1,14 +1,17 @@
 #include "pihm.h"
 
-void InitCycles(const agtbl_struct *agtbl, const soiltbl_struct *soiltbl,
-    epconst_struct epctbl[], elem_struct elem[], river_struct river[])
+void InitCycles(const crop_struct croptbl[], const soiltbl_struct *soiltbl,
+    elem_struct elem[])
 {
     int             i;
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
         int             soil_ind;
-        int             j, k;
+        int             k, kcrop;
         /*
          * Initialize initial soil variables
          */
@@ -18,32 +21,42 @@ void InitCycles(const agtbl_struct *agtbl, const soiltbl_struct *soiltbl,
         {
             if (k < elem[i].ps.nsoil)
             {
-                elem[i].soil.clay[k] = soiltbl->clay_lyr[soil_ind][k];
-                elem[i].soil.clay[k] *= 0.01;
-                elem[i].soil.sand[k] = soiltbl->sand_lyr[soil_ind][k];
-                elem[i].soil.sand[k] *= 0.01;
-                elem[i].soil.iom[k] = soiltbl->iom_lyr[soil_ind][k];
-                elem[i].soil.bd[k] = soiltbl->bd_lyr[soil_ind][k];
+                elem[i].soil.clay[k]  = soiltbl->clay_layer[soil_ind][k];
+                elem[i].soil.sand[k]  = soiltbl->sand_layer[soil_ind][k];
+                elem[i].soil.bd[k]    = soiltbl->bd_layer[soil_ind][k];
+                elem[i].soil.fc[k]    = soiltbl->fc[soil_ind][k];
+                elem[i].soil.pwp[k]   = soiltbl->pwp[soil_ind][k];
+                elem[i].soil.b[k]     = soiltbl->b[soil_ind][k];
+                elem[i].soil.air_entry_pot[k] =
+                                        soiltbl->air_entry_pot[soil_ind][k];
             }
             else
             {
-                elem[i].soil.clay[k] = BADVAL;
-                elem[i].soil.sand[k] = BADVAL;
-                elem[i].soil.iom[k] = BADVAL;
-                elem[i].soil.bd[k] = BADVAL;
+                elem[i].soil.clay[k]  = BADVAL;
+                elem[i].soil.sand[k]  = BADVAL;
+                elem[i].soil.bd[k]    = BADVAL;
+                elem[i].soil.fc[k]    = BADVAL;
+                elem[i].soil.pwp[k]   = BADVAL;
+                elem[i].soil.b[k]     = BADVAL;
+                elem[i].soil.air_entry_pot[k] =
+                                        BADVAL;
             }
         }
 
         /*
          * Initialize crop structures
          */
-        for (j = 0; j < MAXCROP; j++)
+        for (kcrop = 0; kcrop < MAXCROP; kcrop++)
         {
-            elem[i].crop[j].epc = &epctbl[j];
+            elem[i].crop[kcrop] = croptbl[kcrop];
 
-            InitCropSV(&elem[i].crop[j]);
+            if (croptbl[kcrop].epc.name[0] != '\0')
+            {
+                InitCropStateVar(&elem[i].crop[kcrop]);
+            }
         }
-
+    }
+#if defined(_CYCLES_OBSOLETE_)
         /*
          * Initialize management structure
          */
@@ -83,8 +96,10 @@ void InitCycles(const agtbl_struct *agtbl, const soiltbl_struct *soiltbl,
 
         river[i].matl.bd /= totdpth;
     }
+#endif
 }
 
+#if defined(_CYCLES_OBSOLETE_)
 void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[],
     river_struct river[])
 {
@@ -242,3 +257,4 @@ void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 //
 //    fclose(restart_file);
 //}
+#endif
