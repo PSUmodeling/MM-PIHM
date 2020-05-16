@@ -248,6 +248,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	noah/noah_glacial_only.c\
 	noah/topo_radn.c\
 	spa/spa.c\
+	cycles/cycles_func.c\
 	cycles/init_cycles.c\
 	cycles/read_cycles.c\
 	transpt/init_solute.c
@@ -258,7 +259,8 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	crop.c\
 	read_crop.c\
 	read_operation.c\
-	soil.c
+	soil.c\
+    zero_fluxes.c
 	#crop.c\
 	#crop_harvest.c\
 	#crop_process.c\

@@ -274,12 +274,12 @@ typedef struct pstate_struct
     double          plaishade;              /* shaded projected leaf area index
                                              * (m2 m-2) */
 #endif
-#if defined(_CYCLES_OBSOLETE_)
-    double          res_intcp;
-    double          tau_res_stan;
-    double          tau_res_flat;
-    double          till_factr[MAXLYR];
-    double          comp_factr[MAXLYR];
+#if defined(_CYCLES_)
+    double          residue_intcp;
+    double          tau_stan;
+    double          tau_flat;
+    double          tillage_factor[MAXLYR];
+    double          comp_factor[MAXLYR];
 #endif
 #if defined(_NOAH_)
     double          alb;                    /* background snow-free surface
@@ -387,15 +387,15 @@ typedef struct wstate_struct
     double          sneqv;                  /* liquid water-equivalent snow
                                              * depth (m) */
     double          surfh;                  /* actual surface water level (m) */
-#if defined(_CYCLES_OBSOLETE_)
-    /* wstate variables in Cycles have the units of kg m-2 */
-    double          stanResidueWater;       /* (kg m-2) */
-    double          flatResidueWater;       /* (kg m-2) */
-#else
+#if defined(_CYCLES_)
+    double          stan_residue;           /* standing residue water content
+                                             * (mm) */
+    double          flat_residue;           /* flattened residue water content
+                                             * (mm) */
+#endif
     double          cmcmax;                 /* maximum canopy water capacity (m)
                                              */
     double          cmc;                    /* interception storage (m) */
-#endif
 #if defined(_FBR_)
     double          fbr_unsat;              /* unsaturated storage in fractured
                                              * bedrock layer (m) */
@@ -450,8 +450,9 @@ typedef struct wflux_struct
                                              * (m s-1) */
     double          esnow;                  /* sublimation from (or deposition
                                              * to) snowpack (m s-1); */
-#if defined(_CYCLES_OBSOLETE_)
-    double          irrigationVol;          /* irrigation volume (m s-1) */
+#if defined(_CYCLES_)
+    double          uptake[MAXLYR];         /* soil water uptake (mm day-1) */
+    double          irrig;                  /* irrigation volume (mm day-1) */
 #endif
 #if defined(_FBR_)
     double          fbr_infil;              /* fractured bedrock infiltration
@@ -586,186 +587,92 @@ typedef struct solute_struct
 } solute_struct;
 #endif
 
-#if defined(_CYCLES_OBSOLETE_)
-typedef struct epvar_struct
-{
-    /* User Defined Auto Irrigation */
-    int             ai_used;
-    int             ai_start;
-    int             ai_stop;
-    double          ai_h2o_depl;
-    int             ai_last_lyr;
-
-    /* User Defined Auto Fertilization */
-    int             auto_fert;
-
-    double          plant_density;
-    int             clip_start;
-    int             clip_end;
-
-    /* State Variables */
-    double          tt_daily;
-    double          tt_cum;
-    double          rad_intcp;
-    double          rad_intcp_brown;
-    double          root_dpth;
-    double          h2o_stress;
-    double          n_stress;
-    double          shoot_growth_unstr_cum; /* (kg m-2 day-1) */
-    double          n_stress_cum;
-    double          rad_intcp_nc;
-    int             harv_date_final;
-    int             nharv;
-    int             stage;
-    double          harv_biomass;           /* (kg m-2) */
-    double          harv_root;              /* (kg m-2) */
-    double          harv_forage_yield;      /* (kg m-2) */
-    double          harv_res_biomass;       /* (kg m-2) */
-    double          harv_transp;            /* (kg m-2) */
-    double          harv_transp_pot;        /* (kg m-2) */
-    double          harv_soil_evap;         /* (kg m-2) */
-} epvar_struct;
-
-typedef struct crop_wflux_struct
-{
-    double          transp;
-    double          transp_pot;
-} crop_wflux_struct;
-
-typedef struct crop_cstate_struct
-{
-    double          shoot;                  /* (kg m-2) */
-    double          root;                   /* (kg m-2) */
-    double          rhizho;                 /* (kg m-2) */
-    double          shoot_post_flower;      /* (kg m-2) */
-} crop_cstate_struct;
-
-typedef struct crop_cflux_struct
-{
-    double          shoot_growth;           /* (kg m-2 day-1) */
-    double          root_growth;            /* (kg m-2 day-1) */
-    double          rhizo_depo;             /* (kg m-2 day-1) */
-    double          shoot_growth_unstr;     /* (kg m-2 day-1) */
-    double          root_growth_unstr;      /* (kg m-2 day-1) */
-} crop_cflux_struct;
-
-typedef struct crop_nstate_struct
-{
-    double          shoot_n;                /* (kg m-2) */
-    double          root_n;                 /* (kg m-2) */
-    double          rhizo_n;                /* (kg m-2) */
-} crop_nstate_struct;
-
-typedef struct crop_nflux_struct
-{
-    double          rhizo_n_depo;           /* (kg m-2 day-1) */
-    double          n_auto;                 /* (kg m-2 day-1) */
-    double          n_fix;                  /* (kg m-2 day-1) */
-} crop_nflux_struct;
-
-typedef struct crop_struct
-{
-    epconst_struct *epc;
-    epvar_struct    epv;
-    crop_wflux_struct cwf;
-    crop_cstate_struct ccs;
-    crop_cflux_struct ccf;
-    crop_nstate_struct cns;
-    crop_nflux_struct cnf;
-} crop_struct;
-
-typedef struct mgmt_struct
-{
-    int             rot_size;
-    int             auto_n;
-    int             rot_year;
-    int             op_ptr[4];
-} mgmt_struct;
-
+#if defined(_CYCLES_)
 typedef struct cstate_struct
 {
-    double          SOC_Mass[MAXLYR];       /* soil organic carbon (kg m-2) */
-    double          MBC_Mass[MAXLYR];       /* microbial biomass C (kg m-2) */
-    double          stanResidueMass;        /* (kg m-2) */
-    double          flatResidueMass;        /* (kg m-2) */
-    double          manureSurfaceC;         /* (kg m-2) */
-    double          residueAbgd[MAXLYR];    /* (kg m-2) */
-    double          residueRt[MAXLYR];      /* (kg m-2) */
-    double          residueRz[MAXLYR];      /* (kg m-2) */
-    double          manureC[MAXLYR];        /* (kg m-2) */
+    double          soc[MAXLYR];            /* soil organic carbon (Mg ha-1) */
+    double          mbc[MAXLYR];            /* microbial biomass carbon
+                                             * (Mg ha-1) */
+    double          stan_residue;           /* standing residue carbon (Mg ha-1)
+                                             */
+    double          flat_residue;           /* flattened residue carbon
+                                             * (Mg ha-1) */
+    double          manure_surface;         /* remaining manure carbon content
+                                             * (Mg ha-1) */
+    double          abgd_residue[MAXLYR];   /* shoot residue carbon in soil
+                                             * (Mg ha-1) */
+    double          root_residue[MAXLYR];   /* root residue carbon in soil
+                                             * (Mg ha-1) */
+    double          rhizo_residue[MAXLYR];  /* rhizo residue carbon in soil
+                                             * (Mg ha-1) */
+    double          manure[MAXLYR];         /* manure carbon content (Mg ha-1)*/
 } cstate_struct;
 
 typedef struct cflux_struct
 {
-    double          C_Humified;             /* carbon humified from residues,
-                                             * roots, rizho, and manure
-                                             * (kg m-2 day-1)*/
-    double          C_ResidueRespired;      /* carbon respired from residues,
-                                             * roots, rizho, and manure
-                                             * (kg m-2 day-1)*/
-    double          C_SoilRespired;         /* carbon respired from soil
-                                             * organic carbon only
-                                             * (kg m-2 day-1)*/
-    double          carbonRespired[MAXLYR]; /* kg m-2 day-1 */
+    double          humif;                  /* carbon humified from residues,
+                                             * roots, rhizo and manure (Mg ha-1)
+                                             */
+    double          residue_resp;           /* carbon respired from residues,
+                                             * roots, rhizo and manure (Mg ha-1)
+                                             */
+    double          soil_resp;              /* carbon respired from soil organic
+                                             * carbon only (Mg ha-1) */
+    double          total_resp[MAXLYR];     /* total respired carbon (Mg ha-1)*/
 } cflux_struct;
 
 typedef struct nstate_struct
 {
-    double          no3[MAXLYR];            /* nitrate (kg m-2) */
-    double          nh4[MAXLYR];            /* ammonium (kg m-2) */
-    double          SON_Mass[MAXLYR];       /* soil organic N (kg m-2) */
-    double          MBN_Mass[MAXLYR];       /* microbial biomass N (kg m-2) */
-    double          stanResidueN;           /* (kg m-2) */
-    double          flatResidueN;           /* (kg m-2) */
-    double          manureSurfaceN;         /* (kg m-2) */
-    double          residueAbgdN[MAXLYR];   /* (kg m-2) */
-    double          residueRtN[MAXLYR];     /* (kg m-2) */
-    double          residueRzN[MAXLYR];     /* (kg m-2) */
-    double          manureN[MAXLYR];        /* (kg m-2) */
+    double          no3[MAXLYR];            /* nitrate (Mg ha-1) */
+    double          nh4[MAXLYR];            /* ammonium (Mg ha-1) */
+    double          no3_profile;            /* total nitrate in soil profile
+                                             * (Mg ha-1) */
+    double          nh4_profile;            /* total ammonium in soil profile
+                                             * (Mg ha-1) */
+    double          son[MAXLYR];            /* soil organic nitrogen (Mg ha-1)*/
+    double          mbn[MAXLYR];            /* microbial biomass nitrogen
+                                             * (Mg ha-1) */
+    double          residue_stan;           /* standing residue N content
+                                             * (Mg ha-1) */
+    double          residue_flat;           /* flattened residue N content
+                                             * (Mg ha-1) */
+    double          manure_surface;         /* remaining manure nitrogen content
+                                             * (Mg ha-1) */
+    double          residue_abgd[MAXLYR];   /* shoot residue nitrogen content in
+                                             * soil (Mg ha-1) */
+    double          residue_root[MAXLYR];   /* root residue nitrogen content in
+                                             * soil (Mg ha-1) */
+    double          residue_rhizo[MAXLYR];  /* rhizo residue nitrogen content in
+                                             * soil (Mg ha-1) */
+    double          manure[MAXLYR];         /* manure nitrogen content (Mg ha-1)
+                                             */
 } nstate_struct;
 
 typedef struct nflux_struct
 {
-    double          no3leached;             /* NO3 leaching (kg N m-2 day-1) */
-    double          nh4leached;             /* NH4 leaching (kg N m-2 day-1) */
-    double          N_Immobilization;       /* (kg m-2 day-1) */
-    double          N_Mineralization;       /* (kg m-2 day-1) */
-    double          N_NetMineralization;    /* (kg m-2 day-1) */
-    double          nh4nitrif;              /* (kg m-2 day-1) */
-    double          N2O_Nitrification;      /* (kg m-2 day-1) */
-    double          no3denitrif;            /* (kg m-2 day-1) */
-    double          n2odenitrif;            /* (kg m-2 day-1) */
-    double          nh4volat[MAXLYR];       /* (kg m-2 day-1) */
-    double          uptake_no3[MAXLYR];     /* (kg m-2 day-1) */
-    double          uptake_nh4[MAXLYR];     /* (kg m-2 day-1) */
-    double          surplusn;               /* (kg m-2 day-1) */
-    double          fert_no3[MAXLYR];       /* (kg m-2 day-1) */
-    double          fert_nh4[MAXLYR];       /* (kg m-2 day-1) */
-    double          immob_no3[MAXLYR];      /* (kg m-2 day-1) */
-    double          immob_nh4[MAXLYR];      /* (kg m-2 day-1) */
-    double          nitrif_nh4_to_no3[MAXLYR];/* (kg m-2 day-1) */
-    double          nitrif_nh4_to_n2o[MAXLYR];/* (kg m-2 day-1) */
-    double          denitn[MAXLYR];         /* (kg m-2 day-1) */
-    double          till_no3[MAXLYR];       /* (kg m-2 day-1) */
-    double          till_nh4[MAXLYR];       /* (kg m-2 day-1) */
-    double          urine;                  /* (kg m-2 day-1) */
+    double          no3_leach;              /* NO3 leaching (Mg N ha-1) */
+    double          nh4_leach;              /* NH4 leaching (Mg N ha-1) */
+    double          no3_bypass;             /* NO3 horizontal bypass (Mg N ha-1)
+                                             */
+    double          nh4_bypass;             /* NH4 horizontal bypass (Mg N ha-1)
+                                             */
+    double          nitrif[MAXLYR];         /* NH4 nitrification (Mg ha-1) */
+    double          n2o_from_nitrif[MAXLYR];/* N2O emissions from nitrification
+                                             * (Mg ha-1) */
+    double          denitrif[MAXLYR];       /* NO3 denitrification (Mg ha-1) */
+    double          n2o_from_denitrif[MAXLYR];/* N2O emissions from
+                                             * denitrification (Mg ha-1) */
+    double          volatil[MAXLYR];        /* NH4 volatilization (Mg ha-1) */
+    double          no3_uptake[MAXLYR];     /* NO3 uptake (Mg N ha-1) */
+    double          nh4_uptake[MAXLYR];     /* NO3 uptake (Mg N ha-1) */
+    double          surplus;                /* surplus N added to soil
+                                             * (Mg N ha-1) */
+    double          no3_fert[MAXLYR];       /* NO3 fertilized (Mg N ha-1) */
+    double          nh4_fert[MAXLYR];       /* NH4 fertilized (Mg N ha-1) */
+    double          no3_immobil[MAXLYR];    /* NO3 immobilization (Mg ha-1) */
+    double          nh4_immobil[MAXLYR];    /* NH4 immobilization (Mg ha-1) */
+    double          mineral[MAXLYR];        /* N mineralization (Mg ha-1) */
 } nflux_struct;
-
-typedef struct nprof_struct
-{
-    double          no3;
-    double          nh4;
-} nprof_struct;
-
-/* Solute transport structure */
-typedef struct solute_struct
-{
-    double          conc;                   /* subsurface pool concentration
-                                             * (kg kgH2O-1) */
-    double          flux[NUM_EDGE];         /* subsurface solute flux (kg s-1)*/
-    double          snksrc;                 /* subsurface sink/source term
-                                             * (kg m-2 s-1) */
-} solute_struct;
 #endif
 
 /* Boundary conditions */
@@ -1701,19 +1608,13 @@ typedef struct elem_struct
     crop_struct     crop[MAXCROP];
     mgmt_struct     mgmt;
     agic_struct     restart_input;
-#endif
-#if defined(_CYCLES_OBSOLETE_)
     cstate_struct   cs;
     cflux_struct    cf;
     nstate_struct   ns;
     nstate_struct   ns0;
     nflux_struct    nf;
-    nprof_struct    np;
-    solute_struct   no3sol;
-    solute_struct   nh4sol;
-#else
-    epconst_struct  epc;
 #endif
+    epconst_struct  epc;
 #if defined(_DAILY_)
     daily_struct    daily;
 #endif

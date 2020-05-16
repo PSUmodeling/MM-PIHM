@@ -353,10 +353,11 @@ int NumStateVar(void)
 
     nsv = 3 * nelem + nriver;
 
-#if defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
     nsv += nsolute * (nelem + nriver);
 #endif
 
+#if TEMP_DISABLED
 #if defined(_BGC_)
 # if defined(_LUMPED_)
     nsv += 1;
@@ -364,17 +365,13 @@ int NumStateVar(void)
     nsv += 2 * nelem + 2 * nriver;
 # endif
 #endif
-
-#if defined(_CYCLES_OBSOLETE_)
-    nsv += 2 * nelem + 4 * nriver;
 #endif
 
 #if defined(_FBR_)
     nsv += 2 * nelem;
-#endif
-
-#if defined(_FBR_) && defined(_RT_)
+# if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
     nsv += nsolute * nelem;
+# endif
 #endif
 
     return nsv;
@@ -385,7 +382,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
     int             cv_flag;
     static int      reset;
     N_Vector        abstol;
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_)
+#if defined(_BGC_) || defined(_CYCLES_)
     const double    TRANSP_TOL = 1.0E-5;
 #elif defined(_RT_)
     const double    TRANSP_TOL = 1.0E-8;
@@ -416,7 +413,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
          * tolerances is needed to specify different absolute tolerances for
          * water storage variables and transport variables */
         abstol = N_VNew(NumStateVar());
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
         SetAbsTolArray(pihm->ctrl.abstol, TRANSP_TOL, abstol);
 #else
         SetAbsTolArray(pihm->ctrl.abstol, abstol);
@@ -453,7 +450,7 @@ void SetCVodeParam(pihm_struct pihm, void *cvode_mem, SUNLinearSolver *sun_ls,
     }
 }
 
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
 void SetAbsTolArray(double hydrol_tol, double transp_tol, N_Vector abstol)
 #else
 void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
@@ -477,7 +474,7 @@ void SetAbsTolArray(double hydrol_tol, N_Vector abstol)
         NV_Ith(abstol, i) = (realtype)hydrol_tol;
     }
 
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
     /* Set absolute errors for nitrogen state variables */
 # if defined(_OPENMP)
 #  pragma omp parallel for

@@ -132,53 +132,73 @@ void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[],
             elem[i].restart_input.nh4[k] = soiltbl->nh4[soil_ind][k] * 1.0E-3;
         }
     }
-
-    for (i = 0; i < nriver; i++)
-    {
-        river[i].restart_input.no3 = 0.0;
-        river[i].restart_input.nh4 = 0.0;
-    }
 }
 
-#if defined(_CYCLES_OBSOLETE_)
-void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
+void InitAgVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 {
-    int             i, k;
+    int             i;
 
     for (i = 0; i < nelem; i++)
     {
-        RestartInput(&elem[i].restart_input, &elem[i].ps, &elem[i].ws,
-            &elem[i].cs, &elem[i].ns);
+        int             k;
 
-        MakeZeroFluxStruct(&elem[i].wf, &elem[i].cf, &elem[i].nf);
-        elem[i].no3sol.snksrc = 0.0;
-        elem[i].nh4sol.snksrc = 0.0;
+        elem[i].ws.stan_residue   = elem[i].restart_input.water_residue_stan;
+        elem[i].ws.flat_residue   = elem[i].restart_input.water_residue_flat;
+        elem[i].cs.stan_residue   = elem[i].restart_input.c_residue_stan;
+        elem[i].cs.flat_residue   = elem[i].restart_input.c_residue_flat;
+        elem[i].cs.manure_surface = elem[i].restart_input.c_manure_surface;
 
-        elem[i].np.no3 = 0.0;
-        elem[i].np.nh4 = 0.0;
-        for (k = 0; k < elem[i].ps.nsoil; k++)
+        for (k = 0; k < MAXLYR; k++)
         {
-            elem[i].np.no3 += elem[i].ns.no3[k];
-            elem[i].np.nh4 += elem[i].ns.nh4[k];
+            elem[i].cs.abgd_residue[k] =
+                elem[i].restart_input.c_residue_abgd[k];
+            elem[i].cs.root_residue[k] =
+                elem[i].restart_input.c_residue_root[k];
+            elem[i].cs.rhizo_residue[k] =
+                elem[i].restart_input.c_residue_rhizo[k];
+            elem[i].cs.manure[k] = elem[i].restart_input.c_manure[k];
+            elem[i].ns.residue_abgd[k] =
+                elem[i].restart_input.n_residue_abgd[k];
+            elem[i].ns.residue_root[k] =
+                elem[i].restart_input.n_residue_root[k];
+            elem[i].ns.residue_rhizo[k] =
+                elem[i].restart_input.n_residue_rhizo[k];
+            elem[i].ns.manure[k] = elem[i].restart_input.n_manure[k];
+            elem[i].cs.soc[k] = elem[i].restart_input.soc[k];
+            elem[i].cs.mbc[k] = elem[i].restart_input.mbc[k];
+            elem[i].ns.son[k] = elem[i].restart_input.son[k];
+            elem[i].ns.mbn[k] = elem[i].restart_input.mbn[k];
+            elem[i].ns.no3[k] = elem[i].restart_input.no3[k];
+            elem[i].ns.nh4[k] = elem[i].restart_input.nh4[k];
         }
 
-        NV_Ith(CV_Y, NO3(i)) = elem[i].np.no3;
-        NV_Ith(CV_Y, NH4(i)) = elem[i].np.nh4;
+        ZeroFluxes(&elem[i].wf, &elem[i].cf, &elem[i].nf);
+
+        elem[i].ns.no3_profile = Profile(elem[i].ps.nsoil, elem[i].ns.no3);
+        elem[i].ns.nh4_profile = Profile(elem[i].ps.nsoil, elem[i].ns.nh4);
+
+        NV_Ith(CV_Y, SOLUTE_SOIL(i, NO3)) = elem[i].ns.no3_profile;
+        NV_Ith(CV_Y, SOLUTE_SOIL(i, NH4)) = elem[i].ns.nh4_profile;
 
         elem[i].ns0 = elem[i].ns;
     }
 
     for (i = 0; i < nriver; i++)
     {
-        river[i].ns.streamno3 = river[i].restart_input.streamno3;
-        river[i].ns.streamnh4 = river[i].restart_input.streamnh4;
-        river[i].ns.bedno3 = river[i].restart_input.bedno3;
-        river[i].ns.bednh4 = river[i].restart_input.bednh4;
+        river[i].ns.no3 = 0.5 *
+            (elem[river[i].leftele - 1].ns.no3_profile /
+                elem[river[i].leftele - 1].soil.depth +
+            elem[river[i].rightele - 1].ns.nh4_profile /
+                elem[river[i].rightele - 1].soil.depth) * river[i].ws.stage;
 
-        NV_Ith(CV_Y, STREAMNO3(i)) = river[i].ns.streamno3;
-        NV_Ith(CV_Y, STREAMNH4(i)) = river[i].ns.streamnh4;
-        NV_Ith(CV_Y, RIVBEDNO3(i)) = river[i].ns.bedno3;
-        NV_Ith(CV_Y, RIVBEDNH4(i)) = river[i].ns.bednh4;
+        river[i].ns.nh4 = 0.5 *
+            (elem[river[i].leftele - 1].ns.nh4_profile /
+                elem[river[i].leftele - 1].soil.depth +
+            elem[river[i].rightele - 1].ns.nh4_profile /
+                elem[river[i].rightele - 1].soil.depth) * river[i].ws.stage;
+
+        NV_Ith(CV_Y, SOLUTE_RIVER(i, NO3)) = river[i].ns.no3;
+        NV_Ith(CV_Y, SOLUTE_RIVER(i, NH4)) = river[i].ns.nh4;
     }
 }
 //
@@ -226,4 +246,3 @@ void InitCyclesVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 //
 //    fclose(restart_file);
 //}
-#endif

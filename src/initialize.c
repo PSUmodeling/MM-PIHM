@@ -247,8 +247,8 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
     FirstDay(&pihm->soiltbl, pihm->elem, pihm->river);
 #endif
 
-#if defined(_CYCLES_OBSOLETE_)
-    InitCyclesVar(pihm->elem, pihm->river, CV_Y);
+#if defined(_CYCLES_)
+    InitAgVar(pihm->elem, pihm->river, CV_Y);
 #endif
 
 #if defined(_BGC_)
@@ -750,6 +750,9 @@ void InitWFlux(wflux_struct *wf)
     for (k = 0; k < MAXLYR; k++)
     {
         wf->et[k] = 0.0;
+#if defined(_CYCLES_)
+        wf->uptake[k] = 0.0;
+#endif
     }
     wf->runoff2 = 0.0;
     for (k = 0; k < MAXLYR; k++)
@@ -763,11 +766,10 @@ void InitWFlux(wflux_struct *wf)
     }
     wf->dew = 0.0;
     wf->snomlt = 0.0;
-    wf->esnow = 0.0;
     wf->etns = 0.0;
 #endif
-#if defined(_CYCLES_OBSOLETE_)
-    wf->irrigationVol = 0.0;
+#if defined(_CYCLES_)
+    wf->irrig = 0.0;
 #endif
 }
 

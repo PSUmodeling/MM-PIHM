@@ -432,6 +432,9 @@
 #define MAXOP                   100
 #define MAXCROP                 100
 
+#define NO3                     0
+#define NH4                     1
+
 #define REMOVE_CLIPPING         0
 #define RETURN_CLIPPING         1
 #define GRAZING_CLIPPING        2

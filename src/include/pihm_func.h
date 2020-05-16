@@ -14,7 +14,7 @@
 # define FBRGW(i)               (i + 4 * nelem + nriver)
 #endif
 
-#if defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
 # if defined(_FBR_)
 #  define SOLUTE_SOIL(i, j)     ((i) * nsolute + j + 5 * nelem + nriver)
 #  define SOLUTE_RIVER(i, j)    ((i) * nsolute + j + (5 + nsolute) * nelem + nriver)
@@ -32,15 +32,6 @@
 # define RIVBEDN(i)             (i + 5 * nelem + 3 * nriver)
 #else
 # define LUMPED_SMINN           (3 * nelem + 2 * nriver)
-#endif
-
-#if defined(_CYCLES_OBSOLETE_)
-# define NO3(i)                 (i + 3 * nelem + 2 * nriver)
-# define NH4(i)                 (i + 4 * nelem + 2 * nriver)
-# define STREAMNO3(i)           (i + 5 * nelem + 2 * nriver)
-# define RIVBEDNO3(i)           (i + 5 * nelem + 3 * nriver)
-# define STREAMNH4(i)           (i + 5 * nelem + 4 * nriver)
-# define RIVBEDNH4(i)           (i + 5 * nelem + 5 * nriver)
 #endif
 
 #define AvgElev(...)            _WsAreaElev(WS_ZMAX, __VA_ARGS__)
@@ -476,7 +467,7 @@ void            DailyVar(int, int, elem_struct *);
 void            InitDailyStruct(elem_struct *);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_) || defined(_RT_)
+#if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
 void            SetAbsTolArray(double, double, N_Vector);
 #else
 void            SetAbsTolArray(double, N_Vector);
@@ -583,11 +574,13 @@ double          CommTransp(const crop_struct []);
 int             FindCrop(const char [], const crop_struct []);
 void            FirstDay(const soiltbl_struct *, elem_struct [],
     river_struct []);
+void            InitAgVar(elem_struct [], river_struct [], N_Vector);
 void            InitCropStateVar(crop_struct *);
 void            InitCycles(const agtbl_struct *, const mgmt_struct [],
     const crop_struct [], const soiltbl_struct *, elem_struct []);
 int             NumActiveCrop(const crop_struct []);
 void            PlantCrop(int, const plant_struct *, crop_struct *);
+double          Profile(int, double []);
 void            ReadCrop(const char [], crop_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
 void            ReadMultOper(const agtbl_struct *, mgmt_struct [],
@@ -599,6 +592,7 @@ void            ResetCrop(crop_struct *);
 double          SoilWaterContent(double, double, double, double);
 double          VolWCAt33Jkg(double, double, double);
 double          VolWCAt1500Jkg(double, double, double);
+void            ZeroFluxes(wflux_struct *, cflux_struct *, nflux_struct *);
 void            ZeroHarvest(crop_struct *);
 #endif
 #if defined(_CYCLES_OBSOLETE_)

@@ -16,9 +16,9 @@ int             nthreads = 1;    /* Default value */
 #if defined(_BGC_)
 int             nsolute = 1;
 #elif defined(_CYCLES_)
-int             nsoulte = 2;
+int             nsolute = 2;
 #elif defined(_RT_)
-int             nsoulte;
+int             nsolute;
 #endif
 #if defined(_BGC_)
 int             first_balance;
