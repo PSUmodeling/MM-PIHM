@@ -280,6 +280,8 @@ typedef struct pstate_struct
     double          tau_flat;
     double          tillage_factor[MAXLYR];
     double          comp_factor[MAXLYR];
+    double          denitrif;               /* total NO3 denitrification
+                                             * (Mg ha-1) */
 #endif
 #if defined(_NOAH_)
     double          alb;                    /* background snow-free surface

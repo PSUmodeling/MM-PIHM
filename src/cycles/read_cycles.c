@@ -102,10 +102,6 @@ void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
         filen, lno);
 
     NextLine(fp, cmdstr, &lno);
-    ctrl->prtvrbl[RES_EVAP_CTRL] = ReadPrtCtrl(cmdstr, "RES_EVAP", filen,
-        lno);
-
-    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[N_PROFILE_CTRL] = ReadPrtCtrl(cmdstr, "N_PROFILE", filen,
         lno);
 

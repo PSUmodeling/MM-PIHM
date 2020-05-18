@@ -204,8 +204,8 @@ void            IntcpSnowEt(int, double, elem_struct *, const calib_struct *);
 void            IntrplForc(tsdata_struct *, int, int, int);
 double          KrFunc(double, double);
 void            LateralFlow(elem_struct *, const river_struct *, int);
-#if defined(_CYCLES_OBSOLETE_)
-void            MapOutput(const int *, const epconst_struct [],
+#if defined(_CYCLES_)
+void            MapOutput(const int *, const crop_struct [],
     const elem_struct *, const river_struct *, const char *, print_struct *);
 #elif defined(_RT_)
 void            MapOutput(const int *, const chemtbl_struct [],

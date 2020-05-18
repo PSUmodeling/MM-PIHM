@@ -77,8 +77,8 @@ int main(int argc, char *argv[])
     CreateOutputDir(outputdir);
 
     /* Create output structures */
-#if defined(_CYCLES_OBSOLETE_)
-    MapOutput(pihm->ctrl.prtvrbl, pihm->epctbl, pihm->elem, pihm->river,
+#if defined(_CYCLES_)
+    MapOutput(pihm->ctrl.prtvrbl, pihm->croptbl, pihm->elem, pihm->river,
         outputdir, &pihm->print);
 #elif defined(_RT_)
     MapOutput(pihm->ctrl.prtvrbl, pihm->chemtbl, &pihm->rttbl, pihm->elem,
