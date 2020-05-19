@@ -590,6 +590,20 @@ typedef struct solute_struct
 #endif
 
 #if defined(_CYCLES_)
+typedef struct weather_struct
+{
+    double          wind;                   /* wind speed (m s-1) */
+    double          rh_min;                 /* daily minimum relative/ humidity
+                                             * (%) */
+    double          solar_rad;              /* daily solar radiation
+                                             * (MJ m-2 day-1) */
+    double          tmp_max;                /* daily maximum temperature
+                                             * (degree C) */
+    double          tmp_min;                /* daily minimum temperature
+                                             * (degree C) */
+    double          atm_pres;               /* atmospheric pressure (kPa) */
+} weather_struct;
+
 typedef struct cstate_struct
 {
     double          soc[MAXLYR];            /* soil organic carbon (Mg ha-1) */
@@ -1610,6 +1624,7 @@ typedef struct elem_struct
     crop_struct     crop[MAXCROP];
     mgmt_struct     mgmt;
     agic_struct     restart_input;
+    weather_struct  weather;
     cstate_struct   cs;
     cflux_struct    cf;
     nstate_struct   ns;

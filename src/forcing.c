@@ -241,15 +241,15 @@ void ApplyDailyMeteoForc(int t, int rad_mode, const siteinfo_struct *siteinfo,
     {
         elem[i].wf.prcp         = 0.0;
         elem[i].es.sfctmp       = 0.0;
-        elem[i].es.sfctmp_max   = -DBL_MAX;
-        elem[i].es.sfctmp_min   = DBL_MAX;
         elem[i].ps.rh           = 0.0;
-        elem[i].ps.rh_max       = -DBL_MAX;
-        elem[i].ps.rh_min       = DBL_MAX;
         elem[i].ps.sfcspd       = 0.0;
         elem[i].ef.soldn        = 0.0;
         elem[i].ef.longwave     = 0.0;
         elem[i].ps.sfcprs       = 0.0;
+
+        elem[i].weather.tmp_max = -DBL_MAX;
+        elem[i].weather.tmp_min = DBL_MAX;
+        elem[i].weather.rh_min  = DBL_MAX;
     }
 
     for (kt = t; kt < t + DAYINSEC; kt += 3600)
@@ -301,25 +301,26 @@ void ApplyDailyMeteoForc(int t, int rad_mode, const siteinfo_struct *siteinfo,
                 elem[i].ef.soldif = forc->rad[ind].value[SOLDIF_TS];
             }
 
-            elem[i].wf.prcp     += forc->meteo[ind].value[PRCP_TS] / 1000.0 /
-                24.0;
-            elem[i].es.sfctmp   += forc->meteo[ind].value[SFCTMP_TS] / 24.0;
-            elem[i].ps.rh       += forc->meteo[ind].value[RH_TS] / 24.0;
-            elem[i].ps.sfcspd   += forc->meteo[ind].value[SFCSPD_TS] / 24.0;
-            elem[i].ef.soldn    += (rad_mode > 0 && forc->nrad > 0) ?
+            elem[i].wf.prcp += forc->meteo[ind].value[PRCP_TS] * 1.0E-3 / 24.0;
+            elem[i].es.sfctmp += forc->meteo[ind].value[SFCTMP_TS] / 24.0;
+            elem[i].ps.rh += forc->meteo[ind].value[RH_TS] / 24.0;
+            elem[i].ps.sfcspd += forc->meteo[ind].value[SFCSPD_TS] / 24.0;
+            elem[i].ef.soldn += (rad_mode > 0 && forc->nrad > 0) ?
                 MAX(TopoRadn(&elem[i].topo, elem[i].ef.soldir,
                 elem[i].ef.soldif, spa.zenith, spa.azimuth180), 0.0) / 24.0 :
                 MAX(forc->meteo[ind].value[SOLAR_TS], 0.0) / 24.0;
             elem[i].ef.longwave += forc->meteo[ind].value[LONGWAVE_TS] / 24.0;
-            elem[i].ps.sfcprs   += forc->meteo[ind].value[PRES_TS] / 24.0;
-            elem[i].es.sfctmp_max = MAX(elem[i].es.sfctmp_max,
-                forc->meteo[ind].value[SFCTMP_TS]);
-            elem[i].es.sfctmp_min = MIN(elem[i].es.sfctmp_min,
-                forc->meteo[ind].value[SFCTMP_TS]);
-            elem[i].ps.rh_max = MAX(elem[i].ps.rh_max,
-                forc->meteo[ind].value[RH_TS]);
-            elem[i].ps.rh_min = MIN(elem[i].ps.rh_min,
-                forc->meteo[ind].value[RH_TS]);
+            elem[i].ps.sfcprs += forc->meteo[ind].value[PRES_TS] / 24.0;
+
+            elem[i].weather.tmp_max = MAX(elem[i].weather.tmp_max,
+                forc->meteo[ind].value[SFCTMP_TS]) - TFREEZ;
+            elem[i].weather.tmp_min = MIN(elem[i].weather.tmp_min,
+                forc->meteo[ind].value[SFCTMP_TS]) - TFREEZ;
+            elem[i].weather.rh_min = MIN(elem[i].weather.rh_min,
+                forc->meteo[ind].value[RH_TS]) * 100.0;
+            elem[i].weather.wind = elem[i].ps.sfcspd;
+            elem[i].weather.solar_rad = elem[i].ef.soldn * DAYINSEC * 1.0E-6;
+            elem[i].weather.atm_pres = elem[i].ps.sfcprs * 1.0E-3;
         }
     }
 }
