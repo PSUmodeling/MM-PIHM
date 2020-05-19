@@ -105,8 +105,8 @@ void            ApplyForc(forc_struct *, elem_struct *, int, int,
 #else
 void            ApplyForc(forc_struct *, elem_struct *, int);
 #endif
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_)
-void            ApplyLai(elem_struct *);
+#if defined(_BGC_) || defined(_CYCLES_)
+void            ApplyLai(elem_struct []);
 #else
 void            ApplyLai(forc_struct *, elem_struct *, int);
 #endif

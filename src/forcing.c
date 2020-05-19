@@ -44,7 +44,7 @@ void ApplyForc(forc_struct *forc, elem_struct *elem, int t)
 #endif
 
     /* LAI forcing */
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_)
+#if defined(_BGC_) || defined(_CYCLES_)
     ApplyLai(elem);
 #else
     ApplyLai(forc, elem, t);
@@ -326,15 +326,15 @@ void ApplyDailyMeteoForc(int t, int rad_mode, const siteinfo_struct *siteinfo,
 }
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_)
-void ApplyLai(elem_struct *elem)
+#if defined(_BGC_) || defined(_CYCLES_)
+void ApplyLai(elem_struct elem[])
 #else
 void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 #endif
 {
     int             i;
 
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
     /*
      * Cycles coupling
      */
@@ -343,23 +343,20 @@ void ApplyLai(forc_struct *forc, elem_struct *elem, int t)
 # endif
     for (i = 0; i < nelem; i++)
     {
-        double          ksolar;
+        const double    KSOLAR = 0.5;
         double          tau;
 
         if (CommRadIntcp(elem[i].crop) > 0.0)
         {
-            ksolar = 0.5;
-
             tau = 1.0 - MIN(CommRadIntcp(elem[i].crop), 0.98);
-
-            elem[i].ps.proj_lai = -log(tau) / ksolar;
+            elem[i].ps.proj_lai = -log(tau) / KSOLAR;
         }
         else
         {
             elem[i].ps.proj_lai = 0.0;
         }
     }
-#elif  _BGC_
+#elif defined(_BGC_)
     /*
      * BGC coupling
      */
