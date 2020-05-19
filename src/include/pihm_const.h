@@ -460,43 +460,40 @@
 #define FC_BOUND                -1
 #define PWP_BOUND               -2
 
-#endif
-#if defined(_CYCLES_OBSOLETE_)
-#define STAN_RESIDUE_SA         4.0         /* standing residue area to mass
-                                             * ratio (m2 kg-1) */
-#define FLAT_RESIDUE_SA         4.0         /* flat residue area to mass ratio
-                                             * (m2 kg-1) */
-#define STAN_RESIDUE_K          0.25        /* standing residue extinction
-                                             * coefficient (-) */
-#define FLAT_RESIDUE_K          1.0         /* flat residue extinction (-) */
+#define STAN_RESIDUE_SA         4.0         /* Standing residue area to mass
+                                             * ratio (m2/kg) */
+#define FLAT_RESIDUE_SA         4.0         /* Flat residue area to mass ratio
+                                             * (m2/kg) */
+#define STAN_RESIDUE_K          0.25        /* Standing residue extinction
+                                             * coefficient */
+#define FLAT_RESIDUE_K          1.0         /* flat residue extinction */
 
-#define MAXIMUM_UNDISTURBED_SOC_DECOMPOSITION_RATE  0.00015 /* (day-1)*/
-#define MAXIMUM_RESIDUE_DECOMPOSITION_RATE          0.05    /* (day-1) */
-#define MAXIMUM_ROOT_DECOMPOSITION_RATE             0.05    /* (day-1) */
-#define MAXIMUM_RHIZO_DECOMPOSITION_RATE            0.1     /* (day-1) */
-#define MAXIMUM_MANURE_DECOMPOSITION_RATE           0.05    /* (day-1) */
-#define MAXIMUM_MICROBIAL_DECOMPOSITION_RATE        1.0     /* (day-1) */
-#define FRACTION_CARBON_PLANT   0.43
-#define FRACTION_CARBON_RIZHO   0.43
-#define FRACTION_CARBON_MANURE  0.4
+#define SPINUP_TOLERANCE        0.01        /* (Mg ha-1 year -1) */
 
-#define SOC_DECOMPOSITION_POWER 0.5
-#define SOC_HUMIFICATION_POWER  6.0
+#define MAX_SOC_DECOMP_RATE     1.5E-4      /* (1 + 0.056)^(1 / 365) - 1
+                                             * 1/day (1/5 for Urbana) */
+#define MAX_RESIDUE_DECOMP_RATE 0.05        /* 1/day */
+#define MAX_ROOT_DECOMP_RATE    0.05        /* 1/day */
+#define MAX_RHIZO_DECOMP_RATE   0.1         /* 1/day */
+#define MAX_MANURE_DECOMP_RATE  0.05        /* 1/day */
+#define MAX_MICROB_DECOMP_RATE  1.0         /* calculated internally (1/day) */
+#define C_FRAC_PLANT            0.43
+#define C_FRAC_RHIZO            0.43
+#define C_FRAC_MANURE           0.4
 
-#define WATER_DENSITY           1000.0      /* (kg m-3) */
+#define SOC_DECOMP_POWER        0.5
+#define SOC_HUMIF_POWER         6.0
 
-#define THRESHOLD_TEMPERATURE_SNOWFALL  1   /* (degree C) */
-#define THRESHOLD_TEMPERATURE_SNOWMELT  -1  /* (degree C) */
-#define SNOWMELT_RATE                   2.5 /* (mm C-1 day-1 or degree day) */
-#define NITRIFICATION_CONSTANT          0.2 /* (1 day-1) */
-#define POTENTIAL_DENITRIFICATION       0.000032    /* (kgN kgSoil-1 day-1) */
-#define DENITRIFICATION_HALF_RATE       0.00006     /* (kgN kgSoil-1) */
-#define NITRIFICATION_NO3_NH4_RATIO     8           /* (NO3 / NH4) */
+#define WATER_DENSITY           1000.0      /* kg/m3 */
 
-enum stage
-{NO_CROP, PRE_EMERGENCE, VEGETATIVE_GROWTH, PERENNIAL, REPRODUCTIVE_GROWTH,
-    MATURITY, CLIPPING, PLANTING
-};
+#define KD_NO3                  0.0
+#define KD_NH4                  5.6
+
+#define NITRIF_CONST            0.2         /* 1/day */
+#define POT_DENITRIF            3.2E-5      /* kg N / kg soil day-1 */
+#define DENITRIF_HALF_RATE      6.0E-5      /* kg N / kg Soil */
+#define NITRIF_NO3_NH4_RATIO    8.0         /* NO3-N / NH4-N */
+
 #endif
 
 /* Both macro NSOLUTE and global variable nsolute are needed. NSOLUTE is used

@@ -259,6 +259,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	crop.c\
 	read_crop.c\
 	read_operation.c\
+	residue.c\
 	soil.c\
     zero_fluxes.c
 	#crop.c\
@@ -273,7 +274,6 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	#irrigation.c\
 	#make_zero_flux_struct.c\
 	#read_operation.c\
-	#residue.c\
 	#restart.c\
 	#soil_carbon.c\
 	#soil_nitrogen.c\

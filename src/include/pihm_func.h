@@ -589,6 +589,9 @@ void            ReadOper(const char [], int, int, mgmt_struct *,
     crop_struct []);
 void            ReadSoilInit(const char [], soiltbl_struct *);
 void            ResetCrop(crop_struct *);
+void            ResidueEvap(double, double, const crop_struct [],
+    const cstate_struct *, const phystate_struct *, wstate_struct *,
+    wflux_struct *);
 double          SoilWaterContent(double, double, double, double);
 double          VolWCAt33Jkg(double, double, double);
 double          VolWCAt1500Jkg(double, double, double);

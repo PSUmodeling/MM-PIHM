@@ -896,10 +896,9 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const phystate_struct *ps,
             DEvap(ws, wf, ps, lc, soil);
         }
 
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
         /* Evaporation from residue (Cycles function) */
-        ResidueEvaporation(wf->etp * RHOH2O * dt, dt, ps->sncovr, crop, ps, cs,
-            ws, wf);
+        ResidueEvap(wf->etp * RHOH2O * dt, ps->sncovr, crop, cs, ps, ws, wf);
 #endif
 
         if (lc->shdfac > 0.0)
