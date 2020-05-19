@@ -513,7 +513,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
     if (ws->sneqv == 0.0)
     {
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
         NoPac(soil, lc, cs, dt, t24, crop, ps, ws, wf, es, ef);
 #else
         NoPac(ws, wf, es, ef, ps, lc, soil, dt, t24);
@@ -522,7 +522,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     }
     else
     {
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
         SnoPac(soil, lc, cs, snowng, dt, t24, prcpf, df1, crop, ps, ws, wf, es,
             ef);
 #else
@@ -856,7 +856,7 @@ void DEvap(const wstate_struct *ws, wflux_struct *wf, const pstate_struct *ps,
     wf->edir = fx * (1.0 - lc->shdfac) * wf->etp;
 }
 
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
 void Evapo(const soil_struct *soil, const lc_struct *lc,
     const pstate_struct *ps, const estate_struct *es,
     const cstate_struct *cs, double dt, crop_struct crop[], wstate_struct *ws,
@@ -1306,7 +1306,7 @@ void HStep(estate_struct *es, double *rhsts, double dt, int nsoil, double *ai,
     }
 }
 
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
 void NoPac(const soil_struct *soil, const lc_struct *lc,
     const cstate_struct *cs, double dt, double t24, crop_struct crop[],
     pstate_struct *ps, wstate_struct *ws, wflux_struct *wf,
@@ -1345,7 +1345,7 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 
     if (wf->etp > 0.0)
     {
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
         Evapo(soil, lc, ps, es, cs, dt, crop, ws, wf);
 #else
         Evapo(ws, wf, ps, lc, soil, dt);
@@ -1742,7 +1742,7 @@ void SnkSrc(double *tsnsr, double tavg, double smc, double *swc,
     *swc = xh2o;
 }
 
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
 void SnoPac(const soil_struct *soil, const lc_struct *lc,
     const cstate_struct *cs, int snowng, double dt, double t24, double prcpf,
     double df1, crop_struct crop[], pstate_struct *ps, wstate_struct *ws,
@@ -1818,7 +1818,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         /* Land case */
         if (ps->sncovr < 1.0)
         {
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
             Evapo(soil, lc, ps, es, cs, dt, crop, ws, wf);
 #else
             Evapo(ws, wf, ps, lc, soil, dt);

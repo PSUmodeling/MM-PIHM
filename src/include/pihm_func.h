@@ -348,7 +348,7 @@ void            DefSldpth(double *, int *, double *, double, const double *,
     int);
 void            DEvap(const wstate_struct *, wflux_struct *,
     const pstate_struct *, const lc_struct *, const soil_struct *);
-# if defined(_CYCLES_OBSOLETE_)
+# if defined(_CYCLES_)
 void            Evapo(const soil_struct *, const lc_struct *,
     const pstate_struct *, const estate_struct *es,
     const cstate_struct *, double, crop_struct [], wstate_struct *,
@@ -373,7 +373,7 @@ double          Mod(double, double);
 void            Noah(elem_struct *, const lctbl_struct *, const calib_struct *,
     double);
 void            NoahHydrol(elem_struct *, double);
-# if defined(_CYCLES_OBSOLETE_)
+# if defined(_CYCLES_)
 void            NoPac(const soil_struct *, const lc_struct *,
     const cstate_struct *, double, double, crop_struct [], pstate_struct *,
     wstate_struct *, wflux_struct *, estate_struct *, eflux_struct *);
@@ -428,7 +428,7 @@ void            SmFlx(wstate_struct *, wflux_struct *, pstate_struct *,
 double          SnFrac(double, double, double);
 void            SnkSrc(double *, double, double, double *,
     const soil_struct *, const double *, double, int, double);
-# if defined(_CYCLES_OBSOLETE_)
+# if defined(_CYCLES_)
 void            SnoPac(const soil_struct *, const lc_struct *,
     const cstate_struct *, int, double, double, double, double, crop_struct [],
     pstate_struct *, wstate_struct *, wflux_struct *, estate_struct *,
