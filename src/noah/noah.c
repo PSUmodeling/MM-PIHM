@@ -55,8 +55,8 @@ void Noah(elem_struct *elem, const lctbl_struct *lctbl, const calib_struct *cal,
         }
         else
         {
-#if defined(_CYCLES_OBSOLETE_)
-            SFlx(&elem[i].cs, dt, &elem[i].soil, &elem[i].lc, elem[i].crop,
+#if defined(_CYCLES_)
+            SFlx(dt, &elem[i].cs, &elem[i].soil, &elem[i].lc, elem[i].crop,
                 &elem[i].ps, &elem[i].ws, &elem[i].wf, &elem[i].es,
                 &elem[i].ef);
 #else
@@ -176,10 +176,9 @@ void NoahHydrol(elem_struct *elem, double dt)
 #endif
 }
 
-#if defined(_CYCLES_OBSOLETE_)
-void SFlx(const cstate_struct *cs, double dt, soil_struct *soil, lc_struct *lc,
-    crop_struct crop[], pstate_struct *ps, wstate_struct *ws, wflux_struct *wf,
-    estate_struct *es, eflux_struct *ef)
+#if defined(_CYCLES_)
+void SFlx(double dt, const cstate_struct *cs, soil_struct *soil, lc_struct *lc,
+    crop_struct crop[], pstate_struct *ps, wstate_struct *ws, wflux_struct *wf, estate_struct *es, eflux_struct *ef)
 #else
 void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, pstate_struct *ps, lc_struct *lc, epconst_struct *epc,
@@ -231,7 +230,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     if (lc->isurban)
     {
         lc->shdfac = 0.05;
-#if !defined(_CYCLES_OBSOLETE_)
+#if !defined(_CYCLES_)
         epc->rsmin = 400.0;
 #endif
         /* In original Noah LSM, urban model changes urban soil porosity. In
@@ -244,17 +243,17 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         soil->smcdry = (0.40 / 0.45) * soil->porosity + soil->smcmin;
     }
 
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
     lc->shdfac = CommRadIntcp(crop);
 #endif
 
     /* Set minimum LAI for non-barren land cover to improve performance */
     if (lc->shdfac > 0.0)
     {
-        ps->proj_lai = (ps->proj_lai > 0.5) ? ps->proj_lai : 0.5;
+        ps->proj_lai = MAX(ps->proj_lai, 0.5);
     }
 
-#if !defined(_CYCLES_OBSOLETE_)
+#if !defined(_CYCLES_)
     /* Calculate maximum canopy moisture capacity */
     ws->cmcmax = lc->shdfac * lc->cmcfactr * ps->proj_lai;
 #endif
@@ -495,7 +494,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
      */
     if (lc->shdfac > 0.0)
     {
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
         CanRes(es, ps);
 #else
         CanRes(ws, es, ef, ps, soil, epc);
@@ -687,7 +686,7 @@ void CalHum(pstate_struct *ps, estate_struct *es)
     ps->dqsdt2 = ps->q2sat * a23m4 / ((es->sfctmp - A4) * (es->sfctmp - A4));
 }
 
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
 void CanRes(const estate_struct *es, pstate_struct *ps)
 #else
 void CanRes(const wstate_struct *ws, const estate_struct *es,
@@ -707,18 +706,19 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
      */
     double          delta;
     double          rr;
-#if !defined(_CYCLES_OBSOLETE_)
+#if !defined(_CYCLES_)
     double          ff;
     double          gx;
     int             k;
     double          part[MAXLYR];
 #endif
     const double    SLV = 2.501000e6;
-#if defined(_CYCLES_OBSOLETE_)
-    const double    RC = 70.0;
+#if defined(_CYCLES_)
+    const double    RC = 70.0;              /* Cycles resistance value
+                                             * 0.00081 day m-1 = 70 s m-1*/
 #endif
 
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
     ps->rc = RC;
 #else
     /* Initialize canopy resistance multiplier terms. */
@@ -750,10 +750,10 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
     gx = (gx > 1.0) ? 1.0 : gx;
     gx = (gx < 0.0) ? 0.0 : gx;
 
-#if NOT_YET_IMPLEMENTED
+# if NOT_YET_IMPLEMENTED
     /* Use root distribution as weighting factor */
     part[0] = rtdis[0] * gx;
-#endif
+# endif
     /* Use soil depth as weighting factor */
     part[0] = (ps->zsoil[0] / ps->zsoil[ps->nroot - 1]) * gx;
     for (k = 1; k < ps->nroot; k++)
@@ -764,10 +764,10 @@ void CanRes(const wstate_struct *ws, const estate_struct *es,
         gx = (gx > 1.0) ? 1.0 : gx;
         gx = (gx < 0.0) ? 0.0 : gx;
 
-#if NOT_YET_IMPLEMENTED
+# if NOT_YET_IMPLEMENTED
         /* Use root distribution as weighting factor */
         part[k] = rtdis[k] * gx;
-#endif
+# endif
         /* Use soil depth as weighting factor */
         part[k] = ((ps->zsoil[k] - ps->zsoil[k - 1]) /
             ps->zsoil[ps->nroot - 1]) * gx;

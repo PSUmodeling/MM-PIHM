@@ -336,7 +336,7 @@ void            AlCalc(pstate_struct *, double, int);
 void            CalcLatFlx(const pstate_struct *, wflux_struct *);
 void            CalcSlopeAspect(elem_struct *, const meshtbl_struct *);
 void            CalHum(pstate_struct *, estate_struct *);
-# if defined(_CYCLES_OBSOLETE_)
+# if defined(_CYCLES_)
 void            CanRes(const estate_struct *, pstate_struct *);
 # else
 void            CanRes(const wstate_struct *, const estate_struct *,
@@ -405,10 +405,10 @@ void            Rosr12(double *, const double *, const double *, double *,
     const double *, double *, int);
 void            SfcDifOff(pstate_struct *, const lc_struct *, double, double,
     int);
-# if defined(_CYCLES_OBSOLETE_)
-void            SFlx(const cstate_struct *, double, soil_struct *, lc_struct *,
-    crop_struct [], pstate_struct *, wstate_struct *, wflux_struct *,
-    estate_struct *, eflux_struct *);
+# if defined(_CYCLES_)
+void            SFlx(double, const cstate_struct *, soil_struct *,
+    lc_struct *, crop_struct [], pstate_struct *, wstate_struct *,
+    wflux_struct *, estate_struct *, eflux_struct *);
 # else
 void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
