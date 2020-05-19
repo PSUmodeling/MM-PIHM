@@ -36,11 +36,11 @@ void DailyCycles(int t, pihm_struct pihm)
             &elem->wf, &elem->cs, &elem->cf, &elem->ns, &elem->nf);
 
         /* Calculate daily sink/source terms for NO3 and NH4 */
-        CalSnkSrc(&elem->nf, elem->ps.nsoil, &elem->no3sol, &elem->nh4sol);
+        CalSnkSrc(&elem->nf, elem->ps.nlayers, &elem->no3sol, &elem->nh4sol);
     }
 }
 
-void CalSnkSrc(const nflux_struct *nf, int nsoil, solute_struct *no3sol,
+void CalSnkSrc(const nflux_struct *nf, int nlayers, solute_struct *no3sol,
     solute_struct *nh4sol)
 {
     int             k;
@@ -50,7 +50,7 @@ void CalSnkSrc(const nflux_struct *nf, int nsoil, solute_struct *no3sol,
 
     no3sol->snksrc += nf->surplusn;
     nh4sol->snksrc += nf->urine;
-    for (k = 0; k < nsoil; k++)
+    for (k = 0; k < nlayers; k++)
     {
         no3sol->snksrc += nf->uptake_no3[k] + nf->fert_no3[k] +
             nf->immob_no3[k] + nf->nitrif_nh4_to_no3[k] + nf->denitn[k] +

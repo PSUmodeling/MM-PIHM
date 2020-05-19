@@ -87,13 +87,13 @@ void DailyBgc(pihm_struct pihm, int t)
     {
         int             k;
 
-        vwc[i] = pihm->elem[i].daily.avg_sh2o[0] * pihm->elem[i].ps.sldpth[0];
-        if (pihm->elem[i].ps.nsoil > 1)
+        vwc[i] = pihm->elem[i].daily.avg_sh2o[0] * pihm->elem[i].ps.soil_depth[0];
+        if (pihm->elem[i].ps.nlayers > 1)
         {
-            for (k = 1; k < pihm->elem[i].ps.nsoil; k++)
+            for (k = 1; k < pihm->elem[i].ps.nlayers; k++)
             {
                 vwc[i] += pihm->elem[i].daily.avg_sh2o[k] *
-                    pihm->elem[i].ps.sldpth[k];
+                    pihm->elem[i].ps.soil_depth[k];
             }
         }
         vwc[i] /= pihm->elem[i].soil.depth;
@@ -122,7 +122,7 @@ void DailyBgc(pihm_struct pihm, int t)
         epvar_struct   *epv;
         soil_struct    *soil;
         eflux_struct   *ef;
-        pstate_struct  *ps;
+        phystate_struct  *ps;
         cstate_struct  *cs;
         cflux_struct   *cf;
         nstate_struct  *ns;

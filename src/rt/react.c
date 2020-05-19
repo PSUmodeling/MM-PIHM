@@ -35,9 +35,9 @@ void Reaction(double stepsize, const chemtbl_struct chemtbl[],
             int             klayer;
             double          avg_stc = 0.0;
 
-            for (klayer = 0; klayer < elem[i].ps.nsoil; klayer++)
+            for (klayer = 0; klayer < elem[i].ps.nlayers; klayer++)
             {
-                avg_stc += elem[i].es.stc[klayer] * elem[i].ps.sldpth[klayer];
+                avg_stc += elem[i].es.stc[klayer] * elem[i].ps.soil_depth[klayer];
             }
             avg_stc /= elem[i].soil.depth;
 

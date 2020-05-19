@@ -230,7 +230,7 @@ typedef struct epconst_struct
 #endif
 
 /* Physical states */
-typedef struct pstate_struct
+typedef struct phystate_struct
 {
     double          rzd;                    /* rooting depth (m) */
     double          rc;                     /* canopy resistance (s m-1) */
@@ -291,8 +291,8 @@ typedef struct pstate_struct
     int             nroot;                  /* number of root layers, a function
                                              * of vegetation type */
     double          rtdis[MAXLYR];          /* root distribution (-) */
-    int             nsoil;                  /* number of soil layers */
-    double          sldpth[MAXLYR];         /* thickness of each soil layer (m)
+    int             nlayers;                  /* number of soil layers */
+    double          soil_depth[MAXLYR];         /* thickness of each soil layer (m)
                                              */
     double          zsoil[MAXLYR];          /* distance from land surface to
                                              * bottom of each soil layer (m) */
@@ -376,7 +376,7 @@ typedef struct pstate_struct
     double          satdpth[MAXLYR];        /* depth of groundwater in each soil
                                              * layer (m) */
 #endif
-} pstate_struct;
+} phystate_struct;
 
 /* Water states */
 typedef struct wstate_struct
@@ -1601,7 +1601,7 @@ typedef struct elem_struct
     wflux_struct    wf;
     estate_struct   es;
     eflux_struct    ef;
-    pstate_struct   ps;
+    phystate_struct   ps;
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
     solute_struct   solute[NSOLUTE];
 #endif

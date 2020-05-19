@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, lc_struct *lc, soil_struct *soil,
+    eflux_struct *ef, phystate_struct *ps, lc_struct *lc, soil_struct *soil,
     double dt)
 {
     /*
@@ -242,7 +242,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     /* Convert evap terms from rate (m s-1) to energy units (w m-2) */
     ef->edir = wf->edir * 1000.0 * LVH2O;
     ef->ec = wf->ec * 1000.0 * LVH2O;
-    for (k = 0; k < ps->nsoil; k++)
+    for (k = 0; k < ps->nlayers; k++)
     {
         ef->et[k] = wf->et[k] * 1000.0 * LVH2O;
     }
@@ -260,7 +260,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     ef->ssoil *= -1.0;
 
     ws->soilm = -1.0 * ws->smc[0] * ps->zsoil[0];
-    for (k = 1; k < ps->nsoil; k++)
+    for (k = 1; k < ps->nlayers; k++)
     {
         ws->soilm += ws->smc[k] * (ps->zsoil[k - 1] - ps->zsoil[k]);
     }
@@ -269,7 +269,7 @@ void SFlxGlacial(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
 }
 
 void PenmanGlacial(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
-    pstate_struct *ps, double *t24, double t2v, int snowng, int frzgra)
+    phystate_struct *ps, double *t24, double t2v, int snowng, int frzgra)
 {
     /*
      * Function Penman
@@ -327,7 +327,7 @@ void PenmanGlacial(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
 }
 
 void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
-    eflux_struct *ef, pstate_struct *ps, const lc_struct *lc,
+    eflux_struct *ef, phystate_struct *ps, const lc_struct *lc,
     const soil_struct *soil, int snowng, double dt, double t24, double prcpf,
     double df1)
 {
@@ -366,7 +366,7 @@ void IcePac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     wf->edir = 0.0;
     wf->ec = 0.0;
 
-    for (k = 0; k < ps->nsoil; k++)
+    for (k = 0; k < ps->nlayers; k++)
     {
         wf->et[k] = 0.0;
     }

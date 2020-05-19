@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 void TotalPhotosynthesis(const epconst_struct *epc, epvar_struct *epv,
-    const pstate_struct *ps, cflux_struct *cf, psn_struct *psn_sun,
+    const phystate_struct *ps, cflux_struct *cf, psn_struct *psn_sun,
     psn_struct *psn_shade, const daily_struct *daily)
 {
     /*

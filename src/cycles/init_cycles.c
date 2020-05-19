@@ -20,7 +20,7 @@ void InitCycles(const agtbl_struct *agtbl, const mgmt_struct mgmttbl[],
 
         for (k = 0; k < MAXLYR; k++)
         {
-            if (k < elem[i].ps.nsoil)
+            if (k < elem[i].ps.nlayers)
             {
                 elem[i].soil.clay[k]  = soiltbl->clay_layer[soil_ind][k];
                 elem[i].soil.sand[k]  = soiltbl->sand_layer[soil_ind][k];
@@ -102,7 +102,7 @@ void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[],
             elem[i].restart_input.nh4[k]             = BADVAL;
         }
 
-        for (k = 0; k < elem[i].ps.nsoil; k++)
+        for (k = 0; k < elem[i].ps.nlayers; k++)
         {
             elem[i].restart_input.c_residue_abgd[k]  = 0.0;
             elem[i].restart_input.c_residue_root[k]  = 0.0;
@@ -120,7 +120,7 @@ void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[],
             elem[i].restart_input.nh4[k]             = BADVAL;
 
             elem[i].restart_input.soc[k] = soiltbl->om_layer[soil_ind][k] /
-                100.0 * 0.58 * elem[i].ps.sldpth[k] * elem[i].soil.bd[k] *
+                100.0 * 0.58 * elem[i].ps.soil_depth[k] * elem[i].soil.bd[k] *
                 1.0E4;
             /* Initializes as 3% of SOC_Mass but "added" C */
             elem[i].restart_input.mbc[k] = 0.03 * elem[i].restart_input.soc[k];
@@ -174,8 +174,8 @@ void InitAgVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 
         ZeroFluxes(&elem[i].wf, &elem[i].cf, &elem[i].nf);
 
-        elem[i].ns.no3_profile = Profile(elem[i].ps.nsoil, elem[i].ns.no3);
-        elem[i].ns.nh4_profile = Profile(elem[i].ps.nsoil, elem[i].ns.nh4);
+        elem[i].ns.no3_profile = Profile(elem[i].ps.nlayers, elem[i].ns.no3);
+        elem[i].ns.nh4_profile = Profile(elem[i].ps.nlayers, elem[i].ns.nh4);
 
         NV_Ith(CV_Y, SOLUTE_SOIL(i, NO3)) = elem[i].ns.no3_profile;
         NV_Ith(CV_Y, SOLUTE_SOIL(i, NH4)) = elem[i].ns.nh4_profile;

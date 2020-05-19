@@ -527,16 +527,16 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 
         elem[i].ic.stc[0] = sfctmp +
             (sfctmp - elem[i].ps.tbot) / elem[i].ps.zbot *
-            elem[i].ps.sldpth[0] * 0.5;
+            elem[i].ps.soil_depth[0] * 0.5;
 
         for (j = 1; j < MAXLYR; j++)
         {
-            if (elem[i].ps.sldpth[j] > 0.0)
+            if (elem[i].ps.soil_depth[j] > 0.0)
             {
                 elem[i].ic.stc[j] =
                     elem[i].ic.stc[j - 1] +
                     (sfctmp - elem[i].ps.tbot) / elem[i].ps.zbot *
-                    (elem[i].ps.sldpth[j - 1] + elem[i].ps.sldpth[j]) * 0.5;
+                    (elem[i].ps.soil_depth[j - 1] + elem[i].ps.soil_depth[j]) * 0.5;
             }
             else
             {
@@ -546,7 +546,7 @@ void RelaxIc(elem_struct *elem, river_struct *river)
 
         for (j = 0; j < MAXLYR; j++)
         {
-            if (elem[i].ps.sldpth[j] > 0.0)
+            if (elem[i].ps.soil_depth[j] > 0.0)
             {
                 elem[i].ic.smc[j] = elem[i].soil.smcmax;
                 elem[i].ic.swc[j] = elem[i].soil.smcmax;

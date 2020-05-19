@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void RadTrans(const cstate_struct *cs, eflux_struct *ef, pstate_struct *ps,
+void RadTrans(const cstate_struct *cs, eflux_struct *ef, phystate_struct *ps,
     const epconst_struct *epc, epvar_struct *epv, const daily_struct *daily)
 {
     /*

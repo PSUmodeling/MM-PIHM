@@ -24,11 +24,11 @@ void NTransport(double dt, elem_struct elem[], river_struct river[])
         }
 
         /* Calculate NO3 and NH4 average concentrations in saturated zone */
-        elem[i].no3sol.conc = AvgSolConc(elem[i].ps.nsoil, 0.0, elem[i].soil.bd,
-            elem[i].ps.sldpth, elem[i].ws.smc, elem[i].ws.gw, elem[i].ns.no3);
+        elem[i].no3sol.conc = AvgSolConc(elem[i].ps.nlayers, 0.0, elem[i].soil.bd,
+            elem[i].ps.soil_depth, elem[i].ws.smc, elem[i].ws.gw, elem[i].ns.no3);
 
-        elem[i].nh4sol.conc = AvgSolConc(elem[i].ps.nsoil, 5.6, elem[i].soil.bd,
-            elem[i].ps.sldpth, elem[i].ws.smc, elem[i].ws.gw, elem[i].ns.no3);
+        elem[i].nh4sol.conc = AvgSolConc(elem[i].ps.nlayers, 5.6, elem[i].soil.bd,
+            elem[i].ps.soil_depth, elem[i].ws.smc, elem[i].ws.gw, elem[i].ns.no3);
     }
 
 #if defined(_OPENMP)
@@ -310,8 +310,8 @@ void NTransport(double dt, elem_struct elem[], river_struct river[])
     }
 }
 
-double AvgSolConc(int nsoil, double kd, const double bd[],
-    const double sldpth[], const double swc[], double gw,
+double AvgSolConc(int nlayers, double kd, const double bd[],
+    const double soil_depth[], const double swc[], double gw,
     const double solute[])
 {
     int             k;
@@ -320,14 +320,14 @@ double AvgSolConc(int nsoil, double kd, const double bd[],
     double          avg_conc = 0.0;
     double          sattot = 0.0;
 
-    FindWaterTable(sldpth, nsoil, gw, satdpth);
+    FindWaterTable(soil_depth, nlayers, gw, satdpth);
 
-    for (k = 0; k < nsoil; k++)
+    for (k = 0; k < nlayers; k++)
     {
         if (satdpth[k] > 0.0)
         {
             conc_lyr = (solute[k] > 0.0) ?
-                LinearEquilibriumConcentration(kd, bd[k], sldpth[k], swc[k],
+                LinearEquilibriumConcentration(kd, bd[k], soil_depth[k], swc[k],
                     solute[k]) : 0.0;
 
             avg_conc += satdpth[k] * conc_lyr;

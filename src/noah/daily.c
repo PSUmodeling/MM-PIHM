@@ -22,7 +22,7 @@ void DailyVar(int t, int start_time, elem_struct *elem)
             elem[i].daily.tmin : elem[i].es.sfctmp;
 
         /* Soil moisture, temperature, and ET */
-        for (k = 0; k < elem[i].ps.nsoil; k++)
+        for (k = 0; k < elem[i].ps.nlayers; k++)
         {
             elem[i].daily.avg_stc[k] += elem[i].es.stc[k];
             elem[i].daily.avg_sh2o[k] += elem[i].ws.swc[k];
@@ -67,7 +67,7 @@ void DailyVar(int t, int start_time, elem_struct *elem)
 
             elem[i].daily.avg_sfctmp /= (double)elem[i].daily.counter;
 
-            for (k = 0; k < elem[i].ps.nsoil; k++)
+            for (k = 0; k < elem[i].ps.nlayers; k++)
             {
                 elem[i].daily.avg_stc[k] /= (double)elem[i].daily.counter;
                 elem[i].daily.avg_sh2o[k] /= (double)elem[i].daily.counter;
@@ -110,7 +110,7 @@ void DailyVar(int t, int start_time, elem_struct *elem)
                 elem[i].daily.avg_sfctmp * elem[i].topo.area;
             /* When running lumped model, only average root zone to avoid uneven
              * layers */
-            for (k = 0; k < elem[i].ps.nsoil; k++)
+            for (k = 0; k < elem[i].ps.nlayers; k++)
             {
                 elem[LUMPED].daily.avg_stc[k] +=
                     elem[i].daily.avg_stc[k] * elem[i].topo.area;
@@ -143,7 +143,7 @@ void DailyVar(int t, int start_time, elem_struct *elem)
         elem[LUMPED].daily.avg_sfctmp /= elem[LUMPED].topo.area;
         /* When running lumped model, only average root zone to avoid uneven
          * layers */
-        for (k = 0; k < elem[LUMPED].ps.nsoil; k++)
+        for (k = 0; k < elem[LUMPED].ps.nlayers; k++)
         {
             elem[LUMPED].daily.avg_stc[k] /= elem[LUMPED].topo.area;
             elem[LUMPED].daily.avg_sh2o[k] /= elem[LUMPED].topo.area;

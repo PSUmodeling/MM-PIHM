@@ -1,7 +1,7 @@
 #include "pihm.h"
 
 void CanopyCond(const epconst_struct *epc, epvar_struct *epv,
-    const eflux_struct *ef, const pstate_struct *ps, const soil_struct *soil,
+    const eflux_struct *ef, const phystate_struct *ps, const soil_struct *soil,
     const daily_struct *daily)
 {
     int             k;

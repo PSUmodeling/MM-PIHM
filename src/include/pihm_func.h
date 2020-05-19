@@ -330,42 +330,42 @@ void            ReadGeol(const char *, geoltbl_struct *);
  * Noah functions
  */
 #if defined(_NOAH_)
-void            AdjSmProf(const soil_struct *, const pstate_struct *,
+void            AdjSmProf(const soil_struct *, const phystate_struct *,
     const double *, double, wflux_struct *, wstate_struct *);
-void            AlCalc(pstate_struct *, double, int);
-void            CalcLatFlx(const pstate_struct *, wflux_struct *);
+void            AlCalc(phystate_struct *, double, int);
+void            CalcLatFlx(const phystate_struct *, wflux_struct *);
 void            CalcSlopeAspect(elem_struct *, const meshtbl_struct *);
-void            CalHum(pstate_struct *, estate_struct *);
+void            CalHum(phystate_struct *, estate_struct *);
 # if defined(_CYCLES_)
-void            CanRes(const estate_struct *, pstate_struct *);
+void            CanRes(const estate_struct *, phystate_struct *);
 # else
 void            CanRes(const wstate_struct *, const estate_struct *,
-    const eflux_struct *, pstate_struct *, const soil_struct *,
+    const eflux_struct *, phystate_struct *, const soil_struct *,
     const epconst_struct *);
 # endif
 double          CSnow(double);
 void            DefSldpth(double *, int *, double *, double, const double *,
     int);
 void            DEvap(const wstate_struct *, wflux_struct *,
-    const pstate_struct *, const lc_struct *, const soil_struct *);
+    const phystate_struct *, const lc_struct *, const soil_struct *);
 # if defined(_CYCLES_)
 void            Evapo(const soil_struct *, const lc_struct *,
-    const pstate_struct *, const estate_struct *es,
+    const phystate_struct *, const estate_struct *es,
     const cstate_struct *, double, crop_struct [], wstate_struct *,
     wflux_struct *);
 # else
 void            Evapo(const wstate_struct *, wflux_struct *,
-    const pstate_struct *, const lc_struct *, const soil_struct *, double);
+    const phystate_struct *, const lc_struct *, const soil_struct *, double);
 # endif
 int             FindLayer(const double *, int, double);
 int             FindWaterTable(const double *, int, double, double *);
 double          FrozRain(double, double);
 double          GwTransp(double, const double *, int, int);
 void            HRT(wstate_struct *, const estate_struct *,
-    const pstate_struct *, const lc_struct *, const soil_struct *, double *,
+    const phystate_struct *, const lc_struct *, const soil_struct *, double *,
     double, double, double, double, double *, double *, double *);
 void            IcePac(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
+    eflux_struct *, phystate_struct *, const lc_struct *, const soil_struct *,
     int, double, double, double, double);
 void            InitLsm(elem_struct *, const char [], const ctrl_struct *,
     const noahtbl_struct *, const calib_struct *);
@@ -375,19 +375,19 @@ void            Noah(elem_struct *, const lctbl_struct *, const calib_struct *,
 void            NoahHydrol(elem_struct *, double);
 # if defined(_CYCLES_)
 void            NoPac(const soil_struct *, const lc_struct *,
-    const cstate_struct *, double, double, crop_struct [], pstate_struct *,
+    const cstate_struct *, double, double, crop_struct [], phystate_struct *,
     wstate_struct *, wflux_struct *, estate_struct *, eflux_struct *);
 # else
 void            NoPac(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
+    eflux_struct *, phystate_struct *, const lc_struct *, const soil_struct *,
     double, double);
 # endif
 void            PcpDrp(wstate_struct *, wflux_struct *, const lc_struct *,
     double, double);
 void            Penman(wflux_struct *, const estate_struct *, eflux_struct *,
-    pstate_struct *, double *, double, int, int);
+    phystate_struct *, double *, double, int, int);
 void            PenmanGlacial(wflux_struct *, const estate_struct *,
-    eflux_struct *, pstate_struct *, double *, double, int, int);
+    eflux_struct *, phystate_struct *, double *, double, int, int);
 double          Pslhs(double);
 double          Pslhu(double);
 double          Pslms(double);
@@ -403,26 +403,26 @@ void            ReadRad(const char *, forc_struct *);
 void            RootDist(const double *, int, int, double *);
 void            Rosr12(double *, const double *, const double *, double *,
     const double *, double *, int);
-void            SfcDifOff(pstate_struct *, const lc_struct *, double, double,
+void            SfcDifOff(phystate_struct *, const lc_struct *, double, double,
     int);
 # if defined(_CYCLES_)
 void            SFlx(double, const cstate_struct *, soil_struct *,
-    lc_struct *, crop_struct [], pstate_struct *, wstate_struct *,
+    lc_struct *, crop_struct [], phystate_struct *, wstate_struct *,
     wflux_struct *, estate_struct *, eflux_struct *);
 # else
 void            SFlx(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, lc_struct *, epconst_struct *,
+    eflux_struct *, phystate_struct *, lc_struct *, epconst_struct *,
     soil_struct *, double);
 # endif
 void            SFlxGlacial(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, lc_struct *, soil_struct *, double);
-void            ShFlx(wstate_struct *, estate_struct *, const pstate_struct *,
+    eflux_struct *, phystate_struct *, lc_struct *, soil_struct *, double);
+void            ShFlx(wstate_struct *, estate_struct *, const phystate_struct *,
     const lc_struct *, const soil_struct *, double, double, double, double);
 # if defined(_CYCLES_OBSOLETE_)
-void SmFlx(const soil_struct *, const cstate_struct *, double, pstate_struct *,
+void SmFlx(const soil_struct *, const cstate_struct *, double, phystate_struct *,
     wstate_struct *, wflux_struct *);
 # else
-void            SmFlx(wstate_struct *, wflux_struct *, pstate_struct *,
+void            SmFlx(wstate_struct *, wflux_struct *, phystate_struct *,
     const soil_struct *, double);
 # endif
 double          SnFrac(double, double, double);
@@ -431,25 +431,25 @@ void            SnkSrc(double *, double, double, double *,
 # if defined(_CYCLES_)
 void            SnoPac(const soil_struct *, const lc_struct *,
     const cstate_struct *, int, double, double, double, double, crop_struct [],
-    pstate_struct *, wstate_struct *, wflux_struct *, estate_struct *,
+    phystate_struct *, wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *);
 # else
 void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
-    eflux_struct *, pstate_struct *, const lc_struct *, const soil_struct *,
+    eflux_struct *, phystate_struct *, const lc_struct *, const soil_struct *,
     int, double, double, double, double);
 # endif
-void            SnowNew(const estate_struct *, double, pstate_struct *);
+void            SnowNew(const estate_struct *, double, phystate_struct *);
 void            SnowPack(double, double, double *, double *, double, double);
 double          Snowz0(double, double, double);
 # if defined(_CYCLES_OBSOLETE_)
 void            SRT(const soil_struct *, const cstate_struct *, double,
-    pstate_struct *, wstate_struct *, wflux_struct *, double *, double *,
+    phystate_struct *, wstate_struct *, wflux_struct *, double *, double *,
     double *, double *, double *);
 # else
-void            SRT(wstate_struct *, wflux_struct *, pstate_struct *,
+void            SRT(wstate_struct *, wflux_struct *, phystate_struct *,
     const soil_struct *, double *, double *, double *, double *, double *);
 # endif
-void            SStep(wstate_struct *, wflux_struct *, pstate_struct *,
+void            SStep(wstate_struct *, wflux_struct *, phystate_struct *,
     const soil_struct *, double *, double *, double *, double *, double *,
     double);
 void            SunPos(const siteinfo_struct *, int, spa_data *);
@@ -458,7 +458,7 @@ double          TDfCnd(double, double, double, double, double);
 double          TmpAvg(double, double, double, const double *, int);
 double          TopoRadn(const topo_struct *, double, double, double, double);
 void            Transp(const wstate_struct *, wflux_struct *,
-    const pstate_struct *, const lc_struct *, const soil_struct *);
+    const phystate_struct *, const lc_struct *, const soil_struct *);
 void            WDfCnd(double *, double *, double, double, const soil_struct *);
 #endif
 
@@ -483,7 +483,7 @@ void            SoluteTranspt(double, double, double, elem_struct [],
 void            BackgroundLitterfall(const epconst_struct *, epvar_struct *,
     const cstate_struct *, cflux_struct *, nflux_struct *);
 void            CanopyCond(const epconst_struct *, epvar_struct *,
-    const eflux_struct *, const pstate_struct *, const soil_struct *,
+    const eflux_struct *, const phystate_struct *, const soil_struct *,
     const daily_struct *);
 void            CheckCarbonBalance(const cstate_struct *, double *);
 void            CheckNitrogenBalance(const nstate_struct *, double *);
@@ -541,7 +541,7 @@ void            Phenology(const epconst_struct *, epvar_struct *,
 void            Photosynthesis(psn_struct *);
 void            PrecisionControl(cstate_struct *cs, nstate_struct *ns);
 void            RadTrans(const cstate_struct *, eflux_struct *,
-    pstate_struct *, const epconst_struct *, epvar_struct *,
+    phystate_struct *, const epconst_struct *, epvar_struct *,
     const daily_struct *);
 void            ReadAnnFile(tsdata_struct *, const char *);
 void            ReadBgc(const char *, ctrl_struct *, co2control_struct *,
@@ -557,7 +557,7 @@ void            SeasonDecidPhenology(const epconst_struct *, epvar_struct *,
     const daily_struct *);
 void            SoilPsi(const soil_struct *, double, double *);
 void            TotalPhotosynthesis(const epconst_struct *, epvar_struct *,
-    const pstate_struct *, cflux_struct *, psn_struct *, psn_struct *,
+    const phystate_struct *, cflux_struct *, psn_struct *, psn_struct *,
     const daily_struct *);
 void            WriteBgcIc(const char *, elem_struct *, river_struct *);
 void            ZeroSrcSnk(cstate_struct *, nstate_struct *, summary_struct *,
@@ -608,21 +608,21 @@ void            CalcLatNFlux(double, int, const double[], const double [],
     const double[], const double [], const double[], double, double []);
 void            CalSnkSrc(const nflux_struct *, int, solute_struct *,
     solute_struct *);
-void            CalcRootFraction(const crop_struct *, const pstate_struct *,
+void            CalcRootFraction(const crop_struct *, const phystate_struct *,
     double *);
 double          ColdDamage(double, double, double);
 void            ComputeColdDamage(const daily_struct *, crop_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 void            ComputeFactorComposite(const soil_struct *,
-    const daily_struct *, pstate_struct *);
+    const daily_struct *, phystate_struct *);
 double          ComputeHarvestIndex(double, double, double, double, double);
-void            ComputeResidueCover(const cstate_struct *, pstate_struct *);
+void            ComputeResidueCover(const cstate_struct *, phystate_struct *);
 void            ComputeSoilCarbonBalanceMB(const double[], const soil_struct *,
-    pstate_struct *, wstate_struct *, cstate_struct *, cflux_struct *,
+    phystate_struct *, wstate_struct *, cstate_struct *, cflux_struct *,
     nstate_struct *, nflux_struct *);
 double          ComputeTextureFactor(double);
 void            ComputeTillageFactor(const tillage_struct *, const double [],
-    double, const soil_struct *, const pstate_struct *, double []);
+    double, const soil_struct *, const phystate_struct *, double []);
 void            CropGrowth(double, const daily_struct *, double *,
     crop_struct *);
 void            CropNitrogenConcentration(double, const crop_struct *,
@@ -633,43 +633,43 @@ void            CropNitrogenDemand(double, double, const crop_struct *,
 void            CropNitrogenStress(double, double, double, crop_struct *);
 void            CropNitrogenUptake(int, double, double, const double [],
     const double [], const double [], const double [], const double [],
-    const pstate_struct *, double [], double [], const double [],
+    const phystate_struct *, double [], double [], const double [],
     crop_struct [], nstate_struct *, nflux_struct *);
 void            DailyCycles(int, pihm_struct);
 void            DailyOperations(int, const opertbl_struct *,
     const daily_struct *, soil_struct *, mgmt_struct *, crop_struct [],
-    pstate_struct *, wstate_struct *, wflux_struct *, cstate_struct *,
+    phystate_struct *, wstate_struct *, wflux_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
 void            Denitrification(const soil_struct *, const daily_struct *,
-    const pstate_struct *, const cflux_struct *, nstate_struct *,
+    const phystate_struct *, const cflux_struct *, nstate_struct *,
     nflux_struct *);
 void            DistributeRootDetritus(double, double, double,
-    double, const crop_struct *, const pstate_struct *, cstate_struct *,
+    double, const crop_struct *, const phystate_struct *, cstate_struct *,
     nstate_struct *);
 int             Doy(int, int, int);
 void            Doy2Date(int, int, int *, int *);
-void            ExecuteTillage(const tillage_struct *, const pstate_struct *,
+void            ExecuteTillage(const tillage_struct *, const phystate_struct *,
     double *, soil_struct *, wstate_struct *, cstate_struct *,
     nstate_struct *, nflux_struct *);
 void            FieldOperation(int, const opertbl_struct *,
     const daily_struct *, soil_struct *, mgmt_struct *,
-    crop_struct [], pstate_struct *, wstate_struct *, wflux_struct *,
+    crop_struct [], phystate_struct *, wstate_struct *, wflux_struct *,
     cstate_struct *, nstate_struct *, nflux_struct *);
 int             FinalHarvestDate(int, double, double, double);
 double          FindIrrigationVolume(int, double, const soil_struct *,
-    const daily_struct *daily, const pstate_struct *, const wflux_struct *);
+    const daily_struct *daily, const phystate_struct *, const wflux_struct *);
 void            FirstDOY(int, int *);
 void            ForageAndSeedHarvest(int, crop_struct *,
-    pstate_struct *, wstate_struct *, cstate_struct *, nstate_struct *,
+    phystate_struct *, wstate_struct *, cstate_struct *, nstate_struct *,
     nflux_struct *);
 int             ForcedClipping(int, const crop_struct []);
 double          Fraction(double, double, double, double, double);
-void            GrainHarvest(int, crop_struct *, pstate_struct *,
+void            GrainHarvest(int, crop_struct *, phystate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 void            GrowingCrop(int, const soil_struct *, const daily_struct *,
-    mgmt_struct *, crop_struct [], pstate_struct *, wstate_struct *,
+    mgmt_struct *, crop_struct [], phystate_struct *, wstate_struct *,
     cstate_struct *, nstate_struct *, nflux_struct *);
-void            HarvestCrop(int, crop_struct *, pstate_struct *,
+void            HarvestCrop(int, crop_struct *, phystate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 void            InitCyclesVar(elem_struct [], river_struct [], N_Vector);
 int             IsLeapYear(int);
@@ -686,27 +686,27 @@ double          MaximumRootHumificationFactor(double);
 double          Moisture(double);
 double          N2OFractionNitrification(double);
 void            Nitrification(const soil_struct *, const daily_struct *,
-    const pstate_struct *, nstate_struct *, nflux_struct *);
+    const phystate_struct *, nstate_struct *, nflux_struct *);
 double          NitrogenMineralization(double, double, double, double);
 void            NitrogenTransformation(const soil_struct *,
     const daily_struct *, const crop_struct [], const cstate_struct *,
-    const cflux_struct *, pstate_struct *, nstate_struct *, nflux_struct *);
+    const cflux_struct *, phystate_struct *, nstate_struct *, nflux_struct *);
 void            NTransport(double, elem_struct [], river_struct []);
 void            Phenology(const daily_struct *, crop_struct []);
 void            PotentialSoluteUptake(double, int, const double[],
     const double[], const double[], const double[], const double[], double *,
     double[]);
 void            Processes(int, const soil_struct *, const daily_struct *,
-    const pstate_struct *, crop_struct [], cstate_struct *, nstate_struct *,
+    const phystate_struct *, crop_struct [], cstate_struct *, nstate_struct *,
     nflux_struct *);
 void            RadiationInterception(crop_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
 void            ResidueEvaporation(double, double, double, const crop_struct [],
-    const pstate_struct *, const cstate_struct *, wstate_struct *,
+    const phystate_struct *, const cstate_struct *, wstate_struct *,
     wflux_struct *);
-void            ResidueWetting(const pstate_struct *, const cstate_struct *,
+void            ResidueWetting(const phystate_struct *, const cstate_struct *,
     double, double, wstate_struct *, wflux_struct *);
-void            RestartInput(const cyclesic_struct *, pstate_struct *,
+void            RestartInput(const cyclesic_struct *, phystate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 double          ShootBiomassPartitioning(double, double, double, int);
 double          SoilBufferPower(double, double, double);
@@ -719,13 +719,13 @@ double          ThermalTime(double, double, double, double);
 void            TillageFactorSettling(int, const double [], double, double []);
 void            UpdNProf(double, const soil_struct *, const wstate_struct *,
     const nstate_struct *, const nflux_struct *, const nprof_struct *,
-    pstate_struct *, nstate_struct *);
+    phystate_struct *, nstate_struct *);
 void            Volatilization(const soil_struct *, const daily_struct *,
-    const crop_struct [], const pstate_struct *, const cstate_struct *,
+    const crop_struct [], const phystate_struct *, const cstate_struct *,
     nstate_struct *, nflux_struct *);
 double          VolatilizationDepthFunction(double);
 void            WaterUptake(const soil_struct *, const estate_struct *,
-    const pstate_struct *, double, crop_struct [], wstate_struct *,
+    const phystate_struct *, double, crop_struct [], wstate_struct *,
     wflux_struct *);
 #endif
 

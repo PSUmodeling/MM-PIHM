@@ -30,8 +30,8 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     ReadKeyword(cmdstr, "LONGITUDE", &siteinfo->longitude, 'd', filename, lno);
 
     NextLine(lsm_file, cmdstr, &lno);
-    ReadKeyword(cmdstr, "NSOIL", &ctrl->nsoil, 'i', filename, lno);
-    if (ctrl->nsoil > MAXLYR - 1)
+    ReadKeyword(cmdstr, "NSOIL", &ctrl->nlayers, 'i', filename, lno);
+    if (ctrl->nlayers > MAXLYR - 1)
     {
         PIHMprintf(VL_ERROR,
             "The number of soil layers should not be larger than %d.\n",
@@ -43,9 +43,9 @@ void ReadLsm(const char *filename, siteinfo_struct *siteinfo, ctrl_struct *ctrl,
     NextLine(lsm_file, cmdstr, &lno);
     ReadKeyword(cmdstr, "SLDPTH_DATA", buffer, 's', filename, lno);
 
-    for (i = 0; i < ctrl->nsoil; i++)
+    for (i = 0; i < ctrl->nlayers; i++)
     {
-        match = sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->sldpth[i],
+        match = sscanf(buffer + bytes_consumed, "%lf%n", &ctrl->soil_depth[i],
             &bytes_now);
         if (match != 1)
         {

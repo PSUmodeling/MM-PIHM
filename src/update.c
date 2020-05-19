@@ -38,7 +38,7 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         elem[i].wf.runoff2 += elem[i].wf.fbr_infil;
 # endif
 
-        elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.sldpth, elem[i].ps.nsoil,
+        elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.soil_depth, elem[i].ps.nlayers,
             elem[i].ws.gw, elem[i].ps.satdpth);
 
         CalcLatFlx(&elem[i].ps, &elem[i].wf);

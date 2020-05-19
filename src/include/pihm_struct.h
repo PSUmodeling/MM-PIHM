@@ -192,8 +192,8 @@ typedef struct ctrl_struct
     int             write_cycles_restart;
 #endif
 #if defined(_NOAH_)
-    int             nsoil;                  /* number of standard soil layers */
-    double          sldpth[MAXLYR];         /* thickness of soil layer (m) */
+    int             nlayers;                  /* number of standard soil layers */
+    double          soil_depth[MAXLYR];         /* thickness of soil layer (m) */
     int             rad_mode;               /* radiation forcing mode:
                                              * 0 = uniform, 1 = topographic */
 #endif

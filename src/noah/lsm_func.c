@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-int FindWaterTable(const double *sldpth, int nsoil, double gw, double *satdpth)
+int FindWaterTable(const double *soil_depth, int nlayers, double gw, double *satdpth)
 {
     int             layer = -999;
     int             j;
@@ -13,29 +13,29 @@ int FindWaterTable(const double *sldpth, int nsoil, double gw, double *satdpth)
     }
 
     depth = 0.0;
-    for (j = 0; j < nsoil; j++)
+    for (j = 0; j < nlayers; j++)
     {
-        depth += sldpth[j];
+        depth += soil_depth[j];
     }
 
     if (gw <= 0.0)
     {
-        layer = nsoil;
-        satdpth[nsoil - 1] = 1.0E-3;
+        layer = nlayers;
+        satdpth[nlayers - 1] = 1.0E-3;
     }
     else if (gw > depth)
     {
         layer = 0;
-        for (j = 0; j < nsoil; j++)
+        for (j = 0; j < nlayers; j++)
         {
-            satdpth[j] = sldpth[j];
+            satdpth[j] = soil_depth[j];
         }
     }
     else
     {
-        for (j = nsoil - 1; j >= 0; j--)
+        for (j = nlayers - 1; j >= 0; j--)
         {
-            if (dsum + sldpth[j] > gw)
+            if (dsum + soil_depth[j] > gw)
             {
                 satdpth[j] = gw - dsum;
                 layer = j + 1;
@@ -43,8 +43,8 @@ int FindWaterTable(const double *sldpth, int nsoil, double gw, double *satdpth)
             }
             else
             {
-                satdpth[j] = sldpth[j];
-                dsum += sldpth[j];
+                satdpth[j] = soil_depth[j];
+                dsum += soil_depth[j];
             }
         }
     }
@@ -52,7 +52,7 @@ int FindWaterTable(const double *sldpth, int nsoil, double gw, double *satdpth)
     return layer;
 }
 
-int FindLayer(const double *sldpth, int nsoil, double depth)
+int FindLayer(const double *soil_depth, int nlayers, double depth)
 {
     int             layer;
     int             j = 0;
@@ -67,21 +67,21 @@ int FindLayer(const double *sldpth, int nsoil, double depth)
     {
         while (dsum < depth)
         {
-            if (sldpth[j] < 0.0)
+            if (soil_depth[j] < 0.0)
             {
                 break;
             }
-            dsum += sldpth[j];
+            dsum += soil_depth[j];
             ind = j;
             j++;
         }
         layer = ind + 1;
-        layer = (layer > nsoil) ? nsoil : layer;
+        layer = (layer > nlayers) ? nlayers : layer;
     }
     return layer;
 }
 
-void DefSldpth(double *sldpth, int *nsoil, double *zsoil, double total_depth,
+void DefSldpth(double *soil_depth, int *nlayers, double *zsoil, double total_depth,
     const double *std_sldpth, int std_nsoil)
 {
     int             j, k;
@@ -96,11 +96,11 @@ void DefSldpth(double *sldpth, int *nsoil, double *zsoil, double total_depth,
 
     if (total_depth <= std_zsoil[0])
     {
-        sldpth[0] = total_depth;
-        *nsoil = 1;
+        soil_depth[0] = total_depth;
+        *nlayers = 1;
         for (j = 1; j < MAXLYR; j++)
         {
-            sldpth[j] = BADVAL;
+            soil_depth[j] = BADVAL;
         }
     }
     else if (total_depth <= std_zsoil[std_nsoil - 1])
@@ -111,22 +111,22 @@ void DefSldpth(double *sldpth, int *nsoil, double *zsoil, double total_depth,
             {
                 for (k = 0; k < j; k++)
                 {
-                    sldpth[k] = std_sldpth[k];
+                    soil_depth[k] = std_sldpth[k];
                 }
-                sldpth[j] = total_depth - std_zsoil[j - 1];
-                *nsoil = j + 1;
+                soil_depth[j] = total_depth - std_zsoil[j - 1];
+                *nlayers = j + 1;
 
                 /* The following calculations guarantee that each layer is
                  * thicker than the layer on top */
-                if (sldpth[j] < sldpth[j - 1])
+                if (soil_depth[j] < soil_depth[j - 1])
                 {
-                    sldpth[j - 1] += sldpth[j];
-                    sldpth[j] = BADVAL;
-                    *nsoil -= 1;
+                    soil_depth[j - 1] += soil_depth[j];
+                    soil_depth[j] = BADVAL;
+                    *nlayers -= 1;
                 }
                 for (k = j + 1; k < MAXLYR; k++)
                 {
-                    sldpth[k] = BADVAL;
+                    soil_depth[k] = BADVAL;
                 }
                 break;
             }
@@ -136,25 +136,25 @@ void DefSldpth(double *sldpth, int *nsoil, double *zsoil, double total_depth,
     {
         for (j = 0; j < std_nsoil; j++)
         {
-            sldpth[j] = std_sldpth[j];
+            soil_depth[j] = std_sldpth[j];
         }
-        sldpth[std_nsoil] = total_depth - std_zsoil[std_nsoil - 1];
-        *nsoil = std_nsoil + 1;
-        if (sldpth[std_nsoil] < sldpth[std_nsoil - 1])
+        soil_depth[std_nsoil] = total_depth - std_zsoil[std_nsoil - 1];
+        *nlayers = std_nsoil + 1;
+        if (soil_depth[std_nsoil] < soil_depth[std_nsoil - 1])
         {
-            sldpth[std_nsoil - 1] += sldpth[std_nsoil];
-            sldpth[std_nsoil] = BADVAL;
-            *nsoil -= 1;
+            soil_depth[std_nsoil - 1] += soil_depth[std_nsoil];
+            soil_depth[std_nsoil] = BADVAL;
+            *nlayers -= 1;
         }
     }
 
     /* Calculate depth (negative) below ground from top skin sfc to bottom of
      * each soil layer. Note: sign of zsoil is negative (denoting below ground)
      */
-    zsoil[0] = -sldpth[0];
-    for (k = 1; k < *nsoil; k++)
+    zsoil[0] = -soil_depth[0];
+    for (k = 1; k < *nlayers; k++)
     {
-        zsoil[k] = -sldpth[k] + zsoil[k - 1];
+        zsoil[k] = -soil_depth[k] + zsoil[k - 1];
     }
 }
 
@@ -182,7 +182,7 @@ double GwTransp(double ett, const double *et, int nwtbl, int nroot)
     return gw_transp;
 }
 
-void RootDist(const double *sldpth, int nsoil, int nroot, double *rtdis)
+void RootDist(const double *soil_depth, int nlayers, int nroot, double *rtdis)
 {
     /* Calculate root distribution.
      * Present version assumes uniform distribution based on soil layer depths.
@@ -190,37 +190,37 @@ void RootDist(const double *sldpth, int nsoil, int nroot, double *rtdis)
     double          zsoil[MAXLYR];
     int             j, kz;
 
-    zsoil[0] = -sldpth[0];
-    for (kz = 1; kz < nsoil; kz++)
+    zsoil[0] = -soil_depth[0];
+    for (kz = 1; kz < nlayers; kz++)
     {
-        zsoil[kz] = -sldpth[kz] + zsoil[kz - 1];
+        zsoil[kz] = -soil_depth[kz] + zsoil[kz - 1];
     }
 
     for (j = 0; j < nroot; j++)
     {
-        rtdis[j] = -sldpth[j] / zsoil[nroot - 1];
+        rtdis[j] = -soil_depth[j] / zsoil[nroot - 1];
     }
 }
 
-void CalcLatFlx(const pstate_struct *ps, wflux_struct *wf)
+void CalcLatFlx(const phystate_struct *ps, wflux_struct *wf)
 {
     double          sattot;
     int             ks;
 
     /* Determine runoff from each layer */
     sattot = 0.0;
-    for (ks = 0; ks < ps->nsoil; ks++)
+    for (ks = 0; ks < ps->nlayers; ks++)
     {
         sattot += ps->satdpth[ks];
     }
 
     if (sattot <= 0.0)
     {
-        wf->runoff2_lyr[ps->nsoil - 1] = wf->runoff2;
+        wf->runoff2_lyr[ps->nlayers - 1] = wf->runoff2;
     }
     else
     {
-        for (ks = 0; ks < ps->nsoil; ks++)
+        for (ks = 0; ks < ps->nlayers; ks++)
         {
             wf->runoff2_lyr[ks] = ps->satdpth[ks] / sattot * wf->runoff2;
         }
