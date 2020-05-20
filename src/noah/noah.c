@@ -1985,8 +1985,8 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
          * SmFlx returns updated soil moisture values for non-glacial land. */
     }
 
-#if defined(_CYCLES_OBSOLETE_)
-    ResidueWetting(ps, cs, prcpf, dt, ws, wf);
+#if defined(_CYCLES_)
+    ResidueWetting(prcpf * RHOH2O * DAYINSEC, cs, ps, ws, wf);
 #else
     PcpDrp(ws, wf, lc, prcpf, dt);
 #endif

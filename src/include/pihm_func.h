@@ -593,6 +593,8 @@ void            ResetCrop(crop_struct *);
 void            ResidueEvap(double, double, const crop_struct [],
     const cstate_struct *, const phystate_struct *, wstate_struct *,
     wflux_struct *);
+void            ResidueWetting(double, const cstate_struct *,
+    const phystate_struct *, wstate_struct *, wflux_struct *);
 void            RootFrac(const crop_struct *, const phystate_struct *,
     double []);
 double          SoilWaterContent(double, double, double, double);
@@ -715,8 +717,6 @@ void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
 void            ResidueEvaporation(double, double, double, const crop_struct [],
     const phystate_struct *, const cstate_struct *, wstate_struct *,
     wflux_struct *);
-void            ResidueWetting(const phystate_struct *, const cstate_struct *,
-    double, double, wstate_struct *, wflux_struct *);
 void            RestartInput(const cyclesic_struct *, phystate_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
 double          ShootBiomassPartitioning(double, double, double, int);
