@@ -479,7 +479,7 @@ typedef struct wflux_struct
                                              * of porosity (smcmax) for a given
                                              * soil layer at the end of a time
                                              * step (m s-1) */
-    double          smflxv[MAXLYR];         /* vertical soil moisture flux
+    double          smflx[MAXLYR];         /* vertical soil moisture flux
                                              * between soil layers (m s-1) */
     double          dew;                    /* dewfall (or frostfall for
                                              * T < 273.15) (m s-1) */

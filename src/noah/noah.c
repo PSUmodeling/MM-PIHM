@@ -120,15 +120,15 @@ void NoahHydrol(elem_struct *elem, double dt)
              *
              *     Flux-PIHM               Cycles
              *
-             *   smflxv[k - 1]            wflux[k]
+             *    smflx[k - 1]            wflux[k]
              * --------|--------     --------|--------
              *         V                     V
              *                 layer k
-             *     smflxv[k]            wflux[k + 1]
+             *      smflx[k]            wflux[k + 1]
              * --------|--------     --------|--------
              *         V                     V
              */
-            wflux[k + 1] = elem[i].wf.smflxv[k] * RHOH2O * dt;
+            wflux[k + 1] = elem[i].wf.smflx[k] * RHOH2O * dt;
         }
 
         SoluteTransport(elem[i].ps.nlayers, 0.0, 0.0, wflux, elem[i].soil.bd,
@@ -2323,7 +2323,7 @@ void SStep(wstate_struct *ws, wflux_struct *wf, phystate_struct *ps,
         bi[k] = 1.0 + bi[k] * dt;
         ci[k] *= dt;
         sh2o0[k] = ws->swc[k];
-        wf->smflxv[k] = 0.0;
+        wf->smflx[k] = 0.0;
     }
 
     /* Copy values for input variables before call to Rosr12 */
@@ -2347,10 +2347,10 @@ void SStep(wstate_struct *ws, wflux_struct *wf, phystate_struct *ps,
     /* Calculate soil moisture flux within soil layers */
     for (k = ps->nlayers - 1; k > 0; k--)
     {
-        /* Positive smflxv[k] is flux out of soil layer k */
-        wf->smflxv[k - 1] =
+        /* Positive smflx[k] is flux out of soil layer k */
+        wf->smflx[k - 1] =
             (ws->swc[k] - sh2o0[k]) * ps->soil_depth[k] / dt +
-            wf->runoff2_lyr[k] + wf->et[k] + wf->smflxv[k];
+            wf->runoff2_lyr[k] + wf->et[k] + wf->smflx[k];
     }
 }
 

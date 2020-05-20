@@ -762,7 +762,7 @@ void InitWFlux(wflux_struct *wf)
     wf->runoff3 = 0.0;
     for (k = 0; k < MAXLYR; k++)
     {
-        wf->smflxv[k] = 0.0;
+        wf->smflx[k] = 0.0;
     }
     wf->dew = 0.0;
     wf->snomlt = 0.0;
