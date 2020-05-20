@@ -82,9 +82,6 @@ void NoahHydrol(elem_struct *elem, double dt)
     for (i = 0; i < nelem; i++)
     {
         int             k;
-#if defined(_CYCLES_OBSOLETE_)
-        double          wflux[MAXLYR + 1];
-#endif
 
         /* Find water table position */
         elem[i].ps.nwtbl = FindWaterTable(elem[i].ps.soil_depth, elem[i].ps.nlayers,
@@ -103,14 +100,11 @@ void NoahHydrol(elem_struct *elem, double dt)
                 elem[i].ws.swc[k] : elem[i].ws.smc[k];
         }
 
-#if defined(_CYCLES_OBSOLETE_)
-        SmFlx(&elem[i].soil, &elem[i].cs, dt, &elem[i].ps, &elem[i].ws,
-            &elem[i].wf);
-#else
         SmFlx(&elem[i].ws, &elem[i].wf, &elem[i].ps, &elem[i].soil, dt);
-#endif
 
 #if defined(_CYCLES_OBSOLETE_)
+        double          wflux[MAXLYR + 1];
+        k
         /*
          * Calcluate vertical transport of solute
          */
@@ -1365,8 +1359,8 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         prcpf += wf->dew;
     }
 
-#if defined(_CYCLES_OBSOLETE_)
-    ResidueWetting(ps, cs, prcpf, dt, ws, wf);
+#if defined(_CYCLES_)
+    ResidueWetting(prcpf * RHOH2O * DAYINSEC, cs, ps, ws, wf);
 #else
     PcpDrp(ws, wf, lc, prcpf, dt);
 #endif
@@ -1422,7 +1416,6 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     ef->flx3 = 0.0;
 }
 
-#if !defined(_CYCLES_OBSOLETE_)
 void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
     double prcp, double dt)
 {
@@ -1468,7 +1461,6 @@ void PcpDrp(wstate_struct *ws, wflux_struct *wf, const lc_struct *lc,
     ws->cmc = (ws->cmc < 1.0E-20) ? 0.0 : ws->cmc;
     ws->cmc = (ws->cmc < ws->cmcmax) ? ws->cmc : ws->cmcmax;
 }
-#endif
 
 void Penman(wflux_struct *wf, const estate_struct *es, eflux_struct *ef,
     phystate_struct *ps, double *t24, double t2v, int snowng, int frzgra)
@@ -1598,13 +1590,8 @@ void ShFlx(wstate_struct *ws, estate_struct *es, const phystate_struct *ps,
 }
 
 
-#if defined(_CYCLES_OBSOLETE_)
-void SmFlx(const soil_struct *soil, const cstate_struct *cs, double dt,
-    phystate_struct *ps, wstate_struct *ws, wflux_struct *wf)
-#else
 void SmFlx(wstate_struct *ws, wflux_struct *wf, phystate_struct *ps,
     const soil_struct *soil, double dt)
-#endif
 {
     /*
      * Calculate soil moisture flux. The soil moisture content (smc - a per unit
@@ -1647,11 +1634,7 @@ void SmFlx(wstate_struct *ws, wflux_struct *wf, phystate_struct *ps,
     }
     else
     {
-#if defined(_CYCLES_OBSOLETE_)
-        SRT(soil, cs, dt, ps, ws, wf, rhstt, sice, ai, bi, ci);
-#else
         SRT(ws, wf, ps, soil, rhstt, sice, ai, bi, ci);
-#endif
         SStep(ws, wf, ps, soil, rhstt, sice, ai, bi, ci, dt);
     }
 }
@@ -2172,15 +2155,9 @@ void SnowNew(const estate_struct *es, double newsn, phystate_struct *ps)
     ps->snowh = snowhc * 0.01;
 }
 
-#if defined(_CYCLES_OBSOLETE_)
-void SRT(const soil_struct *soil, const cstate_struct *cs, double dt,
-    phystate_struct *ps, wstate_struct *ws, wflux_struct *wf, double *rhstt,
-    double *sice, double *ai, double *bi, double *ci)
-#else
 void SRT(wstate_struct *ws, wflux_struct *wf, phystate_struct *ps,
     const soil_struct *soil, double *rhstt, double *sice, double *ai,
     double *bi, double *ci)
-#endif
 {
     /*
      * Calculate the right hand side of the time tendency term of the soil water
@@ -2585,7 +2562,6 @@ double TmpAvg(double tup, double tm, double tdn, const double *zsoil, int k)
     return tavg;
 }
 
-#if !defined(_CYCLES_OBSOLETE_)
 void Transp(const wstate_struct *ws, wflux_struct *wf, const phystate_struct *ps,
     const lc_struct *lc, const soil_struct *soil)
 {
@@ -2666,7 +2642,6 @@ void Transp(const wstate_struct *ws, wflux_struct *wf, const phystate_struct *ps
     }
 # endif
 }
-#endif
 
 void WDfCnd(double *wdf, double *wcnd, double smc, double sicemax,
     const soil_struct *soil)

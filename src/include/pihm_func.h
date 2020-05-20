@@ -418,13 +418,8 @@ void            SFlxGlacial(wstate_struct *, wflux_struct *, estate_struct *,
     eflux_struct *, phystate_struct *, lc_struct *, soil_struct *, double);
 void            ShFlx(wstate_struct *, estate_struct *, const phystate_struct *,
     const lc_struct *, const soil_struct *, double, double, double, double);
-# if defined(_CYCLES_OBSOLETE_)
-void SmFlx(const soil_struct *, const cstate_struct *, double, phystate_struct *,
-    wstate_struct *, wflux_struct *);
-# else
 void            SmFlx(wstate_struct *, wflux_struct *, phystate_struct *,
     const soil_struct *, double);
-# endif
 double          SnFrac(double, double, double);
 void            SnkSrc(double *, double, double, double *,
     const soil_struct *, const double *, double, int, double);
@@ -441,14 +436,8 @@ void            SnoPac(wstate_struct *, wflux_struct *, estate_struct *,
 void            SnowNew(const estate_struct *, double, phystate_struct *);
 void            SnowPack(double, double, double *, double *, double, double);
 double          Snowz0(double, double, double);
-# if defined(_CYCLES_OBSOLETE_)
-void            SRT(const soil_struct *, const cstate_struct *, double,
-    phystate_struct *, wstate_struct *, wflux_struct *, double *, double *,
-    double *, double *, double *);
-# else
 void            SRT(wstate_struct *, wflux_struct *, phystate_struct *,
     const soil_struct *, double *, double *, double *, double *, double *);
-# endif
 void            SStep(wstate_struct *, wflux_struct *, phystate_struct *,
     const soil_struct *, double *, double *, double *, double *, double *,
     double);
