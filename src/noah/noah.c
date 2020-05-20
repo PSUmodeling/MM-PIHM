@@ -56,9 +56,9 @@ void Noah(elem_struct *elem, const lctbl_struct *lctbl, const calib_struct *cal,
         else
         {
 #if defined(_CYCLES_)
-            SFlx(dt, &elem[i].cs, &elem[i].soil, &elem[i].lc, elem[i].crop,
-                &elem[i].ps, &elem[i].ws, &elem[i].wf, &elem[i].es,
-                &elem[i].ef);
+            SFlx(dt, &elem[i].weather, &elem[i].cs, &elem[i].soil, &elem[i].lc,
+                elem[i].crop, &elem[i].ps, &elem[i].ws, &elem[i].wf,
+                &elem[i].es, &elem[i].ef);
 #else
             SFlx(&elem[i].ws, &elem[i].wf, &elem[i].es, &elem[i].ef,
                 &elem[i].ps, &elem[i].lc, &elem[i].epc, &elem[i].soil, dt);
@@ -177,8 +177,9 @@ void NoahHydrol(elem_struct *elem, double dt)
 }
 
 #if defined(_CYCLES_)
-void SFlx(double dt, const cstate_struct *cs, soil_struct *soil, lc_struct *lc,
-    crop_struct crop[], phystate_struct *ps, wstate_struct *ws, wflux_struct *wf, estate_struct *es, eflux_struct *ef)
+void SFlx(double dt, const weather_struct *weather, const cstate_struct *cs,
+    soil_struct *soil, lc_struct *lc, crop_struct crop[], phystate_struct *ps,
+    wstate_struct *ws, wflux_struct *wf, estate_struct *es, eflux_struct *ef)
 #else
 void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, phystate_struct *ps, lc_struct *lc, epconst_struct *epc,
@@ -514,7 +515,7 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     if (ws->sneqv == 0.0)
     {
 #if defined(_CYCLES_)
-        NoPac(soil, lc, cs, dt, t24, crop, ps, ws, wf, es, ef);
+        NoPac(soil, lc, weather, cs, dt, t24, crop, ps, ws, wf, es, ef);
 #else
         NoPac(ws, wf, es, ef, ps, lc, soil, dt, t24);
 #endif
@@ -523,8 +524,8 @@ void SFlx(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     else
     {
 #if defined(_CYCLES_)
-        SnoPac(soil, lc, cs, snowng, dt, t24, prcpf, df1, crop, ps, ws, wf, es,
-            ef);
+        SnoPac(soil, lc, weather, cs, snowng, dt, t24, prcpf, df1, crop, ps, ws,
+        wf, es, ef);
 #else
         SnoPac(ws, wf, es, ef, ps, lc, soil, snowng, dt, t24, prcpf, df1);
 #endif
@@ -858,9 +859,9 @@ void DEvap(const wstate_struct *ws, wflux_struct *wf, const phystate_struct *ps,
 
 #if defined(_CYCLES_)
 void Evapo(const soil_struct *soil, const lc_struct *lc,
-    const phystate_struct *ps, const estate_struct *es,
-    const cstate_struct *cs, double dt, crop_struct crop[], wstate_struct *ws,
-    wflux_struct *wf)
+    const weather_struct *weather, const phystate_struct *ps,
+    const estate_struct *es, const cstate_struct *cs, crop_struct crop[],
+    wstate_struct *ws, wflux_struct *wf)
 #else
 void Evapo(const wstate_struct *ws, wflux_struct *wf, const phystate_struct *ps,
     const lc_struct *lc, const soil_struct *soil, double dt)
@@ -898,24 +899,21 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const phystate_struct *ps,
 
 #if defined(_CYCLES_)
         /* Evaporation from residue (Cycles function) */
-        ResidueEvap(wf->etp * RHOH2O * dt, ps->sncovr, crop, cs, ps, ws, wf);
-#endif
+        ResidueEvap(wf->etp * RHOH2O * DAYINSEC, ps->sncovr, crop, cs, ps, ws,
+            wf);
 
+        if (NumActiveCrop(crop) > 0)
+        {
+            WaterUptake(wf->etp * RHOH2O * DAYINSEC, soil, weather, ps, crop,
+                ws, wf);
+        }
+#else
         if (lc->shdfac > 0.0)
         {
             /* Initialize plant total transpiration, retrieve plant
              * transpiration, and accumulate it for all soil layers */
-#if defined(_CYCLES_OBSOLETE_)
-            WaterUptake(soil, es, ps, dt, crop, ws, wf);
-#else
             Transp(ws, wf, ps, lc, soil);
-#endif
-            for (k = 0; k < ps->nlayers; k++)
-            {
-                wf->ett += wf->et[k];
-            }
 
-#if !defined(_CYCLES_OBSOLETE_)
             /* When coupled to Cycles, canopy evaporation is replaced by residue
              * evaporation */
             /* Calculate canopy evaporation.
@@ -928,7 +926,12 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const phystate_struct *ps,
              * the canopy */
             cmc2ms = ws->cmc / dt;
             wf->ec = (cmc2ms < wf->ec) ? cmc2ms : wf->ec;
+        }
 #endif
+
+        for (k = 0; k < ps->nlayers; k++)
+        {
+            wf->ett += wf->et[k];
         }
     }
 
@@ -1307,9 +1310,9 @@ void HStep(estate_struct *es, double *rhsts, double dt, int nlayers, double *ai,
 
 #if defined(_CYCLES_)
 void NoPac(const soil_struct *soil, const lc_struct *lc,
-    const cstate_struct *cs, double dt, double t24, crop_struct crop[],
-    phystate_struct *ps, wstate_struct *ws, wflux_struct *wf,
-    estate_struct *es, eflux_struct *ef)
+    const weather_struct *weather, const cstate_struct *cs, double dt,
+    double t24, crop_struct crop[], phystate_struct *ps, wstate_struct *ws,
+    wflux_struct *wf, estate_struct *es, eflux_struct *ef)
 #else
 void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, phystate_struct *ps, const lc_struct *lc,
@@ -1345,7 +1348,7 @@ void NoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     if (wf->etp > 0.0)
     {
 #if defined(_CYCLES_)
-        Evapo(soil, lc, ps, es, cs, dt, crop, ws, wf);
+        Evapo(soil, lc, weather, ps, es, cs, crop, ws, wf);
 #else
         Evapo(ws, wf, ps, lc, soil, dt);
 #endif
@@ -1743,9 +1746,10 @@ void SnkSrc(double *tsnsr, double tavg, double smc, double *swc,
 
 #if defined(_CYCLES_)
 void SnoPac(const soil_struct *soil, const lc_struct *lc,
-    const cstate_struct *cs, int snowng, double dt, double t24, double prcpf,
-    double df1, crop_struct crop[], phystate_struct *ps, wstate_struct *ws,
-    wflux_struct *wf, estate_struct *es, eflux_struct *ef)
+    const weather_struct *weather, const cstate_struct *cs, int snowng,
+    double dt, double t24, double prcpf, double df1, crop_struct crop[],
+    phystate_struct *ps, wstate_struct *ws, wflux_struct *wf, estate_struct *es,
+    eflux_struct *ef)
 #else
 void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
     eflux_struct *ef, phystate_struct *ps, const lc_struct *lc,
@@ -1818,7 +1822,7 @@ void SnoPac(wstate_struct *ws, wflux_struct *wf, estate_struct *es,
         if (ps->sncovr < 1.0)
         {
 #if defined(_CYCLES_)
-            Evapo(soil, lc, ps, es, cs, dt, crop, ws, wf);
+            Evapo(soil, lc, weather, ps, es, cs, crop, ws, wf);
 #else
             Evapo(ws, wf, ps, lc, soil, dt);
 #endif

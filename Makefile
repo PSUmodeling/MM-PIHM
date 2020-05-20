@@ -257,16 +257,16 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	#cycles/update_prof.c
   CYCLES_SRCS_ =\
 	crop.c\
+	crop_harvest.c\
+	crop_transpiration.c\
 	read_crop.c\
 	read_operation.c\
 	residue.c\
 	soil.c\
     zero_fluxes.c
 	#crop.c\
-	#crop_harvest.c\
 	#crop_process.c\
 	#crop_thermal_time.c\
-	#crop_transpiration.c\
 	#daily_operation.c\
 	#fertilization.c\
 	#field_operation.c\
