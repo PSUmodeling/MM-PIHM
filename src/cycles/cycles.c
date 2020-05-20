@@ -1,6 +1,6 @@
 #include "pihm.h"
 
-void DailyCycles(int t, pihm_struct pihm)
+void Cycles(int t, elem_struct elem[])
 {
     int             i;
     int             year, month, day;
@@ -23,23 +23,23 @@ void DailyCycles(int t, pihm_struct pihm)
     for (i = 0; i < nelem; i++)
     {
         int             ind;
-        elem_struct    *elem;
-
-        elem = &pihm->elem[i];
-        ind = elem->attrib.op_type - 1;
 
         /*
          * Run daily cycles processes
          */
-        DailyOperations(doy, &pihm->opertbl[ind], &elem->daily,
-            &elem->soil, &elem->mgmt, elem->crop, &elem->ps, &elem->ws,
-            &elem->wf, &elem->cs, &elem->cf, &elem->ns, &elem->nf);
+        DailyOper(year, doy, elem[i].mgmt.auto_n, &elem[i].weather,
+            &elem[i].mgmt, elem[i].crop, &elem[i].soil, &elem[i].ws,
+            &elem[i].wf, &elem[i].es, &elem[i].cs, &elem[i].cf, &elem[i].ns,
+            &elem[i].nf, &elem[i].ps);
 
+#if TEMP_DISABLED
         /* Calculate daily sink/source terms for NO3 and NH4 */
-        CalSnkSrc(&elem->nf, elem->ps.nlayers, &elem->no3sol, &elem->nh4sol);
+        CalSnkSrc(&elem[i].nf, elem[i].ps.nlayers, &elem[i].no3sol, &elem[i].nh4sol);
+#endif
     }
 }
 
+#if TEMP_DISABLED
 void CalSnkSrc(const nflux_struct *nf, int nlayers, solute_struct *no3sol,
     solute_struct *nh4sol)
 {
@@ -61,3 +61,4 @@ void CalSnkSrc(const nflux_struct *nf, int nlayers, solute_struct *no3sol,
             nf->nitrif_nh4_to_n2o[k] - nf->nh4volat[k];
     }
 }
+#endif

@@ -560,6 +560,7 @@ double          BulkDensity(double, double, double);
 double          CommRadIntcp(const crop_struct []);
 double          CommTotRadIntcp(const crop_struct []);
 double          CommTransp(const crop_struct []);
+void            Cycles(int, elem_struct []);
 int             FindCrop(const char [], const crop_struct []);
 void            FirstDay(const soiltbl_struct *, elem_struct [],
     river_struct []);
@@ -637,7 +638,6 @@ void            CropNitrogenUptake(int, double, double, const double [],
     const double [], const double [], const double [], const double [],
     const phystate_struct *, double [], double [], const double [],
     crop_struct [], nstate_struct *, nflux_struct *);
-void            DailyCycles(int, pihm_struct);
 void            DailyOperations(int, const opertbl_struct *,
     const daily_struct *, soil_struct *, mgmt_struct *, crop_struct [],
     phystate_struct *, wstate_struct *, wflux_struct *, cstate_struct *,

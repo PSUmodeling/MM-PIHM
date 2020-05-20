@@ -59,6 +59,16 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
     }
 #endif
 
+#if defined(_CYCLES_)
+    if ((t - pihm->ctrl.starttime) % DAYINSEC == 0)
+    {
+        Cycles(t, pihm->elem);
+
+        /* Update print variables for CN (daily) step variables */
+        UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, CN_STEP);
+    }
+#endif
+
     /*
      * Solve PIHM hydrology ODE using CVode
      */
