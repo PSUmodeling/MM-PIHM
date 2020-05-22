@@ -63,8 +63,7 @@ void InitCycles(const agtbl_struct *agtbl, const mgmt_struct mgmttbl[],
     }
 }
 
-void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[],
-    river_struct river[])
+void FirstDay(const soiltbl_struct *soiltbl, elem_struct elem[])
 {
     int             i;
 

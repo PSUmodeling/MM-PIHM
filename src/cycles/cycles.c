@@ -22,8 +22,6 @@ void Cycles(int t, elem_struct elem[])
 #endif
     for (i = 0; i < nelem; i++)
     {
-        int             ind;
-
         /*
          * Run daily cycles processes
          */
@@ -32,33 +30,31 @@ void Cycles(int t, elem_struct elem[])
             &elem[i].wf, &elem[i].es, &elem[i].cs, &elem[i].cf, &elem[i].ns,
             &elem[i].nf, &elem[i].ps);
 
-#if TEMP_DISABLED
         /* Calculate daily sink/source terms for NO3 and NH4 */
-        CalSnkSrc(&elem[i].nf, elem[i].ps.nlayers, &elem[i].no3sol, &elem[i].nh4sol);
-#endif
+        CalSnkSrc(elem[i].ps.nlayers, &elem[i].nf, elem[i].solute);
     }
 }
 
-#if TEMP_DISABLED
-void CalSnkSrc(const nflux_struct *nf, int nlayers, solute_struct *no3sol,
-    solute_struct *nh4sol)
+void CalSnkSrc(int nlayers, const nflux_struct *nf, solute_struct solute[])
 {
     int             k;
 
-    no3sol->snksrc = 0.0;
-    nh4sol->snksrc = 0.0;
+    solute[NO3].snksrc = 0.0;
+    solute[NH4].snksrc = 0.0;
 
-    no3sol->snksrc += nf->surplusn;
-    nh4sol->snksrc += nf->urine;
+    solute[NO3].snksrc += nf->surplus;
+    solute[NH4].snksrc += nf->urine;
     for (k = 0; k < nlayers; k++)
     {
-        no3sol->snksrc += nf->uptake_no3[k] + nf->fert_no3[k] +
-            nf->immob_no3[k] + nf->nitrif_nh4_to_no3[k] + nf->denitn[k] +
-            nf->till_no3[k];
+        solute[NO3].snksrc += (nf->nitrif[k] - nf->n2o_from_nitrif[k]) +
+            (-nf->denitrif[k]) + (-nf->no3_uptake[k]) + nf->no3_fert[k] +
+            nf->no3_immobil[k];
 
-        nh4sol->snksrc += nf->uptake_nh4[k] + nf->fert_nh4[k] +
-            nf->till_nh4[k] + nf->immob_nh4[k] - nf->nitrif_nh4_to_no3[k] -
-            nf->nitrif_nh4_to_n2o[k] - nf->nh4volat[k];
+        solute[NH4].snksrc += (-nf->nitrif[k]) + (-nf->volatil[k]) +
+            (-nf->nh4_uptake[k]) + nf->nh4_fert[k] +
+            nf->nh4_immobil[k] + nf->mineral[k];
     }
+
+    solute[NO3].snksrc /= DAYINSEC;
+    solute[NH4].snksrc /= DAYINSEC;
 }
-#endif

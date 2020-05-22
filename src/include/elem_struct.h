@@ -453,7 +453,6 @@ typedef struct wflux_struct
     double          esnow;                  /* sublimation from (or deposition
                                              * to) snowpack (m s-1); */
 #if defined(_CYCLES_)
-    double          uptake[MAXLYR];         /* soil water uptake (mm day-1) */
     double          irrig;                  /* irrigation volume (mm day-1) */
 #endif
 #if defined(_FBR_)
@@ -666,12 +665,6 @@ typedef struct nstate_struct
 
 typedef struct nflux_struct
 {
-    double          no3_leach;              /* NO3 leaching (Mg N ha-1) */
-    double          nh4_leach;              /* NH4 leaching (Mg N ha-1) */
-    double          no3_bypass;             /* NO3 horizontal bypass (Mg N ha-1)
-                                             */
-    double          nh4_bypass;             /* NH4 horizontal bypass (Mg N ha-1)
-                                             */
     double          nitrif[MAXLYR];         /* NH4 nitrification (Mg ha-1) */
     double          n2o_from_nitrif[MAXLYR];/* N2O emissions from nitrification
                                              * (Mg ha-1) */
@@ -688,6 +681,7 @@ typedef struct nflux_struct
     double          no3_immobil[MAXLYR];    /* NO3 immobilization (Mg ha-1) */
     double          nh4_immobil[MAXLYR];    /* NH4 immobilization (Mg ha-1) */
     double          mineral[MAXLYR];        /* N mineralization (Mg ha-1) */
+    double          urine;                  /* NH4 from grazing (Mg ha-1) */
 } nflux_struct;
 #endif
 

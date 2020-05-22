@@ -186,7 +186,6 @@ void ReadSoilInit(const char filen[], soiltbl_struct *soiltbl)
         for (k = 0; k < soiltbl->nlayers[i]; k++)
         {
             int             layer;
-            double          aep;            /* Saxton's air entry potential */
             double          bd;             /* Saxton's bulk density */
             double          wc33;           /* Saxton's volumetric WC at 33 J/kg
                                              */

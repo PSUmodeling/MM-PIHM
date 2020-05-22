@@ -244,7 +244,7 @@ void Initialize(pihm_struct pihm, N_Vector CV_Y, void **cvode_mem)
 # endif
 #endif
 #if defined(_CYCLES_)
-    FirstDay(&pihm->soiltbl, pihm->elem, pihm->river);
+    FirstDay(&pihm->soiltbl, pihm->elem);
 #endif
 
 #if defined(_CYCLES_)
@@ -750,9 +750,6 @@ void InitWFlux(wflux_struct *wf)
     for (k = 0; k < MAXLYR; k++)
     {
         wf->et[k] = 0.0;
-#if defined(_CYCLES_)
-        wf->uptake[k] = 0.0;
-#endif
     }
     wf->runoff2 = 0.0;
     for (k = 0; k < MAXLYR; k++)

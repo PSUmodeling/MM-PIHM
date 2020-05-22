@@ -248,38 +248,35 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	noah/noah_glacial_only.c\
 	noah/topo_radn.c\
 	spa/spa.c\
+	cycles/cycles.c\
 	cycles/cycles_func.c\
 	cycles/init_cycles.c\
 	cycles/read_cycles.c\
 	transpt/init_solute.c
-	#cycles/cycles.c\
 	#cycles/ntransport.c\
 	#cycles/update_prof.c
   CYCLES_SRCS_ =\
 	crop.c\
 	crop_harvest.c\
+	crop_process.c\
+	crop_thermal_time.c\
 	crop_transpiration.c\
+	daily_operation.c\
+	fertilization.c\
+	field_operation.c\
+	irrigation.c\
+	misc_func.c\
 	read_crop.c\
 	read_operation.c\
 	residue.c\
 	soil.c\
-    zero_fluxes.c
-	#crop.c\
-	#crop_process.c\
-	#crop_thermal_time.c\
-	#daily_operation.c\
-	#fertilization.c\
-	#field_operation.c\
-	#growing_crop.c\
-	#irrigation.c\
-	#make_zero_flux_struct.c\
-	#read_operation.c\
-	#restart.c\
-	#soil_carbon.c\
-	#soil_nitrogen.c\
-	#soil_solute.c\
-	#tillage.c\
-	#time_func.c
+	soil_carbon.c\
+	soil_nitrogen.c\
+	soil_solute.c\
+	tillage.c\
+	weather.c\
+	zero_fluxes.c
+
   MODULE_HEADERS_ = include/spa.h
   EXECUTABLE = flux-pihm-cycles
   MSG = "... Compiling Flux-PIHM-Cycles ..."
