@@ -251,7 +251,7 @@ typedef struct phystate_struct
                                              * observations (m) */
     double          sfcspd;                 /* wind speed at height zlvl above
                                              * ground (m s-1) */
-    double          rh;                     /* relative humidity (100%) */
+    double          rh;                     /* relative humidity (%) */
 #if defined(_CYCLES_)
     double          rh_max;                 /* daily maximum relative humidity
                                              * (100%) */
