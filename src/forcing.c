@@ -313,11 +313,11 @@ void ApplyDailyMeteoForc(int t, int rad_mode, const siteinfo_struct *siteinfo,
             elem[i].ps.sfcprs += forc->meteo[ind].value[PRES_TS] / 24.0;
 
             elem[i].weather.tmp_max = MAX(elem[i].weather.tmp_max,
-                forc->meteo[ind].value[SFCTMP_TS]) - TFREEZ;
+                forc->meteo[ind].value[SFCTMP_TS] - TFREEZ);
             elem[i].weather.tmp_min = MIN(elem[i].weather.tmp_min,
-                forc->meteo[ind].value[SFCTMP_TS]) - TFREEZ;
+                forc->meteo[ind].value[SFCTMP_TS] - TFREEZ);
             elem[i].weather.rh_min = MIN(elem[i].weather.rh_min,
-                forc->meteo[ind].value[RH_TS]) * 100.0;
+                forc->meteo[ind].value[RH_TS]);
             elem[i].weather.wind = elem[i].ps.sfcspd;
             elem[i].weather.solar_rad = elem[i].ef.soldn * DAYINSEC * 1.0E-6;
             elem[i].weather.atm_pres = elem[i].ps.sfcprs * 1.0E-3;
