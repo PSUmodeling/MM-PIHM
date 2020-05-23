@@ -25,8 +25,8 @@ void StartupScreen(void)
 #if defined(_BGC_)
     PIHMprintf(VL_BRIEF, "    * Biogeochemistry module turned on.\n");
 #endif
-#if defined(_CYCLES_OBSOLETE_)
-    PIHMprintf(VL_BRIEF, "    * Crop module turned on.\n");
+#if defined(_CYCLES_)
+    PIHMprintf(VL_BRIEF, "    * Agroecosystem module turned on.\n");
 #endif
 #if defined(_FBR_)
     PIHMprintf(VL_BRIEF, "    * Deep groundwater module turned on.\n");

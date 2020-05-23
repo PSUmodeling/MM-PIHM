@@ -463,9 +463,17 @@ void            SetAbsTolArray(double, N_Vector);
 #endif
 
 #if defined(_BGC_) || defined(_CYCLES_) || defined(_RT_)
+double          AdvDiffDisp(double, double, double, double, double, double,
+                    double, double, double);
 void            InitSolute(elem_struct []);
+# if defined(_FBR_) && defined(_TGM_)
+void            RiverElemSoluteFlow(int, int, int, elem_struct *,
+                    river_struct *);
+# else
+void            RiverElemSoluteFlow(int, int, elem_struct *, river_struct *);
+# endif
 void            SoluteTranspt(double, double, double, elem_struct [],
-    river_struct []);
+                    river_struct []);
 #endif
 
 #if defined(_BGC_)
@@ -642,11 +650,16 @@ int             IsOperToday(int, int, const soil_struct *,
     const wstate_struct *, const estate_struct *, int *, mgmt_struct *);
 void            KillCrop(int, int, const phystate_struct *, crop_struct *,
     wstate_struct *, cstate_struct *, nstate_struct *);
+void            LateralNFlow(double, const soil_struct *,
+    const wstate_struct *, const phystate_struct *, const double [], double,
+    double, double []);
 double          LinearEqmConc(double, double, double, double, double);
 double          MaxAbgdHumifFactor(double);
 double          MaxManureHumifFactor(double);
 double          MaxRhizoHumifFactor(double);
 double          MaxRootHumifFactor(double);
+double          MobileNConc(double, const double [], const soil_struct *,
+    const wstate_struct *, const phystate_struct *);
 double          Moisture(double);
 double          N2OFracNitrif(double);
 void            Nitrification(const soil_struct *, const wstate_struct *,
@@ -693,6 +706,7 @@ void            SoilCarbonBalance(const double [], const soil_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
 double          SoilWaterContent(double, double, double, double);
 double          SoilWaterPot(double, double, double, double);
+void            SoluteConc(double, elem_struct [], river_struct []);
 double          TextureFactor(double);
 double          ThermalTime(double, double, double, double);
 void            TillageFactor(double, const tillage_struct *,
@@ -701,6 +715,9 @@ void            TillageFactorSet(int , const double [], double , double []);
 double          TmpFunc(double);
 double          TmpFuncGrowth(double, double, double, double);
 double          TmpLimit(double, double, double);
+void            UpdateNProfile(double, const soil_struct *,
+    const wstate_struct *, const nstate_struct *, const nflux_struct *,
+    nstate_struct *, phystate_struct *);
 void            UpdateOperPtr(mgmt_struct *);
 double          VolatilDepthFunc(double);
 void            Volatilization(const weather_struct *, const crop_struct [],
@@ -719,11 +736,6 @@ void            ApplyFertilizer(const fixfert_struct *, cstate_struct *,
     nstate_struct *, nflux_struct *);
 double          AvgSolConc(int, double, const double [],
     const double [], const double [], double, const double []);
-void            CalcLatNFlux(double, int, const double[], const double [],
-    const double[], const double [], const double[], double, double []);
-void            UpdNProf(double, const soil_struct *, const wstate_struct *,
-    const nstate_struct *, const nflux_struct *, const nprof_struct *,
-    phystate_struct *, nstate_struct *);
 #endif
 
 #if defined(_RT_)
@@ -760,8 +772,6 @@ void            ApplyPrcpConc(const  rttbl_struct *, forc_struct *,
 void            wrap(char *);
 void            SoluteConc(const chemtbl_struct [], const rttbl_struct *,
     elem_struct [], river_struct []);
-double          AdvDiffDisp(double, double, double, double, double, double,
-    double, double, double);
 void            RTUpdate(const rttbl_struct *, elem_struct [], river_struct []);
 void            InitRTVar(const chemtbl_struct [], const rttbl_struct *,
     elem_struct [], river_struct [], N_Vector);
@@ -788,12 +798,6 @@ void            UpdatePConc(const rttbl_struct *, elem_struct [],
 void            WriteRtIc(const char *, const chemtbl_struct [],
     const rttbl_struct *, elem_struct []);
 double          SoilTempFactor(double);
-#if defined(_FBR_) && defined(_TGM_)
-void            RiverElemSoluteFlow(int, int, int, elem_struct *,
-    river_struct *);
-#else
-void            RiverElemSoluteFlow(int, int, elem_struct *, river_struct *);
-#endif
 #endif
 
 #endif

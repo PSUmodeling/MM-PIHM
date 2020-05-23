@@ -251,10 +251,10 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	cycles/cycles.c\
 	cycles/cycles_func.c\
 	cycles/init_cycles.c\
+	cycles/n_conc.c\
 	cycles/read_cycles.c\
-	transpt/init_solute.c
-	#cycles/ntransport.c\
-	#cycles/update_prof.c
+	transpt/init_solute.c\
+	transpt/solute_transpt.c
   CYCLES_SRCS_ =\
 	crop.c\
 	crop_harvest.c\

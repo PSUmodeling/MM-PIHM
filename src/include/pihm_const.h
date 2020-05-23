@@ -234,13 +234,8 @@
                                              * (umol m-2 s-1) */
 #define DENITRIF_PROPORTION     0.01        /* fraction of mineralization to
                                              * volatile */
-#if defined(_CYCLES_OBSOLETE_)
-# define MOBILEN_PROPORTION     1.0         /* fraction mineral N avail for
-                                             * leaching */
-#else
 # define MOBILEN_PROPORTION     0.1         /* fraction mineral N avail for
                                              * leaching */
-#endif
 
 /* Respiration fractions for fluxes between compartments (-) */
 #define RFL1S1                  0.39        /* transfer from litter 1 to soil 1

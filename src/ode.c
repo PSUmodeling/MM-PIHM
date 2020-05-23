@@ -42,9 +42,9 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         elem->ns.sminn = (y[SMINN(i)] >= 0.0) ? y[SMINN(i)] : 0.0;
 #endif
 
-#if defined(_CYCLES_OBSOLETE_)
-        elem->np.no3 = (y[NO3(i)] >= 0.0) ? y[NO3(i)] : 0.0;
-        elem->np.nh4 = (y[NH4(i)] >= 0.0) ? y[NH4(i)] : 0.0;
+#if defined(_CYCLES_)
+        elem->ns.no3_profile = MAX(y[SOLUTE_SOIL(i, NO3)], 0.0);
+        elem->ns.nh4_profile = MAX(y[SOLUTE_SOIL(i, NH4)], 0.0);
 #endif
 
 #if defined(_RT_)
@@ -83,12 +83,9 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 
         river->wf.rivflow[UP_CHANL2CHANL] = 0.0;
 
-#if defined(_CYCLES_OBSOLETE_)
-        river->ns.streamno3 = (y[STREAMNO3(i)] > 0.0) ? y[STREAMNO3(i)] : 0.0;
-        river->ns.bedno3 = (y[RIVBEDNO3(i)] > 0.0) ? y[RIVBEDNO3(i)] : 0.0;
-
-        river->ns.streamnh4 = (y[STREAMNH4(i)] > 0.0) ? y[STREAMNH4(i)] : 0.0;
-        river->ns.bednh4 = (y[RIVBEDNH4(i)] > 0.0) ? y[RIVBEDNH4(i)] : 0.0;
+#if defined(_CYCLES_)
+        river->ns.no3 = MAX(y[SOLUTE_RIVER(i, NO3)], 0.0);
+        river->ns.nh4 = MAX(y[SOLUTE_RIVER(i, NH4)], 0.0);
 #endif
 
 #if defined(_RT_)
@@ -119,23 +116,19 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 # endif
 #endif
 
-#if defined(_CYCLES_OBSOLETE_)
     /*
-     * NO3 and NH4 transport fluxes
+     * Calculate solute concentrations
      */
-    NTransport(t + (realtype)pihm->ctrl.tout[0] -
+#if defined(_CYCLES_)
+    SoluteConc(t + (realtype)pihm->ctrl.tout[0] -
         (realtype)pihm->ctrl.tout[pihm->ctrl.cstep], pihm->elem, pihm->river);
-#endif
-
-#if defined(_RT_)
-    /*
-     * Aqueous species transport fluxes
-     */
+#elif defined(_RT_)
     SoluteConc(pihm->chemtbl, &pihm->rttbl, pihm->elem, pihm->river);
 #endif
 
-#if defined(_BGC_) || defined(_CYCLES_OBSOLETE_)
-    SoluteTransp(0.0, 0.0, 0.0, pihm->elem, pihm->river);
+
+#if defined(_BGC_) || defined(_CYCLES_)
+    SoluteTranspt(0.0, 0.0, 0.0, pihm->elem, pihm->river);
 #elif defined(_RT_)
     SoluteTranspt(pihm->rttbl.diff_coef, pihm->rttbl.disp_coef,
         pihm->rttbl.cementation, pihm->elem, pihm->river);
@@ -218,21 +211,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         }
 #endif
 
-#if defined(_CYCLES_OBSOLETE_)
-        /*
-         * Cycles NO3 and NH4 transport fluxes
-         */
-        dy[NO3(i)] += elem->no3sol.snksrc / DAYINSEC;
-        dy[NH4(i)] += elem->nh4sol.snksrc / DAYINSEC;
-
-        for (j = 0; j < NUM_EDGE; j++)
-        {
-            dy[NO3(i)] -= elem->no3sol.flux[j] / elem->topo.area;
-            dy[NH4(i)] -= elem->nh4sol.flux[j] / elem->topo.area;
-        }
-#endif
-
-#if defined(_RT_)
+#if defined(_CYCLES_) || defined(_RT_)
         int             k;
 
         for (k = 0; k < nsolute; k++)
@@ -307,27 +286,7 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
         dy[RIVBEDN(i)] /= river->topo.area;
 #endif
 
-#if defined(_CYCLES_OBSOLETE_)
-        for (j = 0; j <= 6; j++)
-        {
-            dy[STREAMNO3(i)] -= river->no3sol.flux[j] / river->topo.area;
-            dy[STREAMNH4(i)] -= river->nh4sol.flux[j] / river->topo.area;
-        }
-
-        dy[RIVBEDNO3(i)] += -river->no3sol.flux[LEFT_AQUIF2AQUIF] -
-            river->no3sol.flux[RIGHT_AQUIF2AQUIF] -
-            river->no3sol.flux[DOWN_AQUIF2AQUIF] -
-            river->no3sol.flux[UP_AQUIF2AQUIF] + river->no3sol.flux[CHANL_LKG];
-        dy[RIVBEDNH4(i)] += -river->nh4sol.flux[LEFT_AQUIF2AQUIF] -
-            river->nh4sol.flux[RIGHT_AQUIF2AQUIF] -
-            river->nh4sol.flux[DOWN_AQUIF2AQUIF] -
-            river->nh4sol.flux[UP_AQUIF2AQUIF] + river->nh4sol.flux[CHANL_LKG];
-
-        dy[RIVBEDNO3(i)] /= river->topo.area;
-        dy[RIVBEDNH4(i)] /= river->topo.area;
-#endif
-
-#if defined(_RT_)
+#if defined(_CYCLES_) || defined(_RT_)
         int             k;
 
         for (k = 0; k < nsolute; k++)

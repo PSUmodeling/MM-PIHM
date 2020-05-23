@@ -115,14 +115,10 @@ void PIHM(pihm_struct pihm, void *cvode_mem, N_Vector CV_Y, double cputime)
 # if defined(_BGC_)
         /* Daily BGC processes */
         DailyBgc(pihm, t - DAYINSEC);
-# endif
-
-# if defined(_CYCLES_OBSOLETE_)
-        DailyCycles(t - DAYINSEC, pihm);
-# endif
 
         /* Update print variables for CN (daily) step variables */
         UpdPrintVar(pihm->print.varctrl, pihm->print.nprint, CN_STEP);
+# endif
 
         /* Initialize daily structures */
         InitDailyStruct(pihm->elem);

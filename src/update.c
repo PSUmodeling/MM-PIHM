@@ -60,12 +60,12 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
         elem[i].nt.sminn0 = elem[i].ns.sminn;
 #endif
 
-#if defined(_CYCLES_OBSOLETE_)
-        elem[i].np.no3 = (y[NO3(i)] >= 0.0) ? y[NO3(i)] : 0.0;
-        elem[i].np.nh4 = (y[NH4(i)] >= 0.0) ? y[NH4(i)] : 0.0;
+#if defined(_CYCLES_)
+        elem[i].ns.no3_profile = MAX(y[SOLUTE_SOIL(i, NO3)], 0.0);
+        elem[i].ns.nh4_profile = MAX(y[SOLUTE_SOIL(i, NH4)], 0.0);
 
-        UpdNProf(stepsize, &elem[i].soil, &elem[i].ws, &elem[i].ns0,
-            &elem[i].nf, &elem[i].np, &elem[i].ps, &elem[i].ns);
+        UpdateNProfile(stepsize, &elem[i].soil, &elem[i].ws, &elem[i].ns0,
+            &elem[i].nf, &elem[i].ns, &elem[i].ps);
 
         elem[i].ns0 = elem[i].ns;
 #endif
@@ -127,9 +127,9 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 
         river[i].ws0 = river[i].ws;
 
-#if defined(_CYCLES_OBSOLETE_)
-        river[i].ns.streamno3 = y[STREAMNO3(i)];
-        river[i].ns.streamnh4 = y[STREAMNH4(i)];
+#if defined(_CYCLES_)
+        river[i].ns.no3 = MAX(y[SOLUTE_RIVER(i, NO3)], 0.0);
+        river[i].ns.nh4 = MAX(y[SOLUTE_RIVER(i, NH4)], 0.0);
 #endif
 
 #if defined(_RT_)
