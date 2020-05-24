@@ -78,6 +78,9 @@ void ReadCyclesCtrl(const char filen[], agtbl_struct *agtbl, ctrl_struct *ctrl)
     FindLine(fp, "PRINT_CTRL", &lno, filen);
 
     NextLine(fp, cmdstr, &lno);
+    ctrl->prtvrbl[YIELD_CTRL] = ReadPrtCtrl(cmdstr, "YIELD", filen, lno);
+
+    NextLine(fp, cmdstr, &lno);
     ctrl->prtvrbl[BIOMASS_CTRL] = ReadPrtCtrl(cmdstr, "BIOMASS", filen, lno);
 
     NextLine(fp, cmdstr, &lno);

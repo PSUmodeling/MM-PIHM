@@ -601,6 +601,8 @@ typedef struct crop_struct
     int             harvest_date_final;     /* final harvest day of year (-) */
     int             harvest_count;          /* total count of harvests (-) */
     realized_crop_struct rc;
+    double          grain_yield;
+    double          forage_yield;
 } crop_struct;
 
 typedef struct plant_struct

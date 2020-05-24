@@ -635,6 +635,35 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
 # endif
 #endif
 #if defined(_CYCLES_)
+                case YIELD_CTRL:
+                    for (k = 0; k < MAXCROP && '\0' != crop[k].epc.name[0]; k++)
+                    {
+                        if (crop[k].stage_growth == NOT_USED)
+                        {
+                            continue;
+                        }
+
+                        sprintf(ext, "grain_yield.%s", crop[k].epc.name);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            CN_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &elem[j].crop[k].grain_yield;
+                        }
+                        n++;
+
+                        sprintf(ext, "forage_yield.%s", crop[k].epc.name);
+                        InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
+                            CN_STEP, nelem, &print->varctrl[n]);
+                        for (j = 0; j < nelem; j++)
+                        {
+                            print->varctrl[n].var[j] =
+                                &elem[j].crop[k].forage_yield;
+                        }
+                        n++;
+                    }
+                    break;
                 case BIOMASS_CTRL:
                     for (k = 0; k < MAXCROP && '\0' != crop[k].epc.name[0]; k++)
                     {
