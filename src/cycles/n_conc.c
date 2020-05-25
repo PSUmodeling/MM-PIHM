@@ -39,11 +39,11 @@ void SoluteConc(double dt, elem_struct elem[], river_struct river[])
 #endif
     for (i = 0; i < nriver; i++)
     {
-        river[i].solute[NO3].conc = (river[i].ws.stage > DEPTHR) ?
+        river[i].solute[NO3].conc = (river[i].ws.stage > 0.0) ?
             river[i].ns.no3 / river[i].ws.stage : 0.0;
         river[i].solute[NO3].conc = MAX(river[i].solute[NO3].conc, 0.0);
 
-        river[i].solute[NH4].conc = (river[i].ws.stage > DEPTHR) ?
+        river[i].solute[NH4].conc = (river[i].ws.stage > 0.0) ?
             river[i].ns.nh4 / river[i].ws.stage : 0.0;
         river[i].solute[NH4].conc = MAX(river[i].solute[NH4].conc, 0.0);
     }
