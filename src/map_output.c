@@ -672,7 +672,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                             continue;
                         }
 
-                        sprintf(ext, "%s.shoot", crop[k].epc.name);
+                        sprintf(ext, "shoot.%s", crop[k].epc.name);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -682,7 +682,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         }
                         n++;
 
-                        sprintf(ext, "%s.root", crop[k].epc.name);
+                        sprintf(ext, "root.%s", crop[k].epc.name);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -701,7 +701,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                             continue;
                         }
 
-                        sprintf(ext, "%s.radintcp", crop[k].epc.name);
+                        sprintf(ext, "radintcp.%s", crop[k].epc.name);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -720,7 +720,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                             continue;
                         }
 
-                        sprintf(ext, "%s.wstress", crop[k].epc.name);
+                        sprintf(ext, "wstress.%s", crop[k].epc.name);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -739,7 +739,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                             continue;
                         }
 
-                        sprintf(ext, "%s.nstress", crop[k].epc.name);
+                        sprintf(ext, "nstress.%s", crop[k].epc.name);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -758,7 +758,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                             continue;
                         }
 
-                        sprintf(ext, "%s.transp", crop[k].epc.name);
+                        sprintf(ext, "transp.%s", crop[k].epc.name);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
@@ -777,7 +777,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                             continue;
                         }
 
-                        sprintf(ext, "%s.pottransp", crop[k].epc.name);
+                        sprintf(ext, "pottransp.%s", crop[k].epc.name);
                         InitPrtVarCtrl(outputdir, ext, prtvrbl[i],
                             CN_STEP, nelem, &print->varctrl[n]);
                         for (j = 0; j < nelem; j++)
