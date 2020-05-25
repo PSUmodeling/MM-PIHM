@@ -608,6 +608,7 @@ void            DailyOper(int, int, int, weather_struct *,
 void            Denitrification(const soil_struct *, const wstate_struct *,
     const cflux_struct *, const phystate_struct *, nstate_struct *,
     nflux_struct *);
+double          DepthLimitToEvap(double);
 void            DistRootDetritus(double, double, double, double,
     const crop_struct *, const phystate_struct *, cstate_struct *,
     nstate_struct *);
@@ -705,6 +706,9 @@ double          SoilBufferPower(double, double, double);
 void            SoilCarbonBalance(const double [], const soil_struct *,
     const phystate_struct *, wstate_struct *, cstate_struct *,
     cflux_struct *, nstate_struct *, nflux_struct *);
+void            SoilEvap(double, double, const crop_struct [],
+    const soil_struct *, const phystate_struct *, wstate_struct *,
+    wflux_struct *);
 double          SoilWaterContent(double, double, double, double);
 double          SoilWaterPot(double, double, double, double);
 void            SoluteConc(double, elem_struct [], river_struct []);
@@ -728,6 +732,7 @@ void            Volatilization(const weather_struct *, const crop_struct [],
     const phystate_struct *, nstate_struct *, nflux_struct *);
 double          VolWCAt33Jkg(double, double, double);
 double          VolWCAt1500Jkg(double, double, double);
+double          WaterContentLimitToEvap(double, double, double);
 void            WaterUptake(double, const soil_struct *,
     const weather_struct *, const phystate_struct *,
     crop_struct [], wstate_struct *, wflux_struct *);

@@ -269,6 +269,7 @@ ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
 	residue.c\
 	soil.c\
 	soil_carbon.c\
+	soil_evaporation.c\
 	soil_nitrogen.c\
 	soil_solute.c\
 	tillage.c\

@@ -883,16 +883,11 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const phystate_struct *ps,
 
     if (wf->etp > 0.0)
     {
-        if (lc->shdfac < 1.0)
-        {
-            /* Retrieve direct evaporation from soil surface. Call this function
-             * only if veg cover not complete.
-             * Frozen ground version:  swc states replace smc states. */
-            DEvap(ws, wf, ps, lc, soil);
-        }
-
 #if defined(_CYCLES_)
         /* Evaporation from residue (Cycles function) */
+        SoilEvap(wf->etp * RHOH2O * DAYINSEC, ps->sncovr, crop, soil, ps, ws,
+            wf);
+
         ResidueEvap(wf->etp * RHOH2O * DAYINSEC, ps->sncovr, crop, cs, ps, ws,
             wf);
 
@@ -902,6 +897,14 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const phystate_struct *ps,
                 ws, wf);
         }
 #else
+        if (lc->shdfac < 1.0)
+        {
+            /* Retrieve direct evaporation from soil surface. Call this function
+             * only if veg cover not complete.
+             * Frozen ground version:  swc states replace smc states. */
+            DEvap(ws, wf, ps, lc, soil);
+        }
+
         if (lc->shdfac > 0.0)
         {
             /* Initialize plant total transpiration, retrieve plant
