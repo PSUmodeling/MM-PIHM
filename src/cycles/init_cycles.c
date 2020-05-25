@@ -1,8 +1,8 @@
 #include "pihm.h"
 
-void InitCycles(const agtbl_struct *agtbl, const mgmt_struct mgmttbl[],
-    const crop_struct croptbl[], const soiltbl_struct *soiltbl,
-    elem_struct elem[])
+void InitCycles(const calib_struct *cal, const agtbl_struct *agtbl,
+    const mgmt_struct mgmttbl[], const crop_struct croptbl[],
+    const soiltbl_struct *soiltbl, elem_struct elem[])
 {
     int             i;
 
@@ -22,14 +22,17 @@ void InitCycles(const agtbl_struct *agtbl, const mgmt_struct mgmttbl[],
         {
             if (k < elem[i].ps.nlayers)
             {
-                elem[i].soil.clay[k]  = soiltbl->clay_layer[soil_ind][k];
-                elem[i].soil.sand[k]  = soiltbl->sand_layer[soil_ind][k];
-                elem[i].soil.bd[k]    = soiltbl->bd_layer[soil_ind][k];
-                elem[i].soil.fc[k]    = soiltbl->fc[soil_ind][k];
-                elem[i].soil.pwp[k]   = soiltbl->pwp[soil_ind][k];
-                elem[i].soil.b[k]     = soiltbl->b[soil_ind][k];
+                elem[i].soil.clay[k] = soiltbl->clay_layer[soil_ind][k];
+                elem[i].soil.sand[k] = soiltbl->sand_layer[soil_ind][k];
+                elem[i].soil.bd[k]   = soiltbl->bd_layer[soil_ind][k];
+                elem[i].soil.fc[k]   = soiltbl->fc[soil_ind][k];
+                elem[i].soil.pwp[k]  = soiltbl->pwp[soil_ind][k];
+                elem[i].soil.b[k]    = soiltbl->b[soil_ind][k];
                 elem[i].soil.air_entry_pot[k] =
                                         soiltbl->air_entry_pot[soil_ind][k];
+
+                elem[i].soil.fc[k]  *= cal->porosity;
+                elem[i].soil.pwp[k] *= cal->porosity;
             }
             else
             {

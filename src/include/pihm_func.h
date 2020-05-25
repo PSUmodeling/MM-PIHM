@@ -642,8 +642,9 @@ void            GrowingCrop(int, int, int, const soil_struct *,
     phystate_struct *);
 void            InitAgVar(elem_struct [], river_struct [], N_Vector);
 void            InitCropStateVar(crop_struct *);
-void            InitCycles(const agtbl_struct *, const mgmt_struct [],
-    const crop_struct [], const soiltbl_struct *, elem_struct []);
+void            InitCycles(const calib_struct *, const agtbl_struct *,
+    const mgmt_struct [], const crop_struct [], const soiltbl_struct *,
+    elem_struct []);
 double          IntegRoot(double, double);
 int             IsLeapYear(int);
 int             IsOperToday(int, int, const soil_struct *,
