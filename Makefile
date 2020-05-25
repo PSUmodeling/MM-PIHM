@@ -238,9 +238,8 @@ endif
 CYCLES_PATH = ../Cycles_dev/src
 RQD_CYCLES_VERS = R0.8.0-alpha
 ifeq ($(MAKECMDGOALS),flux-pihm-cycles)
-  SFLAGS += -D_NOAH_ -D_CYCLES_ -D_DAILY_
+  SFLAGS += -D_NOAH_ -D_CYCLES_
   MODULE_SRCS_= \
-	noah/daily.c\
 	noah/lsm_func.c\
 	noah/lsm_init.c\
 	noah/lsm_read.c\
