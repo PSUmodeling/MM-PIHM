@@ -43,8 +43,8 @@ int Ode(realtype t, N_Vector CV_Y, N_Vector CV_Ydot, void *pihm_data)
 #endif
 
 #if defined(_CYCLES_)
-        elem->ns.no3_profile = MAX(y[SOLUTE_SOIL(i, NO3)], 0.0);
-        elem->ns.nh4_profile = MAX(y[SOLUTE_SOIL(i, NH4)], 0.0);
+        elem->ps.no3 = MAX(y[SOLUTE_SOIL(i, NO3)], 0.0);
+        elem->ps.nh4 = MAX(y[SOLUTE_SOIL(i, NH4)], 0.0);
 #endif
 
 #if defined(_RT_)

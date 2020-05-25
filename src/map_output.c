@@ -793,7 +793,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
-                        print->varctrl[n].var[j] = &elem[j].ns.no3_profile;
+                        print->varctrl[n].var[j] = &elem[j].ps.no3;
                     }
                     n++;
 
@@ -801,7 +801,7 @@ void MapOutput(const int *prtvrbl, const elem_struct *elem,
                         HYDROL_STEP, nelem, &print->varctrl[n]);
                     for (j = 0; j < nelem; j++)
                     {
-                        print->varctrl[n].var[j] = &elem[j].ns.nh4_profile;
+                        print->varctrl[n].var[j] = &elem[j].ps.nh4;
                     }
                     n++;
                     break;

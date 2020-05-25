@@ -61,13 +61,15 @@ void Summary(elem_struct *elem, river_struct *river, N_Vector CV_Y,
 #endif
 
 #if defined(_CYCLES_)
-        elem[i].ns.no3_profile = MAX(y[SOLUTE_SOIL(i, NO3)], 0.0);
-        elem[i].ns.nh4_profile = MAX(y[SOLUTE_SOIL(i, NH4)], 0.0);
+        elem[i].ps.no3 = MAX(y[SOLUTE_SOIL(i, NO3)], 0.0);
+        elem[i].ps.nh4 = MAX(y[SOLUTE_SOIL(i, NH4)], 0.0);
 
-        UpdateNProfile(stepsize, &elem[i].soil, &elem[i].ws, &elem[i].ns0,
-            &elem[i].nf, &elem[i].ns, &elem[i].ps);
+        UpdateNProfile(stepsize, &elem[i].soil, &elem[i].ws, &elem[i].ns,
+            &elem[i].nf, elem[i].ns.no3, elem[i].ns.nh4, &elem[i].ps);
 
         elem[i].ns0 = elem[i].ns;
+        elem[i].ps.no3_prev = elem[i].ps.no3;
+        elem[i].ps.nh4_prev = elem[i].ps.nh4;
 #endif
 
 #if defined(_RT_)

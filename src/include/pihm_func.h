@@ -717,7 +717,7 @@ double          TmpFuncGrowth(double, double, double, double);
 double          TmpLimit(double, double, double);
 void            UpdateNProfile(double, const soil_struct *,
     const wstate_struct *, const nstate_struct *, const nflux_struct *,
-    nstate_struct *, phystate_struct *);
+    double [], double [], phystate_struct *);
 void            UpdateOperPtr(mgmt_struct *);
 double          VolatilDepthFunc(double);
 void            Volatilization(const weather_struct *, const crop_struct [],

@@ -11,18 +11,27 @@ void SoluteConc(double dt, elem_struct elem[], river_struct river[])
 #endif
     for (i = 0; i < nelem; i++)
     {
+        int             k;
+        double          no3[MAXLYR];
+        double          nh4[MAXLYR];
 
-        UpdateNProfile(dt, &elem[i].soil, &elem[i].ws, &elem[i].ns0,
-            &elem[i].nf, &elem[i].ns, &elem[i].ps);
+        for (k = 0; k < MAXLYR; k++)
+        {
+            no3[k] = 0.0;
+            nh4[k] = 0.0;
+        }
+
+        UpdateNProfile(dt, &elem[i].soil, &elem[i].ws, &elem[i].ns,
+            &elem[i].nf, no3, nh4, &elem[i].ps);
 
         /* Calculate NO3 and NH4 concentrations */
         elem[i].solute[NO3].conc_surf = 0.0;
-        elem[i].solute[NO3].conc = MobileNConc(KD_NO3, elem[i].ns.no3,
-            &elem[i].soil, &elem[i].ws, &elem[i].ps);
+        elem[i].solute[NO3].conc = MobileNConc(KD_NO3, no3, &elem[i].soil,
+            &elem[i].ws, &elem[i].ps);
 
         elem[i].solute[NH4].conc_surf = 0.0;
-        elem[i].solute[NH4].conc = MobileNConc(KD_NH4, elem[i].ns.nh4,
-            &elem[i].soil, &elem[i].ws, &elem[i].ps);
+        elem[i].solute[NH4].conc = MobileNConc(KD_NH4, nh4, &elem[i].soil,
+            &elem[i].ws, &elem[i].ps);
     }
 
 #if defined(_OPENMP)
@@ -41,29 +50,27 @@ void SoluteConc(double dt, elem_struct elem[], river_struct river[])
 }
 
 void UpdateNProfile(double dt, const soil_struct *soil,
-    const wstate_struct *ws, const nstate_struct *ns0, const nflux_struct *nf,
-    nstate_struct *ns, phystate_struct *ps)
+    const wstate_struct *ws, const nstate_struct *ns, const nflux_struct *nf,
+    double no3[], double nh4[], phystate_struct *ps)
 {
     int             k;
 
     /*
     * Add source sink terms to NO3 and NH4 mass at different layers
     */
-    ns->no3[0] = ns0->no3[0] + nf->surplus / DAYINSEC * dt;
-    ns->nh4[0] = ns0->nh4[0] + nf->urine / DAYINSEC * dt;
+    no3[0] = ns->no3[0] + nf->surplus / DAYINSEC * dt;
+    nh4[0] = ns->nh4[0] + nf->urine / DAYINSEC * dt;
 
     for (k = 0; k < ps->nlayers; k++)
     {
-        ns->no3[k] = ns0->no3[k] +
-            (nf->nitrif[k] - nf->n2o_from_nitrif[k] -
-            nf->denitrif[k] - nf->no3_uptake[k] +
-            nf->no3_fert[k] + nf->no3_immobil[k]) /
+        no3[k] = ns->no3[k] +
+            (nf->nitrif[k] - nf->n2o_from_nitrif[k] - nf->denitrif[k] -
+            nf->no3_uptake[k] + nf->no3_fert[k] + nf->no3_immobil[k]) /
             DAYINSEC * dt;
 
-        ns->nh4[k] = ns0->nh4[k] +
-            (-nf->nitrif[k] - nf->volatil[k] -
-            nf->nh4_uptake[k] + nf->nh4_fert[k] +
-            nf->nh4_immobil[k] + nf->mineral[k]) /
+        nh4[k] = ns->nh4[k] +
+            (-nf->nitrif[k] - nf->volatil[k] - nf->nh4_uptake[k] +
+            nf->nh4_fert[k] + nf->nh4_immobil[k] + nf->mineral[k]) /
             DAYINSEC * dt;
     }
 
@@ -72,11 +79,11 @@ void UpdateNProfile(double dt, const soil_struct *soil,
     */
     FindWaterTable(ps->soil_depth, ps->nlayers, ws->gw, ps->satdpth);
 
-    LateralNFlow(KD_NO3, soil, ws, ps, ns0->no3, ns0->no3_profile,
-        ns->no3_profile, ns->no3);
+    LateralNFlow(KD_NO3, soil, ws, ps, ns->no3, ps->no3_prev, ps->no3,
+        no3);
 
-    LateralNFlow(KD_NH4, soil, ws, ps, ns0->nh4, ns0->nh4_profile,
-        ns->nh4_profile, ns->nh4);
+    LateralNFlow(KD_NH4, soil, ws, ps, ns->nh4, ps->nh4_prev, ps->nh4,
+        nh4);
 }
 
 void LateralNFlow(double kd, const soil_struct *soil,
@@ -91,7 +98,7 @@ void LateralNFlow(double kd, const soil_struct *soil,
     {
         weight[k] = (ps->satdpth[k] > 0.0 && solute[k] > 0.0) ?
             LinearEqmConc(kd, soil->bd[k], ps->soil_depth[k], ws->swc[k],
-            solute0[k]) * ps->satdpth[k] * ws->swc[k] * RHOH2O : 0.0;
+            solute[k]) * ps->satdpth[k] * ws->swc[k] * RHOH2O : 0.0;
     }
 
     total_weight = Profile(ps->nlayers, weight);

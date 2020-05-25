@@ -282,6 +282,16 @@ typedef struct phystate_struct
     double          comp_factor[MAXLYR];
     double          denitrif;               /* total NO3 denitrification
                                              * (Mg ha-1) */
+    double          no3;                    /* total nitrate in soil profile
+                                             * (Mg ha-1) */
+    double          nh4;                    /* total ammonium in soil profile
+                                             * (Mg ha-1) */
+    double          no3_prev;               /* total nitrate in soil profile
+                                             * from previous time step (Mg ha-1)
+                                             */
+    double          nh4_prev;               /* total ammonium in soil profile
+                                             * from previous time step (Mg ha-1)
+                                             */
 #endif
 #if defined(_NOAH_)
     double          alb;                    /* background snow-free surface
@@ -640,10 +650,6 @@ typedef struct nstate_struct
 {
     double          no3[MAXLYR];            /* nitrate (Mg ha-1) */
     double          nh4[MAXLYR];            /* ammonium (Mg ha-1) */
-    double          no3_profile;            /* total nitrate in soil profile
-                                             * (Mg ha-1) */
-    double          nh4_profile;            /* total ammonium in soil profile
-                                             * (Mg ha-1) */
     double          son[MAXLYR];            /* soil organic nitrogen (Mg ha-1)*/
     double          mbn[MAXLYR];            /* microbial biomass nitrogen
                                              * (Mg ha-1) */

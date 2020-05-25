@@ -173,27 +173,29 @@ void InitAgVar(elem_struct elem[], river_struct river[], N_Vector CV_Y)
 
         ZeroFluxes(&elem[i].wf, &elem[i].cf, &elem[i].nf);
 
-        elem[i].ns.no3_profile = Profile(elem[i].ps.nlayers, elem[i].ns.no3);
-        elem[i].ns.nh4_profile = Profile(elem[i].ps.nlayers, elem[i].ns.nh4);
+        elem[i].ps.no3 = Profile(elem[i].ps.nlayers, elem[i].ns.no3);
+        elem[i].ps.nh4 = Profile(elem[i].ps.nlayers, elem[i].ns.nh4);
 
-        NV_Ith(CV_Y, SOLUTE_SOIL(i, NO3)) = elem[i].ns.no3_profile;
-        NV_Ith(CV_Y, SOLUTE_SOIL(i, NH4)) = elem[i].ns.nh4_profile;
+        NV_Ith(CV_Y, SOLUTE_SOIL(i, NO3)) = elem[i].ps.no3;
+        NV_Ith(CV_Y, SOLUTE_SOIL(i, NH4)) = elem[i].ps.nh4;
 
         elem[i].ns0 = elem[i].ns;
+        elem[i].ps.no3_prev = elem[i].ps.no3;
+        elem[i].ps.nh4_prev = elem[i].ps.nh4;
     }
 
     for (i = 0; i < nriver; i++)
     {
         river[i].ns.no3 = 0.5 *
-            (elem[river[i].leftele - 1].ns.no3_profile /
+            (elem[river[i].leftele - 1].ps.no3 /
                 elem[river[i].leftele - 1].soil.depth +
-            elem[river[i].rightele - 1].ns.nh4_profile /
+            elem[river[i].rightele - 1].ps.no3 /
                 elem[river[i].rightele - 1].soil.depth) * river[i].ws.stage;
 
         river[i].ns.nh4 = 0.5 *
-            (elem[river[i].leftele - 1].ns.nh4_profile /
+            (elem[river[i].leftele - 1].ps.nh4 /
                 elem[river[i].leftele - 1].soil.depth +
-            elem[river[i].rightele - 1].ns.nh4_profile /
+            elem[river[i].rightele - 1].ps.nh4 /
                 elem[river[i].rightele - 1].soil.depth) * river[i].ws.stage;
 
         NV_Ith(CV_Y, SOLUTE_RIVER(i, NO3)) = river[i].ns.no3;
