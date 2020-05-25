@@ -83,7 +83,7 @@ def read_output(simulation, outputdir, ext):
         unit = 'm'
     elif ext == 'unsat':
         dim = num_elem
-        varname = 'Unsatureted zone storage'
+        varname = 'Unsaturated zone storage'
         unit = 'm'
     elif ext == 'gw':
         dim = num_elem
@@ -135,7 +135,7 @@ def read_output(simulation, outputdir, ext):
         unit = 'm$^3$ s$^{-1}$'
     elif ext[0:7] == 'surfflx':
         dim = num_elem
-        varname = 'Surface flux ' + ext[6]
+        varname = 'Surface flux ' + ext[7]
         unit = 'm$^3$ s$^{-1}$'
     elif ext == 't1':
         dim = num_elem
@@ -265,6 +265,70 @@ def read_output(simulation, outputdir, ext):
         dim = num_elem
         varname = 'Soil mineral nitrogen'
         unit = 'kgN m$^{-2}$'
+    elif ext[0:11] == 'grain_yield':
+        dim = num_elem
+        varname = 'Grain yield ' + ext[12:]
+        unit = 'Mg ha$^{-1}$'
+    elif ext[0:12] == 'forage_yield':
+        dim = num_elem
+        varname = 'Forage yield ' + ext[13:]
+        unit = 'Mg ha$^{-1}$'
+    elif ext[0:5] == 'shoot':
+        dim = num_elem
+        varname = 'Shoot biomass ' + ext[6:]
+        unit = 'Mg ha$^{-1}$'
+    elif ext[0:4] == 'root':
+        dim = num_elem
+        varname = 'Root biomass ' + ext[5:]
+        unit = 'Mg ha$^{-1}$'
+    elif ext[0:8] == 'radintcp':
+        dim = num_elem
+        varname = 'Radiation interception ' + ext[9:]
+        unit = '-'
+    elif ext[0:7] == 'wstress':
+        dim = num_elem
+        varname = 'Water stress ' + ext[8:]
+        unit = '-'
+    elif ext[0:7] == 'nstress':
+        dim = num_elem
+        varname = 'N stress ' + ext[8:]
+        unit = '-'
+    elif ext[0:6] == 'transp':
+        dim = num_elem
+        varname = 'Transpiration ' + ext[7:]
+        unit = 'mm day$^{-1}$'
+    elif ext[0:9] == 'pottransp':
+        dim = num_elem
+        varname = 'Potential transpiration ' + ext[10:]
+        unit = 'mm day$^{-1}$'
+    elif ext == 'NO3':
+        dim = num_elem
+        varname = 'Soil profile NO$_3$'
+        unit = 'Mg ha$^{-1}$'
+    elif ext == 'NH4':
+        dim = num_elem
+        varname = 'Soil profile NH$_4$'
+        unit = 'Mg ha$^{-1}$'
+    elif ext == 'river_NO3':
+        dim = num_rivers
+        varname = 'River NO$_3$'
+        unit = 'Mg ha$^{-1}$'
+    elif ext == 'river_NH4':
+        dim = num_rivers
+        varname = 'River NH$_4$'
+        unit = 'Mg ha$^{-1}$'
+    elif ext == 'denitrif':
+        dim = num_elem
+        varname = 'Denitrification'
+        unit = 'Mg ha$^{-1}$'
+    elif ext == 'NO3_leaching':
+        dim = num_rivers
+        varname = 'NO$_3$ leaching'
+        unit = '0.1 kg s$^{-1}$'
+    elif ext == 'NH4_leaching':
+        dim = num_rivers
+        varname = 'NH$_4$ leaching'
+        unit = '0.1 kg s$^{-1}$'
     elif ext == 'deepunsat':
         dim = num_elem
         varname = 'Deep layer unsaturated storage'
@@ -283,11 +347,11 @@ def read_output(simulation, outputdir, ext):
         unit = 'm s$^{-1}$'
     elif ext[0:8] == 'deepflow':
         dim = num_elem
-        varname = 'Deep layer lateral flow ' + ext[8:]
+        varname = 'Deep layer lateral flow ' + ext[9:]
         unit = 'm$^3$ s$^{-1}$'
     elif ext[0:4]== 'conc':
         dim = num_elem
-        varname = ext[8:] + ' concentration'
+        varname = ext[5:] + ' concentration'
         unit = 'mol L$^{-1}$'
     elif ext[0:9] == 'deep_conc':
         dim = num_elem
