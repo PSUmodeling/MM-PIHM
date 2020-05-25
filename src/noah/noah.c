@@ -102,9 +102,9 @@ void NoahHydrol(elem_struct *elem, double dt)
 
         SmFlx(&elem[i].ws, &elem[i].wf, &elem[i].ps, &elem[i].soil, dt);
 
-#if defined(_CYCLES_OBSOLETE_)
+#if defined(_CYCLES_)
         double          wflux[MAXLYR + 1];
-        k
+
         /*
          * Calcluate vertical transport of solute
          */
@@ -131,11 +131,11 @@ void NoahHydrol(elem_struct *elem, double dt)
             wflux[k + 1] = elem[i].wf.smflx[k] * RHOH2O * dt;
         }
 
-        SoluteTransport(elem[i].ps.nlayers, 0.0, 0.0, wflux, elem[i].soil.bd,
-            elem[i].ps.soil_depth, elem[i].ws.smc, elem[i].ns.no3);
+        SoluteTransp(KD_NO3, 0.0, wflux, elem[i].ws.smc, &elem[i].soil,
+            &elem[i].ps, elem[i].ns.no3);
 
-        SoluteTransport(elem[i].ps.nlayers, 5.6, 0.0, wflux, elem[i].soil.bd,
-            elem[i].ps.soil_depth, elem[i].ws.smc, elem[i].ns.nh4);
+        SoluteTransp(KD_NH4, 0.0, wflux, elem[i].ws.smc, &elem[i].soil,
+            &elem[i].ps, elem[i].ns.nh4);
 
 # if defined(_DEBUG_)
     for (k = 0; k < elem[i].ps.nlayers; k++)

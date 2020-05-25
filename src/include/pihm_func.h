@@ -707,6 +707,8 @@ void            SoilCarbonBalance(const double [], const soil_struct *,
 double          SoilWaterContent(double, double, double, double);
 double          SoilWaterPot(double, double, double, double);
 void            SoluteConc(double, elem_struct [], river_struct []);
+void            SoluteTransp(double, double, const double [], const double [],
+    const soil_struct *, const phystate_struct *, double []);
 double          TextureFactor(double);
 double          ThermalTime(double, double, double, double);
 void            TillageFactor(double, const tillage_struct *,
