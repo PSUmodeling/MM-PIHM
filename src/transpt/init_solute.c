@@ -1,12 +1,12 @@
 #include "pihm.h"
 
-#if defined(_OPENMP)
-# pragma omp parallel for
-#endif
 void InitSolute(elem_struct elem[])
 {
     int             i;
 
+#if defined(_OPENMP)
+# pragma omp parallel for
+#endif
     for (i = 0; i < nelem; i++)
     {
         int             j, k;
