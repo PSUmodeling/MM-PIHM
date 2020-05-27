@@ -893,8 +893,8 @@ void Evapo(const wstate_struct *ws, wflux_struct *wf, const phystate_struct *ps,
 
         if (NumActiveCrop(crop) > 0)
         {
-            WaterUptake(wf->etp * RHOH2O * DAYINSEC, soil, weather, ps, crop,
-                ws, wf);
+            WaterUptake(ps->pc * wf->etp * RHOH2O * DAYINSEC, soil, weather, ps,
+                crop, ws, wf);
         }
 #else
         if (lc->shdfac < 1.0)
