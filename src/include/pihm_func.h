@@ -647,6 +647,7 @@ void            InitCycles(const calib_struct *, const agtbl_struct *,
     const mgmt_struct [], const crop_struct [], const soiltbl_struct *,
     elem_struct []);
 double          IntegRoot(double, double);
+int             InTimeWindow(int, int, int);
 int             IsLeapYear(int);
 int             IsOperToday(int, int, const soil_struct *,
     const wstate_struct *, const estate_struct *, int *, mgmt_struct *);
@@ -682,7 +683,7 @@ void            PotSoluteUptake(double, const double [], const soil_struct *,
 void            Processes(int, crop_struct [], const soil_struct *,
     const weather_struct *, wstate_struct *, wflux_struct *, cstate_struct *,
     nstate_struct *, nflux_struct *, phystate_struct *);
-double          Profile(int, double []);
+double          Profile(int, const double []);
 void            RadIntcp(crop_struct []);
 void            ReadCrop(const char [], crop_struct []);
 void            ReadCyclesCtrl(const char [], agtbl_struct *, ctrl_struct *);
@@ -704,8 +705,8 @@ double          SatVP(double);
 double          ShootBiomassPartn(int, double, double, double);
 double          SoilBufferPower(double, double, double);
 void            SoilCarbonBalance(const double [], const soil_struct *,
-    const phystate_struct *, wstate_struct *, cstate_struct *,
-    cflux_struct *, nstate_struct *, nflux_struct *);
+    const crop_struct [], const phystate_struct *, wstate_struct *,
+    cstate_struct *, cflux_struct *, nstate_struct *, nflux_struct *);
 void            SoilEvap(double, double, const crop_struct [],
     const soil_struct *, const phystate_struct *, wstate_struct *,
     wflux_struct *);
